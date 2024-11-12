@@ -32,7 +32,7 @@
      &                         IADR15, IPR, lRoots, lSquare,
      &                         NAC, NACPAR, NACPR2, nFint, NonEq,
      &                         nTot4, PotNuc,
-     &                         Tot_Nuc_Charge, ISTORP
+     &                         ISTORP
       use general_data,only:nash,norb,nsym,ntot2,ntot1,jobiph,ispin,
      &              jobold,nactel,nbas,nish,nfro
       implicit none
@@ -52,39 +52,20 @@
      &                      OnTopT(:), OnTopO(:),
      &                      TUVX_tmp(:),
      &                      P(:), FOCK(:), Q(:), Coul(:)
-      real(kind=wp),allocatable :: int1e_ovlp(:), hcore(:)
+      real(kind=wp),allocatable :: hcore(:)
+      integer(kind=iwp), external :: get_charge
       integer(kind=iwp) :: IAD19,iJOB,dmDisk, IADR19(1:30)
-      integer(kind=iwp) :: jroot,NQ, isym,i, iCharge, iComp
+      integer(kind=iwp) :: jroot,NQ, isym,i, charge, iComp
       integer(kind=iwp) :: iOpt,  iPrLev,irc, iSA, iSyLbl
-      integer(kind=iwp) :: niaia, tot_el_charge
+      integer(kind=iwp) :: niaia
       real(kind=wp), external :: energy_mcwfn
       real(kind=wp) :: casdft_e, casdft_funct, e_mcscf
       real(kind=wp) :: Energies(nroots)
 
       IPRLEV=IPRLOC(3)
 
-
-!**********************************************************
-! Generate molecular charges
-!**********************************************************
-      call mma_allocate(int1e_ovlp,nTot1+4,label="int1e_ovlp")
-      iRc=-1
-      iOpt=ibset(0,sNoOri)
-      iComp=1
-      iSyLbl=1
-      Label='Mltpl  0'
-      Call RdOne(iRc,iOpt,Label,iComp,int1e_ovlp,iSyLbl)
-      If ( iRc.ne.0 ) then
-        Write(u6,*) 'msctl: iRc from Call RdOne not 0'
-        Write(u6,*) 'Label = ',Label
-        Write(u6,*) 'iRc = ',iRc
-        Call Abend
-      Endif
-      ! nuclear charge stored in last element
-      Tot_Nuc_Charge=int1e_ovlp(size(int1e_ovlp))
-      call mma_deallocate(int1e_ovlp)
-      Tot_El_Charge=-2*sum(nFro+nIsh)-nActEl
-      icharge = nint(Tot_Nuc_Charge)+Tot_El_Charge
+      ! Molecular charge
+      charge = get_charge()
 
 
 !**********************************************************
@@ -274,7 +255,7 @@
 
         Call DrvXV(dummy1,dummy2,Tmp3,
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
-     &             mcpdft_options%otfnal%otxc,ExFac,iCharge,iSpin,
+     &             mcpdft_options%otfnal%otxc,ExFac,charge,iSpin,
      &             DFTFOCK,Do_DFT)
 
         Call mma_deallocate(dummy1)
