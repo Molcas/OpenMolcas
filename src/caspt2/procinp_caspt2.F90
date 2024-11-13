@@ -26,6 +26,7 @@ subroutine procinp_caspt2
   use Para_Info, only:Is_Real_Par, nProcs
 #endif
 #ifdef _DMRG_
+  use stdalloc, only:mma_allocate
   use qcmaquis_info, only:qcm_group_names
   use qcmaquis_interface_cfg
   use qcmaquis_interface, only:qcmaquis_interface_init_checkpoint, &

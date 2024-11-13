@@ -16,13 +16,11 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
 
   use stdalloc, only:mma_allocate,mma_deallocate
   use qcmaquis_interface
-  use qcmaquis_interface_mpssi
   use definitions, only:wp,iwp,i1
   use gugx, only:SGS
 
   implicit none
 
-#include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
 
@@ -110,10 +108,11 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   if (allocated(G3tmp)) deallocate(G3tmp)
   if (allocated(TG3tmp)) deallocate(TG3tmp)
   ! call mma_deallocate(G4)
-
 end subroutine mkfg3qcm
+
 #elif defined (NAGFOR)
 ! Some compilers do not like empty files
       subroutine empty_mkfg3qcm()
       end subroutine empty_mkfg3qcm
 #endif
+
