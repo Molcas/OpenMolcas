@@ -21,14 +21,13 @@
       use mspdftgrad,only:P2MOT,D1aoMS,DIDA,D1SaoMS
       use printlevel, only: debug
       use mcpdft_output, only:iPrLoc
-      use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
       use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2,
      &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       use libxc_parameters, only: FuncExtParams
-      use rasscf_global, only: DFTFOCK, nRoots, ExFac,
+      use rasscf_global, only: nRoots,
      &                         IADR15, lRoots,
-     &                         NAC, NACPAR, NACPR2, NonEq,
+     &                         NAC, NACPAR, NACPR2,
      &                         PotNuc
       use general_data,only:nash,norb,nsym,ntot2,ntot1,jobiph,ispin,
      &              jobold,nactel,nbas,nish,nfro
@@ -37,10 +36,10 @@
       real(kind=wp),intent(inout) :: Ref_Ener(*)
       real(kind=wp),intent(in) :: CMO(*)
 
-      Logical First, Dff, Do_DFT,Found
+      Logical Found
 
       real*8, allocatable:: folded_dm1(:), folded_dm1_cas(:),
-     &                      dummy1(:), dummy2(:), folded_dm1s(:),
+     &                       folded_dm1s(:),
      &                      dm1_core(:), casdm1(:),
      &                      dm1_cas(:), dm1s(:),
      &                      casdm1s(:), P2D(:), P2t(:),
@@ -146,7 +145,6 @@
         Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
 
         Call Put_dArray('D1mo',casdm1,NACPAR)
-        Call Put_dArray('P2mo',P2d,NACPR2)
 
 !**********************************************************
 ! Generate total density
@@ -168,8 +166,6 @@
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
-         Call Put_dArray('D1ao',folded_dm1,nTot1)
-         Call Put_dArray('D1sao',folded_dm1s,nTot1)
 
          ! save things for MSPDFT gradients
          IF(mcpdft_options%grad.and.mcpdft_options%mspdft)THEN
@@ -182,28 +178,6 @@
          END IF
 
 
-
-!**********************************************************
-! Calculation of the CASDFT_energy
-!**********************************************************
-!Perhaps ideally, we should rework how DrvXV (and its children) handles
-!the AO to MO transformation on the grid.  It seems like perhaps we are
-!doing redundant transformations by retransforming AOs (which may have
-!been included in a previous batch) into MOs.
-! dummy1 and dummy2 are not updated in DrvXV...
-        Call mma_allocate(dummy1,nTot1,Label='dummy1')
-        Call mma_allocate(dummy2,nTot1,Label='dummy2')
-        dummy1(:)=zero
-        dummy2(:)=zero
-        First=.True.
-        Dff=.False.
-        Do_DFT=.True.
-
-        Call Put_iArray('nFro',nFro,nSym)
-        Call Put_iArray('nAsh',nAsh,nSym)
-        Call Put_iArray('nIsh',nIsh,nSym)
-
-
       do_pdftPot=.false.
       if (mcpdft_options%grad .and.
      &    (mcpdft_options%mspdft .or.
@@ -213,15 +187,8 @@
 
       end if
 
-        Call DrvXV(dummy1,dummy2,folded_dm1,
-     &             PotNuc,nTot1,First,Dff,NonEq,lRF,
-     &             mcpdft_options%otfnal%otxc,ExFac,charge,iSpin,
-     &             DFTFOCK,Do_DFT)
-
-        Call mma_deallocate(dummy1)
-        Call mma_deallocate(dummy2)
-
-        Call Get_dScalar('CASDFT energy',CASDFT_Funct)
+      casdft_funct = mcpdft_options%otfnal%energy_ot(
+     &                 folded_dm1,folded_dm1s,casdm1,P2d,charge)
 
       call get_coulomb(cmo,dm1_core,dm1_cas,coul)
 
