@@ -131,9 +131,6 @@
 ! the Fock matrices FI and FA
       Call Timing(dum1,dum2,Fortis_1,dum3)
 
-      IPR=0
-      IF(IPRLOC(2).EQ.debug) IPR=5
-      IF(IPRLOC(2).EQ.insane) IPR=10
 
 
 
@@ -150,6 +147,9 @@
         Call mma_allocate(TUVX,NACPR2,Label='TUVX')
         D1I(:) = zero
         D1A(:) = zero
+        IPR=0
+        IF(IPRLOC(2).EQ.debug) IPR=5
+        IF(IPRLOC(2).EQ.insane) IPR=10
       CALL TRACTL2(CMO,PUVX,TUVX,D1I,
      &             FI,D1A,FA,IPR,lSquare,ExFac)
         CALL Put_dArray('TwoEIntegral    ',PUVX,nFINT)
