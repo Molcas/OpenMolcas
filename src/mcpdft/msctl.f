@@ -22,8 +22,6 @@
       use printlevel, only: debug
       use mcpdft_output, only:iPrLoc
       use stdalloc, only: mma_allocate, mma_deallocate
-      use nq_info, only: Tau_a1, Tau_b1, Tau_a2, Tau_b2,
-     &                   Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
       use libxc_parameters, only: FuncExtParams
       use rasscf_global, only: nRoots,
      &                         IADR15, lRoots,
@@ -113,15 +111,6 @@
 !We loop over the number of states.  For each state, we read the density
 !matrices from the JOBIPH file.
       do jroot=1,lroots
-        Tau_a1  = Zero
-        Tau_b1  = Zero
-        Tau_a2  = Zero
-        Tau_b2  = Zero
-        Lapl_a1 = Zero
-        Lapl_b1 = Zero
-        Lapl_a2 = Zero
-        Lapl_b2 = Zero
-
 !Read in the density matrices for <jroot>.
         casdm1(:)=zero
         dm1_cas(:)=zero
@@ -144,6 +133,9 @@
         ! states densities
         Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
 
+        ! This should be in energy_ot() but it gets
+        ! modified in dblock. But also, why do we need
+        ! this in the DFT section???
         Call Put_dArray('D1mo',casdm1,NACPAR)
 
 !**********************************************************
@@ -251,7 +243,6 @@
       if (mcpdft_options%mspdft) then
        call savefock_mspdft(CMO,hcore,coul,casdm1,NQ,p2d,jroot)
       end if
-
 
       endif
 
