@@ -10,11 +10,11 @@
 *                                                                      *
 * Copyright (C) 1998, Per Ake Malmqvist                                *
 ************************************************************************
+      SUBROUTINE STINI()
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_set_state
       use iso_c_binding, only: c_int
 #endif
-      SUBROUTINE STINI()
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF, PREF
       use PrintLevel, only: debug, usual
