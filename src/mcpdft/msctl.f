@@ -28,7 +28,7 @@
      &                         NAC, NACPAR, NACPR2,
      &                         PotNuc
       use general_data,only:nash,norb,nsym,ntot2,ntot1,jobiph,ispin,
-     &              jobold,nactel,nbas,nish,nfro
+     &              jobold,nbas,nish
       implicit none
 
       real(kind=wp),intent(inout) :: Ref_Ener(*)

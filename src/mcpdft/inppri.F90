@@ -24,7 +24,7 @@ subroutine InpPri_m()
   use mcpdft_input,only:mcpdft_options
   use definitions,only:iwp,wp,u6
   use rasscf_global,only:NAC,NFR,NIN,NONEQ,NROOTS,NSEC,header
-  use general_data,only:nfro,nish,ndel,nbas,nash,nrs1,nrs2,nrs3,ispin,nactel,nconf,nelec3,nhole1,nsym,ntot1,stsym,nssh
+  use general_data,only:nfro,nish,ndel,nbas,nash,nrs1,nrs2,nrs3,ispin,nactel,nconf,nelec3,nhole1,nsym,stsym,nssh
   implicit none
 
   Character(len=8) :: Fmt1,Fmt2

@@ -22,8 +22,8 @@
       use general_data,only:norb,nash,nssh,ndel,nish,nfro,nrs3,
      &                      nrs2,nrs1,nbas,nconf,nelec3,nhole1,
      &                      nactel,stsym,ispin,ntotsp,ntot2,ntot1,nsym,
-     &                      ndelt,invec,jobiph,jobold,nfrot,nrs1t,nrs2t,
-     &                      nrs3t,ntot
+     &                      invec, jobiph, jobold, ndelt, nrs1t, nrs2t,
+     &                      nrs3t, ntot
 
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_exists_attr,
@@ -46,12 +46,9 @@
 
 #ifdef _HDF5_
 ! Local NBAS_L, NORB_L .. avoid collision with items in common.
-      integer, DIMENSION(8) :: NFRO_L,NISH_L,NRS1_L,NRS2_L
-      integer, DIMENSION(8) :: NRS3_L,NSSH_L,NDEL_L
       character(len=1), allocatable :: typestring(:)
       integer, DIMENSION(8) :: NBAS_L
-      integer :: mh5id
-      integer :: nsym_l
+      integer :: mh5id, nsym_l
       logical :: err
 #endif
 
@@ -70,7 +67,7 @@
 
       integer irc, i, iad19
       integer iorbdata, isym
-      integer nisht, nasht, ndiff
+      integer ndiff
       integer, external :: isStructure
 
       Call StatusLine('MCPDFT: ','Processing Input')
@@ -219,9 +216,9 @@
           call mh5_fetch_dset(mh5id, 'MO_TYPEINDICES', typestring)
           call tpstr2orb(nSym,nbas_l,
      $            typestring,
-     $            nFro_L,nISh_L,
-     $            NRS1_L,NRS2_L,NRS3_L,
-     $            nSSh_L,nDel_L)
+     $            nfro,nish,
+     $            NRS1,NRS2,NRS3,
+     $            nSSh,nDel)
           call mma_deallocate(typestring)
         else
           write (u6,*)'The HDF5 ref file does not contain TYPEindices.'
@@ -246,29 +243,13 @@
 
         call mh5_close_file(mh5id)
 #else
-        write (6,*) 'The format of the start orbital file was'
-        write (6,*) 'specified by the user as HDF5, but this'
-        write (6,*) 'is not implemented in this installation.'
+        write (u6,*) 'The format of the start orbital file was'
+        write (u6,*) 'specified by the user as HDF5, but this'
+        write (u6,*) 'is not implemented in this installation.'
         call Quit(_RC_INPUT_ERROR_)
 #endif
       End If
 
-* =======================================================================
-#ifdef _HDF5_
-      !> transfer orbital space data read from HDF5 file
-      IF(IORBDATA.eq.3) THEN
-        DO ISYM=1,NSYM
-          NFRO(ISYM)=NFRO_L(ISYM)
-          NISH(ISYM)=NISH_L(ISYM)
-          NRS1(ISYM)=NRS1_L(ISYM)
-          NRS2(ISYM)=NRS2_L(ISYM)
-          NRS3(ISYM)=NRS3_L(ISYM)
-          NSSH(ISYM)=NSSH_L(ISYM)
-          NDEL(ISYM)=NDEL_L(ISYM)
-        END DO
-      END IF
-#endif
-* =======================================================================
       iprlev=insane
 
 !> read orbital space data AND CI optimiation parameters from JOBIPH
@@ -340,10 +321,10 @@
       NTOT1=0
       NTOT2=0
       NO2M=0
-      NISHT=0
-      NASHT=0
+      nin=0
+      nac=0
       NDELT=0
-      NFROT=0
+      nfr=0
       NSEC=0
       NORBT=0
       NTOT3=0
@@ -352,7 +333,7 @@
       NRS1T=0 ! for RASSCF
       NRS2T=0
       NRS3T=0
-c      Call FZero(NGSSH_tot,ngas)
+c     ngssh_tot(:) = zero
 c      do igas=1,ngas
 c        NGSSH_tot(igas) = SUM(NGSSH(IGAS,1:NSYM))
 c      end do
@@ -364,9 +345,9 @@ c      end do
          NRS1T=NRS1T+NRS1(ISYM)  ! for RAS
          NRS2T=NRS2T+NRS2(ISYM)
          NRS3T=NRS3T+NRS3(ISYM)
-         NFROT=NFROT+NFRO(ISYM)
-         NISHT=NISHT+NISH(ISYM)
-         NASHT=NASHT+NASH(ISYM)
+         nfr=nfr+NFRO(ISYM)
+         nin=nin+NISH(ISYM)
+         nac=nac+NASH(ISYM)
          NDELT=NDELT+NDEL(ISYM)
          NSEC=NSEC+NSSH(ISYM)
          NORBT=NORBT+NORB(ISYM)
@@ -374,13 +355,8 @@ c      end do
          NTOTSP=NTOTSP+(NASH(ISYM)*(NASH(ISYM)+1)/2)
          NTOT4=NTOT4+NORB(ISYM)**2
       END DO
-      NACPAR=(NASHT+NASHT**2)/2
+      NACPAR=(nac+nac**2)/2
       NACPR2=(NACPAR+NACPAR**2)/2
-* NASHT is called NAC in some places:
-      NAC=NASHT
-* Same, NISHT, NIN:
-      NIN=NISHT
-      NFR=NFROT
 
 
 !Considerations for gradients/geometry optimizations
@@ -392,24 +368,28 @@ c      end do
          DNG = iDNG.eq.1
       End If
       DNG = (.not. mcpdft_options%grad) .or.DNG
-*
-*     Inside LAST_ENERGY we do not need analytical gradients
-      If (SuperName(1:11).eq.'last_energy') DNG=.true.
-*
-*     Inside NUMERICAL_GRADIENT override input!
-      If (SuperName(1:18).eq.'numerical_gradient') DNG=.true.
-*
-*
+
+      ! Inside LAST_ENERGY or NUMERICAL GRADIENT
+      ! we do not need analytical gradients
+      If (SuperName(1:11).eq.'last_energy' .or.
+     &    SuperName(1:18).eq.'numerical_gradient') then
+        DNG=.true.
+      endif
+
+
       If (DNG) Then
          mcpdft_options%grad = .false.
       End If
-*
-*     Check to see if we are in a Do While loop
+
+      ! The following doesn't make sense
+      ! If we are in a Do While loop, we shouldn't just
+      ! turn on gradients if they weren't requested
+      ! Check to see if we are in a Do While loop
       If ((isStructure().eq.1).and.(.not.DNG)) Then
         mcpdft_options%grad = .true.
       End If
 
-*---  Initialize Cholesky information if requested
+      ! Initialize Cholesky information if requested
       if (DoCholesky) then
          Call Cho_X_init(irc,ChFracMem)
          if (irc.ne.0) Go To 9930
@@ -429,12 +409,10 @@ c      end do
 *
       If (DBG) Then
         write(u6,*)' Call ChkInp.'
-        Call XFlush(6)
       End If
       Call ChkInp_m()
 * ===============================================================
 
-      NCONF=1
       Go to 9000
 
 !---  Error exits -----------------------------------------------------*
