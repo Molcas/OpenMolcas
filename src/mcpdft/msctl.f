@@ -66,7 +66,7 @@
       Call Get_D1I_RASSCF(CMO,dm1_core)
 
       if(mcpdft_options%grad .and. mcpdft_options%mspdft) then
-        Call Fold(nSym,nBas,dm1_core,DIDA(:,lroots+1))
+        Call Fold2(nSym,nBas,dm1_core,DIDA(:,lroots+1))
       endif
 
       iJOB=0
@@ -161,7 +161,7 @@
 
          ! save things for MSPDFT gradients
          IF(mcpdft_options%grad.and.mcpdft_options%mspdft)THEN
-           DIDA(:,jroot) = folded_dm1_cas(:)
+            call fold2(nsym,nbas,dm1_cas, DIDA(:,jroot))
            d1aoms(:,jroot) = folded_dm1(:)
            Call P2_contraction(casdm1,P2MOt(:,jroot))
            if (ispin /= 1) then
