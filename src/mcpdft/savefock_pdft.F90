@@ -11,7 +11,7 @@
 ! Copyright (C) 2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 
-subroutine savefock_pdft(cmo,hcore,coul,d1act,nq,p2d)
+subroutine savefock_pdft(cmo,h1e,d1act,nq,p2d)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use stdalloc,only:mma_allocate,mma_deallocate
@@ -21,19 +21,18 @@ subroutine savefock_pdft(cmo,hcore,coul,d1act,nq,p2d)
 
   implicit none
 
-  real(kind=wp),intent(in) :: cmo(*),hcore(*),coul(*),d1act(*),p2d(*)
+  real(kind=wp),intent(in) :: cmo(*),h1e(*),d1act(*),p2d(*)
   integer(kind=iwp),intent(in) :: nq
 
-  real(kind=wp),allocatable :: ontopo(:),ontopt(:),h1e(:),tuvx_tmp(:),fi_v(:),fa_v(:),dm2(:),fock(:),q(:)
-  call mma_allocate(h1e,ntot1,label='h1e')
+  real(kind=wp),allocatable :: ontopo(:),ontopt(:),h1e_mo(:),tuvx_tmp(:),fi_v(:),fa_v(:),dm2(:),fock(:),q(:)
+  call mma_allocate(h1e_mo,ntot1,label='h1e_mo')
   call mma_allocate(fock,ntot4,label='fock')
 
   fock(:) = zero
 
   write(u6,'(2X,A)') 'Calculating potentials for analytical gradients for MC-PDFT'
 
-  h1e(:) = hcore(:ntot1)+coul(:ntot1)
-  call ao2mo_1e(cmo,h1e,h1e,nsym,nbas,norb,nfro)
+  call ao2mo_1e(cmo,h1e,h1e_mo,nsym,nbas,norb,nfro)
 
   ! Loading 1e and 2e potentials
   call mma_allocate(ontopt,nfint,label='ontopt')
@@ -53,7 +52,7 @@ subroutine savefock_pdft(cmo,hcore,coul,d1act,nq,p2d)
   call get_darray('FI_V',fi_v,size(fi_v))
   call get_darray('FA_V',fa_v,size(fa_v))
 
-  fi_v(:) = fi_v(:)+ontopo(:)+h1e(:)
+  fi_v(:) = fi_v(:)+ontopo(:)+h1e_mo(:)
   call put_darray('F1_PDFT         ',fi_v(:),ntot1)
 
   ! Now we generate generalized fock operator and fockocc
@@ -75,7 +74,7 @@ subroutine savefock_pdft(cmo,hcore,coul,d1act,nq,p2d)
 
   call mma_deallocate(q)
   call mma_deallocate(fock)
-  call mma_deallocate(h1e)
+  call mma_deallocate(h1e_mo)
   call mma_deallocate(fi_v)
   call mma_deallocate(fa_v)
   call mma_deallocate(ontopo)

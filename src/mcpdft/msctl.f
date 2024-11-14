@@ -225,7 +225,7 @@
      &   .and. jroot .eq. mcpdft_options%rlxroot) then
 
 
-          call savefock_pdft(cmo,hcore,coul,casdm1,nq,p2d)
+          call savefock_pdft(cmo,hcore(:)+coul(:),casdm1,nq,p2d)
 
 !Put some information on the runfile for possible gradient calculations.
       Call Put_iScalar('Number of roots',nroots)
@@ -241,7 +241,7 @@
       end if
 
       if (mcpdft_options%mspdft) then
-       call savefock_mspdft(CMO,hcore,coul,casdm1,NQ,p2d,jroot)
+       call savefock_mspdft(CMO,hcore(:)+coul(:),casdm1,NQ,p2d,jroot)
       end if
 
       endif
