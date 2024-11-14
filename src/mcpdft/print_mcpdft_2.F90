@@ -13,8 +13,9 @@
 ! History:                                                             *
 !   2018 S Dong - added print outs related to scaling                  *
 !***********************************************************************
-subroutine print_MCPDFT_2(CASDFT_E,E_nuc,E_cas,E_ot,jroot,Ref_Ener)
+subroutine print_MCPDFT_2(E_nuc,E_cas,E_ot,state,e_mcscf)
   use definitions,only:wp,iwp,u6
+  use constants,only:zero,one
   use KSDFT_Info,only:CoefR,CoefX,Funcaa,Funcbb,Funccc
   use nq_Info,only:Dens_a1,Dens_a2,Dens_b1,Dens_b2,Dens_I,Tau_a1,Tau_b1,Tau_a2,Tau_b2
   Use hybridpdft,only:E_NoHyb
@@ -22,33 +23,35 @@ subroutine print_MCPDFT_2(CASDFT_E,E_nuc,E_cas,E_ot,jroot,Ref_Ener)
   use printlevel,only:usual
   use mcpdft_output,only:iPrGlb
   use mcpdft_input,only:mcpdft_options
-
   implicit none
 
-  real(kind=wp) :: CASDFT_E,E_nuc,E_cas,E_ot
-  real(kind=wp) :: CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
-  real(kind=wp) :: Ref_Ener(*)
-  integer(kind=iwp) :: jroot,left
+  integer(kind=iwp) :: state,left
+  real(kind=wp) :: CASDFT_E,E_nuc,E_cas,E_ot,CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1,e_mcscf
 
-  character(LEN=6) Fmt2
-  character(LEN=120) Line
+  character(len=6) :: Fmt2
+  character(len=120) :: Line
+
+  casdft_e = e_cas+e_ot
+  if(mcpdft_options%otfnal%is_hybrid()) then
+    e_nohyb = casdft_e
+    casdft_e = mcpdft_options%otfnal%lambda*e_mcscf+(one-mcpdft_options%otfnal%lambda)*E_NoHyb
+  endif
 
   if(iPrGlb >= usual) then
-
     left = 6
     Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
     Line = ''
     IF(mcpdft_options%mspdft) Then
-      Write(Line(left-2:),'(2A,1X,I4.4)') MSpdftMethod,' INTERMEDIATE STATE',jroot
+      Write(Line(left-2:),'(2A,1X,I4.4)') MSpdftMethod,' INTERMEDIATE STATE',state
     ELSE
-      Write(Line(left-2:),'(A,1X,I4.4)') 'MC-PDFT RESULTS, STATE',jroot
+      Write(Line(left-2:),'(A,1X,I4.4)') 'MC-PDFT RESULTS, STATE',state
     ENDIF
     write(u6,*)
     Call CollapseOutput(1,Line)
     Write(u6,Fmt2//'A)') repeat('-',len_trim(Line)-3)
     write(u6,*)
 
-    write(u6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',Ref_Ener(jroot)
+    write(u6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',e_mcscf
     write(u6,*)
     write(u6,'(6X,A,45X,F10.3)') 'Integrated total density:',Dens_I
     write(u6,'(6X,A,12X,F10.3)') 'Integrated alpha density '//'before functional transformation:',Dens_a1
@@ -78,12 +81,12 @@ subroutine print_MCPDFT_2(CASDFT_E,E_nuc,E_cas,E_ot,jroot,Ref_Ener)
     IF(mcpdft_options%otfnal%is_hybrid()) Then
       write(u6,'(6X,A)') 'Information for hybrid PDFT:'
       write(u6,'(6X,A,37X,F6.2)') 'Wave function percentage (Lambda*100)',mcpdft_options%otfnal%lambda*1.0d2
-      write(u6,'(6X,A,42X,F18.8)') 'Wave function energy',mcpdft_options%otfnal%lambda*Ref_Ener(jRoot)
+      write(u6,'(6X,A,42X,F18.8)') 'Wave function energy',mcpdft_options%otfnal%lambda*e_mcscf
       write(u6,'(6X,A,51X,F18.8)') 'PDFT energy',(1-mcpdft_options%otfnal%lambda)*E_NoHyb
       write(u6,*)
     ENDIF
 
-    if((CoefX*CoefR /= 0.0) .and. (CoefX /= 1.0 .or. CoefR /= 1.0)) Then
+    if((CoefX*CoefR /= zero) .and. (CoefX /= one .or. CoefR /= one)) Then
       Funcaa1 = Funcaa/CoefX
       Funcbb1 = Funcbb/CoefX
       Funccc1 = Funccc/CoefR
@@ -98,7 +101,7 @@ subroutine print_MCPDFT_2(CASDFT_E,E_nuc,E_cas,E_ot,jroot,Ref_Ener)
       write(u6,'(6X,A,31X,F18.8)') 'Total MC-PDFT energy '//'(unscaled)',CASDFT_E_1
     endif
 
-    write(u6,'(6X,A,I3,29X,F18.8)') 'Total MCPDFT energy for state ',jroot,CASDFT_E
+    write(u6,'(6X,A,I3,29X,F18.8)') 'Total MCPDFT energy for state ',state,CASDFT_E
 
     Call CollapseOutput(0,Line)
     write(u6,*)

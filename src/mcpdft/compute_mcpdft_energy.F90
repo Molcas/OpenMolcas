@@ -11,10 +11,9 @@
 !               2013, Giovanni Li Manni                                *
 !               2016, Andrew M. Sand                                   *
 !***********************************************************************
-Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
+Subroutine compute_mcpdft_energy(CMO,e_mcscf)
   use definitions,only:iwp,wp,u6
-  use constants,only:zero
-  use OneDat,only:sNoNuc,sNoOri
+  use constants,only:zero,one
   use mcpdft_input,only:mcpdft_options
   Use KSDFT_Info,only:do_pdftpot
   Use hybridpdft,only:E_NoHyb
@@ -27,7 +26,7 @@ Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
   use general_data,only:nash,norb,nsym,ntot2,ntot1,jobiph,ispin,jobold,nbas,nish
   implicit none
 
-  real(kind=wp),intent(inout) :: Ref_Ener(*)
+  real(kind=wp),intent(inout) :: e_mcscf(*)
   real(kind=wp),intent(in) :: CMO(*)
 
   real(kind=wp),allocatable :: folded_dm1(:),folded_dm1_cas(:),folded_dm1s(:), &
@@ -36,7 +35,7 @@ Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
   integer(kind=iwp),external :: get_charge
   integer(kind=iwp) :: IAD19,iJOB,dmDisk,IADR19(1:30),jroot,NQ,isym,charge,iPrLev,iSA,niaia
   real(kind=wp),external :: energy_mcwfn
-  real(kind=wp) :: casdft_e,casdft_funct,e_mcscf,Energies(nroots)
+  real(kind=wp) :: casdft_e,e_ot,e_wfn,e_states(nroots)
 
   IPRLEV = IPRLOC(3)
 
@@ -122,10 +121,7 @@ Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
     ! this in the DFT section???
     Call Put_dArray('D1mo',casdm1,NACPAR)
 
-!**********************************************************
-! Generate total density
-!**********************************************************
-
+    ! Generate total density
     If(NASH(1) /= NAC) then
       Call dblock(casdm1)
       call dblock(casdm1s)
@@ -158,28 +154,26 @@ Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
       do_pdftPot = .true.
     endif
 
-    casdft_funct = mcpdft_options%otfnal%energy_ot(folded_dm1,folded_dm1s,casdm1,P2d,charge)
+    e_ot = mcpdft_options%otfnal%energy_ot(folded_dm1,folded_dm1s,casdm1,P2d,charge)
 
     call get_coulomb(cmo,dm1_core,dm1_cas,coul)
 
-    e_mcscf = energy_mcwfn(folded_dm1,hcore,coul,PotNuc,ntot1)
+    e_wfn = energy_mcwfn(folded_dm1,hcore,coul,PotNuc,ntot1)
 
-    CASDFT_E = e_mcscf+CASDFT_Funct
+    CASDFT_E = e_wfn+e_ot
 
     IF(mcpdft_options%otfnal%is_hybrid()) THEN
-      E_NoHyb = CASDFT_E
-      CASDFT_E = mcpdft_options%otfnal%lambda*Ref_Ener(jRoot)+(1.0-mcpdft_options%otfnal%lambda)*E_NoHyb
+      CASDFT_E = mcpdft_options%otfnal%lambda*e_mcscf(jRoot)+(one-mcpdft_options%otfnal%lambda)*E_NoHyb
     ENDIF
 
-    Call Print_MCPDFT_2(CASDFT_E,PotNuc,e_mcscf,CASDFT_Funct,jroot,Ref_Ener)
+    Call Print_MCPDFT_2(PotNuc,e_wfn,e_ot,jroot,e_mcscf(jroot))
 
-    ! JB replacing ref_ener with MC-PDFT energy for MS-PDFT use
-    Energies(jroot) = CASDFT_E
-    Ref_Ener(jroot) = CASDFT_E
+    ! JB replacing e_mcscf with MC-PDFT energy for MS-PDFT use
+    e_states(jroot) = CASDFT_E
+    e_mcscf(jroot) = CASDFT_E
 
     ! At this point, the energy calculation is done.  Now I need to build the
     ! fock matrix if this root corresponds to the relaxation root.
-
     if(mcpdft_options%grad) then
       ! Determine size of Q matrix
       NQ = 0
@@ -194,26 +188,18 @@ Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
 
         call savefock_pdft(cmo,hcore(:)+coul(:),casdm1,nq,p2d)
 
-!Put some information on the runfile for possible gradient calculations.
+        ! Put some information on the runfile for possible gradient calculations.
         Call Put_iScalar('Number of roots',nroots)
-        Call Put_dArray('Last energies',Energies,nroots)
-        Call Put_dScalar('Last energy',Energies(mcpdft_options%RlxRoot))
-
-!Put information needed for geometry optimizations.
-!need to do MCLR for gradient runs. (1 to run, 2 to skip)
+        Call Put_dArray('Last energies',e_states,nroots)
+        Call Put_dScalar('Last energy',e_states(mcpdft_options%RlxRoot))
         Call Put_cArray('MCLR Root','****************',16)
         Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
-
       endif
 
       if(mcpdft_options%mspdft) then
         call savefock_mspdft(CMO,hcore(:)+coul(:),casdm1,NQ,p2d,jroot)
       endif
-
     endif
-
-    ! this allocation/deallocation could be done outside the root loop
-
   enddo !loop over roots
 
   if(mcpdft_options%grad) then
@@ -245,10 +231,7 @@ Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
     folded_dm1(:) = folded_dm1(:)+folded_dm1_cas(:)
     Call Put_dArray('D1ao',folded_dm1,nTot1)
 
-!Get the spin density matrix for open shell cases
-!**********************************************************
-! Generate spin-density
-!**********************************************************
+    !  Generate spin-density
     dm1s(:) = zero
     IF(NASH(1) /= NAC) CALL DBLOCK(casdm1s)
     Call Get_D1A_RASSCF(CMO,casdm1s,dm1s)
@@ -258,11 +241,9 @@ Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
     Call DDaFile(JOBOLD,0,P2d,NACPR2,dmDisk)
   endif
 
-!Free up all the memory we can here, eh?
   Call mma_deallocate(folded_dm1_cas)
   Call mma_deallocate(folded_dm1)
   Call mma_deallocate(folded_dm1s)
-
   Call mma_deallocate(casdm1)
   Call mma_deallocate(dm1_cas)
   Call mma_deallocate(casdm1s)
@@ -272,6 +253,8 @@ Subroutine compute_mcpdft_energy(CMO,Ref_Ener)
   Call mma_deallocate(P2D)
   Call mma_deallocate(dm1_core)
 
+  ! This deallocation SHOULD NOT BE HERE
+  ! but it has to do with how the FuncExtParams is loaded...
   If(Allocated(FuncExtParams)) Call mma_deallocate(FuncExtParams)
 
 ENDSubroutine compute_mcpdft_energy
