@@ -374,10 +374,7 @@ c      end do
 *
 *     Check the input data
 *
-      If (DBG) Then
-        write(u6,*)' Call ChkInp.'
-      End If
-      Call ChkInp_m()
+      Call validate_wfn()
 * ===============================================================
 
       Go to 9000

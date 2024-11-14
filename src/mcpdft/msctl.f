@@ -36,7 +36,7 @@
 
       Logical Found
 
-      real*8, allocatable:: folded_dm1(:), folded_dm1_cas(:),
+      real(kind=wp), allocatable:: folded_dm1(:), folded_dm1_cas(:),
      &                       folded_dm1s(:),
      &                      dm1_core(:), casdm1(:),
      &                      dm1_cas(:), dm1s(:),

@@ -23,7 +23,7 @@ subroutine MSPDFTGrad_Misc(si_pdft,states)
   use stdalloc,only:mma_allocate,mma_deallocate
   use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2MOT,D1aoMS,DIDA,D1SAOMS
   use rasscf_global,only:lroots,NACPR2,nTot4
-  use general_data,only:ispin,nsym,ntot1,nbas
+  use general_data,only:ispin,ntot1
 
   implicit none
 
