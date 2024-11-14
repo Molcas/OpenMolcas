@@ -185,6 +185,8 @@ contains
     endif
     call put_iScalar('NumGradRoot',mcpdft_options%rlxroot)
 
+    mcpdft_options%grad = decide_on_grad(mcpdft_options%grad)
+
     call verify_input()
 
   endsubroutine
@@ -302,6 +304,37 @@ contains
     endif
 
   endsubroutine
+
+  !> @brief decide on calculating potential terms for analytical gradients
+  !>
+  !> @details
+  !>   If grad is true, determines if we still need gradients terms given
+  !>   request for numerical gradients in GATEWAY, or if this is calculation
+  !>   is being called from programs LAST_ENERGY or NUMERICAL_GRADIENT
+  !>
+  !> @author Matthew R. Hennefarth
+  !>
+  !> @param[in] grad whether analytical potential terms were requested to be computed in input
+  function decide_on_grad(grad)
+    use UnixInfo, only: SuperName
+    logical(kind=iwp) :: decide_on_grad
+    logical(kind=iwp),intent(in) :: grad
+
+    logical(kind=iwp) :: do_numgrad
+    integer(kind=iwp) :: dng
+
+    if(.not. grad) then
+      decide_on_grad = .false.
+      return
+    endif
+    ! numerical gradients requested in GATEWAY
+    call qpg_iscalar('DNG',do_numgrad)
+    if(do_numgrad) then
+      call get_iscalar('DNG',DNG)
+      do_numgrad = (dng == 1)
+    endif
+    decide_on_grad = .not.(do_numgrad .or. supername(:11) == 'last_energy' .or. supername(:18) == 'numerical_gradient')
+  endfunction decide_on_grad
 
   subroutine EOFError(buffer)
     use definitions,only:u6

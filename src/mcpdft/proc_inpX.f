@@ -61,8 +61,7 @@
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
 
-      INTEGER :: iDNG,IPRLEV
-      Logical :: DNG
+      INTEGER :: IPRLEV
       logical :: keyJOBI
 
       integer irc, i, iad19
@@ -357,37 +356,6 @@ c      end do
       END DO
       NACPAR=(nac+nac**2)/2
       NACPR2=(NACPAR+NACPAR**2)/2
-
-
-!Considerations for gradients/geometry optimizations
-
-*     Numerical gradients requested in GATEWAY
-      Call Qpg_iScalar('DNG',DNG)
-      If (DNG) Then
-         Call Get_iScalar('DNG',iDNG)
-         DNG = iDNG.eq.1
-      End If
-      DNG = (.not. mcpdft_options%grad) .or.DNG
-
-      ! Inside LAST_ENERGY or NUMERICAL GRADIENT
-      ! we do not need analytical gradients
-      If (SuperName(1:11).eq.'last_energy' .or.
-     &    SuperName(1:18).eq.'numerical_gradient') then
-        DNG=.true.
-      endif
-
-
-      If (DNG) Then
-         mcpdft_options%grad = .false.
-      End If
-
-      ! The following doesn't make sense
-      ! If we are in a Do While loop, we shouldn't just
-      ! turn on gradients if they weren't requested
-      ! Check to see if we are in a Do While loop
-      If ((isStructure().eq.1).and.(.not.DNG)) Then
-        mcpdft_options%grad = .true.
-      End If
 
       ! Initialize Cholesky information if requested
       if (DoCholesky) then
