@@ -75,20 +75,20 @@ subroutine MSPDFTGrad_Misc(si_pdft,states)
   ! DIDA(:,lRoots+1) is currently DI
   CALL Put_DArray('MSPDFTD5        ',DIDA(:,lRoots+1),nTot1)
 
-  call dgemm_('n','n',ntot1,1,lroots,one,FocMS(:,:),ntot1,u_rlx_sq,lroots,zero,r_fock_occ,ntot1)
+  call dgemv_('n',ntot1,lroots,one,FocMS,ntot1,u_rlx_sq,1,zero,r_fock_occ,1)
   Call Put_dArray('FockOcc',r_fock_occ,ntot1)
 
   ! DIDA is currently DA over intermediate states
   ! DIDA for prepp
-  call dgemm_('n','n',ntot1,1,lroots,one,DIDA(:,:lroots),ntot1,-u_rlx_sq,lroots,zero,r_active_dm1,ntot1)
+  call dgemv_('n',ntot1,lroots,one,DIDA(:,:lroots),ntot1,-u_rlx_sq,1,zero,r_active_dm1,1)
   CALL Put_DArray('MSPDFTD6        ',r_active_dm1,nTot1)
 
   ! FT99 for bk
-  call dgemm_('n','n',ntot4,1,lroots,one,FxyMS(:,:),ntot4,u_rlx_sq,lroots,zero,r_Fxy,ntot4)
+  call dgemv_('n',ntot4,lroots,one,FxyMS,ntot4,u_rlx_sq,1,zero,r_Fxy,1)
   CALL Put_DArray('FxyMS           ',r_Fxy,nTot4)
 
   ! P2MOt for active 2RDM
-  call dgemm_('n','n',nacpr2,1,lroots,one,P2MOt(:,:),nacpr2,u_rlx_sq,lroots,zero,r_casdm2,nacpr2)
+  call dgemv_('n',nacpr2,lroots,one,P2MOt,nacpr2,u_rlx_sq,1,zero,r_casdm2,1)
   Call Put_dArray('P2MOt',r_casdm2,NACPR2)
 
 EndSubroutine

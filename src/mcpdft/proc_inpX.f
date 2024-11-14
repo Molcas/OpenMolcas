@@ -12,7 +12,6 @@
       use definitions,only:wp,u6
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
-      use UnixInfo, only: SuperName
       use mcpdft_input, only: mcpdft_options
       use printlevel, only: terse, debug, insane
       use mcpdft_output, only: iPrLoc

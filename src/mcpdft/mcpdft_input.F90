@@ -316,7 +316,7 @@ contains
   !>
   !> @param[in] grad whether analytical potential terms were requested to be computed in input
   function decide_on_grad(grad)
-    use UnixInfo, only: SuperName
+    use UnixInfo,only:SuperName
     logical(kind=iwp) :: decide_on_grad
     logical(kind=iwp),intent(in) :: grad
 
