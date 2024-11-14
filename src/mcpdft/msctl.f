@@ -34,23 +34,17 @@
       real(kind=wp),intent(inout) :: Ref_Ener(*)
       real(kind=wp),intent(in) :: CMO(*)
 
-      Logical Found
 
       real(kind=wp), allocatable:: folded_dm1(:), folded_dm1_cas(:),
-     &                       folded_dm1s(:),
-     &                      dm1_core(:), casdm1(:),
-     &                      dm1_cas(:), dm1s(:),
-     &                      casdm1s(:), P2D(:), P2t(:),
-     &                      Coul(:)
-      real(kind=wp),allocatable :: hcore(:)
+     &                      folded_dm1s(:),
+     &                      dm1_core(:), casdm1(:),dm1_cas(:),dm1s(:),
+     &                      casdm1s(:),P2D(:),P2t(:),Coul(:),hcore(:)
+      logical(kind=iwp) :: Found
       integer(kind=iwp), external :: get_charge
       integer(kind=iwp) :: IAD19,iJOB,dmDisk, IADR19(1:30)
-      integer(kind=iwp) :: jroot,NQ, isym, charge
-      integer(kind=iwp) :: iPrLev,iSA
-      integer(kind=iwp) :: niaia
+      integer(kind=iwp) :: jroot,NQ, isym, charge, iPrLev,iSA, niaia
       real(kind=wp), external :: energy_mcwfn
-      real(kind=wp) :: casdft_e, casdft_funct, e_mcscf
-      real(kind=wp) :: Energies(nroots)
+      real(kind=wp) :: casdft_e, casdft_funct, e_mcscf, Energies(nroots)
 
       IPRLEV=IPRLOC(3)
 
