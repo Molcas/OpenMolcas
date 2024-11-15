@@ -395,7 +395,7 @@ end subroutine fmm_T_con_SCALE_TREE
 !
 !  iLHS = T_pairs%items(2)%paras%LHS_id
 !  do i=1,nT
-!    ! get T_matrix correpxonding to the minus T-vector
+!    ! get T_matrix corresponding to the minus T-vector
 !    call fmm_scale_vec(LMAX,-one,scale_vec,pref)
 !    iRHS = T_pairs%items(2*i)%paras%RHS_id
 !    scaled_qlm = scale_vec(:hi)*qlm_ptr(:hi,iRHS)
