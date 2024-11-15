@@ -2,7 +2,7 @@
 * Molecule: H2O
 * Basis: STO-3G
 * Symmetry: C1
-* Features tested: DMRG-State-Specific-CASPT2
+* Features tested: DMRG-State-Specific-CASPT2 using QCMaquis
 * Responsible person: K. Szenes
 * Comments: DMRG-SS-CASPT2 for H2O, CAS(4,4)
 *-------------------------------------------------------------------------------
@@ -31,7 +31,6 @@
     nsweeps = 20
   EndDMRGSettings
   OOptimizationSettings
-    *File     = $CurrDir/$Project.guess.h5
     Spin     = 1
     Symmetry = 1
     nActEl   = 4
