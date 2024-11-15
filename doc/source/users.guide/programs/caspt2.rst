@@ -1070,6 +1070,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
+
 :kword:`CUMUlant`
   Activate DMRG-cu(4)-CASPT2 calculation with |molcas|--Block interface.
   The keyword :kword:`3RDM` must be used in :program:`RASSCF`.
@@ -1080,6 +1081,19 @@ Keywords
               %%Keyword: CUMUlant <basic>
               <HELP>
               Activate DMRG-cu(4)-CASPT2 calculation with Molcas-Block interface.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DMRG`
+  Activate DMRG-CASPT2 calculation with |molcas|--DMRG interface.
+  The program will skip the calculations of the :math:`n`-particle reduced density matrix.
+  Note that multi-state calculations are not supported, the calculation will run but produce wrong CASPT2 total energy.
+  Always specify :kword:`MULTi` = 1 *iroot*, where *iroot* is the root index.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DMRG" APPEAR="DMRG-CASPT2 (QCMAQUIS)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DMRG <basic>
+              <HELP>
+              Activate DMRG-CASPT2 calculation with Molcas-QCMaquis interface.
               </HELP>
               </KEYWORD>
 
