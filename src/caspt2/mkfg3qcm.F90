@@ -50,7 +50,6 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   call qcmaquis_interface_get_2rdm_full(G2)
   call qcmaquis_interface_get_3rdm_full(G3tmp)
   call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp,epsa)
-  write(*, *) "ng3 = ", ng3
 
 
   if (iff > 0)then
@@ -92,7 +91,6 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
     x = idxG3(4,i)
     y = idxG3(5,i)
     z = idxG3(6,i)
-    write(*,*) t, u, v, x, y, z
 
     G3(i) = G3tmp(t,v,y,u,x,z)
     ! F_tvyuxz = <| e_{tv,yu,xz} E_ww f_ww |> - <| e_{tv,yu,xz} |> (f_uu + f_xx + f_zz)
