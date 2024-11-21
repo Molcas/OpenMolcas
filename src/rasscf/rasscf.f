@@ -2113,7 +2113,7 @@ c                the CI and SX energies differ
      &        state=i-1,
      &        tpl=TEMPLATE_4RDM)
               call qcmaquis_mpssi_transform(
-     &             trim(qcmaquis_param%currdir)//'/'//
+     &             trim(qcmaquis_param%workdir)//'/'//
      &             trim(qcmaquis_param%project_name), i)
           end do
           else

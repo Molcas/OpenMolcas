@@ -482,13 +482,13 @@ subroutine procinp_caspt2
   if (DMRG) then
     ! set OpenMolcas environment variables
     call getenv('Project', qcmaquis_param%project_name)
-    call getenv('WorkDir', qcmaquis_param%currdir)
+    call getenv('WorkDir', qcmaquis_param%workdir)
     ! save checkpoint paths for all states
     call mma_allocate(dmrg_file%qcmaquis_checkpoint_file,nstate)
     write(6,*) 'PROCINP> Setting chekpoint file paths...'
     do i = 1,nstate
       dmrg_file%qcmaquis_checkpoint_file(i) = &
-      trim(qcmaquis_param%currdir)//'/'//qcm_group_names(1)%states(mstate(i))
+      trim(qcmaquis_param%workdir)//'/'//qcm_group_names(1)%states(mstate(i))
       write(6,*) 'PROCINP> ', dmrg_file%qcmaquis_checkpoint_file(i)
     end do
     ! initialize the interface using a checkpoint file
