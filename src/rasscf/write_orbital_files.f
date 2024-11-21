@@ -39,7 +39,7 @@
 #endif
       use fortran_strings, only : str
 
-      use rasscf_global, only : iToc, name, header, title, lRoots,
+      use rasscf_global, only : iToc, BName, header, title, lRoots,
      & nRoots,
      &  iRoot, iPt2, Weight, iOrbTyp,
      &  FDiag, E2Act, maxorbout
@@ -87,7 +87,7 @@
       Call WR_RASSCF_Info(JobIph,2,iDisk,
      &                    nActEl,iSpin,nSym,stSym,
      &                    nFro,nIsh,nAsh,nDel,
-     &                    nBas,mxSym,Name,LENIN8*mxOrb,nConf,
+     &                    nBas,mxSym,BName,LENIN8*mxOrb,nConf,
      &                    Header,144,Title,4*18*mxTit,PotNucDummy,
      &                    lRoots,nRoots,iRoot,mxRoot,
      &                    nRs1,nRs2,nRs3,

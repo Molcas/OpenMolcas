@@ -35,11 +35,10 @@ subroutine CiSelect(S1,S2)
 !                                                                      *
 !***********************************************************************
 
+use rasscf_global, only: iRoot, ITER, lRoots, MAXIT, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
-use rasscf_global, only: lRoots, iRoot, ITER, MAXIT, nRoots
-
 
 implicit none
 #include "Molcas.fh"

@@ -15,23 +15,24 @@
       use qcmaquis_interface_cfg
       use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
+      use cntrl, only: NACTE
 #endif
       use mspt2_eigenvectors
       use stdalloc, only: mma_allocate, mma_deallocate
-      use cntrl_data, only: RefEne, HEff
+      use cntrl, only: RefEne, HEff
+      use Cntrl, only:  NSTATE, NJOB, IFHEXT, IFShft, IfHDia, ISTAT,
+     &                  MLTPLT, NSTAT, MXJOB
+      use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT NONE
 #include "Molcas.fh"
 #include "rassi.fh"
-#include "symmul.fh"
-#include "centra.fh"
-#include "cntrl.fh"
 
       LOGICAL READ_STATES
       INTEGER JOB, i
 
 
 * get basic info from runfile
-      Call Get_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBasF,nSym)
       Call Get_dscalar('PotNuc',ENUC)
 

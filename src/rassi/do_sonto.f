@@ -23,17 +23,19 @@
       SUBROUTINE DO_SONTO(NSS, USOR, USOI)
       use rassi_global_arrays, only: JBNUM, EIGVEC
       use stdalloc, only: mma_allocate, mma_deallocate
-      use cntrl_data, only: SONTOSTATES, SONTO
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use cntrl, only: SONTOSTATES, SONTO
+      use Cntrl, only: NSTATE, NOSO, MLTPLT
+      IMPLICIT None
       Integer NSS
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
       Real*8 IDENTMAT(3,3)
       Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
       Real*8, Allocatable:: TDMAO(:), TSDMAO(:)
       Real*8, Allocatable:: ANTSIN(:)
+      Integer I, ISS, ISTATE, JOB1, MPLET1, MSPROJ1,
+     &           JSS, JSTATE, JOB2, MPLET2, MSPROJ2,
+     &        INTOSTATE, JNTOSTATE, IOPT
 
 c Calculates natural orbitals, including spinorbit effects
       WRITE(6,*)

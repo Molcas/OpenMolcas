@@ -20,10 +20,9 @@ subroutine rdinput(refwfnfile)
 use nevpt2_cfg, only: igelo, MultGroup, no_pc, nr_frozen_orb, nr_states, rdm_distributed, rdm_path, rdm_read, skip_effective_ham, &
                       skip_koopro_molcas
 use text_file, only: extend_line, next_non_comment
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
-use spool, only: Spoolinp
-
 
 implicit none
 character(len=*), intent(out) :: refwfnfile

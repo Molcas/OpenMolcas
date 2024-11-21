@@ -11,7 +11,7 @@
       SUBROUTINE SPHPUR(CMO)
       use define_af, only: iTabMx, AngTp
       use stdalloc, only: mma_allocate, mma_deallocate
-      use rasscf_global, only: NAME, IXSYM
+      use rasscf_global, only: BName, IXSYM
 
       IMPLICIT None
       Real*8 CMO(*)
@@ -41,7 +41,7 @@
       END DO
       CALL mma_allocate(LQN,NBTOT,Label='LQN')
       DO IBAS=1,NBTOT
-       LCHAR=NAME(IBAS)(LENIN3:LENIN3)
+       LCHAR=BName(IBAS)(LENIN3:LENIN3)
        L=-999999
        DO ITP=0,ITABMX
          IF(LCHAR.EQ.ANGTP(ITP)) L=ITP

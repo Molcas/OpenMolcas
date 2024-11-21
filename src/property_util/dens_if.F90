@@ -19,11 +19,10 @@ subroutine Dens_IF(i_root,CA,CB,OCCA,OCCB)
 ! EAW 990118
 
 use casvb_global, only: ifvb
+use rasscf_global, only: iADR15, iOrbTyp, NAC, NACPAR, NACPR2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
-use rasscf_global, only: iOrbTyp, NAC, NACPAR, NACPR2, iADR15
-
 
 #include "intent.fh"
 

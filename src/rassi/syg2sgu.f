@@ -638,7 +638,7 @@ C Allocate scratch space for case numbers:
       SUBROUTINE W2SGORD1(NLEV,NVERT,NMIDV,NIPWLK,ISM,MIDLEV,
      &                  MVSTA,IOCSF,NOW,IOW,IDOWN,MAW,ICS,
      &                  MWS2W,MIPWLK,NLIST,KWALK,ICNUM)
-#include "symmul.fh"
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       Integer IOCSF(NSYM,NMIDV,NSYM)
       Integer NOW(2,NSYM,NMIDV),IOW(2,NSYM,NMIDV)
       Integer ISM(NLEV),IDOWN(NVERT,0:3),MAW(NVERT,0:3)

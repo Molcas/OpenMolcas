@@ -12,8 +12,8 @@
      &                     NGASORB,NGASLIM,IFORM,ICASE)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rassi_global_arrays, only: CnfTab1, CnfTab2, CnfTab
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "symmul.fh"
       Integer NEL, NORB, MINOP, MAXOP, LSYM, NGAS
       Integer NGASORB(NSYM,NGAS)
       Integer NGASLIM(2,NGAS)
@@ -196,8 +196,8 @@ C configurations, can we compute the actual configuration arrays:
       SUBROUTINE NRCNF1(MAXEL,NORB,NGAS,NGASLIM,
      &                  NGASORB,NCNF1,MXTMP,NCNF2)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "symmul.fh"
       Integer MaxEl, NORB, NGAS
       Integer NGASLIM(2,NGAS),NGASORB(NSYM,NGAS)
       Integer NCNF1( NSYM, ((MAXEL+1)*(MAXEL+2))/2 )
@@ -290,10 +290,10 @@ C Nr of orbitals in this partition
       END SUBROUTINE NRCNF1
 
       SUBROUTINE NRCNF2(NORB,ISM,NCNF2)
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT REAL*8 (A-H,O-Z)
-#include "symmul.fh"
-      DIMENSION NCNF2(NSYM, ((NORB+1)*(NORB+2))/2 )
-      DIMENSION ISM(NORB)
+      INTEGER NCNF2(NSYM, ((NORB+1)*(NORB+2))/2 )
+      INTEGER ISM(NORB)
 C Returns the array NCNF2, which contains the number of
 C (sub-)configurations with NCLS closed-shell and NOPN open-shell
 C orbitals and having symmetry label LSYM, stored as
@@ -348,6 +348,7 @@ CTEST     &         ' New result     :',(NCNF2(I,IPOS1),I=1,NSYM)
 
       SUBROUTINE MKCONF(ICNFTAB)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT NONE
 
       INTEGER ICNFTAB(*)
@@ -366,13 +367,11 @@ CTEST     &         ' New result     :',(NCNF2(I,IPOS1),I=1,NSYM)
       INTEGER NCNFSYM(8),NGAS,NOCC,NTAB
       INTEGER I,J,K,IOFF,IO,IORB,N,NCL,NOP
       INTEGER, ALLOCATABLE:: ISM(:)
-#include "symmul.fh"
-C     INTEGER MIN,MAX
       INTRINSIC MIN,MAX
-      INTEGER IPOW4(0:15),IPOW256(0:3)
-      DATA IPOW4 / 1,4,16,64,256,1024,4096,16384,65536,262144,1048576,
-     &             4194304,16777216,67108864,268435456,1073741824 /
-      DATA IPOW256 / 1,256,65536,16777216 /
+      INTEGER :: IPOW4(0:15)=[1,4,16,64,256,1024,4096,16384,65536,
+     &                        262144,1048576,4194304,16777216,
+     &                        67108864,268435456,1073741824]
+      INTEGER :: IPOW256(0:3)=[1,256,65536,16777216]
 
       ITYPE=ICNFTAB(2)
       IF(ITYPE.NE.37) THEN

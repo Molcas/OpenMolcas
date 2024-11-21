@@ -505,8 +505,8 @@
       INTEGER nTri
       Real*8,DIMENSION(nRoots*nTri)::FMO1t
       Real*8,DIMENSION(nRoots*NACPR2)::FMO2t
-      CALL Get_DArray('F1MS            ',FMO1t,nRoots*nTri  )
-      CALL Get_DArray('F2MS            ',FMO2t,nRoots*NACPR2)
+      CALL Get_DArray('F1_PDFT         ',FMO1t,nRoots*nTri  )
+      CALL Get_DArray('F2_PDFT         ',FMO2t,nRoots*NACPR2)
       RETURN
       end subroutine
 ******************************************************

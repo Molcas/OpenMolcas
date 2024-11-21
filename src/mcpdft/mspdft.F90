@@ -12,81 +12,118 @@
 !***********************************************************************
 
 module mspdft
-  use printlevel,only:usual
-  use mcpdft_output,only:iPrLoc
-  use definitions,only:iwp, wp
+  use definitions,only:iwp,wp
   implicit none
   private
 
-  character(len=8) :: mspdftmethod
-  logical :: do_rotate = .False.
+  character(len=8) :: mspdftmethod = " Unknown"
   integer(kind=iwp) :: iIntS
-  real(kind=wp), allocatable :: FxyMS(:,:), F1MS(:,:), F2MS(:,:), FocMS(:,:), DIDA(:,:)
-  real(kind=wp), allocatable :: P2MOt(:,:), D1AOMS(:,:), D1SAOMS(:,:)
 
-  ! CMS-NACS stuff
-  logical :: isCMSNAC
+  real(kind=wp),allocatable :: heff(:,:)
 
-  public :: mspdftmethod,do_rotate,F1MS,F2MS
-  public :: FxyMS,FocMS,iIntS,DIDA,P2MOt,D1AOMS,D1SAOMS
+  public :: mspdftmethod,heff
+  public :: iIntS
 
-  public :: isCMSNAC
-
-  public :: mspdft_finalize
+  public :: mspdft_finalize,mspdft_init
 
 contains
-  subroutine mspdft_finalize(heff,nroots,irlxroot,iadr19)
-    ! Performs the final parts of MS-PDFT, namely:
-    !   1. diagonalize heff
-    !   2. print out the final results
-    !   3. save to jobiph if requested
-    !
-    ! Args:
-    !   heff: ndarray of length nroots*nroots
-    !     MS-PDFT effective hamiltonian matrix. Diagonal elements should
-    !     already be replaced with the correct energies.
-    !
-    !   nroots: integer
-    !     number of roots, or dimension of heff
-    !
-    !   irlxroot: integer
-    !     root to relax for some reason it is needed
-    !
-    !   iadr19: integer list of length 15
-    !     Holds some information when writing out
 
-    use definitions,only:wp
+  !> @brief Initializes mspdft calculation
+  !>
+  !>   Loads effective Hamiltonian from disk and initializes gradient variables as needed
+  !>
+  !> @author Matthew R. Hennefarth
+  subroutine mspdft_init()
+    use rasscf_global,only:lroots
+    use stdalloc,only:mma_allocate
+    use mcpdft_input,only:mcpdft_options
+    use mspdftgrad,only:mspdftgrad_init
+
+    character(len=18) :: matrix_info
+
+    call mma_allocate(heff,lroots,lroots,label="heff")
+
+    call readmat2('ROT_HAM',matrix_info,heff,size(heff,1),size(heff,2),7,len(matrix_info),'T')
+    call determine_method(matrix_info)
+
+    if(mcpdft_options%grad) then
+      call mspdftgrad_init()
+    endif
+
+  endsubroutine
+
+  !> @brief determines method by which effective Hamiltonian is constructed
+  !>
+  !>   Sets mspdftmethodand and writes to stdout
+  !>
+  !> @author Matthew R. Hennefarth
+  !>
+  !> @param[in] matrix_info string
+  subroutine determine_method(matrix_info)
+    use definitions,only:u6
+    use PrintLevel,only:verbose
+    use mcpdft_output,only:iprloc
+
+    character(len=*),intent(IN) :: matrix_info
+    character(len=len(mspdftmethod)) :: buffer
+    integer(kind=iwp) :: print_level
+
+    print_level = iPrLoc(1)
+    buffer = trim(adjustl(matrix_info))
+
+    select case(buffer)
+    case("XMS-PDFT","CMS-PDFT","FMS-PDFT","VMS-PDFT")
+      mspdftmethod = buffer
+      if(print_level > verbose) then
+        write(u6,'(6X,A,A)') 'The MS-PDFT method is ',mspdftmethod
+      endif
+    case default
+      if(print_level > verbose) then
+        write(u6,'(6X,A)') 'The MS-PDFT calculation is based on a user-supplied rotation matrix'
+      endif
+    endselect
+
+  endsubroutine
+
+  !> @brief Performs the final parts of a MS-PDFT calculation
+  !>
+  !>   1. diagonalize heff
+  !>   2. print out the final results
+  !>   3. save to jobiph if requested
+  !>
+  !> @author Matthew R. Hennefarth
+  !>
+  !> @param[in]   nroots number of roots, or dimension of heff
+  subroutine mspdft_finalize(nroots)
+    use definitions,only:iwp,wp,u6
     use stdalloc,only:mma_allocate,mma_deallocate
-    use mcpdft_output,only:lf
-    use mspdft_util,only:print_effective_ham,print_final_energies, &
-                          print_mspdft_vectors
+    use mcpdft_output,only:iprloc
+    use mspdft_util,only:print_effective_ham,print_final_energies,print_mspdft_vectors
     use mcpdft_input,only:mcpdft_options
     use write_pdft_job,only:writejob
+    use printlevel,only:usual,terse
+    use mspdftgrad,only:mspdftgrad_free
 
-    integer,intent(in) :: nroots,irlxroot
-    real(kind=wp),dimension(nroots**2),intent(in) :: heff
-    integer,dimension(15),intent(in) :: IADR19
+    integer(kind=iwp),intent(in) :: nroots
 
-    real(kind=wp),dimension(nroots) :: e_mspdft
-    real(kind=wp),dimension(nroots**2) :: si_pdft
-    integer :: info,dim_scratch,iprlev
-    real(kind=wp),dimension(1) :: wgronk
-    real(kind=wp),dimension(:),allocatable :: scratch
+    real(kind=wp) :: e_mspdft(nroots),si_pdft(nroots,nroots),wgronk(1)
+    real(kind=wp),allocatable :: scratch(:)
+    integer(kind=iwp) :: info,dim_scratch,iprlev
     character(len=120) :: Line
 
     iprlev = iprloc(1)
 
     if(iprlev >= usual) then
-      write(lf,*)
+      write(u6,*)
       write(Line,'(6X,2A)') MSPDFTMethod,' FINAL RESULTS'
       call CollapseOutput(1,Line)
-      write(lf,'(6X,A)') repeat('-',len_trim(Line)-3)
-      write(lf,*)
+      write(u6,'(6X,A)') repeat('-',len_trim(Line)-3)
+      write(u6,*)
 
       if(mcpdft_options%otfnal%is_hybrid()) then
-        write(lf,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
+        write(u6,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
       else
-        write(lf,'(6X,2A)') mspdftmethod,' Effective Hamiltonian'
+        write(u6,'(6X,2A)') mspdftmethod,' Effective Hamiltonian'
       endif
       call print_effective_ham(heff,nroots,10)
     endif
@@ -108,39 +145,50 @@ contains
     call dsyev_('V','U',nroots,si_pdft,nroots,e_mspdft,scratch,dim_scratch,info)
     call mma_deallocate(scratch)
 
-    if(iprlev >= usual) call print_final_energies(e_mspdft,nroots,mspdftmethod)
+    if(iprlev >= terse) call print_final_energies(e_mspdft,nroots)
 
     ! Update information on the runfile for possible gradient calculations.
     call put_dArray('Last energies',e_mspdft,nroots)
-    call Put_dScalar('Last energy',e_mspdft(iRlxRoot))
+    if(mcpdft_options%grad) then
+      call Put_dScalar('Last energy',e_mspdft(mcpdft_options%rlxroot))
+    endif
 
     ! Add info the checkfile for testing!
     call Add_Info("MSPDFTE",e_mspdft,nroots,8)
 
     if(iprlev >= usual) then
       if(mcpdft_options%otfnal%is_hybrid()) then
-        write(lf,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
+        write(u6,'(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
       else
-        write(lf,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
+        write(u6,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
       endif
       call print_mspdft_vectors(si_pdft,nroots)
     endif
 
     ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
-    if(mcpdft_options%wjob) call writejob(iadr19,e_mspdft=e_mspdft,si_pdft=si_pdft)
+    if(mcpdft_options%wjob) call writejob(e_mspdft,nroots,si_pdft=si_pdft)
 
     if(iprlev >= usual) then
       call CollapseOutput(0,Line)
-      write(lf,*)
+      write(u6,*)
     endif
 
     if(mcpdft_options%grad) then
+      call put_lscalar('CalcNAC_Opt     ',.false.)
+      call put_lscalar('MECI_via_SLAPAF',.false.)
       if(mcpdft_options%nac) then
-        call MSPDFTNAC_Misc(si_pdft)
+        call mspdftgrad_misc(si_pdft,mcpdft_options%nac_states)
       else
-        call mspdftgrad_misc(si_pdft)
+        call put_iscalar('Relax CASSCF root',mcpdft_options%rlxroot)
+        call mspdftgrad_misc(si_pdft,(/mcpdft_options%rlxroot,mcpdft_options%rlxroot/))
       endif
     endif
 
+    ! Deallocate here!
+    call mma_deallocate(heff)
+    if(mcpdft_options%grad) then
+      call mspdftgrad_free()
+    endif
   endsubroutine mspdft_finalize
+
 endmodule mspdft

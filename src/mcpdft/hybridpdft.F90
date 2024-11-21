@@ -21,7 +21,7 @@ module hybridpdft
   implicit none
   private
 
-  Real(kind=wp) :: E_nohyb ! PDFT energy if it is not hybrid
+  real(kind=wp) :: e_nohyb ! PDFT energy if it is not hybrid
 
   public :: e_nohyb
 endmodule hybridpdft

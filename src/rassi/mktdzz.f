@@ -10,17 +10,18 @@
 ************************************************************************
       SUBROUTINE MKTDZZ(CMOA,CMOB,TDMAB,TDMZZ,iRC)
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: LSYM1, LSYM2
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
+      IMPLICIT None
+#include "rassi.fh"
       Real*8 CMOA(NCMO),CMOB(NCMO)
       Real*8 TDMAB(NTDMAB),TDMZZ(NTDMZZ)
       Integer iRC
 
       Integer ISTCMO(8)
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "symmul.fh"
-#include "rassi.fh"
       Real*8, Allocatable:: SCR(:)
+      Integer ISY12, NSCR, IST, ISY1, NO1, ISY2, ISTTA, ISTCA, ISTTZ,
+     &        ISTCB, NO2, NB1, NB2
 
       If (iRC.eq.0) Then
          TDMZZ(:)=0.0D0

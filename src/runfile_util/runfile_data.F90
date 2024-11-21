@@ -98,7 +98,6 @@ character(len=lw), parameter :: LabelsCA(nTocCA) = [ &
 !> - '``D1av``'                     Average one particle density matrix, AO basis.
 !> - '``D1mo``'                     One particle density matrix, MO basis.
 !> - '``D1sao``'                    One particle spin density matrix, AO basis.
-!> - '``D1activeao``'               One particle density matrix, AO basis, active orbitals
 !> - '``D2av``'                     Average two particle density matrix for the active space, AO basis.
 !> - '``dExcdRa``'                  The potential of the exchange-correlation functional.
 !> - '``DLAO``'
@@ -200,7 +199,7 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'ONTOPO          ','ONTOPT          ','OE_OT           ','TEG_OT          ', & ! 149-152
                                 'FI_V            ','FA_V            ','FOCK_PDFT       ','AMFI_SINGLE     ', & ! 153-156
                                 'HAMSOR_SINGLE   ','HAMSOI_SINGLE   ','Last Dipole Mome','Un_cen Effective', & ! 157-160
-                                'Un_cen Coordinat','Proj_Coord      ','d1activeao      ','Keep_Coord      ', & ! 161-164
+                                'Un_cen Coordinat','Proj_Coord      ','                ','Keep_Coord      ', & ! 161-164
                                 'PCMSph          ','PCMTess         ','Vert            ','Centr           ', & ! 165-168
                                 'SSph            ','PCMDM           ','EF_Centers      ','OAM_Center      ', & ! 169-172
                                 'OMQ_Center      ','DMS_Centers     ','Wel_Info        ','AMP_Center      ', & ! 173-176
@@ -209,7 +208,7 @@ character(len=lw), parameter :: LabelsDA(nTocDA) = [ &
                                 'SFS_HAM         ','SFS_OVLP        ','FocMS           ','MSPDFTD5        ', & ! 185-188
                                 'MSPDFTD6        ','TwoEIntegral    ','D1MOt           ','D1INTER         ', & ! 189-192
                                 'P2INTER         ','D1AO_MS         ','D1SAO_MS        ','MS_FINAL_ROT    ', & ! 193-196
-                                'F1MS            ','F2MS            ','FxyMS           ','SH_Ovlp_Save    ', & ! 297-200
+                                'F1_PDFT         ','F2_PDFT         ','FxyMS           ','SH_Ovlp_Save    ', & ! 297-200
                                 'Old_Phase       ','<rhoB|VnucA>    ','                ','                ', & ! 201-204
                                 '                ','                ','                ','                ', & ! 205-208
                                 '                ','                ','                ','                ', & ! 209-212

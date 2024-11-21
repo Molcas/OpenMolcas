@@ -24,10 +24,9 @@ use qmstat_global, only: AddExt, Anal, ATitle, CAFieldG, CBFieldG, cDumpForm, CF
                          SaFilUt, ScalExt, Sexre1, Sexre2, Sexrep, SimEx, SingPoint, SlExpC, SlFactC, SlPC, StFilIn, StFilUt, &
                          Surf, Temp, ThrsCont, ThrsRedOcc, Udisp
 use Index_Functions, only: nTri3_Elem
+use spool, only: Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use spool, only: Spoolinp
-
 
 implicit none
 integer(kind=iwp), intent(in) :: iQ_Atoms

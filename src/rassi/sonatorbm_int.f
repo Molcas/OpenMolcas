@@ -14,12 +14,9 @@
      &                         PROPVALXI,PROPVALYI,PROPVALZI)
       use OneDat, only: sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=8) CHARPROP
       INTEGER IC_
@@ -31,6 +28,7 @@
 
       Integer IDUM(1)
       Real*8, allocatable:: IP(:), IPX(:), IPY(:), IPZ(:)
+      Integer ITYPE, NIP, IC_End, IC_Str, IC, JOPT, ICMP, IRC, I, ISCHK
 
 C NOW DO INTEGRATION WITH AO MATRICES
 C FOR THE EXPECTATION VALUE

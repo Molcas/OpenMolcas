@@ -72,7 +72,7 @@ subroutine procinp_caspt2
   Hzero = input%Hzero
   if (Hzero .ne. 'STANDARD' .and. Hzero .ne. 'CUSTOM') then
     call WarningMessage(2,'invalid 0th-order Hamiltonian: '//TRIM(Hzero))
-    call Quit_OnUserError
+    call Quit_OnUserError()
   end if
 
   ! Choose Focktype, reset IPEA shift to 0 for non-standard fock matrices
@@ -81,7 +81,7 @@ subroutine procinp_caspt2
     ! if both Hzero and Focktype are not standard, quit
     if (Hzero .ne. 'STANDARD') then
       call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     ! IPEA shift different from zero only for standard Focktype
     if (ipea_shift .ne. 0.0d0) then
@@ -217,7 +217,7 @@ subroutine procinp_caspt2
   if (Input%MULT) then
     if (Input%XMUL .or. Input%RMUL) then
       call WarningMessage(2,'Keyword MULT cannot be used with neither XMUL nor RMUL.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     ! Either the states were specified manually or the keyword "all"
     ! was used, so first we check the keyword all
@@ -242,7 +242,7 @@ subroutine procinp_caspt2
   if (Input%XMUL) then
     if (Input%MULT .or. Input%RMUL) then
       call WarningMessage(2,'Keyword XMUL cannot be used with neither MULT nor RMUL.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     ! This is a XDW-CASPT2 calculation. It is actually more similar to
     ! a MS-CASPT2 one since we need to put one state per group and thus
@@ -284,7 +284,7 @@ subroutine procinp_caspt2
   if (Input%RMUL) then
     if (Input%MULT .or. Input%XMUL) then
       call WarningMessage(2,'Keyword RMUL cannot be used with neither MULT nor XMUL.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     if (Input%AllRMult) then
       NSTATE = NROOTS
@@ -307,7 +307,7 @@ subroutine procinp_caspt2
       do J = I + 1,NSTATE
         if (MSTATE(I) .EQ. MSTATE(J)) then
           call WarningMessage(2,'The same root cannot be used twice in MULT/XMUL/RMUL blocks.')
-          call Quit_OnUserError
+          call Quit_OnUserError()
         end if
       end do
     end do
@@ -317,7 +317,7 @@ subroutine procinp_caspt2
   if (Input%LROO) then
     if (Input%MULT .OR. Input%XMUL .or. Input%RMUL) then
       call WarningMessage(2,'Keyword LROO cannot be used together with the MULT or XMUL keywords.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     NSTATE = 1
     MSTATE(1) = Input%SingleRoot
@@ -347,7 +347,7 @@ subroutine procinp_caspt2
     call WarningMessage(2,'Number of states is <0 or too large.')
     write (6,'(a,i8)') ' NSTATE = ',NSTATE
     write (6,*) ' Check usage of keywords MULT/XMUL/RMUL.'
-    call Quit_OnUserError
+    call Quit_OnUserError()
   end if
   ! setup root to state translation
   ROOT2STATE = 0
@@ -400,7 +400,7 @@ subroutine procinp_caspt2
       NFI = NFRO(I) + NISH(I)
       if (NFI .LT. Input%nFro(I)) then
         call WarningMessage(2,'Too many frozen orbitals!')
-        call Quit_OnUserError
+        call Quit_OnUserError()
       else
         nFro(I) = Input%nFro(I)
       end if
@@ -413,7 +413,7 @@ subroutine procinp_caspt2
       NSD = NSSH(I) + NDEL(I)
       if (NSD .LT. Input%nDel(I)) then
         call WarningMessage(2,'Too many deleted orbitals!')
-        call Quit_OnUserError
+        call Quit_OnUserError()
       else
         NDEL(I) = Input%nDel(I)
       end if
@@ -456,7 +456,7 @@ subroutine procinp_caspt2
   if (IFDW) then
     if (DWType <= 0 .or. DWType > 3) then
       call WarningMessage(2,'DWTYpe should be either 1, 2 or 3.')
-      call Quit_OnUserError
+      call Quit_OnUserError()
     end if
     zeta = Input%zeta
   end if
@@ -586,13 +586,13 @@ subroutine procinp_caspt2
       call warningMessage(2,'It seems that numerical gradients were requested'// &
                             ' in GATEWAY and analytical gradients in CASPT2.'// &
                             ' Please choose only one of the two!')
-      call quit_onUserError
+      call quit_onUserError()
     end if
 
     ! only allow analytic gradients without symmetry
     if (nSym /= 1) then
       call warningMessage(2,'Analytic gradients only available without symmetry.')
-      call quit_onUserError
+      call quit_onUserError()
     end if
 
     if (ipea_shift.ne.0.0D+00) do_lindep = .True.
@@ -602,28 +602,28 @@ subroutine procinp_caspt2
       call warningMessage(2,'Analytic gradients available only if all'// &
                             ' CASSCF roots are included in the CASPT2'// &
                             ' calculation or with the SADRef keyword.')
-      call quit_onUserError
+      call quit_onUserError()
     end if
 
     ! QD-CASPT2 analytic gradients available only with DF or CD
     if (ifMSCoup .and. (.not. ifChol)) then
       call warningMessage(2,'MS-type analytic gradients available only '//  &
                             'with density fitting or Cholesky decomposition.')
-      call quit_onUserError
+      call quit_onUserError()
     end if
 
     ! CASPT2 analytic gradients with state-dependent density available only with DF or CD
     if ((.not. ifChol) .and. (.not.input%SADREF) .and. (nRoots.ne.1)) then
       call warningMessage(2,'Analytic gradients with state-dependent density available only '//  &
                             'with density fitting or Cholesky decomposition.')
-      call quit_onUserError
+      call quit_onUserError()
     end if
 #ifdef _MOLCAS_MPP_
     ! for the time being no gradients with MPI
     if (nProcs > 1) then
       call warningMessage(2,'Analytic gradients not available'//  &
                             ' in parallel executions.')
-      call quit_onUserError
+      call quit_onUserError()
     end if
 #endif
 
@@ -710,7 +710,7 @@ subroutine procinp_caspt2
   if ((ipea_shift /= 0.0_wp) .and. do_grad .and. (.not.IFDORTHO)) then
     call warningMessage(2,'Analytic gradients with IPEA shift'//  &
                           ' must use the CORT or DORT option.')
-    call quit_onUserError
+    call quit_onUserError()
   end if
 
   !! Whether the Fock matrix (eigenvalues) is constructed with
@@ -731,7 +731,7 @@ subroutine procinp_caspt2
   !! issue #448
   if ((IFDENS .and. .not.do_grad) .and. NRAS1T+NRAS3T>0) then
     call warningMessage(2,'DENS keyword cannot be combined with RAS.')
-    call quit_onUserError
+    call quit_onUserError()
   end if
 
 end subroutine procinp_caspt2

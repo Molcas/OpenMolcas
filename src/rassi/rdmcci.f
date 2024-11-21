@@ -11,22 +11,20 @@
       SUBROUTINE RDMCCI(JOB,IDISP,LABEL,ISYMP,NARRAY,ARRAY)
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: NJOB, NCONF1, MINAME
+      use cntrl, only: LuMck
+
+      IMPLICIT None
 C Purpose: Read in the derivatives of CI array derivatives
 C from MCKINT file, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
-#include "rasdim.fh"
-#include "SysDef.fh"
-#include "cntrl.fh"
-#include "Files.fh"
 #include "rassi.fh"
-#include "jobin.fh"
-#include "symmul.fh"
       Integer JOB, IDISP, ISYMP, nArray
       CHARACTER(LEN=8) LABEL
       Real*8 ARRAY(NARRAY)
 
       Real*8, Allocatable:: TEMP(:)
+      Integer IRC, IOPT, NTEMP, ISCODE
 
       IF(JOB.LT.1 .OR. JOB.GT.NJOB) THEN
         WRITE(6,*)' RDMCI: Invalid JOB parameter.'

@@ -208,7 +208,6 @@ contains
     use rasscf_global, only: NSM
 
     ! to get some dimensions
-    ! NSM form rasscf,fh
     ! NSYM from general.fh
 #   include "rasdim.fh"
 #   include "general.fh"

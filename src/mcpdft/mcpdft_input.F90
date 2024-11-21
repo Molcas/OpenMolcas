@@ -13,9 +13,8 @@
 
 module mcpdft_input
   use definitions,only:iwp,wp
-  use ontop_functional,only:OTFNAL_t
-  use spool, only: Spoolinp, Close_LuSpool
-
+  use ontop_functional,only:OTFNAL_t,func_type,get_base
+  use spool,only:Spoolinp,Close_LuSpool
 
   implicit none
   private
@@ -27,8 +26,11 @@ module mcpdft_input
     logical :: meci = .false.
     logical :: nac = .false.
     logical :: is_hdf5_wfn = .false.
-    character(len=256) :: wfn_file = ""
+    logical :: extparam = .false.
+    character(len=256) :: wfn_file = ''
+    character(len=256) :: extparamfile = ''
 
+    integer(kind=iwp) :: rlxroot = 0
     integer(kind=iwp),dimension(2) :: nac_states = 0
     type(OTFNAL_t) :: otfnal
 
@@ -42,22 +44,30 @@ contains
 
   subroutine parse_input()
     ! Reads in the input from the user and sets the appropriate flags in mcpdft_options.
-
+    use constants,only:zero
     use stdalloc,only:mma_deallocate
     use text_file,only:next_non_comment
+    use unixinfo,only:supername
     use KSDFT_Info,only:CoefR,CoefX
 #ifdef _HDF5_
     use mh5,only:mh5_is_hdf5
 #endif
-    implicit none
 
-    real(kind=wp) :: lambda = 0.0d0
-    character(len=80) :: otxc = ""
+    real(kind=wp) :: lambda
+    character(len=80) :: otxc
 
     ! Logical unit of an ASCII file with a copy of the presently used input.
-    integer(kind=iwp) :: lu_input,ierror = 0
+    integer(kind=iwp) :: lu_input,ierror
     character(len=:),allocatable :: buffer
     character(len=4) :: command
+
+    ! Resets the input options on subsequent calls
+    ! such as in numerical gradients...
+    mcpdft_options = mcpdftinputoptions_t(otfnal=OTFNAL_t())
+
+    ierror = 0
+    lambda = zero
+    otxc = ""
 
     call StatusLine("MCPDFT:","Reading in input")
 
@@ -76,15 +86,19 @@ contains
 
       select case(command)
       case("FILE")
+        ! Comsume the following line
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        ! This will abort if the file does not exist.
-        call fileorb(buffer,mcpdft_options%wfn_file)
+        if(supername(1:18) == 'numerical_gradient') then
+          call WarningMessage(1,'Ignoring FILE keyword during numerical gradients')
+        else
+          ! This will abort if the file does not exist.
+          call fileorb(buffer,mcpdft_options%wfn_file)
 #ifdef _HDF5_
-        mcpdft_options%is_hdf5_wfn = mh5_is_hdf5(mcpdft_options%wfn_file)
+          mcpdft_options%is_hdf5_wfn = mh5_is_hdf5(mcpdft_options%wfn_file)
 #endif
-
+        endif
       case("KSDF")
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
@@ -95,8 +109,8 @@ contains
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        read(buffer,*,IOStat=iError) lambda
-        if(iError /= 0) then
+        read(buffer,*,IOStat=ierror) lambda
+        if(ierror /= 0) then
           call IOError(buffer)
         endif
 
@@ -104,8 +118,8 @@ contains
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        read(buffer,*,IOStat=iError) coefx,coefr
-        if(iError /= 0) then
+        read(buffer,*,IOStat=ierror) coefx,coefr
+        if(ierror /= 0) then
           call IOError(buffer)
         endif
 
@@ -123,13 +137,31 @@ contains
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
-        read(buffer,*,IOStat=iError) mcpdft_options%nac_states(1),mcpdft_options%nac_states(2)
-        if(iError /= 0) then
+        read(buffer,*,IOStat=ierror) mcpdft_options%nac_states(1),mcpdft_options%nac_states(2)
+        if(ierror /= 0) then
           call IOError(buffer)
         endif
-
       case("MECI")
         mcpdft_options%meci = .true.
+
+      case("EXPM")
+        if(.not. next_non_comment(lu_input,buffer)) then
+          call EOFError(buffer)
+        endif
+        read(buffer,*,IOStat=iError) mcpdft_options%extparamfile
+        call f_inquire(mcpdft_options%extparamfile,mcpdft_options%extparam)
+        if(.not. mcpdft_options%extparam) then
+          call FileLocatingError(buffer,mcpdft_options%extparamfile)
+        endif
+
+      case("RLXR")
+        if(.not. next_non_comment(lu_input,buffer)) then
+          call EOFError(buffer)
+        endif
+        read(buffer,*,IOStat=ierror) mcpdft_options%rlxroot
+        if(ierror /= 0) then
+          call IOError(buffer)
+        endif
 
         ! Done with reading input
       case("END ")
@@ -145,15 +177,44 @@ contains
     call mma_deallocate(buffer)
     mcpdft_options%otfnal = OTFNAL_t(otxc,lambda)
 
+    if(mcpdft_options%rlxroot == 0) then
+      call get_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
+    endif
+    call put_iScalar('NumGradRoot',mcpdft_options%rlxroot)
+
     call verify_input()
 
   endsubroutine
 
   subroutine verify_input()
     ! Validates mcpdft_options object. Ensures that the options provided from the user are valid.
+    use nq_Info,only:meta_GGA_Type1
     use definitions,only:u6
     use Fock_util_global,only:DoCholesky
     implicit none
+
+    logical :: file_exists
+
+    if(mcpdft_options%mspdft) then
+      call f_inquire('ROT_HAM',file_exists)
+      if(.not. file_exists) then
+        call WarningMessage(2,"No H0_Rotate.txt found")
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MSPDFT specified but rotated      '
+        write(u6,*) ' Hamiltonian file not found!       '
+        write(u6,*) ' **********************************'
+        call Quit_OnUserError
+      endif
+    endif
+
+    if(mcpdft_options%rlxroot < 1) then
+      call WarningMessage(2,"Invalid RLXRoot specified")
+      write(u6,*) ' ************* ERROR **************'
+      write(u6,*) ' RLXRoot keyword must specify a    '
+      write(u6,*) ' valid RASSCF root                 '
+      write(u6,*) ' **********************************'
+      call Quit_OnUserError()
+    endif
 
     if(mcpdft_options%mspdft .and. mcpdft_options%grad) then
       if(mcpdft_options%otfnal%is_hybrid()) then
@@ -162,13 +223,26 @@ contains
         write(u6,*) ' MS-PDFT gradients are not         '
         write(u6,*) ' implemented LAMBDA keyword        '
         write(u6,*) ' **********************************'
+        call Quit_OnUserError()
       endif
       if(DoCholesky) then
         call WarningMessage(2,"MS-PDFT gradients with density fitting not implemented")
         write(u6,*) ' ************* ERROR **************'
         write(u6,*) ' MS-PDFT gradients are not         '
-        write(u6,*) ' implemented density fitting       '
+        write(u6,*) ' implemented with density fitting  '
         write(u6,*) ' **********************************'
+        call Quit_OnUserError()
+      endif
+    endif
+
+    if(mcpdft_options%grad) then
+      if(func_type(get_base(mcpdft_options%otfnal%otxc)) == meta_GGA_Type1) then
+        call WarningMessage(2,"MC-PDFT gradients with translated meta-GGA not supported")
+        write(u6,*) ' ************* ERROR **************'
+        write(u6,*) ' MC-PDFT gradients are not         '
+        write(u6,*) ' implemented with meta-GGAs        '
+        write(u6,*) ' **********************************'
+        call Quit_OnUserError()
       endif
     endif
 
@@ -228,7 +302,6 @@ contains
 
   subroutine EOFError(buffer)
     use definitions,only:u6
-    implicit none
     character(len=*),intent(in) :: buffer
 
     call warningmessage(2,"EOF error when reading line.")
@@ -238,10 +311,19 @@ contains
 
   subroutine IOError(buffer)
     use definitions,only:u6
-    implicit none
     character(len=*),intent(in) :: buffer
 
     call WarningMessage(2,"I/O error when reading line.")
+    write(u6,*) "Last line read from input: ",buffer
+    call Quit_OnUserError()
+  endsubroutine
+
+  subroutine FileLocatingError(buffer,filename)
+    use definitions,only:u6
+    implicit none
+    character(len=*),intent(in) :: buffer,filename
+
+    call WarningMessage(2,"Error in locating file "//filename)
     write(u6,*) "Last line read from input: ",buffer
     call Quit_OnUserError()
   endsubroutine

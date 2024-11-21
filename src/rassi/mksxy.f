@@ -13,13 +13,13 @@
       SUBROUTINE MKSXY(CMO1,CMO2,SXY)
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 SXY(NSXY),CMO1(NCMO),CMO2(NCMO)
 
       character(len=8) :: LABEL
 C  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
 C  CODED 1987-02-18, P-AA M.
-#include "symmul.fh"
 #include "rassi.fh"
       Real*8, Allocatable:: SZZ(:), SSQ(:), PROD(:)
 C  CALCULATE SIZE AND ALLOCATE A FIELD SZZ FOR OVERLAP MATRIX

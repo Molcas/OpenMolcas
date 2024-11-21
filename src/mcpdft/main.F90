@@ -8,5 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER MUL,NSYM
-      COMMON /SYMMUL/ MUL(8,8),NSYM
+program main
+#ifdef _FPE_TRAP_
+  Use,Intrinsic :: IEEE_Exceptions
+  Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
+#endif
+  Call Start('mcpdft')
+  Call mcpdft(ireturn)
+  Call Finish(ireturn)
+end

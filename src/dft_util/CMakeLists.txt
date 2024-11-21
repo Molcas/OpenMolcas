@@ -27,6 +27,7 @@ set (sources
      vt_lim.F90
      wrap_drvnq.F90
      xlambda.F90
+     checkfuncparam.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

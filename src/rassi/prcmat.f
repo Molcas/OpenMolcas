@@ -9,31 +9,37 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE PRCMAT(NSS,XMATR,XMATI)
+      use Definitions, only: u6
       IMPLICIT REAL*8 (A-H,O-Z)
+      INTEGER NSS
       REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
+
+      INTEGER JSTA, JEND, ISS, JSS
 C Write out matrix elements over states as a complex matrix
 C in square format
       DO JSTA=1,NSS,2
        JEND=MIN(NSS,JSTA+1)
-       WRITE(6,*)
-       WRITE(6,'(1X,A8,12X,I3,35X,I3)')' STATE  ',(JSS,JSS=JSTA,JEND)
+       WRITE(u6,*)
+       WRITE(u6,'(1X,A8,12X,I3,35X,I3)')' STATE  ',(JSS,JSS=JSTA,JEND)
        DO ISS=1,NSS
-       WRITE(6,'(1X,I4,2x,2(A1,F10.6,A1,F10.6,A1,3x))')
+       WRITE(u6,'(1X,I4,2x,2(A1,F10.6,A1,F10.6,A1,3x))')
      &           ISS,('(',XMATR(ISS,JSS),',',XMATI(ISS,JSS),
      &           ')',JSS=JSTA,JEND)
        END DO
       END DO
-      RETURN
-      END
+      END SUBROUTINE PRCMAT
 
       SUBROUTINE PRCMAT2(INPUT,NSS,XMATR,XMATI)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: ISOCMP, SOPRNM
+      IMPLICIT NONE
+      INTEGER INPUT, NSS
       REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
-#include "Molcas.fh"
-#include "cntrl.fh"
+
       CHARACTER(LEN=8) PROPERTY
       CHARACTER(LEN=1) DIRECTION
       CHARACTER(LEN=200) FILENAME
+      INTEGER LU, JSTA, ISS
+      Integer, External:: IsFreeUnit
 C Write out matrix elements over states as a complex matrix
 C in parsable format
       if(INPUT.gt.0) THEN
@@ -51,13 +57,13 @@ C in parsable format
           ELSE IF (PROPERTY(8:8).EQ.'2') THEN
             FILENAME = 'quadrupole-'//DIRECTION//'.txt'
           ELSE
-            GO TO 100
+            RETURN
           END IF
       ELSE IF (PROPERTY(1:5).EQ."MLTPV") THEN
           IF (PROPERTY(8:8).EQ.'2') THEN
             FILENAME = 'velocity_quadrupole-'//DIRECTION//'.txt'
           ELSE
-            GO TO 100
+            RETURN
           END IF
       ELSE IF (PROPERTY(1:4).EQ."VELO") THEN
           FILENAME = 'velocity_dipole-'//DIRECTION//'.txt'
@@ -66,54 +72,56 @@ C in parsable format
       ELSE IF (PROPERTY(1:6).EQ."EIGVEC") THEN
           FILENAME = "eigvectors.txt"
       ELSE
-          GO TO 100
+          RETURN
       END IF
-      OPEN(UNIT=88,FILE=FILENAME,STATUS='REPLACE')
-      WRITE(88,*) "#NROW NCOL REAL IMAG"
+      Lu = 88
+      Lu = IsFreeUnit(Lu)
+      OPEN(UNIT=LU,FILE=FILENAME,STATUS='REPLACE')
+      WRITE(LU,*) "#NROW NCOL REAL IMAG"
       DO JSTA=1,NSS
         DO ISS=1,NSS
-        WRITE(88,'(I4,I4,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
+        WRITE(LU,'(I4,I4,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
      &   XMATR(ISS,JSTA),' ',XMATI(ISS,JSTA)
         END DO
       END DO
-      CLOSE(88)
- 100  CONTINUE
-      RETURN
-      END
+      CLOSE(LU)
+      END SUBROUTINE PRCMAT2
 
       SUBROUTINE PRCMAT3(NSS,SMATR,SMATI,DIR)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      INTEGER NSS
       REAL*8 SMATR(NSS,NSS), SMATI(NSS,NSS)
       INTEGER DIR
-#include "Molcas.fh"
-#include "cntrl.fh"
       CHARACTER(LEN=1) DIRECTION
       CHARACTER(LEN=200) FILENAME
+      Integer LU, JSTA, ISS
+      Integer, External:: IsFreeUnit
 C Write out spin matrix elements in parsable format
       WRITE(DIRECTION,'(I1)') DIR
       FILENAME = 'spin-'//DIRECTION//'.txt'
-      OPEN(UNIT=88,FILE=FILENAME,STATUS='REPLACE')
-      WRITE(88,*) "#NROW NCOL REAL IMAG"
+      Lu = 88
+      Lu = IsFreeUnit(Lu)
+      OPEN(UNIT=Lu,FILE=FILENAME,STATUS='REPLACE')
+      WRITE(Lu,*) "#NROW NCOL REAL IMAG"
       DO JSTA=1,NSS
         DO ISS=1,NSS
-        WRITE(88,'(I4,I4,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
+        WRITE(Lu,'(I4,I4,A1,ES25.16,A1,ES25.16)') ISS,JSTA,' ',
      &   SMATR(ISS,JSTA),' ',SMATI(ISS,JSTA)
         END DO
       END DO
-      CLOSE(88)
-      RETURN
-      END
+      CLOSE(Lu)
+      END SUBROUTINE PRCMAT3
 
       SUBROUTINE MULMAT(NSS,XMATR,XMATI,ee,Z)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS)
+      IMPLICIT None
+      INTEGER NSS
+      REAL*8 XMATR(NSS,NSS),XMATI(NSS,NSS), ee
       COMPLEX*16 Z(NSS,NSS)
+
+      Integer ISS,JSS
       ee=0.d0
-      DO ISS=1,NSS
-      DO JSS=1,NSS
-      Z(ISS,JSS)=(0.0d0,0.0d0)
-      enddo
-      enddo
+      Z(:,:)=(0.0d0,0.0d0)
+
       DO ISS=1,NSS
       DO JSS=1,NSS
       ee=ee+XMATR(ISS,JSS)*XMATR(ISS,JSS)+
@@ -122,6 +130,5 @@ C Write out spin matrix elements in parsable format
      &CMPLX(XMATR(ISS,JSS),XMATI(ISS,JSS),kind=8)
       enddo
       enddo
-      RETURN
-      END
+      END SUBROUTINE MULMAT
 

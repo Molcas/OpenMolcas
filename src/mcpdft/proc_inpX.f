@@ -9,15 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Proc_InpX(DSCF,iRc)
+      use definitions,only:wp,u6
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
       use UnixInfo, only: SuperName
       use mcpdft_input, only: mcpdft_options
       use printlevel, only: terse, debug, insane
-      use mcpdft_output, only: lf, iPrLoc
+      use mcpdft_output, only: iPrLoc
       use rasscf_global, only: IPT2, iRoot, lRoots, NAC, NACPAR, NACPR2,
      &                         NFR, NIN, NO2M, NORBT, NROOTS, NSEC,
      &                         nTot3, nTot4, Weight
+      use general_data,only:norb,nash,nssh,ndel,nish,nfro,nrs3,
+     &                      nrs2,nrs1,nbas,nconf,nelec3,nhole1,
+     &                      nactel,stsym,ispin,ntotsp,ntot2,ntot1,nsym,
+     &                      ndelt,mxsym,mxorb,lenin8,invec,jobiph,
+     &                      mxtit,jobold,mxroot,nfrot,nrs1t,nrs2t,nrs3t,
+     &                      ntot
 
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_exists_attr,
@@ -27,13 +34,10 @@
 #endif
       implicit none
 
-#include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
 
-      Real*8 potnucdummy
+      Real(kind=wp) potnucdummy
       logical lExists, RunFile_Exists
-      Logical, External :: Is_First_Iter
       integer, external :: isFreeUnit
       logical, external :: Langevin_On, PCM_On
 
@@ -78,18 +82,6 @@
 
       iRc=_RC_ALL_IS_WELL_
 
-
-! I am not sure exactly what we should do here, but lets try and mimic
-! the behavior from before..
-! For geometry optimizations use the old CI coefficients.
-      If (SuperName(1:6).eq.'mcpdft') Then
-        If (.Not.Is_First_Iter()) Then
-          mcpdft_options%wfn_file = ""
-        End If
-      Else If (SuperName(1:18).eq.'numerical_gradient') Then
-        mcpdft_options%wfn_file = ""
-      End If
-
       !> Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
@@ -97,30 +89,30 @@
 
 * ==== Check if there is any runfile ====
       Call F_Inquire('RUNFILE',RunFile_Exists)
-      If (DBG) Write(lf,*)' Inquire about RUNFILE.'
+      If (DBG) Write(u6,*)' Inquire about RUNFILE.'
       IF (RunFile_Exists) Then
-       If (DBG) Write(lf,*)' Yes, there is one.'
+       If (DBG) Write(u6,*)' Yes, there is one.'
        NSYM=0
        Call qpg_iScalar('nSym',lExists)
        IF (lExists) Then
         Call Get_iScalar('nSym',nSym)
         Call Get_iArray('nBas',nBas,nSym)
         If (DBG) Then
-          Write(6,*)' The following information exists on runfile:'
-          Write(6,*)' Nr of symmetries, NSYM:',NSYM
-          Write(6,*)' Nr of basis functions/symmetry:'
-          Write(6,'(1x,8I5)')(NBAS(I),I=1,NSYM)
+          write(u6,*)' The following information exists on runfile:'
+          write(u6,*)' Nr of symmetries, NSYM:',NSYM
+          write(u6,*)' Nr of basis functions/symmetry:'
+          write(u6,'(1x,8I5)')(NBAS(I),I=1,NSYM)
           Call XFlush(6)
         End If
        ELSE
         Call WarningMessage(2,'No symmetry info on runfile.')
-        Write(6,*)' There seems to be no information about symmetry'
-        Write(6,*)' on the runfile! This is an unexpected error.'
+        write(u6,*)' There seems to be no information about symmetry'
+        write(u6,*)' on the runfile! This is an unexpected error.'
         Call Quit(_RC_IO_ERROR_READ_)
        END IF
       ELSE
        Call WarningMessage(2,'Cannot find runfile.')
-       Write(6,*)' PROC_INP: Cannot find RUNFILE. This is an'//
+       write(u6,*)' PROC_INP: Cannot find RUNFILE. This is an'//
      &           ' unexpected error.'
         Call Quit(_RC_IO_ERROR_READ_)
       END IF
@@ -145,8 +137,8 @@
          invec = 4
        else
         invec = 5
-        write(lf,*) 'WARNING: cannot specify non-hdf5'
-        write(lf,*) 'file with FILE keyword.'
+        write(u6,*) 'WARNING: cannot specify non-hdf5'
+        write(u6,*) 'file with FILE keyword.'
         call abend()
        End If
       endif
@@ -161,11 +153,11 @@
           mcpdft_options%wfn_file = "JOBIPH"
           call f_inquire(mcpdft_options%wfn_file, lexists)
           if(.not. lexists) then
-            Write(LF,*)
-            Write(LF,*)'******************************************'
-            Write(LF,*)'JOBIPH and JOBOLD does not seem to exist, '
-            Write(LF,*)'so the calculation cannot continue.       '
-            Write(LF,*)'******************************************'
+            Write(u6,*)
+            Write(u6,*)'******************************************'
+            Write(u6,*)'JOBIPH and JOBOLD does not seem to exist, '
+            Write(u6,*)'so the calculation cannot continue.       '
+            Write(u6,*)'******************************************'
             Call Abend()
           end if
         endif
@@ -185,7 +177,7 @@
       If(mcpdft_options%otfnal%is_hybrid()) Then
         CALL Put_DScalar('R_WF_HMC',mcpdft_options%otfnal%lambda)
         If (DBG) then
-        Write(lf,*)'Wave Funtion Ratio in hybrid PDFT',
+        Write(u6,*)'Wave Funtion Ratio in hybrid PDFT',
      &             mcpdft_options%otfnal%lambda
         end if
       End If
@@ -197,9 +189,9 @@
 *     read basic attributes
         call mh5_fetch_attr(mh5id, 'NSYM', NSYM_L)
         if (nsym.ne.nsym_l) then
-          write (LF,*) 'Number of symmetries on HDF5 file does not'
-          write (LF,*) 'match the number of symmetries on the'
-          write (LF,*) 'RunFile, calculation will stop now.'
+          write (u6,*) 'Number of symmetries on HDF5 file does not'
+          write (u6,*) 'match the number of symmetries on the'
+          write (u6,*) 'RunFile, calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
         call mh5_fetch_attr(mh5id, 'NBAS', NBAS_L)
@@ -209,15 +201,15 @@
           if (nbas(isym).ne.nbas_l(isym)) err = .True.
         end do
         if (err) then
-          write (LF,*) 'Number of basis functions on HDF5 file does not'
-          write (LF,*) 'match the number of basis functions on the'
-          write (LF,*) 'RunFile, calculation will stop now.'
+          write (u6,*) 'Number of basis functions on HDF5 file does not'
+          write (u6,*) 'match the number of basis functions on the'
+          write (u6,*) 'RunFile, calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
 *     orbitals available?
         if (.not. mh5_exists_dset(mh5id, 'MO_VECTORS')) then
-          write (LF,*)'The HDF5 ref file does not contain MO vectors.'
-          write (LF,*)'Fatal error, the calculation will stop now.'
+          write (u6,*)'The HDF5 ref file does not contain MO vectors.'
+          write (u6,*)'Fatal error, the calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
 *     typeindex data available?
@@ -232,8 +224,8 @@
      $            nSSh_L,nDel_L)
           call mma_deallocate(typestring)
         else
-          write (LF,*)'The HDF5 ref file does not contain TYPEindices.'
-          write (LF,*)'Fatal error, the calculation will stop now.'
+          write (u6,*)'The HDF5 ref file does not contain TYPEindices.'
+          write (u6,*)'Fatal error, the calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
 
@@ -242,10 +234,10 @@
         if(.not. mh5_exists_dset(mh5id, 'QCMAQUIS_CHECKPOINT')) then
 #endif
           if (mh5_exists_dset(mh5id, 'CI_VECTORS'))then
-            write (LF,*)' CI vectors will be read from HDF5 ref file.'
+            write (u6,*)' CI vectors will be read from HDF5 ref file.'
           else
-            write (LF,*)'The HDF5 ref file does not contain CI vectors.'
-            write (LF,*)'Fatal error, the calculation will stop now.'
+            write (u6,*)'The HDF5 ref file does not contain CI vectors.'
+            write (u6,*)'Fatal error, the calculation will stop now.'
             call Quit(_RC_INPUT_ERROR_)
           end if
 #ifdef _DMRG_
@@ -428,7 +420,7 @@ c      end do
 *
 *     Initialize seward
 *
-      If (DBG) Write(6,*)' Initialize seward.'
+      If (DBG) write(u6,*)' Initialize seward.'
       nDiff = 0
       Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
@@ -436,7 +428,7 @@ c      end do
 *     Check the input data
 *
       If (DBG) Then
-        Write(6,*)' Call ChkInp.'
+        write(u6,*)' Call ChkInp.'
         Call XFlush(6)
       End If
       Call ChkInp_m()
@@ -450,17 +442,17 @@ c      end do
 9930  CONTINUE
       Call WarningMessage(2,'Error during input preprocessing.')
       Call WarningMessage(2,ReadStatus)
-      If (IPRLEV.ge.TERSE) Write(6,*)' Error exit 9930 from PROC_INP.'
+      If (IPRLEV.ge.TERSE) write(u6,*)' Error exit 9930 from PROC_INP.'
       iRc=_RC_INPUT_ERROR_
       Go to 9900
 
 *---  Normal exit -----------------------------------------------------*
 9000  CONTINUE
       close(989)
-      If (DBG) Write(6,*)' Normal exit from PROC_INP.'
+      If (DBG) write(u6,*)' Normal exit from PROC_INP.'
       Return
 *---  Abnormal exit -----------------------------------------------------*
 9900  CONTINUE
-      If (DBG) Write(6,*)' Abnormal exit from PROC_INP.'
+      If (DBG) write(u6,*)' Abnormal exit from PROC_INP.'
       Return
       End Subroutine

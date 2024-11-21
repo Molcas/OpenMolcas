@@ -133,7 +133,7 @@ Prem = Zero
 !                                                                      *
 !-- Prepare handling of two-particle density.
 
-call PrepP
+call PrepP()
 
 if (Method_chk == 'CASPT2  ') then
   nBasT = 0
@@ -263,8 +263,8 @@ end do
 !                                                                      *
 Triangular = .true.
 call Init_TList(Triangular,P_Eff)
-call Init_PPList
-call Init_GTList
+call Init_PPList()
+call Init_GTList()
 iOpt = 0
 !                                                                      *
 !***********************************************************************
@@ -499,9 +499,9 @@ call GADGOP(Temp,nGrad,'+')
 !***********************************************************************
 !                                                                      *
 call mma_deallocate(Sew_Scr)
-call Free_GTList
-call Free_PPList
-call Free_TList
+call Free_GTList()
+call Free_PPList()
+call Free_TList()
 call mma_deallocate(Ind_ij)
 call mma_deallocate(TMax)
 if (Method_chk == 'CASPT2  ') then
@@ -515,7 +515,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call CloseP
+call CloseP()
 #ifdef _CD_TIMING_
 Drvg1_CPU = TCpu2-TCpu1
 Drvg1_Wall = TWall2-TWall1

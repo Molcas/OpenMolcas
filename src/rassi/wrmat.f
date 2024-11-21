@@ -18,11 +18,15 @@
 *  OF ROWS WITHIN EACH SYMMETRY TYPE, SIMILAR NDIM2, COLUMNS.
 *****************************************************************
       SUBROUTINE WRMAT(TEXT,ISY12,NDIM1,NDIM2,NMAT,XMAT)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      CHARACTER*(*) TEXT
-#include "symmul.fh"
-      DIMENSION NDIM1(NSYM),NDIM2(NSYM),XMAT(NMAT)
+      use Symmetry_Info, only: MUL, nSym=>nIrrep
+      IMPLICIT NONE
+      CHARACTER(Len=*) TEXT
+      Integer ISY12, NMAT
+      Integer NDIM1(NSYM),NDIM2(NSYM)
+      Real*8 XMAT(NMAT)
 #include "rassi.fh"
+
+      Integer ISTA, ISY1, ISY2, NN
       ISTA=1
       WRITE(6,'(/,1X,A,/)') TEXT
       DO ISY1=1,NSYM

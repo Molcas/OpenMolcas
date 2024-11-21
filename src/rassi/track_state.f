@@ -11,16 +11,16 @@
       SUBROUTINE Track_State(OVLP)
       use rassi_aux, only: ipglob
       use Constants, only: Zero
+      use Cntrl, only: NSTATE, NJOB, NSTAT
       IMPLICIT NONE
-#include "Molcas.fh"
-#include "cntrl.fh"
+      REAL*8 ovlp(nstate,nstate)
+
       INTEGER iState,initState,newState
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       INTEGER j
 #endif
       REAL*8 MaxOv,ThisOv
-      REAL*8 ovlp(nstate,nstate)
 
 
 *     Check that there are 2 JOB files, with the same number of states

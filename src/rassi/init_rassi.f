@@ -8,23 +8,42 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE INIT_RASSI
+      SUBROUTINE INIT_RASSI()
 
+      use symmetry_Info, only: symmetry_info_get
       use rassi_aux, only: ipglob
 #ifndef _DMRG_
       use rasscf_global, only: doDMRG
 #endif
-      use cntrl_data, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
+      use cntrl, only: SONTOSTATES, SONATNSTATE, SODIAGNSTATE
+      use Cntrl, only: NJOB, NSTATE, NPROP, NSOPR, CITHR,
+     &                 NSOThr_Prt, SOThr_Prt, MXPROP, PRSXY, PRDIPVEC,
+     &                 PRORB, PRTRA, PRCI, CIH5, IFHAM, IFEJOB, IFSHFT,
+     &                 IFHDIA, IFHEXT, IFHEFF, IFHCOM, HAVE_HEFF,
+     &                 HAVE_DIAG, NOHAM, IFSO, IFNTO, NATO, BINA,
+     &                 IFTRD1, IFTRD2, IFTDM, RFPert, ToFile, PRXVR,
+     &                 PRXVS, PRMER, PRMEE, PRMES, IFGCAL, EPRThr,
+     &                 EPRAThr, IFXCAL, IFMCAL, HOP, TRACK,
+     &                 ONLY_OVERLAPS, DIPR, OSThr_DipR, QIPR,
+     &                 OSThr_QIPR, QIALL, DYSO, DYSEXPORT, TDYS, OCAN,
+     &                 DCHS, DCHO, DO_TMOM, PRRAW, PRWEIGHT, TOLERANCE,
+     &                 REDUCELOOP, LOOPDIVIDE, TMGR_Thrs, Do_SK, Do_Pol,
+     &                 L_Eff, DoCD, RSThr, RSPR, FORCE_NON_AO_TDM,
+     &                 IFDCPL, LPRPR, LHAMI, IFATCALSA, IFGTCALSA,
+     &                 IFGTSHSA, IFACAL, IFACALFC, IFACALSD, NOSO,
+     &                 IFCURD, IFArgU, NrNATO, NBINA, TDIPMIN, JBNAME,
+     &                 PNAME, PTYPE, SOPRNM, SOPRTP, PRXVE, MINAME
+      use cntrl, only: LuOne, FnOne, LuOrd, FnOrd, LuIph,
+     &                 LuExc, FnExc, LuMck, LuTOM, FnTOM,
+     &                 LuEig, FnEig
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "symmul.fh"
-#include "Files.fh"
+
+      IMPLICIT None
 #include "rassi.fh"
 #include "hfc_logical.fh"
-      Character*256 STRING
+      Character(LEN=256) STRING
       Logical FoundTwoEls,DoCholesky
+      Integer I, IPROP
 
 
 * Initialise doDMRG if compiled without QCMaquis
@@ -32,41 +51,23 @@
       DoDMRG = .false.
 #endif
 
-C SET UP SYMMETRY MULTIPLICATION TABLE:
-      MUL(1,1)=1
-      M=1
-      DO  N=1,3
-        DO  I=1,M
-          DO J=1,M
-            MUL(I+M,J)=M+MUL(I,J)
-            MUL(I,J+M)=MUL(I+M,J)
-            MUL(I+M,J+M)=MUL(I,J)
-          END DO
-        END DO
-        M=2*M
-      END DO
+      Call symmetry_info_get()
 
 C UNIT NUMBERS AND NAMES
       LUONE=2
       FNONE='ONEINT'
       LUORD=30
       FNORD='ORDINT'
-      LUCOM=33
-      FNCOM='COMFILE'
       LUIPH=15
       LUEXC=22
       FNEXC='ANNI'
-      LUEXT=21
-      FNEXT='EXTRACT'
       LUMCK=33
       LuToM=26
       FnToM='TOFILE'
       LuEig=27
       FnEig='EIGV'
-      DO  I=1,MXJOB
-        JBNAME(I)='UNDEFINE'
-      END DO
-      DO  I=1,MXJOB
+      JBNAME(:)='UNDEFINE'
+      DO  I=1,SIZE(JBNAME)
         WRITE(MINAME(I),'(''MCK'',I3.3)') I
       END DO
       IF(IPGLOB.GT.3) THEN

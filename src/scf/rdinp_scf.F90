@@ -45,20 +45,19 @@ use InfSCF, only: Addc_KSDFT, AddFragments, ALGO, Aufb, C1DIIS, Cho_Aufb, Dampin
                   Do_addc, Do_Tw, DoCholesky, DoHLgap, DSCF, DThr, EThr, ExFac, Falcon, FckAuf, FckAuf, FlipThr, FThr, HLgap, &
                   iAu_ab, iCoCo, iDKeep, indxc, InVec, iPrForm, iPrint, iPrOrb, isHDF5, iStatPRN, Iter2run, IterPrlv, jPrint, &
                   jVOut, kIVO, klockan, kOptim_Max, KSDFT, LKon, LstVec, MaxFlip, MiniDn, MSYMON, MxConstr, MxIter, MxOptm, nAufb, &
-                  nBas, nConstr, nCore, nD, nDel, nDisc, Neg2_Action, nFro, nIter, nOcc, NoExchange, NoProp, nOrb, nScreen, nSym, &
-                  nTit, OccSet_e, OccSet_m, One_Grid, OnlyProp, PmTime, PreSch, QNRTh, QudThr, ReOrd, RFPert, RGEK, RotFac, &
-                  RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac, Thize, ThrEne, Title, Tot_Charge, &
-                  Tot_El_Charge, Tot_Nuc_Charge, TStop, WrOutD
+                  nBas, nConstr, nCore, nD, nDel, nDisc, Neg2_Action, nFro, nIter, nOcc, NoExchange, NoFerm, NoProp, nOrb, &
+                  nScreen, nSym, nTit, OccSet_e, OccSet_m, One_Grid, OnlyProp, PmTime, PreSch, QNRTh, QudThr, ReOrd, RFPert, RGEK, &
+                  RotFac, RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac, Thize, ThrEne, Title, &
+                  Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop, WrOutD
 use Cholesky, only: ChFracMem, timings
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r
 use InfSCF, only: FileOrb_ID
 #endif
+use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
-use spool, only: Spoolinp, Close_LuSpool
-
 
 implicit none
 #include "hfc_logical.fh"
@@ -80,6 +79,7 @@ OccSet = .false.
 FermSet = .false.
 CharSet = .false.
 SpinSet = .false.
+NoFerm = .false.
 
 Neg2_Action = 'STOP'
 
@@ -601,15 +601,14 @@ do
       Line = Get_Ln(LuSpool)
       call Get_F1(1,QNRTh)
 
-    case ('AUFB')
-      !>>>>>>>>>>>>> AUFB <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-      call WarningMessage(2,' Error: Keyword AUFBau is now obsolete!;Use keyword CHARge')
-      call Abend()
-
     case ('FERM')
       !>>>>>>>>>>>>> FERM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       if (OccSet) then
         call WarningMessage(2,'Options OCCUpied and FERMi are mutually exclusive')
+        call Abend()
+      end if
+      if (NoFerm) then
+        call WarningMessage(2,'Options FERMi and NOFErmi are mutually exclusive')
         call Abend()
       end if
       if (Chol) then
@@ -627,10 +626,6 @@ do
           RTemp = Half
           TemFac = 0.4_wp
           TStop = 0.005_wp
-        case (2)
-          RTemp = Half
-          TemFac = 0.46_wp
-          TStop = 0.01_wp
         case (3)
           RTemp = Half
           TemFac = 0.61_wp
@@ -639,13 +634,25 @@ do
           RTemp = One
           TemFac = 0.73_wp
           TStop = 0.06_wp
-        case default
-          if (iAuf /= 5) call WarningMessage(1,' RdInp: Aufbau case must be in the range 0-5;Using case 5!')
+        case (5)
           RTemp = One
           TemFac = 0.87_wp
           TStop = 0.15_wp
+        case default
+          if (iAuf /= 2) call WarningMessage(1,' RdInp: Aufbau case must be in the range 0-5;Using case 2!')
+          RTemp = Half
+          TemFac = 0.46_wp
+          TStop = 0.01_wp
       end select
       UHFSet = .true.
+
+    case ('NOFE')
+      !>>>>>>>>>>>>> NOFE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      if (FermSet) then
+        call WarningMessage(2,'Options FERMi and NOFErmi are mutually exclusive')
+        call Abend()
+      end if
+      NoFerm = .true.
 
     case ('TEEE')
       !>>>>>>>>>>>>> TEEE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

@@ -21,10 +21,9 @@ subroutine MOTRAC(CMO,F,X1,X2)
 !
 ! ********** IBM-3090 RELEASE 86 12 05 **********
 
+use rasscf_global, only: iTRI
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use rasscf_global, only: iTRI
-
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)

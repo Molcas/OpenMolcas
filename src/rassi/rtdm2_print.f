@@ -16,16 +16,15 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
       SUBROUTINE RTDM2_PRINT(ISTATE, JSTATE, EIJ, NDYSAB, DYSAB,
      &                 NRT2MAB , RT2M , CMO1, CMO2, AUGSPIN)
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "symmul.fh"
+      use Cntrl, only: OCAN, LSYM1, LSYM2, OCAA
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "cntrl.fh"
-#include "Files.fh"
       INTEGER ISTATE, JSTATE, SYM12
       INTEGER NDYSAB,NRT2MAB,AUGSPIN
-      Real*8  DYSAB(*), RT2M(*), CMO1(*), CMO2(*)
       Real*8  EIJ
+      Real*8  DYSAB(*), RT2M(*), CMO1(*), CMO2(*)
 C -------------------------------------------------------------
 C The spin coupling matrix elements have the following index-code:
 C             SPIN=1 means  K2V (AAB+BBB)
@@ -34,9 +33,13 @@ C Notice, SPIN here has nothing to do with the spin quantum number. It
 C is just a printing code.
 C ------------------------------------------------------------
 C Other variables
-      CHARACTER*3 NUM1,NUM2
-      CHARACTER*16 FNM
-      DIMENSION IOFFA(8), IOFFO(8)
+      CHARACTER(LEN=3) NUM1,NUM2
+      CHARACTER(LEN=16) FNM
+      INTEGER IOFFA(8), IOFFO(8)
+      INTEGER I, J, LU, ISYM, LPOS, NO, NB, IO, IOFFTD, ISYI, NOI, NII,
+     &        IA, NORBSYM, NAI, ISYJ, NOJ, NAJ, ISYL, NOL, NAL, NIL, JA,
+     &        JO, L, LA, LO, KPOS, NIJ
+      INTEGER, External:: IsFreeUnit
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
@@ -220,4 +223,4 @@ C Write reduced 2-e TDM in CI basis.
 270   CONTINUE
       END DO
       CLOSE (LU)
-      END SUBROUTINE
+      END SUBROUTINE RTDM2_PRINT

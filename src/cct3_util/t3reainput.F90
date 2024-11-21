@@ -74,9 +74,9 @@ subroutine t3reainput()
 use CCT3_global, only: dimm, eps, filerst, fullprint, ijsegkey, imax, imin, iokey, ispin, jmax, jmin, keysa, lsym, maxorb, &
                        maxspace, mchntyp, mhkey, mmul, noa, nob, noop, norb, nshf, nsym, nva, nvb, slim, shifto, shiftv, symimax, &
                        symimin, symjmax, symjmin, typden, typt3
+use spool, only: Close_LuSpool, Spoolinp
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
-use spool, only: Spoolinp, Close_LuSpool
 
 implicit none
 integer(kind=iwp) :: Lu, LuSpool, nactel, nhelp

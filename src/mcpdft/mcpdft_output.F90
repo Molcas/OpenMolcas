@@ -17,9 +17,9 @@ module mcpdft_output
   private
 
   integer(kind=iwp),dimension(7) :: iPrLoc
-  integer(kind=iwp) :: lf = u6,iPrGlb = 0
+  integer(kind=iwp) :: iPrGlb = 0
 
-  public :: lf,iPrGlb,iPrLoc
+  public :: iPrGlb,iPrLoc
   public :: set_print_level
 
 contains
@@ -29,12 +29,10 @@ contains
     ! iPrGlb, and therefore iPrLoc should just be removed from
     ! this module all together
     use printlevel,only:debug,usual,silent
-    implicit none
 
-    logical,external :: reduce_prt
+    logical(kind=iwp),external :: reduce_prt
     integer(kind=iwp),external :: iPrintLevel
-
-    integer :: i ! dummy loop variable
+    integer(kind=iwp) :: i ! dummy loop variable
 
     iPrGlb = iPrintLevel(-1)
     if(reduce_prt()) then
@@ -46,10 +44,10 @@ contains
     iPrLoc(:) = iPrGlb
 
     if(iPrGlb >= debug) then
-      write(lf,*) ' set_print_level: Print levels have been set to'
-      write(lf,*) '  Global print level iPrGlb=',iPrGlb
-      write(lf,*) '  Individual sections print levels, iPrLoc:'
-      write(lf,'(1x,7I5)')(iPrLoc(i),i=1,7)
+      write(u6,*) ' set_print_level: Print levels have been set to'
+      write(u6,*) '  Global print level iPrGlb=',iPrGlb
+      write(u6,*) '  Individual sections print levels, iPrLoc:'
+      write(u6,'(1x,7I5)')(iPrLoc(i),i=1,7)
     endif
 
   endsubroutine set_print_level

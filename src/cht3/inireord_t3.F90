@@ -19,9 +19,9 @@ use Cholesky, only: NumCho
 use Para_Info, only: MyRank, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 #endif
+use spool, only: Close_LuSpool, Spoolinp
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use spool, only: Spoolinp, Close_LuSpool
 
 implicit none
 integer(kind=iwp), intent(out) :: NaGrp

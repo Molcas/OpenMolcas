@@ -131,7 +131,6 @@ set (sources
 set (modfile_list
      caspt2_global.F90
      csfbas.F90
-     gas_data.F90
      gugx.F90
      rasscf_global.F90
      wadr.F90

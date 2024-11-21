@@ -15,27 +15,24 @@
 !>   Determine whether orbital files should be read, etc.
 !>
 !> @details
-!> Sets values in common blocks in general.fh, timers.fh and the module
-!> rasscf_global.F90
+!> Sets values in common blocks in timers.fh and the modules
+!> rasscf_global.F90 and general_data.F90
 !***********************************************************************
 
 subroutine mcpdft_init()
+  use constants,only:zero,one
+  use definitions,only:iwp
   Use Fock_util_global,only:DoCholesky
   Use Cholesky,only:ChFracMem
-  Use KSDFT_Info,Only:CoefR,CoefX
   use mcpdft_output,only:set_print_level
-  use gas_data, only: NGAS, NGSSH, IGSOCCX
-  use rasscf_global, only: iRoot, DFTFOCK, ENER, ExFac, IPT2, iTriM, lRoots, NonEq, nRoots, &
-                           PreThr, Weight, Title, ixSym, iTri
-
+  use general_data,only:ispin,nactel,nelec3,nhole1,stsym,nfro,nish,nash,nrs1,nrs2,nrs3,nssh,ndel,nbas
+  use rasscf_global,only:iroot,weight,DFTFOCK,ExFac,IPT2,iTRIM,lROOTS,NonEq,NROOTS,TITLE,iXSym,iTRI
 
   implicit none
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "timers.fh"
 
-  integer i
+  integer(kind=iwp) :: i
 !----------------------------------------------------------------------*
 
 ! Set print levels, and adjust them if needed:
@@ -47,7 +44,7 @@ subroutine mcpdft_init()
 #ifdef _MOLCAS_MPP_
   ChFracMem = 0.3d0
 #else
-  ChFracMem = 0.0d0
+  ChFracMem = zero
 #endif
 
 ! Default title line:
@@ -61,20 +58,12 @@ subroutine mcpdft_init()
   iRoot = 0
   IROOT(1) = 1
 ! weights used for average energy calculations
-  WEIGHT = 0.0d0
-  WEIGHT(1) = 1.0D0
-! iteration energies
-  ENER = 0.0D0
-! prethr: energy threshold for printout of orbitals
-  prethr = 0.15d0
+  WEIGHT = zero
+  WEIGHT(1) = one
 
 ! Default value for type of CASSCF (used for DFT)
   DFTFOCK = "ROKS"
-  ExFac = 0.0d0
-
-! Initialize KSDFT coefficients (S Dong, 2018)
-  CoefR = 1.0D0
-  CoefX = 1.0D0
+  ExFac = zero
 
 ! default spin value (singlet)
   ISPIN = 1
@@ -97,25 +86,16 @@ subroutine mcpdft_init()
   NonEq = .False.
 
 ! set default values for orbitals
-  DO I = 1,mxSym
-    NFRO(I) = 0
-    NISH(I) = 0
-    NASH(I) = 0
-    NRS1(I) = 0
-    NRS2(I) = 0
-    NRS3(I) = 0
-    NSSH(I) = 0
-    NDEL(I) = 0
-    NBAS(I) = 0
-  ENDDO
-
-! initialize occupation numbers for GAS
-  NGAS = 3
-  NGSSH = 0
-  IGSOCCX = 0
-  do I = 1,mxOrb
-    IXSYM(I) = 0
-  enddo
+  nFro(:) = 0
+  nIsh(:) = 0
+  nAsh(:) = 0
+  nRs1(:) = 0
+  NRS2(:) = 0
+  NRS3(:) = 0
+  NSSH(:) = 0
+  NDEL(:) = 0
+  NBAS(:) = 0
+  ixsym(:) = 0
 
 !     Auxiliary vector ITRI(I)=I*(I-1)/2
   do I = 2,ITRIM
@@ -123,21 +103,21 @@ subroutine mcpdft_init()
   enddo
 
 ! Initialize Timing Variables
-  Ebel_3 = 0.0d0
-  Eterna_3 = 0.0d0
-  Rado_3 = 0.0d0
-  Rolex_3 = 0.0d0
-  Omega_3 = 0.0d0
-  Tissot_3 = 0.0d0
-  Piaget_3 = 0.0d0
-  Candino_3 = 0.0d0
-  Fortis_3 = 0.0d0
-  Zenith_3 = 0.0d0
-  Gucci_3 = 0.0d0
-  Alfex_3 = 0.0d0
-  WTC_3 = 0.0d0
-  Longines_3 = 0.0d0
-  Oris_2 = 0.0d0
-  Movado_2 = 0.0d0
+  Ebel_3 = zero
+  Eterna_3 = zero
+  Rado_3 = zero
+  Rolex_3 = zero
+  Omega_3 = zero
+  Tissot_3 = zero
+  Piaget_3 = zero
+  Candino_3 = zero
+  Fortis_3 = Zero
+  Zenith_3 = zero
+  Gucci_3 = zero
+  Alfex_3 = zero
+  WTC_3 = zero
+  Longines_3 = zero
+  Oris_2 = zero
+  Movado_2 = Zero
 
 END

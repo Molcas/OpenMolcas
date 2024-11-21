@@ -17,9 +17,8 @@ subroutine DBLOCK(D)
 !
 ! ********** IBM-3090 release 88 10 10 **********
 
-use Definitions, only: wp, iwp
 use rasscf_global, only: ITRI
-
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: D(*)

@@ -8,24 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Cntrl_Data
-Private
-#include "Molcas.fh"
-#include "cntrl.fh"
-
-!    SONTO            Array of SO state pairs
-Integer, Allocatable, Public:: SONTO(:,:)
-!    SONTOSTATES      Number of state pairs to calculate
-Integer, Public:: SONTOSTATES=0
-
-!    SONAT            Array of SO state to compute
-Integer, Allocatable, Public:: SONAT(:)
-!    SONATNSTATE      Number of states to calculate
-Integer, Public:: SONATNSTATE=0
-
-Integer, Allocatable, Public:: SODIAG(:)
-!    SODIAGNSTATE     Number of states to diagonalize
-INTEGER, Public::  SODIAGNSTATE=0
-
-Real*8, Allocatable, Public:: RefEne(:), HEff(:,:)
-End Module Cntrl_Data
+Module Trnsfrm
+Integer NPQ,NBPQ,NBRS,LADX,NAVX,NAP,NAQ,NAR,NAS,NBP,NBQ,NBR,NBS,ISP,ISQ,ISR,ISS,IAPR(8), &
+        LMOP1,LMOQ1,LMOR1,LMOS1,NX1MX,NX2MX,NX3MX,NVXPQ
+End Module Trnsfrm

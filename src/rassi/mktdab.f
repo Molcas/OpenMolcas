@@ -17,31 +17,37 @@
 *  BIORTHONORMAL ORBITAL BASES A AND B.
 *****************************************************************
       SUBROUTINE MKTDAB(OVER,GAMMA1,TDMAB,iRC)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION TDMAB(NTDMAB)
-      DIMENSION GAMMA1(NASHT,NASHT)
-#include "Molcas.fh"
-#include "cntrl.fh"
+      use Constants, only: Zero, Two
+      use Cntrl, only: LSYM1, LSYM2
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
+      IMPLICIT NONE
+      REAL*8 OVER
 #include "rassi.fh"
-#include "symmul.fh"
-      DIMENSION IOFFA(8)
+      REAL*8 GAMMA1(NASHT,NASHT)
+      REAL*8 TDMAB(NTDMAB)
+      INTEGER iRC
+
+      INTEGER IOFFA(8)
+      INTEGER I, IOFFTD, ISY, II, IPOS, ISY12, ISY1, NO1, ISY2, NO2,
+     &        NA1, NA2, NI1, NI2, IA, J, JA, JJ
+      REAL*8, External:: DDot_
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
         IOFFA(I+1)=IOFFA(I)+NASH(I)
       end do
 C  INITIALIZE TRANSITION DENSITY MATRIX:
-      CALL FZERO(TDMAB,NTDMAB)
+      TDMAB(:)=Zero
 C CONTRIBUTION FROM INACTIVE ORBITALS:
       IF (LSYM1.EQ.LSYM2) THEN
-         IF (OVER.NE.0.0D0) THEN
+         IF (OVER.NE.Zero) THEN
             IOFFTD=0
             DO ISY=1,NSYM
                II=0
                DO I=1,NISH(ISY)
                   II=II+1
                   IPOS=IOFFTD+(II-1)*NOSH(ISY)+II
-                  TDMAB(IPOS)=2.0D0*OVER
+                  TDMAB(IPOS)=Two*OVER
                end do
                IOFFTD=IOFFTD+NOSH(ISY)**2
             end do
@@ -78,6 +84,6 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
       end do
 *
       iRC=1
-      If (DDot_(nTDMAB,TDMAB,1,TDMAB,1).le.0.0D0) iRC=0
+      If (DDot_(nTDMAB,TDMAB,1,TDMAB,1).le.Zero) iRC=0
 
       END SUBROUTINE MKTDAB

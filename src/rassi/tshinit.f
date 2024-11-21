@@ -14,14 +14,14 @@
       use rassi_global_arrays, only: PART, JBNUM, LROOT
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT,
+     &                 NACTE, NELE3, NHOLE1, RASTYP
+      use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop
+      use Symmetry_Info, only: nSym=>nIrrep
+
+      IMPLICIT None
       Real*8 :: Energy(nState)
-#include "symmul.fh"
 #include "rassi.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "tshcntrl.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
@@ -29,6 +29,9 @@
       CHARACTER(LEN=8) WFTYP1,WFTYP2
       LOGICAL   LOWROOT, UPROOT
       Real*8, Allocatable:: CI1(:), CI2(:)
+      Integer NACTE1, MPLET1, NHOL11, NELE31, NACTE2, MPLET2, NHOL12,
+     &        NELE32
+      REAL*8 EDIFF, EThr
 
       Interface
       Subroutine SGInit(nSym,nActEl,iSpin,SGS,CIS)

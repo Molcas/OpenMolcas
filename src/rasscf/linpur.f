@@ -10,8 +10,7 @@
 ************************************************************************
       SUBROUTINE LINPUR(CMO)
       use stdalloc, only: mma_allocate, mma_deallocate
-* rasscf_global.F90 defines NAME:
-      use rasscf_global, only: NAME, IXSYM
+      use rasscf_global, only: BName, IXSYM
 
       IMPLICIT None
       Real*8 CMO(*)
@@ -42,7 +41,7 @@
       END DO
       CALL mma_allocate(LMB,NBTOT,Label='LMB')
       DO IBAS=1,NBTOT
-       LCHAR=NAME(IBAS)(LENIN4:LENIN5)
+       LCHAR=BName(IBAS)(LENIN4:LENIN5)
        IF(LCHAR.EQ.'  ') THEN
          L=0
        ELSE IF(LCHAR.EQ.'x ') THEN
@@ -53,7 +52,7 @@
          L=0
        ELSE
          READ(LCHAR,'(I2)') L
-         IF (NAME(IBAS)(LENIN5:LENIN5).EQ.'-') THEN
+         IF (BName(IBAS)(LENIN5:LENIN5).EQ.'-') THEN
            L=-L
          END IF
        END IF

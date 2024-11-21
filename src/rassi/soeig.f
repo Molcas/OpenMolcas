@@ -17,6 +17,10 @@
 #ifdef _HDF5_
       use Dens2HDF5
       use mh5, only: mh5_put_dset
+      use RASSIWfn, only: wfn_SOS_CoefI, wfn_SOS_CoefR, wfn_SOS_Energy,
+     &                    wfn_SOS_HSOI, wfn_SOS_HSOR,
+     &                    wfn_SOS_VSOI, wfn_SOS_VSOR
+      use Cntrl, only: IFTDM, IFTRD1, RHODYN
 #endif
 #ifdef _DMRG_
       use rasscf_global, only: doDMRG
@@ -24,14 +28,12 @@
 #endif
       use Constants, only: auTocm, auToeV
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Cntrl, only: NSTATE, NPROP, NSOThr_PRT,
+     &                 SOThr_PRT, EMIN, IFJ2, IFJZ, REDUCELOOP,
+     &                 LOOPDIVIDE, ICOMP, MLTPLT, PNAME
+
       IMPLICIT NONE
-#include "SysDef.fh"
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
-#include "symmul.fh"
-#include "Files.fh"
-#include "rassiwfn.fh"
 
       INTEGER NSS
       REAL*8 PROP(NSTATE,NSTATE,NPROP)

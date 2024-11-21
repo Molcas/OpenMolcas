@@ -17,11 +17,12 @@
 *  IT IS RETURNED IN SYMMETRY-BLOCKED SQUARED FORMAT.
 *****************************************************************
       SUBROUTINE DIMAT(CMO1,CMO2,DINAO)
+      use Symmetry_Info, only: nSym=>nIrrep
+      use Constants, only: Zero, Two
       IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CMO1(NCMO),CMO2(NCMO),DINAO(NBSQ)
 #include "rassi.fh"
-#include "symmul.fh"
-      CALL DCOPY_(NBSQ,[0.0D0],0,DINAO,1)
+      REAL*8 CMO1(NCMO),CMO2(NCMO),DINAO(NBSQ)
+      DINAO(:)=Zero
       ISTC=1
       ISTD=1
       DO ISYM=1,NSYM
@@ -37,6 +38,6 @@
        ISTC=ISTC+NO*NB
        ISTD=ISTD+NB**2
       END DO
-      CALL DSCAL_(NBSQ,2.0D00,DINAO,1)
+      DINAO(:)=Two*DINAO(:)
 
-      END
+      END SUBROUTINE DIMAT

@@ -10,9 +10,9 @@
 ************************************************************************
       SUBROUTINE FOCK_RASSI(DINAO,FOCKAO)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rassi.fh"
-#include "symmul.fh"
       Real*8 FOCKAO(NBSQ),DINAO(NBSQ)
 
       Integer KEEP(8),NBSX(8)

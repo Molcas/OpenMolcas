@@ -15,9 +15,8 @@ subroutine set_dmrg_settings()
 
 ! module dependencies
 use active_space_solver_cfg, only: as_solver, as_solver_inp_proc
+use spool, only: Close_LuSpool, Spoolinp
 use Definitions, only: iwp, u6
-use spool, only: Spoolinp, Close_LuSpool
-
 
 implicit none
 ! ----------------------------------------------------------------------

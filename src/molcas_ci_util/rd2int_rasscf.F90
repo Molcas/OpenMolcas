@@ -29,9 +29,8 @@ subroutine Rd2Int_RASSCF()
 !***********************************************************************
 
 use UnixInfo, only: ProgName
-use Definitions, only: iwp, u6
 use rasscf_global, only: lSquare
-
+use Definitions, only: iwp, u6
 
 implicit none
 #include "rasdim.fh"

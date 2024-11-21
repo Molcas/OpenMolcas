@@ -26,8 +26,6 @@
       INTEGER IMODE
       INTEGER ISORB,JSORB,LSORB,JLSORB,IJL
       INTEGER ND1,ND2,ND3
-#include "SysDef.fh"
-#include "symmul.fh"
       Real*8, EXTERNAL :: OVERLAP_RASSI
       Real*8, Allocatable:: ANN1(:), ANN2(:), ANN3(:)
 

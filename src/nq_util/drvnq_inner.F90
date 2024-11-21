@@ -29,7 +29,7 @@ use nq_Grid, only: l_casdft, D1UnZip, P2UnZip
 use nq_MO, only: D1MO, P2MO
 use nq_Structure, only: Close_Info_Ang
 use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Grad_I, iOpt_Angular, NASHT, nPot1, nPot2, &
-                   number_of_subblocks, nx, ny, nz, Tau_I
+                   number_of_subblocks, nx, ny, nz, Tau_I, Tau_a1, Tau_b1, Tau_a2, Tau_b2, Functional_type, meta_GGA_type1
 use Grid_On_Disk, only: Grid_Status, GridInfo, Regenerate
 use DFT_Functionals, only: DFT_FUNCTIONAL
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -296,6 +296,12 @@ else
   call GADSum_SCAL(Dens_a2)
   call GADSum_SCAL(Dens_b1)
   call GADSum_SCAL(Dens_b2)
+  if (functional_type == meta_GGA_type1) then
+    call GADSum_SCAL(Tau_a1)
+    call GADSum_SCAL(Tau_a2)
+    call GADSum_SCAL(Tau_b1)
+    call GADSum_SCAL(Tau_b2)
+  end if
   call GADSum_SCAL(Grad_I)
   call GADSum_SCAL(Tau_I)
   call GADSum(FckInt,nFckInt*nD)

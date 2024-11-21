@@ -165,7 +165,7 @@ do while ((Iter < 500) .and. DidChange)
     end if
   end if
 
-  ! Check that the constraint is fullfilled.
+  ! Check that the constraint is fulfilled.
 
   rSum = Zero
   do i=1,n

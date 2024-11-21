@@ -42,14 +42,13 @@
       Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
       Integer IOFF(8,8)
 #endif
-#include "print.fh"
 #include "wldata.fh"
 #include "warnings.h"
-      Character*8 Label
-      Dimension dum(1)
+      Character(LEN=8) Label
+      REAL*8 dum(1)
 *
 #ifdef _DEBUGPRINT_
-      Dimension idum(1)
+      Integer idum(1)
       MulTab(i,j)=iEor(i-1,j-1)+1
 #endif
 *

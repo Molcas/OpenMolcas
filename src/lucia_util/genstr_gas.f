@@ -15,7 +15,7 @@
      &                       LSTASO, IREORD, STRING,    IOC,  IOTYP,
      &                        IPRNT)
 *
-* Generate strings consisting of  NEL electrons fullfilling
+* Generate strings consisting of  NEL electrons fulfilling
 *   1 : Between NELMN1 AND NELMX1 electrons in the first NORB1 orbitals
 *   2 : Between NELMN3 AND NELMX3 electrons in the last  NORB3 orbitals
 *

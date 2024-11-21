@@ -14,9 +14,8 @@
 subroutine Read_Input()
 
 use False_Global, only: Mode, Run_Command
-use Definitions, only: iwp
 use spool, only: Spoolinp
-
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: LU

@@ -14,7 +14,9 @@
      &                   BUFF,NBUFF,DENS,NDENS,MASK,ISY12,IOFF)
       use OneDat, only: sOpSiz
       use Constants, only: Zero, Two
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Cntrl, only: NSTATE, NPROP, PNUC, PORIG, ICOMP, IPUSED, PNAME
+      use Symmetry_Info, only: nSym=>nIrrep, MUL
+      IMPLICIT None
 ************************************************************************
 *     Objective: to compute the transition property between state      *
 *                ISTATE and JSTATE of property IPROP.                  *
@@ -23,14 +25,17 @@
 *                                                                      *
 *     Author: Roland Lindh, Uppsala University, 23 Dec. 2015           *
 ************************************************************************
-#include "Molcas.fh"
-#include "cntrl.fh"
 #include "rassi.fh"
-#include "symmul.fh"
-      CHARACTER*8 LABEL
+      INTEGER IPROP, ISTATE_, JSTATE_, ITYPE, NBUFF, NDENS, MASK, ISY12
+      CHARACTER(LEN=8) LABEL
       REAL*8 PROP(NSTATE,NSTATE,NPROP), BUFF(NBUFF), DENS(NDENS,4)
       INTEGER IOFF(8)
-      DIMENSION IDUM(1)
+
+      Integer IDUM(1), ISTATE, JSTATE, IC, IOPT, NSIZ, IRC, ISCHK, IINT,
+     &        ISY1, NB1, ISY2, NB2, I12, NB12, IPOS
+      REAL*8 PSUM
+      REAL*8, External:: DDot_
+
       ISTATE=Max(ISTATE_,JSTATE_)
       JSTATE=Min(ISTATE_,JSTATE_)
 *

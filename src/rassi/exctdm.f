@@ -17,31 +17,30 @@
       use Definitions, only: wp, iwp, u6
       use frenkel_global_vars, only: iTyp, labb, doexch, VNucB, eNucB
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Symmetry_Info, only: nIrrep
-      IMPLICIT REAL(kind=wp) (A-H,O-Z)
-#include "rasdim.fh"
-#include "symmul.fh"
+      use Cntrl, only: NSTATE, MLTPLT
+      use Symmetry_Info, only: nSym=>nIrrep
+
+      IMPLICIT None
 #include "rassi.fh"
-#include "cntrl.fh"
-#include "Files.fh"
-#include "SysDef.fh"
       type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)
       integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),
      &        iRC, NNLTD, istate, jstate, run,
      &        m(1), n(1), a
       integer(kind=iwp), external :: isFreeUnit
-      DIMENSION TDMAB(NTDMAB)
-      DIMENSION TRAD(NASHT,NASHT)
-      DIMENSION TRASD(NASHT,NASHT)
-      DIMENSION TSDMAB(NTDMAB)
-      DIMENSION TDMZZ(NTDMZZ)
-      DIMENSION TSDMZZ(NTDMZZ)
-      DIMENSION CMO1(NCMO)
-      DIMENSION CMO2(NCMO)
+      real(kind=wp) TDMAB(NTDMAB)
+      real(kind=wp) TRAD(NASHT,NASHT)
+      real(kind=wp) TRASD(NASHT,NASHT)
+      real(kind=wp) TSDMAB(NTDMAB)
+      real(kind=wp) TDMZZ(NTDMZZ)
+      real(kind=wp) TSDMZZ(NTDMZZ)
+      real(kind=wp) CMO1(NCMO)
+      real(kind=wp) CMO2(NCMO)
       character(len=13) :: filnam
       real(kind=wp)  :: SIJ
       real(kind=wp), Allocatable:: TDMZZ_mtx(:,:), TDMZZ_new(:),
      &                            STDMZZ_mtx(:,:), STDMZZ_new(:)
+      integer(kind=iwp) LuT, LuT_, I, J, K, INTEG, IPNB
+      real(kind=wp), External :: DDot_
 #ifdef _DEBUGPRINT_RASSI_
       logical :: debug_rassi_code = .true.
 #else
@@ -66,7 +65,7 @@
           write(u6,*) 'basis functions of mon B', nbas_B
         end if
         call NameRun('AUXRFIL1')
-        call get_iArray('nBas',nBas,nIrrep)
+        call get_iArray('nBas',nBas,nSym)
         nbas_tot = nBas(0)
         call NameRun('#Pop')    ! switch back to old RUNFILE
         if (debug_rassi_code) then
@@ -84,7 +83,7 @@
           write(u6,*) 'basis functions of mon A', nbas_A
         end if
         call NameRun('AUXRFIL1')
-        call get_iArray('nBas',nBas,nIrrep)
+        call get_iArray('nBas',nBas,nSym)
         nbas_tot = nBas(0)
         call NameRun('#Pop')    ! switch back to old RUNFILE
         if (debug_rassi_code) then

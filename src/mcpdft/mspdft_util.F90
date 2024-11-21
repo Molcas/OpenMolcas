@@ -18,9 +18,6 @@
 !***********************************************************************
 
 module mspdft_util
-  use constants,only:zero
-  use definitions,only:wp
-  use mcpdft_output,only:lf
   implicit none
   private
 
@@ -28,7 +25,7 @@ module mspdft_util
   public :: replace_diag
 
 contains
-  subroutine print_final_energies(e_mspdft,nroots,method)
+  subroutine print_final_energies(e_mspdft,nroots)
     ! Prints the Final MS-PDFT Energies
     !
     ! Args:
@@ -37,29 +34,19 @@ contains
     !
     !   nroots: integer
     !     Number of roots in the calculation
-    !
-    !   method: character(len=8)
-    !     MS-PDFT method string
+    use definitions,only:iwp,wp,u6
+    implicit none
 
-    use mcpdft_input,only:mcpdft_options
-
-    integer,intent(in) :: nroots
+    integer(kind=iwp),intent(in) :: nroots
     real(kind=wp),dimension(nroots),intent(in) :: e_mspdft
-    character(len=8),intent(in) :: method
 
-    integer :: root
+    integer(kind=iwp) :: state
 
-    if(.not. mcpdft_options%otfnal%is_hybrid()) then
-      write(lf,'(6X,2A)') method,' Energies:'
-      do root = 1,nroots
-        call PrintResult(lf,'(6X,A,1X,I4,3X,A13,F18.8)',method//' Root',root,'Total energy:',e_mspdft(root),1)
-      enddo
-    else
-      write(lf,'(6X,3A)') 'Hybrid ',method,' Energies:'
-      do root = 1,nroots
-        call PrintResult(lf,'(6X,A,1X,I4,3X,A13,F18.8)','Hybrid '//method//' Root',root,'Total energy:',e_mspdft(root),1)
-      enddo
-    endif
+    do state = 1,nroots
+      call printresult(u6,'(6X,A,I3,A,F16.8)','MSPDFT root number',state,' Total energy:',e_mspdft(state),1)
+    enddo
+    write(u6,*)
+
   endsubroutine print_final_energies
 
   subroutine print_mspdft_vectors(si_pdft,nroots)
@@ -74,40 +61,46 @@ contains
     !   nroots: integer
     !     number of roots (lroots) or dimension of u and eigenvectors
     !
+    use constants,only:zero
+    use definitions,only:wp,iwp,u6
+    implicit none
 
-    integer,intent(in) :: nroots
-    real(kind=wp),dimension(nroots**2),intent(in) :: si_pdft
+    integer(kind=iwp),intent(in) :: nroots
+    real(kind=wp),dimension(nroots,nroots),intent(in) :: si_pdft
 
-    logical :: refbas = .false.
+    logical :: refbas
     character(len=9),dimension(nroots) :: VecStat
     character(len=9) :: StatVec
     character(len=30) :: mspdftfmt
     character(Len=18) :: MatInfo
 
-    integer :: root
-    real(kind=wp),dimension(nroots**2) :: reference_vectors,eig_vecs_in_ref
+    integer(kind=iwp) :: root
+    real(kind=wp),dimension(nroots,nroots) :: reference_vectors,eig_vecs_in_ref
+
+    refbas = .false.
 
     do root = 1,nroots
       write(statvec,'(A5,I4)') 'Root ',root
       vecstat(root) = statvec
     enddo
 
-    write(lf,*)
+    write(u6,*)
 
-    write(lf,'(7X,A)') 'Intermediate-state Basis'
+    write(u6,'(6X,A)') 'Intermediate-state Basis'
     write(mspdftfmt,'(A4,I5,A9)') '(6X,',nroots,'(A10,5X))'
-    write(lf,mspdftfmt)((VecStat(root)),root=1,nroots)
-    Call RecPrt(' ','(7X,10(F9.6,6X))',si_pdft,nroots,nroots)
+    write(u6,mspdftfmt)((VecStat(root)),root=1,nroots)
+    Call RecPrt(' ','(7X,10(F9.6,6X))',si_pdft,size(si_pdft,1),size(si_pdft,2))
+    write(u6,*)
 
     call f_inquire('ROT_VEC',refbas)
     if(refbas) then
       ! Generate reference state basis
-      call fzero(eig_vecs_in_ref,nroots**2)
+      eig_vecs_in_ref = zero
       call readmat2('ROT_VEC',MatInfo,reference_vectors,nroots,nroots,7,18,'T')
       call dgemm_('n','n',nroots,nroots,nroots,1.0d0,reference_vectors, &
                   nroots,si_pdft,nroots,0.0d0,eig_vecs_in_ref,nroots)
-      write(lf,'(7X,A)') 'Reference-state Basis'
-      write(lf,mspdftfmt)((VecStat(root)),root=1,nroots)
+      write(u6,'(6X,A)') 'Reference-state Basis'
+      write(u6,mspdftfmt)((VecStat(root)),root=1,nroots)
       call RecPrt(' ','(7X,10(F9.6,6X))',eig_vecs_in_ref,nroots,nroots)
       call PrintMat2('FIN_VEC',MatInfo,eig_vecs_in_ref,nroots,nroots,7,18,'T')
     endif
@@ -126,27 +119,36 @@ contains
     !
     !   digit: integer
     !     Threshold value to shift diagonal elements by when printed
+    use constants,only:zero
+    use definitions,only:iwp,wp,u6
+    use printlevel,only:silent
+    use mcpdft_output,only:iPrLoc
+    implicit none
 
-    integer,intent(in) :: nroots,digit
-    real(kind=wp),dimension(nroots**2),intent(in) :: heff
+    integer(kind=iwp),intent(in) :: nroots,digit
+    real(kind=wp),dimension(nroots,nroots),intent(in) :: heff
 
-    real(kind=wp),dimension(nroots**2) :: shifted_heff
+    real(kind=wp),dimension(nroots,nroots) :: shifted_heff
     real(kind=wp) :: shift
-    integer :: root
+    integer(kind=iwp) :: root
+
+    if(iPrLoc(1) == silent) then
+      return
+    endif
 
     shifted_heff = heff
 
     call should_shift_diag(heff,nroots,digit,shift)
 
     if(shift /= zero) then
-      write(lf,'(6X,A,F9.2,A)') '(diagonal values increased by',-shift,' hartree)'
+      write(u6,'(6X,A,F9.2,A)') '(diagonal values increased by',-shift,' hartree)'
       do root = 1,nroots
-        shifted_heff((root-1)*nroots+root) = shifted_heff((root-1)*nroots+root)-shift
+        shifted_heff(root,root) = shifted_heff(root,root)-shift
       enddo
     endif
 
     call recprt(' ','(7X,10(F9.6,1X))',shifted_heff,nroots,nroots)
-    write(lf,*)
+    write(u6,*)
   endsubroutine print_effective_ham
 
   subroutine should_shift_diag(heff,nroots,digit,shift)
@@ -166,20 +168,23 @@ contains
     ! Returns:
     !   shift: real
     !     Amount to shift diagonal elements by
+    use constants,only:zero
+    use definitions,only:iwp,wp
+    implicit none
 
-    integer,intent(in) :: nroots,digit
-    real(kind=wp),dimension(nroots**2),intent(in) :: heff
+    integer(kind=iwp),intent(in) :: nroots,digit
+    real(kind=wp),dimension(nroots,nroots),intent(in) :: heff
 
     real(kind=wp),intent(out) :: shift
 
     real(kind=wp),dimension(nroots) :: rdiag
     real(kind=wp) :: maxelem
-    integer :: i,ishift
+    integer(kind=iwp) :: i,ishift
 
     shift = zero
 
     do i = 1,nroots
-      rdiag(i) = heff((i-1)*nroots+i)
+      rdiag(i) = heff(i,i)
     enddo
 
     maxelem = maxval(rdiag)
@@ -194,14 +199,17 @@ contains
   endsubroutine should_shift_diag
 
   subroutine replace_diag(mat,diag,ndim)
-    integer,intent(in) :: ndim
-    real(kind=wp),dimension(ndim),intent(in) :: diag
-    real(kind=wp),dimension(ndim**2),intent(inout) :: mat
+    use definitions,only:iwp,wp
+    implicit none
 
-    integer :: i
+    integer(kind=iwp),intent(in) :: ndim
+    real(kind=wp),dimension(ndim),intent(in) :: diag
+    real(kind=wp),dimension(ndim,ndim),intent(inout) :: mat
+
+    integer(kind=iwp) :: i
 
     do i = 1,ndim
-      mat(ndim*(i-1)+i) = diag(i)
+      mat(i,i) = diag(i)
     enddo
 
   endsubroutine replace_diag

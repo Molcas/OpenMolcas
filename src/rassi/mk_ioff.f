@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE mk_IOFF(IOFF,mSYM,NBASF,ISY12)
-#include "symmul.fh"
+      use Symmetry_Info, only: MUL
+      INTEGER mSYM, ISY12
       INTEGER IOFF(mSYM), NBASF(mSym)
 
 C FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
@@ -27,4 +28,4 @@ C FIRST SET UP AN OFFSET TABLE FOR SYMMETRY BLOCKS OF TDMSCR
         IOF=IOF+NB12
       END DO
 *
-      END
+      END SUBROUTINE mk_IOFF

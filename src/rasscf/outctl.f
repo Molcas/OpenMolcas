@@ -41,7 +41,7 @@
      &                         FDIAG, HalfQ, IBLBM, ICICH, iPCMRoot,
      &                         iPT2, iRLXRoot, iSPDen, iSupSM, iSymBB,
      &                         ITER, JBLBM, kIVO, KSDFT, lRoots,
-     &                         MaxOrbOut, NAC, NACPAR, NACPR2, NAME,
+     &                         MaxOrbOut, NAC, NACPAR, NACPR2, BName,
      &                         NIN, NONEQ, nRoots, NSEC, OutFmt1,
      &                         RFPert, RLXGrd, RotMax,       Tot_Charge,
      &                         Tot_El_Charge, Tot_Nuc_Charge, via_DFT,
@@ -642,7 +642,7 @@ C Local print level (if any)
      *  '-----------------------------------------------'
         Write(LF,*)
         lSave = KRoot.eq.iRlxRoot
-        CALL CHARGE(nsym,nbas,name,CMO,OCCN,SMAT,2,FullMlk,lSave)
+        CALL CHARGE(nsym,nbas,BName,CMO,OCCN,SMAT,2,FullMlk,lSave)
         Write(LF,*)
 *
 *       Compute properties
@@ -747,7 +747,7 @@ C Local print level (if any)
           Write(LF,'(6X,A)')
      &    '---------------------------------------------------'
           Write(LF,*)
-          CALL CHARGE(nsym,nbas,name,cmoso,OCCN,SMAT,3,FullMlk,
+          CALL CHARGE(nsym,nbas,BName,cmoso,OCCN,SMAT,3,FullMlk,
      &                .False.)
           Write(LF,*)
          ENDIF
@@ -777,7 +777,7 @@ C Local print level (if any)
            Write(LF,*)
            Write(LF,'(6X,A,I3)')
      &     'Natural Bond Order analysis for root number:',KROOT
-           Call Nat_Bond_Order(nSym,nBas,Name,2)
+           Call Nat_Bond_Order(nSym,nBas,BName,2)
            Call CollapseOutput(0,'LoProp analysis:')
            Write(6,*)
          End If

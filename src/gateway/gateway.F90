@@ -36,10 +36,9 @@ use RICD_Info, only: Cho_OneCenter, Chol => Cholesky, Do_DCCD, Do_RI
 use Cholesky, only: Cho_1Center
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use rctfld_module, only: lLangevin, lRF, nPCM_Info, PCM
+use spool, only: Close_LuSpool, Spoolinp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use spool, only: Spoolinp, Close_LuSpool
-
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
