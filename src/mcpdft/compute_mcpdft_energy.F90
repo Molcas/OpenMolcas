@@ -16,7 +16,6 @@ Subroutine compute_mcpdft_energy(CMO,e_mcscf)
   use constants,only:zero,one
   use mcpdft_input,only:mcpdft_options
   Use KSDFT_Info,only:do_pdftpot
-  Use hybridpdft,only:E_NoHyb
   use mspdftgrad,only:P2MOT,D1aoMS,DIDA,D1SaoMS
   use printlevel,only:debug
   use mcpdft_output,only:iPrLoc
@@ -149,11 +148,7 @@ Subroutine compute_mcpdft_energy(CMO,e_mcscf)
       endif
     ENDIF
 
-    do_pdftPot = .false.
-    if(mcpdft_options%grad .and. (mcpdft_options%mspdft .or. (jroot == mcpdft_options%rlxroot))) then
-      do_pdftPot = .true.
-    endif
-
+    do_pdftpot = (mcpdft_options%grad .and. (mcpdft_options%mspdft .or. (jroot == mcpdft_options%rlxroot)))
     e_ot = mcpdft_options%otfnal%energy_ot(folded_dm1,folded_dm1s,casdm1,P2d,charge)
 
     call get_coulomb(cmo,dm1_core,dm1_cas,coul)
@@ -163,7 +158,7 @@ Subroutine compute_mcpdft_energy(CMO,e_mcscf)
     CASDFT_E = e_wfn+e_ot
 
     IF(mcpdft_options%otfnal%is_hybrid()) THEN
-      CASDFT_E = mcpdft_options%otfnal%lambda*e_mcscf(jRoot)+(one-mcpdft_options%otfnal%lambda)*E_NoHyb
+      CASDFT_E = mcpdft_options%otfnal%lambda*e_mcscf(jRoot)+(one-mcpdft_options%otfnal%lambda)*casdft_e
     ENDIF
 
     Call Print_MCPDFT_2(PotNuc,e_wfn,e_ot,jroot,e_mcscf(jroot))
