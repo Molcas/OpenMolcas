@@ -82,7 +82,7 @@ subroutine print_MCPDFT_2(e_nuc,e_cas,e_ot,state,e_mcscf)
       write(u6,'(6X,A)') 'Information for hybrid PDFT:'
       write(u6,'(6X,A,37X,F6.2)') 'Wave function percentage (Lambda*100)',mcpdft_options%otfnal%lambda*1.0d2
       write(u6,'(6X,A,42X,F18.8)') 'Wave function energy',mcpdft_options%otfnal%lambda*e_mcscf
-      write(u6,'(6X,A,51X,F18.8)') 'PDFT energy',(1-mcpdft_options%otfnal%lambda)*e_pdft
+      write(u6,'(6X,A,51X,F18.8)') 'PDFT energy',(one-mcpdft_options%otfnal%lambda)*e_pdft
       write(u6,*)
     ENDIF
 

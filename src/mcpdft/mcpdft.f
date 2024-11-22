@@ -57,8 +57,9 @@
 #include "timers.fh"
 
       logical(kind=iwp) :: dscf
-      real(kind=wp), allocatable :: ref_e(:), PUVX(:), D1I(:), D1A(:)
+      real(kind=wp), allocatable :: e_mcscf(:), PUVX(:), D1I(:), D1A(:)
       real(kind=wp), allocatable :: cmo(:), FI(:), FA(:), tuvx(:)
+      real(kind=wp), allocatable :: e_states(:)
       Real(kind=wp) :: dum1, dum2, dum3
       integer(kind=iwp) :: iPrLev, iRC, state
 
@@ -123,9 +124,9 @@
 
 
 ! - Read in the CASSCF Energy from JOBIPH file.
-      Call mma_allocate(ref_e,lroots,Label='Ref_E')
-      ref_e(:)=0.0D0
-      call ref_energy(ref_e,lroots)
+      Call mma_allocate(e_mcscf,lroots,Label='e_mcscf')
+      e_mcscf(:)=zero
+      call ref_energy(e_mcscf,lroots)
 
 ! Transform two-electron integrals and compute at the same time
 ! the Fock matrices FI and FA
@@ -168,26 +169,37 @@
       ! This is where MC-PDFT actually computes the PDFT energy for
       ! each state
       ! only after 500 lines of nothing above...
-      Call compute_mcpdft_energy(CMO,ref_e)
+      call mma_allocate(e_states,lroots,label='e_states')
+      Call compute_mcpdft_energy(CMO,e_mcscf,e_states)
       Call mma_deallocate(CMO)
 
-      ! I guess ref_e now holds the MC-PDFT energy for each state??
+      ! pdft energy now stored in e_states
 
       If(mcpdft_options%wjob .and.(.not.mcpdft_options%mspdft)) then
-        Call writejob(ref_e,lroots)
+        Call writejob(e_states,lroots)
       end if
 
       If (mcpdft_options%mspdft) Then
         Call Put_cArray('Relax Method','MSPDFT  ',8)
-        call replace_diag(heff, ref_e, lroots)
+        call replace_diag(heff, e_states, lroots)
         call mspdft_finalize(lroots)
       else
         Call Put_cArray('Relax Method','MCPDFT  ',8)
+        ! The following put_* calls should be combined with the MS-PDFT
+        ! ones if a gradient call is initiated...
+        call put_darray('Last energies',e_states,lroots)
+        if (mcpdft_options%grad) then
+          call put_dscalar('Last energy',
+     &             e_states(mcpdft_options%rlxroot))
+          call put_iscalar('Relax CASSCF root',
+     &             mcpdft_options%rlxroot)
+          call put_carray('MCLR Root','****************',16)
+        endif
         if(iprlev >= terse) then
         do state=1,lroots
           call PrintResult(u6,'(6X,A,I3,A,F16.8)',
      &          'MCPDFT root number',state,
-     &          ' Total energy:',[ref_e(state)],1)
+     &          ' Total energy:',[e_states(state)],1)
         enddo
       endif
       End If
@@ -210,7 +222,8 @@
 
 ! Release  some memory allocations
       Call mma_deallocate(FockOcc)
-      call mma_deallocate(ref_e)
+      call mma_deallocate(e_mcscf)
+      call mma_deallocate(e_states)
 
 
       Call StatusLine('MCPDFT: ','Finished.')

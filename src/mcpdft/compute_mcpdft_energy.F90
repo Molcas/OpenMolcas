@@ -10,8 +10,9 @@
 ! Copyright (C) 1990, Markus P. Fuelscher                              *
 !               2013, Giovanni Li Manni                                *
 !               2016, Andrew M. Sand                                   *
+!               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
-Subroutine compute_mcpdft_energy(CMO,e_mcscf)
+subroutine compute_mcpdft_energy(cmo,e_mcscf,e_states)
   use definitions,only:iwp,wp,u6
   use constants,only:zero,one
   use mcpdft_input,only:mcpdft_options
@@ -21,12 +22,12 @@ Subroutine compute_mcpdft_energy(CMO,e_mcscf)
   use mcpdft_output,only:iPrLoc
   use stdalloc,only:mma_allocate,mma_deallocate
   use libxc_parameters,only:FuncExtParams
-  use rasscf_global,only:nRoots,IADR15,lRoots,NAC,NACPAR,NACPR2,PotNuc
+  use rasscf_global,only:IADR15,lRoots,NAC,NACPAR,NACPR2,PotNuc
   use general_data,only:nash,norb,nsym,ntot2,ntot1,jobiph,ispin,jobold,nbas,nish
   implicit none
 
-  real(kind=wp),intent(inout) :: e_mcscf(*)
-  real(kind=wp),intent(in) :: CMO(*)
+  real(kind=wp),intent(in) :: e_mcscf(*), cmo(*)
+  real(kind=wp),intent(out) :: e_states(*)
 
   real(kind=wp),allocatable :: folded_dm1(:),folded_dm1_cas(:),folded_dm1s(:), &
                                dm1_core(:),casdm1(:),dm1_cas(:),dm1s(:),casdm1s(:),P2D(:),P2t(:),Coul(:),hcore(:)
@@ -34,7 +35,7 @@ Subroutine compute_mcpdft_energy(CMO,e_mcscf)
   integer(kind=iwp),external :: get_charge
   integer(kind=iwp) :: IAD19,iJOB,dmDisk,IADR19(1:30),jroot,NQ,isym,charge,iPrLev,iSA,niaia
   real(kind=wp),external :: energy_mcwfn
-  real(kind=wp) :: casdft_e,e_ot,e_wfn,e_states(nroots)
+  real(kind=wp) :: e_state,e_ot,e_wfn
 
   IPRLEV = IPRLOC(3)
 
@@ -155,17 +156,16 @@ Subroutine compute_mcpdft_energy(CMO,e_mcscf)
 
     e_wfn = energy_mcwfn(folded_dm1,hcore,coul,PotNuc,ntot1)
 
-    CASDFT_E = e_wfn+e_ot
+    e_state = e_wfn+e_ot
 
     IF(mcpdft_options%otfnal%is_hybrid()) THEN
-      CASDFT_E = mcpdft_options%otfnal%lambda*e_mcscf(jRoot)+(one-mcpdft_options%otfnal%lambda)*casdft_e
+      e_state = mcpdft_options%otfnal%lambda*e_mcscf(jRoot)+(one-mcpdft_options%otfnal%lambda)*e_state
     ENDIF
 
     Call Print_MCPDFT_2(PotNuc,e_wfn,e_ot,jroot,e_mcscf(jroot))
 
     ! JB replacing e_mcscf with MC-PDFT energy for MS-PDFT use
-    e_states(jroot) = CASDFT_E
-    e_mcscf(jroot) = CASDFT_E
+    e_states(jroot) = e_state
 
     ! At this point, the energy calculation is done.  Now I need to build the
     ! fock matrix if this root corresponds to the relaxation root.
@@ -180,17 +180,8 @@ Subroutine compute_mcpdft_energy(CMO,e_mcscf)
       if(NQ < NIAIA) NQ = NIAIA
 
       if((.not. mcpdft_options%mspdft) .and. jroot == mcpdft_options%rlxroot) then
-
         call savefock_pdft(cmo,hcore(:)+coul(:),casdm1,nq,p2d)
-
-        ! Put some information on the runfile for possible gradient calculations.
-        Call Put_iScalar('Number of roots',nroots)
-        Call Put_dArray('Last energies',e_states,nroots)
-        Call Put_dScalar('Last energy',e_states(mcpdft_options%RlxRoot))
-        Call Put_cArray('MCLR Root','****************',16)
-        Call Put_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
       endif
-
       if(mcpdft_options%mspdft) then
         call savefock_mspdft(CMO,hcore(:)+coul(:),casdm1,NQ,p2d,jroot)
       endif
