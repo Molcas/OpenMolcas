@@ -16,7 +16,10 @@
       use ipPage, only: W
       use negpre
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: ipCI
+      Implicit None
+      Integer iSym
+      Real*8 ralp
 #include "detdim.fh"
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
@@ -24,9 +27,13 @@
 #include "incdia.fh"
 
 #include "Input.fh"
-#include "Pointers.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Real*8, Allocatable:: Q(:)
+      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI,
+     &        nP2, nP1, nQ, iC, iPrnt
+      Real*8 ECAS
+      Real*8, External:: DDot_
+      Integer, External:: ipClose, ipGet, ipIn, ipnOut
 *
 *     This is just a interface to hide Jeppe from the rest of the world
 *     we dont want to let world see the work of the danish
@@ -116,8 +123,7 @@
       Call mma_deallocate(Q)
 
       ipdia=ipdiai
-      RETURN
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      END
+      END SubRoutine CIDIA
