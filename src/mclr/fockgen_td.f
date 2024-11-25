@@ -159,7 +159,7 @@ c QA here
      &                  nbas(is),nbas(js))
       End Do
 *
-      If (idSym.eq.1) Call AddGrad2(Fock,idsym,d_0)
+      If (idSym.eq.1) Call AddGrad2(Fock,d_0)
 *
       Call DScal_(nDens2,2.0d0,Fock,1)
 *

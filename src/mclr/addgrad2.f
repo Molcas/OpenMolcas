@@ -10,9 +10,10 @@
 *                                                                      *
 * Copyright (C) 1997, Anders Bernhardsson                              *
 ************************************************************************
-      SubRoutine AddGrad2(rMat,idsym,fact)
+      SubRoutine AddGrad2(rMat,fact)
       use Arrays, only: F0SQMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: ipCM, ipMat
 *
 *     Purpose:
 *             Adds the contribution from the gradient to
@@ -21,10 +22,11 @@
 *             a beautiful convergence of the PCG,
 *             which is just the case if E is symmetric.
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
+      Implicit None
+      Real*8 fact
       Real*8 rMat(*)
+#include "Input.fh"
+      Integer iS
       Real*8, Allocatable:: Temp(:)
 
       Do iS=1,nSym
@@ -47,7 +49,4 @@
         Call mma_deallocate(Temp)
       End Do
 
-      Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(idsym)
-      End
+      End SubRoutine AddGrad2

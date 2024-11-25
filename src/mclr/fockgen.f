@@ -258,7 +258,7 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *
 *
       Call DScal_(nDens2,Two,FockOut,1)
-      If (idSym.eq.1) Call AddGrad2(FockOut,idSym,d_0)
+      If (idSym.eq.1) Call AddGrad2(FockOut,d_0)
 
       if(doDMRG)then ! yma
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
