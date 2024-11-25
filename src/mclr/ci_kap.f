@@ -11,13 +11,18 @@
       Subroutine CI_KAP(ipcid,fock,fockOut,isym)
 *     use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: ipCI, n2Dens, nDens2, nNA
+      Implicit None
+      Integer ipCID, iSym
+      Real*8 Fock(*),FockOut(*)
 
 #include "Input.fh"
-#include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
-      Real*8 Fock(*),FockOut(*)
       Real*8, Allocatable:: De(:), Pe(:)
+      Integer i, j, itri
+      Integer irc, nDim, ij, k, l, ij1, kl1
+      Integer, external:: ipnout
+      Real*8 D0
 
 ! Added for DMRG calculation
       real*8,allocatable::tmpDe(:,:),tmpP(:),tmpDeM(:,:),tmpPM(:,:,:,:)
@@ -141,21 +146,23 @@
       end if
 ! ===================================================================
 
-      return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      end
+      end Subroutine CI_KAP
 
 #ifdef _NOTUSED_
       Subroutine Projecter(CID,CI,D,P)
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: nConf1, n2Dens
+      Implicit None
+      Real*8 CI(*),CID(*),P(*),D(*)
 
 #include "Input.fh"
-#include "Pointers.fh"
-      Real*8 CI(*),CID(*),P(*),D(*)
       Real*8, Allocatable:: De(:), Pe(:)
+      Integer i, j
+      Real*8 r
+      Real*8, external::ddot_
 
       Call mma_allocate(De,ntash**2,Label='De')
       Call mma_allocate(Pe,n2dens,Label='Pe')
@@ -171,6 +178,5 @@
       End Do
       Call mma_deallocate(Pe)
       Call mma_deallocate(De)
-      Return
-      End
+      End Subroutine Projecter
 #endif
