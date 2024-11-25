@@ -13,6 +13,7 @@
       SubRoutine AddGrad(rKappa,rMat,idsym,fact)
       use Arrays, only: F0SQMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: ipCM, ipMat
 *
 *     Purpose:
 *             Adds the contribution from the gradient to
@@ -21,10 +22,11 @@
 *             a beautifull convergence of the PCG,
 *             which is just the case if E is symmetric.
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
+      Implicit None
+      Real*8 rkappa(*),rMat(*), fact
+      Integer idsym
 #include "Input.fh"
-      Real*8 rkappa(*),rMat(*)
+      Integer iS, jS
       Real*8, Allocatable:: Tempi(:), Tempj(:)
 
       Do iS=1,nSym
@@ -60,5 +62,4 @@
         Call mma_deallocate(Tempi)
         Call mma_deallocate(Tempj)
       End Do
-      Return
-      End
+      End SubRoutine AddGrad
