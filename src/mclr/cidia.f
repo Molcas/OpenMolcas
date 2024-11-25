@@ -14,7 +14,7 @@
       use Exp, only: nexp, nexp_max
       use Str_Info, only: CNSM
       use ipPage, only: W
-      use negpre
+      use negpre, only: nGP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI
       Implicit None
