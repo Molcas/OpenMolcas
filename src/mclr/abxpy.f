@@ -9,10 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine ABXpY(Array1,Array2,idsym)
+      use MCLR_Data, only: ipMO, NA
       Implicit None
       Integer idsym
       Real*8 Array1(*),Array2(*)
-#include "Pointers.fh"
 #include "Input.fh"
 
       Integer i, j, itri
