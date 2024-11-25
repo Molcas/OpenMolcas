@@ -13,10 +13,12 @@
        use ipPage, only: W
        use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
        use stdalloc, only: mma_allocate, mma_deallocate
-       Implicit Real*8(a-h,o-z)
+       use MCLR_Data, only: nConf1, ipCM, ipMat
+       Implicit None
+       Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
+       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+       Logical Have_2_el
 *
-#include "Pointers.fh"
-
 #include "Input.fh"
 #include "genop.fh"
 #include "cands.fh"
@@ -25,9 +27,10 @@
 
 #include "cicisp_mclr.fh"
        integer kic(2),opout
-       Logical Have_2_el
-       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
        Real*8, Allocatable:: CIDET(:)
+       integer nDet, iOp, iS, jS, iRC, i
+       integer, external:: ipIN, ipIN1, ipNOUT
+
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block
@@ -118,8 +121,7 @@
           irc=opout(ipci1)
        End If
 *
-       Return
 #ifdef _WARNING_WORKAROUND_
        If (.False.) Call Unused_integer(irc)
 #endif
-       End
+       End SubRoutine CISigma_sa
