@@ -16,9 +16,11 @@
 * ****************************************************************
       Subroutine Calcbk(bk,R,nTri,GDMat,zX)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use Constants, only: Zero
+      use MCLR_Data, only: nDens2, nNA
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -36,13 +38,14 @@
 ******Auxiliaries
       Real*8,DIMENSION(:),Allocatable::FOccMO,P2MOt
       INTEGER nP2,nG1
+      Integer i, j, itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
       ng1=itri(ntash,ntash)
       nP2=itri(ng1,ng1)
       CALL mma_allocate(FOccMO,nDens2)
       CALL mma_allocate(P2MOt,nP2)
-      CALL FZero(bk,nDens2)
+      bk(:)=Zero
       CALL GetWFFock(FOccMO,bk,R,nTri,P2MOt,nP2)
       CALL GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
       CALL GetPDFTFock(bk)
@@ -51,16 +54,16 @@
       CALL mma_deallocate(FOccMO)
       CALL mma_deallocate(P2MOt)
 
-      RETURN
-      end subroutine
+      end subroutine Calcbk
 ******************************************************
 
 ******************************************************
       Subroutine PutCMSFockOcc(FOccMO,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use MCLR_Data, only: nDens2, ipMat
+      implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -101,15 +104,15 @@
       CALL mma_deallocate(F)
       CALL mma_deallocate(T)
       CALL mma_deallocate(F_n)
-      RETURN
-      end subroutine
+      end subroutine PutCMSFockOcc
 ******************************************************
 ******************************************************
       Subroutine GetPDFTFock(bk)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use MCLR_Data, only: nDens2, ipMat
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -140,8 +143,7 @@
       CALL mma_deallocate(T)
       CALL mma_deallocate(FT99)
       CALL mma_deallocate(bktmp)
-      RETURN
-      end subroutine
+      end subroutine GetPDFTFock
 ******************************************************
 ******************************************************
       Subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
@@ -149,9 +151,10 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use ipPage, only: W
       use Constants, only: One, Two
+      use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -172,9 +175,12 @@
       Real*8,DIMENSION(:),Allocatable::Fock,T,G1r,G2r,G2rt,
      & CIL,CIR,G1q,G2q,G1qs,G2qs
       Real*8,DIMENSION(:),Allocatable::DMatAO,DIAO,D5,D6
-      INTEGER I,K,NCSFs
+      INTEGER I,J,iTri,K,NCSFs
       Real*8 Fact
       INTEGER iB,jB,kB,lB,iDkl,iRijkl
+      Integer nG1, nConfL
+      Integer iA, jA, kA, lA, ij1, kl1, kl2, iDij, iRij, iRkl, iIJKL,
+     &        JDisk
 ************************************************************************
 *                                                                      *
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
@@ -336,15 +342,15 @@
        Call mma_deallocate(CIL)
        Call mma_deallocate(CIR)
        Call mma_deallocate(FinCI)
-       RETURN
-       End Subroutine
+       End Subroutine GetWFFock
 ******************************************************
       Subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: ipMat, nA, nDens2
+      Implicit None
 #include "detdim.fh"
 #include "Input.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
@@ -360,7 +366,7 @@
       Real*8,DIMENSION(nDAO)::DAO
 ******Auxiliaries
       Real*8,DIMENSION(:),Allocatable::D1,OCCU,NatCMO
-      INTEGER nLCMO,iS,i,j,iAA,jAA,nbas_tot,ij,iA,jA
+      INTEGER nLCMO,iS,i,j,iAA,jAA,nbas_tot,ij,iA,jA, iTri
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -412,5 +418,4 @@
       Call mma_deallocate(OCCU)
       Call mma_deallocate(NatCMO)
 
-      RETURN
-      End Subroutine
+      End Subroutine GetDmatAO
