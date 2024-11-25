@@ -589,7 +589,7 @@ C         iDisp=iDisp+1
 #endif
               Call CIDens(Response,ipCI,ipCId,
      &                    State_sym,
-     &                    PState_Sym,jspin,
+     &                    PState_Sym,
      &                    Pens,Dens)     ! Jeppes
 
 #ifdef _DEBUGPRINT_
