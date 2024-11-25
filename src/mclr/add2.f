@@ -22,12 +22,15 @@
       use Arrays, only: SFock
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Four
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
+      use MCLR_data, only: ipCM, ipMat
+      Implicit None
+      Real*8 rMat(*)
+      Real*8 fact
 #include "spin_mclr.fh"
 
 #include "Input.fh"
-      Real*8 rMat(*)
+      Integer iS
+
       Real*8, Allocatable:: Temp(:)
 
       Do iS=1,nSym
@@ -50,5 +53,4 @@
      &              rMat(ipMat(is,is)),1)
         Call mma_deallocate(Temp)
       End Do
-      Return
-      End
+      End SubRoutine Add2
