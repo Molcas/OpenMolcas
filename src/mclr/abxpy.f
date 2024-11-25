@@ -9,12 +9,19 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine ABXpY(Array1,Array2,idsym)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer idsym
       Real*8 Array1(*),Array2(*)
 #include "Pointers.fh"
-
 #include "Input.fh"
+
+      Integer i, j, itri
+      Integer iS, jS, kS, lS, ijS
+      Integer iA, jA, kA, lA
+      Integer iAsh, jAsh, kAsh, lAsh
+      Integer iiA, ij, kl, ijkl, ip1
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+
       Do iS=1,nSym
        Do iA=1,Nash(is)
         iAsh=nA(is)+iA
@@ -39,7 +46,6 @@
      &             nOrb(is)*nAsh(js)*((lA-1)*nAsh(kS)+kA-1)+
      &             nOrb(is)*(ja-1)+iia-1
               Array2(ijkl)=array1(ip1)+array2(ijkl)
-*             Array2(ijkl)=array1(ip1)
               End If
               End If
             End Do
@@ -50,5 +56,4 @@
         End Do
        End Do
       End Do
-      Return
-      End
+      End SubRoutine ABXpY
