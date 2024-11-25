@@ -16,24 +16,23 @@
 * ****************************************************************
       subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero
+      use MCLR_Data, only: nNA, nDens2
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
 
-******Input
       Integer NPUVX
-      Real*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA)::GDMat
-      Real*8,DIMENSION(NPUVX)::PUVX
-      INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::IndPUVX
-      Real*8,DIMENSION((nRoots-1)*nRoots/2)::zx
-
-******Output
-      Real*8,DIMENSION(nDens2)::AXkzx
+      Real*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA),Intent(In)::GDMat
+      Real*8,DIMENSION(NPUVX),Intent(In)::PUVX
+      INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh),Intent(In)::IndPUVX
+      Real*8,DIMENSION((nRoots-1)*nRoots/2),Intent(In)::zx
+      Real*8,DIMENSION(nDens2), Intent(Out)::AXkzx
 
 ******Auxiliary Quantities
       INTEGER,DIMENSION(nSym)::Off_Act,Off_Orb
       Real*8,DIMENSION(:),Allocatable::DKL1,DKL2,AXktmp
       INTEGER K,L,iKL,iKL2,iKK,iLL
-      INTEGER p,q
+      INTEGER p,q,nTOrb, iSym, i, j, iTri
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -46,7 +45,7 @@
        ntOrb=ntOrb+nOrb(ISym)
       END DO
 
-      Call FZero(AXkzx,nDens2)
+      AXkzx(:)=Zero
 
       CALL mma_allocate(DKL1,ntAsh**2)
       CALL mma_allocate(DKL2,ntAsh**2)
@@ -64,7 +63,7 @@
          DKL2((p-1)*ntash+q)=GDMat(IKK,p,q)-GDMat(ILL,p,q)
         end do
        end do
-       CALL FZero(AXktmp,nDens2)
+       AXktmp(:)=Zero
        CALL CalcAXk2(AXktmp,DKL1,DKL2,PUVX,
      & NPUVX,IndPUVX,Off_Act,Off_Orb)
        CALL CalcAXk2(AXktmp,DKL2,DKL1,PUVX,
@@ -76,15 +75,14 @@
       CALL mma_deallocate(DKL1)
       CALL mma_deallocate(DKL2)
       CALL mma_deallocate(Axktmp)
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcAXkzx
 
 
-      subroutine CalcAXk2(AXk,D1,D2,PUVX,
-     & NPUVX,IndPUVX,Off_Act,Off_Orb)
+      subroutine CalcAXk2(AXk,D1,D2,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: nDens2, nNA, ipMat
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
       Integer NPUVX
       Real*8,DIMENSION(NPUVX)::PUVX
       INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::IndPUVX
@@ -92,7 +90,6 @@
       INTEGER,DIMENSION(nSym)::Off_Act,Off_Orb
 
       Real*8,DIMENSION(nDens2)::AXk
-
       Real*8,DIMENSION(:),Allocatable::Opu
       INTEGER p,q,iSym,t,u,v,x,ip,iq,it,loc1,loc2
       Real*8 tempa
@@ -147,5 +144,4 @@
        END Do
       END DO
       CALL mma_deallocate(Opu)
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcAXk2
