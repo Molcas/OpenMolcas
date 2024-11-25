@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2023, Yoshio Nishimoto                                 *
 ************************************************************************
-
       subroutine check_caspt2(mode)
 C
 C     Check the roots to be considered in CASPT2 gradient
@@ -28,20 +27,23 @@ C
 C     With mode = 1, this subroutine obtains the character in 'MCLR
 C     Root' and determine the roots for NAC calculation.
 C
-      Implicit Real*8 (a-h,o-z)
-
+      Implicit None
+      Integer Mode
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "SysDef.fh"
 #include "sa.fh"
 #include "warnings.h"
 
-      Character*72 Line
+      Character(LEN=72) Line
       character(len=128) :: FileName
       character(len=16) :: StdIn, mstate1
       Logical Exists,NeedGrdt
+      Integer iRlxRootPT2, iGo, iRoot1Req, iRoot2Req,
+     &        iRoot1Com, iRoot2Com, LuINPUT, LuSpool2, iStatus
+      Integer, External :: isFreeUnit
+      Integer, External :: isStructure
 C
       iRlxRoot    = 0
       iRlxRootPT2 = 0

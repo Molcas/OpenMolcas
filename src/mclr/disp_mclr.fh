@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Integer lDisp(8)
-      Parameter ( Mxdccc=500 )
+      Integer, Parameter:: Mxdccc=500
       Character ChDisp(Mxdccc*3)*(LENIN6)
       Character*8 SwLbl(Mxdccc)
       integer   dspvec(mxdccc),nhess
