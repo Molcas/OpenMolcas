@@ -482,7 +482,7 @@ subroutine procinp_caspt2
   if (DMRG) then
     ! set OpenMolcas environment variables
     call getenv('Project', qcmaquis_param%project_name)
-    call getenv('WorkDir', qcmaquis_param%workdir)
+    call getenv('MOLCAS_OUTPUT', qcmaquis_param%workdir)
     ! save checkpoint paths for all states
     call mma_allocate(dmrg_file%qcmaquis_checkpoint_file,nstate)
     write(6,*) 'PROCINP> Setting chekpoint file paths...'
