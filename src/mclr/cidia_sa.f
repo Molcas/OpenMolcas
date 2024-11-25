@@ -13,8 +13,10 @@
       SubRoutine CIDIA_sa(iSym,ralp,S)
       use Str_Info, only: CNSM
       use ipPage, only: W
-      use negpre
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: ipCI
+      Implicit None
+      Integer iSym
+      Real*8 ralp(*),S(*)
 #include "detdim.fh"
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
@@ -22,10 +24,13 @@
 #include "incdia.fh"
 
 #include "Input.fh"
-#include "Pointers.fh"
 #include "sa.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
-      Real*8 ralp(*),S(*)
+      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI,
+     &        iPrnt, iP2, J
+      Real*8 ECAS, WE
+      Integer, External:: ipClose, ipGet, ipIn
+
 *
 *     This is just a interface to hide Jeppe from the rest of the world
 *     we dont want to let world see the work of the danish
