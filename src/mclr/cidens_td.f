@@ -11,18 +11,23 @@
       SubRoutine CIDens_TD(iCI,iS,rP,rD)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
+      Implicit None
+      Integer iCI, iS
+      Real*8 rP(*),rD(*)
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "crun_mclr.fh"
 #include "Input.fh"
-#include "Pointers.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
-      Real*8 rP(*),rD(*)
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
+      Integer nConfL, nConfR, nC, iRC
+      Integer, External:: ipIn, ipnOut
+
 
 #ifdef _DEBUGPRINT_
+      Integer i, j, itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 #endif
 
@@ -163,4 +168,4 @@ C
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine CIDens_TD
