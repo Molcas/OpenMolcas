@@ -11,10 +11,12 @@
       Subroutine Ci_Ci(ipcid,ips2)
       use ipPage, only: W
       use Arrays, only: FIMO, INT2
-      Implicit Real*8(A-h,o-z)
+      Implicit None
+      Integer ipCID, ipS2
 #include "Input.fh"
-#include "Pointers.fh"
-      Real*8 rDum(1)
+      Integer irc, i
+      Integer, External:: ipIn
+      Real*8 rDum(1), EC
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -42,8 +44,7 @@
      &               W(ipS2)%Vec(1+i*ncsf(state_sym)),1)
       End Do
       Call DSCAL_(nroots*ncsf(state_SYM),2.0d0,W(ipS2)%Vec,1)
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End Subroutine Ci_Ci
