@@ -50,15 +50,15 @@
       use PDFT_Util, only :Do_Hybrid,WF_Ratio,PDFT_Ratio
 *     Added for CMS NACs
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Definitions, only: iwp, u6
-      Implicit Real*8 (a-h,o-z)
+      use Definitions, only: iwp, u6, wp
+      use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
+      Implicit None
 #include "Input.fh"
 #include "warnings.h"
 #include "machine.fh"
 #include "SysDef.fh"
 
 #include "sa.fh"
-#include "Pointers.fh"
 #include "detdim.fh"
 #include "dmrginfo_mclr.fh"
 #include "csfsd.fh"
@@ -77,7 +77,7 @@
       logical DoCholesky
 
 * Additional things for CMS-NACs Optimization
-      Character*8 Method
+      Character(LEN=8) Method
       integer(kind=iwp) :: LuInput, istatus, LuSpool2
       character(len=16) :: StdIn
       character(len=180) :: Line
@@ -85,6 +85,10 @@
       logical(kind=iwp) :: Exists
       integer(kind=iwp), external :: isFreeUnit
       Logical :: CalcNAC_Opt = .False., MECI_via_SLAPAF = .False.
+
+      integer(kind=iwp) :: iPL, nSymX, iSym, nISP, I, iRC, iReturn
+      integer(kind=iwp) , External:: ipClose, iPrintLevel
+      real(kind=wp):: TCPU1, TCPU2, TCPU3, TWall1, TWall2, TWall3
 
 *   This used to be after the CWTIME() functional call                 *
 ************************************************************************
@@ -480,5 +484,4 @@ c      idp=rtoi
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End subroutine MCLR
