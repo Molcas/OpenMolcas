@@ -10,14 +10,18 @@
 ************************************************************************
       SubRoutine DMinvCI_td(rin,rout,rome,idsym)
       use ipPage, only: W
-      use negpre
       use Constants, only: Half
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: nConf1, ipCI
+      Implicit None
+      Integer idSym
+      Real*8 rout(*),rin(*), rome
 #include "Input.fh"
-#include "Pointers.fh"
 #include "incdia.fh"
+      Integer iRC, i
+      Integer, external:: ipIn
+      Real*8 r1, r2
+      real*8, external:: DDot_
 
-      Real*8 rout(*),rin(*)
 *                                    -1           -1
 *                               (H -E) |0><0|(H -E)|Sigma>
 *                  -1             0            0
@@ -59,8 +63,7 @@
 
       rout(1:nConf1) = Half * rout(1:nConf1)
 
-      return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      end
+      End SubRoutine DMinvCI_td
