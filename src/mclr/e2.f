@@ -10,19 +10,23 @@
 ************************************************************************
       Real*8 Function E2(FockI,rMo,loper,idisp)
       use Arrays, only: G1t, G2t
+      use MCLR_Data, only: nCMO, nNA, ipCM, nA
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
+      Implicit None
+      Integer lOper, iDisp
 #include "Input.fh"
 #include "disp_mclr.fh"
-
       Real*8 FockI(nCMO),rMO(*)
       Logical Go
+      Real*8 E22
+      Integer i, j, ij, k, l, ijkl, iS, jS, iA, jA, iAA, iAB, jAA, jAB,
+     &        ipF
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function
 *
+      Integer itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -64,5 +68,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End Function E2
