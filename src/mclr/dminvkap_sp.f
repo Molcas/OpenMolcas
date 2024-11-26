@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine DMInvKap_sp(rMFact,rin,rout,isym)
+      SubRoutine DMInvKap_sp(rin,rout,isym)
 *
 *     _____     -1
 *     Kappa  = M  Kappa
@@ -23,11 +23,12 @@
 *     iSym              Symmetry of rotation
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: nDens2
+      Implicit None
+      Integer iSym
+      Real*8 rin(*),rout(*)
 
 #include "Input.fh"
-#include "Pointers.fh"
-      Real*8 rMFact(*),rin(*),rout(*)
       Real*8, Allocatable:: Temp(:)
 *
       Call mma_allocate(Temp,ndens2,Label='Temp')
@@ -36,7 +37,5 @@
       Call Compress(Temp,rout,isym)
       Call mma_deallocate(Temp)
 
-      Return
 c Avoid unused argument warnings
-      If (.False.) Call Unused_real_array(rMFact)
-      end
+      end SubRoutine DMInvKap_sp

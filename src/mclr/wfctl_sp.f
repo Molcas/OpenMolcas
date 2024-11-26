@@ -178,7 +178,7 @@
           Call DSCAL_(nConf1,-One,W(ipST)%Vec,1)
           Call DSCAL_(nDensC,-One,Sigma,1)
 *
-          Call DMInvKap_sp(Pre2,Sigma,dKappa,1)
+          Call DMInvKap_sp(Sigma,dKappa,1)
 
           irc=ipin(ipCId)
           If (nconf1.gt.1) then
@@ -385,7 +385,7 @@
            irc=opout(ipci)
            irc=opout(ipdia)
 
-           Call DMInvKap_sp(Pre2,Sigma,Sc2,1)
+           Call DMInvKap_sp(Sigma,Sc2,1)
 *
 *-------------------------------------------------------------------*
 *               s:Sigma
