@@ -24,19 +24,22 @@
 ********************************************************************
       use Arrays, only: FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
+      use Constants, only: zero, half, two
+      use MCLR_Data, only: nDens2, nNA, ipMat, ipCM, nA
+      Implicit None
+      Real*8 d_0
+      Integer idSym
       Real*8 Fock(nDens2),
      &       rdens2(*),rDens1(nna,nna)
+#include "Input.fh"
       Real*8, Allocatable:: MO(:), Scr(:), TQ(:)
-      Parameter ( half  = 0.5d0 )
-      Parameter ( two  = 2.0d0 )
-      Parameter ( one  = 1.0d0 )
+      Integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA,
+     &        ip1, ip2, ip3
+      Real*8 rd, rd1, rd2
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      call dcopy_(nDens2,[0.0d0],0,Fock,1)
+      Fock(:)=Zero
 *
       n1=0
       Do iS = 1, nSym
@@ -167,5 +170,4 @@ c QA here
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End SubRoutine FockGen_td

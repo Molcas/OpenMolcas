@@ -32,7 +32,6 @@
 !     Real*8 Fock(nDens2),fockout(*),rdens2(*),rDens1(nna*nna)
 #include "Input.fh"
       Real*8, Allocatable:: MO(:), Scr(:)
-      Integer, Parameter :: nd  = 1
       Integer n1, iS, n2, ipS, kS, jS, iB, jA, jAA, kA, kAA, ipM, ipF,
      &        iA, ip1, ip2
       Real*8 rd
