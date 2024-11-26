@@ -16,9 +16,10 @@
 * ****************************************************************
       subroutine CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use MCLR_Data, only: nConf1, nAcPr2
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -46,14 +47,14 @@
        CALL CalcbX(bX,LOK,R,H)
        CALL mma_deallocate(CSFOK)
        CALL mma_deallocate(LOK)
-       return
-       end subroutine
+       end subroutine CalcbXbP
 ******************************************************
 
       Subroutine CalcbX(bX,LOK,R,H)
+      use Constants, only: Zero
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -66,10 +67,10 @@
       Real*8,DIMENSION(nRoots**2)::R,H
       Real*8,DIMENSION(nRoots**2)::LOK
 ***** Auxiliaries
-      INTEGER I,K,L,M,N,IKL,IIM,IIN,IKOL,IIK,IIL
+      INTEGER I,K,L,M,N,IKL,IIM,IIN,IKOL,IIK,IIL,ILOK
       Real*8 TempD
 
-      CALL FZero(bX,(nRoots-1)*nRoots/2)
+      bX(:)=Zero
       I=irlxroot
       DO K=2,nRoots
        IIK=(I-1)*nRoots+K
@@ -94,17 +95,17 @@
        bX(IKL)=bX(IKL)*2.0d0
       END DO
       END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcbX
 ******************************************************
 
 
 ******************************************************
       subroutine CalcbP(bP,CSFOK,LOK,R)
       use ipPage, only: W
+      use MCLR_Data, only: nConf1, ipCI
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -139,18 +140,17 @@
        CALL DScal_(nConf1,2.0d0*R((I-1)*nRoots+K)**2,
      & bP(iLoc1),1)
       END DO
-      RETURN
-      End Subroutine
+      End Subroutine CalcbP
 ******************************************************
 
 ******************************************************
       subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: nConf1, nAcPr2, ipCI, ipMat, nDens2
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -170,7 +170,9 @@
       Real*8,DIMENSION(1)::rdum
       Real*8,DIMENSION(:),Allocatable::FMO1
       INTEGER ILoc1,ILoc2,ILoc3,iOff,iS,jS,iB,jB,ji,ij,I,iK
-      INTEGER ILoc4,iptmp,nConf3
+      INTEGER ILoc4,iptmp,nConf3, L
+      INTEGER, EXTERNAL:: ipGet
+      Real*8, External:: DDot_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -230,6 +232,5 @@
        End Do
       END DO
       CALL mma_deallocate(FMO1)
-      RETURN
-      End Subroutine
+      End Subroutine CalcOMat
 ******************************************************
