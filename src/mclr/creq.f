@@ -10,16 +10,20 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
-       SubRoutine creq(q,rint,G2,idsym)
+      SubRoutine creq(q,rint,G2,idsym)
 *
-*      Constructs the Q matrix
+*     Constructs the Q matrix
 *
-       Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: nDens2, ipMatBA, ipMO, nA
+      Implicit None
+      Integer idSym
+      Real*8 Q(nDens2),rint(*),G2(*)
 
 #include "Input.fh"
-#include "Pointers.fh"
-       Real*8 Q(nDens2),rint(*),G2(*)
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+      integer iS, jS, kS, lS, ijS, iAsh, jAsh, kAsh, lAsh, iij, ikl,
+     &        ipS, ipQ, ipG, ipi
+      integer i,j,itri
+      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 *
 *      Q = (pj|kl)d
@@ -55,5 +59,4 @@
         End Do
         end if
        End Do
-       Return
-       end
+       end SubRoutine creq
