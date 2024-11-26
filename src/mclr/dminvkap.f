@@ -26,12 +26,12 @@
 *                                                                      *
 ************************************************************************
       use Spool, only: LuWr
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer nrIn, nrOut, nrTemp, iSym, iter
+      Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)
 #include "Input.fh"
-#include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
 #include "sa.fh"
-      Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -41,8 +41,12 @@
       Contains
       Subroutine DMInvKap_Internal(rMFact)
       Use Iso_C_Binding
+      use MCLR_Data, only: ipMat, nDensC
+      Implicit None
       Real*8, Target :: rMFact(*)
       Integer, Pointer :: iMFact(:)
+      Integer ip1, iS, jS, ii, nd, ip2, iRC
+      Real*8, External:: DDot_
       ip1=1
 *
       if(doDMRG)then  ! yma
