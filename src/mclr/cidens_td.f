@@ -27,7 +27,7 @@
 
 
 #ifdef _DEBUGPRINT_
-      Integer i, j, itri
+      Integer i, j, k, l, itri, ijkl
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 #endif
 
