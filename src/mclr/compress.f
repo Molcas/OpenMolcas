@@ -18,12 +18,12 @@
 *
 *      The redundant rotations are set to zero
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
-#include "Input.fh"
+      use MCLR_Data, only: nDens, nDensC, ipMat
+      Implicit None
       Integer dsym
       Real*8  ArrayIn(nDens),ArrayOut(nDensC)
+#include "Input.fh"
+      Integer indexC, isym, jsym, iBas, jBas, jT, iT, index1
       indexC=0
       call dcopy_(nDensC,[0.0d0],0,ArrayOut,1)
       Do iSym=1,nSym
@@ -75,5 +75,4 @@
       End Do
       If (indexc.ne.ndensc) Call SysAbendMsg('compress',
      & 'indexc.ne.ndensc',' ')
-      Return
-      End
+      End SubRoutine Compress
