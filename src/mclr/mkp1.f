@@ -9,15 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mkp1(nEX,lst,rMat,rdiag)
-      use negpre
+      use negpre, only: LuCIV, P1
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
+      Implicit None
 #include "Input.fh"
-      Real*8 rMat(*),rdiag(*)
+      Integer nEX
       Integer lst(nex)
+      Real*8 rMat(*),rdiag(*)
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
+
+      Integer i,j,k,l,itri,idisk,jDisk,kk,ll
+      Real*8 rtmp
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -53,5 +55,4 @@
        Call mma_deallocate(TMP2)
        Call mma_deallocate(TMP1)
 
-       Return
-       end
+       end Subroutine mkp1
