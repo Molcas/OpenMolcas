@@ -8,12 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine mkcipre
-      use negpre
+      Subroutine mkcipre()
+      use negpre, only: SS, ERAS, P1, P1Inv
       use stdalloc, only: mma_allocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
+      Implicit None
 #include "Input.fh"
+      Integer i,j,itri,iRec
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       irec(i,j)=i+(j-1)*2*lroots
@@ -47,5 +47,4 @@
       Call DSCAL_(4*lroots**2,-1.0d0,SS,1)
       SS(irec(2*lroots,2*lroots))= SS(irec(2*lroots,2*lroots))-1.0d0
 
-      Return
-      End
+      End Subroutine mkcipre
