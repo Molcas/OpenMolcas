@@ -10,11 +10,11 @@
 ************************************************************************
       SubRoutine GT1DIA_MCLR(H1DIA)
       use Arrays, only: FIMO
-      Implicit Real*8 (a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: ipCM
+      Implicit None
       Real*8 H1DIA(*)
+#include "Input.fh"
+      Integer i, iS, ii, iAsh
 
       i=1
       Do iS=1,nSym
@@ -25,5 +25,4 @@
         i=i+1
        End Do
       End Do
-      Return
-      End
+      End SubRoutine GT1DIA_MCLR
