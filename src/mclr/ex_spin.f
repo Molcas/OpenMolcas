@@ -9,10 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Ex_spin(rD,Fock,Temp1,ntemp,Temp2)
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: nDens2, ipCM, nNA
+      Implicit None
+      Integer nTemp
+      Real*8 rD(*),Fock(*),Temp1(nTemp),Temp2(*)
 #include "Input.fh"
-#include "Pointers.fh"
-      Real*8 rD(*),Fock(*),Temp1(*),Temp2(*)
+      Integer jS, kS, llB, lB, jjB, jB
+      Real*8 rDens
 *
 *
       call dcopy_(ndens2,[0.0d0],0,Temp2,1)
@@ -44,7 +47,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(ntemp)
-      End
+      End SubRoutine Ex_spin
