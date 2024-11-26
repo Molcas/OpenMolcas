@@ -46,7 +46,6 @@
       Integer opOut
       Logical lPrint,converged(8)
       Real*8 rchc(mxroot)
-      Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Fancy(:)
@@ -206,7 +205,7 @@
        CLOSE(LURot)
        if(VecName.eq.'CMS-PDFT') THEN
          Call RHS_CMS_NAC(Temp4,W(ipST)%Vec)
-         CALL DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+         CALL DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
        else
         write(6,'(6X,A)')'Error: Lagrangian Not Implemented for MS-PDFT'
         write(6,'(6X,A)')'       Other Than CMS-PDFT'
@@ -223,7 +222,7 @@
        CLOSE(LURot)
        if(VecName.eq.'CMS-PDFT') THEN
         Call RHS_CMS(Temp4,W(ipST)%Vec)
-        CALL DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+        CALL DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
        else
         write(6,'(6X,A)')'Error: Lagrangian Not Implemented for MS-PDFT'
         write(6,'(6X,A)')'       Other Than CMS-PDFT'
@@ -272,7 +271,7 @@
 *      In MS-PDFT deltaC is no longer zero initially
 *      deltaC=Zero
 *      Use following two lines instead
-      CALL DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+      CALL DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
       call dcopy_(nConf1*nroots,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
       deltaC=ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
       irc=ipOut(ipcid)
@@ -332,7 +331,7 @@
          irc=opOut(ipcid)
 
          irc=ipIn(ipS2)
-         Call DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+         Call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
          irc=opOut(ipci)
          irc=opOut(ipdia)
 

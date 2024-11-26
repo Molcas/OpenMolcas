@@ -443,7 +443,7 @@
 !I need to read in the CI portion of the RHS here.
       If (CI) Then
          irc=ipIn(ipS2)
-         Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+         Call DMinvCI_sa(ipST,W(ipS2)%Vec,Fancy)
       End If
       irc=ipin(ipST)
       irc=ipin(ipCId)
@@ -632,7 +632,7 @@
          irc=opOut(ipcid)
 
          irc=ipIn(ipS2)
-         Call DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+         Call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
 
          irc=opOut(ipci)
          irc=opOut(ipdia)

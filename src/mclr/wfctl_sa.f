@@ -46,7 +46,6 @@
       Integer opOut
       Logical lPrint,converged(8)
       Real*8 rchc(mxroot)
-      Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Fancy(:),
@@ -252,7 +251,7 @@
           Call mma_deallocate(wrk)
 C
           !! precondition (z0 = M^{-1}*r0)
-          Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum(1),isym,fancy)
+          Call DMinvCI_sa(ipST,W(ipS2)%Vec,fancy)
           irc=opOut(ipci)
           irc=opOut(ipdia)
           !! z0 <= p0
@@ -345,7 +344,7 @@ C
          irc=opOut(ipcid)
 
          irc=ipIn(ipS2)
-         Call DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+         Call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
          irc=opOut(ipci)
          irc=opOut(ipdia)
 
