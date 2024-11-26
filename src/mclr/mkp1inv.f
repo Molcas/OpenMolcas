@@ -9,15 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mkp1inv(rdia)
-      use negpre
+      use negpre, only: LuCIV, P1Inv
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
+      Implicit None
+      Real*8 rdia(*)
 #include "Input.fh"
 #include "incdia.fh"
-      Real*8 rdia(*)
       Real*8, Allocatable:: TMP1(:), TMP2(:)
+      Integer i,j,itri,iDisk,jDisk
+      Real*8, External:: DDot_
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -38,5 +38,4 @@
       Call mma_deallocate(TMP1)
       Call mma_deallocate(TMP2)
 
-      Return
-      end
+      end Subroutine mkp1inv
