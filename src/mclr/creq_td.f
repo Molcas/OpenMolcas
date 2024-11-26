@@ -10,20 +10,22 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
-       SubRoutine creq_td(q,rint,G2,idsym)
+      SubRoutine creq_td(q,rint,G2,idsym)
 *
-*      Constructs the Q matrix
+*     Constructs the Q matrix
 *
-       Implicit Real*8(a-h,o-z)
+      use Constants, only: Zero
+      use MCLR_Data, only: nDens2, ipMatBA, ipMO, nA
+      Implicit None
+      Integer idSym
 #include "Input.fh"
-#include "Pointers.fh"
-       Real*8 Q(nDens2),rint(*),G2(ntash,ntash,ntash,ntash)
-*      Real*8 Q(nDens2),rint(*),G2(*)
+      Real*8 Q(nDens2),rint(*),G2(ntash,ntash,ntash,ntash)
+      Integer iS, jS, kS, lS, ipS, ijS, iAsh, jAsh, kAsh, lAsh, ipQ, ipi
 *
 *      Q = (pj|kl)d
 *       pi         ijkl
 *
-       call dcopy_(ndens2,[0.0d0],0,Q,1)
+       Q(:)=Zero
        Do iS=1,nSym
         ipS=iEOr(is-1,idsym-1)+1
          if (nBas(ips).ne.0) Then
@@ -52,5 +54,4 @@
         End Do
         end if
        End Do
-       Return
-       end
+       end SubRoutine creq_td
