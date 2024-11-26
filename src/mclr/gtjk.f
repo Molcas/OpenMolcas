@@ -14,12 +14,12 @@ C
 C     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 C              WITH THE CHARGE DISTRIBUTION JK
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "detdim.fh"
-#include "Pointers.fh"
 #include "orbinp_mclr.fh"
-      DIMENSION RJ(NACOB,NACOB),RK(NACOB,nACOB)
-
+      Real*8 RJ(NACOB,NACOB),RK(NACOB,nACOB)
+      Integer NT, NU, NTUK, NTUJ
+      Integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 C
 C     FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
@@ -37,5 +37,4 @@ C
          End Do
       End Do
 C
-      RETURN
-      END
+      END SUBROUTINE GTJK_MCLR
