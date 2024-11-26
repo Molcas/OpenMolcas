@@ -13,14 +13,17 @@
       use ipPage, only: W
       use negpre
       use Constants, only: Zero, One, Half
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: nConf1, ipCI
+      Implicit None
+      Integer ipSIgma, idSym
+      Real*8 rout(*), rC_HE_C
 
 #include "Input.fh"
-#include "Pointers.fh"
 #include "incdia.fh"
-
-      Real*8 rout(*)
-      integer opout
+      integer iRC
+      integer, external:: ipin, ipout, opout
+      real*8 rCoeff
+      real*8, external:: DDot_
 *
 *                                    -1           -1
 *                               (H -E) |0><0|(H -E)|Sigma>
@@ -78,4 +81,4 @@
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      end
+      end SubRoutine DMinvCI
