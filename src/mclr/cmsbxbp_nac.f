@@ -16,16 +16,10 @@
 * ****************************************************************
       subroutine CalcbXbP_CMSNAC(bX,bP,FMO1t,FMO2t,R,H,E_Final,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use MCLR_Data, only: nCOnf1, nAcPr2
+      Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
 #include "sa.fh"
-#include "crun_mclr.fh"
 
 
 ****** Output
@@ -48,19 +42,13 @@
        CALL CalcbX_CMSNAC(bX,LOK,R,H,E_Final)
        CALL mma_deallocate(CSFOK)
        CALL mma_deallocate(LOK)
-       return
-       end subroutine
+       end subroutine CalcbXbP_CMSNAC
 ******************************************************
 
       Subroutine CalcbX_CMSNAC(bX,LOK,R,H,E_Final)
+      use Constants, only: Zero
+      Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
 #include "sa.fh"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
@@ -69,10 +57,10 @@
       Real*8,DIMENSION(nRoots)::E_Final
       Real*8,DIMENSION(nRoots**2)::LOK
 ***** Auxiliaries
-      INTEGER I,K,L,M,N,IKL,IIN,IJM,IKOL,IIK,IJK,IIL,IJL
+      INTEGER I,J,K,L,M,N,IKL,IIN,IJM,IKOL,IIK,IJK,IIL,IJL,ILOK
       Real*8 TempD, dE_IJ
 
-      CALL FZero(bX,(nRoots-1)*nRoots/2)
+      bX(:)=Zero
       I=NACstates(1)
       J=NACstates(2)
       dE_IJ = E_Final(I)-E_Final(J)
@@ -111,22 +99,16 @@
        End Do
       END DO
       END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcbX_CMSNAC
 ******************************************************
 
 
 ******************************************************
       subroutine CalcbP_CMSNAC(bP,CSFOK,LOK,R)
       use ipPage, only: W
+      use MCLR_Data, only: nConf1, ipCI
+      implicit none
 #include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
 #include "sa.fh"
 ***** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
@@ -135,7 +117,7 @@
       Real*8,DIMENSION(nRoots**2)::LOK
       Real*8,DIMENSION(nRoots**2)::R
 ***** Kind quantities that help
-      INTEGER I,L,K,iLoc1,iLoc2
+      INTEGER I,J,L,K,iLoc1,iLoc2
       Real*8 tempd
 
       I=NACstates(1)
@@ -153,7 +135,5 @@
      & bP(iLoc1),1)
 
       END DO
-      RETURN
-      End Subroutine
-******************************************************
+      End Subroutine CalcbP_CMSNAC
 
