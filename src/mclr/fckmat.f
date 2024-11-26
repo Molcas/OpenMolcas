@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine FckMat
+      SubRoutine FckMat()
 ************************************************************
 *                                                          *
 *   Driver for calculation of optimized fock matrix.       *
@@ -16,13 +16,14 @@
 ************************************************************
       use Arrays, only: FAMO, FIMO, F0SQMO, INT2
       use stdalloc, only: mma_allocate, mma_deallocate
-      implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      use MCLR_Data, only: nDens2
+      implicit none
 
 #include "Input.fh"
-#include "Pointers.fh"
 #include "machine.fh"
       Real*8, Allocatable:: Q(:), Tmp2(:,:), T3(:)
-*
+      Integer nm, nmm, nmmm, iS, nAtri
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -48,7 +49,7 @@
       Else
          Call mma_allocate(Int2,1,Label='Int2')
       End If
-      Int2(:)=0.0d0
+      Int2(:)=Zero
       Call mma_allocate(FAMO,nDens2,Label='FAMO')
       Call mma_allocate(Q,nDens2,Label='Q')
       Call mma_allocate(Tmp2,ndens2,2,Label='Tmp2')
@@ -68,5 +69,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End SubRoutine FckMat
