@@ -17,17 +17,22 @@
 *     derivative of the connection.
 *
       Use Arrays, only: Hss, CMO, F0SQMO
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-
+      use Constants, only: Zero
+      use MCLR_Data, only: nDens2, ipCM, ipMat
+      Implicit None
       Real*8 Temp1(nDens2),Temp2(nDens2),Temp3(nDens2),
      &       FockC(nDens2),FockX(nDens2),rcon(nDens2),
      &       temp4(*)
-      Character*8 Label
+      Integer idSym, jDisp, iDisp
+#include "Input.fh"
+#include "disp_mclr.fh"
+      Character(LEN=8) Label
+      Integer iS, jS, nNJ, Len, iSym, nIn, mDisp, kDisp, iRC, iOpt,
+     &        iOp, iP, IndX
+      Real*8 Fact
+      Real*8, External:: DDot_
 *
-      call dcopy_(ndens2,[0.0d0],0,Temp3,1)
+      Temp3(:)=Zero
       If (iAnd(ntpert(idisp),2**3).eq.8) Then
        Do iS=1,nSym
         js=iEOr(is-1,idSym-1)+1
@@ -40,11 +45,12 @@
      &              0.0d0,Temp3(ipMat(is,js)),nOrb(is))
 
        End Do
+!      Temp3(:)=-Half*Temp3(:)+Half*FockC(:)+FockX(:)
        Call DScal_(ndens2,-0.5d0,Temp3,1)
        Call DaXpY_(nDens2,0.5d0,FockC,1,Temp3,1)
        Call DaXpY_(nDens2,1.0d0,FockX,1,Temp3,1)
       Else
-        call dcopy_(nDens2,FockX,1,Temp3,1)
+        Temp3(:)=FockX(:)
       End If
 *
 *              xa     ca      xa
@@ -62,9 +68,9 @@
        nIn=nIn+lDisp(is)*(lDisp(is)+1)/2
       End Do
 *
-      Do 310 kDisp=1,ldisp(idsym)
+      Do kDisp=1,ldisp(idsym)
          mDisp=mdisp+1
-         If (iAnd(ntpert(mdisp),2**3).eq.0) Goto 310
+         If (iAnd(ntpert(mdisp),2**3).eq.0) Cycle
          iRC=-1
          iOpt=0
          Label='OvrGrd'
@@ -124,6 +130,5 @@
          Indx=nIn+Max(kDisp,jDisp)*(Max(kDisp,jDisp)-1)/2+
      &             Min(kDisp,jDisp)
          Hss(Indx)=Hss(Indx)-fact*ddot_(nDens2,Temp2,1,Temp3,1)
- 310  Continue
-      Return
-      End
+      End Do
+      End SubRoutine Hess
