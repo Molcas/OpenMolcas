@@ -10,15 +10,17 @@
 ************************************************************************
       Subroutine negp(ipdia,ipSigma,rout)
       use ipPage, only: W
-      use negpre
+      use negpre, only: SS, LuCIV
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer ipdia, ipSigma
+      Real*8 rout(*)
 
 #include "Input.fh"
-#include "Pointers.fh"
-      integer opout
-      Real*8 rout(*)
+      integer opout, irc, iDisk, i
+      integer, external:: ipIn, ipOut
+      Real*8, external:: DDot_
       Real*8, Allocatable:: Tmp(:), Tmp2(:,:), Tmp3(:,:)
 *
       idisk=0
@@ -54,4 +56,4 @@
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End Subroutine negp
