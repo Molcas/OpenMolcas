@@ -24,17 +24,18 @@
 ************************************************************************
       use Arrays, only: FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
+      use MCLR_Data, only: nNA, ipCM, ipMat, nA, nDens2
+      Implicit None
       Real*8 d_0
+      Integer idSym
       Real*8 Fock(*),fockout(*),rdens2(*),rDens1(*)
 !     Real*8 Fock(nDens2),fockout(*),rdens2(*),rDens1(nna*nna)
+#include "Input.fh"
       Real*8, Allocatable:: MO(:), Scr(:)
-      Parameter ( half  = 0.5d0 )
-      Parameter ( two  = 2.0d0 )
-      Parameter ( one  = 1.0d0 )
-      Parameter ( nd  = 1 )
+      Integer, Parameter :: nd  = 1
+      Integer n1, iS, n2, ipS, kS, jS, iB, jA, jAA, kA, kAA, ipM, ipF,
+     &        iA, ip1, ip2
+      Real*8 rd
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -122,5 +123,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End SubRoutine FockGen_sp
