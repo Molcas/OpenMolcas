@@ -10,26 +10,30 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
-       SubRoutine creq2(q,G2,idSym,Temp,Scr,n2)
+      SubRoutine creq2(q,G2,idSym,Temp,Scr,n2)
 *
-*      Constructs the Q matrix
+*     Constructs the Q matrix
 *
-       Implicit Real*8(a-h,o-z)
-
+      use Constants, only: Zero
+      use MCLR_Data, only: nDens2, ipMatBA, nA
+      Implicit None
+      Integer idSym,n2
+      Real*8 Q(nDens2),G2(*),Temp(n2),Scr(n2)
 #include "Input.fh"
-#include "Pointers.fh"
-       Real*8 Q(nDens2),G2(*),Temp(n2),Scr(n2)
+      Integer iS, jS, kS, lS, ijS, ipS, kAsh, lAsh, ikl, iAsh, jAsh,
+     &        ipQ, iij, ipG, ipI
 *                                                                      *
 ************************************************************************
 *                                                                      *
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+      Integer i,j,itri
+      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *      Q = (pj|kl)d
 *       pi         ijkl
 *
-       call dcopy_(ndens2,[0.0d0],0,Q,1)
+       Q(:)=Zero
 *
        Do iS=1,nSym
           ipS=iEOr(is-1,idsym-1)+1
@@ -68,5 +72,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-       Return
-       End
+       End SubRoutine creq2
