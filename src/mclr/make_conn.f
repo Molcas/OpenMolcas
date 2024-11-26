@@ -11,18 +11,20 @@
       Subroutine Make_Conn(F,Kappa,P,D)
       use Arrays, only: F0SQMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only:  ipMat, n2Dens, nDens2
 c
 c kappa=\bar{kappa}
 c P = \bar{d}
 c D = \bar{D}
 c
 c
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
       Real*8 P(*),D(*),F(*),Kappa(*)
       Real*8 dum(1)
       Real*8, Allocatable:: T1(:), T2(:), T3(:), T4(:)
+      Real*8 Fact
+      Integer iS, ijB, iB, ipTmp, ipTmp1, ipTmp2, jB
 *
       Call mma_allocate(T1,n2dens,Label='MO')
       Call mma_allocate(T2,ndens2,Label='F1')
@@ -76,5 +78,4 @@ c
       Call mma_deallocate(T3)
       Call mma_deallocate(T2)
       Call mma_deallocate(T1)
-      Return
-      End
+      End Subroutine Make_Conn
