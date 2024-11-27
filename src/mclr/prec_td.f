@@ -11,21 +11,24 @@
       SubRoutine Prec_td(pre2,DigPrec,isym)
       use Arrays, only: G1t
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: ipCM, ipMat, nA, nDens2
 *
 *     pre2      Preconditioner from Prec
 *     DigPrec Output - Diagonal of prec2
 *     isym      Symmetry of PT
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
-      Real*8 nonzero
+      Implicit None
       Real*8 DigPrec(*),pre2(*)
+      Integer iSym
+#include "Input.fh"
+      Real*8 nonzero
       Logical jump
       Real*8, Allocatable:: Dens(:), PreTd(:), TempTd(:)
+      Integer nBasTot,iS,ip3,Inc,iB,jB,ip,iA,jA,ip2,ip1,jS,nD,k,l
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -184,5 +187,4 @@ C
       Call mma_deallocate(PreTd)
       Call mma_deallocate(Dens)
 *
-      Return
-      End
+      End SubRoutine Prec_td
