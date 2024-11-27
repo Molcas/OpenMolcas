@@ -26,17 +26,21 @@
 *                                                                      *
       use Arrays, only: CMO, G1t, FAMO, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-      Logical lFI,lFA,lMo
-      Parameter ( One = 1.0d0 )
+      use Constants, only: Zero, One, Two
+      use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
+      Implicit None
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
      &       FockA(nDens2)
+      Integer nF,iDSym,jSpin
+      Real*8 sign,Fact
+#include "Input.fh"
+      Logical lFI,lFA,lMo
       Real*8 rdum(1)
       Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
      &                      DI(:), DIR(:), FI(:), FI1(:),
      &                      K1(:), DAL(:), DAR(:), DA(:), FA1(:)
+      Integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, ip2, jS
+      Real*8 FacR
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -63,6 +67,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
 ************************************************************************
@@ -91,14 +96,14 @@
       Call mma_allocate(FI1,ndens2,Label='FI1')
       Call mma_allocate(K1,ndens2,Label='K1')
 
-      FockI(:)=0.0d0
-      FockA(:)=0.0d0
-      FI(:)   =0.0d0
-      FI1(:)  =0.0d0
-      K1(:)   =0.0d0
-      DIR(:)  =0.0d0
-      DIL(:)  =0.0d0
-      DI(:)   =0.0d0
+      FockI(:)=Zero
+      FockA(:)=Zero
+      FI(:)   =Zero
+      FI1(:)  =Zero
+      K1(:)   =Zero
+      DIR(:)  =Zero
+      DIL(:)  =Zero
+      DI(:)   =Zero
       lFI=.true.
       lFa=.false.
       lMo=.false.
@@ -116,15 +121,15 @@
          Call mma_allocate(DA,1,Label='DA')
          Call mma_allocate(FA1,1,Label='FA1')
       End If
-      FA1(:)=0.0D0
-      DAL(:)=0.0D0
-      DAR(:)=0.0D0
-      DA(:) =0.0D0
+      FA1(:)=Zero
+      DAL(:)=Zero
+      DAR(:)=Zero
+      DA(:) =Zero
 c THIS IS THE ENTIRE DENSITY FOR MULTICONF
       Do iS=1,nSym
          Do iB=1,nIsh(iS)
             ip=ipCM(iS)+(ib-1)*nBas(is)+ib-1
-            DI(ip)=2.0d0
+            DI(ip)=Two
          End Do
       End Do
       If (iMethod.eq.2) Then
@@ -173,12 +178,12 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
      &Call DGETMO(rkappa(ipmat(is,js)),nbas(is),nbas(is),nbas(js),
      &            K1(ipmat(js,is)),nbas(js))
       End Do
-      Call DSCAL_(ndens2,-1.0d0,K1,1)
-      DIR(:)=0.0d0
-      DIL(:)=0.0d0
+      Call DSCAL_(ndens2,-One,K1,1)
+      DIR(:)=Zero
+      DIL(:)=Zero
       If (imethod.eq.2) Then
-         DAR(:)=0.0d0
-         DAL(:)=0.0d0
+         DAR(:)=Zero
+         DAL(:)=Zero
       End If
       Call Read2_ns(rdum,rdum,
      &           FI1,FA1,
@@ -238,7 +243,6 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(nF)
-      End
+      End SubRoutine r2elint_ns
