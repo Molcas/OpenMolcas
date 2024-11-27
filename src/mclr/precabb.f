@@ -34,16 +34,23 @@
 *
 ************************************************************************
       use Arrays, only: G1t, G2t
-      Implicit Real*8(a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nA, nB
+      Implicit None
+      Integer ib,is,js,nd,nba
       Real*8 rout(*)
-      Real*8 Temp2(nBa,nBa),Focki(nBa,nBa),Focka(nBa,nBa),
-     &       Fock(nBa,nBa)
+      Integer nTemp
       Real*8 Temp1(nTemp),Scr(nTemp)
+      Real*8 Temp2(nBa,nBa)
+      Real*8 Fockti
+      Real*8 Focki(nBa,nBa),Focka(nBa,nBa),Fock(nBa,nBa)
+      Real*8 Sign
+#include "Input.fh"
+      Integer nTri,iib,jVert,i2,ip,kS,kBB,kkB,kkC,lB,jB,ii,ij,kCC
+      Real*8 rf,rDens1,rDens2,Rho
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      integer i,j,iTri,iTri1
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)
      &          +Max(i,j)-Min(i,j)+1
@@ -112,8 +119,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(focka)
       If (.False.) Call Unused_real_array(fock)
-      End
+      End SubRoutine Precabb
