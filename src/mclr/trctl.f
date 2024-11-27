@@ -8,9 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE TRCTL_MCLR
+      SUBROUTINE TRCTL_MCLR()
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+      use MCLR_Data, only: ipCM
 *
 *     Two-electron integral transformation program: control section
 *
@@ -19,20 +20,23 @@
 *              The transformation routine TRAMO is called for each
 *              symmetry block of integrals.
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 *
 
 #include "Input.fh"
-      PARAMETER (LIOTAB=512*512)
-#include "Pointers.fh"
+      Integer, PARAMETER :: LIOTAB=512*512
 #include "Files_mclr.fh"
-      integer toca(8,8,8),tocb(36,8),tocc(5,36,8)
-      Save toca,tocB,tocc
+      integer,save:: toca(8,8,8),tocb(36,8),tocc(5,36,8)
       Integer, Allocatable:: Hlf1(:,:)
       Real*8, Allocatable:: Buffer(:)
+      Integer iAD14,iAd13,iAd23,iAd24,iAd34
+      Integer MemX,ipB,iBatch,iSP,nBP,nDP,iSQ,nBQ,nAQ,nDQ,nSPQ,iSR,nBR,
+     &        nAR,nDR,nSPQR,iSS,nBS,nAS,nDS,nSPQRS,nORBP,nBPQRS,IntBuf,
+     &        ipi,lW1,nW1,lW2,nW2,lW3,nW3,lW4,nW4,lW5,nW5,iSPQ,iSRS,nAP
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -162,5 +166,4 @@
       Call DaEras(LUHLF2)
       Call DaEras(LUHLF3)
 *
-      RETURN
-      END
+      END SUBROUTINE TRCTL_MCLR
