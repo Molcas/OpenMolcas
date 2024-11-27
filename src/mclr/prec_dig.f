@@ -29,13 +29,11 @@
 *     active; active,general is needed for rasscf calculation          *
 *     and is not coded yet (ugly bastard) (970109, AB )                *
 ************************************************************************
-      use Arrays, only: FAMO, FIMO, F0SQMO
-      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
+      Implicit None
+      Integer idsym
+      Real*8 rpre(*)
 #include "Input.fh"
 #include "machine.fh"
-      Real*8 rpre(*)
       Real*8, Allocatable:: JInt(:), KInt(:), Scr(:)
       Real*8, Allocatable:: Temp1(:,:), Temp2(:), Temp3(:), Temp4(:)
 *                                                                      *
@@ -46,10 +44,20 @@
 *
 *     This is to allow type punning without an explicit interface
       Contains
+
       Subroutine Prec_dig_internal(rpre)
       Use Iso_C_Binding
+      use Arrays, only: FAMO, FIMO, F0SQMO
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+      use MCLR_Data, only: ipCM
+      Implicit None
       Real*8, Target :: rpre(*)
+
       Integer, Pointer :: ipre(:)
+      Integer nmm, nmmm, iS, n2, ip, jS, nD, ni, nTemp, iB, iBB,
+     &        iRC, iR
+      Real*8 Sign
+
       nmm=0
       nmmm=0
       Do iS=1,nSym
@@ -233,39 +241,42 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
       End Subroutine Prec_dig_internal
 *
-      End
 *===============================================================
+#ifdef _NOT_USED_
       subroutine SortOutDiagonal(Matrix,diagonal,nb)
 *
 *    Copy the diagonal elements from Matrix to the vector
 *    Diagonal
 *
-      Implicit Real*8(a-h,o-z)
-      Real*8 Matrix(*),diagonal(*)
+      Implicit None
+      Integer nb
+      Real*8 Matrix(*),diagonal(nb)
+      Integer ipM, i
       call triPrt(' ',' ',matrix,nb)
       ipM=0
       do i=1,nb
        ipM=ipM+i
        Diagonal(i)=Matrix(ipM)
       end do
-*      call recPrt(' ',' ',diagonal,nb,1)
-      return
-      end
+      End subroutine SortOutDiagonal
+#endif
 *===============================================================
       subroutine SortOutDiagonal2(Matrix,diagonal,nb)
 *
 *    Copy the diagonal elements from Matrix to the vector
 *    Diagonal
 *
-      Implicit Real*8(a-h,o-z)
-      Real*8 Matrix(*),diagonal(*)
+      Implicit None
+      Integer nb
+      Real*8 Matrix(*),diagonal(nb)
+      Integer ipM, i
       ipM=1
       Do i=1,nb
        Diagonal(i)=Matrix(ipM)
        ipM=ipM+nb+1
       end do
-      Return
-      End
+      End subroutine SortOutDiagonal2
+
+      End SubRoutine Prec_dig
