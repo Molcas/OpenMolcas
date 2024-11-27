@@ -36,20 +36,22 @@
       use Arrays, only: Hss
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: nConf1, nDensC
+      Implicit None
 #include "detdim.fh"
 #include "Input.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-      Character*8 Label
-      Character*20 Label2
-      Integer Pstate_sym,ldisp2(8),ielec(3)
       Integer iKapDisp(nDisp),isigdisp(nDisp),
      &        iCiDisp(nDisp),iCiSigDisp(nDisp),
      &        iRHSDisp(nDisp),iRHSCiDisp(nDisp)
-      Logical elec_On,converged(8),CI
+      Logical converged(8)
+
+      Character(LEN=8) Label
+      Character(LEN=20) Label2
+      Integer Pstate_sym,ldisp2(8),ielec(3)
+      Logical elec_On,CI
       Real*8 Pola(6)
       Real*8, Allocatable:: RHss(:)
       Real*8, Allocatable:: Kap1(:), Kap2(:), sKap(:),
@@ -57,6 +59,14 @@
       Real*8, Allocatable:: Hess(:), Hess2(:), Temp(:), ELEC(:),
      &                      EG(:), ELOUT(:)
       Integer, Allocatable:: NrDisp(:), DegDisp(:)
+      Integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1,
+     &        ipCIP2, ipSP, ipRP1, ipRP2, jDisp, jSpin, iDisk, Len, i,
+     &        iLen, iDis, iRC, kDisp, kSpin, MaxI, MinI, Index, iOpt,
+     &        Lu_10, nCI, ip
+      Real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
+      Real*8, External:: DDot_
+      Integer, External:: ipGet, ipIn, ipClose
+      Integer, External:: IsFreeUnit
 *                                                                  *
 ********************************************************************
 *                                                                  *
@@ -467,5 +477,4 @@ c       Open(unit=Lu_10, file='UNSYM')
       Call mma_deallocate(Hess)
       Call mma_deallocate(RHss)
 *
-      Return
-      End
+      End SubRoutine OutPut_td
