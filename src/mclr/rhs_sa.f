@@ -8,29 +8,32 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       Subroutine rhs_sa(Fock,SLag)
-       use Arrays, only: Int1
-       use ipPage, only: W
-       use stdalloc, only: mma_allocate, mma_deallocate
-       use Constants, only: Zero, One, Two, Half, Quart
-       Implicit Real*8 (a-h,o-z)
+      Subroutine rhs_sa(Fock,SLag)
+      use Arrays, only: Int1
+      use ipPage, only: W
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One, Two, Half, Quart
+      use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
+      Implicit None
 
 #include "Input.fh"
-#include "Pointers.fh"
-#include "SysDef.fh"
 #include "Files_mclr.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 
-       Real*8 Fock(*)
-       real*8, optional :: SLag(*)
-       Dimension rdum(1)
-       Real*8, Allocatable:: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
+      Real*8 Fock(*)
+      real*8, optional :: SLag(*)
+      real*8 rdum(1)
+      Real*8, Allocatable:: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
+      Integer nG1,nG2,iR,jDisk,ii,iB,jB,iDij,iRij,kB,lB,iDkl,iRkl,
+     &        iIJKL,iRijkl,jj,iS,iiB,ijB,iIJ
+      Real*8 Fact,rEnergy,rCoreI,rCoreA
 *                                                                      *
 ************************************************************************
 *                                                                      *
+       integer i,j,itri
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -169,16 +172,17 @@
        Call mma_deallocate(F)
 
 *
-       Return
+      Contains
 
-       Contains
+      Subroutine PT2_SLag()
 
-      Subroutine PT2_SLag
-
-      Implicit Real*8 (A-H,O-Z)
+      use MCLR_Data, only: ipCI, n1Dens, n2Dens
+      Implicit None
       ! integer opout
       Real*8, Allocatable:: CIL(:), CIR(:)
       integer :: i,j
+      integer :: nConfL, nConfR, jR, kR, iSLag, ij,k,l,kl,ijkl,ij2,kl2
+      Real*8 vSLag, Factor
 
 !     At present, Molcas accepts equally-weighted MCSCF reference,
 !     so all SLag values are employed in the following computation.
@@ -284,8 +288,6 @@ C
       call mma_deallocate(CIR)
       nConf=ncsf(1)
 C
-      Return
-C
       End Subroutine PT2_SLag
 C
-       End
+      End Subroutine rhs_sa
