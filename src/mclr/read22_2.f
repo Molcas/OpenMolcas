@@ -24,20 +24,25 @@
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
+      use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nB
+      Implicit None
+      Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2),
+     &       Temp2(nDens2),Scr(*),Temp3(ndens2)
 #include "Input.fh"
 #include "Files_mclr.fh"
-      Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),
-     &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
-     &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
       Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,
      &                 FkI, FkA, QVec, CMO, CMO_Inv
+      Integer nm,iS,nAtri,nAS,jS,ijS,kS,lS,ijB1,iB,nNB,jB,ipD,iiB,jjB,
+     &        nNK,kB,kkB,nNL,lB,llB,ip2,ip1,ip,nAct,nA2,nG2,iSym,nAG2,
+     &        jSym,kSym,iOff,iOff2,iKK,iOff3,iK,iLL,iL,iKL,ipGx,kAsh,
+     &        lAsh,iAsh,jAsh,iIJ,ipi,ipj,nI,nJ,ipTmp,ijB,iStore
+      Real*8 Fact,rEnergy,rCora,rCoreI,rCoreA,rCor,rCore
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Integer i,j,iTri
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -542,4 +547,4 @@
 ************************************************************************
 *                                                                      *
       Return
-      End
+      End SubRoutine Read22_2
