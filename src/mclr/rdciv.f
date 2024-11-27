@@ -21,14 +21,15 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use negpre
+      use negpre, only: ERAS, LuCIV
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
       Real*8, Allocatable:: OCIvec(:), Tmp(:)
+      Integer iDisk, iDisk1, i, Iter
+      Real*8 Temp
 
       Call DaName(LuCIV,'ROOTS')
       iDisk=0
@@ -71,5 +72,4 @@
 *----------------------------------------------------------------------*
 *     exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine RdCIV
