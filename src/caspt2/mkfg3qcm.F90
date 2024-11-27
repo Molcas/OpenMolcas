@@ -18,6 +18,7 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   use qcmaquis_interface
   use definitions, only:wp,iwp,i1
   use gugx, only:SGS
+  use caspt2_global, only: CompressMPS
 
   implicit none
 
@@ -49,7 +50,7 @@ subroutine mkfg3qcm(IFF,G1,F1,G2,F2,G3,F3,idxG3)
   call qcmaquis_interface_get_1rdm_full(G1)
   call qcmaquis_interface_get_2rdm_full(G2)
   call qcmaquis_interface_get_3rdm_full(G3tmp)
-  call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp,epsa)
+  call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp,epsa,CompressMPS)
 
 
   if (iff > 0)then

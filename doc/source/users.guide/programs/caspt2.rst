@@ -1088,15 +1088,24 @@ Keywords
   Activate DMRG-CASPT2 calculation with |molcas|--DMRG interface.
   The program will skip the calculations of the :math:`n`-particle reduced density matrix.
   Note that multi-state calculations are not supported, the calculation will run but produce wrong CASPT2 total energy.
-  Always specify :kword:`MULTi` = 1 *iroot*, where *iroot* is the root index.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DMRG" APPEAR="DMRG-CASPT2 (QCMAQUIS)" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="DMRG" APPEAR="DMRG-CASPT2 (QCMAQUIS)" KIND="INT" LEVEL="BASIC">
               %%Keyword: DMRG <basic>
               <HELP>
               Activate DMRG-CASPT2 calculation with Molcas-QCMaquis interface.
               </HELP>
               </KEYWORD>
 
+:kword:`CMPS`
+  Compress MPS to given bond dimension when evaluation the (t)3-RDM in the QCMaquis CASPT2 routines.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="CMPS" APPEAR="Compress MPS (QCMAQUIS)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DMRG <basic>
+              <HELP>
+              Compress MPS in RDM evaluation for Molcas-QCMaquis interface.
+              </HELP>
+              </KEYWORD>
+              
 The given default values for the keywords
 :kword:`Convergence` and
 :kword:`Thresholds` normally give a second order energy which is correct
