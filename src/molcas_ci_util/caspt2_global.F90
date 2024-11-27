@@ -77,7 +77,7 @@ integer(kind=iwp) :: idBoriMat(8,13) = 0, IDCIEX, IDSAVGRD = 0, idSDMat(8,13) = 
                      iStpGrd = 1, jStLag = 0, LuAPT2 = 0, LUCIEX, LuCMOPT2 = 0, LUDMAT, LUDRA, LUDRATOT, LuGAMMA = 0, LUGRAD = 0, &
                      LUH0T(4), LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2 = 0, LURHS(8), LUSBT, LUSOLV, LuSTD = 0, &
                      nbuf1_grad = 0, nCLag = 0, NCMO = 0, NDREF = 0, nOLag = 0, NPREF = 0, nSLag = 0, nStpGrd = 1, NTAT = 0, &
-                     NTORB = 0, nWLag = 0, sigma_p_exponent = 2
+                     NTORB = 0, nWLag = 0, sigma_p_exponent = 2, CompressMPS = 0
 real(kind=wp) :: cmpThr, cntThr, ConvInvar = Zero, dnmThr, EMP2, imag_shift = Zero, ipea_shift = Zero, real_shift = Zero, &
                  sigma_p_epsilon = Zero
 logical(kind=iwp) :: do_csf = .false., do_grad = .false., do_lindep = .false., do_nac = .false., if_invar = .true., &
@@ -96,6 +96,6 @@ public :: CLag, CLagFull, CMO, CMO_Internal, CMOPT2, cmpThr, cntThr, ConvInvar, 
           ipea_shift, iPrGlb, iRoot1, iRoot2, iStpGrd, iVecG, iVecL, jStLag, LISTS, LuAPT2, LUCIEX, LuCMOPT2, LUDMAT, LUDRA, &
           LUDRATOT, LuGAMMA, LUGRAD, LUH0T, LUHLF1, LUHLF2, LUHLF3, LUINTM, LUONEM, LuPT2, LURHS, LUSBT, LUSOLV, LUSTD, &
           nbuf1_grad, nCLag, NCMO, NDREF, nOLag, NPREF, nSLag, nStpGrd, NTAT, NTORB, nWLag, OLag, OLagFull, OMGDER, PREF, &
-          real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, WLag
+          real_shift, sigma_p_epsilon, sigma_p_exponent, SLag, TAT, TORB, TraFro, WLag, CompressMPS
 
 end module caspt2_global
