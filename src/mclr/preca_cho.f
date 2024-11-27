@@ -28,14 +28,25 @@
 *                                                                      *
 ************************************************************************
       use Arrays, only: G1t, G2t
-      Implicit Real*8(a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nA
+      Implicit None
+      Integer iB,is,js,nd,ir
+      Real*8 rout(nd*(nd+1)/2)
+      Integer nbai,nbaj
+      Real*8 fockii,fockai,fockti
       Real*8 Fock(nbaj,nbaj),FockA(nBaj,nBaj),Focki(nbaj,nbaj)
-      Real*8 rout(nd*(nd+1)/2), A_J(nScr), A_K(nScr), Scr(nScr)
+      Real*8 Sign
+      Integer nScr
+      Real*8 A_J(nScr), A_K(nScr), Scr(nScr)
+#include "Input.fh"
+      Integer nTri,nO,iBB,jVert,itAA,i2,iAdr,kSym,iV,jCC,iU,jDD,ijk,
+     &        lSym,nL,ii, nI, ip,jA,jB,ij
+      Real*8 Factor,Factor2,rDens2,rDensaii,rDensabi,rDensabb,rf,rDens,
+     &       rDensaiil,rDensaiiu,rDensabil,rDensabiu,rFock,rDens1,Fact
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      integer i,j,iTri,iTri1
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)
      &          +Max(i,j)-Min(i,j)+1
@@ -217,4 +228,4 @@ c Avoid unused argument warnings
         Call Unused_real_array(A_K)
         Call Unused_real_array(Scr)
       End If
-      end
+      end SubRoutine Preca_cho
