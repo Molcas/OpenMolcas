@@ -8,15 +8,14 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine RdAB
+      SubRoutine RdAB()
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
+      Implicit None
 #include "Input.fh"
-#include "SysDef.fh"
-      Character*8 Label
 #include "disp_mclr.fh"
+      Character(LEN=8) Label
+      Integer iRC, iOpt, Length, iSym, iS, iDum
 *
 *
       Perturbation='NONE'
