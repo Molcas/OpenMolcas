@@ -38,14 +38,25 @@
 *                                                                      *
 ************************************************************************
       use Arrays, only: G1t, G2t
-      Implicit Real*8(a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nA
+      Implicit None
+      Integer iB,is,js,nd,ir
+      Real*8 rout(nd*(nd+1)/2)
+      Integer nbai,nbaj
+      Real*8 fockii,fockai,fockti
       Real*8 Fock(nbaj,nbaj),FockA(nBaj,nBaj),Focki(nbaj,nbaj)
-      Real*8 rout(nd*(nd+1)/2), A_J(nScr), A_K(nScr), Scr(nScr)
+      Integer nScr
+      Real*8 A_J(nScr), A_K(nScr), Scr(nScr)
+      Real*8 sign
+
+#include "Input.fh"
+      Integer nTri,iBB,iiB,jA,jB,kS,jC,jCC,jjC,jD,jDD,jjD,iCD,iC,iCC,
+     &        iiC,iCB,iBC
+      Real*8 rDens1, rDens2,CDij,CiDj,rDens,CiBj,BiCj,BCij,rFock
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      integer i,j,iTri,iTri1
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)
      &          +Max(i,j)-Min(i,j)+1
@@ -161,11 +172,10 @@ C    &                                 + 2.0d0* rDens2*cidj)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_integer(ir)
          Call Unused_integer(nbai)
          Call Unused_real_array(fock)
       End If
-      End
+      End SubRoutine Precaii
