@@ -51,20 +51,25 @@
 *               perturbations                                          *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
+      use Constants, only: Zero, Half, One
+      use MCLR_Data, only: nMBA, nDens2, nCMO, ipCM, ipMat, ipMO, nB
+      Implicit None
+      real*8 rmo1(nMba),rmo2(nmba),FockI(nDens2),FockA(nDens2)
+      Integer nTemp
+      real*8 Temp1(ntemp),Temp2(nDens2),Temp3(nDens2),Temp4(nDens2),
+     &       DI13(nDens2),DI24(nDens2),DI(nCMO),
+     &       DA13(nDens2),DA24(nDens2),DA(nCMO),
+     &       rkappa(nDens2)
+      Integer iDSym
+      real*8 Signa,Fact
+      Integer jSpin
+      Logical lFAt,lFIT,lmot
+      real*8 CMO(nCMO)
 #include "Input.fh"
-      Real*8 rkappa(*),FockA(*),FockI(*),
-     &       Temp1(ntemp),Temp2(*),
-     &       temp3(*),Temp4(*),
-     &       rmo1(*),rmo2(*),
-     &       CMO(*),DA(*),DI(*),
-     &       DA24(*),DI24(*),
-     &       DA13(*),DI13(*)
-      Parameter ( half  = 0.5d0 )
-      Parameter ( One   = 1.0d0 )
-      Parameter ( Two   = 2.0d0 )
-      Logical lFAt,lFIT,lmot,singlet
+      Logical singlet
+      Integer iS,jS,ijS,kS,lS,iB,nNB,jB,ipD,ipF,iiB,jjB,ipS,ip1,ip2,
+     &        ip3,ip4,lB,ijA,ilA,ipA
+      Real*8 Sign
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -108,29 +113,29 @@
 *
                   Call DGEMM_('N','N',
      &                        nBas(iS),nB(jS),nB(jS),
-     &                        1.0d0,rkappa(ipMat(is,js)),nBas(iS),
+     &                        One,rkappa(ipMat(is,js)),nBas(iS),
      &                        DI(ipCM(js)),nBas(jS),
-     &                        0.0d0,DI24(ipMat(iS,jS)),nBas(iS))
+     &                        Zero,DI24(ipMat(iS,jS)),nBas(iS))
 *
                   Call DGEMM_('T','N',
      &                        nBas(iS),nB(jS),nB(jS),
-     &                        1.0d0,rkappa(ipMat(js,is)),nBas(jS),
+     &                        One,rkappa(ipMat(js,is)),nBas(jS),
      &                        DI(ipCM(js)),nBas(jS),
-     &                        0.0d0,DI13(ipMat(iS,jS)),nBas(iS))
+     &                        Zero,DI13(ipMat(iS,jS)),nBas(iS))
 *
                   If (iMethod.eq.2) Then
 *
                      Call DGEMM_('N','N',
      &                           nBas(iS),nBas(jS),nBas(jS),
-     &                           1.0d0,rkappa(ipMat(is,js)),nBas(iS),
+     &                           One,rkappa(ipMat(is,js)),nBas(iS),
      &                           DA(ipCM(js)),nBas(jS),
-     &                           0.0d0,DA24(ipMat(iS,jS)),nBas(iS))
+     &                           Zero,DA24(ipMat(iS,jS)),nBas(iS))
 *
                      Call DGEMM_('T','N',
      &                           nBas(iS),nBas(jS),nB(jS),
-     &                           1.0d0,rKappa(ipMat(js,iS)),nBas(jS),
+     &                           One,rKappa(ipMat(js,iS)),nBas(jS),
      &                           DA(ipCM(js)),nBas(js),
-     &                           0.0d0,DA13(ipMat(iS,jS)),nBas(iS))
+     &                           Zero,DA13(ipMat(iS,jS)),nBas(iS))
 *
                   End If
 *
@@ -139,7 +144,7 @@
          End If
       End Do
 *
-      sign=1.0d0
+      sign=One
       If (iMethod.eq.2) Call DScal_(ndens2,signa,DA24,1)
       Call DScal_(ndens2,signa,Di24,1)
 *                                                                      *
@@ -313,9 +318,9 @@
                 If (nBas(ips)*nBas(lS).gt.0)
      &          Call DGEMM_('N','N',
      &                      nBas(ips),nBas(ls),nBas(ks),
-     &                      1.0d0,rKappa(ipMat(ips,ks)),nBas(ipS),
+     &                      One,rKappa(ipMat(ips,ks)),nBas(ipS),
      &                      Temp4,nBas(ks),
-     &                      0.0d0,Temp3,nBas(ips))
+     &                      Zero,Temp3,nBas(ips))
 *               ~
 *              (pl|ij)
 *
@@ -357,9 +362,9 @@
                   If (nBas(ipS)*nBas(kS).gt.0)
      &            Call DGEMM_('N','T',
      &                        nBas(ips),nBas(ks),nBas(ls),
-     &                        1.0d0,rKappa(ipmat(ips,ls)),nBas(ips),
+     &                        One,rKappa(ipmat(ips,ls)),nBas(ips),
      &                        Temp4,nBas(ks),
-     &                        0.0d0,Temp3,nBas(ips))
+     &                        Zero,Temp3,nBas(ips))
 *               ~
 *              (pk|ij)
 *
@@ -404,9 +409,9 @@
                 If (nBas(ks)*nBas(ips).gt.0)
      &          Call DGEMM_('N','N',
      &                      nBas(ks),nbas(ips),nBas(ls),
-     &                      1.0d0,Temp4,nBas(kS),
+     &                      One,Temp4,nBas(kS),
      &                      rkappa(ipMat(ls,ips)),nBas(ls),
-     &                      0.0d0,Temp3,nBas(ks))
+     &                      Zero,Temp3,nBas(ks))
 *                ~
 *              (pl|ji)
 *
@@ -450,9 +455,9 @@
                   If (nBas(ls)*nBas(ips).gt.0)
      &            Call DGEMM_('T','N',
      &                        nBas(ls),nBas(ips),nBas(ks),
-     &                        1.0d0,Temp4,nBas(ks),
+     &                        One,Temp4,nBas(ks),
      &                        rKappa(ipMat(ks,ips)),nBas(ks),
-     &                        0.0d0,Temp3,nBas(ls))
+     &                        Zero,Temp3,nBas(ls))
 *                ~
 *              (pk|ij)
 *
@@ -634,9 +639,9 @@
               If (nBas(is)*nAsh(ipS).ne.0)
      &         Call DGEMM_('N','T',
      &                     nBas(iS),nAsh(ipS),nBas(kS),
-     &                     1.0d0,Temp3,nBas(iS),
+     &                     One,Temp3,nBas(iS),
      &                     rKappa(ipMat(ips,ks)+nish(ips)),nBas(ips),
-     &                     0.0d0,Temp4,nBas(iS))
+     &                     Zero,Temp4,nBas(iS))
               ija=jB-nIsh(jS)
               ila=lB-nIsh(lS)
 *                 ~
@@ -661,10 +666,10 @@
               If (nBas(iS)*nAsh(ipS).ne.0)
      &         Call DGEMM_('N','N',
      &                     nBas(iS),nAsh(ipS),nBas(kS),
-     &                     1.0d0,Temp3,nBas(iS),
+     &                     One,Temp3,nBas(iS),
      &                     rKappa(ipMat(ks,ips)+nbas(ks)*nish(ips)),
      &                     nBas(ks),
-     &                     0.0d0,Temp4,nBas(iS))
+     &                     Zero,Temp4,nBas(iS))
               ip2=ipMO(js,ls,ips)+nBas(iS)*(ija-1)+
      &               nBas(is)*nAsh(js)*(ilA-1)
               ip3=ipMO(js,ips,ls)+nBas(iS)*(ija-1)+
