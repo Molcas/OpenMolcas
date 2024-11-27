@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Rd1Int_MCLR
+      Subroutine Rd1Int_MCLR()
 ************************************************************************
 *                                                                      *
 *     Read header and matrices from the one-electron integral file     *
@@ -21,10 +21,10 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
-      Character*8 Method
+      Character(LEN=8) Method
+      Integer iSym
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -81,5 +81,4 @@ C      iMethod=3
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine Rd1Int_MCLR
