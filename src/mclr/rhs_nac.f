@@ -12,9 +12,9 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half, Quart
+      use MCLR_Data, only: ipCI,nConf1,ipMat,n1Dens,n2Dens,nDens2
       Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
 #include "sa.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -223,23 +223,23 @@
       Call mma_deallocate(G1m)
       Call mma_deallocate(G1q)
 *
-      Return
 
        Contains
 
-      Subroutine PT2_SLag
+      Subroutine PT2_SLag()
 C
 C     Almost the same to the subroutine in rhs_sa.f,
 C     but slightly modified
 C
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
       ! integer opout
       integer jR,kR
+      Real*8 vSLag
 C
       !! iR = iRLXRoot
       Do jR = 1, nRoots
         Do kR = 1, jR
-          vSLag = 0.0D+00
+          vSLag = Zero
 C         write (*,*) "jr,kr= ", jr,kr
 C         write (*,*) vslag
           iSLag = jR + nRoots*(kR-1)
@@ -273,7 +273,5 @@ C
       End Do
       nConf=ncsf(1) !! nconf is overwritten somewhere in densi2
 C
-      Return
-C
       End Subroutine PT2_SLag
-      End
+      End Subroutine RHS_NAC
