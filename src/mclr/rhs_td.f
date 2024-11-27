@@ -36,18 +36,26 @@
       use ipPage, only: W
       use Arrays, only: G2sq, G1t
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
+      use Constants, only: Zero, One, Two
+      use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat,
+     &                     ipMatBA, ipMatLT, nA, nConf1,nDens2,
+     &                     nMBA
+      Implicit None
+      real*8 Temp1(nDens),Temp2(nDens),Temp3(nDens),Temp4(nDens),
+     &       Temp5(nDens),Temp6(nDens),temp7(ndens),rKappa(nDens)
+      Integer ipst,iDisp,lOper
+      real*8 CMO(nCMO)
+      Integer jdisp,jspin
+      Logical CI
 #include "Input.fh"
 #include "disp_mclr.fh"
       Character(LEN=8) Label
-      Logical CI
-      Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),
-     &       Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
-     &       Temp6(nDens),temp7(ndens)
       Real*8 rDum(1)
       Real*8, Allocatable:: FiX(:),MOX(:),MOT(:),MOT2(:)
+      Integer iRC, iDSym, iOpt, iOp,ip,iS,jS,iAsh,jAsh
+      Real*8 rOne,Dij,Ena,E2_TD
+      Integer, External:: ipIn
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -65,6 +73,7 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -106,25 +115,25 @@
            End If
            Call DGEMM_('T','N',
      &                 nBas(iS),nBas(jS),nBas(iS),
-     &                 1.0d0,CMO(ipCM(iS)),nBas(iS),
+     &                 One,CMO(ipCM(iS)),nBas(iS),
      &                 Temp6,nBas(iS),
-     &                 0.0d0,Temp5,nBas(iS))
+     &                 Zero,Temp5,nBas(iS))
            Call DGEMM_('N','N',
      &                 nBas(is),nBas(jS),nBAs(jS),
-     &                 1.0d0,Temp5,nBas(iS),
+     &                 One,Temp5,nBas(iS),
      &                 CMO(ipCM(jS)),nBas(jS),
-     &                 0.0d0,Temp1(ipMat(iS,jS)),nBas(is))
+     &                 Zero,Temp1(ipMat(iS,jS)),nBas(is))
            If (is.ne.js) Then
            Call DGEMM_('T','T',
      &                 nBas(jS),nBas(iS),nBAs(jS),
-     &                 1.0d0,CMO(ipCM(jS)),nBas(js),
+     &                 One,CMO(ipCM(jS)),nBas(js),
      &                 Temp6,nBas(iS),
-     &                 0.0d0,Temp5,nBas(jS))
+     &                 Zero,Temp5,nBas(jS))
            Call DGEMM_('N','N',
      &                 nBas(js),nBas(iS),nBas(iS),
-     &                 1.0d0,Temp5,nBas(jS),
+     &                 One,Temp5,nBas(jS),
      &                 CMO(ipCM(iS)),nBas(iS),
-     &                 0.0d0,Temp1(ipMat(jS,iS)),nBas(jS))
+     &                 Zero,Temp1(ipMat(jS,iS)),nBas(jS))
           End If
 
         End If
@@ -137,7 +146,7 @@
 *
 *     Read in derivative of hamiltonian
 *
-      rone=0.0d0
+      rone=Zero
       If (iMethod.eq.2) Then
         Call mma_allocate(MOX,n2dens,Label='MOX')
       Else
@@ -170,7 +179,7 @@
 *       IFG: this was outside "if (imethod.eq.2)",
 *            probably a bug? ipmot & ipmot2 would be uninitialized
         Call r2ElInt(Temp1,MOT,MOT2,
-     &               Temp4,Temp5,ndens2,iDSym,1.0d0,-0.5d0,0)
+     &               Temp4,Temp5,ndens2,iDSym,One,-0.5d0,0)
         Call DaXpY_(nmba,One,MOT2,1,MOT,1 )
         Call mma_deallocate(MOT2)
        End If
@@ -185,11 +194,11 @@
        Do iS=1,nSym
         jS=iEOr(iS-1,loper)+1
 *------ F~=2*Fi~
-        Call DaXpY_(nIsh(is)*nBas(js),2.0d0,
+        Call DaXpY_(nIsh(is)*nBas(js),Two,
      &            Temp4(ipMat(js,is)),1,Temp7(ipMat(js,is)),1)
         If (iMethod.eq.2) Then
 *------- F~=F~+2*FA~
-         Call DaXpY_(nIsh(is)*nBas(js),2.0d0,
+         Call DaXpY_(nIsh(is)*nBas(js),Two,
      &            Temp5(ipMat(js,is)),1,Temp7(ipMat(js,is)),1)
          Do iAsh=1,nAsh(iS)
           Do jAsh=1,nAsh(is)
@@ -203,7 +212,7 @@
           End Do
          End Do
 *------- F~=F~+Q~
-         Call DaXpY_(nAsh(is)*nBas(js),1.0d0,
+         Call DaXpY_(nAsh(is)*nBas(js),One,
      &            Temp6(ipMatba(js,is)),1,
      &            Temp7(ipMat(js,is)+nBas(js)*nIsh(is)),1)
         End If
@@ -243,10 +252,10 @@ C
         irc=ipin(ipCI)
         Call DaXpY_(nConf1,-Ena,W(ipCI)%Vec,1,W(ipST)%Vec,1)
        End If
-       call dscal_(nconf1,2.0d0,W(ipST)%Vec,1)
+       call dscal_(nconf1,Two,W(ipST)%Vec,1)
       End If
 *
-      Call DYAX(ndens2,2.0d0,rkappa,1,Temp1,1)
+      Call DYAX(ndens2,Two,rkappa,1,Temp1,1)
 C
       Do iS=1,nSym
         js=iEOR(is-1,loper)+1
@@ -274,4 +283,4 @@ c Avoid unused argument warnings
       Write (6,*) ' Error when reading OVRGRD from MCKINT '
       Write (6,*)
 *
-      End
+      End SubRoutine RHS_td
