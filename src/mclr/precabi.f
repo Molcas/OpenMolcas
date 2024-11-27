@@ -34,14 +34,23 @@
 *                                                                      *
 ************************************************************************
       use Arrays, only: G1t, G2t
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: nA
+      Implicit None
+      Integer ib,is,js,ir,nd
+      Real*8 rOut(*)
+      Integer nba
+      Real*8 Fock(nba,nba),Focki(nba,nba),FockA(nba,nba)
+      Real*8 Sign
+      Integer nScr
+      Real*8 A_J(nScr),A_K(nScr),Scr(nScr)
 #include "Input.fh"
-#include "Pointers.fh"
-      Real*8 Fock(nba,nba),Focki(nba,nba),FockA(nba,nba),rOut(*),
-     &       A_J(nScr),A_K(nScr),Scr(nScr)
+      Integer nTri, jVert, nO, iAA, itAA, kS, kA, kAA, kkA, lA, lAA,
+     &        llA, jB, ip, iVJ
+      Real*8 Fact, Fact1, Fact2
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Integer i,j,iTri,iTri1
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)
      &          +Max(i,j)-Min(i,j)+1
@@ -110,10 +119,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 c Avoid unused argument warnings
       If (.False.) Then
         Call Unused_integer(ir)
         Call Unused_real_array(fock)
       End If
-      End
+      End Subroutine Precabi
