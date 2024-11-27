@@ -36,18 +36,26 @@
       use ipPage, only: W
       use Arrays, only: G2t, G1t
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
+      use Constants, only: Zero, Half, One, Two
+      use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat,
+     &                     ipMatBA, ipMatLT, nA, nConf1,nDens2,
+     &                     nMBA
+      Implicit None
+      real*8 Temp1(nDens),Temp2(nDens),Temp3(nDens),Temp4(nDens),
+     &       Temp5(nDens),Temp6(nDens),temp7(ndens),rKappa(nDens)
+      Integer ipst,iDisp,lOper
+      real*8 CMO(nCMO)
+      Integer jdisp,jspin
+      Logical CI
 #include "Input.fh"
 #include "disp_mclr.fh"
       Character(LEN=8) Label
-      Logical CI
       Real*8 E2
-      Real*8 Temp1(nDens),rKappa(nDens),Temp4(nDens),
-     &       Temp2(nDens),Temp3(nDens),CMO(nCMO),Temp5(nDens),
-     &       Temp6(nDens),temp7(ndens)
       Real*8 rDum(1)
       Real*8, Allocatable:: MOX(:), MOT(:), FIX(:), MOT2(:)
+      Integer iRC, iDSym, iOpt, iOp,ip,iS,jS,iAsh,jAsh
+      Real*8 rOne,Dij,Ena
+      Integer, External:: ipIn
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -64,11 +72,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Integer i,j,iTri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      one=1.0d0
       debug=.true.
       iRC=-1
       idsym=loper+1
@@ -111,25 +119,25 @@
            End If
            Call DGEMM_('T','N',
      &                 nOrb(iS),nBas(jS),nBas(iS),
-     &                 1.0d0,CMO(ipCM(iS)),nBas(iS),
+     &                 One,CMO(ipCM(iS)),nBas(iS),
      &                 Temp6,nBas(iS),
-     &                 0.0d0,Temp5,nOrb(iS))
+     &                 Zero,Temp5,nOrb(iS))
            Call DGEMM_('N','N',
      &                 nOrb(is),nOrb(jS),nBAs(jS),
-     &                 1.0d0,Temp5,nOrb(iS),
-     &                 CMO(ipCM(jS)),nBas(jS),
-     &                 0.0d0,Temp1(ipMat(iS,jS)),nOrb(is))
+     &                 One,Temp5,nOrb(iS),
+     &                     CMO(ipCM(jS)),nBas(jS),
+     &                 Zero,Temp1(ipMat(iS,jS)),nOrb(is))
            If (is.ne.js) Then
            Call DGEMM_('T','T',
      &                 nOrb(jS),nBas(iS),nBAs(jS),
-     &                 1.0d0,CMO(ipCM(jS)),nBas(js),
+     &                 One,CMO(ipCM(jS)),nBas(js),
      &                 Temp6,nBas(iS),
-     &                 0.0d0,Temp5,nOrb(jS))
+     &                 Zero,Temp5,nOrb(jS))
            Call DGEMM_('N','N',
      &                 nOrb(js),nOrb(iS),nBas(iS),
-     &                 1.0d0,Temp5,nOrb(jS),
+     &                 One,Temp5,nOrb(jS),
      &                 CMO(ipCM(iS)),nBas(iS),
-     &                 0.0d0,Temp1(ipMat(jS,iS)),nOrb(jS))
+     &                 Zero,Temp1(ipMat(jS,iS)),nOrb(jS))
           End If
 
         End If
@@ -142,13 +150,13 @@
 *
 *     Read in derivative of hamiltonian
 *
-      rone=0.0d0
+      rone=Zero
       If ((iMethod.eq.2).and.(n2dens.ne.0)) Then
         Call mma_allocate(MOX,n2dens,Label='MOX')
       Else
         Call mma_allocate(MOX,1,Label='MOX')
       End If
-      MOX(:)=0.0D0
+      MOX(:)=Zero
       Call mma_allocate(FiX,nDens2,Label='FIX')
 
       Call IntX(FIX,temp7,temp6,temp5,temp4,rkappa,
@@ -172,19 +180,19 @@
           Call mma_allocate(MOT ,   1,Label='MOT')
           Call mma_allocate(MOT2,   1,Label='MOT2')
        End If
-       MOT(:)=0.0D0
-       MOT2(:)=0.0D0
+       MOT(:)=Zero
+       MOT2(:)=Zero
 *
 *      kappa rmo Fi Fa
 *
        Call r2ElInt(Temp1,MOT,MOT2,
-     &             Temp4,Temp5,ndens2,iDSym,1.0d0,-0.5d0,0)
+     &             Temp4,Temp5,ndens2,iDSym,One,-Half,0)
 
-       If (imethod.eq.2) Call DaXpY_(nmba,1.0d0,MOT2,1,MOT,1)
+       If (imethod.eq.2) Call DaXpY_(nmba,One,MOT2,1,MOT,1)
        Call mma_deallocate(MOT2)
 
 *----- ix  ix  ~i
-       call dcopy_(ndens2,[0.0d0],0,temp7,1)
+       call dcopy_(ndens2,[Zero],0,temp7,1)
 *------ F  =F  + F
        Call DaXpY_(nDens2,One,Temp4,1,FIX,1)
 *
@@ -194,11 +202,11 @@
        Do iS=1,nSym
         jS=iEOr(iS-1,loper)+1
 *------ F~=2*Fi~
-        Call DaXpY_(nIsh(is)*nOrb(js),2.0d0,
+        Call DaXpY_(nIsh(is)*nOrb(js),Two,
      &            Temp4(ipMat(js,is)),1,Temp7(ipMat(js,is)),1)
         If (iMethod.eq.2) Then
 *------- F~=F~+2*FA~
-         Call DaXpY_(nIsh(is)*nOrb(js),2.0d0,
+         Call DaXpY_(nIsh(is)*nOrb(js),Two,
      &            Temp5(ipMat(js,is)),1,Temp7(ipMat(js,is)),1)
          Do iAsh=1,nAsh(iS)
           Do jAsh=1,nAsh(is)
@@ -212,7 +220,7 @@
           End Do
          End Do
 *------- F~=F~+Q~
-         Call DaXpY_(nAsh(is)*nOrb(js),1.0d0,
+         Call DaXpY_(nAsh(is)*nOrb(js),One,
      &            Temp6(ipMatba(js,is)),1,
      &            Temp7(ipMat(js,is)+nOrb(js)*nIsh(is)),1)
         End If
@@ -248,10 +256,10 @@
         irc=ipin(ipCI)
         Call DaXpY_(nConf1,-Ena,W(ipCI)%Vec,1,W(ipST)%Vec,1)
        End If
-       Call DSCAL_(nConf1,2.0d0,W(ipST)%Vec,1)
+       Call DSCAL_(nConf1,Two,W(ipST)%Vec,1)
       End If
 *
-      Call DYAX(ndens2,2.0d0,rkappa,1,Temp1,1)
+      Call DYAX(ndens2,Two,rkappa,1,Temp1,1)
 *
       Do iS=1,nSym
         js=iEOR(is-1,loper)+1
@@ -268,10 +276,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 c Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(Temp2)
          Call Unused_integer(jspin)
       End If
-      End
+      End SubRoutine RHS
