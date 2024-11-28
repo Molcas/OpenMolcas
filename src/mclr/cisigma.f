@@ -14,12 +14,12 @@
        use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
        use stdalloc, only: mma_allocate, mma_deallocate
        use MCLR_Data, only: nConf1, ipCM, ipMat
+       use genop_MCLR, only: i12,iST,Square
        Implicit None
        Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
        Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
        Logical Have_2_el
 #include "Input.fh"
-#include "genop.fh"
 #include "cands.fh"
 #include "detdim.fh"
 #include "cstate_mclr.fh"
