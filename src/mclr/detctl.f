@@ -11,7 +11,7 @@
       Subroutine DetCtl()
       use Arrays, only: pINT1, pINT2
       use stdalloc, only: mma_allocate
-      use genop_MCLR, only: iOpNum, iST,i12
+      use genop_MCLR, only: iST,i12
 *
       Implicit None
 
@@ -35,7 +35,6 @@
       NOCSF  = 0
       idenmt=0
       nopart=0
-      iopnum=1
       nIrrep=nSym
       nsmob=nSym
       mxr4tp=0

@@ -11,16 +11,9 @@
 Module Genop_MCLR
 ! Stuff from genop.fh
 !. Type of operator in action
-!        KOPER      :         Not in use
-!        IOPSM      :         Not in use
-!        IRI        :         Not in use
 !        I12        :         2:Both on and two electron integrals
 !        IST        :
-!        IOPNUM     :         Type of opertor
 !        Square     :         Integrals square/triangular
-!        FACTOR
-!        IACOP(3):            Hubba
       Logical square
-      Real*8 Factor
-      Integer KOPER,IOPSM,IRI,I12,IST,IOPNUM,IACOP(3)
+      Integer I12,IST
 End Module Genop_MCLR
