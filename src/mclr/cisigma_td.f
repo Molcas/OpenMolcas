@@ -14,6 +14,7 @@
        use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
        use stdalloc, only: mma_allocate, mma_deallocate
        use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
+       use genop_MCLR, only: i12, ist, Square
        Implicit None
        Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
        Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
@@ -25,7 +26,6 @@ c Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
 c
 *
 #include "Input.fh"
-#include "genop.fh"
 #include "cands.fh"
 #include "detdim.fh"
 #include "cstate_mclr.fh"
