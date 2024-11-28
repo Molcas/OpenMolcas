@@ -16,9 +16,10 @@
 * ****************************************************************
       subroutine RHS_CMS_NAC(Fock,CICSF)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -99,5 +100,4 @@
       CALL mma_deallocate(FMO1t)
       CALL mma_deallocate(FMO2t)
       CALL mma_deallocate(PUVX)
-      RETURN
-      end subroutine
+      end subroutine RHS_CMS_NAC
