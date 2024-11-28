@@ -20,12 +20,11 @@
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Half
-      Implicit Real*8(a-h,o-z)
-
+      use MCLR_Data, only: nDensC, nDens2, nMBA
+      Implicit None
+      real*8 rkappa(nDensC),rMOs(*),rmoa(*),Focki(ndens2),Sigma(nDensC)
 #include "Input.fh"
-#include "Pointers.fh"
 #include "spin_mclr.fh"
-      Real*8 rkappa(nDensC),Sigma(nDensC), Focki(ndens2),rMOs(*),rmoa(*)
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), Scr(:)
 *
 *     D,FA used in oit of FA
@@ -91,5 +90,4 @@
       Call mma_deallocate(MT2)
       Call mma_deallocate(MT1)
 *
-      return
-      End
+      End SubRoutine RInt_SP

@@ -35,13 +35,16 @@ c
       use Arrays, only: G1t
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, Two
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: nDens2,ipCM,ipMat,nA
+      Implicit None
+      Real*8 ekappa(ndens2),mkappa(ndens2)
+      Integer iSym
 c
 #include "Input.fh"
-#include "Pointers.fh"
-      Real*8 ekappa(ndens2),mkappa(ndens2)
       Real*8, Allocatable:: Dens(:), wDKt(:), wKtD(:)
+      Integer lDens,iS,ip3,Inc,iB,jB,ip,iA,jA,ip2,jS,IncX,Incy,Length
 
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 c
 c---------------------------------------------------------
@@ -138,5 +141,4 @@ c
        Call mma_deallocate(Dens)
        Call mma_deallocate(wDKt)
        Call mma_deallocate(wKtD)
-      return
-      end
+      end SubRoutine RInt_td
