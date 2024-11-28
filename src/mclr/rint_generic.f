@@ -22,20 +22,25 @@
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
+      use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nMBA
 #ifdef _DEBUGPRINT_
       use Spool, only: LuWr
 #endif
-      Implicit Real*8(a-h,o-z)
-
+      Implicit None
+      Real*8 rkappa(nDens2),rMOs(*),rmoa(*),Fock(nDens2),Q(ndens2),
+     &       FockI(ndens2),FockA(nDens2)
+      Integer iDSym,jSpin
+      Real*8 reco
 #include "Input.fh"
-#include "Pointers.fh"
-      Real*8 Fock(nDens2),focka(nDens2),rkappa(nDens2),
-     &       Focki(ndens2),Q(ndens2),rMOs(*),rmoa(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:)
       Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,
      &                 FkI, FkA, QVec, CMO, CMO_Inv
+      Real*8 Fact,Dij
+      Integer iS,iB,jS,nA2,nAct,nG2,iSym,nAG2,jSym,kSym,nAtri,iOff,
+     &        iOff2,iOff3,iOff4,iOff5,jB,ip2,ipGx,ijS,kS,lS,kAsh,lAsh,
+     &        ikl,iAsh,jAsh,iij,iRead,ipF,ipFI
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -45,6 +50,7 @@
 *                                                                      *
 *     Statement function
 *
+      Integer i,j,iTri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -463,5 +469,4 @@
 #ifdef _DEBUGPRINT_
       Write (LuWr,*) 'Exit RInt_Generic'
 #endif
-      Return
-      End
+      End SubRoutine RInt_Generic
