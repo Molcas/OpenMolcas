@@ -21,10 +21,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Half
       use MCLR_Data, only: nDensC, nDens2, nMBA
+      use Spin_MCLR, only: rBetaS, rBetaA
       Implicit None
       real*8 rkappa(nDensC),rMOs(*),rmoa(*),Focki(ndens2),Sigma(nDensC)
 #include "Input.fh"
-#include "spin_mclr.fh"
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), Scr(:)
 *
 *     D,FA used in oit of FA

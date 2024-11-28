@@ -35,7 +35,6 @@
       Real*8 sign,Fact
       Real*8 D(*),FA(*)
 #include "Input.fh"
-#include "spin_mclr.fh"
       Logical lFI,lFA,lMo
       Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
      &                      DI(:), DIR(:), FI(:),
