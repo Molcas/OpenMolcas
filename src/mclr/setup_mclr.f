@@ -10,20 +10,27 @@
 ************************************************************************
       SubRoutine SetUp_MCLR(DSYM)
       use Arrays, only: pInt1, pInt2
+      use MCLR_Data, only: nNA,n2Dens,nDens,nDensLT,nCMO,nDensC,nDens2,
+     &                     ipMatLT,ipMat,ipMC,ipCM,ipMatBA,ipMO,nA,nB,
+     &                     n1Dens,nMBA
 *
 *   Setup pointers and size of metrixes (includes in Pointers.fh)
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
+      Implicit None
+      integer dsym
 * for the integrals needed in sigma gen
 #include "Input.fh"
-      integer dsym
       Integer, External:: iPntSO
+      Integer ip,nn,nBmx,iS,jS,lS,klS,kS,ijS,ipP,iExt0,iExt1,iExt2,
+     &        iExt3,iInt4,iExt4,i1,iInt0,iInt1,iInt2,iInt3,mATAB,iOff,
+     &        iiSym,iOrb,jjSym,jOrb,ijSym,klSym,ijNum,ijOrb,kkSym,kOrb,
+     &        llSym,lOrb,klNum,klOrb,iPlus
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function
 *
+      integer i,j,iTri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -220,14 +227,13 @@
 
 *     Call iWrtMa(pINT2,64,8,64,8)
 *
-      Return
-      End
+      End SubRoutine SetUp_MCLR
 
       Subroutine Set_nbmx(nbmx_)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer nbmx_
 #include "caspt2.fh"
 *
       nbmx=nbmx_
 *
-      Return
-      End
+      End Subroutine Set_nbmx
