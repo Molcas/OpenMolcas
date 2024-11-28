@@ -24,11 +24,14 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
-      Implicit Real*8 (a-h,o-z)
-*
+      use MCLR_Data, only: nConf1,nDens2,nNA,nDensC,nDens,ipCI,n1Dens
+      Implicit None
 #include "Input.fh"
+      Integer iKapDisp(nDisp),isigDisp(nDisp)
+      Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
+      Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
+*
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -36,10 +39,7 @@
 #include "spinfo_mclr.fh"
 #include "spin_mclr.fh"
 #include "crun_mclr.fh"
-      Character*8   Fmt2
-      Integer iKapDisp(nDisp),isigDisp(nDisp)
-      Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
-      Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
+      Character(LEN=8)   Fmt2
       integer opout
       Logical lPrint
       Real*8 rdum(1)
@@ -49,6 +49,12 @@
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:), rmoaa2(:),
      &                      Pre2(:)
+      Integer lPaper,lLine,Left,iDis,nConf3,iRC,ipS1,ipS2,ipST,ipCIT,
+     &        ipCID,iDisp,iLen,Iter,i1,j1
+      Real*8 DeltaC,DeltaK,Delta,Delta0,rGrad,Ec,rAlphaC,rAlphaK,ResK,
+     &       ResCI,rBeta,Res,rCHC
+      Real*8, External:: DDot_
+      Integer, External:: ipClose,ipGet,ipIn,ipIn1,ipNOut,ipOut
 *
 *----------------------------------------------------------------------*
 *
@@ -522,8 +528,7 @@
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine WfCtl_sp
