@@ -10,11 +10,13 @@
 ************************************************************************
       Subroutine SA_PREC(S,rdia)
       use ipPage, only: W
-      Implicit Real*8 (a-h,o-z)
-
+      use MCLR_Data, only: ipCI
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
       Real*8 S(nroots**2,nroots),rdia(*)
+
+      Integer irc,i
+      Integer, External:: ipIN
 
       irc=ipin(ipci)
       Do i=1,nroots
@@ -24,19 +26,22 @@
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End Subroutine SA_PREC
 
       Subroutine SA_PREC2(rdia,S,CI,ENE)
-      use negpre
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
 #include "incdia.fh"
-      Real*8 rdia(*),CI(*),S(nroots,nroots)
+      Real*8 rdia(*),S(nroots,nroots),CI(*)
+      Real*8 ENE
+
+      Integer i,j,k
+      Real*8 dnum
 
       Do i=0,nroots-1
        Do j=0,nroots-1
-         S(i+1,j+1)=0.0d0
+         S(i+1,j+1)=Zero
          Do k=1,ncsf(State_Sym)
           dnum=rdia(k)-Ene
           dnum=Sign(Max(Abs(dnum),1.0d-16),dnum)
@@ -46,5 +51,4 @@
        End Do
       End Do
       Call MatInvert(S,nroots)
-      Return
-      end
+      end Subroutine SA_PREC2
