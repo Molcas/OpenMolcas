@@ -33,12 +33,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use Spool, only: LuWr
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: nConf1,nDens2,nDensC,ipCI,n1Dens,n2Dens,nDens
+      Implicit None
       External Rsv_Tsk
 *
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -51,20 +51,20 @@
 #  include "mafdecls.fh"
 #endif
       Logical Orb,CI,Response
-      Parameter (iTimeCC = 1 )
-      Parameter (iTimeKK = 2 )
-      Parameter (iTimeKC = 3 )
-      Parameter (iTimeCK = 4 )
+      Integer, Parameter :: iTimeCC = 1
+      Integer, Parameter :: iTimeKK = 2
+      Integer, Parameter :: iTimeKC = 3
+      Integer, Parameter :: iTimeCK = 4
 #include "crun_mclr.fh"
-      Character*8   Fmt2
-      Character*132 Line
+      Character(LEN=8)   Fmt2
+      Character(LEN=132) Line
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer pstate_sym,opout
       Logical lPrint,converged(8), Rsv_Tsk
       Real*8 Clock(4)
-      Character*72 SLine
+      Character(LEN=72) SLine
       Real*8 res_tmp
       Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
@@ -72,6 +72,16 @@
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:)
       Integer, Allocatable:: List(:,:)
+      Real*8 Tim2,Tim3,Tim4,R1,R2,DeltaC,DeltaK,Delta,Delta0,ReCo,rGrad,
+     &       EC,D_0,rAlphaC,rAlphaK,rAlpha,rEsk,rEsci,rBeta,Res,
+     &       rCHC
+      Real*8, External:: DDot_
+      Integer lPaper,lLine,Left,iDis,iDisp,kkSym,kkkSym,iSym,
+     &        nConf3,iRC,ipS1,ipS2,ipST,ipCIT,ipCID,nPre2,iDEnd,jDisp,
+     &        iLen,Iter,ipPre2,jSpin,LuWR_Save,iSym_Old,iRank,iD
+      Integer, External:: ipClose,ipGet,ipIn,ipIn1,ipOut,ipNOut
+      Integer, External:: nPre
+      Integer, External:: IsFreeUnit
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -963,8 +973,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine WfCtl_Hess
