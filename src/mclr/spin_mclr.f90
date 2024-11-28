@@ -8,6 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Spin_MCLR
+Module MCLR_Data
 real*8     rms,rbetaa,rbetas,ralpha
-End Module Spin_MCLR
+End Module MCLR_Data

@@ -16,7 +16,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero
       use MCLR_Data, only: ipCI,nDens2
-      use Spin_MCLR, only: RMS, rBetaA, rBetaS
+      use MCLR_Data, only: RMS, rBetaA, rBetaS
       Implicit None
 
 #include "Input.fh"

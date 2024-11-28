@@ -15,4 +15,6 @@ Integer ipMat(8,8),ipMatLT(8,8),ipCM(8),ipMC(8,8),ipmatba(8,8),ipMO(8,8,8),iADMO
 Integer nDens,nDensLT,nCMO,nscrtch,ipCI,nDens2,ipf0,ndensc,na(8),nb(8)
 Integer nmba,nna,n1dens,n2dens,nconf1,nacpar,nacpr2
 
+! Stuff from spin_mclr.fh
+real*8     rms,rbetaa,rbetas,ralpha
 End Module MCLR_Data

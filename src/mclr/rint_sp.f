@@ -21,7 +21,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Half
       use MCLR_Data, only: nDensC, nDens2, nMBA
-      use Spin_MCLR, only: rBetaS, rBetaA
+      use MCLR_Data, only: rBetaS, rBetaA
       Implicit None
       real*8 rkappa(nDensC),rMOs(*),rmoa(*),Focki(ndens2),Sigma(nDensC)
 #include "Input.fh"
