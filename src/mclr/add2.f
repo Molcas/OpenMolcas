@@ -26,8 +26,6 @@
       Implicit None
       Real*8 rMat(*)
       Real*8 fact
-#include "spin_mclr.fh"
-
 #include "Input.fh"
       Integer iS
 
