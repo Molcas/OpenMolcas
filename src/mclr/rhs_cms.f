@@ -16,9 +16,10 @@
 * ****************************************************************
       subroutine RHS_CMS(Fock,CICSF)
       use stdalloc, only : mma_allocate, mma_deallocate
+      use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
+      Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -101,16 +102,15 @@
       CALL mma_deallocate(FMO1t)
       CALL mma_deallocate(FMO2t)
       CALL mma_deallocate(PUVX)
-      RETURN
-      end subroutine
+      end subroutine RHS_CMS
 ******************************************************
       Subroutine CMSRdMat(Mat,NRow,NCol,FileName,NameLen)
-
+      Implicit None
       INTEGER NRow,NCol,NameLen
       Real*8,DIMENSION(NRow*NCol)::Mat
       CHARACTER(Len=NameLen)::FileName
       INTEGER I,J,LU
-      External IsFreeUnit
+      Integer, External :: IsFreeUnit
 
       LU=233
       LU=IsFreeUnit(LU)
@@ -120,19 +120,18 @@
       END DO
       CLOSE(LU)
 
-      RETURN
-      END Subroutine
+      END Subroutine CMSRdMat
 ******************************************************
 
 
 ******************************************************
       Subroutine Get_PUVXLen(NPUVX)
 ******Rewritten from mcpdft/alloc.f
+      Implicit None
       INTEGER NPUVX
-      INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp
+      INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp,nRS
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -162,12 +161,12 @@
        End Do
       END DO
 
-      RETURN
-      End Subroutine
+      End Subroutine Get_PUVXLen
 ******************************************************
 
 ******************************************************
       Subroutine Read_PUVX(PUVX,NPUVX)
+      Implicit Real*8 (a-h,o-z)
       INTEGER NPUVX
       Real*8,DIMENSION(NPUVX)::PUVX
       CALL Get_Darray('TwoEIntegral    ',PUVX,nPUVX)
@@ -181,14 +180,19 @@
 *     Return to an index in the PUVX array given
 *     four MO indices.
 ************************************************************************
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "Input.fh"
 ******Output
       INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::Ind_PUVX
       INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
 ******Auxiliaries
       Integer,DIMENSION(nSym):: off_Ash,off_PUVX,off_Orb
+      Integer lOrb,kOrb,jOrb,iOrb,iStack,iSym,jSym,jAsh,ijSym,kSym,
+     &        kAsh,lSym,lAsh,klSym,kl_Orb_Pairs,iAsh,iIsh,iPUVX,iV,
+     &        lMax,iX,iU,iP,iT,iO,jO,kO,lO,iIT,iIU,iTU,iIV,iIX,iVX,
+     &        iTemp
 
+      Integer i,iTri
       iTri(i) = (i*i-i)/2
 
 *      generate offsets
@@ -311,8 +315,7 @@
           End Do
         End Do
       End Do
-      Return
-      End
+      End Subroutine Get_Two_Ind
 ******************************************************
 
 
@@ -320,7 +323,8 @@
       Subroutine CMSRHSGDMat(GDMat)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
-#include "Pointers.fh"
+      use MCLR_Data, only: nNA,n2Dens,ipCI,n1Dens
+      Implicit None
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
@@ -362,14 +366,14 @@
        Call mma_deallocate(GDArray)
        Call mma_deallocate(CIL)
        Call mma_deallocate(CIR)
-       RETURN
-       END Subroutine
+       END Subroutine CMSRHSGDMat
 
 ******************************************************
 
       subroutine CalcW(W,GDMat,PUVX,NPUVX,IndTUVX)
+      use MCLR_Data, only: nNA
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
 
 ******Output
       Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
@@ -405,12 +409,11 @@
        END DO
       END DO
 
-      RETURN
-      End Subroutine
+      End Subroutine CalcW
 
       subroutine CalcAXX(AXX,W)
+      Implicit None
 #include "Input.fh"
-#include "Pointers.fh"
 ******Input
       Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
 ******Output
@@ -474,11 +477,11 @@
         End Do
        END DO
        END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcAXX
 ******************************************************
 ******************************************************
       Subroutine Get_Ntri(nTri)
+      Implicit None
 #include "Input.fh"
 
       INTEGER nTri,kSym
@@ -486,27 +489,18 @@
       DO kSym=1,nSym
        nTri=nTri+nBas(kSym)*(nBas(kSym)+1)/2
       END DO
-      RETURN
-      END Subroutine
+      END Subroutine Get_Ntri
 ******************************************************
 
 ******************************************************
       Subroutine GetPDFTFocks(FMO1t,FMO2t,nTri)
+      use MCLR_Data, only: nAcPr2
+      Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
 
       INTEGER nTri
       Real*8,DIMENSION(nRoots*nTri)::FMO1t
       Real*8,DIMENSION(nRoots*NACPR2)::FMO2t
       CALL Get_DArray('F1_PDFT         ',FMO1t,nRoots*nTri  )
       CALL Get_DArray('F2_PDFT         ',FMO2t,nRoots*NACPR2)
-      RETURN
-      end subroutine
-******************************************************
+      end subroutine GetPDFTFocks
