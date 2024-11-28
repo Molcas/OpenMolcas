@@ -9,8 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Genop_MCLR
-#include "genop.fh"
-save
 ! Stuff from genop.fh
 !. Type of operator in action
 !        KOPER      :         Not in use
@@ -22,7 +20,7 @@ save
 !        Square     :         Integrals square/triangular
 !        FACTOR
 !        IACOP(3):            Hubba
-!     Logical square
-!     Real*8 Factor
-!     Integer KOPER,IOPSM,IRI,I12,IST,IOPNUM,IACOP(3)
+      Logical square
+      Real*8 Factor
+      Integer KOPER,IOPSM,IRI,I12,IST,IOPNUM,IACOP(3)
 End Module Genop_MCLR
