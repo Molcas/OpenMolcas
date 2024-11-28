@@ -16,11 +16,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero
       use MCLR_Data, only: ipCI,nDens2
+      use Spin_MCLR, only: RMS, rBetaA, rBetaS
       Implicit None
 
 #include "Input.fh"
 #include "disp_mclr.fh"
-#include "spin_mclr.fh"
 #include "cstate_mclr.fh"
 #include "Files_mclr.fh"
       Character(LEN=16) Label

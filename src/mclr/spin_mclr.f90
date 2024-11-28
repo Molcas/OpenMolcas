@@ -9,7 +9,5 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module Spin_MCLR
-#include "spin_mclr.fh"
-save
-!real*8     rms,rbetaa,rbetas,ralpha
+real*8     rms,rbetaa,rbetas,ralpha
 End Module Spin_MCLR
