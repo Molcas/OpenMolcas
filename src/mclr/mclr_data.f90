@@ -9,6 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module MCLR_Data
+
+! Stuff from Pointers.fh
 Integer ipMat(8,8),ipMatLT(8,8),ipCM(8),ipMC(8,8),ipmatba(8,8),ipMO(8,8,8),iADMO(8,8,8)
-Integer nDens,nDensLT,nCMO,nscrtch,ipCI,nDens2,ipf0,ndensc,na(8),nb(8),nmba,nna,n1dens,n2dens,nconf1,nacpar,nacpr2
+Integer nDens,nDensLT,nCMO,nscrtch,ipCI,nDens2,ipf0,ndensc,na(8),nb(8)
+Integer nmba,nna,n1dens,n2dens,nconf1,nacpar,nacpr2
+
 End Module MCLR_Data
