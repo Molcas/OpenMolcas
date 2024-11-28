@@ -11,10 +11,14 @@
       SUBROUTINE GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IKSM,JLSM,ICTL,ieaw )
       use Arrays, only: pInt2, KINT2, KINT2a
+      use genop_MCLR, only: Square
 *
 * Outer routine for accessing integral block
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
+      Real*8 XINT(*)
+      Integer ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+     &                  IKSM,JLSM,ICTL,ieaw
 *
 #include "detdim.fh"
 *./CRUN/ : INTIMP used ....
@@ -24,14 +28,13 @@
 #include "Input.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
-#include "genop.fh"
-*. Type of operator in action
-      Dimension XINT(*)
+       Integer nTest,iXChng,iCoul,nI,nK,nIK,nJ,nL,nJL,nIJ,nKL
 *
        NTEST=0
 *
 *          Write(*,*)'square in getint_td',square
           IF(.not.square) THEN
+
            IXCHNG=0
            ICOUL=0
            If (ictl.eq.2) ICOUL=1
@@ -88,5 +91,4 @@ C
       END IF
 *
 C     STOP ' Jeppe forced me to stop in GETINT '
-      RETURN
-      END
+      END SUBROUTINE GETINT_td
