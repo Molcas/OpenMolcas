@@ -24,11 +24,16 @@
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8 (a-h,o-z)
-*
+      use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI
+      Implicit None
 #include "Input.fh"
+      Integer iKapDisp(nDisp),isigDisp(nDisp)
+      Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
+      Integer iRHSDisp(nDisp)
+      Logical converged(8)
+      Integer iPL
+*
 #include "disp_mclr.fh"
-#include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -39,17 +44,23 @@
 
       Logical CI
 #include "crun_mclr.fh"
-      Character*8   Fmt2
-      Integer iKapDisp(nDisp),isigDisp(nDisp)
-      Integer iRHSDisp(nDisp)
-      Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
+      Character(LEN=8)   Fmt2
       Integer opOut
-      Logical lPrint,converged(8)
+      Logical lPrint
       Real*8 rchc(mxroot)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Fancy(:),
      &                      SLag(:), wrk(:)
+      Real*8 R1,R2,DeltaC,DeltaK,Delta,Delta0,ReCo,
+     &       rAlphaC,rAlphaK,rAlpha,rEsk,rEsci,rBeta,Res
+      Real*8, External:: DDot_
+      Integer lPaper,lLine,Left,iDis,Lu_50,iDisp,iSym,
+     &        nConf3,iRC,ipS1,ipS2,ipST,ipCIT,ipCID,nPre2,
+     &        iLen,Iter,ipPre2,jSpin,i,iR
+      Integer, External:: ipClose,ipGet,ipIn,ipOut,ipNOut
+      Integer, External:: nPre
+
 *
       interface
         subroutine RHS_NAC(Fock,SLag_pt2)
@@ -489,21 +500,26 @@ C
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine WfCtl_SA
 
       Subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
       use ipPage, only: w
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
+      use MCLR_Data
+      Implicit None
+      Real*8 Kap(*)
+      Integer ipCId,isym,jspin,ipS2,ipCiOut
+      Real*8 reco
+      Real*8 KapOut(*)
 #include "dmrginfo_mclr.fh"
 #include "Input.fh"
       Integer opOut
-      Real*8 Kap(*),KapOut(*)
       Real*8 rdum(1)
       Real*8, Allocatable:: Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:), RMOAA(:)
+      Integer iRC
+      Integer, External:: ipIn
 *
       Call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
       Call mma_allocate(Sc1,nDens2,Label='Sc1')
@@ -562,8 +578,7 @@ C     end do
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
       end if
 *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End Subroutine TimesE2
