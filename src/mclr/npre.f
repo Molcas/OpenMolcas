@@ -8,9 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION nPre(ks)
-
+      Integer FUNCTION nPre(kS)
+      Implicit None
+      Integer kS
 #include "Input.fh"
+      Integer iOut,iS,jS,nRest
+
       iOut=0
       Do is=1,nSym
        jS=iEOR(iS-1,kS-1)+1
@@ -25,4 +28,4 @@
       End Do
       nPre=iOut
       Return
-      End
+      End FUNCTION nPre
