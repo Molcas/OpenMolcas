@@ -53,6 +53,7 @@
       use Definitions, only: iwp, u6, wp
       use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
       use MCLR_Data, only: nrec
+      use csfsd_data, only: iAllo
       Implicit None
 #include "Input.fh"
 #include "warnings.h"
@@ -61,7 +62,6 @@
 #include "sa.fh"
 #include "detdim.fh"
 #include "dmrginfo_mclr.fh"
-#include "csfsd.fh"
       Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
      &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
 
