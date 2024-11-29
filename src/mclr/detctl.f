@@ -12,7 +12,7 @@
       use Arrays, only: pINT1, pINT2
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: iST,i12
-      use cprnt_mclr, only: IPRSTR,IPRORB,IPRCIX
+      use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
 *
       Implicit None
 

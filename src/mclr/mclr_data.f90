@@ -35,4 +35,7 @@ Integer i1,iAnders,lconf,lldet,iAllo
 !Stuff from incdia.fh
 integer ipdia
 
+! Print flags from MCLR_Data.fh
+Integer IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPRANA
+
 End Module MCLR_Data

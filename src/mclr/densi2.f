@@ -14,7 +14,7 @@
       use Str_Info, only: STR,MXNSTR,IATPM1,IATPM2,IBTPM1,IBTPM2,
      &                    ITYP_DUMMY,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
-      use cprnt_mclr, only: IPRCIX,IPRDIA
+      use MCLR_Data, only: IPRCIX,IPRDIA
       use Constants, only: Zero
 *
 * Density matrices between L and R

@@ -13,7 +13,7 @@
       use Constants, only: One
       Use Str_Info, only: STR,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
-      use cprnt_mclr, only: IPRDIA
+      use MCLR_Data, only: IPRDIA
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
