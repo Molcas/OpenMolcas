@@ -52,10 +52,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Definitions, only: iwp, u6, wp
       use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
+      use machine_data, only: nrec
       Implicit None
 #include "Input.fh"
 #include "warnings.h"
-#include "machine.fh"
 #include "SysDef.fh"
 
 #include "sa.fh"
