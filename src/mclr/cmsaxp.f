@@ -116,7 +116,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 #include "crun_mclr.fh"
 
 
@@ -284,7 +283,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 #include "crun_mclr.fh"
 ******Input
       INTEGER NPUVX

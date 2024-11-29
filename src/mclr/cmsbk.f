@@ -25,7 +25,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 
 ******Output
       Real*8,DIMENSION(nDens2)::bk
@@ -67,7 +66,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 ******Output:none
 ******Input:
       INTEGER nTri
@@ -115,7 +113,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 ******Output
       Real*8,DIMENSION(nDens2)::bk
 ******Input
@@ -350,7 +347,6 @@
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
 ******Purpose: calculate the active 1RDM in AO basis given that in MO
