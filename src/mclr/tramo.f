@@ -36,19 +36,19 @@
 *****************************************************************
 *
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-*
-#include "Files_mclr.fh"
-#include "SysDef.fh"
-*
+      IMPLICIT None
+      Integer LBUF,n1,n2,n3,n4,MEMX,NBP,NBQ,NBR,NBS,iSP,iSQ,iSR,iSS,
+     &        nAP,nAQ,nAR,nAS
+      Real*8 X1(n1),X2(n2),X3(n3),X4(n4),Buffer(MemX),
+     &       CMP(nBP,nAP),CMQ(nBQ,nAQ),CMR(nBR,nAR),CMS(nBS,nAS)
+      Integer iAD13,iAD14,iAD23,iAD24,iAD34
       Integer len(5)
-      DIMENSION X1(n1),X2(n2),X3(n3),X4(n4),
-     &          Buffer(MemX),
-     &          CMP(nBP,nAP),CMQ(nBQ,nAQ),
-     &          CMR(nBR,nAR),CMS(nBS,nAS)
-*
+      Integer LIOTAB
       Integer IDAHLF2(LIOTAB),IRLHLF2(LIOTAB),
      &        IDAHLF3(LIOTAB),IRLHLF3(LIOTAB)
+*
+#include "SysDef.fh"
+
 *
       Call TRAMO_MCLR_INTERNAL(Buffer)
 c Avoid unused argument warnings
@@ -58,8 +58,16 @@ c Avoid unused argument warnings
       Contains
       Subroutine TRAMO_MCLR_INTERNAL(Buffer)
       Use Iso_C_Binding
+      use files_mclr, only:FnHlf2,FnHlf3,LuHlf2,LuHlf3,LuTri1,LuTri2,
+     &                     LuTri3,LuTri4,LuTri5,NoFile
+      Implicit None
       Real*8, Target :: Buffer(*)
       Integer, Pointer :: iBuffer(:)
+      Integer iOne,MemXX,NBPQ,NBRS,NARS,IBUF2,IBUF3,IAD2,IAD3,IPQUT2,
+     &        IPQUT3,IPQUT4,IMAX,INCORE,NBUF,I1,I2,NOUT,MEMXXX,IP2,IP3,
+     &        IP4,IPB,IPQ,LPQ,NPQ,IRSST,IOPT,NP,NQM,NQ,IRC,IST2,I,
+     &        LPKREC,NBYTES,IST3,IST,IPX,IPY,IPZ,IVX,NS,NR2,NR3,NR,
+     &        IPQST,IP5,IBUF
       ione=1
       if (nofile) ione=0
 *
