@@ -30,11 +30,11 @@
 *     active; active,general is needed for rasscf calculation
 *     and is not coded yet (ugly bastard) (970109, AB )
 ************************************************************************
+      use machine_data, only: nrec
       Implicit Real*8(a-h,o-z)
       Real*8 rpre(*)
       Integer idsym
 #include "Input.fh"
-#include "machine.fh"
 *
       Call Prec_internal(rpre)
 *
