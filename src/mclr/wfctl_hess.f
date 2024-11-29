@@ -35,11 +35,11 @@
       use Spool, only: LuWr
       use MCLR_Data, only: nConf1,nDens2,nDensC,ipCI,n1Dens,n2Dens,nDens
       use MCLR_Data, only: ipDia
+      use disp_mclr, only: lDisp
       Implicit None
       External Rsv_Tsk
 *
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
