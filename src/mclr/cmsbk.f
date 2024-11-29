@@ -20,7 +20,6 @@
       use MCLR_Data, only: nDens2, nNA
       Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -61,7 +60,6 @@
       use MCLR_Data, only: nDens2, ipMat
       implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -108,7 +106,6 @@
       use MCLR_Data, only: nDens2, ipMat
       Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -149,7 +146,6 @@
       use MCLR_Data, only: IRLXROOT
       Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -345,7 +341,6 @@
 #include "detdim.fh"
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
