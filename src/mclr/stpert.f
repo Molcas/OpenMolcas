@@ -18,10 +18,10 @@
       use MCLR_Data, only: ipCI,nDens2
       use MCLR_Data, only: RMS, rBetaA, rBetaS
       use MCLR_Data, only: lDisp,SwLbl
+      use cstate_mclr, only: MS2
       Implicit None
 
 #include "Input.fh"
-#include "cstate_mclr.fh"
 #include "Files_mclr.fh"
       Character(LEN=16) Label
       Character(LEN=8)  MckLbl
