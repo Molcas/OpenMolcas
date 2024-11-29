@@ -49,5 +49,4 @@
        ijD=ijD+ldisp(isym)*(ldisp(isym)+1)/2
        iii=iii+ldisp(isym)
       End do
-      return
-      end
+      end Subroutine MMSort2
