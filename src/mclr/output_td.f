@@ -37,11 +37,11 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, nDensC
+      use disp_mclr, only: nHess, lDisp
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
       Integer iKapDisp(nDisp),isigdisp(nDisp),
      &        iCiDisp(nDisp),iCiSigDisp(nDisp),
