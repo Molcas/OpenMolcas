@@ -20,7 +20,6 @@
       use MCLR_Data, only: nDens2, nNA
       Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -61,7 +60,6 @@
       use MCLR_Data, only: nDens2, ipMat
       Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
@@ -103,7 +101,6 @@
       use MCLR_Data, only: NACSTATES
       Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
