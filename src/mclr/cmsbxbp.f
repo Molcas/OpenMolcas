@@ -50,6 +50,7 @@
 
       Subroutine CalcbX(bX,LOK,R,H)
       use Constants, only: Zero
+      use saxxxx_mclr, only: IRLXROOT
       Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -57,7 +58,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
 ****** Input
@@ -100,6 +100,7 @@
       subroutine CalcbP(bP,CSFOK,LOK,R)
       use ipPage, only: W
       use MCLR_Data, only: nConf1, ipCI
+      use saxxxx_mclr, only: IRLXROOT
       Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -107,7 +108,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 ***** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
 ***** Input
