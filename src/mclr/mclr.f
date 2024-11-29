@@ -54,12 +54,12 @@
       use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
       use MCLR_Data, only: nrec
       use MCLR_Data, only: iAllo
+      use saxxxx_mclr, only: SA,NACSTATES
       Implicit None
 #include "Input.fh"
 #include "warnings.h"
 #include "SysDef.fh"
 
-#include "sa.fh"
 #include "detdim.fh"
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
