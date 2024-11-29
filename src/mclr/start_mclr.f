@@ -26,11 +26,12 @@
       use transform_procedures, only: SetUp_CASPT2_Tra
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2
+      use files_mclr, only: LuTri1,LuMotra,FnTri1,FnMotra,FnQDat,LuHlf2,
+     &                      LuHlf3,LuQDat,LuTri2
       Implicit None
 
 #include "Input.fh"
 #include "warnings.h"
-#include "Files_mclr.fh"
       character(len=8) :: Label
       Character(LEN=5) Fname
       Real*8, Allocatable:: STmat(:), Smat(:)
