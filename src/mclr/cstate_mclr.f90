@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module cstate_mclr
+#include "cstate_mclr.fh"
+save
 !
 ! Stuff from cstate_mclr.fh
 !        iRefSm        :        Reference symmetry
@@ -29,10 +32,7 @@
 !        InvSym        :        Ger/UnGer inv sym
 !        iKram         :        Kramer symmetry
 !. CSTATE
-      Integer IREFSM,IREFML,IREFPA,IREFL,MS2,MULTS,                     &
-     &              NROOT,IDC,INTSEL,IALIGN,                            &
-     &              NGENSYM,IGENSYM(100),INVSYM,IKRAM
-      Real*8 PSSIGN,PLSIGN, ETHRES,CTHRES
-      COMMON/XSTATE_MCLR/PSSIGN,PLSIGN,IREFSM,IREFML,IREFPA,IREFL,MS2,  &
-     &              MULTS,NROOT,IDC,INTSEL,IALIGN,                      &
-     &              ETHRES,CTHRES,NGENSYM,IGENSYM,INVSYM,IKRAM
+!Integer IREFSM,IREFML,IREFPA,IREFL,MS2,MULTS,NROOT,IDC,INTSEL,IALIGN,   &
+!        NGENSYM,IGENSYM(100),INVSYM,IKRAM
+!Real*8 PSSIGN,PLSIGN, ETHRES,CTHRES
+End Module cstate_mclr
