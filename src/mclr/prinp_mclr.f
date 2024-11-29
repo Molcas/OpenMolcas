@@ -22,16 +22,18 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
+      use saxxxx_mclr, only: ISTATE,SA,ISNAC,IRLXROOT,NACSTATES,NSSA
+      Implicit None
+      Integer iPL
 #include "Input.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "disp_mclr.fh"
-#include "sa.fh"
       Character(LEN=8) Fmt1,Fmt2
       Character(LEN=100)  Line,BlLine,StLine
       Character(LEN=1) :: XYZ(3)=['X','Y','Z']
       Logical :: RICD=.FALSE.
+      Integer lLine,i,Left,nLine,j,iAT,nTSsh,iSym,jDisp,iDisp
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*
