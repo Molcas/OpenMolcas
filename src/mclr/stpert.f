@@ -19,10 +19,10 @@
       use MCLR_Data, only: RMS, rBetaA, rBetaS
       use MCLR_Data, only: lDisp,SwLbl
       use MCLR_Data, only: MS2
+      use files_mclr, only: FnMck,LuMck
       Implicit None
 
 #include "Input.fh"
-#include "Files_mclr.fh"
       Character(LEN=16) Label
       Character(LEN=8)  MckLbl
       Character(LEN=288) Header
