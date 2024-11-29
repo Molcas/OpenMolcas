@@ -28,6 +28,7 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: ISNAC,OVERRIDE,IRLXROOT,ISMECIMSPD,
      &                       NACSTATES
+      use files_mclr, only: LuTemp, LuQDat
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
@@ -36,7 +37,6 @@
       Logical converged(8)
       Integer iPL
 *
-#include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
