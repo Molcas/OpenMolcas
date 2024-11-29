@@ -37,6 +37,9 @@ set (sources
      egrad.F90
      eneclc.F90
      errv.F90
+     exp_series.F90
+     exp_series2.F90
+     exp_svd.F90
      expkap.F90
      fermipop.F90
      finalscf.F90
@@ -63,7 +66,6 @@ set (sources
      ivogen.F90
      kills.F90
      lnklst.F90
-     matexp.F90
      memalo.F90
      mk_eorb.F90
      mk_fockao.F90
@@ -85,6 +87,7 @@ set (sources
      padcmo.F90
      padeor.F90
      pickup.F90
+     pmat_scf.F90
      prbeg.F90
      prfin.F90
      prfin0.F90

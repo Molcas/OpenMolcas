@@ -14,11 +14,6 @@
 !               2003, Valera Veryazov                                  *
 !***********************************************************************
 
-! This subroutine should be in a module, to avoid explicit interfaces
-#ifndef _IN_MODULE_
-#error "This file must be compiled inside a module"
-#endif
-
 !#define _DEBUGPRINT_
 subroutine PMat_SCF(FstItr,XCf,nXCF,nD)
 !***********************************************************************

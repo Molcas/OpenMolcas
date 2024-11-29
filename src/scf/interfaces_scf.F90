@@ -18,7 +18,7 @@ use LnkLst, only:
 implicit none
 private
 
-public :: dOne_SCF, MinDns, OccDef, OptClc_X, PMat_SCF, TraClc_i, vOO2OV_inner, yHx
+public :: dOne_SCF, MinDns, OccDef, OptClc_X, TraClc_i, vOO2OV_inner, yHx
 
 contains
 
@@ -28,7 +28,6 @@ contains
 #include "mindns.F90"
 #include "occdef.F90"
 #include "optclc_x.F90"
-#include "pmat_scf.F90"
 #include "traclc_i.F90"
 #include "voo2ov_inner.F90"
 #include "yhx.F90"
