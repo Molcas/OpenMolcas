@@ -13,9 +13,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: ipCI,nConf1,ipMat,n1Dens,n2Dens,nDens2
+      use saxxxx_mclr, only: NSSA
       Implicit None
 #include "Input.fh"
-#include "sa.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "cands.fh"
