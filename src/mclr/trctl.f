@@ -12,6 +12,10 @@
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use MCLR_Data, only: ipCM
+      use files_mclr, only: FnHlf2,FnHlf3,FnTri1,FnTri2,FnTri3,FnTri4,
+     &                      FnTri5
+      use files_mclr, only: LuHlf2,LuHlf3,LuTri1,LuTri2,LuTri3,LuTri4,
+     &                      LuTri5
 *
 *     Two-electron integral transformation program: control section
 *
@@ -25,7 +29,6 @@
 
 #include "Input.fh"
       Integer, PARAMETER :: LIOTAB=512*512
-#include "Files_mclr.fh"
       integer,save:: toca(8,8,8),tocb(36,8),tocc(5,36,8)
       Integer, Allocatable:: Hlf1(:,:)
       Real*8, Allocatable:: Buffer(:)
