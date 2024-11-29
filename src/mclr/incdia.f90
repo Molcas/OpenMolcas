@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       integer ipdia,LUDIA
-       Real*8 ECORE
-       Common /incdia/ ecore,ludia,ipdia
+Module incdia_data
+#include "incdia.fh"
+save
+!integer ipdia,LUDIA
+!Real*8 ECORE
+End Module incdia_data
