@@ -18,13 +18,14 @@
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens,
      &                     nA, nDens2, nDensC
+      use saxxxx_mclr, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,
+     &                       NACSTATES
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
       Integer iKapDisp(nDisp),iCiDisp(nDisp)
@@ -755,16 +756,15 @@ c
       use MCLR_Data, only: ipCM, ipMat, nA, nDens2
       Implicit None
       Integer iSym
-      Real*8 rK(*),D(*),Dtmp(*)
+      Real*8 rK(*),D(*),Dtmp(nDens2)
 
 #include "Input.fh"
-#include "sa.fh"
       Logical act
       integer iS, iB, jB, jS
       integer i, j, itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
-      call dcopy_(ndens2,[Zero],0,Dtmp,1)
+      DTmp(:)=Zero
 *
 *     Note: even with NAC we set the inactive block,
 *     because this is the SA density, not the transition density
