@@ -18,7 +18,6 @@
       use MCLR_Data, only: nDens2, nConf1
       Implicit None
 #include "Input.fh"
-#include "sa.fh"
 ****** Output
       Real*8,DIMENSION(nDens2+6)::Fock
       Real*8,DIMENSION(nconf1*nroots)::CICSF
@@ -52,7 +51,6 @@
       use Constants, only: Pi
       Implicit None
 #include "Input.fh"
-#include "sa.fh"
 #include "warnings.h"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
@@ -122,7 +120,6 @@
       use MCLR_Data, only: nNA, nDens2
       Implicit None
 #include "Input.fh"
-#include "sa.fh"
 ******Input
       Integer nP2
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
@@ -204,7 +201,6 @@
       use Constants, only: One, Two
       Implicit None
 #include "Input.fh"
-#include "sa.fh"
       INTEGER nG2,nG2r
       Real*8,DIMENSION(nG2 )::G2q
       Real*8,DIMENSION(nG2r)::G2r
@@ -238,7 +234,6 @@
       use MCLR_Data, only: nNA
       Implicit None
 #include "Input.fh"
-#include "sa.fh"
       INTEGER nG2,nPUVX
       Real*8,DIMENSION(nG2)::G2q
       Real*8,DIMENSION(NPUVX)::PUVX
@@ -275,7 +270,6 @@
       use MCLR_Data, only: nNA
       implicit none
 #include "Input.fh"
-#include "sa.fh"
 ******  Input
       INTEGER nG2,IKL,IKK,ILL
       Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
