@@ -13,6 +13,7 @@
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: iST,i12
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
+      use cstate_mclr, only: MS2,idc,PSSIGN
 *
       Implicit None
 
@@ -20,7 +21,6 @@
 #include "cands.fh"
 #include "detdim.fh"
 #include "crun_mclr.fh"
-#include "cstate_mclr.fh"
 #include "Files_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cicisp_mclr.fh"

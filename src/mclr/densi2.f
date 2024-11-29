@@ -16,6 +16,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IPRCIX,IPRDIA
       use Constants, only: Zero
+      use cstate_mclr, only: IDC,PSSIGN
 *
 * Density matrices between L and R
 *
@@ -48,7 +49,6 @@
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "cstate_mclr.fh"
 #include "csm.fh"
 #include "crun_mclr.fh"
 #include "spinfo_mclr.fh"
