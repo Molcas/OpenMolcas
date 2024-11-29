@@ -372,6 +372,7 @@ C?    END IF
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: i1,iAnders,lConf,llDET
       use MCLR_Data, only: iRefSM,iDC,MS2,PSSIGN
+      use files_mclr, only: LuCSF2SD
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
@@ -382,7 +383,6 @@ C?    END IF
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
-#include "Files_mclr.fh"
       integer idum(1)
       Integer, Allocatable:: SIOIO(:), SBLTP(:), IOOS1(:),
      &                       NOOS1(:)
