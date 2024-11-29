@@ -10,8 +10,10 @@
 ************************************************************************
 
       SUBROUTINE INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
-      Use Str_Info
+      use Constants, only: One
+      Use Str_Info, only: STR,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
+      use cprnt_mclr, only: IPRDIA
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -21,33 +23,36 @@
 * doubling the dimensions. The diagonal is then
 * constructed and written out twice
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      Real*8 DIAG(*)
+      Integer NSPC
 *
 * ==============
 *.Specific Input
 * ==============
 *
       INTEGER ISPC(NSPC),LSPC(NSPC),ISM(NSPC)
+      INTEGER IAMCMP
+      REAL*8 ECORE
 *
 * ==============
 *.General Input
 * ==============
-*
-*./ORBINP/ : NACOB used
 *
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "cstate_mclr.fh"
 #include "csm.fh"
-#include "cprnt_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "crun_mclr.fh"
 #include "dmrginfo_mclr.fh"
-      Real*8 DIAG(*)
       Integer idum(1)
       Real*8, Allocatable:: JA(:), KA(:), XA(:), XB(:), SCR(:), H1D(:)
       Integer, Allocatable:: BLTP(:), IOIO(:)
+      Integer LUDIA,MXOCOC,IISPC,NOCTPA,NOCTPB,NLOOP,ILOOP,IATP,IBTP,
+     &        NAEL,NBEL,MNRS1C,MXRS3C,LLUDIA
+      REAL*8 ONEG
 *
 * ======
 *.Output
@@ -93,8 +98,7 @@
       CALL GTJK_MCLR(JA,KA)
 *
 *. K goes to J - K
-      ONE = +1.0D0
-      ONEG = -1.0D0
+      ONEG = -One
       CALL VECSUM(KA,KA,JA,ONEG,ONE,NTOOB **2)
 *
 *
@@ -160,5 +164,4 @@
          call dmrg_dim_change_mclr(LRras2(1:8),nacob,0)
       end if
 
-      RETURN
-      END
+      END SUBROUTINE INTDIA
