@@ -31,6 +31,7 @@
       use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI,nAcPar,nNA,
      &                    nAcPr2,ipMat
       use MCLR_Data, only: ipDia
+      use saxxxx_mclr, only: ISNAC,IRLXROOT,NACSTATES
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
@@ -44,7 +45,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 #include "dmrginfo_mclr.fh"
 
       Logical CI
