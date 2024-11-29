@@ -34,6 +34,7 @@
       use Constants, only: Zero, One, Two
       use Spool, only: LuWr
       use MCLR_Data, only: nConf1,nDens2,nDensC,ipCI,n1Dens,n2Dens,nDens
+      use incdia_data, only: ipDia
       Implicit None
       External Rsv_Tsk
 *
@@ -42,7 +43,6 @@
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
 *
