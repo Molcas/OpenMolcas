@@ -9,8 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module cprnt_mclr
-#include "cprnt_mclr.fh"
-save
 !/CPRNT/ : Print flags
-!Integer IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPRANA
+Integer IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPRANA
 End Module cprnt_mclr

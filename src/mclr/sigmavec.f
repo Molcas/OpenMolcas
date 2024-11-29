@@ -13,6 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
       use MCLR_Data, only: i12, ist
+      use cprnt_mclr, only: IPRCIX,IPRDIA
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -39,7 +40,6 @@
 #include "crun_mclr.fh"
 
 #include "Input.fh"
-#include "cprnt_mclr.fh"
 #include "csmprd.fh"
       Integer sxstsm(1)
       Integer idummy(1)
