@@ -24,7 +24,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 
 ******Input
 ******Output
