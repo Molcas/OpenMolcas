@@ -31,7 +31,6 @@
       Integer ieState
 #include "Input.fh"
 #include "SysDef.fh"
-#include "Files_mclr.fh"
       Real*8, Allocatable:: G1q(:), G1r(:), G2r(:),
      &                      T(:), Q(:)
       Integer i, j, itri
