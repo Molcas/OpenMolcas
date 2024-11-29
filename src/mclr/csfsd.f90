@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer i1,iAnders,lconf,lldet,iAllo
-!
-      Common /csfsd/i1,iAnders,lconf,lldet,iAllo
+Module csfsd_data
+#include "csfsd.fh"
+save
+!Stuff from csfsd.fh
+!     Integer i1,iAnders,lconf,lldet,iAllo
+End Module csfsd_data
