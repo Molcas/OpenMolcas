@@ -14,6 +14,7 @@
       use Str_Info, only: CNSM
       use ipPage, only: W
       use MCLR_Data, only: ipCI
+      use incdia_data, only: ipDia
       Implicit None
       Integer iSym
       Real*8 ralp(*),S(*)
@@ -21,7 +22,6 @@
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "incdia.fh"
 
 #include "Input.fh"
 #include "sa.fh"
