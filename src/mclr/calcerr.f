@@ -25,13 +25,13 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One, Two
       use MCLR_Data, only: ipMat, nDens2
+      use saxxxx_mclr, only: ISTATE
       Implicit None
       Real*8 kappa(*)
       Integer ieState
 #include "Input.fh"
 #include "SysDef.fh"
 #include "Files_mclr.fh"
-#include "sa.fh"
       Real*8, Allocatable:: G1q(:), G1r(:), G2r(:),
      &                      T(:), Q(:)
       Integer i, j, itri
