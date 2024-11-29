@@ -46,9 +46,9 @@
 
       Subroutine CalcbX_CMSNAC(bX,LOK,R,H,E_Final)
       use Constants, only: Zero
+      use saxxxx_mclr, only: ISMECIMSPD,NACSTATES
       Implicit None
 #include "Input.fh"
-#include "sa.fh"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
 ****** Input
@@ -106,9 +106,9 @@
       subroutine CalcbP_CMSNAC(bP,CSFOK,LOK,R)
       use ipPage, only: W
       use MCLR_Data, only: nConf1, ipCI
+      use saxxxx_mclr, only: NACSTATES
       implicit none
 #include "Input.fh"
-#include "sa.fh"
 ***** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
 ***** Input
