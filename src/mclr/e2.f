@@ -15,7 +15,6 @@
       Implicit None
       Integer lOper, iDisp
 #include "Input.fh"
-#include "disp_mclr.fh"
       Real*8 FockI(nCMO),rMO(*)
       Logical Go
       Real*8 E22
