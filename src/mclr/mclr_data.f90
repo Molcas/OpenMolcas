@@ -53,4 +53,29 @@ Character(LEN=8) SwLbl(Mxdccc)
 integer   dspvec(mxdccc),nhess
 Private LenIN,LENIN6
 
+!
+! Stuff from cstate_mclr.fh
+!        iRefSm        :        Reference symmetry
+!        iRefML        :        ML value
+!        iRefPA        :        Parity
+!        iRefL         :        L value
+!        MS2           :        2*MS
+!        MULTS         :        Spin multiplicity
+!        nRoot         :        Number of roots
+!        IDC           :        Ms combinations
+!        PSSIGN        :        Ms combination PS factor
+!        PLSIGN        :        Ms combination PL factor
+!        IntSel        :        Internal space
+!        iAlign        :        Not in use
+!        Ethers        :        Threshold (energy cont)
+!        Cthres        :        Threshold (coeff)
+!        NGenSym       :        Number of reference symmetries
+!        iGenSym       :        Reference symmetries
+!        InvSym        :        Ger/UnGer inv sym
+!        iKram         :        Kramer symmetry
+!. CSTATE
+Integer IREFSM,IREFML,IREFPA,IREFL,MS2,MULTS,NROOT,IDC,INTSEL,IALIGN,   &
+        NGENSYM,IGENSYM(100),INVSYM,IKRAM
+Real*8 PSSIGN,PLSIGN, ETHRES,CTHRES
+
 End Module MCLR_Data
