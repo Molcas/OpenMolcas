@@ -48,7 +48,6 @@
       Integer jdisp,jspin
       Logical CI
 #include "Input.fh"
-#include "disp_mclr.fh"
       Character(LEN=8) Label
       Real*8 E2
       Real*8 rDum(1)
