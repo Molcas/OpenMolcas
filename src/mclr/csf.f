@@ -33,14 +33,18 @@
 * IGENSG .ne. 0 assumes general signs of strings given in ISGNA,ISGNB
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
-*.Specific input
-      DIMENSION ISGNA(*),ISGNB(*)
-      DIMENSION ICONF(*),NCNFTP(*)
-      DIMENSION IOOS(*)
-*.General input
-      INTEGER IPRODT(*)
-*.Output
-      DIMENSION ICTSDT(*)
+      Integer, Intent(Out):: ICTSDT(*)
+      Integer, Intent(In):: ICONF(*)
+      Integer :: iRefSM, nOrb
+      INTEGER, Intent(In):: IPRODT(*)
+      Integer, Intent(In):: NCNFTP(*)
+      Integer :: NEL,ICNSTR,IGENSG
+      Integer, Intent(In):: ISGNA(*),ISGNB(*)
+      Integer :: IAGRP,IBGRP
+      Integer, Intent(In):: IOOS(*)
+      Integer :: NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NAEL,NBEL,MINOP,MAXOP
+      Real*8 :: PSSIGN
+      Integer :: IPRNT
 *.Scratch
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: KL1(:), KL2(:), KL3(:)
@@ -76,8 +80,7 @@
      &            NORB,NEL,
      &            IGENSG,ISGNA,ISGNB,ICNSTR,IAGRP,IBGRP,IOOS,PSSIGN,
      &            IPRNT)
-      RETURN
-      END
+      END SUBROUTINE CNFORD
 *
 *----------------------------------------------------------------------
 *
@@ -195,11 +198,11 @@ C Separate determinants into strings and determine string number .
       CALL mma_deallocate(LDTBL)
 
 C
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(ICNSTR)
-      END
-      FUNCTION IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,
+      END SUBROUTINE CNTOST
+
+      Integer FUNCTION IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,
      &                ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN,
      &                IPRNT)
       Use Str_info
@@ -224,9 +227,9 @@ c Avoid unused argument warnings
      &                Str(IBGRP)%NSTSO,
      &                IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,
      &                IPSFAC,IPRNT)
-      RETURN
-      END
-      FUNCTION IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,
+      END FUNCTION IABNUM
+
+      Integer FUNCTION IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,
      &                ISSOA,NSSOA,
      &                IBSTR,NBEL,IBORD,ITPFSB,ISMFSB,NOCTPB,ZB,
      &                ISSOB,NSSOB,
@@ -334,12 +337,8 @@ C?    END IF
          WRITE(6,*) ' Corresponding determinant number ', IABNUS
       END IF
 
-!      write(117,"(A,1X,I20)",advance='no')" SD_number",IABNUS ! yma
-!      write(117,*)
-
 *
-      RETURN
-      END
+      END FUNCTION IABNUS
 
 *
 *----------------------------------------------------------------------
@@ -350,6 +349,7 @@ C?    END IF
       Subroutine CsfInf(lSym,iSpin,MS,iSPC,iPrnt,nsym)
       use Str_Info
       use stdalloc, only: mma_allocate, mma_deallocate
+      use csfsd_data
 *
       Implicit Real*8 (A-H,O-Z)
 *
@@ -366,7 +366,6 @@ C?    END IF
      &                       NOOS1(:)
 *     COMMONBLOCK THE SUPPORT STORAGE OF REORDERING VECTOR
 *     ON DISK
-#include "csfsd.fh"
 
 *
 *
@@ -444,10 +443,9 @@ C     MXELR3 = MNR1IC(ISPC)
       Call mma_deallocate(SBLTP)
       Call mma_deallocate(SIOIO)
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(MS)
-      END
+      END Subroutine CsfInf
 *
 *----------------------------------------------------------------------
 *
@@ -549,8 +547,7 @@ C
       END IF
 
 C
-      RETURN
-      END
+      END SUBROUTINE CSFDET
 *
 *----------------------------------------------------------------------
 *
@@ -638,10 +635,9 @@ C
   200 CONTINUE
 C
 *     XMSD2=DBLE(MS2)/2
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRCSF)
-      END
+      END SUBROUTINE SPNCOM
 *
 *----------------------------------------------------------------------
 *
@@ -724,8 +720,7 @@ c Avoid unused argument warnings
    30 CONTINUE
 *
 
-      RETURN
-      END
+      END SUBROUTINE CSDTMT
 *
 *----------------------------------------------------------------------
 *
@@ -953,10 +948,9 @@ C?      WRITE(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
 *
       lldet=ldet
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(ICNSTR)
-      END
+      END SUBROUTINE INTCSF
 *
 *----------------------------------------------------------------------
 *
@@ -1288,8 +1282,7 @@ C
 
 *
 *
-      RETURN
-      END
+      END SUBROUTINE CISIZE
 *
 *----------------------------------------------------------------------
 *
@@ -1367,8 +1360,7 @@ C
 C
 C..4  EXIT
 C
-      RETURN
-      END
+      END SUBROUTINE CNDET_MCLR
 *
 *----------------------------------------------------------------------
 *
@@ -1437,10 +1429,9 @@ C
 !      end if
 
 C
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(NORB)
-      END
+      END SUBROUTINE DETSTR_MCLR
 *
 *----------------------------------------------------------------------
 *
@@ -1523,7 +1514,7 @@ C
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRNT)
-      END
+      END SUBROUTINE ORDSTR_MCLR
 *
 *----------------------------------------------------------------------
 *
@@ -1557,8 +1548,7 @@ c Avoid unused argument warnings
         UTSTRN(IOPEN) = UTSTRN(IOPEN-1) +DBLE(INSTRN(IOPEN))-0.5D0
 10    CONTINUE
 *
-      RETURN
-      END
+      END SUBROUTINE MSSTRN
 *
 *----------------------------------------------------------------------
 *
@@ -1871,8 +1861,7 @@ C
       END IF
 
 C
-      RETURN
-      END
+      END SUBROUTINE CONFG2
 *
 *----------------------------------------------------------------------
 *
@@ -1977,8 +1966,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
       WRITE(6,*) ' Largest Symmetry-type-type block ',MXSOOB
       End If
 *
-      RETURN
-      END
+      END SUBROUTINE ICISPS
 *
 *----------------------------------------------------------------------
 *
@@ -2065,5 +2053,4 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
         WRITE(6,*) ' NCOMB and XNCOMB ', NCOMB,XNCOMB
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE NRASDT
