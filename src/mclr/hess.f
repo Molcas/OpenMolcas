@@ -19,13 +19,13 @@
       Use Arrays, only: Hss, CMO, F0SQMO
       use Constants, only: Zero
       use MCLR_Data, only: nDens2, ipCM, ipMat
+      use disp_mclr, only: DspVec, lDisp
       Implicit None
       Real*8 Temp1(nDens2),Temp2(nDens2),Temp3(nDens2),
      &       FockC(nDens2),FockX(nDens2),rcon(nDens2),
      &       temp4(*)
       Integer idSym, jDisp, iDisp
 #include "Input.fh"
-#include "disp_mclr.fh"
       Character(LEN=8) Label
       Integer iS, jS, nNJ, Len, iSym, nIn, mDisp, kDisp, iRC, iOpt,
      &        iOp, iP, IndX
