@@ -40,6 +40,7 @@
       use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat,
      &                     ipMatBA, ipMatLT, nA, nConf1,nDens2,
      &                     nMBA
+      use disp_mclr, only: DspVec
       Implicit None
       real*8 Temp1(nDens),Temp2(nDens),Temp3(nDens),Temp4(nDens),
      &       Temp5(nDens),Temp6(nDens),temp7(ndens),rKappa(nDens)
@@ -48,7 +49,6 @@
       Integer jdisp,jspin
       Logical CI
 #include "Input.fh"
-#include "disp_mclr.fh"
       Character(LEN=8) Label
       Real*8 rDum(1)
       Real*8, Allocatable:: FiX(:),MOX(:),MOT(:),MOT2(:)
