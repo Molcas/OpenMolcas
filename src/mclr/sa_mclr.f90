@@ -8,8 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical Fancy_Preconditioner,SA,esterr,isNAC,override
-      Logical isMECIMSPD
-      Integer istate,irlxroot,NACstates(2),NSSA(2)
-      Common /SA/ Fancy_Preconditioner,SA,istate,irlxroot,NACstates,    &
-     &            override,esterr,isNAC,NSSA,isMECIMSPD
+Module saxxxx_mclr
+#include "sa.fh"
+save
+!Logical Fancy_Preconditioner,SA,esterr,isNAC,override
+!Logical isMECIMSPD
+!Integer istate,irlxroot,NACstates(2),NSSA(2)
+End Module saxxxx_mclr
