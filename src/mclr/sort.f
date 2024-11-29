@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine MMSort(A,B,ldisp1)
-      use disp_mclr
+      use disp_mclr, only: lDisp
       Implicit None
       Real*8 A(*),B(*)
 #include "Input.fh"
