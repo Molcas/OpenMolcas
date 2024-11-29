@@ -14,6 +14,7 @@
       use Constants, only: Zero
       use MCLR_Data, only: i12, ist
       use MCLR_Data, only: IPRCIX,IPRDIA
+      use cstate_mclr, only: IDC, PSSIGN
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -35,7 +36,6 @@
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
 #include "cicisp_mclr.fh"
-#include "cstate_mclr.fh"
 #include "csm.fh"
 #include "crun_mclr.fh"
 
