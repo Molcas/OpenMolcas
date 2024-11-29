@@ -9,8 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module csfsd_data
-#include "csfsd.fh"
-save
 !Stuff from csfsd.fh
-!     Integer i1,iAnders,lconf,lldet,iAllo
+Integer i1,iAnders,lconf,lldet,iAllo
 End Module csfsd_data
