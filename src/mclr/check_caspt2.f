@@ -32,7 +32,6 @@ C
       Integer Mode
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "disp_mclr.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
