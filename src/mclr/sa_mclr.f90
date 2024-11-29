@@ -9,9 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module saxxxx_mclr
-#include "sa.fh"
-save
-!Logical Fancy_Preconditioner,SA,esterr,isNAC,override
-!Logical isMECIMSPD
-!Integer istate,irlxroot,NACstates(2),NSSA(2)
+Logical Fancy_Preconditioner,SA,esterr,isNAC,override
+Logical isMECIMSPD
+Integer istate,irlxroot,NACstates(2),NSSA(2)
 End Module saxxxx_mclr
