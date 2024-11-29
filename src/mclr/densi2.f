@@ -10,9 +10,12 @@
 *                                                                      *
 * Copyright (C) 1994-1996, Jeppe Olsen                                 *
 ************************************************************************
-       SUBROUTINE DENSI2(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
-       use Str_Info
-       use stdalloc, only: mma_allocate, mma_deallocate
+      SUBROUTINE DENSI2(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
+      use Str_Info, only: STR,MXNSTR,IATPM1,IATPM2,IBTPM1,IBTPM2,
+     &                    ITYP_DUMMY,NELEC,NOCTYP
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use cprnt_mclr, only: IPRCIX,IPRDIA
+      use Constants, only: Zero
 *
 * Density matrices between L and R
 *
@@ -26,8 +29,14 @@
 * Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
 * ijkl = ij*(ij-1)/2+kl, ij.ge.kl
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
+      Integer I12
+*.Output
+      REAL*8 RHO1(*),RHO2(*)
+*. Specific input
+      REAL*8 L(*),R(*)
 
+      INTEGER LUL,LUR,ieaw,n1,n2
 *
 * =====
 *.Input
@@ -42,29 +51,25 @@
 #include "cstate_mclr.fh"
 #include "csm.fh"
 #include "crun_mclr.fh"
-#include "cprnt_mclr.fh"
 #include "spinfo_mclr.fh"
 
 #include "Input.fh"
 #include "csmprd.fh"
-*. Specific input
-      REAL*8 L
-      DIMENSION L(*),R(*)
-*.Output
-      DIMENSION RHO1(*),RHO2(*)
 *. Before I forget it :
-      DIMENSION iSXSTSM(1),IDUMMY(1)
+      INTEGER iSXSTSM(1),IDUMMY(1)
       Integer, Allocatable:: SIOIO(:), CIOIO(:), SBLTP(:), CBLTP(:)
       Integer, Allocatable:: STSTS(:), STSTD(:), IX(:,:), OOS(:,:)
       Real*8, Allocatable:: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
       Real*8, Allocatable:: RHO1S(:), RHO1P(:), XNATO(:)
-*     Real*8, Allocatable:: RHO1SM(:), XNATSM(:), OCCSM(:)
       Integer idum(1)
+      Integer IPRDEN,NGAS,IATP,IBTP,JATP,JBTP,NOCTPA,NOCTPB,NAEL,NBEL,
+     &        IOCTPA,IOCTPB,MXSTBL0,MAXA,MAXA1,MAXB,MAXB1,MXSTBL,MXTSOB,
+     &        IOBTP,IOBSM,LSCR1,INTSCR,IATP2,IBTP2,LSCR2,LSCR12,MAXIK,
+     &        LSCR3,NOOS,IMNMX,MXCIJA,MXCIJAB,MXCIJB,MXCJ,MXIJST,
+     &        MXIJSTF,MXSXBL
 
       IDUM = 0
-CFUE  IPRDEN=0
       IPRDEN=1
-      ZERO = 0.0D0
       NGAS=3
 
       CALL SETVEC(RHO1,ZERO ,NACOB ** 2 )
@@ -309,9 +314,5 @@ CFUE  IPRDEN=0
       Call mma_deallocate(RHO1S)
       Call mma_deallocate(RHO1P)
       Call mma_deallocate(XNATO)
-*     Call mma_deallocate(RHO1SM)
-*     Call mma_deallocate(XNATSM)
-*     Call mma_deallocate(OCCSM)
 
-      RETURN
-      END
+      END SUBROUTINE DENSI2
