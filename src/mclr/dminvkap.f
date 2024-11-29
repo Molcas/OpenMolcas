@@ -26,12 +26,12 @@
 *                                                                      *
 ************************************************************************
       use Spool, only: LuWr
+      use saxxxx_mclr, only: SA
       Implicit None
       Integer nrIn, nrOut, nrTemp, iSym, iter
       Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)
 #include "Input.fh"
 #include "dmrginfo_mclr.fh"
-#include "sa.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
