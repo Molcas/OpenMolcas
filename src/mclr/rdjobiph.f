@@ -26,6 +26,8 @@
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nA, nNA
+      use saxxxx_mclr, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,
+     &                       NACSTATES
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)
 
@@ -33,7 +35,6 @@
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "SysDef.fh"
-#include "sa.fh"
 #include "dmrginfo_mclr.fh"
       Character(LEN=72) Line
       Character(LEN=8) Method
