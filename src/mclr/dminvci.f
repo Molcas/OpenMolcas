@@ -14,12 +14,12 @@
       use negpre
       use Constants, only: Zero, One, Half
       use MCLR_Data, only: nConf1, ipCI
+      use incdia_data, only: ipDia
       Implicit None
       Integer ipSIgma, idSym
       Real*8 rout(*), rC_HE_C
 
 #include "Input.fh"
-#include "incdia.fh"
       integer iRC
       integer, external:: ipin, ipout, opout
       real*8 rCoeff
