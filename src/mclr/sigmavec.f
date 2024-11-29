@@ -14,7 +14,7 @@
       use Constants, only: Zero
       use MCLR_Data, only: i12, ist
       use MCLR_Data, only: IPRCIX,IPRDIA
-      use cstate_mclr, only: IDC, PSSIGN
+      use MCLR_Data, only: IDC, PSSIGN
 *
 * Outer routine for sigma vector generation
 * RAS space

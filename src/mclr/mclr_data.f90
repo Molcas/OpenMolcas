@@ -54,7 +54,7 @@ integer   dspvec(mxdccc),nhess
 Private LenIN,LENIN6
 
 !
-! Stuff from cstate_mclr.fh
+! Stuff from MCLR_Data.fh
 !        iRefSm        :        Reference symmetry
 !        iRefML        :        ML value
 !        iRefPA        :        Parity

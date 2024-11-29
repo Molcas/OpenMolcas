@@ -11,7 +11,7 @@
 *
       subroutine coeff(ralpha,rbetaa,rbetas)
       use Constants, only: Zero, One, Two, Four, Six, Eight
-      use cstate_mclr, only: mS2
+      use MCLR_Data, only: mS2
       Implicit None
       real*8 ralpha,rbetaa,rbetas
 

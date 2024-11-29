@@ -14,7 +14,7 @@
       Use Str_Info, only: STR,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IPRDIA
-      use cstate_mclr, only: iDC, PLSIGN, PSSIGN
+      use MCLR_Data, only: iDC, PLSIGN, PSSIGN
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM

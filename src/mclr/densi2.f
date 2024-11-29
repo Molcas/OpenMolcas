@@ -16,7 +16,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IPRCIX,IPRDIA
       use Constants, only: Zero
-      use cstate_mclr, only: IDC,PSSIGN
+      use MCLR_Data, only: IDC,PSSIGN
 *
 * Density matrices between L and R
 *

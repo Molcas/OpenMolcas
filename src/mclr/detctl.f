@@ -13,7 +13,7 @@
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: iST,i12
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
-      use cstate_mclr, only: MS2,idc,PSSIGN
+      use MCLR_Data, only: MS2,idc,PSSIGN
 *
       Implicit None
 

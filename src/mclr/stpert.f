@@ -18,7 +18,7 @@
       use MCLR_Data, only: ipCI,nDens2
       use MCLR_Data, only: RMS, rBetaA, rBetaS
       use MCLR_Data, only: lDisp,SwLbl
-      use cstate_mclr, only: MS2
+      use MCLR_Data, only: MS2
       Implicit None
 
 #include "Input.fh"

@@ -16,7 +16,7 @@
       Use Iso_C_Binding
       use Arrays, only: Int2, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      use cstate_mclr, only: iRefSM,IDC,PSSIGN
+      use MCLR_Data, only: iRefSM,IDC,PSSIGN
 *
 * frontend to jeppes explicit routines
 *
