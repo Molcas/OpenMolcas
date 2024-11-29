@@ -100,7 +100,7 @@
       use ipPage, only: W
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
-      use saxxxx_mclr, only: NACSTATES
+      use MCLR_Data, only: NACSTATES
       Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"

@@ -18,7 +18,7 @@
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens,
      &                     nA, nDens2, nDensC
-      use saxxxx_mclr, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,
+      use MCLR_Data, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,
      &                       NACSTATES
       Implicit None
 #include "detdim.fh"

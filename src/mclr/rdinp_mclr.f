@@ -27,7 +27,7 @@
       Use Exp, only: NewPre, nexp_max
       use negpre, only: nGP
       Use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
-      use saxxxx_mclr, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,
+      use MCLR_Data, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,
      &                       FANCY_PRECONDITIONER,NSSA,NACSTATES
       Implicit None
 #include "Input.fh"

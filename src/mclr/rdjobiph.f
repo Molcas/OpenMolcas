@@ -26,7 +26,7 @@
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nA, nNA
-      use saxxxx_mclr, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,
+      use MCLR_Data, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,
      &                       NACSTATES
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)

@@ -26,7 +26,7 @@
       use Constants, only: Zero, One
       use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI
       use MCLR_Data, only: ipDia
-      use saxxxx_mclr, only: ISNAC,OVERRIDE,IRLXROOT,ISMECIMSPD,
+      use MCLR_Data, only: ISNAC,OVERRIDE,IRLXROOT,ISMECIMSPD,
      &                       NACSTATES
       Implicit None
 #include "Input.fh"

@@ -22,7 +22,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use saxxxx_mclr, only: ISTATE,SA,ISNAC,IRLXROOT,NACSTATES,NSSA
+      use MCLR_Data, only: ISTATE,SA,ISNAC,IRLXROOT,NACSTATES,NSSA
       Implicit None
       Integer iPL
 #include "Input.fh"

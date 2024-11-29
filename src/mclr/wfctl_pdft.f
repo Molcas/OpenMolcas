@@ -31,7 +31,7 @@
       use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI,nAcPar,nNA,
      &                    nAcPr2,ipMat
       use MCLR_Data, only: ipDia
-      use saxxxx_mclr, only: ISNAC,IRLXROOT,NACSTATES
+      use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

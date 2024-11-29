@@ -14,7 +14,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
-      use saxxxx_mclr, only: ISTATE
+      use MCLR_Data, only: ISTATE
       Implicit None
 
 #include "Input.fh"

@@ -26,7 +26,7 @@
 *                                                                      *
 ************************************************************************
       use Spool, only: LuWr
-      use saxxxx_mclr, only: SA
+      use MCLR_Data, only: SA
       Implicit None
       Integer nrIn, nrOut, nrTemp, iSym, iter
       Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)

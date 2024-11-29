@@ -50,7 +50,7 @@
 
       Subroutine CalcbX(bX,LOK,R,H)
       use Constants, only: Zero
-      use saxxxx_mclr, only: IRLXROOT
+      use MCLR_Data, only: IRLXROOT
       Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -100,7 +100,7 @@
       subroutine CalcbP(bP,CSFOK,LOK,R)
       use ipPage, only: W
       use MCLR_Data, only: nConf1, ipCI
-      use saxxxx_mclr, only: IRLXROOT
+      use MCLR_Data, only: IRLXROOT
       Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"

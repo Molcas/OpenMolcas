@@ -25,7 +25,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One, Two
       use MCLR_Data, only: ipMat, nDens2
-      use saxxxx_mclr, only: ISTATE
+      use MCLR_Data, only: ISTATE
       Implicit None
       Real*8 kappa(*)
       Integer ieState

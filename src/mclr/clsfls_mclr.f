@@ -23,7 +23,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use saxxxx_mclr, only: SA
+      use MCLR_Data, only: SA
       Implicit None
 #include "Files_mclr.fh"
 #include "Input.fh"

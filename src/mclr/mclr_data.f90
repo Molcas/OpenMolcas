@@ -38,4 +38,9 @@ integer ipdia
 ! Print flags from MCLR_Data.fh
 Integer IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPRANA
 
+!Stuff from sa.fh
+Logical Fancy_Preconditioner,SA,esterr,isNAC,override
+Logical isMECIMSPD
+Integer istate,irlxroot,NACstates(2),NSSA(2)
+
 End Module MCLR_Data

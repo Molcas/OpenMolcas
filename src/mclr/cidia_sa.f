@@ -15,7 +15,7 @@
       use ipPage, only: W
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: ipDia
-      use saxxxx_mclr, only: FANCY_PRECONDITIONER
+      use MCLR_Data, only: FANCY_PRECONDITIONER
       Implicit None
       Integer iSym
       Real*8 ralp(*),S(*)

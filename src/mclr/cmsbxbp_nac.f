@@ -46,7 +46,7 @@
 
       Subroutine CalcbX_CMSNAC(bX,LOK,R,H,E_Final)
       use Constants, only: Zero
-      use saxxxx_mclr, only: ISMECIMSPD,NACSTATES
+      use MCLR_Data, only: ISMECIMSPD,NACSTATES
       Implicit None
 #include "Input.fh"
 ****** Output
@@ -106,7 +106,7 @@
       subroutine CalcbP_CMSNAC(bP,CSFOK,LOK,R)
       use ipPage, only: W
       use MCLR_Data, only: nConf1, ipCI
-      use saxxxx_mclr, only: NACSTATES
+      use MCLR_Data, only: NACSTATES
       implicit none
 #include "Input.fh"
 ***** Output

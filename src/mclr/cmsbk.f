@@ -146,7 +146,7 @@
       use ipPage, only: W
       use Constants, only: One, Two
       use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
-      use saxxxx_mclr, only: IRLXROOT
+      use MCLR_Data, only: IRLXROOT
       Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"

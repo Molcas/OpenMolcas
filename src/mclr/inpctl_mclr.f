@@ -27,7 +27,7 @@
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI
-      use saxxxx_mclr, only: SA,ISTATE
+      use MCLR_Data, only: SA,ISTATE
       Implicit None
       Integer iPL
 #include "Input.fh"
