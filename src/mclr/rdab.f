@@ -11,9 +11,9 @@
       SubRoutine RdAB()
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate
+      use disp_mclr, only: ChDisp, lDisp
       Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
       Character(LEN=8) Label
       Integer iRC, iOpt, Length, iSym, iS, iDum
 *
