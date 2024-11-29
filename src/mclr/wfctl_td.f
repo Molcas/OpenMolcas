@@ -26,10 +26,10 @@
       use Constants, only: Zero, One
       use MCLR_Data, only: nConf1,nDens2,nDensC,ipCI,n1Dens,n2Dens,nDens
       use MCLR_Data, only: ipDia
+      use disp_mclr, only: lDisp
       Implicit None
 *
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"

@@ -11,12 +11,10 @@
 Module Disp_MCLR
 #include "LenIn.fh"
 Integer, Parameter:: LENIN6=LENIN+6
-#include "disp_mclr.fh"
+Integer lDisp(8)
+Integer, Parameter,Private:: Mxdccc=500
+Character ChDisp(Mxdccc*3)*(LENIN+6)
+Character(LEN=8) SwLbl(Mxdccc)
+integer   dspvec(mxdccc),nhess
 Private LenIN,LENIN6
-save
-!Integer lDisp(8)
-!Integer, Parameter,Private:: Mxdccc=500
-!Character ChDisp(Mxdccc*3)*(LENIN+6)
-!Character(LEN=8) SwLbl(Mxdccc)
-!integer   dspvec(mxdccc),nhess
 END Module Disp_MCLR
