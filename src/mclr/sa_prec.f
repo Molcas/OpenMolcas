@@ -32,7 +32,6 @@
       use Constants, only: Zero
       Implicit None
 #include "Input.fh"
-#include "incdia.fh"
       Real*8 rdia(*),S(nroots,nroots),CI(*)
       Real*8 ENE
 
