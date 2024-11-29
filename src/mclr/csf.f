@@ -371,11 +371,11 @@ C?    END IF
       use Str_Info, only: STR,CNSM,CFTP,DFTP,DTOC,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: i1,iAnders,lConf,llDET
+      use cstate_mclr, only: iRefSM,iDC,MS2,PSSIGN
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
 *
-#include "cstate_mclr.fh"
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
@@ -1956,6 +1956,7 @@ C
       SUBROUTINE ICISPS(IPRNT)
       Use Str_Info, only: STR, NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
+      use cstate_mclr, only: IDC
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -1974,7 +1975,6 @@ C
 * ===================
 *
 #include "detdim.fh"
-#include "cstate_mclr.fh"
 #include "csm.fh"
 *
       Integer, Allocatable:: LBLTP(:), LCVST(:)
