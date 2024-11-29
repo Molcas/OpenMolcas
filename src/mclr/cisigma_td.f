@@ -8,18 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
-     &                       Int2a,nInt2a,ipCI1,ipCI2,NT, Have_2_el )
-       use ipPage, only: W
-       use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
-       use stdalloc, only: mma_allocate, mma_deallocate
-       use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
-       use MCLR_Data, only: i12, ist, Square
-       Implicit None
-       Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
-       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-       Character(LEN=1) NT
-       Logical Have_2_el
+      SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                      Int2a,nInt2a,ipCI1,ipCI2,NT, Have_2_el )
+      use ipPage, only: W
+      use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
+      use MCLR_Data, only: i12, ist, Square
+      use cstate_mclr, only: iRefSM
+      Implicit None
+      Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
+      Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+      Character(LEN=1) NT
+      Logical Have_2_el
 c
 c For the timeindep case ipS1 and ipS2 will be half as long
 c Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
@@ -28,7 +29,6 @@ c
 #include "Input.fh"
 #include "cands.fh"
 #include "detdim.fh"
-#include "cstate_mclr.fh"
 #include "cicisp_mclr.fh"
        integer kic(2),opout
        Real*8, Allocatable:: CIDET(:)
