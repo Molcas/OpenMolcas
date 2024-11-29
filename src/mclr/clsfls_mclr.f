@@ -23,12 +23,12 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
+      use saxxxx_mclr, only: SA
+      Implicit None
 #include "Files_mclr.fh"
-#include "sa.fh"
 #include "Input.fh"
       Logical DoCholesky
-      Integer AixRm
+      Integer AixRm, iRC,iOpt
 *---------------------------------------------------------------------*
 *     Start                                                           *
 *---------------------------------------------------------------------*
