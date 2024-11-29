@@ -36,11 +36,11 @@
       use MCLR_Data, only: nConf1,nDens2,nDensC,ipCI,n1Dens,n2Dens,nDens
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: lDisp
+      use files_mclr, only: LuTemp
       Implicit None
       External Rsv_Tsk
 *
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
