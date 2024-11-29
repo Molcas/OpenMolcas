@@ -27,11 +27,11 @@
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI
+      use saxxxx_mclr, only: SA,ISTATE
       Implicit None
       Integer iPL
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "sa.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
