@@ -19,7 +19,6 @@
       use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
       Implicit None
 #include "Input.fh"
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
