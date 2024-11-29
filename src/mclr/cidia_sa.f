@@ -15,6 +15,7 @@
       use ipPage, only: W
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: ipDia
+      use saxxxx_mclr, only: FANCY_PRECONDITIONER
       Implicit None
       Integer iSym
       Real*8 ralp(*),S(*)
@@ -24,7 +25,6 @@
 #include "spinfo_mclr.fh"
 
 #include "Input.fh"
-#include "sa.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI,
      &        iPrnt, iP2, J
