@@ -24,7 +24,6 @@
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "sa.fh"
 
@@ -67,7 +66,6 @@
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "sa.fh"
 ******Output:none
@@ -116,7 +114,6 @@
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "sa.fh"
 ******Output
@@ -158,7 +155,6 @@
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "sa.fh"
 ******Input
