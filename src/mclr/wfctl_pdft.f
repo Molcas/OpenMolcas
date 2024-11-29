@@ -40,7 +40,6 @@
       Logical converged(8)
       Integer iPL
 *
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
