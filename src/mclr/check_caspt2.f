@@ -27,13 +27,13 @@ C
 C     With mode = 1, this subroutine obtains the character in 'MCLR
 C     Root' and determine the roots for NAC calculation.
 C
+      use saxxxx_mclr, only: IRLXROOT,ISNAC,OVERRIDE,NACSTATES
       Implicit None
       Integer Mode
 #include "Input.fh"
 #include "Files_mclr.fh"
 #include "disp_mclr.fh"
 #include "SysDef.fh"
-#include "sa.fh"
 #include "warnings.h"
 
       Character(LEN=72) Line
