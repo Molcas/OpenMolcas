@@ -8,12 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Genop_MCLR
-! Stuff from genop.fh
-!. Type of operator in action
-!        I12        :         2:Both on and two electron integrals
-!        IST        :
-!        Square     :         Integrals square/triangular
-      Logical square
-      Integer I12,IST
-End Module Genop_MCLR
+Module Machine_data
+#include "machine.fh"
+save
+!Stuff from machine.fh
+!integer  nrec
+End Module Machine_Data

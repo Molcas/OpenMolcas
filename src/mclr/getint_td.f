@@ -11,7 +11,7 @@
       SUBROUTINE GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IKSM,JLSM,ICTL,ieaw )
       use Arrays, only: pInt2, KINT2, KINT2a
-      use genop_MCLR, only: Square
+      use MCLR_Data, only: Square
 *
 * Outer routine for accessing integral block
 *

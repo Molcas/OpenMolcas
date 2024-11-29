@@ -11,7 +11,7 @@
       Subroutine DetCtl()
       use Arrays, only: pINT1, pINT2
       use stdalloc, only: mma_allocate
-      use genop_MCLR, only: iST,i12
+      use MCLR_Data, only: iST,i12
 *
       Implicit None
 

@@ -12,7 +12,7 @@
       Use Str_Info, only: STR,CNSM,DTOC,ITYP_Dummy,nElec,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
-      use genop_MCLR, only: i12, ist
+      use MCLR_Data, only: i12, ist
 *
 * Outer routine for sigma vector generation
 * RAS space

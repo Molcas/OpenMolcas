@@ -18,10 +18,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
       use MCLR_Data, only: nDens2
+      use machine_data, only: nrec
       implicit none
 
 #include "Input.fh"
-#include "machine.fh"
       Real*8, Allocatable:: Q(:), Tmp2(:,:), T3(:)
       Integer nm, nmm, nmmm, iS, nAtri
 *                                                                      *

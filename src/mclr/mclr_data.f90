@@ -17,4 +17,12 @@ Integer nmba,nna,n1dens,n2dens,nconf1,nacpar,nacpr2
 
 ! Stuff from spin_mclr.fh
 real*8     rms,rbetaa,rbetas,ralpha
+
+! Stuff from genop.fh
+!. Type of operator in action
+!        I12        :         2:Both on and two electron integrals
+!        IST        :
+!        Square     :         Integrals square/triangular
+Logical square
+Integer I12,IST
 End Module MCLR_Data
