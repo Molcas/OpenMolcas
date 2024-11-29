@@ -25,6 +25,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI
+      use incdia_data, only: ipDia
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
@@ -37,7 +38,6 @@
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "incdia.fh"
 #include "spinfo_mclr.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
