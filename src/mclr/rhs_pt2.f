@@ -11,16 +11,14 @@
 * Copyright (C) 1998, Anders Bernhardsson                              *
 ************************************************************************
       Subroutine RHS_PT2(rkappa,CLag,SLag)
-      use MCLR_Data
-
-        Implicit None
-        Real*8 rKappa(*),CLag(*),SLag(*)
+      use files_mclr, only: LuPT2
+      Implicit None
+      Real*8 rKappa(*),CLag(*),SLag(*)
 
 ! The RHS array for CASPT2 has been already calculated in the
 ! CASPT2 module, so here we only need to read it from file
 
 #include "Input.fh"
-#include "Files_mclr.fh"
       Integer nOLag, nCLag, i, nSLag
       Real*8 Tmp
 
