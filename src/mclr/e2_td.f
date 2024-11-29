@@ -16,7 +16,6 @@
       Integer lOper, iDisp
       Real*8 FockI(nCMO),rMO(*)
 #include "Input.fh"
-#include "disp_mclr.fh"
 *
       Logical Go
       Integer i, j, ij, ij2, k, l, ijkl, kl2, ijkl2
