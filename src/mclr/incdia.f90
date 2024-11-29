@@ -9,8 +9,5 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module incdia_data
-#include "incdia.fh"
-save
-!integer ipdia,LUDIA
-!Real*8 ECORE
+integer ipdia
 End Module incdia_data
