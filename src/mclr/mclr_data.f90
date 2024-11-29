@@ -25,4 +25,8 @@ real*8     rms,rbetaa,rbetas,ralpha
 !        Square     :         Integrals square/triangular
 Logical square
 Integer I12,IST
+
+!Stuff from machine.fh
+integer  nrec
+
 End Module MCLR_Data

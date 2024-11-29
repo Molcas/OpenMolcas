@@ -52,7 +52,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Definitions, only: iwp, u6, wp
       use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
-      use machine_data, only: nrec
+      use MCLR_Data, only: nrec
       Implicit None
 #include "Input.fh"
 #include "warnings.h"
