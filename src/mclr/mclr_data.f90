@@ -29,4 +29,6 @@ Integer I12,IST
 !Stuff from machine.fh
 integer  nrec
 
+!Stuff from csfsd.fh
+Integer i1,iAnders,lconf,lldet,iAllo
 End Module MCLR_Data

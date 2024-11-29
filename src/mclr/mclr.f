@@ -53,7 +53,7 @@
       use Definitions, only: iwp, u6, wp
       use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
       use MCLR_Data, only: nrec
-      use csfsd_data, only: iAllo
+      use MCLR_Data, only: iAllo
       Implicit None
 #include "Input.fh"
 #include "warnings.h"

@@ -370,7 +370,7 @@ C?    END IF
       Subroutine CsfInf(lSym,iSpin,MS,iSPC,iPrnt,nsym)
       use Str_Info, only: STR,CNSM,CFTP,DFTP,DTOC,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
-      use csfsd_data, only: i1,iAnders,lConf,llDET
+      use MCLR_Data, only: i1,iAnders,lConf,llDET
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
