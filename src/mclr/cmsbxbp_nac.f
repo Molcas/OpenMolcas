@@ -19,7 +19,6 @@
       use MCLR_Data, only: nCOnf1, nAcPr2
       Implicit None
 #include "Input.fh"
-#include "sa.fh"
 
 
 ****** Output
