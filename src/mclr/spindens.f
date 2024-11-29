@@ -28,7 +28,6 @@
 #include "Input.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
-#include "cstate_mclr.fh"
       Real*8, Allocatable:: Dens(:,:), Pens(:), CIL(:), CIR(:)
       Integer n2,nConfL,iL,nConfR,iR,iA,jA,kA,lA,ijklAB,jilkAB,
      &        ijklBA,jilkBA,ijkl,jilk
