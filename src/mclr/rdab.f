@@ -11,7 +11,7 @@
       SubRoutine RdAB()
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate
-      use disp_mclr, only: ChDisp, lDisp
+      use MCLR_Data, only: ChDisp, lDisp
       Implicit None
 #include "Input.fh"
       Character(LEN=8) Label

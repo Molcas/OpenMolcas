@@ -23,7 +23,7 @@
 *                                                                      *
 ************************************************************************
       use MCLR_Data, only: ISTATE,SA,ISNAC,IRLXROOT,NACSTATES,NSSA
-      use disp_mclr, only: ChDisp,DspVec,lDisp,SwLbl
+      use MCLR_Data, only: ChDisp,DspVec,lDisp,SwLbl
       Implicit None
       Integer iPL
 #include "Input.fh"

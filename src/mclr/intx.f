@@ -13,7 +13,7 @@
 *
       use Arrays, only: G1t, CMO
       use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
-      use disp_mclr, only: DspVec, SWLbl
+      use MCLR_Data, only: DspVec, SWLbl
       Implicit None
       Real*8 FockI(nDens2),Temp2(ndens2),Temp3(nDens2),Temp4(ndens2),
      &       Temp1(nDens2),Fock(nDens2),rMO(*)

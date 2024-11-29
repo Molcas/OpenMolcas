@@ -37,7 +37,7 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, nDensC
-      use disp_mclr, only: nHess,lDisp
+      use MCLR_Data, only: nHess,lDisp
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"

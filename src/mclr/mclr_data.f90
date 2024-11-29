@@ -43,4 +43,14 @@ Logical Fancy_Preconditioner,SA,esterr,isNAC,override
 Logical isMECIMSPD
 Integer istate,irlxroot,NACstates(2),NSSA(2)
 
+!stuff from MCLR_Data.fh
+#include "LenIn.fh"
+Integer, Parameter:: LENIN6=LENIN+6
+Integer lDisp(8)
+Integer, Parameter,Private:: Mxdccc=500
+Character ChDisp(Mxdccc*3)*(LENIN+6)
+Character(LEN=8) SwLbl(Mxdccc)
+integer   dspvec(mxdccc),nhess
+Private LenIN,LENIN6
+
 End Module MCLR_Data

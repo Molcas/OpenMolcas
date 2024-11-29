@@ -19,7 +19,7 @@
       Use Arrays, only: Hss, CMO, F0SQMO
       use Constants, only: Zero
       use MCLR_Data, only: nDens2, ipCM, ipMat
-      use disp_mclr, only: DspVec, lDisp
+      use MCLR_Data, only: DspVec, lDisp
       Implicit None
       Real*8 Temp1(nDens2),Temp2(nDens2),Temp3(nDens2),
      &       FockC(nDens2),FockX(nDens2),rcon(nDens2),

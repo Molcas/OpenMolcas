@@ -26,7 +26,7 @@
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, nDensC, nDens2
-      use disp_mclr, only: DspVec, lDisp
+      use MCLR_Data, only: DspVec, lDisp
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"

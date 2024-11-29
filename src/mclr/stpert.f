@@ -17,7 +17,7 @@
       use Constants, only: Zero
       use MCLR_Data, only: ipCI,nDens2
       use MCLR_Data, only: RMS, rBetaA, rBetaS
-      use disp_mclr, only: lDisp,SwLbl
+      use MCLR_Data, only: lDisp,SwLbl
       Implicit None
 
 #include "Input.fh"

@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine MMSort2(A,B,P,iel)
-      use disp_mclr, only: DspVec,lDisp
+      use MCLR_Data, only: DspVec,lDisp
       Implicit None
       Real*8 A(*),B(*),P(*)
       integer iel(3)

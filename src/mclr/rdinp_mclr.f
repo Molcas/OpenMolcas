@@ -29,7 +29,7 @@
       Use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
       use MCLR_Data, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,
      &                     FANCY_PRECONDITIONER,NSSA,NACSTATES
-      use disp_mclr, only: DspVec,SwLbl,lDisp
+      use MCLR_Data, only: DspVec,SwLbl,lDisp
       Implicit None
 #include "Input.fh"
 #include "Files_mclr.fh"
