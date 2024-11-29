@@ -8,11 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer lDisp(8)
-      Integer, Parameter:: Mxdccc=500
-      Character ChDisp(Mxdccc*3)*(LENIN6)
-      Character*8 SwLbl(Mxdccc)
-      integer   dspvec(mxdccc),nhess
-
-      Common /XDisp_mclr/ lDisp,dspvec,nhess
-      Common /CDisp_mclr/ ChDisp,SwLbl
+Module Disp_MCLR
+#include "LenIn.fh"
+Integer, Parameter:: LENIN6=LENIN+6
+#include "disp_mclr.fh"
+Private LenIN,LENIN6
+save
+!Integer lDisp(8)
+!Integer, Parameter,Private:: Mxdccc=500
+!Character ChDisp(Mxdccc*3)*(LENIN+6)
+!Character(LEN=8) SwLbl(Mxdccc)
+!integer   dspvec(mxdccc),nhess
+END Module Disp_MCLR
