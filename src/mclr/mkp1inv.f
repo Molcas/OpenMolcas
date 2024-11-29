@@ -14,7 +14,6 @@
       Implicit None
       Real*8 rdia(*)
 #include "Input.fh"
-#include "incdia.fh"
       Real*8, Allocatable:: TMP1(:), TMP2(:)
       Integer i,j,itri,iDisk,jDisk
       Real*8, External:: DDot_
