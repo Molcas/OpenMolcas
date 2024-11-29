@@ -16,6 +16,7 @@
       Use Iso_C_Binding
       use Arrays, only: Int2, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use cstate_mclr, only: iRefSM,IDC,PSSIGN
 *
 * frontend to jeppes explicit routines
 *
@@ -25,7 +26,6 @@
       Logical TimeDep
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "cstate_mclr.fh"
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
