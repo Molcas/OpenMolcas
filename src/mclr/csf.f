@@ -32,9 +32,9 @@
 * is zero if test fails
 * IGENSG .ne. 0 assumes general signs of strings given in ISGNA,ISGNB
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
       Integer, Intent(Out):: ICTSDT(*)
-      Integer, Intent(In):: ICONF(*)
+      Integer, Intent(InOut):: ICONF(*)
       Integer :: iRefSM, nOrb
       INTEGER, Intent(In):: IPRODT(*)
       Integer, Intent(In):: NCNFTP(*)
@@ -110,12 +110,16 @@
 * by calling CICNCH.ICNFOK(ICNF) is 1 of tests are passed, ICNFOK(ICNF)
 * is zero if test fails
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-
-      DIMENSION ICONF(*),IPRODT(*)
-      DIMENSION ICTSDT(*)
-      DIMENSION ISGNA(*),ISGNB(*)
-      DIMENSION IOOS(*)
+      IMPLICIT NONE
+      INTEGER ICONF(*),ICTSDT(*)
+      INTEGER NAEL,NBEL
+      INTEGER IPRODT(*)
+      INTEGER IREFSM,NORB,NEL,IGENSG
+      INTEGER ISGNA(*),ISGNB(*)
+      INTEGER ICNSTR,IAGRP,IBGRP
+      INTEGER IOOS(*)
+      REAL*8 PSSIGN
+      INTEGER IPRNT
 C
 C IWORK should at least be of length (MXDT+2)*NEL,
 C where MXDT is the largest number of prototype determinants occuring
@@ -126,6 +130,8 @@ C
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: LDTBL(:), LIA(:), LIB(:), SCR23(:)
+      INTEGER NTEST,MXDT,ITYP,ICNF,JDTABS,IPSFAC,ISGNAB,ICNBS0,IPBAS,
+     &        IJKL_NUM,IDET,IOPEN,ICL,IOCC,IC,ICNBS,JDET,ISIGN,IABNUM
 *
        NEL = NAEL + NBEL
        NTEST=0000
@@ -205,15 +211,22 @@ c Avoid unused argument warnings
       Integer FUNCTION IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,
      &                ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN,
      &                IPRNT)
-      Use Str_info
+      Use Str_info, only: STR,nElec,NoCTyp
 *
 * Encapsulation routine for IABNUS
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IASTR(*),IBSTR(*)
-      DIMENSION ISGNA(*),ISGNB(*)
+      IMPLICIT None
+      INTEGER IASTR(*),IBSTR(*)
+      INTEGER IAGRP,IBGRP,IGENSG
+      INTEGER ISGNA(*),ISGNB(*)
+      INTEGER ISGNAB
 #include "detdim.fh"
-      DIMENSION IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
+      INTEGER IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
+      INTEGER NORB,IPSFAC
+      REAL*8 PSSIGN
+      INTEGER IPRNT
+
+      INTEGER, EXTERNAL:: IABNUS
 *
       IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,
      &                Str(IAGRP)%STCL,Str(IAGRP)%STSM,
@@ -242,16 +255,24 @@ c Avoid unused argument warnings
 * If PSSIGN .ne. 0, the determinant with higher alpha number is picked
 * and phase factor IPSFAC calculated. This corresponds to
 * configuration order
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IASTR(NAEL),IBSTR(NBEL)
-      DIMENSION IAORD(*),IBORD(*)
-      INTEGER ZA(*),ZB(*)
-      INTEGER NSSOA(NOCTPA,*),NSSOB(NOCTPB,*)
-      INTEGER ISSOA(NOCTPA,*),ISSOB(NOCTPB,*)
+      IMPLICIT NONE
+      INTEGER NAEL
+      INTEGER IASTR(NAEL),IAORD(*),ITPFSA(*),ISMFSA(*)
+      INTEGER NOCTPA
+      INTEGER ZA(*),ISSOA(NOCTPA,*),NSSOA(NOCTPA,*)
+      INTEGER NBEL
+      INTEGER IBSTR(NBEL),IBORD(*),ITPFSB(*),ISMFSB(*)
+      INTEGER NOCTPB
+      INTEGER ZB(*),ISSOB(NOCTPB,*),NSSOB(NOCTPB,*)
       INTEGER IOOS(NOCTPA,NOCTPB,*)
+      INTEGER NORB,IGENSG
       INTEGER ISGNA(*),ISGNB(*)
-      INTEGER ITPFSA(*),ITPFSB(*)
-      INTEGER ISMFSA(*),ISMFSB(*)
+      REAL*8 PSSIGN
+      INTEGER IPSFAC,IPRNT
+
+!     Local variables
+      INTEGER NTEST,IANUM,IBNUM,ISGNAB,IASYM,IBSYM,IATP,IBTP,
+     &        IAREL,IBREL,ISTRNM
 *
 * Jeppe Olsen
 *
@@ -347,11 +368,12 @@ C?    END IF
 *----------------------------------------------------------------------
 *
       Subroutine CsfInf(lSym,iSpin,MS,iSPC,iPrnt,nsym)
-      use Str_Info
+      use Str_Info, only: STR,CNSM,CFTP,DFTP,DTOC,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
-      use csfsd_data
+      use csfsd_data, only: i1,iAnders,lConf,llDET
 *
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
 *
 #include "cstate_mclr.fh"
 #include "detdim.fh"
@@ -364,9 +386,8 @@ C?    END IF
       integer idum(1)
       Integer, Allocatable:: SIOIO(:), SBLTP(:), IOOS1(:),
      &                       NOOS1(:)
-*     COMMONBLOCK THE SUPPORT STORAGE OF REORDERING VECTOR
-*     ON DISK
-
+      Integer NEL,IATP,IBTP,NOCTPA,NOCTPB,MNELR1,MXELR3,NOOS,IA,ISYM,
+     &        NCOMB,LLCSF
 *
 *
 C.... Sorry about this  but this is just to tell the program
@@ -478,10 +499,17 @@ c Avoid unused argument warnings
 * the determinant normalization
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IDET(NOPEN,NDET),ICSF(NOPEN,NCSF)
-      DIMENSION CDC(NDET,NCSF)
+      IMPLICIT NONE
+      INTEGER NOPEN,NDET,NCSF
+      INTEGER IDET(NOPEN,NDET),ICSF(NOPEN,NCSF)
+      REAL*8 CDC(NDET,NCSF)
+      Real*8 PSSIGN
+      Integer IPRCSF
+
+!     Local variables
       Real*8, Allocatable:: LMDET(:), lSCSF(:)
+      INTEGER NTEST,JDET,JDADD,IOPEN,JCSF
+      REAL*8 CMBFAC,COEF,SIGN
 
       NTEST = 0000
       NTEST = MAX(IPRCSF,NTEST)
@@ -571,10 +599,16 @@ C
 * we select as the unique determinants those with first electron
 * having alpha spin
 *
-      INTEGER ADD
-      DIMENSION IABDET(NOPEN,*),IABUPP(NOPEN,*)
-      DIMENSION IWORK(*)
+      Implicit None
+      INTEGER IWORK(*)
+      INTEGER NOPEN,MS2,NDET
+      INTEGER IABDET(NOPEN,*),IABUPP(NOPEN,*)
       REAL*8 PSSIGN
+      INTEGER IFLAG,IPRCSF
+
+!     local variables
+      INTEGER ADD
+      INTEGER NUPPER,MX,I,J,NALPHA,MS2L,lUPPER,IEL
 *
 * LENGTH OF IWORK MUST BE AT LEAST NOPEN
 *
@@ -653,11 +687,18 @@ c Avoid unused argument warnings
 *
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      DIMENSION IDFTP(*),ICFTP(*),DTOC(*)
+      REAL*8 PSSIGN
+      Integer IPRNT
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-      DIMENSION IDFTP(*),ICFTP(*),DTOC(*)
+
+!     local variables
       Integer, Allocatable:: SCR7(:)
+      Integer MULTS,MS2,IDTBS,ICSBS,ITP,IOPEN,IFLAG,IDFTP,ICFTP,
+     &        ICDCBS,NNDET
+      REAL*8 DTOC
 *./SPINFO/
 *
 
@@ -752,11 +793,20 @@ c Avoid unused argument warnings
 * If PSSIGN .ne. 0, spin combinations are used !!
       Use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,
+     &        LLCSF,NCNSM,ICNSTR
+      REAL*8 PSSIGN
+      INTEGER IPRNT,lconf,lldet
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
+!     local variables
       Integer, Allocatable:: IICL(:), IIOP(:), IIOC(:)
+      Integer NTEST,IMSCMB,MULTS,NEL,IEL1,IEL2,IEL3,IOP1,IOP2,IOP3,IOP,
+     &        ITP,IOPEN,IAEL,IBEL,ITYPE,LIDT,LICS,LDTOC,MXPTBL,MXDT,
+     &        LCSFDT,LCNFOR,LDET,ILCNF,ISYM,ILLCNF,LLCONF,ITYP,ICL,
+     &        ICNSM,IBION,IWEYLF
 *
 * Last modification : Sept 20 : sign and address of dets goes together
 *                      in CNSM(:)%ICTS
@@ -970,15 +1020,24 @@ c Avoid unused argument warnings
 *  Jeppe Olsen
 *         August 1990 : Improved handling of large RAS 3 space
 *         Winter 1991 : Modified for LUCIA
-      IMPLICIT REAL*8 (A-H,O-Z)
-*.Input
-      DIMENSION NDPCNT(*),NCPCNT(*)
+      IMPLICIT NONE
+      INTEGER NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,
+     &        MXPCNT,MXPCSM
 *.Output
-      DIMENSION NCNATS(MXPCNT,*),NCNASM(*),NDTASM(*),NCSASM(*)
+      INTEGER NCNATS(MXPCNT,*),NCNASM(*),NDTASM(*),NCSASM(*)
+*.Input
+      INTEGER NDPCNT(*),NCPCNT(*)
 *. Scratch
-      DIMENSION IICL(*),IIOP(*),IIOC(NORB1+NORB2+NORB3)
+      INTEGER IICL(*),IIOP(*),IIOC(NORB1+NORB2+NORB3)
+      INTEGER IPRNT
 *
+!     Local variables
       Logical Test
+      Integer NTEST,ILOOP,ILOOP2,NCNF,NORBT,IORB1F,IORB1L,IORB2F,IORB2L,
+     &        IORB3F,IORB3L,NORB,MINCL1,NOP,ITYPE,NCL,ICL,IFRSTC,IORB,
+     &        IPLACE,IPRORB,NEWORB,IEL1C,IEL3C,ICL1,IIICHK,MXMPTY,IOP,
+     &        IFRSTO,IEL1,IEL3,IR3CHK,IFSTR3,K,KEL,KORB,ISYM,I,NTYP,
+     &        ICSM,ISYMCN_MCLR
 *
       NTEST = 0000
       NTEST = MAX(NTEST,IPRNT)
@@ -1279,8 +1338,6 @@ C
          END IF
   570  CONTINUE
       END IF
-
-*
 *
       END SUBROUTINE CISIZE
 *
@@ -1299,11 +1356,17 @@ C Construct the corresponding determinants in contracted  form .
 C
 C JEPPE OLSEN , NOVEMBER 1988
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION ICONF(*   )
-C     DIMENSION IPDET(NOP,NDET)
-      DIMENSION IPDET(*       )
-      DIMENSION IDET(NEL,*   )
+      IMPLICIT NONE
+      Integer NEL
+      Integer ICONF(*   )
+C     Integer IPDET(NOP,NDET)
+      Integer IPDET(*       )
+      Integer NORB,NOP,NCL
+      Integer IDET(NEL,*   )
+      Integer IPRNT
+
+! local variables
+      Integer NTEST,ICL,IBASE,JDET,NDET,IADD,IOP,IADR
 C
 C
 C POSITIVE NUMBER  : ALPHA ORBITAL
@@ -1382,13 +1445,17 @@ C BETA STRING
 C
 C JEPPE OLSEN NOVEMBER 1988
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
 
 #include "dmrginfo_mclr.fh"
-      DIMENSION IDET(NEL)
-      DIMENSION IASTR(NAEL),IBSTR(NBEL)
-      DIMENSION IWORK(*)
+      Integer NEL,NAEL,NBEL
+      Integer IDET(NEL)
+      Integer IASTR(NAEL),IBSTR(NBEL)
+      Integer NORB,ISIGN
+      Integer IWORK(*)
+      Integer IPRNT
 C
+      INTEGER NTEST,IBEL,ITMP
 C
 C
       NTEST = 000
@@ -1454,9 +1521,15 @@ C
 C IMPLEMENTED MORE TRANSPARENT BUBBLE SORTING INSTEAD
 C               JR NOV 2006
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IINST(NELMNT),IOUTST(NELMNT)
+      IMPLICIT None
+      Integer NELMNT
+      Integer IINST(NELMNT),IOUTST(NELMNT)
+      Integer ISIGN,IPRNT
+
+      Integer iTemp, iPass, I
+
       IF(NELMNT.EQ.0) RETURN
+
       ISIGN=1
       iTEMP=0
 
@@ -1511,7 +1584,6 @@ c        CALL IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
 c        WRITE(6,*) ' ISIGN : ', ISIGN
 c      END IF
 C
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRNT)
       END SUBROUTINE ORDSTR_MCLR
@@ -1540,13 +1612,18 @@ c Avoid unused argument warnings
 *     REEXPRESS THIS AS S VALUES OF ALL COUPLINGS
 *
 * THE TWO PROCEDURES ARE IDENTICAL .
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION INSTRN(NOPEN),UTSTRN(NOPEN)
+      use Constants, only: Half
+      IMPLICIT NONE
+      Integer, Intent(In):: NOPEN
+      Integer, Intent(In):: INSTRN(NOPEN)
+      REAL*8, Intent(Out):: UTSTRN(NOPEN)
+
+      Integer IOPEN
 *
-      UTSTRN(1) = DBLE(INSTRN(1)) - 0.5D0
-      DO 10 IOPEN = 2, NOPEN
-        UTSTRN(IOPEN) = UTSTRN(IOPEN-1) +DBLE(INSTRN(IOPEN))-0.5D0
-10    CONTINUE
+      UTSTRN(1) = DBLE(INSTRN(1)) - Half
+      DO IOPEN = 2, NOPEN
+        UTSTRN(IOPEN) = UTSTRN(IOPEN-1) +DBLE(INSTRN(IOPEN))-Half
+      END DO
 *
       END SUBROUTINE MSSTRN
 *
@@ -1574,15 +1651,23 @@ c Avoid unused argument warnings
 *  ICONF is written so closed orbitals are given first and then single
 *  occupied orbitals
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-*.Input
-      DIMENSION NCNFTP(*)
+      IMPLICIT None
+      Integer NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL
 *.Output
-      DIMENSION ICONF(*)
+      Integer, Intent(Out)::ICONF(*)
+*.Input
+      Integer, Intent(In):: NCNFTP(*)
 *.Scratch
-      DIMENSION IIOC(*),IICL(*),IIOP(*)
+      Integer IIOC(*),IICL(*),IIOP(*)
+      Integer IPRNT
 *
+! local variables
       Logical Test
+      Integer NTEST,IORB1F,IORB1L,IORB2F,IORB2L,IORB3F,IORB3L,NORB,
+     &        JCONF,ICFREE,MINCL1,NOP,ITYPE,NCL,ICL,IFRSTC,IORB,
+     &        IPLACE,IPRORB,NEWORB,IEL1C,IEL3C,ICL1,IIICHK,MXMPTY,
+     &        IOP,IFRSTO,IEL1,IEL3,IR3CHK,IFSTR3,K,KEL,KORB,ISYM,I,
+     &        IBAS,IOPEN,IOC,LICONF,ISYMCN_MCLR
 *
       NTEST = 0000
 
@@ -1869,7 +1954,7 @@ C
 *----------------------------------------------------------------------
 *
       SUBROUTINE ICISPS(IPRNT)
-      Use Str_Info
+      Use Str_Info, only: STR, NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
 *
 * Number of dets and combinations
@@ -1877,7 +1962,12 @@ C
 *
 * Jeppe Olsen , Winter 1991
 * Last revision April 1991
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
+      Integer IPRNT
+
+! local variables
+      Integer MXCEXP,ICI,ISYM,IATP,IBTP,IIDC,NTEST,MX,MXS,MXSOO,NCOMB
+      Real*8 XNCOMB
 *
 * ===================
 *.Input common blocks
@@ -1991,11 +2081,20 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
 *
 * Updated with IBLTP, Summer of 93
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION IEL1A(*),IEL3A(*)
-      DIMENSION IEL1B(*),IEL3B(*)
-      DIMENSION NSSOA(NOCTPA,*),NSSOB(NOCTPB,*)
-      DIMENSION IBLTP(*)
+      IMPLICIT None
+      Integer MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,
+     &                  NSMST,NOCTPA,NOCTPB
+      Integer IEL1A(*),IEL1B(*)
+      Integer NSSOA(NOCTPA,*),NSSOB(NOCTPB,*)
+      Integer IEL3A(*),IEL3B(*)
+      Integer NCOMB
+      Real*8 XNCOMB
+      Integer MXSB,MXSOOB
+      Integer IBLTP(*)
+
+! local variables
+      Integer IASM,LSB,IBSM,ISYM,IATP,MXBTP,IBTP,IEL1,IEL3,LTTSBL,
+     &        LTTSUP,NTEST
 *
       MXSB = 0
       MXSOOB = 0
