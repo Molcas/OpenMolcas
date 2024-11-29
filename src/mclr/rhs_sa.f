@@ -15,10 +15,10 @@
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
       use MCLR_Data, only: ISTATE
+      use files_mclr, only: LuJob
       Implicit None
 
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "dmrginfo_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
