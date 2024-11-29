@@ -15,6 +15,7 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine DmpLLs(iDskPt)
 
 use LnkLst, only: DmpLst, Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy
@@ -25,7 +26,9 @@ implicit none
 integer(kind=iwp), intent(out) :: iDskPt(5)
 
 if (Init_LLs) then
-  !call StatLLs()
+# ifdef _DEBUGPRINT_
+  call StatLLs()
+# endif
   call DmpLst(LLGrad,LuGrd,iDskPt(1))
   call DmpLst(LLDgrd,LuDGd,iDskPt(2))
   call DmpLst(LLDelt,LuDel,iDskPt(3))

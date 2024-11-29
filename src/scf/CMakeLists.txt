@@ -126,7 +126,6 @@ set (sources
      start3.F90
      start6.F90
      statlls.F90
-     stllst.F90
      swiopt.F90
      sym.F90
      trafck.F90

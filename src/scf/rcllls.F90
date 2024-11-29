@@ -15,6 +15,7 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine RclLLs(iDskPt)
 
 use InfSCF, only: MemRsv
@@ -31,7 +32,9 @@ call RclLst(LLDelt,LuDel,iDskPt(3),MemRsv)
 call RclLst(LLy,Lux,iDskPt(4),MemRsv)
 call RclLst(LLx,Luy,iDskPt(5),MemRsv)
 Init_LLs = .true.
-!call StatLLs()
+#ifdef _DEBUGPRINT_
+call StatLLs()
+#endif
 
 return
 

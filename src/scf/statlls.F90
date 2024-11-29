@@ -17,7 +17,7 @@
 
 subroutine StatLLS()
 
-use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy
+use LnkLst, only: Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy, StlLst
 use Definitions, only: u6
 
 implicit none
