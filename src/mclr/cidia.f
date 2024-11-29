@@ -17,6 +17,7 @@
       use negpre, only: nGP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI
+      use incdia_data, only: ipDia
       Implicit None
       Integer iSym
       Real*8 ralp
@@ -24,7 +25,6 @@
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "incdia.fh"
 
 #include "Input.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
