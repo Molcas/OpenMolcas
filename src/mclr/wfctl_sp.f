@@ -33,7 +33,6 @@
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
 *
-#include "disp_mclr.fh"
 #include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
