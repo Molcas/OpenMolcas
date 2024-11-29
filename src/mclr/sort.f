@@ -9,14 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine MMSort(A,B,ldisp1)
-      Implicit Real*8 (a-h,o-z)
-
-#include "Input.fh"
-#include "disp_mclr.fh"
+      use disp_mclr
+      Implicit None
       Real*8 A(*),B(*)
+#include "Input.fh"
       integer ldisp1(nsym)
+
       logical geomi,geomj
+      integer ijD,iG,ijG,iii,iSym,iDisp,jDisp,ijD1,jG,ijG1
+
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+
       ijG=0
       ijD=0
       iii=0
@@ -44,5 +48,4 @@
        ijD=ijD+ldisp(isym)*(ldisp(isym)+1)/2
        iii=iii+ldisp(isym)
       End do
-      return
-      end
+      end Subroutine MMSort
