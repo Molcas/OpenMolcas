@@ -18,7 +18,7 @@ subroutine procinp_caspt2
                            ipea_shift, imag_shift, real_shift
   use caspt2_global, only: do_grad, do_nac, do_csf, do_lindep, &
                              if_invar, iRoot1, iRoot2, if_invaria, &
-                             ConvInvar, if_SSDM, CompressMPS
+                             ConvInvar, if_SSDM
   use caspt2_global, only: IDCIEX
   use PrintLevel, only: terse
   use UnixInfo, only: SuperName
@@ -32,6 +32,7 @@ subroutine procinp_caspt2
   use qcmaquis_interface, only:qcmaquis_interface_init_checkpoint, &
     qcmaquis_interface_set_param, qcmaquis_interface_remove_param
 #endif
+  use caspt2_global, only: CompressMPS
 ! NOT TESTED
 #if 0
   use OFembed, only:Do_OFemb
