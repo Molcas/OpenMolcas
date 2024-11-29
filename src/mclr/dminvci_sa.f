@@ -12,10 +12,10 @@
       use ipPage, only: W
       use negpre
       use MCLR_Data, only: nConf1, ipCI
+      use incdia_data, only: ipDia
       Implicit None
       Integer ipSigma
 #include "Input.fh"
-#include "incdia.fh"
       Real*8 rout(*),rcoeff(mxroot),alpha(mxRoot),
      &       S(nroots,nroots,nroots)
       Integer, External:: ipIn
