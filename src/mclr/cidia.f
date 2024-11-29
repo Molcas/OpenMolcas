@@ -17,7 +17,7 @@
       use negpre, only: nGP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
       Integer iSym
       Real*8 ralp

@@ -12,7 +12,7 @@
       use ipPage, only: W
       use Constants, only: Half
       use MCLR_Data, only: nConf1, ipCI
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
       Integer idSym
       Real*8 rout(*),rin(*), rome

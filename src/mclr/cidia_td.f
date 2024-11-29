@@ -14,7 +14,7 @@
       use Exp, only: nexp, nexp_max
       use Str_Info, only: CNSM
       use ipPage, only: W
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
       Integer iSym
 #include "detdim.fh"

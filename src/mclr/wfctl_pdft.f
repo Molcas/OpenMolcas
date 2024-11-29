@@ -30,7 +30,7 @@
       use Constants, only: Zero, One, Two
       use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI,nAcPar,nNA,
      &                    nAcPr2,ipMat
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

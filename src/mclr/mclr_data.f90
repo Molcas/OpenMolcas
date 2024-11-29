@@ -31,4 +31,8 @@ integer  nrec
 
 !Stuff from csfsd.fh
 Integer i1,iAnders,lconf,lldet,iAllo
+
+!Stuff from incdia.fh
+integer ipdia
+
 End Module MCLR_Data

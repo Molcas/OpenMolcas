@@ -25,7 +25,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

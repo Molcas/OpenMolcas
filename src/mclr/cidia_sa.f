@@ -14,7 +14,7 @@
       use Str_Info, only: CNSM
       use ipPage, only: W
       use MCLR_Data, only: ipCI
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
       Integer iSym
       Real*8 ralp(*),S(*)

@@ -26,7 +26,7 @@
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: nConf1,nDens2,nNA,nDensC,nDens,ipCI,n1Dens
       use MCLR_Data, only: RMS, rAlpha
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

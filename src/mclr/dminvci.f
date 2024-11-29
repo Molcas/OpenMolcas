@@ -14,7 +14,7 @@
       use negpre
       use Constants, only: Zero, One, Half
       use MCLR_Data, only: nConf1, ipCI
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
       Integer ipSIgma, idSym
       Real*8 rout(*), rC_HE_C

@@ -12,7 +12,7 @@
       use ipPage, only: W
       use negpre
       use MCLR_Data, only: nConf1, ipCI
-      use incdia_data, only: ipDia
+      use MCLR_Data, only: ipDia
       Implicit None
       Integer ipSigma
 #include "Input.fh"
