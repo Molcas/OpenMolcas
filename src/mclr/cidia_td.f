@@ -14,13 +14,13 @@
       use Exp, only: nexp, nexp_max
       use Str_Info, only: CNSM
       use ipPage, only: W
+      use incdia_data, only: ipDia
       Implicit None
       Integer iSym
 #include "detdim.fh"
 #include "crun_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "incdia.fh"
 #include "Input.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI,
