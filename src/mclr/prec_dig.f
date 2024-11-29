@@ -29,11 +29,11 @@
 *     active; active,general is needed for rasscf calculation          *
 *     and is not coded yet (ugly bastard) (970109, AB )                *
 ************************************************************************
+      use machine_data, only: nrec
       Implicit None
       Integer idsym
       Real*8 rpre(*)
 #include "Input.fh"
-#include "machine.fh"
       Real*8, Allocatable:: JInt(:), KInt(:), Scr(:)
       Real*8, Allocatable:: Temp1(:,:), Temp2(:), Temp3(:), Temp4(:)
 *                                                                      *
