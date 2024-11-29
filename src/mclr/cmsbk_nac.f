@@ -100,6 +100,7 @@
       use ipPage, only: W
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
+      use saxxxx_mclr, only: NACSTATES
       Implicit None
 #include "Input.fh"
 #include "disp_mclr.fh"
@@ -107,7 +108,6 @@
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "sa.fh"
 ******Input
       Real*8,DIMENSION(nRoots**2)::R
       INTEGER nTri,NG2
