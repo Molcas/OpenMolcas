@@ -12,6 +12,7 @@
       use Arrays, only: pINT1, pINT2
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: iST,i12
+      use cprnt_mclr, only: IPRSTR,IPRORB,IPRCIX
 *
       Implicit None
 
@@ -19,7 +20,6 @@
 #include "cands.fh"
 #include "detdim.fh"
 #include "crun_mclr.fh"
-#include "cprnt_mclr.fh"
 #include "cstate_mclr.fh"
 #include "Files_mclr.fh"
 #include "spinfo_mclr.fh"
