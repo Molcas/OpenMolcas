@@ -28,11 +28,11 @@
       use negpre, only: nGP
       Use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
       use MCLR_Data, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,
-     &                       FANCY_PRECONDITIONER,NSSA,NACSTATES
+     &                     FANCY_PRECONDITIONER,NSSA,NACSTATES
+      use disp_mclr, only: DspVec,SwLbl,lDisp
       Implicit None
 #include "Input.fh"
 #include "Files_mclr.fh"
-#include "disp_mclr.fh"
       Character(LEN=72) Line
       Character(LEN=4) Command
       Character(LEN=8) Label
