@@ -108,11 +108,11 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
+      use cicisp_mclr, only: XISPSM
       Implicit None
 
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "crun_mclr.fh"
 
@@ -277,7 +277,6 @@
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "crun_mclr.fh"
 ******Input
