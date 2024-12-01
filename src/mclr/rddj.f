@@ -20,12 +20,12 @@
 *
 *
       use stdalloc, only: mma_allocate, mma_deallocate
+      use files_mclr, only: LuJob
       Implicit None
       Real*8 G1r(*), G1Q(*),G2r(*)
       integer iestate
 #include "Input.fh"
 #include "SysDef.fh"
-#include "Files_mclr.fh"
       Real*8, Allocatable:: G2Q(:)
       Real*8 rdum(1)
       Integer nG1,nG2,iR,jDisk,i,j,iB,jB,iDij,iRij,kB,lB,iDkl,iRkl,
