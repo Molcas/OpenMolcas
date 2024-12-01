@@ -8,6 +8,10 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module cicisp_mclr
+#include "detdim.fh"
+#include "cicisp_mclr.fh"
+save
 !
 ! icisps **
 ! smost ***
@@ -29,22 +33,12 @@
 !     MXSB                 :       Largest symmetry block **
 !     MXSOOB                :       Largest block        **
 !
-      Integer NICISP,IASTFI(MXPICI),IBSTFI(MXPICI),                     &
-     &              IACTI(MXPICI),                                      &
-     &              MNR1IC(MXPICI),MXR1IC(MXPICI),                      &
-     &              MNR3IC(MXPICI),MXR3IC(MXPICI),                      &
-     &              IZCI,                                               &
-     &              IRCI(3,7,7),                                        &
-     &              NELCI(MXPICI),NAELCI(MXPICI),                       &
-     &              NBELCI(MXPICI),                                     &
-     &              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,ldet,lcsf
-        Real*8 XISPSM(MXPCSM,MXPICI)
-      COMMON/XCICISP_MCLR/NICISP,IASTFI,IBSTFI,                         &
-     &              IACTI,                                              &
-     &              MNR1IC,MXR1IC,                                      &
-     &              MNR3IC,MXR3IC,                                      &
-     &              IZCI,                                               &
-     &              IRCI,                                               &
-     &              NELCI,NAELCI,                                       &
-     &              NBELCI,XISPSM,                                      &
-     &              ISMOST,MXSB,MXSOOB,ldet,lcsf
+!Integer NICISP,IASTFI(MXPICI),IBSTFI(MXPICI),IACTI(MXPICI),MNR1IC(MXPICI),MXR1IC(MXPICI),    &
+!        MNR3IC(MXPICI),MXR3IC(MXPICI),IZCI,IRCI(3,7,7),NELCI(MXPICI),NAELCI(MXPICI),NBELCI(MXPICI), &
+!        ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,ldet,lcsf
+!Real*8 XISPSM(MXPCSM,MXPICI)
+Private MXPIRR,MXPOBS,MXPR4T,MXINKA,MXPORB,MXPXOT,MXPXST,MXPSHL, &
+        MXPL,MXPXT,MXPICI,MXPSTT,MXPCSM,MXPCTP,MXCNSM,MXPWRD, &
+        MXNMS,MTYP,MXPNGAS,MXPNSMST,MXPPTSPC
+
+End Module cicisp_mclr
