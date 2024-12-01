@@ -21,7 +21,6 @@
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 
 ******Output
@@ -60,7 +59,6 @@
       implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 ******Output:none
 ******Input:
@@ -105,7 +103,6 @@
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 ******Output
       Real*8,DIMENSION(nDens2)::bk
@@ -142,10 +139,10 @@
       use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
       use MCLR_Data, only: IRLXROOT
       use MCLR_Data, only: LuJob
+      use cicisp_mclr, only: XISPSM
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 ******Input
       Real*8,DIMENSION(nRoots**2)::R
@@ -337,7 +334,6 @@
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"
-#include "cicisp_mclr.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
 ******Purpose: calculate the active 1RDM in AO basis given that in MO

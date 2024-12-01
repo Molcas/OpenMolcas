@@ -21,7 +21,6 @@
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 
 ******Output
@@ -60,7 +59,6 @@
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 ******Output
       Real*8,DIMENSION(nDens2)::bk
@@ -98,10 +96,10 @@
       use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
       use MCLR_Data, only: NACSTATES
       use MCLR_Data, only: LuJob
+      use cicisp_mclr, only: XISPSM
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 ******Input
       Real*8,DIMENSION(nRoots**2)::R
