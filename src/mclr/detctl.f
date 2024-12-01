@@ -14,6 +14,7 @@
       use MCLR_Data, only: iST,i12
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
       use MCLR_Data, only: MS2,idc,PSSIGN
+      use files_mclr, only: FnCSF2SD, LuCSF2SD
 *
       Implicit None
 
@@ -21,7 +22,6 @@
 #include "cands.fh"
 #include "detdim.fh"
 #include "crun_mclr.fh"
-#include "Files_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cicisp_mclr.fh"
       Integer iTmp, nTRas1,nTRas2,nTRas3,iSym,iDum
