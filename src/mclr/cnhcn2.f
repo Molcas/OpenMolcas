@@ -35,7 +35,6 @@
 *. Interface to LUCIA common blocks in order to access strings
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "cicisp_mclr.fh"
 *
       CALL CNHCN2_INTERNAL(SCR)
       RETURN
