@@ -12,14 +12,15 @@
       use Str_Info, only: CNSM
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: iALLO,i1,iAnders
-      Implicit Real*8 (a-h,o-z)
+      use files_mclr, only: LuCSF2SD
+      Implicit None
       Integer iState, State_sym
       Logical GUGA
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
-#include "Files_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer idum(1)
+      Integer iSym,iAdr,i,lConf,llDet,iad
 *
 
 *     Place pointer
