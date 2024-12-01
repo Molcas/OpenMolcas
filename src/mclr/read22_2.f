@@ -25,7 +25,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half
       use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nB
-      use files_mclr, only: LuQDat
+      use MCLR_Data, only: LuQDat
       Implicit None
       Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Scr(*),Temp3(ndens2)

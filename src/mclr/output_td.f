@@ -38,7 +38,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, nDensC
       use MCLR_Data, only: nHess, lDisp
-      use files_mclr, only: LuTEMP
+      use MCLR_Data, only: LuTEMP
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"

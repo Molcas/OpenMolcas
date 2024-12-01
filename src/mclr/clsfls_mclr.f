@@ -24,7 +24,7 @@
 *                                                                      *
 ************************************************************************
       use MCLR_Data, only: SA
-      use files_mclr, only: FnMck,LuCSF2SD,LuJob,LuMck,LuQDat,LuTemp,
+      use MCLR_Data, only: FnMck,LuCSF2SD,LuJob,LuMck,LuQDat,LuTemp,
      &                      LuTri1
       Implicit None
 #include "Input.fh"

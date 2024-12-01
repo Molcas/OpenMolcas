@@ -16,7 +16,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use files_mclr, only: FnOne,FnJob,FnTwo,FnMol,FnRlx,FnMck,FnTemp,
+      use MCLR_Data, only: FnOne,FnJob,FnTwo,FnMol,FnRlx,FnMck,FnTemp,
      &                             FnHlf2,FNHlf3,       FnPT2,FNTrI1,
      &                      FNTrI2,FNTRi3,FNTRI4,FNTRI5,FNCSF2SD,
      &                      FnMOTRA,FnQDAT,LuOne,LuJob,LuTwo,LuMol,

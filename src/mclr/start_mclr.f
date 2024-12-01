@@ -26,7 +26,7 @@
       use transform_procedures, only: SetUp_CASPT2_Tra
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2
-      use files_mclr, only: LuTri1,LuMotra,FnTri1,FnMotra,FnQDat,LuHlf2,
+      use MCLR_Data, only: LuTri1,LuMotra,FnTri1,FnMotra,FnQDat,LuHlf2,
      &                      LuHlf3,LuQDat,LuTri2
       Implicit None
 

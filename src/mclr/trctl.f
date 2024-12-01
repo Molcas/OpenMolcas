@@ -12,9 +12,9 @@
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use MCLR_Data, only: ipCM
-      use files_mclr, only: FnHlf2,FnHlf3,FnTri1,FnTri2,FnTri3,FnTri4,
+      use MCLR_Data, only: FnHlf2,FnHlf3,FnTri1,FnTri2,FnTri3,FnTri4,
      &                      FnTri5
-      use files_mclr, only: LuHlf2,LuHlf3,LuTri1,LuTri2,LuTri3,LuTri4,
+      use MCLR_Data, only: LuHlf2,LuHlf3,LuTri1,LuTri2,LuTri3,LuTri4,
      &                      LuTri5
 *
 *     Two-electron integral transformation program: control section

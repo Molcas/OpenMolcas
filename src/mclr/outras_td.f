@@ -29,7 +29,7 @@
        use stdalloc, only: mma_allocate, mma_deallocate
        use MCLR_Data, only: nConf1, nDensC, nDens2
        use MCLR_Data, only: DspVec, lDisp
-       use files_mclr, only: LuTEMP
+       use MCLR_Data, only: LuTEMP
        Implicit None
 #include "detdim.fh"
 #include "Input.fh"

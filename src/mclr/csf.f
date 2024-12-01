@@ -372,7 +372,7 @@ C?    END IF
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: i1,iAnders,lConf,llDET
       use MCLR_Data, only: iRefSM,iDC,MS2,PSSIGN
-      use files_mclr, only: LuCSF2SD
+      use MCLR_Data, only: LuCSF2SD
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym

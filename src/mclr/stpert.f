@@ -19,7 +19,7 @@
       use MCLR_Data, only: RMS, rBetaA, rBetaS
       use MCLR_Data, only: lDisp,SwLbl
       use MCLR_Data, only: MS2
-      use files_mclr, only: FnMck,LuMck
+      use MCLR_Data, only: FnMck,LuMck
       Implicit None
 
 #include "Input.fh"

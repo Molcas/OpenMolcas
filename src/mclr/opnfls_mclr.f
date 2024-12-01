@@ -21,7 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use files_mclr, only: FnPT2,FnMck,FnOne,FnTemp,FnTwo,LuMck,LuTEMP,
+      use MCLR_Data, only: FnPT2,FnMck,FnOne,FnTemp,FnTwo,LuMck,LuTEMP,
      &                      LuTwo
       Implicit None
 #include "Input.fh"

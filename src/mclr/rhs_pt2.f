@@ -11,7 +11,7 @@
 * Copyright (C) 1998, Anders Bernhardsson                              *
 ************************************************************************
       Subroutine RHS_PT2(rkappa,CLag,SLag)
-      use files_mclr, only: LuPT2
+      use MCLR_Data, only: LuPT2
       Implicit None
       Real*8 rKappa(*),CLag(*),SLag(*)
 

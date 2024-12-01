@@ -58,7 +58,7 @@ c Avoid unused argument warnings
       Contains
       Subroutine TRAMO_MCLR_INTERNAL(Buffer)
       Use Iso_C_Binding
-      use files_mclr, only:FnHlf2,FnHlf3,LuHlf2,LuHlf3,LuTri1,LuTri2,
+      use MCLR_Data, only:FnHlf2,FnHlf3,LuHlf2,LuHlf3,LuTri1,LuTri2,
      &                     LuTri3,LuTri4,LuTri5,NoFile
       Implicit None
       Real*8, Target :: Buffer(*)

@@ -141,7 +141,7 @@
       use Constants, only: One, Two
       use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
       use MCLR_Data, only: IRLXROOT
-      use files_mclr, only: LuJob
+      use MCLR_Data, only: LuJob
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"

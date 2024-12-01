@@ -14,7 +14,7 @@
       use MCLR_Data, only: iST,i12
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
       use MCLR_Data, only: MS2,idc,PSSIGN
-      use files_mclr, only: FnCSF2SD, LuCSF2SD
+      use MCLR_Data, only: FnCSF2SD, LuCSF2SD
 *
       Implicit None
 

@@ -55,7 +55,7 @@
       use MCLR_Data, only: nrec
       use MCLR_Data, only: iAllo
       use MCLR_Data, only: SA,NACSTATES
-      use files_mclr, only: LuPT2
+      use MCLR_Data, only: LuPT2
       Implicit None
 #include "Input.fh"
 #include "warnings.h"

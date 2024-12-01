@@ -27,7 +27,7 @@
       use MCLR_Data, only: nConf1,nDens2,nNA,nDensC,nDens,ipCI,n1Dens
       use MCLR_Data, only: RMS, rAlpha
       use MCLR_Data, only: ipDia
-      use files_mclr, only: LuTemp
+      use MCLR_Data, only: LuTemp
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

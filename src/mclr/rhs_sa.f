@@ -15,7 +15,7 @@
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
       use MCLR_Data, only: ISTATE
-      use files_mclr, only: LuJob
+      use MCLR_Data, only: LuJob
       Implicit None
 
 #include "Input.fh"

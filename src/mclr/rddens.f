@@ -11,7 +11,7 @@
       Subroutine RdDens(d1,nd1,d2,nd2)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
-      use files_mclr, only: LuJob
+      use MCLR_Data, only: LuJob
       Implicit None
       Integer nd1, nd2
       Real*8 D1(nd1),d2(nd2)

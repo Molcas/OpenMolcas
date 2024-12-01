@@ -20,7 +20,7 @@
      &                     nA, nDens2, nDensC
       use MCLR_Data, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,
      &                     NACSTATES
-      use files_mclr, only: LuTEMP, LuJob, LuPT2
+      use MCLR_Data, only: LuTEMP, LuJob, LuPT2
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"

@@ -32,7 +32,7 @@
      &                    nAcPr2,ipMat
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
-      use files_mclr, only: LuTemp
+      use MCLR_Data, only: LuTemp
 
       Implicit None
 #include "Input.fh"

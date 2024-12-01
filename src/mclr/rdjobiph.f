@@ -28,7 +28,7 @@
       use MCLR_Data, only: nA, nNA
       use MCLR_Data, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,
      &                     NACSTATES
-      use files_mclr, only: FnJob,FnMck,LuJob,LuMck
+      use MCLR_Data, only: FnJob,FnMck,LuJob,LuMck
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)
 

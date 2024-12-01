@@ -12,7 +12,7 @@
       use Str_Info, only: CNSM
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: iALLO,i1,iAnders
-      use files_mclr, only: LuCSF2SD
+      use MCLR_Data, only: LuCSF2SD
       Implicit None
       Integer iState, State_sym
       Logical GUGA

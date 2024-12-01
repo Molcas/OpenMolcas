@@ -28,7 +28,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: SA,ISTATE
-      use files_mclr, only: LuPT2
+      use MCLR_Data, only: LuPT2
       Implicit None
       Integer iPL
 #include "Input.fh"

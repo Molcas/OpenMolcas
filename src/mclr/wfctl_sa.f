@@ -27,7 +27,7 @@
       use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
-      use files_mclr, only: LuTemp, LuQDat
+      use MCLR_Data, only: LuTemp, LuQDat
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

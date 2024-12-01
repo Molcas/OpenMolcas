@@ -97,7 +97,7 @@
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
       use MCLR_Data, only: NACSTATES
-      use files_mclr, only: LuJob
+      use MCLR_Data, only: LuJob
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"

@@ -28,7 +28,7 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: ISNAC,OVERRIDE,IRLXROOT,ISMECIMSPD,
      &                       NACSTATES
-      use files_mclr, only: LuTemp, LuQDat
+      use MCLR_Data, only: LuTemp, LuQDat
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
