@@ -24,10 +24,10 @@
       Use Arrays, only: CMO, G2t, G2sq, G1t
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA, nA
+      use files_mclr, only: FnJob, LuJob
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "SysDef.fh"
       Character(LEN=72) Line
       Real*8 rdum(1)
