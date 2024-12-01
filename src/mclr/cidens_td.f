@@ -12,11 +12,11 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
+      use cicisp_mclr, only: XISPSM
       Implicit None
       Integer iCI, iS
       Real*8 rP(*),rD(*)
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "crun_mclr.fh"
 #include "Input.fh"
 #include "spinfo_mclr.fh"
