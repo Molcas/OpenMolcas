@@ -28,10 +28,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: SA,ISTATE
+      use files_mclr, only: LuPT2
       Implicit None
       Integer iPL
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
