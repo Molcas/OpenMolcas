@@ -16,6 +16,7 @@
       use MCLR_Data, only: nConf1, ipCM, ipMat
       use MCLR_Data, only: i12, iST, Square
       use MCLR_Data, only: iRefSM
+      use cicisp_mclr, only: XISPSM
       Implicit None
       Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
@@ -24,8 +25,6 @@
 #include "Input.fh"
 #include "cands.fh"
 #include "detdim.fh"
-
-#include "cicisp_mclr.fh"
        integer kic(2),opout
        Real*8, Allocatable:: CIDET(:)
        integer nDet, iOp, iS, jS, iRC, i
