@@ -25,11 +25,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half
       use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nB
+      use files_mclr, only: LuQDat
       Implicit None
       Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Scr(*),Temp3(ndens2)
 #include "Input.fh"
-#include "Files_mclr.fh"
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
       Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,
