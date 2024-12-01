@@ -30,9 +30,9 @@
       use MCLR_Data, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,
      &                     FANCY_PRECONDITIONER,NSSA,NACSTATES
       use MCLR_Data, only: DspVec,SwLbl,lDisp
+      use files_mclr, only: NoFile
       Implicit None
 #include "Input.fh"
-#include "Files_mclr.fh"
       Character(LEN=72) Line
       Character(LEN=4) Command
       Character(LEN=8) Label
