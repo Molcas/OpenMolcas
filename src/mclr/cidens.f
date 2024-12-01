@@ -13,13 +13,13 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
+      use cicisp_mclr, only: XISPSM
       Implicit None
       Logical Response
       Integer iLS, iRS, iL, iR
       Real*8 rP(*),rD(*)
 
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "crun_mclr.fh"
 
 #include "Input.fh"
