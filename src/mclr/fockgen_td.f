@@ -36,6 +36,13 @@
       Integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA,
      &        ip1, ip2, ip3
       Real*8 rd, rd1, rd2
+      Interface
+         SubRoutine AddGrad2(rMat,fact)
+         Implicit None
+         Real*8 fact
+         Real*8 rMat(*)
+         End SubRoutine AddGrad2
+      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

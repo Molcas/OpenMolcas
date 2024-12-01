@@ -11,7 +11,7 @@
       Subroutine InCSFSD(iState,State_sym,GUGA)
       use Str_Info, only: CNSM
       use stdalloc, only: mma_allocate
-      use MCLR_Data, only: iALLO
+      use MCLR_Data, only: iALLO,i1,iAnders
       Implicit Real*8 (a-h,o-z)
       Integer iState, State_sym
       Logical GUGA

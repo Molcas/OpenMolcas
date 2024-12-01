@@ -54,7 +54,7 @@
       use Constants, only: Zero, Half, One
       use MCLR_Data, only: nMBA, nDens2, nCMO, ipCM, ipMat, ipMO, nB
       Implicit None
-      real*8 rmo1(nMba),rmo2(nmba),FockI(nDens2),FockA(nDens2)
+      real*8 rmo1(nMBA),rmo2(nMBA),FockI(nDens2),FockA(nDens2)
       Integer nTemp
       real*8 Temp1(ntemp),Temp2(nDens2),Temp3(nDens2),Temp4(nDens2),
      &       DI13(nDens2),DI24(nDens2),DI(nCMO),

@@ -29,7 +29,7 @@
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
       Implicit None
-      Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
+      Real*8 rKappa(nDens2),rMO1(nMBA),rMO2(nMBA),FockI(nDens2),
      &       FockA(nDens2)
       Integer nF,iDSym,jSpin
       Real*8 sign,Fact
@@ -45,24 +45,27 @@
 ************************************************************************
 *                                                                      *
       Interface
-        SubRoutine Read2_ns(rMO1,rMO2,FockI,FockA,
-     &                      Temp1,nTemp,Temp2,Temp3,Temp4,
-     &                      DI13,DI24,DI,
-     &                      DA13,DA24,DA,
-     &                      rkappa,idsym,
-     &                      Signa,Fact,jSpin,lfat,lfit,lMOt,CMO)
-           Real*8 rmo1(*), rmo2(*), FockA(*), FockI(*), Temp1(ntemp)
-           Integer ntemp
-           Real*8 Temp2(*), Temp3(*), Temp4(*),
-     &            DI13(*), DI24(*), DI(*),
-     &            DA13(*), DA24(*), DA(*),
-     &            rkappa(*)
-           Integer idsym
-           Real*8 Signa,Fact
-           Integer jSpin
-           Logical lFAt,lFIt,lmot
-           Real*8 CMO(*)
-        End SubRoutine Read2_ns
+      SubRoutine Read2_ns(rMO1,rMO2,FockI,FockA,
+     &                  Temp1,nTemp,Temp2,Temp3,Temp4,
+     &                  DI13,DI24,DI,
+     &                  DA13,DA24,DA,
+     &                  rkappa,idsym,
+     &                  Signa,Fact,jSpin,lfat,lfit,lMOt,CMO)
+      use MCLR_Data, only: nMBA, nDens2, nCMO
+      Implicit None
+      real*8 rmo1(nMBA),rmo2(nMBA),FockI(nDens2),FockA(nDens2)
+      Integer nTemp
+      real*8 Temp1(ntemp),Temp2(nDens2),Temp3(nDens2),Temp4(nDens2),
+     &       DI13(nDens2),DI24(nDens2),DI(nCMO),
+     &       DA13(nDens2),DA24(nDens2),DA(nCMO),
+     &       rkappa(nDens2)
+      Integer iDSym
+      real*8 Signa,Fact
+      Integer jSpin
+      Logical lFAt,lFIT,lmot
+      real*8 CMO(nCMO)
+
+      End SubRoutine Read2_ns
       End Interface
 *                                                                      *
 ************************************************************************
