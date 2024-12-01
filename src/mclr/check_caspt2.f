@@ -31,7 +31,6 @@ C
       Implicit None
       Integer Mode
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
