@@ -29,10 +29,10 @@
        use stdalloc, only: mma_allocate, mma_deallocate
        use MCLR_Data, only: nConf1, nDensC, nDens2
        use MCLR_Data, only: DspVec, lDisp
+       use files_mclr, only: LuTEMP
        Implicit None
 #include "detdim.fh"
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "cicisp_mclr.fh"
        Integer iKapDisp(nDisp),iCiDisp(nDisp)
 
