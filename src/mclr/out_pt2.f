@@ -19,11 +19,11 @@
       use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens,
      &                     nA, nDens2, nDensC
       use MCLR_Data, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,
-     &                       NACSTATES
+     &                     NACSTATES
+      use files_mclr, only: LuTEMP, LuJob, LuPT2
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "cicisp_mclr.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
