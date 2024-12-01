@@ -19,7 +19,6 @@
       use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
       Implicit None
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
@@ -128,7 +127,6 @@
       INTEGER NPUVX
       INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp,nRS
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
@@ -320,7 +318,6 @@
       use MCLR_Data, only: nNA,n2Dens,ipCI,n1Dens
       Implicit None
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "detdim.fh"
 #include "cicisp_mclr.fh"
 *      Input
