@@ -78,4 +78,15 @@ Integer IREFSM,IREFML,IREFPA,IREFL,MS2,MULTS,NROOT,IDC,INTSEL,IALIGN,   &
         NGENSYM,IGENSYM(100),INVSYM,IKRAM
 Real*8 PSSIGN,PLSIGN, ETHRES,CTHRES
 
+! Stuff from Files_mclr.fh
+Character(LEN=8) FnOne,FnJob,FnTwo,FnMol,FnRlx,FnMck,FnTemp,           &
+                 FnHlf1,FnHlf2,FNHlf3,FNHlf4,FnPT2,                    &
+                 FNTrI1,FNTrI2,FNTRi3,FNTRI4,FNTRI5,FNCSF2SD,FnMOTRA,  &
+                 FnQDAT
+Integer LuOne,LuJob,LuTwo,LuMol,LuRlx,LuMck,LuTemp,                    &
+        LUHLF1,LUHlf2,LUHlf3,LUHLF4,LuPt2,                      &
+        LUTrI1,LUTrI2,LUTRi3,LUTRI4,LUTRI5,LUCSF2SD,LuMOTRA,    &
+        LuQDAT
+Logical Nofile
+
 End Module MCLR_Data
