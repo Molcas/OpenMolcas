@@ -55,6 +55,7 @@
       use MCLR_Data, only: nrec
       use MCLR_Data, only: iAllo
       use MCLR_Data, only: SA,NACSTATES
+      use files_mclr, only: LuPT2
       Implicit None
 #include "Input.fh"
 #include "warnings.h"
@@ -64,8 +65,6 @@
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
      &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
-
-#include "Files_mclr.fh"
 
       Logical Reduce_Prt
       External Reduce_Prt
