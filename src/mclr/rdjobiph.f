@@ -28,11 +28,11 @@
       use MCLR_Data, only: nA, nNA
       use MCLR_Data, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,
      &                     NACSTATES
+      use files_mclr, only: FnJob,FnMck,LuJob,LuMck
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)
 
 #include "Input.fh"
-#include "Files_mclr.fh"
 #include "SysDef.fh"
 #include "dmrginfo_mclr.fh"
       Character(LEN=72) Line
