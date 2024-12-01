@@ -24,8 +24,9 @@
 *                                                                      *
 ************************************************************************
       use MCLR_Data, only: SA
+      use files_mclr, only: FnMck,LuCSF2SD,LuJob,LuMck,LuQDat,LuTemp,
+     &                      LuTri1
       Implicit None
-#include "Files_mclr.fh"
 #include "Input.fh"
       Logical DoCholesky
       Integer AixRm, iRC,iOpt
