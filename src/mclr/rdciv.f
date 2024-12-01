@@ -24,9 +24,9 @@
       use negpre, only: ERAS, LuCIV
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
+      use files_mclr, only: LuJob
       Implicit None
 #include "Input.fh"
-#include "Files_mclr.fh"
       Real*8, Allocatable:: OCIvec(:), Tmp(:)
       Integer iDisk, iDisk1, i, Iter
       Real*8 Temp
