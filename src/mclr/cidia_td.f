@@ -15,11 +15,11 @@
       use Str_Info, only: CNSM
       use ipPage, only: W
       use MCLR_Data, only: ipDia
+      use cicisp_mclr, only: XISPSM
       Implicit None
       Integer iSym
 #include "detdim.fh"
 #include "crun_mclr.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "Input.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
