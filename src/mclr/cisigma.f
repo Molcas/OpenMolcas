@@ -8,22 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
-     &                    Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
-       use ipPage, only: W
-       use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
-       use stdalloc, only: mma_allocate, mma_deallocate
-       use MCLR_Data, only: nConf1, ipCM, ipMat
-       use MCLR_Data, only: i12,iST,Square
-       use MCLR_Data, only: iRefSM
-       Implicit None
-       Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
-       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-       Logical Have_2_el
+      SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                   Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+      use ipPage, only: W
+      use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: nConf1, ipCM, ipMat
+      use MCLR_Data, only: i12,iST,Square
+      use MCLR_Data, only: iRefSM
+      use cicisp_mclr, only: XISPSM
+      Implicit None
+      Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
+      Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+      Logical Have_2_el
 #include "Input.fh"
 #include "cands.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
        integer kic(2),opout
        Real*8, Allocatable:: CIDET(:)
        integer nDet, iOp, iS, jS, iRC
