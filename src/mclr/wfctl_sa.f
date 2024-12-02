@@ -28,6 +28,7 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
       use MCLR_Data, only: LuTemp, LuQDat
+      use cicisp_mclr, only: XISPSM
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
@@ -37,7 +38,6 @@
       Integer iPL
 *
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
 
