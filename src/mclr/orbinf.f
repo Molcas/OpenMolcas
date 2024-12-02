@@ -25,11 +25,21 @@
 * ======
 * Orbital information in /ORBINP/
 *
-      DIMENSION NRAS1(NIRREP),NRAS2(NIRREP),NRAS3(NIRREP)
-      DIMENSION ITFSO(1)
+      use orbinp_mclr, only: NORB1,NORB2,NORB3,NORB4,NINOB,NDEOB,NACOB,
+     &                       NOCOB,NTOOB,NRSOBS,ITOOBS,NORB0,IBSO,
+     &                       IBTSOB,IOBPTS,IOSPIR,IREOST,IREOTS,ISMFSO,
+     &                       ISMFTO,ITPFTO,ITSOB,NACOBS,NDEOBS,NINOBS,
+     &                       NOBPT,NOBPTS,NOCOBS,NOSPIR,NR0OBS,NR4OBS,
+     &                       NTOOBS,NTSOB
+      IMPLICIT NONE
+      INTEGER NIRREP,NSMOB,MXR4tp,IPRNT
+      INTEGER NRAS1(NIRREP),NRAS2(NIRREP),NRAS3(NIRREP)
+
+*     Local variables
+      INTEGER ITFSO(1)
+      INTEGER NTEST,IPIRR,IRREP,ISM,IISM,IPR4T,ISMOB,I
 *
 #include "detdim.fh"
-#include "orbinp_mclr.fh"
 *
 *
       NTEST = 0000
@@ -141,5 +151,4 @@
      *     ISMFSO,ITPFTO,NOBPT)
 *
 *
-      RETURN
-      END
+      END SUBROUTINE ORBINF_MCLR
