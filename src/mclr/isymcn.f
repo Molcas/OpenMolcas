@@ -8,28 +8,29 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION ISYMCN_MCLR(ICL,IOP,NCL,NOPEN)
+      INTEGER FUNCTION ISYMCN_MCLR(ICL,IOP,NCL,NOPEN)
 *
 * Master routine for symmetry of configuration
 * with NCL doubly occupied orbitals and NOPEN singly occupied shells
 *
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
+      use orbinp_mclr, only: ISMFTO
+      IMPLICIT None
       INTEGER ICL(*),IOP(*)
+      INTEGER NCL,NOPEN
+
+      INTEGER IEL,IVV,JVV,KVV
 *
       ISYMCN_MCLR = 1
-      DO 100 IEL = 1, NOPEN
-cVV: this ugly code needed for CRAY SV1
+      DO IEL = 1, NOPEN
         IVV=ISYMCN_MCLR-1
         JVV=ISMFTO(IOP(IEL))-1
         KVV = IEOR(IVV,JVV)
         ISYMCN_MCLR = KVV+1
-100   CONTINUE
+      END DO
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
          CALL Unused_integer_array(ICL)
          CALL Unused_integer(NCL)
       END IF
-      END
+      END FUNCTION ISYMCN_MCLR
