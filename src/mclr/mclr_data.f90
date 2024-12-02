@@ -158,4 +158,58 @@ Integer MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,       &
         ISUPSP,IREDSTP,IDMPIN,MAXRIT,MAXI,MAXK,NOPART,        &
         NOHSOO,IDENMT
 
+! Stuff from crun_mclr.fh
+!
+!        NINOB                :        Inactive orbitals         (0)
+!        NACOB                :        Active orbiatls
+!        NDEOB                :        Deleted                        (0)
+!        NOCOB                :        Occupied
+!        NTOOB                :        Total
+!        NORB1                :        RAS1
+!        NORB2                :        RAS2
+!        NORB3                :        RAS3
+!        NORB4                :        RAS4                        (0)
+!        NOSPIR                :        ?                        (1)
+!        IOSPIR(1,is)        :        ?                        iS
+!        NINOBS                :        Inactive/symmetry        (0)
+!        NR0OBS                :        Ras0/symmetry                (0)
+!        NRSOBS                :        RASX/symmetry
+!        NR4OBS                :        RAS4/symmetry                (0)
+!        NACOBS                :        RAS/symmetry            (i)
+!        NOCOBS                :        Occ/symmetry                (i)
+!        NTOOBS                :        Orb/symmetry                (i)
+!        NDEOBS                :        Deleted/symmetry        (0)
+!        NRs4To                :         Not in use
+!         IREOTS                 :         Reordering array type     => symmetry
+!          IREOST                 :         Reordering array symmetry => type
+!          ISMFTO          :         Symmetry array for type ordered orbitals
+!        ITPFSO                :        Not in use
+!          IBSO                   :         First orb of given symmetry (symmetry ordered)
+!          NTSOB                  :         Number of active orb of give RAS type and SYM
+!          IBTSOB                 :         Offset for active orb of given RAS type and SYM
+!          ITSOB                  :        Orbitals of given RAS type and sym
+!        NOBPTS                 :         Number of orbitals per subtype and symmetry
+!          IOBPTS                 :         Off sets for orb of given subtype and symmetry
+!        ITOBS                :        "Increaser"
+!
+!
+!  ITFSO  : Type array for symmetry ordered orbitals( not activated )
+
+!
+!
+Integer NINOB,NACOB,NDEOB,NOCOB,NTOOB,                            &
+        NORB0,NORB1,NORB2,NORB3,NORB4,                      &
+        NOSPIR(MXPIRR),IOSPIR(MXPOBS,MXPIRR),               &
+        NINOBS(MXPOBS),NR0OBS(1,MXPOBS),NRSOBS(MXPOBS,3),   &
+        NR4OBS(MXPOBS,MXPR4T),NACOBS(MXPOBS),NOCOBS(MXPOBS),&
+        NTOOBS(MXPOBS),NDEOBS(MXPOBS),                      &
+        NRS4TO(MXPR4T),                                     &
+        IREOTS(MXPORB),IREOST(MXPORB),ISMFTO(MXPORB),       &
+        ITPFSO(MXPORB),                                     &
+        IBSO(MXPOBS),                                       &
+        NTSOB(3,MXPOBS),IBTSOB(3,MXPOBS),ITSOB(MXPORB),     &
+        NOBPTS(6+MXPR4T,MXPOBS),IOBPTS(6+MXPR4T,MXPOBS),    &
+        ITOOBS(MXPOBS),ITPFTO(MXPORB),ISMFSO(MXPORB),       &
+        NOBPT(6+MXPR4T)
+
 End Module MCLR_Data
