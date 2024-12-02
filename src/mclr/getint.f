@@ -12,6 +12,7 @@
      &                       IXCHNG,IKSM,JLSM,ICOUL ,ieaw)
       Use Arrays, only: pInt2, KINT2, KINT2A
       use MCLR_Data, only: Square
+      use orbinp_mclr, only: NOBPTS
 *
 * Outer routine for accessing integral block
 *
@@ -21,10 +22,7 @@
      &        IXCHNG,IKSM,JLSM,ICOUL ,ieaw
 
 *
-#include "detdim.fh"
-*./ORBINP/  : NOBPTS used
 #include "Input.fh"
-#include "orbinp_mclr.fh"
 #include "csm.fh"
        Integer nTest,nI,nK,nIK,nJ,nL,nJL,nIJ,nKL
 *
