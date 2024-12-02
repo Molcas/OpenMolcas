@@ -19,11 +19,11 @@
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: XISPSM
+      use crun_mclr, only: NOCSF, ICISTR
       Implicit None
       Integer iSym
       Real*8 ralp
 #include "detdim.fh"
-#include "crun_mclr.fh"
 #include "spinfo_mclr.fh"
 
 #include "Input.fh"
