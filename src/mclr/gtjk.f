@@ -10,13 +10,12 @@
 ************************************************************************
       SUBROUTINE GTJK_MCLR(RJ,RK)
       use Arrays, only: Int2
+      use orbinp_mclr, only: NACOB
 C
 C     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 C              WITH THE CHARGE DISTRIBUTION JK
 C
       IMPLICIT None
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
       Real*8 RJ(NACOB,NACOB),RK(NACOB,nACOB)
       Integer NT, NU, NTUK, NTUJ
       Integer i,j,itri

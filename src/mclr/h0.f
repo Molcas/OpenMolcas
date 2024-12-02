@@ -19,6 +19,7 @@
       use MCLR_Data, only: iRefSM,IDC,PSSIGN
       use MCLR_Data, only: NAELCI,NBELCI,XISPSM
       use MCLR_Data, only: MXP1,MXP2,MXQ,NOCSF
+      use orbinp_mclr, only: NACOB,NOCOB
 *
 * frontend to jeppes explicit routines
 *
@@ -27,7 +28,6 @@
       Integer MP1, MP2, MQ, iSym, nprciv
       Logical TimeDep
 #include "detdim.fh"
-#include "orbinp_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, iTyp,
      &        nActEl, lH0SCR, ieaw, i, iRC, lVec2

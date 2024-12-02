@@ -10,14 +10,13 @@
 ************************************************************************
       REAL*8 FUNCTION GTIJKL_MCLR(I,J,K,L)
       use Arrays, only: Int2
+      use orbinp_mclr, only: IREOTS
 *
 * Obtain  integral (I J ! K L )
 * where I,J,K and l refers to active orbitals in type ordering
 *
       IMPLICIT None
       Integer, Intent(In):: I, J, K, L
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
       Integer iAbs, jAbs, kAbs, lAbs, ij, kl
       Integer itri
 
