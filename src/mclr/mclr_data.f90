@@ -89,7 +89,7 @@ Integer LuOne,LuJob,LuTwo,LuMol,LuRlx,LuMck,LuTemp,                    &
         LuQDAT
 Logical Nofile
 
-! Stuff from MCLR_Data.fh
+! Stuff from cicisp_mclr.fh
 #include "detdim.fh"
 !
 ! icisps **
@@ -119,5 +119,43 @@ Real*8 XISPSM(MXPCSM,MXPICI)
 Private MXPIRR,MXPOBS,MXPR4T,MXINKA,MXPORB,MXPXOT,MXPXST,MXPSHL, &
         MXPL,MXPXT,MXPICI,MXPSTT,MXPCSM,MXPCTP,MXCNSM,MXPWRD, &
         MXNMS,MTYP,MXPNGAS,MXPNSMST,MXPPTSPC
+
+! Stuff from crun_mclr.fh
+!
+!        MAXIT        :        Max iterations (NOT IN USE)
+!        iRestr        :         Not in use
+!       Intimp        :        Import mode for integrals
+!         MxP1        :        Not in use
+!         MxP2        :        Not in use
+!        MxQ        :         Not in use
+!              Incore        :        Integrals in core
+!        MxCIV        :        Not in use
+!        iCIStr        :        Storing mode for CI-vector
+!       NoCSF        :        Transform to CSF base
+!        iDiag        :        PICO
+!        NoInt        :        Not in use
+!        NoPair        :        Not in use
+!        iH1SO        :        Not in use
+!        iDelMS        :        Not in use
+!       iSOSym        :        Not in use (symmetry of spin orbit)
+!        inideg        :        Not in use
+!        IFINSD        :        Not in use
+!        iprerel        :        Not in use
+!       nomspa  :        Not in use
+!       ipredzn        :        Not in use
+!       isupsp        :         not in use
+!       iredstp :       Not in use
+!       idmpin  :        Not in use
+!       Maxrit  :         Not in use
+!       Maxi    :         Max number of N str. treated simult.(not in use)y
+!       MaxK        :        Largest number of inner resolution strings simult
+!        NoPart         :        partitioning of strings in alpha-alpha + beta-beta loops
+!        NOHSOO        :        No spin-other-orbit operator included
+!        IDENMT        :        Calculate one-body density matrix
+Integer MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,       &
+        ICISTR,NOCSF,IDIAG,NOINT,NOPAIR,IH1SO,IDELMS,         &
+        ISOSYM(3),INIDEG,IFINSD,IPREREL,NOMSPA,IPREDZN,       &
+        ISUPSP,IREDSTP,IDMPIN,MAXRIT,MAXI,MAXK,NOPART,        &
+        NOHSOO,IDENMT
 
 End Module MCLR_Data
