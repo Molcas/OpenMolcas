@@ -12,7 +12,7 @@
 *
 * Master routine for symmetry of string
 *
-      use orbinp_mclr, only: ISMFTO
+      use MCLR_Data, only: ISMFTO
       IMPLICIT None
 *. Specific input
       INTEGER STRING(*), NEL

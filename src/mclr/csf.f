@@ -374,7 +374,7 @@ C?    END IF
       use MCLR_Data, only: iRefSM,iDC,MS2,PSSIGN
       use MCLR_Data, only: LuCSF2SD
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,NELCI
-      use orbinp_mclr, only: NACOB,NORB1,NORB2,NORB3
+      use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym

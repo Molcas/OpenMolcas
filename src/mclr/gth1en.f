@@ -10,7 +10,7 @@
 ************************************************************************
       REAL*8 FUNCTION GTH1EN(IORB,ITP,ISM,JORB,JTP,JSM)
       use Arrays, only: KAIN1, pInt1
-      use orbinp_mclr, only: IBsO,IBTSOB,IREOTS
+      use MCLR_Data, only: IBsO,IBTSOB,IREOTS
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)

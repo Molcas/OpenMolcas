@@ -13,7 +13,7 @@
 * One-electron integrals over orbitals belonging to
 * given OS class
 *
-      use orbinp_mclr, only: NTSOB
+      use MCLR_Data, only: NTSOB
       IMPLICIT NONE
 *.Output
       REAL*8 H(*)

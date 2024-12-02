@@ -19,7 +19,7 @@
 *
 * Version for integrals stored in INTLST
 *
-      use orbinp_mclr, only: IBTSOB, NTSOB
+      use MCLR_Data, only: IBTSOB, NTSOB
       IMPLICIT None
 *
       REAL*8 XINT(*)

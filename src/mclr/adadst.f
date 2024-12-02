@@ -14,7 +14,7 @@
      &                  IJORD,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,NK,
      &                  NKDIM,IEND)
       use Str_Info, only: STR,ISTAC,IUNIQMP,NOCTYP
-      use orbinp_mclr, only: NACOB,NORB1,NORB2,NORB3
+      use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
 *
 *
 * Obtain mappings

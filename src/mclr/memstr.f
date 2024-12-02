@@ -15,7 +15,7 @@
      &                    ISTAC,MNRS1,MNRS3,MXRS1,MXRS3,NELEC,NOCTYP,
      &                    NSTFTP,NSTTYP,IUNIQTP
       use stdalloc, only: mma_allocate
-      use orbinp_mclr, only: NACOB,NOBPT,NORB1,NORB2,NORB3
+      use MCLR_Data, only: NACOB,NOBPT,NORB1,NORB2,NORB3
 *
 *
 * Construct pointers for saving information about strings and

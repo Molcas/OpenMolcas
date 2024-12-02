@@ -12,7 +12,7 @@
       Use Str_Info, only: STR,NSTTYP,ISTAC,IUNIQMP,IUNIQTP,MNRS1,MNRS3,
      &                    MXRS1,MXRS3,NELEC,NOCTYP,NSTFTP
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
-      use orbinp_mclr, only: NACOB,NORB1,NORB2,NORB3
+      use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
 *
 * Strings for internal space.
 * Information is stored in

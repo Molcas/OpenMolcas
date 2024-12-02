@@ -13,7 +13,7 @@
 * Master routine for symmetry of configuration
 * with NCL doubly occupied orbitals and NOPEN singly occupied shells
 *
-      use orbinp_mclr, only: ISMFTO
+      use MCLR_Data, only: ISMFTO
       IMPLICIT None
       INTEGER ICL(*),IOP(*)
       INTEGER NCL,NOPEN

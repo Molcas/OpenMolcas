@@ -10,7 +10,7 @@
 ************************************************************************
       REAL*8 FUNCTION GTIJKL_MCLR(I,J,K,L)
       use Arrays, only: Int2
-      use orbinp_mclr, only: IREOTS
+      use MCLR_Data, only: IREOTS
 *
 * Obtain  integral (I J ! K L )
 * where I,J,K and l refers to active orbitals in type ordering

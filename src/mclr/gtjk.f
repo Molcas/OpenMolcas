@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE GTJK_MCLR(RJ,RK)
       use Arrays, only: Int2
-      use orbinp_mclr, only: NACOB
+      use MCLR_Data, only: NACOB
 C
 C     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 C              WITH THE CHARGE DISTRIBUTION JK

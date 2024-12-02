@@ -10,7 +10,7 @@
 ************************************************************************
       INTEGER FUNCTION IOCTP2_MCLR(STRING,NEL,ITYP)
       use Str_Info
-      use orbinp_mclr, only: NORB1,NORB2
+      use MCLR_Data, only: NORB1,NORB2
 *
 * Obtain occupation type for STRING .
 * For forbidden strings a zero is returned

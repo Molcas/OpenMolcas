@@ -29,7 +29,7 @@
 * IREORD             : Reordering array going from lexical
 *                      order to symmetry and occupation type order.
 *
-      use orbinp_mclr, only: NACOB,NORB1,NORB2,NORB3
+      use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
       IMPLICIT None
       INTEGER NEL,NELMN1,NELMX1,NELMN3,NELMX3,NOCTYP,NSMST
       INTEGER IOTYP,IPRNT

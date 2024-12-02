@@ -15,7 +15,7 @@
      &                    NSTTYP,NSTTYP_MAX,MNRS1,MXRS1,MNRS3,MXRS3,
      &                    NELEC,ISTTP,IZORR,IARTP,IBRTP,IUNIQMP,
      &                    IUNIQTP
-      use orbinp_mclr, only: NORB1,nORB3
+      use MCLR_Data, only: NORB1,nORB3
 *
 * construct input common blocks /STRINP/
 * from /LUCINP/ and /ORBINP/

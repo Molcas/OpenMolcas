@@ -11,7 +11,7 @@
        REAL*8 FUNCTION GETH1I_MCLR(I,J)
        use Arrays, only: FIMO
        use MCLR_Data, only: ipCM
-       use orbinp_mclr, only: IBSO,IREOTS,ISMFTO
+       use MCLR_Data, only: IBSO,IREOTS,ISMFTO
 *
 * Obtain one -electron integral H(IORB,JOB)
 *

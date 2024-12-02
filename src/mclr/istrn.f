@@ -12,7 +12,7 @@
 ************************************************************************
       INTEGER FUNCTION ISTRN_MCLR(STRING,IGROUP)
       Use Str_Info, only: STR,NELEC
-      use orbinp_mclr, only: NACOB
+      use MCLR_Data, only: NACOB
 *
 * A string belonging to group IGROUP is given.
 * find actual number

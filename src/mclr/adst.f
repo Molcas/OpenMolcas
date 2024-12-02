@@ -13,7 +13,7 @@
       SUBROUTINE ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,
      &                NK,IEND)
       Use Str_Info, only: STR,ISTAC,IUNIQMP,NOCTYP
-      use orbinp_mclr, only: NACOB,ISMFTO,NORB1,NORB2,NORB3
+      use MCLR_Data, only: NACOB,ISMFTO,NORB1,NORB2,NORB3
 *
 *
 * Obtain mappings

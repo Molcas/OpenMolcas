@@ -19,7 +19,7 @@
 *
 * Version for integrals stored in INTLST
 *
-      use orbinp_mclr, only: NACOB,IBTSOB,NTSOB
+      use MCLR_Data, only: NACOB,IBTSOB,NTSOB
       IMPLICIT None
 *
 #include "detdim.fh"

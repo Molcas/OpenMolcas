@@ -15,7 +15,7 @@
       use MCLR_Data, only: NICISP,NELCI,NAELCI,NBELCI,MNR1IC,MNR3IC,
      &                                                  MXR1IC,MXR3IC,
      &                       IACTI,IASTFI,IBSTFI,IRCI
-      use orbinp_mclr, only: NORB1,NORB2
+      use MCLR_Data, only: NORB1,NORB2
       Implicit None
       Integer MNRS10,MXRS30,IPRNT
 *
@@ -41,7 +41,7 @@
 *. Input Module
 * ====================
 *./Str_Info
-*./orbinp_mclr
+*./MCLR_Data
 * ====================
 *. Output Module
 * ====================

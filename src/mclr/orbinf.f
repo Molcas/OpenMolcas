@@ -25,7 +25,7 @@
 * ======
 * Orbital information in /ORBINP/
 *
-      use orbinp_mclr, only: NORB1,NORB2,NORB3,NORB4,NINOB,NDEOB,NACOB,
+      use MCLR_Data, only: NORB1,NORB2,NORB3,NORB4,NINOB,NDEOB,NACOB,
      &                       NOCOB,NTOOB,NRSOBS,ITOOBS,NORB0,IBSO,
      &                       IBTSOB,IOBPTS,IOSPIR,IREOST,IREOTS,ISMFSO,
      &                       ISMFTO,ITPFTO,ITSOB,NACOBS,NDEOBS,NINOBS,

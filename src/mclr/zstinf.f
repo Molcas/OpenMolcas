@@ -11,7 +11,7 @@
       SUBROUTINE ZSTINF_MCLR(IPRNT)
       use Str_Info, only:NSTTYP,INUMAP,INDMAP,ISTAC,MNRS1,MXRS1,MNRS3,
      &                   MXRS3,NELEC,NOCTYP,NSTFTP
-      use orbinp_mclr, only: NORB1,NORB2,NORB3
+      use MCLR_Data, only: NORB1,NORB2,NORB3
       Implicit None
       Integer IPRNT
 

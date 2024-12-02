@@ -19,7 +19,7 @@
       use MCLR_Data, only: iRefSM,IDC,PSSIGN
       use MCLR_Data, only: NAELCI,NBELCI,XISPSM
       use MCLR_Data, only: MXP1,MXP2,MXQ,NOCSF
-      use orbinp_mclr, only: NACOB,NOCOB
+      use MCLR_Data, only: NACOB,NOCOB
 *
 * frontend to jeppes explicit routines
 *
