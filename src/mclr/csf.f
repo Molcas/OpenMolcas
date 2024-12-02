@@ -373,6 +373,7 @@ C?    END IF
       use MCLR_Data, only: i1,iAnders,lConf,llDET
       use MCLR_Data, only: iRefSM,iDC,MS2,PSSIGN
       use MCLR_Data, only: LuCSF2SD
+      use cicisp_mclr, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,NELCI
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
@@ -380,7 +381,6 @@ C?    END IF
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
 #include "csm.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
       integer idum(1)
@@ -1957,6 +1957,9 @@ C
       Use Str_Info, only: STR, NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IDC
+      use cicisp_mclr, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,IACTI,
+     &                       MNR3IC,MXR1IC,NAELCI,NBELCI,XISPSM,MXSB,
+     &                       MXSOOB,NICISP
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -1982,7 +1985,6 @@ C
 *. Output common block : XISPSM is calculated
 * ====================
 *
-#include "cicisp_mclr.fh"
 *
 *
 *.Local memory
