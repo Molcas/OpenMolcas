@@ -15,6 +15,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only: nNA, n2Dens,n1Dens
+      use cicisp_mclr, only: XISPSM
       Implicit None
       Real*8 LS(*),RS(*),rP1(nna,nna,nna,nna),
      &       rP2(nna,nna,nna,nna),rP3(nna,nna,nna,nna),
@@ -22,7 +23,6 @@
      &       rDe1(nna,nna),rde2(nna,nna)
       Integer iType
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "crun_mclr.fh"
 
 #include "Input.fh"
