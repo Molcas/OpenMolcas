@@ -19,8 +19,6 @@
       use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 
 ******Input
 ******Output
@@ -126,8 +124,6 @@
       INTEGER NPUVX
       INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp,nRS
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 
       NPUVX=0
       DO iSp=1,nSym
@@ -316,7 +312,6 @@
       use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
 *      Input
 *      Output
        Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
