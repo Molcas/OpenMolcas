@@ -18,12 +18,11 @@
       Use Str_Info, only: DTOC, CNSM
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
+      use spinfo_mclr, only: NDTASM
       implicit None
       Real*8 CSF(*),SD(*)
       Integer is
-#include "detdim.fh"
 #include "Input.fh"
-#include "spinfo_mclr.fh"
 *
       Real*8, Allocatable:: CTM(:)
       Integer iiCOPY,iprdia,iSym,i
