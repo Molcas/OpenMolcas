@@ -11,6 +11,7 @@
 * Copyright (C) Anders Bernhardsson                                    *
 *               2002, Roland Lindh                                     *
 ************************************************************************
+*define _DEBUGPRINT_
       SubRoutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,
      &                      iRHSDisp,iRHSCIDISP,converged)
 ************************************************************************
@@ -33,6 +34,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use Spool, only: LuWr
+#ifdef _DEBUGPRINT_
+      use MCLR_Data, only: nCMO
+#endif
       use MCLR_Data, only: nConf1,nDens2,nDensC,ipCI,n1Dens,n2Dens,nDens
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: lDisp
@@ -100,7 +104,6 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-*define _DEBUGPRINT_
 *----------------------------------------------------------------------*
       SLine=' Solving CP(CAS)HF equations'
       Call StatusLine(' MCLR:',SLine)
