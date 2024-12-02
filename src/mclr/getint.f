@@ -22,9 +22,6 @@
 
 *
 #include "detdim.fh"
-*./CRUN/ : INTIMP used ....
-* and NOHSOO (no spin-other-orbit) added by Merethe 19/10-95
-#include "crun_mclr.fh"
 *./ORBINP/  : NOBPTS used
 #include "Input.fh"
 #include "orbinp_mclr.fh"
