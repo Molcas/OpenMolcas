@@ -23,7 +23,6 @@
      &       rDe1(nna,nna),rde2(nna,nna)
       Integer iType
 #include "detdim.fh"
-#include "crun_mclr.fh"
 
 #include "Input.fh"
 #include "spinfo_mclr.fh"
