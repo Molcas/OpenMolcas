@@ -32,8 +32,6 @@
       Implicit None
       Integer iPL
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
       logical ldisk,ipopen
       Character(LEN=8) Method
