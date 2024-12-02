@@ -20,6 +20,7 @@
       use MCLR_Data, only: NAELCI,NBELCI,XISPSM
       use MCLR_Data, only: MXP1,MXP2,MXQ,NOCSF
       use MCLR_Data, only: NACOB,NOCOB
+      use spinfo_mclr, only: NTYP,NCPCNT,NDPCNT
 *
 * frontend to jeppes explicit routines
 *
@@ -27,8 +28,6 @@
       Real*8 rdia(*)
       Integer MP1, MP2, MQ, iSym, nprciv
       Logical TimeDep
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
       Integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, iTyp,
      &        nActEl, lH0SCR, ieaw, i, iRC, lVec2
       Real*8, External:: E2, E2_TD
