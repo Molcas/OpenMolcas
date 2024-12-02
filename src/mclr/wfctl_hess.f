@@ -46,8 +46,6 @@
       External Rsv_Tsk
 *
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
 *
 #ifdef _MOLCAS_MPP_
