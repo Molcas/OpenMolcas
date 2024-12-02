@@ -114,9 +114,9 @@ contains
 
   subroutine MKISM_MCLR()
 
+    Implicit None
 #   include "Input.fh"
 #   include "detdim.fh"
-#   include "spinfo_mclr.fh"
     integer(kind=iwp) :: iBas, iOrb, iSym
 
     SGS%NLEV = ntASh
