@@ -23,7 +23,6 @@
 #include "detdim.fh"
 #include "crun_mclr.fh"
 #include "spinfo_mclr.fh"
-#include "cicisp_mclr.fh"
       Integer iTmp, nTRas1,nTRas2,nTRas3,iSym,iDum
 
       Call mma_Allocate(pINT1,nSym,Label='pInt1')
