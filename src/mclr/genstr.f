@@ -35,7 +35,6 @@
       INTEGER IOTYP,IPRNT
 *. Input
       Integer ISTASO(NOCTYP,NSMST)
-#include "detdim.fh"
       INTEGER Z(NACOB,NEL)
 *
 *.Output
