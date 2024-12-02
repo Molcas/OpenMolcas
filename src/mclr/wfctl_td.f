@@ -28,11 +28,11 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: lDisp
       use MCLR_Data, only: LuTemp
+      use cicisp_mclr, only: XISPSM
       Implicit None
 *
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
