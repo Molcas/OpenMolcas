@@ -17,6 +17,8 @@
       use MCLR_Data, only: IPRCIX,IPRDIA
       use Constants, only: Zero
       use MCLR_Data, only: IDC,PSSIGN
+      use cicisp_mclr, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,
+     &                       MXR3IC
 *
 * Density matrices between L and R
 *
@@ -48,7 +50,6 @@
 #include "cands.fh"
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "cicisp_mclr.fh"
 #include "csm.fh"
 #include "crun_mclr.fh"
 #include "spinfo_mclr.fh"
