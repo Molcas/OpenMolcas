@@ -789,13 +789,14 @@ c Avoid unused argument warnings
 * If PSSIGN .ne. 0, spin combinations are used !!
       Use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       use stdalloc, only: mma_allocate, mma_deallocate
+      use spinfo_mclr, only: MULTSP,MS2P,MINOP,MAXOP,NTYP,NCPCNT,NDPCNT,
+     &                       NCNASM,NCNATS,NCSASM,NDTASM
       IMPLICIT NONE
       INTEGER NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,
      &        LLCSF,NCNSM,ICNSTR
       REAL*8 PSSIGN
       INTEGER IPRNT,lconf,lldet
 #include "detdim.fh"
-#include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
 !     local variables
       Integer, Allocatable:: IICL(:), IIOP(:), IIOC(:)
