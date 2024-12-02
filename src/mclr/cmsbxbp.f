@@ -135,7 +135,7 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, nAcPr2, ipCI, ipMat, nDens2
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"

@@ -176,7 +176,7 @@
       Subroutine PT2_SLag()
 
       use MCLR_Data, only: ipCI, n1Dens, n2Dens
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       ! integer opout
       Real*8, Allocatable:: CIL(:), CIR(:)

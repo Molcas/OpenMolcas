@@ -12,7 +12,7 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       Integer iCI, iS
       Real*8 rP(*),rD(*)

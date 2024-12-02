@@ -14,7 +14,7 @@
      &                 IDC,PSSIGN,ECORE,
      &                 VEC1,VEC2,H0SCR,iH0SCR,ieaw)
       Use Str_Info, only: CNSM,DFTP,DTOC
-      use cicisp_mclr, only: NAELCI, NBELCI
+      use MCLR_Data, only: NAELCI, NBELCI
 * Obtain preconditioner space corresponding to internal space INTSPC
 * Obtain Hamiltonian matrices correponding to this subspacw
 *

@@ -29,7 +29,7 @@
       use MCLR_Data, only: ISNAC,OVERRIDE,IRLXROOT,ISMECIMSPD,
      &                       NACSTATES
       use MCLR_Data, only: LuTemp, LuQDat
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

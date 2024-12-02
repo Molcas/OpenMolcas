@@ -24,7 +24,7 @@
 ************************************************************************
       use MCLR_Data, only: ISTATE,SA,ISNAC,IRLXROOT,NACSTATES,NSSA
       use MCLR_Data, only: ChDisp,DspVec,lDisp,SwLbl
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       Integer iPL
 #include "Input.fh"

@@ -55,7 +55,7 @@ c Avoid unused argument warnings
       CONTAINS
       SUBROUTINE CNHCN2_INTERNAL(SCR)
       USE ISO_C_BINDING
-      use cicisp_mclr, only: IASTFI,IBSTFI
+      use MCLR_Data, only: IASTFI,IBSTFI
       use Str_Info, only: Str
       Implicit None
       INTEGER IAGRP,IBGRP,IOPL,IOPR,ICLL,ICLR,NDETL,NDETR,NCSFL,

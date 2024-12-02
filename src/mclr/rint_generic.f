@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
+*define _DEBUGPRINT_
       SubRoutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,
      &                        idsym,reco,jspin)
       use Arrays, only: W_CMO_Inv=>CMO_Inv, W_CMO=>CMO, G1t, G2t, FAMO,
@@ -41,10 +42,11 @@
       Integer iS,iB,jS,nA2,nAct,nG2,iSym,nAG2,jSym,kSym,nAtri,iOff,
      &        iOff2,iOff3,iOff4,iOff5,jB,ip2,ipGx,ijS,kS,lS,kAsh,lAsh,
      &        ikl,iAsh,jAsh,iij,iRead,ipF,ipFI
+#ifdef _DEBUGPRINT_
+      Integer nas
+      Real*8, External:: DDot_
+#endif
 *                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *

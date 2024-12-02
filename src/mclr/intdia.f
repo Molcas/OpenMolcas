@@ -15,7 +15,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IPRDIA
       use MCLR_Data, only: iDC, PLSIGN, PSSIGN
-      use cicisp_mclr, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC
+      use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM

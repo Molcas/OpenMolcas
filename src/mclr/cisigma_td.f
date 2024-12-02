@@ -16,7 +16,7 @@
       use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
       use MCLR_Data, only: i12, ist, Square
       use MCLR_Data, only: iRefSM
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)

@@ -16,7 +16,7 @@
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: FANCY_PRECONDITIONER
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       Integer iSym
       Real*8 ralp(*),S(*)

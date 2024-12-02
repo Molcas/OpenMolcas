@@ -28,7 +28,7 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
       use MCLR_Data, only: LuTemp, LuQDat
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

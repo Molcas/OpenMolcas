@@ -18,7 +18,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: ipDia
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       Integer iSym
       Real*8 ralp

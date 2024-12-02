@@ -28,7 +28,7 @@
       use MCLR_Data, only: RMS, rAlpha
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: LuTemp
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

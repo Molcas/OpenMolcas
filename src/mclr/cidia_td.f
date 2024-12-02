@@ -15,7 +15,7 @@
       use Str_Info, only: CNSM
       use ipPage, only: W
       use MCLR_Data, only: ipDia
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       Integer iSym
 #include "detdim.fh"

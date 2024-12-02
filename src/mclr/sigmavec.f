@@ -15,7 +15,7 @@
       use MCLR_Data, only: i12, ist
       use MCLR_Data, only: IPRCIX,IPRDIA
       use MCLR_Data, only: IDC, PSSIGN
-      use cicisp_mclr, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,
+      use MCLR_Data, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,
      &                       MXR3IC,XISPSM
 *
 * Outer routine for sigma vector generation

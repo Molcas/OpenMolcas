@@ -139,7 +139,7 @@
       use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
       use MCLR_Data, only: IRLXROOT
       use MCLR_Data, only: LuJob
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"

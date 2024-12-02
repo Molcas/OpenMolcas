@@ -89,7 +89,7 @@ Integer LuOne,LuJob,LuTwo,LuMol,LuRlx,LuMck,LuTemp,                    &
         LuQDAT
 Logical Nofile
 
-! Stuff from cicisp_mclr.fh
+! Stuff from MCLR_Data.fh
 #include "detdim.fh"
 !
 ! icisps **

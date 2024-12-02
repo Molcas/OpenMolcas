@@ -13,7 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       Logical Response
       Integer iLS, iRS, iL, iR

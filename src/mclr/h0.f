@@ -17,7 +17,7 @@
       use Arrays, only: Int2, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: iRefSM,IDC,PSSIGN
-      use cicisp_mclr, only: NAELCI,NBELCI,XISPSM
+      use MCLR_Data, only: NAELCI,NBELCI,XISPSM
 *
 * frontend to jeppes explicit routines
 *

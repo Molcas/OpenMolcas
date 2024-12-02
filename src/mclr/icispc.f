@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE ICISPC(MNRS10,MXRS30,IPRNT)
       Use Str_Info, only: IAZTP,IBZTP,NELEC
-      use cicisp_mclr, only: NICISP,NELCI,NAELCI,NBELCI,MNR1IC,MNR3IC,
+      use MCLR_Data, only: NICISP,NELCI,NAELCI,NBELCI,MNR1IC,MNR3IC,
      &                                                  MXR1IC,MXR3IC,
      &                       IACTI,IASTFI,IBSTFI,IRCI
       Implicit None
@@ -47,7 +47,7 @@
 * ====================
 *. Output common block
 * ====================
-!module cicisp_mclr
+!module MCLR_Data
 * NICISP : Number of internal CI spaces constructed
 * IASTFI : Alpha string type for internal CI space
 * IBSTFI : Beta string type for internal CI space

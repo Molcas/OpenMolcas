@@ -373,7 +373,7 @@ C?    END IF
       use MCLR_Data, only: i1,iAnders,lConf,llDET
       use MCLR_Data, only: iRefSM,iDC,MS2,PSSIGN
       use MCLR_Data, only: LuCSF2SD
-      use cicisp_mclr, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,NELCI
+      use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,NELCI
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
@@ -1957,7 +1957,7 @@ C
       Use Str_Info, only: STR, NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IDC
-      use cicisp_mclr, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,IACTI,
+      use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,IACTI,
      &                       MNR3IC,MXR1IC,NAELCI,NBELCI,XISPSM,MXSB,
      &                       MXSOOB,NICISP
 *

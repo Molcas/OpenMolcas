@@ -37,7 +37,7 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: lDisp
       use MCLR_Data, only: LuTemp
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
       External Rsv_Tsk
 *

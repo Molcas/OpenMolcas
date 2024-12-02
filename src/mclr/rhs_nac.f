@@ -14,7 +14,7 @@
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: ipCI,nConf1,ipMat,n1Dens,n2Dens,nDens2
       use MCLR_Data, only: NSSA
-      use cicisp_mclr, only: XISPSM
+      use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
