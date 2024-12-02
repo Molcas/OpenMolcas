@@ -40,10 +40,10 @@
       use MCLR_Data, only: nConf1, nDensC
       use MCLR_Data, only: nHess,lDisp
       use MCLR_Data, only: LuTEMP
+      use cicisp_mclr, only: XISPSM
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"
-#include "cicisp_mclr.fh"
       Integer iKapDisp(nDisp),isigdisp(nDisp),
      &        iCiDisp(nDisp),iCiSigDisp(nDisp),
      &        iRHSDisp(nDisp),iRHSCiDisp(nDisp)
