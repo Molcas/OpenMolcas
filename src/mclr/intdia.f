@@ -43,9 +43,7 @@
 *.General Input
 * ==============
 *
-#include "detdim.fh"
 #include "csm.fh"
-#include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
       Integer idum(1)
       Real*8, Allocatable:: JA(:), KA(:), XA(:), XB(:), SCR(:), H1D(:)
