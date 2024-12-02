@@ -112,8 +112,6 @@
       Implicit None
 
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 
 
 ******Input
@@ -275,8 +273,6 @@
       use MCLR_Data, only: nNA, nDens2, ipMat
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 ******Input
       INTEGER NPUVX
       Real*8 Coeff
