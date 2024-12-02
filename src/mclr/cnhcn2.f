@@ -38,8 +38,6 @@
 *. Output
       Real*8 CNHCNM(*)
 *. Interface to LUCIA common blocks in order to access strings
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
       INTEGER IDUMMY(1)
 *
       CALL CNHCN2_INTERNAL(SCR)
@@ -57,6 +55,7 @@ c Avoid unused argument warnings
       USE ISO_C_BINDING
       use MCLR_Data, only: IASTFI,IBSTFI
       use Str_Info, only: Str
+      use spinfo_mclr, only: MINOP,NCPCNT,NDPCNT
       Implicit None
       INTEGER IAGRP,IBGRP,IOPL,IOPR,ICLL,ICLR,NDETL,NDETR,NCSFL,
      &        NCSFR,KLFREE,KLDTLA,KLDTLB,KLISL,KLDTRA,KLDTRB,KLISR,
