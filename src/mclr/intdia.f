@@ -15,6 +15,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IPRDIA
       use MCLR_Data, only: iDC, PLSIGN, PSSIGN
+      use cicisp_mclr, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -42,7 +43,6 @@
 *
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "cicisp_mclr.fh"
 #include "csm.fh"
 #include "spinfo_mclr.fh"
 #include "crun_mclr.fh"
