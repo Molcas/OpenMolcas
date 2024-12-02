@@ -21,7 +21,6 @@
 #include "Input.fh"
 #include "dmrginfo_mclr.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 
       Real*8 Fock(*)
       real*8, optional :: SLag(*)
@@ -177,6 +176,7 @@
       Subroutine PT2_SLag()
 
       use MCLR_Data, only: ipCI, n1Dens, n2Dens
+      use cicisp_mclr, only: XISPSM
       Implicit None
       ! integer opout
       Real*8, Allocatable:: CIL(:), CIR(:)
