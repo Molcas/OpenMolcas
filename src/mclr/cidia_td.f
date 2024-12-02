@@ -17,10 +17,9 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF, ICISTR
+      use spinfo_mclr, only: NCNATS,NCPCNT,NCSASM,NDPCNT,NTYP
       Implicit None
       Integer iSym
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 #include "Input.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI,
