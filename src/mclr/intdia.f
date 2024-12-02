@@ -16,6 +16,7 @@
       use MCLR_Data, only: IPRDIA
       use MCLR_Data, only: iDC, PLSIGN, PSSIGN
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC
+      use crun_mclr, only: ICISTR
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -45,7 +46,6 @@
 #include "orbinp_mclr.fh"
 #include "csm.fh"
 #include "spinfo_mclr.fh"
-#include "crun_mclr.fh"
 #include "dmrginfo_mclr.fh"
       Integer idum(1)
       Real*8, Allocatable:: JA(:), KA(:), XA(:), XB(:), SCR(:), H1D(:)
