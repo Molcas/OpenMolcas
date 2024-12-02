@@ -19,8 +19,6 @@
       use MCLR_Data, only: nConf1, nAcPr2
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 
 
 ****** Output
@@ -49,8 +47,6 @@
       use MCLR_Data, only: IRLXROOT
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
 ****** Input
@@ -96,8 +92,6 @@
       use MCLR_Data, only: IRLXROOT
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 ***** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
 ***** Input
@@ -137,8 +131,6 @@
       use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 
 *******Output
       Real*8,DIMENSION(nRoots*nConf1)::CSFOK
