@@ -11,8 +11,11 @@
 * Copyright (C) 1990,1994, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE MEMSTR()
-      Use Str_Info
+      Use Str_Info, only: STR,ITYP_DUMMY,NSTTYP,IUNIQMP,INDMAP,INUMAP,
+     &                    ISTAC,MNRS1,MNRS3,MXRS1,MXRS3,NELEC,NOCTYP,
+     &                    NSTFTP,NSTTYP,IUNIQTP
       use stdalloc, only: mma_allocate
+      use orbinp_mclr, only: NACOB,NOBPT,NORB1,NORB2,NORB3
 *
 *
 * Construct pointers for saving information about strings and
@@ -34,11 +37,14 @@
 * Last Revision , Dec 24 1990 , Almaden
 *
 * Updated with iuniqtp, dec 11, 1994
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 *
 #include "detdim.fh"
-#include "orbinp_mclr.fh"
 #include "csm.fh"
+
+*     Local variables
+      Integer LENGTH,ITYP,NSTRIN,LSTRIN,IITYP,IIIITEST,IMNEW,JJTYP,
+     &        IANEQ,ICREQ,NCASTR_MCLR,NUMST3
       LENGTH=100
 *. Start of string information
 *
