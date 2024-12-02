@@ -16,8 +16,6 @@
       Implicit None
       Integer iState, State_sym
       Logical GUGA
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
       Integer idum(1)
       Integer iSym,iAdr,i,iad
 *
