@@ -37,7 +37,6 @@
 *
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "crun_mclr.fh"
       Character(LEN=8)   Fmt2
       integer opout
       Logical lPrint
