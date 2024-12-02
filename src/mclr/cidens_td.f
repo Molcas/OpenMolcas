@@ -19,7 +19,6 @@
       Real*8 rP(*),rD(*)
 #include "detdim.fh"
 #include "Input.fh"
-#include "spinfo_mclr.fh"
 #include "cands.fh"
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
       Integer nConfL, nConfR, nC, iRC
