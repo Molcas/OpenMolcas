@@ -12,7 +12,8 @@
 ************************************************************************
       SUBROUTINE ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,
      &                NK,IEND)
-      Use Str_Info
+      Use Str_Info, only: STR,ISTAC,IUNIQMP,NOCTYP
+      use orbinp_mclr, only: NACOB,ISMFTO,NORB1,NORB2,NORB3
 *
 *
 * Obtain mappings
@@ -36,16 +37,17 @@
 *. Input
 * ======
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
+      IMPLICIT NONE
+      INTEGER IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX
+      INTEGER LI1,NK,IEND
 *
 * =======
 *. Output
 * =======
 *
       INTEGER I1(*)
-      DIMENSION XI1S(*)
+      REAL*8 XI1S(*)
+      Integer JGRP,IMPF,LMAP
 *. Type of mapping
 C?     write(6,*) ' ADST: IGRP IORB = ',IGRP, IORB
 *
@@ -77,5 +79,4 @@ C        write(6,*) ' Unique string group for mappings ',JGRP
      &           Str(IGRP+1)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+1),
      &           NORB1,NORB2,NORB3,ISMFTO,NACOB,KMAX,KMIN,IEND)
 *
-      RETURN
-      END
+      END SUBROUTINE ADST

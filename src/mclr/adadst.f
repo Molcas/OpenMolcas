@@ -94,5 +94,4 @@ C        write(6,*) ' Unique string group for mappings ',KGRP
      &           Str(IGRP+2)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+2),
      &           NORB1,NORB2,NORB3,NACOB,KMAX,KMIN,IEND)
 *
-      RETURN
-      END
+      END SUBROUTINE ADADST
