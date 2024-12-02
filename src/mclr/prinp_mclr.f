@@ -24,11 +24,11 @@
 ************************************************************************
       use MCLR_Data, only: ISTATE,SA,ISNAC,IRLXROOT,NACSTATES,NSSA
       use MCLR_Data, only: ChDisp,DspVec,lDisp,SwLbl
+      use cicisp_mclr, only: XISPSM
       Implicit None
       Integer iPL
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
       Character(LEN=8) Fmt1,Fmt2
       Character(LEN=100)  Line,BlLine,StLine
       Character(LEN=1) :: XYZ(3)=['X','Y','Z']
