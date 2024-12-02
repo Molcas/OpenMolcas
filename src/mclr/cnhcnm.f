@@ -144,8 +144,6 @@ c Avoid unused argument warnings
  200  CONTINUE
       NULLIFY(iSCRl,iSCRr)
 *
-*
-      RETURN
       END SUBROUTINE CNHCNM_INTERNAL
 *
-      END
+      END SUBROUTINE CNHCNM
