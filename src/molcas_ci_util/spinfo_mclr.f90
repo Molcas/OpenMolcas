@@ -13,8 +13,6 @@ Module spinfo_mclr
 Private MXPIRR,MXPOBS,MXPR4T,MXINKA,MXPORB,MXPXOT,MXPXST,MXPSHL, &
         MXPL,MXPXT,MXPICI,MXPSTT,MXPCSM,MXPCTP,MXCNSM,MXPWRD, &
         MXNMS,MTYP,MXPNGAS,MXPNSMST,MXPPTSPC
-#include "spinfo_mclr.fh"
-save
 !             MULTSP                        : Spin multiplicity
 !        MS2P                        : 2*MS
 !             MINOP                        : Minum open orbitals
@@ -27,8 +25,8 @@ save
 !        NCSASM(MXPCSM)                :        CSF
 !             NCNASM(MXPCSM)                :i Configurations
 !
-!     Integer       MULTSP,MS2P,                                        &
-!    &              MINOP,MAXOP,NTYP,NDPCNT(MXPCTP),NCPCNT(MXPCTP),     &
-!    &              NCNATS(MXPCTP,MXPCSM),NDTASM(MXPCSM),NCSASM(MXPCSM),&
-!    &              NCNASM(MXPCSM)
+Integer       MULTSP,MS2P,                                        &
+              MINOP,MAXOP,NTYP,NDPCNT(MXPCTP),NCPCNT(MXPCTP),     &
+              NCNATS(MXPCTP,MXPCSM),NDTASM(MXPCSM),NCSASM(MXPCSM),&
+              NCNASM(MXPCSM)
 End Module spinfo_mclr

@@ -32,8 +32,6 @@
       Implicit None
 *
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
