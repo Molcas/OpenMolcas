@@ -16,10 +16,10 @@
       use ipPage, only: W
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: XISPSM
+      use crun_mclr, only: NOCSF, ICISTR
       Implicit None
       Integer iSym
 #include "detdim.fh"
-#include "crun_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "Input.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)

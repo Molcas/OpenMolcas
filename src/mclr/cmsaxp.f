@@ -114,7 +114,6 @@
 #include "Input.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "crun_mclr.fh"
 
 
 ******Input
@@ -278,7 +277,6 @@
 #include "Input.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "crun_mclr.fh"
 ******Input
       INTEGER NPUVX
       Real*8 Coeff
