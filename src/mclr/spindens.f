@@ -22,10 +22,7 @@
      &       rP4(nna,nna,nna,nna),rP5(nna,nna,nna,nna),
      &       rDe1(nna,nna),rde2(nna,nna)
       Integer iType
-#include "detdim.fh"
-
 #include "Input.fh"
-#include "spinfo_mclr.fh"
 #include "cands.fh"
       Real*8, Allocatable:: Dens(:,:), Pens(:), CIL(:), CIR(:)
       Integer n2,nConfL,iL,nConfR,iR,iA,jA,kA,lA,ijklAB,jilkAB,
