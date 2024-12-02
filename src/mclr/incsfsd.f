@@ -17,7 +17,6 @@
       Integer iState, State_sym
       Logical GUGA
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer idum(1)
       Integer iSym,iAdr,i,lConf,llDet,iad
