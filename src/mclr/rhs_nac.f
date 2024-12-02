@@ -14,10 +14,10 @@
       use Constants, only: Zero, One, Two, Half, Quart
       use MCLR_Data, only: ipCI,nConf1,ipMat,n1Dens,n2Dens,nDens2
       use MCLR_Data, only: NSSA
+      use cicisp_mclr, only: XISPSM
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "cands.fh"
       Real*8 Fock(*)
       real*8, optional :: SLag(*)
