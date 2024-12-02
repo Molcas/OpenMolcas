@@ -33,7 +33,6 @@
        Implicit None
 #include "detdim.fh"
 #include "Input.fh"
-#include "cicisp_mclr.fh"
        Integer iKapDisp(nDisp),iCiDisp(nDisp)
 
        Character(LEN=8) Label
