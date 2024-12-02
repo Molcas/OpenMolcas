@@ -18,6 +18,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: iRefSM,IDC,PSSIGN
       use MCLR_Data, only: NAELCI,NBELCI,XISPSM
+      use crun_mclr, only: MXP1,MXP2,MXQ,NOCSF
 *
 * frontend to jeppes explicit routines
 *
@@ -27,7 +28,6 @@
       Logical TimeDep
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
-#include "crun_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, iTyp,
      &        nActEl, lH0SCR, ieaw, i, iRC, lVec2
