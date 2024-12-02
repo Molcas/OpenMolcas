@@ -52,7 +52,6 @@
 #include "cands.fh"
 #include "detdim.fh"
 #include "csm.fh"
-#include "spinfo_mclr.fh"
 
 #include "Input.fh"
 #include "csmprd.fh"
