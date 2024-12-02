@@ -22,7 +22,6 @@
 
 #include "detdim.fh"
 #include "Input.fh"
-#include "spinfo_mclr.fh"
 #include "cands.fh"
 #include "dmrginfo_mclr.fh"
       integer opout
