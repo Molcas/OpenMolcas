@@ -24,7 +24,6 @@
       Implicit None
 #include "detdim.fh"
 #include "Input.fh"
-#include "cicisp_mclr.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
       Integer iKapDisp(nDisp),iCiDisp(nDisp)
