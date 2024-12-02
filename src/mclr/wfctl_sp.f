@@ -29,7 +29,7 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
-      use spinfo_mclr, only: MS2P
+      use MCLR_Data, only: MS2P
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)

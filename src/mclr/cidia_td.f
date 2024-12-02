@@ -17,7 +17,7 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF, ICISTR
-      use spinfo_mclr, only: NCNATS,NCPCNT,NCSASM,NDPCNT,NTYP
+      use MCLR_Data, only: NCNATS,NCPCNT,NCSASM,NDPCNT,NTYP
       Implicit None
       Integer iSym
 #include "Input.fh"

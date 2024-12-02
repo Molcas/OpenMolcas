@@ -212,4 +212,22 @@ Integer NINOB,NACOB,NDEOB,NOCOB,NTOOB,                            &
         ITOOBS(MXPOBS),ITPFTO(MXPORB),ISMFSO(MXPORB),       &
         NOBPT(6+MXPR4T)
 
+! Stuff from spinfo_mclr.fh
+!             MULTSP                        : Spin multiplicity
+!        MS2P                        : 2*MS
+!             MINOP                        : Minum open orbitals
+!        MAXOP                        : Maximum open orbitals
+!        NTYP                        : Maxop-MinOp+1
+!        NDPCNT(MXPCTP)                : Number of det. / conf type
+!        NCPCNT(MXPCTP)                : Number of csf / conf type
+!        NCNATS(MXPCTP,MXPCSM)        :
+!        NDTASM(MXPCSM)                :       Combinations
+!        NCSASM(MXPCSM)                :        CSF
+!        NCNASM(MXPCSM)                :i Configurations
+!
+Integer       MULTSP,MS2P,                                        &
+              MINOP,MAXOP,NTYP,NDPCNT(MXPCTP),NCPCNT(MXPCTP),     &
+              NCNATS(MXPCTP,MXPCSM),NDTASM(MXPCSM),NCSASM(MXPCSM),&
+              NCNASM(MXPCSM)
+
 End Module MCLR_Data

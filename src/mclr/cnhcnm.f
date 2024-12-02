@@ -53,7 +53,7 @@ c Avoid unused argument warnings
       CONTAINS
       SUBROUTINE CNHCNM_INTERNAL(SCR)
       USE ISO_C_BINDING
-      USE spinfo_mclr, only: NTYP,NCPCNT
+      USE MCLR_Data, only: NTYP,NCPCNT
       IMPLICIT None
       REAL*8, TARGET :: SCR(*)
       INTEGER, POINTER :: iSCRl(:),iSCRr(:)

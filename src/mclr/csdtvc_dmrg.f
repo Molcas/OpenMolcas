@@ -22,7 +22,7 @@
 * Modified version for DMRG only -- yma
 *
       use Constants, only: Zero, One
-      use spinfo_mclr, only: NTYP,NCNATS,NCPCNT,NCSASM,NDPCNT,NDTASM
+      use MCLR_Data, only: NTYP,NCNATS,NCPCNT,NCSASM,NDPCNT,NDTASM
       IMPLICIT None
       REAL*8 CSFVEC(*),DETVEC(*)
       INTEGER IWAY

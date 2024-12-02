@@ -110,7 +110,7 @@
 * by calling CICNCH.ICNFOK(ICNF) is 1 of tests are passed, ICNFOK(ICNF)
 * is zero if test fails
       use stdalloc, only: mma_allocate, mma_deallocate
-      use spinfo_mclr, only: NTYP,NCNATS,NDPCNT,MINOP
+      use MCLR_Data, only: NTYP,NCNATS,NDPCNT,MINOP
       IMPLICIT NONE
       INTEGER ICONF(*),ICTSDT(*)
       INTEGER NAEL,NBEL
@@ -373,7 +373,7 @@ C?    END IF
       use MCLR_Data, only: LuCSF2SD
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,NELCI
       use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
-      use spinfo_mclr, only: MAXOP,MINOP,NCNATS
+      use MCLR_Data, only: MAXOP,MINOP,NCNATS
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
@@ -684,7 +684,7 @@ c Avoid unused argument warnings
 *
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      use spinfo_mclr, only: MULTSP,MS2P,NTYP,MINOP,NCPCNT,NDPCNT
+      use MCLR_Data, only: MULTSP,MS2P,NTYP,MINOP,NCPCNT,NDPCNT
       IMPLICIT None
       DIMENSION IDFTP(*),ICFTP(*),DTOC(*)
       REAL*8 PSSIGN
@@ -789,7 +789,7 @@ c Avoid unused argument warnings
 * If PSSIGN .ne. 0, spin combinations are used !!
       Use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       use stdalloc, only: mma_allocate, mma_deallocate
-      use spinfo_mclr, only: MULTSP,MS2P,MINOP,MAXOP,NTYP,NCPCNT,NDPCNT,
+      use MCLR_Data, only: MULTSP,MS2P,MINOP,MAXOP,NTYP,NCPCNT,NDPCNT,
      &                       NCNASM,NCNATS,NCSASM,NDTASM
       IMPLICIT NONE
       INTEGER NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,

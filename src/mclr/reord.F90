@@ -34,7 +34,7 @@
 #ifdef _DEBUGPRINT_
       use Definitions, only: u6
 #endif
-      use spinfo_mclr_data, only: minop, NCSFTP=>NCPCNT, NCNFTP=>NCNATS, NTYP
+      use MCLR_data, only: minop, NCSFTP=>NCPCNT, NCNFTP=>NCNATS, NTYP
       use stdalloc, only: mma_allocate, mma_deallocate
       use gugx, only: SGStruct, CIStruct, EXStruct
       IMPLICIT None

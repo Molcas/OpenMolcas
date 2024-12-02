@@ -55,7 +55,7 @@ c Avoid unused argument warnings
       USE ISO_C_BINDING
       use MCLR_Data, only: IASTFI,IBSTFI
       use Str_Info, only: Str
-      use spinfo_mclr, only: MINOP,NCPCNT,NDPCNT
+      use MCLR_Data, only: MINOP,NCPCNT,NDPCNT
       Implicit None
       INTEGER IAGRP,IBGRP,IOPL,IOPR,ICLL,ICLR,NDETL,NDETR,NCSFL,
      &        NCSFR,KLFREE,KLDTLA,KLDTLB,KLISL,KLDTRA,KLDTRB,KLISR,

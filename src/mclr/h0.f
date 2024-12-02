@@ -20,7 +20,7 @@
       use MCLR_Data, only: NAELCI,NBELCI,XISPSM
       use MCLR_Data, only: MXP1,MXP2,MXQ,NOCSF
       use MCLR_Data, only: NACOB,NOCOB
-      use spinfo_mclr, only: NTYP,NCPCNT,NDPCNT
+      use MCLR_Data, only: NTYP,NCPCNT,NDPCNT
 *
 * frontend to jeppes explicit routines
 *

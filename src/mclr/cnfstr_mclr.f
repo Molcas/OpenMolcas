@@ -24,7 +24,7 @@
 *
 * Modified September 1993 for LUCIA
 *
-      use spinfo_mclr, only: MINOP, NDPCNT
+      use MCLR_Data, only: MINOP, NDPCNT
       IMPLICIT NONE
 *. Specific input
       INTEGER ICONF(*)

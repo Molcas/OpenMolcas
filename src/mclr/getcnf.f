@@ -18,7 +18,7 @@
 *
 * Jeppe Olsen , summer of 89
 *
-      use spinfo_mclr, only: NTYP,MINOP,NCNATS
+      use MCLR_Data, only: NTYP,MINOP,NCNATS
       IMPLICIT NONE
 *. General input
       INTEGER KCNF(*)

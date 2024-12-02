@@ -18,7 +18,7 @@
       Use Str_Info, only: DTOC, CNSM
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
-      use spinfo_mclr, only: NDTASM
+      use MCLR_Data, only: NDTASM
       implicit None
       Real*8 CSF(*),SD(*)
       Integer is
