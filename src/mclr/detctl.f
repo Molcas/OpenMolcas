@@ -15,13 +15,14 @@
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
       use MCLR_Data, only: MS2,idc,PSSIGN
       use MCLR_Data, only: FnCSF2SD, LuCSF2SD
+      use crun_mclr, only: NOCSF,IDENMT,NOPART,IDIAG,INTIMP,INCORE,
+     &                     ICISTR
 *
       Implicit None
 
 #include "Input.fh"
 #include "cands.fh"
 #include "detdim.fh"
-#include "crun_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer iTmp, nTRas1,nTRas2,nTRas3,iSym,iDum
 
