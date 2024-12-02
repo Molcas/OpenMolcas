@@ -57,7 +57,6 @@
       Integer, Parameter :: iTimeKK = 2
       Integer, Parameter :: iTimeKC = 3
       Integer, Parameter :: iTimeCK = 4
-#include "crun_mclr.fh"
       Character(LEN=8)   Fmt2
       Character(LEN=132) Line
       Integer iKapDisp(nDisp),isigDisp(nDisp)
