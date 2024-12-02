@@ -42,8 +42,6 @@
       Logical converged(8)
       Integer iPL
 *
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
 
       Logical CI
