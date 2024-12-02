@@ -110,6 +110,7 @@
 * by calling CICNCH.ICNFOK(ICNF) is 1 of tests are passed, ICNFOK(ICNF)
 * is zero if test fails
       use stdalloc, only: mma_allocate, mma_deallocate
+      use spinfo_mclr, only: NTYP,NCNATS,NDPCNT,MINOP
       IMPLICIT NONE
       INTEGER ICONF(*),ICTSDT(*)
       INTEGER NAEL,NBEL
@@ -126,8 +127,6 @@ C where MXDT is the largest number of prototype determinants occuring
 C in a single block.
 C
 *./SPINFO/
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: LDTBL(:), LIA(:), LIB(:), SCR23(:)
       INTEGER NTEST,MXDT,ITYP,ICNF,JDTABS,IPSFAC,ISGNAB,ICNBS0,IPBAS,
@@ -220,7 +219,6 @@ c Avoid unused argument warnings
       INTEGER IAGRP,IBGRP,IGENSG
       INTEGER ISGNA(*),ISGNB(*)
       INTEGER ISGNAB
-#include "detdim.fh"
       INTEGER IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
       INTEGER NORB,IPSFAC
       REAL*8 PSSIGN
@@ -375,13 +373,12 @@ C?    END IF
       use MCLR_Data, only: LuCSF2SD
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,NELCI
       use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
+      use spinfo_mclr, only: MAXOP,MINOP,NCNATS
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
 *
-#include "detdim.fh"
 #include "csm.fh"
-#include "spinfo_mclr.fh"
 #include "cands.fh"
       integer idum(1)
       Integer, Allocatable:: SIOIO(:), SBLTP(:), IOOS1(:),
@@ -687,12 +684,11 @@ c Avoid unused argument warnings
 *
 *
       use stdalloc, only: mma_allocate, mma_deallocate
+      use spinfo_mclr, only: MULTSP,MS2P,NTYP,MINOP,NCPCNT,NDPCNT
       IMPLICIT None
       DIMENSION IDFTP(*),ICFTP(*),DTOC(*)
       REAL*8 PSSIGN
       Integer IPRNT
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 
 !     local variables
       Integer, Allocatable:: SCR7(:)
