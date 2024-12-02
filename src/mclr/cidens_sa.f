@@ -18,8 +18,6 @@
       Integer iLS, iRS, iL, iR
       Real*8 rP(*),rD(*)
 #include "detdim.fh"
-#include "crun_mclr.fh"
-
 #include "Input.fh"
 #include "spinfo_mclr.fh"
 #include "cands.fh"
