@@ -20,8 +20,6 @@
       use MCLR_Data, only: nDens2, nNA
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 
 ******Output
       Real*8,DIMENSION(nDens2)::bk
@@ -58,8 +56,6 @@
       use MCLR_Data, only: nDens2, ipMat
       implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 ******Output:none
 ******Input:
       INTEGER nTri
@@ -102,8 +98,6 @@
       use MCLR_Data, only: nDens2, ipMat
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 ******Output
       Real*8,DIMENSION(nDens2)::bk
 ******Input
@@ -142,8 +136,6 @@
       use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 ******Input
       Real*8,DIMENSION(nRoots**2)::R
       INTEGER nTri,NG2
