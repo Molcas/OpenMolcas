@@ -13,12 +13,14 @@
 * One-electron integrals over orbitals belonging to
 * given OS class
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "detdim.fh"
-#include "Input.fh"
-#include "orbinp_mclr.fh"
+      use orbinp_mclr, only: NTSOB
+      IMPLICIT NONE
 *.Output
-      DIMENSION H(*)
+      REAL*8 H(*)
+      INTEGER ISM,ITP,JSM,JTP
+
+      INTEGER NI,NJ,IJ,I,J,NTEST
+      REAL*8, External:: GTH1EN
 *
       NI = NTSOB(ITP,ISM)
       NJ = NTSOB(JTP,JSM)
@@ -36,5 +38,4 @@
         CALL WRTMAT(H,NI,NJ,NI,NJ)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE NGETH1
