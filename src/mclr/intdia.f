@@ -17,6 +17,7 @@
       use MCLR_Data, only: iDC, PLSIGN, PSSIGN
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC
       use MCLR_Data, only: ICISTR
+      use orbinp_mclr, only: NTOOB,NACOB
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -43,7 +44,6 @@
 * ==============
 *
 #include "detdim.fh"
-#include "orbinp_mclr.fh"
 #include "csm.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
