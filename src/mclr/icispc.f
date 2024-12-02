@@ -15,6 +15,7 @@
       use MCLR_Data, only: NICISP,NELCI,NAELCI,NBELCI,MNR1IC,MNR3IC,
      &                                                  MXR1IC,MXR3IC,
      &                       IACTI,IASTFI,IBSTFI,IRCI
+      use orbinp_mclr, only: NORB1,NORB2
       Implicit None
       Integer MNRS10,MXRS30,IPRNT
 *
@@ -37,15 +38,12 @@
 * 1 *  Zero order   *           0            *    0     *    0     *
 ********************************************************************
 * ====================
-*. Input common blocks
+*. Input Module
 * ====================
-*./LUCINP : EXTSPC is used
-#include "detdim.fh"
-*./STRINP/
-*/ORBINP/
-#include "orbinp_mclr.fh"
+*./Str_Info
+*./orbinp_mclr
 * ====================
-*. Output common block
+*. Output Module
 * ====================
 !module MCLR_Data
 * NICISP : Number of internal CI spaces constructed
