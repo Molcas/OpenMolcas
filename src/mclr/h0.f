@@ -17,6 +17,7 @@
       use Arrays, only: Int2, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: iRefSM,IDC,PSSIGN
+      use cicisp_mclr, only: NAELCI,NBELCI,XISPSM
 *
 * frontend to jeppes explicit routines
 *
@@ -27,7 +28,6 @@
 #include "detdim.fh"
 #include "orbinp_mclr.fh"
 #include "crun_mclr.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
       Integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, iTyp,
      &        nActEl, lH0SCR, ieaw, i, iRC, lVec2
