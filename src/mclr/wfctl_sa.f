@@ -42,7 +42,6 @@
 #include "dmrginfo_mclr.fh"
 
       Logical CI
-#include "crun_mclr.fh"
       Character(LEN=8)   Fmt2
       Integer opOut
       Logical lPrint
