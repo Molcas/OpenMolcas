@@ -18,6 +18,8 @@
       use MCLR_Data, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,
      &                       MXR3IC,XISPSM
       use MCLR_Data, only: NOCSF,MAXI,MAXK,ICISTR,NOPART,IDIAG
+      use orbinp_mclr, only: IBTSOB,ITSOB,NACOB,NORB1,NORB2,NORB3,
+     &                       NTSOB
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -37,7 +39,6 @@
 *
 #include "cands.fh"
 #include "detdim.fh"
-#include "orbinp_mclr.fh"
 #include "csm.fh"
 
 #include "Input.fh"
