@@ -17,11 +17,11 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: FANCY_PRECONDITIONER
       use MCLR_Data, only: XISPSM
+      use crun_mclr, only: NOCSF, ICISTR
       Implicit None
       Integer iSym
       Real*8 ralp(*),S(*)
 #include "detdim.fh"
-#include "crun_mclr.fh"
 #include "spinfo_mclr.fh"
 
 #include "Input.fh"
