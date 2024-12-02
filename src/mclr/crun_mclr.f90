@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module crun_mclr
-#include "crun_mclr.fh"
 !
 !        MAXIT        :        Max iterations (NOT IN USE)
 !        iRestr        :         Not in use
@@ -41,9 +40,9 @@ Module crun_mclr
 !        NoPart         :        partitioning of strings in alpha-alpha + beta-beta loops
 !        NOHSOO        :        No spin-other-orbit operator included
 !        IDENMT        :        Calculate one-body density matrix
-!     Integer MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,           &
-!    &            ICISTR,NOCSF,IDIAG,NOINT,NOPAIR,IH1SO,IDELMS,         &
-!    &            ISOSYM(3),INIDEG,IFINSD,IPREREL,NOMSPA,IPREDZN,       &
-!    &            ISUPSP,IREDSTP,IDMPIN,MAXRIT,MAXI,MAXK,NOPART,        &
-!    &            NOHSOO,IDENMT
+Integer MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,       &
+        ICISTR,NOCSF,IDIAG,NOINT,NOPAIR,IH1SO,IDELMS,         &
+        ISOSYM(3),INIDEG,IFINSD,IPREREL,NOMSPA,IPREDZN,       &
+        ISUPSP,IREDSTP,IDMPIN,MAXRIT,MAXI,MAXK,NOPART,        &
+        NOHSOO,IDENMT
 End Module crun_mclr
