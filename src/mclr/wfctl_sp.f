@@ -29,14 +29,13 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
+      use spinfo_mclr, only: MS2P
       Implicit None
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
 *
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
       Character(LEN=8)   Fmt2
       integer opout
       Logical lPrint
