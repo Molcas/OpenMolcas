@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1996, Anders Bernhardsson                              *
 ************************************************************************
+*define _DEBUGPRINT_
        SubRoutine OutPut_MCLR(iKapDisp,isigdisp,iCiDisp,
      &                        iCiSigDisp,iRHSDisp,iRHSCIDisp,
      &                        converged)
@@ -52,6 +53,7 @@
 #ifdef _DEBUGPRINT_
       Character(LEN=20) Label2
       Logical elec_On
+      Integer ip
 #endif
       Integer Pstate_sym,ldisp2(8),ielec(3)
       Logical CI
@@ -70,10 +72,6 @@
       Real*8, External:: DDot_
       Integer, External:: ipGet, ipIn, ipClose
       Integer, External:: IsFreeUnit
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *

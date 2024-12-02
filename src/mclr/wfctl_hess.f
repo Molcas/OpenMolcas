@@ -49,6 +49,8 @@
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
+     Real*8 dfail
+     Integer iglfail
 #endif
       Logical Orb,CI,Response
       Integer, Parameter :: iTimeCC = 1
