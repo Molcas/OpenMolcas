@@ -10,20 +10,22 @@
 *                                                                      *
 * Copyright (C) 1993, Jeppe Olsen                                      *
 ************************************************************************
-      FUNCTION ISTRN_MCLR(STRING,IGROUP)
-      Use Str_Info
+      INTEGER FUNCTION ISTRN_MCLR(STRING,IGROUP)
+      Use Str_Info, only: STR,NELEC
+      use orbinp_mclr, only: NACOB
 *
 * A string belonging to group IGROUP is given.
 * find actual number
 *
 * Jeppe Olsen, September 1993
 *234567
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 *. Specific input
       INTEGER STRING(*)
+      INTEGER IGROUP
 *
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
+      Integer NEL
+      INTEGER, External:: ISTRNM
 
       NEL = NELEC(IGROUP)
       ISTRN_MCLR = ISTRNM(STRING,NACOB,NEL,
@@ -31,5 +33,4 @@
      &                    Str(IGROUP)%STREO,1)
 *
 *
-      RETURN
-      END
+      END FUNCTION ISTRN_MCLR
