@@ -128,7 +128,6 @@
 #include "Input.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "crun_mclr.fh"
 
       NPUVX=0
       DO iSp=1,nSym
