@@ -131,6 +131,8 @@ set (sources
 set (modfile_list
      caspt2_global.F90
      csfbas.F90
+     mclr_data.f90
+     spinfo_mclr.f90
      gugx.F90
      rasscf_global.F90
      wadr.F90
