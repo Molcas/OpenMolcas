@@ -1,4 +1,4 @@
-************************************************************************
+***********************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -19,8 +19,6 @@
       use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 
 ******Input
 ******Output
