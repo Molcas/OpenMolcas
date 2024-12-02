@@ -21,7 +21,6 @@
 #include "Input.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "crun_mclr.fh"
 
 
 ****** Output
@@ -140,7 +139,6 @@
 #include "Input.fh"
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
-#include "crun_mclr.fh"
 
 *******Output
       Real*8,DIMENSION(nRoots*nConf1)::CSFOK
