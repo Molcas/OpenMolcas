@@ -11,7 +11,7 @@
       Subroutine InCSFSD(iState,State_sym,GUGA)
       use Str_Info, only: CNSM
       use stdalloc, only: mma_allocate
-      use MCLR_Data, only: iALLO,i1,iAnders
+      use MCLR_Data, only: iALLO,i1,iAnders,lConf,llDet
       use MCLR_Data, only: LuCSF2SD
       Implicit None
       Integer iState, State_sym
@@ -19,7 +19,7 @@
 #include "detdim.fh"
 #include "spinfo_mclr.fh"
       Integer idum(1)
-      Integer iSym,iAdr,i,lConf,llDet,iad
+      Integer iSym,iAdr,i,iad
 *
 
 *     Place pointer
