@@ -20,7 +20,6 @@
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 
 ******Input
