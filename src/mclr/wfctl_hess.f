@@ -37,12 +37,12 @@
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: lDisp
       use MCLR_Data, only: LuTemp
+      use cicisp_mclr, only: XISPSM
       Implicit None
       External Rsv_Tsk
 *
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
 *
