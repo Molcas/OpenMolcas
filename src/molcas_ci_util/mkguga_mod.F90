@@ -116,7 +116,6 @@ contains
 
     Implicit None
 #   include "Input.fh"
-#   include "detdim.fh"
     integer(kind=iwp) :: iBas, iOrb, iSym
 
     SGS%NLEV = ntASh
