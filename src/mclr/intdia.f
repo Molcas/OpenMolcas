@@ -16,7 +16,7 @@
       use MCLR_Data, only: IPRDIA
       use MCLR_Data, only: iDC, PLSIGN, PSSIGN
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC
-      use crun_mclr, only: ICISTR
+      use MCLR_Data, only: ICISTR
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM

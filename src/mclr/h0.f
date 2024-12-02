@@ -18,7 +18,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: iRefSM,IDC,PSSIGN
       use MCLR_Data, only: NAELCI,NBELCI,XISPSM
-      use crun_mclr, only: MXP1,MXP2,MXQ,NOCSF
+      use MCLR_Data, only: MXP1,MXP2,MXQ,NOCSF
 *
 * frontend to jeppes explicit routines
 *

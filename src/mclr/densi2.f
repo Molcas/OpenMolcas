@@ -19,7 +19,7 @@
       use MCLR_Data, only: IDC,PSSIGN
       use MCLR_Data, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,
      &                     MXR3IC
-      use crun_mclr, only: MAXI,MAXK,ICISTR
+      use MCLR_Data, only: MAXI,MAXK,ICISTR
 *
 * Density matrices between L and R
 *

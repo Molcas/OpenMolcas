@@ -15,7 +15,7 @@
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
       use MCLR_Data, only: MS2,idc,PSSIGN
       use MCLR_Data, only: FnCSF2SD, LuCSF2SD
-      use crun_mclr, only: NOCSF,IDENMT,NOPART,IDIAG,INTIMP,INCORE,
+      use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INTIMP,INCORE,
      &                     ICISTR
 *
       Implicit None

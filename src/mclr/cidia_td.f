@@ -16,7 +16,7 @@
       use ipPage, only: W
       use MCLR_Data, only: ipDia
       use MCLR_Data, only: XISPSM
-      use crun_mclr, only: NOCSF, ICISTR
+      use MCLR_Data, only: NOCSF, ICISTR
       Implicit None
       Integer iSym
 #include "detdim.fh"

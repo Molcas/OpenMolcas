@@ -17,7 +17,7 @@
       use MCLR_Data, only: IDC, PSSIGN
       use MCLR_Data, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,
      &                       MXR3IC,XISPSM
-      use crun_mclr, only: NOCSF,MAXI,MAXK,ICISTR,NOPART,IDIAG
+      use MCLR_Data, only: NOCSF,MAXI,MAXK,ICISTR,NOPART,IDIAG
 *
 * Outer routine for sigma vector generation
 * RAS space

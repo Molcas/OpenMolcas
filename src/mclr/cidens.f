@@ -14,7 +14,7 @@
       use Constants, only: Zero, One
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
       use MCLR_Data, only: XISPSM
-      use crun_mclr, only: NOCSF
+      use MCLR_Data, only: NOCSF
       Implicit None
       Logical Response
       Integer iLS, iRS, iL, iR
