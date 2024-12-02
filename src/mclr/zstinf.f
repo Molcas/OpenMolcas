@@ -9,7 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ZSTINF_MCLR(IPRNT)
-      use Str_Info
+      use Str_Info, only:NSTTYP,INUMAP,INDMAP,ISTAC,MNRS1,MXRS1,MNRS3,
+     &                   MXRS3,NELEC,NOCTYP,NSTFTP
+      use orbinp_mclr, only: NORB1,NORB2,NORB3
+      Implicit None
+      Integer IPRNT
+
+*     Local variables
+      Integer NTEST,ITYP,IDEL,IEX,NUMST3
 *
 * Set up common block /STINF/ from information in /STINP/
 *
@@ -41,7 +48,6 @@
 *    !            reference space                         \ /
 *
 #include "detdim.fh"
-#include "orbinp_mclr.fh"
 *
 *
       NTEST = 0000
