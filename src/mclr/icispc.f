@@ -11,7 +11,12 @@
 * Copyright (C) 1990, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE ICISPC(MNRS10,MXRS30,IPRNT)
-      Use Str_Info
+      Use Str_Info, only: IAZTP,IBZTP,NELEC
+      use cicisp_mclr, only: NICISP,NELCI,NAELCI,NBELCI,MNR1IC,MNR3IC,
+     &                                                  MXR1IC,MXR3IC,
+     &                       IACTI,IASTFI,IBSTFI,IRCI
+      Implicit None
+      Integer MNRS10,MXRS30,IPRNT
 *
 * Obtain internal CI spaces relevant for MRSDCI
 *       /STRINP/+/LUCINP/ = > /CICISP/
@@ -42,7 +47,7 @@
 * ====================
 *. Output common block
 * ====================
-#include "cicisp_mclr.fh"
+!module cicisp_mclr
 * NICISP : Number of internal CI spaces constructed
 * IASTFI : Alpha string type for internal CI space
 * IBSTFI : Beta string type for internal CI space
@@ -54,6 +59,8 @@
 * NELCI : Number of electrons per CI space
 * obtained by (IEX-1) fold internal excitation , with a NAEL + DELTAA
 * alpha electrons and  NBEL + DELTAB beta electrons
+* local variables
+      Integer NTEST,ICI,IEX,IDA,IDB
 *
 *
       NTEST = 00000
