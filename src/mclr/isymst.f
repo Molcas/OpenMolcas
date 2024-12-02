@@ -8,26 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION ISYMST_MCLR(STRING,NEL)
+      INTEGER FUNCTION ISYMST_MCLR(STRING,NEL)
 *
 * Master routine for symmetry of string
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*. General input ( PNTGRP is used )
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
+      use orbinp_mclr, only: ISMFTO
+      IMPLICIT None
 *. Specific input
-      INTEGER STRING(*)
+      INTEGER STRING(*), NEL
+
+      INTEGER ISYM,IEL,JSYM,IVV,KVV
 *
       ISYM = 1
       DO 100 IEL = 1, NEL
         JSYM=ISMFTO(STRING(IEL))-1
-cVV: this ugly code needed for CRAY SV1
         IVV=ISYM-1
         KVV = IEOR(IVV,JSYM)
         ISYM=KVV+1
 100   CONTINUE
       ISYMST_MCLR = ISYM
 *
-      RETURN
-      END
+      END FUNCTION ISYMST_MCLR
