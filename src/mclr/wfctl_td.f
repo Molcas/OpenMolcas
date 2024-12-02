@@ -44,7 +44,6 @@
       Integer, Parameter :: iTimeKK = 2
       Integer, Parameter :: iTimeKC = 3
       Integer, Parameter :: iTimeCK = 4
-#include "crun_mclr.fh"
       Character(LEN=8)   Fmt2
       Integer pstate_sym,opout
       Logical lPrint
