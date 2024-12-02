@@ -13,7 +13,7 @@
       SUBROUTINE ADADST(IOBTP,IOBSM,IOBOFF,NIOB,JOBTP,JOBSM,JOBOFF,NJOB,
      &                  IJORD,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,NK,
      &                  NKDIM,IEND)
-      use Str_Info
+      use Str_Info, only: STR,ISTAC,IUNIQMP,NOCTYP
       use orbinp_mclr, only: NACOB,NORB1,NORB2,NORB3
 *
 *
