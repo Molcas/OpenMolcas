@@ -20,6 +20,7 @@
       use MCLR_Data, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,
      &                     MXR3IC
       use MCLR_Data, only: MAXI,MAXK,ICISTR
+      use orbinp_mclr, only: NACOB,IBTSOB,NOBPTS,NTSOB
 *
 * Density matrices between L and R
 *
@@ -50,7 +51,6 @@
 * with L being S and  R being C
 #include "cands.fh"
 #include "detdim.fh"
-#include "orbinp_mclr.fh"
 #include "csm.fh"
 #include "spinfo_mclr.fh"
 
