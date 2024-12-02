@@ -20,7 +20,6 @@
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 
 ******Input
@@ -128,7 +127,6 @@
       INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp,nRS
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 #include "spinfo_mclr.fh"
 #include "crun_mclr.fh"
 
@@ -316,10 +314,10 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA,n2Dens,ipCI,n1Dens
+      use cicisp_mclr, only: XISPSM
       Implicit None
 #include "Input.fh"
 #include "detdim.fh"
-#include "cicisp_mclr.fh"
 *      Input
 *      Output
        Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
