@@ -42,10 +42,13 @@
       use MCLR_Data, only: lDisp
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: nDisp,Fail,Save,nSym,PT2,State_Sym,iMethod,
+     &                      rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+     &                      ERASSCF,kPrint,nCSF,nTPert,TimeDep,nAsh,nRs2
+
       Implicit None
       External Rsv_Tsk
 *
-#include "Input.fh"
 #include "dmrginfo_mclr.fh"
 *
 #ifdef _MOLCAS_MPP_
