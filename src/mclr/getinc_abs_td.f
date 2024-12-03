@@ -22,7 +22,6 @@
       use MCLR_Data, only: NACOB,IBTSOB,NTSOB
       IMPLICIT None
 *
-#include "detdim.fh"
       REAL*8 XINT(*)
       INTEGER ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM
       Real*8 Intlst(*)

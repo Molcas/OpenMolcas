@@ -21,6 +21,7 @@
      &                     MXR3IC
       use MCLR_Data, only: MAXI,MAXK,ICISTR
       use MCLR_Data, only: NACOB,IBTSOB,NOBPTS,NTSOB
+      use DetDim, only: MXPOBS,MXINKA,MXPNGAS
 *
 * Density matrices between L and R
 *
@@ -50,7 +51,6 @@
 *.Definition of L and R is picked up from CANDS
 * with L being S and  R being C
 #include "cands.fh"
-#include "detdim.fh"
 #include "csm.fh"
 
 #include "Input.fh"
