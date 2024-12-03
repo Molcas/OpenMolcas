@@ -13,12 +13,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
       use MCLR_Data, only: XISPSM
+      use cands, only: ICSM,ISSM
       Implicit None
       Logical RSP
       Integer iLS, iRS, iL, iR
       Real*8 rP(*),rD(*)
 #include "Input.fh"
-#include "cands.fh"
 #include "dmrginfo_mclr.fh"
       integer opout
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
