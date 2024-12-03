@@ -16,6 +16,7 @@
      &                      Deallocate_Local_Arrays
       use strbas
       use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
+      use cands
 
 *
       IMPLICIT REAL*8 (A-H, O-Z)
@@ -25,7 +26,6 @@
 #include "orbinp.fh"
 #include "crun.fh"
 #include "cstate.fh"
-#include "cands.fh"
 #include "cicisp.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
@@ -40,7 +40,7 @@
       Integer, Allocatable:: BASSPC(:)
       Integer, Allocatable:: KLOCCLS(:)
 
-*. Set variables in cands.fh
+*. Set variables in Module cands
       JSYM = IREFSM
       ICSM  = JSYM
       ISSM  = JSYM
@@ -244,14 +244,14 @@ c      END IF
 *
       SUBROUTINE DETCTL_FREE()
       use strbas
-      IMPLICIT REAL*8 (A-H, O-Z)
+      use cands
+      Implicit real*8(a-h,o-z)
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
 #include "orbinp.fh"
 #include "crun.fh"
 #include "cstate.fh"
-#include "cands.fh"
 #include "cicisp.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
@@ -260,6 +260,7 @@ c      END IF
 #include "strinp.fh"
 #include "lucinp.fh"
 
+      Integer JSYM
 
       JSYM = IREFSM
       CALL CSFDIM_FREE(JSYM)
