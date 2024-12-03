@@ -29,14 +29,19 @@
       use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
       use MCLR_Data, only: LuTemp, LuQDat
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: nDisp,Fail,Save,nSym,PT2,State_Sym,iMethod,
+     &                      iBreak,Epsilon,nIter,iSpin,
+     &                      Debug,kPrint,nCSF,iAddressQDat,
+     &                      NROOTS,TWOSTEP,STEPTYPE,nConf,
+     &                      nActEl,nAsh,nElec3,nHole1,nRS1,nRS2,nRS3
       Implicit None
-#include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer iRHSDisp(nDisp)
       Logical converged(8)
       Integer iPL
 *
+#include "rasdim.fh"
 #include "dmrginfo_mclr.fh"
 
       Logical CI
