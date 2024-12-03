@@ -32,9 +32,8 @@
 * ================
 *. Driver routine
 * ================
-      Implicit Real*8 (a-h,o-z)
-#include "detdim.fh"
-
+      Implicit None
+      Integer ITASK,IOBJ,I1,I2,I12
 #include "Input.fh"
 *
       IF(PNTGRP.EQ.1) THEN
@@ -47,5 +46,4 @@
         Call Abend()
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE SYMCOM_MCLR
