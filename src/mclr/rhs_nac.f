@@ -17,7 +17,6 @@
       use MCLR_Data, only: XISPSM
       Implicit None
 #include "Input.fh"
-#include "detdim.fh"
 #include "cands.fh"
       Real*8 Fock(*)
       real*8, optional :: SLag(*)
