@@ -19,8 +19,6 @@
       Logical Response
       Integer iLS, iRS, iL, iR
       Real*8 rP(*),rD(*)
-
-#include "detdim.fh"
 #include "Input.fh"
 #include "cands.fh"
 #include "dmrginfo_mclr.fh"
