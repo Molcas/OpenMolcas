@@ -36,6 +36,7 @@
 !        STSTX        :        Symmetry of excitation connecting strings of given symmetry
 
 Module Str_Info
+use DetDim, only: MXCNSM
 
 Implicit None
 Private
@@ -134,7 +135,6 @@ Integer:: ISTAC(NSTTYP_MAX,2),                          &
           INDMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
           MXNSTR
 
-#include "detdim.fh"
 !     DFTP          :        OPEN SHELL DETERMINANTS OF PROTO TYPE
 !     CFTP          :        BRANCHING DIAGRAMS FOR PROTO TYPES
 !     DTOC          :        CSF-DET TRANSFORMATION FOR PROTO TYPES
