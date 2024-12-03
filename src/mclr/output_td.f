@@ -41,7 +41,6 @@
       use MCLR_Data, only: LuTEMP
       use MCLR_Data, only: XISPSM
       Implicit None
-#include "detdim.fh"
 #include "Input.fh"
       Integer iKapDisp(nDisp),isigdisp(nDisp),
      &        iCiDisp(nDisp),iCiSigDisp(nDisp),
