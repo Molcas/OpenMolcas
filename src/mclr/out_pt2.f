@@ -22,7 +22,6 @@
      &                     NACSTATES
       use MCLR_Data, only: LuTEMP, LuJob, LuPT2
       Implicit None
-#include "detdim.fh"
 #include "Input.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
