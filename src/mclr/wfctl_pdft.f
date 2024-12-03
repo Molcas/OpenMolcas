@@ -34,14 +34,18 @@
       use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: nDisp,Fail,Save,nSym,State_Sym,iMethod,
+     &                      iBreak,Epsilon,nIter,Weight,
+     &                      Debug,ERASSCF,kPrint,nCSF,nRoots,
+     &                      ntAsh,nAsh,nBas,nRs2
       Implicit None
-#include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer iRHSDisp(nDisp)
       Logical converged(8)
       Integer iPL
 *
+#include "rasdim.fh"
 #include "dmrginfo_mclr.fh"
 
       Logical CI
@@ -813,13 +817,13 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One
       use MCLR_Data
+      use input_mclr, only: nRoots,nAsh,nRs2
       Implicit None
       Real*8 Kap(*)
       Integer ipCId,isym,jspin,ipS2,ipCiOut
       Real*8 ReCo
       Real*8 KapOut(*)
 #include "dmrginfo_mclr.fh"
-#include "Input.fh"
       Integer opOut
       Real*8 rdum(1)
       Real*8, Allocatable:: RMOAA(:), Sc1(:), Sc2(:), Sc3(:),
