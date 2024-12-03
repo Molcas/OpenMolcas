@@ -39,7 +39,6 @@
 * Updated with iuniqtp, dec 11, 1994
       IMPLICIT None
 *
-#include "detdim.fh"
 #include "csm.fh"
 
 *     Local variables
