@@ -29,7 +29,6 @@
       use MCLR_Data, only: DspVec, lDisp
       use MCLR_Data, only: LuTEMP
       Implicit None
-#include "detdim.fh"
 #include "Input.fh"
       Integer iKapDisp(nDisp),iCiDisp(nDisp)
 
