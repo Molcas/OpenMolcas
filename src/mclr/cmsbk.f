@@ -324,7 +324,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipMat, nA, nDens2
       Implicit None
-#include "detdim.fh"
 #include "Input.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
