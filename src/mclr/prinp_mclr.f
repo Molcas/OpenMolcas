@@ -28,7 +28,6 @@
       Implicit None
       Integer iPL
 #include "Input.fh"
-#include "detdim.fh"
       Character(LEN=8) Fmt1,Fmt2
       Character(LEN=100)  Line,BlLine,StLine
       Character(LEN=1) :: XYZ(3)=['X','Y','Z']
