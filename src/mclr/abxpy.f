@@ -10,10 +10,10 @@
 ************************************************************************
       SubRoutine ABXpY(Array1,Array2,idsym)
       use MCLR_Data, only: ipMO, NA
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb
       Implicit None
       Integer idsym
       Real*8 Array1(*),Array2(*)
-#include "Input.fh"
 
       Integer i, j, itri
       Integer iS, jS, kS, lS, ijS

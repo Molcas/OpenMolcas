@@ -29,9 +29,11 @@
       use MCLR_Data, only: lDisp
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: nDisp,Fail,Save,nSym,PT2,State_Sym,iMethod,
+     &                      Omega,rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+     &                      Debug,ERASSCF,kPrint,lCalc,nCSF,nTPert
       Implicit None
 *
-#include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
