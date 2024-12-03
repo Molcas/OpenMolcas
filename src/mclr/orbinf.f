@@ -31,6 +31,7 @@
      &                       ISMFTO,ITPFTO,ITSOB,NACOBS,NDEOBS,NINOBS,
      &                       NOBPT,NOBPTS,NOCOBS,NOSPIR,NR0OBS,NR4OBS,
      &                       NTOOBS,NTSOB
+      use DetDim, only: MXPIRR,MXPOBS,MXPR4T
       IMPLICIT NONE
       INTEGER NIRREP,NSMOB,MXR4tp,IPRNT
       INTEGER NRAS1(NIRREP),NRAS2(NIRREP),NRAS3(NIRREP)
@@ -38,8 +39,6 @@
 *     Local variables
       INTEGER ITFSO(1)
       INTEGER NTEST,IPIRR,IRREP,ISM,IISM,IPR4T,ISMOB,I
-*
-#include "detdim.fh"
 *
 *
       NTEST = 0000
