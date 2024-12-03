@@ -374,12 +374,12 @@ C?    END IF
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,NELCI
       use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
       use MCLR_Data, only: MAXOP,MINOP,NCNATS
+      use cands, only: ICSM,ISSM,ICSPC,ISSPC
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
 *
 #include "csm.fh"
-#include "cands.fh"
       integer idum(1)
       Integer, Allocatable:: SIOIO(:), SBLTP(:), IOOS1(:),
      &                       NOOS1(:)
