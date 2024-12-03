@@ -16,6 +16,7 @@
       use Constants, only: Zero, One
       use MCLR_Data, only: nNA, n2Dens,n1Dens
       use MCLR_Data, only: XISPSM
+      use cands, only: ICSM,ISSM
       Implicit None
       Real*8 LS(*),RS(*),rP1(nna,nna,nna,nna),
      &       rP2(nna,nna,nna,nna),rP3(nna,nna,nna,nna),
@@ -23,7 +24,6 @@
      &       rDe1(nna,nna),rde2(nna,nna)
       Integer iType
 #include "Input.fh"
-#include "cands.fh"
       Real*8, Allocatable:: Dens(:,:), Pens(:), CIL(:), CIR(:)
       Integer n2,nConfL,iL,nConfR,iR,iA,jA,kA,lA,ijklAB,jilkAB,
      &        ijklBA,jilkBA,ijkl,jilk
