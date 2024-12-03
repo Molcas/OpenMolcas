@@ -20,6 +20,8 @@
      &                      Deallocate_Local_Arrays
       use strbas
       use rasscf_lucia, only: kvec3_length
+*. module for communicating with sigma
+      use cands, only: ICSM,ISSM,ICSPC,ISSPC
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -27,7 +29,6 @@
 * Jeppe Olsen, Winter of 1995
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      EXTERNAL MV7
 #include "mxpdim.fh"
 #include "cicisp.fh"
 #include "orbinp.fh"
@@ -49,8 +50,6 @@
 #include "spinfo_lucia.fh"
 #include "io_util.fh"
 *
-*. Common block for communicating with sigma
-#include "cands.fh"
 *
 #include "cecore.fh"
 #include "cmxcj.fh"
