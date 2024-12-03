@@ -30,8 +30,10 @@
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: MS2P
+      use input_mclr, only: nDisp,Fail,State_Sym,iMethod,
+     &                      rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+     &                      Debug,ERASSCF,kPrint,nCSF
       Implicit None
-#include "Input.fh"
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
