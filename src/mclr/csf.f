@@ -1958,6 +1958,7 @@ C
      &                       MNR3IC,MXR1IC,NAELCI,NBELCI,XISPSM,MXSB,
      &                       MXSOOB,NICISP
       use DetDim, only: MXPCSM
+      use Constants, only: Zero
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -2002,6 +2003,7 @@ C            SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
       MXSB = 0
       MXSOOB = 0
       MXCEXP = 0
+      XISPSM(:,:) = Zero
       DO 100 ICI = 1, NICISP
       DO  50 ISYM = 1, NSMCI
         IATP = IASTFI(ICI)
@@ -2023,8 +2025,8 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
           MXSOOB = MAX(MXSOOB,MXSOO)
           MXSB = MAX(MXSB,MXS)
           MXCEXP = MAX(MXCEXP,NCOMB)
-        ELSE
-          XISPSM(ISYM,ICI) = 0.0D0
+*       ELSE
+*         XISPSM(ISYM,ICI) = Zero
         END IF
    50 CONTINUE
   100 CONTINUE

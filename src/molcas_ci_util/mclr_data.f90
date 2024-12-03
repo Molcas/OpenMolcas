@@ -9,10 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module MCLR_Data
+use Constants, only:Zero
 use detdim
 Private MXPIRR,MXPOBS,MXPR4T,MXINKA,MXPORB,MXPXOT,MXPXST,MXPSHL, &
         MXPL,MXPXT,MXPICI,MXPSTT,MXPCSM,MXPCTP,MXCNSM,MXPWRD, &
-        MXNMS,MTYP,MXPNGAS,MXPNSMST,MXPPTSPC
+        MXNMS,MTYP,MXPNGAS,MXPNSMST,MXPPTSPC,Zero
 
 ! Stuff from Pointers.fh
 Integer ipMat(8,8),ipMatLT(8,8),ipCM(8),ipMC(8,8),ipmatba(8,8),ipMO(8,8,8),iADMO(8,8,8)
@@ -118,7 +119,7 @@ Logical Nofile
 Integer NICISP,IASTFI(MXPICI),IBSTFI(MXPICI),IACTI(MXPICI),MNR1IC(MXPICI),MXR1IC(MXPICI),    &
         MNR3IC(MXPICI),MXR3IC(MXPICI),IZCI,IRCI(3,7,7),NELCI(MXPICI),NAELCI(MXPICI),NBELCI(MXPICI), &
         ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,ldet,lcsf
-Real*8 XISPSM(MXPCSM,MXPICI)
+Real*8 :: XISPSM(MXPCSM,MXPICI)=Zero
 
 ! Stuff from crun_mclr.fh
 !
