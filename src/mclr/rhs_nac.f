@@ -15,9 +15,9 @@
       use MCLR_Data, only: ipCI,nConf1,ipMat,n1Dens,n2Dens,nDens2
       use MCLR_Data, only: NSSA
       use MCLR_Data, only: XISPSM
+      use cands, only: ICSM,ISSM
       Implicit None
 #include "Input.fh"
-#include "cands.fh"
       Real*8 Fock(*)
       real*8, optional :: SLag(*)
       Integer ng1,ng2,i,j,k,l,ij,kl,ijkl,ij2,kl2,ijkl2
