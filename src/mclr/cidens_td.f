@@ -14,11 +14,11 @@
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF
+      use cands, only: ICSM,ISSM
       Implicit None
       Integer iCI, iS
       Real*8 rP(*),rD(*)
 #include "Input.fh"
-#include "cands.fh"
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
       Integer nConfL, nConfR, nC, iRC
       Integer, External:: ipIn, ipnOut
