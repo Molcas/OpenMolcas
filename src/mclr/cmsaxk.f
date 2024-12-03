@@ -18,8 +18,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
       use MCLR_Data, only: nNA, nDens2
+      use input_mclr, only: nRoots,ntBas,ntAsh,nSym,nAsh,nOrb
       Implicit None
-#include "Input.fh"
 
       Integer NPUVX
       Real*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA),Intent(In)::GDMat
@@ -81,8 +81,8 @@
       subroutine CalcAXk2(AXk,D1,D2,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2, nNA, ipMat
+      use input_mclr, only: ntBas,ntAsh,nSym,nAsh,nOrb,nIsh
       Implicit None
-#include "Input.fh"
       Integer NPUVX
       Real*8,DIMENSION(NPUVX)::PUVX
       INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::IndPUVX
