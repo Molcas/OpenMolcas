@@ -8,20 +8,11 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-!
-#include "Molcas.fh"
-!     Parameter definitions
-!     Note, these parameters define the size of the problems which
-!     can be treated by the RASSCF program. Changing any of these
-!     requires, that the program is totaly recompiled and linked.
-!
-      Integer, Parameter :: mxRef  = 5
-!...  max number of reference configurations in root selectioning
-      Integer, Parameter :: mxIter = 200
-!...  max number of macro iterations
-      Integer, Parameter ::  mxCiIt = 502
-!...  max number of micro iterations for the CI section
-      Integer, Parameter :: mxSxIt = 100
-!...  max number of micro iterations for the SX section
-      Integer, Parameter :: mxTit  = 1
-!...  max number of title lines
+Module Input_mclr
+#include "Input.fh"
+save
+Private :: mxRef,mxIter,mxCiIt,mxSxIt,mxTit
+Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina, &
+           mxbas,mxOrb,mxSym,mxGAS,LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
+End Module Input_mclr
+

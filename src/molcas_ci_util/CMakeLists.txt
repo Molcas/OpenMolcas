@@ -39,6 +39,7 @@ set (sources
      diagord.F90
      dihdj_molcas.F90
      dmatdmat.F90
+     detdim.f90
      expcsf.F90
      explh2.F90
      faroald.F90
@@ -63,6 +64,7 @@ set (sources
      hcsce.F90
      ini_david.F90
      init_lex.F90
+     input_mclr.f90
      ipcsfsplit.F90
      iphase.F90
      isgnum.F90
@@ -75,6 +77,7 @@ set (sources
      lucia2molcas.F90
      lucia2molcas_free.F90
      matml4.F90
+     mclr_data.f90
      mkclist.F90
      mkcot.F90
      mkcoup.F90
@@ -133,6 +136,7 @@ set (modfile_list
      caspt2_global.F90
      csfbas.F90
      detdim.f90
+     input_mclr.f90
      mclr_data.f90
      gugx.F90
      rasscf_global.F90
