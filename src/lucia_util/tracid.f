@@ -11,6 +11,7 @@
       SUBROUTINE TRACID(       T,   LUCIN,  LUCOUT,   LUSC1,   LUSC2,
      &                     LUSC3,    VEC1,    VEC2)
       use GLBBAS, only: INT1
+      use cands, only: ISSM,ISSPC
 *
 * Transform CI vector on LUCIN with T matrix after
 * Docent Malmquist's recipe. Place result as next vector on LUOUT
@@ -31,12 +32,11 @@
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "io_util.fh"
-#include "cands.fh"
       REAL*8 INPRDD
 *. Input
-      DIMENSION T(*)
+      REAL*8 T(*)
 *. Scratch blocks ( two of them)
-      DIMENSION VEC1(*),VEC2(*)
+      REAL*8 VEC1(*),VEC2(*)
 *
       NTEST = 000
       LBLK = -1
