@@ -90,8 +90,10 @@
       DIMENSION CB(*),SB(*)
 *. Scratch
       DIMENSION SSCR(*),CSCR(*)
-      DIMENSION I1(MAXK,*),XI1S(MAXK,*),I2(MAXK,*),XI2S(MAXK,*),
-     &          I3(MAXK,*),XI3S(MAXK,*),I4(MAXK,*),XI4S(MAXK,*)
+      INTEGER I1(MAXK,*),I2(MAXK,*),
+     &        I3(MAXK,*),I4(MAXK,*)
+      REAL*8  XI1S(MAXK,*),XI2S(MAXK,*),
+     &        XI3S(MAXK,*),XI4S(MAXK,*)
       DIMENSION C2(*),CJRES(*),SIRES(*),XINT(*)
       DIMENSION NTSOB(*),IBTSOB(*),ITSOB(*)
 *
