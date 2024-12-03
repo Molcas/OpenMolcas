@@ -507,14 +507,14 @@ C
       use ipPage, only: w
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      use MCLR_Data
+      use MCLR_Data, only: nConf1,n2Dens,nDens,nDens2
+      use input_mclr, only: nRoots,nAsh,nRS2
       Implicit None
       Real*8 Kap(*)
       Integer ipCId,isym,jspin,ipS2,ipCiOut
       Real*8 reco
       Real*8 KapOut(*)
 #include "dmrginfo_mclr.fh"
-#include "Input.fh"
       Integer opOut
       Real*8 rdum(1)
       Real*8, Allocatable:: Temp3(:), Temp4(:),
