@@ -12,6 +12,7 @@
       use Str_Info, only:NSTTYP,INUMAP,INDMAP,ISTAC,MNRS1,MXRS1,MNRS3,
      &                   MXRS3,NELEC,NOCTYP,NSTFTP
       use MCLR_Data, only: NORB1,NORB2,NORB3
+      use DetDim, only: MXPSTT
       Implicit None
       Integer IPRNT
 
@@ -46,8 +47,6 @@
 *    !            Double excitations from reference space  !  Down
 * Up !            single excitation from reference space   !
 *    !            reference space                         \ /
-*
-#include "detdim.fh"
 *
 *
       NTEST = 0000
