@@ -56,12 +56,12 @@
       use MCLR_Data, only: iAllo
       use MCLR_Data, only: SA,NACSTATES
       use MCLR_Data, only: LuPT2
+      use DetDim, only: MXCNSM
       Implicit None
 #include "Input.fh"
 #include "warnings.h"
 #include "SysDef.fh"
 
-#include "detdim.fh"
 #include "dmrginfo_mclr.fh"
       Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
      &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
