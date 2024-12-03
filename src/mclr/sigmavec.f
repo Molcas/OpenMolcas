@@ -20,6 +20,7 @@
       use MCLR_Data, only: NOCSF,MAXI,MAXK,ICISTR,NOPART,IDIAG
       use MCLR_Data, only: IBTSOB,ITSOB,NACOB,NORB1,NORB2,NORB3,
      &                       NTSOB
+      use DetDim, only: MXPOBS,MXINKA
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -38,7 +39,6 @@
 * =====
 *
 #include "cands.fh"
-#include "detdim.fh"
 #include "csm.fh"
 
 #include "Input.fh"
