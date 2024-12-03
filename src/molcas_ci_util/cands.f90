@@ -11,12 +11,10 @@
 Module Cands
 !.Definition of c and sigma
 !
-!        iCSM                 :        Symmetry of CI state?
-!        iSSM                 :             Symmetry of Sigma state?
-!        iCSpc                :        Number of CI Spaces
+!        iCSM                 :       Symmetry of CI state?
+!        iSSM                 :       Symmetry of Sigma state?
+!        iCSpc                :       Number of CI Spaces
 !        iSSpc                :       Number of Sigma spaces
 !
-#include "cands.fh"
-Save
-!Integer ICSM,ISSM,ICSPC,ISSPC
+Integer ICSM,ISSM,ICSPC,ISSPC
 End Module Cands
