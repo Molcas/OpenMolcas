@@ -791,12 +791,12 @@ c Avoid unused argument warnings
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: MULTSP,MS2P,MINOP,MAXOP,NTYP,NCPCNT,NDPCNT,
      &                       NCNASM,NCNATS,NCSASM,NDTASM
+      use DetDim, only: MXPCTP,MXPCSM,MXCNSM
       IMPLICIT NONE
       INTEGER NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,
      &        LLCSF,NCNSM,ICNSTR
       REAL*8 PSSIGN
       INTEGER IPRNT,lconf,lldet
-#include "detdim.fh"
 #include "dmrginfo_mclr.fh"
 !     local variables
       Integer, Allocatable:: IICL(:), IIOP(:), IIOC(:)
@@ -1957,6 +1957,7 @@ C
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,IACTI,
      &                       MNR3IC,MXR1IC,NAELCI,NBELCI,XISPSM,MXSB,
      &                       MXSOOB,NICISP
+      use DetDim, only: MXPCSM
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -1974,7 +1975,6 @@ C
 *.Input common blocks
 * ===================
 *
-#include "detdim.fh"
 #include "csm.fh"
 *
       Integer, Allocatable:: LBLTP(:), LCVST(:)
