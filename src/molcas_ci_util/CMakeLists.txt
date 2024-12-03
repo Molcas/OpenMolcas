@@ -129,6 +129,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     cands.f90
      caspt2_global.F90
      csfbas.F90
      detdim.f90
