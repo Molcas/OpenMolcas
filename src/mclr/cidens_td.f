@@ -17,7 +17,6 @@
       Implicit None
       Integer iCI, iS
       Real*8 rP(*),rD(*)
-#include "detdim.fh"
 #include "Input.fh"
 #include "cands.fh"
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
