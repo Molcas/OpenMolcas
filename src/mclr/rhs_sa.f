@@ -20,7 +20,6 @@
 
 #include "Input.fh"
 #include "dmrginfo_mclr.fh"
-#include "detdim.fh"
 
       Real*8 Fock(*)
       real*8, optional :: SLag(*)
