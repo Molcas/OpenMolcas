@@ -24,7 +24,6 @@
 *
 #include "Input.fh"
 #include "cands.fh"
-#include "detdim.fh"
        integer kic(2),opout
        Real*8, Allocatable:: CIDET(:)
        integer nDet, iOp, iS, jS, iRC, i
