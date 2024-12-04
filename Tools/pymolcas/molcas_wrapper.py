@@ -92,6 +92,19 @@ hcbanner = '''#
 # MOLCAS_UNIX_SECURE
 # MOLCAS_ZOMBIE
 
+def _copy_any(src, dest):
+    """ Copies either file or directory from src to dest. """
+    if isfile(src):
+        copy2(src, dest)
+    elif isdir(src):
+        # append src name such that dir is copied to subdirectory with same name
+        if basename(dest) != basename(src):
+            dest = join(dest, basename(src))
+        copytree(src, dest)
+    else:
+        raise ValueError(f"Source {src} is neither a file nor a directory.")
+
+
 class MolcasException(Exception):
   pass
 
@@ -915,7 +928,7 @@ class Molcas_wrapper(object):
         if (not isabs(dest)):
           dest = join(self.scratch, dest)
         try:
-          copy2(orig, dest)
+          _copy_any(orig, dest)
         # would use SameFileError, but that's only available since python 3.4,
         # so use this workaround
         except Error as e:
@@ -1206,7 +1219,7 @@ class Molcas_module(object):
       return
     files_to_copy = sorted([(k,v[0]) for (k,v) in self._files.items() if 's' in v[1]])
     files_to_move = sorted([(k,v[0]) for (k,v) in self._files.items() if 'm' in v[1]])
-    files = self._copy_or_move(self.copy_any, dest, files_to_copy)
+    files = self._copy_or_move(_copy_any, dest, files_to_copy)
     files.extend(self._copy_or_move(move, dest, files_to_move))
     if (len(files) > 0):
       listfiles = ' '.join(files)
@@ -1214,15 +1227,6 @@ class Molcas_module(object):
                initial_indent='*** files: ',
             subsequent_indent='           '))
       print('    saved to directory {0}'.format(dest))
-
-  def copy_any(self, src, dest):
-    """ Copies either file or directory from src to dest. """
-    if isfile(src):
-        copy2(src, dest)
-    elif isdir(src):
-        copytree(src, dest)
-    else:
-        raise ValueError(f"Source {src} is neither a file nor a directory.")
 
   def _copy_or_move(self, action, dest, filelist):
     #TODO: use parnell
