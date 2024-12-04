@@ -17,8 +17,8 @@
       subroutine CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, nAcPr2
+      use input_mclr, only: nRoots
       Implicit None
-#include "Input.fh"
 
 
 ****** Output
@@ -45,8 +45,8 @@
       Subroutine CalcbX(bX,LOK,R,H)
       use Constants, only: Zero
       use MCLR_Data, only: IRLXROOT
+      use input_mclr, only: nRoots
       Implicit None
-#include "Input.fh"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
 ****** Input
@@ -90,8 +90,8 @@
       use ipPage, only: W
       use MCLR_Data, only: nConf1, ipCI
       use MCLR_Data, only: IRLXROOT
+      use input_mclr, only: nRoots
       Implicit None
-#include "Input.fh"
 ***** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
 ***** Input
@@ -129,8 +129,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, nAcPr2, ipCI, ipMat, nDens2
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: nRoots,State_Sym,nSym,nBas
       Implicit None
-#include "Input.fh"
 
 *******Output
       Real*8,DIMENSION(nRoots*nConf1)::CSFOK
