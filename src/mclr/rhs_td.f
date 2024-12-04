@@ -41,6 +41,8 @@
      &                     ipMatBA, ipMatLT, nA, nConf1,nDens2,
      &                     nMBA
       use MCLR_Data, only: DspVec
+      use input_mclr, only: Debug,nSym,iMethod,State_Sym,nAsh,nBas,
+     &                      nIsh,nTPert
       Implicit None
       real*8 Temp1(nDens),Temp2(nDens),Temp3(nDens),Temp4(nDens),
      &       Temp5(nDens),Temp6(nDens),temp7(ndens),rKappa(nDens)
@@ -48,7 +50,6 @@
       real*8 CMO(nCMO)
       Integer jdisp,jspin
       Logical CI
-#include "Input.fh"
       Character(LEN=8) Label
       Real*8 rDum(1)
       Real*8, Allocatable:: FiX(:),MOX(:),MOT(:),MOT2(:)
