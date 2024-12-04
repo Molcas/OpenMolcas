@@ -27,12 +27,13 @@
 #ifdef _DEBUGPRINT_
       use Spool, only: LuWr
 #endif
+      use input_mclr, only: NewCho,iMethod,nSym,IsPop,LuAChoVec,
+     &                      LuIChoVec,nAsh,nBas,nIsh,nOrb
       Implicit None
       Real*8 rkappa(nDens2),rMOs(*),rmoa(*),Fock(nDens2),Q(ndens2),
      &       FockI(ndens2),FockA(nDens2)
       Integer iDSym,jSpin
       Real*8 reco
-#include "Input.fh"
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), QTemp(:),
      &                      Dens2(:),  G2x(:)
