@@ -24,10 +24,10 @@
 *************************************************************
 *
       use MCLR_Data, only: ipMat, nB, nDens
+      use input_mclr, only: nSym,nIsh,nRs1,nRs2,nRs3,nOrb,TimeDep
       Implicit None
       Integer nIn,nOut,dsym
       Real*8  ArrayIn(nIn),ArrayOut(nOut)
-#include "Input.fh"
       Integer IndexC, jT, i1, iSym, jSym, iBas, jBas, iT, ij, Index1
       Real*8 Fact
 *                                                                      *
