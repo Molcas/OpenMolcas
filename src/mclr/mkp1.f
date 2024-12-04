@@ -9,10 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine mkp1(nEX,lst,rMat,rdiag)
+      use Constants, only: Zero
       use negpre, only: LuCIV, P1
       use stdalloc, only: mma_allocate, mma_deallocate
+      use input_mclr, only: lRoots,nConf,ERASSCF
       Implicit None
-#include "Input.fh"
       Integer nEX
       Integer lst(nex)
       Real*8 rMat(*),rdiag(*)
@@ -32,7 +33,7 @@
        jdisk=0
        Do j=1,i
          Call dDafile(luciv,2,Tmp2,nconf,jDisk)
-         rTmp=0.0d0
+         rTmp=Zero
          Do k=1,nex
           do l=1,nex
            kk=lst(k)
