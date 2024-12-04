@@ -57,8 +57,12 @@
       use MCLR_Data, only: SA,NACSTATES
       use MCLR_Data, only: LuPT2
       use DetDim, only: MXCNSM
+      use input_mclr, only: ntAsh,ntAtri,ntASqr,nSym,iMethod,SpinPol,
+     &                      iMCPD,iMSPD,PT2,TimeDep,TwoStep,StepType,
+     &                      McKinley,RASSI,NewCho,Fail,CMSNACStates,
+     &                      Double,LuAChoVec,LuChoInt,LuIChoVec,nAsh,
+     &                      nDisp,nRS2
       Implicit None
-#include "Input.fh"
 #include "warnings.h"
 #include "SysDef.fh"
 
