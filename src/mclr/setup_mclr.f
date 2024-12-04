@@ -13,13 +13,14 @@
       use MCLR_Data, only: nNA,n2Dens,nDens,nDensLT,nCMO,nDensC,nDens2,
      &                     ipMatLT,ipMat,ipMC,ipCM,ipMatBA,ipMO,nA,nB,
      &                     n1Dens,nMBA
+      use input_mclr, only: nSym,TimeDep,iMethod,PT2,nAsh,nBas,nDel,
+     &                      nFro,nIsh,nOrb,nRS1,nRS2,nRs3
 *
 *   Setup pointers and size of metrixes (includes in Pointers.fh)
 *
       Implicit None
       integer dsym
 * for the integrals needed in sigma gen
-#include "Input.fh"
       Integer, External:: iPntSO
       Integer ip,nn,nBmx,iS,jS,lS,klS,kS,ijS,ipP,iExt0,iExt1,iExt2,
      &        iExt3,iInt4,iExt4,i1,iInt0,iInt1,iInt2,iInt3,mATAB,iOff,
