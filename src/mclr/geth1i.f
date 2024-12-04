@@ -12,12 +12,12 @@
        use Arrays, only: FIMO
        use MCLR_Data, only: ipCM
        use MCLR_Data, only: IBSO,IREOTS,ISMFTO
+       use input_mclr, only: nIsh,nOrb
 *
 * Obtain one -electron integral H(IORB,JOB)
 *
       IMPLICIT None
       Integer I, J
-#include "Input.fh"
       Integer ISM, JSM, I1, J1, IJ
 *
       ISM = ISMFTO(I)
