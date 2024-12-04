@@ -16,10 +16,10 @@
 *
       use Constants, only: Zero
       use MCLR_Data, only: nDens2, ipMatBA, nA
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb
       Implicit None
       Integer idSym,n2
       Real*8 Q(nDens2),G2(*),Temp(n2),Scr(n2)
-#include "Input.fh"
       Integer iS, jS, kS, lS, ijS, ipS, kAsh, lAsh, ikl, iAsh, jAsh,
      &        ipQ, iij, ipG, ipI
 *                                                                      *
