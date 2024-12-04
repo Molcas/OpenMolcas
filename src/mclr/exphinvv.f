@@ -27,7 +27,6 @@
       Implicit None
       Real*8 alpha, beta
       Real*8 v(*),u(*),rdia(*)
-#include "Input.fh"
       Real*8, Allocatable:: Tmp1(:), Tmp4(:)
       Integer i, j, iRC
 *
