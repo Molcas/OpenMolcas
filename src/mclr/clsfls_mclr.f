@@ -26,8 +26,8 @@
       use MCLR_Data, only: SA
       use MCLR_Data, only: FnMck,LuCSF2SD,LuJob,LuMck,LuQDat,LuTemp,
      &                      LuTri1
+      use input_mclr, only: iMethod,iCASSCF,TwoStep,RASSI
       Implicit None
-#include "Input.fh"
       Logical DoCholesky
       Integer AixRm, iRC,iOpt
 *---------------------------------------------------------------------*
