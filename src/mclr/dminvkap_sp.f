@@ -28,7 +28,6 @@
       Integer iSym
       Real*8 rin(*),rout(*)
 
-#include "Input.fh"
       Real*8, Allocatable:: Temp(:)
 *
       Call mma_allocate(Temp,ndens2,Label='Temp')
