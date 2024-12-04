@@ -26,10 +26,10 @@
       use Constants, only: One, Two
       use MCLR_Data, only: ipMat, nDens2
       use MCLR_Data, only: ISTATE
+      use input_mclr, only: nSym,nBas,ntAsh
       Implicit None
       Real*8 kappa(*)
       Integer ieState
-#include "Input.fh"
 #include "SysDef.fh"
       Real*8, Allocatable:: G1q(:), G1r(:), G2r(:),
      &                      T(:), Q(:)
