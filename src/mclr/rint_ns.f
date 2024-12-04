@@ -31,11 +31,11 @@ c
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: nDens2,ipMat,ipMatBA,nA,nMBA
+      use input_mclr, only: iMethod,nSym,nAsh,nBas,nIsh
       Implicit None
       Real*8 rkappa(nDens2),rMO(*),Fock(nDens2),FockI(ndens2)
       Integer iDSym,jSpin
       Real*8 reco,rie
-#include "Input.fh"
       Real*8, Allocatable:: FA(:), MT1(:), MT2(:), QA(:), QB(:)
       Real*8 Fact,Dij
       Integer jpCMO,iSym,iS,jS,iAsh,jAsh,ipF,ipFI
