@@ -18,8 +18,8 @@
       Subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2, nNA
+      use input_mclr, only: nRoots,ntAsh
       Implicit None
-#include "Input.fh"
 
 ******Output
       Real*8,DIMENSION(nDens2)::bk
@@ -54,8 +54,8 @@
       Subroutine GetPDFTFock_NAC(bk)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2, ipMat
+      use input_mclr, only: nSym,nBas
       Implicit None
-#include "Input.fh"
 ******Output
       Real*8,DIMENSION(nDens2)::bk
 ******Input
@@ -93,8 +93,8 @@
       use MCLR_Data, only: NACSTATES
       use MCLR_Data, only: LuJob
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: nRoots,ntAsh,State_Sym,iTOC,nCSF
       Implicit None
-#include "Input.fh"
 ******Input
       Real*8,DIMENSION(nRoots**2)::R
       INTEGER nTri,NG2
