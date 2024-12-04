@@ -11,16 +11,26 @@
       Subroutine Freqanal(nDeg,nrvec,H,converged,
      &                    ELEC,iel,elout,ldisp,Lu_10)
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-#include "Input.fh"
+      use input_mclr, only: nSym,nDisp,nUserPT,nSRot,UserP,ChIrr,UserT
+      Implicit None
+      Integer nDeg(*),nrvec(*)
+      Real*8 H(*)
       Logical converged(8)
-      Real*8 H(*),elec(*),elout(*)
+      Real*8 elec(*)
+      Integer iel(3)
+      Real*8 elout(*)
+      Integer ldisp(nsym), Lu_10
+
+*     local variables
       logical Do_Molden
-      Integer nrvec(*),nDeg(*),iel(3),ldisp(nsym)
       Real*8, Allocatable:: NMod(:), EVec(:), EVec2(:,:), EVal(:),
      &                      EVal2(:), Intens(:), RedMas(:), Tmp3(:),
      &                      Temp(:)
 #include "temperatures.fh"
+      Integer ipNx,nModes,lModes,i1,i3,j,ii,lnm_molpac,iSym,nx,iCtl,
+     &        ll,kk,i,k,iT,jpNx,ix,jx,nEig,iNeg
+      Integer, external:: IsFreeUnit
+      Real*8 Tmp,Fact,rNorm
 *
       Call mma_allocate(NMod,nDisp**2,Label='NMod')
       Call mma_allocate(EVec,nDisp**2,Label='EVec')
@@ -212,8 +222,7 @@
       Call mma_deallocate(intens)
       Call mma_deallocate(redmas)
 *
-      Return
-      End
+      End Subroutine Freqanal
 
 !      Subroutine NM_MOPAC_SNF(nsym,ldisp,nAtom)
 ! These used be a f90 file.. (now deleted dut to not work) -- yingjin
@@ -231,15 +240,21 @@
       Subroutine NM_MOPAC_print(EVal,EVec,dDipM,iel,nX,nDim,ictl,IRInt,
      &                          Lu_10,iOff,lut)
 
-      use Constants, only: Zero
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, Five
+      Implicit None
 #include "Molcas.fh"
+      Integer iEl,nX,nDim,iCtl
       Real*8 EVal(nDim), EVec(nX,nDim),dDipM(ndim,iel),IRInt(nDim)
-      Parameter(Inc=6)
-      Character*80 Format
-      Character*(LENIN6) ChDisp(3*MxAtom),Label
-      character*(10) char_num
-      character charx
+      Integer Lu_10,iOff,LuT
+
+*     local variables
+      Integer, Parameter :: Inc=6
+      Character(LEN=80) Format
+      Character(LEN=LENIN6) ChDisp(3*MxAtom),Label
+      character(LEN=10) char_num
+      character(LEN=1) charx
+      Integer nChDisp,iDiscard,Imaginary,iHarm,jnc,i,iIrint,iInt,
+     &        iNum_Min,iNum_Max,iNum1,iNum2
 
 *
 *      LUt=lnm_molpac
@@ -256,9 +271,9 @@
       imaginary=0
       Do iHarm = 1, nDim
 *         write(*,*)"Eval(",iHarm,") = ",Eval(iHarm) ! for checking
-         if(abs(Eval(iHarm)).lt.5.0)then
+         if(abs(Eval(iHarm)).lt.Five)then
            idiscard=idiscard+1
-         else if((Eval(iHarm)).lt.-5.0)then
+         else if((Eval(iHarm)).lt.-Five)then
            imaginary=imaginary+1
          end if
       end do
