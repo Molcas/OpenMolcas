@@ -13,11 +13,12 @@
       use negpre
       use MCLR_Data, only: nConf1, ipCI
       use MCLR_Data, only: ipDia
+      use input_mclr, only: nRoots,ERASSCF,nCSF,State_Sym
       Implicit None
       Integer ipSigma
-#include "Input.fh"
-      Real*8 rout(*),rcoeff(mxroot),alpha(mxRoot),
-     &       S(nroots,nroots,nroots)
+      Real*8 rout(*), S(nroots,nroots,nroots)
+#include "rasdim.fh"
+      Real*8 rcoeff(mxroot),alpha(mxRoot)
       Integer, External:: ipIn
       Real*8, External:: DDot_
       Integer irc, i, j, k, iR, jR
