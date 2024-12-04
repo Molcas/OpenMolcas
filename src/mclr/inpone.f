@@ -15,8 +15,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: nDens2
+      use input_mclr, only: nSym,nAtoms,iSpin,nActEl,nBas,nFro,nIsh,
+     &                      nOrb,PotNuc
       Implicit None
-#include "Input.fh"
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
       Character(LEN=8) Label
       Integer iComp, idum(1)
