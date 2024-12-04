@@ -23,10 +23,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Four
       use MCLR_data, only: ipCM, ipMat
+      use input_mclr, only: nSym,nBas,nOrb
       Implicit None
       Real*8 rMat(*)
       Real*8 fact
-#include "Input.fh"
       Integer iS
 
       Real*8, Allocatable:: Temp(:)
