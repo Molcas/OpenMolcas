@@ -13,6 +13,7 @@
       Use Arrays, only: pInt2, KINT2, KINT2A
       use MCLR_Data, only: Square
       use MCLR_Data, only: NOBPTS
+      use input_mclr, only: nsMOB
 *
 * Outer routine for accessing integral block
 *
@@ -22,7 +23,6 @@
      &        IXCHNG,IKSM,JLSM,ICOUL ,ieaw
 
 *
-#include "Input.fh"
 #include "csm.fh"
        Integer nTest,nI,nK,nIK,nJ,nL,nJL,nIJ,nKL
 *
