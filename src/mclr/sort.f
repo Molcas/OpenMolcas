@@ -10,9 +10,9 @@
 ************************************************************************
       Subroutine MMSort(A,B,ldisp1)
       use MCLR_Data, only: lDisp
+      use input_mclr, only: nSYm,nTPert
       Implicit None
       Real*8 A(*),B(*)
-#include "Input.fh"
       integer ldisp1(nsym)
 
       logical geomi,geomj
