@@ -21,7 +21,6 @@
 * ijkl = ij*(ij-1)/2+kl, ij.ge.kl
 *
 * Copyright (C) 1994-1996, Jeppe Olsen                                 *
-*                                                                      *
 ************************************************************************
       SUBROUTINE DENSI2(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
       use Str_Info, only: STR,MXNSTR,IATPM1,IATPM2,IBTPM1,IBTPM2,
