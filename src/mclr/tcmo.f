@@ -12,11 +12,11 @@
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCM, ipMat, nDens2
+      use input_mclr, only: nSym,nBas,nOrb
       Implicit None
       Real*8 A(*)
       Integer iSym, iCtl
 
-#include "Input.fh"
       Integer ip(8), iip(8)
       Real*8, Allocatable:: Temp(:)
       Real*8, Allocatable:: CMOInv(:)
