@@ -915,12 +915,7 @@ class Molcas_wrapper(object):
         if (not isabs(dest)):
           dest = join(self.scratch, dest)
         try:
-          # copy either file or dir (copy paste from _copy_any)
-          if isfile(orig):
-              copy2(orig, dest)
-          elif isdir(orig):
-              dest_name = dest + "/" + orig.split("/")[-1]
-              copytree(orig, dest_name)
+          copy2(orig, dest)
         # would use SameFileError, but that's only available since python 3.4,
         # so use this workaround
         except Error as e:
@@ -1211,7 +1206,7 @@ class Molcas_module(object):
       return
     files_to_copy = sorted([(k,v[0]) for (k,v) in self._files.items() if 's' in v[1]])
     files_to_move = sorted([(k,v[0]) for (k,v) in self._files.items() if 'm' in v[1]])
-    files = self._copy_or_move(self._copy_any, dest, files_to_copy)
+    files = self._copy_or_move(self.copy_any, dest, files_to_copy)
     files.extend(self._copy_or_move(move, dest, files_to_move))
     if (len(files) > 0):
       listfiles = ' '.join(files)
@@ -1220,7 +1215,7 @@ class Molcas_module(object):
             subsequent_indent='           '))
       print('    saved to directory {0}'.format(dest))
 
-  def _copy_any(self, src, dest):
+  def copy_any(self, src, dest):
     """ Copies either file or directory from src to dest. """
     if isfile(src):
         copy2(src, dest)
