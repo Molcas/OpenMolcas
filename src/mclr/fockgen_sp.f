@@ -25,12 +25,12 @@
       use Arrays, only: FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA, ipCM, ipMat, nA, nDens2
+      use input_mclr, only: nSym,nAsh,nIsh,nBas
       Implicit None
       Real*8 d_0
       Integer idSym
       Real*8 Fock(*),fockout(*),rdens2(*),rDens1(*)
 !     Real*8 Fock(nDens2),fockout(*),rdens2(*),rDens1(nna*nna)
-#include "Input.fh"
       Real*8, Allocatable:: MO(:), Scr(:)
       Integer n1, iS, n2, ipS, kS, jS, iB, jA, jAA, kA, kAA, ipM, ipF,
      &        iA, ip1, ip2
