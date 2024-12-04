@@ -19,12 +19,12 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nDensC, nDens2, nNA, ipMat, nA, nDens, nMBA
+      use input_mclr, only: nSym,nAsh,nBas,nIsh
       Implicit None
       Integer i1
       Real*8 rkappa(nDensC), sigma(ndensC),FA(ndens2),D(*),
      &       p12(*),p11(*),rm1(*),rm2(*),Focki(*)
 
-#include "Input.fh"
       Real*8, Allocatable:: K(:), FAtemp(:), Fock(:), Q(:), Q1(:)
       Integer iSym, jSpin, iS, iAsh, jAsh, ipF1, ipF2, ipFI1, IA
       Real*8 R1, Fact, Reco, R3, R4, Dij
