@@ -18,8 +18,8 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use Constants, only: Zero
       use MCLR_Data, only: nDens2, nNA
+      use input_mclr, only: nRoots,ntAsh
       Implicit None
-#include "Input.fh"
 
 ******Output
       Real*8,DIMENSION(nDens2)::bk
@@ -54,8 +54,8 @@
       Subroutine PutCMSFockOcc(FOccMO,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2, ipMat
+      use input_mclr, only: nSym,nBas
       implicit None
-#include "Input.fh"
 ******Output:none
 ******Input:
       INTEGER nTri
@@ -96,8 +96,8 @@
       Subroutine GetPDFTFock(bk)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2, ipMat
+      use input_mclr, only: nSym,nBas
       Implicit None
-#include "Input.fh"
 ******Output
       Real*8,DIMENSION(nDens2)::bk
 ******Input
@@ -134,8 +134,8 @@
       use MCLR_Data, only: IRLXROOT
       use MCLR_Data, only: LuJob
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: nRoots,ntAsh,iTOC,State_Sym,nCSF
       Implicit None
-#include "Input.fh"
 ******Input
       Real*8,DIMENSION(nRoots**2)::R
       INTEGER nTri,NG2
@@ -322,9 +322,10 @@
       Subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Half
       use MCLR_Data, only: ipMat, nA, nDens2
+      use input_mclr, only: nSym,nAsh,nBas,nIsh
       Implicit None
-#include "Input.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
 ******Purpose: calculate the active 1RDM in AO basis given that in MO
@@ -379,7 +380,7 @@
        Do i=1,nbas(is)
         do j=1,i-1
          ij=ij+1
-         DAO(ij)=0.5d0*DAO(ij)
+         DAO(ij)=Half*DAO(ij)
         end do
         ij=ij+1
        End Do
