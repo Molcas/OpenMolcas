@@ -30,7 +30,6 @@
       Implicit None
       Integer nrIn, nrOut, nrTemp, iSym, iter
       Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)
-#include "Input.fh"
 #include "dmrginfo_mclr.fh"
 *                                                                      *
 ************************************************************************
@@ -42,6 +41,7 @@
       Subroutine DMInvKap_Internal(rMFact)
       Use Iso_C_Binding
       use MCLR_Data, only: ipMat, nDensC
+      use input_mclr, only: nSym,PT2,nAsh,nIsh,nOrb,nRs1,nRs2,nRs3
       Implicit None
       Real*8, Target :: rMFact(*)
       Integer, Pointer :: iMFact(:)
