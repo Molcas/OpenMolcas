@@ -32,9 +32,9 @@
 * ================
 *. Driver routine
 * ================
+      use input_mclr, only: PNTGRP
       Implicit None
       Integer ITASK,IOBJ,I1,I2,I12
-#include "Input.fh"
 *
       IF(PNTGRP.EQ.1) THEN
         CALL SYMCM1(ITASK,IOBJ,I1,I2,I12)
