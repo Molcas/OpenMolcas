@@ -17,10 +17,8 @@
       subroutine CalcbXbP_CMSNAC(bX,bP,FMO1t,FMO2t,R,H,E_Final,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nCOnf1, nAcPr2
+      use input_mclr, only: nRoots
       Implicit None
-#include "Input.fh"
-
-
 ****** Output
        Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
        Real*8,DIMENSION(nConf1*nRoots)::bP
@@ -47,8 +45,8 @@
       Subroutine CalcbX_CMSNAC(bX,LOK,R,H,E_Final)
       use Constants, only: Zero
       use MCLR_Data, only: ISMECIMSPD,NACSTATES
+      use input_mclr, only: nRoots
       Implicit None
-#include "Input.fh"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
 ****** Input
@@ -107,8 +105,8 @@
       use ipPage, only: W
       use MCLR_Data, only: nConf1, ipCI
       use MCLR_Data, only: NACSTATES
+      use input_mclr, only: nRoots
       implicit none
-#include "Input.fh"
 ***** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
 ***** Input
