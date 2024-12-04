@@ -21,8 +21,9 @@
       use MCLR_Data, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,
      &                     NACSTATES
       use MCLR_Data, only: LuTEMP, LuJob, LuPT2
+      use input_mclr, only: nDisp,nSym,nRoots,ntAsh,PT2,iRoot,iTOC,
+     &                      nAsh,nBas,nCSF,nIsh,State_Sym
       Implicit None
-#include "Input.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
       Integer iKapDisp(nDisp),iCiDisp(nDisp)
@@ -751,11 +752,11 @@ c
       use Arrays, only: G1t
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: ipCM, ipMat, nA, nDens2
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb
       Implicit None
       Integer iSym
       Real*8 rK(*),D(*),Dtmp(nDens2)
 
-#include "Input.fh"
       Logical act
       integer iS, iB, jB, jS
       integer i, j, itri
@@ -800,9 +801,10 @@ c
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only: ipCM, ipMat, nDens2
+      use input_mclr, only: nSym,nBas,kPrint
       Implicit None
       Real*8 Dens(*),CMOO(*),CMON(*),OCCN(*)
-#include "Input.fh"
+
       Real*8, Allocatable:: EVal(:), EVec(:)
       Integer iO, iS, ij, i, j, ii, iSt, iEnd
 
