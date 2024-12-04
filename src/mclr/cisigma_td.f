@@ -18,6 +18,7 @@
       use MCLR_Data, only: iRefSM
       use MCLR_Data, only: XISPSM
       use cands, only: ICSM,ISSM
+      use input_mclr, only: State_Sym,nSym,Page,nCSF,TimeDep,ntAsh,nBas
       Implicit None
       Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
@@ -28,7 +29,6 @@ c For the timeindep case ipS1 and ipS2 will be half as long
 c Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
 c
 *
-#include "Input.fh"
        integer kic(2),opout
        Real*8, Allocatable:: CIDET(:)
        integer i, j, itri
