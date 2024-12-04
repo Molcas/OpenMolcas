@@ -14,6 +14,7 @@
       use Arrays, only: F0SQMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCM, ipMat
+      use input_mclr, only: nSym,nOrb
 *
 *     Purpose:
 *             Adds the contribution from the gradient to
@@ -25,7 +26,6 @@
       Implicit None
       Real*8 rkappa(*),rMat(*), fact
       Integer idsym
-#include "Input.fh"
       Integer iS, jS
       Real*8, Allocatable:: Tempi(:), Tempj(:)
 
