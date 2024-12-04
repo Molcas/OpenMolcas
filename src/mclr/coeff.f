@@ -12,10 +12,10 @@
       subroutine coeff(ralpha,rbetaa,rbetas)
       use Constants, only: Zero, One, Two, Four, Six, Eight
       use MCLR_Data, only: mS2
+      use input_mclr, only: iSpin
       Implicit None
       real*8 ralpha,rbetaa,rbetas
 
-#include "Input.fh"
       Real*8, parameter:: twentyfour=Four*Six
       Real*8 Spin,RMS,rcg21,rcg11,rcg20,rcg10,rgamma
       real*8, External:: clebsch_gordan_mclr
