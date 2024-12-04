@@ -16,8 +16,8 @@
 * ****************************************************************
       Subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
       use MCLR_Data, only: nDens2, nConf1
+      use input_mclr, only: nRoots
       Implicit None
-#include "Input.fh"
 ****** Output
       Real*8,DIMENSION(nDens2+6)::Fock
       Real*8,DIMENSION(nconf1*nroots)::CICSF
