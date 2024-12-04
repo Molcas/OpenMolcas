@@ -40,8 +40,10 @@
       use MCLR_Data, only: nHess, lDisp
       use MCLR_Data, only: LuTEMP
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: nDisp,Debug,nSym,State_Sym,iMethod,
+     &                      McKinley,Coor,lCalc,nCSF,nTPert,
+     &                      TimeDep
       Implicit None
-#include "Input.fh"
       Integer iKapDisp(nDisp),isigdisp(nDisp),
      &        iCiDisp(nDisp),iCiSigDisp(nDisp),
      &        iRHSDisp(nDisp),iRHSCiDisp(nDisp)
