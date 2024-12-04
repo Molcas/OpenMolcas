@@ -11,11 +11,11 @@
       Real*8 Function E2_td(FockI,rMo,loper,idisp)
       use Arrays, only: G1t, G2sq
       use MCLR_Data, only: nCMO, nNA, ipCM, nA
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,ntPert
 *
       Implicit None
       Integer lOper, iDisp
       Real*8 FockI(nCMO),rMO(*)
-#include "Input.fh"
 *
       Logical Go
       Integer i, j, ij, ij2, k, l, ijkl, kl2, ijkl2
