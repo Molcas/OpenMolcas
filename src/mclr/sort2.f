@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine MMSort2(A,B,P,iel)
       use MCLR_Data, only: DspVec,lDisp
+      use input_mclr, only: nSym,nTPert
       Implicit None
       Real*8 A(*),B(*),P(*)
       integer iel(3)
 
-#include "Input.fh"
       logical geomi,geomj
       integer ijD,iG,ijG,ijP,iii,iSym,iDisp,jDisp,ijD1
 
