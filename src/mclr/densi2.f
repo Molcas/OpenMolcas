@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Density matrices between L and R
-*
-* I12 = 1 => only one-body density
-* I12 = 2 => one- and two-body density matrices
-*
-* Jeppe Olsen,      Oct 1994
-* GAS modifications Aug 1995
-* Two body density added, 1996
-*
-* Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
-* ijkl = ij*(ij-1)/2+kl, ij.ge.kl
-*
-* Copyright (C) 1994-1996, Jeppe Olsen                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Density matrices between L and R
+!
+! I12 = 1 => only one-body density
+! I12 = 2 => one- and two-body density matrices
+!
+! Jeppe Olsen,      Oct 1994
+! GAS modifications Aug 1995
+! Two body density added, 1996
+!
+! Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
+! ijkl = ij*(ij-1)/2+kl, ij.ge.kl
+!
+! Copyright (C) 1994-1996, Jeppe Olsen                                 *
+!***********************************************************************
       SUBROUTINE DENSI2(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
       use Str_Info, only: STR,MXNSTR,IATPM1,IATPM2,IBTPM1,IBTPM2,
      &                    ITYP_DUMMY,NELEC,NOCTYP
