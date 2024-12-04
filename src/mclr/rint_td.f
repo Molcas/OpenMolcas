@@ -36,11 +36,11 @@ c
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, Two
       use MCLR_Data, only: nDens2,ipCM,ipMat,nA
+      use input_mclr, only: Omega,nSym,nAsh,nBas,nIsh
       Implicit None
       Real*8 ekappa(ndens2),mkappa(ndens2)
       Integer iSym
 c
-#include "Input.fh"
       Real*8, Allocatable:: Dens(:), wDKt(:), wKtD(:)
       Integer lDens,iS,ip3,Inc,iB,jB,ip,iA,jA,ip2,jS,IncX,Incy,Length
 
