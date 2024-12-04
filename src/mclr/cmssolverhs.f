@@ -49,8 +49,8 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use cmslag,   only : ResQaaLag2
       use Constants, only: Pi
+      use input_mclr, only: nRoots,Epsilon
       Implicit None
-#include "Input.fh"
 #include "warnings.h"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
@@ -118,8 +118,8 @@
       Subroutine GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA, nDens2
+      use input_mclr, only: nRoots,ntAsh,ntBas
       Implicit None
-#include "Input.fh"
 ******Input
       Integer nP2
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
@@ -199,8 +199,8 @@
 ******************************************************
       Subroutine G2qtoG2r(G2r,G2q,nG2,nG2r)
       use Constants, only: One, Two
+      use input_mclr, only: ntAsh
       Implicit None
-#include "Input.fh"
       INTEGER nG2,nG2r
       Real*8,DIMENSION(nG2 )::G2q
       Real*8,DIMENSION(nG2r)::G2r
@@ -232,8 +232,8 @@
 ******************************************************
       Subroutine QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
       use MCLR_Data, only: nNA
+      use input_mclr, only: ntAsh
       Implicit None
-#include "Input.fh"
       INTEGER nG2,nPUVX
       Real*8,DIMENSION(nG2)::G2q
       Real*8,DIMENSION(NPUVX)::PUVX
@@ -268,8 +268,8 @@
       Subroutine QaaP2MO(G2q,ng2,GDMat,IKL,IKK,ILL)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA
+      use input_mclr, only: nRoots
       implicit none
-#include "Input.fh"
 ******  Input
       INTEGER nG2,IKL,IKK,ILL
       Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
