@@ -11,9 +11,10 @@
       Subroutine Ci_Ci(ipcid,ips2)
       use ipPage, only: W
       use Arrays, only: FIMO, INT2
+      use input_mclr, only: nRoots,rIn_Ene,PotNuc,ERASSCF,NCSF,Weight,
+     &                      State_Sym
       Implicit None
       Integer ipCID, ipS2
-#include "Input.fh"
       Integer irc, i
       Integer, External:: ipIn
       Real*8 rDum(1), EC
