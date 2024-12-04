@@ -17,8 +17,8 @@
       subroutine RHS_CMS(Fock,CICSF)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
+      use input_mclr, only: nRoots,ntBas,ntAsh
       Implicit None
-#include "Input.fh"
 
 ******Input
 ******Output
@@ -120,10 +120,10 @@
 ******************************************************
       Subroutine Get_PUVXLen(NPUVX)
 ******Rewritten from mcpdft/alloc.f
+      use input_mclr, only: nSym,nOrb,nAsh
       Implicit None
       INTEGER NPUVX
       INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp,nRS
-#include "Input.fh"
 
       NPUVX=0
       DO iSp=1,nSym
@@ -151,12 +151,11 @@
 
 ******************************************************
       Subroutine Read_PUVX(PUVX,NPUVX)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
       INTEGER NPUVX
       Real*8,DIMENSION(NPUVX)::PUVX
       CALL Get_Darray('TwoEIntegral    ',PUVX,nPUVX)
-      RETURN
-      End Subroutine
+      End Subroutine Read_PUVX
 ******************************************************
 
       Subroutine Get_Two_Ind(Ind_PUVX,IndTUVX)
@@ -164,9 +163,9 @@
 *     Readapted from src/fock_util/get_tuvx.f
 *     Return to an index in the PUVX array given
 *     four MO indices.
+      use input_mclr, only: nSym,ntBas,ntAsh,nAsh,nIsh,nOrb
 ************************************************************************
       Implicit None
-#include "Input.fh"
 ******Output
       INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::Ind_PUVX
       INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
@@ -310,8 +309,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA,n2Dens,ipCI,n1Dens
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: State_Sym,nRoots,nCSF
       Implicit None
-#include "Input.fh"
 *      Input
 *      Output
        Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
@@ -354,9 +353,10 @@
 ******************************************************
 
       subroutine CalcW(W,GDMat,PUVX,NPUVX,IndTUVX)
+      use Constants, only: Zero
       use MCLR_Data, only: nNA
+      use input_mclr, only: nRoots,ntAsh
       Implicit None
-#include "Input.fh"
 
 ******Output
       Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
@@ -374,7 +374,7 @@
        Do M=1,nRoots
         Do N=1,M
          IMN=(M-1)*M/2+N
-         W(IKL,IMN)=0.0d0
+         W(IKL,IMN)=Zero
          do it=1,nnA
           do iu=1,nnA
            do iv=1,nnA
@@ -395,8 +395,9 @@
       End Subroutine CalcW
 
       subroutine CalcAXX(AXX,W)
+      use Constants, only: Zero,Two,Four
+      use input_mclr, only: nRoots
       Implicit None
-#include "Input.fh"
 ******Input
       Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
 ******Output
@@ -419,17 +420,17 @@
          IMM=(M+1)*M/2
          INN=(N+1)*N/2
          IMN2=(M-2)*(M-1)/2+N
-         VKLMN=0.0d0
-         VLKNM=0.0d0
-         VLKMN=0.0d0
-         VKLNM=0.0d0
+         VKLMN=Zero
+         VLKNM=Zero
+         VLKMN=Zero
+         VKLNM=Zero
          IF(L.eq.M) THEN
           If(N.lt.K) Then
            IC=(K-1)*K/2+N
           Else
            IC=(N-1)*N/2+K
           End If
-          VKLMN=W(IC,IKK)+W(IC,INN)-2.0d0*W(IC,ILL)-4.0d0*W(IKL,IMN)
+          VKLMN=W(IC,IKK)+W(IC,INN)-Two*W(IC,ILL)-Four*W(IKL,IMN)
          END IF
          IF(K.eq.N) THEN
           If(M.lt.L) Then
@@ -437,7 +438,7 @@
           Else
            IC=(M-1)*M/2+L
           End If
-          VLKNM=W(IC,ILL)+W(IC,IMM)-2.0d0*W(IC,IKK)-4.0d0*W(IKL,IMN)
+          VLKNM=W(IC,ILL)+W(IC,IMM)-Two*W(IC,IKK)-Four*W(IKL,IMN)
          END IF
          IF(K.eq.M) THEN
           If(N.lt.L) Then
@@ -445,7 +446,7 @@
           Else
            IC=(N-1)*N/2+L
           End If
-          VLKMN=W(IC,ILL)+W(IC,INN)-2.0d0*W(IC,IKK)-4.0d0*W(IKL,IMN)
+          VLKMN=W(IC,ILL)+W(IC,INN)-Two*W(IC,IKK)-Four*W(IKL,IMN)
          END IF
          IF(L.eq.N) THEN
           If(M.lt.K) Then
@@ -453,7 +454,7 @@
           Else
            IC=(M-1)*M/2+K
           End If
-          VKLNM=W(IC,IKK)+W(IC,IMM)-2.0d0*W(IC,ILL)-4.0d0*W(IKL,IMN)
+          VKLNM=W(IC,IKK)+W(IC,IMM)-Two*W(IC,ILL)-Four*W(IKL,IMN)
          END IF
          AXX((IKL2-1)*nRTri+IMN2)=VKLMN+VLKNM-VKLNM-VLKMN
         End Do
@@ -464,8 +465,8 @@
 ******************************************************
 ******************************************************
       Subroutine Get_Ntri(nTri)
+      use input_mclr, only: nSym,nBas
       Implicit None
-#include "Input.fh"
 
       INTEGER nTri,kSym
       nTri=0
@@ -478,8 +479,8 @@
 ******************************************************
       Subroutine GetPDFTFocks(FMO1t,FMO2t,nTri)
       use MCLR_Data, only: nAcPr2
+      use input_mclr, only: nRoots
       Implicit None
-#include "Input.fh"
 
       INTEGER nTri
       Real*8,DIMENSION(nRoots*nTri)::FMO1t
