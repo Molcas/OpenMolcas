@@ -17,7 +17,7 @@
       use MCLR_Data, only: nDensC
       Implicit None
       Real*8 rOut(*),rin(*),DigPrec(*)
-#include "Input.fh"
+
       Integer k
 *
 *-------------------------------------------------------------------------
@@ -27,7 +27,7 @@
 *
 C
       Do k=1, nDensC
-            Rout(k) = rIn(k)/DigPrec(k)
+         Rout(k) = rIn(k)/DigPrec(k)
       End Do
 C
 *
