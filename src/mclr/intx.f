@@ -14,12 +14,12 @@
       use Arrays, only: G1t, CMO
       use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
       use MCLR_Data, only: DspVec, SWLbl
+      use input_mclr, only: iMethod,nSym,nAsh,nBas,nIsh,nOrb,nTPert
       Implicit None
       Real*8 FockI(nDens2),Temp2(ndens2),Temp3(nDens2),Temp4(ndens2),
      &       Temp1(nDens2),Fock(nDens2),rMO(*)
       Integer lOper, iDisp
       Real*8 r
-#include "Input.fh"
       Character(LEN=8) Label
       Integer jDisp, iOp, iRC, iOpt, iS, jS
       Real*8 rde
@@ -233,10 +233,10 @@ c Avoid unused argument warnings
       Subroutine ReLoad(A,idsym,NBAS1,NBAS2)
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipMat, nDens2
+      use input_mclr, only: nSym
       Implicit None
       Real*8 A(*)
       Integer idSym
-#include "Input.fh"
       Integer nbas2(nsym),nbas1(nsym)
       Real*8, Allocatable:: ATemp(:)
       Integer iS, jS, j
