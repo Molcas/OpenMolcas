@@ -17,8 +17,8 @@
       subroutine RHS_CMS_NAC(Fock,CICSF)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
+      use input_mclr, only: nRoots,ntAsh,ntBas
       Implicit None
-#include "Input.fh"
 
 ******Input
 ******Output
