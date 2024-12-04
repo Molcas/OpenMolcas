@@ -26,12 +26,13 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: zero, half, two
       use MCLR_Data, only: nDens2, nNA, ipMat, ipCM, nA
+      use input_mclr, only: nSym,nAsh,nIsh,nBas
       Implicit None
       Real*8 d_0
       Integer idSym
       Real*8 Fock(nDens2),
      &       rdens2(*),rDens1(nna,nna)
-#include "Input.fh"
+
       Real*8, Allocatable:: MO(:), Scr(:), TQ(:)
       Integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA,
      &        ip1, ip2, ip3
