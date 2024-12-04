@@ -19,7 +19,6 @@
       Integer ipSIgma, idSym
       Real*8 rout(*), rC_HE_C
 
-#include "Input.fh"
       integer iRC
       integer, external:: ipin, ipout, opout
       real*8 rCoeff
