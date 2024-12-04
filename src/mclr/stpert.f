@@ -20,9 +20,10 @@
       use MCLR_Data, only: lDisp,SwLbl
       use MCLR_Data, only: MS2
       use MCLR_Data, only: FnMck,LuMck
+      use input_mclr, only: nSym,McKinley,PT2,nDisp,SpinPol,nAsh,nBas,
+     &                      nIsh,nTPert,State_Sym
       Implicit None
 
-#include "Input.fh"
       Character(LEN=16) Label
       Character(LEN=8)  MckLbl
       Character(LEN=288) Header
