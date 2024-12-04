@@ -19,9 +19,9 @@
       use Constants, only: Zero
       use MCLR_Data, only: nDens2
       use MCLR_Data, only: nrec
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,iMethod
       implicit none
 
-#include "Input.fh"
       Real*8, Allocatable:: Q(:), Tmp2(:,:), T3(:)
       Integer nm, nmm, nmmm, iS, nAtri
 *                                                                      *
