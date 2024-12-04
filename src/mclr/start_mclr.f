@@ -28,9 +28,11 @@
       use MCLR_Data, only: nDens2
       use MCLR_Data, only: LuTri1,LuMotra,FnTri1,FnMotra,FnQDat,LuHlf2,
      &                      LuHlf3,LuQDat,LuTri2
+      use input_mclr, only: StepType,TwoStep,NewCho,nSym,kPrint,nAsh,
+     &                      nBas,nDel,LuAChoVec,LuChoInt,LuIChoVec,
+     &                      nFro,nIsh,nOrb
       Implicit None
 
-#include "Input.fh"
 #include "warnings.h"
       character(len=8) :: Label
       Character(LEN=5) Fname
