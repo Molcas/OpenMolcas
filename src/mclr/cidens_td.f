@@ -15,10 +15,10 @@
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF
       use cands, only: ICSM,ISSM
+      use input_mclr, only: nCSF, State_Sym
       Implicit None
       Integer iCI, iS
       Real*8 rP(*),rD(*)
-#include "Input.fh"
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
       Integer nConfL, nConfR, nC, iRC
       Integer, External:: ipIn, ipnOut
