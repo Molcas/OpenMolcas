@@ -130,7 +130,7 @@
         use stdalloc, only: mma_allocate, mma_deallocate
         Implicit None
 #include "dmrginfo_mclr.fh"
-        character(LEN=100),allocatable :: checkpoint(:)  ! for many states
+        character(LEN=100),allocatable :: checkpoint(:)! for many states
 
         integer :: istate,nsdet
 
