@@ -25,10 +25,10 @@
 *
       use Constants, only: Zero, One
       use MCLR_Data, only: nDensC, nDens, ipMat, nB
+      use input_mclr, only: nSym,TimeDep,nIsh,nOrb,nRS1,nRS2,nRS3
       Implicit None
       Real*8  ArrayIn(nDensC),ArrayOut(nDens)
       Integer dsym
-#include "Input.fh"
       Integer IndexC,jT,i1,j1,iSym,jSym,jBas,iBas,iT,ij,ji,
      &        Index1,Index2
       Real*8 Fact
