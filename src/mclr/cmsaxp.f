@@ -109,10 +109,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
       use MCLR_Data, only: XISPSM
+      use input_mclr, only: State_Sym,nSym,nRoots,ntAsh,nAsh
       Implicit None
-
-#include "Input.fh"
-
 
 ******Input
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
@@ -271,8 +269,8 @@
 ******************************************************
       SUBROUTINE CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
       use MCLR_Data, only: nNA, nDens2, ipMat
+      use input_mclr, only: nSym,nAsh,nBas,nIsh
       Implicit None
-#include "Input.fh"
 ******Input
       INTEGER NPUVX
       Real*8 Coeff
