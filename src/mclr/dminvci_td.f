@@ -10,13 +10,13 @@
 ************************************************************************
       SubRoutine DMinvCI_td(rin,rout,rome,idsym)
       use ipPage, only: W
-      use Constants, only: Half
+      use Constants, only: Zero, Half
       use MCLR_Data, only: nConf1, ipCI
       use MCLR_Data, only: ipDia
       Implicit None
       Integer idSym
       Real*8 rout(*),rin(*), rome
-#include "Input.fh"
+
       Integer iRC, i
       Integer, external:: ipIn
       Real*8 r1, r2
@@ -43,7 +43,7 @@
             irc=ipin(ipCI)
             r1=ddot_(nconf1,W(ipCI)%Vec,1,rout,1)
 
-            r2=0.0d0
+            r2=Zero
             irc=ipin(ipDia)
             Do i=1,nconf1
                r2=r2+W(ipCI)%Vec(i)**2/(W(ipDia)%Vec(i)+rome)
