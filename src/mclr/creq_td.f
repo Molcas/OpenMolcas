@@ -16,9 +16,9 @@
 *
       use Constants, only: Zero
       use MCLR_Data, only: nDens2, ipMatBA, ipMO, nA
+      use input_mclr, only: nSym,nAsh,ntAsh,nBas
       Implicit None
       Integer idSym
-#include "Input.fh"
       Real*8 Q(nDens2),rint(*),G2(ntash,ntash,ntash,ntash)
       Integer iS, jS, kS, lS, ipS, ijS, iAsh, jAsh, kAsh, lAsh, ipQ, ipi
 *
