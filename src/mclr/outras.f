@@ -28,8 +28,10 @@
       use MCLR_Data, only: nConf1, nDensC, nDens2
       use MCLR_Data, only: DspVec, lDisp
       use MCLR_Data, only: LuTEMP
+      use input_mclr, only: nDisp,nSym,State_Sym,iMethod,nCSF,nConf,
+     &                      iMethod,iSpin,kPrint,nActEl,nElec3,nHole1,
+     &                      nRS1,nRS2,nRS3,nTPert
       Implicit None
-#include "Input.fh"
       Integer iKapDisp(nDisp),iCiDisp(nDisp)
 
       Character(LEN=8) Label
