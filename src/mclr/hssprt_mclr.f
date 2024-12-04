@@ -10,8 +10,8 @@
 ************************************************************************
       SubRoutine HssPrt_MCLR(ideg,Hess,ldisp)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use input_mclr, only: nIrrep,nSym
-      Implicit Real*8 (A-H,O-Z)
+      use input_mclr, only: nIrrep,nSym,ChIrr
+      Implicit None
       integer ideg(*)
       Real*8     Hess(*)
       Integer  ldisp(nsym)
@@ -19,6 +19,7 @@
       Integer  kDisp(8)
       Character Title*39
       Real*8, Allocatable:: Temp(:)
+      Integer i,iaa,ii,iIrrep,j,jj
 *
       integer idisp,jdisp,Ind
       Ind(idisp,jdisp)=idisp*(idisp-1)/2+jdisp
