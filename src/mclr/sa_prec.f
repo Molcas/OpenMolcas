@@ -11,8 +11,8 @@
       Subroutine SA_PREC(S,rdia)
       use ipPage, only: W
       use MCLR_Data, only: ipCI
+      use input_mclr, only: nRoots,ERASSCF
       Implicit None
-#include "Input.fh"
       Real*8 S(nroots**2,nroots),rdia(*)
 
       Integer irc,i
@@ -22,7 +22,6 @@
       Do i=1,nroots
          Call SA_PREC2(rdia,S(1,i),W(ipci)%Vec,ERASSCF(i))
       End Do
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
@@ -30,8 +29,8 @@
 
       Subroutine SA_PREC2(rdia,S,CI,ENE)
       use Constants, only: Zero
+      use input_mclr, only: nRoots,nCSF,State_Sym
       Implicit None
-#include "Input.fh"
       Real*8 rdia(*),S(nroots,nroots),CI(*)
       Real*8 ENE
 
