@@ -15,10 +15,11 @@
 *      Constructs the Q matrix
 *
       use MCLR_Data, only: nDens2, nNA, ipMat, nA
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb
       Implicit None
       Integer idSym, n2
       Real*8 Q(nDens2),G2(*), MO(n2), Scr(n2)
-#include "Input.fh"
+
       Integer iS, jS, kS, lS, ipS, ijS, iAsh, jAsh, kAsh, lAsh, kAA,
      &         lAA, iAA, ikl, ipQ, ipM, iij, ipG
       Real*8 P_ijkl
