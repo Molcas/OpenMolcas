@@ -19,11 +19,13 @@
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF, ICISTR
       use MCLR_Data, only: NCNATS,NCPCNT,NDPCNT,NTYP
+      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,
+     &                      nRoots,Weight
+
       Implicit None
       Integer iSym
       Real*8 ralp(*),S(*)
 
-#include "Input.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI,
      &        iPrnt, iP2, J
