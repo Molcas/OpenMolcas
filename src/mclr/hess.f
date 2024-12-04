@@ -20,12 +20,13 @@
       use Constants, only: Zero
       use MCLR_Data, only: nDens2, ipCM, ipMat
       use MCLR_Data, only: DspVec, lDisp
+      use input_mclr, only: nSym,nBas,nOrb,nTPert
       Implicit None
       Real*8 Temp1(nDens2),Temp2(nDens2),Temp3(nDens2),
      &       FockC(nDens2),FockX(nDens2),rcon(nDens2),
      &       temp4(*)
       Integer idSym, jDisp, iDisp
-#include "Input.fh"
+
       Character(LEN=8) Label
       Integer iS, jS, nNJ, Len, iSym, nIn, mDisp, kDisp, iRC, iOpt,
      &        iOp, iP, IndX
