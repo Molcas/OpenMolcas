@@ -30,7 +30,6 @@ C
       use MCLR_Data, only: IRLXROOT,ISNAC,OVERRIDE,NACSTATES
       Implicit None
       Integer Mode
-#include "Input.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
