@@ -24,7 +24,6 @@
       use MCLR_Data, only: rBetaS, rBetaA
       Implicit None
       real*8 rkappa(nDensC),rMOs(*),rmoa(*),Focki(ndens2),Sigma(nDensC)
-#include "Input.fh"
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), Scr(:)
 *
 *     D,FA used in oit of FA
