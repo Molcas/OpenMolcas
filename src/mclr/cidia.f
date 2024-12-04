@@ -21,11 +21,12 @@
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF, ICISTR
       use MCLR_Data, only: NCNATS,NCPCNT,NCSASM,NDPCNT,NTYP
+      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,
+     &                      TimeDep
       Implicit None
       Integer iSym
       Real*8 ralp
 
-#include "Input.fh"
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
       Real*8, Allocatable:: Q(:)
       Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI,
