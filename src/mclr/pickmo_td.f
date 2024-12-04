@@ -10,11 +10,11 @@
 ************************************************************************
       Subroutine Pickmo_td(rmo,rmoaa,idsym)
       use MCLR_Data, only: ipMO, nA
+      use input_mclr, only: nSym,nAsh,nIsh,TimeDep,nBas,ntAsh
       Implicit None
-
-#include "Input.fh"
       real*8 rmo(*),rmoaa(*)
       Integer idsym
+
       Integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA,
      &        ijAA, klAA, ijkl, ipi
       Integer i,j,itri
