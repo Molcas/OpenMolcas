@@ -16,9 +16,10 @@
       use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
       use MCLR_Data, only: ISTATE
       use MCLR_Data, only: LuJob
+      use input_mclr, only: ntAsh,PT2,nRoots,Debug,nSym,nConf,iRoot,
+     &                      iTOC,nAsh,nBas,nCSF,nIsh,nOrb
       Implicit None
 
-#include "Input.fh"
 #include "dmrginfo_mclr.fh"
 
       Real*8 Fock(*)
