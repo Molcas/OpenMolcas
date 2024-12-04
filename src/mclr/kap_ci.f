@@ -13,11 +13,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Two
       use MCLR_Data, only: nConf1, ipCI
+      use input_mclr, only: nRoots,nCSF,State_Sym
       Implicit None
       Integer nh1, nh2, ipS1
       Real*8 h1(nh1), h2(nh2)
 
-#include "Input.fh"
       Real*8, Allocatable :: R(:,:)
       Real*8 rDum(1)
       Integer iRC, i, j
