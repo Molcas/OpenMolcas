@@ -22,12 +22,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only: ipCM, ipMat, nDens2
+      use input_mclr, only: nSym,nOrb
       Implicit None
       Real*8 rkappa(*),rMat(*),F(*)
       Integer idSym
       Real*8 r1, r2
 
-#include "Input.fh"
       Integer iS, jS
       Real*8, Allocatable:: Tempi(:), Tempj(:)
       Real*8, Allocatable:: K(:), M(:)
