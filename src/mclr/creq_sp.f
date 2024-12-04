@@ -10,16 +10,16 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
-       SubRoutine creq_sp(q,rint,G2,idsym)
+      SubRoutine creq_sp(q,rint,G2,idsym)
 *
 *      Constructs the Q matrix
 *
-       use MCLR_Data, only: nDens2, nNA, ipMat, ipMO, nA
-       Implicit None
-       Integer idSym
-       Real*8 Q(nDens2),rint(*),G2(nna,nna,nna,nna)
+      use MCLR_Data, only: nDens2, nNA, ipMat, ipMO, nA
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb
+      Implicit None
+      Integer idSym
+      Real*8 Q(nDens2),rint(*),G2(nna,nna,nna,nna)
 
-#include "Input.fh"
       Integer iS, jS, kS, lS, ipS, ijS, iAsh, jAsh, kAsh, lAsh, ipQ,
      &        ipi
       Real*8 rd
