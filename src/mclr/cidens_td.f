@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine CIDens_TD(iCI,iS,rP,rD)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -16,6 +17,9 @@
       use MCLR_Data, only: NOCSF
       use cands, only: ICSM,ISSM
       use input_mclr, only: nCSF, State_Sym
+#ifdef _DEBUGPRINT_
+      use input_mclr, only: ntAsh
+#endif
       Implicit None
       Integer iCI, iS
       Real*8 rP(*),rD(*)
