@@ -13,9 +13,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use MCLR_Data, only: ipCM
       use MCLR_Data, only: FnHlf2,FnHlf3,FnTri1,FnTri2,FnTri3,FnTri4,
-     &                      FnTri5
+     &                     FnTri5
       use MCLR_Data, only: LuHlf2,LuHlf3,LuTri1,LuTri2,LuTri3,LuTri4,
-     &                      LuTri5
+     &                     LuTri5
+      use input_mclr, only: nSym,nAsh,nBas,nFro,nIsh
 *
 *     Two-electron integral transformation program: control section
 *
@@ -27,7 +28,6 @@
       IMPLICIT None
 *
 
-#include "Input.fh"
       Integer, PARAMETER :: LIOTAB=512*512
       integer,save:: toca(8,8,8),tocb(36,8),tocc(5,36,8)
       Integer, Allocatable:: Hlf1(:,:)
