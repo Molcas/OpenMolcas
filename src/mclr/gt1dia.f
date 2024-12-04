@@ -11,9 +11,9 @@
       SubRoutine GT1DIA_MCLR(H1DIA)
       use Arrays, only: FIMO
       use MCLR_Data, only: ipCM
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb
       Implicit None
       Real*8 H1DIA(*)
-#include "Input.fh"
       Integer i, iS, ii, iAsh
 
       i=1
