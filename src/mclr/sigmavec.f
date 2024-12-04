@@ -22,6 +22,7 @@
      &                       NTSOB
       use DetDim, only: MXPOBS,MXINKA
       use cands, only: ICSM,ISSM,ICSPC,ISSPC
+      use input_mclr, only: nsMOB,TimeDep
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -40,8 +41,6 @@
 * =====
 *
 #include "csm.fh"
-
-#include "Input.fh"
 #include "csmprd.fh"
       Integer sxstsm(1)
       Integer idummy(1)
