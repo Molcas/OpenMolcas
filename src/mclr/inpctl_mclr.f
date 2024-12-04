@@ -29,9 +29,12 @@
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: SA,ISTATE
       use MCLR_Data, only: LuPT2
+      use input_mclr, only: PT2,iMethod,iCASSCF,TimeDep,nCSF,nSym,
+     &                      State_Sym,iMCPD,nDisp,iRoot,iSpin,nActEl,
+     &                      nElec3,nHole1,nRS1,nRS2,nRS3,Page,nRoots,
+     &                      nConf
       Implicit None
       Integer iPL
-#include "Input.fh"
 #include "dmrginfo_mclr.fh"
       logical ldisk,ipopen
       Character(LEN=8) Method
