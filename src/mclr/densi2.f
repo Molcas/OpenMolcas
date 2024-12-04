@@ -8,7 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
+* Density matrices between L and R
+*
+* I12 = 1 => only one-body density
+* I12 = 2 => one- and two-body density matrices
+*
+* Jeppe Olsen,      Oct 1994
+* GAS modifications Aug 1995
+* Two body density added, 1996
+*
+* Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
+* ijkl = ij*(ij-1)/2+kl, ij.ge.kl
+*
 * Copyright (C) 1994-1996, Jeppe Olsen                                 *
+*                                                                      *
 ************************************************************************
       SUBROUTINE DENSI2(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
       use Str_Info, only: STR,MXNSTR,IATPM1,IATPM2,IBTPM1,IBTPM2,
@@ -23,19 +36,7 @@
       use MCLR_Data, only: NACOB,IBTSOB,NOBPTS,NTSOB
       use DetDim, only: MXPOBS,MXINKA,MXPNGAS
       use cands, only: ICSM,ISSM,ISSPC,ICSPC
-*
-* Density matrices between L and R
-*
-* I12 = 1 => only one-body density
-* I12 = 2 => one- and two-body density matrices
-*
-* Jeppe Olsen,      Oct 1994
-* GAS modifications Aug 1995
-* Two body density added, 1996
-*
-* Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
-* ijkl = ij*(ij-1)/2+kl, ij.ge.kl
-*
+      use input_mclr, only: nsMOB
       IMPLICIT None
       Integer I12
 *.Output
@@ -53,7 +54,6 @@
 * with L being S and  R being C
 #include "csm.fh"
 
-#include "Input.fh"
 #include "csmprd.fh"
 *. Before I forget it :
       INTEGER iSXSTSM(1),IDUMMY(1)
