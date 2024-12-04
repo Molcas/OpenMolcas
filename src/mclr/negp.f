@@ -13,11 +13,11 @@
       use negpre, only: SS, LuCIV
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
+      use input_mclr, only: lRoots,nConf
       Implicit None
       Integer ipdia, ipSigma
       Real*8 rout(*)
 
-#include "Input.fh"
       integer opout, irc, iDisk, i
       integer, external:: ipIn, ipOut
       Real*8, external:: DDot_
@@ -52,7 +52,6 @@
       Call mma_deallocate(Tmp2)
       Call mma_deallocate(Tmp3)
 *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
