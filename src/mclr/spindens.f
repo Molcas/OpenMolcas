@@ -8,22 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine SpinDens
-     &          (LS,RS,iL,iR,rP1,rp2,rp3,rp4,rp5,rDe1,rde2,
-     &           itype)
+      SubRoutine SpinDens(LS,RS,iL,iR,rP1,rp2,rp3,rp4,rp5,rDe1,rde2,
+     &                    itype)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use MCLR_Data, only: nNA, n2Dens,n1Dens
       use MCLR_Data, only: XISPSM
       use cands, only: ICSM,ISSM
+      use input_mclr, only: nCSF
       Implicit None
       Real*8 LS(*),RS(*),rP1(nna,nna,nna,nna),
      &       rP2(nna,nna,nna,nna),rP3(nna,nna,nna,nna),
      &       rP4(nna,nna,nna,nna),rP5(nna,nna,nna,nna),
      &       rDe1(nna,nna),rde2(nna,nna)
       Integer iType
-#include "Input.fh"
       Real*8, Allocatable:: Dens(:,:), Pens(:), CIL(:), CIR(:)
       Integer n2,nConfL,iL,nConfR,iR,iA,jA,kA,lA,ijklAB,jilkAB,
      &        ijklBA,jilkBA,ijkl,jilk
