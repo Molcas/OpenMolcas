@@ -19,10 +19,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
       use MCLR_Data, only: NDTASM
+      use input_mclr, only: nConf,State_Sym,nCSF
       implicit None
       Real*8 CSF(*),SD(*)
       Integer is
-#include "Input.fh"
 *
       Real*8, Allocatable:: CTM(:)
       Integer iiCOPY,iprdia,iSym,i
