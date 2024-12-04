@@ -14,12 +14,13 @@
 *
 *     Constructs the Q matrix
 *
+      use Constants, only: Zero
       use MCLR_Data, only: nDens2, ipMatBA, ipMO, nA
+      use input_mclr, only: nSym,nAsh,nOrb
       Implicit None
       Integer idSym
       Real*8 Q(nDens2),rint(*),G2(*)
 
-#include "Input.fh"
       integer iS, jS, kS, lS, ijS, iAsh, jAsh, kAsh, lAsh, iij, ikl,
      &        ipS, ipQ, ipG, ipi
       integer i,j,itri
@@ -29,7 +30,7 @@
 *      Q = (pj|kl)d
 *       pi         ijkl
 *
-       call dcopy_(ndens2,[0.0d0],0,Q,1)
+       Q(:)=Zero
        Do iS=1,nSym
         ipS=iEOr(is-1,idsym-1)+1
          if (norb(ips).ne.0) Then
