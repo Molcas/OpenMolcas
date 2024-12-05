@@ -18,12 +18,11 @@
       use MCLR_Data, only: LuJob
       use input_mclr, only: ntAsh,PT2,nRoots,Debug,nSym,nConf,iRoot,
      &                      iTOC,nAsh,nBas,nCSF,nIsh,nOrb
+      use dmrginfo, only: DoDMRG,RGRAS2
       Implicit None
-
-#include "dmrginfo_mclr.fh"
-
       Real*8 Fock(*)
       real*8, optional :: SLag(*)
+
       real*8 rdum(1)
       Real*8, Allocatable:: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
       Integer nG1,nG2,iR,jDisk,ii,iB,jB,iDij,iRij,kB,lB,iDkl,iRkl,
