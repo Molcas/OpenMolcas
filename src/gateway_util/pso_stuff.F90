@@ -34,4 +34,9 @@ public :: A_PT2, AOrb, B_PT2, Bin, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, 
           n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nG1, nG2, nGamma, nnP, NO_NUC, npos, nSOs1, nSSDM, nV_K, nZ_p_k, SO2cI, &
           SSDM, Thpkl, Txy, U_k, V_k, Z_p_k
 
+! Stuff for CASTP2 Gradient
+real(kind=wp), allocatable :: CMOPT2(:), WRK1(:), WRK2(:)
+integer(kind=iwp) :: LuCMOPT2
+integer(kind=iwp), allocatable :: iOffAO(:)
+public:: CMOPT2,WRK1,WRK2,LuCMOPT2,iOffAO
 end module PSO_Stuff

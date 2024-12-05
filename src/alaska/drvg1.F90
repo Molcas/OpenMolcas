@@ -35,7 +35,8 @@ use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
 use k2_structure, only: k2Data
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use pso_stuff, only: G_toc, nSSDM, SSDM
+use pso_stuff, only: G_toc, nSSDM, SSDM,CMOPT2,WRK1,WRK2,LuCMOPT2,LuGamma,iOffAO
+
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: nBas, Shells
 use Sizes_of_Seward, only: S
@@ -55,7 +56,7 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      ijMax, ijS, ik2, iOpt, iost, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), &
                      iSh, iShela(4), iShlla(4), iSSDM, istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, &
                      jPrInc, jS, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
-                     lBsInc, lPriml, lPrInc, lRealName, lS, luCMOPT2, luGamma, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
+                     lBsInc, lPriml, lPrInc, lRealName, lS, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
                      Mem2, MemMax, MemPSO, nab, nBasI, nBasT, nBtch, ncd, nDCRR, nDCRS, nEta, nFro(8), nHmab, nHmcd, nHrrab, nij, &
                      nijkl, nOcc(8), nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
@@ -64,8 +65,8 @@ logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, is_erro
 character(len=4096) :: RealName
 character(len=72) :: formt
 character(len=8) :: Method_chk
-integer(kind=iwp), allocatable :: Ind_ij(:,:), iOffAO(:)
-real(kind=wp), allocatable :: CMOPT2(:), TMax(:,:), WRK1(:), WRK2(:)
+integer(kind=iwp), allocatable :: Ind_ij(:,:)
+real(kind=wp), allocatable :: TMax(:,:)
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), external :: IsFreeUnit
 logical(kind=iwp), external :: Rsv_GTList
