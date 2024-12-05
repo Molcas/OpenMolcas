@@ -36,11 +36,11 @@
      &                      ntISqr,nCOnf,PT2,nActEl,nAsh,nBas,
      &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,
      &                      nRS2,nRS3,TitleJP,Weight
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)
 #include "rasdim.fh"
 #include "SysDef.fh"
-#include "dmrginfo_mclr.fh"
       Character(LEN=72) Line
       Character(LEN=8) Method
       real*8 dv_ci2  ! yma added
