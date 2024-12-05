@@ -34,6 +34,7 @@
 *   rOut        :       Submatrix
 *
 ************************************************************************
+      use input_mclr, only: nAsh,nIsh,nOrb
       Implicit None
       Integer ib,is,js,nd
       Real*8 rout(*)
@@ -42,7 +43,7 @@
       Real*8 fockii,fockai
       Real*8 Focki(no,no),Focka(no,no)
       Real*8 sign
-#include "Input.fh"
+
       Integer nTri, jVert, i1, ip, kB, lB
       Real*8 ra
 *                                                                      *
