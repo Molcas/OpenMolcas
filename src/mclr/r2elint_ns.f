@@ -28,12 +28,13 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,iMethod
       Implicit None
       Real*8 rKappa(nDens2),rMO1(nMBA),rMO2(nMBA),FockI(nDens2),
      &       FockA(nDens2)
       Integer nF,iDSym,jSpin
       Real*8 sign,Fact
-#include "Input.fh"
+
       Logical lFI,lFA,lMo
       Real*8 rdum(1)
       Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
