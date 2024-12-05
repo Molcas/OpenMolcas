@@ -14,12 +14,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI, n2Dens, nDens2, nNA
       use input_mclr, only: ntAsh,State_Sym
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
 
       Implicit None
       Integer ipCID, iSym
       Real*8 Fock(*),FockOut(*)
 
-#include "dmrginfo_mclr.fh"
       Real*8, Allocatable:: De(:), Pe(:)
       Integer i, j, itri
       Integer irc, nDim, ij, k, l, ij1, kl1
