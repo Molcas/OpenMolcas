@@ -33,9 +33,10 @@
      &                      State_Sym,iMCPD,nDisp,iRoot,iSpin,nActEl,
      &                      nElec3,nHole1,nRS1,nRS2,nRS3,Page,nRoots,
      &                      nConf
+      use dmrginfo, only: DoDMRG,DoMCLR,nDets_RGLR
       Implicit None
       Integer iPL
-#include "dmrginfo_mclr.fh"
+
       logical ldisk,ipopen
       Character(LEN=8) Method
       Real*8, Allocatable:: CIVec(:,:), CITmp(:)
