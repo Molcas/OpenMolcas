@@ -37,7 +37,7 @@ use mspdft_grad, only: DoGradMSPD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use dmrginfo
+use dmrginfo, only: DoDMRG, LRRAS2
 
 implicit none
 #ifdef _CD_TIMING_
