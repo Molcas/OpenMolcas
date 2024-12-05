@@ -35,8 +35,7 @@ use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
 use k2_structure, only: k2Data
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use pso_stuff, only: G_toc, nSSDM, SSDM,CMOPT2,WRK1,WRK2,LuCMOPT2,LuGamma,iOffAO
-
+use pso_stuff, only: G_toc, nSSDM, SSDM,CMOPT2,WRK1,WRK2,LuCMOPT2,LuGamma_PT2,iOffAO
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: nBas, Shells
 use Sizes_of_Seward, only: S
@@ -195,9 +194,9 @@ if (Method_chk == 'CASPT2  ') then
   end do
   call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
 
-  LuGAMMA = isFreeUnit(65)
+  LuGAMMA_PT2 = isFreeUnit(65)
   call PrgmTranslate('GAMMA',RealName,lRealName)
-  call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
+  call MOLCAS_Open_Ext2(LuGamma_PT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
 
   call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
   call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
@@ -422,7 +421,7 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(Pget0CPU1,Pget0WALL1)
 #             endif
-              if (Method_chk == 'CASPT2  ') call CASPT2_BTAMP(LuGAMMA,iS,jS,kS,lS,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
+              if (Method_chk == 'CASPT2  ') call CASPT2_BTAMP(LuGAMMA_PT2,iS,jS,kS,lS,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
                                                               iFnc(4)*lBasn,iOffAO,nBasT,nOcc(1),CMOPT2(1+nbast*nfro(1)),WRK1, &
                                                               WRK2,G_Toc)
               call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
@@ -505,14 +504,6 @@ call Free_PPList()
 call Free_TList()
 call mma_deallocate(Ind_ij)
 call mma_deallocate(TMax)
-if (Method_chk == 'CASPT2  ') then
-  close(LuGamma)
-  call mma_deallocate(iOffAO)
-  call mma_deallocate(CMOPT2)
-  if (nSSDM /= 0) call mma_deallocate(SSDM)
-  call mma_deallocate(WRK1)
-  call mma_deallocate(WRK2)
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
