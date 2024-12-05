@@ -31,10 +31,11 @@
 *     and is not coded yet (ugly bastard) (970109, AB )
 ************************************************************************
       use MCLR_Data, only: nrec
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,nRS1,nRS2,nRS3,
+     &                      ntAsh,NewCho,iMethod,nOrb
       Implicit Real*8(a-h,o-z)
       Real*8 rpre(*)
       Integer idsym
-#include "Input.fh"
 *
       Call Prec_internal(rpre)
 *
