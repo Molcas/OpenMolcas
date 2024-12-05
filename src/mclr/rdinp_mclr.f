@@ -31,8 +31,15 @@
      &                     FANCY_PRECONDITIONER,NSSA,NACSTATES
       use MCLR_Data, only: DspVec,SwLbl,lDisp
       use MCLR_Data, only: NoFile
+      use input_mclr, only: Debug,lRoots,kPrint,mTit,Omega,ElecHess,
+     &                      TimeDep,PrCi,CIThrs,PrOrb,SewLab,Page,
+     &                      iBreak,nIter,RASSI,SpinPol,Save,Isotop,
+     &                      lCalc,nDisp,nMode,lMass,CasInt,NewCho,
+     &                      TwoStep,StepType,Double,Epsilon,IsPop,
+     &                      nSym,CMass,nAtoms,ntPert,nsRot,UserP,
+     &                      nUserPT,iMass,UserT,TitleIn,uMass
       Implicit None
-#include "Input.fh"
+#include "rasdim.fh"
       Character(LEN=72) Line
       Character(LEN=4) Command
       Character(LEN=8) Label
