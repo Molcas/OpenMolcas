@@ -12,8 +12,11 @@
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: ChDisp, lDisp
+      use input_mclr, only: nSym,nIsh,nBas,nOrb,Perturbation,
+     &                      McKinley,iMethod,nIsh,ntITri,ntISqr,ntBSqr,
+     &                      nDisp,PT2,ESCF,nDel,ntPert,ntIsh
       Implicit None
-#include "Input.fh"
+
       Character(LEN=8) Label
       Integer iRC, iOpt, Length, iSym, iS, iDum
 *
@@ -28,7 +31,7 @@
        If (iRC.ne.0) Then
           Write (6,*) 'RdAB: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call Abend
+          Call Abend()
        End If
        LABEL='PERT'
        iRc=-1
@@ -37,7 +40,7 @@
        If (iRC.ne.0) Then
           Write (6,*) 'RdAB: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call Abend
+          Call Abend()
        End If
       End If
 *
