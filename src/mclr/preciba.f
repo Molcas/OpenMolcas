@@ -35,6 +35,7 @@
 ************************************************************************
       use Arrays, only: G1t
       use MCLR_Data, only: nA
+      use input_mclr, only: nAsh,nIsh,nBas,nOrb
       Implicit None
       Integer iB,iS,jS,nd
       Real*8 rOut(*)
@@ -43,7 +44,7 @@
       Real*8 Sign
       Integer nScr
       Real*8 A_J(nScr), A_K(nScr), Scr(nScr)
-#include "Input.fh"
+
       Integer nTri,jVert,nO,jA,ip,jB,jBB,iVB
       Real*8 rDens
 *                                                                      *
