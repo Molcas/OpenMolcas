@@ -9,9 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Prec_td(pre2,DigPrec,isym)
+      use Constants, only: Zero, Two
       use Arrays, only: G1t
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCM, ipMat, nA, nDens2
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,Omega
 *
 *     pre2      Preconditioner from Prec
 *     DigPrec Output - Diagonal of prec2
@@ -20,7 +22,7 @@
       Implicit None
       Real*8 DigPrec(*),pre2(*)
       Integer iSym
-#include "Input.fh"
+
       Real*8 nonzero
       Logical jump
       Real*8, Allocatable:: Dens(:), PreTd(:), TempTd(:)
@@ -43,12 +45,12 @@
          nBasTot = nBasTot + nBas(iS)*nBas(iS)
       End Do
       Call mma_allocate(Dens,nBasTot,Label='Dens')
-      Dens(:)=0.0D0
+      Dens(:)=Zero
 *
       ip3 = 1
       Do iS=1,nSym
           inc = nBas(iS)+1
-          call dcopy_(nIsh(iS),[2.0d0],0,Dens(ip3),inc)
+          call dcopy_(nIsh(iS),[Two],0,Dens(ip3),inc)
           ip3 = ip3 + nBas(iS)*nBas(iS)
       End Do
 *
@@ -83,7 +85,7 @@ C
 *-------------------------------------------------------------------
 *
       Call mma_allocate(PreTd,nDens2,Label='PreTd')
-      PreTd(:)=0.0d0
+      PreTd(:)=Zero
       ip1 = 1
       ip2 = 1
 *      ipsave = 0
@@ -128,13 +130,13 @@ C
 *
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1
-         TempTd(:)=0.0d0
+         TempTd(:)=Zero
          Call Trans(PreTd(ipMat(jS,iS)),nBas(iS),
      &               nBas(jS),TempTd)
          nD = nBas(iS)*nBas(jS)
          Do i=0, nD-1
             nonzero = PreTd(ipMat(iS,jS) +i)
-            If (nonzero.ne.0.0d0) Then
+            If (nonzero.ne.Zero) Then
                 TempTd(1+i) = PreTd(ipMat(iS,jS)+i)
             End If
          End Do
@@ -157,7 +159,7 @@ C
             If (k.eq.(j+1)*nBas(jS)) j = j +1
 C
             i=i+1
-            PreTd(i) = PreTd(i) + 2.0D0*Omega*
+            PreTd(i) = PreTd(i) + Two*Omega*
      &               (  Dens(ipCM(iS) + j*(nBas(iS)+1)) +
      &                  Dens(ipCM(jS) + l*(nBas(jS)+1)) )
 C
@@ -171,7 +173,7 @@ C
 * as required by compress.
 *-----------------------------------------------------------------------------
 *
-      TempTd(:)=0.0d0
+      TempTd(:)=Zero
 *
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1
