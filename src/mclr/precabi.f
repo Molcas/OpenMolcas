@@ -35,6 +35,7 @@
 ************************************************************************
       use Arrays, only: G1t, G2t
       use MCLR_Data, only: nA
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb,nBas
       Implicit None
       Integer ib,is,js,ir,nd
       Real*8 rOut(*)
@@ -43,7 +44,6 @@
       Real*8 Sign
       Integer nScr
       Real*8 A_J(nScr),A_K(nScr),Scr(nScr)
-#include "Input.fh"
       Integer nTri, jVert, nO, iAA, itAA, kS, kA, kAA, kkA, lA, lAA,
      &        llA, jB, ip, iVJ
       Real*8 Fact, Fact1, Fact2
