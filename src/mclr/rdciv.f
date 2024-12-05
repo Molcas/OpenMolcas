@@ -25,8 +25,11 @@
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: LuJob
+      use input_mclr, only: nSym,lRoots,nCSF,nConf,nRS1,nRS2,nRS3,
+     &                      State_Sym,iSpin,iTOC,nActEl,nElec3,nHole1
       Implicit None
-#include "Input.fh"
+#include "rasdim.fh"
+
       Real*8, Allocatable:: OCIvec(:), Tmp(:)
       Integer iDisk, iDisk1, i, Iter
       Real*8 Temp
