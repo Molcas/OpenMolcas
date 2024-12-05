@@ -235,8 +235,8 @@ C
       Subroutine Precaaa_Pre(ActInt,A_J,Scr)
 C
       use MCLR_Data, only: nA
+      use input_mclr, only: ntAsh,nSym,nAsh,nIsh,nBas
       Implicit None
-#include "Input.fh"
       Real*8 ActInt(ntAsh,ntAsh,ntAsh,ntAsh),A_J(*),Scr(*)
 !
       Integer iSym, iA, iAabs, iAtot, iB, iBabs, iBtot, jSym, iC,
