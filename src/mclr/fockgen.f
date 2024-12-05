@@ -28,11 +28,12 @@
       use Constants, only: Zero, Two
       use MCLR_Data, only: nDens2, nNA, ipCM, ipMat, nA
       use input_mclr, only: nSym,nAsh,nIsh,nBas,NewCho,LuAChoVec,nOrb
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None
       Real*8 d_0
       Integer idSym
       Real*8 Fock(nDens2),FockOut(*), rDens2(*),rDens1(nna,nna)
-#include "dmrginfo_mclr.fh"
+
       Real*8, Allocatable:: MO(:), Scr(:), G2x(:), Scr1(:,:)
       Type (DSBA_type) :: CVa
       Integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA,
