@@ -39,6 +39,7 @@ set (sources
      diagord.F90
      dihdj_molcas.F90
      dmatdmat.F90
+     dmrginfo_mclr.f90
      detdim.f90
      expcsf.F90
      explh2.F90
@@ -136,6 +137,7 @@ set (modfile_list
      caspt2_global.F90
      csfbas.F90
      detdim.f90
+     dmrginfo_mclr.f90
      input_mclr.f90
      mclr_data.f90
      gugx.F90
