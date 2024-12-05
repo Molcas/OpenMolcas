@@ -23,8 +23,8 @@
       use MCLR_Data, only: LuTEMP, LuJob, LuPT2
       use input_mclr, only: nDisp,nSym,nRoots,ntAsh,PT2,iRoot,iTOC,
      &                      nAsh,nBas,nCSF,nIsh,State_Sym
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None
-#include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
       Integer iKapDisp(nDisp),iCiDisp(nDisp)
       Character(LEN=8) Method
