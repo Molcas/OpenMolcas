@@ -45,11 +45,8 @@
       use input_mclr, only: nDisp,Fail,Save,nSym,PT2,State_Sym,iMethod,
      &                      rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
      &                      ERASSCF,kPrint,nCSF,nTPert,TimeDep,nAsh,nRs2
-
+      use dmrginfo, only: DoDMRG,RGRAS2
       Implicit None
-      External Rsv_Tsk
-*
-#include "dmrginfo_mclr.fh"
 *
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
@@ -68,7 +65,8 @@
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer pstate_sym,opout
-      Logical lPrint,converged(8), Rsv_Tsk
+      Logical lPrint,converged(8)
+      Logical, External ::Rsv_Tsk
       Real*8 Clock(4)
       Character(LEN=72) SLine
       Real*8 res_tmp
