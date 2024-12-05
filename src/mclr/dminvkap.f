@@ -27,10 +27,10 @@
 ************************************************************************
       use Spool, only: LuWr
       use MCLR_Data, only: SA
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None
       Integer nrIn, nrOut, nrTemp, iSym, iter
       Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)
-#include "dmrginfo_mclr.fh"
 *                                                                      *
 ************************************************************************
 *                                                                      *
