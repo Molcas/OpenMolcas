@@ -35,6 +35,7 @@
 ************************************************************************
       use Arrays, only: G1t, G2t
       use MCLR_Data, only: nA, nB
+      use input_mclr, only: nSym,nAsh,nIsh,nBas
       Implicit None
       Integer ib,is,js,nd,nba
       Real*8 rout(*)
@@ -44,7 +45,7 @@
       Real*8 Fockti
       Real*8 Focki(nBa,nBa),Focka(nBa,nBa),Fock(nBa,nBa)
       Real*8 Sign
-#include "Input.fh"
+
       Integer nTri,iib,jVert,i2,ip,kS,kBB,kkB,kkC,lB,jB,ii,ij,kCC
       Real*8 rf,rDens1,rDens2,Rho
 *                                                                      *
