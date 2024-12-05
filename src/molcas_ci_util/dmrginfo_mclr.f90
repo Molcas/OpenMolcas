@@ -9,10 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module DMRGInfo
-#include "dmrginfo_mclr.fh"
-save
-
-#ifdef _NOT_USED_
 !     !> These are used for the MCLR part
 logical :: doMCLR
 logical :: doDMRG
@@ -27,7 +23,6 @@ integer :: LRras2(1:20)        ! CI space when solving LR equation
 integer :: RGras2(1:20)        ! CI space when solving LR equation
 
 integer :: nstates_RGLR        ! number of states
-#endif
 
 End Module DMRGInfo
 
