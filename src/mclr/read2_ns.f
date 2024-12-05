@@ -53,6 +53,7 @@
 ************************************************************************
       use Constants, only: Zero, Half, One
       use MCLR_Data, only: nMBA, nDens2, nCMO, ipCM, ipMat, ipMO, nB
+      use input_mclr, only: nSym,iMethod,nAsh,nIsh,nBas
       Implicit None
       real*8 rmo1(nMBA),rmo2(nMBA),FockI(nDens2),FockA(nDens2)
       Integer nTemp
@@ -65,7 +66,7 @@
       Integer jSpin
       Logical lFAt,lFIT,lmot
       real*8 CMO(nCMO)
-#include "Input.fh"
+
       Logical singlet
       Integer iS,jS,ijS,kS,lS,iB,nNB,jB,ipD,ipF,iiB,jjB,ipS,ip1,ip2,
      &        ip3,ip4,lB,ijA,ilA,ipA
