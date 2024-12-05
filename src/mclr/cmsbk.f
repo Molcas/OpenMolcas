@@ -326,7 +326,6 @@
       use MCLR_Data, only: ipMat, nA, nDens2
       use input_mclr, only: nSym,nAsh,nBas,nIsh
       Implicit None
-#include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
 ******Purpose: calculate the active 1RDM in AO basis given that in MO
 ******         basis
