@@ -12,10 +12,11 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: LuJob
+      use input_mclr, only: lRoots,nRoots,ntAsh,iRoot,iTOC,ntAsh,Weight
       Implicit None
       Integer nd1, nd2
       Real*8 D1(nd1),d2(nd2)
-#include "Input.fh"
+
 #include "SysDef.fh"
       Real*8 rdum(1)
       Real*8, Allocatable:: G2tt(:), D2t(:), D1t(:)
