@@ -28,6 +28,7 @@
 ************************************************************************
       use Arrays, only: G1t, G2t
       use MCLR_Data, only: nA
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,LuChoInt
       Implicit None
       Integer iB,iS,jS,nd
       real*8 rout(*)
@@ -38,7 +39,7 @@
       Integer nScr
       Real*8 A_J(nScr), A_K(nScr), Scr(nScr)
       Integer iAdr
-#include "Input.fh"
+
       Integer nTri,nO,jVert,nVirt,i1,ijk,iSym,nVirt2,jC,jjC,jD,jjD,ip1,
      &        jA,jjA,jB,jBB,jAA,iBC,iAC,ip,iVB,kB,nlB,ilB,lB,jjB,jCC
       Real*8 Factor, AABB, rDens1,BCBB,ACBB,rDens2,rDens,rFock
