@@ -30,10 +30,12 @@
 *     and is not coded yet (ugly bastard) (970109, AB )                *
 ************************************************************************
       use MCLR_Data, only: nrec
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,nRS1,nRS2,nRS3,iMethod,
+     &                      iCASSCF,TimeDep
       Implicit None
-      Integer idsym
       Real*8 rpre(*)
-#include "Input.fh"
+      Integer idsym
+
       Real*8, Allocatable:: JInt(:), KInt(:), Scr(:)
       Real*8, Allocatable:: Temp1(:,:), Temp2(:), Temp3(:), Temp4(:)
 *                                                                      *
