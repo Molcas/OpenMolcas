@@ -27,7 +27,7 @@ use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
-use pso_stuff, only: nBasT
+use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2
 use iSD_data, only: iSO2Sh
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
@@ -46,9 +46,10 @@ implicit none
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iSeed, iSpin, jBas, LgToC, n, nAct, nDim0, nDim1, nDim2, &
-                     nFro(0:7), nPair, nQUad, nSA, nShell, nTsT
+                     nFro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost
+character(len=4096) :: RealName
 real(kind=wp) :: CoefR, CoefX
-logical(kind=iwp) :: Do_Hybrid, DoCholesky
+logical(kind=iwp) :: Do_Hybrid, DoCholesky, is_error
 real(kind=wp) :: PDFT_Ratio, WF_Ratio
 character(len=80) :: KSDFT
 character(len=8) :: Method
@@ -253,6 +254,17 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
         do i=0,nIrrep-1
           nBasT = nBasT+nBas(i)
         end do
+
+        nSSDM = 0
+
+        !! The two MO indices in the half-transformed amplitude are
+        !! not CASSCF but quasi-canonical orbitals.
+        call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
+        LuCMOPT2 = isFreeUnit(66)
+        call PrgmTranslate('CMOPT2',RealName,lRealName)
+        call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
+
+
     End If
   end if
   Method = 'RASSCF  '
