@@ -27,7 +27,7 @@ use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
-use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2
+use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc
 use iSD_data, only: iSO2Sh
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
@@ -267,6 +267,15 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
         do i=1,nBasT*nBasT
            read(LuCMOPT2) CMOPT2(i)
         end do
+
+        read(LuCMOPT2) nOcc(1)
+        read(LuCMOPT2) nOcc(2)
+        read(LuCMOPT2) nOcc(3)
+        read(LuCMOPT2) nOcc(4)
+        read(LuCMOPT2) nOcc(5)
+        read(LuCMOPT2) nOcc(6)
+        read(LuCMOPT2) nOcc(7)
+        read(LuCMOPT2) nOcc(8)
 
     End If
   end if
