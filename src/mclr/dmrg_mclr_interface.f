@@ -12,9 +12,10 @@
 ! *********************************************************************
       subroutine read_dmrg_parameter_for_mclr()
          use input_mclr, only: ERASSCF
+         use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2,DoMCLR,nEle_RGLR,
+     &                       MS2_RGLR,nStates_RGLR
          Implicit None
 
-#include "dmrginfo_mclr.fh"
 
         integer ierr,i
         open(unit=100,file="dmrg_for_mclr.parameters",
@@ -128,8 +129,9 @@
       Subroutine ci_reconstruct(istate,nSDET,vector,indexSD)
 
         use stdalloc, only: mma_allocate, mma_deallocate
+         use dmrginfo, only: LRRAS2,RGRAS2,nEle_RGLR,nDets_RGLR,
+     &                       MS2_RGLR,nStates_RGLR
         Implicit None
-#include "dmrginfo_mclr.fh"
         character(LEN=100),allocatable :: checkpoint(:)! for many states
 
         integer :: istate,nsdet
