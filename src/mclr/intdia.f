@@ -18,6 +18,7 @@
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC
       use MCLR_Data, only: ICISTR
       use MCLR_Data, only: NTOOB,NACOB
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -44,7 +45,6 @@
 * ==============
 *
 #include "csm.fh"
-#include "dmrginfo_mclr.fh"
       Integer idum(1)
       Real*8, Allocatable:: JA(:), KA(:), XA(:), XB(:), SCR(:), H1D(:)
       Integer, Allocatable:: BLTP(:), IOIO(:)

@@ -57,6 +57,7 @@
       use MCLR_Data, only: SA,NACSTATES
       use MCLR_Data, only: LuPT2
       use DetDim, only: MXCNSM
+      use dmrginfo, only: DoDMRG,RGRAS2,DoMCLR
       use input_mclr, only: ntAsh,ntAtri,ntASqr,nSym,iMethod,SpinPol,
      &                      iMCPD,iMSPD,PT2,TimeDep,TwoStep,StepType,
      &                      McKinley,RASSI,NewCho,Fail,CMSNACStates,
@@ -66,7 +67,6 @@
 #include "warnings.h"
 #include "SysDef.fh"
 
-#include "dmrginfo_mclr.fh"
       Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
      &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
 
