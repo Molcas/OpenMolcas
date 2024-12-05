@@ -25,9 +25,16 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA, nA
       use MCLR_Data, only: FnJob, LuJob
+      use input_mclr, only: lRoots,iPT2,nRoots,ntIsh,ntITri,
+     &                      ntAsh,ntATri,ntASqr,ntBas,ntBTri,ntBSqr,
+     &                      nSym,State_Sym,
+     &                      ERASSCF,Headerjp,iRoot,iSpin,iTOC,iTocIph,
+     &                      ntISqr,nCOnf,nActEl,nAsh,nBas,
+     &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,
+     &                      nRS2,nRS3,TitleJP,Weight
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)
-#include "Input.fh"
+#include "rasdim.fh"
 #include "SysDef.fh"
       Character(LEN=72) Line
       Real*8 rdum(1)
