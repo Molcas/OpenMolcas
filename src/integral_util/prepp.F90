@@ -264,6 +264,9 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
         call PrgmTranslate('CMOPT2',RealName,lRealName)
         call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
 
+        do i=1,nBasT*nBasT
+           read(LuCMOPT2) CMOPT2(i)
+        end do
 
     End If
   end if

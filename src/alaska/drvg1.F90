@@ -137,9 +137,6 @@ call PrepP()
 
 if (Method_chk == 'CASPT2  ') then
 
-  do i=1,nBasT*nBasT
-    read(LuCMOPT2) CMOPT2(i)
-  end do
   read(LuCMOPT2) nOcc(1)
   read(LuCMOPT2) nOcc(2)
   read(LuCMOPT2) nOcc(3)
