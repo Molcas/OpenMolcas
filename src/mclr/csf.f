@@ -46,7 +46,6 @@
       Real*8 :: PSSIGN
       Integer :: IPRNT
 *.Scratch
-#include "dmrginfo_mclr.fh"
       Integer, Allocatable:: KL1(:), KL2(:), KL3(:)
 * NOTE : NCNFTP IS COLUMN FOR SYMMETRY GIVEN , NOT COMPLETE MATRIX.
 * Dim of IWORK : MAX(3*NORB,(MXDT+2)*NEL),
@@ -127,7 +126,6 @@ C where MXDT is the largest number of prototype determinants occuring
 C in a single block.
 C
 *./SPINFO/
-#include "dmrginfo_mclr.fh"
       Integer, Allocatable:: LDTBL(:), LIA(:), LIB(:), SCR23(:)
       INTEGER NTEST,MXDT,ITYP,ICNF,JDTABS,IPSFAC,ISGNAB,ICNBS0,IPBAS,
      &        IJKL_NUM,IDET,IOPEN,ICL,IOCC,IC,ICNBS,JDET,ISIGN,IABNUM
@@ -797,7 +795,6 @@ c Avoid unused argument warnings
      &        LLCSF,NCNSM,ICNSTR
       REAL*8 PSSIGN
       INTEGER IPRNT,lconf,lldet
-#include "dmrginfo_mclr.fh"
 !     local variables
       Integer, Allocatable:: IICL(:), IIOP(:), IIOC(:)
       Integer NTEST,IMSCMB,MULTS,NEL,IEL1,IEL2,IEL3,IOP1,IOP2,IOP3,IOP,
@@ -966,11 +963,6 @@ C?      WRITE(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
      & '  Size of largest CI expansion (confs)',ILCNF
        END IF
        call xflush(6) !yma
-
-!       if(doDMRG.and.doMCLR)then  ! yma
-!         ndets_RGLR=LDET
-!         ncsfs_RGLR=ILCNF
-!       end if
 
 *. permanent memory for csf proto type arrays
 
@@ -1444,7 +1436,6 @@ C JEPPE OLSEN NOVEMBER 1988
 C
       IMPLICIT NONE
 
-#include "dmrginfo_mclr.fh"
       Integer NEL,NAEL,NBEL
       Integer IDET(NEL)
       Integer IASTR(NAEL),IBSTR(NBEL)
