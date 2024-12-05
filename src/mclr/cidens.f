@@ -17,11 +17,12 @@
       use MCLR_Data, only: NOCSF
       use cands, only: ICSM,ISSM
       use input_mclr, only: TimeDep, nCSF
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None
       Logical Response
       Integer iLS, iRS, iL, iR
       Real*8 rP(*),rD(*)
-#include "dmrginfo_mclr.fh"
+
       integer opout
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
       Integer i, j, itri
