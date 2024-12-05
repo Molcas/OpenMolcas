@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Proc_InpX(DSCF,iRc)
-      use definitions,only:wp,u6
+      use definitions,only:iwp,wp,u6
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
       use mcpdft_input, only: mcpdft_options
@@ -35,13 +35,13 @@
 #include "rasdim.fh"
 #include "warnings.h"
 
-      Real(kind=wp) potnucdummy
-      logical lExists, RunFile_Exists
-      integer, external :: isFreeUnit
-      logical, external :: Langevin_On, PCM_On
+      logical, intent(in) :: dscf
+      integer(kind=iwp), intent(out) :: irc
 
-      logical DSCF
-      Logical DBG
+      integer(kind=iwp) :: iprlev,IADR19(15),i,iad19
+      integer(kind=iwp) :: iorbdata,isym,ndiff
+      real(kind=wp) potnucdummy
+      logical(kind=iwp) :: DBG,lExists, RunFile_Exists,keyjobi
 
 #ifdef _HDF5_
 ! Local NBAS_L, NORB_L .. avoid collision with items in common.
@@ -51,26 +51,15 @@
       logical :: err
 #endif
 
-! TOC on JOBOLD (or JOBIPH)
-      integer, DIMENSION(15) :: IADR19
+      integer(kind=iwp), external :: isFreeUnit,isStructure
+      logical(kind=iwp), external :: Langevin_On,PCM_On
 
-
-      Character*72 ReadStatus
+      character(len=72) ReadStatus
       Character*72 JobTit(mxTit)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
 
-      INTEGER :: IPRLEV
-      logical :: keyJOBI
-
-      integer irc, i, iad19
-      integer iorbdata, isym
-      integer ndiff
-      integer, external :: isStructure
-
-      Call StatusLine('MCPDFT: ','Processing Input')
-
-      IPRLEV = TERSE
+      Call StatusLine('MCPDFT:','Processing Input')
 
 !> default for MC-PDFT: read/write from/to JOBIPH-type files
       keyJOBI = .true.
@@ -82,7 +71,7 @@
 
       DBG= (IPRLEV >= DEBUG)
 
-* ==== Check if there is any runfile ====
+! ==== Check if there is any runfile ====
       Call F_Inquire('RUNFILE',RunFile_Exists)
       If (DBG) Write(u6,*)' Inquire about RUNFILE.'
       IF (RunFile_Exists) Then
@@ -111,7 +100,7 @@
      &           ' unexpected error.'
         Call Quit(_RC_IO_ERROR_READ_)
       END IF
-* ==== End check if there is any runfile ====
+! ==== End check if there is any runfile ====
 
 ! Make these enumerations??
 ! Also, allow FILE to specify either a binary (JobIph or HDF5 reference for
@@ -125,7 +114,7 @@
 !       4, take from an HDF5 file
 !       5, take from startorb (instead of jobold or jobiph) NOT IMPLEMENTED
 
-*---  ==== FILE(ORB) keyword =====
+! ---  ==== FILE(ORB) keyword =====
       If (len_trim(mcpdft_options%wfn_file) .ne. 0) Then
        keyJOBI = .false.
        if (mcpdft_options%is_hdf5_wfn) then
@@ -137,7 +126,7 @@
         call abend()
        End If
       endif
-*---  ==== JOBI(PH) keyword =====
+!---  ==== JOBI(PH) keyword =====
 ! The following is run, EXCEPT if FILE key is provided an points to an
 ! HDF5 input file
 ! I have a feeling that this should only run IF FILE(ORB) key is not passed
@@ -177,11 +166,11 @@
         end if
       End If
 
-*---  Process HDF5 file --------------------------------------------*
+!---  Process HDF5 file --------------------------------------------*
       If (mcpdft_options%is_hdf5_wfn) Then
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(mcpdft_options%wfn_file)
-*     read basic attributes
+!     read basic attributes
         call mh5_fetch_attr(mh5id, 'NSYM', NSYM_L)
         if (nsym.ne.nsym_l) then
           write (u6,*) 'Number of symmetries on HDF5 file does not'
@@ -201,22 +190,19 @@
           write (u6,*) 'RunFile, calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
-*     orbitals available?
+!     orbitals available?
         if (.not. mh5_exists_dset(mh5id, 'MO_VECTORS')) then
           write (u6,*)'The HDF5 ref file does not contain MO vectors.'
           write (u6,*)'Fatal error, the calculation will stop now.'
           call Quit(_RC_INPUT_ERROR_)
         end if
-*     typeindex data available?
+!     typeindex data available?
         if (mh5_exists_dset(mh5id, 'MO_TYPEINDICES')) then
           iOrbData=3
           call mma_allocate(typestring, sum(nbas(1:nsym)))
           call mh5_fetch_dset(mh5id, 'MO_TYPEINDICES', typestring)
-          call tpstr2orb(nSym,nbas_l,
-     $            typestring,
-     $            nfro,nish,
-     $            NRS1,NRS2,NRS3,
-     $            nSSh,nDel)
+          call tpstr2orb(nSym,nbas_l,typestring,nfro,nish,
+     &            NRS1,NRS2,NRS3,nSSh,nDel)
           call mma_deallocate(typestring)
         else
           write (u6,*)'The HDF5 ref file does not contain TYPEindices.'
@@ -308,13 +294,13 @@
       JOBIPH=IsFreeUnit(15)
       CALL DANAME(JOBIPH,"JOBIPH")
 
-*---  complete orbital specifications ---------------------------------*
+!---  complete orbital specifications ---------------------------------*
       Do iSym=1,nSym
         nash(isym)=nrs1(isym)+nrs2(isym)+nrs3(isym)
         NORB(ISYM)=NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)
         NSSH(ISYM)=NORB(ISYM)-NISH(ISYM)-NASH(ISYM)
       End Do
-*---  Related data for sizes, etc.
+!---  Related data for sizes, etc.
       NTOT=0
       NTOT1=0
       NTOT2=0
@@ -331,10 +317,10 @@
       NRS1T=0 ! for RASSCF
       NRS2T=0
       NRS3T=0
-c     ngssh_tot(:) = zero
-c      do igas=1,ngas
-c        NGSSH_tot(igas) = SUM(NGSSH(IGAS,1:NSYM))
-c      end do
+!     ngssh_tot(:) = zero
+!      do igas=1,ngas
+!        NGSSH_tot(igas) = SUM(NGSSH(IGAS,1:NSYM))
+!      end do
       DO ISYM=1,NSYM
          NTOT=NTOT+NBAS(ISYM)
          NTOT1=NTOT1+NBAS(ISYM)*(NBAS(ISYM)+1)/2
@@ -362,25 +348,18 @@ c      end do
          if (irc.ne.0) Go To 9930
       endif
 
-* ===============================================================
-
-*
-*     Initialize seward
-*
+! ===============================================================
+!     Initialize seward
       If (DBG) write(u6,*)' Initialize seward.'
       nDiff = 0
       Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
-* ===============================================================
-*
-*     Check the input data
-*
+! ===============================================================
+!     Check the input data
       Call validate_wfn()
-* ===============================================================
-
+! ===============================================================
       Go to 9000
 
 !---  Error exits -----------------------------------------------------*
-*
 9930  CONTINUE
       Call WarningMessage(2,'Error during input preprocessing.')
       Call WarningMessage(2,ReadStatus)
@@ -388,12 +367,12 @@ c      end do
       iRc=_RC_INPUT_ERROR_
       Go to 9900
 
-*---  Normal exit -----------------------------------------------------*
+!---  Normal exit -----------------------------------------------------*
 9000  CONTINUE
       close(989)
       If (DBG) write(u6,*)' Normal exit from PROC_INP.'
       Return
-*---  Abnormal exit -----------------------------------------------------*
+!---  Abnormal exit -----------------------------------------------------*
 9900  CONTINUE
       If (DBG) write(u6,*)' Abnormal exit from PROC_INP.'
       Return
