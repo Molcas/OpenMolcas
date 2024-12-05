@@ -26,10 +26,13 @@
       use Constants, only: Zero, One, Two, Half
       use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nB
       use MCLR_Data, only: LuQDat
+      use input_mclr, only: TwoStep,StepType,nSym,NewCho,iMethod,
+     &                      iCASSCF,rIn_Ene,Debug,PotNuc,iAddressQDat,
+     &                      LuAChoVec,LuIChoVec,nAsh,nBas,nIsh,nOrb
       Implicit None
       Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2),
      &       Temp2(nDens2),Scr(*),Temp3(ndens2)
-#include "Input.fh"
+
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
       Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,
