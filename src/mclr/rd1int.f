@@ -21,8 +21,10 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use input_mclr, only: nSym,nBas,iMethod,nAtoms,ntBas,ntBTri,
+     &                      ntBSqr,AtLbl,ChIrr,Header1I,PotNuc,Coor
       Implicit None
-#include "Input.fh"
+#include "LenIn.fh"
       Character(LEN=8) Method
       Integer iSym
 *
