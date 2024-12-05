@@ -29,10 +29,16 @@
       use MCLR_Data, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,
      &                     NACSTATES
       use MCLR_Data, only: FnJob,FnMck,LuJob,LuMck
+      use input_mclr, only: Debug,lRoots,iPT2,nRoots,ntIsh,ntITri,
+     &                      ntAsh,ntATri,ntASqr,ntBas,ntBTri,ntBSqr,
+     &                      nSym,nCSF,State_Sym,iMCPD,iMSPD,McKinley,
+     &                      ERASSCF,Headerjp,iRoot,iSpin,iTOC,iTocIph,
+     &                      ntISqr,nCOnf,PT2,nActEl,nAsh,nBas,
+     &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,
+     &                      nRS2,nRS3,TitleJP,Weight
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)
-
-#include "Input.fh"
+#include "rasdim.fh"
 #include "SysDef.fh"
 #include "dmrginfo_mclr.fh"
       Character(LEN=72) Line
