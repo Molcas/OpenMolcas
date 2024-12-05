@@ -37,9 +37,9 @@ use mspdft_grad, only: DoGradMSPD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use dmrginfo
 
 implicit none
-#include "dmrginfo_mclr.fh"
 #ifdef _CD_TIMING_
 #include "temptime.fh"
 #endif
