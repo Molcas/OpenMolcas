@@ -21,10 +21,11 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: LuJob
+      use input_mclr, only: ntAsh,iTOC
       Implicit None
       Real*8 G1r(*), G1Q(*),G2r(*)
       integer iestate
-#include "Input.fh"
+
 #include "SysDef.fh"
       Real*8, Allocatable:: G2Q(:)
       Real*8 rdum(1)
