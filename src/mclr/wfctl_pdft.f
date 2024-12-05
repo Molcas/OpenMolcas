@@ -38,6 +38,7 @@
      &                      iBreak,Epsilon,nIter,Weight,
      &                      Debug,ERASSCF,kPrint,nCSF,nRoots,
      &                      ntAsh,nAsh,nBas,nRs2
+      use dmrginfo, only: DoDMRG,RGRAS2
       Implicit None
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
@@ -46,7 +47,6 @@
       Integer iPL
 *
 #include "rasdim.fh"
-#include "dmrginfo_mclr.fh"
 
       Logical CI
       Character(LEN=8) Fmt2
@@ -818,12 +818,13 @@
       use Constants, only: One
       use MCLR_Data
       use input_mclr, only: nRoots,nAsh,nRs2
+      use dmrginfo, only: DoDMRG,LRRAS2,RGRAS2
       Implicit None
       Real*8 Kap(*)
       Integer ipCId,isym,jspin,ipS2,ipCiOut
       Real*8 ReCo
       Real*8 KapOut(*)
-#include "dmrginfo_mclr.fh"
+
       Integer opOut
       Real*8 rdum(1)
       Real*8, Allocatable:: RMOAA(:), Sc1(:), Sc2(:), Sc3(:),
