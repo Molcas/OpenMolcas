@@ -21,7 +21,7 @@ subroutine CloseP()
 !***********************************************************************
 
 use pso_stuff, only: Bin, Case_MP2, CMO, D0, DS, DSVar, DVar, G1, G2, G_Toc, Gamma_On, lPSO, LuGam, LuGamma, SO2cI
-use pso_stuff, only: iOffAO,CMOPT2,SSDM,WRK1,WRK2,LuGamma_PT2
+use pso_stuff, only: iOffAO,CMOPT2,SSDM,WRK1,WRK2,LuGamma_PT2,LuGamma2,B_PT2
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
@@ -36,9 +36,13 @@ if (Method_chk == 'CASPT2  ') then
      call mma_deallocate(iOffAO)
      close(LuGamma_PT2)
      call mma_deallocate(CMOPT2)
-     call mma_deallocate(SSDM)
+     If (Allocated(SSDM)) call mma_deallocate(SSDM)
      call mma_deallocate(WRK1)
      call mma_deallocate(WRK2)
+  else
+!    RI/Cholesky ERIs
+     call mma_deallocate(B_PT2)
+     close(LuGamma2)
   endif
 end if
 

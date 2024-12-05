@@ -36,7 +36,7 @@ public :: A_PT2, AOrb, B_PT2, Bin, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, 
 
 ! Stuff for CASTP2 Gradient
 real(kind=wp), allocatable :: CMOPT2(:), WRK1(:), WRK2(:)
-integer(kind=iwp) :: LuCMOPT2,LuGamma_PT2
+integer(kind=iwp) :: LuCMOPT2,LuGamma_PT2,LuGamma2
 integer(kind=iwp), allocatable :: iOffAO(:)
-public:: CMOPT2,WRK1,WRK2,LuCMOPT2,iOffAO,LuGamma_PT2
+public:: CMOPT2,WRK1,WRK2,LuCMOPT2,iOffAO,LuGamma_PT2,LuGamma2
 end module PSO_Stuff

@@ -41,7 +41,7 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 use setup, only: mSkal, MxPrm, nAux
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD, nSD
-use pso_stuff, only: B_PT2, DMdiag, lPSO, lSA, n_Txy, nBasA, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k
+use pso_stuff, only: B_PT2, DMdiag, lPSO, lSA, n_Txy, nBasA, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, LuGamma2
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
 use k2_structure, only: k2Data
 use Disp, only: l2DI
@@ -74,7 +74,7 @@ integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iB
                      iPrInc, iS, iS_, iSD4(0:nSD,4), ish, iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, &
                      jBasj, jBasn, jBsInc, jjQ, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, &
                      kBasAO, kBask, kBasn, kBsInc, kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, &
-                     lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lRealName, lS, LuGAMMA2, maxnAct, maxnnP, mBtch, mdci, &
+                     lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lRealName, lS, maxnAct, maxnnP, mBtch, mdci, &
                      mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, &
                      nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, &
                      nPrev, nQuad, nRys, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, &
@@ -845,10 +845,6 @@ call mma_deallocate(Thpkl,safe='*')
 
 call mma_deallocate(Sew_Scr)
 call Free_Tsk2(id)
-if (Method == 'CASPT2') then
-  call mma_deallocate(B_PT2)
-  close(LuGamma2)
-end if
 call mma_deallocate(Shij2)
 call mma_deallocate(Shij)
 call mma_deallocate(TMax_Auxiliary)
