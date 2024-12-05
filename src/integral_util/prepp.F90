@@ -27,6 +27,7 @@ use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
+use pso_stuff, only: nBasT
 use iSD_data, only: iSO2Sh
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
@@ -37,6 +38,7 @@ use mspdft_grad, only: DoGradMSPD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use RICD_Info, only: Do_RI, Cholesky
 
 implicit none
 #include "dmrginfo_mclr.fh"
@@ -245,6 +247,13 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
     call mma_allocate(SO2cI,1,1,Label='SO2cI')
     call mma_allocate(Bin,1,1,Label='Bin')
     !end if
+    If (Cholesky .or. Do_RI) Then
+    Else
+        nBasT = 0
+        do i=0,nIrrep-1
+          nBasT = nBasT+nBas(i)
+        end do
+    End If
   end if
   Method = 'RASSCF  '
   !                                                                    *

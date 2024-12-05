@@ -35,7 +35,7 @@ use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
 use k2_structure, only: k2Data
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use pso_stuff, only: G_toc, nSSDM, SSDM,CMOPT2,WRK1,WRK2,LuCMOPT2,LuGamma_PT2,iOffAO
+use pso_stuff, only: G_toc, nSSDM, SSDM,CMOPT2,WRK1,WRK2,LuCMOPT2,LuGamma_PT2,iOffAO,nBasT
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: nBas, Shells
 use Sizes_of_Seward, only: S
@@ -56,7 +56,7 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      iSh, iShela(4), iShlla(4), iSSDM, istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, &
                      jPrInc, jS, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
                      lBsInc, lPriml, lPrInc, lRealName, lS, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
-                     Mem2, MemMax, MemPSO, nab, nBasI, nBasT, nBtch, ncd, nDCRR, nDCRS, nEta, nFro(8), nHmab, nHmcd, nHrrab, nij, &
+                     Mem2, MemMax, MemPSO, nab, nBasI, nBtch, ncd, nDCRR, nDCRS, nEta, nFro(8), nHmab, nHmcd, nHrrab, nij, &
                      nijkl, nOcc(8), nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, Shijij, &
@@ -136,10 +136,6 @@ Prem = Zero
 call PrepP()
 
 if (Method_chk == 'CASPT2  ') then
-  nBasT = 0
-  do i=0,nIrrep-1
-    nBasT = nBasT+nBas(i)
-  end do
   nSSDM = 0
 
   !! The two MO indices in the half-transformed amplitude are
