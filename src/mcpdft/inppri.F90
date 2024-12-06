@@ -20,10 +20,9 @@ subroutine InpPri_m()
   use printlevel,only:silent,terse,usual,verbose
   use mcpdft_output,only:iPrLoc
   use Fock_util_global,only:docholesky
-  use rctfld_module,only:lRF
   use mcpdft_input,only:mcpdft_options
   use definitions,only:iwp,wp,u6
-  use rasscf_global,only:NAC,NFR,NIN,NONEQ,NROOTS,NSEC,header
+  use rasscf_global,only:NAC,NFR,NIN,NROOTS,NSEC,header
   use general_data,only:nfro,nish,ndel,nbas,nash,nrs1,nrs2,nrs3,ispin,nactel,nconf,nelec3,nhole1,nsym,stsym,nssh
   implicit none
 
@@ -125,10 +124,6 @@ subroutine InpPri_m()
 
   endif
 
-  ! Reaction Field Specification
-  If(lRF) then
-    Call PrRF(.False.,NonEq,get_charge(),2)
-  EndIf
 
   if(iPrLev >= terse) then
     write(u6,*)
