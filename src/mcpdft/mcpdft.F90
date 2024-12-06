@@ -14,26 +14,9 @@
 !               1991,1993, Jeppe Olsen                                 *
 !               1998, Roland Lindh                                     *
 !               2016, Andrew M. Sand                                   *
+!               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 SUBROUTINE MCPDFT(IRETURN)
-!***********************************************************************
-!                                                                      *
-!     written by:                                                      *
-!     M.P. Fuelscher and J. Olsen, P.Aa. Malmqvist and B.O. Roos       *
-!     University of Lund, Sweden                                       *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
-!     history:                                                         *
-!     MOLCAS version 1 by P.Aa. Malmqvist and B.O. Roos, 1989          *
-!     MOLCAS version 2 by M.P. Fuelscher and J. Olsen  , 1991          *
-!     MOLCAS version 3 by M.P. Fuelscher and J. Olsen  , 1993          *
-!                                                                      *
-!     Modified to process only unique symmetry blocks, R. Lindh,       *
-!     March '98.                                                       *
-!                                                                      *
-!     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
-!***********************************************************************
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use Fock_util_global,only:DoCholesky
