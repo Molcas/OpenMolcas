@@ -173,9 +173,11 @@ contains
     use rasscf_global,only:dftfock,potnuc,noneq,exfac,nacpr2
     use general_data,only:ntot1,nsym,nfro,nash,nish,ispin
 
+#include "intent.fh"
+
     real(kind=wp) :: energy_ot
     class(OTFNAL_t),intent(in) :: self
-    integer(kind=iwp),intent(in) :: charge
+    integer(kind=iwp),intent(_IN_) :: charge
     real(kind=wp),intent(in) :: folded_dm1(*),folded_dm1s(*),casdm1(*),casdm2(*)
 
     logical(kind=iwp) :: first,dff,do_dft
