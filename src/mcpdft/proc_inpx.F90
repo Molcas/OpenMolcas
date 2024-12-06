@@ -296,10 +296,6 @@ Subroutine Proc_InpX(DSCF,iRc)
   NRS1T = 0 ! for RASSCF
   NRS2T = 0
   NRS3T = 0
-!     ngssh_tot(:) = zero
-!      do igas=1,ngas
-!        NGSSH_tot(igas) = SUM(NGSSH(IGAS,1:NSYM))
-!      end do
   DO ISYM = 1,NSYM
     NTOT = NTOT+NBAS(ISYM)
     NTOT1 = NTOT1+NBAS(ISYM)*(NBAS(ISYM)+1)/2
