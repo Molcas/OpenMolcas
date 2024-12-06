@@ -35,7 +35,7 @@ Spin
 >>> COPY $Project.JobIph test.JobIph
 
  &MCPDFT
- KSDFT=T:OPBE
+ FUNCtional=T:OPBE
  GRADIENT
 
  &SLAPAF
