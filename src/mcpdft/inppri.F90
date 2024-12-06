@@ -121,7 +121,6 @@ subroutine InpPri_m()
 
   endif
 
-
   if(iPrLev >= terse) then
     write(u6,*)
     Line = ' '
