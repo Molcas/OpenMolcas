@@ -53,7 +53,7 @@ CMSO=Jacobi
 CMSI
 
 &MCPDFT
-KSDFT=T:PBE
+FUNC=T:PBE
 MSPD
 
 >>FILE InitOrb
