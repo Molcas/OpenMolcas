@@ -16,7 +16,7 @@
 !               2016, Andrew M. Sand                                   *
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
-SUBROUTINE MCPDFT(IRETURN)
+subroutine mcpdft(ireturn)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use Fock_util_global,only:DoCholesky
@@ -38,11 +38,9 @@ SUBROUTINE MCPDFT(IRETURN)
 #include "timers.fh"
 
   logical(kind=iwp) :: dscf
-  real(kind=wp),allocatable :: e_mcscf(:),PUVX(:),D1I(:),D1A(:)
-  real(kind=wp),allocatable :: cmo(:),FI(:),FA(:),tuvx(:)
-  real(kind=wp),allocatable :: e_states(:)
-  Real(kind=wp) :: dum1,dum2,dum3
   integer(kind=iwp) :: iPrLev,iRC,state
+  real(kind=wp),allocatable :: e_mcscf(:),PUVX(:),D1I(:),D1A(:),cmo(:),FI(:),FA(:),tuvx(:),e_states(:)
+  real(kind=wp) :: dum1,dum2,dum3
 
   Call StatusLine('MCPDFT:',' Just started.')
   IRETURN = _RC_ALL_IS_WELL_
@@ -206,5 +204,4 @@ SUBROUTINE MCPDFT(IRETURN)
 
   call close_files_mcpdft()
 
-EndSUBROUTINE MCPDFT
-
+endsubroutine mcpdft
