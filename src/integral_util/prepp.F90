@@ -46,7 +46,7 @@ implicit none
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iSeed, iSpin, jBas, LgToC, n, nAct, nDim0, nDim1, nDim2, &
-                     nFro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost
+                     nXro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost
 character(len=4096) :: RealName
 real(kind=wp) :: CoefR, CoefX
 logical(kind=iwp) :: Do_Hybrid, DoCholesky, is_error
@@ -377,18 +377,18 @@ if (lpso .and. (.not. gamma_mrcisd)) then
   call Get_iScalar('nSym',i)
   call Get_iArray('nIsh',nIsh,i)
   call Get_iArray('nAsh',nAsh,i)
-  call Get_iArray('nFro',nFro,i)
+  call Get_iArray('nFro',nXro,i)
 # ifdef _DEBUGPRINT_
   write(u6,*) ' nISh=',nISh
   write(u6,*) ' nASh=',nASh
-  write(u6,*) ' nFro=',nFro
+  write(u6,*) ' nFro=',nXro
 # endif
   nAct = 0
   nTst = 0
   do iIrrep=0,nIrrep-1
     !write(u6,*)"nAsh(iIrrep)",nAsh(iIrrep)  ! yma
     nAct = nAct+nAsh(iIrrep)
-    nTst = nTst+nFro(iIrrep)
+    nTst = nTst+nXro(iIrrep)
   end do
   if (nTst /= 0) then
     call WarningMessage(2,'; No frozen orbitals are allowed!; ALASKA cannot continue;')
