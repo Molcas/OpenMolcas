@@ -32,7 +32,7 @@
   6
 
 &MCPDFT
-  KSDFT = FT:PBE
+  FUNC = FT:PBE
   Gradient
 
 &MCKINLEY

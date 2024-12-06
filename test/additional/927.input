@@ -34,7 +34,7 @@ CIROOT=2 2 1
 >>foreach state in (1, 2)
 
 &MCPDFT
-KSDFT=T:PBE
+FUNC=T:PBE
 GRAD
 LAMB = $hybrid
 RLXROOT=$state

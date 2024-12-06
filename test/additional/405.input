@@ -36,17 +36,17 @@ ras2 = 2
 >>foreach DFT in (LSDA, PBE, BLYP)
 
 &MCPDFT
-KSDFT = $trans:$DFT
+FUNC = $trans:$DFT
 
 >>enddo
 >>enddo
 
 &MCPDFT
-KSDFT = T:BLYP
+FUNC = T:BLYP
 LAMB = 0.15
 
 &MCPDFT
-KSDFT = T:BLYP
+FUNC = T:BLYP
 LAMB = 0.2
 DFCF = 1.20 0.75
 
