@@ -102,37 +102,40 @@ with the program name ::
 
   &MCPDFT
 
-The :kword:`KSDFT` is the only required keyword.
+The :kword:`FUNC` is the only required keyword.
 
 .. class:: keywordlist
 
-:kword:`KSDFT`
-  The functional choice follows. 
-  For LSDA and GGA exchange-correlation functionals, one may specify a translated or fully translated on-top functional by prefixing
-  ``T:`` or ``FT:`` to the standard DFT functionals.
-  For meta-GGAs, one may specify a translated on-top functional by the prefix ``T:``, but one cannot use ``FT:``
-  Hybrid functional names (e.g. PBE0 or B3LYP) should not be used after ``KSDFT=T:`` or ``KSDFT=FT:`` in this module.
-  See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT calculations.
-  Also note that the format of a number :math:`N` followed by :math:`N` lines,
-  each of them containing a weight factor and a Libxc functional name,
-  is not supported in this module. Examples of this keyword::
-
-     KSDFT=T:PBE                 * A functional keyword, can be used for MC-PDFT calculations.
+:kword:`FUNCtional`
+  The functional choice follows. For LSDA and GGA exchange-correlation
+  functionals, one may specify a translated or fully translated on-top
+  functional by prefixing ``T:`` or ``FT:`` to the standard DFT functionals.
+  For meta-GGAs, one may specify a translated on-top functional by the prefix
+  ``T:``, but one cannot use ``FT:`` Hybrid functional names (e.g. PBE0 or
+  B3LYP) should not be used after ``FUNC=T:`` or ``FUNC=FT:`` in this module.
+  See keyword :kword:`LAMBda` for a description on how to run hybrid MC-PDFT
+  calculations. Also note that the format of a number :math:`N` followed by
+  :math:`N` lines, each of them containing a weight factor and a Libxc
+  functional name, is not supported in this module. Examples of this keyword
 
   ::
 
-     KSDFT=T:GGA_X_PBE           * A Libxc functional name, can be used for MC-PDFT calculations.
+     FUNC=T:PBE                 * A functional keyword, can be used for MC-PDFT calculations.
+
+  ::
+
+     FUNC=T:GGA_X_PBE           * A Libxc functional name, can be used for MC-PDFT calculations.
 
   However, the following syntax should not be used.
 
   ::
 
-     KSDFT=T: 2                  * two components with their weights, CANNOT be used for MC-PDFT calculations.
+     FUNC=T: 2                   * two components with their weights, CANNOT be used for MC-PDFT calculations.
            1.00 GGA_X_PBE        * Libxc functional names
            1.00 GGA_C_PBE        * Libxc functional names
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="KSDFT" APPEAR="Pair-density functional" KIND="STRING" > LEVEL="BASIC"
-              %Keyword: KSDFT <basic>
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="FUNC" APPEAR="Pair-density functional" KIND="STRING" > LEVEL="BASIC"
+              %Keyword: FUNCtional <basic>
               <HELP>
               Needed to perform MC-PDFT calculations.
               The functional choice follows. Specify the functional by prefixing
@@ -247,22 +250,22 @@ The :kword:`KSDFT` is the only required keyword.
 
   Example of running tPBE0::
 
-     KSDFT = T:PBE
+     FUNC = T:PBE
      LAMB  = 0.25
 
   .. compound::
 
     However, the following two examples will NOT give tPBE0 results::
 
-       KSDFT = T:PBE0
+       FUNC = T:PBE0
 
     or::
 
-       KSDFT = T:PBE0
+       FUNC = T:PBE0
        LAMB  = 0.25
 
     because hybrid functional names (e.g. PBE0 or B3LYP) should not be used
-    after ``KSDFT=T:`` in this module.
+    after ``FUNC=T:`` in this module.
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="LAMBDA" APPEAR="Lambda in hybrid PDFT" KIND="REAL" LEVEL="BASIC">
               %%Keyword: MSPDFT <basic>
@@ -354,7 +357,7 @@ geometry, etc. has to be given. Such information is supplied by the
   Ras2     = 2 2 0 0
 
   &MCPDFT
-  KSDFT=T:PBE
+  FUNC=T:PBE
 
 The first :program:`RASSCF` run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
 The MC-PDFT run will use the orbitals and density matrices optimized during the preceding :program:`RASSCF` run.
@@ -384,7 +387,7 @@ The system is :math:`\ce{LiF}` and the point group used is |Ctv|. ::
    CMSI
 
    &MCPDFT
-   KSDFT=T:PBE
+   FUNC=T:PBE
    MSPDft
 
 The following example shows a part of the input to run CMS-PDFT geometry optimization. The additional keywords are :kword:`RLXR` and :kword:`GRAD` in :program:`MCPDFT`. The additional modules include :program:`MCLR`, :program:`ALASKA` and :program:`SLAPAF`. ::
@@ -411,7 +414,7 @@ The following example shows a part of the input to run CMS-PDFT geometry optimiz
     CMSI
 
     &MCPDFT
-    KSDFT=T:PBE
+    FUNC=T:PBE
     Grad
     MSPDft
     RLXRoot=2
