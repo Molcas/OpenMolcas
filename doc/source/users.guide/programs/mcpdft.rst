@@ -82,9 +82,6 @@ Output files
 
 .. class:: filelist
 
-:file:`JOBPDFT`
-  This file is written in binary format and has the same structue of the :file:`JOBIPH` file.
-
 :file:`wavefunction.h5` (optional)
   This file is written in HDF5 format and updates the content (state energies) of the input :file:`wavefunction.h5` file.
 
