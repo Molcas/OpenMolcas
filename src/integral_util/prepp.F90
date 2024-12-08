@@ -27,8 +27,8 @@ use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
-use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM
-use iSD_data, only: iSO2Sh
+use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM, MaxShlAO,iOffAO
+use iSD_data, only: iSO2Sh, iSD
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
@@ -46,7 +46,7 @@ implicit none
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iSeed, iSpin, jBas, LgToC, n, nAct, nDim0, nDim1, nDim2, &
-                     nXro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost, iSSDM
+                     nXro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost, iSSDM, iSh, nBasI
 character(len=4096) :: RealName
 real(kind=wp) :: CoefR, CoefX
 logical(kind=iwp) :: Do_Hybrid, DoCholesky, is_error
@@ -299,6 +299,16 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
 
         write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
         write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
+
+        call mma_allocate(iOffAO,mSkal+1,Label='iOffAO')
+        MaxShlAO = 0
+        iOffAO(1) = 0
+        do iSh=1,mSkal
+          nBasI = iSD(2,iSh)*iSD(3,iSh)
+          if (nBasI > MaxShlAO) MaxShlAO = nBasI
+          iOffAO(iSh+1) = iOffAO(iSh)+nBasI
+        end do
+        call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
 
     End If
   end if

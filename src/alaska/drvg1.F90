@@ -35,7 +35,7 @@ use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
 use k2_structure, only: k2Data
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use pso_stuff, only: G_toc,CMOPT2,WRK1,WRK2,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro
+use pso_stuff, only: G_toc,CMOPT2,WRK1,WRK2,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro,MaxShlAO
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
@@ -55,8 +55,8 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      ijMax, ijS, ik2, iOpt, iost, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), &
                      iSh, iShela(4), iShlla(4), istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, &
                      jPrInc, jS, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
-                     lBsInc, lPriml, lPrInc, lRealName, lS, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
-                     Mem2, MemMax, MemPSO, nab, nBasI, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, &
+                     lBsInc, lPriml, lPrInc, lRealName, lS, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
+                     Mem2, MemMax, MemPSO, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, &
                      nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, Shijij, &
@@ -136,16 +136,6 @@ Prem = Zero
 call PrepP()
 
 if (Method_chk == 'CASPT2  ') then
-
-  call mma_allocate(iOffAO,nSkal+1,Label='iOffAO')
-  MaxShlAO = 0
-  iOffAO(1) = 0
-  do iSh=1,nSkal
-    nBasI = iSD(2,iSh)*iSD(3,iSh)
-    if (nBasI > MaxShlAO) MaxShlAO = nBasI
-    iOffAO(iSh+1) = iOffAO(iSh)+nBasI
-  end do
-  call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
 
   LuGAMMA_PT2 = isFreeUnit(65)
   call PrgmTranslate('GAMMA',RealName,lRealName)
