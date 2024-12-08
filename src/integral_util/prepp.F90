@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1992, Roland Lindh                                     *
+!               2021, Yoshio Nishimoto                                 *
 !***********************************************************************
 
 !#define _DEBUGPRINT_
@@ -27,7 +28,7 @@ use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
-use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM, MaxShlAO,iOffAO
+use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM, MaxShlAO,iOffAO,LuGamma_PT2,Wrk1,Wrk2
 use iSD_data, only: iSO2Sh, iSD
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
@@ -309,6 +310,13 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
           iOffAO(iSh+1) = iOffAO(iSh)+nBasI
         end do
         call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
+
+        LuGAMMA_PT2 = isFreeUnit(65)
+        call PrgmTranslate('GAMMA',RealName,lRealName)
+        call MOLCAS_Open_Ext2(LuGamma_PT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
+
+        call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
+        call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
 
     End If
   end if

@@ -35,7 +35,7 @@ use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
 use k2_structure, only: k2Data
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use pso_stuff, only: G_toc,CMOPT2,WRK1,WRK2,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro,MaxShlAO
+use pso_stuff, only: G_toc,CMOPT2,WRK1,WRK2,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
@@ -52,22 +52,20 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iCnt, iFnc(4), ijklA, &
-                     ijMax, ijS, ik2, iOpt, iost, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), &
+                     ijMax, ijS, ik2, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), &
                      iSh, iShela(4), iShlla(4), istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, &
                      jPrInc, jS, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
-                     lBsInc, lPriml, lPrInc, lRealName, lS, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
+                     lBsInc, lPriml, lPrInc, lS, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
                      Mem2, MemMax, MemPSO, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, &
                      nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, Shijij, &
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), lDummy, Loadvec, No_Batch, Shijij, &
                      Skip, Triangular
-character(len=4096) :: RealName
 character(len=72) :: formt
 character(len=8) :: Method_chk
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
 integer(kind=iwp), save :: MemPrm
-integer(kind=iwp), external :: IsFreeUnit
 logical(kind=iwp), external :: Rsv_GTList
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus
@@ -135,15 +133,6 @@ Prem = Zero
 
 call PrepP()
 
-if (Method_chk == 'CASPT2  ') then
-
-  LuGAMMA_PT2 = isFreeUnit(65)
-  call PrgmTranslate('GAMMA',RealName,lRealName)
-  call MOLCAS_Open_Ext2(LuGamma_PT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
-
-  call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
-  call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
