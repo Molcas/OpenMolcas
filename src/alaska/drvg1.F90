@@ -51,7 +51,7 @@ integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
-integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iCnt, iFnc(4), ijklA, &
+integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iFnc(4), ijklA, &
                      ijMax, ijS, ik2, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), &
                      iSh, iShela(4), iShlla(4), istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, &
                      jPrInc, jS, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
@@ -59,7 +59,7 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      Mem2, MemMax, MemPSO, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, &
                      nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), lDummy, Loadvec, No_Batch, Shijij, &
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), lDummy, No_Batch, Shijij, &
                      Skip, Triangular
 character(len=72) :: formt
 character(len=8) :: Method_chk
@@ -164,7 +164,8 @@ call mma_allocate(Ind_ij,2,nskal*(nSkal+1)/2,Label='Ind_ij')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
-    if ((TMax_All*TMax(iS,jS) >= CutInt) .or. (Method_chk == 'CASPT2  ')) then
+    if (TMax_All*TMax(iS,jS) >= CutInt) then
+!   if ((TMax_All*TMax(iS,jS) >= CutInt) .or. (Method_chk == 'CASPT2  ')) then
       nij = nij+1
       Ind_ij(1,nij) = iS
       Ind_ij(2,nij) = jS
