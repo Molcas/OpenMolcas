@@ -27,7 +27,7 @@ use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
-use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro
+use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM
 use iSD_data, only: iSO2Sh
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S
@@ -46,7 +46,7 @@ implicit none
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iSeed, iSpin, jBas, LgToC, n, nAct, nDim0, nDim1, nDim2, &
-                     nXro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost
+                     nXro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost, iSSDM
 character(len=4096) :: RealName
 real(kind=wp) :: CoefR, CoefX
 logical(kind=iwp) :: Do_Hybrid, DoCholesky, is_error
@@ -286,6 +286,19 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
         read(LuCMOPT2) nFro(8)
         read(LuCMOPT2) nSSDM
 
+        if (nSSDM /= 0) then
+          call mma_allocate(SSDM,nBas(0)*(nBas(0)+1)/2,2,nSSDM,Label='SSDM')
+          do iSSDM=1,nSSDM
+            do i=1,nBas(0)*(nBas(0)+1)/2
+              read(LuCMOPT2) SSDM(i,1,iSSDM),SSDM(i,2,iSSDM)
+            end do
+          end do
+        end if
+
+        close(LuCMOPT2)
+
+        write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
+        write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
 
     End If
   end if
