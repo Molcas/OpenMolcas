@@ -736,7 +736,7 @@ do while (Rsv_Tsk2(id,klS))
             iAOst(4) = lBasAO-1
 
             if ((Method == 'CASPT2') .and. ReadBPT2) then
-              call DoReadBPT2()
+              call DoReadBPT2(iAOV,iAOst,iCmpa,kBasn,lBasn)
               ReadBPT2 = .false.
             end if
 
@@ -869,16 +869,20 @@ call Free_iSD()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
+end subroutine Drvg1_3Center_RI
 
-contains
-
-subroutine DoReadBPT2()
+subroutine DoReadBPT2(iAOV,iAOst,iCmpa,kBasn,lBasn)
 ! Read back-transformed density elements of the Kth and Lth shells
 ! All elements of the Jth shell (auxiliary functions) are read
 ! Only for C1 symmetry
 
+  use Constants, only: Zero
+  use Index_Functions, only: iTri
   use SOAO_Info, only: iAOtSO
+  use pso_stuff, only: B_PT2, LuGamma2, nBasA
+  use Definitions, only: iwp
+  Implicit None
+  integer(kind=iwp), Intent(In) :: iAOV(4),iAOSt(4),iCmpa(4),kBasn,lBasn
 
   integer(kind=iwp) :: i3, i4, kAOk, kSO, kSO0, kSOk, lAOl, loc, lSO, lSO0, lSOl
 
@@ -901,8 +905,5 @@ subroutine DoReadBPT2()
     end do
   end do
 
-  return
-
 end subroutine DoReadBPT2
 
-end subroutine Drvg1_3Center_RI
