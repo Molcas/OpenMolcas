@@ -36,11 +36,11 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 use setup, only: mSkal, MxPrm, nAux
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD, nSD
-use pso_stuff, only: A_PT2, nBasA, nBasASQ, nBasT
+use pso_stuff, only: A_PT2, nBasASQ
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
 use k2_structure, only: k2data
 use Disp, only: ChDisp, l2DI
-use Basis_Info, only: nBas, nBas_Aux, Shells
+use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
@@ -250,22 +250,6 @@ end if
 call Get_cArray('Relax Method',Method_chk,8)
 if (Method_chk == 'CASPT2  ') then
   ! Just read A_{JK} type matrix constructed in CASPT2
-  nBasT = 0
-  nBasA = 0
-  nBasASQ = 0
-  do iSym1=0,nIrrep-1
-    nBasT = nBasT+nBas(iSym1)
-    nBasA = nBasA+nBas_Aux(iSym1)-1
-    nBasASQ = nBasASQ+(nBas_Aux(iSym1)-1)**2
-  end do
-  call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
-  ! Now, read
-  !call PrgmTranslate('CMOPT2',RealName,lRealName)
-  !LuCMOPT2 = 61
-  !call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
-  !read(LuCMOPT2) A_PT2(1:nBasASQ,1)
-  !close(LuCMOPT2)
-
   ! Read A_PT2 from LUAPT2
   LuAPT2 = isFreeUnit(68)
   call daname_mf_wa(LUAPT2,'A_PT2')

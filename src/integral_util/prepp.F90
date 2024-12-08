@@ -29,8 +29,9 @@ use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
 use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM, MaxShlAO,iOffAO,LuGamma_PT2,Wrk1,Wrk2,CASPT2_On
+use pso_stuff, only: nBasA,nBasASQ,A_PT2
 use iSD_data, only: iSO2Sh, iSD
-use Basis_Info, only: nBas
+use Basis_Info, only: nBas, nBas_Aux
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use etwas, only: CoulFac, ExFac, mBas, mIrrep, nAsh, nCMO, nDSO, nIsh
@@ -251,6 +252,15 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
     call mma_allocate(Bin,1,1,Label='Bin')
     !end if
     If (Cholesky .or. Do_RI) Then
+       nBasT = 0
+       nBasA = 0
+       nBasASQ = 0
+       do i=0,nIrrep-1
+         nBasT = nBasT+nBas(i)
+         nBasA = nBasA+nBas_Aux(i)-1
+         nBasASQ = nBasASQ+(nBas_Aux(i)-1)**2
+       end do
+       call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
     Else
         nBasT = 0
         do i=0,nIrrep-1
