@@ -28,7 +28,7 @@ use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
-use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM, MaxShlAO,iOffAO,LuGamma_PT2,Wrk1,Wrk2
+use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM, MaxShlAO,iOffAO,LuGamma_PT2,Wrk1,Wrk2,CASPT2_On
 use iSD_data, only: iSO2Sh, iSD
 use Basis_Info, only: nBas
 use Sizes_of_Seward, only: S

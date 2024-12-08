@@ -35,7 +35,6 @@ use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
 use k2_structure, only: k2Data
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use pso_stuff, only: G_toc,CMOPT2,WRK1,WRK2,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
@@ -330,9 +329,7 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(Pget0CPU1,Pget0WALL1)
 #             endif
-              if (Method_chk == 'CASPT2  ') call CASPT2_BTAMP(LuGAMMA_PT2,iS,jS,kS,lS,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
-                                                              iFnc(4)*lBasn,iOffAO,nBasT,nOcc(1),CMOPT2(1+nbast*nfro(1)),WRK1, &
-                                                              WRK2,G_Toc)
+
               call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                          iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
               if (A_Int*PMax < CutInt) cycle
