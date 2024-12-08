@@ -236,6 +236,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
   write(u6,*)
 # endif
   if (Method == 'CASPT2  ') then
+    CASPT2_On=.True.
     call DecideOnCholesky(DoCholesky)
     !if (.not. DoCholesky) then
     Gamma_On = .true.

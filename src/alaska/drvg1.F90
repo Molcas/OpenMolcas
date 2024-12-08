@@ -165,7 +165,6 @@ nij = 0
 do iS=1,nSkal
   do jS=1,iS
     if (TMax_All*TMax(iS,jS) >= CutInt) then
-!   if ((TMax_All*TMax(iS,jS) >= CutInt) .or. (Method_chk == 'CASPT2  ')) then
       nij = nij+1
       Ind_ij(1,nij) = iS
       Ind_ij(2,nij) = jS
