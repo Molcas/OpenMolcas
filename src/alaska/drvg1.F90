@@ -229,23 +229,23 @@ do
   ! Now do a quadruple loop over shells
 
   call Get_cArray('Relax Method',Method_chk,8)
-  if (Method_chk /= 'CASPT2  ') then
+! if (Method_chk /= 'CASPT2  ') then
     ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
     iS = Ind_ij(1,ijS)
     jS = Ind_ij(2,ijS)
     klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
     kS = Ind_ij(1,klS)
     lS = Ind_ij(2,klS)
-  else
-    iS = 1
-    jS = 1
-    kS = 1
-    lS = 1
+! else
+!   iS = 1
+!   jS = 1
+!   kS = 1
+!   lS = 1
     !! proceed the index
-    do iCnt=1,int(TskLw)-1
-      call CASPT2_Grad_FwdCnt(iS,jS,kS,lS,LoadVec)
-    end do
-    Cnt = real(iCnt,kind=wp)
+!   do iCnt=1,int(TskLw)-1
+!     call CASPT2_Grad_FwdCnt(iS,jS,kS,lS,LoadVec)
+!   end do
+!   Cnt = real(iCnt,kind=wp)
     !! If LoadVec is true, a new vector of the half-transformed
     !! T-amplitude is read. In the first loop, it is always true.
     !! In other loops, a new vector is read only when I- and K-th
@@ -255,8 +255,8 @@ do
     !! rho and sigma correspond to either I- or K-th shells.
     !! Occupied orbital indices (correspond to J- or L-th shells)
     !! are back-transformed on-the-fly.
-    LoadVec = .true.
-  end if
+!   LoadVec = .true.
+! end if
   Cnt = TskLw
   call CWTime(TCpu1,TWall1)
 
@@ -398,8 +398,8 @@ do
     Cnt = Cnt+One
     if (Cnt-TskHi > 1.0e-10_wp) then
       exit
-    else if (Method_chk == 'CASPT2  ') then
-      call CASPT2_Grad_FwdCnt(iS,jS,kS,lS,LoadVec)
+!   else if (Method_chk == 'CASPT2  ') then
+!     call CASPT2_Grad_FwdCnt(iS,jS,kS,lS,LoadVec)
     else
       klS = klS+1
       if (klS > ijS) then
