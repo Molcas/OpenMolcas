@@ -35,7 +35,7 @@ use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
 use k2_structure, only: k2Data
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use pso_stuff, only: G_toc, nSSDM, SSDM,CMOPT2,WRK1,WRK2,LuCMOPT2,LuGamma_PT2,iOffAO,nBasT,nOcc
+use pso_stuff, only: G_toc, nSSDM, SSDM,CMOPT2,WRK1,WRK2,LuCMOPT2,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: nBas, Shells
 use Sizes_of_Seward, only: S
@@ -56,7 +56,7 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      iSh, iShela(4), iShlla(4), iSSDM, istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, &
                      jPrInc, jS, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
                      lBsInc, lPriml, lPrInc, lRealName, lS, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
-                     Mem2, MemMax, MemPSO, nab, nBasI, nBtch, ncd, nDCRR, nDCRS, nEta, nFro(8), nHmab, nHmcd, nHrrab, nij, &
+                     Mem2, MemMax, MemPSO, nab, nBasI, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, &
                      nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, Shijij, &
@@ -136,16 +136,6 @@ Prem = Zero
 call PrepP()
 
 if (Method_chk == 'CASPT2  ') then
-
-  read(LuCMOPT2) nFro(1)
-  read(LuCMOPT2) nFro(2)
-  read(LuCMOPT2) nFro(3)
-  read(LuCMOPT2) nFro(4)
-  read(LuCMOPT2) nFro(5)
-  read(LuCMOPT2) nFro(6)
-  read(LuCMOPT2) nFro(7)
-  read(LuCMOPT2) nFro(8)
-  read(LuCMOPT2) nSSDM
 
   if (nSSDM /= 0) then
     call mma_allocate(SSDM,nBas(0)*(nBas(0)+1)/2,2,nSSDM,Label='SSDM')
