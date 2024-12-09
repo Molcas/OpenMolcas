@@ -35,9 +35,9 @@ public :: A_PT2, AOrb, B_PT2, Bin, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, 
           SSDM, Thpkl, Txy, U_k, V_k, Z_p_k
 
 ! Stuff for CASTP2 Gradient
-logical(kind=iwp) :: CASPT2_On=.False.
+logical(kind=iwp) :: CASPT2_On=.False., ReadBPT2=.False.
 real(kind=wp), allocatable :: CMOPT2(:), WRK1(:), WRK2(:)
 integer(kind=iwp) :: LuCMOPT2,LuGamma_PT2,LuGamma2,nOcc(8),nFro(8),MaxShlAO
 integer(kind=iwp), allocatable :: iOffAO(:)
-public:: CMOPT2,WRK1,WRK2,LuCMOPT2,iOffAO,LuGamma_PT2,LuGamma2,nOcc,nFro,MaxShlAO,CASPT2_On
+public:: CMOPT2,WRK1,WRK2,LuCMOPT2,iOffAO,LuGamma_PT2,LuGamma2,nOcc,nFro,MaxShlAO,CASPT2_On,ReadBPT2
 end module PSO_Stuff
