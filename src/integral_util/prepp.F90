@@ -29,7 +29,7 @@ use setup, only: mSkal, nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
                      iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
 use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM, MaxShlAO,iOffAO,LuGamma_PT2,Wrk1,Wrk2,CASPT2_On
-use pso_stuff, only: nBasA,nBasASQ,A_PT2
+use pso_stuff, only: nBasA,nBasASQ,A_PT2,B_PT2
 use iSD_data, only: iSO2Sh, iSD
 use Basis_Info, only: nBas, nBas_Aux
 use Sizes_of_Seward, only: S
@@ -48,7 +48,7 @@ implicit none
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iSeed, iSpin, jBas, LgToC, n, nAct, nDim0, nDim1, nDim2, &
-                     nXro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost, iSSDM, iSh, nBasI
+                     nXro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost, iSSDM, iSh, nBasI, MxInShl
 character(len=4096) :: RealName
 real(kind=wp) :: CoefR, CoefX
 logical(kind=iwp) :: Do_Hybrid, DoCholesky, is_error
@@ -244,7 +244,6 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
     ! It is opened, but not used actually. I just want to
     ! use the Gamma_On flag.
     ! Just to avoid error termination.
-    ! Actual working arrys are allocated in drvg1.f
     LuGamma = 65
     call DaName_MF_WA(LuGamma,'GAMMA')
     if (DoCholesky) call mma_allocate(G_Toc,1,Label='G_Toc')
@@ -261,6 +260,16 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
          nBasASQ = nBasASQ+(nBas_Aux(i)-1)**2
        end do
        call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
+
+       Call Set_Basis_Mode('Valence')
+       Call Setup_iSD()
+       MxInShl = 1
+       do i=1,mSkal
+          MxInShl = max(MxInShl,iSD(3,i)*iSD(2,i))
+       end do
+       Call Free_iSD()
+       call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
+
     Else
         nBasT = 0
         do i=0,nIrrep-1

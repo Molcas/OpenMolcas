@@ -25,7 +25,7 @@ use Cholesky, only: nSym, NumCho
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
-use pso_stuff, only: A_PT2
+use pso_stuff, only: A_PT2,LuGamma2
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -34,7 +34,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
 logical(kind=iwp), intent(in) :: SubAux
 integer(kind=iwp) :: i, iAdrQ, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jSym, jVec, kSym, kVec, l_A_ht, l_A_t, l_B_t, &
-                     l_Q, lRealName, Lu_Q, LUGAMMA, LuGamma2, LUAPT2, lVec, MaxMem, nBas2, nBasTri, nLR, nLRb(8), nseq, NumAux, &
+                     l_Q, lRealName, Lu_Q, LUGAMMA, LUAPT2, lVec, MaxMem, nBas2, nBasTri, nLR, nLRb(8), nseq, NumAux, &
                      NumCV, NumVecJ, NumVecK, nVec
 real(kind=wp) :: aaa, Fac, TotCPU0, TotCPU1, TotWall0, TotWall1
 logical(kind=iwp) :: is_error
@@ -213,7 +213,8 @@ do iSym=1,nSym
     end if
   end do
 
-  close(LuGAMMA2)
+! Leave LuGamma2 open until the end. Closed by CloseP
+! close(LuGAMMA2)
 
   call mma_deallocate(B_t)
   call mma_deallocate(QVec)

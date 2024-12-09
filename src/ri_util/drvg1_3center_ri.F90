@@ -539,19 +539,6 @@ call mma_deallocate(LBList)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! CASPT2
-
-if (Method == 'CASPT2') then
-  ! Open B_{J, mu nu}
-  call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
-
-  call PrgmTranslate('GAMMA2',RealName,lRealName)
-  LuGamma2 = isFreeUnit(67)
-  call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBasA*8,'OLD',is_error)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 call mma_MaxDBLE(MemMax)
 if (MemMax > 8000) MemMax = MemMax-8000
 call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
