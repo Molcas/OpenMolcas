@@ -29,7 +29,7 @@ subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,Me
 use setup, only: nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, lBin, lPSO, lSA, LuGamma, nDens, &
                      nGamma, nNP, nV_k, nZ_p_k, SO2CI, U_K, V_K, Z_P_K
-use pso_stuff, only: CASPT2_On,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro,WRK1,WRK2,CMOPT2
+use pso_stuff, only: CASPT2_On,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro,WRK1,WRK2,CMOPT2,ReadBPT2
 use iSD_data, only: iSO2Sh
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_RI, Cholesky
@@ -52,6 +52,7 @@ PMax = One
 nSA = 1
 If (CASPT2_On) Then
    If (Cholesky .or. Do_RI) Then
+      If (ReadBPT2) call DoReadBPT2(iAO,iAOst,iCmp,kBas,lBas)
    Else
       call CASPT2_BTAMP(LuGAMMA_PT2,iShell_A,iShell_B,iShell_C,iShell_D,n1,n2,n3,n4, &
                         iOffAO,nBasT,nOcc(1),CMOPT2(1+nBasT*nFro(1)),WRK1,           &

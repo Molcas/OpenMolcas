@@ -734,10 +734,6 @@ do while (Rsv_Tsk2(id,klS))
             lBasn = min(lBsInc,lBasl-lBasAO+1)
             iAOst(4) = lBasAO-1
 
-            if ((Method == 'CASPT2') .and. ReadBPT2) then
-              call DoReadBPT2(iAOV,iAOst,iCmpa,kBasn,lBasn)
-            end if
-
             ! Get the 2nd order density matrix in SO basis.
 
             nijkl = iBasn*jBasn*kBasn*lBasn
