@@ -24,22 +24,21 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
-      Implicit Real*8 (a-h,o-z)
-*
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "spin_mclr.fh"
-#include "crun_mclr.fh"
-      Character*8   Fmt2
+      use MCLR_Data, only: nConf1,nDens2,nNA,nDensC,nDens,ipCI,n1Dens
+      use MCLR_Data, only: RMS, rAlpha
+      use MCLR_Data, only: ipDia
+      use MCLR_Data, only: LuTemp
+      use MCLR_Data, only: XISPSM
+      use MCLR_Data, only: MS2P
+      use input_mclr, only: nDisp,Fail,State_Sym,iMethod,
+     &                      rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+     &                      Debug,ERASSCF,kPrint,nCSF
+      Implicit None
       Integer iKapDisp(nDisp),isigDisp(nDisp)
-      Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
+      Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
+*
+      Character(LEN=8)   Fmt2
       integer opout
       Logical lPrint
       Real*8 rdum(1)
@@ -49,6 +48,12 @@
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:), rmoaa2(:),
      &                      Pre2(:)
+      Integer lPaper,lLine,Left,iDis,nConf3,iRC,ipS1,ipS2,ipST,ipCIT,
+     &        ipCID,iDisp,iLen,Iter,i1,j1
+      Real*8 DeltaC,DeltaK,Delta,Delta0,rGrad,Ec,rAlphaC,rAlphaK,ResK,
+     &       ResCI,rBeta,Res,rCHC
+      Real*8, External:: DDot_
+      Integer, External:: ipClose,ipGet,ipIn,ipIn1,ipNOut,ipOut
 *
 *----------------------------------------------------------------------*
 *
@@ -178,7 +183,7 @@
           Call DSCAL_(nConf1,-One,W(ipST)%Vec,1)
           Call DSCAL_(nDensC,-One,Sigma,1)
 *
-          Call DMInvKap_sp(Pre2,Sigma,dKappa,1)
+          Call DMInvKap_sp(Sigma,dKappa,1)
 
           irc=ipin(ipCId)
           If (nconf1.gt.1) then
@@ -385,7 +390,7 @@
            irc=opout(ipci)
            irc=opout(ipdia)
 
-           Call DMInvKap_sp(Pre2,Sigma,Sc2,1)
+           Call DMInvKap_sp(Sigma,Sc2,1)
 *
 *-------------------------------------------------------------------*
 *               s:Sigma
@@ -522,8 +527,7 @@
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine WfCtl_sp

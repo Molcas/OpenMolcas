@@ -17,15 +17,9 @@
 * ****************************************************************
       Subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
       use stdalloc, only : mma_allocate, mma_deallocate
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
+      use MCLR_Data, only: nDens2, nNA
+      use input_mclr, only: nRoots,ntAsh
+      Implicit None
 
 ******Output
       Real*8,DIMENSION(nDens2)::bk
@@ -37,6 +31,7 @@
 ******Auxiliaries
       Real*8,DIMENSION(:),Allocatable::FOccMO,P2MOt
       INTEGER nP2,nG1
+      Integer i, j, iTri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
       ng1=itri(ntash,ntash)
@@ -52,22 +47,15 @@
       CALL mma_deallocate(FOccMO)
       CALL mma_deallocate(P2MOt)
 
-      RETURN
-      end subroutine
+      end subroutine Calcbk_CMSNAC
 ******************************************************
 
 ******************************************************
       Subroutine GetPDFTFock_NAC(bk)
       use stdalloc, only : mma_allocate, mma_deallocate
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
+      use MCLR_Data, only: nDens2, ipMat
+      use input_mclr, only: nSym,nBas
+      Implicit None
 ******Output
       Real*8,DIMENSION(nDens2)::bk
 ******Input
@@ -93,8 +81,7 @@
       CALL mma_deallocate(T)
       CALL mma_deallocate(FT99)
       CALL mma_deallocate(bktmp)
-      RETURN
-      end subroutine
+      end subroutine GetPDFTFock_NAC
 ******************************************************
 ******************************************************
       Subroutine GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,NG2)
@@ -102,15 +89,12 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use ipPage, only: W
       use Constants, only: Zero, One, Two, Half, Quart
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
+      use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
+      use MCLR_Data, only: NACSTATES
+      use MCLR_Data, only: LuJob
+      use MCLR_Data, only: XISPSM
+      use input_mclr, only: nRoots,ntAsh,State_Sym,iTOC,nCSF
+      Implicit None
 ******Input
       Real*8,DIMENSION(nRoots**2)::R
       INTEGER nTri,NG2
@@ -125,12 +109,14 @@
       Real*8,DIMENSION(:),Allocatable::Fock,T,G1r,G2r,G2rt,
      & CIL,CIR,G1q,G2q,G1qs,G2qs,G1m
       Real*8,DIMENSION(:),Allocatable::DMatAO,D5,D6
-      INTEGER I,K,NCSFs
+      INTEGER I,J, iTri, K,NCSFs
       Real*8 Fact
       INTEGER iB,jB,kB,lB,iDkl,iRijkl
 
       INTEGER IJ, KL, IJKL, IJ2, KL2
       Real*8 factor
+      Integer nG1, nConfL, nConfR, ijkl2, iRC, LuDens, iDij, iRij, iRkl,
+     &        iIJKL, jDisk
 ************************************************************************
 *                                                                      *
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
@@ -382,5 +368,4 @@
        Call mma_deallocate(CIL)
        Call mma_deallocate(CIR)
        Call mma_deallocate(FinCI)
-       RETURN
-       End Subroutine
+       End Subroutine GetWFFock_NAC

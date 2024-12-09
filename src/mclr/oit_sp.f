@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
-      SubRoutine oit_sp(rkappa,sigma,i1,i2,r3,p11,r4,p12,D,FA,
+      SubRoutine oit_sp(rkappa,sigma,i1,r3,p11,r4,p12,D,FA,
      &                  rm1,rm2,focki)
 *
 *                              ~
@@ -18,14 +18,18 @@
 *                  pq       pq
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nDensC, nDens2, nNA, ipMat, nA, nDens, nMBA
+      use input_mclr, only: nSym,nAsh,nBas,nIsh
+      Implicit None
+      Integer i1
       Real*8 rkappa(nDensC), sigma(ndensC),FA(ndens2),D(*),
      &       p12(*),p11(*),rm1(*),rm2(*),Focki(*)
+
       Real*8, Allocatable:: K(:), FAtemp(:), Fock(:), Q(:), Q1(:)
+      Integer iSym, jSpin, iS, iAsh, jAsh, ipF1, ipF2, ipFI1, IA
+      Real*8 R1, Fact, Reco, R3, R4, Dij
 *
+      integer i, j, irec
       irec(i,j)=i+nna*(j-1)
 *
       isym=1
@@ -124,7 +128,4 @@
       Call mma_deallocate(FAtemp)
       Call mma_deallocate(FOck)
 *
-      return
-* Avoid unused argument warnings
-      if (.false.) call Unused_integer(i2)
-      end
+      end SubRoutine oit_sp

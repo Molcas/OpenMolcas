@@ -10,18 +10,21 @@
 ************************************************************************
       Real*8 Function E2_td(FockI,rMo,loper,idisp)
       use Arrays, only: G1t, G2sq
+      use MCLR_Data, only: nCMO, nNA, ipCM, nA
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,ntPert
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-#include "disp_mclr.fh"
-
-*
+      Implicit None
+      Integer lOper, iDisp
       Real*8 FockI(nCMO),rMO(*)
+*
       Logical Go
+      Integer i, j, ij, ij2, k, l, ijkl, kl2, ijkl2
+      Integer iS, iA, iAA, iAB, jS, jA, JAA, JAB, ipF
+      Real*8 E22
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Integer itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -65,5 +68,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End Function E2_td

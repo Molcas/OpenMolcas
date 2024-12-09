@@ -8,18 +8,21 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine DMinvCI_sa(ipSigma,rout,rC_HE_C,idsym,S)
+      SubRoutine DMinvCI_sa(ipSigma,rout,S)
       use ipPage, only: W
       use negpre
-      Implicit Real*8(a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
-#include "incdia.fh"
-      Real*8 rC_HE_C
-      Integer idsym
-      Real*8 rout(*),rcoeff(mxroot),alpha(mxRoot),
-     &       S(nroots,nroots,nroots)
+      use MCLR_Data, only: nConf1, ipCI
+      use MCLR_Data, only: ipDia
+      use input_mclr, only: nRoots,ERASSCF,nCSF,State_Sym
+      Implicit None
+      Integer ipSigma
+      Real*8 rout(*), S(nroots,nroots,nroots)
+#include "rasdim.fh"
+      Real*8 rcoeff(mxroot),alpha(mxRoot)
+      Integer, External:: ipIn
+      Real*8, External:: DDot_
+      Integer irc, i, j, k, iR, jR
+      Real*8 E
 *
 *                                    -1           -1
 *                               (H -E) |0><0|(H -E)|Sigma>
@@ -70,13 +73,7 @@
       Else
        call dcopy_(nconf1*nroots,[0.0d0],0,rout,1)
       End If
-      return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-c Avoid unused argument warnings
-      If (.False.) Then
-       Call Unused_real(rC_HE_C)
-       Call Unused_integer(idsym)
-      End If
-      end
+      end SubRoutine DMinvCI_sa

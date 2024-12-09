@@ -14,10 +14,11 @@
 *     rIn   nDensC long orb RHS
 *     rout  Trail vector rout = T^-1B^x
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nDensC
+      Implicit None
       Real*8 rOut(*),rin(*),DigPrec(*)
+
+      Integer k
 *
 *-------------------------------------------------------------------------
 * Multiply the 1/precond in vector form, rTemp, with RHS in vector form, rIn
@@ -25,18 +26,9 @@
 *-------------------------------------------------------------------------
 *
 C
-*      Call RECPRT('rIn',' ',rIn,nDensC,1)
-*      Call RECPRT('DigPrec',' ',DigPrec,nDensC,1)
-C
       Do k=1, nDensC
-            Rout(k) = rIn(k)/DigPrec(k)
+         Rout(k) = rIn(k)/DigPrec(k)
       End Do
 C
-*      write(*,*)'rout*rout',ddot_(ndensc,Rout,1,Rout,1)
-*      write(*,*)'rin*rin',ddot_(ndensc,Rin,1,Rin,1)
-*      If (isym.eq.3) stop 10
-C
 *
-      Return
-      End
-*
+      End SubRoutine DMInvKap_td

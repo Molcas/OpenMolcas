@@ -8,29 +8,34 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
-     &                       Int2a,nInt2a,ipCI1,ipCI2,NT, Have_2_el )
-       use ipPage, only: W
-       use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
-       use stdalloc, only: mma_allocate, mma_deallocate
-       Implicit Real*8(a-h,o-z)
+      SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                      Int2a,nInt2a,ipCI1,ipCI2,NT, Have_2_el )
+      use ipPage, only: W
+      use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
+      use MCLR_Data, only: i12, ist, Square
+      use MCLR_Data, only: iRefSM
+      use MCLR_Data, only: XISPSM
+      use cands, only: ICSM,ISSM
+      use input_mclr, only: State_Sym,nSym,Page,nCSF,TimeDep,ntAsh,nBas
+      Implicit None
+      Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
+      Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+      Character(LEN=1) NT
+      Logical Have_2_el
 c
 c For the timeindep case ipS1 and ipS2 will be half as long
 c Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
 c
 *
-#include "Pointers.fh"
-#include "Input.fh"
-#include "genop.fh"
-#include "cands.fh"
-#include "detdim.fh"
-#include "cstate_mclr.fh"
-#include "cicisp_mclr.fh"
-       Character NT
        integer kic(2),opout
-       Logical Have_2_el
-       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
        Real*8, Allocatable:: CIDET(:)
+       integer i, j, itri
+       integer nDet, iOp, iS, jS, iRC
+       integer ij, ji, k, l, kl, lk, ijkl, jilk
+       integer, external:: ipIN, ipIN1, ipNOUT
+
 
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
@@ -218,8 +223,7 @@ C.......... The operator is not sym --> transpose integrals! NT.ne.S
 ************************************************************************
 *                                                                      *
 *
-       Return
 #ifdef _WARNING_WORKAROUND_
        If (.False.) Call Unused_integer(irc)
 #endif
-       End
+       End SubRoutine CISigma_td

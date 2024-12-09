@@ -10,7 +10,6 @@
 *                                                                      *
 * Copyright (C) 2000, Jonna Stalring                                   *
 ************************************************************************
-*
       Subroutine calcerr(kappa,iestate)
 *
 *-------------------------------------------------
@@ -25,15 +24,19 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One, Two
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "SysDef.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "sa.fh"
+      use MCLR_Data, only: ipMat, nDens2
+      use MCLR_Data, only: ISTATE
+      use input_mclr, only: nSym,nBas,ntAsh
+      Implicit None
       Real*8 kappa(*)
+      Integer ieState
+#include "SysDef.fh"
       Real*8, Allocatable:: G1q(:), G1r(:), G2r(:),
      &                      T(:), Q(:)
+      Integer i, j, itri
+      Integer iS, nG1
+      Real*8 dejdw
+      Real*8, External:: DDot_
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       ng1=itri(ntash,ntash)
@@ -91,5 +94,4 @@ c        change sign, because this is the *error*
       Call mma_deallocate(G1R)
       Call mma_deallocate(G1Q)
 *
-      Return
-      End
+      End Subroutine calcerr

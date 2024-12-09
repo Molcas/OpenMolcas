@@ -25,28 +25,38 @@
       Use Center_Info, only: Center_Info_Get
       use OneDat, only: sOpSiz
       Use Exp, only: NewPre, nexp_max
-      use negpre
+      use negpre, only: nGP
       Use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "Files_mclr.fh"
-#include "disp_mclr.fh"
-#include "sa.fh"
-      Parameter ( nCom=38 )
-      Character*72 Line
-      Character*4 Command,ComTab(nCom)
-      Character*8 Label
-      Character*2 Element(MxAtom)
+      use MCLR_Data, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,
+     &                     FANCY_PRECONDITIONER,NSSA,NACSTATES
+      use MCLR_Data, only: DspVec,SwLbl,lDisp
+      use MCLR_Data, only: NoFile
+      use input_mclr, only: Debug,lRoots,kPrint,mTit,Omega,ElecHess,
+     &                      TimeDep,PrCi,CIThrs,PrOrb,SewLab,Page,
+     &                      iBreak,nIter,RASSI,SpinPol,Save,Isotop,
+     &                      lCalc,nDisp,nMode,lMass,CasInt,NewCho,
+     &                      TwoStep,StepType,Double,Epsilon,IsPop,
+     &                      nSym,CMass,nAtoms,ntPert,nsRot,UserP,
+     &                      nUserPT,iMass,UserT,TitleIn,uMass
+      Implicit None
+#include "rasdim.fh"
+      Character(LEN=72) Line
+      Character(LEN=4) Command
+      Character(LEN=8) Label
+      Character(LEN=2) Element(MxAtom)
       Logical     Epsilon_Undef
-      Data ComTab/'TITL','DEBU','ROOT','EXTR','PRCI',
+      Integer, Parameter :: nCom=38
+      Character(LEN=4) :: ComTab(nCom)=[
+     &            'TITL','DEBU','ROOT','EXTR','PRCI',
      &            'PROR','ITER','THRE','END ','TIME',
      &            'CALC','NOFI','SEWA','NOCO','NOTW',
      %            'SPIN','PRIN','PCGD','RESI','NOTO',
      &            'EXPD','NEGP','LOWM','ELHE','SAVE',
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
-     &            'THER','CHOF','TWOS'/
-      Integer iDum(1)
+     &            'THER','CHOF','TWOS']
+      Integer iDum(1),I,JCOM,ICOM,ITIT,ISYM,IP,IRC,IOPT,ICOMP,
+     &        ISYLBL,IPP,IS,ID,J,IRRFNC
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
 *----------------------------------------------------------------------*

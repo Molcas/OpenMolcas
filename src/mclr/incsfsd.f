@@ -11,16 +11,14 @@
       Subroutine InCSFSD(iState,State_sym,GUGA)
       use Str_Info, only: CNSM
       use stdalloc, only: mma_allocate
-      Implicit Real*8 (a-h,o-z)
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "Files_mclr.fh"
-#include "spinfo_mclr.fh"
+      use MCLR_Data, only: iALLO,i1,iAnders,lConf,llDet
+      use MCLR_Data, only: LuCSF2SD
+      Implicit None
+      Integer iState, State_sym
       Logical GUGA
-      Integer State_sym
-      Dimension idum(1)
+      Integer idum(1)
+      Integer iSym,iAdr,i,iad
 *
-#include "csfsd.fh"
 
 *     Place pointer
 *
@@ -63,8 +61,6 @@
       Call iDafile(LUCSF2SD,2,CNSM(iAdr)%icts,lldet,iad)
       Call iDafile(LUCSF2SD,2,CNSM(iAdr)%iconf,lconf,iad)
 
-      Return
-
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(GUGA)
-      End
+      End Subroutine InCSFSD

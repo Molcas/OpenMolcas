@@ -12,7 +12,9 @@
 *
 * Information about number of symmetries
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use DetDim, only: MXPOBS
+      IMPLICIT None
+      INTEGER NIRREP,IPRNT
 *
 * NSMSX : number of symmetries of single excitations
 * NSMDX : Number of symmetries of double excitations
@@ -21,7 +23,6 @@
 * ITSSX : Total symmetrix single excitation
 * ITSDX : Total symmetrix double excitation
 *
-#include "detdim.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 *
@@ -34,6 +35,9 @@
 * SXDXSX : Symmetry of single excitation and double excitation
 *          => symmetry of single  excitation
 *.
+*     Local variables
+      INTEGER ISYM,JSYM,IJSYM
+
       NSMSX = NIRREP
       NSMDX = NIRREP
       NSMST = NIRREP
@@ -59,7 +63,6 @@
 20       CONTINUE
 10    CONTINUE
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRNT)
-      END
+      END SUBROUTINE SYMINF_MCLR

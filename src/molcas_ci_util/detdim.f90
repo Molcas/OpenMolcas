@@ -8,35 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module DetDim
+! This is used for the MCLR code
 ! contains all PARAMETERS defining LUCIA
-      INTEGER MXPIRR,MXPOBS,MXPR4T,MXINKA,MXPORB,MXPXOT,MXPXST,MXPSHL
-      INTEGER MXPL,MXPXT,MXPICI,MXPSTT,MXPCSM,MXPCTP,MXCNSM,MXPWRD
-      INTEGER MXNMS,MTYP,MXPNGAS,MXPNSMST,MXPPTSPC
+INTEGER, PARAMETER ::MXPIRR = 20
+INTEGER, PARAMETER ::MXPOBS = 20
+INTEGER, PARAMETER ::MXPR4T = 10
+INTEGER, PARAMETER ::MXINKA = 200   ! Resolution of identity
+INTEGER, PARAMETER ::MXPORB = 500   ! Maximum number of orbitals
+INTEGER, PARAMETER ::MXPXOT = 9
+INTEGER, PARAMETER ::MXPXST = 100
+INTEGER, PARAMETER ::MXPSHL = 100
+INTEGER, PARAMETER ::MXPL = 20
+INTEGER, PARAMETER ::MXPXT = 25
+INTEGER, PARAMETER ::MXPICI = 30
+INTEGER, PARAMETER ::MXPSTT = 2500
+INTEGER, PARAMETER ::MXPCSM = 20
+INTEGER, PARAMETER ::MXPCTP = 30
+INTEGER, PARAMETER ::MXCNSM = 8
 !
-      PARAMETER (MXPIRR = 20)
-      PARAMETER (MXPOBS = 20 )
-      PARAMETER (MXPR4T = 10 )
-      PARAMETER (MXINKA = 200 )  ! Resolution of identity
-      PARAMETER (MXPORB = 500)   ! Maximum number of orbitals
-      PARAMETER (MXPXOT = 9)
-      PARAMETER (MXPXST = 100 )
-      PARAMETER (MXPSHL = 100)
-      PARAMETER (MXPL = 20 )
-      PARAMETER (MXPXT = 25)
-      PARAMETER (MXPICI = 30)
-      PARAMETER (MXPSTT = 2500)
-      PARAMETER (MXPCSM = 20)
-      PARAMETER (MXPCTP = 30)
-      PARAMETER (MXCNSM = 8)
-!
-
-      PARAMETER (MXPWRD = 2000000)
-      PARAMETER (MXNMS = 5)
-      PARAMETER (MTYP = 30)
+INTEGER, PARAMETER ::MXPWRD = 2000000
+INTEGER, PARAMETER ::MXNMS = 5
+INTEGER, PARAMETER ::MTYP = 30
 
 !. Note : MXPNGAS = MXPR4T+6 !!
 !. Required in order to handle GAS and RAS within /LUCINP/
-      PARAMETER (MXPNGAS = 3)
-      PARAMETER(MXPNSMST = 8)
+INTEGER, PARAMETER ::MXPNGAS = 3
+INTEGER, PARAMETER::MXPNSMST = 8
 !. Largest allowed division of space for perturbation operator
-      PARAMETER (MXPPTSPC=20)
+INTEGER, PARAMETER ::MXPPTSPC=20
+End Module DetDim

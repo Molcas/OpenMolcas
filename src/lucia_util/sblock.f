@@ -18,6 +18,8 @@
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
       use strbas
+*.Definition of c and sigma spaces
+      use cands, only: ICSM,ICSPC,ISSPC
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -43,8 +45,6 @@
 *.Input
 * =====
 *
-*.Definition of c and sigma spaces
-#include "cands.fh"
 *. Sigma blocks require
       INTEGER IBLOCK(8,*)
 *
@@ -81,9 +81,6 @@
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
 *
       NTEST = 00
-#ifdef _DEBUGPRINT_
-      IF(NTEST.GE.5) WRITE(6,*) ' SBLOCK : ISSPC,ICSPC ', ISSPC,ICSPC
-#endif
       IF(LUCBLK.GT.0) THEN
         IDISK(LUCBLK)=0
       END IF

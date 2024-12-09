@@ -50,21 +50,27 @@
 *               perturbations                                      *
 *                                                                  *
 ********************************************************************
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
+      use Constants, only: Zero, Half, One
+      use MCLR_Data, only: nMBA, nDens2, nCMO, ipCM, ipMat, ipMO, nB
+      use input_mclr, only: nSym,iMethod,nAsh,nIsh,nOrb
+      Implicit None
+      real*8 rmo1(nMba),rmo2(nmba),FockI(nDens2),FockA(nDens2)
+      Integer nTemp
+      real*8 Temp1(ntemp),Temp2(nDens2),Temp3(nDens2),Temp4(nDens2),
+     &       DI13(nDens2),DI24(nDens2),DI(nCMO),
+     &       DA13(nDens2),DA24(nDens2),DA(nCMO),
+     &       rkappa(nDens2)
+      Integer iDSym
+      real*8 Signa,Fact
+      Integer jSpin
+      Logical lFAt,lFIT,lmot
+      real*8 CMO(nCMO)
+
 #include "intgrl.fh"
-      Real*8 rkappa(nDens2),FockA(nDens2),FockI(nDens2),
-     &       Temp1(ntemp),Temp2(nDens2),
-     &       temp3(nDens2),Temp4(nDens2),
-     &       rmo1(nMba),rmo2(nmba),
-     &       CMO(nCMO),DA(nCMO),DI(nCMO),
-     &       DA24(nDens2),DI24(nDens2),
-     &       DA13(nDens2),DI13(nDens2)
-      Parameter ( half  = 0.5d0 )
-      Parameter ( One   = 1.0d0 )
-      Parameter ( Two   = 2.0d0 )
-      Logical lFAt,lFIT,lmot,singlet
+      Logical singlet
+      Integer iS,jS,ijS,kS,lS,iB,nNB,jB,ipD,ipF,iiB,jjB,ipS,ipi,ip1,ip2,
+     &        ip3,ip4,lB,ijA,ilA,ipA
+      Real*8 Sign
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -106,29 +112,29 @@
 *
                   Call DGEMM_('N','N',
      &                        nOrb(iS),nB(jS),nOrb(jS),
-     &                        1.0d0,rkappa(ipMat(is,js)),nOrb(iS),
+     &                        One,rkappa(ipMat(is,js)),nOrb(iS),
      &                        DI(ipCM(js)),nOrb(jS),
-     &                        0.0d0,DI24(ipMat(iS,jS)),nOrb(iS))
+     &                        Zero,DI24(ipMat(iS,jS)),nOrb(iS))
 *
                   Call DGEMM_('T','N',
      &                        nOrb(iS),nB(jS),nOrb(jS),
-     &                        1.0d0,rkappa(ipMat(js,is)),nOrb(jS),
+     &                        One,rkappa(ipMat(js,is)),nOrb(jS),
      &                        DI(ipCM(js)),nOrb(jS),
-     &                        0.0d0,DI13(ipMat(iS,jS)),nOrb(iS))
+     &                        Zero,DI13(ipMat(iS,jS)),nOrb(iS))
 *
                   If (iMethod.eq.2) Then
 *
                      Call DGEMM_('N','N',
      &                           nOrb(iS),nB(jS),nOrb(jS),
-     &                           1.0d0,rkappa(ipMat(is,js)),nOrb(iS),
+     &                           One,rkappa(ipMat(is,js)),nOrb(iS),
      &                           DA(ipCM(js)),nOrb(jS),
-     &                           0.0d0,DA24(ipMat(iS,jS)),nOrb(iS))
+     &                           Zero,DA24(ipMat(iS,jS)),nOrb(iS))
 *
                      Call DGEMM_('T','N',
      &                           nOrb(iS),nB(jS),nOrb(jS),
-     &                           1.0d0,rKappa(ipMat(js,iS)),nOrb(jS),
+     &                           One,rKappa(ipMat(js,iS)),nOrb(jS),
      &                           DA(ipCM(js)),nOrb(js),
-     &                           0.0d0,DA13(ipMat(iS,jS)),nOrb(iS))
+     &                           Zero,DA13(ipMat(iS,jS)),nOrb(iS))
 *
                   End If
                End If
@@ -136,7 +142,7 @@
          End If
       End Do
 *
-      sign=1.0d0
+      sign=One
       If (imethod.eq.2) Call DScal_(ndens2,signa,DA24,1)
       Call DScal_(ndens2,signa,Di24,1)
 *                                                                      *
@@ -321,9 +327,9 @@
      &             nOrb(ips)*nAsh(ls)*((jjB-1)*nAsh(iS)+iib-1)
                 Call DGEMM_('N','N',
      &                      nOrb(ips),nAsh(ls),nOrb(ks),
-     &                      1.0d0,rKappa(ipMat(ips,ks)),nOrb(ipS),
+     &                      One,rKappa(ipMat(ips,ks)),nOrb(ipS),
      &                      Temp4(ipI),nOrb(ks),
-     &                      0.0d0,Temp3,nOrb(ips))
+     &                      Zero,Temp3,nOrb(ips))
 *               ~
 *              (pl|ij)
 *
@@ -347,9 +353,9 @@
      &               nOrb(ips)*nAsh(ks)*((jjB-1)*nAsh(iS)+iib-1)
                   Call DGEMM_('N','T',
      &                        nOrb(ips),nAsh(ks),nOrb(ls),
-     &                        1.0d0,rKappa(ipmat(ips,ls)),nOrb(ips),
+     &                        One,rKappa(ipmat(ips,ls)),nOrb(ips),
      &                        Temp4(nIsh(ks)+1),nOrb(ks),
-     &                        0.0d0,Temp3,nOrb(ips))
+     &                        Zero,Temp3,nOrb(ips))
 *               ~
 *              (pk|ij)
 *
@@ -373,10 +379,10 @@
      &             nOrb(kS)*nAsh(ips)*((jjB-1)*nAsh(iS)+iib-1)
                 Call DGEMM_('N','N',
      &                      nOrb(ks),nAsh(ips),nOrb(ls),
-     &                      1.0d0,Temp4,nOrb(kS),
+     &                      One,Temp4,nOrb(kS),
      &                      rkappa(ipMat(ls,ips)+nOrb(ls)*nIsh(ips)),
      &                      nOrb(ls),
-     &                      0.0d0,Temp3,nOrb(ks))
+     &                      Zero,Temp3,nOrb(ks))
 *                ~
 *              (pl|ji)
 *
@@ -399,10 +405,10 @@
      &               nOrb(ls)*nAsh(ips)*((jjB-1)*nAsh(iS)+iib-1)
                   Call DGEMM_('T','N',
      &                        nOrb(ls),nAsh(ips),nOrb(ks),
-     &                        1.0d0,Temp4,nOrb(ks),
+     &                        One,Temp4,nOrb(ks),
      &                        rKappa(ipMat(ks,ips)+nOrb(ks)*nIsh(ips)),
      &                        nOrb(ks),
-     &                        0.0d0,Temp3,nOrb(ls))
+     &                        Zero,Temp3,nOrb(ls))
 *                ~
 *              (pk|ij)
 *
@@ -579,9 +585,9 @@
               If (nOrb(iS)*nAsh(ipS).ne.0)
      &         Call DGEMM_('N','T',
      &                     nOrb(iS),nAsh(ipS),nOrb(kS),
-     &                     1.0d0,Temp3,nOrb(iS),
+     &                     One,Temp3,nOrb(iS),
      &                     rKappa(ipMat(ips,ks)+nIsh(ips)),nOrb(ips),
-     &                     0.0d0,Temp4,nOrb(iS))
+     &                     Zero,Temp4,nOrb(iS))
               ija=jB-nIsh(jS)
               ila=lB-nIsh(lS)
 *                 ~
@@ -601,10 +607,10 @@
               If (nOrb(is)*nAsh(ipS).ne.0)
      &         Call DGEMM_('N','N',
      &                     nOrb(iS),nAsh(ipS),nOrb(kS),
-     &                     1.0d0,Temp3,nOrb(iS),
+     &                     One,Temp3,nOrb(iS),
      &                     rKappa(ipMat(ks,ips)+nOrb(ks)*nIsh(ipS)),
      &                     nOrb(ks),
-     &                     0.0d0,Temp4,nOrb(iS))
+     &                     Zero,Temp4,nOrb(iS))
               ip3=ipMO(js,ls,ips)+nOrb(iS)*(ija-1)+
      &               nOrb(is)*nAsh(js)*(ilA-1)
               ip1=1
@@ -628,9 +634,8 @@
 *
 *
 
-      Return
 c Avoid unused argument warnings
       If (.False.) Then
         Call Unused_real_array(CMO)
       End If
-      End
+      End SubRoutine Read2_2

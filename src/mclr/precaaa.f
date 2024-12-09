@@ -37,15 +37,27 @@
 *                                                                      *
 ************************************************************************
       use Arrays, only: G1t, G2t
-      Implicit Real*8(a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nA
+      use input_mclr, only: ntAsh,nSym,nAsh,nIsh,nRS1,nRS2,nRS3
+      Implicit None
+      Integer iC, iS, jS, nD, iR
+      Real*8 rout(nd*(nd+1)/2)
+      Integer nbai, nbaj
       Real*8 Fock(nbaj,nbaj),Focki(nbaj,nbaj)
-      Real*8 rout(nd*(nd+1)/2), Scr(nScr)
+      Real*8 Sign
+      Integer nScr
+      Real*8 Scr(nScr)
       Real*8 ActInt(ntAsh,ntAsh,ntAsh,ntAsh)
+
+      Integer nTri, iCC, iA, iAA, jB, jBB, jjB, jD, jDD, jjD, kS, jE,
+     &        jEE, jF, jFF
+      Real*8 aecf, bedf, becf, aedf, rdbedf, rdaecf, rdaedf, rdbecf,
+     &       acef, bdef, bcef, adef, rdbdef, rdacef, rdadef, rdbcef,
+     &       rdbd, rdad, rdac, rdbc
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      integer i, j, iTri, iTri1
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)
      &          +Max(i,j)-Min(i,j)+1
@@ -216,19 +228,21 @@ C        Call Unused_integer(ir)
          Call Unused_integer(nbai)
          Call Unused_real_array(fock)
       End If
-      End
+      End SubRoutine Precaaa
 C
 C
 C
       Subroutine Precaaa_Pre(ActInt,A_J,Scr)
 C
-      Implicit Real*8 (A-H,O-Z)
-C
-#include "Input.fh"
-#include "Pointers.fh"
-C
+      use MCLR_Data, only: nA
+      use input_mclr, only: ntAsh,nSym,nAsh,nIsh,nBas
+      Implicit None
       Real*8 ActInt(ntAsh,ntAsh,ntAsh,ntAsh),A_J(*),Scr(*)
-C
+!
+      Integer iSym, iA, iAabs, iAtot, iB, iBabs, iBtot, jSym, iC,
+     &        iCabs, iCtot, iD, iDabs, iDtot
+      Real*8 Val
+
       Do iSym = 1, nSym
         Do iA = 1, nAsh(iSym)
           iAabs = iA + nA(iSym)
@@ -246,18 +260,18 @@ C
                   iDtot = iD + nIsh(jSym)
                   Val = A_J(iCtot+nBas(jSym)*(iDtot-1))
                   ActInt(iAabs,iBabs,iCabs,iDabs) = Val
-C                 ActInt(iBabs,iAabs,iCabs,iDabs) = Val
-C                 ActInt(iAabs,iBabs,iDabs,iCabs) = Val
-C                 ActInt(iBabs,iAabs,iDabs,iCabs) = Val
-C                 ActInt(iCabs,iDabs,iAabs,iBabs) = Val
-C                 ActInt(iCabs,iDabs,iBabs,iAabs) = Val
-C                 ActInt(iDabs,iCabs,iAabs,iBabs) = Val
-C                 ActInt(iDabs,iCabs,iBabs,iAabs) = Val
+!                 ActInt(iBabs,iAabs,iCabs,iDabs) = Val
+!                 ActInt(iAabs,iBabs,iDabs,iCabs) = Val
+!                 ActInt(iBabs,iAabs,iDabs,iCabs) = Val
+!                 ActInt(iCabs,iDabs,iAabs,iBabs) = Val
+!                 ActInt(iCabs,iDabs,iBabs,iAabs) = Val
+!                 ActInt(iDabs,iCabs,iAabs,iBabs) = Val
+!                 ActInt(iDabs,iCabs,iBabs,iAabs) = Val
                 End Do
               End Do
             End Do
           End Do
         End Do
       End Do
-C
+!
       End Subroutine Precaaa_Pre

@@ -8,15 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine RdAB
+      SubRoutine RdAB()
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-#include "SysDef.fh"
-      Character*8 Label
-#include "disp_mclr.fh"
+      use MCLR_Data, only: ChDisp, lDisp
+      use input_mclr, only: nSym,nIsh,nBas,nOrb,Perturbation,
+     &                      McKinley,iMethod,nIsh,ntITri,ntISqr,ntBSqr,
+     &                      nDisp,PT2,ESCF,nDel,ntPert,ntIsh
+      Implicit None
+
+      Character(LEN=8) Label
+      Integer iRC, iOpt, Length, iSym, iS, iDum
 *
 *
       Perturbation='NONE'
@@ -29,7 +31,7 @@
        If (iRC.ne.0) Then
           Write (6,*) 'RdAB: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call Abend
+          Call Abend()
        End If
        LABEL='PERT'
        iRc=-1
@@ -38,7 +40,7 @@
        If (iRC.ne.0) Then
           Write (6,*) 'RdAB: Error reading MCKINT'
           Write (6,'(A,A)') 'Label=',Label
-          Call Abend
+          Call Abend()
        End If
       End If
 *

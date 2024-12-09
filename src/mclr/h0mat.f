@@ -13,8 +13,10 @@
      &                 NPRCIV,NOCSF,IREFSM,
      &                 IDC,PSSIGN,ECORE,
      &                 VEC1,VEC2,H0SCR,iH0SCR,ieaw)
-      Use Str_Info
-* Obtain preconditioner space corresponding to internalt space INTSPC
+      Use Str_Info, only: CNSM,DFTP,DTOC
+      use MCLR_Data, only: NAELCI, NBELCI
+      use MCLR_Data, only: NCNASM
+* Obtain preconditioner space corresponding to internal space INTSPC
 * Obtain Hamiltonian matrices correponding to this subspacw
 *
 * Construct Preconditioner blocks of Hamilton matrix
@@ -27,16 +29,21 @@
 *
 * NPRCIV : Number of parameters in preconditioner space
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "spinfo_mclr.fh"
+      IMPLICIT None
 *. Offsets for CSF information
 *
-      DIMENSION H0(*)
-      DIMENSION ISBCNF(*),ISBDET(*)
-      dimension vec1(*),vec2(*),h0scr(*),ih0scr(*)
+      Real*8 H0(*)
+      Integer ISBDET(*)
+      Integer ISBCNF(*)
+      Integer MXP1,MXP2,MXQ,NOCOB,NPRCIV,NOCSF,IREFSM,IDC
+      Real*8 PSSIGN,ECORE
+      Real*8 vec1(*),vec2(*),h0scr(*)
+      Integer ih0scr(*)
+      Integer ieaw
 *     Integer, Allocatable:: IOCOC(:)
+      Integer iprt,intspc,NAEL,NBEL,ICOMBI,IPWAY,NINOB,NP1CNF,NP1CSF,
+     &        NP2CNF,NP2CSF,NPCNF,NQCNF,NQCSF
+      Real*8  PSIGN
 *
 * Info on actual internal subspace
       iprt=100
@@ -102,6 +109,5 @@
 *
 *     Call mma_deallocate(IOCOC)
 
-      RETURN
       IF (.FALSE.) CALL Unused_integer(NOCSF)
-      END
+      END SUBROUTINE H0MAT_MCLR

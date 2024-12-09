@@ -11,15 +11,17 @@
       Subroutine TCMO(A,isym,ictl)
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
-      Integer ip(8), iip(8)
+      use MCLR_Data, only: ipCM, ipMat, nDens2
+      use input_mclr, only: nSym,nBas,nOrb
+      Implicit None
       Real*8 A(*)
+      Integer iSym, iCtl
+
+      Integer ip(8), iip(8)
       Real*8, Allocatable:: Temp(:)
       Real*8, Allocatable:: CMOInv(:)
       Integer, Allocatable :: iCMOInv(:)
+      Integer iRC, nCMOInv, niCMOInv, iS, jS
 
       Call mma_allocate(Temp,nDens2,Label='Temp')
       Call ReLoad(A,isym,norb,nbas)
@@ -123,5 +125,4 @@
 
       Call mma_deallocate(Temp)
 
-      Return
-      End
+      End Subroutine TCMO

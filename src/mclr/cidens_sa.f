@@ -11,20 +11,23 @@
       SubRoutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "crun_mclr.fh"
-
-#include "Input.fh"
-#include "Pointers.fh"
-#include "spinfo_mclr.fh"
-#include "cands.fh"
-#include "dmrginfo_mclr.fh"
-      Real*8 rP(*),rD(*)
+      use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
+      use MCLR_Data, only: XISPSM
+      use cands, only: ICSM,ISSM
+      use input_mclr, only: nRoots, nCSF, Weight
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
+      Implicit None
       Logical RSP
+      Integer iLS, iRS, iL, iR
+      Real*8 rP(*),rD(*)
+
       integer opout
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
+      Integer i, j, iTri
+      Integer nDim, nConfL, nConfR, iRC
+      Integer IA, JA, KA, LA, ij1, ij2, kl1, kl2
+      Integer, External:: ipIn, ipnOut
+
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -136,8 +139,7 @@
         n2dens=n1dens*(n1dens+1)/2
       end if
 *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine CIDens_sa

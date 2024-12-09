@@ -15,6 +15,7 @@
       USE GLBBAS, only: VEC3
       use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use strbas
+      use cands, only: ICSM,ISSM,ISSPC
 *
 * Density matrices between L and R
 *
@@ -54,7 +55,6 @@ c      REAL*8 INPRDD
 *
 *.Definition of L and R is picked up from CANDS
 * with L being S and  R being C
-#include "cands.fh"
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
@@ -118,8 +118,6 @@ C     density matrices are given in Nijkl.
       IF(IDOSRHO1.EQ.1) THEN
         CALL SETVEC(SRHO1,ZERO,NACOB ** 2)
       END IF
-*
-C?     WRITE(6,*) ' ISSPC ICSPC in DENSI2 ',ISSPC,ICSPC
 *
 * Info for this internal space
 *

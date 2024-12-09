@@ -8,25 +8,26 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
-     &                    Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
-       use ipPage, only: W
-       use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
-       use stdalloc, only: mma_allocate, mma_deallocate
-       Implicit Real*8(a-h,o-z)
-*
-#include "Pointers.fh"
+      SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+     &                   Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
+      use ipPage, only: W
+      use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: nConf1, ipCM, ipMat
+      use MCLR_Data, only: i12,iST,Square
+      use MCLR_Data, only: iRefSM
+      use MCLR_Data, only: XISPSM
+      use cands, only: ICSM,ISSM
+      use input_mclr, only: State_Sym,nSym,Page,nCSF
+      Implicit None
+      Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
+      Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+      Logical Have_2_el
 
-#include "Input.fh"
-#include "genop.fh"
-#include "cands.fh"
-#include "detdim.fh"
-#include "cstate_mclr.fh"
-#include "cicisp_mclr.fh"
-       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-       Logical Have_2_el
        integer kic(2),opout
        Real*8, Allocatable:: CIDET(:)
+       integer nDet, iOp, iS, jS, iRC
+       integer, external:: ipIN, ipIN1, ipNOUT
 *
 *      Interface Anders to Jeppe
 *      This interface initiates Jeppes common block
@@ -125,8 +126,7 @@
 
        End If
 *
-       Return
 #ifdef _WARNING_WORKAROUND_
        If (.False.) Call Unused_integer(irc)
 #endif
-       End
+       End SubRoutine CISigma

@@ -18,15 +18,17 @@
 *                so input becomes output while
 *                output remains output
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CSFVEC(*),DETVEC(*)
-      DIMENSION DTOCMT(*),ICTSDT(*)
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
+      use Constants, only: Zero, One
+      use MCLR_Data, only: NTYP,NCNATS,NCPCNT,NCSASM,NDPCNT,NDTASM
+      IMPLICIT NONE
+      REAL*8 CSFVEC(*),DETVEC(*)
+      INTEGER IWAY
+      REAL*8 DTOCMT(*)
+      INTEGER ICTSDT(*)
+      INTEGER IREFSM,ICOPY,IPRNT
 *
+      INTEGER IOFFCS,IOFFDT,IOFFCD,NDET,NCSF,ITYP,IDET,ICSF,ICNF
 
-      ZERO = 0.0D0
-      ONE = 1.0D0
       IOFFCS = 0 ! dummy initialize
       IOFFDT = 0 ! dummy initialize
       IOFFCD = 0 ! dummy initialize
@@ -103,7 +105,6 @@ C. Multiply with CIND expansion matrix
         IF( ICOPY .NE. 0 ) CALL COPVEC(CSFVEC,DETVEC,NCSF)
        END IF
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRNT)
-      END
+      END SUBROUTINE CSDTVC_MCLR

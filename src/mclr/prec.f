@@ -30,24 +30,33 @@
 *     active; active,general is needed for rasscf calculation
 *     and is not coded yet (ugly bastard) (970109, AB )
 ************************************************************************
-      use Arrays, only: FAMO, FIMO, F0SQMO
-      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+      use MCLR_Data, only: nrec
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,nRS1,nRS2,nRS3,
+     &                      ntAsh,NewCho,iMethod,nOrb
       Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-#include "machine.fh"
       Real*8 rpre(*)
+      Integer idsym
 *
       Call Prec_internal(rpre)
 *
 *     This is to allow type punning without an explicit interface
       Contains
+
       Subroutine Prec_internal(rpre)
+      use Arrays, only: FAMO, FIMO, F0SQMO
+      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+      use MCLR_Data, only: ipCM
       Use Iso_C_Binding
+      Implicit None
       Real*8, Target :: rpre(*)
+
       Integer, Pointer :: ipre(:)
       Real*8, Allocatable:: JA(:), KA(:), Scr(:), ActInt(:),
      &                      Temp1(:,:), Temp2(:), Temp3(:)
+      Integer nmm, nmmm, iS, ip, iAdr, iAdr2, jS, nD, ni, nTemp, iB,
+     &        iBB, iRC, iR, n2
+      Real*8 Sign
+
       nmm=0
       nmmm=0
       Do iS=1,nSym
@@ -320,4 +329,4 @@
       Return
       End Subroutine Prec_internal
 *
-      End
+      End SubRoutine Prec

@@ -9,12 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Pickmo_MCLR(rmo,rmoaa,idsym)
-      Implicit Real*8 (a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: ipMO, nA
+      use input_mclr, only: nSym,nAsh,nOrb,nIsh
+      Implicit None
       real*8 rmo(*),rmoaa(*)
+      Integer idsym
+
+      Integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA,
+     &        ijAA, klAA, ijkl, ipi
+      Integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+
       Do iS=1,nSym
        Do jS=1,iS
         Do kS=1,is
@@ -48,5 +53,4 @@
         End Do
        End Do
       End Do
-      Return
-      End
+      End Subroutine Pickmo_MCLR

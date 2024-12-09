@@ -23,12 +23,13 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "Files_mclr.fh"
-#include "sa.fh"
-#include "Input.fh"
+      use MCLR_Data, only: SA
+      use MCLR_Data, only: FnMck,LuCSF2SD,LuJob,LuMck,LuQDat,LuTemp,
+     &                      LuTri1
+      use input_mclr, only: iMethod,iCASSCF,TwoStep,RASSI
+      Implicit None
       Logical DoCholesky
-      Integer AixRm
+      Integer AixRm, iRC,iOpt
 *---------------------------------------------------------------------*
 *     Start                                                           *
 *---------------------------------------------------------------------*

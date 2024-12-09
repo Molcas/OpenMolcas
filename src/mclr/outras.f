@@ -25,20 +25,21 @@
       use MckDat, only: sLength
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "detdim.fh"
+      use MCLR_Data, only: nConf1, nDensC, nDens2
+      use MCLR_Data, only: DspVec, lDisp
+      use MCLR_Data, only: LuTEMP
+      use input_mclr, only: nDisp,nSym,State_Sym,iMethod,nCSF,nConf,
+     &                      iMethod,iSpin,kPrint,nActEl,nElec3,nHole1,
+     &                      nRS1,nRS2,nRS3,nTPert
+      Implicit None
+      Integer iKapDisp(nDisp),iCiDisp(nDisp)
 
-#include "Input.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "disp_mclr.fh"
-#include "cicisp_mclr.fh"
       Character(LEN=8) Label
       Integer Pstate_sym
-      Integer iKapDisp(nDisp),iCiDisp(nDisp)
       Logical CI
       Real*8, Allocatable:: Kap1(:), Kap2(:), Kap3(:), CIp1(:)
-
+      Integer iDisp, iSym, nConfm, jDisp, kDisp, iDisk, Len, iLen,
+     &        iDIs, iRC, iOpt, iSymL, iPert
 *
 *-------------------------------------------------------------------*
 *
@@ -146,5 +147,4 @@
          Call mma_deallocate(Kap1)
       End Do
 *
-      Return
-      End
+      End SubRoutine OutRAS

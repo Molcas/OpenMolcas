@@ -22,16 +22,25 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "disp_mclr.fh"
-#include "sa.fh"
+      use MCLR_Data, only: ISTATE,SA,ISNAC,IRLXROOT,NACSTATES,NSSA
+      use MCLR_Data, only: ChDisp,DspVec,lDisp,SwLbl
+      use MCLR_Data, only: XISPSM
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,mTit,nAtoms,PotNuc,
+     &                      iMethod,iCASSCF,ntIsh,ntAsh,ntBas,nActEl,
+     &                      nHole1,nElec3,State_Sym,nRoots,iPT2,ESCF,
+     &                      Epsilon,nIter,NewCho,SpinPol,iMCPD,PT2,
+     &                      TwoStep,StepType,nDisp,Perturbation,AtLbl,
+     &                      ChIrr,Coor,ERASSCF,Header1I,iRoot,iSpin,
+     &                      nCSF,nDel,nFro,nRS1,nRS2,nRS3,nSkip,nTPert,
+     &                      State_Sym,TitleIn,Weight
+      Implicit None
+      Integer iPL
+
       Character(LEN=8) Fmt1,Fmt2
       Character(LEN=100)  Line,BlLine,StLine
       Character(LEN=1) :: XYZ(3)=['X','Y','Z']
       Logical :: RICD=.FALSE.
+      Integer lLine,i,Left,nLine,j,iAT,nTSsh,iSym,jDisp,iDisp
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
 *----------------------------------------------------------------------*

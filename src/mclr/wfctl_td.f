@@ -24,35 +24,44 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: nConf1,nDens2,nDensC,ipCI,n1Dens,n2Dens,nDens
+      use MCLR_Data, only: ipDia
+      use MCLR_Data, only: lDisp
+      use MCLR_Data, only: LuTemp
+      use MCLR_Data, only: XISPSM
+      use input_mclr, only: nDisp,Fail,Save,nSym,PT2,State_Sym,iMethod,
+     &                      Omega,rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+     &                      Debug,ERASSCF,kPrint,lCalc,nCSF,nTPert
+      Implicit None
 *
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
+      Integer iKapDisp(nDisp),isigDisp(nDisp)
+      Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
+      Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
+      Logical converged(8)
 
       Logical Orb,CI
-      Parameter (iTimeCC = 1 )
-      Parameter (iTimeKK = 2 )
-      Parameter (iTimeKC = 3 )
-      Parameter (iTimeCK = 4 )
-#include "crun_mclr.fh"
+      Integer, Parameter :: iTimeCC = 1
+      Integer, Parameter :: iTimeKK = 2
+      Integer, Parameter :: iTimeKC = 3
+      Integer, Parameter :: iTimeCK = 4
       Character(LEN=8)   Fmt2
-      Integer iKapDisp(nDisp),isigDisp(nDisp)
-      Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
-      Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer pstate_sym,opout
-      Logical lPrint,converged(8)
+      Logical lPrint
       Real*8 Clock(4)
       Real*8 rDum(1)
       Real*8, Allocatable:: DigPrec(:), Kappa(:), dKappa(:), Sigma(:),
      &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:), TempTD(:),
      &                      Dens(:), Pens(:), rmoaa(:)
+      Real*8 Tim2,Tim3,Tim4,R1,R2,DeltaC,DeltaK,Delta,Delta0,ReCo,rGrad,
+     &       EC,D_0,D_1,D_2,rAlphaC,rAlphaK,rAlpha,rEsk,rEsci,rBeta,Res,
+     &       RINENE
+      Real*8, External:: DDot_
+      Integer lPaper,lLine,Left,iDis,Lu_50,iDisp,kkSym,kkkSym,iSym,
+     &        nConf3,iRC,ipS1,ipS2,ipST,ipCIT,ipCID,nPre2,iDEnd,jDisp,
+     &        iLen,Iter,ipPre2,jSpin
+      Integer, External:: ipClose,ipGet,ipIn,ipIn1,ipOut,ipNOut
+      Integer, External:: nPre
 *                                                                      *
 ************************************************************************
 *                                                                      *

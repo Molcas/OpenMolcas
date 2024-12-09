@@ -26,18 +26,25 @@
 *
       use Arrays, only: CMO, G1t, FAMO, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-      Logical lFI,lFA,lMo
-      Parameter ( One = 1.0d0 )
+      use Constants, only: Zero, One, Two
+      use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,iMethod,CasInt,
+     &                      iCASSCF
+      Implicit None
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
      &       FockA(nDens2)
+      Integer nF,iDSym,jSpin
+      Real*8 sign,Fact
+
+      Logical lFI,lFA,lMo
       Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
      &                      DI(:), DIR(:), FI(:),
      &                      DAL(:), DAR(:), DA(:), FA(:)
+      Integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, ip2, jS, jA
+      Real*8 FacR
 
 *
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       ndens22=ndens2
@@ -61,12 +68,12 @@
       Call mma_allocate(DIR,nDens2,Label='DIR')
       Call mma_allocate(FI,ndens2,Label='FI')
 
-      FockI(:)=0.0d0
-      FockA(:)=0.0d0
-      FI(:)   =0.0d0
-      DI(:)   =0.0d0
-      DIL(:)  =0.0d0
-      DIR(:)  =0.0d0
+      FockI(:)=Zero
+      FockA(:)=Zero
+      FI(:)   =Zero
+      DI(:)   =Zero
+      DIL(:)  =Zero
+      DIR(:)  =Zero
       lFI=.true.
       lFa=.false.
       lMo=.false.
@@ -83,15 +90,15 @@
          Call mma_allocate(DA,1,Label='DA')
          Call mma_allocate(FA,1,Label='FA')
       End If
-      FA(:) =0.0d0
-      DA(:) =0.0d0
-      DAL(:)=0.0d0
-      DAR(:)=0.0d0
+      FA(:) =Zero
+      DA(:) =Zero
+      DAL(:)=Zero
+      DAR(:)=Zero
 
       Do iS=1,nSym
          Do iB=1,nIsh(iS)
             ip=ipCM(iS)+(ib-1)*nOrb(is)+ib-1
-            DI(ip)=2.0d0
+            DI(ip)=Two
          End Do
       End Do
       If (iMethod.eq.2) Then
@@ -138,7 +145,7 @@
      &             nOrb(iS),nOrb(jS),nBas(iS),
      &             1.0d0,CMO(ipCM(iS)),nBas(iS),
      &             FI(ipMat(iS,jS)),nBas(iS),
-     &             0.0d0,FockI(ipMat(iS,jS)),nOrb(iS))
+     &             Zero,FockI(ipMat(iS,jS)),nOrb(iS))
        Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,
      &            FIMO(ipCM(iS)),nOrb(is),
      &            rkappa(ipMat(iS,jS)),nOrb(iS),
@@ -153,7 +160,7 @@
      &               nOrb(iS),nOrb(jS),nBas(iS),
      &               1.0d0,CMO(ipCM(iS)),nBas(iS),
      &               FA(ipMat(iS,jS)),nBas(iS),
-     &               0.0d0,FockA(ipMat(iS,jS)),nOrb(iS))
+     &               Zero,FockA(ipMat(iS,jS)),nOrb(iS))
          Call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,
      &            FAMO(ipCM(iS)),nOrb(is),
      &            rkappa(ipMat(iS,jS)),nOrb(iS),
@@ -182,8 +189,7 @@
       Call mma_deallocate(Tmp2)
       Call mma_deallocate(T1)
 
-      Return
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(nF)
 
-      End
+      End SubRoutine r2elint

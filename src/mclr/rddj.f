@@ -20,16 +20,20 @@
 *
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
-#include "SysDef.fh"
-#include "Files_mclr.fh"
-#include "sa.fh"
+      use MCLR_Data, only: LuJob
+      use input_mclr, only: ntAsh,iTOC
+      Implicit None
       Real*8 G1r(*), G1Q(*),G2r(*)
+      integer iestate
+
+#include "SysDef.fh"
       Real*8, Allocatable:: G2Q(:)
-      Dimension rdum(1)
+      Real*8 rdum(1)
+      Integer nG1,nG2,iR,jDisk,i,j,iB,jB,iDij,iRij,kB,lB,iDkl,iRkl,
+     &        iIJKL, iRijkl
+      Real*8 Fact
 *
+      Integer itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 *
@@ -81,5 +85,4 @@ c
 *
       Call mma_deallocate(G2Q)
 *
-      Return
-      End
+      End Subroutine rddj

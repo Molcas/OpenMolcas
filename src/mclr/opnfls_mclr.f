@@ -21,12 +21,13 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "Files_mclr.fh"
-
-#include "Input.fh"
-      Character*8 Label
+      use MCLR_Data, only: FnPT2,FnMck,FnOne,FnTemp,FnTwo,LuMck,LuTEMP,
+     &                      LuTwo
+      use input_mclr, only: Direct, McKinley, PT2, ChIrr
+      Implicit None
+      Character(LEN=8) Label
       Logical FoundTwoEls,DoCholesky
+      Integer iPL,iRC,iOpt,iDum
 *---------------------------------------------------------------------*
 *     Start                                                           *
 *---------------------------------------------------------------------*

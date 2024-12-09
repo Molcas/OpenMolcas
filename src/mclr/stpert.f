@@ -15,19 +15,23 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: ipCI,nDens2
+      use MCLR_Data, only: RMS, rBetaA, rBetaS
+      use MCLR_Data, only: lDisp,SwLbl
+      use MCLR_Data, only: MS2
+      use MCLR_Data, only: FnMck,LuMck
+      use input_mclr, only: nSym,McKinley,PT2,nDisp,SpinPol,nAsh,nBas,
+     &                      nIsh,nTPert,State_Sym
+      Implicit None
 
-#include "Input.fh"
-#include "Pointers.fh"
-#include "disp_mclr.fh"
-#include "spin_mclr.fh"
-#include "cstate_mclr.fh"
-#include "Files_mclr.fh"
       Character(LEN=16) Label
       Character(LEN=8)  MckLbl
       Character(LEN=288) Header
       Integer idum(1)
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
+      Integer nHss,iS,iRC,iOpt,nAct,iSym,nG,nG2,iType,nMax,iDummer
+      Integer, External:: ipIn
+      Real*8 rAlphas
 *
       nHss=0
       Do iS=1,nSym
@@ -175,5 +179,4 @@
          Call mma_deallocate(Tmp2)
       End If
 *
-      Return
-      End
+      End SubRoutine StPert

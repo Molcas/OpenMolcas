@@ -9,8 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SigmaVec(C,HC,kic)
-      Use Str_Info
+      Use Str_Info, only: STR,CNSM,DTOC,ITYP_Dummy,nElec,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero
+      use MCLR_Data, only: i12, ist
+      use MCLR_Data, only: IPRCIX,IPRDIA
+      use MCLR_Data, only: IDC, PSSIGN
+      use MCLR_Data, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,
+     &                       MXR3IC,XISPSM
+      use MCLR_Data, only: NOCSF,MAXI,MAXK,ICISTR,NOPART,IDIAG
+      use MCLR_Data, only: IBTSOB,ITSOB,NACOB,NORB1,NORB2,NORB3,
+     &                       NTSOB
+      use DetDim, only: MXPOBS,MXINKA
+      use cands, only: ICSM,ISSM,ICSPC,ISSPC
+      use input_mclr, only: nsMOB,TimeDep
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -20,27 +32,18 @@
 * will find a subroutine that looks very much like this
 * This routine is just a setup routine for memory etc
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
+      Real*8 C(*),HC(*)
+      Integer kic(2)
 *
 * =====
 *.Input
 * =====
 *
-#include "cands.fh"
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
-#include "cicisp_mclr.fh"
-#include "cstate_mclr.fh"
 #include "csm.fh"
-#include "crun_mclr.fh"
-
-#include "Input.fh"
-#include "cprnt_mclr.fh"
-#include "genop.fh"
 #include "csmprd.fh"
-      Dimension C(*),HC(*),kic(2)
       Integer sxstsm(1)
-      Dimension idummy(1)
+      Integer idummy(1)
       Integer, Allocatable:: STSTS(:), STSTD(:), SVST(:),
      &                       SIOIO(:), CIOIO(:),
      &                       SBLTP(:), CBLTP(:),
@@ -50,10 +53,16 @@
      &                      XI1S(:), XI2S(:), XI3S(:), XI4S(:)
       Real*8, Target, Allocatable:: C2(:), CJRES(:), SIRES(:)
       Real*8, Pointer:: pC2(:), pCJRES(:), pSIRES(:)
+      Integer LUC,LUHC,NSDET,IATP,IBTP,JATP,JBTP,NOCTPA,NOCTPB,
+     &        NAEL,NBEL,MAXA0,MAXB0,MAXA,MAXA1,MAXB,MAXB1,MXSTBL,
+     &        MXTSOB,MAXIJ,LSCR1,INTSCR,MAXPK,IATP1,IBTP1,IATP2,
+     &        IBTP2,MAXIK,LSCR2,LSCR3,MOCAA,MAXE,MAXEL3,MXSXST,
+     &        MXSXBL,LSCR12,NOOS,IICOPY,IDOH2,LLUC,LLUHC,IINSTR,
+     &        IMNMX,MXCIJA,MXCIJAB,MXCIJB,MXCJ,MXIJST,MXIJSTF,
+     &        MXSTBL0
 
       LUC=0
       LUHC=0
-      ZERO = 0.0D0
       IDUMMY(1) = 0
       NSDET = NINT(XISPSM(ISSM,ISSPC))
 *
@@ -364,5 +373,4 @@
       Call mma_deallocate(CJRES,safe='*')
       Call mma_deallocate(SIRES,safe='*')
 *
-      RETURN
-      END
+      END SUBROUTINE SigmaVec

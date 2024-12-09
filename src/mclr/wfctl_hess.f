@@ -11,6 +11,7 @@
 * Copyright (C) Anders Bernhardsson                                    *
 *               2002, Roland Lindh                                     *
 ************************************************************************
+*define _DEBUGPRINT_
       SubRoutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,
      &                      iRHSDisp,iRHSCIDISP,converged)
 ************************************************************************
@@ -33,38 +34,41 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use Spool, only: LuWr
-      Implicit Real*8 (a-h,o-z)
-      External Rsv_Tsk
-*
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "dmrginfo_mclr.fh"
+#ifdef _DEBUGPRINT_
+      use MCLR_Data, only: nCMO
+#endif
+      use MCLR_Data, only: nConf1,nDens2,nDensC,ipCI,n1Dens,n2Dens,nDens
+      use MCLR_Data, only: ipDia
+      use MCLR_Data, only: lDisp
+      use MCLR_Data, only: LuTemp
+      use MCLR_Data, only: XISPSM
+      use input_mclr, only: nDisp,Fail,Save,nSym,PT2,State_Sym,iMethod,
+     &                      rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+     &                      ERASSCF,kPrint,nCSF,nTPert,TimeDep,nAsh,nRs2
+      use dmrginfo, only: DoDMRG,RGRAS2
+      Implicit None
 *
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
+      Real*8 dfail
+      Integer iglfail
 #endif
       Logical Orb,CI,Response
-      Parameter (iTimeCC = 1 )
-      Parameter (iTimeKK = 2 )
-      Parameter (iTimeKC = 3 )
-      Parameter (iTimeCK = 4 )
-#include "crun_mclr.fh"
-      Character*8   Fmt2
-      Character*132 Line
+      Integer, Parameter :: iTimeCC = 1
+      Integer, Parameter :: iTimeKK = 2
+      Integer, Parameter :: iTimeKC = 3
+      Integer, Parameter :: iTimeCK = 4
+      Character(LEN=8)   Fmt2
+      Character(LEN=132) Line
       Integer iKapDisp(nDisp),isigDisp(nDisp)
       Integer iRHSDisp(nDisp),iRHSCIDisp(nDisp)
       Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
       Integer pstate_sym,opout
-      Logical lPrint,converged(8), Rsv_Tsk
+      Logical lPrint,converged(8)
+      Logical, External ::Rsv_Tsk
       Real*8 Clock(4)
-      Character*72 SLine
+      Character(LEN=72) SLine
       Real*8 res_tmp
       Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
@@ -72,6 +76,16 @@
      &                      Sc1(:), Sc2(:), Sc3(:),
      &                      Dens(:), Pens(:), rmoaa(:)
       Integer, Allocatable:: List(:,:)
+      Real*8 Tim2,Tim3,Tim4,R1,R2,DeltaC,DeltaK,Delta,Delta0,ReCo,rGrad,
+     &       EC,D_0,rAlphaC,rAlphaK,rAlpha,rEsk,rEsci,rBeta,Res,
+     &       rCHC
+      Real*8, External:: DDot_
+      Integer lPaper,lLine,Left,iDis,iDisp,kkSym,kkkSym,iSym,
+     &        nConf3,iRC,ipS1,ipS2,ipST,ipCIT,ipCID,nPre2,iDEnd,jDisp,
+     &        iLen,Iter,ipPre2,jSpin,LuWR_Save,iSym_Old,iRank,iD
+      Integer, External:: ipClose,ipGet,ipIn,ipIn1,ipOut,ipNOut
+      Integer, External:: nPre
+      Integer, External:: IsFreeUnit
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -89,7 +103,6 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-*define _DEBUGPRINT_
 *----------------------------------------------------------------------*
       SLine=' Solving CP(CAS)HF equations'
       Call StatusLine(' MCLR:',SLine)
@@ -589,7 +602,7 @@ C         iDisp=iDisp+1
 #endif
               Call CIDens(Response,ipCI,ipCId,
      &                    State_sym,
-     &                    PState_Sym,jspin,
+     &                    PState_Sym,
      &                    Pens,Dens)     ! Jeppes
 
 #ifdef _DEBUGPRINT_
@@ -963,8 +976,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine WfCtl_Hess

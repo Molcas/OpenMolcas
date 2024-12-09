@@ -23,17 +23,30 @@
 ************************************************************************
       Use Arrays, only: CMO, G2t, G2sq, G1t
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "Files_mclr.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nNA, nA
+      use MCLR_Data, only: FnJob, LuJob
+      use input_mclr, only: lRoots,iPT2,nRoots,ntIsh,ntITri,
+     &                      ntAsh,ntATri,ntASqr,ntBas,ntBTri,ntBSqr,
+     &                      nSym,State_Sym,
+     &                      ERASSCF,Headerjp,iRoot,iSpin,iTOC,iTocIph,
+     &                      ntISqr,nCOnf,nActEl,nAsh,nBas,
+     &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,
+     &                      nRS2,nRS3,TitleJP,Weight
+      Implicit None
+      Real*8, Allocatable:: CIVec(:,:)
+#include "rasdim.fh"
 #include "SysDef.fh"
-      Character*72 Line
+      Character(LEN=72) Line
       Real*8 rdum(1)
       Character(Len=1), Allocatable:: TempTxt(:)
       Real*8, Allocatable::  Tmp2(:), G2tts(:), G2tta(:)
-      Real*8, Allocatable:: CIVec(:,:)
+      Integer kRoots,iDisk,Length,iSym,      i,    j,         jpCMO,
+     &             Iter,nAct,nAct2,nAct4,iS,jS,kS,lS,nG1,nG2,iB,jB,
+     &        iDij,kB,lB,iDkl,iIJKL,iDij2,iDkl2,iIJKL2
+      Real*8 Temp,PotNuc0,Fact,Factij,Factkl,Fact2
 
+
+      integer itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
 *----------------------------------------------------------------------*
@@ -249,5 +262,4 @@
 *----------------------------------------------------------------------*
 *     exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine RdJobIph_td

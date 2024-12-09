@@ -11,16 +11,22 @@
 * Copyright (C) Jeppe Olsen                                            *
 ************************************************************************
       SUBROUTINE STRTYP(MS2,NACTEL,MNRS10,MXRS30,IPRNT)
-      use Str_Info
+      use Str_Info, only: ISTAC,IAZTP,IATPM1,IATPM2,IBZTP,IBTPM1,IBTPM2,
+     &                    NSTTYP,NSTTYP_MAX,MNRS1,MXRS1,MNRS3,MXRS3,
+     &                    NELEC,ISTTP,IZORR,IARTP,IBRTP,IUNIQMP,
+     &                    IUNIQTP
+      use MCLR_Data, only: NORB1,nORB3
 *
 * construct input common blocks /STRINP/
 * from /LUCINP/ and /ORBINP/
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Logical Reduce_Prt
-      External Reduce_Prt
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
+      IMPLICIT None
+      INTEGER MS2,NACTEL,MNRS10,MXRS30,IPRNT
+
+*     Local variables
+      Logical, External :: Reduce_Prt
+      INTEGER NTEST,NAEL,NBEL,IPL,MXRS10,MNRS30,ITYPE,ITYP
+      Integer, External:: iPrintLevel
 *========
 * Output
 *========
@@ -177,5 +183,4 @@
          END DO
 *EAW
 *
-      RETURN
-      END
+      END SUBROUTINE STRTYP

@@ -8,14 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+Module Input_mclr
 #include "rasdim.fh"
 !
-      Integer itociph, mxPer, mxAtm, iSCF, iCASSCF
-      parameter ( itociph = 64  )
-      Parameter ( mxPer   = 255 )
-      Parameter ( mxAtm   = MxAtom  )
-      Parameter ( iSCF    = 1   )
-      Parameter (iCASSCF  = 2   )
+      Integer, parameter :: itociph = 64
+      Integer, Parameter :: mxPer   = 255
+      Integer, Parameter :: mxAtm   = MxAtom
+      Integer, Parameter :: iSCF    = 1
+      Integer, Parameter :: iCASSCF = 2
 !
 !     nactel-itoc
 !
@@ -81,19 +81,19 @@
       Integer nTPert(mxPer)
 !
 !     Character*8 OrbLbl(mxOrb)      ! Label on orbital ONEINT
-      Character*16 Perturbation      ! The type of perturbation
-      Character*(LENIN) AtLbl(mxAtm) ! Label on Atom    ONEINT
-      Character*72 HeaderJP(2)
-      Character*72 Header1I(2)
-      Character*72 TitleJp(mxTit)
-      Character*80 Bline
-      Character*8 TitleIN(180)
-      Character*3 chirr(8)       ! Irreps
-      Character*3 cmass(mxAtm)
+      Character(LEN=16) Perturbation      ! The type of perturbation
+      Character(LEN=LENIN) AtLbl(mxAtm) ! Label on Atom    ONEINT
+      Character(LEN=72) HeaderJP(2)
+      Character(LEN=72) Header1I(2)
+      Character(LEN=72) TitleJp(mxTit)
+      Character(LEN=80) Bline
+      Character(LEN=8) TitleIN(180)
+      Character(LEN=3) chirr(8)       ! Irreps
+      Character(LEN=3) cmass(mxAtm)
 !
 !     Name of perturbation to read from ONEINT
 !
-      Character*8 SewLab
+      Character(LEN=8) SewLab
       Logical lCalc(3*mxAtm+3)  ! True: the perturbation
 !                               !   should be calculated
       Logical ISOTOP
@@ -134,50 +134,25 @@
       Logical TwoStep
       Character(len=4) StepType
 
-      Common/dInput/ ERASSCF,ESCF,PotNuc,Coor,weight,                   &
-     &               epsilon,omega,epsorb, rin_ene, umass
-      Common/iInput/ nAtoms,nSym,                                       &
-     &               State_sym,iSpin,                                   &
-     &               nActEl,nHole1,nElec3,nConf,                        &
-     &               nRoots,lRoots,iRoot,                               &
-     &               mTit,nDisp,ntpert,kprint,ibreak,                   &
-     &               nBas,norb,nOcc,nExt,ntBas,ntBtri,ntBsqr,           &
-     &               nIsh,ntIsh,ntItri,ntIsqr,                          &
-     &               nAsh,ntAsh,ntAtri,ntAsqr,                          &
-     &               nFro,nDel,nRs1,nRs2,nRs3,nSkip,                    &
-     &               ispop,iPt2,iToc,iMethod,nIter, ncsf,               &
-     &               LuAChoVec,LuIChoVec,LuChoInt,                      &
-     &               iEndofinput,lmode,nmode,nfiles, imass,             &
-     &               cmsNACStates
-      Common/lInput/ Debug, ISOTOP, CASINT, Mckinley, Fail,             &
-     &               page,lcalc,TimeDep,iMCPD,iMSPD,PT2,                &
-     &               SpinPol,elechess,save,                             &
-     &               TwoPert,BasCon, double, multi, mout,               &
-     &               lmass, newCho, TwoStep, isCMSNAC
-      Common/cInput/ perturbation, AtLbl, HeaderJP,Header1I,            &
-     &               TitleJP,SewLab,Bline,titlein, ChIrr, cmass,        &
-     &               StepType
 !
 !     User-defined Temperatures and Pressure
 !
       Real*8  UserP, UserT(64)
-      Common /UserInput/ UserT, UserP, nUserPT, nsRot
 !
 !     Ask Jeppe!!!
 !     We all want a happy LUCIA
 !
       Logical Direct
-      Common /Inte_Dir/Direct
       Integer NIRREP,NSMOB,NRS0SH(1,20),NRS4SH(20,10),                  &
      &        MXR4TP, MNRS10,MXRS30
-      COMMON/LUCINP_MCLR/PNTGRP,NIRREP,NSMOB,MXR4TP,                    &
-     &              MNRS10,MXRS30,NRS0SH,NRS4SH
       Logical PrCI,PrOrb
       Real*8  CIthrs
-      Common /Flags_MCLR/ CIthrs,PrCI,PrOrb
 
        Logical RASSI
-       Common /InputDev/ RASSI
 
        Integer iaddressQDAT
-       Common / common_LuQDAT / iaddressQDAT
+Private :: mxRef,mxIter,mxCiIt,mxSxIt,mxTit
+Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina, &
+           mxbas,mxOrb,mxSym,mxGAS,LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
+End Module Input_mclr
+
