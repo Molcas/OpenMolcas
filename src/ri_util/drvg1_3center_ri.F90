@@ -41,7 +41,7 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 use setup, only: mSkal, MxPrm, nAux
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD, nSD
-use pso_stuff, only: B_PT2, DMdiag, lPSO, lSA, n_Txy, nBasA, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, LuGamma2,ReadBPT2
+use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, ReadBPT2
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
 use k2_structure, only: k2Data
 use Disp, only: l2DI
@@ -70,11 +70,11 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "temptime.fh"
 #endif
 integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), &
-                     iiQ, ij, ijklA, ijMax, ijQ, ijS, ik2, iMOleft, iMOright, iOpt, iost, ipMem1, ipMem2, iPrem, iPren, iPrimi, &
+                     iiQ, ij, ijklA, ijMax, ijQ, ijS, ik2, iMOleft, iMOright, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, &
                      iPrInc, iS, iS_, iSD4(0:nSD,4), ish, iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, &
                      jBasj, jBasn, jBsInc, jjQ, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, &
                      kBasAO, kBask, kBasn, kBsInc, kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, &
-                     lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lRealName, lS, maxnAct, maxnnP, mBtch, mdci, &
+                     lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lS, maxnAct, maxnnP, mBtch, mdci, &
                      mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, &
                      nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, &
                      nPrev, nQuad, nRys, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, &
@@ -84,21 +84,18 @@ real(kind=wp) :: A_int, A_int_ij, A_int_kl, Coor(3,4), Dm_ij, ExFac, PMax, Prem,
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
 #endif
-character(len=4096) :: RealName
 integer(kind=iwp), save :: MemPrm
 character(len=80) :: KSDFT
 character(len=72) :: frmt
 character(len=50) :: CFmt
 character(len=8) :: Method
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, Indexation, JfGrad(3,4), No_Batch, Shijij, &
-                     is_error
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, Indexation, JfGrad(3,4), No_Batch, Shijij
 integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:), Xmi(:,:,:,:)
 character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
-integer(kind=iwp), external :: IsFreeUnit
 logical(kind=iwp), external :: Rsv_Tsk2
 
 !                                                                      *
