@@ -23,15 +23,13 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   use caspt2_global, only: do_grad, IDSAVGRD, iStpGrd
   use PrintLevel, only: usual, verbose
   use definitions, only: iwp,wp,u6
-  use EQSOLV
-  use ChoCASPT2
+  use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
 
   Implicit None
 
 #include "warnings.h"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
 
   character(len=60) :: STLNE2
 
