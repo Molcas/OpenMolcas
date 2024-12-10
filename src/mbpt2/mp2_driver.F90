@@ -49,6 +49,8 @@ use transform_procedures, only: SetUp_CASPT2_Tra
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use trafo, only: IADOUT
+
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -61,7 +63,6 @@ logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: Cho_X_GetTol
 real(kind=wp), external :: ddot_, Seconds
 #include "Molcas.fh"
-#include "trafo.fh"
 #include "corbinf.fh"
 
 !                                                                      *
