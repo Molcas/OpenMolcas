@@ -84,6 +84,7 @@
 !     Define linked lists for storage of vectors of subsequent iters   *
 !----------------------------------------------------------------------*
 !     LLGrad - linked list of gradients                                *
+!     LLlGrd - linked list of local gradients                          *
 !     LLdGrd - linked list of gradient diffs                           *
 !     LLDelt - linked list of Delta vectors                            *
 !     LLy    - linked list of y-vectors                                *
@@ -102,14 +103,14 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-integer(kind=iwp), parameter :: MAXnodes = MxIter*5, NodSiz = 6
+integer(kind=iwp), parameter :: MAXnodes = (MxIter+1)*6, NodSiz = 6
 
-integer(kind=iwp) :: LLDelt, LLdGrd, LLGrad, lLList = 0, LLx, LLy, nLList(MAXnodes,0:NodSiz-1)
+integer(kind=iwp) :: LLDelt, LLdGrd, LLGrad, LLlGrd, lLList = 0, LLx, LLy, nLList(MAXnodes,0:NodSiz-1)
 logical(kind=iwp) :: Init_LLs = .false.
 type(Alloc1DArray_Type) :: SCF_V(Maxnodes)
 
-public :: DmpLst, GetNod, GetVec, IniLst, Init_LLs, iVPtr, KilLst, LLDelt, LLdGrd, LLGrad, LLLen, lLList, LLx, LLy, LstPtr, &
-          nLList, NodSiz, PutVec, RclLst, SCF_V, StlLst
+public :: DmpLst, GetNod, GetVec, IniLst, Init_LLs, iVPtr, KilLst, LLDelt, LLdGrd, LLGrad, LLLen, LLlGrd, lLList, LLx, LLy, &
+          LstPtr, nLList, NodSiz, PutVec, RclLst, SCF_V, StlLst
 
 contains
 

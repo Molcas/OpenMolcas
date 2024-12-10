@@ -18,7 +18,7 @@
 subroutine IniLLs()
 ! initialize the diverse linked lists
 
-use LnkLst, only: IniLst, Init_LLs, LLDelt, LLdGrd, LLGrad, LLlist, LLx, LLy
+use LnkLst, only: IniLst, Init_LLs, LLDelt, LLdGrd, LLGrad, LLlist, LLlGrd, LLx, LLy
 use InfSCF, only: MxOptm
 
 implicit none
@@ -26,6 +26,7 @@ implicit none
 LLlist = 0
 LLGrad = 0
 call IniLst(LLGrad,20)
+call IniLst(LLlGrd,20)
 call IniLst(LLDgrd,20)
 call IniLst(LLDelt,20)
 call IniLst(LLy,20)
