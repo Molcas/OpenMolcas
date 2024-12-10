@@ -226,6 +226,7 @@ set (sources
      istkpop_cvb.F90
      istkprobe_cvb.F90
      istkpush_cvb.F90
+     jobiph_j.F90
      kotani_cvb.F90
      lmo2ao_cvb.F90
      loind_cvb.F90
@@ -476,6 +477,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      casvb_global.F90
+     jobiph_j.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
