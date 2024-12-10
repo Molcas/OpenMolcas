@@ -30,6 +30,7 @@ subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas
 use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
 use Definitions, only: wp, iwp
+use ri_glob, only: jBas_, lBas_
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Constants, only: One
@@ -43,7 +44,6 @@ integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4),
                                  iTOff, iOffij, iOffkl
 real(kind=wp), intent(in) :: AOint(ijkl,iCmp,jCmp,kCmp,lCmp)
 real(kind=wp), intent(_OUT_) :: TInt(nTInt,mTInt)
-#include "ibas_ricd.fh"
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOsti, iAOstj, iAOstk, iAOstl, ijSOij, iSO, iSOi, iSOij, iSOkl, &
                      iSOs(4), jSO, jSOj, klSOkl, kSO, kSOk, lSO, lSOl, nijkl
 #ifdef _DEBUGPRINT_

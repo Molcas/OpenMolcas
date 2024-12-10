@@ -31,9 +31,11 @@ integer(kind=iwp), allocatable :: iBDsh(:), iMap(:), iShij(:,:), iSSOff(:,:,:), 
 real(kind=wp), allocatable :: A(:), AMP2(:,:), BMP2(:,:), Chunk(:)
 real(kind=wp), allocatable, target :: BklK(:), CijK(:), CilK(:), Yij(:,:,:)
 
+integer(kind=iwp) :: jbas_, lbas_
+
 public :: A, AMP2, BklK, BMP2, Chunk, CijK, CilK, CMOi, DMLT, dmpK, DoCholExch, iAdrCVec, iBDsh, iMap, iMP2prpt, iOff_Ymnij, &
           iOffA, iOpt, ip_Chunk, iRsv, iShij, iSSOff, iUHF, klS, Lu_A, Lu_Q, LuAVector, LuBVector, LuCVector, MxChVInShl, nAdens, &
           nAuxVe, nAvec, nBasSh, nChOrb, nChV, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen, nSkal_Valence, nSO, nTask, NumAuxVec, &
-          nYmnij, ShlSO, SO2Ind, SOShl, tavec, tbvec, Timings_default, TskList, Yij, Ymnij
+          nYmnij, ShlSO, SO2Ind, SOShl, tavec, tbvec, Timings_default, TskList, Yij, Ymnij, jbas_, lbas_
 
 end module RI_glob
