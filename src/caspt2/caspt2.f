@@ -13,6 +13,7 @@
 ************************************************************************
       SUBROUTINE CASPT2(IRETURN)
       USE INPUTDATA, ONLY: INPUT
+      use PT2WFN, ONLY: PT2WFN_ESTORE,PT2WFN_DATA
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, iStpGrd, IDSAVGRD

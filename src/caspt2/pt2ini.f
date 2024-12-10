@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE PT2INI()
       USE INPUTDATA, ONLY: INPUT, READIN_CASPT2
+      use PT2WFN, ONLY: PT2WFN_INIT,PT2WFN_DATA
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
       use caspt2_global, only: do_grad
@@ -152,6 +153,8 @@ C Initialize sizes, offsets etc used in equation solver.
 
       SUBROUTINE PT2CLS()
       USE INPUTDATA, ONLY: CLEANUP_INPUT
+      USE SUPERINDEX, ONLY: SUPFREE
+      use PT2WFN, ONLY: PT2WFN_CLOSE
       use gugx, only: SGS, CIS, EXS
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, TORB, IDSCT
