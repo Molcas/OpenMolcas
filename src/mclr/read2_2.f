@@ -66,7 +66,6 @@
       Logical lFAt,lFIT,lmot
       real*8 CMO(nCMO)
 
-#include "intgrl.fh"
       Logical singlet
       Integer iS,jS,ijS,kS,lS,iB,nNB,jB,ipD,ipF,iiB,jjB,ipS,ipi,ip1,ip2,
      &        ip3,ip4,lB,ijA,ilA,ipA
