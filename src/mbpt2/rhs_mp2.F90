@@ -22,6 +22,7 @@ use Definitions, only: wp, iwp
 use MBPT2_Global, only: EOcc, EVir, mAdDel, mAdFro, Mp2Lagr, WDensity
 use Definitions, only: u6
 #endif
+use trafo, only: IAD13,IADOUT
 
 implicit none
 integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADOUT, nDelTot, nMaxOrb, nVirTot
@@ -29,7 +30,6 @@ integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADO
 integer(kind=iwp) :: iDel, iExt, iFro, iOcc, nA, nB, nI
 #endif
 real(kind=wp), allocatable :: Int1(:), Int1_2(:), Int2(:), Int2_2(:), Scr1(:)
-#include "trafo.fh"
 #include "corbinf.fh"
 
 IAD13 = 0
