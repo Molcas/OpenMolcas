@@ -43,6 +43,11 @@ use caspt2_global, only: LUHLF3, LUINTM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use Intgrl, only: IAD2M
+use trafo, only:      ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,        &
+     &                NOCP,NOCQ,          NPQ,                 LTUPQ,   &
+     &                        NOR,NOS,                    LMOP2,LMOQ2,  &
+     &                LMOR2,LMOS2,       IAD13
+
 
 #include "intent.fh"
 
@@ -52,7 +57,6 @@ real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*)
 real(kind=wp), intent(inout) :: PQRS(*), TURS(*)
 #include "caspt2.fh"
-#include "trafo.fh"
 integer(kind=iwp) :: IAD3, IAD3S, icc, iOpt, IPQ, IPQMX3, IPQST, iRc, IRS, IRSST, ISPQRS, ITU, IX2, Kread, Length, LPQ, LRS, NOTU, &
                      NP, NQ, NR, Nread, Nrest, NRS, NS, NSYMP, NT, NU, Num, NumPQ, NumRS
 
