@@ -12,7 +12,7 @@
 subroutine BSSint()
 
 use Basis_Info, only: dbsc, nBas, nCnttp
-use Basis_Info, only: nPrimr, nBasisr, nAngr, icent, lnang, lmag, lant, nrBas, nrBas_prim, nrSym, rCof,rExp
+use Basis_Info, only: nPrimr, nBasisr, nAngr, icent, lnang, lmag, nrBas, nrSym, rCof,rExp
 use Symmetry_Info, only: Mul, nIrrep
 use DKH_Info, only: cLightAU
 use OneDat, only: sNoNuc, sNoOri
