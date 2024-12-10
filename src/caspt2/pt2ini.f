@@ -23,7 +23,6 @@
       IMPLICIT NONE
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
 #include "compiler_features.h"
 
       INTEGER LuSpool
