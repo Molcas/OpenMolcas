@@ -119,13 +119,13 @@
 #ifdef _HDF5_
       use rasscf_global, only: lRoots
 #endif
+      use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
 
       Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
-#include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"
 #include "timers.fh"

@@ -91,8 +91,7 @@
 #ifdef _DMRG_
       use rasscf_global, only: TwoRDM_qcm, DOFCIDump, Emy
 #endif
-      use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
-     &                         lRootSplit
+      use Split
 
 
       Implicit None

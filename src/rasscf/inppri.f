@@ -61,6 +61,10 @@
      &                         Davidson_tol, Do3RDM, HFOcc,
      &                         Max_canonical, Max_Sweep
 #endif
+      use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
+     &                         lRootSplit,NumSplit,iDimBlockA,
+     &                         EnerSplit,GapSpli,PerSplit,PerCSpli,
+     &                         fOrdSplit
 
 
       Implicit None
@@ -70,7 +74,6 @@
 #include "general.fh"
 #include "output_ras.fh"
 #include "ciinfo.fh"
-#include "splitcas.fh"
 #include "lucia_ini.fh"
       Character(LEN=8)   Fmt1,Fmt2,Label
       Character(LEN=120)  Line,BlLine,StLine

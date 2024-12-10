@@ -24,12 +24,12 @@ C          ****** IBM 3090 MOLCAS Release: 90 02 22 ******
 C
       use rasscf_global, only: KSDFT, lRoots, NACPAR, NACPR2, iADR15,
      &                         iTri
-      IMPLICIT None
+      use SplitCas_Data, only: DoSPlitCas,lRootSplit
+      Implicit None
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "splitcas.fh"
 
       REAL*8 CMOO(*),SCR1(*),SCR2(*),SMAT(*),CMON(*),OCCN(*)
 

@@ -100,6 +100,11 @@
      &                         ChemPS2_Noise, Max_Canonical, MxDMRG,
      &                         Do3RDM
 #endif
+      use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
+     &                         lRootSplit,NumSplit,EnerSplit,
+     &                         PerSplit,PerCSpli,fOrdSplit,
+     &                         iDimBlockA,GapSpli
+
 
 
       Implicit None
@@ -107,7 +112,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "warnings.h"
-#include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"
 * Lucia-stuff:

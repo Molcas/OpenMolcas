@@ -22,7 +22,6 @@
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
 * ****************************************************************
 #include "rasdim.fh"
-#include "splitcas.fh"
 #include "general.fh"
 #include "output_ras.fh"
 #include "SysDef.fh"
