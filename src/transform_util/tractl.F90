@@ -44,11 +44,15 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 use Intgrl, only: NSYMZ,IAD2M,LUINTMZ,NORBZ,NOSHZ
+use trafo, only:      ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,        &
+     &                NOCP,NOCQ,NOCR,NOCS,         LRUPQ,LURPQ,LTUPQ,   &
+     &                NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,  &
+     &                LMOR2,LMOS2,       IAD13,ITP,ITQ,ITR,ITS
+
 
 implicit none
 integer(kind=iwp), intent(in) :: iPart
 #include "caspt2.fh"
-#include "trafo.fh"
 integer(kind=iwp) :: I, IERR, iiPart, IRC, ISYM, Keep(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, L2, L2M, LATRU, LATUS, lBuf, LIADUT, &
                      LMOP1, LMOQ1, LMOR1, LMOS1, LPQRS, LPQTU, LRS, LRSmx, LRUPQM, LTARU, LTAUS, LTUPQM, LTUPQX, LTURS, LTURSM, &
                      LURPQM, LW1, LW2, LW2B, LW3, LW3B, LW4, LW4B, LW5, LW6, MaxRS, MEMLFT, MEMT, MEMX, Mxx1, Mxx2, Mxx3, &
