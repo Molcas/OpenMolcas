@@ -1,0 +1,26 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+Module Trafo
+use Definitions, only: iwp
+Private iwp
+!
+!     CONTROL DATA FOR TRANSFORMATION SECTION
+!
+INTEGER(kind=iwp), Public ::    ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,IRRST,  &
+                                NOCP,NOCQ,NOCR,NOCS,NPQ,LADX,LRUPQ,LURPQ,LTUPQ,   &
+                                NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,  &
+                                LMOR2,LMOS2,IADOUT(3888),IAD13,ITP,ITQ,ITR,ITS
+      COMMON /INTTRA/ ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,IRRST,  &
+     &                NOCP,NOCQ,NOCR,NOCS,NPQ,LADX,LRUPQ,LURPQ,LTUPQ,   &
+     &                NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,  &
+     &                LMOR2,LMOS2,IADOUT,IAD13,ITP,ITQ,ITR,ITS
+
+ENd Module Trafo

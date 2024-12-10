@@ -31,6 +31,7 @@ set (sources
      exch.F90
      filler.F90
      get_nvnode.F90
+     intgrl.F90
      lenint.F90
      local_triang.F90
      mem_est.F90
@@ -56,6 +57,7 @@ set (sources
      tr2nsb.F90
      tr2sq.F90
      tractl.F90
+     trafo.F90
      transform_procedures.F90
      transp_MOs.F90
 )
@@ -63,6 +65,7 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      intgrl.F90
+     trafo.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
