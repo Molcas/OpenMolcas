@@ -14,15 +14,15 @@ set (sources
      charge_grid_it.F90
      drvmo.F90
      dumpm2msi.F90
-     gridexpandselect.F90
      grid_it.F90
      grid_it_globals.F90
+     gridexpandselect.F90
      input_grid_it.F90
      linenr.F90
      makepab.F90
+     moeval.F90
      moevaldel.F90
      moevalder.F90
-     moeval.F90
      mycoor.F90
      mygetkey.F90
      noblanks.F90

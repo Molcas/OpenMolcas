@@ -42,11 +42,11 @@ set (sources
      get_iscalar.F90
      get_iscalar_.F90
      get_lscalar.F90
-     get_mass_all.F90
      get_mass.F90
+     get_mass_all.F90
      get_nadc.F90
-     get_name_all.F90
      get_name.F90
+     get_name_all.F90
      get_name_full.F90
      get_natoms_all.F90
      get_natoms_full.F90

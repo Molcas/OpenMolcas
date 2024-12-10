@@ -21,10 +21,10 @@ set (sources
      datasol.F90
      dcdc.F90
      dcdr.F90
+     der_norm.F90
      derbet.F90
      derd.F90
      deriva.F90
-     der_norm.F90
      derphi.F90
      dmat_cpcm.F90
      drdc.F90
@@ -54,12 +54,12 @@ set (sources
      over.F90
      pcm_arrays.F90
      pcm_cav_grd.F90
-     pcmdef.F90
      pcm_driver.F90
      pcm_ef_grd.F90
+     pcm_init.F90
+     pcmdef.F90
      pcmgrd1.F90
      pcmhss.F90
-     pcm_init.F90
      pcmmmh.F90
      piat.F90
      polygen.F90

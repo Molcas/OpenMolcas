@@ -22,8 +22,8 @@ set (sources
      get_exfac.F90
      ksdft_info.F90
      libxc_parameters.F90
-     ofembed.F90
      ofe_print.F90
+     ofembed.F90
      vemb_exc_states.F90
      vt_lim.F90
      wrap_drvnq.F90
