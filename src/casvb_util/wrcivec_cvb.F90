@@ -16,13 +16,13 @@ subroutine wrcivec_cvb(detvec,fn,reord)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use jobiph_j, only:iadr15_j,nactel_j,ispin_j,lsym_j,nconf_j,nroots_j,iroot_j
 
 implicit none
 real(kind=wp), intent(inout) :: detvec(*)
 character(len=*), intent(in) :: fn
 logical(kind=iwp), intent(in) :: reord
 #include "rasdim.fh"
-#include "jobiph_j.fh"
 integer(kind=iwp) :: i, iDisk, iwr, j, k, lujob, ncix(8), ndet_j
 real(kind=wp) :: rdum(1)
 real(kind=wp), allocatable :: CI(:), CI2(:)

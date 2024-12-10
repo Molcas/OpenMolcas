@@ -15,11 +15,16 @@
 subroutine rdjobiph_cvb(fnjob)
 
 use Definitions, only: iwp, u6
+use jobiph_j, only:iadr15_j,nactel_j,ispin_j,nsym_j,lsym_j,nfro_j,          &
+                   nish_j,nash_j,ndel_j,nbas_j,name_j,nconf_j,              &
+                   header_j,title_j,potnuc_j,lroots_j,nroots_j,             &
+                   iroot_j,nrs1_j,nrs2_j,nrs3_j,nhole1_j,nelec3_j,          &
+                   ipt2_j,weight_j
+
 
 implicit none
 character(len=*), intent(in) :: fnjob
 #include "rasdim.fh"
-#include "jobiph_j.fh"
 integer(kind=iwp) :: idisk, ii, lujob
 logical(kind=iwp), parameter :: debug = .false.
 
