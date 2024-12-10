@@ -42,8 +42,8 @@
       use MCLR_Data, only: lDisp
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
-      use input_mclr, only: nDisp,Fail,Save,nSym,PT2,State_Sym,iMethod,
-     &                      rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+      use input_mclr, only: nDisp,Fail,lSave,nSym,PT2,State_Sym,iMethod,
+     &                      rIn_Ene,PotNuc,iBreak,Eps,nIter,
      &                      ERASSCF,kPrint,nCSF,nTPert,TimeDep,nAsh,nRs2
       use dmrginfo, only: DoDMRG,RGRAS2
       Implicit None
@@ -104,8 +104,8 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
-      SLine=' Solving CP(CAS)HF equations'
-      Call StatusLine(' MCLR:',SLine)
+      SLine='Solving CP(CAS)HF equations'
+      Call StatusLine('MCLR: ',SLine)
 *
 *----------------------------------------------------------------------*
 *     Initialize blank and header lines                                *
@@ -126,8 +126,8 @@
       fail=.false.
       Converged(:)=.true.
       lprint=.false.
-*     If (SAVE) CALL DANAME(50,'RESIDUALS')
-      If (SAVE) Then
+*     If (lSAVE) CALL DANAME(50,'RESIDUALS')
+      If (lSAVE) Then
          Write (LuWr,*) 'WfCtl: SAVE option not implemented'
          Call Abend()
       End If
@@ -199,9 +199,9 @@
         jDisp=List(2,iDisp)
 *
         Write (SLine,'(A,I3,A)')
-     &        ' Solving CP(CAS)HF equations for perturbation ',
+     &        'Solving CP(CAS)HF equations for perturbation ',
      &        iDisp,'.'
-        Call StatusLine(' MCLR:',SLine)
+        Call StatusLine('MCLR: ',SLine)
 *
 C     Do iSym=kksym,kkksym
 *
@@ -813,26 +813,26 @@ C         iDisp=iDisp+1
            res=Zero ! dummy initialize
            res_tmp=-One
            If (iBreak.eq.1) Then
-              If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
+              If (abs(delta).lt.abs(Eps**2*delta0)) Goto 300
            Else If (ibreak.eq.2) Then
               res=sqrt(resk**2+resci**2)
               if (doDMRG) then ! yma
 !                write(*,*)"resk**2, resci**2",resk**2,resci**2
                 res=sqrt(resk**2+resci**2)
                 ! And a bit loose in DMRG case
-                If (res.lt.abs(epsilon)) Goto 300
-                if (sqrt(resk**2).lt.abs(epsilon))then
+                If (res.lt.abs(Eps)) Goto 300
+                if (sqrt(resk**2).lt.abs(Eps))then
                   if (abs(res_tmp-sqrt(resci**2)).lt.1.0e-06)then
                     goto 300
                   end if
                 end if
                 res_tmp=sqrt(resci**2)
               else
-                If (res.lt.abs(epsilon)) Goto 300
+                If (res.lt.abs(Eps)) Goto 300
               end if
            Else
-              If (abs(delta).lt.abs(Epsilon**2*delta0).and.
-     &            res.lt.abs(epsilon))  Goto 300
+              If (abs(delta).lt.abs(Eps**2*delta0).and.
+     &            res.lt.abs(Eps))  Goto 300
            End If
            If (iter.ge.niter) goto 210
            If (lprint)

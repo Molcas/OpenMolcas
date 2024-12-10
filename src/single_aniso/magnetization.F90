@@ -58,7 +58,7 @@ real(kind=wp), intent(in) :: TempMagn(nTempMagn), eso(nss), dirX(nDir), dirY(nDi
 complex(kind=wp), intent(in) :: dipm(3,nss,nss), sm(3,nss,nss)
 integer(kind=iwp) :: I, IDIR, IH, IM, iT, iTemp, iTEnd, J, L, mem_local, nP
 real(kind=wp) :: DLTH, mv, sv
-character(len=99) :: STLNE1, STLNE2
+character(len=99) :: STLNE2
 real(kind=wp), allocatable :: dHW(:), dHX(:), dHY(:), dHZ(:), H(:), MAV(:,:), MT(:,:,:), MT_TMP(:,:), MVEC(:,:,:,:), SAV(:,:), &
                               ST(:,:,:), ST_TMP(:,:), STDEV(:), SVEC(:,:,:,:), WM(:), ZT(:,:), ZT_TMP(:)
 real(kind=wp), external :: dev
@@ -256,9 +256,8 @@ do iH=1,nH
   !/// opening the loop over different directions of the magnetic field
   do iM=1,NDIRTOT
     ! Entry into monitor: Status line
-    write(STLNE1,'(A)') 'SINGLE_ANISO:  powder magnetization:'
-    write(STLNE2,'(A,I4,A,I4,A,I4,A,I4)') ' Field: ',IH,' from ',nH,' at direction ',IM,' from ',NDIRTOT
-    call StatusLine(trim(STLNE1),trim(STLNE2))
+    write(STLNE2,'(A,I4,A,I4,A,I4,A,I4)') 'Field: ',IH,' from ',nH,' at direction ',IM,' from ',NDIRTOT
+    call StatusLine('SINGLE_ANISO: powder magnetization: ',STLNE2)
     ! actual calculation of the MT and ST, ZT
     call MAGN(NSS,NM,dHX(iM),dHY(iM),dHZ(iM),H(iH),ESO,zJ,THRS,DIPM,SM,nTempMagn,TempMagn,smagn,WM,ZT_TMP,ST_TMP,MT_TMP, &
               m_paranoid,DBG)

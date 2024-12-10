@@ -138,7 +138,7 @@ if (MyRank == 0) then
   nLine = len(Line)
   jLast = iCLast(Line,nLine)
   Line = TkLine(1:iLast)//Line(1:jLast)
-  call StatusLine(' espf:',' Calling Tinker')
+  call StatusLine('espf: ','Calling Tinker')
   RC = 0
   call Systemf(Line(1:iLast+jLast),RC)
 end if

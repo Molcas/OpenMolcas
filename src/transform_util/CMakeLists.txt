@@ -14,17 +14,17 @@ set (sources
      cho_gene.F90
      cho_motra.F90
      cho_motra_inner.F90
+     cho_tr_drv.F90
+     cho_tra.F90
+     cho_traa.F90
+     cho_tractl.F90
+     cho_tras.F90
+     cho_twoel.F90
      chomp2_gene.F90
      chomp2_traa.F90
      chomp2_tractl.F90
      chomp2_tras.F90
      chomp2_twoel.F90
-     cho_traa.F90
-     cho_tractl.F90
-     cho_tra.F90
-     cho_tras.F90
-     cho_tr_drv.F90
-     cho_twoel.F90
      coul.F90
      def_subblocke.F90
      def_tcvx.F90
@@ -47,9 +47,9 @@ set (sources
      prodsa_2t.F90
      prodss_1.F90
      put_tra_comm.F90
+     rbuf_tra2.F90
      rbuff_tra2.F90
      rbufo_tra2.F90
-     rbuf_tra2.F90
      rdint2.F90
      tr2nsa1.F90
      tr2nsa2.F90

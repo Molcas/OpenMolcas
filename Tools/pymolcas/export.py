@@ -69,13 +69,25 @@ def find_interpreter():
   exe = sys.executable
   if exe is None:
     return None
-  # If python3 or python2 point to the current executable, use those instead
-  p3 = subprocess.check_output(['/usr/bin/env','python3','-c','import sys; print(sys.executable)']).decode().strip()
-  if os.path.realpath(p3) == os.path.realpath(exe):
-    return '/usr/bin/env python3'
-  p2 = subprocess.check_output(['/usr/bin/env','python2','-c','import sys; print(sys.executable)']).decode().strip()
-  if os.path.realpath(p2) == os.path.realpath(exe):
-    return '/usr/bin/env python2'
+  # If python, python3 or python2 point to the current executable, use those instead
+  try:
+    p = subprocess.check_output(['/usr/bin/env','python','-c','import sys; print(sys.executable)']).decode().strip()
+    if os.path.realpath(p2) == os.path.realpath(exe):
+      return '/usr/bin/env python'
+  except:
+    pass
+  try:
+    p3 = subprocess.check_output(['/usr/bin/env','python3','-c','import sys; print(sys.executable)']).decode().strip()
+    if os.path.realpath(p3) == os.path.realpath(exe):
+      return '/usr/bin/env python3'
+  except:
+    pass
+  try:
+    p2 = subprocess.check_output(['/usr/bin/env','python2','-c','import sys; print(sys.executable)']).decode().strip()
+    if os.path.realpath(p2) == os.path.realpath(exe):
+      return '/usr/bin/env python2'
+  except:
+    pass
   return exe
 
 if (compress_and_b64):

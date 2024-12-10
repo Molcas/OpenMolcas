@@ -16,8 +16,8 @@ set (sources
      cdjoelas.F90
      dampf.F90
      genint.F90
-     level_common.F90
      level.F90
+     level_common.F90
      level_rdinp.F90
      level_spline.F90
      levqad.F90

@@ -12,7 +12,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas
 *.Definition of c and sigma
-      use cands, only: ISSPC, ISSM
+      use CandS, only: ISSPC, ISSM
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!

@@ -135,7 +135,7 @@ end if
 !***********************************************************************
 !                                                                      *
 
-call StatusLine(' Seward:',' Computing 3-center RI integrals')
+call StatusLine('Seward: ','Computing 3-center RI integrals')
 
 ! Handle both the valence and the auxiliary basis set
 

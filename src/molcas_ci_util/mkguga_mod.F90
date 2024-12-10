@@ -31,7 +31,6 @@ subroutine MKGUGA(SGS,CIS)
 
   use gugx, only: CIStruct, SGStruct
 
-  implicit none
   type(SGStruct), target, intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
   integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
@@ -114,8 +113,8 @@ contains
 
   subroutine MKISM_MCLR()
 
-    use input_mclr, only: NTASH,NSYM,NRS1,NRS2,NRS3
-    Implicit None
+    use input_mclr, only: NRS1, NRS2, NRS3, NSYM, NTASH
+
     integer(kind=iwp) :: iBas, iOrb, iSym
 
     SGS%NLEV = ntASh

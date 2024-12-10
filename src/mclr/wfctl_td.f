@@ -29,8 +29,8 @@
       use MCLR_Data, only: lDisp
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
-      use input_mclr, only: nDisp,Fail,Save,nSym,PT2,State_Sym,iMethod,
-     &                      Omega,rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+      use input_mclr, only: nDisp,Fail,lSave,nSym,PT2,State_Sym,iMethod,
+     &                      Omega,rIn_Ene,PotNuc,iBreak,Eps,nIter,
      &                      Debug,ERASSCF,kPrint,lCalc,nCSF,nTPert
       Implicit None
 *
@@ -99,7 +99,7 @@
       Converged(:)=.true.
       lprint=.false.
       LU_50 = 50
-      If (SAVE) CALL DANAME(LU_50,'RESIDUALS')
+      If (lSAVE) CALL DANAME(LU_50,'RESIDUALS')
       If (iAnd(kprint,2).eq.2) lprint=.true.
       iDisp=0
       kksym=1
@@ -700,13 +700,13 @@ c
            res=0.0D0 ! dummy initialize
            If (iBreak.eq.1) Then
 *             This is the actual breaking!
-              If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
+              If (abs(delta).lt.abs(Eps**2*delta0)) Goto 300
            Else If (ibreak.eq.2) Then
               res=sqrt(resk**2+resci**2)
-              If (res.lt.abs(epsilon)) Goto 300
+              If (res.lt.abs(Eps)) Goto 300
            Else
-              If (abs(delta).lt.abs(Epsilon**2*delta0).and.
-     &            res.lt.abs(epsilon))  Goto 300
+              If (abs(delta).lt.abs(Eps**2*delta0).and.
+     &            res.lt.abs(Eps))  Goto 300
            End If
 c
 c This breaks the PCG iterations by going to 210

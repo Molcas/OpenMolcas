@@ -22,6 +22,7 @@ set (sources
      cipro.F90
      complete_ext_loop.F90
      davdiag.F90
+     dbl_upwalk.F90
      dblcloop.F90
      dblcloop_g.F90
      dblextloop.F90
@@ -32,7 +33,6 @@ set (sources
      dblploop4.F90
      dblploop5.F90
      dblplpval.F90
-     dbl_upwalk.F90
      ddsstt.F90
      denmat.F90
      drtrel.F90

@@ -82,7 +82,7 @@ logical(kind=iwp), external :: Rsv_Tsk
 !                                                                      *
 ! PROLOGUE
 
-call StatusLine(' McKinley:',' Computing 2-electron 2nd order derivatives')
+call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
 
 ipDij = 0
 ipDij2 = 0

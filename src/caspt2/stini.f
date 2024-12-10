@@ -27,7 +27,7 @@ C     indices
 
       Write(STLNE2,'(A,I0)')
      &                'Compute H0 matrices for state ',MSTATE(JSTATE)
-      Call StatusLine('CASPT2: ',trim(STLNE2))
+      Call StatusLine('CASPT2: ',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I4)')

@@ -69,7 +69,7 @@ contains
     lambda = zero
     otxc = ""
 
-    call StatusLine("MCPDFT:","Reading in input")
+    call StatusLine("MCPDFT: ","Reading in input")
 
     call spoolinp(lu_input)
     rewind(lu_input)

@@ -62,7 +62,7 @@
       Real(kind=wp) :: dum1, dum2, dum3
       integer(kind=iwp) :: iPrLev, iRC, state
 
-      Call StatusLine('MCPDFT:',' Just started.')
+      Call StatusLine('MCPDFT: ','Just started.')
       IRETURN=_RC_ALL_IS_WELL_
 
 ! Local print level in this routine:
@@ -213,7 +213,7 @@
       call mma_deallocate(ref_e)
 
 
-      Call StatusLine('MCPDFT:','Finished.')
+      Call StatusLine('MCPDFT: ','Finished.')
       If (IPRLEV.GE.2) Write(u6,*)
 
       Call Timing(dum1,dum2,Ebel_3,dum3)

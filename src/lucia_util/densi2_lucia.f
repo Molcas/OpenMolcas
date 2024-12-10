@@ -15,7 +15,7 @@
       USE GLBBAS, only: VEC3
       use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use strbas
-      use cands, only: ICSM,ISSM,ISSPC
+      use CandS, only: ICSM,ISSM,ISSPC
 *
 * Density matrices between L and R
 *

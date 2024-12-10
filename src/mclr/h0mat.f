@@ -17,9 +17,9 @@
       use MCLR_Data, only: NAELCI, NBELCI
       use MCLR_Data, only: NCNASM
 * Obtain preconditioner space corresponding to internal space INTSPC
-* Obtain Hamiltonian matrices correponding to this subspacw
+* Obtain Hamiltonian matrices corresponding to this subspace
 *
-* Construct Preconditioner blocks of Hamilton matrix
+* Construct Preconditioner blocks of Hamiltonian matrix
 *
 * ======
 *.Output

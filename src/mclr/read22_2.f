@@ -27,7 +27,7 @@
       use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nB
       use MCLR_Data, only: LuQDat
       use input_mclr, only: TwoStep,StepType,nSym,NewCho,iMethod,
-     &                      iCASSCF,rIn_Ene,Debug,PotNuc,iAddressQDat,
+     &                      rIn_Ene,Debug,PotNuc,iAddressQDat,
      &                      LuAChoVec,LuIChoVec,nAsh,nBas,nIsh,nOrb
       Implicit None
       Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2),
@@ -131,7 +131,7 @@
 *                       Coulomb term: F  =2(ij|kl)d   i<j
 *                                      kl          ij
 *
-                        If (iMethod.eq.iCASSCF) Then
+                        If (iMethod.eq.2) Then
 *
                            If (iS.eq.jS) Then
                               If (((iB.gt.nIsh(is)).and.(nAsh(iS).ne.0))
@@ -168,7 +168,7 @@
 *    Construct Q matrix: Q = sum(jkl)(pj|kl)d
 *                         pi                 ijkl
 
-      If (iMethod.eq.iCASSCF) Then
+      If (iMethod.eq.2) Then
 
          Call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
 *
@@ -251,7 +251,7 @@
 *                 Exchange term: F  =-1/2(ij|kl)d
 *                                 ik             jl
 *
-                  If (iMethod.eq.iCASSCF) Then
+                  If (iMethod.eq.2) Then
                      If (jS.eq.lS) Then
                         If (((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0)).and.
      &                      ((lB.gt.nIsh(ls)).and.(nAsh(lS).ne.0))
@@ -312,7 +312,7 @@
 **      Form active CMO and density
 *
         nAct=0
-        If (iMethod.eq.iCASSCF) Then
+        If (iMethod.eq.2) Then
           na2=0
           nG2=0
           Do iSym=1,nSym
@@ -467,7 +467,7 @@
      &      Call DYaX(nOrb(iS)*nIsh(is),2.0d0,
      &                FockI(ipCM(iS)),1,
      &                Fock (ipCM(iS)),1)
-         If (iMethod.eq.iCASSCF) Then
+         If (iMethod.eq.2) Then
             If (nIsh(iS).gt.0)
      &         Call DaXpY_(nOrb(iS)*nIsh(is),2.0d0,
      &                    FockA(ipCM(iS)),1,

@@ -13,7 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
       use MCLR_Data, only: XISPSM
-      use cands, only: ICSM,ISSM
+      use CandS, only: ICSM,ISSM
       use input_mclr, only: nRoots, nCSF, Weight
       use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None

@@ -142,8 +142,8 @@ The :kword:`KSDFT` is the only required keyword.
 
 
 :kword:`EXPM`
-  The :kword:`EXPM` keyowrd allows one to use on-top functionals with parameters that are defined by users. 
-  The :kword:`EXPM` keyword should be followed by the filename of the external-parameter file in the scratch directory. 
+  The :kword:`EXPM` keyword allows one to use on-top functionals with parameters that are defined by users. 
+  It should be followed by the filename of the external-parameter file in the scratch directory. 
   The external parameters in the external-parameter file has the following format:
   ::
 
@@ -153,7 +153,6 @@ The :kword:`KSDFT` is the only required keyword.
      Parameters_In_Function2
      ...
 
-
   where ``N_Functions`` is the number of Libxc functions that are called when a functional is invoked.
   For example, M06-L requires two Libxc functions, one for the exchange functional and the other for the correlation functional.
   Therefore, ``N_Functions`` is ``2`` if the on-top functional to be used has the translated M06-L form 
@@ -162,8 +161,8 @@ The :kword:`KSDFT` is the only required keyword.
   For M06-L, these numbers are ``18`` and ``28``, respectively.
   ``Parameters_In_Function1`` is a list of parameter values for the first Libxc function, and so on.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="EXPM" APPEAR="Libxc EXternal ParaMeter" KIND="STRING" > LEVEL="BASIC"
-              %Keyword: EXPM <basic>
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="EXPM" APPEAR="Libxc EXternal ParaMeter" KIND="STRING" LEVEL="ADVANCED">
+              %Keyword: EXPM <advanced>
               <HELP>
               For changing Libxc functional parameters.
               The file for external parameters follows.
@@ -322,8 +321,8 @@ The :kword:`KSDFT` is the only required keyword.
   or MS-PDFT wave function. Defaults to the highest root or root defined by the
   same keyword in the :program:`RASSCF` module.
 
-  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="RLXROOT" APPEAR="Relaxed root" KIND="INT" LEVEL="ADVANCED" MIN_VALUE="1">
-              %%Keyword: RLXRoot <advanced>
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="RLXROOT" APPEAR="Relaxed root" KIND="INT" MIN_VALUE="1" LEVEL="BASIC">
+              %%Keyword: RLXRoot <basic>
               <HELP>
               Which root to use in a geometry optimization of a SA-MC-PDFT or
               MS-PDFT wave function. Default: root defined by RLXROOT in the
@@ -430,17 +429,18 @@ The following example shows the :program:`MCPDFT` part of input to run MC23 with
      LAMB   = 0.2952
      EXPM   = MC23_params.txt
 
-The file :file:`MC23_params.txt` is in the same place as files like :file:`JOBIPH`, and it has the following content.::
+.. compound::
+
+  The file :file:`MC23_params.txt` is in the same place as files like :file:`JOBIPH`, and it has the following content.::
 
     2
     18 27
     3.352197e+00 6.332929e-01 -9.469553e-01 2.030835e-01 2.503819e+00 8.085354e-01 -3.619144e+00 -5.572321e-01 -4.506606e+00 9.614774e-01 6.977048e+00 -1.309337e+00 -2.426371e+00 -7.896540e-03 1.364510e-02 -1.714252e-06 -4.698672e-05 0.0
     0.06 0.0031 0.00515088 0.00304966 2.427648e+00 3.707473e+00 -7.943377e+00 -2.521466e+00 2.658691e+00 2.932276e+00 -8.832841e-01 -1.895247e+00 -2.899644e+00 -5.068570e-01 -2.712838e+00 9.416102e-02 -3.485860e-03 -5.811240e-04 6.668814e-04 0.0 2.669169e-01 -7.563289e-02 7.036292e-02 3.493904e-04 6.360837e-04 0.0 1e-10
 
-where ``2`` means there are two Libxc functions invoked by for M06-L, 
-``18`` means there are 18 parameters for the first Libxc function (M06-L exchange functional),
-``27`` means there are 27 parameters for the second Libxc function (M06-L correlation functional).
-The third line are 18 values for the first function, and the last line are the 27 values for the second functional.
-
+  where ``2`` means there are two Libxc functions invoked by for M06-L, 
+  ``18`` means there are 18 parameters for the first Libxc function (M06-L exchange functional),
+  ``27`` means there are 27 parameters for the second Libxc function (M06-L correlation functional).
+  The third line are 18 values for the first function, and the last line are the 27 values for the second functional.
 
 .. xmldoc:: </MODULE>

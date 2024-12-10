@@ -31,7 +31,7 @@
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: MS2P
       use input_mclr, only: nDisp,Fail,State_Sym,iMethod,
-     &                      rIn_Ene,PotNuc,iBreak,Epsilon,nIter,
+     &                      rIn_Ene,PotNuc,iBreak,Eps,nIter,
      &                      Debug,ERASSCF,kPrint,nCSF
       Implicit None
       Integer iKapDisp(nDisp),isigDisp(nDisp)
@@ -446,13 +446,13 @@
 *
            res=Zero ! dummu initialize
            If (iBreak.eq.1) Then
-              If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
+              If (abs(delta).lt.abs(Eps**2*delta0)) Goto 300
            Else If (ibreak.eq.2) Then
               res=sqrt(resk**2+resci**2)
-              If (res.lt.abs(epsilon)) Goto 300
+              If (res.lt.abs(Eps)) Goto 300
            Else
-              If (abs(delta).lt.abs(Epsilon**2*delta0).and.
-     &            res.lt.abs(epsilon))  Goto 300
+              If (abs(delta).lt.abs(Eps**2*delta0).and.
+     &            res.lt.abs(Eps))  Goto 300
            End If
            If (iter.ge.niter) goto 210
            If (lprint)

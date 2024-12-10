@@ -15,7 +15,7 @@
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF
-      use cands, only: ICSM,ISSM
+      use CandS, only: ICSM,ISSM
       use input_mclr, only: TimeDep, nCSF
       use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None

@@ -106,12 +106,12 @@ call Get_Temp(Label,RepNucXX,1)
 RepNuc_RF = RepNuc-RepNucXX(1)
 
 call mma_allocate(h1_RF,nh1+4,Label='h1_RF')
-h1_RF(:)=Zero
 call mma_allocate(h1_XX,nh1,Label='h1_XX')
 
 Label = 'h1    XX'
 call Get_Temp(Label,h1_XX,nh1)
 h1_RF(1:nh1) = h1(1:nh1)-h1_XX(1:nh1)
+h1_RF(nh1+1:) = Zero
 call mma_deallocate(h1_XX)
 
 h1_RF(nh1+3) = RepNuc_RF

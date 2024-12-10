@@ -88,7 +88,7 @@ end if
 call Get_iScalar('System BitSwitch',iDFT)
 if (btest(iDFT,6)) then
 
-  call StatusLine(' Alaska:',' Computing DFT gradients')
+  call StatusLine('Alaska: ','Computing DFT gradients')
 
   call Get_cArray('DFT functional',KSDFT,80)
   ExFac = Zero ! Set to proper value at retrun!

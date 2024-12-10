@@ -73,7 +73,7 @@
       integer nisht, nasht, ndiff
       integer, external :: isStructure
 
-      Call StatusLine('MCPDFT:','Processing Input')
+      Call StatusLine('MCPDFT: ','Processing Input')
 
       IPRLEV = TERSE
 

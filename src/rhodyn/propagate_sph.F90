@@ -38,7 +38,7 @@ real(kind=wp), allocatable :: dgl_csf(:)
 complex(kind=wp), allocatable :: density_csf(:,:), rho_init(:,:,:), rho_sph_t(:,:,:), rho_tmp(:,:), tmp_back(:,:)
 !procedure(pulse_func) :: pulse
 
-call StatusLine('RhoDyn:','Propagation in Spherical Tensor basis starts')
+call StatusLine('RhoDyn: ','Propagation in Spherical Tensor basis starts')
 
 if (ipglob > 2) call print_c_matrix(densityt,Nstate,'Initial density in SO basis')
 ! parameters of spherical decomposition
@@ -173,7 +173,7 @@ call pop(time,ii,dgl_csf,density_csf)
 
 do Ntime=1,(Nstep-1)
   write(sline,'(f10.3)') time*auToFs
-  call StatusLine('RhoDyn: current time ',trim(sline))
+  call StatusLine('RhoDyn: current time ',sline)
   call Timing(dum(1),dum(2),timer(1),dum(3))
   if (flag_pulse) then
     ! update hamiltonian with dipole term

@@ -256,7 +256,7 @@ C       Call EQCTL2(ICONV)
 
          Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ',
      &                               MSTATE(JSTATE)
-         Call StatusLine('CASPT2: ',TRIM(STLNE2))
+         Call StatusLine('CASPT2: ',STLNE2)
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():

@@ -75,7 +75,7 @@ logical(kind=iwp), external :: Rsv_GTList
 !***********************************************************************
 !                                                                      *
 SLine = 'Computing 2-electron integrals'
-call StatusLine(' SCF:',SLine)
+call StatusLine('Seward: ',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -220,7 +220,7 @@ do
 
     if (ST_Eff >= PP_Count) then
       write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff,'% done so far.'
-      call StatusLine(' Seward:',SLine)
+      call StatusLine('Seward: ',SLine)
       PP_Count = PP_Count+PP_Eff_delta
     end if
     !                                                                  *

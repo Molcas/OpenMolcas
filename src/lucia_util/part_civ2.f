@@ -191,7 +191,7 @@ c      END IF
       ELSE IF(ICOMP.EQ.0.AND.INCLUDE.EQ.0.AND.NBLOCK.EQ.0) THEN
          WRITE(6,*)
      &        ' Not enough space to include a single Block'
-         WRITE(6,*) ' Since I cannot procede I will stop '
+         WRITE(6,*) ' Since I cannot proceed I will stop '
          WRITE(6,*) ' Insufficient space detected in PART_CIV'
          WRITE(6,*) ' Alter GAS space or raise Buffer from ', MXLNG
 *         STOP 'Error in PART_CIV2'

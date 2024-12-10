@@ -15,7 +15,7 @@
       use Constants, only: Zero, One
       use MCLR_Data, only: nNA, n2Dens,n1Dens
       use MCLR_Data, only: XISPSM
-      use cands, only: ICSM,ISSM
+      use CandS, only: ICSM,ISSM
       use input_mclr, only: nCSF
       Implicit None
       Real*8 LS(*),RS(*),rP1(nna,nna,nna,nna),

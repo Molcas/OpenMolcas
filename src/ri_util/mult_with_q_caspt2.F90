@@ -22,10 +22,10 @@ subroutine Mult_with_Q_CASPT2(nBas_aux,nBas,nIrrep,SubAux)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Cholesky, only: nSym, NumCho
+use pso_stuff, only: A_PT2, LuGamma2
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
-use pso_stuff, only: A_PT2,LuGamma2
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -33,9 +33,9 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
 logical(kind=iwp), intent(in) :: SubAux
-integer(kind=iwp) :: i, iAdrQ, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jSym, jVec, kSym, kVec, l_A_ht, l_A_t, l_B_t, &
-                     l_Q, lRealName, Lu_Q, LUGAMMA, LUAPT2, lVec, MaxMem, nBas2, nBasTri, nLR, nLRb(8), nseq, NumAux, &
-                     NumCV, NumVecJ, NumVecK, nVec
+integer(kind=iwp) :: i, iAdrQ, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jSym, jVec, kSym, kVec, l_A_ht, l_A_t, l_B_t, l_Q, &
+                     lRealName, Lu_Q, LUGAMMA, LUAPT2, lVec, MaxMem, nBas2, nBasTri, nLR, nLRb(8), nseq, NumAux, NumCV, NumVecJ, &
+                     NumVecK, nVec
 real(kind=wp) :: aaa, Fac, TotCPU0, TotCPU1, TotWall0, TotWall1
 logical(kind=iwp) :: is_error
 character(len=4096) :: RealName
@@ -213,8 +213,8 @@ do iSym=1,nSym
     end if
   end do
 
-! Leave LuGamma2 open until the end. Closed by CloseP
-! close(LuGAMMA2)
+  ! Leave LuGamma2 open until the end. Closed by CloseP
+  !close(LuGAMMA2)
 
   call mma_deallocate(B_t)
   call mma_deallocate(QVec)

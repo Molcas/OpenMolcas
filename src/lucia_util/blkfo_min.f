@@ -16,7 +16,7 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      deallocate_Local_Arrays
-      use cands, only: ISSPC
+      use CandS, only: ISSPC
 *
 * Number of blocks and length of each block for CI expansion
 *

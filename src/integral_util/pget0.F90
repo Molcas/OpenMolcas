@@ -27,12 +27,12 @@ subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,Me
 !***********************************************************************
 
 use setup, only: nSOs
-use pso_stuff, only: Bin, Case_2C, Case_3C, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, lBin, lPSO, lSA, LuGamma, nDens, &
-                     nGamma, nNP, nV_k, nZ_p_k, SO2CI, U_K, V_K, Z_P_K
-use pso_stuff, only: CASPT2_On,LuGamma_PT2,iOffAO,nBasT,nOcc,nFro,WRK1,WRK2,CMOPT2,ReadBPT2
+use pso_stuff, only: Bin, Case_2C, Case_3C, CASPT2_On, CMOPT2, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, iOffAO, lBin, &
+                     lPSO, lSA, LuGamma, LuGamma_PT2, nBasT, nDens, nFro, nGamma, nNP, nOcc, nV_k, nZ_p_k, ReadBPT2, SO2CI, U_K, &
+                     V_K, WRK1, WRK2, Z_P_K
 use iSD_data, only: iSO2Sh
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_RI, Cholesky
+use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
 use EtWas, only: CoulFac, ExFac, nAsh, nCRED, nScr1, nScr2
 use mspdft_grad, only: DoGradMSPD
@@ -50,15 +50,14 @@ integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA
 !                                                                      *
 PMax = One
 nSA = 1
-If (CASPT2_On) Then
-   If (Cholesky .or. Do_RI) Then
-      If (ReadBPT2) call DoReadBPT2(iAO,iAOst,iCmp,kBas,lBas)
-   Else
-      call CASPT2_BTAMP(LuGAMMA_PT2,iShell_A,iShell_B,iShell_C,iShell_D,n1,n2,n3,n4, &
-                        iOffAO,nBasT,nOcc(1),CMOPT2(1+nBasT*nFro(1)),WRK1,           &
-                        WRK2,G_Toc)
-   End If
-End If
+if (CASPT2_On) then
+  if (Cholesky .or. Do_RI) then
+    if (ReadBPT2) call DoReadBPT2(iAO,iAOst,iCmp,kBas,lBas)
+  else
+    call CASPT2_BTAMP(LuGAMMA_PT2,iShell_A,iShell_B,iShell_C,iShell_D,n1,n2,n3,n4,iOffAO,nBasT,nOcc(1),CMOPT2(1+nBasT*nFro(1)), &
+                      WRK1,WRK2,G_Toc)
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -223,40 +222,3 @@ call RecPrt('PSO in PGet0',' ',PSO,ijkl,nPSO)
 !                                                                      *
 
 end subroutine PGet0
-
-subroutine DoReadBPT2(iAOV,iAOst,iCmpa,kBasn,lBasn)
-! Read back-transformed density elements of the Kth and Lth shells
-! All elements of the Jth shell (auxiliary functions) are read
-! Only for C1 symmetry
-
-  use Constants, only: Zero
-  use Index_Functions, only: iTri
-  use SOAO_Info, only: iAOtSO
-  use pso_stuff, only: B_PT2, LuGamma2, nBasA, ReadBPT2
-  use Definitions, only: iwp
-  Implicit None
-  integer(kind=iwp), Intent(In) :: iAOV(4),iAOSt(4),iCmpa(4),kBasn,lBasn
-
-  integer(kind=iwp) :: i3, i4, kAOk, kSO, kSO0, kSOk, lAOl, loc, lSO, lSO0, lSOl
-
-  B_PT2(:,:,:) = Zero
-
-  lSO0 = iAOtSO(iAOV(4)+1,0)+iAOst(4)-1
-  kSO0 = iAOtSO(iAOV(3)+1,0)+iAOst(3)-1
-  do i4=1,iCmpa(4)
-    lSO = iAOtSO(iAOV(4)+i4,0)+iAOst(4)
-    do i3=1,iCmpa(3)
-      kSO = iAOtSO(iAOV(3)+i3,0)+iAOst(3)
-      do lAOl=0,lBasn-1
-        lSOl = lSO+lAOl
-        do kAOk=0,kBasn-1
-          kSOk = kSO+kAOk
-          loc = iTri(kSOk,lSOl)
-          read(unit=LuGAMMA2,rec=loc) B_PT2(1:nBasA,kSOk-kSO0,lSOl-lSO0)
-        end do
-      end do
-    end do
-  end do
-  ReadBPT2=.False.
-
-end subroutine DoReadBPT2

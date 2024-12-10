@@ -17,14 +17,14 @@ set (sources
      adv_g2.F90
      autosegmentation.F90
      calc_addg.F90
-     calcaddpp.F90
      calc_addsg.F90
      calc_bc.F90
+     calcaddpp.F90
      chcc.F90
      chcc_global.F90
      chck_0.F90
-     chck_aa.F90
      chck_a.F90
+     chck_aa.F90
      chck_b.F90
      chck_energ.F90
      chck_goo.F90
@@ -39,8 +39,8 @@ set (sources
      chck_mkj.F90
      chck_mkk.F90
      chck_q.F90
-     chck_t17g.F90
      chck_t1.F90
+     chck_t17g.F90
      chck_t1g.F90
      chck_t21.F90
      chck_t21od.F90
@@ -54,8 +54,8 @@ set (sources
      chck_vx.F90
      chck_w1.F90
      chck_w2p.F90
-     chck_w31.F90
      chck_w3.F90
+     chck_w31.F90
      chck_w4.F90
      chck_x.F90
      chck_xred.F90
@@ -78,8 +78,8 @@ set (sources
      defw4cdba.F90
      defw4dcab.F90
      defw4dcba.F90
-     defw4y2.F90
      defw4y.F90
+     defw4y2.F90
      dfh_hvv1.F90
      distmemchck.F90
      distmemo2v4.F90
@@ -105,20 +105,20 @@ set (sources
      ext_l1.F90
      ext_l2s.F90
      ext_l2u.F90
-     extractm.F90
-     extt1.F90
      ext_w3.F90
      ext_w4.F90
      ext_w4hlp1.F90
      ext_w4hlp2.F90
      ext_w4hlp3.F90
+     extractm.F90
+     extt1.F90
      exv_x41.F90
      exv_x42.F90
      exv_x43.F90
      findnexteffseg.F90
+     frankie.F90
      frankie_drv.F90
      frankie_drv_fake.F90
-     frankie.F90
      getchckdata.F90
      getchv.F90
      getchvhlp1.F90
@@ -139,19 +139,19 @@ set (sources
      joinlvec.F90
      makechckdata.F90
      maket2m.F90
+     maket2p.F90
      maket2pd.F90
      maket2pdhlp.F90
-     maket2p.F90
      maket2phlp1.F90
      maket2phlp2.F90
      maket2phlp3.F90
      maket2pthlp1.F90
      maket2pthlp2.F90
      maket2pthlp3.F90
+     makeww.F90
      makewwd.F90
      makewwdhlp1.F90
      makewwdhlp2.F90
-     makeww.F90
      makewwhlp1.F90
      makewwhlp2.F90
      makewwhlp3.F90
@@ -175,6 +175,7 @@ set (sources
      map4_4123.F90
      map4_4312.F90
      mc0c2a3b.F90
+     mk_t1t.F90
      mkd_q46.F90
      mke_y3.F90
      mki_q47.F90
@@ -189,10 +190,8 @@ set (sources
      mkq3.F90
      mkq4.F90
      mkt1t2.F90
-     mk_t1t.F90
      mkt20p.F90
      mkt20u.F90
-     mktau_chcc.F90
      mkt_c136od.F90
      mkt_c245od.F90
      mkt_c78d.F90
@@ -203,6 +202,7 @@ set (sources
      mkt_red.F90
      mkt_t15.F90
      mkt_t17.F90
+     mktau_chcc.F90
      mkv_a1.F90
      mkv_a4.F90
      mkv_goo3.F90
@@ -213,8 +213,8 @@ set (sources
      mkv_q22.F90
      mkv_t18.F90
      mo_transp.F90
-     o2v4ctl.F90
      o2v4.F90
+     o2v4ctl.F90
      o3v3chol.F90
      o3v3ctl.F90
      o3v3jk.F90
