@@ -350,7 +350,7 @@ Contains
       use GLBBAS, only: INT1, INT1O, SCR => CI_VEC, VEC3
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, SIGMA_ON_DISK
-      use cands, only: ICSM,ISSM
+      use CandS, only: ICSM,ISSM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "cicisp.fh"
@@ -365,7 +365,7 @@ Contains
       Integer, Allocatable:: lVec(:)
       Integer nSD
 !
-! Set ICSM and ISSM (from Module cands to the correct symmetry for this call
+! Set ICSM and ISSM (from module CandS to the correct symmetry for this call
 !
       ICSM  = IREFSM_CASVB
       ISSM  = IREFSM_CASVB
@@ -403,7 +403,7 @@ Contains
 !
       SIGMA_ON_DISK = .TRUE.
 !
-! Set ICSM and ISSM (from cands.fh) back to IREFSM
+! Set ICSM and ISSM (from CandS) back to IREFSM
 !
       ICSM  = IREFSM
       ISSM  = IREFSM

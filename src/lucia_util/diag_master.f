@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE diag_master()
       use GLBBAS, only: INT1, INT1O
-      use cands, only: ISSM
+      use CandS, only: ISSM
 *
 *  To do in this subroutine:
 *

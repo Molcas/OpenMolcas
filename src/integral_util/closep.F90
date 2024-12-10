@@ -20,8 +20,8 @@ subroutine CloseP()
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use pso_stuff, only: Bin, Case_MP2, CMO, D0, DS, DSVar, DVar, G1, G2, G_Toc, Gamma_On, lPSO, LuGam, LuGamma, SO2cI
-use pso_stuff, only: iOffAO,CMOPT2,SSDM,WRK1,WRK2,LuGamma_PT2,LuGamma2,B_PT2
+use pso_stuff, only: B_PT2, Bin, Case_MP2, CMO, CMOPT2, D0, DS, DSVar, DVar, G1, G2, G_Toc, Gamma_On, iOffAO, lPSO, LuGam, &
+                     LuGamma, LuGamma2, LuGamma_PT2, SO2cI, SSDM, WRK1, WRK2
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
@@ -31,19 +31,19 @@ character(len=8) :: Method_chk
 
 call Get_cArray('Relax Method',Method_chk,8)
 if (Method_chk == 'CASPT2  ') then
-  If (Allocated(iOffAO)) Then
-!    Conventional ERIs
-     call mma_deallocate(iOffAO)
-     close(LuGamma_PT2)
-     call mma_deallocate(CMOPT2)
-     If (Allocated(SSDM)) call mma_deallocate(SSDM)
-     call mma_deallocate(WRK1)
-     call mma_deallocate(WRK2)
+  if (allocated(iOffAO)) then
+    ! Conventional ERIs
+    call mma_deallocate(iOffAO)
+    close(LuGamma_PT2)
+    call mma_deallocate(CMOPT2)
+    if (allocated(SSDM)) call mma_deallocate(SSDM)
+    call mma_deallocate(WRK1)
+    call mma_deallocate(WRK2)
   else
-!    RI/Cholesky ERIs
-     call mma_deallocate(B_PT2)
-     close(LuGamma2)
-  endif
+    ! RI/Cholesky ERIs
+    call mma_deallocate(B_PT2)
+    close(LuGamma2)
+  end if
 end if
 
 if (case_mp2) then

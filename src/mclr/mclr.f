@@ -60,7 +60,7 @@
       use dmrginfo, only: DoDMRG,RGRAS2,DoMCLR
       use input_mclr, only: ntAsh,ntAtri,ntASqr,nSym,iMethod,SpinPol,
      &                      iMCPD,iMSPD,PT2,TimeDep,TwoStep,StepType,
-     &                      McKinley,RASSI,NewCho,Fail,CMSNACStates,
+     &                      McKinley,RASSI,NewCho,Fail,
      &                      Double,LuAChoVec,LuChoInt,LuIChoVec,nAsh,
      &                      nDisp,nRS2
       Implicit None
@@ -90,6 +90,7 @@
       Logical :: CalcNAC_Opt = .False., MECI_via_SLAPAF = .False.
 
       integer(kind=iwp) :: iPL, nSymX, iSym, nISP, I, iRC, iReturn
+      integer(kind=iwp) :: CMSNACStates(2)
       integer(kind=iwp) , External:: ipClose, iPrintLevel
       real(kind=wp):: TCPU1, TCPU2, TCPU3, TWall1, TWall2, TWall3
 
@@ -211,7 +212,6 @@ c      idp=rtoi
 !      if(doDMRG)then
 !        doMCLR=.true.
 !        write(*,*)"ndets_RGLR : ",ndets_RGLR
-!        write(*,*)"ncsfs_RGLR : ",ncsfs_RGLR
 !        write(*,*)"nstates_RGLR ",nstates_RGLR
 !        write(*,*)"RGras2 : ",RGras2
 !        write(*,*)"LRras2 : ",LRras2

@@ -34,8 +34,8 @@
       use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
-      use input_mclr, only: nDisp,Fail,Save,nSym,State_Sym,iMethod,
-     &                      iBreak,Epsilon,nIter,Weight,
+      use input_mclr, only: nDisp,Fail,lSave,nSym,State_Sym,iMethod,
+     &                      iBreak,Eps,nIter,Weight,
      &                      Debug,ERASSCF,kPrint,nCSF,nRoots,
      &                      ntAsh,nAsh,nBas,nRs2
       use dmrginfo, only: DoDMRG,RGRAS2
@@ -117,8 +117,8 @@
       debug=.false.
       reco=-One
       Lu_50=50
-      If (SAVE) CALL DANAME(Lu_50,'RESIDUALS')
-      If (SAVE) Then
+      If (lSAVE) CALL DANAME(Lu_50,'RESIDUALS')
+      If (lSAVE) Then
          Write (6,*) 'WfCtl_SA: SAVE option not implemented'
          Call Abend()
       End If
@@ -704,14 +704,14 @@
 *
          res=Zero ! dummy initialize
          If (iBreak.eq.1) Then
-            If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
+            If (abs(delta).lt.abs(Eps**2*delta0)) Goto 300
          Else If (iBreak.eq.2) Then
             res=sqrt(resk**2+resci**2)
             if (doDMRG) res=sqrt(resk**2)
-            If (res.lt.abs(epsilon)) Goto 300
+            If (res.lt.abs(Eps)) Goto 300
          Else
-            If (abs(delta).lt.abs(Epsilon**2*delta0).and.
-     &          res.lt.abs(epsilon))  Goto 300
+            If (abs(delta).lt.abs(Eps**2*delta0).and.
+     &          res.lt.abs(Eps))  Goto 300
          End If
          If (iter.ge.niter) goto 210
          If (lprint)

@@ -17,13 +17,13 @@
       use MCLR_Data, only: FnCSF2SD, LuCSF2SD
       use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INTIMP,INCORE,
      &                     ICISTR
-      use input_mclr, only: nSym,PntGrp,nIrrep,nsMOB,MXR4TP,iSpin,
-     &                      MNRS10,nHole1,MXRS30,nActEl,nElec3,
+      use input_mclr, only: nSym,PntGrp,nIrrep,nsMOB,iSpin,
+     &                      nHole1,nActEl,nElec3,
      &                      nRs1,nRs2,nRs3,State_Sym
 *
       Implicit None
 
-      Integer iTmp, nTRas1,nTRas2,nTRas3,iSym,iDum
+      Integer iTmp, nTRas1,nTRas2,nTRas3,iSym,iDum,MNRS10,MXR4TP,MXRS30
 
       Call mma_Allocate(pINT1,nSym,Label='pInt1')
       pInt1(:)=0

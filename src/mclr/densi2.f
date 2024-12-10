@@ -34,7 +34,7 @@
       use MCLR_Data, only: MAXI,MAXK,ICISTR
       use MCLR_Data, only: NACOB,IBTSOB,NOBPTS,NTSOB
       use DetDim, only: MXPOBS,MXINKA,MXPNGAS
-      use cands, only: ICSM,ISSM,ISSPC,ICSPC
+      use CandS, only: ICSM,ISSM,ISSPC,ICSPC
       use input_mclr, only: nsMOB
       IMPLICIT None
       Integer I12

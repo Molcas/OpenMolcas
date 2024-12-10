@@ -19,7 +19,7 @@
      &                      Deallocate_Local_Arrays
       use strbas
 *.Definition of c and sigma spaces
-      use cands, only: ICSM,ICSPC,ISSPC
+      use CandS, only: ICSM,ICSPC,ISSPC
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,

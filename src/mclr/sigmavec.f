@@ -21,7 +21,7 @@
       use MCLR_Data, only: IBTSOB,ITSOB,NACOB,NORB1,NORB2,NORB3,
      &                       NTSOB
       use DetDim, only: MXPOBS,MXINKA
-      use cands, only: ICSM,ISSM,ICSPC,ISSPC
+      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
       use input_mclr, only: nsMOB,TimeDep
 *
 * Outer routine for sigma vector generation

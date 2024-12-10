@@ -15,7 +15,7 @@
       use MCLR_Data, only: ipCI,nConf1,ipMat,n1Dens,n2Dens,nDens2
       use MCLR_Data, only: NSSA
       use MCLR_Data, only: XISPSM
-      use cands, only: ICSM,ISSM
+      use CandS, only: ICSM,ISSM
       use input_mclr, only: ntAsh,PT2,State_Sym,nSym,nRoots,nConf,nBas,
      &                      nCSF
       Implicit None

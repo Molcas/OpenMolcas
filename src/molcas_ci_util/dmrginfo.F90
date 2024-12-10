@@ -8,21 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module DMRGInfo
-!     !> These are used for the MCLR part
-logical :: doMCLR
-logical :: doDMRG
 
-integer :: ndets_RGLR          ! number of Slater deternimants
-integer :: ncsfs_RGLR          ! number of CSFs
+module DMRGInfo
+! These are used for the MCLR part
+! ndets_RGLR   : number of Slater determinants
+! LRras2       : CI space when solving LR equation
+! RGras2       : CI space when solving LR equation
+! nstates_RGLR : number of states
 
-integer :: nele_RGLR
-integer :: MS2_RGLR
+use Definitions, only: iwp
 
-integer :: LRras2(1:20)        ! CI space when solving LR equation
-integer :: RGras2(1:20)        ! CI space when solving LR equation
+implicit none
+private
 
-integer :: nstates_RGLR        ! number of states
+logical(kind=iwp) :: doDMRG, doMCLR
 
-End Module DMRGInfo
+integer(kind=iwp) :: LRras2(20), MS2_RGLR, ndets_RGLR, nele_RGLR, nstates_RGLR, RGras2(20)
 
+public :: DoDMRG, DoMCLR, LRras2, MS2_RGLR, ndets_RGLR, nele_RGLR, nstates_RGLR, RGras2
+
+end module DMRGInfo

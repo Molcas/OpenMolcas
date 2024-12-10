@@ -21,7 +21,7 @@
       use strbas
       use rasscf_lucia, only: kvec3_length
 *. module for communicating with sigma
-      use cands, only: ICSM,ISSM,ICSPC,ISSPC
+      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *

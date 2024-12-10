@@ -16,7 +16,7 @@
      &                      Deallocate_Local_Arrays
       use strbas
       use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
-      use cands
+      use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 
 *
       IMPLICIT REAL*8 (A-H, O-Z)
@@ -244,7 +244,6 @@ c      END IF
 *
       SUBROUTINE DETCTL_FREE()
       use strbas
-      use cands
       Implicit real*8(a-h,o-z)
 #include "mxpdim.fh"
 #include "gasstr.fh"

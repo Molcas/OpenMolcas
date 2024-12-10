@@ -11,7 +11,7 @@
       SUBROUTINE TRACID(       T,   LUCIN,  LUCOUT,   LUSC1,   LUSC2,
      &                     LUSC3,    VEC1,    VEC2)
       use GLBBAS, only: INT1
-      use cands, only: ISSM,ISSPC
+      use CandS, only: ISSM,ISSPC
 *
 * Transform CI vector on LUCIN with T matrix after
 * Docent Malmquist's recipe. Place result as next vector on LUOUT

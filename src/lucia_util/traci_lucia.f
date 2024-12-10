@@ -14,7 +14,7 @@
      &                          VEC1,   VEC2)
       use stdalloc, only: mma_allocate, mma_deallocate
 *. Module for communicating with sigma
-      use cands, only: ICSM,ISSM,ICSPC,ISSPC
+      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
 *
 * A rotation matrix X is defining expansion from
 * old to new orbitals

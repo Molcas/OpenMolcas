@@ -26,9 +26,9 @@
       use MCLR_Data, only: ChDisp,DspVec,lDisp,SwLbl
       use MCLR_Data, only: XISPSM
       use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,mTit,nAtoms,PotNuc,
-     &                      iMethod,iCASSCF,ntIsh,ntAsh,ntBas,nActEl,
+     &                      iMethod,ntIsh,ntAsh,ntBas,nActEl,
      &                      nHole1,nElec3,State_Sym,nRoots,iPT2,ESCF,
-     &                      Epsilon,nIter,NewCho,SpinPol,iMCPD,PT2,
+     &                      Eps,nIter,NewCho,SpinPol,iMCPD,PT2,
      &                      TwoStep,StepType,nDisp,Perturbation,AtLbl,
      &                      ChIrr,Coor,ERASSCF,Header1I,iRoot,iSpin,
      &                      nCSF,nDel,nFro,nRS1,nRS2,nRS3,nSkip,nTPert,
@@ -108,7 +108,7 @@
 *----------------------------------------------------------------------*
 *     Print orbital and wavefunction specifications                    *
 *----------------------------------------------------------------------*
-      If (iMethod.eq.iCASSCF) Then
+      If (iMethod.eq.2) Then
          ntIsh=0
          ntAsh=0
          ntSsh=0
@@ -243,7 +243,7 @@
 *                                                                      *
          Write(6,*)
          Write(6,Fmt2//'A,T42,ES11.4)')
-     &      'Convergence threshold= ',Epsilon
+     &      'Convergence threshold= ',Eps
          Write(6,Fmt2//'A,T45,I8)')
      &      'Max number of iterations in PCG: ',nIter
          If (RICD) Then
@@ -333,7 +333,7 @@
 *----------------------------------------------------------------------*
       If (.Not. SA) Then
          Write(6,*)
-         If (iMethod.eq.iCASSCF) Then
+         If (iMethod.eq.2) Then
              Write(6,Fmt2//'A,I3)')
      &          'Linear response function is computed '//
      &                        'for root no. = ',irlxroot

@@ -15,7 +15,7 @@
       use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF
-      use cands, only: ICSM,ISSM
+      use CandS, only: ICSM,ISSM
       use input_mclr, only: nCSF, State_Sym
 #ifdef _DEBUGPRINT_
       use input_mclr, only: ntAsh

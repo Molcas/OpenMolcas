@@ -60,6 +60,7 @@ set (sources
      dgamma.F90
      diagmtrx_x.F90
      disp.F90
+     doreadbpt2.F90
      dozeta.F90
      drbuf.F90
      drv1_pcm.F90

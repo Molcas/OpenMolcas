@@ -23,7 +23,7 @@
      &                      LuRlx,LuMck,LuTemp,       LUHlf2,LUHlf3,
      &                             LuPt2,LUTrI1,LUTrI2,LUTRi3,LUTRI4,
      &                      LUTRI5,LUCSF2SD,LuMOTRA,LuQDAT
-      use input_mclr, only: BLine,State_Sym,nUserPT,UserP,nsRot,UserT
+      use input_mclr, only: State_Sym,nUserPT,UserP,nsRot,UserT
       Implicit None
       Integer I
 *----------------------------------------------------------------------*
@@ -70,7 +70,6 @@
       FnMOTRA='MOTRA   '
       LuMOTRA=30
 *
-      BLine=' '
       State_Sym=1
       nUserPT=0
       UserP=1.0d0
