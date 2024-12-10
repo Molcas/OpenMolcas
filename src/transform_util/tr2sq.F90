@@ -38,6 +38,7 @@ subroutine TR2Sq(CMO,NCMO,X1,X2,X3,URPQ,RUPQ,TUPQ,lBuf)
 use caspt2_global, only: LUHLF1, LUHLF2, LUHLF3, LUINTM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Intgrl, only: IAD2M
 
 #include "intent.fh"
 
@@ -47,7 +48,6 @@ real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(_OUT_) :: X1(*), X2(*), X3(*)
 real(kind=wp), intent(inout) :: URPQ(*), RUPQ(*), TUPQ(*)
 #include "caspt2.fh"
-#include "intgrl.fh"
 #include "trafo.fh"
 integer(kind=iwp) :: IAD1, IAD1S, IAD2, IAD2S, IAD3, IAD3S, iOpt, IOUT1, IOUT2, IOUT3, IPQ, IPQMX1, IPQMX2, IPQMX3, IPQST, IR, &
                      iRc, IRSST, IRU, ISPQRS, IST, ITU, IX2, KKTU, LAR, LPQ, LR, NA, NAT, NORU, NOTU, NOUR, NP, NQ, NQM, NR, &
