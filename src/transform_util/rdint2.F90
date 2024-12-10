@@ -45,6 +45,7 @@ subroutine RDINT2(IPRX,DoTCVA)
 use caspt2_global, only: LUINTM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use trafo, only: IAD13, ISR
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRX
@@ -55,7 +56,6 @@ integer(kind=iwp) :: i, IAD131, IAD132, IAD13C, IAD2M(3,36*36), IADC, IADX1, IAD
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: Tmp(:)
 #include "caspt2.fh"
-#include "trafo.fh"
 
 ! GG-Dec04  The following informations must be passed to the Cholesky
 ! transformation section through RunFile. COMMON blocks could not be
