@@ -26,7 +26,16 @@ public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc
           Gaussian_Type, iCnttp_Dummy, Max_Shells, mGaussian_Type, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nFrag_LineWords, &
           Nuclear_Model, PAMExp, Point_Charge, Seward_Activated, Shells
 
+
 #include "Molcas.fh"
+
+Integer(kind=iwp), Parameter :: MxPrim=20*MxAO,MxrCof=10*MxPrim
+Integer(kind=iwp) nPrimr(MxAO), nBasisr(MxAO), nAngr(MxAO)
+Integer(kind=iwp) icent(MxAO), lnang(MxAO), lmag(MxAO), lant(MxAO), nrBas(8), nrBas_prim(8), nrSym
+Real(kind=wp) rCof(MxrCof),rExp(MxPrim)
+
+public :: MxPrim, MxrCof, nPrimr, nBasisr, nAngr, icent, lnang, lmag, lant, nrBas, nrBas_prim, nrSym, rCof,rExp
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !

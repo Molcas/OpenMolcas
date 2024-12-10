@@ -15,6 +15,8 @@
 subroutine repmat(idbg,bInt,sInt,donorm)
 
 use Basis_Info, only: dbsc, nBas, nCnttp
+use Basis_Info, only: nPrimr, nBasisr, nAngr, icent, lnang, lmag, nrBas, rCof
+
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -28,7 +30,6 @@ real(kind=wp), intent(in) :: bInt(*)
 real(kind=wp), intent(_OUT_) :: sInt(*)
 logical(kind=iwp), intent(in) :: donorm
 #include "Molcas.fh"
-#include "rinfo.fh"
 integer(kind=iwp) :: ip, istart, jp, kp, nAngrMax, nAtomTot, nc, np, nrBasTot
 real(kind=wp) :: finish, kpp
 logical(kind=iwp) :: New_Center, New_l, New_m, Old_Center, Old_l

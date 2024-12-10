@@ -12,6 +12,7 @@
 subroutine BSSint()
 
 use Basis_Info, only: dbsc, nBas, nCnttp
+use Basis_Info, only: nPrimr, nBasisr, nAngr, icent, lnang, lmag, lant, nrBas, nrBas_prim, nrSym, rCof,rExp
 use Symmetry_Info, only: Mul, nIrrep
 use DKH_Info, only: cLightAU
 use OneDat, only: sNoNuc, sNoOri
@@ -22,7 +23,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
-#include "rinfo.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAngr, iBas, iCmp, icnt, iCnttp, iComp, idbg, iExp, iip1, iOpt, ip1, iPrint, iRC, iRout, iSize, iSizea, &
                      iSizeab, iSizeb, iSizec, iSyma, iSymb, ixyz, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, L, &
