@@ -43,11 +43,11 @@ use caspt2_global, only: CMO, LUINTM, NCMO
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
+use Intgrl, only: NSYMZ,IAD2M,LUINTMZ,NORBZ,NOSHZ
 
 implicit none
 integer(kind=iwp), intent(in) :: iPart
 #include "caspt2.fh"
-#include "intgrl.fh"
 #include "trafo.fh"
 integer(kind=iwp) :: I, IERR, iiPart, IRC, ISYM, Keep(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, L2, L2M, LATRU, LATUS, lBuf, LIADUT, &
                      LMOP1, LMOQ1, LMOR1, LMOS1, LPQRS, LPQTU, LRS, LRSmx, LRUPQM, LTARU, LTAUS, LTUPQM, LTUPQX, LTURS, LTURSM, &
