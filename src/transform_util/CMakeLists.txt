@@ -61,6 +61,8 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     intgrl.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
