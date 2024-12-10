@@ -20,6 +20,7 @@ use MBPT2_Global, only: LuIntM, nBas
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
+use trafo, only: ISR,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,NOCP,NOCQ,NOCR,NOCS,IADOUT,IAD13
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRX
@@ -27,7 +28,6 @@ integer(kind=iwp) :: IAD131, IAD132, IAD13C, IADC, IADX1, IADX2, ISPQRS, LENGTH,
                      NU, NUM
 real(kind=wp), allocatable :: Tmp(:)
 #include "corbinf.fh"
-#include "trafo.fh"
 
 ! READ ADDRESS RECORD ON UNIT LUINTM
 
