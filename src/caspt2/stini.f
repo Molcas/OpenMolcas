@@ -14,11 +14,9 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF, PREF
       use PrintLevel, only: debug, usual
-      use EQSOLV
       IMPLICIT NONE
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
       CHARACTER(LEN=50)  STLNE2
 C     timers
       REAL*8 CPU0,CPU1,CPU,
