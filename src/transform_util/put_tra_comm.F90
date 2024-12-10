@@ -14,17 +14,15 @@
 subroutine put_tra_comm(IBD2M,NSYMX,NORBX,NOSHX,LUINTMX)
 
 use Definitions, only: iwp
+use Intgrl, only: NSYMZ,IAD2M,LUINTMZ,NORBZ,NOSHZ,NSYMZ
 
 implicit none
 integer(kind=iwp), intent(in) :: IBD2M(3,36*36), NSYMX, NORBX(8), NOSHX(8), LUINTMX
-#include "intgrl.fh"
 
 IAD2M(:,:) = IBD2M(:,:)
 NSYMZ = NSYMX
 NORBZ(:) = NORBX(:)
 NOSHZ(:) = NOSHX(:)
 LUINTMZ = LUINTMX
-
-return
 
 end subroutine put_tra_comm
