@@ -137,7 +137,7 @@
       If(TwoStep.and.(StepType.eq.'RUN2')) Then
         ! fetch some data from existing file LuTri1
         ! (from a previous MCLR run)
-        ! and make it available to ERI common block intgrl.fh
+        ! and make it available to the module intgrl.F90
         ! (LuTRI1=LuMOTRA)
         Call put_temp_data_on_intgrl(LuMOTRA,nSym,nOrb,nIsh,nAsh)
       End If
@@ -187,11 +187,11 @@
 
       Subroutine put_temp_data_on_intgrl(LUINTMZ_, NSYMZ_, NORBZ_,
      &                                   NISHZ_, NASHZ_  )
+      use Intgrl, only: NSYMZ,IAD2M,LUINTMZ,NORBZ
       Implicit None
       Integer ::       LUINTMZ_, NSYMZ_
       Integer ::       NORBZ_(8), NISHZ_(8), NASHZ_(8)
       Integer ::       nLength, iAddress, i
-#include "intgrl.fh"
       iAddress=0
       IAD2M(1:3,1:36*36)=0
       nLength=3*36*36
