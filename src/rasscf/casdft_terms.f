@@ -39,12 +39,12 @@
 #ifdef _DMRG_
       use rasscf_global, only: DoDMRG
 #endif
+      use output_ras, only: LF,DEBUG,IPRLOC
 
       Implicit None
 *
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 *

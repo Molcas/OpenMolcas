@@ -35,11 +35,11 @@
      &                         nRoots, OutFmt1, OutFmt2, PreThr, ProThr,
      &                         ThFact, ThrE, ThrEn, ThrSX, ThrTE,
      &                         iRoot
+      use output_ras, only: LF
 
       implicit none
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "warnings.h"
       integer :: ierr, ierr1, ierr2
       integer :: i, iSym, iAlter
@@ -479,7 +479,6 @@ CBOR  Check INVEC
         END IF
       END IF
 *----------------------------------------------------------------------*
-      Return
 
       contains
 
@@ -491,5 +490,6 @@ CBOR  Check INVEC
             do i = 2, size(res)
                 res(i) = res(i - 1) + X(i)
             end do
-        end function
-      End
+        end function cumsum
+
+      End Subroutine ChkInp
