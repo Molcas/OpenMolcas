@@ -46,6 +46,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
       use rasscf_global, only: NAC
+      use output_ras, only: LF
 
 
       Implicit None
@@ -53,7 +54,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
-#include "output_ras.fh"
 
       Integer iWay
       Real*8 C1(*),C2(*),Smat(*)

@@ -65,6 +65,7 @@
      &                         Davidson_Tol, Do3RDM, HFOcc,
      &                         Max_canonical, Max_Sweep
 #endif
+      use output_ras, only: LF,DEBUG,USUAL,TERSE,VERBOSE,IPRLOC
 
 
       Implicit None
@@ -73,7 +74,6 @@
       Logical lOPTO
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='OUTCTL  '
 #include "ciinfo.fh"
 #include "SysDef.fh"
