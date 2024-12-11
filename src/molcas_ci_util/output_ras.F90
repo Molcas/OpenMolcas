@@ -10,13 +10,10 @@
 !***********************************************************************
 Module OutPut_RAS
 Implicit None
-#include "output_ras.fh"
-save
 !------------------------------------------------------
 ! Used by any rasscf subroutine that writes output
-!     INTEGER, PARAMETER :: SILENT=0,TERSE=1,USUAL=2,VERBOSE=3,DEBUG=4,
-!    &                      INSANE=5
-!     Integer LF,IPRGLB,IPRLOC(7)
+INTEGER, PARAMETER :: SILENT=0,TERSE=1,USUAL=2,VERBOSE=3,DEBUG=4,INSANE=5
+Integer LF,IPRGLB,IPRLOC(7)
 ! LF = Logfile unit number, usually = 6 for standard out
 !------------------------------------------------------
 !***********************************************************************
@@ -24,17 +21,17 @@ save
 !      Termination codes of the different program sections             *
 !                                                                      *
 !***********************************************************************
-!     Integer Rc_CI
+Integer Rc_CI
 !
 !     Rc_CI   =  0 : CI-vectors are converged
 !             = 16 : No convergence in the CI-section
 !
-!     Integer Rc_SX
+Integer Rc_SX
 !
 !     Rc_SX   =  0 : Super-CI method converged
 !             = 16 : No convergence in the SX-section
 !
-!     Integer Rc_RAS
+Integer Rc_RAS
 !
 !     Rc_RAS  =  0 : The RASSCF wave function is converged
 !             = 16 : The RASSCF wave function is not(!) converged
