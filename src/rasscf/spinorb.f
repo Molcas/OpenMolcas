@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE SPINORB(D,CMO,OCC,kroot)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use output_ras, only: LF,DEBUG,IPRLOC
 
 C
 C     Purpose: diagonalize the spin density matrix (D) to
@@ -20,7 +21,6 @@ C
       IMPLICIT None
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Real*8 D(*),CMO(*),OCC(*)
       Integer :: KROOT
 
