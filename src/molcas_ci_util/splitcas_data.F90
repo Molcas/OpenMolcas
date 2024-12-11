@@ -9,13 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! This is just an encapsulation of the common block in
-! src/Include/splitcas.fh
-! into a data module
-
+! Stuff from splitcas.fh
 module splitcas_data
-
 implicit none
-#include "splitcas.fh"
-
+Logical DoSplitCAS, EnerSplit, NumSplit, PerSplit, FOrdSplit
+integer lrootSplit, MxIterSplit
+integer iDimBlockA, iDimBlockACNF, iterSplit
+real*8 thrSplit, GapSpli, PercSpli
+real*8 EnInSplit
+Integer, Parameter :: mxDimBlockA = 2000
+Real*8, Parameter :: min_ThrSplit = 1.0d-12
 end module splitcas_data
