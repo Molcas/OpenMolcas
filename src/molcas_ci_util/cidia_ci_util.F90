@@ -23,6 +23,7 @@ use csfbas, only: CTS
 use Lucia_Interface, only: Lucia_Util
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use output_ras, only: INSANE,DEBUG,IPRLOC
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
@@ -34,7 +35,6 @@ real(kind=wp), external :: Get_eCore
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "timers.fh"
-#include "output_ras.fh"
 
 call Timing(Tissot_1,dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)

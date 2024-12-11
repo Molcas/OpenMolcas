@@ -54,6 +54,7 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 use StrNum, only: NAEL,NBEL
+use output_ras, only: INSANE,IPRLOC
 
 #include "intent.fh"
 
@@ -69,7 +70,6 @@ real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "general.fh"
 #include "ciinfo.fh"
 #include "timers.fh"
-#include "output_ras.fh"
 
 call Timing(Omega_1,dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)

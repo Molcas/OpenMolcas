@@ -53,6 +53,7 @@ use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vector
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use output_ras, only: DEBUG,INSANE,TERSE,IPRLOC
 
 #include "intent.fh"
 
@@ -71,7 +72,6 @@ integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Tmp1(:)
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 
 IPRLEV = IPRLOC(3)
 

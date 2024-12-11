@@ -40,6 +40,7 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
 use StrNum, only: NAEL,NBEL
+use output_ras, only: DEBUG,IPRLOC
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
@@ -57,7 +58,6 @@ real(kind=wp), external :: ddot_
 #include "rasdim.fh"
 #include "general.fh"
 #include "ciinfo.fh"
-#include "output_ras.fh"
 #include "timers.fh"
 
 #include "macros.fh"

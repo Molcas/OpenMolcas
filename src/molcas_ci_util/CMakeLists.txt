@@ -91,6 +91,7 @@ set (sources
      newgs.F90
      nrcoup.F90
      ordstr.F90
+     output_ras.F90
      page_in.F90
      page_out.F90
      pageno.F90
@@ -139,6 +140,7 @@ set (modfile_list
      dmrginfo.F90
      gugx.F90
      input_mclr.F90
+     output_ras.F90
      rasscf_global.F90
      strnum.F90
      wadr.F90

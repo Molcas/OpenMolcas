@@ -22,12 +22,12 @@ use Lucia_Interface, only: Lucia_Util
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use output_ras, only: RC_CI,DEBUG,USUAL,IPRLOC
 
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
 #include "timers.fh"
-#include "output_ras.fh"
 ! nsel in general.fh
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr

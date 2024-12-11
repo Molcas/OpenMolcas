@@ -25,9 +25,9 @@ subroutine ChkSplit()
 use general_data, only: nConf
 use splitcas_data, only: iDimBlockA, lRootSplit, min_ThrSplit, MxDimBlockA, ThrSplit
 use Definitions, only: iwp
+use output_ras, only: LF
 
 implicit none
-#include "output_ras.fh"
 integer(kind=iwp) :: IERR
 
 #include "warnings.h"

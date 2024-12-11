@@ -17,7 +17,6 @@ use Definitions, only: iwp
 implicit none
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 integer(kind=iwp), intent(in) :: nMidV, NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), nLev
 integer(kind=iwp), intent(inout) :: MV, IDWN, IUP
 integer(kind=iwp), intent(out) :: ICS(NLEV)
