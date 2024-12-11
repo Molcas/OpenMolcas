@@ -25,11 +25,11 @@ C
       use rasscf_global, only: KSDFT, lRoots, NACPAR, NACPR2, iADR15,
      &                         iTri
       use SplitCas_Data, only: DoSPlitCas,lRootSplit
+      use output_ras, only: LF,DEBUG,USUAL,IPRLOC
       Implicit None
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 
       REAL*8 CMOO(*),SCR1(*),SCR2(*),SMAT(*),CMON(*),OCCN(*)
 

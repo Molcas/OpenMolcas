@@ -65,6 +65,7 @@
      &                         lRootSplit,NumSplit,iDimBlockA,
      &                         EnerSplit,GapSpli,PerSplit,PerCSpli,
      &                         fOrdSplit
+      use output_ras, only: LF,USUAL,SILENT,IPRLOC
 
 
       Implicit None
@@ -72,7 +73,6 @@
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "ciinfo.fh"
 #include "lucia_ini.fh"
       Character(LEN=8)   Fmt1,Fmt2,Label

@@ -35,6 +35,7 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
+      use output_ras, only: LF
 
 
       Implicit None
@@ -44,7 +45,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
-#include "output_ras.fh"
 
 *     calling arguments
 

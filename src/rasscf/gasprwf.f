@@ -42,6 +42,7 @@
 ************************************************************************
 
       use rasscf_global, only: PrwThr, nSm
+      use output_ras, only: LF
 
       Implicit None
 
@@ -49,7 +50,6 @@
 #include "rasdim.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
-#include "output_ras.fh"
 C
       Integer nOrb, nEl
       Integer ICONF(*),ISPIN(*)
