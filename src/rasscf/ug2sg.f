@@ -27,6 +27,7 @@ C              INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
       use gugx, only: SGS,CIS, EXS
+      use output_ras, only: LF
       IMPLICIT None
       INTEGER NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,MXROOTS
       INTEGER ICONF(*),ISPIN(*)
@@ -35,7 +36,6 @@ C
       REAL*8 CCI(MXROOTS,*)
 C
 #include "rasdim.fh"
-#include "output_ras.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
 C

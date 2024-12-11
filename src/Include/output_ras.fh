@@ -10,11 +10,10 @@
 !***********************************************************************
 !------------------------------------------------------
 ! Used by any rasscf subroutine that writes output
-      INTEGER SILENT,TERSE,USUAL,VERBOSE,DEBUG,INSANE
-      PARAMETER (SILENT=0,TERSE=1,USUAL=2,VERBOSE=3,DEBUG=4)
-      PARAMETER (INSANE=5)
-      Integer LF,IPRGLB,IPRLOC
-      Common /Output/ LF,IPRGLB,IPRLOC(7)
+      INTEGER, PARAMETER :: SILENT=0,TERSE=1,USUAL=2,VERBOSE=3,DEBUG=4, &
+     &                      INSANE=5
+      Integer LF,IPRGLB,IPRLOC(7)
+      Common /Output/ LF,IPRGLB,IPRLOC
 ! LF = Logfile unit number, usually = 6 for standard out
 !------------------------------------------------------
 !***********************************************************************

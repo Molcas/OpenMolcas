@@ -74,6 +74,7 @@
      &                         nQune, NROOT, NSXS, NTOT4, QNSTEP,
      &                         QNUPDT, SXSEL, TMIN, VIA, ISTORP,
      &                         IADR15, EMY
+      use output_ras, only: LF,DEBUG,IPRLOC
 
 
       Implicit None
@@ -84,7 +85,6 @@
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='SXCTL   '
 * PAM 2008 IndType, VecTyp added, see below at call to WrVec
       Integer IndType(56)

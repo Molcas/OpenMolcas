@@ -28,7 +28,6 @@ C
       IMPLICIT None
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Real*8 CMOO(*),CMON(*),SMAT(*)
 
       Real*8, Allocatable:: Temp1(:), Temp2(:)
@@ -71,12 +70,12 @@ C     **** Molcas-4 *** Release 97 04 01 **********
 C
       use OneDat, only: sNoNuc, sNoOri
       use rasscf_global, only: FDIAG, iSupSM, Iter, ixsym
+      use output_ras, only: LF,DEBUG,IPRLOC
 
       IMPLICIT None
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
-#include "output_ras.fh"
       Integer nOrbMX, nOrb_Tot
       Real*8 CMOO(*),CMON(*),SMAT(*)
       Real*8 Temp1(nOrbMX*nOrbMX),Temp2(nOrbMX*nOrbMX)

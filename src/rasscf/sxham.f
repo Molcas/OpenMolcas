@@ -43,12 +43,12 @@ C
       use rasscf_global, only: ExFac, ICICP, ISCF, ITER, LVSHFT, NROOT,
      &                         NSXS, SXSHFT, ITRI, IZROT, IXSYM, IROOT,
      &                         Ener
+      use output_ras, only: LF,DEBUG,IPRLOC
 
       IMPLICIT None
 #include "rasdim.fh"
 #include "warnings.h"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='SXHAM   '
       REAL*8 D(*),P(*),PA(*),FP(*),SXN(*),F1(*),F2(*),DIA(*),
      *          G(*),H(*),HDIAG(*),DF(*),DDIAG(*)
