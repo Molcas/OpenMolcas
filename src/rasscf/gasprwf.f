@@ -47,7 +47,6 @@
 
 
 #include "rasdim.fh"
-#include "strnum.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "output_ras.fh"

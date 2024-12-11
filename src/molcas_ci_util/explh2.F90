@@ -53,6 +53,7 @@ use rasscf_global, only: ExFac, NAC
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use StrNum, only: NAEL,NBEL
 
 #include "intent.fh"
 
@@ -67,7 +68,6 @@ real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "rasdim.fh"
 #include "general.fh"
 #include "ciinfo.fh"
-#include "strnum.fh"
 #include "timers.fh"
 #include "output_ras.fh"
 

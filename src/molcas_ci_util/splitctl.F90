@@ -39,6 +39,7 @@ use rasscf_global, only: EMY, ENER, ExFac, IADR15, ICICH, iCIOnly, ICIRST, ITER,
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
+use StrNum, only: NAEL,NBEL
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
@@ -57,7 +58,6 @@ real(kind=wp), external :: ddot_
 #include "general.fh"
 #include "ciinfo.fh"
 #include "output_ras.fh"
-#include "strnum.fh"
 #include "timers.fh"
 
 #include "macros.fh"
