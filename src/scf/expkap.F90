@@ -24,7 +24,7 @@
 !> @param[in]  kapOV  Parameters of the antisymmetric matrix
 !> @param[in]  nkapOV number of elements in kapOV
 !> @param[out] U      Unitary matrix to transform old CMOs
-!> @param[in]  mynOcc Number of occupied orbitals (including frozen) in each symmetry
+!> @param[in]  nOcc   Number of occupied orbitals (not including frozen) in each symmetry
 !***********************************************************************
 
 #define EXP_QNEXT 1
@@ -32,17 +32,17 @@
 #define EXP_SVD 3
 #define EXP_FULL 4
 #define _EXP_ EXP_SVD
-subroutine ExpKap(kapOV,nKapOV,U,mynOcc)
+subroutine ExpKap(kapOV,nKapOV,U,nOcc)
 
 use InfSCF, only: nFro, nOFs, nOrb, nSym, TimFld
 use Constants, only: Zero, Pi
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nKapOV, mynOcc(8)
+integer(kind=iwp), intent(in) :: nKapOV, nOcc(8)
 real(kind=wp), intent(in) :: kapOV(nkapOV)
 real(kind=wp), intent(out) :: U(nOFS)
-integer(kind=iwp) :: iKap, iSym, iU, j, jU, mOcc, mOrb, mVir
+integer(kind=iwp) :: iKap, iSym, iU, j, jU, mOrb, mVir
 logical(kind=iwp) :: use_svd
 real(kind=wp) :: Cpu1, Cpu2, theta, Tim1, Tim2, Tim3
 real(kind=wp), parameter :: Thrs = 1.0e-14_wp
@@ -70,26 +70,25 @@ U(:) = Zero
 
 do iSym=1,nSym
   mOrb = nOrb(iSym)-nFro(iSym)
-  mOcc = mynOcc(iSym)-nFro(iSym)
-  mVir = mOrb-mOcc
+  mVir = mOrb-nOcc(iSym)
 
-  if (mVir*mOcc == 0) cycle
+  if (mVir*nOcc(iSym) == 0) cycle
 
-  jU = iU+mOcc
+  jU = iU+nOcc(iSym)
 
-  do j=1,mOcc
+  do j=1,nOcc(iSym)
     U(jU:jU+mVir-1) = kapOV(iKap:iKap+mVir-1)
     iKap = iKap+mVir
     jU = jU+mOrb
   end do
 
   if (use_svd) then
-    call Exp_SVD(mOrb,mOcc,U(iU:iU+mOrb**2-1),theta)
+    call Exp_SVD(mOrb,nOcc(iSym),U(iU:iU+mOrb**2-1),theta)
   else
 #   if ( _EXP_ == EXP_QNEXT )
-    call Exp_series(mOrb,mOcc,U(iU:iU+mOrb**2-1))
+    call Exp_series(mOrb,nOcc(iSym),U(iU:iU+mOrb**2-1))
 #   elif ( _EXP_ == EXP_SERIES )
-    call Exp_series2(mOrb,mOcc,U(iU:iU+mOrb**2-1))
+    call Exp_series2(mOrb,nOcc(iSym),U(iU:iU+mOrb**2-1))
 #   elif ( _EXP_ == EXP_FULL )
     call Exp_eig(mOrb,U(iU:iU+mOrb**2-1),theta)
 #   endif
