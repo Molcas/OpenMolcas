@@ -93,6 +93,7 @@
 #endif
       use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
      &                         lRootSplit
+      use output_ras, only: LF,DEBUG,INSANE,USUAL,IPRLOC
 
 
       Implicit None
@@ -113,7 +114,6 @@
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='CICTL   '
 #include "SysDef.fh"
 #include "timers.fh"
