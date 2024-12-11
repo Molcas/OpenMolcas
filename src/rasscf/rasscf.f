@@ -120,6 +120,8 @@
       use rasscf_global, only: lRoots
 #endif
       use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
+      use output_ras, only: LF,DEBUG,USUAL,TERSE,IPRLOC,RC_CI,RC_SX,
+     &                      RC_RAS
 
       Implicit None
 
@@ -127,7 +129,6 @@
 #include "warnings.h"
 #include "general.fh"
 #include "bk_approx.fh"
-#include "output_ras.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "ciinfo.fh"

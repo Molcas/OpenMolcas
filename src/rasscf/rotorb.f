@@ -24,13 +24,13 @@ c
       use stdalloc, only: mma_allocate, mma_deallocate
       use gas_data, only: iDoGAS, NGAS, NGSSH
       use rasscf_global, only: PURIFY, CMAX, ROTMAX, iXSym
+      use output_ras, only: LF,DEBUG,VERBOSE,TERSE,IPRLOC
 
 
       IMPLICIT None
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='ROTORB  '
 
       Real*8 cmoo(*), cmon(*), c(*), x(*), x2(*)

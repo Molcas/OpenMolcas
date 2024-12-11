@@ -9,16 +9,20 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine RdSupS(LuInput,n,iBuff)
+      use output_ras, only: LF
+      Implicit None
 ************************************************************************
 *                                                                      *
 *     Purpose:                                                         *
 *     Read supersymmetry input.                                        *
 *                                                                      *
 ************************************************************************
-#include "output_ras.fh"
+      Integer LuInput,n
       Integer iBuff(*)
+
       Integer is(288),ie(288)
-      Character*288 Line
+      Character(LEN=288) Line
+      Integer K,I,nRepeat,iLast,m,l,iZ
 *----------------------------------------------------------------------*
 *     Start procedure, initialize data counter                         *
 *----------------------------------------------------------------------*
@@ -115,4 +119,4 @@
       Write(LF,'(6X,A)') 'Some of the input data seems to be in error.'
       Write(LF,*)
       Call Quit_OnUserError()
-      End
+      End Subroutine RdSupS
