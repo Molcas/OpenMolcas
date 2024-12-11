@@ -17,11 +17,11 @@
      &                         iSymBB, lRoots, lSquare, NACPAR,
      &                         NACPR2, NewFock, nFint, NSXS, NTOT4,
      &                         RlxGrd, iAdr15, ISTORP, JBLBM
+      use output_ras, only: LF,DEBUG,IPRLOC
 
       Implicit None
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
 
       Character(LEN=16), Parameter:: ROUTINE='PUTRLX  '

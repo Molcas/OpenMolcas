@@ -104,6 +104,7 @@
      &                         lRootSplit,NumSplit,EnerSplit,
      &                         PerSplit,PerCSpli,fOrdSplit,
      &                         iDimBlockA,GapSpli
+      use output_ras, only: LF,DEBUG,VERBOSE,TERSE,IPRGLB,IPRLOC
 
 
 
@@ -113,7 +114,6 @@
 #include "general.fh"
 #include "warnings.h"
 #include "bk_approx.fh"
-#include "output_ras.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"

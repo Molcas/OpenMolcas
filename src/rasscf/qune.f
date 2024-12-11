@@ -18,33 +18,41 @@ C              OF THE ROTATION MATRIX X, OR A LINE SEARCH.
 C
 C
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "output_ras.fh"
-      CHARACTER*2 QNSTEP
-      CHARACTER*3 QNUPDT
-      Character*80 KSDFT
-      DIMENSION BK(NDIM),XSX(NDIM),VL(NDIM),VM(NDIM)
-      DIMENSION XQN(NDIM),XOLD(NDIM),V1(NDIM),V2(NDIM)
-      SAVE ALPHA,BETA,ELAST,FPLAST,NVEC,NLS
-CBOR 000906      PARAMETER (MXVEC=52)
-CBOR 000906     DIMENSION ALPHA(MXVEC),BETA(MXVEC)
+      use Constants, only: Zero, One, Two
+      IMPLICIT None
+      INTEGER NCALLS,NDIM
+      REAL*8 ENOW,BK(NDIM),XSX(NDIM),VL(NDIM),VM(NDIM)
+      REAL*8 XQN(NDIM),XOLD(NDIM),V1(NDIM),V2(NDIM)
+      INTEGER LUQUNE
+      REAL*8 TMIn
+      CHARACTER(LEN=2) QNSTEP
+      CHARACTER(LEN=3) QNUPDT
+      Character(LEN=80) KSDFT
 
+!     local variables
+      REAL*8, SAVE :: ELAST,FPLAST
+      INTEGER, SAVE :: NVEC,NLS
 #include "rasdim.fh"
-      DIMENSION ALPHA(mxiter+2),BETA(mxiter+2)
+      REAL*8,Save:: ALPHA(mxiter+2),BETA(mxiter+2)
+      INTEGER IAD,IVEC,NLM
+      REAL*8 FP,X,Y,P1,P2,C0,C1,C2,C3,P,Q,TLM,T0,T1,ELM,EMIN,E0,E1,
+     &       EPRED_LS,EPRED_SX,EPRED_QN,SCLFCT,XSXNRM
+      REAL*8, External:: DDot_, DNrm2_
+
       NCALLS=NCALLS+1
 
       IF(NCALLS.EQ.1) THEN
        NVEC = 0
 * NLS: Nr of consecutive line searches.
        NLS=0
-       CALL DCOPY_(mxiter+2,[0.0d0],0,ALPHA,1)
-       CALL DCOPY_(mxiter+2,[0.0d0],0,BETA,1)
+       CALL DCOPY_(mxiter+2,[Zero],0,ALPHA,1)
+       CALL DCOPY_(mxiter+2,[Zero],0,BETA,1)
        IAD=0
        CALL DDAFILE(LUQUNE,1,BK,NDIM,IAD)
        CALL DDAFILE(LUQUNE,1,XSX,NDIM,IAD)
        CALL DDAFILE(LUQUNE,1,XSX,NDIM,IAD)
        ELAST=ENOW
-       FPLAST=2.0D0*DDOT_(NDIM,BK,1,XSX,1)
+       FPLAST=Two*DDOT_(NDIM,BK,1,XSX,1)
        TMIN=0.D0
        QNSTEP='SX'
        QNUPDT=' NO'
@@ -58,13 +66,13 @@ C -- 1. CALC L AND M ARRAYS
       IAD=0
       CALL DDAFILE(LUQUNE,2,V1,NDIM,IAD)
       CALL DCOPY_(NDIM,BK,1,VL,1)
-      CALL DAXPY_(NDIM,-1.0D00,V1,1,VL,1)
+      CALL DAXPY_(NDIM,-One,V1,1,VL,1)
 * VL is the difference between the old and the new BLB gradient array:
 * Read old QN step into VM:
       CALL DDAFILE(LUQUNE,2,VM,NDIM,IAD)
       CALL DDAFILE(LUQUNE,2,XOLD,NDIM,IAD)
 C -- FP WILL BE USED IN LINE SEARCH ANALYSIS LATER.
-      FP=2.0D0*DDOT_(NDIM,BK,1,XOLD,1)
+      FP=Two*DDOT_(NDIM,BK,1,XOLD,1)
 C -- QN VECTOR UPDATED WITHOUT NEWEST UPDATE VECTORS: XQN=-HINV*BK
       CALL DCOPY_(NDIM,XSX,1,XQN,1)
       DO IVEC=1,NVEC
@@ -79,14 +87,14 @@ C -- QN VECTOR UPDATED WITHOUT NEWEST UPDATE VECTORS: XQN=-HINV*BK
       END DO
 * Subtract. VM will now contain the difference in QN steps, where the new one
 * is computed without the update (which we still do not know).
-      CALL DAXPY_(NDIM,-1.0D00,XQN,1,VM,1)
+      CALL DAXPY_(NDIM,-One,XQN,1,VM,1)
 C -- NOTE: M ARRAY = HK(INV)*LK
 C -- 2. DECIDE ON WHICH ROTATION TO USE.
 C -- A LINE SEARCH ANALYSIS.
       C0=ELAST
       C1=FPLAST
-      C2=3.0D0*(ENOW-ELAST)-2.0D0*FPLAST-FP
-      C3=-2.0D0*(ENOW-ELAST)+FPLAST+FP
+      C2=3.0D0*(ENOW-ELAST)-Two*FPLAST-FP
+      C3=-Two*(ENOW-ELAST)+FPLAST+FP
 C     Write(LF,*) repeat('*',60)
 C     Write(LF,*)' SEARCH FOR MINIMUM:'
 C     Write(LF,*)' POLYNOMIAL COEFFICIENTS:'
@@ -96,7 +104,7 @@ C     Write(LF,'(A,4F16.8)') ' C0,C1,C2,C3',C0,C1,C2,C3
       Q=C2**2
 C -- NLM=NR OF LOCAL MINIMA
       NLM=0
-      TLM =  0.0D0
+      TLM =  Zero
       IF(ABS(P).GT.0.001D00*Q) THEN
         IF(Q.GT.P) THEN
 C         Write(LF,*)' THIS IS A 3RD DEGREE POLY WITH 2 STAT. POINTS.'
@@ -108,10 +116,10 @@ C         Write(LF,*)' TLM=',TLM
 C         Write(LF,*)' THIS IS A MONOTONOUS 3RD DEGREE POLY.'
         END IF
       ELSE IF(ABS(C2).GT.0.001D00*C1) THEN
-        IF(C2.GT.0.0D00) THEN
+        IF(C2.GT.Zero) THEN
 C         Write(LF,*)' THIS IS A 2ND DEGREE POLY WITH A MINIMUM.'
           NLM=1
-          TLM=-C1/(2.0D0*C2)
+          TLM=-C1/(Two*C2)
 C         Write(LF,*)' THERE IS A LOCAL MINIMUM AT'
 C         Write(LF,*)' TLM=',TLM
         ELSE
@@ -175,7 +183,7 @@ C       Write(LF,*) E0,E1
 
 * Here follows decision whether to update inverse Hessian, or not:
       IF(NLM.EQ.1) THEN
-        X=C3*(1.0D00-TMIN)/SQRT(Q-P)
+        X=C3*(One-TMIN)/SQRT(Q-P)
         IF((ABS(X).LT.0.2D00).AND.(TMIN.GT.0.5D00)) THEN
 CPAM THEN THE ERROR ARISING FROM NONLINEARITY OF GRADIENT ALONG THE
 CPAM SEARCH DIRECTION IS SMALLER THAN ABOUT 25 PERCENT, SO IT IS
@@ -219,21 +227,21 @@ C METHOD: BFGS
         CALL DCOPY_(NDIM,  VM,1,V2,1)
         X=DDOT_(NDIM,V1,1,VL,1)
         Y=DDOT_(NDIM,V2,1,VL,1)
-        If (X==0.0D0) Then
+        If (X==Zero) Then
         ALPHA(NVEC)=1.0D99
         BETA(NVEC)=-1.0D49
         ELSE
-        ALPHA(NVEC)=(1.0D00+Y/X)/X
-        BETA(NVEC)=-1.0D00/X
+        ALPHA(NVEC)=(One+Y/X)/X
+        BETA(NVEC)=-One/X
         ENDIF
 C METHOD: SYMMETRIZED POWELL 1-RANK:
 *        CALL DCOPY_(NDIM,VL,1,V1,1)
 *        CALL DCOPY_(NDIM,XOLD,1,V2,1)
-*        CALL DAXPY_(NDIM,-1.0D00,VM,1,V2,1)
+*        CALL DAXPY_(NDIM,-One,VM,1,V2,1)
 *        X=DDOT_(NDIM,V1,1,V1,1)
 *        Y=DDOT_(NDIM,V2,1,V1,1)
 *        ALPHA(NVEC)=-Y/(X**2)
-*        BETA(NVEC)=1.0D00/X
+*        BETA(NVEC)=One/X
 C --  ADD THE NEWEST UPDATE CONTRIBUTION INTO XQN:
         X=-DDOT_(NDIM,V1,1,BK,1)
         Y=-DDOT_(NDIM,V2,1,BK,1)
@@ -252,7 +260,7 @@ C --  ADD THE NEWEST UPDATE CONTRIBUTION INTO XQN:
 
 C -- IF LINE SEARCH IS NEARLY CONVERGED, USE THE QN OR SX STEP
 C -- TO GET NEW DIRECTION, ELSE CONTINUE LINE SEARCH:
-      X=TMIN-1.0D00
+      X=TMIN-One
       IF((ABS(X).LT.0.4D00).OR.(ABS(EPRED_LS).LT.1.0D-08).or.
      &                                    KSDFT(1:3).ne.'SCF') THEN
 *        Write(LF,*)' THE LINE SEARCH MINIMUM IS PREDICTED TO BE'
@@ -288,7 +296,7 @@ C then do not use line search.
       END IF
       IF (QNSTEP.EQ.'LS') THEN
 *        Write(LF,*)' USE LINE SEARCH.'
-        X=TMIN-1.0D00
+        X=TMIN-One
         CALL DYAX(NDIM,X,XOLD,1,XSX,1)
       END IF
       IF (QNSTEP.EQ.'QN') THEN
@@ -310,16 +318,15 @@ C then do not use line search.
 * sum of squares of rotation angles, so the 2-norm is a strict limit on
 * largest rotation angle, which we (arbitrarily) limit to 0.5 (say):
       XSXNRM=DNRM2_(NDIM,XSX,1)
-      SCLFCT=1.0D0/(1.0D0+2.0D0*XSXNRM)
+      SCLFCT=One/(One+Two*XSXNRM)
       CALL DSCAL_(NDIM,SCLFCT,XSX,1)
 
       ELAST=ENOW
-      FPLAST=2.0D0*DDOT_(NDIM,BK,1,XSX,1)
+      FPLAST=Two*DDOT_(NDIM,BK,1,XSX,1)
       IAD=0
       CALL DDAFILE(LUQUNE,1,BK,NDIM,IAD)
       CALL DDAFILE(LUQUNE,1,XQN,NDIM,IAD)
       CALL DDAFILE(LUQUNE,1,XSX,NDIM,IAD)
       NLS=NLS+1
       IF(QNSTEP.NE.'LS') NLS=0
-      RETURN
-      END
+      END SUBROUTINE QUNE
