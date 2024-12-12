@@ -29,13 +29,16 @@
 * Changed to Combination form, June 92
 * Adapted to LUCIA December 2001
 *
-      Implicit REAL*8 (A-H,O-Z)
+      use lucia_data, only:MAXOP,MINOP,NPCMCNF,NPCSCNF
+      Implicit NONE
+      Integer IPRCSF
 #include "mxpdim.fh"
-#include "spinfo_lucia.fh"
 #include "cstate.fh"
 *. Output
       Real*8,  Allocatable:: SCR1(:)
       Integer, Allocatable:: iSCR2(:)
+      INTEGER NTEST,MAX_DC,IOPEN,L,LSCR,IDTBS,ICSBS,ITP,IFLAG,
+     &        IALPHA,IDET,ICDCBS,NNCS,NNCM,NNDET
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRCSF)
@@ -240,5 +243,4 @@ C    &                IPRCSF)
         END DO
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE CSDTMT_GAS

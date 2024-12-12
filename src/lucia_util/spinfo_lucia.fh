@@ -10,6 +10,15 @@
 !***********************************************************************
 !./SPINFO/ new of Nov. 2001
 ! NCONF_TOT added april 29
+      Integer       MINOP,MAXOP,NCONF_PER_SYM        ,                  &
+     &             NCONF_PER_OPEN                 ,                     &
+     &             NPDTCNF          ,NPCSCNF          ,                 &
+     &             NPCMCNF          ,                                   &
+     &             IB_CONF_REO          ,IB_CONF_OCC          ,         &
+     &             IB_SD_FOR_OPEN          ,                            &
+     &             NCSF_PER_SYM        , NSD_PER_SYM        ,           &
+     &             NCONF_ALL_SYM, NCONF_ALL_SYM_FOR_OCCLS        ,      &
+     &             IBCONF_ALL_SYM_FOR_OCCLS        ,nconf_tot,nCSF_HEXS
       COMMON/SPINFO/MINOP,MAXOP,NCONF_PER_SYM(MXPCSM),                  &
      &             NCONF_PER_OPEN(MXPORB+1,MXPCSM),                     &
      &             NPDTCNF(MXPORB+1),NPCSCNF(MXPORB+1),                 &
