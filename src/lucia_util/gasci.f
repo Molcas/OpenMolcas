@@ -22,13 +22,14 @@
       use rasscf_lucia, only: kvec3_length
 *. module for communicating with sigma
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
+      use lucia_data, only: NCSF_PER_SYM
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
 *
 * Jeppe Olsen, Winter of 1995
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 #include "mxpdim.fh"
 #include "cicisp.fh"
 #include "orbinp.fh"
@@ -47,20 +48,26 @@
 
 
 #include "cintfo.fh"
-#include "spinfo_lucia.fh"
 #include "io_util.fh"
 *
 *
 #include "cecore.fh"
 #include "cmxcj.fh"
 *
-*     COMMON/H_OCC_CONS/IH_OCC_CONS
-*
+      INTEGER ISM, ISPC,IPRNT,IIUSEH0P,MPORENP_E
+      REAL*8 EREF
+
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
       Integer, Allocatable:: CIOIO(:)
       Integer, Allocatable:: SVST(:)
+      INTEGER NTEST,NDET,IATP,IBTP,NEL,NOCCLS,LBLOCK,NOCTPA,NOCTPB,NTTS,
+     &        NBLOCK,MXSTBL0,IATPM1,IBTPM1,IATPM2,IBTPM2,NAEL,NBEL,MAXA,
+     &        MAXA1,MAXB,MAXB1,MXSTBL,MAXK,IOCTPA,IOCTPB,
+     &        MXCIJA,MXCIJB,MXSXBL,MXADKBLK,MXADKBLK_AS,LSCR2,LSCR12,
+     &        MXCIJAB,NVAR,MXCJ_ALLSYM,MX_NSPII,NBATCH
       INTEGER, External:: IFRMR
       INTEGER, EXTERNAL:: IMNMX
+      REAL*8 SHIFT
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
@@ -319,7 +326,7 @@ c         END IF
       Call Deallocate_Local_Arrays()
       Call mma_deallocate(CIOIO)
       Call mma_deallocate(VEC3)
-      RETURN
+
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real(EREF)
-      END
+      END SUBROUTINE GASCI
