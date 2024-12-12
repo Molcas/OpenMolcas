@@ -39,6 +39,7 @@
       Real*8, Allocatable:: LSCR(:), LSCR2(:)
       Real*8, Allocatable:: LJ(:), LK(:), LXA(:), LXB(:), LRJKA(:),
      &                      LH1D(:)
+      INTEGER, EXTERNAL:: IMNMX
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)

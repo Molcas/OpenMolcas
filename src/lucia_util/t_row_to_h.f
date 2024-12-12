@@ -32,6 +32,7 @@
       DIMENSION T(*)
 *. Output ( also in blocked form)
       DIMENSION H(*)
+      INTEGER, External:: IFRMR
 *
       KSM = ISMFSO(K)
       KOFF = IBSO(KSM)

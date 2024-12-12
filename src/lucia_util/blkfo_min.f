@@ -45,6 +45,7 @@
 *. Output : Should outside be dimensioned as MXNTTS
       INTEGER LEN_BLK(*)
       INTEGER I_DUMMY(1)
+      INTEGER, External:: IFRMR
 *
       I_DUMMY(1) = 0 ! jwk-cleanup
       IATP = 1

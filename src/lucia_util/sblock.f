@@ -76,6 +76,7 @@
       Real*8, Allocatable:: LSCLFAC(:)
       Integer, Allocatable:: SVST(:)
       Integer, Allocatable:: H0SPC(:)
+      INTEGER, EXTERNAL:: IMNMX
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')

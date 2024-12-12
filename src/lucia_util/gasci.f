@@ -59,6 +59,8 @@
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
       Integer, Allocatable:: CIOIO(:)
       Integer, Allocatable:: SVST(:)
+      INTEGER, External:: IFRMR
+      INTEGER, EXTERNAL:: IMNMX
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)

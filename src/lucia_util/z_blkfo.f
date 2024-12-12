@@ -42,6 +42,7 @@
 #include "crun.fh"
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)
+      INTEGER, External:: IFRMR
 *
 * Some dummy initializations
       NTEST = 00

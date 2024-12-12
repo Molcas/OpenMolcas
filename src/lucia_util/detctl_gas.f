@@ -19,7 +19,7 @@
       use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 
 *
-      IMPLICIT REAL*8 (A-H, O-Z)
+      IMPLICIT NONE
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
@@ -39,6 +39,14 @@
       Integer, Allocatable:: SVST(:)
       Integer, Allocatable:: BASSPC(:)
       Integer, Allocatable:: KLOCCLS(:)
+      INTEGER JSYM,NDET,IATP,IBTP,NEL,NOCCLS,LBLOCK,NOCTPA,NOCTPB,NTTS,
+     &        NBLOCK,MXSTBL0,IATPM1,IBTPM1,IATPM2,IBTPM2,NAEL,NBEL,MAXA,
+     &        MAXA1,MAXB,MAXB1,MXSTBL,MAXI,MAXK,IOCTPA,IOCTPB,MXCJ,
+     &        MXCIJA,MXCIJB,MXSXBL,MXADKBLK,MXADKBLK_AS,LSCR2,LSCR12,
+     &        IOBTP,IOBSM,INTSCR,MAXIK,LSCR3,LZSCR,LZ,MXCIJAB,
+     &        MXCJ_ALLSYM,MX_NSPII,NBATCH
+      INTEGER, External:: IFRMR
+      INTEGER, EXTERNAL:: IMNMX
 
 *. Set variables in Module cands
       JSYM = IREFSM
