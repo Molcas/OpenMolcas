@@ -31,7 +31,7 @@ integer(kind=iwp), intent(out) :: nHidden
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAtNum, iHidden, iKept, iPL, ITkQMMM, mTot, mTtAtm, nKept
 real(kind=wp) :: XYZ(3)
-logical(kind=iwp) :: Do_ESPF, Exists, Exists2
+logical(kind=iwp) :: Do_ESPF, Exists
 character(len=180) :: Line
 character(len=2) :: Symbol
 real(kind=wp), allocatable :: Coor_h(:,:), h_xyz(:,:)
@@ -94,35 +94,34 @@ if (Do_ESPF) then
       end if
     end do
     close(ITkQMMM)
-  end if
-
-  ! Try outer MM atoms stored on runfile
-
-  if (.not. Exists) then
-    call Qpg_dArray('MMO Coords',Exists2,nHidden)
   else
-    Exists2 = .false.
-  end if
-  if (Exists2) then
-    nHidden = nHidden/3
-    call mma_allocate(h_xyz,3,nHidden,Label='h_xyz')
-    call mma_allocate(h_AN,nHidden,Label='h_AN')
-    call mma_allocate(LabMMO,nHidden,Label='LabMMO')
-    call Get_dArray('MMO Coords',h_xyz,nHidden*3)
-    call Get_cArray('MMO Labels',LabMMO,LenIn*nHidden)
-    do iHidden=1,nHidden
-      Symbol(1:1) = LabMMO(iHidden)(1:1)
-      Symbol(2:2) = LabMMO(iHidden)(2:2)
-      if (Symbol(2:2) == '_') Symbol = ' '//Symbol(1:1)
-      do i=0,MaxAtomNum
-        if (Ptab(i) == Symbol) then
-          h_AN(iHidden) = -i
-          exit
-        end if
+    ! Try outer MM atoms stored on runfile
+    call Qpg_dArray('MMO Coords',Exists,nHidden)
+    if (Exists) then
+      nHidden = nHidden/3
+      call mma_allocate(h_xyz,3,nHidden,Label='h_xyz')
+      call mma_allocate(h_AN,nHidden,Label='h_AN')
+      call mma_allocate(LabMMO,nHidden,Label='LabMMO')
+      call Get_dArray('MMO Coords',h_xyz,nHidden*3)
+      call Get_cArray('MMO Labels',LabMMO,LenIn*nHidden)
+      do iHidden=1,nHidden
+        Symbol(1:1) = LabMMO(iHidden)(1:1)
+        Symbol(2:2) = LabMMO(iHidden)(2:2)
+        if (Symbol(2:2) == '_') Symbol = ' '//Symbol(1:1)
+        do i=0,MaxAtomNum
+          if (Ptab(i) == Symbol) then
+            h_AN(iHidden) = -i
+            exit
+          end if
+        end do
       end do
-    end do
-    call mma_deallocate(LabMMO)
+      call mma_deallocate(LabMMO)
+    end if
   end if
+end if
+if (.not. allocated(h_xyz)) then
+  call mma_allocate(h_xyz,3,nHidden,Label='h_xyz')
+  call mma_allocate(h_AN,nHidden,Label='h_AN')
 end if
 if (iPL > 3) call RecPrt('Hidden coord:',' ',h_xyz,3,nHidden)
 
@@ -156,8 +155,6 @@ if (nKept > 0) then
     write(u6,'(A)') ' Hidden: wrong number of kept hidden atoms.'
     call Quit_OnUserError()
   end if
-  call mma_deallocate(h_AN)
-  call mma_deallocate(h_xyz)
   call mma_deallocate(Coor)
   call mma_deallocate(AN)
 
@@ -173,6 +170,8 @@ if (nKept > 0) then
   if (iPL > 3) call RecPrt('Hidden: Coor',' ',Coor,3,mTot)
 end if
 nHidden = nKept
+call mma_deallocate(h_AN)
+call mma_deallocate(h_xyz)
 
 return
 
