@@ -9,10 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
       Integer       IDUMMY,NICISP,                                      &
      &              NELCI(MXPICI),                                      &
-     &              XISPSM(MXPCSM,MXPICI),                              &
      &              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,                  &
      &              NBLKIC(MXPCSM,MXPICI),LCOLIC(MXPCSM,MXPICI),        &
      &              MXNTTS,MXSOOB_AS
+      REAL*8        XISPSM(MXPCSM,MXPICI)
       COMMON/CICISP/IDUMMY,NICISP,                                      &
      &              NELCI        ,                                      &
      &              XISPSM               ,                              &
