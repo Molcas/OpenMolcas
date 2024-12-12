@@ -9,5 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !/CPRNT/ : Print flags
+      Integer      IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPROCC,IPRDEN,     &
+     &             IPRRSP,IPRNCIV,IPRPRO,IPRCC
       COMMON/CPRNT/IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPROCC,IPRDEN,     &
      &             IPRRSP,IPRNCIV,IPRPRO,IPRCC

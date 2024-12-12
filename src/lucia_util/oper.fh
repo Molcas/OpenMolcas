@@ -8,4 +8,5 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+      INTEGER     I12,IPERTOP,IAPR,IPART,I_RES_AB
       COMMON/OPER/I12,IPERTOP,IAPR,IPART,I_RES_AB

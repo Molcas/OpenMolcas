@@ -9,4 +9,5 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !./STINF/
-      COMMON/STINF/ISTAC(MXPSTT,2),NOCTYP(MXPSTT)
+      Integer      ISTAC(MXPSTT,2),NOCTYP(MXPSTT)
+      COMMON/STINF/ISTAC,NOCTYP

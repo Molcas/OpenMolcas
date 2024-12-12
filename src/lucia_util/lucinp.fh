@@ -9,13 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !./LUCINP/
-      INTEGER PNTGRP,EXTSPC
-      COMMON/LUCINP/PNTGRP,NIRREP,NSMCMP,MAXML,MAXL,                    &
+      Integer       PNTGRP,NIRREP,NSMCMP,MAXML,MAXL,                    &
      &              INTSPC,EXTSPC,NRSSH(MXPIRR,3),                      &
      &              MNRS1R,MXRS3R,NACTEL,                               &
      &              NSMOB,NRS0SH(1,MXPIRR),NRS4SH(MXPIRR,MXPR4T),       &
      &              MXR4TP, MXHR0,MXER4,                                &
      &              NINASH(MXPIRR),                                     &
      &              NDELSH(MXPIRR),MNRS10,MXRS30,                       &
+     &              MNRS1RE,MXRS3RE,                                    &
+     &              MNRS1ZE,MXRS3ZE
+      COMMON/LUCINP/PNTGRP,NIRREP,NSMCMP,MAXML,MAXL,                    &
+     &              INTSPC,EXTSPC,NRSSH          ,                      &
+     &              MNRS1R,MXRS3R,NACTEL,                               &
+     &              NSMOB,NRS0SH          ,NRS4SH               ,       &
+     &              MXR4TP, MXHR0,MXER4,                                &
+     &              NINASH        ,                                     &
+     &              NDELSH        ,MNRS10,MXRS30,                       &
      &              MNRS1RE,MXRS3RE,                                    &
      &              MNRS1ZE,MXRS3ZE

@@ -243,8 +243,7 @@ c      END IF
       END SUBROUTINE DETCTL_GAS
 *
       SUBROUTINE DETCTL_FREE()
-      use strbas
-      Implicit real*8(a-h,o-z)
+      Implicit None
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "cgas.fh"
@@ -255,7 +254,6 @@ c      END IF
 #include "cprnt.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "spinfo_lucia.fh"
 #include "strinp.fh"
 #include "lucinp.fh"
 

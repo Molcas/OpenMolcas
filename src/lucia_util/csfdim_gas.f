@@ -232,7 +232,7 @@ c
              IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = 1
            ELSE
 * PAM2009: It was discovered that these two arrays could be overrun.
-* The arrays are declared in spinfo_lucia.fh, and their dimension
+* The arrays are declared in lucia_data.F90, and their dimension
 * is MXPCSM, which is set in mxpdim.fh -- both included above.
 * So MXPCSM is now increased from 20 to 40 -- if this is not a final
 * solution remains to be discovered:

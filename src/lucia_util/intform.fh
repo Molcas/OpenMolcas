@@ -9,4 +9,5 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !. Form of integrals
+      INTEGER        IH1FORM,IH2FORM
       COMMON/INTFORM/IH1FORM,IH2FORM
