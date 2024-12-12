@@ -819,11 +819,11 @@ C   No changing about read in orbital information from INPORB yet.
       If (DBG) Write(6,*) ' Purify=',PURIFY
 
 *---  process KSDF command --------------------------------------------*
-      If (DBG) Write(6,*) ' Check if KSDFT was requested.'
-      If (KeyKSDF) Then
-       If (DBG) Write(6,*) ' KSDFT command was given.'
+      If (DBG) Write(6,*) ' Check if FUNCtional was requested.'
+      If (KeyFUNC) Then
+       If (DBG) Write(6,*) ' FUNC command was given.'
        DFTFOCK='CAS '
-       Call SetPos(LUInput,'KSDF',Line,iRc)
+       Call SetPos(LUInput,'FUNC',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        Read(LUInput,*,End=9910,Err=9920) Line
        Call UpCase(Line)
@@ -2641,7 +2641,7 @@ C orbitals accordingly
         Call ChkIfKey()
       Else
 * Default is to use QUNE, unless this is some kind of DFT:
-       If (KeyKSDF) Then
+       If (KeyFUNC) Then
          NQUNE=0
          If (DBG) Write(6,*) ' DFT calculation: QUNE is disabled.'
        Else
