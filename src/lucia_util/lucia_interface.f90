@@ -32,7 +32,7 @@ Contains
                             SIGMA_VECTOR)
       use stdalloc, only: mma_allocate, mma_deallocate
 
-      Implicit REAL*8 (A-H,O-Z)
+      Implicit None
       Character(LEN=*) Module
       Integer, Optional:: iSym
       Integer, Optional:: iDisk
@@ -41,6 +41,7 @@ Contains
       Real*8, Optional:: RVEC(:)
       Real*8, Optional:: CI_Vector(:)
       Real*8, Optional:: SIGMA_Vector(:)
+
       Integer, Parameter:: MxpLnc = 72
       Character(LEN=MxpLnc) Module_
 !
@@ -72,7 +73,6 @@ Contains
 
 #include "oper.fh"
 #include "orbinp.fh"
-#include "spinfo_lucia.fh"
 #include "stinf.fh"
 #include "strinp.fh"
       Integer, Allocatable:: lVec(:)
@@ -139,6 +139,7 @@ Contains
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS, only: VEC3, DTOC, RHO1, SRHO1, SDREO
       use rasscf_lucia, only: kvec3_length, Sigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
+      use lucia_data, only: NCSF_PER_SYM,NSD_PER_SYM
 !
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
@@ -150,7 +151,6 @@ Contains
 #include "clunit.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
-#include "spinfo_lucia.fh"
 #include "cstate.fh"
 #include "io_util.fh"
       Integer nCIVec
