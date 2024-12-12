@@ -143,7 +143,7 @@ Contains
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
 !
-      implicit real*8 (a-h,o-z)
+      implicit none
 #include "mxpdim.fh"
 #include "crun.fh"
 #include "cicisp.fh"
@@ -158,12 +158,13 @@ Contains
       Real*8, Optional:: RVec(:)
 
       logical iPack,tdm
-      dimension dummy(1)
+      Real*8 dummy(1)
       Real*8, Allocatable:: VEC1(:), VEC2(:)
       Integer, Allocatable:: lVec(:)
       Real*8, Allocatable, Target:: SCR1(:), SCR3(:)
       Real*8, Allocatable:: SCR2(:), SCR4(:)
-      Integer NSD, NCSF
+      Integer NSD,NCSF,LBLOCK,LBLK
+      Real*8 EXPS2
 
 !
 ! Put CI-vector from RASSCF on luc
@@ -286,11 +287,12 @@ Contains
 !     Note that CI_VEC is used as a scratch array!
       use GLBBAS, only: INT1, INT1O, VEC3, CI_SCR => CI_VEC, SIGMA_SCR => SIGMA_VEC
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
+      use lucia_data, only: NSD_PER_SYM
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
 ! from Molcas Rasscf.
 !
-      implicit real*8 (a-h,o-z)
+      implicit None
 #include "mxpdim.fh"
 #include "cicisp.fh"
 #include "cstate.fh"
@@ -298,7 +300,6 @@ Contains
 #include "orbinp.fh"
 #include "cecore.fh"
 #include "crun.fh"
-#include "spinfo_lucia.fh"
       Integer nCIVEC
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
 
@@ -351,7 +352,8 @@ Contains
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, SIGMA_ON_DISK
       use CandS, only: ICSM,ISSM
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use lucia_data, only: NSD_PER_SYM
+      IMPLICIT NONE
 #include "mxpdim.fh"
 #include "cicisp.fh"
 #include "cstate.fh"
@@ -359,8 +361,7 @@ Contains
 #include "orbinp.fh"
 #include "cecore.fh"
 #include "crun.fh"
-#include "spinfo_lucia.fh"
-      Integer nCIVEC
+      Integer nCIVEC,IREFSM_CASVB
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
       Integer, Allocatable:: lVec(:)
       Integer nSD
@@ -471,8 +472,8 @@ Contains
 ! Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
 !
       implicit real*8 (a-h,o-z)
-      dimension lrec(mxrec)
-      dimension vec(mxrec)
+      integer lrec(mxrec)
+      real*8 vec(mxrec)
 #include "rasdim.fh"
 #include "general.fh"
 #include "io_util.fh"
