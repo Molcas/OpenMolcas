@@ -19,6 +19,12 @@
       use stdalloc, only: mma_allocate
       use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
      &                  Z_PTDT, REO_PTDT, SDREO
+      use lucia_data, only: MINOP,MAXOP,NCONF_ALL_SYM,NCSF_HEXS,
+     &                      NCONF_PER_OPEN,NPCMCNF,NPCSCNF,
+     &                      IBCONF_ALL_SYM_FOR_OCCLS,IB_CONF_OCC,
+     &                      IB_CONF_REO,IB_SD_FOR_OPEN,NPDTCNF,
+     &                      NCONF_ALL_SYM_FOR_OCCLS,NCONF_PER_SYM,
+     &                      NCONF_TOT,NCSF_PER_SYM,NSD_PER_SYM
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -40,7 +46,6 @@
 #include "orbinp.fh"
 #include "cstate.fh"
 #include "cgas.fh"
-#include "spinfo_lucia.fh"
 #include "warnings.h"
 #include "gasstr.fh"
 * Input type of occupation classes
