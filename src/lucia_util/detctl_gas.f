@@ -17,6 +17,8 @@
       use strbas
       use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
       use CandS, only: ICSM, ICSPC, ISSM, ISSPC
+      use lucia_data, only: NCONF_PER_OPEN,NCONF_PER_SYM,NCSF_HEXS,
+     &                      NCSF_PER_SYM,NPCSCNF,NPDTCNF,NSD_PER_SYM
 
 *
       IMPLICIT NONE
@@ -30,7 +32,6 @@
 #include "cprnt.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "spinfo_lucia.fh"
 #include "strinp.fh"
 #include "lucinp.fh"
 
