@@ -14,21 +14,26 @@
       use Local_Arrays, only: Deallocate_Local_Arrays
       use rasscf_lucia, only: kvec3_length
       use CandS, only: ISSM,ISSPC
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use lucia_data, only: NCSF_PER_SYM
+      IMPLICIT None
+      INTEGER JOBDISK,JOBIPH
 #include "mxpdim.fh"
 #include "clunit.fh"
 #include "crun.fh"
 #include "cicisp.fh"
 #include "cstate.fh"
 #include "orbinp.fh"
-#include "spinfo_lucia.fh"
 #include "lucinp.fh"
 #include "io_util.fh"
 *
-      DIMENSION LREC(MXNTTS),CMOMO(*)
-      DIMENSION I_DUMMY(1)
+      Real*8  CMOMO(*)
+      INTEGER LREC(MXNTTS)
+
+      Integer I_DUMMY(1)
       Real*8, allocatable:: VEC1(:), VEC2(:), VEC4(:)
       Real*8, Allocatable:: LCMOMO(:), LH1SAVE(:)
+      INTEGER NTEST,LBLK,NDIM,NCONF,LBLOCK,JDISK,JROOT,IOFF,IREC,NREC,
+     &        IATP,IBTP,IADR,ICOL,ISM,IROW,I,J,NUM_ELE,NBATCH,NBLOCK
 *
       NTEST = 0
       LBLK  = -1
@@ -158,4 +163,4 @@
       Call mma_deallocate(LCMOMO)
       Call mma_deallocate(LH1SAVE)
 *
-      END
+      END SUBROUTINE TRACI_MASTER
