@@ -84,6 +84,8 @@
 *
       INTEGER I1(*)
       DIMENSION XI1S(*)
+
+      INTEGER, External:: IELSUM
 *. Will be stored as an matrix of dimension
 * (NKSTR,*), Where NKSTR is the number of K-strings of
 *  correct symmetry . Nk is provided by this routine.

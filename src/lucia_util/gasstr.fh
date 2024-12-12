@@ -7,8 +7,7 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!***********************************************************************
-      COMMON/GASSTR/MNGSOC(MXPNGAS),MXGSOC(MXPNGAS),NGPSTR(MXPNGAS),    &
+      INTEGER       MNGSOC(MXPNGAS),MXGSOC(MXPNGAS),NGPSTR(MXPNGAS),    &
      &              IBGPSTR(MXPNGAS),NELFGP(MXPSTT),IGSFGP(MXPSTT),     &
      &              NSTFGP(MXPSTT),MNELFGP(MXPNGAS),MXELFGP(MXPNGAS),   &
      &              NELFTP(MXPSTT),NSPGPFTP(MXPSTT),IBSPGPFTP(MXPSTT),  &
@@ -22,3 +21,18 @@
      &              IELIMINATED_IN_GAS(MXPNGAS),N_ELIMINATED_GAS,       &
      &              I_ELIMINATE_GAS, I2ELIMINATED_IN_GAS(MXPNGAS),      &
      &              N_2ELIMINATED_GAS
+      COMMON/GASSTR/MNGSOC         ,MXGSOC         ,NGPSTR         ,    &
+     &              IBGPSTR         ,NELFGP        ,IGSFGP        ,     &
+     &              NSTFGP        ,MNELFGP         ,MXELFGP         ,   &
+     &              NELFTP        ,NSPGPFTP        ,IBSPGPFTP        ,  &
+     &              ISPGPFTP                ,NELFSPGP                ,  &
+     &              NSTFSMSPGP                 ,                        &
+     &              NGRP,NSTTP,MXNSTR,NTSPGP,MAX_STR_SPGP,              &
+     &              MAX_STR_OC_BLK,MXSMCLS,MXSMCLSE,MXSMCLSE1,          &
+     &              NHLFSPGP        ,MNHL, NSTFSMGP                 ,   &
+     &              MINMAX_SM_GP          ,ISTFSMGP                 ,   &
+     &              I_AM_OUT        ,N_ELIMINATED_BATCHES,              &
+     &              IELIMINATED_IN_GAS         ,N_ELIMINATED_GAS,       &
+     &              I_ELIMINATE_GAS, I2ELIMINATED_IN_GAS         ,      &
+     &              N_2ELIMINATED_GAS
+!***********************************************************************

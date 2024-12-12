@@ -39,6 +39,7 @@
       DIMENSION IBASSPC(*)
 *. Local scratch
       DIMENSION IOCA(MXPNGAS),IOC(MXPNGAS)
+      INTEGER, External:: IELSUM
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN

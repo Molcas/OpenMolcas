@@ -72,6 +72,7 @@ c     INTEGER IREO(*)
       INTEGER JCONF(2*MXPORB)
 
       INTEGER IDUM_ARR(1)
+      INTEGER, External:: IELSUM
 *
       NTEST = 00
 *. Total number of electrons

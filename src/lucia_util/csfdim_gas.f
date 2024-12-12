@@ -35,7 +35,7 @@
 *                        CONFIGURATION EXPANSIONS
 * ( Spin signaled by PSSIGN in CIINFO)
 *
-      Implicit REAL*8 (A-H,O-Z)
+      Implicit NONE
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
@@ -44,11 +44,21 @@
 #include "warnings.h"
 #include "gasstr.fh"
 * Input type of occupation classes
+      INTEGER NOCCLS,ISYM,IPRCSF
       INTEGER IOCCLS(NGAS,*)
+
       INTEGER IDUM_ARR(1)
       INTEGER TMP_CNF(MXPORB+1),HEXS_CNF(MXPORB+1),
      &        maxingas(N_ELIMINATED_GAS),
      &        maxingas2(N_2ELIMINATED_GAS)
+      INTEGER IDUM,NTEST,NELEC,ITP,IOPEN,IAEL,IBEL,I,IGAS,JOCCLS,
+     &        INITIALIZE_CONF_COUNTERS, IDOREO,NCONF_ALL_SYM_PREV,
+     &        IELIM,J,JGAS,NCSF,NSD,NCMB,LIDT,LDTOC,MXPTBL,MXDT,LCONF,
+     &        ILCNF,LLCONF,ILLCNF,ITYP,ICL,IALPHA,LZ,LPTDT,IZERO,IB,
+     &        LICS,LENGTH_LIST,NCONF_OCCLS,NSMST
+      INTEGER, EXTERNAL:: IELSUM
+      INTEGER, EXTERNAL:: IBION_LUCIA
+      INTEGER, EXTERNAL:: IWEYLF
 *
       IDUM = 0
       IDUM_ARR=0
@@ -352,22 +362,23 @@ C
         END IF
       END DO
 *
-      RETURN
-      END
+      END SUBROUTINE CSFDIM_GAS
 
       SUBROUTINE CSFDIM_FREE(ISYM)
       use stdalloc, only: mma_deallocate
       use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
      &                  Z_PTDT, REO_PTDT, SDREO
+      use lucia_data, only: MINOP,MAXOP
 * Free resources allocated by CSFDIM_GAS
 
-      Implicit REAL*8 (A-H,O-Z)
+      Implicit NONE
+      INTEGER ISYM
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
 #include "cgas.fh"
-#include "spinfo_lucia.fh"
 #include "warnings.h"
+      INTEGER IOPEN,ITYP
 
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
@@ -398,4 +409,4 @@ c     LCONF = MAX(LCONF,LLCONF)
 
       CALL mma_deallocate(SDREO_I(ISYM)%I)
       nullify(SDREO)
-      END
+      END SUBROUTINE CSFDIM_FREE

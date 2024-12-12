@@ -51,6 +51,7 @@
       Integer, Allocatable:: FREEL(:)
 *. A bit of scratch
 C     DIMENSION IOCTYP(MXPNGAS)
+      INTEGER, External:: IELSUM
 *
 *
 * Some dummy initializtions

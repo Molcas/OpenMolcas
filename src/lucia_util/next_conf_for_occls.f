@@ -36,6 +36,7 @@
 *. Local scratch
       INTEGER IBORB(MXPNGAS), ICONF_GAS(MXPORB)
       INTEGER IBEL(MXPNGAS)
+      INTEGER, External:: IELSUM
 *
       NTEST = 000
 *. Total number of electrons
