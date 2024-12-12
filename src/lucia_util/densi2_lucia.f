@@ -16,6 +16,7 @@
       use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use strbas
       use CandS, only: ICSM,ISSM,ISSPC
+      use Constants, only: Zero
 *
 * Density matrices between L and R
 *
@@ -46,8 +47,7 @@
 *      = -Sum(ij) a+i alpha a+j beta a i beta a j alpha + Nalpha +
 *        1/2(N alpha - N beta))(1/2(N alpha - Nbeta) - 1)
 * If IDOSRHO1 = 1, spin density is also calculated
-      IMPLICIT REAL*8(A-H,O-Z)
-c      REAL*8 INPRDD
+      IMPLICIT NONE
 *
 * =====
 *.Input
@@ -67,19 +67,18 @@ c      REAL*8 INPRDD
 #include "cgas.fh"
 #include "gasstr.fh"
 #include "cprnt.fh"
-#include "spinfo_lucia.fh"
 *
-      LOGICAL IPACK
 #include "csmprd.fh"
 #include "lucinp.fh"
 #include "clunit.fh"
-*. Scratch for string information
-      INTEGER SXSTSM(1)
 *. Specific input
-      REAL*8 L
-      DIMENSION L(*),R(*)
+      INTEGER I12,LUL,LUR,IDOSRHO1
+      LOGICAL IPACK
+      REAL*8 L(*),R(*)
 *.Output
-      DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
+      REAL*8 RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
+      REAL*8 EXPS2
+
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
@@ -95,11 +94,27 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: SVST(:)
       Real*8, Allocatable:: RHO1S(:), RHO1P(:), XNATO(:), RHO1SM(:),
      &                       OCCSM(:)
+*. Scratch for string information
+      INTEGER SXSTSM(1)
+
+      INTEGER NIJ,NIJKL,IATP,IBTP,IATPM1,IBTPM1,IATPM2,IBTPM2,NOCTPA,
+     &        NOCTYP,NOCTPB,IOCTPA,IOCTPB,NAEL,NELEC,NBEL,IPRCIX,MAXA0,
+     &        MAXB0,MXSTBL0,MAXA,MAXA1,MAXB,MAXB1,MXSTBL,IPRDEN,MAXI,
+     &        MAXK,IOBTP,IOBSM,NSMOB,MXSB,MXSOOB,LSCR1,INTSCR,MXCJ,
+     &        MXCIJA,MXCIJB,MXCIJAB,MXSXBL,LSCR2,LSCR12,KCSCR,MAXIK,
+     &        LSCR3,ISMOST,LZSCR,LZ,K12,I1234,NTTS,MXNTTS
+      INTEGER IDUMMY,IMNMX,INTSPC,IPRCC,IPRDIA,IPRNCIV,IPROCC,IPRORB,
+     &        IPRPRO,IPRRSP,IPRSTR,IPRXT,ISTAC
+      INTEGER LCOLIC,MAXL,MAXML,MNRS10,MNRS1R,MNRS1RE,MNRS1ZE,MXADKBLK,
+     &        MXADKBLK_AS,MXCJ_ALLSYM,MXER4,MXHR0,MXR4TP,MXRS30,MXRS3R,
+     &        MXRS3RE,MXRS3ZE,MXSOOB_AS,MX_NSPII,NACTEL,NBATCHL,NBATCHR,
+     &        NBLKIC,NDELSH,NELCI,NICISP,NINASH,NIRREP,NRS0SH,NRS4SH,
+     &        NRSSH,NSMCMP,NSTTYP
+      REAL*8 XISPSM,S2_TERM1
 
 *. Before I forget it :
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
-      ZERO = 0.0D0
       CALL SETVEC(RHO1,ZERO ,NACOB ** 2 )
       IF(I12.EQ.2) THEN
          IF(IPACK) THEN

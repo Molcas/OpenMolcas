@@ -9,14 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !/CRUN/ : Defines RUN
-      CHARACTER*6 PROPER,ENVIRO,CCFORM
-      CHARACTER*8 RESP_OP, CSEQCI, AVE_OP, ITRACI_CR,ITRACI_CN
-      CHARACTER*2 PADDY, PADDY2
-      COMMON/CRUN/ITRACI_CR,ITRACI_CN,AVE_OP(20),RESP_OP(2,20),           &
-     &            CSEQCI(MXPICI,MXPICI),PROPER(20),ENVIRO,CCFORM,         &
-     &            PADDY,PADDY2,THRES_E,XLAMBDA,E_THRE,C_THRE,             &
-     &            E_CONV,C_CONV,RESP_W(20),                               &
-     &            MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,         &
+      CHARACTER*6 PROPER(20),ENVIRO,CCFORM
+      CHARACTER*8 RESP_OP(2,20), CSEQCI(MXPICI,MXPICI), AVE_OP(20),       &
+     &            ITRACI_CR,ITRACI_CN
+      REAL*8                  THRES_E,XLAMBDA,E_THRE,C_THRE,              &
+     &            E_CONV,C_CONV,RESP_W(20)
+      INTEGER     MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,         &
      &            ICISTR,NOCSF,IDIAG,NOINT,IDMPIN,MXINKA,ICJKAIB,         &
      &            INIREF,IRESTRF,MOCAA,MOCAB,IPERT,NPERT,                 &
      &            IAPRREF,IAPRZER,IIDUM,                                  &
@@ -30,6 +28,34 @@
      &            IXYZSYM(3),NPROP,                                       &
      &            ITRAPRP,NEXCSTATE,IEXCSYM,IRESPONS,NRESP,               &
      &            MAXORD_OP(2,20),MXITLE,N_AVE_OP, IROOTHOMING,           &
+     &            IUSE_PH, IADVICE,ITRACI,                                &
+     &            IUSE_PA,IPTFOCK,NSXE,                                   &
+     &            ITRA_FI,                                                &
+     &            ITRA_IN,MULSPC,LPAT,IFMULSPC, IRELAX,                   &
+     &            NCNV_RT,                                                &
+     &            I_RE_MS2_SPACE,I_RE_MS2_VALUE,                          &
+     &            ISIMSYM,                                                &
+     &            INOCALC,ISAVE_EXP,IEXPAND
+      CHARACTER*2 PADDY, PADDY2
+
+      COMMON/CRUN/ITRACI_CR,ITRACI_CN,AVE_OP    ,RESP_OP      ,           &
+     &            CSEQCI               ,PROPER    ,ENVIRO,CCFORM,         &
+     &            PADDY,PADDY2,THRES_E,XLAMBDA,E_THRE,C_THRE,             &
+     &            E_CONV,C_CONV,RESP_W    ,                               &
+     &            MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,         &
+     &            ICISTR,NOCSF,IDIAG,NOINT,IDMPIN,MXINKA,ICJKAIB,         &
+     &            INIREF,IRESTRF,MOCAA,MOCAB,IPERT,NPERT,                 &
+     &            IAPRREF,IAPRZER,IIDUM,                                  &
+     &            NSEQCI        ,ISEQCI               ,IEXTKOP,           &
+     &            IE0AVEX,IC1DSC,IH0SPC,NPTSPC,                           &
+     &            IOCPTSPC                    ,IH0INSPC          ,        &
+     &            IRFROOT,NH0EXSPC,IH0EXSPC          ,INIDEG,             &
+     &            LCSBLK,NOMOFL,IFINMO,NPSSPC,                            &
+     &            NPSSH                ,ICLSSEL,IDENSI,IPTEKT,            &
+     &            NPTEKT,IH0ROOT,IRST2,ISKIPEI,                           &
+     &            IXYZSYM   ,NPROP,                                       &
+     &            ITRAPRP,NEXCSTATE,IEXCSYM,IRESPONS,NRESP,               &
+     &            MAXORD_OP      ,MXITLE,N_AVE_OP, IROOTHOMING,           &
      &            IUSE_PH, IADVICE,ITRACI,                                &
      &            IUSE_PA,IPTFOCK,NSXE,                                   &
      &            ITRA_FI,                                                &

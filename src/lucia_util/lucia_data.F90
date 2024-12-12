@@ -8,12 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Lucia_data
+Module Lucia_Data
 Implicit None
 #include "mxpdim.fh"
 #include "spinfo_lucia.fh"
 save
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
+! Stuff from spinfo_lucia.fh
 !./SPINFO/ new of Nov. 2001
 ! NCONF_TOT added april 29
 !Integer MINOP,MAXOP,NCONF_PER_SYM(MXPCSM),                   &
