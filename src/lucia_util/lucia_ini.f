@@ -13,6 +13,8 @@
       use lucia_data, only: ECORE
       use lucia_data, only: NGAS,NGSSH,NCISPC,NCMBSPC,ICMBSPC,IGSOCCX,
      &                      LCMBSPC
+      use lucia_data, only: IPRCIX,IPRORB,IPRDIA,IPRXT,IPROCC,IPRDEN,
+     &                      IPRRSP,IPRPRO,IPRCC,IPRNCIV
 *
       implicit none
 C Input from RASSCF
@@ -21,7 +23,6 @@ C Input from RASSCF
 *
 
 #include "mxpdim.fh"
-#include "cprnt.fh"
 #include "crun.fh"
 #include "irat.fh"
 #include "lucinp.fh"
