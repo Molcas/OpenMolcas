@@ -27,7 +27,6 @@
       use lucia_data, only: IGSOCC,IPHGAS,NGAS
       use lucia_data, only: MXSOOB,MXNTTS,IDUMMY,ISMOST,NELCI,XISPSM
       use lucia_data, only: LUDIA,LUSC1
-      use lucia_data, only: MXCJ
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -61,7 +60,7 @@
      &        NBLOCK,MXSTBL0,IATPM1,IBTPM1,IATPM2,IBTPM2,NAEL,NBEL,MAXA,
      &        MAXA1,MAXB,MAXB1,MXSTBL,MAXK,IOCTPA,IOCTPB,
      &        MXCIJA,MXCIJB,MXSXBL,MXADKBLK,MXADKBLK_AS,LSCR2,LSCR12,
-     &        MXCIJAB,NVAR,MXCJ_ALLSYM,MX_NSPII,NBATCH
+     &        MXCIJAB,NVAR,MXCJ_ALLSYM,MX_NSPII,NBATCH,MXCJ
       INTEGER, External:: IFRMR
       INTEGER, EXTERNAL:: IMNMX
       REAL*8 SHIFT

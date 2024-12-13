@@ -15,6 +15,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas, only: NSTSO
       use lucia_data, only: ECORE_ORIG,ECORE
+      use lucia_data, only: IPRDIA
 *. Update Sigma vector with diagonal terms for a given block
 *     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
 *                         + (FACTOR+DIAG(IASPGP,IBSPGP))CVEC(IASPGP,IBSPGP)
@@ -29,7 +30,6 @@
 #include "gasstr.fh"
 #include "csm.fh"
 #include "stinf.fh"
-#include "cprnt.fh"
 *
       REAL*8 FACTOR
       INTEGER IASPGP,IBSPGP,IASM,IBSM

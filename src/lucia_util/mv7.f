@@ -40,7 +40,6 @@
 #include "lucinp.fh"
 #include "cprnt.fh"
 #include "oper.fh"
-#include "cmxcj.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
 ! this is a the same structure as for local_arrays but it can not be
@@ -56,8 +55,6 @@
         CALL SYSABENDMSG('lucia_util/mv7','Internal error',' ')
       END IF
 *
-      MAXK1_MX = 0
-      LSCMAX_MX = 0
       IATP = 1
       IBTP = 2
 *

@@ -13,9 +13,10 @@ Implicit None
 #include "mxpdim.fh"
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
 
-#include "cmxcj.fh"
-! Stuff fron cmxcj.fh
-!INTEGER      MXCJ,MAXK1_MX,LSCMAX_MX
+#include "cprnt.fh"
+! Stuff fron cprnt.fh
+!Integer      IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPROCC,IPRDEN,     &
+!             IPRRSP,IPRNCIV,IPRPRO,IPRCC
 
 ! Stuff fron clunit.fh
 INTEGER       LU1INT,LU2INT,LUPRP,                                &
