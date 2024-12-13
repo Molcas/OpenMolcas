@@ -23,6 +23,8 @@
 * GAS VERSION
 *
       use lucia_data, only: NCMBSPC,IGSOCCX,NGAS
+      use lucia_data, only: NICISP,MXSB,MXSOOB,MXSOOB_AS,MXNTTS,ISMOST,
+     &                      LCOLIC,NBLKIC,XISPSM
       IMPLICIT NONE
       INTEGER IPRNT
 *
@@ -42,7 +44,6 @@
 *. Output common block : XISPSM is calculated
 * ====================
 *
-#include "cicisp.fh"
 
       Integer, Allocatable:: LBLTP(:), LIOIO(:), CVST(:)
       Integer IATP,IBTP,NOCTPA,NOCTPB,ICI,ISYM,NTTSBL,LCOL,ISM,MXS,
