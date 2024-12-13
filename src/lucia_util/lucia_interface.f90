@@ -50,8 +50,6 @@ Contains
 !
 #include "mxpdim.fh"
 
-#include "cgas.fh"
-
 #include "cicisp.fh"
 #include "cintfo.fh"
 #include "clunit.fh"
