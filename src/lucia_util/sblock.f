@@ -22,6 +22,7 @@
 *.Definition of c and sigma spaces
       use CandS, only: ICSM,ICSPC,ISSPC
       use lucia_data, only: MXSOOB,MXNTTS,ISMOST
+      use lucia_data, only: IPRCIX,IPRDIA
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -61,7 +62,6 @@
 #include "crun.fh"
 #include "gasstr.fh"
 #include "lucinp.fh"
-#include "cprnt.fh"
 #include "oper.fh"
 #include "io_util.fh"
 *
