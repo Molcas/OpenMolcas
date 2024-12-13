@@ -70,7 +70,6 @@
 *
 #include "csmprd.fh"
 #include "lucinp.fh"
-#include "clunit.fh"
 *. Specific input
       INTEGER I12,LUL,LUR,IDOSRHO1
       LOGICAL IPACK
