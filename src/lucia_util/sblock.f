@@ -21,6 +21,7 @@
       use lucia_data, only: NGAS,IPHGAS
 *.Definition of c and sigma spaces
       use CandS, only: ICSM,ICSPC,ISSPC
+      use lucia_data, only: MXSOOB,MXNTTS,ISMOST
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -53,7 +54,6 @@
 *
 *./ORBINP/ : NACOB used
 #include "orbinp.fh"
-#include "cicisp.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
