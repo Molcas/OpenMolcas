@@ -31,11 +31,16 @@
 *. INTERACT : =1 => The two blocks does interact
 * Jeppe Olsen, April 99
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER IATP,   IBTP,   JATP,   JBTP,   IASM,
+     &        IBSM,   JASM,   JBSM,
+     &        NOCTPA, NOCTPB,  MXEXC,
+     &        IH_OCC_CONS,INTERACT
 #include "mxpdim.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
       INTEGER ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
+
+      INTEGER IA_EXC,IB_EXC,NTEST
 *
       IA_EXC = ICONSPA(IATP,JATP)
       IB_EXC = ICONSPB(IBTP,JBTP)
@@ -92,5 +97,4 @@ c        END IF
         WRITE(6,*) ' IH_OCC_CONS, INTERACT = ', IH_OCC_CONS,INTERACT
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE CON_BLOCKS
