@@ -11,7 +11,7 @@
       SUBROUTINE GASDIAT(    DIAG,   LUDIA,   ECORE,  ICISTR,     I12,
      &                      IBLTP,  NBLOCK,  IBLKFO)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use strbas
+      use strbas, only: NSTSO
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -35,17 +35,19 @@
 #include "stinf.fh"
 #include "csm.fh"
 #include "cprnt.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 #include "io_util.fh"
 *
-      DIMENSION IBLTP(*)
-      DIMENSION IBLKFO(8,NBLOCK)
+      INTEGER LUDIA,ICISTR,I12,NBLOCK
+      REAL*8 ECORE
+      INTEGER IBLTP(*)
+      INTEGER IBLKFO(8,NBLOCK)
 *
 * ======
 *.Output
 * ======
-      DIMENSION DIAG(*)
+      REAL*8 DIAG(*)
+
       Integer, Allocatable:: LASTR(:), LBSTR(:)
       Real*8, Allocatable:: LSCR2(:)
       Real*8, Allocatable:: LJ(:), LK(:), LXB(:), LH1D(:), LRJKA(:)
@@ -113,4 +115,4 @@
       Call mma_deallocate(LBSTR)
       Call mma_deallocate(LRJKA)
 *
-      END
+      END SUBROUTINE GASDIAT
