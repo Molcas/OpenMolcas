@@ -13,6 +13,10 @@ Implicit None
 #include "mxpdim.fh"
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
 
+#include "cintfo.fh"
+! Stuff fron cintfo.fh
+!INTEGER       I12S,I34S,I1234S,NINT1,NINT2,NBINT1,NBINT2,NINT2_NO_CCSYM
+
 ! Stuff fron cicisp.fh
 Integer       IDUMMY,NICISP,                                      &
               NELCI(MXPICI),                                      &
