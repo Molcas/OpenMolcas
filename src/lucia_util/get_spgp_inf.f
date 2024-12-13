@@ -16,13 +16,16 @@
 *
 * Jeppe Olsen, November 97
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: NGAS
+      IMPLICIT NONE
+      INTEGER ISPGP,ITP
 *. General input
 #include "mxpdim.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 *. Output
-      DIMENSION IGRP(*)
+      integer IGRP(*)
+
+      INTEGER NTEST,ISPGPABS
 *
       NTEST = 00
 *. Absolute group number
@@ -37,5 +40,4 @@ C?    WRITE(6,*) ' GET_SPGP_INF : ISPGP, ITP', ISPGP, ITP
         CALL IWRTMA(IGRP,1,NGAS,1,NGAS)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE GET_SPGP_INF
