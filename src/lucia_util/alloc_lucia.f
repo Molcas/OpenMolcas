@@ -12,6 +12,8 @@
       use stdalloc, only: mma_allocate
       use GLBBAS, only: INT1, INT1O, PINT1, PINT2, PGINT1, PGINT1A,
      &                  LSM1, LSM2, RHO1, SRHO1, KINH1_NOCCSYM, KINH1
+      use Constants, only: Zero
+      use lucia_data, only: NBINT1,NBINT2
 *
 * Dimensions and
 * Allocation of static memory
@@ -40,7 +42,7 @@
 *           Spring 99
 
 *. Input
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
 #include "mxpdim.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
@@ -50,8 +52,8 @@
 #include "cprnt.fh"
 *.CSMPRD
 #include "csmprd.fh"
-#include "cintfo.fh"
 *.Output
+      Integer ISM
 
 *.1 : One electron integrals( Complete matrix allocated )
       CALL mma_allocate(INT1,NTOOB ** 2,Label='INT1')
@@ -59,7 +61,6 @@
       CALL mma_allocate(INT1O,NTOOB ** 2,Label='Int1O')
 *. Zero to avoid problems with elements that will not
 *. be initialized
-      ZERO = 0.0D0
       INT1(:)=ZERO
       INT1O(:)=ZERO
 *.2 : Two electron integrals
@@ -87,5 +88,4 @@
       CALL mma_allocate(KINH1_NOCCSYM,NTOOB*NTOOB,
      &                  Label='KINTH1_NOCCSYM')
 *
-      RETURN
-      END
+      END SUBROUTINE ALLOC_LUCIA
