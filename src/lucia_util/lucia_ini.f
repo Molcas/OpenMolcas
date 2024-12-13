@@ -11,6 +11,8 @@
       SUBROUTINE Lucia_Ini()
       use rasscf_lucia, only: Sigma_on_disk, ini_h0
       use lucia_data, only: ECORE
+      use lucia_data, only: NGAS,NGSSH,NCISPC,NCMBSPC,ICMBSPC,IGSOCCX,
+     &                      LCMBSPC
 *
       implicit none
 C Input from RASSCF
@@ -19,7 +21,6 @@ C Input from RASSCF
 *
 
 #include "mxpdim.fh"
-#include "cgas.fh"
 #include "cprnt.fh"
 #include "crun.fh"
 #include "irat.fh"
