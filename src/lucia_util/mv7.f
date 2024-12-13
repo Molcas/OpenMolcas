@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE MV7(C,HC,LUC,LUHC)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use strbas
+      use strbas, only: NSTSO
 *.Definition of c and sigma
       use CandS, only: ISSPC, ISSM
 *
@@ -18,7 +18,8 @@
 * GAS version !!!!
 *
 * Written in terms of RASG3/SBLOCK, May 1997
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER LUC,LUHC
 #include "mxpdim.fh"
 *
 * =====
@@ -36,7 +37,6 @@
 #include "csm.fh"
 #include "crun.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 #include "lucinp.fh"
 #include "cprnt.fh"
 #include "oper.fh"
@@ -47,6 +47,7 @@
 ! used since lower level routines will use it.
       Integer, Allocatable:: CBLTP(:), CLBT(:), CLEBT(:), CI1BT(:),
      &                       CIBT(:)
+      INTEGER IATP,IBTP,NOCTPA,NOCTPB,NTTS,LBLOCK,LLUC,LLUHC,NBATCH
 *
       IF(ICISTR.EQ.1) THEN
         WRITE(6,*) ' MV7 does not work for ICISTR = 1'
@@ -127,4 +128,4 @@ C?    WRITE(6,*) ' LSCMAX_MX = ', LSCMAX_MX
       Call mma_deallocate(CI1BT)
       Call mma_deallocate(CIBT)
 *
-      END
+      END SUBROUTINE MV7
