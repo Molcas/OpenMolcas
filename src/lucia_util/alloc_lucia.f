@@ -49,8 +49,6 @@
 #include "cstate.fh"
 #include "csm.fh"
 #include "crun.fh"
-#include "cprnt.fh"
-*.CSMPRD
 #include "csmprd.fh"
 *.Output
       Integer ISM
