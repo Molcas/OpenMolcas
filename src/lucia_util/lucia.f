@@ -16,8 +16,6 @@
       IMPLICIT NONE
 *. Parameters for dimensioning
 #include "mxpdim.fh"
-*.File numbers
-#include "clunit.fh"
 *.Print flags
 #include "cprnt.fh"
 #include "lucinp.fh"
