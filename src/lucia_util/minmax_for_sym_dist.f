@@ -11,7 +11,6 @@
 * Copyright (C) 1997,1998, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE MINMAX_FOR_SYM_DIST(NIGRP,IGRP,MNVAL,MXVAL,NDIST)
-      use strbas
 *
 * A combination of NIGRP groups are given (IGRP)
 *. Find MIN and MAX for symmetry in each group
@@ -20,18 +19,18 @@
 *              April 1998     From  MINMAX_SM_GP
 *
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 *. Include blocks
 #include "mxpdim.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 #include "csm.fh"
 *. Input
-      DIMENSION IGRP(NIGRP)
+      INTEGER NIGRP,NDIST
+      INTEGER IGRP(NIGRP)
 *.Output
-      DIMENSION MNVAL(NIGRP),MXVAL(NIGRP)
+      INTEGER MNVAL(NIGRP),MXVAL(NIGRP)
 *. Local scratch
-C-jwk-cleanup      DIMENSION LSMGP(MXPOBS,MXPNGAS)
+      INTEGER NTEST,JGRP
 *
       NTEST = 0000
       IF(NTEST.GE.100) WRITE(6,*) ' >> Entering MINMAX_... <<'
@@ -86,5 +85,4 @@ C     END DO
 *
       IF(NTEST.GE.1000) WRITE(6,*) ' >> Leaving MINMAX_... <<'
 *
-      RETURN
-      END
+      END SUBROUTINE MINMAX_FOR_SYM_DIST
