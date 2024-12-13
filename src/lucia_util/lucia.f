@@ -12,7 +12,7 @@
       use stdalloc, only: mma_allocate
       use GLBBAS, only: CI_VEC, SIGMA_VEC
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 *. Parameters for dimensioning
 #include "mxpdim.fh"
 *.File numbers
@@ -24,10 +24,10 @@
 #include "crun.fh"
 #include "cicisp.fh"
 #include "oper.fh"
-#include "cgas.fh"
 
 #include "warnings.h"
 *.Scratch : A character line
+      Integer LBLOCK
 *
 *.    No floating point underflow
       !CALL XUFLOW
@@ -85,4 +85,4 @@ c         IF (ENVIRO(1:6).EQ.'RASSCF') THEN
       CALL mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
       CALL mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
 
-      END
+      END SUBROUTINE LUCIA
