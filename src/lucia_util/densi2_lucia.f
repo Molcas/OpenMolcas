@@ -19,6 +19,7 @@
       use Constants, only: Zero
       use lucia_data, only: NGAS,IPHGAS
       use lucia_data, only: MXSB,MXSOOB,MXNTTS,ISMOST,XISPSM
+      use lucia_data, only: IPRDEN,IPRCIX
 *
 * Density matrices between L and R
 *
@@ -66,7 +67,6 @@
 #include "csm.fh"
 #include "crun.fh"
 #include "gasstr.fh"
-#include "cprnt.fh"
 *
 #include "csmprd.fh"
 #include "lucinp.fh"

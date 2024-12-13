@@ -24,7 +24,6 @@
 #include "cstate.fh"
 #include "csm.fh"
 #include "crun.fh"
-#include "cprnt.fh"
 #include "csmprd.fh"
 *.Output
 
