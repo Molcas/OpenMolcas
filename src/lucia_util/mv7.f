@@ -38,7 +38,6 @@
 #include "crun.fh"
 #include "gasstr.fh"
 #include "lucinp.fh"
-#include "cprnt.fh"
 #include "oper.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
