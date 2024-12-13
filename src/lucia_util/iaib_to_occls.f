@@ -11,19 +11,21 @@
 * Copyright (C) 2001, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
-      use strbas
+      use strbas, only: IOCLS
+      use lucia_data, only: NGAS,NMXOCCLS
 *
 * Find address of the occupation class corresponding to given types
 * of alpha and beta strings
 *
 * Jeppe Olsen, December 2001
 *
-      Implicit REAL*8 (A-H,O-Z)
+      Implicit NONE
+      INTEGER IAGRP,IATP,IBGRP,IBTP,IOC
 #include "mxpdim.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 *. Local scratch
       INTEGER IABOCC(MXPNGAS)
+      INTEGER IATP_ABS,IBTP_ABS,IONE,INUM
 *
       IATP_ABS = IATP + IBSPGPFTP(IAGRP) - 1
       IBTP_ABS = IBTP + IBSPGPFTP(IBGRP) - 1
@@ -58,5 +60,4 @@ C  IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
      &                    'Internal error',' ')
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE IAIB_TO_OCCLS
