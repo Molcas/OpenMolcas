@@ -91,6 +91,10 @@
 #ifdef _DMRG_
       use rasscf_global, only: TwoRDM_qcm, DOFCIDump, Emy
 #endif
+      use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
+     &                         lRootSplit
+      use printlevel, only: DEBUG,INSANE,USUAL
+      use output_ras, only: LF,IPRLOC
 
 
       Implicit None
@@ -110,9 +114,7 @@
       integer, external :: IsFreeUnit
 
 #include "rasdim.fh"
-#include "splitcas.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='CICTL   '
 #include "SysDef.fh"
 #include "timers.fh"

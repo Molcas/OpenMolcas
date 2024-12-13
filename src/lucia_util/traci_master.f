@@ -13,6 +13,7 @@
       use  GLBBAS
       use Local_Arrays, only: Deallocate_Local_Arrays
       use rasscf_lucia, only: kvec3_length
+      use CandS, only: ISSM,ISSPC
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "mxpdim.fh"
 #include "clunit.fh"
@@ -20,7 +21,6 @@
 #include "cicisp.fh"
 #include "cstate.fh"
 #include "orbinp.fh"
-#include "cands.fh"
 #include "spinfo_lucia.fh"
 #include "lucinp.fh"
 #include "io_util.fh"

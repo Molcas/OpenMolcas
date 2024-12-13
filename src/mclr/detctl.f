@@ -8,22 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DetCtl
+      Subroutine DetCtl()
       use Arrays, only: pINT1, pINT2
       use stdalloc, only: mma_allocate
+      use MCLR_Data, only: iST,i12
+      use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
+      use MCLR_Data, only: MS2,idc,PSSIGN
+      use MCLR_Data, only: FnCSF2SD, LuCSF2SD
+      use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INTIMP,INCORE,
+     &                     ICISTR
+      use input_mclr, only: nSym,PntGrp,nIrrep,nsMOB,iSpin,
+     &                      nHole1,nActEl,nElec3,
+     &                      nRs1,nRs2,nRs3,State_Sym
 *
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 
-#include "Input.fh"
-#include "cands.fh"
-#include "detdim.fh"
-#include "crun_mclr.fh"
-#include "genop.fh"
-#include "cprnt_mclr.fh"
-#include "cstate_mclr.fh"
-#include "Files_mclr.fh"
-#include "spinfo_mclr.fh"
-#include "cicisp_mclr.fh"
+      Integer iTmp, nTRas1,nTRas2,nTRas3,iSym,iDum,MNRS10,MXR4TP,MXRS30
 
       Call mma_Allocate(pINT1,nSym,Label='pInt1')
       pInt1(:)=0
@@ -34,7 +34,6 @@
       NOCSF  = 0
       idenmt=0
       nopart=0
-      iopnum=1
       nIrrep=nSym
       nsmob=nSym
       mxr4tp=0
@@ -83,5 +82,4 @@
       CALL DANAME(LUCSF2SD,FNCSF2SD)
       CALL CSFINF(State_sym,iSpin,idum,1,IPRCIX,nsym)
 *
-      Return
-      End
+      End Subroutine DetCtl

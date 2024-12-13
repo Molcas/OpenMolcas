@@ -9,16 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      Logical DoSplitCAS, EnerSplit, NumSplit, PerSplit, FOrdSplit
-      integer lrootSplit, MxIterSplit
-      integer iDimBlockA, iDimBlockACNF, iterSplit
-      real*8 thrSplit, GapSpli, PercSpli
-      real*8 EnInSplit
-      Integer, Parameter :: mxDimBlockA = 2000
-      Real*8, Parameter :: min_ThrSplit = 1.0d-12
+module Jobiph_J
 
-      COMMON /SplitCAS_Int /iDimBlockA,iDimBlockACNF,                   &
-     &                      lrootSplit,MxIterSplit,iterSplit
-      COMMON /SplitCAS_Log / DoSplitCAS, EnerSplit, NumSplit, PerSplit, &
-     &                       FOrdSplit
-      COMMON /SplitCAS_Real/ thrSplit, GapSpli, PercSpli, EnInSplit
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
+#include "Molcas.fh"
+
+integer(kind=iwp) :: iadr15_j(15), iroot_j(mxroot), ispin_j, lroots_j, lsym_j, nactel_j, nash_j(mxsym), nbas_j(mxsym), nconf_j, &
+                     ndel_j(mxsym), nelec3_j, nfro_j(mxsym), nhole1_j, nish_j(mxsym), nroots_j, nrs1_j(mxsym), nrs2_j(mxsym), &
+                     nrs3_j(mxsym), nsym_j
+real(kind=wp) :: weight_j(mxroot)
+character(len=72) :: title_j(18)
+
+public :: iadr15_j, iroot_j, ispin_j, lroots_j, lsym_j, nactel_j, nash_j, nbas_j, nconf_j, ndel_j, nelec3_j, nfro_j, nhole1_j, &
+          nish_j, nroots_j, nrs1_j, nrs2_j, nrs3_j, nsym_j, title_j, weight_j
+
+end module Jobiph_J

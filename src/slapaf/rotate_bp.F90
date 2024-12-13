@@ -61,7 +61,7 @@ call mma_allocate(Umat,nVec,nVec,Label='Umat')
 call mma_allocate(Vmat,nVec,nVec,Label='Vmat')
 call mma_allocate(Sing,nVec,Label='Sing')
 call mult(OB1,OB2,Amat,.true.,.false.)
-call full_svd(nVec,nVec,Amat,Umat,Vmat,Sing)
+call large_svd(nVec,nVec,Amat,Umat,Vmat,Sing)
 Sing(:) = min(Sing,One)
 Phi = product(Sing)
 

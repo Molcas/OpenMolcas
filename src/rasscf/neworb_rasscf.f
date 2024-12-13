@@ -62,12 +62,14 @@
 #else
       use rasscf_global, only: DoBLOCKDMRG
 #endif
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
+
 
       IMPLICIT None
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='NEWORB  '
 #include "SysDef.fh"
 

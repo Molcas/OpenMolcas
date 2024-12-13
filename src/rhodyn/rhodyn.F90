@@ -42,7 +42,7 @@ integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 ireturn = 20
 ipglob = iPrintLevel(-1) ! MOLCAS_PRINT variable
 
-call StatusLine('RhoDyn:','Starting calculation')
+call StatusLine('RhoDyn: ','Starting calculation')
 
 ! initializitation of default values and printing main parameters
 call rhodyn_init()
@@ -372,7 +372,7 @@ if ((basis == 'SF')) then
 end if
 
 ! closing and deallocation
-call StatusLine('RhoDyn:','Close files and deallocate memory')
+call StatusLine('RhoDyn: ','Close files and deallocate memory')
 
 call mh5_close_file(out_id)
 
@@ -431,7 +431,7 @@ call mma_deallocate(emiss,safe='*')
 call mma_deallocate(kab_basis,safe='*')
 call mma_deallocate(k_bar_basis,safe='*')
 
-call StatusLine('RhoDyn:','Finished')
+call StatusLine('RhoDyn: ','Finished')
 ireturn = 0
 
 return

@@ -27,11 +27,12 @@ subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,Me
 !***********************************************************************
 
 use setup, only: nSOs
-use pso_stuff, only: Bin, Case_2C, Case_3C, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, lBin, lPSO, lSA, LuGamma, nDens, &
-                     nGamma, nNP, nV_k, nZ_p_k, SO2CI, U_K, V_K, Z_P_K
+use pso_stuff, only: Bin, Case_2C, Case_3C, CASPT2_On, CMOPT2, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, iOffAO, lBin, &
+                     lPSO, lSA, LuGamma, LuGamma_PT2, nBasT, nDens, nFro, nGamma, nNP, nOcc, nV_k, nZ_p_k, ReadBPT2, SO2CI, U_K, &
+                     V_K, WRK1, WRK2, Z_P_K
 use iSD_data, only: iSO2Sh
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_RI
+use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
 use EtWas, only: CoulFac, ExFac, nAsh, nCRED, nScr1, nScr2
 use mspdft_grad, only: DoGradMSPD
@@ -47,12 +48,16 @@ integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
-!write(u6,*) 'Print out in integral_util/pget0 starting'
-!call RecPrt('DSO in PGet0',' ',D0,ndens,5)  ! ====== yma ======
-
 PMax = One
 nSA = 1
+if (CASPT2_On) then
+  if (Cholesky .or. Do_RI) then
+    if (ReadBPT2) call DoReadBPT2(iAO,iAOst,iCmp,kBas,lBas)
+  else
+    call CASPT2_BTAMP(LuGAMMA_PT2,iShell_A,iShell_B,iShell_C,iShell_D,n1,n2,n3,n4,iOffAO,nBasT,nOcc(1),CMOPT2(1+nBasT*nFro(1)), &
+                      WRK1,WRK2,G_Toc)
+  end if
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -215,6 +220,5 @@ call RecPrt('PSO in PGet0',' ',PSO,ijkl,nPSO)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
 
 end subroutine PGet0

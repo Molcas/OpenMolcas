@@ -34,11 +34,10 @@
 *
 * Updated with iuniqtp, dec 11, 1994
 * Modified for deallocation, Sept. 25, 2005.
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 *
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
 #include "csm.fh"
+      INTEGER ITYP,IITYP,IIIITEST,IMNEW,JJTYP,IANEQ,ICREQ
 *. Start of string information
 * =====================================================================
 *
@@ -169,6 +168,4 @@ CMS: New else block
       Call mma_deallocate(Str(ITYP)%EL3_Hidden)
       nullify(Str(ITYP)%NSTSO,Str(ITYP)%EL1,Str(ITYP)%EL3)
 
-
-      RETURN
-      END
+      END SUBROUTINE FREESTR

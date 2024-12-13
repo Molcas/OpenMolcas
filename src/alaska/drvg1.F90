@@ -35,9 +35,8 @@ use setup, only: mSkal, MxPrm, nAux
 use iSD_data, only: iSD, nSD
 use k2_structure, only: k2Data
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use pso_stuff, only: G_toc, nSSDM, SSDM
 use Disp, only: ChDisp, l2DI
-use Basis_Info, only: nBas, Shells
+use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
@@ -51,23 +50,19 @@ integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
-integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iCnt, iFnc(4), ijklA, &
-                     ijMax, ijS, ik2, iOpt, iost, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), &
-                     iSh, iShela(4), iShlla(4), iSSDM, istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, &
-                     jPrInc, jS, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, &
-                     lBsInc, lPriml, lPrInc, lRealName, lS, luCMOPT2, luGamma, MaxShlAO, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
-                     Mem2, MemMax, MemPSO, nab, nBasI, nBasT, nBtch, ncd, nDCRR, nDCRS, nEta, nFro(8), nHmab, nHmcd, nHrrab, nij, &
-                     nijkl, nOcc(8), nPairs, nQuad, nRys, nSkal, nSO, nZeta
+integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iFnc(4), ijklA, ijMax, &
+                     ijS, ik2, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
+                     iShela(4), iShlla(4), istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, &
+                     k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, &
+                     lPriml, lPrInc, lS, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, nab, nBtch, ncd, nDCRR, nDCRS, &
+                     nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, is_error, JfGrad(3,4), lDummy, Loadvec, No_Batch, Shijij, &
-                     Skip, Triangular
-character(len=4096) :: RealName
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), lDummy, No_Batch, Shijij, Skip, Triangular
 character(len=72) :: formt
 character(len=8) :: Method_chk
-integer(kind=iwp), allocatable :: Ind_ij(:,:), iOffAO(:)
-real(kind=wp), allocatable :: CMOPT2(:), TMax(:,:), WRK1(:), WRK2(:)
+integer(kind=iwp), allocatable :: Ind_ij(:,:)
+real(kind=wp), allocatable :: TMax(:,:)
 integer(kind=iwp), save :: MemPrm
-integer(kind=iwp), external :: IsFreeUnit
 logical(kind=iwp), external :: Rsv_GTList
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus
@@ -99,7 +94,7 @@ Pget_Wall = Zero
 #endif
 Temp(:) = Zero
 
-call StatusLine(' Alaska:',' Computing 2-electron gradients')
+call StatusLine('Alaska: ','Computing 2-electron gradients')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -112,8 +107,8 @@ call Setup_iSD()
 
 call Get_iScalar('Columbus',Columbus)
 Indexation = .false.
-! MP2 gradients:
 call Get_cArray('Relax Method',Method_chk,8)
+! MP2 gradients:
 if (Method_chk == 'MBPT2   ') Indexation = .true.
 !*********** columbus interface ****************************************
 ! in order to access the half-sorted density matrix file
@@ -135,72 +130,6 @@ Prem = Zero
 
 call PrepP()
 
-if (Method_chk == 'CASPT2  ') then
-  nBasT = 0
-  do i=0,nIrrep-1
-    nBasT = nBasT+nBas(i)
-  end do
-  nSSDM = 0
-
-  !! The two MO indices in the half-transformed amplitude are
-  !! not CASSCF but quasi-canonical orbitals.
-  call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
-  LuCMOPT2 = isFreeUnit(66)
-  call PrgmTranslate('CMOPT2',RealName,lRealName)
-  call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
-
-  do i=1,nBasT*nBasT
-    read(LuCMOPT2) CMOPT2(i)
-  end do
-  read(LuCMOPT2) nOcc(1)
-  read(LuCMOPT2) nOcc(2)
-  read(LuCMOPT2) nOcc(3)
-  read(LuCMOPT2) nOcc(4)
-  read(LuCMOPT2) nOcc(5)
-  read(LuCMOPT2) nOcc(6)
-  read(LuCMOPT2) nOcc(7)
-  read(LuCMOPT2) nOcc(8)
-  read(LuCMOPT2) nFro(1)
-  read(LuCMOPT2) nFro(2)
-  read(LuCMOPT2) nFro(3)
-  read(LuCMOPT2) nFro(4)
-  read(LuCMOPT2) nFro(5)
-  read(LuCMOPT2) nFro(6)
-  read(LuCMOPT2) nFro(7)
-  read(LuCMOPT2) nFro(8)
-  read(LuCMOPT2) nSSDM
-
-  if (nSSDM /= 0) then
-    call mma_allocate(SSDM,nBas(0)*(nBas(0)+1)/2,2,nSSDM,Label='SSDM')
-    do iSSDM=1,nSSDM
-      do i=1,nBas(0)*(nBas(0)+1)/2
-        read(LuCMOPT2) SSDM(i,1,iSSDM),SSDM(i,2,iSSDM)
-      end do
-    end do
-  end if
-
-  close(LuCMOPT2)
-
-  write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
-  write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
-
-  call mma_allocate(iOffAO,nSkal+1,Label='iOffAO')
-  MaxShlAO = 0
-  iOffAO(1) = 0
-  do iSh=1,nSkal
-    nBasI = iSD(2,iSh)*iSD(3,iSh)
-    if (nBasI > MaxShlAO) MaxShlAO = nBasI
-    iOffAO(iSh+1) = iOffAO(iSh)+nBasI
-  end do
-  call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
-
-  LuGAMMA = isFreeUnit(65)
-  call PrgmTranslate('GAMMA',RealName,lRealName)
-  call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
-
-  call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
-  call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -232,7 +161,7 @@ call mma_allocate(Ind_ij,2,nskal*(nSkal+1)/2,Label='Ind_ij')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
-    if ((TMax_All*TMax(iS,jS) >= CutInt) .or. (Method_chk == 'CASPT2  ')) then
+    if (TMax_All*TMax(iS,jS) >= CutInt) then
       nij = nij+1
       Ind_ij(1,nij) = iS
       Ind_ij(2,nij) = jS
@@ -296,35 +225,12 @@ do
 
   ! Now do a quadruple loop over shells
 
-  call Get_cArray('Relax Method',Method_chk,8)
-  if (Method_chk /= 'CASPT2  ') then
-    ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
-    iS = Ind_ij(1,ijS)
-    jS = Ind_ij(2,ijS)
-    klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
-    kS = Ind_ij(1,klS)
-    lS = Ind_ij(2,klS)
-  else
-    iS = 1
-    jS = 1
-    kS = 1
-    lS = 1
-    !! proceed the index
-    do iCnt=1,int(TskLw)-1
-      call CASPT2_Grad_FwdCnt(iS,jS,kS,lS,LoadVec)
-    end do
-    Cnt = real(iCnt,kind=wp)
-    !! If LoadVec is true, a new vector of the half-transformed
-    !! T-amplitude is read. In the first loop, it is always true.
-    !! In other loops, a new vector is read only when I- and K-th
-    !! are different from the previous loop.
-    !! The half back-transformation, T_{ij}^{ab} ->
-    !! T_{ij}^{rho sigma}, is done somewhere in CASPT2.
-    !! rho and sigma correspond to either I- or K-th shells.
-    !! Occupied orbital indices (correspond to J- or L-th shells)
-    !! are back-transformed on-the-fly.
-    LoadVec = .true.
-  end if
+  ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
+  iS = Ind_ij(1,ijS)
+  jS = Ind_ij(2,ijS)
+  klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
+  kS = Ind_ij(1,klS)
+  lS = Ind_ij(2,klS)
   Cnt = TskLw
   call CWTime(TCpu1,TWall1)
 
@@ -421,9 +327,6 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(Pget0CPU1,Pget0WALL1)
 #             endif
-              if (Method_chk == 'CASPT2  ') call CASPT2_BTAMP(LuGAMMA,iS,jS,kS,lS,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
-                                                              iFnc(4)*lBasn,iOffAO,nBasT,nOcc(1),CMOPT2(1+nbast*nfro(1)),WRK1, &
-                                                              WRK2,G_Toc)
               call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                          iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
               if (A_Int*PMax < CutInt) cycle
@@ -466,8 +369,6 @@ do
     Cnt = Cnt+One
     if (Cnt-TskHi > 1.0e-10_wp) then
       exit
-    else if (Method_chk == 'CASPT2  ') then
-      call CASPT2_Grad_FwdCnt(iS,jS,kS,lS,LoadVec)
     else
       klS = klS+1
       if (klS > ijS) then
@@ -504,14 +405,6 @@ call Free_PPList()
 call Free_TList()
 call mma_deallocate(Ind_ij)
 call mma_deallocate(TMax)
-if (Method_chk == 'CASPT2  ') then
-  close(LuGamma)
-  call mma_deallocate(iOffAO)
-  call mma_deallocate(CMOPT2)
-  if (nSSDM /= 0) call mma_deallocate(SSDM)
-  call mma_deallocate(WRK1)
-  call mma_deallocate(WRK2)
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *

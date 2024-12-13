@@ -9,13 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! This is just an encapsulation of the common block in
-! src/Include/splitcas.fh
-! into a data module
-
 module splitcas_data
 
+use Definitions, only: wp, iwp
+
 implicit none
-#include "splitcas.fh"
+private
+
+integer(kind=iwp) :: iDimBlockA, iDimBlockACNF, iterSplit, lrootSplit, MxIterSplit
+real(kind=wp) :: EnInSplit, GapSpli, PercSpli, thrSplit
+logical(kind=iwp) :: DoSplitCAS, EnerSplit, FOrdSplit, NumSplit, PerSplit
+
+public :: DoSplitCAS, EnerSplit, EnInSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
+          NumSplit, percSpli, PerSplit, ThrSplit
 
 end module splitcas_data

@@ -16,12 +16,18 @@ C     Called from: ORTHO1.
 C
 C          ****** IBM 3090 MOLCAS Release: 90 02 22 ******
 C
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "output_ras.fh"
+      use output_ras, only: LF
+      IMPLICIT None
+      Integer N
 #include "warnings.h"
-      DIMENSION S(*),U(*),V(*)
+      REAL*8 S(*),U(*),V(*)
+
+      REAL*8 THR,SUM,X
+      REAl*8, External:: DDot_
+      INTEGER I
+
       THR=1.D-10
-      IF ( N.EQ.0 ) GOTO 90
+      IF ( N.EQ.0 ) Return
       CALL DGEMM_('N','N',
      &             N,1,N,
      &             1.0d0,S,N,
@@ -47,6 +53,4 @@ C
         U(I)=X*U(I)
         V(I)=X*V(I)
       END DO
-  90  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE ORTHO2

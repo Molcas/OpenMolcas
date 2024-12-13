@@ -95,7 +95,7 @@ procedure(int_mem) :: DumMem
 iRout = 131
 iPrint = nPrint(iRout)
 
-call StatusLine(' Seward:',' Computing 1-electron integrals')
+call StatusLine('Seward: ','Computing 1-electron integrals')
 
 call Set_Basis_Mode('Valence')
 call Setup_iSD()

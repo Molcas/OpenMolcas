@@ -21,8 +21,8 @@ set (sources
      lmnvgn.F90
      molcas_order.F90
      ppgrd.F90
-     ppint_arrays.F90
      ppint.F90
+     ppint_arrays.F90
      ppmem.F90
      ppmmg.F90
      pseud1.F90

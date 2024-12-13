@@ -157,8 +157,7 @@ if (.not. DIIS) then
   Iter_no_Diis = 1000000
 end if
 
-! If no damping to preceed the DIIS make threshold being fullfiled
-! at once.
+! If no damping to precede the DIIS make threshold being fulfilled at once.
 
 if (.not. Damping) then
   DiisTh = DiisTh*1.0e99_wp

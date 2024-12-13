@@ -13,6 +13,8 @@
       SUBROUTINE TRACI_LUCIA(      X,  LUCIN, LUCOUT,  IXSPC,   IXSM,
      &                          VEC1,   VEC2)
       use stdalloc, only: mma_allocate, mma_deallocate
+*. Module for communicating with sigma
+      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
 *
 * A rotation matrix X is defining expansion from
 * old to new orbitals
@@ -40,8 +42,6 @@
 #include "orbinp.fh"
 #include "lucinp.fh"
 #include "clunit.fh"
-*. Common block for communicating with sigma
-#include "cands.fh"
 *
       Real*8 X(*),VEC1(*),VEC2(*)
       Real*8, Allocatable:: SCR(:), LT(:)

@@ -8,11 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer MxPrim,MxrCof
-      Parameter(MxPrim=20*MxAO,MxrCof=10*MxPrim)
-      Integer nPrimr(MxAO), nBasisr(MxAO), nAngr(MxAO)
-      Integer icent(MxAO), lnang(MxAO), lmag(MxAO), lant(MxAO),         &
-     &        nrBas(8), nrBas_prim(8), nrSym
-      Real*8 rCof(MxrCof),rExp(MxPrim)
-      common/r_info/ rCof, rExp, nAngr, nPrimr, nBasisr, icent,         &
-     &              lnang, lmag, lant, nrSym, nrBas, nrBas_prim
+
+module Intgrl
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp) :: IAD2M(3,36*36), LUINTMZ, NORBZ(8), NOSHZ(8), NSYMZ
+
+public :: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
+
+end module Intgrl

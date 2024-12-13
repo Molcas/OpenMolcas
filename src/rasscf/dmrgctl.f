@@ -52,6 +52,8 @@
      &                         n_Det, NAC, NACPAR, NACPR2, nFint,
      &                         nRoots, S, iAdr15, iRoot, Weight,
      &                         DFTFOCK
+      use printlevel, only: DEBUG,INSANE
+      use output_ras, only: LF,IPRLOC
 
       Implicit None
       Integer iFinal, IRst
@@ -66,7 +68,6 @@ c     Logical Exist
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '
 #include "SysDef.fh"
 #include "timers.fh"

@@ -11,6 +11,7 @@
 
 set (sources
      check_fthaw.F90
+     checkfuncparam.F90
      cwrap_drvnq.F90
      driver.F90
      drvdft.F90
@@ -21,13 +22,12 @@ set (sources
      get_exfac.F90
      ksdft_info.F90
      libxc_parameters.F90
-     ofembed.F90
      ofe_print.F90
+     ofembed.F90
      vemb_exc_states.F90
      vt_lim.F90
      wrap_drvnq.F90
      xlambda.F90
-     checkfuncparam.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

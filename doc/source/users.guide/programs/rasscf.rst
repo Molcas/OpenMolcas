@@ -1236,7 +1236,7 @@ A list of these keywords is given below:
 
     Specifies which root to be relaxed in a geometry optimization of a
     state average wave function. Thus, the keyword has to be combined
-    with :kword:`CIRO`.
+    with :kword:`CIRO` or :kword:`STAV`.
     In a geometry optimization the following input ::
 
       CIRoot= 3 5; 2 4 5; 1 1 3
@@ -1244,12 +1244,12 @@ A list of these keywords is given below:
 
     will relax CI root number 4.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RLXROOT" APPEAR="Relaxed root" KIND="INT" LEVEL="ADVANCED">
-              %%Keyword: RLXRoot <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="RLXROOT" APPEAR="Relaxed root" KIND="INT" MIN_VALUE="1" LEVEL="BASIC">
+              %%Keyword: RLXRoot <basic>
               <HELP>
               Specifies which root to be relaxed in a geometry optimization of a
               state average wave function. Thus, the key word has to be combined
-              with CIRO.
+              with CIRO or STAV.
               </HELP>
               </KEYWORD>
 

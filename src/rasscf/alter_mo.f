@@ -33,13 +33,12 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-
+      use output_ras, only: LF
       Implicit None
       REAL*8       CMO(*)
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Real*8 CMOex
       Integer iAlter, iAlteri, iAlterj, iCMO, iSym
 

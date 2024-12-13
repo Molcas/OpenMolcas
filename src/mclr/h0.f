@@ -12,24 +12,26 @@
 ************************************************************************
       Subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
       Use Exp, only: H0S, H0F, SBIDT
-      use negpre
+      use negpre, only: nGP
       Use Iso_C_Binding
       use Arrays, only: Int2, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: iRefSM,IDC,PSSIGN
+      use MCLR_Data, only: NAELCI,NBELCI,XISPSM
+      use MCLR_Data, only: MXP1,MXP2,MXQ,NOCSF
+      use MCLR_Data, only: NACOB,NOCOB
+      use MCLR_Data, only: NTYP,NCPCNT,NDPCNT
 *
 * frontend to jeppes explicit routines
 *
-      implicit Real*8(a-h,o-z)
-#include "detdim.fh"
-#include "Pointers.fh"
-#include "orbinp_mclr.fh"
-#include "cstate_mclr.fh"
-#include "crun_mclr.fh"
-#include "cicisp_mclr.fh"
-#include "spinfo_mclr.fh"
-#include "incdia.fh"
+      implicit none
       Real*8 rdia(*)
+      Integer MP1, MP2, MQ, iSym, nprciv
       Logical TimeDep
+      Integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, iTyp,
+     &        nActEl, lH0SCR, ieaw, i, iRC, lVec2
+      Real*8, External:: E2, E2_TD
+      Real*8 ECOREP, ENA
       Real*8, Allocatable:: H0T(:), Vec2(:)
       Real*8, Allocatable, Target:: H0Scr(:)
       Integer, Pointer:: iH0Scr(:)
@@ -104,5 +106,4 @@
          Call Abend()
       End If
 *
-      Return
-      End
+      End Subroutine H0

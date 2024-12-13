@@ -44,7 +44,7 @@ if (.not. King()) return
 #endif
 Lu = 2
 call molcas_open(Lu,'status')
-write(Lu,'(A,A)') STR,STR1
+write(Lu,'(A,A)') STR,trim(STR1)
 close(Lu)
 
 return

@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE STRINF(IPRNT)
-      Use Str_Info
+      Use Str_Info, only: STR,NSTTYP,ISTAC,IUNIQMP,IUNIQTP,MNRS1,MNRS3,
+     &                    MXRS1,MXRS3,NELEC,NOCTYP,NSTFTP
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
+      use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
 *
 * Strings for internal space.
 * Information is stored in
@@ -21,11 +23,10 @@
 *.Output
 * /STRINP/,/STINF/,/STRBAS/ and string information in STIN
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
+      Integer IPRNT
 *.Input
 *     (and /LUCINP/ not occuring here )
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
 *
 * ======
 * Output
@@ -35,6 +36,7 @@
 *
       Integer ISGSTI(1),ISGSTO(1)
       Integer, Allocatable:: KFREEL(:)
+      Integer NTEST,ITYP,JTYP,LROW,IMAX
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
 *

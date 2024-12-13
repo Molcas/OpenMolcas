@@ -14,6 +14,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15,
      &                         Ener
+      use printlevel, only: DEBUG,USUAL
+      use output_ras, only: LF,IPRLOC
       Implicit None
 
 
@@ -22,9 +24,7 @@
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
 * ****************************************************************
 #include "rasdim.fh"
-#include "splitcas.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "SysDef.fh"
 #include "timers.fh"
 

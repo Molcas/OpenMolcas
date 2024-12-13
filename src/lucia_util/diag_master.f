@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE diag_master()
       use GLBBAS, only: INT1, INT1O
+      use CandS, only: ISSM
 *
 *  To do in this subroutine:
 *
@@ -24,7 +25,6 @@
 #include "cstate.fh"
 #include "cprnt.fh"
 #include "orbinp.fh"
-#include "cands.fh"
 *
       INT1(:)=INT1O(:)
       CALL GASCI(ISSM, 1, IPRDIA, EREF, 0, 0)

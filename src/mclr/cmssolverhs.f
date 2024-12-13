@@ -15,16 +15,9 @@
 * Jie J. Bao, on Aug. 06, 2020, created this file.               *
 * ****************************************************************
       Subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "crun_mclr.fh"
+      use MCLR_Data, only: nDens2, nConf1
+      use input_mclr, only: nRoots
+      Implicit None
 ****** Output
       Real*8,DIMENSION(nDens2+6)::Fock
       Real*8,DIMENSION(nconf1*nroots)::CICSF
@@ -48,8 +41,7 @@
       CALL DCopy_(nRow,AXPzx,1,CICSF,1)
       CALL DAXPY_(nRow,-1.0d0,bP,1,CICSF,1)
 
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE SolveforRHS
 ******************************************************
 
 ******************************************************
@@ -57,16 +49,8 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use cmslag,   only : ResQaaLag2
       use Constants, only: Pi
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "crun_mclr.fh"
+      use input_mclr, only: nRoots,Eps
+      Implicit None
 #include "warnings.h"
 ****** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
@@ -104,7 +88,7 @@
 
       write(6,'(6X,A37,2X,ES17.9)')
      & 'Residual in Qaa Lagrange Multipliers:',SQRT(ResQaaLag2)
-      IF(ResQaaLag2.gt.epsilon**2) THEN
+      IF(ResQaaLag2.gt.Eps**2) THEN
         write(6,*)
         write(6,'(6X,A)')
      &    'ERROR: RESIDUAL(S) FOR INTERMEDIATE STATE TOO BIG!'
@@ -128,23 +112,16 @@
       CALL mma_deallocate(bxScr )
       CALL mma_deallocate(zXScr )
       CALL mma_deallocate(Scr   )
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE SolveforzX
 ******************************************************
 ******************************************************
       Subroutine GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
       use stdalloc, only : mma_allocate, mma_deallocate
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "crun_mclr.fh"
+      use MCLR_Data, only: nNA, nDens2
+      use input_mclr, only: nRoots,ntAsh,ntBas
+      Implicit None
 ******Input
+      Integer nP2
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
       Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
       Real*8,DIMENSION(nP2)::P2MOt
@@ -158,9 +135,10 @@
       Logical debug2
 ******Auxiliaries
       Real*8,DIMENSION(:),Allocatable::G1r,G2r,G2q,Fock,T,PQaa
-      INTEGER K,L,nG2r,IKL,IKL2,IKK,ILL
+      INTEGER K,L,nG2r,IKL,IKL2,IKK,ILL, nG1, nG2, nG1r
 ************************************************************************
 *                                                                      *
+       Integer i,j,itri
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -215,29 +193,21 @@
       CALL mma_deallocate(G2r)
       CALL mma_deallocate(G2q)
       CALL mma_deallocate(PQaa)
-      RETURN
-      End Subroutine
+      End Subroutine GetQaaFock
 ******************************************************
 
 ******************************************************
       Subroutine G2qtoG2r(G2r,G2q,nG2,nG2r)
       use Constants, only: One, Two
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "crun_mclr.fh"
+      use input_mclr, only: ntAsh
+      Implicit None
       INTEGER nG2,nG2r
       Real*8,DIMENSION(nG2 )::G2q
       Real*8,DIMENSION(nG2r)::G2r
-      INTEGER iB,jB,iDij,iRij,iDkl,iRkl,iijkl,iRijkl
+      INTEGER iB,jB,kB,lB,iDij,iRij,iDkl,iRkl,iijkl,iRijkl
       Real*8 Fact
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+      Integer i,j,itri
+      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       Do iB=1,ntash
        Do jB=1,ntash
         iDij=iTri(ib,jB)
@@ -256,22 +226,14 @@
         End Do
        End Do
       End Do
-      RETURN
-      End Subroutine
+      End Subroutine G2qtoG2r
 ******************************************************
 
 ******************************************************
       Subroutine QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "crun_mclr.fh"
+      use MCLR_Data, only: nNA
+      use input_mclr, only: ntAsh
+      Implicit None
       INTEGER nG2,nPUVX
       Real*8,DIMENSION(nG2)::G2q
       Real*8,DIMENSION(NPUVX)::PUVX
@@ -299,30 +261,22 @@
 
       write(6,*) 'dQdX in QaaVerif=',dQdX
 
-      RETURN
-      End Subroutine
+      End Subroutine QaaVerif
 ******************************************************
 
 ******************************************************
       Subroutine QaaP2MO(G2q,ng2,GDMat,IKL,IKK,ILL)
       use stdalloc, only : mma_allocate, mma_deallocate
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "crun_mclr.fh"
+      use MCLR_Data, only: nNA
+      use input_mclr, only: nRoots
+      implicit none
 ******  Input
       INTEGER nG2,IKL,IKK,ILL
       Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
 ******  Output
       Real*8,DIMENSION(nG2)::G2q
 ******  Auxiliaries
-      INTEGER i,j,k,l,ij,kl,ijkl,nD
+      INTEGER i,j,k,l,ij,kl,ijkl,nD, lMax, itri
       Real*8 Fact
       Real*8,DIMENSION(:),Allocatable::Dsum,Ddif
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
@@ -361,8 +315,7 @@
        end do
       CALL mma_deallocate(Dsum)
       CALL mma_deallocate(Ddif)
-      RETURN
-      End Subroutine
+      End Subroutine QaaP2MO
 
 
 

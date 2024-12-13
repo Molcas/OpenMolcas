@@ -13,11 +13,11 @@
       use caspt2_global, only: do_grad, nStpGrd, FIMO_all, FIFA_all
       use caspt2_global, only: CMO, FIMO, FAMO, HONE, DREF
       use PrintLevel, only: debug
+      use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
       LOGICAL IF_TRNSF
 
       Real*8, Allocatable:: FFAO(:), FIAO(:), FAAO(:)
@@ -46,14 +46,14 @@
       IF (do_grad.or.nStpGrd.eq.2) THEN
         !! FFAO has one-electron Hamiltonian
         CALL DCOPY_(NBTRI,FFAO,1,FIMO_all,1)
-        CALL DAXPY_(NBTRI,1.0D+00,FIAO,1,FIMO_all,1)
+        CALL DAXPY_(NBTRI,One,FIAO,1,FIMO_all,1)
         CALL DCOPY_(NBTRI,FIMO_all,1,FIFA_all,1)
-        CALL DAXPY_(NBTRI,1.0D+00,FAAO,1,FIFA_all,1)
+        CALL DAXPY_(NBTRI,One,FAAO,1,FIFA_all,1)
       END IF
 * Transform them to MO basis:
-      HONE(:)=0.0D0
-      FIMO(:)=0.0D0
-      FAMO(:)=0.0D0
+      HONE(:)=Zero
+      FIMO(:)=Zero
+      FAMO(:)=Zero
 c Compute FIMO, FAMO, ...  to workspace:
       Call FMat_Cho(CMO,SIZE(CMO),FFAO,FIAO,FAAO,
      &              HONE,SIZE(HONE),FIMO,SIZE(FIMO),FAMO,SIZE(FAMO))

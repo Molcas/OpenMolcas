@@ -11,22 +11,20 @@
       SUBROUTINE GETINT_MCLR(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                       IXCHNG,IKSM,JLSM,ICOUL ,ieaw)
       Use Arrays, only: pInt2, KINT2, KINT2A
+      use MCLR_Data, only: Square
+      use MCLR_Data, only: NOBPTS
+      use input_mclr, only: nsMOB
 *
 * Outer routine for accessing integral block
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
+      Real*8 XINT(*)
+      Integer ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
+     &        IXCHNG,IKSM,JLSM,ICOUL ,ieaw
+
 *
-#include "detdim.fh"
-*./CRUN/ : INTIMP used ....
-* and NOHSOO (no spin-other-orbit) added by Merethe 19/10-95
-#include "crun_mclr.fh"
-*./ORBINP/  : NOBPTS used
-#include "Input.fh"
-#include "orbinp_mclr.fh"
 #include "csm.fh"
-#include "genop.fh"
-*. Type of operator in action
-      Dimension XINT(*)
+       Integer nTest,nI,nK,nIK,nJ,nL,nJL,nIJ,nKL
 *
        NTEST=0
 *
@@ -80,5 +78,4 @@
 
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE GETINT_MCLR

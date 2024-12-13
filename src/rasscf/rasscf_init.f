@@ -47,11 +47,11 @@
      &                         QNUPDT, RFPert, SXSel, ThFact, Thre,
      &                         ThrEn, ThrSX, TMin, Weight, Title,
      &                         ixSym, iTri, ThrTE
+      use output_ras, only: LF
 
       Implicit None
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
@@ -83,7 +83,7 @@ C        ICIRST=1 ! to be activated!
          ICIRST=0
       End If
 
-* Initialize print levels: See output_ras.fh
+* Initialize print levels: Module output_ras
 * Global logical unit numbers for standard output
       LF=6
 * Externally set default print level control. Should the program be silent?
@@ -362,4 +362,4 @@ C state rotation
       iCMSOpt=1
       CMSGiveOpt=.false.
       RETURN
-      END
+      END Subroutine RasScf_Init

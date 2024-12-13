@@ -18,6 +18,7 @@ subroutine RDINT2_MP2(IPRX)
 
 use MBPT2_Global, only: LuIntM, nBas
 use Symmetry_Info, only: Mul
+use trafo, only: IAD13, IADOUT, ISR, NBP, NBQ, NBR, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -27,12 +28,11 @@ integer(kind=iwp) :: IAD131, IAD132, IAD13C, IADC, IADX1, IADX2, ISPQRS, LENGTH,
                      NU, NUM
 real(kind=wp), allocatable :: Tmp(:)
 #include "corbinf.fh"
-#include "trafo.fh"
 
 ! READ ADDRESS RECORD ON UNIT LUINTM
 
 IAD13 = 0
-call iDAFILE(LUINTM,2,IADOUT,3888,IAD13)
+call iDAFILE(LUINTM,2,IADOUT,3*36*36,IAD13)
 
 ! LOOP OVER QUADRUPLES OF SYMMETRIES (NSP,NSP,NSR,NSS)
 

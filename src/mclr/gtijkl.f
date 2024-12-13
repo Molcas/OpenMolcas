@@ -8,18 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION GTIJKL_MCLR(I,J,K,L)
+      REAL*8 FUNCTION GTIJKL_MCLR(I,J,K,L)
       use Arrays, only: Int2
+      use MCLR_Data, only: IREOTS
 *
 * Obtain  integral (I J ! K L )
 * where I,J,K and l refers to active orbitals in type ordering
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "detdim.fh"
-#include "Input.fh"
-#include "orbinp_mclr.fh"
-#include "crun_mclr.fh"
-#include "Pointers.fh"
+      IMPLICIT None
+      Integer, Intent(In):: I, J, K, L
+      Integer iAbs, jAbs, kAbs, lAbs, ij, kl
+      Integer itri
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -36,5 +35,4 @@
 
       GTIJKL_MCLR = INT2(itri(IJ,KL))
 *
-      RETURN
-      END
+      END FUNCTION GTIJKL_MCLR

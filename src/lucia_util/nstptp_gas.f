@@ -102,7 +102,7 @@
          CALL ISETVC(MSM1,IZERO,NSMST)
          MSM1(1) = 1
         ELSE
-*. copy from the ISM2 obtained for preceeding IGAS
+*. copy from the ISM2 obtained for preceding IGAS
          CALL ICOPVE(ISM2,ISM1,NSMST)
          CALL ICOPVE(MSM2,MSM1,NSMST)
         END IF

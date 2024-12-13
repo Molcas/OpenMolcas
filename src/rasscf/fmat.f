@@ -59,13 +59,14 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: KSDFT, DFTFOCK, ECAS, EMY, ExFac, NAC,
      &                         NewFock, nFint, VIA, VIA_DFT, l_casdft
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       Implicit None
       Real*8 CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='FMAT    '
 
       Real*8, Allocatable :: TmpFck(:), Tmp1(:), Tmp2(:), TmpD1A(:)

@@ -11,15 +11,15 @@
 
 set (sources
      main.F90
+     ai.F90
      aiai.F90
      aibj.F90
-     ai.F90
      aijk.F90
      chel.F90
-     ciall.F90
      ci_select.F90
-     comp1.F90
+     ciall.F90
      comp.F90
+     comp1.F90
      config.F90
      deltab.F90
      empty.F90
@@ -39,6 +39,7 @@ set (sources
      int9.F90
      jspck.F90
      jtime.F90
+     loop1.F90
      loop10.F90
      loop11.F90
      loop12.F90
@@ -49,13 +50,12 @@ set (sources
      loop17.F90
      loop18.F90
      loop19.F90
-     loop1.F90
+     loop2.F90
      loop20.F90
      loop21.F90
      loop22.F90
      loop23.F90
      loop26.F90
-     loop2.F90
      loop3.F90
      loop4.F90
      loop5.F90

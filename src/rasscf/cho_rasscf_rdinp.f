@@ -19,14 +19,16 @@
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpK,
      &                            DoLocK, Estimate, Nscreen, Update
       Use Cholesky, only: ChFracMem, timings
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-#include "output_ras.fh"
-      Character*180 KWord, Key, Get_Ln
-      External Get_Ln
+      use output_ras, only: LF
+      Implicit None
       Logical  DFonly
-      character*16 SECNAM
-      parameter (SECNAM = 'CHO_RASSCF_RDINP')
+      Integer LuInput
+#include "print.fh"
+      Character(LEN=180) KWord, Key
+      Character(LEN=180), External :: Get_Ln
+      character(LEN=16), parameter :: SECNAM = 'CHO_RASSCF_RDINP'
+      Integer iPrint, iChrct,Last,i,n,jRout,iCLast
+      Real*8 DMPK_DFL
 *
 ***** Algorithms for using Cholesky vectors in RASSCF ******************
 *
@@ -266,6 +268,4 @@ c       Write(LF,*)
          DoLocK=.false.
        EndIf
 
-      Return
-*
-      End
+      End SubRoutine CHO_RASSCF_RDINP

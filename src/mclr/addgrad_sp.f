@@ -21,11 +21,14 @@
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
-#include "Input.fh"
+      use MCLR_Data, only: ipCM, ipMat, nDens2
+      use input_mclr, only: nSym,nOrb
+      Implicit None
       Real*8 rkappa(*),rMat(*),F(*)
+      Integer idSym
+      Real*8 r1, r2
+
+      Integer iS, jS
       Real*8, Allocatable:: Tempi(:), Tempj(:)
       Real*8, Allocatable:: K(:), M(:)
 
@@ -70,5 +73,4 @@
       Call COMPRESS(M,rmat,idsym)
       Call mma_deallocate(K)
       Call mma_deallocate(M)
-      Return
-      End
+      End SubRoutine AddGrad_sp

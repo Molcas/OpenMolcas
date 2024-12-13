@@ -18,12 +18,13 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
       use rasscf_global, only: NACPR2, CMSStartMat, lRoots, NAC
+      use printlevel, only: USUAL
+      use output_ras, only: LF,IPRLOC
       Implicit None
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "output_ras.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(NACPR2)::TUVX
@@ -44,9 +45,9 @@ C     Allocating Memory
 
 *     printing header
       IF(IPRLEV.ge.USUAL) THEN
-      write(6,*)
-      write(6,*)
-      write(6,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
+      write(LF,*)
+      write(LF,*)
+      write(LF,*) '    CMS INTERMEDIATE-STATE OPTIMIZATION'
       END IF
       IF(trim(CMSStartMat).eq.'XMS') THEN
        CALL ReadMat('ROT_VEC',VecName,RotMat,lroots,lroots,7,16,'N')
@@ -82,8 +83,7 @@ C     Deallocating Memory
        Call WarningMessage(2,'CMS Intermediate States Not Converged')
        Call Quit(_RC_NOT_CONVERGED_)
       END IF
-      RETURN
-      End Subroutine
+      End Subroutine CMSRot
 
 ************************************************************************
 
@@ -93,13 +93,14 @@ C     Deallocating Memory
       use CMS, only: CMSNotConverged
       use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,
      &                         iCMSIterMin
+      use printlevel, only: USUAL
+      use output_ras, only: LF,IPRLOC
       Implicit None
 
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "output_ras.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
       Real*8,DIMENSION(lroots,lroots)::RotMat
@@ -141,10 +142,10 @@ C     Deallocating Memory
        CALL ThetaOpt(FRot,theta,VeeSumNew,StatePair,NPairs,DDg)
        IF(IPRLEV.ge.USUAL) THEN
        IF(lRoots.gt.2) THEN
-       write(6,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
+       write(LF,'(6X,I4,8X,F16.8,8X,ES16.4E3)')
      & ICMSIter,VeeSumNew,VeeSumNew-VeeSumOld
        ELSE
-       write(6,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
+       write(LF,'(6X,I4,8X,F6.1,9X,F16.8,5X,ES16.4E3)')
      & ICMSIter,asin(FRot(2,1))/atan(1.0d0)*45.0d0,VeeSumNew
      & ,VeeSumNew-VeeSumOld
        END IF
@@ -158,8 +159,8 @@ C     Deallocating Memory
         if(ICMSIter.ge.ICMSIterMax) then
          Converged=.true.
          CMSNotConverged=.true.
-         write(6,'(4X,A)')'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
-         write(6,'(4X,A)')'TEMPORARY ROTATION MATRIX SAVED'
+         write(LF,'(4X,A)')'NOT CONVERGED AFTER MAX NUMBER OF CYCLES'
+         write(LF,'(4X,A)')'TEMPORARY ROTATION MATRIX SAVED'
         end if
        END IF
        VeeSumOld=VeeSumNew
@@ -169,15 +170,13 @@ C     Deallocating Memory
       CALL mma_deallocate(StatePair)
       CALL mma_deallocate(theta)
       CALL mma_deallocate(FRot)
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE NStateOpt
 ************************************************************************
 
 ************************************************************************
       Subroutine ThetaOpt(FRot,theta,SumVee,StatePair,NPairs,DDg)
       use rasscf_global, only: lRoots
       Implicit None
-
 
 #include "rasdim.fh"
 #include "general.fh"
@@ -205,8 +204,7 @@ C      Real*8,DIMENSION(NPairs)::thetanew
        CALL
      & OptOneAngle(theta(iPair),SumVee,FRot,DDg,IState,JState,lRoots)
       END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE ThetaOpt
 ************************************************************************
 ************************************************************************
       SUBROUTINE OptOneAngle(Angle,SumVee,RotMat,DDg,I1,I2,lRoots)
@@ -291,8 +289,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       CALL mma_deallocate(ScanS)
       CALL mma_deallocate(RTmp)
 
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE OptOneAngle
 ************************************************************************
 ************************************************************************
       Function RMax(A,N)
@@ -304,8 +301,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
        DO I=2,N
         IF (A(I).gt.A(RMax)) RMax=I
        END DO
-       RETURN
-      End Function
+      End Function RMax
 
 ************************************************************************
       Function CalcNSumVee(RotMat,DDg)
@@ -330,8 +326,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
        CalcNSumVee=CalcNSumVee+Vee(IState)
       END DO
       CALL mma_deallocate(Vee)
-      RETURN
-      END Function
+      END Function CalcNSumVee
 ************************************************************************
 ************************************************************************
       Subroutine Copy2DMat(A,B,NRow,NCol)
@@ -343,8 +338,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
         A(IRow,ICol)=B(IRow,ICol)
        End Do
       END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE Copy2DMat
 ************************************************************************
 ************************************************************************
       Subroutine CMSMatRot(Mat,A,I,J,N)
@@ -361,8 +355,7 @@ C     &'Convergence reached after ',Iter,' micro cycles'
        Mat(J,K)= cos(A)*TM(J,K)+sin(A)*TM(I,K)
        Mat(I,K)=-sin(A)*TM(J,K)+cos(A)*TM(I,K)
       END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CMSMatRot
 ************************************************************************
 ************************************************************************
       Subroutine CMSFitTrigonometric(x,y)
@@ -399,8 +392,7 @@ C       y(4)=val2
       end if
       y(4)=a+sqrt(b**2+c**2)
 C      write(6,*)a,b,c,x(4),y(4)
-      return
-      END Subroutine
+      END Subroutine CMSFitTrigonometric
 ************************************************************************
 
 ************************************************************************
@@ -433,8 +425,7 @@ C      write(6,*)a,b,c,x(4),y(4)
 C       write(6,'(A,I2,A,F10.6)')'The classic coulomb energy for state ',
 C     & IState,' is ',Vee(IState)
       END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcVee
 ************************************************************************
 ************************************************************************
       Subroutine GetDDgMat(DDg,GDMat,Gtuvx)
@@ -486,7 +477,7 @@ C     & IState,' is ',Vee(IState)
        END DO
       END DO
       RETURN
-      End Subroutine
+      End Subroutine GetDDgMat
 ************************************************************************
 
       Subroutine LoadGtuvx(TUVX,Gtuvx)
@@ -528,20 +519,21 @@ C     & IState,' is ',Vee(IState)
        End Do
       END DO
       RETURN
-      End Subroutine
+      End Subroutine LoadGtuvx
 ************************************************************************
       Subroutine NStateOpt2(RotMat,GDMat,Gtuvx)
       use stdalloc, only : mma_allocate, mma_deallocate
       use CMS, only: CMSNotConverged
       use rasscf_global, only: lRoots, NAC, CMSThreshold, iCMSIterMax,
      &                         iCMSIterMin
+      use printlevel, only: USUAL
+      use output_ras, only: IPRLOC
       Implicit None
 
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "output_ras.fh"
 #include "warnings.h"
 
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GDMat
@@ -627,8 +619,7 @@ C     & IState,' is ',Vee(IState)
       CALL mma_deallocate(theta)
       CALL mma_deallocate(Vee)
       CALL mma_deallocate(FRot)
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE NStateOpt2
 
 ************************************************************************
 
@@ -714,8 +705,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       CALL mma_deallocate(Sums)
       CALL mma_deallocate(ScanA)
       CALL mma_deallocate(ScanS)
-      RETURN
-      End Subroutine
+      End Subroutine OptOneAngle2
 
 ************************************************************************
       Subroutine SumVeeNew(SV,A,GD,I1,I2,G,V1,V2,Update)
@@ -878,8 +868,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
        Call mma_deallocate(D11)
        Call mma_deallocate(D22)
       END IF
-      RETURN
-      End Subroutine
+      End Subroutine SumVeeNew
 ************************************************************************
 
 ************************************************************************
@@ -919,8 +908,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
        deltaQ=deltaQ+change
       END DO
 
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE ThetaOpt2
 
 ************************************************************************
       Function SumArray(A,N)
@@ -932,8 +920,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       DO I=1, N
        SumArray=SumArray+A(I)
       END DO
-      RETURN
-      End Function
+      End Function SumArray
 
 
 ************************************************************************
@@ -965,8 +952,7 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
        End Do
        Vee(I)=Vee(I)/2.0d0
       END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcVee2
 
 ************************************************************************
       Subroutine RotGDMat(R,GD)
@@ -1019,6 +1005,4 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
        End Do
       END DO
       END DO
-      RETURN
-      END SUBROUTINE
-
+      END SUBROUTINE RotGDMat

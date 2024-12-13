@@ -39,10 +39,8 @@ call prgmfree()
 call GetMem('Finish','List','Real',iDum,0)
 call GetMem('Finish','Term','Real',iDum,0)
 
-call StatusLine('Happy landing',' ')
-if (MaxWarnMess > 1) then
-  call WarningMessage(1,'There were warnings during the execution;Please, check the output with care!')
-end if
+call StatusLine('Happy landing','')
+if (MaxWarnMess > 1) call WarningMessage(1,'There were warnings during the execution;Please, check the output with care!')
 
 #ifdef _HAVE_EXTRA_
 call prgmfree()

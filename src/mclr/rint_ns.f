@@ -30,13 +30,17 @@ c
       use Arrays, only: G2sq, G1t
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
-      Implicit Real*8(a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
-      Real*8 Fock(nDens2),rkappa(nDens2),
-     &       Focki(ndens2),rMO(*)
+      use MCLR_Data, only: nDens2,ipMat,ipMatBA,nA,nMBA
+      use input_mclr, only: iMethod,nSym,nAsh,nBas,nIsh
+      Implicit None
+      Real*8 rkappa(nDens2),rMO(*),Fock(nDens2),FockI(ndens2)
+      Integer iDSym,jSpin
+      Real*8 reco,rie
       Real*8, Allocatable:: FA(:), MT1(:), MT2(:), QA(:), QB(:)
+      Real*8 Fact,Dij
+      Integer jpCMO,iSym,iS,jS,iAsh,jAsh,ipF,ipFI
 *
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
       Call mma_allocate(FA,ndens2,Label='FA')
@@ -182,7 +186,6 @@ c
       Call mma_deallocate(MT1)
       Call mma_deallocate(FA)
 *
-      return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real(rie)
-      end
+      end SubRoutine RInt_ns

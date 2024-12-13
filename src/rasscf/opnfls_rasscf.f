@@ -26,10 +26,10 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use output_ras, only: LF
       Implicit None
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Logical DSCF,DoCholesky
 
       Logical test

@@ -13,7 +13,8 @@
       SUBROUTINE ADADST(IOBTP,IOBSM,IOBOFF,NIOB,JOBTP,JOBSM,JOBOFF,NJOB,
      &                  IJORD,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,NK,
      &                  NKDIM,IEND)
-      use Str_Info
+      use Str_Info, only: STR,ISTAC,IUNIQMP,NOCTYP
+      use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
 *
 *
 * Obtain mappings
@@ -37,16 +38,18 @@
 *. Input
 * ======
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
+      IMPLICIT None
+      Integer IOBTP,IOBSM,IOBOFF,NIOB,JOBTP,JOBSM,JOBOFF,NJOB,IJORD,
+     &        ICLS,ISM,IGRP,KMIN,KMAX
+      Integer NK,NKDIM,IEND
 *
 * =======
 *. Output
 * =======
 *
       INTEGER I1(NKDIM,*)
-      DIMENSION XI1S(NKDIM,*)
+      REAL*8 XI1S(NKDIM,*)
+      Integer JGRP,I1MPF,L1MP,KGRP,I2MPF,L2MP
 *
       JGRP = IGRP + 1
       IF(IUNIQMP(JGRP).NE.JGRP) THEN
@@ -91,5 +94,4 @@ C        write(6,*) ' Unique string group for mappings ',KGRP
      &           Str(IGRP+2)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+2),
      &           NORB1,NORB2,NORB3,NACOB,KMAX,KMIN,IEND)
 *
-      RETURN
-      END
+      END SUBROUTINE ADADST

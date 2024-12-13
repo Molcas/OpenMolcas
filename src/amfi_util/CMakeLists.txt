@@ -18,6 +18,7 @@ set (sources
      cartoney.F90
      cartonez.F90
      chngcont.F90
+     cont.F90
      contandmult.F90
      contcasaoo.F90
      contcasaso.F90
@@ -27,7 +28,6 @@ set (sources
      contcasb2so.F90
      contcascoo.F90
      contcascso.F90
-     cont.F90
      contone.F90
      contract.F90
      couple3j.F90
@@ -35,16 +35,16 @@ set (sources
      drv_amfi.F90
      finite.F90
      gen1overr3.F90
-     gencouldim.F90
      gencoul.F90
+     gencouldim.F90
      genovlp.F90
      genpowers.F90
      genprexyz13.F90
      genprexyz14.F90
      genprexyz15a.F90
      gentkin.F90
-     getaos2.F90
      getaos.F90
+     getaos2.F90
      getcg.F90
      getlimit.F90
      getocc_ao.F90

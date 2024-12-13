@@ -23,15 +23,13 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
   use caspt2_global, only: do_grad, IDSAVGRD, iStpGrd
   use PrintLevel, only: usual, verbose
   use definitions, only: iwp,wp,u6
-  use EQSOLV
-  use ChoCASPT2
+  use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
 
   Implicit None
 
 #include "warnings.h"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
 
   character(len=60) :: STLNE2
 
@@ -107,7 +105,7 @@ Subroutine GradLoop(Heff,Ueff,H0,U0,H0Sav)
       END IF
 
       Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ', MSTATE(JSTATE)
-      Call StatusLine('CASPT2: ',TRIM(STLNE2))
+      Call StatusLine('CASPT2: ',STLNE2)
       CALL EQCTL2(ICONV)
 
 ! Save the final caspt2 energy in the global array ENERGY():

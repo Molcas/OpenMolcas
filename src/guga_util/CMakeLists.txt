@@ -19,8 +19,8 @@ set (sources
      mtrans.F90
      order.F90
      siadd.F90
-     squar2.F90
      squar.F90
+     squar2.F90
      squarm.F90
      squarn.F90
      tradd.F90

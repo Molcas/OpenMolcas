@@ -14,16 +14,14 @@
 !     Note, these parameters define the size of the problems which
 !     can be treated by the RASSCF program. Changing any of these
 !     requires, that the program is totaly recompiled and linked.
-      Integer mxRef,mxIter,mxCiIt,mxSxIt,mxTit
 !
-      Parameter ( mxRef  = 5       )
+      Integer, Parameter :: mxRef  = 5
 !...  max number of reference configurations in root selectioning
-      Parameter ( mxIter = 200     )
+      Integer, Parameter :: mxIter = 200
 !...  max number of macro iterations
-      Parameter (mxCiIt = 502)
+      Integer, Parameter ::  mxCiIt = 502
 !...  max number of micro iterations for the CI section
-      Parameter ( mxSxIt = 100      )
+      Integer, Parameter :: mxSxIt = 100
 !...  max number of micro iterations for the SX section
-!      Parameter ( mxTit  = 10      )
-      Parameter ( mxTit  = 1      )
+      Integer, Parameter :: mxTit  = 1
 !...  max number of title lines

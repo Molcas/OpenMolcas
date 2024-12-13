@@ -8,28 +8,26 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine SpinDens
-     &          (LS,RS,iL,iR,rP1,rp2,rp3,rp4,rp5,rDe1,rde2,
-     &           itype)
+      SubRoutine SpinDens(LS,RS,iL,iR,rP1,rp2,rp3,rp4,rp5,rDe1,rde2,
+     &                    itype)
 *
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8(a-h,o-z)
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "crun_mclr.fh"
-
-#include "Input.fh"
-#include "Pointers.fh"
-#include "spinfo_mclr.fh"
-#include "cands.fh"
-#include "cstate_mclr.fh"
+      use MCLR_Data, only: nNA, n2Dens,n1Dens
+      use MCLR_Data, only: XISPSM
+      use CandS, only: ICSM,ISSM
+      use input_mclr, only: nCSF
+      Implicit None
       Real*8 LS(*),RS(*),rP1(nna,nna,nna,nna),
      &       rP2(nna,nna,nna,nna),rP3(nna,nna,nna,nna),
      &       rP4(nna,nna,nna,nna),rP5(nna,nna,nna,nna),
      &       rDe1(nna,nna),rde2(nna,nna)
+      Integer iType
       Real*8, Allocatable:: Dens(:,:), Pens(:), CIL(:), CIR(:)
+      Integer n2,nConfL,iL,nConfR,iR,iA,jA,kA,lA,ijklAB,jilkAB,
+     &        ijklBA,jilkBA,ijkl,jilk
 
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
 *     Input:
@@ -199,6 +197,5 @@
         Call mma_deallocate(Pens)
         Call mma_deallocate(CIL)
         Call mma_deallocate(CIR)
-      Return
-      End
+      End SubRoutine SpinDens
 *

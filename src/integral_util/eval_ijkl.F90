@@ -50,6 +50,7 @@ use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: DoFock, DoIntegrals, Map4
 use Integral_interfaces, only: Int_PostProcess, twoel_kernel
+use RI_glob, only: jBas_, lBas_
 #ifdef _DEBUGBREIT_
 use Breit, only: nOrdOp
 use UnixInfo, only: SuperName
@@ -61,7 +62,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-#include "ibas_ricd.fh"
 integer(kind=iwp) :: iAngV(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCmpV(4), ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
                      ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, iPrimi, &
                      iPrInc, ipTmp, iS, iS_, iShelV(4), iShllV(4), iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &

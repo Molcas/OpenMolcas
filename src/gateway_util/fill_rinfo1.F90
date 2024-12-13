@@ -11,13 +11,12 @@
 
 subroutine Fill_rInfo1()
 
-use Basis_Info, only: dbsc, nCnttp, Shells
+use Basis_Info, only: dbsc, MxPrim, MxrCof, nAngr, nBasisr, nCnttp, nPrimr, rCof, rExp, Shells
 use Definitions, only: iwp, u6
 
 implicit none
 #include "Molcas.fh"
 integer(kind=iwp) :: iAng, icnt, iCnttp, jSh, kCof, kExp, krBas, krCnt, krCof, krExp, nExpj
-#include "rinfo.fh"
 
 !                                                                      *
 !***********************************************************************

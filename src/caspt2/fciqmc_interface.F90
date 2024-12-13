@@ -453,7 +453,7 @@ contains
         write(u6, '(4x,a)') 'First copy the required files into the M7 work directory:'
         if (NonDiagonal) then
             write(u6, '(8x,a)') 'cp ' // trim(WorkDir) // '/fockdump.h5 $M7_WORKDIR'
-            write(u6, '(4x,a)') 'Use the same FciDump as for the preceeding CASCI.'
+            write(u6, '(4x,a)') 'Use the same FciDump as for the preceding CASCI.'
         else
             write(u6, '(8x,a)') 'cp ' // trim(WorkDir) // '/{fockdump.h5,caspt2.FciDmp.h5} $M7_WORKDIR'
         end if

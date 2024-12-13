@@ -320,7 +320,7 @@ do IT=1,10
         KV = -1
         return
       end if
-      ! Scale outer part of wave function before proceding
+      ! Scale outer part of wave function before proceeding
       SI = One/SI
       YIN = Y1*SI
       MSAVE = M

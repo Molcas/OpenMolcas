@@ -9,15 +9,18 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SetPos(LUnit,KeyIn,Line,iRc)
-
-      Implicit Real*8 (A-H,O-Z)
+      use printlevel, only: TERSE
+      use output_ras, only: IPRLOC
+      Implicit None
+      Integer LUNIT,iRC
       Character(LEN=*) KeyIn
       Character(LEN=*) Line
+
       Character(LEN=16) Command
       Character(LEN=16) Key
 #include "warnings.h"
 #include "rasdim.fh"
-#include "output_ras.fh"
+      Integer IPRLEV,KLen
       Intrinsic len, min
 
 

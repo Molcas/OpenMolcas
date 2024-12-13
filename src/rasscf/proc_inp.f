@@ -100,6 +100,13 @@
      &                         ChemPS2_Noise, Max_Canonical, MxDMRG,
      &                         Do3RDM
 #endif
+      use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
+     &                         lRootSplit,NumSplit,EnerSplit,
+     &                         PerSplit,PerCSpli,fOrdSplit,
+     &                         iDimBlockA,GapSpli
+      use printlevel, only: DEBUG,VERBOSE,TERSE
+      use output_ras, only: LF,IPRGLB,IPRLOC
+
 
 
       Implicit None
@@ -107,9 +114,7 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "warnings.h"
-#include "splitcas.fh"
 #include "bk_approx.fh"
-#include "output_ras.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"
@@ -3602,7 +3607,7 @@ C Test read failed. JOBOLD cannot be used.
         if(.not.doDMRG)then
 #endif
 * Initialize LUCIA and determinant control
-          Call StatusLine('RASSCF:','Initializing Lucia...')
+          Call StatusLine('RASSCF: ','Initializing Lucia...')
           CALL Lucia_Util('Ini')
 * to get number of CSFs for GAS
 * and number of determinants to store

@@ -8,9 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER      IF_ERI,I50DUMMY,                                     &
-     &  IAD2M,NSYMZ,NORBZ,NOSHZ,LUINTMZ,                                &
-     &  I51DUMMY,IL_ERI
-      COMMON /ERI/ IF_ERI,I50DUMMY,                                     &
-     &  IAD2M(3,36*36),NSYMZ,NORBZ(8),NOSHZ(8),LUINTMZ,                 &
-     &  I51DUMMY,IL_ERI
+
+module DMRGInfo
+! These are used for the MCLR part
+! ndets_RGLR   : number of Slater determinants
+! LRras2       : CI space when solving LR equation
+! RGras2       : CI space when solving LR equation
+! nstates_RGLR : number of states
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+logical(kind=iwp) :: doDMRG, doMCLR
+
+integer(kind=iwp) :: LRras2(20), MS2_RGLR, ndets_RGLR, nele_RGLR, nstates_RGLR, RGras2(20)
+
+public :: DoDMRG, DoMCLR, LRras2, MS2_RGLR, ndets_RGLR, nele_RGLR, nstates_RGLR, RGras2
+
+end module DMRGInfo

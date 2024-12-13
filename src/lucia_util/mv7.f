@@ -11,6 +11,8 @@
       SUBROUTINE MV7(C,HC,LUC,LUHC)
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas
+*.Definition of c and sigma
+      use CandS, only: ISSPC, ISSM
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
@@ -22,10 +24,8 @@
 * =====
 *.Input
 * =====
-      DIMENSION C(*),HC(*)
+      REAL*8 C(*),HC(*)
 *
-*.Definition of c and sigma
-#include "cands.fh"
 *
 *./ORBINP/ : NACOB used
 #include "orbinp.fh"
@@ -94,7 +94,6 @@ c      END IF
          LBLOCK = MAX(INT(XISPSM(IREFSM,1)),MXSOOB)
          IF(PSSIGN.NE.0.0D0) LBLOCK = INT(2*XISPSM(IREFSM,1))
       ENDIF
-C     WRITE(6,*) ' ISSM and ICSM in MV7 =', ISSM,ICSM
       CALL PART_CIV2(IDC,
      &               CBLTP,
      &               NSTSO(IATP)%I,

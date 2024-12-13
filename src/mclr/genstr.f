@@ -29,19 +29,25 @@
 * IREORD             : Reordering array going from lexical
 *                      order to symmetry and occupation type order.
 *
-      IMPLICIT REAL*8 ( A-H,O-Z)
+      use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
+      IMPLICIT None
+      INTEGER NEL,NELMN1,NELMX1,NELMN3,NELMX3,NOCTYP,NSMST
+      INTEGER IOTYP,IPRNT
 *. Input
-      DIMENSION ISTASO(NOCTYP,NSMST)
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
+      Integer ISTASO(NOCTYP,NSMST)
       INTEGER Z(NACOB,NEL)
 *
 *.Output
       INTEGER STRING(NEL,*),IREORD(*)
 *.Scratch arrays
-      DIMENSION IOC(*),LSTASO(NOCTYP,NSMST)
+      Integer IOC(*),LSTASO(NOCTYP,NSMST)
 *
 *
+*     Local variables
+      Integer NTEST0,NTEST,NSTRIN,IORB1F,IORB1L,IORB2F,IORB2L,IORB3F,
+     &        IORB3L,IEL1,IEL2,IEL3,IFRST1,IFRST2,IFRST3,NONEW1,NONEW2,
+     &        NONEW3,ISYM,ITYP,LEXCI,LACTU,NPR,ISTRIN,LSTRIN,KSTRIN,
+     &        IEL,IOCTP2_MCLR,ISTRNM,ISYMST_MCLR
       NTEST0 = 0
       NTEST = MAX(NTEST0,IPRNT)
 *
@@ -170,5 +176,4 @@
         CALL IWRTMA(IREORD,1,NPR,1,NPR)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE GENSTR_MCLR

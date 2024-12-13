@@ -15,7 +15,6 @@
      &                 NINOC,ECORE,IPRODT,DTOC,
      &                 NORB,ICOMBI,PSSIGN,NTERMS,NDIF0,NDIF1,NDIF2,
      &                 NTEST)
-      use Str_Info, only: Str
 *
 * Obtain Hamilton matrix over CSFs of configurations ICNL,ICNR
 *
@@ -23,19 +22,23 @@
 *
 *. Modified for LUCIA, september 1993
 *
-      IMPLICIT real*8(A-H,O-Z)
+      Implicit None
+      Integer ITPL,ITPR,NEL,NAEL,NBEL,INTSPC,NINOC
+      REAL*8 ECORE
+      INTEGER NORB,ICOMBI
+      REAL*8 PSSIGN
+      INTEGER NTERMS,NDIF0,NDIF1,NDIF2,NTEST
 *. Specific input
-      DIMENSION ICNL(*),ICNR(*)
+      Integer ICNL(*),ICNR(*)
 *. General input
-      DIMENSION IPRODT(*),DTOC(*)
+      Integer IPRODT(*)
+      REAL*8 DTOC(*)
 *. Scratch
-      DIMENSION SCR(*),IDUMMY(1)
+      REAL*8 SCR(*)
 *. Output
-      DIMENSION CNHCNM(*)
+      Real*8 CNHCNM(*)
 *. Interface to LUCIA common blocks in order to access strings
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
-#include "cicisp_mclr.fh"
+      INTEGER IDUMMY(1)
 *
       CALL CNHCN2_INTERNAL(SCR)
       RETURN
@@ -50,6 +53,15 @@ c Avoid unused argument warnings
       CONTAINS
       SUBROUTINE CNHCN2_INTERNAL(SCR)
       USE ISO_C_BINDING
+      use MCLR_Data, only: IASTFI,IBSTFI
+      use Str_Info, only: Str
+      use MCLR_Data, only: MINOP,NCPCNT,NDPCNT
+      Implicit None
+      INTEGER IAGRP,IBGRP,IOPL,IOPR,ICLL,ICLR,NDETL,NDETR,NCSFL,
+     &        NCSFR,KLFREE,KLDTLA,KLDTLB,KLISL,KLDTRA,KLDTRB,KLISR,
+     &        KLDHD,KLCHD,KLROU,LDIHDJ,LCNFST,NDIFF,ISYM,IPL,JTYP,
+     &        JCSF,JDET,IPR,LWORK
+      REAL*8 ECOREP
       REAL*8, TARGET :: SCR(*)
       INTEGER, POINTER :: iSCR(:),iSCRa(:),iSCRb(:),iSCRar(:),iSCRbr(:),
      &                    iSCRn(:),iSCRnn(:)
@@ -180,4 +192,4 @@ c Avoid unused argument warnings
       RETURN
       END SUBROUTINE CNHCN2_INTERNAL
 *
-      END
+      END SUBROUTINE CNHCN2

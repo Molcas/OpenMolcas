@@ -47,9 +47,11 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF
+use csfbas, only: CONF, NAEL, NBEL
 use glbbas, only: DFTP, DTOC
 use rasscf_global, only: ExFac, NAC
+use output_ras, only: IPRLOC
+use printlevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -67,9 +69,7 @@ real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "rasdim.fh"
 #include "general.fh"
 #include "ciinfo.fh"
-#include "strnum.fh"
 #include "timers.fh"
-#include "output_ras.fh"
 
 call Timing(Omega_1,dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)

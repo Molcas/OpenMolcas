@@ -22,11 +22,15 @@
 ******************************************************************
       use KSDFT_Info, only: Funcaa, Funcbb, Funccc
       use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
-      Implicit Real*8 (A-H,O-Z)
+      use printlevel, only: USUAL
+      use output_ras, only: IPRLOC
+      Implicit None
+      REAL*8 CASDFT_E
+
       integer left
-      character*6 Fmt2
-      character*120 Line
-#include "output_ras.fh"
+      character(LEN=6) Fmt2
+      character(LEN=120) Line
+      integer IPRLEV
 
       IPRLEV=IPRLOC(6)
       IF(IPRLEV.ge.USUAL) THEN
@@ -74,5 +78,4 @@
       Call Add_Info('corr_e', [Funccc],1,6)
       Call Add_Info('CASDFTE',[CASDFT_E],1,8)
 
-      RETURN
-      END
+      END SUBROUTINE print_MCPDFT

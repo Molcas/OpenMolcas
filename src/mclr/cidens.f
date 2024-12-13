@@ -8,25 +8,27 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SubRoutine CIDens(response,iLS,iRS,iL,iR,iS,rP,rD)
+      SubRoutine CIDens(response,iLS,iRS,iL,iR,rP,rD)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8(a-h,o-z)
-
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "crun_mclr.fh"
-
-#include "Input.fh"
-#include "Pointers.fh"
-#include "spinfo_mclr.fh"
-#include "cands.fh"
-#include "dmrginfo_mclr.fh"
-      Real*8 rP(*),rD(*)
-      integer opout
+      use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
+      use MCLR_Data, only: XISPSM
+      use MCLR_Data, only: NOCSF
+      use CandS, only: ICSM,ISSM
+      use input_mclr, only: TimeDep, nCSF
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
+      Implicit None
       Logical Response
+      Integer iLS, iRS, iL, iR
+      Real*8 rP(*),rD(*)
+
+      integer opout
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
+      Integer i, j, itri
+      Integer nDim, nConfL, nConfR, iRC
+      Integer IA, JA, KA, LA, ij1, ij2, kl1, kl2
+      Integer, External:: ipIn, ipIn1, ipnOut
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
@@ -187,10 +189,7 @@
         n2dens=n1dens*(n1dens+1)/2
       end if
 
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(iS)
-      End
+      End SubRoutine CIDens

@@ -7,24 +7,23 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2004, Giovanni Ghigo                                   *
 !***********************************************************************
 
-subroutine put_tra_comm(IBD2M,NSYMX,NORBX,NOSHX,LUINTMX)
+module CandS
+! Definition of c and sigma
+!
+! iCSM  : Symmetry of CI state?
+! iSSM  : Symmetry of Sigma state?
+! iCSpc : Number of CI spaces
+! iSSpc : Number of Sigma spaces
 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: IBD2M(3,36*36), NSYMX, NORBX(8), NOSHX(8), LUINTMX
-#include "intgrl.fh"
+private
 
-IAD2M(:,:) = IBD2M(:,:)
-NSYMZ = NSYMX
-NORBZ(:) = NORBX(:)
-NOSHZ(:) = NOSHX(:)
-LUINTMZ = LUINTMX
+integer(kind=iwp) :: ICSM, ICSPC, ISSM, ISSPC
 
-return
+public :: ICSM, ICSPC, ISSM, ISSPC
 
-end subroutine put_tra_comm
+end module CandS

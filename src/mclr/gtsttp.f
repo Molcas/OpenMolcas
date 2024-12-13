@@ -25,14 +25,12 @@
 *
 * Jeppe Olsen, Another lonely night in Lund
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-*
-#include "detdim.fh"
+      IMPLICIT None
+      Integer ICLS,IEL1,IEL3,ITYPE,IWAY
 *
       CALL GTSTTPS(IEL1,IEL3,
      &             Str(MIN(ICLS,ITYP_Dummy))%EL1,
      &             Str(MIN(ICLS,ITYP_Dummy))%EL3,
      &             NOCTYP(MIN(ICLS,ITYP_Dummy)),ITYPE,IWAY)
 *
-      RETURN
-      END
+      END SUBROUTINE GTSTTP

@@ -41,6 +41,8 @@ C
      &                         iSymBB, JBLBM, NTOT3, via_DFT, ISTORD,
      &                         ISTORP, iTri, iZROT, ixSym, CBLB, IBLB,
      &                         JBLB
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       IMPLICIT None
       Integer iFinal
@@ -55,7 +57,6 @@ C
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='FOCK    '
 C
       IPRLEV=IPRLOC(4)

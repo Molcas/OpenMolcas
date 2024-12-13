@@ -11,9 +11,11 @@
 
 ! *********************************************************************
       subroutine read_dmrg_parameter_for_mclr()
+         use input_mclr, only: ERASSCF
+         use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2,DoMCLR,nEle_RGLR,
+     &                       MS2_RGLR,nStates_RGLR
+         Implicit None
 
-#include "Input.fh"
-#include "dmrginfo_mclr.fh"
 
         integer ierr,i
         open(unit=100,file="dmrg_for_mclr.parameters",
@@ -58,6 +60,7 @@
 
 ! *********************************************************************
       Subroutine dmrg_spc_change_mclr(orbspc,lrspc)
+       Implicit None
 
        integer::orbspc(8)
        integer::lrspc(8)
@@ -71,6 +74,7 @@
 ! *********************************************************************
 
       Subroutine dmrg_dim_change_mclr(orbspc,ndim,iflag)
+        Implicit None
 
         integer::orbspc(8)
         integer::iflag
@@ -125,8 +129,10 @@
       Subroutine ci_reconstruct(istate,nSDET,vector,indexSD)
 
         use stdalloc, only: mma_allocate, mma_deallocate
-#include "dmrginfo_mclr.fh"
-        character*100,allocatable :: checkpoint(:)  ! for many states
+         use dmrginfo, only: LRRAS2,RGRAS2,nEle_RGLR,nDets_RGLR,
+     &                       MS2_RGLR,nStates_RGLR
+        Implicit None
+        character(LEN=100),allocatable :: checkpoint(:)! for many states
 
         integer :: istate,nsdet
 
@@ -150,7 +156,7 @@
 
         integer ndets_mclr
 
-        character*200 tmp_run
+        character(LEN=200) tmp_run
 
         real*8 dtmp
 
@@ -159,6 +165,9 @@
 
         integer :: indexSD(nsdet)            ! index
         real*8  :: vector(nsdet)             ! determinants
+
+        integer :: nDets_Total,lcheckpoint
+        integer,external:: IsFreeUnit
 
         type Slater_determinant
           integer :: itype                  = 1 ! excitation type

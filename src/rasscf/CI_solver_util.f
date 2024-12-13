@@ -62,7 +62,7 @@
 #endif
         end do
         if (myrank == 0) then
-          write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
+          write(6, *) 'NEWCYCLE file found. Proceeding with SuperCI'
           LuNewC = isFreeUnit(12)
           call molcas_open(LuNewC, 'NEWCYCLE')
             read(LuNewC,*) (energy(i), i = 1, nroots)

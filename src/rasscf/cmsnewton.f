@@ -22,13 +22,14 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use rasscf_global, only: lRoots, CMSThreshold, iCMSIterMax,
      &                         iCMSIterMin, NAC
+      use printlevel, only: USUAL
+      use output_ras, only: IPRLOC
       Implicit None
 
 
 #include "rasdim.fh"
 #include "general.fh"
 #include "SysDef.fh"
-#include "output_ras.fh"
 #include "warnings.h"
       INTEGER nGD
       Real*8 R(lRoots**2),
@@ -157,8 +158,7 @@
       CALL mma_deallocate(DgCopy )
       CALL mma_deallocate(RCopy  )
       CALL mma_deallocate(RotMat )
-      RETURN
-      End Subroutine
+      End Subroutine CMSNewton
 
 
 

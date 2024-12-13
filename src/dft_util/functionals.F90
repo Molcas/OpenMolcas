@@ -30,8 +30,7 @@ real(kind=wp) :: Def_Coeffs(nFuncs_max) = Zero, Def_ExFac = Zero
 character(len=80) :: Def_Label = ''
 character(len=*), parameter :: Custom_File = 'CUSTFUNC', Custom_Func = '-999_CUSTOM_FUNCTIONAL'
 
-public :: Custom_File, Custom_Func, Get_Func_ExFac, Get_Funcs, Init_Funcs, Print_Info, &
-          Check_N_Ext_Params, Get_Func_Type
+public :: Check_N_Ext_Params, Custom_File, Custom_Func, Get_Func_ExFac, Get_Func_Type, Get_Funcs, Init_Funcs, Print_Info
 
 contains
 
@@ -58,11 +57,12 @@ function Get_Func_ExFac(Label)
 end function Get_Func_ExFac
 
 function Get_Func_Type(Label)
-  character(len=*), intent(in) :: Label
+
   integer(kind=iwp) :: Get_Func_Type
+  character(len=*), intent(in) :: Label
 
   call Init_Funcs(Label)
-  Get_Func_Type=Def_Functional_Type
+  Get_Func_Type = Def_Functional_Type
 
 end function Get_Func_Type
 
@@ -315,46 +315,46 @@ subroutine check_supported(Label,flags)
 
 end subroutine check_supported
 
-subroutine check_n_ext_params(nrequired, nparam)
-  use xc_f03_lib_m, only: xc_f03_func_end, xc_f03_func_get_info, &
-                          xc_f03_func_info_t, xc_f03_func_init, xc_f03_func_t, xc_f03_func_info_get_n_ext_params, &
-                          XC_UNPOLARIZED
-  use Definitions, only: u6
-  use libxc_parameters, only: FuncExtParams
+subroutine check_n_ext_params(nrequired,nparam)
 
-  integer(kind=iwp),intent(in) :: nrequired
-  integer(kind=iwp),dimension(nrequired) :: nparam
-  integer(kind=iwp) :: i, j, nExt
+  use xc_f03_lib_m, only: xc_f03_func_end, xc_f03_func_get_info, xc_f03_func_info_get_n_ext_params, xc_f03_func_info_t, &
+                          xc_f03_func_init, xc_f03_func_t, XC_UNPOLARIZED
+  use libxc_parameters, only: FuncExtParams
+  use Definitions, only: u6
+
+  integer(kind=iwp), intent(in) :: nrequired, nparam(:)
+  integer(kind=iwp) :: i, nExt
   type(xc_f03_func_t) :: func
   type(xc_f03_func_info_t) :: info
 
   if (nrequired > Def_nFuncs) then
-     call WarningMessage(2,' Set_Ext_Params: More functionals setting external parameters!')
-     write(u6,'(A39, I5)') ' functionals requested in the input  : ', nRequired
-     write(u6,'(A39, I5)') ' functionals with external parameters: ', Def_nFuncs
+    call WarningMessage(2,' Set_Ext_Params: More functionals setting external parameters!')
+    write(u6,'(A39, I5)') ' functionals requested in the input  : ',nRequired
+    write(u6,'(A39, I5)') ' functionals with external parameters: ',Def_nFuncs
   end if
-  write(u6,'(5x,80A)') ('=', i=1, 80)
+  write(u6,'(5X,A)') repeat('=',80)
   write(u6,'(5X,A)') 'EXTERNAL PARAMETER INFORMATION'
-  write(u6,'(5x,80A)') ('-', i=1, 80)
-  write(u6,'(7X,4(A13,2X))') 'FuncIndex  ', '   Func_ID   ',' N_Ext_Params', ' N_Req_Params'
-  DO i = 1, nRequired
-    CALL xc_f03_func_init(func,Def_func_id(i),XC_UNPOLARIZED)
+  write(u6,'(5X,A)') repeat('-',80)
+  write(u6,'(7X,4(A13,2X))') 'FuncIndex  ','   Func_ID   ',' N_Ext_Params',' N_Req_Params'
+  do i=1,nRequired
+    call xc_f03_func_init(func,Def_func_id(i),XC_UNPOLARIZED)
     info = xc_f03_func_get_info(func)
     nExt = xc_f03_func_info_get_n_ext_params(info)
-    write(u6,'(4X,4(5X,I5,5X))') I, Def_Func_ID(I), nExt, nParam(i)
-    IF (nExt /= nParam(i)) THEN
-       CALL WarningMessage(2,' Set_Ext_Params: Number of parameters not equal to n_ext_params!')
-       CALL Quit_OnUserError()
-    END IF
-    CALL xc_f03_func_end(func)
-  END DO
-  write(u6,'(5x,80A)') ('-', i=1, 80)
-  write(u6,'(8X,A13,4X,A42)') 'FuncIndex   ', 'Parameters (5 digits after deicimal point)'
-  DO i = 1, nRequired
-    write(u6,'(9X,I5,11X,5(F9.5,2X))') I, (FuncExtParams(j, i), j=1, nParam(i))
-  END DO
-  write(u6,'(5x,80A)') ('=', i=1, 80)
+    write(u6,'(4X,4(5X,I5,5X))') I,Def_Func_ID(I),nExt,nParam(i)
+    if (nExt /= nParam(i)) then
+      call WarningMessage(2,' Set_Ext_Params: Number of parameters not equal to n_ext_params!')
+      call Quit_OnUserError()
+    end if
+    call xc_f03_func_end(func)
+  end do
+  write(u6,'(5x,A)') repeat('-',80)
+  write(u6,'(8X,A13,4X,A42)') 'FuncIndex   ','Parameters (5 digits after decimal point)'
+  do i=1,nRequired
+    write(u6,'(9X,I5,11X,5(F9.5,2X))') I,FuncExtParams(1:nParam(i),i)
+  end do
+  write(u6,'(5x,A)') repeat('=',80)
   write(u6,*)
+
 end subroutine check_n_ext_params
 
 end module Functionals

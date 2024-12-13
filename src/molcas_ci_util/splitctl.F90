@@ -31,11 +31,13 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF
+use csfbas, only: CONF, NAEL, NBEL
 use GLBBAS, only: DFTP, DTOC, CFTP
 use splitcas_data, only: EnInSplit, EnerSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
                          NumSplit, percSpli, PerSplit, ThrSplit
 use rasscf_global, only: EMY, ENER, ExFac, IADR15, ICICH, iCIOnly, ICIRST, ITER, ITERCI, iTOC, n_Keep, NAC
+use output_ras, only: IPRLOC
+use printlevel, only: DEBUG
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
@@ -56,8 +58,6 @@ real(kind=wp), external :: ddot_
 #include "rasdim.fh"
 #include "general.fh"
 #include "ciinfo.fh"
-#include "output_ras.fh"
-#include "strnum.fh"
 #include "timers.fh"
 
 #include "macros.fh"

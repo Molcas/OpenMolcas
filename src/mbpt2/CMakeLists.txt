@@ -21,8 +21,8 @@ set (sources
      compute_shanks.F90
      delghost_mbpt.F90
      finish_wdensity.F90
-     fnomp2_drv.F90
      fno_mp2.F90
+     fnomp2_drv.F90
      fnomp2_putinf.F90
      freezer.F90
      frzdel.F90
@@ -31,10 +31,10 @@ set (sources
      lovmp2_drv.F90
      lovmp2_putinf.F90
      mbpt2_global.F90
+     mp2_driver.F90
      mp2ap.F90
      mp2dens_drv.F90
      mp2diag.F90
-     mp2_driver.F90
      mp2gdens_setup.F90
      prinp_mbpt2.F90
      rdinp.F90

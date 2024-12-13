@@ -12,13 +12,17 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Two
-      Implicit Real*8(a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
-      Real*8, Allocatable :: R(:,:)
+      use MCLR_Data, only: nConf1, ipCI
+      use input_mclr, only: nRoots,nCSF,State_Sym
+      Implicit None
+      Integer nh1, nh2, ipS1
       Real*8 h1(nh1), h2(nh2)
+
+      Real*8, Allocatable :: R(:,:)
       Real*8 rDum(1)
+      Integer iRC, i, j
+      Integer, External:: ipIN
+      Real*8, External:: DDot_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -61,8 +65,7 @@
 
       Call mma_deallocate(R)
 
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End Subroutine Kap_CI
