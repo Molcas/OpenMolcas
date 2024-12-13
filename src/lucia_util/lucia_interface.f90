@@ -51,8 +51,6 @@ Contains
 !
 #include "mxpdim.fh"
 
-#include "clunit.fh"
-
 #include "cprnt.fh"
 #include "crun.fh"
 
@@ -137,6 +135,7 @@ Contains
       use rasscf_lucia, only: kvec3_length, Sigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
       use lucia_data, only: NCSF_PER_SYM,NSD_PER_SYM
       use lucia_data, only: MXSOOB,MXNTTS,XISPSM
+      use lucia_data, only: LUC,LUSC1,LUHC,LUSC34
 !
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
@@ -144,7 +143,6 @@ Contains
       implicit none
 #include "mxpdim.fh"
 #include "crun.fh"
-#include "clunit.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
 #include "cstate.fh"
@@ -286,6 +284,7 @@ Contains
       use lucia_data, only: NSD_PER_SYM
       use lucia_data, only: ECORE,ECORE_ORIG
       use lucia_data, only: MXNTTS
+      use lucia_data, only: LUC,LUSC34
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
 ! from Molcas Rasscf.
@@ -293,7 +292,6 @@ Contains
       implicit None
 #include "mxpdim.fh"
 #include "cstate.fh"
-#include "clunit.fh"
 #include "orbinp.fh"
 #include "crun.fh"
       Integer nCIVEC
@@ -351,10 +349,10 @@ Contains
       use lucia_data, only: NSD_PER_SYM
       use lucia_data, only: ECORE,ECORE_ORIG
       use lucia_data, only: MXNTTS
+      use lucia_data, only: LUC,LUSC34
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "cstate.fh"
-#include "clunit.fh"
 #include "orbinp.fh"
 #include "crun.fh"
       Integer nCIVEC,IREFSM_CASVB
