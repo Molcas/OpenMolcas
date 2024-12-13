@@ -11,7 +11,7 @@
 * Copyright (C) 1995, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE GTSPGP(IEL,ISPGP,IWAY)
-      use strbas
+      use lucia_data, only: NGAS
 *
 *
 * Relation between number of electrons in AS1, AS2 ... and
@@ -27,14 +27,16 @@
 * Jeppe Olsen, Another lonely night in Lund
 *               GAS version July 1995
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER ISPGP,IWAY
 *. Generel input
 #include "mxpdim.fh"
 #include "stinf.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 *. input(IWAY = 2 ), output (IWAY = 1 )
       INTEGER IEL(*)
+
+      INTEGER JSPGP,IEQUAL,IGAS,NTEST
 *
       IF(IWAY.EQ.1) THEN
 *. Occupation => Number
@@ -62,5 +64,4 @@
      &   ' IWAY ISPGP IEL ', IWAY,ISPGP,(IEL(IGAS),IGAS = 1, NGAS)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE GTSPGP
