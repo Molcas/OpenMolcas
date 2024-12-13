@@ -23,8 +23,8 @@ character(len=*), intent(in) :: fnjob
 #include "rasdim.fh"
 integer(kind=iwp) :: idisk, ii, ipt2_j, lujob
 real(kind=wp) :: potnuc_j
-character(len=72) :: header_j
 character(len=LenIn8) :: name_j(mxorb)
+character :: header_j(144)
 logical(kind=iwp), parameter :: debug = .false.
 
 ! Output parameters (in jobiph_j):
