@@ -16,7 +16,7 @@
      &                             I1,   XI1S,    LI1,     NK,   IEND,
      &                          IFRST,  KFRST,    I12,    K12, SCLFAC)
       use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
-      use strbas
+      use lucia_data, only: NGAS
 *
 *
 * Obtain two-operator mappings
@@ -53,19 +53,18 @@
 *. Input
 * ======
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER IOB, IOBSM, IOBTP, NIOB, IAC, JOB, JOBSM, JOBTP,  NJOB,
+     &        JAC, ISPGP, ISM, ITP, KMIN, KMAX, LI1, NK, IEND, IFRST,
+     &        KFRST, I12, K12
+      REAL*8 SCLFAC
 #include "mxpdim.fh"
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 *. Local scratch
 #include "ssave.fh"
-      SAVE NSTRI_
-C-jwk-cleanup      INTEGER KELFGRP(MXPNGAS)
-      INTEGER KGRP(MXPNGAS)
-      DIMENSION IDUM(1)
 c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
 *
 * =======
@@ -73,7 +72,14 @@ c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
 * =======
 *
       INTEGER I1(*)
-      DIMENSION XI1S(*)
+      REAL*8 XI1S(*)
+
+      INTEGER KGRP(MXPNGAS)
+      INTEGER IDUM(1)
+      INTEGER, SAVE :: NSTRI_
+      INTEGER IIGRP,JJGRP,NTEST,K1SM,KSM,ISPGPABS,IACADJ,IDELTA,JACADJ,
+     &        JDELTA,IEL,JEL,ITRIVIAL,IGRP,JGRP,NTEST2,NELI,NSTRI,NELK,
+     &        NSTRK,IIOB,JJOB,IZERO
 * Some dummy initializations
       IIGRP = 0 ! jwk-cleanup
       JJGRP = 0 ! jwk-cleanup
@@ -143,7 +149,7 @@ c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
         NK = 0
         IF(NTEST.GE.100) WRITE(6,*) ' Trivial zero excitations'
         ITRIVIAL = 1
-C       GOTO 9999
+C       RETURN
       ELSE
 *. Find group with IEL electrons in IOBTP, JEL in JOBTP
         IIGRP = 0
@@ -211,7 +217,7 @@ C?      WRITE(6,*) ' ADAADA : IIGRP, JJGRP', IIGRP,JJGRP
        CALL IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
       END IF
 *
-      IF(ITRIVIAL.EQ.1) GOTO 9999
+      IF(ITRIVIAL.EQ.1) RETURN
       NELK = NELIS(I12)
       IF(IAC.EQ.1) THEN
         NELK = NELK + 1
@@ -261,6 +267,5 @@ COLD  CALL SETVEC(XI1S,ZERO ,LI1*NIOB*NJOB)
          WRITE(6,*) ' Reorder array after ADAADAS1'
          CALL IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
        END IF
- 9999 CONTINUE
 *
-      END
+      END SUBROUTINE ADAADAST_GAS

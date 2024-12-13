@@ -14,9 +14,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       USE GLBBAS, only: VEC3
       use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
-      use strbas
+      use strbas, only: NSTSO,ISTSO
       use CandS, only: ICSM,ISSM,ISSPC
       use Constants, only: Zero
+      use lucia_data, only: NGAS,IPHGAS
 *
 * Density matrices between L and R
 *
@@ -64,7 +65,6 @@
 #include "stinf.fh"
 #include "csm.fh"
 #include "crun.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 #include "cprnt.fh"
 *
