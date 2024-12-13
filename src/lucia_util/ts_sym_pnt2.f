@@ -12,7 +12,6 @@
 ************************************************************************
       SUBROUTINE TS_SYM_PNT2(   IGRP,  NIGRP, MAXVAL, MINVAL,   ISYM,
      &                          IPNT,   LPNT)
-      use strbas
 *
 * Construct pointers to start of symmetrydistributions
 * for supergroup of strings with given symmetry
@@ -34,13 +33,13 @@
 *
 * Version 2 : Uses IGRP and NIGRP to define supergroup
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER NIGRP,ISYM,LPNT
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 #include "csm.fh"
 *. Specific Input
       INTEGER IGRP(NIGRP)
@@ -51,6 +50,9 @@ C-jwk-cleanup      INTEGER NELFGS(MXPNGAS)
       INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
 *. Output
       INTEGER MINVAL(*),MAXVAL(*),IPNT(*)
+
+      INTEGER NTEST,NGASL,IGAS,NBLKS,IFIRST,NSTRINT,NONEW,ISTSMM1,
+     &        ISMGSN,NSTRII,IOFF,MULT,ISYMSTR
 *
       NTEST = 00
 *. Info on groups of strings in supergroup
@@ -162,5 +164,4 @@ C       END DO
         CALL IWRTMA(IPNT,1,NBLKS,1,NBLKS)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE TS_SYM_PNT2
