@@ -9,13 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       REAL*8 FUNCTION GET_ECORE()
+      use lucia_data, only: ECORE_HEX
 *
 * Lets the MOLCAS environment retrieve eCore_Hex.
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "cecore.fh"
+      IMPLICIT NONE
 
       GET_ECORE = ECORE_HEX
 
-      RETURN
-      END
+      END FUNCTION GET_ECORE
