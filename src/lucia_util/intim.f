@@ -29,7 +29,6 @@
 #include "lucinp.fh"
 #include "csm.fh"
 #include "orbinp.fh"
-#include "cintfo.fh"
 #include "oper.fh"
 *
 *. : Pointers for symmetry blocks of integrals
