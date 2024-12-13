@@ -21,11 +21,11 @@
 *                   I_RE_MS2 added, May 99
 *
       use lucia_data, only: ICMBSPC,IGSOCCX,LCMBSPC,NGAS
+      use lucia_data, only: IPRDIA
       IMPLICIT NONE
       INTEGER ICISPC
 #include "mxpdim.fh"
 #include "gasstr.fh"
-#include "cprnt.fh"
 #include "stinf.fh"
 #include "strinp.fh"
 #include "crun.fh"
