@@ -13,10 +13,11 @@
       use GLBBAS, only: INT1, INT1O, PINT1, PINT2, PGINT1, PGINT1A,
      &                  LSM1, LSM2, RHO1, SRHO1, KINH1_NOCCSYM, KINH1,
      &                  CI_VEC, SIGMA_VEC
+      use lucia_data, only: MXSOOB,XISPSM
 * Deallocate memory allocated during alloc_lucia
 
 *. Input
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
 #include "mxpdim.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
@@ -24,11 +25,11 @@
 #include "csm.fh"
 #include "crun.fh"
 #include "cprnt.fh"
-#include "cicisp.fh"
-*.CSMPRD
 #include "csmprd.fh"
 #include "cintfo.fh"
 *.Output
+
+      Integer ISM,LBLOCK
 
 *.1 : One electron integrals( Complete matrix allocated )
       CALL mma_deallocate(INT1)
@@ -66,4 +67,4 @@
       Call mma_deallocate(CI_VEC)
       Call mma_deallocate(SIGMA_VEC)
 *
-      END
+      END SUBROUTINE DEALLOC_LUCIA
