@@ -13,6 +13,16 @@ Implicit None
 #include "mxpdim.fh"
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
 
+#include "clunit.fh"
+! Stuff fron clunit.fh
+!INTEGER       LU1INT,LU2INT,LUPRP,                                &
+!              LUDIA,LUC,LUHC,                                     &
+!              LUSC1,LUSC2,LUSC3,                                  &
+!              LUSC34,LUSC35,LUSC36,LUSC37,LUSC38,LUSC39,          &
+!              LUSC40,                                             &
+!              LUCIVO,LUMOIN,LUMOUT,LUEXC,                         &
+!              LUSC51,LUSC52,LUSC53
+
 ! Stuff fron cintfo.fh
 INTEGER       I12S,I34S,I1234S,NINT1,NINT2,NBINT1,NBINT2,NINT2_NO_CCSYM
 
