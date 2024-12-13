@@ -16,10 +16,10 @@
       use CandS, only: ISSM,ISSPC
       use lucia_data, only: NCSF_PER_SYM
       use lucia_data, only: MXNTTS,MXSOOB,XISPSM
+      use lucia_data, only: LUC,LUDIA,LUSC1,LUHC,LUSC2
       IMPLICIT None
       INTEGER JOBDISK,JOBIPH
 #include "mxpdim.fh"
-#include "clunit.fh"
 #include "crun.fh"
 #include "cstate.fh"
 #include "orbinp.fh"
