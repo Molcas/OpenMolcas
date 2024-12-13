@@ -25,6 +25,7 @@
      &                      IB_CONF_REO,IB_SD_FOR_OPEN,NPDTCNF,
      &                      NCONF_ALL_SYM_FOR_OCCLS,NCONF_PER_SYM,
      &                      NCONF_TOT,NCSF_PER_SYM,NSD_PER_SYM
+      use lucia_data, only: NGAS
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -45,7 +46,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
-#include "cgas.fh"
 #include "warnings.h"
 #include "gasstr.fh"
 * Input type of occupation classes
@@ -381,7 +381,6 @@ C
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
-#include "cgas.fh"
 #include "warnings.h"
       INTEGER IOPEN,ITYP
 
