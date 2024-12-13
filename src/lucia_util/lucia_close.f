@@ -9,8 +9,10 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE Lucia_Close()
-      IMPLICIT REAL*8           (A-H,O-Z)
-#include "clunit.fh"
+      use lucia_data, only: LUC,LUDIA,LUHC,LUMOUT,LUSC1,LUSC2,LUSC3,
+     &                      LUSC34,LUSC35,LUSC36,LUSC37,LUSC38,LUSC39,
+     &                      LUSC40
+      IMPLICIT None
 *
 * Free memory allocated by Lucia
 *
@@ -33,5 +35,5 @@
       CALL DAClos(LUSC39)
       CALL DAClos(LUSC40)
       CALL DAClos(LUMOUT)
-      RETURN
-      END
+
+      END SUBROUTINE Lucia_Close
