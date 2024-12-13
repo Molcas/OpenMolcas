@@ -17,6 +17,7 @@
      &                        Allocate_Local_Arrays,
      &                      deallocate_Local_Arrays
       use CandS, only: ISSPC
+      use lucia_data, only: ISMOST,MXNTTS,MXSOOB
 *
 * Number of blocks and length of each block for CI expansion
 *
@@ -32,20 +33,22 @@
 * NBLK : Number of blocks in expansion
 * LEN_BLK(IBLK) : Length of block IBLK
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER ISM,NBLK
 #include "mxpdim.fh"
-#include "cicisp.fh"
 #include "stinf.fh"
 #include "cstate.fh"
 #include "csm.fh"
 #include "crun.fh"
-      Integer, Allocatable:: CIOIO(:)
 
 
 *. Output : Should outside be dimensioned as MXNTTS
       INTEGER LEN_BLK(*)
+
       INTEGER I_DUMMY(1)
       INTEGER, External:: IFRMR
+      Integer, Allocatable:: CIOIO(:)
+      INTEGER IATP,IBTP,NOCTPA,NOCTPB,LBLOCK,NBATCH
 *
       I_DUMMY(1) = 0 ! jwk-cleanup
       IATP = 1
@@ -75,6 +78,5 @@
 *
       Call Deallocate_Local_Arrays()
       Call mma_deallocate(CIOIO)
-      RETURN
-      END
-*
+
+      END SUBROUTINE BLKFO_MIN
