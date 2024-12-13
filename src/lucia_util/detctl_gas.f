@@ -14,12 +14,13 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
-      use strbas
+      use strbas, only: NSTSO
       use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
       use CandS, only: ICSM, ICSPC, ISSM, ISSPC
       use lucia_data, only: NCONF_PER_OPEN,NCONF_PER_SYM,NCSF_HEXS,
      &                      NCSF_PER_SYM,NPCSCNF,NPDTCNF,NSD_PER_SYM
       use lucia_data, only: NGAS,IGSOCC,IPHGAS
+      use lucia_data, only: MXSOOB,MXNTTS,ISMOST,XISPSM
 
 *
       IMPLICIT NONE
@@ -28,7 +29,6 @@
 #include "orbinp.fh"
 #include "crun.fh"
 #include "cstate.fh"
-#include "cicisp.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
 #include "csm.fh"
