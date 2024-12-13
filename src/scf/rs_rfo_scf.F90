@@ -31,7 +31,7 @@ subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax_Seed,Step_Trunc,ValM
 !     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
 !***********************************************************************
 
-use InfSCF, only: Iter, Iter_Start, IterSO, kOptim
+use InfSCF, only: IterSO, kOptim
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two, Three, Pi
 use Definitions, only: wp, iwp, u6
@@ -288,7 +288,6 @@ subroutine resetBFGS()
     write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO'
 #   endif
     kOptim = 1
-    Iter_Start = Iter
     IterSO = 1
     A_RFO = One
     Restart = .true.

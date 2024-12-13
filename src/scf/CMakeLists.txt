@@ -139,6 +139,13 @@ set (sources
      wfctl_scf.F90
      wrinp_scf.F90
      xclc.F90
+     fix_ref.F90
+     log_svd.F90
+     move_ref.F90
+     scf_gradient.F90
+     trg_series.F90
+     trg_svd.F90
+     trgrad.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

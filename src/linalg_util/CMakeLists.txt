@@ -28,6 +28,7 @@ set (sources
      fzero.F90
      idmin.F90
      ilasrt.F90
+     isunit.F90
      iunitmat.F90
      izero.F90
      large_svd.F90

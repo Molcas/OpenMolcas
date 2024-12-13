@@ -31,7 +31,7 @@ subroutine GrdClc(Do_All)
 !***********************************************************************
 
 use InfSCF, only: CMO_Ref, FockMO, Iter, Iter_Start, kOV, mOV, nBO, nBT, nD, nOO, OneHam, Ovrlp
-use LnkLst, only: LLGrad, PutVec
+use LnkLst, only: LLGrad, LLlGrd, PutVec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -72,6 +72,7 @@ do iOpt=LpStrt,Iter
   ! Write Gradient to linked list
 
   call PutVec(GrdOV,mOV,iOpt,'OVWR',LLGrad)
+  if (iOpt == Iter) call PutVec(GrdOV,mOV,iOpt,'OVWR',LLlGrd)
 
 # ifdef _DEBUGPRINT_
   write(u6,*) 'GrdClc: Put Gradient iteration:',iOpt

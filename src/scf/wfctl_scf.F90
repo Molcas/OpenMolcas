@@ -64,7 +64,7 @@ integer(kind=iwp) :: i, iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOf
                      Iter_DIIS, Iter_no_DIIS, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
 real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
                  TWall2
-logical(kind=iwp) :: AllowFlip, Always_True, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
+logical(kind=iwp) :: AllowFlip, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
 character(len=128) :: OrbName
 character(len=72) :: Note
 character(len=10) :: Meth_
@@ -156,7 +156,7 @@ Converged = .false.
 !                                                                      *
 DiisTh = max(DiisTh,QNRTh)
 
-! If DIIS is turned off make threhold for activation impossible
+! If DIIS is turned off make threshold for activation impossible
 
 if (.not. DIIS) then
   DiisTh = Zero
@@ -304,7 +304,7 @@ do iter_=1,nIter(nIterP)
   !*********************************************************************
   !                                                                    *
   ! Test if this is a DIIS extrapolation iteration, alternatively
-  ! the the iteration is a DIIS interpolation iteration. The former
+  ! the iteration is a DIIS interpolation iteration. The former
   ! is activated if the DMOMax is lower than the threshold
   ! after a specific number of iteration, or if the condition
   ! has already been achieved.
@@ -321,7 +321,7 @@ do iter_=1,nIter(nIterP)
 
   ! Test if the DIIS scheme will be operating in an orbital
   ! rotation mode or linear combination of density matrices. This
-  ! option is avaliable only in the extrapolation mode of DIIS.
+  ! option is available only in the extrapolation mode of DIIS.
   !
   ! 2017-02-03: Make sure that the density based DIIS is in
   !             action for at least 2 iterations such that
@@ -472,10 +472,10 @@ do iter_=1,nIter(nIterP)
 
       ! Set the reference set of parameters and the corresponding
       ! CMOs to be the current iteration.
-      Iter_Ref = Iter
-      CMO_Ref(:,:) = CMO(:,:)
 
       if (Iter == Iter_Start) then
+        Iter_Ref = Iter
+        CMO_Ref(:,:) = CMO(:,:)
         ! init 1st orb rot parameter X1 (set it to zero)
         call mma_allocate(Xn,mOV,Label='Xn')
         Xn(:) = Zero
@@ -484,26 +484,14 @@ do iter_=1,nIter(nIterP)
         call mma_deallocate(Xn)
       end if
 
-      ! Compute the gradient(s). Note that these gradients depends
-      ! CMO_Ref. As we progressively move the reference point along
-      ! all the gradients have to be recomputed.
-      Always_True = .true.
-      call GrdClc(Always_True)
+      ! Compute the current gradient
+      call SCF_Gradient()
 
-      ! As all gradients have change we have to recompute the list
-      ! of gradients differences.
-      call dGrd()
+      ! Set the reference set of parameters and the corresponding
+      ! CMOs to be the current iteration.
+      call Move_Ref(Iter)
 
-      ! We have to update the parameter sets so that the reference
-      ! set is assigned X=0
-      call XClc()
-
-      ! As the reference point slides we have to update the
-      ! differences of the parameter set between the iterations.
-      call dX()
-
-      ! Update the Fock Matrix from actual OneHam, Vxc & TwoHam
-      ! AO basis
+      ! Update the Fock Matrix from actual OneHam, Vxc & TwoHam AO basis
 
       call mk_FockAO(nIter(nIterP))
 
@@ -519,8 +507,7 @@ do iter_=1,nIter(nIterP)
       ! update the QNR iteration counter
       IterSO = min(IterSO+1,IterSO_Max)
 
-      ! Allocate memory for the current gradient and
-      ! displacement vector.
+      ! Allocate memory for the current gradient and displacement vector.
 
       call mma_allocate(Grd1,mOV,Label='Grd1')
       call mma_allocate(Disp,mOV,Label='Disp')
@@ -549,17 +536,23 @@ do iter_=1,nIter(nIterP)
             DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
 
             if (DD > Pi) then
+#             ifdef _DEBUGPRINT_
               write(u6,*) 'WfCtl_SCF: Additional displacement is too large.'
               write(u6,*) 'DD=',DD
+#             endif
               if (kOptim /= 1) then
+#               ifdef _DEBUGPRINT_
                 write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
+#               endif
                 kOptim = 1
                 Iter_Start = Iter
                 IterSO = 1
                 cycle
               else
+#               ifdef _DEBUGPRINT_
                 write(u6,*) 'Scale the step to be within the threshold.'
                 write(u6,*) 'LastStep=',LastStep
+#               endif
                 Disp(:) = Disp(:)*(LastStep/DD)
               end if
             end if
@@ -582,15 +575,21 @@ do iter_=1,nIter(nIterP)
             DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
 
             if (DD <= Pi) exit
+#           ifdef _DEBUGPRINT_
             write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
             write(u6,*) 'DD=',DD
+#           endif
             if (kOptim /= 1) then
+#             ifdef _DEBUGPRINT_
               write(u6,*) 'Reset update depth in BFGS, redo the DIIS'
+#             endif
               kOptim = 1
               Iter_Start = Iter
               IterSO = 1
             else
+#             ifdef _DEBUGPRINT_
               write(u6,*) 'Scale the step to be within the threshold.'
+#             endif
               Disp(:) = Disp(:)*(LastStep/DD)
               DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
               exit
@@ -617,10 +616,14 @@ do iter_=1,nIter(nIterP)
             call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9),3)
             DD = sqrt(DDot_(mOV,Disp,1,Disp,1))
             if (DD <= Pi) exit
+#           ifdef _DEBUGPRINT_
             write(u6,*) 'WfCtl_SCF: Total displacement is too large.'
             write(u6,*) 'DD=',DD
+#           endif
             if (kOptim /= 1) then
+#             ifdef _DEBUGPRINT_
               write(u6,*) 'Reset update depth in BFGS, redo the RS-RFO.'
+#             endif
               kOptim = 1
               Iter_Start = Iter
               IterSO = 1

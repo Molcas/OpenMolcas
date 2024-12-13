@@ -57,10 +57,10 @@ logical(kind=iwp), external :: EFP_On
 if (PmTime) call CWTime(xCPM1,xWPM1)
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
+call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat: Enter','T in iPsLst')
 call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
-call NrmClc(Vxc(1,1,nDens),nBT*nD,'PMat: Enter','T in nDens')
-call NrmClc(TwoHam(1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
-call NrmClc(Vxc(1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
+call NrmClc(Vxc(1,1,iPsLst),nBT*nD,'PMat: Enter','V in iPsLst')
+call NrmClc(Vxc(1,1,nDens),nBT*nD,'PMat: Enter','V in nDens')
 #endif
 
 ! Copy the (abs.) value of the Max Offdiag Fmat to a Common Block
