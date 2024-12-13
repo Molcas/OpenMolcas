@@ -38,8 +38,6 @@
 #include "gasstr.fh"
 #include "oper.fh"
 *
-#include "cintfo.fh"
-*
       REAL*8 FACTOR
       INTEGER ITASK,IBLOCK(8,*)
       REAL*8 VEC(*)
