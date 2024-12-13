@@ -18,6 +18,7 @@
       use CandS, only: ICSM,ISSM,ISSPC
       use Constants, only: Zero
       use lucia_data, only: NGAS,IPHGAS
+      use lucia_data, only: MXSB,MXSOOB,MXNTTS,ISMOST,XISPSM
 *
 * Density matrices between L and R
 *
@@ -59,7 +60,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "cicisp.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
