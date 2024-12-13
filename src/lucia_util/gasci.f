@@ -23,6 +23,7 @@
 *. module for communicating with sigma
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
       use lucia_data, only: NCSF_PER_SYM
+      use lucia_data, only: ECORE_ORIG,ECORE
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -50,8 +51,6 @@
 #include "cintfo.fh"
 #include "io_util.fh"
 *
-*
-#include "cecore.fh"
 #include "cmxcj.fh"
 *
       INTEGER ISM, ISPC,IPRNT,IIUSEH0P,MPORENP_E
