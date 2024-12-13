@@ -50,7 +50,6 @@ Contains
 !
 #include "mxpdim.fh"
 
-#include "cecore.fh"
 #include "cgas.fh"
 
 #include "cicisp.fh"
@@ -288,6 +287,7 @@ Contains
       use GLBBAS, only: INT1, INT1O, VEC3, CI_SCR => CI_VEC, SIGMA_SCR => SIGMA_VEC
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
       use lucia_data, only: NSD_PER_SYM
+      use lucia_data, only: ECORE,ECORE_ORIG
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
 ! from Molcas Rasscf.
@@ -298,7 +298,6 @@ Contains
 #include "cstate.fh"
 #include "clunit.fh"
 #include "orbinp.fh"
-#include "cecore.fh"
 #include "crun.fh"
       Integer nCIVEC
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
@@ -353,13 +352,13 @@ Contains
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, SIGMA_ON_DISK
       use CandS, only: ICSM,ISSM
       use lucia_data, only: NSD_PER_SYM
+      use lucia_data, only: ECORE,ECORE_ORIG
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "cicisp.fh"
 #include "cstate.fh"
 #include "clunit.fh"
 #include "orbinp.fh"
-#include "cecore.fh"
 #include "crun.fh"
       Integer nCIVEC,IREFSM_CASVB
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
