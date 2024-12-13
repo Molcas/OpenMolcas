@@ -24,11 +24,12 @@
 * Notice that for the doubly excited states (DEXS) all
 * singly excited states (HEXS) are in effect.
 *
-      IMPLICIT REAL*8(A-H,O-Z) ! I am so against this
+      use lucia_data, only: NGAS
+      IMPLICIT NONE
+      INTEGER NBATCH
 *
 #include "mxpdim.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 *
 * Input
       INTEGER IBATCH(8,*),LBATCH(*),I1BATCH(*)
@@ -36,6 +37,10 @@
       INTEGER IMAX_OCC(2,NGAS,2)
       INTEGER MAX_E_GAS_ALPHA(2,MXPSTT),MAX_E_GAS_BETA(2,MXPSTT)
       INTEGER MAXM1_E_GAS_ALPHA(2,MXPSTT),MAXM1_E_GAS_BETA(2,MXPSTT)
+      INTEGER NTEST,I,IZERO,JBATCH,IBLOCK,ISPGP,IOFF,IGAS,IITYPE,IEL,
+     &        NALPHA,NBETA,NALPHAM1,NBETAM1,ITYPE_A,ITYPE_B,
+     &        IMATCH_BLOCK,IGAS_ELIM,IMATCH_BETA,J,IMATCH_ALPHA,
+     &        IMATCH_BETAM1,IMATCH_ALPHAM1
 *
       NTEST = 00
 *
