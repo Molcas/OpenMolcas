@@ -12,6 +12,9 @@ Module Lucia_Data
 Implicit None
 #include "mxpdim.fh"
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
+#include "cecore.fh"
+! Stuff fron cecore.fh
+!REAL*8        ECORE,ECORE_ORIG,ECORE_HEX
 ! Stuff from spinfo_lucia.fh
 !./SPINFO/ new of Nov. 2001
 ! NCONF_TOT added april 29
