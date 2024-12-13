@@ -351,9 +351,9 @@ Contains
       use CandS, only: ICSM,ISSM
       use lucia_data, only: NSD_PER_SYM
       use lucia_data, only: ECORE,ECORE_ORIG
+      use lucia_data, only: MXNTTS
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "cicisp.fh"
 #include "cstate.fh"
 #include "clunit.fh"
 #include "orbinp.fh"
