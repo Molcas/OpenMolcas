@@ -18,6 +18,7 @@
      &                      IB_SD_FOR_OPEN,MAXOP,MINOP,NCONF_PER_OPEN,
      &                      NCONF_TOT,NPDTCNF
       use lucia_data, only: NGAS,NMXOCCLS
+      use lucia_data, only: IPRDIA
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -38,7 +39,6 @@
 #include "stinf.fh"
 #include "csm.fh"
 #include "gasstr.fh"
-#include "cprnt.fh"
 *
       INTEGER NBLOCK,ISYM
       INTEGER IBLOCK(8,NBLOCK)
