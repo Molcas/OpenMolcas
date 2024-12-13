@@ -19,10 +19,10 @@
 * Jeppe Olsen, Jan 97
 *
       use lucia_data, only: NGAS
+      use lucia_data, only: IPRDIA
       IMPLICIT None
 #include "mxpdim.fh"
 #include "gasstr.fh"
-#include "cprnt.fh"
 #include "stinf.fh"
 #include "strinp.fh"
 *. Specific input
