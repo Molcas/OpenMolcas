@@ -20,7 +20,7 @@
 *
 * Driven by table of TTS blocks, May97
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 * =====
 *.Input
 * =====
@@ -29,7 +29,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "cicisp.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
@@ -42,6 +41,7 @@
       REAL*8 ECORE
       INTEGER IBLTP(*)
       INTEGER IBLKFO(8,NBLOCK)
+
 *
 * ======
 *.Output
@@ -52,6 +52,7 @@
       Real*8, Allocatable:: LSCR2(:)
       Real*8, Allocatable:: LJ(:), LK(:), LXB(:), LH1D(:), LRJKA(:)
       INTEGER, EXTERNAL:: IMNMX
+      INTEGER NTEST,IATP,IBTP,NAEL,NBEL,NOCTPA,MAXA
 *
 *
       NTEST = 0
