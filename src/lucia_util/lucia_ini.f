@@ -10,15 +10,15 @@
 ************************************************************************
       SUBROUTINE Lucia_Ini()
       use rasscf_lucia, only: Sigma_on_disk, ini_h0
+      use lucia_data, only: ECORE
 *
-      implicit real*8 (a-h,o-z)
+      implicit none
 C Input from RASSCF
 #include "cstate.fh"
 #include "lucia_ini.fh"
 *
 
 #include "mxpdim.fh"
-#include "cecore.fh"
 #include "cgas.fh"
 #include "cprnt.fh"
 #include "crun.fh"
@@ -28,8 +28,12 @@ C Input from RASSCF
 #include "orbinp.fh"
 #include "gasstr.fh"
 C Other definitions
-      PARAMETER(MXPKW = 125)
-      dimension isetkw(MXPKW)
+      Integer, PARAMETER :: MXPKW = 125
+      integer isetkw(MXPKW)
+      Integer IEXPERT,NERROR,NWARN,I,IRREP,IGAS,J,NMISS,IR4TP,ICISPC,
+     &        JPTSPC,IUSED,IDOPERT,JCMBSPC,JSEQCI,ICOMP,IPROP,IAVE,
+     &        IRESP,IPSSPC
+      REAL*8 ECORE_ENV
 *
 C ===============================================
 C  Some initialization to avoid compiler warnings
@@ -1524,16 +1528,17 @@ C =============================================
 
       CALL lucia()
 *
-      return
-      end
+      end SUBROUTINE Lucia_Ini
 
       SUBROUTINE COMBINATIONS(ICOMBI,SIGN)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "cstate.fh"
 *
+      Integer ICOMBI
+      REAL*8 SIGN
+
       ICOMBI = 0
       SIGN   = PSSIGN
       IF (PSSIGN .NE. 0.0D0) ICOMBI = 1
 *
-      RETURN
-      END
+      END SUBROUTINE COMBINATIONS
