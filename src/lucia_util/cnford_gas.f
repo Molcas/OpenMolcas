@@ -17,6 +17,7 @@
       use lucia_data, only: IBCONF_ALL_SYM_FOR_OCCLS,IB_CONF_OCC,
      &                      IB_CONF_REO,MAXOP,MINOP,NCONF_ALL_SYM,
      &                      NCONF_PER_OPEN,NCONF_TOT
+      use lucia_data, only: NGAS
 *
 * Generate configurations in ICONF
 *
@@ -32,7 +33,6 @@
       Implicit None
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "cgas.fh"
 *. Specific input
        INTEGER NOCCLS,ISYM,IPRCSF,NBLOCK
        INTEGER IOCCLS(NGAS,NOCCLS)
