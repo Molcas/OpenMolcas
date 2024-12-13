@@ -66,7 +66,6 @@
 #include "io_util.fh"
 *
 #include "csmprd.fh"
-#include "cintfo.fh"
       REAL*8 CB(*),HCB(*)
 
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
