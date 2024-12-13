@@ -15,6 +15,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas, only: NSTSO
       use lucia_data, only: ECORE_ORIG,ECORE
+      use lucia_data, only: IPRDIA
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -34,7 +35,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "cprnt.fh"
 #include "gasstr.fh"
 #include "oper.fh"
 *
