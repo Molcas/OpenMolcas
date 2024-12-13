@@ -16,7 +16,7 @@
      &                          LI1,     NK,   IEND,  IFRST,  KFRST,
      &                          I12,    K12, SCLFAC)
       use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
-      use strbas
+      use lucia_data, only: NGAS
 *
 *
 *
@@ -47,12 +47,15 @@
 *. Input
 * ======
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER IOB, IOBSM, IOBTP, NIOB, JOB, JOBSM, JOBTP, NJOB, ISPGP,
+     &        ISM, ITP, KMIN, KMAX, LI1, NK, IEND, IFRST, KFRST, I12,
+     &        K12
+      REAL*8 SCLFAC
 #include "mxpdim.fh"
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 *. Local scratch
 #include "ssave.fh"
@@ -62,9 +65,11 @@
 * =======
 *
       INTEGER I1(*)
-      DIMENSION XI1S(*)
+      REAL*8 XI1S(*)
 *
       INTEGER IDUM_ARR(1)
+      INTEGER NTEST,ISPGPABS,K1SM,K1SPGPABS,KSM,KSPGPABS,NTEST2,NELI,
+     &        NELK,NSTRK,IIOB,JJOB,NSTRI
 *
       NTEST = 000
       IF(NTEST.GE.100) THEN
@@ -138,5 +143,4 @@ C?    END IF
      &                    NSTRK,REO(:,I12),Z(:,I12),NOCOB, KMAX,
      &                     KMIN,     IEND,   SCLFAC)
 *
-      RETURN
-      END
+      END SUBROUTINE ADADST_GAS
