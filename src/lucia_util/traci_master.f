@@ -15,12 +15,12 @@
       use rasscf_lucia, only: kvec3_length
       use CandS, only: ISSM,ISSPC
       use lucia_data, only: NCSF_PER_SYM
+      use lucia_data, only: MXNTTS,MXSOOB,XISPSM
       IMPLICIT None
       INTEGER JOBDISK,JOBIPH
 #include "mxpdim.fh"
 #include "clunit.fh"
 #include "crun.fh"
-#include "cicisp.fh"
 #include "cstate.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
