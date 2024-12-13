@@ -12,7 +12,8 @@
 ************************************************************************
       SUBROUTINE GETSTR_TOTSM_SPGP(ISTRTP,ISPGRP,ISPGRPSM, NEL,NSTR,
      &                               ISTR, NORBT,IDOREO,    IZ,  IREO)
-      use strbas
+      use strbas, only: NSTSGP,ISTSGP
+      use lucia_data, only: NGAS
 *
 * Obtain all super-strings of given total symmetry and given
 * occupation in each GAS space
@@ -44,10 +45,10 @@
 *
 * Jeppe Olsen, July 1995
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-*. Input
+      IMPLICIT NONE
+      INTEGER ISTRTP,ISPGRP,ISPGRPSM,NEL,NSTR,NORBT,IDOREO
+!*. Input
 #include "mxpdim.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 #include "csm.fh"
       INTEGER IZ(NORBT,NEL)
@@ -58,6 +59,8 @@
       INTEGER MAXVAL(MXPNGAS),MINVAL(MXPNGAS)
       INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
+      INTEGER NTEST,ISPGRPA,NGASL,IGAS,ISMST,MAXLEX,IFIRST,ISTRBS,
+     &        NONEW,ISTSMM1,JSTSMM1,ISMGSN,JSTR,LEX,IEL
       NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -196,5 +199,4 @@ C           WRITE(6,*) ' JSTR and LEX ', JSTR,LEX
         END IF
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE GETSTR_TOTSM_SPGP
