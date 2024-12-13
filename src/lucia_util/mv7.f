@@ -13,6 +13,7 @@
       use strbas, only: NSTSO
 *.Definition of c and sigma
       use CandS, only: ISSPC, ISSM
+      use lucia_data, only: MXNTTS,MXSOOB,ISMOST,XISPSM
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
@@ -30,7 +31,6 @@
 *
 *./ORBINP/ : NACOB used
 #include "orbinp.fh"
-#include "cicisp.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
