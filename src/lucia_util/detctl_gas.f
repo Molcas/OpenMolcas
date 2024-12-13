@@ -258,7 +258,6 @@ c      END IF
 #include "orbinp.fh"
 #include "crun.fh"
 #include "cstate.fh"
-#include "cicisp.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
 #include "csm.fh"
