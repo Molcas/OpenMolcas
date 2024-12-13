@@ -27,13 +27,18 @@
 *                  = 0 => Set block to zero
 *                  =-1 => Use diagonal aproximation
 * Giovanni +Jeppe Olsen, Sept 2011, on a bench at Torre Normanna, Sicily
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: NGAS
+      IMPLICIT NONE
+      INTEGER IATP,IBTP,JATP,JBTP,
+     &        IASM,IBSM,JASM,JBSM,
+     &        IOCTPA,IOCTPB,I_DO_EXACT_BLOCK
 #include "mxpdim.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 #include "bk_approx.fh"
 *. Local
       INTEGER IOCC(MXPNGAS), JOCC(MXPNGAS)
+      INTEGER NTEST,IONE,IGAS,IOCC_IN,JOCC_IN,ICHECK_OCC_IN_ACCSPC
+
       NTEST = 000
 
       IONE = 1
@@ -100,5 +105,4 @@
        WRITE(6,'(A,I4)') ' I_DO_EXACT_BLOCK = ', I_DO_EXACT_BLOCK
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE CHECK_BLOCKS_FOR_BK_APPROX
