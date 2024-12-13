@@ -17,6 +17,7 @@
       use lucia_data, only: IBCONF_ALL_SYM_FOR_OCCLS,IB_CONF_REO,
      &                      IB_SD_FOR_OPEN,MAXOP,MINOP,NCONF_PER_OPEN,
      &                      NCONF_TOT,NPDTCNF
+      use lucia_data, only: NGAS,NMXOCCLS
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -37,7 +38,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 #include "cprnt.fh"
 *
