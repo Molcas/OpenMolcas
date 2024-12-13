@@ -12,6 +12,7 @@
      &                      IBLTP,  NBLOCK,  IBLKFO)
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas, only: NSTSO
+      use lucia_data, only: IPRDIA
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -33,7 +34,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "cprnt.fh"
 #include "gasstr.fh"
 #include "io_util.fh"
 *
