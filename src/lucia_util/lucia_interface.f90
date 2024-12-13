@@ -31,6 +31,7 @@ Contains
       Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array, RVec, CI_VECTOR, &
                             SIGMA_VECTOR)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use lucia_data, only: MXNTTS
 
       Implicit None
       Character(LEN=*) Module
@@ -50,7 +51,6 @@ Contains
 !
 #include "mxpdim.fh"
 
-#include "cicisp.fh"
 #include "cintfo.fh"
 #include "clunit.fh"
 
@@ -137,6 +137,7 @@ Contains
       use GLBBAS, only: VEC3, DTOC, RHO1, SRHO1, SDREO
       use rasscf_lucia, only: kvec3_length, Sigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
       use lucia_data, only: NCSF_PER_SYM,NSD_PER_SYM
+      use lucia_data, only: MXSOOB,MXNTTS,XISPSM
 !
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
@@ -144,7 +145,6 @@ Contains
       implicit none
 #include "mxpdim.fh"
 #include "crun.fh"
-#include "cicisp.fh"
 #include "clunit.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
@@ -286,13 +286,13 @@ Contains
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
       use lucia_data, only: NSD_PER_SYM
       use lucia_data, only: ECORE,ECORE_ORIG
+      use lucia_data, only: MXNTTS
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
 ! from Molcas Rasscf.
 !
       implicit None
 #include "mxpdim.fh"
-#include "cicisp.fh"
 #include "cstate.fh"
 #include "clunit.fh"
 #include "orbinp.fh"
