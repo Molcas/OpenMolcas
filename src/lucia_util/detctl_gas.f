@@ -19,12 +19,12 @@
       use CandS, only: ICSM, ICSPC, ISSM, ISSPC
       use lucia_data, only: NCONF_PER_OPEN,NCONF_PER_SYM,NCSF_HEXS,
      &                      NCSF_PER_SYM,NPCSCNF,NPDTCNF,NSD_PER_SYM
+      use lucia_data, only: NGAS,IGSOCC,IPHGAS
 
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 #include "orbinp.fh"
 #include "crun.fh"
 #include "cstate.fh"
@@ -255,7 +255,6 @@ c      END IF
       Implicit None
 #include "mxpdim.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 #include "orbinp.fh"
 #include "crun.fh"
 #include "cstate.fh"
