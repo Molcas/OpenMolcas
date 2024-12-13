@@ -9,6 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ZSTINF_GAS(IPRNT)
+      use lucia_data, only: NGAS
+      IMPLICIT NONE
+      INTEGER IPRNT
+
+      INTEGER NTEST,IGAS,MGRP,IGRP,IIGRP
 *
 * Set up common block /STINF/ from information in /STINP/
 *
@@ -29,7 +34,6 @@
 *                    mapped
 *. Input
 #include "mxpdim.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 *. Output
 #include "stinf.fh"
@@ -67,5 +71,4 @@
         CALL IWRTMA(ISTAC,NGRP  ,2,MXPSTT,2)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE ZSTINF_GAS
