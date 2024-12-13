@@ -13,6 +13,7 @@
       SUBROUTINE INTIM()
       use GLBBAS, only: INT1, INT1O, PINT1, PINT2, LSM1, LSM2, KINH1,
      &                  KINH1_NOCCSYM
+      use lucia_data, only: ECORE_HEX,ECORE_ORIG,ECORE
 *
 * Interface to external integrals
 *
@@ -21,7 +22,7 @@
 *
 * Version : Fall 97
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
 #include "mxpdim.fh"
 #include "crun.fh"
 #include "clunit.fh"
@@ -30,7 +31,6 @@
 #include "orbinp.fh"
 #include "cintfo.fh"
 #include "oper.fh"
-#include "cecore.fh"
 *
 *. : Pointers for symmetry blocks of integrals
 *
@@ -47,4 +47,4 @@
       ECORE_ORIG = ECORE
       ECORE = ECORE + ECORE_HEX
 
-      END
+      END SUBROUTINE INTIM
