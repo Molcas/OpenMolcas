@@ -26,6 +26,7 @@
       use lucia_data, only: ECORE_ORIG,ECORE
       use lucia_data, only: IGSOCC,IPHGAS,NGAS
       use lucia_data, only: MXSOOB,MXNTTS,IDUMMY,ISMOST,NELCI,XISPSM
+      use lucia_data, only: LUDIA,LUSC1
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -35,7 +36,6 @@
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "clunit.fh"
 #include "csm.fh"
 #include "cstate.fh"
 #include "crun.fh"
