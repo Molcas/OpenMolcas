@@ -10,7 +10,8 @@
 ************************************************************************
       SUBROUTINE COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
       use rasscf_global, only: NROOT, NSXS, ITRI
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       IMPLICIT None
 C

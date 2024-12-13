@@ -20,8 +20,7 @@ subroutine DKRelint_DP()
 !       exact decoupling X2C method &
 !       exact decoupling BSS method.
 
-use Basis_Info, only: dbsc, nBas, ncnttp
-use Basis_Info, only: nPrimr, nBasisr, nAngr, icent, lnang, lmag, nrBas, nrSym, rCof,rExp
+use Basis_Info, only: dbsc, icent, lmag, lnang, nAngr, nBas, nBasisr, ncnttp, nPrimr, nrBas, nrSym, rCof, rExp
 use DKH_Info, only: cLightAU, iRelae, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
 use Gateway_Info, only: lMXTC

@@ -63,7 +63,8 @@
       use OFEmbed, only: Rep_EN
       use rctfld_module, only:  lRF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       implicit none
 #include "rasdim.fh"

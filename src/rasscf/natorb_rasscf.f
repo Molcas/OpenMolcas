@@ -25,7 +25,8 @@ C
       use rasscf_global, only: KSDFT, lRoots, NACPAR, NACPR2, iADR15,
      &                         iTri
       use SplitCas_Data, only: DoSPlitCas,lRootSplit
-      use output_ras, only: LF,DEBUG,USUAL,IPRLOC
+      use printlevel, only: DEBUG,USUAL
+      use output_ras, only: LF,IPRLOC
       Implicit None
 
 #include "rasdim.fh"

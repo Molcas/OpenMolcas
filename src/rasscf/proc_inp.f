@@ -104,7 +104,8 @@
      &                         lRootSplit,NumSplit,EnerSplit,
      &                         PerSplit,PerCSpli,fOrdSplit,
      &                         iDimBlockA,GapSpli
-      use output_ras, only: LF,DEBUG,VERBOSE,TERSE,IPRGLB,IPRLOC
+      use printlevel, only: DEBUG,VERBOSE,TERSE
+      use output_ras, only: LF,IPRGLB,IPRLOC
 
 
 

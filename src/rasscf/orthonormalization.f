@@ -186,7 +186,8 @@
      &    n_to_ON, nNew,
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
       use general_data, only : nSym
-      use output_ras, only: LF,USUAL,IPRLOC
+      use printlevel, only: USUAL
+      use output_ras, only: LF,IPRLOC
 #include "warnings.h"
       integer, intent(in) :: n_to_ON(:), nNew(:)
       integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
@@ -261,7 +262,8 @@
       subroutine read_S(S)
         use general_data, only : nBas, nSym, nActEl
         use rasscf_global, only : nFr, nIn, Tot_Nuc_Charge
-      use output_ras, only: LF,USUAL,IPRLOC
+      use printlevel, only: USUAL
+      use output_ras, only: LF,IPRLOC
 #include "warnings.h"
         type(t_blockdiagonal) :: S(nSym)
 

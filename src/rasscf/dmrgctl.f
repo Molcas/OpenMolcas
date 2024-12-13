@@ -52,7 +52,8 @@
      &                         n_Det, NAC, NACPAR, NACPR2, nFint,
      &                         nRoots, S, iAdr15, iRoot, Weight,
      &                         DFTFOCK
-      use output_ras, only: LF,DEBUG,INSANE,IPRLOC
+      use printlevel, only: DEBUG,INSANE
+      use output_ras, only: LF,IPRLOC
 
       Implicit None
       Integer iFinal, IRst

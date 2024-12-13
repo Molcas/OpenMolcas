@@ -11,9 +11,7 @@
 
 subroutine Fill_rInfo1()
 
-use Basis_Info, only: dbsc, nCnttp, Shells
-use Basis_Info, only: MxPrim, MxrCof, nPrimr, nBasisr, nAngr, rCof,rExp
-
+use Basis_Info, only: dbsc, MxPrim, MxrCof, nAngr, nBasisr, nCnttp, nPrimr, rCof, rExp, Shells
 use Definitions, only: iwp, u6
 
 implicit none

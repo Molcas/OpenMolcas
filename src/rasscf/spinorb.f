@@ -10,7 +10,8 @@
 ************************************************************************
       SUBROUTINE SPINORB(D,CMO,OCC,kroot)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
 C
 C     Purpose: diagonalize the spin density matrix (D) to

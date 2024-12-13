@@ -15,6 +15,7 @@ subroutine RHS_MP2()
 use MBPT2_Global, only: Density, EMP2, LuIntM, mAdOcc, mAdVir, VECL2
 use ChoMP2, only: NoGamma
 use Symmetry_Info, only: Mul
+use trafo, only: IAD13, IADOUT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -22,7 +23,6 @@ use Definitions, only: wp, iwp
 use MBPT2_Global, only: EOcc, EVir, mAdDel, mAdFro, Mp2Lagr, WDensity
 use Definitions, only: u6
 #endif
-use trafo, only: IAD13,IADOUT
 
 implicit none
 integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADOUT, nDelTot, nMaxOrb, nVirTot

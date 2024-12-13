@@ -11,8 +11,7 @@
 
 subroutine SOCtl_Seward(Mamn,nMamn)
 
-use Basis_Info, only: dbsc, iCnttp_Dummy, nBas, nBas_Aux, nBas_Frag, nCnttp, MolWgh, Shells
-use Basis_Info, only: icent, lnang, lmag, lant, nrBas, nrSym
+use Basis_Info, only: dbsc, icent, iCnttp_Dummy, lant, lmag, lnang, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nrBas, nrSym, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: ChOper, iChBas, iChTbl, iOper, iSkip, lBsFnc, lIrrep, nIrrep
 use SOAO_Info, only: iAOtSO, iSOInf, iOffSO, nSOInf, SOAO_Info_Init

@@ -48,7 +48,8 @@
      &  nTot, nTot2, nConf
       use gas_data, only : nGssh
       use stdalloc, only: mma_allocate, mma_deallocate
-      use output_ras, only: LF,USUAL
+      use printlevel, only: USUAL
+      use output_ras, only: LF
       Implicit None
 
 #include "rasdim.fh"

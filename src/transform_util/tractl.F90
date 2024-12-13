@@ -40,15 +40,12 @@ subroutine TRACTL(iPart)
 ! 98-09-02 J.Hasegawa Modified for non-squared integrals.
 
 use caspt2_global, only: CMO, LUINTM, NCMO
+use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
+use trafo, only: IAD13, ISP, ISQ, ISR, ISS, ITP, ITQ, ITR, ITS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LMOS, LMOS2, LRUPQ, LTUPQ, &
+                 LURPQ, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
-use Intgrl, only: NSYMZ,IAD2M,LUINTMZ,NORBZ,NOSHZ
-use trafo, only:      ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,NBRS,        &
-     &                NOCP,NOCQ,NOCR,NOCS,         LRUPQ,LURPQ,LTUPQ,   &
-     &                NOP,NOQ,NOR,NOS,LMOP,LMOQ,LMOR,LMOS,LMOP2,LMOQ2,  &
-     &                LMOR2,LMOS2,       IAD13,ITP,ITQ,ITR,ITS
-
 
 implicit none
 integer(kind=iwp), intent(in) :: iPart

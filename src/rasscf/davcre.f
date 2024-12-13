@@ -42,7 +42,8 @@ C
       use fciqmc, only : DoNECI
       use wadr, only: PA, DIA, SXN
       use stdalloc, only: mma_allocate, mma_deallocate
-      use output_ras, only: LF,DEBUG,INSANE,IPRLOC,RC_SX
+      use printlevel, only: DEBUG,INSANE
+      use output_ras, only: LF,IPRLOC,RC_SX
       IMPLICIT None
       INTEGER NROOT,ITMAX,NDIM,ITERSX,NSXS
       Real*8 C((NROOT+NSXS)*NROOT*(ITMAX+1))

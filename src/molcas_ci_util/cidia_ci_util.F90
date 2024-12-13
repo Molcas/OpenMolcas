@@ -21,9 +21,10 @@ subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
 
 use csfbas, only: CTS
 use Lucia_Interface, only: Lucia_Util
+use output_ras, only: IPRLOC
+use printlevel, only: DEBUG, INSANE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use output_ras, only: INSANE,DEBUG,IPRLOC
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID

@@ -14,7 +14,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: ICMSP, ITER, IXMSP, LROOTS, IADR15,
      &                         Ener
-      use output_ras, only: LF,DEBUG,USUAL,IPRLOC
+      use printlevel, only: DEBUG,USUAL
+      use output_ras, only: LF,IPRLOC
       Implicit None
 
 

@@ -18,9 +18,9 @@ subroutine RDINT2_MP2(IPRX)
 
 use MBPT2_Global, only: LuIntM, nBas
 use Symmetry_Info, only: Mul
+use trafo, only: IAD13, IADOUT, ISR, NBP, NBQ, NBR, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use trafo, only: ISR,NBP,NBQ,NBR,NBS,NOP,NOQ,NOR,NOS,NOCP,NOCQ,NOCR,NOCS,IADOUT,IAD13
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRX
@@ -32,7 +32,7 @@ real(kind=wp), allocatable :: Tmp(:)
 ! READ ADDRESS RECORD ON UNIT LUINTM
 
 IAD13 = 0
-call iDAFILE(LUINTM,2,IADOUT,3888,IAD13)
+call iDAFILE(LUINTM,2,IADOUT,3*36*36,IAD13)
 
 ! LOOP OVER QUADRUPLES OF SYMMETRIES (NSP,NSP,NSR,NSS)
 

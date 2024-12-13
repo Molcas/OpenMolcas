@@ -47,14 +47,14 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
-use csfbas, only: CONF
+use csfbas, only: CONF, NAEL, NBEL
 use glbbas, only: DFTP, DTOC
 use rasscf_global, only: ExFac, NAC
+use output_ras, only: IPRLOC
+use printlevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use StrNum, only: NAEL,NBEL
-use output_ras, only: INSANE,IPRLOC
 
 #include "intent.fh"
 

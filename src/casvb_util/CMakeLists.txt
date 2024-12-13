@@ -477,7 +477,6 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      casvb_global.F90
-     jobiph_j.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

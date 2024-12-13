@@ -21,7 +21,7 @@ subroutine ChkTrD(nSym,nBas,nOrb,Occ,nOcc,Dlt,nDlt)
 !       nSym    : number of symmetries                                 *
 !       nBas(i) : number of basis functions (i = 1, nSym)              *
 !       Occ     : occupation numbers                                   *
-!       Dlt     : density matrix in triangular storrage                *
+!       Dlt     : density matrix in triangular storage                  *
 !                                                                      *
 !***********************************************************************
 

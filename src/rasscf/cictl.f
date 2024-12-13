@@ -93,7 +93,8 @@
 #endif
       use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
      &                         lRootSplit
-      use output_ras, only: LF,DEBUG,INSANE,USUAL,IPRLOC
+      use printlevel, only: DEBUG,INSANE,USUAL
+      use output_ras, only: LF,IPRLOC
 
 
       Implicit None

@@ -23,19 +23,11 @@ implicit none
 private
 
 public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, Extend_Shells, &
-          Gaussian_Type, iCnttp_Dummy, Max_Shells, mGaussian_Type, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nFrag_LineWords, &
-          Nuclear_Model, PAMExp, Point_Charge, Seward_Activated, Shells
-
+          Gaussian_Type, icent, iCnttp_Dummy, lant, lmag, lnang, Max_Shells, mGaussian_Type, MolWgh, MxPrim, MxrCof, nAngr, nBas, &
+          nBas_Aux, nBas_Frag, nBasisr, nCnttp, nFrag_LineWords, nPrimr, nrBas, nrSym, Nuclear_Model, PAMExp, Point_Charge, rCof, &
+          rExp, Seward_Activated, Shells
 
 #include "Molcas.fh"
-
-Integer(kind=iwp), Parameter :: MxPrim=20*MxAO,MxrCof=10*MxPrim
-Integer(kind=iwp) nPrimr(MxAO), nBasisr(MxAO), nAngr(MxAO)
-Integer(kind=iwp) icent(MxAO), lnang(MxAO), lmag(MxAO), lant(MxAO), nrBas(8), nrBas_prim(8), nrSym
-Real(kind=wp) rCof(MxrCof),rExp(MxPrim)
-
-public :: MxPrim, MxrCof, nPrimr, nBasisr, nAngr, icent, lnang, lmag, lant, nrBas, nrBas_prim, nrSym, rCof,rExp
-
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
@@ -169,12 +161,14 @@ end type Shell_Info
 !         2: as in MOLPRO
 
 integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_Type = 2, &
-                                NumShell = 1000
+                                MxPrim = 20*MxAO, MxrCof = 10*MxPrim, NumShell = 1000
 
-real(kind=wp), allocatable :: PAMexp(:,:)
-integer(kind=iwp) :: iCnttp_Dummy = 0, Max_Shells = 0, mFields = 11, MolWgh = 2, nBas(0:7) = 0, nBas_Aux(0:7) = 0, &
-                     nBas_Frag(0:7) = 0, nCnttp = 0, nFields = 33+(1+iTabMx), nFrag_LineWords = 0, Nuclear_Model = Point_Charge
+integer(kind=iwp) :: icent(MxAO), iCnttp_Dummy = 0, lant(MxAO), lmag(MxAO), lnang(MxAO), Max_Shells = 0, mFields = 11, MolWgh = 2, &
+                     nAngr(MxAO), nBas(0:7) = 0, nBas_Aux(0:7) = 0, nBas_Frag(0:7) = 0, nBasisr(MxAO), nCnttp = 0, &
+                     nFields = 33+(1+iTabMx), nFrag_LineWords = 0, nPrimr(MxAO), nrBas(8), nrSym, Nuclear_Model = Point_Charge
+real(kind=wp) :: rCof(MxrCof), rExp(MxPrim)
 logical(kind=iwp) :: Initiated = .false., Seward_Activated = .false.
+real(kind=wp), allocatable :: PAMexp(:,:)
 
 type(Distinct_Basis_set_centers), allocatable, target :: dbsc(:)
 type(Shell_Info), allocatable :: Shells(:)

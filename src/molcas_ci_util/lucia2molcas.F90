@@ -13,12 +13,10 @@ subroutine LUCIA2MOLCAS(KICONF_OCC_LUCIA,KSDREO_I,NDET_LUCIA,NCSASM_LUCIA,NDTASM
                         NPDTCNF,NPCSCNF,MULTS_LUCIA,nCSF_HEXS_LUCIA)
 ! Transfer arguments to the common blocks used by MOLCAS.
 
-use csfbas, only: CONF, CTS, maxop_lucia
+use csfbas, only: CONF, CTS, maxop_lucia, NAEL, NBEL
 use splitcas_data, only: iDimBlockA
-use rasscf_global, only: NAC
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
-use StrNum, only: MAXSYM,NORB1,NORB2,NORB3,NAEL,NBEL,NAEXCI,NBEXCI,NOCTPA,NOCTPB,NL1MNA,NL1MNB
 
 implicit none
 integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
@@ -29,7 +27,8 @@ integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, M
 #include "spinfo.fh"
 #include "general.fh"
 #include "lucia_ini.fh"
-integer(kind=iwp) :: ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, LCONF, LDET, LLCONF, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX
+integer(kind=iwp) :: ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, LCONF, LDET, LLCONF, NEL1MNA, NEL1MNB, NEL2MN, NEL2MX, NORB1, NORB2, &
+                     NORB3
 
 NDTASM(1:MXCISM) = NDTASM_LUCIA(1:MXCISM)
 NCSASM(1:MXCISM) = NCSASM_LUCIA(1:MXCISM)
@@ -90,13 +89,6 @@ NCNFTP(1:NTYP,1:MXSM) = NCONF_PER_OPEN(MINOP+1:MAXOP+1,1:MXSM)
 NDTFTP(1:NTYP) = NPDTCNF(MINOP+1:MAXOP+1)
 NCSFTP(1:NTYP) = NPCSCNF(MINOP+1:MAXOP+1)
 
-! MIN. NO. OF EL. IN ALPHA AND BETA STRING
-NL1MNA = max(0,NEL1MN-min(NBEL,NORB1))
-NL1MNB = max(0,NEL1MN-min(NAEL,NORB1))
-! NO. OF SINGLE EXITATIONS FOR ALPHA AND BETA STRING
-NAEXCI = NAEL*(NAC-NAEL+1)
-NBEXCI = NBEL*(NAC-NBEL+1)
-
 ! Memory needed to store ICONF array
 LCONF = 0
 LDET = 0
@@ -120,11 +112,8 @@ CTS(:) = KSDREO_I(1:LDET)
 
 NDET = NDET_LUCIA
 MULTS = MULTS_LUCIA
-MAXSYM = NSYM
 
 NEL1MNA = max(0,NEL1MN-min(NAEL,NORB1))
 NEL1MNB = max(0,NEL1MN-min(NBEL,NORB1))
-NOCTPA = (NORB1-NEL1MNA+1)*(NEL3MX+1)
-NOCTPB = (NORB1-NEL1MNB+1)*(NEL3MX+1)
 
 end subroutine LUCIA2MOLCAS

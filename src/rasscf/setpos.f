@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SetPos(LUnit,KeyIn,Line,iRc)
-      use output_ras, only: TERSE,IPRLOC
+      use printlevel, only: TERSE
+      use output_ras, only: IPRLOC
       Implicit None
       Integer LUNIT,iRC
       Character(LEN=*) KeyIn

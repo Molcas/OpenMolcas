@@ -65,7 +65,8 @@
      &                         lRootSplit,NumSplit,iDimBlockA,
      &                         EnerSplit,GapSpli,PerSplit,PerCSpli,
      &                         fOrdSplit
-      use output_ras, only: LF,USUAL,SILENT,IPRLOC
+      use printlevel, only: USUAL,SILENT
+      use output_ras, only: LF,IPRLOC
 
 
       Implicit None
