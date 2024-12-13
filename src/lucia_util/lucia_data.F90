@@ -13,15 +13,14 @@ Implicit None
 #include "mxpdim.fh"
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
 
-#include "cgas.fh"
 ! Stuff fron cgas.fh
-!INTEGER     IDOGAS,NGAS,NGSSH(MXPIRR,MXPNGAS),                    &
-!            NGSOB(MXPOBS,MXPNGAS),                                &
-!            NGSOBT(MXPNGAS),IGSOCC(MXPNGAS,2),IGSINA,IGSDEL,      &
-!            IGSOCCX(MXPNGAS,2,MXPICI),NCISPC,                     &
-!            NCMBSPC, LCMBSPC(MXPICI),ICMBSPC(MXPSTT,MXPICI),      &
-!            NMXOCCLS,IPHGAS(MXPNGAS),                             &
-!            IPHGAS1(MXPNGAS)
+INTEGER     IDOGAS,NGAS,NGSSH(MXPIRR,MXPNGAS),                    &
+            NGSOB(MXPOBS,MXPNGAS),                                &
+            NGSOBT(MXPNGAS),IGSOCC(MXPNGAS,2),IGSINA,IGSDEL,      &
+            IGSOCCX(MXPNGAS,2,MXPICI),NCISPC,                     &
+            NCMBSPC, LCMBSPC(MXPICI),ICMBSPC(MXPSTT,MXPICI),      &
+            NMXOCCLS,IPHGAS(MXPNGAS),                             &
+            IPHGAS1(MXPNGAS)
 
 ! Stuff fron cecore.fh
 REAL*8        ECORE,ECORE_ORIG,ECORE_HEX
