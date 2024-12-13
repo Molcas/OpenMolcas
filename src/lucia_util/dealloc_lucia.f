@@ -26,7 +26,6 @@
 #include "crun.fh"
 #include "cprnt.fh"
 #include "csmprd.fh"
-#include "cintfo.fh"
 *.Output
 
       Integer ISM,LBLOCK
