@@ -30,7 +30,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "cicisp.fh"
 #include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
