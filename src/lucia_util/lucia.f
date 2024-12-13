@@ -11,6 +11,7 @@
       SUBROUTINE LUCIA()
       use stdalloc, only: mma_allocate
       use GLBBAS, only: CI_VEC, SIGMA_VEC
+      use lucia_data, only: MXSOOB,XISPSM
 *
       IMPLICIT NONE
 *. Parameters for dimensioning
@@ -22,7 +23,6 @@
 #include "lucinp.fh"
 #include "cstate.fh"
 #include "crun.fh"
-#include "cicisp.fh"
 #include "oper.fh"
 
 #include "warnings.h"
@@ -33,7 +33,7 @@
       !CALL XUFLOW
 *. Assign diskunits
 c      IF (ENVIRO(1:6) .EQ. 'RASSCF') THEN
-         CALL DISKUN2
+         CALL DISKUN2()
 c      ELSE
 c         CALL DISKUN
 c      ENDIF
@@ -43,7 +43,7 @@ c      ENDIF
 *. Number of string types
       CALL STRTYP_GAS(IPRSTR)
 *. Divide orbital spaces into inactive/active/secondary
-      CALL GASSPC
+      CALL GASSPC()
 *. Symmetry information
       CALL SYMINF_LUCIA(IPRORB)
 *. Number of integrals
