@@ -12,12 +12,11 @@
       use stdalloc, only: mma_allocate
       use GLBBAS, only: CI_VEC, SIGMA_VEC
       use lucia_data, only: MXSOOB,XISPSM
+      use lucia_data, only: IPRCIX,IPRORB,IPRSTR
 *
       IMPLICIT NONE
 *. Parameters for dimensioning
 #include "mxpdim.fh"
-*.Print flags
-#include "cprnt.fh"
 #include "lucinp.fh"
 #include "cstate.fh"
 #include "crun.fh"
