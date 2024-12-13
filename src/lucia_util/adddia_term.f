@@ -13,14 +13,15 @@
 ************************************************************************
       SUBROUTINE ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use strbas
+      use strbas, only: NSTSO
+      use lucia_data, only: ECORE_ORIG,ECORE
 *. Update Sigma vector with diagonal terms for a given block
 *     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
 *                         + (FACTOR+DIAG(IASPGP,IBSPGP))CVEC(IASPGP,IBSPGP)
 *
 * Jeppe Olsen and Giovanni Li Manni, September 2011
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 *
 #include "mxpdim.fh"
 #include "strinp.fh"
@@ -28,18 +29,21 @@
 #include "gasstr.fh"
 #include "csm.fh"
 #include "stinf.fh"
-#include "cecore.fh"
 #include "cprnt.fh"
 *
+      REAL*8 FACTOR
+      INTEGER IASPGP,IBSPGP,IASM,IBSM
 *. Input
-      DIMENSION CVEC(*)
+      REAL*8 CVEC(*)
 *. Output
-      DIMENSION SVEC(*)
+      REAL*8 SVEC(*)
       Integer, Allocatable:: LASTR(:), LBSTR(:)
       Real*8, Allocatable:: LSCR(:), LSCR2(:)
       Real*8, Allocatable:: LJ(:), LK(:), LXA(:), LXB(:), LRJKA(:),
      &                      LH1D(:)
       INTEGER, EXTERNAL:: IMNMX
+      INTEGER NTEST,IATP,IBTP,NAEL,NBEL,NOCTPA,MAXA
+      REAL*8 ECOREP,SHIFT,FACTORX
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
@@ -104,4 +108,4 @@
       Call mma_deallocate(LBSTR)
       CALL mma_deallocate(LRJKA)
 
-      END
+      END SUBROUTINE ADDDIA_TERM
