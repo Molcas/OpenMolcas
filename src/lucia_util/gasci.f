@@ -18,13 +18,14 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
-      use strbas
+      use strbas, only: NSTSO
       use rasscf_lucia, only: kvec3_length
 *. module for communicating with sigma
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
       use lucia_data, only: NCSF_PER_SYM
       use lucia_data, only: ECORE_ORIG,ECORE
       use lucia_data, only: IGSOCC,IPHGAS,NGAS
+      use lucia_data, only: MXSOOB,MXNTTS,IDUMMY,ISMOST,NELCI,XISPSM
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -33,7 +34,6 @@
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "cicisp.fh"
 #include "orbinp.fh"
 #include "clunit.fh"
 #include "csm.fh"
