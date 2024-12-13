@@ -24,6 +24,7 @@
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
       use lucia_data, only: NCSF_PER_SYM
       use lucia_data, only: ECORE_ORIG,ECORE
+      use lucia_data, only: IGSOCC,IPHGAS,NGAS
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -43,7 +44,6 @@
 #include "cprnt.fh"
 #include "oper.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 #include "lucinp.fh"
 #include "intform.fh"
 
