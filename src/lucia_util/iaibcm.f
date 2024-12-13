@@ -20,9 +20,10 @@
 *      Jeppe Olsen, august 1995
 *                   I_RE_MS2 added, May 99
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: ICMBSPC,IGSOCCX,LCMBSPC,NGAS
+      IMPLICIT NONE
+      INTEGER ICISPC
 #include "mxpdim.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 #include "cprnt.fh"
 #include "stinf.fh"
@@ -30,6 +31,8 @@
 #include "crun.fh"
 *. Output
       INTEGER IAIB(*)
+
+      INTEGER IATP,IBTP,NOCTPA,NOCTPB,IOCTPA,IOCTPB
 *
       IATP = 1
       IBTP = 2
@@ -55,5 +58,4 @@ C?    WRITE(6,*) (ICMBSPC(II,ICISPC),II=1, LCMBSPC(ICISPC))
      &                ISPGPFTP(1,IOCTPB),NELFGP,MXPNGAS, NGAS, IAIB,
      &                   IPRDIA,I_RE_MS2_SPACE,I_RE_MS2_VALUE)
 *
-      RETURN
-      END
+      END SUBROUTINE IAIBCM
