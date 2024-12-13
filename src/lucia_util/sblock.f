@@ -17,7 +17,8 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
-      use strbas
+      use strbas, only: NSTSO
+      use lucia_data, only: NGAS,IPHGAS
 *.Definition of c and sigma spaces
       use CandS, only: ICSM,ICSPC,ISSPC
 *
@@ -38,7 +39,7 @@
 * Cbatches ICBAT_INI to ICBAT_END are stored on  LUC
 *
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 #include "mxpdim.fh"
 *
 * =====
@@ -46,6 +47,8 @@
 * =====
 *
 *. Sigma blocks require
+      INTEGER NBLOCK,IBOFF,LUC,IRESTRICT, LUCBLK,ICBAT_RES,ICBAT_INI,
+     &        ICBAT_END
       INTEGER IBLOCK(8,*)
 *
 *./ORBINP/ : NACOB used
@@ -57,7 +60,6 @@
 #include "csm.fh"
 #include "crun.fh"
 #include "gasstr.fh"
-#include "cgas.fh"
 #include "lucinp.fh"
 #include "cprnt.fh"
 #include "oper.fh"
@@ -65,7 +67,8 @@
 *
 #include "csmprd.fh"
 #include "cintfo.fh"
-      DIMENSION CB(*),HCB(*)
+      REAL*8 CB(*),HCB(*)
+
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:), INSCR2(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
@@ -77,6 +80,12 @@
       Integer, Allocatable:: SVST(:)
       Integer, Allocatable:: H0SPC(:)
       INTEGER, EXTERNAL:: IMNMX
+      INTEGER NTEST,IATP,IBTP,IATPM1,IBTPM1,IATPM2,IBTPM2,NOCTPA,NOCTPB,
+     &        IOCTPA,IOCTPB,NAEL,NBEL,MXSTBL0,MAXA,MAXA0,MAXA1,MAXB,
+     &        MAXB0,MAXB1,MXSTBL,MAXI,MAXK,IOBTP,IOBSM,LSCR1,INTSCR,
+     &        LSCR2,MAXIK,LSCR3,NTTS,LZSCR,LZ,K12,I1234,IDOH2,MXADKBLK,
+     &        MXADKBLK_AS,MXCIJA,MXCIJAB,MXCIJB,MXCJ,MXCJ_ALLSYM,MXSXBL,
+     &        MXSXST,MX_NSPII
 *
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
@@ -371,4 +380,4 @@ c      KSIPA = 1 ! jwk-cleanup
       Call mma_deallocate(ZSCR)
       Call mma_deallocate(SVST)
       Call mma_deallocate(H0SPC)
-      END
+      END SUBROUTINE SBLOCK
