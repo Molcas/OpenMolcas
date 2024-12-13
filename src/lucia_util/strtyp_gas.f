@@ -20,11 +20,12 @@
 * Jeppe Olsen,  Oct 1994
 * G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*
+      use lucia_data, only: NGAS,NCISPC,NMXOCCLS,IGSOCC,IGSOCCX,IPHGAS,
+     &                      IPHGAS1
+      IMPLICIT NONE
+      INTEGER IPRNT
 *
 #include "mxpdim.fh"
-#include "cgas.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "cstate.fh"
@@ -33,8 +34,15 @@
 #include "stinf.fh"
 #include "crun.fh"
 *. Local scratch
-      DIMENSION IOCTYP(MXPSTT),IREOSPGP(MXPSTT),ISCR(MXPSTT)
+      INTEGER IOCTYP(MXPSTT),IREOSPGP(MXPSTT),ISCR(MXPSTT)
       INTEGER IOCCLS(1),IBASSPC(1)
+      INTEGER NTESTL,NTEST,IGAS,MINI,MAXI,ICISPC,IPHGASL,NPHGAS,NOCCLS,
+     &        NAEL,NBEL,MAXSUB,IGRP,MXAL,MNAL,MXBL,MNBL,MXA1,MXB1,MNA1,
+     &        MNB1,MXA,MXB,MNA,MNB,MNAB,MXAB,IADD,JGRP,IEL,IITYPE,ITP,
+     &        IOFF,NABEL,NSPGP_TOT,ITYP,NELEC_REF,IDEL,NSPGP,IONE,NEL,
+     &        IRED,NONEW,I_AM_OKAY,IOELMX,IBTYP,ISPGP,IDIM,JGAS,ISPGP_N,
+     &        ISPGP_O
+      INTEGER, EXTERNAL:: IBION_LUCIA
 *
       NTESTL = 00
       NTEST = MAX(IPRNT,NTESTL)
@@ -614,6 +622,4 @@ C?      CALL IWRTMA(IREOSPGP,1,NSPGP,1,NSPGP)
         END DO
       END IF
 *
-*
-      RETURN
-      END
+      END SUBROUTINE STRTYP_GAS
