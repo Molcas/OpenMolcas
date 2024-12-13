@@ -36,7 +36,6 @@
 #include "stinf.fh"
 #include "csm.fh"
 #include "cprnt.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 #include "oper.fh"
 *
