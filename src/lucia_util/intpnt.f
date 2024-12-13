@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE INTPNT(IPNT1,ISL1,IPNT2,ISL2)
       use GLBBAS, only: PGINT1, PGINT1A
+      use lucia_data, only: I1234S,I12S,I34S
 *
 * Pointers to symmetry blocks of integrals
 * IPNT1 : Pointer to given one-electron block, total symmetric
@@ -26,7 +27,7 @@
 * generated
 *
 * Jeppe Olsen, Last Update : August 2000
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
 *
 * =====
 *.Input
@@ -38,9 +39,7 @@
 #include "csm.fh"
 #include "crun.fh"
 
-*.CSMPRD
 #include "csmprd.fh"
-#include "cintfo.fh"
 *
 * =======
 *. Output
@@ -48,6 +47,8 @@
 *
       INTEGER IPNT1(NSMOB),ISL1(NSMOB)
       INTEGER IPNT2(NSMOB,NSMOB,NSMOB),ISL2(NSMOB,NSMOB,NSMOB)
+
+      INTEGER ISM
 *.0 : Pointers to one-integrals, all symmetries, Lower half matrices
       DO ISM = 1, NSMOB
         CALL PNT2DM(        1,    NSMOB,    NSMSX,    ADSXA,   NTOOBS,
@@ -67,4 +68,4 @@
      &                 I12S,     I34S,   I1234S,    IPNT2,     ISL2,
      &                ADASX)
 *
-      END
+      END SUBROUTINE INTPNT
