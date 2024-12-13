@@ -21,6 +21,7 @@
      &                      NCSF_PER_SYM,NPCSCNF,NPDTCNF,NSD_PER_SYM
       use lucia_data, only: NGAS,IGSOCC,IPHGAS
       use lucia_data, only: MXSOOB,MXNTTS,ISMOST,XISPSM
+      use lucia_data, only: IPRCIX
 
 *
       IMPLICIT NONE
@@ -29,7 +30,6 @@
 #include "orbinp.fh"
 #include "crun.fh"
 #include "cstate.fh"
-#include "cprnt.fh"
 #include "stinf.fh"
 #include "csm.fh"
 #include "strinp.fh"
@@ -258,7 +258,6 @@ c      END IF
 #include "orbinp.fh"
 #include "crun.fh"
 #include "cstate.fh"
-#include "cprnt.fh"
 #include "stinf.fh"
 #include "csm.fh"
 #include "strinp.fh"
