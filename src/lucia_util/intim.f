@@ -25,7 +25,6 @@
       IMPLICIT None
 #include "mxpdim.fh"
 #include "crun.fh"
-#include "clunit.fh"
 #include "lucinp.fh"
 #include "csm.fh"
 #include "orbinp.fh"
