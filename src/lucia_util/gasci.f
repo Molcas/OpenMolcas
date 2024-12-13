@@ -48,7 +48,6 @@
 #include "intform.fh"
 
 
-#include "cintfo.fh"
 #include "io_util.fh"
 *
 #include "cmxcj.fh"
