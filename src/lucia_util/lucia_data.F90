@@ -13,6 +13,15 @@ Implicit None
 #include "mxpdim.fh"
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
 
+#include "cicisp.fh"
+! Stuff fron cicisp.fh
+!Integer       IDUMMY,NICISP,                                      &
+!              NELCI(MXPICI),                                      &
+!              ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,                  &
+!              NBLKIC(MXPCSM,MXPICI),LCOLIC(MXPCSM,MXPICI),        &
+!              MXNTTS,MXSOOB_AS
+!REAL*8        XISPSM(MXPCSM,MXPICI)
+
 ! Stuff fron cgas.fh
 INTEGER     IDOGAS,NGAS,NGSSH(MXPIRR,MXPNGAS),                    &
             NGSOB(MXPOBS,MXPNGAS),                                &
