@@ -22,7 +22,9 @@
 *
 * GAS VERSION
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: NCMBSPC,IGSOCCX,NGAS
+      IMPLICIT NONE
+      INTEGER IPRNT
 *
 * ===================
 *.Input common blocks
@@ -34,7 +36,6 @@
 #include "strinp.fh"
 #include "csm.fh"
 #include "stinf.fh"
-#include "cgas.fh"
 #include "gasstr.fh"
 *
 * ====================
@@ -44,6 +45,9 @@
 #include "cicisp.fh"
 
       Integer, Allocatable:: LBLTP(:), LIOIO(:), CVST(:)
+      Integer IATP,IBTP,NOCTPA,NOCTPB,ICI,ISYM,NTTSBL,LCOL,ISM,MXS,
+     &        MXSOO,MXSOO_AS,NCOMB
+      REAL*8 XNCOMB
 *
 *
 *. Number of spaces
@@ -159,4 +163,4 @@ C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
       END IF
 #endif
 *
-      END
+      END SUBROUTINE LCISPC
