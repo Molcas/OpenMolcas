@@ -12,7 +12,10 @@
 *
 * Number of integrals and storage mode
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: NINT1,I12S,I34S,I1234S,NINT2,NINT2_NO_CCSYM,
+     &                      NBINT1,NBINT2
+      IMPLICIT NONE
+      INTEGER IPRNT
 *
 * =====
 *.Input
@@ -30,7 +33,9 @@
 *. Output
 * =======
 *
-#include "cintfo.fh"
+
+      INTEGER I12,I34,I1234,NDXFSM,NSXFSM
+
 *.1 : Number of one-electron integrals
       NINT1 =  NSXFSM(NSMOB,MXPOBS,NTOOBS,NTOOBS,ITSSX,ADSXA,1,IPRNT)
 *.2 : Number of two-electron integrals
@@ -64,5 +69,4 @@ c       END IF
 *. Number of symmetry blocks of one- and two-electron integrals
       NBINT1 = NSMOB
       NBINT2 = NSMOB ** 3
-      RETURN
-      END
+      END SUBROUTINE INTDIM
