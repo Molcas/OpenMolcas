@@ -477,5 +477,4 @@ c      END IF
       Call mma_deallocate(LIBTR)
       Call mma_deallocate(LSCLFCR)
 
-      RETURN
-      END
+      END SUBROUTINE DENSI2_LUCIA
