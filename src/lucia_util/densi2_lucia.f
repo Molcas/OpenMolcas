@@ -20,6 +20,8 @@
       use lucia_data, only: NGAS,IPHGAS
       use lucia_data, only: MXSB,MXSOOB,MXNTTS,ISMOST,XISPSM
       use lucia_data, only: IPRDEN,IPRCIX
+      use lucia_data, only: ENVIRO,ICISTR,IADVICE,ISIMSYM,IUSE_PH,
+     &                      LCSBLK,MXINKA
 *
 * Density matrices between L and R
 *
@@ -65,7 +67,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "crun.fh"
 #include "gasstr.fh"
 *
 #include "csmprd.fh"
