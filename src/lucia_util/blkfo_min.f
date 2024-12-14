@@ -18,6 +18,7 @@
      &                      deallocate_Local_Arrays
       use CandS, only: ISSPC
       use lucia_data, only: ISMOST,MXNTTS,MXSOOB
+      use lucia_data, only: ISIMSYM,LCSBLK
 *
 * Number of blocks and length of each block for CI expansion
 *
@@ -39,7 +40,6 @@
 #include "stinf.fh"
 #include "cstate.fh"
 #include "csm.fh"
-#include "crun.fh"
 
 
 *. Output : Should outside be dimensioned as MXNTTS
