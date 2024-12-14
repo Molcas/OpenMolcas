@@ -37,8 +37,6 @@
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "csm.fh"
-#include "crun.fh"
-
 #include "csmprd.fh"
 *
 * =======
