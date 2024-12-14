@@ -29,12 +29,12 @@
 *
 *
       use lucia_data, only: NGAS,IPHGAS
+      use lucia_data, only: IADVICE
       IMPLICIT NONE
 *. General input
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "orbinp.fh"
-#include "crun.fh"
 *. Specific input
       INTEGER IAOCC(*),IBOCC(*),JAOCC(*),JBOCC(*)
       INTEGER LADVICE
