@@ -50,9 +50,6 @@ Contains
 ! they are available during the calculation.
 !
 #include "mxpdim.fh"
-
-#include "crun.fh"
-
 #include "csm.fh"
 #include "cstate.fh"
 
@@ -135,13 +132,13 @@ Contains
       use lucia_data, only: NCSF_PER_SYM,NSD_PER_SYM
       use lucia_data, only: MXSOOB,MXNTTS,XISPSM
       use lucia_data, only: LUC,LUSC1,LUHC,LUSC34
+      use lucia_data, only: LCSBLK
 !
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
 !
       implicit none
 #include "mxpdim.fh"
-#include "crun.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
 #include "cstate.fh"
@@ -292,7 +289,6 @@ Contains
 #include "mxpdim.fh"
 #include "cstate.fh"
 #include "orbinp.fh"
-#include "crun.fh"
       Integer nCIVEC
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
 
@@ -353,7 +349,6 @@ Contains
 #include "mxpdim.fh"
 #include "cstate.fh"
 #include "orbinp.fh"
-#include "crun.fh"
       Integer nCIVEC,IREFSM_CASVB
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
       Integer, Allocatable:: lVec(:)
