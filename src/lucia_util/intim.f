@@ -14,6 +14,7 @@
       use GLBBAS, only: INT1, INT1O, PINT1, PINT2, LSM1, LSM2, KINH1,
      &                  KINH1_NOCCSYM
       use lucia_data, only: ECORE_HEX,ECORE_ORIG,ECORE
+      use lucia_data, only: NOINT
 *
 * Interface to external integrals
 *
@@ -24,7 +25,6 @@
 *
       IMPLICIT None
 #include "mxpdim.fh"
-#include "crun.fh"
 #include "lucinp.fh"
 #include "csm.fh"
 #include "orbinp.fh"
