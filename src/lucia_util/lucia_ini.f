@@ -15,6 +15,23 @@
      &                      LCMBSPC
       use lucia_data, only: IPRCIX,IPRORB,IPRDIA,IPRXT,IPROCC,IPRDEN,
      &                      IPRRSP,IPRPRO,IPRCC,IPRNCIV
+      use lucia_data, only: INTIMP,ENVIRO,MXCIV,ICISTR,MXINKA,THRES_E,
+     &                      INOCALC,ISAVE_EXP,IEXPAND,LCSBLK,NOMOFL,
+     &                      IDENSI,IUSE_PH,IADVICE,ITRACI,ITRACI_CR,
+     &                      ITRACI_CN,IDIAG,MXP1,MXP2,MXQ,MAXIT,IRESTR,
+     &                      INCORE,MOCAA,MOCAB,IUSE_PA,NOINT,ICJKAIB,
+     &                      INIREF,IRESTRF,IPERT,NPERT,IAPRREF,IAPRZER,
+     &                      IEXTKOP,IC1DSC,IH0SPC,NPTSPC,IRFROOT,
+     &                      NH0EXSPC,INIDEG,XLAMBDA,IFINMO,E_THRE,
+     &                      C_THRE,E_CONV,C_CONV,ICLSSEL,IPTEKT,IH0ROOT,
+     &                      IRST2,ISKIPEI,NPROP,ITRAPRP,IRESPONS,NRESP,
+     &                      N_AVE_OP,MXITLE,IROOTHOMING,IPTFOCK,ITRA_FI,
+     &                      ITRA_IN,MULSPC,IFMULSPC,LPAT,NCNV_RT,
+     &                      I_RE_MS2_SPACE,I_RE_MS2_VALUE,ISIMSYM,
+     &                      NOCSF,IE0AVEX,IEXCSYM,NEXCSTATE,NPSSPC,
+     &                      IH0EXSPC,IH0INSPC,IOCPTSPC,ISEQCI,IXYZSYM,
+     &                      MAXORD_OP,NPSSH,PROPER,RESP_OP,RESP_W,
+     &                      AVE_OP,NSEQCI,CSEQCI
 *
       implicit none
 C Input from RASSCF
@@ -23,7 +40,6 @@ C Input from RASSCF
 *
 
 #include "mxpdim.fh"
-#include "crun.fh"
 #include "irat.fh"
 #include "lucinp.fh"
 #include "oper.fh"

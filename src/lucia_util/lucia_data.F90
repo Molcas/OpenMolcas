@@ -13,36 +13,34 @@ Implicit None
 #include "mxpdim.fh"
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
 
-#include "crun.fh"
 ! Stuff fron crun.fh
-!CHARACTER(LEN=6) PROPER(20),ENVIRO,CCFORM
-!CHARACTER(LEN=8) RESP_OP(2,20), CSEQCI(MXPICI,MXPICI), AVE_OP(20),  &
-!            ITRACI_CR,ITRACI_CN
-!REAL*8                  THRES_E,XLAMBDA,E_THRE,C_THRE,              &
-!            E_CONV,C_CONV,RESP_W(20)
-!INTEGER     MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,         &
-!            ICISTR,NOCSF,IDIAG,NOINT,IDMPIN,MXINKA,ICJKAIB,         &
-!            INIREF,IRESTRF,MOCAA,MOCAB,IPERT,NPERT,                 &
-!            IAPRREF,IAPRZER,IIDUM,                                  &
-!            NSEQCI(MXPICI),ISEQCI(MXPICI,MXPICI),IEXTKOP,           &
-!            IE0AVEX,IC1DSC,IH0SPC,NPTSPC,                           &
-!            IOCPTSPC(2,MXPNGAS,MXPPTSPC),IH0INSPC(MXPPTSPC),        &
-!            IRFROOT,NH0EXSPC,IH0EXSPC(MXPPTSPC),INIDEG,             &
-!            LCSBLK,NOMOFL,IFINMO,NPSSPC,                            &
-!            NPSSH(MXPIRR,MXPNGAS),ICLSSEL,IDENSI,IPTEKT,            &
-!            NPTEKT,IH0ROOT,IRST2,ISKIPEI,                           &
-!            IXYZSYM(3),NPROP,                                       &
-!            ITRAPRP,NEXCSTATE,IEXCSYM,IRESPONS,NRESP,               &
-!            MAXORD_OP(2,20),MXITLE,N_AVE_OP, IROOTHOMING,           &
-!            IUSE_PH, IADVICE,ITRACI,                                &
-!            IUSE_PA,IPTFOCK,NSXE,                                   &
-!            ITRA_FI,                                                &
-!            ITRA_IN,MULSPC,LPAT,IFMULSPC, IRELAX,                   &
-!            NCNV_RT,                                                &
-!            I_RE_MS2_SPACE,I_RE_MS2_VALUE,                          &
-!            ISIMSYM,                                                &
-!            INOCALC,ISAVE_EXP,IEXPAND
-!CHARACTER(LEN=2) PADDY, PADDY2
+CHARACTER(LEN=6) PROPER(20),ENVIRO,CCFORM
+CHARACTER(LEN=8) RESP_OP(2,20), CSEQCI(MXPICI,MXPICI), AVE_OP(20),  &
+            ITRACI_CR,ITRACI_CN
+REAL*8                  THRES_E,XLAMBDA,E_THRE,C_THRE,              &
+            E_CONV,C_CONV,RESP_W(20)
+INTEGER     MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,         &
+            ICISTR,NOCSF,IDIAG,NOINT,IDMPIN,MXINKA,ICJKAIB,         &
+            INIREF,IRESTRF,MOCAA,MOCAB,IPERT,NPERT,                 &
+            IAPRREF,IAPRZER,IIDUM,                                  &
+            NSEQCI(MXPICI),ISEQCI(MXPICI,MXPICI),IEXTKOP,           &
+            IE0AVEX,IC1DSC,IH0SPC,NPTSPC,                           &
+            IOCPTSPC(2,MXPNGAS,MXPPTSPC),IH0INSPC(MXPPTSPC),        &
+            IRFROOT,NH0EXSPC,IH0EXSPC(MXPPTSPC),INIDEG,             &
+            LCSBLK,NOMOFL,IFINMO,NPSSPC,                            &
+            NPSSH(MXPIRR,MXPNGAS),ICLSSEL,IDENSI,IPTEKT,            &
+            NPTEKT,IH0ROOT,IRST2,ISKIPEI,                           &
+            IXYZSYM(3),NPROP,                                       &
+            ITRAPRP,NEXCSTATE,IEXCSYM,IRESPONS,NRESP,               &
+            MAXORD_OP(2,20),MXITLE,N_AVE_OP, IROOTHOMING,           &
+            IUSE_PH, IADVICE,ITRACI,                                &
+            IUSE_PA,IPTFOCK,NSXE,                                   &
+            ITRA_FI,                                                &
+            ITRA_IN,MULSPC,LPAT,IFMULSPC, IRELAX,                   &
+            NCNV_RT,                                                &
+            I_RE_MS2_SPACE,I_RE_MS2_VALUE,                          &
+            ISIMSYM,                                                &
+            INOCALC,ISAVE_EXP,IEXPAND
 
 ! Stuff fron cprnt.fh
 Integer      IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPROCC,IPRDEN,     &
