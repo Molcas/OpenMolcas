@@ -20,7 +20,6 @@
       IMPLICIT None
       INTEGER JOBDISK,JOBIPH
 #include "mxpdim.fh"
-#include "crun.fh"
 #include "cstate.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
