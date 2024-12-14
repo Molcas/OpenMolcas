@@ -14,6 +14,7 @@
 *.Definition of c and sigma
       use CandS, only: ISSPC, ISSM
       use lucia_data, only: MXNTTS,MXSOOB,ISMOST,XISPSM
+      use lucia_data, only: ICISTR,ENVIRO,ISIMSYM,LCSBLK
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
@@ -35,7 +36,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "crun.fh"
 #include "gasstr.fh"
 #include "lucinp.fh"
 #include "oper.fh"
