@@ -14,6 +14,7 @@
      &                  LSM1, LSM2, RHO1, SRHO1, KINH1_NOCCSYM, KINH1,
      &                  CI_VEC, SIGMA_VEC
       use lucia_data, only: MXSOOB,XISPSM
+      use lucia_data, only: LCSBLK
 * Deallocate memory allocated during alloc_lucia
 
 *. Input
@@ -23,7 +24,6 @@
 #include "orbinp.fh"
 #include "cstate.fh"
 #include "csm.fh"
-#include "crun.fh"
 #include "csmprd.fh"
 *.Output
 
