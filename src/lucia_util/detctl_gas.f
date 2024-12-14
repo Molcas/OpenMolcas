@@ -22,13 +22,13 @@
       use lucia_data, only: NGAS,IGSOCC,IPHGAS
       use lucia_data, only: MXSOOB,MXNTTS,ISMOST,XISPSM
       use lucia_data, only: IPRCIX
+      use lucia_data, only: NOCSF,IADVICE,ISIMSYM,LCSBLK,MXINKA
 
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "orbinp.fh"
-#include "crun.fh"
 #include "cstate.fh"
 #include "stinf.fh"
 #include "csm.fh"
@@ -256,7 +256,6 @@ c      END IF
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "orbinp.fh"
-#include "crun.fh"
 #include "cstate.fh"
 #include "stinf.fh"
 #include "csm.fh"
