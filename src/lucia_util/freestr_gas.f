@@ -24,7 +24,6 @@
 #include "csm.fh"
 #include "gasstr.fh"
 #include "stinf.fh"
-#include "crun.fh"
       Integer IGRP,ITP
 *
 *.  Offsets for occupation and reorder array of strings
