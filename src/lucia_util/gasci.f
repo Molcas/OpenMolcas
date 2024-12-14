@@ -28,6 +28,8 @@
       use lucia_data, only: MXSOOB,MXNTTS,IDUMMY,ISMOST,NELCI,XISPSM
       use lucia_data, only: LUDIA,LUSC1
       use lucia_data, only: IPRCIX
+      use lucia_data, only: NOCSF,IDIAG,IRESTR,ICISTR,IADVICE,ISIMSYM,
+     &                      LCSBLK,MXINKA
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -39,7 +41,6 @@
 #include "orbinp.fh"
 #include "csm.fh"
 #include "cstate.fh"
-#include "crun.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "oper.fh"
