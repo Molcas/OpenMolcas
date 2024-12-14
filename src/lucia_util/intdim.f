@@ -25,8 +25,6 @@
 #include "lucinp.fh"
 #include "orbinp.fh"
 #include "csm.fh"
-#include "crun.fh"
-*.CSMPRD
 #include "csmprd.fh"
 *
 * =======
