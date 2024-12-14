@@ -18,7 +18,7 @@
       use lucia_data, only: NGAS,IGSOCC,IPHGAS,NMXOCCLS
 * modification Jeppe + Giovanni + Dongxia.
 * G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
-      use distsym
+      use distsym, only: INGRP_VAL,ISMDFGP,ISMSCR,NACTSYM
 *
 * Obtain string information for GAS expansion
 *
@@ -47,7 +47,6 @@
 #include "stinf.fh"
 #include "strinp.fh"
 #include "irat.fh"
-#include "crun.fh"
 *
       INTEGER ZERO_ARR(1), IDUM(1)
       Integer, Allocatable:: FREEL(:)
