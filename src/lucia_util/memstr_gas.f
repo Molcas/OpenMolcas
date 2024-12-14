@@ -42,7 +42,6 @@
 #include "csm.fh"
 #include "gasstr.fh"
 #include "stinf.fh"
-#include "crun.fh"
       Integer IGRP,NSTRIN,LSTRIN,ITP,IEL,IGAS,IORB,ISTRIN,LENGTH
 *
 *. Start of string information
