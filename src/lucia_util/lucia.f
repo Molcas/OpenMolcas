@@ -13,15 +13,14 @@
       use GLBBAS, only: CI_VEC, SIGMA_VEC
       use lucia_data, only: MXSOOB,XISPSM
       use lucia_data, only: IPRCIX,IPRORB,IPRSTR
+      use lucia_data, only: NOINT,LCSBLK
 *
       IMPLICIT NONE
 *. Parameters for dimensioning
 #include "mxpdim.fh"
 #include "lucinp.fh"
 #include "cstate.fh"
-#include "crun.fh"
 #include "oper.fh"
-
 #include "warnings.h"
 *.Scratch : A character line
       Integer LBLOCK
