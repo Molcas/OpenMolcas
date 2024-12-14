@@ -28,17 +28,23 @@
 * Itype = 2 => alpha-beta loop
 *              input is in form Rho2t(ij,kl)
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 #include "mxpdim.fh"
-#include "crun.fh"
 #include "orbinp.fh"
 *.Input
-      DIMENSION RHO2T(*)
+      REAL*8 RHO2T(*)
+      INTEGER ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB
       LOGICAL   IPACK
 *. Input and output
-      DIMENSION RHO2(*),RHO2S(*),RHO2A(*)
+      REAL*8 RHO2(*),RHO2S(*),RHO2A(*)
+
 * Program flow flags
       LOGICAL   IPROCEED,DO_IJKL,DO_IJKL_PACK,DO_JIKL_PACK
+      INTEGER NII,NJJ,NKK,NLL,KKOFF,LLOFF,IACTIVE,I,J,K,L,I_PACK,J_PACK,
+     &        K_PACK,L_PACK,IJ_PACK,JI_PACK,KL_PACK,NTEST,NROW,NCOL,
+     &        NELMNT,IPERM,IIOFF,JJOFF,II,JJ,KK,LL,IJ,KL,IKIND,NIK,
+     &        JLIND,IKJLT,IJKL_PACK,JIKL_PACK,IJKL,IJKLT
+      REAL*8 SIGN,FACTOR,SIGNIK,SIGNJL,TERM,FACTOR_PACK
 *
 * Some dummy initializations
       NII = 0 ! jwk-cleanup
@@ -380,6 +386,5 @@ C         KLOFF = (LLOFF-1)*NORB+LLOFF
 *
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE ADTOR2
 
