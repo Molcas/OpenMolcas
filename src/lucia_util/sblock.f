@@ -23,6 +23,8 @@
       use CandS, only: ICSM,ICSPC,ISSPC
       use lucia_data, only: MXSOOB,MXNTTS,ISMOST
       use lucia_data, only: IPRCIX,IPRDIA
+      use lucia_data, only: IADVICE,ICJKAIB,IH0INSPC,IH0SPC,IOCPTSPC,
+     &                      ISIMSYM,IUSE_PH,LCSBLK,MOCAA,MXINKA,NPTSPC
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -59,12 +61,10 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "crun.fh"
 #include "gasstr.fh"
 #include "lucinp.fh"
 #include "oper.fh"
 #include "io_util.fh"
-*
 #include "csmprd.fh"
       REAL*8 CB(*),HCB(*)
 
@@ -85,9 +85,6 @@
      &        LSCR2,MAXIK,LSCR3,NTTS,LZSCR,LZ,K12,I1234,IDOH2,MXADKBLK,
      &        MXADKBLK_AS,MXCIJA,MXCIJAB,MXCIJB,MXCJ,MXCJ_ALLSYM,MXSXBL,
      &        MXSXST,MX_NSPII
-*
-*     IDUM = 0
-*     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
 *
       NTEST = 00
       IF(LUCBLK.GT.0) THEN
