@@ -22,13 +22,13 @@
 *
       use lucia_data, only: ICMBSPC,IGSOCCX,LCMBSPC,NGAS
       use lucia_data, only: IPRDIA
+      use lucia_data, only: I_RE_MS2_SPACE,I_RE_MS2_VALUE
       IMPLICIT NONE
       INTEGER ICISPC
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "stinf.fh"
 #include "strinp.fh"
-#include "crun.fh"
 *. Output
       INTEGER IAIB(*)
 
