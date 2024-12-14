@@ -16,6 +16,7 @@
      &                        Allocate_Local_Arrays
       use strbas, only: NSTSO
       use lucia_data, only: MXSOOB,ISMOST,MXNTTS,XISPSM
+      use lucia_data, only: ENVIRO,ISIMSYM,LCSBLK
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -40,7 +41,6 @@
 #include "stinf.fh"
 #include "cstate.fh"
 #include "csm.fh"
-#include "crun.fh"
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)
       INTEGER, External:: IFRMR
