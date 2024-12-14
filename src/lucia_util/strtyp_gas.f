@@ -32,7 +32,6 @@
 #include "gasstr.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "crun.fh"
 *. Local scratch
       INTEGER IOCTYP(MXPSTT),IREOSPGP(MXPSTT),ISCR(MXPSTT)
       INTEGER IOCCLS(1),IBASSPC(1)
