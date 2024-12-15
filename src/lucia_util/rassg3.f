@@ -15,6 +15,7 @@
      &                    I1BATS,   IBATS,     LUC,    LUHC,
      &                    I_AM_OUT,N_ELIMINATED_BATCHES)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use lucia_data, only: IDISK
 *
 * Direct RAS routine employing combined MOC/n-1 resolution method
 *
@@ -30,15 +31,17 @@
 * =====
 *
 
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
+      IMPLICIT NONE
+      INTEGER NBATS,LUC,LUHC,N_ELIMINATED_BATCHES
 *. Batches of sigma
       INTEGER LBATS(*),LEBATS(*),I1BATS(*),IBATS(8,*)
-      DIMENSION I_AM_OUT(*)
+      INTEGER I_AM_OUT(*)
 *.Scratch
-      DIMENSION SB(*),CB(*)
+      REAL*8 SB(*),CB(*)
 
       Integer, Allocatable:: SBSIZ(:), SBOFF(:)
+      INTEGER NSB,JBATS,ISTA,IEND,I_AM_NOT_WANTED,ISBLK,I,ISBOFF,IOFF,
+     &        ILEN
 *
       IF (.FALSE.) Call Unused_integer_array(LEBATS)
 #ifdef _DEBUGPRINT_
@@ -146,4 +149,4 @@ C     if this block structure is used internally, I didn't optimize this.
         CALL WRTVCD(SB,LUHC,1,-1)
       END IF
 #endif
-      END
+      END SUBROUTINE RASSG3
