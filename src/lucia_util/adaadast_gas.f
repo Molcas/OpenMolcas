@@ -19,6 +19,7 @@
       use lucia_data, only: NGAS
       use lucia_data, only: IBGPSTR,IBSPGPFTP,ISPGPFTP,NELFGP,NELFSPGP,
      &                      NELFTP,NGPSTR
+      use lucia_data, only: NELIS,NSTRKS
 *
 *
 * Obtain two-operator mappings
@@ -64,14 +65,7 @@
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
-*. Local scratch
-#include "ssave.fh"
-c      COMMON/COMJEP/MXACJ,MXACIJ,MXAADST
-*
-* =======
-*. Output
-* =======
-*
+
       INTEGER I1(*)
       REAL*8 XI1S(*)
 

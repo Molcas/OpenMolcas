@@ -16,17 +16,21 @@ Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXP
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
+#include "ssave.fh"
+! Stuff fron loff.fh
+!INTEGER NELIS(4), NSTRKS(4)
+
 ! Stuff fron loff.fh
 INTEGER, PARAMETER :: LOFFI=8**6 !SJS
 
 ! Stuff fron irat.fh
-INTEGER      IRAT
+INTEGER IRAT
 
 ! Stuff fron io_util.fh
 INTEGER IDISK(100)
 
 ! Stuff fron intform.fh
-INTEGER        IH1FORM,IH2FORM
+INTEGER IH1FORM,IH2FORM
 
 ! Stuff fron gasstr.fh
 INTEGER       MNGSOC(MXPNGAS),MXGSOC(MXPNGAS),NGPSTR(MXPNGAS),    &
