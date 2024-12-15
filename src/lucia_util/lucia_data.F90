@@ -16,9 +16,8 @@ Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXP
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
-#include "ssave.fh"
 ! Stuff fron loff.fh
-!INTEGER NELIS(4), NSTRKS(4)
+INTEGER NELIS(4), NSTRKS(4)
 
 ! Stuff fron loff.fh
 INTEGER, PARAMETER :: LOFFI=8**6 !SJS

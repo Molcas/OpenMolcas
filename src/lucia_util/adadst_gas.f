@@ -18,6 +18,7 @@
       use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use lucia_data, only: NGAS
       use lucia_data, only: IBSPGPFTP,NELFSPGP,NELFTP
+      use lucia_data, only: NELIS,NSTRKS
 *
 *
 *
@@ -57,12 +58,6 @@
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
-*. Local scratch
-#include "ssave.fh"
-*
-* =======
-*. Output
-* =======
 *
       INTEGER I1(*)
       REAL*8 XI1S(*)
