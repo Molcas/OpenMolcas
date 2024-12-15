@@ -36,8 +36,6 @@
      &        IBSM,   JASM,   JBSM,
      &        NOCTPA, NOCTPB,  MXEXC,
      &        IH_OCC_CONS,INTERACT
-#include "mxpdim.fh"
-#include "gasstr.fh"
       INTEGER ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
 
       INTEGER IA_EXC,IB_EXC,NTEST
