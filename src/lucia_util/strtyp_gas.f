@@ -23,13 +23,16 @@
       use lucia_data, only: NGAS,NCISPC,NMXOCCLS,IGSOCC,IGSOCCX,IPHGAS,
      &                      IPHGAS1
       use lucia_data, only: MS2
+      use lucia_data, only: NGRP,NSTTP,NTSPGP,NSPGPFTP,IBSPGPFTP,NELFTP,
+     &                      NGPSTR, MXGSOC,MNGSOC,IBGPSTR,IGSFGP,
+     &                      ISPGPFTP,MNELFGP,MNGSOC,MXELFGP,MXGSOC,
+     &                      NELFGP,NELFSPGP,NSTFGP
       IMPLICIT NONE
       INTEGER IPRNT
 *
 #include "mxpdim.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
-#include "gasstr.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 *. Local scratch
