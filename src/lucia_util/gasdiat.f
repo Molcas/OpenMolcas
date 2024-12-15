@@ -13,6 +13,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use strbas, only: NSTSO
       use lucia_data, only: IPRDIA
+      use lucia_data, only: PSSIGN
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -30,7 +31,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
