@@ -13,8 +13,8 @@
 * Copies CI diagonal from Lucia enviroment to RASSCF envirmonet
 *
       use lucia_data, only: LUDIA
+      use lucia_data, only: IDISK
       implicit none
-#include "io_util.fh"
       real*8 diag(*)
       Integer nDet
       integer idummy(1),iDet,IMZERO,I_AM_PACKED
