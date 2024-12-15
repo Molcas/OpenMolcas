@@ -25,6 +25,7 @@
      &                      MINMAX_SM_GP,IBSPGPFTP,IGSFGP,ISPGPFTP,
      &                      ISTFSMGP,NELFGP,NELFSPGP,NELFTP,NHLFSPGP,
      &                      NSPGPFTP,NSTFGP,NSTFSMGP,NSTFSMSPGP
+      use lucia_data, only: NACTEL
 *
 * Obtain string information for GAS expansion
 *
@@ -47,7 +48,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "csm.fh"
-#include "lucinp.fh"
 #include "stinf.fh"
 #include "strinp.fh"
 *
