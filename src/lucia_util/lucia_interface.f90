@@ -51,7 +51,6 @@ Contains
 !
 #include "mxpdim.fh"
 #include "csm.fh"
-#include "gasstr.fh"
 #include "intform.fh"
 #include "irat.fh"
 

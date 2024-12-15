@@ -16,6 +16,7 @@
       use Local_Arrays, only: CIBT, CBLTP, Deallocate_Local_Arrays
       use strbas, only: NSTSO
       use lucia_data, only: ICISTR
+      use lucia_data, only: MXNSTR
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -39,7 +40,6 @@
 #include "mxpdim.fh"
 #include "strinp.fh"
 #include "orbinp.fh"
-#include "gasstr.fh"
 #include "csm.fh"
 
 *. Scratch block, must hold a batch of blocks
