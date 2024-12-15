@@ -14,6 +14,7 @@
       use strbas, only: NSTSO
       use lucia_data, only: IPRDIA
       use lucia_data, only: PSSIGN
+      use lucia_data, only: MXNSTR,I_AM_OUT,N_ELIMINATED_BATCHES
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -34,7 +35,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "gasstr.fh"
 #include "io_util.fh"
 *
       INTEGER LUDIA,ICISTR,I12,NBLOCK
