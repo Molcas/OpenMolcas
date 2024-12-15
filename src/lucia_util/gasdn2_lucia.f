@@ -105,7 +105,8 @@
       INTEGER NOBPTS(MXPNGAS,NSMOB),IOBPTS(MXPNGAS,NSMOB)
       INTEGER NELFSPGP(MXPNGAS,*)
       LOGICAL IPACK
-      DIMENSION IPHGAS(*),SRHO1(*)
+      INTEGER IPHGAS(*)
+      REAL*8 SRHO1(*)
 *. Info on batches and blocks
       INTEGER  LBATL(NBATCHL),LEBATL(NBATCHL),I1BATL(NBATCHL),
      &         IBLOCKL(8,*)
@@ -114,24 +115,23 @@
 *. Interaction between supergroups
       INTEGER ICONSPA(NOCTPA,NOCTPA),ICONSPB(NOCTPB,NOCTPB)
 *.Scratch
-      DIMENSION SB(*),CB(*),C2(*)
-      DIMENSION CSCR(*),SSCR(*)
-      DIMENSION I1(*),I2(*),XI1S(*),XI2S(*),I3(*),XI3S(*),I4(*),XI4S(*)
-      DIMENSION X(*)
-      DIMENSION RHO1S(*)
-      DIMENSION SCLFAC_L(*),SCLFAC_R(*)
-      DIMENSION ICOOSC(NOCTPA,NOCTPB),ISOOSC(NOCTPA,NOCTPB)
+      REAL*8 SB(*),CB(*),C2(*)
+      REAL*8 CSCR(*),SSCR(*)
+      INTEGER I1(*),I2(*),I3(*),I4(*)
+      REAL*8 XI1S(*),XI2S(*),XI3S(*),XI4S(*)
+      REAL*8 X(*)
+      REAL*8 RHO1S(*)
+      REAL*8 SCLFAC_L(*),SCLFAC_R(*)
+      INTEGER ICOOSC(NOCTPA,NOCTPB),ISOOSC(NOCTPA,NOCTPB)
 *.
       INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
       INTEGER RASM(4),RBSM(4),RATP(4),RBTP(4),RSGN(5),RTRP(5)
-C-jwk-cleanup      REAL * 8 INPROD,L
-      REAL*8 L
-      DIMENSION L(*),R(*)
+      REAL*8 L(*),R(*)
 *.Output
-      DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*)
-      DIMENSION RHO1P(*),XNATO(*)
+      REAL*8 RHO1(*),RHO2(*),RHO2S(*),RHO2A(*)
+      REAL*8 RHO1P(*),XNATO(*)
 
-      DIMENSION ISTRFL(1),LBL(1),IDUMMY(1)
+      INTEGER ISTRFL(1),LBL(1),IDUMMY(1)
       INTEGER SXSTST(1),DXSTST(1)
 * Some dummy initializations
       INTERACT = 0 ! jwk-cleanup
