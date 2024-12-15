@@ -23,13 +23,13 @@
       use lucia_data, only: MXSOOB,MXNTTS,ISMOST,XISPSM
       use lucia_data, only: IPRCIX
       use lucia_data, only: NOCSF,IADVICE,ISIMSYM,LCSBLK,MXINKA
+      use lucia_data, only: IREFSM,PSSIGN,PSSIGN,MULTS,IDC
 
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "stinf.fh"
 #include "csm.fh"
 #include "strinp.fh"
@@ -252,11 +252,11 @@ c      END IF
       END SUBROUTINE DETCTL_GAS
 *
       SUBROUTINE DETCTL_FREE()
+      use lucia_data, only: IREFSM
       Implicit None
 #include "mxpdim.fh"
 #include "gasstr.fh"
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "stinf.fh"
 #include "csm.fh"
 #include "strinp.fh"
