@@ -51,7 +51,6 @@ Contains
 !
 #include "mxpdim.fh"
 #include "csm.fh"
-#include "irat.fh"
 
 #include "lucinp.fh"
 
