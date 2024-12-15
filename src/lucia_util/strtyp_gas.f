@@ -22,13 +22,13 @@
 *
       use lucia_data, only: NGAS,NCISPC,NMXOCCLS,IGSOCC,IGSOCCX,IPHGAS,
      &                      IPHGAS1
+      use lucia_data, only: MS2
       IMPLICIT NONE
       INTEGER IPRNT
 *
 #include "mxpdim.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "gasstr.fh"
 #include "strinp.fh"
 #include "stinf.fh"
