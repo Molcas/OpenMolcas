@@ -16,6 +16,7 @@
       use lucia_data, only: MXNTTS,MXSOOB,ISMOST,XISPSM
       use lucia_data, only: ICISTR,ENVIRO,ISIMSYM,LCSBLK
       use lucia_data, only: IDC,IREFSM,PSSIGN
+      use lucia_data, only: I_AM_OUT,N_ELIMINATED_BATCHES
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
@@ -36,7 +37,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "gasstr.fh"
 #include "lucinp.fh"
 #include "oper.fh"
       Integer, Allocatable:: SIOIO(:)
