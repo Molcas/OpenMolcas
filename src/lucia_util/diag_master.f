@@ -23,7 +23,6 @@
 *
       implicit None
 #include "mxpdim.fh"
-#include "cstate.fh"
 #include "orbinp.fh"
       REAL*8 EREF
 *
