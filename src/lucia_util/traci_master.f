@@ -19,11 +19,11 @@
       use lucia_data, only: LUC,LUDIA,LUSC1,LUHC,LUSC2
       use lucia_data, only: IREFSM,PSSIGN,NROOT
       use lucia_data, only: IDISK
+      use lucia_data, only: NSMOB
       IMPLICIT None
       INTEGER JOBDISK,JOBIPH
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "lucinp.fh"
 *
       Real*8  CMOMO(*)
       INTEGER LREC(MXNTTS)
