@@ -51,9 +51,6 @@ Contains
 !
 #include "mxpdim.fh"
 #include "csm.fh"
-
-#include "lucinp.fh"
-
 #include "oper.fh"
 #include "orbinp.fh"
 #include "stinf.fh"
@@ -135,7 +132,6 @@ Contains
       implicit none
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "lucinp.fh"
       Integer nCIVec
       Real*8 CIVec(nCIVEC)
       Real*8, Optional:: RVec(:)
