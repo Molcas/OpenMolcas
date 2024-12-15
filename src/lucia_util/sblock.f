@@ -29,6 +29,7 @@
       use lucia_data, only: MXNSTR,IBSPGPFTP,ISPGPFTP,MAX_STR_OC_BLK,
      &                      MAX_STR_SPGP,MNHL,NELFGP,NELFSPGP,NHLFSPGP,
      &                      NSTFSMSPGP
+      use lucia_data, only: IDISK
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -66,7 +67,6 @@
 #include "csm.fh"
 #include "lucinp.fh"
 #include "oper.fh"
-#include "io_util.fh"
 #include "csmprd.fh"
       REAL*8 CB(*),HCB(*)
 
