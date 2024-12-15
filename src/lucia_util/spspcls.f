@@ -20,9 +20,9 @@
 *
       use lucia_data, only: NGAS
       use lucia_data, only: IPRDIA
+      use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP
       IMPLICIT None
 #include "mxpdim.fh"
-#include "gasstr.fh"
 #include "stinf.fh"
 #include "strinp.fh"
 *. Specific input
