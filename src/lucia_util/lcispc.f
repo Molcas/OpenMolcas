@@ -26,6 +26,7 @@
       use lucia_data, only: NICISP,MXSB,MXSOOB,MXSOOB_AS,MXNTTS,ISMOST,
      &                      LCOLIC,NBLKIC,XISPSM
       use lucia_data, only: IDC
+      use lucia_data, only: IBSPGPFTP,ISPGPFTP
       IMPLICIT NONE
       INTEGER IPRNT
 *
@@ -38,7 +39,6 @@
 #include "strinp.fh"
 #include "csm.fh"
 #include "stinf.fh"
-#include "gasstr.fh"
 *
 * ====================
 *. Output common block : XISPSM is calculated
