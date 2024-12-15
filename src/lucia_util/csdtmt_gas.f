@@ -30,10 +30,9 @@
 * Adapted to LUCIA December 2001
 *
       use lucia_data, only:MAXOP,MINOP,NPCMCNF,NPCSCNF
+      use lucia_data, only:MS2,MULTS,PSSIGN
       Implicit NONE
       Integer IPRCSF
-#include "mxpdim.fh"
-#include "cstate.fh"
 *. Output
       Real*8,  Allocatable:: SCR1(:)
       Integer, Allocatable:: iSCR2(:)
