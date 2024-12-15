@@ -17,6 +17,7 @@
      &                          I12,    K12, SCLFAC)
       use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
       use lucia_data, only: NGAS
+      use lucia_data, only: IBSPGPFTP,NELFSPGP,NELFTP
 *
 *
 *
@@ -56,7 +57,6 @@
 *./ORBINP/
 #include "orbinp.fh"
 #include "strinp.fh"
-#include "gasstr.fh"
 *. Local scratch
 #include "ssave.fh"
 *
