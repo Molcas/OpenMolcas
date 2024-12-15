@@ -14,6 +14,7 @@
      &                                ISTR, NORBT,IDOREO,    IZ,  IREO)
       use strbas, only: NSTSGP,ISTSGP
       use lucia_data, only: NGAS
+      use lucia_data, only: NELFGP
 *
 * Obtain all super-strings of given total symmetry and given
 * occupation in each GAS space
@@ -54,7 +55,6 @@
       INTEGER NIGRP,ISPGRPSM, NEL,NSTR,NORBT,IDOREO
 *. Input
 #include "mxpdim.fh"
-#include "gasstr.fh"
 #include "csm.fh"
       INTEGER IZ(NORBT,NEL)
       INTEGER IGRP(NIGRP)
