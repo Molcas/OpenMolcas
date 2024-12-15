@@ -32,7 +32,6 @@
       INTEGER LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3
 #include "mxpdim.fh"
 #include "oper.fh"
-#include "lucinp.fh"
 #include "orbinp.fh"
       REAL*8 INPRDD
 *. Input
