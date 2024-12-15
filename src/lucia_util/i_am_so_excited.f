@@ -25,11 +25,14 @@
 * singly excited states (HEXS) are in effect.
 *
       use lucia_data, only: NGAS
+      use lucia_data, only: N_ELIMINATED_GAS,N_2ELIMINATED_GAS,
+     &                      I_ELIMINATE_GAS,N_ELIMINATED_BATCHES,
+     &                      I_AM_OUT,I2ELIMINATED_IN_GAS,IBSPGPFTP,
+     &                      IELIMINATED_IN_GAS,ISPGPFTP,NELFGP,NSPGPFTP
       IMPLICIT NONE
       INTEGER NBATCH
 *
 #include "mxpdim.fh"
-#include "gasstr.fh"
 *
 * Input
       INTEGER IBATCH(8,*),LBATCH(*),I1BATCH(*)
