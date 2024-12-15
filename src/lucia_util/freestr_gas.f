@@ -15,6 +15,7 @@
 * allocations during strinf_gas
       use distsym, only: ISMDFGP,ISMSCR,NACTSYM
 * Deallocate the memory that was set up in MEMSTR_GAS
+      use lucia_data, only: NGRP,NSTTP
 
 *
       IMPLICIT None
@@ -22,7 +23,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "csm.fh"
-#include "gasstr.fh"
 #include "stinf.fh"
       Integer IGRP,ITP
 *
