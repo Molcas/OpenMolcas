@@ -33,6 +33,7 @@
       use lucia_data, only: IREFSM,PSSIGN,IDC
       use lucia_data, only: I_ELIMINATE_GAS,MXNSTR,IBSPGPFTP,MNHL,
      &                      NELFSPGP,NELFTP,NHLFSPGP,NSTFSMSPGP
+      use lucia_data, only: IH1FORM,IH2FORM
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -47,7 +48,6 @@
 #include "stinf.fh"
 #include "oper.fh"
 #include "lucinp.fh"
-#include "intform.fh"
 
 
 #include "io_util.fh"
