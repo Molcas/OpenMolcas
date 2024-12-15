@@ -37,6 +37,7 @@
       use lucia_data, only: I_ELIMINATE_GAS,N_ELIMINATED_GAS,
      &                      N_2ELIMINATED_GAS,I2ELIMINATED_IN_GAS,
      &                      IELIMINATED_IN_GAS
+      use lucia_data, only: irat
 *
       implicit none
 C Input from RASSCF
@@ -45,7 +46,6 @@ C Input from RASSCF
 *
 
 #include "mxpdim.fh"
-#include "irat.fh"
 #include "lucinp.fh"
 #include "oper.fh"
 #include "orbinp.fh"
