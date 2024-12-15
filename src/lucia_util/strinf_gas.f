@@ -20,6 +20,11 @@
 * G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
       use distsym, only: INGRP_VAL,ISMDFGP,ISMSCR,NACTSYM
       use lucia_data, only: MS2
+      use lucia_data, only: NGRP,NTSPGP,MXNSTR,MXSMCLS,MXSMCLSE,
+     &                      MXSMCLSE1,MAX_STR_OC_BLK,MAX_STR_SPGP,
+     &                      MINMAX_SM_GP,IBSPGPFTP,IGSFGP,ISPGPFTP,
+     &                      ISTFSMGP,NELFGP,NELFSPGP,NELFTP,NHLFSPGP,
+     &                      NSPGPFTP,NSTFGP,NSTFSMGP,NSTFSMSPGP
 *
 * Obtain string information for GAS expansion
 *
@@ -41,7 +46,6 @@
 *     (and /LUCINP/ not occuring here )
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "gasstr.fh"
 #include "csm.fh"
 #include "lucinp.fh"
 #include "stinf.fh"
