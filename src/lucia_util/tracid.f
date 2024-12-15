@@ -26,14 +26,14 @@
 *
 * each transformation is
       use Constants, only: Half, One
+      use lucia_data, only: IH1FORM
+      use lucia_data, only: IDISK
       IMPLICIT NONE
       INTEGER LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3
 #include "mxpdim.fh"
 #include "oper.fh"
-#include "intform.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
-#include "io_util.fh"
       REAL*8 INPRDD
 *. Input
       REAL*8 T(*)
