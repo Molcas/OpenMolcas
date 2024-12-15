@@ -20,10 +20,15 @@ C      AND STORE ON LU3
 C
 C LBLK DEFINES STRUCTURE OF FILE
 C
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
-      DIMENSION VEC1(*),VEC2(*)
-      DIMENSION IDUMMY(1)
+      use Constants, only: Zero
+      use lucia_data, only: IDISK
+      IMPLICIT None
+      REAL*8 VEC1(*),VEC2(*)
+      REAL*8 FAC1,FAC2
+      INTEGER LU1,LU2,LU3,IREW,LBLK
+
+      INTEGER IDUMMY(1)
+      INTEGER NBL1,NBL2,KBLK,NO_ZEROING,IMZERO1,IMZERO2,IAMPACK
 C
       IF(IREW .NE. 0 ) THEN
         IDISK(LU1)=0
@@ -82,7 +87,6 @@ C
             CALL ZERORC(NBL1,LU3,IAMPACK)
           ELSE
 *. Nonvanishing record
-            ZERO = 0.0D0
             IF(IMZERO1.EQ.1) THEN
               CALL VECSUM(    VEC1,    VEC1,    VEC2,    ZERO,    FAC2,
      &                        NBL1)
@@ -102,5 +106,4 @@ C
 C
       IF(NBL1.GE. 0 .AND. LBLK .LE. 0) GOTO 1000
 C
-      RETURN
-      END
+      END SUBROUTINE VECSMDP
