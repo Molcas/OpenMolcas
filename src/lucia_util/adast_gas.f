@@ -62,7 +62,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "lucinp.fh"
       INTEGER IOBSM,IOBTP,NIGRP,ISPGPSM,NKSTR,IEND,IFRST,KFRST,KACT,IAC
       REAL*8 SCLFAC
 *. Input
