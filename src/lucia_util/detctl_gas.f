@@ -24,11 +24,13 @@
       use lucia_data, only: IPRCIX
       use lucia_data, only: NOCSF,IADVICE,ISIMSYM,LCSBLK,MXINKA
       use lucia_data, only: IREFSM,PSSIGN,PSSIGN,MULTS,IDC
+      use lucia_data, only: MXNSTR,MAX_STR_OC_BLK,MAX_STR_SPGP,
+     &                      IBSPGPFTP,MNHL,NELFSPGP,NELFTP,NHLFSPGP,
+     &                      NSTFSMSPGP
 
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "gasstr.fh"
 #include "orbinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
@@ -255,7 +257,6 @@ c      END IF
       use lucia_data, only: IREFSM
       Implicit None
 #include "mxpdim.fh"
-#include "gasstr.fh"
 #include "orbinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
