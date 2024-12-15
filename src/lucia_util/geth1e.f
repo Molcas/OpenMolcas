@@ -20,7 +20,6 @@
       IMPLICIT None
       Integer IORB,ITP,ISM,JORB,JTP,JSM
 #include "mxpdim.fh"
-#include "lucinp.fh"
 #include "orbinp.fh"
 #include "multd2h.fh"
 #include "oper.fh"
