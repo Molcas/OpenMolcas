@@ -19,6 +19,7 @@
      &                      NCONF_TOT,NPDTCNF
       use lucia_data, only: NGAS,NMXOCCLS
       use lucia_data, only: IPRDIA
+      use lucia_data, only: PSSIGN
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -34,7 +35,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
