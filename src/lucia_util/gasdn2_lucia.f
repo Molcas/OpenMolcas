@@ -89,8 +89,13 @@
 * either fetches/disposes symmetry blocks or
 * Symmetry-occupation-occupation blocks
 *
+      use lucia_data, only: IDISK
       IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
+      Integer I12,NACOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,
+     &        NOCTPB,NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,MAXK,MAXI,LC,LS,
+     &        NGAS,IDC,MXPOBS,IPRNT,LUL,LUR,NBATCHL,NBATCHR,IUSE_PH,
+     &        IDOSRHO1
+      Real*8  PSL,PSR,S2_TERM1
 *.General input
       INTEGER ICOCOC(NOCTPA,NOCTPB),ISOCOC(NOCTPA,NOCTPB)
       INTEGER ICSMOS(NSMST),ISSMOS(NSMST)
@@ -460,7 +465,6 @@ C             write(6,*) ' Loop 9999 ILPERM = ', ILPERM
 10001 CONTINUE
 *.    ^ End of loop over batches of L blocks
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer_array(ISSOA)
@@ -474,4 +478,4 @@ c Avoid unused argument warnings
         CALL Unused_integer_array(LEBATL)
         CALL Unused_integer_array(LEBATR)
       END IF
-      END
+      END SUBROUTINE GASDN2_LUCIA
