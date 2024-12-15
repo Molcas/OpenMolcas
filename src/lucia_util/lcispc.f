@@ -25,6 +25,7 @@
       use lucia_data, only: NCMBSPC,IGSOCCX,NGAS
       use lucia_data, only: NICISP,MXSB,MXSOOB,MXSOOB_AS,MXNTTS,ISMOST,
      &                      LCOLIC,NBLKIC,XISPSM
+      use lucia_data, only: IDC
       IMPLICIT NONE
       INTEGER IPRNT
 *
@@ -34,7 +35,6 @@
 *
 #include "mxpdim.fh"
 #include "lucinp.fh"
-#include "cstate.fh"
 #include "strinp.fh"
 #include "csm.fh"
 #include "stinf.fh"
