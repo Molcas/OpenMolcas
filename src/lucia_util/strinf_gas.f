@@ -19,6 +19,7 @@
 * modification Jeppe + Giovanni + Dongxia.
 * G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
       use distsym, only: INGRP_VAL,ISMDFGP,ISMSCR,NACTSYM
+      use lucia_data, only: MS2
 *
 * Obtain string information for GAS expansion
 *
@@ -42,7 +43,6 @@
 #include "orbinp.fh"
 #include "gasstr.fh"
 #include "csm.fh"
-#include "cstate.fh"
 #include "lucinp.fh"
 #include "stinf.fh"
 #include "strinp.fh"
