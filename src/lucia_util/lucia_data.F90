@@ -12,14 +12,13 @@ Module Lucia_Data
 Implicit None
 #include "mxpdim.fh"
 Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXPPTSPC,MXPTSOB
-!#include "Molcas.fh"
+#include "Molcas.fh"
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
-#include "cstate.fh"
 ! Stuff fron cstate.fh
-!INTEGER IREFSM,IREFML,IREFPA,IREFL,MS2,MULTS,NROOT,IROOT(mxroot),IDC,INTSEL
-!REAL*8        PSSIGN,PLSIGN
+INTEGER IREFSM,IREFML,IREFPA,IREFL,MS2,MULTS,NROOT,IROOT(mxroot),IDC,INTSEL
+REAL*8        PSSIGN,PLSIGN
 
 ! Stuff fron crun.fh
 CHARACTER(LEN=6) PROPER(20),ENVIRO,CCFORM
