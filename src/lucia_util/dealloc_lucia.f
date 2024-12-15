@@ -15,6 +15,7 @@
      &                  CI_VEC, SIGMA_VEC
       use lucia_data, only: MXSOOB,XISPSM
       use lucia_data, only: LCSBLK
+      use lucia_data, only: IREFSM,PSSIGN
 * Deallocate memory allocated during alloc_lucia
 
 *. Input
@@ -22,10 +23,8 @@
 #include "mxpdim.fh"
 #include "lucinp.fh"
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "csm.fh"
 #include "csmprd.fh"
-*.Output
 
       Integer ISM,LBLOCK
 
