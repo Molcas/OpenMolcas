@@ -15,6 +15,7 @@
      &                  KINH1_NOCCSYM
       use lucia_data, only: ECORE_HEX,ECORE_ORIG,ECORE
       use lucia_data, only: NOINT
+      use lucia_data, only: NSMOB
 *
 * Interface to external integrals
 *
@@ -25,7 +26,6 @@
 *
       IMPLICIT None
 #include "mxpdim.fh"
-#include "lucinp.fh"
 #include "csm.fh"
 #include "orbinp.fh"
 #include "oper.fh"
