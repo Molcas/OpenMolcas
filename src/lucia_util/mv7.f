@@ -37,7 +37,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "lucinp.fh"
 #include "oper.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
