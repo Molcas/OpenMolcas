@@ -14,6 +14,7 @@
      &                  LSM1, LSM2, RHO1, SRHO1, KINH1_NOCCSYM, KINH1
       use Constants, only: Zero
       use lucia_data, only: NBINT1,NBINT2
+      use lucia_data, only: NSMOB
 *
 * Dimensions and
 * Allocation of static memory
@@ -44,7 +45,6 @@
 *. Input
       IMPLICIT None
 #include "mxpdim.fh"
-#include "lucinp.fh"
 #include "orbinp.fh"
 #include "csm.fh"
 #include "csmprd.fh"
