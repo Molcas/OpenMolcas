@@ -13,6 +13,7 @@
      &                      LUHC,LUSC1,LUSC2,LUSC3,LUSC34,LUSC35,LUSC36,
      &                      LUSC37,LUSC38,LUSC39,LUSC40,LUSC51,LUSC52,
      &                      LUSC53,LUCIVO,LUMOUT
+      use lucia_data, only: IDISK
       IMPLICIT NONE
 *
 * Assign logical unit numbers for LUCIA:
@@ -22,7 +23,6 @@
 * Scratch files                                 :  40 - 59
 * Internal files (retained through job)         :  60 - 69
 *
-#include "io_util.fh"
       Integer, External:: IsFreeUnit
 * =========================
 * Standard input and output
@@ -133,6 +133,6 @@ c      LU_CCAMP = 92
 c      LU_CC_FROM_CI = 93
 *. Excitation operators, all symmetries
 c      LU_CCEXC_OP = 94
-      IDISK=0
+      IDISK(:)=0
 
       END SUBROUTINE DISKUN2
