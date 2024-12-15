@@ -88,7 +88,9 @@
 *                                                 * <Iblk!H!Jblk>C(Jblk)
 
 
-      IMPLICIT REAL*8(A-H,O-Z)
+      use Constants, only: Zero
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
       INTEGER NSBLOCK,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &        NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,MAXK,MAXI,LC,NGAS,
      &        IDC,IDOH2,MXPOBS,IPRNT,LUC,ICJKAIB,MXSXST,MXSXBL,MOCAA,
@@ -124,7 +126,6 @@
       INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
       REAL*8 SCLFAC(*)
 #include "bk_approx.fh"
-#include "io_util.fh"
 *
 
       REAL*8 C(1)
@@ -133,8 +134,14 @@
       INTEGER :: IH_OCC_CONS=0
 * IH_OCC_CONS =1 implies that we should employ occupation conserving
 * part of Hamiltonian
+      INTEGER JSBLOCK,IATP,IBTP,IASM,IBSM,IOFF,NASTR,NBSTR,MXEXC,
+     &        JCBAT_INI,JCBAT_END,NCBATCH,JOFF,JCBATCH,ICOFF,NJBLOCK,
+     &        JJCBLOCK,JBLOCK,INTERACT,JATP,JBTP,JASM,JBSM,IPERM,NPERM,
+     &        LLASM,LLBSM,LLATP,LLBTP,ISCALE,LBL,ICBLK,NJA,NJB,NLLA,
+     &        NLLB,ISBLK,ISOFF,NIA,NIB,I_DO_EXACT_BLK,IPTSPC,JPTSPC
+      REAL*8 PL,XFAC,FACTOR
 
-      Call unused_integer(mxsxbl)
+      If (.false.) Call unused_integer(mxsxbl)
 *.
 #ifdef _DEBUGPRINT_
       NTEST = 000
@@ -193,7 +200,6 @@
          IOFF = ISBLOCK(5,JSBLOCK)
          NASTR = NSSOA(IASM,IATP)
          NBSTR = NSSOB(IBSM,IBTP)
-         ZERO = 0.0D0
          IF(ISBLOCK(1,JSBLOCK).GT.0)
      &        CALL SETVEC(SB(IOFF),ZERO,NASTR*NBSTR)
       END DO
@@ -498,7 +504,6 @@ C               IF(IPERTOP.NE.0) THEN
       END IF
 #endif
 *
-      RETURN
 * Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer_array(IH0INSPC)
-      END
+      END SUBROUTINE SBLOCKS
