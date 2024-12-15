@@ -36,17 +36,19 @@
 *            orbital space where there is more than one symmetry
 *            is left out
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use symmetry_info, only: MULTD2H => Mul
+      IMPLICIT None
+      INTEGER NGAS,NSMST,IGRP,MXNSTR,NSMCLS,NSMCLSE,NSMCLSE1
 *. Input
-      DIMENSION ISPGRP(NGAS),NSTSGP(NSMST,*)
+      INTEGER ISPGRP(NGAS),NSTSGP(NSMST,*)
 *. Input and Output (column IGRP updated)
-      DIMENSION NSTSSPGP(NSMST,IGRP)
+      INTEGER NSTSSPGP(NSMST,IGRP)
 #include "mxpdim.fh"
-#include "multd2h.fh"
 *. Scratch
       INTEGER ISM,MNSM(MXPNGAS),MXSM(MXPNGAS)
       INTEGER MSM1(MXPNSMST),MSM2(MXPNSMST)
       INTEGER ISM1(MXPNSMST),ISM2(MXPNSMST)
+      INTEGER NTEST,ISYM,IGAS,NGASL,IZERO,ISM_IGASM1,ISM_IGAS,ISTRSM
 *
       NTEST = 0
       IF(NTEST.GE.10) THEN
@@ -136,5 +138,4 @@
         WRITE(6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',
      &                       NSMCLS,NSMCLSE,NSMCLSE1
       END IF
-      RETURN
-      END
+      END SUBROUTINE NSTPTP_GAS
