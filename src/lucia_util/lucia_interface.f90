@@ -51,10 +51,6 @@ Contains
 !
 #include "mxpdim.fh"
 #include "csm.fh"
-#include "cstate.fh"
-
-
-
 #include "gasstr.fh"
 #include "intform.fh"
 #include "irat.fh"
@@ -133,6 +129,7 @@ Contains
       use lucia_data, only: MXSOOB,MXNTTS,XISPSM
       use lucia_data, only: LUC,LUSC1,LUHC,LUSC34
       use lucia_data, only: LCSBLK
+      use lucia_data, only: IREFSM,PSSIGN
 !
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
@@ -141,7 +138,6 @@ Contains
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
-#include "cstate.fh"
 #include "io_util.fh"
       Integer nCIVec
       Real*8 CIVec(nCIVEC)
@@ -281,13 +277,13 @@ Contains
       use lucia_data, only: ECORE,ECORE_ORIG
       use lucia_data, only: MXNTTS
       use lucia_data, only: LUC,LUSC34
+      use lucia_data, only: IREFSM
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
 ! from Molcas Rasscf.
 !
       implicit None
 #include "mxpdim.fh"
-#include "cstate.fh"
 #include "orbinp.fh"
       Integer nCIVEC
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
@@ -345,9 +341,9 @@ Contains
       use lucia_data, only: ECORE,ECORE_ORIG
       use lucia_data, only: MXNTTS
       use lucia_data, only: LUC,LUSC34
+      use lucia_data, only: IREFSM
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "cstate.fh"
 #include "orbinp.fh"
       Integer nCIVEC,IREFSM_CASVB
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
