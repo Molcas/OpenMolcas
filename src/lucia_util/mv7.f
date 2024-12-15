@@ -15,6 +15,7 @@
       use CandS, only: ISSPC, ISSM
       use lucia_data, only: MXNTTS,MXSOOB,ISMOST,XISPSM
       use lucia_data, only: ICISTR,ENVIRO,ISIMSYM,LCSBLK
+      use lucia_data, only: IDC,IREFSM,PSSIGN
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
@@ -32,7 +33,6 @@
 *
 *./ORBINP/ : NACOB used
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
