@@ -23,6 +23,7 @@
 *
 * Driven by table of TTS blocks, May97
 *
+      use lucia_data, only: IDISK
       IMPLICIT NONE
 * =====
 *.Input
@@ -35,7 +36,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "io_util.fh"
 *
       INTEGER LUDIA,ICISTR,I12,NBLOCK
       REAL*8 ECORE
