@@ -26,6 +26,7 @@
       use lucia_data, only: MXNSTR,IBSPGPFTP,MAX_STR_OC_BLK,
      &                      MAX_STR_SPGP,MNHL,NELFSPGP,NHLFSPGP,
      &                      NSTFSMSPGP
+      use lucia_data, only: NSMOB
 *
 * Density matrices between L and R
 *
@@ -70,9 +71,7 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-*
 #include "csmprd.fh"
-#include "lucinp.fh"
 *. Specific input
       INTEGER I12,LUL,LUR,IDOSRHO1
       LOGICAL IPACK
