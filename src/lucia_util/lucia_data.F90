@@ -16,17 +16,16 @@ Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXP
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
-#include "lucinp.fh"
 ! Stuff from lucinp.fh
-!Integer       PNTGRP,NIRREP,NSMCMP,MAXML,MAXL,                    &
-!              INTSPC,EXTSPC,NRSSH(MXPIRR,3),                      &
-!              MNRS1R,MXRS3R,NACTEL,                               &
-!              NSMOB,NRS0SH(1,MXPIRR),NRS4SH(MXPIRR,MXPR4T),       &
-!              MXR4TP, MXHR0,MXER4,                                &
-!              NINASH(MXPIRR),                                     &
-!              NDELSH(MXPIRR),MNRS10,MXRS30,                       &
-!              MNRS1RE,MXRS3RE,                                    &
-!              MNRS1ZE,MXRS3ZE
+Integer       PNTGRP,NIRREP,NSMCMP,MAXML,MAXL,                    &
+              INTSPC,EXTSPC,NRSSH(MXPIRR,3),                      &
+              MNRS1R,MXRS3R,NACTEL,                               &
+              NSMOB,NRS0SH(1,MXPIRR),NRS4SH(MXPIRR,MXPR4T),       &
+              MXR4TP, MXHR0,MXER4,                                &
+              NINASH(MXPIRR),                                     &
+              NDELSH(MXPIRR),MNRS10,MXRS30,                       &
+              MNRS1RE,MXRS3RE,                                    &
+              MNRS1ZE,MXRS3ZE
 
 ! Stuff from loff.fh
 INTEGER NELIS(4), NSTRKS(4)
