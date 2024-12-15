@@ -27,6 +27,9 @@
      &                      NCONF_TOT,NCSF_PER_SYM,NSD_PER_SYM
       use lucia_data, only: NGAS
       use lucia_data, only: PSSIGN,MULTS,MS2
+      use lucia_data, only: N_ELIMINATED_GAS,N_2ELIMINATED_GAS,
+     &                      I_ELIMINATE_GAS,I2ELIMINATED_IN_GAS,
+     &                      IELIMINATED_IN_GAS
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -47,7 +50,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "warnings.h"
-#include "gasstr.fh"
 * Input type of occupation classes
       INTEGER NOCCLS,ISYM,IPRCSF
       INTEGER IOCCLS(NGAS,*)
