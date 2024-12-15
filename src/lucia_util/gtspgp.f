@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE GTSPGP(IEL,ISPGP,IWAY)
       use lucia_data, only: NGAS
+      use lucia_data, only: NTSPGP,NELFSPGP
 *
 *
 * Relation between number of electrons in AS1, AS2 ... and
@@ -32,7 +33,6 @@
 *. Generel input
 #include "mxpdim.fh"
 #include "stinf.fh"
-#include "gasstr.fh"
 *. input(IWAY = 2 ), output (IWAY = 1 )
       INTEGER IEL(*)
 
