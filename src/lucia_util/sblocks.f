@@ -89,6 +89,12 @@
 
 
       IMPLICIT REAL*8(A-H,O-Z)
+      INTEGER NSBLOCK,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+     &        NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,MAXK,MAXI,LC,NGAS,
+     &        IDC,IDOH2,MXPOBS,IPRNT,LUC,ICJKAIB,MXSXST,MXSXBL,MOCAA,
+     &        IRESTRICT,IPERTOP,ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,
+     &        I_RES_AB,ISIMSYM
+      REAL*8 PS
 *. Specific input
       INTEGER ISBLOCK(8,*)
 *.General input
@@ -103,26 +109,28 @@
       INTEGER NELFSPGP(MXPNGAS,*)
       INTEGER ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
 *.Scratch
-      DIMENSION SB(*),CB(*),C2(*)
-      DIMENSION XINT(*),XINT2(*),CSCR(*),SSCR(*)
-      DIMENSION I1(*),I2(*),I3(*),I4(*),XI1S(*),XI2S(*),XI3S(*),XI4S(*)
-      INTEGER   LCBLOCK(*),I1CBLOCK(*),ICBLOCK(8,*),LECBLOCK(*)
-      DIMENSION ISTRFL(*)
+      REAL*8 SB(*),CB(*),C2(*)
+      REAL*8 XINT(*),XINT2(*),CSCR(*),SSCR(*)
+      INTEGER I1(*),I2(*),I3(*),I4(*)
+      REAL*8 XI1S(*),XI2S(*),XI3S(*),XI4S(*)
+      INTEGER LCBLOCK(*),I1CBLOCK(*),ICBLOCK(8,*),LECBLOCK(*)
+      INTEGER ISTRFL(*)
 *. Zero order Hamiltonian
       INTEGER IH0SPC(NOCTPA,NOCTPB)
       INTEGER IH0INSPC(*)
 *
-      DIMENSION CJRES(*),SIRES(*)
+      REAL*8 CJRES(*),SIRES(*)
 *
-      DIMENSION LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
-      DIMENSION SCLFAC(*)
+      INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
+      REAL*8 SCLFAC(*)
 #include "bk_approx.fh"
 #include "io_util.fh"
 *
 
-      DIMENSION C(1),ICOOSC(1),IPHGAS(*),iDUMMY(1)
+      REAL*8 C(1)
+      INTEGER ICOOSC(1),IPHGAS(*),iDUMMY(1)
       INTEGER DXSTST(1)
-      DATA IH_OCC_CONS/0/
+      INTEGER :: IH_OCC_CONS=0
 * IH_OCC_CONS =1 implies that we should employ occupation conserving
 * part of Hamiltonian
 
