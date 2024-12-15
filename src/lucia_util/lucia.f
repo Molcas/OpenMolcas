@@ -14,12 +14,12 @@
       use lucia_data, only: MXSOOB,XISPSM
       use lucia_data, only: IPRCIX,IPRORB,IPRSTR
       use lucia_data, only: NOINT,LCSBLK
+      use lucia_data, only: IREFSM,PSSIGN
 *
       IMPLICIT NONE
 *. Parameters for dimensioning
 #include "mxpdim.fh"
 #include "lucinp.fh"
-#include "cstate.fh"
 #include "oper.fh"
 #include "warnings.h"
 *.Scratch : A character line
