@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       INTEGER FUNCTION IFRMR(iArray,IROFF,IELMNT)
+      use lucia_data, only: irat
       IMPLICIT NONE
 *
 * An integer array is stored in real array iArray,
@@ -19,7 +20,6 @@
 
       INTEGER IIOFF
 *
-#include "irat.fh"
 *. offset when iArray is integer array
       IIOFF = 1 + IRAT * (IROFF-1)
       IFRMR = iArray(IIOFF-1+IELMNT)

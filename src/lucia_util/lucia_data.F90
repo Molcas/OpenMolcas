@@ -16,6 +16,10 @@ Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXP
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
+#include "irat.fh"
+! Stuff fron irat.fh
+!INTEGER      IRAT
+
 ! Stuff fron io_util.fh
 INTEGER IDISK(100)
 
