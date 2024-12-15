@@ -25,6 +25,7 @@
       use lucia_data, only: IPRCIX,IPRDIA
       use lucia_data, only: IADVICE,ICJKAIB,IH0INSPC,IH0SPC,IOCPTSPC,
      &                      ISIMSYM,IUSE_PH,LCSBLK,MOCAA,MXINKA,NPTSPC
+      use lucia_data, only: IDC,PSSIGN
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -57,7 +58,6 @@
 *
 *./ORBINP/ : NACOB used
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
