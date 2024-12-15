@@ -20,6 +20,7 @@
       use lucia_data, only: NGAS,NMXOCCLS
       use lucia_data, only: IPRDIA
       use lucia_data, only: PSSIGN
+      use lucia_data, only: MXNSTR,IBSPGPFTP,NELFSPGP
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -38,7 +39,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "gasstr.fh"
 *
       INTEGER NBLOCK,ISYM
       INTEGER IBLOCK(8,NBLOCK)
