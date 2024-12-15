@@ -15,7 +15,6 @@
      &                             XB,             RJ,     RK,  NSSOA,
      &                          NSSOB,  ECORE,   LUIN,  LUOUT,  IPRNT,
      &                          NTOOB,  RJKAA,    I12, IBLOCK, NBLOCK,
-*
      &                          ITASK, FACTOR,  I0CHK,  I0BLK)
 *
 * Terms from diagonal to specific blocks
@@ -34,23 +33,30 @@
 * I12 = 1 => only one-body part
 *     = 2 =>      one+two-body part
 *
-      IMPLICIT REAL*8           (A-H,O-Z)
-#include "io_util.fh"
+      use lucia_data, only: IDISK
+      IMPLICIT None
+      INTEGER NAEL,NBEL,NORB,NSMST,IDC,LUIN,LUOUT,IPRNT,NTOOB,I12,
+     &        NBLOCK,ITASK,  I0CHK
+      REAL*8 ECORE, FACTOR
 *.General input
-      DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)
-      DIMENSION H(NORB)
-      DIMENSION IBLOCK(8,*)
+      INTEGER NSSOA(NSMST,*), NSSOB(NSMST,*)
+      REAL*8 H(NORB)
+      INTEGER IBLOCK(8,*)
 *.
       INTEGER I0BLK(*)
 *. Scratch
-      DIMENSION RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
-      DIMENSION XB(NORB)
-      DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
-      DIMENSION RJKAA(*)
+      REAL*8 RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
+      REAL*8 XB(NORB)
+      INTEGER IASTR(NAEL,*),IBSTR(NBEL,*)
+      REAL*8 RJKAA(*)
 *. Output
-      DIMENSION VEC (*)
+      REAL*8 VEC (*)
 
       INTEGER IDUM_ARR(1)
+      INTEGER NTEST,ITDET,IDET,JBLOCK,IATP,IBTP,IASM,IBSM,IOFF,IPACK,
+     &        NAST,NIA,IA,IEL,IAEL,JEL,NIB,IMZERO,LDET,IB,IBEL,IORB,
+     &        IASTRT,IASTOP,IAMPACK,NASTR1,NBSTR1
+      REAL*8 EAA,HB,RJBB,EB,X
 *
       NTEST =  00
       NTEST = MAX(NTEST,IPRNT)
@@ -247,5 +253,4 @@ C?   &    LDET
 *
 C?    WRITE(6,*) ' Mission DIATERMS finished '
 *
-      RETURN
-      END
+      END SUBROUTINE DIATERMS_GAS
