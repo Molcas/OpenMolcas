@@ -26,6 +26,9 @@
       use lucia_data, only: IADVICE,ICJKAIB,IH0INSPC,IH0SPC,IOCPTSPC,
      &                      ISIMSYM,IUSE_PH,LCSBLK,MOCAA,MXINKA,NPTSPC
       use lucia_data, only: IDC,PSSIGN
+      use lucia_data, only: MXNSTR,IBSPGPFTP,ISPGPFTP,MAX_STR_OC_BLK,
+     &                      MAX_STR_SPGP,MNHL,NELFGP,NELFSPGP,NHLFSPGP,
+     &                      NSTFSMSPGP
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -61,7 +64,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "gasstr.fh"
 #include "lucinp.fh"
 #include "oper.fh"
 #include "io_util.fh"
