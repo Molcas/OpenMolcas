@@ -27,11 +27,11 @@
      &                      NGPSTR, MXGSOC,MNGSOC,IBGPSTR,IGSFGP,
      &                      ISPGPFTP,MNELFGP,MNGSOC,MXELFGP,MXGSOC,
      &                      NELFGP,NELFSPGP,NSTFGP
+      use lucia_data, only: NACTEL
       IMPLICIT NONE
       INTEGER IPRNT
 *
 #include "mxpdim.fh"
-#include "lucinp.fh"
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
