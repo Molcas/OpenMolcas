@@ -27,6 +27,7 @@
       use lucia_data, only: MXNSTR,MAX_STR_OC_BLK,MAX_STR_SPGP,
      &                      IBSPGPFTP,MNHL,NELFSPGP,NELFTP,NHLFSPGP,
      &                      NSTFSMSPGP
+      use lucia_data, only: NSMOB
 
 *
       IMPLICIT NONE
@@ -35,7 +36,6 @@
 #include "stinf.fh"
 #include "csm.fh"
 #include "strinp.fh"
-#include "lucinp.fh"
 
       INTEGER IOCCLS(1),IBASSPC(1)
       Integer, Allocatable:: LCIOIO(:)
@@ -261,7 +261,6 @@ c      END IF
 #include "stinf.fh"
 #include "csm.fh"
 #include "strinp.fh"
-#include "lucinp.fh"
 
       Integer JSYM
 
