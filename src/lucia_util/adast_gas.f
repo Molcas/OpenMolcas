@@ -17,6 +17,7 @@
       use strbas, only: NSTSGP,ISTSGP,STSTM
       use distsym, only: ISMDFGP,ISMSCR,NACTSYM
       use stdalloc, only: mma_allocate, mma_deallocate
+      use lucia_data, only: IBGPSTR,IGSFGP,NELFGP,NGPSTR,NGRP,NSTFGP
 *
 *
 * Obtain creation or annihilation mapping
@@ -59,7 +60,6 @@
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "gasstr.fh"
 #include "csm.fh"
 #include "lucinp.fh"
 #include "loff.fh"
