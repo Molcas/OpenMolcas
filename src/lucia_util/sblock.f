@@ -30,6 +30,7 @@
      &                      MAX_STR_SPGP,MNHL,NELFGP,NELFSPGP,NHLFSPGP,
      &                      NSTFSMSPGP
       use lucia_data, only: IDISK
+      use lucia_data, only: NSMOB
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -65,7 +66,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "lucinp.fh"
 #include "oper.fh"
 #include "csmprd.fh"
       REAL*8 CB(*),HCB(*)
