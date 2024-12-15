@@ -32,10 +32,12 @@
      &                      IH0EXSPC,IH0INSPC,IOCPTSPC,ISEQCI,IXYZSYM,
      &                      MAXORD_OP,NPSSH,PROPER,RESP_OP,RESP_W,
      &                      AVE_OP,NSEQCI,CSEQCI
+      use lucia_data, only: MS2,MULTS,IREFSM,NROOT,PSSIGN,INTSEL,
+     &                      PLSIGN,IDC,IROOT
 *
       implicit none
 C Input from RASSCF
-#include "cstate.fh"
+#include "Molcas.fh"
 #include "lucia_ini.fh"
 *
 
