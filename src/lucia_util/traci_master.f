@@ -18,12 +18,12 @@
       use lucia_data, only: MXNTTS,MXSOOB,XISPSM
       use lucia_data, only: LUC,LUDIA,LUSC1,LUHC,LUSC2
       use lucia_data, only: IREFSM,PSSIGN,NROOT
+      use lucia_data, only: IDISK
       IMPLICIT None
       INTEGER JOBDISK,JOBIPH
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
-#include "io_util.fh"
 *
       Real*8  CMOMO(*)
       INTEGER LREC(MXNTTS)
