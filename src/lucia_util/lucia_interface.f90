@@ -128,6 +128,7 @@ Contains
       use lucia_data, only: LUC,LUSC1,LUHC,LUSC34
       use lucia_data, only: LCSBLK
       use lucia_data, only: IREFSM,PSSIGN
+      use lucia_data, only: IDISK
 !
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
@@ -136,7 +137,6 @@ Contains
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
-#include "io_util.fh"
       Integer nCIVec
       Real*8 CIVec(nCIVEC)
       Real*8, Optional:: RVec(:)
@@ -402,13 +402,13 @@ Contains
 ! IWAY = 1: from Molcas to Lucia (from core to disk unit ifile).
 ! IWAY = 2: from Lucia to Molcas (from disk unit ifile to core).
 !
+      use lucia_data, only: IDISK
       implicit None
       integer nCIVEC, ifile, mxrec, isym, iway
       integer lrec(mxrec)
       real*8 CIVec(nCIVec)
 #include "rasdim.fh"
 #include "general.fh"
-#include "io_util.fh"
       Integer nRec
 #ifdef _DEBUGPRINT_
       Integer iOff, iRec
@@ -453,12 +453,12 @@ Contains
 !
 ! Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
 !
+      use lucia_data, only: IDISK
       implicit real*8 (a-h,o-z)
       integer lrec(mxrec)
       real*8 vec(mxrec)
 #include "rasdim.fh"
 #include "general.fh"
-#include "io_util.fh"
 !
 !   ========================
 !      Find nrec and lrec
