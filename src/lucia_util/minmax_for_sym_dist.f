@@ -19,10 +19,10 @@
 *              April 1998     From  MINMAX_SM_GP
 *
 *
+      use lucia_data, only: MINMAX_SM_GP
       IMPLICIT NONE
 *. Include blocks
 #include "mxpdim.fh"
-#include "gasstr.fh"
 #include "csm.fh"
 *. Input
       INTEGER NIGRP,NDIST
