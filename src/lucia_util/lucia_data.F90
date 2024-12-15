@@ -16,22 +16,34 @@ Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXP
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
-! Stuff fron loff.fh
+#include "lucinp.fh"
+! Stuff from lucinp.fh
+!Integer       PNTGRP,NIRREP,NSMCMP,MAXML,MAXL,                    &
+!              INTSPC,EXTSPC,NRSSH(MXPIRR,3),                      &
+!              MNRS1R,MXRS3R,NACTEL,                               &
+!              NSMOB,NRS0SH(1,MXPIRR),NRS4SH(MXPIRR,MXPR4T),       &
+!              MXR4TP, MXHR0,MXER4,                                &
+!              NINASH(MXPIRR),                                     &
+!              NDELSH(MXPIRR),MNRS10,MXRS30,                       &
+!              MNRS1RE,MXRS3RE,                                    &
+!              MNRS1ZE,MXRS3ZE
+
+! Stuff from loff.fh
 INTEGER NELIS(4), NSTRKS(4)
 
-! Stuff fron loff.fh
+! Stuff from loff.fh
 INTEGER, PARAMETER :: LOFFI=8**6 !SJS
 
-! Stuff fron irat.fh
+! Stuff from irat.fh
 INTEGER IRAT
 
-! Stuff fron io_util.fh
+! Stuff from io_util.fh
 INTEGER IDISK(100)
 
-! Stuff fron intform.fh
+! Stuff from intform.fh
 INTEGER IH1FORM,IH2FORM
 
-! Stuff fron gasstr.fh
+! Stuff from gasstr.fh
 INTEGER       MNGSOC(MXPNGAS),MXGSOC(MXPNGAS),NGPSTR(MXPNGAS),    &
               IBGPSTR(MXPNGAS),NELFGP(MXPSTT),IGSFGP(MXPSTT),     &
               NSTFGP(MXPSTT),MNELFGP(MXPNGAS),MXELFGP(MXPNGAS),   &
@@ -47,11 +59,11 @@ INTEGER       MNGSOC(MXPNGAS),MXGSOC(MXPNGAS),NGPSTR(MXPNGAS),    &
               I_ELIMINATE_GAS, I2ELIMINATED_IN_GAS(MXPNGAS),      &
               N_2ELIMINATED_GAS
 
-! Stuff fron cstate.fh
+! Stuff from cstate.fh
 INTEGER IREFSM,IREFML,IREFPA,IREFL,MS2,MULTS,NROOT,IROOT(mxroot),IDC,INTSEL
 REAL*8        PSSIGN,PLSIGN
 
-! Stuff fron crun.fh
+! Stuff from crun.fh
 CHARACTER(LEN=6) PROPER(20),ENVIRO,CCFORM
 CHARACTER(LEN=8) RESP_OP(2,20), CSEQCI(MXPICI,MXPICI), AVE_OP(20),  &
             ITRACI_CR,ITRACI_CN
@@ -80,11 +92,11 @@ INTEGER     MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,         &
             ISIMSYM,                                                &
             INOCALC,ISAVE_EXP,IEXPAND
 
-! Stuff fron cprnt.fh
+! Stuff from cprnt.fh
 Integer      IPRSTR,IPRCIX,IPRORB,IPRDIA,IPRXT,IPROCC,IPRDEN,     &
              IPRRSP,IPRNCIV,IPRPRO,IPRCC
 
-! Stuff fron clunit.fh
+! Stuff from clunit.fh
 INTEGER       LU1INT,LU2INT,LUPRP,                                &
               LUDIA,LUC,LUHC,                                     &
               LUSC1,LUSC2,LUSC3,                                  &
@@ -93,10 +105,10 @@ INTEGER       LU1INT,LU2INT,LUPRP,                                &
               LUCIVO,LUMOIN,LUMOUT,LUEXC,                         &
               LUSC51,LUSC52,LUSC53
 
-! Stuff fron cintfo.fh
+! Stuff from cintfo.fh
 INTEGER       I12S,I34S,I1234S,NINT1,NINT2,NBINT1,NBINT2,NINT2_NO_CCSYM
 
-! Stuff fron cicisp.fh
+! Stuff from cicisp.fh
 Integer       IDUMMY,NICISP,                                      &
               NELCI(MXPICI),                                      &
               ISMOST(MXPCSM,MXPCSM),MXSB,MXSOOB,                  &
@@ -104,7 +116,7 @@ Integer       IDUMMY,NICISP,                                      &
               MXNTTS,MXSOOB_AS
 REAL*8        XISPSM(MXPCSM,MXPICI)
 
-! Stuff fron cgas.fh
+! Stuff from cgas.fh
 INTEGER     IDOGAS,NGAS,NGSSH(MXPIRR,MXPNGAS),                    &
             NGSOB(MXPOBS,MXPNGAS),                                &
             NGSOBT(MXPNGAS),IGSOCC(MXPNGAS,2),IGSINA,IGSDEL,      &
@@ -113,7 +125,7 @@ INTEGER     IDOGAS,NGAS,NGSSH(MXPIRR,MXPNGAS),                    &
             NMXOCCLS,IPHGAS(MXPNGAS),                             &
             IPHGAS1(MXPNGAS)
 
-! Stuff fron cecore.fh
+! Stuff from cecore.fh
 REAL*8        ECORE,ECORE_ORIG,ECORE_HEX
 
 ! Stuff from spinfo_lucia.fh
