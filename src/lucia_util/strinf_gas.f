@@ -50,7 +50,6 @@
 #include "lucinp.fh"
 #include "stinf.fh"
 #include "strinp.fh"
-#include "irat.fh"
 *
       INTEGER ZERO_ARR(1), IDUM(1)
       Integer, Allocatable:: FREEL(:)
