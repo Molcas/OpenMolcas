@@ -31,7 +31,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
