@@ -35,6 +35,7 @@
      &                      NELFSPGP,NELFTP,NHLFSPGP,NSTFSMSPGP
       use lucia_data, only: IH1FORM,IH2FORM
       use lucia_data, only: IDISK
+      use lucia_data, only: NSMOB
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -48,7 +49,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "oper.fh"
-#include "lucinp.fh"
 *
       INTEGER ISM, ISPC,IPRNT,IIUSEH0P,MPORENP_E
       REAL*8 EREF
