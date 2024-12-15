@@ -22,6 +22,7 @@
       use lucia_data, only: IPRDEN,IPRCIX
       use lucia_data, only: ENVIRO,ICISTR,IADVICE,ISIMSYM,IUSE_PH,
      &                      LCSBLK,MXINKA
+      use lucia_data, only: IREFSM,PSSIGN,IDC
 *
 * Density matrices between L and R
 *
@@ -63,7 +64,6 @@
 *
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
