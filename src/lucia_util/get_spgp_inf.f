@@ -17,12 +17,9 @@
 * Jeppe Olsen, November 97
 *
       use lucia_data, only: NGAS
+      use lucia_data, only: IBSPGPFTP,ISPGPFTP
       IMPLICIT NONE
       INTEGER ISPGP,ITP
-*. General input
-#include "mxpdim.fh"
-#include "gasstr.fh"
-*. Output
       integer IGRP(*)
 
       INTEGER NTEST,ISPGPABS
