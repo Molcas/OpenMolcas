@@ -16,6 +16,7 @@
       use strbas, only:NSTSGP,ISTSGP,STSTM
       use Constants, only: Zero
       use lucia_data, only: NGAS
+      use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP,NSTFGP,NSTFSMSPGP
 *
 *
 * Obtain mappings
@@ -46,7 +47,6 @@
 #include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "gasstr.fh"
 #include "csm.fh"
 #include "lucinp.fh"
       Real*8 :: OFFI(*)
