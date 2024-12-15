@@ -41,7 +41,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "lucinp.fh"
-#include "clunit.fh"
 *
       Real*8 X(*),VEC1(*),VEC2(*)
       Real*8, Allocatable:: SCR(:), LT(:)
