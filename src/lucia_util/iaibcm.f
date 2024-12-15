@@ -23,10 +23,10 @@
       use lucia_data, only: ICMBSPC,IGSOCCX,LCMBSPC,NGAS
       use lucia_data, only: IPRDIA
       use lucia_data, only: I_RE_MS2_SPACE,I_RE_MS2_VALUE
+      use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP
       IMPLICIT NONE
       INTEGER ICISPC
 #include "mxpdim.fh"
-#include "gasstr.fh"
 #include "stinf.fh"
 #include "strinp.fh"
 *. Output
