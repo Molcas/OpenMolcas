@@ -11,6 +11,7 @@
       FUNCTION GETH1E(IORB,ITP,ISM,JORB,JTP,JSM)
       use GLBBAS, only: INT1, PINT1, PGINT1, PGINT1A
       use lucia_data, only: IH1FORM
+      use symmetry_info, only: MULTD2H => Mul
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
@@ -21,7 +22,6 @@
       Integer IORB,ITP,ISM,JORB,JTP,JSM
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "multd2h.fh"
 #include "oper.fh"
       INTEGER IJSM
       REAL*8 GETH1E
