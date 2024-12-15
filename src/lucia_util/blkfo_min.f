@@ -19,6 +19,7 @@
       use CandS, only: ISSPC
       use lucia_data, only: ISMOST,MXNTTS,MXSOOB
       use lucia_data, only: ISIMSYM,LCSBLK
+      use lucia_data, only: IDC
 *
 * Number of blocks and length of each block for CI expansion
 *
@@ -38,7 +39,6 @@
       INTEGER ISM,NBLK
 #include "mxpdim.fh"
 #include "stinf.fh"
-#include "cstate.fh"
 #include "csm.fh"
 
 
