@@ -15,16 +15,15 @@
 * orbitals
 *
 *. Dec 97 : obtained from INT1O
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
 #include "mxpdim.fh"
-      DIMENSION H1DIA(*)
+      REAL*8 H1DIA(*)
 
 *.GLobal pointers
 
-#include "lucinp.fh"
 #include "orbinp.fh"
 *
 CINA  CALL GT1DIS(H1DIA,IREOTS(1+NINOB),PINT1,INT1,ISMFTO,IBSO,NACOB)
       CALL GT1DIS(H1DIA,IREOTS(1),PINT1,INT1O,ISMFTO,IBSO,NACOB)
 *
-      END
+      END SUBROUTINE GT1DIA
