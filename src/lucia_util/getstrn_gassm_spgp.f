@@ -14,6 +14,7 @@
      &                              NNSTSGP,IISTSGP)
       use strbas, only: OCSTR
       use lucia_data, only: NGAS
+      use lucia_data, only: NELFGP
 *
 * Obtain all superstrings containing  strings of given sym and type
 *
@@ -37,7 +38,6 @@
       INTEGER NSTR,NEL
 *. General input
 #include "mxpdim.fh"
-#include "gasstr.fh"
 #include "csm.fh"
 *. Specific input
       INTEGER ITPFGS(*), ISMFGS(*)
