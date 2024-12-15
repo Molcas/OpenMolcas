@@ -34,6 +34,9 @@
      &                      AVE_OP,NSEQCI,CSEQCI
       use lucia_data, only: MS2,MULTS,IREFSM,NROOT,PSSIGN,INTSEL,
      &                      PLSIGN,IDC,IROOT
+      use lucia_data, only: I_ELIMINATE_GAS,N_ELIMINATED_GAS,
+     &                      N_2ELIMINATED_GAS,I2ELIMINATED_IN_GAS,
+     &                      IELIMINATED_IN_GAS
 *
       implicit none
 C Input from RASSCF
@@ -46,7 +49,6 @@ C Input from RASSCF
 #include "lucinp.fh"
 #include "oper.fh"
 #include "orbinp.fh"
-#include "gasstr.fh"
 C Other definitions
       Integer, PARAMETER :: MXPKW = 125
       integer isetkw(MXPKW)
