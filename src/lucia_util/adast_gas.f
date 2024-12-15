@@ -18,6 +18,7 @@
       use distsym, only: ISMDFGP,ISMSCR,NACTSYM
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_data, only: IBGPSTR,IGSFGP,NELFGP,NGPSTR,NGRP,NSTFGP
+      use lucia_data, only: LOFFI
 *
 *
 * Obtain creation or annihilation mapping
@@ -62,7 +63,6 @@
 #include "stinf.fh"
 #include "csm.fh"
 #include "lucinp.fh"
-#include "loff.fh"
       INTEGER IOBSM,IOBTP,NIGRP,ISPGPSM,NKSTR,IEND,IFRST,KFRST,KACT,IAC
       REAL*8 SCLFAC
 *. Input
