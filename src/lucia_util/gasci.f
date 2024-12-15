@@ -30,6 +30,7 @@
       use lucia_data, only: IPRCIX
       use lucia_data, only: NOCSF,IDIAG,IRESTR,ICISTR,IADVICE,ISIMSYM,
      &                      LCSBLK,MXINKA
+      use lucia_data, only: IREFSM,PSSIGN,IDC
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -40,7 +41,6 @@
 #include "mxpdim.fh"
 #include "orbinp.fh"
 #include "csm.fh"
-#include "cstate.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "oper.fh"
