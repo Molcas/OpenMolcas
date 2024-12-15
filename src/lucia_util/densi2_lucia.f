@@ -23,6 +23,9 @@
       use lucia_data, only: ENVIRO,ICISTR,IADVICE,ISIMSYM,IUSE_PH,
      &                      LCSBLK,MXINKA
       use lucia_data, only: IREFSM,PSSIGN,IDC
+      use lucia_data, only: MXNSTR,IBSPGPFTP,MAX_STR_OC_BLK,
+     &                      MAX_STR_SPGP,MNHL,NELFSPGP,NHLFSPGP,
+     &                      NSTFSMSPGP
 *
 * Density matrices between L and R
 *
@@ -67,7 +70,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "gasstr.fh"
 *
 #include "csmprd.fh"
 #include "lucinp.fh"
