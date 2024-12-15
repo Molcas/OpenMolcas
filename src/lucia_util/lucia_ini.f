@@ -1551,8 +1551,8 @@ C =============================================
       end SUBROUTINE Lucia_Ini
 
       SUBROUTINE COMBINATIONS(ICOMBI,SIGN)
+      use lucia_data, only: PSSIGN
       IMPLICIT None
-#include "cstate.fh"
 *
       Integer ICOMBI
       REAL*8 SIGN
