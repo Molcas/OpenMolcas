@@ -34,8 +34,10 @@
 *                      order to symmetry and occupation type order.
 *
       IMPLICIT REAL*8           ( A-H,O-Z)
+      INTEGER NEL,NELMN1,NELMX1,NELMN3,NELMX3,IGRP,NOCTYP,NSMST,IOTYP,
+     &        IPRNT
 *. Input
-      DIMENSION ISTASO(NSMST,*)
+      INTEGER ISTASO(NSMST,*)
       INTEGER Z(NACOB,NEL)
 *.Orbinp
 #include "mxpdim.fh"
@@ -44,7 +46,7 @@
 *.Output
       INTEGER STRING(NEL,*),IREORD(*)
 *.Scratch arrays
-      DIMENSION IOC(*),LSTASO(NOCTYP,NSMST)
+      INTEGER IOC(*),LSTASO(NOCTYP,NSMST)
 *
       CALL ISETVC(LSTASO,0,NOCTYP*NSMST)
       NTEST0 = 00
@@ -184,7 +186,6 @@ C                      ISTRNM(IOCC,NACTOB,NEL,Z,NEWORD,IREORD)
         CALL IWRTMA(IREORD,1,NPR,1,NPR)
       END IF
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IOTYP)
-      END
+      END SUBROUTINE GENSTR_GAS
