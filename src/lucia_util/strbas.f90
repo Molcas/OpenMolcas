@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module STRBAS
-      Private
-#include "mxpdim.fh"
-      Type iArray
-         Integer, Allocatable:: I(:)
-      End Type iArray
-      Type (iArray):: OCSTR(MXPSTT), STREO(MXPSTT), STSTM(MXPSTT,2),    &
-     &                NSTSGP(MXPNGAS), ISTSGP(MXPNGAS), NSTSO(MXPSTT),  &
-     &                ISTSO(MXPSTT), Zmat(MXPSTT)
-      Integer, Allocatable:: IOCLS(:), SPGPAN(:), SPGPCR(:)
+use lucia_data, only: MXPSTT,MXPNGAS
+Private
+Type iArray
+   Integer, Allocatable:: I(:)
+End Type iArray
+Type (iArray):: OCSTR(MXPSTT), STREO(MXPSTT), STSTM(MXPSTT,2),    &
+                NSTSGP(MXPNGAS), ISTSGP(MXPNGAS), NSTSO(MXPSTT),  &
+                ISTSO(MXPSTT), Zmat(MXPSTT)
+Integer, Allocatable:: IOCLS(:), SPGPAN(:), SPGPCR(:)
 
-      Public ::     OCSTR,NSTSO,ISTSO,STSTM,Zmat,STREO,                 &
-     &              NSTSGP,ISTSGP,IOCLS,SPGPAN,SPGPCR
+Public ::     OCSTR,NSTSO,ISTSO,STSTM,Zmat,STREO,                 &
+              NSTSGP,ISTSGP,IOCLS,SPGPAN,SPGPCR
 End Module STRBAS
