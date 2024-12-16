@@ -14,6 +14,7 @@
       use strbas, only: IOCLS
       use lucia_data, only: NGAS,NMXOCCLS
       use lucia_data, only: IBSPGPFTP,NELFSPGP
+      use lucia_data, only: MXPNGAS
 *
 * Find address of the occupation class corresponding to given types
 * of alpha and beta strings
@@ -22,7 +23,6 @@
 *
       Implicit NONE
       INTEGER IAGRP,IATP,IBGRP,IBTP,IOC
-#include "mxpdim.fh"
 *. Local scratch
       INTEGER IABOCC(MXPNGAS)
       INTEGER IATP_ABS,IBTP_ABS,IONE,INUM
