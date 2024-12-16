@@ -21,7 +21,6 @@
       IMPLICIT None
 *
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 #include "stinf.fh"
       Integer IGRP,ITP
