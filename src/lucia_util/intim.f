@@ -13,9 +13,11 @@
       SUBROUTINE INTIM()
       use GLBBAS, only: INT1, INT1O, PINT1, PINT2, LSM1, LSM2, KINH1,
      &                  KINH1_NOCCSYM
+      use Constants, only: Zero
       use lucia_data, only: ECORE_HEX,ECORE_ORIG,ECORE
       use lucia_data, only: NOINT
       use lucia_data, only: NSMOB
+      use lucia_data, only: NTOOB,NTOOBS
 *
 * Interface to external integrals
 *
@@ -25,9 +27,6 @@
 * Version : Fall 97
 *
       IMPLICIT None
-#include "mxpdim.fh"
-#include "csm.fh"
-#include "orbinp.fh"
 *
 *. : Pointers for symmetry blocks of integrals
 *
@@ -39,7 +38,7 @@
 *. Change one-electron integrals to inactive fock matrix
       IF(NOINT.EQ.0) THEN
         INT1O(:)=INT1(:)
-        ECORE_HEX = 0.0D0
+        ECORE_HEX = Zero
       END IF
       ECORE_ORIG = ECORE
       ECORE = ECORE + ECORE_HEX

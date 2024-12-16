@@ -44,15 +44,13 @@
      &                      MNRS1ZE,MXRS3ZE,NDELSH,NINASH,NRS0SH,
      &                      NRS4SH,NRSSH
       use lucia_data, only: IPART
+      use lucia_data, only: NMOS_ENV,NAOS_ENV
 *
       implicit none
 C Input from RASSCF
 #include "Molcas.fh"
 #include "lucia_ini.fh"
 *
-
-#include "mxpdim.fh"
-#include "orbinp.fh"
 C Other definitions
       Integer, PARAMETER :: MXPKW = 125
       integer isetkw(MXPKW)
