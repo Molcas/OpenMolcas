@@ -28,7 +28,6 @@
       IMPLICIT NONE
       INTEGER ICISPC
 #include "mxpdim.fh"
-#include "strinp.fh"
 *. Output
       INTEGER IAIB(*)
 
