@@ -31,6 +31,7 @@
      &                      I_ELIMINATE_GAS,I2ELIMINATED_IN_GAS,
      &                      IELIMINATED_IN_GAS
       use lucia_data, only: NOBPT,NOCOB
+      use lucia_data, only: MXPORB,MXPCSM
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -48,7 +49,6 @@
 * ( Spin signaled by PSSIGN in CIINFO)
 *
       Implicit NONE
-#include "mxpdim.fh"
 #include "warnings.h"
 * Input type of occupation classes
       INTEGER NOCCLS,ISYM,IPRCSF
