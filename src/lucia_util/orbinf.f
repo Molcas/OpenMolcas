@@ -18,6 +18,7 @@
      &                      ISMFSO,ISMFTO,ITOOBS,ITPFSO,ITPFTO,NACOBS,
      &                      NDEOB,NDEOBS,NINOB,NINOBS,NOBPT,NOBPTS,
      &                      NOCOBS,NOSPIR,NTOOBS
+      use lucia_data, only: MXPIRR,MXPNGAS,MXPOBS
       IMPLICIT None
       INTEGER IPRNT
 *
@@ -35,7 +36,6 @@
 *
 * Jeppe Olsen, Winter of 1991
 *
-#include "mxpdim.fh"
       INTEGER NTEST,IGAS,I,ISMOB,IOBTP,LTOB,IOBSM
 *
       NTEST = 0
