@@ -29,13 +29,6 @@ public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc
 
 #include "Molcas.fh"
 
-Integer(kind=iwp), Parameter :: MxPrim=MxAO,MxrCof=MxPrim
-Integer(kind=iwp) nPrimr(MxAO), nBasisr(MxAO), nAngr(MxAO)
-Integer(kind=iwp) icent(MxAO), lnang(MxAO), lmag(MxAO), lant(MxAO), nrBas(8), nrBas_prim(8), nrSym
-Real(kind=wp) rCof(MxrCof),rExp(MxPrim)
-
-public :: MxPrim, MxrCof, nPrimr, nBasisr, nAngr, icent, lnang, lmag, lant, nrBas, nrBas_prim, nrSym, rCof,rExp
-
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 ! D E C L A R E   D E R I V E D   T Y P E S
@@ -168,7 +161,7 @@ end type Shell_Info
 !         2: as in MOLPRO
 
 integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_Type = 2, &
-                                MxPrim = 20*MxAO, MxrCof = 10*MxPrim, NumShell = 1000
+                                MxPrim = MxAO, MxrCof = MxPrim, NumShell = 1000
 
 integer(kind=iwp) :: icent(MxAO), iCnttp_Dummy = 0, lant(MxAO), lmag(MxAO), lnang(MxAO), Max_Shells = 0, mFields = 11, MolWgh = 2, &
                      nAngr(MxAO), nBas(0:7) = 0, nBas_Aux(0:7) = 0, nBas_Frag(0:7) = 0, nBasisr(MxAO), nCnttp = 0, &
