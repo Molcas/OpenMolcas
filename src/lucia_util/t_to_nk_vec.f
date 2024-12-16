@@ -18,6 +18,7 @@
       use lucia_data, only: ICISTR
       use lucia_data, only: MXNSTR
       use lucia_data, only: IREOST,NTOOB
+      use lucia_data, only: NELEC
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -39,7 +40,6 @@
       REAL*8 T
       INTEGER KORB, ISM, ISPC, LUCIN, LUCOUT
 #include "mxpdim.fh"
-#include "strinp.fh"
 #include "csm.fh"
 
 *. Scratch block, must hold a batch of blocks
