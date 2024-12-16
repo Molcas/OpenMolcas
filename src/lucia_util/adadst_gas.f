@@ -19,6 +19,7 @@
       use lucia_data, only: NGAS
       use lucia_data, only: IBSPGPFTP,NELFSPGP,NELFTP
       use lucia_data, only: NELIS,NSTRKS
+      use lucia_data, only: IOBPTS,NOBPT,NOCOB
 *
 *
 *
@@ -55,8 +56,6 @@
      &        K12
       REAL*8 SCLFAC
 #include "mxpdim.fh"
-*./ORBINP/
-#include "orbinp.fh"
 #include "strinp.fh"
 *
       INTEGER I1(*)
