@@ -38,7 +38,6 @@
       INTEGER NIGRP,ISYM,LPNT
 #include "mxpdim.fh"
 #include "strinp.fh"
-#include "stinf.fh"
 #include "csm.fh"
 *. Specific Input
       INTEGER IGRP(NIGRP)
