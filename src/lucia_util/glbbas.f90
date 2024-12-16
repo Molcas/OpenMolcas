@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module GLBBAS
+use lucia_data, only: MXPOBS
 Private
-#include "mxpdim.fh"
       Real*8, Allocatable:: INT1(:), INT1O(:)
       Integer, Allocatable:: PINT1(:), PINT2(:)
       Real*8, Allocatable:: VEC3(:)
