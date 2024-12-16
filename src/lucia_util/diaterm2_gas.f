@@ -19,7 +19,7 @@
       use lucia_data, only: MXNSTR
       use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
 #ifdef _DEBUGPRINT_
-      use lucia_data, only: IDC
+      use lucia_data, only: IDC,IPERTOP,IBSPGPFTP
 #endif
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
