@@ -15,6 +15,9 @@
       use lucia_data, only: IPRDIA
       use lucia_data, only: PSSIGN
       use lucia_data, only: MXNSTR,I_AM_OUT,N_ELIMINATED_BATCHES
+      use lucia_data, only: IDISK
+      use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
+      use lucia_data, only: NOCTYP
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -23,18 +26,12 @@
 *
 * Driven by table of TTS blocks, May97
 *
-      use lucia_data, only: IDISK
-      use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
       IMPLICIT NONE
 * =====
 *.Input
 * =====
-*
-*./ORBINP/ : NACOB used
-*
 #include "mxpdim.fh"
 #include "strinp.fh"
-#include "stinf.fh"
 #include "csm.fh"
 *
       INTEGER LUDIA,ICISTR,I12,NBLOCK
