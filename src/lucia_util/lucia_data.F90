@@ -16,9 +16,8 @@ Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXP
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
-#include "oper.fh"
 ! Stuff from oper.fh
-!INTEGER     I12,IPERTOP,IAPR,IPART,I_RES_AB
+INTEGER     I12,IPERTOP,IAPR,IPART,I_RES_AB
 
 ! Stuff from lucinp.fh
 Integer       PNTGRP,NIRREP,NSMCMP,MAXML,MAXL,                    &
@@ -31,7 +30,7 @@ Integer       PNTGRP,NIRREP,NSMCMP,MAXML,MAXL,                    &
               MNRS1RE,MXRS3RE,                                    &
               MNRS1ZE,MXRS3ZE
 
-! Stuff from loff.fh
+! Stuff from ssave.fh
 INTEGER NELIS(4), NSTRKS(4)
 
 ! Stuff from loff.fh
