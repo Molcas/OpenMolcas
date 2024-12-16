@@ -20,7 +20,6 @@
 *
       IMPLICIT None
 *
-#include "mxpdim.fh"
 #include "csm.fh"
       Integer IGRP,ITP
 *
