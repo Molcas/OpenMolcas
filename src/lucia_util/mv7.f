@@ -17,6 +17,7 @@
       use lucia_data, only: ICISTR,ENVIRO,ISIMSYM,LCSBLK
       use lucia_data, only: IDC,IREFSM,PSSIGN
       use lucia_data, only: I_AM_OUT,N_ELIMINATED_BATCHES
+      use lucia_data, only: NOCTYP
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
@@ -34,7 +35,6 @@
 *
 *./ORBINP/ : NACOB used
 #include "strinp.fh"
-#include "stinf.fh"
 #include "csm.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
