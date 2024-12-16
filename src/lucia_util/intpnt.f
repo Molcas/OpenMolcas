@@ -14,6 +14,7 @@
       use GLBBAS, only: PGINT1, PGINT1A
       use lucia_data, only: I1234S,I12S,I34S
       use lucia_data, only: NSMOB
+      use lucia_data, only: NTOOBS
 *
 * Pointers to symmetry blocks of integrals
 * IPNT1 : Pointer to given one-electron block, total symmetric
@@ -35,7 +36,6 @@
 * =====
 *
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 *
