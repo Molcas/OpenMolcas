@@ -22,6 +22,7 @@
       use lucia_data, only: IDC
 #endif
       use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -36,7 +37,6 @@
       IMPLICIT NONE
 *
 #include "mxpdim.fh"
-#include "strinp.fh"
 #include "csm.fh"
 *
       REAL*8 FACTOR
