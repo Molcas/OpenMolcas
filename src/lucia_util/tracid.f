@@ -29,10 +29,9 @@
       use lucia_data, only: IH1FORM
       use lucia_data, only: IDISK
       use lucia_data, only: I_RES_AB,I12
+      use lucia_data, only: NTOOB
       IMPLICIT NONE
       INTEGER LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3
-#include "mxpdim.fh"
-#include "orbinp.fh"
       REAL*8 INPRDD
 *. Input
       REAL*8 T(*)
