@@ -13,13 +13,12 @@
      &                      IKSM,    JLSM,   ICOUL)
       use GLBBAS, only: PINT2, KINH1
       use lucia_data, only: NSMOB
+      use lucia_data, only: NOBPTS,NTOOBS
 *
 * Outer routine for accessing integral block
 *
       IMPLICIT NONE
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 
       INTEGER  ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL
