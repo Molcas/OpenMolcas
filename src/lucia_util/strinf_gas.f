@@ -29,6 +29,7 @@
       use lucia_data, only: NACOB,NORB1,NORB2,NORB3,NOBPT
       use lucia_data, only: ISTAC
       use lucia_data, only: NSTTYP
+      use lucia_data, only: MXPNSMST,MXPNGAS
 *
 * Obtain string information for GAS expansion
 *
@@ -48,7 +49,6 @@
       INTEGER IPRNT
 *. Input
 *     (and /LUCINP/ not occuring here )
-#include "mxpdim.fh"
 #include "csm.fh"
 *
       INTEGER ZERO_ARR(1), IDUM(1)
