@@ -21,6 +21,7 @@
       use lucia_data, only: IPRDIA
       use lucia_data, only: PSSIGN
       use lucia_data, only: MXNSTR,IBSPGPFTP,NELFSPGP
+      use lucia_data, only: NOCOB,NOBPT,NTOOB
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -35,7 +36,6 @@
 * =====
 *
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
