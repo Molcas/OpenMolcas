@@ -80,7 +80,8 @@
 !     See comment below why this is commented out.
 !     use sxci, only: IDXCI, IDXSX
       use general_data, only: CleanMask
-      use output_ras, only: LF,DEBUG,TERSE,VERBOSE,IPRGLB,IPRLOC
+      use printlevel, only: DEBUG,TERSE,VERBOSE
+      use output_ras, only: LF,IPRGLB,IPRLOC
 
       implicit none
 

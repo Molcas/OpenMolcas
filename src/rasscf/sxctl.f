@@ -74,7 +74,8 @@
      &                         nQune, NROOT, NSXS, NTOT4, QNSTEP,
      &                         QNUPDT, SXSEL, TMIN, VIA, ISTORP,
      &                         IADR15, EMY
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
 
       Implicit None

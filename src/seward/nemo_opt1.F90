@@ -11,9 +11,7 @@
 
 subroutine NEMO_Opt1()
 
-use Basis_Info, only: dbsc, nBas, nCnttp, Shells
-use Basis_Info, only: nPrimr, nBasisr, nAngr, icent, lnang, lmag, nrBas, nrSym, rCof,rExp
-
+use Basis_Info, only: dbsc, icent, lmag, lnang, nAngr, nBas, nBasisr, nCnttp, nPrimr, nrBas, nrSym, rCof, rExp, Shells
 use Symmetry_Info, only: nIrrep
 use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate

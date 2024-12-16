@@ -17,7 +17,8 @@
      &                         iSymBB, lRoots, lSquare, NACPAR,
      &                         NACPR2, NewFock, nFint, NSXS, NTOT4,
      &                         RlxGrd, iAdr15, ISTORP, JBLBM
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       Implicit None
 #include "rasdim.fh"

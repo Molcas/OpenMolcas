@@ -9,14 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! Stuff from splitcas.fh
 module splitcas_data
+
+use Definitions, only: wp, iwp
+
 implicit none
-Logical DoSplitCAS, EnerSplit, NumSplit, PerSplit, FOrdSplit
-integer lrootSplit, MxIterSplit
-integer iDimBlockA, iDimBlockACNF, iterSplit
-real*8 thrSplit, GapSpli, PercSpli
-real*8 EnInSplit
-Integer, Parameter :: mxDimBlockA = 2000
-Real*8, Parameter :: min_ThrSplit = 1.0d-12
+private
+
+integer(kind=iwp) :: iDimBlockA, iDimBlockACNF, iterSplit, lrootSplit, MxIterSplit
+real(kind=wp) :: EnInSplit, GapSpli, PercSpli, thrSplit
+logical(kind=iwp) :: DoSplitCAS, EnerSplit, FOrdSplit, NumSplit, PerSplit
+
+public :: DoSplitCAS, EnerSplit, EnInSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
+          NumSplit, percSpli, PerSplit, ThrSplit
+
 end module splitcas_data

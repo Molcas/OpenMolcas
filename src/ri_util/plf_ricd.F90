@@ -29,8 +29,8 @@ subroutine PLF_RICD(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas
 
 use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
+use RI_glob, only: jBas_, lBas_
 use Definitions, only: wp, iwp
-use ri_glob, only: jBas_, lBas_
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Constants, only: One

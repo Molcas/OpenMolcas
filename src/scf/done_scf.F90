@@ -36,7 +36,7 @@ subroutine DOne_SCF(nSym,nBas,nOrb,nFro,CMO,nCMO,Occ,Dlt,alpha_density)
 !       alpha_density: .true. iff alpha MOs were sent in               *
 !                                                                      *
 !     output:                                                          *
-!       Dlt     : density matrix in triangular storrage                *
+!       Dlt     : density matrix in triangular storage                 *
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem

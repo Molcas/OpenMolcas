@@ -62,7 +62,8 @@
 #else
       use rasscf_global, only: DoBLOCKDMRG
 #endif
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
 
       IMPLICIT None

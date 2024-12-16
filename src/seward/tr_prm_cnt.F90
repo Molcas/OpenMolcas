@@ -11,9 +11,7 @@
 
 subroutine Tr_prm_cnt(idbg,nBas_Cont,nBas_Prim)
 
-use Basis_Info, only: dbsc, nBas, nCnttp
-use Basis_Info, only: nPrimr, nBasisr, nAngr, icent, lnang, lmag, nrBas, rCof
-
+use Basis_Info, only: dbsc, icent, lmag, lnang, nAngr, nBas, nBasisr, nCnttp, nPrimr, nrBas, rCof
 use Symmetry_Info, only: nIrrep
 use define_af, only: iTabMx
 use stdalloc, only: mma_allocate, mma_deallocate

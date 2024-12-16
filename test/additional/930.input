@@ -33,14 +33,14 @@ CHAR = 0
 >>>COPY mc23.txt .
 
 &MCPDFT
-KSDF = t:M06L
+FUNC = t:M06L
 
 &MCPDFT
-KSDF = t:M06L
+FUNC = t:M06L
 EXPM = extparam.txt
 
 &MCPDFT
- KSDF = t:M06L
+ FUNC = t:M06L
  EXPM = mc23.txt
  LAMB = 0.2952
 

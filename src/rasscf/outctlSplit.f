@@ -41,7 +41,8 @@
       use SplitCas_Data, only: MxIterSplit,ThrSplit,
      &                         lRootSplit,EnerSplit,GapSpli,PerSplit,
      &                         PerCSpli,iDimBlockA
-      use output_ras, only: LF,DEBUG,USUAL,TERSE,VERBOSE,IPRLOC
+      use printlevel, only: DEBUG,USUAL,TERSE,VERBOSE
+      use output_ras, only: LF,IPRLOC
 
       Implicit None
 

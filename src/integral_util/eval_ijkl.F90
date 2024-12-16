@@ -50,7 +50,7 @@ use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: DoFock, DoIntegrals, Map4
 use Integral_interfaces, only: Int_PostProcess, twoel_kernel
-use ri_glob, only: jBas_, lBas_
+use RI_glob, only: jBas_, lBas_
 #ifdef _DEBUGBREIT_
 use Breit, only: nOrdOp
 use UnixInfo, only: SuperName

@@ -46,7 +46,6 @@ set (sources
      prodsa_2.F90
      prodsa_2t.F90
      prodss_1.F90
-     put_tra_comm.F90
      rbuf_tra2.F90
      rbuff_tra2.F90
      rbufo_tra2.F90
@@ -63,9 +62,6 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list
-     intgrl.F90
-     trafo.F90
-)
+set (modfile_list "")
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

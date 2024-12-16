@@ -19,8 +19,8 @@
 
 subroutine EXCH(ISYP,ISYI,ISYQ,ISYJ,II,IJ,ERI,SCR)
 
+use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
 use Definitions, only: wp, iwp
-use Intgrl, only: NSYMZ,IAD2M,LUINTMZ,NORBZ,NOSHZ
 
 #include "intent.fh"
 

@@ -43,7 +43,8 @@ C
       use rasscf_global, only: ExFac, ICICP, ISCF, ITER, LVSHFT, NROOT,
      &                         NSXS, SXSHFT, ITRI, IZROT, IXSYM, IROOT,
      &                         Ener
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       IMPLICIT None
 #include "rasdim.fh"

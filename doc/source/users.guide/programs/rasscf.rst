@@ -519,7 +519,7 @@ A minimal input example for using state-averaged Stochastic-CASSCF jointly with 
      &RASSCF
         FileOrb = $CurrDir/converged.RasOrb
         CIONLY
-        KSDFT = ROKS; $DFT
+        FUNC = ROKS; $DFT
         NECI = ExNe
         NACTEL = 26 0 0
         INACTIVE = 20 17 17 14 0 0 0 0
@@ -843,7 +843,7 @@ will require some keyword. At the same time, most choices have default
 settings, and many are able to take relevant values from earlier
 calculations, from available orbital files, etc.
 
-To run an MC-PDFT calculation in the :program:`RASSCF` module, the keywords :kword:`CIONLY`, :kword:`KSDFT`,
+To run an MC-PDFT calculation in the :program:`RASSCF` module, the keywords :kword:`CIONLY`, :kword:`FUNCTIONAL`,
 :kword:`ROKS` and the functional choice are needed. The currently available functionals are tPBE,
 tBLYP and tLSDA. Also: :kword:`LUMORB` is needed if external orbitals are used.
 :kword:`JOBIPH` is needed if external orbital stored in :file:`JobIph` files are used.
@@ -1491,11 +1491,11 @@ A list of these keywords is given below:
 
   .. xmldoc:: </GROUP>
 
-:kword:`KSDFT`
+:kword:`FUNCtional`
   Needed to perform MC-PDFT calculations. It must be used together with
   :kword:`CIONLY` keyword (it is a post-SCF method not compatible with SCF) and :kword:`ROKS` keyword.
   The functional choice follows. Specify the functional by prefixing
-  ``T:`` or ``FT:`` to the standard DFT functionals (see keyword :kword:`KSDFT` of :program:`SCF`)
+  ``T:`` or ``FT:`` to the standard DFT functionals (see keyword :kword:`FUNCTIONAL` of :program:`SCF`)
   An example of an input that uses this keyword follows: ::
 
     &RASSCF
@@ -1504,15 +1504,15 @@ A list of these keywords is given below:
     CIONLY
     Ras2
     1 0 0 0 1 0 0 0
-    KSDFT
+    FUNCTIONAL
     ROKS; T:PBE
 
   In the above example, :kword:`JOBIPH` is used to use orbitals stored in :file:`JobIph`, :kword:`CIRESTART` is used to
   use a pre-optimized CI vector, :kword:`CIONLY` is used to avoid conflicts between the standard :program:`RASSCF` module
   and the MC-PDFT method (not compatible with SCF so far). The functional chosen is the translated-PBE.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="KSDFT" APPEAR="MC-PDFT" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED" REQUIRE="CIONLY">
-              %%Keyword: KSDFT <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FUNC" APPEAR="MC-PDFT" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED" REQUIRE="CIONLY">
+              %%Keyword: FUNC <advanced>
               <HELP>
               Needed to perform MC-PDFT calculations. It must be used together with
               CIONLY keyword (it is a post-SCF method not compatible with SCF) and ROKS keyword.
@@ -2908,12 +2908,12 @@ The following input is an example of how to use the RASSCF program to run MC-PDF
   CIONLY
   Ras2
   1 0 0 0 1 0 0 0
-  KSDFT
+  FUNC
   ROKS; T:PBE
 
 The first RASSCF run is a standard CASSCF calculation that leads to variationally optimized orbitals and CI coefficients.
 The second call to the RASSCF input will use the CI vector and the orbitals previously optimized. The second RASSCF will
-require the :kword:`CIONLY` keyword as the MC-PDFT is currently not compatible with SCF. :kword:`KSDFT` :kword:`ROKS` and the functional choice will
+require the :kword:`CIONLY` keyword as the MC-PDFT is currently not compatible with SCF. :kword:`FUNCTIONAL` :kword:`ROKS` and the functional choice will
 provide MC-PDFT energies.
 
 More advanced examples can be found in the tutorial section of the manual.

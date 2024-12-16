@@ -15,9 +15,8 @@
 subroutine setmocom_cvb()
 
 use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nsym_mo
+use jobiph_j, only: nash_j, nbas_j, nfro_j, nish_j, nsym_j
 use Definitions, only: iwp, u6
-use jobiph_j, only: nsym_j,nfro_j,nish_j,nash_j,nbas_j
-
 
 implicit none
 #include "rasdim.fh"

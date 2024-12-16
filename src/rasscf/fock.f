@@ -41,7 +41,8 @@ C
      &                         iSymBB, JBLBM, NTOT3, via_DFT, ISTORD,
      &                         ISTORP, iTri, iZROT, ixSym, CBLB, IBLB,
      &                         JBLB
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       IMPLICIT None
       Integer iFinal

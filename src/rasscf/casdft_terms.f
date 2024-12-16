@@ -39,7 +39,8 @@
 #ifdef _DMRG_
       use rasscf_global, only: DoDMRG
 #endif
-      use output_ras, only: LF,DEBUG,IPRLOC
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       Implicit None
 *

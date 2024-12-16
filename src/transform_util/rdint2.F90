@@ -43,9 +43,9 @@ subroutine RDINT2(IPRX,DoTCVA)
 ! THE LAST ADRESS IS ZERO IF SYM T = SYM U
 
 use caspt2_global, only: LUINTM
+use trafo, only: IAD13, ISR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use trafo, only: IAD13, ISR
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRX

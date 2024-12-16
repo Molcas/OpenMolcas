@@ -14,9 +14,9 @@
 
 subroutine wrcivec_cvb(detvec,fn,reord)
 
+use jobiph_j, only: iadr15_j, iroot_j, ispin_j, lsym_j, nactel_j, nconf_j, nroots_j
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use jobiph_j, only:iadr15_j,nactel_j,ispin_j,lsym_j,nconf_j,nroots_j,iroot_j
 
 implicit none
 real(kind=wp), intent(inout) :: detvec(*)

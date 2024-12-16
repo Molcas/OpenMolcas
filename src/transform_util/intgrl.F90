@@ -8,9 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Intgrl
+
+module Intgrl
+
 use Definitions, only: iwp
-Implicit None
-Private iwp
-INTEGER(kind=iwp), public:: IF_ERI,IAD2M(3,36*36),NSYMZ,NORBZ(8),NOSHZ(8),LUINTMZ,IL_ERI
-ENd Module Intgrl
+
+implicit none
+private
+
+integer(kind=iwp) :: IAD2M(3,36*36), LUINTMZ, NORBZ(8), NOSHZ(8), NSYMZ
+
+public :: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
+
+end module Intgrl

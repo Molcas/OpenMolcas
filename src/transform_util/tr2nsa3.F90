@@ -36,14 +36,11 @@ subroutine tr2nsa3(CMO,NCMO,X1,nX1,X2,nX2,pqUs,npqUS,pqrU,npqrU)
 ! subroutine does.
 
 use caspt2_global, only: LUHLF1, LUHLF2, LUINTM
+use Intgrl, only: IAD2M
+use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP, LMOP2, LMOQ, LMOQ2, LMOS, LMOS2, LRUPQ, LTUPQ, LURPQ, NBP, NBPQ, NBQ, NBR, NBS, &
+                 NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use Intgrl, only: IAD2M
-use trafo, only:      ISP,ISQ,ISR,ISS,NBP,NBQ,NBR,NBS,NBPQ,             &
-     &                NOCP,NOCQ,NOCR,NOCS,         LRUPQ,LURPQ,LTUPQ,   &
-     &                NOP,NOQ,    NOS,LMOP,LMOQ,     LMOS,LMOP2,LMOQ2,  &
-     &                      LMOS2,       IAD13
-
 
 implicit none
 integer(kind=iwp), intent(in) :: NCMO, nX1, nX2, npqUS, npqrU

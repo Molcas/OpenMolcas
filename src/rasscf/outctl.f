@@ -65,7 +65,8 @@
      &                         Davidson_Tol, Do3RDM, HFOcc,
      &                         Max_canonical, Max_Sweep
 #endif
-      use output_ras, only: LF,DEBUG,USUAL,TERSE,VERBOSE,IPRLOC
+      use printlevel, only: DEBUG,USUAL,TERSE,VERBOSE
+      use output_ras, only: LF,IPRLOC
 
 
       Implicit None

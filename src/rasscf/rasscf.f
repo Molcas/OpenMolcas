@@ -120,8 +120,8 @@
       use rasscf_global, only: lRoots
 #endif
       use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
-      use output_ras, only: LF,DEBUG,USUAL,TERSE,IPRLOC,RC_CI,RC_SX,
-     &                      RC_RAS
+      use printlevel, only: DEBUG,USUAL,TERSE
+      use output_ras, only: LF,IPRLOC,RC_CI,RC_SX
 
       Implicit None
 
@@ -133,7 +133,7 @@
 #include "lucia_ini.fh"
 #include "ciinfo.fh"
 
-      Integer IReturn
+      Integer IReturn, RC_RAS
       Logical DSCF
       Logical lTemp, lOPTO
       Character(LEN=80) Line
@@ -2047,6 +2047,10 @@ c      End If
       Call ClsFls_RASSCF()
 
 *
+c Rc_RAS  =  0 : The RASSCF wave function is converged
+c         = 16 : The RASSCF wave function is not(!) converged
+c         = 99 : The RASSCF energy is divergent or
+c                the CI and SX energies differ
       Rc_RAS = ITERM
       Rc_RAS = Max(RC_RAS,Rc_CI)
       Rc_RAS = Max(RC_RAS,Rc_SX)

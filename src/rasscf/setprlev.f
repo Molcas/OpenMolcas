@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SetPrLev(LF_IN,IPRGLB_IN,IPRLOC_IN)
-      use output_ras, only: USUAL,DEBUG,SILENT,IPRLOC,IPRGLB
+      use printlevel, only: USUAL,DEBUG,SILENT
+      use output_ras, only: IPRLOC,IPRGLB
       Implicit None
 #include "warnings.h"
       Integer LF_IN,IPRGLB_IN,IPRLOC_IN(7)
