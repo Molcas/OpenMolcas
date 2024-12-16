@@ -29,12 +29,12 @@
      &                      NELFGP,NELFSPGP,NSTFGP
       use lucia_data, only: NACTEL
       use lucia_data, only: MXTSOB_P,MXTSOB_H,NOBPT
+      use lucia_data, only: NOCTYP,ISTAC
       IMPLICIT NONE
       INTEGER IPRNT
 *
 #include "mxpdim.fh"
 #include "strinp.fh"
-#include "stinf.fh"
 *. Local scratch
       INTEGER IOCTYP(MXPSTT),IREOSPGP(MXPSTT),ISCR(MXPSTT)
       INTEGER IOCCLS(1),IBASSPC(1)
