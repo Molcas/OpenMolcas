@@ -31,6 +31,7 @@
      &                      NINOBS,NOBPTS,NTOOB,NTOOBS
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
+      use lucia_data, only: MXPOBS,MXPNGAS,MXPNSMST
 *
 * Density matrices between L and R
 *
@@ -70,7 +71,6 @@
 *.Definition of L and R is picked up from CANDS
 * with L being S and  R being C
 *
-#include "mxpdim.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 *. Specific input
