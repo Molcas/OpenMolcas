@@ -20,6 +20,7 @@
       use lucia_data, only: IBGPSTR,IGSFGP,NELFGP,NGPSTR,NGRP,NSTFGP
       use lucia_data, only: LOFFI
       use lucia_data, only: IOBPTS,NOBPT,NOBPTS
+      use lucia_data, only: ISTAC
 *
 *
 * Obtain creation or annihilation mapping
@@ -60,7 +61,6 @@
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "strinp.fh"
-#include "stinf.fh"
 #include "csm.fh"
       INTEGER IOBSM,IOBTP,NIGRP,ISPGPSM,NKSTR,IEND,IFRST,KFRST,KACT,IAC
       REAL*8 SCLFAC
