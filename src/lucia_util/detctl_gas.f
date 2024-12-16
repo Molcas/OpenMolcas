@@ -29,11 +29,11 @@
      &                      NSTFSMSPGP
       use lucia_data, only: NSMOB
       use lucia_data, only: MXTSOB,NTOOB,NOCOB,NOBPT,NOBPTS
+      use lucia_data, only: NOCTYP
 
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "stinf.fh"
 #include "csm.fh"
 #include "strinp.fh"
 
@@ -257,7 +257,6 @@ c      END IF
       use lucia_data, only: IREFSM
       Implicit None
 #include "mxpdim.fh"
-#include "stinf.fh"
 #include "csm.fh"
 #include "strinp.fh"
 
