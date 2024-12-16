@@ -37,7 +37,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "oper.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
 ! this is a the same structure as for local_arrays but it can not be
