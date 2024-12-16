@@ -14,26 +14,25 @@ Implicit None
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
-#include "mxpdim.fh"
 ! Stuff from mxpdim.fh
-!Integer, PARAMETER:: MXPIRR = 20
-!Integer, PARAMETER:: MXPOBS = 20
-!Integer, PARAMETER:: MXPR4T = 10
-!Integer, PARAMETER:: MXPORB = 500
-!Integer, PARAMETER:: MXPICI = 30
-!Integer, PARAMETER:: MXPSTT = 2500
-!Integer, PARAMETER:: MXPCSM = 100
-!!. Note : MXPNGAS = MXPR4T+6 !!
-!!. Required in order to handle GAS and RAS within /LUCINP/
-!Integer, PARAMETER:: MXPNGAS = MXPR4T + 6
-!Integer, PARAMETER:: MXPNSMST = 8
-!!. Largest allowed division of space for perturbation operator
-!Integer, PARAMETER:: MXPPTSPC=20
-!!
-!!     PARAMETER(MXPTSOB = 100) ! introduced by Kamal Sharkas in commit 91722faa6
-!!                              ! probably for some large-scale cases
-!!                              ! changed back to default - stknecht/dec 2015
-!Integer, PARAMETER:: MXPTSOB = 35
+Integer, PARAMETER:: MXPIRR = 20
+Integer, PARAMETER:: MXPOBS = 20
+Integer, PARAMETER:: MXPR4T = 10
+Integer, PARAMETER:: MXPORB = 500
+Integer, PARAMETER:: MXPICI = 30
+Integer, PARAMETER:: MXPSTT = 2500
+Integer, PARAMETER:: MXPCSM = 100
+!. Note : MXPNGAS = MXPR4T+6 !!
+!. Required in order to handle GAS and RAS within /LUCINP/
+Integer, PARAMETER:: MXPNGAS = MXPR4T + 6
+Integer, PARAMETER:: MXPNSMST = 8
+!. Largest allowed division of space for perturbation operator
+Integer, PARAMETER:: MXPPTSPC=20
+!
+!     PARAMETER(MXPTSOB = 100) ! introduced by Kamal Sharkas in commit 91722faa6
+!                              ! probably for some large-scale cases
+!                              ! changed back to default - stknecht/dec 2015
+Integer, PARAMETER:: MXPTSOB = 35
 
 
 ! Stuff from strinp.fh
