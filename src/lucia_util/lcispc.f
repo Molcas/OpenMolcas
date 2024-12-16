@@ -47,6 +47,9 @@
       Integer IATP,IBTP,NOCTPA,NOCTPB,ICI,ISYM,NTTSBL,LCOL,ISM,MXS,
      &        MXSOO,MXSOO_AS,NCOMB
       REAL*8 XNCOMB
+#ifdef _DEBUGPRINT_
+      INTEGER NTEST, II
+#endif
 *
 *
 *. Number of spaces
