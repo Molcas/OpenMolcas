@@ -117,6 +117,9 @@
      &        KSM_ORIG,LSM_ORIG,JSM_ORIG,ITPSM_ORIG,JTPSM_ORIG,
      &        KTPSM_ORIG,LTPSM_ORIG,NONEW
       REAL*8 FACTORC,FACTORAB
+#ifdef _DEBUGPRINT_
+      INTEGER II,JIKBT,JJLBT
+#endif
 
 *
 C-jwk-cleanup      DIMENSION IACAR(2),ITPAR(2)
@@ -128,7 +131,6 @@ C-jwk-cleanup      DIMENSION IACAR(2),ITPAR(2)
       WRITE(6,*) ' ISOC and ICOC : '
       CALL IWRTMA(ISOC,1,NGAS,1,NGAS)
       CALL IWRTMA(ICOC,1,NGAS,1,NGAS)
-*
 #endif
       IFRST = 1
       JFRST = 1

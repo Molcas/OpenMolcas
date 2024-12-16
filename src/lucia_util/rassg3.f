@@ -45,14 +45,10 @@
 *
       IF (.FALSE.) Call Unused_integer_array(LEBATS)
 #ifdef _DEBUGPRINT_
-      NTEST = 00
-C     NTEST = MAX(NTEST,IPRNT)
-      IF(NTEST.GE.20) THEN
-        WRITE(6,*) ' ================='
-        WRITE(6,*) ' RASSG3 speaking :'
-        WRITE(6,*) ' ================='
-        WRITE(6,*) ' RASSG3 : NBATS = ',NBATS
-      END IF
+      WRITE(6,*) ' ================='
+      WRITE(6,*) ' RASSG3 speaking :'
+      WRITE(6,*) ' ================='
+      WRITE(6,*) ' RASSG3 : NBATS = ',NBATS
 #endif
 *
 CSVC: Compute offsets of a sigma batch in the sigma array.
@@ -144,9 +140,7 @@ C     if this block structure is used internally, I didn't optimize this.
       CALL ITODS([-1],1,-1,LUHC)
 
 #ifdef _DEBUGPRINT_
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Final S-vector on disc'
-        CALL WRTVCD(SB,LUHC,1,-1)
-      END IF
+      WRITE(6,*) ' Final S-vector on disc'
+      CALL WRTVCD(SB,LUHC,1,-1)
 #endif
       END SUBROUTINE RASSG3

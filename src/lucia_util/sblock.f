@@ -36,6 +36,9 @@
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
       use lucia_data, only: MXPOBS,MXPNGAS,MXPNSMST
+#ifdef _DEBUGPRINT_
+      use lucia_data, only: ICISTR
+#endif
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,

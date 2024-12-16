@@ -140,6 +140,9 @@
      &        LLASM,LLBSM,LLATP,LLBTP,ISCALE,LBL,ICBLK,NJA,NJB,NLLA,
      &        NLLB,ISBLK,ISOFF,NIA,NIB,I_DO_EXACT_BLK,IPTSPC,JPTSPC
       REAL*8 PL,XFAC,FACTOR
+#ifdef _DEBUGPRINT_
+      INTEGER IBLOCK,IGAS,II,NTEST
+#endif
 
       If (.false.) Call unused_integer(mxsxbl)
 *.
