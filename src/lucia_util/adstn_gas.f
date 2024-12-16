@@ -17,6 +17,7 @@
       use Constants, only: Zero
       use lucia_data, only: NGAS
       use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP,NSTFGP,NSTFSMSPGP
+      use lucia_data, only: IOBPTS,NOBPT,NOBPTS
 *
 *
 * Obtain mappings
@@ -44,7 +45,6 @@
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
