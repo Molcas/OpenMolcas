@@ -14,6 +14,7 @@
       use lucia_data, only: NGAS
       use lucia_data, only: NSTTP,IBSPGPFTP,ISPGPFTP,NELFGP,
      &                      NELFSPGP,NSPGPFTP
+      use lucia_data, only: MXPNGAS
 *
 * Generate for each supergroup the number of electrons in each active
 * orbital space and store in NELFSPGP
@@ -21,7 +22,6 @@
 * Jeppe Olsen, July 1995
 *
       IMPLICIT NONE
-#include "mxpdim.fh"
       INTEGER NTESTG
 *. input
 *. Input and Output ( NELFSPGP(MXPNGAS,MXPSTT) )
