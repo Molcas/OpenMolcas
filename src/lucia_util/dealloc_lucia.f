@@ -22,7 +22,6 @@
 *. Input
       IMPLICIT None
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 
