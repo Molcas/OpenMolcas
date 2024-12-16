@@ -28,10 +28,10 @@
       use Constants, only: Half, One
       use lucia_data, only: IH1FORM
       use lucia_data, only: IDISK
+      use lucia_data, only: I_RES_AB,I12
       IMPLICIT NONE
       INTEGER LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3
 #include "mxpdim.fh"
-#include "oper.fh"
 #include "orbinp.fh"
       REAL*8 INPRDD
 *. Input
