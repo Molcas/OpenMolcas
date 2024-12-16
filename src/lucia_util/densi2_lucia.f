@@ -30,6 +30,7 @@
       use lucia_data, only: NACOB,MXTSOB,NOCOB,IOBPTS,IREOST,NACOBS,
      &                      NINOBS,NOBPTS,NTOOB,NTOOBS
       use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
 *
 * Density matrices between L and R
 *
@@ -70,7 +71,6 @@
 * with L being S and  R being C
 *
 #include "mxpdim.fh"
-#include "strinp.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 *. Specific input
