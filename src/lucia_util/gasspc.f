@@ -26,11 +26,11 @@
 *
 *
       use lucia_data, only: NGAS,IGSOCC,IGSOCCX,NGSOBT
+      use lucia_data, only: I_IAD,I_IADX
       IMPLICIT None
 *
 #include "mxpdim.fh"
 #include "strinp.fh"
-#include "orbinp.fh"
 *
       INTEGER NEL_MAX,NEL_REF,IGAS,NTEST
 * Some dummy initializtions
