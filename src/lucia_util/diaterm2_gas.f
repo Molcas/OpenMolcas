@@ -18,6 +18,9 @@
       use lucia_data, only: IPRDIA
       use lucia_data, only: MXNSTR
       use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
+#ifdef _DEBUGPRINT_
+      use lucia_data, only: IDC
+#endif
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -47,6 +50,9 @@
       INTEGER, EXTERNAL:: IMNMX
       INTEGER NTEST,IATP,IBTP,NAEL,NBEL,NOCTPA,MAXA,NBLOCK
       REAL*8 ECOREP,SHIFT,FACTORX
+#ifdef _DEBUGPRINT_
+      INTEGER NOCTPB,IOCTPA,IOCTPB
+#endif
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
