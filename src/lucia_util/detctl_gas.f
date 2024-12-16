@@ -30,12 +30,12 @@
       use lucia_data, only: NSMOB
       use lucia_data, only: MXTSOB,NTOOB,NOCOB,NOBPT,NOBPTS
       use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
 
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "csm.fh"
-#include "strinp.fh"
 
       INTEGER IOCCLS(1),IBASSPC(1)
       Integer, Allocatable:: LCIOIO(:)
@@ -256,10 +256,6 @@ c      END IF
       SUBROUTINE DETCTL_FREE()
       use lucia_data, only: IREFSM
       Implicit None
-#include "mxpdim.fh"
-#include "csm.fh"
-#include "strinp.fh"
-
       Integer JSYM
 
       JSYM = IREFSM
