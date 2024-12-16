@@ -74,8 +74,12 @@
 *
 * Jeppe Olsen, Winter of 1991
 *
+      use Constants, only: Zero, Half,One
       USE Para_Info, ONLY: MyRank, nProcs
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NSCOL,NGAS,MAXI,MAXK,
+     &        NSMOB,NSMST,NSMDX
+      REAL*8 SCLFAC
 #include "mxpdim.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS)
@@ -95,16 +99,25 @@
       REAL*8 XI1S(MAXK,*)
 *.Local arrays
       INTEGER ITP(256),JTP(256),KTP(256),LTP(256)
-C-jwk-cleanup      INTEGER I4_DIM(4),I4_SM(4)
       INTEGER I4_TP(4),I4_REO(4),ISCR(4)
       INTEGER I4_AC(4)
 *
       INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
 *
       Real*8, Allocatable:: SCR(:)
-      Real*8 :: FACX=0.0D0
+      Real*8 :: FACX=Zero
+      Integer IFRST,JFRST,IDXSM,IDXTYP,NDXTYP,ITYP,JTYP,KTYP,LTYP,
+     &        ITYP_ORIG,JTYP_ORIG,KTYP_ORIG,LTYP_ORIG,NIJKL1,IJKL,NPART,
+     &        NPARTSZ,MI,MJ,MK,ML,IOBSM,MXPAIR,IKOBSM,JLOBSM,KFRST,
+     &        LENGTH,NIKBT,NBLK,NBLKT,ISM,KSM,NI,NK,NIK,NJLBT,JSM,LSM,
+     &        NJ,NL,NJL,IKBTC,JLBTC,IFIRST,IIPART,IBOT,ITOP,NIBTC,KBOT,
+     &        KTOP,IONE,JLBOFF,NJLT,JLPAIR,JLSM,II12,K12,JAC,LAC,NKBTC,
+     &        J,L,IJL,I1JL,JLOFF,IXCHNG,NIKT,IKOFF,IKPAIR,IKSM,ICOUL,
+     &        JL,LIKB,IKBOFF,IAC,KAC,I,K,IK,ISBOFF,KEND,ISM_ORIG,
+     &        KSM_ORIG,LSM_ORIG,JSM_ORIG,ITPSM_ORIG,JTPSM_ORIG,
+     &        KTPSM_ORIG,LTPSM_ORIG,NONEW
+      REAL*8 FACTORC,FACTORAB
 
-#include "oper.fh"
 *
 C-jwk-cleanup      DIMENSION IACAR(2),ITPAR(2)
       Call mma_allocate(SCR,MXPTSOB**4,Label='SCR')
@@ -427,7 +440,6 @@ C?       write(6,*) ' Before ADAADAST '
                         JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
                         IF(JLSM.EQ.1.AND.J.EQ.L) THEN
 *. a+j a+j gives trivially zero
-                          ZERO = 0.0D0
                           CALL SETVEC(CSCR(JLOFF),ZERO,NKBTC*NIBTC)
                         ELSE
                           CALL MATCG(    CB,CSCR(JLOFF),NROW,NIBTC,IBOT,
@@ -522,8 +534,8 @@ C?                    WRITE(6,*)'NIJT, NJLT, NIBTC NKBTC',
 C?   &                           NIJT, NJLT,NIBTC,NKBTC
 C?                  END IF
 *
-                    FACTORC = 0.0D0
-                    FACTORAB = 1.0D0
+                    FACTORC = Zero
+                    FACTORAB = One
                     CALL MATML7(   SSCR,   CSCR,   XINT,   LIKB,   NIKT,
      &                             LIKB,   NJLT,   NIKT,   NJLT,FACTORC,
      &                          FACTORAB,     2)
@@ -553,7 +565,6 @@ C?                  END IF
                         IKSM = 0
                       END IF
                       IF(IFRST.EQ.1) KFRST = 1
-                      ONE = 1.0D0
 *
                       IAC = I4_AC(1)
                       KAC = I4_AC(2)
@@ -748,18 +759,18 @@ C                   KFRST = 1
      &                .AND.JTPSM_ORIG.EQ.LTPSM_ORIG)THEN
 *. No use of exchange
                         IXCHNG = 0
-                        FACX = -0.5D0
+                        FACX = -Half
                       ELSE IF(ITPSM_ORIG.NE.KTPSM_ORIG
      &                .OR.JTPSM_ORIG.NE.LTPSM_ORIG) THEN
 *. Exchange used, combines two terms
                         IXCHNG = 1
-                        FACX = -0.5D0
+                        FACX = -Half
                       END IF
                       IF(ITPSM_ORIG.NE.KTPSM_ORIG
      &                .AND.JTPSM_ORIG.NE.LTPSM_ORIG)THEN
 *. Exchange used, combines four terms
                         IXCHNG = 1
-                        FACX = -1.0D0
+                        FACX = -One
                       END IF
 #ifdef _DEBUGPRINT_
            WRITE(6,*)
@@ -802,7 +813,7 @@ C?                    WRITE(6,*)'NIJ NJL NIBTC NKBTC',
 C?   &                           NIJ,NJL,NIBTC,NKBTC
 C?                  END IF
 *
-                    FACTORC = 0.0D0
+                    FACTORC = Zero
                     FACTORAB = FACX
                     CALL MATML7(   SSCR,   CSCR,   XINT,   LIKB,    NIK,
      &                             LIKB,    NJL,    NIK,    NJL,FACTORC,
@@ -820,7 +831,6 @@ C?                  END IF
 *
                     IONE = 1
                     IF(IFRST.EQ.1) KFRST = 1
-                    ONE = 1.0D0
 *
                     IAC = I4_AC(1)
                     KAC = I4_AC(2)
