@@ -16,22 +16,21 @@ Private :: MXPIRR,MXPOBS,MXPR4T,MXPORB,MXPICI,MXPSTT,MXPCSM,MXPNGAS,MXPNSMST,MXP
 Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
            LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
 
-#include "orbinp.fh"
 ! Stuff from orbinp.fh
-!Integer       NINOB,NACOB,NDEOB,NOCOB,NTOOB,                      &
-!              NORB1,NORB2,NORB3,                                  &
-!              NOSPIR(MXPIRR),IOSPIR(MXPOBS,MXPIRR),               &
-!              NINOBS(MXPOBS),                                     &
-!              NACOBS(MXPOBS),NOCOBS(MXPOBS),                      &
-!              NTOOBS(MXPOBS),NDEOBS(MXPOBS),                      &
-!              IREOTS(MXPORB),IREOST(MXPORB),ISMFTO(MXPORB),       &
-!              ITPFSO(MXPORB),IBSO(MXPOBS),                        &
-!              NTSOB(3,MXPOBS),IBTSOB(3,MXPOBS),ITSOB(MXPORB),     &
-!              NOBPTS(6+MXPR4T,MXPOBS),IOBPTS(6+MXPR4T,MXPOBS),    &
-!              ITOOBS(MXPOBS),ITPFTO(MXPORB),ISMFSO(MXPORB),       &
-!              NOBPT(6+MXPR4T),NAOS_ENV(MXPOBS),NMOS_ENV(MXPOBS),  &
-!              I_IAD(MXPNGAS),I_IADX(MXPNGAS),MXTSOB,MXTOB,        &
-!              MXTSOB_P,MXTSOB_H
+Integer       NINOB,NACOB,NDEOB,NOCOB,NTOOB,                      &
+              NORB1,NORB2,NORB3,                                  &
+              NOSPIR(MXPIRR),IOSPIR(MXPOBS,MXPIRR),               &
+              NINOBS(MXPOBS),                                     &
+              NACOBS(MXPOBS),NOCOBS(MXPOBS),                      &
+              NTOOBS(MXPOBS),NDEOBS(MXPOBS),                      &
+              IREOTS(MXPORB),IREOST(MXPORB),ISMFTO(MXPORB),       &
+              ITPFSO(MXPORB),IBSO(MXPOBS),                        &
+              NTSOB(3,MXPOBS),IBTSOB(3,MXPOBS),ITSOB(MXPORB),     &
+              NOBPTS(6+MXPR4T,MXPOBS),IOBPTS(6+MXPR4T,MXPOBS),    &
+              ITOOBS(MXPOBS),ITPFTO(MXPORB),ISMFSO(MXPORB),       &
+              NOBPT(6+MXPR4T),NAOS_ENV(MXPOBS),NMOS_ENV(MXPOBS),  &
+              I_IAD(MXPNGAS),I_IADX(MXPNGAS),MXTSOB,MXTOB,        &
+              MXTSOB_P,MXTSOB_H
 
 ! Stuff from oper.fh
 INTEGER     I12,IPERTOP,IAPR,IPART,I_RES_AB
