@@ -29,7 +29,7 @@ public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc
 
 #include "Molcas.fh"
 
-Integer(kind=iwp), Parameter :: MxPrim=20*MxAO,MxrCof=10*MxPrim
+Integer(kind=iwp), Parameter :: MxPrim=MxAO,MxrCof=MxPrim
 Integer(kind=iwp) nPrimr(MxAO), nBasisr(MxAO), nAngr(MxAO)
 Integer(kind=iwp) icent(MxAO), lnang(MxAO), lmag(MxAO), lant(MxAO), nrBas(8), nrBas_prim(8), nrSym
 Real(kind=wp) rCof(MxrCof),rExp(MxPrim)
