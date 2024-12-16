@@ -29,11 +29,9 @@
      &                      I_ELIMINATE_GAS,N_ELIMINATED_BATCHES,
      &                      I_AM_OUT,I2ELIMINATED_IN_GAS,IBSPGPFTP,
      &                      IELIMINATED_IN_GAS,ISPGPFTP,NELFGP,NSPGPFTP
+      use lucia_data, only: MXPSTT
       IMPLICIT NONE
       INTEGER NBATCH
-*
-#include "mxpdim.fh"
-*
 * Input
       INTEGER IBATCH(8,*),LBATCH(*),I1BATCH(*)
 * Scratch
