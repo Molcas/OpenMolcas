@@ -30,6 +30,7 @@
       use lucia_data, only: N_ELIMINATED_GAS,N_2ELIMINATED_GAS,
      &                      I_ELIMINATE_GAS,I2ELIMINATED_IN_GAS,
      &                      IELIMINATED_IN_GAS
+      use lucia_data, only: NOBPT,NOCOB
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -48,7 +49,6 @@
 *
       Implicit NONE
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "warnings.h"
 * Input type of occupation classes
       INTEGER NOCCLS,ISYM,IPRCSF
