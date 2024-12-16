@@ -34,7 +34,6 @@
 *
 *
 *./ORBINP/ : NACOB used
-#include "strinp.fh"
 #include "csm.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
