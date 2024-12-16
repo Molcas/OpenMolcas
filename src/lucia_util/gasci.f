@@ -41,6 +41,9 @@
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
       use lucia_data, only: MXPNGAS,MXPNSMST
+#ifdef _DEBUGPRINT_
+      use lucia_data, only: LCMBSPC
+#endif
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -64,6 +67,9 @@
       INTEGER, External:: IFRMR
       INTEGER, EXTERNAL:: IMNMX
       REAL*8 SHIFT
+#ifdef _DEBUGPRINT_
+      INTEGER IGAS,II,JJGASSPC,JGASSPC
+#endif
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
