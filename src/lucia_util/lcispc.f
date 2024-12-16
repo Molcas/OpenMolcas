@@ -36,7 +36,6 @@
 * ===================
 *
 #include "mxpdim.fh"
-#include "strinp.fh"
 #include "csm.fh"
 *
 * ====================
