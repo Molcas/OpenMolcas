@@ -24,6 +24,7 @@
       use lucia_data, only: NOCOB,NOBPT,NTOOB
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
+      use lucia_data, only: MXPNGAS
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -37,7 +38,6 @@
 *.Input
 * =====
 *
-#include "mxpdim.fh"
 #include "csm.fh"
 *
       INTEGER NBLOCK,ISYM
