@@ -13,18 +13,18 @@
      &                IPNT2,NSMOB,INH1,ICOUL)
       use wadr, only: tuvx
 * interface to RASSCF common blocks
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
+      IMPLICIT None
+      INTEGER ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,NSMOB,
+     & ICOUL
 *. For Jesper and openMP
       INTEGER IPNT2(*),INH1(*)
       Real*8 XINT(*)
 *
       CALL GETINCN_RASSCFS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                IXCHNG,IKSM,JLSM,TUVX,NSMOB,ICOUL)
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer_array(IPNT2)
         CALL Unused_integer_array(INH1)
       END IF
-      END
+      END SUBROUTINE GETINCN_RASSCF
