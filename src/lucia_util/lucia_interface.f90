@@ -49,7 +49,6 @@ Contains
 ! Include all LUCIA include files to make sure
 ! they are available during the calculation.
 !
-#include "mxpdim.fh"
 #include "csm.fh"
       Integer, Allocatable:: lVec(:)
 !
