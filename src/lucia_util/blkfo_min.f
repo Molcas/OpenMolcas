@@ -20,6 +20,7 @@
       use lucia_data, only: ISMOST,MXNTTS,MXSOOB
       use lucia_data, only: ISIMSYM,LCSBLK
       use lucia_data, only: IDC
+      use lucia_data, only: NOCTYP
 *
 * Number of blocks and length of each block for CI expansion
 *
@@ -38,7 +39,6 @@
       IMPLICIT NONE
       INTEGER ISM,NBLK
 #include "mxpdim.fh"
-#include "stinf.fh"
 #include "csm.fh"
 
 
