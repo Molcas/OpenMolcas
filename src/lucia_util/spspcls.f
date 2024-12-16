@@ -22,8 +22,8 @@
       use lucia_data, only: IPRDIA
       use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP
       use lucia_data, only: NOCTYP
+      use lucia_data, only: MXPNGAS
       IMPLICIT None
-#include "mxpdim.fh"
 *. Specific input
       INTEGER NCLS,ICLS(*)
 *. OUtput
