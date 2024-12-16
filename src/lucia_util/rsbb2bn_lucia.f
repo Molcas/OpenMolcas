@@ -89,13 +89,13 @@
 *
       use Constants, only: Zero, One
       USE Para_Info, ONLY: MyRank, nProcs
+      use lucia_data, only: MXPOBS,MXPNGAS
       IMPLICIT NONE
       INTEGER IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,
      &        NJA,NJB,IAGRP,IBGRP,NGAS,MXPNGASX,MAXK,NSMOB,NSMST,NSMSX,
      &        NSMDX,MXPOBSX,IUSEAB,NTESTG,NSEL2E,IUSE_PH
       REAL*8 SCLFAC
 *. General input
-#include "mxpdim.fh"
 #include "timers.fh"
       INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
       INTEGER NOBPTS(MXPNGAS,*)
