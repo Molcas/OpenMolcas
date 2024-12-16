@@ -40,6 +40,7 @@
       use lucia_data, only: NOBPT,NOBPTS
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
+      use lucia_data, only: MXPNGAS,MXPNSMST
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -47,7 +48,6 @@
 * Jeppe Olsen, Winter of 1995
 *
       IMPLICIT NONE
-#include "mxpdim.fh"
 #include "csm.fh"
 *
       INTEGER ISM, ISPC,IPRNT,IIUSEH0P,MPORENP_E
