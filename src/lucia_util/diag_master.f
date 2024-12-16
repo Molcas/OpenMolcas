@@ -22,8 +22,6 @@
 *  Set up the diagonal for the CI calculation
 *
       implicit None
-#include "mxpdim.fh"
-#include "orbinp.fh"
       REAL*8 EREF
 *
       INT1(:)=INT1O(:)
