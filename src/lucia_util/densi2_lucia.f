@@ -27,6 +27,8 @@
      &                      MAX_STR_SPGP,MNHL,NELFSPGP,NHLFSPGP,
      &                      NSTFSMSPGP
       use lucia_data, only: NSMOB
+      use lucia_data, only: NACOB,MXTSOB,NOCOB,IOBPTS,IREOST,NACOBS,
+     &                      NINOBS,NOBPTS,NTOOB,NTOOBS
 *
 * Density matrices between L and R
 *
@@ -67,7 +69,6 @@
 * with L being S and  R being C
 *
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
