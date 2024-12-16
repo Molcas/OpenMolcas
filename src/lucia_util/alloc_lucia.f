@@ -15,6 +15,7 @@
       use Constants, only: Zero
       use lucia_data, only: NBINT1,NBINT2
       use lucia_data, only: NSMOB
+      use lucia_data, only: NTOOB
 *
 * Dimensions and
 * Allocation of static memory
@@ -45,7 +46,6 @@
 *. Input
       IMPLICIT None
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 *.Output
