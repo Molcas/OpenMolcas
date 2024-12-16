@@ -17,6 +17,7 @@
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
       use lucia_data, only: NSMOB
       use lucia_data, only: NTOOB,NTOOBS
+      use lucia_data, only: LUSC1,LUSC2,LUSC3
 *
 * A rotation matrix X is defining expansion from
 * old to new orbitals
@@ -43,7 +44,7 @@
       Real*8 X(*),VEC1(*),VEC2(*)
 
       Real*8, Allocatable:: SCR(:), LT(:)
-      INTEGER IOFF,NTEST,ISM,LUSC1,LUSC2,LUSC3
+      INTEGER IOFF,NTEST,ISM
 * Some dummy initializations
       IOFF = 0 ! jwk-cleanup
 *
