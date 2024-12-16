@@ -36,6 +36,7 @@
       use lucia_data, only: IH1FORM,IH2FORM
       use lucia_data, only: IDISK
       use lucia_data, only: NSMOB
+      use lucia_data, only: I_RES_AB,I12
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -48,7 +49,6 @@
 #include "csm.fh"
 #include "strinp.fh"
 #include "stinf.fh"
-#include "oper.fh"
 *
       INTEGER ISM, ISPC,IPRNT,IIUSEH0P,MPORENP_E
       REAL*8 EREF
