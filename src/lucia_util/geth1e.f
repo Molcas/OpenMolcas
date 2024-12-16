@@ -12,6 +12,7 @@
       use GLBBAS, only: INT1, PINT1, PGINT1, PGINT1A
       use lucia_data, only: IH1FORM
       use symmetry_info, only: MULTD2H => Mul
+      use lucia_data, only: IBSO,IOBPTS,IREOTS,NACOBS
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
@@ -21,7 +22,6 @@
       IMPLICIT None
       Integer IORB,ITP,ISM,JORB,JTP,JSM
 #include "mxpdim.fh"
-#include "orbinp.fh"
       INTEGER IJSM
       REAL*8 GETH1E
       REAL*8, EXTERNAL:: GTH1ES
