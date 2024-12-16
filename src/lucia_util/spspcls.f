@@ -24,7 +24,6 @@
       use lucia_data, only: NOCTYP
       IMPLICIT None
 #include "mxpdim.fh"
-#include "strinp.fh"
 *. Specific input
       INTEGER NCLS,ICLS(*)
 *. OUtput
