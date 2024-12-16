@@ -17,11 +17,11 @@
       use lucia_data, only: LCSBLK
       use lucia_data, only: IREFSM,PSSIGN
       use lucia_data, only: NSMOB
+      use lucia_data, only: MXPOBS
 * Deallocate memory allocated during alloc_lucia
 
 *. Input
       IMPLICIT None
-#include "mxpdim.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 
