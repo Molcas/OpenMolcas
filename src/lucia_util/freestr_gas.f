@@ -22,7 +22,6 @@
 *
 #include "mxpdim.fh"
 #include "csm.fh"
-#include "stinf.fh"
       Integer IGRP,ITP
 *
 *.  Offsets for occupation and reorder array of strings
