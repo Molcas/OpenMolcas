@@ -27,6 +27,7 @@
      &                      LCOLIC,NBLKIC,XISPSM
       use lucia_data, only: IDC
       use lucia_data, only: IBSPGPFTP,ISPGPFTP
+      use lucia_data, only: NOCTYP
       IMPLICIT NONE
       INTEGER IPRNT
 *
@@ -37,7 +38,6 @@
 #include "mxpdim.fh"
 #include "strinp.fh"
 #include "csm.fh"
-#include "stinf.fh"
 *
 * ====================
 *. Output common block : XISPSM is calculated
