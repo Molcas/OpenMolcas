@@ -19,6 +19,9 @@
       use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
+#ifdef _DEBUGPRINT_
+      use lucia_data, only: IBSPGPFTP
+#endif
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -49,6 +52,9 @@
       Real*8, Allocatable:: LJ(:), LK(:), LXB(:), LH1D(:), LRJKA(:)
       INTEGER, EXTERNAL:: IMNMX
       INTEGER NTEST,IATP,IBTP,NAEL,NBEL,NOCTPA,MAXA
+#ifdef _DEBUGPRINT_
+      Integer NOCTPB IOCTPA,IOCTPB
+#endif
 *
 *
       NTEST = 0
