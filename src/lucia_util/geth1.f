@@ -24,12 +24,9 @@
 * Jeppe Olsen, Version of fall 97
 *              Summer of 98 : CC options added
 *
+      use lucia_data, only: NOBPTS
       IMPLICIT None
       INTEGER ISM,ITP,JSM,JTP
-#include "mxpdim.fh"
-*.Global pointers
-#include "orbinp.fh"
-
 *.Output
       REAL*8 H(*)
 
