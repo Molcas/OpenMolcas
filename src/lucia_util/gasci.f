@@ -39,6 +39,7 @@
       use lucia_data, only: I_RES_AB,I12
       use lucia_data, only: NOBPT,NOBPTS
       use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -48,7 +49,6 @@
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "csm.fh"
-#include "strinp.fh"
 *
       INTEGER ISM, ISPC,IPRNT,IIUSEH0P,MPORENP_E
       REAL*8 EREF
