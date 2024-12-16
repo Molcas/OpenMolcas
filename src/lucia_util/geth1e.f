@@ -22,7 +22,6 @@
       Integer IORB,ITP,ISM,JORB,JTP,JSM
 #include "mxpdim.fh"
 #include "orbinp.fh"
-#include "oper.fh"
       INTEGER IJSM
       REAL*8 GETH1E
       REAL*8, EXTERNAL:: GTH1ES
