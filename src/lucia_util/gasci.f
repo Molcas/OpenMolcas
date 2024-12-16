@@ -37,6 +37,7 @@
       use lucia_data, only: IDISK
       use lucia_data, only: NSMOB
       use lucia_data, only: I_RES_AB,I12
+      use lucia_data, only: NOBPT,NOBPTS
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -45,7 +46,6 @@
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 #include "strinp.fh"
 #include "stinf.fh"
