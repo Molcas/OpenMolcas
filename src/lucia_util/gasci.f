@@ -42,7 +42,7 @@
       use lucia_data, only: NELEC
       use lucia_data, only: MXPNGAS,MXPNSMST
 #ifdef _DEBUGPRINT_
-      use lucia_data, only: LCMBSPC
+      use lucia_data, only: LCMBSPC,ICMBSPC,IGSOCCX
 #endif
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
