@@ -31,7 +31,6 @@
 * =====
 *.Input
 * =====
-#include "mxpdim.fh"
 #include "csm.fh"
 *
       INTEGER LUDIA,ICISTR,I12,NBLOCK
