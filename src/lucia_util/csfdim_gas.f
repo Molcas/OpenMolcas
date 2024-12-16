@@ -138,8 +138,8 @@ C
          WRITE(6,*)' the named constant MXPCSM must be increased'
          WRITE(6,*)' from its current value MXPCSM=',MXPCSM
          WRITE(6,*)' to AT LEAST NOCCLS=',NOCCLS
-         WRITE(6,*)' This parameter is found in the file'
-         WRITE(6,*)'  <molcas>/src/lucia_util/mxpdim.fh'
+         WRITE(6,*)' This parameter is found in the module'
+         WRITE(6,*)'  <molcas>/src/lucia_util/lucia_data.F90'
          WRITE(6,*)' Change it. Then ''cd'' to molcas root'
          WRITE(6,*)' directory and give command ''make''.'
          WRITE(6,*)' But this may also be a bug. Please tell the'
@@ -235,7 +235,7 @@ c
            ELSE
 * PAM2009: It was discovered that these two arrays could be overrun.
 * The arrays are declared in lucia_data.F90, and their dimension
-* is MXPCSM, which is set in mxpdim.fh -- both included above.
+* is MXPCSM, which is set in lucia_data.F90 -- both included above.
 * So MXPCSM is now increased from 20 to 40 -- if this is not a final
 * solution remains to be discovered:
              NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM
@@ -380,7 +380,6 @@ C
 
       Implicit NONE
       INTEGER ISYM
-#include "mxpdim.fh"
 #include "warnings.h"
       INTEGER IOPEN,ITYP
 
