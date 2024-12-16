@@ -25,15 +25,7 @@
 * Written in terms of RASG3/SBLOCK, May 1997
       IMPLICIT NONE
       INTEGER LUC,LUHC
-#include "mxpdim.fh"
-*
-* =====
-*.Input
-* =====
       REAL*8 C(*),HC(*)
-*
-*
-*./ORBINP/ : NACOB used
 #include "csm.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
