@@ -51,7 +51,6 @@ Contains
 !
 #include "mxpdim.fh"
 #include "csm.fh"
-#include "oper.fh"
 #include "orbinp.fh"
 #include "stinf.fh"
 #include "strinp.fh"
