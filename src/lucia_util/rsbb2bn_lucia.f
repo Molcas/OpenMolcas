@@ -87,8 +87,13 @@
 *
 * Last change : Aug 2000
 *
+      use Constants, only: Zero, One
       USE Para_Info, ONLY: MyRank, nProcs
       IMPLICIT REAL*8(A-H,O-Z)
+      INTEGER IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,
+     &        NJA,NJB,IAGRP,IBGRP,NGAS,MXPNGASX,MAXK,NSMOB,NSMST,NSMSX,
+     &        NSMDX,MXPOBSX,IUSEAB,NTESTG,NSEL2E,IUSE_PH
+      REAL*8 SCLFAC
 *. General input
 #include "mxpdim.fh"
 #include "timers.fh"
@@ -115,10 +120,6 @@
       INTEGER KL_TYP(2),KL_DIM(2),KL_REO(2),KL_SYM(2)
 *
       INTEGER IASPGP(20),IBSPGP(20),JASPGP(20),JBSPGP(20)
-*. Arrays for reorganization
-C-jwk-cleanup      DIMENSION NADDEL(6),IADDEL(4,6),IADOP(4,6),ADSIGN(6)
-C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
-*
 
 #include "oper.fh"
 *
@@ -132,9 +133,6 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
         WRITE(6,*) ' =============== '
 *
       END IF
-*. A few constants
-      ZERO = 0.0D0
-      ONE = 1.0D0
 *. Groups defining each supergroup
       CALL GET_SPGP_INF(IATP,IAGRP,IASPGP)
       CALL GET_SPGP_INF(JATP,IAGRP,JASPGP)
