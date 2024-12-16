@@ -30,16 +30,19 @@
 *
 * Jeppe Olsen, August 1995
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
+      use lucia_data, only: MXPNGAS
+      IMPLICIT NONE
+      INTEGER IWAY,NOCCLS,NEL,NGAS,I_DO_BASSPC
 *. Input
-      DIMENSION IGSMIN(NGAS),IGSMAX(NGAS),NOBPT(NGAS)
+      INTEGER IGSMIN(NGAS),IGSMAX(NGAS),NOBPT(NGAS)
 *. Output
-      DIMENSION IOCCLS(NGAS,*)
-      DIMENSION IBASSPC(*)
+      INTEGER IOCCLS(NGAS,*)
+      INTEGER IBASSPC(*)
 *. Local scratch
-      DIMENSION IOCA(MXPNGAS),IOC(MXPNGAS)
+      INTEGER IOCA(MXPNGAS),IOC(MXPNGAS)
       INTEGER, External:: IELSUM
+      INTEGER NTEST,ISKIP,IGAS,NONEW,IFIRST,KGAS,NEGA,IM_TO_STUFFED,
+     &        IEL,I,IBASSPC_FOR_CLS
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -135,5 +138,4 @@ C       WRITE(6,*) ' Base CI spaces for the classes '
 C       CALL IWRTMA(IBASSPC,1,NOCCLS,1,NOCCLS)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE OCCLS
