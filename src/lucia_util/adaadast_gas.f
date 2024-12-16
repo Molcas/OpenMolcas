@@ -63,7 +63,6 @@
      &        KFRST, I12, K12
       REAL*8 SCLFAC
 #include "mxpdim.fh"
-#include "strinp.fh"
 
       INTEGER I1(*)
       REAL*8 XI1S(*)
