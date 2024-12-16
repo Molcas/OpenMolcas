@@ -20,6 +20,7 @@
       use lucia_data, only: IBGPSTR,IBSPGPFTP,ISPGPFTP,NELFGP,NELFSPGP,
      &                      NELFTP,NGPSTR
       use lucia_data, only: NELIS,NSTRKS
+      use lucia_data, only: IOBPTS,NOBPT,NOCOB
 *
 *
 * Obtain two-operator mappings
@@ -62,8 +63,6 @@
      &        KFRST, I12, K12
       REAL*8 SCLFAC
 #include "mxpdim.fh"
-*./ORBINP/
-#include "orbinp.fh"
 #include "strinp.fh"
 
       INTEGER I1(*)
