@@ -38,7 +38,6 @@
 *
       IMPLICIT NONE
       INTEGER ISM,NBLK
-#include "mxpdim.fh"
 #include "csm.fh"
 
 
