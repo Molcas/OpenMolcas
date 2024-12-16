@@ -37,7 +37,6 @@
       IMPLICIT NONE
       INTEGER NIGRP,ISYM,LPNT
 #include "mxpdim.fh"
-#include "strinp.fh"
 #include "csm.fh"
 *. Specific Input
       INTEGER IGRP(NIGRP)
