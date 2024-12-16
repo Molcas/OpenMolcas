@@ -12,6 +12,7 @@
       use lucia_data, only: NGAS
       use lucia_data, only: IBGPSTR,NGPSTR,NGRP
       use lucia_data, only: ISTAC
+      use lucia_data, only: MXPSTT
       IMPLICIT NONE
       INTEGER IPRNT
 
@@ -35,7 +36,6 @@
 *                    Orbital group are mapped
 *                    mapped
 *. Input
-#include "mxpdim.fh"
 *. Only the first element, i.e. ISTAC  is defined
 
 *
