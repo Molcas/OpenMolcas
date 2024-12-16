@@ -34,9 +34,9 @@
 * Version 2 : Uses IGRP and NIGRP to define supergroup
 *
       use lucia_data, only: MINMAX_SM_GP,NELFGP,NSTFSMGP
+      use lucia_data, only: MXPNGAS,MXPNSMST
       IMPLICIT NONE
       INTEGER NIGRP,ISYM,LPNT
-#include "mxpdim.fh"
 #include "csm.fh"
 *. Specific Input
       INTEGER IGRP(NIGRP)
