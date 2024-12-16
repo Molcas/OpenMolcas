@@ -31,10 +31,8 @@
       use lucia_data, only: NGAS,IPHGAS
       use lucia_data, only: IADVICE
       use lucia_data, only: MNHL
+      use lucia_data, only: NOBPT
       IMPLICIT NONE
-*. General input
-#include "mxpdim.fh"
-#include "orbinp.fh"
 *. Specific input
       INTEGER IAOCC(*),IBOCC(*),JAOCC(*),JBOCC(*)
       INTEGER LADVICE
