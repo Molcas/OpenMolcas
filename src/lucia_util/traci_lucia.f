@@ -16,6 +16,7 @@
 *. Module for communicating with sigma
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
       use lucia_data, only: NSMOB
+      use lucia_data, only: NTOOB,NTOOBS
 *
 * A rotation matrix X is defining expansion from
 * old to new orbitals
@@ -38,9 +39,6 @@
 * as a matrix over NTOOB orbitals.
 *
       IMPLICIT NONE
-*
-#include "mxpdim.fh"
-#include "orbinp.fh"
       Integer LUCIN, LUCOUT,  IXSPC,   IXSM
       Real*8 X(*),VEC1(*),VEC2(*)
 
