@@ -45,8 +45,11 @@
 *
 * Jeppe Olsen, Nov. 2001
 *
-      Implicit REAL*8 (A-H,O-Z)
-#include "mxpdim.fh"
+      use lucia_data, only: MXPORB
+      Implicit None
+      Integer IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,
+     &        NSMST,IONLY_NCONF,NTORB,NCONF,IDOREO,NCONF_ALL_SYM,
+     &        nconf_tot
 *
 *.. Input
 *
@@ -73,6 +76,9 @@ c     INTEGER IREO(*)
 
       INTEGER IDUM_ARR(1)
       INTEGER, External:: IELSUM
+      INTEGER NTEST,NEL,IZERO,INI,ISUM,I,NONEW,ISYM_CONF,NOPEN,NOCOB,
+     &        IB_OCC,ILEXNUM,JREO,IDUM,ILEX_FOR_CONF_NEW,ISYMST,
+     &        NOP_FOR_CONF
 *
       NTEST = 00
 *. Total number of electrons
@@ -157,7 +163,6 @@ c.. Giovanni and Dongxia 2011
         END IF
       END IF
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(NSMST)
-      END
+      END SUBROUTINE GEN_CONF_FOR_OCCLS
