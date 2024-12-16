@@ -18,6 +18,7 @@
       use lucia_data, only: MXSOOB,ISMOST,MXNTTS,XISPSM
       use lucia_data, only: ENVIRO,ISIMSYM,LCSBLK
       use lucia_data, only: IREFSM,PSSIGN,IDC
+      use lucia_data, only: NOCTYP
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -39,7 +40,6 @@
       IMPLICIT NONE
       INTEGER ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK
 #include "mxpdim.fh"
-#include "stinf.fh"
 #include "csm.fh"
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)

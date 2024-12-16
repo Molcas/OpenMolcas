@@ -31,8 +31,6 @@
       IMPLICIT NONE
       INTEGER ISPGP,IWAY
 *. Generel input
-#include "mxpdim.fh"
-#include "stinf.fh"
 *. input(IWAY = 2 ), output (IWAY = 1 )
       INTEGER IEL(*)
 
