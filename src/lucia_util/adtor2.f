@@ -29,8 +29,6 @@
 *              input is in form Rho2t(ij,kl)
 *
       IMPLICIT NONE
-#include "mxpdim.fh"
-#include "orbinp.fh"
 *.Input
       REAL*8 RHO2T(*)
       INTEGER ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB
