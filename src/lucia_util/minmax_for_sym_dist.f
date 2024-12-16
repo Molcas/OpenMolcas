@@ -22,7 +22,6 @@
       use lucia_data, only: MINMAX_SM_GP
       IMPLICIT NONE
 *. Include blocks
-#include "mxpdim.fh"
 #include "csm.fh"
 *. Input
       INTEGER NIGRP,NDIST
