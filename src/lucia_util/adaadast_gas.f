@@ -21,6 +21,7 @@
      &                      NELFTP,NGPSTR
       use lucia_data, only: NELIS,NSTRKS
       use lucia_data, only: IOBPTS,NOBPT,NOCOB
+      use lucia_data, only: MXPNGAS
 *
 *
 * Obtain two-operator mappings
@@ -62,8 +63,6 @@
      &        JAC, ISPGP, ISM, ITP, KMIN, KMAX, LI1, NK, IEND, IFRST,
      &        KFRST, I12, K12
       REAL*8 SCLFAC
-#include "mxpdim.fh"
-
       INTEGER I1(*)
       REAL*8 XI1S(*)
 
