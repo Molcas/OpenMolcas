@@ -22,9 +22,9 @@
 *
 * Jeppe Olsen, Nov. 2001
 *
-      Implicit REAL*8 (A-H,O-Z)
-#include "mxpdim.fh"
-*
+      use lucia_data, only: MXPNGAS,MXPORB
+      Implicit NONE
+      INTEGER NGAS,INI,NONEW
 *. Input
 *
 *. Number of electrons per gas space
@@ -37,6 +37,8 @@
       INTEGER IBORB(MXPNGAS), ICONF_GAS(MXPORB)
       INTEGER IBEL(MXPNGAS)
       INTEGER, External:: IELSUM
+      INTEGER NTEST,NEL,IGAS,INI_L,NONEW_L,NEL_GAS,NORB_GAS,JBEL,
+     &        JBORB,JEL,JORB,JGAS
 *
       NTEST = 000
 *. Total number of electrons
@@ -164,5 +166,4 @@ C    &             (ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,2)
         END IF
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE NEXT_CONF_FOR_OCCLS
