@@ -46,7 +46,6 @@
       IMPLICIT NONE
 #include "mxpdim.fh"
 #include "strinp.fh"
-#include "stinf.fh"
 #include "csm.fh"
       Real*8 :: OFFI(*)
       INTEGER IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,NKSTR,IEND,IFRST,KFRST,
