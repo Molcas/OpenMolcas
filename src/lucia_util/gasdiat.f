@@ -24,6 +24,7 @@
 * Driven by table of TTS blocks, May97
 *
       use lucia_data, only: IDISK
+      use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
       IMPLICIT NONE
 * =====
 *.Input
@@ -32,7 +33,6 @@
 *./ORBINP/ : NACOB used
 *
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
