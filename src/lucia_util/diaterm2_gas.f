@@ -21,6 +21,7 @@
 #ifdef _DEBUGPRINT_
       use lucia_data, only: IDC
 #endif
+      use lucia_data, only: NOCTYP
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -36,7 +37,6 @@
 *
 #include "mxpdim.fh"
 #include "strinp.fh"
-#include "stinf.fh"
 #include "csm.fh"
 *
       REAL*8 FACTOR
