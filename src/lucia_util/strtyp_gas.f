@@ -31,10 +31,10 @@
       use lucia_data, only: MXTSOB_P,MXTSOB_H,NOBPT
       use lucia_data, only: NOCTYP,ISTAC
       use lucia_data, only: NSTTYP,NELEC
+      use lucia_data, only: MXPSTT
       IMPLICIT NONE
       INTEGER IPRNT
-*
-#include "mxpdim.fh"
+
 *. Local scratch
       INTEGER IOCTYP(MXPSTT),IREOSPGP(MXPSTT),ISCR(MXPSTT)
       INTEGER IOCCLS(1),IBASSPC(1)
