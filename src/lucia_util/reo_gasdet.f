@@ -23,6 +23,7 @@
       use lucia_data, only: MXNSTR,IBSPGPFTP,NELFSPGP
       use lucia_data, only: NOCOB,NOBPT,NTOOB
       use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -37,7 +38,6 @@
 * =====
 *
 #include "mxpdim.fh"
-#include "strinp.fh"
 #include "csm.fh"
 *
       INTEGER NBLOCK,ISYM
