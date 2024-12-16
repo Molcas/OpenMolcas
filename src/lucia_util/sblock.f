@@ -34,6 +34,7 @@
       use lucia_data, only: I12,IPART,IPERTOP,I_RES_AB
       use lucia_data, only: MXTSOB,NTOOB,NOCOB,IOBPTS,ITSOB,NOBPTS
       use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -64,7 +65,6 @@
      &        ICBAT_END
       INTEGER IBLOCK(8,*)
 *
-#include "strinp.fh"
 #include "csm.fh"
 #include "csmprd.fh"
       REAL*8 CB(*),HCB(*)
