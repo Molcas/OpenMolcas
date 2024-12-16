@@ -16,6 +16,7 @@
      &                      NBINT1,NBINT2
       use lucia_data, only: PNTGRP,NSMOB
       use lucia_data, only: NTOOBS
+      use lucia_data, only: MXPOBS
 
       IMPLICIT NONE
       INTEGER IPRNT
@@ -24,7 +25,6 @@
 *.Input
 * =====
 *
-#include "mxpdim.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 *
