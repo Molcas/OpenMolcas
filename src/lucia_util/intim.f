@@ -28,7 +28,6 @@
 #include "mxpdim.fh"
 #include "csm.fh"
 #include "orbinp.fh"
-#include "oper.fh"
 *
 *. : Pointers for symmetry blocks of integrals
 *
