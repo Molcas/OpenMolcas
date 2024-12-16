@@ -51,7 +51,6 @@ Contains
 !
 #include "mxpdim.fh"
 #include "csm.fh"
-#include "strinp.fh"
       Integer, Allocatable:: lVec(:)
 !
 #ifdef _DEBUGPRINT_
