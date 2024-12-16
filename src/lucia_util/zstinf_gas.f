@@ -11,6 +11,7 @@
       SUBROUTINE ZSTINF_GAS(IPRNT)
       use lucia_data, only: NGAS
       use lucia_data, only: IBGPSTR,NGPSTR,NGRP
+      use lucia_data, only: ISTAC
       IMPLICIT NONE
       INTEGER IPRNT
 
@@ -35,8 +36,6 @@
 *                    mapped
 *. Input
 #include "mxpdim.fh"
-*. Output
-#include "stinf.fh"
 *. Only the first element, i.e. ISTAC  is defined
 
 *
