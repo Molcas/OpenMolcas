@@ -85,18 +85,18 @@
       INTEGER IPHGAS(NGAS)
 *
 *.Input
-      DIMENSION CB(*)
+      REAL*8 CB(*)
       INTEGER ISOC(NGAS),ICOC(NGAS)
 *.Output
-      DIMENSION SB(*)
+      REAL*8 SB(*)
 *.Scatch
-      DIMENSION SSCR(*),CSCR(*),XINT(*)
-      DIMENSION I1(MAXK,*),XI1S(MAXK,*)
-c      DIMENSION RIKSX(MXSXBL,4),RKJSX(MXSXBL,4)
+      REAL*8 SSCR(*),CSCR(*),XINT(*)
+      INTEGER I1(MAXK,*)
+      REAL*8 XI1S(MAXK,*)
 *.Local arrays
-      DIMENSION ITP(256),JTP(256),KTP(256),LTP(256)
+      INTEGER ITP(256),JTP(256),KTP(256),LTP(256)
 C-jwk-cleanup      INTEGER I4_DIM(4),I4_SM(4)
-      DIMENSION I4_TP(4),I4_REO(4),ISCR(4)
+      INTEGER I4_TP(4),I4_REO(4),ISCR(4)
       INTEGER I4_AC(4)
 *
       INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
@@ -872,10 +872,9 @@ C                   write(6,*) ' first element of updated SB', SB(1)
  2001 CONTINUE
 *
       Call mma_deallocate(SCR)
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(NSCOL)
         CALL Unused_integer(NSMDX)
       END IF
-      END
+      END SUBROUTINE RSBB2A_LUCIA
