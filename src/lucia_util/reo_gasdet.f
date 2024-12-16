@@ -22,6 +22,7 @@
       use lucia_data, only: PSSIGN
       use lucia_data, only: MXNSTR,IBSPGPFTP,NELFSPGP
       use lucia_data, only: NOCOB,NOBPT,NTOOB
+      use lucia_data, only: NOCTYP
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -37,7 +38,6 @@
 *
 #include "mxpdim.fh"
 #include "strinp.fh"
-#include "stinf.fh"
 #include "csm.fh"
 *
       INTEGER NBLOCK,ISYM
