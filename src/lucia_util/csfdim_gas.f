@@ -381,7 +381,6 @@ C
       Implicit NONE
       INTEGER ISYM
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "warnings.h"
       INTEGER IOPEN,ITYP
 
