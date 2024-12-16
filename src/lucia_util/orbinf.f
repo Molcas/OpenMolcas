@@ -13,6 +13,11 @@
       SUBROUTINE ORBINF(IPRNT)
       use lucia_data, only: NGAS,IGSINA,IGSDEL,NGSOB,NGSOBT,NGSSH
       use lucia_data, only: NSMOB,NIRREP,PNTGRP
+      use lucia_data, only: NTOOB,NACOB,NOCOB,NINOB,NDEOB,MXTSOB,MXTOB,
+     &                      ITOOBS,IBSO,IOBPTS,IOSPIR,IREOST,IREOTS,
+     &                      ISMFSO,ISMFTO,ITOOBS,ITPFSO,ITPFTO,NACOBS,
+     &                      NDEOB,NDEOBS,NINOB,NINOBS,NOBPT,NOBPTS,
+     &                      NOCOBS,NOSPIR,NTOOBS
       IMPLICIT None
       INTEGER IPRNT
 *
@@ -30,9 +35,7 @@
 *
 * Jeppe Olsen, Winter of 1991
 *
-COLD  INTEGER CITYP
 #include "mxpdim.fh"
-#include "orbinp.fh"
       INTEGER NTEST,IGAS,I,ISMOB,IOBTP,LTOB,IOBSM
 *
       NTEST = 0
