@@ -31,10 +31,10 @@
       use lucia_data, only: MXTSOB,NTOOB,NOCOB,NOBPT,NOBPTS
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
+      use lucia_data, only: MXPCSM,MXPNGAS,MXPNSMST,MXPORB
 
 *
       IMPLICIT NONE
-#include "mxpdim.fh"
 #include "csm.fh"
 
       INTEGER IOCCLS(1),IBASSPC(1)
