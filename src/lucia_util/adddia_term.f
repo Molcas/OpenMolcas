@@ -28,7 +28,6 @@
 *
       IMPLICIT NONE
 *
-#include "mxpdim.fh"
 #include "csm.fh"
 *
       REAL*8 FACTOR
