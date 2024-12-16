@@ -35,6 +35,7 @@
       use lucia_data, only: MXTSOB,NTOOB,NOCOB,IOBPTS,ITSOB,NOBPTS
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
+      use lucia_data, only: MXPOBS,MXPNGAS,MXPNSMST
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -54,7 +55,6 @@
 *
 *
       IMPLICIT NONE
-#include "mxpdim.fh"
 *
 * =====
 *.Input
