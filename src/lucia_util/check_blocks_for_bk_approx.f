@@ -29,11 +29,11 @@
 * Giovanni +Jeppe Olsen, Sept 2011, on a bench at Torre Normanna, Sicily
       use lucia_data, only: NGAS
       use lucia_data, only: IBSPGPFTP,NELFSPGP
+      use lucia_data, only: MXPNGAS
       IMPLICIT NONE
       INTEGER IATP,IBTP,JATP,JBTP,
      &        IASM,IBSM,JASM,JBSM,
      &        IOCTPA,IOCTPB,I_DO_EXACT_BLOCK
-#include "mxpdim.fh"
 #include "bk_approx.fh"
 *. Local
       INTEGER IOCC(MXPNGAS), JOCC(MXPNGAS)
