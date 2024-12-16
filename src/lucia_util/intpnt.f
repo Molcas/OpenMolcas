@@ -15,6 +15,7 @@
       use lucia_data, only: I1234S,I12S,I34S
       use lucia_data, only: NSMOB
       use lucia_data, only: NTOOBS
+      use lucia_data, only: MXPOBS
 *
 * Pointers to symmetry blocks of integrals
 * IPNT1 : Pointer to given one-electron block, total symmetric
@@ -35,7 +36,6 @@
 *.Input
 * =====
 *
-#include "mxpdim.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 *
