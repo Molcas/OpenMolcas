@@ -19,6 +19,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_data, only: IBGPSTR,IGSFGP,NELFGP,NGPSTR,NGRP,NSTFGP
       use lucia_data, only: LOFFI
+      use lucia_data, only: IOBPTS,NOBPT,NOBPTS
 *
 *
 * Obtain creation or annihilation mapping
@@ -58,7 +59,6 @@
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
