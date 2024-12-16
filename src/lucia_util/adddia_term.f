@@ -18,6 +18,7 @@
       use lucia_data, only: IPRDIA
       use lucia_data, only: MXNSTR
       use lucia_data, only: NTOOB,NACOB,IREOST,IREOTS
+      use lucia_data, only: NOCTYP
 *. Update Sigma vector with diagonal terms for a given block
 *     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
 *                         + (FACTOR+DIAG(IASPGP,IBSPGP))CVEC(IASPGP,IBSPGP)
@@ -29,7 +30,6 @@
 #include "mxpdim.fh"
 #include "strinp.fh"
 #include "csm.fh"
-#include "stinf.fh"
 *
       REAL*8 FACTOR
       INTEGER IASPGP,IBSPGP,IASM,IBSM
