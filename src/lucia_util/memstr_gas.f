@@ -17,6 +17,7 @@
       use lucia_data, only: NMXOCCLS,NGAS
       use lucia_data, only: NGRP,NSTTP,NTSPGP,IGSFGP,NELFGP,NSPGPFTP,
      &                      NSTFGP
+      use lucia_data, only: NACOB,NOBPT
 *
 *
 * Construct pointers for saving information about strings and
@@ -40,7 +41,6 @@
       IMPLICIT NONE
 *
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 #include "stinf.fh"
       Integer IGRP,NSTRIN,LSTRIN,ITP,IEL,IGAS,IORB,ISTRIN,LENGTH
