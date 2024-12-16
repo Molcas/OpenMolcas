@@ -76,11 +76,11 @@
 *
       use Constants, only: Zero, Half,One
       USE Para_Info, ONLY: MyRank, nProcs
+      use lucia_data, only: MXPOBS,MXPNGAS,MXPTSOB
       IMPLICIT NONE
       INTEGER ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NSCOL,NGAS,MAXI,MAXK,
      &        NSMOB,NSMST,NSMDX
       REAL*8 SCLFAC
-#include "mxpdim.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS)
       INTEGER STSTDX(NSMST,NSMST)
