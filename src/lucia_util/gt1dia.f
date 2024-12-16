@@ -10,18 +10,16 @@
 ************************************************************************
       SUBROUTINE GT1DIA(H1DIA)
       use GLBBAS, Only: INT1O, PINT1
+      use lucia_data, only: IBSO,IREOTS,ISMFTO,NACOB
 *
 * Obtain diagonal of one electron matrix over active
 * orbitals
 *
 *. Dec 97 : obtained from INT1O
       IMPLICIT None
-#include "mxpdim.fh"
       REAL*8 H1DIA(*)
 
 *.GLobal pointers
-
-#include "orbinp.fh"
 *
 CINA  CALL GT1DIS(H1DIA,IREOTS(1+NINOB),PINT1,INT1,ISMFTO,IBSO,NACOB)
       CALL GT1DIS(H1DIA,IREOTS(1),PINT1,INT1O,ISMFTO,IBSO,NACOB)
