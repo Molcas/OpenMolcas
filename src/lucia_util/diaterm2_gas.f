@@ -35,7 +35,6 @@
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
-#include "oper.fh"
 *
       REAL*8 FACTOR
       INTEGER ITASK,IBLOCK(8,*)
