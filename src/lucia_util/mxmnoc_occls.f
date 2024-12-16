@@ -19,17 +19,19 @@
 * MINOP ( Smallest allowed number of open orbitals) added
 * April2, 2003, JO (modified by JWK, April - June 2003)
 *
-      IMPLICIT REAL*8           ( A-H,O-Z)
+      use lucia_data, only: MXPNGAS
+      IMPLICIT NONE
+      INTEGER  NORBTP,MINOP,NTESTG
 *. Output
-      DIMENSION  MINEL(*),MAXEL(*)
+      INTEGER  MINEL(*),MAXEL(*)
 *. Input
       INTEGER NORBFTP(*),NELFTP(*)
 *. Local scratch added April 2, 2003
 *
-#include "mxpdim.fh"
-C     INTEGER MINOP_ORB(MXPORB), MINOP_GAS(MXPNGAS), MAXOP_GAS(MXPNGAS)
       INTEGER MINOP_GAS(MXPNGAS), MAXOP_GAS(MXPNGAS)
       INTEGER, External:: IELSUM
+      INTEGER NTESTL,NTEST,NGAS,IGAS,MAXOP_T,MAXOP_EXL,NEL_INI,IBORB,
+     &        NELEC,MAX_DOUBLE,IORB,IORB_START,NORB
 *
       NTESTL = 00
       NTEST = MAX(NTESTG,NTESTL)
@@ -155,7 +157,4 @@ C?   &    IORB+IBORB-1,  MINEL(IORB+IBORB-1)
         CALL IWRTMA(MAXEL,1,NORB,1,NORB)
       END IF
 *
-      RETURN
-      END
-* routines for spinadapting CC amplitudes
-*
+      END SUBROUTINE MXMNOC_OCCLS
