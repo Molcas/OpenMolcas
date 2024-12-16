@@ -15,6 +15,7 @@
       use lucia_data, only: NINT1,I12S,I34S,I1234S,NINT2,NINT2_NO_CCSYM,
      &                      NBINT1,NBINT2
       use lucia_data, only: PNTGRP,NSMOB
+      use lucia_data, only: NTOOBS
 
       IMPLICIT NONE
       INTEGER IPRNT
@@ -24,7 +25,6 @@
 * =====
 *
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 #include "csmprd.fh"
 *
