@@ -26,6 +26,7 @@
      &                      ISTFSMGP,NELFGP,NELFSPGP,NELFTP,NHLFSPGP,
      &                      NSPGPFTP,NSTFGP,NSTFSMGP,NSTFSMSPGP
       use lucia_data, only: NACTEL
+      use lucia_data, only: NACOB,NORB1,NORB2,NORB3,NOBPT
 *
 * Obtain string information for GAS expansion
 *
@@ -46,7 +47,6 @@
 *. Input
 *     (and /LUCINP/ not occuring here )
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "csm.fh"
 #include "stinf.fh"
 #include "strinp.fh"
