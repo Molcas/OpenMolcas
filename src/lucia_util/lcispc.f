@@ -28,6 +28,7 @@
       use lucia_data, only: IDC
       use lucia_data, only: IBSPGPFTP,ISPGPFTP
       use lucia_data, only: NOCTYP
+      use lucia_data, only: MXPCSM,MXPNGAS
       IMPLICIT NONE
       INTEGER IPRNT
 *
@@ -35,7 +36,6 @@
 *.Input common blocks
 * ===================
 *
-#include "mxpdim.fh"
 #include "csm.fh"
 *
 * ====================
