@@ -17,6 +17,7 @@
       use lucia_data, only: ECORE_ORIG,ECORE
       use lucia_data, only: IPRDIA
       use lucia_data, only: MXNSTR
+      use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -31,7 +32,6 @@
       IMPLICIT NONE
 *
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
