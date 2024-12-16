@@ -39,7 +39,6 @@
 *
       IMPLICIT NONE
       INTEGER ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK
-#include "mxpdim.fh"
 #include "csm.fh"
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)
