@@ -13,6 +13,7 @@
       SUBROUTINE T_ROW_TO_H(T,H,K,TKK)
       use Constants, only: Zero, One
       use GLBBAS, only: PGINT1A
+      use lucia_data, only: NTOOB,IBSO,ISMFSO,NTOOBS
 *
 * Set H integrals
 *
@@ -28,8 +29,6 @@
       Integer K
       REAL*8 TKK
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
 *. Input ( in blocked form)
       REAL*8 T(*)
 *. Output ( also in blocked form)
@@ -59,6 +58,5 @@ C       H(IOFF-1+(K-1)*NK+K) = H(IOFF-1+(K-1)*NK+K) -One
 C       TKK = One
         TKK = Zero
       END IF
-*
 *
       END SUBROUTINE T_ROW_TO_H

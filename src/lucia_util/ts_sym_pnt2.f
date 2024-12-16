@@ -37,7 +37,6 @@
       IMPLICIT NONE
       INTEGER NIGRP,ISYM,LPNT
 #include "mxpdim.fh"
-#include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
