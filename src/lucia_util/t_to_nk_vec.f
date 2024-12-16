@@ -39,7 +39,6 @@
       IMPLICIT None
       REAL*8 T
       INTEGER KORB, ISM, ISPC, LUCIN, LUCOUT
-#include "mxpdim.fh"
 #include "csm.fh"
 
 *. Scratch block, must hold a batch of blocks
