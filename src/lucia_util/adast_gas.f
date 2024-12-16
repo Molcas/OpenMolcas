@@ -60,7 +60,6 @@
 *
       IMPLICIT NONE
 #include "mxpdim.fh"
-#include "strinp.fh"
 #include "csm.fh"
       INTEGER IOBSM,IOBTP,NIGRP,ISPGPSM,NKSTR,IEND,IFRST,KFRST,KACT,IAC
       REAL*8 SCLFAC
