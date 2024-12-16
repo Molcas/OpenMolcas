@@ -37,13 +37,13 @@
 *            is left out
 *
       use symmetry_info, only: MULTD2H => Mul
+      use lucia_data, only: MXPNGAS,MXPNSMST
       IMPLICIT None
       INTEGER NGAS,NSMST,IGRP,MXNSTR,NSMCLS,NSMCLSE,NSMCLSE1
 *. Input
       INTEGER ISPGRP(NGAS),NSTSGP(NSMST,*)
 *. Input and Output (column IGRP updated)
       INTEGER NSTSSPGP(NSMST,IGRP)
-#include "mxpdim.fh"
 *. Scratch
       INTEGER ISM,MNSM(MXPNGAS),MXSM(MXPNGAS)
       INTEGER MSM1(MXPNSMST),MSM2(MXPNSMST)
