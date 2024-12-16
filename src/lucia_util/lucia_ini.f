@@ -43,6 +43,7 @@
      &                      MXRS3R,MXRS30,INTSPC,MNRS1RE,MXRS3RE,
      &                      MNRS1ZE,MXRS3ZE,NDELSH,NINASH,NRS0SH,
      &                      NRS4SH,NRSSH
+      use lucia_data, only: IPART
 *
       implicit none
 C Input from RASSCF
@@ -51,7 +52,6 @@ C Input from RASSCF
 *
 
 #include "mxpdim.fh"
-#include "oper.fh"
 #include "orbinp.fh"
 C Other definitions
       Integer, PARAMETER :: MXPKW = 125
