@@ -18,7 +18,6 @@
 *
       IMPLICIT NONE
 *. Parameters for dimensioning
-#include "mxpdim.fh"
 #include "warnings.h"
 *.Scratch : A character line
       Integer LBLOCK
