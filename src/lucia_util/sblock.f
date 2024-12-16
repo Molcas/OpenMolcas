@@ -32,6 +32,7 @@
       use lucia_data, only: IDISK
       use lucia_data, only: NSMOB
       use lucia_data, only: I12,IPART,IPERTOP,I_RES_AB
+      use lucia_data, only: MXTSOB,NTOOB,NOCOB,IOBPTS,ITSOB,NOBPTS
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -62,8 +63,6 @@
      &        ICBAT_END
       INTEGER IBLOCK(8,*)
 *
-*./ORBINP/ : NACOB used
-#include "orbinp.fh"
 #include "strinp.fh"
 #include "stinf.fh"
 #include "csm.fh"
