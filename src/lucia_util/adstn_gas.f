@@ -18,6 +18,7 @@
       use lucia_data, only: NGAS
       use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP,NSTFGP,NSTFSMSPGP
       use lucia_data, only: IOBPTS,NOBPT,NOBPTS
+      use lucia_data, only: MXPNGAS,MXPNSMST
 *
 *
 * Obtain mappings
@@ -44,7 +45,6 @@
 * ======
 *
       IMPLICIT NONE
-#include "mxpdim.fh"
 #include "csm.fh"
       Real*8 :: OFFI(*)
       INTEGER IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,NKSTR,IEND,IFRST,KFRST,
