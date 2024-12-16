@@ -13,6 +13,7 @@
       use lucia_data, only: IH1FORM
       use symmetry_info, only: MULTD2H => Mul
       use lucia_data, only: IBSO,IOBPTS,IREOTS,NACOBS
+      use lucia_data, only: MXPNGAS
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
@@ -21,7 +22,6 @@
 * total symmetry of the operator
       IMPLICIT None
       Integer IORB,ITP,ISM,JORB,JTP,JSM
-#include "mxpdim.fh"
       INTEGER IJSM
       REAL*8 GETH1E
       REAL*8, EXTERNAL:: GTH1ES
