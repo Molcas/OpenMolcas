@@ -12,6 +12,7 @@
       use define_af, only: iTabMx, AngTp
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: BName, IXSYM
+      use general_data, only: NSYM,NBAS,NORB
 
       IMPLICIT None
       Real*8 CMO(*)
@@ -20,10 +21,7 @@
       Real*8 WGTLQN(0:9)
       LOGICAL IFTEST
       Integer, Allocatable:: LQN(:)
-* Define mxsym etc.
 #include "rasdim.fh"
-* general.fh defines NSYM,NBAS,NORB:
-#include "general.fh"
       Integer I, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,
      &        ISYM, ITP, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT,
      &        NO, NONZ
