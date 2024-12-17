@@ -57,6 +57,7 @@
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
       use rasscf_lucia, only: RF1, RF2
       use rasscf_global, only: DoNEVPT2Prep, DoDelChk
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
 #endif
       use OneDat, only: sNoNuc, sNoOri
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
@@ -85,6 +86,8 @@
       use rasscf_lucia, only: DStmp, Dtmp
       use raswfn, only: wfn_iter, wfn_energy, wfn_transdens,
      &                  wfn_transsdens
+      use rasscf_global, only: lRoots
+      use general_data, only: NACTEL,STSYM
 #endif
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
@@ -113,18 +116,12 @@
      &                         THRTE, TMin, Tot_Charge, EMY,
      &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
      &                         Conv, DoDMRG, iCIRST, KSDFT_Temp
-#ifdef _DMRG_
-      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
-#endif
-#ifdef _HDF5_
-      use rasscf_global, only: lRoots
-#endif
       use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
       use printlevel, only: DEBUG,USUAL,TERSE
       use output_ras, only: LF,IPRLOC,RC_CI,RC_SX
       use general_data, only: NALTER,ITERFILE,NSYM,INVEC,ISPIN,NCONF,
-     &                        NCRVEC,JOBIPH,NACTEL,NASH,NBAS,NDEL,NFRO,
-     &                        NISH,NRS1,NRS2,NRS3,NTOT,NTOT1,NTOT2,STSYM
+     &                        NCRVEC,JOBIPH,NASH,NBAS,NDEL,NFRO,
+     &                        NISH,NRS1,NRS2,NRS3,NTOT,NTOT1,NTOT2
 
       Implicit None
 

@@ -55,7 +55,10 @@ use printlevel, only: DEBUG, INSANE, TERSE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use general_data, only: NCONF,NSEL,STARTORBFILE,JOBOLD,JOBIPH,LUDAVID,NACTEL,STSYM
+use general_data, only: NCONF,NSEL,JOBOLD,JOBIPH,LUDAVID,NACTEL,STSYM
+#   ifdef _HDF5_
+use general_data, only: STARTORBFILE
+#endif
 
 #include "intent.fh"
 

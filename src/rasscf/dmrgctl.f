@@ -54,8 +54,10 @@
      &                         DFTFOCK
       use printlevel, only: DEBUG,INSANE
       use output_ras, only: LF,IPRLOC
+      use general_data, only: ISPIN,jobiph,nactel,ntot2,nash
 
       Implicit None
+#include "timers.fh"
       Integer iFinal, IRst
       Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
