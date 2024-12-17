@@ -43,11 +43,13 @@
      &                         PerCSpli,iDimBlockA
       use printlevel, only: DEBUG,USUAL,TERSE,VERBOSE
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
+     &                        NTOT1,NCONF,JOBIPH,NASH,NBAS,NDEL,NFRO,
+     &                        NISH,NRS1,NRS2,NRS3,NSSH,NTOT,NTOT2
 
       Implicit None
 
 #include "rasdim.fh"
-#include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='OUTCTL  '
 #include "ciinfo.fh"
 #include "SysDef.fh"
