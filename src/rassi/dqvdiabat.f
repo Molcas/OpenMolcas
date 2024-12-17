@@ -32,7 +32,6 @@
       use Cntrl, only: NSTATE, NPROP, AlphZ, BetaE, PNAME, ICOMP
 
       IMPLICIT None
-#include "rassi.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       REAL*8 HAM(NSTATE,NSTATE)
 
