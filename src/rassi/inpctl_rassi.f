@@ -24,9 +24,8 @@
      &                  MLTPLT, NSTAT, MXJOB
       use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: ENUC,NBASF
       IMPLICIT NONE
-#include "Molcas.fh"
-#include "rassi.fh"
 
       LOGICAL READ_STATES
       INTEGER JOB, i
