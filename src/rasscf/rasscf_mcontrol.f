@@ -18,7 +18,6 @@
 
       Implicit None
 #include "rasdim.fh"
-#include "general.fh"
 *
       Integer id_call
 *
