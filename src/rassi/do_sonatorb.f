@@ -15,11 +15,10 @@
      &                      SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, NOSO, IfCurd, MLTPLT
+      use rassi_data, only: NBTRI
       IMPLICIT None
       INTEGER NSS
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-
-#include "rassi.fh"
       Real*8 IDENTMAT(3,3)
       Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
       Real*8, Allocatable:: DMATTMP(:)
