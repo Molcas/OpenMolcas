@@ -25,6 +25,9 @@ use Para_Info, only: Is_Real_Par, nProcs
 use wadr, only: nPWXY
 use Definitions, only: wp, iwp, u6
 use general_data,only: LUINTM
+#ifdef _MOLCAS_MPP_
+use general_data,only: NTOT1
+#endif
 
 #include "intent.fh"
 
