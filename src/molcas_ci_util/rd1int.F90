@@ -30,10 +30,10 @@ subroutine Rd1Int()
 
 use Definitions, only: iwp
 use rasscf_global, only: BName, header, PotNuc
+use general_data, only: NSYM,NBAS
 
 implicit none
 #include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: nBas_tot
 
 !----------------------------------------------------------------------*
