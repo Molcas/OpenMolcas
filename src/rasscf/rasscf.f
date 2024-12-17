@@ -122,12 +122,14 @@
       use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
       use printlevel, only: DEBUG,USUAL,TERSE
       use output_ras, only: LF,IPRLOC,RC_CI,RC_SX
+      use general_data, only: NALTER,ITERFILE,NSYM,INVEC,ISPIN,NCONF,
+     &                        NCRVEC,JOBIPH,NACTEL,NASH,NBAS,NDEL,NFRO,
+     &                        NISH,NRS1,NRS2,NRS3,NTOT,NTOT1,NTOT2,STSYM
 
       Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
 #include "bk_approx.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
