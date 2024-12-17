@@ -17,6 +17,7 @@ use rasscf_global, only: CBLBM, ExFac
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+use general_data, only: NSYM,NFRO,NISH,NASH,NTOT2,NBAS,NBAS,NORB
 
 #include "intent.fh"
 
@@ -27,7 +28,6 @@ real(kind=wp), intent(inout) :: FI(*), FA(*)
 real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 logical(kind=iwp), intent(in) :: TraOnly
 #include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: i, iBas, iFro, ikk, incs, iOrb, iSym, ja, jkk, nAorb(8), nChI(8), nChM(8), nForb(8), nIorb(8), NumV
 real(kind=wp) :: dmpk_old, FactXI, Ymax
 type(DSBA_Type) :: ChoIn, CMO, CVa(2), Ddec, DLT(2), FLT(2), FLT_MO(2), MSQ, POrb(3)
