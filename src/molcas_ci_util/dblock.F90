@@ -19,11 +19,10 @@ subroutine DBLOCK(D)
 
 use rasscf_global, only: ITRI
 use Definitions, only: wp, iwp
+use general_data, only: NSYM,NASH
 
 implicit none
 real(kind=wp), intent(inout) :: D(*)
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: IA, ISYM, ITU, NA, NAT, NAU, NTU
 
 IA = NASH(1)
