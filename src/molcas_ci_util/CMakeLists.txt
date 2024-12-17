@@ -138,6 +138,7 @@ set (modfile_list
      caspt2_global.F90
      csfbas.F90
      dmrginfo.F90
+     general_data.F90
      gugx.F90
      input_mclr.F90
      rasscf_global.F90

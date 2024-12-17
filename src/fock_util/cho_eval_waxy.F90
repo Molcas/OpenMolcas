@@ -16,6 +16,7 @@ use Data_structures, only: DSBA_Type, SBA_Type, twxy_Type
 use wadr, only: nPWXY
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use general_data, only: NSYM,NBAS,NFRO,NORB
 
 #include "intent.fh"
 
@@ -27,8 +28,6 @@ real(kind=wp), intent(_OUT_) :: W_PWXY(*)
 integer(kind=iwp), intent(in) :: nAorb(*), JSYM, NUMV
 logical(kind=iwp), intent(in) :: DoTraInt
 type(DSBA_Type), intent(in) :: CMO
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: ijSym, iOrb, ipMpw, iS, iStack, iSyma, iSymp, iSymw, iSymx, iSymy, ixy, jAsh, kAsh, kl_Orb_pairs, lAsh, &
                      nAob_w, nBas_a, nOrb_a, Npw, Nwa, Nxy, off_PWXY(8,8,8)
 

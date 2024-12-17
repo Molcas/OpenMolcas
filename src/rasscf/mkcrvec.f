@@ -14,10 +14,9 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: ITCORE
+      use general_data, only: NTOT,NTOT2,NTOT1,NBAS,NFRO,NISH
 
       IMPLICIT None
-#include "rasdim.fh"
-#include "general.fh"
 #include "warnings.h"
       Real*8 CRVEC(NTOT), CMO_0(NTOT2)
 
@@ -32,7 +31,6 @@
 * of the state vector where the core orbital would be doubly occupied.
 * This orbital is computed as a covariant vector CRVEC, to allow the
 * projector to be invariant to the orbital basis in each interation.
-* Note: NTOT1, NTOT2 etc, general.fh
 
       Call mma_allocate(STRI,NTOT1+4,Label='STRI')
       IRC=0

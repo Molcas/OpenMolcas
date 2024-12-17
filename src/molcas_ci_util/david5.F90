@@ -24,12 +24,11 @@ use printlevel, only: DEBUG, USUAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use general_data, only: NSEL,NCONF,ITERFILE,LUDAVID,NACTEL,STSYM
 
 implicit none
 #include "rasdim.fh"
-#include "general.fh"
 #include "timers.fh"
-! nsel in general.fh
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr

@@ -17,10 +17,10 @@ use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+use general_data, only: NSYM
 
 implicit none
 #include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: I, IGAS, IGSSH, IOFF_GSSH(mxgas), ISTOT, ISYM, NGSSHT
 
 !---------------------------------------------------------

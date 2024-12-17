@@ -30,10 +30,10 @@
      &                         iRoot
       use general_data,only:nbas,ndel,nssh,nrs3,nrs2,nrs1,nash,nish,
      &                      nfro,nbas,norb,stsym,ntot,nsym,nelec3,
-     &                      mxbas,mxact,ispin,mxina,mxorb,mxroot,
-     &                      nrs3t,nrs2t,nactel,nhole1,nrs1t
+     &                      ispin,nrs3t,nrs2t,nactel,nhole1,nrs1t
       use definitions,only:iwp,u6
       implicit none
+#include "rasdim.fh"
 
       integer(kind=iwp) :: ierr, i, ia0, ib0, ic0, ierr1
       integer(kind=iwp) :: ierr2, iSym

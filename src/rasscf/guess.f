@@ -36,15 +36,14 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use output_ras, only: LF
+      use general_data, only: NSYM,NBAS,NTOT1
 
 
       Implicit None
 
 *     global definitions
 
-#include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
 
 *     calling arguments
 

@@ -24,14 +24,13 @@ subroutine MOTRAC(CMO,F,X1,X2)
 use rasscf_global, only: iTRI
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use general_data, only: NSYM,NASH,NBAS,NFRO,NISH
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
 real(kind=wp), intent(inout) :: F(*)
 real(kind=wp), intent(out) :: X1(*), X2(*)
 integer(kind=iwp) :: ISTFA, ISTFP, ISYM, LMOP, LMOP1, NA, NB
-#include "rasdim.fh"
-#include "general.fh"
 
 LMOP = 1
 ISTFA = 1

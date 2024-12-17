@@ -55,6 +55,10 @@ use printlevel, only: DEBUG, INSANE, TERSE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use general_data, only: NCONF,NSEL,JOBOLD,JOBIPH,LUDAVID,NACTEL,STSYM
+#   ifdef _HDF5_
+use general_data, only: STARTORBFILE
+#endif
 
 #include "intent.fh"
 
@@ -71,8 +75,6 @@ logical(kind=iwp) :: Exists
 character(len=80) :: String
 integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Tmp1(:)
-#include "rasdim.fh"
-#include "general.fh"
 
 IPRLEV = IPRLOC(3)
 

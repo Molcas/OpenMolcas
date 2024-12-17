@@ -54,8 +54,10 @@
      &                         DFTFOCK
       use printlevel, only: DEBUG,INSANE
       use output_ras, only: LF,IPRLOC
+      use general_data, only: ISPIN,jobiph,nactel,ntot2,nash
 
       Implicit None
+#include "timers.fh"
       Integer iFinal, IRst
       Real*8 CMO(*),D(*),DS(*),P(*),PA(*),FI(*),D1I(*),D1A(*),
      &          TUVX(*)
@@ -66,11 +68,7 @@ c     Logical Exist
      &                      P2MO(:), TmpDS(:), TmpD1S(:),
      &                      TmpPUVX(:), TmpTUVX(:)
 
-#include "rasdim.fh"
-#include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '
-#include "SysDef.fh"
-#include "timers.fh"
 C Local print level (if any)
       Integer iPrLev, i, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
       Real*8 dum1, dum2, dum3, Scal

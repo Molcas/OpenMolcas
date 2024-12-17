@@ -41,11 +41,11 @@
 #endif
       use printlevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NTOT1,NACTEL,ISPIN,NASH,NBAS,NFRO,
+     &                        NISH
 
       Implicit None
 *
-#include "rasdim.fh"
-#include "general.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 *

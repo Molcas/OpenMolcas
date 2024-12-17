@@ -17,13 +17,9 @@
 * ****************************************************************
       use stdalloc, only : mma_allocate, mma_deallocate
       use rasscf_global, only: LROOTS, NAC
+      use general_data, only: NTOT1,NTOT2
 
       Implicit None
-
-#include "rasdim.fh"
-#include "general.fh"
-#include "SysDef.fh"
-#include "warnings.h"
 
 ******Input
       Real*8,DIMENSION(NTOT1):: FI,FA
@@ -64,13 +60,9 @@ C     Deallocating Memory
       Subroutine CalcFckO(CMO,FI,FA,FckO)
       use stdalloc, only : mma_allocate, mma_deallocate
       use rasscf_global, only: NAC
+      use general_data, only: NTOT1,NTOT2,NSYM,NASH,NBAS,NFRO,NISH
       Implicit None
 
-
-#include "rasdim.fh"
-#include "general.fh"
-#include "SysDef.fh"
-#include "warnings.h"
 ******Input
       Real*8,DIMENSION(NTOT1)::FI,FA
       Real*8,Dimension(NTOT2)::CMO
@@ -143,13 +135,9 @@ C        CALL RecPrt(' ',' ',FckOt,NA,NA)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Lucia_Interface, only: Lucia_Util
       use rasscf_global, only: lRoots, nAc, iAdr15
+      use general_data, only: JOBIPH,NCONF
       Implicit None
 
-
-#include "rasdim.fh"
-#include "general.fh"
-#include "SysDef.fh"
-#include "warnings.h"
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 
@@ -205,11 +193,6 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
       use rasscf_global, only: lRoots, nAc
       Implicit None
 
-
-#include "rasdim.fh"
-#include "general.fh"
-#include "SysDef.fh"
-#include "warnings.h"
 
 ******Input
       Real*8,DIMENSION(NAC,NAC)::FckO

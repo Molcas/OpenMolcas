@@ -21,8 +21,6 @@
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 

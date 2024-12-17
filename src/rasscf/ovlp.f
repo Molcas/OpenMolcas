@@ -47,13 +47,11 @@
       use Constants, only: Zero
       use rasscf_global, only: NAC
       use output_ras, only: LF
-
+      use general_data, only: NSYM,NASH,NBAS,NFRO,NISH,NTOT1
 
       Implicit None
 
-#include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
 
       Integer iWay
       Real*8 C1(*),C2(*),Smat(*)

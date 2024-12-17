@@ -20,7 +20,7 @@
 *    NAlter and, for each pair, by the symmetry specie MAlter(iAlter   *
 *    ,1) and the two indices of the MO to exchange MAlter(iAlter,2-3). *
 *    NALTEr and MAlter(MaxAlter,3) (the dimension is fixed) are passed *
-*    through a common block in general.fh.                             *
+*    through module general_data.                                      *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -34,11 +34,10 @@
 *                                                                      *
 ************************************************************************
       use output_ras, only: LF
+      use general_data, only: NALTER,MALTER,NBAS
       Implicit None
       REAL*8       CMO(*)
 
-#include "rasdim.fh"
-#include "general.fh"
       Real*8 CMOex
       Integer iAlter, iAlteri, iAlterj, iCMO, iSym
 

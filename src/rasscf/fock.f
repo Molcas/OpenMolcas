@@ -43,6 +43,7 @@ C
      &                         JBLB
       use printlevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NASH,NBAS,NFRO,NISH,NORB,NSSH
 
       IMPLICIT None
       Integer iFinal
@@ -55,8 +56,6 @@ C
      &        NEO, NI, NIA, NIO, NIS, NM, NO, NO2, nOr, NP, NPQ, NQ,
      &        nSs, NT, NTM, NTT, NTU, NTV, NU, NUVX, NV, NVI, NVM
 
-#include "rasdim.fh"
-#include "general.fh"
       Character(LEN=16), Parameter :: ROUTINE='FOCK    '
 C
       IPRLEV=IPRLOC(4)

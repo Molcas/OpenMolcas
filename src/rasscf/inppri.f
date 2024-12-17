@@ -67,20 +67,22 @@
      &                         fOrdSplit
       use printlevel, only: USUAL,SILENT
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
+     &                        NSEL,NTOT1,NASH,NBAS,NDEL,NFRO,NISH,
+     &                        NRS1,NRS2,NRS3,NSSH
 
 
       Implicit None
       Logical lOPTO
 
 #include "rasdim.fh"
-#include "general.fh"
 #include "ciinfo.fh"
 #include "lucia_ini.fh"
       Character(LEN=8)   Fmt1,Fmt2,Label
       Character(LEN=120)  Line,BlLine,StLine
       Character(LEN=3) lIrrep(8)
       Character(LEN=80) KSDFT2
-#ifdef _ENABLE_CHEMPS2_DMRG_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined (_ENABLE_DICE_SHCI_)
       Character(LEN=3) SNAC
       Integer iHFOcc
 #endif
@@ -295,7 +297,6 @@ C.. for GAS
       Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                           NROOTS
 
-#ifdef _ENABLE_CHEMPS2_DMRG_
       Write(LF,Fmt2//'A,T45,I6)')'Maximum number of sweeps',
      &                           max_sweep
       Write(LF,Fmt2//'A,T45,I6)')'Maximum number of sweeps in RDM',
@@ -318,7 +319,6 @@ C.. for GAS
       Write(LF,Fmt2//'A,T45,'//trim(adjustl(SNAC))//'I2)')
      &                           'Occupation guess',
      &                           (HFOCC(ihfocc), ihfocc=1,NAC)
-#endif
 
 * NN.14 FIXME: haven't yet checked whether geometry opt. works correctly with DMRG
       Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',

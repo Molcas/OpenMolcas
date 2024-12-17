@@ -13,13 +13,16 @@
      &                         IROOT, lRoots, NACPAR, NACPR2, NORBT,
      &                         nRoots, NTOT3, PotNuc, Title, Weight
       use stdalloc, only: mma_allocate, mma_deallocate
+      use general_data, only:ispin,jobiph,nactel,nconf,nelec3,nhole1,
+     &                       nsym,ntot,ntot2,nfro,nish,nash,ndel,nbas,
+     &                       nrs1,nrs2,nrs3,norb,ndel
+
       IMPLICIT NONE
       INTEGER FMTIPH, I, IAD15, ISYM, J, lSym, NASHT, NFOCK, nHeader,
      &        nName, nTitle
       INTEGER, EXTERNAL :: isFreeUnit
 
 #include "rasdim.fh"
-#include "general.fh"
       REAL*8, ALLOCATABLE:: ADR1(:), ADR2(:), ADR(:)
 
       CALL INIT_LINALG

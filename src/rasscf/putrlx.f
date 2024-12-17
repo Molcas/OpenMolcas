@@ -19,10 +19,9 @@
      &                         RlxGrd, iAdr15, ISTORP, JBLBM
       use printlevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NTOT2,NSYM,JOBIPH,NBAS
 
       Implicit None
-#include "rasdim.fh"
-#include "general.fh"
       Real*8 D(*),DS(*),P(*),DAO(*),C(*)
 
       Character(LEN=16), Parameter:: ROUTINE='PUTRLX  '

@@ -106,13 +106,17 @@
      &                         iDimBlockA,GapSpli
       use printlevel, only: DEBUG,VERBOSE,TERSE
       use output_ras, only: LF,IPRGLB,IPRLOC
-
-
+      use general_data, only: MAXALTER,NALTER,JOBIPH,NSYM,INVEC,
+     &                        STARTORBFILE,NBAS,LUSTARTORB,JOBOLD,NTOT,
+     &                        NTOT1,NTOT2,NDELT,NFROT,NTOTSP,NRS1T,
+     &                        NRS2T,NRS3T,NACTEL,NHOLE1,NELEC3,ISPIN,
+     &                        STSYM,NSEL,SXDAMP,LOWDIN_ON,NISH,NCRVEC,
+     &                        NCRPROJ,NRS1,NRS2,NRS3,NCONF,MALTER,NASH,
+     &                        NDEL,NFRO,NORB,NSSH
 
       Implicit None
 #include "SysDef.fh"
 #include "rasdim.fh"
-#include "general.fh"
 #include "warnings.h"
 #include "bk_approx.fh"
 * Lucia-stuff:
