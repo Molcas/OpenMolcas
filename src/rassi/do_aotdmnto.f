@@ -32,9 +32,9 @@
       use OneDat, only: sNoNuc, sNoOri, sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: IfArgu
+      use rassi_data, only: NBTRI
 
       IMPLICIT None
-#include "rassi.fh"
       Integer ISTATE,JSTATE,nb,nb2
       REAL*8 TDMZZ(6,nb2)
       REAL*8 TSDMZZ(6,nb2)
