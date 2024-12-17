@@ -11,15 +11,16 @@
       SUBROUTINE SSOTRA(SGS,CIS,EXS,ISYM,LSM,NA,NO,TRA,NCO,CI,TMP)
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Integer ISYM, LSM, NA, NO, NCO
-      Real*8 TRA(NO,NO),CI(NCO),TMP(NCO)
-#include "rassi.fh"
+      IMPLICIT NONE
       Type (SGSTruct) SGS
       Type (CISTruct) CIS
       Type (EXSTruct) ExS
+      Integer ISYM, LSM, NA, NO, NCO
+      Real*8 TRA(NO,NO),CI(NCO),TMP(NCO)
 
       Integer, allocatable:: ILEV(:)
+      INTEGER NI,IL,IP,IK,IKLEV,IPLEV
+      REAL*8 CPK,X,CKK
 
 C ILEV(IORB)=GUGA LEVEL CORRESPONDING TO A SPECIFIC ACTIVE ORBITAL
 C OF SYMMETRY ISYM.
