@@ -18,9 +18,9 @@ C Code adapted from trd_print.f written by P. A. Malmqvist.
 
       use Cntrl, only: OCAN, LSYM1, LSYM2, OCAA
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NASHT,NASH,NBASF,NFRO,NISH,NOSH
 
       IMPLICIT None
-#include "rassi.fh"
       INTEGER ISTATE, JSTATE, SYM12
       INTEGER NDYSAB,NRT2MAB,AUGSPIN
       Real*8  EIJ
