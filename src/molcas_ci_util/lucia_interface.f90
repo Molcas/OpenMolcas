@@ -392,8 +392,6 @@ Contains
       integer nCIVEC, ifile, mxrec, isym, iway
       integer lrec(mxrec)
       real*8 CIVec(nCIVec)
-#include "rasdim.fh"
-#include "general.fh"
       Integer nRec
 #ifdef _DEBUGPRINT_
       Integer iOff, iRec
@@ -439,11 +437,11 @@ Contains
 ! Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
 !
       use lucia_data, only: IDISK
+      use general_data, only: STSYM
       implicit real*8 (a-h,o-z)
+      integer ifile, mxrec
       integer lrec(mxrec)
       real*8 vec(mxrec)
-#include "rasdim.fh"
-#include "general.fh"
 !
 !   ========================
 !      Find nrec and lrec
