@@ -454,9 +454,9 @@ C     Putting particle-hole pairs in the output
      &SumEigVal)
       use Symmetry_Info, only: nSym=>nIrrep
       use Constants, only: Zero
+      use rassi_data, only: NBST,NASHT,NASH,NBASF,NISH,NSSH
 
       Implicit None
-#include "rassi.fh"
 
 C     input variables
       INTEGER NUseSym
