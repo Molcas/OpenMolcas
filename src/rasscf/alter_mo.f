@@ -34,11 +34,10 @@
 *                                                                      *
 ************************************************************************
       use output_ras, only: LF
+      use general_data, only: NALTER,MALTER,NBAS
       Implicit None
       REAL*8       CMO(*)
 
-#include "rasdim.fh"
-#include "general.fh"
       Real*8 CMOex
       Integer iAlter, iAlteri, iAlterj, iCMO, iSym
 
