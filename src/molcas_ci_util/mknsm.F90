@@ -17,12 +17,9 @@ use gas_data, only: NGAS, NGSSH
 use rasscf_global, only: NSM
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
+use general_data, only: NSYM
 
 implicit none
-! to get some dimensions
-! NSYM from general.fh
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
 NLEV = 0
