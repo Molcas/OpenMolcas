@@ -45,7 +45,7 @@ use general_data, only: NSYM,NASH,NISH,NORB
 implicit none
 real(kind=wp), intent(in) :: PUVX(*)
 real(kind=wp), intent(_OUT_) :: TUVX(*)
-#include "rasdim.fh"
+#include "Molcas.fh"
 integer(kind=iwp) :: iAsh, iIsh, iiT, iiU, iiV, iiX, ijSym, iOrb, iP, iPUVX, iStack, iSym, iT, iTemp, iTU, iTUVX, iU, iV, iVX, iX, &
                      jAsh, jSym, kAsh, kl_Orb_pairs, klSym, kSym, lAsh, lMax, lSym, off_Ash(mxSym), off_PUVX(mxSym)
 
