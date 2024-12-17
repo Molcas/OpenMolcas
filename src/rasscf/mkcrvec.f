@@ -31,7 +31,6 @@
 * of the state vector where the core orbital would be doubly occupied.
 * This orbital is computed as a covariant vector CRVEC, to allow the
 * projector to be invariant to the orbital basis in each interation.
-* Note: NTOT1, NTOT2 etc, general.fh
 
       Call mma_allocate(STRI,NTOT1+4,Label='STRI')
       IRC=0

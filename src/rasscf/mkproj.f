@@ -13,10 +13,9 @@
       SUBROUTINE MKPROJ(CRVEC,CMO,TUVX)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: CORESHIFT
+      use general_data, only: NCRVEC,NTOT2,NASH,NBAS
 
       implicit None
-#include "rasdim.fh"
-#include "general.fh"
       Real*8 CRVEC(NCRVEC), CMO(NTOT2)
       Real*8 TUVX(*)
 

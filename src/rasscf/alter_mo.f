@@ -20,7 +20,7 @@
 *    NAlter and, for each pair, by the symmetry specie MAlter(iAlter   *
 *    ,1) and the two indices of the MO to exchange MAlter(iAlter,2-3). *
 *    NALTEr and MAlter(MaxAlter,3) (the dimension is fixed) are passed *
-*    through a common block in general.fh.                             *
+*    through module general_data.                                      *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
