@@ -17,11 +17,13 @@
 *  INTEGRALS. THIS ROUTINE IS CALLED FROM TRAINT.
 *****************************************************************
       SUBROUTINE TRACR(LBUF,CMO1,CMO2,NGAM2,TUVX,X1,X2,X3,VXPQ)
-      use TRNSFRM
+      use TRNSFRM, only: NX1MX,NX2MX,NX3MX,NVXPQ,NPQ,NBRS,NBP,NBQ,ISP,
+     &                   ISQ,ISR,ISS,NBR,NBS,LMOS1,LMOR1,NBPQ,NAR,NAS,
+     &                   NAQ,LMOQ1,LMOP1,NAP,IAPR,NAVX
+      use rassi_data, only: NCMO,NASHT
       IMPLICIT None
       INTEGER LBUF,NGAM2
       REAL*8 X1(NX1MX),X2(NX2MX),X3(NX3MX),VXPQ(NVXPQ)
-#include "rassi.fh"
       REAL*8 CMO1(NCMO),CMO2(NCMO),TUVX(NGAM2)
 
       INTEGER IRC,IOPT,IPQ,LPQ,IRSST,NP,NQM,NQ,IPQST,IV,IVF,IX,IXF,IVX,
