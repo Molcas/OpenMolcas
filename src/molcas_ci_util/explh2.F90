@@ -55,6 +55,7 @@ use printlevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use general_data, only: NSEL,STSYM,LUDAVID,NCONF
 
 #include "intent.fh"
 
@@ -66,8 +67,6 @@ integer(kind=iwp) :: I, II, IPRINT, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
 real(kind=wp) :: dum1, dum2, dum3, ECORE
 integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
-#include "rasdim.fh"
-#include "general.fh"
 #include "ciinfo.fh"
 #include "timers.fh"
 
