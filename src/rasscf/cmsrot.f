@@ -22,8 +22,6 @@
       use output_ras, only: LF,IPRLOC
       Implicit None
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
@@ -98,8 +96,6 @@ C     Deallocating Memory
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
@@ -178,8 +174,6 @@ C     Deallocating Memory
       use rasscf_global, only: lRoots
       Implicit None
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       INTEGER NPairs
@@ -309,8 +303,6 @@ C     &'Convergence reached after ',Iter,' micro cycles'
       use rasscf_global, only: lRoots
       Implicit None
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
@@ -401,8 +393,6 @@ C      write(6,*)a,b,c,x(4),y(4)
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
@@ -433,8 +423,6 @@ C     & IState,' is ',Vee(IState)
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(lRoots,lRoots,lRoots,lRoots)::DDG
@@ -490,8 +478,6 @@ C     & IState,' is ',Vee(IState)
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
@@ -531,8 +517,6 @@ C     & IState,' is ',Vee(IState)
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
@@ -629,8 +613,6 @@ C     & IState,' is ',Vee(IState)
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       Real*8 ang,change
@@ -713,8 +695,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       use rasscf_global, only: lRoots, NAC
       Implicit None
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
@@ -879,8 +859,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       INTEGER NP
@@ -929,8 +907,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       Real*8,DIMENSION(LRoots*(LRoots+1)/2,NAC,NAC)::GD
@@ -960,8 +936,6 @@ C       IF(I2.eq.1) write(6,*) Iter,ScanA(Iter),ScanS(Iter)
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
 
