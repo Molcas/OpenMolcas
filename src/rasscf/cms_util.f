@@ -67,8 +67,6 @@ C       End If
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       INTEGER nTUVX
@@ -130,8 +128,6 @@ C       End If
       Implicit None
 
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       INTEGER LenCMSS
