@@ -55,9 +55,10 @@ C      use para_info, only: nProcs, is_real_par, king
      &                 RASTYP
       use cntrl, only: iToc15, LuIph, LuTDM
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NASHT,NISHT,NCMO,ENUC,NASH,NDEL,NFRO,NISH,
+     &                      NOSH,NSSH,NTDMAB,NTDMZZ,NTRA
 
       IMPLICIT NONE
-#include "rassi.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
