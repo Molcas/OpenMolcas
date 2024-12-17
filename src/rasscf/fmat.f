@@ -61,12 +61,11 @@
      &                         NewFock, nFint, VIA, VIA_DFT, l_casdft
       use printlevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NTOT1,NASH,NBAS,NFRO,NISH,NORB
 
       Implicit None
       Real*8 CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
 
-#include "rasdim.fh"
-#include "general.fh"
       Character(LEN=16), Parameter :: ROUTINE='FMAT    '
 
       Real*8, Allocatable :: TmpFck(:), Tmp1(:), Tmp2(:), TmpD1A(:)
