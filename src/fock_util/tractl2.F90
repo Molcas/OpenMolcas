@@ -24,6 +24,7 @@ use Para_Info, only: Is_Real_Par, nProcs
 #endif
 use wadr, only: nPWXY
 use Definitions, only: wp, iwp, u6
+use general_data,only: LUINTM
 
 #include "intent.fh"
 
@@ -33,8 +34,6 @@ real(kind=wp), intent(inout) :: PUVX(*), FI(*), FA(*)
 real(kind=wp), intent(_OUT_) :: TUVX(*)
 integer(kind=iwp), intent(in) :: IPR
 logical(kind=iwp), intent(in) :: lSquare
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: iDisk, irc
 logical(kind=iwp) :: TraOnly
 
