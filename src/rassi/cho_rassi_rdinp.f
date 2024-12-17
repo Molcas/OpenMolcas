@@ -21,11 +21,15 @@
       use cntrl, only: ALGO, Nscreen, dmpk
       use rassi_data, only: CHFRACMEM
 
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-      Character(len=180) KWord, Key, Get_Ln
-      External Get_Ln
+      Implicit None
       Logical  DFonly
+      Integer LuSpool
+#include "print.fh"
+      Character(len=180) KWord, Key
+      Character(len=180), External:: Get_Ln
+      Integer iRout,iPrint,i,iChrct,jrout,last,n
+      Integer, External:: iCLast
+      Real*8 dmpk_dfl
 *
       iRout=1
       iPrint=nPrint(iRout)

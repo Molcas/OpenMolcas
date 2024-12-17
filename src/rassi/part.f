@@ -14,9 +14,9 @@
       use rasdef, only: NRS1, NRS2, NRS3
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
-      use rassi_data, only: NSXY,NTRA
+      use rassi_data, only: NSXY,NTRA,NOSH,NISH
 
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT NONE
       Real*8 SXY(NSXY),TRA1(NTRA),TRA2(NTRA)
       Integer NSIZE(4)
 C  PURPOSE: SXY CONTAINS THE NONSECONDARY PART OF THE MO OVERLAP
@@ -27,6 +27,7 @@ C  ORIGINAL VERSION, MALMQUIST 84-04-04
 C  RASSCF VERSION,   MALMQUIST 89-11-15
       Real*8, allocatable:: ScrMat(:), ScrBuf(:)
       Integer, allocatable:: ScrPiv(:)
+      INTEGER II,ISY,N,NBLOCK,NDIMEN,NOMAX
 
       NOMAX=0
       DO ISY=1,NSYM
