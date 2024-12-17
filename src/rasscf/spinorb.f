@@ -12,6 +12,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use printlevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NASH,NBAS,NFRO,NISH
 
 C
 C     Purpose: diagonalize the spin density matrix (D) to
@@ -20,8 +21,6 @@ C     Then the natural spinorbitals (CMONSO) are computed
 C     (only active).
 C
       IMPLICIT None
-#include "rasdim.fh"
-#include "general.fh"
       Real*8 D(*),CMO(*),OCC(*)
       Integer :: KROOT
 
