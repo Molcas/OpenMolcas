@@ -15,9 +15,9 @@
       use Cntrl, only: nState, NrNATO
       use cntrl, only: LuTDM
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NBSQ,NTDMZZ,NBST,NBTRI,NBMX,NBASF
 
       IMPLICIT None
-#include "rassi.fh"
       Real*8 DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
       REAL*8 EIGVEC(NSTATE,NSTATE)
 
