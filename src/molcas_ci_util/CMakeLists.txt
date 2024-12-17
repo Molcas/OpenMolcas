@@ -77,7 +77,6 @@ set (sources
      load_tmp_sig_vec.F90
      lucia2molcas.F90
      lucia2molcas_free.F90
-     lucia_interface.f90
      matml4.F90
      mkclist.F90
      mkcot.F90
@@ -141,7 +140,6 @@ set (modfile_list
      general_data.F90
      gugx.F90
      input_mclr.F90
-     lucia_interface.f90
      rasscf_global.F90
      wadr.F90
 )
