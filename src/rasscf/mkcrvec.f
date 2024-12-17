@@ -14,10 +14,9 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: ITCORE
+      use general_data, only: NTOT,NTOT2,NTOT1,NBAS,NFRO,NISH
 
       IMPLICIT None
-#include "rasdim.fh"
-#include "general.fh"
 #include "warnings.h"
       Real*8 CRVEC(NTOT), CMO_0(NTOT2)
 
