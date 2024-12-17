@@ -27,10 +27,8 @@ C
       use SplitCas_Data, only: DoSPlitCas,lRootSplit
       use printlevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,JOBIPH,NASH,NBAS,NFRO,NISH,NTOT,NTOT2
       Implicit None
-
-#include "rasdim.fh"
-#include "general.fh"
 
       REAL*8 CMOO(*),SCR1(*),SCR2(*),SMAT(*),CMON(*),OCCN(*)
 
