@@ -45,11 +45,10 @@ C
      &                         Ener
       use printlevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NASH,NBAS,NFRO,NISH,NORB,NSSH
 
       IMPLICIT None
-#include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
       Character(LEN=16), Parameter :: ROUTINE='SXHAM   '
       REAL*8 D(*),P(*),PA(*),FP(*),SXN(*),F1(*),F2(*),DIA(*),
      *          G(*),H(*),HDIAG(*),DF(*),DDIAG(*)
