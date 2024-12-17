@@ -18,8 +18,8 @@
 *> @author  P. &Aring;. Malmqvist
 *>
 *> @details
-*> Sets values in common blocks in general.fh, timers.fh and module
-*> rasscf_global.F90.
+*> Sets values in common blocks in timers.fh and module
+*> rasscf_global.F90 and general_data.F90.
 ************************************************************************
 
       Subroutine RasScf_Init()
@@ -48,10 +48,13 @@
      &                         ThrEn, ThrSX, TMin, Weight, Title,
      &                         ixSym, iTri, ThrTE
       use output_ras, only: LF
+      use general_data, only: SXDAMP,NSEL,LOWDIN_ON,ISPIN,STSYM,NACTEL,
+     &                        NHOLE1,NELEC3,NALTER,STARTORBFILE,NASH,
+     &                        NBAS,NDEL,NFRO,NISH,NRS1,NRS2,NRS3,NRS3,
+     &                        NSSH
 
       Implicit None
 #include "rasdim.fh"
-#include "general.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
