@@ -19,9 +19,9 @@
       Use Fock_util_global, only: Deco, Estimate, PseudoChoMOs, Update
       Use Cholesky, only: timings
       use cntrl, only: ALGO, Nscreen, dmpk
+      use rassi_data, only: CHFRACMEM
 
       Implicit Real*8 (A-H,O-Z)
-#include "rassi.fh"
 #include "print.fh"
       Character(len=180) KWord, Key, Get_Ln
       External Get_Ln
