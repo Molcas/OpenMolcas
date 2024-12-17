@@ -46,6 +46,8 @@
 #endif
       use printlevel, only: DEBUG,VERBOSE
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NTOT,JOBIPH,NASH,NBAS,NDEL,NFRO,NISH,
+     &                        NRS1,NRS2,NRS3,NSSH,NTOT2
 
       IMPLICIT None
 
@@ -64,8 +66,6 @@
       integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index, k
 #endif
 
-#include "rasdim.fh"
-#include "general.fh"
       Character(LEN=16), Parameter :: ROUTINE='FCKPT2  '
       REAL*8 FMIN
       Integer iPrLev, IB, ISTMO1, ISTFCK, ID, i, iAd15, iBas, IF, IFD,
