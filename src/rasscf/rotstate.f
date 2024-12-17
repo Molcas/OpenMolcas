@@ -16,6 +16,7 @@
      &                         Ener
       use printlevel, only: DEBUG,USUAL
       use output_ras, only: LF,IPRLOC
+      use general_data, only: JOBIPH,NCONF
       Implicit None
 
 
@@ -24,9 +25,6 @@
 * Jie J. Bao, on Mar. 13, 2020, created this file.               *
 * ****************************************************************
 #include "rasdim.fh"
-#include "general.fh"
-#include "SysDef.fh"
-#include "timers.fh"
 
 
 
