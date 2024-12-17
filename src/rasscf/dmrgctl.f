@@ -66,11 +66,7 @@ c     Logical Exist
      &                      P2MO(:), TmpDS(:), TmpD1S(:),
      &                      TmpPUVX(:), TmpTUVX(:)
 
-#include "rasdim.fh"
-#include "general.fh"
       Character(LEN=16), Parameter:: ROUTINE='DMRGCTL '
-#include "SysDef.fh"
-#include "timers.fh"
 C Local print level (if any)
       Integer iPrLev, i, jDisk, jRoot, kRoot, NACT4, nTmpPUVX
       Real*8 dum1, dum2, dum3, Scal
