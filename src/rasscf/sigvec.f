@@ -23,14 +23,13 @@ C
      &                         SXSHFT, IROOT, ENER
       use printlevel, only: DEBUG
       use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NASH,NISH,NSSH,SXDAMP
 
       IMPLICIT NONE
       REAL*8 CIN(*),HC(*),BM(*),SXN(*),G(*),H(*),DIA(*),F1(*),F2(*),
      &          X(*),C(*)
       INTEGER NTRIAL
 
-#include "rasdim.fh"
-#include "general.fh"
       Character(LEN=16), Parameter :: ROUTINE='SIGVEC  '
       REAL*8 HD(*)
       INTEGER :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM,
