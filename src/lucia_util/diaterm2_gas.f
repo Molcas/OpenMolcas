@@ -23,6 +23,7 @@
 #endif
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
+      use csm_data, only: NSMST
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -35,8 +36,6 @@
 * Jeppe Olsen, August 1995
 *
       IMPLICIT NONE
-*
-#include "csm.fh"
 *
       REAL*8 FACTOR
       INTEGER ITASK,IBLOCK(8,*)
