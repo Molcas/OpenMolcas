@@ -18,6 +18,7 @@ use splitcas_data, only: iDimBlockA
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 use general_data, only: NSEL,STSYM,ISPIN,NRS1,NRS2,NRS3,NACTEL,NHOLE1,NELEC3,NSYM
+use spinfo, only: MS2,MINOP,MAXOP,NTYP,MXSM,NDTFTP,NCSFTP,MULTS,NCNFTP
 
 implicit none
 integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, MXPCSM, NCSASM_LUCIA(MXPCSM), NDTASM_LUCIA(MXPCSM), &
@@ -25,7 +26,6 @@ integer(kind=iwp), intent(in) :: KICONF_OCC_LUCIA(*), KSDREO_I(*), NDET_LUCIA, M
                                  NPCSCNF(MXPORB+1), MULTS_LUCIA, nCSF_HEXS_LUCIA
 #include "rasdim.fh"
 #include "ciinfo.fh"
-#include "spinfo.fh"
 #include "lucia_ini.fh"
 integer(kind=iwp) :: ICL, IOPEN, IORB2F, IORB2L, ISYM, ITYP, LCONF, LDET, LLCONF, NEL2MN, NEL2MX, NORB1, NORB2, NORB3
 
