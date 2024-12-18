@@ -39,6 +39,7 @@
 #ifdef _DEBUGPRINT_
       use lucia_data, only: ICISTR
 #endif
+      use csm_data, only: NSMST,NSMDX,NSMSX
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -68,7 +69,6 @@
      &        ICBAT_END
       INTEGER IBLOCK(8,*)
 *
-#include "csm.fh"
 #include "csmprd.fh"
       REAL*8 CB(*),HCB(*)
 
