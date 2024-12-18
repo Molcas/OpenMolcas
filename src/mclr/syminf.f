@@ -13,6 +13,8 @@
 * Information about number of symmetries
 *
       use DetDim, only: MXPOBS
+      use csm_data, only: NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,
+     &                    ITSXT
       IMPLICIT None
       INTEGER NIRREP,IPRNT
 *
@@ -23,7 +25,6 @@
 * ITSSX : Total symmetrix single excitation
 * ITSDX : Total symmetrix double excitation
 *
-#include "csm.fh"
 #include "csmprd.fh"
 *
 * ADASX : symmetry of orbs i and i => symmetry of a+iaj
