@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 Module CSM_data
-#include "csm.fh"
+!stuff from cms.fh
 !        NSMSX        :        Number of symmetries single ex  (nIrrep)
 !        NSMDX        :        Number of symmetries double ex  (nIrrep)
 !        NSMST        :         Number of symmetries string        (nIrrep)
@@ -18,6 +18,5 @@ Module CSM_data
 !        ITSSX        :        Total symmetrix single excitation (1)
 !        ITSDX        :        Total symmetrix double excitation (1)
 !        ITSXT        :         Not in use                          (1)
-!.CSM
-!Integer    NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,ITSXT
+Integer    NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,ITSXT
 End Module CSM_data
