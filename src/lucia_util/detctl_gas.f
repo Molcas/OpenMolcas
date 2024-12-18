@@ -32,10 +32,10 @@
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
       use lucia_data, only: MXPCSM,MXPNGAS,MXPNSMST,MXPORB
+      use csm_data, only: NSMST
 
 *
       IMPLICIT NONE
-#include "csm.fh"
 
       INTEGER IOCCLS(1),IBASSPC(1)
       Integer, Allocatable:: LCIOIO(:)
