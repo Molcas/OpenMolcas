@@ -122,12 +122,12 @@
       use general_data, only: NALTER,ITERFILE,NSYM,INVEC,ISPIN,NCONF,
      &                        NCRVEC,JOBIPH,NASH,NBAS,NDEL,NFRO,
      &                        NISH,NRS1,NRS2,NRS3,NTOT,NTOT1,NTOT2
+      use spinfo, only: DOBKAP
 
       Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "bk_approx.fh"
 #include "timers.fh"
 
       Integer IReturn, RC_RAS
