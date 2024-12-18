@@ -10,8 +10,7 @@
 !***********************************************************************
 Module Spinfo
 Implicit None
-#include "spinfo.fh"
-!INTEGER, PARAMETER :: MXTYP=30, MXSM=8
-!INTEGER MULTS,MS2,MINOP,MAXOP,NTYP,NDTFTP(MXTYP),NCSFTP(MXTYP),     &
-!        NCNFTP(MXTYP,MXSM),NCONF_TOT
+INTEGER, PARAMETER :: MXTYP=30, MXSM=8
+INTEGER MULTS,MS2,MINOP,MAXOP,NTYP,NDTFTP(MXTYP),NCSFTP(MXTYP),     &
+        NCNFTP(MXTYP,MXSM),NCONF_TOT
 End Module Spinfo
