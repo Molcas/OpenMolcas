@@ -44,6 +44,7 @@
 #ifdef _DEBUGPRINT_
       use lucia_data, only: LCMBSPC,ICMBSPC,IGSOCCX
 #endif
+      use csm_data, only: NSMST
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
@@ -51,7 +52,6 @@
 * Jeppe Olsen, Winter of 1995
 *
       IMPLICIT NONE
-#include "csm.fh"
 *
       INTEGER ISM, ISPC,IPRNT,IIUSEH0P,MPORENP_E
       REAL*8 EREF
