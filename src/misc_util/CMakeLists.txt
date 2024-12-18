@@ -58,6 +58,7 @@ set (sources
      gs_.F90
      gs_order.F90
      hasnonnegativediagonal.F90
+     hfc_logical.F90
      i4len.F90
      icopy.F90
      index_functions.F90
@@ -162,6 +163,7 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
+     hfc_logical.F90
      getint_mod.F90
      index_functions.F90
      onedat.F90
