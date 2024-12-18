@@ -19,10 +19,10 @@ use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+use spinfo, only: NTYP,NCNFTP,NCSFTP,NDTFTP
 
 implicit none
 #include "ciinfo.fh"
-#include "spinfo.fh"
 integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
 real(kind=wp), intent(in) :: DTOCMT(*)
