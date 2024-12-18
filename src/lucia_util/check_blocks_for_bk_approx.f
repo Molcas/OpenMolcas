@@ -30,11 +30,11 @@
       use lucia_data, only: NGAS
       use lucia_data, only: IBSPGPFTP,NELFSPGP
       use lucia_data, only: MXPNGAS
+      use spinfo, only: NGASBK,IOCCPSPC
       IMPLICIT NONE
       INTEGER IATP,IBTP,JATP,JBTP,
      &        IASM,IBSM,JASM,JBSM,
      &        IOCTPA,IOCTPB,I_DO_EXACT_BLOCK
-#include "bk_approx.fh"
 *. Local
       INTEGER IOCC(MXPNGAS), JOCC(MXPNGAS)
       INTEGER NTEST,IONE,IGAS,IOCC_IN,JOCC_IN,ICHECK_OCC_IN_ACCSPC
