@@ -37,7 +37,6 @@ C
       REAL*8 CCI(MXROOTS,*)
 C
 #include "rasdim.fh"
-#include "ciinfo.fh"
 C
       INTEGER IWALK(mxAct)
       INTEGER KCNF(mxAct)
