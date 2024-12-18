@@ -20,9 +20,9 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 use spinfo, only: NTYP,NCNFTP,NCSFTP,NDTFTP
+use spinfo, only: NDET,NCSASM,NDTASM
 
 implicit none
-#include "ciinfo.fh"
 integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
 real(kind=wp), intent(in) :: DTOCMT(*)
