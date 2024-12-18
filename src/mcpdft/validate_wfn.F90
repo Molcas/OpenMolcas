@@ -47,14 +47,14 @@ Subroutine validate_wfn()
     write(u6,*) '*************************************'
     call Quit_OnUserError()
   EndIf
-  !If(NAC > mxAct) then
-    !Call WarningMessage(2,'Too many active orbitals.')
-    !write(u6,*) '*************** ERROR ***************'
-    !write(u6,'(1X,A,I8)') 'Too many active orbitals NAC=',NAC
-    !write(u6,'(1X,A,I8)') 'Limit is MXACT=',MXACT
-    !write(u6,*) '*************************************'
-    !call Quit_OnUserError()
-  !Endif
+  If(NAC > mxAct) then
+    Call WarningMessage(2,'Too many active orbitals.')
+    write(u6,*) '*************** ERROR ***************'
+    write(u6,'(1X,A,I8)') 'Too many active orbitals NAC=',NAC
+    write(u6,'(1X,A,I8)') 'Limit is MXACT=',MXACT
+    write(u6,*) '*************************************'
+    call Quit_OnUserError()
+  Endif
   If(NIN > mxIna) then
     Call WarningMessage(2,'Too many inactive orbitals.')
     write(u6,*) '*************** ERROR ***************'
