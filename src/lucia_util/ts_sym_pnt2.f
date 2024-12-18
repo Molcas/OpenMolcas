@@ -35,9 +35,9 @@
 *
       use lucia_data, only: MINMAX_SM_GP,NELFGP,NSTFSMGP
       use lucia_data, only: MXPNGAS,MXPNSMST
+      use csm_data, only: NSMST
       IMPLICIT NONE
       INTEGER NIGRP,ISYM,LPNT
-#include "csm.fh"
 *. Specific Input
       INTEGER IGRP(NIGRP)
 *. Local scratch
