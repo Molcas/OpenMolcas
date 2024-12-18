@@ -27,9 +27,9 @@ use InfSCF, only: AccCon, AddFragments, C1DIIS, Damping, DelThr, DIIS, DIISTh, D
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
+use hfc_logical, only: UHF_HFC
 
 implicit none
-#include "hfc_logical.fh"
 integer(kind=iwp) :: iFMM, iPrintLevel, nData
 logical(kind=iwp) :: Found
 logical(kind=iwp), external :: Reduce_Prt
