@@ -18,6 +18,7 @@
       use lucia_data, only: IDC,IREFSM,PSSIGN
       use lucia_data, only: I_AM_OUT,N_ELIMINATED_BATCHES
       use lucia_data, only: NOCTYP
+      use csm_data, only: NSMST
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
@@ -26,7 +27,6 @@
       IMPLICIT NONE
       INTEGER LUC,LUHC
       REAL*8 C(*),HC(*)
-#include "csm.fh"
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
 ! this is a the same structure as for local_arrays but it can not be
