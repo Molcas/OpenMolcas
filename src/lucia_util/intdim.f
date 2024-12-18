@@ -17,6 +17,7 @@
       use lucia_data, only: PNTGRP,NSMOB
       use lucia_data, only: NTOOBS
       use lucia_data, only: MXPOBS
+      use csm_data, only: ITSDX,ITSSX,NSMSX
 
       IMPLICIT NONE
       INTEGER IPRNT
@@ -25,7 +26,6 @@
 *.Input
 * =====
 *
-#include "csm.fh"
 #include "csmprd.fh"
 *
 * =======
