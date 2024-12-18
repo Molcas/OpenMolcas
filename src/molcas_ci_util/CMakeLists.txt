@@ -121,6 +121,7 @@ set (sources
      sigmadet_cvb.F90
      simplify.F90
      sort_cdet.F90
+     spinfo.F90
      splitcas_data.F90
      splitctl.F90
      stepvec.F90
@@ -141,6 +142,11 @@ set (modfile_list
      gugx.F90
      input_mclr.F90
      rasscf_global.F90
+<<<<<<< Updated upstream
+=======
+     rassi_data.F90
+     spinfo.F90
+>>>>>>> Stashed changes
      wadr.F90
 )
 
