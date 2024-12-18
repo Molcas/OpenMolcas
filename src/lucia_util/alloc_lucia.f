@@ -46,7 +46,6 @@
 
 *. Input
       IMPLICIT None
-#include "csm.fh"
 #include "csmprd.fh"
 *.Output
       Integer ISM
