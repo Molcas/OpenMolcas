@@ -42,6 +42,7 @@ use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
+use hfc_logical, only: MAG_X2C,UHF_HFC
 
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nDim, n2Tot, iUHF
@@ -56,7 +57,6 @@ real(kind=wp), allocatable :: Den(:), El(:,:,:), ElSum(:), Nuc(:), NucSum(:), Op
 real(kind=wp), parameter :: Thrs = 1.0e-6_wp
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-#include "hfc_logical.fh"
 
 !                                                                      *
 !***********************************************************************
