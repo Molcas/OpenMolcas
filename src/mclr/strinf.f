@@ -13,6 +13,8 @@
      &                    MXRS1,MXRS3,NELEC,NOCTYP,NSTFTP
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
       use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
+      use csm_data, only: NSMST
+
 *
 * Strings for internal space.
 * Information is stored in
@@ -31,8 +33,6 @@
 * ======
 * Output
 * ======
-*
-#include "csm.fh"
 *
       Integer ISGSTI(1),ISGSTO(1)
       Integer, Allocatable:: KFREEL(:)
