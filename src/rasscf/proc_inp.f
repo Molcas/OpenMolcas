@@ -113,6 +113,7 @@
      &                        STSYM,NSEL,SXDAMP,LOWDIN_ON,NISH,NCRVEC,
      &                        NCRPROJ,NRS1,NRS2,NRS3,NCONF,MALTER,NASH,
      &                        NDEL,NFRO,NORB,NSSH
+      use spinfo, only: MS2
 
       Implicit None
 #include "SysDef.fh"
@@ -121,7 +122,6 @@
 #include "bk_approx.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
-#include "spinfo.fh"
 #include "lucia_ini.fh"
 *
 *
