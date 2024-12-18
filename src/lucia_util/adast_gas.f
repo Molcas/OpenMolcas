@@ -22,6 +22,7 @@
       use lucia_data, only: IOBPTS,NOBPT,NOBPTS
       use lucia_data, only: ISTAC
       use lucia_data, only: MXPNGAS,MXPNSMST
+      use csm_data, only: NSMST
 *
 *
 * Obtain creation or annihilation mapping
@@ -60,7 +61,6 @@
 * ======
 *
       IMPLICIT NONE
-#include "csm.fh"
       INTEGER IOBSM,IOBTP,NIGRP,ISPGPSM,NKSTR,IEND,IFRST,KFRST,KACT,IAC
       REAL*8 SCLFAC
 *. Input
