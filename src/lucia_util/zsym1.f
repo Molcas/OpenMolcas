@@ -13,11 +13,10 @@
       use lucia_data, only: MXPOBS
       use csm_data, only: NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,
      &                    ITSXT
+      use csm_data, only: ADASX,ADSXA,ASXAD,SXDXSX,SXSXDX
       Implicit None
       INTEGER NIRREP,IPRNT
 *
-#include "csmprd.fh"
-
       NSMSX = NIRREP
       NSMDX = NIRREP
       NSMST = NIRREP
