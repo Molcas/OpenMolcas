@@ -19,6 +19,7 @@
       use lucia_data, only: ENVIRO,ISIMSYM,LCSBLK
       use lucia_data, only: IREFSM,PSSIGN,IDC
       use lucia_data, only: NOCTYP
+      use csm_data, only: NSMST
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -39,7 +40,6 @@
 *
       IMPLICIT NONE
       INTEGER ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK
-#include "csm.fh"
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)
       INTEGER, External:: IFRMR
