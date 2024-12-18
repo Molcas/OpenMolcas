@@ -42,7 +42,7 @@ Subroutine Proc_InpX(DSCF,iRc)
   integer(kind=iwp) :: NBAS_L(8),mh5id,nsym_l
 #endif
 
-  integer(kind=iwp),external :: isFreeUnit,isStructure
+  integer(kind=iwp),external :: isFreeUnit
   logical(kind=iwp),external :: Langevin_On,PCM_On
 
   character(len=72) :: ReadStatus,JobTit(mxTit)

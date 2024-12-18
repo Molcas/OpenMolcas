@@ -13,13 +13,11 @@
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 subroutine compute_mcpdft_energy(cmo,e_mcscf,e_states)
-  use definitions,only:iwp,wp,u6
+  use definitions,only:iwp,wp
   use constants,only:zero,one
   use mcpdft_input,only:mcpdft_options
   Use KSDFT_Info,only:do_pdftpot
   use mspdftgrad,only:P2MOT,D1aoMS,DIDA,D1SaoMS
-  use printlevel,only:debug
-  use mcpdft_output,only:iPrLoc
   use stdalloc,only:mma_allocate,mma_deallocate
   use libxc_parameters,only:FuncExtParams
   use rasscf_global,only:IADR15,lRoots,NAC,NACPAR,NACPR2,PotNuc
@@ -33,11 +31,10 @@ subroutine compute_mcpdft_energy(cmo,e_mcscf,e_states)
                                dm1_core(:),casdm1(:),dm1_cas(:),dm1s(:),casdm1s(:),P2D(:),P2t(:),Coul(:),hcore(:)
   logical(kind=iwp) :: Found
   integer(kind=iwp),external :: get_charge
-  integer(kind=iwp) :: IAD19,iJOB,dmDisk,IADR19(1:30),jroot,NQ,isym,charge,iPrLev,iSA,niaia
+  integer(kind=iwp) :: IAD19,iJOB,dmDisk,IADR19(1:30),jroot,NQ,isym,charge,iSA,niaia
   real(kind=wp),external :: energy_mcwfn
   real(kind=wp) :: e_state,e_ot,e_wfn
 
-  IPRLEV = IPRLOC(3)
 
   ! Molecular charge
   charge = get_charge()

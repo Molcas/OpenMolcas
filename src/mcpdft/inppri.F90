@@ -12,16 +12,14 @@
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 subroutine InpPri_m()
-  use stdalloc,only:mma_allocate,mma_deallocate
-  use OneDat,only:sNoOri
-  use constants,only:zero,two
+  use constants,only:two
   Use Functionals,only:Print_Info
   Use KSDFT_Info,only:CoefR,CoefX
   use printlevel,only:silent,terse,usual,verbose
   use mcpdft_output,only:iPrLoc
   use Fock_util_global,only:docholesky
   use mcpdft_input,only:mcpdft_options
-  use definitions,only:iwp,wp,u6
+  use definitions,only:iwp,u6
   use rasscf_global,only:NAC,NFR,NIN,NROOTS,NSEC,header
   use general_data,only:nfro,nish,ndel,nbas,nash,nrs1,nrs2,nrs3,ispin,nactel,nconf,nelec3,nhole1,nsym,stsym,nssh
   implicit none
@@ -30,7 +28,6 @@ subroutine InpPri_m()
   Character(len=120) :: Line
   Character(len=3),dimension(8) :: lIrrep
 
-  integer(kind=iwp),external :: get_charge
   integer(kind=iwp) :: i,iPrLev,iSym,left,lPaper
 
   IPRLEV = IPRLOC(1)

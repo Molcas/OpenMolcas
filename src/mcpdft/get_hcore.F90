@@ -21,7 +21,6 @@
 subroutine get_hcore(hcore)
   use definitions,only:iwp,wp,u0
   use onedat,only:snoori,snonuc
-  use stdalloc,only:mma_allocate,mma_deallocate
   implicit none
 
 #include "warnings.h"
