@@ -62,8 +62,8 @@ logical(kind=iwp), intent(inout) :: FstItr
 real(kind=wp), intent(inout) :: SIntTh
 integer(kind=iwp) :: i, iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, &
                      Iter_DIIS, Iter_no_DIIS, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
-real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, TCPU2, TWall1, &
-                 TWall2
+real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStatus, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, &
+                 TCPU2, TWall1, TWall2
 logical(kind=iwp) :: AllowFlip, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
 character(len=128) :: OrbName
 character(len=72) :: Note
@@ -232,6 +232,7 @@ EDiff = Zero
 DMOMax = Zero
 FMOMax = Zero
 DltNrm = Zero
+LastStatus = -One
 
 if (MSYMON) then
 # ifdef _MSYM_
@@ -257,6 +258,7 @@ do iter_=1,nIter(nIterP)
   if ((.not. Aufb) .and. (iter > MaxFlip)) AllowFlip = .false.
 
   TCP1 = seconds()
+  if (LastStatus < Zero) LastStatus = TCP1
 
   iDMin = iDMin+1
   if (iDMin > MinDMx) iDMin = MinDMx
@@ -883,6 +885,12 @@ do iter_=1,nIter(nIterP)
 
   TCP2 = seconds()
   CpuItr = TCP2-TCP1
+  ! Update status every 10 seconds at most
+  if (TCP2-LastStatus > Ten) then
+    write(Note,'(A,I0)') 'Iteration ',Iter
+    call StatusLine('SCF: ',Note)
+    LastStatus = TCP2
+  end if
 
   call PrIte(iOpt >= 2,CMO,nBB,nD,Ovrlp,nBT,OccNo,nnB)
 

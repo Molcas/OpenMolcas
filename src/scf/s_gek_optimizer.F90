@@ -28,7 +28,7 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use InfSCF, only: Energy, HDiag, iter, IterGEK, iterSO
+use InfSCF, only: Energy, HDiag, iter, IterGEK, iterSO, TimFld
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use Kriging_mod, only: blavAI
 use Kriging_procedures, only: Setup_Kriging
@@ -45,7 +45,7 @@ character, intent(inout) :: Step_Trunc
 logical(kind=iwp), intent(in) :: SOrange
 integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iter_Save, Iteration, Iteration_Micro, Iteration_Total, IterSO_Save, j, k, l, mDIIS, &
                      nDIIS, nExplicit
-real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Variance(1)
+real(kind=wp) :: Beta_Disp, Cpu1, Cpu2, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Tim1, Tim2, Tim3, Variance(1)
 real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), &
                               q(:,:), q_diis(:,:), Val(:), Vec(:,:)
 logical(kind=iwp) :: Converged, Terminate
@@ -58,6 +58,8 @@ integer(kind=iwp), parameter :: nKrylov = 20
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
 real(kind=wp), external :: DDot_
+
+call Timing(Cpu1,Tim1,Tim2,Tim3)
 
 Beta_Disp = Beta_Disp_Seed
 #ifdef _DEBUGPRINT_
@@ -161,7 +163,7 @@ end do
 IterSO = IterSO_save
 Iter = Iter_save
 
-! Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
+! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
 j = j+1
 Aux_a(:) = dq(:)
 e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
@@ -208,7 +210,7 @@ end do
 IterSO = IterSO_save
 Iter = Iter_save
 
-! Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
+! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
 j = j+1
 Aux_a(:) = dq(:)
 e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
@@ -257,7 +259,7 @@ IterSO = IterSO_save
 Iter = Iter_save
 call mma_deallocate(Aux_b)
 
-! Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
+! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
 j = j+1
 Aux_a(:) = g(:,nDIIS)
 e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
@@ -497,7 +499,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
     !call Dispersion_Kriging(q_diis(:,Iteration+1),Variance,mDIIS)
 
-    ! Note that we might have converged because the step restriction kicked in. However, we fill implicitly
+    ! Note that we might have converged because the step restriction kicked in. However, we will implicitly
     ! fix that during the second micro iteration.
 
 #   ifdef _DEBUGPRINT_
@@ -620,5 +622,7 @@ call mma_deallocate(q)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Exit S-GEK Optimizer'
 #endif
+call Timing(Cpu2,Tim1,Tim2,Tim3)
+TimFld(12) = TimFld(12)+(Cpu2-Cpu1)
 
 end subroutine S_GEK_Optimizer
