@@ -54,6 +54,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
 use general_data, only: NSEL,NCONF,JOBIPH,LUDAVID,STSYM
+use spinfo, only: NDET
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
@@ -63,7 +64,6 @@ real(kind=wp) :: ESize, Threshold, ThrRule
 integer(kind=iwp), allocatable :: iSel(:)
 real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
 #include "rasdim.fh"
-#include "ciinfo.fh"
 #include "lucia_ini.fh"
 
 !-----------------------------------------------------------------------
