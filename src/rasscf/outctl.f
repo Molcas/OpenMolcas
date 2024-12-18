@@ -70,6 +70,7 @@
       use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
      &                        NTOT1,NCONF,NTOT,JOBIPH,NASH,NBAS,NDEL,
      &                        NFRO,NISH,NRS1,NRS2,NRS3,NSSH,NSSH,NTOT2
+      use spinfo, only: NCSASM,NDTASM
 
 
       Implicit None
@@ -78,7 +79,6 @@
       Logical lOPTO
 #include "rasdim.fh"
       Character(LEN=16), Parameter :: ROUTINE='OUTCTL  '
-#include "ciinfo.fh"
 #include "SysDef.fh"
 
       Character(LEN=8)  Fmt2, Label
