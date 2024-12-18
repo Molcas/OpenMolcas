@@ -18,6 +18,7 @@ use mrci_global, only: ICH, IPASS, IRC, IROW, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use TraToc, only: ITRATOC,NTRATOC
 
 #include "intent.fh"
 
@@ -26,7 +27,6 @@ real(kind=wp), intent(out) :: BUFS(NBITM2,NCHN2)
 integer(kind=iwp), intent(out) :: INDS(NBITM2+2,NCHN2)
 real(kind=wp), intent(_OUT_) :: ACBDS(*), ACBDT(*), BFACBD(*)
 integer(kind=iwp), intent(in) :: ISAB(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, IDISK, IFIN1, IFIN2, ILOOP, IN1, INB, INND, INPS, INPT, &
                      INS, INSB, INSOUT, INUMB, IOUT, IPOS, IST, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JDISK, KK, LENGTH, M1, M2, &
                      M3, M4, N1, N2, N3, N4, NA, NAC, NB, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, NORB0(9), NORBP, NOS, &
