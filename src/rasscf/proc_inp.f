@@ -115,6 +115,20 @@
      &                        NDEL,NFRO,NORB,NSSH
       use spinfo, only: MS2
       use spinfo, only: NDET,NCSASM,NDTASM
+      use spinfo, only: NSYM_MOLCAS,NACTEL_MOLCAS,MS2_MOLCAS,
+     &                  ISPIN_MOLCAS,LSYM_MOLCAS,NROOTS_MOLCAS,
+     &                  NGAS_MOLCAS,THRE_MOLCAS,ITMAX_MOLCAS,
+     &                  INOCALC_MOLCAS,ISAVE_EXP_MOLCAS,IEXPAND_MOLCAS,
+     &                  IPT2_MOLCAS,I_ELIMINATE_GAS_MOLCAS,
+     &                  N_ELIMINATED_GAS_MOLCAS,
+     &                  N_2ELIMINATED_GAS_MOLCAS,IPRCI_MOLCAS,
+     &                  POTNUC_MOLCAS,RTOI_MOLCAS,
+     &                  I2ELIMINATED_IN_GAS_MOLCAS,
+     &                  IELIMINATED_IN_GAS_MOLCAS,IGSOCCX_MOLCAS,
+     &                  ISPEED,NBAS_MOLCAS,NGSSH_MOLCAS,
+     &                  NISH_MOLCAS,NORB_MOLCAS,NHOLE1_MOLCAS,
+     &                  NELEC3_MOLCAS
+
 
       Implicit None
 #include "SysDef.fh"
@@ -122,7 +136,6 @@
 #include "warnings.h"
 #include "bk_approx.fh"
 * Lucia-stuff:
-#include "lucia_ini.fh"
 *
 *
       logical lOPTO

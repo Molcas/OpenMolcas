@@ -129,7 +129,6 @@
 #include "warnings.h"
 #include "bk_approx.fh"
 #include "timers.fh"
-#include "lucia_ini.fh"
 
       Integer IReturn, RC_RAS
       Logical DSCF
