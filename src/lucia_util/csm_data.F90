@@ -24,7 +24,6 @@ Private mxpobs
 !        ITSXT        :         Not in use                          (1)
 Integer    NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,ITSXT
 
-#include "csmprd.fh"
 !stuff from csmprd.fh
 !        ADASX        : symmetry operator         initialized in syminf
 !        ASXAD        :                           initialized in syminf
@@ -32,8 +31,8 @@ Integer    NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,ITSXT
 !        SXSXDX       :                           initialized in syminf
 !        SXDXSX       :                           initialized in syminf
 !
-!integer ADASX(MXPOBS,MXPOBS),ASXAD(MXPOBS,2*MXPOBS),              &
-!              ADSXA(MXPOBS,2*MXPOBS),                             &
-!              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
+integer ADASX(MXPOBS,MXPOBS),ASXAD(MXPOBS,2*MXPOBS),              &
+              ADSXA(MXPOBS,2*MXPOBS),                             &
+              SXSXDX(2*MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
 
 End Module CSM_data
