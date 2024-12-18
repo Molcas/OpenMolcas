@@ -20,10 +20,11 @@
       use MCLR_Data, only: NOCSF,MAXI,MAXK,ICISTR,NOPART,IDIAG
       use MCLR_Data, only: IBTSOB,ITSOB,NACOB,NORB1,NORB2,NORB3,
      &                       NTSOB
-      use DetDim, only: MXPOBS,MXINKA
+      use DetDim, only: MXINKA
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
       use input_mclr, only: nsMOB,TimeDep
       use csm_data, only: NSMST,NSMDX,NSMSX
+      use csm_data, only: ADSXA,ASXAD,SXDXSX
 *
 * Outer routine for sigma vector generation
 * RAS space
@@ -41,7 +42,6 @@
 *.Input
 * =====
 *
-#include "csmprd.fh"
       Integer sxstsm(1)
       Integer idummy(1)
       Integer, Allocatable:: STSTS(:), STSTD(:), SVST(:),
