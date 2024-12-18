@@ -28,7 +28,7 @@
 ************************************************************************
       use output_ras, only: LF
       use general_data, only: JOBIPH,JOBOLD,LUONEL,LUINTA,LUINTM,LUQUNE,
-     &                        LUDAVID,LUCOM,ITERFILE
+     &                        LUDAVID,ITERFILE
       Implicit None
       Logical DSCF,DoCholesky
 
@@ -56,9 +56,6 @@
       LUQUNE=27
 *...  Temporary unit for diagonalization
       LUDAVID=37
-*...  general purpose communication file COMFILE
-*     Note: subr. GetInf uses unit 33 as logical unit
-      LUCOM=30
 * Opening the JOBIPH file is delayed till after input processing at end
 * of READIN_RASSCF. Only then is file name known.
 

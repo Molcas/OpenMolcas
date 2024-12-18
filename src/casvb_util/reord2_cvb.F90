@@ -19,9 +19,9 @@ subroutine reord2_cvb(cfrom,cto,imode)
 use csfbas, only: conf
 use glbbas, only: cftp
 use rasscf_global, only: NAC
+use general_data, only: NACTEL, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use general_data, only: NACTEL,STSYM
 
 #include "intent.fh"
 

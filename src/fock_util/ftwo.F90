@@ -61,9 +61,9 @@ subroutine Ftwo(icase,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,F
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use general_data, only: NBAS
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
-use general_data, only: NBAS
 
 implicit none
 integer(kind=iwp), intent(in) :: icase, iSym, kSym, iBas, kBas, off_sqMat(*), off_ltMat(*)

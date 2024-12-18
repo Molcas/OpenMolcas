@@ -106,7 +106,7 @@
      &                        NTOT1,NTOT2,NDELT,NFROT,NTOTSP,NRS1T,
      &                        NRS2T,NRS3T,NACTEL,NHOLE1,NELEC3,ISPIN,
      &                        STSYM,NSEL,SXDAMP,LOWDIN_ON,NISH,NCRVEC,
-     &                        NCRPROJ,NRS1,NRS2,NRS3,NCONF,MALTER,NASH,
+     &                        NRS1,NRS2,NRS3,NCONF,MALTER,NASH,
      &                        NDEL,NFRO,NORB,NSSH
       use spinfo, only: MS2
       use spinfo, only: NDET,NCSASM,NDTASM
@@ -207,7 +207,7 @@
      &        korb, kref,           mBas, mCof, mConf, mm, mOrb, N, NA,
      &        NAO, NASHT, NCHRG, nClean, nCof, nDiff, nGrp, NGSSH_HI,
      &        NGSSH_LO, NISHT, nItems, nNUc, nOrbRoot, nOrbs,
-     &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old
+     &        nSym_l, nT, nU, nW, iAll, iAlter, NISHT_old, NCRPROJ
 #ifdef _HDF5_
       Integer mh5id, lRoots_l
 #endif

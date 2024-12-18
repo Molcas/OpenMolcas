@@ -286,6 +286,7 @@ C.. for GAS
       GoTo 114
 #endif
 
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
       Line=' '
       Write(Line(left-2:),'(A)') 'DMRG sweep specifications:'
       Call CollapseOutput(1,Line)
@@ -328,6 +329,7 @@ C.. for GAS
       GoTo 114
 
  113  Continue
+#endif
 #endif
 
       Line=' '

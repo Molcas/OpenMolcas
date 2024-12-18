@@ -50,12 +50,11 @@ subroutine DavCtl(LW1,TUVX,IFINAL)
 
 use rasscf_global, only: Conv, Emy, Ener, hRoots, IADR15, ICICH, iCIOnly, Iter, ITERCI, kTight, lRoots, MAXJT, n_Keep, NAC, &
                          ThFact, ThrEn
+use general_data, only: JOBIPH, LUDAVID, NCONF, NSEL, STSYM
+use spinfo, only: N_ELIMINATED_GAS_MOLCAS, NCSF_HEXS, NDET
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
-use general_data, only: NSEL,NCONF,JOBIPH,LUDAVID,STSYM
-use spinfo, only: NDET
-use spinfo, only: N_ELIMINATED_GAS_MOLCAS,NCSF_HEXS
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)

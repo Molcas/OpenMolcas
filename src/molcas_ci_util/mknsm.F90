@@ -15,9 +15,9 @@ subroutine MKNSM()
 use gugx, only: SGS
 use gas_data, only: NGAS, NGSSH
 use rasscf_global, only: NSM
+use general_data, only: NSYM
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
-use general_data, only: NSYM
 
 implicit none
 integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
