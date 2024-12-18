@@ -90,6 +90,7 @@
 
       use Constants, only: Zero
       use lucia_data, only: IDISK
+      use spinfo, only: DOBKAP
       IMPLICIT NONE
       INTEGER NSBLOCK,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &        NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,MAXK,MAXI,LC,NGAS,
@@ -125,7 +126,6 @@
 *
       INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
       REAL*8 SCLFAC(*)
-#include "bk_approx.fh"
 *
 
       REAL*8 C(1)
