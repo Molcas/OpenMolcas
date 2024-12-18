@@ -18,20 +18,10 @@
       use lucia_data, only: NTOOBS
       use lucia_data, only: MXPOBS
       use csm_data, only: ITSDX,ITSSX,NSMSX
+      use csm_data, only: ADSXA,SXDXSX
 
       IMPLICIT NONE
       INTEGER IPRNT
-*
-* =====
-*.Input
-* =====
-*
-#include "csmprd.fh"
-*
-* =======
-*. Output
-* =======
-*
 
       INTEGER I12,I34,I1234,NDXFSM,NSXFSM
 
