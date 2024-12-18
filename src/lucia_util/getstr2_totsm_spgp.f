@@ -16,6 +16,7 @@
       use lucia_data, only: NGAS
       use lucia_data, only: NELFGP
       use lucia_data, only: MXPNGAS,MXPNSMST
+      use csm_data, only: NSMST
 *
 * Obtain all super-strings of given total symmetry and given
 * occupation in each GAS space
@@ -55,7 +56,6 @@
       IMPLICIT NONE
       INTEGER NIGRP,ISPGRPSM, NEL,NSTR,NORBT,IDOREO
 *. Input
-#include "csm.fh"
       INTEGER IZ(NORBT,NEL)
       INTEGER IGRP(NIGRP)
 *. output
