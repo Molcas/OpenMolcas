@@ -20,7 +20,6 @@
 *
       IMPLICIT None
 *
-#include "csm.fh"
       Integer IGRP,ITP
 *
 *.  Offsets for occupation and reorder array of strings
