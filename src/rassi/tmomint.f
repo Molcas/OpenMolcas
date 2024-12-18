@@ -42,7 +42,6 @@
       Real*8, Allocatable :: Int_R_O(:), Int_I_O(:)
       Integer IOFF(8,8)
 #endif
-#include "wldata.fh"
 #include "warnings.h"
       Character(LEN=8) Label
       REAL*8 dum(1)
