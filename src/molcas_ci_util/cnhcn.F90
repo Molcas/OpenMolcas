@@ -20,6 +20,7 @@ subroutine CNHCN(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DT
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp, u6
 use spinfo, only: NCSFTP,NDTFTP
+use spinfo, only: ICOMBI
 
 #include "intent.fh"
 
@@ -31,7 +32,6 @@ integer(kind=iwp), intent(inout) :: IPREXH
 integer(kind=iwp) :: IPL, IPR, JCSF, JDET, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, KLDTRB, KLFREE, KLISL, KLISR, NCSFL, NCSFR, &
                      NDETL, NDETR, NTEST
 real(kind=wp) :: PSIGN
-#include "ciinfo.fh"
 
 call CNHCN_INTERNAL(SCR)
 
