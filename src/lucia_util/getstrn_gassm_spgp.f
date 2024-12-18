@@ -37,8 +37,6 @@
 *
       IMPLICIT NONE
       INTEGER NSTR,NEL
-*. General input
-#include "csm.fh"
 *. Specific input
       INTEGER ITPFGS(*), ISMFGS(*)
       INTEGER NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
