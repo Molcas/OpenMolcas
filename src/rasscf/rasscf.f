@@ -130,7 +130,6 @@
 #include "bk_approx.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "ciinfo.fh"
 
       Integer IReturn, RC_RAS
       Logical DSCF
