@@ -13,6 +13,7 @@ module cpf_global
 
 use Constants, only: Two
 use Definitions, only: wp, iwp
+use TraToc, only: NTRABUF
 
 implicit none
 private
@@ -30,7 +31,6 @@ private
 ! Lu_30
 
 #include "Molcas.fh"
-#include "tratoc.fh"
 
 integer(kind=iwp), parameter :: KBUFF1 = 2*9600, MADR = 20000, NTIBUF = nTraBuf
 real(kind=wp), parameter :: SQ2 = sqrt(Two)
