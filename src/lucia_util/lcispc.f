@@ -29,14 +29,13 @@
       use lucia_data, only: IBSPGPFTP,ISPGPFTP
       use lucia_data, only: NOCTYP
       use lucia_data, only: MXPCSM,MXPNGAS
+      use csm_data, only: NSMST,NSMCI
       IMPLICIT NONE
       INTEGER IPRNT
 *
 * ===================
 *.Input common blocks
 * ===================
-*
-#include "csm.fh"
 *
 * ====================
 *. Output common block : XISPSM is calculated
