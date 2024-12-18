@@ -25,6 +25,7 @@ use output_ras, only: IPRLOC
 use printlevel, only: DEBUG, INSANE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use spinfo, only: NTYP,NDTFTP,NCSFTP,NCNFTP
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
@@ -34,7 +35,6 @@ real(kind=wp) :: dum1, dum2, dum3, eCore_Hex
 real(kind=wp), allocatable :: DDIA(:)
 real(kind=wp), external :: Get_eCore
 #include "ciinfo.fh"
-#include "spinfo.fh"
 #include "timers.fh"
 
 call Timing(Tissot_1,dum1,dum2,dum3)
