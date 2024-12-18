@@ -11,10 +11,11 @@
       SUBROUTINE ZSYM1(NIRREP,IPRNT)
       use symmetry_info, only: SYMPRO => Mul
       use lucia_data, only: MXPOBS
+      use csm_data, only: NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,
+     &                    ITSXT
       Implicit None
       INTEGER NIRREP,IPRNT
 *
-#include "csm.fh"
 #include "csmprd.fh"
 
       NSMSX = NIRREP
