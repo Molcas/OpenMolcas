@@ -24,7 +24,7 @@ use motra_global, only: FnHalf, IAD13, iPrint, ISP, ISQ, ISR, ISS, LMOP, LMOQ, L
                         NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, RtoB
-use TraToc, only: ITRATOC,NTRATOC
+use TraToc, only: NTRABUF
 
 implicit none
 integer(kind=iwp), intent(in) :: LBUF, nOUTBUF, nX1, nX2, nX3, nVXPQ, mOVX
