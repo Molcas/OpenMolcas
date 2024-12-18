@@ -56,6 +56,7 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 use general_data, only: NSEL,STSYM,LUDAVID,NCONF
+use spinfo, only: NCNASM
 
 #include "intent.fh"
 
@@ -67,7 +68,6 @@ integer(kind=iwp) :: I, II, IPRINT, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
 real(kind=wp) :: dum1, dum2, dum3, ECORE
 integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
-#include "ciinfo.fh"
 #include "timers.fh"
 
 call Timing(Omega_1,dum1,dum2,dum3)
