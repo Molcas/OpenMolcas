@@ -22,7 +22,6 @@
 
 *. Input
       IMPLICIT None
-#include "csm.fh"
 #include "csmprd.fh"
 
       Integer ISM,LBLOCK
