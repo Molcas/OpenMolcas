@@ -25,6 +25,7 @@
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
       use lucia_data, only: MXPNGAS
+      use csm_data, only: NSMST
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -37,8 +38,6 @@
 * =====
 *.Input
 * =====
-*
-#include "csm.fh"
 *
       INTEGER NBLOCK,ISYM
       INTEGER IBLOCK(8,NBLOCK)
