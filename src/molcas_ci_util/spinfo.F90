@@ -10,7 +10,14 @@
 !***********************************************************************
 Module Spinfo
 Implicit None
+!stuff from spinfo.fh
 INTEGER, PARAMETER :: MXTYP=30, MXSM=8
 INTEGER MULTS,MS2,MINOP,MAXOP,NTYP,NDTFTP(MXTYP),NCSFTP(MXTYP),     &
         NCNFTP(MXTYP,MXSM),NCONF_TOT
+
+#include "ciinfo.fh"
+!INTEGER, PARAMETER:: MXCISM=8
+!INTEGER IORB1F,IORB1L,NEL1MN,NEL1MX,IORB3F,IORB3L,NEL3MN,NEL3MX,    &
+!        MXSASM,MXVBLK,ICOMBI,NDET,NDTASM,NCSASM,NCNASM
+
 End Module Spinfo
