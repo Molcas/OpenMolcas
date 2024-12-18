@@ -48,4 +48,9 @@ Integer  nsym_Molcas,nactel_Molcas, ms2_Molcas,                   &
          N_2ELIMINATED_GAS_MOLCAS,                                &
          I_ELIMINATE_GAS_MOLCAS,nCSF_HEXS
 
+#include "bk_approx.fh"
+!stuff from bk_approx.fh
+!Logical DoBKAP
+!Integer NGASBK, IOCCPSPC(20,2)
+
 End Module Spinfo
