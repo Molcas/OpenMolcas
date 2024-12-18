@@ -19,8 +19,6 @@
 *
       IMPLICIT NONE
 *
-#include "csm.fh"
-
       INTEGER  ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL
       REAL*8 XINT(*)
 *
