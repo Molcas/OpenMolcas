@@ -114,6 +114,7 @@
      &                        NCRPROJ,NRS1,NRS2,NRS3,NCONF,MALTER,NASH,
      &                        NDEL,NFRO,NORB,NSSH
       use spinfo, only: MS2
+      use spinfo, only: NDET,NCSASM,NDTASM
 
       Implicit None
 #include "SysDef.fh"
@@ -121,7 +122,6 @@
 #include "warnings.h"
 #include "bk_approx.fh"
 * Lucia-stuff:
-#include "ciinfo.fh"
 #include "lucia_ini.fh"
 *
 *
