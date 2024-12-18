@@ -20,6 +20,7 @@
       use lucia_data, only: NTOOB,NACOB,IREOST,IREOTS
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
+      use csm_data, only: NSMST
 *. Update Sigma vector with diagonal terms for a given block
 *     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
 *                         + (FACTOR+DIAG(IASPGP,IBSPGP))CVEC(IASPGP,IBSPGP)
@@ -27,8 +28,6 @@
 * Jeppe Olsen and Giovanni Li Manni, September 2011
 *
       IMPLICIT NONE
-*
-#include "csm.fh"
 *
       REAL*8 FACTOR
       INTEGER IASPGP,IBSPGP,IASM,IBSM
