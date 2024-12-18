@@ -14,8 +14,9 @@
 Subroutine validate_wfn()
   use definitions,only:iwp,u6
   use rasscf_global,only:lRoots,NAC,NIN,nRoots,iRoot
-  use general_data,only:nbas,ndel,nssh,nrs3,nrs2,nrs1,nash,nish,nfro,nbas,norb,stsym,ntot,nsym,nelec3, &
-                         ispin,nrs3t,nrs2t,nactel,nhole1,nrs1t
+  use general_data,only:nbas,ndel,nssh,nrs3,nrs2,nrs1,nash,nish,nfro, &
+                        nbas,norb,stsym,ntot,nsym,nelec3,ispin,nrs3t, &
+                        nrs2t,nactel,nhole1,nrs1t
   implicit none
 
 #include "rasdim.fh"
