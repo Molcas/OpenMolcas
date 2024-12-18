@@ -57,11 +57,14 @@ set (sources
      tr2sq.F90
      tractl.F90
      trafo.F90
+     tratoc.F90
      transform_procedures.F90
      transp_MOs.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     tratoc.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

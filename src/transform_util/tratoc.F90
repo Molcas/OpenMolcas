@@ -8,6 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      integer, parameter :: nTraToc=106, nTraBuf=9600
-      integer :: iTraToc(nTraToc)
-      Common /XTraToc/ iTraToc
+Module TraToc
+!use Definitions, only: iwp
+#include "tratoc.fh"
+!integer(kind=iwp), parameter :: nTraToc=106, nTraBuf=9600
+!integer(kind_iwp) :: iTraToc(nTraToc)
+End Module TraToc
