@@ -25,10 +25,10 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use cntrl, only: SONTOSTATES, SONTO
       use Cntrl, only: NSTATE, NOSO, MLTPLT
+      use rassi_data, only: NBST
       IMPLICIT None
       Integer NSS
       Real*8 USOR(NSS,NSS), USOI(NSS,NSS)
-#include "rassi.fh"
       Real*8 IDENTMAT(3,3)
       Real*8, Allocatable:: UMATR(:), UMATI(:), VMAT(:,:)
       Real*8, Allocatable:: TDMAO(:), TSDMAO(:)

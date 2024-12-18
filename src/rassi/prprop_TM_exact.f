@@ -30,6 +30,7 @@
      &                 PTYPE
       use cntrl, only: LuTDM
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBST,NBASF,NTDMZZ
 
       IMPLICIT None
       Integer NSS
@@ -39,7 +40,6 @@
       Real*8 EigVec(NSTATE,NSTATE)
 
       Real*8, parameter ::THRSH=1.0D-10
-#include "rassi.fh"
       LOGICAL TMOgroup
       INTEGER IOFF(8),IJSS(4),IPRTMOM(14)
       CHARACTER(LEN=8) LABEL

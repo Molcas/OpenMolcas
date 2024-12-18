@@ -16,6 +16,7 @@
       use qcmaquis_info, only: qcmaquis_info_init, qcm_prefixes
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_init
       use cntrl, only: NACTE
+      use rassi_data, only: NASH
 #endif
       use mspt2_eigenvectors
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -24,9 +25,8 @@
      &                  MLTPLT, NSTAT, MXJOB
       use cntrl, only: ATLBL, IGROUP, nAtoms, nGroup
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: ENUC,NBASF
       IMPLICIT NONE
-#include "Molcas.fh"
-#include "rassi.fh"
 
       LOGICAL READ_STATES
       INTEGER JOB, i

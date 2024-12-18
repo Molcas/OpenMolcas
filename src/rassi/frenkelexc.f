@@ -17,7 +17,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
 
       IMPLICIT None
-#include "rassi.fh"
       integer(kind=iwp) :: dim, nst1, nst2
       real(kind=wp), intent(inout) :: Frenkeltri(dim*(dim+1)/2)
 

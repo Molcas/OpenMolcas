@@ -146,8 +146,8 @@ contains
   subroutine MKISM_RASSI()
 
     use gugx, only: LEVEL
+    use rassi_data, only: NASHT,NASH
 
-#   include "rassi.fh"
     integer(kind=iwp) :: ITABS, ISYM, IT, ILEV, nSym
 
     nSym = SGS%nSym

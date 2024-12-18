@@ -20,7 +20,6 @@
       implicit none
 ! pick up MxRoot
 #include "rasdim.fh"
-#include "rassi.fh"
       integer(kind=iwp) :: nstat1, nstat2,
      &                     run, lWKX, dimn, a, b
       integer(kind=iwp), external :: isFreeUnit

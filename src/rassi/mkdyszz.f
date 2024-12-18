@@ -22,8 +22,8 @@
 *****************************************************************
       SUBROUTINE MKDYSZZ(CMOA,DYSAB,DYSZZ)
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NCMO,NASH,NBASF,NOSH
       IMPLICIT None
-#include "rassi.fh"
       Real*8 CMOA(NCMO)
       REAL*8 DYSAB(*),DYSZZ(*)
 

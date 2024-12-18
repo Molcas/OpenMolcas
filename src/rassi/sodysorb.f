@@ -20,11 +20,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, DYSEXPORT, DYSEXPSO, MLTPLT
       use Symmetry_Info, only: nSym=>nIrrep
-
+      use rassi_data, only: NBASF,NOSH
 
       IMPLICIT None
-#include "rassi.fh"
-
       Integer NSS, NZ
       REAL*8 USOR(NSS,NSS), USOI(NSS,NSS)
       ! Array for calculation of amplitudes

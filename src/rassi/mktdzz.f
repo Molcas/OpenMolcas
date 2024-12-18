@@ -12,8 +12,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: LSYM1, LSYM2
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NCMO,NTDMAB,NTDMZZ,NBASF,NOSH
       IMPLICIT None
-#include "rassi.fh"
       Real*8 CMOA(NCMO),CMOB(NCMO)
       Real*8 TDMAB(NTDMAB),TDMZZ(NTDMZZ)
       Integer iRC

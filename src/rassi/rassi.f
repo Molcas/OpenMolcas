@@ -41,6 +41,7 @@
      &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
      &                 Do_SK, SaveDens, MLTPLT, NPROP
       use cntrl, only: LuExc, LuOne, LuTDM
+      use rassi_data, only: NBASF,NBSQ,NBST,NTDMZZ
 
 
       IMPLICIT None
@@ -48,7 +49,6 @@ C Matrix elements over RAS wave functions.
 C RAS state interaction.
 ! pick up MxRoot
 #include "rasdim.fh"
-#include "rassi.fh"
       Logical CLOSEONE
       INTEGER IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2,
      &        ISTATE, J, NSS, JOB, MPLET, I

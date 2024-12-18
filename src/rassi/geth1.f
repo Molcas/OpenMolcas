@@ -23,8 +23,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: ERFNuc, RFPert
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NBSQ,NBASF,NBTRI
       IMPLICIT None
-#include "rassi.fh"
       Real*8 HONEAO(NBSQ)
       Character(LEN=8) OneLbl
       Logical Found
