@@ -33,6 +33,7 @@
       use lucia_data, only: NELEC
       use lucia_data, only: MXPOBS,MXPNGAS,MXPNSMST
       use csm_data, only: NSMST,NSMDX,NSMSX
+      use csm_data, only: ADSXA,ASXAD,SXDXSX
 *
 * Density matrices between L and R
 *
@@ -72,7 +73,6 @@
 *.Definition of L and R is picked up from CANDS
 * with L being S and  R being C
 *
-#include "csmprd.fh"
 *. Specific input
       INTEGER I12,LUL,LUR,IDOSRHO1
       LOGICAL IPACK
