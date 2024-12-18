@@ -32,6 +32,7 @@
       use lucia_data, only: NOCTYP
       use lucia_data, only: NELEC
       use lucia_data, only: MXPOBS,MXPNGAS,MXPNSMST
+      use csm_data, only: NSMST,NSMDX,NSMSX
 *
 * Density matrices between L and R
 *
@@ -71,7 +72,6 @@
 *.Definition of L and R is picked up from CANDS
 * with L being S and  R being C
 *
-#include "csm.fh"
 #include "csmprd.fh"
 *. Specific input
       INTEGER I12,LUL,LUR,IDOSRHO1
