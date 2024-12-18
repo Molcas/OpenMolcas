@@ -52,11 +52,11 @@
      &                        NHOLE1,NELEC3,NALTER,STARTORBFILE,NASH,
      &                        NBAS,NDEL,NFRO,NISH,NRS1,NRS2,NRS3,NRS3,
      &                        NSSH
+      use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NSPEED,ISPEED
 
       Implicit None
 #include "rasdim.fh"
 #include "timers.fh"
-#include "lucia_ini.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
