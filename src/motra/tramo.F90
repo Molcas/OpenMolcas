@@ -24,6 +24,7 @@ use motra_global, only: FnHalf, IAD13, iPrint, ISP, ISQ, ISR, ISS, LMOP, LMOQ, L
                         NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, RtoB
+use TraToc, only: ITRATOC,NTRATOC
 
 implicit none
 integer(kind=iwp), intent(in) :: LBUF, nOUTBUF, nX1, nX2, nX3, nVXPQ, mOVX
@@ -31,7 +32,6 @@ real(kind=wp), intent(inout) :: OUTBUF(nOUTBUF), X1(nX1), VXPQ(nVXPQ)
 real(kind=wp), intent(out) :: X2(nX2), X3(nX3)
 real(kind=wp), intent(in) :: CMO(*)
 integer(kind=iwp), intent(out) :: iDsk(3,mOVX)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IAD14, IAD14_, inBuf, IOPT, IOUT, IPQ, IPQMAX, IPQST, IPQUT, IPQX, IRC, IRSST, IST, ISTMOT, IVX, IX1, IX2, &
                      KBUF1, LOQ, LPKREC, LPQ, LVXPQ, NBYTES, NP, NPQ, NQ, NQM, NT, NTUVX, NUMAX, NV, NX, NXM
 logical(kind=iwp) :: INCORE
