@@ -17,6 +17,7 @@
       use lucia_data, only: NTOOBS
       use lucia_data, only: MXPOBS
       use csm_data, only: ITSDX,ITSSX,NSMSX
+      use csm_data, only: ADASX,ADSXA,SXDXSX
 *
 * Pointers to symmetry blocks of integrals
 * IPNT1 : Pointer to given one-electron block, total symmetric
@@ -32,17 +33,6 @@
 *
 * Jeppe Olsen, Last Update : August 2000
       IMPLICIT None
-*
-* =====
-*.Input
-* =====
-*
-#include "csmprd.fh"
-*
-* =======
-*. Output
-* =======
-*
       INTEGER IPNT1(NSMOB),ISL1(NSMOB)
       INTEGER IPNT2(NSMOB,NSMOB,NSMOB),ISL2(NSMOB,NSMOB,NSMOB)
 
