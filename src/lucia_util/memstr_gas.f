@@ -19,6 +19,7 @@
      &                      NSTFGP
       use lucia_data, only: NACOB,NOBPT
       use lucia_data, only: ISTAC
+      use csm_data, only: NSMST
 *
 *
 * Construct pointers for saving information about strings and
@@ -41,7 +42,6 @@
 *
       IMPLICIT NONE
 *
-#include "csm.fh"
       Integer IGRP,NSTRIN,LSTRIN,ITP,IEL,IGAS,IORB,ISTRIN,LENGTH
 *
 *. Start of string information
