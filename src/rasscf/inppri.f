@@ -71,12 +71,12 @@
      &                        NSEL,NTOT1,NASH,NBAS,NDEL,NFRO,NISH,
      &                        NRS1,NRS2,NRS3,NSSH
       use spinfo, only: NCSASM,NDTASM
+      use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NCSF_HEXS
 
       Implicit None
       Logical lOPTO
 
 #include "rasdim.fh"
-#include "lucia_ini.fh"
       Character(LEN=8)   Fmt1,Fmt2,Label
       Character(LEN=120)  Line,BlLine,StLine
       Character(LEN=3) lIrrep(8)
