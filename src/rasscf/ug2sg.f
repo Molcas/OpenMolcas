@@ -28,6 +28,7 @@ C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
       use gugx, only: SGS,CIS, EXS
       use output_ras, only: LF
+      use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
       IMPLICIT None
       INTEGER NROOTS,NCONF,NORB,NEL,IREFSM,IPRINT,MXROOTS
       INTEGER ICONF(*),ISPIN(*)
@@ -37,7 +38,6 @@ C
 C
 #include "rasdim.fh"
 #include "ciinfo.fh"
-#include "spinfo.fh"
 C
       INTEGER IWALK(mxAct)
       INTEGER KCNF(mxAct)
