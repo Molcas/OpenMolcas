@@ -22,6 +22,8 @@
 #ifdef _DEBUGPRINT_
       use lucia_data, only: IBSPGPFTP
 #endif
+      use csm_data, only: NSMST
+
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -34,7 +36,6 @@
 * =====
 *.Input
 * =====
-#include "csm.fh"
 *
       INTEGER LUDIA,ICISTR,I12,NBLOCK
       REAL*8 ECORE
