@@ -19,6 +19,7 @@
       use lucia_data, only: MXNSTR
       use lucia_data, only: IREOST,NTOOB
       use lucia_data, only: NELEC
+      use csm_data, only: NSMST
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -39,7 +40,6 @@
       IMPLICIT None
       REAL*8 T
       INTEGER KORB, ISM, ISPC, LUCIN, LUCOUT
-#include "csm.fh"
 
 *. Scratch block, must hold a batch of blocks
       REAL*8 C(*)
