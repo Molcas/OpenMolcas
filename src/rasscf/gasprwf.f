@@ -47,9 +47,7 @@
 
       Implicit None
 
-
 #include "rasdim.fh"
-#include "ciinfo.fh"
 C
       Integer nOrb, nEl
       Integer ICONF(*),ISPIN(*)
