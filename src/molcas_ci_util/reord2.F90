@@ -57,6 +57,7 @@ use gugx, only: CIS, EXS, SGS
 use output_ras, only: IPRLOC
 use printlevel, only: DEBUG
 use Definitions, only: wp, iwp, u6
+use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
 
 #include "intent.fh"
 
@@ -66,7 +67,6 @@ real(kind=wp), intent(in) :: CIOLD(*)
 real(kind=wp), intent(_OUT_) :: CINEW(*)
 integer(kind=iwp), intent(out) :: KCNF(NEL)
 #include "rasdim.fh"
-#include "spinfo.fh"
 integer(kind=iwp) :: i, IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IIBCL, IIBOP, IICSF, IOPEN, IP, IPBAS, IPRLEV, ISG, ITYP, &
                      IWALK(mxAct), JOCC, KOCC, KORB, LPRINT
 integer(kind=iwp), external :: IPHASE, ISGNUM
