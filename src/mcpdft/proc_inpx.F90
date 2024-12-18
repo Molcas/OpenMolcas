@@ -279,7 +279,6 @@ Subroutine Proc_InpX(DSCF,iRc)
     NORB(ISYM) = NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)
     NSSH(ISYM) = NORB(ISYM)-NISH(ISYM)-NASH(ISYM)
   EndDo
-  write(6,*) 'MRH nash:',nash
 !---  Related data for sizes, etc.
   NTOT = 0
   NTOT1 = 0
@@ -317,14 +316,12 @@ Subroutine Proc_InpX(DSCF,iRc)
   ENDDO
   NACPAR = (nac+nac**2)/2
   NACPR2 = (NACPAR+NACPAR**2)/2
-  write(6,*) 'MRH nac:',nac
 
   ! Initialize Cholesky information if requested
   if(DoCholesky) then
     Call Cho_X_init(irc,ChFracMem)
     if(irc /= 0) Go To 9930
   endif
-  write(6,*) 'cho_x_init nac:',nac
 
 ! ===============================================================
 !     Initialize seward
@@ -333,7 +330,6 @@ Subroutine Proc_InpX(DSCF,iRc)
   Call IniSew(DSCF .or. Langevin_On() .or. PCM_On(),nDiff)
 ! ===============================================================
 !     Check the input data
-  write(6,*) 'seward nac:',nac
   Call validate_wfn()
 ! ===============================================================
   Go to 9000
