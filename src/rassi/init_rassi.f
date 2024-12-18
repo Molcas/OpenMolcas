@@ -37,10 +37,10 @@
      &                 LuExc, FnExc, LuMck, LuTOM, FnTOM,
      &                 LuEig, FnEig
       use rassi_data, only: WFTYPE
+      use hfc_logical, only: MAG_X2C
 
 
       IMPLICIT None
-#include "hfc_logical.fh"
       Character(LEN=256) STRING
       Logical FoundTwoEls,DoCholesky
       Integer I, IPROP
