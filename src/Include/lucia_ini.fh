@@ -14,19 +14,14 @@
       Integer RtoI_Molcas
 
 ! i = 1, 5: combinations, particle hole(sigma), count_aa, count_ab, a/p_parts
-      Integer    nSpeed, iSpeed
-      Parameter (nSpeed = 5)
-      Dimension iSpeed(nSpeed)
+      Integer, Parameter:: nSpeed = 5
+      Integer iSpeed(nSpeed)
 
-      Integer   iRoot_Molcas, norb_Molcas,                              &
-     &          nbas_Molcas, nish_Molcas,                               &
-     &          ngssh_molcas, igsoccx_molcas,                           &
-     &          IELIMINATED_IN_GAS_MOLCAS, I2ELIMINATED_IN_GAS_MOLCAS
-      Dimension iRoot_Molcas(mxRoot),norb_Molcas(mxSym)
-      Dimension nbas_Molcas(mxSym),nish_Molcas(mxSym)
-      Dimension ngssh_molcas(mxgas,mxsym),igsoccx_molcas(mxgas,2)
-      Dimension IELIMINATED_IN_GAS_MOLCAS(MXGAS)
-      Dimension I2ELIMINATED_IN_GAS_MOLCAS(MXGAS)
+      Integer iRoot_Molcas(mxRoot),norb_Molcas(mxSym)
+      Integer nbas_Molcas(mxSym),nish_Molcas(mxSym)
+      Integer ngssh_molcas(mxgas,mxsym),igsoccx_molcas(mxgas,2)
+      Integer IELIMINATED_IN_GAS_MOLCAS(MXGAS)
+      Integer I2ELIMINATED_IN_GAS_MOLCAS(MXGAS)
 
       Real*8   potnuc_Molcas,thre_Molcas
       Integer  nsym_Molcas,nactel_Molcas, ms2_Molcas,                   &
