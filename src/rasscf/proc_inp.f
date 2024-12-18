@@ -128,13 +128,13 @@
      &                  ISPEED,NBAS_MOLCAS,NGSSH_MOLCAS,
      &                  NISH_MOLCAS,NORB_MOLCAS,NHOLE1_MOLCAS,
      &                  NELEC3_MOLCAS
+      use spinfo, only: DOBKAP,NGASBK,IOCCPSPC
 
 
       Implicit None
 #include "SysDef.fh"
 #include "rasdim.fh"
 #include "warnings.h"
-#include "bk_approx.fh"
 * Lucia-stuff:
 *
 *
