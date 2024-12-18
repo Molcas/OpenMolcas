@@ -37,6 +37,7 @@
       use CandS, only: ICSM,ISSM,ISSPC,ICSPC
       use input_mclr, only: nsMOB
       use csm_data, only: NSMST,NSMDX,NSMSX
+      use csm_data, only: ADSXA,ASXAD,SXDXSX
       IMPLICIT None
       Integer I12
 *.Output
@@ -52,7 +53,6 @@
 *
 *.Definition of L and R is picked up from CANDS
 * with L being S and  R being C
-#include "csmprd.fh"
 *. Before I forget it :
       INTEGER iSXSTSM(1),IDUMMY(1)
       Integer, Allocatable:: SIOIO(:), CIOIO(:), SBLTP(:), CBLTP(:)
