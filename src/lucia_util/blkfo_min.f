@@ -21,6 +21,7 @@
       use lucia_data, only: ISIMSYM,LCSBLK
       use lucia_data, only: IDC
       use lucia_data, only: NOCTYP
+      use csm_data, only: NSMST
 *
 * Number of blocks and length of each block for CI expansion
 *
@@ -38,7 +39,6 @@
 *
       IMPLICIT NONE
       INTEGER ISM,NBLK
-#include "csm.fh"
 
 
 *. Output : Should outside be dimensioned as MXNTTS
