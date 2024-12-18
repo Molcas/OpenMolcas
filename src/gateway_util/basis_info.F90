@@ -25,7 +25,7 @@ private
 public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, Extend_Shells, &
           Gaussian_Type, icent, iCnttp_Dummy, lant, lmag, lnang, Max_Shells, mGaussian_Type, MolWgh, MxPrim, MxrCof, nAngr, nBas, &
           nBas_Aux, nBas_Frag, nBasisr, nCnttp, nFrag_LineWords, nPrimr, nrBas, nrSym, Nuclear_Model, PAMExp, Point_Charge, rCof, &
-          rExp, Seward_Activated, Shells
+          rExp, Seward_Activated, Shells, DoEMPC
 
 #include "Molcas.fh"
 
@@ -169,6 +169,7 @@ integer(kind=iwp) :: icent(MxAO), iCnttp_Dummy = 0, lant(MxAO), lmag(MxAO), lnan
 real(kind=wp) :: rCof(MxrCof), rExp(MxPrim)
 logical(kind=iwp) :: Initiated = .false., Seward_Activated = .false.
 real(kind=wp), allocatable :: PAMexp(:,:)
+logical(kind=iwp) DoEMPC
 
 type(Distinct_Basis_set_centers), allocatable, target :: dbsc(:)
 type(Shell_Info), allocatable :: Shells(:)
