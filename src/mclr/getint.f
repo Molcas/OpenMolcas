@@ -23,7 +23,6 @@
      &        IXCHNG,IKSM,JLSM,ICOUL ,ieaw
 
 *
-#include "csm.fh"
        Integer nTest,nI,nK,nIK,nJ,nL,nJL,nIJ,nKL
 *
        NTEST=0
