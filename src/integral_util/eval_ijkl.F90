@@ -44,7 +44,7 @@ use Index_Functions, only: iTri
 use setup, only: mSkal, nAux, nSOs
 use k2_structure, only: IndK2, k2data
 use k2_arrays, only: Aux, Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
-use iSD_data, only: iSD
+use iSD_data, only: iSD, nSD
 use Basis_Info, only: Shells
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
@@ -68,10 +68,11 @@ integer(kind=iwp) :: iAngV(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, 
                      jPrimj, jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrimk, kPrInc, kS, kS_, lBasAO, lBasl, &
                      lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
                      mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta
+integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
-logical(kind=iwp) :: IJeqKL, NoInts, Shijij
+logical(kind=iwp) :: IJeqKL, NoInts, Shijij, No_batch
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
-integer(kind=iwp), external :: iDAMax_, MemSO2
+integer(kind=iwp), external :: iDAMax_
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
 
@@ -142,18 +143,19 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+call Gen_iSD4(iS_,jS_,kS_,lS_,iSD,nSD,iSD4)
 call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iPrimi = Shells(iShllV(1))%nExp
-jPrimj = Shells(iShllV(2))%nExp
-kPrimk = Shells(iShllV(3))%nExp
-lPriml = Shells(iShllV(4))%nExp
-iBasi = Shells(iShllV(1))%nBasis
-jBasj = Shells(iShllV(2))%nBasis
-kBask = Shells(iShllV(3))%nBasis
-lBasl = Shells(iShllV(4))%nBasis
+iPrimi = Shells(iSD4(0,1))%nExp
+jPrimj = Shells(iSD4(0,2))%nExp
+kPrimk = Shells(iSD4(0,3))%nExp
+lPriml = Shells(iSD4(0,4))%nExp
+iBasi = Shells(iSD4(0,1))%nBasis
+jBasj = Shells(iSD4(0,2))%nBasis
+kBask = Shells(iSD4(0,3))%nBasis
+lBasl = Shells(iSD4(0,4))%nBasis
 nZeta = iPrimi*jPrimj
 nEta = kPrimk*lPriml
 mDij = nZeta+1 ! Dummy initialize
@@ -168,13 +170,13 @@ call Create_BraKet(nZeta,nEta)
 !***********************************************************************
 !                                                                      *
 ! No SO block in direct construction of the Fock matrix.
-nSO = MemSO2(iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),iShelV(1),iShelV(2),iShelV(3),iShelV(4),iAOV(1),iAOV(2),iAOV(3),iAOV(4))
-if (nSO == 0) return
+Call Size_SOb(iSD4,nSD,nSO,No_batch)
+if (No_Batch) return
 
-iS = iShelV(1)
-jS = iShelV(2)
-kS = iShelV(3)
-lS = iShelV(4)
+iS = iSD4(11,1)
+jS = iSD4(11,2)
+kS = iSD4(11,3)
+lS = iSD3(11,4)
 ijS = iTri(iS,jS)
 klS = iTri(kS,lS)
 ikS = iTri(iS,kS)
@@ -311,7 +313,7 @@ do iBasAO=1,iBasi,iBsInc
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
                       Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nSO, &
-                      AOInt,Mem2,Shijij,Aux,nAux)
+                      AOInt,Mem2,Shijij,Aux,nAux,iSD4)
         !                                                              *
         !***************************************************************
         !                                                              *

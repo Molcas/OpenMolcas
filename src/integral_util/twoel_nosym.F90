@@ -33,6 +33,7 @@ subroutine TwoEl_NoSym( &
 
 use Index_Functions, only: nTri3_Elem1
 use Basis_Info, only: Shells
+use iSD_data, only: nSD
 use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc

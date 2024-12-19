@@ -32,6 +32,7 @@ subroutine TwoEl_Sym( &
 !***********************************************************************
 
 use Index_Functions, only: nTri3_Elem1
+use iSD_data, only: nSD
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
 use Phase_Info, only: iPhase
