@@ -12,6 +12,7 @@
      &                    ELEC,iel,elout,ldisp,Lu_10)
       use stdalloc, only: mma_allocate, mma_deallocate
       use input_mclr, only: nSym,nDisp,nUserPT,nSRot,UserP,ChIrr,UserT
+      use temperatures, only: DefTemp
       Implicit None
       Integer nDeg(*),nrvec(*)
       Real*8 H(*)
@@ -26,7 +27,6 @@
       Real*8, Allocatable:: NMod(:), EVec(:), EVec2(:,:), EVal(:),
      &                      EVal2(:), Intens(:), RedMas(:), Tmp3(:),
      &                      Temp(:)
-#include "temperatures.fh"
       Integer ipNx,nModes,lModes,i1,i3,j,ii,lnm_molpac,iSym,nx,iCtl,
      &        ll,kk,i,k,iT,jpNx,ix,jx,nEig,iNeg
       Integer, external:: IsFreeUnit
@@ -200,8 +200,8 @@
 *
       If (nUserPT.eq.0 .and. nsRot.eq.0) then
         UserP=1.0d0
-        nUserPT=NDefTemp
-        Do i=1,NDefTemp
+        nUserPT=Size(DefTemp)
+        Do i=1,nUserPT
           UserT(i)=DefTemp(i)
         End Do
 *       Call ThermoData(EVal,nEig)
