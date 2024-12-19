@@ -331,6 +331,7 @@ Subroutine Proc_InpX(DSCF,iRc)
   Call IniSew(DSCF .or. Langevin_On() .or. PCM_On(),nDiff)
 ! ===============================================================
 !     Check the input data
+  write(6,*) 'seward nac:',nac
   Call validate_wfn()
 ! ===============================================================
   Go to 9000
