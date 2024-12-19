@@ -30,7 +30,7 @@ subroutine Drvk2_mck(New_Fock)
 use Index_Functions, only: iTri, nTri_Elem1
 use k2_arrays, only: DoGrad_, DoHess_, nDeDe
 use k2_structure, only: Indk2, k2data
-use iSD_data, only: iSD
+use iSD_data, only: iSD,nSD
 use Basis_Info, only: dbsc, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
@@ -43,7 +43,7 @@ integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), i
                      ik2, iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
                      jBas, jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
                      kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
-                     nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
+                     nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Wrk(:)
 integer(kind=iwp), parameter :: nHm = 0
@@ -81,6 +81,8 @@ ipM001 = 1
 ndede = 0
 mk2 = 0
 do iS=1,nSkal
+  iSD4(:,1)=iSD(:,iS)
+  iSD4(:,3)=iSD(:,iS)
   iShll = iSD(0,iS)
   iAng = iSD(1,iS)
   iCmp = iSD(2,iS)
@@ -97,6 +99,8 @@ do iS=1,nSkal
   iCmpV(1) = nTri_Elem1(iAng)
 
   do jS=1,iS
+    iSD4(:,2)=iSD(:,jS)
+    iSD4(:,4)=iSD(:,jS)
     jShll = iSD(0,jS)
     jAng = iSD(1,jS)
     jCmp = iSD(2,jS)

@@ -176,7 +176,7 @@ if (No_Batch) return
 iS = iSD4(11,1)
 jS = iSD4(11,2)
 kS = iSD4(11,3)
-lS = iSD3(11,4)
+lS = iSD4(11,4)
 ijS = iTri(iS,jS)
 klS = iTri(kS,lS)
 ikS = iTri(iS,kS)

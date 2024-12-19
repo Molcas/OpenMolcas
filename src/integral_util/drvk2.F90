@@ -31,7 +31,7 @@ subroutine Drvk2(DoFock,DoGrad)
 
 use Index_Functions, only: iTri, nTri_Elem1, nTri3_Elem1
 use setup, only: mSkal
-use iSD_data, only: iSD
+use iSD_data, only: iSD, nSD
 use k2_structure, only: Indk2, k2_Processed, k2Data
 use k2_arrays, only: BraKet, Create_BraKet, DeDe, Destroy_BraKet, DoGrad_, DoHess_, ipOffD, Sew_Scr
 use Basis_Info, only: DBSC, Shells
@@ -52,7 +52,7 @@ integer(kind=iwp) :: iAng, iAngV(4), iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, 
                      ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iPrInc, iS, iShell, iShll, iShllV(2), jAng, jBas, jBasj, jBsInc, jCmp, &
                      jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, kPrInc, la_, lBasl, &
                      lBsInc, lPriml, lPrInc, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
-                     nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
+                     nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
@@ -133,6 +133,8 @@ ipMem1 = 1
 ! Canonical double loop over shells.
 
 do iS=1,mSkal
+  iSD4(:,1)=iSD(:,iS)
+  iSD4(:,3)=iSD(:,iS)
   iShll = iSD(0,iS)
   if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
   iAng = iSD(1,iS)
@@ -151,6 +153,8 @@ do iS=1,mSkal
   iShllV(1) = iShll
   iCmpV(1) = iCmp
   do jS=1,iS
+    iSD4(:,2)=iSD(:,jS)
+    iSD4(:,4)=iSD(:,jS)
     jShll = iSD(0,jS)
     if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
     if (Shells(jShll)%Aux .and. (jS == mSkal)) cycle
