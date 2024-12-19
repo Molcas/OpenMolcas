@@ -44,6 +44,10 @@ use Para_Info, only: nProcs, King
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp, u6
+!#define _CD_TIMING_
+#ifdef _CD_TIMING_
+use temptime, only: DRVG1_CPU,DRVG1_WALL,PREPP_WALL,PREPP_CPU
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -66,9 +70,7 @@ integer(kind=iwp), save :: MemPrm
 logical(kind=iwp), external :: Rsv_GTList
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus
-!#define _CD_TIMING_
 #ifdef _CD_TIMING_
-#include "temptime.fh"
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, Pget_CPU, Pget_Wall, Total_Dens_CPU, Total_Dens_Wall, &
                  Total_Der_CPU, Total_Der_CPU2, Total_Der_Wall, Total_Der_Wall2, Twoel_CPU, Twoel_Wall, TwoelCPU1, TwoelCPU2, &
                  TwoelWall1, TwoelWall2

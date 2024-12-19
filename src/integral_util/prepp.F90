@@ -41,11 +41,11 @@ use mspdft_grad, only: DoGradMSPD
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+#ifdef _CD_TIMING_
+use temptime, only: PREPP_CPU,PREPP_WALL
+#endif
 
 implicit none
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
 integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iost, iSeed, iSh, iSpin, iSSDM, jBas, LgToC, lRealName, MaxShlAO, &
                      MxInShl, n, nAct, nBasI, nDim0, nDim1, nDim2, nPair, nQUad, nSA, nShell, nTsT, nXro(0:7)
 character(len=4096) :: RealName
@@ -63,6 +63,9 @@ integer(kind=iwp), parameter :: iComp = 1
 #endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Get_ExFac
+#ifdef _CD_TIMING_
+real(kind=wp) :: PREPPCPU2,PREPPCPU1,PREPPWALL2,PREPPWALL1
+#endif
 
 ! Prologue
 

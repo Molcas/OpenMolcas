@@ -33,13 +33,13 @@ use Cholesky, only: InfVec, NumCho, timings
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
+#define _CD_TIMING_
+#ifdef _CD_TIMING_
+use temptime, only: RMULT_CPU,RMULT_WALL
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iSO, nIrrep, nBas_Aux(1:nIrrep)
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
 integer(kind=iwp) :: i, iAdrC, iAdrQ, iAdrR, iAux, iFirstCho, iJBat, indx, indx2, iRest, iSeed, iSeed2, iSym, jSym, kSym, &
                      l_CVector, l_Q, l_QVector, l_RVec, l_RVector, lSym, Lu_Q, LuCVec, LuRVec, MaxCho, MaxLocCho, MaxMOprod, &
                      MaxMOProdR, MemMax, nJbat, njVec, nJvec1, nJvecLast, nTotCho, nTotFIorb, NumAux, NumCV, nVec(1:nIrrep)
