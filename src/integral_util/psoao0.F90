@@ -13,8 +13,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc,kPrim, &
-                  kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock)
+subroutine PSOAO0(nSO,MemPrm,MemMax,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc,kPrim, &
+                  kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -48,7 +48,8 @@ use Breit, only: nComp
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, ipMem1
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, ipMem1
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 #include "Molcas.fh"
@@ -57,15 +58,17 @@ integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, 
                      nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
+
 iCmp = iCmpa(1)
 jCmp = iCmpa(2)
-nab = iCmp*jCmp
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
+
+nab = iCmp*jCmp
 ncd = kCmp*lCmp
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1

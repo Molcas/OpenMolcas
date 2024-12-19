@@ -152,10 +152,12 @@ iPrimi = Shells(iSD4(0,1))%nExp
 jPrimj = Shells(iSD4(0,2))%nExp
 kPrimk = Shells(iSD4(0,3))%nExp
 lPriml = Shells(iSD4(0,4))%nExp
+
 iBasi = Shells(iSD4(0,1))%nBasis
 jBasj = Shells(iSD4(0,2))%nBasis
 kBask = Shells(iSD4(0,3))%nBasis
 lBasl = Shells(iSD4(0,4))%nBasis
+
 nZeta = iPrimi*jPrimj
 nEta = kPrimk*lPriml
 mDij = nZeta+1 ! Dummy initialize
@@ -231,8 +233,8 @@ call MemRys(iAngV,MemPrm)
 !                                                                      *
 ! Decide on the partioning of the shells based on the
 ! available memory and the requested memory.
-call PSOAO0(nSO,MemPrm,MemMax,iAngV,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
-            kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock)
+call PSOAO0(nSO,MemPrm,MemMax,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
+            kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !#ifdef _DEBUGPRINT_
 !write(u6,*) ' ************** Memory partioning **************'
 !write(u6,*) ' ipMem1=',ipMem1

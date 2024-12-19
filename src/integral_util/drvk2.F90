@@ -231,8 +231,8 @@ do iS=1,mSkal
     jPrimj = nZeta
     force_part_save = force_part_c
     force_part_c = .false.
-    call PSOAO0(nSO,MemPrm,MemMax,iAngV,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc, &
-                kPrimk,kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.)
+    call PSOAO0(nSO,MemPrm,MemMax,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc, &
+                kPrimk,kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
     force_part_c = force_part_save
     ijInc = min(jBsInc,jPrInc)
     iPrimi = iPrims
