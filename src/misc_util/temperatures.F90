@@ -14,5 +14,5 @@ Private
 ! Default temperatures for thermochemistry (MCLR, SLAPAF)
 Integer(kind=iwp), Parameter :: NDefTemp=7
 Real(kind=wp) :: DefTemp(NDefTemp)=[0.0d0,100.0d0,273.15d0,298.15d0,323.15d0,373.15d0,473.15d0]
-Public :: nDefTemp,DefTemp
+Public :: DefTemp
 End Module Temperatures
