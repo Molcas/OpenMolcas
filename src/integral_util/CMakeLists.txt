@@ -279,6 +279,7 @@ set (sources
      symado.F90
      symadp.F90
      tcrtnc.F90
+     temptime.F90
      term_ints.F90
      tetin.F90
      tf.F90
@@ -330,6 +331,7 @@ set (modfile_list
      real_spherical.F90
      rmat.F90
      setup.F90
+     temptime.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
