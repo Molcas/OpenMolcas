@@ -91,6 +91,9 @@
       use Constants, only: Zero
       use lucia_data, only: IDISK
       use spinfo, only: DOBKAP
+#ifdef _DEBUGPRINT_
+      use spinfo, only: NGASBK,IOCCPSPC
+#endif
       IMPLICIT NONE
       INTEGER NSBLOCK,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
      &        NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,MAXK,MAXI,LC,NGAS,
