@@ -316,6 +316,7 @@ Subroutine Proc_InpX(DSCF,iRc)
   ENDDO
   NACPAR = (nac+nac**2)/2
   NACPR2 = (NACPAR+NACPAR**2)/2
+  write(6,*) 'MRH nac:',nac
 
   ! Initialize Cholesky information if requested
   if(DoCholesky) then
