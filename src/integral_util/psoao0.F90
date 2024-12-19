@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc,kPrim, &
+subroutine PSOAO0(nSO,MemPrm,MemMax,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc,kPrim, &
                   kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -48,7 +48,7 @@ use Breit, only: nComp
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, ipMem1
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, ipMem1
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
@@ -63,10 +63,10 @@ lb = iSD4(1,2)
 lc = iSD4(1,3)
 ld = iSD4(1,4)
 
-iCmp = iCmpa(1)
-jCmp = iCmpa(2)
-kCmp = iCmpa(3)
-lCmp = iCmpa(4)
+iCmp = iSD4(2,1)
+jCmp = iSD4(2,2)
+kCmp = iSD4(2,3)
+lCmp = iSD4(2,4)
 
 nab = iCmp*jCmp
 ncd = kCmp*lCmp

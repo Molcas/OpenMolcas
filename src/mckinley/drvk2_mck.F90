@@ -97,6 +97,8 @@ do iS=1,nSkal
 
   iShllV(1) = iShll
   iCmpV(1) = nTri_Elem1(iAng)
+  iSD4(2,1)=iCmpV(1)
+  iSD4(2,3)=iCmpV(1)
 
   do jS=1,iS
     iSD4(:,2)=iSD(:,jS)
@@ -116,6 +118,8 @@ do iS=1,nSkal
     ik2 = iTri(iS,jS)
     iShllV(2) = jShll
     iCmpV(2) = nTri_Elem1(jAng)
+    iSD4(2,2)=iCmpV(2)
+    iSD4(2,4)=iCmpV(2)
 
     ! Compute FLOP's for the transfer equation.
 
@@ -150,7 +154,7 @@ do iS=1,nSkal
     ! Decide on the partioning of the shells based on
     ! the available memory and the requested memory.
 
-    call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc, &
+    call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc, &
                   jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipM001,ipM002,ipM003,ipM004,M001,M002,M003,M004,M00d,nSD,iSD4)
     if ((iBasi /= iBsInc) .or. (jBasj /= jBsInc)) then
       write(u6,*) 'Drvk2: (iBasi /= iBsInc) .or. (jBasj /= jBsInc)'

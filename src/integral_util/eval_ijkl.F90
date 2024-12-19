@@ -62,7 +62,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iAngV(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCmpV(4), ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
+integer(kind=iwp) :: iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCmpV(4), ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
                      ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, iPrimi, &
                      iPrInc, ipTmp, iS, iS_, iShelV(4), iShllV(4), iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
                      jPrimj, jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrimk, kPrInc, kS, kS_, lBasAO, lBasl, &
@@ -144,7 +144,7 @@ end if
 !***********************************************************************
 !                                                                      *
 call Gen_iSD4(iS_,jS_,kS_,lS_,iSD,nSD,iSD4)
-call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
+call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iCmpV,iShelV,iShllV,iAOV,iStabs)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -233,7 +233,7 @@ call MemRys(iSD4(1,:),MemPrm)
 !                                                                      *
 ! Decide on the partioning of the shells based on the
 ! available memory and the requested memory.
-call PSOAO0(nSO,MemPrm,MemMax,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
+call PSOAO0(nSO,MemPrm,MemMax,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
             kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !#ifdef _DEBUGPRINT_
 !write(u6,*) ' ************** Memory partioning **************'

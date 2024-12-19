@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
+subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,iCmpV,iShelV,iShllV,iAOV,iStabs)
 
 use Basis_Info, only: dbsc
 use Gateway_Info, only: DoFMM, RPQMin
@@ -22,7 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nSkal, iSD(0:nSD,nSkal), iS, jS, kS, lS
 real(kind=wp), intent(out) :: Coor(3,4)
 logical(kind=iwp), intent(out) :: Shijij
-integer(kind=iwp), intent(out) :: iAngV(4), iCmpV(4), iShelV(4), iShllV(4), iAOV(4), iStabs(4)
+integer(kind=iwp), intent(out) :: iCmpV(4), iShelV(4), iShllV(4), iAOV(4), iStabs(4)
 integer(kind=iwp) :: i, iCnt, iCnttp, iQuad, iSkal, jCnt, jCnttp, jQuad(4), kCnt, kCnttp, lCnt, lCnttp
 real(kind=wp) :: D, P, Q
 
@@ -57,9 +57,8 @@ jQuad(3) = kS
 jQuad(4) = lS
 do iQuad=1,4
   iSkal = jQuad(iQuad)
-  iAngV(iQuad) = iSD(1,iSkal)
-  iCmpV(iQuad) = iSD(2,iSkal)
-  iAOV(iQuad) = iSD(7,iSkal)
+  iCmpV(iQuad)  = iSD(2,iSkal)
+  iAOV(iQuad)   = iSD(7,iSkal)
   iStabs(iQuad) = iSD(10,iSkal)
   iShelV(iQuad) = iSD(11,iSkal)
   iShllV(iQuad) = iSD(0,iSkal)
@@ -85,7 +84,5 @@ if (DoFMM) then
   if (D > RPQMIN*RPQMIN) FMM_shortrange = .true.
 end if
 !MAW end
-
-return
 
 end subroutine Int_Setup
