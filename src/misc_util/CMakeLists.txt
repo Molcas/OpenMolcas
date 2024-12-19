@@ -140,6 +140,7 @@ set (sources
      tcd_r8.c
      tce_r8.c
      tcl_r8.c
+     temperatures.F90
      thermo_driver.F90
      thermo_vibg.F90
      thermochem_.F90
@@ -171,6 +172,7 @@ set (modfile_list
      sorting.F90
      sorting_funcs.F90
      spool.F90
+     temperatures.F90
      twodat.F90
 )
 
