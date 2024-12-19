@@ -135,16 +135,17 @@ ipMem1 = 1
 do iS=1,mSkal
   iSD4(:,1)=iSD(:,iS)
   iSD4(:,3)=iSD(:,iS)
-  iShll = iSD(0,iS)
+
+  iShll = iSD4(0,1)
   if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
-  iAng = iSD(1,iS)
-  iCmp = iSD(2,iS)
-  iBas = iSD(3,iS)
-  iPrim = iSD(5,iS)
-  mdci = iSD(10,iS)
-  iShell = iSD(11,iS)
-  iCnttp = iSD(13,iS)
-  iCnt = iSD(14,iS)
+  iAng = iSD4(1,1)
+  iCmp = iSD4(2,1)
+  iBas = iSD4(3,1)
+  iPrim = iSD4(5,1)
+  mdci = iSD4(10,1)
+  iShell = iSD4(11,1)
+  iCnttp = iSD4(13,1)
+  iCnt = iSD4(14,1)
   Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
   if (ReOrder) call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,Shells(iShll)%pCff)
@@ -152,20 +153,22 @@ do iS=1,mSkal
   iAngV(1) = iAng
   iShllV(1) = iShll
   iCmpV(1) = iCmp
+
   do jS=1,iS
     iSD4(:,2)=iSD(:,jS)
     iSD4(:,4)=iSD(:,jS)
-    jShll = iSD(0,jS)
+
+    jShll = iSD4(0,2)
     if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
     if (Shells(jShll)%Aux .and. (jS == mSkal)) cycle
-    jAng = iSD(1,jS)
-    jCmp = iSD(2,jS)
-    jBas = iSD(3,jS)
-    jPrim = iSD(5,jS)
-    mdcj = iSD(10,jS)
-    jShell = iSD(11,jS)
-    jCnttp = iSD(13,jS)
-    jCnt = iSD(14,jS)
+    jAng = iSD4(1,2)
+    jCmp = iSD4(2,2)
+    jBas = iSD4(3,2)
+    jPrim = iSD4(5,2)
+    mdcj = iSD4(10,2)
+    jShell = iSD4(11,2)
+    jCnttp = iSD4(13,2)
+    jCnt = iSD4(14,2)
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
     iAngV(2) = jAng

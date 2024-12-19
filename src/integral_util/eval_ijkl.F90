@@ -148,15 +148,15 @@ call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iAngV,iCmpV,iShelV,iShllV,i
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iPrimi = Shells(iSD4(0,1))%nExp
-jPrimj = Shells(iSD4(0,2))%nExp
-kPrimk = Shells(iSD4(0,3))%nExp
-lPriml = Shells(iSD4(0,4))%nExp
+iPrimi = iSD4(5,1)
+jPrimj = iSD4(5,2)
+kPrimk = iSD4(5,3)
+lPriml = iSD4(5,4)
 
-iBasi = Shells(iSD4(0,1))%nBasis
-jBasj = Shells(iSD4(0,2))%nBasis
-kBask = Shells(iSD4(0,3))%nBasis
-lBasl = Shells(iSD4(0,4))%nBasis
+iBasi = iSD4(3,1)
+jBasj = iSD4(3,2)
+kBask = iSD4(3,3)
+lBasl = iSD4(3,4)
 
 nZeta = iPrimi*jPrimj
 nEta = kPrimk*lPriml

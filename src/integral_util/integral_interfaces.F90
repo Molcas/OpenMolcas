@@ -14,7 +14,6 @@ module Integral_Interfaces
 ! Dummy modules to get correct order of compilation
 use IOBuf, only:
 use Real_Spherical, only:
-use iSD_data, only: nSD
 use k2_arrays, only:
 use rmat, only:
 use define_af, only:
@@ -28,6 +27,7 @@ use SOAO_Info, only:
 use stdalloc, only:
 use Constants, only:
 
+use iSD_data, only: nSD
 use Index_Functions, only: nTri_Elem1
 use k2_structure, only: k2_type
 use Definitions, only: wp, iwp

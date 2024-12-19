@@ -83,6 +83,8 @@ if (nOrdOp /= 0) then
   write(u6,*) 'is not symmetric.'
   call Abend()
 end if
+!
+If (.false.) la = iSD4(1,1)
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
 
