@@ -102,10 +102,10 @@ call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
 call RecPrt('Coor',' ',Coor,3,4)
 #endif
 
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
 iSmAng = la+lb+lc+ld
 LmbdT = 0
 nijkl = iBasi*jBasj*kBask*lBasl*nComp
@@ -446,12 +446,12 @@ do lDCRR=0,nDCRR-1
         ! be accumulated on. In that case we will use A and C of
         ! the order as defined by the basis functions types.
 
-        if (iAnga(1) >= iAnga(2)) then
+        if (iSD4(1,1) >= iSD4(1,2)) then
           CoorAC(:,1) = CoorM(:,1)
         else
           CoorAC(:,1) = CoorM(:,2)
         end if
-        if (iAnga(3) >= iAnga(4)) then
+        if (iSD4(1,3) >= iSD4(1,4)) then
           CoorAC(:,2) = CoorM(:,3)
         else
           CoorAC(:,2) = CoorM(:,4)
@@ -497,7 +497,8 @@ do lDCRR=0,nDCRR-1
             if (all(Coeff4(:,:) == Zero)) cycle
 
             call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
-                        nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga, &
+                        nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts, &
+                        iSD4(1,:), &
                         CoorM,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2, &
                         k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),la,lb,lc,ld,iCmp, &
                         iShll,NoPInts,Dij(:,jOp(1)),mDij,Dkl(:,jOp(2)),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &
@@ -618,14 +619,16 @@ do lDCRR=0,nDCRR-1
       ! adapted Fock matrix.
 
       mWork3 = nWork2-iW3+1
-      if (DoFock) call FckAcc(iAnga,iCmp,Shijij,iShll,iShell,kOp,nijkl/nComp,Wrk(ipAOInt),pFq,size(pFq),Wrk(iW3),mWork3,iAO,iAOst, &
+      if (DoFock) call FckAcc(iSD4(1,:),iCmp,Shijij,iShll,iShell,kOp,nijkl/nComp,Wrk(ipAOInt),pFq,size(pFq),Wrk(iW3),mWork3, &
+                              iAO,iAOst, &
                               iBasi,jBasj,kBask,lBasl,Dij(:,jOp(1)),ij1,ij2,ij3,ij4,Dkl(:,jOp(2)),kl1,kl2,kl3,kl4,Dik(:,jOp(3)), &
                               ik1,ik2,ik3,ik4,Dil(:,jOp(4)),il1,il2,il3,il4,Djk(:,jOp(5)),jk1,jk2,jk3,jk4,Djl(:,jOp(6)),jl1,jl2, &
                               jl3,jl4,FckTmp,nFT,DoCoul,DoExch,ExFac)
 
       ! Transform from AO basis to SO basis
 
-      if (DoIntegrals) call SymAdp(iAnga,iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,kOp,nijkl,Aux,nAux,Wrk(ipAOInt), &
+      if (DoIntegrals) call SymAdp(iSD4(1,:),iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,kOp,nijkl,Aux,nAux, &
+                                   Wrk(ipAOInt), &
                                    SOInt,nSOInt,NoInts)
 
     end do outer

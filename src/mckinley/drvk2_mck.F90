@@ -39,7 +39,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: New_Fock
-integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
+integer(kind=iwp) :: iAng, iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
                      ik2, iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
                      jBas, jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
                      kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
@@ -95,7 +95,6 @@ do iS=1,nSkal
   iCnt = iSD4(14,1)
   Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
-  iAngV(1) = iAng
   iShllV(1) = iShll
   iCmpV(1) = nTri_Elem1(iAng)
 
@@ -115,7 +114,6 @@ do iS=1,nSkal
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
     ik2 = iTri(iS,jS)
-    iAngV(2) = jAng
     iShllV(2) = jShll
     iCmpV(2) = nTri_Elem1(jAng)
 
@@ -138,7 +136,6 @@ do iS=1,nSkal
 
     call ConMax(Con,iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
-    iAngV(3:4) = iAngV(1:2)
     iCmpV(3:4) = iCmpV(1:2)
 
     ijShll = iTri(iShell,jShell)
@@ -148,7 +145,7 @@ do iS=1,nSkal
     ! Compute memory request for the primitives, i.e. how much memory
     ! is needed up to the transfer equation.
 
-    call MemRys(iAngV,MemPrm)
+    call MemRys(iSD4(1,:),MemPrm)
 
     ! Decide on the partioning of the shells based on
     ! the available memory and the requested memory.
@@ -172,7 +169,7 @@ do iS=1,nSkal
     ! entities) for all possible unique pairs of centers generated
     ! for the symmetry unique centers A and B.
 
-    call k2Loop_mck(Coor,iAngV,iDCRR,nDCRR,k2Data(:,ik2), &
+    call k2Loop_mck(Coor,iSD4(1,:),iDCRR,nDCRR,k2Data(:,ik2), &
                     ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp,jPrimj, &
                     Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
 

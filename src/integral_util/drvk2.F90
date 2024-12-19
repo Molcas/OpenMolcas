@@ -48,7 +48,7 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iAngV(4), iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
+integer(kind=iwp) :: iAng, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
                      ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iPrInc, iS, iShell, iShll, iShllV(2), jAng, jBas, jBasj, jBsInc, jCmp, &
                      jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, kPrInc, la_, lBasl, &
                      lBsInc, lPriml, lPrInc, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
@@ -150,7 +150,6 @@ do iS=1,mSkal
 
   if (ReOrder) call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,Shells(iShll)%pCff)
 
-  iAngV(1) = iAng
   iShllV(1) = iShll
   iCmpV(1) = iCmp
 
@@ -171,14 +170,12 @@ do iS=1,mSkal
     jCnt = iSD4(14,2)
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
-    iAngV(2) = jAng
     iShllV(2) = jShll
     iCmpV(2) = jCmp
 
     ! Fix for the dummy basis set
     if (Shells(iShll)%Aux) Coor(1:3,1) = Coor(1:3,2)
 
-    iAngV(3:4) = iAngV(1:2)
     iCmpV(3:4) = iCmpV(1:2)
 
     iPrimi = iPrim
@@ -218,7 +215,7 @@ do iS=1,mSkal
     ! Compute memory request for the primitives, i.e. how much
     ! memory is needed up to the transfer equation.
 
-    call MemRys(iAngV,MemPrm)
+    call MemRys(iSD4(1,:),MemPrm)
 
     ! Decide on the partioning of the shells based on
     ! on the available memory and the requested memory
@@ -263,7 +260,8 @@ do iS=1,mSkal
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     if (.not. DoGrad_) ijCmp = 0
     ik2 = Indk2(3,ijS)
-    call k2Loop(Coor,iAngV,iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj,BraKet%xA(:), &
+    call k2Loop(Coor,iSD4(1,:),iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp, &
+                iPrimi,Shells(jShll)%Exp,jPrimj,BraKet%xA(:), &
                 BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:),BraKet%KappaAB(:), &
                 BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree,mdci,mdcj,DeDe(ipDij), &
                 nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)

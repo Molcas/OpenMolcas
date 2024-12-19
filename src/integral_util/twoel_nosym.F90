@@ -79,10 +79,10 @@ RST_triplet = One
 QInd(2) = RST_triplet
 kOp(:) = 0
 
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
 iSmAng = la+lb+lc+ld
 
 ! switch (to generate better start orbitals...)
@@ -199,12 +199,12 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
   ! be accumulated on. In that case we will use A and C of
   ! the order as defined by the basis functions types.
 
-  if (iAnga(1) >= iAnga(2)) then
+  if (iSD4(1,1) >= iSD4(1,2)) then
     CoorAC(:,1) = Coor(:,1)
   else
     CoorAC(:,1) = Coor(:,2)
   end if
-  if (iAnga(3) >= iAnga(4)) then
+  if (iSD4(1,3) >= iSD4(1,4)) then
     CoorAC(:,2) = Coor(:,3)
   else
     CoorAC(:,2) = Coor(:,4)
@@ -251,7 +251,7 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
       if (all(Coeff4(:,:) == Zero)) cycle
 
       call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(1),k2data2(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
-                  1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin, &
+                  1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iSD4(1,:),Coor,CoorAC,mabMin,mabMax,mcdMin, &
                   mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2,k2Data1(1)%HrrMtrx(:,1),k2Data2(1)%HrrMtrx(:,1), &
                   la,lb,lc,ld,iCmp,iShll,NoPInts,Dij(:,1),mDij,Dkl(:,1),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &
                   kBask,Coeff4,lBasl)

@@ -227,7 +227,6 @@ end if
 !                                                                      *
 ! Compute memory request for the primitives, i.e.
 ! how much memory is needed up to the transfer equation.
-!call MemRys(iAngV,MemPrm)
 call MemRys(iSD4(1,:),MemPrm)
 !                                                                      *
 !***********************************************************************
@@ -311,7 +310,7 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !         Compute SO/AO-integrals
 
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,NoInts,iStabs,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iCmpV,iShelV,iShllV,iAOV,iAOst,NoInts,iStabs,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
                       kPrInc,lPriml,lPrInc,nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
