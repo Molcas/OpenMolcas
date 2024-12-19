@@ -227,7 +227,8 @@ end if
 !                                                                      *
 ! Compute memory request for the primitives, i.e.
 ! how much memory is needed up to the transfer equation.
-call MemRys(iAngV,MemPrm)
+!call MemRys(iAngV,MemPrm)
+call MemRys(iSD4(1,:),MemPrm)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
