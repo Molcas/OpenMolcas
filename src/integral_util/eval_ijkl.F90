@@ -276,19 +276,19 @@ do iBasAO=1,iBasi,iBsInc
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
 
-    if (DoFock) call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,jBasj,jBsInc,jPrimj,jBasAO,jBasn,iCmpV(1),iCmpV(2),iShelV(1), &
-                           iShelV(2),mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
+    if (DoFock) call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,jBasj,jBsInc,jPrimj,jBasAO,jBasn,iShelV(1), &
+                           iShelV(2),mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,1,2)
 
     do kBasAO=1,kBask,kBsInc
       kBasn = min(kBsInc,kBask-kBasAO+1)
       iAOst(3) = kBasAO-1
 
       if (DoFock) then
-        call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,kBask,kBsInc,kPrimk,kBasAO,kBasn,iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),mDCRik, &
-                   ipDik,ipDDik,mDik,DeDe,nDeDe)
+        call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,kBask,kBsInc,kPrimk,kBasAO,kBasn,iShelV(1),iShelV(3),mDCRik, &
+                   ipDik,ipDDik,mDik,DeDe,nDeDe,nSD,iSD4,1,3)
 
-        call Picky(jBasj,jBsInc,jPrimj,jBasAO,jBasn,kBask,kBsInc,kPrimk,kBasAO,kBasn,iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),mDCRjk, &
-                   ipDjk,ipDDjk,mDjk,DeDe,nDeDe)
+        call Picky(jBasj,jBsInc,jPrimj,jBasAO,jBasn,kBask,kBsInc,kPrimk,kBasAO,kBasn,iShelV(2),iShelV(3),mDCRjk, &
+                   ipDjk,ipDDjk,mDjk,DeDe,nDeDe,nSD,iSD4,2,3)
       end if
 
       do lBasAO=1,lBasl,lBsInc
@@ -296,14 +296,14 @@ do iBasAO=1,iBasi,iBsInc
         iAOst(4) = lBasAO-1
 
         if (DoFock) then
-          call Picky(kBask,kBsInc,kPrimk,kBasAO,kBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iCmpV(3),iCmpV(4),iShelV(3),iShelV(4), &
-                      mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe)
+          call Picky(kBask,kBsInc,kPrimk,kBasAO,kBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iShelV(3),iShelV(4), &
+                      mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
 
-          call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iCmpV(1),iCmpV(4),iShelV(1),iShelV(4), &
-                      mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe)
+          call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iShelV(1),iShelV(4), &
+                      mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe,nSD,iSD4,1,4)
 
-          call Picky(jBasj,jBsInc,jPrimj,jBasAO,jBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iCmpV(2),iCmpV(4),iShelV(2),iShelV(4), &
-                      mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe)
+          call Picky(jBasj,jBsInc,jPrimj,jBasAO,jBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iShelV(2),iShelV(4), &
+                      mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe,nSD,iSD4,2,4)
         end if
         !                                                              *
         !***************************************************************
