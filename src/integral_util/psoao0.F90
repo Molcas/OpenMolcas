@@ -13,8 +13,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrim,iPrInc,jPrim,jPrInc,kPrim, &
-                  kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
+subroutine PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc, &
+                  kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -48,14 +48,14 @@ use Breit, only: nComp
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iPrim, jPrim, kPrim, lPrim, ipMem1
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 #include "Molcas.fh"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lPack, lSize, mabcd, mabMax, mabMin, mcdMax, &
                      mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, na3a, na3b, nab, &
-                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, iBas, jBas, kBas, lBas,irc
+                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
 la = iSD4(1,1)
@@ -73,13 +73,11 @@ jBas = iSD4(3,2)
 kBas = iSD4(3,3)
 lBas = iSD4(3,4)
 
-If (iPrim /= iSD4(5,1)) Stop 111
-If (jPrim /= iSD4(5,2)) Stop 112
-If (kPrim /= iSD4(5,3)) Then
- Write (6,*) kPrim , iSD4(5,3)
- Call xquit(iRC)
-End If
-If (lPrim /= iSD4(5,4)) Stop 114
+iPrim = iSD4(5,1)
+jPrim = iSD4(5,2)
+kPrim = iSD4(5,3)
+lPrim = iSD4(5,4)
+
 nab = iCmp*jCmp
 ncd = kCmp*lCmp
 mabMin = nTri3_Elem1(max(la,lb)-1)

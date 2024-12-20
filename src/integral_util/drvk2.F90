@@ -50,8 +50,8 @@ implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
 integer(kind=iwp) :: iAng, iBas, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
                      ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iPrInc, iS, iShell, iShll, iShllV(2), jAng, jBas, jBsInc, jCmp, &
-                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBsInc, kPrimk, kPrInc, la_, &
-                     lBsInc, lPriml, lPrInc, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
+                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBsInc, kPrInc, la_, &
+                     lBsInc, lPrInc, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
                      nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
@@ -183,19 +183,18 @@ do iS=1,mSkal
     nBasi = iBas
     nBasj = jBas
 
-    iSD4(3,1) = iPrimi
-    iSD4(3,2) = jPrimj
+    iSD4(3,1) = iPrim
+    iSD4(3,2) = jPrim
 
-    kPrimk = 1
-    lPriml = 1
+!   Fake shell 3 and 4
     iSD4(5,3) = 1
     iSD4(5,4) = 1
     iSD4(3,3) = 1
     iSD4(3,4) = 1
 
-    nZeta = iPrimi*jPrimj
+    nZeta = iPrim*jPrim
 
-    call ConMax(BraKet%Eta(:),iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
+    call ConMax(BraKet%Eta(:),iPrim,jPrim,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
     Coor(:,3:4) = Coor(:,1:2)
 #   ifdef _DEBUGPRINT_
@@ -236,8 +235,8 @@ do iS=1,mSkal
     iSD4(5,2)=nZeta
     force_part_save = force_part_c
     force_part_c = .false.
-    call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc, &
-                kPrimk,kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
+    call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc, &
+                kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
     force_part_c = force_part_save
     ijInc = min(jBsInc,jPrInc)
 
