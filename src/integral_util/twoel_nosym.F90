@@ -49,7 +49,7 @@ implicit none
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
                      ncd, nEta_Tot, nijkl, nInts, nZeta_Tot, iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), &
-                     iAOst(4)
+                     iAOst(4), jPrInc, lPrInc
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
                      NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
@@ -58,8 +58,6 @@ logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 logical(kind=iwp), external :: EQ
 
 #include "macros.fh"
-unused_var(iPrInc)
-unused_var(kPrInc)
 unused_var(FckTmp)
 unused_var(SoInt)
 unused_var(Aux)
@@ -68,6 +66,8 @@ iShell(:)=iSD4(11,:)
 iShll(:) =iSD4( 0,:)
 iAO(:)   =iSD4( 7,:)
 iAOst(:) =iSD4( 8,:)
+jPrInc=iSD4(6,2)
+lPrInc=iSD4(6,4)
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
 

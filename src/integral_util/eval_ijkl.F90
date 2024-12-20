@@ -64,9 +64,9 @@ integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
                      ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, &
-                     iPrInc, ipTmp, iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
-                     jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrInc, kS, kS_, lBasAO, lBasl, &
-                     lBasn, lBsInc, lPrInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
+                     ipTmp, iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
+                     jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kS, kS_, lBasAO, lBasl, &
+                     lBasn, lBsInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
                      mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta, &
                      iShll, jShll, kShll, lShll
 integer(kind=iwp) :: iSD4(0:nSD,4)
@@ -232,12 +232,6 @@ jBsInc = iSD4(4,2)
 kBsInc = iSD4(4,3)
 lBsInc = iSD4(4,4)
 
-iPrInc = iSD4(6,1)
-jPrInc = iSD4(6,2)
-kPrInc = iSD4(6,3)
-lPrInc = iSD4(6,4)
-
-
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem1-1)
 !                                                                      *
@@ -274,19 +268,16 @@ do iBasAO=1,iBasi,iBsInc
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
 
-    if (DoFock) call Picky(iBasn,jBasn, &
-                           mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,1,2)
+    if (DoFock) call Picky(iBasn,jBasn,mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,1,2)
 
     do kBasAO=1,kBask,kBsInc
       kBasn = min(kBsInc,kBask-kBasAO+1)
       iSD4(8,3) = kBasAO-1
 
       if (DoFock) then
-        call Picky(iBasn,kBasn,mDCRik, &
-                   ipDik,ipDDik,mDik,DeDe,nDeDe,nSD,iSD4,1,3)
+        call Picky(iBasn,kBasn,mDCRik,ipDik,ipDDik,mDik,DeDe,nDeDe,nSD,iSD4,1,3)
 
-        call Picky(jBasn,kBasn,mDCRjk, &
-                   ipDjk,ipDDjk,mDjk,DeDe,nDeDe,nSD,iSD4,2,3)
+        call Picky(jBasn,kBasn,mDCRjk,ipDjk,ipDDjk,mDjk,DeDe,nDeDe,nSD,iSD4,2,3)
       end if
 
       do lBasAO=1,lBasl,lBsInc
@@ -294,22 +285,19 @@ do iBasAO=1,iBasi,iBsInc
         iSD4(8,4) = lBasAO-1
 
         if (DoFock) then
-          call Picky(kBasn,lBasn, &
-                      mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
+          call Picky(kBasn,lBasn,mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
 
-          call Picky(iBasn,lBasn, &
-                      mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe,nSD,iSD4,1,4)
+          call Picky(iBasn,lBasn,mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe,nSD,iSD4,1,4)
 
-          call Picky(jBasn,lBasn, &
-                      mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe,nSD,iSD4,2,4)
+          call Picky(jBasn,lBasn,mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe,nSD,iSD4,2,4)
         end if
         !                                                              *
         !***************************************************************
         !                                                              *
         !         Compute SO/AO-integrals
 
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,iPrInc,jPrInc, &
-                      kPrInc,lPrInc,nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts, &
+                      nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShll)%pCff(1,iBasAO),iBasn,Shells(jShll)%pCff(1,jBasAO),jBasn, &
                       Shells(kShll)%pCff(1,kBasAO),kBasn,Shells(lShll)%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nSO, &

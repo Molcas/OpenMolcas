@@ -58,7 +58,7 @@ integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij
                      jOp(6), jStb, kabcd, kInts, kl1, kl2, kl3, kl4, kStb, la, lb, lc, ld, lDCR1, lDCR2, lDCRE_, lDCRR, lDCRS, &
                      lDCRT, lDCRT_, LmbdR, LmbdS, LmbdT, lStabM, lStabN, lStb, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, &
                      mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nByte, ncd, nDCRR, nDCRS, nDCRT, nEta_Tot, nijkl, nInts, nZeta_Tot,&
-                     iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4)
+                     iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), jPrInc, lPrInc
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
                  vkl, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
@@ -75,14 +75,14 @@ unused_var(iS_)
 unused_var(jS_)
 unused_var(kS_)
 unused_var(lS_)
-unused_var(iPrInc)
-unused_var(kPrInc)
 
 iShell(:)=iSD4(11,:)
 iShll(:) =iSD4( 0,:)
 iAO(:)   =iSD4( 7,:)
 iAOst(:) =iSD4( 8,:)
 iStabs(:)=iSD4(10,:)
+jPrInc=iSD4(6,2)
+lPrInc=iSD4(6,4)
 
 if (nOrdOp /= 0) then
   write(u6,*) 'Breit two-electron integrals not implemented yet'

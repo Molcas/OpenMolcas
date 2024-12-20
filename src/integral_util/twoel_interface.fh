@@ -11,14 +11,14 @@
 
 #ifdef _CALLING_
 
-iS_,jS_,kS_,lS_,Coor,NoInts,iPrInc,jPrInc,kPrInc,lPrInc, &
+iS_,jS_,kS_,lS_,Coor,NoInts, &
 nData1,nData2,k2Data1,k2Data2,IJeqKL,kOp,Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl, &
 mDCRjl,Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl,FckTmp,nFT,nZeta,nEta,SOInt,nSOInt,Wrk,nWork2,Shijij,Aux,nAux,iSD4 &
 
 #else
 
 integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, &
-                                 iPrInc, jPrInc, kPrInc, lPrInc, nData1, nData2, mDij, mDCRij, mDkl, &
+                                 nData1, nData2, mDij, mDCRij, mDkl, &
                                  mDCRkl, mDik, mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, iBasi, jBasj, kBask, lBasl, nFT, &
                                  nZeta, nEta, nSOInt, nWork2, nAux
 real(kind=wp), intent(in) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), &
