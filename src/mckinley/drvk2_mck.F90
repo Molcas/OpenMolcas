@@ -40,9 +40,9 @@ use Definitions, only: wp, iwp, u6
 implicit none
 logical(kind=iwp), intent(in) :: New_Fock
 integer(kind=iwp) :: iAng, iAO, iBas, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
-                     ik2, iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
-                     jBas, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBsInc, kPrimk, &
-                     kPrInc, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
+                     ik2, iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
+                     jBas, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrInc, jS, jShell, jShll, kBsInc, &
+                     kPrInc, lBsInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
                      nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Wrk(:)
@@ -126,20 +126,16 @@ do iS=1,nSkal
     call mHrr(iAng,jAng,nHrrab,nMemab)
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
 
-    iPrimi = iPrim
-    jPrimj = jPrim
     iSD4(5,1) = iPrim
     iSD4(5,2) = jPrim
     nBasi = Shells(iShllV(1))%nBasis
     nBasj = Shells(iShllV(2))%nBasis
 
-    kPrimk = 1
-    lPriml = 1
     iSD4(5,3) = 1
     iSD4(5,4) = 1
 
-    iSD4(3,1) = iPrimi
-    iSD4(3,2) = jPrimj
+    iSD4(3,1) = iPrim
+    iSD4(3,2) = jPrim
     iSD4(3,3) = 1
     iSD4(3,4) = 1
 
@@ -159,8 +155,8 @@ do iS=1,nSkal
     ! Decide on the partioning of the shells based on
     ! the available memory and the requested memory.
 
-    call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iBsInc,jBsInc,kBsInc,lBsInc,iPrimi,iPrInc, &
-                  jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipM001,ipM002,ipM003,ipM004,M001,M002,M003,M004,M00d,nSD,iSD4)
+    call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc, &
+                  jPrInc,kPrInc,lPrInc,ipM001,ipM002,ipM003,ipM004,M001,M002,M003,M004,M00d,nSD,iSD4)
     if ((iSD4(3,1) /= iBsInc) .or. (iSD4(3,2) /= jBsInc)) then
       write(u6,*) 'Drvk2: (iBasi /= iBsInc) .or. (jBasj /= jBsInc)'
       write(u6,*) 'iBasi,iBsInc=',iSD4(3,1),iBsInc
@@ -179,7 +175,7 @@ do iS=1,nSkal
     ! for the symmetry unique centers A and B.
 
     call k2Loop_mck(Coor,iSD4(1,:),iDCRR,nDCRR,k2Data(:,ik2), &
-                    ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp,jPrimj, &
+                    ijCmp,Shells(iShllV(1))%Exp,iPrim,Shells(iShllV(2))%Exp,jPrim, &
                     Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
 
     Indk2(2,ijShll) = nDCRR

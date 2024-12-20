@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrim,iPrInc, &
-                    jPrim,jPrInc,kPrim,kPrInc,lPrim,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,Mem1,Mem2,Mem3,Mem4,Mend,nSD,iSD4)
+subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc, &
+                    jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,Mem1,Mem2,Mem3,Mem4,Mend,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -39,14 +39,13 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iPrim, jPrim, &
-                                 kPrim, lPrim, ipMem1, nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, ipMem1, nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
                                   Mem2, Mem3, Mem4, Mend
 #include "Molcas.fh"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &
                      Mem0, MemAux, MemCon, MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2, &
-                     iBas, jBas, kBas, lBas
+                     iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
 #include "warnings.h"
@@ -66,10 +65,10 @@ jBas = iSD4(3,2)
 kBas = iSD4(3,3)
 lBas = iSD4(3,4)
 
-If (iPrim /= iSD4(5,1)) Stop 111
-If (jPrim /= iSD4(5,2)) Stop 112
-If (kPrim /= iSD4(5,3)) Stop 113
-If (lPrim /= iSD4(5,4)) Stop 114
+iPrim = iSD4(5,1)
+jPrim = iSD4(5,2)
+kPrim = iSD4(5,3)
+lPrim = iSD4(5,4)
 
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
