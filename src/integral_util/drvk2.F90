@@ -185,8 +185,11 @@ do iS=1,mSkal
 
     iSD4(3,1) = iPrimi
     iSD4(3,2) = jPrimj
+
     kPrimk = 1
     lPriml = 1
+    iSD4(5,3) = 1
+    iSD4(5,4) = 1
     iSD4(3,3) = 1
     iSD4(3,4) = 1
 
@@ -223,20 +226,26 @@ do iS=1,mSkal
     ! Now do a dirty trick to avoid splitting of the first
     ! contracted index. Move all over on the second index.
 
-    iPrims = iPrimi
-    jPrims = jPrimj
+    iPrims = iSD4(5,1)
+    jPrims = iSD4(5,2)
     iSD4(3,1) = 1
     iSD4(3,2) = nZeta
     iPrimi = 1
     jPrimj = nZeta
+    iSD4(5,1)=1
+    iSD4(5,2)=nZeta
     force_part_save = force_part_c
     force_part_c = .false.
     call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc, &
                 kPrimk,kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
     force_part_c = force_part_save
     ijInc = min(jBsInc,jPrInc)
+
     iPrimi = iPrims
     jPrimj = jPrims
+    iSD4(5,1) = iPrimS
+    iSD4(5,2) = jPrimS
+
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' ************** Memory partioning **************'
     write(u6,*) ' ipMem1=',ipMem1
