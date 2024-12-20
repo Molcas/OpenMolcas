@@ -48,9 +48,9 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
-                     ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iPrInc, iS, iShell, iShll, iShllV(2), jAng, jBas, jBasj, jBsInc, jCmp, &
-                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, kPrInc, la_, lBasl, &
+integer(kind=iwp) :: iAng, iBas, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
+                     ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iPrInc, iS, iShell, iShll, iShllV(2), jAng, jBas, jBsInc, jCmp, &
+                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBsInc, kPrimk, kPrInc, la_, &
                      lBsInc, lPriml, lPrInc, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
                      nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
@@ -183,15 +183,11 @@ do iS=1,mSkal
     nBasi = iBas
     nBasj = jBas
 
-    iBasi = iPrimi
     iSD4(3,1) = iPrimi
-    jBasj = jPrimj
     iSD4(3,2) = jPrimj
     kPrimk = 1
     lPriml = 1
-    kBask = 1
     iSD4(3,3) = 1
-    lBasl = 1
     iSD4(3,4) = 1
 
     nZeta = iPrimi*jPrimj
@@ -229,15 +225,13 @@ do iS=1,mSkal
 
     iPrims = iPrimi
     jPrims = jPrimj
-    iBasi = 1
     iSD4(3,1) = 1
-    jBasj = nZeta
     iSD4(3,2) = nZeta
     iPrimi = 1
     jPrimj = nZeta
     force_part_save = force_part_c
     force_part_c = .false.
-    call PSOAO0(nSO,MemPrm,MemMax,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc, &
+    call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc, &
                 kPrimk,kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
     force_part_c = force_part_save
     ijInc = min(jBsInc,jPrInc)

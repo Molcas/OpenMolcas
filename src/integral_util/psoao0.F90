@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc,kPrim, &
+subroutine PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrim,iPrInc,jPrim,jPrInc,kPrim, &
                   kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -48,14 +48,14 @@ use Breit, only: nComp
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, ipMem1
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iPrim, jPrim, kPrim, lPrim, ipMem1
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 #include "Molcas.fh"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lPack, lSize, mabcd, mabMax, mabMin, mcdMax, &
                      mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, na3a, na3b, nab, &
-                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, iRC
+                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, iBas, jBas, kBas, lBas
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
 la = iSD4(1,1)
@@ -68,13 +68,11 @@ jCmp = iSD4(2,2)
 kCmp = iSD4(2,3)
 lCmp = iSD4(2,4)
 
-If (iBas /= iSD4(3,1)) stop 111
-If (jBas /= iSD4(3,2)) stop 112
-If (kBas /= iSD4(3,3)) Then
- Write (6,*) kBas, iSD4(3,3)
- Call xquit(iRC)
-End If
-If (lBas /= iSD4(3,4)) stop 114
+iBas = iSD4(3,1)
+jBas = iSD4(3,2)
+kBas = iSD4(3,3)
+lBas = iSD4(3,4)
+
 nab = iCmp*jCmp
 ncd = kCmp*lCmp
 mabMin = nTri3_Elem1(max(la,lb)-1)

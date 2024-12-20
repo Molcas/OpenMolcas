@@ -233,7 +233,7 @@ call MemRys(iSD4(1,:),MemPrm)
 !                                                                      *
 ! Decide on the partioning of the shells based on the
 ! available memory and the requested memory.
-call PSOAO0(nSO,MemPrm,MemMax,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
+call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
             kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !#ifdef _DEBUGPRINT_
 !write(u6,*) ' ************** Memory partioning **************'
