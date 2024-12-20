@@ -158,8 +158,8 @@ jBasj = iSD4(3,2)
 kBask = iSD4(3,3)
 lBasl = iSD4(3,4)
 
-nZeta = iPrimi*jPrimj
-nEta = kPrimk*lPriml
+nZeta = iSD4(5,1)*iSD4(5,2)
+nEta  = iSD4(5,3)*iSD4(5,4)
 mDij = nZeta+1 ! Dummy initialize
 mDkl = nEta+1  ! Dummy initialize
 !                                                                      *
@@ -241,14 +241,14 @@ call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc, &
 !write(u6,*) ' ipMem2=',ipMem2
 !write(u6,*) ' Mem1=',Mem1
 !write(u6,*) ' Mem2=',Mem2
-!write(u6,*) ' iBasi,iBsInc=',iBasi,iBsInc
-!write(u6,*) ' jBasj,jBsInc=',jBasj,jBsInc
-!write(u6,*) ' kBasi,kBsInc=',kBask,kBsInc
-!write(u6,*) ' lBasl,lBsInc=',lBasl,lBsInc
-!write(u6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
-!write(u6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
-!write(u6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
-!write(u6,*) ' lPriml,lPrInc=',lPriml,lPrInc
+!write(u6,*) ' iBsInc=',iBsInc
+!write(u6,*) ' jBsInc=',jBsInc
+!write(u6,*) ' kBsInc=',kBsInc
+!write(u6,*) ' lBsInc=',lBsInc
+!write(u6,*) ' iPrInc=',iPrInc
+!write(u6,*) ' jPrInc=',jPrInc
+!write(u6,*) ' kPrInc=',kPrInc
+!write(u6,*) ' lPrInc=',lPrInc
 !write(u6,*) ' ***********************************************'
 !#endif
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
@@ -276,7 +276,7 @@ do iBasAO=1,iBasi,iBsInc
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
 
-    if (DoFock) call Picky(iBsInc,iPrimi,iBasAO,iBasn,jBsInc,jPrimj,jBasAO,jBasn,iShelV(1), &
+    if (DoFock) call Picky(iBsInc,iBasAO,iBasn,jBsInc,jBasAO,jBasn,iShelV(1), &
                            iShelV(2),mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,1,2)
 
     do kBasAO=1,kBask,kBsInc
@@ -284,10 +284,10 @@ do iBasAO=1,iBasi,iBsInc
       iAOst(3) = kBasAO-1
 
       if (DoFock) then
-        call Picky(iBsInc,iPrimi,iBasAO,iBasn,kBsInc,kPrimk,kBasAO,kBasn,iShelV(1),iShelV(3),mDCRik, &
+        call Picky(iBsInc,iBasAO,iBasn,kBsInc,kBasAO,kBasn,iShelV(1),iShelV(3),mDCRik, &
                    ipDik,ipDDik,mDik,DeDe,nDeDe,nSD,iSD4,1,3)
 
-        call Picky(jBsInc,jPrimj,jBasAO,jBasn,kBsInc,kPrimk,kBasAO,kBasn,iShelV(2),iShelV(3),mDCRjk, &
+        call Picky(jBsInc,jBasAO,jBasn,kBsInc,kBasAO,kBasn,iShelV(2),iShelV(3),mDCRjk, &
                    ipDjk,ipDDjk,mDjk,DeDe,nDeDe,nSD,iSD4,2,3)
       end if
 
@@ -296,13 +296,13 @@ do iBasAO=1,iBasi,iBsInc
         iAOst(4) = lBasAO-1
 
         if (DoFock) then
-          call Picky(kBsInc,kPrimk,kBasAO,kBasn,lBsInc,lPriml,lBasAO,lBasn,iShelV(3),iShelV(4), &
+          call Picky(kBsInc,kBasAO,kBasn,lBsInc,lBasAO,lBasn,iShelV(3),iShelV(4), &
                       mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
 
-          call Picky(iBsInc,iPrimi,iBasAO,iBasn,lBsInc,lPriml,lBasAO,lBasn,iShelV(1),iShelV(4), &
+          call Picky(iBsInc,iBasAO,iBasn,lBsInc,lBasAO,lBasn,iShelV(1),iShelV(4), &
                       mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe,nSD,iSD4,1,4)
 
-          call Picky(jBsInc,jPrimj,jBasAO,jBasn,lBsInc,lPriml,lBasAO,lBasn,iShelV(2),iShelV(4), &
+          call Picky(jBsInc,jBasAO,jBasn,lBsInc,lBasAO,lBasn,iShelV(2),iShelV(4), &
                       mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe,nSD,iSD4,2,4)
         end if
         !                                                              *
