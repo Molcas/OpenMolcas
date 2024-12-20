@@ -317,7 +317,6 @@ Subroutine Proc_InpX(DSCF,iRc)
   ENDDO
   NACPAR = (nac+nac**2)/2
   NACPR2 = (NACPAR+NACPAR**2)/2
-  write(6,*) 'MRH nac:',nac
 
   ! Initialize Cholesky information if requested
   if(DoCholesky) then
@@ -332,7 +331,6 @@ Subroutine Proc_InpX(DSCF,iRc)
   Call IniSew(DSCF .or. Langevin_On() .or. PCM_On(),nDiff)
 ! ===============================================================
 !     Check the input data
-  write(6,*) 'seward nac:',nac
   Call validate_wfn()
 ! ===============================================================
   Go to 9000
