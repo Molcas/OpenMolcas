@@ -48,7 +48,7 @@ implicit none
 #include "twoel_interface.fh"
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
-                     ncd, nEta_Tot, nijkl, nInts, nZeta_Tot
+                     ncd, nEta_Tot, nijkl, nInts, nZeta_Tot, iCmp(4)
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
                      NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
@@ -99,6 +99,7 @@ if (ABeqCD .and. (mod(iSmAng,2) == 1)) return
 !(DS|SS), (FP|SS) and (FS|PS) vanish as well
 if (ABeqCD .and. All_Spherical .and. (2*max(la,lb,lc,ld) > iSmAng)) return
 
+iCmp(:)=iSD4(2,:)
 nab = iCmp(1)*iCmp(2)
 ncd = iCmp(3)*iCmp(4)
 nijkl = iBasi*jBasj*kBask*lBasl*nComp

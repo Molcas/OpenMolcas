@@ -57,7 +57,8 @@ integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij
                      iT, iTS, iW3, iW4, iW4_, iWR(2), ix1, ix2, iy1, iy2, iz1, iz2, iZeta, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, &
                      jOp(6), jStb, kabcd, kInts, kl1, kl2, kl3, kl4, kStb, la, lb, lc, ld, lDCR1, lDCR2, lDCRE_, lDCRR, lDCRS, &
                      lDCRT, lDCRT_, LmbdR, LmbdS, LmbdT, lStabM, lStabN, lStb, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, &
-                     mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nByte, ncd, nDCRR, nDCRS, nDCRT, nEta_Tot, nijkl, nInts, nZeta_Tot
+                     mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nByte, ncd, nDCRR, nDCRS, nDCRT, nEta_Tot, nijkl, nInts, nZeta_Tot,&
+                     iCmp(4)
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
                  vkl, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
@@ -109,6 +110,7 @@ ld = iSD4(1,4)
 iSmAng = la+lb+lc+ld
 LmbdT = 0
 nijkl = iBasi*jBasj*kBask*lBasl*nComp
+iCmp(:)=iSD4(2,:)
 nab = iCmp(1)*iCmp(2)
 ncd = iCmp(3)*iCmp(4)
 nabcd = nab*ncd

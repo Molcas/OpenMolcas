@@ -310,7 +310,7 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !         Compute SO/AO-integrals
 
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iCmpV,iShelV,iShllV,iAOV,iAOst,NoInts,iStabs,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iShelV,iShllV,iAOV,iAOst,NoInts,iStabs,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
                       kPrInc,lPriml,lPrInc,nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
@@ -324,7 +324,7 @@ do iBasAO=1,iBasi,iBsInc
 #       ifdef _DEBUGBREIT_
         if (nOrdOp /= 0) then
           if (nIrrep == 1) then
-            n = iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+            n = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
             call ReSort_Int(AOInt,nijkl,6,n)
           else
             call ReSort_Int(SOInt,nijkl,6,nSO)
@@ -333,7 +333,7 @@ do iBasAO=1,iBasi,iBsInc
 #       endif
 #       ifdef _DEBUGPRINT_
         if (nIrrep == 1) then
-          n = iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+          n = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
           call RecPrt('AOInt',' ',AOInt,nijkl,n)
         else
           call RecPrt('SOInt',' ',SOInt,nijkl,nSO)
@@ -347,7 +347,7 @@ do iBasAO=1,iBasi,iBsInc
         if (DoIntegrals .and. (.not. NoInts)) then
           ! Get max AO/SO integrals
           if (nIrrep == 1) then
-            n = nijkl*iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+            n = nijkl*iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
             Tmax = max(Tmax,abs(AOInt(iDAMax_(n,AOInt,1))))
           else
             n = nijkl*nSO
