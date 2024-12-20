@@ -9,34 +9,35 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Picky(iBasn,jBasn,mDCRij,ipDij,ipDDij, &
-                 mDij,DeDe,nDeDe,nSD,iSD4,i,j)
+subroutine Picky(mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,i,j)
 
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iBasn, jBasn, mDCRij, ipDij, nDeDe,i,j,nSD,iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: mDCRij, ipDij, nDeDe, i, j, nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(inout) :: ipDDij
 integer(kind=iwp), intent(out) :: mDij
 real(kind=wp), intent(inout) :: DeDe(nDeDe)
 integer(kind=iwp) :: ii1, ii2, ii3, jj1, jj2, jj3, i1, i2, i3, j1, j2, j3
 integer(kind=iwp) :: iCmpi,jCmpj,iBasi,jBasj,iPrimi,jPrimj,iShell,jShell,iBsInc,jBsInc
-integer(kind=iwp) :: iBasAO, jBasAO
+integer(kind=iwp) :: iBasAO, jBasAO, iBasn, jBasn
 
-iCmpi =iSD4(2,i)
-iBasi =iSD4(3,i)
-iPrimi=iSD4(5,i)
+iCmpi =iSD4( 2,i)
+iBasi =iSD4( 3,i)
+iPrimi=iSD4( 5,i)
 iShell=iSD4(11,i)
-iBsInc=iSD4(4,i)
-iBasAO=iSD4(8,i)+1
+iBsInc=iSD4( 4,i)
+iBasAO=iSD4( 8,i)+1
+iBasn =iSD4(19,i)
 
-jCmpj =iSD4(2,j)
-jBasj =iSD4(3,j)
-jPrimj=iSD4(5,j)
+jCmpj =iSD4( 2,j)
+jBasj =iSD4( 3,j)
+jPrimj=iSD4( 5,j)
 jShell=iSD4(11,j)
-jBsInc=iSD4(4,j)
-jBasAO=iSD4(8,j)+1
+jBsInc=iSD4( 4,j)
+jBasAO=iSD4( 8,j)+1
+jBasn =iSD4(19,j)
 
 
 if (nIrrep == 1) then
