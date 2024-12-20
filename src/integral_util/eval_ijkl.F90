@@ -46,6 +46,7 @@ use k2_structure, only: IndK2, k2data
 use k2_arrays, only: Aux, Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Basis_Info, only: Shells
+use Breit, only: nComp
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: DoFock, DoIntegrals, Map4
@@ -300,17 +301,17 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !         Compute SO/AO-integrals
 
+        nijkl = iBasn*jBasn*kBasn*lBasn*nComp
         call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts, &
                       nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShll)%pCff(1,iBasAO),iBasn,Shells(jShll)%pCff(1,jBasAO),jBasn, &
-                      Shells(kShll)%pCff(1,kBasAO),kBasn,Shells(lShll)%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nSO, &
+                      Shells(kShll)%pCff(1,kBasAO),kBasn,Shells(lShll)%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nijkl,nSO, &
                       AOInt,Mem2,Shijij,Aux,nAux,iSD4)
         !                                                              *
         !***************************************************************
         !                                                              *
 
-        nijkl = iBasn*jBasn*kBasn*lBasn
 #       ifdef _DEBUGBREIT_
         if (nOrdOp /= 0) then
           if (nIrrep == 1) then
