@@ -21,7 +21,7 @@ private
 
 integer(kind=iwp), parameter :: ITRIM = mxAct*(mxAct+1)/2
 
-integer(kind=iwp) :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLBM, ICI(mxRoot,mxRef), ICICH, ICICP, iCIonly, &
+integer(kind=iwp),save :: hfocc(mxact), hRoots, IADR15(30), iAlphaBeta, IBLB(8), IBLBM, ICI(mxRoot,mxRef), ICICH, ICICP, iCIonly, &
                      ICIRFROOT, ICIRST, ICMSIterMax, ICMSIterMin, ICMSP, IEXPAND, IFORDE, INOCALC, iOrbOnly, iOrbTyp, IORDEM, &
                      iOverwr, IPCMROOT, IPR, IPT2, iRlxRoot, IROOT(mxRoot), IRotPsi, ISAVE_EXP, ISCF, ISPDEN, ISTORD(9), &
                      ISTORP(9), ISUPSM, ISYMBB, ITCORE, ITER, ITERCI, ITERSX, ITMAX, iToc(64), ITRI(ITRIM), IXMSP, IXSYM(mxOrb), &
