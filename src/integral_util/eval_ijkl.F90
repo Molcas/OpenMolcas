@@ -67,7 +67,8 @@ integer(kind=iwp) :: iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, ijS, ik2, 
                      iPrInc, ipTmp, iS, iS_, iShllV(4), iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
                      jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrInc, kS, kS_, lBasAO, lBasl, &
                      lBasn, lBsInc, lPrInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
-                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta
+                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta, &
+                     iShll, jShll, kShll, lShll
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: IJeqKL, NoInts, Shijij, No_batch
@@ -253,6 +254,11 @@ kBask = iSD4(3,3)
 lBasl = iSD4(3,4)
 jbas_ = jBasj
 lbas_ = lBasl
+
+iShll = iSD4(0,1)
+jShll = iSD4(0,2)
+kShll = iSD4(0,3)
+lShll = iSD4(0,4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -309,8 +315,8 @@ do iBasAO=1,iBasi,iBsInc
         call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iShllV,iAOV,iAOst,NoInts,iStabs,iPrInc,jPrInc, &
                       kPrInc,lPrInc,nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
-                      DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
-                      Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nSO, &
+                      DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShll)%pCff(1,iBasAO),iBasn,Shells(jShll)%pCff(1,jBasAO),jBasn, &
+                      Shells(kShll)%pCff(1,kBasAO),kBasn,Shells(lShll)%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nSO, &
                       AOInt,Mem2,Shijij,Aux,nAux,iSD4)
         !                                                              *
         !***************************************************************
