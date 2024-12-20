@@ -128,17 +128,22 @@ do iS=1,nSkal
 
     iPrimi = iPrim
     jPrimj = jPrim
+    iSD4(5,1) = iPrim
+    iSD4(5,2) = jPrim
     nBasi = Shells(iShllV(1))%nBasis
     nBasj = Shells(iShllV(2))%nBasis
 
     kPrimk = 1
     lPriml = 1
+    iSD4(5,3) = 1
+    iSD4(5,4) = 1
+
     iSD4(3,1) = iPrimi
     iSD4(3,2) = jPrimj
     iSD4(3,3) = 1
     iSD4(3,4) = 1
 
-    call ConMax(Con,iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
+    call ConMax(Con,iPrim,jPrim,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
     iCmpV(3:4) = iCmpV(1:2)
 

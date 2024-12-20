@@ -66,6 +66,11 @@ jBas = iSD4(3,2)
 kBas = iSD4(3,3)
 lBas = iSD4(3,4)
 
+If (iPrim /= iSD4(5,1)) Stop 111
+If (jPrim /= iSD4(5,2)) Stop 112
+If (kPrim /= iSD4(5,3)) Stop 113
+If (lPrim /= iSD4(5,4)) Stop 114
+
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
 mcdMin = nTri3_Elem1(max(lc,ld)-1)
