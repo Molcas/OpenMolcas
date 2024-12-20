@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc, &
+subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iPrInc, &
                     jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,Mem1,Mem2,Mem3,Mem4,Mend,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -39,13 +39,14 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, ipMem1, nSD, iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
+integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, ipMem1, nSD
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
+integer(kind=iwp), intent(out) :: iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
                                   Mem2, Mem3, Mem4, Mend
 #include "Molcas.fh"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &
                      Mem0, MemAux, MemCon, MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2, &
-                     iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim
+                     iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, iBsInc,jBsInc,kBsInc,lBsInc
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
 #include "warnings.h"
@@ -224,5 +225,10 @@ ipMem2 = ipMem1+Mem1
 ipMem3 = ipMem2+Mem2
 ipMem4 = ipMem2+Mem2-Mem4
 Mend = 0
+
+iSD4(4,1)=iBsInc
+iSD4(4,2)=jBsInc
+iSD4(4,3)=kBsInc
+iSD4(4,4)=lBsInc
 
 end subroutine PSOAO0_h
