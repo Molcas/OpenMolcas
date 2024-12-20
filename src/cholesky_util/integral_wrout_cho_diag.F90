@@ -21,13 +21,14 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
-integer(kind=iwp) iCmp(4),iShell(4),iAO(4)
+integer(kind=iwp) iCmp(4),iShell(4),iAO(4), iAOst(4)
 
 #include "macros.fh"
 unused_var(iSOSym)
 iCmp(:)=iSD4(2,:)
 iShell(:)=iSD4(11,:)
 iAO(:)=iSD4(7,:)
+iAOst(:)=iSD4(8,:)
 
 ! call sorting routine
 
