@@ -63,10 +63,10 @@ implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
-                     ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, iPrimi, &
+                     ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, &
                      iPrInc, ipTmp, iS, iS_, iShelV(4), iShllV(4), iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
-                     jPrimj, jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrimk, kPrInc, kS, kS_, lBasAO, lBasl, &
-                     lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
+                     jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrInc, kS, kS_, lBasAO, lBasl, &
+                     lBasn, lBsInc, lPrInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
                      mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
@@ -148,15 +148,6 @@ call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iShelV,iShllV,iAOV,iStabs)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iPrimi = iSD4(5,1)
-jPrimj = iSD4(5,2)
-kPrimk = iSD4(5,3)
-lPriml = iSD4(5,4)
-
-iBasi = iSD4(3,1)
-jBasj = iSD4(3,2)
-kBask = iSD4(3,3)
-lBasl = iSD4(3,4)
 
 nZeta = iSD4(5,1)*iSD4(5,2)
 nEta  = iSD4(5,3)*iSD4(5,4)
@@ -256,6 +247,10 @@ AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem1-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+iBasi = iSD4(3,1)
+jBasj = iSD4(3,2)
+kBask = iSD4(3,3)
+lBasl = iSD4(3,4)
 jbas_ = jBasj
 lbas_ = lBasl
 !                                                                      *
@@ -264,6 +259,7 @@ lbas_ = lBasl
 ! These loops will partition the contraction loops if there is not
 ! enough memory to store the whole SO/AO-block simultaneously. The
 ! memory partitioning is determined by PSOAO0.
+
 
 do iBasAO=1,iBasi,iBsInc
   iBasn = min(iBsInc,iBasi-iBasAO+1)
@@ -310,8 +306,8 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !         Compute SO/AO-integrals
 
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iShelV,iShllV,iAOV,iAOst,NoInts,iStabs,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
-                      kPrInc,lPriml,lPrInc,nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iShelV,iShllV,iAOV,iAOst,NoInts,iStabs,iPrInc,jPrInc, &
+                      kPrInc,lPrInc,nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
                       Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nSO, &

@@ -58,7 +58,7 @@ integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij
                      jOp(6), jStb, kabcd, kInts, kl1, kl2, kl3, kl4, kStb, la, lb, lc, ld, lDCR1, lDCR2, lDCRE_, lDCRR, lDCRS, &
                      lDCRT, lDCRT_, LmbdR, LmbdS, LmbdT, lStabM, lStabN, lStb, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, &
                      mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nByte, ncd, nDCRR, nDCRS, nDCRT, nEta_Tot, nijkl, nInts, nZeta_Tot,&
-                     iCmp(4)
+                     iCmp(4), nAlpha, nBeta, nGamma, nDelta
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
                  vkl, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
@@ -85,7 +85,12 @@ if (nOrdOp /= 0) then
   call Abend()
 end if
 !
-If (.false.) la = iSD4(1,1)
+nAlpha=iSD4(5,1)
+nBeta =iSD4(5,2)
+nGamma=iSD4(5,3)
+nDelta=iSD4(5,4)
+
+If (.false.) la = iSD4(1,1) !?
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
 
@@ -492,11 +497,11 @@ do lDCRR=0,nDCRR-1
 
         do iZeta=1,nZeta_Tot,IncZet
           mZeta = min(IncZet,nZeta_Tot-iZeta+1)
-          if (all(Coeff2(:,:) == Zero)) cycle
+          if (all(Coeff2(1:nBeta*jBasj) == Zero)) cycle
 
           do iEta=1,nEta_Tot,IncEta
             mEta = min(IncEta,nEta_Tot-iEta+1)
-            if (all(Coeff4(:,:) == Zero)) cycle
+            if (all(Coeff4(1:nDelta*lBasl) == Zero)) cycle
 
             call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
                         nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts, &

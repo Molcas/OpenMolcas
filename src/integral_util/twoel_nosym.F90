@@ -48,7 +48,7 @@ implicit none
 #include "twoel_interface.fh"
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
-                     ncd, nEta_Tot, nijkl, nInts, nZeta_Tot, iCmp(4)
+                     ncd, nEta_Tot, nijkl, nInts, nZeta_Tot, iCmp(4), nAlpha, nBeta, nGamma, nDelta
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
                      NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
@@ -65,6 +65,11 @@ unused_var(SoInt)
 unused_var(Aux)
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
+
+nAlpha=iSD4(5,1)
+nBeta =iSD4(5,2)
+nGamma=iSD4(5,3)
+nDelta=iSD4(5,4)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)
@@ -245,11 +250,11 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
 
   do iZeta=1,nZeta_Tot,IncZet
     mZeta = min(IncZet,nZeta_Tot-iZeta+1)
-    if (all(Coeff2(:,:) == Zero)) cycle
+    if (all(Coeff2(1:nBeta*jBasj) == Zero)) cycle
 
     do iEta=1,nEta_Tot,IncEta
       mEta = min(IncEta,nEta_Tot-iEta+1)
-      if (all(Coeff4(:,:) == Zero)) cycle
+      if (all(Coeff4(1:nDelta*lBasl) == Zero)) cycle
 
       call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(1),k2data2(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
                   1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iSD4(1,:),Coor,CoorAC,mabMin,mabMax,mcdMin, &
