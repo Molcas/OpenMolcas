@@ -259,11 +259,13 @@ lShll = iSD4(0,4)
 
 do iBasAO=1,iBasi,iBsInc
   iBasn = min(iBsInc,iBasi-iBasAO+1)
-  iSD4(8,1) = iBasAO-1
+  iSD4( 8,1) = iBasAO-1
+  iSD4(19,1) = iBasn
 
   do jBasAO=1,jBasj,jBsInc
     jBasn = min(jBsInc,jBasj-jBasAO+1)
-    iSD4(8,2) = jBasAO-1
+    iSD4( 8,2) = jBasAO-1
+    iSD4(19,2) = jBasn
 
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
@@ -272,7 +274,8 @@ do iBasAO=1,iBasi,iBsInc
 
     do kBasAO=1,kBask,kBsInc
       kBasn = min(kBsInc,kBask-kBasAO+1)
-      iSD4(8,3) = kBasAO-1
+      iSD4( 8,3) = kBasAO-1
+      iSD4(19,3) = kBasn
 
       if (DoFock) then
         call Picky(iBasn,kBasn,mDCRik,ipDik,ipDDik,mDik,DeDe,nDeDe,nSD,iSD4,1,3)
@@ -282,7 +285,8 @@ do iBasAO=1,iBasi,iBsInc
 
       do lBasAO=1,lBasl,lBsInc
         lBasn = min(lBsInc,lBasl-lBasAO+1)
-        iSD4(8,4) = lBasAO-1
+        iSD4( 8,4) = lBasAO-1
+        iSD4(19,4) = lBasn
 
         if (DoFock) then
           call Picky(kBasn,lBasn,mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
