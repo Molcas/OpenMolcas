@@ -237,6 +237,10 @@ do iS=1,mSkal
     force_part_c = .false.
     call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc, &
                 kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
+    If (iBsInc /= iSD4(4,1)) Stop 111
+    If (jBsInc /= iSD4(4,2)) Stop 112
+    If (kBsInc /= iSD4(4,3)) Stop 113
+    If (lBsInc /= iSD4(4,4)) Stop 114
     force_part_c = force_part_save
     ijInc = min(jBsInc,jPrInc)
 

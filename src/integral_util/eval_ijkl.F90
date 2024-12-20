@@ -227,22 +227,12 @@ call MemRys(iSD4(1,:),MemPrm)
 ! available memory and the requested memory.
 call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc, &
             kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
-!#ifdef _DEBUGPRINT_
-!write(u6,*) ' ************** Memory partioning **************'
-!write(u6,*) ' ipMem1=',ipMem1
-!write(u6,*) ' ipMem2=',ipMem2
-!write(u6,*) ' Mem1=',Mem1
-!write(u6,*) ' Mem2=',Mem2
-!write(u6,*) ' iBsInc=',iBsInc
-!write(u6,*) ' jBsInc=',jBsInc
-!write(u6,*) ' kBsInc=',kBsInc
-!write(u6,*) ' lBsInc=',lBsInc
-!write(u6,*) ' iPrInc=',iPrInc
-!write(u6,*) ' jPrInc=',jPrInc
-!write(u6,*) ' kPrInc=',kPrInc
-!write(u6,*) ' lPrInc=',lPrInc
-!write(u6,*) ' ***********************************************'
-!#endif
+
+If (iBsInc /= iSD4(4,1)) Stop 211
+If (jBsInc /= iSD4(4,2)) Stop 212
+If (kBsInc /= iSD4(4,3)) Stop 213
+If (lBsInc /= iSD4(4,4)) Stop 214
+
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem1-1)
 !                                                                      *

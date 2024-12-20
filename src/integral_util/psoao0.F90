@@ -49,7 +49,8 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1
-integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: nSD
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 #include "Molcas.fh"
@@ -337,6 +338,9 @@ else
   lwSqN = 0
 end if
 
-return
+iSD4(4,1)=iBsInc
+iSD4(4,2)=jBsInc
+iSD4(4,3)=kBsInc
+iSD4(4,4)=lBsInc
 
 end subroutine PSOAO0
