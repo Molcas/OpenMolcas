@@ -21,10 +21,12 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
+integer(kind=iwp) iCmp(4)
 
 #include "macros.fh"
 unused_var(TInt)
 unused_var(mSym)
+iCmp(:)=iSD4(2,:)
 
 if (mSym == 1) then
   call PLF2(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)

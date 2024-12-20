@@ -19,6 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_wrout_interface.fh"
+integer(kind=iwp) iCmp(4)
 
 #include "macros.fh"
 unused_var(iShell)
@@ -26,6 +27,7 @@ unused_var(Shijij)
 unused_var(SOInt(1))
 unused_var(nSOint)
 unused_var(iSOSym)
+iCmp(:)=iSD4(2,:)
 
 if (mSym == 1) then
   ! note that iTOffs is being abused for something else

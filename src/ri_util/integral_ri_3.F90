@@ -23,11 +23,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
+integer(kind=iwp) iCmp(4)
 
 #include "macros.fh"
 unused_var(Shijij)
 unused_var(iSOSym)
 unused_var(iBas)
+iCmp(:)=iSD4(2,:)
 
 !                                                                      *
 !***********************************************************************
