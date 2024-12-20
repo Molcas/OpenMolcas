@@ -235,12 +235,12 @@ do iS=1,mSkal
     iSD4(5,2)=nZeta
     force_part_save = force_part_c
     force_part_c = .false.
-    call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc, &
+    call PSOAO0(nSO,MemPrm,MemMax,iPrInc,jPrInc, &
                 kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
-    If (iBsInc /= iSD4(4,1)) Stop 111
-    If (jBsInc /= iSD4(4,2)) Stop 112
-    If (kBsInc /= iSD4(4,3)) Stop 113
-    If (lBsInc /= iSD4(4,4)) Stop 114
+    iBsInc = iSD4(4,1)
+    jBsInc = iSD4(4,2)
+    kBsInc = iSD4(4,3)
+    lBsInc = iSD4(4,4)
     force_part_c = force_part_save
     ijInc = min(jBsInc,jPrInc)
 

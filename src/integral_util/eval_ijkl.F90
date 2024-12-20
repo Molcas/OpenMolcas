@@ -225,13 +225,13 @@ call MemRys(iSD4(1,:),MemPrm)
 !                                                                      *
 ! Decide on the partioning of the shells based on the
 ! available memory and the requested memory.
-call PSOAO0(nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc, &
+call PSOAO0(nSO,MemPrm,MemMax,iPrInc,jPrInc, &
             kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 
-If (iBsInc /= iSD4(4,1)) Stop 211
-If (jBsInc /= iSD4(4,2)) Stop 212
-If (kBsInc /= iSD4(4,3)) Stop 213
-If (lBsInc /= iSD4(4,4)) Stop 214
+iBsInc = iSD4(4,1)
+jBsInc = iSD4(4,2)
+kBsInc = iSD4(4,3)
+lBsInc = iSD4(4,4)
 
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem1-1)
