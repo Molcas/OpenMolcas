@@ -55,7 +55,7 @@ logical(kind=iwp), intent(in) :: DoFock
 #include "Molcas.fh"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lPack, lSize, mabcd, mabMax, mabMin, mcdMax, &
                      mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, na3a, na3b, nab, &
-                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2
+                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, iRC
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
 la = iSD4(1,1)
@@ -68,6 +68,13 @@ jCmp = iSD4(2,2)
 kCmp = iSD4(2,3)
 lCmp = iSD4(2,4)
 
+If (iBas /= iSD4(3,1)) stop 111
+If (jBas /= iSD4(3,2)) stop 112
+If (kBas /= iSD4(3,3)) Then
+ Write (6,*) kBas, iSD4(3,3)
+ Call xquit(iRC)
+End If
+If (lBas /= iSD4(3,4)) stop 114
 nab = iCmp*jCmp
 ncd = kCmp*lCmp
 mabMin = nTri3_Elem1(max(la,lb)-1)

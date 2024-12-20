@@ -184,11 +184,15 @@ do iS=1,mSkal
     nBasj = jBas
 
     iBasi = iPrimi
+    iSD4(3,1) = iPrimi
     jBasj = jPrimj
+    iSD4(3,2) = jPrimj
     kPrimk = 1
     lPriml = 1
     kBask = 1
+    iSD4(3,3) = 1
     lBasl = 1
+    iSD4(3,4) = 1
 
     nZeta = iPrimi*jPrimj
 
@@ -226,7 +230,9 @@ do iS=1,mSkal
     iPrims = iPrimi
     jPrims = jPrimj
     iBasi = 1
+    iSD4(3,1) = 1
     jBasj = nZeta
+    iSD4(3,2) = nZeta
     iPrimi = 1
     jPrimj = nZeta
     force_part_save = force_part_c
