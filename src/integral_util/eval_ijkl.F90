@@ -62,7 +62,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
+integer(kind=iwp) :: iAOst(4), iBasAO, iBasi, iBasn, iBsInc, ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
                      ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, &
                      iPrInc, ipTmp, iS, iS_, iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
                      jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrInc, kS, kS_, lBasAO, lBasl, &
@@ -145,7 +145,7 @@ end if
 !***********************************************************************
 !                                                                      *
 call Gen_iSD4(iS_,jS_,kS_,lS_,iSD,nSD,iSD4)
-call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iAOV,iStabs)
+call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iStabs)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -312,7 +312,7 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !         Compute SO/AO-integrals
 
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iAOV,iAOst,NoInts,iStabs,iPrInc,jPrInc, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iAOst,NoInts,iStabs,iPrInc,jPrInc, &
                       kPrInc,lPrInc,nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShll)%pCff(1,iBasAO),iBasn,Shells(jShll)%pCff(1,jBasAO),jBasn, &
@@ -356,7 +356,7 @@ do iBasAO=1,iBasi,iBsInc
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
-            call Int_PostProcess(iBasn,jBasn,kBasn,lBasn,kOp,Shijij,iAOV,iAOst,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
+            call Int_PostProcess(iBasn,jBasn,kBasn,lBasn,kOp,Shijij,iAOst,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
                                  TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero
