@@ -268,7 +268,7 @@ do iBasAO=1,iBasi,iBsInc
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
 
-    if (DoFock) call Picky(iBsInc,iBasAO,iBasn,jBsInc,jBasAO,jBasn, &
+    if (DoFock) call Picky(iBasAO,iBasn,jBasAO,jBasn, &
                            mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,1,2)
 
     do kBasAO=1,kBask,kBsInc
@@ -276,10 +276,10 @@ do iBasAO=1,iBasi,iBsInc
       iSD4(8,3) = kBasAO-1
 
       if (DoFock) then
-        call Picky(iBsInc,iBasAO,iBasn,kBsInc,kBasAO,kBasn,mDCRik, &
+        call Picky(iBasAO,iBasn,kBasAO,kBasn,mDCRik, &
                    ipDik,ipDDik,mDik,DeDe,nDeDe,nSD,iSD4,1,3)
 
-        call Picky(jBsInc,jBasAO,jBasn,kBsInc,kBasAO,kBasn,mDCRjk, &
+        call Picky(jBasAO,jBasn,kBasAO,kBasn,mDCRjk, &
                    ipDjk,ipDDjk,mDjk,DeDe,nDeDe,nSD,iSD4,2,3)
       end if
 
@@ -288,13 +288,13 @@ do iBasAO=1,iBasi,iBsInc
         iSD4(8,4) = lBasAO-1
 
         if (DoFock) then
-          call Picky(kBsInc,kBasAO,kBasn,lBsInc,lBasAO,lBasn, &
+          call Picky(kBasAO,kBasn,lBasAO,lBasn, &
                       mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
 
-          call Picky(iBsInc,iBasAO,iBasn,lBsInc,lBasAO,lBasn, &
+          call Picky(iBasAO,iBasn,lBasAO,lBasn, &
                       mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe,nSD,iSD4,1,4)
 
-          call Picky(jBsInc,jBasAO,jBasn,lBsInc,lBasAO,lBasn, &
+          call Picky(jBasAO,jBasn,lBasAO,lBasn, &
                       mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe,nSD,iSD4,2,4)
         end if
         !                                                              *
