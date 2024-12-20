@@ -48,10 +48,10 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
-                     ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iPrInc, iS, iShell, iShll, iShllV(2), jAng, jBas, jBsInc, jCmp, &
-                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBsInc, kPrInc, la_, &
-                     lBsInc, lPrInc, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
+integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
+                     ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iS, iShell, iShll, iShllV(2), jAng, jBas, jCmp, &
+                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jS, jShell, jShll, la_, &
+                     mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
                      nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
@@ -235,14 +235,10 @@ do iS=1,mSkal
     iSD4(5,2)=nZeta
     force_part_save = force_part_c
     force_part_c = .false.
-    call PSOAO0(nSO,MemPrm,MemMax,iPrInc,jPrInc, &
-                kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
-    iBsInc = iSD4(4,1)
-    jBsInc = iSD4(4,2)
-    kBsInc = iSD4(4,3)
-    lBsInc = iSD4(4,4)
+    call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
+
     force_part_c = force_part_save
-    ijInc = min(jBsInc,jPrInc)
+    ijInc = min(iSD4(4,2),iSD4(6,2))
 
     iPrimi = iPrims
     jPrimj = jPrims

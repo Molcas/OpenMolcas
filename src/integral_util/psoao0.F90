@@ -13,8 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,iPrInc,jPrInc, &
-                  kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
+subroutine PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -51,13 +50,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1
 integer(kind=iwp), intent(in) :: nSD
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2
+integer(kind=iwp), intent(out) :: ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 #include "Molcas.fh"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lPack, lSize, mabcd, mabMax, mabMin, mcdMax, &
                      mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, na3a, na3b, nab, &
                      nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim,  &
-                     iBsInc, jBsInc, kBsInc, lBsInc
+                     iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
 la = iSD4(1,1)
@@ -343,5 +342,10 @@ iSD4(4,1)=iBsInc
 iSD4(4,2)=jBsInc
 iSD4(4,3)=kBsInc
 iSD4(4,4)=lBsInc
+
+iSD4(6,1)=iPrInc
+iSD4(6,2)=jPrInc
+iSD4(6,3)=kPrInc
+iSD4(6,4)=lPrInc
 
 end subroutine PSOAO0
