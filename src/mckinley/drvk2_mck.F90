@@ -39,10 +39,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: New_Fock
-integer(kind=iwp) :: iAng, iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
+integer(kind=iwp) :: iAng, iAO, iBas, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
                      ik2, iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
-                     jBas, jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
-                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
+                     jBas, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBsInc, kPrimk, &
+                     kPrInc, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
                      nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Wrk(:)
@@ -133,10 +133,10 @@ do iS=1,nSkal
 
     kPrimk = 1
     lPriml = 1
-    iBasi = iPrimi
-    jBasj = jPrimj
-    kBask = 1
-    lBasl = 1
+    iSD4(3,1) = iPrimi
+    iSD4(3,2) = jPrimj
+    iSD4(3,3) = 1
+    iSD4(3,4) = 1
 
     call ConMax(Con,iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
@@ -154,12 +154,12 @@ do iS=1,nSkal
     ! Decide on the partioning of the shells based on
     ! the available memory and the requested memory.
 
-    call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc, &
+    call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iBsInc,jBsInc,kBsInc,lBsInc,iPrimi,iPrInc, &
                   jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipM001,ipM002,ipM003,ipM004,M001,M002,M003,M004,M00d,nSD,iSD4)
-    if ((iBasi /= iBsInc) .or. (jBasj /= jBsInc)) then
+    if ((iSD4(3,1) /= iBsInc) .or. (iSD4(3,2) /= jBsInc)) then
       write(u6,*) 'Drvk2: (iBasi /= iBsInc) .or. (jBasj /= jBsInc)'
-      write(u6,*) 'iBasi,iBsInc=',iBasi,iBsInc
-      write(u6,*) 'jBasj,jBsInc=',jBasj,jBsInc
+      write(u6,*) 'iBasi,iBsInc=',iSD4(3,1),iBsInc
+      write(u6,*) 'jBasj,jBsInc=',iSD4(3,2),jBsInc
       call Abend()
     end if
 
