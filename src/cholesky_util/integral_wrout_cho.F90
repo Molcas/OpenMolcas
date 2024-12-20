@@ -23,12 +23,13 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "int_wrout_interface.fh"
 character(len=*), parameter :: SecNam = 'Integral_WrOut_Cho'
-integer(kind=iwp) iCmp(4)
+integer(kind=iwp) iCmp(4), iShell(4)
 
 #include "macros.fh"
 unused_var(iSOSym)
 unused_var(mSym)
 iCmp(:)=iSD4(2,:)
+iShell(:)=iSD4(11,:)
 
 ! call sorting routine
 

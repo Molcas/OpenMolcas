@@ -22,13 +22,14 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
-integer(kind=iwp) iCmp(4)
+integer(kind=iwp) iCmp(4), iShell(4)
 
 #include "macros.fh"
 unused_var(iBas)
 unused_var(kBas)
 unused_var(iSOSym)
 iCmp(:)=iSD4(2,:)
+iShell(:)=iSD4(11,:)
 
 if (mSym == 1) then
   call PLF_RI_2(AOInt,ijkl,iCmp(2),iCmp(4),iAO,iAOst,jBas,lBas,kOp,TInt,nTInt,SO2Ind,iOffA,nSOs)

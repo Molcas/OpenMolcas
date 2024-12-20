@@ -64,7 +64,7 @@ integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
                      ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, &
-                     iPrInc, ipTmp, iS, iS_, iShelV(4), iShllV(4), iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
+                     iPrInc, ipTmp, iS, iS_, iShllV(4), iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
                      jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrInc, kS, kS_, lBasAO, lBasl, &
                      lBasn, lBsInc, lPrInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
                      mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta
@@ -144,7 +144,7 @@ end if
 !***********************************************************************
 !                                                                      *
 call Gen_iSD4(iS_,jS_,kS_,lS_,iSD,nSD,iSD4)
-call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iShelV,iShllV,iAOV,iStabs)
+call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iShllV,iAOV,iStabs)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -350,7 +350,7 @@ do iBasAO=1,iBasi,iBsInc
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
-            call Int_PostProcess(iShelV,iBasn,jBasn,kBasn,lBasn,kOp,Shijij,iAOV,iAOst,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
+            call Int_PostProcess(iBasn,jBasn,kBasn,lBasn,kOp,Shijij,iAOV,iAOst,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
                                  TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero

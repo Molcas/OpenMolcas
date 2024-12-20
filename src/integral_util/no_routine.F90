@@ -20,7 +20,6 @@ implicit none
 #include "int_wrout_interface.fh"
 
 #include "macros.fh"
-unused_var(iShell)
 unused_var(iBas)
 unused_var(jBas)
 unused_var(kBas)
