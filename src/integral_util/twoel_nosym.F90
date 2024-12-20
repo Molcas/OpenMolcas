@@ -58,7 +58,6 @@ logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 logical(kind=iwp), external :: EQ
 
 #include "macros.fh"
-unused_var(iStabs)
 unused_var(iPrInc)
 unused_var(kPrInc)
 unused_var(FckTmp)

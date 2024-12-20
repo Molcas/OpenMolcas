@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,iStabs)
+subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij)
 
 use Basis_Info, only: dbsc
 use Gateway_Info, only: DoFMM, RPQMin
@@ -22,8 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nSkal, iSD(0:nSD,nSkal), iS, jS, kS, lS
 real(kind=wp), intent(out) :: Coor(3,4)
 logical(kind=iwp), intent(out) :: Shijij
-integer(kind=iwp), intent(out) :: iStabs(4)
-integer(kind=iwp) :: i, iCnt, iCnttp, iQuad, iSkal, jCnt, jCnttp, jQuad(4), kCnt, kCnttp, lCnt, lCnttp
+integer(kind=iwp) :: i, iCnt, iCnttp, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
 real(kind=wp) :: D, P, Q
 
 iCnttp = iSD(13,iS)
@@ -51,14 +50,6 @@ Coor(:,4) = dbsc(lCnttp)%Coor(:,lCnt)
 
 Shijij = ((iSD(0,iS) == iSD(0,kS)) .and. (iSD(10,iS) == iSD(10,kS)) .and. (iSD(0,jS) == iSD(0,lS)) .and. (iSD(10,jS) == iSD(10,lS)))
 
-jQuad(1) = iS
-jQuad(2) = jS
-jQuad(3) = kS
-jQuad(4) = lS
-do iQuad=1,4
-  iSkal = jQuad(iQuad)
-  iStabs(iQuad) = iSD(10,iSkal)
-end do
 !MAW start
 
 ! For the FMM coulomb integrals <AB(r1)|1/r12|CD(r2)>
