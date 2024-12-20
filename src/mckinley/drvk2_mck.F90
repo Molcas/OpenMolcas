@@ -40,7 +40,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 logical(kind=iwp), intent(in) :: New_Fock
 integer(kind=iwp) :: iAng, iAO, iBas, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
-                     ik2, iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
+                     ik2, ipM001, ipM002, ipM003, ipM004, iPrim, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
                      jBas, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrInc, jS, jShell, jShll, kBsInc, &
                      kPrInc, lBsInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
                      nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, iSD4(0:nSD,4)
@@ -95,7 +95,6 @@ do iS=1,nSkal
   iCnt = iSD4(14,1)
   Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
-  iShllV(1) = iShll
   iCmpV(1) = nTri_Elem1(iAng)
   iSD4(2,1)=iCmpV(1)
   iSD4(2,3)=iCmpV(1)
@@ -116,7 +115,6 @@ do iS=1,nSkal
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
     ik2 = iTri(iS,jS)
-    iShllV(2) = jShll
     iCmpV(2) = nTri_Elem1(jAng)
     iSD4(2,2)=iCmpV(2)
     iSD4(2,4)=iCmpV(2)
@@ -128,8 +126,8 @@ do iS=1,nSkal
 
     iSD4(5,1) = iPrim
     iSD4(5,2) = jPrim
-    nBasi = Shells(iShllV(1))%nBasis
-    nBasj = Shells(iShllV(2))%nBasis
+    nBasi = Shells(iShll)%nBasis
+    nBasj = Shells(jShll)%nBasis
 
     iSD4(5,3) = 1
     iSD4(5,4) = 1
@@ -175,8 +173,8 @@ do iS=1,nSkal
     ! for the symmetry unique centers A and B.
 
     call k2Loop_mck(Coor,iSD4(1,:),iDCRR,nDCRR,k2Data(:,ik2), &
-                    ijCmp,Shells(iShllV(1))%Exp,iPrim,Shells(iShllV(2))%Exp,jPrim, &
-                    Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
+                    ijCmp,Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim, &
+                    Shells(iShll)%pCff,iBas,Shells(jShll)%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
 
     Indk2(2,ijShll) = nDCRR
     Indk2(3,ijShll) = ik2
