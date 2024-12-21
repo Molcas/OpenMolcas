@@ -40,7 +40,7 @@ use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
 use Integral_interfaces, only: FckAcc
-use k2_arrays, only: pFq
+use k2_arrays, only: pFq, Aux
 use k2_structure, only: k2_type
 use Breit, only: nComp, nOrdOp
 use NDDO, only: twoel_NDDO
@@ -59,7 +59,7 @@ integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij
                      lDCRT, lDCRT_, LmbdR, LmbdS, LmbdT, lStabM, lStabN, lStb, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, &
                      mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nByte, ncd, nDCRR, nDCRS, nDCRT, nEta_Tot, nInts, nZeta_Tot,&
                      iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), jPrInc, lPrInc, &
-                     iBasi, jBasj, kBask, lBasl
+                     iBasi, jBasj, kBask, lBasl, nAux
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
                  vkl, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
@@ -77,6 +77,8 @@ unused_var(iS_)
 unused_var(jS_)
 unused_var(kS_)
 unused_var(lS_)
+
+nAux=Size(Aux)
 
 iShell(:)=iSD4(11,:)
 iShll(:) =iSD4( 0,:)

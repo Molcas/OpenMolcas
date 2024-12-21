@@ -61,7 +61,6 @@ real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 #include "macros.fh"
 unused_var(FckTmp)
 unused_var(SoInt)
-unused_var(Aux)
 
 iShell(:)=iSD4(11,:)
 iShll(:) =iSD4( 0,:)

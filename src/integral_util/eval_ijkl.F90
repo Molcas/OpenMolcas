@@ -41,9 +41,9 @@ subroutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
 !***********************************************************************
 
 use Index_Functions, only: iTri
-use setup, only: mSkal, nAux, nSOs
+use setup, only: mSkal, nSOs
 use k2_structure, only: IndK2, k2data
-use k2_arrays, only: Aux, Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
+use k2_arrays, only: Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Breit, only: nComp
 use Gateway_Info, only: CutInt
@@ -203,8 +203,6 @@ if (DoFock) then
   call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D)
   call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D)
 
-  !write(u6,*) ' Pointers to D=',ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
-
 end if
 !                                                                      *
 !***********************************************************************
@@ -305,7 +303,7 @@ do iBasAO=1,iBasi,iBsInc
                       nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,FT,nFT,nZeta,nEta,SOInt,nijkl,nSO, &
-                      AOInt,Mem2,Shijij,Aux,nAux,iSD4)
+                      AOInt,Mem2,Shijij,iSD4)
         !                                                              *
         !***************************************************************
         !                                                              *
