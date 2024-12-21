@@ -279,39 +279,28 @@ Subroutine Proc_InpX(DSCF,iRc)
     NORB(ISYM) = NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)
     NSSH(ISYM) = NORB(ISYM)-NISH(ISYM)-NASH(ISYM)
   EndDo
-  write(6,*) 'MRH nash:',nash
 !---  Related data for sizes, etc.
-  NTOT = 0
   NTOT1 = 0
   NTOT2 = 0
   NO2M = 0
-  nin = 0
-  nac = 0
-  NDELT = 0
-  nfr = 0
-  NSEC = 0
-  NORBT = 0
   NTOT3 = 0
   NTOTSP = 0
   NTOT4 = 0
-  NRS1T = 0 ! for RASSCF
-  NRS2T = 0
-  NRS3T = 0
+  ntot = sum(nbas(1:nsym))
+  nrs1t = sum(nrs1(1:nsym)) ! for RAS
+  nrs2t = sum(nrs2(1:nsym))
+  nrs3t = sum(nrs3(1:nsym))
+  nfr = sum(nfro(1:nsym))
+  nin = sum(nish(1:nsym))
+  nac = sum(nash(1:nsym))
+  ndelt = sum(ndel(1:nsym))
+  nsec = sum(nssh(1:nsym))
+  norbt = sum(norb(1:nsym))
   DO ISYM = 1,NSYM
-    NTOT = NTOT+NBAS(ISYM)
     NTOT1 = NTOT1+NBAS(ISYM)*(NBAS(ISYM)+1)/2
     NTOT2 = NTOT2+NBAS(ISYM)**2
     NO2M = MAX(NO2M,NBAS(ISYM)**2)
-    NRS1T = NRS1T+NRS1(ISYM)  ! for RAS
-    NRS2T = NRS2T+NRS2(ISYM)
-    NRS3T = NRS3T+NRS3(ISYM)
-    nfr = nfr+NFRO(ISYM)
-    nin = nin+NISH(ISYM)
-    nac = nac+NASH(ISYM)
-    NDELT = NDELT+NDEL(ISYM)
-    NSEC = NSEC+NSSH(ISYM)
-    NORBT = NORBT+NORB(ISYM)
-    NTOT3 = NTOT3+(NORB(ISYM)+NORB(ISYM)**2)/2
+    ntot3 = ntot3+(norb(isym)*(norb(isym)+1))/2
     NTOTSP = NTOTSP+(NASH(ISYM)*(NASH(ISYM)+1)/2)
     NTOT4 = NTOT4+NORB(ISYM)**2
   ENDDO
