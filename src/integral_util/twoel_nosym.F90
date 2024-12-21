@@ -49,7 +49,7 @@ implicit none
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
                      ncd, nEta_Tot, nInts, nZeta_Tot, iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), &
-                     iAOst(4), jPrInc, lPrInc
+                     iAOst(4), jPrInc, lPrInc, iBasi, jBasj, kBask, lBasl
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
                      NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
@@ -71,10 +71,15 @@ lPrInc=iSD4(6,4)
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
 
-nAlpha=iSD4(5,1)
-nBeta =iSD4(5,2)
-nGamma=iSD4(5,3)
-nDelta=iSD4(5,4)
+nAlpha=iSD4( 5,1)
+nBeta =iSD4( 5,2)
+nGamma=iSD4( 5,3)
+nDelta=iSD4( 5,4)
+iBasi =iSD4(19,1)
+jBasj =iSD4(19,2)
+kBask =iSD4(19,3)
+lBasl =iSD4(19,4)
+
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)

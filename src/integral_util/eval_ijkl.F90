@@ -305,8 +305,8 @@ do iBasAO=1,iBasi,iBsInc
         call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts, &
                       nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
-                      DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShll)%pCff(1,iBasAO),iBasn,Shells(jShll)%pCff(1,jBasAO),jBasn, &
-                      Shells(kShll)%pCff(1,kBasAO),kBasn,Shells(lShll)%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nijkl,nSO, &
+                      DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShll)%pCff(1,iBasAO),Shells(jShll)%pCff(1,jBasAO), &
+                      Shells(kShll)%pCff(1,kBasAO),Shells(lShll)%pCff(1,lBasAO),FT,nFT,nZeta,nEta,SOInt,nijkl,nSO, &
                       AOInt,Mem2,Shijij,Aux,nAux,iSD4)
         !                                                              *
         !***************************************************************
