@@ -56,6 +56,7 @@ real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
 real(kind=wp) :: CoorAC(3,2), QInd(2)
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 logical(kind=iwp), external :: EQ
+real(kind=wp), pointer:: XCoeff1(:,:), XCoeff2(:,:), XCoeff3(:,:), XCoeff4(:,:)
 
 #include "macros.fh"
 unused_var(FckTmp)
@@ -81,12 +82,19 @@ kBask =iSD4(19,3)
 lBasl =iSD4(19,4)
 
 
-#ifdef _DEBUGPRINT_
+XCoeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
+XCoeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
+XCoeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
+XCoeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+
+!#ifdef _DEBUGPRINT_
+If (.False.) Then
 call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)
 call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
 call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
 call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
-#endif
+End If
+!#endif
 
 If (.false.) la = iSD4(1,1)
 
@@ -268,8 +276,8 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
       call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(1),k2data2(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
                   1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iSD4(1,:),Coor,CoorAC,mabMin,mabMax,mcdMin, &
                   mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2,k2Data1(1)%HrrMtrx(:,1),k2Data2(1)%HrrMtrx(:,1), &
-                  la,lb,lc,ld,iCmp,iShll,NoPInts,Dij(:,1),mDij,Dkl(:,1),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &
-                  kBask,Coeff4,lBasl)
+                  la,lb,lc,ld,iCmp,iShll,NoPInts,Dij(:,1),mDij,Dkl(:,1),mDkl,Do_TnsCtl,kabcd,XCoeff1,iBasi,XCoeff2,jBasj,XCoeff3, &
+                  kBask,XCoeff4,lBasl)
 
     end do
   end do
@@ -397,6 +405,9 @@ if (DoIntegrals) then
   if (q4 /= One) Wrk(ipAOInt:ipAOInt+nijkl*nabcd-1) = q4*Wrk(ipAOInt:ipAOInt+nijkl*nabcd-1)
 end if
 
-return
+XCoeff1 => Null()
+XCoeff2 => Null()
+XCoeff3 => Null()
+XCoeff4 => Null()
 
 end subroutine TwoEl_NoSym

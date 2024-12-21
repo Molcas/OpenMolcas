@@ -173,7 +173,7 @@ real(kind=wp) :: r0,ExpB
 logical(kind=iwp) DoEMPC
 
 type(Distinct_Basis_set_centers), allocatable, target :: dbsc(:)
-type(Shell_Info), allocatable :: Shells(:)
+type(Shell_Info), allocatable, target :: Shells(:)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
