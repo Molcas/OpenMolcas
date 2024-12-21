@@ -345,7 +345,7 @@ do iBasAO=1,iBasi,iBsInc
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
-            call Int_PostProcess(iBasn,jBasn,kBasn,lBasn,kOp,Shijij,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
+            call Int_PostProcess(kOp,Shijij,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
                                  TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero

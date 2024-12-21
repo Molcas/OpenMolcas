@@ -11,15 +11,14 @@
 
 #ifdef _CALLING_
 
-iBas,jBas,kBas,lBas,kOp,Shijij,ijkl,AOInt,SOInt,nSOint,iSOSym,nSOs,TInt,nTInt,mSym,nSD,iSD4 &
+kOp,Shijij,ijkl,AOInt,SOInt,nSOint,iSOSym,nSOs,TInt,nTInt,mSym,nSD,iSD4 &
 
 #else
 
-integer(kind=iwp), intent(in) :: iBas, jBas, kBas, lBas, kOp(4), ijkl, nSOint, nSOs, &
-                                 iSOSym(2,nSOs), nTInt, mSym, nSD, iSD4(0:nSD,4)
-logical(kind=iwp), intent(in) :: Shijij
-real(kind=wp), intent(in) :: AOInt(*), SOInt(*)
-real(kind=wp), intent(inout) :: TInt(nTInt)
+integer(kind=iwp), intent(in   ) :: kOp(4), ijkl, nSOint, nSOs, iSOSym(2,nSOs), nTInt, mSym, nSD, iSD4(0:nSD,4)
+logical(kind=iwp), intent(in   ) :: Shijij
+real(kind=wp),     intent(in   ) :: AOInt(*), SOInt(*)
+real(kind=wp),     intent(inout) :: TInt(nTInt)
 
 #endif
 

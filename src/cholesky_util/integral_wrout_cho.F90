@@ -24,6 +24,7 @@ implicit none
 #include "int_wrout_interface.fh"
 character(len=*), parameter :: SecNam = 'Integral_WrOut_Cho'
 integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4)
+integer(kind=iwp) iBas,jBas,kBas,lBas
 
 #include "macros.fh"
 unused_var(iSOSym)
@@ -32,6 +33,11 @@ iCmp(:)=iSD4(2,:)
 iShell(:)=iSD4(11,:)
 iAO(:)=iSD4(7,:)
 iAOst(:)=iSD4(8,:)
+iBas=iSD4(19,1)
+jBas=iSD4(19,2)
+kBas=iSD4(19,3)
+lBas=iSD4(19,4)
+
 
 ! call sorting routine
 
