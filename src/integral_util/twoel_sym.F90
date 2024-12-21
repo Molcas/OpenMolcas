@@ -70,6 +70,7 @@ integer(kind=iwp) :: i
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
+real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 
 #include "macros.fh"
 unused_var(iS_)
@@ -100,6 +101,11 @@ iBasi =iSD4(19,1)
 jBasj =iSD4(19,2)
 kBask =iSD4(19,3)
 lBasl =iSD4(19,4)
+
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
+Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
 If (.false.) la = iSD4(1,1) !?
 
@@ -507,11 +513,11 @@ do lDCRR=0,nDCRR-1
 
         do iZeta=1,nZeta_Tot,IncZet
           mZeta = min(IncZet,nZeta_Tot-iZeta+1)
-          if (all(Coeff2(1:nBeta*jBasj) == Zero)) cycle
+          if (all(Coeff2(:,:) == Zero)) cycle
 
           do iEta=1,nEta_Tot,IncEta
             mEta = min(IncEta,nEta_Tot-iEta+1)
-            if (all(Coeff4(1:nDelta*lBasl) == Zero)) cycle
+            if (all(Coeff4(:,:) == Zero)) cycle
 
             call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
                         nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts, &
@@ -652,6 +658,9 @@ do lDCRR=0,nDCRR-1
   end do
 end do
 
-return
+Coeff1 => Null()
+Coeff2 => Null()
+Coeff3 => Null()
+Coeff4 => Null()
 
 end subroutine TwoEl_Sym
