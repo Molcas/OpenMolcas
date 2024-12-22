@@ -66,8 +66,7 @@ integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDDij, ipDDik
                      ipTmp, iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
                      jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kS, kS_, lBasAO, lBasl, &
                      lBasn, lBsInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
-                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, Nr_of_D, nSO, nZeta, &
-                     iShll, jShll, kShll, lShll
+                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, Nr_of_D, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: IJeqKL, NoInts, Shijij, No_batch
@@ -233,10 +232,6 @@ lBasl = iSD4(3,4)
 jbas_ = jBasj
 lbas_ = lBasl
 
-iShll = iSD4(0,1)
-jShll = iSD4(0,2)
-kShll = iSD4(0,3)
-lShll = iSD4(0,4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
