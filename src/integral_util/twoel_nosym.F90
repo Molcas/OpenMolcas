@@ -31,14 +31,14 @@ subroutine TwoEl_NoSym( &
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
 
-use Index_Functions, only: nTri3_Elem1
+use Index_Functions, only: nTri3_Elem1, iTri
 use Basis_Info, only: Shells
 use iSD_data, only: nSD
 use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
 use k2_arrays, only: pDq, pFq
-use k2_structure, only: k2_type
+use k2_structure, only: k2_type, IndK2, k2data
 use Breit, only: nComp
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, One, Four, Eight
@@ -57,6 +57,8 @@ real(kind=wp) :: CoorAC(3,2), QInd(2)
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 logical(kind=iwp), external :: EQ
 real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
+integer(kind=iwp) :: iS,jS,kS,lS,ijS,klS,ik2,jk2,nDCRR,nDCRS
+type (k2_type), pointer:: k2data3(:), k2data4(:)
 
 #include "macros.fh"
 unused_var(FckTmp)
@@ -66,8 +68,23 @@ iShell(:)=iSD4(11,:)
 iShll(:) =iSD4( 0,:)
 iAO(:)   =iSD4( 7,:)
 iAOst(:) =iSD4( 8,:)
+
 jPrInc=iSD4(6,2)
 lPrInc=iSD4(6,4)
+
+iS=iShell(1)
+jS=iShell(2)
+kS=iShell(3)
+lS=iShell(4)
+ijS=iTri(iS,jS)
+klS=iTri(kS,lS)
+nDCRR = IndK2(2,ijS)
+ik2 = IndK2(3,ijS)
+nDCRS = IndK2(2,klS)
+jk2 = IndK2(3,klS)
+k2data3(1:nDCRR) => k2Data(1:nDCRR,ik2)
+k2data4(1:nDCRS) => k2Data(1:nDCRS,jk2)
+
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
 
@@ -79,7 +96,6 @@ iBasi =iSD4(19,1)
 jBasj =iSD4(19,2)
 kBask =iSD4(19,3)
 lBasl =iSD4(19,4)
-
 
 Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
 Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
@@ -272,7 +288,8 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
       mEta = min(IncEta,nEta_Tot-iEta+1)
       if (all(Coeff4(:,:) == Zero)) cycle
 
-      call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(1),k2data2(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
+!     call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(1),k2data2(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
+      call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data3(1),k2data4(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
                   1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iSD4(1,:),Coor,CoorAC,mabMin,mabMax,mcdMin, &
                   mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2,k2Data1(1)%HrrMtrx(:,1),k2Data2(1)%HrrMtrx(:,1), &
                   la,lb,lc,ld,iCmp,iShll,NoPInts,Dij(:,1),mDij,Dkl(:,1),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &

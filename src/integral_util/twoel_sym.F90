@@ -31,7 +31,7 @@ subroutine TwoEl_Sym( &
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
 
-use Index_Functions, only: nTri3_Elem1
+use Index_Functions, only: nTri3_Elem1, iTri
 use iSD_data, only: nSD
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
@@ -41,7 +41,7 @@ use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
 use Integral_interfaces, only: FckAcc
 use k2_arrays, only: pFq, Aux
-use k2_structure, only: k2_type
+use k2_structure, only: k2_type, IndK2, k2data
 use Breit, only: nComp, nOrdOp
 use NDDO, only: twoel_NDDO
 #ifdef _DEBUGPRINT_
@@ -53,7 +53,7 @@ use Definitions, only: wp, iwp, u6, RtoB, RtoI
 implicit none
 #include "twoel_interface.fh"
 integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij1, ij2, ij3, ij4, ik1, ik2, ik3, ik4, il1, il2, &
-                     il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, iRTS, iS, ISMAng, iStabM(0:7), iStabN(0:7), iStb, &
+                     il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, iRTS, ISMAng, iStabM(0:7), iStabN(0:7), iStb, &
                      iT, iTS, iW3, iW4, iW4_, iWR(2), ix1, ix2, iy1, iy2, iz1, iz2, iZeta, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, &
                      jOp(6), jStb, kabcd, kInts, kl1, kl2, kl3, kl4, kStb, la, lb, lc, ld, lDCR1, lDCR2, lDCRE_, lDCRR, lDCRS, &
                      lDCRT, lDCRT_, LmbdR, LmbdS, LmbdT, lStabM, lStabN, lStb, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, &
@@ -71,6 +71,9 @@ logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
+integer(kind=iwp) :: iS,jS,kS,lS,ijS,klS
+type (k2_type), pointer:: k2data3(:), k2data4(:)
+
 
 #include "macros.fh"
 unused_var(iS_)
@@ -103,6 +106,20 @@ iBasi =iSD4(19,1)
 jBasj =iSD4(19,2)
 kBask =iSD4(19,3)
 lBasl =iSD4(19,4)
+
+iS=iShell(1)
+jS=iShell(2)
+kS=iShell(3)
+lS=iShell(4)
+ijS=iTri(iS,jS)
+klS=iTri(kS,lS)
+nDCRR = IndK2(2,ijS)
+ik2 = IndK2(3,ijS)
+nDCRS = IndK2(2,klS)
+jk2 = IndK2(3,klS)
+k2data3(1:nDCRR) => k2Data(1:nDCRR,ik2)
+k2data4(1:nDCRS) => k2Data(1:nDCRS,jk2)
+
 
 Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
 Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
@@ -521,7 +538,8 @@ do lDCRR=0,nDCRR-1
             mEta = min(IncEta,nEta_Tot-iEta+1)
             if (all(Coeff4(:,:) == Zero)) cycle
 
-            call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
+!           call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
+            call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data3(lDCR1),k2data4(lDCR2),nAlpha,nBeta,nGamma, &
                         nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts, &
                         iSD4(1,:), &
                         CoorM,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2, &
