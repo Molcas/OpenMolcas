@@ -53,6 +53,7 @@ set (sources
      def_shells.F90
      define_af.F90
      dens_info.F90
+     dens_stuff.F90
      desym1.F90
      desymd.F90
      desymp.F90
@@ -312,6 +313,7 @@ set (modfile_list
      covrad_data.F90
      dcr_mod.F90
      define_af.F90
+     dens_stuff.F90
      disp.F90
      efp_.F90
      efp_module.F90

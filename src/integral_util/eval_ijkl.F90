@@ -42,6 +42,8 @@ subroutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
 
 use Index_Functions, only: iTri
 use setup, only: mSkal, nSOs
+use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
+                       ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
 use k2_arrays, only: Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Breit, only: nComp
@@ -62,10 +64,10 @@ implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDDij, ipDDik, &
-                     ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, &
+                     ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDum, ipMem1, ipMem2, &
                      ipTmp, iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
                      jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kS, kS_, lBasAO, lBasl, &
-                     lBasn, lBsInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
+                     lBasn, lBsInc, lS, lS_, mDij, mDik, mDil, &
                      mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, Nr_of_D, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
@@ -253,7 +255,7 @@ do iBasAO=1,iBasi,iBsInc
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
 
-    if (DoFock) call Picky(mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,1,2)
+    if (DoFock) call Picky(ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,1,2)
 
     do kBasAO=1,kBask,kBsInc
       kBasn = min(kBsInc,kBask-kBasAO+1)
@@ -261,9 +263,8 @@ do iBasAO=1,iBasi,iBsInc
       iSD4(19,3) = kBasn
 
       if (DoFock) then
-        call Picky(mDCRik,ipDik,ipDDik,mDik,DeDe,nDeDe,nSD,iSD4,1,3)
-
-        call Picky(mDCRjk,ipDjk,ipDDjk,mDjk,DeDe,nDeDe,nSD,iSD4,2,3)
+        call Picky(ipDDik,mDik,DeDe,nDeDe,nSD,iSD4,1,3)
+        call Picky(ipDDjk,mDjk,DeDe,nDeDe,nSD,iSD4,2,3)
       end if
 
       do lBasAO=1,lBasl,lBsInc
@@ -272,11 +273,9 @@ do iBasAO=1,iBasi,iBsInc
         iSD4(19,4) = lBasn
 
         if (DoFock) then
-          call Picky(mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
-
-          call Picky(mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe,nSD,iSD4,1,4)
-
-          call Picky(mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe,nSD,iSD4,2,4)
+          call Picky(ipDDkl,mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
+          call Picky(ipDDil,mDil,DeDe,nDeDe,nSD,iSD4,1,4)
+          call Picky(ipDDjl,mDjl,DeDe,nDeDe,nSD,iSD4,2,4)
         end if
         !                                                              *
         !***************************************************************

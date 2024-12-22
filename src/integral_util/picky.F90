@@ -9,19 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Picky(mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,i,j)
+subroutine Picky(ipDDij,mDij,DeDe,nDeDe,nSD,iSD4,i,j)
 
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
+use Dens_Stuff, only: mDCR12=>mDCRij,mDCR34=>mDCRkl,mDCR13=>mDCRik,mDCR14=>mDCRil,mDCR23=>mDCRjk,mDCR24=>mDCRjl
+use Dens_Stuff, only:  ipD12=> ipDij, ipD34=> ipDkl, ipD13=> ipDik, ipD14=> ipDil, ipD23=> ipDjk, ipD24=> ipDjl
 
 implicit none
-integer(kind=iwp), intent(in) :: mDCRij, ipDij, nDeDe, i, j, nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: nDeDe, i, j, nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(inout) :: ipDDij
 integer(kind=iwp), intent(out) :: mDij
 real(kind=wp), intent(inout) :: DeDe(nDeDe)
 integer(kind=iwp) :: ii1, ii2, ii3, jj1, jj2, jj3, i1, i2, i3, j1, j2, j3
 integer(kind=iwp) :: iCmpi,jCmpj,iBasi,jBasj,iPrimi,jPrimj,iShell,jShell,iBsInc,jBsInc
 integer(kind=iwp) :: iBasAO, jBasAO, iBasn, jBasn
+integer(kind=iwp), pointer :: mDCRij=>Null(), ipDij=>Null()
 
 iCmpi =iSD4( 2,i)
 iBasi =iSD4( 3,i)
@@ -38,6 +41,30 @@ jShell=iSD4(11,j)
 jBsInc=iSD4( 4,j)
 jBasAO=iSD4( 8,j)+1
 jBasn =iSD4(19,j)
+
+If (i==1 .and. j==2) Then
+   mDCRij=>mDCR12
+    ipDij=> ipD12
+Else If (i==1 .and. j==3) Then
+   mDCRij=>mDCR13
+    ipDij=> ipD13
+Else If (i==1 .and. j==4) Then
+   mDCRij=>mDCR14
+    ipDij=> ipD14
+Else If (i==2 .and. j==3) Then
+   mDCRij=>mDCR23
+    ipDij=> ipD23
+Else If (i==2 .and. j==4) Then
+   mDCRij=>mDCR24
+    ipDij=> ipD24
+Else If (i==3 .and. j==4) Then
+   mDCRij=>mDCR34
+    ipDij=> ipD34
+Else
+   Write (u6,*) 'Picky: illegal i and j combination'
+   Write (u6,*) 'i,j=',i,j
+   Call Abend()
+End If
 
 
 if (nIrrep == 1) then
