@@ -12,18 +12,17 @@
 #ifdef _CALLING_
 
 iS_,jS_,kS_,lS_,Coor,NoInts, &
-nData1,nData2,k2Data1,k2Data2,IJeqKL,kOp,Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl, &
+IJeqKL,kOp,Dij,mDij,mDCRij,Dkl,mDkl,mDCRkl,Dik,mDik,mDCRik,Dil,mDil,mDCRil,Djk,mDjk,mDCRjk,Djl,mDjl, &
 mDCRjl,FckTmp,nFT,nZeta,nEta,SOInt,nijkl,nSOInt,Wrk,nWork2,Shijij,iSD4 &
 
 #else
 
-integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, nData1, nData2, mDij, mDCRij, mDkl, &
+integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, mDij, mDCRij, mDkl, &
                                  mDCRkl, mDik, mDCRik, mDil, mDCRil, mDjk, mDCRjk, mDjl, mDCRjl, nFT, &
                                  nZeta, nEta, nijkl, nSOInt, nWork2
 real(kind=wp), intent(in) :: Coor(3,4), Dij(mDij,mDCRij), Dkl(mDkl,mDCRkl), Dik(mDik,mDCRik), Dil(mDil,mDCRil), Djk(mDjk,mDCRjk), &
                              Djl(mDjl,mDCRjl)
 logical(kind=iwp), intent(out) :: NoInts, IJeqKL
-type(k2_type), intent(in) :: k2data1(nData1), k2Data2(nData2)
 integer(kind=iwp), intent(out) :: kOp(4)
 real(kind=wp), intent(inout) :: FckTmp(nFT), SOInt(nijkl,nSOInt)
 real(kind=wp), intent(out) :: Wrk(nWork2)

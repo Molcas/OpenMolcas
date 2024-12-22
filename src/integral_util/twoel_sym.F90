@@ -72,7 +72,7 @@ integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 integer(kind=iwp) :: iS,jS,kS,lS,ijS,klS
-type (k2_type), pointer:: k2data3(:), k2data4(:)
+type (k2_type), pointer:: k2data1(:), k2data2(:)
 
 
 #include "macros.fh"
@@ -107,6 +107,11 @@ jBasj =iSD4(19,2)
 kBask =iSD4(19,3)
 lBasl =iSD4(19,4)
 
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Pick up pointers to k2 entities.
+!
 iS=iShell(1)
 jS=iShell(2)
 kS=iShell(3)
@@ -117,8 +122,8 @@ nDCRR = IndK2(2,ijS)
 ik2 = IndK2(3,ijS)
 nDCRS = IndK2(2,klS)
 jk2 = IndK2(3,klS)
-k2data3(1:nDCRR) => k2Data(1:nDCRR,ik2)
-k2data4(1:nDCRS) => k2Data(1:nDCRS,jk2)
+k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
+k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
 
 
 Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
@@ -538,8 +543,7 @@ do lDCRR=0,nDCRR-1
             mEta = min(IncEta,nEta_Tot-iEta+1)
             if (all(Coeff4(:,:) == Zero)) cycle
 
-!           call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
-            call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data3(lDCR1),k2data4(lDCR2),nAlpha,nBeta,nGamma, &
+            call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
                         nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts, &
                         iSD4(1,:), &
                         CoorM,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2, &

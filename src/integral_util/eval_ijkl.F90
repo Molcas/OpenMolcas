@@ -42,7 +42,6 @@ subroutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
 
 use Index_Functions, only: iTri
 use setup, only: mSkal, nSOs
-use k2_structure, only: IndK2, k2data
 use k2_arrays, only: Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Breit, only: nComp
@@ -62,12 +61,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDDij, ipDDik, &
                      ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, &
-                     ipTmp, iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
+                     ipTmp, iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
                      jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kS, kS_, lBasAO, lBasl, &
                      lBasn, lBsInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
-                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta, &
+                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, Nr_of_D, nSO, nZeta, &
                      iShll, jShll, kShll, lShll
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
@@ -177,15 +176,6 @@ ikS = iTri(iS,kS)
 ilS = iTri(iS,lS)
 jkS = iTri(jS,kS)
 jlS = iTri(jS,lS)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Pick up pointers to k2 entities.
-
-nDCRR = IndK2(2,ijS)
-ik2 = IndK2(3,ijS)
-nDCRS = IndK2(2,klS)
-jk2 = IndK2(3,klS)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -299,8 +289,7 @@ do iBasAO=1,iBasi,iBsInc
         !         Compute SO/AO-integrals
 
         nijkl = iBasn*jBasn*kBasn*lBasn*nComp
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts, &
-                      nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
                       DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
                       DeDe(ipDDjl),mDjl,mDCRjl,FT,nFT,nZeta,nEta,SOInt,nijkl,nSO, &
                       AOInt,Mem2,Shijij,iSD4)
