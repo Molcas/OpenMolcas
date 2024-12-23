@@ -14,4 +14,5 @@ use Definitions, only: iwp
 Private
 integer(kind=iwp), public, target :: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl
 integer(kind=iwp), public, target ::  ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
+integer(kind=iwp), public, target :: ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl
 End Module Dens_stuff
