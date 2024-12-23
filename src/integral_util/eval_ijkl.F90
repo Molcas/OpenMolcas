@@ -44,7 +44,8 @@ use Index_Functions, only: iTri
 use setup, only: mSkal, nSOs
 use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
                        ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
-                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl
+                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                        mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
 use k2_arrays, only: Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Breit, only: nComp
@@ -67,8 +68,7 @@ real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDum, ipMem1, ipMem2, &
                      ipTmp, iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
                      jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kS, kS_, lBasAO, lBasl, &
-                     lBasn, lBsInc, lS, lS_, mDij, mDik, mDil, &
-                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, Nr_of_D, nSO, nZeta
+                     lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, Nr_of_D, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: IJeqKL, NoInts, Shijij, No_batch
@@ -255,7 +255,7 @@ do iBasAO=1,iBasi,iBsInc
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
 
-    if (DoFock) call Picky(mDij,DeDe,nDeDe,nSD,iSD4,1,2)
+    if (DoFock) call Picky(DeDe,nDeDe,nSD,iSD4,1,2)
 
     do kBasAO=1,kBask,kBsInc
       kBasn = min(kBsInc,kBask-kBasAO+1)
@@ -263,8 +263,8 @@ do iBasAO=1,iBasi,iBsInc
       iSD4(19,3) = kBasn
 
       if (DoFock) then
-        call Picky(mDik,DeDe,nDeDe,nSD,iSD4,1,3)
-        call Picky(mDjk,DeDe,nDeDe,nSD,iSD4,2,3)
+        call Picky(DeDe,nDeDe,nSD,iSD4,1,3)
+        call Picky(DeDe,nDeDe,nSD,iSD4,2,3)
       end if
 
       do lBasAO=1,lBasl,lBsInc
@@ -273,9 +273,9 @@ do iBasAO=1,iBasi,iBsInc
         iSD4(19,4) = lBasn
 
         if (DoFock) then
-          call Picky(mDkl,DeDe,nDeDe,nSD,iSD4,3,4)
-          call Picky(mDil,DeDe,nDeDe,nSD,iSD4,1,4)
-          call Picky(mDjl,DeDe,nDeDe,nSD,iSD4,2,4)
+          call Picky(DeDe,nDeDe,nSD,iSD4,3,4)
+          call Picky(DeDe,nDeDe,nSD,iSD4,1,4)
+          call Picky(DeDe,nDeDe,nSD,iSD4,2,4)
         end if
         !                                                              *
         !***************************************************************

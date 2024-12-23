@@ -9,22 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Picky(mDij,DeDe,nDeDe,nSD,iSD4,i,j)
+subroutine Picky(DeDe,nDeDe,nSD,iSD4,i,j)
 
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp, u6
 use Dens_Stuff, only: mDCR12=>mDCRij,mDCR34=>mDCRkl,mDCR13=>mDCRik,mDCR14=>mDCRil,mDCR23=>mDCRjk,mDCR24=>mDCRjl
 use Dens_Stuff, only:  ipD12=> ipDij, ipD34=> ipDkl, ipD13=> ipDik, ipD14=> ipDil, ipD23=> ipDjk, ipD24=> ipDjl
 use Dens_Stuff, only: ipDD12=>ipDDij,ipDD34=>ipDDkl,ipDD13=>ipDDik,ipDD14=>ipDDil,ipDD23=>ipDDjk,ipDD24=>ipDDjl
+use Dens_Stuff, only:   mD12=>  mDij,  mD34=>  mDkl,  mD13=>  mDik,  mD14=>  mDil,  mD23=>  mDjk,  mD24=>  mDjl
 
 implicit none
 integer(kind=iwp), intent(in) :: nDeDe, i, j, nSD, iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: mDij
 real(kind=wp), intent(inout) :: DeDe(nDeDe)
 integer(kind=iwp) :: ii1, ii2, ii3, jj1, jj2, jj3, i1, i2, i3, j1, j2, j3
 integer(kind=iwp) :: iCmpi,jCmpj,iBasi,jBasj,iPrimi,jPrimj,iShell,jShell,iBsInc,jBsInc
 integer(kind=iwp) :: iBasAO, jBasAO, iBasn, jBasn
-integer(kind=iwp), pointer :: mDCRij=>Null(), ipDij=>Null(), ipDDij=>Null()
+integer(kind=iwp), pointer :: mDCRij=>Null(), ipDij=>Null(), ipDDij=>Null(), mDij=>Null()
 
 iCmpi =iSD4( 2,i)
 iBasi =iSD4( 3,i)
@@ -46,26 +46,32 @@ If (i==1 .and. j==2) Then
    mDCRij=>mDCR12
     ipDij=> ipD12
    ipDDij=>ipDD12
+     mDij=>  mD12
 Else If (i==1 .and. j==3) Then
    mDCRij=>mDCR13
     ipDij=> ipD13
    ipDDij=>ipDD13
+     mDij=>  mD13
 Else If (i==1 .and. j==4) Then
    mDCRij=>mDCR14
     ipDij=> ipD14
    ipDDij=>ipDD14
+     mDij=>  mD14
 Else If (i==2 .and. j==3) Then
    mDCRij=>mDCR23
     ipDij=> ipD23
    ipDDij=>ipDD23
+     mDij=>  mD23
 Else If (i==2 .and. j==4) Then
    mDCRij=>mDCR24
     ipDij=> ipD24
    ipDDij=>ipDD24
+     mDij=>  mD24
 Else If (i==3 .and. j==4) Then
    mDCRij=>mDCR34
     ipDij=> ipD34
    ipDDij=>ipDD34
+     mDij=>  mD34
 Else
    Write (u6,*) 'Picky: illegal i and j combination'
    Write (u6,*) 'i,j=',i,j
