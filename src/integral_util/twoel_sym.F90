@@ -40,7 +40,7 @@ use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
 use Integral_interfaces, only: FckAcc
-use k2_arrays, only: pFq, Aux
+use k2_arrays, only: pFq, Aux, DeDe
 use k2_structure, only: k2_type, IndK2, k2data
 use Breit, only: nComp, nOrdOp
 use NDDO, only: twoel_NDDO
@@ -49,6 +49,10 @@ use Symmetry_Info, only: ChOper
 #endif
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp, u6, RtoB, RtoI
+use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
+                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                        mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
+
 
 implicit none
 #include "twoel_interface.fh"
@@ -73,6 +77,7 @@ logical(kind=iwp), external :: EQ
 real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 integer(kind=iwp) :: iS,jS,kS,lS,ijS,klS
 type (k2_type), pointer:: k2data1(:), k2data2(:)
+real(kind=wp), pointer:: Dij(:,:)=>Null(),Dkl(:,:)=>Null(),Dik(:,:)=>Null(),Dil(:,:)=>Null(),Djk(:,:)=>Null(),Djl(:,:)=>Null()
 
 
 #include "macros.fh"
@@ -130,6 +135,16 @@ Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
 Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
 Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
 Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+
+If (DoFock) Then
+   Dij(1:mDij,1:mDCRij) => DeDe(ipDDij:ipDDij+mDij*mDCRij-1)
+   Dkl(1:mDkl,1:mDCRkl) => DeDe(ipDDkl:ipDDkl+mDkl*mDCRkl-1)
+   Dik(1:mDik,1:mDCRik) => DeDe(ipDDik:ipDDik+mDik*mDCRik-1)
+   Dil(1:mDil,1:mDCRil) => DeDe(ipDDil:ipDDil+mDil*mDCRil-1)
+   Djk(1:mDjk,1:mDCRjk) => DeDe(ipDDjk:ipDDjk+mDjk*mDCRjk-1)
+   Djl(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
+End If
+
 
 If (.false.) la = iSD4(1,1) !?
 
@@ -686,5 +701,15 @@ Coeff1 => Null()
 Coeff2 => Null()
 Coeff3 => Null()
 Coeff4 => Null()
+
+If (DoFock) Then
+   Dij => Null()
+   Dkl => Null()
+   Dik => Null()
+   Dil => Null()
+   Djk => Null()
+   Dij => Null()
+End If
+
 
 end subroutine TwoEl_Sym

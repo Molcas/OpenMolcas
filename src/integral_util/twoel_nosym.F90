@@ -37,12 +37,16 @@ use iSD_data, only: nSD
 use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
-use k2_arrays, only: pDq, pFq
+use k2_arrays, only: pDq, pFq, DeDe
 use k2_structure, only: k2_type, IndK2, k2data
 use Breit, only: nComp
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, One, Four, Eight
 use Definitions, only: wp, iwp, u6, RtoB, RtoI
+use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
+                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                        mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
+
 
 implicit none
 #include "twoel_interface.fh"
@@ -59,6 +63,7 @@ logical(kind=iwp), external :: EQ
 real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 integer(kind=iwp) :: iS,jS,kS,lS,ijS,klS,ik2,jk2,nDCRR,nDCRS
 type (k2_type), pointer:: k2data1(:), k2data2(:)
+real(kind=wp), pointer:: Dij(:,:)=>Null(),Dkl(:,:)=>Null(),Dik(:,:)=>Null(),Dil(:,:)=>Null(),Djk(:,:)=>Null(),Djl(:,:)=>Null()
 
 #include "macros.fh"
 unused_var(FckTmp)
@@ -90,6 +95,14 @@ jk2 = IndK2(3,klS)
 k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
 k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
 
+If (DoFock) Then
+   Dij(1:mDij,1:mDCRij) => DeDe(ipDDij:ipDDij+mDij*mDCRij-1)
+   Dkl(1:mDkl,1:mDCRkl) => DeDe(ipDDkl:ipDDkl+mDkl*mDCRkl-1)
+   Dik(1:mDik,1:mDCRik) => DeDe(ipDDik:ipDDik+mDik*mDCRik-1)
+   Dil(1:mDil,1:mDCRil) => DeDe(ipDDil:ipDDil+mDil*mDCRil-1)
+   Djk(1:mDjk,1:mDCRjk) => DeDe(ipDDjk:ipDDjk+mDjk*mDCRjk-1)
+   Djl(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
+End If
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
 
@@ -429,5 +442,13 @@ Coeff1 => Null()
 Coeff2 => Null()
 Coeff3 => Null()
 Coeff4 => Null()
+If (DoFock) Then
+   Dij => Null()
+   Dkl => Null()
+   Dik => Null()
+   Dil => Null()
+   Djk => Null()
+   Dij => Null()
+End If
 
 end subroutine TwoEl_NoSym

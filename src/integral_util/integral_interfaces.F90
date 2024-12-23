@@ -26,6 +26,7 @@ use Symmetry_Info, only:
 use SOAO_Info, only:
 use stdalloc, only:
 use Constants, only:
+use Dens_Stuff, only:
 
 use iSD_data, only: nSD
 use Index_Functions, only: nTri_Elem1

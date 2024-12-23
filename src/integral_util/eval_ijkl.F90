@@ -45,8 +45,8 @@ use setup, only: mSkal, nSOs
 use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
                        ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
                       ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
-                        mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
-use k2_arrays, only: Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nFT, Sew_Scr
+                        mDij,  mDkl
+use k2_arrays, only: Create_BraKet, Destroy_Braket, FT, ipDijS, iSOSym, nFT, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Breit, only: nComp
 use Gateway_Info, only: CutInt
@@ -283,9 +283,8 @@ do iBasAO=1,iBasi,iBsInc
         !         Compute SO/AO-integrals
 
         nijkl = iBasn*jBasn*kBasn*lBasn*nComp
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
-                      DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
-                      DeDe(ipDDjl),mDjl,mDCRjl,FT,nFT,nZeta,nEta,SOInt,nijkl,nSO, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,IJeqKL,kOp, &
+                      FT,nFT,nZeta,nEta,SOInt,nijkl,nSO, &
                       AOInt,Mem2,Shijij,iSD4)
         !                                                              *
         !***************************************************************
