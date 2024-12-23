@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Picky(DeDe,nDeDe,nSD,iSD4,i,j)
+subroutine Picky(nSD,iSD4,i,j)
 
 use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp, u6
@@ -17,10 +17,10 @@ use Dens_Stuff, only: mDCR12=>mDCRij,mDCR34=>mDCRkl,mDCR13=>mDCRik,mDCR14=>mDCRi
 use Dens_Stuff, only:  ipD12=> ipDij, ipD34=> ipDkl, ipD13=> ipDik, ipD14=> ipDil, ipD23=> ipDjk, ipD24=> ipDjl
 use Dens_Stuff, only: ipDD12=>ipDDij,ipDD34=>ipDDkl,ipDD13=>ipDDik,ipDD14=>ipDDil,ipDD23=>ipDDjk,ipDD24=>ipDDjl
 use Dens_Stuff, only:   mD12=>  mDij,  mD34=>  mDkl,  mD13=>  mDik,  mD14=>  mDil,  mD23=>  mDjk,  mD24=>  mDjl
+use k2_arrays, only: DeDe
 
 implicit none
-integer(kind=iwp), intent(in) :: nDeDe, i, j, nSD, iSD4(0:nSD,4)
-real(kind=wp), intent(inout) :: DeDe(nDeDe)
+integer(kind=iwp), intent(in) :: i, j, nSD, iSD4(0:nSD,4)
 integer(kind=iwp) :: ii1, ii2, ii3, jj1, jj2, jj3, i1, i2, i3, j1, j2, j3
 integer(kind=iwp) :: iCmpi,jCmpj,iBasi,jBasj,iPrimi,jPrimj,iShell,jShell,iBsInc,jBsInc
 integer(kind=iwp) :: iBasAO, jBasAO, iBasn, jBasn

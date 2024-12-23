@@ -46,7 +46,7 @@ use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
                        ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
                       ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
                         mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
-use k2_arrays, only: Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
+use k2_arrays, only: Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nFT, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Breit, only: nComp
 use Gateway_Info, only: CutInt
@@ -255,7 +255,7 @@ do iBasAO=1,iBasi,iBsInc
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
 
-    if (DoFock) call Picky(DeDe,nDeDe,nSD,iSD4,1,2)
+    if (DoFock) call Picky(nSD,iSD4,1,2)
 
     do kBasAO=1,kBask,kBsInc
       kBasn = min(kBsInc,kBask-kBasAO+1)
@@ -263,8 +263,8 @@ do iBasAO=1,iBasi,iBsInc
       iSD4(19,3) = kBasn
 
       if (DoFock) then
-        call Picky(DeDe,nDeDe,nSD,iSD4,1,3)
-        call Picky(DeDe,nDeDe,nSD,iSD4,2,3)
+        call Picky(nSD,iSD4,1,3)
+        call Picky(nSD,iSD4,2,3)
       end if
 
       do lBasAO=1,lBasl,lBsInc
@@ -273,9 +273,9 @@ do iBasAO=1,iBasi,iBsInc
         iSD4(19,4) = lBasn
 
         if (DoFock) then
-          call Picky(DeDe,nDeDe,nSD,iSD4,3,4)
-          call Picky(DeDe,nDeDe,nSD,iSD4,1,4)
-          call Picky(DeDe,nDeDe,nSD,iSD4,2,4)
+          call Picky(nSD,iSD4,3,4)
+          call Picky(nSD,iSD4,1,4)
+          call Picky(nSD,iSD4,2,4)
         end if
         !                                                              *
         !***************************************************************
