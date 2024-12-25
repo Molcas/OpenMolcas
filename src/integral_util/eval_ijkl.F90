@@ -76,7 +76,7 @@ real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
-
+TInt(:)=Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *

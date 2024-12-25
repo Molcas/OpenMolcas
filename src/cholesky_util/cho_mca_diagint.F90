@@ -30,7 +30,6 @@ real(kind=wp) :: CUTINT1, CUTINT2, THRINT1, THRINT2
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'
 #endif
 
-SCR(:) = Zero
 Int_PostProcess => Integral_Wrout_Cho_Diag
 
 #ifdef _DEBUGPRINT_
@@ -38,6 +37,7 @@ CUTINT1 = CutInt
 THRINT1 = ThrInt
 #endif
 
+SCR(:) = Zero
 call EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR)
 
 nullify(Int_PostProcess)

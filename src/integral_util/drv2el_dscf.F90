@@ -255,7 +255,10 @@ do
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    if (.not. Skip) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
+    if (.not. Skip) Then
+        Tint(1:nTInt)=Zero
+        call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
+    endif
     Skip = .false.
 
     Quad_ijkl = Quad_ijkl+One
