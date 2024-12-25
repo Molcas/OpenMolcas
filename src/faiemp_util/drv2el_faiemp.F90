@@ -263,7 +263,6 @@ do
   lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
 
   if (lNoSkip) then
-    TInt(1:nTInt)=Zero
     call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls

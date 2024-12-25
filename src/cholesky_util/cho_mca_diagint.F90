@@ -37,7 +37,6 @@ CUTINT1 = CutInt
 THRINT1 = ThrInt
 #endif
 
-SCR(:) = Zero
 call EVAL_IJKL(ISHLA,ISHLB,ISHLA,ISHLB,SCR,LSCR)
 
 nullify(Int_PostProcess)

@@ -285,7 +285,6 @@ do ijS=1,nij
     Do_ERIs = Do_ERIs .and. (ijAng <= Keep_Shell) .and. (klAng <= Keep_Shell)
 
     if (Do_ERIs) then
-      Scr(1:mTInt2)=Zero
       call Eval_IJKL(iS,jS,kS,lS,Scr,mTInt2)
       TInt(1:mTInt2)=TInt(1:mTInt2)+Scr(1:mTInt2)
     end if

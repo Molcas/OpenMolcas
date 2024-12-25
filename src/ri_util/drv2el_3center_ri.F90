@@ -337,7 +337,6 @@ do while (Rsv_Tsk(id,klS))
       write(u6,*)
 #     endif
       if (A_Int >= CutInt) Then
-         Scr(1:n3C)=Zero
          call Eval_IJKL(iS,jS,kS,lS,Scr,n3C)
          Arr_3C(1:n3C)=Arr_3C(1:n3C)+Scr(1:n3C)
       End If

@@ -49,7 +49,6 @@ SHB = L
 ! --------------------
 
 Int_PostProcess => Integral_WrOut_Cho
-XInt(:)=Zero
 call EVAL_IJKL(I,J,K,L,XINT,LINT)
 nullify(Int_PostProcess)
 

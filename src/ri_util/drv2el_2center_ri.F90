@@ -181,7 +181,6 @@ do jS=1,nSkal-1
 
     A_int = TMax(jS)*TMax(lS)
     if (A_Int >= CutInt) Then
-       Scr(1:nTInt_)=Zero
        call Eval_IJKL(iS,jS,kS,lS,Scr,nTInt_)
        TInt(1:nTInt_)=TInt(1:nTInt_)+Scr(1:nTInt_)
     end if
