@@ -66,7 +66,7 @@ integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij
                      iBasi, jBasj, kBask, lBasl, nAux, kOp(4)
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
                  vkl, w, x
-logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, &
                      NoPInts, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
@@ -520,11 +520,6 @@ do lDCRR=0,nDCRR-1
         else
           CoorAC(:,2) = CoorM(:,4)
         end if
-
-        ! Set flags if triangularization will be used
-
-        IeqK = EQ(CoorM(1,1),CoorM(1,3))
-        JeqL = EQ(CoorM(1,2),CoorM(1,4))
 
         ! Loops to partition the primitives
 

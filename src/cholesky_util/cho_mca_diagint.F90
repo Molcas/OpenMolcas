@@ -18,7 +18,6 @@ use Integral_interfaces, only: Int_PostProcess, int_wrout
 use Cholesky, only: LuPri
 use Gateway_Info, only: CutInt, ThrInt
 #endif
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none

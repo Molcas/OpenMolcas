@@ -54,7 +54,7 @@ integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer,
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
                      ncd, nEta_Tot, nInts, nZeta_Tot, iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), &
                      iAOst(4), jPrInc, lPrInc, iBasi, jBasj, kBask, lBasl
-logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, &
                      NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
 real(kind=wp) :: CoorAC(3,2), QInd(2)
@@ -266,11 +266,6 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
   else
     CoorAC(:,2) = Coor(:,4)
   end if
-
-  ! Set flags if triangularization will be used
-
-  IeqK = EQ(Coor(:,1),Coor(:,3))
-  JeqL = EQ(Coor(:,2),Coor(:,4))
 
   ! Loops to partion the primitives
 

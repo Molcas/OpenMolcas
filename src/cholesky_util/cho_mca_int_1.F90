@@ -22,7 +22,6 @@ use Index_Functions, only: iTri, nTri_Elem
 use Integral_Interfaces, only: Int_PostProcess, int_wrout
 use Cholesky, only: IFCSew, iSP2F, LuPri, nBstSh, ShA, ShAB, ShB, ShC, ShCD, ShD
 use Definitions, only: wp, iwp
-use Constants, only: Zero
 
 implicit none
 integer(kind=iwp), intent(in) :: IJ, KL, LINT
