@@ -12,7 +12,7 @@
 subroutine Picky(nSD,iSD4,i,j)
 
 use Symmetry_Info, only: nIrrep
-use Definitions, only: wp, iwp, u6
+use Definitions, only: iwp, u6
 use Dens_Stuff, only: mDCR12=>mDCRij,mDCR34=>mDCRkl,mDCR13=>mDCRik,mDCR14=>mDCRil,mDCR23=>mDCRjk,mDCR24=>mDCRjl
 use Dens_Stuff, only:  ipD12=> ipDij, ipD34=> ipDkl, ipD13=> ipDik, ipD14=> ipDil, ipD23=> ipDjk, ipD24=> ipDjl
 use Dens_Stuff, only: ipDD12=>ipDDij,ipDD34=>ipDDkl,ipDD13=>ipDDik,ipDD14=>ipDDil,ipDD23=>ipDDjk,ipDD24=>ipDDjl
