@@ -22,7 +22,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
-integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4)
+integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4), kOp(4)
 integer(kind=iwp) iBas,jBas,kBas,lBas
 
 #include "macros.fh"
@@ -40,6 +40,7 @@ lBas=iSD4(19,4)
 
 
 if (mSym == 1) then
+  kOp(:)=0
   call PLF_RI_2(AOInt,ijkl,iCmp(2),iCmp(4),iAO,iAOst,jBas,lBas,kOp,TInt,nTInt,SO2Ind,iOffA,nSOs)
 else
   call IndSft_RI_2(iCmp,iShell,jBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,nSOs,TInt,nTInt,SO2Ind,iOffA)

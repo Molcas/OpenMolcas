@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
-integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4)
+integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4), kOp(4)
 integer(kind=iwp) iBas,jBas,kBas,lBas
 
 #include "macros.fh"
@@ -37,6 +37,7 @@ kBas=iSD4(19,3)
 lBas=iSD4(19,4)
 
 if (mSym == 1) then
+  kOp(:)=0
   call PLF2(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 else
   call IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)

@@ -20,7 +20,6 @@ implicit none
 #include "int_wrout_interface.fh"
 
 #include "macros.fh"
-unused_var(kOp)
 unused_var(Shijij)
 unused_var(ijkl)
 unused_var(AOInt(1))

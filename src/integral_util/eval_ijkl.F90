@@ -63,7 +63,7 @@ integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDum, ipMem1, ipMem2, &
                      iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
-                     jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kS, kS_, lBasAO, lBasl, &
+                     jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kS, kS_, lBasAO, lBasl, &
                      lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
@@ -265,7 +265,7 @@ do iBasAO=1,iBasi,iBsInc
         !         Compute SO/AO-integrals
 
         nijkl = iBasn*jBasn*kBasn*lBasn*nComp
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,kOp, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,&
                       nZeta,nEta,SOInt,nijkl,nSO, &
                       AOInt,Mem2,Shijij,iSD4)
         !                                                              *
@@ -305,7 +305,7 @@ do iBasAO=1,iBasi,iBsInc
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
-            call Int_PostProcess(kOp,Shijij,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
+            call Int_PostProcess(Shijij,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
                                  TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero

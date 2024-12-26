@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "int_wrout_interface.fh"
-integer(kind=iwp) iCmp(4),iShell(4),iAO(4), iAOst(4)
+integer(kind=iwp) iCmp(4),iShell(4),iAO(4), iAOst(4), kOp(4)
 integer(kind=iwp) iBas,jBas,kBas,lBas
 
 #include "macros.fh"
@@ -38,6 +38,7 @@ lBas=iSD4(19,4)
 ! call sorting routine
 
 if (mSym == 1) then
+  kOp(:)=0
   call PLF_Cho_Diag(TInt,nTInt,AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 else
   call IndSft_Cho_Diag(TInt,nTInt,iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint)

@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_wrout_interface.fh"
-integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4)
+integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4), kOp(4)
 integer(kind=iwp) iBas,jBas,kBas,lBas
 
 #include "macros.fh"
@@ -41,6 +41,7 @@ lBas=iSD4(19,4)
 
 if (mSym == 1) then
   ! note that iTOffs is being abused for something else
+  kOp(:)=0
   call PLF_RICD(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp,TInt,iTOffs(2),iTOffs(3),iTOffs(1), &
                 iTOffs(4),iTOffs(5))
 else

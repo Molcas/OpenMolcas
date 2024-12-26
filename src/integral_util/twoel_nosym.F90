@@ -132,7 +132,6 @@ If (.false.) la = iSD4(1,1)
 
 RST_triplet = One
 QInd(2) = RST_triplet
-kOp(:) = 0
 
 la = iSD4(1,1)
 lb = iSD4(1,2)

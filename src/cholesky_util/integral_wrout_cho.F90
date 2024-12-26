@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "int_wrout_interface.fh"
 character(len=*), parameter :: SecNam = 'Integral_WrOut_Cho'
-integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4)
+integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4),kOp(4)
 integer(kind=iwp) iBas,jBas,kBas,lBas
 
 #include "macros.fh"
@@ -41,6 +41,7 @@ lBas=iSD4(19,4)
 
 ! call sorting routine
 
+kOp(:)=0
 if (IfcSew == 1) then
   if (nSym == 1) then
     call PLF_Cho(TInt,nTInt,AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)

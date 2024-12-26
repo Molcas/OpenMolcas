@@ -11,14 +11,13 @@
 
 #ifdef _CALLING_
 
-iS_,jS_,kS_,lS_,Coor,NoInts,kOp,nZeta,nEta,SOInt,nijkl,nSOInt,Wrk,nWork2,Shijij,iSD4 &
+iS_,jS_,kS_,lS_,Coor,NoInts,nZeta,nEta,SOInt,nijkl,nSOInt,Wrk,nWork2,Shijij,iSD4 &
 
 #else
 
 integer(kind=iwp), intent(in) :: iS_, jS_, kS_, lS_, nZeta, nEta, nijkl, nSOInt, nWork2
 real(kind=wp), intent(in) :: Coor(3,4)
 logical(kind=iwp), intent(out) :: NoInts
-integer(kind=iwp), intent(out) :: kOp(4)
 real(kind=wp), intent(inout) ::  SOInt(nijkl,nSOInt)
 real(kind=wp), intent(out) :: Wrk(nWork2)
 logical(kind=iwp), intent(in) :: Shijij
