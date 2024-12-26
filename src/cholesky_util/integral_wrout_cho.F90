@@ -25,6 +25,7 @@ implicit none
 character(len=*), parameter :: SecNam = 'Integral_WrOut_Cho'
 integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4),kOp(4)
 integer(kind=iwp) iBas,jBas,kBas,lBas
+logical(kind=iwp) Shijij
 
 #include "macros.fh"
 unused_var(iSOSym)
@@ -37,7 +38,8 @@ iBas=iSD4(19,1)
 jBas=iSD4(19,2)
 kBas=iSD4(19,3)
 lBas=iSD4(19,4)
-
+Shijij = ((iSD4(0,1) == iSD4(0,3)) .and. (iSD4(10,1) == iSD4(10,3)) .and. &
+          (iSD4(0,2) == iSD4(0,4)) .and. (iSD4(10,2) == iSD4(10,4)))
 
 ! call sorting routine
 
@@ -66,7 +68,5 @@ else
   write(u6,*) '!!!!!!!!!! IfcSew=',IfcSew,' !!!!!!!!!!'
   call Cho_Quit('IfcSew out of bounds in '//SecNam,105)
 end if
-
-return
 
 end subroutine Integral_WrOut_Cho

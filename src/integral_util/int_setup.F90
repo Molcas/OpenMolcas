@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij)
+subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor)
 
 use Basis_Info, only: dbsc
 use Gateway_Info, only: DoFMM, RPQMin
@@ -21,7 +21,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nSkal, iSD(0:nSD,nSkal), iS, jS, kS, lS
 real(kind=wp), intent(out) :: Coor(3,4)
-logical(kind=iwp), intent(out) :: Shijij
 integer(kind=iwp) :: i, iCnt, iCnttp, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
 real(kind=wp) :: D, P, Q
 
@@ -47,8 +46,6 @@ else
   Coor(:,3) = dbsc(kCnttp)%Coor(:,kCnt)
 end if
 Coor(:,4) = dbsc(lCnttp)%Coor(:,lCnt)
-
-Shijij = ((iSD(0,iS) == iSD(0,kS)) .and. (iSD(10,iS) == iSD(10,kS)) .and. (iSD(0,jS) == iSD(0,lS)) .and. (iSD(10,jS) == iSD(10,lS)))
 
 !MAW start
 

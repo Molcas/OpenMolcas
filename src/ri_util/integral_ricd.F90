@@ -24,7 +24,6 @@ integer(kind=iwp) iBas,jBas,kBas,lBas
 
 #include "macros.fh"
 unused_var(iShell)
-unused_var(Shijij)
 unused_var(SOInt(1))
 unused_var(nSOint)
 unused_var(iSOSym)
@@ -48,7 +47,5 @@ else
   write(u6,*) 'Integral_RICD: fatal error!'
   call Abend()
 end if
-
-return
 
 end subroutine Integral_RICD

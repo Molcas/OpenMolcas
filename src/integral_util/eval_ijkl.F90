@@ -67,7 +67,7 @@ integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDum, ipMem1,
                      lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
-logical(kind=iwp) :: NoInts, Shijij, No_batch
+logical(kind=iwp) :: NoInts, No_batch
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
@@ -139,7 +139,7 @@ end if
 !***********************************************************************
 !                                                                      *
 call Gen_iSD4(iS_,jS_,kS_,lS_,iSD,nSD,iSD4)
-call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij)
+call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -305,7 +305,7 @@ do iBasAO=1,iBasi,iBsInc
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
-            call Int_PostProcess(Shijij,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
+            call Int_PostProcess(nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
                                  TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero
