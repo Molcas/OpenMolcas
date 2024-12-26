@@ -523,7 +523,6 @@ do lDCRR=0,nDCRR-1
 
         IeqK = EQ(CoorM(1,1),CoorM(1,3))
         JeqL = EQ(CoorM(1,2),CoorM(1,4))
-        IJeqKL = (IeqK .and. JeqL)
 
         ! Loops to partition the primitives
 

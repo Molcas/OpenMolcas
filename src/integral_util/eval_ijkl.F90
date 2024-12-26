@@ -67,7 +67,7 @@ integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDum, ipMem1,
                      lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
-logical(kind=iwp) :: IJeqKL, NoInts, Shijij, No_batch
+logical(kind=iwp) :: NoInts, Shijij, No_batch
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
@@ -265,7 +265,7 @@ do iBasAO=1,iBasi,iBsInc
         !         Compute SO/AO-integrals
 
         nijkl = iBasn*jBasn*kBasn*lBasn*nComp
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,IJeqKL,kOp, &
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,kOp, &
                       nZeta,nEta,SOInt,nijkl,nSO, &
                       AOInt,Mem2,Shijij,iSD4)
         !                                                              *

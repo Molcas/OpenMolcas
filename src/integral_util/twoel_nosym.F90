@@ -269,7 +269,6 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
 
   IeqK = EQ(Coor(:,1),Coor(:,3))
   JeqL = EQ(Coor(:,2),Coor(:,4))
-  IJeqKL = (IeqK .and. JeqL)
 
   ! Loops to partion the primitives
 
