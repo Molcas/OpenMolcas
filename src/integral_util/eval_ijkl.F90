@@ -42,11 +42,7 @@ subroutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
 
 use Index_Functions, only: iTri
 use setup, only: mSkal, nSOs
-use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
-                       ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
-                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
-                        mDij,  mDkl
-use k2_arrays, only: Create_BraKet, Destroy_Braket, FT, ipDijS, iSOSym, nFT, Sew_Scr
+use k2_arrays, only: Create_BraKet, Destroy_Braket, iSOSym, Sew_Scr
 use iSD_data, only: iSD, nSD
 use Breit, only: nComp
 use Gateway_Info, only: CutInt
@@ -66,9 +62,9 @@ implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDum, ipMem1, ipMem2, &
-                     ipTmp, iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
+                     iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
                      jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kS, kS_, lBasAO, lBasl, &
-                     lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, Nr_of_D, nSO, nZeta
+                     lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: IJeqKL, NoInts, Shijij, No_batch
@@ -85,8 +81,6 @@ TInt(:)=Zero
 ! conventional 1/r integrals
 if ((.not. DoFock) .and. (SuperName /= 'gateway') .and. (nIrrep == 1)) call Set_Breit(1)
 #endif
-mDCRij = 1
-mDCRkl = 1
 if (nIrrep == 1) then
   Do_TwoEl => TwoEl_NoSym
 else
@@ -152,8 +146,6 @@ call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij)
 
 nZeta = iSD4(5,1)*iSD4(5,2)
 nEta  = iSD4(5,3)*iSD4(5,4)
-mDij = nZeta+1 ! Dummy initialize
-mDkl = nEta+1  ! Dummy initialize
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -184,17 +176,7 @@ jlS = iTri(jS,lS)
 ! matrices. Observe that the desymmetrized 1st order
 ! density matrices follows the contraction index.
 
-if (DoFock) then
-  ipTmp = ipDijs
-  Nr_of_D = 1
-  call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,Nr_of_D)
-  call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,Nr_of_D)
-  call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,Nr_of_D)
-  call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,Nr_of_D)
-  call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D)
-  call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D)
-
-end if
+if (DoFock) Call Dens_Infos()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -222,7 +204,7 @@ kBsInc = iSD4(4,3)
 lBsInc = iSD4(4,4)
 
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
-AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem1-1)
+AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -284,7 +266,7 @@ do iBasAO=1,iBasi,iBsInc
 
         nijkl = iBasn*jBasn*kBasn*lBasn*nComp
         call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,IJeqKL,kOp, &
-                      FT,nFT,nZeta,nEta,SOInt,nijkl,nSO, &
+                      nZeta,nEta,SOInt,nijkl,nSO, &
                       AOInt,Mem2,Shijij,iSD4)
         !                                                              *
         !***************************************************************
@@ -341,9 +323,28 @@ call Destroy_BraKet()
 !                                                                      *
 #ifdef _DEBUGBREIT_
 call Set_Breit(0)
+# endif
 
 contains
 
+Subroutine Dens_Infos()
+use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
+                       ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
+                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl
+use k2_arrays, only: ipDijS
+Implicit None
+integer(kind=iwp), parameter:: Nr_of_D = 1
+integer(kind=iwp) ipTmp
+ipTmp = ipDijs
+call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,Nr_of_D)
+call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,Nr_of_D)
+call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,Nr_of_D)
+call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,Nr_of_D)
+call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D)
+call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D)
+End Subroutine Dens_Infos
+
+#ifdef _DEBUGBREIT_
 subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
 
 # ifdef _DEBUGPRINT_

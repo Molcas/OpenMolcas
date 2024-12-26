@@ -12,7 +12,7 @@
 Module Dens_stuff
 use Definitions, only: iwp
 Private
-integer(kind=iwp), public, target :: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl
+integer(kind=iwp), public, target :: mDCRij=1,mDCRkl=1,mDCRik=1,mDCRil=1,mDCRjk=1,mDCRjl=1
 integer(kind=iwp), public, target ::  ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
 integer(kind=iwp), public, target :: ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl
 integer(kind=iwp), public, target ::   mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl

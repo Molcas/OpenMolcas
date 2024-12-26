@@ -46,7 +46,7 @@ type(BraKet_Type) :: BraKet
 integer(kind=iwp), allocatable :: ipOffD(:,:), iSOSym(:,:)
 integer(kind=iwp), allocatable, target :: BraKet_Base_I(:)
 real(kind=wp), allocatable, target :: DeDe(:)
-real(kind=wp), allocatable :: Aux(:), FT(:)
+real(kind=wp), allocatable, target :: Aux(:), FT(:)
 real(kind=wp), allocatable, target :: BraKet_Base_R(:), Dq(:), Fq(:), Sew_Scr(:)
 
 public :: Aux, BraKet, Create_BraKet, Create_BraKet_Base, DeDe, Destroy_BraKet, Destroy_BraKet_Base, DoGrad_, DoHess_, Dq, Fq, FT, &

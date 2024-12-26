@@ -66,7 +66,6 @@ type (k2_type), pointer:: k2data1(:), k2data2(:)
 real(kind=wp), pointer:: Dij(:,:)=>Null(),Dkl(:,:)=>Null(),Dik(:,:)=>Null(),Dil(:,:)=>Null(),Djk(:,:)=>Null(),Djl(:,:)=>Null()
 
 #include "macros.fh"
-unused_var(FckTmp)
 unused_var(SoInt)
 
 iShell(:)=iSD4(11,:)

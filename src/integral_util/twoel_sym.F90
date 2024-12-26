@@ -685,13 +685,12 @@ do lDCRR=0,nDCRR-1
                               iAO,iAOst, &
                               iBasi,jBasj,kBask,lBasl,Dij(:,jOp(1)),ij1,ij2,ij3,ij4,Dkl(:,jOp(2)),kl1,kl2,kl3,kl4,Dik(:,jOp(3)), &
                               ik1,ik2,ik3,ik4,Dil(:,jOp(4)),il1,il2,il3,il4,Djk(:,jOp(5)),jk1,jk2,jk3,jk4,Djl(:,jOp(6)),jl1,jl2, &
-                              jl3,jl4,FckTmp,nFT,DoCoul,DoExch,ExFac)
+                              jl3,jl4,DoCoul,DoExch,ExFac)
 
       ! Transform from AO basis to SO basis
 
       if (DoIntegrals) call SymAdp(iSD4(1,:),iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,kOp,nijkl,Aux,nAux, &
-                                   Wrk(ipAOInt), &
-                                   SOInt,nSOInt,NoInts)
+                                   Wrk(ipAOInt),SOInt,nSOInt,NoInts)
 
     end do outer
   end do
