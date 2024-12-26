@@ -67,7 +67,7 @@ integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
                  vkl, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
-                     NoPInts, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
+                     NoPInts, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
@@ -85,6 +85,8 @@ unused_var(iS_)
 unused_var(jS_)
 unused_var(kS_)
 unused_var(lS_)
+Shijij = ((iSD4(0,1) == iSD4(0,3)) .and. (iSD4(10,1) == iSD4(10,3)) .and. &
+          (iSD4(0,2) == iSD4(0,4)) .and. (iSD4(10,2) == iSD4(10,4)))
 
 nAux=Size(Aux)
 

@@ -267,7 +267,7 @@ do iBasAO=1,iBasi,iBsInc
         nijkl = iBasn*jBasn*kBasn*lBasn*nComp
         call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,&
                       nZeta,nEta,SOInt,nijkl,nSO, &
-                      AOInt,Mem2,Shijij,iSD4)
+                      AOInt,Mem2,iSD4)
         !                                                              *
         !***************************************************************
         !                                                              *
