@@ -145,6 +145,10 @@ If (DoFock) Then
    Dil(1:mDil,1:mDCRil) => DeDe(ipDDil:ipDDil+mDil*mDCRil-1)
    Djk(1:mDjk,1:mDCRjk) => DeDe(ipDDjk:ipDDjk+mDjk*mDCRjk-1)
    Djl(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
+Else
+! dummy association
+   Dij(1:1,1:1) => DeDe(-1:-1)
+   Dkl(1:1,1:1) => DeDe(-1:-1)
 End If
 
 
@@ -697,9 +701,9 @@ Coeff2 => Null()
 Coeff3 => Null()
 Coeff4 => Null()
 
+Dij => Null()
+Dkl => Null()
 If (DoFock) Then
-   Dij => Null()
-   Dkl => Null()
    Dik => Null()
    Dil => Null()
    Djk => Null()
