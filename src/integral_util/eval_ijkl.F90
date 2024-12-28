@@ -47,7 +47,7 @@ use iSD_data, only: iSD, nSD
 use Breit, only: nComp
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
-use Int_Options, only: DoFock, DoIntegrals, Map4
+use Int_Options, only: DoFock, DoIntegrals
 use Integral_interfaces, only: Int_PostProcess, twoel_kernel
 use RI_glob, only: jBas_, lBas_
 #ifdef _DEBUGBREIT_
@@ -62,7 +62,7 @@ implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDum, ipMem1, ipMem2, &
-                     iS, iS_, iTmp, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
+                     iS, iS_, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
                      jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kS, kS_, lBasAO, lBasl, &
                      lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, nSO, nZeta
 integer(kind=iwp) :: iSD4(0:nSD,4)
@@ -116,24 +116,10 @@ end if
 !write(u6,*) 'Eval_ints: MemMax=',MemMax
 ipMem1 = 1
 
-Map4(1) = 1
-Map4(2) = 2
-Map4(3) = 3
-Map4(4) = 4
 iS_ = max(iiS,jjS)
 jS_ = min(iiS,jjS)
 kS_ = max(kkS,llS)
 lS_ = min(kkS,llS)
-if (iiS /= iS_) then
-  iTmp = Map4(1)
-  Map4(1) = Map4(2)
-  Map4(2) = iTmp
-end if
-if (kkS /= kS_) then
-  iTmp = Map4(3)
-  Map4(3) = Map4(4)
-  Map4(4) = iTmp
-end if
 !write(u6,*) ' -->',iS_,jS_,kS_,lS_,'<--'
 !                                                                      *
 !***********************************************************************
