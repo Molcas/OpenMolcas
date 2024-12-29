@@ -63,7 +63,7 @@ integer(kind=iwp) :: i_Int, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij
                      lDCRT, lDCRT_, LmbdR, LmbdS, LmbdT, lStabM, lStabN, lStb, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, &
                      mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nByte, ncd, nDCRR, nDCRS, nDCRT, nEta_Tot, nInts, nZeta_Tot,&
                      iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), iAOst(4), iStabs(4), jPrInc, lPrInc, &
-                     iBasi, jBasj, kBask, lBasl, nAux, kOp(4)
+                     iBasi, jBasj, kBask, lBasl, nAux, kOp(4), nZeta, nEta
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
                  vkl, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, &
@@ -85,6 +85,10 @@ unused_var(iS_)
 unused_var(jS_)
 unused_var(kS_)
 unused_var(lS_)
+
+nZeta = iSD4(5,1)*iSD4(5,2)
+nEta  = iSD4(5,3)*iSD4(5,4)
+
 Shijij = ((iSD4(0,1) == iSD4(0,3)) .and. (iSD4(10,1) == iSD4(10,3)) .and. &
           (iSD4(0,2) == iSD4(0,4)) .and. (iSD4(10,2) == iSD4(10,4)))
 

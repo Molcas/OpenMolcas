@@ -53,7 +53,7 @@ implicit none
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
                      ncd, nEta_Tot, nInts, nZeta_Tot, iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), &
-                     iAOst(4), jPrInc, lPrInc, iBasi, jBasj, kBask, lBasl
+                     iAOst(4), jPrInc, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, nEta
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, &
                      NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
@@ -67,6 +67,9 @@ real(kind=wp), pointer:: Dij(:,:)=>Null(),Dkl(:,:)=>Null(),Dik(:,:)=>Null(),Dil(
 
 #include "macros.fh"
 unused_var(SoInt)
+
+nZeta = iSD4(5,1)*iSD4(5,2)
+nEta  = iSD4(5,3)*iSD4(5,4)
 
 Shijij = ((iSD4(0,1) == iSD4(0,3)) .and. (iSD4(10,1) == iSD4(10,3)) .and. &
           (iSD4(0,2) == iSD4(0,4)) .and. (iSD4(10,2) == iSD4(10,4)))

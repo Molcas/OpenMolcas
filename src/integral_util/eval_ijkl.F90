@@ -61,10 +61,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ijS, ikS, ilS, ipDum, ipMem1, ipMem2, &
-                     iS, iS_, jBasAO, jBasj, jBasn, jBsInc, jkS, jlS, &
-                     jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kS, kS_, lBasAO, lBasl, &
-                     lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nEta, nIJKL, nSO, nZeta
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, &
+                     iS, iS_, jBasAO, jBasj, jBasn, jBsInc, &
+                     jS, jS_, kBasAO, kBask, kBasn, kBsInc, kS, kS_, lBasAO, lBasl, &
+                     lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nIJKL, nSO, nAO
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: NoInts, No_batch
@@ -125,36 +125,27 @@ lS_ = min(kkS,llS)
 !***********************************************************************
 !                                                                      *
 call Gen_iSD4(iS_,jS_,kS_,lS_,iSD,nSD,iSD4)
-call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-
-nZeta = iSD4(5,1)*iSD4(5,2)
-nEta  = iSD4(5,3)*iSD4(5,4)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
-
-call Create_BraKet(nZeta,nEta)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! No SO block in direct construction of the Fock matrix.
 Call Size_SOb(iSD4,nSD,nSO,No_batch)
 if (No_Batch) return
+nAO = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
+
+!
+call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
+!
+call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 
 iS = iSD4(11,1)
 jS = iSD4(11,2)
 kS = iSD4(11,3)
 lS = iSD4(11,4)
-ijS = iTri(iS,jS)
-klS = iTri(kS,lS)
-ikS = iTri(iS,kS)
-ilS = iTri(iS,lS)
-jkS = iTri(jS,kS)
-jlS = iTri(jS,lS)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -245,24 +236,20 @@ do iBasAO=1,iBasi,iBsInc
           call Picky(nSD,iSD4,1,4)
           call Picky(nSD,iSD4,2,4)
         end if
+
+        nijkl = iBasn*jBasn*kBasn*lBasn*nComp
+
         !                                                              *
         !***************************************************************
         !                                                              *
         !         Compute SO/AO-integrals
 
-        nijkl = iBasn*jBasn*kBasn*lBasn*nComp
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,&
-                      nZeta,nEta,SOInt,nijkl,nSO, &
-                      AOInt,Mem2,iSD4)
-        !                                                              *
-        !***************************************************************
-        !                                                              *
+        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,SOInt,nijkl,nSO,AOInt,Mem2,iSD4)
 
 #       ifdef _DEBUGBREIT_
         if (nOrdOp /= 0) then
           if (nIrrep == 1) then
-            n = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
-            call ReSort_Int(AOInt,nijkl,6,n)
+            call ReSort_Int(AOInt,nijkl,6,nAO)
           else
             call ReSort_Int(SOInt,nijkl,6,nSO)
           end if
@@ -270,8 +257,7 @@ do iBasAO=1,iBasi,iBsInc
 #       endif
 #       ifdef _DEBUGPRINT_
         if (nIrrep == 1) then
-          n = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
-          call RecPrt('AOInt',' ',AOInt,nijkl,n)
+          call RecPrt('AOInt',' ',AOInt,nijkl,nAO)
         else
           call RecPrt('SOInt',' ',SOInt,nijkl,nSO)
         end if
@@ -284,7 +270,7 @@ do iBasAO=1,iBasi,iBsInc
         if (DoIntegrals .and. (.not. NoInts)) then
           ! Get max AO/SO integrals
           if (nIrrep == 1) then
-            n = nijkl*iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
+            n = nijkl*nAO
             Tmax = max(Tmax,abs(AOInt(iDAMax_(n,AOInt,1))))
           else
             n = nijkl*nSO
@@ -320,7 +306,13 @@ use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
 use k2_arrays, only: ipDijS
 Implicit None
 integer(kind=iwp), parameter:: Nr_of_D = 1
-integer(kind=iwp) ipTmp
+integer(kind=iwp) ipTmp, ijS, klS, ikS, ilS, jkS, jlS
+ijS = iTri(iS,jS)
+klS = iTri(kS,lS)
+ikS = iTri(iS,kS)
+ilS = iTri(iS,lS)
+jkS = iTri(jS,kS)
+jlS = iTri(jS,lS)
 ipTmp = ipDijs
 call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,Nr_of_D)
 call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,Nr_of_D)
