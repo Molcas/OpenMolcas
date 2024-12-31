@@ -67,7 +67,7 @@ integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, &
                      lBasn, lBsInc, lS_, Mem1, Mem2, MemMax, MemPrm, n, nIJKL, nSO, nAO
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
-logical(kind=iwp) :: NoInts, No_batch
+logical(kind=iwp) :: NoInts
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
@@ -129,12 +129,11 @@ call Gen_iSD4(iS_,jS_,kS_,lS_,iSD,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 ! No SO block in direct construction of the Fock matrix.
-Call Size_SOb(iSD4,nSD,nSO,No_batch)
-if (No_Batch) return
+Call Size_SOb(iSD4,nSD,nSO)
+if (nIrrep>1 .and. nSO==0) return
 nAO = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
-
 !
-call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor)
+call Int_Setup(iSD4,nSD,Coor)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

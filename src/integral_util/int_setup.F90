@@ -9,29 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor)
+subroutine Int_Setup(iSD4,nSD,Coor)
 
 use Basis_Info, only: dbsc
 use Gateway_Info, only: DoFMM, RPQMin
 use Gateway_global, only: FMM_shortrange
-use iSD_data, only: nSD
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSkal, iSD(0:nSD,nSkal), iS, jS, kS, lS
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 real(kind=wp), intent(out) :: Coor(3,4)
 integer(kind=iwp) :: i, iCnt, iCnttp, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
 real(kind=wp) :: D, P, Q
 
-iCnttp = iSD(13,iS)
-iCnt = iSD(14,iS)
-jCnttp = iSD(13,jS)
-jCnt = iSD(14,jS)
-kCnttp = iSD(13,kS)
-kCnt = iSD(14,kS)
-lCnttp = iSD(13,lS)
-lCnt = iSD(14,lS)
+iCnttp = iSD4(13,1)
+iCnt   = iSD4(14,1)
+jCnttp = iSD4(13,2)
+jCnt   = iSD4(14,2)
+kCnttp = iSD4(13,3)
+kCnt   = iSD4(14,3)
+lCnttp = iSD4(13,4)
+lCnt   = iSD4(14,4)
 
 if (dbsc(iCnttp)%Aux) then
   Coor(:,1) = dbsc(jCnttp)%Coor(:,jCnt)
