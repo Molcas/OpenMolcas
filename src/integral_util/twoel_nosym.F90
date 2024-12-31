@@ -427,10 +427,10 @@ if (DoIntegrals) then
     ipAOInt = 1
   end if
   iPer = 1
-  Pij = (iS_ == jS_)
-  Pkl = (kS_ == lS_)
-  Pik = (iS_ == kS_)
-  Pjl = (jS_ == lS_)
+  Pij = (iSD4(20,1) == iSD4(20,2))
+  Pkl = (iSD4(20,3) == iSD4(20,4))
+  Pik = (iSD4(20,1) == iSD4(20,3))
+  Pjl = (iSD4(20,2) == iSD4(20,4))
   Pijkl = (Pij .and. Pkl .and. Pik .and. Pjl)
   if (Pij) iPer = iPer*2
   if (Pkl) iPer = iPer*2

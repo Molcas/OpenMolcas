@@ -239,7 +239,7 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !         Compute SO/AO-integrals
 
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,NoInts,SOInt,nijkl,nSO,AOInt,Mem2,iSD4)
+        call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Mem2,iSD4)
 
 #       ifdef _DEBUGBREIT_
         if (nOrdOp /= 0) then

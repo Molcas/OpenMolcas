@@ -81,10 +81,6 @@ real(kind=wp), pointer:: Dij(:,:)=>Null(),Dkl(:,:)=>Null(),Dik(:,:)=>Null(),Dil(
 
 
 #include "macros.fh"
-unused_var(iS_)
-unused_var(jS_)
-unused_var(kS_)
-unused_var(lS_)
 
 nZeta = iSD4(5,1)*iSD4(5,2)
 nEta  = iSD4(5,3)*iSD4(5,4)
