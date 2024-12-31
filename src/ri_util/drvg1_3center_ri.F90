@@ -743,7 +743,7 @@ do while (Rsv_Tsk2(id,klS))
                          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
                          nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
-                         Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
+                         Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij,iSD4)
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU2,TwoelWall2)
             Twoel3_CPU = Twoel3_CPU+TwoelCPU2-TwoelCPU1

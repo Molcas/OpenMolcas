@@ -17,7 +17,7 @@ subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys, &
                    nData1,nData2,Pren,Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc, &
                    Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
                    nZeta,nEta,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO, &
-                   Wrk2,nWrk2,Aux,nAux,Shijij)
+                   Wrk2,nWrk2,Aux,nAux,Shijij,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -35,6 +35,7 @@ use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
 use Phase_Info, only: iPhase
 use Gateway_Info, only: ChiI2
+use iSD_data, only: nSD
 use Gateway_global, only: IsChi
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
@@ -50,9 +51,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nData1, nData2, &
+integer(kind=iwp), intent(inout) :: iAnga(4)
+integer(kind=iwp), intent(in) :: iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nData1, nData2, &
                                  nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, &
-                                 nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
+                                 nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
                              PSO(iBasi*jBasj*kBask*lBasl,nPSO)
 type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
@@ -89,6 +91,7 @@ unused_var(kPrInc)
 iRout = 12
 iPrint = nPrint(iRout)
 #endif
+iAnga(:) = iSD4(1,:)
 la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)

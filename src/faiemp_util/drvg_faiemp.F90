@@ -309,7 +309,7 @@ do
                              Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                              Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
                              Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn,nZeta,nEta, &
-                             Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
+                             Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij,iSD4)
 
                 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp)
 
