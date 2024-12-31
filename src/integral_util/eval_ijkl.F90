@@ -62,9 +62,9 @@ implicit none
 integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, &
-                     iS, iS_, jBasAO, jBasj, jBasn, jBsInc, &
-                     jS, jS_, kBasAO, kBask, kBasn, kBsInc, kS, kS_, lBasAO, lBasl, &
-                     lBasn, lBsInc, lS, lS_, Mem1, Mem2, MemMax, MemPrm, n, nIJKL, nSO, nAO
+                     iS_, jBasAO, jBasj, jBasn, jBsInc, &
+                     jS_, kBasAO, kBask, kBasn, kBsInc, kS_, lBasAO, lBasl, &
+                     lBasn, lBsInc, lS_, Mem1, Mem2, MemMax, MemPrm, n, nIJKL, nSO, nAO
 integer(kind=iwp) :: iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: NoInts, No_batch
@@ -141,11 +141,6 @@ call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor)
 ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
 !
 call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
-
-iS = iSD4(11,1)
-jS = iSD4(11,2)
-kS = iSD4(11,3)
-lS = iSD4(11,4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -307,6 +302,13 @@ use k2_arrays, only: ipDijS
 Implicit None
 integer(kind=iwp), parameter:: Nr_of_D = 1
 integer(kind=iwp) ipTmp, ijS, klS, ikS, ilS, jkS, jlS
+integer(kind=iwp) iS, jS, kS, lS
+
+iS = iSD4(11,1)
+jS = iSD4(11,2)
+kS = iSD4(11,3)
+lS = iSD4(11,4)
+
 ijS = iTri(iS,jS)
 klS = iTri(kS,lS)
 ikS = iTri(iS,kS)
