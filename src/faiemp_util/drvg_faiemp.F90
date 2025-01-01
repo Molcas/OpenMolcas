@@ -284,22 +284,31 @@ do
 
       do iBasAO=1,iBasi,iBsInc
         iBasn = min(iBsInc,iBasi-iBasAO+1)
-        iAOst(1) = iBasAO-1
+        iSD4( 8,1) = iBasAO-1
+        iSD4(19,1) = iBasn
+
         do jBasAO=1,jBasj,jBsInc
           jBasn = min(jBsInc,jBasj-jBasAO+1)
-          iAOst(2) = jBasAO-1
+          iSD4( 8,2) = jBasAO-1
+          iSD4(19,2) = jBasn
+
 
           do kBasAO=1,kBask,kBsInc
             kBasn = min(kBsInc,kBask-kBasAO+1)
-            iAOst(3) = kBasAO-1
+            iSD4( 8,3) = kBasAO-1
+            iSD4(19,3) = kBasn
+
             do lBasAO=1,lBasl,lBsInc
               lBasn = min(lBsInc,lBasl-lBasAO+1)
-              iAOst(4) = lBasAO-1
+              iSD4( 8,4) = lBasAO-1
+              iSD4(19,4) = lBasn
 
               !--Get the 2nd order density matrix in SO basis.
 
               nijkl = iBasn*jBasn*kBasn*lBasn
+
               iCmpa(:) = iSD4(2,:)
+              iAOst(:) = iSD4(8,:)
               call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                          iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
               if (A_Int*PMax >= CutInt) then
