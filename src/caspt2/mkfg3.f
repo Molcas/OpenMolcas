@@ -58,7 +58,8 @@ C>                   to active indices
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
       use caspt2_global, only: iPrGlb
       use fciqmc_interface, only: DoFCIQMC, mkfg3fciqmc
-      use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd
+      use caspt2_global, only: do_grad, nbuf1_grad, nStpGrd,
+     *                         iTasks_grad,nTasks_grad
       use PrintLevel, only: debug, verbose
       use gugx, only: CIS, SGS, L2ACT, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
@@ -497,6 +498,11 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
      &    iSubTask, ip1sta, ip1end, ip3, nbtot
         call xFlush(6)
       END IF
+      !! consistent tasks must be executed here and in derfg3.f for grad
+      if (do_grad .or. nStpGrd==2) then
+        nTasks_grad = nTasks_grad + 1
+        iTasks_grad(nTasks_grad) = iSubTask
+      end if
 
 CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task

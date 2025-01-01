@@ -275,9 +275,21 @@ C
         call mma_allocate(DEPSA,nAshT,nAshT,Label='DEPSA')
         DEPSA(:,:) = 0.0d+00
         !! Derivative of off-diagonal H0 of <Psi1|H0|Psi1>
-        IF (MAXIT.NE.0) Call SIGDER(iVecX,iVecR,VECROT(jState))
+        IF (MAXIT.NE.0) then
+          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+          Call SIGDER(iVecX,iVecR,VECROT(jState))
+          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          IF (IPRGLB.GE.verbose) THEN
+            CPUT =CPTF10-CPTF0
+            WALLT=TIOTF10-TIOTF0
+            write(6,'(a,2f10.2)')" SIGDER  : CPU/WALL TIME=", cput,wallt
+          END IF
+        end if
         Call CLagX(1,CLag,DEPSA,VECROT)
 C       call test3_dens(clag)
+#ifdef _MOLCAS_MPP_
+        If (Is_Real_Par()) CALL GADSUM (DEPSA,nAshT**2)
+#endif
 C       write(6,*) "original depsa"
 C       call sqprt(depsa,nasht)
 C       write(6,*) "original depsa (sym)"
@@ -703,6 +715,9 @@ C    *              0.0D+00,RDMEIG,nAshT)
         IDCIEX = IDTCEX
         !! Now, compute the configuration Lagrangian
         Call CLagEig(if_SSDM,CLag,RDMEIG,nAshT)
+#ifdef _MOLCAS_MPP_
+        If (Is_Real_Par()) CALL GADSUM (CLag,nCLag)
+#endif
 C
         !! Now, here is the best place to compute the true off-diagonal
         !! active density for non-invariant CASPT2
@@ -764,6 +779,9 @@ C
           !! Use canonical CSFs rather than natural CSFs
           !! Now, compute the configuration Lagrangian
           Call CLagEig(if_SSDM,CLag,RDMEIG,nAshT)
+#ifdef _MOLCAS_MPP_
+          If (Is_Real_Par()) CALL GADSUM (CLag,nCLag)
+#endif
           !! Now, compute the state Lagrangian and do some projections
 C         Call CLagFinal(CLag,SLag)
         End If
@@ -937,7 +955,7 @@ C
         If (do_csf) call mma_deallocate(DPT2Canti_)
         DPT2Canti => null()
 
-        !! Finalize OLag (anti-symetrize) and construct WLag
+        !! Finalize OLag (anti-symmetrize) and construct WLag
         Call OLagFinal(OLag,Trf)
 C
         call mma_deallocate(TRF)
@@ -1784,13 +1802,21 @@ C
       use caspt2_global, only: LuGAMMA,LuAPT2
       use ChoCASPT2
       use stdalloc, only: mma_allocate,mma_deallocate
-      use definitions, only: wp
+      use definitions, only: iwp,wp
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, nProcs, myRank
+#endif
 C
       Implicit Real*8 (A-H,O-Z)
 C
 #include "caspt2.fh"
 C
 #include "warnings.h"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+      LOGICAL bStat
+#endif
 C
       Dimension DPT2AO(*),SSDM(*)
       Integer iSkip(8),ipWRK(8)
@@ -1799,6 +1825,9 @@ C
       Logical is_error
       real(kind=wp),allocatable :: A_PT2(:),CHSPC(:),HTVec(:),WRK(:),
      *  V1(:),V2(:),B_SSDM(:)
+#ifdef _MOLCAS_MPP_
+      integer(kind=iwp), allocatable :: map2(:)
+#endif
 C
       ! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
       call getritrfinfo(nnbstr,maxvec,n2)
@@ -1816,11 +1845,11 @@ C
 C
       nBasI  = nBas(iSym)
 C
-      call mma_allocate(A_PT2,NumChoTot**2,Label='A_PT2')
+      call mma_allocate(A_PT2,MaxVec_PT2**2,Label='A_PT2')
 
       ! Read A_PT2 from LUAPT2
       id = 0
-      call ddafile(LUAPT2, 2, A_PT2, numChoTot**2, id)
+      call ddafile(LUAPT2, 2, A_PT2, MaxVec_PT2**2, id)
 
       !! Open B_PT2
       Call PrgmTranslate('GAMMA',RealName,lRealName)
@@ -1834,8 +1863,8 @@ C
       call mma_allocate(HTVec,nBasT*nBasT,Label='HTVec')
       call mma_allocate(WRK,nBasT**2,Label='WRK')
       !! V(P) = (mu nu|P)*D_{mu nu}
-      call mma_allocate(V1,NumCho,Label='V1')
-      call mma_allocate(V2,NumCho,Label='V2')
+      call mma_allocate(V1,MaxVec_PT2,Label='V1')
+      call mma_allocate(V2,MaxVec_PT2,Label='V2')
       !! B_SSDM(mu,nu,P) = D_{mu rho}*D_{nu sigma}*(rho sigma|P)
       call mma_allocate(B_SSDM,NCHSPC,Label='B_SSDM')
 C
@@ -1851,7 +1880,42 @@ C
       ! JRED2=iWork(ipnt-1+NumCho_PT2(iSym))
       JRED1=InfVec(1,2,iSym)
       JRED2=InfVec(NumCho_PT2(iSym),2,iSym)
+C
+#ifdef _MOLCAS_MPP_
+      If (is_real_par()) then
+        Allocate (MAP2(NPROCS))
+        call mma_allocate(MAP2,nProcs,Label='MAP2')
+        MAP2(:) = 0
+        MAP2(myRank+1) = NumChoTot ! MJRED2-JRED1+1
+        call GAIGOP(MAP2,NPROCS,'+')
+C       ndim2 = sum(map2)
 
+        do i = nprocs, 2, -1
+          map2(i) = sum(map2(1:i-1))+1
+        end do
+        map2(1) = 1
+        ipV1 = map2(myRank+1)
+        ipV2 = map2(myRank+1)
+        V1(:) = 0.0d+00
+        V2(:) = 0.0d+00
+
+        bStat = GA_CREATE_IRREG(MT_DBL,nBasT**2,MaxVec_PT2,'WRK',
+     *                          1,1,MAP2,NPROCS,lg_V1)
+        CALL GA_DISTRIBUTION(LG_V1,MYRANK,ILOV1,IHIV1,JLOV1,JHIV1)
+        CALL GA_ACCESS(LG_V1,ILOV1,IHIV1,JLOV1,JHIV1,MV1,NDIM1)
+      else
+#endif
+        ipV1 = 1
+        ipV2 = 1
+#ifdef _MOLCAS_MPP_
+      end if
+#endif
+C
+      !! Prepare density matrix
+      !! subtract the state-averaged density matrix
+C
+      IBATCH_TOT=NBTCHES(iSym)
+C
 * Loop over JRED
       DO JRED=JRED1,JRED2
 
@@ -1917,8 +1981,8 @@ C
      *                      iSkip)
             ipVecL = ipVecL + lscr
 C
-            V1(JV1+iVec-1) = DDot_(nBasI**2,DPT2AO,1,WRK,1)
-            V2(JV1+iVec-1) = DDot_(nBasI**2,SSDM  ,1,WRK,1)
+            V1(ipV1+JV1+iVec-2) = DDot_(nBasI**2,DPT2AO,1,WRK,1)
+            V2(ipV2+JV1+iVec-2) = DDot_(nBasI**2,SSDM  ,1,WRK,1)
 C
             Call DGemm_('N','N',nBasI,nBasI,nBasI,
      *                  1.0D+00,DPT2AO,nBasI,WRK,nBasI,
@@ -1929,28 +1993,37 @@ C
           End Do
           NUMVI = NUMV
 C
-          KV1=JSTART
-          JBATCH_TOT=NBTCHES(iSym)
-          DO JBATCH=1,NBATCH
-            JBATCH_TOT=JBATCH_TOT+1
+#ifdef _MOLCAS_MPP_
+          If (is_real_par()) then
+            Call DCopy_(nBasT**2*NUMV,B_SSDM,1,
+     *                  DBL_MB(mV1+NDIM1*(JV1-1)),1)
+          else
+#endif
+            KV1=JSTART
+            JBATCH_TOT=NBTCHES(iSym)
+            DO JBATCH=1,NBATCH
+              JBATCH_TOT=JBATCH_TOT+1
 
-            KNUM=NVLOC_CHOBATCH(JBATCH_TOT)
-            KV2=KV1+KNUM-1
+              KNUM=NVLOC_CHOBATCH(JBATCH_TOT)
+              KV2=KV1+KNUM-1
 
-            JREDC=JRED
-            CALL CHO_VECRD(CHSPC,NCHSPC,KV1,KV2,iSym,
+              JREDC=JRED
+              CALL CHO_VECRD(CHSPC,NCHSPC,KV1,KV2,iSym,
      &                              NUMV,JREDC,MUSED)
-           Call R2FIP(CHSPC,WRK,ipWRK,NUMV,
-     *                size(nDimRS),infVec,nDimRS,
-     *                nBasT,nSym,iSym,iSkip,irc,JREDC)
+              Call R2FIP(CHSPC,WRK,ipWRK,NUMV,
+     *                   size(nDimRS),infVec,nDimRS,
+     *                   nBasT,nSym,iSym,iSkip,irc,JREDC)
 C
-            !! Exchange part of A_PT2
-            NUMVJ = NUMV
-            CALL DGEMM_('T','N',NUMVI,NUMVJ,nBasT**2,
-     *                 -1.0D+00,B_SSDM,nBasT**2,CHSPC,nBasT**2,
-     *                  1.0D+00,A_PT2(JV1+NumCho*(KV1-1)),NumCho)
-            KV1=KV1+KNUM
-          END DO
+              !! Exchange part of A_PT2
+              NUMVJ = NUMV
+              CALL DGEMM_('T','N',NUMVI,NUMVJ,nBasT**2,
+     *                   -1.0D+00,B_SSDM,nBasT**2,CHSPC,nBasT**2,
+     *                    1.0D+00,A_PT2(JV1+NumCho*(KV1-1)),NumCho)
+              KV1=KV1+KNUM
+            END DO
+#ifdef _MOLCAS_MPP_
+          end if
+#endif
 C
           !! Read, add, and save the B_PT2 contribution
           Do iVec = 1, NUMVI
@@ -1968,6 +2041,58 @@ C
           JV1=JV1+JNUM
         End Do
       End Do
+C
+#ifdef _MOLCAS_MPP_
+      If (is_real_par()) then
+      ! CALL GA_RELEASE_UPDATE(LG_V1,ILOV1,IHIV1,JLOV1,JHIV1)
+C
+        !! Parallel for the exchange part of A_PT2
+        Call DScal_(MaxVec_PT2**2,1.0D+00/DBLE(NPROCS),A_PT2,1)
+        IBATCH_TOT=NBTCHES(iSym)
+        DO JRED=JRED1,JRED2
+          CALL Cho_X_nVecRS(JRED,iSym,JSTART,NVECS_RED)
+          IF(NVECS_RED.EQ.0) Cycle
+          ILOC=3
+          CALL CHO_X_SETRED(IRC,ILOC,JRED)
+          NBATCH=1+(NVECS_RED-1)/MXNVC
+* Loop over IBATCH
+          JV1=JSTART
+          DO IBATCH=1,NBATCH
+C           write(6,*) "ibatch,nbatch = ", ibatch,nbatch
+            IBATCH_TOT=IBATCH_TOT+1
+
+            JNUM=NVLOC_CHOBATCH(IBATCH_TOT)
+            JV2=JV1+JNUM-1
+
+            JREDC=JRED
+* Read a batch of reduced vectors
+            CALL CHO_VECRD(CHSPC,NCHSPC,JV1,JV2,iSym,NUMV,JREDC,MUSED)
+            Call R2FIP(CHSPC,WRK,ipWRK,NUMV,size(nDimRS),infVec,nDimRS,
+     *                 nBasT,nSym,iSym,iSkip,irc,JREDC)
+            NUMVJ = NUMV
+C
+            !! Exchange part of A_PT2
+            JVG   = JV1+MAP2(myRank+1)-1
+            Do iRank = 0, NPROCS-1
+            CALL GA_DISTRIBUTION(LG_V1,iRank,ILOV1,IHIV1,JLOV1,JHIV1)
+            CALL GA_GET(LG_V1,ILOV1,IHIV1,JLOV1,JHIV1,B_SSDM,
+     *                  NDIM1)
+            NUMVI = JHIV1-JLOV1+1
+            CALL DGEMM_('T','N',NUMVI,NUMVJ,nBasT**2,
+     *                 -1.0D+00,B_SSDM,nBasT**2,CHSPC,nBasT**2,
+     *                  1.0D+00,A_PT2(JLOV1+MaxVec_PT2*(JVG-1)),
+     *                          MaxVec_PT2)
+            end do
+            JV1=JV1+JNUM
+          End Do
+        End Do
+        CALL GADSUM (A_PT2,MaxVec_PT2**2)
+        bStat = GA_Destroy(lg_V1)
+C
+        CALL GADSUM (V1,MaxVec_PT2*2)
+        Deallocate (MAP2)
+      end if
+#endif
 C
       !! Coulomb for A_PT2
       !! Consider using DGER?

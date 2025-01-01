@@ -22,6 +22,7 @@
       INTEGER NTG3
       REAL*8  TG3(NTG3)
       Integer :: nLev
+      Logical :: Poor_Par
 
       INTEGER, allocatable:: P2LEV(:)
       REAL*8, allocatable:: TG3WRK(:)
@@ -201,6 +202,12 @@ C And divide it up:
       LTAU=LSGM1+NTUBUF*MXCI
       LSGM2=LTAU+MXCI
 
+      !! enable poor parallelization, if applicable
+      POOR_PAR = .FALSE.
+      iTask = 0
+      if (NTUBUF==NYZBUF .and. NTUBUF==NASHT**2) then
+        POOR_PAR = .TRUE.
+      end if
 C Sectioning loops over pair indices IP3 (ket side):
       DO IP3STA=1,NASHT**2,NYZBUF
        IP3END=MIN(NASHT**2,IP3STA-1+NYZBUF)
@@ -246,6 +253,11 @@ C Translate to levels:
 C Now compute as many elements as possible:
         LFROM=LSGM2
         DO IP3=IP3STA,IP3END
+         iTask = iTask + 1
+         if (POOR_PAR .and. MOD(iTask,nProcs)/=MyRank) then
+           LFROM=LFROM+MXCI
+           CYCLE
+         end if
          IY=L2ACT(P2LEV(LP2LEV1-1+IP3))
          IZ=L2ACT(P2LEV(LP2LEV2-1+IP3))
 C LFROM will be start element of Sigma2=E(YZ) Psi2
@@ -333,6 +345,11 @@ C and TG3 contains <PSI1|E(IT1,IU1)E(IT2,IU2)E(IT3,IU3)|PSI2>
 C Add here the necessary Kronecker deltas times 2-body matrix
 C elements and lower, so we get a true normal-ordered density matrix
 C element.
+
+      IF (POOR_PAR) THEN
+        CALL GADSUM(TG2,NASHT**4)
+        CALL GADSUM(TG3,NTG3)
+      END IF
 
 C First, the 2-particle density matrix:
 C <PSI1|E(T,U,V,X)|PSI2>  = <PSI1|E(TU)E(VX)|PSI2> - D(V,U)*TG2(T,U,V,X)

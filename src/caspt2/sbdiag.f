@@ -524,6 +524,8 @@ C divided over processors.
       use PrintLevel, only: insane
       USE Para_Info, ONLY: King
       use caspt2_global, only: LUSBT
+      use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
+     *                         idBoriMat
       use EQSOLV
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -623,10 +625,14 @@ C Calculate the scaling factors and store them in array SCA.
       CALL mma_allocate(SCA,NAS,Label='SCA')
       DO I=1,NAS
         SDiag=SD(I)
-        IF(SDiag.GT.THRSHN) THEN
-          SCA(I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
-        ELSE
+        IF (IFDORTHO) THEN
           SCA(I)=0.0D0
+        ELSE
+          IF(SDiag.GT.THRSHN) THEN
+            SCA(I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)
+          ELSE
+            SCA(I)=0.0D0
+          END IF
         END IF
       END DO
 
@@ -823,6 +829,15 @@ C TRANSFORM B MATRIX TO O-N BASIS. BUT FIRST, SAVE O-N VECTORS.
 
       CALL PSBMAT_GETMEM ('B',lg_B,NAS)
       CALL PSBMAT_READ ('B',iCase,iSym,lg_B,NAS)
+
+      If ((do_grad.or.nStpGrd.eq.2).and.do_lindep) Then
+        !! The original B matrix is needed in the LinDepLag subroutine
+        IDB2 = idBoriMat(ISYM,ICASE)
+        call GA_Distribution (lg_B, myRank, iLo, iHi, jLo, jHi)
+        call GA_Access (lg_B, iLo, iHi, jLo, jHi, mB, LDB)
+        CALL DDAFILE(LUSTD,1,DBL_MB(mB),(iHi-iLo+1)*(jHi-jLo+1),IDB2)
+        call GA_Release (lg_B, iLo, iHi, jLo, jHi)
+      End If
 
       IF (IPRGLB.GE.INSANE) THEN
         WRITE(6,'(1X,A,ES21.14)') 'BMAT NORM: ', FP

@@ -160,5 +160,8 @@ C
           IF(IVEC.NE.JVEC) CALL RHS_FREE(lg_V2)
  100    CONTINUE
  101  CONTINUE
+#ifdef _MOLCAS_MPP_
+      IF (Is_Real_Par().and.do_grad) call gadsum(DPT2,NDPT2)
+#endif
 
       END SUBROUTINE TRDNS2D
