@@ -61,7 +61,7 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ij, ijkla, &
-                     ijMax, ik2, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), &
+                     ijMax, ik2, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
                      istabs(4), iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jk2, jlS, JndGrd(3,4), &
                      jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, &
                      lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, &
@@ -360,7 +360,7 @@ do while (Rsv_Tsk(id,jlS))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call Int_Parm_g(iSD4,nSD,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+  call Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
                   k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
                   AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
   !                                                                    *
@@ -416,7 +416,7 @@ do while (Rsv_Tsk(id,jlS))
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
-          call TwoEl_g(Coor,iShela,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+          call TwoEl_g(Coor,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
                        k2Data(:,ik2),k2Data(:,jk2), &
                        nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                        Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &

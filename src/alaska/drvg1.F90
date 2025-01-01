@@ -56,7 +56,7 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), iFnc(4), ijklA, ijMax, &
                      ijS, ik2, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
-                     iShela(4), istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, &
+                     istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, &
                      k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, &
                      lPriml, lPrInc, lS, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, nab, nBtch, ncd, nDCRR, nDCRS, &
                      nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
@@ -287,7 +287,7 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call Int_Parm_g(iSD4,nSD,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+      call Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
                       k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
                       AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
       !                                                                *
@@ -345,7 +345,7 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #             endif
-              call TwoEl_g(Coor,iShela,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+              call TwoEl_g(Coor,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
                            k2data(:,ik2),k2data(:,jk2), &
                            nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                            Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
