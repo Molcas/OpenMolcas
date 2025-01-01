@@ -647,7 +647,7 @@ do while (Rsv_Tsk2(id,klS))
     call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
     if (No_batch) cycle
 
-    call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+    call Int_Prep_g(iSD4,nSD,Coor,Shijij,iStabs)
     !
     !                                                                  *
     !*******************************************************************
@@ -733,6 +733,7 @@ do while (Rsv_Tsk2(id,klS))
 #           endif
             iCmpa(:) = iSD4(2,:)
             iAOst(:) = iSD4(8,:)
+            iAOV(:)  = iSD4(7,:)
             call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                        iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
 #           ifdef _CD_TIMING_
@@ -747,7 +748,7 @@ do while (Rsv_Tsk2(id,klS))
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU1,TwoelWall1)
 #           endif
-            call TwoEl_g(Coor,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+            call TwoEl_g(Coor,mdci,mdcj,mdck,mdcl,nRys, &
                          k2Data(:,ik2),k2Data(:,jk2), &
                          nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &

@@ -251,7 +251,7 @@ do
     end if
 
     if (.not. Skip) then
-      call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+      call Int_Prep_g(iSD4,nSD,Coor,Shijij,iStabs)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -338,6 +338,7 @@ do
 #             endif
               iCmpa(:) = iSD4(2,:)  ! ToDo
               iAOst(:) = iSD4(8,:)  ! ToDo
+              iAOV(:)  = iSD4(7,:)  ! ToDo
               call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                          iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
               if (A_Int*PMax < CutInt) cycle
@@ -353,7 +354,7 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #             endif
-              call TwoEl_g(Coor,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
+              call TwoEl_g(Coor,mdci,mdcj,mdck,mdcl,nRys, &
                            k2data(:,ik2),k2data(:,jk2), &
                            nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                            Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &

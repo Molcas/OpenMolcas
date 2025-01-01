@@ -225,7 +225,7 @@ do
     if (No_batch) lNoSkip = .false.
     if (lNoSkip) then
 
-      call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+      call Int_Prep_g(iSD4,nSD,Coor,Shijij,iStabs)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -309,13 +309,14 @@ do
 
               iCmpa(:) = iSD4(2,:)
               iAOst(:) = iSD4(8,:)
+              iAOV(:)  = iSD4(7,:)
               call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                          iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
               if (A_Int*PMax >= CutInt) then
 
                 !--Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,iAOV,mdci,mdcj,mdck,mdcl,nRys,k2Data(:,ik2),k2Data(:,jk2),nDCRR,nDCRS, &
+                call TwoEl_g(Coor,mdci,mdcj,mdck,mdcl,nRys,k2Data(:,ik2),k2Data(:,jk2),nDCRR,nDCRS, &
                              Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                              Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
                              Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn,nZeta,nEta, &
