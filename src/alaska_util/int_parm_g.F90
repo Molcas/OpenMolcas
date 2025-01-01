@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Parm_g(iSD4,nSD,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+subroutine Int_Parm_g(iSD4,nSD,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
                       k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
                       AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
 
@@ -21,13 +21,12 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), nIrrep
-integer(kind=iwp), intent(out) :: iShlla(4), iShela(4), iPrimi, jPrimj, kPrimk, lPriml, k2ij, ik2, nDCRR, &
+integer(kind=iwp), intent(out) :: iShela(4), iPrimi, jPrimj, kPrimk, lPriml, k2ij, ik2, nDCRR, &
                                   k2kl, jk2, nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, nab, nHmab, ncd, nHmcd
 logical(kind=iwp), intent(out) :: AeqB, CeqD
 logical(kind=iwp), intent(in) :: l2DI
 integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
 
-iShlla(:) = iSD4(0,:)
 iShela(:) = iSD4(11,:)
 iPrimi = Shells(iSD4(0,1))%nExp
 jPrimj = Shells(iSD4(0,2))%nExp

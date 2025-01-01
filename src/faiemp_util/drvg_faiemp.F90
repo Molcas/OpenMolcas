@@ -45,7 +45,7 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 real(kind=wp) :: Coor(3,4), PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
-integer(kind=iwp) :: iCmpa(4), ik2, iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), &
+integer(kind=iwp) :: iCmpa(4), ik2, iShela(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), &
                      iSD4(0:nSD,4), MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, &
                      iBsInc, iCar, ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, &
                      jBasAO, jBasj, jBasn, jBsInc, jk2, jPrInc, k2ij, k2kl, jPrimj, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, &
@@ -263,7 +263,7 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call Int_Parm_g(iSD4,nSD,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
+      call Int_Parm_g(iSD4,nSD,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
                       k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
                       AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
       !                                                                *
@@ -306,7 +306,7 @@ do
 
                 !--Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys,k2Data(:,ik2),k2Data(:,jk2),nDCRR,nDCRS, &
+                call TwoEl_g(Coor,iShela,iAOV,mdci,mdcj,mdck,mdcl,nRys,k2Data(:,ik2),k2Data(:,jk2),nDCRR,nDCRS, &
                              Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                              Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
                              Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn,nZeta,nEta, &
