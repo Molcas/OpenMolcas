@@ -61,7 +61,7 @@ integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, iFnc(4), ijklA
                      lPriml, lPrInc, lS, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, nab, nBtch, ncd, nDCRR, nDCRS, &
                      nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), lDummy, No_Batch, Shijij, Skip, Triangular
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), lDummy, No_Batch, Skip, Triangular
 character(len=72) :: formt
 character(len=8) :: Method_chk
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
@@ -251,7 +251,7 @@ do
     end if
 
     if (.not. Skip) then
-      call Int_Prep_g(iSD4,nSD,Coor,Shijij)
+      call Int_Prep_g(iSD4,nSD,Coor)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -358,7 +358,7 @@ do
                            Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                            Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
                            nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
-                           Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij,iSD4)
+                           Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU2,TwoelWall2)
               Twoel_CPU = Twoel_CPU+TwoelCPU2-TwoelCPU1

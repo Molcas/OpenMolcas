@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Prep_g(iSD4,nSD,Coor,Shijij)
+subroutine Int_Prep_g(iSD4,nSD,Coor)
 
 use Basis_Info, only: dbsc
 use Definitions, only: wp, iwp
@@ -17,7 +17,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 real(kind=wp), intent(out) :: Coor(3,4)
-logical(kind=iwp), intent(out) :: Shijij
 integer(kind=iwp) :: iCnt, iCnttp, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
 
 iCnttp = iSD4(13,1)
@@ -42,7 +41,5 @@ else
   Coor(1:3,3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 end if
 Coor(1:3,4) = dbsc(lCnttp)%Coor(1:3,lCnt)
-
-Shijij = (iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4))
 
 end subroutine Int_Prep_g
