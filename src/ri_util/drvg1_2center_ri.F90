@@ -351,8 +351,9 @@ do while (Rsv_Tsk(id,jlS))
   !
   ! Now check if all blocks can be computed and stored at once.
 
-  call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,iFnc, &
-              MemPSO)
+   Call PSOAO1(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc, &
+              jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
+
   iBasi = iSD4(3,1)
   jBasj = iSD4(3,2)
   kBask = iSD4(3,3)
