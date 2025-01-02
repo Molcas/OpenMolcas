@@ -92,6 +92,7 @@ set (sources
      plf_ricd.F90
      post_2center_ri.F90
      put_chunk.F90
+     readbpt2.F90
      remap_u_k.F90
      remap_v_k.F90
      remove_high_exponents.F90

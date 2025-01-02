@@ -187,6 +187,8 @@ C Special pair index idx2ij allows true RAS cases to be handled:
         memmax_safe = memmax_safe - 2*(NG1+NG2+NG3)
         nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
         nbuf1_grad = nbuf1
+        nTasks_grad = 0
+        iTasks_grad(:) = 0
       end if
       CALL mma_allocate(BUF1,MXCI,NBUF1,LABEL='BUF1')
       CALL mma_allocate(BUF2,MXCI,LABEL='BUF2')

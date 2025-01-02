@@ -205,7 +205,7 @@ logical(kind=iwp) bStat
             CALL DDAFILE(LUGRAD,1,DBL_MB(mV1),NBLOCK,IDSAVGRD)
             CALL GA_Release (lg_S,ISTA,IEND,JSTA,JEND)
           END IF
-          CALL PSBMAT_FREEMEM('S',lg_S,NAS)
+          CALL PSBMAT_FREEMEM(lg_S)
         else
 #endif
           if (NAS > 0) then
@@ -292,7 +292,7 @@ logical(kind=iwp) bStat
             CALL GA_Release (lg_S,ISTA,IEND,JSTA,JEND)
           END IF
           CALL PSBMAT_WRITE('S',iCase,iSym,lg_S,NAS)
-          CALL PSBMAT_FREEMEM('S',lg_S,NAS)
+          CALL PSBMAT_FREEMEM(lg_S)
         else
 #endif
           if (NAS > 0) then

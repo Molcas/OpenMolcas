@@ -402,18 +402,18 @@ C
       ! INFVEC(I,J,K)=IWORK(ip_INFVEC-1+MAXVEC*N2*(K-1)+MAXVEC*(J-1)+I)
 
       !! It shoudl be zero, but just in case
-      CALL DCopy_(nBasSq,[0.0D+00],0,FPT2AO,1)
-      CALL DCopy_(nBasSq,[0.0D+00],0,FPT2CAO,1)
+      CALL DCopy_(NBSQT,[0.0D+00],0,FPT2AO,1)
+      CALL DCopy_(NBSQT,[0.0D+00],0,FPT2CAO,1)
 
 #ifdef _MOLCAS_MPP_
       If (Is_Real_Par()) Then
         !! To broadcast DPT2AO and DPT2CAO
         If (.not.King()) Then
-          Call DCopy_(nBasSq,[0.0D+00],0,DPT2AO,1)
-          Call DCopy_(nBasSq,[0.0D+00],0,DPT2CAO,1)
+          Call DCopy_(NBSQT,[0.0D+00],0,DPT2AO,1)
+          Call DCopy_(NBSQT,[0.0D+00],0,DPT2CAO,1)
         End If
-        CALL GADSUM (DPT2AO,nBasSq)
-        CALL GADSUM (DPT2CAO,nBasSq)
+        CALL GADSUM (DPT2AO,NBSQT)
+        CALL GADSUM (DPT2CAO,NBSQT)
       End If
 #endif
 
@@ -561,8 +561,8 @@ C
 C
 #ifdef _MOLCAS_MPP_
       If (Is_Real_Par()) Then
-        CALL GADSUM (FPT2AO,nBasSq)
-        CALL GADSUM (FPT2CAO,nBasSq)
+        CALL GADSUM (FPT2AO,NBSQT)
+        CALL GADSUM (FPT2CAO,NBSQT)
       End If
 #endif
 C

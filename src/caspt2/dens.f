@@ -145,15 +145,15 @@ C
             end do
           end do
         end if
-        CALL DAXPY_(NDPT,1.0D00,DPT,1,DSUM,1)
+        DSUM(:) = DSUM(:) + DPT(:)
 *       write(6,*)' DPT after TRDNS2D.'
 *       WRITE(*,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
         !! Off-diagonal part, if full-CASPT2
         IF (MAXIT.NE.0) THEN
           !! off-diagonal are ignored for CASPT2-D
-          CALL DCOPY_(NDPT,[0.0D0],0,DPT,1)
+          DPT(:) = 0.0d+00
           CALL TRDNS2O(iVecX,iVecR,DPT,NDPT,VECROT(JSTATE))
-          CALL DAXPY_(NDPT,1.0D00,DPT,1,DSUM,1)
+          DSUM(:) = DSUM(:) + DPT(:)
         END IF
 *       write(6,*)' DPT after TRDNS2O.'
 *       WRITE(*,'(1x,8f16.8)')(dpt(i),i=1,ndpt)
@@ -444,8 +444,7 @@ C
           Do iSym = 1, nSym
             NumChoTot = NumChoTot + NumCho_PT2(iSym)
           End Do
-          !! to be replaced with MaxVec_PT2 for GA parallel
-          call mma_allocate(A_PT2,NumChoTot**2,Label='A_PT2')
+          call mma_allocate(A_PT2,MaxVec_PT2**2,Label='A_PT2')
           A_PT2(:) = 0.0d+00
         Else
           call mma_allocate(A_PT2,1,Label='A_PT2')
@@ -465,7 +464,7 @@ C
 C         write(6,*) "ialgo = ", ialgo
           CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           If (IfChol.and.iALGO.eq.1) Then
-            CALL OLagNS_RI(iSym,DPT2C,DPT2Canti,A_PT2,NumChoTot)
+            CALL OLagNS_RI(iSym,DPT2C,DPT2Canti,A_PT2)
           Else
             CALL OLagNS2(iSym,DPT2C,T2AO)
           End If
@@ -503,7 +502,7 @@ C
           CALL OLagVVVO(iSym,DPT2_AO,DPT2C_AO,
      *                  FPT2_AO,FPT2C_AO,T2AO,
      *                  DIA,DI,FIFA_all,FIMO_all,
-     *                  A_PT2,NumChoTot)
+     *                  A_PT2,MaxVec_PT2)
         !   write(6,*) "olag after vvvo"
         !   call sqprt(olag,nbast)
           CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
@@ -1840,7 +1839,16 @@ C
       NumCho=NumChoTot
       Do jSym = 1, nSym
         iSkip(jSym) = 1
-        ipWRK(jSym) = 1
+#ifdef _MOLCAS_MPP_
+        !! I do not know why this is necessary
+        If (is_real_par()) then
+          ipWRK(jSym) = 1
+        else
+#endif
+          ipWRK(jSym) = 1
+#ifdef _MOLCAS_MPP_
+        end if
+#endif
       End Do
 C
       nBasI  = nBas(iSym)
@@ -1866,12 +1874,8 @@ C
       call mma_allocate(V1,MaxVec_PT2,Label='V1')
       call mma_allocate(V2,MaxVec_PT2,Label='V2')
       !! B_SSDM(mu,nu,P) = D_{mu rho}*D_{nu sigma}*(rho sigma|P)
-      call mma_allocate(B_SSDM,NCHSPC,Label='B_SSDM')
-C
-      !! Prepare density matrix
-      !! subtract the state-averaged density matrix
-C
-      IBATCH_TOT=NBTCHES(iSym)
+      !! Add one more vector
+      call mma_allocate(B_SSDM,NCHSPC+NBSQT,Label='B_SSDM')
 
       IF(NUMCHO_PT2(iSym).EQ.0) Return
 
@@ -1883,7 +1887,6 @@ C
 C
 #ifdef _MOLCAS_MPP_
       If (is_real_par()) then
-        Allocate (MAP2(NPROCS))
         call mma_allocate(MAP2,nProcs,Label='MAP2')
         MAP2(:) = 0
         MAP2(myRank+1) = NumChoTot ! MJRED2-JRED1+1
@@ -2018,7 +2021,8 @@ C
               NUMVJ = NUMV
               CALL DGEMM_('T','N',NUMVI,NUMVJ,nBasT**2,
      *                   -1.0D+00,B_SSDM,nBasT**2,CHSPC,nBasT**2,
-     *                    1.0D+00,A_PT2(JV1+NumCho*(KV1-1)),NumCho)
+     *                    1.0D+00,A_PT2(JV1+MaxVec_PT2*(KV1-1)),
+     *                            MaxVec_PT2)
               KV1=KV1+KNUM
             END DO
 #ifdef _MOLCAS_MPP_
@@ -2031,8 +2035,8 @@ C
             !! The contributions are doubled,
             !! because halved in PGet1_RI3?
             !! Coulomb
-            Call DaXpY_(nBasT**2,V2(JV1+iVec-1),DPT2AO,1,WRK,1)
-            Call DaXpY_(nBasT**2,V1(JV1+iVec-1),SSDM  ,1,WRK,1)
+            Call DaXpY_(nBasT**2,V2(ipV2+iVec-1),DPT2AO,1,WRK,1)
+            Call DaXpY_(nBasT**2,V1(ipV1+iVec-1),SSDM  ,1,WRK,1)
             !! Exchange
             Call DaXpY_(nBasT**2,-1.0D+00,
      *                  B_SSDM(1+nBasT**2*(iVec-1)),1,WRK,1)
@@ -2089,20 +2093,21 @@ C
         CALL GADSUM (A_PT2,MaxVec_PT2**2)
         bStat = GA_Destroy(lg_V1)
 C
-        CALL GADSUM (V1,MaxVec_PT2*2)
-        Deallocate (MAP2)
+        CALL GADSUM (V1,MaxVec_PT2)
+        CALL GADSUM (V2,MaxVec_PT2)
+        call mma_deallocate(MAP2)
       end if
 #endif
 C
       !! Coulomb for A_PT2
       !! Consider using DGER?
-      Call DGEMM_('N','T',NumCho,NumCho,1,
-     *            2.0D+00,V1,NumCho,V2,NumCho,
-     *            1.0D+00,A_PT2,NumCho)
+      Call DGEMM_('N','T',MaxVec_PT2,MaxVec_PT2,1,
+     *            2.0D+00,V1,MaxVec_PT2,V2,MaxVec_PT2,
+     *            1.0D+00,A_PT2,MaxVec_PT2)
 C
       ! write to A_PT2 in LUAPT2
       id = 0
-      call ddafile(LUAPT2, 1, A_PT2, NumChoTot**2, id)
+      call ddafile(LUAPT2, 1, A_PT2, MaxVec_PT2**2, id)
 C
       !! close B_PT2
       Close (LuGAMMA)

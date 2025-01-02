@@ -207,7 +207,8 @@ C
      *                           nCLag,nOLag,nSLag,nWLag,
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      *                           DPT2C_AO_tot,DPT2Canti_tot,
-     *                           FIMO_all,FIFA_all,FIFASA_all,OMGDER
+     *                           FIMO_all,FIFA_all,FIFASA_all,OMGDER,
+     *                           iTasks_grad
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
@@ -519,6 +520,7 @@ C
       Call DaClos(LUGRAD)
 C
       if (nFroT /= 0) call mma_deallocate(TraFro)
+      call mma_deallocate(iTasks_grad)
 C
       Return
 C

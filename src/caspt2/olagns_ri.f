@@ -67,11 +67,11 @@ C     For 2c-2e ERI derivatives,
 C     D(tP,tQ) = tD_{pq} * C_{mu p} C_{nu q} * (mu nu|tP)
 C     then saved.
 C
-      Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2,nChoVec)
+      Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2)
 C
       Use CHOVEC_IO
       use caspt2_global, only: iPrGlb
-      use caspt2_global, only: do_csf
+      use caspt2_global, only: do_csf, iStpGrd
       use PrintLevel, only: verbose
       use EQSOLV
       use ChoCASPT2
@@ -101,7 +101,7 @@ C
       DATA NUMERR / 0 /
 #endif
 C
-      Dimension DPT2C(*),DPT2Canti(*),A_PT2(nChoVec,nChoVec)
+      Dimension DPT2C(*),DPT2Canti(*),A_PT2(MaxVec_PT2,MaxVec_PT2)
       integer(kind=iwp),allocatable :: BGRP(:,:)
       real(kind=wp),allocatable :: BRA(:),KET(:),BRAD(:),KETD(:),
      *                             PIQK(:)
@@ -414,7 +414,7 @@ C      as DRAs with the name RHS_XX_XX_XX with XX a number representing
 C      the case, symmetry, and rhs vector respectively.
 C
 C
-      Call DScal_(nChoVec**2,2.0D+00,A_PT2,1)
+      Call DScal_(MaxVec_PT2**2,2.0D+00,A_PT2,1)
 C
       If (NBGRP.ne.0) SCLNEL = SCLNEL/DBLE(NBGRP)
       Call DScal_(NBSQT,SCLNEL,DPT2C,1)
@@ -602,8 +602,8 @@ C
               ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
               CALL GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A(1),nAS)
             End If
-            CALL RHS_FREE(nAS,nIS,lg_V)
-            CALL GASYNC
+            CALL RHS_FREE(lg_V)
+            CALL GASYNC()
           ELSE
 #endif
             Call RHS_ALLO(nAS,nIS,ipT)
@@ -669,8 +669,8 @@ C
           if (do_CSF) call deallocate_GA_array(ipTanti)
         ELSE
 #endif
-          CALL RHS_FREE(nAS,nIS,ipT)
-          If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
+          CALL RHS_FREE(ipT)
+          If (do_csf) CALL RHS_FREE(ipTanti)
 
 #ifdef _MOLCAS_MPP_
         END IF
@@ -731,7 +731,7 @@ C
         nASP = nASup(iSym,iCase)
         If (nINP.ne.0) Then
           nISP = nISup(iSym,iCase)
-          nVec = nINP*nISP
+          nVec = nASP*nISP
           If (nVec.ne.0) Then
 #ifdef _MOLCAS_MPP_
             IF (Is_Real_Par()) THEN
@@ -740,8 +740,8 @@ C
               CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
               ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
               CALL GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A(1),nASP)
-              CALL RHS_FREE(nASP,nISP,lg_V)
-              CALL GASYNC
+              CALL RHS_FREE(lg_V)
+              CALL GASYNC()
             ELSE
 #endif
               Call RHS_ALLO(nASP,nISP,ipTP)
@@ -797,7 +797,7 @@ C
         nASM = nASup(iSym,iCase)
         If (nINM.ne.0) Then
           nISM = nISup(iSym,iCase)
-          nVec = nINM*nISM
+          nVec = nASM*nISM
           If (nVec.ne.0) Then
 #ifdef _MOLCAS_MPP_
             IF (Is_Real_Par()) THEN
@@ -805,9 +805,9 @@ C
               Call RHS_ALLO(nASM,nISM,lg_V)
               CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
               ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
-              CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASP)
-              CALL RHS_FREE(nASM,nISM,lg_V)
-              CALL GASYNC
+              CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASM)
+              CALL RHS_FREE(lg_V)
+              CALL GASYNC()
             ELSE
 #endif
               Call RHS_ALLO(nASM,nISM,ipTM)
@@ -851,7 +851,7 @@ C
           call deallocate_GA_array(ipTM)
         else
 #endif
-        CALL RHS_FREE(ipTM)
+          CALL RHS_FREE(ipTM)
 #ifdef _MOLCAS_MPP_
         end if
 #endif
@@ -915,8 +915,8 @@ C
               ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
               CALL GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A(1),nAS)
             End If
-            Call RHS_FREE(nAS,nIS,lg_V)
-            CALL GASYNC
+            Call RHS_FREE(lg_V)
+            CALL GASYNC()
           ELSE
 #endif
             Call RHS_ALLO(nAS,nIS,ipT)
@@ -985,9 +985,8 @@ C
           if (do_CSF) call deallocate_GA_array(ipTanti)
         ELSE
 #endif
-          CALL RHS_FREE(nAS,nIS,ipT)
-          If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
-
+          CALL RHS_FREE(ipT)
+          If (do_csf) CALL RHS_FREE(ipTanti)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -1042,21 +1041,21 @@ C
       nAS = nASup(iSym,iCase)
       If (nIN.ne.0) Then
         nIS = nISup(iSym,iCase)
-        nVec = nIN*nIS
+        nVec = nAS*nIS
         If (nVec.ne.0) Then
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
             Call RHS_ALLO(nAS,nIS,lg_V)
             CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
             ipT = Allocate_GA_Array(nAS*nIS,'ipT')
-            CALL GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT),nAS)
+            CALL GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A(1),nAS)
             If (do_csf) Then
               CALL RHS_READ_C(lg_V,iCase,iSym,7)
               ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
               CALL GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A(1),nAS)
             End If
-            Call RHS_FREE(nAS,nIS,lg_V)
-            CALL GASYNC
+            Call RHS_FREE(lg_V)
+            CALL GASYNC()
           ELSE
 #endif
             Call RHS_ALLO(nAS,nIS,ipT)
@@ -1133,9 +1132,8 @@ C
           if (do_CSF) call deallocate_GA_array(ipTanti)
         ELSE
 #endif
-          CALL RHS_FREE(nAS,nIS,ipT)
-          If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
-
+          CALL RHS_FREE(ipT)
+          If (do_csf) CALL RHS_FREE(ipTanti)
 #ifdef _MOLCAS_MPP_
         END IF
 #endif
@@ -1189,20 +1187,29 @@ C
       nAS = nASup(iSym,iCase)
       If (nIN.ne.0) Then
         nIS = nISup(iSym,iCase)
-        nVec = nIN*nIS
+        nVec = nAS*nIS
         If (nVec.ne.0) Then
 #ifdef _MOLCAS_MPP_
           IF (Is_Real_Par()) THEN
             Call RHS_ALLO(nAS,nIS,lg_V)
             CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
-            ipTP = Allocate_GA_Array(nAS*nIS,'ipT')
+            ipT = Allocate_GA_Array(nAS*nIS,'ipT')
             CALL GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipT)%A(1),nAS)
-            Call RHS_FREE(nAS,nIS,lg_V)
-            CALL GASYNC
+            If (do_csf) Then
+              CALL RHS_READ_C(lg_V,iCase,iSym,7)
+              ipTanti = Allocate_GA_Array(nAS*nIS,'ipTanti')
+              CALL GA_GET(lg_V,1,nAS,1,nIS,GA_Arrays(ipTanti)%A(1),nAS)
+            End If
+            Call RHS_FREE(lg_V)
+            CALL GASYNC()
           ELSE
 #endif
             Call RHS_ALLO(nAS,nIS,ipT)
             CALL RHS_READ_C(ipT,iCase,iSym,iVecC2)
+            If (do_csf) Then
+              Call RHS_ALLO(nAS,nIS,ipTanti)
+              CALL RHS_READ_C(ipTanti,iCase,iSym,7)
+            End If
 #ifdef _MOLCAS_MPP_
           END IF
 #endif
@@ -1233,13 +1240,15 @@ C
      *            1.0D+00,AUVL,NA*NU,Cho_Ket,NV*NL,
      *            1.0D+00,Cho_BraD,NA*NU)
 C
-      if (nin /= 0) then
+      if (nIN /= 0 .and. nVec /= 0) then
 #ifdef _MOLCAS_MPP_
         IF (Is_Real_Par()) THEN
           call deallocate_GA_array(ipT)
+          if (do_CSF) call deallocate_GA_array(ipTanti)
         else
 #endif
           CALL RHS_FREE(ipT)
+          If (do_csf) CALL RHS_FREE(ipTanti)
 #ifdef _MOLCAS_MPP_
         end if
 #endif
@@ -1311,8 +1320,8 @@ C
               CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
               ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
               CALL GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A(1),nASP)
-              CALL RHS_FREE(nASP,nISP,lg_V)
-              CALL GASYNC
+              CALL RHS_FREE(lg_V)
+              CALL GASYNC()
             ELSE
 #endif
               Call RHS_ALLO(nASP,nISP,ipTP)
@@ -1402,9 +1411,9 @@ C
               Call RHS_ALLO(nASM,nISM,lg_V)
               CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
               ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
-              CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASP)
-              CALL RHS_FREE(nASM,nISM,lg_V)
-              CALL GASYNC
+              CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASM)
+              CALL RHS_FREE(lg_V)
+              CALL GASYNC()
             ELSE
 #endif
               Call RHS_ALLO(nASM,nISM,ipTM)
@@ -1544,8 +1553,8 @@ C
               CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
               ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
               CALL GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A(1),nASP)
-              CALL RHS_FREE(nASP,nISP,lg_V)
-              CALL GASYNC
+              CALL RHS_FREE(lg_V)
+              CALL GASYNC()
             ELSE
 #endif
               Call RHS_ALLO(nASP,nISP,ipTP)
@@ -1611,9 +1620,9 @@ C
               Call RHS_ALLO(nASM,nISM,lg_V)
               CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
               ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
-              CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASP)
-              CALL RHS_FREE(nASM,nISM,lg_V)
-              CALL GASYNC
+              CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASM)
+              CALL RHS_FREE(lg_V)
+              CALL GASYNC()
             ELSE
 #endif
               Call RHS_ALLO(nASM,nISM,ipTM)
@@ -1740,8 +1749,8 @@ C
               CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
               ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
               CALL GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A(1),nASP)
-              CALL RHS_FREE(nASP,nISP,lg_V)
-              CALL GASYNC
+              CALL RHS_FREE(lg_V)
+              CALL GASYNC()
             ELSE
 #endif
               Call RHS_ALLO(nASP,nISP,ipTP)
@@ -1840,9 +1849,9 @@ C
               Call RHS_ALLO(nASM,nISM,lg_V)
               CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
               ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
-              CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASP)
-              CALL RHS_FREE(nASM,nISM,lg_V)
-              CALL GASYNC
+              CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASM)
+              CALL RHS_FREE(lg_V)
+              CALL GASYNC()
             ELSE
 #endif
               Call RHS_ALLO(nASM,nISM,ipTM)
@@ -1986,8 +1995,8 @@ C
             CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
             ipTP = Allocate_GA_Array(nASP*nISP,'ipTP')
             CALL GA_GET(lg_V,1,nASP,1,nISP,GA_Arrays(ipTP)%A(1),nASP)
-            CALL RHS_FREE(nASP,nISP,lg_V)
-            CALL GASYNC
+            CALL RHS_FREE(lg_V)
+            CALL GASYNC()
           ELSE
 #endif
             Call RHS_ALLO(nASP,nISP,ipTP)
@@ -2105,9 +2114,9 @@ C
             Call RHS_ALLO(nASM,nISM,lg_V)
             CALL RHS_READ_C(lg_V,iCase,iSym,iVecC2)
             ipTM = Allocate_GA_Array(nASM*nISM,'ipTM')
-            CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASP)
-            CALL RHS_FREE(nASM,nISM,lg_V)
-            CALL GASYNC
+            CALL GA_GET(lg_V,1,nASM,1,nISM,GA_Arrays(ipTM)%A(1),nASM)
+            CALL RHS_FREE(lg_V)
+            CALL GASYNC()
           ELSE
 #endif
             Call RHS_ALLO(nASM,nISM,ipTM)

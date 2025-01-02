@@ -100,7 +100,7 @@ C usually print info on the total number of parameters
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, do_lindep, nStpGrd, LUSTD,
-     *                           idBoriMat
+     *                         idBoriMat
       use caspt2_global, only: LUSOLV, LUSBT
       use PrintLevel, only: insane
       use EQSOLV
@@ -626,7 +626,7 @@ C Calculate the scaling factors and store them in array SCA.
       DO I=1,NAS
         SDiag=SD(I)
         IF (IFDORTHO) THEN
-          SCA(I)=0.0D0
+          SCA(I)=1.0D0
         ELSE
           IF(SDiag.GT.THRSHN) THEN
             SCA(I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SDiag)

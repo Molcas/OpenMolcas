@@ -88,11 +88,11 @@ C
         WALLT=TIOTF10-TIOTF0
         write(6,'(a,2f10.2)')" CLagD   : CPU/WALL TIME=", cput,wallt
 #ifdef _MOLCAS_MPP_
-        if (is_real_par()) CALL GADSUM ([deasum],1)
+!       if (is_real_par()) CALL GADSUM ([deasum],1)
 #endif
-        write(6,*) "Deasum = ", deasum
+!       write(6,*) "Deasum = ", deasum
 #ifdef _MOLCAS_MPP_
-        if (is_real_par()) DEASUM = DEASUM/GA_NNODES()
+!       if (is_real_par()) DEASUM = DEASUM/GA_NNODES()
 #endif
       END IF
 
@@ -153,7 +153,8 @@ C
      *                 VECROT)
 
       use caspt2_global, only: do_lindep, idSDMat, imag_shift, iVecL,
-     *                         sigma_p_epsilon, LUSBT, LUSTD, real_shift
+     *                         sigma_p_epsilon, LUSBT, LUSTD,
+     *                         real_shift, LUSOLV, ipea_shift
       use EQSOLV
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -176,9 +177,11 @@ C
      *          DF1(NASHT,NASHT),DF2(NASHT,NASHT,NASHT,NASHT),DF3(*),
      *          DEPSA(NASHT,NASHT),VECROT(*)
       real(kind=wp),allocatable :: LBD(:),LID(:) !!,VEC1(:),VEC2(:)
-      real(kind=wp),allocatable :: SMat(:)
+      real(kind=wp),allocatable :: SMat(:),BDER(:),SDER(:)
 #ifdef _MOLCAS_MPP_
       INTEGER*1, ALLOCATABLE :: idxG3(:,:)
+      real(kind=wp),allocatable :: VEC1(:),VEC2(:),VEC3(:),VEC4(:),
+     *                             VEC5(:)
 #endif
 
       Do iCase = 1, 13
@@ -199,6 +202,32 @@ C       If (icase.ne. 1)                 cycle ! A
           NVEC = nIN*nIS
           nAS  = nASUP(iSym,iCase)
           If (nVec.EQ.0) Cycle
+C
+#ifdef _MOLCAS_MPP_
+          if (is_real_par()) then
+            if (iCase /= 1 .and. iCase /= 4) then
+              call mma_allocate(BDER,NAS**2,Label='BDER')
+              call mma_allocate(SDER,NAS**2,Label='SDER')
+              BDER(:) = 0.0d+00
+              SDER(:) = 0.0d+00
+            end if
+          else
+#endif
+            call mma_allocate(BDER,NAS**2,Label='BDER')
+            call mma_allocate(SDER,NAS**2,Label='SDER')
+            BDER(:) = 0.0d+00
+            SDER(:) = 0.0d+00
+#ifdef _MOLCAS_MPP_
+          end if
+#endif
+
+#if defined(_MOLCAS_MPP_) && defined(_GA_)
+          if (is_real_par() .and. (icase == 1 .or. icase == 4)) then
+            call CLagDX_MPP
+            cycle
+          else
+#endif
+C
 C         write(6,*) "for icase = ", icase
 C         write(6,*) "# of independent vecs:", nin
 C         write(6,*) "# of non-active pairs:", nis
@@ -238,13 +267,55 @@ C
           Else
             Go To 100
           End If
-          CALL CLagDX(0,iSym,iCase,GA_Arrays(lg_V1)%A,
-     &                             GA_Arrays(lg_V2)%A,
-     *                             GA_Arrays(lg_V3)%A,
-     &                             GA_Arrays(lg_V4)%A,
-     *                nIN,nIS,nAS,G1,G2,G3,
-     *                DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                VECROT,      GA_Arrays(lg_V5)%A,lg_V2)
+
+#ifdef _MOLCAS_MPP_
+          IF (Is_Real_Par()) THEN
+            IF (KING()) THEN
+              ! copy global array to local buffer
+              call mma_allocate(VEC1,NVEC,Label='VEC1')
+              CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
+              call mma_allocate(VEC2,NVEC,Label='VEC2')
+              CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
+              call mma_allocate(VEC3,NIN*NIS,Label='VEC3')
+              CALL GA_GET(lg_V3,1,NIN,1,NIS,VEC3,NIN)
+              call mma_allocate(VEC4,NAS*NIS,Label='VEC4')
+              CALL GA_GET(lg_V4,1,NAS,1,NIS,VEC4,NAS)
+              !! is it possible to avoid allocating twice?
+!             IF (IFMSCOUP) THEN
+!               call mma_allocate(VEC5,NIN*NIS,Label='VEC5')
+!               CALL GA_GET(lg_V5,1,NIN,1,NIS,VEC5,NIN)
+!             ELSE
+!               LVEC5 = LVEC3
+!             END IF
+              call mma_allocate(VEC5,NIN*NIS,Label='VEC5')
+              CALL GA_GET(lg_V5,1,NIN,1,NIS,VEC5,NIN)
+
+              CALL CLagDX(0,ISYM,ICASE,VEC1,VEC2,
+     *                    VEC3,VEC4,
+     *                    nIN,nIS,nAS,
+     *                    VECROT,VEC5,lg_V2,BDER,SDER)
+
+              ! free local buffer
+              call mma_deallocate(VEC1)
+              call mma_deallocate(VEC2)
+              call mma_deallocate(VEC3)
+              call mma_deallocate(VEC4)
+!             IF (IFMSCOUP) THEN
+              call mma_deallocate(VEC5)
+!             END IF
+            END IF
+            CALL GASYNC()
+          ELSE
+#endif
+            CALL CLagDX(0,iSym,iCase,GA_Arrays(lg_V1)%A,
+     &                               GA_Arrays(lg_V2)%A,
+     *                               GA_Arrays(lg_V3)%A,
+     &                               GA_Arrays(lg_V4)%A,
+     *                  nIN,nIS,nAS,
+     *                  VECROT,GA_Arrays(lg_V5)%A,lg_V2,BDER,SDER)
+#ifdef _MOLCAS_MPP_
+          END IF
+#endif
 
           If (imag_shift .ne. 0.0d0 .or. sigma_p_epsilon.ne.0.0d0) Then
             nAS = nASUP(iSym,iCase)
@@ -260,37 +331,65 @@ C
             call mma_deallocate(LBD)
             call mma_deallocate(LID)
 
-            Call DScal_(NG1,-1.0D+00,DG1,1)
-            Call DScal_(NG2,-1.0D+00,DG2,1)
-            Call DScal_(NG3,-1.0D+00,DG3,1)
-            Call DScal_(NG1,-1.0D+00,DF1,1)
-            Call DScal_(NG2,-1.0D+00,DF2,1)
-            Call DScal_(NG3,-1.0D+00,DF3,1)
-            DEASUM = -DEASUM
-            Call DScal_(NG1,-1.0D+00,DEPSA,1)
+#ifdef _MOLCAS_MPP_
+            IF (Is_Real_Par()) THEN
+              IF (KING()) THEN
+                ! copy global array to local buffer
+                call mma_allocate(VEC1,NVEC,Label='VEC1')
+                CALL GA_GET(lg_V1,1,NIN,1,NIS,VEC1,NIN)
+                call mma_allocate(VEC2,NVEC,Label='VEC2')
+                CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
 
-            CALL CLagDX(1,iSym,iCase,GA_Arrays(lg_V1)%A,
-     &                               GA_Arrays(lg_V2)%A,
-     *                               GA_Arrays(lg_V3)%A,
-     &                               GA_Arrays(lg_V4)%A,
-     *                  nIN,nIS,nAS,G1,G2,G3,
-     *                  DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
-     *                  VECROT,      GA_Arrays(lg_V5)%A,lg_V2)
+                !! lvec3 to lvec5 are not used
+                !! only lvec1 and lvec2?
+                call mma_allocate(VEC3,1,Label='VEC3')
+                call mma_allocate(VEC4,1,Label='VEC4')
+                call mma_allocate(VEC5,1,Label='VEC5')
+                CALL CLagDX(1,ISYM,ICASE,VEC1,VEC2,
+     *                      VEC3,VEC4,
+     *                      nIN,nIS,nAS,
+     *                      VECROT,VEC5,lg_V2,BDER,SDER)
 
-            Call DScal_(NG1,-1.0D+00,DG1,1)
-            Call DScal_(NG2,-1.0D+00,DG2,1)
-            Call DScal_(NG3,-1.0D+00,DG3,1)
-            Call DScal_(NG1,-1.0D+00,DF1,1)
-            Call DScal_(NG2,-1.0D+00,DF2,1)
-            Call DScal_(NG3,-1.0D+00,DF3,1)
-            DEASUM = -DEASUM
-            Call DScal_(NG1,-1.0D+00,DEPSA,1)
+                ! free local buffer
+                call mma_deallocate(VEC1)
+                call mma_deallocate(VEC2)
+                call mma_deallocate(VEC3)
+                call mma_deallocate(VEC4)
+                call mma_deallocate(VEC5)
+              END IF
+              CALL GASYNC()
+            ELSE
+#endif
+              CALL CLagDX(1,iSym,iCase,GA_Arrays(lg_V1)%A,
+     &                                 GA_Arrays(lg_V2)%A,
+     *                                 GA_Arrays(lg_V3)%A,
+     &                                 GA_Arrays(lg_V4)%A,
+     *                    nIN,nIS,nAS,
+     *                    VECROT,GA_Arrays(lg_V5)%A,lg_V2,BDER,SDER)
+#ifdef _MOLCAS_MPP_
+            end if
+#endif
           End If
 C
  100      Continue
           !! for non-separable density/derivative
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,iVecX)
           CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
+#if defined(_MOLCAS_MPP_) && defined(_GA_)
+          end if
+#endif
+
+          if (iCase.eq. 1) call CLagDXA(BDER,SDER)
+          if (iCase.eq. 2) call CLagDXB(BDER,SDER)
+          if (iCase.eq. 3) call CLagDXB(BDER,SDER)
+          if (iCase.eq. 4) call CLagDXC(BDER,SDER)
+          if (iCase.eq. 5) call CLagDXD(BDER,SDER)
+          if (iCase.eq. 6) call CLagDXE(BDER,SDER)
+          if (iCase.eq. 7) call CLagDXE(BDER,SDER)
+          if (iCase.eq. 8) call CLagDXF(BDER,SDER)
+          if (iCase.eq. 9) call CLagDXF(BDER,SDER)
+          if (iCase.eq.10) call CLagDXG(BDER,SDER)
+          if (iCase.eq.11) call CLagDXG(BDER,SDER)
 
           CALL RHS_FREE(lg_V1)
           CALL RHS_FREE(lg_V2)
@@ -299,8 +398,49 @@ C
             CALL RHS_FREE(lg_V4)
             If (IFMSCOUP) CALL RHS_FREE(lg_V5)
           End If
+
+#ifdef _MOLCAS_MPP_
+          if (is_real_par()) then
+            if (iCase.ne.1 .and. iCase.ne.4) then
+              call mma_deallocate(BDER)
+              call mma_deallocate(SDER)
+            end if
+          else
+#endif
+            call mma_deallocate(BDER)
+            call mma_deallocate(SDER)
+#ifdef _MOLCAS_MPP_
+          end if
+#endif
         End Do
       End Do
+C
+#ifdef _MOLCAS_MPP_
+      if (is_real_par()) then
+        iCase = 4
+        MYRANK=GA_NODEID()
+        Do iSym = 1, nSym
+          nAS  = nASUP(iSym,iCase)
+          CALL PSBMAT_GETMEM('S',lg_S,NAS)
+          CALL PSBMAT_READ('S',4,iSym,lg_S,NAS)
+          CALL GA_Distribution(lg_S   ,myRank,ILO,IHI,JLO,JHI)
+          Call GA_Access(lg_S   ,ILO,IHI,JLO,JHI,mS   ,LDV)
+          CALL mma_allocate(idxG3,6,NG3,label='idxG3')
+          iLUID=0
+          CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
+          !! DF3 is done after icase=4
+          !! construct G3 matrix in lg_S
+          CALL MKSC_G3_MPP(ISYM,DBL_MB(mS),ILO,IHI,JLO,JHI,LDV,
+     &                     NG3,G3,IDXG3)
+          Call GA_Release_Update(lg_S,ILO,IHI,JLO,JHI)
+          call DF3_DEPSA_MPP(DF3,DEPSA,lg_S,idxG3)
+C
+          Call GA_Release(lg_S   ,ILO,IHI,JLO,JHI)
+          CALL mma_deallocate(idxG3)
+          CALL PSBMAT_FREEMEM(lg_S)
+        End Do
+      end if
+#endif
 C
       Return
 C
@@ -1348,7 +1488,7 @@ C       call DF3_DEPSA_MPP(DF3,DEPSA,lg_S,idxG3)
       end if
       Call GA_Release(lg_S   ,ILO,IHI,JLO,JHI)
       CALL mma_deallocate(idxG3)
-      CALL PSBMAT_FREEMEM('S',lg_S,NAS)
+      CALL PSBMAT_FREEMEM(lg_S)
 C
       bStat = GA_destroy(lg_BDER)
       bStat = GA_destroy(lg_SDER)
@@ -1368,7 +1508,7 @@ C
       use caspt2_global, only:real_shift, imag_shift,
      *                        sigma_p_epsilon
       use caspt2_global, only:do_lindep,LUSTD,idSDMat
-      use caspt2_global, only: LUSOLV, LUSBT
+      use caspt2_global, only: LUSBT
       use EQSOLV
       use Sigma_data
       use definitions, only: wp
@@ -1439,6 +1579,7 @@ C
         !! the remaining is the derivative of 2<1|H|0>, so the unscaled
         !! lambda is loaded
         CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
+        CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
       end if
 C
       !! Transform the internally contracted density to
@@ -5276,9 +5417,9 @@ C
      *               1.0d+00,lg_Lag,lg_Vec,
      *               1.0D+00,lg_SDER)
 
-      CALL PSBMAT_FREEMEM('VMAT',lg_Vec,NAS)
+      CALL PSBMAT_FREEMEM(lg_Vec)
       bSTAT = GA_Destroy (lg_Lag)
-      CALL PSBMAT_FREEMEM ('B',lg_B,NAS)
+      CALL PSBMAT_FREEMEM (lg_B)
 C
       Return
 C

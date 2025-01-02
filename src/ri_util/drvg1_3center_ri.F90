@@ -75,10 +75,10 @@ integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iB
                      jBasj, jBasn, jBsInc, jjQ, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, &
                      kBasAO, kBask, kBasn, kBsInc, kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, &
                      lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lRealName, lS, LuGAMMA2, maxnAct, maxnnP, mBtch, mdci, &
-                     mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, &
-                     nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, &
-                     nPrev, nQuad, nRys, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, &
-                     NumOrb_i, nXki, nZeta
+                     mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, &
+                     nCalAO, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, &
+                     nnSkal, nPairs, nPrev, nQuad, nRys, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, &
+                     nTMax, NumOrb, NumOrb_i, nXki, nZeta
 real(kind=wp) :: A_int, A_int_ij, A_int_kl, Coor(3,4), Dm_ij, ExFac, PMax, Prem, Pren, PZmnij, SDGmn, ThrAO, TMax_all, TotCPU, &
                  TotWall, XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, Xik, Xil, Xjk, Xjl
 #ifdef _CD_TIMING_
@@ -91,7 +91,7 @@ character(len=72) :: frmt
 character(len=50) :: CFmt
 character(len=8) :: Method
 logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, Indexation, JfGrad(3,4), No_Batch, Shijij, &
-                     is_error, ReadBPT2
+                     is_error
 integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:), Xmi(:,:,:,:)
@@ -113,7 +113,6 @@ Pget3_Wall = Zero
 iFnc(:) = 0
 PMax = Zero
 Temp(:) = Zero
-ReadBPT2 = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -487,6 +486,21 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+! CASPT2
+
+call Get_cArray('Relax Method',Method,8)
+if (Method == 'CASPT2') then
+  ! Open B_{J, mu nu}
+  call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
+
+  call PrgmTranslate('GAMMA2',RealName,lRealName)
+  LuGamma2 = isFreeUnit(67)
+  call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBasA*8,'OLD',is_error)
+  nCalAO = 0
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 ! Compute FLOP's for the transfer equation.
 
 do iAng=0,S%iAngMx
@@ -512,7 +526,6 @@ end do
 ! Otherwise do batches exactly in the same order as Seward did the
 ! 2-center terms.
 
-call Get_cArray('Relax Method',Method,8)
 if (Method /= 'KS-DFT  ') then
   iOpt = 1
 else
@@ -537,19 +550,6 @@ else
 end if
 call Init_Tsk2(id,nSkal2,iOpt,LBList)
 call mma_deallocate(LBList)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! CASPT2
-
-if (Method == 'CASPT2') then
-  ! Open B_{J, mu nu}
-  call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
-
-  call PrgmTranslate('GAMMA2',RealName,lRealName)
-  LuGamma2 = isFreeUnit(67)
-  call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBasA*8,'OLD',is_error)
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -644,7 +644,8 @@ do while (Rsv_Tsk2(id,klS))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  if (Method == 'CASPT2') ReadBPT2 = .true.
+  ! Get the back-transformed non-separable CASPT2 density
+  if (lPSO .and. Method == 'CASPT2') call ReadBPT2(LuGAMMA2,B_PT2,nCalAO,kS,lS,MxInShl)
   do ijS=1,nij
     iS = Shij2(1,ijS)
     jS = Shij2(2,ijS)
@@ -734,11 +735,6 @@ do while (Rsv_Tsk2(id,klS))
           do lBasAO=1,lBasl,lBsInc
             lBasn = min(lBsInc,lBasl-lBasAO+1)
             iAOst(4) = lBasAO-1
-
-            if ((Method == 'CASPT2') .and. ReadBPT2) then
-              call DoReadBPT2()
-              ReadBPT2 = .false.
-            end if
 
             ! Get the 2nd order density matrix in SO basis.
 
@@ -846,7 +842,7 @@ call mma_deallocate(Thpkl,safe='*')
 call mma_deallocate(Sew_Scr)
 call Free_Tsk2(id)
 if (Method == 'CASPT2') then
-  call mma_deallocate(B_PT2)
+  call mma_deallocate(B_PT2,safe='*')
   close(LuGamma2)
 end if
 call mma_deallocate(Shij2)
@@ -874,39 +870,5 @@ call Free_iSD()
 !***********************************************************************
 !                                                                      *
 return
-
-contains
-
-subroutine DoReadBPT2()
-! Read back-transformed density elements of the Kth and Lth shells
-! All elements of the Jth shell (auxiliary functions) are read
-! Only for C1 symmetry
-
-  use SOAO_Info, only: iAOtSO
-
-  integer(kind=iwp) :: i3, i4, kAOk, kSO, kSO0, kSOk, lAOl, loc, lSO, lSO0, lSOl
-
-  B_PT2(:,:,:) = Zero
-
-  lSO0 = iAOtSO(iAOV(4)+1,0)+iAOst(4)-1
-  kSO0 = iAOtSO(iAOV(3)+1,0)+iAOst(3)-1
-  do i4=1,iCmpa(4)
-    lSO = iAOtSO(iAOV(4)+i4,0)+iAOst(4)
-    do i3=1,iCmpa(3)
-      kSO = iAOtSO(iAOV(3)+i3,0)+iAOst(3)
-      do lAOl=0,lBasn-1
-        lSOl = lSO+lAOl
-        do kAOk=0,kBasn-1
-          kSOk = kSO+kAOk
-          loc = iTri(kSOk,lSOl)
-          read(unit=LuGAMMA2,rec=loc) B_PT2(1:nBasA,kSOk-kSO0,lSOl-lSO0)
-        end do
-      end do
-    end do
-  end do
-
-  return
-
-end subroutine DoReadBPT2
 
 end subroutine Drvg1_3Center_RI
