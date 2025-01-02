@@ -56,7 +56,7 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, iFnc(4), ijklA, ijMax, &
                      ijS, ik2, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
-                     istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, &
+                     j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, &
                      k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, &
                      lPriml, lPrInc, lS, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, nab, nBtch, ncd, nDCRR, nDCRS, &
                      nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
@@ -251,7 +251,7 @@ do
     end if
 
     if (.not. Skip) then
-      call Int_Prep_g(iSD4,nSD,Coor,Shijij,iStabs)
+      call Int_Prep_g(iSD4,nSD,Coor,Shijij)
       !                                                                *
       !*****************************************************************
       !                                                                *
