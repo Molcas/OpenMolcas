@@ -22,7 +22,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), nSO, MemPrm, MemMax, ipMem1
 integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2, iFnc(4), &
                                   MemPSO
-integer(kind=iwp) :: iAO(4), iBasi, iCmpa(4), iPrimi, jBasj, jPrimj, kBask, kPrimk, lBasl, lPriml, iQuad
+integer(kind=iwp) :: iBasi, iPrimi, jBasj, jPrimj, kBask, kPrimk, lBasl, lPriml
 
 iPrimi = Shells(iSD4(0,1))%nExp
 jPrimj = Shells(iSD4(0,2))%nExp
@@ -32,12 +32,8 @@ iBasi = Shells(iSD4(0,1))%nBasis
 jBasj = Shells(iSD4(0,2))%nBasis
 kBask = Shells(iSD4(0,3))%nBasis
 lBasl = Shells(iSD4(0,4))%nBasis
-do iQuad=1,4
-  iCmpa(iQuad) = iSD4(2,iQuad)
-  iAO(iQuad) = iSD4(7,iQuad)
-end do
 
-call PSOAO1(nSO,MemPrm,MemMax,iCmpa,iAO,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
+call PSOAO1(nSO,MemPrm,MemMax,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
             jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ************** Memory partioning **************'

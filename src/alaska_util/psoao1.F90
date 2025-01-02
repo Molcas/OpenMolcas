@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO1(nSO,MemPrm,MemMax,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim, &
+subroutine PSOAO1(nSO,MemPrm,MemMax,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim, &
                   jPrInc,kPrim,kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -47,13 +47,13 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iCmpa(4), iAO(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
                                  lPrim, ipMem1, nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2, &
                                   MemPSO
 integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, &
                      Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, nabcd, nCache, nFac, &
-                     nPam(4,0:7), nTmp1, nTmp2, nVec1
+                     nPam(4,0:7), nTmp1, nTmp2, nVec1, iAO(4), iCmpa(4)
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 #include "Molcas.fh"
@@ -63,10 +63,14 @@ lb = iSD4(1,2)
 lc = iSD4(1,3)
 ld = iSD4(1,4)
 
-iCmp = iCmpa(1)
-jCmp = iCmpa(2)
-kCmp = iCmpa(3)
-lCmp = iCmpa(4)
+iCmp = iSD4(2,1)
+jCmp = iSD4(2,2)
+kCmp = iSD4(2,3)
+lCmp = iSD4(2,4)
+
+iAO(:)  =iSD4(7,:)
+iCmpa(:)=iSD4(2,:)
+
 
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
@@ -303,7 +307,5 @@ Mem0 = Mem0-Mem3-1
 Mem2 = Mem2+Mem3
 
 ipMem2 = ipMem1+Mem1
-
-return
 
 end subroutine PSOAO1
