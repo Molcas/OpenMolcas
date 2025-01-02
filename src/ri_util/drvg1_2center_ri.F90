@@ -59,10 +59,10 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, id, iFnc(4), ij, ijkla, &
-                     ijMax, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
+                     ijMax, ipMem1, ipMem2, iPrem, iPren, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
                      iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), &
-                     jPrimj, jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, &
-                     lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mBtch, Mem1, Mem2, MemMax, &
+                     jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, kBtch, kPrInc, kS, lA, lA_MP2, &
+                     lBasAO, lBasl, lBasn, lBsInc, lPrInc, lS, lS_, mBtch, Mem1, Mem2, MemMax, &
                      MemPSO, mij, nab, nBtch, ncd, nEta, nHmab, nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, &
                      nRys, nSkal, nSO, nTMax, nZeta
 real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
@@ -359,8 +359,7 @@ do while (Rsv_Tsk(id,jlS))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                  nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+  call Int_Parm_g(iSD4,nSD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -423,8 +422,7 @@ do while (Rsv_Tsk(id,jlS))
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
-          call TwoEl_g(Coor,nRys, &
-                       Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+          call TwoEl_g(Coor,nRys,Pren,Prem,iPrInc,jPrInc,kPrInc,lPrInc, &
                        iBasn,jBasn,kBasn,lBasn, &
                        nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                        Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)

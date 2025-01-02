@@ -53,10 +53,10 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, iFnc(4), ijklA, ijMax, &
-                     ijS, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
-                     j, jAng, jBAsAO, jBasj, jBasn, jBsInc, JndGrd(3,4), jPrimj, jPrInc, jS, &
-                     kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, &
-                     lPriml, lPrInc, lS, mBtch, Mem1, Mem2, MemMax, MemPSO, nab, nBtch, ncd, &
+                     ijS, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
+                     j, jAng, jBAsAO, jBasj, jBasn, jBsInc, JndGrd(3,4), jPrInc, jS, &
+                     kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, &
+                     lPrInc, lS, mBtch, Mem1, Mem2, MemMax, MemPSO, nab, nBtch, ncd, &
                      nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 logical(kind=iwp) :: ABCDeq, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), lDummy, No_Batch, Skip, Triangular
@@ -286,8 +286,7 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                      nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+      call Int_Parm_g(iSD4,nSD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -349,7 +348,7 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #             endif
-              call TwoEl_g(Coor,nRys, Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+              call TwoEl_g(Coor,nRys,Pren,Prem,iPrInc,jPrInc,kPrInc,lPrInc, &
                            iBasn,jBasn,kBasn,lBasn, &
                            nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                            Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)

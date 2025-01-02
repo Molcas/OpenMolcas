@@ -47,7 +47,8 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2, &
                                   MemPSO
 integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, &
@@ -317,5 +318,15 @@ Mem0 = Mem0-Mem3-1
 Mem2 = Mem2+Mem3
 
 ipMem2 = ipMem1+Mem1
+
+iSD4(4,1)=iBsInc
+iSD4(4,2)=jBsInc
+iSD4(4,3)=kBsInc
+iSD4(4,4)=lBsInc
+
+iSD4(6,1)=iPrInc
+iSD4(6,2)=jPrInc
+iSD4(6,3)=kPrInc
+iSD4(6,4)=lPrInc
 
 end subroutine PSOAO1

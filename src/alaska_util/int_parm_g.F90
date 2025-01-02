@@ -9,8 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                      nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+subroutine Int_Parm_g(iSD4,nSD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
 
 use k2_arrays, only: Create_BraKet
 use Basis_Info, only: Shells
@@ -19,15 +18,9 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), nIrrep
-integer(kind=iwp), intent(out) :: iPrimi, jPrimj, kPrimk, lPriml, &
-                                  nZeta, nEta, nab, nHmab, ncd, nHmcd
+integer(kind=iwp), intent(out) :: nZeta, nEta, nab, nHmab, ncd, nHmcd
 logical(kind=iwp), intent(in) :: l2DI
 integer(kind=iwp) :: iAng, iCmp, jAng, jCmp, kAng, kCmp, lAng, lCmp
-
-iPrimi = Shells(iSD4(0,1))%nExp
-jPrimj = Shells(iSD4(0,2))%nExp
-kPrimk = Shells(iSD4(0,3))%nExp
-lPriml = Shells(iSD4(0,4))%nExp
 
 iAng = iSD4(1,1)
 jAng = iSD4(1,2)
@@ -49,8 +42,8 @@ if (.not. l2DI) then
   ncd = 0
 end if
 
-nZeta = iPrimi*jPrimj
-nEta = kPrimk*lPriml
+nZeta = iSD4(5,1)*iSD4(5,2)
+nEta  = iSD4(5,3)*iSD4(5,4)
 call Create_BraKet(nZeta,nEta)
 
 end subroutine Int_Parm_g

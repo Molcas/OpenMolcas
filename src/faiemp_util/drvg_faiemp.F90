@@ -46,9 +46,9 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 real(kind=wp) :: Coor(3,4), PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 integer(kind=iwp) :: JndGrd(3,4), iFnc(4), &
                      iSD4(0:nSD,4), MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, &
-                     iBsInc, iCar, ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, &
-                     jBasAO, jBasj, jBasn, jBsInc, jPrInc, jPrimj, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, &
-                     kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, mBtch, lS, MemPSO, &
+                     iBsInc, iCar, ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, Mem1, Mem2, iPrInc, jAng, iSh, &
+                     jBasAO, jBasj, jBasn, jBsInc, jPrInc, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, &
+                     kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPrInc, mBtch, lS, MemPSO, &
                      nab, ncd, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, &
                      nSkal_Valence, nSO, nZeta, nBtch
 logical(kind=iwp) :: EQ, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Triangular, lNoSkip
@@ -263,8 +263,7 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                      nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+      call Int_Parm_g(iSD4,nSD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -312,8 +311,7 @@ do
 
                 !--Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,nRys, &
-                             Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+                call TwoEl_g(Coor,nRys,Pren,Prem,iPrInc,jPrInc,kPrInc,lPrInc, &
                              iBasn,jBasn,kBasn,lBasn,nZeta,nEta, &
                              Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)
 
