@@ -415,7 +415,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
   iAngV(1) = iAng
-  iCmpV(1) = iCmp
   iShelV(1) = iShell
 
   jAng = iSD(1,jS)
@@ -428,7 +427,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
   iAngV(2) = jAng
-  iCmpV(2) = jCmp
   iShelV(2) = jShell
 
   nHrrab = 0
@@ -482,7 +480,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     Coor(1:3,3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     iAngV(3) = kAng
-    iCmpV(3) = kCmp
     iShelV(3) = kShell
 
     Shik = iShell == kShell
@@ -497,7 +494,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     Coor(1:3,4) = dbsc(lCnttp)%Coor(1:3,lCnt)
 
     iAngV(4) = lAng
-    iCmpV(4) = lCmp
     iShelV(4) = lShell
 
     call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
@@ -824,8 +820,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             nijkl = iBasn*jBasn*kBasn*lBasn
             call Timing(dum1,Time,dum2,dum3)
             if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
-            if (ldot2) call PGet0(iCmpV,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
-                                  iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+            if (ldot2) call PGet0(iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+                                  iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax,iSD4)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
 

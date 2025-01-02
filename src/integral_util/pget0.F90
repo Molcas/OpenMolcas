@@ -12,8 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,MemPSO,Mem2,nMem2,iShell_A,iShell_B,iShell_C, &
-                 iShell_D,nQuad,PMax)
+subroutine PGet0(iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,MemPSO,Mem2,nMem2,iShell_A,iShell_B,iShell_C, &
+                 iShell_D,nQuad,PMax,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to act as a shell towards the manipulations of generating or *
@@ -30,7 +30,7 @@ use setup, only: nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, CASPT2_On, CMOPT2, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, iOffAO, lBin, &
                      lPSO, lSA, LuGamma, LuGamma_PT2, nBasT, nDens, nFro, nGamma, nNP, nOcc, nV_k, nZ_p_k, ReadBPT2, SO2CI, U_K, &
                      V_K, WRK1, WRK2, Z_P_K
-use iSD_data, only: iSO2Sh
+use iSD_data, only: iSO2Sh, nSD
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
@@ -40,11 +40,15 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
-                                 iShell_A, iShell_B, iShell_C, iShell_D, nQuad
+integer(kind=iwp), intent(in) :: iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
+                                 iShell_A, iShell_B, iShell_C, iShell_D, nQuad, iSD4(0:nSD,4)
 real(kind=wp), intent(out) :: PSO(ijkl,nPSO), Mem2(nMem2), PMax
-integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA
+integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA, iCmp(4)
 
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+iCmp(:) = iSD4( 2,:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
