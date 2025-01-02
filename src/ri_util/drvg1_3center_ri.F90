@@ -47,7 +47,7 @@ use Disp, only: l2DI
 #ifdef _DEBUGPRINT_
 use Disp, only: ChDisp
 #endif
-use Basis_Info, only: nBas, nBas_Aux, Shells
+use Basis_Info, only: nBas, nBas_Aux
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
@@ -746,8 +746,7 @@ do while (Rsv_Tsk2(id,klS))
 #           endif
             call TwoEl_g(Coor,nRys, &
                          Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
-                         Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
-                         Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
+                         iBasn,jBasn,kBasn,lBasn, &
                          nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                          Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)
 #           ifdef _CD_TIMING_

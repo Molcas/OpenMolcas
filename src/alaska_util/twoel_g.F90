@@ -12,9 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TwoEl_g(Coor,nRys, Pren,Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc, &
-                   Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
-                   nZeta,nEta,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO, &
+subroutine TwoEl_g(Coor,nRys,Pren,Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc, &
+                   iBasi,jBasj,kBask,lBasl,nZeta,nEta,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO, &
                    Wrk2,nWrk2,Aux,nAux,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -52,8 +51,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nRys, &
                                  nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, &
                                  nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux, iSD4(0:nSD,4)
-real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
-                             PSO(iBasi*jBasj*kBask*lBasl,nPSO)
+real(kind=wp), intent(in) :: Coor(3,4), PSO(iBasi*jBasj*kBask*lBasl,nPSO)
 real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
 real(kind=wp), intent(out) :: Wrk2(nWrk2), Aux(nAux)
@@ -63,7 +61,7 @@ integer(kind=iwp) :: iC, iCar, iCent, iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7),
                      lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, &
                      lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, mZeta, nDCRR, nDCRS, nDCRT, nEta_Tot, nIdent, nijkl, nOp(4), &
                      nW2, nW4, nWrk3, nZeta_Tot, iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), iStb, jStb, kStb, lStb, &
-                     iS, jS, kS, lS, ijS, klS, ik2, jk2
+                     iS, jS, kS, lS, ijS, klS, ik2, jk2, iAOst(4)
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr, Shijij
 procedure(cff2d_kernel) :: vCff2D
@@ -73,6 +71,7 @@ integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ
 type (k2_type), pointer:: k2data1(:), k2data2(:)
+real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, iPrint, iRout
@@ -95,6 +94,7 @@ iCmp(:)  = iSD4( 2,:)
 iShll(:) = iSD4( 0,:)
 iShell(:)= iSD4( 11,:)
 iAO(:)   = iSD4( 7,:)
+iAOst(:) = iSD4( 8,:)
 
 Shijij = ((iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4)))
 
@@ -148,6 +148,11 @@ nDCRS = IndK2(2,klS)
 jk2 = IndK2(3,klS)
 k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
 k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
+
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
+Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
 !                                                                      *
 !***********************************************************************
