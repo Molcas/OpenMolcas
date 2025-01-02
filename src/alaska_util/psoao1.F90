@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO1(nSO,MemPrm,MemMax,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim, &
-                  jPrInc,kPrim,kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,MemPSO)
+subroutine PSOAO1(nSO,MemPrm,MemMax,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim, &
+                  jPrInc,kPrim,kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -47,8 +47,8 @@ use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iAO(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
-                                 lPrim, ipMem1
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iCmpa(4), iAO(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
+                                 lPrim, ipMem1, nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2, &
                                   MemPSO
 integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, &
@@ -58,14 +58,16 @@ logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 #include "Molcas.fh"
 
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
+
 iCmp = iCmpa(1)
 jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
+
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
 
