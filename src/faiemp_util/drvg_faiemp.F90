@@ -49,10 +49,10 @@ integer(kind=iwp) :: ik2, JndGrd(3,4), iFnc(4), &
                      iSD4(0:nSD,4), MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, &
                      iBsInc, iCar, ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, &
                      jBasAO, jBasj, jBasn, jBsInc, jk2, jPrInc, k2ij, k2kl, jPrimj, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, &
-                     kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, &
+                     kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, mBtch, lS, MemPSO, &
                      nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, &
                      nSkal_Valence, nSO, nZeta, nBtch
-logical(kind=iwp) :: EQ, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Triangular, lNoSkip
+logical(kind=iwp) :: EQ, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Triangular, lNoSkip
 character(len=72) :: formt
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: ij(:)
@@ -265,8 +265,8 @@ do
       !*****************************************************************
       !                                                                *
       call Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                      k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
-                      AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+                      k2ij,ik2,nDCRR,k2kl,jk2,nDCRS, &
+                      nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -314,7 +314,7 @@ do
 
                 !--Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,mdci,mdcj,mdck,mdcl,nRys,k2Data(:,ik2),k2Data(:,jk2),nDCRR,nDCRS, &
+                call TwoEl_g(Coor,nRys,k2Data(:,ik2),k2Data(:,jk2),nDCRR,nDCRS, &
                              Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                              Shells(iSD4(0,1))%pCff(iPrimi,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(jPrimj,jBasAO),jBasn, &
                              Shells(iSD4(0,3))%pCff(kPrimk,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(lPriml,lBasAO),lBasn,nZeta,nEta, &

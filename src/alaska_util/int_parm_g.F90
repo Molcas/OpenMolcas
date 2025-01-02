@@ -10,8 +10,8 @@
 !***********************************************************************
 
 subroutine Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                      k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
-                      AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+                      k2ij,ik2,nDCRR,k2kl,jk2,nDCRS, &
+                      nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
 
 use k2_structure, only: Indk2
 use k2_arrays, only: Create_BraKet
@@ -22,8 +22,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), nIrrep
 integer(kind=iwp), intent(out) :: iPrimi, jPrimj, kPrimk, lPriml, k2ij, ik2, nDCRR, &
-                                  k2kl, jk2, nDCRS, mdci, mdcj, mdck, mdcl, nZeta, nEta, nab, nHmab, ncd, nHmcd
-logical(kind=iwp), intent(out) :: AeqB, CeqD
+                                  k2kl, jk2, nDCRS, nZeta, nEta, nab, nHmab, ncd, nHmcd
 logical(kind=iwp), intent(in) :: l2DI
 integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
 
@@ -70,17 +69,9 @@ ik2 = Indk2(3,ijShll)
 k2kl = Indk2(1,klShll)
 nDCRS = Indk2(2,klShll)
 jk2 = Indk2(3,klShll)
-mdci = iSD4(10,1)
-mdcj = iSD4(10,2)
-mdck = iSD4(10,3)
-mdcl = iSD4(10,4)
-AeqB = (iSD4(13,1) == iSD4(13,2)) .and. (mdci == mdcj)
-CeqD = (iSD4(13,3) == iSD4(13,4)) .and. (mdck == mdcl)
 
 nZeta = iPrimi*jPrimj
 nEta = kPrimk*lPriml
 call Create_BraKet(nZeta,nEta)
-
-return
 
 end subroutine Int_Parm_g

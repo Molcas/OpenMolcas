@@ -74,7 +74,7 @@ integer(kind=iwp) :: i, iAdrC, iAng, ib, iBasAO, iBasi, iBasn, iBsInc, iCar, id,
                      iS, iS_, iSD4(0:nSD,4), ish, iSO, iSym, itmp, j, jAng, jb, jBasAO, jBasj, &
                      jBasn, jBsInc, jjQ, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, &
                      kBask, kBasn, kBsInc, kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, &
-                     lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lS, maxnAct, maxnnP, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
+                     lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lS, maxnAct, maxnnP, mBtch, Mem1, &
                      Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nDCRR, nDCRS, nEta, &
                      nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nPrev, nQuad, nRys, &
                      nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
@@ -88,7 +88,7 @@ character(len=80) :: KSDFT
 character(len=72) :: frmt
 character(len=50) :: CFmt
 character(len=8) :: Method
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, Indexation, JfGrad(3,4), No_Batch
+logical(kind=iwp) :: ABCDeq, DoFock, DoGrad, EQ, FlipFlop, Found, Indexation, JfGrad(3,4), No_Batch
 integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:), Xmi(:,:,:,:)
@@ -683,8 +683,8 @@ do while (Rsv_Tsk2(id,klS))
     !*******************************************************************
     !                                                                  *
     call Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                    k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
-                    AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+                    k2ij,ik2,nDCRR,k2kl,jk2,nDCRS, &
+                    nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -746,8 +746,7 @@ do while (Rsv_Tsk2(id,klS))
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU1,TwoelWall1)
 #           endif
-            call TwoEl_g(Coor,mdci,mdcj,mdck,mdcl,nRys, &
-                         k2Data(:,ik2),k2Data(:,jk2), &
+            call TwoEl_g(Coor,nRys,k2Data(:,ik2),k2Data(:,jk2), &
                          nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                          Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                          Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
