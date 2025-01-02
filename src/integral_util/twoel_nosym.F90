@@ -441,6 +441,8 @@ Coeff1 => Null()
 Coeff2 => Null()
 Coeff3 => Null()
 Coeff4 => Null()
+k2data1 => Null()
+k2data2 => Null()
 
 Dij => Null()
 Dkl => Null()
