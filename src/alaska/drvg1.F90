@@ -54,7 +54,7 @@ integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
-integer(kind=iwp) :: i, iAng, iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iFnc(4), ijklA, ijMax, &
+integer(kind=iwp) :: i, iAng, iAOst(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iFnc(4), ijklA, ijMax, &
                      ijS, ik2, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
                      istabs(4), j, jAng, jBAsAO, jBasj, jBasn, jBsInc, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, &
                      k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, &
@@ -337,8 +337,7 @@ do
               call CWTIME(Pget0CPU1,Pget0WALL1)
 #             endif
               iAOst(:) = iSD4(8,:)  ! ToDo
-              iAOV(:)  = iSD4(7,:)  ! ToDo
-              call PGet0(iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+              call PGet0(iBasn,jBasn,kBasn,lBasn,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                          iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax,iSD4)
               if (A_Int*PMax < CutInt) cycle
 #             ifdef _CD_TIMING_

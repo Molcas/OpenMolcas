@@ -717,6 +717,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     do iBasAO=1,iBasi,iBsInc
       iBasn = min(iBsInc,iBasi-iBasAO+1)
       iAOst(1) = iBasAO-1
+      iSD4( 8,1) = iBasAO-1
+      iSD4(19,1) = iBasn
+
+
       !----------------------------------------------------------------*
       !
       ! Move appropriate portions of the desymmetrized 1st order density matrix.
@@ -725,6 +729,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
       do jBasAO=1,jBasj,jBsInc
         jBasn = min(jBsInc,jBasj-jBasAO+1)
         iAOst(2) = jBasAO-1
+        iSD4( 8,2) = jBasAO-1
+        iSD4(19,2) = jBasn
+
+
         if (lpick .and. (nDij*mDCRij /= 0)) then
           call Picky_inner(DeDe(ipDij),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO,iBasAO+iBasn-1,jBasAO, &
                            jBasAO+jBasn-1,DeDe(ipDDij))
@@ -737,6 +745,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         do kBasAO=1,kBask,kBsInc
           kBasn = min(kBsInc,kBask-kBasAO+1)
           iAOst(3) = kBasAO-1
+          iSD4( 8,3) = kBasAO-1
+          iSD4(19,3) = kBasn
+
           if (lpick .and. (nDik*mDCRik /= 0)) then
             call Picky_inner(DeDe(ipDik),iBasi,kBask,iPrimi*kPrimk,iCmpV(1)*iCmpV(3),mDCRik,iBasAO,iBasAO+iBasn-1,kBasAO, &
                              kBasAO+kBasn-1,DeDe(ipDDik))
@@ -757,6 +768,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
           do lBasAO=1,lBasl,lBsInc
             lBasn = min(lBsInc,lBasl-lBasAO+1)
             iAOst(4) = lBasAO-1
+            iSD4( 8,4) = lBasAO-1
+            iSD4(19,4) = lBasn
+
             if (lpick .and. (nDkl*mDCRkl /= 0)) then
               call Picky_inner(DeDe(ipDkl),kBask,lBasl,kPrimk*lPriml,iCmpV(3)*iCmpV(4),mDCRkl,kBasAO,kBasAO+kBasn-1,lBasAO, &
                                lBasAO+lBasn-1,DeDe(ipDDkl))
@@ -820,7 +834,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             nijkl = iBasn*jBasn*kBasn*lBasn
             call Timing(dum1,Time,dum2,dum3)
             if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
-            if (ldot2) call PGet0(iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+            if (ldot2) call PGet0(iBasn,jBasn,kBasn,lBasn,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                                   iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax,iSD4)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
