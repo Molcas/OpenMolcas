@@ -834,7 +834,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             nijkl = iBasn*jBasn*kBasn*lBasn
             call Timing(dum1,Time,dum2,dum3)
             if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
-            if (ldot2) call PGet0(iBasn,jBasn,kBasn,lBasn,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+            if (ldot2) call PGet0(iBasn,jBasn,kBasn,lBasn,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                                   iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax,iSD4)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time

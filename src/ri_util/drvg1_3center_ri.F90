@@ -69,7 +69,7 @@ use temptime, only: TWOEL3_CPU,TWOEL3_WALL,PGET3_CPU,PGET3_WALL
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: i, iAdrC, iAng, iAOst(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, id, iFnc(4), &
+integer(kind=iwp) :: i, iAdrC, iAng, ib, iBasAO, iBasi, iBasn, iBsInc, iCar, id, iFnc(4), &
                      iiQ, ij, ijklA, ijMax, ijQ, ijS, ik2, iMOleft, iMOright, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, &
                      iS, iS_, iSD4(0:nSD,4), ish, iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, jBasj, &
                      jBasn, jBsInc, jjQ, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, &
@@ -731,8 +731,7 @@ do while (Rsv_Tsk2(id,klS))
 #           ifdef _CD_TIMING_
             call CWTIME(Pget0CPU1,Pget0WALL1)
 #           endif
-            iAOst(:) = iSD4(8,:)
-            call PGet0(iBasn,jBasn,kBasn,lBasn,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
+            call PGet0(iBasn,jBasn,kBasn,lBasn,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
                        iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax,iSD4)
 #           ifdef _CD_TIMING_
             call CWTIME(Pget0CPU2,Pget0WALL2)

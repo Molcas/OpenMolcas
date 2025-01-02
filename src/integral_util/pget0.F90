@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet0(iBas,jBas,kBas,lBas,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,MemPSO,Mem2,nMem2,iShell_A,iShell_B,iShell_C, &
+subroutine PGet0(iBas,jBas,kBas,lBas,ijkl,PSO,nPSO,n1,n2,n3,n4,MemPSO,Mem2,nMem2,iShell_A,iShell_B,iShell_C, &
                  iShell_D,nQuad,PMax,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -40,16 +40,17 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iBas, jBas, kBas, lBas, iAOst(4), ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
+integer(kind=iwp), intent(in) :: iBas, jBas, kBas, lBas, ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
                                  iShell_A, iShell_B, iShell_C, iShell_D, nQuad, iSD4(0:nSD,4)
 real(kind=wp), intent(out) :: PSO(ijkl,nPSO), Mem2(nMem2), PMax
-integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA, iCmp(4), iAO(4)
+integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA, iCmp(4), iAO(4), iAOst(4)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 iCmp(:) = iSD4( 2,:)
 iAO(:)  = iSD4( 7,:)
+iAOst(:)= iSD4( 8,:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
