@@ -90,10 +90,10 @@ unused_var(kPrInc)
 iRout = 12
 iPrint = nPrint(iRout)
 #endif
-iAnga(:) = iSD4(1,:)
-iCmp(:)  = iSD4(2,:)
-iShll(:) = iSD4(0,:)
-iShell(:)= iSD4(11,:)
+iAnga(:) = iSD4( 1,:)
+iCmp(:)  = iSD4( 2,:)
+iShll(:) = iSD4( 0,:)
+iShell(:)= iSD4( 11,:)
 iAO(:)   = iSD4( 7,:)
 
 

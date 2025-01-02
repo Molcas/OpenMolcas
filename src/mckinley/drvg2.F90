@@ -33,7 +33,7 @@ subroutine Drvg2(Hess,nHess,l_Grd,l_Hss)
 use setup, only: MxPrm, nAux
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
-use iSD_data, only: iSD
+use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipOffD, MxDij, &
                      ndede, nFT, Sew_Scr
 use k2_structure, only: Indk2, k2Data
@@ -52,19 +52,20 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
-integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
+integer(kind=iwp) :: i, iAng, iAngV(4), iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ik2, ikS, ilS, iMemB, &
                      ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
-                     iPrInc, ipTmp, ipTmp2, iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jAO, jBas, jBasAO, jBasj, jBasn, &
+                     iPrInc, ipTmp, ipTmp2, iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jBas, jBasAO, jBasj, jBasn, &
                      jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jk2, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, &
-                     js, jShell, jShll, kAng, kAO, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, &
-                     kPrInc, ks, kShell, kShll, lAng, lAO, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, &
-                     lShell, lShll, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
+                     js, jShell, kAng, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, &
+                     kPrInc, ks, kShell, lAng, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, &
+                     lShell, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
                      mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
-                     nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, nZeta
+                     nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, &
+                     nZeta, iSD4(0:nSD,4)
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
@@ -402,13 +403,11 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   !                                                                    *
   ! Outer loops (ij) over angular momenta and centers
   !
-  !do iS=1,nSkal
-  iShll = iSD(0,iS)
+
   iAng = iSD(1,iS)
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
   iPrim = iSD(5,iS)
-  iAO = iSD(7,iS)
   mdci = iSD(10,iS)
   iShell = iSD(11,iS)
   iCnttp = iSD(13,iS)
@@ -416,17 +415,12 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
   iAngV(1) = iAng
-  iShllV(1) = iShll
   iCmpV(1) = iCmp
   iShelV(1) = iShell
-  iAOV(1) = iAO
 
-  !  do jS=1,iS
-  jShll = iSD(0,jS)
   jAng = iSD(1,jS)
   jCmp = iSD(2,jS)
   jBas = iSD(3,jS)
-  jAO = iSD(7,jS)
   mdcj = iSD(10,jS)
   jShell = iSD(11,jS)
   jCnttp = iSD(13,jS)
@@ -434,10 +428,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
   iAngV(2) = jAng
-  iShllV(2) = jShll
   iCmpV(2) = jCmp
   iShelV(2) = jShell
-  iAOV(2) = jAO
 
   nHrrab = 0
   do i=0,iAng+1
@@ -481,10 +473,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     if (A_Int < CutInt) cycle
 
     !do kS=1,nSkal
-    kShll = iSD(0,kS)
     kAng = iSD(1,kS)
     kCmp = iSD(2,kS)
-    kAO = iSD(7,kS)
     mdck = iSD(10,kS)
     kShell = iSD(11,kS)
     kCnttp = iSD(13,kS)
@@ -492,18 +482,14 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     Coor(1:3,3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     iAngV(3) = kAng
-    iShllV(3) = kShll
     iCmpV(3) = kCmp
     iShelV(3) = kShell
-    iAOV(3) = kAO
 
     Shik = iShell == kShell
 
     !  do lS=1,kS
-    lShll = iSD(0,lS)
     lAng = iSD(1,lS)
     lCmp = iSD(2,lS)
-    lAO = iSD(7,lS)
     mdcl = iSD(10,lS)
     lShell = iSD(11,lS)
     lCnttp = iSD(13,lS)
@@ -511,10 +497,16 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     Coor(1:3,4) = dbsc(lCnttp)%Coor(1:3,lCnt)
 
     iAngV(4) = lAng
-    iShllV(4) = lShll
     iCmpV(4) = lCmp
     iShelV(4) = lShell
-    iAOV(4) = lAO
+
+    call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
+
+    iAngV(:) = iSD4( 1,:)
+    iCmpV(:) = iSD4( 2,:)
+    iShllV(:)= iSD4( 0,:)
+    iShelV(:)= iSD4(11,:)
+    iAOV(:)  = iSD4( 7,:)
 
     nHrrcd = 0
     do i=0,kAng+1
@@ -541,10 +533,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    iCmpV(1) = icmp
-    iCmpV(2) = jcmp
-    iCmpV(3) = kcmp
-    iCmpV(4) = lcmp
+
     iPrimi = Shells(iShllV(1))%nExp
     jPrimj = Shells(iShllV(2))%nExp
     kPrimk = Shells(iShllV(3))%nExp
