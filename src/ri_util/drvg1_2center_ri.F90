@@ -38,7 +38,6 @@ use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: A_PT2
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use k2_structure, only: k2data
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
@@ -61,11 +60,11 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, id, iFnc(4), ij, ijkla, &
-                     ijMax, ik2, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
-                     iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jk2, jlS, JndGrd(3,4), &
-                     jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, &
+                     ijMax, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
+                     iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), &
+                     jPrimj, jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, &
                      lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mBtch, Mem1, Mem2, MemMax, &
-                     MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, &
+                     MemPSO, mij, nab, nBtch, ncd, nEta, nHmab, nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, &
                      nRys, nSkal, nSO, nTMax, nZeta
 real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
 #ifdef _CD_TIMING_
@@ -362,7 +361,6 @@ do while (Rsv_Tsk(id,jlS))
   !*********************************************************************
   !                                                                    *
   call Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                  k2ij,ik2,nDCRR,k2kl,jk2,nDCRS, &
                   nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
   !                                                                    *
   !*********************************************************************
@@ -426,8 +424,8 @@ do while (Rsv_Tsk(id,jlS))
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
-          call TwoEl_g(Coor,nRys,k2Data(:,ik2),k2Data(:,jk2), &
-                       nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
+          call TwoEl_g(Coor,nRys, &
+                       Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
                        Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
                        Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
                        nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &

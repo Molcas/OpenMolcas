@@ -12,8 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TwoEl_g(Coor,nRys, k2Data1,k2Data2, &
-                   nData1,nData2,Pren,Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc, &
+subroutine TwoEl_g(Coor,nRys, Pren,Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc, &
                    Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
                    nZeta,nEta,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO, &
                    Wrk2,nWrk2,Aux,nAux,iSD4)
@@ -37,8 +36,8 @@ use Gateway_Info, only: ChiI2
 use iSD_data, only: nSD
 use Gateway_global, only: IsChi
 use Symmetry_Info, only: nIrrep
-use Index_Functions, only: nTri_Elem1
-use k2_structure, only: k2_type
+use Index_Functions, only: nTri_Elem1, iTri
+use k2_structure, only: k2_type, Indk2, k2Data
 use k2_arrays, only: BraKet
 use Disp, only: CutGrd, l2DI
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
@@ -50,12 +49,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nRys, nData1, nData2, &
+integer(kind=iwp), intent(in) :: nRys, &
                                  nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, &
                                  nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
                              PSO(iBasi*jBasj*kBask*lBasl,nPSO)
-type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
 real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
 real(kind=wp), intent(out) :: Wrk2(nWrk2), Aux(nAux)
@@ -64,7 +62,8 @@ integer(kind=iwp) :: iC, iCar, iCent, iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7),
                      iz2, iZeta, jCent, jCmpb, jjCent, JndGrd(3,4), jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, &
                      lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, &
                      lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, mZeta, nDCRR, nDCRS, nDCRT, nEta_Tot, nIdent, nijkl, nOp(4), &
-                     nW2, nW4, nWrk3, nZeta_Tot, iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), iStb, jStb, kStb, lStb
+                     nW2, nW4, nWrk3, nZeta_Tot, iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), iStb, jStb, kStb, lStb, &
+                     iS, jS, kS, lS, ijS, klS, ik2, jk2
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr, Shijij
 procedure(cff2d_kernel) :: vCff2D
@@ -73,6 +72,8 @@ procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ
+type (k2_type), pointer:: k2data1(:), k2data2(:)
+
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, iPrint, iRout
 #include "print.fh"
@@ -130,6 +131,23 @@ if ((jPrInc /= nBeta) .or. (lPrInc /= nDelta)) then
 else
   iW2 = 1
 end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Pick up pointers to k2 entities.
+!
+iS=iShell(1)
+jS=iShell(2)
+kS=iShell(3)
+lS=iShell(4)
+ijS=iTri(iS,jS)
+klS=iTri(kS,lS)
+nDCRR = IndK2(2,ijS)
+ik2 = IndK2(3,ijS)
+nDCRS = IndK2(2,klS)
+jk2 = IndK2(3,klS)
+k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
+k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
 
 !                                                                      *
 !***********************************************************************

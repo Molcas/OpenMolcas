@@ -137,8 +137,6 @@ call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
 End If
 !#endif
 
-If (.false.) la = iSD4(1,1)
-
 RST_triplet = One
 QInd(2) = RST_triplet
 

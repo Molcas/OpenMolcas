@@ -10,10 +10,8 @@
 !***********************************************************************
 
 subroutine Int_Parm_g(iSD4,nSD,iPrimi,jPrimj,kPrimk,lPriml, &
-                      k2ij,ik2,nDCRR,k2kl,jk2,nDCRS, &
                       nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
 
-use k2_structure, only: Indk2
 use k2_arrays, only: Create_BraKet
 use Basis_Info, only: Shells
 use Index_Functions, only: nTri_Elem1, nTri3_Elem1
@@ -21,29 +19,16 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4), nIrrep
-integer(kind=iwp), intent(out) :: iPrimi, jPrimj, kPrimk, lPriml, k2ij, ik2, nDCRR, &
-                                  k2kl, jk2, nDCRS, nZeta, nEta, nab, nHmab, ncd, nHmcd
+integer(kind=iwp), intent(out) :: iPrimi, jPrimj, kPrimk, lPriml, &
+                                  nZeta, nEta, nab, nHmab, ncd, nHmcd
 logical(kind=iwp), intent(in) :: l2DI
-integer(kind=iwp) :: iAng, iCmp, ijShll, iShell, jAng, jCmp, jShell, kAng, kCmp, klShll, kShell, lAng, lCmp, lShell
+integer(kind=iwp) :: iAng, iCmp, jAng, jCmp, kAng, kCmp, lAng, lCmp
 
 iPrimi = Shells(iSD4(0,1))%nExp
 jPrimj = Shells(iSD4(0,2))%nExp
 kPrimk = Shells(iSD4(0,3))%nExp
 lPriml = Shells(iSD4(0,4))%nExp
-iShell = iSD4(11,1)
-jShell = iSD4(11,2)
-kShell = iSD4(11,3)
-lShell = iSD4(11,4)
-if (iShell >= jShell) then
-  ijShll = iShell*(iShell-1)/2+jShell
-else
-  ijShll = jShell*(jShell-1)/2+iShell
-end if
-if (kShell >= lShell) then
-  klShll = kShell*(kShell-1)/2+lShell
-else
-  klShll = lShell*(lShell-1)/2+kShell
-end if
+
 iAng = iSD4(1,1)
 jAng = iSD4(1,2)
 kAng = iSD4(1,3)
@@ -63,12 +48,6 @@ if (.not. l2DI) then
   nab = 0
   ncd = 0
 end if
-k2ij = Indk2(1,ijShll)
-nDCRR = Indk2(2,ijShll)
-ik2 = Indk2(3,ijShll)
-k2kl = Indk2(1,klShll)
-nDCRS = Indk2(2,klShll)
-jk2 = Indk2(3,klShll)
 
 nZeta = iPrimi*jPrimj
 nEta = kPrimk*lPriml
