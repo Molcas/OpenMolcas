@@ -50,7 +50,6 @@ set (sources
      rfgrd.F90
      rfmmg.F90
      screen_g.F90
-     size_sob_g.F90
      srogrd.F90
      srommg.F90
      store_grad.F90

@@ -66,6 +66,7 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
 integer(kind=iwp), save :: MemPrm
 logical(kind=iwp), external :: Rsv_GTList
+integer(kind=iwp), external :: MemSO2_P
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus
 #ifdef _CD_TIMING_
@@ -242,7 +243,8 @@ do
       !*****************************************************************
       !                                                                *
       call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-      call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
+      nSO = MemSO2_P(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),nSD,iSD4)
+      No_batch = nSO == 0
       if (No_batch) Skip = .true.
     end if
 

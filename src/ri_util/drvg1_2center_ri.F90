@@ -75,6 +75,7 @@ integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: Shij(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
 logical(kind=iwp), external :: Rsv_Tsk
+integer(kind=iwp), external :: MemSO2_P
 
 !                                                                      *
 !***********************************************************************
@@ -319,7 +320,8 @@ do while (Rsv_Tsk(id,jlS))
   !*********************************************************************
   !                                                                    *
   call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-  call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
+  nSO = MemSO2_P(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),nSD,iSD4)
+  No_batch = nSO == 0
   if (No_batch) cycle
 
   call Int_Prep_g(iSD4,nSD,Coor)

@@ -91,7 +91,7 @@ integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:), Xmi(:,:,:,:)
 character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
-integer(kind=iwp), external :: Cho_irange
+integer(kind=iwp), external :: Cho_irange, MemSO2_P
 real(kind=wp), external :: Get_ExFac
 logical(kind=iwp), external :: Rsv_Tsk2
 
@@ -640,7 +640,8 @@ do while (Rsv_Tsk2(id,klS))
     !*******************************************************************
     !                                                                  *
     call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-    call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
+    nSO = MemSO2_P(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),nSD,iSD4)
+    No_batch = nSO == 0
     if (No_batch) cycle
 
     call Int_Prep_g(iSD4,nSD,Coor)
