@@ -414,7 +414,7 @@ do while (Rsv_Tsk(id,jlS))
 #         ifdef _CD_TIMING_
           call CWTIME(Pget0CPU1,Pget0WALL1)
 #         endif
-          call PGet0(iBasn,jBasn,kBasn,lBasn,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
+          call PGet0(nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
                      iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax,iSD4)
 #         ifdef _CD_TIMING_
           call CWTIME(Pget0CPU2,Pget0WALL2)
@@ -429,7 +429,7 @@ do while (Rsv_Tsk(id,jlS))
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
           call TwoEl_g(Coor,nRys,Pren,Prem,iBasn,jBasn,kBasn,lBasn, &
-                       Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
+                       Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nijkl,nSO, &
                        Sew_Scr(ipMem2),Mem2,iSD4)
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU2,TwoelWall2)
