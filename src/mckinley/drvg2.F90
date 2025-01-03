@@ -36,7 +36,6 @@ use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipOffD, MxDij, &
                      ndede, nFT, Sew_Scr
-use k2_structure, only: Indk2, k2Data
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -58,7 +57,7 @@ integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
                      ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
-                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jk2, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
+                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
                      js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
                      ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, ls, &
                      lShell, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
@@ -744,14 +743,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             end if
             mDjl = (jBasn*lBasn+1)*iCmpV(2)*iCmpV(4)+jPrimj*lPriml+1
             mDjl = min(nDjl,mDjl)
-            if (.not. lpick) then
-              ipddjl2 = 0
-              ipddil2 = 0
-              ipddkl2 = 0
-              ipddij2 = 0
-              ipddik2 = 0
-              ipddjk2 = 0
-            end if
 
             !----------------------------------------------------------*
 
