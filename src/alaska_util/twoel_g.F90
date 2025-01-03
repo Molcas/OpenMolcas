@@ -102,6 +102,7 @@ nAlpha=iSD4( 5,1)
 nBeta =iSD4( 5,2)
 nGamma=iSD4( 5,3)
 nDelta=iSD4( 5,4)
+
 iBasi =iSD4(19,1)
 jBasj =iSD4(19,2)
 kBask =iSD4(19,3)

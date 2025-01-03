@@ -804,8 +804,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ! Compute gradients of shell quadruplet
 
             call TwoEl_mck(Coor,iShelV,iShllV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
-                           k2data(:,ik2),k2data(:,jk2), &
-                           Pren,Prem,iPrimi,jPrimj,kPrimk,lPriml, &
+                           k2data(:,ik2),k2data(:,jk2),Pren,Prem, &
                            iBasn,jBasn,kBasn,lBasn, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nijkl,nSO, &
                            Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
