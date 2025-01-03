@@ -652,7 +652,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !
     !------------------------------------------------------------------*
 
-    call PSOAO2(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc, &
+    call PSOAO2(nSO,MemPrm,MemMax,iFnc,iPrInc, &
                 jPrInc,kPrInc,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB,&
                 nSD,iSD4)
 
@@ -660,6 +660,12 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     jBasj = iSD4(3,2)
     kBask = iSD4(3,3)
     lBasl = iSD4(3,4)
+
+    iBsInc= iSD4(4,1)
+    jBsInc= iSD4(4,2)
+    kBsInc= iSD4(4,3)
+    lBsInc= iSD4(4,4)
+
 
 !todo
     iPrimi=iSD4( 5,1)
