@@ -12,8 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoEl_mck(Coor,iStb,jStb,kStb,lStb,nRys,nData1,nData2, &
-                     k2Data1,k2Data2,Pren,Prem, &
+subroutine TwoEl_mck(Coor,nRys,nData1,nData2,k2Data1,k2Data2,Pren,Prem, &
                      iBasi,jBasj,kBask,lBasl, &
                      Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
@@ -90,7 +89,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iStb, jStb, kStb, lStb, nRys, nData1, &
+integer(kind=iwp), intent(in) :: nRys, nData1, &
                                  nData2, iBasi, jBasj, kBask, lBasl, &
                                  nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
                                  nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
@@ -108,7 +107,8 @@ integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCR
                      JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lDCR1, lDCR2, lDCRR, &
                      lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, lZeta, mab, mcd, mEta, mZeta, n, nabcd, &
                      nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot, nZeta, nEta, &
-                     iAO(4), iCmp(4), iAngV(4), jPrInc, lPrInc, nAlpha, nBeta, nGamma, nDelta, iAOst(4), iShell(4), iShll(4)
+                     iAO(4), iCmp(4), iAngV(4), jPrInc, lPrInc, nAlpha, nBeta, nGamma, nDelta, iAOst(4), iShell(4), iShll(4), &
+                     iStb, jStb, kStb, lStb
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4)
 procedure(cff2d_kernel) :: Cff2D
@@ -144,11 +144,11 @@ nZeta = iSD4(5,1)*iSD4(5,2)
 nEta  = iSD4(5,3)*iSD4(5,4)
 
 nGr = 0
+ldot2 = ldot
 la = iAngV(1)
 lb = iAngV(2)
 lc = iAngV(3)
 ld = iAngV(4)
-ldot2 = ldot
 iCmpa = iCmp(1)
 jCmpb = iCmp(2)
 kCmpc = iCmp(3)
@@ -160,6 +160,10 @@ lShlld = iShll(4)
 IncZet = nAlpha*jPrInc
 IncEta = nGamma*lPrInc
 LmbdT = 0
+iStb = iSD4(10,1)
+jStb = iSD4(10,2)
+kStb = iSD4(10,3)
+lStb = iSD4(10,4)
 nabcd = iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)
 mab = nTri_Elem1(la)*nTri_Elem1(lb)
 mcd = nTri_Elem1(lc)*nTri_Elem1(ld)

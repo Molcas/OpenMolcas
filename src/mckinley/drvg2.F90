@@ -61,7 +61,7 @@ integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV
                      jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jk2, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
                      js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
                      ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, ls, &
-                     lShell, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
+                     lShell, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
                      mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
                      nDjl, nDkl, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4)
@@ -403,7 +403,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
-  mdci = iSD(10,iS)
   iShell = iSD(11,iS)
   iCnttp = iSD(13,iS)
   iCnt = iSD(14,iS)
@@ -411,7 +410,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
   jCmp = iSD(2,jS)
   jBas = iSD(3,jS)
-  mdcj = iSD(10,jS)
   jShell = iSD(11,jS)
   jCnttp = iSD(13,jS)
   jCnt = iSD(14,jS)
@@ -451,7 +449,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     !do kS=1,nSkal
     kCmp = iSD(2,kS)
-    mdck = iSD(10,kS)
     kShell = iSD(11,kS)
     kCnttp = iSD(13,kS)
     kCnt = iSD(14,kS)
@@ -461,7 +458,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     !  do lS=1,kS
     lCmp = iSD(2,lS)
-    mdcl = iSD(10,lS)
     lShell = iSD(11,lS)
     lCnttp = iSD(13,lS)
     lCnt = iSD(14,lS)
@@ -642,7 +638,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !
     !------------------------------------------------------------------*
 
-    call DerCtr(mdci,mdcj,mdck,mdcl,ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG)
+    call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 
     !------------------------------------------------------------------*
     !
@@ -798,8 +794,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
-                           k2data(:,ik2),k2data(:,jk2),Pren,Prem, &
+            call TwoEl_mck(Coor,nRys,nDCRR,nDCRS,k2data(:,ik2),k2data(:,jk2),Pren,Prem, &
                            iBasn,jBasn,kBasn,lBasn, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nijkl,nSO, &
                            Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
