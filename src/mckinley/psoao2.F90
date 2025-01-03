@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine PSOAO2(nSO,MemPrm,MemM,iCmpa,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc, &
+subroutine PSOAO2(nSO,MemPrm,MemM,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc, &
                   kPrim,kPrInc,lPrim,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer,iMemB, &
                   nSD,iSD4)
 !***********************************************************************
@@ -85,17 +85,18 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
                                  lPrim, nAco, iMemB, nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, Mem1, Mem2, Mem3, Mem4, &
                                   MemX, MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer
 integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, mabcd, Mem0, MemAux, &
                      MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, nijkl, nMax, nMaxC, &
-                     nPam(4,0:7), nTmp1, nTmp2, iAO(4)
+                     nPam(4,0:7), nTmp1, nTmp2, iAO(4), iCmpa(4)
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 
 iAO(:)  = iSD4( 7,:)
+iCmpa(:)= iSD4( 2,:)
 
 la = iSD4(1,1)
 lb = iSD4(1,2)

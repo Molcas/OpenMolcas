@@ -666,7 +666,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !
     !------------------------------------------------------------------*
 
-    call PSOAO2(nSO,MemPrm,MemMax,iCmpV,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
+    call PSOAO2(nSO,MemPrm,MemMax,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
                 jPrInc,kPrimk,kPrInc,lPriml,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB,&
                 nSD,iSD4)
 
@@ -802,7 +802,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,iAngV,iCmpV,iShelV,iShllV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
+            call TwoEl_mck(Coor,iAngV,iShelV,iShllV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
                            k2data(:,ik2),k2data(:,jk2), &
                            Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc, &
                            Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
