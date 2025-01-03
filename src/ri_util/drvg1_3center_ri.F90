@@ -88,8 +88,7 @@ character(len=80) :: KSDFT
 character(len=72) :: frmt
 character(len=50) :: CFmt
 character(len=8) :: Method
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, Indexation, JfGrad(3,4), No_Batch, Shijij, &
-                     is_error
+logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FlipFlop, Found, Indexation, JfGrad(3,4), No_Batch, Shijij
 integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:), Xmi(:,:,:,:)
@@ -509,6 +508,7 @@ end do
 ! Otherwise do batches exactly in the same order as Seward did the
 ! 2-center terms.
 
+call Get_cArray('Relax Method',Method,8)
 if (Method /= 'KS-DFT  ') then
   iOpt = 1
 else

@@ -152,9 +152,9 @@ C
       SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                 VECROT)
 
-      use caspt2_global, only: idSDMat, imag_shift, iVecL,
-     *                         sigma_p_epsilon, LUSBT, LUSTD,
-     *                         real_shift, LUSOLV, ipea_shift
+      use caspt2_global, only: imag_shift, iVecL,
+     *                         sigma_p_epsilon, LUSBT,
+     *                         LUSOLV, ipea_shift
 #ifdef _MOLCAS_MPP_
       use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
 #endif
