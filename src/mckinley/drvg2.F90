@@ -52,7 +52,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
-integer(kind=iwp) :: i, iAngV(4), iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
+integer(kind=iwp) :: i, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh, ik2, ikS, ilS, iMemB, &
                      ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
@@ -469,7 +469,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
-    iAngV(:) = iSD4( 1,:)
     iCmpV(:) = iSD4( 2,:)
     iShllV(:)= iSD4( 0,:)
     iShelV(:)= iSD4(11,:)
@@ -802,7 +801,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,iAngV,iShelV,iShllV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
+            call TwoEl_mck(Coor,iShelV,iShllV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
                            k2data(:,ik2),k2data(:,jk2), &
                            Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc, &
                            Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
