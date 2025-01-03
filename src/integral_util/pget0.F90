@@ -12,8 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet0(ijkl,PSO,nPSO,n1,n2,n3,n4,MemPSO,Mem2,nMem2,iShell_A,iShell_B,iShell_C, &
-                 iShell_D,nQuad,PMax,iSD4)
+subroutine PGet0(ijkl,PSO,nPSO,iFnc,MemPSO,Mem2,nMem2,nQuad,PMax,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to act as a shell towards the manipulations of generating or *
@@ -40,10 +39,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
-                                 iShell_A, iShell_B, iShell_C, iShell_D, nQuad, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: ijkl, nPSO, iFnc(4), MemPSO, nMem2, nQuad, iSD4(0:nSD,4)
 real(kind=wp), intent(out) :: PSO(ijkl,nPSO), Mem2(nMem2), PMax
-integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas
+integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, &
+                     n1, n2, n3, n4, iShell_A, iShell_B, iShell_C, iShell_D
 
 !                                                                      *
 !***********************************************************************
@@ -55,6 +54,14 @@ iBas    = iSD4(19,1)
 jBas    = iSD4(19,2)
 kBas    = iSD4(19,3)
 lBas    = iSD4(19,4)
+n1 = iFnc(1)*iBas
+n2 = iFnc(2)*jBas
+n3 = iFnc(3)*kBas
+n4 = iFnc(4)*lBas
+iShell_A=iSD4(20,1)
+iShell_B=iSD4(20,2)
+iShell_C=iSD4(20,3)
+iShell_D=iSD4(20,4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

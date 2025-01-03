@@ -734,8 +734,7 @@ do while (Rsv_Tsk2(id,klS))
 #           ifdef _CD_TIMING_
             call CWTIME(Pget0CPU1,Pget0WALL1)
 #           endif
-            call PGet0(nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn, &
-                       iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax,iSD4)
+            call PGet0(nijkl,Sew_Scr(ipMem1),nSO,iFnc,MemPSO,Sew_Scr(ipMem2),Mem2,nQuad,PMax,iSD4)
 #           ifdef _CD_TIMING_
             call CWTIME(Pget0CPU2,Pget0WALL2)
             Pget3_CPU = Pget3_CPU+Pget0CPU2-Pget0CPU1
