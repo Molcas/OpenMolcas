@@ -487,19 +487,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     Shjl = jShell == lShell
     Shijij = Shik .and. Shjl
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-
-    iPrimi = Shells(iShllV(1))%nExp
-    jPrimj = Shells(iShllV(2))%nExp
-    kPrimk = Shells(iShllV(3))%nExp
-    lPriml = Shells(iShllV(4))%nExp
-
-    iBasi = iSD4(3,1)
-    jBasj = iSD4(3,2)
-    kBask = iSD4(3,3)
-    lBasl = iSD4(3,4)
 
     !                                                                  *
     !*******************************************************************
@@ -664,6 +651,15 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ! available memory and the requested memory.
     !
     !------------------------------------------------------------------*
+    iPrimi=iSD4( 5,1)
+    jPrimj=iSD4( 5,2)
+    kPrimk=iSD4( 5,3)
+    lPriml=iSD4( 5,4)
+
+    iBasi = iSD4(3,1)
+    jBasj = iSD4(3,2)
+    kBask = iSD4(3,3)
+    lBasl = iSD4(3,4)
 
     call PSOAO2(nSO,MemPrm,MemMax,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
                 jPrInc,kPrimk,kPrInc,lPriml,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB,&
