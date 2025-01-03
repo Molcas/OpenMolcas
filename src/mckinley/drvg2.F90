@@ -57,7 +57,7 @@ integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV
                      ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
-                     ipTmp, ipTmp2, iS, iShell, iShelV(4), iShll, iShllV(4), jBas, jBasAO, jBasj, jBasn, &
+                     ipTmp, ipTmp2, iS, iShell, iShelV(4), iShll, jBas, jBasAO, jBasj, jBasn, &
                      jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jk2, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
                      js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
                      ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, ls, &
@@ -470,7 +470,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
     iCmpV(:) = iSD4( 2,:)
-    iShllV(:)= iSD4( 0,:)
     iShelV(:)= iSD4(11,:)
     iAOV(:)  = iSD4( 7,:)
 
@@ -799,7 +798,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,iShllV,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
+            call TwoEl_mck(Coor,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
                            k2data(:,ik2),k2data(:,jk2),Pren,Prem, &
                            iBasn,jBasn,kBasn,lBasn, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nijkl,nSO, &
