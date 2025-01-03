@@ -23,7 +23,6 @@ set (sources
      drvh1.F90
      finfld.F90
      grd_interface.F90
-     int_parm_g.F90
      int_prep_g.F90
      knegrd.F90
      knemmg.F90

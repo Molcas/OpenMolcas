@@ -28,8 +28,8 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 
 use setup, only: mSkal, MxPrm
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Destroy_BraKet, Sew_Scr
-use Disp, only: ChDisp, l2DI
+use k2_arrays, only: Create_BraKet, Destroy_BraKet, Sew_Scr
+use Disp, only: ChDisp
 use Basis_Info, only: nBas, nBas_Frag
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -49,8 +49,8 @@ integer(kind=iwp) :: JndGrd(3,4), iFnc(4), &
                      iBsInc, iCar, ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, Mem1, Mem2, jAng, iSh, &
                      jBasAO, jBasj, jBasn, jBsInc, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, &
                      kS, lBasAO, lBasl, lBasn, lBsInc, mBtch, lS, MemPSO, &
-                     nab, ncd, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, &
-                     nSkal_Valence, nSO, nZeta, nBtch
+                     nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, &
+                     nSkal_Valence, nSO, nBtch
 logical(kind=iwp) :: EQ, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Triangular, lNoSkip
 character(len=72) :: formt
 integer(kind=iwp), save :: MemPrm
@@ -113,8 +113,6 @@ MxPrm = 0
 do iAng=0,S%iAngMx
   MxPrm = max(MxPrm,S%MaxPrm(iAng))
 end do
-nZeta = MxPrm*MxPrm
-nEta = MxPrm*MxPrm
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -244,6 +242,13 @@ do
     end if
     if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1) lNoSkip = .false.
     if (lNoSkip) then
+      !                                                                      *
+      !***********************************************************************
+      !                                                                      *
+      ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
+      !
+      call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
+
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -265,10 +270,6 @@ do
       kBsInc= iSD4(4,3)
       lBsInc= iSD4(4,4)
 
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-      call Int_Parm_g(iSD4,nSD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -316,8 +317,7 @@ do
 
                 !--Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,nRys,Pren,Prem, &
-                             iBasn,jBasn,kBasn,lBasn,nZeta,nEta, &
+                call TwoEl_g(Coor,nRys,Pren,Prem,iBasn,jBasn,kBasn,lBasn, &
                              Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,iSD4)
 
                 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp)

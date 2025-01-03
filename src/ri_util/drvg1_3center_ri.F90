@@ -42,8 +42,7 @@ use setup, only: mSkal, MxPrm
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, ReadBPT2
-use k2_arrays, only: Destroy_BraKet, Sew_Scr
-use Disp, only: l2DI
+use k2_arrays, only: Create_BraKet, Destroy_BraKet, Sew_Scr
 #ifdef _DEBUGPRINT_
 use Disp, only: ChDisp
 #endif
@@ -74,9 +73,9 @@ integer(kind=iwp) :: i, iAdrC, iAng, ib, iBasAO, iBasi, iBasn, iBsInc, iCar, id,
                      jBasn, jBsInc, jjQ, JndGrd(3,4), jS, jS_, jsh, jSym, jSym_s, KAux, kBasAO, &
                      kBask, kBasn, kBsInc, kBtch, klS, klS_, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, &
                      lBsInc, lCijK, lCilK, lMaxDens, lS, maxnAct, maxnnP, mBtch, Mem1, &
-                     Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nEta, &
-                     nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nPrev, nQuad, nRys, &
-                     nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
+                     Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nAct(0:7), nBtch,  &
+                     nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nPrev, nQuad, nRys, &
+                     nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki
 real(kind=wp) :: A_int, A_int_ij, A_int_kl, Coor(3,4), Dm_ij, ExFac, PMax, Prem, Pren, PZmnij, SDGmn, ThrAO, TMax_all, TotCPU, &
                  TotWall, XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, Xik, Xil, Xjk, Xjl
 #ifdef _CD_TIMING_
@@ -156,8 +155,6 @@ MxPrm = 0
 do iAng=0,S%iAngMx
   MxPrm = max(MxPrm,S%MaxPrm(iAng))
 end do
-nZeta = MxPrm*MxPrm
-nEta = MxPrm*MxPrm
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -663,6 +660,13 @@ do while (Rsv_Tsk2(id,klS))
     ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
     ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
     if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) cycle
+    !                                                                      *
+    !***********************************************************************
+    !                                                                      *
+    ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
+    !
+    call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
+
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -683,10 +687,6 @@ do while (Rsv_Tsk2(id,klS))
     kBsInc= iSD4(4,3)
     lBsInc= iSD4(4,4)
 
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    call Int_Parm_g(iSD4,nSD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -748,9 +748,8 @@ do while (Rsv_Tsk2(id,klS))
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU1,TwoelWall1)
 #           endif
-            call TwoEl_g(Coor,nRys,Pren,Prem, &
-                         iBasn,jBasn,kBasn,lBasn, &
-                         nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
+            call TwoEl_g(Coor,nRys,Pren,Prem,iBasn,jBasn,kBasn,lBasn, &
+                         Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                          Sew_Scr(ipMem2),Mem2,iSD4)
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU2,TwoelWall2)

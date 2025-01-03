@@ -37,8 +37,8 @@ use setup, only: mSkal, MxPrm
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: A_PT2
-use k2_arrays, only: Destroy_BraKet, Sew_Scr
-use Disp, only: ChDisp, l2DI
+use k2_arrays, only: Create_BraKet, Destroy_BraKet, Sew_Scr
+use Disp, only: ChDisp
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
@@ -63,8 +63,8 @@ integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, id, iFnc(4), i
                      iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), &
                      jS, jS_, kBasAO, kBask, kBasn, kBsInc, kBtch, kS, lA, lA_MP2, &
                      lBasAO, lBasl, lBasn, lBsInc, lS, lS_, mBtch, Mem1, Mem2, MemMax, &
-                     MemPSO, mij, nab, nBtch, ncd, nEta, nHmab, nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, &
-                     nRys, nSkal, nSO, nTMax, nZeta
+                     MemPSO, mij, nBtch, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, &
+                     nRys, nSkal, nSO, nTMax
 real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
@@ -127,8 +127,6 @@ MxPrm = 0
 do iAng=0,S%iAngMx
   MxPrm = max(MxPrm,S%MaxPrm(iAng))
 end do
-nZeta = MxPrm*MxPrm
-nEta = MxPrm*MxPrm
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -341,6 +339,13 @@ do while (Rsv_Tsk(id,jlS))
   ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
   ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
   if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) cycle
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
+  !
+  call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
+
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -361,10 +366,6 @@ do while (Rsv_Tsk(id,jlS))
   kBsInc= iSD4(4,3)
   lBsInc= iSD4(4,4)
 
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  call Int_Parm_g(iSD4,nSD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -427,9 +428,8 @@ do while (Rsv_Tsk(id,jlS))
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
-          call TwoEl_g(Coor,nRys,Pren,Prem, &
-                       iBasn,jBasn,kBasn,lBasn, &
-                       nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
+          call TwoEl_g(Coor,nRys,Pren,Prem,iBasn,jBasn,kBasn,lBasn, &
+                       Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                        Sew_Scr(ipMem2),Mem2,iSD4)
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU2,TwoelWall2)

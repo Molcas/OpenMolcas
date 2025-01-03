@@ -33,8 +33,8 @@ subroutine Drvg1(Grad,Temp,nGrad)
 
 use setup, only: mSkal, MxPrm
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Destroy_BraKet, Sew_Scr
-use Disp, only: ChDisp, l2DI
+use k2_arrays, only: Create_BraKet, Destroy_BraKet, Sew_Scr
+use Disp, only: ChDisp
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
@@ -56,8 +56,8 @@ integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, iFnc(4), ijklA
                      ijS, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
                      j, jAng, jBAsAO, jBasj, jBasn, jBsInc, JndGrd(3,4), jS, &
                      kBasAO, kBask, kBasn, kBsInc, kBtch, kls, kS, lBasAO, lBasl, lBasn, lBsInc, &
-                     lS, mBtch, Mem1, Mem2, MemMax, MemPSO, nab, nBtch, ncd, &
-                     nEta, nHmab, nHmcd, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSO, nZeta
+                     lS, mBtch, Mem1, Mem2, MemMax, MemPSO, nBtch, &
+                     nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSO
 real(kind=wp) :: A_int, Cnt, Coor(3,4), P_Eff, PMax, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 logical(kind=iwp) :: ABCDeq, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), lDummy, No_Batch, Skip, Triangular
 character(len=72) :: formt
@@ -137,8 +137,6 @@ MxPrm = 0
 do iAng=0,S%iAngMx
   MxPrm = max(MxPrm,S%MaxPrm(iAng))
 end do
-nZeta = MxPrm*MxPrm
-nEta = MxPrm*MxPrm
 !
 !***********************************************************************
 !                                                                      *
@@ -268,6 +266,13 @@ do
       if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) Skip = .true.
     end if
     if (.not. Skip) then
+      !                                                                      *
+      !***********************************************************************
+      !                                                                      *
+      ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
+      !
+      call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
+
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -288,10 +293,6 @@ do
       kBsInc= iSD4(4,3)
       lBsInc= iSD4(4,4)
 
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-      call Int_Parm_g(iSD4,nSD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -353,9 +354,8 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #             endif
-              call TwoEl_g(Coor,nRys,Pren,Prem, &
-                           iBasn,jBasn,kBasn,lBasn, &
-                           nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
+              call TwoEl_g(Coor,nRys,Pren,Prem,iBasn,jBasn,kBasn,lBasn, &
+                           Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                            Sew_Scr(ipMem2),Mem2,iSD4)
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU2,TwoelWall2)
