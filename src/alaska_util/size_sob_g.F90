@@ -19,7 +19,8 @@ integer(kind=iwp), intent(out) :: nSO
 logical(kind=iwp), intent(out) :: No_batch
 integer(kind=iwp), external :: MemSO2_P
 
-nSO = MemSO2_P(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(7,1),iSD4(7,2),iSD4(7,3),iSD4(7,4))
+nSO = MemSO2_P(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),nSD,iSD4)
+
 No_batch = nSO == 0
 
 return

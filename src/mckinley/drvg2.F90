@@ -403,7 +403,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
-  iPrim = iSD(5,iS)
   mdci = iSD(10,iS)
   iShell = iSD(11,iS)
   iCnttp = iSD(13,iS)
@@ -497,10 +496,12 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     jPrimj = Shells(iShllV(2))%nExp
     kPrimk = Shells(iShllV(3))%nExp
     lPriml = Shells(iShllV(4))%nExp
-    iBasi = Shells(iShllV(1))%nBasis
-    jBasj = Shells(iShllV(2))%nBasis
-    kBask = Shells(iShllV(3))%nBasis
-    lBasl = Shells(iShllV(4))%nBasis
+
+    iBasi = iSD4(3,1)
+    jBasj = iSD4(3,2)
+    kBask = iSD4(3,3)
+    lBasl = iSD4(3,4)
+
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -640,7 +641,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ! Compute total size of the second order density matrix in SO basis.
     !
     !------------------------------------------------------------------*
-    nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAOV(1),iAOV(2),iAOV(3),iAOV(4))
+    nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,nSD,iSD4)
     ldot2 = ldot
     if (nSO == 0) ldot2 = .false.
 
