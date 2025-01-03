@@ -216,9 +216,6 @@ logical(kind=iwp) bStat
 #ifdef _MOLCAS_MPP_
         end if
 #endif
-        ID = IDSMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,2,WRK1,NAS*(NAS+1)/2,ID)
-        CALL DDAFILE(LUGRAD,1,WRK1,NAS*(NAS+1)/2,IDSAVGRD)
         !! ST matrix
 #ifdef _MOLCAS_MPP_
         if (is_real_par() .and. (icase==1 .or. icase==4)) then
@@ -349,9 +346,6 @@ logical(kind=iwp) bStat
 #ifdef _MOLCAS_MPP_
         end if
 #endif
-        CALL DDAFILE(LUGRAD,2,WRK1,NAS*NIN,IDSAVGRD)
-        ID = IDTMAT(ISYM,ICASE)
-        CALL DDAFILE(LUSBT,1,WRK1,NAS*NIN,ID)
         !! Eigenvalue
         if (NIN > 0) then
           CALL DDAFILE(LUGRAD,2,WRK1,NIN,IDSAVGRD)
@@ -396,7 +390,7 @@ Contains
     integer(kind=iwp) :: lg_V1,NVEC,ICASE_,ISYM_
 
     !! IVECX = T (solution; not quasi-variational, before lambda-eq)
-!   IVECX = 2
+    IVECX = 2
 
     Do ICASE_ = 1, NCASES
       Do ISYM_ = 1, NSYM
@@ -423,8 +417,10 @@ Contains
               END IF
             else
 #endif
-              Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
-              CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
+              if (NAS*NIS) then
+                Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
+                CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
+              end if
 #ifdef _MOLCAS_MPP_
             end if
 #endif
@@ -442,8 +438,10 @@ Contains
               END IF
             else
 #endif
-              CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
-              CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
+              if (NAS*NIS > 0) then
+                CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
+                CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
+              end if
 #ifdef _MOLCAS_MPP_
             end if
 #endif
@@ -465,8 +463,10 @@ Contains
               END IF
             else
 #endif
-              Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
-              CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
+              if (NIN*NIS > 0) then
+                Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
+                CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
+              end if
 #ifdef _MOLCAS_MPP_
             end if
 #endif
@@ -484,8 +484,10 @@ Contains
               END IF
             else
 #endif
-              CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
-              CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
+              if (NIN*NIS > 0) then
+                CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NIN*NIS,IDSAVGRD)
+                CALL RHS_SAVE_SR(lg_V1,ICASE_,ISYM_,IVECX)
+              end if
 #ifdef _MOLCAS_MPP_
             end if
 #endif
