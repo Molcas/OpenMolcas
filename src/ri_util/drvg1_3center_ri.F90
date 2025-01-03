@@ -69,11 +69,11 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(out) :: Temp(nGrad)
 integer(kind=iwp) :: i, iAdrC, iAng, ib, iBasAO, iBasi, iBasn, iBsInc, iCar, id, iFnc(4), &
-                     iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrInc, &
+                     iiQ, ij, ijklA, ijMax, ijQ, ijS, iMOleft, iMOright, iOpt, ipMem1, ipMem2, iPrem, iPren, &
                      iS, iS_, iSD4(0:nSD,4), ish, iSO, iSym, itmp, j, jAng, jb, jBasAO, jBasj, &
-                     jBasn, jBsInc, jjQ, JndGrd(3,4), jPrInc, jS, jS_, jsh, jSym, jSym_s, KAux, kBasAO, &
-                     kBask, kBasn, kBsInc, kBtch, klS, klS_, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, &
-                     lBsInc, lCijK, lCilK, lMaxDens, lPrInc, lS, maxnAct, maxnnP, mBtch, Mem1, &
+                     jBasn, jBsInc, jjQ, JndGrd(3,4), jS, jS_, jsh, jSym, jSym_s, KAux, kBasAO, &
+                     kBask, kBasn, kBsInc, kBtch, klS, klS_, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, &
+                     lBsInc, lCijK, lCilK, lMaxDens, lS, maxnAct, maxnnP, mBtch, Mem1, &
                      Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nEta, &
                      nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nPrev, nQuad, nRys, &
                      nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
@@ -671,8 +671,8 @@ do while (Rsv_Tsk2(id,klS))
 
     ! Now check if all blocks can be computed and stored at once.
 
-    Call PSOAO1(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc, &
-                jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
+    Call PSOAO1(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc, &
+                ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 
     iBasi = iSD4(3,1)
     jBasj = iSD4(3,2)
@@ -743,7 +743,7 @@ do while (Rsv_Tsk2(id,klS))
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU1,TwoelWall1)
 #           endif
-            call TwoEl_g(Coor,nRys,Pren,Prem,iPrInc,jPrInc,kPrInc,lPrInc, &
+            call TwoEl_g(Coor,nRys,Pren,Prem, &
                          iBasn,jBasn,kBasn,lBasn, &
                          nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
                          Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)
