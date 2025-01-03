@@ -13,8 +13,8 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine PSOAO2(nSO,MemPrm,MemM,iFnc,iPrInc,jPrInc, &
-                  kPrInc,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer,iMemB, &
+subroutine PSOAO2(nSO,MemPrm,MemM,iFnc, &
+                  nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer,iMemB, &
                   nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -87,12 +87,12 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, nAco, iMemB, nSD
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: iFnc(4), iPrInc, jPrInc, kPrInc, lPrInc, Mem1, Mem2, Mem3, Mem4, &
+integer(kind=iwp), intent(out) :: iFnc(4), Mem1, Mem2, Mem3, Mem4, &
                                   MemX, MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer
 integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, mabcd, Mem0, MemAux, &
                      MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, nijkl, nMax, nMaxC, &
                      nPam(4,0:7), nTmp1, nTmp2, iAO(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, &
-                     iBsInc, jBsInc, kBsInc, lBsInc
+                     iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 
