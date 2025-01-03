@@ -12,9 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TwoEl_g(Coor,nRys,Pren,Prem, &
-                   iBasi,jBasj,kBask,lBasl,Grad,nGrad,IfGrad,IndGrd,PSO,nijkl,nPSO, &
-                   Wrk2,nWrk2,iSD4)
+subroutine TwoEl_g(Coor,nRys,Pren,Prem,Grad,nGrad,IfGrad,IndGrd,PSO,nijkl,nPSO,Wrk2,nWrk2,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -49,8 +47,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nRys, iBasi, jBasj, kBask, lBasl,  &
-                                 nGrad, IndGrd(3,4), nijkl, nPSO, nWrk2, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: nRys, nGrad, IndGrd(3,4), nijkl, nPSO, nWrk2, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO)
 real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
@@ -61,7 +58,8 @@ integer(kind=iwp) :: iC, iCar, iCent, iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7),
                      lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, &
                      lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, mZeta, nDCRR, nDCRS, nDCRT, nEta_Tot, nIdent, nOp(4), &
                      nW2, nW4, nWrk3, nZeta_Tot, iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), iStb, jStb, kStb, lStb, &
-                     iS, jS, kS, lS, ijS, klS, ik2, jk2, iAOst(4), nAlpha, nBeta, nGamma, nDelta, jPrInc, lPrInc, nZeta, nEta
+                     iS, jS, kS, lS, ijS, klS, ik2, jk2, iAOst(4), nAlpha, nBeta, nGamma, nDelta, jPrInc, lPrInc, nZeta, nEta, &
+                     iBasi, jBasj, kBask, lBasl
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr, Shijij
 procedure(cff2d_kernel) :: vCff2D
@@ -104,6 +102,11 @@ nAlpha=iSD4( 5,1)
 nBeta =iSD4( 5,2)
 nGamma=iSD4( 5,3)
 nDelta=iSD4( 5,4)
+iBasi =iSD4(19,1)
+jBasj =iSD4(19,2)
+kBask =iSD4(19,3)
+lBasl =iSD4(19,4)
+
 
 nZeta=nAlpha*nBeta
 nEta =nGamma*nDelta

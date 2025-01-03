@@ -317,7 +317,7 @@ do
 
                 !--Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,nRys,Pren,Prem,iBasn,jBasn,kBasn,lBasn, &
+                call TwoEl_g(Coor,nRys,Pren,Prem, &
                              Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nijkl,nSO,Sew_Scr(ipMem2),Mem2,iSD4)
 
                 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp)

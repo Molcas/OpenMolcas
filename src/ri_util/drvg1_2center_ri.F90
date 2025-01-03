@@ -428,7 +428,7 @@ do while (Rsv_Tsk(id,jlS))
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
-          call TwoEl_g(Coor,nRys,Pren,Prem,iBasn,jBasn,kBasn,lBasn, &
+          call TwoEl_g(Coor,nRys,Pren,Prem, &
                        Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nijkl,nSO, &
                        Sew_Scr(ipMem2),Mem2,iSD4)
 #         ifdef _CD_TIMING_

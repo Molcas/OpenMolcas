@@ -354,8 +354,7 @@ do
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU1,TwoelWall1) ! timing_cdscf
 #             endif
-              call TwoEl_g(Coor,nRys,Pren,Prem,iBasn,jBasn,kBasn,lBasn, &
-                           Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nijkl,nSO, &
+              call TwoEl_g(Coor,nRys,Pren,Prem,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nijkl,nSO, &
                            Sew_Scr(ipMem2),Mem2,iSD4)
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU2,TwoelWall2)
