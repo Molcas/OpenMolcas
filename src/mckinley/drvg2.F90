@@ -800,8 +800,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             call TwoEl_mck(Coor,iShelV,iShllV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
                            k2data(:,ik2),k2data(:,jk2), &
                            Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc, &
-                           Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
-                           Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn, &
+                           iBasn,jBasn,kBasn,lBasn, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nSO, &
                            Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &

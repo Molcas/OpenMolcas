@@ -15,7 +15,7 @@
 subroutine TwoEl_mck(Coor,iShell,iShll,iAOst,iStb,jStb,kStb,lStb,nRys,nData1,nData2, &
                      k2Data1,k2Data2, &
                      Pren,Prem,nAlpha,nBeta,jPrInc,nGamma,nDelta,lPrInc, &
-                     Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
+                     iBasi,jBasj,kBask,lBasl, &
                      Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
                      Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk, &
@@ -96,8 +96,7 @@ integer(kind=iwp), intent(in) :: iShell(4), iShll(4), iAOst(4), iStb, jStb, kStb
                                  nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
                                  nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
                                  nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4)
-real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
-                             PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
+real(kind=wp), intent(in) :: Coor(3,4), PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
                              Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), &
                              Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Dan(*), Din(*)
 type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
@@ -118,6 +117,7 @@ procedure(modu2_kernel) :: ModU2
 procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
+real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 
 !                                                                      *
 !***********************************************************************
@@ -184,6 +184,11 @@ iuvwx(1) = dc(iStb)%nStab
 iuvwx(2) = dc(jStb)%nStab
 iuvwx(3) = dc(kStb)%nStab
 iuvwx(4) = dc(lStb)%nStab
+
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
+Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -561,6 +566,9 @@ end do
 !***********************************************************************
 !                                                                      *
 
-return
+Coeff1 => Null()
+Coeff2 => Null()
+Coeff3 => Null()
+Coeff4 => Null()
 
 end subroutine Twoel_Mck
