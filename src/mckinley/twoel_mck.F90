@@ -13,7 +13,6 @@
 !***********************************************************************
 
 subroutine TwoEl_mck(Coor,nRys,nData1,nData2,k2Data1,k2Data2,Pren,Prem, &
-                     iBasi,jBasj,kBask,lBasl, &
                      Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
                      Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk, &
@@ -89,8 +88,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nRys, nData1, &
-                                 nData2, iBasi, jBasj, kBask, lBasl, &
+integer(kind=iwp), intent(in) :: nRys, nData1, nData2, &
                                  nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
                                  nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
                                  nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4), nijkl
@@ -108,7 +106,7 @@ integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCR
                      lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, lZeta, mab, mcd, mEta, mZeta, n, nabcd, &
                      nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot, nZeta, nEta, &
                      iAO(4), iCmp(4), iAngV(4), jPrInc, lPrInc, nAlpha, nBeta, nGamma, nDelta, iAOst(4), iShell(4), iShll(4), &
-                     iStb, jStb, kStb, lStb
+                     iStb, jStb, kStb, lStb, iBasi, jBasj, kBask, lBasl
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4)
 procedure(cff2d_kernel) :: Cff2D
@@ -139,6 +137,11 @@ nAlpha=iSD4( 5,1)
 nBeta =iSD4( 5,2)
 nGamma=iSD4( 5,3)
 nDelta=iSD4( 5,4)
+
+iBasi =iSD4(19,1)
+jBasj =iSD4(19,2)
+kBask =iSD4(19,3)
+lBasl =iSD4(19,4)
 
 nZeta = iSD4(5,1)*iSD4(5,2)
 nEta  = iSD4(5,3)*iSD4(5,4)
