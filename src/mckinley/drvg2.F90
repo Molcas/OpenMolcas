@@ -52,7 +52,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
-integer(kind=iwp) :: i, iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
+integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh, ik2, ikS, ilS, iMemB, &
                      ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
@@ -679,7 +679,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !------------------------------------------------------------------*
     do iBasAO=1,iBasi,iBsInc
       iBasn = min(iBsInc,iBasi-iBasAO+1)
-      iAOst(1) = iBasAO-1
       iSD4( 8,1) = iBasAO-1
       iSD4(19,1) = iBasn
 
@@ -691,7 +690,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
       !----------------------------------------------------------------*
       do jBasAO=1,jBasj,jBsInc
         jBasn = min(jBsInc,jBasj-jBasAO+1)
-        iAOst(2) = jBasAO-1
         iSD4( 8,2) = jBasAO-1
         iSD4(19,2) = jBasn
 
@@ -707,7 +705,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
         do kBasAO=1,kBask,kBsInc
           kBasn = min(kBsInc,kBask-kBasAO+1)
-          iAOst(3) = kBasAO-1
           iSD4( 8,3) = kBasAO-1
           iSD4(19,3) = kBasn
 
@@ -730,7 +727,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
           do lBasAO=1,lBasl,lBsInc
             lBasn = min(lBsInc,lBasl-lBasAO+1)
-            iAOst(4) = lBasAO-1
             iSD4( 8,4) = lBasAO-1
             iSD4(19,4) = lBasn
 
@@ -803,7 +799,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,iShelV,iShllV,iAOst,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
+            call TwoEl_mck(Coor,iShelV,iShllV,mdci,mdcj,mdck,mdcl,nRys,nDCRR,nDCRS, &
                            k2data(:,ik2),k2data(:,jk2),Pren,Prem, &
                            iBasn,jBasn,kBasn,lBasn, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nijkl,nSO, &
