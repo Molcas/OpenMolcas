@@ -57,7 +57,7 @@ integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV
                      ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
-                     ipTmp, ipTmp2, iS, iShell, iShelV(4), iShll, jBas, jBasAO, jBasj, jBasn, &
+                     ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
                      jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jk2, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
                      js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
                      ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, ls, &
@@ -466,7 +466,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
     iCmpV(:) = iSD4( 2,:)
-    iShelV(:)= iSD4(11,:)
     iAOV(:)  = iSD4( 7,:)
 
     !                                                                  *
@@ -819,8 +818,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ip4 = ip3+jcmp*jBas*naco
     ip5 = ip4+iCmp*naco*iBas
     ip6 = ip5+jcmp*jbas*naco
-    call CLR2(Sew_Scr(ipBuffer),iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,ishelV,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
-              Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6))
+    call CLR2(Sew_Scr(ipBuffer),iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
+              Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6),nSD,iSD4)
   end if
 
   !  end do ! jS
