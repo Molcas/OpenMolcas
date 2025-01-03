@@ -2047,7 +2047,7 @@ C
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp
-#ifdef _MOLCAS_MPP_
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
       USE Para_Info, ONLY: Is_Real_Par, King, nProcs
 #endif
       IMPLICIT NONE
@@ -2627,7 +2627,7 @@ C
       USE EQSOLV
       use definitions, only: iwp,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
-      USE Para_Info, ONLY: Is_Real_Par, nProcs, myRank
+      USE Para_Info, ONLY: Is_Real_Par, nProcs
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
 #include "pt2_guga.fh"
@@ -3390,7 +3390,7 @@ C
       USE MPI
       USE SUPERINDEX
       USE EQSOLV
-      USE Para_Info, only: nProcs, myRank
+      USE Para_Info, only: nProcs
       use definitions, only: iwp,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 
