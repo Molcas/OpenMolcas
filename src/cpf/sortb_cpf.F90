@@ -20,6 +20,7 @@ use cpf_global, only: ICH, IPASS, IRC, IROW, JBUF, JJS, KBUFF1, LASTAD, LN, LSYM
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6, RtoI
+use TraToc, only: ITRATOC,NTRATOC
 
 #include "intent.fh"
 
@@ -27,7 +28,6 @@ implicit none
 real(kind=wp), intent(_OUT_) :: BUFOUT(*), TIBUF(NTIBUF), ACBDS(*), ACBDT(*), BUFACBD(*)
 integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*)
 integer(kind=iwp), intent(in) :: ISAB(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, ICP, ICPP, ICQ, ID, IDISK, IDIV, IFIN1, IFIN2, ILOOP, IN1, &
                      INND, INPS, INPT, INS, INSOUT, IOUT, IREC, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JBUF0, JBUF1, JBUF2, JDISK, &
                      KK, LENGTH, M1, M2, M3, M4, N1, N2, N3, N4, NA, NAC, NB, NBD, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, &

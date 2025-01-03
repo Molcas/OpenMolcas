@@ -18,13 +18,13 @@ subroutine esb_ic_1(symp,symq,symr,syms,Vic,dimp,dimq,dimr,dims)
 use ccsort_global, only: idis, LUINTM, NORB, np, nq, nr, ns, typ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
+use TraToc, only: NTRABUF
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: symp, symq, symr, syms, dimp, dimq, dimr, dims
 real(kind=wp), intent(_OUT_) :: Vic(dimp,dimq,dimr,dims)
-#include "tratoc.fh"
 integer(kind=iwp) :: i1, idis13, ilow, ind(4), indtemp, iold, iup, j1, jlow, jold, jup, k1, kold, kup, l1, lold, lup, ni, nj, nk, &
                      nl, nsi, nsj, nsk, nsl, typp, yes234, yes5, yes678
 real(kind=wp) :: val1

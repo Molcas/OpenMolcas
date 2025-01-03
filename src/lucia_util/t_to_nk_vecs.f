@@ -23,8 +23,8 @@
 * Jeppe Olsen, Feb. 1998
 *
 
+      use lucia_data, only: IDISK
       IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
 *. General input
       DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)
 *. Scratch

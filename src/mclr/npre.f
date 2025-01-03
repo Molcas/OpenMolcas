@@ -8,9 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION nPre(ks)
+      Integer FUNCTION nPre(kS)
+      use input_mclr, only: nSym,nIsh,nOrb,nRS1,nRS2,nRS3
+      Implicit None
+      Integer kS
+      Integer iOut,iS,jS,nRest
 
-#include "Input.fh"
       iOut=0
       Do is=1,nSym
        jS=iEOR(iS-1,kS-1)+1
@@ -24,5 +27,4 @@
        iOut=iOut+nRs3(is)*nRest*(nRest+1)
       End Do
       nPre=iOut
-      Return
-      End
+      End FUNCTION nPre

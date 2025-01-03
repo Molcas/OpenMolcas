@@ -14,17 +14,18 @@
       use rctfld_module, only: lRF
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
-      Implicit Real*8 (a-h,o-z)
-
-#include "Input.fh"
-#include "Files_mclr.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nDens2
+      use input_mclr, only: nSym,nAtoms,iSpin,nActEl,nBas,nFro,nIsh,
+     &                      nOrb,PotNuc
+      Implicit None
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
-      Character*8 Label
+      Character(LEN=8) Label
       Integer iComp, idum(1)
       Real*8, Allocatable:: D1ao(:), Nuc(:)
       Real*8, Allocatable:: Temp1(:), Temp2(:), Temp3(:)
       Real*8, Allocatable:: HTmp(:), GTmp(:)
+      Integer iRC, iOpt, iiSym, iS, Leng, iNuc, iSym, iCharge, ip, ip2
+      Real*8 Tot_Nuc_Charge, Tot_El_Charge, Tot_Charge, ExFac
 *
       iRc=-1
       iOpt=ibset(0,sOpSiz)
@@ -141,5 +142,4 @@ cnf
       Call mma_deallocate(Temp2)
       Call mma_deallocate(Temp3)
 
-      Return
-      End
+      End SubRoutine InpOne

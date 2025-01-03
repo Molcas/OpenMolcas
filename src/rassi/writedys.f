@@ -21,9 +21,9 @@
       SUBROUTINE WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
       use Cntrl, only: NSTATE, DYSEXPSF
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NBASF
 
       IMPLICIT None
-#include "rassi.fh"
 
       INTEGER   NZ
       REAL*8 DYSAMPS(NSTATE,NSTATE)

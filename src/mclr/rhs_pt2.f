@@ -11,16 +11,16 @@
 * Copyright (C) 1998, Anders Bernhardsson                              *
 ************************************************************************
       Subroutine RHS_PT2(rkappa,CLag,SLag)
-
-        Implicit Real*8(a-h,o-z)
-        Real*8 rKappa(*),CLag(*),SLag(*)
+      use MCLR_Data, only: LuPT2
+      use input_mclr, only: nSym,nRoots,nCSF,nOrb
+      Implicit None
+      Real*8 rKappa(*),CLag(*),SLag(*)
 
 ! The RHS array for CASPT2 has been already calculated in the
 ! CASPT2 module, so here we only need to read it from file
 
-#include "Pointers.fh"
-#include "Input.fh"
-#include "Files_mclr.fh"
+      Integer nOLag, nCLag, i, nSLag
+      Real*8 Tmp
 
 !     Read in a and b part of effective gradient from CASPT2
 
@@ -56,4 +56,4 @@
       write(6,*)
       call abend()
 
-      End
+      End Subroutine RHS_PT2

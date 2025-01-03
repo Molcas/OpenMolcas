@@ -12,15 +12,18 @@
      &                rMo,loper,idisp,r)
 *
       use Arrays, only: G1t, CMO
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
-#include "Input.fh"
-#include "disp_mclr.fh"
-*
-      Character*8 Label
+      use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
+      use MCLR_Data, only: DspVec, SWLbl
+      use input_mclr, only: iMethod,nSym,nAsh,nBas,nIsh,nOrb,nTPert
+      Implicit None
       Real*8 FockI(nDens2),Temp2(ndens2),Temp3(nDens2),Temp4(ndens2),
      &       Temp1(nDens2),Fock(nDens2),rMO(*)
+      Integer lOper, iDisp
+      Real*8 r
+      Character(LEN=8) Label
+      Integer jDisp, iOp, iRC, iOpt, iS, jS
+      Real*8 rde
+      Integer i, j, iTri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
 ************************************************************************
@@ -30,7 +33,7 @@
 *           x
 *     Read P
 *
-*     Remember Two electron contributions is saved in MO base
+*     Remember two-electron contributions are saved in MO base
 *     but one electron contributions is saved in AO base.
 *
 *
@@ -223,19 +226,20 @@
 
 *
 *
-      return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real(r)
-      End
+      End subRoutine INTX
+
       Subroutine ReLoad(A,idsym,NBAS1,NBAS2)
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: ipMat, nDens2
+      use input_mclr, only: nSym
+      Implicit None
       Real*8 A(*)
+      Integer idSym
       Integer nbas2(nsym),nbas1(nsym)
       Real*8, Allocatable:: ATemp(:)
+      Integer iS, jS, j
 
       Call mma_allocate(ATemp,ndens2,Label='ATemp')
 
@@ -249,5 +253,4 @@ c Avoid unused argument warnings
       End Do
       call dcopy_(ndens2,ATemp,1,A,1)
       Call mma_deallocate(ATemp)
-      Return
-      End
+      End Subroutine ReLoad

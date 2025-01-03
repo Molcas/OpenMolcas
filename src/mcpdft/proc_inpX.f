@@ -22,9 +22,8 @@
       use general_data,only:norb,nash,nssh,ndel,nish,nfro,nrs3,
      &                      nrs2,nrs1,nbas,nconf,nelec3,nhole1,
      &                      nactel,stsym,ispin,ntotsp,ntot2,ntot1,nsym,
-     &                      ndelt,mxsym,mxorb,lenin8,invec,jobiph,
-     &                      mxtit,jobold,mxroot,nfrot,nrs1t,nrs2t,nrs3t,
-     &                      ntot
+     &                      ndelt,invec,jobiph,jobold,nfrot,nrs1t,nrs2t,
+     &                      nrs3t,ntot
 
 #ifdef _HDF5_
       Use mh5, Only: mh5_open_file_r, mh5_exists_attr,
@@ -34,6 +33,7 @@
 #endif
       implicit none
 
+#include "rasdim.fh"
 #include "warnings.h"
 
       Real(kind=wp) potnucdummy
@@ -73,7 +73,7 @@
       integer nisht, nasht, ndiff
       integer, external :: isStructure
 
-      Call StatusLine('MCPDFT:','Processing Input')
+      Call StatusLine('MCPDFT: ','Processing Input')
 
       IPRLEV = TERSE
 

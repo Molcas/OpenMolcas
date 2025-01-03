@@ -49,8 +49,9 @@ do iS1=1,nState
         kaunta = kaunta+1
         PerAake = AOG(kaunta)
         do iTyp=1,nTyp
-          O(iTyp) = MME(xTyp(iTyp))%A(kaunta)*PerAake
+          O(iTyp) = MME(xTyp(iTyp))%A(kaunta)
         end do
+        O(:)=O(:)*PerAake
         Cha(kaunter,iCent(kaunta)) = Cha(kaunter,iCent(kaunta))+O(1)
         Dip(kaunter,:,iCent(kaunta)) = Dip(kaunter,:,iCent(kaunta))+O(2:4)
         Qua(kaunter,:,iCent(kaunta)) = Qua(kaunter,:,iCent(kaunta))+O(5:10)

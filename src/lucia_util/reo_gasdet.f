@@ -13,7 +13,19 @@
       SUBROUTINE REO_GASDET(IBLOCK,NBLOCK,ISYM,IREO)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS, only: DFTP, CONF_REO
-      use strbas
+      use strbas, only: NSTSO, IOCLS
+      use lucia_data, only: IBCONF_ALL_SYM_FOR_OCCLS,IB_CONF_REO,
+     &                      IB_SD_FOR_OPEN,MAXOP,MINOP,NCONF_PER_OPEN,
+     &                      NCONF_TOT,NPDTCNF
+      use lucia_data, only: NGAS,NMXOCCLS
+      use lucia_data, only: IPRDIA
+      use lucia_data, only: PSSIGN
+      use lucia_data, only: MXNSTR,IBSPGPFTP,NELFSPGP
+      use lucia_data, only: NOCOB,NOBPT,NTOOB
+      use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
+      use lucia_data, only: MXPNGAS
+      use csm_data, only: NSMST
 *
 * Create reorder array for determinants : configuration order => Ab order
 *
@@ -21,32 +33,23 @@
 * Jeppe Olsen, November 2001, from GASANA
 *
 *
-      Implicit REAL*8 (A-H,O-Z)
+      Implicit None
 *
 * =====
 *.Input
 * =====
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "cicisp.fh"
-#include "cstate.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "csm.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "cprnt.fh"
-#include "spinfo_lucia.fh"
-*
-      DIMENSION IBLOCK(8,NBLOCK)
+      INTEGER NBLOCK,ISYM
+      INTEGER IBLOCK(8,NBLOCK)
 *
 *. Output
       INTEGER IREO(*)
+
       Integer, Allocatable:: LASTR(:), LBSTR(:)
       Integer, Allocatable:: ZSCR(:), Z(:)
       Integer, Allocatable:: LOCMIN(:), LOCMAX(:)
       Integer, Allocatable:: DET_OC(:), DET_MS(:), DET_VC(:)
+      Integer NTEST,IATP,IBTP,NAEL,NBEL,NEL,NOCTPA,NOCTPB,IOCTPA,IOCTPB
 
 c      write(6,*)'nconf_per_open in reo_gasdet'
 c      call iwrtma(nconf_per_open,1,4,1,4)
@@ -126,4 +129,4 @@ c      call iwrtma(nconf_per_open,1,4,1,4)
       Call mma_deallocate(DET_MS)
       Call mma_deallocate(DET_VC)
 *
-      END
+      END SUBROUTINE REO_GASDET

@@ -32,14 +32,16 @@
 *
 * Jeppe Olsen, September 1997
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: MXPNGAS
+      IMPLICIT NONE
+      INTEGER NGRP,ISM_TOT,NSMST,NSTRIN,NDIST
 *. Specific Input
-      DIMENSION IGRP(NGRP)
+      INTEGER IGRP(NGRP)
 *. General input
-      DIMENSION NSTSGP(NSMST,*)
+      INTEGER NSTSGP(NSMST,*)
 *. Scratch
-#include "mxpdim.fh"
       INTEGER ISM(MXPNGAS),MNSM(MXPNGAS),MXSM(MXPNGAS)
+      INTEGER NTEST,I,IFIRST,LENGTH,NONEW,LDIST,JGRP,NDISTX
 *
       NTEST = 0
       IF(NTEST.GE.10) THEN
@@ -85,5 +87,4 @@ cGLM     &                       IFIRST,  NONEW)
         WRITE(6,*) ' Number of symmetry-distributions',NDIST
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE NST_SPGRP

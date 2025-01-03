@@ -24,14 +24,14 @@
 * Jeppe Olsen, Version of fall 97
 *              Summer of 98 : CC options added
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-*.Global pointers
-#include "lucinp.fh"
-#include "orbinp.fh"
-
+      use lucia_data, only: NOBPTS
+      IMPLICIT None
+      INTEGER ISM,ITP,JSM,JTP
 *.Output
-      DIMENSION H(*)
+      REAL*8 H(*)
+
+      INTEGER NI,NJ,IJ,J,I,NTEST
+      REAL*8, EXTERNAL :: GETH1E
 *
       NI = NOBPTS(ITP,ISM)
       NJ = NOBPTS(JTP,JSM)
@@ -53,5 +53,4 @@
         CALL WRTMAT(H,NI,NJ,NI,NJ)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE GETH1

@@ -24,33 +24,44 @@
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only:nConf1,nDens2,nDensC,nDens,ipCI
+      use MCLR_Data, only: ipDia
+      use MCLR_Data, only: ISNAC,IRLXROOT,NACSTATES
+      use MCLR_Data, only: LuTemp, LuQDat
+      use MCLR_Data, only: XISPSM
+      use input_mclr, only: nDisp,Fail,lSave,nSym,PT2,State_Sym,iMethod,
+     &                      iBreak,Eps,nIter,iSpin,
+     &                      Debug,kPrint,nCSF,iAddressQDat,
+     &                      NROOTS,TWOSTEP,STEPTYPE,nConf,
+     &                      nActEl,nAsh,nElec3,nHole1,nRS1,nRS2,nRS3
+      use dmrginfo, only: DoDMRG,RGRAS2
+      Implicit None
+      Integer iKapDisp(nDisp),isigDisp(nDisp)
+      Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
+      Integer iRHSDisp(nDisp)
+      Logical converged(8)
+      Integer iPL
 *
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "dmrginfo_mclr.fh"
+#include "rasdim.fh"
 
       Logical CI
-#include "crun_mclr.fh"
-      Character*8   Fmt2
-      Integer iKapDisp(nDisp),isigDisp(nDisp)
-      Integer iRHSDisp(nDisp)
-      Integer iCIDisp(nDisp),iCIsigDisp(nDisp)
+      Character(LEN=8)   Fmt2
       Integer opOut
-      Logical lPrint,converged(8)
+      Logical lPrint
       Real*8 rchc(mxroot)
-      Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Fancy(:),
      &                      SLag(:), wrk(:)
+      Real*8 R1,R2,DeltaC,DeltaK,Delta,Delta0,ReCo,
+     &       rAlphaC,rAlphaK,rAlpha,rEsk,rEsci,rBeta,Res
+      Real*8, External:: DDot_
+      Integer lPaper,lLine,Left,iDis,Lu_50,iDisp,iSym,
+     &        nConf3,iRC,ipS1,ipS2,ipST,ipCIT,ipCID,nPre2,
+     &        iLen,Iter,ipPre2,jSpin,i,iR
+      Integer, External:: ipClose,ipGet,ipIn,ipOut,ipNOut
+      Integer, External:: nPre
+
 *
       interface
         subroutine RHS_NAC(Fock,SLag_pt2)
@@ -66,8 +77,8 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-      Call StatusLine(' MCLR:',
-     &                ' Computing Lagrangian multipliers for SA-CASSCF')
+      Call StatusLine('MCLR: ',
+     &                'Computing Lagrangian multipliers for SA-CASSCF')
 *
 
       lPaper=132
@@ -86,8 +97,8 @@
       lprint=.true.
       reco=-One
       Lu_50=50
-      If (SAVE) CALL DANAME(Lu_50,'RESIDUALS')
-      If (SAVE) Then
+      If (lSAVE) CALL DANAME(Lu_50,'RESIDUALS')
+      If (lSAVE) Then
          Write (6,*) 'WfCtl_SA: SAVE option not implemented'
          Call Abend()
       End If
@@ -252,7 +263,7 @@
           Call mma_deallocate(wrk)
 C
           !! precondition (z0 = M^{-1}*r0)
-          Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum(1),isym,fancy)
+          Call DMinvCI_sa(ipST,W(ipS2)%Vec,fancy)
           irc=opOut(ipci)
           irc=opOut(ipdia)
           !! z0 <= p0
@@ -345,7 +356,7 @@ C
          irc=opOut(ipcid)
 
          irc=ipIn(ipS2)
-         Call DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+         Call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
          irc=opOut(ipci)
          irc=opOut(ipdia)
 
@@ -397,14 +408,14 @@ C
 *
          res=Zero ! dummy initialize
          If (iBreak.eq.1) Then
-            If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
+            If (abs(delta).lt.abs(Eps**2*delta0)) Goto 300
          Else If (iBreak.eq.2) Then
             res=sqrt(resk**2+resci**2)
             if (doDMRG) res=sqrt(resk**2)
-            If (res.lt.abs(epsilon)) Goto 300
+            If (res.lt.abs(Eps)) Goto 300
          Else
-            If (abs(delta).lt.abs(Epsilon**2*delta0).and.
-     &          res.lt.abs(epsilon))  Goto 300
+            If (abs(delta).lt.abs(Eps**2*delta0).and.
+     &          res.lt.abs(Eps))  Goto 300
          End If
          If (iter.ge.niter) goto 210
          If (lprint)
@@ -490,21 +501,27 @@ C
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine WfCtl_SA
 
       Subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
       use ipPage, only: w
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
-#include "dmrginfo_mclr.fh"
-#include "Input.fh"
+      use MCLR_Data, only: nConf1,n2Dens,nDens,nDens2
+      use input_mclr, only: nRoots,nAsh,nRS2
+      use dmrginfo, only: DoDMRG,LRRAS2,RGRAS2
+      Implicit None
+      Real*8 Kap(*)
+      Integer ipCId,isym,jspin,ipS2,ipCiOut
+      Real*8 reco
+      Real*8 KapOut(*)
+
       Integer opOut
-      Real*8 Kap(*),KapOut(*)
       Real*8 rdum(1)
       Real*8, Allocatable:: Temp3(:), Temp4(:),
      &                      Sc1(:), Sc2(:), Sc3(:), RMOAA(:)
+      Integer iRC
+      Integer, External:: ipIn
 *
       Call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
       Call mma_allocate(Sc1,nDens2,Label='Sc1')
@@ -563,8 +580,7 @@ C     end do
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
       end if
 *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End Subroutine TimesE2

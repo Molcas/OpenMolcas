@@ -23,12 +23,13 @@
 *
 *************************************************************
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
-#include "Input.fh"
-      Integer dsym
+      use MCLR_Data, only: ipMat, nB, nDens
+      use input_mclr, only: nSym,nIsh,nRs1,nRs2,nRs3,nOrb,TimeDep
+      Implicit None
+      Integer nIn,nOut,dsym
       Real*8  ArrayIn(nIn),ArrayOut(nOut)
+      Integer IndexC, jT, i1, iSym, jSym, iBas, jBas, iT, ij, Index1
+      Real*8 Fact
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -131,5 +132,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End SubRoutine Compress2

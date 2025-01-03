@@ -41,8 +41,8 @@ set (sources
      rotate_bp.F90
      rs_i_rfo.F90
      rs_p_rfo.F90
-     slapaf_banner.F90
      slapaf.F90
+     slapaf_banner.F90
      slstatus.F90
      ts_bfgs.F90
      update_h.F90

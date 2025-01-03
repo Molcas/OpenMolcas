@@ -19,6 +19,7 @@
 
 subroutine EXCH(ISYP,ISYI,ISYQ,ISYJ,II,IJ,ERI,SCR)
 
+use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -28,7 +29,6 @@ integer(kind=iwp), intent(in) :: ISYP, ISYI, ISYQ, ISYJ, II, IJ
 real(kind=wp), intent(_OUT_) :: ERI(*), SCR(*)
 integer(kind=iwp) :: I, I3, I4, IDISK, IREC, IS12, IS34, ISY1, ISY2, ISY3, ISY4, NBUF, NDIM2M, NO1, NO2
 logical(kind=iwp) :: TRANSP
-#include "intgrl.fh"
 
 ! Buffer size:
 NO1 = NORBZ(ISYP)

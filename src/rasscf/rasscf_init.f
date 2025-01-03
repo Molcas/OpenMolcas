@@ -18,8 +18,8 @@
 *> @author  P. &Aring;. Malmqvist
 *>
 *> @details
-*> Sets values in common blocks in general.fh, timers.fh and module
-*> rasscf_global.F90.
+*> Sets values in common blocks in timers.fh and module
+*> rasscf_global.F90 and general_data.F90.
 ************************************************************************
 
       Subroutine RasScf_Init()
@@ -47,13 +47,16 @@
      &                         QNUPDT, RFPert, SXSel, ThFact, Thre,
      &                         ThrEn, ThrSX, TMin, Weight, Title,
      &                         ixSym, iTri, ThrTE
+      use output_ras, only: LF
+      use general_data, only: SXDAMP,NSEL,LOWDIN_ON,ISPIN,STSYM,NACTEL,
+     &                        NHOLE1,NELEC3,NALTER,STARTORBFILE,NASH,
+     &                        NBAS,NDEL,NFRO,NISH,NRS1,NRS2,NRS3,NRS3,
+     &                        NSSH
+      use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NSPEED,ISPEED
 
       Implicit None
 #include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
 #include "timers.fh"
-#include "lucia_ini.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
@@ -83,7 +86,7 @@ C        ICIRST=1 ! to be activated!
          ICIRST=0
       End If
 
-* Initialize print levels: See output_ras.fh
+* Initialize print levels: Module output_ras
 * Global logical unit numbers for standard output
       LF=6
 * Externally set default print level control. Should the program be silent?
@@ -362,4 +365,4 @@ C state rotation
       iCMSOpt=1
       CMSGiveOpt=.false.
       RETURN
-      END
+      END Subroutine RasScf_Init

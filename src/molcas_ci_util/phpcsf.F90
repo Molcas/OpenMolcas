@@ -46,6 +46,7 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Index_Functions, only: nTri_Elem
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
+use spinfo, only: NTYP,NCNFTP,NCSFTP
 
 #include "intent.fh"
 
@@ -62,7 +63,6 @@ integer(kind=iwp) :: ICSFMN, IFINIT, IICNF, IICSF, IILACT, IILB, IIRACT, IIRB, I
 real(kind=wp) :: XMAX, XMIN
 real(kind=wp), parameter :: Acc = 1.0e-13_wp ! Assumed machine accuray (give and take)
 real(kind=wp), external :: FNDMNX
-#include "spinfo.fh"
 
 call PHPCSF_INTERNAL(SCR)
 

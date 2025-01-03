@@ -90,7 +90,7 @@ select case (Option)
     if (jDisk == -1) then
       write(u6,*) 'RWDTG: jDisk == -1'
       write(u6,*) 'Num,MaxNum=',Num,MaxNum
-      write(u6,*) 'The preceeding block was not written.'
+      write(u6,*) 'The preceding block was not written.'
       call Abend()
     end if
     call dDaFile(LU,1,DMat,lth,jDisk)

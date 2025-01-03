@@ -12,37 +12,10 @@
 *
 * Information about number of symmetries
 *
-* Input : /LUCINP/,/ORBINP
-* Output : /CSM/,/CSMPRO/
+      use lucia_data, only: PNTGRP,NIRREP
+      IMPLICIT None
+      Integer IPRNT
 *
-*
-      IMPLICIT REAL*8(A-H,O-Z)
-*. Input
-#include "mxpdim.fh"
-#include "lucinp.fh"
-*
-
-*. Output
-* NSMSX : number of symmetries of single excitations
-* NSMDX : Number of symmetries of double excitations
-* NSMST : Number of symmetries of strings
-* NSMCI : NUmber of symmetries of CI spaces
-* ITSSX : Total symmetrix single excitation
-* ITSDX : Total symmetrix double excitation
-C     COMMON/CSM/NSMSX,NSMDX,NSMST,NSMCI,ITSSX,ITSDX
-#include "csm.fh"
-*
-#include "csmprd.fh"
-* ADASX : symmetry of orbs i and i => symmetry of a+iaj
-* ASXAD : symmetry of orb j and excit a+iaj => symmetry of i
-* ADSXA : symmetry of orb i and excit a+iaj => symmetry of j
-*
-* SXSXDX : Symmetry of two single excitations
-*          => symmetry of double  excitation
-* SXDXSX : Symmetry of single excitation and double excitation
-*          => symmetry of single  excitation
-
-*.
       IF(PNTGRP.EQ.1) THEN
 * =====
 * D 2 h
@@ -55,5 +28,4 @@ C     COMMON/CSM/NSMSX,NSMDX,NSMST,NSMCI,ITSSX,ITSDX
         CALL SYSABENDMSG('lucia_util/syminf','Internal error',' ')
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE SYMINF_LUCIA

@@ -9,27 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ZSYM1(NIRREP,IPRNT)
+      use symmetry_info, only: SYMPRO => Mul
+      use lucia_data, only: MXPOBS
+      use csm_data, only: NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,
+     &                    ITSXT
+      use csm_data, only: ADASX,ADSXA,ASXAD,SXDXSX,SXSXDX
+      Implicit None
+      INTEGER NIRREP,IPRNT
 *
-* Number of symmetries for d2h
-* Symmetry connecting arrays
-* ( trivial, written for compatibility with higher point groups)
-*
-      INTEGER SYMPRO(8,8)
-      DATA  SYMPRO/1,2,3,4,5,6,7,8,
-     &             2,1,4,3,6,5,8,7,
-     &             3,4,1,2,7,8,5,6,
-     &             4,3,2,1,8,7,6,5,
-     &             5,6,7,8,1,2,3,4,
-     &             6,5,8,7,2,1,4,3,
-     &             7,8,5,6,3,4,1,2,
-     &             8,7,6,5,4,3,2,1 /
-C     COMMON/CSM/NSMSX,NSMDX,NSMST,NSMCI,ITSSX,ITSDX
-#include "csm.fh"
-*
-C     PARAMETER ( MXPOBS = 20 )
-#include "mxpdim.fh"
-#include "csmprd.fh"
-
       NSMSX = NIRREP
       NSMDX = NIRREP
       NSMST = NIRREP
@@ -40,7 +27,6 @@ C     PARAMETER ( MXPOBS = 20 )
       ITSXT = 1
 
 *
-C     COPMT2(AIN,AOUT,NINR,NINC,NOUTR,NOUTC,IZERO)
       CALL ICPMT2(   SYMPRO,    ADASX,        8,        8,   MXPOBS,
      &               MXPOBS,        1)
       CALL ICPMT2(   SYMPRO,    ADSXA,        8,        8,   MXPOBS,
@@ -52,7 +38,6 @@ C     COPMT2(AIN,AOUT,NINR,NINC,NOUTR,NOUTC,IZERO)
       CALL ICPMT2(   SYMPRO,   SXDXSX,        8,        8, 2*MXPOBS,
      &             4*MXPOBS,        1)
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRNT)
-      END
+      END SUBROUTINE ZSYM1

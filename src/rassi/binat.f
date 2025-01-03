@@ -16,9 +16,9 @@
       use Cntrl, only: NBINA, NSTATE, IRREP, IBINA
       use cntrl, only: LuTDM
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBSQ,NBMX,NBASF,NBST,NBTRI,NTDMZZ
       IMPLICIT NONE
 
-#include "rassi.fh"
       INTEGER IOFF_SEV, IOFF_VEC, IOFF_TDM, IOFF_ISV
       INTEGER IOPT, ICMP, ISYLAB, LS, LV, LV1
       INTEGER LE, I, LS1, ISEL, LS2, J, K, L, LE1

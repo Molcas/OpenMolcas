@@ -21,10 +21,10 @@ use motra_global, only: Debug, FnTwoAO, FnTwoMO, IAD13, iPrint, ISP, ISQ, ISR, I
                         LuTwoMO, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX, nBas, nFro, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, RtoB
+use TraToc, only: ITRATOC,NTRATOC,NTRABUF
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: IBATCH, INTBUF, IOPT, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, MEMX, NB1, NB2, &
                      NBSX(8), NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, NW4
 real(kind=wp) :: CPE, CPT, TIOE, TIOT

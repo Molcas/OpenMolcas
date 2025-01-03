@@ -10,8 +10,8 @@
 #***********************************************************************
 
 set (sources
-     abendc.c
      abend.F90
+     abendc.c
      bomb_on_error.F90
      center_text.F90
      checkrun.F90
@@ -27,9 +27,9 @@ set (sources
      finish.F90
      fndlnk.c
      fortran_strings.F90
+     get_genome.c
      getenvc.c
      getenvf.F90
-     get_genome.c
      init_linalg.F90
      iprintlevel.F90
      isstructure.F90
@@ -60,8 +60,8 @@ set (sources
      sysexpand.F90
      sysfilemsg.F90
      syshalt.F90
-     sysputsend.F90
      sysputs.F90
+     sysputsend.F90
      sysputsstart.F90
      sysquitfilemsg.F90
      sysquitmsg.F90
@@ -71,8 +71,8 @@ set (sources
      sysvaluewarnmsg.F90
      syswarnfilemsg.F90
      syswarnmsg.F90
-     timingc.c
      timing.F90
+     timingc.c
      unixinfo.F90
      unixinfoc.c
      untested.F90
@@ -98,6 +98,7 @@ set (modfile_list
      filesystem.F90
      fortran_strings.F90
      para_info.F90
+     printlevel.F90
      unixinfo.F90
 )
 

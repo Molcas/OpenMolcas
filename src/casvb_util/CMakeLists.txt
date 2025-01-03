@@ -36,12 +36,12 @@ set (sources
      axbres_cvb.F90
      axbsol_cvb.F90
      axesx2_cvb.F90
-     axesxbres_cvb.F90
      axesx_cvb.F90
+     axesxbres_cvb.F90
      axesxres_cvb.F90
+     axex_cvb.F90
      axexb_cvb.F90
      axexbsol_cvb.F90
-     axex_cvb.F90
      axexsol_cvb.F90
      balanc.F90
      balbak.F90
@@ -174,9 +174,9 @@ set (sources
      free2all_cvb.F90
      fstring_cvb.F90
      fx_cvb.F90
-     fxdx_cvb.F90
      fx_evb1_cvb.F90
      fx_svb1_cvb.F90
+     fxdx_cvb.F90
      gaussj2_cvb.F90
      gaussj_cvb.F90
      getci_cvb.F90
@@ -189,13 +189,13 @@ set (sources
      gethr_cvb.F90
      geths_cvb.F90
      getmo2_cvb.F90
-     getmoblk_cvb.F90
      getmo_cvb.F90
+     getmoblk_cvb.F90
      getnci_cvb.F90
      getvb2mo_cvb.F90
-     grad_cvb.F90
      gr_evb1_cvb.F90
      gr_svb1_cvb.F90
+     grad_cvb.F90
      gsinp_cvb.F90
      gtany_cvb.F90
      hello_cvb.F90
@@ -203,8 +203,8 @@ set (sources
      hess_evb1_cvb.F90
      hess_svb1_cvb.F90
      hini_cvb.F90
-     hqr2.F90
      hqr.F90
+     hqr2.F90
      ibf2unit_cvb.F90
      icomb_cvb.F90
      ifcasci_cvb.F90
@@ -214,10 +214,10 @@ set (sources
      initopt_cvb.F90
      input_cvb.F90
      int2char_cvb.F90
-     intchk_cvb.F90
      int_cvb.F90
-     ioemrg2_cvb.F90
+     intchk_cvb.F90
      io_init_cvb.F90
+     ioemrg2_cvb.F90
      ioopn_cvb.F90
      iout_cvb.F90
      isitanint_cvb.F90
@@ -226,23 +226,24 @@ set (sources
      istkpop_cvb.F90
      istkprobe_cvb.F90
      istkpush_cvb.F90
+     jobiph_j.F90
      kotani_cvb.F90
      lmo2ao_cvb.F90
      loind_cvb.F90
+     loop_cvb.F90
      loopcntr2_cvb.F90
      loopcntr_cvb.F90
      loopcntr_init_cvb.F90
      loopcntr_iterate_cvb.F90
-     loop_cvb.F90
      loopstr0_cvb.F90
      loopstr_cvb.F90
      lout_cvb.F90
      main_cvb.F90
+     make_cvb.F90
      makecivb_cvb.F90
      makecivbhs_cvb.F90
      makecivbs_cvb.F90
      makecivecp_cvb.F90
-     make_cvb.F90
      makedx_cvb.F90
      makefile_cvb.F90
      makegjorbs_cvb.F90
@@ -310,8 +311,8 @@ set (sources
      oneexc2_cvb.F90
      oneexc_cvb.F90
      oohess_cvb.F90
-     optalf_cvb.F90
      opt_cvb.F90
+     optalf_cvb.F90
      optize2_cvb.F90
      optize9_cvb.F90
      optize_cvb.F90
@@ -413,15 +414,15 @@ set (sources
      stringen_cvb.F90
      strip_blanks_cvb.F90
      svbd_cvb.F90
-     svd_cvb.F90
      svd.F90
+     svd_cvb.F90
      symchk_cvb.F90
      symelminp_cvb.F90
      symgen_cvb.F90
+     symtriz_cvb.F90
      symtrizcvb2_cvb.F90
      symtrizcvb3_cvb.F90
      symtrizcvb_cvb.F90
-     symtriz_cvb.F90
      symtrizorbs_cvb.F90
      symweight_cvb.F90
      testconv2_cvb.F90
@@ -445,9 +446,9 @@ set (sources
      undepend_cvb.F90
      untouch_cvb.F90
      up2date_cvb.F90
+     upd_cvb.F90
      update2_cvb.F90
      update_cvb.F90
-     upd_cvb.F90
      updvec_cvb.F90
      valid_cvb.F90
      vb2ciaf_cvb.F90

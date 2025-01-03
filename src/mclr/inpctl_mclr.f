@@ -22,22 +22,27 @@
 *                                                                      *
 ************************************************************************
       use Str_Info, only: DTOC
-      use negpre
+      use negpre, only: nGP
       use ipPage, only: W
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
+      use MCLR_Data, only: ipCI
+      use MCLR_Data, only: SA,ISTATE
+      use MCLR_Data, only: LuPT2
+      use input_mclr, only: PT2,iMethod,TimeDep,nCSF,nSym,
+     &                      State_Sym,iMCPD,nDisp,iRoot,iSpin,nActEl,
+     &                      nElec3,nHole1,nRS1,nRS2,nRS3,Page,nRoots,
+     &                      nConf
+      use dmrginfo, only: DoDMRG,DoMCLR,nDets_RGLR
+      Implicit None
+      Integer iPL
 
-#include "Input.fh"
-#include "Files_mclr.fh"
-#include "Pointers.fh"
-#include "sa.fh"
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
-#include "dmrginfo_mclr.fh"
       logical ldisk,ipopen
-      Character*8 Method
+      Character(LEN=8) Method
       Real*8, Allocatable:: CIVec(:,:), CITmp(:)
+      Integer i, ii, ipCII, iRC, iprDia, iSSM
+      Integer, external:: ipGet, ipIn, ipOut
+      Integer, External:: IsFreeUnit
 
 ! ==========================================================
       integer,allocatable::index_SD(:) ! not final version
@@ -86,8 +91,8 @@
         Call check_caspt2(1)
       End If
 *
-C     write(6,*) "iMethod:",iMethod,iCASSCF
-      If (iMethod.eq.iCASSCF) Then
+C     write(6,*) "iMethod:",iMethod,2
+      If (iMethod.eq.2) Then
          If (TimeDep) Then
             Call RdJobIph_td(CIVec)
          Else
@@ -206,11 +211,10 @@ C        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_integer(irc)
          Call Unused_logical(ldisk)
       End If
 #endif
-      End
+      End Subroutine InpCtl_MCLR

@@ -26,8 +26,6 @@ integer(kind=iwp), intent(in) :: nVemb
 real(kind=wp), intent(inout) :: Vemb(nVemb)
 character(len=*), intent(in) :: xKSDFT
 real(kind=wp), intent(in) :: Func_Bx
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: IAD12, KROOT, nDummy
 real(kind=wp) :: DFT_NAD, Dummy(1), Func_A, Func_AB, Vemb_Xstate
 real(kind=wp), allocatable :: D1ao_b(:), DState(:), F_DFT(:), xxCMO(:), xxOCCN(:)

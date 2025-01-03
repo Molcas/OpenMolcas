@@ -16,6 +16,7 @@ use mrci_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LN, Lu_25, Lu_
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use TraToc, only: ITRATOC,NTRATOC
 
 #include "intent.fh"
 
@@ -23,7 +24,6 @@ implicit none
 real(kind=wp), intent(out) :: BUFS(NBITM3,NCHN3), FC(NBTRI)
 integer(kind=iwp), intent(out) :: INDS(NBITM3+2,NCHN3)
 real(kind=wp), intent(_OUT_) :: FIIJJ(*), FIJIJ(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, IDISK, IEXP, IIJ, IIN, IJ, IJT, IKT, INAV, IND, IORBI, IOUT, IPOF(65), IPOS, &
                      ISYM, IVEC(20), J, JDISK, JK, JORBI, KORBI, M1, M2, M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, NOP, &
                      NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, NOTT, NOVST, NSA, NSB, NSIJT, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, &

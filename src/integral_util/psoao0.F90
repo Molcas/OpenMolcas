@@ -13,8 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc,kPrim, &
-                  kPrInc,lPrim,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock)
+subroutine PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -48,24 +47,39 @@ use Breit, only: nComp
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, ipMem1
-integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, Mem1, Mem2
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1
+integer(kind=iwp), intent(in) :: nSD
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
+integer(kind=iwp), intent(out) :: ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 #include "Molcas.fh"
 integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lPack, lSize, mabcd, mabMax, mabMin, mcdMax, &
                      mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, na3a, na3b, nab, &
-                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2
+                     nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim,  &
+                     iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
-iCmp = iCmpa(1)
-jCmp = iCmpa(2)
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
+
+iCmp = iSD4(2,1)
+jCmp = iSD4(2,2)
+kCmp = iSD4(2,3)
+lCmp = iSD4(2,4)
+
+iBas = iSD4(3,1)
+jBas = iSD4(3,2)
+kBas = iSD4(3,3)
+lBas = iSD4(3,4)
+
+iPrim = iSD4(5,1)
+jPrim = iSD4(5,2)
+kPrim = iSD4(5,3)
+lPrim = iSD4(5,4)
+
 nab = iCmp*jCmp
-kCmp = iCmpa(3)
-lCmp = iCmpa(4)
 ncd = kCmp*lCmp
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
@@ -324,6 +338,14 @@ else
   lwSqN = 0
 end if
 
-return
+iSD4(4,1)=iBsInc
+iSD4(4,2)=jBsInc
+iSD4(4,3)=kBsInc
+iSD4(4,4)=lBsInc
+
+iSD4(6,1)=iPrInc
+iSD4(6,2)=jPrInc
+iSD4(6,3)=kPrInc
+iSD4(6,4)=lPrInc
 
 end subroutine PSOAO0

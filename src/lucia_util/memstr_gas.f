@@ -12,7 +12,14 @@
 ************************************************************************
       SUBROUTINE MEMSTR_GAS()
       use stdalloc, only: mma_allocate
-      use strbas
+      use strbas, only: OCSTR,STREO,NSTSGP,ISTSGP,NSTSO,ISTSO,ZMAT,
+     &                  STSTM,IOCLS,SPGPAN,SPGPCR
+      use lucia_data, only: NMXOCCLS,NGAS
+      use lucia_data, only: NGRP,NSTTP,NTSPGP,IGSFGP,NELFGP,NSPGPFTP,
+     &                      NSTFGP
+      use lucia_data, only: NACOB,NOBPT
+      use lucia_data, only: ISTAC
+      use csm_data, only: NSMST
 *
 *
 * Construct pointers for saving information about strings and
@@ -33,15 +40,9 @@
 *
 * Jeppe Olsen , Winter of 1994
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "csm.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "stinf.fh"
-#include "crun.fh"
+      Integer IGRP,NSTRIN,LSTRIN,ITP,IEL,IGAS,IORB,ISTRIN,LENGTH
 *
 *. Start of string information
 *
@@ -105,4 +106,4 @@
       CALL mma_allocate(SPGPAN,NTSPGP*NGAS,Label='SPGPAN')
       CALL mma_allocate(SPGPCR,NTSPGP*NGAS,Label='SPGPCR')
 *
-      END
+      END SUBROUTINE MEMSTR_GAS

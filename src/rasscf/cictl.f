@@ -26,8 +26,7 @@
 *> calculations with orbital optimization before each call. If \p IFINAL = ``1``,
 *> there has been no orbital optimization, or the calculation is
 *> converged. \p IFINAL = ``2`` means this is a final CI calculation, using the
-*> final orbitals. For meaning of global variables \c NTOT1, \c NTOT2, \c NACPAR
-*> and \c NACPR2, see src/Include/general.fh and rasscf_global.F90.
+*> final orbitals.
 *>
 *> @param[in]     CMO    MO coefficients
 *> @param[out]    D      Average 1-dens matrix
@@ -91,6 +90,12 @@
 #ifdef _DMRG_
       use rasscf_global, only: TwoRDM_qcm, DOFCIDump, Emy
 #endif
+      use SplitCas_Data, only: DoSPlitCas,MxIterSplit,ThrSplit,
+     &                         lRootSplit
+      use printlevel, only: DEBUG,INSANE,USUAL
+      use output_ras, only: LF,IPRLOC
+      use general_data, only: ISPIN,NACTEL,NCONF,NISH,JOBIPH,NASH,NTOT2,
+     &                        STSYM
 
 
       Implicit None
@@ -109,10 +114,6 @@
       character(len=128) :: filename
       integer, external :: IsFreeUnit
 
-#include "rasdim.fh"
-#include "splitcas.fh"
-#include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='CICTL   '
 #include "SysDef.fh"
 #include "timers.fh"

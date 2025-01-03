@@ -14,16 +14,21 @@
 * Combinations of nopen unpaired electrons.Required
 * spin projection MS2/2.
 *
-      Implicit REAL*8 (A-H,O-Z)
+      use lucia_data, only: MXPORB
+      Implicit NONE
+      INTEGER NOPEN,MS2,NDET,IFLAG,IPRCSF
+      REAL*8  PSSIGN
+      INTEGER IABDET(NOPEN,*),IABUPP(NOPEN,*)
 *. MXPDIM is included to have access to MXPORB
-#include "mxpdim.fh"
       INTEGER ADD
-      DIMENSION IABDET(NOPEN,*),IABUPP(NOPEN,*)
 *. Should have length of max number of open orbitals
-      DIMENSION IWORK(MXPORB)
+      INTEGER IWORK(MXPORB)
 *
 * LENGTH OF IWORK MUST BE AT LEAST NOPEN
 *
+      INTEGER NTEST,NUPPER,MX,IFIRST,I,IZERO,J,NALPHA,MS2L,LUPPER,IEL,K
+      REAL*8 XMSD2
+
       NTEST = 0
       NTEST = MAX(NTEST,IPRCSF)
       NDET=0
@@ -119,4 +124,4 @@ C
       END IF
 C
       RETURN
-      END
+      END SUBROUTINE SPNCOM_LUCIA

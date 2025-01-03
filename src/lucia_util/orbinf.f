@@ -11,6 +11,16 @@
 * Copyright (C) 1991, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE ORBINF(IPRNT)
+      use lucia_data, only: NGAS,IGSINA,IGSDEL,NGSOB,NGSOBT,NGSSH
+      use lucia_data, only: NSMOB,NIRREP,PNTGRP
+      use lucia_data, only: NTOOB,NACOB,NOCOB,NINOB,NDEOB,MXTSOB,MXTOB,
+     &                      ITOOBS,IBSO,IOBPTS,IOSPIR,IREOST,IREOTS,
+     &                      ISMFSO,ISMFTO,ITOOBS,ITPFSO,ITPFTO,NACOBS,
+     &                      NDEOB,NDEOBS,NINOB,NINOBS,NOBPT,NOBPTS,
+     &                      NOCOBS,NOSPIR,NTOOBS
+      use lucia_data, only: MXPIRR,MXPNGAS,MXPOBS
+      IMPLICIT None
+      INTEGER IPRNT
 *
 * Obtain information about orbitals from shell information
 *
@@ -26,12 +36,7 @@
 *
 * Jeppe Olsen, Winter of 1991
 *
-COLD  INTEGER CITYP
-#include "mxpdim.fh"
-#include "lucinp.fh"
-#include "cgas.fh"
-*
-#include "orbinp.fh"
+      INTEGER NTEST,IGAS,I,ISMOB,IOBTP,LTOB,IOBSM
 *
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
@@ -156,5 +161,4 @@ COLD  INTEGER CITYP
       IF (NTEST .GT. 0)
      &   WRITE(6,*) ' MXTSOB,MXTOB from ORBINF = ', MXTSOB,MXTOB
 *
-      RETURN
-      END
+      END SUBROUTINE ORBINF

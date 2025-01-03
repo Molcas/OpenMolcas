@@ -30,8 +30,8 @@ contains
   subroutine writejob(e_states,nstates,si_pdft)
     use definitions,only:iwp,wp
     use constants,only:zero
-    use general_data,only:mxroot,mxiter
 
+#include "rasdim.fh"
     integer(kind=iwp),intent(in) :: nstates
     real(kind=wp),intent(in) :: e_states(nstates)
     real(kind=wp),optional,intent(in) :: si_pdft(nstates,nstates)

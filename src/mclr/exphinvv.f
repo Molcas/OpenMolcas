@@ -13,6 +13,7 @@
       Subroutine ExpHinvv(rdia,v,u,alpha,beta)
       use Exp, only: H0S, H0F, SBIDT, nExp
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MCLR_Data, only: nConf1
 *
 *     Preconditioning of the state transfer part
 *     of the  electronic hessian with an subunit
@@ -23,13 +24,11 @@
 *  |u> = alpha|u> + beta  (H-E ) |v>
 *                           0 0
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
-#include "Input.fh"
-#include "incdia.fh"
+      Implicit None
+      Real*8 alpha, beta
       Real*8 v(*),u(*),rdia(*)
       Real*8, Allocatable:: Tmp1(:), Tmp4(:)
+      Integer i, j, iRC
 *
       If (nExp.ne.0) Then
       Call mma_allocate(Tmp1,nExp,Label='Tmp1')
@@ -90,5 +89,4 @@
 
       End If
 *
-      Return
-      End
+      End Subroutine ExpHinvv

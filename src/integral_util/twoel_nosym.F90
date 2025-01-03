@@ -31,55 +31,122 @@ subroutine TwoEl_NoSym( &
 !          Modified for direct SCF, January '93                        *
 !***********************************************************************
 
-use Index_Functions, only: nTri3_Elem1
+use Index_Functions, only: nTri3_Elem1, iTri
 use Basis_Info, only: Shells
+use iSD_data, only: nSD
 use Gateway_Info, only: CutInt, ThrInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
-use k2_arrays, only: pDq, pFq
-use k2_structure, only: k2_type
+use k2_arrays, only: pDq, pFq, DeDe
+use k2_structure, only: k2_type, IndK2, k2data
 use Breit, only: nComp
 use NDDO, only: twoel_NDDO
 use Constants, only: Zero, One, Four, Eight
 use Definitions, only: wp, iwp, u6, RtoB, RtoI
+use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
+                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                        mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
+
 
 implicit none
 #include "twoel_interface.fh"
 integer(kind=iwp) :: i_Int, iEta, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, kabcd, &
                      kInts, la, lb, lc, ld, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, nab, nabcd, nByte, &
-                     ncd, nEta_Tot, nijkl, nInts, nZeta_Tot
-logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, IeqK, JeqL, &
-                     NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl
+                     ncd, nEta_Tot, nInts, nZeta_Tot, iCmp(4), nAlpha, nBeta, nGamma, nDelta, iShell(4), iShll(4), iAO(4), &
+                     iAOst(4), jPrInc, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, nEta
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, &
+                     NoPInts, Pij, Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij
 real(kind=wp) :: q4, RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
 real(kind=wp) :: CoorAC(3,2), QInd(2)
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 logical(kind=iwp), external :: EQ
+real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
+integer(kind=iwp) :: iS,jS,kS,lS,ijS,klS,ik2,jk2,nDCRR,nDCRS
+type (k2_type), pointer:: k2data1(:), k2data2(:)
+real(kind=wp), pointer:: Dij(:,:)=>Null(),Dkl(:,:)=>Null(),Dik(:,:)=>Null(),Dil(:,:)=>Null(),Djk(:,:)=>Null(),Djl(:,:)=>Null()
 
 #include "macros.fh"
-unused_var(iStabs)
-unused_var(iPrInc)
-unused_var(kPrInc)
-unused_var(FckTmp)
 unused_var(SoInt)
-unused_var(Aux)
+
+nZeta = iSD4(5,1)*iSD4(5,2)
+nEta  = iSD4(5,3)*iSD4(5,4)
+
+Shijij = ((iSD4(0,1) == iSD4(0,3)) .and. (iSD4(10,1) == iSD4(10,3)) .and. &
+          (iSD4(0,2) == iSD4(0,4)) .and. (iSD4(10,2) == iSD4(10,4)))
+
+iShell(:)=iSD4(11,:)
+iShll(:) =iSD4( 0,:)
+iAO(:)   =iSD4( 7,:)
+iAOst(:) =iSD4( 8,:)
+
+jPrInc=iSD4(6,2)
+lPrInc=iSD4(6,4)
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Pick up pointers to k2 entities.
+!
+iS=iShell(1)
+jS=iShell(2)
+kS=iShell(3)
+lS=iShell(4)
+ijS=iTri(iS,jS)
+klS=iTri(kS,lS)
+nDCRR = IndK2(2,ijS)
+ik2 = IndK2(3,ijS)
+nDCRS = IndK2(2,klS)
+jk2 = IndK2(3,klS)
+k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
+k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
+
+If (DoFock) Then
+   Dij(1:mDij,1:mDCRij) => DeDe(ipDDij:ipDDij+mDij*mDCRij-1)
+   Dkl(1:mDkl,1:mDCRkl) => DeDe(ipDDkl:ipDDkl+mDkl*mDCRkl-1)
+   Dik(1:mDik,1:mDCRik) => DeDe(ipDDik:ipDDik+mDik*mDCRik-1)
+   Dil(1:mDil,1:mDCRil) => DeDe(ipDDil:ipDDil+mDil*mDCRil-1)
+   Djk(1:mDjk,1:mDCRjk) => DeDe(ipDDjk:ipDDjk+mDjk*mDCRjk-1)
+   Djl(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
+Else
+!  Dummy association
+   Dij(1:1,1:1) => DeDe(-1:-1)
+   Dkl(1:1,1:1) => DeDe(-1:-1)
+End If
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
 
-#ifdef _DEBUGPRINT_
+nAlpha=iSD4( 5,1)
+nBeta =iSD4( 5,2)
+nGamma=iSD4( 5,3)
+nDelta=iSD4( 5,4)
+iBasi =iSD4(19,1)
+jBasj =iSD4(19,2)
+kBask =iSD4(19,3)
+lBasl =iSD4(19,4)
+
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
+Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+
+!#ifdef _DEBUGPRINT_
+If (.False.) Then
 call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)
 call RecPrt('Coeff2',' ',Coeff2,nBeta,jBasj)
 call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
 call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
-#endif
+End If
+!#endif
+
+If (.false.) la = iSD4(1,1)
 
 RST_triplet = One
 QInd(2) = RST_triplet
-kOp(:) = 0
 
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
 iSmAng = la+lb+lc+ld
 
 ! switch (to generate better start orbitals...)
@@ -96,9 +163,9 @@ if (ABeqCD .and. (mod(iSmAng,2) == 1)) return
 !(DS|SS), (FP|SS) and (FS|PS) vanish as well
 if (ABeqCD .and. All_Spherical .and. (2*max(la,lb,lc,ld) > iSmAng)) return
 
+iCmp(:)=iSD4(2,:)
 nab = iCmp(1)*iCmp(2)
 ncd = iCmp(3)*iCmp(4)
-nijkl = iBasi*jBasj*kBask*lBasl*nComp
 nabcd = nab*ncd
 nInts = nijkl*nabcd
 ipAOInt = 1
@@ -196,22 +263,16 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
   ! be accumulated on. In that case we will use A and C of
   ! the order as defined by the basis functions types.
 
-  if (iAnga(1) >= iAnga(2)) then
+  if (iSD4(1,1) >= iSD4(1,2)) then
     CoorAC(:,1) = Coor(:,1)
   else
     CoorAC(:,1) = Coor(:,2)
   end if
-  if (iAnga(3) >= iAnga(4)) then
+  if (iSD4(1,3) >= iSD4(1,4)) then
     CoorAC(:,2) = Coor(:,3)
   else
     CoorAC(:,2) = Coor(:,4)
   end if
-
-  ! Set flags if triangularization will be used
-
-  IeqK = EQ(Coor(:,1),Coor(:,3))
-  JeqL = EQ(Coor(:,2),Coor(:,4))
-  IJeqKL = (IeqK .and. JeqL)
 
   ! Loops to partion the primitives
 
@@ -248,7 +309,7 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
       if (all(Coeff4(:,:) == Zero)) cycle
 
       call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(1),k2data2(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
-                  1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAnga,Coor,CoorAC,mabMin,mabMax,mcdMin, &
+                  1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iSD4(1,:),Coor,CoorAC,mabMin,mabMax,mcdMin, &
                   mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2,k2Data1(1)%HrrMtrx(:,1),k2Data2(1)%HrrMtrx(:,1), &
                   la,lb,lc,ld,iCmp,iShll,NoPInts,Dij(:,1),mDij,Dkl(:,1),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &
                   kBask,Coeff4,lBasl)
@@ -379,6 +440,18 @@ if (DoIntegrals) then
   if (q4 /= One) Wrk(ipAOInt:ipAOInt+nijkl*nabcd-1) = q4*Wrk(ipAOInt:ipAOInt+nijkl*nabcd-1)
 end if
 
-return
+Coeff1 => Null()
+Coeff2 => Null()
+Coeff3 => Null()
+Coeff4 => Null()
+
+Dij => Null()
+Dkl => Null()
+If (DoFock) Then
+   Dik => Null()
+   Dil => Null()
+   Djk => Null()
+   Dij => Null()
+End If
 
 end subroutine TwoEl_NoSym

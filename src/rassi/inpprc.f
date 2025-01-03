@@ -32,9 +32,11 @@
       use cntrl, only: nAtoms, Coor
       use cntrl, only: LuTDM, FnTDM
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NBSQ,NBMX,NBTRI,NBST,NCMO,NTRA,NTDMZZ,NTDMS,
+     &                      NTDMA,NTDMAB,NASHT,NISHT,NSSHT,NASH,NBASF,
+     &                      NBSQPR,NISH,NOSH,NSSH
 
       IMPLICIT None
-#include "rassi.fh"
       CHARACTER(LEN=8) LABEL
       CHARACTER(LEN=8) LABEL2
       CHARACTER(LEN=8) PRPLST(MXPROP)

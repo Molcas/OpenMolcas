@@ -9,13 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine Ex_spin(rD,Fock,Temp1,ntemp,Temp2)
-      Implicit Real*8(a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
-      Real*8 rD(*),Fock(*),Temp1(*),Temp2(*)
+      use Constants, only: Zero,Half
+      use MCLR_Data, only: nDens2, ipCM, nNA
+      use input_mclr, only: nSym,nAsh,nIsh,nBas
+      Implicit None
+      Integer nTemp
+      Real*8 rD(*),Fock(*),Temp1(nTemp),Temp2(nDens2)
+      Integer jS, kS, llB, lB, jjB, jB
+      Real*8 rDens
 *
 *
-      call dcopy_(ndens2,[0.0d0],0,Temp2,1)
+      Temp2(:)=Zero
       Do jS=1,nSym
          Call FZero(Fock(ipCm(js)),nbas(js)**2)
          Do kS=1,nsym
@@ -30,7 +34,7 @@
                      jB=nIsh(kS)+jjB
 *
                      Call Exch(jS,kS,jS,kS,lB,jB,Temp2,Temp2)
-                     rDens=-0.5d0*rD(nna*(jjB-1)+llB)
+                     rDens=-Half*rD(nna*(jjB-1)+llB)
                      Call DaXpY_(nBas(jS)**2,rDens,Temp1,1,
      &                          Fock(ipCM(jS)),1)
 
@@ -44,7 +48,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(ntemp)
-      End
+      End SubRoutine Ex_spin

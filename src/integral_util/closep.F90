@@ -20,12 +20,31 @@ subroutine CloseP()
 !             University of Lund, SWEDEN                               *
 !***********************************************************************
 
-use pso_stuff, only: Bin, Case_MP2, CMO, D0, DS, DSVar, DVar, G1, G2, G_Toc, Gamma_On, lPSO, LuGam, LuGamma, SO2cI
+use pso_stuff, only: B_PT2, Bin, Case_MP2, CMO, CMOPT2, D0, DS, DSVar, DVar, G1, G2, G_Toc, Gamma_On, iOffAO, lPSO, LuGam, &
+                     LuGamma, LuGamma2, LuGamma_PT2, SO2cI, SSDM, WRK1, WRK2
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: DoCholesky
+character(len=8) :: Method_chk
+
+call Get_cArray('Relax Method',Method_chk,8)
+if (Method_chk == 'CASPT2  ') then
+  if (allocated(iOffAO)) then
+    ! Conventional ERIs
+    call mma_deallocate(iOffAO)
+    close(LuGamma_PT2)
+    call mma_deallocate(CMOPT2)
+    if (allocated(SSDM)) call mma_deallocate(SSDM)
+    call mma_deallocate(WRK1)
+    call mma_deallocate(WRK2)
+  else
+    ! RI/Cholesky ERIs
+    call mma_deallocate(B_PT2)
+    close(LuGamma2)
+  end if
+end if
 
 if (case_mp2) then
   call DecideOnCholesky(DoCholesky)
@@ -43,12 +62,11 @@ if (lPSO) then
   call mma_deallocate(G2)
   call mma_deallocate(G1)
 end if
+
 call mma_deallocate(CMO)
 call mma_deallocate(DSVar)
 call mma_deallocate(DS)
 call mma_deallocate(DVar)
 call mma_deallocate(D0)
-
-return
 
 end subroutine CloseP

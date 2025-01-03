@@ -12,9 +12,8 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE CASPT2(IRETURN)
-      USE SUPERINDEX
       USE INPUTDATA, ONLY: INPUT
-      USE PT2WFN
+      use PT2WFN, ONLY: PT2WFN_ESTORE,PT2WFN_DATA
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, iStpGrd, IDSAVGRD
@@ -24,8 +23,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
-      use EQSOLV
-      use ChoCASPT2
+      use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
       IMPLICIT NONE
       INTEGER IRETURN
 *----------------------------------------------------------------------*
@@ -77,7 +75,6 @@ C
 #include "warnings.h"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
       CHARACTER(len=60) STLNE2
 * Timers
       REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
@@ -259,7 +256,7 @@ C       Call EQCTL2(ICONV)
 
          Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ',
      &                               MSTATE(JSTATE)
-         Call StatusLine('CASPT2: ',TRIM(STLNE2))
+         Call StatusLine('CASPT2: ',STLNE2)
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():
@@ -536,7 +533,7 @@ C     transition density matrices.
         CALL PT2WFN_ESTORE(HEFF)
 
 * Store rotated states if XMUL + NOMUL
-        IF ((IFXMS .or. IFRMS) .AND. (.NOT.IFMSCOUP)) CALL PT2WFN_DATA
+        IF ((IFXMS .or. IFRMS) .AND. (.NOT.IFMSCOUP)) CALL PT2WFN_DATA()
 
 * store information on runfile for geometry optimizations
         Call Put_iScalar('NumGradRoot',iRlxRoot)

@@ -69,7 +69,7 @@ contains
     lambda = zero
     otxc = ""
 
-    call StatusLine("MCPDFT:","Reading in input")
+    call StatusLine("MCPDFT: ","Reading in input")
 
     call spoolinp(lu_input)
     rewind(lu_input)
@@ -99,7 +99,10 @@ contains
           mcpdft_options%is_hdf5_wfn = mh5_is_hdf5(mcpdft_options%wfn_file)
 #endif
         endif
-      case("KSDF")
+      case('FUNC','KSDF')
+        if(command == 'KSDF') then
+          call WarningMessage(1,'Deprecation warning: KSDF should be replaced with FUNC keyword')
+        endif
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif

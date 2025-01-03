@@ -25,10 +25,9 @@ use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+use general_data, only: NSYM,NASH,NORB
 
 implicit none
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: IORD, IORP, NAP, NAQ, NAR, NAS, NOP, NRS, NSP, NSPQ, NSPQR, NSQ, NSR, NSS
 
 #ifdef _DEBUGPRINT_

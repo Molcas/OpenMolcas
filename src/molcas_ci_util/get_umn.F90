@@ -41,6 +41,7 @@ use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use spinfo, only: NTYP,NCSFTP
 
 implicit none
 integer(kind=iwp), intent(in) :: MXPDIM, IPCSF(MXPDIM), NCONF, IPCNF(NCONF), IPRODT(*), ICONF(*), IREFSM, NACTOB, NEL, NAEL, NBEL, &
@@ -48,7 +49,6 @@ integer(kind=iwp), intent(in) :: MXPDIM, IPCSF(MXPDIM), NCONF, IPCNF(NCONF), IPR
 real(kind=wp), intent(out) :: PHP(nTri_Elem(NPCSF)), DHAM(nTri_Elem(NPCSF))
 real(kind=wp), intent(in) :: EnIn, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: NTEST
-#include "spinfo.fh"
 integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, IIR, IIRACT, IIRB, IIRMAX, ILAI, ILRI, ILRO, ILTYP, IRTYP, ITYP, &
                      Mindex, MXCSFC, MXXWS, NCSFA, NCSFL, NCSFR, Nindex
 integer(kind=iwp), allocatable :: ICNL(:), ICNQ(:), ICNR(:)

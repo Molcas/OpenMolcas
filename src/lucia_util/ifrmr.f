@@ -8,18 +8,20 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION IFRMR(iArray,IROFF,IELMNT)
+      INTEGER FUNCTION IFRMR(iArray,IROFF,IELMNT)
+      use lucia_data, only: irat
+      IMPLICIT NONE
 *
 * An integer array is stored in real array iArray,
 * starting from iArray(IROFF). Obtain element
 * IELMNT of this array
 *
-      INTEGER iArray(*)
+      INTEGER iArray(*),IROFF,IELMNT
+
+      INTEGER IIOFF
 *
-#include "irat.fh"
 *. offset when iArray is integer array
       IIOFF = 1 + IRAT * (IROFF-1)
       IFRMR = iArray(IIOFF-1+IELMNT)
 *
-      RETURN
-      END
+      END FUNCTION IFRMR

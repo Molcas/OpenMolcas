@@ -121,9 +121,9 @@
       use cntrl, only: LuTDM
       use RASSIWfn, only: wfn_SFS_TDM, wfn_SFS_TSDM, wfn_SFS_WETDM
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBASF,NTDMZZ
 
       Implicit None
-#include "rassi.fh"
       Real*8, Intent(In) :: EigVec(nState,nState)
       Integer :: iState,jState,k,l,nThisTDMZZ
       Integer :: Job1,Job2,iSym1,iSym2,iSy12,iDisk,iEmpty,iOpt,iGo
@@ -240,10 +240,10 @@ C Transform TDMs to SF eigenstates
       Subroutine Transpose_TDM(TDM,Symmetry)
       Use stdalloc, Only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBASF
       Implicit None
       Real*8, Intent(InOut) :: TDM(*)
       Integer, Intent(In) :: Symmetry
-#include "rassi.fh"
       Integer :: iSym1,iSym2,nTot,i,j
       Integer :: iBlock(0:8)
       Real*8, Allocatable :: Tmp(:)

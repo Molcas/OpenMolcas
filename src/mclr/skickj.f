@@ -24,22 +24,33 @@
 * Jeppe Olsen, Spring of 94
 *
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8(A-H,O-Z)
+      use Constants, only: One
+      IMPLICIT None
 *
-#include "detdim.fh"
 *. Input
-      DIMENSION CKJJ(NKA*NJ,*)
+      INTEGER NKA,NIB,NJB,NKB
+      INTEGER NI,NJ,NK,NL,MAXK
+      REAL*8 CKJJ(NKA*NJ,*)
 *. Note if Iroute = 2 the form is C(j,Ka,Jb)
-      DIMENSION XIJKL(*)
-      DIMENSION KBIB(MAXK,*),XKBIB(MAXK,*)
-      DIMENSION KBJB(MAXK,*),XKBJB(MAXK,*)
+      REAL*8 XIJKL(*)
+      INTEGER KBIB(MAXK,*)
+      REAL*8  XKBIB(MAXK,*)
+      INTEGER KBJB(MAXK,*)
+      REAL*8  XKBJB(MAXK,*)
+      INTEGER IKORD,IXBOFF,JXBOFF
+      REAL*8 SXCR
+      INTEGER IROUTE,NTEST
 *. Input and output
-      DIMENSION SKII(NKA*NI,*)
+      REAL*8 SKII(NKA*NI,*)
+
 *. Note if Iroute = 2 the form is S(i,Ka,Ib)
 *. Scratch
-      PARAMETER(MXTSOB=35)
-      DIMENSION IBOFF(MXTSOB*MXTSOB),JBOFF(MXTSOB*MXTSOB)
+      INTEGER, PARAMETER :: MXTSOB=35
+      INTEGER IBOFF(MXTSOB*MXTSOB),JBOFF(MXTSOB*MXTSOB)
       Real*8, Allocatable:: KSKICK(:)
+      INTEGER MAXORB,LENGTH,KB,LL,KK,L,K,IB,JB,INTOF,IKEFF,IMIN,I,IOFF,
+     &        LEFF,JLIK0,J,JL,JL0
+      REAL*8 SGNL,FACTOR,SGNK
 *
       MAXORB = MAX(NI,NJ,NK,NL)
       LENGTH = MAXORB*MAXORB*MAXORB*MAXORB
@@ -81,8 +92,6 @@ C                  ISOFF = (IB-1)*NI*NKA + 1
 C                  ICOFF = (JB-1)*NJ*NKA + 1
                    INTOF = ((L-1)*NK + K - 1 )*NI*NJ + 1
 *
-                   ONE = 1.0D0
-
                    CALL  DGEMM_('N','N',NKA,NI,NJ,
      &                         FACTOR ,CKJJ(1,jB),max(1,NKA),
      &                                 XIJKL(INTOF),max(1,NJ),
@@ -123,7 +132,6 @@ C                  ISOFF = (IB-1)*NI*NKA + 1
 C                  ICOFF = (JB-1)*NJ*NKA + 1
                    INTOF = ((L-1)*NK + K - 1 )*NI*NJ + 1
 *
-                   ONE = 1.0D0
                    CALL  DGEMM_('N','N',NI,NKA,NJ,FACTOR ,
      &                         XIJKL(INTOF),max(1,NI),
      &                         CKJJ(1,JB),max(1,NJ),
@@ -203,8 +211,7 @@ C                  ICOFF = (JB-1)*NJ*NKA + 1
 *. End of IROUTE branching
 *
       Call mma_deallocate(KSKICK)
-*
-      RETURN
+
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(IXBOFF)
@@ -213,4 +220,4 @@ c Avoid unused argument warnings
         CALL Unused_integer(NTEST)
       END IF
 
-      END
+      END SUBROUTINE SKICKJ

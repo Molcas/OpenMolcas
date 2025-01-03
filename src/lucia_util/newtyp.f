@@ -11,7 +11,8 @@
 * Copyright (C) 1993,1995, Jeppe Olsen                                 *
 ************************************************************************
       SUBROUTINE NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
-      use strbas
+      use strbas, only: SPGPAN,SPGPCR
+      use lucia_data, only: NGAS
 *
 * an input  supergroup is given.
 * apply an string of elementary operators to this supergroup and
@@ -34,9 +35,7 @@
 * OUTSPGP  : supergroup of resulting string
 *
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "cgas.fh"
+      IMPLICIT NONE
 *. Input
       INTEGER INSPGP,IACOP,ITPOP
 *. output
@@ -49,4 +48,4 @@
       END IF
 *
       RETURN
-      END
+      END SUBROUTINE NEWTYP

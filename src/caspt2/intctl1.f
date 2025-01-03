@@ -11,10 +11,9 @@
       SUBROUTINE INTCTL1(CMO,NCMO)
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
       INTEGER NCMO
       REAL*8 CMO(NCMO)
 

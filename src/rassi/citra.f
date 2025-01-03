@@ -44,9 +44,9 @@
       use gugx, only: SGStruct, CIStruct, EXStruct
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NTRA,NOSH,NISH,NASH
       IMPLICIT REAL*8 (A-H,O-Z)
       Real*8 TRA(NTRA),CI(NCO)
-#include "rassi.fh"
       CHARACTER(LEN=8) WFTP
       Type (SGStruct) SGS
       Type (CIStruct) CIS

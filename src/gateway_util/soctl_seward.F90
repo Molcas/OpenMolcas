@@ -11,7 +11,7 @@
 
 subroutine SOCtl_Seward(Mamn,nMamn)
 
-use Basis_Info, only: dbsc, iCnttp_Dummy, nBas, nBas_Aux, nBas_Frag, nCnttp, MolWgh, Shells
+use Basis_Info, only: dbsc, icent, iCnttp_Dummy, lant, lmag, lnang, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nrBas, nrSym, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: ChOper, iChBas, iChTbl, iOper, iSkip, lBsFnc, lIrrep, nIrrep
 use SOAO_Info, only: iAOtSO, iSOInf, iOffSO, nSOInf, SOAO_Info_Init
@@ -27,7 +27,6 @@ implicit none
 #include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nMamn
 character(len=LenIn8), intent(out) :: Mamn(nMamn)
-#include "rinfo.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iAtoms, iBas, iBas_Aux, iBas_Frag, iChBs, iChxyz, iCnt, iCntrc, iCnttp, iCo, iComp, iCounter, &
                      iIrrep, imc, iPrint, iR, iRout, iSh, iShell, iSO, iSO_, iSO_Aux, iSO_Frag, iSO_Tot, isymunit, itest1, itest2, &

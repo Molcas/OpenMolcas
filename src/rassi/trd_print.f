@@ -19,9 +19,9 @@
      &                     CMO1, CMO2, SIJ)
       use Cntrl, only: LSYM1, LSYM2
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NASHT,NAES,NASH,NBASF,NFRO,NISH,NOSH
 
       IMPLICIT None
-#include "rassi.fh"
 ! Variables passed
       INTEGER ISTATE, JSTATE
       REAL*8 TDMAB(*), TDM2(*), CMO1(*), CMO2(*), SIJ

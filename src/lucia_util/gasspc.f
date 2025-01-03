@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE GASSPC
+      SUBROUTINE GASSPC()
 *
 *
 * Divide orbital spaces into
@@ -25,13 +25,11 @@
 * Jeppe Olsen, Summer of 98 ( not much of an summer !)
 *
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*
-#include "mxpdim.fh"
-#include "cgas.fh"
-#include "strinp.fh"
-#include "orbinp.fh"
-*
+      use lucia_data, only: NGAS,IGSOCC,IGSOCCX,NGSOBT
+      use lucia_data, only: I_IAD,I_IADX
+      use lucia_data, only: NELEC
+      IMPLICIT None
+      INTEGER NEL_MAX,NEL_REF,IGAS,NTEST
 * Some dummy initializtions
       NEL_MAX = 0 ! jwk-cleanup
 *
@@ -106,5 +104,4 @@
         CALL IWRTMA(I_IADX,1,NGAS,1,NGAS)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE GASSPC

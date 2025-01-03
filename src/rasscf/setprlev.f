@@ -9,15 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SetPrLev(LF_IN,IPRGLB_IN,IPRLOC_IN)
-      Implicit Real*8 (A-H,O-Z)
+      use printlevel, only: USUAL,DEBUG,SILENT
+      use output_ras, only: IPRLOC,IPRGLB
+      Implicit None
 #include "warnings.h"
-#include "output_ras.fh"
-      Dimension IPRLOC_IN(7)
+      Integer LF_IN,IPRGLB_IN,IPRLOC_IN(7)
 *
-      Logical REDUCE_PRT
-      External REDUCE_PRT
+      Logical, External :: REDUCE_PRT
       Intrinsic MAX
       External GETENVF
+      Integer I
 
 * The local print levels are the maximum of the requested global and
 * local ones, except that if any of IPRGLB or IPRLOC(I) is zero
@@ -49,9 +50,8 @@
        write(6,'(1x,7I5)')(IPRLOC(I),I=1,7)
       END IF
 
-      RETURN
 c Avoid unused argument warnings
 #ifdef _WARNING_WORKAROUND_
       IF (.FALSE.) CALL Unused_integer(LF_IN)
 #endif
-      END
+      END Subroutine SetPrLev

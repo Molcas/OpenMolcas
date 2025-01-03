@@ -35,7 +35,7 @@ subroutine Drvh1(Grad,Temp,nGrad)
 
 use PCM_arrays, only: PCM_SQ
 use External_Centers, only: nWel, XF, Wel_Info
-use Basis_Info, only: nCnttp, dbsc, nBas
+use Basis_Info, only: nCnttp, dbsc, nBas, r0, ExpB
 use Symmetry_Info, only: nIrrep
 #ifdef _NEXTFFIELD_
 use finfld, only: force
@@ -70,13 +70,12 @@ procedure(grd_mem) :: MltMmG
 !AOM>
 #endif
 #include "print.fh"
-#include "wldata.fh"
 
 ! Prologue
 iRout = 131
 iPrint = nPrint(iRout)
 call CWTime(TCpu1,TWall1)
-call StatusLine(' Alaska:',' Computing 1-electron gradients')
+call StatusLine('Alaska: ','Computing 1-electron gradients')
 
 ! Allocate memory for density and Fock matrices
 

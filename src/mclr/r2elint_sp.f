@@ -26,19 +26,26 @@
 *
       use Arrays, only: CMO, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-#include "spin_mclr.fh"
-      Logical lFI,lFA,lMo
-      Parameter ( One = 1.0d0 )
+      use Constants, only: Zero, One, Two
+      use MCLR_Data, only: nDens2, nMBA, nNA, ipCM, ipMat, nA, nCMO
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,iMethod
+      Implicit None
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
-     &       FockA(nDens2),D(*),FA(*)
+     &       FockA(nDens2)
+      Integer nF,iDSym,jSpin
+      Real*8 sign,Fact
+      Real*8 D(*),FA(*)
+
+      Logical lFI,lFA,lMo
       Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
      &                      DI(:), DIR(:), FI(:),
      &                      FA2(:), DAR(:), DA(:), DAL(:)
+      integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, jS
+      Real*8 FacR
 *
+      integer i,j,irec
       irec(i,j)=i+nna*(j-1)
+
       ndens22=ndens2
       iAM=0
       iBM=0
@@ -59,11 +66,11 @@
       Call mma_allocate(DIR,nDens2,Label='DIR')
       Call mma_allocate(FI,ndens2,Label='FI')
 
-      FockI(:)=0.0d0
-      FockA(:)=0.0d0
-      FI(:)  =0.0D0
-      DIL(:)  =0.0D0
-      DIR(:)  =0.0D0
+      FockI(:)=Zero
+      FockA(:)=Zero
+      FI(:)  =Zero
+      DIL(:)  =Zero
+      DIR(:)  =Zero
 
       lFI=.true.
       lFa=.false.
@@ -85,7 +92,7 @@
       Do iS=1,nSym
          Do iB=1,nIsh(iS)
             ip=ipCM(iS)+(ib-1)*nBas(is)+ib-1
-            DI(ip)=2.0d0
+            DI(ip)=Two
          End Do
       End Do
 
@@ -126,9 +133,9 @@
        If (nBas(iS)*nBas(jS).ne.0) Then
        Call DGEMM_('T','N',
      &             nBas(iS),nBas(jS),nBas(iS),
-     &             1.0d0,CMO(ipCM(iS)),nBas(iS),
+     &             One,CMO(ipCM(iS)),nBas(iS),
      &             FI(ipMat(iS,jS)),nBas(iS),
-     &             0.0d0,FockI(ipMat(iS,jS)),nBas(iS))
+     &             Zero,FockI(ipMat(iS,jS)),nBas(iS))
        Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
      &            FIMO(ipCM(iS)),nBas(is),
      &            rkappa(ipMat(iS,jS)),nBas(iS),
@@ -140,9 +147,9 @@
        If (iMethod.eq.2) Then
          Call DGEMM_('T','N',
      &               nBas(iS),nBas(jS),nBas(iS),
-     &               1.0d0,CMO(ipCM(iS)),nBas(iS),
+     &               One,CMO(ipCM(iS)),nBas(iS),
      &               FA2(ipMat(iS,jS)),nBas(iS),
-     &               0.0d0,FockA(ipMat(iS,jS)),nBas(iS))
+     &               Zero,FockA(ipMat(iS,jS)),nBas(iS))
          Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
      &            FA(ipCM(iS)),nBas(is),
      &            rkappa(ipMat(iS,jS)),nBas(iS),
@@ -170,7 +177,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(nF)
-      End
+      End SubRoutine r2elint_sp

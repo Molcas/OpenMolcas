@@ -41,7 +41,7 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 use setup, only: mSkal, MxPrm, nAux
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD, nSD
-use pso_stuff, only: B_PT2, DMdiag, lPSO, lSA, n_Txy, nBasA, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k
+use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nCalAO, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, ReadBPT2
 use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
 use k2_structure, only: k2Data
 use Disp, only: l2DI
@@ -61,30 +61,28 @@ use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
+!#define _CD_TIMING_
+#ifdef _CD_TIMING_
+use temptime, only: TWOEL3_CPU,TWOEL3_WALL,PGET3_CPU,PGET3_WALL
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(out) :: Temp(nGrad)
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
 integer(kind=iwp) :: i, iAdrC, iAng, iAnga(4), iAOst(4), iAOV(4), ib, iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), &
-                     iiQ, ij, ijklA, ijMax, ijQ, ijS, ik2, iMOleft, iMOright, iOpt, iost, ipMem1, ipMem2, iPrem, iPren, iPrimi, &
-                     iPrInc, iS, iS_, iSD4(0:nSD,4), ish, iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, &
-                     jBasj, jBasn, jBsInc, jjQ, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, &
-                     kBasAO, kBask, kBasn, kBsInc, kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, &
-                     lBklK, lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lRealName, lS, LuGAMMA2, maxnAct, maxnnP, mBtch, mdci, &
-                     mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, &
-                     nCalAO, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, &
-                     nnSkal, nPairs, nPrev, nQuad, nRys, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, &
-                     nTMax, NumOrb, NumOrb_i, nXki, nZeta
+                     iiQ, ij, ijklA, ijMax, ijQ, ijS, ik2, iMOleft, iMOright, iOpt, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, &
+                     iS, iS_, iSD4(0:nSD,4), ish, iShela(4), iShlla(4), iSO, istabs(4), iSym, itmp, j, jAng, jb, jBasAO, jBasj, &
+                     jBasn, jBsInc, jjQ, jk2, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, jsh, jSym, jSym_s, k2ij, k2kl, KAux, kBasAO, &
+                     kBask, kBasn, kBsInc, kBtch, klS, klS_, kPrimk, kPrInc, kS, kSym, lB_mp2, lBasAO, lBasl, lBasn, lBklK, &
+                     lBsInc, lCijK, lCilK, lMaxDens, lPriml, lPrInc, lS, maxnAct, maxnnP, mBtch, mdci, mdcj, mdck, mdcl, Mem1, &
+                     Mem2, MemMax, MemPSO, mij, mj, MumOrb, MxBasSh, MxInShl, nab, nAct(0:7), nBtch, ncd, nDCRR, nDCRS, nEta, &
+                     nHmab, nHmcd, nHrrab, ni, nij, nIJ1Max, nijkl, nIJRMax, nIMax, nj, nK, nnSkal, nPairs, nPrev, nQuad, nRys, &
+                     nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nSO, nThpkl, nTMax, NumOrb, NumOrb_i, nXki, nZeta
 real(kind=wp) :: A_int, A_int_ij, A_int_kl, Coor(3,4), Dm_ij, ExFac, PMax, Prem, Pren, PZmnij, SDGmn, ThrAO, TMax_all, TotCPU, &
                  TotWall, XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, Xik, Xil, Xjk, Xjl
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
 #endif
-character(len=4096) :: RealName
 integer(kind=iwp), save :: MemPrm
 character(len=80) :: KSDFT
 character(len=72) :: frmt
@@ -98,7 +96,6 @@ real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhal
 character(len=*), parameter :: SECNAM = 'drvg1_3center_ri'
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
-integer(kind=iwp), external :: IsFreeUnit
 logical(kind=iwp), external :: Rsv_Tsk2
 
 !                                                                      *
@@ -483,21 +480,7 @@ else
   nThpkl = 1
   call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! CASPT2
-
-call Get_cArray('Relax Method',Method,8)
-if (Method == 'CASPT2') then
-  ! Open B_{J, mu nu}
-  call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
-
-  call PrgmTranslate('GAMMA2',RealName,lRealName)
-  LuGamma2 = isFreeUnit(67)
-  call MOLCAS_Open_Ext2(LuGamma2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nBasA*8,'OLD',is_error)
-  nCalAO = 0
-end if
+nCalAO = 0 !! for CASPT2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -644,8 +627,7 @@ do while (Rsv_Tsk2(id,klS))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ! Get the back-transformed non-separable CASPT2 density
-  if (lPSO .and. Method == 'CASPT2') call ReadBPT2(LuGAMMA2,B_PT2,nCalAO,kS,lS,MxInShl)
+  ReadBPT2 = .true.
   do ijS=1,nij
     iS = Shij2(1,ijS)
     jS = Shij2(2,ijS)
@@ -841,10 +823,6 @@ call mma_deallocate(Thpkl,safe='*')
 
 call mma_deallocate(Sew_Scr)
 call Free_Tsk2(id)
-if (Method == 'CASPT2') then
-  call mma_deallocate(B_PT2,safe='*')
-  close(LuGamma2)
-end if
 call mma_deallocate(Shij2)
 call mma_deallocate(Shij)
 call mma_deallocate(TMax_Auxiliary)
@@ -869,6 +847,4 @@ call Free_iSD()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
-
 end subroutine Drvg1_3Center_RI

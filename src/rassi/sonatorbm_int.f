@@ -14,9 +14,9 @@
      &                         PROPVALXI,PROPVALYI,PROPVALZI)
       use OneDat, only: sOpSiz
       use stdalloc, only: mma_allocate, mma_deallocate
+      use rassi_data, only: NBTRI
 
       IMPLICIT None
-#include "rassi.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=8) CHARPROP
       INTEGER IC_

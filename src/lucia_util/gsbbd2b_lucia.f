@@ -25,6 +25,7 @@
      &                         S2_TERM1, IPACK)
       use stdalloc, only: mma_allocate, mma_deallocate
       USE Para_Info, ONLY: MyRank, nProcs
+      use lucia_data, only: LOFFI
 *
 * SUBROUTINE GSBBD2B_LUCIA --> 52
 *
@@ -81,7 +82,6 @@
 *
 *
       IMPLICIT REAL*8(A-H,O-Z)
-#include "loff.fh"
 *. General input
       INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
       INTEGER NOBPTS(MXPNGAS,*),IOBPTS(MXPNGAS,*)
@@ -281,4 +281,4 @@ c Avoid unused argument warnings
         CALL Unused_integer(NSMSX)
         CALL Unused_integer(NSMDX)
       END IF
-      END
+      END SUBROUTINE GSBBD2B_LUCIA

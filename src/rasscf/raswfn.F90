@@ -42,13 +42,14 @@ use rasscf_global, only: IROOT, IXSYM, LROOTS, NAC, NROOTS, WEIGHT
 #ifdef _DMRG_
 use rasscf_global, only: DoDMRG
 #endif
+use general_data, only: NRS1,NRS2,NRS3,NTOT,NTOT2,NCONF,ISPIN,NACTEL,NBAS,NDEL,NELEC3,NFRO, &
+                        NHOLE1,NISH,NSSH,NSYM,NSYM,STSYM
+use spinfo, only: NDET
 
 
 implicit none
 
 #  include "rasdim.fh"
-#  include "general.fh"
-#  include "ciinfo.fh"
 
 integer :: dsetid
 integer, dimension(mxsym) :: NTMP1, NTMP2, NTMP3

@@ -34,15 +34,11 @@
 *     University of Lund, Sweden, 2000                                 *
 *                                                                      *
 ************************************************************************
-      use general_data, only: CleanMask
+      use Constants, only: Zero
+      use general_data, only: CleanMask, NSYM, NBAS
 
       Implicit None
-
-#include "rasdim.fh"
-#include "general.fh"
-
       Real*8 CMO(*)
-
       Integer ij, iSym, mBas, i, j
 
 * Prelude
@@ -56,7 +52,7 @@
         Do i = 1,mBas
           Do j = 1,mBas
             ij = ij+1
-            If ( CleanMask(ij).eq.1 ) CMO(ij) = 0.0D0
+            If ( CleanMask(ij).eq.1 ) CMO(ij) = Zero
           End Do
         End Do
       End Do

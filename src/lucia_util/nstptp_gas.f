@@ -36,17 +36,19 @@
 *            orbital space where there is more than one symmetry
 *            is left out
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use symmetry_info, only: MULTD2H => Mul
+      use lucia_data, only: MXPNGAS,MXPNSMST
+      IMPLICIT None
+      INTEGER NGAS,NSMST,IGRP,MXNSTR,NSMCLS,NSMCLSE,NSMCLSE1
 *. Input
-      DIMENSION ISPGRP(NGAS),NSTSGP(NSMST,*)
+      INTEGER ISPGRP(NGAS),NSTSGP(NSMST,*)
 *. Input and Output (column IGRP updated)
-      DIMENSION NSTSSPGP(NSMST,IGRP)
-#include "mxpdim.fh"
-#include "multd2h.fh"
+      INTEGER NSTSSPGP(NSMST,IGRP)
 *. Scratch
       INTEGER ISM,MNSM(MXPNGAS),MXSM(MXPNGAS)
       INTEGER MSM1(MXPNSMST),MSM2(MXPNSMST)
       INTEGER ISM1(MXPNSMST),ISM2(MXPNSMST)
+      INTEGER NTEST,ISYM,IGAS,NGASL,IZERO,ISM_IGASM1,ISM_IGAS,ISTRSM
 *
       NTEST = 0
       IF(NTEST.GE.10) THEN
@@ -102,7 +104,7 @@
          CALL ISETVC(MSM1,IZERO,NSMST)
          MSM1(1) = 1
         ELSE
-*. copy from the ISM2 obtained for preceeding IGAS
+*. copy from the ISM2 obtained for preceding IGAS
          CALL ICOPVE(ISM2,ISM1,NSMST)
          CALL ICOPVE(MSM2,MSM1,NSMST)
         END IF
@@ -136,5 +138,4 @@
         WRITE(6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',
      &                       NSMCLS,NSMCLSE,NSMCLSE1
       END IF
-      RETURN
-      END
+      END SUBROUTINE NSTPTP_GAS

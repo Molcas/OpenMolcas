@@ -9,6 +9,9 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       INTEGER FUNCTION IBION_LUCIA(M,N)
+      IMPLICIT NONE
+      INTEGER M,N
+      INTEGER, EXTERNAL:: IBINOM
 C PAM05:
 C The following code does not always work.
 C Replaced by call to my 'NOVERM' routine, renamed IBINOM.
@@ -31,5 +34,4 @@ C
 *      IBION_LUCIA = IB
 *C
       IBION_LUCIA=IBINOM(M,N)
-      RETURN
-      END
+      END FUNCTION IBION_LUCIA

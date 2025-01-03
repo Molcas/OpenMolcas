@@ -10,43 +10,30 @@
 ************************************************************************
       SUBROUTINE MV7(C,HC,LUC,LUHC)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use strbas
+      use strbas, only: NSTSO
+*.Definition of c and sigma
+      use CandS, only: ISSPC, ISSM
+      use lucia_data, only: MXNTTS,MXSOOB,ISMOST,XISPSM
+      use lucia_data, only: ICISTR,ENVIRO,ISIMSYM,LCSBLK
+      use lucia_data, only: IDC,IREFSM,PSSIGN
+      use lucia_data, only: I_AM_OUT,N_ELIMINATED_BATCHES
+      use lucia_data, only: NOCTYP
+      use csm_data, only: NSMST
 *
 * Outer routine for sigma vector generation
 * GAS version !!!!
 *
 * Written in terms of RASG3/SBLOCK, May 1997
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-*
-* =====
-*.Input
-* =====
-      DIMENSION C(*),HC(*)
-*
-*.Definition of c and sigma
-#include "cands.fh"
-*
-*./ORBINP/ : NACOB used
-#include "orbinp.fh"
-#include "cicisp.fh"
-#include "cstate.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "csm.fh"
-#include "crun.fh"
-#include "gasstr.fh"
-#include "cgas.fh"
-#include "lucinp.fh"
-#include "cprnt.fh"
-#include "oper.fh"
-#include "cmxcj.fh"
+      IMPLICIT NONE
+      INTEGER LUC,LUHC
+      REAL*8 C(*),HC(*)
       Integer, Allocatable:: SIOIO(:)
       Integer, Allocatable:: SVST(:)
 ! this is a the same structure as for local_arrays but it can not be
 ! used since lower level routines will use it.
       Integer, Allocatable:: CBLTP(:), CLBT(:), CLEBT(:), CI1BT(:),
      &                       CIBT(:)
+      INTEGER IATP,IBTP,NOCTPA,NOCTPB,NTTS,LBLOCK,LLUC,LLUHC,NBATCH
 *
       IF(ICISTR.EQ.1) THEN
         WRITE(6,*) ' MV7 does not work for ICISTR = 1'
@@ -55,8 +42,6 @@
         CALL SYSABENDMSG('lucia_util/mv7','Internal error',' ')
       END IF
 *
-      MAXK1_MX = 0
-      LSCMAX_MX = 0
       IATP = 1
       IBTP = 2
 *
@@ -94,7 +79,6 @@ c      END IF
          LBLOCK = MAX(INT(XISPSM(IREFSM,1)),MXSOOB)
          IF(PSSIGN.NE.0.0D0) LBLOCK = INT(2*XISPSM(IREFSM,1))
       ENDIF
-C     WRITE(6,*) ' ISSM and ICSM in MV7 =', ISSM,ICSM
       CALL PART_CIV2(IDC,
      &               CBLTP,
      &               NSTSO(IATP)%I,
@@ -128,4 +112,4 @@ C?    WRITE(6,*) ' LSCMAX_MX = ', LSCMAX_MX
       Call mma_deallocate(CI1BT)
       Call mma_deallocate(CIBT)
 *
-      END
+      END SUBROUTINE MV7

@@ -45,6 +45,7 @@ use Para_Info, only: Is_Real_Par, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use rassi_data, only: NISH,NASH
 
 #include "intent.fh"
 
@@ -55,7 +56,6 @@ type(DSBA_Type), intent(_OUT_) :: FSQ
 integer(kind=iwp), intent(in) :: nTUVX, nScreen
 real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: dmpk
-#include "rassi.fh"
 integer(kind=iwp) :: ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, iOK, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jaSkip, jden, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kDen, &

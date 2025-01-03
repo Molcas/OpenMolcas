@@ -20,6 +20,7 @@ subroutine CNFSTR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,ISCR,SGN,IPR
 ! Jeppe Olsen, Summer of '89
 
 use Definitions, only: wp, iwp, u6
+use spinfo, only: MINOP,NDTFTP
 
 implicit none
 integer(kind=iwp), intent(in) :: NORB, ICONF(NORB), ITYP, NAEL, NBEL, IDET, IPRODT(*)
@@ -27,8 +28,6 @@ integer(kind=iwp), intent(inout) :: IPREXH
 integer(kind=iwp), intent(out) :: IASTR(NAEL,IDET), IBSTR(NBEL,IDET), ISCR(NAEL+NBEL,0:IDET)
 real(kind=wp), intent(out) :: SGN(IDET)
 integer(kind=iwp) :: ICLOS, IOCC, IOPEN, IP, ISGN, JDET, JTYP, NEL, NTEST
-#include "spinfo.fh"
-#include "ciinfo.fh"
 
 NEL = NAEL+NBEL
 IOPEN = ITYP-1+MINOP

@@ -15,8 +15,8 @@
 module libxc_parameters
 
 use xc_f03_lib_m, only: XC_CORRELATION, XC_EXCHANGE, xc_f03_aux_func_ids, xc_f03_aux_func_weights, xc_f03_func_end, &
-                        xc_f03_func_get_info, xc_f03_func_info_get_kind, xc_f03_func_info_t, xc_f03_func_init, xc_f03_func_t, &
-                        xc_f03_num_aux_funcs
+                        xc_f03_func_get_info, xc_f03_func_info_get_kind, xc_f03_func_info_t, xc_f03_func_init, &
+                        xc_f03_func_set_ext_params, xc_f03_func_t, xc_f03_num_aux_funcs
 use Constants, only: Zero
 use Definitions, only: wp, iwp, LibxcInt
 
@@ -27,13 +27,13 @@ integer(kind=iwp), parameter :: nFuncs_max = 4
 integer(kind=iwp) :: nFuncs = 0
 integer(kind=LibxcInt) :: func_id(nFuncs_Max) = 0_LibxcInt
 real(kind=wp) :: Coeffs(nFuncs_Max) = Zero
+logical(kind=iwp) :: lExtParams = .false.
 type(xc_f03_func_t) :: xc_func(nFuncs_Max)      ! xc functional
 type(xc_f03_func_info_t) :: xc_info(nFuncs_Max) ! xc functional info
-Real(kind=wp),DIMENSION(:,:),Allocatable:: FuncExtParams
-Logical(kind=iwp) :: lExtParams = .false.
+real(kind=wp), allocatable :: FuncExtParams(:,:)
 
-public :: Coeffs, func_id, Initiate_Libxc_Functionals, libxc_functionals, nFuncs, nFuncs_max, Remove_Libxc_Functionals, &
-          FuncExtParams, lExtParams, Set_External_Params
+public :: Coeffs, func_id, FuncExtParams, Initiate_Libxc_Functionals, lExtParams, libxc_functionals, nFuncs, nFuncs_max, &
+          Remove_Libxc_Functionals, Set_External_Params
 
 !                                                                      *
 !***********************************************************************
@@ -137,19 +137,19 @@ end subroutine libxc_functionals
 !***********************************************************************
 !                                                                      *
 subroutine Set_External_Params()
-  use xc_f03_lib_m, only: xc_f03_func_set_ext_params
-  use Definitions, only: iwp
+
   integer(kind=iwp) :: iFunc
 
-  IF(allocated(FuncExtParams)) THEN
-    do iFunc = 1, nFuncs
-      call xc_f03_func_set_ext_params(xc_func(iFunc), FuncExtParams(:, iFunc))
+  if (allocated(FuncExtParams)) then
+    do iFunc=1,nFuncs
+      call xc_f03_func_set_ext_params(xc_func(iFunc),FuncExtParams(:,iFunc))
     end do
-!    CALL mma_deallocate(FuncExtParams)
-  ELSE
-    CALL WarningMessage(2, 'External Parameter Arrays Not Initialized!')
-    CALL Quit_OnUserError()
-  END IF
+    !call mma_deallocate(FuncExtParams)
+  else
+    call WarningMessage(2,'External Parameter Arrays Not Initialized!')
+    call Quit_OnUserError()
+  end if
+
 end subroutine Set_External_Params
 !                                                                      *
 !***********************************************************************

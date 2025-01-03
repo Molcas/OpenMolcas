@@ -24,17 +24,22 @@
 * Jeppe Olsen, Spring of 94
 *
 * : Note : Route 1 has retired, March 97
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: MXPTSOB
+      IMPLICIT None
+      INTEGER NKA,NKB,NI,NJ,NK,NL,MAXK,IKORD,IROUTE
+      REAL*8 FACS
 *. Input
-      DIMENSION CKJJ(*)
-      DIMENSION XIJKL(*)
-      DIMENSION KBIB(MAXK,*),XKBIB(MAXK,*)
-      DIMENSION KBJB(MAXK,*),XKBJB(MAXK,*)
+      REAL*8 CKJJ(*)
+      REAL*8 XIJKL(*)
+      INTEGER KBIB(MAXK,*),KBJB(MAXK,*)
+      REAL*8 XKBIB(MAXK,*),XKBJB(MAXK,*)
 *. Input and output
-      DIMENSION SKII(*)
+      REAL*8 SKII(*)
 *. Scratch
-#include "mxpdim.fh"
-      DIMENSION XIJILS(MXPTSOB)
+      REAL*8 XIJILS(MXPTSOB)
+      INTEGER JKINTOF,IKINTOF,NTEST,KB,LL,KK,L,K,IB,JB,ISOFF,ICOFF,
+     &        INTOF,IMAX,J,I
+      REAL*8 SGNK,SGNL,FACTOR
 *. To get rid of annoying and incorrect compiler warnings
       JKINTOF = 0
       IKINTOF = 0
@@ -233,7 +238,6 @@ C1000 CONTINUE
       END IF
 *. End of IROUTE branchning
 *
-      RETURN
-      END
+      END SUBROUTINE SKICKJ_LUCIA
 
 *

@@ -53,6 +53,9 @@ use rasscf_global, only: Conv, Emy, Ener, hRoots, IADR15, ICICH, iCIOnly, Iter, 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Quart
 use Definitions, only: wp, iwp
+use general_data, only: NSEL,NCONF,JOBIPH,LUDAVID,STSYM
+use spinfo, only: NDET
+use spinfo, only: N_ELIMINATED_GAS_MOLCAS,NCSF_HEXS
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
@@ -61,10 +64,6 @@ integer(kind=iwp) :: iDisk, ItLimit, jRoot, m_Sel, mSel, nMaxSel
 real(kind=wp) :: ESize, Threshold, ThrRule
 integer(kind=iwp), allocatable :: iSel(:)
 real(kind=wp), allocatable :: CI_conv(:,:,:), CIVEC(:), ExplE(:), ExplV(:,:)
-#include "rasdim.fh"
-#include "general.fh"
-#include "ciinfo.fh"
-#include "lucia_ini.fh"
 
 !-----------------------------------------------------------------------
 ! INITIALIZE THE DAVIDSON DIAGONALIZATION

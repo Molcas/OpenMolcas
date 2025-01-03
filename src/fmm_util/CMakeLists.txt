@@ -23,9 +23,9 @@ set (sources
      fmm_interface.F90
      fmm_j_builder.F90
      fmm_local_search.F90
+     fmm_multi_t_buffer.F90
      fmm_multiple_t_worker.F90
      fmm_multipole_ints.F90
-     fmm_multi_t_buffer.F90
      fmm_proc_selector.c
      fmm_qlm_builder.F90
      fmm_qlm_utils.F90
@@ -40,8 +40,8 @@ set (sources
      fmm_t_pair_builder.F90
      fmm_t_pair_mould.F90
      fmm_t_pair_tests.F90
-     fmm_tree_buffer.F90
      fmm_t_worker.F90
+     fmm_tree_buffer.F90
      fmm_utils.F90
      fmm_vff_driver.F90
      fmm_w_buffer.F90

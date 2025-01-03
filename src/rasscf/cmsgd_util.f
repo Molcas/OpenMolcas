@@ -107,10 +107,9 @@ C      CALL RecPrt(' ',' ',GD,lRoots2,NAC2)
       use rasscf_lucia, only: DStmp, Dtmp
       use Lucia_Interface, only: Lucia_Util
       use rasscf_global, only: lRoots, NAC, iADR15
+      use general_data, only: JOBIPH,NCONF
       Implicit None
 
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       INTEGER nGD

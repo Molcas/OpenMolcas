@@ -34,13 +34,12 @@
 ************************************************************************
 *
       use OneDat, only: sNoNuc, sNoOri
+      use output_ras, only: LF
+      use general_data, only: NSYM,LOWDIN_ON,NBAS,NDEL
 
       Implicit None
 *
-#include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
-#include "output_ras.fh"
 *
       REAL*8 Smat(*),SCRATCH(*),CMO(*),Temp(*)
       character(len=8) :: Label

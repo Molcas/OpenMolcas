@@ -34,7 +34,7 @@ CMSI
 >>foreach state in (1, 2)
 
 &MCPDFT
-KSDFT=T:PBE
+FUNC=T:PBE
 GRAD
 MSPD
 RLXROOT=$state

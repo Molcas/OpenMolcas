@@ -22,6 +22,7 @@
       INTEGER Z(*)
 *. Scratch length : 2 * NORB + (NEL+1)*(NORB+1)
        INTEGER ISCR(*)
+       INTEGER, External:: IELSUM
 *
        NORB = IELSUM(NORBFTP,NORBTP)
        NEL  = IELSUM(NELFTP,NORBTP)

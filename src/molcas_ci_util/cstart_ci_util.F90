@@ -50,9 +50,15 @@ use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 use csfbas, only: CONF
 use glbbas, only: CFTP
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
+use output_ras, only: IPRLOC
+use printlevel, only: DEBUG, INSANE, TERSE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use general_data, only: NCONF,NSEL,JOBOLD,JOBIPH,LUDAVID,NACTEL,STSYM
+#   ifdef _HDF5_
+use general_data, only: STARTORBFILE
+#endif
 
 #include "intent.fh"
 
@@ -69,9 +75,6 @@ logical(kind=iwp) :: Exists
 character(len=80) :: String
 integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Tmp1(:)
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
 
 IPRLEV = IPRLOC(3)
 

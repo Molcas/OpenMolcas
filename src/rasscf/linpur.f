@@ -11,6 +11,7 @@
       SUBROUTINE LINPUR(CMO)
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: BName, IXSYM
+      use general_data, only: NSYM,NBAS,NORB
 
       IMPLICIT None
       Real*8 CMO(*)
@@ -20,8 +21,6 @@
       LOGICAL IFTEST
 * Define mxsym etc.
 #include "rasdim.fh"
-* general.fh defines NSYM,NBAS,NORB:
-#include "general.fh"
       Integer, Allocatable:: LMB(:)
       Integer i, IB, IBAS, IBASES, ICMOES, IO, IORB, IORBES, ISSLAB,
      &        ISYM, L, LCOUNT, LEXIST, LMX, MNL, MXL, NB, NBTOT, NO,

@@ -37,16 +37,17 @@ use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
+!#define _CD_TIMING_
+#ifdef _CD_TIMING_
+use temptime, only: DRVG1_CPU,DRVG1_WALL,CHOGET_WALL,CHOGET_CPU,RMULT_WALL,RMULT_CPU,PREPP_WALL,PREPP_CPU,PGET2_WALL,PGET2_CPU, &
+                    PGET3_WALL,PGET3_CPU,TWOEL2_WALL,TWOEL3_WALL,TWOEL2_CPU,TWOEL3_CPU
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
 integer(kind=iwp) :: i, iIrrep, ijsym, iOff, iPrint, irc, iRout, iSeed, iStart, isym, itmp, j, jStart, jSym, jtmp, kStart, kTmp, &
                      m_ij2K, mAO, nAct(0:7), nAux_Tot, nij_Eff, ntmp, nV_k_New, nVec, nZ_p_k_New, nZ_p_l
 real(kind=wp) :: BufFrac, TCpu1, TCpu2, TWall1, TWall2

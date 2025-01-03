@@ -12,13 +12,13 @@
 ************************************************************************
       SUBROUTINE HFCSD(LABEL,IC,BUFF,NBUFF,NSIZ,ISCHK)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use hfc_logical, only: MAG_X2C
       IMPLICIT REAL*8 (A-H,O-Z)
 ************************************************************************
 *     Objective: to compute the 'spin-dependent' part of the hyperfine *
 *                from the magnetic integrals contributions             *
 *     Output: BUFF                                                     *
 ************************************************************************
-#include "hfc_logical.fh"
       CHARACTER(LEN=8) LABEL
       INTEGER IC,NBUFF,NSIZ,ISCHK
       REAL*8 BUFF(NBUFF)

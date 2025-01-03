@@ -15,6 +15,7 @@ subroutine RHS_MP2()
 use MBPT2_Global, only: Density, EMP2, LuIntM, mAdOcc, mAdVir, VECL2
 use ChoMP2, only: NoGamma
 use Symmetry_Info, only: Mul
+use trafo, only: IAD13, IADOUT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -29,7 +30,6 @@ integer(kind=iwp) :: i, iSym, iSym1, iSym2, iSymA, iSymB, iSymI, iSymJ, j, LIADO
 integer(kind=iwp) :: iDel, iExt, iFro, iOcc, nA, nB, nI
 #endif
 real(kind=wp), allocatable :: Int1(:), Int1_2(:), Int2(:), Int2_2(:), Scr1(:)
-#include "trafo.fh"
 #include "corbinf.fh"
 
 IAD13 = 0

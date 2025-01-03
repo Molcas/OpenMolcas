@@ -10,19 +10,21 @@
 ************************************************************************
       FUNCTION GETH1E(IORB,ITP,ISM,JORB,JTP,JSM)
       use GLBBAS, only: INT1, PINT1, PGINT1, PGINT1A
+      use lucia_data, only: IH1FORM
+      use symmetry_info, only: MULTD2H => Mul
+      use lucia_data, only: IBSO,IOBPTS,IREOTS,NACOBS
+      use lucia_data, only: MXPNGAS
 *
 * One-electron integral for active
 * orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
 *
 * The orbital symmetries are used to obtain the
 * total symmetry of the operator
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "lucinp.fh"
-#include "orbinp.fh"
-#include "multd2h.fh"
-#include "intform.fh"
-#include "oper.fh"
+      IMPLICIT None
+      Integer IORB,ITP,ISM,JORB,JTP,JSM
+      INTEGER IJSM
+      REAL*8 GETH1E
+      REAL*8, EXTERNAL:: GTH1ES
 *
       IJSM = MULTD2H(ISM,JSM)
       GETH1E = 0.0D0
@@ -45,4 +47,4 @@ C?        WRITE(6,*) ' GETH1E, old route '
      &         IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,0)
       END IF
 *
-      END
+      END FUNCTION GETH1E

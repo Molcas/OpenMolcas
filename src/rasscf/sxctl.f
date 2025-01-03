@@ -74,6 +74,11 @@
      &                         nQune, NROOT, NSXS, NTOT4, QNSTEP,
      &                         QNUPDT, SXSEL, TMIN, VIA, ISTORP,
      &                         IADR15, EMY
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NACTEL,JOBIPH,LUINTM,LUQUNE,NASH,
+     &                        NBAS,NDEL,NFRO,NISH,NORB,NRS1,NRS2,NRS3,
+     &                        NSSH,NTOT,NTOT1,NTOT2
 
 
       Implicit None
@@ -82,9 +87,6 @@
       Real*8 THMAX
       INTEGER IFINAL
 
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='SXCTL   '
 * PAM 2008 IndType, VecTyp added, see below at call to WrVec
       Integer IndType(56)

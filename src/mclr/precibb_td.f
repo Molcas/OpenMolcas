@@ -34,15 +34,23 @@
 *   rOut        :       Submatrix
 *
 ************************************************************************
-      Implicit Real*8(a-h,o-z)
-#include "Input.fh"
-#include "Pointers.fh"
+      use input_mclr, only: nAsh,nIsh,nBas
+      Implicit None
+      Integer ib,is,js,nd
       Real*8 rout(*)
-      Real*8 Temp1(nBa,nBa),Focki(nBa,nBa),Focka(nBa,nBa)
+      Integer nba
+      Real*8 Temp1(nBa,nBa)
       Real*8 Temp2(*), Scr(*)
+      Real*8 fockii,fockai
+      Real*8 Focki(nBa,nBa),Focka(nBa,nBa)
+      Real*8 sign
+
+      Integer nTri,jVert,i1,ip,kB,lB
+      Real*8 ra
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      integer i,j,itri,itri1
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)
      &          +Max(i,j)-Min(i,j)+1
@@ -74,5 +82,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End SubRoutine Precibb_td

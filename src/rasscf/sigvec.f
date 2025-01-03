@@ -21,15 +21,15 @@ C ********** IBM-3090 Release 88 09 01 **********
 C
       use rasscf_global, only: ICICP, ITER, NDIMSX, NROOT, NSXS,
      &                         SXSHFT, IROOT, ENER
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NASH,NISH,NSSH,SXDAMP
 
       IMPLICIT NONE
       REAL*8 CIN(*),HC(*),BM(*),SXN(*),G(*),H(*),DIA(*),F1(*),F2(*),
      &          X(*),C(*)
       INTEGER NTRIAL
 
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='SIGVEC  '
       REAL*8 HD(*)
       INTEGER :: I, iPrLev, ISTAE, ISTBM, ISTH, ISTIA, ISTZ, ISYM,

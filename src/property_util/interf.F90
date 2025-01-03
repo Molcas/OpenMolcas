@@ -20,6 +20,7 @@ use casvb_global, only: ifvb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use general_data, only: NSYM,NBAS
 
 implicit none
 integer(kind=iwp), intent(in) :: i_root, isuseene, iscasvb
@@ -29,8 +30,6 @@ character(len=80) :: Note
 character(len=10) :: Filename
 real(kind=wp), allocatable :: AdCMOA(:), AdCMOB(:), CA(:,:), CB(:,:), EAB(:,:), OccA(:), OccB(:)
 integer(kind=iwp), external :: isFreeUnit
-#include "rasdim.fh"
-#include "general.fh"
 
 !                                                                      *
 !***********************************************************************

@@ -33,18 +33,18 @@ integer(kind=iwp) :: Angular_Pruning, Functional_Type, Grid_Type, IOff_Ash(0:7),
                      OffOrb(0:7), OffOrb2(0:7), OffOrbTri(0:7), OffPUVX(0:7), OffUVX(0:7,0:7,0:7), OffVX(0:7,0:7), Packing, &
                      Rotational_Invariance
 real(kind=wp) :: Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, Fade, &
-                 Grad_I, T_Y, Tau_I, ThrC, Threshold, Threshold_save, x_min, y_min, z_min, Tau_a1, Tau_b1,  &
-                 Tau_a2, Tau_b2, Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
+                 Grad_I, Lapl_a1, Lapl_a2, Lapl_b1, Lapl_b2, T_Y, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Tau_I, ThrC, Threshold, &
+                 Threshold_save, x_min, y_min, z_min
 character(len=10) :: Quadrature
 character(len=8) :: MBC
 
 public :: Angular_Pruning, Block_Size, Crowding, Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2, Energy_integrated, &
           Fade, Fixed_Grid, Functional_Type, GGA_Type, Grad_I, Grid_Type, IOff_Ash, IOff_Bas, IOff_BasAct, iOpt_Angular, L_Quad, &
-          L_Quad_save, LDA_Type, mBas, MBC, meta_GGA_Type1, meta_GGA_Type2, mIrrep, mOrb, Moving_Grid, mRad, nAngularGrids, nAsh, &
-          NASHT, nAtoms, ndc, nFro, nISh, nOrbt, nPot1, nPot2, NQ_Direct, NQ_Info_Dmp, NQ_Info_Get, nR, nR_Save, nTotGP, &
-          number_of_subblocks, nUVX, nUVXt, nVX, nVXt, nx, ny, nz, Off, OffBas, OffBas2, OffBasFro, OffOrb, OffOrb2, OffOrbTri, &
-          OffPUVX, OffUVX, OffVX, On, Other_Type, Packing, Quadrature, Rotational_Invariance, T_Y, Tau_I, ThrC, Threshold, &
-          Threshold_save, x_min, y_min, z_min, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Lapl_a1, Lapl_b1, Lapl_a2, Lapl_b2
+          L_Quad_save, Lapl_a1, Lapl_a2, Lapl_b1, Lapl_b2, LDA_Type, mBas, MBC, meta_GGA_Type1, meta_GGA_Type2, mIrrep, mOrb, &
+          Moving_Grid, mRad, nAngularGrids, nAsh, NASHT, nAtoms, ndc, nFro, nISh, nOrbt, nPot1, nPot2, NQ_Direct, NQ_Info_Dmp, &
+          NQ_Info_Get, nR, nR_Save, nTotGP, number_of_subblocks, nUVX, nUVXt, nVX, nVXt, nx, ny, nz, Off, OffBas, OffBas2, &
+          OffBasFro, OffOrb, OffOrb2, OffOrbTri, OffPUVX, OffUVX, OffVX, On, Other_Type, Packing, Quadrature, &
+          Rotational_Invariance, T_Y, Tau_a1, Tau_a2, Tau_b1, Tau_b2, Tau_I, ThrC, Threshold, Threshold_save, x_min, y_min, z_min
 
 contains
 

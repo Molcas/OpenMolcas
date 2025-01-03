@@ -25,28 +25,41 @@
       Use Center_Info, only: Center_Info_Get
       use OneDat, only: sOpSiz
       Use Exp, only: NewPre, nexp_max
-      use negpre
+      use negpre, only: nGP
       Use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
-#include "Files_mclr.fh"
-#include "disp_mclr.fh"
-#include "sa.fh"
-      Parameter ( nCom=38 )
-      Character*72 Line
-      Character*4 Command,ComTab(nCom)
-      Character*8 Label
-      Character*2 Element(MxAtom)
+      use MCLR_Data, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,
+     &                     FANCY_PRECONDITIONER,NSSA,NACSTATES
+      use MCLR_Data, only: DspVec,SwLbl,lDisp
+      use MCLR_Data, only: NoFile
+      use input_mclr, only: Debug,lRoots,kPrint,mTit,Omega,
+     &                      TimeDep,Page,
+     &                      iBreak,nIter,RASSI,SpinPol,lSave,
+     &                      lCalc,nDisp,CasInt,NewCho,
+     &                      TwoStep,StepType,Double,Eps,IsPop,
+     &                      nSym,nAtoms,ntPert,nsRot,UserP,
+     &                      nUserPT,UserT,TitleIn
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+#include "rasdim.fh"
+      Character(LEN=72) Line
+      Character(LEN=4) Command
+      Character(LEN=8) Label, SewLab
+      Character(LEN=2) Element(MxAtom)
       Logical     Epsilon_Undef
-      Data ComTab/'TITL','DEBU','ROOT','EXTR','PRCI',
+      Integer, Parameter :: nCom=38
+      Character(LEN=4), parameter :: ComTab(nCom)=[
+     &            'TITL','DEBU','ROOT','EXTR','PRCI',
      &            'PROR','ITER','THRE','END ','TIME',
      &            'CALC','NOFI','SEWA','NOCO','NOTW',
      %            'SPIN','PRIN','PCGD','RESI','NOTO',
      &            'EXPD','NEGP','LOWM','ELHE','SAVE',
      &            'RASS','DISO','CASI','SALA','NODE',
      &            'ESTE','MOUT','MASS','NAC ','$$$$',
-     &            'THER','CHOF','TWOS'/
-      Integer iDum(1)
+     &            'THER','CHOF','TWOS']
+      Integer iDum(1),I,JCOM,ICOM,ITIT,ISYM,IP,IRC,IOPT,ICOMP,
+     &        ISYLBL,IPP,IS,ID,J,IRRFNC,iMass
+      real*8, allocatable :: umass(:)
+      character(len=3), allocatable :: cmass(:)
 *----------------------------------------------------------------------*
 *     Locate "start of input"                                          *
 *----------------------------------------------------------------------*
@@ -68,12 +81,7 @@
       NoFile=.false.
       mTit=0
       Omega=0.0d0
-      elechess=.false.
       TimeDep=.false.
-      PrCI=.false.
-      CIthrs=0.05d0
-      PrOrb=.false.
-      SewLab='NONE    '
       Page=.false.
       ibreak=2
       nIter=200
@@ -82,14 +90,11 @@
       SA=.false.
       esterr=.false.
       FANCY_PRECONDITIONER=.true.
-      save=.false.
-      isotop=.true.
+      lsave=.false.
       lCalc(:) = .true.
       Do i=1,nDisp
        DspVec(i)=i
       End Do
-      nmode = 0
-      lmass = .false.
       CASINT=.true.
       NACstates(1)=0
       NACstates(2)=0
@@ -231,8 +236,8 @@
 16    debug=.true.
       Goto 100
 *----      ------------------------------------------------------------
-195   elechess=.true.
-      If (debug) Write(6,*) 'Electric response'
+195   Continue
+      Write (6,*) 'ELHE is disabled!'
       goto 100
 *---- LOWM ------------------------------------------------------------
 194   page=.true.
@@ -243,7 +248,7 @@
       If (debug) Write(6,*) 'New conditioner'
       goto 100
 *----      ------------------------------------------------------------
-196   SAVE=.TRUE.
+196   lSAVE=.TRUE.
       If (debug) Write(6,*) 'old integrals, not supported'
       goto 100
 *----      ------------------------------------------------------------
@@ -257,15 +262,15 @@
       goto 100
 *----      ------------------------------------------------------------
 179   iBreak=1
-      Read(5,*) epsilon
+      Read(5,*) Eps
       Epsilon_Undef=.False.
-      If (debug) Write(6,*) 'Threshold:',epsilon
+      If (debug) Write(6,*) 'Threshold:',Eps
       Goto 100
 *----      ------------------------------------------------------------
 180   iBreak=2
-      Read(5,*) epsilon
+      Read(5,*) Eps
       Epsilon_Undef=.False.
-      If (debug) Write(6,*) 'Threshold:',epsilon
+      If (debug) Write(6,*) 'Threshold:',Eps
       Goto 100
 *----      ------------------------------------------------------------
 178   Read(5,*) kprint
@@ -367,15 +372,11 @@
       Goto 100
 *---  Process the "PrCI" input card -----------------------------------*
 40    Continue
-      PrCI=.true.
-45    Read(5,'(A)',Err=998,End=999) Line
-      Line = adjustl(Line)
-      If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 45
-      Read(Line,*,Err=998,End=999) CIthrs
+      Write (6,*) 'PRCI is disabled!'
       Goto 100
 *---  Process the "PrOr" input card -----------------------------------*
 50    Continue
-      PrOrb=.true.
+      Write (6,*) 'PROR is disabled!'
       Goto 100
 *---  Process the "ITER" input card -----------------------------------*
 60     Continue
@@ -389,7 +390,7 @@
 75    Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 75
-      Read(Line,*,Err=998,End=999) epsilon
+      Read(Line,*,Err=998,End=999) Eps
       Epsilon_Undef=.False.
       Goto 100
 *---  Process the "TIME" input card -----------------------------------*
@@ -407,7 +408,6 @@
       Goto 100
 *---  Process the "MASS" input card -----------------------------------*
 203   Continue
-      lmass = .true.
       iMass = 0
       Call Get_Name_All(Element)
 *
@@ -419,6 +419,8 @@
             If (Element(j).eq.Element(i)) Element(j)='  '
          End Do
       End Do
+      call mma_allocate(cmass,iMass,label='cmass')
+      call mma_allocate(umass,iMass,label='umass')
       Do i=1,iMass
          Read(5,'(A3)')    cmass(i)
          Read(5,'(F15.8)') umass(i)
@@ -429,6 +431,8 @@
       Call Put_iScalar('iMass',iMass)
       Call Put_cArray('cmass',cmass(1),3*iMass)
       Call Put_dArray('umass',umass,iMass)
+      call mma_deallocate(cmass)
+      call mma_deallocate(umass)
 *
       Goto 100
 *---  Process the "NAC " input card -----------------------------------*
@@ -528,9 +532,9 @@
 *
       If (Epsilon_Undef) Then
 *        If (SA) Then
-*           Epsilon=1.0D-6
+*           Eps=1.0D-6
 *        Else
-            Epsilon=1.0D-4
+            Eps=1.0D-4
 !        This I need to change back
 *        End If
       End If

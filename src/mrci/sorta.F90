@@ -20,12 +20,12 @@ use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use TraToc, only: ITRATOC,NTRATOC
 
 implicit none
 real(kind=wp), intent(out) :: BUFS(NBITM1,NCHN1), BUFBI(KBUFF1), BIAC(ISMAX), BICA(ISMAX)
 integer(kind=iwp), intent(out) :: INDS(NBITM1+2,NCHN1), NINTGR
 integer(kind=iwp), intent(in) :: ISAB(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IACS, IAD15, IAD50, IADD10, IADR, IBUFIJ, ICHK, IDISK, IIJ, IIN, IJ, IJKL, ILEN, ILOOP, INB, INND, INS, &
                      INSB, INSOUT, INUMB, IOUT, IPOS, ISRTAD, IST, JDISK, KK, KL, LENGTH, M, NA, NAT, NB, NC, NI, NIB, NJ, NK, NL, &
                      NOP, NOQ, NOR, NORB0(9), NORBP, NOS, NSAVE, NSIB, NSP, NSPQ, NSPQR, NSQ, NSR, NSRTCN, NSS, NSSM, NT, NTM, NU, &

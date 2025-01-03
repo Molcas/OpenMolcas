@@ -25,23 +25,32 @@
       use Arrays, only: CMO, G2t, G1t
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-
-#include "Input.fh"
-#include "Files_mclr.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nA, nNA
+      use MCLR_Data, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,
+     &                     NACSTATES
+      use MCLR_Data, only: FnJob,FnMck,LuJob,LuMck
+      use input_mclr, only: Debug,lRoots,iPT2,nRoots,ntIsh,ntITri,
+     &                      ntAsh,ntATri,ntASqr,ntBas,ntBTri,ntBSqr,
+     &                      nSym,nCSF,State_Sym,iMCPD,iMSPD,McKinley,
+     &                      ERASSCF,Headerjp,iRoot,iSpin,iTOC,iTocIph,
+     &                      ntISqr,nCOnf,PT2,nActEl,nAsh,nBas,
+     &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,
+     &                      nRS2,nRS3,TitleJP,Weight
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
+      Implicit None
+      Real*8, Allocatable:: CIVec(:,:)
+#include "rasdim.fh"
 #include "SysDef.fh"
-#include "sa.fh"
-#include "dmrginfo_mclr.fh"
-      Character*72 Line
-      Character*8 Method
+      Character(LEN=72) Line
+      Character(LEN=8) Method
       real*8 dv_ci2  ! yma added
       Logical Found
       Real*8 rdum(1)
       Character(Len=1), Allocatable:: TempTxt(:)
       Real*8, Allocatable::  Tmp2(:)
-      Real*8, Allocatable:: CIVec(:,:)
+      Integer kRoots,iDisk,Length,iSym,iMode,i,iGo,j,iRC,iOpt,jpCMO,k,
+     &        iNum,Iter,nAct,nAct2,nAct4,iS,jS,kS,lS,nG1,nG2,iDummer
+      Real*8 Temp,PotNuc0
 
 *                                                                      *
 ************************************************************************
@@ -353,5 +362,4 @@ C
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End Subroutine RdJobIph

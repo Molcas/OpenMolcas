@@ -48,7 +48,7 @@ logical(kind=iwp) :: DoRys, W2L
 !***********************************************************************
 !                                                                      *
 
-call StatusLine('Gateway:',' Generating aCD or acCD auxiliary basis set')
+call StatusLine('Gateway: ','Generating aCD or acCD auxiliary basis set')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION IWEYLF(NOPEN,MULTS)
+      INTEGER FUNCTION IWEYLF(NOPEN,MULTS)
 C
 C NUMBER OF CSF'S WITH NOPEN ORBITALS AND TOTAL MULTIPLICITY
 C MULTS ACCORDING TO WEYLS FORMULAE
@@ -35,6 +35,6 @@ C
       END IF
 C
       RETURN
-      END
+      END FUNCTION IWEYLF
 
 *

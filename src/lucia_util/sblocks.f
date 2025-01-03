@@ -88,7 +88,19 @@
 *                                                 * <Iblk!H!Jblk>C(Jblk)
 
 
-      IMPLICIT REAL*8(A-H,O-Z)
+      use Constants, only: Zero
+      use lucia_data, only: IDISK
+      use spinfo, only: DOBKAP
+#ifdef _DEBUGPRINT_
+      use spinfo, only: NGASBK,IOCCPSPC
+#endif
+      IMPLICIT NONE
+      INTEGER NSBLOCK,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,
+     &        NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,MAXK,MAXI,LC,NGAS,
+     &        IDC,IDOH2,MXPOBS,IPRNT,LUC,ICJKAIB,MXSXST,MXSXBL,MOCAA,
+     &        IRESTRICT,IPERTOP,ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,
+     &        I_RES_AB,ISIMSYM
+      REAL*8 PS
 *. Specific input
       INTEGER ISBLOCK(8,*)
 *.General input
@@ -103,30 +115,39 @@
       INTEGER NELFSPGP(MXPNGAS,*)
       INTEGER ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
 *.Scratch
-      DIMENSION SB(*),CB(*),C2(*)
-      DIMENSION XINT(*),XINT2(*),CSCR(*),SSCR(*)
-      DIMENSION I1(*),I2(*),I3(*),I4(*),XI1S(*),XI2S(*),XI3S(*),XI4S(*)
-      INTEGER   LCBLOCK(*),I1CBLOCK(*),ICBLOCK(8,*),LECBLOCK(*)
-      DIMENSION ISTRFL(*)
+      REAL*8 SB(*),CB(*),C2(*)
+      REAL*8 XINT(*),XINT2(*),CSCR(*),SSCR(*)
+      INTEGER I1(*),I2(*),I3(*),I4(*)
+      REAL*8 XI1S(*),XI2S(*),XI3S(*),XI4S(*)
+      INTEGER LCBLOCK(*),I1CBLOCK(*),ICBLOCK(8,*),LECBLOCK(*)
+      INTEGER ISTRFL(*)
 *. Zero order Hamiltonian
       INTEGER IH0SPC(NOCTPA,NOCTPB)
       INTEGER IH0INSPC(*)
 *
-      DIMENSION CJRES(*),SIRES(*)
+      REAL*8 CJRES(*),SIRES(*)
 *
-      DIMENSION LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
-      DIMENSION SCLFAC(*)
-#include "bk_approx.fh"
-#include "io_util.fh"
+      INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
+      REAL*8 SCLFAC(*)
 *
 
-      DIMENSION C(1),ICOOSC(1),IPHGAS(*),iDUMMY(1)
+      REAL*8 C(1)
+      INTEGER ICOOSC(1),IPHGAS(*),iDUMMY(1)
       INTEGER DXSTST(1)
-      DATA IH_OCC_CONS/0/
+      INTEGER :: IH_OCC_CONS=0
 * IH_OCC_CONS =1 implies that we should employ occupation conserving
 * part of Hamiltonian
+      INTEGER JSBLOCK,IATP,IBTP,IASM,IBSM,IOFF,NASTR,NBSTR,MXEXC,
+     &        JCBAT_INI,JCBAT_END,NCBATCH,JOFF,JCBATCH,ICOFF,NJBLOCK,
+     &        JJCBLOCK,JBLOCK,INTERACT,JATP,JBTP,JASM,JBSM,IPERM,NPERM,
+     &        LLASM,LLBSM,LLATP,LLBTP,ISCALE,LBL,ICBLK,NJA,NJB,NLLA,
+     &        NLLB,ISBLK,ISOFF,NIA,NIB,I_DO_EXACT_BLK,IPTSPC,JPTSPC
+      REAL*8 PL,XFAC,FACTOR
+#ifdef _DEBUGPRINT_
+      INTEGER IBLOCK,IGAS,II,NTEST
+#endif
 
-      Call unused_integer(mxsxbl)
+      If (.false.) Call unused_integer(mxsxbl)
 *.
 #ifdef _DEBUGPRINT_
       NTEST = 000
@@ -185,7 +206,6 @@
          IOFF = ISBLOCK(5,JSBLOCK)
          NASTR = NSSOA(IASM,IATP)
          NBSTR = NSSOB(IBSM,IBTP)
-         ZERO = 0.0D0
          IF(ISBLOCK(1,JSBLOCK).GT.0)
      &        CALL SETVEC(SB(IOFF),ZERO,NASTR*NBSTR)
       END DO
@@ -490,7 +510,6 @@ C               IF(IPERTOP.NE.0) THEN
       END IF
 #endif
 *
-      RETURN
 * Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer_array(IH0INSPC)
-      END
+      END SUBROUTINE SBLOCKS

@@ -8,16 +8,17 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       FUNCTION GETH1I_MCLR(I,J)
+       REAL*8 FUNCTION GETH1I_MCLR(I,J)
        use Arrays, only: FIMO
+       use MCLR_Data, only: ipCM
+       use MCLR_Data, only: IBSO,IREOTS,ISMFTO
+       use input_mclr, only: nIsh,nOrb
 *
 * Obtain one -electron integral H(IORB,JOB)
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "detdim.fh"
-#include "Input.fh"
-#include "Pointers.fh"
-#include "orbinp_mclr.fh"
+      IMPLICIT None
+      Integer I, J
+      Integer ISM, JSM, I1, J1, IJ
 *
       ISM = ISMFTO(I)
       JSM = ISMFTO(J)
@@ -29,5 +30,4 @@
       GETH1I_MCLR = FIMO(IJ)
 *
 *
-      RETURN
-      END
+      END FUNCTION GETH1I_MCLR

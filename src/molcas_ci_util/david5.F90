@@ -19,16 +19,16 @@ use glbbas, only: CFTP, DTOC
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use Lucia_Interface, only: Lucia_Util
+use output_ras, only: IPRLOC, RC_CI
+use printlevel, only: DEBUG, USUAL
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use general_data, only: NSEL,NCONF,ITERFILE,LUDAVID,NACTEL,STSYM
 
 implicit none
 #include "rasdim.fh"
-#include "general.fh"
 #include "timers.fh"
-#include "output_ras.fh"
-! nsel in general.fh
 integer(kind=iwp), intent(in) :: nDet, iSel(nSel)
 integer(kind=iwp), intent(inout) :: mxItr
 integer(kind=iwp), intent(out) :: nItr

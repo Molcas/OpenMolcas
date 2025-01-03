@@ -42,12 +42,10 @@ C
       use fciqmc, only : DoNECI
       use wadr, only: PA, DIA, SXN
       use stdalloc, only: mma_allocate, mma_deallocate
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rasdim.fh"
-#include "warnings.h"
-#include "output_ras.fh"
-      Character(LEN=16):: ROUTINE='DAVCRE  '
-      CHARACTER(LEN=4) IOUTW,IOUTX
+      use printlevel, only: DEBUG,INSANE
+      use output_ras, only: LF,IPRLOC,RC_SX
+      IMPLICIT None
+      INTEGER NROOT,ITMAX,NDIM,ITERSX,NSXS
       Real*8 C((NROOT+NSXS)*NROOT*(ITMAX+1))
       Real*8 HC((NROOT+NSXS)*NROOT*ITMAX)
       Real*8 HH((ITMAX*NROOT)*(ITMAX*NROOT+1))
@@ -59,11 +57,18 @@ C
       Real*8 QQ(NROOT)
       Real*8 S(ITMAX*NROOT**2)
       CHARACTER(LEN=*) SXSEL
-cvv   DATA THRA/1.D-13/,THRLD2/1.D-15/,THRQ/1.D-07/,THRZ/1.D-06/,
-cvv   Thrld2 changed to 1.D-14 to avoid numerial unstabillity
-      DATA THRA/1.D-13/,THRLD2/5.D-14/,THRQ/1.D-07/,THRZ/1.D-06/,
-     &     THRLD1/1.D-08/
+#include "rasdim.fh"
+#include "warnings.h"
+      Character(LEN=16):: ROUTINE='DAVCRE  '
+      CHARACTER(LEN=4) IOUTW,IOUTX
+      Real*8 :: THRA=1.D-13,THRLD2=5.D-14,THRQ=1.D-07,THRZ=1.D-06,
+     &          THRLD1=1.D-08
       Real*8, Allocatable:: C1(:), C2(:), X(:)
+      Integer iPrLev,nTrial,nCR,ii,i,nDimH,kDimH,nDimH2,iSel,nST,j,ji,
+     &        iConvQ,iST,iConvA,k,iPass,iConvL,nTotDC,ij,iSTQ,iSTC,jST,
+     &        Length
+      Real*8  XMX,XX,SWAP,Ei,QNorm,ENO,ASQ,Ovl,XNorm
+      Real*8, External:: DDot_
 C
 C Local print level (if any)
       IPRLEV=IPRLOC(1)
@@ -357,7 +362,7 @@ C
       DO I=1,NTOTDC
        IF(I.NE.1.AND.NTRIAL.NE.0) THEN
 C
-C  Orthogonalize this vector to the preceeding Q's of this iteration
+C  Orthogonalize this vector to the preceding Q's of this iteration
 C
         JST=1
         DO J=1,NTRIAL
@@ -369,7 +374,7 @@ C
 *        CALL DGEMX(NDIM,NTRIAL,1.D0,Q,NDIM,S,1,Q(IST),1)
         CALL DGEMV_('N',NDIM,NTRIAL,1.D0,Q,NDIM,S,1,1.0D0,Q(IST),1)
        IF(IPRLEV.GE.INSANE) THEN
-          Write(LF,*)'  Q vector orthogonal to preceeding Q vectors:'
+          Write(LF,*)'  Q vector orthogonal to preceding Q vectors:'
           Write(LF,'(1x,8F14.10)')(Q(k),k=1,NDIM)
        END IF
        ENDIF
@@ -567,5 +572,4 @@ C
       CALL mma_deallocate(C1)
       CALL mma_deallocate(C2)
       CALL mma_deallocate(X)
-      RETURN
-      END
+      END SUBROUTINE DAVCRE

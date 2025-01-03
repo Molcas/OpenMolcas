@@ -14,12 +14,12 @@
       use Cntrl, only: NJOB, MINAME
       use cntrl, only: LuMck
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBASF
 
       IMPLICIT None
 C Purpose: Read in the derivatives of 1-electron integrals
 C of some operator, with respect to some displacement IDISP.
 C ISYMP is the symmetry irrep label of the derivatives.
-#include "rassi.fh"
       Integer JOB,IDISP,ISYMP,NARRAY
       Real*8 ARRAY(NARRAY)
       CHARACTER(LEN=8) LABEL,STYPE

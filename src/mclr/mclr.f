@@ -50,22 +50,25 @@
       use PDFT_Util, only :Do_Hybrid,WF_Ratio,PDFT_Ratio
 *     Added for CMS NACs
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Definitions, only: iwp, u6
-      Implicit Real*8 (a-h,o-z)
-#include "Input.fh"
+      use Definitions, only: iwp, u6, wp
+      use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
+      use MCLR_Data, only: nrec
+      use MCLR_Data, only: iAllo
+      use MCLR_Data, only: SA,NACSTATES
+      use MCLR_Data, only: LuPT2
+      use DetDim, only: MXCNSM
+      use dmrginfo, only: DoDMRG,RGRAS2,DoMCLR
+      use input_mclr, only: ntAsh,ntAtri,ntASqr,nSym,iMethod,SpinPol,
+     &                      iMCPD,iMSPD,PT2,TimeDep,TwoStep,StepType,
+     &                      McKinley,RASSI,NewCho,Fail,
+     &                      Double,LuAChoVec,LuChoInt,LuIChoVec,nAsh,
+     &                      nDisp,nRS2
+      Implicit None
 #include "warnings.h"
-#include "machine.fh"
 #include "SysDef.fh"
 
-#include "sa.fh"
-#include "Pointers.fh"
-#include "detdim.fh"
-#include "dmrginfo_mclr.fh"
-#include "csfsd.fh"
       Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
      &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
-
-#include "Files_mclr.fh"
 
       Logical Reduce_Prt
       External Reduce_Prt
@@ -77,7 +80,7 @@
       logical DoCholesky
 
 * Additional things for CMS-NACs Optimization
-      Character*8 Method
+      Character(LEN=8) Method
       integer(kind=iwp) :: LuInput, istatus, LuSpool2
       character(len=16) :: StdIn
       character(len=180) :: Line
@@ -85,6 +88,11 @@
       logical(kind=iwp) :: Exists
       integer(kind=iwp), external :: isFreeUnit
       Logical :: CalcNAC_Opt = .False., MECI_via_SLAPAF = .False.
+
+      integer(kind=iwp) :: iPL, nSymX, iSym, nISP, I, iRC, iReturn
+      integer(kind=iwp) :: CMSNACStates(2)
+      integer(kind=iwp) , External:: ipClose, iPrintLevel
+      real(kind=wp):: TCPU1, TCPU2, TCPU3, TWall1, TWall2, TWall3
 
 *   This used to be after the CWTIME() functional call                 *
 ************************************************************************
@@ -204,7 +212,6 @@ c      idp=rtoi
 !      if(doDMRG)then
 !        doMCLR=.true.
 !        write(*,*)"ndets_RGLR : ",ndets_RGLR
-!        write(*,*)"ncsfs_RGLR : ",ncsfs_RGLR
 !        write(*,*)"nstates_RGLR ",nstates_RGLR
 !        write(*,*)"RGras2 : ",RGras2
 !        write(*,*)"LRras2 : ",LRras2
@@ -480,5 +487,4 @@ c      idp=rtoi
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End subroutine MCLR

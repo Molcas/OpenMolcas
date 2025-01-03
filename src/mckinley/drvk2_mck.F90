@@ -30,7 +30,7 @@ subroutine Drvk2_mck(New_Fock)
 use Index_Functions, only: iTri, nTri_Elem1
 use k2_arrays, only: DoGrad_, DoHess_, nDeDe
 use k2_structure, only: Indk2, k2data
-use iSD_data, only: iSD
+use iSD_data, only: iSD,nSD
 use Basis_Info, only: dbsc, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
@@ -39,11 +39,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: New_Fock
-integer(kind=iwp) :: iAng, iAngV(4), iAO, iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
-                     ik2, iShllV(2), ipM001, ipM002, ipM003, ipM004, iPrim, iPrimi, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
-                     jBas, jBasj, jBsInc, jCmp, jCnt, jCnttp, jPrim, jPrimj, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, &
-                     kPrInc, lBasl, lBsInc, lPriml, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
-                     nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
+integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, &
+                     ik2, ipM001, ipM002, ipM003, ipM004, iPrim, iPrInc, iS, iShell, iShll, iSmLbl, jAng, jAO, &
+                     jBas, jCmp, jCnt, jCnttp, jPrim, jPrInc, jS, jShell, jShll, &
+                     kPrInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, nBasi, &
+                     nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO, iSD4(0:nSD,4)
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Wrk(:)
 integer(kind=iwp), parameter :: nHm = 0
@@ -81,58 +81,64 @@ ipM001 = 1
 ndede = 0
 mk2 = 0
 do iS=1,nSkal
-  iShll = iSD(0,iS)
-  iAng = iSD(1,iS)
-  iCmp = iSD(2,iS)
-  iBas = iSD(3,iS)
-  iPrim = iSD(5,iS)
-  iAO = iSD(7,iS)
-  iShell = iSD(11,iS)
-  iCnttp = iSD(13,iS)
-  iCnt = iSD(14,iS)
+  iSD4(:,1)=iSD(:,iS)
+  iSD4(:,3)=iSD(:,iS)
+
+  iShll = iSD4(0,1)
+  iAng = iSD4(1,1)
+  iCmp = iSD4(2,1)
+  iBas = iSD4(3,1)
+  iPrim = iSD4(5,1)
+  iAO = iSD4(7,1)
+  iShell = iSD4(11,1)
+  iCnttp = iSD4(13,1)
+  iCnt = iSD4(14,1)
   Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
-  iAngV(1) = iAng
-  iShllV(1) = iShll
   iCmpV(1) = nTri_Elem1(iAng)
+  iSD4(2,1)=iCmpV(1)
+  iSD4(2,3)=iCmpV(1)
 
   do jS=1,iS
-    jShll = iSD(0,jS)
-    jAng = iSD(1,jS)
-    jCmp = iSD(2,jS)
-    jBas = iSD(3,jS)
-    jPrim = iSD(5,jS)
-    jAO = iSD(7,jS)
-    jShell = iSD(11,jS)
-    jCnttp = iSD(13,jS)
-    jCnt = iSD(14,jS)
+    iSD4(:,2)=iSD(:,jS)
+    iSD4(:,4)=iSD(:,jS)
+
+    jShll = iSD4(0,2)
+    jAng = iSD4(1,2)
+    jCmp = iSD4(2,2)
+    jBas = iSD4(3,2)
+    jPrim = iSD4(5,2)
+    jAO = iSD4(7,2)
+    jShell = iSD4(11,2)
+    jCnttp = iSD4(13,2)
+    jCnt = iSD4(14,2)
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
     ik2 = iTri(iS,jS)
-    iAngV(2) = jAng
-    iShllV(2) = jShll
     iCmpV(2) = nTri_Elem1(jAng)
+    iSD4(2,2)=iCmpV(2)
+    iSD4(2,4)=iCmpV(2)
 
     ! Compute FLOP's for the transfer equation.
 
     call mHrr(iAng,jAng,nHrrab,nMemab)
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
 
-    iPrimi = iPrim
-    jPrimj = jPrim
-    nBasi = Shells(iShllV(1))%nBasis
-    nBasj = Shells(iShllV(2))%nBasis
+    iSD4(5,1) = iPrim
+    iSD4(5,2) = jPrim
+    nBasi = Shells(iShll)%nBasis
+    nBasj = Shells(jShll)%nBasis
 
-    kPrimk = 1
-    lPriml = 1
-    iBasi = iPrimi
-    jBasj = jPrimj
-    kBask = 1
-    lBasl = 1
+    iSD4(5,3) = 1
+    iSD4(5,4) = 1
 
-    call ConMax(Con,iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
+    iSD4(3,1) = iPrim
+    iSD4(3,2) = jPrim
+    iSD4(3,3) = 1
+    iSD4(3,4) = 1
 
-    iAngV(3:4) = iAngV(1:2)
+    call ConMax(Con,iPrim,jPrim,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
+
     iCmpV(3:4) = iCmpV(1:2)
 
     ijShll = iTri(iShell,jShell)
@@ -142,17 +148,17 @@ do iS=1,nSkal
     ! Compute memory request for the primitives, i.e. how much memory
     ! is needed up to the transfer equation.
 
-    call MemRys(iAngV,MemPrm)
+    call MemRys(iSD4(1,:),MemPrm)
 
     ! Decide on the partioning of the shells based on
     ! the available memory and the requested memory.
 
-    call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iAngV,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc, &
-                  jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc,ipM001,ipM002,ipM003,ipM004,M001,M002,M003,M004,M00d)
-    if ((iBasi /= iBsInc) .or. (jBasj /= jBsInc)) then
+    call PSOAO0_h(nSO,nMemab,nMemab,MemPrm,MaxMem,iPrInc, &
+                  jPrInc,kPrInc,lPrInc,ipM001,ipM002,ipM003,ipM004,M001,M002,M003,M004,M00d,nSD,iSD4)
+    if ((iSD4(3,1) /= iSD4(4,1)) .or. (iSD4(3,2) /= iSD4(4,2))) then
       write(u6,*) 'Drvk2: (iBasi /= iBsInc) .or. (jBasj /= jBsInc)'
-      write(u6,*) 'iBasi,iBsInc=',iBasi,iBsInc
-      write(u6,*) 'jBasj,jBsInc=',jBasj,jBsInc
+      write(u6,*) 'iBasi,iBsInc=',iSD4(3,1),iSD4(4,1)
+      write(u6,*) 'jBasj,jBsInc=',iSD4(3,2),iSD4(4,2)
       call Abend()
     end if
 
@@ -166,9 +172,9 @@ do iS=1,nSkal
     ! entities) for all possible unique pairs of centers generated
     ! for the symmetry unique centers A and B.
 
-    call k2Loop_mck(Coor,iAngV,iDCRR,nDCRR,k2Data(:,ik2), &
-                    ijCmp,Shells(iShllV(1))%Exp,iPrimi,Shells(iShllV(2))%Exp,jPrimj, &
-                    Shells(iShllV(1))%pCff,iBas,Shells(iShllV(2))%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
+    call k2Loop_mck(Coor,iSD4(1,:),iDCRR,nDCRR,k2Data(:,ik2), &
+                    ijCmp,Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim, &
+                    Shells(iShll)%pCff,iBas,Shells(jShll)%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
 
     Indk2(2,ijShll) = nDCRR
     Indk2(3,ijShll) = ik2

@@ -10,3 +10,9 @@
 #***********************************************************************
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
+
+# Source files defining modules that should be available to other *_util directories
+set (modfile_list
+     csm_data.F90
+)
+

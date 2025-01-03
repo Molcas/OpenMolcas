@@ -11,6 +11,7 @@
       SUBROUTINE TRACID(       T,   LUCIN,  LUCOUT,   LUSC1,   LUSC2,
      &                     LUSC3,    VEC1,    VEC2)
       use GLBBAS, only: INT1
+      use CandS, only: ISSM,ISSPC
 *
 * Transform CI vector on LUCIN with T matrix after
 * Docent Malmquist's recipe. Place result as next vector on LUOUT
@@ -24,19 +25,21 @@
 * with Sn'n = T(n'n)/Tnn
 *
 * each transformation is
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "oper.fh"
-#include "intform.fh"
-#include "lucinp.fh"
-#include "orbinp.fh"
-#include "io_util.fh"
-#include "cands.fh"
+      use Constants, only: Half, One
+      use lucia_data, only: IH1FORM
+      use lucia_data, only: IDISK
+      use lucia_data, only: I_RES_AB,I12
+      use lucia_data, only: NTOOB
+      IMPLICIT NONE
+      INTEGER LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3
       REAL*8 INPRDD
 *. Input
-      DIMENSION T(*)
+      REAL*8 T(*)
 *. Scratch blocks ( two of them)
-      DIMENSION VEC1(*),VEC2(*)
+      REAL*8 VEC1(*),VEC2(*)
+
+      INTEGER NTEST,LBLK,K
+      REAL*8 CNORM, TKK
 *
       NTEST = 000
       LBLK = -1
@@ -70,7 +73,6 @@ C            T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
           WRITE(6,*) ' Correction vector'
           CALL WRTVCD(VEC1,LUSC2,1,LBLK)
         END IF
-        ONE = 1.0D0
         CALL VECSMDP(     VEC1,     VEC2,      ONE,      ONE,    LUSC1,
      &                   LUSC2,    LUSC3,        1,     LBLK)
         CALL COPVCD(LUSC3,LUSC1,VEC1,1,LBLK)
@@ -84,8 +86,6 @@ C            T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
           WRITE(6,*) ' Correction vector'
           CALL WRTVCD(VEC1,LUSC3,1,LBLK)
         END IF
-        ONE = 1.0D0
-        HALF  = 0.5D0
         CALL VECSMDP(     VEC1,     VEC2,      ONE,     HALF,    LUSC1,
      &                   LUSC3,    LUSC2,        1,     LBLK)
 *. and transfer back to LUSC1
@@ -105,5 +105,4 @@ C?    WRITE(6,*) ' LUCOUT LUSC1 = ', LUCOUT,LUSC1
       CALL COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)
 *
 *
-      RETURN
-      END
+      END SUBROUTINE TRACID

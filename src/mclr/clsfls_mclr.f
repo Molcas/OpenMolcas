@@ -23,16 +23,17 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "Files_mclr.fh"
-#include "sa.fh"
-#include "Input.fh"
+      use MCLR_Data, only: SA
+      use MCLR_Data, only: FnMck,LuCSF2SD,LuJob,LuMck,LuQDat,LuTemp,
+     &                      LuTri1
+      use input_mclr, only: iMethod,TwoStep,RASSI
+      Implicit None
       Logical DoCholesky
-      Integer AixRm
+      Integer AixRm, iRC,iOpt
 *---------------------------------------------------------------------*
 *     Start                                                           *
 *---------------------------------------------------------------------*
-      If (iMethod.eq.iCASSCF) Then
+      If (iMethod.eq.2) Then
          Call DaClos(LuCSF2sd)
 *------  close the JOBIPH file -------------------------------------------*
          Call DaClos(LuJob)

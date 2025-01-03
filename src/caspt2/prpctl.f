@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRPCTL(MODE,UEFF,U0)
-      USE PT2WFN
+      USE PT2WFN, only: PT2WFN_DENSSTORE
       use caspt2_global, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
       use caspt2_global, only: do_grad,do_nac,iRoot1,iRoot2,SLag,

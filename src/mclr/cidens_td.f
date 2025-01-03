@@ -8,21 +8,28 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine CIDens_TD(iCI,iS,rP,rD)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "crun_mclr.fh"
-#include "Input.fh"
-#include "Pointers.fh"
-#include "spinfo_mclr.fh"
-#include "cands.fh"
+      use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
+      use MCLR_Data, only: XISPSM
+      use MCLR_Data, only: NOCSF
+      use CandS, only: ICSM,ISSM
+      use input_mclr, only: nCSF, State_Sym
+#ifdef _DEBUGPRINT_
+      use input_mclr, only: ntAsh
+#endif
+      Implicit None
+      Integer iCI, iS
       Real*8 rP(*),rD(*)
       Real*8, Allocatable:: De(:), Pe(:), CIL(:), CIR(:)
+      Integer nConfL, nConfR, nC, iRC
+      Integer, External:: ipIn, ipnOut
+
 
 #ifdef _DEBUGPRINT_
+      Integer i, j, k, l, itri, ijkl
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 #endif
 
@@ -163,4 +170,4 @@ C
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      End
+      End SubRoutine CIDens_TD

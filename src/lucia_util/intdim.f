@@ -12,25 +12,19 @@
 *
 * Number of integrals and storage mode
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*
-* =====
-*.Input
-* =====
-*
-#include "mxpdim.fh"
-#include "lucinp.fh"
-#include "orbinp.fh"
-#include "csm.fh"
-#include "crun.fh"
-*.CSMPRD
-#include "csmprd.fh"
-*
-* =======
-*. Output
-* =======
-*
-#include "cintfo.fh"
+      use lucia_data, only: NINT1,I12S,I34S,I1234S,NINT2,NINT2_NO_CCSYM,
+     &                      NBINT1,NBINT2
+      use lucia_data, only: PNTGRP,NSMOB
+      use lucia_data, only: NTOOBS
+      use lucia_data, only: MXPOBS
+      use csm_data, only: ITSDX,ITSSX,NSMSX
+      use csm_data, only: ADSXA,SXDXSX
+
+      IMPLICIT NONE
+      INTEGER IPRNT
+
+      INTEGER I12,I34,I1234,NDXFSM,NSXFSM
+
 *.1 : Number of one-electron integrals
       NINT1 =  NSXFSM(NSMOB,MXPOBS,NTOOBS,NTOOBS,ITSSX,ADSXA,1,IPRNT)
 *.2 : Number of two-electron integrals
@@ -64,5 +58,4 @@ c       END IF
 *. Number of symmetry blocks of one- and two-electron integrals
       NBINT1 = NSMOB
       NBINT2 = NSMOB ** 3
-      RETURN
-      END
+      END SUBROUTINE INTDIM

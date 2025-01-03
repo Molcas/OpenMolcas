@@ -110,6 +110,10 @@ use Para_Info, only: Is_Real_Par
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
+!#define _CD_TIMING_
+#ifdef _CD_TIMING_
+use temptime, only: CHOGET_CPU,CHOGET_WALL
+#endif
 
 #include "intent.fh"
 
@@ -123,10 +127,6 @@ real(kind=wp), intent(_OUT_) :: V_k(nV_k,*), U_k(*)
 real(kind=wp), intent(inout) :: Z_p_k(nZ_p_k,*)
 #include "Molcas.fh"
 #include "print.fh"
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
 integer(kind=iwp) :: i, iAdr, iaSh, iAvec, iBatch, ibcount, ibs, ibs_a, ibSh, iE, ij, ik, iLoc, iml, iMO1, iMO2, iMOleft, &
                      iMOright, ioff, iOffShb, iOffZp, iPrint, ipZp, ir, ired1, IREDC, iRout, iS, iSeed, ish, iShp, iSSa, iStart, &
                      iSwap, iSwap_lxy, ISYM, iSym1, iSym2, iSyma, iSymb, iSymv, iSymx, iSymy, it, itk, iTmp, iTxy, IVEC2, iVrs, j, &

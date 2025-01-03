@@ -24,22 +24,22 @@ set (sources
      error_for_t.F90
      find_dipole_center.F90
      get_density_matrix.F90
-     golden2.F90
      golden.F90
+     golden2.F90
      gramschmidt.F90
      infotomp.F90
      init_loprop.F90
      levmarquart.F90
-     localize_loprop_drv.F90
-     localize_loprop.F90
      local_properties.F90
-     loprop_arrays.F90
+     localize_loprop.F90
+     localize_loprop_drv.F90
      loprop.F90
+     loprop_arrays.F90
      loprop_print.F90
      lowdin_lp.F90
      min_mult_error.F90
-     mnbrak2.F90
      mnbrak.F90
+     mnbrak2.F90
      move_ec.F90
      move_prop.F90
      multipole_e.F90

@@ -10,26 +10,64 @@
 ************************************************************************
       SUBROUTINE Lucia_Ini()
       use rasscf_lucia, only: Sigma_on_disk, ini_h0
+      use lucia_data, only: ECORE
+      use lucia_data, only: NGAS,NGSSH,NCISPC,NCMBSPC,ICMBSPC,IGSOCCX,
+     &                      LCMBSPC
+      use lucia_data, only: IPRCIX,IPRORB,IPRDIA,IPRXT,IPROCC,IPRDEN,
+     &                      IPRRSP,IPRPRO,IPRCC,IPRNCIV
+      use lucia_data, only: INTIMP,ENVIRO,MXCIV,ICISTR,MXINKA,THRES_E,
+     &                      INOCALC,ISAVE_EXP,IEXPAND,LCSBLK,NOMOFL,
+     &                      IDENSI,IUSE_PH,IADVICE,ITRACI,ITRACI_CR,
+     &                      ITRACI_CN,IDIAG,MXP1,MXP2,MXQ,MAXIT,IRESTR,
+     &                      INCORE,MOCAA,MOCAB,IUSE_PA,NOINT,ICJKAIB,
+     &                      INIREF,IRESTRF,IPERT,NPERT,IAPRREF,IAPRZER,
+     &                      IEXTKOP,IC1DSC,IH0SPC,NPTSPC,IRFROOT,
+     &                      NH0EXSPC,INIDEG,XLAMBDA,IFINMO,E_THRE,
+     &                      C_THRE,E_CONV,C_CONV,ICLSSEL,IPTEKT,IH0ROOT,
+     &                      IRST2,ISKIPEI,NPROP,ITRAPRP,IRESPONS,NRESP,
+     &                      N_AVE_OP,MXITLE,IROOTHOMING,IPTFOCK,ITRA_FI,
+     &                      ITRA_IN,MULSPC,IFMULSPC,LPAT,NCNV_RT,
+     &                      I_RE_MS2_SPACE,I_RE_MS2_VALUE,ISIMSYM,
+     &                      NOCSF,IE0AVEX,IEXCSYM,NEXCSTATE,NPSSPC,
+     &                      IH0EXSPC,IH0INSPC,IOCPTSPC,ISEQCI,IXYZSYM,
+     &                      MAXORD_OP,NPSSH,PROPER,RESP_OP,RESP_W,
+     &                      AVE_OP,NSEQCI,CSEQCI
+      use lucia_data, only: MS2,MULTS,IREFSM,NROOT,PSSIGN,INTSEL,
+     &                      PLSIGN,IDC,IROOT
+      use lucia_data, only: I_ELIMINATE_GAS,N_ELIMINATED_GAS,
+     &                      N_2ELIMINATED_GAS,I2ELIMINATED_IN_GAS,
+     &                      IELIMINATED_IN_GAS
+      use lucia_data, only: irat
+      use lucia_data, only: EXTSPC,PNTGRP,NIRREP,NSMCMP,NSMOB,MAXML,
+     &                      MAXL,NACTEL,MXR4TP,MXER4,MNRS1R,MNRS10,
+     &                      MXRS3R,MXRS30,INTSPC,MNRS1RE,MXRS3RE,
+     &                      MNRS1ZE,MXRS3ZE,NDELSH,NINASH,NRS0SH,
+     &                      NRS4SH,NRSSH
+      use lucia_data, only: IPART
+      use lucia_data, only: NMOS_ENV,NAOS_ENV
+      use spinfo, only: NSYM_MOLCAS,NACTEL_MOLCAS,MS2_MOLCAS,
+     &                  ISPIN_MOLCAS,LSYM_MOLCAS,NROOTS_MOLCAS,
+     &                  NGAS_MOLCAS,THRE_MOLCAS,ITMAX_MOLCAS,
+     &                  INOCALC_MOLCAS,ISAVE_EXP_MOLCAS,IEXPAND_MOLCAS,
+     &                  IPT2_MOLCAS,I_ELIMINATE_GAS_MOLCAS,
+     &                  N_ELIMINATED_GAS_MOLCAS,
+     &                  N_2ELIMINATED_GAS_MOLCAS,IPRCI_MOLCAS,
+     &                  POTNUC_MOLCAS,RTOI_MOLCAS,
+     &                  I2ELIMINATED_IN_GAS_MOLCAS,
+     &                  IELIMINATED_IN_GAS_MOLCAS,IGSOCCX_MOLCAS,
+     &                  IROOT_MOLCAS,ISPEED,NBAS_MOLCAS,NGSSH_MOLCAS,
+     &                  NISH_MOLCAS,NORB_MOLCAS
 *
-      implicit real*8 (a-h,o-z)
+      implicit none
 C Input from RASSCF
-#include "cstate.fh"
-#include "lucia_ini.fh"
 *
-
-#include "mxpdim.fh"
-#include "cecore.fh"
-#include "cgas.fh"
-#include "cprnt.fh"
-#include "crun.fh"
-#include "irat.fh"
-#include "lucinp.fh"
-#include "oper.fh"
-#include "orbinp.fh"
-#include "gasstr.fh"
 C Other definitions
-      PARAMETER(MXPKW = 125)
-      dimension isetkw(MXPKW)
+      Integer, PARAMETER :: MXPKW = 125
+      integer isetkw(MXPKW)
+      Integer IEXPERT,NERROR,NWARN,I,IRREP,IGAS,J,NMISS,IR4TP,ICISPC,
+     &        JPTSPC,IUSED,IDOPERT,JCMBSPC,JSEQCI,ICOMP,IPROP,IAVE,
+     &        IRESP,IPSSPC
+      REAL*8 ECORE_ENV
 *
 C ===============================================
 C  Some initialization to avoid compiler warnings
@@ -1524,16 +1562,17 @@ C =============================================
 
       CALL lucia()
 *
-      return
-      end
+      end SUBROUTINE Lucia_Ini
 
       SUBROUTINE COMBINATIONS(ICOMBI,SIGN)
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "cstate.fh"
+      use lucia_data, only: PSSIGN
+      IMPLICIT None
 *
+      Integer ICOMBI
+      REAL*8 SIGN
+
       ICOMBI = 0
       SIGN   = PSSIGN
       IF (PSSIGN .NE. 0.0D0) ICOMBI = 1
 *
-      RETURN
-      END
+      END SUBROUTINE COMBINATIONS

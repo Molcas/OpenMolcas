@@ -13,19 +13,25 @@
       SubRoutine CIDIA_sa(iSym,ralp,S)
       use Str_Info, only: CNSM
       use ipPage, only: W
-      use negpre
-      Implicit Real*8 (a-h,o-z)
-#include "detdim.fh"
-#include "crun_mclr.fh"
-#include "cicisp_mclr.fh"
-#include "spinfo_mclr.fh"
-#include "incdia.fh"
+      use MCLR_Data, only: ipCI
+      use MCLR_Data, only: ipDia
+      use MCLR_Data, only: FANCY_PRECONDITIONER
+      use MCLR_Data, only: XISPSM
+      use MCLR_Data, only: NOCSF, ICISTR
+      use MCLR_Data, only: NCNATS,NCPCNT,NDPCNT,NTYP
+      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,
+     &                      nRoots,Weight
 
-#include "Input.fh"
-#include "Pointers.fh"
-#include "sa.fh"
-      Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
+      Implicit None
+      Integer iSym
       Real*8 ralp(*),S(*)
+
+      Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
+      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI,
+     &        iPrnt, iP2, J
+      Real*8 ECAS, WE
+      Integer, External:: ipClose, ipGet, ipIn
+
 *
 *     This is just a interface to hide Jeppe from the rest of the world
 *     we dont want to let world see the work of the danish

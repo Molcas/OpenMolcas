@@ -53,9 +53,9 @@
       use OneDat, only: sNoNuc, sNoOri
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+      use output_ras, only: LF
       Implicit None
 #include "warnings.h"
-#include "output_ras.fh"
 *
       Integer  nCMO, nEOrb, nSym
       Integer  nBas(nSym), nFro(nSym), nIsh(nSym), nAsh(nSym)

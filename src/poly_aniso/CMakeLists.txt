@@ -39,8 +39,8 @@ set (sources
      poly_aniso.F90
      poly_aniso_open.F90
      popanalysis.F90
-     prep_mom_exchange.F90
      pr_ito_int.F90
+     prep_mom_exchange.F90
      project_exch.F90
      readin_poly.F90
      set_defaults.F90

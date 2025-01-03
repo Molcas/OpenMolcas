@@ -11,7 +11,8 @@
 * Copyright (C) 1990,1994,1995, Jeppe Olsen                            *
 ************************************************************************
       SUBROUTINE FREESTR()
-      Use Str_Info
+      Use Str_Info, only: NSTTYP,STR,ITYP_DUMMY,IUNIQMP,INDMAP,INUMAP,
+     &                    ISTAC,IUNIQTP
       use stdalloc, only: mma_deallocate
 *
 * Free pointers for saving information about strings and
@@ -34,11 +35,9 @@
 *
 * Updated with iuniqtp, dec 11, 1994
 * Modified for deallocation, Sept. 25, 2005.
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 *
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
-#include "csm.fh"
+      INTEGER ITYP,IITYP,IIIITEST,IMNEW,JJTYP,IANEQ,ICREQ
 *. Start of string information
 * =====================================================================
 *
@@ -169,6 +168,4 @@ CMS: New else block
       Call mma_deallocate(Str(ITYP)%EL3_Hidden)
       nullify(Str(ITYP)%NSTSO,Str(ITYP)%EL1,Str(ITYP)%EL3)
 
-
-      RETURN
-      END
+      END SUBROUTINE FREESTR

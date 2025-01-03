@@ -22,6 +22,7 @@ subroutine Mult_with_Q_CASPT2(nBas_aux,nBas,nV_t,nIrrep,SubAux)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Cholesky, only: nSym, NumCho
+use pso_stuff, only: A_PT2, LuGamma2
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -35,16 +36,16 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep), nV_t(1:nIrrep)
 logical(kind=iwp), intent(in) :: SubAux
-integer(kind=iwp) :: i, iAdrQ, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jSym, jVec, kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, &
-                     l_Q, lRealName, Lu_Q, LUGAMMA, LuGamma2, LUAPT2, lVec, MaxMem, nBas2, nBasTri, nLR, nLRb(8), NumAux, &
-                     NumCV, NumVecJ, NumVecK, nVec, NumCVt, &
+integer(kind=iwp) :: i, iAdrQ, id, iOffQ1, iOpt, iost, ip_B, ip_B2, iSym, j, jSym, jVec, kSym, kVec, l_A_ht, l_A_t, l_B_t, l_Q, &
+                     lRealName, Lu_Q, LUGAMMA, LUAPT2, lVec, MaxMem, nBas2, nBasTri, NumCVt, nLR, nLRb(8), nseq, NumAux, NumCV, &
+                     NumVecJ, NumVecK, nVec, &
                      NPROCS, myRank, nSkal2_, nCalAO, iAO, jAO, iAOstart, iAOlast, nCalAO_tot
 real(kind=wp) :: aaa, Fac, TotCPU0, TotCPU1, TotWall0, TotWall1
 logical(kind=iwp) :: is_error, Found
 character(len=4096) :: RealName
 character(len=6) :: Name_Q
 integer(kind=iwp), allocatable :: AOList(:,:), IWRK(:,:), LBList(:), nList_AO(:), nList_Shell(:)
-real(kind=wp), allocatable :: A(:), A_ht(:), A_t(:), B_t(:), QVec(:)
+real(kind=wp), allocatable :: A_ht(:), A_t(:), B_t(:), QVec(:)
 character(len=*), parameter :: SECNAM = 'Mult_with_Q_CASPT2'
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -105,23 +106,9 @@ do iSym=1,nSym
   ! ---------------------------------
 
   l_A_t = NumCVt*NumCVt
-  l_A = NumAux*NumAux
   l_A_ht = NumAux*NumCVt
   call mma_allocate(A_t,l_A_t,Label='A_t')
-  call mma_allocate(A,l_A,Label='A')
   call mma_allocate(A_ht,l_A_ht,Label='A_ht')
-
-  !LUCMOPT2 = 61
-  !call PrgmTranslate('CMOPT2',RealName,lRealName)
-  !call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
-
-  !read(LuCMOPT2,iostat=iost) A_t
-  !if (iost < 0) then
-  !  write (6,*) 'Maybe, you did not add GRAD or GRDT keyword in &CASPT2?'
-  !  write (6,*) 'Please add either one, if this is single-point gradient calculation.'
-  !  write (6,*) 'Otherwise, something is wrong...'
-  !  call abend()
-  !end if
 
   ! Read A_PT2 from LUAPT2
   LuAPT2 = isFreeUnit(68)
@@ -155,20 +142,11 @@ do iSym=1,nSym
 
   call dGemm_('N','N',NumAux,NumCVt,NumCVt,One,QVec,NumAux,A_t,NumCVt,Zero,A_ht,NumAux)
 
-  call dGemm_('N','T',NumAux,NumAux,NumCVt,One,A_ht,NumAux,QVec,NumAux,Zero,A,NumAux)
+  call dGemm_('N','T',NumAux,NumAux,NumCVt,One,A_ht,NumAux,QVec,NumAux,Zero,A_PT2,NumAux)
 
-  ! Put transformed A-vectors back on disk
-
-  !rewind(LuCMOPT2)
-  !write(LuCMOPT2) A
-  !close(LuCMOPT2)
-
-  ! write A_PT2 to LUAPT2
-  id = 0
-  call ddafile(LUAPT2,1,A,l_A,id)
+  ! Leave the vectors in A_PT2
 
   call mma_deallocate(A_t)
-  call mma_deallocate(A)
   call mma_deallocate(A_ht)
   !                                                                    *
   !*********************************************************************
@@ -368,7 +346,8 @@ do iSym=1,nSym
   call mma_deallocate(nList_Shell)
   call mma_deallocate(nList_AO)
 
-  close(LuGAMMA2)
+  ! Leave LuGamma2 open until the end. Closed by CloseP
+  !close(LuGAMMA2)
 
   call mma_deallocate(B_t)
   call mma_deallocate(QVec)
@@ -383,8 +362,6 @@ end do ! iSym
 
 call CWTime(TotCPU1,TotWall1)
 !write(u6,*) 'CPU/Wall Time for mult_with_q_caspt2:',totcpu1-totcpu0,totwall1-totwall0
-
-return
 
 contains
 

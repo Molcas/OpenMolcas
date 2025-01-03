@@ -41,6 +41,7 @@
      &                 IFHAM, DYSEXPORT, NATO, BINA, IFSO, HOP, DQVD,
      &                 Do_SK, SaveDens, MLTPLT, NPROP
       use cntrl, only: LuExc, LuOne, LuTDM
+      use rassi_data, only: NBASF,NBSQ,NBST,NTDMZZ
 
 
       IMPLICIT None
@@ -48,7 +49,6 @@ C Matrix elements over RAS wave functions.
 C RAS state interaction.
 ! pick up MxRoot
 #include "rasdim.fh"
-#include "rassi.fh"
       Logical CLOSEONE
       INTEGER IRC, IRETURN, IOPT, NZ, ISY, NZCOUL, IDISK, JOB1, JOB2,
      &        ISTATE, J, NSS, JOB, MPLET, I
@@ -64,7 +64,7 @@ C RAS state interaction.
 *
       IRETURN=20
 
-      Call StatusLine('RASSI:','Starting calculation')
+      Call StatusLine('RASSI: ','Starting calculation')
 
       CALL GETPRINTLEVEL()
 
@@ -164,7 +164,7 @@ C       Print the overlap matrix here, since MECTL is skipped
       END IF
 
 C Property matrix elements:
-      Call StatusLine('RASSI:','Computing matrix elements.')
+      Call StatusLine('RASSI: ','Computing matrix elements.')
       CALL MECTL(PROP,OVLP,HAM,ESHFT)
 *                                                                      *
 ************************************************************************
@@ -182,7 +182,7 @@ C and perhaps GTDMs.
 
 C Hamiltonian matrix elements, eigenvectors:
       IF(IFHAM) THEN
-        Call StatusLine('RASSI:','Computing Hamiltonian.')
+        Call StatusLine('RASSI: ','Computing Hamiltonian.')
         CALL EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       END IF
 
@@ -254,7 +254,7 @@ C Nr of spin states and division of loops:
       SOENE(:)=0.0D0
 
       IF(IFSO) THEN
-        Call StatusLine('RASSI:','Computing SO Hamiltonian.')
+        Call StatusLine('RASSI: ','Computing SO Hamiltonian.')
         CALL SOEIG(PROP,USOR,USOI,SOENE,NSS,ENERGY)
       END IF
 
@@ -303,7 +303,7 @@ C Plot SO-Natural Transition Orbitals if requested
 *   Turns on the procedure if the Keyword HOP was specified.           *
 *                                                                      *
       IF (HOP) then
-        Call StatusLine('RASSI:','Trajectory Surface Hopping')
+        Call StatusLine('RASSI: ','Trajectory Surface Hopping')
         CALL TSHinit(ENERGY(:))
       END IF
 *                                                                      *
@@ -317,7 +317,7 @@ C Plot SO-Natural Transition Orbitals if requested
 * The user has to compute x, y, z, xx, yy, zz, 1/r in this order.
 
       IF (DQVD) then
-        Call StatusLine('RASSI:', 'DQV Diabatization')
+        Call StatusLine('RASSI: ', 'DQV Diabatization')
         CALL DQVDiabat(PROP,HAM)
       END IF
 *                                                                      *
@@ -400,7 +400,7 @@ C Plot SO-Natural Transition Orbitals if requested
       i=iPrintLevel(3)
       CALL FASTIO('STATUS')
 
-      Call StatusLine('RASSI:','Finished.')
+      Call StatusLine('RASSI: ','Finished.')
       IRETURN=0
 
       END SUBROUTINE RASSI

@@ -9,6 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE ZSTINF_GAS(IPRNT)
+      use lucia_data, only: NGAS
+      use lucia_data, only: IBGPSTR,NGPSTR,NGRP
+      use lucia_data, only: ISTAC
+      use lucia_data, only: MXPSTT
+      IMPLICIT NONE
+      INTEGER IPRNT
+
+      INTEGER NTEST,IGAS,MGRP,IGRP,IIGRP
 *
 * Set up common block /STINF/ from information in /STINP/
 *
@@ -28,11 +36,6 @@
 *                    Orbital group are mapped
 *                    mapped
 *. Input
-#include "mxpdim.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-*. Output
-#include "stinf.fh"
 *. Only the first element, i.e. ISTAC  is defined
 
 *
@@ -67,5 +70,4 @@
         CALL IWRTMA(ISTAC,NGRP  ,2,MXPSTT,2)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE ZSTINF_GAS

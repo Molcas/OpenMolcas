@@ -52,9 +52,9 @@
      &                 IFACALFCSDON, IFGTCALSA, DYSEXPSF, ISTAT,
      &                 MXPROP, NSTAT, IBINA, ISOCMP, ICOMP, OCAA
       use cntrl, only: ALGO, Nscreen, dmpk
+      use rassi_data, only: CHFRACMEM
 
       IMPLICIT NONE
-#include "rassi.fh"
       CHARACTER(LEN=80) LINE
       INTEGER, PARAMETER :: MXPLST=50
       CHARACTER(LEN=8) TRYNAME

@@ -10,14 +10,21 @@
 ************************************************************************
       Subroutine CI_KAP(ipcid,fock,fockOut,isym)
 *     use ipPage, only: W
+      use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: ipCI, n2Dens, nDens2, nNA
+      use input_mclr, only: ntAsh,State_Sym
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
 
-#include "Input.fh"
-#include "Pointers.fh"
-#include "dmrginfo_mclr.fh"
+      Implicit None
+      Integer ipCID, iSym
       Real*8 Fock(*),FockOut(*)
+
       Real*8, Allocatable:: De(:), Pe(:)
+      Integer i, j, itri
+      Integer irc, nDim, ij, k, l, ij1, kl1
+      Integer, external:: ipnout
+      Real*8 D0
 
 ! Added for DMRG calculation
       real*8,allocatable::tmpDe(:,:),tmpP(:),tmpDeM(:,:),tmpPM(:,:,:,:)
@@ -40,17 +47,17 @@
         Call mma_allocate(tmpP,ndim**2*(ndim**2+1)/2,Label='tmpP')
         Call mma_allocate(tmpDeM,ntash,ntash,Label='tmpDeM')
         Call mma_allocate(tmpPM,ntash,ntash,ntash,ntash,Label='tmpPM')
-        tmpDe(:,:)=0.0d0
-        tmpP(:)=0.0d0
-        tmpDeM(:,:)=0.0d0
-        tmpPM(:,:,:,:)=0.0d0
+        tmpDe(:,:)=Zero
+        tmpP(:)=Zero
+        tmpDeM(:,:)=Zero
+        tmpPM(:,:,:,:)=Zero
 
         ij=0
         do i=1,ntash
           do j=1,ntash
             ij=ij+1
             if(abs(De(ij)).lt.1.0e-12)then
-              De(ij)=0.0d0
+              De(ij)=Zero
             end if
             tmpDeM(i,j)=De(ij)
           end do
@@ -61,7 +68,7 @@
           do j=1,ndim
             ij=ij+1
             if(i.gt.ntash.or.j.gt.ntash)then
-              tmpDe(i,j)=0.0d0
+              tmpDe(i,j)=Zero
             else
               tmpDe(i,j)=tmpDeM(i,j)
             end if
@@ -76,7 +83,7 @@
                 kl1=ntash*(k-1)+l
                 if(ij1.ge.kl1)then
                   if(abs(Pe(itri(ij1,kl1))).lt.1.0e-12)then
-                    Pe(itri(ij1,kl1))=0.0d0
+                    Pe(itri(ij1,kl1))=Zero
                   end if
                   tmpPM(i,j,k,l)=Pe(itri(ij1,kl1))
                 end if
@@ -93,7 +100,7 @@
                 kl1=ndim*(k-1)+l
                 if(ij1.ge.kl1)then
             if(i.gt.ntash.or.j.gt.ntash.or.k.gt.ntash.or.l.gt.ntash)then
-                  tmpP(itri(ij1,kl1))=0.0d0
+                  tmpP(itri(ij1,kl1))=Zero
                 else
                   tmpP(itri(ij1,kl1))=tmpPM(i,j,k,l)
                 end if
@@ -110,9 +117,9 @@
 *       irc=ipin(ipCID)
 *       irc=ipin(ipci)
 *       call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
-        call dcopy_(ndens2,[0.0d0],0,Fock,1)
-        call dcopy_(ndens2,[0.0d0],0,FockOut,1)
-        d0=0.0d0
+        call dcopy_(ndens2,[Zero],0,Fock,1)
+        call dcopy_(ndens2,[Zero],0,FockOut,1)
+        d0=Zero
 
         Call FockGen(d0,tmpDe,tmpP,Fock,FockOut,isym) ! yma modified
 
@@ -122,9 +129,9 @@
 *       irc=ipin(ipCID)
 *       irc=ipin(ipci)
 *       call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
-        call dcopy_(ndens2,[0.0d0],0,Fock,1)
-        call dcopy_(ndens2,[0.0d0],0,FockOut,1)
-        d0=0.0d0
+        call dcopy_(ndens2,[Zero],0,Fock,1)
+        call dcopy_(ndens2,[Zero],0,FockOut,1)
+        d0=Zero
         Call FockGen(d0,De,Pe,Fock,FockOut,isym)
       end if
       Call mma_deallocate(De)
@@ -141,21 +148,23 @@
       end if
 ! ===================================================================
 
-      return
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
-      end
+      end Subroutine CI_KAP
 
 #ifdef _NOTUSED_
       Subroutine Projecter(CID,CI,D,P)
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8(a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: nConf1, n2Dens
+      use input_mclr, only: ntAsh,nRoots,State_Sym,Weight
+      Implicit None
       Real*8 CI(*),CID(*),P(*),D(*)
+
       Real*8, Allocatable:: De(:), Pe(:)
+      Integer i, j
+      Real*8 r
+      Real*8, external::ddot_
 
       Call mma_allocate(De,ntash**2,Label='De')
       Call mma_allocate(Pe,n2dens,Label='Pe')
@@ -171,6 +180,5 @@
       End Do
       Call mma_deallocate(Pe)
       Call mma_deallocate(De)
-      Return
-      End
+      End Subroutine Projecter
 #endif

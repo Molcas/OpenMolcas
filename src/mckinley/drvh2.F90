@@ -56,7 +56,7 @@ procedure(mck_mem) :: KneMmH, M1MmH, NAMmH, OvrMmH, PCMMmH, PrjMmH, SROMmH
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu1,TWall1)
-call StatusLine(' McKinley:',' Computing 1-electron 2rd order derivatives')
+call StatusLine('McKinley: ','Computing 1-electron 2rd order derivatives')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

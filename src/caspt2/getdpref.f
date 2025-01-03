@@ -15,7 +15,6 @@
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
       INTEGER NDREF, NPREF
       REAL*8 DREF(NDREF)
       REAL*8 PREF(NPREF)

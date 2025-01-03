@@ -41,6 +41,7 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICO
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use spinfo, only: NTYP,NCSFTP
 
 implicit none
 integer(kind=iwp), intent(in) :: MXPDIM, IPCSF(MXPDIM), NCONF, IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
@@ -48,7 +49,6 @@ integer(kind=iwp), intent(in) :: MXPDIM, IPCSF(MXPDIM), NCONF, IPCNF(NCONF), NPC
 real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: NTEST
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
-#include "spinfo.fh"
 integer(kind=iwp) :: iAlpha, IATYP, IBblockV, IIA, IIAB, IIL, IILACT, IILB, ILAI, ILTYP, ITYP, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
 real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_computeH_AB, C_computeH_AB1, C_computeH_AB2, C_ComputeH_BB, C_computeH_BB1, &
                  C_computeH_BB2, C_last1, C_last2, C_Oper, C_oper1, C_oper2, W_AlphaLoop1, W_AlphaLoop2, W_ComputeH_AB, &
