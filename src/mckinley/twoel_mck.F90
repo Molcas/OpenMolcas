@@ -16,7 +16,7 @@ subroutine TwoEl_mck(Coor,iShell,iShll,iAOst,iStb,jStb,kStb,lStb,nRys,nData1,nDa
                      k2Data1,k2Data2, &
                      Pren,Prem,nAlpha,nBeta,jPrInc,nGamma,nDelta,lPrInc, &
                      iBasi,jBasj,kBask,lBasl, &
-                     Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO, &
+                     Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
                      Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk, &
                      Djl1,Djl2,mDjl,nDjl,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
@@ -95,8 +95,8 @@ integer(kind=iwp), intent(in) :: iShell(4), iShll(4), iAOst(4), iStb, jStb, kStb
                                  nData2, nAlpha, nBeta, jPrInc, nGamma, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, &
                                  nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
                                  nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
-                                 nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4)
-real(kind=wp), intent(in) :: Coor(3,4), PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
+                                 nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4), nijkl
+real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
                              Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), &
                              Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Dan(*), Din(*)
 type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
@@ -108,7 +108,7 @@ integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCR
                      ip2, ipFT, ipS1, ipS2, ipTemp, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), ix2, iy2, iz2, iZeta, jCmpb, &
                      JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lDCR1, lDCR2, lDCRR, &
                      lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, lZeta, mab, mcd, mEta, mZeta, n, nabcd, &
-                     nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nijkl, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot, nZeta, nEta, &
+                     nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot, nZeta, nEta, &
                      iAO(4), iCmp(4), iAngV(4)
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4)
@@ -151,7 +151,6 @@ lShlld = iShll(4)
 IncZet = nAlpha*jPrInc
 IncEta = nGamma*lPrInc
 LmbdT = 0
-nijkl = iBasi*jBasj*kBask*lBasl
 nabcd = iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)
 mab = nTri_Elem1(la)*nTri_Elem1(lb)
 mcd = nTri_Elem1(lc)*nTri_Elem1(ld)

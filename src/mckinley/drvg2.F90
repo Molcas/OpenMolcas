@@ -801,7 +801,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                            k2data(:,ik2),k2data(:,jk2), &
                            Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc, &
                            iBasn,jBasn,kBasn,lBasn, &
-                           Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nSO, &
+                           Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nijkl,nSO, &
                            Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
