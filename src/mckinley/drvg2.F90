@@ -649,7 +649,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     ider = 2
     if (.not. ldot2) iDer = 1
-    call MemRg2(iAngV,nRys,MemPrm,ider)
+    call MemRg2(iSD4( 1,:),nRys,MemPrm,ider)
 
     !------------------------------------------------------------------*
     !
@@ -666,8 +666,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !
     !------------------------------------------------------------------*
 
-    call PSOAO2(nSO,MemPrm,MemMax,iAngV,iCmpV,iAOV,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
-                jPrInc,kPrimk,kPrInc,lPriml,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB)
+    call PSOAO2(nSO,MemPrm,MemMax,iCmpV,iAOV,iFnc,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj, &
+                jPrInc,kPrimk,kPrInc,lPriml,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB,&
+                nSD,iSD4)
 
     !------------------------------------------------------------------*
     !
