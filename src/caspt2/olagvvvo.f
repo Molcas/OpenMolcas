@@ -14,7 +14,10 @@
      *                    DIA,DI,FIFA,FIMO,A_PT2,MaxVec_PT2)
       USE iSD_data
       USE CHOVEC_IO
-      use caspt2_global, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag,nOLag
+      use caspt2_global, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
+#ifdef _MOLCAS_MPP_
+      use caspt2_global, only: nOLag
+#endif
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp

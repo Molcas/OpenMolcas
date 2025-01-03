@@ -20,7 +20,10 @@
 Subroutine SavGradParams(Mode,IDSAVGRD)
 
   use caspt2_global, only: LUGRAD, LUSTD, do_lindep, IDBoriMat, &
-                             NBUF1_GRAD, iTasks_grad, nTasks_grad, LURHS
+                             NBUF1_GRAD, iTasks_grad, nTasks_grad
+#ifdef _MOLCAS_MPP_
+  use caspt2_global, only: LURHS
+#endif
   use caspt2_global, only: DREF, PREF
   use caspt2_global, only: LUSOLV, LUSBT
   use definitions, only: iwp,wp,byte
@@ -417,7 +420,7 @@ Contains
               END IF
             else
 #endif
-              if (NAS*NIS) then
+              if (NAS*NIS > 0) then
                 Call RHS_READ_SR(lg_V1,ICASE_,ISYM_,IVECX)
                 CALL DDAFILE(LUGRAD,IORW,GA_Arrays(lg_V1)%A,NAS*NIS,IDSAVGRD)
               end if

@@ -152,9 +152,12 @@ C
       SUBROUTINE CLagD(G1,G2,G3,DG1,DG2,DG3,DF1,DF2,DF3,DEASUM,DEPSA,
      *                 VECROT)
 
-      use caspt2_global, only: do_lindep, idSDMat, imag_shift, iVecL,
+      use caspt2_global, only: idSDMat, imag_shift, iVecL,
      *                         sigma_p_epsilon, LUSBT, LUSTD,
      *                         real_shift, LUSOLV, ipea_shift
+#ifdef _MOLCAS_MPP_
+      use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
+#endif
       use EQSOLV
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -1512,6 +1515,9 @@ C
       use EQSOLV
       use Sigma_data
       use definitions, only: wp
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1578,8 +1584,17 @@ C
       if (sigma_p_epsilon.ne.0.0d+00 .and. mode.eq.0) then
         !! the remaining is the derivative of 2<1|H|0>, so the unscaled
         !! lambda is loaded
-        CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
-        CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
+#ifdef _MOLCAS_MPP_
+        IF (Is_Real_Par()) THEN
+          IF (KING()) THEN
+            CALL GA_GET(lg_V2,1,NIN,1,NIS,VEC2,NIN)
+          End IF
+        ELSE
+#endif
+          CALL RHS_READ_SR(lg_V2,ICASE,ISYM,iVecR)
+#ifdef _MOLCAS_MPP_
+        end if
+#endif
       end if
 C
       !! Transform the internally contracted density to
