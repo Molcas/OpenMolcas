@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PickMO(COUT,nOut,icmp,iBasi,iBasn,jBasj,jBasn,kBask,kBasn,lBasl,lBasn,iaoii)
+subroutine PickMO(COUT,nOut,iBasi,iBasn,jBasj,jBasn,kBask,kBasn,lBasl,lBasn,iaoii,nSD,iSD4)
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
@@ -22,9 +22,12 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: nOut, iCmp(4), iBasi, iBasn, jBasj, jBasn, kBask, kBasn, lBasl, lBasn, iAOii(4)
+integer(kind=iwp), intent(in) :: nOut, iBasi, iBasn, jBasj, jBasn, kBask, kBasn, lBasl, lBasn, iAOii(4)
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 real(kind=wp), intent(_OUT_) :: COUT(nOut)
-integer(kind=iwp) :: i1, iAsh, iBas(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
+integer(kind=iwp) :: i1, iAsh, iBas(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4), iCmp(4)
+
+iCmp(:) = iSD4( 2,:)
 
 iBas(1) = iBasi
 iBas(2) = jBasj

@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoEl_mck(Coor,nRys,nData1,nData2,k2Data1,k2Data2,Pren,Prem, &
+subroutine TwoEl_mck(Coor,nRys,Pren,Prem, &
                      Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
                      Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk, &
@@ -74,8 +74,8 @@ subroutine TwoEl_mck(Coor,nRys,nData1,nData2,k2Data1,k2Data2,Pren,Prem, &
 
 use McKinley_global, only: CPUStat, nIntegrals, nScreen, nTrans, nTwoDens, PreScr
 use iSD_data, only: nSD
-use Index_Functions, only: nTri_Elem1
-use k2_structure, only: k2_type
+use Index_Functions, only: nTri_Elem1, iTri
+use k2_structure, only: k2_type, Indk2, k2Data
 use k2_arrays, only: BraKet
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
@@ -88,14 +88,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nRys, nData1, nData2, &
+integer(kind=iwp), intent(in) :: nRys,  &
                                  nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
                                  nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
                                  nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4), nijkl
 real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
                              Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), &
                              Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Dan(*), Din(*)
-type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
 real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
 logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), Shijij, lgrad, ldot, n8, ltri, new_fock
 logical(kind=iwp), intent(out) :: IfG(4)
@@ -106,7 +105,7 @@ integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCR
                      lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, lZeta, mab, mcd, mEta, mZeta, n, nabcd, &
                      nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot, nZeta, nEta, &
                      iAO(4), iCmp(4), iAngV(4), jPrInc, lPrInc, nAlpha, nBeta, nGamma, nDelta, iAOst(4), iShell(4), iShll(4), &
-                     iStb, jStb, kStb, lStb, iBasi, jBasj, kBask, lBasl
+                     iStb, jStb, kStb, lStb, iBasi, jBasj, kBask, lBasl, iS, jS, kS, lS, ijS, klS, ik2, jk2
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4)
 procedure(cff2d_kernel) :: Cff2D
@@ -114,6 +113,7 @@ procedure(modu2_kernel) :: ModU2
 procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
+type (k2_type), pointer:: k2data1(:), k2data2(:)
 real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 
 !                                                                      *
@@ -199,6 +199,24 @@ iuvwx(1) = dc(iStb)%nStab
 iuvwx(2) = dc(jStb)%nStab
 iuvwx(3) = dc(kStb)%nStab
 iuvwx(4) = dc(lStb)%nStab
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Pick up pointers to k2 entities.
+!
+iS=iShell(1)
+jS=iShell(2)
+kS=iShell(3)
+lS=iShell(4)
+ijS=iTri(iS,jS)
+klS=iTri(kS,lS)
+nDCRR = IndK2(2,ijS)
+ik2 = IndK2(3,ijS)
+nDCRS = IndK2(2,klS)
+jk2 = IndK2(3,klS)
+k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
+k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
 
 Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
 Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
@@ -585,5 +603,7 @@ Coeff1 => Null()
 Coeff2 => Null()
 Coeff3 => Null()
 Coeff4 => Null()
+k2data1 => Null()
+k2data2 => Null()
 
 end subroutine Twoel_Mck
