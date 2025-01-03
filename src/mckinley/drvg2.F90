@@ -641,7 +641,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ! Compute total size of the second order density matrix in SO basis.
     !
     !------------------------------------------------------------------*
-    nSO = MemSO2_P(iCmp,jCmp,kCmp,lCmp,nSD,iSD4)
+    nSO = MemSO2_P(nSD,iSD4)
     ldot2 = ldot
     if (nSO == 0) ldot2 = .false.
 

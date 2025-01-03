@@ -320,7 +320,7 @@ do while (Rsv_Tsk(id,jlS))
   !*********************************************************************
   !                                                                    *
   call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-  nSO = MemSO2_P(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),nSD,iSD4)
+  nSO = MemSO2_P(nSD,iSD4)
   No_batch = nSO == 0
   if (No_batch) cycle
 
