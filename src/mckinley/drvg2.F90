@@ -128,14 +128,13 @@ mDCRjk = 0
 ipDijS = 0
 ipDijS2 = 0
 
-call CtrlMO(moip,nAco)
-
 ndisp = 0
-naco = 0
+nACO = 0
 New_Fock = nirrep == 1
 do iS=0,nIrrep-1
+  moip(iS) = nACO
   nDisp = nDisp+ldisp(is)
-  naco = naco+nAsh(is)
+  nACO = naco+nAsh(is)
 end do
 n8 = .true.
 

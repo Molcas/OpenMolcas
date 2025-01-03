@@ -32,7 +32,6 @@ set (sources
      coreb.F90
      crsph_mck.F90
      ctldns.F90
-     ctrlmo.F90
      dan.F90
      dede_mck.F90
      derctr.F90
