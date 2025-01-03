@@ -14,7 +14,7 @@
 
 subroutine TwoEl_g(Coor,nRys,Pren,Prem, &
                    iBasi,jBasj,kBask,lBasl,nZeta,nEta,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO, &
-                   Wrk2,nWrk2,Aux,nAux,iSD4)
+                   Wrk2,nWrk2,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -27,6 +27,7 @@ subroutine TwoEl_g(Coor,nRys,Pren,Prem, &
 !          Lund, SWEDEN. Modified to gradients, January '92.           *
 !***********************************************************************
 
+use setup, only: nAux
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
@@ -37,7 +38,7 @@ use Gateway_global, only: IsChi
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1, iTri
 use k2_structure, only: k2_type, Indk2, k2Data
-use k2_arrays, only: BraKet
+use k2_arrays, only: BraKet, Aux
 use Disp, only: CutGrd, l2DI
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 #ifdef _DEBUGPRINT_
@@ -49,11 +50,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nRys, iBasi, jBasj, kBask, lBasl, nZeta, &
-                                 nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux, iSD4(0:nSD,4)
+                                 nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), PSO(iBasi*jBasj*kBask*lBasl,nPSO)
 real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
-real(kind=wp), intent(out) :: Wrk2(nWrk2), Aux(nAux)
+real(kind=wp), intent(out) :: Wrk2(nWrk2)
 integer(kind=iwp) :: iC, iCar, iCent, iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, iiCent, ijklab, ijMax, ijMin, ikl, &
                      IncEta, IncZet, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, &
                      iz2, iZeta, jCent, jCmpb, jjCent, JndGrd(3,4), jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, &

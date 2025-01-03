@@ -31,9 +31,9 @@ subroutine Drvg1(Grad,Temp,nGrad)
 !             Modified for SetUp_Ints. January '00                     *
 !***********************************************************************
 
-use setup, only: mSkal, MxPrm, nAux
+use setup, only: mSkal, MxPrm
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
+use k2_arrays, only: Destroy_BraKet, Sew_Scr
 use Disp, only: ChDisp, l2DI
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -276,13 +276,18 @@ do
       !
       ! Now check if all blocks can be computed and stored at once.
 
-      Call PSOAO1(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc, &
-                  ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
+      Call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 
       iBasi = iSD4(3,1)
       jBasj = iSD4(3,2)
       kBask = iSD4(3,3)
       lBasl = iSD4(3,4)
+
+      iBsInc= iSD4(4,1)
+      jBsInc= iSD4(4,2)
+      kBsInc= iSD4(4,3)
+      lBsInc= iSD4(4,4)
+
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -351,7 +356,7 @@ do
               call TwoEl_g(Coor,nRys,Pren,Prem, &
                            iBasn,jBasn,kBasn,lBasn, &
                            nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
-                           Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)
+                           Sew_Scr(ipMem2),Mem2,iSD4)
 #             ifdef _CD_TIMING_
               call CWTIME(TwoelCPU2,TwoelWall2)
               Twoel_CPU = Twoel_CPU+TwoelCPU2-TwoelCPU1

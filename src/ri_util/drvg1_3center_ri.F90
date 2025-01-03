@@ -38,11 +38,11 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 !             Modified for 3-center RI gradients, March '07            *
 !***********************************************************************
 
-use setup, only: mSkal, MxPrm, nAux
+use setup, only: mSkal, MxPrm
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, ReadBPT2
-use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
+use k2_arrays, only: Destroy_BraKet, Sew_Scr
 use Disp, only: l2DI
 #ifdef _DEBUGPRINT_
 use Disp, only: ChDisp
@@ -671,13 +671,18 @@ do while (Rsv_Tsk2(id,klS))
 
     ! Now check if all blocks can be computed and stored at once.
 
-    Call PSOAO1(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc, &
-                ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
+    Call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 
     iBasi = iSD4(3,1)
     jBasj = iSD4(3,2)
     kBask = iSD4(3,3)
     lBasl = iSD4(3,4)
+
+    iBsInc= iSD4(4,1)
+    jBsInc= iSD4(4,2)
+    kBsInc= iSD4(4,3)
+    lBsInc= iSD4(4,4)
+
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -746,7 +751,7 @@ do while (Rsv_Tsk2(id,klS))
             call TwoEl_g(Coor,nRys,Pren,Prem, &
                          iBasn,jBasn,kBasn,lBasn, &
                          nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
-                         Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)
+                         Sew_Scr(ipMem2),Mem2,iSD4)
 #           ifdef _CD_TIMING_
             call CWTIME(TwoelCPU2,TwoelWall2)
             Twoel3_CPU = Twoel3_CPU+TwoelCPU2-TwoelCPU1

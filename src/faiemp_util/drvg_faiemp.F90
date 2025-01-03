@@ -26,9 +26,9 @@ subroutine Drvg_FAIEMP(Grad,Temp,nGrad)
 !     based on Drvg1                                                   *
 !***********************************************************************
 
-use setup, only: mSkal, MxPrm, nAux
+use setup, only: mSkal, MxPrm
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
+use k2_arrays, only: Destroy_BraKet, Sew_Scr
 use Disp, only: ChDisp, l2DI
 use Basis_Info, only: nBas, nBas_Frag
 use Sizes_of_Seward, only: S
@@ -253,13 +253,18 @@ do
       ! Now check if all blocks can be computed and stored at
       ! once.
 
-      Call PSOAO1(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc, &
-                  ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
+      Call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 
       iBasi = iSD4(3,1)
       jBasj = iSD4(3,2)
       kBask = iSD4(3,3)
       lBasl = iSD4(3,4)
+
+      iBsInc= iSD4(4,1)
+      jBsInc= iSD4(4,2)
+      kBsInc= iSD4(4,3)
+      lBsInc= iSD4(4,4)
+
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -313,7 +318,7 @@ do
 
                 call TwoEl_g(Coor,nRys,Pren,Prem, &
                              iBasn,jBasn,kBasn,lBasn,nZeta,nEta, &
-                             Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,iSD4)
+                             Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,iSD4)
 
                 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp)
 
