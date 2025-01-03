@@ -53,19 +53,19 @@ integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iAng, iAngV(4), iAOst(4), iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
-                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijMax, ijS, ijSh, ik2, ikS, ilS, iMemB, &
+                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh, ik2, ikS, ilS, iMemB, &
                      ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
-                     iPrInc, ipTmp, ipTmp2, iS, iShell, iShelV(4), iShll, iShllV(4), j, jAng, jBas, jBasAO, jBasj, jBasn, &
+                     iPrInc, ipTmp, ipTmp2, iS, iShell, iShelV(4), iShll, iShllV(4), jAng, jBas, jBasAO, jBasj, jBasn, &
                      jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jk2, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, jPrInc, &
                      js, jShell, kAng, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, &
                      kPrInc, ks, kShell, lAng, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, lPrInc, ls, &
                      lShell, mdci, mdcj, mdck, mdcl, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
                      mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
-                     nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, &
-                     nZeta, iSD4(0:nSD,4)
+                     nDjl, nDkl, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, &
+                     iSD4(0:nSD,4)
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
@@ -189,8 +189,6 @@ do iAng=0,S%iAngMx
   end do
 end do
 MxDij = 6*nIrrep*MxDij
-nZeta = MxPrm*MxPrm
-nEta = MxPrm*MxPrm
 iii = nDens*10+10
 
 call Create_BraKet_Base(MxPrm**2)
@@ -429,15 +427,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   iAngV(2) = jAng
   iShelV(2) = jShell
 
-  nHrrab = 0
-  do i=0,iAng+1
-    do j=0,jAng+1
-      if (i+j <= iAng+jAng+1) then
-        ijMax = min(iAng,jAng)+1
-        nHrrab = nHrrab+ijMax*2+1
-      end if
-    end do
-  end do
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -504,15 +493,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     iShelV(:)= iSD4(11,:)
     iAOV(:)  = iSD4( 7,:)
 
-    nHrrcd = 0
-    do i=0,kAng+1
-      do j=0,lAng+1
-        if (i+j <= kAng+lAng+1) then
-          ijMax = min(kAng,lAng)+1
-          nHrrcd = nHrrcd+ijMax*2+1
-        end if
-      end do
-    end do
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -544,10 +524,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ! Allocate memory for zeta, eta, kappa, P and Q.
     ! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
 
-    nZeta = iPrimi*jPrimj
-    nEta = kPrimk*lPriml
-
-    call Create_BraKet(nZeta,nEta)
+    call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -845,13 +822,13 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                            Pren,Prem,iPrimi,jPrimj,jPrInc,kPrimk,lPriml,lPrInc, &
                            Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
                            Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn, &
-                           nZeta,nEta,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nSO, &
+                           Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nSO, &
                            Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
                            mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2), &
                            Mem2+Mem3+MemX,nTwo2,nFT,iInt,Sew_Scr(ipBuffer),MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
-                           Sew_Scr(ipMOC),MemCMO,new_fock)
+                           Sew_Scr(ipMOC),MemCMO,new_fock,iSD4)
             Post_Process = .true.
 
             !----------------------------------------------------------*
