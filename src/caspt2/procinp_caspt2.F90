@@ -664,6 +664,7 @@ subroutine procinp_caspt2
 
   if (do_nac) then
     do_csf = input%CSF
+    if (isStructure() == 1) do_csf = .false. !! omit the CSF term during (any) geometry optimizations
   end if
 
   IFSADREF   = input%SADREF
