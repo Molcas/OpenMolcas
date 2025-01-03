@@ -13,8 +13,8 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine PSOAO2(nSO,MemPrm,MemM,iFnc,iBsInc,jBsInc,kBsInc,lBsInc,iPrim,iPrInc,jPrim,jPrInc, &
-                  kPrim,kPrInc,lPrim,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer,iMemB, &
+subroutine PSOAO2(nSO,MemPrm,MemM,iFnc,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc, &
+                  kPrInc,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer,iMemB, &
                   nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -85,13 +85,12 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, iPrim, jPrim, kPrim, &
-                                 lPrim, nAco, iMemB, nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, nAco, iMemB, nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, Mem1, Mem2, Mem3, Mem4, &
                                   MemX, MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer
 integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, mabcd, Mem0, MemAux, &
                      MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, nijkl, nMax, nMaxC, &
-                     nPam(4,0:7), nTmp1, nTmp2, iAO(4), iCmpa(4), iBas, jBas, kBas, lBas
+                     nPam(4,0:7), nTmp1, nTmp2, iAO(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 
@@ -112,6 +111,11 @@ iBas = iSD4(3,1)
 jBas = iSD4(3,2)
 kBas = iSD4(3,3)
 lBas = iSD4(3,4)
+
+iPrim = iSD4(5,1)
+jPrim = iSD4(5,2)
+kPrim = iSD4(5,3)
+lPrim = iSD4(5,4)
 
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp

@@ -651,20 +651,21 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ! available memory and the requested memory.
     !
     !------------------------------------------------------------------*
-    iPrimi=iSD4( 5,1)
-    jPrimj=iSD4( 5,2)
-    kPrimk=iSD4( 5,3)
-    lPriml=iSD4( 5,4)
+
+    call PSOAO2(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc, &
+                jPrInc,kPrInc,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB,&
+                nSD,iSD4)
 
     iBasi = iSD4(3,1)
     jBasj = iSD4(3,2)
     kBask = iSD4(3,3)
     lBasl = iSD4(3,4)
 
-    call PSOAO2(nSO,MemPrm,MemMax,iFnc,iBsInc,jBsInc,kBsInc,lBsInc,iPrimi,iPrInc,jPrimj, &
-                jPrInc,kPrimk,kPrInc,lPriml,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB,&
-                nSD,iSD4)
-
+!todo
+    iPrimi=iSD4( 5,1)
+    jPrimj=iSD4( 5,2)
+    kPrimk=iSD4( 5,3)
+    lPriml=iSD4( 5,4)
     !------------------------------------------------------------------*
     !
     ! Loop over basis function if we do not have enough of memory to
