@@ -577,22 +577,6 @@ C
         Write (6,*)
       End If
 C
-      If (nState > 1) Then
-        If (.not.(IFSADREF .or. IFXMS .or. IFRMS)) Then
-          write(6,*)
-     *    "Please add SADREF keyword in CASPT2 section",
-     *    "This keyword is recommended with state-averaged reference"
-        End If
-      End If
-      If ((.not.IFDORTHO) .and. (ipea_shift /= 0.0D+00)) Then
-        write(6,*)
-     *    "It seems that DORT keyword is not used, ",
-     *    "even though this calculation uses the IPEA shift"
-        write(6,*)
-     *    "Sometimes, analytic gradients do not agree ",
-     *    "with numerical gradients"
-      End If
-C
       End Subroutine GradStart
 C
 C-----------------------------------------------------------------------
