@@ -53,7 +53,7 @@ real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, iMemB, &
-                     ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipBuffer, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
+                     ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
                      ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
@@ -75,6 +75,7 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
+real(kind=wp), pointer :: Buffer(:)=>Null()
 
 !                                                                      *
 !***********************************************************************
@@ -107,7 +108,6 @@ ipDjl = 0
 ipDjl2 = 0
 ipDDjl = 0
 ipDDjl2 = 0
-ipBuffer = 0
 ipMOC = 0
 iFnc(1) = -99
 iFnc(2) = -99
@@ -421,18 +421,21 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   !*********************************************************************
   !                                                                    *
   if ((nMethod == RASSCF) .and. l_Grd) then
-    iMemB = nACO**2*iCmp*iBas*jCmp*jBas*nDisp*nirrep
-    if (iMemB > MemMax) then
-      write(u6,*) 'DrvG2: iMemB > MemMax'
-      write(u6,*) 'iMemB=',iMemB
-      write(u6,*) 'MemMax=',MemMax
-      write(u6,*) 'Increase MOLCAS_MEM!'
-      call Abend()
-    end if
-    Sew_Scr(1:iMemb) = Zero
+    MemBuffer = nACO**2*iCmp*iBas*jCmp*jBas*nDisp*nirrep
   else
-    iMemb = 0
+    MemBuffer = 1  ! Dummy length
   end if
+  if (MemBuffer > MemMax) then
+     write(u6,*) 'DrvG2: MemBuffer > MemMax'
+     write(u6,*) 'MemBuffer=',MemBuffer
+     write(u6,*) 'MemMax=',MemMax
+     write(u6,*) 'Increase MOLCAS_MEM!'
+     call Abend()
+  end if
+
+  Buffer(1:MemBuffer)=>Sew_Scr(ipMem:ipMem+MemBuffer-1)
+  Buffer(:)=Zero
+
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -641,7 +644,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !------------------------------------------------------------------*
 
     call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO, &
-                MemFck,nFT,memCMO2,MemFin,MemBuffer,iMemB,nSD,iSD4)
+                MemFck,nFT,memCMO2,MemFin,MemBuffer,nSD,iSD4)
+
 
     iBasi = iSD4(3,1)
     jBasj = iSD4(3,2)
@@ -745,11 +749,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             !----------------------------------------------------------*
 
-            MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
             ! MO tranformation buffer
-            ipBuffer = ipMem
-            ipMOC = ipBuffer+MEMBUFFER
+            MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
             ! Area for the AO integrals
+            ipMOC = ipMem+MEMBUFFER
             ipFin = ipMOC+MemCMO
             ! Area for 2el density
             ip_PP = ipFin+MemFin
@@ -785,7 +788,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
                            mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2), &
-                           Mem2+Mem3+MemX,nTwo2,nFT,iInt,Sew_Scr(ipBuffer),MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
+                           Mem2+Mem3+MemX,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                            Sew_Scr(ipMOC),MemCMO,new_fock,iSD4)
             Post_Process = .true.
 
@@ -800,6 +803,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !  end do ! lS
     !end do ! kS
   end do ! klS
+  Buffer=>Null()
 
   if ((nMethod == RASSCF) .and. Post_Process) then
     ip1 = ipMOC
@@ -808,7 +812,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ip4 = ip3+jcmp*jBas*naco
     ip5 = ip4+iCmp*naco*iBas
     ip6 = ip5+jcmp*jbas*naco
-    call CLR2(Sew_Scr(ipBuffer),iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
+    call CLR2(Sew_Scr(ipMem),iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
               Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6),nSD,iSD4)
   end if
 

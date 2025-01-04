@@ -14,7 +14,7 @@
 !***********************************************************************
 
 subroutine PSOAO2(nSO,MemPrm,MemM,iFnc, &
-                  nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer,iMemB, &
+                  nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer, &
                   nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -85,7 +85,7 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, nAco, iMemB, nSD
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, nAco, nSD
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iFnc(4), Mem1, Mem2, Mem3, Mem4, &
                                   MemX, MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer
@@ -143,7 +143,6 @@ end if
 iPrInc = iPrim
 kPrInc = kPrim
 lPrInc = lPrim
-MemBuffer = iMemB
 MemMax = MemM-MemBuffer
 
 do
