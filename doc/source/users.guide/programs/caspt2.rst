@@ -703,6 +703,17 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`SADRef`
+  Use the equally averaged density matrix for the generalized Fock operator, like in XMS-CASPT2.
+  This keyword is mainly intended for development purposes and should not be activated in other situations.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SADREF" APPEAR="State-average density" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Sadref <advanced>
+              <HELP>
+              Use state-average density matrix.
+              </HELP>
+              </KEYWORD>
+
 :kword:`DORT` or :kword:`CORT`
   Use a different (canonical) orthonormalization for internally contracted basis.
   This keyword is required for analytical nuclear gradients with IPEA shift.
