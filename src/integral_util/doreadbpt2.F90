@@ -16,7 +16,7 @@ subroutine DoReadBPT2(kS,lS)
 ! All elements of the Jth shell (auxiliary functions) are read
 ! Only for C1 symmetry
 
-  use Definitions, only: wp, iwp
+  use Definitions, only: iwp
   use iSD_data, only: iSD
   use Gateway_global, only: force_part_c
   use pso_stuff, only: B_PT2, LuGamma2, nBasA, nCalAO, ReadBPT2
@@ -24,9 +24,7 @@ subroutine DoReadBPT2(kS,lS)
 
   implicit none
 
-! real(kind=wp), intent(out) :: B_PT2(nBasA,MxInShl,MxInShl)
   integer(kind=iwp), intent(in) :: kS, lS
-! integer(kind=iwp), intent(inout) :: nCalAO
   integer(kind=iwp) :: i3, i4, kAO, kAOk, kBas, kBsInc, kCmp, kSO, kSOk, kSO0, lAO, lAOl, lBas, lBsInc, lCmp, lSO, lSOl, lSO0
 
   kCmp = iSD(2,kS)

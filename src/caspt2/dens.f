@@ -1798,8 +1798,9 @@ C
       use caspt2_global, only: LuGAMMA,LuAPT2
       use ChoCASPT2
       use stdalloc, only: mma_allocate,mma_deallocate
-      use definitions, only: iwp,wp
+      use definitions, only: wp
 #ifdef _MOLCAS_MPP_
+      use definitions, only: iwp
       USE Para_Info, ONLY: Is_Real_Par, nProcs, myRank
 #endif
 C
@@ -1833,7 +1834,6 @@ C
       Do jSym = 1, nSym
         NumChoTot = NumChoTot + NumCho_PT2(jSym)
       End Do
-      NumCho=NumChoTot
       Do jSym = 1, nSym
         iSkip(jSym) = 1
 #ifdef _MOLCAS_MPP_

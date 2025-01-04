@@ -77,9 +77,9 @@ C
       use ChoCASPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
-      use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array,
-     &                   GA_Arrays
+      use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
+      use fake_GA, only: Allocate_GA_Array, Deallocate_GA_Array
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
 C

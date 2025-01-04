@@ -771,24 +771,27 @@ C
 
       IMPLICIT NONE
 
-      do ib=1,ibuf1
-        idx=ip1_buf(ib)
+      integer(kind=iwp) :: IALEVloc, IBLEVloc, ibloc
+
+      do ibloc=1,ibuf1
+        idx=ip1_buf(ibloc)
         itlev=idx2ij(1,idx)
         iulev=idx2ij(2,idx)
         !! left derivative
         CALL SIGMA1(SGS,CIS,EXS,
-     &              ITLEV,IULEV,1.0D00,STSYM,DTU(1,ib),CLAG)
+     &              ITLEV,IULEV,1.0D00,STSYM,DTU(1,ibloc),CLAG)
         !! the rest is DEPSA contribution
-        Do IALEV = 1, NLEV
-          Do IBLEV = 1, NLEV
+        Do IALEVloc = 1, NLEV
+          Do IBLEVloc = 1, NLEV
             BUF2(:) = 0.0d+00
             CALL SIGMA1(SGS,CIS,EXS,
-     &                  IALEV,IBLEV,1.0D00,STSYM,DAB(1,ib),BUF2)
-            DEPSA(IALEV,IBLEV) = DEPSA(IALEV,IBLEV)
+     &                 IALEVloc,IBLEVloc,1.0D00,STSYM,DAB(1,ibloc),BUF2)
+            DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)
      *        + DDot_(nsgm1,BUF1(1,IB),1,BUF2,1)
           End Do
         End Do
       end do
+
       END SUBROUTINE LEFT_DEPSA
 
       END SUBROUTINE DERFG3

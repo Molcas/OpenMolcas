@@ -155,15 +155,14 @@ C
       use caspt2_global, only: imag_shift, iVecL,
      *                         sigma_p_epsilon, LUSBT,
      *                         LUSOLV, ipea_shift
-#ifdef _MOLCAS_MPP_
-      use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
-#endif
       use EQSOLV
       use Sigma_data
       use stdalloc, only: mma_allocate, mma_deallocate
-      use definitions, only: iwp,wp,u6
+      use definitions, only: wp
       use fake_GA, only: GA_Arrays
 #ifdef _MOLCAS_MPP_
+      use caspt2_global, only: do_lindep, idSDMat, LUSTD, real_shift
+      use definitions, only: u6
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -547,12 +546,12 @@ C
           EX = EPSA(iXabs)
           EY = EPSA(iYabs)
           ATUXY = EASUM-ET-EU-EX-EY
-          iBadr = iTU + nAS*(iXY-1)
+C         iBadr = iTU + nAS*(iXY-1)
           BDERval = BDER(ITU,IXY)
 C
           !! For IPEA shift
           If (iTU.eq.iXY.and.ipea_shift.ne.0.0D+00) Then
-            idT=(iTabs*(iTabs+1))/2
+C           idT=(iTabs*(iTabs+1))/2
             ! idU=(iUabs*(iUabs+1))/2
             NSEQ = iTU*(iTU+1)/2
             bsBDER = ipea_shift*0.5D+00*BDERval
@@ -985,7 +984,7 @@ C
 C
           BDERval = BDER(ITU,IXY)
           If (iTU.eq.iXY.and.ipea_shift.ne.0.0D+00) Then
-            idT=(iTabs*(iTabs+1))/2
+C           idT=(iTabs*(iTabs+1))/2
             ! idU=(iUabs*(iUabs+1))/2
             NSEQ = iTU*(iTU+1)/2
             bsBDER = ipea_shift*0.5D+00*BDERval
@@ -1529,7 +1528,7 @@ C
 C
       real(kind=wp),allocatable :: WRK1(:),WRK2(:),WRK3(:),TRANS(:),
      *                             EIG(:)
-      nAshI = nAsh(iSym)
+C     nAshI = nAsh(iSym)
       call mma_allocate(WRK1,nAS**2,Label='WRK1')
       call mma_allocate(WRK2,MAX(nAS**2,nAS*nIS),Label='WRK2')
       call mma_allocate(WRK3,nAS**2,Label='WRK3')

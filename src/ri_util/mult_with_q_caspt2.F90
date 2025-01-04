@@ -378,9 +378,9 @@ contains
 
   implicit none
 
-  integer(kind=iwp) :: i3, i4, ij, ijQ, ijS, ij_Shell, iiQ, iS, iSO, iSkal, iSym_, indS, ish, jS, jSkal, jjQ, jsh, &
-                       kAO, kAOk, kBas, kBsInc, kCmp, kS, klS, kSO, kSO0, kSOk, &
-                       lAO, lAOl, lBas, lBsInc, lCmp, lMaxDens, lS, lSO, lSO0, lSOl, &
+  integer(kind=iwp) :: i3, i4, ij, ijQ, ijS, ij_Shell, iiQ, iloc, iS, iSO, iSkal, iSym_, indS, ish, jloc, jS, jSkal, jjQ, jsh, &
+                       kAO, kAOk, kBas, kBsInc, kCmp, kS, klS, kSO, kSOk, &
+                       lAO, lAOl, lBas, lBsInc, lCmp, lMaxDens, lS, lSO, lSOl, &
                        nij_Shell, nSkal, nSkal_Auxiliary, nSkal_Valence
   real(kind=wp) :: A_int_ij, Dm_ij, ThrAO, TMax_all, XDm_ii, XDm_ij, XDm_jj, XDm_max
   logical(kind=iwp) :: DoFock, DoGrad, Indexation
@@ -427,14 +427,14 @@ contains
   do iSym_=0,nSym-1
     kS = 1+nSkal_Valence*iSym_ ! note diff wrt declaration of iBDsh
 !   do j=1,nBas(iSym_)
-    do j=1,nBas(1)
-      jsh = Cho_Irange(j,iBDsh(kS),nSkal_Valence,.true.)
-      do i=1,j
+    do jloc=1,nBas(1)
+      jsh = Cho_Irange(jloc,iBDsh(kS),nSkal_Valence,.true.)
+      do iloc=1,jloc
         ish = Cho_Irange(i,iBDsh(kS),nSkal_Valence,.true.)
         ijS = nTri_Elem(jsh-1)+ish
         do iSO=1,nJDens
           if (.not. DMLT(iSO)%Active) cycle
-          ij = iTri(j,i)
+          ij = iTri(jloc,iloc)
           Dm_ij = abs(DMLT(iSO)%SB(iSym_+1)%A1(ij))
           MaxDens(ijS) = max(MaxDens(ijS),Dm_ij)
         end do
@@ -507,8 +507,6 @@ contains
       lBsInc = lBas
     end if
 
-    lSO0 = iAOtSO(lAO+1,0)-1
-    kSO0 = iAOtSO(kAO+1,0)-1
     do i4=1,lCmp
       lSO = iAOtSO(lAO+i4,0)
       do i3=1,kCmp
@@ -535,10 +533,10 @@ contains
 #endif
   kS = 1
   nij_Shell = 0
-  do i = 1, NPROCS
-    lS = nList_Shell(i)
+  do iloc = 1, NPROCS
+    lS = nList_Shell(iloc)
     nij_Shell = nij_Shell + lS
-    nList_Shell(i) = kS
+    nList_Shell(iloc) = kS
     kS = kS + lS
   end do
 
@@ -549,10 +547,10 @@ contains
 #endif
   kS = 1
   nij_Shell = 0
-  do i = 1, NPROCS
-    lS = nList_AO(i)
+  do iloc = 1, NPROCS
+    lS = nList_AO(iloc)
     nij_Shell = nij_Shell + lS
-    nList_AO(i) = kS
+    nList_AO(iloc) = kS
     kS = kS + lS
   end do
   nCalAO_tot = kS-1
