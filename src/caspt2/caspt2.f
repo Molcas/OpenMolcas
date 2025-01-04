@@ -342,7 +342,8 @@ C       Call EQCTL2(ICONV)
 !#endif
         !END IF
 
-         IF ((.NOT.IFDENS.OR.IFGRDT0).AND.IFMSCOUP) THEN
+!        IF ((.NOT.IFDENS.OR.IFGRDT0).AND.IFMSCOUP) THEN
+         IF (IFMSCOUP) THEN
 C     If this was NOT a gradient, calculation, then the multi-state
 C     couplings are more efficiently computed via three-body
 C     transition density matrices.
