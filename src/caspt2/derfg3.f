@@ -79,7 +79,7 @@
 C     REAL*8 BUFR(MXLEV**2)
 C
 C     INTEGER LFCDer1,LFCDer2
-      INTEGER ialev,iblev,iTask_loc
+      INTEGER iTask_loc
       REAL*8  SCAL,ScalG,ScalF
 C     REAL*8 tmp,tmp2
       LOGICAL first
