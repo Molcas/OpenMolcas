@@ -75,7 +75,7 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
-real(kind=wp), pointer :: Buffer(:)=>Null()
+real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null()
 
 !                                                                      *
 !***********************************************************************
@@ -435,6 +435,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
   Buffer(1:MemBuffer)=>Sew_Scr(ipMem:ipMem+MemBuffer-1)
   Buffer(:)=Zero
+  ipMOC = ipMem+MEMBUFFER
 
   !                                                                    *
   !*********************************************************************
@@ -751,8 +752,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! MO tranformation buffer
             MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
+            MOC(1:MemCMO)=>Sew_Scr(ipMOC:ipMOC+MemCMO-1)
             ! Area for the AO integrals
-            ipMOC = ipMem+MEMBUFFER
             ipFin = ipMOC+MemCMO
             ! Area for 2el density
             ip_PP = ipFin+MemFin
@@ -775,7 +776,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             nijkl = iBasn*jBasn*kBasn*lBasn
             call Timing(dum1,Time,dum2,dum3)
-            if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,nSD,iSD4)
+            if (n8) call PickMO(MOC(:),MemCMO,nSD,iSD4)
             if (ldot2) call PGet0(nijkl,Sew_Scr(ip_PP),nSO,iFnc,MemPSO,Sew_Scr(ipMem2),Mem2,nQuad,PMax,iSD4)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
@@ -789,8 +790,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
                            mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2), &
                            Mem2+Mem3+MemX,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
-                           Sew_Scr(ipMOC),MemCMO,new_fock,iSD4)
+                           MOC(:),MemCMO,new_fock,iSD4)
             Post_Process = .true.
+            MOC=>Null()
 
             !----------------------------------------------------------*
 
