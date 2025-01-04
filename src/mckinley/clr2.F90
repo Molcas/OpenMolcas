@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,iaoi,iaoj,naco,temp1,temp2,temp3,temp4,temp5,temp6,nSD,iSD4)
+subroutine Clr2(XrIn,rOut,ibas,icmp,jbas,jcmp,iaoi,iaoj,naco,temp1,temp2,temp3,temp4,temp5,temp6,nSD,iSD4,nDisp)
 
 use McKinley_global, only: ipDisp3, ipMO
 use Index_Functions, only: iTri, nTri_Elem
@@ -27,16 +27,21 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ibas, icmp, jbas, jcmp, iaoi, iaoj, naco, nSD, iSD4(0:nSD,4)
-real(kind=wp), intent(in) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,nTri_Elem(naco),*)
+integer(kind=iwp), intent(in) :: ibas, icmp, jbas, jcmp, iaoi, iaoj, naco, nSD, iSD4(0:nSD,4), nDisp
+real(kind=wp), intent(in), target :: XrIn(*)
 real(kind=wp), intent(inout) :: rOut(*)
 real(kind=wp), intent(_OUT_) :: Temp1(ibas,icmp,*), Temp2(*), Temp3(jbas,jcmp,*), Temp6(*)
 real(kind=wp), intent(out) :: Temp4(ibas,icmp,nACO), Temp5(jbas,jcmp,nACO)
 integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, &
                      ipp(0:7), iS, iSO, j, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, &
-                     lsl, lSO, mIrr, n, na(0:7), ni, nj, nnA, iShell(4)
+                     lsl, lSO, mIrr, n, na(0:7), ni, nj, nnA, iShell(4), nXrIn
 real(kind=wp) :: fact, rd
 integer(kind=iwp), external :: NrOpr
+real(kind=wp), pointer:: rIn(:,:,:,:)=>null()
+
+nXrIn=iBas*iCmp*jBas*jCmp*nIrrep*nTri_Elem(nACO)*nDisp
+
+rIn(1:iBas*iCmp*jBas*jCmp,0:nIrrep-1,1:nTri_Elem(nACO),1:nDisp)=>XrIn(1:nXrIn)
 
 iShell(:)= iSD4(11,:)
 Temp2(1:Naco**4) = Zero
@@ -204,6 +209,6 @@ do mIrr=0,nIrrep-1
   end do ! ndisp
 end do ! msym
 
-return
+rIn=>null()
 
 end subroutine Clr2

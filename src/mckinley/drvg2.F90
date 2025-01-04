@@ -829,7 +829,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !  end do ! lS
     !end do ! kS
   end do ! klS
-  Buffer=>Null()
 
   if ((nMethod == RASSCF) .and. Post_Process) then
     ip1 = ipMOC
@@ -838,9 +837,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ip4 = ip3+jcmp*jBas*naco
     ip5 = ip4+iCmp*naco*iBas
     ip6 = ip5+jcmp*jbas*naco
-    call CLR2(Sew_Scr(ipMem),iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
-              Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6),nSD,iSD4)
+    call CLR2(Buffer,iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco,Sew_Scr(ip1),Sew_Scr(ip2),Sew_Scr(ip3), &
+              Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6),nSD,iSD4,nDisp)
   end if
+  Buffer=>Null()
 
   !  end do ! jS
   !end do ! iS
