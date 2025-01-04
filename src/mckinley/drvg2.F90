@@ -840,7 +840,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     nTemp=MemMax-MemBuffer
     Temp(1:nTemp)=>Sew_Scr(ipMOC:ipMOC+nTemp-1)
     call CLR2(Buffer,iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),naco, &
-              Sew_Scr(ip4),Sew_Scr(ip5),Sew_Scr(ip6),nSD,iSD4,nDisp,nTemp,Temp)
+              Sew_Scr(ip5),Sew_Scr(ip6),nSD,iSD4,nDisp,nTemp,Temp)
+    Temp=>Null()
   end if
   Buffer=>Null()
 
