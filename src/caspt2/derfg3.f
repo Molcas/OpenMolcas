@@ -328,6 +328,7 @@ C     write(6,*) "PREP    : CPU/WALL TIME=", cput,wallt
 
       iG3OFF=0
       iTask_loc = 1
+      first = .true.
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
       DO issg1=1,nsym
@@ -787,7 +788,7 @@ C
             CALL SIGMA1(SGS,CIS,EXS,
      &                 IALEVloc,IBLEVloc,1.0D00,STSYM,DAB(1,ibloc),BUF2)
             DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)
-     *        + DDot_(nsgm1,BUF1(1,IB),1,BUF2,1)
+     *        + DDot_(nsgm1,BUF1(1,IBloc),1,BUF2,1)
           End Do
         End Do
       end do

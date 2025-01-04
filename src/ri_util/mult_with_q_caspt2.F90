@@ -430,7 +430,7 @@ contains
     do jloc=1,nBas(1)
       jsh = Cho_Irange(jloc,iBDsh(kS),nSkal_Valence,.true.)
       do iloc=1,jloc
-        ish = Cho_Irange(i,iBDsh(kS),nSkal_Valence,.true.)
+        ish = Cho_Irange(iloc,iBDsh(kS),nSkal_Valence,.true.)
         ijS = nTri_Elem(jsh-1)+ish
         do iSO=1,nJDens
           if (.not. DMLT(iSO)%Active) cycle
