@@ -422,7 +422,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   !*********************************************************************
   !                                                                    *
   if ((nMethod == RASSCF) .and. l_Grd) then
-    MemBuffer = nACO**2*iCmp*iBas*jCmp*jBas*nDisp*nirrep
+    MemBuffer = nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nirrep
   else
     MemBuffer = 1  ! Dummy length
   end if
