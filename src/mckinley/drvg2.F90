@@ -63,7 +63,7 @@ integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV
                      lShell, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
                      mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDij, nDik, nDil, ndisp, nDjk, &
-                     nDjl, nDkl, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4)
+                     nDjl, nDkl, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
@@ -75,7 +75,7 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
-real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null(), Fin(:)=>Null(), PSO(:,:)
+real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null(), Fin(:)=>Null(), PSO(:,:)=>Null(), Temp(:)=>Null()
 real(kind=wp), pointer :: Work2(:)=>Null(), Work3(:)=>Null(), WorkX(:)=>Null()
 
 !                                                                      *
@@ -782,6 +782,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ! Multilayer
 
             ipMem4 = ipMem2+Mem2-Mem4
+            nTemp=Mem2+Mem3+MemX
+            Temp(1:nTemp)=>Sew_Scr(ipMem2:ipMem2+nTemp-1)
 
             !----------------------------------------------------------*
             !
@@ -802,8 +804,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                            Work2,Mem2,Work3,Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,WorkX,MemX, &
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
-                           mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Fin,MemFin,Sew_Scr(ipMem2), &
-                           Mem2+Mem3+MemX,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
+                           mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Fin,MemFin,Temp, &
+                           nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                            MOC,MemCMO,new_fock,iSD4)
             Post_Process = .true.
             MOC=>Null()
@@ -812,6 +814,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             Work2=>Null()
             Work3=>Null()
             WorkX=>Null()
+            Temp=>Null()
 
             !----------------------------------------------------------*
 
