@@ -52,8 +52,8 @@ integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
-                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, iMemB, &
-                     ip, ip1, ip2, ip3, ip4, ip5, ip6, ip_PP, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
+                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, &
+                     ip, ip1, ip2, ip3, ip4, ip5, ip6, ipPSO, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
                      ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
@@ -75,7 +75,8 @@ integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
-real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null()
+real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null(), Fin(:)=>Null(), PSO(:,:)
+real(kind=wp), pointer :: Work2(:)=>Null(), Work3(:)=>Null(), WorkX(:)=>Null()
 
 !                                                                      *
 !***********************************************************************
@@ -750,16 +751,30 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             !----------------------------------------------------------*
 
+            nijkl = iBasn*jBasn*kBasn*lBasn
+
+            ! Mark out the memory allocations explicitly with pointers
             ! MO tranformation buffer
             MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
             MOC(1:MemCMO)=>Sew_Scr(ipMOC:ipMOC+MemCMO-1)
             ! Area for the AO integrals
             ipFin = ipMOC+MemCMO
+            Fin(1:MemFin)=>Sew_Scr(ipFin:ipFin+MemFin-1)
             ! Area for 2el density
-            ip_PP = ipFin+MemFin
-            ipMem2 = ip_PP+Mem1  ! Work
+            ipPSO = ipFin+MemFin
+            PSO(1:nijkl,1:nSO)=>Sew_Scr(ipPSO:ipPSO+nijkl*nSO-1)
+            If (nijkl*nSO>Mem1) Then
+               Write(u6,'(A)') 'nijkl*nSO>Mem1'
+               Write(u6,*) 'njikl,nSO=',nijkl,nSO
+               Write(u6,*) 'Mem1=',Mem1
+               Call Abend()
+            End If
+            ipMem2 = ipPSO+Mem1  ! Work
+            Work2(1:Mem2)=>Sew_Scr(ipMem2:ipMem2+Mem2-1)
             ipMem3 = ipMem2+Mem2 ! Work
+            Work3(1:Mem3)=>Sew_Scr(ipMem3:ipMem3+Mem3-1)
             ipMemX = ipMem3+Mem3 ! Work
+            WorkX(1:MemX)=>Sew_Scr(ipMemX:ipMemX+MemX-1)
 
             ! If MO transformation is performed in the standard way
             ! reserve memory for partial transformed integrals
@@ -774,25 +789,29 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             !
             !----------------------------------------------------------*
 
-            nijkl = iBasn*jBasn*kBasn*lBasn
             call Timing(dum1,Time,dum2,dum3)
-            if (n8) call PickMO(MOC(:),MemCMO,nSD,iSD4)
-            if (ldot2) call PGet0(nijkl,Sew_Scr(ip_PP),nSO,iFnc,MemPSO,Sew_Scr(ipMem2),Mem2,nQuad,PMax,iSD4)
+            if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
+            if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
             call Timing(dum1,Time,dum2,dum3)
             CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
 
             ! Compute gradients of shell quadruplet
 
             call TwoEl_mck(Coor,nRys,Pren,Prem, &
-                           Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,Sew_Scr(ip_PP),nijkl,nSO, &
-                           Sew_Scr(ipMem2),Mem2,Sew_Scr(ipMem3),Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,Sew_Scr(ipMemX),MemX, &
+                           Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO, &
+                           Work2,Mem2,Work3,Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,WorkX,MemX, &
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
-                           mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Sew_Scr(ipFin),MemFin,Sew_Scr(ipMem2), &
+                           mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Fin,MemFin,Sew_Scr(ipMem2), &
                            Mem2+Mem3+MemX,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
-                           MOC(:),MemCMO,new_fock,iSD4)
+                           MOC,MemCMO,new_fock,iSD4)
             Post_Process = .true.
             MOC=>Null()
+            Fin=>Null()
+            PSO=>Null()
+            Work2=>Null()
+            Work3=>Null()
+            WorkX=>Null()
 
             !----------------------------------------------------------*
 
