@@ -76,7 +76,7 @@ real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
 real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null(), Fin(:)=>Null(), PSO(:,:)=>Null(), Temp(:)=>Null()
-real(kind=wp), pointer :: Work2(:)=>Null(), Work3(:)=>Null(), WorkX(:)=>Null()
+real(kind=wp), pointer :: Work2(:)=>Null(), Work3(:)=>Null(), WorkX(:)=>Null(), Work4(:)=>Null()
 
 !                                                                      *
 !***********************************************************************
@@ -782,6 +782,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ! Multilayer
 
             ipMem4 = ipMem2+Mem2-Mem4
+            Work4(1:Mem4)=>Sew_Scr(ipMem4:ipMem4+Mem4-1)
             nTemp=Mem2+Mem3+MemX
             Temp(1:nTemp)=>Sew_Scr(ipMem2:ipMem2+nTemp-1)
 
@@ -801,7 +802,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             call TwoEl_mck(Coor,nRys,Pren,Prem, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO, &
-                           Work2,Mem2,Work3,Mem3,Sew_Scr(ipMem4),Mem4,Aux,nAux,WorkX,MemX, &
+                           Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux,WorkX,MemX, &
                            Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
                            DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
                            mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Fin,MemFin,Temp, &
@@ -814,6 +815,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             Work2=>Null()
             Work3=>Null()
             WorkX=>Null()
+            Work4=>Null()
             Temp=>Null()
 
             !----------------------------------------------------------*
