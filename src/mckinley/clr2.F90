@@ -34,7 +34,7 @@ real(kind=wp), intent(inout) :: rOut(*)
 real(kind=wp), intent(_OUT_) :: Temp6(*)
 integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, &
                      ipp(0:7), iS, iSO, j, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, &
-                     lsl, lSO, mIrr, n, na(0:7), ni, nj, nnA, iShell(4), nXrIn, iE
+                     lsl, lSO, mIrr,  na(0:7), ni, nj, nnA, iShell(4), nXrIn, iE
 real(kind=wp) :: fact, rd
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), pointer:: rIn(:,:,:,:)=>null(), Temp1(:,:,:)=>null(), Temp2(:)=>Null(), Temp3(:,:,:)=>Null()
@@ -70,11 +70,6 @@ do iS=0,nIrrep-1
   nA(iS) = nNA
   nnA = nnA+nAsh(is)
 end do
-n = 0
-do i=0,nIrrep-1
-  n = n+ldisp(i)
-end do
-n = ibas*icmp*jbas*jcmp*nIrrep*nTri_Elem(nAco)*n
 
 ni = iCmp*iBas
 nj = jCmp*jBas
