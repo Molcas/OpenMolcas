@@ -15,6 +15,8 @@
 * Testing SS-RASPT2 gradients with conventional eri and real shift
 *-------------------------------------------------------------------------------
 
+> export MOLCAS_MEM=512
+
 &GATEWAY
   coord = 10
   angstrom
