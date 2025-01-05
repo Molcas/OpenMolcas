@@ -519,17 +519,15 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
       ipTmp2 = 0
       if (lpick) then
 
+        ipTmp = ipDijs
+        if (nMethod == RASSCF) ipTmp2 = ipDijs2
+
         ipDij = ipOffD(1,ijS)
         mDCRij = ipOffD(2,ijS)
         nDij = ipOffD(3,ijS)
+        if (nMethod == RASSCF) ipDij2 = ipOffDA(1,ijS)
 
-        ipTmp = ipDijs
-        if (nMethod == RASSCF) then
-          ipDij2 = ipOffDA(1,ijS)
-          ipTmp2 = ipDijs2
-        end if
-
-        if (mDCRij /= 0) then
+        if (mDCRij*nDij /= 0) then
           ipDDij = ipTmp
           ipTmp = ipTmp+nDij*mDCRij
           if (nMethod == RASSCF) then
@@ -541,10 +539,11 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         end if
 
         ipDkl = ipOffD(1,klS)
-        if (nMethod == RASSCF) ipDkl2 = ipOffDA(1,klS)
         mDCRkl = ipOffD(2,klS)
         nDkl = ipOffD(3,klS)
-        if (mDCRkl /= 0) then
+        if (nMethod == RASSCF) ipDkl2 = ipOffDA(1,klS)
+
+        if (mDCRkl*nDkl /= 0) then
           ipDDkl = ipTmp
           ipTmp = ipTmp+nDkl*mDCRkl
           if (nMethod == RASSCF) then
@@ -556,10 +555,11 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         end if
 
         ipDik = ipOffD(1,ikS)
-        if (nMethod == RASSCF) ipDik2 = ipOffDA(1,ikS)
         mDCRik = ipOffD(2,ikS)
         nDik = ipOffD(3,ikS)
-        if (mDCRik /= 0) then
+        if (nMethod == RASSCF) ipDik2 = ipOffDA(1,ikS)
+
+        if (mDCRik*nDik /= 0) then
           ipDDik = ipTmp
           ipTmp = ipTmp+nDik*mDCRik
           if (nMethod == RASSCF) then
@@ -571,10 +571,11 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         end if
 
         ipDil = ipOffD(1,ilS)
-        if (nMethod == RASSCF) ipDil2 = ipOffDA(1,ilS)
         mDCRil = ipOffD(2,ilS)
         nDil = ipOffD(3,ilS)
-        if (mDCRil /= 0) then
+        if (nMethod == RASSCF) ipDil2 = ipOffDA(1,ilS)
+
+        if (mDCRil*nDil /= 0) then
           ipDDil = ipTmp
           ipTmp = ipTmp+nDil*mDCRil
           if (nMethod == RASSCF) then
@@ -586,10 +587,11 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         end if
 
         ipDjk = ipOffD(1,jkS)
-        if (nMethod == RASSCF) ipDjk2 = ipOffDA(1,jkS)
         mDCRjk = ipOffD(2,jkS)
         nDjk = ipOffD(3,jkS)
-        if (mDCRjk /= 0) then
+        if (nMethod == RASSCF) ipDjk2 = ipOffDA(1,jkS)
+
+        if (mDCRjk*nDjk /= 0) then
           ipDDjk = ipTmp
           ipTmp = ipTmp+nDjk*mDCRjk
           if (nMethod == RASSCF) then
@@ -601,10 +603,11 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         end if
 
         ipDjl = ipOffD(1,jlS)
-        if (nMethod == RASSCF) ipDjl2 = ipOffDA(1,jlS)
         mDCRjl = ipOffD(2,jlS)
         nDjl = ipOffD(3,jlS)
-        if (mDCRjl /= 0) then
+        if (nMethod == RASSCF) ipDjl2 = ipOffDA(1,jlS)
+
+        if (mDCRjl*nDjl /= 0) then
           ipDDjl = ipTmp
           ipTmp = ipTmp+nDjl*mDCRjl
           if (nMethod == RASSCF) then
