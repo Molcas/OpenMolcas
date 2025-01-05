@@ -35,7 +35,7 @@ use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMetho
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipOffD, MxDij, &
-                     ndede, nFT, Sew_Scr
+                     ndede, nFT, Sew_Scr, ipOffDA
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -75,7 +75,7 @@ logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpi
 character(len=40) :: frmt
 #endif
 logical(kind=iwp), parameter :: Int_Direct = .true.
-integer(kind=iwp), allocatable :: Ind_ij(:,:), ipOffDA(:,:)
+integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
