@@ -24,6 +24,7 @@ integer(kind=iwp), Parameter:: SCF=1, RASSCF=2
 ipDij = ipOffD(1,ijS)
 mDCRij = ipOffD(2,ijS)
 nDij = ipOffD(3,ijS)
+
 if (nr_of_Densities == 2) then
   ipDSij = ipOffD(4,ijS)
 else
