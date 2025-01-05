@@ -46,6 +46,11 @@ use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
+use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
+                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                        mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
+
+
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess
@@ -53,15 +58,14 @@ real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, &
-                     ip, ipPSO, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
-                     ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
+                     ip, ipPSO, ipDDij2, ipDDik2, ipDDil2, &
+                     ipDDjk2, ipDDjl2, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
                      ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
                      jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
                      js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
                      ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, ls, &
-                     lShell, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDeDe, mDij, mDik, &
-                     mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
+                     lShell, mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDij, nDik, nDil, ndisp, nDjk, &
                      nDjl, nDkl, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
