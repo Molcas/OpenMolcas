@@ -53,7 +53,7 @@ real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, &
-                     ip, ip1, ip2, ip3, ip4, ip5, ip6, ipPSO, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
+                     ip, ipPSO, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
                      ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
                      ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
@@ -831,15 +831,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   end do ! klS
 
   if ((nMethod == RASSCF) .and. Post_Process) then
-    ip1 = ipMOC
-    ip2 = ip1+iCmp*iBas*naco
-    ip3 = ip2+nAco**2
-    ip4 = ip3+jcmp*jBas*naco
-    ip5 = ip4+iCmp*naco*iBas
-    ip6 = ip5+jcmp*jbas*naco
     nTemp=MemMax-MemBuffer
     Temp(1:nTemp)=>Sew_Scr(ipMOC:ipMOC+nTemp-1)
-    call CLR2(Buffer,iInt,ibas,icmp,jbas,jcmp,iAOV(1),iAOV(2),nACO, &
+    call CLR2(Buffer,iInt,icmp,jcmp,iAOV(1),iAOV(2),nACO, &
               nSD,iSD4,nDisp,nTemp,Temp)
     Temp=>Null()
   end if
