@@ -72,6 +72,8 @@ real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
+integer(kind=iwp), parameter :: SCF=1
+
 TInt(:)=Zero
 !                                                                      *
 !***********************************************************************
@@ -143,7 +145,7 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 ! matrices. Observe that the desymmetrized 1st order
 ! density matrices follows the contraction index.
 
-if (DoFock) Call Dens_Infos()
+if (DoFock) Call Dens_Infos(SCF)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -289,7 +291,7 @@ call Set_Breit(0)
 
 contains
 
-Subroutine Dens_Infos()
+Subroutine Dens_Infos(nMethod)
 use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
                        ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
                       ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl
@@ -298,6 +300,7 @@ Implicit None
 integer(kind=iwp), parameter:: Nr_of_D = 1
 integer(kind=iwp) ipTmp, ijS, klS, ikS, ilS, jkS, jlS
 integer(kind=iwp) iS, jS, kS, lS
+integer(kind=iwp) nMethod
 
 iS = iSD4(11,1)
 jS = iSD4(11,2)
@@ -311,12 +314,12 @@ ilS = iTri(iS,lS)
 jkS = iTri(jS,kS)
 jlS = iTri(jS,lS)
 ipTmp = ipDijs
-call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,Nr_of_D)
-call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,Nr_of_D)
-call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,Nr_of_D)
-call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,Nr_of_D)
-call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D)
-call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D)
+call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,Nr_of_D,nMethod)
+call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,Nr_of_D,nMethod)
+call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,Nr_of_D,nMethod)
+call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,Nr_of_D,nMethod)
+call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D,nMethod)
+call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D,nMethod)
 End Subroutine Dens_Infos
 
 #ifdef _DEBUGBREIT_
