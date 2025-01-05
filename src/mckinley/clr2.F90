@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine Clr2(XrIn,rOut,iaoi,iaoj,nACO,nSD,iSD4,nDisp,nTemp,Temp)
+subroutine Clr2(XrIn,rOut,nACO,nSD,iSD4,nDisp,nTemp,Temp)
 
 ! nACO: number of active orbitals
 
@@ -29,14 +29,14 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: iaoi, iaoj, nACO, nSD, iSD4(0:nSD,4), nDisp, nTemp
+integer(kind=iwp), intent(in) :: nACO, nSD, iSD4(0:nSD,4), nDisp, nTemp
 real(kind=wp), intent(in), target :: XrIn(*)
 real(kind=wp), intent(inout), target :: Temp(nTemp)
 real(kind=wp), intent(inout) :: rOut(*)
 integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, &
                      ipp(0:7), iS, iSO, j, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, &
                      lsl, lSO, mIrr,  na(0:7), ni, nj, nnA, iShell(4), nXrIn, iE
-integer(kind=iwp) :: ibas, jbas, iCmp, jCmp
+integer(kind=iwp) :: ibas, jbas, iCmp, jCmp, iaoi, iaoj
 real(kind=wp) :: fact, rd
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), pointer:: rIn(:,:,:,:,:)=>null(), Temp1(:,:,:)=>null(), Temp2(:)=>Null(), Temp3(:,:,:)=>Null()
@@ -46,6 +46,8 @@ ibas=iSD4( 3,1)
 jbas=iSD4( 3,2)
 iCmp=iSD4( 2,1)
 jCmp=iSD4( 2,2)
+iAOi=iSD4( 7,1)
+iAOj=iSD4( 7,2)
 nXrIn=iBas*iCmp*jBas*jCmp*nIrrep*nTri_Elem(nACO)*nDisp
 
 ni = iBas*iCmp

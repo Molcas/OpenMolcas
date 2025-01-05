@@ -51,7 +51,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
-integer(kind=iwp) :: i, iAOV(4), iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
+integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, &
                      ip, ipPSO, ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, &
                      ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
@@ -469,7 +469,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
     iCmpV(:) = iSD4( 2,:)
-    iAOV(:)  = iSD4( 7,:)
 
     !                                                                  *
     !*******************************************************************
@@ -833,7 +832,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   if ((nMethod == RASSCF) .and. Post_Process) then
     nTemp=MemMax-MemBuffer
     Temp(1:nTemp)=>Sew_Scr(ipMOC:ipMOC+nTemp-1)
-    call CLR2(Buffer,iInt,iAOV(1),iAOV(2),nACO,nSD,iSD4,nDisp,nTemp,Temp)
+    call CLR2(Buffer,iInt,nACO,nSD,iSD4,nDisp,nTemp,Temp)
     Temp=>Null()
   end if
   Buffer=>Null()
