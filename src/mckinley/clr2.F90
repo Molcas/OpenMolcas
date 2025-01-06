@@ -92,7 +92,7 @@ ipi = 1
 
 ipj = ipi+nACO*ibas*icmp
 
-call PckMo2(temp6(ipi),icmp,iBas,jcmp,jBas,iaoi,iaoj)
+call PckMo2(temp6(ipi:),icmp,iBas,jcmp,jBas,iaoi,iaoj)
 
 id = 0
 do mIrr=0,nIrrep-1
