@@ -114,10 +114,7 @@ ipDjl2 = 0
 ipDDjl = 0
 ipDDjl2 = 0
 ipMOC = 0
-iFnc(1) = -99
-iFnc(2) = -99
-iFnc(3) = -99
-iFnc(4) = -99
+iFnc(:) = -99
 nDij = 0
 nDkl = 0
 nDik = 0
@@ -535,7 +532,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ipTmp2 = ipTmp2+nDij*mDCRij
           end if
         else
-          ipDDij = 0
+          ipDDij = 1
         end if
 
         ipDkl = ipOffD(1,klS)
@@ -551,7 +548,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ipTmp2 = ipTmp2+nDkl*mDCRkl
           end if
         else
-          ipDDkl = 0
+          ipDDkl = 1
         end if
 
         ipDik = ipOffD(1,ikS)
@@ -567,7 +564,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ipTmp2 = ipTmp2+nDik*mDCRik
           end if
         else
-          ipDDik = 0
+          ipDDik = 1
         end if
 
         ipDil = ipOffD(1,ilS)
@@ -583,7 +580,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ipTmp2 = ipTmp2+nDil*mDCRil
           end if
         else
-          ipDDil = 0
+          ipDDil = 1
         end if
 
         ipDjk = ipOffD(1,jkS)
@@ -599,7 +596,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ipTmp2 = ipTmp2+nDjk*mDCRjk
           end if
         else
-          ipDDjk = 0
+          ipDDjk = 1
         end if
 
         ipDjl = ipOffD(1,jlS)
@@ -615,7 +612,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ipTmp2 = ipTmp2+nDjl*mDCRjl
           end if
         else
-          ipDDjl = 0
+          ipDDjl = 1
         end if
 
       end if  ! if (lpick) then
