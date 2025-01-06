@@ -698,7 +698,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                                                   iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
         end if
         mDij = (iBasn*jBasn+1)*iCmpV(1)*iCmpV(2)+iPrimi*jPrimj+1
-        mDij = min(nDij,mDij)
 
         do kBasAO=1,kBask,kBsInc
           kBasn = min(kBsInc,kBask-kBasAO+1)
@@ -712,7 +711,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                                                     iBasAO+iBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDik2))
           end if
           mDik = (iBasn*kBasn+1)*iCmpV(1)*iCmpV(3)+iPrimi*kPrimk+1
-          mDik = min(nDik,mDik)
           if (lpick .and. (mDCRjk /= 0)) then
             call Picky_inner(DeDe(ipDjk),jBasj,kBask,jPrimj*kPrimk,iCmpV(2)*iCmpV(3),mDCRjk,jBasAO,jBasAO+jBasn-1,kBasAO, &
                              kBasAO+kBasn-1,DeDe(ipDDjk))
@@ -720,7 +718,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                                                     jBasAO+jBasn-1,kBasAO,kBasAO+kBasn-1,DeDe2(ipDDjk2))
           end if
           mDjk = (jBasn*kBasn+1)*iCmpV(2)*iCmpV(3)+jPrimj*kPrimk+1
-          mDjk = min(nDjk,mDjk)
 
           do lBasAO=1,lBasl,lBsInc
             lBasn = min(lBsInc,lBasl-lBasAO+1)
@@ -734,7 +731,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                                                       kBasAO+kBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDkl2))
             end if
             mDkl = (kBasn*lBasn+1)*iCmpV(3)*iCmpV(4)+kPrimk*lPriml+1
-            mDkl = min(nDkl,mDkl)
             if (lpick .and. (mDCRil /= 0)) then
               call Picky_inner(DeDe(ipDil),iBasi,lBasl,iPrimi*lPriml,iCmpV(1)*iCmpV(4),mDCRil,iBasAO,iBasAO+iBasn-1,lBasAO, &
                                lBasAO+lBasn-1,DeDe(ipDDil))
@@ -742,7 +738,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                                                       iBasAO+iBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDil2))
             end if
             mDil = (iBasn*lBasn+1)*iCmpV(1)*iCmpV(4)+iPrimi*lPriml+1
-            mDil = min(nDil,mDil)
             if (lpick .and. (mDCRjl /= 0)) then
               call Picky_inner(DeDe(ipDjl),jBasj,lBasl,jPrimj*lPriml,iCmpV(2)*iCmpV(4),mDCRjl,jBasAO,jBasAO+jBasn-1,lBasAO, &
                                lBasAO+lBasn-1,DeDe(ipDDjl))
@@ -750,7 +745,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                                                       jBasAO+jBasn-1,lBasAO,lBasAO+lBasn-1,DeDe2(ipDDjl2))
             end if
             mDjl = (jBasn*lBasn+1)*iCmpV(2)*iCmpV(4)+jPrimj*lPriml+1
-            mDjl = min(nDjl,mDjl)
 
             !----------------------------------------------------------*
 
