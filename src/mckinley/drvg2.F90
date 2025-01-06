@@ -35,7 +35,7 @@ use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMetho
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipOffD, MxDij, &
-                     ndede, nFT, Sew_Scr, ipOffDA
+                     ndede, nFT, Sew_Scr, ipOffDA, ipDijS2
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -49,6 +49,8 @@ use Definitions, only: wp, iwp, u6
 use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
                       ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
                        ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
+                      ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2,&
+                       ipDij2, ipDkl2, ipDik2, ipDil2, ipDjk2, ipDjl2,&
                         mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
 
 
@@ -59,9 +61,7 @@ real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, &
-                     ip, ipPSO, ipDDij2, ipDDik2, ipDDil2, &
-                     ipDDjk2, ipDDjl2, ipDDkl2, ipDij2, ipDijS2, ipDik2, ipDil2,  &
-                     ipDjk2, ipDjl2, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
+                     ip, ipPSO, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
                      ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
                      jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
                      js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
