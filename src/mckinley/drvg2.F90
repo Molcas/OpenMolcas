@@ -35,7 +35,7 @@ use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMetho
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipOffD, MxDij, &
-                     ndede, nFT, Sew_Scr, ipOffDA, ipDijS2
+                     ndede, nFT, Sew_Scr, ipOffDA, ipDijS2, DeDe2
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -60,15 +60,15 @@ integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
-                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, &
+                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
-                     ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
-                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
-                     js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
+                     iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
+                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
+                     js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klSh, kPrimk, iAng, &
                      ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, ls, &
                      lShell, mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
-                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDik, nDil, ndisp, nDjk, &
-                     nDjl, nDkl, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
+                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
+                     nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
@@ -78,7 +78,7 @@ character(len=40) :: frmt
 #endif
 logical(kind=iwp), parameter :: Int_Direct = .true.
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
-real(kind=wp), allocatable :: DeDe2(:), DInAc(:), DTemp(:), iInt(:), TMax(:,:)
+real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:)
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
 real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null(), Fin(:)=>Null(), PSO(:,:)=>Null(), Temp(:)=>Null()
@@ -95,11 +95,6 @@ call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
 ipMOC = 0
 
 iFnc(:) = -99
-nDkl = 0
-nDik = 0
-nDjl = 0
-nDil = 0
-nDjk = 0
 ipDijS = 0
 ipDijS2 = 0
 
@@ -468,14 +463,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    ijS = iTri(iShell,jShell)
-    klS = iTri(kShell,lShell)
-    ikS = iTri(iShell,kShell)
-    ilS = iTri(iShell,lShell)
-    jkS = iTri(jShell,kShell)
-    jlS = iTri(jShell,lShell)
 
-    if (ltri) then
+    If (ltri) then
 
       !----------------------------------------------------------------*
 
@@ -485,116 +474,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
       ! Observe that the desymmetrized 1st order density matrices
       ! follow the contraction index.
 
-      ipTmp = 0
-      ipTmp2 = 0
-      if (lpick) then
-
-        ipTmp = ipDijs
-        if (nMethod == RASSCF) ipTmp2 = ipDijs2
-
-#ifdef _SKIP_
-        ipDij = ipOffD(1,ijS)
-        mDCRij = ipOffD(2,ijS)
-        nDij = ipOffD(3,ijS)
-        if (nMethod == RASSCF) ipDij2 = ipOffDA(1,ijS)
-
-        if (mDCRij*nDij /= 0) then
-          ipDDij = ipTmp
-          ipTmp = ipTmp+nDij*mDCRij
-          if (nMethod == RASSCF) then
-            ipDDij2 = ipTmp2
-            ipTmp2 = ipTmp2+nDij*mDCRij
-          end if
-        else
-          ipDDij = 1
-        end if
-#endif
-
-        Call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod, &
-                       ipTmp2, ipDij2, ipDDij2)
-
-        ipDkl = ipOffD(1,klS)
-        mDCRkl = ipOffD(2,klS)
-        nDkl = ipOffD(3,klS)
-        if (nMethod == RASSCF) ipDkl2 = ipOffDA(1,klS)
-
-        if (mDCRkl*nDkl /= 0) then
-          ipDDkl = ipTmp
-          ipTmp = ipTmp+nDkl*mDCRkl
-          if (nMethod == RASSCF) then
-            ipDDkl2 = ipTmp2
-            ipTmp2 = ipTmp2+nDkl*mDCRkl
-          end if
-        else
-          ipDDkl = 1
-        end if
-
-        ipDik = ipOffD(1,ikS)
-        mDCRik = ipOffD(2,ikS)
-        nDik = ipOffD(3,ikS)
-        if (nMethod == RASSCF) ipDik2 = ipOffDA(1,ikS)
-
-        if (mDCRik*nDik /= 0) then
-          ipDDik = ipTmp
-          ipTmp = ipTmp+nDik*mDCRik
-          if (nMethod == RASSCF) then
-            ipDDik2 = ipTmp2
-            ipTmp2 = ipTmp2+nDik*mDCRik
-          end if
-        else
-          ipDDik = 1
-        end if
-
-        ipDil = ipOffD(1,ilS)
-        mDCRil = ipOffD(2,ilS)
-        nDil = ipOffD(3,ilS)
-        if (nMethod == RASSCF) ipDil2 = ipOffDA(1,ilS)
-
-        if (mDCRil*nDil /= 0) then
-          ipDDil = ipTmp
-          ipTmp = ipTmp+nDil*mDCRil
-          if (nMethod == RASSCF) then
-            ipDDil2 = ipTmp2
-            ipTmp2 = ipTmp2+nDil*mDCRil
-          end if
-        else
-          ipDDil = 1
-        end if
-
-        ipDjk = ipOffD(1,jkS)
-        mDCRjk = ipOffD(2,jkS)
-        nDjk = ipOffD(3,jkS)
-        if (nMethod == RASSCF) ipDjk2 = ipOffDA(1,jkS)
-
-        if (mDCRjk*nDjk /= 0) then
-          ipDDjk = ipTmp
-          ipTmp = ipTmp+nDjk*mDCRjk
-          if (nMethod == RASSCF) then
-            ipDDjk2 = ipTmp2
-            ipTmp2 = ipTmp2+nDjk*mDCRjk
-          end if
-        else
-          ipDDjk = 1
-        end if
-
-        ipDjl = ipOffD(1,jlS)
-        mDCRjl = ipOffD(2,jlS)
-        nDjl = ipOffD(3,jlS)
-        if (nMethod == RASSCF) ipDjl2 = ipOffDA(1,jlS)
-
-        if (mDCRjl*nDjl /= 0) then
-          ipDDjl = ipTmp
-          ipTmp = ipTmp+nDjl*mDCRjl
-          if (nMethod == RASSCF) then
-            ipDDjl2 = ipTmp2
-            ipTmp2 = ipTmp2+nDjl*mDCRjl
-          end if
-        else
-          ipDDjl = 1
-        end if
-
-      end if  ! if (lpick) then
-    end if  ! if (ltri) then
+      if (lpick) Call Dens_Infos(nMethod)
+    End If
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -669,12 +550,13 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         iSD4(19,2) = jBasn
 
 
-        if (lpick .and. (mDCRij /= 0)) then
-          call Picky_inner(DeDe(ipDij),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO,iBasAO+iBasn-1,jBasAO, &
-                           jBasAO+jBasn-1,DeDe(ipDDij))
-          if (nMethod == RASSCF) call Picky_inner(DeDe2(ipDij2),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO, &
-                                                  iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
-        end if
+        If (lpick) Call Picky_Mck(nSD,iSD4,1,2,nMethod)
+!       if (lpick .and. (mDCRij /= 0)) then
+!         call Picky_inner(DeDe(ipDij),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO,iBasAO+iBasn-1,jBasAO, &
+!                          jBasAO+jBasn-1,DeDe(ipDDij))
+!         if (nMethod == RASSCF) call Picky_inner(DeDe2(ipDij2),iBasi,jBasj,iPrimi*jPrimj,iCmpV(1)*iCmpV(2),mDCRij,iBasAO, &
+!                                                 iBasAO+iBasn-1,jBasAO,jBasAO+jBasn-1,DeDe2(ipDDij2))
+!       end if
         mDij = (iBasn*jBasn+1)*iCmpV(1)*iCmpV(2)+iPrimi*jPrimj+1
 
         do kBasAO=1,kBask,kBsInc
@@ -905,6 +787,48 @@ call mma_deallocate(ipDisp2,safe='*')
 call mma_deallocate(ipDisp3,safe='*')
 call mma_deallocate(ipMO,safe='*')
 
-return
+
+Contains
+
+Subroutine Dens_Infos(nMethod)
+use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
+                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                       ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
+                      ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2,&
+                       ipDij2, ipDkl2, ipDik2, ipDil2, ipDjk2, ipDjl2
+use k2_arrays, only: ipDijS, ipDijS2
+Implicit None
+integer(kind=iwp), parameter:: Nr_of_D = 1
+integer(kind=iwp) ipTmp, ipTmp2, ijS, klS, ikS, ilS, jkS, jlS
+integer(kind=iwp) iS, jS, kS, lS
+integer(kind=iwp), intent(in):: nMethod
+
+iS = iSD4(11,1)
+jS = iSD4(11,2)
+kS = iSD4(11,3)
+lS = iSD4(11,4)
+
+ijS = iTri(iS,jS)
+klS = iTri(kS,lS)
+ikS = iTri(iS,kS)
+ilS = iTri(iS,lS)
+jkS = iTri(jS,kS)
+jlS = iTri(jS,lS)
+ijS = iTri(iS,jS)
+klS = iTri(kS,lS)
+ikS = iTri(iS,kS)
+ilS = iTri(iS,lS)
+jkS = iTri(jS,kS)
+jlS = iTri(jS,lS)
+ipTmp = ipDijs
+if (nMethod == RASSCF) ipTmp2 = ipDijs2
+Call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDij2, ipDDij2)
+Call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDkl2, ipDDkl2)
+Call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDik2, ipDDik2)
+Call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDil2, ipDDil2)
+Call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDjk2, ipDDjk2)
+Call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDjl2, ipDDjl2)
+End Subroutine Dens_Infos
+
 
 end subroutine Drvg2

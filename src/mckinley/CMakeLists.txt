@@ -109,6 +109,7 @@ set (sources
      supermac.F90
      symado_mck.F90
      symado_mck2.F90
+     picky_mck.F90
      tcrtnc_h.F90
      tnchlf_h.F90
      translation.F90
