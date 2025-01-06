@@ -603,6 +603,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                            nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                            MOC,MemCMO,new_fock,iSD4)
             Post_Process = .true.
+
             MOC=>Null()
             Fin=>Null()
             PSO=>Null()
