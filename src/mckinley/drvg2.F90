@@ -48,6 +48,7 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
                       ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                       ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
                         mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
 
 
@@ -59,8 +60,8 @@ logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijS, ijSh,  ikS, ilS, &
                      ip, ipPSO, ipDDij2, ipDDik2, ipDDil2, &
-                     ipDDjk2, ipDDjl2, ipDDkl2, ipDij, ipDij2, ipDijS2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, &
-                     ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
+                     ipDDjk2, ipDDjl2, ipDDkl2, ipDij2, ipDijS2, ipDik2, ipDil2,  &
+                     ipDjk2, ipDjl2, ipDkl2, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
                      ipTmp, ipTmp2, iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
                      jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, jkS, jlS, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
                      js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
@@ -91,43 +92,33 @@ integer(kind=iwp), parameter :: Nr_of_Densities=1
 
 call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
 
-ipDij = 0
 ipDij2 = 0
 ipDDij = 0
 ipDDij2 = 0
-ipDkl = 0
 ipDkl2 = 0
 ipDDkl = 0
 ipDDkl2 = 0
-ipDik = 0
 ipDik2 = 0
 ipDDik = 0
 ipDDik2 = 0
-ipDil = 0
 ipDil2 = 0
 ipDDil = 0
 ipDDil2 = 0
-ipDjk = 0
 ipDjk2 = 0
 ipDDjk = 0
 ipDDjk2 = 0
-ipDjl = 0
 ipDjl2 = 0
 ipDDjl = 0
 ipDDjl2 = 0
+
 ipMOC = 0
+
 iFnc(:) = -99
 nDkl = 0
 nDik = 0
 nDjl = 0
 nDil = 0
 nDjk = 0
-mDCRij = 0
-mDCRkl = 0
-mDCRik = 0
-mDCRjl = 0
-mDCRil = 0
-mDCRjk = 0
 ipDijS = 0
 ipDijS2 = 0
 
