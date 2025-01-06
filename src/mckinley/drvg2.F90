@@ -92,25 +92,6 @@ integer(kind=iwp), parameter :: Nr_of_Densities=1
 
 call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
 
-ipDij2 = 0
-ipDDij = 0
-ipDDij2 = 0
-ipDkl2 = 0
-ipDDkl = 0
-ipDDkl2 = 0
-ipDik2 = 0
-ipDDik = 0
-ipDDik2 = 0
-ipDil2 = 0
-ipDDil = 0
-ipDDil2 = 0
-ipDjk2 = 0
-ipDDjk = 0
-ipDDjk2 = 0
-ipDjl2 = 0
-ipDDjl = 0
-ipDDjl2 = 0
-
 ipMOC = 0
 
 iFnc(:) = -99
