@@ -15,8 +15,7 @@
 subroutine TwoEl_mck(Coor,nRys,Pren,Prem, &
                      Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
-                     Shijij,Dij2,Dkl2,Dik2,Dil2,Djk2, &
-                     Djl2,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
+                     Shijij,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
                      moip,naco,rMOIN,nMOIN,new_fock,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -76,7 +75,7 @@ use McKinley_global, only: CPUStat, nIntegrals, nScreen, nTrans, nTwoDens, PreSc
 use iSD_data, only: nSD
 use Index_Functions, only: nTri_Elem1, iTri
 use k2_structure, only: k2_type, Indk2, k2Data
-use k2_arrays, only: BraKet, DeDe
+use k2_arrays, only: BraKet, DeDe, DeDe2
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
@@ -88,15 +87,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use Dens_stuff, only: nDij=>mDCRij,nDkl=>mDCRkl,nDik=>mDCRik,nDil=>mDCRil,nDjk=>mDCRjk,nDjl=>mDCRjl,&
                       ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                      ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2,&
                         mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
 
 
 implicit none
 integer(kind=iwp), intent(in) :: nRys,nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, &
                                  icmpi(4), nfin, nTemp, nTwo2, nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4), nijkl
-real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dij2(mDij,nDij), &
-                             Dkl2(mDkl,nDkl), Dik2(mDik,nDik), Dil2(mDil,nDil), &
-                             Djk2(mDjk,nDjk), Djl2(mDjl,nDjl), Dan(*), Din(*)
+real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dan(*), Din(*)
 real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
 logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), Shijij, lgrad, ldot, n8, ltri, new_fock
 logical(kind=iwp), intent(out) :: IfG(4)
@@ -118,6 +116,7 @@ logical(kind=iwp), external :: EQ
 type (k2_type), pointer:: k2data1(:), k2data2(:)
 real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
 real(kind=wp), pointer:: Dij1(:,:)=>Null(),Dkl1(:,:)=>Null(),Dik1(:,:)=>Null(),Dil1(:,:)=>Null(),Djk1(:,:)=>Null(),Djl1(:,:)=>Null()
+real(kind=wp), pointer:: Dij2(:,:)=>Null(),Dkl2(:,:)=>Null(),Dik2(:,:)=>Null(),Dil2(:,:)=>Null(),Djk2(:,:)=>Null(),Djl2(:,:)=>Null()
 
 !                                                                      *
 !***********************************************************************
@@ -232,6 +231,13 @@ Dik1(1:mDik,1:nDik) => DeDe(ipDDik:ipDDik+mDik*nDik-1)
 Dil1(1:mDil,1:nDil) => DeDe(ipDDil:ipDDil+mDil*nDil-1)
 Djk1(1:mDjk,1:nDjk) => DeDe(ipDDjk:ipDDjk+mDjk*nDjk-1)
 Djl1(1:mDjl,1:nDjl) => DeDe(ipDDjl:ipDDjl+mDjl*nDjl-1)
+
+Dij2(1:mDij,1:nDij) => DeDe2(ipDDij2:ipDDij2+mDij*nDij-1)
+Dkl2(1:mDkl,1:nDkl) => DeDe2(ipDDkl2:ipDDkl2+mDkl*nDkl-1)
+Dik2(1:mDik,1:nDik) => DeDe2(ipDDik2:ipDDik2+mDik*nDik-1)
+Dil2(1:mDil,1:nDil) => DeDe2(ipDDil2:ipDDil2+mDil*nDil-1)
+Djk2(1:mDjk,1:nDjk) => DeDe2(ipDDjk2:ipDDjk2+mDjk*nDjk-1)
+Djl2(1:mDjl,1:nDjl) => DeDe2(ipDDjl2:ipDDjl2+mDjl*nDjl-1)
 
 !                                                                      *
 !***********************************************************************

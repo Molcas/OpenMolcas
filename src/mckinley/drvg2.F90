@@ -46,9 +46,6 @@ use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
-use Dens_stuff, only: ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2
-
-
 
 implicit none
 integer(kind=iwp), intent(in) :: nHess
@@ -616,9 +613,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             call TwoEl_mck(Coor,nRys,Pren,Prem, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO, &
                            Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux,WorkX,MemX, &
-                           Shijij,DeDe2(ipDDij2),DeDe2(ipDDkl2), &
-                           DeDe2(ipDDik2),DeDe2(ipDDil2),DeDe2(ipDDjk2), &
-                           DeDe2(ipDDjl2),iCmpV,Fin,MemFin,Temp, &
+                           Shijij,iCmpV,Fin,MemFin,Temp, &
                            nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                            MOC,MemCMO,new_fock,iSD4)
             Post_Process = .true.
