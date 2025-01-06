@@ -66,8 +66,9 @@ integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt
                      js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klS, klSh, kPrimk, iAng, &
                      ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, ls, &
                      lShell, mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
-                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDij, nDik, nDil, ndisp, nDjk, &
-                     nDjl, nDkl, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp
+                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDik, nDil, ndisp, nDjk, &
+                     nDjl, nDkl, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
+                     ipDum
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
@@ -81,6 +82,7 @@ integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
 real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null(), Fin(:)=>Null(), PSO(:,:)=>Null(), Temp(:)=>Null()
 real(kind=wp), pointer :: Work2(:)=>Null(), Work3(:)=>Null(), WorkX(:)=>Null(), Work4(:)=>Null()
+integer(kind=iwp), parameter :: Nr_of_Densities=1
 
 !                                                                      *
 !***********************************************************************
@@ -115,7 +117,6 @@ ipDDjl = 0
 ipDDjl2 = 0
 ipMOC = 0
 iFnc(:) = -99
-nDij = 0
 nDkl = 0
 nDik = 0
 nDjl = 0
@@ -519,6 +520,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         ipTmp = ipDijs
         if (nMethod == RASSCF) ipTmp2 = ipDijs2
 
+#ifdef _SKIP_
         ipDij = ipOffD(1,ijS)
         mDCRij = ipOffD(2,ijS)
         nDij = ipOffD(3,ijS)
@@ -534,6 +536,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
         else
           ipDDij = 1
         end if
+#endif
+
+        Call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod, &
+                       ipTmp2, ipDij2, ipDDij2)
 
         ipDkl = ipOffD(1,klS)
         mDCRkl = ipOffD(2,klS)
