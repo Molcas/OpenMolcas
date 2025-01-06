@@ -46,10 +46,7 @@ use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
-use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
-                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
-                      ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2,&
-                        mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
+use Dens_stuff, only: ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2
 
 
 
@@ -59,11 +56,11 @@ real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
 integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
-                     ip, ipPSO, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, iPrimi, &
+                     ip, ipPSO, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
                      iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
-                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrimj, &
-                     js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klSh, kPrimk, iAng, &
-                     ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, lPriml, ls, &
+                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
+                     js, jShell, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klSh, iAng, &
+                     ks, kShell, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, ls, &
                      lShell, mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
@@ -519,12 +516,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     kBsInc= iSD4(4,3)
     lBsInc= iSD4(4,4)
 
-
-!todo
-    iPrimi=iSD4( 5,1)
-    jPrimj=iSD4( 5,2)
-    kPrimk=iSD4( 5,3)
-    lPriml=iSD4( 5,4)
     !------------------------------------------------------------------*
     !
     ! Loop over basis function if we do not have enough of memory to
@@ -549,7 +540,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
 
         If (lpick) Call Picky_Mck(nSD,iSD4,1,2,nMethod)
-        mDij = (iBasn*jBasn+1)*iCmpV(1)*iCmpV(2)+iPrimi*jPrimj+1
 
         do kBasAO=1,kBask,kBsInc
           kBasn = min(kBsInc,kBask-kBasAO+1)
@@ -560,8 +550,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
              Call Picky_Mck(nSD,iSD4,1,3,nMethod)
              Call Picky_Mck(nSD,iSD4,2,3,nMethod)
           End If
-          mDik = (iBasn*kBasn+1)*iCmpV(1)*iCmpV(3)+iPrimi*kPrimk+1
-          mDjk = (jBasn*kBasn+1)*iCmpV(2)*iCmpV(3)+jPrimj*kPrimk+1
 
           do lBasAO=1,lBasl,lBsInc
             lBasn = min(lBsInc,lBasl-lBasAO+1)
@@ -573,9 +561,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
                Call Picky_Mck(nSD,iSD4,1,4,nMethod)
                Call Picky_Mck(nSD,iSD4,2,4,nMethod)
             End If
-            mDkl = (kBasn*lBasn+1)*iCmpV(3)*iCmpV(4)+kPrimk*lPriml+1
-            mDil = (iBasn*lBasn+1)*iCmpV(1)*iCmpV(4)+iPrimi*lPriml+1
-            mDjl = (jBasn*lBasn+1)*iCmpV(2)*iCmpV(4)+jPrimj*lPriml+1
 
             !----------------------------------------------------------*
 
@@ -631,9 +616,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             call TwoEl_mck(Coor,nRys,Pren,Prem, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO, &
                            Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux,WorkX,MemX, &
-                           Shijij,DeDe(ipDDij),DeDe2(ipDDij2),mDij,mDCRij,DeDe(ipDDkl),DeDe2(ipDDkl2),mDkl,mDCRkl,DeDe(ipDDik), &
-                           DeDe2(ipDDik2),mDik,mDCRik,DeDe(ipDDil),DeDe2(ipDDil2),mDil,mDCRil,DeDe(ipDDjk),DeDe2(ipDDjk2),mDjk, &
-                           mDCRjk,DeDe(ipDDjl),DeDe2(ipDDjl2),mDjl,mDCRjl,iCmpV,Fin,MemFin,Temp, &
+                           Shijij,DeDe2(ipDDij2),DeDe2(ipDDkl2), &
+                           DeDe2(ipDDik2),DeDe2(ipDDil2),DeDe2(ipDDjk2), &
+                           DeDe2(ipDDjl2),iCmpV,Fin,MemFin,Temp, &
                            nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                            MOC,MemCMO,new_fock,iSD4)
             Post_Process = .true.
