@@ -43,6 +43,22 @@ integer(kind=iwp), parameter :: Index_d2(3,3) = reshape([5,6,7,6,8,9,7,9,10],[3,
                                 Index_d3(3,3) = reshape([11,14,16,12,17,19,13,18,20],[3,3])
 integer(kind=iwp), allocatable :: Ind_Grd(:,:)
 integer(kind=iwp), external :: NrOpr
+integer(kind=iwp), parameter :: SCF=1
+
+Interface
+subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod, &
+                     ipTmp2, ipDij2, ipDDij2)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ijS, nr_of_Densities, nMethod
+integer(kind=iwp), intent(out) :: ipDij, ipDSij, mDCRij, ipDDij
+integer(kind=iwp), intent(inout) :: ipTmp
+integer(kind=iwp), intent(inout), optional :: ipTmp2
+integer(kind=iwp), intent(out), optional :: ipDij2, ipDDij2
+End subroutine Dens_Info
+End Interface
+
 
 !                                                                      *
 !***********************************************************************
@@ -119,7 +135,7 @@ do iBfn=1,nBfn
 
     ijS = iTri(iShell,jShell)
     ip_Tmp = ipDijs
-    call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
+    call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD,SCF)
 
     iER = ieor(kDCRE,kDCRR)
     lDCRER = NrOpr(iER)
