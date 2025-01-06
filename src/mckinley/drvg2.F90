@@ -63,7 +63,7 @@ integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCnt, iCnttp, 
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij
+logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
@@ -433,8 +433,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     if ((.not. lTri) .and. (nMethod /= RASSCF)) cycle
     lDot = (lTri .and. l_Hss)
 
-    Shijij = ((iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4)))
-
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -600,10 +598,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,nRys,Pren,Prem, &
-                           Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO, &
-                           Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux,WorkX,MemX, &
-                           Shijij,Fin,MemFin,Temp, &
+            call TwoEl_mck(Coor,nRys,Pren,Prem,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO, &
+                           Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp, &
                            nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                            MOC,MemCMO,new_fock,iSD4)
             Post_Process = .true.

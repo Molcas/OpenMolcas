@@ -15,7 +15,7 @@
 subroutine TwoEl_mck(Coor,nRys,Pren,Prem, &
                      Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
-                     Shijij,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
+                     Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
                      moip,naco,rMOIN,nMOIN,new_fock,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -96,7 +96,7 @@ integer(kind=iwp), intent(in) :: nRys,nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7
                                  nfin, nTemp, nTwo2, nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4), nijkl
 real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dan(*), Din(*)
 real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
-logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), Shijij, lgrad, ldot, n8, ltri, new_fock
+logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), lgrad, ldot, n8, ltri, new_fock
 logical(kind=iwp), intent(out) :: IfG(4)
 real(kind=wp), intent(out) :: Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
 integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, iIrr, IncEta, IncZet, Indx(3,4), ip, &
@@ -107,7 +107,7 @@ integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCR
                      iAO(4), iCmp(4), iAngV(4), jPrInc, lPrInc, nAlpha, nBeta, nGamma, nDelta, iAOst(4), iShell(4), iShll(4), &
                      iStb, jStb, kStb, lStb, iBasi, jBasj, kBask, lBasl, iS, jS, kS, lS, ijS, klS, ik2, jk2
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
-logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4)
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4), Shijij
 procedure(cff2d_kernel) :: Cff2D
 procedure(modu2_kernel) :: ModU2
 procedure(tval1_kernel) :: TERI1
@@ -147,6 +147,8 @@ lBasl =iSD4(19,4)
 
 nZeta = iSD4(5,1)*iSD4(5,2)
 nEta  = iSD4(5,3)*iSD4(5,4)
+
+Shijij = ((iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4)))
 
 nGr = 0
 ldot2 = ldot
