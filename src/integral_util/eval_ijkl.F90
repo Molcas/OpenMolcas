@@ -302,6 +302,20 @@ integer(kind=iwp) ipTmp, ijS, klS, ikS, ilS, jkS, jlS
 integer(kind=iwp) iS, jS, kS, lS
 integer(kind=iwp) nMethod
 
+Interface
+subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod, &
+                     ipTmp2, ipDij2, ipDDij2)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp), intent(in) :: ijS, nr_of_Densities, nMethod
+integer(kind=iwp), intent(out) :: ipDij, ipDSij, mDCRij, ipDDij
+integer(kind=iwp), intent(inout) :: ipTmp
+integer(kind=iwp), intent(inout), optional :: ipTmp2
+integer(kind=iwp), intent(out), optional :: ipDij2, ipDDij2
+End subroutine Dens_Info
+End Interface
+
 iS = iSD4(11,1)
 jS = iSD4(11,2)
 kS = iSD4(11,3)
