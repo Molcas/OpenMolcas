@@ -76,6 +76,17 @@ real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null(), Fin(:)=>Null(), PSO
 real(kind=wp), pointer :: Work2(:)=>Null(), Work3(:)=>Null(), WorkX(:)=>Null(), Work4(:)=>Null()
 integer(kind=iwp), parameter :: Nr_of_Densities=1
 
+interface
+subroutine Clr2(XrIn,rOut,nACO,nSD,iSD4,nDisp,nTemp,Temp)
+use Definitions, only: wp, iwp
+implicit none
+integer(kind=iwp), intent(in) :: nACO, nSD, iSD4(0:nSD,4), nDisp, nTemp
+real(kind=wp), intent(in), target :: XrIn(*)
+real(kind=wp), intent(inout), target :: Temp(nTemp)
+real(kind=wp), intent(inout) :: rOut(*)
+end subroutine Clr2
+end interface
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
