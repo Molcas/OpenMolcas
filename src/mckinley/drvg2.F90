@@ -51,7 +51,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
-integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, &
+integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCnt, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
                      iS, iShell, iShll, jBas, jBasAO, jBasj, jBasn, &
@@ -429,8 +429,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
-    iCmpV(:) = iSD4( 2,:)
-
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -613,7 +611,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             call TwoEl_mck(Coor,nRys,Pren,Prem, &
                            Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO, &
                            Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux,WorkX,MemX, &
-                           Shijij,iCmpV,Fin,MemFin,Temp, &
+                           Shijij,Fin,MemFin,Temp, &
                            nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
                            MOC,MemCMO,new_fock,iSD4)
             Post_Process = .true.

@@ -15,7 +15,7 @@
 subroutine TwoEl_mck(Coor,nRys,Pren,Prem, &
                      Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
-                     Shijij,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
+                     Shijij,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
                      moip,naco,rMOIN,nMOIN,new_fock,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -93,7 +93,7 @@ use Dens_stuff, only: nDij=>mDCRij,nDkl=>mDCRkl,nDik=>mDCRik,nDil=>mDCRil,nDjk=>
 
 implicit none
 integer(kind=iwp), intent(in) :: nRys,nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, &
-                                 icmpi(4), nfin, nTemp, nTwo2, nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4), nijkl
+                                 nfin, nTemp, nTwo2, nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4), nijkl
 real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dan(*), Din(*)
 real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
 logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), Shijij, lgrad, ldot, n8, ltri, new_fock
@@ -602,7 +602,7 @@ do lDCRR=0,nDCRR-1
       !
       !----------------------------------------------------------------*
 
-      call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,Shijij,iAngV,iCmpi,iCmp,iShll,iShell,iShell,iBasi,jBasj,kBask,lBasl, &
+      call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,Shijij,iAngV,iCmp,iShll,iShell,iShell,iBasi,jBasj,kBask,lBasl, &
                   Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2, &
                   mDjl,nDjl,fin,nfin,Temp(ipFT),nFT,Temp(ipS1),nS1,Temp(ipS2),nS2,Temp(ipTemp),nTe,TwoHam,nTwo2,JndGrd,Indx,iao, &
                   iaost,iuvwx,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,nOp,Din,Dan,new_fock)

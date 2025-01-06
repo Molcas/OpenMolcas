@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine ClrBuf(idcrr,idcrs,idcrt,ngr,Shijij,iAnga,iCmp,iCmpa,iShll,iShell,jShell,iBasi,jBasj,kBask,lBasl,Dij1,Dij2,mDij,nDij, &
+subroutine ClrBuf(idcrr,idcrs,idcrt,ngr,Shijij,iAnga,iCmp,iShll,iShell,jShell,iBasi,jBasj,kBask,lBasl,Dij1,Dij2,mDij,nDij, &
                   Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2,mDjl,nDjl,rFinal, &
                   nFinal,FckTmp,nFT,Scrtch1,nS1,Scrtch2,nS2,Temp,nTemp,TwoHam,nTwo,IndGrd,Indx,iAO,iAOst,iuvwx,n8,ltri,moip,nAcO, &
                   rmoin,nmoin,ntemptot,Buffer,nop,din,dan,new_fock)
@@ -36,7 +36,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: idcrr, idcrs, idcrt, ngr, iAnga(4), iCmp(4), icmpa(4), iShll(4), iShell(4), jShell(4), iBasi, &
+integer(kind=iwp), intent(in) :: idcrr, idcrs, idcrt, ngr, iAnga(4), iCmp(4), iShll(4), iShell(4), jShell(4), iBasi, &
                                  jBasj, kBask, lBasl, mDij, nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, &
                                  nFinal, nFT, nS1, nS2, nTemp, nTwo, IndGrd(3,4,0:7), Indx(3,4), iAO(4), iAOst(4), iuvwx(4), &
                                  moip(0:7), nAcO, nmoin, ntemptot, nop(4)
@@ -167,11 +167,11 @@ if (ltri) then
 
         else
           ip = ipDisp(abs(indgrd(iCar,iCent,0)))
-          call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,rFinal(ipFin),TwoHam(ip),dan,ndens,iAO,iAOst, &
+          call FckAcc_NoSym(iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShell,nijkl,rFinal(ipFin),TwoHam(ip),dan,ndens,iAO,iAOst, &
                             iBasi,jBasj,kBask,lBasl,ExFac)
           if (nMethod == RASSCF) then
             ip = ipDisp2(abs(indgrd(iCar,iCent,0)))
-            call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,rFinal(ipFin),TwoHam(ip),din,nDens,iAO, &
+            call FckAcc_NoSym(iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShell,nijkl,rFinal(ipFin),TwoHam(ip),din,nDens,iAO, &
                               iAOst,iBasi,jBasj,kBask,lBasl,ExFac)
           end if
         end if
@@ -201,11 +201,11 @@ if (ltri) then
 
         else
           ip = ipDisp(abs(indgrd(iCar,iCent,0)))
-          call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,Temp,TwoHam(ip),dan,nDens,iAO,iAOst,iBasi, &
+          call FckAcc_NoSym(iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShell,nijkl,Temp,TwoHam(ip),dan,nDens,iAO,iAOst,iBasi, &
                             jBasj,kBask,lBasl,ExFac)
           if (nMethod == RASSCF) then
             ip = ipDisp2(abs(indgrd(iCar,iCent,0)))
-            call FckAcc_NoSym(iCmpa(1),iCmpa(2),iCmpa(3),iCmpa(4),Shijij,iShell,nijkl,Temp,TwoHam(ip),din,nDens,iAO,iAOst,iBasi, &
+            call FckAcc_NoSym(iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShell,nijkl,Temp,TwoHam(ip),din,nDens,iAO,iAOst,iBasi, &
                               jBasj,kBask,lBasl,ExFac)
           end if
         end if
@@ -217,7 +217,7 @@ if (ltri) then
   CPUStat(nFckAcc) = CPUStat(nFckAcc)+Time
 end if
 
-if (n8 .and. (nmethod == RASSCF)) call MakeMO(rFinal,Scrtch1,nTempTot,nFinal,iCmp,iCmpa,iBasi,jBasj,kBask,lBasl,nGr,Indx,moip, &
+if (n8 .and. (nmethod == RASSCF)) call MakeMO(rFinal,Scrtch1,nTempTot,nFinal,iCmp,iCmp,iBasi,jBasj,kBask,lBasl,nGr,Indx,moip, &
                                               naco,nop,indgrd,ishll,ishell,rmoin,nMOIN,iuvwx,iaost,Buffer,ianga)
 
 call Timing(dum1,Time,dum2,dum3)
