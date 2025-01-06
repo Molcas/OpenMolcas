@@ -38,12 +38,12 @@ use dmrginfo, only: DoDMRG, LRRAS2
 use etwas, only: CoulFac, ExFac, mBas, mIrrep, nAsh, nCMO, nDSO, nIsh
 use NAC, only: IsNAC
 use mspdft_grad, only: DoGradMSPD
+#ifdef _CD_TIMING_
+use temptime, only: PREPP_CPU, PREPP_WALL
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-#ifdef _CD_TIMING_
-use temptime, only: PREPP_CPU,PREPP_WALL
-#endif
 
 implicit none
 integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iost, iSeed, iSh, iSpin, iSSDM, jBas, LgToC, lRealName, MaxShlAO, &
@@ -61,11 +61,11 @@ character(len=60) :: Frmt
 character(len=8) :: RlxLbl
 integer(kind=iwp), parameter :: iComp = 1
 #endif
+#ifdef _CD_TIMING_
+real(kind=wp) :: PREPPCPU1, PREPPCPU2, PREPPWALL1, PREPPWALL2
+#endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Get_ExFac
-#ifdef _CD_TIMING_
-real(kind=wp) :: PREPPCPU2,PREPPCPU1,PREPPWALL2,PREPPWALL1
-#endif
 
 ! Prologue
 

@@ -117,12 +117,11 @@
      &                  IPT2_MOLCAS,I_ELIMINATE_GAS_MOLCAS,
      &                  N_ELIMINATED_GAS_MOLCAS,
      &                  N_2ELIMINATED_GAS_MOLCAS,IPRCI_MOLCAS,
-     &                  POTNUC_MOLCAS,RTOI_MOLCAS,
+     &                  POTNUC_MOLCAS,
      &                  I2ELIMINATED_IN_GAS_MOLCAS,
      &                  IELIMINATED_IN_GAS_MOLCAS,IGSOCCX_MOLCAS,
      &                  ISPEED,NBAS_MOLCAS,NGSSH_MOLCAS,
-     &                  NISH_MOLCAS,NORB_MOLCAS,NHOLE1_MOLCAS,
-     &                  NELEC3_MOLCAS
+     &                  NISH_MOLCAS,NORB_MOLCAS
       use spinfo, only: DOBKAP,NGASBK,IOCCPSPC
 
 
@@ -3596,10 +3595,7 @@ C Test read failed. JOBOLD cannot be used.
       ms2_Molcas       = ms2
       ispin_Molcas     = ispin
       lsym_Molcas      = stsym
-      NHOLE1_Molcas    = NHOLE1
-      NELEC3_Molcas    = NELEC3
       itmax_Molcas     = itmax
-      rtoi_Molcas      = rtoi
       nroots_Molcas    = Max(nroots,lRoots)
       ipt2_Molcas      = ipt2
       iprci_molcas     = iprloc(3)

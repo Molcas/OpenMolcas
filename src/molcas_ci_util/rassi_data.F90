@@ -29,7 +29,7 @@ module rassi_data
 ! NTRA   - SIZE OF TRANSFORMATION COEFFICIENT ARRAY.
 ! ChFracMem - fraction of memory for the Cholesky vectors buffer
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
 private

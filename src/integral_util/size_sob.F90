@@ -18,7 +18,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: nSO
 integer(kind=iwp), external :: MemSO2
-!todo
+
+!TODO
 if (nIrrep > 1) then
   nSO = MemSO2(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),iSD4(7,1),iSD4(7,2),iSD4(7,3), &
                iSD4(7,4))

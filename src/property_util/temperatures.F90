@@ -8,11 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Temperatures
-use Definitions, only: wp, iwp
-Private
+
+module Temperatures
+
 ! Default temperatures for thermochemistry (MCLR, SLAPAF)
-Integer(kind=iwp), Parameter :: NDefTemp=7
-Real(kind=wp) :: DefTemp(NDefTemp)=[0.0d0,100.0d0,273.15d0,298.15d0,323.15d0,373.15d0,473.15d0]
-Public :: DefTemp
-End Module Temperatures
+
+use Constants, only: Zero
+use Definitions, only: wp
+
+implicit none
+private
+
+real(kind=wp), parameter :: DefTemp(7) = [Zero,100.0_wp,273.15_wp,298.15_wp,323.15_wp,373.15_wp,473.15_wp]
+
+public :: DefTemp
+
+end module Temperatures

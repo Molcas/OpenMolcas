@@ -23,10 +23,9 @@ use csfbas, only: CTS
 use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC
 use printlevel, only: DEBUG, INSANE
+use spinfo, only: NCNFTP, NCSFTP, NDET, NDTFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use spinfo, only: NTYP,NDTFTP,NCSFTP,NCNFTP
-use spinfo, only: NDET
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID

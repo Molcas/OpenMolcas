@@ -8,14 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-! This should probably be changes to arrays and pointers at some later point.
-Module Dens_stuff
+
+module Dens_stuff
+
+! TODO: This should probably be changed to arrays and pointers at some later point.
+
 use Definitions, only: iwp
-Private
-integer(kind=iwp), public, target :: mDCRij=1,mDCRkl=1,mDCRik=1,mDCRil=1,mDCRjk=1,mDCRjl=1
-integer(kind=iwp), public, target ::  ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
-integer(kind=iwp), public, target :: ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl
-integer(kind=iwp), public, target ::   mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
-integer(kind=iwp), public, target ::  ipDij2, ipDkl2, ipDik2, ipDil2, ipDjk2, ipDjl2
-integer(kind=iwp), public, target :: ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2
-End Module Dens_stuff
+
+implicit none
+private
+
+integer(kind=iwp), target :: ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, &
+                             ipDij, ipDij2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, mDCRij = 1, &
+                             mDCRik = 1, mDCRil = 1, mDCRjk = 1, mDCRjl = 1, mDCRkl = 1, mDij, mDik, mDil, mDjk, mDjl, mDkl
+
+public :: ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, ipDij, ipDij2, &
+          ipDik, ipDik2, ipDil, ipDil2, ipDjk, ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, &
+          mDCRkl, mDij, mDik, mDil, mDjk, mDjl, mDkl
+
+end module Dens_stuff

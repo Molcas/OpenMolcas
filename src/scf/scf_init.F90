@@ -25,9 +25,9 @@ use InfSCF, only: AccCon, AddFragments, C1DIIS, Damping, DelThr, DIIS, DIISTh, D
                   qNRTh, QudThr, RFPert, RGEK, RSRFO, rTemp, Scrmbl, TemFac, Thize, TimFld, TStop, Two_Thresholds, WarnCFG, &
                   WarnPOCC, WarnSlow, WrOutD
 use NDDO, only: twoel_NDDO
+use hfc_logical, only: UHF_HFC
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use hfc_logical, only: UHF_HFC
 
 implicit none
 integer(kind=iwp) :: iFMM, iPrintLevel, nData

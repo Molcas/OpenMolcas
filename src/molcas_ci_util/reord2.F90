@@ -55,9 +55,9 @@ subroutine Reord2(NORB,NEL,IREFSM,IMODE,ICONF,ISPIN,CIOLD,CINEW,KCNF)
 
 use gugx, only: CIS, EXS, SGS
 use output_ras, only: IPRLOC
+use spinfo, only: MINOP, NCNFTP, NCSFTP, NTYP
 use printlevel, only: DEBUG
 use Definitions, only: wp, iwp, u6
-use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
 
 #include "intent.fh"
 

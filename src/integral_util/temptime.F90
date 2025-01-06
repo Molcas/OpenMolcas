@@ -8,12 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module TempTime
+
+module TempTime
+
 use Definitions, only: wp
-Private
-      Real(kind=wp), Public::                                           &
-     &                Prepp_CPU,Prepp_Wall,Pget2_CPU,Pget2_Wall,        &
-     &                Drvg1_CPU, Drvg1_Wall,ChoGet_Wall,ChoGet_CPU,     &
-     &                rMult_Wall,rMult_CPU,Pget3_CPU,Pget3_Wall,        &
-     &                Twoel2_CPU, Twoel3_CPU, Twoel2_Wall, Twoel3_Wall
-End Module TempTime
+
+implicit none
+private
+
+real(kind=wp) :: ChoGet_CPU, ChoGet_Wall, Drvg1_CPU, Drvg1_Wall, Pget2_CPU, Pget2_Wall, Pget3_CPU, Pget3_Wall, Prepp_CPU, &
+                 Prepp_Wall, rMult_CPU, rMult_Wall, Twoel2_CPU, Twoel2_Wall, Twoel3_CPU, Twoel3_Wall
+
+public :: ChoGet_CPU, ChoGet_Wall, Drvg1_CPU, Drvg1_Wall, Pget2_CPU, Pget2_Wall, Pget3_CPU, Pget3_Wall, Prepp_CPU, Prepp_Wall, &
+          rMult_CPU, rMult_Wall, Twoel2_CPU, Twoel2_Wall, Twoel3_CPU, Twoel3_Wall
+
+end module TempTime

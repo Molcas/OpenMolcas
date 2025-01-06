@@ -11,6 +11,7 @@
 ! Copyright (C) Jonas Bostrom                                          *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine Mult_RijK_QKL(iSO,nBas_aux,nIrrep)
 !*************************************************************************
 !     Author: Jonas Bostrom
@@ -30,13 +31,12 @@ use Symmetry_Info, only: Mul
 use pso_stuff, only: lSA
 use Para_Info, only: Is_Real_Par
 use Cholesky, only: InfVec, NumCho, timings
+#ifdef _CD_TIMING_
+use temptime, only: RMULT_CPU, RMULT_WALL
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
-#define _CD_TIMING_
-#ifdef _CD_TIMING_
-use temptime, only: RMULT_CPU,RMULT_WALL
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iSO, nIrrep, nBas_Aux(1:nIrrep)

@@ -313,7 +313,7 @@ set (modfile_list
      covrad_data.F90
      dcr_mod.F90
      define_af.F90
-     dens_stuff.F90
+     dens_stuff.F90 # dependency from integral_interfaces.F90
      disp.F90
      efp_.F90
      efp_module.F90

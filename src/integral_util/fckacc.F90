@@ -52,9 +52,9 @@ use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
 use Gateway_Info, only: CutInt, ThrInt
+use k2_arrays, only: FT
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
-use k2_arrays, only: FT
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

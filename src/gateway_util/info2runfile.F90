@@ -22,7 +22,7 @@ subroutine Info2Runfile()
 !***********************************************************************
 
 use Period, only: AdCell, Cell_l, ispread, lthCell, VCell
-use Basis_Info, only: dbsc, nBas, nCnttp, DOEMPC
+use Basis_Info, only: dbsc, DOEMPC, nBas, nCnttp
 use Center_Info, only: dc
 use External_Centers, only: iXPolType, XF, nXF
 use Gateway_global, only: Expert, DirInt

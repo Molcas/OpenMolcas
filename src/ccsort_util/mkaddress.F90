@@ -40,10 +40,10 @@ subroutine mkaddress(NOIPSB)
 ! N.B. typ,idis,np,nq,nr,ns are imported from ccsort_global
 
 use ccsort_global, only: fullprint, idis, LUINTM, NORB, np, nq, nr, ns, NSYM, typ
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use TraToc, only: ITRATOC,NTRATOC,NTRABUF
 
 implicit none
 integer(kind=iwp), intent(out) :: NOIPSB(106)

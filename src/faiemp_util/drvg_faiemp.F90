@@ -43,21 +43,19 @@ integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
+integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, iFnc(4), ijklA, ijMax, ijS, iOpt, ipMem1, ipMem2, iPrem, iPren, &
+                     iPrint, iRout, iS, iSD4(0:nSD,4), iSh, j, jAng, jBasAO, jBasj, jBasn, jBsInc, JndGrd(3,4), jS, kBasAO, kBask, &
+                     kBasn, kBsInc, kBtch, klS, kS, lBasAO, lBasl, lBasn, lBsInc, lS, mBtch, Mem1, Mem2, MemMax, MemPSO, &
+                     nBas_Valence(0:7), nBT, nBtch, nBVT, nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, &
+                     nSkal_Valence, nSO
 real(kind=wp) :: Coor(3,4), PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
-integer(kind=iwp) :: JndGrd(3,4), iFnc(4), &
-                     iSD4(0:nSD,4), MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, &
-                     iBsInc, iCar, ijklA, ijS, iOpt, ijMax, ipMem1, ipMem2, iPrem, iPren, Mem1, Mem2, jAng, iSh, &
-                     jBasAO, jBasj, jBasn, jBsInc, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, &
-                     kS, lBasAO, lBasl, lBasn, lBsInc, mBtch, lS, MemPSO, &
-                     nHrrab, nij, nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, &
-                     nSkal_Valence, nSO, nBtch
-logical(kind=iwp) :: EQ, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Triangular, lNoSkip
+logical(kind=iwp) :: ABCDeq, DoFock, DoGrad, Indexation, JfGrad(3,4), lDummy, lNoSkip, No_Batch, Triangular
 character(len=72) :: formt
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable :: TMax(:,:)
-logical(kind=iwp), external :: Rsv_GTList
 integer(kind=iwp), external :: MemSO2_P
+logical(kind=iwp), external :: EQ, Rsv_GTList
 
 !                                                                      *
 !***********************************************************************
@@ -219,7 +217,7 @@ do
       !                                                                *
       call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
       nSO = MemSO2_P(nSD,iSD4)
-      No_batch = nSO == 0
+      No_batch = (nSO == 0)
     end if
     if (No_batch) lNoSkip = .false.
     if (lNoSkip) then
@@ -231,8 +229,7 @@ do
       ! --------> Memory Managment <--------
       !
       ! Compute memory request for the primitives, i.e.
-      ! how much memory is needed up to the transfer
-      ! equation.
+      ! how much memory is needed up to the transfer equation.
 
       call MemRys_g(iSD4,nSD,nRys,MemPrm)
       !                                                                *
@@ -244,11 +241,11 @@ do
     end if
     if (nIrrep == 1 .and. ABCDeq .and. mod(ijklA,2) == 1) lNoSkip = .false.
     if (lNoSkip) then
-      !                                                                      *
-      !***********************************************************************
-      !                                                                      *
+      !                                                                *
+      !*****************************************************************
+      !                                                                *
       ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
-      !
+
       call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 
       !                                                                *
@@ -260,17 +257,17 @@ do
       ! Now check if all blocks can be computed and stored at
       ! once.
 
-      Call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
+      call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 
       iBasi = iSD4(3,1)
       jBasj = iSD4(3,2)
       kBask = iSD4(3,3)
       lBasl = iSD4(3,4)
 
-      iBsInc= iSD4(4,1)
-      jBsInc= iSD4(4,2)
-      kBsInc= iSD4(4,3)
-      lBsInc= iSD4(4,4)
+      iBsInc = iSD4(4,1)
+      jBsInc = iSD4(4,2)
+      kBsInc = iSD4(4,3)
+      lBsInc = iSD4(4,4)
 
       !                                                                *
       !*****************************************************************
@@ -290,36 +287,34 @@ do
 
       do iBasAO=1,iBasi,iBsInc
         iBasn = min(iBsInc,iBasi-iBasAO+1)
-        iSD4( 8,1) = iBasAO-1
+        iSD4(8,1) = iBasAO-1
         iSD4(19,1) = iBasn
 
         do jBasAO=1,jBasj,jBsInc
           jBasn = min(jBsInc,jBasj-jBasAO+1)
-          iSD4( 8,2) = jBasAO-1
+          iSD4(8,2) = jBasAO-1
           iSD4(19,2) = jBasn
-
 
           do kBasAO=1,kBask,kBsInc
             kBasn = min(kBsInc,kBask-kBasAO+1)
-            iSD4( 8,3) = kBasAO-1
+            iSD4(8,3) = kBasAO-1
             iSD4(19,3) = kBasn
 
             do lBasAO=1,lBasl,lBsInc
               lBasn = min(lBsInc,lBasl-lBasAO+1)
-              iSD4( 8,4) = lBasAO-1
+              iSD4(8,4) = lBasAO-1
               iSD4(19,4) = lBasn
 
-              !--Get the 2nd order density matrix in SO basis.
+              ! Get the 2nd order density matrix in SO basis.
 
               nijkl = iBasn*jBasn*kBasn*lBasn
 
               call PGet0(nijkl,Sew_Scr(ipMem1),nSO,iFnc,MemPSO,Sew_Scr(ipMem2),Mem2,nQuad,PMax,iSD4)
               if (A_Int*PMax >= CutInt) then
 
-                !--Compute gradients of shell quadruplet
+                ! Compute gradients of shell quadruplet
 
-                call TwoEl_g(Coor,nRys,Pren,Prem, &
-                             Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nijkl,nSO,Sew_Scr(ipMem2),Mem2,iSD4)
+                call TwoEl_g(Coor,nRys,Pren,Prem,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nijkl,nSO,Sew_Scr(ipMem2),Mem2,iSD4)
 
                 if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp)
 
