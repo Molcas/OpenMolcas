@@ -55,6 +55,4 @@ do iCnt=1,2
   end do
 end do
 
-return
-
 end subroutine PckMO2

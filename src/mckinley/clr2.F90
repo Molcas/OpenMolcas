@@ -36,7 +36,7 @@ real(kind=wp), intent(inout) :: rOut(*)
 integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, &
                      ipp(0:7), iS, iSO, j, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, &
                      lsl, lSO, mIrr,  na(0:7), ni, nj, nnA, iShell(4), nXrIn, iE
-integer(kind=iwp) :: ibas, jbas, iCmp, jCmp, iaoi, iaoj
+integer(kind=iwp) :: ibas, jbas, iCmp, jCmp, iaoi, iaoj, nX
 real(kind=wp) :: fact, rd
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), pointer:: rIn(:,:,:,:,:)=>null(), Temp1(:,:,:)=>null(), Temp2(:)=>Null(), Temp3(:,:,:)=>Null()
@@ -76,8 +76,9 @@ iE=iE+jBas*jCmp*nACO
 Temp5(1:jBas,1:jCmp,1:nACO)=>Temp(iS:iE)
 Temp5(:,:,:) = Zero
 iS=iE+1
-iE=nTemp
-Temp6(1:iE-iS+1)=>Temp(iS:iE) ! This is a bit too generous
+nX = nIrrep*(nACO*ni + nACO+nj)
+iE=iE+nX
+Temp6(1:nX)=>Temp(iS:iE) ! This is a bit too generous
 
 
 iShell(:)= iSD4(11,:)
@@ -92,7 +93,7 @@ ipi = 1
 
 ipj = ipi+nACO*ibas*icmp
 
-call PckMo2(temp6(ipi:),icmp,iBas,jcmp,jBas,iaoi,iaoj)
+call PckMo2(temp6,icmp,iBas,jcmp,jBas,iaoi,iaoj)
 
 id = 0
 do mIrr=0,nIrrep-1
@@ -135,11 +136,11 @@ do mIrr=0,nIrrep-1
               if (nash(jirr) /= 0) &
                 call DGEMM_('N','N',ni,nAsh(jIrr),nj, &
                             One, rIn(:,:,iIrr,kl,id),ni, &
-                                 Temp6(ipj+(ja-1)*jcmp*jBas:),nj, &
+                                 Temp6(ipj+(ja-1)*jcmp*jBas:nX),nj, &
                             Zero,Temp1,ni)
               if (nash(iirr) /= 0) &
                 call DGEMM_('T','N',nash(iIrr),nAsh(jIrr),ni, &
-                            One, Temp6(ipi+(ia-1)*icmp*ibas:),ni, &
+                            One, Temp6(ipi+(ia-1)*icmp*ibas:nX),ni, &
                                  Temp1,ni, &
                             Zero,Temp2,nash(iirr))
 
@@ -180,11 +181,11 @@ do mIrr=0,nIrrep-1
                 if (nash(jirr) /= 0) &
                   call DGEMM_('T','N',nj,nAsh(jIrr),ni, &
                               One, rIn(:,:,jIrr,kl,id),ni, &
-                                   Temp6(ipi+(ja-1)*icmp*ibas:),ni, &
+                                   Temp6(ipi+(ja-1)*icmp*ibas:nX),ni, &
                               Zero,Temp3,nj)
                 if (nash(iirr) /= 0) &
                   call DGEMM_('T','N',nAsh(iirr),nAsh(jirr),nj, &
-                              One ,Temp6(ipj+(ia-1)*jcmp*jBas:),nj, &
+                              One ,Temp6(ipj+(ia-1)*jcmp*jBas:nX),nj, &
                                    Temp3,nj, &
                               One, Temp2,nAsh(iirr))
 
