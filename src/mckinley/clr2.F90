@@ -41,6 +41,7 @@ real(kind=wp) :: fact, rd
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), pointer:: rIn(:,:,:,:,:)=>null(), Temp1(:,:,:)=>null(), Temp2(:)=>Null(), Temp3(:,:,:)=>Null()
 real(kind=wp), pointer:: Temp4(:,:,:)=>null(), Temp5(:,:,:)=>Null(), Temp6(:)=>Null()
+logical(kind=iwp) :: Process
 
 ibas=iSD4( 3,1)
 jbas=iSD4( 3,2)
@@ -76,9 +77,15 @@ iE=iE+jBas*jCmp*nACO
 Temp5(1:jBas,1:jCmp,1:nACO)=>Temp(iS:iE)
 Temp5(:,:,:) = Zero
 iS=iE+1
-nX = nIrrep*(nACO*ni + nACO+nj)
+
+nX=1
 iE=iE+nX
-Temp6(1:nX)=>Temp(iS:iE) ! This is a bit too generous
+Temp6(1:nX)=>Temp(iS:iE) ! dummy set
+
+Process=.False.
+call PckMo2(temp6,icmp,iBas,jcmp,jBas,iaoi,iaoj,Process,nX)
+iE=iE-1+nX
+Temp6(1:nX)=>Temp(iS:iE)
 
 
 iShell(:)= iSD4(11,:)
@@ -93,7 +100,8 @@ ipi = 1
 
 ipj = ipi+nACO*ibas*icmp
 
-call PckMo2(temp6,icmp,iBas,jcmp,jBas,iaoi,iaoj)
+Process=.True.
+call PckMo2(temp6,icmp,iBas,jcmp,jBas,iaoi,iaoj,Process,nX)
 
 id = 0
 do mIrr=0,nIrrep-1
