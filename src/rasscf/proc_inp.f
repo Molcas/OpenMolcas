@@ -61,11 +61,6 @@
       use gas_data, only: iDoGAS, NGAS, NGSSH, IGSOCCX
       use Symmetry_info, only: Mul
       use input_ras   ! It should be without the only option!
-#ifdef _WARNING_WORKAROUND_
-      use input_ras
-#else
-      use input_ras, hide1=>nKeys, hide2=>KeyFlags, hide3=>CMD
-#endif
       use rasscf_global, only: KSDFT, IROOT, IRLXROOT, ICI, CCI,
      &                         HFOCC, CMSStartMat, CMSThreshold,
      &                         CoreShift, DFTFOCK, DoBLOCKDMRG,

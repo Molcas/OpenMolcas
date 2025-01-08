@@ -12,12 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys, &
-                   k2Data1,k2Data2, &
-                   nData1,nData2,Pren,Prem,nAlpha,iPrInc,nBeta,jPrInc,nGamma,kPrInc,nDelta,lPrInc, &
-                   Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
-                   nZeta,nEta,Grad,nGrad,IfGrad,IndGrd,PSO,nPSO, &
-                   Wrk2,nWrk2,Aux,nAux,Shijij)
+subroutine TwoEl_g(Coor,nRys,Pren,Prem,Grad,nGrad,IfGrad,IndGrd,PSO,nijkl,nPSO,Wrk2,nWrk2,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -30,16 +25,18 @@ subroutine TwoEl_g(Coor,iAnga,iCmp,iShell,iShll,iAO,iStb,jStb,kStb,lStb,nRys, &
 !          Lund, SWEDEN. Modified to gradients, January '92.           *
 !***********************************************************************
 
+use setup, only: nAux
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
 use Phase_Info, only: iPhase
 use Gateway_Info, only: ChiI2
+use iSD_data, only: nSD
 use Gateway_global, only: IsChi
 use Symmetry_Info, only: nIrrep
-use Index_Functions, only: nTri_Elem1
-use k2_structure, only: k2_type
-use k2_arrays, only: BraKet
+use Index_Functions, only: nTri_Elem1, iTri
+use k2_structure, only: k2_type, Indk2, k2Data
+use k2_arrays, only: BraKet, Aux
 use Disp, only: CutGrd, l2DI
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 #ifdef _DEBUGPRINT_
@@ -50,37 +47,36 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iAnga(4), iCmp(4), iShell(4), iShll(4), iAO(4), iStb, jStb, kStb, lStb, nRys, nData1, nData2, &
-                                 nAlpha, iPrInc, nBeta, jPrInc, nGamma, kPrInc, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, &
-                                 nEta, nGrad, IndGrd(3,4), nPSO, nWrk2, nAux
-real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
-                             PSO(iBasi*jBasj*kBask*lBasl,nPSO)
-type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
+integer(kind=iwp), intent(in) :: nRys, nGrad, IndGrd(3,4), nijkl, nPSO, nWrk2, iSD4(0:nSD,4)
+real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO)
 real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
-logical(kind=iwp), intent(in) :: IfGrad(3,4), Shijij
-real(kind=wp), intent(out) :: Wrk2(nWrk2), Aux(nAux)
+logical(kind=iwp), intent(in) :: IfGrad(3,4)
+real(kind=wp), intent(out) :: Wrk2(nWrk2)
 integer(kind=iwp) :: iC, iCar, iCent, iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, iiCent, ijklab, ijMax, ijMin, ikl, &
                      IncEta, IncZet, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, &
                      iz2, iZeta, jCent, jCmpb, jjCent, JndGrd(3,4), jShllb, kCent, kCmpc, klMax, klMin, kOp(4), kShllc, la, lb, &
                      lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, &
-                     lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, mZeta, nDCRR, nDCRS, nDCRT, nEta_Tot, nIdent, nijkl, nOp(4), &
-                     nW2, nW4, nWrk3, nZeta_Tot
+                     lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, mZeta, nDCRR, nDCRS, nDCRT, nEta_Tot, nIdent, nOp(4), &
+                     nW2, nW4, nWrk3, nZeta_Tot, iAnga(4), iCmp(4), iShll(4), iShell(4), iAO(4), iStb, jStb, kStb, lStb, &
+                     iS, jS, kS, lS, ijS, klS, ik2, jk2, iAOst(4), nAlpha, nBeta, nGamma, nDelta, jPrInc, lPrInc, nZeta, nEta, &
+                     iBasi, jBasj, kBask, lBasl
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
-logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr, Shijij
 procedure(cff2d_kernel) :: vCff2D
 procedure(modu2_kernel) :: ModU2
 procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ
+type (k2_type), pointer:: k2data1(:), k2data2(:)
+real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
+
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, iPrint, iRout
 #include "print.fh"
 #endif
 
 #include "macros.fh"
-unused_var(iPrInc)
-unused_var(kPrInc)
 
 !                                                                      *
 !***********************************************************************
@@ -89,6 +85,32 @@ unused_var(kPrInc)
 iRout = 12
 iPrint = nPrint(iRout)
 #endif
+
+jPrInc=iSD4(6,2)
+lPrInc=iSD4(6,4)
+
+iAnga(:) = iSD4( 1,:)
+iCmp(:)  = iSD4( 2,:)
+iShll(:) = iSD4( 0,:)
+iShell(:)= iSD4( 11,:)
+iAO(:)   = iSD4( 7,:)
+iAOst(:) = iSD4( 8,:)
+
+Shijij = ((iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4)))
+
+nAlpha=iSD4( 5,1)
+nBeta =iSD4( 5,2)
+nGamma=iSD4( 5,3)
+nDelta=iSD4( 5,4)
+
+iBasi =iSD4(19,1)
+jBasj =iSD4(19,2)
+kBask =iSD4(19,3)
+lBasl =iSD4(19,4)
+
+
+nZeta=nAlpha*nBeta
+nEta =nGamma*nDelta
 la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
@@ -104,7 +126,11 @@ lShlld = iShll(4)
 IncZet = nAlpha*jPrInc
 IncEta = nGamma*lPrInc
 LmbdT = 0
-nijkl = iBasi*jBasj*kBask*lBasl
+iStb = iSD4(10,1)
+jStb = iSD4(10,2)
+kStb = iSD4(10,3)
+lStb = iSD4(10,4)
+
 iuvwx(1) = dc(iStb)%nStab
 iuvwx(2) = dc(jStb)%nStab
 iuvwx(3) = dc(kStb)%nStab
@@ -117,6 +143,28 @@ if ((jPrInc /= nBeta) .or. (lPrInc /= nDelta)) then
 else
   iW2 = 1
 end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Pick up pointers to k2 entities.
+!
+iS=iShell(1)
+jS=iShell(2)
+kS=iShell(3)
+lS=iShell(4)
+ijS=iTri(iS,jS)
+klS=iTri(kS,lS)
+nDCRR = IndK2(2,ijS)
+ik2 = IndK2(3,ijS)
+nDCRS = IndK2(2,klS)
+jk2 = IndK2(3,klS)
+k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
+k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
+
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
+Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
 !                                                                      *
 !***********************************************************************
@@ -490,6 +538,11 @@ do lDCRR=0,nDCRR-1
   end do
 end do
 
-return
+Coeff1 => Null()
+Coeff2 => Null()
+Coeff3 => Null()
+Coeff4 => Null()
+k2data1 => Null()
+k2data2 => Null()
 
 end subroutine TwoEl_g

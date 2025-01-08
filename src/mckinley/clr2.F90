@@ -11,7 +11,9 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine Clr2(rIn,rOut,ibas,icmp,jbas,jcmp,iaoi,iaoj,naco,ishell,temp1,temp2,temp3,temp4,temp5,temp6)
+subroutine Clr2(XrIn,rOut,nACO,nSD,iSD4,nDisp,nTemp,Temp)
+
+! nACO: number of active orbitals
 
 use McKinley_global, only: ipDisp3, ipMO
 use Index_Functions, only: iTri, nTri_Elem
@@ -27,38 +29,80 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ibas, icmp, jbas, jcmp, iaoi, iaoj, naco, ishell(4)
-real(kind=wp), intent(in) :: rIn(ibas*icmp*jbas*jcmp,0:nIrrep-1,nTri_Elem(naco),*)
+integer(kind=iwp), intent(in) :: nACO, nSD, iSD4(0:nSD,4), nDisp, nTemp
+real(kind=wp), intent(in), target :: XrIn(*)
+real(kind=wp), intent(inout), target :: Temp(nTemp)
 real(kind=wp), intent(inout) :: rOut(*)
-real(kind=wp), intent(_OUT_) :: Temp1(ibas,icmp,*), Temp2(*), Temp3(jbas,jcmp,*), Temp6(*)
-real(kind=wp), intent(out) :: Temp4(ibas,icmp,nACO), Temp5(jbas,jcmp,nACO)
 integer(kind=iwp) :: i, ia, iAsh, iB, iC, id, iDisp, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, ipFKL, ipi, ipj, ipM, ipm2, &
                      ipp(0:7), iS, iSO, j, ja, jAsh, jB, jC, jh, jIrr, jis, js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, &
-                     lsl, lSO, mIrr, n, na(0:7), ni, nj, nnA
+                     lsl, lSO, mIrr,  na(0:7), ni, nj, nnA, iShell(4), nXrIn, iE
+integer(kind=iwp) :: ibas, jbas, iCmp, jCmp, iaoi, iaoj, nX
 real(kind=wp) :: fact, rd
 integer(kind=iwp), external :: NrOpr
+real(kind=wp), pointer:: rIn(:,:,:,:,:)=>null(), Temp1(:,:,:)=>null(), Temp2(:)=>Null(), Temp3(:,:,:)=>Null()
+real(kind=wp), pointer:: Temp4(:,:,:)=>null(), Temp5(:,:,:)=>Null(), Temp6(:)=>Null()
+logical(kind=iwp) :: Process
 
-Temp2(1:Naco**4) = Zero
+ibas=iSD4( 3,1)
+jbas=iSD4( 3,2)
+iCmp=iSD4( 2,1)
+jCmp=iSD4( 2,2)
+iAOi=iSD4( 7,1)
+iAOj=iSD4( 7,2)
+nXrIn=iBas*iCmp*jBas*jCmp*nIrrep*nTri_Elem(nACO)*nDisp
+
+ni = iBas*iCmp
+nj = jBas*jCmp
+
+rIn(1:ni,1:nj,0:nIrrep-1,1:nTri_Elem(nACO),1:nDisp)=>XrIn(1:nXrIn)
+
+iS=1
+iE=iBas*iCmp*nACO
+Temp1(1:iBas,1:iCmp,1:nACO)=>Temp(iS:iE)
+
+iS=iE+1
+iE=iE+nACO**2
+Temp2(1:nACO**2)=>Temp(iS:iE)
+Temp2(:)=Zero
+
+iS=iE+1
+iE=iE+jBas*jCmp*nACO
+Temp3(1:jBas,1:jCmp,1:nACO)=>Temp(iS:iE)
+iS=iE+1
+iE=iE+iBas*iCmp*nACO
+Temp4(1:iBas,1:iCmp,1:nACO)=>Temp(iS:iE)
 Temp4(:,:,:) = Zero
+iS=iE+1
+iE=iE+jBas*jCmp*nACO
+Temp5(1:jBas,1:jCmp,1:nACO)=>Temp(iS:iE)
 Temp5(:,:,:) = Zero
+iS=iE+1
+
+nX=1
+iE=iE+nX
+Temp6(1:nX)=>Temp(iS:iE) ! dummy set
+
+Process=.False.
+call PckMo2(temp6,icmp,iBas,jcmp,jBas,iaoi,iaoj,Process,nX)
+iE=iE-1+nX
+Temp6(1:nX)=>Temp(iS:iE)
+
+
+iShell(:)= iSD4(11,:)
+
 nnA = 0
 do iS=0,nIrrep-1
   nA(iS) = nNA
   nnA = nnA+nAsh(is)
 end do
-n = 0
-do i=0,nIrrep-1
-  n = n+ldisp(i)
-end do
-n = ibas*icmp*jbas*jcmp*nIrrep*nTri_Elem(nAco)*n
 
-ni = iCmp*iBas
-nj = jCmp*jBas
 ipi = 1
 
-ipj = ipi+naco*ibas*icmp
+ipj = ipi+nACO*ibas*icmp
 
-call PckMo2(temp6(ipi),icmp,iBas,jcmp,jBas,iaoi,iaoj)
+Process=.True.
+call PckMo2(temp6,icmp,iBas,jcmp,jBas,iaoi,iaoj,Process,nX)
+
 id = 0
 do mIrr=0,nIrrep-1
   iiii = 0
@@ -98,9 +142,15 @@ do mIrr=0,nIrrep-1
               ! id,iirr,jirr,kA,lA
 
               if (nash(jirr) /= 0) &
-                call DGEMM_('N','N',ni,nAsh(jIrr),nj,One,rIn(:,iIrr,kl,id),ni,Temp6(ipj+(ja-1)*jcmp*jBas),nj,Zero,Temp1,ni)
+                call DGEMM_('N','N',ni,nAsh(jIrr),nj, &
+                            One, rIn(:,:,iIrr,kl,id),ni, &
+                                 Temp6(ipj+(ja-1)*jcmp*jBas:nX),nj, &
+                            Zero,Temp1,ni)
               if (nash(iirr) /= 0) &
-                call DGEMM_('T','N',nash(iIrr),nAsh(jIrr),ni,One,Temp6(ipi+(ia-1)*icmp*ibas),ni,Temp1,ni,Zero,Temp2,nash(iirr))
+                call DGEMM_('T','N',nash(iIrr),nAsh(jIrr),ni, &
+                            One, Temp6(ipi+(ia-1)*icmp*ibas:nX),ni, &
+                                 Temp1,ni, &
+                            Zero,Temp2,nash(iirr))
 
               do iC=1,iCmp
                 do iB=1,iBas
@@ -137,9 +187,15 @@ do mIrr=0,nIrrep-1
 
               if (iShell(1) /= iShell(2)) then
                 if (nash(jirr) /= 0) &
-                  call DGEMM_('T','N',nj,nAsh(jIrr),ni,One,rIn(:,jIrr,kl,id),ni,Temp6(ipi+(ja-1)*icmp*ibas),ni,Zero,Temp3,nj)
+                  call DGEMM_('T','N',nj,nAsh(jIrr),ni, &
+                              One, rIn(:,:,jIrr,kl,id),ni, &
+                                   Temp6(ipi+(ja-1)*icmp*ibas:nX),ni, &
+                              Zero,Temp3,nj)
                 if (nash(iirr) /= 0) &
-                  call DGEMM_('T','N',nAsh(iirr),nAsh(jirr),nj,One,Temp6(ipj+(ia-1)*jcmp*jBas),nj,Temp3,nj,One,Temp2,nAsh(iirr))
+                  call DGEMM_('T','N',nAsh(iirr),nAsh(jirr),nj, &
+                              One ,Temp6(ipj+(ia-1)*jcmp*jBas:nX),nj, &
+                                   Temp3,nj, &
+                              One, Temp2,nAsh(iirr))
 
                 do jC=1,jCmp
                   do jB=1,jBas
@@ -203,6 +259,12 @@ do mIrr=0,nIrrep-1
   end do ! ndisp
 end do ! msym
 
-return
+rIn=>null()
+Temp6=>null()
+Temp5=>null()
+Temp4=>null()
+Temp3=>null()
+Temp2=>null()
+Temp1=>null()
 
 end subroutine Clr2

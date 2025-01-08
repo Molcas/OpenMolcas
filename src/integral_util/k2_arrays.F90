@@ -39,18 +39,19 @@ type BraKet_Type
   integer(kind=iwp), pointer :: IndZet(:) => null(), IndEta(:) => null()
 end type BraKet_Type
 
-integer(kind=iwp) :: ipD00, ipDeDe, ipDijS, MaxDe, MxDij, MxFT, nDeDe, nDeDe_DFT, nFT
+integer(kind=iwp) :: ipD00, ipDeDe, ipDijS, ipDijS2, MaxDe, MxDij, MxFT, nDeDe, nDeDe_DFT, nFT
 real(kind=wp), pointer :: pDq(:) => null(), pFq(:) => null()
 logical(kind=iwp) :: DoGrad_ = .false., DoHess_ = .false., XMem = .false.
 type(BraKet_Type) :: BraKet
-integer(kind=iwp), allocatable :: ipOffD(:,:), iSOSym(:,:)
+integer(kind=iwp), allocatable :: ipOffD(:,:), ipOffDA(:,:), iSOSym(:,:)
 integer(kind=iwp), allocatable, target :: BraKet_Base_I(:)
-real(kind=wp), allocatable, target :: DeDe(:)
+real(kind=wp), allocatable, target :: DeDe(:), DeDe2(:)
 real(kind=wp), allocatable, target :: Aux(:), FT(:)
 real(kind=wp), allocatable, target :: BraKet_Base_R(:), Dq(:), Fq(:), Sew_Scr(:)
 
 public :: Aux, BraKet, Create_BraKet, Create_BraKet_Base, DeDe, Destroy_BraKet, Destroy_BraKet_Base, DoGrad_, DoHess_, Dq, Fq, FT, &
-          ipD00, ipDeDe, ipDijS, ipOffD, iSOSym, MaxDe, MxDij, MxFT, nDeDe, nDeDe_DFT, nFT, pDq, pFq, Sew_Scr, XMem
+          ipD00, ipDeDe, ipDijS, ipOffD, iSOSym, MaxDe, MxDij, MxFT, nDeDe, nDeDe_DFT, nFT, pDq, pFq, Sew_Scr, XMem, ipDijS2, &
+          ipOffDA, DeDe2
 
 contains
 

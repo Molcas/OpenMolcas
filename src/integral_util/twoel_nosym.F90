@@ -71,8 +71,7 @@ unused_var(SoInt)
 nZeta = iSD4(5,1)*iSD4(5,2)
 nEta  = iSD4(5,3)*iSD4(5,4)
 
-Shijij = ((iSD4(0,1) == iSD4(0,3)) .and. (iSD4(10,1) == iSD4(10,3)) .and. &
-          (iSD4(0,2) == iSD4(0,4)) .and. (iSD4(10,2) == iSD4(10,4)))
+Shijij = ((iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4)))
 
 iShell(:)=iSD4(11,:)
 iShll(:) =iSD4( 0,:)
@@ -137,8 +136,6 @@ call RecPrt('Coeff3',' ',Coeff3,nGamma,kBask)
 call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
 End If
 !#endif
-
-If (.false.) la = iSD4(1,1)
 
 RST_triplet = One
 QInd(2) = RST_triplet
@@ -427,10 +424,10 @@ if (DoIntegrals) then
     ipAOInt = 1
   end if
   iPer = 1
-  Pij = (iS_ == jS_)
-  Pkl = (kS_ == lS_)
-  Pik = (iS_ == kS_)
-  Pjl = (jS_ == lS_)
+  Pij = (iSD4(20,1) == iSD4(20,2))
+  Pkl = (iSD4(20,3) == iSD4(20,4))
+  Pik = (iSD4(20,1) == iSD4(20,3))
+  Pjl = (iSD4(20,2) == iSD4(20,4))
   Pijkl = (Pij .and. Pkl .and. Pik .and. Pjl)
   if (Pij) iPer = iPer*2
   if (Pkl) iPer = iPer*2
@@ -444,6 +441,8 @@ Coeff1 => Null()
 Coeff2 => Null()
 Coeff3 => Null()
 Coeff4 => Null()
+k2data1 => Null()
+k2data2 => Null()
 
 Dij => Null()
 Dkl => Null()

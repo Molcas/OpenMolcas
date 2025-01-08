@@ -33,14 +33,12 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !             Modified for 2-center RI gradients, January '07          *
 !***********************************************************************
 
-use setup, only: mSkal, MxPrm, nAux
+use setup, only: mSkal, MxPrm
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD, nSD
 use pso_stuff, only: A_PT2
-use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use k2_structure, only: k2data
-use Disp, only: ChDisp, l2DI
-use Basis_Info, only: Shells
+use k2_arrays, only: Create_BraKet, Destroy_BraKet, Sew_Scr
+use Disp, only: ChDisp
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
@@ -60,23 +58,24 @@ integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
-integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ij, ijkla, &
-                     ijMax, ik2, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), &
-                     iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jk2, jlS, JndGrd(3,4), &
-                     jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, &
-                     lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, &
-                     MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, &
-                     nRys, nSkal, nSO, nTMax, nZeta
+integer(kind=iwp) :: i, iAng, iBasAO, iBasi, iBasn, iBsInc, iCar, id, iFnc(4), ij, ijkla, &
+                     ijMax, ipMem1, ipMem2, iPrem, iPren, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, &
+                     iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), &
+                     jS, jS_, kBasAO, kBask, kBasn, kBsInc, kBtch, kS, lA, lA_MP2, &
+                     lBasAO, lBasl, lBasn, lBsInc, lS, lS_, mBtch, Mem1, Mem2, MemMax, &
+                     MemPSO, mij, nBtch, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, &
+                     nRys, nSkal, nSO, nTMax
 real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
 #endif
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), No_Batch, Shijij
+logical(kind=iwp) :: ABCDeq, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), No_Batch
 character(len=72) :: frmt
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: Shij(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
 logical(kind=iwp), external :: Rsv_Tsk
+integer(kind=iwp), external :: MemSO2_P
 
 !                                                                      *
 !***********************************************************************
@@ -129,8 +128,6 @@ MxPrm = 0
 do iAng=0,S%iAngMx
   MxPrm = max(MxPrm,S%MaxPrm(iAng))
 end do
-nZeta = MxPrm*MxPrm
-nEta = MxPrm*MxPrm
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -323,10 +320,11 @@ do while (Rsv_Tsk(id,jlS))
   !*********************************************************************
   !                                                                    *
   call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-  call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
+  nSO = MemSO2_P(nSD,iSD4)
+  No_batch = nSO == 0
   if (No_batch) cycle
 
-  call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
+  call Int_Prep_g(iSD4,nSD,Coor)
 
   !                                                                    *
   !*********************************************************************
@@ -343,6 +341,13 @@ do while (Rsv_Tsk(id,jlS))
   ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
   ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
   if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) cycle
+  !                                                                      *
+  !***********************************************************************
+  !                                                                      *
+  ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
+  !
+  call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
+
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -351,18 +356,18 @@ do while (Rsv_Tsk(id,jlS))
   !
   ! Now check if all blocks can be computed and stored at once.
 
-  call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,iFnc, &
-              MemPSO)
+  Call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
+
   iBasi = iSD4(3,1)
   jBasj = iSD4(3,2)
   kBask = iSD4(3,3)
   lBasl = iSD4(3,4)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
-                  k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
-                  AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
+
+  iBsInc= iSD4(4,1)
+  jBsInc= iSD4(4,2)
+  kBsInc= iSD4(4,3)
+  lBsInc= iSD4(4,4)
+
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -383,26 +388,35 @@ do while (Rsv_Tsk(id,jlS))
 
   do iBasAO=1,iBasi,iBsInc
     iBasn = min(iBsInc,iBasi-iBasAO+1)
-    iAOst(1) = iBasAO-1
+    iSD4( 8,1) = iBasAO-1
+    iSD4(19,1) = iBasn
+
+
     do jBasAO=1,jBasj,jBsInc
       jBasn = min(jBsInc,jBasj-jBasAO+1)
-      iAOst(2) = jBasAO-1
+      iSD4( 8,2) = jBasAO-1
+      iSD4(19,2) = jBasn
+
 
       do kBasAO=1,kBask,kBsInc
         kBasn = min(kBsInc,kBask-kBasAO+1)
-        iAOst(3) = kBasAO-1
+        iSD4( 8,3) = kBasAO-1
+        iSD4(19,3) = kBasn
+
         do lBasAO=1,lBasl,lBsInc
           lBasn = min(lBsInc,lBasl-lBasAO+1)
-          iAOst(4) = lBasAO-1
+          iSD4( 8,4) = lBasAO-1
+          iSD4(19,4) = lBasn
+
 
           ! Get the 2nd order density matrix in SO basis.
 
           nijkl = iBasn*jBasn*kBasn*lBasn
+
 #         ifdef _CD_TIMING_
           call CWTIME(Pget0CPU1,Pget0WALL1)
 #         endif
-          call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
-                     iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
+          call PGet0(nijkl,Sew_Scr(ipMem1),nSO,iFnc,MemPSO,Sew_Scr(ipMem2),Mem2,nQuad,PMax,iSD4)
 #         ifdef _CD_TIMING_
           call CWTIME(Pget0CPU2,Pget0WALL2)
           Pget2_CPU = Pget2_CPU+Pget0CPU2-Pget0CPU1
@@ -415,13 +429,9 @@ do while (Rsv_Tsk(id,jlS))
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU1,TwoelWall1)
 #         endif
-          call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
-                       k2Data(:,ik2),k2Data(:,jk2), &
-                       nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
-                       Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
-                       Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
-                       nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
-                       Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
+          call TwoEl_g(Coor,nRys,Pren,Prem, &
+                       Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nijkl,nSO, &
+                       Sew_Scr(ipMem2),Mem2,iSD4)
 #         ifdef _CD_TIMING_
           call CWTIME(TwoelCPU2,TwoelWall2)
           Twoel2_CPU = Twoel2_CPU+TwoelCPU2-TwoelCPU1

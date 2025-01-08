@@ -12,15 +12,11 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,nRys,nData1,nData2, &
-                     k2Data1,k2Data2, &
-                     Pren,Prem,nAlpha,nBeta,jPrInc,nGamma,nDelta,lPrInc, &
-                     Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
-                     nZeta,nEta,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO, &
+subroutine TwoEl_mck(Coor,nRys,Pren,Prem, &
+                     Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO, &
                      Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
-                     Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk, &
-                     Djl1,Djl2,mDjl,nDjl,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
-                     moip,naco,rMOIN,nMOIN,new_fock)
+                     Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
+                     moip,naco,rMOIN,nMOIN,new_fock,iSD4)
 !***********************************************************************
 !                                                                      *
 !     Input:                                                           *
@@ -76,9 +72,10 @@ subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,
 !***********************************************************************
 
 use McKinley_global, only: CPUStat, nIntegrals, nScreen, nTrans, nTwoDens, PreScr
-use Index_Functions, only: nTri_Elem1
-use k2_structure, only: k2_type
-use k2_arrays, only: BraKet
+use iSD_data, only: nSD
+use Index_Functions, only: nTri_Elem1, iTri
+use k2_structure, only: k2_type, Indk2, k2Data
+use k2_arrays, only: BraKet, DeDe, DeDe2
 use Real_Spherical, only: ipSph, RSph
 use Basis_Info, only: MolWgh, Shells
 use Center_Info, only: dc
@@ -88,34 +85,38 @@ use Symmetry_Info, only: nIrrep
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use Dens_stuff, only: nDij=>mDCRij,nDkl=>mDCRkl,nDik=>mDCRik,nDil=>mDCRil,nDjk=>mDCRjk,nDjl=>mDCRjl,&
+                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
+                      ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2,&
+                        mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
+
 
 implicit none
-integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
-                                 nData2, nAlpha, nBeta, jPrInc, nGamma, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, nEta, &
-                                 nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
-                                 nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
-                                 nFt, nBuffer, moip(0:7), naco, nMOIN
-real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
-                             PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
-                             Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), &
-                             Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Dan(*), Din(*)
-type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
+integer(kind=iwp), intent(in) :: nRys,nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, &
+                                 nfin, nTemp, nTwo2, nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4), nijkl
+real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dan(*), Din(*)
 real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
-logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), Shijij, lgrad, ldot, n8, ltri, new_fock
+logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), lgrad, ldot, n8, ltri, new_fock
 logical(kind=iwp), intent(out) :: IfG(4)
 real(kind=wp), intent(out) :: Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
 integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, iIrr, IncEta, IncZet, Indx(3,4), ip, &
                      ip2, ipFT, ipS1, ipS2, ipTemp, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), ix2, iy2, iz2, iZeta, jCmpb, &
                      JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lDCR1, lDCR2, lDCRR, &
                      lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, lZeta, mab, mcd, mEta, mZeta, n, nabcd, &
-                     nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nijkl, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
+                     nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot, nZeta, nEta, &
+                     iAO(4), iCmp(4), iAngV(4), jPrInc, lPrInc, nAlpha, nBeta, nGamma, nDelta, iAOst(4), iShell(4), iShll(4), &
+                     iStb, jStb, kStb, lStb, iBasi, jBasj, kBask, lBasl, iS, jS, kS, lS, ijS, klS, ik2, jk2
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
-logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4)
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4), Shijij
 procedure(cff2d_kernel) :: Cff2D
 procedure(modu2_kernel) :: ModU2
 procedure(tval1_kernel) :: TERI1
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
+type (k2_type), pointer:: k2data1(:), k2data2(:)
+real(kind=wp), pointer:: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:)
+real(kind=wp), pointer:: Dij1(:,:)=>Null(),Dkl1(:,:)=>Null(),Dik1(:,:)=>Null(),Dil1(:,:)=>Null(),Djk1(:,:)=>Null(),Djl1(:,:)=>Null()
+real(kind=wp), pointer:: Dij2(:,:)=>Null(),Dkl2(:,:)=>Null(),Dik2(:,:)=>Null(),Dil2(:,:)=>Null(),Djk2(:,:)=>Null(),Djl2(:,:)=>Null()
 
 !                                                                      *
 !***********************************************************************
@@ -124,12 +125,37 @@ logical(kind=iwp), external :: EQ
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+jPrInc=iSD4(6,2)
+lPrInc=iSD4(6,4)
+
+iAO(:)   = iSD4( 7,:)
+iCmp(:)  = iSD4( 2,:)
+iShll(:) = iSD4( 0,:)
+iShell(:)= iSD4( 11,:)
+iAngV(:) = iSD4( 1,:)
+iAOst(:) = iSD4( 8,:)
+
+nAlpha=iSD4( 5,1)
+nBeta =iSD4( 5,2)
+nGamma=iSD4( 5,3)
+nDelta=iSD4( 5,4)
+
+iBasi =iSD4(19,1)
+jBasj =iSD4(19,2)
+kBask =iSD4(19,3)
+lBasl =iSD4(19,4)
+
+nZeta = iSD4(5,1)*iSD4(5,2)
+nEta  = iSD4(5,3)*iSD4(5,4)
+
+Shijij = ((iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4)))
+
 nGr = 0
+ldot2 = ldot
 la = iAngV(1)
 lb = iAngV(2)
 lc = iAngV(3)
 ld = iAngV(4)
-ldot2 = ldot
 iCmpa = iCmp(1)
 jCmpb = iCmp(2)
 kCmpc = iCmp(3)
@@ -141,7 +167,10 @@ lShlld = iShll(4)
 IncZet = nAlpha*jPrInc
 IncEta = nGamma*lPrInc
 LmbdT = 0
-nijkl = iBasi*jBasj*kBask*lBasl
+iStb = iSD4(10,1)
+jStb = iSD4(10,2)
+kStb = iSD4(10,3)
+lStb = iSD4(10,4)
 nabcd = iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)
 mab = nTri_Elem1(la)*nTri_Elem1(lb)
 mcd = nTri_Elem1(lc)*nTri_Elem1(ld)
@@ -174,6 +203,44 @@ iuvwx(1) = dc(iStb)%nStab
 iuvwx(2) = dc(jStb)%nStab
 iuvwx(3) = dc(kStb)%nStab
 iuvwx(4) = dc(lStb)%nStab
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Pick up pointers to k2 entities.
+!
+iS=iShell(1)
+jS=iShell(2)
+kS=iShell(3)
+lS=iShell(4)
+ijS=iTri(iS,jS)
+klS=iTri(kS,lS)
+nDCRR = IndK2(2,ijS)
+ik2 = IndK2(3,ijS)
+nDCRS = IndK2(2,klS)
+jk2 = IndK2(3,klS)
+k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
+k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
+
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
+Coeff2(1:nBeta ,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta *jBasj,iAOst(2)+1)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+
+Dij1(1:mDij,1:nDij) => DeDe(ipDDij:ipDDij+mDij*nDij-1)
+Dkl1(1:mDkl,1:nDkl) => DeDe(ipDDkl:ipDDkl+mDkl*nDkl-1)
+Dik1(1:mDik,1:nDik) => DeDe(ipDDik:ipDDik+mDik*nDik-1)
+Dil1(1:mDil,1:nDil) => DeDe(ipDDil:ipDDil+mDil*nDil-1)
+Djk1(1:mDjk,1:nDjk) => DeDe(ipDDjk:ipDDjk+mDjk*nDjk-1)
+Djl1(1:mDjl,1:nDjl) => DeDe(ipDDjl:ipDDjl+mDjl*nDjl-1)
+
+Dij2(1:mDij,1:nDij) => DeDe2(ipDDij2:ipDDij2+mDij*nDij-1)
+Dkl2(1:mDkl,1:nDkl) => DeDe2(ipDDkl2:ipDDkl2+mDkl*nDkl-1)
+Dik2(1:mDik,1:nDik) => DeDe2(ipDDik2:ipDDik2+mDik*nDik-1)
+Dil2(1:mDil,1:nDil) => DeDe2(ipDDil2:ipDDil2+mDil*nDil-1)
+Djk2(1:mDjk,1:nDjk) => DeDe2(ipDDjk2:ipDDjk2+mDjk*nDjk-1)
+Djl2(1:mDjl,1:nDjl) => DeDe2(ipDDjl2:ipDDjl2+mDjl*nDjl-1)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -537,7 +604,7 @@ do lDCRR=0,nDCRR-1
       !
       !----------------------------------------------------------------*
 
-      call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,Shijij,iAngV,iCmpi,iCmp,iShll,iShell,iShell,iBasi,jBasj,kBask,lBasl, &
+      call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,Shijij,iAngV,iCmp,iShll,iShell,iShell,iBasi,jBasj,kBask,lBasl, &
                   Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2, &
                   mDjl,nDjl,fin,nfin,Temp(ipFT),nFT,Temp(ipS1),nS1,Temp(ipS2),nS2,Temp(ipTemp),nTe,TwoHam,nTwo2,JndGrd,Indx,iao, &
                   iaost,iuvwx,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,nOp,Din,Dan,new_fock)
@@ -551,6 +618,11 @@ end do
 !***********************************************************************
 !                                                                      *
 
-return
+Coeff1 => Null()
+Coeff2 => Null()
+Coeff3 => Null()
+Coeff4 => Null()
+k2data1 => Null()
+k2data2 => Null()
 
 end subroutine Twoel_Mck

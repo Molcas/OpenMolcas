@@ -23,7 +23,6 @@ set (sources
      drvh1.F90
      finfld.F90
      grd_interface.F90
-     int_parm_g.F90
      int_prep_g.F90
      knegrd.F90
      knemmg.F90
@@ -51,8 +50,6 @@ set (sources
      rfgrd.F90
      rfmmg.F90
      screen_g.F90
-     size_sob_g.F90
-     soao_g.F90
      srogrd.F90
      srommg.F90
      store_grad.F90

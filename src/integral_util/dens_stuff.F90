@@ -16,4 +16,6 @@ integer(kind=iwp), public, target :: mDCRij=1,mDCRkl=1,mDCRik=1,mDCRil=1,mDCRjk=
 integer(kind=iwp), public, target ::  ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl
 integer(kind=iwp), public, target :: ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl
 integer(kind=iwp), public, target ::   mDij,  mDkl,  mDik,  mDil,  mDjk,  mDjl
+integer(kind=iwp), public, target ::  ipDij2, ipDkl2, ipDik2, ipDil2, ipDjk2, ipDjl2
+integer(kind=iwp), public, target :: ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2
 End Module Dens_stuff
