@@ -397,214 +397,10 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     ls = Ind_ij(2,klSh)
 
     A_int = TMax(iS,jS)*TMax(kS,lS)
-    !write(u6,*) 'is,js,ks,ls=',is,js,ks,ls
     if (A_Int < CutInt) cycle
 
-    !do kS=1,nSkal
-    kCmp = iSD(2,kS)
+    Call eval_g2_ijkl()
 
-    !  do lS=1,kS
-    lCmp = iSD(2,lS)
-
-    call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-
-    Call Coor_setup(iSD4,nSD,Coor)
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! The code is working in such away that the MO needs upper and lower
-    ! triangular parts of ij kl but hessian needs only lower, check if the
-    ! integralbatch is lower or upper!!
-
-    lTri = iTri(iS,jS) >= iTri(kS,lS)
-    if ((.not. lTri) .and. (nMethod /= RASSCF)) cycle
-    lDot = (lTri .and. l_Hss)
-
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Allocate memory for zeta, eta, kappa, P and Q.
-    ! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
-
-    call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-
-    if (ltri) then
-
-      !----------------------------------------------------------------*
-
-      ! Fix the 1st order density matrix
-
-      ! Pick up pointers to desymmetrized 1st order density matrices.
-      ! Observe that the desymmetrized 1st order density matrices
-      ! follow the contraction index.
-
-      if (lpick) call Dens_Infos(nMethod)
-    end if
-    !                                                                  *
-    !*******************************************************************
-    !                                                                  *
-    ! Compute total size of the second order density matrix in SO basis.
-    !
-    !------------------------------------------------------------------*
-    nSO = MemSO2_P(nSD,iSD4)
-    ldot2 = ldot
-    if (nSO == 0) ldot2 = .false.
-
-    ! Compute memory request for the primitives.
-
-    ider = 2
-    if (.not. ldot2) iDer = 1
-    call MemRg2(iSD4(1,:),nRys,MemPrm,ider)
-
-    !------------------------------------------------------------------*
-    !
-    ! Calculate which derivatives should be made.
-    !
-    !------------------------------------------------------------------*
-
-    call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
-
-    !------------------------------------------------------------------*
-    !
-    ! Decide on the partioning of the shells based on the
-    ! available memory and the requested memory.
-    !
-    !------------------------------------------------------------------*
-
-    call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,nSD,iSD4)
-
-    iBasi = iSD4(3,1)
-    jBasj = iSD4(3,2)
-    kBask = iSD4(3,3)
-    lBasl = iSD4(3,4)
-
-    iBsInc = iSD4(4,1)
-    jBsInc = iSD4(4,2)
-    kBsInc = iSD4(4,3)
-    lBsInc = iSD4(4,4)
-
-    !------------------------------------------------------------------*
-    !
-    ! Loop over basis function if we do not have enough of memory to
-    ! calculate them in one step.
-    !
-    !------------------------------------------------------------------*
-    do iBasAO=1,iBasi,iBsInc
-      iBasn = min(iBsInc,iBasi-iBasAO+1)
-      iSD4(8,1) = iBasAO-1
-      iSD4(19,1) = iBasn
-
-      !----------------------------------------------------------------*
-      !
-      ! Move appropriate portions of the desymmetrized 1st order density matrix.
-      !
-      !----------------------------------------------------------------*
-      do jBasAO=1,jBasj,jBsInc
-        jBasn = min(jBsInc,jBasj-jBasAO+1)
-        iSD4(8,2) = jBasAO-1
-        iSD4(19,2) = jBasn
-
-        if (lpick) call Picky_Mck(nSD,iSD4,1,2,nMethod)
-
-        do kBasAO=1,kBask,kBsInc
-          kBasn = min(kBsInc,kBask-kBasAO+1)
-          iSD4(8,3) = kBasAO-1
-          iSD4(19,3) = kBasn
-
-          if (lpick) then
-            call Picky_Mck(nSD,iSD4,1,3,nMethod)
-            call Picky_Mck(nSD,iSD4,2,3,nMethod)
-          end if
-
-          do lBasAO=1,lBasl,lBsInc
-            lBasn = min(lBsInc,lBasl-lBasAO+1)
-            iSD4(8,4) = lBasAO-1
-            iSD4(19,4) = lBasn
-
-            if (lpick) then
-              call Picky_Mck(nSD,iSD4,3,4,nMethod)
-              call Picky_Mck(nSD,iSD4,1,4,nMethod)
-              call Picky_Mck(nSD,iSD4,2,4,nMethod)
-            end if
-
-            !----------------------------------------------------------*
-
-            nijkl = iBasn*jBasn*kBasn*lBasn
-
-            ! Mark out the memory allocations explicitly with pointers
-            ! MO tranformation buffer
-            MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
-            MOC(1:MemCMO) => Sew_Scr(ipMOC:ipMOC+MemCMO-1)
-            ! Area for the AO integrals
-            ipFin = ipMOC+MemCMO
-            Fin(1:MemFin) => Sew_Scr(ipFin:ipFin+MemFin-1)
-            ! Area for 2el density
-            ipPSO = ipFin+MemFin
-            PSO(1:nijkl,1:nSO) => Sew_Scr(ipPSO:ipPSO+nijkl*nSO-1)
-            if (nijkl*nSO > Mem1) then
-              write(u6,'(A)') 'nijkl*nSO>Mem1'
-              write(u6,*) 'njikl,nSO=',nijkl,nSO
-              write(u6,*) 'Mem1=',Mem1
-              call Abend()
-            end if
-            ipMem2 = ipPSO+Mem1  ! Work
-            Work2(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
-            ipMem3 = ipMem2+Mem2 ! Work
-            Work3(1:Mem3) => Sew_Scr(ipMem3:ipMem3+Mem3-1)
-            ipMemX = ipMem3+Mem3 ! Work
-            WorkX(1:MemX) => Sew_Scr(ipMemX:ipMemX+MemX-1)
-
-            ! If MO transformation is performed in the standard way
-            ! reserve memory for partial transformed integrals
-
-            ! Multilayer
-
-            ipMem4 = ipMem2+Mem2-Mem4
-            Work4(1:Mem4) => Sew_Scr(ipMem4:ipMem4+Mem4-1)
-            nTemp = Mem2+Mem3+MemX
-            Temp(1:nTemp) => Sew_Scr(ipMem2:ipMem2+nTemp-1)
-
-            !----------------------------------------------------------*
-            !
-            ! Get the 2nd order density matrix in SO basis.
-            !
-            !----------------------------------------------------------*
-
-            call Timing(dum1,Time,dum2,dum3)
-            if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
-            if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
-            call Timing(dum1,Time,dum2,dum3)
-            CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
-
-            ! Compute gradients of shell quadruplet
-
-            call TwoEl_mck(Coor,nRys,Pren,Prem,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
-                           Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri, &
-                           DTemp,DInAc,moip,nAco,MOC,MemCMO,new_fock,iSD4)
-            Post_Process = .true.
-
-            nullify(MOC)
-            nullify(Fin)
-            nullify(PSO)
-            nullify(Work2)
-            nullify(Work3)
-            nullify(WorkX)
-            nullify(Work4)
-            nullify(Temp)
-
-            !----------------------------------------------------------*
-
-          end do
-        end do
-      end do
-    end do
-    call Destroy_Braket()
-
-    !  end do ! lS
-    !end do ! kS
   end do ! klS
 
   if ((nMethod == RASSCF) .and. Post_Process) then
@@ -614,9 +410,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     nullify(Temp)
   end if
   nullify(Buffer)
-
-  !  end do ! jS
-  !end do ! iS
 
   call CWTime(TCpu2,TWall2)
 end do
@@ -747,5 +540,210 @@ subroutine Dens_Infos(nMethod)
   call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,nr_of_Densities,nMethod,ipTmp2,ipDjl2,ipDDjl2)
 
 end subroutine Dens_Infos
+
+subroutine Eval_g2_ijkl()
+Implicit None
+
+call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
+
+Call Coor_setup(iSD4,nSD,Coor)
+!                                                                  *
+!*******************************************************************
+!                                                                  *
+! The code is working in such away that the MO needs upper and lower
+! triangular parts of ij kl but hessian needs only lower, check if the
+! integralbatch is lower or upper!!
+
+lTri = iTri(iS,jS) >= iTri(kS,lS)
+if ((.not. lTri) .and. (nMethod /= RASSCF)) Return
+lDot = (lTri .and. l_Hss)
+
+!                                                                  *
+!*******************************************************************
+!                                                                  *
+! Allocate memory for zeta, eta, kappa, P and Q.
+! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
+
+call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
+!                                                                  *
+!*******************************************************************
+!                                                                  *
+
+if (ltri) then
+
+  !----------------------------------------------------------------*
+
+  ! Fix the 1st order density matrix
+
+  ! Pick up pointers to desymmetrized 1st order density matrices.
+  ! Observe that the desymmetrized 1st order density matrices
+  ! follow the contraction index.
+
+  if (lpick) call Dens_Infos(nMethod)
+end if
+!                                                                  *
+!*******************************************************************
+!                                                                  *
+! Compute total size of the second order density matrix in SO basis.
+!
+!------------------------------------------------------------------*
+nSO = MemSO2_P(nSD,iSD4)
+ldot2 = ldot
+if (nSO == 0) ldot2 = .false.
+
+! Compute memory request for the primitives.
+
+ider = 2
+if (.not. ldot2) iDer = 1
+call MemRg2(iSD4(1,:),nRys,MemPrm,ider)
+
+!------------------------------------------------------------------*
+!
+! Calculate which derivatives should be made.
+!
+!------------------------------------------------------------------*
+
+call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
+
+!------------------------------------------------------------------*
+!
+! Decide on the partioning of the shells based on the
+! available memory and the requested memory.
+!
+!------------------------------------------------------------------*
+
+call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,nSD,iSD4)
+
+iBasi = iSD4(3,1)
+jBasj = iSD4(3,2)
+kBask = iSD4(3,3)
+lBasl = iSD4(3,4)
+
+iBsInc = iSD4(4,1)
+jBsInc = iSD4(4,2)
+kBsInc = iSD4(4,3)
+lBsInc = iSD4(4,4)
+
+kCmp = iSD(2,kS)
+lCmp = iSD(2,lS)
+
+!------------------------------------------------------------------*
+!
+! Loop over basis function if we do not have enough of memory to
+! calculate them in one step.
+!
+!------------------------------------------------------------------*
+do iBasAO=1,iBasi,iBsInc
+  iBasn = min(iBsInc,iBasi-iBasAO+1)
+  iSD4(8,1) = iBasAO-1
+  iSD4(19,1) = iBasn
+
+  !----------------------------------------------------------------*
+  !
+  ! Move appropriate portions of the desymmetrized 1st order density matrix.
+  !
+  !----------------------------------------------------------------*
+  do jBasAO=1,jBasj,jBsInc
+    jBasn = min(jBsInc,jBasj-jBasAO+1)
+    iSD4(8,2) = jBasAO-1
+    iSD4(19,2) = jBasn
+
+    if (lpick) call Picky_Mck(nSD,iSD4,1,2,nMethod)
+
+    do kBasAO=1,kBask,kBsInc
+      kBasn = min(kBsInc,kBask-kBasAO+1)
+      iSD4(8,3) = kBasAO-1
+      iSD4(19,3) = kBasn
+
+      if (lpick) then
+        call Picky_Mck(nSD,iSD4,1,3,nMethod)
+        call Picky_Mck(nSD,iSD4,2,3,nMethod)
+      end if
+
+      do lBasAO=1,lBasl,lBsInc
+        lBasn = min(lBsInc,lBasl-lBasAO+1)
+        iSD4(8,4) = lBasAO-1
+        iSD4(19,4) = lBasn
+
+        if (lpick) then
+          call Picky_Mck(nSD,iSD4,3,4,nMethod)
+          call Picky_Mck(nSD,iSD4,1,4,nMethod)
+          call Picky_Mck(nSD,iSD4,2,4,nMethod)
+        end if
+
+        !----------------------------------------------------------*
+
+        nijkl = iBasn*jBasn*kBasn*lBasn
+
+        ! Mark out the memory allocations explicitly with pointers
+        ! MO tranformation buffer
+        MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
+        MOC(1:MemCMO) => Sew_Scr(ipMOC:ipMOC+MemCMO-1)
+        ! Area for the AO integrals
+        ipFin = ipMOC+MemCMO
+        Fin(1:MemFin) => Sew_Scr(ipFin:ipFin+MemFin-1)
+        ! Area for 2el density
+        ipPSO = ipFin+MemFin
+        PSO(1:nijkl,1:nSO) => Sew_Scr(ipPSO:ipPSO+nijkl*nSO-1)
+        if (nijkl*nSO > Mem1) then
+          write(u6,'(A)') 'nijkl*nSO>Mem1'
+          write(u6,*) 'njikl,nSO=',nijkl,nSO
+          write(u6,*) 'Mem1=',Mem1
+          call Abend()
+        end if
+        ipMem2 = ipPSO+Mem1  ! Work
+        Work2(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
+        ipMem3 = ipMem2+Mem2 ! Work
+        Work3(1:Mem3) => Sew_Scr(ipMem3:ipMem3+Mem3-1)
+        ipMemX = ipMem3+Mem3 ! Work
+        WorkX(1:MemX) => Sew_Scr(ipMemX:ipMemX+MemX-1)
+
+        ! If MO transformation is performed in the standard way
+        ! reserve memory for partial transformed integrals
+
+        ! Multilayer
+
+        ipMem4 = ipMem2+Mem2-Mem4
+        Work4(1:Mem4) => Sew_Scr(ipMem4:ipMem4+Mem4-1)
+        nTemp = Mem2+Mem3+MemX
+        Temp(1:nTemp) => Sew_Scr(ipMem2:ipMem2+nTemp-1)
+
+        !----------------------------------------------------------*
+        !
+        ! Get the 2nd order density matrix in SO basis.
+        !
+        !----------------------------------------------------------*
+
+        call Timing(dum1,Time,dum2,dum3)
+        if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
+        if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
+        call Timing(dum1,Time,dum2,dum3)
+        CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
+
+        ! Compute gradients of shell quadruplet
+
+        call TwoEl_mck(Coor,nRys,Pren,Prem,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
+                       Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri, &
+                       DTemp,DInAc,moip,nAco,MOC,MemCMO,new_fock,iSD4)
+        Post_Process = .true.
+
+        nullify(MOC)
+        nullify(Fin)
+        nullify(PSO)
+        nullify(Work2)
+        nullify(Work3)
+        nullify(WorkX)
+        nullify(Work4)
+        nullify(Temp)
+
+        !----------------------------------------------------------*
+
+      end do
+    end do
+  end do
+end do
+call Destroy_Braket()
+
+end subroutine Eval_g2_ijkl
 
 end subroutine Drvg2
