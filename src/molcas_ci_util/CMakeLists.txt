@@ -143,8 +143,8 @@ set (modfile_list
      gugx.F90
      input_mclr.F90
      rasscf_global.F90
-     spinfo.F90
      rassi_data.F90
+     spinfo.F90
      wadr.F90
 )
 

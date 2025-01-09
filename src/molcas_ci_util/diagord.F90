@@ -49,9 +49,9 @@ subroutine DiagOrd(PHPCSF,PHPCNF,IPORDCSF,IPORDCNF,MXPDIM,condition,iter,DTOC,IP
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use splitcas_data, only: EnerSplit, iDimBlockA, iDimBlockACNF, PerSplit
+use spinfo, only: NCNFTP, NCSFTP, NTYP
 use Constants, only: One
 use Definitions, only: wp, iwp
-use spinfo, only: NTYP,NCNFTP,NCSFTP
 
 #include "intent.fh"
 

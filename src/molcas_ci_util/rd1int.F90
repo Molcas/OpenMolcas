@@ -28,9 +28,9 @@ subroutine Rd1Int()
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: iwp
 use rasscf_global, only: BName, header, PotNuc
-use general_data, only: NSYM,NBAS
+use general_data, only: NBAS, NSYM
+use Definitions, only: iwp
 
 implicit none
 #include "rasdim.fh"

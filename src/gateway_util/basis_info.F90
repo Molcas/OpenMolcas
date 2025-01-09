@@ -22,10 +22,10 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, Extend_Shells, &
-          Gaussian_Type, icent, iCnttp_Dummy, lant, lmag, lnang, Max_Shells, mGaussian_Type, MolWgh, MxPrim, MxrCof, nAngr, nBas, &
-          nBas_Aux, nBas_Frag, nBasisr, nCnttp, nFrag_LineWords, nPrimr, nrBas, nrSym, Nuclear_Model, PAMExp, Point_Charge, rCof, &
-          rExp, Seward_Activated, Shells, DoEMPC, r0, ExpB
+public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, DoEMPC, ExpB, &
+          Extend_Shells, Gaussian_Type, icent, iCnttp_Dummy, lant, lmag, lnang, Max_Shells, mGaussian_Type, MolWgh, MxPrim, &
+          MxrCof, nAngr, nBas, nBas_Aux, nBas_Frag, nBasisr, nCnttp, nFrag_LineWords, nPrimr, nrBas, nrSym, Nuclear_Model, PAMExp, &
+          Point_Charge, r0, rCof, rExp, Seward_Activated, Shells
 
 #include "Molcas.fh"
 
@@ -166,11 +166,9 @@ integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_T
 integer(kind=iwp) :: icent(MxAO), iCnttp_Dummy = 0, lant(MxAO), lmag(MxAO), lnang(MxAO), Max_Shells = 0, mFields = 11, MolWgh = 2, &
                      nAngr(MxAO), nBas(0:7) = 0, nBas_Aux(0:7) = 0, nBas_Frag(0:7) = 0, nBasisr(MxAO), nCnttp = 0, &
                      nFields = 33+(1+iTabMx), nFrag_LineWords = 0, nPrimr(MxAO), nrBas(8), nrSym, Nuclear_Model = Point_Charge
-real(kind=wp) :: rCof(MxrCof), rExp(MxPrim)
-logical(kind=iwp) :: Initiated = .false., Seward_Activated = .false.
+real(kind=wp) :: ExpB, r0, rCof(MxrCof), rExp(MxPrim)
+logical(kind=iwp) :: DoEMPC, Initiated = .false., Seward_Activated = .false.
 real(kind=wp), allocatable :: PAMexp(:,:)
-real(kind=wp) :: r0,ExpB
-logical(kind=iwp) DoEMPC
 
 type(Distinct_Basis_set_centers), allocatable, target :: dbsc(:)
 type(Shell_Info), allocatable, target :: Shells(:)

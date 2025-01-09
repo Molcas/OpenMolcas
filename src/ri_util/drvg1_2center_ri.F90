@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !***********************************************************************
 !                                                                      *
@@ -62,7 +63,6 @@ logical(kind=iwp) :: DoFock, DoGrad, Indexation
 integer(kind=iwp), allocatable :: Shij(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
 logical(kind=iwp), external :: Rsv_Tsk
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *

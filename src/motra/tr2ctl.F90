@@ -19,9 +19,9 @@ subroutine TR2CTL(CMO)
 
 use motra_global, only: Debug, FnTwoAO, FnTwoMO, IAD13, iPrint, ISP, ISQ, ISR, ISS, LMOP, LMOQ, LMOR, LMOS, LTUVX, LuTwoAO, &
                         LuTwoMO, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX, nBas, nFro, nOrb, nSym
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6, RtoB
-use TraToc, only: ITRATOC,NTRATOC,NTRABUF
 
 implicit none
 real(kind=wp), intent(in) :: CMO(*)

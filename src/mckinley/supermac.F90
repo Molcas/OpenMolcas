@@ -11,9 +11,9 @@
 
 subroutine SuperMac()
 
+use temperatures, only: DefTemp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
-use temperatures, only: DefTemp
 
 implicit none
 integer(kind=iwp) :: i, iDNG, iErr, irlxroot, iSigma, LuInput, nData, nXF
@@ -139,7 +139,7 @@ write(LUInput,'(A)') 'THERmochemistry'
 call Get_iScalar('Rotational Symmetry Number',iSigma)
 write(LUInput,'(I3)') iSigma
 write(LUInput,'(A)') '1.0'
-do i=1,SIZE(DefTemp)
+do i=1,size(DefTemp)
   write(LUInput,'(F7.2)') DefTemp(i)
 end do
 write(LUInput,'(A)') 'End of PT'

@@ -1511,8 +1511,8 @@ A list of these keywords is given below:
   use a pre-optimized CI vector, :kword:`CIONLY` is used to avoid conflicts between the standard :program:`RASSCF` module
   and the MC-PDFT method (not compatible with SCF so far). The functional chosen is the translated-PBE.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FUNC" APPEAR="MC-PDFT" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED" REQUIRE="CIONLY">
-              %%Keyword: FUNC <advanced>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FUNC" APPEAR="MC-PDFT functional" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED" REQUIRE="CIONLY">
+              %%Keyword: FUNCtional <advanced>
               <HELP>
               Needed to perform MC-PDFT calculations. It must be used together with
               CIONLY keyword (it is a post-SCF method not compatible with SCF) and ROKS keyword.

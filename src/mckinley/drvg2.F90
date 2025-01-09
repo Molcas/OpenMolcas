@@ -34,8 +34,8 @@ use setup, only: MxPrm, nAux
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipOffD, MxDij, &
-                     ndede, nFT, Sew_Scr, ipOffDA, ipDijS2, DeDe2
+use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, DeDe2, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipDijS2, &
+                     ipOffD, ipOffDA, MxDij, nDeDe, nFT, Sew_Scr
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -67,25 +67,13 @@ logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpi
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
-logical(kind=iwp), parameter :: Int_Direct = .true.
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:)
+real(kind=wp), pointer :: Buffer(:), Fin(:), MOC(:), PSO(:,:), Temp(:), Work2(:), Work3(:), Work4(:), WorkX(:)
+integer(kind=iwp), parameter :: Nr_of_Densities = 1
+logical(kind=iwp), parameter :: Int_Direct = .true.
 integer(kind=iwp), external :: MemSO2_P, NrOpr
 logical(kind=iwp), external :: Rsv_Tsk
-real(kind=wp), pointer :: Buffer(:)=>Null(), MOC(:)=>Null(), Fin(:)=>Null(), PSO(:,:)=>Null(), Temp(:)=>Null()
-real(kind=wp), pointer :: Work2(:)=>Null(), Work3(:)=>Null(), WorkX(:)=>Null(), Work4(:)=>Null()
-integer(kind=iwp), parameter :: Nr_of_Densities=1
-
-interface
-subroutine Clr2(XrIn,rOut,nACO,nSD,iSD4,nDisp,nTemp,Temp)
-use Definitions, only: wp, iwp
-implicit none
-integer(kind=iwp), intent(in) :: nACO, nSD, iSD4(0:nSD,4), nDisp, nTemp
-real(kind=wp), intent(in), target :: XrIn(*)
-real(kind=wp), intent(inout), target :: Temp(nTemp)
-real(kind=wp), intent(inout) :: rOut(*)
-end subroutine Clr2
-end interface
 
 !                                                                      *
 !***********************************************************************
@@ -369,7 +357,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   !*********************************************************************
   !                                                                    *
   ! Outer loops (ij) over angular momenta and centers
-  !
 
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
@@ -390,15 +377,15 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     MemBuffer = 1  ! Dummy length
   end if
   if (MemBuffer > MemMax) then
-     write(u6,*) 'DrvG2: MemBuffer > MemMax'
-     write(u6,*) 'MemBuffer=',MemBuffer
-     write(u6,*) 'MemMax=',MemMax
-     write(u6,*) 'Increase MOLCAS_MEM!'
-     call Abend()
+    write(u6,*) 'DrvG2: MemBuffer > MemMax'
+    write(u6,*) 'MemBuffer=',MemBuffer
+    write(u6,*) 'MemMax=',MemMax
+    write(u6,*) 'Increase MOLCAS_MEM!'
+    call Abend()
   end if
 
-  Buffer(1:MemBuffer)=>Sew_Scr(ipMem:ipMem+MemBuffer-1)
-  Buffer(:)=Zero
+  Buffer(1:MemBuffer) => Sew_Scr(ipMem:ipMem+MemBuffer-1)
+  Buffer(:) = Zero
   ipMOC = ipMem+MEMBUFFER
 
   !                                                                    *
@@ -444,7 +431,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !*******************************************************************
     !                                                                  *
 
-    If (ltri) then
+    if (ltri) then
 
       !----------------------------------------------------------------*
 
@@ -454,8 +441,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
       ! Observe that the desymmetrized 1st order density matrices
       ! follow the contraction index.
 
-      if (lpick) Call Dens_Infos(nMethod)
-    End If
+      if (lpick) call Dens_Infos(nMethod)
+    end if
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -470,7 +457,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     ider = 2
     if (.not. ldot2) iDer = 1
-    call MemRg2(iSD4( 1,:),nRys,MemPrm,ider)
+    call MemRg2(iSD4(1,:),nRys,MemPrm,ider)
 
     !------------------------------------------------------------------*
     !
@@ -487,19 +474,17 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !
     !------------------------------------------------------------------*
 
-    call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO, &
-                MemFck,nFT,memCMO2,MemFin,MemBuffer,nSD,iSD4)
-
+    call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,nSD,iSD4)
 
     iBasi = iSD4(3,1)
     jBasj = iSD4(3,2)
     kBask = iSD4(3,3)
     lBasl = iSD4(3,4)
 
-    iBsInc= iSD4(4,1)
-    jBsInc= iSD4(4,2)
-    kBsInc= iSD4(4,3)
-    lBsInc= iSD4(4,4)
+    iBsInc = iSD4(4,1)
+    jBsInc = iSD4(4,2)
+    kBsInc = iSD4(4,3)
+    lBsInc = iSD4(4,4)
 
     !------------------------------------------------------------------*
     !
@@ -509,9 +494,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     !------------------------------------------------------------------*
     do iBasAO=1,iBasi,iBsInc
       iBasn = min(iBsInc,iBasi-iBasAO+1)
-      iSD4( 8,1) = iBasAO-1
+      iSD4(8,1) = iBasAO-1
       iSD4(19,1) = iBasn
-
 
       !----------------------------------------------------------------*
       !
@@ -520,32 +504,31 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
       !----------------------------------------------------------------*
       do jBasAO=1,jBasj,jBsInc
         jBasn = min(jBsInc,jBasj-jBasAO+1)
-        iSD4( 8,2) = jBasAO-1
+        iSD4(8,2) = jBasAO-1
         iSD4(19,2) = jBasn
 
-
-        If (lpick) Call Picky_Mck(nSD,iSD4,1,2,nMethod)
+        if (lpick) call Picky_Mck(nSD,iSD4,1,2,nMethod)
 
         do kBasAO=1,kBask,kBsInc
           kBasn = min(kBsInc,kBask-kBasAO+1)
-          iSD4( 8,3) = kBasAO-1
+          iSD4(8,3) = kBasAO-1
           iSD4(19,3) = kBasn
 
-          If (lpick) Then
-             Call Picky_Mck(nSD,iSD4,1,3,nMethod)
-             Call Picky_Mck(nSD,iSD4,2,3,nMethod)
-          End If
+          if (lpick) then
+            call Picky_Mck(nSD,iSD4,1,3,nMethod)
+            call Picky_Mck(nSD,iSD4,2,3,nMethod)
+          end if
 
           do lBasAO=1,lBasl,lBsInc
             lBasn = min(lBsInc,lBasl-lBasAO+1)
-            iSD4( 8,4) = lBasAO-1
+            iSD4(8,4) = lBasAO-1
             iSD4(19,4) = lBasn
 
-            If (lpick) Then
-               Call Picky_Mck(nSD,iSD4,3,4,nMethod)
-               Call Picky_Mck(nSD,iSD4,1,4,nMethod)
-               Call Picky_Mck(nSD,iSD4,2,4,nMethod)
-            End If
+            if (lpick) then
+              call Picky_Mck(nSD,iSD4,3,4,nMethod)
+              call Picky_Mck(nSD,iSD4,1,4,nMethod)
+              call Picky_Mck(nSD,iSD4,2,4,nMethod)
+            end if
 
             !----------------------------------------------------------*
 
@@ -554,25 +537,25 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ! Mark out the memory allocations explicitly with pointers
             ! MO tranformation buffer
             MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
-            MOC(1:MemCMO)=>Sew_Scr(ipMOC:ipMOC+MemCMO-1)
+            MOC(1:MemCMO) => Sew_Scr(ipMOC:ipMOC+MemCMO-1)
             ! Area for the AO integrals
             ipFin = ipMOC+MemCMO
-            Fin(1:MemFin)=>Sew_Scr(ipFin:ipFin+MemFin-1)
+            Fin(1:MemFin) => Sew_Scr(ipFin:ipFin+MemFin-1)
             ! Area for 2el density
             ipPSO = ipFin+MemFin
-            PSO(1:nijkl,1:nSO)=>Sew_Scr(ipPSO:ipPSO+nijkl*nSO-1)
-            If (nijkl*nSO>Mem1) Then
-               Write(u6,'(A)') 'nijkl*nSO>Mem1'
-               Write(u6,*) 'njikl,nSO=',nijkl,nSO
-               Write(u6,*) 'Mem1=',Mem1
-               Call Abend()
-            End If
+            PSO(1:nijkl,1:nSO) => Sew_Scr(ipPSO:ipPSO+nijkl*nSO-1)
+            if (nijkl*nSO > Mem1) then
+              write(u6,'(A)') 'nijkl*nSO>Mem1'
+              write(u6,*) 'njikl,nSO=',nijkl,nSO
+              write(u6,*) 'Mem1=',Mem1
+              call Abend()
+            end if
             ipMem2 = ipPSO+Mem1  ! Work
-            Work2(1:Mem2)=>Sew_Scr(ipMem2:ipMem2+Mem2-1)
+            Work2(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
             ipMem3 = ipMem2+Mem2 ! Work
-            Work3(1:Mem3)=>Sew_Scr(ipMem3:ipMem3+Mem3-1)
+            Work3(1:Mem3) => Sew_Scr(ipMem3:ipMem3+Mem3-1)
             ipMemX = ipMem3+Mem3 ! Work
-            WorkX(1:MemX)=>Sew_Scr(ipMemX:ipMemX+MemX-1)
+            WorkX(1:MemX) => Sew_Scr(ipMemX:ipMemX+MemX-1)
 
             ! If MO transformation is performed in the standard way
             ! reserve memory for partial transformed integrals
@@ -580,9 +563,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             ! Multilayer
 
             ipMem4 = ipMem2+Mem2-Mem4
-            Work4(1:Mem4)=>Sew_Scr(ipMem4:ipMem4+Mem4-1)
-            nTemp=Mem2+Mem3+MemX
-            Temp(1:nTemp)=>Sew_Scr(ipMem2:ipMem2+nTemp-1)
+            Work4(1:Mem4) => Sew_Scr(ipMem4:ipMem4+Mem4-1)
+            nTemp = Mem2+Mem3+MemX
+            Temp(1:nTemp) => Sew_Scr(ipMem2:ipMem2+nTemp-1)
 
             !----------------------------------------------------------*
             !
@@ -598,20 +581,19 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
             ! Compute gradients of shell quadruplet
 
-            call TwoEl_mck(Coor,nRys,Pren,Prem,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO, &
-                           Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp, &
-                           nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
-                           MOC,MemCMO,new_fock,iSD4)
+            call TwoEl_mck(Coor,nRys,Pren,Prem,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
+                           Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri, &
+                           DTemp,DInAc,moip,nAco,MOC,MemCMO,new_fock,iSD4)
             Post_Process = .true.
 
-            MOC=>Null()
-            Fin=>Null()
-            PSO=>Null()
-            Work2=>Null()
-            Work3=>Null()
-            WorkX=>Null()
-            Work4=>Null()
-            Temp=>Null()
+            nullify(MOC)
+            nullify(Fin)
+            nullify(PSO)
+            nullify(Work2)
+            nullify(Work3)
+            nullify(WorkX)
+            nullify(Work4)
+            nullify(Temp)
 
             !----------------------------------------------------------*
 
@@ -626,12 +608,12 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   end do ! klS
 
   if ((nMethod == RASSCF) .and. Post_Process) then
-    nTemp=MemMax-MemBuffer
-    Temp(1:nTemp)=>Sew_Scr(ipMOC:ipMOC+nTemp-1)
+    nTemp = MemMax-MemBuffer
+    Temp(1:nTemp) => Sew_Scr(ipMOC:ipMOC+nTemp-1)
     call CLR2(Buffer,iInt,nACO,nSD,iSD4,nDisp,nTemp,Temp)
-    Temp=>Null()
+    nullify(Temp)
   end if
-  Buffer=>Null()
+  nullify(Buffer)
 
   !  end do ! jS
   !end do ! iS
@@ -725,62 +707,45 @@ call mma_deallocate(ipDisp2,safe='*')
 call mma_deallocate(ipDisp3,safe='*')
 call mma_deallocate(ipMO,safe='*')
 
+contains
 
-Contains
+subroutine Dens_Infos(nMethod)
 
-Subroutine Dens_Infos(nMethod)
-use Dens_stuff, only: mDCRij,mDCRkl,mDCRik,mDCRil,mDCRjk,mDCRjl,&
-                      ipDDij,ipDDkl,ipDDik,ipDDil,ipDDjk,ipDDjl,&
-                       ipDij, ipDkl, ipDik, ipDil, ipDjk, ipDjl,&
-                      ipDDij2,ipDDkl2,ipDDik2,ipDDil2,ipDDjk2,ipDDjl2,&
-                       ipDij2, ipDkl2, ipDik2, ipDil2, ipDjk2, ipDjl2
-use k2_arrays, only: ipDijS, ipDijS2
-Implicit None
-integer(kind=iwp), parameter:: Nr_of_D = 1
-integer(kind=iwp) ipTmp, ipTmp2, ijS, klS, ikS, ilS, jkS, jlS
-integer(kind=iwp) iS, jS, kS, lS
-integer(kind=iwp), intent(in):: nMethod
+  use Dens_stuff, only: ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, &
+                        ipDij, ipDij2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, mDCRij, mDCRik, &
+                        mDCRil, mDCRjk, mDCRjl, mDCRkl
+  use k2_arrays, only: ipDijS, ipDijS2
 
-Interface
-subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod, &
-                     ipTmp2, ipDij2, ipDDij2)
-use Definitions, only: iwp
+  integer(kind=iwp), intent(in) :: nMethod
+  integer(kind=iwp) :: ijS, ikS, ilS, ipTmp, ipTmp2, iS, jkS, jlS, jS, klS, kS, lS
+  integer(kind=iwp), parameter :: Nr_of_D = 1
 
-implicit none
-integer(kind=iwp), intent(in) :: ijS, nr_of_Densities, nMethod
-integer(kind=iwp), intent(out) :: ipDij, ipDSij, mDCRij, ipDDij
-integer(kind=iwp), intent(inout) :: ipTmp
-integer(kind=iwp), intent(inout), optional :: ipTmp2
-integer(kind=iwp), intent(out), optional :: ipDij2, ipDDij2
-End subroutine Dens_Info
-End Interface
+  iS = iSD4(11,1)
+  jS = iSD4(11,2)
+  kS = iSD4(11,3)
+  lS = iSD4(11,4)
 
-iS = iSD4(11,1)
-jS = iSD4(11,2)
-kS = iSD4(11,3)
-lS = iSD4(11,4)
+  ijS = iTri(iS,jS)
+  klS = iTri(kS,lS)
+  ikS = iTri(iS,kS)
+  ilS = iTri(iS,lS)
+  jkS = iTri(jS,kS)
+  jlS = iTri(jS,lS)
+  ijS = iTri(iS,jS)
+  klS = iTri(kS,lS)
+  ikS = iTri(iS,kS)
+  ilS = iTri(iS,lS)
+  jkS = iTri(jS,kS)
+  jlS = iTri(jS,lS)
+  ipTmp = ipDijs
+  if (nMethod == RASSCF) ipTmp2 = ipDijs2
+  call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod,ipTmp2,ipDij2,ipDDij2)
+  call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,nr_of_Densities,nMethod,ipTmp2,ipDkl2,ipDDkl2)
+  call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,nr_of_Densities,nMethod,ipTmp2,ipDik2,ipDDik2)
+  call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,nr_of_Densities,nMethod,ipTmp2,ipDil2,ipDDil2)
+  call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,nr_of_Densities,nMethod,ipTmp2,ipDjk2,ipDDjk2)
+  call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,nr_of_Densities,nMethod,ipTmp2,ipDjl2,ipDDjl2)
 
-ijS = iTri(iS,jS)
-klS = iTri(kS,lS)
-ikS = iTri(iS,kS)
-ilS = iTri(iS,lS)
-jkS = iTri(jS,kS)
-jlS = iTri(jS,lS)
-ijS = iTri(iS,jS)
-klS = iTri(kS,lS)
-ikS = iTri(iS,kS)
-ilS = iTri(iS,lS)
-jkS = iTri(jS,kS)
-jlS = iTri(jS,lS)
-ipTmp = ipDijs
-if (nMethod == RASSCF) ipTmp2 = ipDijs2
-Call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDij2, ipDDij2)
-Call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDkl2, ipDDkl2)
-Call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDik2, ipDDik2)
-Call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDil2, ipDDil2)
-Call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDjk2, ipDDjk2)
-Call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,nr_of_Densities,nMethod,ipTmp2, ipDjl2, ipDDjl2)
-End Subroutine Dens_Infos
-
+end subroutine Dens_Infos
 
 end subroutine Drvg2

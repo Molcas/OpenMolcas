@@ -17,10 +17,10 @@ subroutine Interf(i_root,Ene,isuseene,iscasvb)
 !***********************************************************************
 
 use casvb_global, only: ifvb
+use general_data, only: NBAS, NSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use general_data, only: NSYM,NBAS
 
 implicit none
 integer(kind=iwp), intent(in) :: i_root, isuseene, iscasvb

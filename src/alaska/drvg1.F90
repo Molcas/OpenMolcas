@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine Drvg1(Grad,Temp,nGrad)
 !***********************************************************************
 !                                                                      *
@@ -31,6 +32,9 @@ subroutine Drvg1(Grad,Temp,nGrad)
 !             Modified for SetUp_Ints. January '00                     *
 !***********************************************************************
 
+#ifdef _CD_TIMING_
+use temptime, only: DRVG1_CPU, DRVG1_WALL, PREPP_CPU, PREPP_WALL
+#endif
 use setup, only: mSkal, MxPrm
 use k2_arrays, only: Sew_Scr
 use Sizes_of_Seward, only: S
@@ -49,6 +53,7 @@ integer(kind=iwp) :: i, iAng, ijMax, ijS, iOpt, iS, &
 real(kind=wp) :: A_int, Cnt, P_Eff, ThrAO, TMax_all, TskHi, TskLw
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, lDummy, Triangular
 character(len=8) :: Method_chk
+integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
 logical(kind=iwp), external :: Rsv_GTList

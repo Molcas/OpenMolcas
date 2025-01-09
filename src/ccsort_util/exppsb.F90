@@ -32,9 +32,9 @@ subroutine exppsb(symp,symq,symr,syms,valn,jn,kn,ln)
 ! 8 - si>sk, si>sj, sk>sl
 
 use ccsort_global, only: fullprint, idis, LUINTM, mbas, NORB, np, nq, nr, ns, nshow, nsize, typ
+use TraToc, only: NTRABUF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use TraToc, only: NTRABUF
 
 implicit none
 integer(kind=iwp), intent(in) :: symp, symq, symr, syms

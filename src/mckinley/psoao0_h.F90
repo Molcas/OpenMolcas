@@ -12,8 +12,8 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iPrInc, &
-                    jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,Mem1,Mem2,Mem3,Mem4,Mend,nSD,iSD4)
+subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,Mem1,Mem2,Mem3,Mem4, &
+                    Mend,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -40,13 +40,12 @@ use Definitions, only: iwp, u6, RtoI
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, ipMem1, nSD
+integer(kind=iwp), intent(out) :: iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, Mem2, Mem3, Mem4, Mend
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
-                                  Mem2, Mem3, Mem4, Mend
 #include "Molcas.fh"
-integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &
-                     Mem0, MemAux, MemCon, MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2, &
-                     iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, iBsInc,jBsInc,kBsInc,lBsInc
+integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, jBas, jBsInc, jCmp, jPrim, kBas, kBsInc, kCmp, kPrim, kSOInt, la, &
+                     lb, lBas, lBsInc, lc, lCmp, ld, lPrim, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, &
+                     MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
 #include "warnings.h"
@@ -226,9 +225,9 @@ ipMem3 = ipMem2+Mem2
 ipMem4 = ipMem2+Mem2-Mem4
 Mend = 0
 
-iSD4(4,1)=iBsInc
-iSD4(4,2)=jBsInc
-iSD4(4,3)=kBsInc
-iSD4(4,4)=lBsInc
+iSD4(4,1) = iBsInc
+iSD4(4,2) = jBsInc
+iSD4(4,3) = kBsInc
+iSD4(4,4) = lBsInc
 
 end subroutine PSOAO0_h

@@ -54,11 +54,9 @@ logical(kind=iwp) :: lDummy, DoGrad, DoFock, Indexation, Triangular, lNoSkip
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable :: TMax(:,:)
 logical(kind=iwp), external :: Rsv_GTList
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
 ! Handle both the valence and the fragment basis set
 
 call Set_Basis_Mode('Valence')

@@ -36,13 +36,13 @@ use GLBBAS, only: DFTP, DTOC, CFTP
 use splitcas_data, only: EnInSplit, EnerSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
                          NumSplit, percSpli, PerSplit, ThrSplit
 use rasscf_global, only: EMY, ENER, ExFac, IADR15, ICICH, iCIOnly, ICIRST, ITER, ITERCI, iTOC, n_Keep, NAC
+use general_data, only: JOBIPH, JOBOLD, LUDAVID, NACTEL, NCONF, STSYM
+use spinfo, only: NCNASM, NDET
 use output_ras, only: IPRLOC
 use printlevel, only: DEBUG
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, auToeV
 use Definitions, only: wp, iwp, u6
-use general_data, only: NCONF,STSYM,JOBOLD,JOBIPH,LUDAVID,NACTEL
-use spinfo, only: NCNASM,NDET
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)

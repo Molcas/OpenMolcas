@@ -23,7 +23,7 @@ subroutine Drv1El()
 !***********************************************************************
 
 use AMFI_Info, only: No_AMFI
-use Basis_Info, only: dbsc, nCnttp, PAMexp, r0, ExpB
+use Basis_Info, only: dbsc, ExpB, nCnttp, PAMexp, r0
 use GeoList, only: Centr, Chrg
 use MpmC, only: Coor_MpM
 use PrpPnt, only: Den, Occ, Vec

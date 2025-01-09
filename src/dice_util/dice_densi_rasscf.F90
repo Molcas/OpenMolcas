@@ -14,9 +14,9 @@
 subroutine DICE_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)
 
 use rasscf_global, only: NAC, NACPAR, NACPR2
+use general_data, only: NACTEL
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use general_data, only: NACTEL
 
 implicit none
 integer(kind=iwp), intent(in) :: jRoot

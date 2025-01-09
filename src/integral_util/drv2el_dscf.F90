@@ -255,9 +255,7 @@ do
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    if (.not. Skip) Then
-        call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
-    endif
+    if (.not. Skip) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
     Skip = .false.
 
     Quad_ijkl = Quad_ijkl+One

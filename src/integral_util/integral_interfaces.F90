@@ -24,9 +24,9 @@ use Gateway_Info, only:
 use Sizes_of_Seward, only:
 use Symmetry_Info, only:
 use SOAO_Info, only:
+use Dens_Stuff, only:
 use stdalloc, only:
 use Constants, only:
-use Dens_Stuff, only:
 
 use iSD_data, only: nSD
 use Index_Functions, only: nTri_Elem1

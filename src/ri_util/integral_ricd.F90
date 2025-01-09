@@ -19,8 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_wrout_interface.fh"
-integer(kind=iwp) iCmp(4), iShell(4), iAO(4), iAOst(4), kOp(4)
-integer(kind=iwp) iBas,jBas,kBas,lBas
+integer(kind=iwp) :: iAO(4), iAOst(4), iBas, iCmp(4), iShell(4), jBas, kBas, kOp(4), lBas
 
 #include "macros.fh"
 unused_var(iShell)
@@ -28,19 +27,18 @@ unused_var(SOInt(1))
 unused_var(nSOint)
 unused_var(iSOSym)
 
-iCmp(:)=iSD4(2,:)
-iShell(:)=iSD4(11,:)
-iAO(:)=iSD4(7,:)
-iAOst(:)=iSD4(8,:)
-iBas=iSD4(19,1)
-jBas=iSD4(19,2)
-kBas=iSD4(19,3)
-lBas=iSD4(19,4)
-
+iCmp(:) = iSD4(2,:)
+iShell(:) = iSD4(11,:)
+iAO(:) = iSD4(7,:)
+iAOst(:) = iSD4(8,:)
+iBas = iSD4(19,1)
+jBas = iSD4(19,2)
+kBas = iSD4(19,3)
+lBas = iSD4(19,4)
 
 if (mSym == 1) then
   ! note that iTOffs is being abused for something else
-  kOp(:)=0
+  kOp(:) = 0
   call PLF_RICD(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp,TInt,iTOffs(2),iTOffs(3),iTOffs(1), &
                 iTOffs(4),iTOffs(5))
 else

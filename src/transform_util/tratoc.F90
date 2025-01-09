@@ -8,8 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module TraToc
+
+module TraToc
+
 use Definitions, only: iwp
-integer(kind=iwp), parameter :: nTraToc=106, nTraBuf=9600
+
+implicit none
+private
+
+integer(kind=iwp), parameter :: nTraBuf = 9600, nTraToc = 106
 integer(kind=iwp) :: iTraToc(nTraToc)
-End Module TraToc
+
+public :: iTraToc, nTraBuf, nTraToc
+
+end module TraToc

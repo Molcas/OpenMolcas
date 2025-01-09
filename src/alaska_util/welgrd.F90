@@ -27,9 +27,9 @@ subroutine WelGrd( &
 !***********************************************************************
 
 use Center_Info, only: dc
+use Basis_Info, only: ExpB, r0
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
-use Basis_Info, only: r0, ExpB
 
 implicit none
 #include "grd_interface.fh"

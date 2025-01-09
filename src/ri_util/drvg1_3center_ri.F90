@@ -13,6 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
+!#define _CD_TIMING_
 subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 !***********************************************************************
 !                                                                      *
@@ -77,7 +78,7 @@ real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhal
                               Tmp(:,:), Xmi(:,:,:,:)
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
-logical(kind=iwp), external :: Rsv_Tsk2
+logical(kind=iwp), external :: EQ, Rsv_Tsk2
 
 !                                                                      *
 !***********************************************************************

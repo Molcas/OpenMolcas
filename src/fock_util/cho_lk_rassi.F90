@@ -44,13 +44,13 @@ use Fock_util_interface, only: cho_lr_MOs
 use Fock_util_global, only: Deco, Estimate, Fake_CMO2, PseudoChoMOs, Update
 use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, twxy_Type
 use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
+use rassi_data, only: NASH, NISH
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rassi_data, only: NISH,NASH
 
 #include "intent.fh"
 

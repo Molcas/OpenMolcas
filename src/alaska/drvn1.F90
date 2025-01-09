@@ -43,9 +43,10 @@ integer(kind=iwp) :: iCar, iChxyz, iCnt, iCnttp, iComp, iDCRR(0:7), iDum, iFd, i
                      iRout, iStb(0:7), iTs, ix, iy, iz, jCnt, jCntMx, jCnttp, jCoSet(8,8), LmbdR, mdc, ndc, nDCRR, nDisp, nOp, nStb
 real(kind=wp) :: A(3), B(3), CCoMx, CCoMxd, CCoMy, CCoMyd, CCoMz, CCoMzd, CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, DA(3), &
                  DARB, df_dr, dfab, dr_dA, dr_dB, fab, fab0, fab1, fab2, Fact, Gam, PreFct, ps, r12, RB(3), Tempd(3), ZA, ZAZB, ZB
-logical(kind=iwp) :: EQ, TstFnc, NoLoop
+logical(kind=iwp) :: NoLoop
 character(len=80) :: Lab
 integer(kind=iwp), external :: iChAtm, iPrmt, NrOpr
+logical(kind=iwp), external :: EQ, TstFnc
 
 iRout = 33
 iPrint = nPrint(iRout)

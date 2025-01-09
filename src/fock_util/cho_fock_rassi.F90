@@ -39,10 +39,10 @@ use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho, timings
 use Symmetry_Info, only: Mul
 use Fock_util_global, only: Fake_CMO2
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type, twxy_Type
+use rassi_data, only: NASH, NISH
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
-use rassi_data, only: NASH,NISH
 
 #include "intent.fh"
 

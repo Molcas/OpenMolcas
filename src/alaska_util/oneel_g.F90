@@ -64,9 +64,10 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(
                      jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, nOp(2), &
                      nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
 real(kind=wp) :: A(3), B(3), FactND, RB(3)
-logical(kind=iwp) :: EQ, FreeiSD, IfGrad(3,3)
+logical(kind=iwp) :: FreeiSD, IfGrad(3,3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Krnl(:), PCoor(:,:), rFinal(:), Scr1(:), Scr2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
+logical(kind=iwp), external :: EQ
 #include "print.fh"
 
 iRout = 112
