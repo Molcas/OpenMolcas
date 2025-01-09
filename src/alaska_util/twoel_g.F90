@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TwoEl_g(Coor,nRys,Pren,Prem,Grad,nGrad,IfGrad,IndGrd,PSO,nijkl,nPSO,Wrk2,nWrk2,iSD4)
+subroutine TwoEl_g(Coor,nRys,Grad,nGrad,IfGrad,IndGrd,PSO,nijkl,nPSO,Wrk2,nWrk2,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -49,7 +49,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nRys, nGrad, IndGrd(3,4), nijkl, nPSO, nWrk2, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO)
-real(kind=wp), intent(inout) :: Pren, Prem, Grad(nGrad)
+real(kind=wp), intent(inout) :: Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
 real(kind=wp), intent(out) :: Wrk2(nWrk2)
 integer(kind=iwp) :: iC, iCar, iCent, iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, iiCent, ijklab, ijMax, ijMin, ikl, &
@@ -475,8 +475,6 @@ do lDCRR=0,nDCRR-1
           mEta = min(IncEta,nEta_Tot-iEta+1)
           if (all(Coeff4(:,:) == Zero)) cycle
 
-          Pren = Pren+real(mab*mcd*mZeta*mEta,kind=wp)
-
           ! Preprescreen
 
           call PrePre_g(mZeta,mEta,lZeta,lEta,PreScr,CutGrd,iZeta-1,iEta-1,k2Data1(lDCR1),k2Data2(lDCR2))
@@ -508,8 +506,6 @@ do lDCRR=0,nDCRR-1
                         Braket%Eta,Braket%EInv,Braket%Q,Braket%xG,Braket%xD, &
                         ix1,iy1,iz1,ix2,iy2,iz2,CutGrd,l2DI, &
                         PreScr,nWrk3,IsChi,ChiI2)
-          Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
-          !write(u6,*) 'Prem=',Prem
           if (lZeta*lEta == 0) cycle
 
           ! Compute integral derivative and accumulate

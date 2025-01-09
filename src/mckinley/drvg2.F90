@@ -51,13 +51,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: l_Grd, l_Hss
-integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCnt, iCnttp, &
+integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
                      iS, iShll, jBas, jBasAO, jBasj, jBasn, &
-                     jBsInc, jCmp, jCnt, jCnttp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
-                     js, kBasAO, kBask, kBasn, kBsInc, kCmp, kCnt, kCnttp, kIrr, klSh, iAng, &
-                     ks, lBasAO, lBasl, lBasn, lBsInc, lCmp, lCnt, lCnttp, ls, &
+                     jBsInc, jCmp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
+                     js, kBasAO, kBask, kBasn, kBsInc, kCmp, kIrr, klSh, iAng, &
+                     ks, lBasAO, lBasl, lBasn, lBsInc, lCmp, ls, &
                      mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
@@ -373,15 +373,9 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
-  iCnttp = iSD(13,iS)
-  iCnt = iSD(14,iS)
-  Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
   jCmp = iSD(2,jS)
   jBas = iSD(3,jS)
-  jCnttp = iSD(13,jS)
-  jCnt = iSD(14,jS)
-  Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
   !                                                                    *
   !*********************************************************************
@@ -421,18 +415,13 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
     !do kS=1,nSkal
     kCmp = iSD(2,kS)
-    kCnttp = iSD(13,kS)
-    kCnt = iSD(14,kS)
-    Coor(1:3,3) = dbsc(kCnttp)%Coor(1:3,kCnt)
 
     !  do lS=1,kS
     lCmp = iSD(2,lS)
-    lCnttp = iSD(13,lS)
-    lCnt = iSD(14,lS)
-    Coor(1:3,4) = dbsc(lCnttp)%Coor(1:3,lCnt)
 
     call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
+    Call Coor_setup(iSD4,nSD,Coor)
     !                                                                  *
     !*******************************************************************
     !                                                                  *

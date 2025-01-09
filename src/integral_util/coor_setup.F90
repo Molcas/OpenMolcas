@@ -9,21 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Size_SOb(iSD4,nSD,nSO)
+subroutine Coor_Setup(iSD4,nSD,Coor)
 
-use Symmetry_Info, only: nIrrep
-use Definitions, only: iwp
+use Basis_Info, only: dbsc
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: nSO
-integer(kind=iwp), external :: MemSO2
-!todo
-if (nIrrep > 1) then
-  nSO = MemSO2(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),iSD4(7,1),iSD4(7,2),iSD4(7,3), &
-               iSD4(7,4))
-else
-  nSO = 0
-end if
+real(kind=wp), intent(out) :: Coor(3,4)
+integer(kind=iwp) :: iCnt, iCnttp, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
 
-end subroutine Size_SOb
+iCnttp = iSD4(13,1)
+iCnt   = iSD4(14,1)
+jCnttp = iSD4(13,2)
+jCnt   = iSD4(14,2)
+kCnttp = iSD4(13,3)
+kCnt   = iSD4(14,3)
+lCnttp = iSD4(13,4)
+lCnt   = iSD4(14,4)
+
+if (dbsc(iCnttp)%Aux) then
+  Coor(:,1) = dbsc(jCnttp)%Coor(:,jCnt)
+else
+  Coor(:,1) = dbsc(iCnttp)%Coor(:,iCnt)
+end if
+Coor(:,2) = dbsc(jCnttp)%Coor(:,jCnt)
+
+if (dbsc(kCnttp)%Aux) then
+  Coor(:,3) = dbsc(lCnttp)%Coor(:,lCnt)
+else
+  Coor(:,3) = dbsc(kCnttp)%Coor(:,kCnt)
+end if
+Coor(:,4) = dbsc(lCnttp)%Coor(:,lCnt)
+
+end subroutine Coor_Setup

@@ -70,6 +70,7 @@ real(kind=wp) :: Coor(3,4), Tmax=Zero
 logical(kind=iwp) :: NoInts=.True.
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_
+integer(kind=iwp), external :: MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
 integer(kind=iwp), parameter :: SCF=1
@@ -127,11 +128,17 @@ call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 ! No SO block in direct construction of the Fock matrix.
-Call Size_SOb(iSD4,nSD,nSO)
+if (nIrrep > 1) then
+  nSO = MemSO2(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),iSD4(7,1),iSD4(7,2),iSD4(7,3), &
+               iSD4(7,4))
+else
+  nSO = 0
+end if
 if (nIrrep>1 .and. nSO==0) return
 nAO = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
 !
-call Int_Setup(iSD4,nSD,Coor)
+call Coor_Setup(iSD4,nSD,Coor)
+call Int_Setup(Coor)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

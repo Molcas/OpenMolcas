@@ -39,6 +39,7 @@ set (sources
      cnthlf.F90
      cntrct.F90
      conmax.F90
+     coor_setup.F90
      contei.F90
      coset.F90
      covrad.F90
@@ -262,7 +263,6 @@ set (sources
      seward_init.F90
      shell_mxdens.F90
      shell_mxschwz.F90
-     size_sob.F90
      soadd.F90
      sodist.F90
      sofsh1.F90

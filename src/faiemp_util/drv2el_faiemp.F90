@@ -40,7 +40,7 @@ integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp) :: i, iCnt, iCnttp, iComp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, j, jS, klS, kS, lOper, lS, maxDens, mdc, &
                      mDens, nBas_Valence(0:7), nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, nSkal, nSkal_Valence
 real(kind=wp) :: A_int, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TInt(nTInt), TMax_all, TWall1, TWall2
-logical(kind=iwp) :: DoGrad, EnergyWeight, Indexation, lNoSkip
+logical(kind=iwp) :: DoGrad, EnergyWeight, Indexation, NoSkip
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable, target :: Dens(:), Fock(:)
@@ -237,47 +237,11 @@ call CWTime(TCpu1,TWall1)
 
 !ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
 ijS = 1
-iS = ij(ijS*2-1)
-jS = ij(ijS*2)
 !klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
-klS = 1
-kS = ij(klS*2-1)
-lS = ij(klS*2)
-do
-  if (ijS > int(P_Eff)) exit
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! density prescreening (results in iS > nSkal_Valence)
-  A_int = TMax(iS,jS)*TMax(kS,lS)
-  Dtst = max(DMax(is,ls)*Quart,DMax(is,ks)*Quart,DMax(js,ls)*Quart,DMax(js,ks)*Quart,DMax(is,js),DMax(ks,ls))
-  lNoSkip = A_int*Dtst >= ThrInt
-  ! only calculate needed integrals and only update the valence part of the
-  ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
-  ! belonging to different regions)
-  if (jS <= nSkal_Valence) then
-    lNoSkip = lNoSkip .and. (kS > nSkal_Valence)
-  else
-    lNoSkip = lNoSkip .and. (kS <= nSkal_Valence)
-  end if
-  lNoSkip = lNoSkip .and. (lS <= nSkal_Valence)
+klS = 0
 
-  if (lNoSkip) then
-    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
-#   ifdef _DEBUGPRINT_
-    write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
-    if (nIrrep == 1) then
-      call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
-    else
-      iFD = 0
-      do iIrrep=0,nIrrep-1
-        nFD = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-        call TriPrt('updated Fock',' ',pFq(iFD+1:iFD+nFD),nBas(iIrrep))
-        iFD = iFD+nFD
-      end do
-    end if
-#   endif
-  end if
+
+do
   klS = klS+1
   if (klS > ijS) then
     ijS = ijS+1
@@ -287,6 +251,42 @@ do
   jS = ij(ijS*2)
   kS = ij(klS*2-1)
   lS = ij(klS*2)
+  if (ijS > int(P_Eff)) exit
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! density prescreening (results in iS > nSkal_Valence)
+  A_int = TMax(iS,jS)*TMax(kS,lS)
+  Dtst = max(DMax(is,ls)*Quart,DMax(is,ks)*Quart,DMax(js,ls)*Quart,DMax(js,ks)*Quart,DMax(is,js),DMax(ks,ls))
+  NoSkip = A_int*Dtst >= ThrInt
+  ! only calculate needed integrals and only update the valence part of the
+  ! Fock matrix (iS > nSkal_Valence, lS <= nSkal_Valence, jS and kS
+  ! belonging to different regions)
+  if (jS <= nSkal_Valence) then
+    NoSkip = NoSkip .and. (kS > nSkal_Valence)
+  else
+    NoSkip = NoSkip .and. (kS <= nSkal_Valence)
+  end if
+  NoSkip = NoSkip .and. (lS <= nSkal_Valence)
+
+  if (.NOT. NoSkip) Cycle
+
+  call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
+
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Drv2El_FAIEMP: for iS, jS, kS, lS =',is,js,ks,ls
+  if (nIrrep == 1) then
+    call RecPrt('updated Fock',' ',pFq,nBas(0),nBas(0))
+  else
+    iFD = 0
+    do iIrrep=0,nIrrep-1
+      nFD = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      call TriPrt('updated Fock',' ',pFq(iFD+1:iFD+nFD),nBas(iIrrep))
+    iFD = iFD+nFD
+    end do
+  end if
+# endif
+
 end do
 
 call CWTime(TCpu2,TWall2)
