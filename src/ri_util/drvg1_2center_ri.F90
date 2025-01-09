@@ -222,7 +222,7 @@ if ((nProcs > 1) .and. King()) then
   if (Do_RI) call Free_iSD()
   call Drvh1(Grad,Temp,nGrad)
 #ifdef _DEBUGPRINT_
-  call PrGrad(' Gradient excluding two-electron contribution',Grad,lDisp(0),ChDisp)
+  call PrGrad(' Gradient excluding two-electron contribution',Grad,nGrad,ChDisp)
 #endif
   Temp(:) = Zero
   if (Do_RI) then

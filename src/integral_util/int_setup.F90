@@ -17,7 +17,7 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), intent(out) :: Coor(3,4)
+real(kind=wp), intent(in) :: Coor(3,4)
 integer(kind=iwp) :: i
 real(kind=wp) :: D, P, Q
 
