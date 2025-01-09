@@ -53,7 +53,6 @@ integer(kind=iwp) :: i, iAng, ijMax, ijS, iOpt, iS, &
 real(kind=wp) :: A_int, Cnt, P_Eff, ThrAO, TMax_all, TskHi, TskLw
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, lDummy, Triangular
 character(len=8) :: Method_chk
-integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
 logical(kind=iwp), external :: Rsv_GTList

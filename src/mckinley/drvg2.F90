@@ -544,9 +544,9 @@ end subroutine Dens_Infos
 subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
 use Definitions, only: wp, iwp, u6
 Implicit None
-integer(kind=iwp) iS, jS, kS, lS, nHess, n_Int
-real(kind=wp) :: Hess(nHess), iInt(n_Int)
-logical(kind=iwp) Post_Process
+integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int
+real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int)
+logical(kind=iwp), intent(inout):: Post_Process
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 

@@ -44,9 +44,6 @@ use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
 use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, ReadBPT2
 use k2_arrays, only: Sew_Scr
-#ifdef _DEBUGPRINT_
-use Disp, only: ChDisp
-#endif
 use Basis_Info, only: nBas, nBas_Aux
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
@@ -78,7 +75,7 @@ real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhal
                               Tmp(:,:), Xmi(:,:,:,:)
 integer(kind=iwp), external :: Cho_irange
 real(kind=wp), external :: Get_ExFac
-logical(kind=iwp), external :: EQ, Rsv_Tsk2
+logical(kind=iwp), external :: Rsv_Tsk2
 
 !                                                                      *
 !***********************************************************************
