@@ -372,7 +372,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   !*********************************************************************
   !                                                                    *
   if ((nMethod == RASSCF) .and. l_Grd) then
-    MemBuffer = nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nirrep
+    MemBuffer = nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nIrrep
   else
     MemBuffer = 1  ! Dummy length
   end if
@@ -399,7 +399,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) cycle
 
-    Call eval_g2_ijkl()
+    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
 
   end do ! klS
 
@@ -541,8 +541,12 @@ subroutine Dens_Infos(nMethod)
 
 end subroutine Dens_Infos
 
-subroutine Eval_g2_ijkl()
+subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
+use Definitions, only: wp, iwp, u6
 Implicit None
+integer(kind=iwp) iS, jS, kS, lS, nHess, n_Int
+real(kind=wp) :: Hess(nHess), iInt(n_Int)
+logical(kind=iwp) Post_Process
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
