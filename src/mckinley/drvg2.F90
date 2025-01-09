@@ -60,10 +60,10 @@ integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCnttp, &
                      ks, lBasAO, lBasl, lBasn, lBsInc, lCmp, ls, &
                      mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
-                     nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
+                     nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process
+logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, n8, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
@@ -508,6 +508,7 @@ subroutine Dens_Infos(nMethod)
                         ipDij, ipDij2, ipDik, ipDik2, ipDil, ipDil2, ipDjk, ipDjk2, ipDjl, ipDjl2, ipDkl, ipDkl2, mDCRij, mDCRik, &
                         mDCRil, mDCRjk, mDCRjl, mDCRkl
   use k2_arrays, only: ipDijS, ipDijS2
+  use Index_Functions, only: iTri
 
   integer(kind=iwp), intent(in) :: nMethod
   integer(kind=iwp) :: ijS, ikS, ilS, ipTmp, ipTmp2, iS, jkS, jlS, jS, klS, kS, lS
@@ -542,11 +543,17 @@ subroutine Dens_Infos(nMethod)
 end subroutine Dens_Infos
 
 subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
+  use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
+use iSD_data, only: iSD, nSD
 Implicit None
 integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int)
 logical(kind=iwp), intent(inout):: Post_Process
+
+real(kind=wp) :: Coor(3,4)
+logical(kind=iwp) :: lTri
+integer(kind=iwp) :: nSO
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
