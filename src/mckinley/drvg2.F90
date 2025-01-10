@@ -55,7 +55,7 @@ integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, iPrim, &
                      iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
-                     mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MemFck, MemFin, MemPrm, &
+                     mDeDe, MemBuffer, MemFck, MemFin, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
@@ -374,7 +374,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) cycle
 
-    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
+    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess)
 
   end do ! klS
 
@@ -517,7 +517,8 @@ subroutine Dens_Infos(nMethod)
 
 end subroutine Dens_Infos
 
-subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
+subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess)
+use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
@@ -525,9 +526,10 @@ use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 
 Implicit None
-integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int
+integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int)
 logical(kind=iwp), intent(inout):: Post_Process
+logical(kind=iwp), intent(in):: lHess
 
 real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: lTri, lDot
@@ -539,6 +541,7 @@ integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
 integer(kind=iwp) :: JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7)
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
 integer(kind=iwp) :: MemMax, ipMOC, MemCMO
+integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4
 
 if (.not. allocated(Sew_Scr)) Then
    call mma_MaxDBLE(MemMax)
