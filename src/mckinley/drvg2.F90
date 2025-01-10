@@ -54,14 +54,13 @@ logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
-                     iS, iShll, jBas, jCmp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
-                     js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
+                     iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
                      mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot2, lpick, n8, new_fock, Post_Process
+logical(kind=iwp) :: ldot2, lpick, n8, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
@@ -542,6 +541,8 @@ integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
 integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
 integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
+integer(kind=iwp) :: JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7)
+logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
