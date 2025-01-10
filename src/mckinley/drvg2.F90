@@ -372,7 +372,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     if (A_Int < CutInt) cycle
 
     Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess,lPick,MemBuffer, &
-                      Buffer)
+                      Buffer,nDens, DTemp, DInAc)
 
   end do ! klS
 
@@ -515,18 +515,19 @@ subroutine Dens_Infos(nMethod)
 end subroutine Dens_Infos
 
 subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess,lPick,MemBuffer, &
-                        Buffer)
+                        Buffer,nDens, DTemp, DInAc)
+use setup, only: nAux
 use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr, nFT
+use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr, nFT, Aux
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 
 Implicit None
-integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, MemBuffer
-real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(MemBuffer)
+integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, MemBuffer, nDens
+real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(MemBuffer), DTemp(nDens), DInAc(nDens)
 logical(kind=iwp), intent(inout):: Post_Process
 logical(kind=iwp), intent(in):: lHess, lPick
 
