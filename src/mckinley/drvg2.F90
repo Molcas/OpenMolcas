@@ -34,7 +34,7 @@ use setup, only: MxPrm, nAux
 use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Aux, Create_Braket, Create_BraKet_Base, DeDe, DeDe2, Destroy_Braket, Destroy_BraKet_Base, ipDijS, ipDijS2, &
+use k2_arrays, only: Aux, Create_BraKet_Base, DeDe, DeDe2, Destroy_BraKet_Base, ipDijS, ipDijS2, &
                      ipOffD, ipOffDA, MxDij, nDeDe, nFT, Sew_Scr
 use Disp, only: lDisp
 use Etwas, only: nAsh
@@ -52,7 +52,7 @@ integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
-                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
+                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
                      iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
                      mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
@@ -142,7 +142,6 @@ do iAng=0,S%iAngMx
   end do
 end do
 MxDij = 6*nIrrep*MxDij
-iii = nDens*10+10
 
 call Create_BraKet_Base(MxPrm**2)
 !                                                                      *
@@ -350,8 +349,7 @@ Call mma_allocate(Buffer,MemBuffer,Label='Buffer')
 !                                                                      *
 call mma_MaxDBLE(MemMax)
 if (MemMax > 8000) MemMax = MemMax-8000
-call mma_allocate(Sew_Scr,MemMax-iii,Label='Sew_Scr')
-memmax = memmax-iii
+call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 ipMOC = 1
 !                                                                      *
 !***********************************************************************
@@ -529,6 +527,7 @@ subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
+use k2_arrays, only: Create_Braket, Destroy_Braket
 Implicit None
 integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int)
