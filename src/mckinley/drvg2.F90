@@ -55,7 +55,7 @@ integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, iPrim, &
                      iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
-                     mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
+                     mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
@@ -379,7 +379,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   end do ! klS
 
   if ((nMethod == RASSCF) .and. Post_Process) then
-    nTemp = MemMax
+    nTemp = Size(Sew_Scr)
     Temp(1:nTemp) => Sew_Scr(1:nTemp)
     call CLR2(Buffer,iInt,nACO,nSD,iSD(:,iS),iSD(:,jS),nDisp,nTemp,Temp)
     nullify(Temp)
@@ -538,7 +538,7 @@ integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
 integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
 integer(kind=iwp) :: JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7)
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
-logical(kind=iwp) :: MemMax, ipMOC
+integer(kind=iwp) :: MemMax, ipMOC
 
 if (.not. allocated(Sew_Scr)) Then
    call mma_MaxDBLE(MemMax)
