@@ -35,7 +35,7 @@ use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMetho
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_BraKet_Base, DeDe, DeDe2, Destroy_BraKet_Base, ipDijS, ipDijS2, &
-                     ipOffD, ipOffDA, MxDij, nDeDe, nFT, Sew_Scr
+                     ipOffD, ipOffDA, MxDij, nDeDe, Sew_Scr
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -372,7 +372,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) cycle
 
-    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess,lPick)
+    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess,lPick,MemBuffer, &
+                      Buffer)
 
   end do ! klS
 
@@ -515,17 +516,18 @@ subroutine Dens_Infos(nMethod)
 
 end subroutine Dens_Infos
 
-subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess,lPick)
+subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess,lPick,MemBuffer, &
+                        Buffer)
 use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr
+use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr, nFT
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 
 Implicit None
-integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO
-real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int)
+integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, MemBuffer
+real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(MemBuffer)
 logical(kind=iwp), intent(inout):: Post_Process
 logical(kind=iwp), intent(in):: lHess, lPick
 
@@ -578,24 +580,18 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !                                                                  *
 !*******************************************************************
 !                                                                  *
+! Fix the 1st order density matrix
 
-if (ltri) then
+! Pick up pointers to desymmetrized 1st order density matrices.
+! Observe that the desymmetrized 1st order density matrices
+! follow the contraction index.
 
-  !----------------------------------------------------------------*
+if (lTri .and. lPick) call Dens_Infos(nMethod)
 
-  ! Fix the 1st order density matrix
-
-  ! Pick up pointers to desymmetrized 1st order density matrices.
-  ! Observe that the desymmetrized 1st order density matrices
-  ! follow the contraction index.
-
-  if (lpick) call Dens_Infos(nMethod)
-end if
 !                                                                  *
 !*******************************************************************
 !                                                                  *
 ! Compute total size of the second order density matrix in SO basis.
-!
 !------------------------------------------------------------------*
 nSO = MemSO2_P(nSD,iSD4)
 ldot2 = ldot
@@ -603,7 +599,7 @@ if (nSO == 0) ldot2 = .false.
 
 ! Compute memory request for the primitives.
 
-ider = 2
+iDer = 2
 if (.not. ldot2) iDer = 1
 call MemRg2(iSD4(1,:),nRys,MemPrm,ider)
 
