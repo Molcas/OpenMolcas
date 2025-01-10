@@ -55,7 +55,7 @@ integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, iPrim, &
                      iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
-                     mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemPrm, &
+                     mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MemFck, MemFin, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
@@ -538,7 +538,7 @@ integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
 integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
 integer(kind=iwp) :: JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7)
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
-integer(kind=iwp) :: MemMax, ipMOC
+integer(kind=iwp) :: MemMax, ipMOC, MemCMO
 
 if (.not. allocated(Sew_Scr)) Then
    call mma_MaxDBLE(MemMax)
@@ -617,7 +617,7 @@ call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 !
 !------------------------------------------------------------------*
 
-call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,memCMO2,MemFin,MemBuffer,nSD,iSD4)
+call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -682,7 +682,7 @@ do iBasAO=1,iBasi,iBsInc
 
         ! Mark out the memory allocations explicitly with pointers
         ! MO tranformation buffer
-        MEMCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
+        MemCMO = nACO*(kCmp*kBasn+lCmp*lBasn)
         MOC(1:MemCMO) => Sew_Scr(ipMOC:ipMOC+MemCMO-1)
         ! Area for the AO integrals
         ipFin = ipMOC+MemCMO
