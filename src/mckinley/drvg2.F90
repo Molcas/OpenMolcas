@@ -52,8 +52,8 @@ integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
-                     id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iIrr, iIrrep, ij, ijSh,  &
-                     ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, iPrim, &
+                     id, id_Tsk, idd, ider, iDisk, iDisp, iIrr, iIrrep, ij, ijSh,  &
+                     ip, iPrim, &
                      iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
                      mDeDe, MemBuffer, MemFck, MemFin, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
@@ -79,7 +79,6 @@ logical(kind=iwp), external :: Rsv_Tsk
 
 call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
 
-iFnc(:) = -99
 ipDijS = 0
 ipDijS2 = 0
 
@@ -533,7 +532,7 @@ logical(kind=iwp), intent(in):: lHess
 
 real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: lTri, lDot
-integer(kind=iwp) :: nSO, nRys
+integer(kind=iwp) :: nSO, nRys, iFnc(4)
 integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
 integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
@@ -542,7 +541,9 @@ integer(kind=iwp) :: JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7)
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
 integer(kind=iwp) :: MemMax, ipMOC, MemCMO
 integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4
+integer(kind=iwp) :: ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX
 
+iFnc(:)=-99
 if (.not. allocated(Sew_Scr)) Then
    call mma_MaxDBLE(MemMax)
    if (MemMax > 8000) MemMax = MemMax-8000
