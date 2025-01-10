@@ -55,12 +55,12 @@ integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iIrr, iIrrep, ij, ijSh,  &
                      ip, iPrim, &
                      iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
-                     mDeDe, MemBuffer, MemFck, MemFin, MemPrm, &
-                     MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
+                     mDeDe, MemBuffer, &
+                     mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
 real(kind=wp) :: A_int, dum1, dum2, dum3, PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: ldot2, lpick, n8, new_fock, Post_Process
+logical(kind=iwp) :: lpick, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
@@ -90,7 +90,6 @@ do iS=0,nIrrep-1
   nDisp = nDisp+ldisp(is)
   nACO = naco+nAsh(is)
 end do
-n8 = .true.
 
 Hess(:) = Zero
 !                                                                      *
@@ -373,7 +372,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) cycle
 
-    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess)
+    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess,lPick)
 
   end do ! klS
 
@@ -516,7 +515,7 @@ subroutine Dens_Infos(nMethod)
 
 end subroutine Dens_Infos
 
-subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess)
+subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lHess,lPick)
 use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
@@ -528,10 +527,11 @@ Implicit None
 integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int)
 logical(kind=iwp), intent(inout):: Post_Process
-logical(kind=iwp), intent(in):: lHess
+logical(kind=iwp), intent(in):: lHess, lPick
 
 real(kind=wp) :: Coor(3,4)
-logical(kind=iwp) :: lTri, lDot
+logical(kind=iwp) :: lTri, lDot, lDot2
+logical(kind=iwp), parameter :: n8=.true.
 integer(kind=iwp) :: nSO, nRys, iFnc(4)
 integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
@@ -542,6 +542,7 @@ logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
 integer(kind=iwp) :: MemMax, ipMOC, MemCMO
 integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4
 integer(kind=iwp) :: ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX
+integer(kind=iwp) :: MemFck, MemFin, MemPrm, MemPSO, MemX
 
 iFnc(:)=-99
 if (.not. allocated(Sew_Scr)) Then
