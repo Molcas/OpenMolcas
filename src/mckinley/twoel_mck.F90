@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoEl_mck(Coor,nRys,Pren,Prem,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO,Work2,nWork2,Work3,nWork3,Work4, &
+subroutine TwoEl_mck(Coor,nRys,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO,Work2,nWork2,Work3,nWork3,Work4, &
                      nWork4,Aux,nAux,WorkX,nWorkX,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
                      moip,naco,rMOIN,nMOIN,new_fock,iSD4)
 !***********************************************************************
@@ -90,7 +90,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nRys, nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nijkl, nPSO, nWork2, nWork3, nWork4, nAux, &
                                  nWorkX, nfin, nTemp, nTwo2, nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dan(*), Din(*)
-real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
+real(kind=wp), intent(inout) :: Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
 logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), lgrad, ldot, n8, ltri, new_fock
 logical(kind=iwp), intent(out) :: IfG(4)
 real(kind=wp), intent(out) :: Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
@@ -407,7 +407,6 @@ do lDCRR=0,nDCRR-1
           mEta = min(IncEta,nEta_Tot-iEta+1)
           ! Check that subblock of contraction matrix has non-zero elements.
           if (all(Coeff4(:,:) == Zero)) cycle
-          Pren = Pren+real(mab*mcd*mZeta*mEta,kind=wp)
           !------------------------------------------------------------*
           !
           ! Fix the control matrixes for derivatives
@@ -463,7 +462,6 @@ do lDCRR=0,nDCRR-1
           call Timing(dum1,Time,dum2,dum3)
           CPUStat(nScreen) = CPUStat(nScreen)+Time
 
-          Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
           if (lZeta*lEta == 0) cycle
 
           ! Compute integral derivative and accumulate

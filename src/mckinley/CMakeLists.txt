@@ -49,6 +49,7 @@ set (sources
      elgrd.F90
      elgrddot.F90
      elmem.F90
+     eval_g2_ijkl.F90
      fckacc_mck.F90
      hssprt.F90
      inputh.F90
