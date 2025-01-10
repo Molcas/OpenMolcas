@@ -51,13 +51,11 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: lGrad, lHess
-integer(kind=iwp) :: i, iBas, ibasI, iBasn, iBsInc, iCmp, iCnttp, &
+integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
-                     iS, iShll, jBas, jBasj, jBasn, &
-                     jBsInc, jCmp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
-                     js, kBask, kBasn, kBsInc, kCmp, kIrr, klSh, iAng, &
-                     ks, lBasl, lBasn, lBsInc, lCmp, ls, &
+                     iS, iShll, jBas, jCmp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
+                     js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
                      mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
@@ -529,7 +527,7 @@ subroutine Dens_Infos(nMethod)
 end subroutine Dens_Infos
 
 subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
-  use Index_Functions, only: iTri
+use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
 Implicit None
@@ -541,6 +539,9 @@ real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: lTri, lDot
 integer(kind=iwp) :: nSO, nRys
 integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
+integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
+integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
+integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
