@@ -43,7 +43,7 @@ use Basis_Info, only: dbsc, nBas, nCnttp, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -53,13 +53,13 @@ real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iIrr, iIrrep, ij, ijSh,  &
-                     ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
+                     ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, iPrim, &
                      iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
                      mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
-real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
+real(kind=wp) :: A_int, dum1, dum2, dum3, PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: ldot2, lpick, n8, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
@@ -78,8 +78,6 @@ logical(kind=iwp), external :: Rsv_Tsk
 ! PROLOGUE
 
 call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
-
-ipMOC = 0
 
 iFnc(:) = -99
 ipDijS = 0
@@ -347,10 +345,6 @@ Call mma_allocate(Buffer,MemBuffer,Label='Buffer')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_MaxDBLE(MemMax)
-if (MemMax > 8000) MemMax = MemMax-8000
-call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
-ipMOC = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -386,7 +380,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
 
   if ((nMethod == RASSCF) .and. Post_Process) then
     nTemp = MemMax
-    Temp(1:nTemp) => Sew_Scr(ipMOC:ipMOC+nTemp-1)
+    Temp(1:nTemp) => Sew_Scr(1:nTemp)
     call CLR2(Buffer,iInt,nACO,nSD,iSD(:,iS),iSD(:,jS),nDisp,nTemp,Temp)
     nullify(Temp)
   end if
@@ -527,7 +521,9 @@ subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int)
 use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Create_Braket, Destroy_Braket
+use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+
 Implicit None
 integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int)
@@ -542,6 +538,16 @@ integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
 integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
 integer(kind=iwp) :: JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7)
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
+logical(kind=iwp) :: MemMax, ipMOC
+
+if (.not. allocated(Sew_Scr)) Then
+   call mma_MaxDBLE(MemMax)
+   if (MemMax > 8000) MemMax = MemMax-8000
+   call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+else
+   MemMax=Size(Sew_Scr)
+endif
+ipMOC = 1
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
