@@ -31,7 +31,7 @@ subroutine Drvg2(Hess,nHess,lGrad,lHess)
 !***********************************************************************
 
 use setup, only: MxPrm, nAux
-use McKinley_global, only: CPUStat, ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
+use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_BraKet_Base, DeDe, DeDe2, Destroy_BraKet_Base, ipDijS, ipDijS2, &
@@ -54,12 +54,12 @@ logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iIrr, iIrrep, ij, ijSh,  &
                      ip, iPrim, &
-                     iS, iShll, jBas, jCmp, jDisp, jIrr, js, kCmp, kIrr, klSh, iAng, ks, lCmp, ls, &
+                     iS, iShll, jBas, jCmp, jDisp, jIrr, js, kIrr, klSh, iAng, ks, ls, &
                      mDeDe, MemBuffer, &
                      mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
-                     nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
+                     nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
-real(kind=wp) :: A_int, dum1, dum2, dum3, PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
+real(kind=wp) :: A_int, Prem, Pren, TMax_all
 logical(kind=iwp) :: lpick, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
@@ -353,7 +353,6 @@ Call mma_allocate(Buffer,MemBuffer,Label='Buffer')
 do while (Rsv_Tsk(id_Tsk,ijSh))
   iS = Ind_ij(1,ijSh)
   jS = Ind_ij(2,ijSh)
-  call CWTime(TCpu1,TWall1)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -384,7 +383,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     nullify(Temp)
   end if
 
-  call CWTime(TCpu2,TWall2)
 end do
 Call mma_deallocate(Buffer)
 ! End of big task loop
@@ -524,6 +522,7 @@ use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr, nFT
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use Constants, only: Zero
 
 Implicit None
 integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, MemBuffer
@@ -531,7 +530,7 @@ real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(MemBuffer)
 logical(kind=iwp), intent(inout):: Post_Process
 logical(kind=iwp), intent(in):: lHess, lPick
 
-real(kind=wp) :: Coor(3,4)
+real(kind=wp) :: Coor(3,4), PMax
 logical(kind=iwp) :: lTri, lDot, lDot2
 logical(kind=iwp), parameter :: n8=.true.
 integer(kind=iwp) :: nSO, nRys, iFnc(4)
@@ -545,8 +544,10 @@ integer(kind=iwp) :: MemMax, ipMOC, MemCMO
 integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4
 integer(kind=iwp) :: ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX
 integer(kind=iwp) :: MemFck, MemFin, MemPrm, MemPSO, MemX
+integer(kind=iwp) :: kCmp, lCmp, nijkl
 
 iFnc(:)=-99
+PMax=Zero
 if (.not. allocated(Sew_Scr)) Then
    call mma_MaxDBLE(MemMax)
    if (MemMax > 8000) MemMax = MemMax-8000
@@ -601,7 +602,7 @@ if (nSO == 0) ldot2 = .false.
 
 iDer = 2
 if (.not. ldot2) iDer = 1
-call MemRg2(iSD4(1,:),nRys,MemPrm,ider)
+call MemRg2(iSD4(1,:),nRys,MemPrm,iDer)
 
 !------------------------------------------------------------------*
 !
@@ -720,11 +721,8 @@ do iBasAO=1,iBasi,iBsInc
         !
         !----------------------------------------------------------*
 
-        call Timing(dum1,Time,dum2,dum3)
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
         if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
-        call Timing(dum1,Time,dum2,dum3)
-        CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
 
         ! Compute gradients of shell quadruplet
 
