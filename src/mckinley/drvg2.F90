@@ -32,7 +32,7 @@ subroutine Drvg2(Hess,nHess,lGrad,lHess)
 
 use setup, only: MxPrm, nAux
 use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
-use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_BraKet_Base, DeDe, DeDe2, Destroy_BraKet_Base, ipDijS, ipDijS2, &
                      ipOffD, ipOffDA, MxDij, nDeDe, Sew_Scr

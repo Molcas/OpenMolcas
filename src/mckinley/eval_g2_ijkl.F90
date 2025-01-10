@@ -21,7 +21,7 @@ use Index_Functions, only: iTri
 use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr, nFT, Aux
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero
 
 Implicit None
