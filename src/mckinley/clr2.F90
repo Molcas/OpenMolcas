@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine Clr2(XrIn,rOut,nACO,nSD,iSD4,nDisp,nTemp,Temp)
+subroutine Clr2(XrIn,rOut,nACO,nSD,iSDi,iSDj,nDisp,nTemp,Temp)
 
 ! nACO: number of active orbitals
 
@@ -29,7 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: XrIn(*)
 real(kind=wp), intent(inout) :: rOut(*)
-integer(kind=iwp), intent(in) :: nACO, nSD, iSD4(0:nSD,4), nDisp, nTemp
+integer(kind=iwp), intent(in) :: nACO, nSD, iSDi(0:nSD), iSDj(0:nSD), nDisp, nTemp
 real(kind=wp), intent(inout) :: Temp(nTemp)
 
 call Clr2_inner(XrIn,Temp)
@@ -42,19 +42,20 @@ subroutine Clr2_inner(XrIn,Temp)
   real(kind=wp), intent(in), target :: XrIn(*)
   real(kind=wp), intent(inout), target :: Temp(nTemp)
   integer(kind=iwp) :: i, ia, iaoi, iaoj, iAsh, iB, ibas, iC, iCmp, id, iDisp, iE, ih, iiii, iij, iIrr, ij1, ij12, ij2, ipF, &
-                       ipFKL, ipi, ipj, ipM, ipm2, ipp(0:7), iS, iShell(4), iSO, j, ja, jAsh, jB, jbas, jC, jCmp, jh, jIrr, jis, &
+                       ipFKL, ipi, ipj, ipM, ipm2, ipp(0:7), iS, iShell(2), iSO, j, ja, jAsh, jB, jbas, jC, jCmp, jh, jIrr, jis, &
                        js, k, kAsh, kIrr, kl, kls, klt, l, lAsh, lIrr, lMax, lsl, lSO, mIrr, na(0:7), ni, nj, nnA, nX, nXrIn
   real(kind=wp) :: fact, rd
   logical(kind=iwp) :: Process
   real(kind=wp), pointer :: rIn(:,:,:,:,:), Temp1(:,:,:), Temp2(:), Temp3(:,:,:), Temp4(:,:,:), Temp5(:,:,:), Temp6(:)
   integer(kind=iwp), external :: NrOpr
 
-  ibas = iSD4(3,1)
-  jbas = iSD4(3,2)
-  iCmp = iSD4(2,1)
-  jCmp = iSD4(2,2)
-  iAOi = iSD4(7,1)
-  iAOj = iSD4(7,2)
+  ibas = iSDi(3)
+  jbas = iSDj(3)
+  iCmp = iSDi(2)
+  jCmp = iSDj(2)
+  iAOi = iSDi(7)
+  iAOj = iSDj(7)
+
   nXrIn = iBas*iCmp*jBas*jCmp*nIrrep*nTri_Elem(nACO)*nDisp
 
   ni = iBas*iCmp
@@ -93,7 +94,8 @@ subroutine Clr2_inner(XrIn,Temp)
   iE = iE-1+nX
   Temp6(1:nX) => Temp(iS:iE)
 
-  iShell(:) = iSD4(11,:)
+  iShell(1) = iSDi(11)
+  iShell(2) = iSDj(11)
 
   nnA = 0
   do iS=0,nIrrep-1

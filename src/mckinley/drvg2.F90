@@ -12,7 +12,7 @@
 !               1995,1996, Anders Bernhardsson                         *
 !***********************************************************************
 
-subroutine Drvg2(Hess,nHess,lGrad,l_Hss)
+subroutine Drvg2(Hess,nHess,lGrad,lHess)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals. The four outermost loops *
@@ -23,7 +23,7 @@ subroutine Drvg2(Hess,nHess,lGrad,l_Hss)
 !                                                                      *
 ! Input:                                                               *
 !              nHess         : Size of gradient and hessian            *
-!              lGrad,l_Hss   : Boolean on/off for gradient/hessian     *
+!              lGrad,lHess   : Boolean on/off for gradient/hessian     *
 !                              generation                              *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March 1990                                               *
@@ -50,7 +50,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
-logical(kind=iwp), intent(in) :: lGrad, l_Hss
+logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, ibasI, iBasn, iBsInc, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
                      ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
@@ -63,7 +63,7 @@ integer(kind=iwp) :: i, iBas, ibasI, iBasn, iBsInc, iCmp, iCnttp, &
                      nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lpick, n8, new_fock, Post_Process
+logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot2, lpick, n8, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
@@ -392,7 +392,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   if ((nMethod == RASSCF) .and. Post_Process) then
     nTemp = MemMax
     Temp(1:nTemp) => Sew_Scr(ipMOC:ipMOC+nTemp-1)
-    call CLR2(Buffer,iInt,nACO,nSD,iSD4,nDisp,nTemp,Temp)
+    call CLR2(Buffer,iInt,nACO,nSD,iSD(:,iS),iSD(:,jS),nDisp,nTemp,Temp)
     nullify(Temp)
   end if
 
@@ -538,7 +538,7 @@ real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int)
 logical(kind=iwp), intent(inout):: Post_Process
 
 real(kind=wp) :: Coor(3,4)
-logical(kind=iwp) :: lTri
+logical(kind=iwp) :: lTri, lDot
 integer(kind=iwp) :: nSO, nRys
 integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 
@@ -554,7 +554,7 @@ Call Coor_setup(iSD4,nSD,Coor)
 
 lTri = iTri(iS,jS) >= iTri(kS,lS)
 if ((.not. lTri) .and. (nMethod /= RASSCF)) Return
-lDot = (lTri .and. l_Hss)
+lDot = (lTri .and. lHess)
 
 !                                                                  *
 !*******************************************************************
