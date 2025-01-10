@@ -12,7 +12,7 @@
 !               1995,1996, Anders Bernhardsson                         *
 !***********************************************************************
 
-subroutine Drvg2(Hess,nHess,l_Grd,l_Hss)
+subroutine Drvg2(Hess,nHess,lGrad,l_Hss)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals. The four outermost loops *
@@ -23,7 +23,7 @@ subroutine Drvg2(Hess,nHess,l_Grd,l_Hss)
 !                                                                      *
 ! Input:                                                               *
 !              nHess         : Size of gradient and hessian            *
-!              l_Grd,l_Hss   : Boolean on/off for gradient/hessian     *
+!              lGrad,l_Hss   : Boolean on/off for gradient/hessian     *
 !                              generation                              *
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             March 1990                                               *
@@ -50,26 +50,26 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
-logical(kind=iwp), intent(in) :: l_Grd, l_Hss
-integer(kind=iwp) :: i, iBas, iBasAO, ibasI, iBasn, iBsInc, iCmp, iCnttp, &
+logical(kind=iwp), intent(in) :: lGrad, l_Hss
+integer(kind=iwp) :: i, iBas, ibasI, iBasn, iBsInc, iCmp, iCnttp, &
                      id, id_Tsk, idd, ider, iDisk, iDisp, iFnc(4), iii, iIrr, iIrrep, ij, ijSh,  &
-                     ip, ipPSO, ipFin, ipMem, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
-                     iS, iShll, jBas, jBasAO, jBasj, jBasn, &
+                     ip, ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, iPrim, &
+                     iS, iShll, jBas, jBasj, jBasn, &
                      jBsInc, jCmp, jDisp, jIrr, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), &
-                     js, kBasAO, kBask, kBasn, kBsInc, kCmp, kIrr, klSh, iAng, &
-                     ks, lBasAO, lBasl, lBasn, lBsInc, lCmp, ls, &
+                     js, kBask, kBasn, kBsInc, kCmp, kIrr, klSh, iAng, &
+                     ks, lBasl, lBasn, lBsInc, lCmp, ls, &
                      mDeDe, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
-                     nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
+                     nijkl, nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, iSD4(0:nSD,4), nTemp, &
                      ipDum
 real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
-logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, n8, new_fock, Post_Process
+logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lpick, n8, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
 #endif
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
-real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:)
-real(kind=wp), pointer :: Buffer(:), Fin(:), MOC(:), PSO(:,:), Temp(:), Work2(:), Work3(:), Work4(:), WorkX(:)
+real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:), Buffer(:)
+real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Temp(:), Work2(:), Work3(:), Work4(:), WorkX(:)
 integer(kind=iwp), parameter :: Nr_of_Densities = 1
 logical(kind=iwp), parameter :: Int_Direct = .true.
 integer(kind=iwp), external :: MemSO2_P, NrOpr
@@ -109,7 +109,6 @@ call Setup_iSD()
 !                                                                      *
 ! Precompute k2 entities.
 
-lgrad = l_Grd
 lpick = lgrad .and. (.not. New_Fock)
 Pren = Zero
 Prem = Zero
@@ -324,24 +323,39 @@ end do
 
 call mma_allocate(Ind_ij,2,nPairs,Label='Ind_ij')
 nijS = 0
+MemBuffer = 1  ! Dummy length
 do iS=1,nSkal
+  iCmp = iSD(2,iS)
+  iBas = iSD(3,iS)
   do jS=1,iS
+    jCmp = iSD(2,jS)
+    jBas = iSD(3,jS)
     if (TMax_All*TMax(iS,jS) >= CutInt) then
       nijS = nijS+1
       Ind_ij(1,nijS) = iS
       Ind_ij(2,nijS) = jS
+      if ((nMethod == RASSCF) .and. lGrad)   &
+         MemBuffer = Max(MemBuffer,nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nIrrep)
     end if
   end do
 end do
 call Init_Tsk(id_Tsk,nijS)
+!                                                                    *
+!*********************************************************************
+!                                                                    *
+! Cltrls for MO transformation
+!                                                                    *
+!*********************************************************************
+!                                                                    *
+Call mma_allocate(Buffer,MemBuffer,Label='Buffer')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call mma_MaxDBLE(MemMax)
 if (MemMax > 8000) MemMax = MemMax-8000
 call mma_allocate(Sew_Scr,MemMax-iii,Label='Sew_Scr')
-ipMem = 1
 memmax = memmax-iii
+ipMOC = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -358,35 +372,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   !                                                                    *
   ! Outer loops (ij) over angular momenta and centers
 
-  iCmp = iSD(2,iS)
-  iBas = iSD(3,iS)
-
-  jCmp = iSD(2,jS)
-  jBas = iSD(3,jS)
-
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Cltrls for MO transformation
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  if ((nMethod == RASSCF) .and. l_Grd) then
-    MemBuffer = nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nIrrep
-  else
-    MemBuffer = 1  ! Dummy length
-  end if
-  if (MemBuffer > MemMax) then
-    write(u6,*) 'DrvG2: MemBuffer > MemMax'
-    write(u6,*) 'MemBuffer=',MemBuffer
-    write(u6,*) 'MemMax=',MemMax
-    write(u6,*) 'Increase MOLCAS_MEM!'
-    call Abend()
-  end if
-
-  Buffer(1:MemBuffer) => Sew_Scr(ipMem:ipMem+MemBuffer-1)
   Buffer(:) = Zero
-  ipMOC = ipMem+MEMBUFFER
 
   !                                                                    *
   !*********************************************************************
@@ -404,15 +390,15 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   end do ! klS
 
   if ((nMethod == RASSCF) .and. Post_Process) then
-    nTemp = MemMax-MemBuffer
+    nTemp = MemMax
     Temp(1:nTemp) => Sew_Scr(ipMOC:ipMOC+nTemp-1)
     call CLR2(Buffer,iInt,nACO,nSD,iSD4,nDisp,nTemp,Temp)
     nullify(Temp)
   end if
-  nullify(Buffer)
 
   call CWTime(TCpu2,TWall2)
 end do
+Call mma_deallocate(Buffer)
 ! End of big task loop
 !                                                                      *
 !***********************************************************************
@@ -553,7 +539,8 @@ logical(kind=iwp), intent(inout):: Post_Process
 
 real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: lTri
-integer(kind=iwp) :: nSO
+integer(kind=iwp) :: nSO, nRys
+integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
