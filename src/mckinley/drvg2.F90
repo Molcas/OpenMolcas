@@ -66,7 +66,7 @@ character(len=40) :: frmt
 #endif
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:), Buffer(:)
-real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Temp(:), Work2(:), Work3(:), Work4(:), WorkX(:)
+real(kind=wp), pointer :: Temp(:)
 integer(kind=iwp), parameter :: Nr_of_Densities = 1
 logical(kind=iwp), parameter :: Int_Direct = .true.
 integer(kind=iwp), external :: MemSO2_P, NrOpr
@@ -545,6 +545,7 @@ integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4
 integer(kind=iwp) :: ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX
 integer(kind=iwp) :: MemFck, MemFin, MemPrm, MemPSO, MemX
 integer(kind=iwp) :: kCmp, lCmp, nijkl
+real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:)
 
 iFnc(:)=-99
 PMax=Zero
