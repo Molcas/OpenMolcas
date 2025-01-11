@@ -31,7 +31,7 @@ subroutine Drvg2(Hess,nHess,lGrad,lHess)
 !***********************************************************************
 
 use setup, only: MxPrm, nAux
-use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, nTwoDens, RASSCF
+use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, RASSCF
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: Aux, Create_BraKet_Base, DeDe, DeDe2, Destroy_BraKet_Base, ipDijS, ipDijS2, &
@@ -53,9 +53,9 @@ real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, iCmp, iCnttp, id, id_Tsk, idd, iDisk, iDisp, iIrr, iIrrep, ij, ijSh,  &
                      ip, iPrim, iS, iShll, jBas, jCmp, jDisp, jIrr, js, kIrr, klSh, iAng, ks, ls, &
-                     mDeDe, MemBuffer, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
-                     nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTwo, nTwo2, nTemp
-real(kind=wp) :: A_int, Prem, Pren, TMax_all
+                     mDeDe, nBuffer, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
+                     nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTemp
+real(kind=wp) :: A_int, TMax_all
 logical(kind=iwp) :: lpick, new_fock, Post_Process
 #ifdef _DEBUGPRINT_
 character(len=40) :: frmt
@@ -99,8 +99,6 @@ call Setup_iSD()
 ! Precompute k2 entities.
 
 lpick = lgrad .and. (.not. New_Fock)
-Pren = Zero
-Prem = Zero
 
 call Drvk2_mck(new_Fock)
 
@@ -199,15 +197,6 @@ if (lGrad) then
     end do
   end if
   call mma_allocate(iInt,n_Int,Label='iInt')
-  nTwo = 0
-  do iIrrep=0,nIrrep-1
-    nTwo = max(nTwo,nFck(iIrrep))
-  end do
-  if (Int_Direct) then
-    nTwo2 = n_Int
-  else
-    nTwo2 = nTwo
-  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -311,7 +300,7 @@ end do
 
 call mma_allocate(Ind_ij,2,nPairs,Label='Ind_ij')
 nijS = 0
-MemBuffer = 1  ! Dummy length
+nBuffer = 1  ! Dummy length
 do iS=1,nSkal
   iCmp = iSD(2,iS)
   iBas = iSD(3,iS)
@@ -323,7 +312,7 @@ do iS=1,nSkal
       Ind_ij(1,nijS) = iS
       Ind_ij(2,nijS) = jS
       if ((nMethod == RASSCF) .and. lGrad)   &
-         MemBuffer = Max(MemBuffer,nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nIrrep)
+         nBuffer = Max(nBuffer,nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nIrrep)
     end if
   end do
 end do
@@ -335,7 +324,7 @@ call Init_Tsk(id_Tsk,nijS)
 !                                                                    *
 !*********************************************************************
 !                                                                    *
-Call mma_allocate(Buffer,MemBuffer,Label='Buffer')
+Call mma_allocate(Buffer,nBuffer,Label='Buffer')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -367,8 +356,8 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) cycle
 
-    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,MemBuffer, &
-                      Buffer,nDens, DTemp, DInAc, moip, New_Fock, nTwo2, nQuad)
+    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer, &
+                      Buffer,nDens, DTemp, DInAc, moip, New_Fock, n_Int, nQuad)
 
   end do ! klS
 
@@ -420,12 +409,6 @@ if (New_Fock) then
 
   end if
 end if
-#ifdef _DEBUGPRINT_
-call GADSum_SCAL(Pren)
-call GADSum_SCAL(Prem)
-write(frmt,'(A,I2,A,I2,A)') '(A,F',3+int(log10(Pren)),'.0,A,F',3+int(log10(Prem)),'.0,A)'
-write(u6,frmt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
-#endif
 call mma_deallocate(Sew_Scr)
 call Free_Tsk(id_Tsk)
 

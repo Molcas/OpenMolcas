@@ -13,7 +13,7 @@
 !***********************************************************************
 
 
-subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,MemBuffer, &
+subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer, &
                         Buffer,nDens, DTemp, DInAc, MOip,New_Fock, nTwo2, nQuad)
 use setup, only: nAux
 use McKinley_global, only: nMethod, RASSCF
@@ -25,9 +25,9 @@ use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero
 
 Implicit None
-integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, MemBuffer, nDens, MOip(0:7), nTwo2, &
+integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nDens, MOip(0:7), nTwo2, &
                                 nQuad
-real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(MemBuffer), DTemp(nDens), DInAc(nDens)
+real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(nBuffer), DTemp(nDens), DInAc(nDens)
 logical(kind=iwp), intent(inout):: Post_Process
 logical(kind=iwp), intent(in):: lGrad, lHess, lPick, New_Fock
 
@@ -122,7 +122,7 @@ call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 !
 !------------------------------------------------------------------*
 
-call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
+call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -230,7 +230,7 @@ do iBasAO=1,iBasi,iBsInc
         ! Compute gradients of shell quadruplet
 
         call TwoEl_mck(Coor,nRys,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
-                       Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,MemBuffer,lgrad,ldot2,n8,ltri, &
+                       Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,nBuffer,lgrad,ldot2,n8,ltri, &
                        DTemp,DInAc,moip,nAco,MOC,MemCMO,new_fock,iSD4)
         Post_Process = .true.
 
