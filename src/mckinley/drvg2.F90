@@ -153,8 +153,10 @@ if (lGrad) then
   jDisp = 0
   do iIrrep=0,nIrrep-1
     do iDisp=1,lDisp(iIrrep)
+
       jDisp = jDisp+1
       ipDisp(jDisp) = n_Int+1
+
       do jIrr=0,nIrrep-1
         kIrr = nrOpr(ieor(iOper(iIrrep),iOper(jIrr)))
         if (jIrr == kIrr) then
@@ -168,6 +170,7 @@ if (lGrad) then
         ipMO(jDisp) = n_Int+1
         n_Int = n_Int+nMO
         ipDisp2(jDisp) = n_Int+1
+
         do jIrr=0,nIrrep-1
           kIrr = nrOpr(ieor(iOper(iIrrep),iOper(jIrr)))
           if (jIrr == jIrr) then
@@ -176,6 +179,7 @@ if (lGrad) then
             n_Int = n_Int+nBas(jIrr)*nBas(kIrr)
           end if
         end do
+
       end if
 
     end do
@@ -232,7 +236,7 @@ if (lGrad) then
       end do
     end if
   else
-    mmdede = ndede
+    mmDeDe = nDeDe
     call mma_allocate(ipOffD,3,nIndij,label='ipOffD')
     call mma_allocate(DeDe,mmDeDe+MxDij,label='DeDe')
     ipDijS = 1+mmDeDe
@@ -258,7 +262,7 @@ if (lGrad) then
     end if
   end if
 
-  call mma_allocate(DeDe,0,label='DeDe',safe='*') ! Dummy allocation
+  call mma_allocate(DeDe ,0,label='DeDe ',safe='*') ! Dummy allocation
   call mma_allocate(DeDe2,0,label='DeDe2',safe='*') ! Dummy allocation
 
 end if ! lGrad
