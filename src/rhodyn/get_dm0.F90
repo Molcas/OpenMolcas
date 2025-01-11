@@ -170,10 +170,10 @@ if (flag_so) then
       call mma_allocate(temp_dm,nconftot)
       lu = isFreeUnit(11)
       call molcas_open(lu,'INDENS')
-      write(fmt_line, '(A, I0, A)') '(', nconftot, 'ES16.8)'
+      write(fmt_line,'(A,I0,A)') '(',nconftot,'ES16.8)'
       do i=1,nconftot
         read(lu,fmt_line) temp_dm ! read matrix line from file
-        DM0(i,:) = cmplx(temp_dm, kind=wp)
+        DM0(i,:) = cmplx(temp_dm,kind=wp)
       end do
       close(lu) ! close INDENS file
       call mma_deallocate(temp_dm)
@@ -268,10 +268,10 @@ else
       call mma_allocate(temp_dm,nconftot)
       lu = isFreeUnit(11)
       call molcas_open(lu,'INDENS')
-      write(fmt_line, '(A, I0, A)') '(', nconftot, 'ES16.8)'
+      write(fmt_line,'(A,I0,A)') '(',nconftot,'ES16.8)'
       do i=1,nconftot
         read(lu,fmt_line) temp_dm ! read matrix line from file
-        DM0(i,:) = cmplx(temp_dm, kind=wp)
+        DM0(i,:) = cmplx(temp_dm,kind=wp)
       end do
       close(lu) ! close INDENS file
       call mma_deallocate(temp_dm)
