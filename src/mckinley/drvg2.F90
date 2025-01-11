@@ -53,7 +53,7 @@ real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, iCmp, iCnttp, id, id_Tsk, idd, iDisk, iDisp, iIrr, iIrrep, ij, ijSh,  &
                      ip, iPrim, iS, iShll, jBas, jCmp, jDisp, jIrr, js, kIrr, klSh, iAng, ks, ls, &
-                     mDeDe, nBuffer, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, ndisp, &
+                     mDeDe, nBuffer, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, ndisp, &
                      nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTemp
 real(kind=wp) :: A_int, TMax_all
 logical(kind=iwp) :: lpick, new_fock, Post_Process
@@ -257,11 +257,6 @@ if (lGrad) then
       end if
     end if
   end if
-
-  nb = 0
-  do is=0,nIrrep-1
-    nb = nb+nBas(iS)
-  end do
 
   call mma_allocate(DeDe,0,label='DeDe',safe='*') ! Dummy allocation
   call mma_allocate(DeDe2,0,label='DeDe2',safe='*') ! Dummy allocation
