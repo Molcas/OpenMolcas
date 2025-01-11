@@ -20,7 +20,7 @@ subroutine get_dm0()
 !***********************************************************************
 
 use rhodyn_data, only: CSF2SO, DM0, DTOC, E, E_SF, E_SO, flag_so, ipglob, k_B, lroots, lrootstot, N, N_Populated, nconf, nconftot, &
-                       ndet, ndet_tot, NState, p_style, prep_dm_i, prep_dm_r, runmode, sint, T, U_CI
+                       ndet, ndet_tot, p_style, prep_dm_i, prep_dm_r, runmode, sint, T, U_CI
 use rhodyn_utils, only: transform, dashes
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
