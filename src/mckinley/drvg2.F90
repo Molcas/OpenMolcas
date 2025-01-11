@@ -57,9 +57,6 @@ integer(kind=iwp) :: i, iBas, iCmp, iCnttp, id, id_Tsk, idd, iDisk, iDisp, iIrr,
                      nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTemp
 real(kind=wp) :: A_int, TMax_all
 logical(kind=iwp) :: lpick, new_fock, Post_Process
-#ifdef _DEBUGPRINT_
-character(len=40) :: frmt
-#endif
 integer(kind=iwp), allocatable :: Ind_ij(:,:)
 real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:), Buffer(:)
 real(kind=wp), pointer :: Temp(:)
