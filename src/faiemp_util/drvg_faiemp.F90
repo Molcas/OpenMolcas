@@ -198,7 +198,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_deallocate(Sew_Scr)
+call mma_deallocate(Sew_Scr,safe='*')
 call Free_GTList()
 call Free_PPList()
 call Free_TList()

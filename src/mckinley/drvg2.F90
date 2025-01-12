@@ -405,7 +405,7 @@ if (New_Fock) then
 
   end if
 end if
-call mma_deallocate(Sew_Scr)
+call mma_deallocate(Sew_Scr,safe='*')
 call Free_Tsk(id_Tsk)
 
 ! YIPPIEEEE Finished OK fill it UP!!

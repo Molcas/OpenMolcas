@@ -269,7 +269,7 @@ end do
 !***********************************************************************
 !                                                                      *
 RI_2C=.False.
-call mma_deallocate(Sew_Scr)
+call mma_deallocate(Sew_Scr,safe='*')
 call Free_Tsk(id)
 call mma_deallocate(A_PT2,safe='*')
 call mma_deallocate(Shij)

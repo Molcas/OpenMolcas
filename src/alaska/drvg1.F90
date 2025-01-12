@@ -61,6 +61,7 @@ integer(kind=iwp) :: Columbus
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Write (6,*) 'Enter Drvg1'
 
 Temp(:) = Zero
 
@@ -227,7 +228,7 @@ call GADGOP(Temp,nGrad,'+')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_deallocate(Sew_Scr)
+call mma_deallocate(Sew_Scr,safe='*')
 call Free_GTList()
 call Free_PPList()
 call Free_TList()
@@ -243,4 +244,5 @@ call Term_Ints()
 !                                                                      *
 call Free_iSD()
 
+Write (6,*) 'Exit Drvg1'
 end subroutine Drvg1

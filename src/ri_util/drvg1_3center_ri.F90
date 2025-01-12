@@ -618,7 +618,7 @@ call mma_deallocate(MaxDens)
 call mma_deallocate(BMP2,safe='*')
 call mma_deallocate(Thpkl,safe='*')
 
-call mma_deallocate(Sew_Scr)
+call mma_deallocate(Sew_Scr,safe='*')
 call Free_Tsk2(id)
 call mma_deallocate(Shij2)
 call mma_deallocate(Shij)
