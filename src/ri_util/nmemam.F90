@@ -23,15 +23,19 @@ integer(kind=iwp) :: iIrrep, lS, ni, nj, nl, nn
 
 if (Out_Of_Core) then
 
-  ! Only a subblock of the upper trianular storage.
+  ! Only a subblock of the upper triangular storage.
 
   nMemAm = 0
+! Loop over the different irreps
   do iIrrep=0,nIrrep-1
+!   Pick up the number of basis function of shell jS in this irrep
     nj = nShBf(iIrrep,jS)
-    nl = 0
-    do lS=1,jS
-      nl = nl+nShBf(iIrrep,lS)
+!   Compute the number of basis functions up to and including this shell
+    ni = 0
+    do lS=1,jS-1
+      ni = ni+nShBf(iIrrep,lS)
     end do
+    nl = ni+nj
     ! Offset to where this block starts
     iOffA(1,iIrrep) = nMemAm
     ! # of basis functions for the jSs shell
@@ -48,7 +52,9 @@ else
 
   nMemAm = 0
   do iIrrep=0,nIrrep-1
+!   Pick up the number of basis function of shell jS in this irrep
     nj = nShBf(iIrrep,jS)
+!   Compute the number of basis functions up to and excluding this shell
     ni = 0
     do lS=1,jS-1
       ni = ni+nShBf(iIrrep,lS)
@@ -66,7 +72,5 @@ else
     nMemAm = nMemAm+nTri_Elem(nl)
   end do
 end if
-
-return
 
 end function nMemAm

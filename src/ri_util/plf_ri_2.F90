@@ -43,11 +43,24 @@ implicit none
 integer(kind=iwp), intent(in) :: ijkl, jCmp, lCmp, iAO(4), iAOst(4), jBas, lBas, kOp(4), nTInt, nSOs, iSO2Ind(nSOs), iOffA(4)
 real(kind=wp), intent(in) :: AOint(ijkl,jCmp,lCmp)
 real(kind=wp), intent(_OUT_) :: TInt(nTInt)
-integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, kSO, lSO, lSOl, mm_, mx, nijkl, nn
+integer(kind=iwp) :: i2, i4, iAOj, iAOl, iAOstj, iAOstl, ij, iOff, iOffA_, iSO, jSO, jSOj, lSO, lSOl, mm_, mx, nijkl, nn
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: r1, r2
 real(kind=wp), external :: ddot_
 #endif
+
+! Note on the ordering of the basis functions (valence or auxiliary).
+!
+! 1) The basis functions are first order according to the order in which the basis sets appear in the input.
+!    Hence, for example, for a hetrodiatomic molecule the order of the basis set for the centers A and B occurs
+!    according to which center is first in the input.
+! 2) For each basis set the basis functions are ordered in shells with fixed total angular momentum.
+!    These shells are given running shell indices, which are used to identify a particular angular shell, iS.
+! 3) For a given total angular momentum, iAng, the basis sets are ordered with respect to the elements of the
+!    shell. For example, for l=2, we have the basis functions ordered as m=2,1,0,-1,-2.
+! 4) For each component the basis functions finally runs over all contracted basis functions of this particular shell.
+
+! For the 2-center integrals shell 1 and 3 are dummy shells.
 
 !                                                                      *
 !***********************************************************************
@@ -60,13 +73,24 @@ write(u6,*) ' Dot=',r2
 call RecPrt(' In Plf_RI_2: AOInt',' ',AOInt,ijkl,jCmp*lCmp)
 #endif
 
+! If the code can not handle all the contracted function at the same time the loop over them are partitioned.
+! iAOst(:) list the starting index -- if no partitioning the value is 0.
 iAOstj = iAOst(2)
 iAOstl = iAOst(4)
+
+! This is a index to be use in iAOtSO(:,:). This table list the canonical index of the first basis function with a
+! particular angular momentum element. As the basis is ordered the next contracted basis function with the same m
+! value simply increment this value by one.
+!
+! NOTE: the auxiliary functions have canonical indicies starting after the valence functions!
+
 iAOj = iAO(2)
 iAOl = iAO(4)
-iOff = nBas(0)
+
+iOff = nBas(0) ! Number of valence functions.
+
 iOffA_ = iOffA(1)
-mm_ = iOffA(4)
+mm_ =    iOffA(4)
 nn = mm_-iOffA(2)
 mx = nTri_Elem(nn)
 
@@ -78,21 +102,20 @@ write(u6,*) 'lCmp,jCmp=',lCmp,jCmp
 #endif
 
 do i2=1,jCmp
-  jSO = iAOtSO(iAOj+i2,kOp(2))+iAOstj
+  jSO = iAOtSO(iAOj+i2,kOp(2))+iAOstj-iOff ! starting canonical index for shell 2
   do i4=1,lCmp
-    lSO = iAOtSO(iAOl+i4,kOp(4))+iAOstl
+    lSO = iAOtSO(iAOl+i4,kOp(4))+iAOstl-iOff ! starting canonical index for shell 4
 
     nijkl = 0
     do lSOl=lSO,lSO+lBas-1
-      kSO = lSOl-iOff
 
       do jSOj=jSO,jSO+jBas-1
 
-        iSO = jSOj-iOff
+        iSO = jSOj
         nijkl = nijkl+1
 
         iSO = iSO2Ind(iSO)+nn
-        ij = iTri(iSO,kSO)-mx+iOffA_
+        ij = iTri(iSO,lSOl)-mx+iOffA_
         TInt(ij) = AOint(nijkl,i2,i4)
 
       end do
