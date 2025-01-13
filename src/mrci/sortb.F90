@@ -14,11 +14,11 @@ subroutine SORTB(BUFS,INDS,ACBDS,ACBDT,ISAB,BFACBD)
 ! FOR FIXED A,C ALL B,D
 
 use mrci_global, only: ICH, IPASS, IRC, IROW, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_60, Lu_80, LUTRA, MCHAIN, NBITM2, NCHN2, NORB, &
-                       NSM, NSYM, NTIBUF, NVIR, NVIRP, NVIRT, TIBUF
+                       NSM, NSYM, NVIR, NVIRP, NVIRT, TIBUF
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use TraToc, only: ITRATOC,NTRATOC
 
 #include "intent.fh"
 
@@ -77,7 +77,7 @@ do ISTEP=1,IPASS
           NORBP = NOP*NOQ*NOR*NOS
           if (NORBP == 0) cycle
 
-          call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
+          call dDAFILE(LUTRA,2,TIBUF,NTRABUF,IAD50)
 
           ! Loop over index quadruples in this symm block
           IOUT = 0
@@ -96,8 +96,8 @@ do ISTEP=1,IPASS
 
                   ! MO integral value is made accessable at TIBUF(IOUT)
                   IOUT = IOUT+1
-                  if (IOUT > NTIBUF) then
-                    call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
+                  if (IOUT > NTRABUF) then
+                    call dDAFILE(LUTRA,2,TIBUF,NTRABUF,IAD50)
                     IOUT = 1
                   end if
 

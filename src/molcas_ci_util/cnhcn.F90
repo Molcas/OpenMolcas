@@ -18,9 +18,8 @@ subroutine CNHCN(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NAEL,NBEL,ECORE,ONEBOD,IPRODT,DT
 !              IREOTS added August 2003
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use spinfo, only: NCSFTP, NDTFTP
 use Definitions, only: wp, iwp, u6
-use spinfo, only: NCSFTP,NDTFTP
-use spinfo, only: ICOMBI
 
 #include "intent.fh"
 
@@ -29,8 +28,8 @@ integer(kind=iwp), intent(in) :: ICNL(*), ITPL, ICNR(*), ITPR, NAEL, NBEL, IPROD
 real(kind=wp), intent(_OUT_) :: CNHCNM(*), SCR(*)
 real(kind=wp), intent(in) :: ECORE, ONEBOD(NORB,NORB), DTOC(*), TUVX(*), ExFac
 integer(kind=iwp), intent(inout) :: IPREXH
-integer(kind=iwp) :: IPL, IPR, JCSF, JDET, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, KLDTRB, KLFREE, KLISL, KLISR, NCSFL, NCSFR, &
-                     NDETL, NDETR, NTEST
+integer(kind=iwp) :: ICOMBI, IPL, IPR, JCSF, JDET, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, KLDTRB, KLFREE, KLISL, KLISR, NCSFL, &
+                     NCSFR, NDETL, NDETR, NTEST
 real(kind=wp) :: PSIGN
 
 call CNHCN_INTERNAL(SCR)

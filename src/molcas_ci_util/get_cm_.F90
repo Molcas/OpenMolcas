@@ -38,10 +38,10 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICO
 ! IREOTS     : Type => symmetry reordering array
 ! Ctot       : Vector of all nConf CI-coeff for a single root (Output)
 
+use spinfo, only: NCSFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use spinfo, only: NTYP,NCSFTP
 
 implicit none
 integer(kind=iwp), intent(in) :: MXPDIM, IPCSF(MXPDIM), NCONF, IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &

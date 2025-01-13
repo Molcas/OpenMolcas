@@ -14,7 +14,7 @@
 
 !#define _DEBUGPRINT_
 !#define _DEBUGBREIT_
-subroutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
+subroutine Eval_ijkl(iS,jS,kS,lS,TInt,nTInt)
 !***********************************************************************
 !                                                                      *
 !  Object: driver for two-electron integrals, parallel region          *
@@ -41,14 +41,13 @@ subroutine Eval_ijkl(iiS,jjS,kkS,llS,TInt,nTInt)
 !***********************************************************************
 
 use Index_Functions, only: iTri
-use setup, only: mSkal, nAux, nSOs
-use k2_structure, only: IndK2, k2data
-use k2_arrays, only: Aux, Create_BraKet, DeDe, Destroy_Braket, FT, ipDijS, iSOSym, nDeDe, nFT, Sew_Scr
-use iSD_data, only: iSD
-use Basis_Info, only: Shells
+use setup, only: nSOs
+use k2_arrays, only: Create_BraKet, Destroy_Braket, iSOSym, Sew_Scr
+use iSD_data, only: iSD, nSD
+use Breit, only: nComp
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
-use Int_Options, only: DoFock, DoIntegrals, Map4
+use Int_Options, only: DoFock, DoIntegrals
 use Integral_interfaces, only: Int_PostProcess, twoel_kernel
 use RI_glob, only: jBas_, lBas_
 #ifdef _DEBUGBREIT_
@@ -60,31 +59,28 @@ use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: iiS, jjS, kkS, llS, nTInt
+integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iAngV(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCmpV(4), ijS, ik2, ikS, ilS, ipDDij, ipDDik, &
-                     ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, ipDum, ipMem1, ipMem2, iPrimi, &
-                     iPrInc, ipTmp, iS, iS_, iShelV(4), iShllV(4), iStabs(4), iTmp, jBasAO, jBasj, jBasn, jBsInc, jk2, jkS, jlS, &
-                     jPrimj, jPrInc, jS, jS_, kBasAO, kBask, kBasn, kBsInc, klS, kOp(4), kPrimk, kPrInc, kS, kS_, lBasAO, lBasl, &
-                     lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, &
-                     mDjk, mDjl, mDkl, Mem1, Mem2, MemMax, MemPrm, n, nDCRR, nDCRS, nEta, nIJKL, Nr_of_D, nSO, nZeta
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, &
+                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, Mem1, Mem2, MemMax, MemPrm, n, nAO, nIJKL, nSO
 real(kind=wp) :: Coor(3,4), Tmax
-logical(kind=iwp) :: IJeqKL, NoInts, Shijij
+logical(kind=iwp) :: NoInts
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
-integer(kind=iwp), external :: iDAMax_, MemSO2
+integer(kind=iwp), external :: iDAMax_
+integer(kind=iwp), external :: MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
+integer(kind=iwp), parameter :: SCF = 1
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+TInt(:) = Zero
 #ifdef _DEBUGBREIT_
 ! use the Breit option computing 1/r^3 integralas but convert to
 ! conventional 1/r integrals
 if ((.not. DoFock) .and. (SuperName /= 'gateway') .and. (nIrrep == 1)) call Set_Breit(1)
 #endif
-mDCRij = 1
-mDCRkl = 1
 if (nIrrep == 1) then
   Do_TwoEl => TwoEl_NoSym
 else
@@ -120,76 +116,32 @@ end if
 !write(u6,*) 'Eval_ints: MemMax=',MemMax
 ipMem1 = 1
 
-Map4(1) = 1
-Map4(2) = 2
-Map4(3) = 3
-Map4(4) = 4
-iS_ = max(iiS,jjS)
-jS_ = min(iiS,jjS)
-kS_ = max(kkS,llS)
-lS_ = min(kkS,llS)
-if (iiS /= iS_) then
-  iTmp = Map4(1)
-  Map4(1) = Map4(2)
-  Map4(2) = iTmp
-end if
-if (kkS /= kS_) then
-  iTmp = Map4(3)
-  Map4(3) = Map4(4)
-  Map4(4) = iTmp
-end if
-!write(u6,*) ' -->',iS_,jS_,kS_,lS_,'<--'
+!write(u6,*) ' -->',iS,jS,kS,lS,'<--'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call Int_Setup(iSD,mSkal,iS_,jS_,kS_,lS_,Coor,Shijij,iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-iPrimi = Shells(iShllV(1))%nExp
-jPrimj = Shells(iShllV(2))%nExp
-kPrimk = Shells(iShllV(3))%nExp
-lPriml = Shells(iShllV(4))%nExp
-iBasi = Shells(iShllV(1))%nBasis
-jBasj = Shells(iShllV(2))%nBasis
-kBask = Shells(iShllV(3))%nBasis
-lBasl = Shells(iShllV(4))%nBasis
-nZeta = iPrimi*jPrimj
-nEta = kPrimk*lPriml
-mDij = nZeta+1 ! Dummy initialize
-mDkl = nEta+1  ! Dummy initialize
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
-
-call Create_BraKet(nZeta,nEta)
+call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! No SO block in direct construction of the Fock matrix.
-nSO = MemSO2(iCmpV(1),iCmpV(2),iCmpV(3),iCmpV(4),iShelV(1),iShelV(2),iShelV(3),iShelV(4),iAOV(1),iAOV(2),iAOV(3),iAOV(4))
-if (nSO == 0) return
-
-iS = iShelV(1)
-jS = iShelV(2)
-kS = iShelV(3)
-lS = iShelV(4)
-ijS = iTri(iS,jS)
-klS = iTri(kS,lS)
-ikS = iTri(iS,kS)
-ilS = iTri(iS,lS)
-jkS = iTri(jS,kS)
-jlS = iTri(jS,lS)
+if (nIrrep > 1) then
+  nSO = MemSO2(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),iSD4(7,1),iSD4(7,2),iSD4(7,3), &
+               iSD4(7,4))
+else
+  nSO = 0
+end if
+if (nIrrep>1 .and. nSO==0) return
+nAO = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
+!
+call Coor_Setup(iSD4,nSD,Coor)
+call Int_Setup(Coor)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Pick up pointers to k2 entities.
-
-nDCRR = IndK2(2,ijS)
-ik2 = IndK2(3,ijS)
-nDCRS = IndK2(2,klS)
-jk2 = IndK2(3,klS)
+! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
+!
+call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -197,19 +149,7 @@ jk2 = IndK2(3,klS)
 ! matrices. Observe that the desymmetrized 1st order
 ! density matrices follows the contraction index.
 
-if (DoFock) then
-  ipTmp = ipDijs
-  Nr_of_D = 1
-  call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,Nr_of_D)
-  call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,Nr_of_D)
-  call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,Nr_of_D)
-  call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,Nr_of_D)
-  call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D)
-  call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D)
-
-  !write(u6,*) ' Pointers to D=',ipDij,ipDkl,ipDik,ipDil,ipDjk,ipDjl
-
-end if
+if (DoFock) call Dens_Infos(SCF)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -223,37 +163,32 @@ end if
 !                                                                      *
 ! Compute memory request for the primitives, i.e.
 ! how much memory is needed up to the transfer equation.
-call MemRys(iAngV,MemPrm)
+call MemRys(iSD4(1,:),MemPrm)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Decide on the partioning of the shells based on the
 ! available memory and the requested memory.
-call PSOAO0(nSO,MemPrm,MemMax,iAngV,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
-            kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,DoFock)
-!#ifdef _DEBUGPRINT_
-!write(u6,*) ' ************** Memory partioning **************'
-!write(u6,*) ' ipMem1=',ipMem1
-!write(u6,*) ' ipMem2=',ipMem2
-!write(u6,*) ' Mem1=',Mem1
-!write(u6,*) ' Mem2=',Mem2
-!write(u6,*) ' iBasi,iBsInc=',iBasi,iBsInc
-!write(u6,*) ' jBasj,jBsInc=',jBasj,jBsInc
-!write(u6,*) ' kBasi,kBsInc=',kBask,kBsInc
-!write(u6,*) ' lBasl,lBsInc=',lBasl,lBsInc
-!write(u6,*) ' iPrimi,iPrInc=',iPrimi,iPrInc
-!write(u6,*) ' jPrimj,jPrInc=',jPrimj,jPrInc
-!write(u6,*) ' kPrimk,kPrInc=',kPrimk,kPrInc
-!write(u6,*) ' lPriml,lPrInc=',lPriml,lPrInc
-!write(u6,*) ' ***********************************************'
-!#endif
+call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
-AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem1-1)
+AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
+iBsInc = iSD4(4,1)
+jBsInc = iSD4(4,2)
+kBsInc = iSD4(4,3)
+lBsInc = iSD4(4,4)
+
+iBasi = iSD4(3,1)
+jBasj = iSD4(3,2)
+kBask = iSD4(3,3)
+lBasl = iSD4(3,4)
+
 jbas_ = jBasj
 lbas_ = lBasl
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -263,65 +198,53 @@ lbas_ = lBasl
 
 do iBasAO=1,iBasi,iBsInc
   iBasn = min(iBsInc,iBasi-iBasAO+1)
-  iAOst(1) = iBasAO-1
+  iSD4(8,1) = iBasAO-1
+  iSD4(19,1) = iBasn
 
   do jBasAO=1,jBasj,jBsInc
     jBasn = min(jBsInc,jBasj-jBasAO+1)
-    iAOst(2) = jBasAO-1
+    iSD4(8,2) = jBasAO-1
+    iSD4(19,2) = jBasn
 
     ! Move appropiate portions of the desymmetrized 1st
     ! order density matrix.
 
-    if (DoFock) call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,jBasj,jBsInc,jPrimj,jBasAO,jBasn,iCmpV(1),iCmpV(2),iShelV(1), &
-                           iShelV(2),mDCRij,ipDij,ipDDij,mDij,DeDe,nDeDe)
+    if (DoFock) call Picky(nSD,iSD4,1,2)
 
     do kBasAO=1,kBask,kBsInc
       kBasn = min(kBsInc,kBask-kBasAO+1)
-      iAOst(3) = kBasAO-1
+      iSD4(8,3) = kBasAO-1
+      iSD4(19,3) = kBasn
 
       if (DoFock) then
-        call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,kBask,kBsInc,kPrimk,kBasAO,kBasn,iCmpV(1),iCmpV(3),iShelV(1),iShelV(3),mDCRik, &
-                   ipDik,ipDDik,mDik,DeDe,nDeDe)
-
-        call Picky(jBasj,jBsInc,jPrimj,jBasAO,jBasn,kBask,kBsInc,kPrimk,kBasAO,kBasn,iCmpV(2),iCmpV(3),iShelV(2),iShelV(3),mDCRjk, &
-                   ipDjk,ipDDjk,mDjk,DeDe,nDeDe)
+        call Picky(nSD,iSD4,1,3)
+        call Picky(nSD,iSD4,2,3)
       end if
 
       do lBasAO=1,lBasl,lBsInc
         lBasn = min(lBsInc,lBasl-lBasAO+1)
-        iAOst(4) = lBasAO-1
+        iSD4(8,4) = lBasAO-1
+        iSD4(19,4) = lBasn
 
         if (DoFock) then
-          call Picky(kBask,kBsInc,kPrimk,kBasAO,kBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iCmpV(3),iCmpV(4),iShelV(3),iShelV(4), &
-                      mDCRkl,ipDkl,ipDDkl,mDkl,DeDe,nDeDe)
-
-          call Picky(iBasi,iBsInc,iPrimi,iBasAO,iBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iCmpV(1),iCmpV(4),iShelV(1),iShelV(4), &
-                      mDCRil,ipDil,ipDDil,mDil,DeDe,nDeDe)
-
-          call Picky(jBasj,jBsInc,jPrimj,jBasAO,jBasn,lBasl,lBsInc,lPriml,lBasAO,lBasn,iCmpV(2),iCmpV(4),iShelV(2),iShelV(4), &
-                      mDCRjl,ipDjl,ipDDjl,mDjl,DeDe,nDeDe)
+          call Picky(nSD,iSD4,3,4)
+          call Picky(nSD,iSD4,1,4)
+          call Picky(nSD,iSD4,2,4)
         end if
+
+        nijkl = iBasn*jBasn*kBasn*lBasn*nComp
+
         !                                                              *
         !***************************************************************
         !                                                              *
         !         Compute SO/AO-integrals
 
-        call Do_TwoEl(iS_,jS_,kS_,lS_,Coor,iAngV,iCmpV,iShelV,iShllV,iAOV,iAOst,NoInts,iStabs,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk, &
-                      kPrInc,lPriml,lPrInc,nDCRR,nDCRS,k2Data(:,ik2),k2Data(:,jk2),IJeqKL,kOp,DeDe(ipDDij),mDij,mDCRij, &
-                      DeDe(ipDDkl),mDkl,mDCRkl,DeDe(ipDDik),mDik,mDCRik,DeDe(ipDDil),mDil,mDCRil,DeDe(ipDDjk),mDjk,mDCRjk, &
-                      DeDe(ipDDjl),mDjl,mDCRjl,Shells(iShllV(1))%pCff(1,iBasAO),iBasn,Shells(iShllV(2))%pCff(1,jBasAO),jBasn, &
-                      Shells(iShllV(3))%pCff(1,kBasAO),kBasn,Shells(iShllV(4))%pCff(1,lBasAO),lBasn,FT,nFT,nZeta,nEta,SOInt,nSO, &
-                      AOInt,Mem2,Shijij,Aux,nAux)
-        !                                                              *
-        !***************************************************************
-        !                                                              *
+        call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Mem2,iSD4)
 
-        nijkl = iBasn*jBasn*kBasn*lBasn
 #       ifdef _DEBUGBREIT_
         if (nOrdOp /= 0) then
           if (nIrrep == 1) then
-            n = iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
-            call ReSort_Int(AOInt,nijkl,6,n)
+            call ReSort_Int(AOInt,nijkl,6,nAO)
           else
             call ReSort_Int(SOInt,nijkl,6,nSO)
           end if
@@ -329,8 +252,7 @@ do iBasAO=1,iBasi,iBsInc
 #       endif
 #       ifdef _DEBUGPRINT_
         if (nIrrep == 1) then
-          n = iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
-          call RecPrt('AOInt',' ',AOInt,nijkl,n)
+          call RecPrt('AOInt',' ',AOInt,nijkl,nAO)
         else
           call RecPrt('SOInt',' ',SOInt,nijkl,nSO)
         end if
@@ -343,15 +265,14 @@ do iBasAO=1,iBasi,iBsInc
         if (DoIntegrals .and. (.not. NoInts)) then
           ! Get max AO/SO integrals
           if (nIrrep == 1) then
-            n = nijkl*iCmpV(1)*iCmpV(2)*iCmpV(3)*iCmpV(4)
+            n = nijkl*nAO
             Tmax = max(Tmax,abs(AOInt(iDAMax_(n,AOInt,1))))
           else
             n = nijkl*nSO
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
-            call Int_PostProcess(iCmpV,iShelV,iBasn,jBasn,kBasn,lBasn,kOp,Shijij,iAOV,iAOst,nijkl,AOInt,SOInt,nSO,iSOSym,nSOs, &
-                                 TInt,nTInt,nIrrep)
+            call Int_PostProcess(nijkl,AOInt,SOInt,nSO,iSOSym,nSOs,TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero
           end if
@@ -368,9 +289,42 @@ call Destroy_BraKet()
 !                                                                      *
 #ifdef _DEBUGBREIT_
 call Set_Breit(0)
+# endif
 
 contains
 
+subroutine Dens_Infos(nMethod)
+
+  use Dens_stuff, only: ipDDij, ipDDik, ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, mDCRij, mDCRik, &
+                        mDCRil, mDCRjk, mDCRjl, mDCRkl
+  use k2_arrays, only: ipDijS
+
+  integer(kind=iwp), intent(in) :: nMethod
+  integer(kind=iwp) :: Dum1, Dum2, Dum3, ijS, ikS, ilS, ipTmp, iS, jkS, jlS, jS, klS, kS, lS
+  integer(kind=iwp), parameter :: Nr_of_D = 1
+
+  iS = iSD4(11,1)
+  jS = iSD4(11,2)
+  kS = iSD4(11,3)
+  lS = iSD4(11,4)
+
+  ijS = iTri(iS,jS)
+  klS = iTri(kS,lS)
+  ikS = iTri(iS,kS)
+  ilS = iTri(iS,lS)
+  jkS = iTri(jS,kS)
+  jlS = iTri(jS,lS)
+  ipTmp = ipDijs
+  call Dens_Info(ijS,ipDij,ipDum,mDCRij,ipDDij,ipTmp,Nr_of_D,nMethod,Dum1,Dum2,Dum3)
+  call Dens_Info(klS,ipDkl,ipDum,mDCRkl,ipDDkl,ipTmp,Nr_of_D,nMethod,Dum1,Dum2,Dum3)
+  call Dens_Info(ikS,ipDik,ipDum,mDCRik,ipDDik,ipTmp,Nr_of_D,nMethod,Dum1,Dum2,Dum3)
+  call Dens_Info(ilS,ipDil,ipDum,mDCRil,ipDDil,ipTmp,Nr_of_D,nMethod,Dum1,Dum2,Dum3)
+  call Dens_Info(jkS,ipDjk,ipDum,mDCRjk,ipDDjk,ipTmp,Nr_of_D,nMethod,Dum1,Dum2,Dum3)
+  call Dens_Info(jlS,ipDjl,ipDum,mDCRjl,ipDDjl,ipTmp,Nr_of_D,nMethod,Dum1,Dum2,Dum3)
+
+end subroutine Dens_Infos
+
+#ifdef _DEBUGBREIT_
 subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
 
 # ifdef _DEBUGPRINT_

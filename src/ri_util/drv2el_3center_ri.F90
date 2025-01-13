@@ -62,7 +62,7 @@ real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all, TW0, TW1, TW
 character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, Out_of_Core, Skip
 integer(kind=iwp), allocatable :: Addr(:), iRv(:), LBList(:), NuMu(:,:), TmpList(:)
-real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), Tmp(:,:)
+real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Scr(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), Tmp(:,:)
 procedure(int_wrout) :: Integral_RI_3
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
 logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
@@ -232,6 +232,7 @@ do klS_=1,nSkal2
 end do
 
 call mma_allocate(Arr_3C,n3CMax,Label='Arr_3C')
+call mma_allocate(Scr,n3CMax,Label='Scr')
 call mma_allocate(Rv,nRvMax,Label='Rv')
 
 call mma_maxDBLE(MaxMem)
@@ -335,7 +336,10 @@ do while (Rsv_Tsk(id,klS))
       write(u6,*) 'A_Int,CutInt=',A_Int,CutInt
       write(u6,*)
 #     endif
-      if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C)
+      if (A_Int >= CutInt) then
+        call Eval_IJKL(iS,jS,kS,lS,Scr,n3C)
+        Arr_3C(1:n3C) = Arr_3C(1:n3C)+Scr(1:n3C)
+      end if
     end if
 
   end do    ! jS
@@ -406,6 +410,7 @@ call mma_deallocate(LBList)
 call mma_deallocate(TmpList)
 
 call mma_deallocate(Rv)
+call mma_deallocate(Scr)
 call mma_deallocate(Arr_3C)
 call mma_deallocate(Qv)
 call xRlsMem_Ints()

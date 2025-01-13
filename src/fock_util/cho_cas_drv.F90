@@ -14,10 +14,10 @@ subroutine CHO_CAS_DRV(rc,W_CMO,DI,FI,DA1,FA,W_PWXY,TraOnly)
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Fock_util_global, only: ALGO, Deco, dmpk, DoActive, DoLocK, Nscreen
 use rasscf_global, only: CBLBM, ExFac
+use general_data, only: NASH, NBAS, NBAS, NFRO, NISH, NORB, NSYM, NTOT2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use general_data, only: NSYM,NFRO,NISH,NASH,NTOT2,NBAS,NBAS,NORB
 
 #include "intent.fh"
 

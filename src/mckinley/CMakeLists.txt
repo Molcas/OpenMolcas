@@ -32,7 +32,6 @@ set (sources
      coreb.F90
      crsph_mck.F90
      ctldns.F90
-     ctrlmo.F90
      dan.F90
      dede_mck.F90
      derctr.F90
@@ -50,6 +49,7 @@ set (sources
      elgrd.F90
      elgrddot.F90
      elmem.F90
+     eval_g2_ijkl.F90
      fckacc_mck.F90
      hssprt.F90
      inputh.F90
@@ -110,6 +110,7 @@ set (sources
      supermac.F90
      symado_mck.F90
      symado_mck2.F90
+     picky_mck.F90
      tcrtnc_h.F90
      tnchlf_h.F90
      translation.F90

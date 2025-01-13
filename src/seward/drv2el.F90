@@ -144,51 +144,48 @@ do
   ! Now do a quadruple loop over shells
 
   ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
-  iS = Pair_Index(1,ijS)
-  jS = Pair_Index(2,ijS)
   klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
-  kS = Pair_Index(1,klS)
-  lS = Pair_Index(2,klS)
   Quad_ijkl = TskLw
 
-  do while (Quad_ijkl-TskHi <= 1.0e-10_wp)
+  Quad_ijkl = Quad_ijkl-One
+  klS = klS-1
+  do
+    Quad_ijkl = Quad_ijkl+One
+    klS = klS+1
+    if (klS > ijS) then
+      ijS = ijS+1
+      klS = 1
+    end if
+    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
+    iS = Pair_Index(1,ijS)
+    jS = Pair_Index(2,ijS)
+    kS = Pair_Index(1,klS)
+    lS = Pair_Index(2,klS)
 
     ! Logic to avoid computing integrals in a mixed muonic and
     ! electronic basis.
 
     iCnttp = iSD(13,iS)
     jCnttp = iSD(13,jS)
-    if (dbsc(iCnttp)%fMass == dbsc(jCnttp)%fMass) then
-      kCnttp = iSD(13,kS)
-      lCnttp = iSD(13,lS)
-      if (dbsc(kCnttp)%fMass == dbsc(lCnttp)%fMass) then
+    if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) Cycle
+    kCnttp = iSD(13,kS)
+    lCnttp = iSD(13,lS)
+    if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) Cycle
 
-        S_Eff = real(ijS,kind=wp)
-        T_Eff = real(klS,kind=wp)
-        ST_Eff = S_Eff*(S_Eff-One)/Two+T_Eff
-        if (ST_Eff >= PP_Count) then
-          write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff*100.0_wp,'% done so far.'
-          call StatusLine('Seward: ',SLine)
-          PP_Count = PP_Count+PP_Eff_delta
-        end if
+    S_Eff = real(ijS,kind=wp)
+    T_Eff = real(klS,kind=wp)
+    ST_Eff = S_Eff*(S_Eff-One)/Two+T_Eff
+    if (ST_Eff >= PP_Count) then
+      write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff*100.0_wp,'% done so far.'
+      call StatusLine('Seward: ',SLine)
+      PP_Count = PP_Count+PP_Eff_delta
+    end if
 
-        A_int = TMax(iS,jS)*TMax(kS,lS)
-        if (A_Int >= CutInt) then
-          call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
-        end if
-      end if
-    end if
-    Quad_ijkl = Quad_ijkl+One
-    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
-    klS = klS+1
-    if (klS > ijS) then
-      ijS = ijS+1
-      klS = 1
-    end if
-    iS = Pair_Index(1,ijS)
-    jS = Pair_Index(2,ijS)
-    kS = Pair_Index(1,klS)
-    lS = Pair_Index(2,klS)
+    A_int = TMax(iS,jS)*TMax(kS,lS)
+    if (A_Int < CutInt) Cycle
+
+    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
+
   end do
 
 end do
@@ -216,7 +213,5 @@ call mma_deallocate(TMax)
 call Term_Ints()
 call Free_iSD()
 call Init_Int_Options()
-
-return
 
 end subroutine Drv2El

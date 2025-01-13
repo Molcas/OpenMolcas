@@ -39,6 +39,7 @@ set (sources
      cnthlf.F90
      cntrct.F90
      conmax.F90
+     coor_setup.F90
      contei.F90
      coset.F90
      covrad.F90
@@ -53,6 +54,7 @@ set (sources
      def_shells.F90
      define_af.F90
      dens_info.F90
+     dens_stuff.F90
      desym1.F90
      desymd.F90
      desymp.F90
@@ -261,7 +263,6 @@ set (sources
      seward_init.F90
      shell_mxdens.F90
      shell_mxschwz.F90
-     size_sob.F90
      soadd.F90
      sodist.F90
      sofsh1.F90
@@ -312,6 +313,7 @@ set (modfile_list
      covrad_data.F90
      dcr_mod.F90
      define_af.F90
+     dens_stuff.F90 # dependency from integral_interfaces.F90
      disp.F90
      efp_.F90
      efp_module.F90

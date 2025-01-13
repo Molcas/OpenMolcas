@@ -99,8 +99,10 @@ do iO1=1,iOrb(1)
         indMME = iTri(iB1,iB2)
         cProd = Cmo(iB1,iO1)*Cmo(iB2,iO2)
         do iTyp=1,nTyp
-          O(iTyp) = cProd*MME(iTyp)%A(indMME)
+          O(iTyp) = MME(iTyp)%A(indMME)
         end do
+        O(:) = cProd*O(:)
+
         Cha(kaunter,kaunta) = Cha(kaunter,kaunta)+O(1)
         DipMy(kaunter,1,kaunta) = DipMy(kaunter,1,kaunta)+O(2)
         DipMy(kaunter,2,kaunta) = DipMy(kaunter,2,kaunta)+O(3)

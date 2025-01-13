@@ -21,11 +21,11 @@ subroutine ALLOC()
 use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use rasscf_global, only: ISTORD, ISTORP, nFint
+use general_data, only: NASH, NORB, NSYM
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use general_data, only: NSYM,NASH,NORB
 
 implicit none
 integer(kind=iwp) :: IORD, IORP, NAP, NAQ, NAR, NAS, NOP, NRS, NSP, NSPQ, NSPQR, NSQ, NSR, NSS

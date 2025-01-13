@@ -208,7 +208,7 @@ General keywords
 
     ``SO_THERMAL`` --- same as ``SF_THERMAL`` but for SO basis.
 
-    ``FROMFILE`` --- read the full initial DM from file :file:`INDENS`.
+    ``FROMFILE`` --- read the real part of initial DM in ``CSF`` basis from file :file:`INDENS`.
 
   .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="POPU" APPEAR="State basis to be populated." KIND="CHOICE" LIST="CSF,SF,SF_THERMAL,SO,SO_THERMAL,FROMFILE" LEVEL="BASIC">
               %%Keyword: POPUlation <basic>

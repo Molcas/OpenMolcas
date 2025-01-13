@@ -20,16 +20,6 @@ implicit none
 #include "int_wrout_interface.fh"
 
 #include "macros.fh"
-unused_var(iCmp)
-unused_var(iShell)
-unused_var(iBas)
-unused_var(jBas)
-unused_var(kBas)
-unused_var(lBas)
-unused_var(kOp)
-unused_var(Shijij)
-unused_var(iAO)
-unused_var(iAOst)
 unused_var(ijkl)
 unused_var(AOInt(1))
 unused_var(SOInt(1))
@@ -37,5 +27,7 @@ unused_var(nSOint)
 unused_var(iSOSym)
 unused_var(TInt)
 unused_var(mSym)
+unused_var(nSD)
+unused_var(iSD4)
 
 end subroutine No_Routine

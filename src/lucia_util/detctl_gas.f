@@ -23,7 +23,7 @@
       use lucia_data, only: MXSOOB,MXNTTS,ISMOST,XISPSM
       use lucia_data, only: IPRCIX
       use lucia_data, only: NOCSF,IADVICE,ISIMSYM,LCSBLK,MXINKA
-      use lucia_data, only: IREFSM,PSSIGN,PSSIGN,MULTS,IDC
+      use lucia_data, only: IREFSM,PSSIGN,PSSIGN,IDC
       use lucia_data, only: MXNSTR,MAX_STR_OC_BLK,MAX_STR_SPGP,
      &                      IBSPGPFTP,MNHL,NELFSPGP,NELFTP,NHLFSPGP,
      &                      NSTFSMSPGP
@@ -246,8 +246,7 @@ c      END IF
       CALL LUCIA2MOLCAS(
      &     CONF_OCC(jsym)%I,SDREO_I(jsym)%I,
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
-     &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
-     &     nCSF_HEXS)
+     &     mxporb, nconf_per_open, npdtcnf, npcscnf, nCSF_HEXS)
 
       CALL mma_deallocate(KLOCCLS)
 

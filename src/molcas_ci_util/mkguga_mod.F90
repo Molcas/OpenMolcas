@@ -146,7 +146,7 @@ contains
   subroutine MKISM_RASSI()
 
     use gugx, only: LEVEL
-    use rassi_data, only: NASHT,NASH
+    use rassi_data, only: NASH, NASHT
 
     integer(kind=iwp) :: ITABS, ISYM, IT, ILEV, nSym
 

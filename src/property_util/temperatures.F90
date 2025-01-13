@@ -9,24 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Size_SOb(iSD4,nSD,nSO,No_batch)
+module Temperatures
 
-use Symmetry_Info, only: nIrrep
-use Definitions, only: iwp
+! Default temperatures for thermochemistry (MCLR, SLAPAF)
+
+use Constants, only: Zero
+use Definitions, only: wp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: nSO
-logical(kind=iwp), intent(out) :: No_batch
-integer(kind=iwp), external :: MemSO2
+private
 
-No_batch = .false.
-if (nIrrep > 1) then
-  nSO = MemSO2(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),iSD4(7,1),iSD4(7,2),iSD4(7,3), &
-               iSD4(7,4))
-  No_batch = (nSO == 0)
-else
-  nSO = 0
-end if
+real(kind=wp), parameter :: DefTemp(7) = [Zero,100.0_wp,273.15_wp,298.15_wp,323.15_wp,373.15_wp,473.15_wp]
 
-end subroutine Size_SOb
+public :: DefTemp
+
+end module Temperatures

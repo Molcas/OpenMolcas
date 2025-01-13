@@ -12,8 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PGet0(iCmp,iBas,jBas,kBas,lBas,iAO,iAOst,ijkl,PSO,nPSO,n1,n2,n3,n4,MemPSO,Mem2,nMem2,iShell_A,iShell_B,iShell_C, &
-                 iShell_D,nQuad,PMax)
+subroutine PGet0(ijkl,PSO,nPSO,iFnc,MemPSO,Mem2,nMem2,nQuad,PMax,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to act as a shell towards the manipulations of generating or *
@@ -30,7 +29,7 @@ use setup, only: nSOs
 use pso_stuff, only: Bin, Case_2C, Case_3C, CASPT2_On, CMOPT2, D0, DS, DSVar, DVar, G_Toc, Gamma_MRCISD, Gamma_On, iOffAO, lBin, &
                      lPSO, lSA, LuGamma, LuGamma_PT2, nBasT, nDens, nFro, nGamma, nNP, nOcc, nV_k, nZ_p_k, ReadBPT2, SO2CI, U_K, &
                      V_K, WRK1, WRK2, Z_P_K
-use iSD_data, only: iSO2Sh
+use iSD_data, only: iSO2Sh, nSD
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
@@ -40,11 +39,29 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iCmp(4), iBas, jBas, kBas, lBas, iAO(4), iAOst(4), ijkl, nPSO, n1, n2, n3, n4, MemPSO, nMem2, &
-                                 iShell_A, iShell_B, iShell_C, iShell_D, nQuad
+integer(kind=iwp), intent(in) :: ijkl, nPSO, iFnc(4), MemPSO, nMem2, nQuad, iSD4(0:nSD,4)
 real(kind=wp), intent(out) :: PSO(ijkl,nPSO), Mem2(nMem2), PMax
-integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA
+integer(kind=iwp) :: iAO(4), iAOst(4), iBas, iCmp(4), ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, iShell_A, iShell_B, iShell_C, &
+                     iShell_D, jBas, kBas, kOp(4), lBas, n1, n2, n3, n4, nSA
 
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+iCmp(:) = iSD4(2,:)
+iAO(:) = iSD4(7,:)
+iAOst(:) = iSD4(8,:)
+iBas = iSD4(19,1)
+jBas = iSD4(19,2)
+kBas = iSD4(19,3)
+lBas = iSD4(19,4)
+n1 = iFnc(1)*iBas
+n2 = iFnc(2)*jBas
+n3 = iFnc(3)*kBas
+n4 = iFnc(4)*lBas
+iShell_A = iSD4(20,1)
+iShell_B = iSD4(20,2)
+iShell_C = iSD4(20,3)
+iShell_D = iSD4(20,4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

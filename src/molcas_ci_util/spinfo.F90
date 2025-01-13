@@ -8,48 +8,53 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module Spinfo
-Implicit None
-!stuff from spinfo.fh
-INTEGER, PARAMETER :: MXTYP=30, MXSM=8
-INTEGER MULTS,MS2,MINOP,MAXOP,NTYP,NDTFTP(MXTYP),NCSFTP(MXTYP),     &
-        NCNFTP(MXTYP,MXSM),NCONF_TOT
 
-!stuff from ciinfo.fh
-INTEGER, PARAMETER:: MXCISM=8
-INTEGER IORB1F,IORB1L,NEL1MN,NEL1MX,IORB3F,IORB3L,NEL3MN,NEL3MX,    &
-        MXSASM,MXVBLK,ICOMBI,NDET,NDTASM(MXCISM),NCSASM(MXCISM),NCNASM(MXCISM)
+module Spinfo
+
+! stuff from spinfo.fh
+!
+! MXTYP, MS2, MINOP, NTYP, NDTFTP, NCSFTP, NCNFTP
+!
+! stuff from ciinfo.fh
+!
+! ICOMBI, NDET, NDTASM, NCSASM, NCNASM
+!
+! stuff from lucia_ini.fh
+!
+! i = 1, 5: combinations, particle hole(sigma), count_aa, count_ab, a/p_parts
+! nSpeed, iSpeed
+!
+! Root_Molcas, norb_Molcas, bas_Molcas, nish_Molcas, gssh_molcas, igsoccx_molcas, ELIMINATED_IN_GAS_MOLCAS,
+! 2ELIMINATED_IN_GAS_MOLCAS, potnuc_Molcas, thre_Molcas, nsym_Molcas, nactel_Molcas, ms2_Molcas, ispin_Molcas, lsym_Molcas,
+! itmax_Molcas, nroots_Molcas, ipt2_Molcas, iprci_Molcas, ngas_molcas, INOCALC_MOLCAS,
+! ISAVE_EXP_MOLCAS, IEXPAND_MOLCAS, N_ELIMINATED_GAS_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, nCSF_HEXS
+!
+! stuff from bk_approx.fh
+!
+! DoBKAP, NGASBK, IOCCPSPC
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
 
 #include "Molcas.fh"
-Private :: MaxBfn,MaxBfn_Aux,MxAO,mxAtom,mxroot,mxNemoAtom,Mxdbsc,lCache,mxact,mxina,mxbas,mxOrb,mxSym,mxGAS, &
-           LENIN,LENIN1,LENIN2,LENIN3,LENIN4,LENIN5,LENIN6,LENIN8
-!stuff from lucia_ini.fh
-!
-! Transfers parameters from inpctl in rasscf to lucia_ini in lucia_util
-!
-Integer RtoI_Molcas
 
-! i = 1, 5: combinations, particle hole(sigma), count_aa, count_ab, a/p_parts
-Integer, Parameter:: nSpeed = 5
-Integer iSpeed(nSpeed)
+integer(kind=iwp), parameter :: MXTYP = 30, nSpeed = 5
 
-Integer iRoot_Molcas(mxRoot),norb_Molcas(mxSym)
-Integer nbas_Molcas(mxSym),nish_Molcas(mxSym)
-Integer ngssh_molcas(mxgas,mxsym),igsoccx_molcas(mxgas,2)
-Integer IELIMINATED_IN_GAS_MOLCAS(MXGAS)
-Integer I2ELIMINATED_IN_GAS_MOLCAS(MXGAS)
+integer(kind=iwp) :: I2ELIMINATED_IN_GAS_MOLCAS(MXGAS), I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS(MXGAS), IEXPAND_MOLCAS, &
+                     igsoccx_molcas(mxgas,2), INOCALC_MOLCAS, IOCCPSPC(20,2), iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, &
+                     iSpeed(nSpeed), ispin_Molcas, itmax_Molcas, lsym_Molcas, MINOP, MS2, ms2_Molcas, N_2ELIMINATED_GAS_MOLCAS, &
+                     N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, nbas_Molcas(mxSym), NCNASM(mxSym), NCNFTP(MXTYP,MXSYM), &
+                     NCSASM(mxSym), nCSF_HEXS, NCSFTP(MXTYP), NDET, NDTASM(mxSym), NDTFTP(MXTYP), ngas_molcas, NGASBK, &
+                     ngssh_molcas(mxgas,mxsym), nish_Molcas(mxSym), norb_Molcas(mxSym), nroots_Molcas, nsym_Molcas, NTYP
+real(kind=wp) :: potnuc_Molcas, thre_Molcas
+logical(kind=iwp) :: DoBKAP
 
-Real*8   potnuc_Molcas,thre_Molcas
-Integer  nsym_Molcas,nactel_Molcas, ms2_Molcas,                   &
-         ispin_Molcas,lsym_Molcas,nhole1_Molcas,nelec3_Molcas,    &
-         itmax_Molcas,nroots_Molcas,ipt2_Molcas,iprci_Molcas,     &
-         ngas_molcas, INOCALC_MOLCAS,ISAVE_EXP_MOLCAS,            &
-         IEXPAND_MOLCAS,N_ELIMINATED_GAS_MOLCAS,                  &
-         N_2ELIMINATED_GAS_MOLCAS,                                &
-         I_ELIMINATE_GAS_MOLCAS,nCSF_HEXS
+public :: DoBKAP, I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, igsoccx_molcas, &
+          INOCALC_MOLCAS, IOCCPSPC, iprci_Molcas, ipt2_Molcas, ISAVE_EXP_MOLCAS, iSpeed, ispin_Molcas, itmax_Molcas, lsym_Molcas, &
+          MINOP, MS2, ms2_Molcas, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, nactel_Molcas, nbas_Molcas, NCNASM, NCNFTP, &
+          NCSASM, nCSF_HEXS, NCSFTP, NDET, NDTASM, NDTFTP, ngas_molcas, NGASBK, ngssh_molcas, nish_Molcas, norb_Molcas, &
+          nroots_Molcas, nsym_Molcas, NTYP, potnuc_Molcas, thre_Molcas
 
-!stuff from bk_approx.fh
-Logical DoBKAP
-Integer NGASBK, IOCCPSPC(20,2)
-
-End Module Spinfo
+end module Spinfo

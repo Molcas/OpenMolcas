@@ -15,12 +15,12 @@ subroutine SORTA(BUFS,INDS,ISAB,BUFBI,BIAC,BICA,NINTGR)
 ! FIRST CHAIN FOR IJKL
 
 use mrci_global, only: IADABCI, ICH, IFIRST, INDSRT, IPRINT, IROW, ISMAX, KBUFF1, LASTAD, Lu_60, Lu_70, LUSYMB, LUTRA, LN, MCHAIN, &
-                       NBITM1, NCHN1, NORB, NSM, NSRTMX, NSYM, NTIBUF, NVIRT, NVPAIR, TIBUF, VALSRT
+                       NBITM1, NCHN1, NORB, NSM, NSRTMX, NSYM, NVIRT, NVPAIR, TIBUF, VALSRT
 use guga_util_global, only: COP, IAD10, ICOP1, nCOP
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use TraToc, only: ITRATOC,NTRATOC
 
 implicit none
 real(kind=wp), intent(out) :: BUFS(NBITM1,NCHN1), BUFBI(KBUFF1), BIAC(ISMAX), BICA(ISMAX)
@@ -67,7 +67,7 @@ do NSP=1,NSYM
         NOS = NORB(NSS)
         NORBP = NOP*NOQ*NOR*NOS
         if (NORBP == 0) cycle
-        call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
+        call dDAFILE(LUTRA,2,TIBUF,NTRABUF,IAD50)
         IOUT = 0
         do NV=1,NOR
           NXM = NOS
@@ -82,8 +82,8 @@ do NSP=1,NSYM
               if (NSP == NSQ) NUMAX = NT
               do NU=NUMIN,NUMAX
                 IOUT = IOUT+1
-                if (IOUT > NTIBUF) then
-                  call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
+                if (IOUT > NTRABUF) then
+                  call dDAFILE(LUTRA,2,TIBUF,NTRABUF,IAD50)
                   IOUT = 1
                 end if
                 FINI = TIBUF(IOUT)

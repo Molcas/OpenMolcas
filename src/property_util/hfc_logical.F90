@@ -8,16 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module HFC_logical
-use Definitions, only: IWP
-Private
-!      UHF_HFC: to control the calculation of hyperfine coupling tensor
-!      matrix in unrestricted Hartree-Fock scf calculations.
-!      It is mainly used in scf program and the related integral_util
-!      directory.
-!
-!      MAG_X2C: true when x2c-transformed hyperfine magnetic integrals
-!      are calculated.
 
-Logical(kind=iwp),Public:: UHF_HFC, MAG_X2C
-End Module HFC_logical
+module HFC_logical
+
+! UHF_HFC: to control the calculation of hyperfine coupling tensor
+! matrix in unrestricted Hartree-Fock scf calculations.
+! It is mainly used in scf program and the related integral_util
+! directory.
+!
+! MAG_X2C: true when x2c-transformed hyperfine magnetic integrals
+! are calculated.
+
+use Definitions, only: iwp
+
+implicit none
+private
+
+logical(kind=iwp) :: MAG_X2C, UHF_HFC
+
+public :: MAG_X2C, UHF_HFC
+
+end module HFC_logical

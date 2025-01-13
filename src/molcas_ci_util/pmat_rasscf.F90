@@ -22,12 +22,12 @@ subroutine PMAT_RASSCF(P,X)
 
 use Symmetry_Info, only: Mul
 use rasscf_global, only: ISTORP, iTri
+use general_data, only: NASH, NSYM
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use general_data, only: NSYM,NASH
 
 #include "intent.fh"
 

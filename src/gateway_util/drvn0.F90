@@ -40,8 +40,9 @@ real(kind=wp) :: A(3), ABx, ABy, ABz, B(3), CffM1, CffM2, DAx, DAy, DAz, DBx, DB
                  eQZ, eTot, eZD, eZQ, eZZ, fab, Fact, Gam, PNX, PXX, QAsum, QAxx, QAxy, QAxz, QAyy, QAyz, QAzz, QBsum, QBxx, QBxy, &
                  QBxz, QByy, QByz, QBzz, QRBxx, QRBxy, QRBxz, QRByy, QRByz, QRBzz, Qxx, Qxy, Qxz, Qyy, Qyz, Qzz, r12, r12_Min, &
                  RB(3), temp, temp0, temp1, temp2, x, y, z, ZA, ZAZB, ZB
-logical(kind=iwp) :: EQ, NoLoop
+logical(kind=iwp) :: NoLoop
 integer(kind=iwp), external :: iChAtm, isstructure
+logical(kind=iwp), external :: EQ
 
 NoLoop = .true.
 iDum = 0

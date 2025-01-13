@@ -30,7 +30,7 @@ private
 !            shell the SO index iSO in irp belongs to
 ! icntr  - field holding center number for each shell
 
-integer(kind=iwp), parameter :: nSD = 18
+integer(kind=iwp), parameter :: nSD = 20
 integer(kind=iwp) :: nShBFMx, nShIrp(0:7), nSkal_iSD
 integer(kind=iwp), allocatable :: iCntr(:), iSD(:,:), iSh2Sh(:,:), iShOff(:,:), iSO2Sh(:), nShBF(:,:)
 

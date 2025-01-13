@@ -145,6 +145,7 @@ if (.not. Atomic) then
           end if
         end do
         iSD(15,nSkal) = iTmp
+        iSD(20,nSkal) = nSkal
 
         S%m2Max = max(S%m2Max,nExpi**2)
         !                                                              *
@@ -227,6 +228,8 @@ else
       iSD(16,nSkal) = 0
       iSD(17,nSkal) = 0
       iSD(18,nSkal) = 0
+      iSD(19,nSkal) = 0
+      iSD(20,nSkal) = nSkal
 
       S%m2Max = max(S%m2Max,nExpi**2)
 
@@ -261,6 +264,5 @@ end if
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-return
 
 end subroutine Def_Shells

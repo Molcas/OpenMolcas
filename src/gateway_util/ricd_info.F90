@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer(kind=iwp), parameter :: nLen = 11 ! number of elements
+integer(kind=iwp), parameter :: nLen = 13 ! number of elements
 integer(kind=iwp) :: iRI_Type = -1
 real(kind=wp) :: Thrshld_CD = 1.0e-4_wp
 logical(kind=iwp) :: Cho_OneCenter = .false., &
@@ -28,9 +28,10 @@ logical(kind=iwp) :: Cho_OneCenter = .false., &
                      LDF = .false., &
                      LocalDF = .false., &
                      Skip_High_AC = .false.
+logical(kind=iwp) :: RI_3C = .false., RI_2C = .false.
 
 public :: Cho_OneCenter, Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, RICD_Info_Dmp, RICD_Info_Get, &
-          Skip_High_AC, Thrshld_CD
+          Skip_High_AC, Thrshld_CD, RI_3C, RI_2C
 
 contains
 
@@ -54,6 +55,8 @@ subroutine RICD_Info_Dmp()
   rDmp(09) = merge(One,Zero,LocalDF)
   rDmp(10) = Thrshld_CD
   rDmp(11) = merge(One,Zero,Do_DCCD)
+  rDmp(12) = merge(One,Zero,RI_3C)
+  rDmp(13) = merge(One,Zero,RI_2C)
 
   call Put_dArray('RICD_Info',rDmp,nLen)
   call mma_deallocate(rDmp)
@@ -81,6 +84,8 @@ subroutine RICD_Info_Get()
   LocalDF = rDmp(9) > Zero
   Thrshld_CD = rDmp(10)
   Do_DCCD = rDmp(11) > Zero
+  RI_3C = rDmp(12) > Zero
+  RI_2C = rDmp(13) > Zero
 
   call mma_deallocate(rDmp)
 

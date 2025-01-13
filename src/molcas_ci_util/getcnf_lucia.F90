@@ -18,8 +18,8 @@ subroutine GETCNF_LUCIA(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 !
 ! Adapted for LUCIA Jeppe Olsen, summer of 02
 
+use spinfo, only: MINOP, NCNFTP, NTYP
 use Definitions, only: iwp, u6
-use spinfo, only: NTYP,MINOP,NCNFTP
 
 implicit none
 integer(kind=iwp), intent(in) :: K, ICONF(*), IREFSM, NEL

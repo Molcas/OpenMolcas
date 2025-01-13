@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-function MemSO2_P(iCmp,jCmp,kCmp,lCmp,iAO,jAO,kAO,lAO)
+function MemSO2_P(nSD,iSD4)
 !***********************************************************************
 !  Object: to compile the number of SO block which will be generated   *
 !          by the current shell quadruplet.                            *
@@ -34,13 +34,23 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: MemSO2_P
-integer(kind=iwp), intent(in) :: iCmp, jCmp, kCmp, lCmp, iAO, jAO, kAO, lAO
-integer(kind=iwp) :: i1, i2, i3, i4, j1, j12, j2, j3, j4
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp) :: i1, i2, i3, i4, iAO, iCmp, j1, j12, j2, j3, j4, jAO, jCmp, kAO, kCmp, lAO, lCmp
 
 ! Quadruple loop over elements of the basis functions angular
 ! description. Loops are reduced to just produce unique SO integrals
 ! Observe that we will walk through the memory in AOInt in a
 ! sequential way.
+
+iAO = iSD4(7,1)
+jAO = iSD4(7,2)
+kAO = iSD4(7,3)
+lAO = iSD4(7,4)
+
+iCmp = iSD4(2,1)
+jCmp = iSD4(2,2)
+kCmp = iSD4(2,3)
+lCmp = iSD4(2,4)
 
 if (nIrrep == 1) then
 

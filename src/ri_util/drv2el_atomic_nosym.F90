@@ -56,6 +56,7 @@ integer(kind=iwp) :: iAddr, iBfn, ij, ijAng, ijS, iS, iSeed, iTInt, iTOff, ji, j
                      MemSew, MemT, mTInt, mTInt2, nBfn, nBfn_i, nBfn_j, nBfn_k, nBfn_l, nij, nIrrep_Save, nSkal, nTInt2
 logical(kind=iwp) :: Do_ERIs, Do_RI_Basis, DoFock, DoGrad, Indexation, Only_DB, Out_of_Core
 integer(kind=iwp), allocatable :: IJInd(:,:)
+real(kind=wp), allocatable :: Scr(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -236,6 +237,7 @@ end if
 iTOffs(2) = nTInt  ! # of rows in TInt
 iTOffs(3) = mTInt  ! # of colums in TInt
 call mma_allocate(TInt,nTInt2,label='TInt')
+call mma_allocate(Scr,nTInt2,label='Scr')
 if (In_Core) TInt(:) = Zero
 !                                                                      *
 !***********************************************************************
@@ -283,7 +285,8 @@ do ijS=1,nij
     Do_ERIs = Do_ERIs .and. (ijAng <= Keep_Shell) .and. (klAng <= Keep_Shell)
 
     if (Do_ERIs) then
-      call Eval_IJKL(iS,jS,kS,lS,TInt,mTInt2)
+      call Eval_IJKL(iS,jS,kS,lS,Scr,mTInt2)
+      TInt(1:mTInt2) = TInt(1:mTInt2)+Scr(1:mTInt2)
     end if
 
     if (.not. Only_DB) then
@@ -326,6 +329,7 @@ if (Do_RI_Basis) call mma_deallocate(SO2Ind)
 !***********************************************************************
 
 if (Out_of_Core) call mma_deallocate(TInt)
+call mma_deallocate(Scr)
 call mma_deallocate(IJInd)
 !                                                                      *
 !***********************************************************************

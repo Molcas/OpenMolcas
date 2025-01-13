@@ -18,7 +18,6 @@ use Integral_interfaces, only: Int_PostProcess, int_wrout
 use Cholesky, only: LuPri
 use Gateway_Info, only: CutInt, ThrInt
 #endif
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -30,7 +29,6 @@ real(kind=wp) :: CUTINT1, CUTINT2, THRINT1, THRINT2
 character(len=*), parameter :: SECNAM = 'CHO_MCA_DIAGINT'
 #endif
 
-SCR(:) = Zero
 Int_PostProcess => Integral_Wrout_Cho_Diag
 
 #ifdef _DEBUGPRINT_

@@ -18,7 +18,7 @@
 
 subroutine FckAcc(iAng,iCmp_,Shijij,iShll,iShell,kOp,nijkl,AOInt,TwoHam,nDens,Scrt,nScrt,iAO,iAOst,iBas,jBas,kBas,lBas,Dij,ij1, &
                   ij2,ij3,ij4,Dkl,kl1,kl2,kl3,kl4,Dik,ik1,ik2,ik3,ik4,Dil,il1,il2,il3,il4,Djk,jk1,jk2,jk3,jk4,Djl,jl1,jl2,jl3,jl4, &
-                  FT,nFT,DoCoul,DoExch,ExFac)
+                  DoCoul,DoExch,ExFac)
 !***********************************************************************
 !                                                                      *
 !  Object: to accumulate contributions from the AO integrals directly  *
@@ -52,6 +52,7 @@ use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Symmetry_Info, only: iChBas, iOper, nIrrep, Prmt
 use Gateway_Info, only: CutInt, ThrInt
+use k2_arrays, only: FT
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -61,14 +62,13 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: iAng(4), iCmp_(4), iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), iAOst(4), iBas, &
                                  jBas, kBas, lBas, ij1, ij2, ij3, ij4, kl1, kl2, kl3, kl4, ik1, ik2, ik3, ik4, il1, il2, il3, il4, &
-                                 jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, nFT
+                                 jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4
 logical(kind=iwp), intent(in) :: Shijij, DoCoul, DoExch
 real(kind=wp), intent(in) :: AOInt(nijkl,iCmp_(1),iCmp_(2),iCmp_(3),iCmp_(4)), ExFac
 real(kind=wp), intent(inout) :: TwoHam(nDens)
 real(kind=wp), target, intent(inout) :: Scrt(nScrt)
 real(kind=wp), target, intent(in) :: Dij(ij1*ij2+1,ij3,ij4), Dkl(kl1*kl2+1,kl3,kl4), Dik(ik1*ik2+1,ik3,ik4), &
                                      Dil(il1*il2+1,il3,il4), Djk(jk1*jk2+1,jk3,jk4), Djl(jl1*jl2+1,jl3,jl4)
-real(kind=wp), target, intent(out) :: FT(nFT)
 integer(kind=iwp) :: i1, i12, i2, i3, i34, i4, iChBs, iCmp, iCmpa(4), ii, iIrrep, ijkl, iOpt, ip, ipF, iSym(4), ix, j, jChBs, &
                      jCmp, jCmpMx, jj, kChBs, kCmp, kk, kOp2(4), lChBs, lCmp, lCmpMx, ll, mijkl, nF
 real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, Fac_ij, Fac_ik, Fac_il, Fac_jk, Fac_jl, Fac_kl, Fact, pEa, pFctr, pRb, pTc, &

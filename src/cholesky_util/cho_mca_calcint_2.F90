@@ -31,7 +31,7 @@ integer(kind=iwp) :: MEM_END, MEM_START, LEAK
 #endif
 real(kind=wp) :: C1, C2, PCT, W1, W2, XSKIP, XXSHL
 logical(kind=iwp) :: DOINTS
-real(kind=wp), allocatable :: IntCol(:)
+real(kind=wp), allocatable :: IntCol(:), Temp(:)
 logical(kind=iwp), parameter :: LOCDBG = .false.
 character(len=*), parameter :: SECNAM = 'CHO_MCA_CALCINT_2'
 
@@ -65,7 +65,9 @@ if (IPRINT >= INF_INT) write(LUPRI,*)
 ! ---------------------------------
 
 call mma_allocate(IntCol,LCOL,Label='IntCol')
+call mma_allocate(Temp,LCOL,Label='Temp')
 IntCol(:) = Zero
+Temp(:) = Zero
 
 ! Set mapping from shell pair AB to qualified columns.
 ! ----------------------------------------------------
@@ -129,7 +131,9 @@ do ISHLCD=1,NNSHL
     ! --------------------
 
     call CWTIME(C1,W1)
-    call CHO_MCA_INT_1(ISCD,ISHLAB,IntCol,LCOL,LOCDBG .or. (IPRINT >= 100))
+    Temp(:) = Zero
+    call CHO_MCA_INT_1(ISCD,ISHLAB,Temp,LCOL,LOCDBG .or. (IPRINT >= 100))
+    IntCol(:) = IntCol(:)+Temp(:)
     call CWTIME(C2,W2)
     TINTEG(1,1) = TINTEG(1,1)+C2-C1
     TINTEG(2,1) = TINTEG(2,1)+W2-W1
@@ -172,6 +176,7 @@ TINTEG(2,2) = TINTEG(2,2)+W2-W1
 ! ------------------------------------------------------
 
 call XRLSMEM_INTS()
+call mma_deallocate(Temp)
 call mma_deallocate(IntCol)
 
 ! Print skip statistics.

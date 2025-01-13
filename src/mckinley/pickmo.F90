@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PickMO(COUT,nOut,icmp,iBasi,iBasn,jBasj,jBasn,kBask,kBasn,lBasl,lBasn,iaoii)
+subroutine PickMO(COUT,nOut,nSD,iSD4)
 
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
@@ -22,18 +22,14 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: nOut, iCmp(4), iBasi, iBasn, jBasj, jBasn, kBask, kBasn, lBasl, lBasn, iAOii(4)
+integer(kind=iwp), intent(in) :: nOut, nSD, iSD4(0:nSD,4)
 real(kind=wp), intent(_OUT_) :: COUT(nOut)
-integer(kind=iwp) :: i1, iAsh, iBas(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
+integer(kind=iwp) :: i1, iAOii(4), iAsh, iBas(4), iCmp(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
 
-iBas(1) = iBasi
-iBas(2) = jBasj
-iBas(3) = kBask
-iBas(4) = lBasl
-nBs(1) = iBasn
-nBs(2) = jBasn
-nBs(3) = kBasn
-nBs(4) = lBasn
+iCmp(:) = iSD4(2,:)
+iBas(:) = iSD4(8,:)
+nBs(:) = iSD4(19,:)
+iAOii(:) = iSD4(7,:)
 ip2 = 1
 
 do iCnt=3,4
@@ -43,7 +39,7 @@ do iCnt=3,4
     do iAsh=1,nAsh(iIrrep)
       jj = iCmp(iCnt)
       do i1=1,jj
-        iSO = iAOtSO(iAOii(iCnt)+i1,iIrrep)+iBas(iCnt)-1
+        iSO = iAOtSO(iAOii(iCnt)+i1,iIrrep)+iBas(iCnt)
         if (iSO > 0) then
           ip1 = ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iSO
           COUT(ip2:ip2+nBs(iCnt)-1) = CMO(ip1:ip1+nBs(iCnt)-1,1)

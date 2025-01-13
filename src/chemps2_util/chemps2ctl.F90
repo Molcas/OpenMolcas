@@ -25,10 +25,10 @@ use Definitions, only: MPIInt
 #endif
 use rasscf_global, only: CBLBM, chemps2_blb, chemps2_lrestart, chemps2_noise, chemps2_restart, davidson_tol, Do3RDM, ENER, &
                          iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, MxDMRG, NAC, THRE, hfocc
+use general_data, only: ISPIN, NACTEL, NASH, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Half
 use Definitions, only: wp, iwp, u6
-use general_data,only: NSYM,STSYM,ISPIN,NACTEL,NASH
 
 implicit none
 real(kind=wp), intent(in) :: W1(*), TUVX(*)

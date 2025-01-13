@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine DerCtr(mdci,mdcj,mdck,mdcl,ldot,JfGrd,IndGrd,JfHss,IndHss,JfG)
+subroutine DerCtr(ldot,JfGrd,IndGrd,JfHss,IndHss,JfG,nSD,iSD4)
 
 !#define _OLD_CODE_
 use McKinley_global, only: sIrrep
@@ -25,11 +25,12 @@ use Symmetry_Info, only: iOper
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mdci, mdcj, mdck, mdcl
 logical(kind=iwp), intent(in) :: ldot
 logical(kind=iwp), intent(out) :: JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
 integer(kind=iwp), intent(out) :: IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7)
-integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, istop, jAtom, jCar, JndGrd(3,4,0:7), nDisp, nnIrrep
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, istop, jAtom, jCar, JndGrd(3,4,0:7), mdci, mdcj, mdck, mdcl, &
+                     nDisp, nnIrrep
 logical(kind=iwp) :: IfG(4), IfGrd(3,4), IfHss(4,3,4,3)
 logical(kind=iwp), external :: TF
 #ifdef _OLD_CODE_
@@ -37,6 +38,11 @@ integer(kind=iwp) :: i, iCo(4), iCom(0:7,0:7), idcrr(0:7), ielem, iStabM(0:7), i
 logical(kind=iwp) :: chck
 logical(kind=iwp), external :: TstFnc
 #endif
+
+mdci = iSD4(10,1)
+mdcj = iSD4(10,2)
+mdck = iSD4(10,3)
+mdcl = iSD4(10,4)
 
 nnIrrep = nIrrep
 IfGrd(:,:) = .false.
@@ -224,7 +230,5 @@ end if
 !  End Hess
 !
 !----------------------------------------------------------------------*
-
-return
 
 end subroutine DerCtr
