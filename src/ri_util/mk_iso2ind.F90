@@ -19,7 +19,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: nSO, iSO2Sh(nSO), nShell
 integer(kind=iwp), intent(out) :: iSO2Ind(nSO)
-integer(kind=iwp) :: iB, iIrrep, Ind, iSh, iSO
+integer(kind=iwp) :: iB, iIrrep, iSh, iSO
 integer(kind=iwp), allocatable :: nTemp(:)
 
 call mma_allocate(nTemp,nShell,Label='nTemp')

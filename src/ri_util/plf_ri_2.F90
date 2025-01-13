@@ -89,33 +89,34 @@ iAOl = iAO(4)
 
 iOff = nBas(0) ! Number of valence functions.
 
-iOffA_ = iOffA(1)
-mm_ =    iOffA(4)
-nn = mm_-iOffA(2)
-mx = nTri_Elem(nn)
+iOffA_ = iOffA(1)  ! Offset to where the subsection of the A matrix starts for the jS shell starts
+mm_ =    iOffA(4)  ! mm_ (iOffA(4)): is the number of basis functions up to and including shell jS
+! nn:  the number of basis functions before shell jS
+nn = mm_-iOffA(2)  ! iOffA(2) is the number of basis functions of shell jS
+mx = nTri_Elem(nn) ! mx: is the number of elements in A before the block belonging to shell jS
 
 #ifdef _DEBUGPRINT_
-write(u6,*) 'nn,mx=',nn,mx
-write(u6,*) 'iOff=',nn,mx
+write(u6,*) 'nn,mx,mm_=',nn,mx,mm_
+write(u6,*) 'mx-iOffA_=',mx-iOffA_
+write(u6,*) 'iOff=',iOff
 write(u6,*) 'lBas,jBas=',lBas,jBas
 write(u6,*) 'lCmp,jCmp=',lCmp,jCmp
 #endif
 
 do i2=1,jCmp
-  jSO = iAOtSO(iAOj+i2,kOp(2))+iAOstj-iOff ! starting canonical index for shell 2
+  jSO = iAOtSO(iAOj+i2,kOp(2))+iAOstj-iOff ! starting canonical index for shell jS
   do i4=1,lCmp
-    lSO = iAOtSO(iAOl+i4,kOp(4))+iAOstl-iOff ! starting canonical index for shell 4
+    lSO = iAOtSO(iAOl+i4,kOp(4))+iAOstl-iOff ! starting canonical index for shell lS
 
     nijkl = 0
     do lSOl=lSO,lSO+lBas-1
 
       do jSOj=jSO,jSO+jBas-1
 
-        iSO = jSOj
-        nijkl = nijkl+1
+        iSO = iSO2Ind(jSOj)+nn
+        ij = iTri(iSO,lSOl) - mx + iOffA_
 
-        iSO = iSO2Ind(iSO)+nn
-        ij = iTri(iSO,lSOl)-mx+iOffA_
+        nijkl = nijkl + 1
         TInt(ij) = AOint(nijkl,i2,i4)
 
       end do
