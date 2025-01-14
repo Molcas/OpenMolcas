@@ -38,8 +38,7 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
-real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, TMax_all, TskHi, TskLw, TWall1, &
-                 Twall2
+real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TMax_all, TskHi, TskLw
 logical(kind=iwp) :: DoGrad, Indexation, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
@@ -130,7 +129,6 @@ PP_Count = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call CWTime(TCpu1,TWall1)
 
 ! big loop over individual tasks distributed over individual nodes
 
@@ -151,12 +149,12 @@ do
   klS = klS-1
   do
     Quad_ijkl = Quad_ijkl+One
+    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
     klS = klS+1
     if (klS > ijS) then
       ijS = ijS+1
       klS = 1
     end if
-    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
     iS = Pair_Index(1,ijS)
     jS = Pair_Index(2,ijS)
     kS = Pair_Index(1,klS)
@@ -191,7 +189,6 @@ do
 end do
 call mma_deallocate(TInt)
 ! End of big task loop
-call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
