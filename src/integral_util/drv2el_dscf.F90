@@ -162,10 +162,6 @@ do iS=1,nSkal
 end do
 P_Eff = real(nij,kind=wp)
 
-PP_Eff = P_Eff**2
-PP_Eff_delta = 0.1_wp*PP_Eff
-PP_Count = Zero
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -188,6 +184,10 @@ end if
 iOpt = 0
 if ((.not. FstItr) .and. Semi_direct) iOpt = 2
 
+
+PP_Eff = P_Eff**2
+PP_Eff_delta = 0.1_wp*PP_Eff
+PP_Count = Zero
 
 ! big loop over individual tasks, distributed over individual nodes
 
