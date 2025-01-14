@@ -153,8 +153,8 @@ do iS=1,mSkal
   iCmpV(1) = iCmp
 
   do jS=1,iS
-    iSD4(:,2) = iSD(:,jS)
-    iSD4(:,4) = iSD(:,jS)
+
+    Call Gen_iSD4(iS,jS,iS,jS,iSD,nSD,iSD4)
 
     jShll = iSD4(0,2)
     if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
@@ -267,10 +267,11 @@ do iS=1,mSkal
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     if (.not. DoGrad_) ijCmp = 0
     ik2 = Indk2(3,ijS)
-    call k2Loop(Coor,iSD4(1,:),iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
+    call k2Loop(Coor,iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
                 BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
                 BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &
-                mdci,mdcj,DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
+                mdci,mdcj,DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD, &
+                iSD4)
 
     Indk2(2,ijS) = nDCRR
     mk2 = mk2+nDCRR
