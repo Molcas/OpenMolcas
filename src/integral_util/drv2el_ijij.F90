@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 1990,1991,1993,1998, Roland Lindh                      *
+! Copyright (C) 1990,1991,1993,1998,2025, Roland Lindh                 *
 !               1990, IBM                                              *
 !***********************************************************************
 
@@ -24,12 +24,14 @@ subroutine Drv2El_ijij(Pair_Index,nPairs,TMax,nSkal)
 !             Modified to minimize overhead for calculations with      *
 !             small basis sets and large molecules. Sept. '93          *
 !             Modified driver. Jan. '98                                *
+!             Modified driver for (ij|ij) integrals. Jan '25           *
 !***********************************************************************
 
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 use Definitions, only: wp, iwp
 
 implicit none
@@ -43,6 +45,7 @@ character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:)
 integer(kind=iwp), parameter :: nTInt = 1
 logical(kind=iwp), external :: Rsv_Tsk
+procedure(int_wrout) :: No_Routine
 
 !                                                                      *
 !***********************************************************************
@@ -52,6 +55,7 @@ call StatusLine('Seward: ',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Int_PostProcess => No_Routine
 call mma_allocate(TInt,nTint,Label='TInt')
 !                                                                      *
 !***********************************************************************
@@ -76,5 +80,6 @@ end do
 
 call Free_Tsk(id_Tsk)
 call mma_deallocate(TInt)
+nullify(Int_PostProcess)
 
 end subroutine Drv2El_ijij
