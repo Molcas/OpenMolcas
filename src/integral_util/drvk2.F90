@@ -49,7 +49,7 @@ use Definitions, only: u6
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
 integer(kind=iwp) :: iAng, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, ipMem1, ipMem2, iPrim, &
-                     iPrimi, iPrimS, iS, iSD4(0:nSD,4), iShell, iShll, iShllV(2), jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
+                     iPrimi, iPrimS, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
                      jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
                      mScree, nBasi, nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
@@ -129,7 +129,8 @@ ipMem1 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Canonical double loop over shells.
+! Canonical double loop over shells. This includes both valence and
+! auxiliary basis functions
 
 do iS=1,mSkal
   iSD4(:,1) = iSD(:,iS)
@@ -137,6 +138,7 @@ do iS=1,mSkal
 
   iShll = iSD4(0,1)
 
+  ! In case of auxiliary basis sets we want the iS index to point at the dummay shell.
   if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
 
   iAng = iSD4(1,1)
@@ -151,15 +153,18 @@ do iS=1,mSkal
 
   if (ReOrder) call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,Shells(iShll)%pCff)
 
-  iShllV(1) = iShll
-
   do jS=1,iS
 
     Call Gen_iSD4(iS,jS,iS,jS,iSD,nSD,iSD4)
 
     jShll = iSD4(0,2)
+
+    ! In case the first shell is the dummy auxiliary basis shell make sure that
+    ! the second shell, jS, also is a auxiliary basis shell.
     if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
+    ! Make sure that the second shell never is the dummy auxiliary basis shell.
     if (Shells(jShll)%Aux .and. (jS == mSkal)) cycle
+
     jAng = iSD4(1,2)
     jCmp = iSD4(2,2)
     jBas = iSD4(3,2)
@@ -169,8 +174,6 @@ do iS=1,mSkal
     jCnttp = iSD4(13,2)
     jCnt = iSD4(14,2)
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
-
-    iShllV(2) = jShll
 
     ! Fix for the dummy basis set
     if (Shells(iShll)%Aux) Coor(1:3,1) = Coor(1:3,2)
@@ -265,7 +268,7 @@ do iS=1,mSkal
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     if (.not. DoGrad_) ijCmp = 0
     ik2 = Indk2(3,ijS)
-    call k2Loop(Coor,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
+    call k2Loop(Coor,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
                 BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
                 BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &
                 mdci,mdcj,DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD, &
