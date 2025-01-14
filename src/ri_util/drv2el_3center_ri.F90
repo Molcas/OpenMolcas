@@ -39,6 +39,7 @@ use Index_Functions, only: nTri_Elem
 use RI_procedures, only: Drv2El_2Center_RI
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, nBas, nBas_Aux
+use k2_arrays, only: Sew_Scr
 use Gateway_global, only: force_out_of_core
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
@@ -57,11 +58,12 @@ integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,
                      iPass, iPL, iPrint, irc, iRed, iRout, iS, iS_, iSeed, iSym, iTask, iTtmp(0:7), iVec, j_e, j_s, jS, jS_, &
                      kCnttp, klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, &
                      mMuNu, mQv, MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
-                     nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
-real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all, TW0, TW1, TWall1, Twall2
+                     nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_, nij
+real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all_v, TMax_all_a, TW0, TW1, TWall1, Twall2
 character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, Out_of_Core, Skip
 integer(kind=iwp), allocatable :: Addr(:), iRv(:), LBList(:), NuMu(:,:), TmpList(:)
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: A_Diag(:), Arr_3C(:), Diag(:), Qv(:), Scr(:), Rv(:), TMax_Auxiliary(:), TMax_Valence(:,:), Tmp(:,:)
 procedure(int_wrout) :: Integral_RI_3
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
@@ -139,7 +141,6 @@ call StatusLine('Seward: ','Computing 3-center RI integrals')
 
 ! Handle both the valence and the auxiliary basis set
 
-Int_PostProcess => Integral_RI_3
 call Set_Basis_Mode('WithAuxiliary')
 call SetUp_iSD()
 !                                                                      *
@@ -164,22 +165,61 @@ call mma_allocate(TMax_Auxiliary,nSkal_Auxiliary,Label='TMax_Auxiliary')
 call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
 call Shell_MxSchwz(nSkal,Tmp)
 
-TMax_all = Zero
+TMax_all_v = Zero
 do iS=1,nSkal_Valence
   do jS=1,iS
     TMax_Valence(iS,jS) = Tmp(iS,jS)
     TMax_Valence(jS,iS) = Tmp(iS,jS)
-    TMax_all = max(TMax_all,Tmp(iS,jS))
+    TMax_all_v = max(TMax_all_v,Tmp(iS,jS))
   end do
 end do
+TMax_all_a = Zero
+jS_ = nSkal_Valence+nSkal_Auxiliary
 do iS=1,nSkal_Auxiliary-1
   iS_ = iS+nSkal_Valence
-  jS_ = nSkal_Valence+nSkal_Auxiliary
   TMax_Auxiliary(iS) = Tmp(jS_,iS_)
-  TMax_all = max(TMax_all,Tmp(jS_,iS_))
+  TMax_all_a = max(TMax_all_a,Tmp(jS_,iS_))
 end do
 
+call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2)
+nij=0
+Do iS=1,nSkal_Valence
+   Do jS=1,iS
+      if (TMax_all_a*Tmp(iS,jS) >= CutInt) then
+         nij = nij+1
+         Pair_Index(1,nij) = iS
+         Pair_Index(2,nij) = jS
+      end if
+   End do
+End do
+iS=nSkal_Valence+nSkal_Auxiliary
+Do jS=1,1,nSkal_Auxiliary-1
+   jS_ = jS+nSkal_Valence
+   If (TMax_all_v*Tmp(iS,jS_) <= CutInt) then
+      nij = nij+1
+      Pair_Index(1,nij)=iS
+      Pair_Index(2,nij)=jS_
+   end if
+end do
+! Update TMax with the analytical values
+Call Drv2El_ijij(Pair_Index,nij,Tmp,nSkal)
+
+do iS=1,nSkal_Valence
+  do jS=1,iS
+    TMax_Valence(iS,jS) = Tmp(iS,jS)
+    TMax_Valence(jS,iS) = Tmp(iS,jS)
+  end do
+end do
+TMax_all_a = Zero
+jS_ = nSkal_Valence+nSkal_Auxiliary
+do iS=1,nSkal_Auxiliary-1
+  iS_ = iS+nSkal_Valence
+  TMax_Auxiliary(iS) = Tmp(jS_,iS_)
+end do
+
+call mma_deallocate(Pair_Index)
 call mma_deallocate(Tmp)
+call mma_deallocate(Sew_Scr)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -289,6 +329,7 @@ end do
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu1,TWall1)
+Int_PostProcess => Integral_RI_3
 
 iS = nSkal ! point to dummy shell
 ! Save this field for the time being!
