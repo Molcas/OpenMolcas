@@ -50,7 +50,7 @@ implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
 integer(kind=iwp) :: iAng, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, ipMem1, ipMem2, iPrim, &
                      iPrimi, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
-                     jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
+                     jS, jShell, jShll, la_, mabMax_, mabMin_, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
                      mScree, nBasi, nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iPrimSave(4)
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
@@ -143,10 +143,10 @@ do iS=1,mSkal
 
   iBas = iSD4(3,1)
   iPrim = iSD4(5,1)
-  mdci = iSD4(10,1)
   iShell = iSD4(11,1)
   iCnttp = iSD4(13,1)
   iCnt = iSD4(14,1)
+
   Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
   if (ReOrder) call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,Shells(iShll)%pCff)
@@ -163,13 +163,12 @@ do iS=1,mSkal
     ! Make sure that the second shell never is the dummy auxiliary basis shell.
     if (Shells(jShll)%Aux .and. (jS == mSkal)) cycle
 
-    jCmp = iSD4(2,2)
     jBas = iSD4(3,2)
     jPrim = iSD4(5,2)
-    mdcj = iSD4(10,2)
     jShell = iSD4(11,2)
     jCnttp = iSD4(13,2)
     jCnt = iSD4(14,2)
+
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
     ! Fix for the dummy basis set
@@ -273,7 +272,7 @@ do iS=1,mSkal
     call k2Loop(Coor,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
                 BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
                 BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &
-                mdci,mdcj,DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD, &
+                DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD, &
                 iSD4)
 
     Indk2(2,ijS) = nDCRR

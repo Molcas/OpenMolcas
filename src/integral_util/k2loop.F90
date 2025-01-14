@@ -14,7 +14,7 @@
 
 !#define _DEBUGPRINT_
 subroutine k2Loop(Coor,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta, &
-                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,iStb,jStb,Dij,nDij,nDCR,ijCmp,DoFock,Scr,nScr,Knew, &
+                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,Dij,nDij,nDCR,ijCmp,DoFock,Scr,nScr,Knew, &
                   Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -47,7 +47,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iDCRR(0:7), nDCRR, nAlpha, nBeta, iBasn, jBasn, nZeta, IncZZ, &
-                                 nWork2, iStb, jStb, nDij, nDCR, ijCmp, nScr, nNew, nHRRMtrx, nSD, iSD4(0:nSD,4)
+                                 nWork2, nDij, nDCR, ijCmp, nScr, nNew, nHRRMtrx, nSD, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Con(nZeta), &
                              Dij(nDij,nDCR)
 type(k2_type), intent(inout) :: k2data(nDCRR)
@@ -78,8 +78,7 @@ iCmpa(:)=iSD4(2,:)
 !***********************************************************************
 !                                                                      *
 Q(:) = One
-mStb(1) = iStb
-mStb(2) = jStb
+mStb(1:2) = iSD4(10,1:2)
 la = iAnga(1)
 lb = iAnga(2)
 iSmAng = la+lb+la+lb
