@@ -149,7 +149,7 @@ subroutine refwfn_info
     if (mh5_exists_attr(refwfn_id,'NDET')) then
       call mh5_fetch_attr(refwfn_id,'NDET',nDet)
     else
-!   to avoid runtime error
+      ! to avoid runtime error
       nDet = 1
     end if
 
@@ -173,12 +173,12 @@ subroutine refwfn_info
       call AbEnd()
     end if
     IFQCAN = 0
-# ifdef _DMRG_
+#   ifdef _DMRG_
     if (mh5_exists_dset(refwfn_id,'QCMAQUIS_CHECKPOINT')) then
       call qcmaquis_info_init(1,nroots,-1)
       call mh5_fetch_dset(refwfn_id,'QCMAQUIS_CHECKPOINT',qcm_group_names(1)%states)
     end if
-# endif
+#   endif
   else
 # endif
     ! Sizes in the GSLIST is counted in INTEGERS.

@@ -66,11 +66,10 @@ integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, iSD4(0
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: NoInts
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
-integer(kind=iwp), external :: iDAMax_
-integer(kind=iwp), external :: MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
 integer(kind=iwp), parameter :: SCF = 1
+integer(kind=iwp), external :: iDAMax_, MemSO2
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -129,16 +128,16 @@ if (nIrrep > 1) then
 else
   nSO = 0
 end if
-if (nIrrep>1 .and. nSO==0) return
+if ((nIrrep > 1) .and. (nSO == 0)) return
 nAO = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
-!
+
 call Coor_Setup(iSD4,nSD,Coor)
 call Int_Setup(Coor)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! partition memory for K2(ij)/K2(kl) temp spaces zeta,eta,kappa,P,Q
-!
+
 call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !                                                                      *
 !***********************************************************************
@@ -165,7 +164,7 @@ call MemRys(iSD4(1,:),MemPrm)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Decide on the partioning of the shells based on the
+! Decide on the partitioning of the shells based on the
 ! available memory and the requested memory.
 call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
@@ -235,7 +234,7 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !***************************************************************
         !                                                              *
-        !         Compute SO/AO-integrals
+        ! Compute SO/AO-integrals
 
         call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Mem2,iSD4)
 

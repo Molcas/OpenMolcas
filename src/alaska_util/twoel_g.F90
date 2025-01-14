@@ -51,12 +51,11 @@ logical(kind=iwp), intent(in) :: IfGrad(3,4)
 real(kind=wp), intent(out) :: Wrk2(nWrk2)
 integer(kind=iwp) :: iAnga(4), iAO(4), iAOst(4), iBasi, iC, iCar, iCent, iCmp(4), iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), &
                      iDCRTS, iEta, iiCent, ijklab, ijMax, ijMin, ijS, ik2, ikl, IncEta, IncZet, iS, iShell(4), iShll(4), iShlla, &
-                     iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, iz2, iZeta, jBasj, &
-                     jCent, jCmpb, jjCent, jk2, JndGrd(3,4), jPrInc, jS, jShllb, kBask, kCent, kCmpc, klMax, klMin, klS, &
-                     kOp(4), kS, kShllc, la, lb, lBasl, lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, &
-                     lPrInc, lS, lShlld, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
-                     mZeta, nAlpha, nBeta, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nIdent, nOp(4), nW2, nW4, nWrk3, &
-                     nZeta, nZeta_Tot, nDCR1, nDCR2
+                     iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, iz2, iZeta, jBasj, jCent, jCmpb, jjCent, jk2, &
+                     JndGrd(3,4), jPrInc, jS, jShllb, kBask, kCent, kCmpc, klMax, klMin, klS, kOp(4), kS, kShllc, la, lb, lBasl, &
+                     lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, lPrInc, lS, lShlld, lZeta, mab, mcd, mCent, &
+                     mEta, mGrad, MxDCRS, mZeta, nAlpha, nBeta, nDCR1, nDCR2, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, &
+                     nIdent, nOp(4), nW2, nW4, nWrk3, nZeta, nZeta_Tot
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr, Shijij
 procedure(cff2d_kernel) :: vCff2D
@@ -362,7 +361,7 @@ do lDCRR=0,nDCRR-1
       nZeta_Tot = k2Data1(lDCR1)%IndZ(nZeta+1)
       nEta_Tot = k2Data2(lDCR2)%IndZ(nEta+1)
 
-      ! Loops to partion the primitives
+      ! Loops to partition the primitives
 
       do iZeta=1,nZeta_Tot,IncZet
         mZeta = min(IncZet,nZeta_Tot-iZeta+1)
@@ -432,113 +431,3 @@ do lDCRR=0,nDCRR-1
 end do
 
 end subroutine TwoEl_g
-
-subroutine mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT,nSD,iSD4)
-use definitions, only: wp, iwp
-use Symmetry_Info, only: nIrrep
-use Basis_Info, only: MolWgh
-use Center_Info, only: dc
-#ifdef _DEBUGPRINT_
-use Symmetry_Info, only: ChOper
-use Definitions, only: u6
-#endif
-real(kind=wp), intent(out) :: Fact
-integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
-integer(kind=iwp), intent(out) :: iuvwx(4),nDCRR,nDCRS,nDCRT
-integer(kind=iwp), intent(out) :: iDCRR(0:7),iDCRS(0:7),iDCRT(0:7)
-
-integer(kind=iwp) :: iStb,jStb,kStb,lStb
-integer(kind=iwp) :: LmbdR, LmbdS, LmbdT, lStabM, lStabN
-integer(kind=iwp) :: iStabM(0:7), iStabN(0:7)
-
-real(kind=wp) :: u, v, w, x
-
-iStb = iSD4(10,1)
-jStb = iSD4(10,2)
-kStb = iSD4(10,3)
-lStb = iSD4(10,4)
-iuvwx(1) = dc(iStb)%nStab
-iuvwx(2) = dc(jStb)%nStab
-iuvwx(3) = dc(kStb)%nStab
-iuvwx(4) = dc(lStb)%nStab
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for center A and B
-
-if (nIrrep == 1) then
-  nDCRR = 1
-  iDCRR(0) = 0
-  LmbdR = 1
-else
-  call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
-end if
-#ifdef _DEBUGPRINT_
-write(u6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
-#endif
-u = real(dc(iStb)%nStab,kind=wp)
-v = real(dc(jStb)%nStab,kind=wp)
-
-! Find stabilizer for center A and B
-
-if (nIrrep == 1) then
-  lStabM = 1
-  iStabM(0) = 0
-else
-  call Inter(dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for center C and D.
-! Take care of redundancy if {f(aA)f(bB)}={f(cC)f(dD)}. Hence
-! we will only use unique combinations of operators from the
-! double coset representatives {R} and {S}.
-
-if (nIrrep == 1) then
-  nDCRS = 1
-  iDCRS(0) = 0
-  LmbdS = 1
-else
-  call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
-end if
-#ifdef _DEBUGPRINT_
-write(u6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
-#endif
-w = real(dc(kStb)%nStab,kind=wp)
-x = real(dc(lStb)%nStab,kind=wp)
-
-! Find stabilizer for center C and D
-
-if (nIrrep == 1) then
-  lStabN = 1
-  iStabN(0) = 0
-else
-  call Inter(dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for the two charge
-! distributions.
-
-if (nIrrep == 1) then
-  nDCRT = 1
-  iDCRT(0) = 0
-  LmbdT = 1
-else
-  call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Factor due to summation over DCR
-
-if (MolWgh == 1) then
-  Fact = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
-else if (MolWgh == 0) then
-  Fact = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
-else
-  Fact = sqrt(u*v*w*x)/real(nIrrep*LmbdT,kind=wp)
-end if
-end subroutine mk_DCRs_and_Stabilizers

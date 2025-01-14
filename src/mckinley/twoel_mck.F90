@@ -12,9 +12,9 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoEl_mck(Coor,nRys,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO,Work2,nWork2,Work3,nWork3,Work4, &
-                     nWork4,Aux,nAux,WorkX,nWorkX,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
-                     moip,naco,rMOIN,nMOIN,iSD4)
+subroutine TwoEl_mck(Coor,nRys,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO,Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux, &
+                     nAux,WorkX,nWorkX,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din,moip,naco, &
+                     rMOIN,nMOIN,iSD4)
 !***********************************************************************
 !                                                                      *
 !     Input:                                                           *
@@ -95,11 +95,10 @@ logical(kind=iwp), intent(out) :: IfG(4)
 real(kind=wp), intent(out) :: Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
 integer(kind=iwp) :: iAngV(4), iAO(4), iAOst(4), iBasi, iCar, iCmp(4), iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, &
                      iEta, iIrr, ijS, ik2, IncEta, IncZet, Indx(3,4), ip, ip2, ipFT, ipS1, ipS2, ipTemp, iS, iShell(4), iShll(4), &
-                     iShlla, iuvwx(4), ix2, iy2, iz2, iZeta, jBasj, jCmpb, jk2, JndGrd(3,4,0:7), &
-                     JndHss(4,3,4,3,0:7), jPrInc, jS, jShllb, kBask, kCmpc, klS, kS, kShllc, la, lb, lBasl, lc, lCmpd, &
-                     ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, lPrInc, lS, lShlld, &
-                     lZeta, mab, mcd, mEta, mZeta, n, nabcd, nAlpha, nBeta, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, &
-                     nGr, niag, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta, nZeta_Tot, nDCR1,nDCR2
+                     iShlla, iuvwx(4), ix2, iy2, iz2, iZeta, jBasj, jCmpb, jk2, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrInc, jS, &
+                     jShllb, kBask, kCmpc, klS, kS, kShllc, la, lb, lBasl, lc, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, &
+                     lPrInc, lS, lShlld, lZeta, mab, mcd, mEta, mZeta, n, nabcd, nAlpha, nBeta, nDCR1, nDCR2, nDCRR, nDCRS, nDCRT, &
+                     nDelta, nEta, nEta_Tot, nGamma, nGr, niag, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, Time
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4), Shijij
 procedure(cff2d_kernel) :: Cff2D
@@ -301,13 +300,12 @@ do lDCRR=0,nDCRR-1
 
       call Timing(dum1,Time,dum2,dum3)
       CpuStat(nTwoDens) = CpuStat(nTwoDens)+Time
-      !------------------------------------------------------------*
+      !----------------------------------------------------------------*
       !
-      ! Fix the control matrixes for derivatives
-      ! and try to use translation invariance as
-      ! efficient as possible.
+      ! Fix the control matrices for derivatives and try to use
+      ! translation invariance as efficiently as possible.
       !
-      !------------------------------------------------------------*
+      !----------------------------------------------------------------*
       JfHss(:,:,:,:) = IfHss
       JfGrd(:,:) = IfGrd
       ifg(:) = .true.

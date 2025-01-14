@@ -23,8 +23,8 @@ subroutine PrGrad(Label,Grad,nGrad)
 !***********************************************************************
 
 use Symmetry_Info, only: lIrrep
+use Disp, only: ChDisp
 use Definitions, only: wp, iwp, u6
-use Disp, only: Names=>ChDisp
 
 implicit none
 #include "Molcas.fh"
@@ -67,7 +67,7 @@ else
   do iGrad=1,mGrad
     Temp = Grad(iGrad)
     !if (abs(Temp) < 1.0e-15_wp) Temp = Zero
-    write(u6,'(16X,A,15X,ES15.7)') Names(iGrad),Temp
+    write(u6,'(16X,A,15X,ES15.7)') ChDisp(iGrad),Temp
   end do
 
   !if (nGrad > 21) then

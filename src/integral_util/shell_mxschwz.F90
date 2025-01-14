@@ -17,7 +17,7 @@ subroutine Shell_MxSchwz(nSkal,Schwz_Shl)
 !                                                                      *
 !***********************************************************************
 
-use Index_Functions, only: iTri
+use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, Shells
 use k2_structure, only: IndK2, k2Data
@@ -63,8 +63,8 @@ do iS=1,nSkal
   end do
 end do
 !call RecPrt('Schwz_shl',' ',Schwz_Shl,nSkal,nSkal)
-Call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2,Label='Pair_Index')
-nij=0
+call mma_allocate(Pair_Index,2,nTri_Elem(nSkal),Label='Pair_Index')
+nij = 0
 do iS=1,nSkal
   iShll = iSD(0,iS)
   if (Shells(iShll)%Aux .and. (iS /= nSkal)) cycle
@@ -72,14 +72,14 @@ do iS=1,nSkal
     jShll = iSD(0,jS)
     if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
     if (Shells(jShll)%Aux .and. (jS == nSkal)) cycle
-    nij=nij+1
-    Pair_Index(1,nij)=iS
-    Pair_Index(2,nij)=jS
+    nij = nij+1
+    Pair_Index(1,nij) = iS
+    Pair_Index(2,nij) = jS
   end do
 end do
 
-Call Drv2el_ijij(Pair_Index,nij,Schwz_shl,nSkal)
+call Drv2el_ijij(Pair_Index,nij,Schwz_shl,nSkal)
 
-Call mma_deallocate(Pair_Index)
+call mma_deallocate(Pair_Index)
 
 end subroutine Shell_MxSchwz

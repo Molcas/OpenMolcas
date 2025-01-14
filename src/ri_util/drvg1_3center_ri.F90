@@ -60,16 +60,15 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: i, iAdrC, iAng, ib, id, iiQ, ij, ijQ, ijS, iMOleft, iMOright, iOpt, &
-                     iS, iS_, ish, iSO, iSym, itmp, j, jb, jjQ, jS, jS_, jsh, jSym, jSym_s, KAux, &
-                     klS, klS_, kS, kSym, lB_mp2, lBklK, lCijK, lCilK, lMaxDens, lS, maxnAct, maxnnP, &
-                     mij, mj, MumOrb, MxBasSh, MxInShl, nAct(0:7), ni, nij, nIJ1Max, nIJRMax, nIMax, nj, nK, nnSkal, nPrev, &
-                     nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nThpkl, nTMax, NumOrb, NumOrb_i, nXki
-real(kind=wp) :: A_int, A_int_ij, A_int_kl, Dm_ij, ExFac, PZmnij, SDGmn, ThrAO, TMax_all, &
-                 XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, Xik, Xil, Xjk, Xjl
+integer(kind=iwp) :: i, iAdrC, iAng, ib, id, iiQ, ij, ijQ, ijS, iMOleft, iMOright, iOpt, iS, iS_, ish, iSO, iSym, itmp, j, jb, &
+                     jjQ, jS, jS_, jsh, jSym, jSym_s, KAux, klS, klS_, kS, kSym, lB_mp2, lBklK, lCijK, lCilK, lMaxDens, lS, &
+                     maxnAct, maxnnP, mij, mj, MumOrb, MxBasSh, MxInShl, nAct(0:7), ni, nij, nIJ1Max, nIJRMax, nIMax, nj, nK, &
+                     nnSkal, nPrev, nSkal, nSkal2, nSkal2_, nSkal_Auxiliary, nSkal_Valence, nThpkl, nTMax, NumOrb, NumOrb_i, nXki
+real(kind=wp) :: A_int, A_int_ij, A_int_kl, Dm_ij, ExFac, PZmnij, SDGmn, ThrAO, TMax_all, XDm_ii, XDm_ij, XDm_jj, XDm_max, xfk, &
+                 Xik, Xil, Xjk, Xjl
+logical(kind=iwp) :: DoFock, DoGrad, FlipFlop, Found, Indexation
 character(len=80) :: KSDFT
 character(len=8) :: Method
-logical(kind=iwp) :: DoFock, DoGrad, FlipFlop, Found, Indexation
 integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:), Xmi(:,:,:,:)
@@ -101,7 +100,7 @@ if (Do_RI) then
   call Set_Basis_Mode('Auxiliary')
   call Nr_Shells(nSkal_Auxiliary)
   call Set_Basis_Mode('WithAuxiliary')
-  RI_3C=.True.
+  RI_3C = .true.
 else
   call Set_Basis_Mode('Valence')
   nSkal_Auxiliary = 0
@@ -581,7 +580,7 @@ do while (Rsv_Tsk2(id,klS))
     end if
     if (A_Int < CutInt) cycle
 
-    Call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
+    call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
 
   end do
 
@@ -590,7 +589,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-RI_3C=.False.
+RI_3C = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -636,4 +635,5 @@ call Free_iSD()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
 end subroutine Drvg1_3Center_RI
