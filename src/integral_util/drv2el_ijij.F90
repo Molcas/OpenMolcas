@@ -28,10 +28,12 @@ subroutine Drv2El_ijij(Pair_Index,nPairs,TMax,nSkal)
 !***********************************************************************
 
 use iSD_data, only: iSD
+use setup, only: mSkal
 use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Integral_interfaces, only: Int_PostProcess, int_wrout
+use Basis_Info, only: Shells
 use Definitions, only: wp, iwp
 
 implicit none
@@ -39,7 +41,7 @@ integer(kind=iwp), intent(in):: nPairs, nSkal
 integer(kind=iwp), intent(in):: Pair_Index(2,nPairs)
 real(kind=wp), intent(inout) :: TMax(nSkal,nSkal)
 
-integer(kind=iwp) :: iCnttp, ijS, iS, jCnttp, jS, id_Tsk
+integer(kind=iwp) :: iCnttp, ijS, iS, jCnttp, jS, id_Tsk, iShll, jShll
 real(kind=wp) :: A_int
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:)
@@ -70,6 +72,20 @@ do
     iCnttp = iSD(13,iS)
     jCnttp = iSD(13,jS)
     if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) Cycle
+
+    iShll = iSD(0,iS)
+
+    ! In case of auxiliary basis sets we want the iS index to point at the dummay shell.
+    if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
+
+    jShll = iSD(0,jS)
+
+    ! In case the first shell is the dummy auxiliary basis shell make sure that
+    ! the second shell, jS, also is a auxiliary basis shell.
+    if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
+
+    ! Make sure that the second shell never is the dummy auxiliary basis shell.
+    if (Shells(jShll)%Aux .and. (jS == mSkal)) cycle
 
     A_int = TMax(iS,jS)*TMax(iS,jS)
     if (A_Int < CutInt) Cycle

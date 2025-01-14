@@ -163,6 +163,7 @@ call mma_allocate(TMax_Auxiliary,nSkal_Auxiliary,Label='TMax_Auxiliary')
 
 call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
 call Shell_MxSchwz(nSkal,Tmp)
+
 TMax_all = Zero
 do iS=1,nSkal_Valence
   do jS=1,iS
