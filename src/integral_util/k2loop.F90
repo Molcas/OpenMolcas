@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine k2Loop(Coor,iCmpa,iShll,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta, &
+subroutine k2Loop(Coor,iShll,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta, &
                   ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,iStb,jStb,Dij,nDij,nDCR,ijCmp,DoFock,Scr,nScr,Knew, &
                   Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx,nSD,iSD4)
 !***********************************************************************
@@ -46,7 +46,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: iCmpa(4), iShll(2), iDCRR(0:7), nDCRR, nAlpha, nBeta, iBasn, jBasn, nZeta, IncZZ, &
+integer(kind=iwp), intent(in) :: iShll(2), iDCRR(0:7), nDCRR, nAlpha, nBeta, iBasn, jBasn, nZeta, IncZZ, &
                                  nWork2, iStb, jStb, nDij, nDCR, ijCmp, nScr, nNew, nHRRMtrx, nSD, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Con(nZeta), &
                              Dij(nDij,nDCR)
@@ -59,7 +59,7 @@ real(kind=wp), intent(inout) :: Wrk(nWork2)
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
 
 integer(kind=iwp) :: i_Int, iCmp, iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShlla, iSmAng, iw2, iw3, iZeta, jCmpb_, Jnd, jShllb, la, &
-                     lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, nDisp, ne, nT, iAnga(4)
+                     lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, nDisp, ne, nT, iAnga(4), iCmpa(4)
 real(kind=wp) :: abMax, abMaxD, Coora(3,4), CoorAC(3,2), Coori(3,4), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, Tmp, &
                  Tst, ZtMax, ZtMaxD
 logical(kind=iwp) :: AeqB, NoSpecial
@@ -71,6 +71,7 @@ logical(kind=iwp), external :: EQ, TF
 real(kind=wp), external :: EstI
 
 iAnga(:)=iSD4(1,:)
+iCmpa(:)=iSD4(2,:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

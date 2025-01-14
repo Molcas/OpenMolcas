@@ -48,7 +48,7 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, ipMem1, ipMem2, iPrim, &
+integer(kind=iwp) :: iAng, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, ipMem1, ipMem2, iPrim, &
                      iPrimi, iPrimS, iS, iSD4(0:nSD,4), iShell, iShll, iShllV(2), jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
                      jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
                      mScree, nBasi, nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
@@ -136,7 +136,9 @@ do iS=1,mSkal
   iSD4(:,3) = iSD(:,iS)
 
   iShll = iSD4(0,1)
+
   if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
+
   iAng = iSD4(1,1)
   iCmp = iSD4(2,1)
   iBas = iSD4(3,1)
@@ -150,7 +152,6 @@ do iS=1,mSkal
   if (ReOrder) call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,Shells(iShll)%pCff)
 
   iShllV(1) = iShll
-  iCmpV(1) = iCmp
 
   do jS=1,iS
 
@@ -170,12 +171,9 @@ do iS=1,mSkal
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
     iShllV(2) = jShll
-    iCmpV(2) = jCmp
 
     ! Fix for the dummy basis set
     if (Shells(iShll)%Aux) Coor(1:3,1) = Coor(1:3,2)
-
-    iCmpV(3:4) = iCmpV(1:2)
 
     iPrimi = iPrim
     jPrimj = jPrim
@@ -267,7 +265,7 @@ do iS=1,mSkal
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     if (.not. DoGrad_) ijCmp = 0
     ik2 = Indk2(3,ijS)
-    call k2Loop(Coor,iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
+    call k2Loop(Coor,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
                 BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
                 BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &
                 mdci,mdcj,DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD, &
