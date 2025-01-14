@@ -81,6 +81,7 @@ set (sources
      efnuc.F90
      efp_.F90
      efp_module.F90
+     efp_on.F90
      efprm.F90
      efxf.F90
      ener.F90
