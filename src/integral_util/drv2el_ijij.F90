@@ -45,7 +45,7 @@ character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:)
 integer(kind=iwp), parameter :: nTInt = 1
 logical(kind=iwp), external :: Rsv_Tsk
-procedure(int_wrout) :: No_Routine
+procedure(int_wrout) :: Integral_ijij
 
 !                                                                      *
 !***********************************************************************
@@ -55,7 +55,7 @@ call StatusLine('Seward: ',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Int_PostProcess => No_Routine
+Int_PostProcess =>  Integral_ijij
 call mma_allocate(TInt,nTint,Label='TInt')
 !                                                                      *
 !***********************************************************************
@@ -75,6 +75,9 @@ do
     if (A_Int < CutInt) Cycle
 
     call Eval_IJKL(iS,jS,iS,jS,TInt,nTInt)
+!   Write (6,*) iS, jS, Tmax(iS,jS), Sqrt(Abs(TInt(1)))
+    TMax(iS,jS)=Sqrt(Abs(TInt(1)))
+    TMax(jS,iS)=TMax(iS,jS)
 
 end do
 
