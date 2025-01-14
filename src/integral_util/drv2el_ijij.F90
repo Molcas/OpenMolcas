@@ -1,0 +1,80 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990,1991,1993,1998, Roland Lindh                      *
+!               1990, IBM                                              *
+!***********************************************************************
+
+subroutine Drv2El_ijij(Pair_Index,nPairs,TMax,nSkal)
+!***********************************************************************
+!                                                                      *
+!  Object: driver for two-electron integrals.                          *
+!                                                                      *
+!     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
+!             March '90                                                *
+!                                                                      *
+!             Modified for k2 loop. August '91                         *
+!             Modified to minimize overhead for calculations with      *
+!             small basis sets and large molecules. Sept. '93          *
+!             Modified driver. Jan. '98                                *
+!***********************************************************************
+
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc
+use Gateway_Info, only: CutInt
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp), intent(in):: nPairs, nSkal
+integer(kind=iwp), intent(in):: Pair_Index(2,nPairs)
+real(kind=wp), intent(inout) :: TMax(nSkal,nSkal)
+
+integer(kind=iwp) :: iCnttp, ijS, iS, jCnttp, jS, id_Tsk
+real(kind=wp) :: A_int
+character(len=72) :: SLine
+real(kind=wp), allocatable :: TInt(:)
+integer(kind=iwp), parameter :: nTInt = 1
+logical(kind=iwp), external :: Rsv_Tsk
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+SLine = 'Computing 2-electron integrals'
+call StatusLine('Seward: ',SLine)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+call mma_allocate(TInt,nTint,Label='TInt')
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+Call Init_Tsk(id_Tsk,nPairs)
+
+do
+   If(.Not.Rsv_Tsk(id_Tsk,ijS)) exit
+   iS = Pair_Index(1,ijS)
+   jS = Pair_Index(2,ijS)
+
+    iCnttp = iSD(13,iS)
+    jCnttp = iSD(13,jS)
+    if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) Cycle
+
+    A_int = TMax(iS,jS)*TMax(iS,jS)
+    if (A_Int < CutInt) Cycle
+
+    call Eval_IJKL(iS,jS,iS,jS,TInt,nTInt)
+
+end do
+
+call Free_Tsk(id_Tsk)
+call mma_deallocate(TInt)
+
+end subroutine Drv2El_ijij

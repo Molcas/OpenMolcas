@@ -114,6 +114,9 @@ do iS=1,nSkal
   end do
 end do
 P_Eff = real(nij,kind=wp)
+!
+! Update TMax with the analytic values
+Call Drv2El_ijij(Pair_Index,nij,TMax,nSkal)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

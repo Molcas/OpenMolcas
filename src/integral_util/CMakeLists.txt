@@ -68,6 +68,7 @@ set (sources
      drv1_pcm.F90
      drv1_rf.F90
      drv2_rf.F90
+     drv2el_ijij.F90
      drvefp.F90
      drvk2.F90
      drvpcm.F90
