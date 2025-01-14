@@ -40,6 +40,7 @@ use Basis_Info, only: nBas_Aux
 use iSD_data, only: iSO2Sh, nShBF
 use RI_glob, only: iOffA, Lu_A, SO2Ind
 use Gateway_Info, only: CutInt
+use k2_arrays, only: Sew_Scr
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: iTOffs
 use Integral_interfaces, only: Int_PostProcess, int_wrout
@@ -52,11 +53,12 @@ real(kind=wp), intent(in) :: ThrAO
 real(kind=wp), allocatable, intent(out) :: A_Diag(:)
 integer(kind=iwp), intent(out) :: MaxCntr
 integer(kind=iwp) :: iAddr, iAddr_AQ(0:7), iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, lS, mB, &
-                     MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
+                     MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero, nij
 real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 character(len=6) :: Name_Q
 real(kind=wp), allocatable :: Scr(:), TInt(:), TMax(:), Tmp(:,:)
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
 procedure(int_wrout) :: Integral_RI_2
 integer(kind=iwp), external :: IsFreeUnit, nMemAm
 
@@ -80,7 +82,6 @@ DoGrad = .false.
 DoFock = .false.
 Indexation = .true.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-Int_PostProcess => Integral_RI_2
 
 call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
 call Mk_iSO2Ind(iSO2Sh,SO2Ind,nSOs,nSkal)
@@ -108,14 +109,36 @@ call mma_allocate(TMax,nSkal,Label='TMax')
 call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
 call Shell_MxSchwz(nSkal,Tmp)
 
-!call RecPrt('Tmp',' ',Tmp,nSkal,nSkal)
 
 TMax(:) = Tmp(:,nSkal)
-call mma_deallocate(Tmp)
 TMax_all = Zero
 do iS=1,nSkal
   TMax_all = max(TMax_all,TMax(iS))
 end do
+
+call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2)
+nij=0
+iS=nSkal
+Do jS = 1, nSkal-1
+   if (TMax_All*Tmp(iS,jS) >= CutInt) then
+      nij = nij+1
+      Pair_Index(1,nij) = iS
+      Pair_Index(2,nij) = jS
+   end if
+End Do
+
+! Update TMax with the analytical values
+Call Drv2El_ijij(Pair_Index,nij,Tmp,nSkal)
+
+TMax(:) = Tmp(:,nSkal)
+TMax_all = Zero
+do iS=1,nSkal
+  TMax_all = max(TMax_all,TMax(iS))
+end do
+
+call mma_deallocate(Pair_Index)
+call mma_deallocate(Tmp)
+call mma_deallocate(Sew_Scr)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -161,6 +184,7 @@ do iIrrep=0,nIrrep-1
   kCol_Irrep(iIrrep) = 0
 end do
 
+Int_PostProcess => Integral_RI_2
 iS = nSkal
 kS = nSkal
 
