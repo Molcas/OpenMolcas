@@ -49,9 +49,9 @@ use Definitions, only: u6
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
 integer(kind=iwp) :: iAng, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, ipMem1, ipMem2, iPrim, &
-                     iPrimi, iPrimS, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
-                     jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
-                     mScree, nBasi, nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
+                     iPrimi, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
+                     jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
+                     mScree, nBasi, nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iPrimSave(4)
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
@@ -141,8 +141,6 @@ do iS=1,mSkal
   ! In case of auxiliary basis sets we want the iS index to point at the dummay shell.
   if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
 
-  iAng = iSD4(1,1)
-  iCmp = iSD4(2,1)
   iBas = iSD4(3,1)
   iPrim = iSD4(5,1)
   mdci = iSD4(10,1)
@@ -165,7 +163,6 @@ do iS=1,mSkal
     ! Make sure that the second shell never is the dummy auxiliary basis shell.
     if (Shells(jShll)%Aux .and. (jS == mSkal)) cycle
 
-    jAng = iSD4(1,2)
     jCmp = iSD4(2,2)
     jBas = iSD4(3,2)
     jPrim = iSD4(5,2)
@@ -187,10 +184,8 @@ do iS=1,mSkal
     iSD4(3,2) = jPrim
 
 !   Fake shell 3 and 4
-    iSD4(5,3) = 1
-    iSD4(5,4) = 1
-    iSD4(3,3) = 1
-    iSD4(3,4) = 1
+    iSD4(5,3:4) = 1
+    iSD4(3,3:4) = 1
 
     nZeta = iPrim*jPrim
 
@@ -225,25 +220,26 @@ do iS=1,mSkal
     ! Now do a dirty trick to avoid splitting of the first
     ! contracted index. Move all over on the second index.
 
-    iPrims = iSD4(5,1)
-    jPrims = iSD4(5,2)
+    iPrimSave(:)=iSD4(5,:) ! Store away original setting
+
     iSD4(3,1) = 1
     iSD4(3,2) = nZeta
-    iPrimi = 1
-    jPrimj = nZeta
+
     iSD4(5,1) = 1
     iSD4(5,2) = nZeta
     force_part_save = force_part_c
     force_part_c = .false.
+
     call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
 
     force_part_c = force_part_save
     ijInc = min(iSD4(4,2),iSD4(6,2))
 
-    iPrimi = iPrims
-    jPrimj = jPrims
-    iSD4(5,1) = iPrimS
-    iSD4(5,2) = jPrimS
+!   restore correct index
+    iSD4(5,:)=iPrimSave(:)
+
+    iPrimi = iSD4(5,1)
+    jPrimj = iSD4(5,2)
 
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' ************** Memory partioning **************'
@@ -263,11 +259,17 @@ do iS=1,mSkal
     ! total of six types) for all possible unique pairs of
     ! centers generated for the symmetry unique centers A and B.
 
+    iAng = iSD4(1,1)
+    jAng = iSD4(1,2)
+    iCmp = iSD4(2,1)
+    jCmp = iSD4(2,2)
     nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
     nHm = nHm*nIrrep
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     if (.not. DoGrad_) ijCmp = 0
+
     ik2 = Indk2(3,ijS)
+
     call k2Loop(Coor,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
                 BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
                 BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &

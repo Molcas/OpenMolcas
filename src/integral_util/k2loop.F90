@@ -61,7 +61,7 @@ logical(kind=iwp), intent(in) :: DoFock, DoGrad
 integer(kind=iwp) :: i_Int, iCmp, iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShlla, iSmAng, iw2, iw3, iZeta, jCmpb_, Jnd, jShllb, la, &
                      lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, nDisp, ne, nT, iAnga(4), iCmpa(4), &
                      iShll(4)
-real(kind=wp) :: abMax, abMaxD, Coora(3,4), CoorAC(3,2), Coori(3,4), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, Tmp, &
+real(kind=wp) :: abMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, Tmp, &
                  Tst, ZtMax, ZtMaxD
 logical(kind=iwp) :: AeqB, NoSpecial
 procedure(cff2d_kernel) :: Cff2DS
@@ -133,9 +133,6 @@ do lDCRR=0,nDCRR-1
   ! Compute primitive integrals to be used in the prescreening
   ! by the Schwarz inequality.
 
-  Coora(:,:) = CoorM(:,:)
-  Coori(:,:) = CoorM(:,:)
-
   ! Compute actual size of [a0|c0] block
 
   mcdMin = mabMin
@@ -149,9 +146,9 @@ do lDCRR=0,nDCRR-1
   ! the order as defined by the basis functions types.
 
   if (iAnga(1) >= iAnga(2)) then
-    CoorAC(:,1) = Coora(:,1)
+    CoorAC(:,1) = CoorM(:,1)
   else
-    CoorAC(:,1) = Coora(:,2)
+    CoorAC(:,1) = CoorM(:,2)
   end if
   CoorAC(:,2) = CoorAC(:,1)
 
@@ -164,7 +161,7 @@ do lDCRR=0,nDCRR-1
 
     nT = mZeta*1
     NoSpecial = .true.
-    call Rys(iAnga,nT,Zeta(iZeta),ZInv(iZeta),mZeta,[One],[One],1,P(iZeta,1),nZeta,Q,1,Kappab(iZeta),[One],Coori,Coora,CoorAC, &
+    call Rys(iAnga,nT,Zeta(iZeta),ZInv(iZeta),mZeta,[One],[One],1,P(iZeta,1),nZeta,Q,1,Kappab(iZeta),[One],CoorM,CoorM,CoorAC, &
              mabMin,mabMax,mcdMin,mcdMax,Wrk,nWork2,TERIS,ModU2,Cff2DS,Rys2D,NoSpecial)
 #   ifdef _DEBUGPRINT_
     call RecPrt(' In k2Loop: ijkl,[a0|c0]',' ',Wrk,mZeta,mabcd)
