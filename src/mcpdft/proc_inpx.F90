@@ -20,6 +20,7 @@ Subroutine Proc_InpX(DSCF,iRc)
   use general_data,only:norb,nash,nssh,ndel,nish,nfro,nrs3,nrs2,nrs1,nbas,nconf,nelec3,nhole1, &
                          nactel,stsym,ispin,ntotsp,ntot2,ntot1,nsym,ndelt,invec,jobiph, &
                          jobold,nrs1t,nrs2t,nrs3t,ntot
+  use rctfld_module,only:lrf
 #ifdef _HDF5_
   Use mh5,Only:mh5_open_file_r,mh5_exists_attr,mh5_exists_dset,mh5_fetch_attr,mh5_fetch_dset,mh5_close_file
   use stdalloc,only:mma_allocate,mma_deallocate
@@ -318,6 +319,11 @@ Subroutine Proc_InpX(DSCF,iRc)
   If(DBG) write(u6,*) ' Initialize seward.'
   nDiff = 0
   Call IniSew(DSCF .or. Langevin_On() .or. PCM_On(),nDiff)
+  if(lrf) then
+    call warningmessage(2,'MC-PDFT with solvent not supported!')
+    write(u6,*) 'MC-PDFT cannot be used with solvent!'
+    call Quit_OnUserError()
+  endif
 ! ===============================================================
 !     Check the input data
   Call validate_wfn()
