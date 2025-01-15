@@ -34,7 +34,6 @@ use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight, Half
-use Int_Options, only: DoIntegrals
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Disp, only: ChDisp
@@ -132,7 +131,6 @@ end do
 P_Eff = real(nij,kind=wp)
 
 ! Update TMax with the analytical values
-DoIntegrals = .True.
 Call Drv2El_ijij(Pair_Index,nij,TMax,nSkal)
 ! Update TMax_all
 TMax_all = Zero
@@ -141,8 +139,6 @@ do iS=1,nSkal
     TMax_all = max(TMax_all,TMax(iS,jS))
   end do
 end do
-
-DoIntegrals=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *

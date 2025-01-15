@@ -230,8 +230,6 @@ P_Eff = real(nij,kind=wp)
 
 !
 ! Update TMax with the analytical values
-DoFock = .False.
-DoIntegrals = .True.
 Call Drv2El_ijij(Pair_Index,nij,TMax,nSkal)
 ! Update TMax_all
 TMax_all = Zero
@@ -240,8 +238,6 @@ do iS=1,nSkal
     TMax_all = max(TMax_all,TMax(iS,jS))
   end do
 end do
-DoFock = .true.
-DoIntegrals = .false.
 !                                                                      *
 !***********************************************************************
 !***********************************************************************

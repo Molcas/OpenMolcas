@@ -39,8 +39,6 @@ use Para_Info, only: nProcs, King
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
-use Int_Options, only: DoIntegrals
-
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad
@@ -131,7 +129,6 @@ do iS=1,nSkal
   end do
 end do
 P_Eff = real(nij,kind=wp)
-DoIntegrals=.True.
 !
 ! Update TMax with the analytical values
 Call Drv2El_ijij(Pair_Index,nij,TMax,nSkal)
@@ -142,7 +139,6 @@ do iS=1,nSkal
     TMax_all = max(TMax_all,TMax(iS,jS))
   end do
 end do
-DoIntegrals=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
