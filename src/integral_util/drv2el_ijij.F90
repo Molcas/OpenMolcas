@@ -36,6 +36,7 @@ use Integral_interfaces, only: Int_PostProcess, int_wrout
 use Int_Options, only: DoIntegrals, DoFock
 use Basis_Info, only: Shells
 use Definitions, only: wp, iwp
+use k2_arrays, only: Sew_Scr
 
 implicit none
 integer(kind=iwp), intent(in):: nPairs, nSkal
@@ -49,6 +50,7 @@ real(kind=wp), allocatable :: TInt(:)
 integer(kind=iwp), parameter :: nTInt = 1
 logical(kind=iwp), external :: Rsv_Tsk
 logical(kind=iwp) :: Save(2)
+logical(kind=iwp) :: Deallocate_Sew_Scr
 procedure(int_wrout) :: Integral_ijij
 procedure(int_wrout), pointer :: Int_postprocess_Save => null()
 
@@ -60,6 +62,7 @@ Save(2)=DoFock
 DoIntegrals=.True.
 DoFock=.False.
 
+Deallocate_Sew_Scr=.Not.Allocated(Sew_Scr)
 SLine = 'Computing 2-electron integrals'
 call StatusLine('Seward: ',SLine)
 !                                                                      *
@@ -110,7 +113,10 @@ call Free_Tsk(id_Tsk)
 call mma_deallocate(TInt)
 nullify(Int_PostProcess)
 
+! Restore the status as before the call.
+
 DoIntegrals=Save(1)
 DoFock=Save(2)
 Int_PostProcess => Int_PostProcess_Save
+If (Deallocate_Sew_Scr) Call mma_deallocate(Sew_Scr)
 end subroutine Drv2El_ijij

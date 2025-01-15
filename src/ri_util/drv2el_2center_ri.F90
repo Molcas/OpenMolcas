@@ -40,7 +40,6 @@ use Basis_Info, only: nBas_Aux
 use iSD_data, only: iSO2Sh, nShBF
 use RI_glob, only: iOffA, Lu_A, SO2Ind
 use Gateway_Info, only: CutInt
-use k2_arrays, only: Sew_Scr
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: iTOffs
 use Integral_interfaces, only: Int_PostProcess, int_wrout
@@ -138,7 +137,6 @@ end do
 
 call mma_deallocate(Pair_Index)
 call mma_deallocate(Tmp)
-call mma_deallocate(Sew_Scr)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -70,7 +70,7 @@ real(kind=wp) :: A_int, A_int_ij, A_int_kl, Dm_ij, ExFac, PZmnij, SDGmn, ThrAO, 
 character(len=80) :: KSDFT
 character(len=8) :: Method
 logical(kind=iwp) :: DoFock, DoGrad, FlipFlop, Found, Indexation
-integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
+integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:), Pair_Index(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:), Xmi(:,:,:,:)
 integer(kind=iwp), external :: Cho_irange
@@ -151,6 +151,30 @@ call mma_allocate(TMax_Auxiliary,nTMax,Label='TMax_Auxiliary')
 
 call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
 call Shell_MxSchwz(nSkal,Tmp)
+
+!This is a bit different from the other drivers!
+call mma_allocate(Pair_index,2,nSkal*(nSkal+1)/2,Label='Pair_Index')
+nij=0
+do iS=1,nSkal_Valence
+  do jS=1,iS
+     nij=nij+1
+     Pair_Index(1,nij)=iS
+     Pair_Index(2,nij)=jS
+  end do
+end do
+if (Do_RI) then
+  jS_ = nSkal_Valence+nSkal_Auxiliary
+  do iS=1,nSkal_Auxiliary-1
+    nij=nij+1
+    iS_ = iS+nSkal_Valence
+    Pair_Index(1,nij)=jS_
+    Pair_Index(2,nij)=iS_
+  end do
+end if
+! Update TMax with the analytical values
+Call Drv2El_ijij(Pair_Index,nij,Tmp,nSkal)
+Call mma_deallocate(Pair_Index)
+
 TMax_all = Zero
 do iS=1,nSkal_Valence
   do jS=1,iS

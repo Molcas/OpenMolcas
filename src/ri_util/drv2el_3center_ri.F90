@@ -39,7 +39,6 @@ use Index_Functions, only: nTri_Elem
 use RI_procedures, only: Drv2El_2Center_RI
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc, nBas, nBas_Aux
-use k2_arrays, only: Sew_Scr
 use Gateway_global, only: force_out_of_core
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
@@ -219,7 +218,6 @@ end do
 
 call mma_deallocate(Pair_Index)
 call mma_deallocate(Tmp)
-call mma_deallocate(Sew_Scr)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
