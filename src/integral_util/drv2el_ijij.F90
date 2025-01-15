@@ -33,10 +33,11 @@ use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Integral_interfaces, only: Int_PostProcess, int_wrout
-use Int_Options, only: DoIntegrals, DoFock
+use Int_Options, only: DoIntegrals, DoFock, W2Disc, Disc_Mx
 use Basis_Info, only: Shells
 use Definitions, only: wp, iwp
 use k2_arrays, only: Sew_Scr
+use Constants, only: Zero
 
 implicit none
 integer(kind=iwp), intent(in):: nPairs, nSkal
@@ -44,7 +45,7 @@ integer(kind=iwp), intent(in):: Pair_Index(2,nPairs)
 real(kind=wp), intent(inout) :: TMax(nSkal,nSkal)
 
 integer(kind=iwp) :: iCnttp, ijS, iS, jCnttp, jS, id_Tsk, iShll, jShll
-real(kind=wp) :: A_int
+real(kind=wp) :: A_int, Save_Disc_Mx
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:)
 integer(kind=iwp), parameter :: nTInt = 1
@@ -57,19 +58,28 @@ procedure(int_wrout), pointer :: Int_postprocess_Save => null()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+! Store the current setting of the integral environment
 Save(1)=DoIntegrals
 Save(2)=DoFock
+Save_Disc_Mx=Disc_Mx
+Int_PostProcess_Save => Int_PostProcess
+
+! Setup the integral environment consistent with Drv2el_ijij
+
 DoIntegrals=.True.
 DoFock=.False.
+Disc_Mx=Zero
+Int_PostProcess =>  Integral_ijij
 
+! check if the Seward scratch array is already allocated externally.
+! If so do not deallocate on exit
 Deallocate_Sew_Scr=.Not.Allocated(Sew_Scr)
+
 SLine = 'Computing 2-electron integrals'
 call StatusLine('Seward: ',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Int_PostProcess_Save => Int_PostProcess
-Int_PostProcess =>  Integral_ijij
 call mma_allocate(TInt,nTint,Label='TInt')
 !                                                                      *
 !***********************************************************************
@@ -113,10 +123,13 @@ call Free_Tsk(id_Tsk)
 call mma_deallocate(TInt)
 nullify(Int_PostProcess)
 
-! Restore the status as before the call.
+! Restore the status the integral environment as before the call.
 
 DoIntegrals=Save(1)
 DoFock=Save(2)
+Disc_Mx=Save_Disc_Mx
 Int_PostProcess => Int_PostProcess_Save
+
 If (Deallocate_Sew_Scr) Call mma_deallocate(Sew_Scr)
+
 end subroutine Drv2El_ijij
