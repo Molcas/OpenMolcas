@@ -30,19 +30,12 @@ subroutine Drvg2(Hess,nHess,lGrad,lHess)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
-#define _NEW_
-#ifndef _NEW_
-use setup, only: nAux
-#endif
 use setup, only: MxPrm
 use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, RASSCF
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
 use k2_arrays, only: DeDe, DeDe2, ipDijS, ipDijS2, ipOffD, ipOffDA, MxDij, nDeDe, Sew_Scr
 use k2_arrays, only: DoHess_
-#ifndef _NEW_
-use k2_arrays, only: Aux, Create_BraKet_Base
-#endif
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -103,19 +96,7 @@ ThrAO=Zero
 DoFock=.False.
 DoGrad=.False.
 DoHess_=.True.
-#ifdef _NEW_
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Allocate auxiliary array for symmetry transformation
-
-#ifndef _NEW_
-nAux = nIrrep**3
-if (nIrrep == 1) nAux = 1
-call mma_allocate(Aux,nAux,Label='Aux')
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -139,9 +120,6 @@ do iAng=0,S%iAngMx
 end do
 MxDij = 6*nIrrep*MxDij
 
-#ifndef _NEW_
-call Create_BraKet_Base(MxPrm**2)
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -339,7 +317,8 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Precompute k2 entities. (again)
+! Precompute k2 entities. (again) Not that this will overwrite stuff
+! in the k2data array. DO NOT move the call up!!!
 
 lpick = lgrad .and. (.not. New_Fock)
 
