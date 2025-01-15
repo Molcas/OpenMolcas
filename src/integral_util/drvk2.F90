@@ -33,7 +33,7 @@ use Index_Functions, only: iTri, nTri_Elem1, nTri3_Elem1
 use setup, only: mSkal
 use iSD_data, only: iSD, nSD
 use k2_structure, only: Indk2, k2_Processed, k2Data
-use k2_arrays, only: BraKet, Create_BraKet, DeDe, Destroy_BraKet, DoGrad_, DoHess_, ipOffD, Sew_Scr
+use k2_arrays, only: BraKet, Create_BraKet, DeDe, Destroy_BraKet, DoGrad_, ipOffD, Sew_Scr
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Gateway_global, only: force_part_c
@@ -75,7 +75,6 @@ call CWTime(TCpu1,TWall1)
 !***********************************************************************
 !                                                                      *
 DoGrad_ = DoGrad
-DoHess_ = .false.
 la_ = S%iAngMx
 mabMin_ = nTri3_Elem1(max(la_,la_)-1)
 mabMax_ = nTri3_Elem1(la_+la_)-1

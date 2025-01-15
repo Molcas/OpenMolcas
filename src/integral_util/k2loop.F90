@@ -123,6 +123,7 @@ do lDCRR=0,nDCRR-1
   do iIrrep=0,nIrrep-1
     call OA(iOper(iIrrep),CoorM(1:3,1),TA)
     call OA(iOper(iIrrep),CoorM(1:3,2),TB)
+    k2Data(lDCRR+1)%HrrMtrx(:,iIrrep+1)=Zero
     call HrrMtrx(k2Data(lDCRR+1)%HrrMtrx(:,iIrrep+1),ne,la,lb,TA,TB,Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_, &
                  Shells(jShllb)%Transf,RSph(ipSph(lb)),jCmpb_)
   end do

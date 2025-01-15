@@ -282,8 +282,10 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
   end if
 
   nZeta_Tot = k2Data1(1)%IndZ(nZeta+1)
-  nEta_Tot = k2Data2(1)%IndZ(nEta+1)
+  nEta_Tot  = k2Data2(1)%IndZ(nEta+1)
 # ifdef _DEBUGPRINT_
+  write(u6,*) 'nZeta=',nZeta
+  write(u6,*) 'nEta=',nEta
   write(u6,*) 'nZeta_Tot, IncZet=',nZeta_Tot,IncZet
   write(u6,*) 'nEta_Tot,  IncEta=',nEta_Tot,IncEta
 # endif
