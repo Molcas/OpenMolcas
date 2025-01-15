@@ -57,7 +57,6 @@ real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 character(len=6) :: Name_Q
 real(kind=wp), allocatable :: Scr(:), TInt(:), TMax(:), Tmp(:,:)
-integer(kind=iwp), allocatable :: Pair_Index(:,:)
 procedure(int_wrout) :: Integral_RI_2
 integer(kind=iwp), external :: IsFreeUnit, nMemAm
 
@@ -115,27 +114,6 @@ do iS=1,nSkal
   TMax_all = max(TMax_all,TMax(iS))
 end do
 
-call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2)
-nij=0
-iS=nSkal
-Do jS = 1, nSkal-1
-   if (TMax_All*Tmp(iS,jS) >= CutInt) then
-      nij = nij+1
-      Pair_Index(1,nij) = iS
-      Pair_Index(2,nij) = jS
-   end if
-End Do
-
-! Update TMax with the analytical values
-Call Drv2El_ijij(Pair_Index,nij,Tmp,nSkal)
-
-TMax(:) = Tmp(:,nSkal)
-TMax_all = Zero
-do iS=1,nSkal
-  TMax_all = max(TMax_all,TMax(iS))
-end do
-
-call mma_deallocate(Pair_Index)
 call mma_deallocate(Tmp)
 !                                                                      *
 !***********************************************************************

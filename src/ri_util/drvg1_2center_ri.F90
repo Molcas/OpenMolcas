@@ -192,15 +192,6 @@ if (Do_RI) then
       Pair_Index(2,nij) = iS
     end if
   end do
-! Update TMax with the analytical values
-  Call Drv2El_ijij(Pair_Index,nij,TMax2,nSkal)
-
-  TMax1(:) = TMax2(:,nSkal)
-  TMax_all = Zero
-  do iS=1,nSkal
-     TMax_all = max(TMax_all,TMax1(iS))
-  end do
-
 else
   mij = nij_Eff
   call mma_allocate(Pair_Index,2,mij,Label='Shij')
