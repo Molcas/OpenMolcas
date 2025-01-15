@@ -29,7 +29,6 @@ real(kind=wp), intent(in) :: Charge2(mxdbsc)
 integer(kind=iwp) :: i, iCase, iCenter, iCff_x, iCnt, iCnttp, id_Tsk, iExp_x, iShll, iSkal, jCnt, jCnttp, l, l_max, lDel, &
                      Lu_AMFI, LUPROP, mdci, nBas_x, nCenter, nCenter_node, nCore, nExp_x, nSkal
 real(kind=wp) :: charge_x, Coor(3), Eta_Nuc
-logical(kind=iwp) :: EQ
 integer(kind=iwp), allocatable :: iDel(:)
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
@@ -38,7 +37,7 @@ integer(kind=iwp), allocatable :: iDel(:)
 #define _TEST_ .false.
 #endif
 logical(kind=iwp), parameter :: IfTest = _TEST_
-logical(kind=iwp), external :: Rsv_Tsk
+logical(kind=iwp), external :: EQ, Rsv_Tsk
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' In OneEl: Label',Label

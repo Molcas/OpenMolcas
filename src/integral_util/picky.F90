@@ -11,73 +11,73 @@
 
 subroutine Picky(nSD,iSD4,i,j)
 
+use k2_arrays, only: DeDe
+use Dens_Stuff, only: ipDDij, ipDDik, ipDDil, ipDDjk, ipDDjl, ipDDkl, ipDij, ipDik, ipDil, ipDjk, ipDjl, ipDkl, mDCRij, mDCRik, &
+                      mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, mDjk, mDjl, mDkl
 use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
-use Dens_Stuff, only: mDCR12=>mDCRij,mDCR34=>mDCRkl,mDCR13=>mDCRik,mDCR14=>mDCRil,mDCR23=>mDCRjk,mDCR24=>mDCRjl
-use Dens_Stuff, only:  ipD12=> ipDij, ipD34=> ipDkl, ipD13=> ipDik, ipD14=> ipDil, ipD23=> ipDjk, ipD24=> ipDjl
-use Dens_Stuff, only: ipDD12=>ipDDij,ipDD34=>ipDDkl,ipDD13=>ipDDik,ipDD14=>ipDDil,ipDD23=>ipDDjk,ipDD24=>ipDDjl
-use Dens_Stuff, only:   mD12=>  mDij,  mD34=>  mDkl,  mD13=>  mDik,  mD14=>  mDil,  mD23=>  mDjk,  mD24=>  mDjl
-use k2_arrays, only: DeDe
 
 implicit none
 integer(kind=iwp), intent(in) :: i, j, nSD, iSD4(0:nSD,4)
-integer(kind=iwp) :: ii1, ii2, ii3, jj1, jj2, jj3, i1, i2, i3, j1, j2, j3
-integer(kind=iwp) :: iCmpi,jCmpj,iBasi,jBasj,iPrimi,jPrimj,iShell,jShell,iBsInc,jBsInc
-integer(kind=iwp) :: iBasAO, jBasAO, iBasn, jBasn
-integer(kind=iwp), pointer :: mDCRij=>Null(), ipDij=>Null(), ipDDij=>Null(), mDij=>Null()
+integer(kind=iwp) :: i1, i2, i3, iBasAO, iBasi, iBasn, iBsInc, iCmpi, ii1, ii2, ii3, iPrimi, iShell, j1, j2, j3, jBasAO, jBasj, &
+                     jBasn, jBsInc, jCmpj, jj1, jj2, jj3, jPrimj, jShell
+integer(kind=iwp), pointer :: ipDD_ij, ipD_ij, mDCR_ij, mD_ij
 
-iCmpi =iSD4( 2,i)
-iBasi =iSD4( 3,i)
-iPrimi=iSD4( 5,i)
-iShell=iSD4(11,i)
-iBsInc=iSD4( 4,i)
-iBasAO=iSD4( 8,i)+1
-iBasn =iSD4(19,i)
+iCmpi = iSD4(2,i)
+iBasi = iSD4(3,i)
+iPrimi = iSD4(5,i)
+iShell = iSD4(11,i)
+iBsInc = iSD4(4,i)
+iBasAO = iSD4(8,i)+1
+iBasn = iSD4(19,i)
 
-jCmpj =iSD4( 2,j)
-jBasj =iSD4( 3,j)
-jPrimj=iSD4( 5,j)
-jShell=iSD4(11,j)
-jBsInc=iSD4( 4,j)
-jBasAO=iSD4( 8,j)+1
-jBasn =iSD4(19,j)
+jCmpj = iSD4(2,j)
+jBasj = iSD4(3,j)
+jPrimj = iSD4(5,j)
+jShell = iSD4(11,j)
+jBsInc = iSD4(4,j)
+jBasAO = iSD4(8,j)+1
+jBasn = iSD4(19,j)
 
-If (i==1 .and. j==2) Then
-   mDCRij=>mDCR12
-    ipDij=> ipD12
-   ipDDij=>ipDD12
-     mDij=>  mD12
-Else If (i==1 .and. j==3) Then
-   mDCRij=>mDCR13
-    ipDij=> ipD13
-   ipDDij=>ipDD13
-     mDij=>  mD13
-Else If (i==1 .and. j==4) Then
-   mDCRij=>mDCR14
-    ipDij=> ipD14
-   ipDDij=>ipDD14
-     mDij=>  mD14
-Else If (i==2 .and. j==3) Then
-   mDCRij=>mDCR23
-    ipDij=> ipD23
-   ipDDij=>ipDD23
-     mDij=>  mD23
-Else If (i==2 .and. j==4) Then
-   mDCRij=>mDCR24
-    ipDij=> ipD24
-   ipDDij=>ipDD24
-     mDij=>  mD24
-Else If (i==3 .and. j==4) Then
-   mDCRij=>mDCR34
-    ipDij=> ipD34
-   ipDDij=>ipDD34
-     mDij=>  mD34
-Else
-   Write (u6,*) 'Picky: illegal i and j combination'
-   Write (u6,*) 'i,j=',i,j
-   Call Abend()
-End If
-
+if ((i == 1) .and. (j == 2)) then
+  mDCR_ij => mDCRij
+  ipD_ij => ipDij
+  ipDD_ij => ipDDij
+  mD_ij => mDij
+else if ((i == 1) .and. (j == 3)) then
+  mDCR_ij => mDCRik
+  ipD_ij => ipDik
+  ipDD_ij => ipDDik
+  mD_ij => mDik
+else if ((i == 1) .and. (j == 4)) then
+  mDCR_ij => mDCRil
+  ipD_ij => ipDil
+  ipDD_ij => ipDDil
+  mD_ij => mDil
+else if ((i == 2) .and. (j == 3)) then
+  mDCR_ij => mDCRjk
+  ipD_ij => ipDjk
+  ipDD_ij => ipDDjk
+  mD_ij => mDjk
+else if ((i == 2) .and. (j == 4)) then
+  mDCR_ij => mDCRjl
+  ipD_ij => ipDjl
+  ipDD_ij => ipDDjl
+  mD_ij => mDjl
+else if ((i == 3) .and. (j == 4)) then
+  mDCR_ij => mDCRkl
+  ipD_ij => ipDkl
+  ipDD_ij => ipDDkl
+  mD_ij => mDkl
+else
+  write(u6,*) 'Picky: illegal i and j combination'
+  write(u6,*) 'i,j=',i,j
+  call Abend()
+  nullify(mDCR_ij)
+  nullify(ipD_ij)
+  nullify(ipDD_ij)
+  nullify(mD_ij)
+end if
 
 if (nIrrep == 1) then
   ii1 = 0
@@ -94,7 +94,7 @@ else
   jj2 = jBasAO
   jj3 = jBasn
 end if
-if (mDCRij /= 0) then
+if (mDCR_ij /= 0) then
   if (iShell >= jShell) then
     i1 = ii1
     i2 = ii2
@@ -111,12 +111,12 @@ if (mDCRij /= 0) then
     j3 = ii3
   end if
   if ((iBasi == iBsInc) .and. (jBasj == jBsInc)) then
-    ipDDij = ipDij
+    ipDD_ij = ipD_ij
   else
-    call Picky_inner(DeDe(ipDij),i1,j1,iPrimi*jPrimj,iCmpi*jCmpj,mDCRij,i2,i2+i3-1,j2,j2+j3-1,DeDe(ipDDij))
+    call Picky_inner(DeDe(ipD_ij),i1,j1,iPrimi*jPrimj,iCmpi*jCmpj,mDCR_ij,i2,i2+i3-1,j2,j2+j3-1,DeDe(ipDD_ij))
   end if
 end if
-mDij = (ii3*jj3+1)*iCmpi*jCmpj+iPrimi*jPrimj+1
+mD_ij = (ii3*jj3+1)*iCmpi*jCmpj+iPrimi*jPrimj+1
 
 return
 

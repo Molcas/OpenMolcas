@@ -52,7 +52,7 @@
      &                        NHOLE1,NELEC3,NALTER,STARTORBFILE,NASH,
      &                        NBAS,NDEL,NFRO,NISH,NRS1,NRS2,NRS3,NRS3,
      &                        NSSH
-      use spinfo, only: I_ELIMINATE_GAS_MOLCAS,NSPEED,ISPEED
+      use spinfo, only: I_ELIMINATE_GAS_MOLCAS,ISPEED
 
       Implicit None
 #include "rasdim.fh"
@@ -324,7 +324,7 @@ C
 *
 * Initialize speed options (turn everything that's working on)
 *
-      Do i = 1,nSpeed
+      Do i = 1,size(iSpeed)
          if (i .le. 2) Then
             iSpeed(i) = 1
          else

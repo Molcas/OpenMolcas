@@ -19,8 +19,8 @@ subroutine CNFSTR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,ISCR,SGN,IPR
 !
 ! Jeppe Olsen, Summer of '89
 
+use spinfo, only: MINOP, NDTFTP
 use Definitions, only: wp, iwp, u6
-use spinfo, only: MINOP,NDTFTP
 
 implicit none
 integer(kind=iwp), intent(in) :: NORB, ICONF(NORB), ITYP, NAEL, NBEL, IDET, IPRODT(*)

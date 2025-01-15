@@ -22,9 +22,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use motra_global, only: FnHalf, IAD13, iPrint, ISP, ISQ, ISR, ISS, LMOP, LMOQ, LMOR, LMOS, LTUVX, LuHalf, LuTwoMO, NBP, NBPQ, NBQ, &
                         NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX
+use TraToc, only: NTRABUF
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, RtoB
-use TraToc, only: NTRABUF
 
 implicit none
 integer(kind=iwp), intent(in) :: LBUF, nOUTBUF, nX1, nX2, nX3, nVXPQ, mOVX
@@ -211,7 +211,7 @@ do NV=1,NOR
       if (ISP == ISQ) then
         call SQUARE(VXPQ(IPQST),X2,1,NBQ,NBQ)
         if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,X2,NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)
-        If (NOP*NBP > 0) call DGEMM_Tri('T','N',NOP,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOP)
+        if (NOP*NBP > 0) call DGEMM_Tri('T','N',NOP,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOP)
         IX2 = (NOP+NOP**2)/2
       else
         if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,VXPQ(IPQST),NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)

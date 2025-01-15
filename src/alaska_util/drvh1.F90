@@ -35,7 +35,7 @@ subroutine Drvh1(Grad,Temp,nGrad)
 
 use PCM_arrays, only: PCM_SQ
 use External_Centers, only: nWel, XF, Wel_Info
-use Basis_Info, only: nCnttp, dbsc, nBas, r0, ExpB
+use Basis_Info, only: nCnttp, dbsc, ExpB, nBas, r0
 use Symmetry_Info, only: nIrrep
 #ifdef _NEXTFFIELD_
 use finfld, only: force

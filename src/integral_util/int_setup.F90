@@ -9,44 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Int_Setup(iSD4,nSD,Coor)
+subroutine Int_Setup(Coor)
 
-use Basis_Info, only: dbsc
 use Gateway_Info, only: DoFMM, RPQMin
 use Gateway_global, only: FMM_shortrange
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
-real(kind=wp), intent(out) :: Coor(3,4)
-integer(kind=iwp) :: i, iCnt, iCnttp, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
+real(kind=wp), intent(in) :: Coor(3,4)
+integer(kind=iwp) :: i
 real(kind=wp) :: D, P, Q
-
-iCnttp = iSD4(13,1)
-iCnt   = iSD4(14,1)
-jCnttp = iSD4(13,2)
-jCnt   = iSD4(14,2)
-kCnttp = iSD4(13,3)
-kCnt   = iSD4(14,3)
-lCnttp = iSD4(13,4)
-lCnt   = iSD4(14,4)
-
-if (dbsc(iCnttp)%Aux) then
-  Coor(:,1) = dbsc(jCnttp)%Coor(:,jCnt)
-else
-  Coor(:,1) = dbsc(iCnttp)%Coor(:,iCnt)
-end if
-Coor(:,2) = dbsc(jCnttp)%Coor(:,jCnt)
-
-if (dbsc(kCnttp)%Aux) then
-  Coor(:,3) = dbsc(lCnttp)%Coor(:,lCnt)
-else
-  Coor(:,3) = dbsc(kCnttp)%Coor(:,kCnt)
-end if
-Coor(:,4) = dbsc(lCnttp)%Coor(:,lCnt)
-
-!MAW start
 
 ! For the FMM coulomb integrals <AB(r1)|1/r12|CD(r2)>
 ! Here we flag the integral routines that we only want to compute
@@ -66,6 +39,5 @@ if (DoFMM) then
   end do
   if (D > RPQMIN*RPQMIN) FMM_shortrange = .true.
 end if
-!MAW end
 
 end subroutine Int_Setup

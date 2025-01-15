@@ -22,15 +22,14 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: nOut
-integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: nOut, nSD, iSD4(0:nSD,4)
 real(kind=wp), intent(_OUT_) :: COUT(nOut)
-integer(kind=iwp) :: i1, iAsh, iBas(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4), iCmp(4), iAOii(4)
+integer(kind=iwp) :: i1, iAOii(4), iAsh, iBas(4), iCmp(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
 
-iCmp(:) = iSD4( 2,:)
-iBas(:) = iSD4( 8,:)
-nBs(:)  = iSD4(19,:)
-iAOii(:)= iSD4( 7,:)
+iCmp(:) = iSD4(2,:)
+iBas(:) = iSD4(8,:)
+nBs(:) = iSD4(19,:)
+iAOii(:) = iSD4(7,:)
 ip2 = 1
 
 do iCnt=3,4

@@ -286,7 +286,7 @@ do ijS=1,nij
 
     if (Do_ERIs) then
       call Eval_IJKL(iS,jS,kS,lS,Scr,mTInt2)
-      TInt(1:mTInt2)=TInt(1:mTInt2)+Scr(1:mTInt2)
+      TInt(1:mTInt2) = TInt(1:mTInt2)+Scr(1:mTInt2)
     end if
 
     if (.not. Only_DB) then

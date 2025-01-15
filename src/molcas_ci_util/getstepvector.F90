@@ -12,8 +12,8 @@
 subroutine GETSTEPVECTOR(NOW,IOW,MV,IDWN,IUP,ICS,nLev,nMidV)
 
 use gugx, only: CIS, SGS
-use Definitions, only: iwp
 use general_data, only: NSYM
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nMidV, NOW(2,NSYM,NMIDV), IOW(2,NSYM,NMIDV), nLev

@@ -39,9 +39,9 @@ integer(kind=iwp) :: i, iAlpha, iBeta, iCar, iCmp, iDCRT(0:7), iIrrep, iM2xp, ip
                      ipQxyz, iPrint, ipRxyz, ipZ, iRout, iStrt, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, lDCRT, LmbdT, &
                      lOp(4), mGrad, mVec, nDAO, nDCRT, nDisp, nip
 real(kind=wp) :: C(3), Fact, Factor, Gmma, PTC2, TC(3), Tmp0, Tmp1
-logical(kind=iwp) :: ABeq(3), EQ, JfGrad(3,4)
+logical(kind=iwp) :: ABeq(3), JfGrad(3,4)
 integer(kind=iwp), external :: NrOpr
-logical(kind=iwp), external :: TF
+logical(kind=iwp), external :: EQ, TF
 #include "print.fh"
 
 #include "macros.fh"

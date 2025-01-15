@@ -101,7 +101,7 @@ do iO1=1,iOrb(1)
         do iTyp=1,nTyp
           O(iTyp) = MME(iTyp)%A(indMME)
         end do
-        O(:)=cProd*O(:)
+        O(:) = cProd*O(:)
 
         Cha(kaunter,kaunta) = Cha(kaunter,kaunta)+O(1)
         DipMy(kaunter,1,kaunta) = DipMy(kaunter,1,kaunta)+O(2)

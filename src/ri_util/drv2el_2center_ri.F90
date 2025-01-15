@@ -56,7 +56,7 @@ integer(kind=iwp) :: iAddr, iAddr_AQ(0:7), iIrrep, ip_A_n, ipAs_Diag, iS, iSeed,
 real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 character(len=6) :: Name_Q
-real(kind=wp), allocatable :: TInt(:), TMax(:), Tmp(:,:), Scr(:)
+real(kind=wp), allocatable :: Scr(:), TInt(:), TMax(:), Tmp(:,:)
 procedure(int_wrout) :: Integral_RI_2
 integer(kind=iwp), external :: IsFreeUnit, nMemAm
 
@@ -180,9 +180,9 @@ do jS=1,nSkal-1
   do lS=1,jS
 
     A_int = TMax(jS)*TMax(lS)
-    if (A_Int >= CutInt) Then
-       call Eval_IJKL(iS,jS,kS,lS,Scr,nTInt_)
-       TInt(1:nTInt_)=TInt(1:nTInt_)+Scr(1:nTInt_)
+    if (A_Int >= CutInt) then
+      call Eval_IJKL(iS,jS,kS,lS,Scr,nTInt_)
+      TInt(1:nTInt_) = TInt(1:nTInt_)+Scr(1:nTInt_)
     end if
 
   end do ! lS

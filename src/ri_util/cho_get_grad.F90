@@ -12,6 +12,7 @@
 !               2011, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine CHO_GET_GRAD(irc,nDen,DLT,DLT2,MSQ,Txy,nTxy,ipTxy,DoExchange,lSA,nChOrb_,AOrb,nAorb,DoCAS,Estimate,Update,V_k,nV_k,U_k, &
                         Z_p_k,nZ_p_k,nnP,npos)
 !***********************************************************************
@@ -104,16 +105,15 @@ use Cholesky, only: iiBstR, IndRed, InfVec, MaxRed, nBas, nBasSh, nDimRS, nnBstR
 use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, V2
 use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
 use RI_glob, only: CMOi, dmpK, iBDsh, iMP2prpt, nAdens, nIJ1, nIJR, nJdens, nKdens, nKvec, nScreen
+#ifdef _CD_TIMING_
+use temptime, only: CHOGET_CPU, CHOGET_WALL
+#endif
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-use temptime, only: CHOGET_CPU,CHOGET_WALL
-#endif
 
 #include "intent.fh"
 
@@ -269,7 +269,6 @@ if (DoExchange) then
 
   call mma_allocate(DIAG,NNBSTRT(1),Label='Diag')
   if (Update) call CHO_IODIAG(DIAG,2) ! 2 means "read"
-
 
   ! Allocate memory
 
@@ -1313,8 +1312,8 @@ do jSym=1,nSym
                         temp = Zero
                         do k=0,nAOrb(iSymx)-1
                           do l=0,k
-                            temp = temp+Half*Txy(ioff+iTri(k+1,l))*(Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+ &
-                                   Lxy%SB(iSymx)%A2(k+1+nAOrb(iSymx)*l,j))
+                            temp = temp+Half*Txy(ioff+iTri(k+1,l))* &
+                                   (Lxy%SB(iSymx)%A2(l+1+nAOrb(iSymx)*k,j)+Lxy%SB(iSymx)%A2(k+1+nAOrb(iSymx)*l,j))
                           end do
                         end do
 
@@ -1391,9 +1390,9 @@ do jSym=1,nSym
       end if
 #     endif
     end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
   end do   ! loop over red sets
   !                                                                    *
   !*********************************************************************

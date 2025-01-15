@@ -48,11 +48,10 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
-                     ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iS, iShell, iShll, iShllV(2), jAng, jBas, jCmp, &
-                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jS, jShell, jShll, la_, &
-                     mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
-                     nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iSD4(0:nSD,4)
+integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, ipMem1, ipMem2, iPrim, &
+                     iPrimi, iPrimS, iS, iSD4(0:nSD,4), iShell, iShll, iShllV(2), jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
+                     jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
+                     mScree, nBasi, nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
@@ -133,8 +132,8 @@ ipMem1 = 1
 ! Canonical double loop over shells.
 
 do iS=1,mSkal
-  iSD4(:,1)=iSD(:,iS)
-  iSD4(:,3)=iSD(:,iS)
+  iSD4(:,1) = iSD(:,iS)
+  iSD4(:,3) = iSD(:,iS)
 
   iShll = iSD4(0,1)
   if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
@@ -154,8 +153,8 @@ do iS=1,mSkal
   iCmpV(1) = iCmp
 
   do jS=1,iS
-    iSD4(:,2)=iSD(:,jS)
-    iSD4(:,4)=iSD(:,jS)
+    iSD4(:,2) = iSD(:,jS)
+    iSD4(:,4) = iSD(:,jS)
 
     jShll = iSD4(0,2)
     if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
@@ -231,8 +230,8 @@ do iS=1,mSkal
     iSD4(3,2) = nZeta
     iPrimi = 1
     jPrimj = nZeta
-    iSD4(5,1)=1
-    iSD4(5,2)=nZeta
+    iSD4(5,1) = 1
+    iSD4(5,2) = nZeta
     force_part_save = force_part_c
     force_part_c = .false.
     call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
@@ -268,11 +267,10 @@ do iS=1,mSkal
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     if (.not. DoGrad_) ijCmp = 0
     ik2 = Indk2(3,ijS)
-    call k2Loop(Coor,iSD4(1,:),iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp, &
-                iPrimi,Shells(jShll)%Exp,jPrimj,BraKet%xA(:), &
-                BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:),BraKet%KappaAB(:), &
-                BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree,mdci,mdcj,DeDe(ipDij), &
-                nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
+    call k2Loop(Coor,iSD4(1,:),iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
+                BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
+                BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &
+                mdci,mdcj,DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
 
     Indk2(2,ijS) = nDCRR
     mk2 = mk2+nDCRR

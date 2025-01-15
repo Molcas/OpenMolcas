@@ -52,11 +52,12 @@
      &                  IPT2_MOLCAS,I_ELIMINATE_GAS_MOLCAS,
      &                  N_ELIMINATED_GAS_MOLCAS,
      &                  N_2ELIMINATED_GAS_MOLCAS,IPRCI_MOLCAS,
-     &                  POTNUC_MOLCAS,RTOI_MOLCAS,
+     &                  POTNUC_MOLCAS,
      &                  I2ELIMINATED_IN_GAS_MOLCAS,
      &                  IELIMINATED_IN_GAS_MOLCAS,IGSOCCX_MOLCAS,
-     &                  IROOT_MOLCAS,ISPEED,NBAS_MOLCAS,NGSSH_MOLCAS,
+     &                  ISPEED,NBAS_MOLCAS,NGSSH_MOLCAS,
      &                  NISH_MOLCAS,NORB_MOLCAS
+      use Definitions, only: RtoI
 *
       implicit none
 C Input from RASSCF
@@ -148,7 +149,8 @@ C  Roots
 C =======
       nroot = nroots_molcas
       DO i = 1, nroot
-         iroot(i) = iroot_molcas(i)
+         !iroot(i) = iroot_molcas(i)
+         iroot(i) = 0
       ENDDO
 *
 C ============
@@ -1551,7 +1553,7 @@ c      END IF
 C ================================================
 C  Set ratio beteeen real and integer word length
 C ================================================
-      irat = rtoi_molcas
+      irat = RtoI
 *
 C =============================================
 C  Find largest unused vector for use in Lucia

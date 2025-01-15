@@ -44,9 +44,9 @@ subroutine ipcsfsplit(PHPCSF,IPCSF,IPCNF,MXPDIM,MXSPLI,DTOC,IPRODT,ICONF,IREFSM,
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use splitcas_data, only: iDimBlockA, iDimBlockACNF
+use spinfo, only: NCNFTP, NCSFTP, NTYP
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
-use spinfo, only: NTYP,NCNFTP,NCSFTP
 
 #include "intent.fh"
 

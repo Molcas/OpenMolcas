@@ -16,9 +16,9 @@ subroutine esb_ic_1(symp,symq,symr,syms,Vic,dimp,dimq,dimr,dims)
 ! matrix vic (np,nq,nr,ns)
 
 use ccsort_global, only: idis, LUINTM, NORB, np, nq, nr, ns, typ
+use TraToc, only: NTRABUF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
-use TraToc, only: NTRABUF
 
 #include "intent.fh"
 

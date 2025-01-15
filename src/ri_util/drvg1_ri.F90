@@ -11,6 +11,7 @@
 ! Copyright (C) 2007, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine Drvg1_RI(Grad,Temp,nGrad)
 !***********************************************************************
 !                                                                      *
@@ -33,15 +34,14 @@ use Symmetry_Info, only: Mul, nIrrep
 use Para_Info, only: myRank, nProcs
 use Data_Structures, only: Deallocate_DT
 use RI_glob, only: DoCholExch, iMP2prpt, iUHF, LuAVector, LuBVector, LuCVector, nAdens, nAvec, nJdens, nKdens, nKvec, tavec, tbvec
+#ifdef _CD_TIMING_
+use temptime, only: CHOGET_CPU, CHOGET_WALL, DRVG1_CPU, DRVG1_WALL, PGET2_CPU, PGET2_WALL, PGET3_CPU, PGET3_WALL, PREPP_CPU, &
+                    PREPP_WALL, RMULT_CPU, RMULT_WALL, TWOEL2_CPU, TWOEL2_WALL, TWOEL3_CPU, TWOEL3_WALL
+#endif
 use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-use temptime, only: DRVG1_CPU,DRVG1_WALL,CHOGET_WALL,CHOGET_CPU,RMULT_WALL,RMULT_CPU,PREPP_WALL,PREPP_CPU,PGET2_WALL,PGET2_CPU, &
-                    PGET3_WALL,PGET3_CPU,TWOEL2_WALL,TWOEL3_WALL,TWOEL2_CPU,TWOEL3_CPU
-#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nGrad

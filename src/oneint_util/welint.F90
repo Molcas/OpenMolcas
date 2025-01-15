@@ -25,8 +25,8 @@ subroutine WelInt( &
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
+use Basis_info, only: ExpB, r0
 use Definitions, only: wp, iwp, u6
-use Basis_info, only: r0, ExpB
 
 implicit none
 #include "int_interface.fh"

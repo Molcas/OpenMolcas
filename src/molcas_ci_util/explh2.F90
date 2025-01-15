@@ -50,13 +50,13 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 use csfbas, only: CONF, NAEL, NBEL
 use glbbas, only: DFTP, DTOC
 use rasscf_global, only: ExFac, NAC
+use general_data, only: LUDAVID, NCONF, NSEL, STSYM
+use spinfo, only: NCNASM
 use output_ras, only: IPRLOC
 use printlevel, only: INSANE
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
-use general_data, only: NSEL,STSYM,LUDAVID,NCONF
-use spinfo, only: NCNASM
 
 #include "intent.fh"
 

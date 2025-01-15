@@ -22,8 +22,8 @@ real(kind=wp) :: Disc = Zero, Disc_Mx = Zero, ExFac = Zero, Quad_ijkl = Zero, Th
 logical(kind=iwp) :: DoFock = .false., DoIntegrals = .true., FckNoClmb = .false., FckNoExch = .false., PreSch = .true., &
                      W2Disc = .false.
 
-public :: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, Init_Int_Options, iTOffs, PreSch, Quad_ijkl, &
-          Thize, W2Disc
+public :: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, Init_Int_Options, iTOffs, PreSch, Quad_ijkl, Thize, &
+          W2Disc
 
 contains
 

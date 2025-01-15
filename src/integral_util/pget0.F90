@@ -41,27 +41,27 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, nPSO, iFnc(4), MemPSO, nMem2, nQuad, iSD4(0:nSD,4)
 real(kind=wp), intent(out) :: PSO(ijkl,nPSO), Mem2(nMem2), PMax
-integer(kind=iwp) :: ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, kOp(4), nSA, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, &
-                     n1, n2, n3, n4, iShell_A, iShell_B, iShell_C, iShell_D
+integer(kind=iwp) :: iAO(4), iAOst(4), iBas, iCmp(4), ipC, ipiPam, ipMAP, ipPAM, ipS1, ipS2, iShell_A, iShell_B, iShell_C, &
+                     iShell_D, jBas, kBas, kOp(4), lBas, n1, n2, n3, n4, nSA
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iCmp(:) = iSD4( 2,:)
-iAO(:)  = iSD4( 7,:)
-iAOst(:)= iSD4( 8,:)
-iBas    = iSD4(19,1)
-jBas    = iSD4(19,2)
-kBas    = iSD4(19,3)
-lBas    = iSD4(19,4)
+iCmp(:) = iSD4(2,:)
+iAO(:) = iSD4(7,:)
+iAOst(:) = iSD4(8,:)
+iBas = iSD4(19,1)
+jBas = iSD4(19,2)
+kBas = iSD4(19,3)
+lBas = iSD4(19,4)
 n1 = iFnc(1)*iBas
 n2 = iFnc(2)*jBas
 n3 = iFnc(3)*kBas
 n4 = iFnc(4)*lBas
-iShell_A=iSD4(20,1)
-iShell_B=iSD4(20,2)
-iShell_C=iSD4(20,3)
-iShell_D=iSD4(20,4)
+iShell_A = iSD4(20,1)
+iShell_B = iSD4(20,2)
+iShell_C = iSD4(20,3)
+iShell_D = iSD4(20,4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

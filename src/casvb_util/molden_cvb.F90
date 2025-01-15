@@ -16,9 +16,9 @@ subroutine molden_cvb()
 
 use rctfld_module,only: lRF
 use rasscf_global, only: iADR15
+use general_data, only: JOBIPH
 use Constants, only: Zero
 use Definitions, only: wp, iwp
-use general_data, only: JOBIPH
 
 implicit none
 

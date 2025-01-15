@@ -25,12 +25,12 @@ use Symmetry_Info, only: iOper
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 logical(kind=iwp), intent(in) :: ldot
 logical(kind=iwp), intent(out) :: JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
 integer(kind=iwp), intent(out) :: IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7)
-integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, istop, jAtom, jCar, JndGrd(3,4,0:7), nDisp, nnIrrep, &
-                     mdci, mdcj, mdck, mdcl
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, istop, jAtom, jCar, JndGrd(3,4,0:7), mdci, mdcj, mdck, mdcl, &
+                     nDisp, nnIrrep
 logical(kind=iwp) :: IfG(4), IfGrd(3,4), IfHss(4,3,4,3)
 logical(kind=iwp), external :: TF
 #ifdef _OLD_CODE_

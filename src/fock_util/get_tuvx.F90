@@ -37,8 +37,8 @@ subroutine Get_TUVX(PUVX,TUVX)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use general_data, only: NASH, NISH, NORB, NSYM
 use Definitions, only: wp, iwp
-use general_data, only: NSYM,NASH,NISH,NORB
 
 #include "intent.fh"
 

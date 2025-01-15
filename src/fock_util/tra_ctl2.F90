@@ -31,9 +31,9 @@ subroutine Tra_Ctl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
+use general_data, only: LUINTM, NASH, NBAS, NFRO, NISH, NORB, NSYM, NTOT1
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
-use general_data, only: NSYM,NTOT1,LUINTM,NASH,NBAS,NFRO,NISH,NORB
 
 #include "intent.fh"
 

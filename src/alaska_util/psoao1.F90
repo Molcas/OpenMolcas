@@ -47,12 +47,12 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD
-integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iFnc(4), ipMem2, Mem1, Mem2, MemPSO
-integer(kind=iwp) :: i1, iCmp, iFac, iiBas(4), IncVec, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, &
-                     Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, nabcd, nCache, nFac, &
-                     nPam(4,0:7), nTmp1, nTmp2, nVec1, iAO(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, lPrim, &
-                     iPrInc, jPrInc, kPrInc, lPrInc, iBsInc, jBsInc, kBsInc, lBsInc
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
+integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), IncVec, iPrim, iPrInc, iTmp1, j, jBas, jBsInc, &
+                     jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, &
+                     lPrim, lPrInc, lSize, mabcd, Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, &
+                     nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 #include "Molcas.fh"
@@ -77,10 +77,8 @@ jPrim = iSD4(5,2)
 kPrim = iSD4(5,3)
 lPrim = iSD4(5,4)
 
-
-iAO(:)  =iSD4(7,:)
-iCmpa(:)=iSD4(2,:)
-
+iAO(:) = iSD4(7,:)
+iCmpa(:) = iSD4(2,:)
 
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
@@ -318,14 +316,14 @@ Mem2 = Mem2+Mem3
 
 ipMem2 = ipMem1+Mem1
 
-iSD4(4,1)=iBsInc
-iSD4(4,2)=jBsInc
-iSD4(4,3)=kBsInc
-iSD4(4,4)=lBsInc
+iSD4(4,1) = iBsInc
+iSD4(4,2) = jBsInc
+iSD4(4,3) = kBsInc
+iSD4(4,4) = lBsInc
 
-iSD4(6,1)=iPrInc
-iSD4(6,2)=jPrInc
-iSD4(6,3)=kPrInc
-iSD4(6,4)=lPrInc
+iSD4(6,1) = iPrInc
+iSD4(6,2) = jPrInc
+iSD4(6,3) = kPrInc
+iSD4(6,4) = lPrInc
 
 end subroutine PSOAO1

@@ -131,9 +131,9 @@ do ISHLCD=1,NNSHL
     ! --------------------
 
     call CWTIME(C1,W1)
-    Temp(:)=Zero
+    Temp(:) = Zero
     call CHO_MCA_INT_1(ISCD,ISHLAB,Temp,LCOL,LOCDBG .or. (IPRINT >= 100))
-    IntCol(:)=IntCol(:)+Temp(:)
+    IntCol(:) = IntCol(:)+Temp(:)
     call CWTIME(C2,W2)
     TINTEG(1,1) = TINTEG(1,1)+C2-C1
     TINTEG(2,1) = TINTEG(2,1)+W2-W1

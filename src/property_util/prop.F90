@@ -54,10 +54,10 @@ subroutine Prop(Short,qplab,cen1,cen2,nIrrep,nBas,nTot,Occ,ThrSV,PrEl,PrNu,lpole
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
+use hfc_logical, only: MAG_X2C
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Angstrom, Debye
 use Definitions, only: wp, iwp, u6
-use hfc_logical, only: MAG_X2C
 
 implicit none
 logical(kind=iwp), intent(in) :: Short, ifallorb
@@ -314,7 +314,7 @@ if (lab4 == 'MLTP') then
       PrTot(:) = PrNu(1:MaxLab)-PrEl(1,1:MaxLab)
     end if
   !--------------------------------------------------------------------*
-  end if ! iPL
+ end if ! iPL
   !--------------------------------------------------------------------*
   ! Prop is also called in other programs where MAG_X2C could
   ! be uninitialized, if a test is required in such case

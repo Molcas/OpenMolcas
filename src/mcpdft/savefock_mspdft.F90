@@ -14,7 +14,7 @@
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 
-Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
+Subroutine SaveFock_msPDFT(cmo,h1e,D1Act,NQ,p2d,state)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use printlevel,only:debug
@@ -26,16 +26,15 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   use general_data,only:ntot1,nbas,nfro,norb,nsym
   implicit none
 
-  real(kind=wp),intent(in) :: cmo(*),D1Act(*),hcore(*),coul(*),P2D(*)
+  real(kind=wp),intent(in) :: cmo(*),D1Act(*),h1e(*),P2D(*)
   integer(kind=iwp),intent(in) :: NQ,state
 
   integer(kind=iwp) :: iSA,iprlev
   real(kind=wp),allocatable :: ONTOPT(:),ONTOPO(:)
   real(kind=wp),allocatable :: FA_V(:),FI_V(:)
-  real(kind=wp),allocatable :: Q(:),dm2(:),fock(:),h1e(:)
+  real(kind=wp),allocatable :: Q(:),dm2(:),fock(:),h1e_mo(:)
 
   call mma_allocate(fock,ntot4,label='fock')
-  call mma_allocate(h1e,ntot1,label='h1e')
 
   fock(:) = zero
 
@@ -43,8 +42,8 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
 
   IPRLEV = IPRLOC(3)
 
-  h1e(:) = hcore(:ntot1)+coul(:ntot1)
-  call ao2mo_1e(cmo,h1e,h1e,nsym,nbas,norb,nfro)
+  call mma_allocate(h1e_mo,ntot1,label='h1e_mo')
+  call ao2mo_1e(cmo,h1e,h1e_mo,nsym,nbas,norb,nfro)
 
   ! loading one-electron potential and two-electron potential
   ! Used as F1 and F2 in equations 58 and 59 in Ref1.
@@ -62,7 +61,7 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   Call Get_dArray('FI_V',FI_V,NTOT1)
   Call Get_dArray('FA_V',FA_V,NTOT1)
 
-  fi_v(:) = h1e(:)+OnTopO(:)+FI_V(:)
+  fi_v(:) = h1e_mo(:)+OnTopO(:)+FI_V(:)
   F1MS(:,state) = fi_v(:)
 
   ! ____________________________________________________________
@@ -101,6 +100,6 @@ Subroutine SaveFock_PDFT(cmo,hcore,coul,D1Act,NQ,p2d,state)
   Call Put_iScalar('SA ready',iSA)
 
   call mma_deallocate(fock)
-  call mma_deallocate(h1e)
+  call mma_deallocate(h1e_mo)
 
-EndSubroutine SaveFock_PDFT
+EndSubroutine SaveFock_msPDFT

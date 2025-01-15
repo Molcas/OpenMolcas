@@ -39,10 +39,10 @@ subroutine Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,var,Short,iUHF,ifallorb)
 !***********************************************************************
 
 use OneDat, only: sOpSiz
+use hfc_logical, only: MAG_X2C, UHF_HFC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
-use hfc_logical, only: MAG_X2C,UHF_HFC
 
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nDim, n2Tot, iUHF

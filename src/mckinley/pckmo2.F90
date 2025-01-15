@@ -23,9 +23,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(_OUT_) :: COUT(*)
-integer(kind=iwp), intent(out) :: nX
 integer(kind=iwp), intent(in) :: icmpi, iBasi, jcmpj, jBasj, iAOi, jAOj
 logical(kind=iwp), intent(in) :: Process
+integer(kind=iwp), intent(out) :: nX
 integer(kind=iwp) :: i1, iaoii(4), iAsh, iCmp(4), iCnt, iIrrep, iOrb, ip1, ip2, ipC, iSO, jj, nBs(4)
 
 nBs(1) = iBasi
@@ -46,9 +46,9 @@ do iCnt=1,2
         iSO = iAOtSO(iAOii(iCnt)+i1,iIrrep)
         if (iSO > 0) then
           ip1 = ipC+(iOrb+iAsh-1)*nBas(iIrrep)+iso
-          If (Process) COUT(ip2:ip2+nBs(iCnt)-1) = CMO(ip1:ip1+nBs(iCnt)-1,1)
+          if (Process) COUT(ip2:ip2+nBs(iCnt)-1) = CMO(ip1:ip1+nBs(iCnt)-1,1)
         else
-          If (Process) COUT(ip2:ip2+nBs(iCnt)-1) = Zero
+          if (Process) COUT(ip2:ip2+nBs(iCnt)-1) = Zero
         end if
         ip2 = ip2+nBs(iCnt)
       end do
@@ -56,6 +56,7 @@ do iCnt=1,2
     ipc = ipc+nBas(iIrrep)**2
   end do
 end do
-nX=ip2-1
+
+nX = ip2-1
 
 end subroutine PckMO2
