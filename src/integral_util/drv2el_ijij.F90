@@ -50,6 +50,7 @@ integer(kind=iwp), parameter :: nTInt = 1
 logical(kind=iwp), external :: Rsv_Tsk
 logical(kind=iwp) :: Save(2)
 procedure(int_wrout) :: Integral_ijij
+procedure(int_wrout), pointer :: Int_postprocess_Save => null()
 
 !                                                                      *
 !***********************************************************************
@@ -64,6 +65,7 @@ call StatusLine('Seward: ',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Int_PostProcess_Save => Int_PostProcess
 Int_PostProcess =>  Integral_ijij
 call mma_allocate(TInt,nTint,Label='TInt')
 !                                                                      *
@@ -110,4 +112,5 @@ nullify(Int_PostProcess)
 
 DoIntegrals=Save(1)
 DoFock=Save(2)
+Int_PostProcess => Int_PostProcess_Save
 end subroutine Drv2El_ijij
