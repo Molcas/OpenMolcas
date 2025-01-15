@@ -272,18 +272,6 @@ nQuad = nTri_Elem(nPairs)
 call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
 call Shell_MxSchwz(nSkal,TMax)
 
-call mma_allocate(Pair_Index,2,nPairs,Label='Ind_ij')
-nij = 0
-do iS=1,nSkal
-  do jS=1,iS
-     nij = nij+1
-     Pair_Index(1,nij) = iS
-     Pair_Index(2,nij) = jS
-  end do
-end do
-! Update TMax with the analytical values
-Call Drv2El_ijij(Pair_Index,nij,TMax,nSkal)
-
 TMax_all = Zero
 do iS=1,nSkal
   do jS=1,iS
@@ -296,6 +284,7 @@ end do
 !                                                                      *
 ! Create list of non-vanishing pairs
 
+call mma_allocate(Pair_Index,2,nPairs,Label='Ind_ij')
 nij = 0
 nBuffer = 1  ! Dummy length
 do iS=1,nSkal
