@@ -33,6 +33,7 @@ use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Integral_interfaces, only: Int_PostProcess, int_wrout
+use Int_Options, only: DoIntegrals, DoFock
 use Basis_Info, only: Shells
 use Definitions, only: wp, iwp
 
@@ -47,11 +48,17 @@ character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:)
 integer(kind=iwp), parameter :: nTInt = 1
 logical(kind=iwp), external :: Rsv_Tsk
+logical(kind=iwp) :: Save(2)
 procedure(int_wrout) :: Integral_ijij
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Save(1)=DoIntegrals
+Save(2)=DoFock
+DoIntegrals=.True.
+DoFock=.False.
+
 SLine = 'Computing 2-electron integrals'
 call StatusLine('Seward: ',SLine)
 !                                                                      *
@@ -101,4 +108,6 @@ call Free_Tsk(id_Tsk)
 call mma_deallocate(TInt)
 nullify(Int_PostProcess)
 
+DoIntegrals=Save(1)
+DoFock=Save(2)
 end subroutine Drv2El_ijij
