@@ -56,7 +56,7 @@ integer(kind=iwp) :: i, iBas, iCmp, iCnttp, id, id_Tsk, idd, iDisk, iDisp, iIrr,
                      mDeDe, nBuffer, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, ndisp, &
                      nij, nIndij, nMO, nPairs, nQuad, nSkal, nTemp
 real(kind=wp) :: A_int, TMax_all, ThrAO
-logical(kind=iwp) :: lpick, new_fock, Post_Process, Indexation, DoFock, DoGrad
+logical(kind=iwp) :: lpick, Post_Process, Indexation, DoFock, DoGrad
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:), Buffer(:)
 real(kind=wp), pointer :: Temp(:)
@@ -77,7 +77,6 @@ ipDijS2 = 0
 
 ndisp = 0
 nACO = 0
-New_Fock = nirrep == 1
 do iS=0,nIrrep-1
   moip(iS) = nACO
   nDisp = nDisp+ldisp(is)
@@ -199,7 +198,7 @@ if (lGrad) then
   DTemp(:) = Zero
   call mma_allocate(DInAc,nDens,Label='DInAc')
   DInAc(:) = Zero
-  if (New_Fock) then
+  if (nIrrep == 1) then
     if (nmethod /= RASSCF) then
       call Get_D1ao_Var(DTemp,nDens)
       DTemp(:) = Half*DTemp
@@ -320,9 +319,9 @@ end do
 ! Precompute k2 entities. (again) Not that this will overwrite stuff
 ! in the k2data array. DO NOT move the call up!!!
 
-lpick = lgrad .and. (.not. New_Fock)
+lpick = lgrad .and. (nIrrep/=1)
 
-call Drvk2_mck(new_Fock)
+call Drvk2_mck()
 
 !                                                                      *
 !***********************************************************************
@@ -368,7 +367,7 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     if (A_Int < CutInt) cycle
 
     Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer, &
-                      Buffer,nDens, DTemp, DInAc, moip, New_Fock, n_Int, nQuad)
+                      Buffer,nDens, DTemp, DInAc, moip, n_Int, nQuad)
 
   end do ! klS
 
@@ -389,7 +388,7 @@ Call mma_deallocate(Buffer)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (New_Fock) then
+if (nIrrep==1) then
   idd = 0
   do iS=0,nirrep-1
     do iD=1,ldisp(is)
@@ -440,7 +439,7 @@ call Free_iSD()
 
 call mma_deallocate(DeDe)
 call mma_deallocate(DeDe2)
-if (.not. New_Fock) then
+if (nIrrep/=1) then
   call mma_deallocate(ipOffD)
   if (nMethod == RASSCF) then
     call mma_deallocate(ipOffDA)

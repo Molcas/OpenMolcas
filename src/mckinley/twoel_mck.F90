@@ -14,7 +14,7 @@
 
 subroutine TwoEl_mck(Coor,nRys,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO,Work2,nWork2,Work3,nWork3,Work4, &
                      nWork4,Aux,nAux,WorkX,nWorkX,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
-                     moip,naco,rMOIN,nMOIN,new_fock,iSD4)
+                     moip,naco,rMOIN,nMOIN,iSD4)
 !***********************************************************************
 !                                                                      *
 !     Input:                                                           *
@@ -91,7 +91,7 @@ integer(kind=iwp), intent(in) :: nRys, nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:
                                  nWorkX, nfin, nTemp, nTwo2, nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dan(*), Din(*)
 real(kind=wp), intent(inout) :: Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
-logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), lgrad, ldot, n8, ltri, new_fock
+logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), lgrad, ldot, n8, ltri
 logical(kind=iwp), intent(out) :: IfG(4)
 real(kind=wp), intent(out) :: Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
 integer(kind=iwp) :: iAngV(4), iAO(4), iAOst(4), iBasi, iCar, iCmp(4), iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, &
@@ -599,7 +599,7 @@ do lDCRR=0,nDCRR-1
       call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,Shijij,iAngV,iCmp,iShll,iShell,iShell,iBasi,jBasj,kBask,lBasl,Dij1, &
                   Dij2,mDij,mDCRij,Dkl1,Dkl2,mDkl,mDCRkl,Dik1,Dik2,mDik,mDCRik,Dil1,Dil2,mDil,mDCRil,Djk1,Djk2,mDjk,mDCRjk,Djl1, &
                   Djl2,mDjl,mDCRjl,fin,nfin,Temp(ipFT),nFT,Temp(ipS1),nS1,Temp(ipS2),nS2,Temp(ipTemp),nTe,TwoHam,nTwo2,JndGrd, &
-                  Indx,iao,iaost,iuvwx,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,nOp,Din,Dan,new_fock)
+                  Indx,iao,iaost,iuvwx,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,nOp,Din,Dan)
 
     end do
 

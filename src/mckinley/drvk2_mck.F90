@@ -12,7 +12,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Drvk2_mck(New_Fock)
+Subroutine Drvk2_mck()
 !***********************************************************************
 !                                                                      *
 !  Object: to precompute all pair entites as zeta, kappa, P.           *
@@ -38,7 +38,6 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp), intent(in) :: New_Fock
 integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, ik2, ipM001, ipM002, &
                      ipM003, ipM004, iPrim, iPrInc, iS, iSD4(0:nSD,4), iShell, iShll, iSmLbl, jAng, jAO, jBas, jCmp, jCnt, jCnttp, &
                      jPrim, jPrInc, jS, jShell, jShll, kPrInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, &
@@ -178,7 +177,7 @@ do iS=1,nSkal
     Indk2(3,ijShll) = ik2
     mk2 = mk2+nDCRR
 
-    if (New_Fock) then
+    if (nIrrep==1) then
       iDeSiz = 1+iPrim*jPrim+iCmp*jCmp
     else
       iDeSiz = 1+iPrim*jPrim+(iBas*jBas+1)*iCmp*jCmp

@@ -14,7 +14,7 @@
 
 
 subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer, &
-                        Buffer,nDens, DTemp, DInAc, MOip,New_Fock, nTwo2, nQuad)
+                        Buffer,nDens, DTemp, DInAc, MOip, nTwo2, nQuad)
 use setup, only: nAux
 use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: iTri
@@ -29,7 +29,7 @@ integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nDe
                                 nQuad
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(nBuffer), DTemp(nDens), DInAc(nDens)
 logical(kind=iwp), intent(inout):: Post_Process
-logical(kind=iwp), intent(in):: lGrad, lHess, lPick, New_Fock
+logical(kind=iwp), intent(in):: lGrad, lHess, lPick
 
 real(kind=wp) :: Coor(3,4), PMax
 logical(kind=iwp) :: lTri, lDot, lDot2
@@ -231,7 +231,7 @@ do iBasAO=1,iBasi,iBsInc
 
         call TwoEl_mck(Coor,nRys,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
                        Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,nBuffer,lgrad,ldot2,n8,ltri, &
-                       DTemp,DInAc,moip,nAco,MOC,MemCMO,new_fock,iSD4)
+                       DTemp,DInAc,moip,nAco,MOC,MemCMO,iSD4)
         Post_Process = .true.
 
         nullify(MOC)
