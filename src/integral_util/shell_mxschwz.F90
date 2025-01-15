@@ -21,14 +21,16 @@ use Index_Functions, only: iTri
 use iSD_data, only: iSD
 use Basis_Info, only: DBSC, Shells
 use k2_structure, only: IndK2, k2Data
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nSkal
 real(kind=wp), intent(out) :: Schwz_Shl(nSkal,nSkal)
-integer(kind=iwp) :: iCnttp, ijS, ik2, iS, iShell, iShll, jCnttp, jS, jShell, jShll, lDCRR, nDCRR
+integer(kind=iwp) :: iCnttp, ijS, ik2, iS, iShell, iShll, jCnttp, jS, jShell, jShll, lDCRR, nDCRR, nij
 real(kind=wp) :: Schwz_Tmp
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
 
 ! loop over shell pair...
 Schwz_Shl(:,:) = Zero
@@ -61,5 +63,23 @@ do iS=1,nSkal
   end do
 end do
 !call RecPrt('Schwz_shl',' ',Schwz_Shl,nSkal,nSkal)
+Call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2,Label='Pair_Index')
+nij=0
+do iS=1,nSkal
+  iShll = iSD(0,iS)
+  if (Shells(iShll)%Aux .and. (iS /= nSkal)) cycle
+  do jS=1,iS
+    jShll = iSD(0,jS)
+    if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
+    if (Shells(jShll)%Aux .and. (jS == nSkal)) cycle
+    nij=nij+1
+    Pair_Index(1,nij)=iS
+    Pair_Index(2,nij)=jS
+  end do
+end do
+
+Call Drv2el_ijij(Pair_Index,nij,Schwz_shl,nSkal)
+
+Call mma_deallocate(Pair_Index)
 
 end subroutine Shell_MxSchwz
