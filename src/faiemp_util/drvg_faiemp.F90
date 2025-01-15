@@ -34,6 +34,7 @@ use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight, Half
+use Int_Options, only: DoIntegrals
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Disp, only: ChDisp
@@ -51,7 +52,7 @@ integer(kind=iwp) :: nBas_Valence(0:7), nBT, nBVT, i, iAng, iS, jS, &
 integer(kind=iwp) :: nSkal_Fragments
 #endif
 logical(kind=iwp) :: lDummy, DoGrad, DoFock, Indexation, Triangular, lNoSkip
-integer(kind=iwp), allocatable :: ij(:)
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
 logical(kind=iwp), external :: Rsv_GTList
 !                                                                      *
@@ -117,18 +118,31 @@ end do
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(ij,nSkal*(nSkal+1),label='ij')
+call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2,label='Pair_Index')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
     if (TMax_All*TMax(iS,jS) >= CutInt) then
       nij = nij+1
-      ij(nij*2-1) = iS
-      ij(nij*2) = jS
+      Pair_Index(1,nij) = iS
+      Pair_Index(2,nij) = jS
     end if
   end do
 end do
 P_Eff = real(nij,kind=wp)
+
+! Update TMax with the analytical values
+DoIntegrals = .True.
+Call Drv2El_ijij(Pair_Index,nij,TMax,nSkal)
+! Update TMax_all
+TMax_all = Zero
+do iS=1,nSkal
+  do jS=1,iS
+    TMax_all = max(TMax_all,TMax(iS,jS))
+  end do
+end do
+
+DoIntegrals=.False.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -138,9 +152,6 @@ call Init_PPList()
 call Init_GTList()
 iOpt = 0
 Temp(:) = Zero
-#ifdef _DEBUGPRINT_
-call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',Grad,nGrad,ChDisp)
-#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -166,10 +177,10 @@ do
       ijS = ijS+1
       klS = 1
     end if
-    iS = ij(ijS*2-1)
-    jS = ij(ijS*2)
-    kS = ij(klS*2-1)
-    lS = ij(klS*2)
+    iS = Pair_Index(1,ijS)
+    jS = Pair_Index(2,ijS)
+    kS = Pair_Index(1,klS)
+    lS = Pair_Index(2,klS)
 
     A_int = TMax(iS,jS)*TMax(kS,lS)
 
@@ -202,7 +213,7 @@ call mma_deallocate(Sew_Scr,safe='*')
 call Free_GTList()
 call Free_PPList()
 call Free_TList()
-call mma_deallocate(ij)
+call mma_deallocate(Pair_Index)
 call mma_deallocate(TMax)
 !                                                                      *
 !***********************************************************************
