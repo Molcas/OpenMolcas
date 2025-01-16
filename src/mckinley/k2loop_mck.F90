@@ -80,12 +80,6 @@ do lDCRR=0,nDCRR-1
   ! Find the largest integral estimate (AO Basis).
 
   Tst = -One
-  do iZeta=1,nZeta
-    Tst = max(k2Data(lDCRR+1)%Zeta(iZeta),Tst)
-  end do
-  k2data(lDCRR+1)%ZetaM = tst
-
-  Tst = -One
   ZtMax = Zero
   abMax = Zero
   do iZeta=1,nZeta
