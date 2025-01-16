@@ -46,7 +46,10 @@ real(kind=wp), intent(out) :: Wk002(m002)
 real(kind=wp), intent(inout) :: Wk003(m003)
 integer(kind=iwp) :: iZeta, lDCRR, nZeta
 real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
-real(kind=wp), external :: EstI
+
+#include "macros.fh"
+unused_var(Coeff1)
+unused_var(Coeff2)
 
 nZeta = nAlpha*nBeta
 
@@ -68,12 +71,6 @@ do lDCRR=0,nDCRR-1
                   k2Data(lDCRR+1)%PCoor,nZeta,Wk002,m002,Wk003,m003)
 
   call PckInt_mck(Wk002,nZeta,ijCmp,k2Data(lDCRR+1)%ab)
-  !                                                                  *
-  !*******************************************************************
-  !                                                                  *
-  ! Estimate the largest contracted integral.
-
-  k2data(lDCRR+1)%EstI = EstI(nAlpha,nBeta,Coeff1,iBasn,Coeff2,jBasn,k2Data(lDCRR+1)%ab,Wk002,m002,k2Data(lDCRR+1)%IndZ)
   !                                                                  *
   !*******************************************************************
   !                                                                  *
