@@ -226,7 +226,7 @@ do lDCRR=0,nDCRR-1
       abMaxD = Zero
     end if
   end do
-  k2Data(lDCRR+1)%abMax = abMax
+  k2Data(lDCRR+1)%abConMax = abMax
   k2Data(lDCRR+1)%abMaxD = abMaxD
   !                                                                    *
   !*********************************************************************

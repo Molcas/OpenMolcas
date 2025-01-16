@@ -167,7 +167,7 @@ ipAOInt = 1
 iW3 = 1+nInts
 iW4 = 1
 
-vijkl = k2Data1(1)%abMax*k2Data2(1)%abMax
+vijkl = k2Data1(1)%abConMax*k2Data2(1)%abConMax
 
 Batch_On_Disk = (vijkl > Thize) .and. (Disc+real(nInts+2+2/RtoI,kind=wp) <= Disc_Mx)
 

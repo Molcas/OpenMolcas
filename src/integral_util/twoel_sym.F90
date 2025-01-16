@@ -233,7 +233,7 @@ do lDCRR=0,nDCRR-1
 
   lDCR1 = NrOpr(iDCRR(lDCRR))+1
 
-  vijij = k2Data1(lDCR1)%abMax
+  vijij = k2Data1(lDCR1)%abConMax
 
   ! switch (to generate better start orbitals...)
   if (twoel_NDDO .and. (.not. AeqB)) cycle
@@ -252,7 +252,7 @@ do lDCRR=0,nDCRR-1
 
     ! Pick up estimated largest integral value (AO)
 
-    vijkl = vijij*k2Data2(lDCR2)%abMax
+    vijkl = vijij*k2Data2(lDCR2)%abConMax
     outer: do lDCRT=0,nDCRT-1
       ipAOInt = 1
       iW3 = 1+nInts
