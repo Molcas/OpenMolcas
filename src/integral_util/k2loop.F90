@@ -214,15 +214,9 @@ do lDCRR=0,nDCRR-1
   abMax = Zero
   abMaxD = Zero
   do iZeta=0,Jnd-1
-    tmp = k2Data(lDCRR+1)%abCon(iZeta+1)
-    if (abMax < tmp) then
-      abMax = tmp
-    end if
+    abMax=Max(abMax,k2Data(lDCRR+1)%abCon(iZeta+1))
     if (DoFock) then
-      tmp = k2Data(lDCRR+1)%ab(iZeta+1)*Dij(iOffZ+iZeta,lDCRR+1)
-      if (abMaxD < tmp) then
-        abMaxD = tmp
-      end if
+      abMaxD = Max(abMaxD,k2Data(lDCRR+1)%ab(iZeta+1)*Dij(iOffZ+iZeta,lDCRR+1))
     else
       abMaxD = Zero
     end if
