@@ -63,6 +63,7 @@ do lDCRR=0,nDCRR-1
 
   ! Compute Zeta, P and kappa.
 
+If (.False.) Then
   call DoZeta(Alpha,nAlpha,Beta,nBeta,CoorM(1,1),CoorM(1,2),k2Data(lDCRR+1)%PCoor,k2Data(lDCRR+1)%Zeta,k2Data(lDCRR+1)%Kappa, &
               k2Data(lDCRR+1)%ZInv,k2Data(lDCRR+1)%Alpha,k2Data(lDCRR+1)%Beta,k2Data(lDCRR+1)%IndZ)
 
@@ -70,6 +71,7 @@ do lDCRR=0,nDCRR-1
                   k2Data(lDCRR+1)%PCoor,nZeta,Wk002,m002,Wk003,m003)
 
   call PckInt_mck(Wk002,nZeta,ijCmp,k2Data(lDCRR+1)%ab)
+endif
 end do
 
 end subroutine k2Loop_mck

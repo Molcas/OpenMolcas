@@ -77,7 +77,7 @@ else
   CoorAC(:,2) = CoorM(:,4)
 end if
 
-mZeta = nAlpha*nBeta
+mZeta = nZeta
 
 ! Compute [a0|c0], ijkl,a,c
 
