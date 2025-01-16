@@ -39,7 +39,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: iAng, iBas, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ik2, ipM001, ipM002, &
                      ipM003, ipM004, iPrim, iPrInc, iS, iSD4(0:nSD,4), iShll, jAng, jBas, jCnt, jCnttp, &
-                     jPrim, jPrInc, jS, jShll, kPrInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, mk2, &
+                     jPrim, jPrInc, jS, jShll, kPrInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, &
                      nDCRR, nHrrab, nMemab, nSkal, nSO
 real(kind=wp) :: Coor(3,2)
 real(kind=wp), allocatable :: Wrk(:)
@@ -57,7 +57,6 @@ ipM001 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-mk2 = 0
 do iS=1,nSkal
   iSD4(:,1) = iSD(:,iS)
   iSD4(:,3) = iSD(:,iS)
@@ -140,8 +139,6 @@ do iS=1,nSkal
 
     call k2Loop_mck(Coor,iSD4(1,:),iDCRR,nDCRR,k2Data(:,ik2),ijCmp,Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim, &
                     Shells(iShll)%pCff,iBas,Shells(jShll)%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
-
-    mk2 = mk2+nDCRR
 
   end do
 end do
