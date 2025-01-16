@@ -40,10 +40,8 @@
 !                                                                      *
 !      Scalars:                                                        *
 !      EstI   : Estimated largest contracted integral |(ab|ab)|^{1/2}  *
-!      ZtMax  : Z of the largest abCon                                 *
 !      abMax  : largest abCon                                          *
 !      ZetaM  : largest Zeta value                                     *
-!      ZtMaxD : Z of the largest ab * D                                *
 !      abMaxD : largest ab * D                                         *
 !                                                                      *
 !      Auxiliary arrays:                                               *
@@ -71,7 +69,7 @@ private
 type k2_type
   integer(kind=iwp) :: nZeta = 0, ijCmp = 0, nHm = 0
   integer(kind=iwp), pointer :: IndZ(:) => null()
-  real(kind=wp) :: EstI = Zero, ZtMax = Zero, ZtMaxD = Zero, ZetaM = Zero, abMax = Zero, abMaxD = Zero
+  real(kind=wp) :: EstI = Zero, ZetaM = Zero, abMax = Zero, abMaxD = Zero
   real(kind=wp), pointer :: Zeta(:) => null(), Kappa(:) => null(), PCoor(:,:) => null(), ZInv(:) => null(), ab(:) => null(), &
                             abG(:,:) => null(), abCon(:) => null(), Alpha(:) => null(), Beta(:) => null(), HrrMtrx(:,:) => null()
 end type k2_type

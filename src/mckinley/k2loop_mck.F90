@@ -45,7 +45,7 @@ type(k2_type), intent(inout) :: k2Data(nDCRR)
 real(kind=wp), intent(out) :: Wk002(m002)
 real(kind=wp), intent(inout) :: Wk003(m003)
 integer(kind=iwp) :: iZeta, lDCRR, nZeta
-real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst, ZtMax
+real(kind=wp) :: abMax, CoorM(3,4), tmp, Tst
 
 #include "macros.fh"
 unused_var(Coeff1)
@@ -77,20 +77,15 @@ do lDCRR=0,nDCRR-1
   ! Find the largest integral estimate (AO Basis).
 
   Tst = -One
-  ZtMax = Zero
   abMax = Zero
   do iZeta=1,nZeta
     tmp = k2Data(lDCRR+1)%ab(iZeta)
     if (Tst < tmp) then
       Tst = tmp
-      ZtMax = k2Data(lDCRR+1)%Zeta(iZeta)
       abMax = k2Data(lDCRR+1)%ab(iZeta)
     end if
   end do
-  k2data(lDCRR+1)%ZtMax = ZtMax
   k2data(lDCRR+1)%abMax = abMax
 end do
-
-return
 
 end subroutine k2Loop_mck

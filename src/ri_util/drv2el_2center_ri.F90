@@ -52,7 +52,7 @@ real(kind=wp), intent(in) :: ThrAO
 real(kind=wp), allocatable, intent(out) :: A_Diag(:)
 integer(kind=iwp), intent(out) :: MaxCntr
 integer(kind=iwp) :: iAddr, iAddr_AQ(0:7), iIrrep, ip_A_n, ipAs_Diag, iS, iSeed, jS, kCol, kCol_Irrep(0:7), kS, lJ, lS, mB, &
-                     MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero, nij
+                     MemLow, MemSew, nA_Diag, nB, nBfn2, nBfnTot, nSkal, nTInt, nTInt_, nZero
 real(kind=wp) :: A_int, TCpu1, TCpu2, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 character(len=6) :: Name_Q
