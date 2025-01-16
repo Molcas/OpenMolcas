@@ -74,6 +74,7 @@ call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
 
 ipDijS = 0
 ipDijS2 = 0
+lpick = lgrad .and. (nIrrep/=1)
 
 ndisp = 0
 nACO = 0
@@ -302,31 +303,11 @@ do iS=1,nSkal
     end if
   end do
 end do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Precompute k2 entities. (again) Not that this will overwrite stuff
-! in the k2data array. DO NOT move the call up!!!
-
-lpick = lgrad .and. (nIrrep/=1)
-
-!call Drvk2_mck()
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call Init_Tsk(id_Tsk,nij)
-!                                                                    *
-!*********************************************************************
-!                                                                    *
-! Cltrls for MO transformation
-!                                                                    *
-!*********************************************************************
-!                                                                    *
 Call mma_allocate(Buffer,nBuffer,Label='Buffer')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+call Init_Tsk(id_Tsk,nij)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
