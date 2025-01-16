@@ -34,7 +34,7 @@ subroutine k2Loop_mck(Coor,iAnga,iDCRR,nDCRR,k2data, &
 !             By Anders Bernhardsson                                   *
 !***********************************************************************
 
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 use k2_structure, only: k2_type
 
@@ -45,7 +45,7 @@ type(k2_type), intent(inout) :: k2Data(nDCRR)
 real(kind=wp), intent(out) :: Wk002(m002)
 real(kind=wp), intent(inout) :: Wk003(m003)
 integer(kind=iwp) :: iZeta, lDCRR, nZeta
-real(kind=wp) :: abMax, CoorM(3,4), tmp
+real(kind=wp) :: abMax, CoorM(3,4)
 
 #include "macros.fh"
 unused_var(Coeff1)

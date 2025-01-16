@@ -62,7 +62,7 @@ logical(kind=iwp), intent(in) :: DoFock, DoGrad
 integer(kind=iwp) :: i_Int, iCmp, iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShlla, iSmAng, iw2, iw3, iZeta, jCmpb_, Jnd, jShllb, la, &
                      lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, nDisp, ne, nT, iAnga(4), iCmpa(4), &
                      iShll(4)
-real(kind=wp) :: abMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, Tmp, Tst
+real(kind=wp) :: abMax, abConMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, Tmp, Tst
 logical(kind=iwp) :: AeqB, NoSpecial
 procedure(cff2d_kernel) :: Cff2DS
 procedure(modu2_kernel) :: ModU2
@@ -212,16 +212,19 @@ do lDCRR=0,nDCRR-1
 
   iOffZ = nDij-nZeta-1
   abMax = Zero
+  abConMax = Zero
   abMaxD = Zero
   do iZeta=0,Jnd-1
-    abMax=Max(abMax,k2Data(lDCRR+1)%abCon(iZeta+1))
+    abConMax=Max(abConMax,k2Data(lDCRR+1)%abCon(iZeta+1))
+    abMax=Max(abMax,k2Data(lDCRR+1)%ab(iZeta+1))
     if (DoFock) then
       abMaxD = Max(abMaxD,k2Data(lDCRR+1)%ab(iZeta+1)*Dij(iOffZ+iZeta,lDCRR+1))
     else
       abMaxD = Zero
     end if
   end do
-  k2Data(lDCRR+1)%abConMax = abMax
+  k2Data(lDCRR+1)%abMax = abMax
+  k2Data(lDCRR+1)%abConMax = abConMax
   k2Data(lDCRR+1)%abMaxD = abMaxD
 
   If (DoHess_) Then
