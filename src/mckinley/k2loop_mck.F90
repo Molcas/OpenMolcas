@@ -34,7 +34,6 @@ subroutine k2Loop_mck(Coor,iAnga,iDCRR,nDCRR,k2data, &
 !             By Anders Bernhardsson                                   *
 !***********************************************************************
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp
 use k2_structure, only: k2_type
 
@@ -44,8 +43,8 @@ real(kind=wp), intent(in) :: Coor(3,2), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlph
 type(k2_type), intent(inout) :: k2Data(nDCRR)
 real(kind=wp), intent(out) :: Wk002(m002)
 real(kind=wp), intent(inout) :: Wk003(m003)
-integer(kind=iwp) :: iZeta, lDCRR, nZeta
-real(kind=wp) :: abMax, CoorM(3,4)
+integer(kind=iwp) :: lDCRR, nZeta
+real(kind=wp) :: CoorM(3,4)
 
 #include "macros.fh"
 unused_var(Coeff1)
@@ -71,17 +70,6 @@ do lDCRR=0,nDCRR-1
                   k2Data(lDCRR+1)%PCoor,nZeta,Wk002,m002,Wk003,m003)
 
   call PckInt_mck(Wk002,nZeta,ijCmp,k2Data(lDCRR+1)%ab)
-  !                                                                  *
-  !*******************************************************************
-  !                                                                  *
-  ! Find the largest integral estimate (AO Basis).
-
-  abMax = Zero
-  do iZeta=1,nZeta
-    abMax = Max(abMax, k2Data(lDCRR+1)%ab(iZeta))
-  end do
-
-! k2data(lDCRR+1)%abMax = abMax
 end do
 
 end subroutine k2Loop_mck
