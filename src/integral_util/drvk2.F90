@@ -52,7 +52,7 @@ integer(kind=iwp) :: iAng, iBas, iCmp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij
                      iPrimi, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jPrim, jPrimj, &
                      jS, jShell, jShll, la_, mabMax_, mabMin_, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
                      mScree, nBasi, nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iPrimSave(4)
-real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
+real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
 real(kind=wp), allocatable :: HRRMtrx(:,:), Knew(:), Lnew(:), Pnew(:), Qnew(:), Scr(:,:)
@@ -67,10 +67,6 @@ if (index(ProgName,'scf') /= 0) then
   call Get_cArray('Relax Method',Method,8)
   ReOrder = Method == 'KS-DFT'
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call CWTime(TCpu1,TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -301,10 +297,5 @@ write(u6,*)
 !                                                                      *
 
 k2_processed = .true.
-call CWTime(TCpu2,TWall2)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-return
 
 end subroutine Drvk2

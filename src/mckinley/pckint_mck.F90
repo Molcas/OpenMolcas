@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 subroutine PckInt_mck(abab,nZeta,nab,ab)
 
 use Constants, only: Zero
@@ -20,17 +20,16 @@ integer(kind=iwp), intent(in) :: nZeta, nab
 real(kind=wp), intent(in) :: abab(nZeta,nab,nab)
 real(kind=wp), intent(out) :: ab(nZeta)
 integer(kind=iwp) :: iab, iZeta
-real(kind=wp) :: xMax, xTest
+real(kind=wp) :: Temp
 
 ! Integrals
 
 do iZeta=1,nZeta
-  xMax = Zero
+  Temp = Zero
   do iab=1,nab
-    xTest = abs(abab(iZeta,iab,iab))
-    if (xTest > xMax) xMax = xTest
+    Temp = Max(Temp,abs(abab(iZeta,iab,iab)))
   end do
-  ab(iZeta) = sqrt(xMax)
+  ab(iZeta) = sqrt(Temp)
 end do
 
 #ifdef _DEBUGPRINT_
@@ -38,6 +37,5 @@ call recprt('abab',' ',abab,nZeta,nab*2)
 call recprt('ab',' ',ab,nZeta,1)
 #endif
 
-return
 
 end subroutine PckInt_mck

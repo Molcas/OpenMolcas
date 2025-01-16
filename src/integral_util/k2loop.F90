@@ -38,6 +38,7 @@ use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
+use k2_arrays, only: DoHess_
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
@@ -228,6 +229,19 @@ do lDCRR=0,nDCRR-1
   end do
   k2Data(lDCRR+1)%abConMax = abMax
   k2Data(lDCRR+1)%abMaxD = abMaxD
+
+  If (DoHess_) Then
+    Tst = -One
+    abMax = Zero
+    do iZeta=1,nZeta
+      tmp = k2Data(lDCRR+1)%ab(iZeta)
+      if (Tst < tmp) then
+        Tst = tmp
+        abMax = k2Data(lDCRR+1)%ab(iZeta)
+      end if
+    end do
+    k2data(lDCRR+1)%abMax = abMax
+  End If
   !                                                                    *
   !*********************************************************************
   !                                                                    *
