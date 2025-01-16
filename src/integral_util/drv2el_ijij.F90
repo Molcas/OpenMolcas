@@ -33,7 +33,7 @@ use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Integral_interfaces, only: Int_PostProcess, int_wrout
-use Int_Options, only: DoIntegrals, DoFock, W2Disc, Disc_Mx
+use Int_Options, only: DoIntegrals, DoFock, Disc_Mx
 use Basis_Info, only: Shells
 use Definitions, only: wp, iwp
 use k2_arrays, only: Sew_Scr
