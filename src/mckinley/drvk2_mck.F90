@@ -33,7 +33,6 @@ use k2_structure, only: k2data
 use iSD_data, only: iSD, nSD
 use Basis_Info, only: dbsc, Shells
 use Symmetry_Info, only: iOper, nIrrep
-use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
@@ -41,18 +40,14 @@ implicit none
 integer(kind=iwp) :: iAng, iBas, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ik2, ipM001, ipM002, &
                      ipM003, ipM004, iPrim, iPrInc, iS, iSD4(0:nSD,4), iShll, jAng, jBas, jCnt, jCnttp, &
                      jPrim, jPrInc, jS, jShll, kPrInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, mk2, &
-                     nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
+                     nDCRR, nHrrab, nMemab, nSkal, nSO
 real(kind=wp) :: Coor(3,2)
-real(kind=wp), allocatable :: Con(:), Wrk(:)
+real(kind=wp), allocatable :: Wrk(:)
 
 DoGrad_ = .false.
 DoHess_ = .true.
 call Nr_Shells(nSkal)
 call Allok2()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call mma_allocate(Con,S%m2Max,Label='Con')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -103,8 +98,6 @@ do iS=1,nSkal
 
     iSD4(5,1) = iPrim
     iSD4(5,2) = jPrim
-    nBasi = Shells(iShll)%nBasis
-    nBasj = Shells(jShll)%nBasis
 
     iSD4(5,3) = 1
     iSD4(5,4) = 1
@@ -113,8 +106,6 @@ do iS=1,nSkal
     iSD4(3,2) = jPrim
     iSD4(3,3) = 1
     iSD4(3,4) = 1
-
-    call ConMax(Con,iPrim,jPrim,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
     iCmpV(3:4) = iCmpV(1:2)
 
@@ -158,7 +149,6 @@ end do
 !***********************************************************************
 !                                                                      *
 call mma_deallocate(Wrk)
-call mma_deallocate(Con)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
