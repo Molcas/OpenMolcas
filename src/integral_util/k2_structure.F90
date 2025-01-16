@@ -56,7 +56,7 @@
 !              April 1999                                              *
 !                                                                      *
 !      Converted from statement functions by A. May June 2012          *
-!      Converted to a user defined type bt R.L. October 2023           *
+!      Converted to a user defined type by R.L. October 2023           *
 !***********************************************************************
 
 module k2_structure

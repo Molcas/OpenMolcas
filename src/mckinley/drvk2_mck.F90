@@ -28,7 +28,6 @@ Subroutine Drvk2_mck()
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem1
-use k2_arrays, only: DoGrad_, DoHess_
 use k2_structure, only: k2data
 use iSD_data, only: iSD, nSD
 use Basis_Info, only: dbsc, Shells
@@ -44,10 +43,7 @@ integer(kind=iwp) :: iAng, iBas, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ik2,
 real(kind=wp) :: Coor(3,2)
 real(kind=wp), allocatable :: Wrk(:)
 
-DoGrad_ = .false.
-DoHess_ = .true.
 call Nr_Shells(nSkal)
-call Allok2()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
