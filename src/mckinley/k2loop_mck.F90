@@ -80,13 +80,8 @@ do lDCRR=0,nDCRR-1
   do iZeta=1,nZeta
     abMax = Max(abMax, k2Data(lDCRR+1)%ab(iZeta))
   end do
-! If (Abs(k2data(lDCRR+1)%abMax - abMax)> 1.0D-8) Then
-!    Write (6,*) 'k2loop_mck'
-!    Write (6,*) k2data(lDCRR+1)%abMax , abMax
-!    Call abend()
-! End If
 
-  k2data(lDCRR+1)%abMax = abMax
+! k2data(lDCRR+1)%abMax = abMax
 end do
 
 end subroutine k2Loop_mck

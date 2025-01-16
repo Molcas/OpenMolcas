@@ -108,6 +108,4 @@ call HRR(la,lb,CoorM(1,1),CoorM(1,2),Work2,ijklcd,nMemab,ipIn)
 call CrSph2(Work2(ipIn),mZeta,nTri_Elem1(la)*nTri_Elem1(lb),Work3,nWork3,RSph(ipSph(la)),nTri_Elem1(la),nTri_Elem1(la),.false., &
             RSph(ipSph(lb)),nTri_Elem1(lb),nTri_Elem1(lb),.false.,Work2,nTri_Elem1(la)*nTri_Elem1(lb))
 
-return
-
 end subroutine SchInt_mck
