@@ -180,43 +180,6 @@ do iS=1,nSkal_Auxiliary-1
   TMax_all_a = max(TMax_all_a,Tmp(jS_,iS_))
 end do
 
-call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2)
-nij=0
-Do iS=1,nSkal_Valence
-   Do jS=1,iS
-      if (TMax_all_a*Tmp(iS,jS) >= CutInt) then
-         nij = nij+1
-         Pair_Index(1,nij) = iS
-         Pair_Index(2,nij) = jS
-      end if
-   End do
-End do
-iS=nSkal_Valence+nSkal_Auxiliary
-Do jS=1,1,nSkal_Auxiliary-1
-   jS_ = jS+nSkal_Valence
-   If (TMax_all_v*Tmp(iS,jS_) <= CutInt) then
-      nij = nij+1
-      Pair_Index(1,nij)=iS
-      Pair_Index(2,nij)=jS_
-   end if
-end do
-! Update TMax with the analytical values
-Call Drv2El_ijij(Pair_Index,nij,Tmp,nSkal)
-
-do iS=1,nSkal_Valence
-  do jS=1,iS
-    TMax_Valence(iS,jS) = Tmp(iS,jS)
-    TMax_Valence(jS,iS) = Tmp(iS,jS)
-  end do
-end do
-TMax_all_a = Zero
-jS_ = nSkal_Valence+nSkal_Auxiliary
-do iS=1,nSkal_Auxiliary-1
-  iS_ = iS+nSkal_Valence
-  TMax_Auxiliary(iS) = Tmp(jS_,iS_)
-end do
-
-call mma_deallocate(Pair_Index)
 call mma_deallocate(Tmp)
 !                                                                      *
 !***********************************************************************
