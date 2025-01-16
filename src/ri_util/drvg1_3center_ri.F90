@@ -70,7 +70,7 @@ real(kind=wp) :: A_int, A_int_ij, A_int_kl, Dm_ij, ExFac, PZmnij, SDGmn, ThrAO, 
 character(len=80) :: KSDFT
 character(len=8) :: Method
 logical(kind=iwp) :: DoFock, DoGrad, FlipFlop, Found, Indexation
-integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:), Pair_Index(:,:)
+integer(kind=iwp), allocatable :: LBList(:), Shij(:,:), Shij2(:,:)
 real(kind=wp), allocatable :: CVec(:,:), CVec2(:,:,:), MaxDens(:), SDG(:), Thhalf(:), TMax_Auxiliary(:), TMax_Valence(:,:), &
                               Tmp(:,:), Xmi(:,:,:,:)
 integer(kind=iwp), external :: Cho_irange
