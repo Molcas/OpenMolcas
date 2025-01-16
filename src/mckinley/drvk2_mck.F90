@@ -28,7 +28,7 @@ Subroutine Drvk2_mck()
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem1
-use k2_arrays, only: DoGrad_, DoHess_, nDeDe
+use k2_arrays, only: DoGrad_, DoHess_
 use k2_structure, only: Indk2, k2data
 use iSD_data, only: iSD, nSD
 use Basis_Info, only: dbsc, Shells
@@ -38,14 +38,12 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), iDeSiz, ijCmp, ijShll, ik2, ipM001, ipM002, &
-                     ipM003, ipM004, iPrim, iPrInc, iS, iSD4(0:nSD,4), iShell, iShll, iSmLbl, jAng, jAO, jBas, jCmp, jCnt, jCnttp, &
+integer(kind=iwp) :: iAng, iBas, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijShll, ik2, ipM001, ipM002, &
+                     ipM003, ipM004, iPrim, iPrInc, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCnt, jCnttp, &
                      jPrim, jPrInc, jS, jShell, jShll, kPrInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, &
                      nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
 real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
 real(kind=wp), allocatable :: Con(:), Wrk(:)
-integer(kind=iwp), parameter :: nHm = 0
-integer(kind=iwp), external :: MemSO1
 
 !                                                                      *
 !***********************************************************************
@@ -76,7 +74,6 @@ ipM001 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-ndede = 0
 mk2 = 0
 do iS=1,nSkal
   iSD4(:,1) = iSD(:,iS)
@@ -84,10 +81,8 @@ do iS=1,nSkal
 
   iShll = iSD4(0,1)
   iAng = iSD4(1,1)
-  iCmp = iSD4(2,1)
   iBas = iSD4(3,1)
   iPrim = iSD4(5,1)
-  iAO = iSD4(7,1)
   iShell = iSD4(11,1)
   iCnttp = iSD4(13,1)
   iCnt = iSD4(14,1)
@@ -103,10 +98,8 @@ do iS=1,nSkal
 
     jShll = iSD4(0,2)
     jAng = iSD4(1,2)
-    jCmp = iSD4(2,2)
     jBas = iSD4(3,2)
     jPrim = iSD4(5,2)
-    jAO = iSD4(7,2)
     jShell = iSD4(11,2)
     jCnttp = iSD4(13,2)
     jCnt = iSD4(14,2)
@@ -177,15 +170,6 @@ do iS=1,nSkal
     Indk2(3,ijShll) = ik2
     mk2 = mk2+nDCRR
 
-    if (nIrrep==1) then
-      iDeSiz = 1+iPrim*jPrim+iCmp*jCmp
-    else
-      iDeSiz = 1+iPrim*jPrim+(iBas*jBas+1)*iCmp*jCmp
-    end if
-    iSmLbl = 1
-    nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
-    if (nSO > 0) nDeDe = nDeDe+iDeSiz*nDCRR
-
   end do
 end do
 !                                                                      *
@@ -205,6 +189,5 @@ write(u6,'(A)') ' The prescreening is based on the integral estimates.'
 
 call CWTime(TCpu2,TWall2)
 
-return
 
 end subroutine Drvk2_mck
