@@ -29,7 +29,7 @@ Subroutine Drvk2_mck()
 
 use Index_Functions, only: iTri, nTri_Elem1
 use k2_arrays, only: DoGrad_, DoHess_
-use k2_structure, only: Indk2, k2data
+use k2_structure, only: k2data
 use iSD_data, only: iSD, nSD
 use Basis_Info, only: dbsc, Shells
 use Symmetry_Info, only: iOper, nIrrep
@@ -38,17 +38,12 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iAng, iBas, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijShll, ik2, ipM001, ipM002, &
-                     ipM003, ipM004, iPrim, iPrInc, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCnt, jCnttp, &
-                     jPrim, jPrInc, jS, jShell, jShll, kPrInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, MemTmp, mk2, &
+integer(kind=iwp) :: iAng, iBas, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ik2, ipM001, ipM002, &
+                     ipM003, ipM004, iPrim, iPrInc, iS, iSD4(0:nSD,4), iShll, jAng, jBas, jCnt, jCnttp, &
+                     jPrim, jPrInc, jS, jShll, kPrInc, lPrInc, M001, M002, M003, M004, M00d, MaxMem, MemPrm, mk2, &
                      nBasi, nBasj, nDCRR, nHrrab, nMemab, nSkal, nSO
-real(kind=wp) :: Coor(3,2), TCpu1, TCpu2, TWall1, TWall2
+real(kind=wp) :: Coor(3,2)
 real(kind=wp), allocatable :: Con(:), Wrk(:)
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call CWTime(TCpu1,TWall1)
 
 DoGrad_ = .false.
 DoHess_ = .true.
@@ -58,13 +53,6 @@ call Allok2()
 !***********************************************************************
 !                                                                      *
 call mma_allocate(Con,S%m2Max,Label='Con')
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-MemTmp = 0
-do iAng=0,S%iAngMx
-  MemTmp = max(MemTmp,(S%MaxPrm(iAng)*nTri_Elem1(iAng))**2)
-end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -83,7 +71,6 @@ do iS=1,nSkal
   iAng = iSD4(1,1)
   iBas = iSD4(3,1)
   iPrim = iSD4(5,1)
-  iShell = iSD4(11,1)
   iCnttp = iSD4(13,1)
   iCnt = iSD4(14,1)
   Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
@@ -100,7 +87,6 @@ do iS=1,nSkal
     jAng = iSD4(1,2)
     jBas = iSD4(3,2)
     jPrim = iSD4(5,2)
-    jShell = iSD4(11,2)
     jCnttp = iSD4(13,2)
     jCnt = iSD4(14,2)
     Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
@@ -131,8 +117,6 @@ do iS=1,nSkal
     call ConMax(Con,iPrim,jPrim,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
     iCmpV(3:4) = iCmpV(1:2)
-
-    ijShll = iTri(iShell,jShell)
 
     nSO = 1
 
@@ -166,8 +150,6 @@ do iS=1,nSkal
     call k2Loop_mck(Coor,iSD4(1,:),iDCRR,nDCRR,k2Data(:,ik2),ijCmp,Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim, &
                     Shells(iShll)%pCff,iBas,Shells(jShll)%pCff,jBas,nMemab,Wrk(ipM002),M002,Wrk(ipM003),M003)
 
-    Indk2(2,ijShll) = nDCRR
-    Indk2(3,ijShll) = ik2
     mk2 = mk2+nDCRR
 
   end do
@@ -180,14 +162,5 @@ call mma_deallocate(Con)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-#ifdef _DEBUGPRINT_
-write(u6,*)
-write(u6,'(20X,A)') ' *** The k2 entities have been precomputed ***'
-write(u6,'(I7,A)') mk2,' blocks of k2 data were computed.'
-write(u6,'(A)') ' The prescreening is based on the integral estimates.'
-#endif
-
-call CWTime(TCpu2,TWall2)
-
 
 end subroutine Drvk2_mck
