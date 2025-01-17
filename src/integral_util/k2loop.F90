@@ -14,7 +14,7 @@
 
 !#define _DEBUGPRINT_
 subroutine k2Loop(Coor,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta, &
-                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,Dij,nDij,nDCR,ijCmp,DoFock,Scr,nScr,Knew, &
+                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,ijCmp,DoFock,Scr,nScr,Knew, &
                   Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
@@ -38,8 +38,9 @@ use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
-use k2_arrays, only: DoHess_
+use k2_arrays, only: DeDe, DoHess_
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
+use Dens_Stuff, only: ipDij, nDCR=>mDCRij, nDij=>mDij
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -48,9 +49,8 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iDCRR(0:7), nDCRR, nAlpha, nBeta, iBasn, jBasn, nZeta, IncZZ, &
-                                 nWork2, nDij, nDCR, ijCmp, nScr, nNew, nHRRMtrx, nSD, iSD4(0:nSD,4)
-real(kind=wp), intent(in) :: Coor(3,4), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Con(nZeta), &
-                             Dij(nDij,nDCR)
+                                 nWork2, ijCmp, nScr, nNew, nHRRMtrx, nSD, iSD4(0:nSD,4)
+real(kind=wp), intent(in) :: Coor(3,4), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Con(nZeta)
 type(k2_type), intent(inout) :: k2data(nDCRR)
 real(kind=wp), intent(out) :: Alpha_(nZeta), Beta_(nZeta), Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3), Scr(nScr,3), &
                               Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3), HMtrx(nHrrMtrx,2)
@@ -62,7 +62,7 @@ logical(kind=iwp), intent(in) :: DoFock, DoGrad
 integer(kind=iwp) :: i_Int, iCmp, iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShlla, iSmAng, iw2, iw3, iZeta, jCmpb_, Jnd, jShllb, la, &
                      lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, nDisp, ne, nT, iAnga(4), iCmpa(4), &
                      iShll(4)
-real(kind=wp) :: abMax, abConMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, Tmp, Tst
+real(kind=wp) :: abMax, abConMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, ZetaM
 logical(kind=iwp) :: AeqB, NoSpecial
 procedure(cff2d_kernel) :: Cff2DS
 procedure(modu2_kernel) :: ModU2
@@ -70,10 +70,14 @@ procedure(rys2d_kernel) :: Rys2D
 procedure(tval_kernel) :: TERIS
 logical(kind=iwp), external :: EQ, TF
 real(kind=wp), external :: EstI
+real(kind=wp), pointer :: Dij(:,:)=>null()
 
 iShll(:)=iSD4(0,:)
 iAnga(:)=iSD4(1,:)
 iCmpa(:)=iSD4(2,:)
+
+If (DoFock) Dij(1:nDij,1:nDCR)=>DeDe(ipDij:ipDij+nDij*nDCR-1)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -204,11 +208,11 @@ do lDCRR=0,nDCRR-1
   !                                                                    *
   ! Find the largest integral estimate (AO Basis).
 
-  Tst = -One
-  do iZeta=1,nZeta
-    Tst = max(k2Data(lDCRR+1)%Zeta(iZeta),Tst)
+  ZetaM = -One
+  do iZeta=1,Jnd
+    ZetaM = max(k2Data(lDCRR+1)%Zeta(iZeta),ZetaM)
   end do
-  k2Data(lDCRR+1)%ZetaM = tst
+  k2Data(lDCRR+1)%ZetaM = ZetaM
 
   iOffZ = nDij-nZeta-1
   abMax = Zero
@@ -228,14 +232,9 @@ do lDCRR=0,nDCRR-1
   k2Data(lDCRR+1)%abMaxD = abMaxD
 
   If (DoHess_) Then
-    Tst = -One
     abMax = Zero
-    do iZeta=1,nZeta
-      tmp = k2Data(lDCRR+1)%ab(iZeta)
-      if (Tst < tmp) then
-        Tst = tmp
-        abMax = k2Data(lDCRR+1)%ab(iZeta)
-      end if
+    do iZeta=1,Jnd
+      abMax = Max(abMax,k2Data(lDCRR+1)%ab(iZeta))
     end do
     k2data(lDCRR+1)%abMax = abMax
   End If
@@ -356,6 +355,6 @@ do lDCRR=0,nDCRR-1
 # endif
 end do ! lDCRR
 
-return
+Dij=> Null()
 
 end subroutine k2Loop

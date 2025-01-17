@@ -43,7 +43,7 @@ real(kind=wp), intent(inout) :: xZeta(nijkl), xKapp(nijkl), xP(nijkl,3), xZInv(n
 integer(kind=iwp), intent(inout) :: IndZ(nijkl+1), Jnd
 logical(kind=iwp), intent(in) :: AeqB
 integer(kind=iwp) :: ia, ib, ijkl, ijkl_
-real(kind=wp) :: Check, Temp, Temp1, Temp2
+real(kind=wp) :: Check, abMax, abConMax
 
 #include "compiler_features.h"
 
@@ -68,17 +68,14 @@ if (AeqB) then
     ijkl_ = Ind_Pair(ijkl)
     xZInv(iOff+ijkl) = One/Zeta(ijkl)
 
-    Temp = Zero
+    abMax = Zero
     do ia=1,na
       do ib=1,nb
-#       ifdef _BUGGY_INTEL_OPTIM_
-        if (Jnd < -1) call Abend()
-#       endif
-        Temp = max(Temp,abs(abcd(ijkl,ia,ib,ia,ib)))
+        abMax = max(abMax,abs(abcd(ijkl,ia,ib,ia,ib)))
       end do
     end do
-    xab(ijkl+iOff) = sqrt(Temp)
-    xabCon(ijkl+iOff) = sqrt(Temp)*Con(ijkl_)
+    xab(ijkl+iOff) = sqrt(abMax)
+    xabCon(ijkl+iOff) = sqrt(abMax)*Con(ijkl_)
   end do
   Jnd = Jnd+mijkl
 else
@@ -86,19 +83,16 @@ else
     ijkl_ = Ind_Pair(ijkl)
 
     ! Select the largest element (over components)
-    Temp = Zero
+    abMax = Zero
     do ia=1,na
       do ib=1,nb
-#       ifdef _BUGGY_INTEL_OPTIM_
-        if (Jnd < -1) call Abend()
-#       endif
-        Temp = max(Temp,abs(abcd(ijkl,ia,ib,ia,ib)))
+        abMax = max(abMax,abs(abcd(ijkl,ia,ib,ia,ib)))
       end do
     end do
-    Temp1 = sqrt(Temp)
-    Temp2 = Temp1*Con(ijkl_)
+    abMax = sqrt(abMax)
+    abConMax = abMax*Con(ijkl_)
     if (lSchw) then
-      Check = Temp2*cdMax
+      Check = abConMax*cdMax
     else
       Check = KappAB(ijkl)*Con(ijkl)*RadMax
     end if
@@ -111,8 +105,8 @@ else
       xP(Jnd,3) = P(ijkl,3)
       xZInv(Jnd) = One/Zeta(ijkl)
       IndZ(Jnd) = Ind_Pair(ijkl)
-      xab(Jnd) = Temp1
-      xabCon(Jnd) = Temp2
+      xab(Jnd) = abMax
+      xabCon(Jnd) = abConMax
       xAlpha(Jnd) = Alpha(ijkl)
       xBeta(Jnd) = Beta(ijkl)
     end if
@@ -123,18 +117,16 @@ IndZ(nijkl+1) = Jnd
 #ifdef _DEBUGPRINT_
 write(u6,*) 'AeqB=',AeqB
 write(u6,*) 'IndZ=',IndZ
-call RecPrt('xZeta ',' ',xZeta,1,nijkl)
-call RecPrt('xKapp ',' ',xKapp,1,nijkl)
-call RecPrt('xP(x) ',' ',xP(1,1),1,nijkl)
-call RecPrt('xP(y) ',' ',xP(1,2),1,nijkl)
-call RecPrt('xP(z) ',' ',xP(1,3),1,nijkl)
-call RecPrt('xZInv ',' ',xZInv,1,nijkl)
-call RecPrt('xab   ',' ',xab,1,nijkl)
-call RecPrt('xabCon',' ',xabCon,1,nijkl)
-call RecPrt('xAlpha',' ',xAlpha,1,nijkl)
-call RecPrt('xBeta ',' ',xBeta,1,nijkl)
+call RecPrt('xZeta ',' ',xZeta,1,Jnd)
+call RecPrt('xKapp ',' ',xKapp,1,Jnd)
+call RecPrt('xP(x) ',' ',xP(1,1),1,Jnd)
+call RecPrt('xP(y) ',' ',xP(1,2),1,Jnd)
+call RecPrt('xP(z) ',' ',xP(1,3),1,Jnd)
+call RecPrt('xZInv ',' ',xZInv,1,Jnd)
+call RecPrt('xab   ',' ',xab,1,Jnd)
+call RecPrt('xabCon',' ',xabCon,1,Jnd)
+call RecPrt('xAlpha',' ',xAlpha,1,Jnd)
+call RecPrt('xBeta ',' ',xBeta,1,Jnd)
 #endif
-
-return
 
 end subroutine Cmpct
