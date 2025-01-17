@@ -44,7 +44,7 @@ integer(kind=iwp), intent(in):: nPairs, nSkal
 integer(kind=iwp), intent(in):: Pair_Index(2,nPairs)
 real(kind=wp), intent(inout) :: TMax(nSkal,nSkal)
 
-integer(kind=iwp) :: iCnttp, ijS, iS, jCnttp, jS, id_Tsk, iShll, jShll
+integer(kind=iwp) :: iCnttp, ijS, iS, jCnttp, jS, iShll, jShll
 real(kind=wp) :: A_int, Save_Disc_Mx
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:)
