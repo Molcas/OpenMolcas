@@ -48,7 +48,6 @@ integer(kind=iwp), allocatable :: Pair_Index(:,:)
 logical(kind=iwp), external :: Rsv_GTList
 procedure(int_wrout) :: Integral_WrOut2
 
-Write (6,*) 'Enter Drv2el'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -195,7 +194,6 @@ do
 end do
 call mma_deallocate(TInt)
 ! End of big task loop
-Write (6,*) 'Cleanup of Drv2el'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -218,6 +216,5 @@ call Term_Ints()
 call Free_iSD()
 call Init_Int_Options()
 nullify(Int_PostProcess)
-Write (6,*) 'Exit Drv2el'
 
 end subroutine Drv2El

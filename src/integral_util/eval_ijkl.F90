@@ -71,8 +71,6 @@ integer(kind=iwp), external :: MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
 integer(kind=iwp), parameter :: SCF = 1
-
-Write (6,*) 'Enter eva_ijkl'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -291,7 +289,6 @@ call Destroy_BraKet()
 #ifdef _DEBUGBREIT_
 call Set_Breit(0)
 # endif
-Write (6,*) 'exit eva_ijkl'
 
 contains
 
