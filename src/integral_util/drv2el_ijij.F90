@@ -49,7 +49,6 @@ real(kind=wp) :: A_int, Save_Disc_Mx
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:)
 integer(kind=iwp), parameter :: nTInt = 1
-logical(kind=iwp), external :: Rsv_Tsk
 logical(kind=iwp) :: Save(2)
 logical(kind=iwp) :: Deallocate_Sew_Scr
 procedure(int_wrout) :: Integral_ijij
@@ -84,10 +83,8 @@ call mma_allocate(TInt,nTint,Label='TInt')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Call Init_Tsk(id_Tsk,nPairs)
 
-do
-   If(.Not.Rsv_Tsk(id_Tsk,ijS)) exit
+do ijS = 1, nPairs
    iS = Pair_Index(1,ijS)
    jS = Pair_Index(2,ijS)
 
@@ -119,7 +116,6 @@ do
 
 end do
 
-call Free_Tsk(id_Tsk)
 call mma_deallocate(TInt)
 nullify(Int_PostProcess)
 
