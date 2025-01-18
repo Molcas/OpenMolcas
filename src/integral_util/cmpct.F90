@@ -71,6 +71,9 @@ if (AeqB) then
     abMax = Zero
     do ia=1,na
       do ib=1,nb
+#       ifdef _BUGGY_INTEL_OPTIM_
+        if (Jnd < -1) call Abend()
+#       endif
         abMax = max(abMax,abs(abcd(ijkl,ia,ib,ia,ib)))
       end do
     end do
@@ -86,6 +89,9 @@ else
     abMax = Zero
     do ia=1,na
       do ib=1,nb
+#       ifdef _BUGGY_INTEL_OPTIM_
+        if (Jnd < -1) call Abend()
+#       endif
         abMax = max(abMax,abs(abcd(ijkl,ia,ib,ia,ib)))
       end do
     end do
