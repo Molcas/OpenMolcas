@@ -52,10 +52,10 @@ logical(kind=iwp), intent(in) :: IfGrad(3,4)
 real(kind=wp), intent(out) :: Wrk2(nWrk2)
 integer(kind=iwp) :: iAnga(4), iAO(4), iAOst(4), iBasi, iC, iCar, iCent, iCmp(4), iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), &
                      iDCRTS, iEta, iiCent, ijklab, ijMax, ijMin, ijS, ik2, ikl, IncEta, IncZet, iS, iShell(4), iShll(4), iShlla, &
-                     iStb, iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, iz2, iZeta, jBasj, &
-                     jCent, jCmpb, jjCent, jk2, JndGrd(3,4), jPrInc, jS, jShllb, jStb, kBask, kCent, kCmpc, klMax, klMin, klS, &
-                     kOp(4), kS, kShllc, kStb, la, lb, lBasl, lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, &
-                     lPrInc, lS, lShlld, lStb, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
+                     iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, iz2, iZeta, jBasj, &
+                     jCent, jCmpb, jjCent, jk2, JndGrd(3,4), jPrInc, jS, jShllb, kBask, kCent, kCmpc, klMax, klMin, klS, &
+                     kOp(4), kS, kShllc, la, lb, lBasl, lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, &
+                     lPrInc, lS, lShlld, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
                      mZeta, nAlpha, nBeta, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nIdent, nOp(4), nW2, nW4, nWrk3, &
                      nZeta, nZeta_Tot, nDCR1, nDCR2
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact
@@ -120,10 +120,6 @@ kShllc = iShll(3)
 lShlld = iShll(4)
 IncZet = nAlpha*jPrInc
 IncEta = nGamma*lPrInc
-iStb = iSD4(10,1)
-jStb = iSD4(10,2)
-kStb = iSD4(10,3)
-lStb = iSD4(10,4)
 
 mab = nTri_Elem1(la)*nTri_Elem1(lb)
 mcd = nTri_Elem1(lc)*nTri_Elem1(ld)
@@ -156,7 +152,7 @@ Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
 Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
 Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
-call mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT)
+call mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT,nSD,iSD4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -447,20 +443,26 @@ end do
 
 contains
 
-subroutine mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT)
-use definitions, only: wp
+subroutine mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT,nSD,iSD4)
+use definitions, only: wp, iwp
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: MolWgh
 use Center_Info, only: dc
 real(kind=wp), intent(out) :: Fact
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iuvwx(4),nDCRR,nDCRS,nDCRT
 integer(kind=iwp), intent(out) :: iDCRR(0:7),iDCRS(0:7),iDCRT(0:7)
 
+integer(kind=iwp) :: iStb,jStb,kStb,lStb
 integer(kind=iwp) :: LmbdR, LmbdS, LmbdT, lStabM, lStabN
 integer(kind=iwp) :: iStabM(0:7), iStabN(0:7)
 
 real(kind=wp) :: u, v, w, x
 
+iStb = iSD4(10,1)
+jStb = iSD4(10,2)
+kStb = iSD4(10,3)
+lStb = iSD4(10,4)
 iuvwx(1) = dc(iStb)%nStab
 iuvwx(2) = dc(jStb)%nStab
 iuvwx(3) = dc(kStb)%nStab
