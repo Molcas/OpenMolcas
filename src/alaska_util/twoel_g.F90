@@ -441,7 +441,7 @@ do lDCRR=0,nDCRR-1
   end do
 end do
 
-contains
+end subroutine TwoEl_g
 
 subroutine mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT,nSD,iSD4)
 use definitions, only: wp, iwp
@@ -548,5 +548,3 @@ else
   Fact = sqrt(u*v*w*x)/real(nIrrep*LmbdT,kind=wp)
 end if
 end subroutine mk_DCRs_and_Stabilizers
-
-end subroutine TwoEl_g
