@@ -52,10 +52,10 @@ logical(kind=iwp), intent(in) :: IfGrad(3,4)
 real(kind=wp), intent(out) :: Wrk2(nWrk2)
 integer(kind=iwp) :: iAnga(4), iAO(4), iAOst(4), iBasi, iC, iCar, iCent, iCmp(4), iCmpa, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), &
                      iDCRTS, iEta, iiCent, ijklab, ijMax, ijMin, ijS, ik2, ikl, IncEta, IncZet, iS, iShell(4), iShll(4), iShlla, &
-                     iStabM(0:7), iStabN(0:7), iStb, iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, iz2, iZeta, jBasj, &
+                     iStb, iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, iz2, iZeta, jBasj, &
                      jCent, jCmpb, jjCent, jk2, JndGrd(3,4), jPrInc, jS, jShllb, jStb, kBask, kCent, kCmpc, klMax, klMin, klS, &
                      kOp(4), kS, kShllc, kStb, la, lb, lBasl, lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, &
-                     lPrInc, lS, lShlld, lStabM, lStabN, lStb, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
+                     lPrInc, lS, lShlld, lStb, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
                      mZeta, nAlpha, nBeta, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nIdent, nOp(4), nW2, nW4, nWrk3, &
                      nZeta, nZeta_Tot, nDCR1, nDCR2
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact
@@ -455,7 +455,8 @@ use Center_Info, only: dc
 real(kind=wp), intent(out) :: Fact
 integer(kind=iwp), intent(out) :: iuvwx(4),nDCRR,nDCRS,nDCRT
 
-integer(kind=iwp) :: LmbdR, LmbdS, LmbdT
+integer(kind=iwp) :: LmbdR, LmbdS, LmbdT, lStabM, lStabN
+integer(kind=iwp) :: iStabM(0:7), iStabN(0:7)
 
 real(kind=wp) :: u, v, w, x
 
