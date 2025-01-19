@@ -27,8 +27,7 @@ subroutine TwoEl_g(Coor,nRys,Grad,nGrad,IfGrad,IndGrd,PSO,nijkl,nPSO,Wrk2,nWrk2,
 
 use setup, only: nAux
 use Real_Spherical, only: ipSph, RSph
-use Basis_Info, only: MolWgh, Shells
-use Center_Info, only: dc
+use Basis_Info, only: Shells
 use Phase_Info, only: iPhase
 use Gateway_Info, only: ChiI2
 use iSD_data, only: nSD
@@ -128,10 +127,6 @@ jStb = iSD4(10,2)
 kStb = iSD4(10,3)
 lStb = iSD4(10,4)
 
-iuvwx(1) = dc(iStb)%nStab
-iuvwx(2) = dc(jStb)%nStab
-iuvwx(3) = dc(kStb)%nStab
-iuvwx(4) = dc(lStb)%nStab
 mab = nTri_Elem1(la)*nTri_Elem1(lb)
 mcd = nTri_Elem1(lc)*nTri_Elem1(ld)
 iW4 = 1
@@ -163,7 +158,7 @@ Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
 Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
 Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
-call mk_DCRs_and_Stabilizers(Fact)
+call mk_DCRs_and_Stabilizers(Fact,iuvwx)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -454,11 +449,19 @@ end do
 
 contains
 
-subroutine mk_DCRs_and_Stabilizers(Fact)
+subroutine mk_DCRs_and_Stabilizers(Fact,iuvwx)
 use definitions, only: wp
+use Basis_Info, only: MolWgh
+use Center_Info, only: dc
 real(kind=wp), intent(out) :: Fact
+integer(kind=iwp), intent(out) :: iuvwx(4)
 
 real(kind=wp) :: u, v, w, x
+
+iuvwx(1) = dc(iStb)%nStab
+iuvwx(2) = dc(jStb)%nStab
+iuvwx(3) = dc(kStb)%nStab
+iuvwx(4) = dc(lStb)%nStab
 !                                                                      *
 !***********************************************************************
 !                                                                      *
