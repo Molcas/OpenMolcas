@@ -163,86 +163,7 @@ Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
 Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
 Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for center A and B
-
-if (nIrrep == 1) then
-  nDCRR = 1
-  iDCRR(0) = 0
-  LmbdR = 1
-else
-  call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
-end if
-#ifdef _DEBUGPRINT_
-if (iPrint >= 99) write(u6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
-#endif
-u = real(dc(iStb)%nStab,kind=wp)
-v = real(dc(jStb)%nStab,kind=wp)
-
-! Find stabilizer for center A and B
-
-if (nIrrep == 1) then
-  lStabM = 1
-  iStabM(0) = 0
-else
-  call Inter(dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for center C and D.
-! Take care of redundancy if {f(aA)f(bB)}={f(cC)f(dD)}. Hence
-! we will only use unique combinations of operators from the
-! double coset representatives {R} and {S}.
-
-if (nIrrep == 1) then
-  nDCRS = 1
-  iDCRS(0) = 0
-  LmbdS = 1
-else
-  call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
-end if
-#ifdef _DEBUGPRINT_
-if (iPrint >= 99) write(u6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
-#endif
-w = real(dc(kStb)%nStab,kind=wp)
-x = real(dc(lStb)%nStab,kind=wp)
-
-! Find stabilizer for center C and D
-
-if (nIrrep == 1) then
-  lStabN = 1
-  iStabN(0) = 0
-else
-  call Inter(dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for the two charge
-! distributions.
-
-if (nIrrep == 1) then
-  nDCRT = 1
-  iDCRT(0) = 0
-  LmbdT = 1
-else
-  call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Factor due to summation over DCR
-
-if (MolWgh == 1) then
-  Fact = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
-else if (MolWgh == 0) then
-  Fact = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
-else
-  Fact = sqrt(u*v*w*x)/real(nIrrep*LmbdT,kind=wp)
-end if
+call mk_DCRs_and_Stabilizers()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -530,5 +451,90 @@ do lDCRR=0,nDCRR-1
     end do
   end do
 end do
+
+contains
+
+subroutine mk_DCRs_and_Stabilizers()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Find the Double Coset Representatives for center A and B
+
+if (nIrrep == 1) then
+  nDCRR = 1
+  iDCRR(0) = 0
+  LmbdR = 1
+else
+  call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
+end if
+#ifdef _DEBUGPRINT_
+if (iPrint >= 99) write(u6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
+#endif
+u = real(dc(iStb)%nStab,kind=wp)
+v = real(dc(jStb)%nStab,kind=wp)
+
+! Find stabilizer for center A and B
+
+if (nIrrep == 1) then
+  lStabM = 1
+  iStabM(0) = 0
+else
+  call Inter(dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Find the Double Coset Representatives for center C and D.
+! Take care of redundancy if {f(aA)f(bB)}={f(cC)f(dD)}. Hence
+! we will only use unique combinations of operators from the
+! double coset representatives {R} and {S}.
+
+if (nIrrep == 1) then
+  nDCRS = 1
+  iDCRS(0) = 0
+  LmbdS = 1
+else
+  call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
+end if
+#ifdef _DEBUGPRINT_
+if (iPrint >= 99) write(u6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
+#endif
+w = real(dc(kStb)%nStab,kind=wp)
+x = real(dc(lStb)%nStab,kind=wp)
+
+! Find stabilizer for center C and D
+
+if (nIrrep == 1) then
+  lStabN = 1
+  iStabN(0) = 0
+else
+  call Inter(dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Find the Double Coset Representatives for the two charge
+! distributions.
+
+if (nIrrep == 1) then
+  nDCRT = 1
+  iDCRT(0) = 0
+  LmbdT = 1
+else
+  call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Factor due to summation over DCR
+
+if (MolWgh == 1) then
+  Fact = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
+else if (MolWgh == 0) then
+  Fact = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
+else
+  Fact = sqrt(u*v*w*x)/real(nIrrep*LmbdT,kind=wp)
+end if
+end subroutine mk_DCRs_and_Stabilizers
 
 end subroutine TwoEl_g
