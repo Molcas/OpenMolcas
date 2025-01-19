@@ -60,7 +60,7 @@ integer(kind=iwp) :: iAnga(4), iAO(4), iAOst(4), iBasi, iC, iCar, iCent, iCmp(4)
                      LmbdR, LmbdS, LmbdT, lPrInc, lS, lShlld, lStabM, lStabN, lStb, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
                      mZeta, nAlpha, nBeta, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nIdent, nOp(4), nW2, nW4, nWrk3, &
                      nZeta, nZeta_Tot
-real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact, u, v, w, x
+real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr, Shijij
 procedure(cff2d_kernel) :: vCff2D
 procedure(modu2_kernel) :: ModU2
@@ -163,7 +163,7 @@ Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
 Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
 Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
-call mk_DCRs_and_Stabilizers()
+call mk_DCRs_and_Stabilizers(Fact)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -454,7 +454,11 @@ end do
 
 contains
 
-subroutine mk_DCRs_and_Stabilizers()
+subroutine mk_DCRs_and_Stabilizers(Fact)
+use definitions, only: wp
+real(kind=wp), intent(out) :: Fact
+
+real(kind=wp) :: u, v, w, x
 !                                                                      *
 !***********************************************************************
 !                                                                      *
