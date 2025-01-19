@@ -58,7 +58,7 @@ integer(kind=iwp) :: iAnga(4), iAO(4), iAOst(4), iBasi, iC, iCar, iCent, iCmp(4)
                      kOp(4), kS, kShllc, kStb, la, lb, lBasl, lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, &
                      LmbdR, LmbdS, LmbdT, lPrInc, lS, lShlld, lStabM, lStabN, lStb, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
                      mZeta, nAlpha, nBeta, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nIdent, nOp(4), nW2, nW4, nWrk3, &
-                     nZeta, nZeta_Tot
+                     nZeta, nZeta_Tot, nDCR1, nDCR2
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, JfGrad(3,4), PreScr, Shijij
 procedure(cff2d_kernel) :: vCff2D
@@ -146,12 +146,12 @@ kS = iShell(3)
 lS = iShell(4)
 ijS = iTri(iS,jS)
 klS = iTri(kS,lS)
-nDCRR = IndK2(2,ijS)
+nDCR1 = IndK2(2,ijS)
 ik2 = IndK2(3,ijS)
-nDCRS = IndK2(2,klS)
+nDCR2 = IndK2(2,klS)
 jk2 = IndK2(3,klS)
-k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
-k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
+k2data1(1:nDCR1) => k2Data(1:nDCR1,ik2)
+k2data2(1:nDCR2) => k2Data(1:nDCR2,jk2)
 
 Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
 Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
