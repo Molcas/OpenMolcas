@@ -156,7 +156,7 @@ Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
 Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
 Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
 
-call mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT)
+call mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -447,13 +447,14 @@ end do
 
 contains
 
-subroutine mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT)
+subroutine mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT)
 use definitions, only: wp
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: MolWgh
 use Center_Info, only: dc
 real(kind=wp), intent(out) :: Fact
 integer(kind=iwp), intent(out) :: iuvwx(4),nDCRR,nDCRS,nDCRT
+integer(kind=iwp), intent(out) :: iDCRR(0:7),iDCRS(0:7),iDCRT(0:7)
 
 integer(kind=iwp) :: LmbdR, LmbdS, LmbdT, lStabM, lStabN
 integer(kind=iwp) :: iStabM(0:7), iStabN(0:7)
