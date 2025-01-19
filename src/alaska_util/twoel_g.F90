@@ -32,7 +32,6 @@ use Phase_Info, only: iPhase
 use Gateway_Info, only: ChiI2
 use iSD_data, only: nSD
 use Gateway_global, only: IsChi
-use Symmetry_Info, only: nIrrep
 use Index_Functions, only: iTri, nTri_Elem1
 use k2_structure, only: Indk2, k2_type, k2Data
 use k2_arrays, only: Aux, BraKet
@@ -56,7 +55,7 @@ integer(kind=iwp) :: iAnga(4), iAO(4), iAOst(4), iBasi, iC, iCar, iCent, iCmp(4)
                      iStabM(0:7), iStabN(0:7), iStb, iuvwx(4), iW2, iW3, iW4, ix1, ix2, ixSh, iy1, iy2, iz1, iz2, iZeta, jBasj, &
                      jCent, jCmpb, jjCent, jk2, JndGrd(3,4), jPrInc, jS, jShllb, jStb, kBask, kCent, kCmpc, klMax, klMin, klS, &
                      kOp(4), kS, kShllc, kStb, la, lb, lBasl, lc, lCent, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, &
-                     LmbdR, LmbdS, LmbdT, lPrInc, lS, lShlld, lStabM, lStabN, lStb, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
+                     lPrInc, lS, lShlld, lStabM, lStabN, lStb, lZeta, mab, mcd, mCent, mEta, mGrad, MxDCRS, &
                      mZeta, nAlpha, nBeta, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nIdent, nOp(4), nW2, nW4, nWrk3, &
                      nZeta, nZeta_Tot, nDCR1, nDCR2
 real(kind=wp) :: Aha, CoorAC(3,2), CoorM(3,4), Fact
@@ -121,7 +120,6 @@ kShllc = iShll(3)
 lShlld = iShll(4)
 IncZet = nAlpha*jPrInc
 IncEta = nGamma*lPrInc
-LmbdT = 0
 iStb = iSD4(10,1)
 jStb = iSD4(10,2)
 kStb = iSD4(10,3)
@@ -451,10 +449,13 @@ contains
 
 subroutine mk_DCRs_and_Stabilizers(Fact,iuvwx)
 use definitions, only: wp
+use Symmetry_Info, only: nIrrep
 use Basis_Info, only: MolWgh
 use Center_Info, only: dc
 real(kind=wp), intent(out) :: Fact
 integer(kind=iwp), intent(out) :: iuvwx(4)
+
+integer(kind=iwp) :: LmbdR, LmbdS, LmbdT
 
 real(kind=wp) :: u, v, w, x
 
