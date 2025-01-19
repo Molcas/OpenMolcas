@@ -382,6 +382,28 @@ do lDCRR=0,nDCRR-1
 
       call Timing(dum1,Time,dum2,dum3)
       CpuStat(nTwoDens) = CpuStat(nTwoDens)+Time
+      !------------------------------------------------------------*
+      !
+      ! Fix the control matrixes for derivatives
+      ! and try to use translation invariance as
+      ! efficient as possible.
+      !
+      !------------------------------------------------------------*
+      JfHss(:,:,:,:) = IfHss
+      JfGrd(:,:) = IfGrd
+      ifg(:) = .true.
+      Tr(:) = .false.
+      JndHss(:,:,:,:,0:nIrrep-1) = IndHss(:,:,:,:,0:nIrrep-1)
+      JndGrd(:,:,0:nIrrep-1) = IndGrd(:,:,0:nIrrep-1)
+
+      ! Delete one center that should be calculated with translation invariance
+
+      call Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,coorm,nirrep,indgrd,indhss)
+
+      if (.not. ldot) then
+        JfHss(:,:,:,:) = .false.
+        JndHss(:,:,:,:,:) = 0
+      end if
 
       !----------------------------------------------------------------*
       !
@@ -407,30 +429,6 @@ do lDCRR=0,nDCRR-1
           mEta = min(IncEta,nEta_Tot-iEta+1)
           ! Check that subblock of contraction matrix has non-zero elements.
           if (all(Coeff4(:,:) == Zero)) cycle
-          !------------------------------------------------------------*
-          !
-          ! Fix the control matrixes for derivatives
-          ! and try to use translation invariance as
-          ! efficient as possible.
-          !
-          ! OBS DETTA SKALL FLYTTAS UT UR INRE LOOPEN
-          !
-          !------------------------------------------------------------*
-          JfHss(:,:,:,:) = IfHss
-          JfGrd(:,:) = IfGrd
-          ifg(:) = .true.
-          Tr(:) = .false.
-          JndHss(:,:,:,:,0:nIrrep-1) = IndHss(:,:,:,:,0:nIrrep-1)
-          JndGrd(:,:,0:nIrrep-1) = IndGrd(:,:,0:nIrrep-1)
-
-          ! Delete one center that should be calculated with translation invariance
-
-          call Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,coorm,nirrep,indgrd,indhss)
-
-          if (.not. ldot) then
-            JfHss(:,:,:,:) = .false.
-            JndHss(:,:,:,:,:) = 0
-          end if
           !------------------------------------------------------------*
           !     PRE PRESCREENING                                       *
           !------------------------------------------------------------*
