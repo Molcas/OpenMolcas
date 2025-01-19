@@ -448,6 +448,9 @@ use definitions, only: wp, iwp
 use Symmetry_Info, only: nIrrep
 use Basis_Info, only: MolWgh
 use Center_Info, only: dc
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 real(kind=wp), intent(out) :: Fact
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 integer(kind=iwp), intent(out) :: iuvwx(4),nDCRR,nDCRS,nDCRT
