@@ -69,18 +69,9 @@ integer(kind=iwp), external :: NrOpr
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ
 
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i, iPrint, iRout
-#include "print.fh"
-#endif
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-#ifdef _DEBUGPRINT_
-iRout = 12
-iPrint = nPrint(iRout)
-#endif
 
 jPrInc = iSD4(6,2)
 lPrInc = iSD4(6,4)
@@ -171,7 +162,7 @@ do lDCRR=0,nDCRR-1
 
     do lDCRT=nDCRT-1,0,-1
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 99) write(u6,'(6A)') ' R=',ChOper(iDCRR(lDCRR)),', S=',ChOper(iDCRS(lDCRS)),', T=',ChOper(iDCRT(lDCRT))
+      write(u6,'(6A)') ' R=',ChOper(iDCRR(lDCRR)),', S=',ChOper(iDCRS(lDCRS)),', T=',ChOper(iDCRT(lDCRT))
 #     endif
 
       nOp(3) = NrOpr(iDCRT(lDCRT))
@@ -182,7 +173,7 @@ do lDCRR=0,nDCRR-1
       call OA(iDCRT(lDCRT),Coor(:,3),CoorM(:,3))
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 59) call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
+      call RecPrt(' CoorM in TwoEl',' ',CoorM,3,4)
 #     endif
       AeqC = EQ(CoorM(:,1),CoorM(:,3))
       ABeqCD = AeqB .and. CeqD .and. AeqC
@@ -434,7 +425,7 @@ do lDCRR=0,nDCRR-1
       end do
 
 #     ifdef _DEBUGPRINT_
-      if (iPrint >= 19) call PrGrad(' In TwoEl',Grad,nGrad,ChDisp)
+      call PrGrad(' In TwoEl',Grad,nGrad,ChDisp)
 #     endif
 
     end do
@@ -483,7 +474,7 @@ else
   call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
 end if
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) write(u6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
+write(u6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
 #endif
 u = real(dc(iStb)%nStab,kind=wp)
 v = real(dc(jStb)%nStab,kind=wp)
@@ -512,7 +503,7 @@ else
   call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
 end if
 #ifdef _DEBUGPRINT_
-if (iPrint >= 99) write(u6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
+write(u6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
 #endif
 w = real(dc(kStb)%nStab,kind=wp)
 x = real(dc(lStb)%nStab,kind=wp)
