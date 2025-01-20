@@ -440,6 +440,7 @@ use Symmetry_Info, only: nIrrep
 use Basis_Info, only: MolWgh
 use Center_Info, only: dc
 #ifdef _DEBUGPRINT_
+use Symmetry_Info, only: ChOper
 use Definitions, only: u6
 #endif
 real(kind=wp), intent(out) :: Fact
