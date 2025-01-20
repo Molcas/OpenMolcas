@@ -29,7 +29,7 @@ use Center_Info, only: dc
 use PCM_arrays, only: PCM_SQ, PCMTess
 use External_Centers, only: iXPolType, nOrd_XF, nXF, XF
 use rctfld_module, only: Conductor, lLangevin, lMax, lRF, MM, nTS, PCM
-use Disp, only: ChDisp, Dirct, IndDsp
+use Disp, only: Dirct, IndDsp
 use Symmetry_Info, only: iChBas, nIrrep
 use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
@@ -202,7 +202,7 @@ do iCnttp=1,nCnttp
 end do
 if (iPrint >= 15) then
   Lab = ' The Nuclear Repulsion Contribution'
-  call PrGrad(Lab,Temp,nGrad,ChDisp)
+  call PrGrad(Lab,Temp,nGrad)
 end if
 
 call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -317,7 +317,7 @@ if (allocated(XF)) then
   end do           ! End of centers of the external field, iFD
   if (iPrint >= 15) then
     Lab = ' The Nuclear External Electric Field Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp)
+    call PrGrad(Lab,Temp,nGrad)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -415,7 +415,7 @@ if (lRF .and. (.not. lLangevin) .and. (.not. PCM)) then
   end do
   if (iPrint >= 15) then
     Lab = ' The Nuclear Reaction Field (KirkWood) Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp)
+    call PrGrad(Lab,Temp,nGrad)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -521,7 +521,7 @@ else if (lRF .and. PCM) then
 
   if (iPrint >= 15) then
     Lab = ' The Nuclear Reaction Field (PCM) Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp)
+    call PrGrad(Lab,Temp,nGrad)
   end if
 
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
@@ -532,7 +532,7 @@ else if (lRF .and. PCM) then
   call PCM_Cav_grd(Temp,nGrad)
   if (iPrint >= 15) then
     Lab = ' The Cavity PCM Contribution'
-    call PrGrad(Lab,Temp,nGrad,ChDisp)
+    call PrGrad(Lab,Temp,nGrad)
   end if
   call DaXpY_(nGrad,One,Temp,1,Grad,1)
 
@@ -543,7 +543,7 @@ else if (lRF .and. PCM) then
     call PCM_EF_grd(Temp,nGrad)
     if (iPrint >= 15) then
       Lab = ' The EF PCM Contribution'
-      call PrGrad(Lab,Temp,nGrad,ChDisp)
+      call PrGrad(Lab,Temp,nGrad)
     end if
     call DaXpY_(nGrad,-One,Temp,1,Grad,1)
   end if

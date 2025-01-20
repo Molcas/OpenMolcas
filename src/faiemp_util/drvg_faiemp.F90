@@ -36,7 +36,6 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use Disp, only: ChDisp
 use Definitions, only: wp, iwp, u6
 #endif
 
@@ -212,7 +211,7 @@ call Term_Ints()
 ! Accumulate the final results
 call DScal_(nGrad,Half,Temp,1)
 #ifdef _DEBUGPRINT_
-call PrGrad('The FAIEMP 2-electron Contribution',Temp,nGrad,ChDisp)
+call PrGrad('The FAIEMP 2-electron Contribution',Temp,nGrad)
 #endif
 call daxpy_(nGrad,One,Temp,1,Grad,1)
 

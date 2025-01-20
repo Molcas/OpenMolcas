@@ -39,7 +39,6 @@ use Disp, only: CutGrd, l2DI
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 #ifdef _DEBUGPRINT_
 use Symmetry_Info, only: ChOper
-use Disp, only: ChDisp
 #endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -425,7 +424,7 @@ do lDCRR=0,nDCRR-1
       end do
 
 #     ifdef _DEBUGPRINT_
-      call PrGrad(' In TwoEl',Grad,nGrad,ChDisp)
+      call PrGrad(' In TwoEl',Grad,nGrad)
 #     endif
 
     end do

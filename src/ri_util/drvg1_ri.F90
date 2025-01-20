@@ -38,7 +38,6 @@ use RI_glob, only: DoCholExch, iMP2prpt, iUHF, LuAVector, LuBVector, LuCVector, 
 use temptime, only: CHOGET_CPU, CHOGET_WALL, DRVG1_CPU, DRVG1_WALL, PGET2_CPU, PGET2_WALL, PGET3_CPU, PGET3_WALL, PREPP_CPU, &
                     PREPP_WALL, RMULT_CPU, RMULT_WALL, TWOEL2_CPU, TWOEL2_WALL, TWOEL3_CPU, TWOEL3_WALL
 #endif
-use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -393,7 +392,7 @@ end if
 Case_2C = .true.
 call Drvg1_2center_RI(Temp,Tmp,nGrad,ij2,nij_Eff)
 call GADGOP(Tmp,nGrad,'+')
-if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 2-center term',Tmp,nGrad,ChDisp)
+if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 2-center term',Tmp,nGrad)
 Grad(:) = Grad+Temp ! Move any 1-el contr.
 Temp(:) = -Tmp
 Case_2C = .false.
@@ -405,7 +404,7 @@ Case_2C = .false.
 Case_3C = .true.
 call Drvg1_3center_RI(Tmp,nGrad,ij2,nij_Eff)
 call GADGOP(Tmp,nGrad,'+')
-if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 3-center term',Tmp,nGrad,ChDisp)
+if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - 3-center term',Tmp,nGrad)
 Temp(:) = Temp+Two*Tmp
 Case_3C = .false.
 call mma_deallocate(Txy,safe='*')
@@ -444,7 +443,7 @@ if (irc /= 0) then
   call Abend()
 end if
 call mma_deallocate(Tmp)
-if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - Temp',Temp,nGrad,ChDisp)
+if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - Temp',Temp,nGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -20,7 +20,6 @@ use stdalloc, only: mma_allocate, mma_maxDBLE
 use Symmetry_Info, only: nIrrep
 use Gateway_Info, only: CutInt
 #ifdef _DEBUGPRINT_
-use Disp, only: ChDisp
 use Definitions, only: u6
 #endif
 use Constants, only: Zero
@@ -175,7 +174,7 @@ do iBasAO=1,iBasi,iBsInc
                      Sew_Scr(ipMem2),Mem2,iSD4)
 
 #ifdef _DEBUGPRINT_
-        call PrGrad(' In Drvg1: Grad',Temp,nGrad,ChDisp)
+        call PrGrad(' In Drvg1: Grad',Temp,nGrad)
 #endif
 
       end do

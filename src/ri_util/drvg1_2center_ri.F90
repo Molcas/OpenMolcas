@@ -39,9 +39,6 @@ use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD
 use pso_stuff, only: A_PT2
 use k2_arrays, only: Sew_Scr
-#ifdef _DEBUGPRINT_
-use Disp, only: ChDisp
-#endif
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI, RI_2C
@@ -222,7 +219,7 @@ if ((nProcs > 1) .and. King()) then
   if (Do_RI) call Free_iSD()
   call Drvh1(Grad,Temp,nGrad)
 #ifdef _DEBUGPRINT_
-  call PrGrad(' Gradient excluding two-electron contribution',Grad,nGrad,ChDisp)
+  call PrGrad(' Gradient excluding two-electron contribution',Grad,nGrad)
 #endif
   Temp(:) = Zero
   if (Do_RI) then

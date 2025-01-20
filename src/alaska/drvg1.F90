@@ -162,7 +162,7 @@ iOpt = 0
 
 if ((nProcs > 1) .and. King()) then
   call Drvh1(Grad,Temp,nGrad)
-  !if (nPrint(1) >= 15) call PrGrad(' Gradient excluding two-electron contribution',Grad,lDisp(0),ChDisp)
+  !if (nPrint(1) >= 15) call PrGrad(' Gradient excluding two-electron contribution',Grad,lDisp(0))
   Temp(:) = Zero
 end if
 !                                                                      *
