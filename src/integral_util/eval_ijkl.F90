@@ -334,7 +334,6 @@ subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
   integer(kind=iwp), intent(in) :: nijkl, nComp, nA
   real(kind=wp), target, intent(inout) :: IntRaw(nijkl*nComp*nA)
   real(kind=wp), pointer :: IntIn(:,:,:), IntOut(:,:)
-  integer(kind=iwp) :: i_ijkl, iA
 
   IntIn(1:nijkl,1:nComp,1:nA) => IntRaw(:)
   IntOut(1:nijkl,1:nA) => IntRaw(1:nijkl*nA)
@@ -343,7 +342,7 @@ subroutine ReSort_Int(IntRaw,nijkl,nComp,nA)
   call RecPrt('IntRaw',' ',IntRaw,nijkl,nComp*nA)
 # endif
 
-  IntOut(:,:) = IntIn(:,:)+IntIn(:,4,:)+IntIn(:,6,:)
+  IntOut(:,:) = IntIn(:,1,:)+IntIn(:,4,:)+IntIn(:,6,:)
 
   nullify(IntIn,IntOut)
 

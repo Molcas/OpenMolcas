@@ -13,16 +13,21 @@
 
 subroutine Set_Breit(n)
 
-use Breit, only: nOrdOp, nComp
-use Definitions, only: iwp
+use Breit, only: nOrdOp, nComp, Do_BP_Integrals
+use Definitions, only: iwp, u6
 
 integer(kind=iwp), intent(in) :: n
 
 nOrdOp = n
 if (nOrdOp == 0) then
   nComp = 1
-else
+  Do_BP_Integrals=.False.
+else if (nOrdOp == 1) then
   nComp = 6
+  Do_BP_Integrals=.True.
+else
+  Write(u6,*) 'Set_Breit: Illegal n value, n:',n
+  Call abend()
 end if
 
 end subroutine Set_Breit

@@ -19,8 +19,9 @@ implicit none
 private
 
 integer(kind=iwp) :: nComp = 1, nOrdOp = 0
+logical(kind=iwp) :: Do_BP_integrals=.False.
 
-public :: nComp, nOrdOp
+public :: nComp, nOrdOp, Do_BP_integrals
 
 end module Breit
 
