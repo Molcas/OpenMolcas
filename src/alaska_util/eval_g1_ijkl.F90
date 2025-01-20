@@ -41,7 +41,7 @@ integer(kind=iwp), external :: MemSO2_P
 logical(kind=iwp) :: ABCDeq, JfGrad(3,4), No_batch
 logical(kind=iwp), external :: EQ
 real(kind=wp) :: Coor(3,4), PMax
-real(kind=wp), pointer :: PSO(:)
+real(kind=wp), pointer :: PSO(:), Wrk2(:)
 
 iFnc(:) = 0
 PMax = Zero
@@ -106,6 +106,7 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 Call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
 
 PSO(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
+Wrk2(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -165,13 +166,13 @@ do iBasAO=1,iBasi,iBsInc
         ! Fetch the T_i,j,kappa, lambda corresponding to
         ! kappa = k, lambda = l
 
-        call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Sew_Scr(ipMem2),Mem2,nQuad,PMax,iSD4)
+        call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Wrk2,Mem2,nQuad,PMax,iSD4)
         if (A_Int*PMax < CutInt) Return
 
         ! Compute gradients of shell quadruplet
 
         call TwoEl_g(Coor,nRys,Temp,nGrad,JfGrad,JndGrd,PSO,nijkl,nSO, &
-                     Sew_Scr(ipMem2),Mem2,iSD4)
+                     Wrk2,Mem2,iSD4)
 
 #ifdef _DEBUGPRINT_
         call PrGrad(' In Drvg1: Grad',Temp,nGrad)
@@ -182,6 +183,7 @@ do iBasAO=1,iBasi,iBsInc
 
   end do
 end do
+Wrk2 => Null()
 PSO => Null()
 
 call Destroy_BraKet()
