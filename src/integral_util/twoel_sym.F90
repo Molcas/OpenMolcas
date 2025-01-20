@@ -66,9 +66,6 @@ logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_
 real(kind=wp), pointer :: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:), Dij(:,:), Dik(:,:), Dil(:,:), Djk(:,:), Djl(:,:), &
                           Dkl(:,:)
 type(k2_type), pointer :: k2data1(:), k2data2(:)
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i
-#endif
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
