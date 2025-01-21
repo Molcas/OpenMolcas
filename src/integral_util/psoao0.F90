@@ -41,13 +41,15 @@ subroutine PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
 use Index_Functions, only: nTri3_Elem1
 use lw_Info, only: lwInt, lwSqn, lwSyb
 use Gateway_global, only: force_part_c, force_part_p
+use k2_arrays, only: Sew_Scr
 use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
-use Breit, only: nComp
+use Breit, only: nComp, Do_BP_Integrals, PSO
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, ipMem1, nSD
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, nSD
+integer(kind=iwp), intent(inout) :: ipMem1
 integer(kind=iwp), intent(out) :: ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
@@ -141,7 +143,15 @@ do
   ! Memory for SO block. If petite list format is used there
   ! will be no SO block.
 
-  kSOInt = nSO*nijkl
+  If (Do_BP_Integrals .and. nIrrep>1) Then
+     ! Add block for PSO to be generated in PGET0
+     kSOInt = nSO*nijkl*(nComp+1)
+  Else If (Do_BP_Integrals .and. nIrrep==1) Then
+     ! Add block for PAO to be generated in PGET0
+     kSOInt = nSO*nijkl*nComp + nabcd*nijkl
+  Else
+     kSOInt = nSO*nijkl
+  End If
   Mem1 = iFact*kSOInt
   if (Mem1 == 0) Mem1 = 1
   if (nIrrep == 1) Mem1 = 1+(iFact-1)*nabcd*nijkl
@@ -336,6 +346,16 @@ else
   lwSyB = 0
   lwSqN = 0
 end if
+
+If (Do_BP_Integrals .and. nIrrep>1) Then
+   Mem1 = Mem1 - kSOInt
+   ipMem1 = ipMem1 + kSOInt
+   PSO(1:kSOInt)=>Sew_Scr(1:kSOInt)
+Else If (Do_BP_Integrals .and. nIrrep==1) Then
+   Mem1 = Mem1 - nabcd*nijkl
+   ipMem1 = ipMem1 + nabcd*nijkl
+   PSO(1:nabcd*nijkl)=>Sew_Scr(1:nabcd*nijkl)
+End If
 
 iSD4(4,1) = iBsInc
 iSD4(4,2) = jBsInc

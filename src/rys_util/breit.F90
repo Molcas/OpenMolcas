@@ -21,10 +21,11 @@ private
 
 integer(kind=iwp) :: nComp = 1, nOrdOp = 0
 logical(kind=iwp) :: Do_BP_integrals=.False.
-
 real(kind=wp) :: D_tensor(3,3)=Zero
+real(kind=wp), pointer :: PSO(:)=>Null()
 
-public :: nComp, nOrdOp, Do_BP_integrals, D_tensor
+public :: nComp, nOrdOp, Do_BP_integrals, D_tensor, PSO
+
 
 end module Breit
 
