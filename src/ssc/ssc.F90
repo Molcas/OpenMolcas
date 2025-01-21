@@ -13,14 +13,18 @@
 !***********************************************************************
 
 subroutine ssc(iRC)
-use definitions, only: iwp
+use definitions, only: iwp, u6
 use spool, only: SpoolInp, Close_LuSpool
+use Breit, only: D_tensor
+use Constants, only: Zero
 Implicit None
 integer(kind=iwp), Intent(out) :: iRC
 
 integer(kind=iwp) :: LuSpool, nDiff
 logical(kind=iwp) :: DoRys
 integer(kind=iwp), external :: IsFreeUnit
+character(len=8) :: Method
+
 
 LuSpool = 37
 LuSpool=IsFreeUnit(LuSpool)
@@ -32,9 +36,19 @@ call IniSew(DoRys,nDiff)
 
 call Close_LuSpool(LuSpool)
 
+D_tensor(:,:) = Zero
 Call Drv2El_BP()
 
 Call ClsSew()
+
+call Get_cArray('Relax Method',Method,8)
+Write (u6,*)
+Write (u6,'(2A)') 'Method:', Method
+Write (u6,*)
+
+call RecPrt('The D tensor',' ',D_tensor,3,3)
+Write (u6,*)
+Write (u6,*)
 iRC=0
 
 end subroutine ssc

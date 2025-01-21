@@ -215,6 +215,7 @@ set (sources
      picky.F90
      picky_inner.F90
      plf2.F90
+     plf2_BP.F90
      poti.F90
      prepp.F90
      priwel.F90

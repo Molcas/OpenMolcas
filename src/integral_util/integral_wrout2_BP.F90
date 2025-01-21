@@ -38,12 +38,12 @@ kBas = iSD4(19,3)
 lBas = iSD4(19,4)
 Shijij = (iSD4(0,1) == iSD4(0,3)) .and. (iSD4(10,1) == iSD4(10,3)) .and. (iSD4(0,2) == iSD4(0,4)) .and. (iSD4(10,2) == iSD4(10,4))
 
-Write (6,*) 'More to come ...'
-Call abend()
 if (mSym == 1) then
   kOp(:) = 0
-  call PLF2(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
+  call PLF2_BP(AOInt,ijkl,iCmp(1),iCmp(2),iCmp(3),iCmp(4),iAO,iAOst,iBas,jBas,kBas,lBas,kOp)
 else
+  Write (6,*) "Integral_WrOut2_BP to ported for symmetry yet."
+  Call abend()
   call IndSft2(iCmp,iShell,iBas,jBas,kBas,lBas,Shijij,iAO,iAOst,ijkl,SOInt,nSOint,iSOSym,nSOs)
 end if
 
