@@ -49,6 +49,9 @@ Write (u6,*)
 call RecPrt('The D tensor',' ',D_tensor,3,3)
 Write (u6,*)
 Write (u6,*)
+
+! add info to the check file.
+Call Add_Info('D Tensor',D_tensor,6,8)
 iRC=0
 
 end subroutine ssc
