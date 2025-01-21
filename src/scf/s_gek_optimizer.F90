@@ -12,11 +12,13 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-!#define _FULL_SPACE_ ! Debugging
-!#define _KRYLOV_
-!#define _HYBRID_
-!#define _HYBRID2_
-#define _HYBRID3_
+! Method for subspace expansion:
+! 0: Full space (debugging)
+! 1: Krylov
+! 2: Hybrid
+! 3: Hybrid 2
+! 4: Hybrid 3
+#define _SUB_METHOD_ 4
 subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
 !                                                                      *
@@ -28,7 +30,10 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use InfSCF, only: Energy, HDiag, iter, IterGEK, iterSO, TimFld
+use InfSCF, only: Energy, HDiag, iter, IterGEK, TimFld
+#if ( _SUB_METHOD_ > 1 )
+use InfSCF, only: iterSO
+#endif
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use Kriging_mod, only: blavAI
 use Kriging_procedures, only: Setup_Kriging
@@ -43,20 +48,25 @@ real(kind=wp), intent(out) :: dqdq
 character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
 logical(kind=iwp), intent(in) :: SOrange
-integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iter_Save, Iteration, Iteration_Micro, Iteration_Total, IterSO_Save, j, k, l, mDIIS, &
-                     nDIIS, nExplicit
+integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iteration, Iteration_Micro, Iteration_Total, j, k, l, mDIIS, nDIIS, nExplicit
 real(kind=wp) :: Beta_Disp, Cpu1, Cpu2, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Tim1, Tim2, Tim3, Variance(1)
-real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), &
-                              q(:,:), q_diis(:,:), Val(:), Vec(:,:)
+real(kind=wp), allocatable :: dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), q(:,:), q_diis(:,:), &
+                              Val(:), Vec(:,:)
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
 integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 20
-#ifdef _KRYLOV_
-integer(kind=iwp), parameter :: nKrylov = 20
-#endif
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
+#if ( _SUB_METHOD_ > 0 )
+real(kind=wp), allocatable :: aux_a(:), aux_b(:)
+#if ( _SUB_METHOD_ < 4 )
+integer(kind=iwp), parameter :: nKrylov = 20
+#endif
+#endif
+#if ( _SUB_METHOD_ > 1 )
+integer(kind=iwp) :: Iter_Save, IterSO_Save
+#endif
 real(kind=wp), external :: DDot_
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
@@ -91,6 +101,14 @@ do i=iFirst,iter
 end do
 
 nDIIS = iter-iFirst+1
+!if (nDIIS == 1) then
+!# ifdef _DEBUGPRINT_
+!  write(u6,*) 'Exit S-GEK Optimizer'
+!# endif
+!  call mma_deallocate(g)
+!  call mma_deallocate(q)
+!  return
+!end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nWindow=',nWindow
@@ -101,7 +119,7 @@ call RecPrt('g',' ',g,mOV,nDIIS)
 call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
 
-#ifdef _FULL_SPACE_
+#if ( _SUB_METHOD_ == 0 )
 
 ! Set up the full space
 nExplicit = mOV
@@ -111,7 +129,7 @@ do k=1,nExplicit
   e_diis(k,k) = One
 end do
 
-#elif defined (_KRYLOV_)
+#elif ( _SUB_METHOD_ == 1 )
 
 ! Set up unit vectors corresponding to a Krylov subspace for Adx=g
 nExplicit = min(nKrylov,mOV)
@@ -133,7 +151,7 @@ end do
 call mma_deallocate(Aux_b)
 call mma_deallocate(Aux_a)
 
-#elif defined (_HYBRID_)
+#elif ( _SUB_METHOD_ == 2 )
 
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
 nExplicit = min(2*(nDIIS-1)+nKrylov,mOV)
@@ -178,7 +196,7 @@ end do
 call mma_deallocate(Aux_b)
 call mma_deallocate(Aux_a)
 
-#elif defined (_HYBRID2_)
+#elif ( _SUB_METHOD_ == 3 )
 
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
 nExplicit = min(2*nDIIS-1+nKrylov,mOV)
@@ -201,7 +219,6 @@ do k=1,nDIIS
   j = j+1
   Aux_a(:) = q(:,k)
   call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
-  call RecPrt('Aux_b(:)',' ',Aux_b(:),1,mOV)
   e_diis(:,j) = Aux_b(:)/sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
 
   Iter = min(Iter+1,Iter_Save)
@@ -227,7 +244,7 @@ end do
 call mma_deallocate(Aux_b)
 call mma_deallocate(Aux_a)
 
-#elif defined (_HYBRID3_)
+#elif ( _SUB_METHOD_ == 4 )
 
 !nExplicit = 2 * (nDIIS - 1) + mOV + 2
 nExplicit = 2*(nDIIS-1)+2
@@ -297,9 +314,9 @@ end do
 mDIIS = j
 #ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV
-#ifdef _HYBRID_
+#if ( _SUB_METHOD_ == 2 )
 write(u6,*) 'nExplicit:',nExplicit,'=',2*(nDIIS-1),'+',nKrylov
-#elif defined (_HYBRID2_)
+#elif ( _SUB_METHOD_ == 3 )
 write(u6,*) 'nExplicit:',nExplicit,'=',2*nDIIS-1,'+',nKrylov
 #else
 write(u6,*) 'nExplicit:',nExplicit
@@ -378,7 +395,7 @@ call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 
 call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 
-!We need to set the bias
+! We need to set the bias
 
 blavAI = Ten
 call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)

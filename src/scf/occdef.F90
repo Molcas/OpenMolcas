@@ -357,4 +357,5 @@ subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,Label)
 end subroutine DebugCMO
 #endif
 
+#undef _DEBUGPRINT_
 end subroutine OccDef
