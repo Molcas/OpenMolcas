@@ -1,4 +1,4 @@
-Subroutine BP_Driver()
+Subroutine Drv2el_BP()
 use Integral_interfaces, only: int_wrout, Int_Postprocess
 use k2_arrays, only: DeDe
 use definitions, only: wp
@@ -36,5 +36,5 @@ Call set_Breit(0)
 Int_PostProcess => Null()
 call mma_deallocate(DeDe)
 
-End Subroutine BP_Driver
+End Subroutine Drv2el_BP
 

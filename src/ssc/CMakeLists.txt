@@ -12,7 +12,7 @@
 set (sources
      main.F90
      ssc.F90
-     BP_driver.F90
+     drv2el_BP.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)
