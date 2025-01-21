@@ -146,6 +146,7 @@ set (sources
      int_setup.F90
      integral_interfaces.F90
      integral_wrout2.F90
+     integral_wrout2_BP.F90
      inter.F90
      inter1.F90
      iobuf.F90
