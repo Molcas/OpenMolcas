@@ -34,7 +34,7 @@ use Gateway_Info, only: ThrInt
 use sort_data, only: DimSyB, lSll
 use Constants, only: One
 use Definitions, only: wp, iwp
-use Breit, only: D_tensor, PSO
+use Breit, only: D_tensor, PAO
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -51,8 +51,8 @@ real(kind=wp) :: A_Int
 ! observe that we will walk through the memory in AOint in a
 ! sequential way.
 
-D_tensor(1,1) = D_tensor(1,1) + 1.0D0
-If (Associated(PSO)) D_tensor(2,2)= 1.0D0
+
+If (.Not.Associated(PAO)) Call Abend()
 
 iAOsti = iAOst(1)
 iAOstj = iAOst(2)
@@ -84,7 +84,6 @@ do i1=1,iCmp
               do iSOi=iSO,iSO+iBas-1
                 nijkl = nijkl+1
                 A_Int = AOint(nijkl,1,i1,i2,i3,i4)
-                if (abs(A_Int) < ThrInt) cycle
 
 
               end do

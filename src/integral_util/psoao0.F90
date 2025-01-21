@@ -44,8 +44,9 @@ use Gateway_global, only: force_part_c, force_part_p
 use k2_arrays, only: Sew_Scr
 use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
-use Breit, only: nComp, Do_BP_Integrals, PSO
+use Breit, only: nComp, Do_BP_Integrals, PSO, PAO
 use Definitions, only: iwp, u6
+use Constants, only: Zero
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, nSD
@@ -350,11 +351,13 @@ end if
 If (Do_BP_Integrals .and. nIrrep>1) Then
    Mem1 = Mem1 - kSOInt
    ipMem1 = ipMem1 + kSOInt
-   PSO(1:kSOInt)=>Sew_Scr(1:kSOInt)
+   PSO(1:nijkl,1:nSO)=>Sew_Scr(1:kSOInt)
+   PSO(:,:)=Zero
 Else If (Do_BP_Integrals .and. nIrrep==1) Then
    Mem1 = Mem1 - nabcd*nijkl
    ipMem1 = ipMem1 + nabcd*nijkl
-   PSO(1:nabcd*nijkl)=>Sew_Scr(1:nabcd*nijkl)
+   PAO(1:nijkl,1:iCmp,1:jCmp,1:kCmp,1:lCmp)=>Sew_Scr(1:nabcd*nijkl)
+   PAO(:,:,:,:,:)=Zero
 End If
 
 iSD4(4,1) = iBsInc
