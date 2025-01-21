@@ -12,12 +12,29 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine ssc(LuSpool,ireturn)
+subroutine ssc(iRC)
 use definitions, only: iwp
+use spool, only: SpoolInp, Close_LuSpool
 Implicit None
-integer(kind=iwp), Intent(In) :: LuSpool
-integer(kind=iwp), Intent(out) :: iReturn
+integer(kind=iwp), Intent(out) :: iRC
 
-ireturn = Luspool
+integer(kind=iwp) :: LuSpool, nDiff
+logical(kind=iwp) :: DoRys
+integer(kind=iwp), external :: IsFreeUnit
+
+LuSpool = 37
+LuSpool=IsFreeUnit(LuSpool)
+call SpoolInp(LuSpool)
+
+nDiff = 2
+DoRys = .True.
+call IniSew(DoRys,nDiff)
+
+call Close_LuSpool(LuSpool)
+
+Call BP_Driver()
+
+Call ClsSew()
+iRC=0
 
 end subroutine ssc

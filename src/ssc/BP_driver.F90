@@ -3,7 +3,7 @@
       use definitions, only: wp
       Implicit None
       real(kind=wp) :: ThrAO
-      procedure(int_wrout) :: Integral_WrOut_BP
+      procedure(int_wrout) :: Integral_WrOut2_BP
 
 ! use the Breit option computing 1/r^3 integralas but convert to
 ! conventional 1/r integrals
@@ -16,7 +16,7 @@
 
 !setting up post-processing routines
 
-      Int_PostProcess => Integral_WrOut_BP
+      Int_PostProcess => Integral_WrOut2_BP
 !     to be developed.
 !     Modify Integral_Wrout2 to Integral_wrout_bp
 !     Modify plf2 to plt2_BP

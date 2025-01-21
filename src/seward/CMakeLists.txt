@@ -11,9 +11,7 @@
 
 set (sources
      main.F90
-     BP_driver.F90
      drv1el.F90
-     drv2el.F90
      drv_fck.F90
      input_seward.F90
      nemo_opt1.F90
