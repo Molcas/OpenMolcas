@@ -44,7 +44,7 @@ integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4),
 real(kind=wp), intent(in) :: AOint(ijkl,6,iCmp,jCmp,kCmp,lCmp)
 integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOSti, iAOStj, iAOStk, iAOStl, iBin, iSO, iSOi, &
                      iSOs(4), jSO, jSOj, kSO, kSOk, lSO, lSOl, nijkl
-real(kind=wp) :: A_Int
+real(kind=wp) :: Prod_ij
 
 ! quadruple loop over elements of the basis functions angular
 ! description. loops are reduced to just produce unique SO integrals
@@ -83,7 +83,18 @@ do i1=1,iCmp
             do jSOj=jSO,jSO+jBas-1
               do iSOi=iSO,iSO+iBas-1
                 nijkl = nijkl+1
-                A_Int = AOint(nijkl,1,i1,i2,i3,i4)
+                Prod_ij = AOint(nijkl,1,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(1,1) = D_tensor(1,1) + Prod_ij
+                Prod_ij = AOint(nijkl,2,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(2,1) = D_tensor(2,1) + Prod_ij
+                Prod_ij = AOint(nijkl,3,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(3,1) = D_tensor(3,1) + Prod_ij
+                Prod_ij = AOint(nijkl,4,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(2,2) = D_tensor(2,2) + Prod_ij
+                Prod_ij = AOint(nijkl,5,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(2,3) = D_tensor(2,3) + Prod_ij
+                Prod_ij = AOint(nijkl,6,i1,i2,i3,i4)*PAO(nijkl,i1,i2,i3,i4)
+                D_tensor(3,3) = D_tensor(3,3) + Prod_ij
 
 
               end do
