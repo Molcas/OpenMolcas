@@ -33,7 +33,7 @@ use Index_Functions, only: iTri, nTri_Elem1, nTri3_Elem1
 use setup, only: mSkal
 use iSD_data, only: iSD, nSD
 use k2_structure, only: Indk2, k2_Processed, k2Data
-use k2_arrays, only: BraKet, Create_BraKet, DeDe, Destroy_BraKet, DoGrad_, DoHess_, ipOffD, Sew_Scr
+use k2_arrays, only: BraKet, Create_BraKet, Destroy_BraKet, DoGrad_, DoHess_, ipOffD, Sew_Scr
 use Basis_Info, only: DBSC, Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Gateway_global, only: force_part_c
@@ -41,6 +41,7 @@ use Sizes_of_Seward, only: S
 use UnixInfo, only: ProgName
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Definitions, only: wp, iwp
+use Dens_Stuff, only: ipDDij, nDij=>mDij, nDCR=>mDCRij
 #ifdef _DEBUGPRINT_
 use Gateway_Info, only: lSchw
 use Definitions, only: u6
@@ -48,10 +49,10 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, ipMem1, ipMem2, iPrim, &
+integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipMem1, ipMem2, iPrim, &
                      iPrimi, iPrimS, iS, iSD4(0:nSD,4), iShell, iShll, iShllV(2), jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
                      jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
-                     mScree, nBasi, nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
+                     mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
@@ -202,11 +203,11 @@ do iS=1,mSkal
 
     ijS = iTri(iShell,jShell)
     if (DoFock) then
-      ipDij = ipOffD(1,ijS)
+      ipDDij = ipOffD(1,ijS)
       nDCR = ipOffD(2,ijS)
       nDij = ipOffD(3,ijS)
     else
-      ipDij = -1
+      ipDDij = -1
       nDCR = 1
       nDij = 1
     end if
@@ -270,7 +271,7 @@ do iS=1,mSkal
     call k2Loop(Coor,iSD4(1,:),iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
                 BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
                 BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &
-                mdci,mdcj,DeDe(ipDij),nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
+                mdci,mdcj,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
 
     Indk2(2,ijS) = nDCRR
     mk2 = mk2+nDCRR

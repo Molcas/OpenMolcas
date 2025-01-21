@@ -14,7 +14,7 @@
 
 !#define _DEBUGPRINT_
 subroutine k2Loop(Coor,iAnga,iCmpa,iShll,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta, &
-                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,iStb,jStb,Dij,nDij,nDCR,ijCmp,DoFock,Scr,nScr,Knew, &
+                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,iStb,jStb,ijCmp,DoFock,Scr,nScr,Knew, &
                   Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx)
 !***********************************************************************
 !                                                                      *
@@ -38,18 +38,19 @@ use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
+use k2_arrays, only: DeDe
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
+use Dens_Stuff, only: ipDij=>ipDDij, nDij=>mDij, nDCR=>mDCRij
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), iCmpa(4), iShll(2), iDCRR(0:7), nDCRR, nAlpha, nBeta, iBasn, jBasn, nZeta, IncZZ, &
-                                 nWork2, iStb, jStb, nDij, nDCR, ijCmp, nScr, nNew, nHRRMtrx
-real(kind=wp), intent(in) :: Coor(3,4), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Con(nZeta), &
-                             Dij(nDij,nDCR)
+                                 nWork2, iStb, jStb, ijCmp, nScr, nNew, nHRRMtrx
+real(kind=wp), intent(in) :: Coor(3,4), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Con(nZeta)
 type(k2_type), intent(inout) :: k2data(nDCRR)
 real(kind=wp), intent(out) :: Alpha_(nZeta), Beta_(nZeta), Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3), Scr(nScr,3), &
                               Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3), HMtrx(nHrrMtrx,2)
@@ -68,6 +69,15 @@ procedure(rys2d_kernel) :: Rys2D
 procedure(tval_kernel) :: TERIS
 logical(kind=iwp), external :: EQ, TF
 real(kind=wp), external :: EstI
+real(kind=wp), pointer:: Dij(:,:)
+
+if (DoFock) then
+  Dij(1:nDij,1:nDCR) => DeDe(ipDij:ipDij+nDij*nDCR-1)
+else
+  ! dummy association
+  Dij(1:1,1:1) => DeDe(-1:-1)
+end if
+
 
 !                                                                      *
 !***********************************************************************
@@ -353,6 +363,6 @@ do lDCRR=0,nDCRR-1
 # endif
 end do ! lDCRR
 
-return
+Dij=>null()
 
 end subroutine k2Loop
