@@ -44,7 +44,7 @@ logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
 integer(kind=iwp) :: MemMax, ipMOC, MemCMO
 integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4, nTemp
 integer(kind=iwp) :: ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX
-integer(kind=iwp) :: MemFck, MemFin, MemPSO, MemX
+integer(kind=iwp) :: MemFck, MemFin, MemX
 integer(kind=iwp) :: kCmp, lCmp, nijkl
 integer(kind=iwp), external :: MemSO2_P
 real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:), Temp(:)
@@ -114,7 +114,7 @@ call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 !
 !------------------------------------------------------------------*
 
-call PSOAO2(nSO,MemMax,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
+call PSOAO2(nSO,MemMax,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -217,7 +217,7 @@ do iBasAO=1,iBasi,iBsInc
         !----------------------------------------------------------*
 
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
-        if (ldot2) call PGet0(nijkl,PSO,nSO,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
+        if (ldot2) call PGet0(nijkl,PSO,nSO,Work2,Mem2,nQuad,PMax,iSD4)
 
         ! Compute gradients of shell quadruplet
 

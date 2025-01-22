@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine PSOAO2(nSO,MemM,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
+subroutine PSOAO2(nSO,MemM,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -77,14 +77,14 @@ use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: nTri_Elem1
 use Gateway_global, only: force_part_p !, force_part_c
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: lPSO, iFnc
+use pso_stuff, only: lPSO, iFnc, MemPSO
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemM, nAco, nSD, MemBuffer
-integer(kind=iwp), intent(out) :: Mem1, Mem2, Mem3, Mem4, MemX, MemPSO, MemFck, nFT, MemFin
+integer(kind=iwp), intent(out) :: Mem1, Mem2, Mem3, Mem4, MemX, MemFck, nFT, MemFin
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), iPrim, iPrInc, iTmp1, j, jBas, jBsInc, jCmp, jPam, &
                      jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPrim, lPrInc, &
