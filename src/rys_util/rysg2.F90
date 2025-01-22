@@ -75,7 +75,8 @@ use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nHess, IndGrd(3,4,0:7), nOp(4), iuvwx(4)
+integer(kind=iwp), intent(inout) :: nRys
+integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP, lQ, nArray, nPAO, nHess, IndGrd(3,4,0:7), nOp(4), iuvwx(4)
 real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), &
                              P(lP,3), Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), PAO(nT,nPAO)
 real(kind=wp), intent(inout) :: Array(nArray), Hess(nHess)
@@ -101,6 +102,7 @@ la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
 ld = iAnga(4)
+nRys=(la+lb+lc+ld+2+2)/2
 lla = 0
 llb = 0
 llc = 0
