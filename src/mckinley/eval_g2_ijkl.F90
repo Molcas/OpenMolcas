@@ -34,7 +34,7 @@ logical(kind=iwp), intent(in):: lGrad, lHess, lPick, New_Fock
 real(kind=wp) :: Coor(3,4), PMax
 logical(kind=iwp) :: lTri, lDot, lDot2
 logical(kind=iwp), parameter :: n8=.true.
-integer(kind=iwp) :: nSO, nRys, iFnc(4), iSD4(0:nSD,4)
+integer(kind=iwp) :: nSO, iFnc(4), iSD4(0:nSD,4)
 integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
 integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
@@ -103,7 +103,7 @@ if (nSO == 0) ldot2 = .false.
 
 ! Compute memory request for the primitives.
 
-call MemRg2(iSD4(1,:),nRys,MemPrm)
+call MemRg2(iSD4(1,:),MemPrm)
 
 !------------------------------------------------------------------*
 !
@@ -227,7 +227,7 @@ do iBasAO=1,iBasi,iBsInc
 
         ! Compute gradients of shell quadruplet
 
-        call TwoEl_mck(Coor,nRys,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
+        call TwoEl_mck(Coor,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
                        Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,nBuffer,lgrad,ldot2,n8,ltri, &
                        DTemp,DInAc,moip,nAco,MOC,MemCMO,new_fock,iSD4)
         Post_Process = .true.
