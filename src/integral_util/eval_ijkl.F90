@@ -57,15 +57,15 @@ use UnixInfo, only: SuperName
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: wp, iwp
+use eval_arrays, only: SOInt, AOInt
 
 implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, &
-                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, Mem1, Mem2, MemMax, MemPrm, n, nAO, nIJKL, nSO
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, &
+                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, MemPrm, n, nAO, nIJKL, nSO
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: NoInts
-real(kind=wp), pointer :: SOInt(:), AOInt(:)
 integer(kind=iwp), external :: iDAMax_
 integer(kind=iwp), external :: MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
@@ -114,7 +114,6 @@ else
   MemMax = size(Sew_Scr)
 end if
 !write(u6,*) 'Eval_ints: MemMax=',MemMax
-ipMem1 = 1
 
 !write(u6,*) ' -->',iS,jS,kS,lS,'<--'
 !                                                                      *
@@ -169,9 +168,7 @@ call MemRys(iSD4(1,:),MemPrm)
 !                                                                      *
 ! Decide on the partioning of the shells based on the
 ! available memory and the requested memory.
-call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
-SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
-AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
+call PSOAO0(nSO,MemPrm,MemMax,DoFock,nSD,iSD4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -239,7 +236,7 @@ do iBasAO=1,iBasi,iBsInc
         !                                                              *
         !         Compute SO/AO-integrals
 
-        call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Mem2,iSD4)
+        call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Size(AOInt),iSD4)
 
 #       ifdef _DEBUGBREIT_
         if (nOrdOp /= 0) then

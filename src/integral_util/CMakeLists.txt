@@ -89,6 +89,7 @@ set (sources
      esti.F90
      etwas.F90
      eval_ijkl.F90
+     eval_arrays.F90
      exparr.F90
      expnd_i.F90
      fckacc_nosym.F90
@@ -321,6 +322,7 @@ set (modfile_list
      efp_.F90
      efp_module.F90
      etwas.F90
+     eval_arrays.F90
      getline_mod.F90
      int_options.F90
      integral_interfaces.F90

@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,DoFock,nSD,iSD4)
+subroutine PSOAO0(nSO,MemPrm,MemMax,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -47,19 +47,23 @@ use Symmetry_Info, only: nIrrep
 use Breit, only: nComp, Do_BP_Integrals, PSO, PAO
 use Definitions, only: iwp, u6
 use Constants, only: Zero
+use eval_arrays, only: SOInt, AOInt
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, nSD
-integer(kind=iwp), intent(inout) :: ipMem1
-integer(kind=iwp), intent(out) :: ipMem2, Mem1, Mem2
 logical(kind=iwp), intent(in) :: DoFock
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 #include "Molcas.fh"
 integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBsInc, jCmp, jPrim, jPrInc, kBas, kBsInc, kCmp, &
                      kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPack, lPrim, lPrInc, lSize, mabcd, mabMax, &
                      mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, &
-                     na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2
+                     na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, ipMem1, Mem1, ipMem2, Mem2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
+
+ipMem1 = 1
+ipMem2 = 0
+Mem1 = 0
+Mem2 = 0
 
 la = iSD4(1,1)
 lb = iSD4(1,2)
@@ -370,5 +374,8 @@ iSD4(6,1) = iPrInc
 iSD4(6,2) = jPrInc
 iSD4(6,3) = kPrInc
 iSD4(6,4) = lPrInc
+
+SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
+AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 
 end subroutine PSOAO0

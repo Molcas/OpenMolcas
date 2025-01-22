@@ -46,12 +46,13 @@ use Dens_Stuff, only: ipDDij, nDij=>mDij, nDCR=>mDCRij
 use Gateway_Info, only: lSchw
 use Definitions, only: u6
 #endif
+use eval_arrays, only: SOInt, Mem2=>AOInt
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipMem1, ipMem2, iPrim, &
+integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, iPrim, &
                      iPrimi, iPrimS, iS, iSD4(0:nSD,4), iShell, iShll, iShllV(2), jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
-                     jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
+                     jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, MemMax, MemPrm, MemTmp, mk2, &
                      mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
@@ -126,7 +127,6 @@ else
   call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
   !write(u6,*) 'Drvk2: Memory allocated:',MemMax
 end if
-ipMem1 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -235,7 +235,7 @@ do iS=1,mSkal
     iSD4(5,2) = nZeta
     force_part_save = force_part_c
     force_part_c = .false.
-    call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
+    call PSOAO0(nSO,MemPrm,MemMax,.false.,nSD,iSD4)
 
     force_part_c = force_part_save
     ijInc = min(iSD4(4,2),iSD4(6,2))
@@ -244,15 +244,6 @@ do iS=1,mSkal
     jPrimj = jPrims
     iSD4(5,1) = iPrimS
     iSD4(5,2) = jPrimS
-
-#   ifdef _DEBUGPRINT_
-    write(u6,*) ' ************** Memory partioning **************'
-    write(u6,*) ' ipMem1=',ipMem1
-    write(u6,*) ' ipMem2=',ipMem2
-    write(u6,*) ' Mem1=',Mem1
-    write(u6,*) ' Mem2=',Mem2
-    write(u6,*) ' ***********************************************'
-#   endif
 
     ! Find the Double Coset Representatives for center A and B.
 
@@ -270,7 +261,7 @@ do iS=1,mSkal
     ik2 = Indk2(3,ijS)
     call k2Loop(Coor,iSD4(1,:),iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
                 BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
-                BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &
+                BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Mem2,Size(Mem2),nScree,mScree, &
                 mdci,mdcj,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
 
     Indk2(2,ijS) = nDCRR
@@ -278,7 +269,7 @@ do iS=1,mSkal
 
   end do
 end do
-
+nullify(SOInt,Mem2)
 call Destroy_Braket()
 !                                                                      *
 !***********************************************************************
@@ -315,6 +306,5 @@ call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
 
 end subroutine Drvk2
