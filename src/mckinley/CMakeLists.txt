@@ -43,7 +43,6 @@ set (sources
      drvg2.F90
      drvh1_mck.F90
      drvh2.F90
-     drvk2_mck.F90
      drvn1_mck.F90
      drvn2.F90
      elgrd.F90
@@ -53,7 +52,6 @@ set (sources
      fckacc_mck.F90
      hssprt.F90
      inputh.F90
-     k2loop_mck.F90
      knegrd_mck.F90
      knehss.F90
      knemem_mck.F90
@@ -86,7 +84,6 @@ set (sources
      ovrhss.F90
      ovrmem_mck.F90
      ovrmmh.F90
-     pckint_mck.F90
      pckmo2.F90
      pickmo.F90
      prjgrd_mck.F90
@@ -98,7 +95,6 @@ set (sources
      request_mclr_run.F90
      rtocore.F90
      rtosph.F90
-     schint_mck.F90
      screen_mck.F90
      smadna.F90
      sort_mck.F90

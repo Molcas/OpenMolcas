@@ -25,7 +25,7 @@ subroutine AlloK2()
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1, nTri3_Elem1
-use k2_arrays, only: DoGrad_, DoHess_, MaxDe, nDeDe
+use k2_arrays, only: DoGrad_, MaxDe, nDeDe
 use iSD_data, only: iSD
 use Basis_Info, only: Shells
 use Sizes_of_Seward, only: S
@@ -39,7 +39,8 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp) :: iAng, iAO, iBas, iCmp, iDeSiz, iIrrep, ijCmp, ijS, ik2, iPrim, iS, iShell, iShll, iSMLbl, jAng, jAO, jBas, &
-                     jCmp, jPrim, jS, jShell, jShll, nData, nHm, nIndK2, nk2_integer, nk2_real, Nr_of_Densities, nSkal, nSO, nZeta
+                     jCmp, jPrim, jS, jShell, jShll, nData, nHm, nIndK2, nk2_integer, nk2_real, nSkal, nSO, nZeta
+integer(kind=iwp), parameter :: nr_of_Densities = 1 ! Hardwired option
 integer(kind=iwp), external :: MemSO1
 
 #ifdef _DEBUGPRINT_
@@ -76,7 +77,6 @@ do iS=1,nSkal
     ijCmp = 0
     if (DoGrad_) ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
-    if (DoHess_) nHm = 0
 
     ik2 = ik2+1
 
@@ -96,7 +96,6 @@ call Allocate_k2Data(nIrrep,ik2)
 ik2 = 0
 nDeDe = 0
 MaxDe = 0
-nr_of_Densities = 1 ! Hardwired option
 
 nIndk2 = nTri_Elem(S%nShlls)
 call mma_allocate(Indk2,3,nIndk2,Label='Indk2')
@@ -142,7 +141,6 @@ do iS=1,nSkal
     ijCmp = 0
     if (DoGrad_) ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
-    if (DoHess_) nHm = 0
 
     ijS = iTri(iShell,jShell)
     ik2 = ik2+1

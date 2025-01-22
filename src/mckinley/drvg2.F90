@@ -30,12 +30,12 @@ subroutine Drvg2(Hess,nHess,lGrad,lHess)
 !             Anders Bernhardsson 1995-1996                            *
 !***********************************************************************
 
-use setup, only: MxPrm, nAux
+use setup, only: MxPrm
 use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, RASSCF
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Aux, Create_BraKet_Base, DeDe, DeDe2, Destroy_BraKet_Base, ipDijS, ipDijS2, &
-                     ipOffD, ipOffDA, MxDij, nDeDe, Sew_Scr
+use k2_arrays, only: DeDe, DeDe2, ipDijS, ipDijS2, ipOffD, ipOffDA, MxDij, nDeDe, Sew_Scr
+use k2_arrays, only: DoHess_
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -54,10 +54,10 @@ logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iBas, iCmp, iCnttp, id, id_Tsk, idd, iDisk, iDisp, iIrr, iIrrep, ij, ijSh,  &
                      ip, iPrim, iS, iShll, jBas, jCmp, jDisp, jIrr, js, kIrr, klSh, iAng, ks, ls, &
                      mDeDe, nBuffer, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, ndisp, &
-                     nijS, nIndij, nMO, nPairs, nQuad, nSkal, nTemp
-real(kind=wp) :: A_int, TMax_all
-logical(kind=iwp) :: lpick, new_fock, Post_Process
-integer(kind=iwp), allocatable :: Ind_ij(:,:)
+                     nij, nIndij, nMO, nPairs, nQuad, nSkal, nTemp
+real(kind=wp) :: A_int, TMax_all, ThrAO
+logical(kind=iwp) :: lpick, Post_Process, Indexation, DoFock, DoGrad
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:), Buffer(:)
 real(kind=wp), pointer :: Temp(:)
 integer(kind=iwp), parameter :: Nr_of_Densities = 1
@@ -74,10 +74,10 @@ call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
 
 ipDijS = 0
 ipDijS2 = 0
+lpick = lgrad .and. (nIrrep/=1)
 
 ndisp = 0
 nACO = 0
-New_Fock = nirrep == 1
 do iS=0,nIrrep-1
   moip(iS) = nACO
   nDisp = nDisp+ldisp(is)
@@ -90,23 +90,13 @@ Hess(:) = Zero
 !                                                                      *
 call Set_Basis_Mode('Valence')
 call Setup_iSD()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Precompute k2 entities.
 
-lpick = lgrad .and. (.not. New_Fock)
-
-call Drvk2_mck(new_Fock)
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Allocate auxiliary array for symmetry transformation
-
-nAux = nIrrep**3
-if (nIrrep == 1) nAux = 1
-call mma_allocate(Aux,nAux,Label='Aux')
+Indexation = .false.
+ThrAO=Zero
+DoFock=.False.
+DoGrad=.False.
+DoHess_=.True.
+call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -130,7 +120,6 @@ do iAng=0,S%iAngMx
 end do
 MxDij = 6*nIrrep*MxDij
 
-call Create_BraKet_Base(MxPrm**2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -210,7 +199,7 @@ if (lGrad) then
   DTemp(:) = Zero
   call mma_allocate(DInAc,nDens,Label='DInAc')
   DInAc(:) = Zero
-  if (New_Fock) then
+  if (nIrrep == 1) then
     if (nmethod /= RASSCF) then
       call Get_D1ao_Var(DTemp,nDens)
       DTemp(:) = Half*DTemp
@@ -283,19 +272,21 @@ nQuad = nTri_Elem(nPairs)
 
 call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
 call Shell_MxSchwz(nSkal,TMax)
+
 TMax_all = Zero
 do iS=1,nSkal
   do jS=1,iS
-    TMax_all = max(TMax_all,TMax(iS,jS))
+     TMax_all = max(TMax_all,TMax(iS,jS))
   end do
 end do
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(Ind_ij,2,nPairs,Label='Ind_ij')
-nijS = 0
+call mma_allocate(Pair_Index,2,nPairs,Label='Ind_ij')
+nij = 0
 nBuffer = 1  ! Dummy length
 do iS=1,nSkal
   iCmp = iSD(2,iS)
@@ -304,26 +295,19 @@ do iS=1,nSkal
     jCmp = iSD(2,jS)
     jBas = iSD(3,jS)
     if (TMax_All*TMax(iS,jS) >= CutInt) then
-      nijS = nijS+1
-      Ind_ij(1,nijS) = iS
-      Ind_ij(2,nijS) = jS
+      nij = nij+1
+      Pair_Index(1,nij) = iS
+      Pair_Index(2,nij) = jS
       if ((nMethod == RASSCF) .and. lGrad)   &
          nBuffer = Max(nBuffer,nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nIrrep)
     end if
   end do
 end do
-call Init_Tsk(id_Tsk,nijS)
-!                                                                    *
-!*********************************************************************
-!                                                                    *
-! Cltrls for MO transformation
-!                                                                    *
-!*********************************************************************
-!                                                                    *
 Call mma_allocate(Buffer,nBuffer,Label='Buffer')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+call Init_Tsk(id_Tsk,nij)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -332,8 +316,8 @@ Call mma_allocate(Buffer,nBuffer,Label='Buffer')
 ! make reservation of a task on global task list and get task range
 ! in return. Function will be false if no more tasks to execute.
 do while (Rsv_Tsk(id_Tsk,ijSh))
-  iS = Ind_ij(1,ijSh)
-  jS = Ind_ij(2,ijSh)
+  iS = Pair_Index(1,ijSh)
+  jS = Pair_Index(2,ijSh)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -345,15 +329,15 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   !*********************************************************************
   !                                                                    *
   Post_Process = .false.
-  do klSh=1,nijS
-    ks = Ind_ij(1,klSh)
-    ls = Ind_ij(2,klSh)
+  do klSh=1,nij
+    ks = Pair_Index(1,klSh)
+    ls = Pair_Index(2,klSh)
 
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) cycle
 
     Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer, &
-                      Buffer,nDens, DTemp, DInAc, moip, New_Fock, n_Int, nQuad)
+                      Buffer,nDens, DTemp, DInAc, moip, n_Int, nQuad)
 
   end do ! klS
 
@@ -374,7 +358,7 @@ Call mma_deallocate(Buffer)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (New_Fock) then
+if (nIrrep==1) then
   idd = 0
   do iS=0,nirrep-1
     do iD=1,ldisp(is)
@@ -419,26 +403,22 @@ do iIrr=0,nIrrep-1
   end do
 end do
 
-call mma_deallocate(Ind_ij)
+call mma_deallocate(Pair_Index)
 call mma_deallocate(TMax)
 call Free_iSD()
 
 call mma_deallocate(DeDe)
 call mma_deallocate(DeDe2)
-if (.not. New_Fock) then
+if (nIrrep/=1) then
   call mma_deallocate(ipOffD)
   if (nMethod == RASSCF) then
     call mma_deallocate(ipOffDA)
   end if
 end if
 
-call Destroy_BraKet_Base()
-
 call mma_deallocate(DInAc)
 call mma_deallocate(DTemp)
 call mma_deallocate(iInt)
-
-call mma_deallocate(Aux)
 
 call Term_Ints()
 

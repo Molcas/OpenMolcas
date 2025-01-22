@@ -80,7 +80,6 @@ DoGrad = .false.
 DoFock = .false.
 Indexation = .true.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-Int_PostProcess => Integral_RI_2
 
 call mma_Allocate(SO2Ind,nSOs,Label='SO2Ind')
 call Mk_iSO2Ind(iSO2Sh,SO2Ind,nSOs,nSkal)
@@ -108,14 +107,14 @@ call mma_allocate(TMax,nSkal,Label='TMax')
 call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
 call Shell_MxSchwz(nSkal,Tmp)
 
-!call RecPrt('Tmp',' ',Tmp,nSkal,nSkal)
 
 TMax(:) = Tmp(:,nSkal)
-call mma_deallocate(Tmp)
 TMax_all = Zero
 do iS=1,nSkal
   TMax_all = max(TMax_all,TMax(iS))
 end do
+
+call mma_deallocate(Tmp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -161,6 +160,7 @@ do iIrrep=0,nIrrep-1
   kCol_Irrep(iIrrep) = 0
 end do
 
+Int_PostProcess => Integral_RI_2
 iS = nSkal
 kS = nSkal
 

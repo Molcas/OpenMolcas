@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PrGrad(Label,Grad,nGrad,Names)
+subroutine PrGrad(Label,Grad,nGrad)
 !***********************************************************************
 !                                                                      *
 ! Object: to print set gradient with respect to the symmetrical dis-   *
@@ -24,13 +24,13 @@ subroutine PrGrad(Label,Grad,nGrad,Names)
 
 use Symmetry_Info, only: lIrrep
 use Definitions, only: wp, iwp, u6
+use Disp, only: Names=>ChDisp
 
 implicit none
 #include "Molcas.fh"
 character(len=*), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(in) :: Grad(nGrad)
-character(len=LenIn6), intent(in) :: Names(nGrad)
 integer(kind=iwp) :: iCen, iGrad, mGrad
 real(kind=wp) :: CGrad(3,MxAtom), Temp, TempX, TempY, TempZ
 character(len=LenIn5) :: CNames(MxAtom), Namei

@@ -10,7 +10,7 @@
 #***********************************************************************
 
 set (sources
-     caspt2_grad_btamp.F90
+     caspt2_btamp.F90
      cmbnm2.F90
      cmbnmlt1.F90
      cmbnrf1.F90

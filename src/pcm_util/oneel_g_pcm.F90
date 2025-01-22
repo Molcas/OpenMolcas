@@ -45,7 +45,6 @@ use Symmetry_Info, only: ChOper, nIrrep
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
 use define_af, only: AngTp
-use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -283,7 +282,7 @@ do ijS=1,nTasks
 
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,Fnl,iPrim*jPrim,iAng,jAng,A,RB,nOrder,Kern, &
                   MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,nComp,iStabM,nStabM)
-      if (iPrint >= 49) call PrGrad_pcm(' In Oneel',Grad,nGrad,ChDisp,5)
+      if (iPrint >= 49) call PrGrad_pcm(' In Oneel',Grad,nGrad,5)
 
     end do
   end if
@@ -303,7 +302,7 @@ call mma_deallocate(ZI)
 call mma_deallocate(Kappa)
 call mma_deallocate(PCoor)
 
-if (iPrint >= 15) call PrGrad_pcm(Label,Grad,nGrad,ChDisp,5)
+if (iPrint >= 15) call PrGrad_pcm(Label,Grad,nGrad,5)
 
 return
 

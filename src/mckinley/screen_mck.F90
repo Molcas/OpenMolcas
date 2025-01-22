@@ -79,6 +79,7 @@ if (PreScr) then
   do iZeta=1,mZeta
     jZeta = k2Data1%IndZ(iOffZ+iZeta)
     IndZet(jZeta) = -lZeta
+    Write (6,*) k2Data1%ab(iOffZ+iZeta),cdMax
     abcd = k2Data1%ab(iOffZ+iZeta)*cdMax
     if (abs(abcd) >= CutInt) then
       lZeta = lZeta+1

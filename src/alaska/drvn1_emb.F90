@@ -25,7 +25,7 @@ subroutine DrvN1_EMB(Grad,Temp,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
-use Disp, only: ChDisp, Dirct, IndDsp
+use Disp, only: Dirct, IndDsp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -201,7 +201,7 @@ do iCnttp=1,nCnttp
 end do
 if (iPrint >= 15) then
   Lab = ' OFE Nuclear Repulsion Contribution'
-  call PrGrad(Lab,Temp,nGrad,ChDisp)
+  call PrGrad(Lab,Temp,nGrad)
 end if
 
 call mma_deallocate(Charge_B)
