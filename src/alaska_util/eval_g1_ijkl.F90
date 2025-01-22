@@ -34,7 +34,7 @@ real(kind=wp), intent(InOut):: Temp(nGrad)
 real(kind=wp), intent(In):: A_Int
 
 integer(kind=iwp) :: iSD4(0:nSD,4), iCar, iSh, iBasAO, jBasAO, kBasAO, lBasAO, iFnc(4)
-integer(kind=iwp) :: MemMax, nSO, MemPSO, MemPrm
+integer(kind=iwp) :: MemMax, nSO, MemPSO
 integer(kind=iwp) :: ijklA, JndGrd(3,4), nijkl, nPairs, nQuad
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
 integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
@@ -71,19 +71,6 @@ No_batch = nSO == 0
 if (No_batch) Return
 
 call Coor_Setup(iSD4,nSD,Coor)
-!                                                                *
-!*****************************************************************
-!                                                                *
-! -------> Memory Managment <--------
-!
-! Compute memory request for the primitives, i.e.
-! how much memory is needed up to the transfer
-! equation.
-
-call MemRys_g(iSD4,nSD,MemPrm)
-!                                                                *
-!*****************************************************************
-!                                                                *
 ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
 ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
 if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) Return
@@ -103,7 +90,7 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !
 ! Now check if all blocks can be computed and stored at once.
 
-Call PSOAO1(nSO,MemPrm,MemMax,iFnc,MemPSO,nSD,iSD4)
+Call PSOAO1(nSO,MemMax,iFnc,MemPSO,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)

@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO1(nSO,MemPrm,MemMax,iFnc,MemPSO,nSD,iSD4)
+subroutine PSOAO1(nSO,MemMax,iFnc,MemPSO,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -48,16 +48,22 @@ use k2_arrays, only: Sew_Scr
 use eval_arrays, only: PSO, Scr
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, nSD
+integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
 integer(kind=iwp), intent(out) :: iFnc(4), MemPSO
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), IncVec, iPrim, iPrInc, iTmp1, j, jBas, jBsInc, &
                      jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, &
                      lPrim, lPrInc, lSize, mabcd, Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, &
-                     nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1, mijkl, nijkl, ipMem1, ipMem2, Mem1, Mem2
+                     nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1, mijkl, nijkl, ipMem1, ipMem2, Mem1, Mem2, MemPrm
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 #include "Molcas.fh"
+
+! Compute memory request for the primitives, i.e.
+! how much memory is needed up to the transfer
+! equation.
+
+call MemRys_g(iSD4,nSD,MemPrm)
 
 ipMem1 = 1
 la = iSD4(1,1)
