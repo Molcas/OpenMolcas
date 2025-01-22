@@ -47,7 +47,7 @@ use Symmetry_Info, only: nIrrep
 use Breit, only: nComp, Do_BP_Integrals, PSO, PAO
 use Definitions, only: iwp, u6
 use Constants, only: Zero
-use eval_arrays, only: SOInt, AOInt
+use eval_arrays, only: SOInt, AOInt, Scr
 
 use PSO_Stuff, only: lPSO, Gamma_On, nGamma, iFnc, MemPSO
 use SOAO_Info, only: iAOtSO
@@ -66,8 +66,8 @@ integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBs
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 ! Variable for the use for the optional handling of the 2-particle density matrix in PGet0 in the case of the computation
 ! of Breit-Pauli integrals.
-integer(kind=iwp) :: nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4)
-
+integer(kind=iwp) :: nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4), MemSph, &
+                     MemDeP, MemTrn
 integer(kind=iwp), external :: MemTra
 !                                                                      *
 !***********************************************************************
@@ -290,8 +290,16 @@ do
       nGamma = 0
     endif
 
+    MemDeP = nabcd*nijkl
+
+    MemTrn = mabcd*max(nijkl,mijkl)
+
+    MemSph = mabcd*nijkl
   else
     nGamma = 0
+    MemDeP = 0
+    MemTrn = 0
+    MemSph = 0
   endif
 
   ! MemPr  : Scratch for Rys
@@ -368,9 +376,6 @@ do
   nA1a = max(nabcd,mabcd)*mijkl
   nA2a = IncVec*max(kPrim,lPrim)
   nA3a = kBsInc*lBsInc*nVec1
-  !write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
-  !write(u6,*) 'nVec1,lSize=',nVec1,lSize
-  !write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
 
   ! Contraction of the two first indices: iPrim->iBas & jPrim->jBas
   ! while the third and fourth indices are contracted.
@@ -383,10 +388,6 @@ do
   nA3b = iBsInc*jBsInc*nVec2
   if (MemAux /= 0) nA3b = 0
   MemCon = max(MemCon,max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b))
-  !write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
-  !write(u6,*) 'nVec2,lSize=',nVec1,lSize
-  !write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
-  !write(u6,*) 'MemCon     :',MemCon
 
   ! MemSp1 : Scratch for the transformation from cartesian to
   !          spherical harmonics. This is executed inside the
@@ -420,7 +421,8 @@ do
   else
     MemPck = 0
   end if
-  Mem2 = max((MemPr+MemAux),(MemCon+MemAux),(MemSp1+MemAux),MemFck,MemPck,(nGamma+MemAux0))
+  Mem2 = max((MemPr+MemAux),(MemCon+MemAux),(MemSp1+MemAux),MemFck,MemPck, &
+             MemTrn+MemAux,MemDeP,MemSph,nGamma+MemAux0) ! Stuff to accomodate PGet0
   if (Mem2+1 > Mem0) then
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 Fail)
@@ -481,6 +483,9 @@ Else If (Do_BP_Integrals .and. nIrrep==1) Then
    ipMem1 = ipMem1 + nabcd*nijkl
    PAO(1:nijkl,1:iCmp,1:jCmp,1:kCmp,1:lCmp)=>Sew_Scr(1:nabcd*nijkl)
    PAO(:,:,:,:,:)=Zero
+End If
+If (Do_BP_Integrals) Then
+   Scr(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 End If
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)

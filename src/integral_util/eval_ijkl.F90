@@ -57,7 +57,7 @@ use UnixInfo, only: SuperName
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: wp, iwp
-use eval_arrays, only: SOInt, AOInt
+use eval_arrays, only: SOInt, AOInt, Scr
 
 implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nTInt
@@ -270,7 +270,7 @@ do iBasAO=1,iBasi,iBsInc
     end do
   end do
 end do
-nullify(SOInt,AOInt)
+nullify(SOInt,AOInt,Scr)
 call Destroy_BraKet()
 !                                                                      *
 !***********************************************************************

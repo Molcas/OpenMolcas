@@ -90,7 +90,6 @@ set (sources
      prjhss.F90
      prjmm1.F90
      prjmmh.F90
-     psoao0_h.F90
      psoao2.F90
      request_mclr_run.F90
      rtocore.F90
