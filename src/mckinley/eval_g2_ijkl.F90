@@ -104,7 +104,7 @@ if (nSO == 0) ldot2 = .false.
 ! Compute memory request for the primitives.
 
 iDer = 2
-if (.not. ldot2) iDer = 1
+!if (.not. ldot2) iDer = 1
 call MemRg2(iSD4(1,:),nRys,MemPrm,iDer)
 
 !------------------------------------------------------------------*

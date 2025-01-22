@@ -29,7 +29,7 @@ iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
 iAng(4) = 0
-call MemRg2(iAng,nHer,Mem,1)
+call MemRg2(iAng,nHer,Mem,2)
 Mem = Mem+10
 
 return
