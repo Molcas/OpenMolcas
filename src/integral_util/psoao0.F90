@@ -49,7 +49,7 @@ use Definitions, only: iwp, u6
 use Constants, only: Zero
 use eval_arrays, only: SOInt, AOInt
 
-use PSO_Stuff, only: lPSO
+use PSO_Stuff, only: lPSO, Gamma_On, nGamma
 use SOAO_Info, only: iAOtSO
 use Sizes_of_Seward, only: S
 
@@ -264,27 +264,56 @@ do
   Mem0 = Mem0-Mem1-1
 
   ! Work2
+
+  ! nGamma: temporary storage of bins as read from file.
+
+  If (Do_BP_Integrals) Then
+    if (Gamma_On) then
+      iiBas(1) = iBas
+      iiBas(2) = jBas
+      iiBas(3) = kBas
+      iiBas(4) = lBas
+      nGamma = 1
+
+      do jPam=1,4
+        nTmp1 = 0
+        do j=0,nIrrep-1
+          do i1=1,iCmpa(jPam)
+            if (iAOtSO(iAO(jPam)+i1,j) > 0) then
+              nTmp1 = nTmp1+iiBas(jPam)
+            end if
+          end do
+        end do
+        nGamma = nGamma*nTmp1
+      end do
+    else
+      nGamma = 0
+    endif
+
+  else
+    nGamma = 0
+  endif
+
   ! MemPr  : Scratch for Rys
+
+  MemPr = MemPrm*mijkl
 
   ! Memory for the Rys-Gauss procedure. This includes memory for
   ! all the intermediate arrays AND the {e0|f0} block.
 
-  MemPr = MemPrm*mijkl
-
   ! MemAux : Auxiliary memory for partial contraction.
-
-  ! If the primitive block is not full we need to accumulate primitive
-  ! contributions to the contracted block. This will require a
-  ! permanant pice of memory, during the computation of the primitive
-  ! sublocks, where the incomplete block of contracted integrals are
-  ! stored (Work4) - mabcd*nijkl.
 
   if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
     MemAux = max(mabcd,nabcd)*nijkl
   else
     MemAux = 0
   end if
-  !write(u6,*) 'MemAux:',MemAux
+
+  ! If the primitive block is not full we need to accumulate primitive
+  ! contributions to the contracted block. This will require a
+  ! permanant pice of memory, during the computation of the primitive
+  ! sublocks, where the incomplete block of contracted integrals are
+  ! stored (Work4) - mabcd*nijkl.
 
   ! MemCon : Scratch for the contraction step
 
@@ -317,10 +346,6 @@ do
   nA2a = max(iPrim,jPrim)*IncVec
   ! Size of the half transformed integrals
   nA3a = iBsInc*jBsInc*nVec1
-  !write(u6,*)
-  !write(u6,*) 'IncVec,iPrim,jPrim:',IncVec,iPrim,jPrim
-  !write(u6,*) 'nVec1,lSize=',nVec1,lSize
-  !write(u6,*) 'nA1,nA2,nA3:',nA1a,nA2a,nA3a
 
   ! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
   ! while the first and second indices are contracted.
@@ -333,10 +358,6 @@ do
   nA3b = kBsInc*lBsInc*nVec2
   if (MemAux /= 0) nA3b = 0
   MemCon = max(nA1a,nA3b)+max(nA2a,nA2b)+max(nA3a,nA1b)
-  !write(u6,*) 'IncVec,kPrim,lPrim:',IncVec,kPrim,lPrim
-  !write(u6,*) 'nVec2,lSize=',nVec1,lSize
-  !write(u6,*) 'nA1,nA2,nA3:',nA1b,nA2b,nA3b
-  !write(u6,*) 'MemCon     :',MemCon
 
   ! Contraction of the two last indices: kPrim->kBas & lPrim->lBas
   ! while the first and second indices are uncontracted.
@@ -399,7 +420,7 @@ do
   else
     MemPck = 0
   end if
-  Mem2 = max((MemPr+MemAux),(MemCon+MemAux),(MemSp1+MemAux),MemFck,MemPck)
+  Mem2 = max((MemPr+MemAux),(MemCon+MemAux),(MemSp1+MemAux),MemFck,MemPck,(nGamma+MemAux0))
   if (Mem2+1 > Mem0) then
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 Fail)
@@ -436,17 +457,6 @@ else
   lwSqN = 0
 end if
 
-If (Do_BP_Integrals .and. nIrrep>1) Then
-   Mem1 = Mem1 - kSOInt
-   ipMem1 = ipMem1 + kSOInt
-   PSO(1:nijkl,1:nSO)=>Sew_Scr(1:kSOInt)
-   PSO(:,:)=Zero
-Else If (Do_BP_Integrals .and. nIrrep==1) Then
-   Mem1 = Mem1 - nabcd*nijkl
-   ipMem1 = ipMem1 + nabcd*nijkl
-   PAO(1:nijkl,1:iCmp,1:jCmp,1:kCmp,1:lCmp)=>Sew_Scr(1:nabcd*nijkl)
-   PAO(:,:,:,:,:)=Zero
-End If
 
 iSD4(4,1) = iBsInc
 iSD4(4,2) = jBsInc
@@ -458,6 +468,20 @@ iSD4(6,2) = jPrInc
 iSD4(6,3) = kPrInc
 iSD4(6,4) = lPrInc
 
+! If BP-integrals are computed we need additional space to store the 2-particle density matrix. This
+! was already accounted for above. Now we just set up the pointers to relize that.
+
+If (Do_BP_Integrals .and. nIrrep>1) Then
+   Mem1 = Mem1 - kSOInt
+   ipMem1 = ipMem1 + kSOInt
+   PSO(1:nijkl,1:nSO)=>Sew_Scr(1:kSOInt)
+   PSO(:,:)=Zero
+Else If (Do_BP_Integrals .and. nIrrep==1) Then
+   Mem1 = Mem1 - nabcd*nijkl
+   ipMem1 = ipMem1 + nabcd*nijkl
+   PAO(1:nijkl,1:iCmp,1:jCmp,1:kCmp,1:lCmp)=>Sew_Scr(1:nabcd*nijkl)
+   PAO(:,:,:,:,:)=Zero
+End If
 SOInt(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 AOInt(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 
