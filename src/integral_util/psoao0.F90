@@ -49,6 +49,11 @@ use Definitions, only: iwp, u6
 use Constants, only: Zero
 use eval_arrays, only: SOInt, AOInt
 
+use PSO_Stuff, only: lPSO
+use SOAO_Info, only: iAOtSO
+use Sizes_of_Seward, only: S
+
+
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
 logical(kind=iwp), intent(in) :: DoFock
@@ -59,13 +64,19 @@ integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBs
                      mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, &
                      na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, ipMem1, Mem1, ipMem2, Mem2, MemPrm
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
-
+! Variable for the use for the optional handling of the 2-particle density matrix in PGet0 in the case of the computation
+! of Breit-Pauli integrals.
+integer(kind=iwp) :: MemPSO, nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4), &
+                     iFnc(4)
+integer(kind=iwp), external :: MemTra
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Compute memory request for the primitives, i.e.
 ! how much memory is needed up to the transfer equation.
 call MemRys(iSD4(1,:),MemPrm)
+
+iFnc(:)=0
 
 ipMem1 = 1
 ipMem2 = 0
@@ -91,6 +102,9 @@ iPrim = iSD4(5,1)
 jPrim = iSD4(5,2)
 kPrim = iSD4(5,3)
 lPrim = iSD4(5,4)
+
+iAO(:) = iSD4(7,:)
+iCmpa(:) = iSD4(2,:)
 
 nab = iCmp*jCmp
 ncd = kCmp*lCmp
@@ -185,6 +199,68 @@ do
     end if
     cycle
   end if
+
+  ! In case of the computation of the Breit-Pauli integrals check if the scratch for the handling of the 2-particle
+  ! density matrix in is sufficiently large. Note that this code to a very large extent, of course, is identical to
+  ! the code in PSOAO1. BE CAREFUL WHEN MODIFIED!
+
+  If (Do_BP_Integrals) Then
+  ! Allocate memory for MO to SO/AO transformation
+  ! of the 2nd order density matrix for this shell quadruplet.
+
+    if (lPSO) then
+      iiBas(1) = iBsInc
+      iiBas(2) = jBsInc
+      iiBas(3) = kBsInc
+      iiBas(4) = lBsInc
+      nPam(:,:) = 0
+      MemPSO = 1
+      nTmp2 = 0
+
+      do jPam=1,4
+        iTmp1 = 0
+        nTmp1 = 0
+        do j=0,nIrrep-1
+          do i1=1,iCmpa(jPam)
+            if (iAOtSO(iAO(jPam)+i1,j) > 0) then
+              nPam(jPam,j) = nPam(jPam,j)+iiBas(jPam)
+              nTmp1 = nTmp1+iiBas(jPam)
+              iTmp1 = iTmp1+1
+            end if
+          end do
+        end do
+        MemPSO = MemPSO*nTmp1
+        nTmp2 = nTmp2+nTmp1
+        iFnc(jPam) = iTmp1
+      end do
+      MemScr = MemTra(nPam)
+      nFac = 4
+      nTmp2 = nTmp2+4
+    else
+      MemScr = 0
+      MemPSO = 0
+      nFac = 0
+      nTmp2 = 0
+    end if
+    MemAux0 = MemPSO+MemScr+nFac*S%nDim+nTmp2+4
+    if (Mem1+1+MemAux0 > Mem0) then
+      call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
+                  Fail)
+      if (Fail) then
+        write(u6,*) ' Memory allocation failed for Work1'
+        write(u6,'(2I3,L1,2I3,L1)') iBas,iBsInc,QiBas,kBas,kBsInc,QkBas
+        write(u6,'(2I3,L1,2I3,L1)') jBas,jBsInc,QjBas,lBas,lBsInc,QlBas
+        write(u6,'(2I3,L1,2I3,L1)') jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim
+        write(u6,*) MemMax,Mem0,Mem1,MemAux0+1
+        write(u6,*) MemPSO,MemScr,4*S%nDim,nTmp2+4
+        call Abend()
+      end if
+      cycle
+    end if
+
+  Else
+    MemAux0 = 0
+  End If
   Mem0 = Mem0-Mem1-1
 
   ! Work2
