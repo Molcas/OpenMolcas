@@ -51,7 +51,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), IncVec, iPrim, iPrInc, iTmp1, j, jBas, jBsInc, &
-                     jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, &
+                     jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, la, lb, lBas, lBsInc, lc, lCmp, ld, &
                      lPrim, lPrInc, lSize, mabcd, Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, &
                      nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1, mijkl, nijkl, ipMem1, ipMem2, Mem1, Mem2, MemPrm
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
@@ -129,8 +129,7 @@ do
 
   ! Memory for 2nd order density matrix in SO basis.
 
-  kSOInt = nSO*nijkl
-  Mem1 = kSOInt
+  Mem1 = nijkl * nSO
 
   ! Allocate memory for MO to SO/AO transformation
   ! of the 2nd order density matrix for this shell quadruplet.
@@ -339,7 +338,7 @@ iSD4(6,3) = kPrInc
 iSD4(6,4) = lPrInc
 
 
-PSO(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
+PSO(1:nijkl,1:nSO) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
 Scr(1:Mem2) => Sew_Scr(ipMem2:ipMem2+Mem2-1)
 
 end subroutine PSOAO1

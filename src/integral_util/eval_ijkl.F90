@@ -41,10 +41,10 @@ subroutine Eval_ijkl(iS,jS,kS,lS,TInt,nTInt)
 !***********************************************************************
 
 use Index_Functions, only: iTri
-use setup, only: nSOs
+use setup, only: nSOs, nSkal=>mSkal
 use k2_arrays, only: Create_BraKet, Destroy_Braket, iSOSym, Sew_Scr
 use iSD_data, only: iSD, nSD
-use Breit, only: nComp
+use Breit, only: nComp, Do_BP_Integrals
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Int_Options, only: DoFock, DoIntegrals
@@ -57,14 +57,14 @@ use UnixInfo, only: SuperName
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: wp, iwp
-use eval_arrays, only: SOInt, AOInt, Scr
+use eval_arrays, only: SOInt, AOInt, Scr, PSO, PAO
 
 implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, &
-                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, n, nAO, nIJKL, nSO
-real(kind=wp) :: Coor(3,4), Tmax
+                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, n, nAO, nIJKL, nSO, nPairs, nQuad
+real(kind=wp) :: Coor(3,4), Tmax, PMax
 logical(kind=iwp) :: NoInts
 integer(kind=iwp), external :: iDAMax_
 integer(kind=iwp), external :: MemSO2
@@ -74,6 +74,11 @@ integer(kind=iwp), parameter :: SCF = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+
+PMax = Zero
+nPairs = nSkal*(nSkal+1)/2
+nQuad = nPairs*(nPairs+1)/2
+
 TInt(:) = Zero
 #ifdef _DEBUGBREIT_
 ! use the Breit option computing 1/r^3 integralas but convert to
@@ -213,6 +218,16 @@ do iBasAO=1,iBasi,iBsInc
           call Picky(nSD,iSD4,2,4)
         end if
 
+
+        If (Do_BP_Integrals) Then
+           nijkl = iBasn*jBasn*kBasn*lBasn
+           If (nIrrep==1) Then
+              call PGet0(nijkl,PAO,nSO,Scr,Size(Scr),nQuad,PMax,iSD4)
+           Else
+              call PGet0(nijkl,PSO,nSO,Scr,Size(Scr),nQuad,PMax,iSD4)
+           End If
+        End If
+
         nijkl = iBasn*jBasn*kBasn*lBasn*nComp ! *nComp is a fix for BP integrals
 
         !                                                              *
@@ -270,7 +285,7 @@ do iBasAO=1,iBasi,iBsInc
     end do
   end do
 end do
-nullify(SOInt,AOInt,Scr)
+nullify(SOInt,AOInt,Scr,PSO,PAO)
 call Destroy_BraKet()
 !                                                                      *
 !***********************************************************************

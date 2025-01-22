@@ -29,7 +29,8 @@ subroutine PLF2_BP(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas,
 
 use SOAO_Info, only: iAOtSO
 use Definitions, only: wp, iwp
-use Breit, only: D_tensor, PAO
+use Breit, only: D_tensor
+use eval_arrays, only: PAO
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif

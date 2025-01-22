@@ -44,10 +44,10 @@ use Gateway_global, only: force_part_c, force_part_p
 use k2_arrays, only: Sew_Scr
 use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
-use Breit, only: nComp, Do_BP_Integrals, PSO, PAO
+use Breit, only: nComp, Do_BP_Integrals
 use Definitions, only: iwp, u6
 use Constants, only: Zero
-use eval_arrays, only: SOInt, AOInt, Scr
+use eval_arrays, only: SOInt, AOInt, Scr, PSO, PAO
 
 use PSO_Stuff, only: lPSO, Gamma_On, nGamma, iFnc, MemPSO
 use SOAO_Info, only: iAOtSO
@@ -66,9 +66,8 @@ integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBs
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 ! Variable for the use for the optional handling of the 2-particle density matrix in PGet0 in the case of the computation
 ! of Breit-Pauli integrals.
-integer(kind=iwp) :: nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4), MemSph, &
-                     MemDeP, MemTrn
-integer(kind=iwp), external :: MemTra
+integer(kind=iwp) :: nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4)
+integer(kind=iwp), external:: MemTra
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -290,16 +289,8 @@ do
       nGamma = 0
     endif
 
-    MemDeP = nabcd*nijkl
-
-    MemTrn = mabcd*max(nijkl,mijkl)
-
-    MemSph = mabcd*nijkl
   else
     nGamma = 0
-    MemDeP = 0
-    MemTrn = 0
-    MemSph = 0
   endif
 
   ! MemPr  : Scratch for Rys
@@ -422,7 +413,7 @@ do
     MemPck = 0
   end if
   Mem2 = max((MemPr+MemAux),(MemCon+MemAux),(MemSp1+MemAux),MemFck,MemPck, &
-             MemTrn+MemAux,MemDeP,MemSph,nGamma+MemAux0) ! Stuff to accomodate PGet0
+             nGamma+MemAux0) ! Stuff to accomodate PGet0
   if (Mem2+1 > Mem0) then
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
                 Fail)

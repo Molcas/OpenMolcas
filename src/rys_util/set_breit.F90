@@ -13,7 +13,7 @@
 
 subroutine Set_Breit(n)
 
-use Breit, only: nOrdOp, nComp, Do_BP_Integrals, PSO, PAO
+use Breit, only: nOrdOp, nComp, Do_BP_Integrals
 use Definitions, only: iwp, u6
 
 integer(kind=iwp), intent(in) :: n
@@ -22,8 +22,6 @@ nOrdOp = n
 if (nOrdOp == 0) then
   nComp = 1
   Do_BP_Integrals=.False.
-  PSO=>Null()
-  PAO=>Null()
 else if (nOrdOp == 1) then
   nComp = 6
   Do_BP_Integrals=.True.
