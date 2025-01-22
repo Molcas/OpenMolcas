@@ -52,7 +52,7 @@ implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
 integer(kind=iwp) :: iAng, iBas, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, iPrim, &
                      iPrimi, iPrimS, iS, iSD4(0:nSD,4), iShell, iShll, iShllV(2), jAng, jBas, jCmp, jCnt, jCnttp, jPrim, jPrimj, &
-                     jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, MemMax, MemPrm, MemTmp, mk2, &
+                     jPrimS, jS, jShell, jShll, la_, mabMax_, mabMin_, mdci, mdcj, MemMax, MemTmp, mk2, &
                      mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
 real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
@@ -214,11 +214,6 @@ do iS=1,mSkal
 
     nSO = 1
 
-    ! Compute memory request for the primitives, i.e. how much
-    ! memory is needed up to the transfer equation.
-
-    call MemRys(iSD4(1,:),MemPrm)
-
     ! Decide on the partioning of the shells based on
     ! on the available memory and the requested memory
 
@@ -235,7 +230,7 @@ do iS=1,mSkal
     iSD4(5,2) = nZeta
     force_part_save = force_part_c
     force_part_c = .false.
-    call PSOAO0(nSO,MemPrm,MemMax,.false.,nSD,iSD4)
+    call PSOAO0(nSO,MemMax,.false.,nSD,iSD4)
 
     force_part_c = force_part_save
     ijInc = min(iSD4(4,2),iSD4(6,2))

@@ -13,7 +13,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PSOAO0(nSO,MemPrm,MemMax,DoFock,nSD,iSD4)
+subroutine PSOAO0(nSO,MemMax,DoFock,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -50,15 +50,22 @@ use Constants, only: Zero
 use eval_arrays, only: SOInt, AOInt
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemMax, nSD
+integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
 logical(kind=iwp), intent(in) :: DoFock
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 #include "Molcas.fh"
 integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBsInc, jCmp, jPrim, jPrInc, kBas, kBsInc, kCmp, &
                      kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPack, lPrim, lPrInc, lSize, mabcd, mabMax, &
                      mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, MemFck, MemPck, MemPr, MemSp1, mijkl, na1a, na1b, na2a, na2b, &
-                     na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, ipMem1, Mem1, ipMem2, Mem2
+                     na3a, na3b, nab, nabcd, nCache_, ncd, ne, nf, nijkl, nVec1, nVec2, ipMem1, Mem1, ipMem2, Mem2, MemPrm
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute memory request for the primitives, i.e.
+! how much memory is needed up to the transfer equation.
+call MemRys(iSD4(1,:),MemPrm)
 
 ipMem1 = 1
 ipMem2 = 0

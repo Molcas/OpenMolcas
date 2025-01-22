@@ -63,7 +63,7 @@ implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
 integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, &
-                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, MemPrm, n, nAO, nIJKL, nSO
+                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, MemMax, n, nAO, nIJKL, nSO
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: NoInts
 integer(kind=iwp), external :: iDAMax_
@@ -152,23 +152,9 @@ if (DoFock) call Dens_Infos(SCF)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!#ifdef _DEBUGPRINT_
-!write(u6,*) ' *** Centers ***'
-!write(u6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=1,2)
-!write(u6,'(3F7.3,6X,3F7.3)') ((Coor(i,j),i=1,3),j=3,4)
-!#endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Compute memory request for the primitives, i.e.
-! how much memory is needed up to the transfer equation.
-call MemRys(iSD4(1,:),MemPrm)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 ! Decide on the partioning of the shells based on the
 ! available memory and the requested memory.
-call PSOAO0(nSO,MemPrm,MemMax,DoFock,nSD,iSD4)
+call PSOAO0(nSO,MemMax,DoFock,nSD,iSD4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -239,6 +225,7 @@ do iBasAO=1,iBasi,iBsInc
         call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Size(AOInt),iSD4)
 
 #       ifdef _DEBUGBREIT_
+        nijkl = iBasn*jBasn*kBasn*lBasn
         if (nOrdOp /= 0) then
           if (nIrrep == 1) then
             call ReSort_Int(AOInt,nijkl,6,nAO)
@@ -248,6 +235,7 @@ do iBasAO=1,iBasi,iBsInc
         end if
 #       endif
 #       ifdef _DEBUGPRINT_
+        nijkl = iBasn*jBasn*kBasn*lBasn*nComp
         if (nIrrep == 1) then
           call RecPrt('AOInt',' ',AOInt,nijkl,nAO)
         else
@@ -269,6 +257,7 @@ do iBasAO=1,iBasi,iBsInc
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
+            nijkl = iBasn*jBasn*kBasn*lBasn*nComp
             call Int_PostProcess(nijkl,AOInt,SOInt,nSO,iSOSym,nSOs,TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero
