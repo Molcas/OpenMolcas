@@ -40,7 +40,7 @@ implicit none
 integer(kind=iwp), parameter :: nHess = 1, nPAO = 1 ! Hess, PAO: Dummy arrays
 integer(kind=iwp) :: iAnga(4), iBeta, iCnt, iDCRT(0:7), iElem, indi, Indx(3,4), ipA, ipAOff, ipB, ipBOff, iuvwx(4), &
                      JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kCnt, kCnttp, kdc, kndgrd(3,4,0:7), lDCRT, LmbdT, mOp(4), nArray, nb, &
-                     nDCRT, nGr, nip, nRys
+                     nDCRT, nGr, nip
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fact, Hess(nHess), PAO(nPAO), TC(3)
 logical(kind=iwp) :: DiffCnt, jfg(4), JfGrd(3,4), JfHss(4,3,4,3), kfgrd(3,4), Tr(4)
 procedure(cff2d_kernel) :: Cff2D
@@ -53,6 +53,7 @@ logical(kind=iwp), external :: EQ
 unused_var(Ccoor)
 unused_var(nOrdOp)
 unused_var(Trans)
+unused_var(nHer)
 
 !iRout = 150
 !iPrint = nPrint(iRout)
@@ -60,8 +61,6 @@ unused_var(Trans)
 !if (iPrint >= 99) then
 !  write(u6,*) ' In NAGrd_McK: nArr=',nArr
 !end if
-
-nRys = nHer
 
 nip = 1
 ipA = nip

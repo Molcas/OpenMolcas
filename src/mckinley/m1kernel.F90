@@ -37,6 +37,9 @@ procedure(modu2_kernel) :: Fake
 procedure(tval1_kernel) :: TNAI1
 logical(kind=iwp), external :: EQ
 
+#include "macros.fh"
+unused_var(nRys)
+
 lGrad = idcar /= 0
 lHess = nHess /= 0
 coori(:,:) = coor
