@@ -34,7 +34,7 @@ logical(kind=iwp), intent(in):: lGrad, lHess, lPick
 real(kind=wp) :: Coor(3,4), PMax
 logical(kind=iwp) :: lTri, lDot, lDot2
 logical(kind=iwp), parameter :: n8=.true.
-integer(kind=iwp) :: nSO, iFnc(4), iSD4(0:nSD,4)
+integer(kind=iwp) :: nSO, iSD4(0:nSD,4)
 integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
 integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
@@ -49,7 +49,6 @@ integer(kind=iwp) :: kCmp, lCmp, nijkl
 integer(kind=iwp), external :: MemSO2_P
 real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:), Temp(:)
 
-iFnc(:)=-99
 PMax=Zero
 if (.not. allocated(Sew_Scr)) Then
    call mma_MaxDBLE(MemMax)
@@ -115,7 +114,7 @@ call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 !
 !------------------------------------------------------------------*
 
-call PSOAO2(nSO,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
+call PSOAO2(nSO,MemMax,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -218,7 +217,7 @@ do iBasAO=1,iBasi,iBsInc
         !----------------------------------------------------------*
 
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
-        if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
+        if (ldot2) call PGet0(nijkl,PSO,nSO,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
 
         ! Compute gradients of shell quadruplet
 

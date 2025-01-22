@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO1(nSO,MemMax,iFnc,MemPSO,nSD,iSD4)
+subroutine PSOAO1(nSO,MemMax,MemPSO,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -37,7 +37,7 @@ subroutine PSOAO1(nSO,MemMax,iFnc,MemPSO,nSD,iSD4)
 !             Modified to first order derivatives. January '92         *
 !***********************************************************************
 
-use PSO_Stuff, only: Gamma_On, lPSO, nGamma
+use PSO_Stuff, only: Gamma_On, lPSO, nGamma, iFnc
 use SOAO_Info, only: iAOtSO
 use Gateway_global, only: force_part_c, force_part_p
 use Sizes_of_Seward, only: S
@@ -49,7 +49,7 @@ use eval_arrays, only: PSO, Scr
 
 implicit none
 integer(kind=iwp), intent(in) :: nSO, MemMax, nSD
-integer(kind=iwp), intent(out) :: iFnc(4), MemPSO
+integer(kind=iwp), intent(out) :: MemPSO
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), IncVec, iPrim, iPrInc, iTmp1, j, jBas, jBsInc, &
                      jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, &
@@ -63,6 +63,7 @@ integer(kind=iwp), external :: MemTra
 ! how much memory is needed up to the transfer
 ! equation.
 
+iFnc(:)=0
 call MemRys_g(iSD4,nSD,MemPrm)
 
 ipMem1 = 1

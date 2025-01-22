@@ -32,7 +32,7 @@ integer(kind=iwp), intent(In):: iS, jS, kS, lS, nGrad
 real(kind=wp), intent(InOut):: Temp(nGrad)
 real(kind=wp), intent(In):: A_Int
 
-integer(kind=iwp) :: iSD4(0:nSD,4), iCar, iSh, iBasAO, jBasAO, kBasAO, lBasAO, iFnc(4)
+integer(kind=iwp) :: iSD4(0:nSD,4), iCar, iSh, iBasAO, jBasAO, kBasAO, lBasAO
 integer(kind=iwp) :: MemMax, nSO, MemPSO
 integer(kind=iwp) :: ijklA, JndGrd(3,4), nijkl, nPairs, nQuad
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
@@ -43,7 +43,6 @@ logical(kind=iwp) :: ABCDeq, JfGrad(3,4), No_batch
 logical(kind=iwp), external :: EQ
 real(kind=wp) :: Coor(3,4), PMax
 
-iFnc(:) = 0
 PMax = Zero
 nPairs = nSkal*(nSkal+1)/2
 nQuad = nPairs*(nPairs+1)/2
@@ -89,7 +88,7 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !
 ! Now check if all blocks can be computed and stored at once.
 
-Call PSOAO1(nSO,MemMax,iFnc,MemPSO,nSD,iSD4)
+Call PSOAO1(nSO,MemMax,MemPSO,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -149,7 +148,7 @@ do iBasAO=1,iBasi,iBsInc
         ! Fetch the T_i,j,kappa, lambda corresponding to
         ! kappa = k, lambda = l
 
-        call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Scr,Size(Scr),nQuad,PMax,iSD4)
+        call PGet0(nijkl,PSO,nSO,MemPSO,Scr,Size(Scr),nQuad,PMax,iSD4)
         if (A_Int*PMax < CutInt) Return
 
         ! Compute gradients of shell quadruplet

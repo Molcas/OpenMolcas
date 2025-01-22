@@ -49,7 +49,7 @@ use Definitions, only: iwp, u6
 use Constants, only: Zero
 use eval_arrays, only: SOInt, AOInt
 
-use PSO_Stuff, only: lPSO, Gamma_On, nGamma
+use PSO_Stuff, only: lPSO, Gamma_On, nGamma, iFnc
 use SOAO_Info, only: iAOtSO
 use Sizes_of_Seward, only: S
 
@@ -66,8 +66,8 @@ integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, iPrInc, jBas, jBs
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 ! Variable for the use for the optional handling of the 2-particle density matrix in PGet0 in the case of the computation
 ! of Breit-Pauli integrals.
-integer(kind=iwp) :: MemPSO, nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4), &
-                     iFnc(4)
+integer(kind=iwp) :: MemPSO, nTmp2, nPam(4,0:7), jPam, iTmp1, nTmp1, j, i1, MemScr, nFac, MemAux0, iiBas(4), iAO(4), iCmpa(4)
+
 integer(kind=iwp), external :: MemTra
 !                                                                      *
 !***********************************************************************

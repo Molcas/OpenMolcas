@@ -25,7 +25,7 @@ private
 
 integer(kind=iwp) :: iD0Lbl, iOff_ij2K(8), kCMO, lBin, LuCMOPT2, LuGam, LuGamma, LuGamma2, LuGamma_PT2, m_Txy, mCMO, mDens, mG1, &
                      mG2, n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nFro(8), nG1, nG2, nGamma, nnP(0:7), nOcc(8), npos(0:7,3), &
-                     nSOs1, nSSDM, nV_K, nZ_p_k
+                     nSOs1, nSSDM, nV_K, nZ_p_k, iFnc(4)
 logical(kind=iwp) :: Case_2C, Case_3C, Case_mp2, CASPT2_On = .false., Gamma_mrcisd, Gamma_On, lPSO, lsa, NO_NUC, ReadBPT2 = .false.
 character(len=7) :: FnGam
 integer(kind=iwp), allocatable :: ij2K(:), iOffAO(:), SO2ci(:,:)
@@ -38,6 +38,6 @@ public :: A_PT2, AOrb, B_PT2, Bin, Case_2C, Case_3C, Case_mp2, CASPT2_On, CMO, C
           G_Toc, Gamma_mrcisd, Gamma_On, iD0Lbl, ij2K, iOff_ij2K, iOffAO, kCMO, lBin, lPSO, lsa, LuCMOPT2, LuGam, LuGamma, &
           LuGamma2, LuGamma_PT2, m_Txy, mCMO, mDens, mG1, mG2, n_ij2K, n_Txy, nBasA, nBasASQ, nBasT, nDens, nFro, nG1, nG2, &
           nGamma, nnP, NO_NUC, nOcc, npos, nSOs1, nSSDM, nV_K, nZ_p_k, ReadBPT2, SO2cI, SSDM, Thpkl, Txy, U_k, V_k, WRK1, WRK2, &
-          Z_p_k
+          Z_p_k, iFnc
 
 end module PSO_Stuff
