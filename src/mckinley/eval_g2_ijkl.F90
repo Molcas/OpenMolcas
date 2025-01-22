@@ -44,7 +44,7 @@ logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
 integer(kind=iwp) :: MemMax, ipMOC, MemCMO
 integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4, nTemp
 integer(kind=iwp) :: ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX
-integer(kind=iwp) :: MemFck, MemFin, MemPrm, MemPSO, MemX
+integer(kind=iwp) :: MemFck, MemFin, MemPSO, MemX
 integer(kind=iwp) :: kCmp, lCmp, nijkl
 integer(kind=iwp), external :: MemSO2_P
 real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:), Temp(:)
@@ -100,11 +100,6 @@ if (lTri .and. lPick) call Dens_Infos(nMethod)
 nSO = MemSO2_P(nSD,iSD4)
 ldot2 = ldot
 if (nSO == 0) ldot2 = .false.
-
-! Compute memory request for the primitives.
-
-call MemRg2(iSD4(1,:),MemPrm)
-
 !------------------------------------------------------------------*
 !
 ! Calculate which derivatives should be made.
@@ -120,7 +115,7 @@ call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 !
 !------------------------------------------------------------------*
 
-call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
+call PSOAO2(nSO,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)

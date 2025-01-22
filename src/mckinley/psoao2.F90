@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine PSOAO2(nSO,MemPrm,MemM,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
+subroutine PSOAO2(nSO,MemM,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 !  Object: to partion the SO and AO block. It will go to some length   *
@@ -83,15 +83,19 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, nAco, nSD, MemBuffer
+integer(kind=iwp), intent(in) :: nSO, MemM, nAco, nSD, MemBuffer
 integer(kind=iwp), intent(out) :: iFnc(4), Mem1, Mem2, Mem3, Mem4, MemX, MemPSO, MemFck, nFT, MemFin
 integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), iPrim, iPrInc, iTmp1, j, jBas, jBsInc, jCmp, jPam, &
                      jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPrim, lPrInc, &
                      mabcd, Mem0, MemAux, MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, &
-                     nijkl, nMax, nMaxC, nPam(4,0:7), nTmp1, nTmp2, nCMO
+                     nijkl, nMax, nMaxC, nPam(4,0:7), nTmp1, nTmp2, nCMO, MemPrm
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
+
+! Compute memory request for the primitives.
+
+call MemRg2(iSD4(1,:),MemPrm)
 
 iAO(:) = iSD4(7,:)
 iCmpa(:) = iSD4(2,:)
