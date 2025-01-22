@@ -26,6 +26,7 @@ use Definitions, only: u6
 use Constants, only: Zero
 use setup, only: nSkal=>mSkal
 use RICD_Info, only: RI_3C, RI_2C
+use eval_arrays, only: PSO, Scr
 
 Implicit None
 integer(kind=iwp), intent(In):: iS, jS, kS, lS, nGrad
@@ -33,7 +34,7 @@ real(kind=wp), intent(InOut):: Temp(nGrad)
 real(kind=wp), intent(In):: A_Int
 
 integer(kind=iwp) :: iSD4(0:nSD,4), iCar, iSh, iBasAO, jBasAO, kBasAO, lBasAO, iFnc(4)
-integer(kind=iwp) :: ipMem1, ipMem2, Mem1, Mem2, MemMax, nSO, nRys, MemPSO, MemPrm
+integer(kind=iwp) :: MemMax, nSO, nRys, MemPSO, MemPrm
 integer(kind=iwp) :: ijklA, JndGrd(3,4), nijkl, nPairs, nQuad
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
 integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
@@ -42,7 +43,6 @@ integer(kind=iwp), external :: MemSO2_P
 logical(kind=iwp) :: ABCDeq, JfGrad(3,4), No_batch
 logical(kind=iwp), external :: EQ
 real(kind=wp) :: Coor(3,4), PMax
-real(kind=wp), pointer :: PSO(:)
 
 iFnc(:) = 0
 PMax = Zero
@@ -56,7 +56,6 @@ if (.not. allocated(Sew_Scr)) then
 else
   MemMax = size(Sew_Scr)
 end if
-ipMem1 = 1
 
 
 #ifdef _DEBUGPRINT_
@@ -104,9 +103,7 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 !
 ! Now check if all blocks can be computed and stored at once.
 
-Call PSOAO1(nSO,MemPrm,MemMax,iFnc,ipMem1,ipMem2,Mem1,Mem2,MemPSO,nSD,iSD4)
-
-PSO(1:Mem1) => Sew_Scr(ipMem1:ipMem1+Mem1-1)
+Call PSOAO1(nSO,MemPrm,MemMax,iFnc,MemPSO,nSD,iSD4)
 
 iBasi = iSD4(3,1)
 jBasj = iSD4(3,2)
@@ -166,13 +163,12 @@ do iBasAO=1,iBasi,iBsInc
         ! Fetch the T_i,j,kappa, lambda corresponding to
         ! kappa = k, lambda = l
 
-        call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Sew_Scr(ipMem2),Mem2,nQuad,PMax,iSD4)
+        call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Scr,Size(Scr),nQuad,PMax,iSD4)
         if (A_Int*PMax < CutInt) Return
 
         ! Compute gradients of shell quadruplet
 
-        call TwoEl_g(Coor,nRys,Temp,nGrad,JfGrad,JndGrd,PSO,nijkl,nSO, &
-                     Sew_Scr(ipMem2),Mem2,iSD4)
+        call TwoEl_g(Coor,nRys,Temp,nGrad,JfGrad,JndGrd,PSO,nijkl,nSO,Scr,Size(Scr),iSD4)
 
 #ifdef _DEBUGPRINT_
         call PrGrad(' In Drvg1: Grad',Temp,nGrad,ChDisp)
@@ -184,6 +180,7 @@ do iBasAO=1,iBasi,iBsInc
   end do
 end do
 PSO => Null()
+Scr => Null()
 
 call Destroy_BraKet()
 

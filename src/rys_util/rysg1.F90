@@ -90,6 +90,11 @@ lcd = max(llc,lld)
 nabMax = la+lb+lab
 ncdMax = lc+ld+lcd
 
+if (nrys/=(la+lb+lc+ld+2+1)/2) Then
+   Write (6,*) 'nRys=',nRys
+   Write (6,*) 'la,lb.lc,ld=',la,lb,lc,ld
+   call abend()
+End If
 ! Allocate memory for the integral gradients.
 
 ip = 1
