@@ -52,7 +52,7 @@ integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), IncVec, iPrim, iPrInc, iTmp1, j, jBas, jBsInc, &
                      jCmp, jPam, jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, &
                      lPrim, lPrInc, lSize, mabcd, Mem0, Mem3, MemAux, MemAux0, MemDeP, MemRys, MemScr, MemSph, MemTrn, nA2, nA3, &
-                     nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1
+                     nabcd, nCache, nFac, nPam(4,0:7), nTmp1, nTmp2, nVec1, mijkl, nijkl
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 #include "Molcas.fh"
@@ -113,11 +113,14 @@ do
   QlBas = .false.
   Mem0 = MemMax
 
+  mijkl = iPrInc*jPrInc*kPrInc*lPrInc
+  nijkl = iBsInc*jBsInc*kBsInc*lBsInc
+
   ! *** Work1 ***
 
   ! Memory for 2nd order density matrix in SO basis.
 
-  kSOInt = nSO*iBsInc*jBsInc*kBsInc*lBsInc
+  kSOInt = nSO*nijkl
   Mem1 = kSOInt
 
   ! Allocate memory for MO to SO/AO transformation
@@ -214,17 +217,17 @@ do
     nGamma = 0
   end if
 
-  MemDeP = nabcd*iBsInc*jBsInc*kBsInc*lBsInc
+  MemDeP = nabcd*nijkl
 
-  MemTrn = mabcd*max(iBsInc*jBsInc*kBsInc*lBsInc,iPrInc*jPrInc*kPrInc*lPrInc)
+  MemTrn = mabcd*max(nijkl,mijkl)
   ! If partial decontraction we need to keep the contracted 2nd
   ! order density matrix. (Work4)
   if ((jPrInc /= jPrim) .or. (lPrInc /= lPrim)) then
-    MemAux = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
+    MemAux = mabcd*nijkl
   else
     MemAux = 0
   end if
-  MemSph = mabcd*iBsInc*jBsInc*kBsInc*lBsInc
+  MemSph = mabcd*nijkl
   Mem2 = max(MemTrn+MemAux,MemDeP,MemSph,nGamma+MemAux0)
   if (Mem2+1 > Mem0) then
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &
@@ -288,10 +291,10 @@ do
   IncVec = min(max(1,nCache/lSize),nVec1)
   nA2 = max(iBsInc*jPrInc,iPrInc*jBsInc)*IncVec
 
-  MemTrn = max(MemTrn,nA2+nA3,iFac*mabcd*iBsInc*jBsInc*kBsInc*lBsInc)
+  MemTrn = max(MemTrn,nA2+nA3,iFac*mabcd*nijkl)
 
-  MemRys = MemPrm*iPrInc*jPrInc*kPrInc*lPrInc
-  MemScr = (2*mabcd+1)*iPrInc*jPrInc*kPrInc*lPrInc+iPrInc*jPrInc+kPrInc*lPrInc
+  MemRys = MemPrm*mijkl
+  MemScr = (2*mabcd+1)*mijkl+iPrInc*jPrInc+kPrInc*lPrInc
   Mem3 = max(MemTrn,MemRys,MemScr)
   if (Mem3+1 > Mem0) then
     call Change(iBas,iBsInc,QiBas,kBas,kBsInc,QkBas,jBas,jBsInc,QjBas,lBas,lBsInc,QlBas,jPrim,jPrInc,QjPrim,lPrim,lPrInc,QlPrim, &

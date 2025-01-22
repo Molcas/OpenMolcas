@@ -27,12 +27,7 @@ subroutine PLF2_BP(AOint,ijkl,iCmp,jCmp,kCmp,lCmp,iAO,iAOst,iBas,jBas,kBas,lBas,
 !          May '90                                                     *
 !***********************************************************************
 
-use Index_Functions, only: iTri
 use SOAO_Info, only: iAOtSO
-use lw_Info, only: lwInt, lwSqn, lwSyB
-use Gateway_Info, only: ThrInt
-use sort_data, only: DimSyB, lSll
-use Constants, only: One
 use Definitions, only: wp, iwp
 use Breit, only: D_tensor, PAO
 #ifdef _DEBUGPRINT_
@@ -42,7 +37,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, iCmp, jCmp, kCmp, lCmp, iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4)
 real(kind=wp), intent(in) :: AOint(ijkl,6,iCmp,jCmp,kCmp,lCmp)
-integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOSti, iAOStj, iAOStk, iAOStl, iBin, iSO, iSOi, &
+integer(kind=iwp) :: i1, i2, i3, i4, iAOi, iAOj, iAOk, iAOl, iAOSti, iAOStj, iAOStk, iAOStl, iSO, iSOi, &
                      iSOs(4), jSO, jSOj, kSO, kSOk, lSO, lSOl, nijkl
 real(kind=wp) :: Prod_ij
 

@@ -156,6 +156,7 @@ do
   Mem1 = iFact*kSOInt
   if (Mem1 == 0) Mem1 = 1
   if (nIrrep == 1) Mem1 = 1+(iFact-1)*nabcd*nijkl
+
   if (Mem1+1 > Mem0) then
     QjPrim = .false.
     QlPrim = .false.
