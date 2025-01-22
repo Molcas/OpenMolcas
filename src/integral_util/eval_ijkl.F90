@@ -224,6 +224,8 @@ do iBasAO=1,iBasi,iBsInc
 
         nijkl = iBasn*jBasn*kBasn*lBasn
 
+        nijkl = iBasn*jBasn*kBasn*lBasn
+
 #       ifdef _DEBUGBREIT_
         nijkl = iBasn*jBasn*kBasn*lBasn
         if (nOrdOp /= 0) then

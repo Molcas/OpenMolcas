@@ -34,6 +34,7 @@ use setup, only: mSkal
 use iSD_data, only: iSD, nSD
 use k2_structure, only: Indk2, k2_Processed, k2Data
 use k2_arrays, only: BraKet, Create_BraKet, Destroy_BraKet, DoGrad_, ipOffD, Sew_Scr
+use Dens_Stuff, only: ipDij, nDCR=>mDCRij, nDij=>mDij
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Gateway_global, only: force_part_c

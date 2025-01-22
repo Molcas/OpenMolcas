@@ -40,6 +40,7 @@ use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
 use k2_arrays, only: DeDe, DoHess_
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
+use Dens_Stuff, only: ipDij, nDCR=>mDCRij, nDij=>mDij
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
 use Dens_Stuff, only: ipDDij, nDij=>mDij, nDCR=>mDCRij
@@ -360,6 +361,6 @@ do lDCRR=0,nDCRR-1
 # endif
 end do ! lDCRR
 
-Dij=>null()
+Dij=>Null()
 
 end subroutine k2Loop
