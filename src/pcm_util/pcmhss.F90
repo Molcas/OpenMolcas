@@ -205,7 +205,7 @@ do iTs=1,nTs
     Eta = One
     EInv = One
     nFinal = 0
-    call Rysg2(iAnga,mRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
+    call Rysg2(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[Eta],[EInv],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nOOp,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,mOp,iuvwx,IfG, &
                nFinal,idx,.false.,.true.,Tr)
 

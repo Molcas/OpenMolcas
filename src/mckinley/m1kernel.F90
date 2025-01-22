@@ -109,7 +109,7 @@ do iM1xp=1,dbsc(kCnttp)%nM1
   jndgrd(:,:,0:nirrep-1) = indgrd(:,:,0:nirrep-1)
   jndhss(:,:,:,:,0:nirrep-1) = indhss(:,:,:,:,0:nirrep-1)
 
-  call Rysg2(iAng,nRys,nZeta,Alpha,Beta,[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx),nZeta,TC,1,Coori,Coor, &
+  call Rysg2(iAng,nZeta,Alpha,Beta,[One],[One],Array(ipZ),Array(ipZI),nZeta,[One],[One],1,Array(ipPx),nZeta,TC,1,Coori,Coor, &
              CoorAC,Array(ip),nArray-ip+1,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Hess,nHess,jfGrd,jndGrd,jfHss,jndHss,nOp,iuvwx,jfg, &
              nGr,Indx,lgrad,lhess,tr)
   if (lGrad) then

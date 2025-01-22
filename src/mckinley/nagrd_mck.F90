@@ -179,7 +179,7 @@ do kCnttp=1,nCnttp
       end if
       JFG(3) = .false.
       JFG(4) = .false.
-      call Rysg2(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coora,CoorAC, &
+      call Rysg2(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coora,CoorAC, &
                  Array(nip),nArray,TNAI1,Fake,Cff2D,PAO,nPAO,Hess,nHess,kfGrd,kndGrd,JfHss,JndHss,mOp,iuvwx,Jfg,nGr,Indx,.true., &
                  .false.,tr)
 

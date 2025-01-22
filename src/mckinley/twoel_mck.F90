@@ -472,7 +472,7 @@ do lDCRR=0,nDCRR-1
 
           call Timing(dum1,Time,dum2,dum3)
 
-          call Rysg2(iAngV,nRys,lZeta*lEta,BraKet%xA,BraKet%xB,BraKet%xG,BraKet%xD,BraKet%Zeta,BraKet%ZInv,lZeta,BraKet%Eta, &
+          call Rysg2(iAngV,lZeta*lEta,BraKet%xA,BraKet%xB,BraKet%xG,BraKet%xD,BraKet%Zeta,BraKet%ZInv,lZeta,BraKet%Eta, &
                      BraKet%EInv,lEta,BraKet%P,nZeta,BraKet%Q,nEta,CoorM,CoorM,CoorAC,Work3,nWork3,TERI1,ModU2,Cff2D,Work2, &
                      mab*mcd,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,nOp,iuvwx,IfG,nGr,Indx,lgrad,ldot,Tr)
           call Timing(dum1,Time,dum2,dum3)

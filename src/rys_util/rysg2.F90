@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
+subroutine Rysg2(iAnga,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,Coori,Coora,CoorAC,Array,nArray, &
                  Tvalue,ModU2_k,Cff2D_k,PAO,nPAO,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,nOp,iuvwx,IfG,mVec,Index_Out,lGrad,lHess,Tr)
 !***********************************************************************
 !                                                                      *
@@ -28,7 +28,6 @@ subroutine Rysg2(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta,Zeta,ZInv,nZeta,Eta,EInv,nE
 !             University of Lund                                       *
 !***********************************************************************
 !   @param iAnga     Angular momenta for each center
-!   @param nRys      Order of Rys polynomia
 !   @param nT        Number of alpha-beta-gamma-delta multiplies
 !   @param Alpha     Exponents on 1st center
 !   @param Beta      Exponents on 2nd center
@@ -75,7 +74,6 @@ use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(inout) :: nRys
 integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP, lQ, nArray, nPAO, nHess, IndGrd(3,4,0:7), nOp(4), iuvwx(4)
 real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), &
                              P(lP,3), Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), PAO(nT,nPAO)
@@ -90,7 +88,7 @@ logical(kind=iwp), intent(in) :: lGrad, lHess
 integer(kind=iwp) :: i, iCent, iEta, Index1(3,4), Index2(3,4,4), Index3(3,3), Index4(2,6,3), iOff, ip, ip2D0, ip2D1, ip2D2, ipB00, &
                      ipB01, ipB10, ipDiv, ipEInv, ipEta, ipg2, ipP, ipPAQP, ipQ, ipQCPQ, ipScr, ipScr2, ipTmp, ipTv, ipU2, ipWgh, &
                      ipZeta, ipZInv, iStop, iZeta, jCar, JndGrd(3,4,0:7), kCent, la, lab, labMax, lb, lB00, lB01, lB10, lc, lCar, &
-                     lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, ncdMax, ng(3), nh(3), nTR
+                     lcd, ld, lla, llb, llc, lld, lOp(4), MemFinal, n2D0, n2D1, n2D2, nabMax, ncdMax, ng(3), nh(3), nTR, nRys
 logical(kind=iwp) :: KfGrd(3,4)
 
 KfGrd(:,:) = .false.
