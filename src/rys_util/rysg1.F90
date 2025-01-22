@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine Rysg1(iAnga,nRys,nT,Alpha,Beta,Gmma,Delta, &
+subroutine Rysg1(iAnga,nT,Alpha,Beta,Gmma,Delta, &
                  Zeta,ZInv,nZeta,Eta,EInv,nEta, &
                  P,lP,Q,lQ,Coori,Coora,CoorAC, &
                  Array,nArray,Tvalue,ModU2_k,Cff2D_k,PAO,nPAO,Grad,nGrad,IfGrad,IndGrd,kOp,iuvwx)
@@ -38,7 +38,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
+integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
 real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), &
                              P(lP,3), Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), PAO(nT,nPAO)
 real(kind=wp), intent(inout) :: Grad(nGrad)
@@ -49,7 +49,7 @@ procedure(cff2d_kernel) :: Cff2D_k
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp) :: iEta, Indx(3,4), iOff, ip, ip2D0, ip2D1, ipB00, ipB01, ipB10, ipDiv, ipEInv, ipEta, ipP, ipPAQP, ipQ, ipQCPQ, &
                      ipScr, ipTmp, ipTv, ipU2, ipWgh, ipZeta, ipZInv, iZeta, JndGrd(3,4), la, lab, labMax, lb, lB00, lB01, lB10, &
-                     lc, lcd, ld, lla, llb, llc, lld, lOp(4), mVec, n2D0, n2D1, nabMax, ncdMax, nTR
+                     lc, lcd, ld, lla, llb, llc, lld, lOp(4), mVec, n2D0, n2D1, nabMax, ncdMax, nTR, nRys
 real(kind=wp) :: Temp(9)
 logical(kind=iwp) :: JfGrad(3,4)
 
@@ -90,11 +90,8 @@ lcd = max(llc,lld)
 nabMax = la+lb+lab
 ncdMax = lc+ld+lcd
 
-if (nrys/=(la+lb+lc+ld+2+1)/2) Then
-   Write (6,*) 'nRys=',nRys
-   Write (6,*) 'la,lb.lc,ld=',la,lb,lc,ld
-   call abend()
-End If
+nRys=(la+lb+lc+ld+2+1)/2
+
 ! Allocate memory for the integral gradients.
 
 ip = 1

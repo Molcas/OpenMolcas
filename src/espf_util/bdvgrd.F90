@@ -25,7 +25,7 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7), iDum, ii, iStb(0:7), iOrdOp, ipA, ipAOff, ipB, &
                      ipBOff, ipDAO, iPnt, IPotFl, iPrint, iuvwx(4), iZeta, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, lOp(4), &
-                     mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nGrdPt, nip, nStb, nT
+                     mGrad, nArray, nDAO, nDCRT, nGrdPt, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3), ZFdx, ZFdy, ZFdz
 logical(kind=iwp) :: ESPFexist, JfGrad(3,4), NoLoop
 character(len=180) :: Key
@@ -204,9 +204,7 @@ do iPnt=1,nGrdPt
     ! Compute integrals with the Rys quadrature.
 
     nT = nZeta
-    nDiff = 1
-    mRys = (la+lb+2+nDiff+iOrdOp)/2
-    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One], &
+    call Rysg1(iAnga,nT,Array(ipA),Array(ipB),[One],[One], &
                Zeta,ZInv,nZeta,[One],[One],1, &
                P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(iOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)

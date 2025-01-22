@@ -38,8 +38,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
-                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
-                     nDiff, nip, nStb
+                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, &
+                     nip, nStb
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 procedure(cff2d_kernel) :: XCff2D
@@ -169,11 +169,9 @@ do iTs=1,nTs
 
     ! Compute integrals with the Rys quadrature.
 
-    nDiff = 1
-    mRys = (la+lb+2+nDiff+nOrdOp)/2
     Eta = One
     EInv = One
-    call Rysg1(iAnga,mRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+    call Rysg1(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One], &
                Zeta,ZInv,nZeta,[Eta],[EInv],1, &
                P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nElem(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)

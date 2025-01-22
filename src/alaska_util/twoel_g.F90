@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine TwoEl_g(Coor,nRys,Grad,nGrad,IfGrad,IndGrd,PSO,nijkl,nPSO,Wrk2,nWrk2,iSD4)
+subroutine TwoEl_g(Coor,Grad,nGrad,IfGrad,IndGrd,PSO,nijkl,nPSO,Wrk2,nWrk2,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to generate the SO integrals for four fixed centers and      *
@@ -47,7 +47,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nRys, nGrad, IndGrd(3,4), nijkl, nPSO, nWrk2, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: nGrad, IndGrd(3,4), nijkl, nPSO, nWrk2, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
@@ -510,7 +510,7 @@ do lDCRR=0,nDCRR-1
           ! the PSO matrix now is stored in Wrk2(iW2).
 
           iW3 = iW2+lZeta*lEta*mab*mcd
-          call Rysg1(iAnga,nRys,lZeta*lEta,BraKet%xA,BraKet%xB,BraKet%xG,BraKet%xD, &
+          call Rysg1(iAnga,lZeta*lEta,BraKet%xA,BraKet%xB,BraKet%xG,BraKet%xD, &
                      BraKet%Zeta,BraKet%ZInv,lZeta,BraKet%Eta,BraKet%EInv,lEta, &
                      BraKet%P,nZeta,BraKet%Q,nEta,CoorM,CoorM,CoorAC, &
                      Wrk2(iW3),nWrk3,TERI1,ModU2,vCff2D,Wrk2(iW2),mab*mcd,Grad,nGrad,JfGrad,JndGrd,kOp,iuvwx)

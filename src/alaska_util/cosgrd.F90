@@ -45,8 +45,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, iIrrep, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, &
-                     iRout, iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), kat, lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, &
-                     nDCRT, nDisp, nip, nRys, nStb, nT
+                     iRout, iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), kat, lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, &
+                     nDCRT, nDisp, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 procedure(cff2d_kernel) :: Cff2D
@@ -59,11 +59,10 @@ integer(kind=iwp), external :: NrOpr
 unused_var(rFinal)
 unused_var(Ccoor(1))
 unused_var(nComp)
+unused_var(nHer)
 
 iRout = 151
 iPrint = nPrint(iRout)
-
-nRys = nHer
 
 ! Modify the density matrix with the prefactor
 
@@ -217,9 +216,8 @@ do iTs=1,nTs
     ! Compute integrals with the Rys quadrature.
 
     nT = nZeta
-    mRys = nRys
 
-    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One], &
+    call Rysg1(iAnga,nT,Array(ipA),Array(ipB),[One],[One], &
                Zeta,ZInv,nZeta,[One],[One],1, &
                P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)

@@ -41,7 +41,7 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, ianga(4), iBeta, iCar, iCmp, iDAO, iDCRT(0:7), iIrrep, iM1xp, ip, ipA, ipAOff, ipB, ipBOff, ipDAO, &
                      ipDAOt, ipK, ipPx, ipPy, ipPz, iPrint, ipZ, ipZI, iRout, iuvwx(4), iZeta, j, JndGrd(3,4), kCnt, kCnttp, kdc, &
-                     lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp, nRys
+                     lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, nDisp
 real(kind=wp) :: C(3), Coora(3,4), CoorAC(3,2), Coori(3,4), Fac, Fact, Gmma, PTC2, TC(3), Tmp0, Tmp1
 logical(kind=iwp) :: JfGrad(3,4)
 procedure(cff2d_kernel) :: Cff2D
@@ -57,11 +57,10 @@ unused_var(rFinal)
 unused_var(Ccoor(1))
 unused_var(nOrdOp)
 unused_var(nComp)
+unused_var(nHer)
 
 iRout = 193
 iPrint = nPrint(iRout)
-
-nRys = nHer
 
 if (iPrint >= 49) then
   call RecPrt(' In M1Grd: A',' ',A,1,3)
@@ -273,7 +272,7 @@ do kCnttp=1,nCnttp
 
         ! Compute integrals with the Rys quadrature.
 
-        call Rysg1(iAnga,nRys,nZeta,Array(ipA),Array(ipB),[One],[One], &
+        call Rysg1(iAnga,nZeta,Array(ipA),Array(ipB),[One],[One], &
                    Array(ipZ),Array(ipZI),nZeta,[One],[One],1, &
                    Array(ipPx),nZeta,TC,1,Coori,Coora,CoorAC, &
                    Array(ip),nArray,TNAI1,Fake,Cff2D,Array(ipDAO),nDAO,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)

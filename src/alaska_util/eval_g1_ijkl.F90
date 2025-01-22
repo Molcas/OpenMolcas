@@ -34,7 +34,7 @@ real(kind=wp), intent(InOut):: Temp(nGrad)
 real(kind=wp), intent(In):: A_Int
 
 integer(kind=iwp) :: iSD4(0:nSD,4), iCar, iSh, iBasAO, jBasAO, kBasAO, lBasAO, iFnc(4)
-integer(kind=iwp) :: MemMax, nSO, nRys, MemPSO, MemPrm
+integer(kind=iwp) :: MemMax, nSO, MemPSO, MemPrm
 integer(kind=iwp) :: ijklA, JndGrd(3,4), nijkl, nPairs, nQuad
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
 integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
@@ -80,7 +80,7 @@ call Coor_Setup(iSD4,nSD,Coor)
 ! how much memory is needed up to the transfer
 ! equation.
 
-call MemRys_g(iSD4,nSD,nRys,MemPrm)
+call MemRys_g(iSD4,nSD,MemPrm)
 !                                                                *
 !*****************************************************************
 !                                                                *
@@ -168,7 +168,7 @@ do iBasAO=1,iBasi,iBsInc
 
         ! Compute gradients of shell quadruplet
 
-        call TwoEl_g(Coor,nRys,Temp,nGrad,JfGrad,JndGrd,PSO,nijkl,nSO,Scr,Size(Scr),iSD4)
+        call TwoEl_g(Coor,Temp,nGrad,JfGrad,JndGrd,PSO,nijkl,nSO,Scr,Size(Scr),iSD4)
 
 #ifdef _DEBUGPRINT_
         call PrGrad(' In Drvg1: Grad',Temp,nGrad,ChDisp)

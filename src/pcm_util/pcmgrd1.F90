@@ -38,7 +38,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
-                     iStb(0:7), iTs, iuvwx(4), iZeta, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDiff, &
+                     iStb(0:7), iTs, iuvwx(4), iZeta, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, nArray, nDAO, nDCRT, &
                      nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: NoLoop, JfGrad(3,4)
@@ -183,9 +183,7 @@ do iTs=1,1
     ! Compute integrals with the Rys quadrature.
 
     nT = nZeta
-    nDiff = 1
-    mRys = (la+lb+2+nDiff+nOrdOp)/2
-    call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One], &
+    call Rysg1(iAnga,nT,Array(ipA),Array(ipB),[One],[One], &
                Zeta,ZInv,nZeta,[One],[One],1, &
                P,nZeta,TC,1,Coori,Coori,CoorAC, &
                Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
