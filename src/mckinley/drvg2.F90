@@ -227,6 +227,7 @@ if (lGrad) then
   else
     mmDeDe = nDeDe
     call mma_allocate(ipOffD,3,nIndij,label='ipOffD')
+    Call mma_deallocate(DeDe,safe='*') ! Do away with the external allocation!
     call mma_allocate(DeDe,mmDeDe+MxDij,label='DeDe')
     ipDijS = 1+mmDeDe
     if (nMethod /= RASSCF) then

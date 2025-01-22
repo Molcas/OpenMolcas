@@ -31,7 +31,6 @@ use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, Init_Int_Options, PreSch, Thize, &
                        Quad_ijkl, W2Disc
-use Integral_interfaces, only: Int_PostProcess, int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
@@ -46,7 +45,6 @@ real(kind=wp), allocatable :: TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 logical(kind=iwp), external :: Rsv_GTList
-procedure(int_wrout) :: Integral_WrOut2
 
 !                                                                      *
 !***********************************************************************
@@ -119,7 +117,6 @@ P_Eff = real(nij,kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Int_PostProcess => Integral_WrOut2
 Triangular = .true.
 call Init_TList(Triangular,P_Eff)
 call Init_PPList()
@@ -213,6 +210,5 @@ call mma_deallocate(TMax)
 call Term_Ints()
 call Free_iSD()
 call Init_Int_Options()
-nullify(Int_PostProcess)
 
 end subroutine Drv2El
