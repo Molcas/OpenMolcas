@@ -34,7 +34,7 @@ logical(kind=iwp), intent(in):: lGrad, lHess, lPick, New_Fock
 real(kind=wp) :: Coor(3,4), PMax
 logical(kind=iwp) :: lTri, lDot, lDot2
 logical(kind=iwp), parameter :: n8=.true.
-integer(kind=iwp) :: nSO, nRys, iFnc(4), iSD4(0:nSD,4), iDer
+integer(kind=iwp) :: nSO, nRys, iFnc(4), iSD4(0:nSD,4)
 integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
 integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
 integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
@@ -103,9 +103,7 @@ if (nSO == 0) ldot2 = .false.
 
 ! Compute memory request for the primitives.
 
-iDer = 2
-!if (.not. ldot2) iDer = 1
-call MemRg2(iSD4(1,:),nRys,MemPrm,iDer)
+call MemRg2(iSD4(1,:),nRys,MemPrm)
 
 !------------------------------------------------------------------*
 !

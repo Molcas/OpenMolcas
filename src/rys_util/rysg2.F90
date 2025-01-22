@@ -101,12 +101,6 @@ la = iAnga(1)
 lb = iAnga(2)
 lc = iAnga(3)
 ld = iAnga(4)
-if (nRys/=(la+lb+lc+ld+2+2)/2) Then
-   Write (6,*) 'Crap!'
-   Write (6,*) 'nRys=',nRys
-   Write (6,*) '(la+lb+lc+ld+2+2)/2=',(la+lb+lc+ld+2+2)/2
-   Call Abend()
-endif
 lla = 0
 llb = 0
 llc = 0

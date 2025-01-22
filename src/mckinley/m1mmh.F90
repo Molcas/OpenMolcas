@@ -30,9 +30,8 @@ iAng(1) = la
 iAng(2) = lb
 iAng(3) = 0
 iAng(4) = 0
-call MemRg2(iAng,nHer,Mem,2)
+call MemRg2(iAng,nHer,Mem)
+nHer=(la+lb+2+2)/2
 Mem = Mem+12+nTri_Elem1(la)*nTri_Elem1(lb)
-
-return
 
 end subroutine M1MmH

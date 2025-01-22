@@ -27,7 +27,8 @@ iAng(1) = la
 iAng(2) = lb
 iAng(3) = lr
 iAng(4) = 0
-call MemRg2(iAng,nHer,Mem,2)
+call MemRg2(iAng,nHer,Mem)
+nHer=(la+lb+lr+2+2)/2
 Mem = Mem+2+nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lr)
 
 return
