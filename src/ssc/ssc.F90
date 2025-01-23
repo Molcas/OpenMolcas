@@ -16,15 +16,16 @@ subroutine ssc(iRC)
 use definitions, only: wp, iwp, u6
 use spool, only: SpoolInp, Close_LuSpool
 use Breit, only: D_tensor
-use Constants, only: Zero, Three, gelectron, c_in_au, Four
+use Constants, only: Zero, Two, Three, gelectron, c_in_au, Four
 Implicit None
 integer(kind=iwp), Intent(out) :: iRC
 
-integer(kind=iwp) :: LuSpool, nDiff
+integer(kind=iwp) :: LuSpool, nDiff, i, j
+integer(kind=iwp), parameter :: nH=3
 logical(kind=iwp) :: DoRys
 integer(kind=iwp), external :: IsFreeUnit
 character(len=8) :: Method
-real(kind=wp) R2
+real(kind=wp) R2, EVec(nH,nH), EVal(nH*(nH+1)/2), D, E
 
 
 LuSpool = 37
@@ -61,8 +62,37 @@ call RecPrt('The D tensor, in the traceless form ',' ',D_tensor,3,3)
 Write (u6,*)
 Write (u6,*)
 
+Do i = 1, nH
+   Do j = 1, i
+      EVal(i*(i-1)/2+j)=D_tensor(i,j)
+   End Do
+End Do
+
+call unitmat(EVec,nH)
+
+! Compute eigenvalues and eigenvectors
+
+call NIDiag_new(EVal,EVec,nH,nH)
+call Jacord(EVal,EVec,nH,nH)
+
+Call TriPrt('The diagonal D tensor',' ',EVal,nH)
+Write (u6,*)
+Write (u6,*)
+Call RecPrt('The eigenvectors of the D tensor',' ',EVec,nH,nH)
+Write (u6,*)
+Write (u6,*)
+
+D=(Three/Two)*EVal(1)
+E=(EVal(6)-EVal(3))/Two
+Write (u6,'(2X,A,E15.5,A)') 'D=(3/2)*D_zz      =',D,'cm-1'
+Write (u6,'(2X,A,E15.5,A)') 'E=(1/2)*(D_xx-Dyy)=',E,'cm-1'
+Write (u6,'(2X,A,E15.5  )') 'E/D               =',E/D
+Write (u6,*)
+Write (u6,*)
+
 ! add info to the check file.
 Call Add_Info('D Tensor',D_tensor,6,8)
+
 iRC=0
 
 end subroutine ssc
