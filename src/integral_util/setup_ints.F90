@@ -34,12 +34,13 @@ use BasisMode, only: Auxiliary_Mode, Basis_Mode, Valence_Mode, With_Auxiliary_Mo
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
+use Breit, only: nComp
 
 implicit none
 integer(kind=iwp), intent(out) :: nSkal
 logical(kind=iwp), intent(in) :: Indexation, DoFock, DoGrad
 real(kind=wp), intent(in) :: ThrAO
-integer(kind=iwp) :: i, iIrrep, iSOs, nBas_iIrrep
+integer(kind=iwp) :: i, iIrrep, iSOs, nBas_iIrrep, nComp_Save
 
 if (allocated(iSOSym)) then
   call Nr_Shells(nSkal)
@@ -129,10 +130,12 @@ call mma_allocate(FT,MxFT,Label='FT')
 !                                                                      *
 ! Precompute k2 entities
 
+nComp_Save=nComp    ! ensure that the drvk2 environment is executed for conventional ERIs
+nComp=1
 call Drvk2(DoFock,DoGrad)
+nComp=nComp_Save
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
 
 end subroutine SetUp_Ints
