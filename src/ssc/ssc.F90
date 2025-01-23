@@ -16,7 +16,7 @@ subroutine ssc(iRC)
 use definitions, only: wp, iwp, u6
 use spool, only: SpoolInp, Close_LuSpool
 use Breit, only: D_tensor
-use Constants, only: Zero, Three
+use Constants, only: Zero, Three, gelectron, c_in_au, Four
 Implicit None
 integer(kind=iwp), Intent(out) :: iRC
 
@@ -41,6 +41,7 @@ D_tensor(:,:) = Zero
 Call Drv2El_BP()
 
 Call ClsSew()
+D_tensor(:,:)=(gelectron**2 * Three)/(Four * c_in_au**2) * D_tensor(:,:)
 
 call Get_cArray('Relax Method',Method,8)
 Write (u6,*)
