@@ -42,7 +42,7 @@ D_tensor(:,:) = Zero
 Call Drv2El_BP()
 
 Call ClsSew()
-D_tensor(:,:)=(gelectron**2 * Three)/(Four * c_in_au**2) * D_tensor(:,:)
+D_tensor(:,:)=-(gelectron**2 * Three)/(Four * c_in_au**2) * D_tensor(:,:)
 
 call Get_cArray('Relax Method',Method,8)
 Write (u6,*)
@@ -67,12 +67,13 @@ Do i = 1, nH
       EVal(i*(i-1)/2+j)=D_tensor(i,j)
    End Do
 End Do
+Call TriPrt('The D tensor in triangular form',' ',EVal,nH)
 
 call unitmat(EVec,nH)
 
 ! Compute eigenvalues and eigenvectors
 
-call NIDiag_new(EVal,EVec,nH,nH)
+call Jacob(EVal,EVec,nH,nH)
 call Jacord(EVal,EVec,nH,nH)
 
 Call TriPrt('The diagonal D tensor',' ',EVal,nH)
