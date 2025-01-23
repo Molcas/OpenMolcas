@@ -30,7 +30,7 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use InfSCF, only: Energy, HDiag, iter, IterGEK, TimFld
+use InfSCF, only: Energy, HDiag, iter, IterGEK, Loosen, TimFld
 #if ( _SUB_METHOD_ > 1 )
 use InfSCF, only: iterSO
 #endif
@@ -50,8 +50,8 @@ character, intent(inout) :: Step_Trunc
 logical(kind=iwp), intent(in) :: SOrange
 integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iteration, Iteration_Micro, Iteration_Total, j, k, l, mDIIS, nDIIS, nExplicit
 real(kind=wp) :: Beta_Disp, Cpu1, Cpu2, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Tim1, Tim2, Tim3, Variance(1)
-real(kind=wp), allocatable :: dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), q(:,:), q_diis(:,:), &
-                              Val(:), Vec(:,:)
+real(kind=wp), allocatable :: D(:,:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), q(:,:), &
+                              q_diis(:,:), Val(:), Vec(:,:), w(:,:)
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
@@ -335,18 +335,14 @@ end do
 if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
 #endif
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Computed the projected displacement coordinates. Note that the displacements are relative to the last coordinate, q(:,nDIIS). !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Compute the projected displacement coordinates. Note that the displacements are relative to the last coordinate, q(:,nDIIS). !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 call mma_allocate(q_diis,mDIIS,nDIIS+Max_Iter,Label='q_diis')
 q_diis(:,:) = Zero
 do i=1,nDIIS
   do k=1,mDIIS
-    gg = Zero
-    do l=1,mOV
-      gg = gg+(q(l,i)-q(l,nDIIS))*e_diis(l,k)
-    end do
-    q_diis(k,i) = gg
+    q_diis(k,i) = sum((q(:,i)-q(:,nDIIS))*e_diis(:,k))
   end do
 end do
 
@@ -357,11 +353,7 @@ call mma_allocate(g_diis,mDIIS,nDIIS+Max_Iter,Label='g_diis')
 g_diis(:,:) = Zero
 do i=1,nDIIS
   do k=1,mDIIS
-    gg = Zero
-    do l=1,mOV
-      gg = gg+g(l,i)*e_diis(l,k)
-    end do
-    g_diis(k,i) = gg
+    g_diis(k,i) = sum(g(:,i)*e_diis(:,k))
   end do
 end do
 
@@ -378,17 +370,40 @@ call mma_allocate(HDiag_diis,mDIIS,Label='HDiag_diis')
 
 do i=1,mDiis
   do j=1,mDiis
-    gg = Zero
-    do l=1,mOV
-      gg = gg+e_diis(l,i)*HDiag(l)*e_diis(l,j)
-    end do
-    H_diis(i,j) = gg
+    H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
   end do
+end do
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Undershoot avoidance: Scale along dq !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+if (Loosen%Factor /= One) then
+  ! Components of dq in the subspace
+  call mma_allocate(w,mDIIS,mDIIS,Label='w')
+  gg = sqrt(DDot_(mOV,dq,1,dq,1))
+  do i=1,mDIIS
+    w(i,1) = DDot_(mOV,dq,1,e_diis(:,i),1)/gg
+  end do
+  ! D = I + (f-1) * w w^T
+  ! H' = D^T H D
+  call mma_allocate(D,mDIIS,mDIIS,Label='D')
+  do i=1,mDIIS
+    D(:,i) = (One/Loosen%Factor-One)*w(i,1)*w(:,1)
+    D(i,i) = D(i,i)+One
+  end do
+  call dgemm_('N','N',mDIIS,mDIIS,mDIIS,One,H_diis,mDIIS,D,mDIIS,Zero,w,mDIIS)
+  call dgemm_('N','N',mDIIS,mDIIS,mDIIS,One,D,mDIIS,w,mDIIS,Zero,H_diis,mDIIS)
+  call mma_deallocate(D)
+  call mma_deallocate(w)
+end if
+
+do i=1,mDiis
   HDiag_Diis(i) = H_Diis(i,i)
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

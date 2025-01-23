@@ -45,10 +45,10 @@ use Interfaces_SCF, only: OptClc_X, TraClc_i
 use LnkLst, only: GetVec, LLDelt, LLGrad, LLx, LstPtr, PutVec, SCF_V
 use InfSCF, only: AccCon, Aufb, CMO, CMO_Ref, CPUItr, Damping, DIIS, DIISTh, DltNrm, DltnTh, DMOMax, DoCholesky, DSCF, DThr, E1V, &
                   E2V, EDiff, Energy, EneV, EOrb, EThr, Expand, FckAuf, FMOMax, FThr, idKeep, iDMin, Iter, Iter_Ref, Iter_Start, &
-                  iterGEK, iterSO, iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, MaxFlip, MiniDn, mOV, MSYMON, MxIter, &
-                  MxOptm, nAufb, nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, One_Grid, &
-                  Ovrlp, QNRTh, RGEK, RSRFO, rTemp, S2Uhf, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, Two_Thresholds, &
-                  WarnCfg, WarnPocc
+                  iterGEK, iterSO, iterSO_Max, jPrint, kOptim, kOptim_Max, kOV, KSDFT, Loosen, MaxFlip, MiniDn, mOV, MSYMON, &
+                  MxIter, MxOptm, nAufb, nBas, nBB, nBB, nBT, nD, Neg2_Action, nIter, nIterP, nnB, nnB, nOcc, nOrb, nSym, OccNo, &
+                  One_Grid, Ovrlp, QNRTh, RGEK, RSRFO, rTemp, S2Uhf, Teee, TemFac, TimFld, TrDD, TrDh, TrDP, TrM, TStop, &
+                  Two_Thresholds, WarnCfg, WarnPocc
 use Cholesky, only: ChFracMem
 use SCFFiles, only: LuOut
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -62,9 +62,9 @@ logical(kind=iwp), intent(inout) :: FstItr
 real(kind=wp), intent(inout) :: SIntTh
 integer(kind=iwp) :: i, iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, &
                      Iter_DIIS, Iter_no_DIIS, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
-real(kind=wp) :: DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStatus, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, &
+real(kind=wp) :: ang, DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStatus, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, &
                  TCPU2, TWall1, TWall2
-logical(kind=iwp) :: AllowFlip, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, QNR1st, Reset, Reset_Thresh
+logical(kind=iwp) :: AllowFlip, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, Loosen_Active, QNR1st, Reset, Reset_Thresh
 character(len=128) :: OrbName
 character(len=72) :: Note
 character(len=10) :: Meth_
@@ -74,7 +74,7 @@ integer(kind=iwp) :: iD
 real(kind=wp) :: Whatever
 type(c_ptr) :: msym_ctx
 #endif
-real(kind=wp), allocatable :: CInter(:,:), D1Sao(:), Disp(:), Grd1(:), Xn(:), Xnp1(:)
+real(kind=wp), allocatable :: CInter(:,:), D1Sao(:), Disp(:), Grd1(:), Prev(:), Xn(:), Xnp1(:)
 real(kind=wp), parameter :: E2VTolerance = -1.0e-8_wp, StepMax = Ten
 real(kind=wp), external :: DDot_, Seconds
 
@@ -226,6 +226,7 @@ end if
 ! Set some parameters to starting defaults.
 
 AllowFlip = .true.
+Loosen_Active = .false.
 iAufOK = 0
 Iter_DIIS = 0
 EDiff = Zero
@@ -741,6 +742,7 @@ do iter_=1,nIter(nIterP)
           IterGEK = min(IterGEK+1,IterSO_Max)
           Iter_Start = min(Iter_Start,Iter-IterGEK+1)
 
+          Loosen_Active = (Loosen%Factor > One)
           call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.true.)
           !                                                            *
           !*************************************************************
@@ -748,6 +750,25 @@ do iter_=1,nIter(nIterP)
           ! Pick up X(n) and compute X(n+1)=X(n)+dX(n)
 
           call GetVec(iter,LLx,inode,Xnp1,mOV)
+
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          ! Undershoot avoidance,
+          ! when consecutive steps have a large overlap
+
+          if ((Loosen%Step > One) .and. (iterGEK > 1)) then
+            call mma_allocate(Prev,mOV,Label='Prev')
+            call GetVec(iter-1,LLDelt,inode,Prev,mOV)
+            dqdq = DDot_(mOV,Disp,1,Disp,1)*DDot_(mOV,Prev,1,Prev,1)
+            ang = DDot_(mOV,Prev,1,Disp,1)/sqrt(dqdq)
+            if ((ang < Loosen%Thrs2) .or. (AccCon(9:9) /= ' ')) then
+              Loosen%Factor = One
+            else if (ang > Loosen%Thrs) then
+              Loosen%Factor = Loosen%Factor*Loosen%Step
+            end if
+            call mma_deallocate(Prev)
+          end if
 
           Xnp1(:) = Xnp1(:)+Disp(:)
           !                                                            *
@@ -970,10 +991,15 @@ do iter_=1,nIter(nIterP)
 
     ! Here if we converged!
 
-    ! Branch out of the iterative loop! Done!!!
-
-    Converged = .true.
-    exit
+    if (Loosen_Active) then
+      ! If in loosen mode, disable it
+      Loosen%Factor = One
+      Loosen%Step = One
+    else
+      ! Branch out of the iterative loop! Done!!!
+      Converged = .true.
+      exit
+    end if
     !                                                                  *
     !*******************************************************************
     !                                                                  *

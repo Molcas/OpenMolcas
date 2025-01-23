@@ -44,11 +44,11 @@ use SpinAV, only: Do_SpinAV
 use InfSCF, only: Addc_KSDFT, AddFragments, ALGO, Aufb, C1DIIS, Cho_Aufb, Damping, dmpk, DDnOff, DelThr, DIIS, DIISTh, DltnTh, &
                   Do_addc, Do_Tw, DoCholesky, DoHLgap, DSCF, DThr, EThr, ExFac, Expand, Falcon, FckAuf, FckAuf, FlipThr, FThr, &
                   HLgap, iAu_ab, iCoCo, iDKeep, indxc, InVec, iPrForm, iPrint, iPrOrb, isHDF5, iStatPRN, Iter2run, IterPrlv, &
-                  jPrint, jVOut, kIVO, klockan, kOptim_Max, KSDFT, LKon, LstVec, MaxFlip, MiniDn, MSYMON, MxConstr, MxIter, &
-                  MxOptm, nAufb, nBas, nConstr, nCore, nD, nDel, nDisc, Neg2_Action, nFro, nIter, nOcc, NoExchange, NoFerm, &
-                  NoProp, nOrb, nScreen, nSym, nTit, OccSet_e, OccSet_m, One_Grid, OnlyProp, PmTime, PreSch, QNRTh, QudThr, ReOrd, &
-                  RFPert, RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac, Thize, ThrEne, &
-                  Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop, WrOutD
+                  jPrint, jVOut, kIVO, klockan, kOptim_Max, KSDFT, LKon, Loosen, LstVec, MaxFlip, MiniDn, MSYMON, MxConstr, &
+                  MxIter, MxOptm, nAufb, nBas, nConstr, nCore, nD, nDel, nDisc, Neg2_Action, nFro, nIter, nOcc, NoExchange, &
+                  NoFerm, NoProp, nOrb, nScreen, nSym, nTit, OccSet_e, OccSet_m, One_Grid, OnlyProp, PmTime, PreSch, QNRTh, &
+                  QudThr, ReOrd, RFPert, RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac, &
+                  Thize, ThrEne, Title, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TStop, WrOutD
 use Cholesky, only: ChFracMem, timings
 #ifdef _HDF5_
 use mh5, only: mh5_is_hdf5, mh5_open_file_r
@@ -57,13 +57,13 @@ use InfSCF, only: FileOrb_ID
 use spool, only: Close_LuSpool, Spoolinp
 use hfc_logical, only: UHF_HFC
 use stdalloc, only: mma_allocate
-use Constants, only: Zero, One, Ten, Half
+use Constants, only: Zero, One, Five, Ten, Half, Deg2Rad
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, iArray(32), iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, &
                      LuSpool, nOccSet_e, nOccSet_m, Mode(1), nFunc, nnn
-real(kind=wp) :: Tot_Ml_Charge
+real(kind=wp) :: dArray(3), Tot_Ml_Charge
 logical(kind=iwp) :: CharSet, Chol, DoTit, FermSet, IfAufChg, lTtl, OccSet, SpinSet, TDen_UsrDef, UHFSet
 character(len=180) :: Key, Line
 character(len=8) :: Method
@@ -128,6 +128,11 @@ else
   MiniDn = .true.
 end if
 TDen_UsrDef = .false.
+! Default undershoot avoidance settings (for S-GEK)
+Loosen%Thrs = cos(Five*Deg2Rad)
+Loosen%Thrs2 = cos(20.0_wp*Deg2Rad)
+Loosen%Step = Half*(One+sqrt(Five))
+Loosen%Factor = One
 
 ! Set up number of orbitals
 nOrb(1:nSym) = nBas(1:nSym)
@@ -589,6 +594,14 @@ do
       !>>>>>>>>>>>>> EXPA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       Line = Get_Ln(LuSpool)
       call Get_I1(1,Expand)
+
+    case ('LOOS')
+      !>>>>>>>>>>>>> LOOS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+      Line = Get_Ln(LuSpool)
+      call Get_F(1,dArray,3)
+      Loosen%Thrs = dArray(1)
+      Loosen%Thrs2 = dArray(2)
+      Loosen%Step = dArray(3)
 
     case ('SCRA')
       !>>>>>>>>>>>>> SCRA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

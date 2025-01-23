@@ -200,6 +200,11 @@ private
 ! OccNo   : occupation numbers of length lthO                          *
 !----------------------------------------------------------------------*
 
+! Variables for undershot avoidance
+type Loosen_Type
+  real(kind=wp) :: Thrs, Thrs2, Step, Factor
+end type Loosen_Type
+
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: IterSO_Max = 30, MxIter = 400, MxOptm = 20, nFld = 16, nStOpt = 8
 
@@ -226,6 +231,7 @@ character(len=45) :: NamFld(nFld)
 character(len=40) :: VTitle
 character(len=9) :: AccCon
 character(len=4) :: Neg2_Action
+type(Loosen_Type) :: Loosen
 integer(kind=iwp), allocatable :: OrbType(:,:)
 real(kind=wp), allocatable :: CMO(:,:), CMO_ref(:,:), Darwin(:), EDFT(:), EOrb(:,:), FockAO(:,:), HDiag(:), KntE(:), MssVlc(:), &
                               OccNo(:,:), OneHam(:), Ovrlp(:), TrDD(:,:,:), TrDh(:,:,:), TrDP(:,:,:), TrM(:,:)
@@ -241,13 +247,13 @@ public :: AccCon, ADDC_KSDFT, AddFragments, ALGO, Atom, Aufb, BName, BType, c1Di
           Energy, EneV, EOrb, Erest_xc, EThr, EThr_old, ExFac, Expand, Falcon, FckAuf, fileorb_id, FlipThr, FMOMax, FockAO, &
           FockMO, FThr, FThr_Old, HDiag, Header, HLgap, iAu_ab, iCoCo, iDisk, iDKeep, iDMin, iDummy_run, indxC, InVec, iPrForm, &
           iPrint, iPrOrb, iPsLst, isHDF5, iStatPRN, iter, Iter2run, Iter_Ref, Iter_Start, IterGEK, iterprlv, IterSO, IterSO_Max, &
-          jPrint, jVOut, kIvo, klockan, KntE, kOptim, kOptim_Max, kOV, KSDFT, LKon, lPaper, lRel, LstVec, MapDns, MaxBas, MaxBOF, &
-          MaxBOO, MaxBxO, MaxFlip, MaxOrb, MaxOrF, MaxOrO, MemRsv, MiniDn, mOV, MssVlc, MSYMON, MxConstr, MxIter, MxOptm, NamFld, &
-          nAtoms, nAufb, nBas, nBB, nBO, nBT, nConstr, nCore, nD, nDel, nDens, nDisc, Neg2_Action, nFld, nFro, nFrz, nIter, &
-          nIterP, nMem, nnB, nnFr, nnO, nnOc, nOcc, NoExchange, NoFerm, nOFS, nOO, NoProp, nOrb, nOV, NSCREEN, nSkip, nStOpt, &
-          nSym, nTit, OccNo, OccSet_e, OccSet_m, One_Grid, OneHam, OnlyProp, OrbType, Ovrlp, PmTime, PotNuc, PreSch, QNRTh, &
-          QudThr, REORD, RFpert, RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, s2CNO, s2uhf, SCF_FileOrb, ScrFac, Scrmbl, StVec, &
-          Teee, TemFac, Thize, ThrEne, ThrInt_old, TimFld, Title, TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TrDD, TrDh, &
-          TrDP, TrM, TStop, Two_Thresholds, TwoHam, VTitle, Vxc, WarnCfg, WarnPocc, WarnSlow, WrOutD
+          jPrint, jVOut, kIvo, klockan, KntE, kOptim, kOptim_Max, kOV, KSDFT, LKon, Loosen, lPaper, lRel, LstVec, MapDns, MaxBas, &
+          MaxBOF, MaxBOO, MaxBxO, MaxFlip, MaxOrb, MaxOrF, MaxOrO, MemRsv, MiniDn, mOV, MssVlc, MSYMON, MxConstr, MxIter, MxOptm, &
+          NamFld, nAtoms, nAufb, nBas, nBB, nBO, nBT, nConstr, nCore, nD, nDel, nDens, nDisc, Neg2_Action, nFld, nFro, nFrz, &
+          nIter, nIterP, nMem, nnB, nnFr, nnO, nnOc, nOcc, NoExchange, NoFerm, nOFS, nOO, NoProp, nOrb, nOV, NSCREEN, nSkip, &
+          nStOpt, nSym, nTit, OccNo, OccSet_e, OccSet_m, One_Grid, OneHam, OnlyProp, OrbType, Ovrlp, PmTime, PotNuc, PreSch, &
+          QNRTh, QudThr, REORD, RFpert, RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, s2CNO, s2uhf, SCF_FileOrb, ScrFac, Scrmbl, &
+          StVec, Teee, TemFac, Thize, ThrEne, ThrInt_old, TimFld, Title, TNorm, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge, TrDD, &
+          TrDh, TrDP, TrM, TStop, Two_Thresholds, TwoHam, VTitle, Vxc, WarnCfg, WarnPocc, WarnSlow, WrOutD
 
 end module InfSCF

@@ -256,7 +256,9 @@ end do
 
 ! Safety net: truncate if the step was still too large
 if (sqrt(dqdq)-StepMax > Thr) then
+# ifdef _DEBUGPRINT_
   write(u6,*) ' Too many iterations in RS'
+# endif
   dq(:) = dq(:)/sqrt(dqdq)
   dqdq = DDot_(nInter,dq,1,dq,1)
 end if
