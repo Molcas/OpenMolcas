@@ -47,6 +47,11 @@ real(kind=wp) :: Prod_ij
 ! observe that we will walk through the memory in AOint in a
 ! sequential way.
 
+#ifdef _DEBUGPRINT_
+write (u6,*) ' PLF2_BP'
+Call RecPrt('Plf2_BP: AOINT',' ',AOInt,ijkl*6,iCmp*jCmp*kCmp*lCmp)
+Call RecPrt('Plf2_BP: PAO',' ',PAO,ijkl,iCmp*jCmp*kCmp*lCmp)
+#endif
 
 If (.Not.Associated(PAO)) Call Abend()
 

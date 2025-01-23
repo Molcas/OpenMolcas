@@ -54,6 +54,9 @@ use RI_glob, only: jBas_, lBas_
 use Breit, only: nOrdOp
 use UnixInfo, only: SuperName
 #endif
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 use Constants, only: Zero
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Definitions, only: wp, iwp
@@ -74,6 +77,9 @@ integer(kind=iwp), parameter :: SCF = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+#ifdef _DEBUGPRINT_
+write(u6,*) ' -->',iS,jS,kS,lS,'<--'
+#endif
 
 PMax = Zero
 nPairs = nSkal*(nSkal+1)/2
@@ -119,7 +125,6 @@ else
 end if
 !write(u6,*) 'Eval_ints: MemMax=',MemMax
 
-!write(u6,*) ' -->',iS,jS,kS,lS,'<--'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -222,7 +227,7 @@ do iBasAO=1,iBasi,iBsInc
         If (Do_BP_Integrals) Then
            nijkl = iBasn*jBasn*kBasn*lBasn
            If (nIrrep==1) Then
-              call PGet0(nijkl,PAO,nSO,Scr,Size(Scr),nQuad,PMax,iSD4)
+              call PGet0(nijkl,PAO,nAO,Scr,Size(Scr),nQuad,PMax,iSD4)
            Else
               call PGet0(nijkl,PSO,nSO,Scr,Size(Scr),nQuad,PMax,iSD4)
            End If
@@ -236,8 +241,6 @@ do iBasAO=1,iBasi,iBsInc
         !         Compute SO/AO-integrals
 
         call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Size(AOInt),iSD4)
-
-        nijkl = iBasn*jBasn*kBasn*lBasn
 
         nijkl = iBasn*jBasn*kBasn*lBasn
 
@@ -274,7 +277,7 @@ do iBasAO=1,iBasi,iBsInc
             Tmax = max(Tmax,abs(SOInt(iDAMax_(n,SOInt,1))))
           end if
           if (Tmax > CutInt) then
-            nijkl = iBasn*jBasn*kBasn*lBasn*nComp
+            nijkl = iBasn*jBasn*kBasn*lBasn
             call Int_PostProcess(nijkl,AOInt,SOInt,nSO,iSOSym,nSOs,TInt,nTInt,nIrrep,nSD,iSD4)
           else
             Tmax = Zero
