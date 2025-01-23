@@ -13,10 +13,10 @@
 !***********************************************************************
 
 subroutine ssc(iRC)
-use definitions, only: iwp, u6
+use definitions, only: wp, iwp, u6
 use spool, only: SpoolInp, Close_LuSpool
 use Breit, only: D_tensor
-use Constants, only: Zero
+use Constants, only: Zero, Three
 Implicit None
 integer(kind=iwp), Intent(out) :: iRC
 
@@ -24,6 +24,7 @@ integer(kind=iwp) :: LuSpool, nDiff
 logical(kind=iwp) :: DoRys
 integer(kind=iwp), external :: IsFreeUnit
 character(len=8) :: Method
+real(kind=wp) R2
 
 
 LuSpool = 37
@@ -47,6 +48,15 @@ Write (u6,'(2A)') 'Method:', Method
 Write (u6,*)
 
 call RecPrt('The D tensor',' ',D_tensor,3,3)
+Write (u6,*)
+Write (u6,*)
+
+R2=D_tensor(1,1)+D_tensor(2,2)+D_tensor(3,3)
+D_tensor(1,1)=D_tensor(1,1)-(R2/Three)
+D_tensor(2,2)=D_tensor(2,2)-(R2/Three)
+D_tensor(3,3)=D_tensor(3,3)-(R2/Three)
+
+call RecPrt('The D tensor, in the traceless form ',' ',D_tensor,3,3)
 Write (u6,*)
 Write (u6,*)
 
