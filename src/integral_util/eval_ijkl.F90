@@ -71,7 +71,6 @@ integer(kind=iwp), external :: MemSO2
 procedure(twoel_kernel) :: TwoEl_NoSym, TwoEl_Sym
 procedure(twoel_kernel), pointer :: Do_TwoEl
 integer(kind=iwp), parameter :: SCF = 1
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -126,8 +125,7 @@ call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 !                                                                      *
 ! No SO block in direct construction of the Fock matrix.
 if (nIrrep > 1) then
-  nSO = MemSO2(iSD4(2,1),iSD4(2,2),iSD4(2,3),iSD4(2,4),iSD4(11,1),iSD4(11,2),iSD4(11,3),iSD4(11,4),iSD4(7,1),iSD4(7,2),iSD4(7,3), &
-               iSD4(7,4))
+  nSO = MemSO2(nSD,iSD4)
 else
   nSO = 0
 end if
@@ -232,7 +230,7 @@ do iBasAO=1,iBasi,iBsInc
           call Picky(nSD,iSD4,2,4)
         end if
 
-        nijkl = iBasn*jBasn*kBasn*lBasn*nComp
+        nijkl = iBasn*jBasn*kBasn*lBasn*nComp ! *nComp is a fix for BP integrals
 
         !                                                              *
         !***************************************************************
@@ -240,6 +238,8 @@ do iBasAO=1,iBasi,iBsInc
         !         Compute SO/AO-integrals
 
         call Do_TwoEl(Coor,NoInts,SOInt,nijkl,nSO,AOInt,Mem2,iSD4)
+
+        nijkl = iBasn*jBasn*kBasn*lBasn
 
 #       ifdef _DEBUGBREIT_
         if (nOrdOp /= 0) then

@@ -31,6 +31,7 @@ use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, Init_Int_Options, PreSch, Thize, &
                        Quad_ijkl, W2Disc
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
@@ -38,14 +39,14 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
-real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, TMax_all, TskHi, TskLw, TWall1, &
-                 Twall2
+real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TMax_all, TskHi, TskLw
 logical(kind=iwp) :: DoGrad, Indexation, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 logical(kind=iwp), external :: Rsv_GTList
+procedure(int_wrout) :: Integral_WrOut2
 
 !                                                                      *
 !***********************************************************************
@@ -80,6 +81,7 @@ call Setup_iSD()
 
 Indexation = .false.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
+Write (6,*) 'Drv2el: After Setup_Ints'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -118,6 +120,7 @@ P_Eff = real(nij,kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Int_PostProcess => Integral_WrOut2
 Triangular = .true.
 call Init_TList(Triangular,P_Eff)
 call Init_PPList()
@@ -127,10 +130,10 @@ iOpt = 0
 PP_Eff = P_Eff**2
 PP_Eff_delta = 0.1_wp*PP_Eff
 PP_Count = Zero
+Write (6,*) 'Drv2el: Start the big loop'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call CWTime(TCpu1,TWall1)
 
 ! big loop over individual tasks distributed over individual nodes
 
@@ -151,12 +154,12 @@ do
   klS = klS-1
   do
     Quad_ijkl = Quad_ijkl+One
+    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
     klS = klS+1
     if (klS > ijS) then
       ijS = ijS+1
       klS = 1
     end if
-    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
     iS = Pair_Index(1,ijS)
     jS = Pair_Index(2,ijS)
     kS = Pair_Index(1,klS)
@@ -191,7 +194,6 @@ do
 end do
 call mma_deallocate(TInt)
 ! End of big task loop
-call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -213,5 +215,6 @@ call mma_deallocate(TMax)
 call Term_Ints()
 call Free_iSD()
 call Init_Int_Options()
+nullify(Int_PostProcess)
 
 end subroutine Drv2El

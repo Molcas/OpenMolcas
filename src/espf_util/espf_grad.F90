@@ -14,7 +14,7 @@ subroutine espf_grad(natom,nGrdPt,nAtQM,Ext,Grid,B,DB,IsMM,GradCl,DoTinker,DoGro
 
 use espf_global, only: MxExtPotComp
 use Index_Functions, only: nTri_Elem
-use Disp, only: ChDisp, lDisp
+use Disp, only: lDisp
 use NAC, only: isNAC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Angstrom, auTokcalmol
@@ -39,7 +39,7 @@ call mma_allocate(Grad,3,nAtom,Label='Grad')
 nGrad = 3*nAtom
 call Get_dArray_chk('GRAD',Grad,nGrad)
 lMMHess = .false.
-if (iPL >= 3) call PrGrad(' Molecular gradients, entering ESPF',Grad,lDisp(0),ChDisp)
+if (iPL >= 3) call PrGrad(' Molecular gradients, entering ESPF',Grad,lDisp(0))
 
 ! Recover MM gradient and hessian, if any, in QMMM file
 
@@ -135,7 +135,7 @@ end if
 
 if (((Exists .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
   call Put_iScalar('No of Internal coordinates',3*natom)
-  if (iPL >= 3) call PrGrad(' Molecular gradients, after MM',Grad,lDisp(0),ChDisp)
+  if (iPL >= 3) call PrGrad(' Molecular gradients, after MM',Grad,lDisp(0))
 end if
 
 ! External field acting on nuclear charges
@@ -149,7 +149,7 @@ else
     Grad(:,iAt) = Grad(:,iAt)+XC(iAt)*Ext(2:4,iAt)
   end do
   call mma_deallocate(XC)
-  if (iPL >= 3) call PrGrad(' Molecular grad, after nuc ESPF',Grad,lDisp(0),ChDisp)
+  if (iPL >= 3) call PrGrad(' Molecular grad, after nuc ESPF',Grad,lDisp(0))
 end if
 
 ! Here I need the integral derivatives, weighted by B and contracted
@@ -175,7 +175,7 @@ isNAC_tmp = isNAC
 call Prepare(nGrdPt,Grid,B,GrdI)
 call Drvespf(Grad,Temp,3*natom,GrdI)
 call mma_deallocate(GrdI)
-if (iPL >= 3) call PrGrad(' Molecular gradients, after P*B*dV',Grad,lDisp(0),ChDisp)
+if (iPL >= 3) call PrGrad(' Molecular gradients, after P*B*dV',Grad,lDisp(0))
 call mma_deallocate(Temp)
 
 ! Here I need the integrals contracted with the density matrix and weighted
@@ -210,7 +210,7 @@ if ((Exists .and. DoTinker) .or. DoGromacs) call LA_Morok(natom,Grad,1)
 
 call Put_dArray('GRAD',Grad,3*natom)
 call mma_deallocate(D2)
-if (iPL >= 2) call PrGrad(' Molecular gradients, after ESPF',Grad,lDisp(0),ChDisp)
+if (iPL >= 2) call PrGrad(' Molecular gradients, after ESPF',Grad,lDisp(0))
 call Add_Info('Grad',Grad,3*natom,6)
 call mma_deallocate(Grad)
 

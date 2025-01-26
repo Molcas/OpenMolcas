@@ -33,11 +33,9 @@ subroutine TwoEl_Sym( &
 
 use Index_Functions, only: iTri, nTri3_Elem1
 use iSD_data, only: nSD
-use Basis_Info, only: MolWgh, Shells
-use Center_Info, only: dc
+use Basis_Info, only: Shells
 use Phase_Info, only: iPhase
 use Gateway_Info, only: CutInt, ThrInt
-use Symmetry_Info, only: nIrrep
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, PreSch, Quad_ijkl, Thize, W2Disc
 use Integral_interfaces, only: FckAcc
 use k2_arrays, only: Aux, DeDe, pFq
@@ -56,22 +54,18 @@ implicit none
 #include "twoel_interface.fh"
 integer(kind=iwp) :: i_Int, iAO(4), iAOst(4), iBasi, iCmp(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij1, ij2, ij3, &
                      ij4, ijS, ik1, ik2, ik3, ik4, il1, il2, il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, iRTS, iS, &
-                     iShell(4), iShll(4), ISMAng, iStabM(0:7), iStabN(0:7), iStabs(4), iStb, iT, iTS, iW3, iW4, iW4_, iWR(2), ix1, &
-                     ix2, iy1, iy2, iz1, iz2, iZeta, jBasj, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, jOp(6), jPrInc, jS, jStb, &
-                     kabcd, kBask, kInts, kl1, kl2, kl3, kl4, klS, kOp(4), kS, kStb, la, lb, lBasl, lc, ld, lDCR1, lDCR2, lDCRE_, &
-                     lDCRR, lDCRS, lDCRT, lDCRT_, LmbdR, LmbdS, LmbdT, lPrInc, lS, lStabM, lStabN, lStb, mabcd, mabMax, mabMin, &
+                     iShell(4), iShll(4), ISMAng, iT, iTS, iW3, iW4, iW4_, iWR(2), ix1, &
+                     ix2, iy1, iy2, iz1, iz2, iZeta, jBasj, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, jOp(6), jPrInc, jS, &
+                     kabcd, kBask, kInts, kl1, kl2, kl3, kl4, klS, kOp(4), kS, la, lb, lBasl, lc, ld, lDCR1, lDCR2, lDCRE_, &
+                     lDCRR, lDCRS, lDCRT, lDCRT_, lPrInc, lS, mabcd, mabMax, mabMin, &
                      mcdMax, mcdMin, mEta, mInts, mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nAlpha, nAux, nBeta, nByte, ncd, &
-                     nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nInts, nZeta, nZeta_Tot
-real(kind=wp) :: CoorAC(3,2), CoorM(3,4), FactNd, QInd(2), RS_doublet, RST_Triplet, u, v, vij, vijij, vijkl, vik, vil, vjk, vjl, &
-                 vkl, w, x
+                     nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nInts, nZeta, nZeta_Tot, iuvwx(4)
+real(kind=wp) :: CoorAC(3,2), CoorM(3,4), Fact, QInd(2), RS_doublet, RST_Triplet, vij, vijij, vijkl, vik, vil, vjk, vjl, vkl
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, NoPInts, &
                      Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij
 real(kind=wp), pointer :: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:), Dij(:,:), Dik(:,:), Dil(:,:), Djk(:,:), Djl(:,:), &
                           Dkl(:,:)
 type(k2_type), pointer :: k2data1(:), k2data2(:)
-#ifdef _DEBUGPRINT_
-integer(kind=iwp) :: i
-#endif
 logical(kind=iwp), parameter :: Copy = .true., NoCopy = .false.
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
@@ -87,7 +81,6 @@ iShell(:) = iSD4(11,:)
 iShll(:) = iSD4(0,:)
 iAO(:) = iSD4(7,:)
 iAOst(:) = iSD4(8,:)
-iStabs(:) = iSD4(10,:)
 jPrInc = iSD4(6,2)
 lPrInc = iSD4(6,4)
 
@@ -168,7 +161,6 @@ lb = iSD4(1,2)
 lc = iSD4(1,3)
 ld = iSD4(1,4)
 iSmAng = la+lb+lc+ld
-LmbdT = 0
 iCmp(:) = iSD4(2,:)
 nab = iCmp(1)*iCmp(2)
 ncd = iCmp(3)*iCmp(4)
@@ -179,51 +171,9 @@ ipAOInt = 1
 iW3 = 1+nInts
 iW4 = 1
 jOp(:) = 0
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for center A and B
 
-iStb = iStabs(1)
-jStb = iStabs(2)
-kStb = iStabs(3)
-lStb = iStabs(4)
-call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
-u = real(dc(iStb)%nStab,kind=wp)
-v = real(dc(jStb)%nStab,kind=wp)
-#ifdef _DEBUGPRINT_
-write(u6,'(20A)') ' {R}=(',(ChOper(iDCRR(i)),',',i=0,nDCRR-1),')'
-#endif
+call mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT,nSD,iSD4)
 
-! Find stabilizer for center A and B
-
-call Inter(dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for center C and D.
-
-call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
-w = real(dc(kStb)%nStab,kind=wp)
-x = real(dc(lStb)%nStab,kind=wp)
-#ifdef _DEBUGPRINT_
-write(u6,'(20A)') ' {S}=(',(ChOper(iDCRS(i)),',',i=0,nDCRS-1),')'
-#endif
-
-! Find stabilizer for center C and D
-
-call Inter(dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for the two charge
-! distributions.
-
-call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 kOp(1) = NrOpr(0)
 CoorM(:,1) = Coor(:,1)
 do lDCRR=0,nDCRR-1
@@ -233,7 +183,7 @@ do lDCRR=0,nDCRR-1
 
   lDCR1 = NrOpr(iDCRR(lDCRR))+1
 
-  vijij = k2Data1(lDCR1)%abMax
+  vijij = k2Data1(lDCR1)%abConMax
 
   ! switch (to generate better start orbitals...)
   if (twoel_NDDO .and. (.not. AeqB)) cycle
@@ -252,7 +202,7 @@ do lDCRR=0,nDCRR-1
 
     ! Pick up estimated largest integral value (AO)
 
-    vijkl = vijij*k2Data2(lDCR2)%abMax
+    vijkl = vijij*k2Data2(lDCR2)%abConMax
     outer: do lDCRT=0,nDCRT-1
       ipAOInt = 1
       iW3 = 1+nInts
@@ -583,16 +533,7 @@ do lDCRR=0,nDCRR-1
           cycle outer
         end if
 
-        ! Multiply with factors due to summation over DCR
-
-        if (MolWgh == 1) then
-          FactNd = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
-        else if (MolWgh == 0) then
-          FactNd = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
-        else
-          FactNd = sqrt(u*v*w*x)/real(nirrep*lmbdt,kind=wp)
-        end if
-        if (FactNd /= One) Wrk(iW4:iW4+kabcd*nijkl-1) = FactNd*Wrk(iW4:iW4+kabcd*nijkl-1)
+        if (Fact /= One) Wrk(iW4:iW4+kabcd*nijkl-1) = Fact*Wrk(iW4:iW4+kabcd*nijkl-1)
 
         ! Apply the transfer equation and transform the spherical
         ! harmonic gaussian.

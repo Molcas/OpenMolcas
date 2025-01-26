@@ -68,6 +68,7 @@ set (sources
      drv1_pcm.F90
      drv1_rf.F90
      drv2_rf.F90
+     drv2el_ijij.F90
      drvefp.F90
      drvk2.F90
      drvpcm.F90
@@ -146,6 +147,7 @@ set (sources
      int_setup.F90
      integral_interfaces.F90
      integral_wrout2.F90
+     integral_ijij.F90
      inter.F90
      inter1.F90
      iobuf.F90

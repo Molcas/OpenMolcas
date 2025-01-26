@@ -42,8 +42,8 @@ integer(kind=iwp) :: i, iCnt, iCnttp, iComp, iDpos, iFpos, iIrrep, ijS, iOpt, iR
 real(kind=wp) :: A_int, Dtst, P_Eff, TCpu1, TCpu2, ThrAO, TInt(nTInt), TMax_all, TWall1, TWall2
 logical(kind=iwp) :: DoGrad, EnergyWeight, Indexation, NoSkip
 character(len=8) :: Label
-integer(kind=iwp), allocatable :: ij(:)
 real(kind=wp), allocatable, target :: Dens(:), Fock(:)
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: DMax(:,:), FragDensSO(:), OneHam(:), TMax(:,:)
 procedure(int_wrout) :: No_Routine
 !#define _DEBUGPRINT_
@@ -67,7 +67,6 @@ W2Disc = .true.
 PreSch = .false.
 Disc_Mx = Zero      ! Default value
 Disc = Zero         ! Default value
-Int_PostProcess => No_Routine
 
 ! Handle both the valence and the fragment basis set
 
@@ -208,6 +207,7 @@ do iS=1,nSkal
     TMax_all = max(TMax_all,TMax(iS,jS))
   end do
 end do
+
 call mma_allocate(DMax,nSkal,nSkal,label='DMax')
 call Shell_MxDens(Dens,DMax,nSkal)
 !                                                                      *
@@ -215,14 +215,14 @@ call Shell_MxDens(Dens,DMax,nSkal)
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(ij,nSkal*(nSkal+1),label='ij')
+call mma_allocate(Pair_Index,2,nSkal*(nSkal+1)/2,label='ij')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
     if (TMax_All*TMax(iS,jS) >= CutInt) then
       nij = nij+1
-      ij(nij*2-1) = iS
-      ij(nij*2) = jS
+      Pair_Index(1,nij) = iS
+      Pair_Index(2,nij) = jS
     end if
   end do
 end do
@@ -232,12 +232,11 @@ P_Eff = real(nij,kind=wp)
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu1,TWall1)
+Int_PostProcess => No_Routine
 
 ! Now do a quadruple loop over shells
 
-!ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
 ijS = 1
-!klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
 klS = 0
 
 
@@ -247,10 +246,10 @@ do
     ijS = ijS+1
     klS = 1
   end if
-  iS = ij(ijS*2-1)
-  jS = ij(ijS*2)
-  kS = ij(klS*2-1)
-  lS = ij(klS*2)
+  iS = Pair_Index(1,ijS)
+  jS = Pair_Index(2,ijS)
+  kS = Pair_Index(1,klS)
+  lS = Pair_Index(2,klS)
   if (ijS > int(P_Eff)) exit
   !                                                                    *
   !*********************************************************************
@@ -297,7 +296,7 @@ call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_deallocate(ij)
+call mma_deallocate(Pair_Index)
 call mma_deallocate(DMax)
 call mma_deallocate(TMax)
 !                                                                      *

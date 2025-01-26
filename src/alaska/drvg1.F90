@@ -12,7 +12,6 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-!#define _CD_TIMING_
 subroutine Drvg1(Grad,Temp,nGrad)
 !***********************************************************************
 !                                                                      *
@@ -32,9 +31,6 @@ subroutine Drvg1(Grad,Temp,nGrad)
 !             Modified for SetUp_Ints. January '00                     *
 !***********************************************************************
 
-#ifdef _CD_TIMING_
-use temptime, only: DRVG1_CPU, DRVG1_WALL, PREPP_CPU, PREPP_WALL
-#endif
 use setup, only: mSkal, MxPrm
 use k2_arrays, only: Sew_Scr
 use Sizes_of_Seward, only: S
@@ -53,7 +49,7 @@ integer(kind=iwp) :: i, iAng, ijMax, ijS, iOpt, iS, &
 real(kind=wp) :: A_int, Cnt, P_Eff, ThrAO, TMax_all, TskHi, TskLw
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, lDummy, Triangular
 character(len=8) :: Method_chk
-integer(kind=iwp), allocatable :: Ind_ij(:,:)
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: TMax(:,:)
 logical(kind=iwp), external :: Rsv_GTList
 !*********** columbus interface ****************************************
@@ -61,7 +57,6 @@ integer(kind=iwp) :: Columbus
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Write (6,*) 'Enter Drvg1'
 
 Temp(:) = Zero
 
@@ -122,14 +117,14 @@ end do
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(Ind_ij,2,nskal*(nSkal+1)/2,Label='Ind_ij')
+call mma_allocate(Pair_Index,2,nskal*(nSkal+1)/2,Label='Ind_ij')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
     if (TMax_All*TMax(iS,jS) >= CutInt) then
       nij = nij+1
-      Ind_ij(1,nij) = iS
-      Ind_ij(2,nij) = jS
+      Pair_Index(1,nij) = iS
+      Pair_Index(2,nij) = jS
     end if
   end do
 end do
@@ -167,7 +162,7 @@ iOpt = 0
 
 if ((nProcs > 1) .and. King()) then
   call Drvh1(Grad,Temp,nGrad)
-  !if (nPrint(1) >= 15) call PrGrad(' Gradient excluding two-electron contribution',Grad,lDisp(0),ChDisp)
+  !if (nPrint(1) >= 15) call PrGrad(' Gradient excluding two-electron contribution',Grad,lDisp(0))
   Temp(:) = Zero
 end if
 !                                                                      *
@@ -200,10 +195,10 @@ do
       ijS = ijS+1
       klS = 1
     end if
-    iS = Ind_ij(1,ijS)
-    jS = Ind_ij(2,ijS)
-    kS = Ind_ij(1,klS)
-    lS = Ind_ij(2,klS)
+    iS = Pair_Index(1,ijS)
+    jS = Pair_Index(2,ijS)
+    kS = Pair_Index(1,klS)
+    lS = Pair_Index(2,klS)
 
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) Cycle
@@ -232,7 +227,7 @@ call mma_deallocate(Sew_Scr,safe='*')
 call Free_GTList()
 call Free_PPList()
 call Free_TList()
-call mma_deallocate(Ind_ij)
+call mma_deallocate(Pair_Index)
 call mma_deallocate(TMax)
 !                                                                      *
 !***********************************************************************

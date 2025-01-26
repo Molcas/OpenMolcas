@@ -39,9 +39,6 @@ use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD
 use pso_stuff, only: A_PT2
 use k2_arrays, only: Sew_Scr
-#ifdef _DEBUGPRINT_
-use Disp, only: ChDisp
-#endif
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI, RI_2C
@@ -57,11 +54,11 @@ integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 integer(kind=iwp) :: i, iAng, id, ij, iS, iSym1, iSym2, jDen, jlS, jS, jS_, kS, lA, lA_MP2, &
-                     lS, lS_, mij, nij, nIJRMax, nSkal, nTMax
+                     lS, lS_, mij, nij, nIJRMax, nSkal
 real(kind=wp) :: A_int, ThrAO, TMax_all
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
-integer(kind=iwp), allocatable :: Shij(:,:)
-real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
+real(kind=wp), allocatable :: TMax1(:), TMax2(:,:)
 logical(kind=iwp), external :: Rsv_Tsk
 !                                                                      *
 !***********************************************************************
@@ -102,22 +99,21 @@ end do
 !                                                                      *
 ! Compute entities for prescreening at shell level
 
-if (Do_RI) then
-  nTMax = nSkal
-  call mma_allocate(TMax1,nTMax,Label='TMax1')
-  call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
-  call Shell_MxSchwz(nSkal,Tmp)
-  TMax1(1:nSkal) = Tmp(1:nSkal,nSkal)
-  call mma_deallocate(Tmp)
+call mma_allocate(TMax2,nSkal,nSkal,Label='TMax2')
+call Shell_MxSchwz(nSkal,TMax2)
+TMax_all = Zero
 
-  TMax_all = Zero
+if (Do_RI) then
+
+  call mma_allocate(TMax1,nSkal,Label='TMax1')
+  TMax1(:) = TMax2(:,nSkal)
+
   do iS=1,nSkal-1
     TMax_all = max(TMax_all,TMax1(iS))
   end do
+
 else
-  call mma_allocate(TMax2,nSkal,nSkal,Label='TMax2')
-  call Shell_MxSchwz(nSkal,TMax2)
-  TMax_all = Zero
+
   do ij=1,nij_Eff
     iS = ij2(1,ij)
     jS = ij2(2,ij)
@@ -182,27 +178,28 @@ end if
 ! Create list of non-vanishing pairs
 
 if (Do_RI) then
+
   mij = nSkal-1
-  call mma_allocate(Shij,2,mij,Label='Shij')
+  call mma_allocate(Pair_Index,2,mij,Label='Shij')
   nij = 0
   do iS=1,nSkal-1
     if (TMax_All*TMax1(iS) >= CutInt) then
       nij = nij+1
-      Shij(1,nij) = nSkal
-      Shij(2,nij) = iS
+      Pair_Index(1,nij) = nSkal
+      Pair_Index(2,nij) = iS
     end if
   end do
 else
   mij = nij_Eff
-  call mma_allocate(Shij,2,mij,Label='Shij')
+  call mma_allocate(Pair_Index,2,mij,Label='Shij')
   nij = 0
   do ij=1,nij_Eff
     iS = ij2(1,ij)
     jS = ij2(2,ij)
     if (TMax_All*TMax2(iS,jS) >= CutInt) then
       nij = nij+1
-      Shij(1,nij) = iS
-      Shij(2,nij) = jS
+      Pair_Index(1,nij) = iS
+      Pair_Index(2,nij) = jS
     end if
   end do
 end if
@@ -222,7 +219,7 @@ if ((nProcs > 1) .and. King()) then
   if (Do_RI) call Free_iSD()
   call Drvh1(Grad,Temp,nGrad)
 #ifdef _DEBUGPRINT_
-  call PrGrad(' Gradient excluding two-electron contribution',Grad,nGrad,ChDisp)
+  call PrGrad(' Gradient excluding two-electron contribution',Grad,nGrad)
 #endif
   Temp(:) = Zero
   if (Do_RI) then
@@ -241,11 +238,11 @@ do while (Rsv_Tsk(id,jlS))
   ! Now do a quadruple loop over shells
 
   jS_ = int((One+sqrt(Eight*real(jlS,kind=wp)-Three))*Half)
-  iS = Shij(1,jS_)
-  jS = Shij(2,jS_)
+  iS = Pair_Index(1,jS_)
+  jS = Pair_Index(2,jS_)
   lS_ = int(real(jlS,kind=wp)-real(jS_,kind=wp)*(real(jS_,kind=wp)-One)*Half)
-  kS = Shij(1,lS_)
-  lS = Shij(2,lS_)
+  kS = Pair_Index(1,lS_)
+  lS = Pair_Index(2,lS_)
 
   if (Do_RI) then
     A_int = TMax1(jS)*TMax1(lS)
@@ -272,7 +269,7 @@ RI_2C=.False.
 call mma_deallocate(Sew_Scr,safe='*')
 call Free_Tsk(id)
 call mma_deallocate(A_PT2,safe='*')
-call mma_deallocate(Shij)
+call mma_deallocate(Pair_Index)
 call mma_deallocate(TMax1,safe='*')
 call mma_deallocate(TMax2,safe='*')
 !                                                                      *

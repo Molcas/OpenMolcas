@@ -14,7 +14,7 @@
 subroutine ClrBuf(idcrr,idcrs,idcrt,ngr,Shijij,iAnga,iCmp,iShll,iShell,jShell,iBasi,jBasj,kBask,lBasl,Dij1,Dij2,mDij,nDij,Dkl1, &
                   Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2,mDjl,nDjl,rFinal,nFinal, &
                   FckTmp,nFT,Scrtch1,nS1,Scrtch2,nS2,Temp,nTemp,TwoHam,nTwo,IndGrd,Indx,iAO,iAOst,iuvwx,n8,ltri,moip,nAcO,rmoin, &
-                  nmoin,ntemptot,Buffer,nop,din,dan,new_fock)
+                  nmoin,ntemptot,Buffer,nop,din,dan)
 !***********************************************************************
 !                                                                      *
 !       Called from: Twoel                                             *
@@ -40,7 +40,7 @@ integer(kind=iwp), intent(in) :: idcrr, idcrs, idcrt, ngr, iAnga(4), iCmp(4), iS
                                  lBasl, mDij, nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, nFinal, nFT, nS1, &
                                  nS2, nTemp, nTwo, IndGrd(3,4,0:7), Indx(3,4), iAO(4), iAOst(4), iuvwx(4), moip(0:7), nAcO, nmoin, &
                                  ntemptot, nop(4)
-logical(kind=iwp), intent(in) :: Shijij, n8, ltri, new_fock
+logical(kind=iwp), intent(in) :: Shijij, n8, ltri
 real(kind=wp), intent(in) :: Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), &
                              Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), &
                              rFinal(nFinal), din(*), dan(*)
@@ -58,7 +58,7 @@ call Timing(dum1,Time,dum2,dum3)
 ExFac = One
 
 if (ltri) then
-  if (.not. new_fock) then
+  if (nIrrep/=1) then
     !------------------------------------------------------------*
     !
     !   Get the size of the work area that should be contracted
@@ -154,7 +154,7 @@ if (ltri) then
       if (Indx(iCar,iCent) > 0) then
         iGr = Indx(iCar,iCent)-1
         ipFin = 1+iGr*nijkl*nabcd
-        if (.not. new_fock) then
+        if (nIrrep/=1) then
           call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3,ij4,Dkl1, &
                      mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk,nDjk,jk1, &
                      jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,rFinal(ipFin),nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert, &
@@ -188,7 +188,7 @@ if (ltri) then
           end if
         end do
 
-        if (.not. new_fock) then
+        if (nIrrep/=1) then
           call MkFck(iAnga,iCmp,Shijij,iShll,iShell,iBasi,jBasj,kBask,lBasl,iAO,iAOst,nop,jop,Dij1,mDij,nDij,ij1,ij2,ij3,ij4,Dkl1, &
                      mDkl,nDkl,kl1,kl2,kl3,kl4,Dik1,mDik,nDik,ik1,ik2,ik3,ik4,Dil1,mDil,nDil,il1,il2,il3,il4,Djk1,mDjk,nDjk,jk1, &
                      jk2,jk3,jk4,Djl1,mDjl,nDjl,jl1,jl2,jl3,jl4,Temp,nAO,TwoHam,nTwo,Scrtch2,nS2,FckTmp,nFT,pert,iuvwx(iCent), &
