@@ -95,6 +95,7 @@ call Get_cArray('Relax Method',Method,8)
 call Get_iScalar('Columbus',columbus)
 nCMo = S%n2Tot
 mCMo = S%n2Tot
+
 if ((Method == 'KS-DFT') .or. (Method == 'MCPDFT') .or. (Method == 'MSPDFT') .or. (Method == 'CASDFT')) then
   call Get_iScalar('Multiplicity',iSpin)
   call Get_cArray('DFT functional',KSDFT,80)
@@ -110,11 +111,13 @@ end if
 
 ! Check the wave function type
 
+
+Select Case(Method)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'IVO-SCF') .or. (Method == 'MBPT2') .or. &
-    (Method == 'KS-DFT') .or. (Method == 'ROHF')) then
+Case ('RHF-SCF','UHF-SCF','IVO-SCF','MBPT2','KS-DFT','ROHF')
+
 # ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,'(2A)') ' Wavefunction type: ',Method
@@ -126,6 +129,7 @@ if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'IVO-SCF') 
   end if
   write(6,*)
 # endif
+
   if (Method == 'MBPT2   ') then
     Case_mp2 = .true.
     call DecideOnCholesky(DoCholesky)
@@ -138,18 +142,26 @@ if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'IVO-SCF') 
       call Aces_Gamma()
     end if
   end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-else if (Method == 'Corr. WF') then
+!                                                                    *
+!*********************************************************************
+!                                                                    *
+Case  ('Corr. WF')
+
 # ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) ' Wavefunction type: an Aces 2 correlated wavefunction'
   write(u6,*)
 # endif
+
   Gamma_On = .true.
   call Aces_Gamma()
-else if ((Method(1:7) == 'MR-CISD') .and. (Columbus == 1)) then
+
+!                                                                    *
+!*********************************************************************
+!                                                                    *
+Case ('MR-CISD')
+
+If (Columbus == 1) then
   !*********** columbus interface ****************************************
   !do not reconstruct the two-particle density from the one-particle
   !density or partial two-particle densities but simply read them from
@@ -194,8 +206,12 @@ else if ((Method(1:7) == 'MR-CISD') .and. (Columbus == 1)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((Method == 'RASSCF') .or. (Method == 'CASSCF') .or. (Method == 'GASSCF') .or. (Method == 'MCPDFT') .or. &
-         (Method == 'MSPDFT') .or. (Method == 'DMRGSCF') .or. (Method == 'CASDFT')) then
+End if
+
+!                                                                    *
+!*********************************************************************
+!                                                                    *
+Case ('RASSCF','CASSCF','GASSCF','MCPDFT','MSPDFT','DMRGSCF','CASDFT')
 
   call Get_iArray('nAsh',nAsh,nIrrep)
   nAct = sum(nAsh(0:nIrrep-1))
@@ -219,16 +235,20 @@ else if ((Method == 'RASSCF') .or. (Method == 'CASSCF') .or. (Method == 'GASSCF'
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GASSCFSA') .or. (Method == 'RASSCFSA') .or. &
-         (Method == 'CASPT2')) then
+!                                                                    *
+!*********************************************************************
+!                                                                    *
+Case ('CASSCFSA','DMRGSCFS','GASSCFSA','RASSCFSA','CASPT2')
+
   call Get_iArray('nAsh',nAsh,nIrrep)
   nAct = sum(nAsh(0:nIrrep-1))
   if (nAct > 0) lPSO = .true.
+
   nDSO = nDens
-  call Get_iScalar('SA ready',iGo)
-  if (iGO == 1) lSA = .true.
   mIrrep = nIrrep
   mBas(0:nIrrep-1) = nBas(0:nIrrep-1)
+  call Get_iScalar('SA ready',iGo)
+  if (iGO == 1) lSA = .true.
 # ifdef _DEBUGPRINT_
   write(u6,*)
   if (lSA) then
@@ -345,20 +365,28 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else
+!                                                                    *
+!*********************************************************************
+!                                                                    *
+Case Default
+
   call WarningMessage(2,'Alaska: Unknown wavefuntion type')
   write(u6,*) 'Wavefunction type:',Method
   write(u6,*) 'Illegal type of wave function!'
   write(u6,*) 'ALASKA cannot continue.'
   call Quit_OnUserError()
-end if
 
-! Read the (non) variational 1st order density matrix
-! density matrix in AO/SO basis
+End Select
+
+! Read the (non) variational 1st order electron density matrix, Density matrix in AO/SO basis
+! Dito spin density matrix.
+
 nsa = 1
 if (lsa .or. (Method == 'MCPDFT') .or. (Method == 'MSPDFT')) nsa = 5
+
 !AMS modification: add a fifth density slot
 mDens = nsa+1
+
 call mma_allocate(D0,nDens,mDens,Label='D0')
 D0(:,:) = Zero
 call mma_allocate(DVar,nDens,nsa,Label='DVar')
@@ -375,6 +403,7 @@ else
   DS(:) = Zero
   DSVar(:) = Zero
 end if
+
 
 ! This is necessary for the ci-lag
 
@@ -420,6 +449,7 @@ else
   nsa = 1
   if (lsa) nsa = 2
 end if
+
 kCMO = nsa
 call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
 call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
@@ -486,6 +516,7 @@ if (lpso .and. (.not. gamma_mrcisd)) then
 # ifdef _DEBUGPRINT_
   call TriPrt(' G2',' ',G2(1,1),nG1)
 # endif
+
   if (lsa) then
 
     ! CMO1 Ordinary CMOs
@@ -647,7 +678,5 @@ call CWTIME(PreppCPU2,PreppWall2)
 Prepp_CPU = PreppCPU2-PreppCPU1
 Prepp_Wall = PreppWall2-PreppWall1
 #endif
-
-return
 
 end subroutine PrepP
