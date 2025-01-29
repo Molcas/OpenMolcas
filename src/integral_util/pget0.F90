@@ -69,7 +69,8 @@ PMax = One
 nSA = 1
 if (CASPT2_On) then
   if (Cholesky .or. Do_RI) then
-    if (ReadBPT2) call DoReadBPT2(iAO,iAOst,iCmp,kBas,lBas)
+!   if (ReadBPT2) call DoReadBPT2(iAO,iAOst,iCmp,kBas,lBas)
+    if (ReadBPT2) call DoReadBPT2(iShell_C,iShell_D)
   else
     call CASPT2_BTAMP(LuGAMMA_PT2,iShell_A,iShell_B,iShell_C,iShell_D,n1,n2,n3,n4,iOffAO,nBasT,nOcc(1),CMOPT2(1+nBasT*nFro(1)), &
                       WRK1,WRK2,G_Toc)

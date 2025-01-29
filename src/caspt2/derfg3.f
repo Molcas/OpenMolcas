@@ -17,7 +17,11 @@
 #endif
       use caspt2_global, only:iPrGlb
       use PrintLevel, only: debug, verbose
+#ifdef _MOLCAS_MPP_
+      use caspt2_global, only: nbuf1_grad,iTasks_grad,nTasks_grad
+#else
       use caspt2_global, only: nbuf1_grad
+#endif
       use gugx, only: CIS, L2ACT, SGS, EXS
       use stdalloc, only: mma_MaxDBLE, mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
@@ -75,9 +79,10 @@
 C     REAL*8 BUFR(MXLEV**2)
 C
 C     INTEGER LFCDer1,LFCDer2
-      INTEGER ialev,iblev
+      INTEGER iTask_loc
       REAL*8  SCAL,ScalG,ScalF
 C     REAL*8 tmp,tmp2
+      LOGICAL first
       Integer :: nMidV
       nMidV = CIS%nMidV
 C
@@ -167,12 +172,20 @@ C-finished, so that GAdSUM works correctly.
           do it=1,nlev
            DG2(it,iu,iy,iz) = DG2(it,iu,iy,iz)
      *      - DF2(it,iu,iy,iz)*(EPSA(iu)+EPSA(iy))
-           do ix=1,nlev
-            DEPSA(iu,ix) = DEPSA(iu,ix)
-     *        - DF2(it,iu,iy,iz)*G2(it,ix,iy,iz)
-            DEPSA(ix,iy) = DEPSA(ix,iy)
-     *        - DF2(it,iu,iy,iz)*G2(it,iu,ix,iz)
-           end do
+           !! DEPSA-related operations in the preparation step
+           !! are done only on the master node
+#ifdef _MOLCAS_MPP_
+           if (king()) then
+#endif
+            do ix=1,nlev
+             DEPSA(iu,ix) = DEPSA(iu,ix)
+     *         - DF2(it,iu,iy,iz)*G2(it,ix,iy,iz)
+             DEPSA(ix,iy) = DEPSA(ix,iy)
+     *         - DF2(it,iu,iy,iz)*G2(it,iu,ix,iz)
+            end do
+#ifdef _MOLCAS_MPP_
+           end if
+#endif
           end do
          end do
         end do
@@ -182,9 +195,15 @@ C-finished, so that GAdSUM works correctly.
          do it=1,nlev
           DG1(it,iz) = DG1(it,iz) - EPSA(iu)*DF2(it,iu,iu,iz)
           DF1(it,iz) = DF1(it,iz) - DF2(it,iu,iu,iz)
-          do iy = 1, nlev
-            DEPSA(iu,iy) = DEPSA(iu,iy) - G1(it,iz)*DF2(it,iu,iy,iz)
-          end do
+#ifdef _MOLCAS_MPP_
+          if (king()) then
+#endif
+           do iy = 1, nlev
+             DEPSA(iu,iy) = DEPSA(iu,iy) - G1(it,iz)*DF2(it,iu,iy,iz)
+           end do
+#ifdef _MOLCAS_MPP_
+          end if
+#endif
          end do
         end do
        end do
@@ -242,15 +261,21 @@ C-finished, so that GAdSUM works correctly.
      *      - (DF1(iT,iU)+DF1(iU,iT))*EPSA(iU)*0.5d+00
         End Do
       End Do
-      Do iT = 1, NLEV
-        Do iU = 1, NLEV
-          Do iV = 1, NLEV
-            Do iX = 1, nLEV
-              DEPSA(iV,iX) = DEPSA(iV,iX) + G2(iT,iU,iV,iX)*DF1(iT,iU)
-            End Do
+#ifdef _MOLCAS_MPP_
+      if (king()) then
+#endif
+        Do iT = 1, NLEV
+          Do iU = 1, NLEV
+            Do iV = 1, NLEV
+              Do iX = 1, nLEV
+                DEPSA(iV,iX) = DEPSA(iV,iX) + G2(iT,iU,iV,iX)*DF1(iT,iU)
+              End Do
+            End DO
           End DO
-        End DO
-      End Do
+        End Do
+#ifdef _MOLCAS_MPP_
+      endif
+#endif
 C
       Call CLagSym(nLev,DG1,DG2,DF1,DF2,2)
 C
@@ -302,6 +327,8 @@ C     WALLT=TIOTF10-TIOTF0
 C     write(6,*) "PREP    : CPU/WALL TIME=", cput,wallt
 
       iG3OFF=0
+      iTask_loc = 1
+      first = .true.
 * A *very* long loop over the symmetry of Sgm1 = E_ut Psi as segmentation.
 * This also allows precomputing the Hamiltonian (H0) diagonal elements.
       DO issg1=1,nsym
@@ -392,11 +419,21 @@ C-SVC20100301: initialize the series of subtasks
       !! loop start
  500  CONTINUE
 C-SVC20100908: first check: can I actually do any task?
-      IF ((NG3-iG3OFF).LT.nbuf1*ntri2) GOTO 501
+C     IF ((NG3-iG3OFF).LT.nbuf1*ntri2) GOTO 501
 C-SVC20100831: initialize counter for offset into G3
 C-SVC20100302: BEGIN SEPARATE TASK EXECUTION
 C     write(6,*) rsv_tsk(id,isubtask)
-      If (.NOT.Rsv_Tsk(ID,iSubTask)) GOTO 501
+#ifdef _MOLCAS_MPP_
+      if (is_real_par()) then
+        !! do the same tasks here and in mkfg3.f
+        iSubTask = iTasks_grad(iTask_loc)
+        if (iSubTask == 0) GO TO 501
+      else
+#endif
+        If (.NOT.Rsv_Tsk(ID,iSubTask)) GOTO 501
+#ifdef _MOLCAS_MPP_
+      end if
+#endif
 
       myTask=nTasks
       DO iTask=1,nTasks
@@ -423,6 +460,11 @@ C-have not been computed yet, else just get the number of
 C-sigma vectors in the buffer.
 C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
       IF (myBuffer.NE.iTask) THEN
+        if (.not.first) then
+          !! Compute left derivative and DEPSA contributions before the
+          !! TASK is completely switched
+          CALL LEFT_DEPSA
+        end if
         ibuf1=0
         do ip1i=ip1sta,ip1end
          itlev=idx2ij(1,ip1i)
@@ -441,6 +483,7 @@ C     write(6,*) "myBuffer,iTask = ", myBuffer,iTask
         myBuffer=iTask
         Call DCopy_(MXCI*ibuf1,[0.0D+00],0,DTU,1)
         Call DCopy_(MXCI*ibuf1,[0.0D+00],0,DAB,1)
+        if (first) first = .false.
       ELSE
         ibuf1=TaskList(iTask,3)
       ENDIF
@@ -661,40 +704,20 @@ C
      &    iSubTask, ip1sta, ip1end, ip3, nbtot
         call xFlush(6)
       END IF
+      iTask_loc = iTask_loc + 1
 
 CSVC: The master node now continues to only handle task scheduling,
 C     needed to achieve better load balancing. So it exits from the task
 C     list.  It has to do it here since each process gets at least one
 C     task.
-C
-      !! Complete the left derivative and DEPSA contribution
-      If ((ip1end.le.ntri2.and.ip3.eq.ip1end).or.
-     *    (ip1sta.gt.ntri2.and.ip3+ntri2.eq.nlev2)) Then
-        do ib=1,ibuf1
-          idx=ip1_buf(ib)
-          itlev=idx2ij(1,idx)
-          iulev=idx2ij(2,idx)
-          !! left derivative
-          CALL SIGMA1(SGS,CIS,EXS,
-     &                ITLEV,IULEV,1.0D00,STSYM,DTU(1,ib),CLAG)
-          !! the rest is DEPSA contribution
-          Do IALEV = 1, NLEV
-            Do IBLEV = 1, NLEV
-              Call DCopy_(nsgm1,[0.0D0],0,BUF2,1)
-       CALL SIGMA1(SGS,CIS,EXS,
-     &             IALEV,IBLEV,1.0D+00,STSYM,DAB(1,ib),BUF2)
-              DEPSA(IALEV,IBLEV) = DEPSA(IALEV,IBLEV)
-     *          + DDot_(nsgm1,BUF1(1,IB),1,BUF2,1)
-            End Do
-          End Do
-        end do
-      End If
 
 C-SVC20100301: end of the task
       GOTO 500
 
  501  CONTINUE
 
+      !! Final (the last task) left derivative and DEPSA contributions
+      CALL LEFT_DEPSA
 
 C-SVC20100302: no more tasks, wait here for the others, then proceed
 C with next symmetry
@@ -714,6 +737,18 @@ C-position 12345678901234567890
 * End of sectioning loop over symmetry of Sgm1 wave functions.
       END DO
 C
+#ifdef _MOLCAS_MPP_
+      if (is_real_par() .and. (iTask_loc-1 /= nTasks_grad)) then
+        write (6,*)
+        write (6,*) "Somehow, the number of tasks in mkfg3.f and ",
+     *              "derfg3.f is not consistent..."
+        write (6,*) "probably, bug"
+        write (6,*) "# of tasks in  mkfg3.f = ", nTasks_grad
+        write (6,*) "# of tasks in derfg3.f = ", iTask_loc-1
+        call abend()
+      end if
+#endif
+C
       CALL mma_deallocate(TASKLIST)
       ! free CI buffers
       call mma_deallocate(BUF1)
@@ -731,7 +766,36 @@ C
 C
  999  continue
       RETURN
-      END
+      contains
+
+      SUBROUTINE LEFT_DEPSA
+
+      IMPLICIT NONE
+
+      integer(kind=iwp) :: IALEVloc, IBLEVloc, ibloc
+
+      do ibloc=1,ibuf1
+        idx=ip1_buf(ibloc)
+        itlev=idx2ij(1,idx)
+        iulev=idx2ij(2,idx)
+        !! left derivative
+        CALL SIGMA1(SGS,CIS,EXS,
+     &              ITLEV,IULEV,1.0D00,STSYM,DTU(1,ibloc),CLAG)
+        !! the rest is DEPSA contribution
+        Do IALEVloc = 1, NLEV
+          Do IBLEVloc = 1, NLEV
+            BUF2(:) = 0.0d+00
+            CALL SIGMA1(SGS,CIS,EXS,
+     &                 IALEVloc,IBLEVloc,1.0D00,STSYM,DAB(1,ibloc),BUF2)
+            DEPSA(IALEVloc,IBLEVloc) = DEPSA(IALEVloc,IBLEVloc)
+     *        + DDot_(nsgm1,BUF1(1,IBloc),1,BUF2,1)
+          End Do
+        End Do
+      end do
+
+      END SUBROUTINE LEFT_DEPSA
+
+      END SUBROUTINE DERFG3
 C
 ************************************************************************
 * This file is part of OpenMolcas.                                     *

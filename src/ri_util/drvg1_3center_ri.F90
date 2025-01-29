@@ -42,7 +42,7 @@ subroutine Drvg1_3Center_RI(Temp,nGrad,ij2,nij_Eff)
 use setup, only: mSkal, MxPrm
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
-use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, ReadBPT2
+use pso_stuff, only: DMdiag, lPSO, lSA, n_Txy, nCalAO, nG1, nnP, nZ_p_k, Thpkl, Txy, Z_p_k, ReadBPT2
 use k2_arrays, only: Sew_Scr
 use Basis_Info, only: nBas, nBas_Aux
 use Sizes_of_Seward, only: S
@@ -446,6 +446,7 @@ else
   nThpkl = 1
   call mma_allocate(Thpkl,nThpkl,Label='Thpkl')
 end if
+nCalAO = 0 !! for CASPT2
 !                                                                      *
 !***********************************************************************
 !                                                                      *

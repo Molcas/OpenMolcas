@@ -31,6 +31,10 @@
 
 
 #include "caspt2.fh"
+#ifdef _MOLCAS_MPP_
+#include "global.fh"
+#include "mafdecls.fh"
+#endif
       INTEGER IVEC,JVEC,NDPT2
       REAL*8 DPT2(NDPT2), SCAL
 
@@ -57,6 +61,7 @@ C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
           !! lg_V1: T+lambda
           !! lg_V2: T
           !! IVEC = iVecX
+          !! JVEC = iVecR
           CALL RHS_ALLO(NIN,NIS,lg_V1)
           CALL RHS_READ_SR(lg_V1,ICASE,ISYM,IVEC)
           IF(IVEC.EQ.JVEC) THEN
@@ -65,8 +70,7 @@ C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
             CALL RHS_ALLO(NIN,NIS,lg_V2)
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
             If (do_grad) Then
-              If (Scal.ne.1.0D+00)
-     *          Call DScal_(NIN*NIS,Scal,GA_Arrays(lg_V1)%A,1)
+              CALL RHS_SCAL(NIN,NIS,lg_V1,SCAL)
               if (sigma_p_epsilon .ne. 0.0d+00) then
                 !! derivative of the numerator
                 nAS = nASUP(iSym,iCase)
@@ -79,8 +83,7 @@ C       if (icase.ne.12 .and. icase.ne.13) cycle ! H
                 Call mma_deallocate(BD)
                 Call mma_deallocate(ID)
               end if
-              Call DaXpY_(nIN*nIS,1.0D+00,GA_Arrays(lg_V2)%A,1,
-     &                                    GA_Arrays(lg_V1)%A,1)
+              CALL RHS_DAXPY(NIN,NIS,1.0D+00,lg_V2,lg_V1)
               CALL RHS_READ_SR(lg_V2,ICASE,ISYM,IVEC)
             End If
           END IF
@@ -103,7 +106,7 @@ C full array in case we are running in parallel
               END IF
               CALL mma_deallocate(VEC1)
             END IF
-            CALL GASYNC
+            CALL GASYNC()
           ELSE
 #endif
             CALL DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%A,
@@ -143,7 +146,7 @@ C
                 CALL mma_deallocate(VEC1)
 
               END IF
-              CALL GASYNC
+              CALL GASYNC()
             ELSE
 #endif
               CALL DIADNS(ISYM,ICASE,GA_Arrays(lg_V1)%A,
@@ -160,5 +163,8 @@ C
           IF(IVEC.NE.JVEC) CALL RHS_FREE(lg_V2)
  100    CONTINUE
  101  CONTINUE
+#ifdef _MOLCAS_MPP_
+      IF (Is_Real_Par().and.do_grad) call gadsum(DPT2,NDPT2)
+#endif
 
       END SUBROUTINE TRDNS2D
