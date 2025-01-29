@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 ! Bin G_Toc Gamma_On lBin LuGamma nGamma nSSDM SO2cI SSDM
 !
 ! --- Stuff for CASTP2 Gradient
-! CASPT2_On ReadBPT2 CMOPT2 WRK1 WRK2(:) LuCMOPT2 LuGamma_PT2 LuGamma2 nOcc nFro iOffAO, nCalAO
+! CASPT2_On ReadBPT2 CMOPT2 WRK1 WRK2(:) LuCMOPT2 LuGamma_PT2 LuGamma2 nOcc nFro iOffAO nCalAO
 
 implicit none
 private

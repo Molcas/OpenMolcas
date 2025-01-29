@@ -406,7 +406,8 @@ do iAng=0,lAng
     else if (nCntrc < mCGTO(iAng)) then
       ! remove the rightmost added functions
       if (BasisTypes(1) /= 2) then
-        ! For a non-ANO basis, only removing uncontracted functions is allowed
+        ! For a non-ANO basis, if there are any uncontracted functions
+        ! those are the only ones that can be removed
         if ((nAdded > 0) .and. (mCGTO(iAng)-nCntrc > nAdded)) then
           call WarningMessage(2,'Number of contracted too low: correct the basis set label!')
           call Quit_OnUserError()
