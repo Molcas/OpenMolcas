@@ -1160,7 +1160,7 @@ C
           Call dDaFile(LUSBT,2,LBD,nAS,iD)
           Call dDaFile(LUSBT,2,LID,nIS,iD)
           !! this scaling is needed, so GA_DGEMM cannot be used
-          Call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,BD,ID)
+          Call CASPT2_ResD(3,nIN,nIS,lg_V2,lg_V1,LBD,LID)
           call mma_deallocate(LBD)
           call mma_deallocate(LID)
         else
@@ -1172,7 +1172,7 @@ C
      &                 lg_V1, lg_V2, 1.0D+00, lg_WRK)
         call GA_DGEMM ('N', 'T', NIN, NIN, NIS, 0.5D+00,
      &                 lg_V2, lg_V1, 1.0D+00, lg_WRK)
-        Call RHS_FREE(nIN,nIS,lg_V2)
+        Call RHS_FREE(lg_V2)
       End If
 
       if (sigma_p_epsilon.ne.0.0d+00) then
@@ -1221,7 +1221,7 @@ C         Call GA_Release(lg_V2,iLoV2,iHiV2,jLoV2,jHiV2)
           CALL GA_DGEMM ('N','T',NIN,NIN,NIS,
      *                   0.5D+00,lg_V2,lg_V1,1.0D+00,lg_WRK)
 C       end if
-        Call RHS_FREE(nIN,nIS,lg_V2)
+        Call RHS_FREE(lg_V2)
 C
         !! Restore the original T
         Call RHS_READ_SR(lg_V1,iCase,iSym,iVecX)
@@ -1229,7 +1229,7 @@ C
         CALL GA_SYNC()
       end if
 C
-      Call RHS_FREE(nIN,nIS,lg_V1)
+      Call RHS_FREE(lg_V1)
 C
 C     B derivative in NIN completed
 C
@@ -1325,8 +1325,8 @@ C
       end if
       call GA_DGEMM ('N','T',NIN,NIN,NIS,
      *              -1.0D+00,lg_V2,lg_V1,1.0D+00,lg_WRK)
-      Call RHS_FREE(nIN,nIS,lg_V1)
-      Call RHS_FREE(nIN,nIS,lg_V2)
+      Call RHS_FREE(lg_V1)
+      Call RHS_FREE(lg_V2)
 C
       If ((real_shift /= 0.0D+00) .OR. (imag_shift /= 0.0D+00)
      &    .OR. (sigma_p_epsilon /= 0.0D+00) .OR. IFMSCOUP) Then
@@ -1339,8 +1339,8 @@ C
         Call RHS_READ_SR(lg_V2,iCase,iSym,iVecR)
         call GA_DGEMM ('N','T',NIN,NIN,NIS,
      *                -0.5D+00,lg_V1,lg_V2,1.0D+00,lg_WRK)
-        Call RHS_FREE(nIN,nIS,lg_V1)
-        Call RHS_FREE(nIN,nIS,lg_V2)
+        Call RHS_FREE(lg_V1)
+        Call RHS_FREE(lg_V2)
       end if
 C
 C     S derivative in NIN completed (some NAS operations remain)
@@ -1384,14 +1384,14 @@ C
         Call RHS_ALLO(nIN,nIS,lg_V2)
         CALL RHS_READ_SR(lg_V2,iCase,iSym,iVecR)
         CALL RHS_DAXPY(NIN,NIS,0.5D+00,lg_V2,lg_V1)
-        CALL RHS_FREE(nIN,nIS,lg_V2)
+        CALL RHS_FREE(lg_V2)
       end if
 C
       CALL GA_CREATE_STRIPED ('V',NAS,NIS,'WRK',lg_WRK)
       CALL GA_DGEMM ('N','N',NAS,NIS,NIN,
      *               1.0D+00,lg_T,lg_V1,0.0D+00,lg_WRK)
 C
-      Call RHS_FREE(nIN,nIS,lg_V1)
+      Call RHS_FREE(lg_V1)
       bStat = GA_destroy(lg_T)
       !! lg_V1 = VEC4 = RHS (in MO basis)
       Call RHS_ALLO(nAS,nIS,lg_V1)
@@ -1400,7 +1400,7 @@ C
       CALL GA_DGEMM ('N','T',NAS,NAS,NIS,
      *               2.0D+00,lg_WRK,lg_V1,1.0D+00,lg_SDER)
 C
-      Call RHS_FREE(nAS,nIS,lg_V1)
+      Call RHS_FREE(lg_V1)
       bStat = GA_destroy(lg_WRK)
       CALL GA_SYNC()
 C
