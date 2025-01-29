@@ -141,15 +141,18 @@ C Apply the resolvent of the diagonal part of H0 to an RHS array
         CALL GA_Sync()
         myRank = GA_NodeID()
 C-SVC: get the local vertical stripes of the lg_W vector
-      !! not yet, probably just repeat for lg_W2
-        CALL GA_Distribution (lg_W1,myRank,iLo,iHi,jLo,jHi)
-        IF (iLo.NE.0.AND.jLo.NE.0) THEN
-          NROW=iHi-iLo+1
-          NCOL=jHi-jLo+1
-          CALL GA_Access (lg_W1,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL CASPT2_ResD2(MODE,NROW,NCOL,DBL_MB(mW),DBL_MB(mW),
-     &                      LDW,DIN(iLo),DIS(jLo))
-          CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
+        CALL GA_Distribution (lg_W1,myRank,iLo1,iHi1,jLo1,jHi1)
+        CALL GA_Distribution (lg_W2,myRank,iLo2,iHi2,jLo2,jHi2)
+        !! Well, assume the same dimension
+        IF (iLo1.GT.0.AND.jLo1.GT.0.AND.iLo2.GT.0.AND.jLo2.GT.0) THEN
+          NROW=iHi1-iLo1+1
+          NCOL=jHi1-jLo1+1
+          CALL GA_Access (lg_W1,iLo1,iHi1,jLo1,jHi1,mW1,LDW1)
+          CALL GA_Access (lg_W2,iLo2,iHi2,jLo2,jHi2,mW2,LDW2)
+          CALL CASPT2_ResD2(MODE,NROW,NCOL,DBL_MB(mW1),DBL_MB(mW2),
+     &                      LDW1,DIN(iLo1),DIS(jLo1))
+          CALL GA_Release_Update (lg_W1,iLo1,iHi1,jLo1,jHi1)
+          CALL GA_Release_Update (lg_W2,iLo2,iHi2,jLo2,jHi2)
         END IF
         CALL GA_Sync()
       ELSE

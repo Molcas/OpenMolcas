@@ -425,7 +425,7 @@ if (DoExchange) then
   if (iMp2prpt == 2) then
     call Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
   else if (CASPT2) then
-    call Mult_with_Q_CASPT2(nBas_aux,nBas,nIrrep,Chol .and. (.not. Do_RI))
+    call Mult_with_Q_CASPT2(nBas_aux,nBas,nV_t,nIrrep,Chol .and. (.not. Do_RI))
   end if
 end if
 if (Chol .and. (.not. Do_RI)) nBas_Aux(0) = nBas_Aux(0)-1

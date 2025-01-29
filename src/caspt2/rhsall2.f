@@ -636,9 +636,12 @@ C-SVC: sanity check
       SUBROUTINE MEMORY_ESTIMATE(JSYM,LBGRP,NBGRP,
      &                           NCHOBUF,NPIQK,NADDBUF)
       USE CHOVEC_IO
-      use caspt2_global, only:iPrGlb
+      use caspt2_global, only:iPrGlb,iStpGrd
       use PrintLevel, only: verbose
       use stdalloc, only: mma_MaxDBLE
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
       DIMENSION LBGRP(2,NBGRP)
@@ -646,6 +649,7 @@ C-SVC: sanity check
       Parameter (Inactive=1, Active=2, Virtual=3)
       Integer nSh(8,3)
       DIMENSION ITYPE(4,9)
+      Logical :: call_from_grad
       DATA ITYPE /
      &  Inactive,Active,Active,Active,
      &  Inactive,Active,Inactive,Active,
@@ -766,6 +770,26 @@ CSVC: can we fit this all in memory?
       MINGOOD=MXRHS+MINPIQK+2*MINBUFF+2*MAXCHOL
       MINSLOW=MXRHS+MINPIQK+2*MINBUFF+2*MINCHOL
 
+      call_from_grad = .false.
+      if (iStpGrd == -1) call_from_grad = .true.
+      if (call_from_grad) then
+#ifdef _MOLCAS_MPP_
+        if (is_real_par()) then
+          !! One more vector is needed for buffer
+          MAXCHOL = MAXCHOL + MXNPITOT
+          MINNICE=2*MXRHS+MAXPIQK+2*MAXBUFF+4*MAXCHOL
+          MINGOOD=2*MXRHS+MINPIQK+2*MINBUFF+4*MAXCHOL
+          MINSLOW=2*MXRHS+MINPIQK+2*MINBUFF+4*MINCHOL
+        else
+#endif
+          MINNICE=  MXRHS+MAXPIQK+2*MAXBUFF+4*MAXCHOL
+          MINGOOD=  MXRHS+MINPIQK+2*MINBUFF+4*MAXCHOL
+          MINSLOW=  MXRHS+MINPIQK+2*MINBUFF+4*MINCHOL
+#ifdef _MOLCAS_MPP_
+        end if
+#endif
+      end if
+
       IF (IPRGLB.GT.VERBOSE) THEN
         WRITE(6,*)
         WRITE(6,'(A,I1)') '  Memory estimates in RHSALL, SYM ', JSYM
@@ -805,11 +829,15 @@ C integrals, and check they are lager than minimum needed
         LBGRP(2,1)=IB2
         NADDBUF=MINBUFF
         NCHUNK=(MXAVAIL-MXRHS-2*NADDBUF-2*NCHOBUF)/MINPIQK
+        if (call_from_grad)
+     *    NCHUNK=(MXAVAIL-2*MXRHS-2*NADDBUF-4*NCHOBUF)/MINPIQK
         NPIQK=MINPIQK*NCHUNK
       ELSE IF (MXAVAIL.GE.MINSLOW) THEN
         NADDBUF=MINBUFF
         NPIQK=MINPIQK
         NCHOBUF=(MXAVAIL-MXRHS-NPIQK-2*NADDBUF)/2
+        if (call_from_grad)
+     *    NCHOBUF=(MXAVAIL-2*MXRHS-NPIQK-4*NADDBUF)/2
 C create batch groups that have at most MXCHOVEC cholesky vectors
         MXCHOVEC=MAX(NCHOBUF/MXNPITOT,1)
         NCHOVEC=0

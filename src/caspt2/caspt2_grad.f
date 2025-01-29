@@ -20,7 +20,7 @@ C
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      *                           DPT2C_AO_tot,DPT2Canti_tot,
      *                           FIMO_all,FIFA_all,FIFASA_all,idSDMat,
-     *                           OMGDER
+     *                           OMGDER,iTasks_grad
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
 C
@@ -88,9 +88,6 @@ C
       ! but for the time being we only support the case nState=nRoots
       nOLag = 0
       nCLag = 0
-C     DO iSym = 1, nSym
-C       nCLag = nCLag + nState*CIS%nCSF(iSym)
-C     END DO
       nCLag = nconf*nState
       nOLag = NBSQT
       nSLag = nState*nState
@@ -191,6 +188,8 @@ C
       call mma_deallocate(WRK)
 C
       if (nFroT /= 0) call mma_allocate(TraFro,nFroT**2,Label='TraFro')
+      call mma_allocate(iTasks_grad,nAshT**2,Label='Tasks_grad')
+      iTasks_grad(:) = 0
 C
       Return
 
@@ -208,10 +207,14 @@ C
      *                           nCLag,nOLag,nSLag,nWLag,
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      *                           DPT2C_AO_tot,DPT2Canti_tot,
-     *                           FIMO_all,FIFA_all,FIFASA_all,OMGDER
+     *                           FIMO_all,FIFA_all,FIFASA_all,OMGDER,
+     *                           iTasks_grad
       use PrintLevel, only: verbose
       use stdalloc, only: mma_allocate,mma_deallocate
       use definitions, only: wp
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par, King
+#endif
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -380,6 +383,12 @@ C
       End Do
 
       !! orbital Lagrangian (read in RHS_PT2)
+#ifdef _MOLCAS_MPP_
+      if (is_real_par()) then
+        If (.not.King()) OLagFull(:) = 0.0d+00
+        CALL GADSUM (OLagFull,nOLag)
+      end if
+#endif
       If (DEB) call RecPrt('OLagFull','',OLagFull,nBasT,nBasT)
       Do i = 1, nOLag
         Write (LuPT2,*) OLagFull(i)
@@ -392,18 +401,36 @@ C
       End Do
 
       !! renormalization contributions (read in OUT_PT2)
+#ifdef _MOLCAS_MPP_
+      if (is_real_par()) then
+        If (.not.King()) WLag(:) = 0.0d+00
+        CALL GADSUM (WLag,nWLag)
+      end if
+#endif
       If (DEB) call TriPrt('WLag', '', WLag, nBast)
       Do i = 1, nWLag ! = NBTRI
         Write (LuPT2,*) WLag(i)
       End Do
 
       !! D^PT2 in MO (read in OUT_PT2)
+#ifdef _MOLCAS_MPP_
+      if (is_real_par()) then
+        If (.not.King()) DPT2_tot(:) = 0.0d+00
+        CALL GADSUM (DPT2_tot,NBSQT)
+      end if
+#endif
       If (DEB) call RecPrt('DPT2', '', DPT2_tot, nBast, nBast)
       Do i = 1, NBSQT
         Write (LuPT2,*) DPT2_tot(i)
       End Do
 
       !! D^PT2(C) in MO (read in OUT_PT2)
+#ifdef _MOLCAS_MPP_
+      if (is_real_par()) then
+        If (.not.King()) DPT2C_tot(:) = 0.0D+00
+        CALL GADSUM (DPT2C_tot,NBSQT)
+      end if
+#endif
       If (DEB) call RecPrt('DPT2C', '', DPT2C_tot, nBast, nBast)
       Do i = 1, NBSQT
         Write (LuPT2,*) DPT2C_tot(i)
@@ -493,6 +520,7 @@ C
       Call DaClos(LUGRAD)
 C
       if (nFroT /= 0) call mma_deallocate(TraFro)
+      call mma_deallocate(iTasks_grad)
 C
       Return
 C
@@ -547,22 +575,6 @@ C
         Write (6,'(3X,"A linear equation will be solved to obtain ",
      *                "the off-diagonal active density")')
         Write (6,*)
-      End If
-C
-      If (nState > 1) Then
-        If (.not.(IFSADREF .or. IFXMS .or. IFRMS)) Then
-          write(6,*)
-     *    "Please add SADREF keyword in CASPT2 section",
-     *    "This keyword is recommended with state-averaged reference"
-        End If
-      End If
-      If ((.not.IFDORTHO) .and. (ipea_shift /= 0.0D+00)) Then
-        write(6,*)
-     *    "It seems that DORT keyword is not used, ",
-     *    "even though this calculation uses the IPEA shift"
-        write(6,*)
-     *    "Sometimes, analytic gradients do not agree ",
-     *    "with numerical gradients"
       End If
 C
       End Subroutine GradStart

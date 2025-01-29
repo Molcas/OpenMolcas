@@ -11,13 +11,19 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine OLagVVVO(iSym,DPT2AO,DPT2CAO,FPT2AO,FPT2CAO,T2AO,
-     *                    DIA,DI,FIFA,FIMO,A_PT2,NumCho)
+     *                    DIA,DI,FIFA,FIMO,A_PT2,MaxVec_PT2)
       USE iSD_data
       USE CHOVEC_IO
       use caspt2_global, only: LuGAMMA,LuCMOPT2,LuAPT2,OLag
+#ifdef _MOLCAS_MPP_
+      use caspt2_global, only: nOLag
+#endif
       use caspt2_global, only: CMOPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -55,13 +61,13 @@ C
         !! No need to save CMOPT2. Just save A_PT2 and B_PT2.
         !! First, save A_PT2 in LuCMOPT2
         If (IFMSCOUP.and.jState.ne.1) Then
-          call mma_allocate(WRK2,NumCho*NumCho,Label='WRK2')
+          call mma_allocate(WRK2,MaxVec_PT2**2,Label='WRK2')
 
           ! read A_PT2 from LUAPT2
           id = 0
-          call ddafile(LUAPT2, 2, WRK2, NumCho**2, id)
+          call ddafile(LUAPT2, 2, WRK2, MaxVec_PT2**2, id)
 
-          Call DaXpY_(NumCho*NumCho,1.0D+00,WRK2,1,A_PT2,1)
+          Call DaXpY_(MaxVec_PT2**2,1.0D+00,WRK2,1,A_PT2,1)
           call mma_deallocate(WRK2)
         End If
 
@@ -70,7 +76,7 @@ C
         if (jState.eq.iRlxRoot .or. IFMSCOUP) then
           ! write A_PT2 in LUAPT2
           id = 0
-          call ddafile(LUAPT2,1,A_PT2,NumCho**2,id)
+          call ddafile(LUAPT2,1,A_PT2,MaxVec_PT2**2,id)
         end if
 
         ! rewind LuGamma
@@ -253,6 +259,15 @@ C     call sqprt(vLag,nbast)
 C     write(6,*) "olag after vvvo"
 C     call sqprt(olag,nbast)
 C
+#ifdef _MOLCAS_MPP_
+      If (Is_Real_Par()) Then
+        if (DoCholesky) call GADSUM(OLag,nOLag)
+        If (nFroT.eq.0) Then
+          CALL GADSUM (FPT2AO,nBasT**2)
+          CALL GADSUM (FPT2CAO,nBasT**2)
+        End If
+      End If
+#endif
       call mma_deallocate(vLag)
       call mma_deallocate(WRK1)
 C

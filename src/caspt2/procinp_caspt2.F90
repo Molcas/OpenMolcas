@@ -539,8 +539,8 @@ subroutine procinp_caspt2
   ! check first if the user specifically asked for analytic gradients
   ! I think GRDT keyword should be ignored for numerical gradient and last energy
   do_lindep = .False.
-  if (input%GRDT .and. SuperName(1:18) /= 'numerical_gradient' .and. SuperName(1:11) /= 'last_energy') then
-    do_grad = Input%GRDT
+  if ((input%GRDT .or. input%NAC) .and. SuperName(1:18) /= 'numerical_gradient' .and. SuperName(1:11) /= 'last_energy') then
+    do_grad = Input%GRDT .or. input%NAC
 
     ! quit if both analytical and numerical gradients were explicitly requested
     if (DNG) then
@@ -580,10 +580,22 @@ subroutine procinp_caspt2
       call quit_onUserError()
     end if
 #ifdef _MOLCAS_MPP_
-    ! for the time being no gradients with MPI
+    ! No parallel without RI/CD
+    if ((.not. ifChol) .and. nProcs > 1) then
+      call warningMessage(2,'Analytic gradients without density fitting or Cholesky decomposition not available'//  &
+                            ' in parallel executions.')
+      call quit_onUserError
+    end if
+#endif
+
+#if defined (_MOLCAS_MPP_) && ! defined (_GA_)
+    ! for the time being no gradients without GA
+    ! Parallel CASPT2 gradient is implemented with some GA-specific subroutines
+    ! partially because I can use OpenMolcas only for which GA is required.
+    ! As long as OpenMolcas concerns, this should be no problem (at all)
     if (nProcs > 1) then
       call warningMessage(2,'Analytic gradients not available'//  &
-                            ' in parallel executions.')
+                            ' without GA installed. Install GA and link.')
       call quit_onUserError()
     end if
 #endif
@@ -597,22 +609,15 @@ subroutine procinp_caspt2
   ! gradients default in this case, unless the user specifically
   ! requested numerical gradients in GATEWAY
   if (isStructure() == 1) then
-    ! if MPI is enabled, analytic gradients only with one process
-#ifdef _MOLCAS_MPP_
-    if (nProcs == 1) then
-#endif
-      ! check the hard constraints first
-      if ((.not. DNG) .and. (nSym == 1)) then
-        do_grad = .true.
+    ! check the hard constraints first
+    if ((.not. DNG) .and. (nSym == 1)) then
+      do_grad = .true.
 
-        ! check weaker constraints, if not met, revert to numerical gradients
-        if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
-        if ((ipea_shift /= 0.0_wp) .and. (.not. ifChol)) do_grad = .false.
-        if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
-      end if
-#ifdef _MOLCAS_MPP_
+      ! check weaker constraints, if not met, revert to numerical gradients
+      if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
+      if ((ipea_shift /= 0.0_wp) .and. (.not. ifChol)) do_grad = .false.
+      if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
     end if
-#endif
   end if
 
   ! compute full unrelaxed density for gradients
@@ -659,6 +664,7 @@ subroutine procinp_caspt2
 
   if (do_nac) then
     do_csf = input%CSF
+    if (isStructure() == 1) do_csf = .false. !! omit the CSF term during (any) geometry optimizations
   end if
 
   IFSADREF   = input%SADREF

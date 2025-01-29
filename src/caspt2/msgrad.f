@@ -751,6 +751,9 @@ C
       use gugx, only: SGS
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
       Implicit Real*8 (A-H,O-Z)
 C
 #include "caspt2.fh"
@@ -1064,6 +1067,12 @@ C
         !! 2) Implicit CI derivative
         Call CLagEig(.False.,CLag,RDMEIG,nLev)
 C
+#ifdef _MOLCAS_MPP_
+        if (is_real_par()) then
+          call GADSUM(CLag,nConf*nState)
+        end if
+#endif
+C
         call mma_deallocate(RDMEIG)
         call mma_deallocate(G1)
 C
@@ -1116,6 +1125,9 @@ C
 C
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: nProcs, Is_Real_Par
+#endif
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "caspt2.fh"
@@ -1149,6 +1161,11 @@ C
           Call Poly1_CLagT(CI1,CI2,
      *                     CLag(1,iStat),CLag(1,jStat),RDMEIG,Scal)
           !! Inactive terms
+#ifdef _MOLCAS_MPP_
+          !! The inactive contributions are computed in all processes,
+          !! whereas GADSUM will be done later, so divide
+          if (is_real_par()) Scal=Scal/DBLE(nProcs)
+#endif
           Call DaXpY_(nConf,Scal*EINACT,CI1,1,CLag(1,jStat),1)
           Call DaXpY_(nConf,Scal*EINACT,CI2,1,CLag(1,iStat),1)
         End Do
@@ -1340,6 +1357,9 @@ C
       use caspt2_global, only: FIMO_all
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp,wp
+#ifdef _MOLCAS_MPP_
+      USE Para_Info, ONLY: Is_Real_Par
+#endif
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -1526,6 +1546,10 @@ C     call sqprt(fimo,12)
       End Do
       End If
 C
+#ifdef _MOLCAS_MPP_
+      if (is_real_par()) CALL GADSUM (INT2,nAshT**4)
+#endif
+C
       Do IT = 1, nAshT
         Do iU = 1, nAshT
           Do iX = 1, nAshT
@@ -1669,15 +1693,9 @@ C
 C-----------------------------------------------------------------------
 C
       SUBROUTINE DENS1T_RPT2 (CI1,CI2,SGM1,G1,NLEV)
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
       use caspt2_global, only:iPrGlb
       use gugx, only: SGS, L2ACT, CIS
       use PrintLevel, only: debug
-#ifdef _MOLCAS_MPP_
-      USE Para_Info, ONLY: Is_Real_Par, King
-#endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: iwp
       IMPLICIT NONE

@@ -250,16 +250,20 @@ subroutine prinp_caspt2()
       write(6,fmt1) 'Canonical orthornormalization will be used for the IC basis'
     end if
 
-    if (do_grad .and. (.not. do_nac)) then
-      write(6,fmt1) 'Quantities for analytical gradients will be calculated'
-    end if
-
-    if (do_nac) then
-      if (do_csf) then
-        write(6,fmt1) 'Quantities for analytical NAC with CSF term will be calculated'
+    if (do_grad) then
+      if (do_nac) then
+        if (do_csf) then
+          write(6,fmt1) 'Quantities for analytical NAC with CSF term will be calculated'
+        else
+          write(6,fmt1) 'Quantities for analytical NAC without CSF term will be calculated'
+        end if
       else
-        write(6,fmt1) 'Quantities for analytical NAC without CSF term will be calculated'
+        write(6,fmt1) 'Quantities for analytical gradients will be calculated'
       end if
+!     if (ipea_shift /= 0.0d+00) then
+!       Write (6,fmt1) 'Non-invariant CASPT2: A linear equation will be solved'
+!       Write (6,fmt1) '                      to obtain the off-diagonal active density'
+!     end if
     end if
 
     call CollapseOutput(0,'CASPT2 specifications:')

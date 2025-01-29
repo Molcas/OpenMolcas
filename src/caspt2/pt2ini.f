@@ -13,7 +13,7 @@
       use PT2WFN, ONLY: PT2WFN_INIT,PT2WFN_DATA
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
-      use caspt2_global, only: do_grad
+      use caspt2_global, only: do_grad,iStpGrd
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
      &                       NDREF, NPREF, NCMO
@@ -145,9 +145,8 @@ C Initialize sizes, offsets etc used in equation solver.
       CALL mma_allocate(TAT,NTAT,Label='TAT')
 
 ! initialize quantities for gradient calculation
-      If (do_grad) Then
-        CALL GrdIni()
-      End If
+      iStpGrd = 1 !! Just in case
+      If (do_grad) Call GrdIni()
 
       END SUBROUTINE PT2INI
 
