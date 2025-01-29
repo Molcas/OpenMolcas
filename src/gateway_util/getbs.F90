@@ -405,9 +405,12 @@ do iAng=0,lAng
       end do
     else if (nCntrc < mCGTO(iAng)) then
       ! remove the rightmost added functions
-      if ((nAdded > 0) .and. (mCGTO(iAng)-nCntrc > nAdded)) then
-        call WarningMessage(2,'Number of contracted too low: correct the basis set label!')
-        call Quit_OnUserError()
+      if (BasisTypes(1) /= 2) then
+        ! For a non-ANO basis, only removing uncontracted functions is allowed
+        if ((nAdded > 0) .and. (mCGTO(iAng)-nCntrc > nAdded)) then
+          call WarningMessage(2,'Number of contracted too low: correct the basis set label!')
+          call Quit_OnUserError()
+        end if
       end if
     end if
     Shells(iShll)%Cff_c(:,:,1) = Temp(:,1:nCntrc)
