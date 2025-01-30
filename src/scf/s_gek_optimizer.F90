@@ -13,12 +13,12 @@
 
 !#define _DEBUGPRINT_
 ! Method for subspace expansion:
-! 0: Full space (debugging)
-! 1: Krylov
-! 2: Hybrid
-! 3: Hybrid 2
-! 4: Hybrid 3
-#define _SUB_METHOD_ 4
+#define FULL_SPACE 1
+#define KRYLOV 2
+#define HYBRID 3
+#define HYBRID2 4
+#define HYBRID3 5
+#define _SUBSPACE_ HYBRID3
 subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
 !                                                                      *
@@ -31,7 +31,7 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 
 use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: Energy, HDiag, iter, IterGEK, Loosen, TimFld
-#if ( _SUB_METHOD_ > 1 )
+#if ( _SUBSPACE_ == HYBRID || _SUBSPACE_ == HYBRID2 || _SUBSPACE_ == HYBRID3 )
 use InfSCF, only: iterSO
 #endif
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
@@ -49,29 +49,34 @@ character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
 logical(kind=iwp), intent(in) :: SOrange
 integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iteration, Iteration_Micro, Iteration_Total, j, k, l, mDIIS, nDIIS, nExplicit
-real(kind=wp) :: Beta_Disp, Cpu1, Cpu2, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Tim1, Tim2, Tim3, Variance(1)
-real(kind=wp), allocatable :: D(:,:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), q(:,:), &
-                              q_diis(:,:), Val(:), Vec(:,:), w(:,:)
+real(kind=wp) :: Beta_Disp, Cpu1, Cpu2, dqHdq, FAbs, Fact, gg, RMS, RMSMx, SOFact, StepMax, Tim1, Tim2, Tim3, Variance(1)
 logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
+real(kind=wp), allocatable :: D(:,:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), q(:,:), q_diis(:,:), Val(:), &
+                              Vec(:,:), w(:,:)
 integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 20
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
-#if ( _SUB_METHOD_ > 0 )
+#if ( _SUBSPACE_ != FULL_SPACE )
 real(kind=wp), allocatable :: aux_a(:), aux_b(:)
-#if ( _SUB_METHOD_ < 4 )
+#if ( _SUBSPACE_ != HYBRID3 )
 integer(kind=iwp), parameter :: nKrylov = 20
 #endif
 #endif
-#if ( _SUB_METHOD_ > 1 )
+#if ( _SUBSPACE_ == HYBRID || _SUBSPACE_ == HYBRID || _SUBSPACE_ == HYBRID3 )
 integer(kind=iwp) :: Iter_Save, IterSO_Save
 #endif
 real(kind=wp), external :: DDot_
 
 call Timing(Cpu1,Tim1,Tim2,Tim3)
 
-Beta_Disp = Beta_Disp_Seed
+if (SORange) then
+  SOFact = One
+else
+  SOFact = 10000.0_wp
+end if
+Beta_Disp = Beta_Disp_Seed*SOFact
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter S-GEK Optimizer'
 #endif
@@ -80,8 +85,8 @@ if (.not. Init_LLs) then
   call Abend()
 end if
 
-call mma_allocate(q,mOV,iterGEK,Label='q')
-call mma_allocate(g,mOV,iterGEK,Label='g')
+call mma_allocate(q,mOV,min(iterGEK,nWindow),Label='q')
+call mma_allocate(g,mOV,min(iterGEK,nWindow),Label='g')
 
 !Pick up coordinates and gradients in full space
 iFirst = iter-min(iterGEK,nWindow)+1
@@ -119,7 +124,7 @@ call RecPrt('g',' ',g,mOV,nDIIS)
 call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
 
-#if ( _SUB_METHOD_ == 0 )
+#if ( _SUBSPACE_ == FULL_SPACE )
 
 ! Set up the full space
 nExplicit = mOV
@@ -129,7 +134,7 @@ do k=1,nExplicit
   e_diis(k,k) = One
 end do
 
-#elif ( _SUB_METHOD_ == 1 )
+#elif ( _SUBSPACE_ == KRYLOV )
 
 ! Set up unit vectors corresponding to a Krylov subspace for Adx=g
 nExplicit = min(nKrylov,mOV)
@@ -151,7 +156,7 @@ end do
 call mma_deallocate(Aux_b)
 call mma_deallocate(Aux_a)
 
-#elif ( _SUB_METHOD_ == 2 )
+#elif ( _SUBSPACE_ == HYBRID )
 
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
 nExplicit = min(2*(nDIIS-1)+nKrylov,mOV)
@@ -196,7 +201,7 @@ end do
 call mma_deallocate(Aux_b)
 call mma_deallocate(Aux_a)
 
-#elif ( _SUB_METHOD_ == 3 )
+#elif ( _SUBSPACE_ == HYBRID2 )
 
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
 nExplicit = min(2*nDIIS-1+nKrylov,mOV)
@@ -244,7 +249,7 @@ end do
 call mma_deallocate(Aux_b)
 call mma_deallocate(Aux_a)
 
-#elif ( _SUB_METHOD_ == 4 )
+#elif ( _SUBSPACE_ == HYBRID3 )
 
 !nExplicit = 2 * (nDIIS - 1) + mOV + 2
 nExplicit = 2*(nDIIS-1)+2
@@ -314,9 +319,9 @@ end do
 mDIIS = j
 #ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV
-#if ( _SUB_METHOD_ == 2 )
+#if ( _SUBSPACE_ == HYBRID )
 write(u6,*) 'nExplicit:',nExplicit,'=',2*(nDIIS-1),'+',nKrylov
-#elif ( _SUB_METHOD_ == 3 )
+#elif ( _SUBSPACE_ == HYBRID2 )
 write(u6,*) 'nExplicit:',nExplicit,'=',2*nDIIS-1,'+',nKrylov
 #else
 write(u6,*) 'nExplicit:',nExplicit
@@ -366,7 +371,7 @@ call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
-call mma_allocate(HDiag_diis,mDIIS,Label='HDiag_diis')
+!call mma_allocate(HDiag_diis,mDIIS,Label='HDiag_diis')
 
 do i=1,mDiis
   do j=1,mDiis
@@ -397,9 +402,9 @@ if (Loosen%Factor /= One) then
   call mma_deallocate(w)
 end if
 
-do i=1,mDiis
-  HDiag_Diis(i) = H_Diis(i,i)
-end do
+!do i=1,mDiis
+!  HDiag_Diis(i) = H_Diis(i,i)
+!end do
 #ifdef _DEBUGPRINT_
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
@@ -415,7 +420,7 @@ call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 blavAI = Ten
 call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)
 !call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),HDiag=HDiag_diis)
-call mma_deallocate(HDiag_diis)
+!call mma_deallocate(HDiag_diis)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -429,11 +434,11 @@ Converged = .false.
 Iteration = nDiis-1
 Iteration_Micro = 0
 Iteration_Total = iter-1
-if (nDIIS > 1) Beta_Disp = min(Beta_Disp_Seed,max(Beta_Disp_Min,abs(Energy(iter)-Energy(iter-1))))
+if (nDIIS > 1) Beta_Disp = min(Beta_Disp_Seed*SOFact,max(Beta_Disp_Min,abs(Energy(iter)-Energy(iter-1))))
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Energy(iter)-Energy(iter-1)=',Energy(iter)-Energy(iter-1)
 write(u6,*) 'nDIIS=',nDIIS
-write(u6,*) 'Beta_Disp_Seed=',Beta_Disp_Seed
+write(u6,*) 'Beta_Disp_Seed=',Beta_Disp_Seed*SOFact
 write(u6,*) 'Beta_Disp_Min=',Beta_Disp_Min
 write(u6,*) 'Beta_Disp=',Beta_Disp
 #endif
@@ -443,13 +448,13 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   Iteration_Micro = Iteration_Micro+1
   Iteration_Total = Iteration_Total+1
   Iteration = Iteration+1
-  if (Iteration_Micro == Max_Iter) then
-    write(u6,*)
-    write(u6,*) 'S_GEK_Optimizer: Iteration_Micro==Max_Iter'
-    write(u6,*) 'Abend!'
-    write(u6,*)
-    call Abend()
-  end if
+  !if (Iteration_Micro == Max_Iter) then
+  !  write(u6,*)
+  !  write(u6,*) 'S_GEK_Optimizer: Iteration_Micro==Max_Iter'
+  !  write(u6,*) 'Abend!'
+  !  write(u6,*)
+  !  call Abend()
+  !end if
 
 # ifdef _DEBUGPRINT_
   write(u6,*)
@@ -464,7 +469,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   Fact = One
-  StepMax = StepMax_Seed*real(Iteration_Micro,kind=wp)
+  StepMax = StepMax_Seed*SOFact*real(Iteration_Micro,kind=wp)
   ! Loop to enforce restricted variance. Note, if the step restriction kicks in no problem since we will still microiterate.
   ! Normally a full step will be allowed -- no step restriction -- and the loop will be exited after the first iteration.
   do
@@ -543,15 +548,9 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
     write(u6,*) 'StepMax   =',StepMax
 #   endif
     if ((Fact < 1.0e-5_wp) .or. (Variance(1) < Beta_Disp)) exit
-    if (SOrange) then
-      if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
-      Fact = Half*Fact
-      StepMax = Half*StepMax
-    else
-      if (One-Variance(1)/Beta_Disp > 0.1_wp) exit
-      Fact = 0.75_wp*Fact
-      StepMax = 0.75_wp*StepMax
-    end if
+    if (One-Variance(1)/Beta_Disp > 1.0e-3_wp) exit
+    Fact = Half*Fact
+    StepMax = Half*StepMax
     Step_Trunc = '*' ! This will only happen if the variance restriction kicks in
 
   end do  ! Restricted variance step
@@ -606,6 +605,7 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
   write(u6,*) 'Converged:',Converged
 # endif
   if (Step_Trunc == '*') Converged = .true.
+  if ((.not. Converged) .and. (Iteration_Micro == Max_Iter)) Terminate = .true.
   if (Terminate) then
     Step_Trunc = '#'
     exit
@@ -616,7 +616,11 @@ do while (.not. Converged) ! Micro iterate on the surrogate model
 end do  ! While not converged
 
 #ifdef _DEBUGPRINT_
-write(u6,*) 'Converged'
+if (Converged) then
+  write(u6,*) 'Converged'
+else
+  write(u6,*) 'Not converged!'
+end if
 write(u6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
 #endif
 write(UpMeth(5:6),'(I2)') Iteration_Micro

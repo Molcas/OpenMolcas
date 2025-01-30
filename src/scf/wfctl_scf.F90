@@ -61,10 +61,11 @@ character(len=*), intent(in) :: Meth
 logical(kind=iwp), intent(inout) :: FstItr
 real(kind=wp), intent(inout) :: SIntTh
 integer(kind=iwp) :: i, iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOffOcc, iOpt, iOpt_DIIS, iRC, iSym, iter_, &
-                     Iter_DIIS, Iter_no_DIIS, iTrM, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
-real(kind=wp) :: ang, DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, LastStatus, LastStep = 0.1_wp, TCP1, TCP2, TCPU1, &
-                 TCPU2, TWall1, TWall2
-logical(kind=iwp) :: AllowFlip, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, Loosen_Active, QNR1st, Reset, Reset_Thresh
+                     Iter_DIIS, Iter_DIIS_min, Iter_no_DIIS, iTrM, itSave, jpxn, lth, MinDMx, nBs, nCI, nOr, nTr
+real(kind=wp) :: ang, DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, GradNorm, LastStatus, LastStep = 0.1_wp, TCP1, &
+                 TCP2, TCPU1, TCPU2, TWall1, TWall2
+logical(kind=iwp) :: AllowFlip, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, Loosen_Active, QNR1st, Reset, Reset_GEK, &
+                     Reset_Thresh, SORange
 character(len=128) :: OrbName
 character(len=72) :: Note
 character(len=10) :: Meth_
@@ -143,8 +144,11 @@ end if
 IterSO = 0        ! number of second order steps.
 IterGEK = 0       ! number of data points in S-GEK
 kOptim = 1
+Iter_Diis_min = 2
 Iter_no_Diis = 2
 Converged = .false.
+SORange = Damping ! within 2nd-order range for S-GEK
+Reset_GEK = .false.
 !                                                                      *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
@@ -168,6 +172,7 @@ end if
 if (.not. Damping) then
   DiisTh = DiisTh*1.0e99_wp
   Iter_no_Diis = 1
+  Iter_Diis_min = 0
 end if
 
 ! turn temporarily off DIIS & QNR/DIIS, if Aufbau is active...
@@ -230,7 +235,7 @@ Loosen_Active = .false.
 iAufOK = 0
 Iter_DIIS = 0
 EDiff = Zero
-DMOMax = Zero
+DMOMax = 1.0e99_wp
 FMOMax = Zero
 DltNrm = Zero
 LastStatus = -One
@@ -331,7 +336,16 @@ do iter_=1,nIter(nIterP)
   !             when the orbital rotation DIIS is turned on
   !             we are firmly in the NR region.
 
-  if ((iOpt >= 2) .or. ((iOpt == 1) .and. (DMOMax < QNRTh) .and. (Iter_DIIS >= 2))) then
+  if (RGEK .and. (.not. (Damping .or. Aufb))) then
+    iOpt = 4
+    if ((.not. SORange) .and. (Iter > 1)) then
+      call mma_allocate(Grd1,mOV,Label='Grd1')
+      call GetVec(iter-1,LLGrad,inode,Grd1,mOV)
+      GradNorm = sqrt(ddot_(mov,Grd1,1,Grd1,1))
+      call mma_deallocate(Grd1)
+      if (GradNorm < QNRTh) Reset_GEK = .true.
+    end if
+  else if ((iOpt >= 2) .or. ((iOpt == 1) .and. (DMOMax < QNRTh) .and. (Iter_DIIS >= Iter_DIIS_min))) then
     if (RSRFO .or. RGEK) then
       if (RSRFO) then
         iOpt = 3
@@ -410,7 +424,7 @@ do iter_=1,nIter(nIterP)
       end if
       call GrdClc(FrstDs)
 
-      call DIIS_x(nD,CInter,nCI,iOpt == 2,Ind)
+      call DIIS_x(nD,CInter,nCI,.false.,Ind)
 
       ! Compute optimal density, dft potentials, and TwoHam
 
@@ -652,6 +666,19 @@ do iter_=1,nIter(nIterP)
           !*************************************************************
           !*************************************************************
           !                                                            *
+          ! update the S-GEK iteration counter
+          if (Reset_GEK) then
+            !IterGEK = 1
+            IterSO = 1
+            kOptim = 1
+            SORange = .true.
+            Reset_GEK = .false.
+            write(6,*) 'IFG Reset GEK'
+          else
+            IterGEK = min(IterGEK+1,IterSO_Max)
+          end if
+          Iter_Start = max(Iter_Start,Iter-IterGEK+1)
+
           ! Get g(n)
 
           call GetVec(iter,LLGrad,inode,Grd1,mOV)
@@ -660,6 +687,7 @@ do iter_=1,nIter(nIterP)
           !                                                            *
           ! Expand the subspace for GEK
           StrSave = AccCon
+          itSave = Iter_Start
           select case (Expand)
             case (1) ! Use DIIS
               ! Compute extrapolated g_x(n) and X_x(n)
@@ -737,13 +765,10 @@ do iter_=1,nIter(nIterP)
               call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,dqHdq,StepMax,AccCon(9:9),1)
           end select
           AccCon = StrSave
-
-          ! update the S-GEK iteration counter
-          IterGEK = min(IterGEK+1,IterSO_Max)
-          Iter_Start = min(Iter_Start,Iter-IterGEK+1)
+          Iter_Start = itSave
 
           Loosen_Active = (Loosen%Factor > One)
-          call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),.true.)
+          call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),AccCon(9:9),SORange)
           !                                                            *
           !*************************************************************
           !                                                            *
