@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE VECSMDP(    VEC1,    VEC2,    FAC1,    FAC2,     LU1,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE VECSMDP(    VEC1,    VEC2,    FAC1,    FAC2,     LU1,  &
      &                        LU2,     LU3,    IREW,    LBLK)
-C
-C DISC VERSION OF VECSUM :
-C
-C      ADD BLOCKED VECTORS ON FILES LU1 AND LU2
-C      AND STORE ON LU3
-*
-* Packed version, May 1996
-C
-C LBLK DEFINES STRUCTURE OF FILE
-C
+!
+! DISC VERSION OF VECSUM :
+!
+!      ADD BLOCKED VECTORS ON FILES LU1 AND LU2
+!      AND STORE ON LU3
+!
+! Packed version, May 1996
+!
+! LBLK DEFINES STRUCTURE OF FILE
+!
       use Constants, only: Zero
       use lucia_data, only: IDISK
       IMPLICIT None
@@ -29,17 +29,17 @@ C
 
       INTEGER IDUMMY(1)
       INTEGER NBL1,NBL2,KBLK,NO_ZEROING,IMZERO1,IMZERO2,IAMPACK
-C
+!
       IF(IREW .NE. 0 ) THEN
         IDISK(LU1)=0
         IDISK(LU2)=0
         IDISK(LU3)=0
       END IF
-C
-C LOOP OVER BLOCKS OF VECTOR
-C
+!
+! LOOP OVER BLOCKS OF VECTOR
+!
  1000 CONTINUE
-C
+!
         IF( LBLK .GT. 0 ) THEN
           NBL1 = LBLK
           NBL2 = LBLK
@@ -63,13 +63,13 @@ C
           CALL IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
         END IF
         IF( NBL1 .NE. NBL2 ) THEN
-        WRITE(6,'(A,2I5)') 'DIFFERENT BLOCKSIZES IN VECSMD ',
+        WRITE(6,'(A,2I5)') 'DIFFERENT BLOCKSIZES IN VECSMD ',           &
      &  NBL1,NBL2
-*       STOP ' INCOMPATIBLE BLOCKSIZES IN VECSMF '
-        CALL SYSABENDMSG('lucia_util/vecsmf','Different block sizes',
+!       STOP ' INCOMPATIBLE BLOCKSIZES IN VECSMF '
+        CALL SYSABENDMSG('lucia_util/vecsmf','Different block sizes',   &
      &                   ' ')
       END IF
-C
+!
       IF(NBL1 .GE. 0 ) THEN
           IF(LBLK .GE.0 ) THEN
             KBLK = NBL1
@@ -77,24 +77,24 @@ C
             KBLK = -1
           END IF
         NO_ZEROING = 1
-        CALL FRMDSC2(     VEC1,     NBL1,     KBLK,      LU1,  IMZERO1,
+        CALL FRMDSC2(     VEC1,     NBL1,     KBLK,      LU1,  IMZERO1, &
      &                 IAMPACK,NO_ZEROING)
-        CALL FRMDSC2(     VEC2,     NBL1,     KBLK,      LU2,  IMZERO2,
+        CALL FRMDSC2(     VEC2,     NBL1,     KBLK,      LU2,  IMZERO2, &
      &                 IAMPACK,NO_ZEROING)
         IF( NBL1 .GT. 0 ) THEN
           IF(IMZERO1.EQ.1.AND.IMZERO2.EQ.1) THEN
-*. Simple zero record
+!. Simple zero record
             CALL ZERORC(NBL1,LU3,IAMPACK)
           ELSE
-*. Nonvanishing record
+!. Nonvanishing record
             IF(IMZERO1.EQ.1) THEN
-              CALL VECSUM(    VEC1,    VEC1,    VEC2,    ZERO,    FAC2,
+              CALL VECSUM(    VEC1,    VEC1,    VEC2,    ZERO,    FAC2, &
      &                        NBL1)
             ELSE IF(IMZERO2.EQ.1) THEN
-              CALL VECSUM(    VEC1,    VEC1,    VEC2,    FAC1,    ZERO,
+              CALL VECSUM(    VEC1,    VEC1,    VEC2,    FAC1,    ZERO, &
      &                        NBL1)
             ELSE
-              CALL VECSUM(    VEC1,    VEC1,    VEC2,    FAC1,    FAC2,
+              CALL VECSUM(    VEC1,    VEC1,    VEC2,    FAC1,    FAC2, &
      &                        NBL1)
             END IF
             CALL TODSCP(VEC1,NBL1,KBLK,LU3)
@@ -103,7 +103,7 @@ C
           CALL TODSCP(VEC1,NBL1,KBLK,LU3)
         END IF
       END IF
-C
+!
       IF(NBL1.GE. 0 .AND. LBLK .LE. 0) GOTO 1000
-C
+!
       END SUBROUTINE VECSMDP

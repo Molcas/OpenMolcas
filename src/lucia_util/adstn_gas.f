@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991,1994-1996, Jeppe Olsen                            *
-************************************************************************
-      SUBROUTINE ADSTN_GAS(OFFI,   IOBSM,   IOBTP,   ISPGP, ISPGPSM,
-     &                     ISPGPTP,      I1,    XI1S,   NKSTR,    IEND,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991,1994-1996, Jeppe Olsen                            *
+!***********************************************************************
+      SUBROUTINE ADSTN_GAS(OFFI,   IOBSM,   IOBTP,   ISPGP, ISPGPSM,    &
+     &                     ISPGPTP,      I1,    XI1S,   NKSTR,    IEND, &
      &                     IFRST,   KFRST,    KACT,  SCLFAC)
       use strbas, only:NSTSGP,ISTSGP,STSTM
       use Constants, only: Zero
@@ -20,71 +20,71 @@
       use lucia_data, only: IOBPTS,NOBPT,NOBPTS
       use lucia_data, only: MXPNGAS,MXPNSMST
       use csm_data, only: NSMST
-*
-*
-* Obtain mappings
-* a+IORB !KSTR> = +/-!ISTR> for orbitals of symmetry IOBSM and type IOBTP
-* and I strings belonging to supergroup ISPGP wih symmetry ISPGPSM
-* and type ISPGPTP(=1=>alpha,=2=>beta)
-*
-* The results are given in the form
-* I1(KSTR,IORB) =  ISTR if A+IORB !KSTR> = +/-!ISTR>
-* (numbering relative to TS start)
-* Above +/- is stored in XI1S
-*
-* if some nonvanishing excitations were found, KACT is set to 1,
-* else it is zero
-*
-*
-* Jeppe Olsen , Winter of 1991
-*               January 1994 : modified to allow for several orbitals
-*               August 95    : GAS version
-*               October 96   : Improved version
-*
-* ======
-*. Input
-* ======
-*
+!
+!
+! Obtain mappings
+! a+IORB !KSTR> = +/-!ISTR> for orbitals of symmetry IOBSM and type IOBTP
+! and I strings belonging to supergroup ISPGP wih symmetry ISPGPSM
+! and type ISPGPTP(=1=>alpha,=2=>beta)
+!
+! The results are given in the form
+! I1(KSTR,IORB) =  ISTR if A+IORB !KSTR> = +/-!ISTR>
+! (numbering relative to TS start)
+! Above +/- is stored in XI1S
+!
+! if some nonvanishing excitations were found, KACT is set to 1,
+! else it is zero
+!
+!
+! Jeppe Olsen , Winter of 1991
+!               January 1994 : modified to allow for several orbitals
+!               August 95    : GAS version
+!               October 96   : Improved version
+!
+! ======
+!. Input
+! ======
+!
       IMPLICIT NONE
       Real*8 :: OFFI(*)
-      INTEGER IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,NKSTR,IEND,IFRST,KFRST,
+      INTEGER IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,NKSTR,IEND,IFRST,KFRST, &
      &        KACT
       REAL*8 SCLFAC
-*
-* =======
-*. Output
-* =======
-*
+!
+! =======
+!. Output
+! =======
+!
       INTEGER I1(*)
       REAL*8 XI1S(*)
-*. Local scratch
+!. Local scratch
       INTEGER NELFGS(MXPNGAS), ISMFGS(MXPNGAS),ITPFGS(MXPNGAS)
 
       INTEGER MAXVAL(MXPNGAS),MINVAL(MXPNGAS)
       INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
       INTEGER IISTSGP(MXPNSMST,MXPNGAS)
-*
+!
       INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
       INTEGER, PARAMETER :: MXLNGAS=20
 
       INTEGER, External:: IELSUM
-      INTEGER NTEST,ISPGRPABS,KSM,KSPGRPABS,NORBTS,IZERO,IBORBSP,
-     &        IBORBSPS,NGASL,IGAS,NELB,NACGSOB,ISMST,IFIRST,NSTRINT,
-     &        NONEW,ISTSMM1,JSTSMM1,ISMGSN,NSTRII,IOFF,MULT,KACGRP,
-     &        KFIRST,KSTRBS,NSTRIK,ISAVE,IACSM,IBSTRINI,NSTB,NSTA,
+      INTEGER NTEST,ISPGRPABS,KSM,KSPGRPABS,NORBTS,IZERO,IBORBSP,       &
+     &        IBORBSPS,NGASL,IGAS,NELB,NACGSOB,ISMST,IFIRST,NSTRINT,    &
+     &        NONEW,ISTSMM1,JSTSMM1,ISMGSN,NSTRII,IOFF,MULT,KACGRP,     &
+     &        KFIRST,KSTRBS,NSTRIK,ISAVE,IACSM,IBSTRINI,NSTB,NSTA,      &
      &        NIAC,IIAC,NKAC,IKAC,NKSD,NKACT,IORB,IORBR,KBSTRIN
-*. Will be stored as an matrix of dimension
-* (NKSTR,*), Where NKSTR is the number of K-strings of
-*  correct symmetry . Nk is provided by this routine.
-*
+!. Will be stored as an matrix of dimension
+! (NKSTR,*), Where NKSTR is the number of K-strings of
+!  correct symmetry . Nk is provided by this routine.
+!
       IF(NGAS.GT.MXLNGAS) THEN
         WRITE(6,*) ' Ad hoc programming in ADSTN (IOFFI)'
         WRITE(6,*) ' Must be changed - or redimensioned '
-*        STOP'ADST : IOFFI problem '
-        CALL SYSABENDMSG('lucia_util/adstn_gas',
+!        STOP'ADST : IOFFI problem '
+        CALL SYSABENDMSG('lucia_util/adstn_gas',                        &
      &                          'Internal error',' ')
       END IF
-*
+!
       NTEST = 0000
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -93,72 +93,72 @@
         WRITE(6,*) ' ==================== '
         WRITE(6,*)
         WRITE(6,*) '  IOBTP IOBSM : ', IOBTP,IOBSM
-        WRITE(6,*) '  ISPGP ISPGPSM ISPGPTP :  ',
+        WRITE(6,*) '  ISPGP ISPGPSM ISPGPTP :  ',                       &
      &                ISPGP,ISPGPSM,ISPGPTP
       END IF
-*
-C?    IF(SCLFAC.NE.1.0D0) THEN
-C?      WRITE(6,*) ' Problemo : ADSTN_GAS'
-C?      WRITE(6,*) ' SCLFAC .ne. 1 '
-C?    END IF
-*
-*. Supergroup and symmetry of K strings
-*
+!
+!?    IF(SCLFAC.NE.1.0D0) THEN
+!?      WRITE(6,*) ' Problemo : ADSTN_GAS'
+!?      WRITE(6,*) ' SCLFAC .ne. 1 '
+!?    END IF
+!
+!. Supergroup and symmetry of K strings
+!
       ISPGRPABS = IBSPGPFTP(ISPGPTP)-1+ISPGP
       CALL NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
       CALL SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
       NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
-      IF(NTEST.GE.200) WRITE(6,*)
+      IF(NTEST.GE.200) WRITE(6,*)                                       &
      & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
       IF(NKSTR.EQ.0) GOTO 9999
-*
+!
       NORBTS= NOBPTS(IOBTP,IOBSM)
       CALL SETVEC(XI1S,ZERO,NORBTS*NKSTR)
       IZERO = 0
       CALL ISETVC(I1,IZERO,NORBTS*NKSTR)
-*
-*. First orbital of given GASSpace
+!
+!. First orbital of given GASSpace
        IBORBSP = IELSUM(NOBPT,IOBTP-1)+1
-*. First orbital of fiven GASSPace and Symmetry
+!. First orbital of fiven GASSPace and Symmetry
        IBORBSPS = IOBPTS(IOBTP,IOBSM)
 
 
-*
-*. Information about I strings
-* =============================
-*
-*. structure of group of strings defining I strings
+!
+!. Information about I strings
+! =============================
+!
+!. structure of group of strings defining I strings
       NGASL = 1
       DO IGAS = 1, NGAS
        ITPFGS(IGAS) = ISPGPFTP(IGAS,ISPGRPABS)
        NELFGS(IGAS) = NELFGP(ITPFGS(IGAS))
        IF(NELFGS(IGAS).GT.0) NGASL = IGAS
       END DO
-*. Number of electrons before active type
+!. Number of electrons before active type
       NELB = 0
       DO IGAS = 1, IOBTP -1
         NELB = NELB + NELFGS(IGAS)
       END DO
-*. Number of electrons in active space
+!. Number of electrons in active space
       NACGSOB = NOBPT(IOBTP)
 
-*. Number of strings per symmetry for each symmetry
+!. Number of strings per symmetry for each symmetry
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,        &
      &               NNSTSGP(1,IGAS))
       END DO
-*. Offset and dimension for active group in I strings
-      CALL ICOPVE2(ISTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
+!. Offset and dimension for active group in I strings
+      CALL ICOPVE2(ISTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,         &
      &               IACIST)
-      CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,
+      CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,         &
      &               NACIST)
-C?     WRITE(6,*) ' IACIST and NACIST arrays '
-C?     CALL IWRTMA(IACIST,1,NSMST,1,NSMST)
-C?     CALL IWRTMA(NACIST,1,NSMST,1,NSMST)
-*
-*. Generate offsets for I strings with given symmetry in
-*  each space
-*
+!?     WRITE(6,*) ' IACIST and NACIST arrays '
+!?     CALL IWRTMA(IACIST,1,NSMST,1,NSMST)
+!?     CALL IWRTMA(NACIST,1,NSMST,1,NSMST)
+!
+!. Generate offsets for I strings with given symmetry in
+!  each space
+!
       DO IGAS = 1, NGAS
         DO ISMST = 1, NSMST
           IF(NNSTSGP(ISMST,IGAS).GT.0) MAXVAL(IGAS) = ISMST
@@ -175,37 +175,37 @@ C?     CALL IWRTMA(NACIST,1,NSMST,1,NSMST)
             ISMFGS(IGAS) = MINVAL(IGAS)
           END DO
         ELSE
-*. Next distribution of symmetries in NGAS -1
+!. Next distribution of symmetries in NGAS -1
          CALL NXTNUM3(ISMFGS,NGASL-1,MINVAL,MAXVAL,NONEW)
          IF(NONEW.NE.0) GOTO 2001
         END IF
         IFIRST = 0
-*. Symmetry of NGASL -1 spaces given, symmetry of full space
+!. Symmetry of NGASL -1 spaces given, symmetry of full space
         ISTSMM1 = 1
         DO IGAS = 1, NGASL -1
           CALL  SYMCOM(3,1,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
           ISTSMM1 = JSTSMM1
         END DO
-*.  sym of SPACE NGASL
+!.  sym of SPACE NGASL
         CALL SYMCOM(2,1,ISTSMM1,ISMGSN,ISPGPSM)
         ISMFGS(NGASL) = ISMGSN
         IF(NTEST.GE.200) THEN
           WRITE(6,*) ' next symmetry of NGASL spaces '
           CALL IWRTMA(ISMFGS,1,NGASL,1,NGASL)
         END IF
-*. Number of strings with this symmetry combination
+!. Number of strings with this symmetry combination
         NSTRII = 1
         DO IGAS = 1, NGASL
           NSTRII = NSTRII*NNSTSGP(ISMFGS(IGAS),IGAS)
         END DO
-*. Offset for this symmetry distribution in IOFFI
+!. Offset for this symmetry distribution in IOFFI
         IOFF = 1
         MULT = 1
         DO IGAS = 1, NGASL
           IOFF = IOFF + (ISMFGS(IGAS)-1)*MULT
           MULT = MULT * NSMST
         END DO
-*
+!
       IF(NTEST.GE.1) THEN !SJS
         WRITE(6,*)
         WRITE(6,*) ' ============================ '
@@ -217,41 +217,41 @@ C?     CALL IWRTMA(NACIST,1,NSMST,1,NSMST)
         OFFI(IOFF) = DBLE(NSTRINT) + 1.001D0
         NSTRINT = NSTRINT + NSTRII
         IF(NTEST.GE.200) THEN
-          WRITE(6,*) ' IOFF, OFFI(IOFF) NSTRII ',
+          WRITE(6,*) ' IOFF, OFFI(IOFF) NSTRII ',                       &
      &                 IOFF, OFFI(IOFF),NSTRII
         END IF
-*
+!
       IF(NGASL-1.GT.0) GOTO 2000
  2001 CONTINUE
 
 
-*
-*. Supergroup and symmetry of K strings
-*
-CM    CALL NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
-CM    CALL SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
-CM    NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
-CM    IF(NTEST.GE.200) WRITE(6,*)
-CM   & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
-*
-*. Gas structure of K strings
-*
+!
+!. Supergroup and symmetry of K strings
+!
+!M    CALL NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
+!M    CALL SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
+!M    NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
+!M    IF(NTEST.GE.200) WRITE(6,*)
+!M   & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
+!
+!. Gas structure of K strings
+!
       NGASL = 1
       DO IGAS = 1, NGAS
        ITPFGS(IGAS) = ISPGPFTP(IGAS,KSPGRPABS)
        NELFGS(IGAS) = NELFGP(ITPFGS(IGAS))
        IF(NELFGS(IGAS).GT.0) NGASL = IGAS
       END DO
-*. Active group of K-strings
+!. Active group of K-strings
       KACGRP = ITPFGS(IOBTP)
-*. Number of strings per symmetry distribution
+!. Number of strings per symmetry distribution
       DO IGAS = 1, NGAS
-        CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,        &
      &               NNSTSGP(1,IGAS))
-        CALL ICOPVE2(ISTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
+        CALL ICOPVE2(ISTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,        &
      &               IISTSGP(1,IGAS))
       END DO
-*
+!
       DO IGAS = 1, NGAS
         DO ISMST = 1, NSMST
           IF(NNSTSGP(ISMST,IGAS).GT.0) MAXVAL(IGAS) = ISMST
@@ -260,9 +260,9 @@ CM   & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
           IF(NNSTSGP(ISMST,IGAS).GT.0) MINVAL(IGAS) = ISMST
         END DO
       END DO
-*
-* Loop over symmetry distribtions of K strings
-*
+!
+! Loop over symmetry distribtions of K strings
+!
       KFIRST = 1
       KSTRBS = 1
  1000 CONTINUE
@@ -271,7 +271,7 @@ CM   & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
             ISMFGS(IGAS) = MINVAL(IGAS)
           END DO
         ELSE
-*. Next distribution of symmetries in NGAS -1
+!. Next distribution of symmetries in NGAS -1
          CALL NXTNUM3(ISMFGS,NGASL-1,MINVAL,MAXVAL,NONEW)
          IF(NONEW.NE.0) GOTO 1001
         END IF
@@ -280,18 +280,18 @@ CM   & ' KSM, KSPGPRABS, NKSTR : ', KSM,KSPGRPABS, NKSTR
           WRITE(6,*) ' next symmetry of NGASL-1 spaces '
           CALL IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
         END IF
-*. Symmetry of NGASL -1 spaces given, symmetry of total space
+!. Symmetry of NGASL -1 spaces given, symmetry of total space
         ISTSMM1 = 1
         DO IGAS = 1, NGASL -1
           CALL  SYMCOM(3,1,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
           ISTSMM1 = JSTSMM1
         END DO
-*. required sym of SPACE NGASL
+!. required sym of SPACE NGASL
         CALL SYMCOM(2,1,ISTSMM1,ISMGSN,KSM)
-C?      write(6,*) ' after  SYMCOM '
-C?      write(6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
+!?      write(6,*) ' after  SYMCOM '
+!?      write(6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
         ISMFGS(NGASL) = ISMGSN
-*
+!
         DO IGAS = NGASL+1,NGAS
           ISMFGS(IGAS) = 1
         END DO
@@ -299,12 +299,12 @@ C?      write(6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
           WRITE(6,*) ' Next symmetry distribution '
           CALL IWRTMA(ISMFGS,1,NGAS,1,NGAS)
         END IF
-*. Number of strings of this symmetry distribution
+!. Number of strings of this symmetry distribution
         NSTRIK = 1
         DO IGAS = 1, NGASL
           NSTRIK = NSTRIK*NNSTSGP(ISMFGS(IGAS),IGAS)
         END DO
-*. Offset for corresponding I strings
+!. Offset for corresponding I strings
         ISAVE = ISMFGS(IOBTP)
         CALL  SYMCOM(3,1,IOBSM,ISMFGS(IOBTP),IACSM)
         ISMFGS(IOBTP) = IACSM
@@ -316,46 +316,46 @@ C?      write(6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
         END DO
         ISMFGS(IOBTP) = ISAVE
         IBSTRINI = INT(OFFI(IOFF))
-C?      WRITE(6,*) ' IOFF IBSTRINI ', IOFF,IBSTRINI
-*. Number of strings before active GAS space
+!?      WRITE(6,*) ' IOFF IBSTRINI ', IOFF,IBSTRINI
+!. Number of strings before active GAS space
         NSTB = 1
         DO IGAS = 1, IOBTP-1
           NSTB = NSTB*NNSTSGP(ISMFGS(IGAS),IGAS)
         END DO
-*. Number of strings before active GAS space
+!. Number of strings before active GAS space
         NSTA = 1
         DO IGAS =  IOBTP+1, NGAS
           NSTA = NSTA*NNSTSGP(ISMFGS(IGAS),IGAS)
         END DO
-*. Number and offset for active group
-C?      write(6,*) ' IACSM = ', IACSM
+!. Number and offset for active group
+!?      write(6,*) ' IACSM = ', IACSM
         NIAC  = NACIST(IACSM)
         IIAC =  IACIST(IACSM)
-*
+!
         NKAC = NNSTSGP(ISMFGS(IOBTP),IOBTP)
         IKAC = IISTSGP(ISMFGS(IOBTP),IOBTP)
-*. I and K strings of given symmetry distribution
+!. I and K strings of given symmetry distribution
         NKSD = NSTB*NKAC*NSTA
-C?      write(6,*) ' nstb nsta niac nkac ',
-C?   &               nstb,nsta,niac,nkac
-*. Obtain annihilation n mapping for all strings of this type
-*
+!?      write(6,*) ' nstb nsta niac nkac ',
+!?   &               nstb,nsta,niac,nkac
+!. Obtain annihilation n mapping for all strings of this type
+!
         NORBTS= NOBPTS(IOBTP,IOBSM)
-*
+!
         NKACT = NSTFGP(KACGRP)
-C?      write(6,*) ' KACGRP ', KACGRP
-        CALL ADSTN_GASSM(NSTB,    NSTA,    IKAC,    IIAC,IBSTRINI,
-     &                   KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,
-     &                   IBORBSPS, IBORBSP,  NORBTS,    NKAC,   NKACT,
-*
-     &                       NIAC,   NKSTR, KBSTRIN,    NELB, NACGSOB,
+!?      write(6,*) ' KACGRP ', KACGRP
+        CALL ADSTN_GASSM(NSTB,    NSTA,    IKAC,    IIAC,IBSTRINI,      &
+     &                   KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,    &
+     &                   IBORBSPS, IBORBSP,  NORBTS,    NKAC,   NKACT,  &
+!
+     &                       NIAC,   NKSTR, KBSTRIN,    NELB, NACGSOB,  &
      &                         I1,    XI1S,  SCLFAC)
         KSTRBS = KSTRBS + NKSD
         IF(NGASL-1.GT.0) GOTO 1000
  1001 CONTINUE
-*
+!
  9999 CONTINUE
-*
+!
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from ADSTN_GAS '
         WRITE(6,*) ' ===================== '
@@ -370,11 +370,11 @@ C?      write(6,*) ' KACGRP ', KACGRP
           END DO
         END IF
       END IF
-*
-* PAM Mars-2006: This flush moved outside of this subroutine
-*      CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'ADSTN ')
+!
+! PAM Mars-2006: This flush moved outside of this subroutine
+!      CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'ADSTN ')
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(IEND)
         CALL Unused_integer(IFRST)

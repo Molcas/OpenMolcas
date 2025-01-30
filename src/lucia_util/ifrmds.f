@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE IFRMDS(IARRAY,NDIM,MBLOCK,IFILE)
-C
-C     TRANSFER INTEGER ARRAY FROM DISC FILE IFILE
-C
-C NBLOCK .LT. 0 INDICATES USE OF FASTIO
-C
-C If nblock .eq. 0 NBLOCK = NDIM
+!
+!     TRANSFER INTEGER ARRAY FROM DISC FILE IFILE
+!
+! NBLOCK .LT. 0 INDICATES USE OF FASTIO
+!
+! If nblock .eq. 0 NBLOCK = NDIM
       use lucia_data, only: IDISK
       IMPLICIT NONE
       INTEGER IARRAY(*)
@@ -22,10 +22,10 @@ C If nblock .eq. 0 NBLOCK = NDIM
 
       INTEGER IDUMMY(1)
       INTEGER NBLOCK,IREST,IBASE
-C
+!
       NBLOCK = MBLOCK
 
-C       DO NOT USE FASTIO
+!       DO NOT USE FASTIO
         IF(NBLOCK .LE. 0 ) NBLOCK = NDIM
         IREST=NDIM
         IBASE=0

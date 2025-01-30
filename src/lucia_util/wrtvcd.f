@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE WRTVCD(SEGMNT,LU,IREW,LBLK)
-C
-C PRINT VECTOR ON FILE LU
-C
-C LBLK DEFINES STRUCTURE OF FILES :
-C
+!
+! PRINT VECTOR ON FILE LU
+!
+! LBLK DEFINES STRUCTURE OF FILES :
+!
       use lucia_data, only: IDISK
       IMPLICIT NONE
       REAL*8 SEGMNT(*)
@@ -21,7 +21,7 @@ C
 
       INTEGER IDUMMY(1)
       INTEGER IBLK,LBL,KBLK,IAMPACK,IMZERO
-C
+!
       IF( IREW .NE. 0 ) THEN
         IF( LBLK .GE. 0 ) THEN
           IDISK(LU)=0
@@ -29,8 +29,8 @@ C
           IDISK(LU)=0
         END IF
       END IF
-C LOOP OVER BLOCKS
-C
+! LOOP OVER BLOCKS
+!
       IBLK = 0
  1000 CONTINUE
         IF ( LBLK .GT. 0 ) THEN
@@ -50,15 +50,15 @@ C
           ELSE
             KBLK = -1
           END IF
-           CALL FRMDSC(  SEGMNT,    LBL ,    KBLK,      LU,  IMZERO,
+           CALL FRMDSC(  SEGMNT,    LBL ,    KBLK,      LU,  IMZERO,    &
      &                  IAMPACK)
            IF(LBL .GT. 0 ) THEN
-             WRITE(6,'(A,I3,A,I6)')
+             WRITE(6,'(A,I3,A,I6)')                                     &
      &       ' Number of elements in segment ',IBLK,' IS ',LBL
              CALL WRTMAT(SEGMNT,1,LBL,1,LBL)
            END IF
         END IF
-C
+!
       IF( LBL.GE. 0 .AND. LBLK .LE. 0) GOTO 1000
-C
+!
       END SUBROUTINE WRTVCD

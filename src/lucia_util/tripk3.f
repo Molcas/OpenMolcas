@@ -1,37 +1,37 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE TRIPK3(  AUTPAK,    APAK,    IWAY,  MATDIM,    NDIM,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE TRIPK3(  AUTPAK,    APAK,    IWAY,  MATDIM,    NDIM,   &
      &                      SIGN)
-C
-C
-C.. REFORMATING BETWEEN LOWER TRIANGULAR PACKING
-C   AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
-C
-C   IWAY = 1 : FULL TO PACKED
-C              LOWER HALF OF AUTPAK IS STORED IN APAK
-C   IWAY = 2 : PACKED TO FULL FORM
-C              APAK STORED IN LOWER HALF
-C               SIGN * APAK TRANSPOSED IS STORED IN UPPPER PART
-C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
-*
-* Some considerations on cache minimization used for IMET = 2 Loop
-*
+!
+!
+!.. REFORMATING BETWEEN LOWER TRIANGULAR PACKING
+!   AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
+!
+!   IWAY = 1 : FULL TO PACKED
+!              LOWER HALF OF AUTPAK IS STORED IN APAK
+!   IWAY = 2 : PACKED TO FULL FORM
+!              APAK STORED IN LOWER HALF
+!               SIGN * APAK TRANSPOSED IS STORED IN UPPPER PART
+!.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
+!
+! Some considerations on cache minimization used for IMET = 2 Loop
+!
       IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION AUTPAK(MATDIM,MATDIM),APAK(*)
-*. To get rid of annoying and incorrect compiler warnings
+!. To get rid of annoying and incorrect compiler warnings
       IOFF = 0
       JOFF = 0
-*
-*. Packing : No problem with cache misses
-*
+!
+!. Packing : No problem with cache misses
+!
       IF( IWAY .EQ. 1 ) THEN
         IJ = 0
         DO J = 1,NDIM
@@ -41,14 +41,14 @@ C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
           IJ = IJ +NDIM-J
         END DO
       END IF
-*
-* Unpacking : cache misses can occur so two routes
-*
+!
+! Unpacking : cache misses can occur so two routes
+!
       IF( IWAY .EQ. 2 ) THEN
-*. Use blocked algorithm
+!. Use blocked algorithm
       IMET = 2
       IF(IMET.EQ.1) THEN
-*. No blocking
+!. No blocking
         IJ = 0
         DO J = 1,NDIM
           DO I = J,NDIM
@@ -58,7 +58,7 @@ C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
           IJ = IJ + NDIM-J
         END DO
       ELSE IF (IMET .EQ. 2 ) THEN
-*. Blocking
+!. Blocking
         LBLK = 40
         NBLK = MATDIM/LBLK
         IF(LBLK*NBLK.LT.MATDIM) NBLK = NBLK + 1
@@ -88,19 +88,19 @@ C.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
                   AUTPAK(I,J) = APAK(IJOFF+I)
                 END DO
               END DO
-*. End of loop over I and J
+!. End of loop over I and J
             END DO
           END DO
-*. End of loop over blocks of I and J
+!. End of loop over blocks of I and J
         END IF
       END IF
-*
+!
       NTEST = 0
       IF( NTEST .NE. 0 ) THEN
         WRITE(6,*) ' AUTPAK AND APAK FROM TRIPK3 '
         CALL WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
         CALL PRSM2(APAK,NDIM)
       END IF
-*
+!
       RETURN
       END

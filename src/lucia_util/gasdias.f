@@ -1,66 +1,66 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Jeppe Olsen                                      *
-*               2015, Lasse Kragh Soerensen                            *
-************************************************************************
-      SUBROUTINE GASDIAS(    NAEL,   IASTR,    NBEL,   IBSTR,    NORB,
-     &                       DIAG,   NSMST,       H,            XB,
-     &                            RJ,      RK,   NSSOA,   NSSOB,
-     &                      LUDIA,   ECORE,   PSSIGN,   IPRNT,
-     &                      NTOOB,  ICISTR,   RJKAA,     I12,   IBLTP,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Jeppe Olsen                                      *
+!               2015, Lasse Kragh Soerensen                            *
+!***********************************************************************
+      SUBROUTINE GASDIAS(    NAEL,   IASTR,    NBEL,   IBSTR,    NORB,  &
+     &                       DIAG,   NSMST,       H,            XB,     &
+     &                            RJ,      RK,   NSSOA,   NSSOB,        &
+     &                      LUDIA,   ECORE,   PSSIGN,   IPRNT,          &
+     &                      NTOOB,  ICISTR,   RJKAA,     I12,   IBLTP,  &
      &                     NBLOCK, IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
-*
-* Calculate determinant diagonal
-* Turbo-ras version
-*
-* Driven by IBLKFO, May 97
-*
-* ========================
-* General symmetry version
-* ========================
-*
-* Jeppe Olsen, July 1995, GAS version
-*
-* I12 = 1 => only one-body part
-*     = 2 =>      one+two-body part
-*
-* Added the possibility to zero out unwanted diagonal part
-* which is needed for highly excited states. Lasse 2015
-*
+!
+! Calculate determinant diagonal
+! Turbo-ras version
+!
+! Driven by IBLKFO, May 97
+!
+! ========================
+! General symmetry version
+! ========================
+!
+! Jeppe Olsen, July 1995, GAS version
+!
+! I12 = 1 => only one-body part
+!     = 2 =>      one+two-body part
+!
+! Added the possibility to zero out unwanted diagonal part
+! which is needed for highly excited states. Lasse 2015
+!
       use Constants, only: Zero
       use lucia_data, only: IDISK
       IMPLICIT NONE
-      INTEGER NAEL,NBEL,NORB,NSMST,LUDIA,IPRNT,NTOOB,ICISTR,
+      INTEGER NAEL,NBEL,NORB,NSMST,LUDIA,IPRNT,NTOOB,ICISTR,            &
      &        I12,NBLOCK,N_ELIMINATED_BATCHES
       Real*8 ECORE,   PSSIGN
-*.General input
+!.General input
       INTEGER NSSOA(NSMST,*),NSSOB(NSMST,*)
       REAL*8 H(NORB)
       INTEGER I_AM_OUT(*)
-*. Specific input
+!. Specific input
       INTEGER IBLTP(*),IBLKFO(8,NBLOCK)
-*. Scratch
+!. Scratch
       REAL*8 RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
       REAL*8 XB(NORB)
       INTEGER IASTR(NAEL,*),IBSTR(NBEL,*)
       REAL*8 RJKAA(*)
-*. Output
+!. Output
       REAL*8 DIAG(*)
 
       INTEGER IDUM_ARR(1)
-      INTEGER NTEST,IBLOCK,II,IDET,ITDET,IBLK,I_AM_NOT_WANTED,I,IATP,
-     &        IBTP,IASM,IBSM,IREST1,IOFF,IA,IEL,IAEL,JEL,IBSTRT,IBSTOP,
+      INTEGER NTEST,IBLOCK,II,IDET,ITDET,IBLK,I_AM_NOT_WANTED,I,IATP,   &
+     &        IBTP,IASM,IBSM,IREST1,IOFF,IA,IEL,IAEL,JEL,IBSTRT,IBSTOP, &
      &        IB,IBEL,IORB,IASTRT,IASTOP,NASTR1,NBSTR1
       REAL*8 XADD,EAA,RJBB,EB,X,HB
-*
+!
       NTEST =  0
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
@@ -68,7 +68,7 @@
       ELSE
          XADD = ZERO
       END IF
-*
+!
 
       IF( NTEST .GE. 20 ) THEN
         WRITE(6,*) ' Diagonal one electron integrals'
@@ -80,32 +80,32 @@
           WRITE(6,*)
           CALL WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
         END IF
-*
+!
         WRITE(6,*) ' TTSS for Blocks '
         DO IBLOCK = 1, NBLOCK
           WRITE(6,'(10X,4I3,2I8)') (IBLKFO(II,IBLOCK),II=1,4)
         END DO
-*
+!
         WRITE(6,*) ' I12 = ',I12
       END IF
-*
-*  Diagonal elements according to Handys formulae
-*   (corrected for error)
-*
-*   DIAG(IDET) = HII*(NIA+NIB)
-*              + 0.5 * ( J(I,J)-K(I,J) ) * NIA*NJA
-*              + 0.5 * ( J(I,J)-K(I,J) ) * NIB*NJB
-*              +         J(I,J) * NIA*NJB
-*
-*. K goes to J - K
-      IF(I12.EQ.2)
+!
+!  Diagonal elements according to Handys formulae
+!   (corrected for error)
+!
+!   DIAG(IDET) = HII*(NIA+NIB)
+!              + 0.5 * ( J(I,J)-K(I,J) ) * NIA*NJA
+!              + 0.5 * ( J(I,J)-K(I,J) ) * NIB*NJB
+!              +         J(I,J) * NIA*NJB
+!
+!. K goes to J - K
+      IF(I12.EQ.2)                                                      &
      &CALL VECSUM(RK,RK,RJ,-1.0D0,+1.0D0,NTOOB **2)
       IDET = 0
       ITDET = 0
       IF(LUDIA.NE.0) IDISK(LUDIA)=0
-*
+!
       DO IBLK = 1, NBLOCK
-* Lasse addition
+! Lasse addition
         I_AM_NOT_WANTED = 0
         DO I = 1, N_ELIMINATED_BATCHES
           IF(I_AM_OUT(I).EQ.IBLK) THEN
@@ -113,25 +113,25 @@
             EXIT
           END IF
         END DO
-* Lasse addition end
-*
+! Lasse addition end
+!
         IATP = IBLKFO(1,IBLK)
         IBTP = IBLKFO(2,IBLK)
         IASM = IBLKFO(3,IBLK)
         IBSM = IBLKFO(4,IBLK)
-*
+!
         IF(IBLTP(IASM).EQ.2) THEN
           IREST1 = 1
         ELSE
           IREST1 = 0
         END IF
-*
-*. Construct array RJKAA(*) =   SUM(I) H(I)*N(I) +
-*                           0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
-*
-*. Obtain alpha strings of sym IASM and type IATP
+!
+!. Construct array RJKAA(*) =   SUM(I) H(I)*N(I) +
+!                           0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
+!
+!. Obtain alpha strings of sym IASM and type IATP
         IDUM_ARR=0
-        CALL GETSTR_TOTSM_SPGP(      1,   IATP,   IASM,   NAEL, NASTR1,
+        CALL GETSTR_TOTSM_SPGP(      1,   IATP,   IASM,   NAEL, NASTR1, &
      &                           IASTR,   NORB,     0,IDUM_ARR,IDUM_ARR)
         IOFF =  1
         DO IA = 1, NSSOA(IASM,IATP)
@@ -147,42 +147,42 @@
           END DO
           RJKAA(IA-IOFF+1) = EAA
         END DO
-*. Obtain beta strings of sym IBSM and type IBTP
-        CALL GETSTR_TOTSM_SPGP(      2,   IBTP,   IBSM,   NBEL, NBSTR1,
+!. Obtain beta strings of sym IBSM and type IBTP
+        CALL GETSTR_TOTSM_SPGP(      2,   IBTP,   IBSM,   NBEL, NBSTR1, &
      &                           IBSTR,   NORB,     0,IDUM_ARR,IDUM_ARR)
         IBSTRT = 1
         IBSTOP =  NSSOB(IBSM,IBTP)
         DO IB = IBSTRT,IBSTOP
-*
-*. Terms depending only on IB
-*
+!
+!. Terms depending only on IB
+!
           HB = Zero
           RJBB = Zero
           CALL SETVEC(XB,Zero,NORB)
-*
+!
           DO IEL = 1, NBEL
             IBEL = IBSTR(IEL,IB)
             HB = HB + H(IBEL )
-*
+!
             IF(I12.EQ.2) THEN
               DO JEL = 1, NBEL
                 RJBB = RJBB + RK(IBSTR(JEL,IB),IBEL )
               END DO
-*
+!
               DO IORB = 1, NORB
                 XB(IORB) = XB(IORB) + RJ(IORB,IBEL)
               END DO
             END IF
           END DO
           EB = HB + 0.5D0*RJBB + ECORE
-*
+!
           IF(IREST1.EQ.1.AND.IATP.EQ.IBTP) THEN
             IASTRT =  IB
           ELSE
             IASTRT = 1
           END IF
           IASTOP = NSSOA(IASM,IATP)
-*
+!
           DO IA = IASTRT,IASTOP
             IDET = IDET + 1
             ITDET = ITDET + 1
@@ -190,19 +190,19 @@
             DO IEL = 1, NAEL
               X = X +XB(IASTR(IEL,IA))
             END DO
-* Lasse addition
+! Lasse addition
             IF(I_AM_NOT_WANTED.EQ.0) THEN
               DIAG(IDET) = X
               IF(IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
             ELSE
               DIAG(IDET) = Zero
             END IF
-* Lasse addition end
+! Lasse addition end
           END DO
-*         ^ End of loop over alpha strings|
+!         ^ End of loop over alpha strings|
         END DO
-*       ^ End of loop over betastrings
-*. Yet a RAS block of the diagonal has been constructed
+!       ^ End of loop over betastrings
+!. Yet a RAS block of the diagonal has been constructed
         IF(ICISTR.GE.2) THEN
           IF(NTEST.GE.100) THEN
             write(6,*) ' number of diagonal elements to disc ',IDET
@@ -213,16 +213,16 @@
           IDET = 0
         END IF
       END DO
-*        ^ End of loop over blocks
+!        ^ End of loop over blocks
 
-      IF(NTEST.GE.5) WRITE(6,*)
+      IF(NTEST.GE.5) WRITE(6,*)                                         &
      &' Number of diagonal elements generated (1)',ITDET
-*
+!
       IF(NTEST .GE.100 .AND.ICISTR.LE.1 ) THEN
         WRITE(6,*) ' CIDIAGONAL '
         CALL WRTMAT(DIAG(1),1,IDET,1,IDET)
       END IF
-*
+!
       IF ( ICISTR.GE.2 ) CALL ITODS([-1],1,-1,LUDIA)
-*
+!
       END SUBROUTINE GASDIAS

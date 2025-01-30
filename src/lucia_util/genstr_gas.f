@@ -1,57 +1,57 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Jeppe Olsen                                      *
-************************************************************************
-      SUBROUTINE GENSTR_GAS(    NEL, NELMN1, NELMX1, NELMN3, NELMX3,
-     &                       ISTASO,   IGRP, NOCTYP,  NSMST,      Z,
-     &                       LSTASO, IREORD, STRING,    IOC,  IOTYP,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Jeppe Olsen                                      *
+!***********************************************************************
+      SUBROUTINE GENSTR_GAS(    NEL, NELMN1, NELMX1, NELMN3, NELMX3,    &
+     &                       ISTASO,   IGRP, NOCTYP,  NSMST,      Z,    &
+     &                       LSTASO, IREORD, STRING,    IOC,  IOTYP,    &
      &                        IPRNT)
-*
-* Generate strings consisting of  NEL electrons fulfilling
-*   1 : Between NELMN1 AND NELMX1 electrons in the first NORB1 orbitals
-*   2 : Between NELMN3 AND NELMX3 electrons in the last  NORB3 orbitals
-*
-* In the present version the strings are directly ordered into
-* symmetry and occupation type .
-*
-* Jeppe Olsen Winter of 1990
-*
-* Special GAS version, Winter of 94 All strings of group IGRP
-*
-* ========
-* Output :
-* ========
-* STRING(IEL,ISTRIN) : Occupation of strings.
-* IREORD             : Reordering array going from lexical
-*                      order to symmetry and occupation type order.
-*
+!
+! Generate strings consisting of  NEL electrons fulfilling
+!   1 : Between NELMN1 AND NELMX1 electrons in the first NORB1 orbitals
+!   2 : Between NELMN3 AND NELMX3 electrons in the last  NORB3 orbitals
+!
+! In the present version the strings are directly ordered into
+! symmetry and occupation type .
+!
+! Jeppe Olsen Winter of 1990
+!
+! Special GAS version, Winter of 94 All strings of group IGRP
+!
+! ========
+! Output :
+! ========
+! STRING(IEL,ISTRIN) : Occupation of strings.
+! IREORD             : Reordering array going from lexical
+!                      order to symmetry and occupation type order.
+!
       use lucia_data, only: NACOB,NORB1,NORB2,NORB3
       IMPLICIT None
-      INTEGER NEL,NELMN1,NELMX1,NELMN3,NELMX3,IGRP,NOCTYP,NSMST,IOTYP,
+      INTEGER NEL,NELMN1,NELMX1,NELMN3,NELMX3,IGRP,NOCTYP,NSMST,IOTYP,  &
      &        IPRNT
-*. Input
+!. Input
       INTEGER ISTASO(NSMST,*)
-*.Orbinp
+!.Orbinp
       INTEGER Z(NACOB,NEL)
-*
-*.Output
+!
+!.Output
       INTEGER STRING(NEL,*),IREORD(*)
-*.Scratch arrays
+!.Scratch arrays
       INTEGER IOC(*),LSTASO(NOCTYP,NSMST)
 
-      INTEGER NTEST0,NTEST,NSTRIN,IORB1F,IORB1L,IORB2F,IORB2L,
-     &        IORB3F,IORB3L,IEL1,IEL3,IEL2,IFRST1,NONEW1,IFRST2,IFRST3,
-     &        NONEW2,NONEW3,ISYM,ITYP,LEXCI,LACTU,NPR,ISTRIN,LSTRIN,
+      INTEGER NTEST0,NTEST,NSTRIN,IORB1F,IORB1L,IORB2F,IORB2L,          &
+     &        IORB3F,IORB3L,IEL1,IEL3,IEL2,IFRST1,NONEW1,IFRST2,IFRST3, &
+     &        NONEW2,NONEW3,ISYM,ITYP,LEXCI,LACTU,NPR,ISTRIN,LSTRIN,    &
      &        KSTRIN,IEL,ISTRNM,ISYMST
-*
+!
       CALL ISETVC(LSTASO,0,NOCTYP*NSMST)
       NTEST0 = 00
       NTEST = MAX(NTEST0,IPRNT)
@@ -60,7 +60,7 @@
         WRITE(6,*)  ' GENSTR speaking '
         WRITE(6,*)  ' =============== '
       END IF
-*
+!
       NSTRIN = 0
       IORB1F = 1
       IORB1L = IORB1F+NORB1-1
@@ -68,7 +68,7 @@
       IORB2L = IORB2F+NORB2-1
       IORB3F = IORB2L + 1
       IORB3L = IORB3F+NORB3-1
-* Loop over possible partitionings between RAS1,RAS2,RAS3
+! Loop over possible partitionings between RAS1,RAS2,RAS3
       DO 1001 IEL1 = NELMX1,NELMN1,-1
       DO 1003 IEL3 = NELMN3,NELMX3, 1
        IF(IEL1.GT. NORB1 ) GOTO 1001
@@ -76,7 +76,7 @@
        IEL2 = NEL - IEL1-IEL3
        IF(IEL2 .LT. 0 .OR. IEL2 .GT. NORB2 ) GOTO 1003
        IFRST1 = 1
-* Loop over RAS 1 occupancies
+! Loop over RAS 1 occupancies
   901  CONTINUE
          IF( IEL1 .NE. 0 ) THEN
            IF(IFRST1.EQ.1) THEN
@@ -93,7 +93,7 @@
          END IF
          IFRST2 = 1
          IFRST3 = 1
-* Loop over RAS 2 occupancies
+! Loop over RAS 2 occupancies
   902    CONTINUE
            IF( IEL2 .NE. 0 ) THEN
              IF(IFRST2.EQ.1) THEN
@@ -112,14 +112,14 @@
              CALL IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
            END IF
            IFRST3 = 1
-* Loop over RAS 3 occupancies
+! Loop over RAS 3 occupancies
   903      CONTINUE
              IF( IEL3 .NE. 0 ) THEN
                IF(IFRST3.EQ.1) THEN
                 CALL ISTVC2(IOC(IEL1+IEL2+1),IORB3F-1,1,IEL3)
                 IFRST3 = 0
                ELSE
-                 CALL NXTORD(IOC(IEL1+IEL2+1),
+                 CALL NXTORD(IOC(IEL1+IEL2+1),                          &
      &           IEL3,IORB3F,IORB3L,NONEW3)
                  IF(NONEW3 .EQ. 1 ) THEN
                    IF(IEL2 .NE. 0 ) GOTO 902
@@ -132,33 +132,33 @@
                WRITE(6,*) ' RAS 1 2 3 string '
                CALL IWRTMA(IOC,1,NEL,1,NEL)
              END IF
-* Next string has been constructed , Enlist it !.
+! Next string has been constructed , Enlist it !.
              NSTRIN = NSTRIN + 1
-*. Symmetry
-*                   ISYMST(STRING,NEL)
+!. Symmetry
+!                   ISYMST(STRING,NEL)
              ISYM = ISYMST(IOC,NEL)
-*. Occupation type
-C            ITYP = IOCTP2(IOC,NEL,IOTYP)
+!. Occupation type
+!            ITYP = IOCTP2(IOC,NEL,IOTYP)
              ITYP = 1
-*
+!
              IF(ITYP.NE.0) THEN
                LSTASO(ITYP,ISYM) = LSTASO(ITYP,ISYM)+ 1
-C                      ISTRNM(IOCC,NACTOB,NEL,Z,NEWORD,IREORD)
+!                      ISTRNM(IOCC,NACTOB,NEL,Z,NEWORD,IREORD)
                LEXCI = ISTRNM(IOC,NACOB,NEL,Z,IREORD,0)
                LACTU = ISTASO(ISYM,IGRP)-1+LSTASO(ITYP,ISYM)
                IREORD(LEXCI) = LACTU
-               IF(NTEST.GT.10) WRITE(6,*) ' LEXCI,LACTU',
+               IF(NTEST.GT.10) WRITE(6,*) ' LEXCI,LACTU',               &
      &         LEXCI,LACTU
                If (NEL.gt.0) CALL ICOPVE(IOC,STRING(1,LACTU),NEL)
              END IF
-*
+!
            IF( IEL3 .NE. 0 ) GOTO 903
            IF( IEL3 .EQ. 0 .AND. IEL2 .NE. 0 ) GOTO 902
-           IF( IEL3 .EQ. 0 .AND. IEL2 .EQ. 0 .AND. IEL1 .NE. 0)
+           IF( IEL3 .EQ. 0 .AND. IEL2 .EQ. 0 .AND. IEL1 .NE. 0)         &
      &     GOTO 901
  1003 CONTINUE
  1001 CONTINUE
-*
+!
       IF(NTEST.GE.1 ) THEN
         WRITE(6,*) ' Number of strings generated   ', NSTRIN
       END IF
@@ -178,18 +178,18 @@ C                      ISTRNM(IOCC,NACTOB,NEL,Z,NEWORD,IREORD)
             WRITE(6,*) ' Strings of type and symmetry ',ITYP,ISYM
             DO 90 KSTRIN = 1,LSTRIN
               ISTRIN = ISTRIN + 1
-              WRITE(6,'(2X,I4,8X,(10I5))')
+              WRITE(6,'(2X,I4,8X,(10I5))')                              &
      &        ISTRIN,(STRING(IEL,ISTRIN),IEL = 1,NEL)
    90       CONTINUE
           END IF
   101   CONTINUE
   100   CONTINUE
-*
+!
         WRITE(6,*) ' Array giving actual place from lexical place'
         WRITE(6,*) ' ============================================'
         CALL IWRTMA(IREORD,1,NPR,1,NPR)
       END IF
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IOTYP)
       END SUBROUTINE GENSTR_GAS

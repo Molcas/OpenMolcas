@@ -1,46 +1,46 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE FRMDSC2(   ARRAY,    NDIM,  MBLOCK,   IFILE,  IMZERO,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE FRMDSC2(   ARRAY,    NDIM,  MBLOCK,   IFILE,  IMZERO,  &
      &                   I_AM_PACKED,NO_ZEROING)
-C
-C     TRANSFER ARRAY FROM DISC FILE IFILE
-C
-*. Version allowing zero and packed blocks
-*
-* If NO_ZEROING = 1, the elements of zero blocks
-*    are not set to zero, the routine just returns with
-*    IMZERO = 1
-*
+!
+!     TRANSFER ARRAY FROM DISC FILE IFILE
+!
+!. Version allowing zero and packed blocks
+!
+! If NO_ZEROING = 1, the elements of zero blocks
+!    are not set to zero, the routine just returns with
+!    IMZERO = 1
+!
       use Constants, only: Zero
       use lucia_data, only: IDISK
       IMPLICIT NONE
       INTEGER NDIM,MBLOCK,IFILE,IMZERO,I_AM_PACKED,NO_ZEROING
       REAL*8 ARRAY(*)
-*
+!
       INTEGER ISCR(2)
       INTEGER, PARAMETER :: LPBLK=50000
       INTEGER IPAK(LPBLK)
       REAL*8 XPAK(LPBLK)
       INTEGER IDUMMY(1)
-      INTEGER IPACK,NBATCH,LBATCH,LBATCHP,ISTOP,IELMNT,NBLOCK,IREST,
+      INTEGER IPACK,NBATCH,LBATCH,LBATCHP,ISTOP,IELMNT,NBLOCK,IREST,    &
      &        IBASE
 
       IMZERO = 0
-C
+!
       IPACK = 1
       IF(IPACK.NE.0) THEN
-*. Read if ARRAY is zero
-C       MMBLOCK = MBLOCK
-C       IF(MMBLOCK.GE.2) MMBLOCK = 2
-C       CALL IFRMDS(ISCR,2,MMBLOCK,IFILE)
+!. Read if ARRAY is zero
+!       MMBLOCK = MBLOCK
+!       IF(MMBLOCK.GE.2) MMBLOCK = 2
+!       CALL IFRMDS(ISCR,2,MMBLOCK,IFILE)
          CALL IFRMDS(ISCR,2,2,IFILE)
          IMZERO=ISCR(1)
          I_AM_PACKED=ISCR(2)
@@ -51,20 +51,20 @@ C       CALL IFRMDS(ISCR,2,MMBLOCK,IFILE)
             GOTO 1001
          END IF
       END IF
-*
+!
       IF(I_AM_PACKED.EQ.1) THEN
          CALL SETVEC(ARRAY,ZERO,NDIM)
-*. Loop over packed records of dimension LPBLK
+!. Loop over packed records of dimension LPBLK
          NBATCH = 0
-C1000 CONTINUE
-*. The next LPBLK elements
+!1000 CONTINUE
+!. The next LPBLK elements
          LBATCH=-2**30
  999     CONTINUE
          NBATCH = NBATCH + 1
          IF(NBATCH.NE.1) THEN
             LBATCHP = LBATCH
          END IF
-*. Read next batch
+!. Read next batch
          CALL IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
          LBATCH=IDUMMY(1)
          IF(LBATCH.GT.0) THEN
@@ -84,14 +84,14 @@ C1000 CONTINUE
                   WRITE(6,*) ' NBATCH, LBATCHP', NBATCH,LBATCHP
                END IF
                WRITE(6,*) ' NDIM,IMZERO = ', NDIM,IMZERO
-*              STOP ' problem in FRMDSC '
-               CALL SYSABENDMSG('lucia_util/frmdsc','Internal error',
+!              STOP ' problem in FRMDSC '
+               CALL SYSABENDMSG('lucia_util/frmdsc','Internal error',   &
      &                          ' ')
             END IF
             ARRAY(IPAK(IELMNT)) = XPAK(IELMNT)
          END DO
          IF(ISTOP.EQ.0) GOTO 999
-*. End of loop over records of truncated elements
+!. End of loop over records of truncated elements
       ELSE IF ( I_AM_PACKED.EQ.0) THEN
             NBLOCK = MBLOCK
             IF ( MBLOCK .LE. 0 ) NBLOCK = NDIM
@@ -108,9 +108,9 @@ C1000 CONTINUE
             END IF
             CALL IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
             IF( IREST .GT. 0 ) GOTO 100
-C
+!
       END IF
-*
+!
  1001 CONTINUE
-*
+!
       END SUBROUTINE FRMDSC2

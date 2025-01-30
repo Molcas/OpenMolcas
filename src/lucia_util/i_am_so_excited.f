@@ -1,54 +1,54 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2015, Lasse Kragh Soerensen                            *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2015, Lasse Kragh Soerensen                            *
+!***********************************************************************
       SUBROUTINE I_AM_SO_EXCITED(NBATCH,IBATCH,LBATCH,I1BATCH)
-*
-* Subroutine by Lasse from October 2015
-*
-* Updated March 2018 for doubly excited states
-*
-* Will give single excited states in from the desired GAS (or GAS's)
-* And now also doubly excited states
-*
-* The difference between the HEXS and DEXS is controlled by
-* I_ELIMINATE_GAS
-* Notice that for the doubly excited states (DEXS) all
-* singly excited states (HEXS) are in effect.
-*
+!
+! Subroutine by Lasse from October 2015
+!
+! Updated March 2018 for doubly excited states
+!
+! Will give single excited states in from the desired GAS (or GAS's)
+! And now also doubly excited states
+!
+! The difference between the HEXS and DEXS is controlled by
+! I_ELIMINATE_GAS
+! Notice that for the doubly excited states (DEXS) all
+! singly excited states (HEXS) are in effect.
+!
       use lucia_data, only: NGAS
-      use lucia_data, only: N_ELIMINATED_GAS,N_2ELIMINATED_GAS,
-     &                      I_ELIMINATE_GAS,N_ELIMINATED_BATCHES,
-     &                      I_AM_OUT,I2ELIMINATED_IN_GAS,IBSPGPFTP,
+      use lucia_data, only: N_ELIMINATED_GAS,N_2ELIMINATED_GAS,         &
+     &                      I_ELIMINATE_GAS,N_ELIMINATED_BATCHES,       &
+     &                      I_AM_OUT,I2ELIMINATED_IN_GAS,IBSPGPFTP,     &
      &                      IELIMINATED_IN_GAS,ISPGPFTP,NELFGP,NSPGPFTP
       use lucia_data, only: MXPSTT
       IMPLICIT NONE
       INTEGER NBATCH
-* Input
+! Input
       INTEGER IBATCH(8,*),LBATCH(*),I1BATCH(*)
-* Scratch
+! Scratch
       INTEGER IMAX_OCC(2,NGAS,2)
       INTEGER MAX_E_GAS_ALPHA(2,MXPSTT),MAX_E_GAS_BETA(2,MXPSTT)
       INTEGER MAXM1_E_GAS_ALPHA(2,MXPSTT),MAXM1_E_GAS_BETA(2,MXPSTT)
-      INTEGER NTEST,I,IZERO,JBATCH,IBLOCK,ISPGP,IOFF,IGAS,IITYPE,IEL,
-     &        NALPHA,NBETA,NALPHAM1,NBETAM1,ITYPE_A,ITYPE_B,
-     &        IMATCH_BLOCK,IGAS_ELIM,IMATCH_BETA,J,IMATCH_ALPHA,
+      INTEGER NTEST,I,IZERO,JBATCH,IBLOCK,ISPGP,IOFF,IGAS,IITYPE,IEL,   &
+     &        NALPHA,NBETA,NALPHAM1,NBETAM1,ITYPE_A,ITYPE_B,            &
+     &        IMATCH_BLOCK,IGAS_ELIM,IMATCH_BETA,J,IMATCH_ALPHA,        &
      &        IMATCH_BETAM1,IMATCH_ALPHAM1
-*
+!
       NTEST = 00
-*
+!
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Oh I am so excited '
         WRITE(6,*)
-        WRITE(6,*) ' Number of GAS without max (max-1) occupation = ',
+        WRITE(6,*) ' Number of GAS without max (max-1) occupation = ',  &
      &               N_ELIMINATED_GAS + N_2ELIMINATED_GAS
         WRITE(6,*)
         IF ((I_ELIMINATE_GAS == 1) .OR. (I_ELIMINATE_GAS == 3)) THEN
@@ -66,13 +66,13 @@
           END DO
         END IF
       END IF
-*
-* First we need to find the GAS spaces for which we will eliminate
-* the maximum occupation.
-*
+!
+! First we need to find the GAS spaces for which we will eliminate
+! the maximum occupation.
+!
       IZERO = 0
       IMAX_OCC = IZERO
-*
+!
       DO JBATCH = 1,2 ! only alpha and beta
         DO IBLOCK = I1BATCH(JBATCH),I1BATCH(JBATCH)+ LBATCH(JBATCH)-1
           DO ISPGP = 1, NSPGPFTP(JBATCH)
@@ -88,7 +88,7 @@
           END DO
         END DO
       END DO
-*
+!
       IF(NTEST.GE.100) THEN
         DO JBATCH = 1,2
           IF(JBATCH.EQ.1) THEN
@@ -99,16 +99,16 @@
           WRITE(6,*)
           WRITE(6,*) ' GAS, Electrons, Group '
           DO IGAS = 1,NGAS
-            WRITE(6,*) IGAS,IMAX_OCC(JBATCH,IGAS,1),
+            WRITE(6,*) IGAS,IMAX_OCC(JBATCH,IGAS,1),                    &
      &                      IMAX_OCC(JBATCH,IGAS,2)
           END DO
           WRITE(6,*)
         END DO
       END IF
-*
-* Find which types contains the groups with a maximum number
-* of alpha or beta electrons in a GAS
-*
+!
+! Find which types contains the groups with a maximum number
+! of alpha or beta electrons in a GAS
+!
       NALPHA = 0
       NBETA = 0
       NALPHAM1 = 0
@@ -148,9 +148,9 @@
           END DO
         END DO
       END DO
-*
+!
       IF(NTEST.GE.100) THEN
-        WRITE(6,*) 'Maximum number of alpha supergroups '//
+        WRITE(6,*) 'Maximum number of alpha supergroups '//             &
      &             'that can be eliminated',NALPHA + NALPHAM1
         WRITE(6,*)
         WRITE(6,*) ' GAS Supergroup for HEXS'
@@ -175,7 +175,7 @@
           END DO
         END IF
         WRITE(6,*)
-        WRITE(6,*) 'Maximum number of beta supergroups '//
+        WRITE(6,*) 'Maximum number of beta supergroups '//              &
      &             'that can be eliminated',NBETA + NBETAM1
         WRITE(6,*)
         WRITE(6,*) ' GAS Supergroup for HEXS'
@@ -201,33 +201,33 @@
         END IF
         WRITE(6,*)
       END IF
-*
-* Now find the batches to possibly eliminate
-*
+!
+! Now find the batches to possibly eliminate
+!
       N_ELIMINATED_BATCHES = 0
-*
+!
       DO JBATCH = 1, NBATCH
         DO IBLOCK = I1BATCH(JBATCH),I1BATCH(JBATCH)+ LBATCH(JBATCH)-1
           ITYPE_A = IBATCH(1,IBLOCK)
           ITYPE_B = IBATCH(2,IBLOCK)
           IMATCH_BLOCK = 0
           IF ((I_ELIMINATE_GAS == 1) .OR. (I_ELIMINATE_GAS == 3)) THEN
-* HEXS
+! HEXS
             DO I = 1, N_ELIMINATED_GAS
               IGAS_ELIM = IELIMINATED_IN_GAS(I)
-* Will first check if it matches a beta type
+! Will first check if it matches a beta type
               IMATCH_BETA = 0
               DO J = 1, NBETA
-                IF (ITYPE_B == MAX_E_GAS_BETA(2,J) .AND.
+                IF (ITYPE_B == MAX_E_GAS_BETA(2,J) .AND.                &
      &            IGAS_ELIM == MAX_E_GAS_BETA(1,J)) THEN
                   IMATCH_BETA = 1
                   EXIT
                 END IF
               END DO
-*   Now check it also matches an alpha type
+!   Now check it also matches an alpha type
               IMATCH_ALPHA = 0
               DO J = 1, NALPHA
-                IF (ITYPE_A == MAX_E_GAS_ALPHA(2,J) .AND.
+                IF (ITYPE_A == MAX_E_GAS_ALPHA(2,J) .AND.               &
      &            IGAS_ELIM == MAX_E_GAS_ALPHA(1,J)) THEN
                   IMATCH_ALPHA = 1
                   EXIT
@@ -244,31 +244,31 @@
             END IF
           ENDIF
           IF (I_ELIMINATE_GAS > 1) THEN
-* DEXS
+! DEXS
             DO I = 1, N_2ELIMINATED_GAS
               IGAS_ELIM = I2ELIMINATED_IN_GAS(I)
-* Will first check if it matches a beta type
+! Will first check if it matches a beta type
               IMATCH_BETA = 0
               DO J = 1, NBETA
-                IF (ITYPE_B == MAX_E_GAS_BETA(2,J) .AND.
+                IF (ITYPE_B == MAX_E_GAS_BETA(2,J) .AND.                &
      &            IGAS_ELIM == MAX_E_GAS_BETA(1,J)) THEN
                   IMATCH_BETA = 1
                   EXIT
                 END IF
               END DO
-*   Now check it also matches an alpha type
+!   Now check it also matches an alpha type
               IMATCH_ALPHA = 0
               DO J = 1, NALPHA
-                IF (ITYPE_A == MAX_E_GAS_ALPHA(2,J) .AND.
+                IF (ITYPE_A == MAX_E_GAS_ALPHA(2,J) .AND.               &
      &            IGAS_ELIM == MAX_E_GAS_ALPHA(1,J)) THEN
                   IMATCH_ALPHA = 1
                   EXIT
                 END IF
               END DO
-* Check if OCC matches a DEXS beta type
+! Check if OCC matches a DEXS beta type
               IMATCH_BETAM1 = 0
               DO J = 1, NBETAM1
-                IF(ITYPE_B.EQ.MAXM1_E_GAS_BETA(2,J).AND.
+                IF(ITYPE_B.EQ.MAXM1_E_GAS_BETA(2,J).AND.                &
      &            IGAS_ELIM.EQ.MAXM1_E_GAS_BETA(1,J)) THEN
                   IMATCH_BETAM1 = 1
                   EXIT
@@ -276,14 +276,14 @@
               END DO
               IMATCH_ALPHAM1 = 0
               DO J = 1, NALPHAM1
-                IF(ITYPE_A.EQ.MAXM1_E_GAS_ALPHA(2,J).AND.
+                IF(ITYPE_A.EQ.MAXM1_E_GAS_ALPHA(2,J).AND.               &
      &            IGAS_ELIM.EQ.MAXM1_E_GAS_ALPHA(1,J)) THEN
                   IMATCH_ALPHAM1 = 1
                   EXIT
                 END IF
               END DO
-              IF ((IMATCH_BETA == 1 .AND. IMATCH_ALPHA == 1) .OR.
-     &           (IMATCH_BETAM1 == 1 .AND. IMATCH_ALPHA == 1) .OR.
+              IF ((IMATCH_BETA == 1 .AND. IMATCH_ALPHA == 1) .OR.       &
+     &           (IMATCH_BETAM1 == 1 .AND. IMATCH_ALPHA == 1) .OR.      &
      &           (IMATCH_BETA == 1 .AND. IMATCH_ALPHAM1 == 1)) THEN
                 IMATCH_BLOCK = 1
               END IF
@@ -295,14 +295,14 @@
           ENDIF
         ENDDO
       ENDDO
-*
+!
       IF(N_ELIMINATED_BATCHES.GT.MXPSTT) THEN
         WRITE(6,*) ' Increase MXPSTT to ',N_ELIMINATED_BATCHES
-        CALL SYSABENDMSG('lucia_util/i_am_so_excited',
-     &                   'Dimension of I_AM_OUT is too small',
+        CALL SYSABENDMSG('lucia_util/i_am_so_excited',                  &
+     &                   'Dimension of I_AM_OUT is too small',          &
      &                   'Increase MXPSTT')
       END IF
-*
+!
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Number of eliminated blocks ',N_ELIMINATED_BATCHES
         WRITE(6,*)
@@ -313,5 +313,5 @@
         END DO
         WRITE(6,*)
       END IF
-*
+!
       END SUBROUTINE I_AM_SO_EXCITED

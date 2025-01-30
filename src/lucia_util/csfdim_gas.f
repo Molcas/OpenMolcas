@@ -1,101 +1,101 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Jeppe Olsen                                      *
-*               2024, Giovanni Li Manni                                *
-************************************************************************
-*
-* Adapted for GAS calculations and LUCIA, Dec. 2001
-* G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Jeppe Olsen                                      *
+!               2024, Giovanni Li Manni                                *
+!***********************************************************************
+!
+! Adapted for GAS calculations and LUCIA, Dec. 2001
+! G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
+!
       SUBROUTINE CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
       use stdalloc, only: mma_allocate
-      use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
+      use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,  &
      &                  Z_PTDT, REO_PTDT, SDREO
-      use lucia_data, only: MINOP,MAXOP,NCONF_ALL_SYM,NCSF_HEXS,
-     &                      NCONF_PER_OPEN,NPCMCNF,NPCSCNF,
-     &                      IBCONF_ALL_SYM_FOR_OCCLS,IB_CONF_OCC,
-     &                      IB_CONF_REO,IB_SD_FOR_OPEN,NPDTCNF,
-     &                      NCONF_ALL_SYM_FOR_OCCLS,NCONF_PER_SYM,
+      use lucia_data, only: MINOP,MAXOP,NCONF_ALL_SYM,NCSF_HEXS,        &
+     &                      NCONF_PER_OPEN,NPCMCNF,NPCSCNF,             &
+     &                      IBCONF_ALL_SYM_FOR_OCCLS,IB_CONF_OCC,       &
+     &                      IB_CONF_REO,IB_SD_FOR_OPEN,NPDTCNF,         &
+     &                      NCONF_ALL_SYM_FOR_OCCLS,NCONF_PER_SYM,      &
      &                      NCONF_TOT,NCSF_PER_SYM,NSD_PER_SYM
       use lucia_data, only: NGAS
       use lucia_data, only: PSSIGN,MULTS,MS2
-      use lucia_data, only: N_ELIMINATED_GAS,N_2ELIMINATED_GAS,
-     &                      I_ELIMINATE_GAS,I2ELIMINATED_IN_GAS,
+      use lucia_data, only: N_ELIMINATED_GAS,N_2ELIMINATED_GAS,         &
+     &                      I_ELIMINATE_GAS,I2ELIMINATED_IN_GAS,        &
      &                      IELIMINATED_IN_GAS
       use lucia_data, only: NOBPT,NOCOB
       use lucia_data, only: MXPORB,MXPCSM
-*
-* Initializing routine for CSF-DET expansions
-*
-* information about the number of dets,csf's for
-* each symmetry. CI space is defined by the NOCCLS
-* occupation classes IOCCLS
-*
-*
-* DETERMINE BASE ADRESSES
-*             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
-*             CFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
-*             DTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
-*             ONF_OCC%I(I) : SPACE FOR STORING  NCNSM
-*                        CONFIGURATION EXPANSIONS
-* ( Spin signaled by PSSIGN in CIINFO)
-*
+!
+! Initializing routine for CSF-DET expansions
+!
+! information about the number of dets,csf's for
+! each symmetry. CI space is defined by the NOCCLS
+! occupation classes IOCCLS
+!
+!
+! DETERMINE BASE ADRESSES
+!             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
+!             CFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
+!             DTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
+!             ONF_OCC%I(I) : SPACE FOR STORING  NCNSM
+!                        CONFIGURATION EXPANSIONS
+! ( Spin signaled by PSSIGN in CIINFO)
+!
       Implicit NONE
 #include "warnings.h"
-* Input type of occupation classes
+! Input type of occupation classes
       INTEGER NOCCLS,ISYM,IPRCSF
       INTEGER IOCCLS(NGAS,*)
 
       INTEGER IDUM_ARR(1)
-      INTEGER TMP_CNF(MXPORB+1),HEXS_CNF(MXPORB+1),
-     &        maxingas(N_ELIMINATED_GAS),
+      INTEGER TMP_CNF(MXPORB+1),HEXS_CNF(MXPORB+1),                     &
+     &        maxingas(N_ELIMINATED_GAS),                               &
      &        maxingas2(N_2ELIMINATED_GAS)
-      INTEGER IDUM,NTEST,NELEC,ITP,IOPEN,IAEL,IBEL,I,IGAS,JOCCLS,
-     &        INITIALIZE_CONF_COUNTERS, IDOREO,NCONF_ALL_SYM_PREV,
-     &        IELIM,J,JGAS,NCSF,NSD,NCMB,LIDT,LDTOC,MXPTBL,MXDT,LCONF,
-     &        ILCNF,LLCONF,ILLCNF,ITYP,ICL,IALPHA,LZ,LPTDT,IZERO,IB,
+      INTEGER IDUM,NTEST,NELEC,ITP,IOPEN,IAEL,IBEL,I,IGAS,JOCCLS,       &
+     &        INITIALIZE_CONF_COUNTERS, IDOREO,NCONF_ALL_SYM_PREV,      &
+     &        IELIM,J,JGAS,NCSF,NSD,NCMB,LIDT,LDTOC,MXPTBL,MXDT,LCONF,  &
+     &        ILCNF,LLCONF,ILLCNF,ITYP,ICL,IALPHA,LZ,LPTDT,IZERO,IB,    &
      &        LICS,LENGTH_LIST,NCONF_OCCLS,NSMST
       INTEGER, EXTERNAL:: IELSUM
       INTEGER, EXTERNAL:: IBION_LUCIA
       INTEGER, EXTERNAL:: IWEYLF
-*
+!
       IDUM = 0
       IDUM_ARR=0
-*
+!
       NTEST = 00
       NTEST = MAX(IPRCSF,NTEST)
       IF(NTEST.GE.10) WRITE(6,*) '  PSSIGN : ', PSSIGN
       IF(NTEST.GE.10) WRITE(6,*) ' MULTS, MS2 = ', MULTS,MS2
       NELEC = IELSUM(IOCCLS(1,1),NGAS)
-*
-*.. Define parameters in SPINFO
-*
-*. Allowed number of open orbitals
+!
+!.. Define parameters in SPINFO
+!
+!. Allowed number of open orbitals
       MINOP = ABS(MS2)
       CALL MAX_OPEN_ORB(MAXOP,IOCCLS,NGAS,NOCCLS,NOBPT)
-      IF( NTEST .GE. 6 )
+      IF( NTEST .GE. 6 )                                                &
      &WRITE(6,*) ' MINOP MAXOP ',MINOP,MAXOP
-C
-C.. Number of prototype sd's and csf's per configuration prototype
-C
+!
+!.. Number of prototype sd's and csf's per configuration prototype
+!
            ITP = 0
       DO IOPEN = MINOP, MAXOP
         ITP = IOPEN + 1
-*. Unpaired electrons :
+!. Unpaired electrons :
         IAEL = (IOPEN + MS2 ) / 2
         IBEL = (IOPEN - MS2 ) / 2
-        IF(IAEL+IBEL .EQ. IOPEN .AND. IAEL-IBEL .EQ. MS2 .AND.
+        IF(IAEL+IBEL .EQ. IOPEN .AND. IAEL-IBEL .EQ. MS2 .AND.          &
      &            IAEL .GE. 0 .AND. IBEL .GE. 0) THEN
           IF(PSSIGN.EQ. 0.0D0 .OR. IOPEN .EQ. 0 ) THEN
-*. Number of determinants is in general set to number of combinations
+!. Number of determinants is in general set to number of combinations
             NPDTCNF(ITP) = IBION_LUCIA(IOPEN,IAEL)
             NPCMCNF(ITP) = NPDTCNF(ITP)
           ELSE
@@ -113,7 +113,7 @@ C
           NPCSCNF(ITP) = 0
         END IF
       END DO
-*
+!
       IF(NTEST.GE.5) THEN
       IF(PSSIGN .EQ. 0.0D0 ) THEN
         WRITE(6,*) '  (Combinations = Determinants ) '
@@ -122,17 +122,17 @@ C
       END IF
       WRITE(6,'(/A)') ' Information about prototype configurations '
       WRITE(6,'( A)') ' ========================================== '
-      WRITE(6,'(/A)')
+      WRITE(6,'(/A)')                                                   &
      &'  Open orbitals   Combinations    CSFs '
       DO IOPEN = MINOP,MAXOP,2
-        WRITE(6,'(5X,I3,10X,I6,7X,I6)')
+        WRITE(6,'(5X,I3,10X,I6,7X,I6)')                                 &
      &  IOPEN,NPCMCNF(IOPEN+1),NPCSCNF(IOPEN+1)
       END DO
-*
+!
       END IF
-C
-C.. Number of Configurations per occupation type
-C
+!
+!.. Number of Configurations per occupation type
+!
       If (NOCCLS.gt.MXPCSM) Then
          WRITE(6,*)' A known bug has reoccurred -- It seems that'
          WRITE(6,*)' the named constant MXPCSM must be increased'
@@ -146,7 +146,7 @@ C
          WRITE(6,*)' molcas developers!'
          Call Quit(_RC_INTERNAL_ERROR_)
       End If
-*MGD : max occupation in removed GAS spaces
+!MGD : max occupation in removed GAS spaces
       Do i=1,N_ELIMINATED_GAS
         iGAS=IELIMINATED_IN_GAS(i)
         maxingas(i)=0
@@ -166,14 +166,14 @@ C
         NCONF_PER_OPEN(i,ISYM)=0
       End Do
 
-*
+!
       DO JOCCLS = 1, NOCCLS
         IF(JOCCLS.EQ.1) THEN
           INITIALIZE_CONF_COUNTERS = 1
         ELSE
           INITIALIZE_CONF_COUNTERS = 0
         END IF
-*
+!
         IDOREO = 0
         IF(JOCCLS.EQ.1) THEN
           NCONF_ALL_SYM_PREV = 0
@@ -183,27 +183,27 @@ C
         Do i=1,maxop+1
           TMP_CNF(i)=0
         End Do
-        CALL GEN_CONF_FOR_OCCLS(IOCCLS(1,JOCCLS),
-     &                             IDUM,
-     &                          INITIALIZE_CONF_COUNTERS,
-     &                             NGAS,   ISYM,  MINOP,  MAXOP,  NSMST,
-     &                                1,
-*
-     &                            NOCOB,
-     &                            NOBPT,
-     &                          TMP_CNF,
-     &                          NCONF_OCCLS,
-     &                          IB_CONF_REO,
-*
-     &                          IB_CONF_OCC,
-     &                          IDUM_ARR,IDOREO,IDUM_ARR,NCONF_ALL_SYM,
-     &                          idum_arr,
+        CALL GEN_CONF_FOR_OCCLS(IOCCLS(1,JOCCLS),                       &
+     &                             IDUM,                                &
+     &                          INITIALIZE_CONF_COUNTERS,               &
+     &                             NGAS,   ISYM,  MINOP,  MAXOP,  NSMST,&
+     &                                1,                                &
+!
+     &                            NOCOB,                                &
+     &                            NOBPT,                                &
+     &                          TMP_CNF,                                &
+     &                          NCONF_OCCLS,                            &
+     &                          IB_CONF_REO,                            &
+!
+     &                          IB_CONF_OCC,                            &
+     &                          IDUM_ARR,IDOREO,IDUM_ARR,NCONF_ALL_SYM, &
+     &                          idum_arr,                               &
      &                          nconf_tot)
          Do i=1,maxop+1
            NCONF_PER_OPEN(i,ISYM)=NCONF_PER_OPEN(i,ISYM)+TMP_CNF(i)
          End Do
-*MGD add to hexs_cnf only if the configuration does not have max occupation
-* in the selected GAS space
+!MGD add to hexs_cnf only if the configuration does not have max occupation
+! in the selected GAS space
          if (I_ELIMINATE_GAS > 0) then
            ielim=0
            if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
@@ -224,45 +224,45 @@ C
              End Do
            EndIf
          endif
-c.. testing
-c      write(6,*)'nconf_per_open after first call of gen_conf_for_occls'
-c      call iwrtma(nconf_per_open,1,4,1,4)
-c
-*. NCONF_ALL_SYM is accumulated, so
+!.. testing
+!      write(6,*)'nconf_per_open after first call of gen_conf_for_occls'
+!      call iwrtma(nconf_per_open,1,4,1,4)
+!
+!. NCONF_ALL_SYM is accumulated, so
            IF(JOCCLS.EQ.1) THEN
              NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM
              IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = 1
            ELSE
-* PAM2009: It was discovered that these two arrays could be overrun.
-* The arrays are declared in lucia_data.F90, and their dimension
-* is MXPCSM, which is set in lucia_data.F90 -- both included above.
-* So MXPCSM is now increased from 20 to 40 -- if this is not a final
-* solution remains to be discovered:
-             NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM
+! PAM2009: It was discovered that these two arrays could be overrun.
+! The arrays are declared in lucia_data.F90, and their dimension
+! is MXPCSM, which is set in lucia_data.F90 -- both included above.
+! So MXPCSM is now increased from 20 to 40 -- if this is not a final
+! solution remains to be discovered:
+             NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM            &
      &   -   NCONF_ALL_SYM_PREV
-*
-             IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) =
-     &       IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS-1)
+!
+             IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) =                         &
+     &       IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS-1)                         &
      &   +    NCONF_ALL_SYM_FOR_OCCLS(JOCCLS-1)
 
           END IF
       END DO
-*. Number of CSF's in expansion
-      CALL NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPCSCNF,
+!. Number of CSF's in expansion
+      CALL NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPCSCNF,          &
      &                   NCSF)
-*. Number of SD's in expansion
-      CALL NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPDTCNF,
+!. Number of SD's in expansion
+      CALL NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPDTCNF,          &
      &                    NSD)
-*. Number of combinations in expansion
-      CALL NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPCMCNF,
+!. Number of combinations in expansion
+      CALL NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPCMCNF,          &
      &                    NCMB)
-*MGD
+!MGD
       nCSF_HEXS=0
       if (I_ELIMINATE_GAS > 0) then
-        CALL NCNF_TO_NCOMP(MAXOP,HEXS_CNF,NPCSCNF,
+        CALL NCNF_TO_NCOMP(MAXOP,HEXS_CNF,NPCSCNF,                      &
      &                   NCSF_HEXS)
       endif
-*
+!
       NCSF_PER_SYM(ISYM) = NCSF
       NSD_PER_SYM(ISYM) = NSD
       NCONF_PER_SYM(ISYM) = IELSUM(NCONF_PER_OPEN(1,ISYM),MAXOP+1)
@@ -272,19 +272,19 @@ c
         WRITE(6,*) ' Number of Confs ', NCONF_PER_SYM(ISYM)
         WRITE(6,*) ' Number of CMBs  ', NCMB
       END IF
-C
-*. Total number of configurations and length of configuration list
-C     INFO_CONF_LIST(NCONF_PER_OPEN,MAXOP,NEL,
-C    &                          LENGTH_LIST,NCONF_TOT,IB_REO,IB_OCC)
-      CALL INFO_CONF_LIST(NCONF_PER_OPEN(1,ISYM),
-     &                    MAXOP,NELEC,LENGTH_LIST,NCONF_TOT,IB_CONF_REO,
+!
+!. Total number of configurations and length of configuration list
+!     INFO_CONF_LIST(NCONF_PER_OPEN,MAXOP,NEL,
+!    &                          LENGTH_LIST,NCONF_TOT,IB_REO,IB_OCC)
+      CALL INFO_CONF_LIST(NCONF_PER_OPEN(1,ISYM),                       &
+     &                    MAXOP,NELEC,LENGTH_LIST,NCONF_TOT,IB_CONF_REO,&
      &                    IB_CONF_OCC)
-C.. Permanent and local memory for csf routines
-C
-C    memory for CSDTMT arrays.
-C    Largest block of proto type combinations .
-C    Largest number of prototype csf's
-C
+!.. Permanent and local memory for csf routines
+!
+!    memory for CSDTMT arrays.
+!    Largest block of proto type combinations .
+!    Largest number of prototype csf's
+!
       LIDT = 0
       LICS = 0
       LDTOC = 0
@@ -299,11 +299,11 @@ C
         MXDT =   MAX(MXDT,NPCMCNF(ITP) )
         MXPTBL = MAX(NPCMCNF(ITP)*IOPEN,MXPTBL)
       END DO
-C. Memory needed to store ICONF array
+!. Memory needed to store ICONF array
       LCONF = 0
       ILCNF = 0
-*
-C     LDET = NSD
+!
+!     LDET = NSD
       LLCONF = 0
       ILLCNF = 0
       DO IOPEN = MINOP, MAXOP
@@ -312,53 +312,53 @@ C     LDET = NSD
         LLCONF = LLCONF + NCONF_PER_OPEN(ITYP,ISYM)*(IOPEN+ICL)
         ILLCNF = ILLCNF + NCONF_PER_OPEN(ITYP,ISYM)
       END DO
-C?    WRITE(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
+!?    WRITE(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
       LCONF = MAX(LCONF,LLCONF)
       ILCNF = MAX(ILCNF,ILLCNF)
-*
+!
        IF(NTEST.GE.5) THEN
-       WRITE(6,'(/A,I8)')
+       WRITE(6,'(/A,I8)')                                               &
      & '  Memory for holding list of configurations ',LCONF
-       WRITE(6,'(/A,I8)')
+       WRITE(6,'(/A,I8)')                                               &
      & '  Size of CI expansion (combinations)',NSD
-       WRITE(6,'(/A,I8)')
+       WRITE(6,'(/A,I8)')                                               &
      & '  Size of CI expansion (confs)',ILCNF
        END IF
-C
-C. permanent memory for csf proto type arrays
-C
+!
+!. permanent memory for csf proto type arrays
+!
       CALL mma_allocate(DFTP,LIDT,Label='DFTP')
       CALL mma_allocate(CFTP,LICS,Label='CFTP')
       CALL mma_allocate(DTOC,LDTOC,Label='DTOC')
-C
-C. PERMANENT ARRAYS FOR
-C. HOLDING CONFIGURATION EXPANSIONS AND REORDER ARRAYS
-C
-*. Occupation of configurations
+!
+!. PERMANENT ARRAYS FOR
+!. HOLDING CONFIGURATION EXPANSIONS AND REORDER ARRAYS
+!
+!. Occupation of configurations
       CALL mma_allocate(CONF_OCC(ISYM)%I,LCONF,Label='CONF_OCC()')
-*. Reorder array for configurations
+!. Reorder array for configurations
       CALL mma_allocate(CONF_REO(ISYM)%I,NCONF_TOT,Label='CONF_REO()')
-*. Reorder array for determinants, index and sign
+!. Reorder array for determinants, index and sign
       CALL mma_allocate(SDREO_I(ISYM)%I,NSD,Label='SDREO_I()')
       SDREO(1:NSD) => SDREO_I(ISYM)%I(1:NSD)
-*
-* Arrays for addressing prototype determinants for each number of orbitals
-*
+!
+! Arrays for addressing prototype determinants for each number of orbitals
+!
       Allocate(Z_PTDT(MINOP+1:MAXOP+1))
       Allocate(REO_PTDT(MINOP+1:MAXOP+1))
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
-*
+!
         IALPHA = (IOPEN+MS2)/2
         LZ = IOPEN*IALPHA
         LPTDT = IBION_LUCIA(IOPEN,IALPHA)
         CALL mma_allocate(Z_PTDT(ITYP)%I,LZ,Label='Z_PTDT()')
         CALL mma_allocate(REO_PTDT(ITYP)%I,LPTDT,Label='REO_PTDT()')
       END DO
-*
-* Array giving first determinant with given number of electrons
-* in list of determinants ordered  according to the number of open orbitals
-*
+!
+! Array giving first determinant with given number of electrons
+! in list of determinants ordered  according to the number of open orbitals
+!
       IZERO = 0
       CALL ISETVC(IB_SD_FOR_OPEN,IZERO,MAXOP+1)
       IB = 1
@@ -368,15 +368,15 @@ C
           IB = IB + NCONF_PER_OPEN(IOPEN+1,ISYM)*NPCMCNF(IOPEN+1)
         END IF
       END DO
-*
+!
       END SUBROUTINE CSFDIM_GAS
 
       SUBROUTINE CSFDIM_FREE(ISYM)
       use stdalloc, only: mma_deallocate
-      use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
+      use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,  &
      &                  Z_PTDT, REO_PTDT, SDREO
       use lucia_data, only: MINOP,MAXOP
-* Free resources allocated by CSFDIM_GAS
+! Free resources allocated by CSFDIM_GAS
 
       Implicit NONE
       INTEGER ISYM
@@ -385,23 +385,23 @@ C
 
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
-*
+!
         CALL mma_deallocate(Z_PTDT(ITYP)%I)
         CALL mma_deallocate(REO_PTDT(ITYP)%I)
       END DO
       DEALLOCATE(Z_PTDT)
       DEALLOCATE(REO_PTDT)
 
-c     LDET = NSD_PER_SYM(ISYM)
-c     LCONF = 0
-c     LLCONF = 0
-c     DO IOPEN = 0, MAXOP
-c       ITYP = IOPEN + 1
-* FIXME: NELEC is undefined
-c       ICL = ( NELEC-IOPEN)/2
-c       LLCONF = LLCONF + NCONF_PER_OPEN(ITYP,ISYM)*(IOPEN+ICL)
-c     END DO
-c     LCONF = MAX(LCONF,LLCONF)
+!     LDET = NSD_PER_SYM(ISYM)
+!     LCONF = 0
+!     LLCONF = 0
+!     DO IOPEN = 0, MAXOP
+!       ITYP = IOPEN + 1
+! FIXME: NELEC is undefined
+!       ICL = ( NELEC-IOPEN)/2
+!       LLCONF = LLCONF + NCONF_PER_OPEN(ITYP,ISYM)*(IOPEN+ICL)
+!     END DO
+!     LCONF = MAX(LCONF,LLCONF)
 
       CALL mma_deallocate(DFTP)
       CALL mma_deallocate(CFTP)

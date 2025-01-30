@@ -1,48 +1,48 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991,1997, Jeppe Olsen                                 *
-*               2015, Lasse Kragh Soerensen                            *
-************************************************************************
-      SUBROUTINE RASSG3(      CB,      SB,   NBATS,   LBATS,  LEBATS,
-     &                    I1BATS,   IBATS,     LUC,    LUHC,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991,1997, Jeppe Olsen                                 *
+!               2015, Lasse Kragh Soerensen                            *
+!***********************************************************************
+      SUBROUTINE RASSG3(      CB,      SB,   NBATS,   LBATS,  LEBATS,   &
+     &                    I1BATS,   IBATS,     LUC,    LUHC,            &
      &                    I_AM_OUT,N_ELIMINATED_BATCHES)
       use stdalloc, only: mma_allocate, mma_deallocate
       use lucia_data, only: IDISK
-*
-* Direct RAS routine employing combined MOC/n-1 resolution method
-*
-* Jeppe Olsen   Winter of 1991
-*               May 1997 : Connected to SBLOCK
-*
-* Lasse Soerensen October 2015
-*                 Do not calculate unwanted batches for highly
-*                 excited states.
-*
-* =====
-* Input
-* =====
-*
+!
+! Direct RAS routine employing combined MOC/n-1 resolution method
+!
+! Jeppe Olsen   Winter of 1991
+!               May 1997 : Connected to SBLOCK
+!
+! Lasse Soerensen October 2015
+!                 Do not calculate unwanted batches for highly
+!                 excited states.
+!
+! =====
+! Input
+! =====
+!
 
       IMPLICIT NONE
       INTEGER NBATS,LUC,LUHC,N_ELIMINATED_BATCHES
-*. Batches of sigma
+!. Batches of sigma
       INTEGER LBATS(*),LEBATS(*),I1BATS(*),IBATS(8,*)
       INTEGER I_AM_OUT(*)
-*.Scratch
+!.Scratch
       REAL*8 SB(*),CB(*)
 
       Integer, Allocatable:: SBSIZ(:), SBOFF(:)
-      INTEGER NSB,JBATS,ISTA,IEND,I_AM_NOT_WANTED,ISBLK,I,ISBOFF,IOFF,
+      INTEGER NSB,JBATS,ISTA,IEND,I_AM_NOT_WANTED,ISBLK,I,ISBOFF,IOFF,  &
      &        ILEN
-*
+!
       IF (.FALSE.) Call Unused_integer_array(LEBATS)
 #ifdef _DEBUGPRINT_
       WRITE(6,*) ' ================='
@@ -50,13 +50,13 @@
       WRITE(6,*) ' ================='
       WRITE(6,*) ' RASSG3 : NBATS = ',NBATS
 #endif
-*
-CSVC: Compute offsets of a sigma batch in the sigma array.
-C     The batches used inside sblock(s) use a batch size corresponding
-C     to the 'expanded form' as computed inside part_civ2. This is
-C     stored inside 7th element of IBATS. Later, the size that needs to
-C     be actually written to disc uses the 'packed form', stored inside
-C     the 8th element of IBATS. This also computes the total size NSB.
+!
+!SVC: Compute offsets of a sigma batch in the sigma array.
+!     The batches used inside sblock(s) use a batch size corresponding
+!     to the 'expanded form' as computed inside part_civ2. This is
+!     stored inside 7th element of IBATS. Later, the size that needs to
+!     be actually written to disc uses the 'packed form', stored inside
+!     the 8th element of IBATS. This also computes the total size NSB.
 
       Call mma_allocate(SBSIZ,NBATS,Label='SBSIZ')
       Call mma_allocate(SBOFF,NBATS,Label='SBOFF')
@@ -73,19 +73,19 @@ C     the 8th element of IBATS. This also computes the total size NSB.
         SBOFF(JBATS) = SBOFF(JBATS-1) + SBSIZ(JBATS-1)
       END DO
 
-CSVC: the entire sigma array is zeroed here, because each process will
-C     zero only its own sigma blocks, and we need to do a global sum
-C     operations later to combine blocks before writing.
+!SVC: the entire sigma array is zeroed here, because each process will
+!     zero only its own sigma blocks, and we need to do a global sum
+!     operations later to combine blocks before writing.
       CALL DCOPY_(NSB,[0.0D0],0,SB,1)
 
       DO JBATS=1,NBATS
-*
-* Lasse addition start
-* MGD here we try to remove the whole batch if possible
-* later, we will put to zero individual blocks in case
-* the batch had a mix of maximum and non-maximum occupation
-* and thus survived this test
-*
+!
+! Lasse addition start
+! MGD here we try to remove the whole batch if possible
+! later, we will put to zero individual blocks in case
+! the batch had a mix of maximum and non-maximum occupation
+! and thus survived this test
+!
         I_AM_NOT_WANTED = 0
         DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
           I_AM_NOT_WANTED = 0
@@ -98,21 +98,21 @@ C     operations later to combine blocks before writing.
           if (I_AM_NOT_WANTED.eq.0) exit
         EndDo
         IF(I_AM_NOT_WANTED.EQ.1) CYCLE
-*
-* Lasse addition end
-*
+!
+! Lasse addition end
+!
 
       ISBOFF=SBOFF(JBATS)
-*. Obtain sigma for batch of blocks
-      CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,
+!. Obtain sigma for batch of blocks
+      CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,                &
      &            CB,SB(ISBOFF),LUC,0,0,0,0,0)
 
       END DO
 
       CALL GADSUM(SB,NSB)
-CSVC: Write sigma array to disk here, after sum reduction.
-C     The writing is done in consecutive blocks, but since I don't know
-C     if this block structure is used internally, I didn't optimize this.
+!SVC: Write sigma array to disk here, after sum reduction.
+!     The writing is done in consecutive blocks, but since I don't know
+!     if this block structure is used internally, I didn't optimize this.
       IF(LUHC.GT.0) IDISK(LUHC)=0
       DO JBATS = 1, NBATS
         ISBOFF=SBOFF(JBATS)
@@ -120,7 +120,7 @@ C     if this block structure is used internally, I didn't optimize this.
           IOFF = IBATS(6,ISBLK)
           ILEN = IBATS(8,ISBLK)
           CALL ITODS([ILEN],1,-1,LUHC)
-*MGD zero afterwards since it is easier
+!MGD zero afterwards since it is easier
           I_AM_NOT_WANTED = 0
           DO I = 1, N_ELIMINATED_BATCHES
             IF(I_AM_OUT(I).EQ.ISBLK) THEN
@@ -129,7 +129,7 @@ C     if this block structure is used internally, I didn't optimize this.
              EndIf
           End Do
           If (I_AM_NOT_WANTED.eq.1) Call fzero(SB(ISBOFF-1+IOFF),ILEN)
-*
+!
           CALL TODSC(SB(ISBOFF-1+IOFF),ILEN,-1,LUHC)
         END DO
       END DO

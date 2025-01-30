@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      FUNCTION NDXFSM(NSMOB,NSMSX,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      FUNCTION NDXFSM(NSMOB,NSMSX,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,       &
      &         IDXSM,ADSXA,SXDXSX,IS12,IS34,IS1234,IPRNT)
-*
-* Number of double excitations with total symmetry IDXSM
-*
-* IS12 (0,1,-1)   : Permutational symmetry between index 1 and 2
-* IS34 (0,1,-1)   : Permutational symmetry between index 3 and 3
-* IS1234 (0,1,-1) : permutational symmetry between index 12 and 34
-*
-*. General input
+!
+! Number of double excitations with total symmetry IDXSM
+!
+! IS12 (0,1,-1)   : Permutational symmetry between index 1 and 2
+! IS34 (0,1,-1)   : Permutational symmetry between index 3 and 3
+! IS1234 (0,1,-1) : permutational symmetry between index 12 and 34
+!
+!. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
-*. Specific input
+!. Specific input
       INTEGER NO1PS(*),NO2PS(*),NO3PS(*),NO4PS(*)
-*
-*
+!
+!
       N12 = 0
       N34 = 0
       MDX = 0
@@ -66,20 +66,20 @@
               ELSE IF( IS1234.EQ.-1.AND.I12NUM.EQ.I34NUM) THEN
               MDX =  MDX + N12*(N12-1)/2
             END IF
-C?          WRITE(6,*) ' I1SM I2SM I3SM I4SM MDX '
-C?          WRITE(6,*)   I1SM,I2SM,I3SM,I4SM,MDX
+!?          WRITE(6,*) ' I1SM I2SM I3SM I4SM MDX '
+!?          WRITE(6,*)   I1SM,I2SM,I3SM,I4SM,MDX
    90       CONTINUE
-C 100     CONTINUE
+! 100     CONTINUE
   190   CONTINUE
   200 CONTINUE
-*
+!
       NDXFSM = MDX
-*
+!
       NTEST = 0
       NTEST = MAX(NTEST,IPRNT)
       IF(NTEST.NE.0) THEN
          WRITE(6,*) ' Number of double excitations obtained ', MDX
       END IF
-*
+!
       RETURN
       END

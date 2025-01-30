@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1995, Jeppe Olsen                                      *
-************************************************************************
-      SUBROUTINE SXTYP_GAS(  NSXTYP,     ITP,     JTP,    NGAS,    ILTP,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1995, Jeppe Olsen                                      *
+!***********************************************************************
+      SUBROUTINE SXTYP_GAS(  NSXTYP,     ITP,     JTP,    NGAS,    ILTP,&
      &                         IRTP)
-*
-* Two supergroups are given. Find single excitations that connects
-* these supergroups
-*
-* Jeppe Olsen, July 1995
-*
+!
+! Two supergroups are given. Find single excitations that connects
+! these supergroups
+!
+! Jeppe Olsen, July 1995
+!
       IMPLICIT REAL*8(A-H,O-Z)
-*. Input
+!. Input
       DIMENSION ILTP(NGAS),IRTP(NGAS)
-*. Output
+!. Output
       DIMENSION ITP(*),JTP(*)
-* Some dummy initializations
+! Some dummy initializations
       ICREA = 0 ! jwk-cleanup
       IANNI = 0 ! jwk-cleanup
-*. Differences between occupations :
+!. Differences between occupations :
       NCREA = 0
       NANNI = 0
       DO IAS = 1, NGAS
@@ -38,18 +38,18 @@
          IANNI = IAS
         END IF
       END DO
-*
+!
       IF(NCREA.GT.1) THEN
-*. Sorry : No single excitation connects
+!. Sorry : No single excitation connects
         NSXTYP = 0
       ELSE IF(NCREA .EQ. 1 ) THEN
-*. Supergroups differ by one sngle excitation.
+!. Supergroups differ by one sngle excitation.
         NSXTYP = 1
         ITP(1) = ICREA
         JTP(1) = IANNI
       ELSE IF (NCREA.EQ.0 ) THEN
-*. Supergroups are identical, connects with all
-*  diagonal excitations.
+!. Supergroups are identical, connects with all
+!  diagonal excitations.
         NSXTYP = 0
         DO IAS = 1, NGAS
           IF(IRTP(IAS).NE.0) THEN
@@ -59,7 +59,7 @@
           END IF
         END DO
       END IF
-*
+!
       NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Output from SXTYP_GAS : '
@@ -68,7 +68,7 @@
         CALL IWRTMA(ILTP,1,NGAS,1,NGAS)
         WRITE(6,*) ' Input right supergroup '
         CALL IWRTMA(IRTP,1,NGAS,1,NGAS)
-        WRITE(6,*)
+        WRITE(6,*)                                                      &
      &  ' Number of connecting single excitations ', NSXTYP
         IF(NSXTYP.NE.0) THEN
           WRITE(6,*) ' Connecting single excitations '
@@ -77,6 +77,6 @@
           END DO
         END IF
       END IF
-*
+!
       RETURN
       END

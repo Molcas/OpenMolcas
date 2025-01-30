@@ -1,50 +1,50 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Jeppe Olsen                                      *
-*               2003, Jesper Wisborg Krogh                             *
-************************************************************************
-      SUBROUTINE ADTOR2(    RHO2,   RHO2S,   RHO2A,   RHO2T,   ITYPE,
-     &                        NI,    IOFF,      NJ,    JOFF,      NK,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Jeppe Olsen                                      *
+!               2003, Jesper Wisborg Krogh                             *
+!***********************************************************************
+      SUBROUTINE ADTOR2(    RHO2,   RHO2S,   RHO2A,   RHO2T,   ITYPE,   &
+     &                        NI,    IOFF,      NJ,    JOFF,      NK,   &
      &                      KOFF,      NL,    LOFF,    NORB,   IPACK)
-*
-* Add contributions to two electron density matrix RHO2
-* output density matrix is in the form Rho2(ij,kl),(ij).ge.(kl)
-*
-*
-* Jeppe Olsen, Fall of 96
-* Jesper Wisborg Krogh, September 03: Can now symmetry pack on the fly
-*
-*
-* Itype = 1 => alpha-alpha or beta-beta loop
-*              input is in form Rho2t(ik,jl)
-* Itype = 2 => alpha-beta loop
-*              input is in form Rho2t(ij,kl)
-*
+!
+! Add contributions to two electron density matrix RHO2
+! output density matrix is in the form Rho2(ij,kl),(ij).ge.(kl)
+!
+!
+! Jeppe Olsen, Fall of 96
+! Jesper Wisborg Krogh, September 03: Can now symmetry pack on the fly
+!
+!
+! Itype = 1 => alpha-alpha or beta-beta loop
+!              input is in form Rho2t(ik,jl)
+! Itype = 2 => alpha-beta loop
+!              input is in form Rho2t(ij,kl)
+!
       IMPLICIT NONE
-*.Input
+!.Input
       REAL*8 RHO2T(*)
       INTEGER ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB
       LOGICAL   IPACK
-*. Input and output
+!. Input and output
       REAL*8 RHO2(*),RHO2S(*),RHO2A(*)
 
-* Program flow flags
+! Program flow flags
       LOGICAL   IPROCEED,DO_IJKL,DO_IJKL_PACK,DO_JIKL_PACK
-      INTEGER NII,NJJ,NKK,NLL,KKOFF,LLOFF,IACTIVE,I,J,K,L,I_PACK,J_PACK,
-     &        K_PACK,L_PACK,IJ_PACK,JI_PACK,KL_PACK,NTEST,NROW,NCOL,
-     &        NELMNT,IPERM,IIOFF,JJOFF,II,JJ,KK,LL,IJ,KL,IKIND,NIK,
+      INTEGER NII,NJJ,NKK,NLL,KKOFF,LLOFF,IACTIVE,I,J,K,L,I_PACK,J_PACK,&
+     &        K_PACK,L_PACK,IJ_PACK,JI_PACK,KL_PACK,NTEST,NROW,NCOL,    &
+     &        NELMNT,IPERM,IIOFF,JJOFF,II,JJ,KK,LL,IJ,KL,IKIND,NIK,     &
      &        JLIND,IKJLT,IJKL_PACK,JIKL_PACK,IJKL,IJKLT
       REAL*8 SIGN,FACTOR,SIGNIK,SIGNJL,TERM,FACTOR_PACK
-*
-* Some dummy initializations
+!
+! Some dummy initializations
       NII = 0 ! jwk-cleanup
       NJJ = 0 ! jwk-cleanup
       NKK = 0 ! jwk-cleanup
@@ -65,7 +65,7 @@
       JI_PACK   = 0
       KL_PACK   = 0
       FACTOR    = 0.0d0
-*
+!
       NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Welcome to ADTOR2 '
@@ -78,7 +78,7 @@
           WRITE(6,*) ' Initial two body density matrix '
           CALL PRSYM(RHO2,NORB**2)
         END IF
-*
+!
         WRITE(6,*) ' RHO2T : '
         IF(ITYPE.EQ.1) THEN
           IF(IOFF.EQ.KOFF) THEN
@@ -98,17 +98,17 @@
         CALL WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
       END IF
 
-C?    RETURN
-*
+!?    RETURN
+!
       NELMNT = NORB**2*(NORB**2+1)/2
-*
+!
       IF(ITYPE.EQ.1) THEN
-*
-* =======================================
-*     Alpha-alpha or beta-beta term
-* =======================================
-*
-*. Four permutations
+!
+! =======================================
+!     Alpha-alpha or beta-beta term
+! =======================================
+!
+!. Four permutations
       DO IPERM = 1, 4
         IF(IPERM.EQ.1) THEN
           NII = NI
@@ -167,13 +167,13 @@ C?    RETURN
             IACTIVE = 0
           END IF
         END IF
-*
-C       IJOFF = (JJOFF-1)*NORB+IIOFF
-C       KLOFF = (LLOFF-1)*NORB+KKOFF
-C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
+!
+!       IJOFF = (JJOFF-1)*NORB+IIOFF
+!       KLOFF = (LLOFF-1)*NORB+KKOFF
+!       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
         IF(IACTIVE.EQ.1) THEN
-C         IJOFF = (JJOFF-1)*NORB+IIOFF
-C         KLOFF = (LLOFF-1)*NORB+LLOFF
+!         IJOFF = (JJOFF-1)*NORB+IIOFF
+!         KLOFF = (LLOFF-1)*NORB+LLOFF
             DO II = 1, NII
               DO JJ = 1, NJJ
                 DO KK = 1, NKK
@@ -202,12 +202,12 @@ C         KLOFF = (LLOFF-1)*NORB+LLOFF
                        END IF
 
                        IF (K_PACK .GE. L_PACK) THEN
-                          IF (I_PACK .GE. J_PACK .AND.
+                          IF (I_PACK .GE. J_PACK .AND.                  &
      &                          IJ_PACK .GE. KL_PACK) THEN
                              DO_IJKL_PACK = .TRUE.
                              IPROCEED     = .TRUE.
                           END IF
-                          IF (J_PACK .GE. I_PACK .AND.
+                          IF (J_PACK .GE. I_PACK .AND.                  &
      &                          JI_PACK .GE. KL_PACK) THEN
                              DO_JIKL_PACK = .TRUE.
                              IPROCEED     = .TRUE.
@@ -290,23 +290,23 @@ C         KLOFF = (LLOFF-1)*NORB+LLOFF
                          END IF
                          RHO2(IJKL) = RHO2(IJKL) - TERM
                       END IF
-*. The minus : Rho2t comes as <a+i a+k aj al>, but we want
-* <a+ia+k al aj>
+!. The minus : Rho2t comes as <a+i a+k aj al>, but we want
+! <a+ia+k al aj>
                     END IF
                   END DO
                 END DO
               END DO
             END DO
-*. End of active/inactive if
+!. End of active/inactive if
         END IF
-*. End of loop over permutations
+!. End of loop over permutations
       END DO
       ELSE IF(ITYPE.EQ.2) THEN
-*
-* =======================================
-*     Alpha-alpha or beta-beta term
-* =======================================
-*
+!
+! =======================================
+!     Alpha-alpha or beta-beta term
+! =======================================
+!
       DO I = 1, NI
        DO J = 1, NJ
          DO K = 1, NK
@@ -319,7 +319,7 @@ C         KLOFF = (LLOFF-1)*NORB+LLOFF
                FACTOR = 1.0D0
              END IF
              IJKL = MAX(IJ,KL)*(MAX(IJ,KL)-1)/2+MIN(IJ,KL)
-             IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI
+             IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI                         &
      &             + (J-1)*NI + I
                       IF(IJKL.GT.NELMNT) THEN
                          WRITE(6,*) ' Problemo 2 : IJKL .gt. NELMNT'
@@ -356,21 +356,21 @@ C         KLOFF = (LLOFF-1)*NORB+LLOFF
                    FACTOR_PACK = FACTOR_PACK * .5D0
                 END IF
 
-                IF (I_PACK .GE. J_PACK .AND. K_PACK .GE. L_PACK
+                IF (I_PACK .GE. J_PACK .AND. K_PACK .GE. L_PACK         &
      &                        .AND. IJ_PACK .GE. KL_PACK) THEN
                    IJKL_PACK = IJ_PACK*(IJ_PACK-1)/2 + KL_PACK
-                   RHO2S(IJKL_PACK) = RHO2S(IJKL_PACK)
+                   RHO2S(IJKL_PACK) = RHO2S(IJKL_PACK)                  &
      &                              + FACTOR_PACK*TERM
-                   RHO2A(IJKL_PACK) = RHO2A(IJKL_PACK)
+                   RHO2A(IJKL_PACK) = RHO2A(IJKL_PACK)                  &
      &                              + FACTOR_PACK*TERM
                 END IF
-                IF (J_PACK .GE. I_PACK .AND. K_PACK .GE. L_PACK
+                IF (J_PACK .GE. I_PACK .AND. K_PACK .GE. L_PACK         &
      &                       .AND. JI_PACK .GE. KL_PACK) THEN
                    JIKL_PACK = JI_PACK*(JI_PACK-1)/2 + KL_PACK
                    IJKL_PACK = IJ_PACK*(IJ_PACK-1)/2 + KL_PACK
-                   RHO2S(JIKL_PACK) = RHO2S(JIKL_PACK)
+                   RHO2S(JIKL_PACK) = RHO2S(JIKL_PACK)                  &
      &                              + FACTOR_PACK*TERM
-                   RHO2A(JIKL_PACK) = RHO2A(JIKL_PACK)
+                   RHO2A(JIKL_PACK) = RHO2A(JIKL_PACK)                  &
      &                              - FACTOR_PACK*TERM
                 END IF
                 END DO
@@ -381,8 +381,8 @@ C         KLOFF = (LLOFF-1)*NORB+LLOFF
           END DO
         END DO
       END DO
-*
+!
       END IF
-*
+!
       END SUBROUTINE ADTOR2
 

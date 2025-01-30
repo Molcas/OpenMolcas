@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2012, Giovanni Li Manni                                *
-************************************************************************
-      SUBROUTINE NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NGAS,
-     &                              ISYM,ISYM_TOT,IFIRST,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2012, Giovanni Li Manni                                *
+!***********************************************************************
+      SUBROUTINE NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NGAS,               &
+     &                              ISYM,ISYM_TOT,IFIRST,               &
      &                              NONEW,ISMDFGP,NACTSYM,ISMSCR)
-*
-* Giovanni Li Manni. Geneva, February 2012
-*
-* Obtain next distribution of symmetries with given total
-* Symmetry.
-*
-* Loop over first NGAS-1 spaces are performed, and the symmetry
-* of the last space is then fixed by the required total sym
-*
+!
+! Giovanni Li Manni. Geneva, February 2012
+!
+! Obtain next distribution of symmetries with given total
+! Symmetry.
+!
+! Loop over first NGAS-1 spaces are performed, and the symmetry
+! of the last space is then fixed by the required total sym
+!
       IMPLICIT REAL*8(A-H,O-Z)
-*. Input
+!. Input
       INTEGER ISMDFGP(NSMST,NGRP),NACTSYM(NGRP),ISMSCR(NGRP)
       INTEGER KGRP(NGAS)
-*. Input and output
+!. Input and output
       INTEGER ISYM(NGAS)
-*
+!
       NTEST = 00
-*
+!
       IF(NTEST.ge.100) then
         write(6,*) '***************************'
         write(6,*) 'INPUT IN NEXT_SYM_DISTR_NEW'
@@ -46,7 +46,7 @@
         end do
         write(6,*) 'IFIRST', IFIRST
       End IF
-*
+!
       IF(IFIRST.EQ.1) THEN
         DO IGAS = 1, NGAS
           ISMSCR(IGAS) = 1
@@ -54,12 +54,12 @@
         END DO
         NONEW = 0
       END IF
-*
+!
       IF(NTEST.ge.100) then
         write(6,*) 'Symmetry distribution :'
         write(6,'(40I2)') (ISYM(IGAS),IGAS=1,NGAS)
       End IF
-*
+!
 1001  CONTINUE
       IF(IFIRST.EQ.0) then
         CALL NXTDIST(NSMST,NGRP,NGAS,KGRP,ISMDFGP,ISMSCR,NACTSYM,NONEW)
@@ -72,7 +72,7 @@
         JSYM = ISYMSTR(ISYM,NGAS)
         IF(JSYM.ne.ISYM_TOT)GOTO 1001
       END IF
-*
+!
       IF(NTEST.GE.100) THEN
         IF(NONEW.EQ.1) THEN
          WRITE(6,*) ' No new symmetry distributions '
@@ -81,5 +81,5 @@
          CALL IWRTMA(ISYM,1,NGAS,1,NGAS)
         END IF
       END IF
-*
+!
       END
