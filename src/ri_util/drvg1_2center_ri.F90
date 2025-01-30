@@ -12,6 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
+!#define _CD_TIMING_
 subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !***********************************************************************
 !                                                                      *
@@ -33,21 +34,18 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 !             Modified for 2-center RI gradients, January '07          *
 !***********************************************************************
 
-use setup, only: mSkal, MxPrm, nAux
+use setup, only: mSkal, MxPrm
 use Index_Functions, only: nTri_Elem
-use iSD_data, only: iSD, nSD
-use pso_stuff, only: A_PT2, nBasA, nBasASQ, nBasT
-use k2_arrays, only: Aux, Destroy_BraKet, Sew_Scr
-use k2_structure, only: k2data
-use Disp, only: ChDisp, l2DI
-use Basis_Info, only: nBas, nBas_Aux, Shells
+use iSD_data, only: iSD
+use pso_stuff, only: A_PT2
+use k2_arrays, only: Sew_Scr
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
-use RICD_Info, only: Do_RI
+use RICD_Info, only: Do_RI, RI_2C
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: King, nProcs
 use RI_glob, only: A, AMP2, CijK, DoCholExch, iMP2prpt, MxChVInShl, nIJR, nKvec
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp, u6
 
@@ -55,48 +53,16 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-#include "print.fh"
-!#define _CD_TIMING_
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
-integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn, iBsInc, iCar, iCmpa(4), id, iFnc(4), ij, ijkla, &
-                     ijMax, ik2, ipMem1, ipMem2, iPrem, iPren, iPrimi, iPrInc, iPrint, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), &
-                     iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, jBasj, jBasn, jBsInc, jDen, jk2, jlS, JndGrd(3,4), &
-                     jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, &
-                     lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, LUAPT2, mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, &
-                     MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, &
-                     nQuad, nRys, nSkal, nSO, nTMax, nZeta
-real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
-#ifdef _CD_TIMING_
-real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
-#endif
-logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, Indexation, JfGrad(3,4), No_Batch, Shijij
-character(len=72) :: frmt
-character(len=8) :: Method_chk
-integer(kind=iwp), save :: MemPrm
-integer(kind=iwp), allocatable :: Shij(:,:)
-real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
-integer(kind=iwp), external :: IsFreeUnit
+integer(kind=iwp) :: i, iAng, id, ij, iS, iSym1, iSym2, jDen, jlS, jS, jS_, kS, lA, lA_MP2, lS, lS_, mij, nij, nIJRMax, nSkal
+real(kind=wp) :: A_int, ThrAO, TMax_all
+logical(kind=iwp) :: DoFock, DoGrad, Indexation
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
+real(kind=wp), allocatable :: TMax1(:), TMax2(:,:)
 logical(kind=iwp), external :: Rsv_Tsk
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iRout = 9
-iPrint = nPrint(iRout)
-#ifdef _CD_TIMING_
-Twoel2_CPU = Zero
-Twoel2_Wall = Zero
-Pget2_CPU = Zero
-Pget2_Wall = Zero
-#endif
-
-iFnc(1) = 0
-iFnc(2) = 0
-iFnc(3) = 0
-iFnc(4) = 0
-PMax = Zero
 Temp(:) = Zero
 !                                                                      *
 !***********************************************************************
@@ -105,6 +71,7 @@ Temp(:) = Zero
 
 if (Do_RI) then
   call Set_Basis_Mode('Auxiliary')
+  RI_2C = .true.
 else
   call Set_Basis_Mode('Valence')
 end if
@@ -120,10 +87,6 @@ DoGrad = .true.
 ThrAO = Zero
 call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 mSkal = nSkal
-nPairs = nTri_Elem(nSkal)
-nQuad = nTri_Elem(nPairs)
-Pren = Zero
-Prem = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -131,29 +94,26 @@ MxPrm = 0
 do iAng=0,S%iAngMx
   MxPrm = max(MxPrm,S%MaxPrm(iAng))
 end do
-nZeta = MxPrm*MxPrm
-nEta = MxPrm*MxPrm
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Compute entities for prescreening at shell level
 
-if (Do_RI) then
-  nTMax = nSkal
-  call mma_allocate(TMax1,nTMax,Label='TMax1')
-  call mma_allocate(Tmp,nSkal,nSkal,Label='Tmp')
-  call Shell_MxSchwz(nSkal,Tmp)
-  TMax1(1:nSkal) = Tmp(1:nSkal,nSkal)
-  call mma_deallocate(Tmp)
+call mma_allocate(TMax2,nSkal,nSkal,Label='TMax2')
+call Shell_MxSchwz(nSkal,TMax2)
+TMax_all = Zero
 
-  TMax_all = Zero
+if (Do_RI) then
+
+  call mma_allocate(TMax1,nSkal,Label='TMax1')
+  TMax1(:) = TMax2(:,nSkal)
+
   do iS=1,nSkal-1
     TMax_all = max(TMax_all,TMax1(iS))
   end do
+
 else
-  call mma_allocate(TMax2,nSkal,nSkal,Label='TMax2')
-  call Shell_MxSchwz(nSkal,TMax2)
-  TMax_all = Zero
+
   do ij=1,nij_Eff
     iS = ij2(1,ij)
     jS = ij2(2,ij)
@@ -218,80 +178,31 @@ end if
 ! Create list of non-vanishing pairs
 
 if (Do_RI) then
+
   mij = nSkal-1
-  call mma_allocate(Shij,2,mij,Label='Shij')
+  call mma_allocate(Pair_Index,2,mij,Label='Shij')
   nij = 0
   do iS=1,nSkal-1
     if (TMax_All*TMax1(iS) >= CutInt) then
       nij = nij+1
-      Shij(1,nij) = nSkal
-      Shij(2,nij) = iS
+      Pair_Index(1,nij) = nSkal
+      Pair_Index(2,nij) = iS
     end if
   end do
 else
   mij = nij_Eff
-  call mma_allocate(Shij,2,mij,Label='Shij')
+  call mma_allocate(Pair_Index,2,mij,Label='Shij')
   nij = 0
   do ij=1,nij_Eff
     iS = ij2(1,ij)
     jS = ij2(2,ij)
     if (TMax_All*TMax2(iS,jS) >= CutInt) then
       nij = nij+1
-      Shij(1,nij) = iS
-      Shij(2,nij) = jS
+      Pair_Index(1,nij) = iS
+      Pair_Index(2,nij) = jS
     end if
   end do
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! CASPT2
-
-call Get_cArray('Relax Method',Method_chk,8)
-if (Method_chk == 'CASPT2  ') then
-  ! Just read A_{JK} type matrix constructed in CASPT2
-  nBasT = 0
-  nBasA = 0
-  nBasASQ = 0
-  do iSym1=0,nIrrep-1
-    nBasT = nBasT+nBas(iSym1)
-    nBasA = nBasA+nBas_Aux(iSym1)-1
-    nBasASQ = nBasASQ+(nBas_Aux(iSym1)-1)**2
-  end do
-  call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
-  ! Now, read
-  !call PrgmTranslate('CMOPT2',RealName,lRealName)
-  !LuCMOPT2 = 61
-  !call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
-  !read(LuCMOPT2) A_PT2(1:nBasASQ,1)
-  !close(LuCMOPT2)
-
-  ! Read A_PT2 from LUAPT2
-  LuAPT2 = isFreeUnit(68)
-  call daname_mf_wa(LUAPT2,'A_PT2')
-  id = 0
-  call ddafile(LUAPT2,2,A_PT2,nBasASq,id)
-  call daclos(LUAPT2)
-end if
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Compute FLOP's for the transfer equation.
-
-do iAng=0,S%iAngMx
-  do jAng=0,iAng
-    nHrrab = 0
-    do i=0,iAng+1
-      do j=0,jAng+1
-        if (i+j <= iAng+jAng+1) then
-          ijMax = min(iAng,jAng)+1
-          nHrrab = nHrrab+ijMax*2+1
-        end if
-      end do
-    end do
-  end do
-end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -307,20 +218,15 @@ call Init_Tsk(id,nTri_Elem(nij))
 if ((nProcs > 1) .and. King()) then
   if (Do_RI) call Free_iSD()
   call Drvh1(Grad,Temp,nGrad)
-  !if (nPrint(1) >= 15) call PrGrad(' Gradient excluding two-electron contribution',Grad,lDisp(0),ChDisp)
+# ifdef _DEBUGPRINT_
+  call PrGrad(' Gradient excluding two-electron contribution',Grad,nGrad)
+# endif
   Temp(:) = Zero
   if (Do_RI) then
     call Set_Basis_Mode('Auxiliary')
     call Setup_iSD()
   end if
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call mma_MaxDBLE(MemMax)
-if (MemMax > 8000) MemMax = MemMax-8000
-call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
-ipMem1 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -332,12 +238,11 @@ do while (Rsv_Tsk(id,jlS))
   ! Now do a quadruple loop over shells
 
   jS_ = int((One+sqrt(Eight*real(jlS,kind=wp)-Three))*Half)
-  iS = Shij(1,jS_)
-  jS = Shij(2,jS_)
+  iS = Pair_Index(1,jS_)
+  jS = Pair_Index(2,jS_)
   lS_ = int(real(jlS,kind=wp)-real(jS_,kind=wp)*(real(jS_,kind=wp)-One)*Half)
-  kS = Shij(1,lS_)
-  lS = Shij(2,lS_)
-  call CWTime(TCpu1,TWall1)
+  kS = Pair_Index(1,lS_)
+  lS = Pair_Index(2,lS_)
 
   if (Do_RI) then
     A_int = TMax1(jS)*TMax1(lS)
@@ -345,131 +250,11 @@ do while (Rsv_Tsk(id,jlS))
     A_int = TMax2(iS,jS)*TMax2(kS,lS)
   end if
   if (A_Int < CutInt) cycle
-  !if ((is == 3) .and. (js == 3) .and. (ks == 1) .and. (ls == 1)) then
-  !  iPrint = 15
-  !  nPrint(39) = 15
-  !else
-  !  iPrint = nPrint(iRout)
-  !  nPrint(39) = 5
-  !end if
-  if (iPrint >= 15) write(u6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
-  call Size_SO_block_g(iSD4,nSD,nSO,No_batch)
-  if (No_batch) cycle
-
-  call Int_Prep_g(iSD4,nSD,Coor,Shijij,iAOV,iStabs)
 
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ! --------> Memory Managment <--------
-  !
-  ! Compute memory request for the primitives, i.e.
-  ! how much memory is needed up to the transfer equation.
-
-  call MemRys_g(iSD4,nSD,nRys,MemPrm)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ABCDeq = EQ(Coor(1,1),Coor(1,2)) .and. EQ(Coor(1,1),Coor(1,3)) .and. EQ(Coor(1,1),Coor(1,4))
-  ijklA = iSD4(1,1)+iSD4(1,2)+iSD4(1,3)+iSD4(1,4)
-  if ((nIrrep == 1) .and. ABCDeq .and. (mod(ijklA,2) == 1)) cycle
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Decide on the partioning of the shells based on the
-  ! available memory and the requested memory.
-  !
-  ! Now check if all blocks can be computed and stored at once.
-
-  call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,iFnc, &
-              MemPSO)
-  iBasi = iSD4(3,1)
-  jBasj = iSD4(3,2)
-  kBask = iSD4(3,3)
-  lBasl = iSD4(3,4)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml, &
-                  k2ij,ik2,nDCRR,k2kl,jk2,nDCRS,mdci,mdcj,mdck,mdcl, &
-                  AeqB,CeqD,nZeta,nEta,l2DI,nab,nHmab,ncd,nHmcd,nIrrep)
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Scramble arrays (follow angular index)
-
-  do iCar=1,3
-    do iSh=1,4
-      JndGrd(iCar,iSh) = iSD4(15+iCar,iSh)
-      if (((iSh == 1) .or. (iSh == 3)) .and. Do_RI) then
-        JfGrad(iCar,iSh) = .false.
-      else if (btest(iSD4(15,iSh),iCar-1)) then
-        JfGrad(iCar,iSh) = .true.
-      else
-        JfGrad(iCar,iSh) = .false.
-      end if
-    end do
-  end do
-
-  do iBasAO=1,iBasi,iBsInc
-    iBasn = min(iBsInc,iBasi-iBasAO+1)
-    iAOst(1) = iBasAO-1
-    do jBasAO=1,jBasj,jBsInc
-      jBasn = min(jBsInc,jBasj-jBasAO+1)
-      iAOst(2) = jBasAO-1
-
-      do kBasAO=1,kBask,kBsInc
-        kBasn = min(kBsInc,kBask-kBasAO+1)
-        iAOst(3) = kBasAO-1
-        do lBasAO=1,lBasl,lBsInc
-          lBasn = min(lBsInc,lBasl-lBasAO+1)
-          iAOst(4) = lBasAO-1
-
-          ! Get the 2nd order density matrix in SO basis.
-
-          nijkl = iBasn*jBasn*kBasn*lBasn
-#         ifdef _CD_TIMING_
-          call CWTIME(Pget0CPU1,Pget0WALL1)
-#         endif
-          call PGet0(iCmpa,iBasn,jBasn,kBasn,lBasn,iAOV,iAOst,nijkl,Sew_Scr(ipMem1),nSO,iFnc(1)*iBasn,iFnc(2)*jBasn,iFnc(3)*kBasn, &
-                     iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
-#         ifdef _CD_TIMING_
-          call CWTIME(Pget0CPU2,Pget0WALL2)
-          Pget2_CPU = Pget2_CPU+Pget0CPU2-Pget0CPU1
-          Pget2_Wall = Pget2_Wall+Pget0WALL2-Pget0WALL1
-#         endif
-          if (A_Int*PMax < CutInt) cycle
-
-          ! Compute gradients of shell quadruplet
-
-#         ifdef _CD_TIMING_
-          call CWTIME(TwoelCPU1,TwoelWall1)
-#         endif
-          call TwoEl_g(Coor,iAnga,iCmpa,iShela,iShlla,iAOV,mdci,mdcj,mdck,mdcl,nRys, &
-                       k2Data(:,ik2),k2Data(:,jk2), &
-                       nDCRR,nDCRS,Pren,Prem,iPrimi,iPrInc,jPrimj,jPrInc,kPrimk,kPrInc,lPriml,lPrInc, &
-                       Shells(iSD4(0,1))%pCff(1,iBasAO),iBasn,Shells(iSD4(0,2))%pCff(1,jBasAO),jBasn, &
-                       Shells(iSD4(0,3))%pCff(1,kBasAO),kBasn,Shells(iSD4(0,4))%pCff(1,lBasAO),lBasn, &
-                       nZeta,nEta,Temp,nGrad,JfGrad,JndGrd,Sew_Scr(ipMem1),nSO, &
-                       Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
-#         ifdef _CD_TIMING_
-          call CWTIME(TwoelCPU2,TwoelWall2)
-          Twoel2_CPU = Twoel2_CPU+TwoelCPU2-TwoelCPU1
-          Twoel2_Wall = Twoel2_Wall+TwoelWall2-TwoelWall1
-#         endif
-          if (iPrint >= 15) call PrGrad(' In Drvg1_2Center_RI: Grad',Temp,nGrad,ChDisp)
-
-        end do
-      end do
-
-    end do
-  end do
-
-  call Destroy_Braket()
+  call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
 
 end do
 ! End of big task loop
@@ -480,27 +265,17 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call mma_deallocate(Sew_Scr)
+RI_2C = .false.
+call mma_deallocate(Sew_Scr,safe='*')
 call Free_Tsk(id)
-if (Method_chk == 'CASPT2') call mma_deallocate(A_PT2)
-call mma_deallocate(Shij)
+call mma_deallocate(A_PT2,safe='*')
+call mma_deallocate(Pair_Index)
 call mma_deallocate(TMax1,safe='*')
 call mma_deallocate(TMax2,safe='*')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call Term_Ints()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-call Sync_Data(Pren,Prem,nBtch,mBtch,kBtch)
-
-iPren = 3+max(1,int(log10(Pren+0.001_wp)))
-iPrem = 3+max(1,int(log10(Prem+0.001_wp)))
-write(frmt,'(A,I2,A,I2,A)') '(A,F',iPren,'.0,A,F',iPrem,'.0,A)'
-if (iPrint >= 6) then
-  write(u6,frmt) ' A total of',Pren,' entities were prescreened and',Prem,' were kept.'
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -514,6 +289,5 @@ call Free_iSD()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
 
 end subroutine Drvg1_2Center_RI

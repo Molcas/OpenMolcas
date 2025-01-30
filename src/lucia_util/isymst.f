@@ -8,16 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION ISYMST(STRING,NEL)
+      INTEGER FUNCTION ISYMST(STRING,NEL)
 *
 * Master routine for symmetry of string
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*. General input ( PNTGRP is used )
-#include "mxpdim.fh"
-#include "lucinp.fh"
-*. Specific input
+      use lucia_data, only: PNTGRP
+      IMPLICIT NONE
+      INTEGER NEL
       INTEGER STRING(*)
+
+      INTEGER, EXTERNAL :: ISYMS1
       IF(PNTGRP.EQ.1) THEN
 *.D2h
         ISYMST = ISYMS1(STRING,NEL)
@@ -29,5 +29,4 @@
          ISYMST=-9999
       END IF
 *
-      RETURN
-      END
+      END FUNCTION ISYMST

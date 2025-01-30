@@ -10,15 +10,14 @@
 ************************************************************************
       SUBROUTINE CP_ONE_INT(W1,NDIM)
       use GLBBAS, only: INT1, INT1O
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use Constants, only: Zero
+      IMPLICIT None
       Integer nDIM
       Real*8 W1(NDIM)
-#include "mxpdim.fh"
-#include "orbinp.fh"
 
-      INT1(:)=0.0D0
+      INT1(:)=Zero
       INT1(1:NDIM)=W1(1:NDIM)
-      INT1O(:)=0.0D0
+      INT1O(:)=Zero
       INT1O(:)=INT1(:)
 
-      End
+      End SUBROUTINE CP_ONE_INT

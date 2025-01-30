@@ -12,7 +12,7 @@
 subroutine RdCtl_Seward(LuRd_,lOPTO,Do_OneEl)
 
 use AMFI_Info, only: No_AMFI
-use Basis_Info, only: dbsc, Gaussian_Type, Max_Shells, mGaussian_Type, MolWgh, nCnttp, Nuclear_Model, Point_Charge, Shells
+use Basis_Info, only: dbsc, DoEmPC, Gaussian_Type, Max_Shells, mGaussian_Type, MolWgh, nCnttp, Nuclear_Model, Point_Charge, Shells
 use Center_Info, only: dc, n_dc
 use Her_RW, only: nPrp
 use Period, only: AdCell, Cell_l, lthCell, ispread, VCell
@@ -57,7 +57,6 @@ logical(kind=iwp), intent(inout) :: lOPTO
 logical(kind=iwp), intent(out) :: Do_OneEl
 #include "Molcas.fh"
 #include "print.fh"
-#include "embpcharg.fh"
 #ifdef _HAVE_EXTRA_
 #include "hyper.fh"
 #endif
@@ -2374,7 +2373,7 @@ do
           Project = Project(1:index(Project,' ')-1)
           Key = trim(Key)//'/tkr2qm_s '//trim(Project)//'.xyz>'//trim(Project)//'.Tinker.log'
           write(u6,*) 'TINKER keyword found, run ',trim(Key)
-          call StatusLine(' Gateway:',' Read input from Tinker')
+          call StatusLine('Gateway: ','Read input from Tinker')
           RC = 0
           call Systemf(trim(Key),RC)
           if (RC /= 0) then
@@ -2797,9 +2796,9 @@ do
           KWord = Get_Ln(LuRd)
           call Get_I(1,DefLA(1,iLA),3)
           call Get_F(4,FactLA(iLA),1)
-#        ifdef _DEBUGPRINT_
+#         ifdef _DEBUGPRINT_
           write(u6,'(i8,2i7,F19.8)') (DefLA(i,iLA),i=1,3),FactLA(iLA)
-#        endif
+#         endif
           if (DefLA(1,iLA) <= 0) then
             call WarningMessage(2,'LA definition: index of LA atom < 1')
             call Quit_OnUserError()

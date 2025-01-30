@@ -19,8 +19,10 @@ subroutine TraCtl2(CMO,PUVX,TUVX,D1I,FI,D1A,FA,IPR,lSquare,ExFac)
 !***********************************************************************
 
 use Fock_util_global, only: ALGO, DoCholesky
+use general_data, only: LUINTM
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
+use general_data, only: NTOT1
 #endif
 use wadr, only: nPWXY
 use Definitions, only: wp, iwp, u6
@@ -33,8 +35,6 @@ real(kind=wp), intent(inout) :: PUVX(*), FI(*), FA(*)
 real(kind=wp), intent(_OUT_) :: TUVX(*)
 integer(kind=iwp), intent(in) :: IPR
 logical(kind=iwp), intent(in) :: lSquare
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: iDisk, irc
 logical(kind=iwp) :: TraOnly
 

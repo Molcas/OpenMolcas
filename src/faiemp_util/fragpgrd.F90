@@ -45,9 +45,11 @@ integer(kind=iwp) :: i, ia, iAng, ib, iBas, iCar, iCent, iCnt, iCnttp, iCurCente
                      iStemp, iStrt, iuvwx(4), iVec, jAng, jBas, jCnt, jCnttp, JndGrd(3,4), jPrim, jS, jSbasis, jShll, jSize, &
                      jSlocal, ld, lDCRT, LmbdT, lOp(4), maxDensSize, mdci, mGrad, mVec, mVecAC, mVecCB, n_Her, nac, ncb, nDAO, &
                      nDCRT, nSkal, nVecAC, nVecCB
-logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EQ, EnergyWeight
+logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EnergyWeight
 character(len=80) :: Label
 real(kind=wp), external :: DNrm2_
+logical(kind=iwp), external :: EQ
+
 #include "macros.fh"
 unused_var(Zeta)
 unused_var(ZInv)

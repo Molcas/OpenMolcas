@@ -30,11 +30,11 @@ implicit none
 integer(kind=iwp), intent(in) :: nlist_s, list_s(2,nlist_s), mdc, list_bas(2,nlist_s), nIndex, Indx(nIndex)
 real(kind=wp), intent(in) :: Fact(mdc,mdc)
 logical(kind=iwp), intent(in) :: Do_Grad
-integer(kind=iwp) :: i1, i2, i_R, iAO, iBas, iBas_Eff, iBfn, iCar, iCB, iCmp, iD, idjx, idjx2, idjy, idjy2, idjz, idjz2, iDx, &
-                     idx2, iDy, idy2, iDz, idz2, iER, iGrid, ij_D, ijS, iL, ilist_s, Ind_xyz, index_i, index_j, ip_D_a, ip_D_b, &
-                     ip_Tmp, ipD(2), ipDDij, ipDij, ipDSij, iShell, iSkal, iT, ix, iy, iz, j, j1, j2, j_R, jBas, jBas_Eff, jBfn, &
-                     jCB, jCmp, jlist_s, jShell, jSkal, kDCRE, kDCRR, lDCRER, mAO, mdci, mdcj, mDCRij, mDij, mGrid, nAO, nBfn, nD, &
-                     nFunc_i, nFunc_j
+integer(kind=iwp) :: Dum1, Dum2, Dum3, i1, i2, i_R, iAO, iBas, iBas_Eff, iBfn, iCar, iCB, iCmp, iD, idjx, idjx2, idjy, idjy2, &
+                     idjz, idjz2, iDx, idx2, iDy, idy2, iDz, idz2, iER, iGrid, ij_D, ijS, iL, ilist_s, Ind_xyz, index_i, index_j, &
+                     ip_D_a, ip_D_b, ip_Tmp, ipD(2), ipDDij, ipDij, ipDSij, iShell, iSkal, iT, ix, iy, iz, j, j1, j2, j_R, jBas, &
+                     jBas_Eff, jBfn, jCB, jCmp, jlist_s, jShell, jSkal, kDCRE, kDCRR, lDCRER, mAO, mdci, mdcj, mDCRij, mDij, &
+                     mGrid, nAO, nBfn, nD, nFunc_i, nFunc_j
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nGrad_Eff
 #endif
@@ -42,6 +42,7 @@ real(kind=wp) :: DAij, Factor
 integer(kind=iwp), parameter :: Index_d2(3,3) = reshape([5,6,7,6,8,9,7,9,10],[3,3]), &
                                 Index_d3(3,3) = reshape([11,14,16,12,17,19,13,18,20],[3,3])
 integer(kind=iwp), allocatable :: Ind_Grd(:,:)
+integer(kind=iwp), parameter :: SCF = 1
 integer(kind=iwp), external :: NrOpr
 
 !                                                                      *
@@ -119,7 +120,7 @@ do iBfn=1,nBfn
 
     ijS = iTri(iShell,jShell)
     ip_Tmp = ipDijs
-    call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD)
+    call Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ip_Tmp,nD,SCF,Dum1,Dum2,Dum3)
 
     iER = ieor(kDCRE,kDCRR)
     lDCRER = NrOpr(iER)
@@ -212,10 +213,10 @@ end if
 if (allocated(dRho_dR)) dRho_dR(:,:,:) = Zero
 
 select case (Functional_Type)
-  !                                                                    *
-  !*********************************************************************
-  !*********************************************************************
-  !                                                                    *
+    !                                                                  *
+    !*******************************************************************
+    !*******************************************************************
+    !                                                                  *
   case (LDA_Type)
     !                                                                  *
     !*******************************************************************
@@ -426,9 +427,10 @@ select case (Functional_Type)
                               Grid_AO(4,iGrid,iAO,iD)*TabAO(1,iGrid,iAO)
           Tau(iD,iGrid) = Tau(iD,iGrid)+Grid_AO(2,iGrid,iAO,iD)*TabAO(2,iGrid,iAO)+Grid_AO(3,iGrid,iAO,iD)*TabAO(3,iGrid,iAO)+ &
                           Grid_AO(4,iGrid,iAO,iD)*TabAO(4,iGrid,iAO)
-          Lapl(iD,iGrid) = Lapl(iD,iGrid)+TabAO(1,iGrid,iAO)*(Grid_AO(5,iGrid,iAO,iD)+Grid_AO(8,iGrid,iAO,iD)+ &
-                           Grid_AO(10,iGrid,iAO,iD))+Two*(Grid_AO(2,iGrid,iAO,iD)*TabAO(2,iGrid,iAO)+ &
-                           Grid_AO(3,iGrid,iAO,iD)*TabAO(3,iGrid,iAO)+Grid_AO(4,iGrid,iAO,iD)*TabAO(4,iGrid,iAO))+ &
+          Lapl(iD,iGrid) = Lapl(iD,iGrid)+ &
+                           TabAO(1,iGrid,iAO)*(Grid_AO(5,iGrid,iAO,iD)+Grid_AO(8,iGrid,iAO,iD)+Grid_AO(10,iGrid,iAO,iD))+ &
+                           Two*(Grid_AO(2,iGrid,iAO,iD)*TabAO(2,iGrid,iAO)+Grid_AO(3,iGrid,iAO,iD)*TabAO(3,iGrid,iAO)+ &
+                                Grid_AO(4,iGrid,iAO,iD)*TabAO(4,iGrid,iAO))+ &
                            Grid_AO(1,iGrid,iAO,iD)*(TabAO(5,iGrid,iAO)+TabAO(8,iGrid,iAO)+TabAO(10,iGrid,iAO))
         end do
 
@@ -484,9 +486,11 @@ select case (Functional_Type)
 
                 ! Cartesian derivatives of the laplacian
 
-                dRho_dR(iL,iGrid,Ind_xyz) = dRho_dR(iL,iGrid,Ind_xyz)+Two*Grid_AO(1,iGrid,iAO,iD)*(TabAO(idjx2,iGrid,iAO)+ &
-                                            TabAO(idjy2,iGrid,iAO)+TabAO(idjz2,iGrid,iAO))+Two*(Grid_AO(idx2,iGrid,iAO,iD)+ &
-                                            Grid_AO(idy2,iGrid,iAO,iD)+Grid_AO(idz2,iGrid,iAO,iD))*TabAO(j,iGrid,iAO)+ &
+                dRho_dR(iL,iGrid,Ind_xyz) = dRho_dR(iL,iGrid,Ind_xyz)+Two*Grid_AO(1,iGrid,iAO,iD)* &
+                                            (TabAO(idjx2,iGrid,iAO)+TabAO(idjy2,iGrid,iAO)+TabAO(idjz2,iGrid,iAO))+ &
+                                            Two* &
+                                            (Grid_AO(idx2,iGrid,iAO,iD)+Grid_AO(idy2,iGrid,iAO,iD)+Grid_AO(idz2,iGrid,iAO,iD))* &
+                                            TabAO(j,iGrid,iAO)+ &
                                             Four*Grid_AO(2,iGrid,iAO,iD)*TabAO(idjx,iGrid,iAO)+ &
                                             Four*Grid_AO(3,iGrid,iAO,iD)*TabAO(idjy,iGrid,iAO)+ &
                                             Four*Grid_AO(4,iGrid,iAO,iD)*TabAO(idjz,iGrid,iAO)

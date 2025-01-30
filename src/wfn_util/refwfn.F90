@@ -112,7 +112,7 @@ subroutine refwfn_info
   use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names
 # endif
 # ifdef _HDF5_
-  use mh5, only: mh5_fetch_attr, mh5_exists_dset, mh5_fetch_dset
+  use mh5, only: mh5_fetch_attr, mh5_exists_attr, mh5_exists_dset, mh5_fetch_dset
   use stdalloc, only: mma_allocate, mma_deallocate
 # endif
 
@@ -146,6 +146,12 @@ subroutine refwfn_info
     call mh5_fetch_attr(refwfn_id,'NROOTS',lRoots)
     call mh5_fetch_attr(refwfn_id,'STATE_ROOTID',iRoot)
     call mh5_fetch_attr(refwfn_id,'STATE_WEIGHT',Weight)
+    if (mh5_exists_attr(refwfn_id,'NDET')) then
+      call mh5_fetch_attr(refwfn_id,'NDET',nDet)
+    else
+      ! to avoid runtime error
+      nDet = 1
+    end if
 
     call mma_allocate(typestring,sum(ref_nbas(1:nsym)))
     call mh5_fetch_dset(refwfn_id,'MO_TYPEINDICES',typestring)
@@ -167,12 +173,12 @@ subroutine refwfn_info
       call AbEnd()
     end if
     IFQCAN = 0
-# ifdef _DMRG_
+#   ifdef _DMRG_
     if (mh5_exists_dset(refwfn_id,'QCMAQUIS_CHECKPOINT')) then
       call qcmaquis_info_init(1,nroots,-1)
       call mh5_fetch_dset(refwfn_id,'QCMAQUIS_CHECKPOINT',qcm_group_names(1)%states)
     end if
-# endif
+#   endif
   else
 # endif
     ! Sizes in the GSLIST is counted in INTEGERS.

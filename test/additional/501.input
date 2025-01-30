@@ -37,7 +37,7 @@ CIROOT=3 3 1
 >>foreach state in (1, 2, 3)
 
 &MCPDFT
-KSDFT=T:PBE
+FUNC=T:PBE
 LAMB=0.25
 GRAD
 RLXR=$state

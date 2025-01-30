@@ -109,8 +109,8 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     her_rw.F90
      breit.F90
+     her_rw.F90
      rys_interfaces.F90
 )
 

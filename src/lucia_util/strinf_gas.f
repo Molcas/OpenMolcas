@@ -13,10 +13,24 @@
 ************************************************************************
       SUBROUTINE STRINF_GAS(IPRNT)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use strbas
+      use strbas, only: ZMAT,NSTSGP,ISTSGP,STREO,OCSTR,STSTM,NSTSO,
+     &                  ISTSO,IOCLS,SPGPAN,SPGPCR
+      use lucia_data, only: NGAS,IGSOCC,IPHGAS,NMXOCCLS
 * modification Jeppe + Giovanni + Dongxia.
 * G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
-      use distsym
+      use distsym, only: INGRP_VAL,ISMDFGP,ISMSCR,NACTSYM
+      use lucia_data, only: MS2
+      use lucia_data, only: NGRP,NTSPGP,MXNSTR,MXSMCLS,MXSMCLSE,
+     &                      MXSMCLSE1,MAX_STR_OC_BLK,MAX_STR_SPGP,
+     &                      MINMAX_SM_GP,IBSPGPFTP,IGSFGP,ISPGPFTP,
+     &                      ISTFSMGP,NELFGP,NELFSPGP,NELFTP,NHLFSPGP,
+     &                      NSPGPFTP,NSTFGP,NSTFSMGP,NSTFSMSPGP
+      use lucia_data, only: NACTEL
+      use lucia_data, only: NACOB,NORB1,NORB2,NORB3,NOBPT
+      use lucia_data, only: ISTAC
+      use lucia_data, only: NSTTYP
+      use lucia_data, only: MXPNSMST,MXPNGAS
+      use csm_data, only: NSMST
 *
 * Obtain string information for GAS expansion
 *
@@ -32,25 +46,18 @@
 *
 * /STRINP/,/STINF/,STRBAS and string information in STIN
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*. Input
-*     (and /LUCINP/ not occuring here )
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "csm.fh"
-#include "cstate.fh"
-#include "lucinp.fh"
-#include "stinf.fh"
-#include "strinp.fh"
-#include "irat.fh"
-#include "crun.fh"
-*
+      IMPLICIT NONE
+      INTEGER IPRNT
+
       INTEGER ZERO_ARR(1), IDUM(1)
       Integer, Allocatable:: FREEL(:)
 *. A bit of scratch
-C     DIMENSION IOCTYP(MXPNGAS)
+      INTEGER, External:: IELSUM
+      INTEGER LAC,NTEST,IEL,IGRP,NACOB_EFFECTIVE,MAXSCR,IGAS,MNRS1X,
+     &        MXRS1X,MNRS3X,MXRS3X,IOCTYPX,IGP,MX,ISM,MN,NGSOBP,IGSOB,
+     &        NSTINI,IEC,LROW,IZERO,JGRP,ITP,IGRPABS,NSMCLS,NSMCLSE,
+     &        NSMCLSE1,IISPGP,NHOLE,ISPGP,NSTR,NEL,ISTSM,ISTTYP,IIEL,
+     &        ISTTYPC,JSTTYP,ISTTYPA,MXNSTRFSG
 *
 *
 * Some dummy initializtions
@@ -371,4 +378,4 @@ C?      WRITE(6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
         END IF
       END DO
 *
-      END
+      END SUBROUTINE STRINF_GAS

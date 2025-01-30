@@ -25,15 +25,22 @@
       use Arrays, only: CMO_Inv, CMO
       use transform_procedures, only: SetUp_CASPT2_Tra
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit real*8 (a-h,o-z)
+      use MCLR_Data, only: nDens2
+      use MCLR_Data, only: LuTri1,LuMotra,FnTri1,FnMotra,FnQDat,LuHlf2,
+     &                      LuHlf3,LuQDat,LuTri2
+      use input_mclr, only: StepType,TwoStep,NewCho,nSym,kPrint,nAsh,
+     &                      nBas,nDel,LuAChoVec,LuChoInt,LuIChoVec,
+     &                      nFro,nIsh,nOrb
+      Implicit None
 
-#include "Input.fh"
 #include "warnings.h"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
       character(len=8) :: Label
       Character(LEN=5) Fname
       Real*8, Allocatable:: STmat(:), Smat(:)
+      Integer lTriDens,lSqrDens,nOrbBas,iSym,iSymLbl,iOpt,iComp,Index,
+     &        iOff,i,j,iOff1,iOff2,iType,iSeed,iRC
+      Integer, External:: IsFreeUnit
+      Real*8 BufFrac
 
 *----------------------------------------------------------------------*
 *     start                                                            *
@@ -130,7 +137,7 @@
       If(TwoStep.and.(StepType.eq.'RUN2')) Then
         ! fetch some data from existing file LuTri1
         ! (from a previous MCLR run)
-        ! and make it available to ERI common block intgrl.fh
+        ! and make it available to the module intgrl
         ! (LuTRI1=LuMOTRA)
         Call put_temp_data_on_intgrl(LuMOTRA,nSym,nOrb,nIsh,nAsh)
       End If
@@ -165,8 +172,8 @@
       Call DaClos(LuHlf2)
       Call DaClos(LuHlf3)
 *
-      Call FckMat
-      Call StPert
+      Call FckMat()
+      Call StPert()
 *
 **    With Cholesky there is no other choice than computing some
 **    integrals used for the preconditioner
@@ -176,16 +183,15 @@
 *----------------------------------------------------------------------*
 *     exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine Start_MCLR
 
       Subroutine put_temp_data_on_intgrl(LUINTMZ_, NSYMZ_, NORBZ_,
      &                                   NISHZ_, NASHZ_  )
+      use Intgrl, only: NSYMZ,IAD2M,LUINTMZ,NORBZ
       Implicit None
       Integer ::       LUINTMZ_, NSYMZ_
       Integer ::       NORBZ_(8), NISHZ_(8), NASHZ_(8)
       Integer ::       nLength, iAddress, i
-#include "intgrl.fh"
       iAddress=0
       IAD2M(1:3,1:36*36)=0
       nLength=3*36*36
@@ -202,4 +208,4 @@
         Call Unused_integer_array(NISHZ_)
         Call Unused_integer_array(NASHZ_)
       End If
-      End
+      End Subroutine put_temp_data_on_intgrl

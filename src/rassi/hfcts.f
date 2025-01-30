@@ -25,6 +25,7 @@
      &                 IFACALSD, TMINP, TMAXP, EPRATHR, IFATCALSA,
      &                 IFGTSHSA, MULTIP, IFACALFCON, IFACALFCSDON,
      &                 ICOMP, IFACALPSO, MLTPLT, PNAME, IFACALSDON
+      use hfc_logical, only: MAG_X2C
 
       IMPLICIT None
       Integer NSS
@@ -33,8 +34,6 @@
       Integer JBNUM(NSTATE)
 
       Real*8, parameter :: THRSH=1.0D-10
-#include "rassi.fh"
-#include "hfc_logical.fh"
       Character(LEN=1) xyzchr(3)
       Character(LEN=8) SDPROP
       Character(LEN=8) PSOPROP

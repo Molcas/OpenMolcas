@@ -49,19 +49,19 @@ Ras3 =   0    1    1    0    0    0    0    0
 >>Copy test.JobIph $Project.JobIph
 
 &MCPDFT
-KSDFT = $trans:$DFT
+FUNC = $trans:$DFT
 
 >>enddo
 >>enddo
 
 >>Copy test.JobIph $Project.JobIph
 &MCPDFT
-KSDFT = T:PBE
+FUNC = T:PBE
 DFCF=1.2 0.3
 
 >>Copy test.JobIph $Project.JobIph
 &MCPDFT
-KSDFT = FT:BLYP
+FUNC = FT:BLYP
 LAMBDA = 0.3
 
 >>FILE InitOrb

@@ -25,7 +25,7 @@ Private
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,                 &
      &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,                  &
      &     KeyFILE, KeyFROZ, KeyHOME, KeyINAC, KeyINPO,                 &
-     &     KeyIPHN, KeyITER, KeyJOBI, KeyKSDF, KeyLEVS,                 &
+     &     KeyIPHN, KeyITER, KeyJOBI, KeyFUNC, KeyLEVS,                 &
      &     KeyLINE, KeyLOWD, KeyLOWM, KeyLUMO, KeyMAXO,                 &
      &     KeyNACT, KeyNEWI, KeyNONE, KeyNOQU, KeyOPTO,                 &
      &     KeyORBA, KeyORBL, KeyORBO, KeyORDE, KeyOUTO,                 &
@@ -59,7 +59,7 @@ Private
      &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,                 &
      &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,                  &
      &     KeyFILE, KeyFROZ, KeyHOME, KeyINAC, KeyINPO,                 &
-     &     KeyIPHN, KeyITER, KeyJOBI, KeyKSDF, KeyLEVS,                 &
+     &     KeyIPHN, KeyITER, KeyJOBI, KeyFUNC, KeyLEVS,                 &
      &     KeyLINE, KeyLOWD, KeyLOWM, KeyLUMO, KeyMAXO,                 &
      &     KeyNACT, KeyNEWI, KeyNONE, KeyNOQU, KeyOPTO,                 &
      &     KeyORBA, KeyORBL, KeyORBO, KeyORDE, KeyOUTO,                 &
@@ -95,7 +95,7 @@ Private
      &                  'CHOL','CIMX','CION','CIRE','CIRO',             &
      &                  'CISE','CLEA','CORE','DELE','END ',             &
      &                  'FILE','FROZ','HOME','INAC','INPO',             &
-     &                  'IPHN','ITER','JOBI','KSDF','LEVS',             &
+     &                  'IPHN','ITER','JOBI','FUNC','LEVS',             &
      &                  'LINE','LOWD','LOWM','LUMO','MAXO',             &
      &                  'NACT','NEWI','NONE','NOQU','OPTO',             &
      &                  'ORBA','ORBL','ORBO','ORDE','OUTO',             &

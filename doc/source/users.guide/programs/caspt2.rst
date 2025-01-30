@@ -95,16 +95,12 @@ While numerical gradients are available with the :program:`slapaf` module,
 analytical first-order derivatives, nuclear energy gradients and derivative
 coupling vector, are also available :cite:`Nishimoto2021,Nishimoto2022`.
 To use the analytical code, it is not sufficient to simply call :program:`alaska`,
-but additional keywords in the :program:`CASPT2` input block are required to
+but additional keywords (:kword:`GRDT`) in the :program:`CASPT2` input block are required to
 precompute the necessary quantities used in :program:`MCLR` and :program:`alaska`.
 All quasi-degenerate variants of CASPT2 support the analytical gradients
-and NAC, as well as RASPT2. Currently, a separate CASPT2 calculation is
-required for each state for which the analytical quantities are needed.
-For instance, to compute the non-adiabatic coupling vector between two states,
-three separate CASPT2 calculations are required: one to obtain the gradient
-of the first state, one to obtain the gradient of the second state, and one to
-obtain the NAC vector. Tests 430 through 439 cover most common scenarios
-for the use of the analytical gradients code, and we invite the user to
+and NAC, as well as RASPT2. However, many of the features are available only
+in connection with the RI or CD approximation. Most common scenarios
+for the use of the analytical gradients code are covered in the tests, and we invite the user to
 have a look at them if they encounter difficulties in setting up the calculation.
 
 The CASPT2 method is based on second order perturbation theory. To be
@@ -673,7 +669,7 @@ Keywords
   Lagrange multipliers for computing the analytical nuclear gradients.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="GRDT" APPEAR="Gradient" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: Grdt <advanced>
+              %%Keyword: GRDT <advanced>
               <HELP>
               Enable calculation of quantities required for the analytical nuclear gradients.
               </HELP>
@@ -681,7 +677,8 @@ Keywords
 
 :kword:`NAC`
   Enable the calculation of quantities required by :program:`MCLR` to obtain the
-  Lagrange multipliers for computing the analytical non-adiabatic coupling vector.
+  Lagrange multipliers for computing the analytical non-adiabatic coupling vector
+  (derivative coupling, to be precise; see :kword:`NOCSf`).
   This keyword expects two 2 integers specifying the two states for which the NAC
   vector should be computed.
 
@@ -692,15 +689,28 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`NOCSf`
+  By default, :kword:`NAC` activates the computation of the derivative coupling, including the CSF term.
+  However, using this keyword disables the calculation of the CSF term,
+  resulting in either the non-adiabatic or inter-state coupling vector.
+  It should be noted that employing this keyword slightly modifies the CI contribution,
+  due to the fact that the CI and CSF contributions cannot be fully separated in CASPT2, unlike in CASSCF.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NOCSF" APPEAR="No CSF term" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: NOCSf <advanced>
+              <HELP>
+              Disable the calculation of the CSF term in the derivative coupling.
+              </HELP>
+              </KEYWORD>
+
 :kword:`SADRef`
-  To be used in combination with :kword:`GRDT` to use the state-average density matrix for the
-  calculation of analytical nuclear gradients.
+  Use the equally averaged density matrix for the generalized Fock operator, like in XMS-CASPT2.
+  This keyword is mainly intended for development purposes and should not be activated in other situations.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SADREF" APPEAR="State-average density" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: Sadref <advanced>
               <HELP>
-              Use state-average density matrix for the calculation of analytical
-              nuclear gradients.
+              Use state-average density matrix.
               </HELP>
               </KEYWORD>
 

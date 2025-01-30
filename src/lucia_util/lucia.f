@@ -11,29 +11,22 @@
       SUBROUTINE LUCIA()
       use stdalloc, only: mma_allocate
       use GLBBAS, only: CI_VEC, SIGMA_VEC
+      use lucia_data, only: MXSOOB,XISPSM
+      use lucia_data, only: IPRCIX,IPRORB,IPRSTR
+      use lucia_data, only: NOINT,LCSBLK
+      use lucia_data, only: IREFSM,PSSIGN
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 *. Parameters for dimensioning
-#include "mxpdim.fh"
-*.File numbers
-#include "clunit.fh"
-*.Print flags
-#include "cprnt.fh"
-#include "lucinp.fh"
-#include "cstate.fh"
-#include "crun.fh"
-#include "cicisp.fh"
-#include "oper.fh"
-#include "cgas.fh"
-
 #include "warnings.h"
 *.Scratch : A character line
+      Integer LBLOCK
 *
 *.    No floating point underflow
       !CALL XUFLOW
 *. Assign diskunits
 c      IF (ENVIRO(1:6) .EQ. 'RASSCF') THEN
-         CALL DISKUN2
+         CALL DISKUN2()
 c      ELSE
 c         CALL DISKUN
 c      ENDIF
@@ -43,7 +36,7 @@ c      ENDIF
 *. Number of string types
       CALL STRTYP_GAS(IPRSTR)
 *. Divide orbital spaces into inactive/active/secondary
-      CALL GASSPC
+      CALL GASSPC()
 *. Symmetry information
       CALL SYMINF_LUCIA(IPRORB)
 *. Number of integrals
@@ -85,4 +78,4 @@ c         IF (ENVIRO(1:6).EQ.'RASSCF') THEN
       CALL mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
       CALL mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
 
-      END
+      END SUBROUTINE LUCIA

@@ -13,11 +13,11 @@ subroutine Put_NucAttr()
 
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
+use Basis_Info, only: DoEmPC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "embpcharg.fh"
 character(len=8) :: Label
 integer(kind=iwp) :: i, iComp, iOpt, irc, iSyLbl, nC, nLT, nSym, nBas(8)
 #ifdef _DEBUGPRINT_

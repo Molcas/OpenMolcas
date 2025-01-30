@@ -35,7 +35,7 @@ subroutine Drvh1(Grad,Temp,nGrad)
 
 use PCM_arrays, only: PCM_SQ
 use External_Centers, only: nWel, XF, Wel_Info
-use Basis_Info, only: nCnttp, dbsc, nBas
+use Basis_Info, only: nCnttp, dbsc, ExpB, nBas, r0
 use Symmetry_Info, only: nIrrep
 #ifdef _NEXTFFIELD_
 use finfld, only: force
@@ -43,7 +43,7 @@ use finfld, only: force
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
 use rctfld_module, only: lLangevin, lMax, lRF, PCM
-use Disp, only: ChDisp, HF_Force
+use Disp, only: HF_Force
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -70,13 +70,12 @@ procedure(grd_mem) :: MltMmG
 !AOM>
 #endif
 #include "print.fh"
-#include "wldata.fh"
 
 ! Prologue
 iRout = 131
 iPrint = nPrint(iRout)
 call CWTime(TCpu1,TWall1)
-call StatusLine(' Alaska:',' Computing 1-electron gradients')
+call StatusLine('Alaska: ','Computing 1-electron gradients')
 
 ! Allocate memory for density and Fock matrices
 
@@ -365,14 +364,14 @@ if (.not. HF_Force) then
       call OneEl_g(COSGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
       if (iPrint >= 15) then
         Label = ' Reaction Field (COSMO) Contribution'
-        call PrGrad(Label,Temp,nGrad,ChDisp)
+        call PrGrad(Label,Temp,nGrad)
       end if
     else
       Label = ' The Electronic Reaction Field Contribution (PCM)'
       call OneEl_g(PCMGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
       if (iPrint >= 15) then
         Label = ' Reaction Field (PCM) Contribution'
-        call PrGrad(Label,Temp,nGrad,ChDisp)
+        call PrGrad(Label,Temp,nGrad)
       end if
     end if
 

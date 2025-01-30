@@ -18,7 +18,6 @@
       use cntrl, only: FnEig, LuEig
 
       IMPLICIT None
-#include "rassi.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),ESHFT(NSTATE)
 

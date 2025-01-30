@@ -15,16 +15,20 @@ C RECORDS WITH LENGTH NBLOCK.
 *
 * Packed version : Store only nonzero elements
 *. Small elements should be xeroed outside
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "io_util.fh"
-      DIMENSION A(*)
+      use Constants, only:Zero
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      INTEGER NDIM,MBLOCK,IFIL
+      REAL*8 A(*)
 C-jwk-cleanup      INTEGER START,STOP
-      REAL*8 INPROD
+      REAL*8, EXTERNAL :: INPROD
       INTEGER ISCR(2), IDUMMY(1)
 *
-      PARAMETER(LPBLK=50000)
+      INTEGER, PARAMETER :: LPBLK=50000
       INTEGER IPAK(LPBLK)
-      DIMENSION XPAK(LPBLK)
+      REAL*8 XPAK(LPBLK)
+      INTEGER IPACK,IMZERO,MMBLOCK,IELMNT,LBATCH
+      REAL*8 XNORM
 *
 *
 C?    write(6,*) ' entering TODSCP, file = ', IFIL
@@ -33,7 +37,7 @@ C?    CALL XFLUSH(6)
       IF(IPACK.NE.0) THEN
 *. Check norm of A before writing
         XNORM = INPROD(A,A,NDIM)
-        IF(XNORM.EQ.0.0D0) THEN
+        IF(XNORM.EQ.Zero) THEN
           IMZERO = 1
         ELSE
           IMZERO = 0
@@ -58,7 +62,7 @@ C       CALL ITODS(ISCR,2,MMBLOCK,IFIL)
   999 CONTINUE
        IF(NDIM.GE.1) THEN
        IELMNT = IELMNT+1
-       IF(A(IELMNT).NE.0.0D0) THEN
+       IF(A(IELMNT).NE.ZERO) THEN
          LBATCH=LBATCH+1
          IPAK(LBATCH) = IELMNT
          XPAK(LBATCH) = A(IELMNT)
@@ -86,6 +90,4 @@ C       CALL ITODS(ISCR,2,MMBLOCK,IFIL)
 c      END IF
  1001 CONTINUE
 *
-C?    CALL XFLUSH(6)
-      RETURN
-      END
+      END SUBROUTINE TODSCP

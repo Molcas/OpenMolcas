@@ -8,22 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FRMDSC(   ARRAY,    NDIM,  MBLOCK,   IFILE,  IMZERO,
-     &                  I_AM_PACKED)
+      SUBROUTINE FRMDSC(ARRAY,NDIM,MBLOCK,IFILE,IMZERO,I_AM_PACKED)
 C
 C     TRANSFER ARRAY FROM DISC FILE IFILE
 C
 *. Version allowing zero and packed blocks
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
-      DIMENSION ARRAY(*)
+      use Constants, only: Zero
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      REAL*8 ARRAY(*)
 *
-      DIMENSION ISCR(2)
-      PARAMETER(LPBLK=50000)
+      INTEGER ISCR(2)
+      INTEGER, PARAMETER :: LPBLK=50000
       INTEGER IPAK(LPBLK)
-      DIMENSION XPAK(LPBLK)
-      DIMENSION IDUMMY(1)
+      REAL*8 XPAK(LPBLK)
+      INTEGER IDUMMY(1)
+      INTEGER IPACK,IFILE,IMZERO,I_AM_PACKED,NDIM,NBATCH,LBATCH,
+     &        LBATCHP,ISTOP,IELMNT,NBLOCK,MBLOCK,IREST,IBASE
 C
       IPACK = 1
       IF(IPACK.NE.0) THEN
@@ -38,7 +40,6 @@ C?      IF(I_AM_PACKED.NE.0) THEN
 C?      WRITE(6,*) ' File is packed, file number = ', IFILE
 C?      END IF
         IF(IMZERO.EQ.1) THEN
-          ZERO = 0.0D0
 C?        write(6,*) ' frmdsc, length of zero block',NDIM
           CALL SETVEC(ARRAY,ZERO,NDIM)
           GOTO 1001
@@ -47,7 +48,6 @@ C?        write(6,*) ' frmdsc, length of zero block',NDIM
 C?    WRITE(6,*) ' IMZERO I_AM_PACKED', IMZERO,I_AM_PACKED
 *
       IF(I_AM_PACKED.EQ.1) THEN
-        ZERO = 0.0D0
         CALL SETVEC(ARRAY,ZERO,NDIM)
 *. Loop over packed records of dimension LPBLK
       NBATCH = 0
@@ -107,5 +107,4 @@ C1000 CONTINUE
 *
  1001 CONTINUE
 *
-      RETURN
-      END
+      END SUBROUTINE FRMDSC

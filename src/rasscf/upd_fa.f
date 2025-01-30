@@ -32,17 +32,21 @@
 *                                                                      *
 ************************************************************************
 
-      Implicit Real*8 (A-H,O-Z)
+      use general_data, only: NSYM,NASH,NISH,NORB
+      Implicit None
 
-      Dimension PUVX(*), F(*), D(*)
+      REAL*8 PUVX(*), F(*), D(*)
 
-#include "rasdim.fh"
-#include "general.fh"
+#include "Molcas.fh"
 
       Integer case
-      Integer   off_PUVX, off_Dmat, off_Fmat
-      Dimension off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer off_PUVX(mxSym), off_Dmat(mxSym), off_Fmat(mxSym)
+      Integer ISTACK,ISYM,IASH,IORB,JSYM,JASH,IJSYM,KSYM,KASH,LSYM,
+     &        LASH,KLSYM,KL_ORB_PAIRS,IISH,IFOFF,IU,IP,IPU,IPUVX,JORB,
+     &        JISH,IDOFF,IV,IX,IVX,IUV,IUX,IPV,IPX,KDOFF,JFOFF,JDOFF
+      REAL*8 DVX,DUV,EXFAC,DUX,TEMP
 
+      Integer i, iTri
       iTri(i)=(i*i-i)/2
 
 *     generate offsets
@@ -343,5 +347,4 @@
         End Do
       End Do
 
-      Return
-      End
+      End Subroutine Upd_FA

@@ -37,7 +37,6 @@ use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
 use OFembed, only: OFE_KSDFT
 use nq_Info, only: Grid_Type, Moving_Grid
-use Disp, only: ChDisp
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -63,7 +62,7 @@ iRout = 131
 iPrint = nPrint(iRout)
 LuWr = u6
 
-call StatusLine(' Alaska:',' Computing OFembedding gradients')
+call StatusLine('Alaska: ','Computing OFembedding gradients')
 
 call Set_Basis_Mode('Valence')
 call Setup_iSD()
@@ -89,7 +88,7 @@ do
 end do
 Label = 'DFT-OFE('//OFE_KSDFT(1:iEnd)//') contribution'
 jPrint = nPrint(112)
-if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp)
+if (jPrint >= 15) call PrGrad(Label,Temp,nGrad)
 if (king()) call DaXpY_(nGrad,One,Temp,1,Grad,1)
 if (iPrint >= 6) then
   write(LuWr,*)

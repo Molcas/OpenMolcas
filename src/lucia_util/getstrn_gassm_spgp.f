@@ -12,7 +12,10 @@
 ************************************************************************
       SUBROUTINE GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTROC,  NSTR,   NEL,
      &                              NNSTSGP,IISTSGP)
-      use strbas
+      use strbas, only: OCSTR
+      use lucia_data, only: NGAS
+      use lucia_data, only: NELFGP
+      use lucia_data, only: MXPNSMST,MXPNGAS
 *
 * Obtain all superstrings containing  strings of given sym and type
 *
@@ -32,12 +35,8 @@
 *
 *     Loop over gas N strings
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*. General input
-#include "mxpdim.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "csm.fh"
+      IMPLICIT NONE
+      INTEGER NSTR,NEL
 *. Specific input
       INTEGER ITPFGS(*), ISMFGS(*)
       INTEGER NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
@@ -45,6 +44,8 @@
       INTEGER NSTFGS(MXPNGAS), IBSTFGS(MXPNGAS)
 *. Output
       INTEGER ISTROC(NEL,*)
+
+      INTEGER IGAS,IGASL,NSTRTOT,NELB,NELI,NSTA,JGAS,NSTB,NSTI
 *. Number of strings per GAS space
 C?    write(6,*) ' entering problem child '
       DO IGAS = 1, NGAS
@@ -53,8 +54,6 @@ C?    write(6,*) ' entering problem child '
       END DO
 *
 #ifdef _DEBUGPRINT_
-      NTEST = 000
-      IF(NTEST.GE.100) THEN
         WRITE(6,*) '  GETSTR_GASSM_SPGP speaking '
         WRITE(6,*) '  =========================== '
         WRITE(6,*) ' ISMFGS,ITPFGS (input) '
@@ -64,7 +63,6 @@ C?    write(6,*) ' entering problem child '
         WRITE(6,*) ' NSTFGS, IBSTFGS ( intermediate results ) '
         CALL IWRTMA(NSTFGS,1,NGAS,1,NGAS)
         CALL IWRTMA(IBSTFGS,1,NGAS,1,NGAS)
-      END IF
 #endif
 *. Last gasspace with a nonvanishing number of electrons
       IGASL = 0
@@ -106,11 +104,9 @@ C?    write(6,*) ' entering problem child '
           NSTI = NSTFGS(IGAS)
 
 #ifdef _DEBUGPRINT_
-          IF(NTEST.GE.200) THEN
             WRITE(6,*) ' NSTI,NSTB,NSTA,NELB,NELI,NEL ',
      &                   NSTI,NSTB,NSTA,NELB,NELI,NEL
             WRITE(6,*) ' IBSTFGS(IGAS)',IBSTFGS(IGAS)
-          END IF
 #endif
 *
           CALL ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),
@@ -126,7 +122,6 @@ C?    write(6,*) ' entering problem child '
       NSTR = NSTRTOT
 *
 #ifdef _DEBUGPRINT_
-      IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Info from  GETSTR_GASSM_SPGP '
         WRITE(6,*) ' ============================='
         WRITE(6,*)
@@ -141,7 +136,6 @@ C?    write(6,*) ' entering problem child '
         WRITE(6,*) ' Number of strings generated : ', NSTR
         WRITE(6,*) ' Strings generated '
         CALL PRTSTR(ISTROC,NEL,NSTR)
-      END IF
 #endif
 *
-      END
+      END SUBROUTINE GETSTRN_GASSM_SPGP

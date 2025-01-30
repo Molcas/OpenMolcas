@@ -44,6 +44,7 @@ use Fock_util_interface, only: cho_lr_MOs
 use Fock_util_global, only: Deco, Estimate, Fake_CMO2, PseudoChoMOs, Update
 use Data_Structures, only: DSBA_Type, NDSBA_Type, SBA_Type, twxy_Type
 use Cholesky_Structures, only: Allocate_DT, Deallocate_DT, L_Full_Type, Lab_Type
+use rassi_data, only: NASH, NISH
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par, nProcs
 #endif
@@ -59,7 +60,6 @@ type(DSBA_Type), intent(inout) :: MSQ(2), FLT(1), FSQ
 integer(kind=iwp), intent(in) :: nTUVX, nScreen
 real(kind=wp), intent(_OUT_) :: TUVX(nTUVX)
 real(kind=wp), intent(in) :: dmpk
-#include "rassi.fh"
 integer(kind=iwp) :: ia, iab, iabg, iag, iaSh, iaSkip, ib, iBatch, ibcount, ibg, ibs, ibSh, ibSkip, iCase, iE, ik, iLoc, iml, Inc, &
                      ioffa, iOffAB, ioffb, iOffShb, iOK, irc, ired1, IREDC, iS, ish, iShp, iSwap, ISYM, iSyma, iSymb, iSymv, iTmp, &
                      IVEC2, iVrs, jaSkip, jden, jK, jK_a, jml, jmlmax, JNUM, JRED, JRED1, JRED2, jrs, jSym, jvc, JVEC, k, kDen, &

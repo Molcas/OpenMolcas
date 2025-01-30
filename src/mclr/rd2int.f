@@ -28,11 +28,13 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (A-H,O-Z)
-
-#include "Input.fh"
+      use input_mclr, only: nSym,TimeDep,CasInt,nSkip,nBas
+      Implicit None
+      Integer iPL
+#include "Molcas.fh"
       Integer nSymX,nBasX(mxSym)
       Logical SqSym
+      Integer iRC,iSym,ntSkip
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
@@ -76,5 +78,4 @@
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
-      Return
-      End
+      End Subroutine Rd2Int

@@ -30,12 +30,11 @@
       use mh5, only: mh5_close_file
       use RASWfn, only: wfn_fileid
 #endif
+      use general_data, only: JOBOLD,JOBIPH,ITERFILE,LUDAVID,LUINTM,
+     &                        LUQUNE
 
       Implicit None
       Logical DoCholesky
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
       Integer iRC
 
 *----------------------------------------------------------------------*

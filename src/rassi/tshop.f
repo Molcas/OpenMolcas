@@ -18,7 +18,6 @@
 
 
       IMPLICIT NONE
-#include "rassi.fh"
       REAL*8    CI1(NCI1),CI2(NCI2)
 
       REAL*8    prdct(2,2)

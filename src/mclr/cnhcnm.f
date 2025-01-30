@@ -26,21 +26,23 @@
 * No modifications
 * ================
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
+      INTEGER ISYM,NLCNF,NRCNF,NLCSF,NRCSF,NEL,IREFSM,NAEL,NBEL,NINOB,
+     &        NACOB,INTSPC,ICOMBI,NTEST
+      REAL*8 ECORE,PSSIGN
 *. Specific input
-      DIMENSION ILCNF(*),IRCNF(*)
+      INTEGER ILCNF(*),IRCNF(*)
 *. General input
-      DIMENSION ICONF(*),IPRODT(*),DTOC(*)
+      INTEGER ICONF(*),IPRODT(*)
+      REAL*8 DTOC(*)
 *.Output
-      DIMENSION HSUB(*)
+      REAL*8 HSUB(*)
 *.Scratch
-      DIMENSION SCR(*)
+      REAL*8 SCR(*)
 *. Length of scratch : 2 * NEL + MXCSFC                   (used in CNHCNM)
 *                    + 6*MXDTFC+MXDTFC**2+MXDTFC+MXCSFC   (used in CNHCN2)
 *                    + MAX(MXDTFC*NEL+2*NEL,4*NORB+2*NEL) (used in DIHDJ,CNFSTR)
 *.Standard common block
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 *
       CALL CNHCNM_INTERNAL(SCR)
       RETURN
@@ -51,8 +53,13 @@ c Avoid unused argument warnings
       CONTAINS
       SUBROUTINE CNHCNM_INTERNAL(SCR)
       USE ISO_C_BINDING
+      USE MCLR_Data, only: NTYP,NCPCNT
+      IMPLICIT None
       REAL*8, TARGET :: SCR(*)
       INTEGER, POINTER :: iSCRl(:),iSCRr(:)
+      INTEGER NTERMS,NDIF0,NDIF1,NDIF2,MXCSFC,ITYP,KLFREE,KLCONF,KRCONF,
+     &        KLPHPS,IILB,ICNL,NCSFL,IIRB,MXR,ICNR,NCSFR,MDIF0,MDIF1,
+     &        MDIF2,IIL,IIRMAX,IIR,IIRACT,IILACT,ILRO,ILRI,ILTYP,IRTYP
 *
       NTERMS = 0
       NDIF0 = 0
@@ -137,8 +144,6 @@ c Avoid unused argument warnings
  200  CONTINUE
       NULLIFY(iSCRl,iSCRr)
 *
-*
-      RETURN
       END SUBROUTINE CNHCNM_INTERNAL
 *
-      END
+      END SUBROUTINE CNHCNM

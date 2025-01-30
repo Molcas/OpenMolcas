@@ -31,8 +31,9 @@ Contains
       Subroutine Lucia_Util(Module, iSym, iDisk, LU, Array, RVec, CI_VECTOR, &
                             SIGMA_VECTOR)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use lucia_data, only: MXNTTS
 
-      Implicit REAL*8 (A-H,O-Z)
+      Implicit None
       Character(LEN=*) Module
       Integer, Optional:: iSym
       Integer, Optional:: iDisk
@@ -41,41 +42,13 @@ Contains
       Real*8, Optional:: RVEC(:)
       Real*8, Optional:: CI_Vector(:)
       Real*8, Optional:: SIGMA_Vector(:)
+
       Integer, Parameter:: MxpLnc = 72
       Character(LEN=MxpLnc) Module_
 !
 ! Include all LUCIA include files to make sure
 ! they are available during the calculation.
 !
-#include "mxpdim.fh"
-#include "cands.fh"
-
-#include "cecore.fh"
-#include "cgas.fh"
-
-#include "cicisp.fh"
-#include "cintfo.fh"
-#include "clunit.fh"
-
-#include "cprnt.fh"
-#include "crun.fh"
-
-#include "csm.fh"
-#include "cstate.fh"
-
-
-
-#include "gasstr.fh"
-#include "intform.fh"
-#include "irat.fh"
-
-#include "lucinp.fh"
-
-#include "oper.fh"
-#include "orbinp.fh"
-#include "spinfo_lucia.fh"
-#include "stinf.fh"
-#include "strinp.fh"
       Integer, Allocatable:: lVec(:)
 !
 #ifdef _DEBUGPRINT_
@@ -140,31 +113,30 @@ Contains
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS, only: VEC3, DTOC, RHO1, SRHO1, SDREO
       use rasscf_lucia, only: kvec3_length, Sigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
+      use lucia_data, only: NCSF_PER_SYM,NSD_PER_SYM
+      use lucia_data, only: MXSOOB,MXNTTS,XISPSM
+      use lucia_data, only: LUC,LUSC1,LUHC,LUSC34
+      use lucia_data, only: LCSBLK
+      use lucia_data, only: IREFSM,PSSIGN
+      use lucia_data, only: IDISK
+      use lucia_data, only: NTOOB
 !
 ! Controls the calculation of the densities, when Lucia is called
 ! from Molcas Rasscf.
 !
-      implicit real*8 (a-h,o-z)
-#include "mxpdim.fh"
-#include "crun.fh"
-#include "cicisp.fh"
-#include "clunit.fh"
-#include "orbinp.fh"
-#include "lucinp.fh"
-#include "spinfo_lucia.fh"
-#include "cstate.fh"
-#include "io_util.fh"
+      implicit none
       Integer nCIVec
       Real*8 CIVec(nCIVEC)
       Real*8, Optional:: RVec(:)
 
       logical iPack,tdm
-      dimension dummy(1)
+      Real*8 dummy(1)
       Real*8, Allocatable:: VEC1(:), VEC2(:)
       Integer, Allocatable:: lVec(:)
       Real*8, Allocatable, Target:: SCR1(:), SCR3(:)
       Real*8, Allocatable:: SCR2(:), SCR4(:)
-      Integer NSD, NCSF
+      Integer NSD,NCSF,LBLOCK,LBLK
+      Real*8 EXPS2
 
 !
 ! Put CI-vector from RASSCF on luc
@@ -287,19 +259,16 @@ Contains
 !     Note that CI_VEC is used as a scratch array!
       use GLBBAS, only: INT1, INT1O, VEC3, CI_SCR => CI_VEC, SIGMA_SCR => SIGMA_VEC
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
+      use lucia_data, only: NSD_PER_SYM
+      use lucia_data, only: ECORE,ECORE_ORIG
+      use lucia_data, only: MXNTTS
+      use lucia_data, only: LUC,LUSC34
+      use lucia_data, only: IREFSM
 !
 ! Controls the calculation of the sigma vector, when Lucia is called
 ! from Molcas Rasscf.
 !
-      implicit real*8 (a-h,o-z)
-#include "mxpdim.fh"
-#include "cicisp.fh"
-#include "cstate.fh"
-#include "clunit.fh"
-#include "orbinp.fh"
-#include "cecore.fh"
-#include "crun.fh"
-#include "spinfo_lucia.fh"
+      implicit None
       Integer nCIVEC
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
 
@@ -351,22 +320,19 @@ Contains
       use GLBBAS, only: INT1, INT1O, SCR => CI_VEC, VEC3
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, SIGMA_ON_DISK
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "mxpdim.fh"
-#include "cicisp.fh"
-#include "cands.fh"
-#include "cstate.fh"
-#include "clunit.fh"
-#include "orbinp.fh"
-#include "cecore.fh"
-#include "crun.fh"
-#include "spinfo_lucia.fh"
-      Integer nCIVEC
+      use CandS, only: ICSM,ISSM
+      use lucia_data, only: NSD_PER_SYM
+      use lucia_data, only: ECORE,ECORE_ORIG
+      use lucia_data, only: MXNTTS
+      use lucia_data, only: LUC,LUSC34
+      use lucia_data, only: IREFSM
+      IMPLICIT NONE
+      Integer nCIVEC,IREFSM_CASVB
       Real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
       Integer, Allocatable:: lVec(:)
       Integer nSD
 !
-! Set ICSM and ISSM (from cands.fh) to the correct symmetry for this call
+! Set ICSM and ISSM (from module CandS to the correct symmetry for this call
 !
       ICSM  = IREFSM_CASVB
       ISSM  = IREFSM_CASVB
@@ -404,7 +370,7 @@ Contains
 !
       SIGMA_ON_DISK = .TRUE.
 !
-! Set ICSM and ISSM (from cands.fh) back to IREFSM
+! Set ICSM and ISSM (from CandS) back to IREFSM
 !
       ICSM  = IREFSM
       ISSM  = IREFSM
@@ -420,13 +386,11 @@ Contains
 ! IWAY = 1: from Molcas to Lucia (from core to disk unit ifile).
 ! IWAY = 2: from Lucia to Molcas (from disk unit ifile to core).
 !
+      use lucia_data, only: IDISK
       implicit None
       integer nCIVEC, ifile, mxrec, isym, iway
       integer lrec(mxrec)
       real*8 CIVec(nCIVec)
-#include "rasdim.fh"
-#include "general.fh"
-#include "io_util.fh"
       Integer nRec
 #ifdef _DEBUGPRINT_
       Integer iOff, iRec
@@ -471,12 +435,12 @@ Contains
 !
 ! Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
 !
+      use lucia_data, only: IDISK
+      use general_data, only: STSYM
       implicit real*8 (a-h,o-z)
-      dimension lrec(mxrec)
-      dimension vec(mxrec)
-#include "rasdim.fh"
-#include "general.fh"
-#include "io_util.fh"
+      integer ifile, mxrec
+      integer lrec(mxrec)
+      real*8 vec(mxrec)
 !
 !   ========================
 !      Find nrec and lrec

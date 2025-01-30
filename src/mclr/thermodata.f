@@ -11,11 +11,11 @@
        Subroutine ThermoData(in_Freq, in_nFreq)
 *
        Use Constants, only: auTocm
+       use Temperatures, only: DefTemp
        Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 *----- Compute thermodynamic data at different temperatures.
        Real*8 in_Freq(in_nFreq), Freq(MxAtom*3-6)
-#include "temperatures.fh"
 
 *
 *----- Remove translational and rotational frequencies
@@ -39,7 +39,7 @@ C         Freq(i) = Freq(i) * 4.55633538D-06
           Freq(i) = Freq(i) / auTocm
        End Do
 *
-       Do i = 1, NDefTemp
+       Do i = 1, Size(DefTemp)
           Call Thermo_Vib(nFreq,Freq,DefTemp(i),nTR,i)
        End Do
        End
@@ -68,7 +68,8 @@ C      r_J2au=2.29371049D+17 ! Convert joules to atomic units
         endif
 ************************************************************************
 *                                                                      *
-*      The Canonical partion function Q for indistinguishable molecules*
+*      The Canonical partition function Q for indistinguishable        *
+*      molecules                                                       *
 *                                                                      *
 *      is Q = q^N /N!, where N is the number of indistinguishable      *
 *                                                                      *
@@ -78,7 +79,7 @@ C      r_J2au=2.29371049D+17 ! Convert joules to atomic units
 *                                                                      *
 *      N = n * N_A (N_A is Avogrado's number) and the molecular        *
 *                                                                      *
-*      partion function is defined as q_m=q/n.                         *
+*      partition function is defined as q_m=q/n.                       *
 *                                                                      *
 *      We approximate q as follows                                     *
 *                                                                      *
@@ -141,7 +142,7 @@ C      r_J2au=2.29371049D+17 ! Convert joules to atomic units
        Write (6,*)
 *
 *------Iterate over vibrations, and compute the molecular
-*      partion functions of the vibrations
+*      partition functions of the vibrations
 *
        q_vib_Tot = One
        ZPVE  = Zero

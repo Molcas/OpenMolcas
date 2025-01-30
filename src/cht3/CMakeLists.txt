@@ -30,27 +30,27 @@ set (sources
      expa2_uhf.F90
      expand4_12.F90
      ext_o_32.F90
-     gather_t2anti_blocked.F90
-     gather_t2_blocked.F90
      gather_t2.F90
+     gather_t2_blocked.F90
      gather_t2_fblocked.F90
-     generate_juzekoe.F90
+     gather_t2anti_blocked.F90
      gen_oovo.F90
-     gen_vvoo_blocked.F90
      gen_vvoo.F90
+     gen_vvoo_blocked.F90
      gen_vvvo.F90
+     generate_juzekoe.F90
      getrest_t3.F90
      getx_t3.F90
      grow_l1.F90
      grow_l2.F90
-     grow_t2anti_blocked1.F90
-     grow_t2anti_blocked2.F90
      grow_t2_blocked.F90
      grow_t2_fblocked1.F90
      grow_t2_fblocked2.F90
+     grow_t2anti_blocked1.F90
+     grow_t2anti_blocked2.F90
      grow_t2neq.F90
-     grow_vvoo_blocked.F90
      grow_vvoo.F90
+     grow_vvoo_blocked.F90
      grow_w3.F90
      inireord_t3.F90
      klvaa_vvv.F90
@@ -63,13 +63,13 @@ set (sources
      multi_readir.F90
      multi_wridir.F90
      my_block.F90
-     t3ampl_bti.F90
-     t3_bta_aac.F90
      t3_bt_aaa.F90
-     t3_bta_abc.F90
      t3_bt_aac.F90
      t3_bt_abc.F90
      t3_bt_acc.F90
+     t3_bta_aac.F90
+     t3_bta_abc.F90
+     t3ampl_bti.F90
      t3loopa.F90
      t3loopb.F90
      v_size_t3.F90

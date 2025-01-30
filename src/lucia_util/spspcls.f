@@ -18,17 +18,18 @@
 *
 * Jeppe Olsen, Jan 97
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "cprnt.fh"
-#include "stinf.fh"
-#include "strinp.fh"
+      use lucia_data, only: NGAS
+      use lucia_data, only: IPRDIA
+      use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP
+      use lucia_data, only: NOCTYP
+      use lucia_data, only: MXPNGAS
+      IMPLICIT None
 *. Specific input
-      INTEGER ICLS(*)
+      INTEGER NCLS,ICLS(*)
 *. OUtput
       INTEGER ISPSPCLS(*)
+
+      INTEGER IATP,IBTP,NOCTPA,NOCTPB,IOCTPA,IOCTPB
 *
       IATP = 1
       IBTP = 2
@@ -46,6 +47,5 @@
      &                     ICLS,    NCLS,  IPRDIA)
 *
 *
-      RETURN
-      END
+      END SUBROUTINE SPSPCLS
 *

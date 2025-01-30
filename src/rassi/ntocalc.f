@@ -47,9 +47,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
       use Constants, only: Two
+      use rassi_data, only: NASHT,NBST,NISHT,NCMO,NASH,NBASF,NISH,NOSH
 
       Implicit None
-#include "rassi.fh"
 
       Integer ISpin,JOB1,JOB2
       Integer IState, jState
@@ -454,9 +454,9 @@ C     Putting particle-hole pairs in the output
      &SumEigVal)
       use Symmetry_Info, only: nSym=>nIrrep
       use Constants, only: Zero
+      use rassi_data, only: NBST,NASHT,NASH,NBASF,NISH,NSSH
 
       Implicit None
-#include "rassi.fh"
 
 C     input variables
       INTEGER NUseSym

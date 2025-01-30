@@ -12,7 +12,7 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-function MemSO2(iCmp,jCmp,kCmp,lCmp,iShell,jShell,kShell,lShell,iAO,jAO,kAO,lAO)
+function MemSO2(nSD,iSD4)
 !***********************************************************************
 !  Object: to compile the number of SO block which will be generated   *
 !          by the current shell quadruplet.                            *
@@ -34,8 +34,9 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: MemSO2
-integer(kind=iwp), intent(in) :: iCmp, jCmp, kCmp, lCmp, iShell, jShell, kShell, lShell, iAO, jAO, kAO, lAO
-integer(kind=iwp) :: i1, i2, i3, i4, j1, j12, j2, j2Max, j3, j3Max, j4, jCmpMx, kCmpMx, lCmpMx
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp) :: i1, i2, i3, i4, iAO, iCmp, iShell, j1, j12, j2, j2Max, j3, j3Max, j4, jAO, jCmp, jCmpMx, jShell, kAO, kCmp, &
+                     kCmpMx, kShell, lAO, lCmp, lCmpMx, lShell
 logical(kind=iwp) :: Shij, Shik, Shjl, Shkl
 
 MemSO2 = 0
@@ -44,6 +45,19 @@ MemSO2 = 0
 ! description. Loops are reduced to just produce unique SO integrals
 ! Observe that we will walk through the memory in AOInt in a
 ! sequential way.
+
+iCmp = iSD4(2,1)
+jCmp = iSD4(2,2)
+kCmp = iSD4(2,3)
+lCmp = iSD4(2,4)
+iShell = iSD4(11,1)
+jShell = iSD4(11,2)
+kShell = iSD4(11,3)
+lShell = iSD4(11,4)
+iAO = iSD4(7,1)
+jAO = iSD4(7,2)
+kAO = iSD4(7,3)
+lAO = iSD4(7,4)
 
 Shij = (iShell == jShell)
 Shkl = (kShell == lShell)

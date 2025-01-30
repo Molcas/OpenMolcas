@@ -23,17 +23,21 @@
 *
 *************************************************************
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
-#include "Input.fh"
-      Integer dsym
+      use Constants, only: Zero, One
+      use MCLR_Data, only: nDensC, nDens, ipMat, nB
+      use input_mclr, only: nSym,TimeDep,nIsh,nOrb,nRS1,nRS2,nRS3
+      Implicit None
       Real*8  ArrayIn(nDensC),ArrayOut(nDens)
+      Integer dsym
+      Integer IndexC,jT,i1,j1,iSym,jSym,jBas,iBas,iT,ij,ji,
+     &        Index1,Index2
+      Real*8 Fact
+
       indexC=0
-      Fact=1.0d0
+      Fact=One
       If (dsym.lt.0) Fact=-Fact
       dsym=abs(dsym)
-      call dcopy_(nDens,[0.0d0],0,ArrayOut,1)
+      ArrayOut(:)=Zero
       jT=0 ! dummy initialize
       i1=0 ! dummy initialize
       j1=0 ! dummy initialize
@@ -117,5 +121,4 @@
         End If
        End Do
       End Do
-      Return
-      End
+      End SubRoutine UnCompress2

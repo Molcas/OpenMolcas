@@ -45,7 +45,6 @@ use Symmetry_Info, only: ChOper, nIrrep
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
 use define_af, only: AngTp
-use Disp, only: ChDisp
 use NAC, only: IsCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -64,9 +63,10 @@ integer(kind=iwp) :: i, iAng, iAO, iBas, iCar, iCmp, iCnt, iCnttp, iComp, iDCRR(
                      jS, jShell, jShll, kk, lDCRR, lFinal, llOper, LmbdR, LmbdT, mdci, mdcj, MemKer, MemKrn, nDCRR, nDCRT, nOp(2), &
                      nOrder, nScr1, nScr2, nSkal, nSO, nStabM, nStabO, nTasks
 real(kind=wp) :: A(3), B(3), FactND, RB(3)
-logical(kind=iwp) :: EQ, FreeiSD, IfGrad(3,3)
+logical(kind=iwp) :: FreeiSD, IfGrad(3,3)
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOpr(:), Kappa(:), Krnl(:), PCoor(:,:), rFinal(:), Scr1(:), Scr2(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
+logical(kind=iwp), external :: EQ
 #include "print.fh"
 
 iRout = 112
@@ -298,7 +298,7 @@ do ijS=1,nTasks
 
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,rFinal,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
                   Krnl,MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,nComp,iStabM,nStabM)
-      if (iPrint >= 49) call PrGrad(' In Oneel',Grad,nGrad,ChDisp)
+      if (iPrint >= 49) call PrGrad(' In Oneel',Grad,nGrad)
 
     end do
   end if
@@ -318,7 +318,7 @@ call mma_deallocate(Kappa)
 call mma_deallocate(ZI)
 call mma_deallocate(Zeta)
 
-if (iPrint >= 15) call PrGrad(Label,Grad,nGrad,ChDisp)
+if (iPrint >= 15) call PrGrad(Label,Grad,nGrad)
 
 return
 

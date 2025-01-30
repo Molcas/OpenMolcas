@@ -23,7 +23,8 @@
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      Integer IGROUP,NGRP,JSTATE_OFF
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
 * Purpose: For a selected set IGROUP, create a set of CMO coefficients
@@ -34,15 +35,16 @@
 * for which a group offset JSTATE_OFF is passed in.
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
 #include "warnings.h"
-      LOGICAL IF_TRNSF
-      CHARACTER(LEN=27)  STLNE2
       real(8) Heff(Nstate,Nstate)
       real(8) H0(Nstate,Nstate)
       real(8) U0(Nstate,Nstate)
 
+      LOGICAL IF_TRNSF
+      CHARACTER(LEN=27)  STLNE2
       real(8), allocatable:: CIRef(:,:), CIXMS(:)
+      Integer I,J,iDisk,K,iState
+      Real*8 Wij,CPU1,CPU0,TIO1,TIO0,CPU,TIO
 
 * ---------------------------------------------------------------------
 * Number of states in this group.

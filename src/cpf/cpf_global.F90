@@ -30,9 +30,8 @@ private
 ! Lu_30
 
 #include "Molcas.fh"
-#include "tratoc.fh"
 
-integer(kind=iwp), parameter :: KBUFF1 = 2*9600, MADR = 20000, NTIBUF = nTraBuf
+integer(kind=iwp), parameter :: KBUFF1 = 2*9600, MADR = 20000
 real(kind=wp), parameter :: SQ2 = sqrt(Two)
 integer(kind=iwp) :: IAD25S, IADABCI, IADDP(79), ICH(MXORB), ICONV, ICPF, IDENS, IDIIS, IFIRST, ILIM, INCPF, IPASS, IPRINT, &
                      IPS(200), IR1, IRC(4), IREF0, IREST, IROW(MXORB+1), ISC(4), ISDCI, ISMAX, ITER, ITOC17(64), ITPUL, IV0, IV1, &
@@ -49,7 +48,7 @@ public :: BNAME, CTRSH, DETOT, ETHRE, ETOT, IAD25S, IADABCI, IADDP, ICASE, ICH, 
           INDX, IPASS, IPRINT, IPS, IR1, IRC, IREF0, IREST, IROW, ISAB, ISC, ISDCI, ISMAX, ITER, ITOC17, ITPUL, IV0, IV1, JBUF, &
           JJS, JMAX, JSC, JSY, KBUF, KBUFF1, LASTAD, LBUF, LIC, LN, LSYM, Lu_25, Lu_27, Lu_30, Lu_CI, Lu_CIGuga, Lu_CPFORB, &
           Lu_TiABCD, Lu_TiABCI, Lu_TiABIJ, Lu_TraInt, Lu_TraOne, LWSP, MADR, MAX11, MAXIT, MAXITP, MX1, MX2, N, NASH, NBAS, NCONF, &
-          NDIAG, NFRO, NISH, NNS, NORB, NORBT, NOV, NOV1, NPFRO, NREF, NSM, NSYM, NSYS, NTIBUF, NTMAX, NVIR, NVIRT, NVMAX, NVT5, &
-          POTNUC, SQ2, WLEV
+          NDIAG, NFRO, NISH, NNS, NORB, NORBT, NOV, NOV1, NPFRO, NREF, NSM, NSYM, NSYS, NTMAX, NVIR, NVIRT, NVMAX, NVT5, POTNUC, &
+          SQ2, WLEV
 
 end module CPF_global

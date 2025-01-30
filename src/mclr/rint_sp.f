@@ -20,12 +20,10 @@
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Half
-      Implicit Real*8(a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
-#include "spin_mclr.fh"
-      Real*8 rkappa(nDensC),Sigma(nDensC), Focki(ndens2),rMOs(*),rmoa(*)
+      use MCLR_Data, only: nDensC, nDens2, nMBA
+      use MCLR_Data, only: rBetaS, rBetaA
+      Implicit None
+      real*8 rkappa(nDensC),rMOs(*),rmoa(*),Focki(ndens2),Sigma(nDensC)
       Real*8, Allocatable:: MT1(:), MT2(:), MT3(:), Scr(:)
 *
 *     D,FA used in oit of FA
@@ -40,7 +38,7 @@
       Call mma_allocate(MT3,nmba,Label='MT3')
       Call mma_allocate(Scr,ndensc,Label='Scr')
 *
-      Call Oit_sp(rkappa,Scr,-1,1,
+      Call Oit_sp(rkappa,Scr,-1,
      &            -One,G2mp,One,Fm,
      &            G1m,FAMO_Spinm,
      &            MT1,MT2,Focki)
@@ -50,7 +48,7 @@
 *
 *     kappa_S
 *
-      Call Oit_sp(rkappa,Scr,1,1,
+      Call Oit_sp(rkappa,Scr,1,
      &            -One,G2mp,One,Fm,
      &            G1m,FAMO_Spinm,
      &            MT1,MT2,Focki)
@@ -61,7 +59,7 @@
 *     alpha_S
 *
       If (rbetas.ne.Zero) Then
-        Call Oit_sp(rkappa,Scr,-1,-1,
+        Call Oit_sp(rkappa,Scr,-1,
      &            One,G2pp,One,Fp,
      &            G1p,FAMO_Spinp,
      &            MT1,MT2,Focki)
@@ -69,7 +67,7 @@
       call daxpy_(ndensc,One,SCR,1,sigma,1)
       Call Recprt(' ',' ',SCR,ndensc,1)
       End if
-      Call Oit_sp(rkappa,Scr,-1,-1,
+      Call Oit_sp(rkappa,Scr,-1,
      &            One,G2pp,One,G2mm,
      &            G1p,Famo_spinp,
      &            MT1,MT2,Focki)
@@ -91,5 +89,4 @@
       Call mma_deallocate(MT2)
       Call mma_deallocate(MT1)
 *
-      return
-      End
+      End SubRoutine RInt_SP

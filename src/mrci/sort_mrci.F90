@@ -12,7 +12,8 @@
 subroutine SORT_MRCI(BUFS,INDS,FC,FIIJJ,FIJIJ)
 
 use mrci_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LN, Lu_25, Lu_60, LUONE, LUTRA, MCHAIN, NBITM3, NBTRI, NCHN3, &
-                       NELEC, NORB, NORBT, NSM, NSYM, NTIBUF, NVIR, NVIRP, NVIRT, POTNUC, TIBUF
+                       NELEC, NORB, NORBT, NSM, NSYM, NVIR, NVIRP, NVIRT, POTNUC, TIBUF
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -23,7 +24,6 @@ implicit none
 real(kind=wp), intent(out) :: BUFS(NBITM3,NCHN3), FC(NBTRI)
 integer(kind=iwp), intent(out) :: INDS(NBITM3+2,NCHN3)
 real(kind=wp), intent(_OUT_) :: FIIJJ(*), FIJIJ(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, IDISK, IEXP, IIJ, IIN, IJ, IJT, IKT, INAV, IND, IORBI, IOUT, IPOF(65), IPOS, &
                      ISYM, IVEC(20), J, JDISK, JK, JORBI, KORBI, M1, M2, M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, NOP, &
                      NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, NOTT, NOVST, NSA, NSB, NSIJT, NSP, NSPQ, NSPQR, NSQ, NSR, NSS, &
@@ -119,7 +119,7 @@ do NSP=1,NSYM
         NOS = NORB(NSS)
         NORBP = NOP*NOQ*NOR*NOS
         if (NORBP == 0) cycle
-        call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
+        call dDAFILE(LUTRA,2,TIBUF,NTRABUF,IAD50)
         IOUT = 0
         do NV=1,NOR
           NXM = NOS
@@ -134,8 +134,8 @@ do NSP=1,NSYM
               if (NSP == NSQ) NUMAX = NT
               do NU=NUMIN,NUMAX
                 IOUT = IOUT+1
-                if (IOUT > NTIBUF) then
-                  call dDAFILE(LUTRA,2,TIBUF,NTIBUF,IAD50)
+                if (IOUT > NTRABUF) then
+                  call dDAFILE(LUTRA,2,TIBUF,NTRABUF,IAD50)
                   IOUT = 1
                 end if
                 M1 = ICH(NORB0(NSP)+NT)

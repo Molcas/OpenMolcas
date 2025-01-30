@@ -14,7 +14,12 @@
      &                        LUCOUT,      C)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Local_Arrays, only: CIBT, CBLTP, Deallocate_Local_Arrays
-      use strbas
+      use strbas, only: NSTSO
+      use lucia_data, only: ICISTR
+      use lucia_data, only: MXNSTR
+      use lucia_data, only: IREOST,NTOOB
+      use lucia_data, only: NELEC
+      use csm_data, only: NSMST
 *
 * Evaluate T**(NK_operator) times vector on file LUIN
 * to yield vector on file LUOUT
@@ -32,19 +37,16 @@
 *
 * Jeppe Olsen, Feb. 98
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "strinp.fh"
-#include "orbinp.fh"
-#include "cicisp.fh"
-#include "gasstr.fh"
-#include "crun.fh"
-#include "csm.fh"
+      IMPLICIT None
+      REAL*8 T
+      INTEGER KORB, ISM, ISPC, LUCIN, LUCOUT
 
 *. Scratch block, must hold a batch of blocks
-      DIMENSION C(*)
+      REAL*8 C(*)
+
       Integer, Allocatable:: LASTR(:), LBSTR(:)
       Integer, Allocatable:: LKAOC(:), LKBOC(:)
+      INTEGER NTEST,IATP,IBTP,NAEL,NBEL,KKORB,NBATCH,NBLOCK
 *
       NTEST = 00
       IF(NTEST.GE.100) THEN
@@ -82,4 +84,4 @@
 
       Call Deallocate_Local_Arrays()
 *
-      END
+      END SUBROUTINE T_TO_NK_VEC

@@ -49,6 +49,7 @@ subroutine DiagOrd(PHPCSF,PHPCNF,IPORDCSF,IPORDCNF,MXPDIM,condition,iter,DTOC,IP
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use splitcas_data, only: EnerSplit, iDimBlockA, iDimBlockACNF, PerSplit
+use spinfo, only: NCNFTP, NCSFTP, NTYP
 use Constants, only: One
 use Definitions, only: wp, iwp
 
@@ -66,7 +67,6 @@ integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, iTmp
                      KLCSFO, KLFREE, KLPHPS, KLSCRS, MXCSFC, NCSFL, NCSFMN, NIRREP, NJCNF, NPCNF, NPCSF
 real(kind=wp) :: Acc, RefSplit, XMAX, XMIN
 real(kind=wp), external :: FNDMNX
-#include "spinfo.fh"
 
 call DIAGORD_INTERNAL(SCR)
 

@@ -12,20 +12,17 @@
      &                       KTP,     KSM,     LTP,     LSM,  IXCHNG,
      &                      IKSM,    JLSM,   ICOUL)
       use GLBBAS, only: PINT2, KINH1
+      use lucia_data, only: NSMOB
+      use lucia_data, only: NOBPTS,NTOOBS
 *
 * Outer routine for accessing integral block
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 *
-#include "mxpdim.fh"
-#include "lucinp.fh"
-#include "orbinp.fh"
-#include "csm.fh"
-
-#include "crun.fh"
-#include "oper.fh"
-      DIMENSION XINT(*)
+      INTEGER  ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL
+      REAL*8 XINT(*)
 *
+      INTEGER NTEST,NI,NK,NIK,NJ,NL,NJL
       NTEST = 00
 *
       IF(NTEST.GE.1) THEN
@@ -85,4 +82,4 @@ c       WRITE(6,*) ' I_USE_SIMTRH in GETINT =', I_USE_SIMTRH
         CALL WRTMAT(XINT,NIK,NJL,NIK,NJL)
       END IF
 *
-      END
+      END SUBROUTINE GETINT

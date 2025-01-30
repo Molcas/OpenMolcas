@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine Init_Data
+      Subroutine Init_Data()
 ************************************************************************
 *                                                                      *
 *     Initialize variables in common blocks                            *
@@ -16,9 +16,16 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8  (a-h,o-z)
-#include "Files_mclr.fh"
-#include "Input.fh"
+      use MCLR_Data, only: FnOne,FnJob,FnTwo,FnMol,FnRlx,FnMck,FnTemp,
+     &                             FnHlf2,FNHlf3,       FnPT2,FNTrI1,
+     &                      FNTrI2,FNTRi3,FNTRI4,FNTRI5,FNCSF2SD,
+     &                      FnMOTRA,FnQDAT,LuOne,LuJob,LuTwo,LuMol,
+     &                      LuRlx,LuMck,LuTemp,       LUHlf2,LUHlf3,
+     &                             LuPt2,LUTrI1,LUTrI2,LUTRi3,LUTRI4,
+     &                      LUTRI5,LUCSF2SD,LuMOTRA,LuQDAT
+      use input_mclr, only: State_Sym,nUserPT,UserP,nsRot,UserT
+      Implicit None
+      Integer I
 *----------------------------------------------------------------------*
 *     Define files ( file names and unit numbers )                     *
 *----------------------------------------------------------------------*
@@ -63,7 +70,6 @@
       FnMOTRA='MOTRA   '
       LuMOTRA=30
 *
-      BLine=' '
       State_Sym=1
       nUserPT=0
       UserP=1.0d0
@@ -75,4 +81,4 @@
 *----------------------------------------------------------------------*
 *     Normal termination                                               *
 *----------------------------------------------------------------------*
-      End
+      End Subroutine Init_Data

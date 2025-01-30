@@ -22,7 +22,6 @@
 *     If the wfn are real-valued: f_II = 0 ; f_JI = - f_IJ -> lower triangular storage
 *
 
-#include "rassi.fh"
       Integer natom,nST
       Real*8 ChgNuc(natom),Prop(nState,nState,NProp),
      &          DerCpl(nST,3,natom),Ham(Nstate,Nstate)

@@ -15,17 +15,19 @@
 * Exchange integrals (RK)
 *
 * Ordering of integrals is in the internal order
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
 *
-#include "mxpdim.fh"
-#include "crun.fh"
 *.Input
-      DIMENSION IREOTS(*), IREOST(*)
+      INTEGER NTOOB
+      INTEGER IREOTS(*), IREOST(*)
 *.Output
-      DIMENSION RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
+      REAL*8 RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
 *.Scratch
-      DIMENSION SCR(2*NTOOB ** 2)
-        CALL GTJK_RASSCF(RJ,RK,NTOOB,IREOST)
+      REAL*8 SCR(2*NTOOB ** 2)
+
+      INTEGER NTEST
+
+      CALL GTJK_RASSCF(RJ,RK,NTOOB,IREOST)
 *
       NTEST = 0
       IF(NTEST.NE.0) THEN
@@ -34,13 +36,12 @@
         CALL WRTMAT(RK,NTOOB,NTOOB,NTOOB,NTOOB)
       END IF
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_real_array(SCR)
         CALL Unused_integer_array(IREOTS)
       END IF
-      END
+      END SUBROUTINE GTJK
 
 * Working on EXPHAM
 * some known problems :

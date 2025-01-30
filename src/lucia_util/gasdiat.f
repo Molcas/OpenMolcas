@@ -11,7 +11,19 @@
       SUBROUTINE GASDIAT(    DIAG,   LUDIA,   ECORE,  ICISTR,     I12,
      &                      IBLTP,  NBLOCK,  IBLKFO)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use strbas
+      use strbas, only: NSTSO
+      use lucia_data, only: IPRDIA
+      use lucia_data, only: PSSIGN
+      use lucia_data, only: MXNSTR,I_AM_OUT,N_ELIMINATED_BATCHES
+      use lucia_data, only: IDISK
+      use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
+      use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
+#ifdef _DEBUGPRINT_
+      use lucia_data, only: IBSPGPFTP
+#endif
+      use csm_data, only: NSMST
+
 *
 * CI diagonal in SD basis for state with symmetry ISM in internal
 * space ISPC
@@ -20,35 +32,30 @@
 *
 * Driven by table of TTS blocks, May97
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 * =====
 *.Input
 * =====
 *
-*./ORBINP/ : NACOB used
-*
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "cicisp.fh"
-#include "cstate.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "csm.fh"
-#include "cprnt.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "io_util.fh"
-*
-      DIMENSION IBLTP(*)
-      DIMENSION IBLKFO(8,NBLOCK)
+      INTEGER LUDIA,ICISTR,I12,NBLOCK
+      REAL*8 ECORE
+      INTEGER IBLTP(*)
+      INTEGER IBLKFO(8,NBLOCK)
+
 *
 * ======
 *.Output
 * ======
-      DIMENSION DIAG(*)
+      REAL*8 DIAG(*)
+
       Integer, Allocatable:: LASTR(:), LBSTR(:)
       Real*8, Allocatable:: LSCR2(:)
       Real*8, Allocatable:: LJ(:), LK(:), LXB(:), LH1D(:), LRJKA(:)
+      INTEGER, EXTERNAL:: IMNMX
+      INTEGER NTEST,IATP,IBTP,NAEL,NBEL,NOCTPA,MAXA
+#ifdef _DEBUGPRINT_
+      Integer NOCTPB,IOCTPA,IOCTPB
+#endif
 *
 *
       NTEST = 0
@@ -112,4 +119,4 @@
       Call mma_deallocate(LBSTR)
       Call mma_deallocate(LRJKA)
 *
-      END
+      END SUBROUTINE GASDIAT

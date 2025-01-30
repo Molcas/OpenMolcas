@@ -18,8 +18,8 @@ set (sources
      arsin.F90
      atmlst.F90
      bend.F90
-     bmtrx_cartesian.F90
      bmtrx.F90
+     bmtrx_cartesian.F90
      bmtrx_internal.F90
      bmtrx_user_defined.F90
      bond_list.F90
@@ -28,43 +28,43 @@ set (sources
      branching_plane_update.F90
      chklbl.F90
      ci_summary.F90
-     cllct2.F90
      cllct.F90
+     cllct2.F90
      cllctof.F90
      cofmss.F90
      conint.F90
      connect_fragments.F90
      cosys.F90
      cp_spcint.F90
-     davidson.F90
      d_bend.F90
-     dbmult.F90
      d_bond.F90
+     d_cart.F90
+     d_trsn.F90
+     davidson.F90
+     dbmult.F90
      dbprint.F90
      dbuu.F90
-     d_cart.F90
-     ddvdt.F90
      ddv.F90
      ddv_.F90
+     ddvdt.F90
      def_ctof.F90
-     defint2.F90
      defint.F90
+     defint2.F90
      diagmtrx.F90
      diagmtrx_t.F90
      dihedr.F90
      dissoc.F90
-     d_trsn.F90
-     elred2.F90
      elred.F90
+     elred2.F90
      eq_solver.F90
      fc_torsion.F90
      find_bonds.F90
      find_min.F90
      find_rfo_root.F90
-     fixequalsign2.F90
-     fixequalsign.F90
-     fixic.F90
      fix_udc.F90
+     fixequalsign.F90
+     fixequalsign2.F90
+     fixic.F90
      force.F90
      formnumhess.F90
      freq1.F90
@@ -90,8 +90,8 @@ set (sources
      iu.F90
      iur.F90
      lbend.F90
-     list2.F90
      list.F90
+     list2.F90
      listu.F90
      lnm.F90
      lnsrch.F90
@@ -114,34 +114,34 @@ set (sources
      nxtwrd.F90
      optrms_slapaf.F90
      outcoor.F90
+     outofp.F90
      outofp0.F90
      outofp1.F90
-     outofp.F90
      outofplane_list.F90
      prb.F90
-     preprocess_udc.F90
      prepro.F90
+     preprocess_udc.F90
      print_mode_components.F90
-     print_qevec2.F90
      print_qevec.F90
+     print_qevec2.F90
      printq.F90
      prlist.F90
      process_gradients.F90
      process_track.F90
-     projsym2.F90
      projsym.F90
-     rdctl_slapaf.F90
+     projsym2.F90
+     r_stab_a.F90
      rd_udic.F90
      rd_udic_rowh.F90
+     rdctl_slapaf.F90
      reacq.F90
      reacx.F90
      remove_tr.F90
      rf_coord.F90
-     rotder4.F90
      rotder.F90
+     rotder4.F90
      rowhessian.F90
      rs-rfo.F90
-     r_stab_a.F90
      select_hidden.F90
      shfanm.F90
      slapaf_info.F90

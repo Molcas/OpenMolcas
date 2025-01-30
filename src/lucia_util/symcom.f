@@ -11,6 +11,9 @@
 * Copyright (C) 1991, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE SYMCOM(ITASK,IOBJ,I1,I2,I12)
+      use lucia_data, only: PNTGRP
+      Implicit None
+      Integer ITASK,IOBJ,I1,I2,I12
 *
 * Symmetries I1,I2,I12 are related as
 * I1 I2 = 12
@@ -34,8 +37,6 @@
 * ================
 *. Driver routine
 * ================
-#include "mxpdim.fh"
-#include "lucinp.fh"
 *
       IF(PNTGRP.EQ.1) THEN
         CALL SYMCM1(ITASK,IOBJ,I1,I2,I12)
@@ -45,5 +46,4 @@
         CALL SYSABENDMSG('lucia_util/symcom','Internal error',' ')
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE SYMCOM

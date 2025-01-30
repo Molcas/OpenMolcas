@@ -12,11 +12,11 @@
 !               1990, IBM                                              *
 !***********************************************************************
 
-subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iAnga,iCmpa,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc, &
-                    jPrim,jPrInc,kPrim,kPrInc,lPrim,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,Mem1,Mem2,Mem3,Mem4,Mend)
+subroutine PSOAO0_h(nSO,nMemab,nMemcd,MemPrm,MemMax,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,ipMem3,ipMem4,Mem1,Mem2,Mem3,Mem4, &
+                    Mend,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
-!  Object: to partion the SO and AO block. It will go to some length   *
+!  Object: to partition the SO and AO block. It will go to some length *
 !          before it will start and break up the SO block. This will   *
 !          reduce the total flop count. However, as we are breaking up *
 !          the AO block this will affect the vectorization. Hence, at  *
@@ -39,26 +39,37 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6, RtoI
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, iAnga(4), iCmpa(4), iBas, jBas, kBas, lBas, iPrim, jPrim, &
-                                 kPrim, lPrim, ipMem1
-integer(kind=iwp), intent(out) :: iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, &
-                                  Mem2, Mem3, Mem4, Mend
+integer(kind=iwp), intent(in) :: nSO, nMemab, nMemcd, MemPrm, MemMax, ipMem1, nSD
+integer(kind=iwp), intent(out) :: iPrInc, jPrInc, kPrInc, lPrInc, ipMem2, ipMem3, ipMem4, Mem1, Mem2, Mem3, Mem4, Mend
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
 #include "Molcas.fh"
-integer(kind=iwp) :: iCmp, iFact, IncVec, jCmp, kCmp, kSOInt, la, lb, lc, lCmp, ld, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, &
-                     Mem0, MemAux, MemCon, MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2
+integer(kind=iwp) :: iBas, iBsInc, iCmp, iFact, IncVec, iPrim, jBas, jBsInc, jCmp, jPrim, kBas, kBsInc, kCmp, kPrim, kSOInt, la, &
+                     lb, lBas, lBsInc, lc, lCmp, ld, lPrim, lSize, mabcd, mabMax, mabMin, mcdMax, mcdMin, Mem0, MemAux, MemCon, &
+                     MemPr, MemSp1, MemSp2, MemTr1, MemTr2, MemTr3, nA2, nA3, nCache_, nVec1, nVec2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 
 #include "warnings.h"
 
-!iQ = 1
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
-iCmp = iCmpa(1)
-jCmp = iCmpa(2)
-kCmp = iCmpa(3)
-lCmp = iCmpa(4)
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
+
+iCmp = iSD4(2,1)
+jCmp = iSD4(2,2)
+kCmp = iSD4(2,3)
+lCmp = iSD4(2,4)
+
+iBas = iSD4(3,1)
+jBas = iSD4(3,2)
+kBas = iSD4(3,3)
+lBas = iSD4(3,4)
+
+iPrim = iSD4(5,1)
+jPrim = iSD4(5,2)
+kPrim = iSD4(5,3)
+lPrim = iSD4(5,4)
+
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
 mcdMin = nTri3_Elem1(max(lc,ld)-1)
@@ -214,6 +225,9 @@ ipMem3 = ipMem2+Mem2
 ipMem4 = ipMem2+Mem2-Mem4
 Mend = 0
 
-return
+iSD4(4,1) = iBsInc
+iSD4(4,2) = jBsInc
+iSD4(4,3) = kBsInc
+iSD4(4,4) = lBsInc
 
 end subroutine PSOAO0_h

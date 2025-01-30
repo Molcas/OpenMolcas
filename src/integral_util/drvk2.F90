@@ -31,10 +31,11 @@ subroutine Drvk2(DoFock,DoGrad)
 
 use Index_Functions, only: iTri, nTri_Elem1, nTri3_Elem1
 use setup, only: mSkal
-use iSD_data, only: iSD
+use iSD_data, only: iSD, nSD
 use k2_structure, only: Indk2, k2_Processed, k2Data
-use k2_arrays, only: BraKet, Create_BraKet, DeDe, Destroy_BraKet, DoGrad_, DoHess_, ipOffD, Sew_Scr
-use Basis_Info, only: DBSC, Shells
+use k2_arrays, only: BraKet, Create_BraKet, Destroy_BraKet, DoGrad_, ipOffD, Sew_Scr
+use Dens_Stuff, only: ipDij, mDCRij, mDij
+use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Gateway_global, only: force_part_c
 use Sizes_of_Seward, only: S
@@ -48,12 +49,10 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iAngV(4), iBas, iBasi, iBsInc, iCmp, iCmpV(4), iCnt, iCnttp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipDij, &
-                     ipMem1, ipMem2, iPrim, iPrimi, iPrimS, iPrInc, iS, iShell, iShll, iShllV(2), jAng, jBas, jBasj, jBsInc, jCmp, &
-                     jCnt, jCnttp, jPrim, jPrimj, jPrimS, jPrInc, jS, jShell, jShll, kBask, kBsInc, kPrimk, kPrInc, la_, lBasl, &
-                     lBsInc, lPriml, lPrInc, mabMax_, mabMin_, mdci, mdcj, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, &
-                     nBasj, nDCR, nDCRR, nDij, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
-real(kind=wp) :: Coor(3,4), TCPU1, TCPU2, TWALL1, TWALL2
+integer(kind=iwp) :: iAng, iBas, iCmp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipMem1, ipMem2, iPrim, iPrimi, iPrimSave(4), iS, &
+                     iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jPrim, jPrimj, jS, jShell, jShll, la_, mabMax_, mabMin_, &
+                     Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
+real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
 real(kind=wp), allocatable :: HRRMtrx(:,:), Knew(:), Lnew(:), Pnew(:), Qnew(:), Scr(:,:)
@@ -71,12 +70,7 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call CWTime(TCpu1,TWall1)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 DoGrad_ = DoGrad
-DoHess_ = .false.
 la_ = S%iAngMx
 mabMin_ = nTri3_Elem1(max(la_,la_)-1)
 mabMax_ = nTri3_Elem1(la_+la_)-1
@@ -130,67 +124,56 @@ ipMem1 = 1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Canonical double loop over shells.
+! Canonical double loop over shells. This includes both valence and
+! auxiliary basis functions
 
 do iS=1,mSkal
-  iShll = iSD(0,iS)
+  iSD4(:,1) = iSD(:,iS)
+  iSD4(:,3) = iSD(:,iS)
+
+  iShll = iSD4(0,1)
+
+  ! In case of auxiliary basis sets we want the iS index to point at the dummay shell.
   if (Shells(iShll)%Aux .and. (iS /= mSkal)) cycle
-  iAng = iSD(1,iS)
-  iCmp = iSD(2,iS)
-  iBas = iSD(3,iS)
-  iPrim = iSD(5,iS)
-  mdci = iSD(10,iS)
-  iShell = iSD(11,iS)
-  iCnttp = iSD(13,iS)
-  iCnt = iSD(14,iS)
-  Coor(1:3,1) = dbsc(iCnttp)%Coor(1:3,iCnt)
+
+  iBas = iSD4(3,1)
+  iPrim = iSD4(5,1)
+  iShell = iSD4(11,1)
 
   if (ReOrder) call OrdExpD2C(iPrim,Shells(iShll)%Exp,iBas,Shells(iShll)%pCff)
 
-  iAngV(1) = iAng
-  iShllV(1) = iShll
-  iCmpV(1) = iCmp
   do jS=1,iS
-    jShll = iSD(0,jS)
+
+    call Gen_iSD4(iS,jS,iS,jS,iSD,nSD,iSD4)
+
+    jShll = iSD4(0,2)
+
+    ! In case the first shell is the dummy auxiliary basis shell make sure that
+    ! the second shell, jS, also is a auxiliary basis shell.
     if (Shells(iShll)%Aux .and. (.not. Shells(jShll)%Aux)) cycle
+    ! Make sure that the second shell never is the dummy auxiliary basis shell.
     if (Shells(jShll)%Aux .and. (jS == mSkal)) cycle
-    jAng = iSD(1,jS)
-    jCmp = iSD(2,jS)
-    jBas = iSD(3,jS)
-    jPrim = iSD(5,jS)
-    mdcj = iSD(10,jS)
-    jShell = iSD(11,jS)
-    jCnttp = iSD(13,jS)
-    jCnt = iSD(14,jS)
-    Coor(1:3,2) = dbsc(jCnttp)%Coor(1:3,jCnt)
 
-    iAngV(2) = jAng
-    iShllV(2) = jShll
-    iCmpV(2) = jCmp
+    jBas = iSD4(3,2)
+    jPrim = iSD4(5,2)
+    jShell = iSD4(11,2)
 
-    ! Fix for the dummy basis set
-    if (Shells(iShll)%Aux) Coor(1:3,1) = Coor(1:3,2)
-
-    iAngV(3:4) = iAngV(1:2)
-    iCmpV(3:4) = iCmpV(1:2)
+    call Coor_Setup(iSD4,nSD,Coor)
 
     iPrimi = iPrim
     jPrimj = jPrim
+
     nBasi = iBas
     nBasj = jBas
 
-    iBasi = iPrimi
-    jBasj = jPrimj
-    kPrimk = 1
-    lPriml = 1
-    kBask = 1
-    lBasl = 1
+    ! Fake shell 3 and 4
+    iSD4(5,3:4) = 1
+    iSD4(3,3:4) = 1
 
-    nZeta = iPrimi*jPrimj
+    nZeta = iPrim*jPrim
 
-    call ConMax(BraKet%Eta(:),iPrimi,jPrimj,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
+    call ConMax(BraKet%Eta(:),iPrim,jPrim,Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj)
 
-    Coor(:,3:4) = Coor(:,1:2)
 #   ifdef _DEBUGPRINT_
     call RecPrt(' Sym. Dist. Centers',' ',Coor,3,4)
 #   endif
@@ -198,12 +181,12 @@ do iS=1,mSkal
     ijS = iTri(iShell,jShell)
     if (DoFock) then
       ipDij = ipOffD(1,ijS)
-      nDCR = ipOffD(2,ijS)
-      nDij = ipOffD(3,ijS)
+      mDCRij = ipOffD(2,ijS)
+      mDij = ipOffD(3,ijS)
     else
       ipDij = -1
-      nDCR = 1
-      nDij = 1
+      mDCRij = 1
+      mDij = 1
     end if
 
     nSO = 1
@@ -211,30 +194,38 @@ do iS=1,mSkal
     ! Compute memory request for the primitives, i.e. how much
     ! memory is needed up to the transfer equation.
 
-    call MemRys(iAngV,MemPrm)
+    call MemRys(iSD4(1,:),MemPrm)
 
-    ! Decide on the partioning of the shells based on
+    ! Decide on the partitioning of the shells based on
     ! on the available memory and the requested memory
 
     ! Now do a dirty trick to avoid splitting of the first
     ! contracted index. Move all over on the second index.
 
-    iPrims = iPrimi
-    jPrims = jPrimj
-    iBasi = 1
-    jBasj = nZeta
-    iPrimi = 1
-    jPrimj = nZeta
+    iPrimSave(:) = iSD4(5,:) ! Store away original setting
+
+    iSD4(3,1) = 1
+    iSD4(3,2) = nZeta
+
+    iSD4(5,1) = 1
+    iSD4(5,2) = nZeta
+
     force_part_save = force_part_c
     force_part_c = .false.
-    call PSOAO0(nSO,MemPrm,MemMax,iAngV,iCmpV,iBasi,iBsInc,jBasj,jBsInc,kBask,kBsInc,lBasl,lBsInc,iPrimi,iPrInc,jPrimj,jPrInc, &
-                kPrimk,kPrInc,lPriml,lPrInc,ipMem1,ipMem2,Mem1,Mem2,.false.)
+
+    call PSOAO0(nSO,MemPrm,MemMax,ipMem1,ipMem2,Mem1,Mem2,.false.,nSD,iSD4)
+
     force_part_c = force_part_save
-    ijInc = min(jBsInc,jPrInc)
-    iPrimi = iPrims
-    jPrimj = jPrims
+    ijInc = min(iSD4(4,2),iSD4(6,2))
+
+    ! restore correct index
+    iSD4(5,:) = iPrimSave(:)
+
+    iPrimi = iSD4(5,1)
+    jPrimj = iSD4(5,2)
+
 #   ifdef _DEBUGPRINT_
-    write(u6,*) ' ************** Memory partioning **************'
+    write(u6,*) ' ************** Memory partitioning **************'
     write(u6,*) ' ipMem1=',ipMem1
     write(u6,*) ' ipMem2=',ipMem2
     write(u6,*) ' Mem1=',Mem1
@@ -251,15 +242,21 @@ do iS=1,mSkal
     ! total of six types) for all possible unique pairs of
     ! centers generated for the symmetry unique centers A and B.
 
+    iAng = iSD4(1,1)
+    jAng = iSD4(1,2)
+    iCmp = iSD4(2,1)
+    jCmp = iSD4(2,2)
     nHm = iCmp*jCmp*(nTri3_Elem1(iAng+jAng)-nTri3_Elem1(max(iAng,jAng)-1))
     nHm = nHm*nIrrep
     ijCmp = nTri_Elem1(iAng)*nTri_Elem1(jAng)
     if (.not. DoGrad_) ijCmp = 0
+
     ik2 = Indk2(3,ijS)
-    call k2Loop(Coor,iAngV,iCmpV,iShllV,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj,BraKet%xA(:), &
-                BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:),BraKet%KappaAB(:), &
-                BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree,mdci,mdcj,DeDe(ipDij), &
-                nDij,nDCR,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx)
+
+    call k2Loop(Coor,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj,BraKet%xA(:),BraKet%xB(:), &
+                Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:),BraKet%KappaAB(:),BraKet%P(:,:), &
+                BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew, &
+                Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD,iSD4)
 
     Indk2(2,ijS) = nDCRR
     mk2 = mk2+nDCRR
@@ -299,10 +296,5 @@ write(u6,*)
 !                                                                      *
 
 k2_processed = .true.
-call CWTime(TCpu2,TWall2)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-return
 
 end subroutine Drvk2

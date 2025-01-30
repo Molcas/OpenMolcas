@@ -18,14 +18,13 @@
 subroutine CHEMPS2_DENSI_RASSCF(jRoot,D,DS,PS,PA,PT)
 
 use rasscf_global, only: NACPAR, NACPR2, NAC
+use general_data, only: NACTEL
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: jRoot
 real(kind=wp), intent(out) :: D(NACPAR), DS(NACPAR), PS(NACPR2), PA(NACPR2), PT(NAC,NAC,NAC,NAC)
-#include "Molcas.fh"
-#include "general.fh"
 integer(kind=iwp) :: I, IJ_pack, IJKL_pack, J, K, L, LLIM
 real(kind=wp) :: D1sum
 

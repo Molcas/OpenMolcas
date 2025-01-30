@@ -14,7 +14,12 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays
-      use strbas
+      use strbas, only: NSTSO
+      use lucia_data, only: MXSOOB,ISMOST,MXNTTS,XISPSM
+      use lucia_data, only: ENVIRO,ISIMSYM,LCSBLK
+      use lucia_data, only: IREFSM,PSSIGN,IDC
+      use lucia_data, only: NOCTYP
+      use csm_data, only: NSMST
 *
 * Construct information about batch and block structure of CI space
 * defined by ISPC,ISM,IATP,IBTP.
@@ -33,15 +38,12 @@
 *
 * Jeppe Olsen, Feb. 98
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "cicisp.fh"
-#include "stinf.fh"
-#include "cstate.fh"
-#include "csm.fh"
-#include "crun.fh"
+      IMPLICIT NONE
+      INTEGER ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)
+      INTEGER, External:: IFRMR
+      INTEGER NTEST,NOCTPA,NOCTPB,LBLOCK
 *
 * Some dummy initializations
       NTEST = 00
@@ -108,5 +110,4 @@ c      END IF
       CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
 *
       Call mma_deallocate(LCIOIO)
-      RETURN
-      END
+      END SUBROUTINE Z_BLKFO

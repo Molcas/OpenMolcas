@@ -11,10 +11,10 @@
 
 set (sources
      d1mach.F90
-     dqage.F90
      dqag.F90
-     dqagie.F90
+     dqage.F90
      dqagi.F90
+     dqagie.F90
      dqelg.F90
      dqk15.F90
      dqk15i.F90
@@ -31,6 +31,6 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      fx.F90
-    )
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

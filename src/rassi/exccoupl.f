@@ -20,7 +20,6 @@
       implicit none
 ! pick up MxRoot
 #include "rasdim.fh"
-#include "rassi.fh"
       integer(kind=iwp) :: nstat1, nstat2,
      &                     run, lWKX, dimn, a, b
       integer(kind=iwp), external :: isFreeUnit
@@ -43,7 +42,7 @@
       Real*8, External:: DDot_
       Real*8 Vnn_AB, AB_Nuc, EBNucA, EANucB, Discrim, EECoupl
 
-      call StatusLine('RASSI:','Starting Excitonic Coupling Section')
+      call StatusLine('RASSI: ','Starting Excitonic Coupling Section')
       LuT_ = 10
       labi = 'A'
       labj = 'B'

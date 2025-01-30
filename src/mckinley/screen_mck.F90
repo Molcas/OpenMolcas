@@ -24,7 +24,7 @@ subroutine Screen_mck(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lE
 !                                                                      *
 !   nZeta, nEta : unpartitioned length of primitives.                  *
 !                                                                      *
-!   mZeta, mEta : section length due to partioning. These are usually  *
+!   mZeta, mEta : section length due to partitioning. These are usually*
 !                 equal to nZeta and nEta.                             *
 !                                                                      *
 !   lZeta, lEta : section length after prescreening.                   *
@@ -79,6 +79,7 @@ if (PreScr) then
   do iZeta=1,mZeta
     jZeta = k2Data1%IndZ(iOffZ+iZeta)
     IndZet(jZeta) = -lZeta
+    !write(u6,*) k2Data1%ab(iOffZ+iZeta),cdMax
     abcd = k2Data1%ab(iOffZ+iZeta)*cdMax
     if (abs(abcd) >= CutInt) then
       lZeta = lZeta+1

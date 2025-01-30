@@ -16,31 +16,41 @@
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero, One, Two, Half, Quart
-      Implicit Real*8 (a-h,o-z)
-#include "detdim.fh"
-#include "Input.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "disp_mclr.fh"
-#include "cicisp_mclr.fh"
-#include "sa.fh"
-#include "dmrginfo_mclr.fh"
+      use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens,
+     &                     nA, nDens2, nDensC
+      use MCLR_Data, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,
+     &                     NACSTATES
+      use MCLR_Data, only: LuTEMP, LuJob, LuPT2
+      use input_mclr, only: nDisp,nSym,nRoots,ntAsh,PT2,iRoot,iTOC,
+     &                      nAsh,nBas,nCSF,nIsh,State_Sym
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
+      Implicit None
 #include "SysDef.fh"
-      Character*8 Method
+      Integer iKapDisp(nDisp),iCiDisp(nDisp)
+      Character(LEN=8) Method
       Logical CI, Is_Roots_Set
       Character(LEN=80) Note
 ! Added for DMRG calculation
       real*8,allocatable::tmpDe(:,:),tmpP(:),tmpDeM(:,:),tmpPM(:,:,:,:)
-      Integer iKapDisp(nDisp),iCiDisp(nDisp)
       Character(Len=16) mstate
-      Dimension rdum(1),idum(7,8)
+      Real*8 rdum(1)
+      Integer idum(7,8)
       Real*8, Allocatable:: D_K(:), Tmp(:), K1(:), K2(:), DAO(:),
      &                      D_CI(:), D1(:), P_CI(:), P1(:), Conn(:),
      &                      OCCU(:), CMON(:), DTmp(:), G1q(:), G1m(:),
      &                      Temp(:), tTmp(:), DM(:), DMs(:)
+      Integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO,
+     &        iLen, ipCIP, iDisk, iRC, nDim, ij, k, l, ij1, ij2, kl1,
+     &        kl2, i1, j1, ji2, kl, lk2, ijkl, jikl, ijlk, jilk, klRow,
+     &        iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA,
+     &        jAA, nBuf, LuDens, iOff, iBas, LuTmp
+      Integer, External:: IsFreeUnit
+      Integer, External:: ipGet, ipIN, ipClose
+      Real*8 Val
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -730,11 +740,10 @@ c      Call mma_deallocate(Temp)
 
        irc=ipclose(-1)
 *
-       Return
 #ifdef _WARNING_WORKAROUND_
        If (.False.) Call Unused_integer(irc)
 #endif
-       End
+       End SubRoutine Out_Pt2
 
 c --------------------------------------------------------------------------
 c
@@ -742,16 +751,18 @@ c
 *
       use Arrays, only: G1t
       use Constants, only: Zero, One, Two
-      Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: ipCM, ipMat, nA, nDens2
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb
+      Implicit None
+      Integer iSym
+      Real*8 rK(*),D(*),Dtmp(nDens2)
 
-#include "Input.fh"
-#include "Pointers.fh"
-#include "sa.fh"
-      Real*8 rK(*),D(*),Dtmp(*)
       Logical act
+      integer iS, iB, jB, jS
+      integer i, j, itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *
-      call dcopy_(ndens2,[Zero],0,Dtmp,1)
+      DTmp(:)=Zero
 *
 *     Note: even with NAC we set the inactive block,
 *     because this is the SA density, not the transition density
@@ -784,17 +795,18 @@ c
      &                 One,D(ipMat(iS,jS)),nOrb(iS))
          End If
       End Do
-      Return
-      End
+      End Subroutine OITD
+
       Subroutine NatOrb(Dens,CMOO,CMON,OCCN)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      Implicit Real*8(a-h,o-z)
-
-#include "Input.fh"
-#include "Pointers.fh"
+      use MCLR_Data, only: ipCM, ipMat, nDens2
+      use input_mclr, only: nSym,nBas,kPrint
+      Implicit None
       Real*8 Dens(*),CMOO(*),CMON(*),OCCN(*)
+
       Real*8, Allocatable:: EVal(:), EVec(:)
+      Integer iO, iS, ij, i, j, ii, iSt, iEnd
 
       Call mma_allocate(EVec,ndens2,Label='EVec')
       Call mma_allocate(EVal,ndens2,Label='EVal')
@@ -841,5 +853,4 @@ C
       Call mma_deallocate(EVec)
       Call mma_deallocate(Eval)
 
-      Return
-      End
+      End Subroutine NatOrb

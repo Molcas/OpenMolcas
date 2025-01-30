@@ -18,7 +18,7 @@ use Constants, only: Zero, One, Two, Three, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: IAD(3888)
+integer(kind=iwp), intent(out) :: IAD(3*36*36)
 real(kind=wp), intent(in) :: EPSI(*), EPSE(*)
 real(kind=wp), intent(out) :: E2BJAI, VECL2
 integer(kind=iwp) :: i, iA, IAD1, IAD13, IAD2, IADA, IADAB, IADB, iB, iI, iJ, ISPQRS, iSymA, iSymB, iSymI, iSymJ, j, LA, LAA, LAB, &
@@ -41,7 +41,7 @@ if (Debug) then
   write(u6,'(A,8I3)') '      nOrb:',(nOrb(i),i=1,nSym)
 end if
 
-call iDAFILE(LUINTM,2,IAD,3888,IAD13)
+call iDAFILE(LUINTM,2,IAD,3*36*36,IAD13)
 
 VECL2 = One
 E2BJAI = Zero

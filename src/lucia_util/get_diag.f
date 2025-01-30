@@ -12,11 +12,12 @@
 *
 * Copies CI diagonal from Lucia enviroment to RASSCF envirmonet
 *
-      implicit real*8 (a-h,o-z)
-#include "io_util.fh"
-      dimension diag(*)
-#include "clunit.fh"
-      dimension idummy(1)
+      use lucia_data, only: LUDIA
+      use lucia_data, only: IDISK
+      implicit none
+      real*8 diag(*)
+      Integer nDet
+      integer idummy(1),iDet,IMZERO,I_AM_PACKED
 *
       ndet = 0
       IDISK(LUDIA)=0
@@ -24,12 +25,10 @@
       CALL IDAFILE(LUDIA,2,IDUMMY,1,IDISK(LUDIA))
       IDET=IDUMMY(1)
       CALL IDAFILE(LUDIA,2,IDUMMY,1,IDISK(LUDIA))
-      IF (idet.eq.-1) GOTO 200
+      IF (idet.eq.-1) Return
       CALL frmdsc(diag(ndet+1), idet, -1, ludia,
      &     imzero, i_am_packed)
       ndet = ndet + idet
       GOTO 100
 *
- 200  CONTINUE
-      RETURN
-      END
+      END SUBROUTINE get_diag

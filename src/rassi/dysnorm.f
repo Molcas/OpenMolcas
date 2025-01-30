@@ -19,6 +19,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One, Zero
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NCMO,NBASF,NOSH,NOSHT
 
       Implicit None
 
@@ -35,7 +36,6 @@
       integer :: istcmo(8), istao(8), istacc(8)
       Integer no1,nb1,nscr,isy1
       Real*8, EXTERNAL :: DDOT_
-#include "rassi.fh"
 
 C============================================================
       nbast=0

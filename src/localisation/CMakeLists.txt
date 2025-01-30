@@ -11,8 +11,8 @@
 
 set (sources
      main.F90
-     bitmap_localisation_atom.F90
      bitmap_localisation.F90
+     bitmap_localisation_atom.F90
      chk_input.F90
      cre_locwfn.F90
      domain_localisation.F90
@@ -20,13 +20,13 @@ set (sources
      gengnu_localisation.F90
      get_cnos.F90
      get_etwo_act.F90
-     getinfo_localisation_0.F90
      get_nat_lorb.F90
+     getinfo_localisation_0.F90
+     loc_nat_orb.F90
      localisation.F90
      localisation_globals.F90
      localise_iterative.F90
      localise_noniterative.F90
-     loc_nat_orb.F90
      pao_analysis.F90
      primo_localisation.F90
      rdvec_localisation.F90

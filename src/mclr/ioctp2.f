@@ -8,21 +8,23 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION IOCTP2_MCLR(STRING,NEL,ITYP)
+      INTEGER FUNCTION IOCTP2_MCLR(STRING,NEL,ITYP)
       use Str_Info
+      use MCLR_Data, only: NORB1,NORB2
 *
 * Obtain occupation type for STRING .
 * For forbidden strings a zero is returned
 *
 * New version allowing general set of strings
 *
-#include "detdim.fh"
+      IMPLICIT None
 *. Specific input
       INTEGER  STRING(*)
-      Logical Reduce_Prt
-      External Reduce_Prt
-*. General input
-#include "orbinp_mclr.fh"
+      Integer NEL,ITYP
+
+      Logical, External :: Reduce_Prt
+      Integer iPL,iEL1,iEL3,iEl,iTyp2
+      Integer, External:: iPrintLevel
 *
       IF(ITYP.LE.0) THEN
         Write (6,*) 'IOCTP2: ITYP.LE.0'
@@ -57,5 +59,4 @@
       END IF
       IOCTP2_MCLR = ITYP2
 *
-      RETURN
-      END
+      END FUNCTION IOCTP2_MCLR

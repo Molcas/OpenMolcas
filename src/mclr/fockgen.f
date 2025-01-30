@@ -26,20 +26,26 @@
       use Data_structures, Only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, Two
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-#include "sa.fh"
-#include "dmrginfo_mclr.fh"
+      use MCLR_Data, only: nDens2, nNA, ipCM, ipMat, nA
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,NewCho,LuAChoVec,nOrb
+      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
+      Implicit None
+      Real*8 d_0
+      Integer idSym
       Real*8 Fock(nDens2),FockOut(*), rDens2(*),rDens1(nna,nna)
-      Real*8, Allocatable:: MO(:), Scr(:), G2x(:), Scr1(:,:)
 
+      Real*8, Allocatable:: MO(:), Scr(:), G2x(:), Scr1(:,:)
       Type (DSBA_type) :: CVa
+      Integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA,
+     &        nG2, iSym, nAG2, jSym, kSym, ipGx, ijS, lS, iAsh, jAsh,
+     &        kAsh, lAsh, iij, iOff, iOff2, iB, iOff3, ip1, ip2, ikl
+      Real*8 rd
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function
 *
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -258,7 +264,7 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *
 *
       Call DScal_(nDens2,Two,FockOut,1)
-      If (idSym.eq.1) Call AddGrad2(FockOut,idSym,d_0)
+      If (idSym.eq.1) Call AddGrad2(FockOut,d_0)
 
       if(doDMRG)then ! yma
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
@@ -266,5 +272,4 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Return
-      End
+      End SubRoutine FockGen

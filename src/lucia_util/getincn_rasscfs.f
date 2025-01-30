@@ -32,16 +32,18 @@
 * If type equals zero, all integrals of given type are fetched
 * ( added aug8, 98)
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: IBSO,NOBPTS,NTOOBS
+      IMPLICIT None
+      INTEGER ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,NSMOB,
+     &        ICOUL
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
 *. Integral list
       Real * 8 Intlst(*)
 *.Output
-      DIMENSION XINT(*)
+      REAL*8 XINT(*)
 *. Local scratch
-C-jwk-cleanup      DIMENSION IJARR(MXPORB)
+      INTEGER IORB,JORB,KORB,LORB,IOFF,IITP,JOFF,JJTP,KOFF,KKTP,LOFF,
+     &        LLTP,IINT,L,JMIN,J,K,IMIN,I,IJ,KL,IJKL,IL,KJ,ILKJ
 *
       IF(ITP.GE.1) THEN
         iOrb=NOBPTS(ITP,ISM)
@@ -160,7 +162,6 @@ C-jwk-cleanup      DIMENSION IJARR(MXPORB)
         End Do
       End If
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(NSMOB)
-      END
+      END SUBROUTINE GETINCN_RASSCFS

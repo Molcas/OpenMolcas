@@ -15,9 +15,13 @@ C
 C NBLOCK .LT. 0 INDICATES USE OF FASTIO
 C
 C If nblock .eq. 0 NBLOCK = NDIM
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
-      DIMENSION IARRAY(*),IDUMMY(1)
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      INTEGER IARRAY(*)
+      INTEGER NDIM,MBLOCK,IFILE
+
+      INTEGER IDUMMY(1)
+      INTEGER NBLOCK,IREST,IBASE
 C
       NBLOCK = MBLOCK
 
@@ -36,9 +40,4 @@ C       DO NOT USE FASTIO
           END IF
           CALL IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
         IF( IREST .GT. 0 ) GOTO 100
-cvv      ELSE
-C       USE FAST IO
-cvv        CALL SQFILE(IFILE,2,IARRAY,NDIM)
-cvv      END IF
-      RETURN
-      END
+      END SUBROUTINE IFRMDS

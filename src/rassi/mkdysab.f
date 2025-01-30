@@ -29,6 +29,7 @@
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NASHT,NASH,NISH,NOSH
 
       IMPLICIT None
       REAL*8 DYSCOF(*),DYSAB(*)
@@ -38,7 +39,6 @@
       INTEGER IORB,ISORB, I, IOFFTD, ISY, II, IPOS, ICOFF, ISY1, NO1,
      &        NA1, NI1
       real*8, Allocatable:: DYSCOF2(:)
-#include "rassi.fh"
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
 !Alpha and beta contributions are added up here
       Call mma_allocate(DYSCOF2,NASHT,Label='DYSCOF2')

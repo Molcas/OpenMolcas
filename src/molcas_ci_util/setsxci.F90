@@ -13,6 +13,7 @@ subroutine SETSXCI()
 
 use sxci, only: IDXCI, IDXSX
 use gas_data, only: NGAS, NGSSH
+use general_data, only: NSYM
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -20,7 +21,6 @@ use Definitions, only: u6
 
 implicit none
 #include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: I, IGAS, IGSSH, IOFF_GSSH(mxgas), ISTOT, ISYM, NGSSHT
 
 !---------------------------------------------------------

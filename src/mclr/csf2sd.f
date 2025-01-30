@@ -18,14 +18,14 @@
       Use Str_Info, only: DTOC, CNSM
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
-      implicit Real*8(a-h,o-z)
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "Input.fh"
-#include "spinfo_mclr.fh"
-*
+      use MCLR_Data, only: NDTASM
+      use input_mclr, only: nConf,State_Sym,nCSF
+      implicit None
       Real*8 CSF(*),SD(*)
+      Integer is
+*
       Real*8, Allocatable:: CTM(:)
+      Integer iiCOPY,iprdia,iSym,i
 *
 
       iiCOPY=0
@@ -47,5 +47,4 @@
          Call mma_deallocate(CTM)
       End If
 *
-      Return
-      End
+      End Subroutine CSF2SD

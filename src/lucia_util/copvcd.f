@@ -20,9 +20,13 @@ C LBLK DEFINES STRUCTURE OF FILE
 *
 *
 C Type of file LUOUT is inherited from LUIN
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
-      DIMENSION SEGMNT(*),LBL(1),IDUMMY(1)
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      INTEGER LUIN,LUOUT,IREW,LBLK
+      REAL*8 SEGMNT(*)
+
+      INTEGER LBL(1),IDUMMY(1)
+      INTEGER KBLK,NO_ZEROING,IAMPACK,IMZERO
 C
       IF( IREW .NE. 0 ) THEN
         IDISK(LUIN)=0
@@ -72,5 +76,4 @@ C?          WRITE(6,*) ' COPVCD, IAMPACK,FILE = ', IAMPACK,LUIN
         END IF
       IF( LBL(1) .GE. 0 .AND. LBLK .LE. 0 ) GOTO 1000
 C
-      RETURN
-      END
+      END SUBROUTINE COPVCD

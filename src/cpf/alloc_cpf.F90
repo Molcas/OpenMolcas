@@ -15,7 +15,8 @@
 subroutine ALLOC_CPF()
 
 use cpf_global, only: IFIRST, ILIM, IPASS, IRC, IROW, JBUF, JMAX, KBUF, KBUFF1, LBUF, LIC, LN, MADR, MAX11, MX1, MX2, NNS, NORBT, &
-                      NOV, NOV1, NSYM, NTIBUF, NTMAX, NVIR, NVIRT, NVMAX, NVT5
+                      NOV, NOV1, NSYM, NTMAX, NVIR, NVIRT, NVMAX, NVT5
+use TraToc, only: NTRABUF
 use guga_util_global, only: IAD10
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6, RtoI
@@ -40,7 +41,7 @@ end do
 ! DYNAMICAL ALLOCATION FOR SORTING
 NVT = IROW(NVIRT+1)
 ! BUFFER FOR INTEGRALS
-LPERMX = NTIBUF
+LPERMX = NTRABUF
 LICX = LIC-LPERMX
 ! DYNAMICAL ALLOCATION FOR SORTING AIBJ
 NOB2 = IROW(NORBT+1)

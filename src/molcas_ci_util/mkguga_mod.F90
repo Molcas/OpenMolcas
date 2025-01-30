@@ -31,7 +31,6 @@ subroutine MKGUGA(SGS,CIS)
 
   use gugx, only: CIStruct, SGStruct
 
-  implicit none
   type(SGStruct), target, intent(inout) :: SGS
   type(CIStruct), intent(inout) :: CIS
   integer(kind=iwp), parameter :: LTAB = 1, NTAB = 2, ATAB = 3, BTAB = 4, CTAB = 5
@@ -114,9 +113,8 @@ contains
 
   subroutine MKISM_MCLR()
 
-#   include "Input.fh"
-#   include "detdim.fh"
-#   include "spinfo_mclr.fh"
+    use input_mclr, only: NRS1, NRS2, NRS3, NSYM, NTASH
+
     integer(kind=iwp) :: iBas, iOrb, iSym
 
     SGS%NLEV = ntASh
@@ -148,8 +146,8 @@ contains
   subroutine MKISM_RASSI()
 
     use gugx, only: LEVEL
+    use rassi_data, only: NASH, NASHT
 
-#   include "rassi.fh"
     integer(kind=iwp) :: ITABS, ISYM, IT, ILEV, nSym
 
     nSym = SGS%nSym
@@ -206,11 +204,9 @@ contains
     use gugx, only: SGS
     use gas_data, only: NGAS, NGSSH
     use rasscf_global, only: NSM
+    use general_data, only: NSYM
 
     ! to get some dimensions
-    ! NSYM from general.fh
-#   include "rasdim.fh"
-#   include "general.fh"
     integer(kind=iwp) :: IGAS, ISYM, NLEV, NSTA
 
     NLEV = 0

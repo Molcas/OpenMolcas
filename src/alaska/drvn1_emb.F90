@@ -25,7 +25,7 @@ subroutine DrvN1_EMB(Grad,Temp,nGrad)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
-use Disp, only: ChDisp, Dirct, IndDsp
+use Disp, only: Dirct, IndDsp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -39,9 +39,9 @@ integer(kind=iwp) :: iCar, iCnt, iCnttp, iCnttp_B, iComp, iDCRR(0:7), igu, iIrre
                      jCnttp, LmbdR, mdc, nCnttp_B, ndc, nDCRR, nDisp
 real(kind=wp) :: A(3), B(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, df_dr, dfab, dr_da, fab, Fact, Gam, PreFct, r12, RB(3), &
                  ZA, ZAZB, ZB
-logical(kind=iwp) :: EQ, TstFnc
 character(len=80) :: Lab
 real(kind=wp), allocatable :: Charge_B(:)
+logical(kind=iwp), external :: EQ, TstFnc
 
 if (nIrrep > 1) then
   call WarningMessage(2,'Error in DrvN1_Emb')
@@ -201,7 +201,7 @@ do iCnttp=1,nCnttp
 end do
 if (iPrint >= 15) then
   Lab = ' OFE Nuclear Repulsion Contribution'
-  call PrGrad(Lab,Temp,nGrad,ChDisp)
+  call PrGrad(Lab,Temp,nGrad)
 end if
 
 call mma_deallocate(Charge_B)

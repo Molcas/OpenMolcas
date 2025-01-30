@@ -10,24 +10,24 @@
 ************************************************************************
       SUBROUTINE PT2INI()
       USE INPUTDATA, ONLY: INPUT, READIN_CASPT2
+      use PT2WFN, ONLY: PT2WFN_INIT,PT2WFN_DATA
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
       USE PT2WFN
 #ifdef _DMRG_
       use qcmaquis_interface_cfg, only: qcmaquis_param
 #endif
-      use caspt2_global, only: do_grad
+      use caspt2_global, only: do_grad,iStpGrd
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
      &                       NDREF, NPREF, NCMO
       use stdalloc, only: mma_allocate
-      use EQSOLV
-      use ChoCASPT2
+      use ChoCASPT2, only: InfVec_N2_PT2, MaxVec_PT2, NASPlit,NISplit,
+     &                     NumCho_PT2
       use spool, only: SpoolInp, Close_LuSpool
       IMPLICIT NONE
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
 #include "compiler_features.h"
 
       INTEGER LuSpool
@@ -157,16 +157,15 @@ C Initialize sizes, offsets etc used in equation solver.
       CALL mma_allocate(TAT,NTAT,Label='TAT')
 
 ! initialize quantities for gradient calculation
-      If (do_grad) Then
-        CALL GrdIni()
-      End If
+      iStpGrd = 1 !! Just in case
+      If (do_grad) Call GrdIni()
 
       END SUBROUTINE PT2INI
 
       SUBROUTINE PT2CLS()
-      USE SUPERINDEX
       USE INPUTDATA, ONLY: CLEANUP_INPUT
-      USE PT2WFN
+      USE SUPERINDEX, ONLY: SUPFREE
+      use PT2WFN, ONLY: PT2WFN_CLOSE
       use gugx, only: SGS, CIS, EXS
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_deinit
@@ -180,8 +179,7 @@ C Initialize sizes, offsets etc used in equation solver.
 #if 0
       use OFembed, only: FMaux
 #endif
-      use EQSOLV
-      use ChoCASPT2
+      use ChoCASPT2, only: NASplit,NISplit,NumCho_PT2
       IMPLICIT NONE
 #include "caspt2.fh"
 

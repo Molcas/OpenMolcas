@@ -191,7 +191,6 @@ select case (Functional_type)
 
     nP2_ontop = 4
     lGGA = .true.
-!    write(6,*) 'nD=',nD
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -226,7 +225,6 @@ select case (Functional_type)
     nP2_ontop = 4
     lGGA = .true.
     lmGGA1 = .true.
-!    write(6,*) 'nD=',nD
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -262,7 +260,6 @@ select case (Functional_type)
     lGGA = .true.
     lmGGA1 = .true.
     lmGGA2 = .true.
-!    write(6,*) 'nD GGA_type2 =',nD
     !                                                                  *
     !*******************************************************************
     !                                                                  *

@@ -63,10 +63,11 @@
       use OFEmbed, only: Rep_EN
       use rctfld_module, only:  lRF
       use stdalloc, only: mma_allocate, mma_deallocate
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
 
       implicit none
 #include "rasdim.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='SGFCIN  '
 #include "timers.fh"
 #include "SysDef.fh"

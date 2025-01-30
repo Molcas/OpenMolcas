@@ -16,12 +16,11 @@ subroutine molden_cvb()
 
 use rctfld_module,only: lRF
 use rasscf_global, only: iADR15
+use general_data, only: JOBIPH
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-#include "rasdim.fh"
-#include "general.fh"
 
 integer(kind=iwp) :: iDisk
 real(kind=wp) :: Dummy(1)
@@ -33,7 +32,5 @@ if (.not. lRF) then
   Dummy(1) = Zero
   call interf(0,Dummy,0,1)
 end if
-
-return
 
 end subroutine molden_cvb

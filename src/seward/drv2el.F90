@@ -31,27 +31,28 @@ use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt
 use Int_Options, only: Disc, Disc_Mx, DoFock, DoIntegrals, ExFac, FckNoClmb, FckNoExch, Init_Int_Options, PreSch, Thize, &
                        Quad_ijkl, W2Disc
+use Integral_interfaces, only: Int_PostProcess, int_wrout
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Three, Eight
+use Constants, only: Zero, One, Three, Eight, Half
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: ThrAO
 integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, nij, nSkal
-real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TCpu1, TCpu2, TMax_all, TskHi, TskLw, TWall1, &
-                 Twall2
+real(kind=wp) :: A_int, P_Eff, PP_Count, PP_Eff, PP_Eff_delta, S_Eff, ST_Eff, T_Eff, TMax_all, TskHi, TskLw
 logical(kind=iwp) :: DoGrad, Indexation, Triangular
 character(len=72) :: SLine
 real(kind=wp), allocatable :: TInt(:), TMax(:,:)
 integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
+procedure(int_wrout) :: Integral_WrOut2
 logical(kind=iwp), external :: Rsv_GTList
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 SLine = 'Computing 2-electron integrals'
-call StatusLine(' Seward:',SLine)
+call StatusLine('Seward: ',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -80,6 +81,7 @@ call Setup_iSD()
 
 Indexation = .false.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
+!write(u6,*) 'Drv2el: After Setup_Ints'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -118,6 +120,7 @@ P_Eff = real(nij,kind=wp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+Int_PostProcess => Integral_WrOut2
 Triangular = .true.
 call Init_TList(Triangular,P_Eff)
 call Init_PPList()
@@ -127,10 +130,10 @@ iOpt = 0
 PP_Eff = P_Eff**2
 PP_Eff_delta = 0.1_wp*PP_Eff
 PP_Count = Zero
+!write(u6,*) 'Drv2el: Start the big loop'
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call CWTime(TCpu1,TWall1)
 
 ! big loop over individual tasks distributed over individual nodes
 
@@ -143,41 +146,13 @@ do
 
   ! Now do a quadruple loop over shells
 
-  ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
-  iS = Pair_Index(1,ijS)
-  jS = Pair_Index(2,ijS)
-  klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
-  kS = Pair_Index(1,klS)
-  lS = Pair_Index(2,klS)
+  ijS = int((One+sqrt(Eight*TskLw-Three))*Half)
+  klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)*Half)
   Quad_ijkl = TskLw
 
-  do while (Quad_ijkl-TskHi <= 1.0e-10_wp)
-
-    ! Logic to avoid computing integrals in a mixed muonic and
-    ! electronic basis.
-
-    iCnttp = iSD(13,iS)
-    jCnttp = iSD(13,jS)
-    if (dbsc(iCnttp)%fMass == dbsc(jCnttp)%fMass) then
-      kCnttp = iSD(13,kS)
-      lCnttp = iSD(13,lS)
-      if (dbsc(kCnttp)%fMass == dbsc(lCnttp)%fMass) then
-
-        S_Eff = real(ijS,kind=wp)
-        T_Eff = real(klS,kind=wp)
-        ST_Eff = S_Eff*(S_Eff-One)/Two+T_Eff
-        if (ST_Eff >= PP_Count) then
-          write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff*100.0_wp,'% done so far.'
-          call StatusLine(' Seward:',SLine)
-          PP_Count = PP_Count+PP_Eff_delta
-        end if
-
-        A_int = TMax(iS,jS)*TMax(kS,lS)
-        if (A_Int >= CutInt) then
-          call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
-        end if
-      end if
-    end if
+  Quad_ijkl = Quad_ijkl-One
+  klS = klS-1
+  do
     Quad_ijkl = Quad_ijkl+One
     if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
     klS = klS+1
@@ -189,12 +164,35 @@ do
     jS = Pair_Index(2,ijS)
     kS = Pair_Index(1,klS)
     lS = Pair_Index(2,klS)
+
+    ! Logic to avoid computing integrals in a mixed muonic and electronic basis.
+
+    iCnttp = iSD(13,iS)
+    jCnttp = iSD(13,jS)
+    if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) cycle
+    kCnttp = iSD(13,kS)
+    lCnttp = iSD(13,lS)
+    if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) cycle
+
+    S_Eff = real(ijS,kind=wp)
+    T_Eff = real(klS,kind=wp)
+    ST_Eff = S_Eff*(S_Eff-One)*Half+T_Eff
+    if (ST_Eff >= PP_Count) then
+      write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff*100.0_wp,'% done so far.'
+      call StatusLine('Seward: ',SLine)
+      PP_Count = PP_Count+PP_Eff_delta
+    end if
+
+    A_int = TMax(iS,jS)*TMax(kS,lS)
+    if (A_Int < CutInt) cycle
+
+    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
+
   end do
 
 end do
 call mma_deallocate(TInt)
 ! End of big task loop
-call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -216,7 +214,6 @@ call mma_deallocate(TMax)
 call Term_Ints()
 call Free_iSD()
 call Init_Int_Options()
-
-return
+nullify(Int_PostProcess)
 
 end subroutine Drv2El

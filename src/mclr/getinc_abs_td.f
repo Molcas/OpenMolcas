@@ -19,14 +19,26 @@
 *
 * Version for integrals stored in INTLST
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use MCLR_Data, only: NACOB,IBTSOB,NTSOB
+      IMPLICIT None
 *
-#include "detdim.fh"
-#include "orbinp_mclr.fh"
-      Real * 8 Intlst(*)
-      Dimension IJKLof(NsmOB,NsmOb,NsmOB)
-      DIMENSION XINT(*)
+      REAL*8 XINT(*)
+      INTEGER ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM
+      Real*8 Intlst(*)
+      INTEGER NSMOB
+      INTEGER IJKLof(NsmOB,NsmOb,NsmOB)
+      INTEGER ICTL
+
+!     Local variables
+      Integer iOrb,jOrb,kOrb,lOrb
+      Integer iOff,jOff,kOff,lOff
+      Integer iBas,jBas,kBas,lBas
+      Integer iInt
+      Integer NTASH,JMIN,IMIN,IJ,KL,IJKL,IL,JK,ILJK
+
+      integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+
       iOrb=NTSOB(ITP,ISM)
       jOrb=NTSOB(JTP,JSM)
       kOrb=NTSOB(KTP,KSM)
@@ -87,7 +99,6 @@
        Call Abend()
       End If
 *
-      Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(IJKLOF)
-      End
+      End SUBROUTINE GETINC_ABS_td

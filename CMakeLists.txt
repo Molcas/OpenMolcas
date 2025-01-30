@@ -1834,6 +1834,7 @@ if (EFPLIB)
   message ("Configuring EFP support:")
   set (proj ${extprojsdir}/efp)
   set (projname efplib)
+  set (projdir ${PROJECT_BINARY_DIR}/External/${projname})
   if (EXISTS ${proj}/CMakeLists.txt)
     if (ADDRMODE EQUAL 64)
       set (LIBEFP_FORTRAN_INT64 1)
@@ -1845,7 +1846,7 @@ if (EFPLIB)
     # Enabling source changes to keep ExternalProject happy
     set (CMAKE_DISABLE_SOURCE_CHANGES OFF)
     ExternalProject_Add (${projname}
-                         PREFIX ${PROJECT_BINARY_DIR}/External
+                         PREFIX ${projdir}
                          SOURCE_DIR ${proj}
                          CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${PROJECT_BINARY_DIR}
                                     -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -1878,7 +1879,15 @@ if (EFPLIB)
     message ("-- EFP_LIBRARIES: ${EFP_LIBRARIES}")
 
     list (APPEND EXTERNAL_LIBRARIES ${EFP_LIBRARIES})
-    add_compile_definitions (_EFP_)
+
+    foreach (prog
+      gateway_util
+      integral_util
+      scf
+      seward
+    )
+      list (APPEND ${prog}_defs "_EFP_")
+    endforeach ()
   else ()
     message ("-- EFP interface ignored (source not available, run \"${GIT} submodule update --init ${proj}\")")
   endif ()

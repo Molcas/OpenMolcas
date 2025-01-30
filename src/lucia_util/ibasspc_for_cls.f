@@ -8,16 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION IBASSPC_FOR_CLS(ICLS)
+      INTEGER FUNCTION IBASSPC_FOR_CLS(ICLS)
 *
 *. Obtain base space for occupation class ICLS
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: NGAS,NCMBSPC,ICMBSPC,IGSOCCX,LCMBSPC,
+     &                      NCMBSPC
+      IMPLICIT NONE
 *. General input
-#include "mxpdim.fh"
-#include "cgas.fh"
 *. Specific input
       INTEGER ICLS(NGAS)
+
+      INTEGER NEL,IBASE,ISPC,JJSPC,JSPC,I_AM_OKAY,IGAS,NTEST
 *
 * Some dummy initializations
 *
@@ -61,58 +63,4 @@
         WRITE(6,*) IBASE
       END IF
 *
-      RETURN
-      END
-CTOBE       SUBROUTINE CLS_TO_SPSP
-CTOBE      &(ICLS,NCLS,I_CLS_TO_SPSP,N_CLS_TO_SPSP,IB_CLS_TO_SPSP,
-CTOBE      & ISPSPCLS,NOCTPA,NOCTPB)
-CTOBE *
-CTOBE * Combination of supergroups belonging to given class
-CTOBE *
-CTOBE * Jeppe Olsen, Nov 99
-CTOBE *
-CTOBE * Input :
-CTOBE *
-CTOBE * ISPSPCLS : Class for given pair of supergroups
-CTOBE *
-CTOBE *. Output
-CTOBE *
-CTOBE * N_CLS_TO_SPSP  : Number of supergroup combinations for class
-CTOBE * IB_CLS_TO_SPSP : Base  for supergroup combinations of given class
-CTOBE * I_CLS_TO_SPSP  : supergroup combinations of given class
-CTOBE *
-CTOBE       Implicit REAL*8 (A-H,O-Z)
-CTOBE       INCLUDE 'mxpdim.fh'
-CTOBE       INCLUDE 'gasstr.fh'
-CTOBE       INCLUDE 'cgas.fh'
-CTOBE *. Input
-CTOBE       INTEGER ISPSPCLS(NOCTPA,NOCTPB)
-CTOBE *. Output
-CTOBE       INTEGER I_CLS_TO_SPSP(2,*),N_CLS_TO_SPSP(NCLS)
-CTOBE       INTEGER IB_CLS_TO_SPSP(NCLS)
-CTOBE *
-CTOBE       IZERO = 0
-CTOBE       CALL ISETVC(N_CLS_TO_SPSP,IZERO,NCLS)
-*
-CTOBE       DO IOCTPA = 1, NOCTPA
-CTOBE        DO IOCTPB = 1, NOCTPB
-CTOBE          ICLS = ISPSPCLS(IOCTPA,IOCTPB)
-CTOBE          N_CLS_TO_SPSP(ICLS) = N_CLS_TO_SPSP(ICLS) + 1
-CTOBE        END DO
-CTOBE       END DO
-CTOBE *
-CTOBE       IB_CLS_TO_SPSP(1) = 1
-CTOBE       DO ICLS = 2, NCLS
-CTOBE         IB_CLS_TO_SPSP(ICLS) =
-CTOBE      &  IB_CLS_TO_SPSP(ICLS-1) + N_CLS_TO_SPSP(ICLS-1)
-CTOBE       END DO
-CTOBE *
-CTOBE       CALL ISETVC(N_CLS_TO_SPSP,IZERO,NCLS)
-CTOBE       DO IOCTPA = 1, NOCTPA
-CTOBE        DO IOCTPB = 1, NOCTPB
-CTOBE          ICLS = ISPSPCLS(IOCTPA,IOCTPB)
-CTOBE          I_CLS_TO_SPSP(1,
-CTOBE          N_CLS_TO_SPSP(ICLS) = N_CLS_TO_SPSP(ICLS) + 1
-CTOBE        END DO
-CTOBE       END DO
-CTOBE
+      END FUNCTION IBASSPC_FOR_CLS

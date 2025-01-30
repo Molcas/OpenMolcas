@@ -44,6 +44,7 @@ subroutine ipcsfsplit(PHPCSF,IPCSF,IPCNF,MXPDIM,MXSPLI,DTOC,IPRODT,ICONF,IREFSM,
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use splitcas_data, only: iDimBlockA, iDimBlockACNF
+use spinfo, only: NCNFTP, NCSFTP, NTYP
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
@@ -60,7 +61,6 @@ integer(kind=iwp) :: ICSFMN, IICNF, IICSF, IILACT, IILB, ILRI, ILTYP, IMIN, KLCO
                      NJCNF, NPCNF, NPCSF
 real(kind=wp) :: Acc, XMAX, XMIN
 real(kind=wp), external :: FNDMNX
-#include "spinfo.fh"
 
 #include "macros.fh"
 unused_var(MXPDIM)

@@ -75,11 +75,13 @@
 * Jeppe Olsen, Winter of 1991
 *              IUSE_PH added winter of 97
 *
+      use Constants, only: One
       USE Para_Info, ONLY: MyRank, nProcs
-      IMPLICIT REAL*8(A-H,O-Z)
-COLD      REAL*8 INPROD
-*. MAX dimensions
-#include "mxpdim.fh"
+      use lucia_data, only: MXPOBS,MXPNGAS,MXPTSOB
+      IMPLICIT NONE
+      INTEGER ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,MAXI,MAXK,NSMOB,
+     &        NSMST,NSMSX, MOC,MXSXST,IH2TRM,IUSE_PH,NTESTG
+      REAL*8  SCLFAC
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS),
      &        STSTSX(NSMST,NSMST)
@@ -87,21 +89,26 @@ COLD      REAL*8 INPROD
       INTEGER IPHGAS(NGAS)
 *.Specific Input
       INTEGER ISEL(NGAS),ICEL(NGAS)
-      DIMENSION CB(*)
+      REAL*8 CB(*)
 *.Output
-      DIMENSION SB(*)
+      REAL*8 SB(*)
 *.Scatch
-      DIMENSION SSCR(*),CSCR(*),I1(*),XI1S(*),H(*)
-      DIMENSION I2(*),XI2S(*)
+      REAL*8 SSCR(*),CSCR(*),XI1S(*),H(*),XI2S(*)
+      INTEGER I1(*),I2(*)
 *.Local arrays ( assume MPNGAS = 16 ) !!!
-      DIMENSION ITP(16),JTP(16)
-      DIMENSION ISGRP(16),ICGRP(16)
+      INTEGER ITP(16),JTP(16)
+      INTEGER ISGRP(16),ICGRP(16)
 *. For transposing integral block
-      DIMENSION HSCR(MXPTSOB*MXPTSOB)
+      REAL*8 HSCR(MXPTSOB*MXPTSOB)
 *
-      DIMENSION IJ_REO(2),IJ_DIM(2),IJ_SM(2),IJ_TP(2),IJ_AC(2)
-c      DIMENSION ISCR(2)
+      INTEGER IJ_REO(2),IJ_DIM(2),IJ_SM(2),IJ_TP(2),IJ_AC(2)
 * Type of single excitations that connects the two column strings
+      INTEGER NTESTL,NTEST,NIPART,NIPARTSZ,IFRST,IJSM,IJTP,NSXTP,ITYP,
+     &        JTYP,IXXX,ISM,JSM,KFRST,NIORB,NJORB,IDOCOMP,NKAEFF,NKASTR,
+     &        KBOT,KTOP,KEND,LKABTC,IIPART,IBOT,ITOP,NIBTC,JJORB,ICGOFF,
+     &        NIK,IIORB,ISBOFF,IEND,KACT
+      REAL*8 SIGNIJ,SCLFACS,FACTORC,FACTORAB
+
 C     MOC = 1
       NTESTL = 000
       NTEST = MAX(NTESTL,NTESTG)
@@ -119,7 +126,7 @@ C     MOC = 1
       END IF
 
 *. Number of partitionings over column strings
-CSVC: determine optimum number of partions as the lowest multiple of
+CSVC: determine optimum number of partitions as the lowest multiple of
 C     NPROCS that satisfies a block size smaller than MAXI:
       NIPART=0
       DO
@@ -257,7 +264,6 @@ COLD       IF(XNORM.EQ.0) GOTO 800
      &                         I1,    XI1S,  NKASTR,    IEND,   IFRST,
      &                      KFRST,    KACT, SCLFACS,IJ_AC(1))
 *. For operator connecting |Ka> and |Ia>, i.e. operator 1
-          ONE = 1.0D0
           CALL ADAST_GAS(IJ_SM(1),IJ_TP(1),    NGAS,   ISGRP,   ISCSM,
      &                         I2,    XI2S,  NKASTR,    IEND,   IFRST,
      &                      KFRST,    KACT,     ONE,IJ_AC(1))
@@ -340,44 +346,9 @@ C               CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
   900 CONTINUE
  1001 CONTINUE
 *
-C!    WRITE(6,*) ' Enforced stop in RSBB1E '
-C!    STOP' Enforced stop in RSBB1E '
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(NSMSX)
         CALL Unused_integer(MXSXST)
       END IF
-      END
-cvv      SUBROUTINE PR_MATML_STAT
-c*
-c* Print statistics from matriw multiplier
-c      IMPLICIT REAL*8(A-H,O-Z)
-c      COMMON/MATMLST/XNFLOP,XNCALL,XLCROW,XLCCOL,XLCROWCOL,TMULT
-c      COMMON/COPVECST/XNCALL_COPVEC,XNMOVE_COPVEC
-c*
-c      WRITE(6,*) ' Information about COPVEC calls '
-c      WRITE(6,*) ' =============================='
-c      WRITE(6,*) ' Number of calls ', XNCALL_COPVEC
-c      WRITE(6,*) ' Number of R*8 words copied ', XNMOVE_COPVEC
-c*
-c      WRITE(6,*)
-c      WRITE(6,*) ' Information about MATML7 calls : '
-c      WRITE(6,*) ' ================================'
-c      WRITE(6,*)
-c      WRITE(6,*) ' Number of calls ', XNCALL
-c      WRITE(6,*) ' Number of flops executed ', XNFLOP
-c      WRITE(6,*) ' Average row length of C ',
-c     &           XLCROWCOL/XLCCOL
-c      WRITE(6,*) ' Average column  length of C ',
-c     &           XLCROWCOL/XLCROW
-c      WRITE(6,*) ' Average number of operations per element of  C ',
-c     &           XNFLOP/XLCROWCOL
-c      WRITE(6,*) ' Average number of operations per per call ',
-c     &           XNFLOP/XNCALL
-c      WRITE(6,*) ' Number of seconds spent in MATML7', TMULT
-c*
-c      WRITE(6,*) ' Average MFLOPS ',XNFLOP/TMULT/1000000.0D0
-c      RETURN
-c      END
-c
+      END SUBROUTINE RSBB1E_LUCIA

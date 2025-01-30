@@ -40,6 +40,7 @@ subroutine BlockCtl(LW1,TUVX,IFINAL,IRST)
 !***********************************************************************
 
 use rasscf_global, only: Do3RDM, ENER, HFOCC, iOrbTyp, ITER, lRoots, mxSym, MxDMRG, NAC, ROTMAX, THRE
+use general_data, only: ISPIN, NACTEL, NASH
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten
 use Definitions, only: wp, iwp
@@ -47,7 +48,6 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp), intent(inout) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL, IRST
-#include "general.fh"
 integer(kind=iwp) :: iChMolpro(8), iOper, iOrb, iSigma, iSym, jOrb, JRST, lSymMolpro, nIrrep, NRDM_ORDER
 real(kind=wp) :: ThDMRG, ThNoise
 character(len=3) :: Label

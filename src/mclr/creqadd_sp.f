@@ -10,15 +10,19 @@
 *                                                                      *
 * Copyright (C) Anders Bernhardsson                                    *
 ************************************************************************
-       SubRoutine creqadd_sp(q,G2,idsym,Temp,Scr,n2)
+      SubRoutine creqadd_sp(q,G2,idsym,Temp,Scr,n2)
 *
-*      Constructs the Q matrix
+*     Constructs the Q matrix
 *
-       Implicit Real*8(a-h,o-z)
+      use MCLR_Data, only: nDens2, nNA, ipMat, nA
+      use input_mclr, only: nSym,nAsh,nIsh,nOrb
+      Implicit None
+      Integer idSym, n2
+      Real*8 Q(nDens2),G2(nna,nna,nna,nna), Temp(n2),Scr(n2)
 
-#include "Input.fh"
-#include "Pointers.fh"
-       Real*8 Q(nDens2),G2(nna,nna,nna,nna), Temp(n2),Scr(n2)
+      Integer iS, jS, kS, lS, ipS, ijS, iAsh, jAsh, kAsh, lAsh, kAA,
+     &        lAA, iAA, jAA, ipQ, ipM
+      Real*8 RD
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -63,5 +67,4 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-       Return
-       End
+       End SubRoutine creqadd_sp

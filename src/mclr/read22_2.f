@@ -24,20 +24,28 @@
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half
-      Implicit Real*8(a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
-#include "Files_mclr.fh"
-      Real*8 Fock(nDens2),FockI(nDens2),FockA(nDens2),
-     &       Temp2(nDens2),Temp3(ndens2),Q(nDens2),
-     &       MO1(*), Scr(*)
+      use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nB
+      use MCLR_Data, only: LuQDat
+      use input_mclr, only: TwoStep,StepType,nSym,NewCho,iMethod,
+     &                      rIn_Ene,Debug,PotNuc,iAddressQDat,
+     &                      LuAChoVec,LuIChoVec,nAsh,nBas,nIsh,nOrb
+      Implicit None
+      Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2),
+     &       Temp2(nDens2),Scr(*),Temp3(ndens2)
+
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
       Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,
      &                 FkI, FkA, QVec, CMO, CMO_Inv
+      Integer nm,iS,nAtri,nAS,jS,ijS,kS,lS,ijB1,iB,nNB,jB,ipD,iiB,jjB,
+     &        nNK,kB,kkB,nNL,lB,llB,ip2,ip1,ip,nAct,nA2,nG2,iSym,nAG2,
+     &        jSym,kSym,iOff,iOff2,iKK,iOff3,iK,iLL,iL,iKL,ipGx,kAsh,
+     &        lAsh,iAsh,jAsh,iIJ,ipi,ipj,nI,nJ,ipTmp,ijB,iStore
+      Real*8 Fact,rEnergy,rCora,rCoreI,rCoreA,rCor,rCore
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Integer i,j,iTri
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 *                                                                      *
 ************************************************************************
@@ -123,7 +131,7 @@
 *                       Coulomb term: F  =2(ij|kl)d   i<j
 *                                      kl          ij
 *
-                        If (iMethod.eq.iCASSCF) Then
+                        If (iMethod.eq.2) Then
 *
                            If (iS.eq.jS) Then
                               If (((iB.gt.nIsh(is)).and.(nAsh(iS).ne.0))
@@ -160,7 +168,7 @@
 *    Construct Q matrix: Q = sum(jkl)(pj|kl)d
 *                         pi                 ijkl
 
-      If (iMethod.eq.iCASSCF) Then
+      If (iMethod.eq.2) Then
 
          Call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
 *
@@ -243,7 +251,7 @@
 *                 Exchange term: F  =-1/2(ij|kl)d
 *                                 ik             jl
 *
-                  If (iMethod.eq.iCASSCF) Then
+                  If (iMethod.eq.2) Then
                      If (jS.eq.lS) Then
                         If (((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0)).and.
      &                      ((lB.gt.nIsh(ls)).and.(nAsh(lS).ne.0))
@@ -304,7 +312,7 @@
 **      Form active CMO and density
 *
         nAct=0
-        If (iMethod.eq.iCASSCF) Then
+        If (iMethod.eq.2) Then
           na2=0
           nG2=0
           Do iSym=1,nSym
@@ -459,7 +467,7 @@
      &      Call DYaX(nOrb(iS)*nIsh(is),2.0d0,
      &                FockI(ipCM(iS)),1,
      &                Fock (ipCM(iS)),1)
-         If (iMethod.eq.iCASSCF) Then
+         If (iMethod.eq.2) Then
             If (nIsh(iS).gt.0)
      &         Call DaXpY_(nOrb(iS)*nIsh(is),2.0d0,
      &                    FockA(ipCM(iS)),1,
@@ -542,4 +550,4 @@
 ************************************************************************
 *                                                                      *
       Return
-      End
+      End SubRoutine Read22_2

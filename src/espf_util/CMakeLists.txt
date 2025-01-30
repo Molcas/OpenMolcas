@@ -16,9 +16,9 @@ set (sources
      drv1_pot.F90
      drvespf.F90
      drvpot.F90
+     espf.F90
      espf_analysis.F90
      espf_energy.F90
-     espf.F90
      espf_global.F90
      espf_grad.F90
      espf_mltp.F90

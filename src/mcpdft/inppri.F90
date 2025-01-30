@@ -12,31 +12,23 @@
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 subroutine InpPri_m()
-  use stdalloc,only:mma_allocate,mma_deallocate
-  use OneDat,only:sNoOri
-  use constants,only:zero,two
+  use constants,only:two
   Use Functionals,only:Print_Info
   Use KSDFT_Info,only:CoefR,CoefX
   use printlevel,only:silent,terse,usual,verbose
   use mcpdft_output,only:iPrLoc
   use Fock_util_global,only:docholesky
-  use rctfld_module,only:lRF
   use mcpdft_input,only:mcpdft_options
-  use definitions,only:iwp,wp,u6
-  use rasscf_global,only:NAC,NFR,NIN,NONEQ,NROOTS,NSEC,Tot_Charge,tot_el_charge, &
-                          tot_nuc_charge,header
-  use general_data,only:nfro,nish,ndel,nbas,nash,nrs1,nrs2,nrs3,ispin,nactel,nconf,nelec3,nhole1,nsym,ntot1,stsym,nssh
+  use definitions,only:iwp,u6
+  use rasscf_global,only:NAC,NFR,NIN,NROOTS,NSEC,header
+  use general_data,only:nfro,nish,ndel,nbas,nash,nrs1,nrs2,nrs3,ispin,nactel,nconf,nelec3,nhole1,nsym,stsym,nssh
   implicit none
 
-  Character(len=8) :: Fmt1,Fmt2,Label
+  Character(len=8) :: Fmt1,Fmt2
   Character(len=120) :: Line
   Character(len=3),dimension(8) :: lIrrep
 
-  integer(kind=iwp) :: i,icharge,icomp,iOpt,iPrLev
-  integer(kind=iwp) :: iRc,iSyLbl,iSym,left
-  integer(kind=iwp) :: lPaper
-
-  real(kind=wp),allocatable :: Tmp0(:)
+  integer(kind=iwp) :: i,iPrLev,iSym,left,lPaper
 
   IPRLEV = IPRLOC(1)
 
@@ -128,34 +120,6 @@ subroutine InpPri_m()
     Call CollapseOutput(0,'Orbital specifications:')
 
   endif
-
-  ! Reaction Field Specification
-  If(lRF) then
-    iRc = -1
-    iOpt = ibset(0,sNoOri)
-    iComp = 1
-    iSyLbl = 1
-    Label = 'Mltpl  0'
-
-    call mma_allocate(Tmp0,nTot1+4,Label="Ovrlp")
-    Call RdOne(iRc,iOpt,Label,iComp,Tmp0,iSyLbl)
-    If(iRc /= 0) then
-      write(u6,*) 'InpPri: iRc from Call RdOne not 0'
-      write(u6,*) 'Label = ',Label
-      write(u6,*) 'iRc = ',iRc
-      Call Abend
-    Endif
-    tot_nuc_charge = Tmp0(nTot1+4)
-    call mma_deallocate(Tmp0)
-    Tot_El_Charge = Zero
-    Do iSym = 1,nSym
-      Tot_El_Charge = Tot_El_Charge-two*DBLE(nFro(iSym)+nIsh(iSym))
-    EndDo
-    Tot_El_Charge = Tot_El_Charge-DBLE(nActEl)
-    Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
-    iCharge = Int(Tot_Charge)
-    Call PrRF(.False.,NonEq,iCharge,2)
-  EndIf
 
   if(iPrLev >= terse) then
     write(u6,*)

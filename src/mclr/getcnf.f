@@ -18,14 +18,16 @@
 *
 * Jeppe Olsen , summer of 89
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
+      use MCLR_Data, only: NTYP,MINOP,NCNATS
+      IMPLICIT NONE
 *. General input
-      DIMENSION KCNF(*)
+      INTEGER KCNF(*)
+      INTEGER K,IREFSM,NEL,NTEST
 *. Output
       INTEGER ICONF(*)
+      INTEGER KTYP
 *
+      INTEGER ICNFB1,ICNFB2,JTYP,JOP,JCL,JOCC,NJCNF,KREL,KADD
 *
       ICNFB1 = 1
       ICNFB2 = 1
@@ -48,7 +50,6 @@
   100 CONTINUE
 *
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(NTEST)
-      END
+      END SUBROUTINE GETCNF

@@ -16,7 +16,8 @@ subroutine SORTB_CPF(BUFOUT,INDOUT,ICAD,IBUFL,TIBUF,ACBDS,ACBDT,ISAB,BUFACBD)
 ! SORTS INTEGRALS (AB/CD) FOR FIXED A,C ALL B,D
 
 use cpf_global, only: ICH, IPASS, IRC, IROW, JBUF, JJS, KBUFF1, LASTAD, LN, LSYM, Lu_TiABCD, Lu_TiABIJ, Lu_TraInt, MADR, NORB, &
-                      NSM, NSYM, NSYS, NTIBUF, NVIRT
+                      NSM, NSYM, NSYS, NVIRT
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6, RtoI
@@ -24,10 +25,9 @@ use Definitions, only: wp, iwp, u6, RtoI
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: BUFOUT(*), TIBUF(NTIBUF), ACBDS(*), ACBDT(*), BUFACBD(*)
+real(kind=wp), intent(_OUT_) :: BUFOUT(*), TIBUF(NTRABUF), ACBDS(*), ACBDT(*), BUFACBD(*)
 integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*)
 integer(kind=iwp), intent(in) :: ISAB(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IAD50, IADR, IBDS, ICP, ICPP, ICQ, ID, IDISK, IDIV, IFIN1, IFIN2, ILOOP, IN1, &
                      INND, INPS, INPT, INS, INSOUT, IOUT, IREC, IST1, IST2, ISTEP, ISYM, ITAIL, ITURN, JBUF0, JBUF1, JBUF2, JDISK, &
                      KK, LENGTH, M1, M2, M3, M4, N1, N2, N3, N4, NA, NAC, NB, NBD, NC, ND, NDMAX, NI, NJ, NK, NL, NOP, NOQ, NOR, &
@@ -82,7 +82,7 @@ do ISTEP=1,IPASS
           NOS = NORB(NSS)
           NORBP = NOP*NOQ*NOR*NOS
           if (NORBP == 0) cycle
-          call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
+          call dDAFILE(Lu_TraInt,2,TIBUF,NTRABUF,IAD50)
           IOUT = 0
           do NV=1,NOR
             NXM = NOS
@@ -97,8 +97,8 @@ do ISTEP=1,IPASS
                 if (NSP == NSQ) NUMAX = NT
                 do NU=NUMIN,NUMAX
                   IOUT = IOUT+1
-                  if (IOUT > NTIBUF) then
-                    call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
+                  if (IOUT > NTRABUF) then
+                    call dDAFILE(Lu_TraInt,2,TIBUF,NTRABUF,IAD50)
                     IOUT = 1
                   end if
                   M1 = ICH(NORB0(NSP)+NT)

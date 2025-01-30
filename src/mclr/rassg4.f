@@ -28,11 +28,12 @@
      &                  I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                  IDOH2,ISTRFL,PS,IPRNT,LUC,LUHC,IST,
      &                  CJRES,SIRES,NOPARt,TimeDep)
-      IMPLICIT REAL*8(A-H,O-Z)
+      use Constants, only: Zero
+      use DetDim, only: MXPORB,MXPOBS
+      IMPLICIT None
 *
 *      LOOP OVER SIGMA AND C VECTOR
 *
-#include "detdim.fh"
 * Jeppe Olsen , Winter of 1991
 * small modifications by eaw 96
 *
@@ -92,39 +93,62 @@
 * A triplet one electron operator is defined as E(aa)-E(bb)
 * A triplet two-electron operator is defined as (E(aa)+E(bb))(E(aa)-E(bb))
 *
-      Logical TimeDep
 *.General input
-      INTEGER SXSTST(1), DXSTST(1) ! HMMMMMM
+      INTEGER NAEL,IAGRP,NBEL,IBGRP,NOCTPA,NOCTPB
+      INTEGER NSMST,NSMOB,NSMSX,NSMDX
+      INTEGER MAXIJ,MAXK,MAXI,ICSMOD,IINMOD,LI,LC,LS
+
       INTEGER ICOCOC(NOCTPA,NOCTPB),ISOCOC(NOCTPA,NOCTPB)
       INTEGER ICSMOS(NSMST),ISSMOS(NSMST)
       INTEGER ICBLTP(NSMST),ISBLTP(NSMST)
+      INTEGER NORB1,NORB2,NORB3,NACOB
       INTEGER NSSOA(NOCTPA,nsmst),ISSOA(NOCTPA,nsmst)
       INTEGER NSSOB(NOCTPB,nsmst),ISSOB(NOCTPB,nsmst)
+      INTEGER NTSOB(3,NSMOB),IBTSOB(3,NSMOB),ITSOB(mxporb)
       INTEGER SXSTSM(NSMSX,NSMST)
       INTEGER STSTSX(NSMST,NSMST)
       INTEGER STSTDX(NSMST,NSMST)
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),ASXAD(MXPOBS,2*MXPOBS)
       INTEGER SXDXSX(2*MXPOBS,4*MXPOBS)
-      INTEGER NTSOB(3,NSMOB),IBTSOB(3,NSMOB),ITSOB(mxporb)
+      INTEGER ADSXA(MXPOBS,2*MXPOBS),ASXAD(MXPOBS,2*MXPOBS)
       INTEGER IAEL1(*),IAEL3(*)
       INTEGER IBEL1(*),IBEL3(*)
+      INTEGER IDC
+      INTEGER IDOH2
+      REAL*8 PS
+      INTEGER IPRNT,LUC,LUHC,IST,NOPART
+      Logical TimeDep
+
 *.Scratch
-      DIMENSION SB(*),CB(*),C2(*)
-      DIMENSION XINT(*),CSCR(*),SSCR(*)
+      REAL*8 C(*),S(*)
+      REAL*8 SB(*),CB(*),C2(*)
+      REAL*8 XINT(*),CSCR(*),SSCR(*)
       INTEGER ISOOSC(NOCTPA,NOCTPB,NSMST),NSOOSC(NOCTPA,NOCTPB,NSMST)
       INTEGER ISOOSE(NOCTPA,NOCTPB,NSMST),NSOOSE(NOCTPA,NOCTPB,NSMST)
       INTEGER ICOOSC(NOCTPA,NOCTPB,NSMST),NCOOSC(NOCTPA,NOCTPB,NSMST)
       INTEGER ICOOSE(NOCTPA,NOCTPB,NSMST),NCOOSE(NOCTPA,NOCTPB,NSMST)
       INTEGER IASOOS(NOCTPA,NOCTPB,NSMST),IACOOS(NOCTPA,NOCTPB,NSMST)
-      DIMENSION I1(MAXK,*),I2(MAXK,*),XI1S(MAXK,*),XI2S(MAXK,*),
-     &          I3(MAXK,*),I4(MAXK,*),XI3S(MAXK,*),XI4S(MAXK,*)
-      DIMENSION CJRES(*),SIRES(*)
+      INTEGER I1(MAXK,*),I2(MAXK,*),I3(MAXK,*),I4(MAXK,*)
+      REAL*8  XI1S(MAXK,*),XI2S(MAXK,*),XI3S(MAXK,*),XI4S(MAXK,*)
+      INTEGER ISTRFL(*)
+      REAL*8 CJRES(*),SIRES(*)
+
 *
-      DIMENSION LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
+*     Local variables
+      INTEGER SXSTST(1), DXSTST(1) ! HMMMMMM
+      INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
+      REAL*8 PL
+      INTEGER ISENSM,ISENTA,ISENTB,IFRSTS,ISSTSM,ISSTTA,NSBLK,ISFINI,
+     &        IS1SM,IS1TA,IS1TB,LSBLK,ISBLK,ICENSM,ICENTA,ICENTB,
+     &        IFRSTC,ICSTSM,ICSTTA,ICSTTB,NCBLK,IFINIC,IC1SM,IC1TA,
+     &        IC1TB,ICOFF,ICBLK,ICBSM,ISOFF,IASM,IBSM,IATP,IBTP,NIA,NIB,
+     &        JASM,JATP,NJA,NJB,IPERM,NPERM,LLASM,LLBSM,LLATP,LLBTP,
+     &        NLLA,NLLB,LROW,LCOL,I1ASM,I1BSM,I1TA,I1TB,IOFF,LBLK,
+     &        NCCMBC,NCCMBE,NONEWC,NONEWS,NSCMBC,NSCMBE,ISSTTB,JBTP,
+     &        JBSM
+      REAL*8 XNORM2
+      REAL*8, External:: DDot_
 *.
-      DIMENSION C(*),S(*),ISTRFL(*)
 *
-      ZERO = 0.0D0
       PL=Zero
 * ================================
 * 1 : Arrays for accessing C and S
@@ -375,7 +399,6 @@ C
 ********************************************************************
       IF(LUHC.GT.0) CALL ITODS([-1],1,LBLK,LUHC)
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(NORB1)
@@ -391,4 +414,4 @@ c Avoid unused argument warnings
         CALL Unused_integer_array(SXSTSM)
         CALL Unused_integer_array(ASXAD)
       END IF
-      END
+      END SUBROUTINE RASSG4

@@ -14,9 +14,9 @@
       use cntrl, only: SODIAG, SODIAGNSTATE
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: IFCURD
+      use rassi_data, only: NBST
 
       IMPLICIT None
-#include "rassi.fh"
 
 C subroutine arguments
       Integer NSS

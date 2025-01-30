@@ -14,6 +14,11 @@
      &                      ICONF_OCC,ICONF_REO,ICTSDT,IBLOCK,NBLOCK)
       use stdalloc, only: mma_allocate, mma_deallocate
       use GLBBAS, only: CONF_OCC, CONF_REO
+      use lucia_data, only: IBCONF_ALL_SYM_FOR_OCCLS,IB_CONF_OCC,
+     &                      IB_CONF_REO,MAXOP,MINOP,NCONF_ALL_SYM,
+     &                      NCONF_PER_OPEN,NCONF_TOT
+      use lucia_data, only: NGAS
+      use lucia_data, only: NOCOB,NOBPT
 *
 * Generate configurations in ICONF
 *
@@ -26,19 +31,23 @@
 * Jeppe Olsen Dec. 2001 from CNFORD
 *
 *
-      Implicit REAL*8 (A-H,O-Z)
-#include "mxpdim.fh"
-#include "spinfo_lucia.fh"
-#include "orbinp.fh"
-#include "cgas.fh"
+      Implicit None
 *. Specific input
+       INTEGER NOCCLS,ISYM,IPRCSF,NBLOCK
        INTEGER IOCCLS(NGAS,NOCCLS)
        INTEGER IBLOCK(8,NBLOCK)
+       REAL*8 PSSIGN
 *. Output
       INTEGER ICONF_OCC(*),ICONF_REO(*)
-      DIMENSION ICTSDT(*)
+      INTEGER ICTSDT(*)
       Integer, Allocatable:: ZSCR(:), Z(:)
       Integer, Allocatable:: LOCMIN(:), LOCMAX(:)
+
+!     Local variables
+      INTEGER NTEST,NELEC,IZERO,IB_OCCLS,JOCCLS,
+     &        INITIALIZE_CONF_COUNTERS,IDOREO,
+     &        NCONF_OCCLS,NCONF_P,NSMST
+      INTEGER, External:: IELSUM
 *
       NTEST = 0
       NELEC = IELSUM(IOCCLS(1,1),NGAS)
@@ -123,7 +132,6 @@ C    &            ICNFOK,IGENSG,ISGNA,ISGNB,IPRCSF)
       Call mma_deallocate(Z)
       Call mma_deallocate(LOCMIN)
       Call mma_deallocate(LOCMAX)
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_real(PSSIGN)
@@ -131,4 +139,4 @@ c Avoid unused argument warnings
         CALL Unused_integer_array(ICONF_OCC)
         CALL Unused_integer_array(ICONF_REO)
       END IF
-      END
+      END SUBROUTINE CNFORD_GAS

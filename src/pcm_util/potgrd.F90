@@ -15,7 +15,6 @@ use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use Grd_interface, only: grd_kernel, grd_mem
-use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -76,7 +75,7 @@ C(:) = Zero
 lOper(1) = 1
 DiffOp = .true.
 call OneEl_g_pcm(PCMGrd1,PCMMmG,Grad,nGrad,DiffOp,C,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-call PrGrad_pcm(' TEST (PCM) contribution',Grad,nGrad,ChDisp,5)
+call PrGrad_pcm(' TEST (PCM) contribution',Grad,nGrad,5)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

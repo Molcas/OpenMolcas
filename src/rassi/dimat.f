@@ -18,10 +18,12 @@
 *****************************************************************
       SUBROUTINE DIMAT(CMO1,CMO2,DINAO)
       use Symmetry_Info, only: nSym=>nIrrep
-      use Constants, only: Zero, Two
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rassi.fh"
+      use Constants, only: Zero,One,Two
+      use rassi_data, only: NCMO,NBSQ,NBASF,NISH,NOSH
+      IMPLICIT None
       REAL*8 CMO1(NCMO),CMO2(NCMO),DINAO(NBSQ)
+
+      INTEGER ISTC,ISTD,ISYM,NI,NO,NB
       DINAO(:)=Zero
       ISTC=1
       ISTD=1
@@ -30,9 +32,9 @@
        NO=NOSH(ISYM)
        NB=NBASF(ISYM)
        IF(NI.NE.0) THEN
-        CALL  DGEMM_('N','T',NB,NB,NI,1.0D0,
+        CALL  DGEMM_('N','T',NB,NB,NI,One,
      &               CMO1(ISTC),NB,
-     &               CMO2(ISTC),NB,0.0D0,
+     &               CMO2(ISTC),NB,Zero,
      &               DINAO(ISTD),NB)
        END IF
        ISTC=ISTC+NO*NB

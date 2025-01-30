@@ -17,13 +17,14 @@ subroutine ref_energy(mcscf_energy,nstates)
   use mcpdft_output,only:iprglb
   use mcpdft_input,only:mcpdft_options
   use mspdft,only:heff
-  use general_data,only:jobiph,mxiter,mxroot
+  use general_data,only:jobiph
 #ifdef _HDF5_
   use mh5,only:mh5_open_file_r,mh5_close_file,mh5_fetch_dset,mh5_exists_dset
 #endif
 
   implicit none
 
+#include "rasdim.fh"
   integer(kind=iwp),intent(in) :: nstates
   real(kind=wp),intent(out) :: mcscf_energy(nstates)
 

@@ -12,9 +12,9 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NBTRI,NBMX,NBASF,NBSQ,NBST
 
       IMPLICIT None
-#include "rassi.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE
@@ -294,8 +294,8 @@ c    ONLYFOR NATURAL ORBITALS
       use rassi_aux, only: ipglob
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NBTRI,NBMX,NBASF,NBSQ,NBST
       IMPLICIT NONE
-#include "rassi.fh"
       Real*8 DENS(6,NBTRI)
       CHARACTER(LEN=*) FILEBASE
       CHARACTER(LEN=8) CHARTYPE

@@ -22,6 +22,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use motra_global, only: FnHalf, IAD13, iPrint, ISP, ISQ, ISR, ISS, LMOP, LMOQ, LMOR, LMOS, LTUVX, LuHalf, LuTwoMO, NBP, NBPQ, NBQ, &
                         NBR, NBRS, NBS, NOP, NOQ, NOR, NOS, NOVX
+use TraToc, only: NTRABUF
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, RtoB
 
@@ -31,7 +32,6 @@ real(kind=wp), intent(inout) :: OUTBUF(nOUTBUF), X1(nX1), VXPQ(nVXPQ)
 real(kind=wp), intent(out) :: X2(nX2), X3(nX3)
 real(kind=wp), intent(in) :: CMO(*)
 integer(kind=iwp), intent(out) :: iDsk(3,mOVX)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IAD14, IAD14_, inBuf, IOPT, IOUT, IPQ, IPQMAX, IPQST, IPQUT, IPQX, IRC, IRSST, IST, ISTMOT, IVX, IX1, IX2, &
                      KBUF1, LOQ, LPKREC, LPQ, LVXPQ, NBYTES, NP, NPQ, NQ, NQM, NT, NTUVX, NUMAX, NV, NX, NXM
 logical(kind=iwp) :: INCORE
@@ -211,7 +211,7 @@ do NV=1,NOR
       if (ISP == ISQ) then
         call SQUARE(VXPQ(IPQST),X2,1,NBQ,NBQ)
         if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,X2,NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)
-        If (NOP*NBP > 0) call DGEMM_Tri('T','N',NOP,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOP)
+        if (NOP*NBP > 0) call DGEMM_Tri('T','N',NOP,NOP,NBP,One,X1,NBP,CMO(LMOP),NBP,Zero,X2,NOP)
         IX2 = (NOP+NOP**2)/2
       else
         if (NBP*NBQ*NOQ > 0) call DGEMM_('T','N',NBP,NOQ,NBQ,One,VXPQ(IPQST),NBQ,CMO(LMOQ),NBQ,Zero,X1,NBP)

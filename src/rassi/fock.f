@@ -11,14 +11,19 @@
       SUBROUTINE FOCK_RASSI(DINAO,FOCKAO)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep, MUL
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "rassi.fh"
+      use rassi_data, only: NBSQ,NBMX,NBASF,NBSQPR,NBTRI,NISH
+      IMPLICIT None
       Real*8 FOCKAO(NBSQ),DINAO(NBSQ)
 
       Integer KEEP(8),NBSX(8)
       Integer NBTRPR(8)
       LOGICAL   ISQARX
       Real*8, Allocatable:: PQRS(:), DTRI(:), SQBUF(:), FTRI(:)
+      INTEGER IRC,NSQBUF,INTBUF,NBTR,ISYM,NB,NFTRI,IDF,NPQ,NP,NQ,ISP,
+     &        NBP,NIP,KEEPP,ISQ,NBQ,NIQ,NSPQ,KEEPQ,ISR,NBR,NIR,NSPQR,
+     &        KEEPR,ISSMX,ISS,NBS,NIS,KEEPS,KEEPT,NBT,INUSE,NBPQ,NBRS,
+     &        IOPT,IPQ,LPQ,IRSST,NQM,IFPQ,IDRS,NPQM,IFRS,IDPQ,II,NSYMX
+      REAL*8 DF,FPQ
 * Purpose:
 *  ADD THE TWO-ELECTRON PART OF A FOCK MATRIX USING THE
 *  INACTIVE DENSITY MATRIX. THE FOCK MATRIX SHOULD CONTAIN THE

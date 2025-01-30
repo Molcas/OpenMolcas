@@ -16,18 +16,23 @@
 *
 *      The redundant rotations are set to zero
 *
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-
-#include "Input.fh"
-      Integer dsym
+      use Constants, only: Zero, One
+      use MCLR_Data, only: nDensC, nDens2, ipMat, nB
+      use input_mclr, only: nSym,TimeDep,nIsh,nOrb,nRS1,nRS2,nRS3,nBas
+      Implicit None
       Real*8  ArrayIn(nDensC),ArrayOut(nDens2)
+      Integer idsym
+
+      Integer dsym
       Integer Bas(8)
+      Integer IndexC, i, iSym, jSym, jT, jBas, iBas, iT, Index1, Index2
+      Real*8 Fact
+
       indexC=0
-      Fact=1.0d0
+      Fact=One
       If (idsym.lt.0) Fact=-Fact
       dsym=abs(idsym)
-      call dcopy_(nDens2,[0.0d0],0,ArrayOut,1)
+      ArrayOut(:)=Zero
       If (TimeDep) Then
          Do i=1,nSym
             Bas(i)=nBas(i)
@@ -86,5 +91,4 @@
         End If
        End Do
       End Do
-      Return
-      End
+      End SubRoutine UnCompress

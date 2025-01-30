@@ -13,8 +13,11 @@
       use UnixInfo, only: ProgName
 #endif
       use input_ras, only: nKeys, CMD, KeyFlags, KeyEND, LuInput
+      use printlevel, only: DEBUG
+      use output_ras, only: IPRLOC
 
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer iRC
 * ------------------------------------------------------------
 * Scan input lines after the '&RASSCF' marker and until
 * finding keyword 'END ' or the end of file.
@@ -24,8 +27,8 @@
 * ------------------------------------------------------------
 #include "rasdim.fh"
 #include "warnings.h"
-#include "output_ras.fh"
 *
+      Integer I, iCMD
       Character(LEN=4) Command
       Character(LEN=180)  Line
 
@@ -157,5 +160,4 @@
       GOTO 9990
 *----------------------------------------------------
 9990  CONTINUE
-      Return
-      End
+      End Subroutine Scan_Inp

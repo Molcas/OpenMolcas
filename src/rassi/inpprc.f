@@ -32,9 +32,11 @@
       use cntrl, only: nAtoms, Coor
       use cntrl, only: LuTDM, FnTDM
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NBSQ,NBMX,NBTRI,NBST,NCMO,NTRA,NTDMZZ,
+     &                      NTDMAB,NASHT,NISHT,NSSHT,NASH,NBASF,
+     &                      NBSQPR,NISH,NOSH,NSSH
 
       IMPLICIT None
-#include "rassi.fh"
       CHARACTER(LEN=8) LABEL
       CHARACTER(LEN=8) LABEL2
       CHARACTER(LEN=8) PRPLST(MXPROP)
@@ -99,8 +101,6 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
         NTRA=NTRA+NOSH(IS)**2
         NTDMZZ=NTDMZZ+NBASF(IS)**2
       END DO
-      NTDMS=(NTDMZZ+NBST)/2
-      NTDMA=NTDMS
       NTDMAB=NTRA
       SaveDens=(IFTRD1.OR.IFTDM).OR.
      &         (SONATNSTATE.GT.0).OR.(SONTOSTATES.GT.0)

@@ -40,6 +40,9 @@ subroutine TRACTL(iPart)
 ! 98-09-02 J.Hasegawa Modified for non-squared integrals.
 
 use caspt2_global, only: CMO, LUINTM, NCMO
+use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ
+use trafo, only: IAD13, ISP, ISQ, ISR, ISS, ITP, ITQ, ITR, ITS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LMOS, LMOS2, LRUPQ, LTUPQ, &
+                 LURPQ, NBP, NBPQ, NBQ, NBR, NBRS, NBS, NOCP, NOCQ, NOCR, NOCS, NOP, NOQ, NOR, NOS
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Half
 use Definitions, only: wp, iwp, u6
@@ -47,8 +50,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iPart
 #include "caspt2.fh"
-#include "intgrl.fh"
-#include "trafo.fh"
 integer(kind=iwp) :: I, IERR, iiPart, IRC, ISYM, Keep(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, L2, L2M, LATRU, LATUS, lBuf, LIADUT, &
                      LMOP1, LMOQ1, LMOR1, LMOS1, LPQRS, LPQTU, LRS, LRSmx, LRUPQM, LTARU, LTAUS, LTUPQM, LTUPQX, LTURS, LTURSM, &
                      LURPQM, LW1, LW2, LW2B, LW3, LW3B, LW4, LW4B, LW5, LW6, MaxRS, MEMLFT, MEMT, MEMX, Mxx1, Mxx2, Mxx3, &

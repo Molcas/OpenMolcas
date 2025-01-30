@@ -8,12 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine mkcipre
-      use negpre
+      Subroutine mkcipre()
+      use Constants, only: One
+      use negpre, only: SS, ERAS, P1, P1Inv
       use stdalloc, only: mma_allocate
-      Implicit Real*8 (a-h,o-z)
-#include "Pointers.fh"
-#include "Input.fh"
+      use input_mclr, only: lRoots,ERASSCF
+      Implicit None
+      Integer i,j,itri,iRec
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
       irec(i,j)=i+(j-1)*2*lroots
@@ -27,11 +28,11 @@
       End Do
       DO I=1,lroots
         SS(irec(2*i-1,2*i-1))= SS(irec(2*i-1,2*i-1))+ERAS(I)-ERASSCF(1)
-        SS(irec(2*i,2*i-1))=-1.0d0
-        SS(irec(2*i-1,2*i))=-1.0d0
+        SS(irec(2*i,2*i-1))=-One
+        SS(irec(2*i-1,2*i))=-One
       End Do
       SS(irec(2*lroots-1,2*lroots-1))=
-     &     SS(irec(2*lroots-1,2*lroots-1))+1.0d0
+     &     SS(irec(2*lroots-1,2*lroots-1))+One
       Call MatInvert(SS,2*lroots)
       DO I=1,lroots
        DO J=1,lroots
@@ -40,12 +41,11 @@
        End Do
       End Do
       DO I=1,lroots
-          SS(irec(2*i,2*i-1)) = SS(irec(2*i,2*i-1)) + 1.0d0
-          SS(irec(2*i-1,2*i)) = SS(irec(2*i-1,2*i)) + 1.0d0
+          SS(irec(2*i,2*i-1)) = SS(irec(2*i,2*i-1)) + One
+          SS(irec(2*i-1,2*i)) = SS(irec(2*i-1,2*i)) + One
       End Do
       Call MatInvert(SS,2*lroots)
-      Call DSCAL_(4*lroots**2,-1.0d0,SS,1)
-      SS(irec(2*lroots,2*lroots))= SS(irec(2*lroots,2*lroots))-1.0d0
+      Call DSCAL_(4*lroots**2,-One,SS,1)
+      SS(irec(2*lroots,2*lroots))= SS(irec(2*lroots,2*lroots))-One
 
-      Return
-      End
+      End Subroutine mkcipre

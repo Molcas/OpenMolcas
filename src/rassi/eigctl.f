@@ -32,9 +32,9 @@
      &                 PNAME, PTYPE, Do_TMom
       use cntrl, only: LuTDM
       use Symmetry_Info, only: MUL, nSym=>nIrrep
+      use rassi_data, only: NBST,NBASF,NTDMZZ
 
       IMPLICIT None
-#include "rassi.fh"
 
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       DYSAMPS(NSTATE,NSTATE),

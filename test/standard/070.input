@@ -35,7 +35,7 @@ Spin
 >>> COPY $Project.JobIph test.JobIph
 
  &MCPDFT
- KSDFT=T:OPBE
+ FUNCtional=T:OPBE
  GRADIENT
 
  &SLAPAF
@@ -59,7 +59,7 @@ RAS2
 3 3 3 0 1 1 1 0
 DELEted
 0 0 0 0 0 0 0 0
-KSDFT
+FUNC
 ROKS; $DFT
 Symmetry
 1
@@ -69,7 +69,7 @@ Spin
 
 >>> COPY test.JobIph JOBIPH
  &MCPDFT
- KSDFT=T:PBE
+ FUNC=T:PBE
  DFCF=1.25 0.5
  GRADIENT
 

@@ -23,8 +23,8 @@
       SUBROUTINE DESYM_SONTO(A,SIZA,B,SYMLAB)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBST,NBASF
       IMPLICIT None
-#include "rassi.fh"
       INTEGER SIZA,SYMLAB
       REAL*8 A(SIZA)
       REAL*8 B(NBST**2)

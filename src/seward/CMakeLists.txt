@@ -17,8 +17,8 @@ set (sources
      input_seward.F90
      nemo_opt1.F90
      output1_seward.F90
-     seward_banner.F90
      seward.F90
+     seward_banner.F90
      tr_prm_cnt.F90
 )
 

@@ -14,6 +14,7 @@ subroutine CSDTVC(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY)
 !          IWAY = 1 : CSF TO DETERMINANT TRANSFORMATION
 !          IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 
+use spinfo, only: NCNFTP, NCSASM, NCSFTP, NDET, NDTASM, NDTFTP, NTYP
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -21,8 +22,6 @@ use Definitions, only: u6
 #endif
 
 implicit none
-#include "ciinfo.fh"
-#include "spinfo.fh"
 integer(kind=iwp), intent(in) :: IWAY, ICTSDT(*), IREFSM, ICOPY
 real(kind=wp), intent(inout) :: CSFVEC(NDTASM(IREFSM)), DETVEC(NDTASM(IREFSM))
 real(kind=wp), intent(in) :: DTOCMT(*)

@@ -39,6 +39,7 @@ subroutine Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,var,Short,iUHF,ifallorb)
 !***********************************************************************
 
 use OneDat, only: sOpSiz
+use hfc_logical, only: MAG_X2C, UHF_HFC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -56,7 +57,6 @@ real(kind=wp), allocatable :: Den(:), El(:,:,:), ElSum(:), Nuc(:), NucSum(:), Op
 real(kind=wp), parameter :: Thrs = 1.0e-6_wp
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-#include "hfc_logical.fh"
 
 !                                                                      *
 !***********************************************************************

@@ -30,7 +30,7 @@ LUMORB
 >> COPY $Project.JobIph $Project.JobOld
 
 &MCPDFT &END
-KSDFT=T:PBE
+FUNC=T:PBE
 MSPDft
 GRAD
 NAC=1 2

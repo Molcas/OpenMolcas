@@ -37,11 +37,12 @@
      &                 NHOL11,NELE31, NAME, HEAD1, TITLE1
       use cntrl, only: iTOC15, LuIPH, IDCMO
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: WFTYPE,NASH,NSSH,NDEL,NOSH,NASH,NISH,NFRO,
+     &                      NBASF,NDEL,NFRO,NISH
 
       IMPLICIT NONE
 ! pick up MxSym, MxRoot, LENIN8, MxOrb, MxTit, MxIter
 #include "rasdim.fh"
-#include "rassi.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
 

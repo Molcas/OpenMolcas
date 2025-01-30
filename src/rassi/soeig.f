@@ -33,7 +33,6 @@
      &                 LOOPDIVIDE, ICOMP, MLTPLT, PNAME
 
       IMPLICIT NONE
-#include "rassi.fh"
 
       INTEGER NSS
       REAL*8 PROP(NSTATE,NSTATE,NPROP)

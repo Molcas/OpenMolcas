@@ -117,7 +117,7 @@ C?    write(6,*) ' IA IB ISM LBLOCK ', IA,IB,ISM,LBLOCK
       IENTB = IB
       IF(IFINI.EQ.0.AND.NBLOCK.EQ.0) THEN
         WRITE(6,*) ' Not enough scratch space to include a single Block'
-        WRITE(6,*) ' Since I cannot procede I will stop '
+        WRITE(6,*) ' Since I cannot proceed I will stop '
         WRITE(6,*) ' Insufficient buffer detected in INCOOS '
         WRITE(6,*) ' Alter RAS space of raise Buffer from ', MXLNG
         CALL SYSABENDMSG('lucia_util/incoos','Internal error',' ')

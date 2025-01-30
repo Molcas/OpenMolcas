@@ -19,6 +19,7 @@ subroutine reord2_cvb(cfrom,cto,imode)
 use csfbas, only: conf
 use glbbas, only: cftp
 use rasscf_global, only: NAC
+use general_data, only: NACTEL, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -28,12 +29,8 @@ implicit none
 real(kind=wp), intent(in) :: cfrom(*)
 real(kind=wp), intent(_OUT_) :: cto(*)
 integer(kind=iwp), intent(in) :: imode
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp), allocatable :: kcnf(:)
 
-! NACTEL   general.fh
-! STSYM    general.fh
 call mma_allocate(kcnf,nactel,label='kcnf')
 call reord2(nac,nactel,stsym,imode,conf,cftp,cfrom,cto,kcnf)
 call mma_deallocate(kcnf)

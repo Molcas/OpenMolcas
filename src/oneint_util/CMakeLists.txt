@@ -13,12 +13,12 @@ set (sources
      ampint.F90
      ampmem.F90
      ampr.F90
+     ass_px.F90
+     ass_pxp.F90
      assemble_dtdmu.F90
      assemble_dvdb.F90
      assemble_mgauss.F90
      assmbl.F90
-     ass_px.F90
-     ass_pxp.F90
      cassmbl.F90
      ccmbnmp.F90
      ccmbnve.F90
@@ -79,13 +79,13 @@ set (sources
      one2h5_fckint.F90
      one2h5_ovlmat.F90
      oneint_interfaces.F90
+     p_int.F90
+     p_mem.F90
      pam2.F90
      pam2int.F90
      pam2mem.F90
-     p_int.F90
-     p_mem.F90
-     potint.F90
      pot_nuc.F90
+     potint.F90
      prjint.F90
      prjmem.F90
      pvmem.F90

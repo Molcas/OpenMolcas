@@ -15,13 +15,13 @@
 subroutine setjobiph_cvb(nel_c,norb_c,i2s_c,isym_c,neltot_c)
 
 use casvb_global, only: iorclos_c, iorcore_c, iorocc_c, istms2_c, istnel_c, istsy_c, mcore_c, mxstt_ci, nstats_c, nstsym_c, weight_c
+use jobiph_j, only: iroot_j, ispin_j, lroots_j, lsym_j, nactel_j, nfro_j, nish_j, nroots_j, nrs2_j, weight_j
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nel_c, norb_c, i2s_c, isym_c, neltot_c
 #include "rasdim.fh"
-#include "jobiph_j.fh"
 integer(kind=iwp) :: i, j
 real(kind=wp) :: wgt
 

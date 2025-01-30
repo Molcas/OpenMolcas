@@ -40,11 +40,10 @@ subroutine Done_RASSCF(CMO,OCC,D)
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
+use general_data, only: NSYM,NASH,NBAS,NFRO,NISH
 
 implicit none
 real(kind=wp) :: CMO(*), OCC(*), D(*)
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: i, iAsh, iBas, iFro, iIsh, ij, iOff1, iOff2, iOff3, iSym, j, k
 real(kind=wp) :: rSum
 

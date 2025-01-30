@@ -32,7 +32,8 @@ implicit none
 #include "cff2d_interface.fh"
 integer(kind=iwp) :: iCar, iT
 real(kind=wp) :: h12
-logical(kind=iwp) :: AeqB, CeqD, EQ
+logical(kind=iwp) :: AeqB, CeqD
+logical(kind=iwp), external :: EQ
 
 #include "macros.fh"
 unused_var(EInv)

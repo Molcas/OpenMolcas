@@ -13,6 +13,11 @@
       SUBROUTINE TRACI_LUCIA(      X,  LUCIN, LUCOUT,  IXSPC,   IXSM,
      &                          VEC1,   VEC2)
       use stdalloc, only: mma_allocate, mma_deallocate
+*. Module for communicating with sigma
+      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
+      use lucia_data, only: NSMOB
+      use lucia_data, only: NTOOB,NTOOBS
+      use lucia_data, only: LUSC1,LUSC2,LUSC3
 *
 * A rotation matrix X is defining expansion from
 * old to new orbitals
@@ -34,17 +39,12 @@
 * note The transformation matrix X is supposed to be in complete form
 * as a matrix over NTOOB orbitals.
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
-*
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "lucinp.fh"
-#include "clunit.fh"
-*. Common block for communicating with sigma
-#include "cands.fh"
-*
+      IMPLICIT NONE
+      Integer LUCIN, LUCOUT,  IXSPC,   IXSM
       Real*8 X(*),VEC1(*),VEC2(*)
+
       Real*8, Allocatable:: SCR(:), LT(:)
+      INTEGER IOFF,NTEST,ISM
 * Some dummy initializations
       IOFF = 0 ! jwk-cleanup
 *
@@ -85,5 +85,4 @@
       Call mma_deallocate(LT)
 *
 *
-      RETURN
-      END
+      END SUBROUTINE TRACI_LUCIA

@@ -199,7 +199,7 @@ module InputData
     Logical :: NAC = .False.
     Integer :: iNACRoot1=0, iNACRoot2=0
     ! CSF       compute CSF contributions in derivative coupling
-    Logical :: CSF = .False.
+    Logical :: CSF = .True.
     ! IAINVAR   specify the CASPT2 energy is invariant wrt inactive
     !           and secondary orbital rotations. Development purpose
     Logical :: IAINVAR  = .True.
@@ -712,8 +712,8 @@ contains
         end do
         call mma_deallocate (dLine)
 
-      Case('CSF ')
-        Input%CSF = .true.
+      Case('NOCS')
+        Input%CSF = .false.
 
       Case('IAIN')
         Input%IAINVAR = .false.

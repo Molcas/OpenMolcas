@@ -11,7 +11,9 @@
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE T_ROW_TO_H(T,H,K,TKK)
+      use Constants, only: Zero, One
       use GLBBAS, only: PGINT1A
+      use lucia_data, only: NTOOB,IBSO,ISMFSO,NTOOBS
 *
 * Set H integrals
 *
@@ -23,15 +25,18 @@
 * Jeppe Olsen, Jan 98
 * For rotation of CI vectors
 *
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
+      Integer K
+      REAL*8 TKK
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "lucinp.fh"
 *. Input ( in blocked form)
-      DIMENSION T(*)
+      REAL*8 T(*)
 *. Output ( also in blocked form)
-      DIMENSION H(*)
+      REAL*8 H(*)
+
+      INTEGER, External:: IFRMR
+      INTEGER KSM,KOFF,KREL,NK,IOFF
+      REAL*8 FAC
 *
       KSM = ISMFSO(K)
       KOFF = IBSO(KSM)
@@ -39,22 +44,19 @@
       NK = NTOOBS(KSM)
 
 *
-      ZERO = 0.0D0
       CALL SETVEC(H,ZERO,NTOOB**2)
 *
       IOFF = IFRMR(PGINT1A(1)%I,1,KSM)
       CALL COPVEC(T(IOFF+(KREL-1)*NK),H(IOFF+(KREL-1)*NK),NK)
       TKK = H(IOFF-1+(KREL-1)*NK+KREL)
-      IF(TKK .NE. 0.0D0) THEN
-        FAC = 1.0D0/TKK
+      IF(TKK .NE. Zero) THEN
+        FAC = One/TKK
         CALL SCALVE(H(IOFF+(KREL-1)*NK),FAC,NK)
-C       H(IOFF-1+(K-1)*NK+K) = H(IOFF-1+(K-1)*NK+K) -1.0D0
-        H(IOFF-1+(KREL-1)*NK+KREL) = 0.0D0
+C       H(IOFF-1+(K-1)*NK+K) = H(IOFF-1+(K-1)*NK+K) -One
+        H(IOFF-1+(KREL-1)*NK+KREL) = Zero
       ELSE
-C       TKK = 1.0D0
-        TKK = 0.0D0
+C       TKK = One
+        TKK = Zero
       END IF
 *
-*
-      RETURN
-      END
+      END SUBROUTINE T_ROW_TO_H

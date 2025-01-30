@@ -8,26 +8,18 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION ISYMS1(STRING,NEL)
+      INTEGER FUNCTION ISYMS1(STRING,NEL)
 *
 * Symmmetry of string, D2H version
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*. General input
-#include "mxpdim.fh"
-#include "orbinp.fh"
-*
-      INTEGER SYMPRO(8,8)
-      DATA  SYMPRO/1,2,3,4,5,6,7,8,
-     &             2,1,4,3,6,5,8,7,
-     &             3,4,1,2,7,8,5,6,
-     &             4,3,2,1,8,7,6,5,
-     &             5,6,7,8,1,2,3,4,
-     &             6,5,8,7,2,1,4,3,
-     &             7,8,5,6,3,4,1,2,
-     &             8,7,6,5,4,3,2,1 /
+      use symmetry_info, only: SYMPRO => Mul
+      use lucia_data, only: ISMFTO
+      IMPLICIT None
 *. Specific input
+      Integer NEL
       INTEGER STRING(*)
+
+      INTEGER ISYM,IEL,NTEST
 *
       ISYM = 1
       DO 100 IEL = 1, NEL
@@ -43,5 +35,4 @@
         WRITE(6,*) ISYM
       END IF
 *
-      RETURN
-      END
+      END FUNCTION ISYMS1

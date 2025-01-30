@@ -35,13 +35,14 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use Constants, only: Zero
+      use input_mclr, only: nSym,nBas
+      Implicit None
 
-      Implicit Real*8 (A-H,O-Z)
+      Real*8 CMO(*) , OCC(*) , D(*)
 
-      Dimension CMO(*) , OCC(*) , D(*)
-
-
-#include "Input.fh"
+      Integer iOff1,iOff2,iOff3,iSym,iBas,i,ii,j,k
+      Real*8 Sum
 
       iOff1 = 0
       iOff2 = 0
@@ -52,7 +53,7 @@
           Do i = 1,iBas
             ii = (i*i-i)/2
             Do j = 1,i
-              Sum = 0.0d0
+              Sum = Zero
               Do k = 1,ibas
                 Sum = Sum + OCC(iOff3+k)
      &                    * CMO(iOff1+(k-1)*iBas+i)
@@ -68,5 +69,4 @@
         iOff3 = iOff3 + iBas
       End Do
 
-      Return
-      End
+      End Subroutine Dmat_MCLR

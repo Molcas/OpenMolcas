@@ -103,6 +103,7 @@ subroutine Cho_TraCtl(iTraType,LUINTM,CMO,NCMO,DoExch2)
 
 use Cho_Tra, only: DoCoul, DoExc2, DoFull, DoTCVA, IAD2M, IfTest, nAsh, nBas, nDel, nFro, nIsh, nOrb, nOsh, nSsh, nSym, NumCho, &
                    TCVX, TCVXist
+use Intgrl, only: IAD2M_I => IAD2M, LUINTMZ, NORBZ, NOSHZ, NSYMZ, NSYMZ
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero, One
@@ -226,11 +227,7 @@ TCVXist(:,:,:) = .false. ! TCVx existing flag.
 
 ! The Address Field for MOLINT:
 LenIAD2M = 3*36*36
-do i=1,36*36
-  IAD2M(1,i) = 0
-  IAD2M(2,i) = 0
-  IAD2M(3,i) = 0
-end do
+IAD2M(:,:) = 0
 iAddrIAD2M = 0
 call iDaFile(LUINTM,1,IAD2M,LenIAD2M,iAddrIAD2M)
 
@@ -416,7 +413,11 @@ if (IfTest) then
 end if
 !-----------------------------------------------------------------------
 
-call put_tra_comm(IAD2M,NSYM,NORB,NOSH,LUINTM)
+IAD2M_I(:,:) = IAD2M(:,:)
+NSYMZ = NSYM
+NORBZ(:) = NORB(:)
+NOSHZ(:) = NOSH(:)
+LUINTMZ = LUINTM
 
 return
 

@@ -8,11 +8,13 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION IELSUM(IVEC,NELMNT)
+      INTEGER FUNCTION IELSUM(IVEC,NELMNT)
+      IMPLICIT NONE
 *
 * Sum elements of integer vector IVEC
 *
-      DIMENSION IVEC(*)
+      INTEGER IVEC(*),NELMNT
+      INTEGER ISUM,IELMNT
 *
       ISUM = 0
       DO 100 IELMNT = 1, NELMNT
@@ -21,5 +23,4 @@
 *
       IELSUM = ISUM
 *
-      RETURN
-      END
+      END FUNCTION IELSUM

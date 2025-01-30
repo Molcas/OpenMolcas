@@ -13,7 +13,6 @@
       use gugx, only: SGStruct, CIStruct
       use MkGUGA_mod, only: MKGUGA
       IMPLICIT None
-!#include "rassi.fh"
       Integer nSym, nActEl, iSpin
       Type (SGStruct), Target :: SGS
       Type (CIStruct) :: CIS

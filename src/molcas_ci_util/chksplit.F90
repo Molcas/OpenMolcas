@@ -23,12 +23,14 @@ subroutine ChkSplit()
 !***********************************************************************
 
 use general_data, only: nConf
-use splitcas_data, only: iDimBlockA, lRootSplit, min_ThrSplit, MxDimBlockA, ThrSplit
-use Definitions, only: iwp
+use splitcas_data, only: iDimBlockA, lRootSplit, ThrSplit
+use output_ras, only: LF
+use Definitions, only: wp, iwp
 
 implicit none
-#include "output_ras.fh"
 integer(kind=iwp) :: IERR
+integer(kind=iwp), parameter :: MxDimBlockA = 2000
+real(kind=wp), parameter :: min_ThrSplit = 1.0e-12_wp
 
 #include "warnings.h"
 

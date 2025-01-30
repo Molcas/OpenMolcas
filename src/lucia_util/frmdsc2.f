@@ -19,15 +19,19 @@ C
 *    are not set to zero, the routine just returns with
 *    IMZERO = 1
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
-      DIMENSION ARRAY(*)
+      use Constants, only: Zero
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      INTEGER NDIM,MBLOCK,IFILE,IMZERO,I_AM_PACKED,NO_ZEROING
+      REAL*8 ARRAY(*)
 *
-      DIMENSION ISCR(2)
-      PARAMETER(LPBLK=50000)
+      INTEGER ISCR(2)
+      INTEGER, PARAMETER :: LPBLK=50000
       INTEGER IPAK(LPBLK)
-      DIMENSION XPAK(LPBLK)
-      DIMENSION IDUMMY(1)
+      REAL*8 XPAK(LPBLK)
+      INTEGER IDUMMY(1)
+      INTEGER IPACK,NBATCH,LBATCH,LBATCHP,ISTOP,IELMNT,NBLOCK,IREST,
+     &        IBASE
 
       IMZERO = 0
 C
@@ -42,7 +46,6 @@ C       CALL IFRMDS(ISCR,2,MMBLOCK,IFILE)
          I_AM_PACKED=ISCR(2)
          IF(IMZERO.EQ.1) THEN
             IF(NO_ZEROING.EQ.0) THEN
-               ZERO = 0.0D0
                CALL SETVEC(ARRAY,ZERO,NDIM)
             END IF
             GOTO 1001
@@ -50,7 +53,6 @@ C       CALL IFRMDS(ISCR,2,MMBLOCK,IFILE)
       END IF
 *
       IF(I_AM_PACKED.EQ.1) THEN
-         ZERO = 0.0D0
          CALL SETVEC(ARRAY,ZERO,NDIM)
 *. Loop over packed records of dimension LPBLK
          NBATCH = 0
@@ -111,5 +113,4 @@ C
 *
  1001 CONTINUE
 *
-      RETURN
-      END
+      END SUBROUTINE FRMDSC2

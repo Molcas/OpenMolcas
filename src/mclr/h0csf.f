@@ -94,20 +94,26 @@
 * =========================================
 *  Lucia Version, September 1993
 * =========================================
-      IMPLICIT REAL*8 (A-H,O-Z)
+      IMPLICIT None
 *.Output
-      DIMENSION H0(*),IPQCSF(*),IPQCNF(*)
+      REAL*8 H0(*)
+      INTEGER IPQCSF(*),IPQCNF(*)
+      INTEGER NP1CSF,NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPQCSF,NPQCNF
 *.Input
-      DIMENSION DIAG(*)
-      DIMENSION DTOC(*),IPRODT(*),ICONF(*)
+      REAL*8 DTOC(*)
+      INTEGER IPRODT(*),ICONF(*)
+      INTEGER MXP1DM,MXP2DM,MXQDM,IREFSM
+      REAL*8 ECORE
+      INTEGER NINOB,NACTOB,NCONF,NEL,NAEL,NBEL,IPWAY
+      REAL*8 DIAG(*)
+      INTEGER NTEST,INTSPC,ICOMBI
+      REAL*8 PSSIGN
 *.Scratch space
-      DIMENSION SCR(*),ISCR(*),DIAGCN(*)
+      REAL*8 SCR(*),DIAGCN(*)
+      INTEGER ISCR(*)
 *. SCR and ISCR are supposed to refer to the same array
 *
-#include "detdim.fh"
-
 #include "SysDef.fh"
-#include "spinfo_mclr.fh"
 *
       CALL H0CSF_INTERNAL(SCR,DIAGCN)
 *
@@ -115,8 +121,14 @@
       CONTAINS
       SUBROUTINE H0CSF_INTERNAL(SCR,DIAGCN)
       USE ISO_C_BINDING
+      use MCLR_Data, only: NTYP,NCNATS,NCPCNT
       REAL*8, TARGET :: SCR(*),DIAGCN(*)
       INTEGER, POINTER :: iPTR(:)
+      INTEGER NPCSF,ICSFMN,MXPQDM,ICNF,ITYP,NJCNF,NIRREP,IICNF,KLFREE,
+     &        KLDIPQ,KLCONF,IFINIT,IMIN,ICSFOF,NCSFMN,KLFREI,KLIDEG,
+     &        IDEG,NDGVL,IDGVL,IDGCSF,IDGCNF,NPCNF,KLPHP,KLPHQ,IICSF
+      REAL*8 XMAX,XMIN,DIAVAL
+      REAL*8, EXTERNAL:: FNDMNX
 *
 ** 1 : Obtain primary subspace
 *

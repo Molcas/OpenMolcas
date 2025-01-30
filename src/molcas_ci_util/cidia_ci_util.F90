@@ -21,6 +21,9 @@ subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
 
 use csfbas, only: CTS
 use Lucia_Interface, only: Lucia_Util
+use output_ras, only: IPRLOC
+use printlevel, only: DEBUG, INSANE
+use spinfo, only: NCNFTP, NCSFTP, NDET, NDTFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -31,10 +34,7 @@ integer(kind=iwp) :: IPRINT, IPRL, IPRLEV
 real(kind=wp) :: dum1, dum2, dum3, eCore_Hex
 real(kind=wp), allocatable :: DDIA(:)
 real(kind=wp), external :: Get_eCore
-#include "ciinfo.fh"
-#include "spinfo.fh"
 #include "timers.fh"
-#include "output_ras.fh"
 
 call Timing(Tissot_1,dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)

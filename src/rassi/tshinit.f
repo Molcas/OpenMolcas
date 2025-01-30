@@ -18,10 +18,11 @@
      &                 NACTE, NELE3, NHOLE1, RASTYP
       use cntrl, only: ISTATE1, nCI1, ISTATE2, nCI2, ChkHop
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NDEL,NFRO,NISH,NSSH
 
       IMPLICIT None
       Real*8 :: Energy(nState)
-#include "rassi.fh"
+
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)

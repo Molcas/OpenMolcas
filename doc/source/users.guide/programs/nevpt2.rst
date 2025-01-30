@@ -90,7 +90,7 @@ The optional keywords supported by :program:`NEVPT2` are listed below.
               </KEYWORD>
 
 :kword:`MULT`
-  Select specific states to perform QD-NEVPT2 calculation. Followed by a list of whitespace-separated state numbers, preceded by their total amount. Example: ``MULT=3 1 2 4`` for states 1, 2, 4 of a preceeding DMRG-SCF calculation of 4 roots (or more). ``MULT=ALL`` includes all states and is the default.
+  Select specific states to perform QD-NEVPT2 calculation. Followed by a list of whitespace-separated state numbers, preceded by their total amount. Example: ``MULT=3 1 2 4`` for states 1, 2, 4 of a preceding DMRG-SCF calculation of 4 roots (or more). ``MULT=ALL`` includes all states and is the default.
 
   .. xmldoc:: <KEYWORD MODULE="NEVPT2" NAME="MULT" KIND="CUSTOM" LEVEL="BASIC">
               %%Keyword: MULT <basic>

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1998, Jeppe Olsen                                      *
 ************************************************************************
-      FUNCTION ISYMSTR(ISYM,NSTR)
+      Integer FUNCTION ISYMSTR(ISYM,NSTR)
 *
 * Symmetry of product of NSTR string symmetries
 *
@@ -18,11 +18,12 @@
 *
 * Jeppe Olsen, 1998
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*. General input
-#include "multd2h.fh"
+      use symmetry_info, only: MULTD2H => Mul
+      IMPLICIT None
 *. Input
-      INTEGER ISYM(*)
+      INTEGER ISYM(*),NSTR
+
+      INTEGER IISYM, JSTR
 *
       IF(NSTR.EQ.0) THEN
         IISYM = 1
@@ -35,5 +36,4 @@
 *
       ISYMSTR = IISYM
 *
-      RETURN
-      END
+      END FUNCTION ISYMSTR

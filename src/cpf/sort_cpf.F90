@@ -15,7 +15,8 @@
 subroutine SORT_CPF(BUFOUT,INDOUT,ICAD,IBUFL,FC,FIJ,FJI,TIBUF)
 
 use cpf_global, only: IAD25S, ICH, IPRINT, IROW, ITOC17, LASTAD, LBUF, LN, Lu_25, Lu_TiABIJ, Lu_TraInt, Lu_TraOne, MADR, N, NORB, &
-                      NORBT, NSM, NSYM, NSYS, NTIBUF, NVIR, NVIRT, POTNUC
+                      NORBT, NSM, NSYM, NSYS, NVIR, NVIRT, POTNUC
+use TraToc, only: ITRATOC, NTRABUF, NTRATOC
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6, RtoI
@@ -23,9 +24,8 @@ use Definitions, only: wp, iwp, u6, RtoI
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_OUT_) :: BUFOUT(*), FC(*), FIJ(*), FJI(*), TIBUF(NTIBUF)
+real(kind=wp), intent(_OUT_) :: BUFOUT(*), FC(*), FIJ(*), FJI(*), TIBUF(NTRABUF)
 integer(kind=iwp), intent(_OUT_) :: INDOUT(*), ICAD(*), IBUFL(*)
-#include "tratoc.fh"
 integer(kind=iwp) :: I, IAD50, IADD17, IADD25, IBUF, ICP, ICPP, ICQ, ID, IDISK, IDIV, IEXP, II, IIJ, IIN, IJ, IJT, INAV, IND, &
                      IORBI, IOUT, IPOF(65), IREC, ISYM, IVEC(20), J, JDISK, JK, JNAV, JORBI, KORBI, LBUF0, LBUF1, LBUF2, M1, M2, &
                      M3, M4, N1, N2, N3, N4, NAV, NBV, NI, NJ, NK, NL, NOB2, NOP, NOQ, NOR, NORB0(9), NORBP, NORBTT, NOS, NOT2, &
@@ -134,7 +134,7 @@ do NSP=1,NSYM
         NOS = NORB(NSS)
         NORBP = NOP*NOQ*NOR*NOS
         if (NORBP == 0) cycle
-        call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
+        call dDAFILE(Lu_TraInt,2,TIBUF,NTRABUF,IAD50)
         IOUT = 0
         do NV=1,NOR
           NXM = NOS
@@ -149,8 +149,8 @@ do NSP=1,NSYM
               if (NSP == NSQ) NUMAX = NT
               do NU=NUMIN,NUMAX
                 IOUT = IOUT+1
-                if (IOUT > NTIBUF) then
-                  call dDAFILE(Lu_TraInt,2,TIBUF,NTIBUF,IAD50)
+                if (IOUT > NTRABUF) then
+                  call dDAFILE(Lu_TraInt,2,TIBUF,NTRABUF,IAD50)
                   IOUT = 1
                 end if
                 M1 = ICH(NORB0(NSP)+NT)

@@ -62,14 +62,14 @@
 #else
       use rasscf_global, only: DoBLOCKDMRG
 #endif
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NTOT,JOBIPH,NASH,NBAS,NDEL,NFRO,NISH,
+     &                        NSSH,NTOT2
 
       IMPLICIT None
 
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='NEWORB  '
-#include "SysDef.fh"
 
       Real*8 CMOO(*),CMON(*),FP(*),FTR(*),VEC(*),
      &          WO(*),SQ(*),D(*),OCCN(*),CMOX(*)

@@ -17,31 +17,17 @@
 *
 * TYPE : 'SX','OB','ST','DX','CI'
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-      CHARACTER*2 TYPE
-*./NONAB/
-* FIXME: This common block is never initialized or referenced elsewhere
-* In the absence of further information, I'm setting the values to 0
-*      COMMON /NONAB/ MNMLOB,NMLOB,
-*     &               MNMLST,NMLST,
-*     &               MNMLSX,NMLSX,
-*     &               MNMLCI,NMLCI,
-*     &               MNMLDX,NMLDX
-       PARAMETER (MNMLOB=0,NMLOB=0,
-     &            MNMLST=0,NMLST=0,
-     &            MNMLSX=0,NMLSX=0,
-     &            MNMLCI=0,NMLCI=0,
-     &            MNMLDX=0,NMLDX=0)
-*./CSM/
-C     COMMON/CSM/NSMSX,NSMDX,NSMST,NSMCI,ITSSX,ITSDX
-#include "csm.fh"
+      IMPLICIT NONE
+      INTEGER IML,IPARI,ISM,IWAY
+      CHARACTER(LEN=2) TYPE
+       INTEGER, PARAMETER  :: MNMLOB=0,NMLOB=0,
+     &                        MNMLST=0,NMLST=0,
+     &                        MNMLSX=0,NMLSX=0,
+     &                        MNMLCI=0,NMLCI=0,
+     &                        MNMLDX=0,NMLDX=0
 *
-*.(Tired of warnings from 3090 Compiler so )
-* (
-      NML = 0
-      MNML= 0
-*             )
+      INTEGER ::NML=0,MNML=0,NTEST
+
       IF(TYPE.EQ.'OB') THEN
         NML = NMLOB
         MNML = MNMLOB
@@ -83,5 +69,4 @@ C        ISM = (IPARI-1)*NML + MNML - 1
         WRITE(6,'(A,3I4)') ' IML IPARI ISM ',IML,IPARI,ISM
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE MLSM

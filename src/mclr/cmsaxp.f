@@ -107,19 +107,10 @@
 ************************************************************************
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "crun_mclr.fh"
-
+      use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
+      use MCLR_Data, only: XISPSM
+      use input_mclr, only: State_Sym,nSym,nRoots,ntAsh,nAsh
+      Implicit None
 
 ******Input
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
@@ -134,11 +125,13 @@
       Real*8,DIMENSION(:),Allocatable::Wop,Ddiff,D_acc
       INTEGER K,L,M
       INTEGER jSym
-      INTEGER iKK,iLL,iKL,iKL2,iKM2,iLM
+      INTEGER iKK,iLL,iKL,iKL2,iKM2,iLM,iKM
       Integer,DIMENSION(nSym):: off_Ash
       Real*8 coeff1,coeff2,Coeff,dRoots
       Integer tempi1,ipwslam,nconf3
       Real*8,DIMENSION(1)::tempda
+      Real*8, External:: DDot_
+      Integer, External:: ipGet
 
       INTEGER I
       Real*8,DIMENSION(:),Allocatable:: ovrlp
@@ -270,22 +263,14 @@
 
       CALL mma_deallocate(ovrlp)
 
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcAXPzx
 ******************************************************
 
 ******************************************************
       SUBROUTINE CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
-#include "Input.fh"
-#include "disp_mclr.fh"
-#include "Pointers.fh"
-#include "Files_mclr.fh"
-#include "detdim.fh"
-#include "cicisp_mclr.fh"
-#include "incdia.fh"
-#include "spinfo_mclr.fh"
-#include "sa.fh"
-#include "crun_mclr.fh"
+      use MCLR_Data, only: nNA, nDens2, ipMat
+      use input_mclr, only: nSym,nAsh,nBas,nIsh
+      Implicit None
 ******Input
       INTEGER NPUVX
       Real*8 Coeff
@@ -324,14 +309,14 @@
 
       CALL DScal_(nDens2,Coeff,Wop,1)
 
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcWop
 
 
 
 
 ******************************************************
       SUBROUTINE CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
+      Implicit None
       INTEGER nnA,nRoots,M,K
       REAL*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA)::GDMat
       REAL*8,DIMENSION(nnA**2)::Ddiff
@@ -347,11 +332,12 @@
        End Do
       END DO
 
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcDdiff
 
 ******************************************************
       Subroutine CalcDacc(Dacc,GDMat,M,nnA,nRoots,zx)
+      use Constants, only: Zero
+      Implicit None
       INTEGER nnA,nRoots,M
       REAL*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA)::GDMat
       REAL*8,DIMENSION(nnA**2)::Dacc
@@ -360,7 +346,7 @@
       INTEGER it,iu,K,IKM,IKM2,iLoc1,iLoc2
       REAL*8 Fact
 
-      CALL FZero(Dacc,nnA**2)
+      Dacc(:)=Zero
 
       DO K=1,nRoots
        IF(K.eq.M) Cycle
@@ -381,5 +367,4 @@
         end do
        End Do
       END DO
-      RETURN
-      END SUBROUTINE
+      END SUBROUTINE CalcDacc

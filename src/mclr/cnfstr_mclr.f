@@ -24,21 +24,28 @@
 *
 * Modified September 1993 for LUCIA
 *
-      IMPLICIT REAL*8 ( A-H,O-Z)
+      use MCLR_Data, only: MINOP, NDPCNT
+      IMPLICIT NONE
 *. Specific input
       INTEGER ICONF(*)
+      INTEGER ITYP,NORB,NAEL,NBEL,IDET
+      Integer NTEST
 *. General input
       INTEGER IPRODT(*)
+      Integer IAGRP,IBGRP
 *
 *. Scratch : required length : IDET * ( NAEL + NBEL ) + 2(NAEL+NBEL)
 * ( this includes NAEL+NBEL words needed in DETSTR )
       INTEGER ISCR(*)
 *. Output
-      DIMENSION IASTR(*),IBSTR(*), SIGN(*)
+      INTEGER IASTR(*),IBSTR(*)
+      REAL*8 SIGN(*)
 *
-#include "detdim.fh"
-#include "spinfo_mclr.fh"
 *
+*     Local Variables
+      INTEGER NEL,IOPEN,ICLOS,KLFREE,KLDETS,KLIA,KLIB,KLDET,IP,JTYP,
+     &        JDET,ISIGN
+      INTEGER, EXTERNAL:: ISTRN_MCLR
 *
       NEL = NAEL + NBEL
       IOPEN = ITYP-1+MINOP
@@ -85,6 +92,4 @@
         SIGN(JDET) = DBLE(ISIGN)
   100 CONTINUE
 *
-*
-      RETURN
-      END
+      END SUBROUTINE CNFSTR_MCLR

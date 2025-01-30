@@ -16,6 +16,7 @@
       use Constants, only: Zero, Two
       use Cntrl, only: NSTATE, NPROP, PNUC, PORIG, ICOMP, IPUSED, PNAME
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBASF
       IMPLICIT None
 ************************************************************************
 *     Objective: to compute the transition property between state      *
@@ -25,7 +26,6 @@
 *                                                                      *
 *     Author: Roland Lindh, Uppsala University, 23 Dec. 2015           *
 ************************************************************************
-#include "rassi.fh"
       INTEGER IPROP, ISTATE_, JSTATE_, ITYPE, NBUFF, NDENS, MASK, ISY12
       CHARACTER(LEN=8) LABEL
       REAL*8 PROP(NSTATE,NSTATE,NPROP), BUFF(NBUFF), DENS(NDENS,4)

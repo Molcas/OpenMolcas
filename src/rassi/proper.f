@@ -16,9 +16,9 @@
      &                 IRREP, PNAME, PTYPE
       use cntrl, only: FnTOM, LuTOM
       use Symmetry_Info, only: Mul, nSym=>nIrrep
+      use rassi_data, only: NTDMZZ,NBST,NBASF
 
       IMPLICIT None
-#include "rassi.fh"
       REAL*8 PROP(NSTATE,NSTATE,NPROP)
       Real*8 TDMZZ(NTDMZZ),WDMZZ(NTDMZZ)
       Integer ISTATE, JSTATE
