@@ -10,48 +10,45 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE INFO_CONF_LIST(NCONF_PER_OPEN,                         &
-     &                           MAXOP,NEL,LENGTH_LIST,NCONF_TOT,IB_REO,&
-     &                           IB_OCC)
-!
+
+subroutine INFO_CONF_LIST(NCONF_PER_OPEN,MAXOP,NEL,LENGTH_LIST,NCONF_TOT,IB_REO,IB_OCC)
 ! Info on  configuration list form NCONF_PER_OPEN
 !
 ! Jeppe Olsen, November 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. Input
-      INTEGER NCONF_PER_OPEN(MAXOP+1)
-!. Output :
-!    Offset for configuration  with given number of
-!    open orbitals in of configuration reordering
-      INTEGER IB_REO(MAXOP+1)
-!    Offset for configuration  with given number of
-!    open orbitals in list of configuration occupations
-      INTEGER IB_OCC(MAXOP+1)
-!
-      JB_REO = 1
-      JB_OCC = 1
-!?    WRITE(6,*) ' MAXOP, NEL = ', MAXOP, NEL
-      DO NOPEN = 0, MAXOP
-        IB_REO(NOPEN+1) =  JB_REO
-        IB_OCC(NOPEN+1) =  JB_OCC
-        IF(MOD(NEL-NOPEN,2).EQ.0) THEN
-          NOCOB = NOPEN + (NEL - NOPEN)/2
-          JB_OCC = JB_OCC + NOCOB*NCONF_PER_OPEN(NOPEN+1)
-          JB_REO = JB_REO + NCONF_PER_OPEN(NOPEN+1)
-        END IF
-      END DO
-!
-      LENGTH_LIST = JB_OCC-1
-      NCONF_TOT = JB_REO - 1
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' NCONF_PER_OPEN list '
-        CALL IWRTMA(NCONF_PER_OPEN,1,MAXOP+1,1,MAXOP+1)
-        WRITE(6,*) ' Length of configuration list :', LENGTH_LIST
-        WRITE(6,*) ' Total number of configurations : ', NCONF_TOT
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+integer NCONF_PER_OPEN(MAXOP+1)
+! Output :
+! Offset for configuration  with given number of
+! open orbitals in of configuration reordering
+integer IB_REO(MAXOP+1)
+! Offset for configuration  with given number of
+! open orbitals in list of configuration occupations
+integer IB_OCC(MAXOP+1)
+
+JB_REO = 1
+JB_OCC = 1
+!write(6,*) ' MAXOP, NEL = ',MAXOP,NEL
+do NOPEN=0,MAXOP
+  IB_REO(NOPEN+1) = JB_REO
+  IB_OCC(NOPEN+1) = JB_OCC
+  if (mod(NEL-NOPEN,2) == 0) then
+    NOCOB = NOPEN+(NEL-NOPEN)/2
+    JB_OCC = JB_OCC+NOCOB*NCONF_PER_OPEN(NOPEN+1)
+    JB_REO = JB_REO+NCONF_PER_OPEN(NOPEN+1)
+  end if
+end do
+
+LENGTH_LIST = JB_OCC-1
+NCONF_TOT = JB_REO-1
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' NCONF_PER_OPEN list'
+  call IWRTMA(NCONF_PER_OPEN,1,MAXOP+1,1,MAXOP+1)
+  write(6,*) ' Length of configuration list :',LENGTH_LIST
+  write(6,*) ' Total number of configurations : ',NCONF_TOT
+end if
+
+end subroutine INFO_CONF_LIST

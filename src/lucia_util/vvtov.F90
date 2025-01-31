@@ -8,16 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE VVTOV(VECIN1,VECIN2,VECUT,NDIM)
-!
+
+subroutine VVTOV(VECIN1,VECIN2,VECUT,NDIM)
 ! VECUT(I) = VECIN1(I) * VECIN2(I)
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION VECIN1(*),VECIN2(*),VECUT(*)
-!
-      DO 100 I = 1, NDIM
-        VECUT(I) = VECIN1(I) * VECIN2(I)
-  100 CONTINUE
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension VECIN1(*), VECIN2(*), VECUT(*)
+
+do I=1,NDIM
+  VECUT(I) = VECIN1(I)*VECIN2(I)
+end do
+
+end subroutine VVTOV

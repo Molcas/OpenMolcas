@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE NXT_CONF(ICONF,NEL,NORB,INI,NONEW)
-!
+
+subroutine NXT_CONF(ICONF,NEL,NORB,INI,NONEW)
 ! Next configuration of NEL electrons distributed in NORB orbitals
 !
 ! A configuration is stored as the occupied orbitals
@@ -23,89 +23,88 @@
 !    NONOEW = 1 : No new configuration could be generated
 !
 ! Jeppe Olsen, November 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-      INTEGER ICONF(NEL)
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Input configuration to NXT_CONF '
-        CALL IWRTMA(ICONF,1,NEL,1,NEL)
-        WRITE(6,*) ' NEL, NORB = ',  NEL, NORB
-      END IF
-      IF(INI.EQ.1) THEN
-!. Check that NEL electrons can be distributed in NORB orbitals
-        IF(NEL.LE.2*NORB) THEN
-          NONEW = 0
-          N_DOUBLE = NEL/2
-          DO I = 1, N_DOUBLE
-            ICONF(2*I-1) = I
-            ICONF(2*I)   = I
-          END DO
-          IF(2*N_DOUBLE.NE.NEL) ICONF(2*N_DOUBLE+1) = N_DOUBLE + 1
-        ELSE
-          NONEW = 1
-        END IF
-!
-      ELSE IF(INI.EQ.0) THEN
-!
-        IADD  = 1
-        IEL = 0
-!. Increase orbital number of next electron
- 1000   CONTINUE
-          IEL = IEL + 1
-!. Can orbital number be increased for electron IEL ?
-          INCREASE = 0
-          IF(IEL.LT.NEL) THEN
-            IF(ICONF(IEL).LT.ICONF(IEL+1)-1)  INCREASE = 1
-            IF(ICONF(IEL).EQ.ICONF(IEL+1)-1) THEN
-!. If ICONF(IEL) is increased, ICONF(IEL) = ICONF(IEL+1), check if this is ok
-              IF(IEL.EQ.NEL-1) THEN
-                 INCREASE = 1
-              ELSE IF (ICONF(IEL+1).NE.ICONF(IEL+2)) THEN
-                 INCREASE = 1
-              END IF
-            END IF
-          ELSE
-!-jwk new            IF(ICONF(IEL).LT.NORB) THEN
-            IF(IEL .EQ. NEL .AND. ICONF(IEL) .LT. NORB) THEN
-              INCREASE = 1
-            ELSE
-!. Nothing more to do
-              NONEW = 1
-              GOTO 1001
-            END IF
-          END IF
-!
-          IF(INCREASE.EQ.1) THEN
-!. Increase orbital for elec IEL
-            NONEW = 0
-            ICONF(IEL) = ICONF(IEL)+1
-!. Minimize orbital occupations
-            NDOUBLE = (IEL-1)/2
-            DO JORB = 1, NDOUBLE
-              ICONF(2*JORB-1) = JORB
-              ICONF(2*JORB  ) = JORB
-            END DO
-            IF(2*NDOUBLE.LT.IEL-1) ICONF(IEL-1) = NDOUBLE+1
-            IADD = 0
-          END IF
-        IF(IADD.EQ.1)  GOTO 1000
-      END IF
-!     ^ End if INI = 0
-!
- 1001 CONTINUE
-!
-      IF(NTEST.GE.100) THEN
-        IF(NONEW.EQ.1) THEN
-          WRITE(6,*) ' No new configurations '
-          WRITE(6,*) ' Input configuration '
-          CALL IWRTMA(ICONF,1,NEL,1,NEL)
-        ELSE
-          WRITE(6,*) ' Next configurations '
-          CALL IWRTMA(ICONF,1,NEL,1,NEL)
-        END IF
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+integer ICONF(NEL)
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Input configuration to NXT_CONF'
+  call IWRTMA(ICONF,1,NEL,1,NEL)
+  write(6,*) ' NEL, NORB = ',NEL,NORB
+end if
+if (INI == 1) then
+  ! Check that NEL electrons can be distributed in NORB orbitals
+  if (NEL <= 2*NORB) then
+    NONEW = 0
+    N_DOUBLE = NEL/2
+    do I=1,N_DOUBLE
+      ICONF(2*I-1) = I
+      ICONF(2*I) = I
+    end do
+    if (2*N_DOUBLE /= NEL) ICONF(2*N_DOUBLE+1) = N_DOUBLE+1
+  else
+    NONEW = 1
+  end if
+
+else if (INI == 0) then
+
+  IADD = 1
+  IEL = 0
+  ! Increase orbital number of next electron
+1000 continue
+  IEL = IEL+1
+  ! Can orbital number be increased for electron IEL ?
+  INCREASE = 0
+  if (IEL < NEL) then
+    if (ICONF(IEL) < ICONF(IEL+1)-1) INCREASE = 1
+    if (ICONF(IEL) == ICONF(IEL+1)-1) then
+      ! If ICONF(IEL) is increased, ICONF(IEL) = ICONF(IEL+1), check if this is ok
+      if (IEL == NEL-1) then
+        INCREASE = 1
+      else if (ICONF(IEL+1) /= ICONF(IEL+2)) then
+        INCREASE = 1
+      end if
+    end if
+  else
+    !-jwk new if (ICONF(IEL) < NORB) then
+    if ((IEL == NEL) .and. (ICONF(IEL) < NORB)) then
+      INCREASE = 1
+    else
+      ! Nothing more to do
+      NONEW = 1
+      goto 1001
+    end if
+  end if
+
+  if (INCREASE == 1) then
+    ! Increase orbital for elec IEL
+    NONEW = 0
+    ICONF(IEL) = ICONF(IEL)+1
+    ! Minimize orbital occupations
+    NDOUBLE = (IEL-1)/2
+    do JORB=1,NDOUBLE
+      ICONF(2*JORB-1) = JORB
+      ICONF(2*JORB) = JORB
+    end do
+    if (2*NDOUBLE < IEL-1) ICONF(IEL-1) = NDOUBLE+1
+    IADD = 0
+  end if
+  if (IADD == 1) goto 1000
+end if
+! End if INI = 0
+
+1001 continue
+
+if (NTEST >= 100) then
+  if (NONEW == 1) then
+    write(6,*) ' No new configurations'
+    write(6,*) ' Input configuration'
+    call IWRTMA(ICONF,1,NEL,1,NEL)
+  else
+    write(6,*) ' Next configurations'
+    call IWRTMA(ICONF,1,NEL,1,NEL)
+  end if
+end if
+
+end subroutine NXT_CONF

@@ -8,12 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SPSPCLS_GAS( NOCTPA, NOCTPB,   IOCA,   IOCB, NELFGP,   &
-     &                       MXPNGAS,   NGAS,ISPSPCLS,  ICLS,  NCLS,    &
-     &                         IPRNT)
-!
+
+subroutine SPSPCLS_GAS(NOCTPA,NOCTPB,IOCA,IOCB,NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS,NCLS,IPRNT)
 ! Obtain mapping a-supergroup X b-supergroup => class
-!
 !
 ! =====
 !.Input
@@ -27,7 +24,6 @@
 !
 ! MXPNGAS : Largest allowed number of gas spaces
 ! NGAS    : Actual number of gas spaces
-
 !
 ! ======
 !.Output
@@ -35,52 +31,48 @@
 !
 ! ISPSPCLS(IATP,IBTP) => Class of this block of determinants
 !                        =0 indicates unallowed(class less) combination
-!
-!.Input
-      INTEGER IOCA(MXPNGAS,NOCTPA),IOCB(MXPNGAS,NOCTPB)
-      INTEGER NELFGP(*)
-      INTEGER ICLS(NGAS,NCLS)
-!.Output
-      INTEGER ISPSPCLS(NOCTPA,NOCTPB)
 
-!
-      NTEST = 000
-      NTEST = MAX(NTEST,IPRNT)
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*) ' ISPSPCLS_GAS entered '
-        WRITE(6,*) ' ==================='
-        WRITE(6,*)
-        WRITE(6,*) ' IOCA and IOCB '
-        CALL IWRTMA(IOCA,NGAS,NOCTPA,MXPNGAS,NGAS)
-        CALL IWRTMA(IOCB,NGAS,NOCTPB,MXPNGAS,NGAS)
-        WRITE(6,*)
-        WRITE(6,*) ' ICLS '
-        CALL IWRTMA(ICLS,NGAS,NCLS,NGAS,NCLS)
-      END IF
-!
-      DO 100 IATP = 1, NOCTPA
-        DO 90 IBTP = 1, NOCTPB
-          IICLS = 0
-          DO KCLS = 1, NCLS
-            IAMOKAY = 1
-            DO IGAS = 1, NGAS
-              IEL = NELFGP(IOCA(IGAS,IATP))+NELFGP(IOCB(IGAS,IBTP))
-              IF(IEL.NE.ICLS(IGAS,KCLS)) IAMOKAY = 0
-            END DO
-            IF(IAMOKAY.EQ.1) IICLS=KCLS
-          END DO
-          ISPSPCLS(IATP,IBTP) = IICLS
-   90   CONTINUE
-  100 CONTINUE
-!
-      IF ( NTEST .GE. 10 ) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' Matrix giving classes for alpha-beta supergroups'
-        WRITE(6,*)
-        CALL IWRTMA(ISPSPCLS,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-      END IF
-!
-      RETURN
-      END
-!     BLKCLS(WORK(KLCIBT),NBLOCKS,WORK(KLBLKCLS),WORK(KLSPSPCL),
-!    &            NOCTPA,NOCTPB)
+! Input
+integer IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB)
+integer NELFGP(*)
+integer ICLS(NGAS,NCLS)
+! Output
+integer ISPSPCLS(NOCTPA,NOCTPB)
+
+NTEST = 0
+NTEST = max(NTEST,IPRNT)
+if (NTEST >= 10) then
+  write(6,*) ' ISPSPCLS_GAS entered'
+  write(6,*) ' ===================='
+  write(6,*)
+  write(6,*) ' IOCA and IOCB'
+  call IWRTMA(IOCA,NGAS,NOCTPA,MXPNGAS,NGAS)
+  call IWRTMA(IOCB,NGAS,NOCTPB,MXPNGAS,NGAS)
+  write(6,*)
+  write(6,*) ' ICLS'
+  call IWRTMA(ICLS,NGAS,NCLS,NGAS,NCLS)
+end if
+
+do IATP=1,NOCTPA
+  do IBTP=1,NOCTPB
+    IICLS = 0
+    do KCLS=1,NCLS
+      IAMOKAY = 1
+      do IGAS=1,NGAS
+        IEL = NELFGP(IOCA(IGAS,IATP))+NELFGP(IOCB(IGAS,IBTP))
+        if (IEL /= ICLS(IGAS,KCLS)) IAMOKAY = 0
+      end do
+      if (IAMOKAY == 1) IICLS = KCLS
+    end do
+    ISPSPCLS(IATP,IBTP) = IICLS
+  end do
+end do
+
+if (NTEST >= 10) then
+  write(6,*)
+  write(6,*) ' Matrix giving classes for alpha-beta supergroups'
+  write(6,*)
+  call IWRTMA(ISPSPCLS,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+end if
+
+end subroutine SPSPCLS_GAS

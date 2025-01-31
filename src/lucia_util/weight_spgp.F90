@@ -8,47 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE WEIGHT_SPGP(      Z, NORBTP, NELFTP,NORBFTP,   ISCR,   &
-     &                         NTEST)
-!
+
+subroutine WEIGHT_SPGP(Z,NORBTP,NELFTP,NORBFTP,ISCR,NTEST)
 ! construct vertex weights for given supergroup
 !
 ! Reverse lexical ordering is used
-!
-      IMPLICIT REAL*8           ( A-H,O-Z)
-!. Input
-      INTEGER NELFTP(NORBTP),NORBFTP(NORBTP)
-!. Ouput
-      INTEGER Z(*)
-!. Scratch length : 2 * NORB + (NEL+1)*(NORB+1)
-       INTEGER ISCR(*)
-       INTEGER, External:: IELSUM
-!
-       NORB = IELSUM(NORBFTP,NORBTP)
-       NEL  = IELSUM(NELFTP,NORBTP)
-!
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Subroutine WEIGHT_SPGP in action '
-        WRITE(6,*) ' ================================='
-        WRITE(6,*) 'NELFTP '
-        CALL IWRTMA(NELFTP,1,NORBTP,1,NORBTP)
-      END IF
-!
-      KLFREE = 1
-      KLMAX = KLFREE
-      KLFREE = KLFREE + NORB
-!
-      KLMIN = KLFREE
-      KLFREE = KLFREE + NORB
-!
-      KW = KLFREE
-      KLFREE = KW + (NEL+1)*(NORB+1)
-!.Max and min arrays for strings
-      CALL MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX),NORBTP,NORBFTP,NELFTP,   &
-     &                         NTEST)
-!. Arc weights
-      CALL GRAPW(  ISCR(KW),         Z,ISCR(KLMIN),ISCR(KLMAX),    NORB,&
-     &                  NEL,     NTEST)
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+integer NELFTP(NORBTP), NORBFTP(NORBTP)
+! Ouput
+integer Z(*)
+! Scratch length : 2 * NORB + (NEL+1)*(NORB+1)
+integer ISCR(*)
+integer, external :: IELSUM
+
+NORB = IELSUM(NORBFTP,NORBTP)
+NEL = IELSUM(NELFTP,NORBTP)
+
+if (NTEST >= 100) then
+  write(6,*) ' Subroutine WEIGHT_SPGP in action'
+  write(6,*) ' ================================'
+  write(6,*) 'NELFTP'
+  call IWRTMA(NELFTP,1,NORBTP,1,NORBTP)
+end if
+
+KLFREE = 1
+KLMAX = KLFREE
+KLFREE = KLFREE+NORB
+
+KLMIN = KLFREE
+KLFREE = KLFREE+NORB
+
+KW = KLFREE
+KLFREE = KW+(NEL+1)*(NORB+1)
+! Max and min arrays for strings
+call MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX),NORBTP,NORBFTP,NELFTP,NTEST)
+! Arc weights
+call GRAPW(ISCR(KW),Z,ISCR(KLMIN),ISCR(KLMAX),NORB,NEL,NTEST)
+
+end subroutine WEIGHT_SPGP

@@ -8,13 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE NGASDT(  IOCCMN,  IOCCMX,    NGAS,  ITOTSM,   NSMST,   &
-     &                    NOCTPA,  NOCTPB,   NSSOA,   NSSOB,   IAOCC,   &
-     &                     IBOCC, MXPNGAS,     NCOMB,  XNCOMB,          &
-     &                      MXSB,  MXSOOB,   IBLTP,  NTTSBL,    LCOL,   &
-     &                     IOCOC,MXSOOB_AS)
-!
-!
+
+subroutine NGASDT(IOCCMN,IOCCMX,NGAS,ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,IAOCC,IBOCC,MXPNGAS,NCOMB,XNCOMB,MXSB,MXSOOB,IBLTP, &
+                  NTTSBL,LCOL,IOCOC,MXSOOB_AS)
 ! Number of combinations with symmetry ITOTSM and
 ! occupation between IOCCMN and IOCCMX
 !
@@ -26,99 +22,93 @@
 ! NTTSBL is number of TTS blocks in vector
 ! LCOL is the sum of the number of columns in each block
 !
-!
 ! Winter 94/95
 ! May 1999 : Loops restructrured to sym,type,type (leftmost innerst)
 !            MXSB not calculated
-!
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. Allowed combinations of alpha and beta types
-      INTEGER IOCOC(NOCTPA,NOCTPB)
-!. Occupation constraints
-      DIMENSION IOCCMN(NGAS),IOCCMX(NGAS)
-!. Occupation of alpha and beta strings
-      DIMENSION IAOCC(MXPNGAS,*),IBOCC(MXPNGAS,*)
-!. Number of strings per supergroup and symmetry
-      DIMENSION NSSOA(NSMST,*),NSSOB(NSMST,*)
-!. block types
-      DIMENSION IBLTP(*)
-!
-      NTEST = 0
-      IF(NTEST.GE.5) THEN
-        WRITE(6,*) ' NGASDT speaking'
-        WRITE(6,*) ' ==============='
-        WRITE(6,*) ' NGAS NOCTPA,NOCTPB ',NGAS,NOCTPA,NOCTPB
-        WRITE(6,*) ' ITOTSM ', ITOTSM
-        WRITE(6,*) ' Upper and lower occupation constraints'
-        CALL IWRTMA(IOCCMN,1,NGAS,1,NGAS)
-        CALL IWRTMA(IOCCMX,1,NGAS,1,NGAS)
-        WRITE(6,*) ' IOCOC matrix '
-        CALL IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-        WRITE(6,*) ' Number of alpha and beta strings '
-        CALL IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
-        CALL IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
-      END IF
-!
-      MXSB = 0
-      MXSOOB = 0
-      MXSOOB_AS = 0
-      NCOMB = 0
-      XNCOMB = 0.0D0
-      NTTSBL = 0
-      LCOL = 0
-!
-      DO 200 IATP = 1, NOCTPA
-        DO 100 IBTP = 1, NOCTPB
-!
-          IF(NTEST.GE.10) THEN
-            WRITE(6,*) ' Alpha super group and beta super group'
-            CALL IWRTMA(IAOCC(1,IATP),1,NGAS,1,NGAS)
-            CALL IWRTMA(IBOCC(1,IBTP),1,NGAS,1,NGAS)
-          END IF
-!
-          IF(IOCOC(IATP,IBTP).EQ.1) THEN
-!
-            LTTS_AS = 0
-            DO 300 IASM = 1, NSMST
-              IF(IBLTP(IASM).EQ.0) GOTO 300
-              CALL SYMCOM(2,1,IASM,IBSM,ITOTSM)
-              IF(IBSM.NE.0) THEN
-                IF(IBLTP(IASM).EQ.2) THEN
-                  ISYM = 1
-                ELSE
-                  ISYM = 0
-                END IF
-                IF(ISYM.EQ.1.AND.IBTP.GT.IATP) GOTO 300
-                LASTR = NSSOA(IASM,IATP)
-                LBSTR = NSSOB(IBSM,IBTP)
-!. Size of unpacked block
-                LTTSUP =  LASTR*LBSTR
-!. Size of packed block
-                IF(ISYM.EQ.0.OR.IATP.NE.IBTP) THEN
-                  LTTSBL = LASTR*LBSTR
-                  XNCOMB = XNCOMB + dble(LASTR)*dble(LBSTR)
-                ELSE
-                  LTTSBL = LASTR*(LASTR+1)/2
-                  XNCOMB = XNCOMB + 0.5D0*dble(LASTR+1)*dble(LASTR)
-                END IF
-                LTTS_AS = LTTS_AS + LTTSUP
-                NCOMB = NCOMB + LTTSBL
-                MXSOOB = MAX(MXSOOB,LTTSUP)
-                NTTSBL = NTTSBL + 1
-                LCOL = LCOL + NSSOB(IBSM,IBTP)
-              END IF
-  300       CONTINUE
-            MXSOOB_AS = MAX(MXSOOB_AS,LTTS_AS)
-          END IF
-  100   CONTINUE
-  200 CONTINUE
-!
-      IF(NTEST.GE.1) THEN
-        WRITE(6,*) ' NGASDT : NCOMB XNCOMB ,NTTSBL',                    &
-     &               NCOMB,XNCOMB,NTTSBL
-      END IF
-!
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Allowed combinations of alpha and beta types
+integer IOCOC(NOCTPA,NOCTPB)
+! Occupation constraints
+dimension IOCCMN(NGAS), IOCCMX(NGAS)
+! Occupation of alpha and beta strings
+dimension IAOCC(MXPNGAS,*), IBOCC(MXPNGAS,*)
+! Number of strings per supergroup and symmetry
+dimension NSSOA(NSMST,*), NSSOB(NSMST,*)
+! block types
+dimension IBLTP(*)
+
+NTEST = 0
+if (NTEST >= 5) then
+  write(6,*) ' NGASDT speaking'
+  write(6,*) ' ==============='
+  write(6,*) ' NGAS NOCTPA,NOCTPB ',NGAS,NOCTPA,NOCTPB
+  write(6,*) ' ITOTSM ',ITOTSM
+  write(6,*) ' Upper and lower occupation constraints'
+  call IWRTMA(IOCCMN,1,NGAS,1,NGAS)
+  call IWRTMA(IOCCMX,1,NGAS,1,NGAS)
+  write(6,*) ' IOCOC matrix'
+  call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+  write(6,*) ' Number of alpha and beta strings'
+  call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
+  call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
+end if
+
+MXSB = 0
+MXSOOB = 0
+MXSOOB_AS = 0
+NCOMB = 0
+XNCOMB = 0.0d0
+NTTSBL = 0
+LCOL = 0
+
+do IATP=1,NOCTPA
+  do IBTP=1,NOCTPB
+
+    if (NTEST >= 10) then
+      write(6,*) ' Alpha super group and beta super group'
+      call IWRTMA(IAOCC(1,IATP),1,NGAS,1,NGAS)
+      call IWRTMA(IBOCC(1,IBTP),1,NGAS,1,NGAS)
+    end if
+
+    if (IOCOC(IATP,IBTP) == 1) then
+
+      LTTS_AS = 0
+      do IASM=1,NSMST
+        if (IBLTP(IASM) == 0) goto 300
+        call SYMCOM(2,1,IASM,IBSM,ITOTSM)
+        if (IBSM /= 0) then
+          if (IBLTP(IASM) == 2) then
+            ISYM = 1
+          else
+            ISYM = 0
+          end if
+          if ((ISYM == 1) .and. (IBTP > IATP)) goto 300
+          LASTR = NSSOA(IASM,IATP)
+          LBSTR = NSSOB(IBSM,IBTP)
+          ! Size of unpacked block
+          LTTSUP = LASTR*LBSTR
+          ! Size of packed block
+          if ((ISYM == 0) .or. (IATP /= IBTP)) then
+            LTTSBL = LASTR*LBSTR
+            XNCOMB = XNCOMB+dble(LASTR)*dble(LBSTR)
+          else
+            LTTSBL = LASTR*(LASTR+1)/2
+            XNCOMB = XNCOMB+0.5d0*dble(LASTR+1)*dble(LASTR)
+          end if
+          LTTS_AS = LTTS_AS+LTTSUP
+          NCOMB = NCOMB+LTTSBL
+          MXSOOB = max(MXSOOB,LTTSUP)
+          NTTSBL = NTTSBL+1
+          LCOL = LCOL+NSSOB(IBSM,IBTP)
+        end if
+300     continue
+      end do
+      MXSOOB_AS = max(MXSOOB_AS,LTTS_AS)
+    end if
+  end do
+end do
+
+if (NTEST >= 1) write(6,*) ' NGASDT : NCOMB XNCOMB, NTTSBL',NCOMB,XNCOMB,NTTSBL
+
+end subroutine NGASDT

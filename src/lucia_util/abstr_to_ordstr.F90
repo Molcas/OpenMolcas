@@ -10,74 +10,72 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE ABSTR_TO_ORDSTR( IA_OC, IB_OC,  NAEL,  NBEL,IDET_OC,   &
-     &                           IDET_SP,ISIGN)
-!
+
+subroutine ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISIGN)
 ! An alpha string (IA) and a betastring (IB) is given.
 ! Combine these two strings to give an determinant with
 ! orbitals in ascending order. For doubly occupied orbitals
 ! the alphaorbital is given first.
 ! The output is given as IDET_OC : Orbital occupation (configuration )
 !                        IDET_SP : Spin projections
-
+!
 ! The phase required to change IA IB into IDET is computes as ISIGN
 !
 ! Jeppe Olsen, November 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. Input
-      INTEGER IA_OC(NAEL),IB_OC(NBEL)
-!. Output
-      INTEGER IDET_OC(NAEL+NBEL)
-      INTEGER IDET_SP(NAEL+NBEL)
-!
-      NEXT_AL = 1
-      NEXT_BE = 1
-      NEXT_EL = 0
-      ISIGN = 1
-!. Loop over next electron in outputstring
-      DO NEXT_EL = 1, NAEL+NBEL
-       IF(NEXT_AL.LE.NAEL.AND.NEXT_BE.LE.NBEL) THEN
-!
-         IF(IA_OC(NEXT_AL).LE.IB_OC(NEXT_BE)) THEN
-!. Next electron is alpha electron
-           IDET_OC(NEXT_EL) = IA_OC(NEXT_AL)
-           IDET_SP(NEXT_EL) = +1
-           NEXT_AL = NEXT_AL + 1
-         ELSE
-!. Next electron is beta electron
-           IDET_OC(NEXT_EL) = IB_OC(NEXT_BE)
-           IDET_SP(NEXT_EL) = -1
-           NEXT_BE = NEXT_BE + 1
-           ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
-         END IF
-       ELSE IF(NEXT_BE.GT.NBEL) THEN
-!. Next electron is alpha electron
-           IDET_OC(NEXT_EL) = IA_OC(NEXT_AL)
-           IDET_SP(NEXT_EL) = +1
-           NEXT_AL = NEXT_AL + 1
-       ELSE IF(NEXT_AL.GT.NAEL) THEN
-!. Next electron is beta electron
-           IDET_OC(NEXT_EL) = IB_OC(NEXT_BE)
-           IDET_SP(NEXT_EL) = -1
-           NEXT_BE = NEXT_BE + 1
-           ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
-       END IF
-      END DO
-!    ^ End of loop over electrons in outputlist
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' ABSTR to ORDSTR : '
-        WRITE(6,*) ' ================= '
-        WRITE(6,*) ' Input alpha and beta strings '
-        CALL IWRTMA(IA_OC,1,NAEL,1,NAEL)
-        CALL IWRTMA(IB_OC,1,NBEL,1,NBEL)
-        WRITE(6,*) ' Configuration '
-        CALL IWRTMA(IDET_OC,1,NAEL+NBEL,1,NAEL+NBEL)
-        WRITE(6,*) ' Spin projections '
-        CALL IWRTMA(IDET_SP,1,NAEL+NBEL,1,NAEL+NBEL)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+integer IA_OC(NAEL), IB_OC(NBEL)
+! Output
+integer IDET_OC(NAEL+NBEL)
+integer IDET_SP(NAEL+NBEL)
+
+NEXT_AL = 1
+NEXT_BE = 1
+NEXT_EL = 0
+ISIGN = 1
+! Loop over next electron in outputstring
+do NEXT_EL=1,NAEL+NBEL
+  if ((NEXT_AL <= NAEL) .and. (NEXT_BE <= NBEL)) then
+
+    if (IA_OC(NEXT_AL) <= IB_OC(NEXT_BE)) then
+      ! Next electron is alpha electron
+      IDET_OC(NEXT_EL) = IA_OC(NEXT_AL)
+      IDET_SP(NEXT_EL) = +1
+      NEXT_AL = NEXT_AL+1
+    else
+      ! Next electron is beta electron
+      IDET_OC(NEXT_EL) = IB_OC(NEXT_BE)
+      IDET_SP(NEXT_EL) = -1
+      NEXT_BE = NEXT_BE+1
+      ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
+    end if
+  else if (NEXT_BE > NBEL) then
+    ! Next electron is alpha electron
+    IDET_OC(NEXT_EL) = IA_OC(NEXT_AL)
+    IDET_SP(NEXT_EL) = +1
+    NEXT_AL = NEXT_AL+1
+  else if (NEXT_AL > NAEL) then
+    ! Next electron is beta electron
+    IDET_OC(NEXT_EL) = IB_OC(NEXT_BE)
+    IDET_SP(NEXT_EL) = -1
+    NEXT_BE = NEXT_BE+1
+    ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
+  end if
+end do
+! End of loop over electrons in outputlist
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' ABSTR to ORDSTR :'
+  write(6,*) ' ================='
+  write(6,*) ' Input alpha and beta strings'
+  call IWRTMA(IA_OC,1,NAEL,1,NAEL)
+  call IWRTMA(IB_OC,1,NBEL,1,NBEL)
+  write(6,*) ' Configuration'
+  call IWRTMA(IDET_OC,1,NAEL+NBEL,1,NAEL+NBEL)
+  write(6,*) ' Spin projections'
+  call IWRTMA(IDET_SP,1,NAEL+NBEL,1,NAEL+NBEL)
+end if
+
+end subroutine ABSTR_TO_ORDSTR

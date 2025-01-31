@@ -10,37 +10,36 @@
 !                                                                      *
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
-      FUNCTION ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
+
+function ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
+! Address of string IOCC
 !
-! Adress of string IOCC
-!
-! version of Winter 1990 , Jeppe Olsen
-!
-      INTEGER Z
-      DIMENSION IOCC(*),NEWORD(*),Z(NORB,*)
-!
-      IZ = 1
-      DO 100 I = 1,NEL
-        IZ = IZ + Z(IOCC(I),I)
-  100 CONTINUE
-!
-      IF(IREORD.EQ.0) THEN
-        ISTRNM = IZ
-      ELSE
-        ISTRNM = NEWORD(IZ)
-      END IF
-!
-      NTEST = 0
-      IF ( NTEST .GT. 1 ) THEN
-        WRITE(6,*) ' STRING'
-        CALL IWRTMA(IOCC,1,NEL,1,NEL)
-        WRITE(6,*) ' Z matrix '
-        CALL IWRTMA(Z,NORB,NEL,NORB,NEL)
-!       WRITE(6,*) ' First two elements of reorder array'
-!       CALL IWRTMA(NEWORD,1,2,1,2)
-        WRITE(6,*) ' ADRESS OF STRING ',ISTRNM
-        WRITE(6,*) ' REV LEX number : ', IZ
-      END IF
-!
-      RETURN
-      END
+! version of Winter 1990, Jeppe Olsen
+
+integer Z
+dimension IOCC(*), NEWORD(*), Z(NORB,*)
+
+IZ = 1
+do I=1,NEL
+  IZ = IZ+Z(IOCC(I),I)
+end do
+
+if (IREORD == 0) then
+  ISTRNM = IZ
+else
+  ISTRNM = NEWORD(IZ)
+end if
+
+NTEST = 0
+if (NTEST > 1) then
+  write(6,*) ' STRING'
+  call IWRTMA(IOCC,1,NEL,1,NEL)
+  write(6,*) ' Z matrix'
+  call IWRTMA(Z,NORB,NEL,NORB,NEL)
+  !write(6,*) ' First two elements of reorder array'
+  !call IWRTMA(NEWORD,1,2,1,2)
+  write(6,*) ' ADDRESS OF STRING ',ISTRNM
+  write(6,*) ' REV LEX number : ',IZ
+end if
+
+end function ISTRNM

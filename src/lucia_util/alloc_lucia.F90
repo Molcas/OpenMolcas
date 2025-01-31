@@ -8,15 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ALLOC_LUCIA()
-      use stdalloc, only: mma_allocate
-      use GLBBAS, only: INT1, INT1O, PINT1, PINT2, PGINT1, PGINT1A,     &
-     &                  LSM1, LSM2, RHO1, SRHO1, KINH1_NOCCSYM, KINH1
-      use Constants, only: Zero
-      use lucia_data, only: NBINT1,NBINT2
-      use lucia_data, only: NSMOB
-      use lucia_data, only: NTOOB
-!
+
+subroutine ALLOC_LUCIA()
 ! Dimensions and
 ! Allocation of static memory
 !
@@ -30,8 +23,7 @@
 ! ======
 ! Output
 ! ======
-! KFREE : First array of free space after allocation of
-!         static memory
+! KFREE : First array of free space after allocation of static memory
 ! /GLBBAS/,/CDIM/
 !
 !
@@ -43,42 +35,48 @@
 !           Fall 97 (PGINT1 added )
 !           Spring 99
 
-!. Input
-      IMPLICIT None
-!.Output
-      Integer ISM
+use stdalloc, only: mma_allocate
+use GLBBAS, only: INT1, INT1O, PINT1, PINT2, PGINT1, PGINT1A, LSM1, LSM2, RHO1, SRHO1, KINH1_NOCCSYM, KINH1
+use Constants, only: Zero
+use lucia_data, only: NBINT1, NBINT2
+use lucia_data, only: NSMOB
+use lucia_data, only: NTOOB
 
-!.1 : One electron integrals( Complete matrix allocated )
-      CALL mma_allocate(INT1,NTOOB ** 2,Label='INT1')
-!. A copy of the original UNMODIFIED 1-elecs ints
-      CALL mma_allocate(INT1O,NTOOB ** 2,Label='Int1O')
-!. Zero to avoid problems with elements that will not
-!. be initialized
-      INT1(:)=ZERO
-      INT1O(:)=ZERO
-!.2 : Two electron integrals
-!. Pointers to symmetry block of integrals
-      CALL mma_allocate(PINT1,NBINT1,Label='PINT1')
-      CALL mma_allocate(PINT2,NBINT2,Label='PINT2')
-!. Pointers to nonsymmetric one-electron integrals
-      DO ISM = 1, NSMOB
-!. triangular packed
-        CALL mma_allocate(PGINT1(ISM)%I,NSMOB,Label='PGINT1(ISM)%I')
-!. no packing
-        CALL mma_allocate(PGINT1A(ISM)%I,NSMOB,Label='PGINT1A(ISM)%I')
-      END DO
-!. Symmetry of last index as a function of initial index
-      CALL mma_allocate(LSM1,NBINT1,Label='LSM1')
-      CALL mma_allocate(LSM2,NBINT2,Label='LSM2')
-!.3 One-body density
-      CALL mma_allocate(RHO1,NTOOB ** 2,Label='RHO1')
-!.3.1 : One-body spin density
-      CALL mma_allocate(SRHO1,NTOOB **2,Label='SRHO1')
-!. indices for pair of orbitals symmetry ordered
-!. Lower half packed
-      CALL mma_allocate(KINH1,NTOOB*NTOOB,Label='KINTH1')
-!. Complete form
-      CALL mma_allocate(KINH1_NOCCSYM,NTOOB*NTOOB,                      &
-     &                  Label='KINTH1_NOCCSYM')
-!
-      END SUBROUTINE ALLOC_LUCIA
+!. Input
+implicit none
+!.Output
+integer ISM
+
+! 1 : One electron integrals( Complete matrix allocated )
+call mma_allocate(INT1,NTOOB**2,Label='INT1')
+! A copy of the original UNMODIFIED 1-elecs ints
+call mma_allocate(INT1O,NTOOB**2,Label='Int1O')
+! Zero to avoid problems with elements that will not
+! be initialized
+INT1(:) = ZERO
+INT1O(:) = ZERO
+! 2 : Two electron integrals
+! Pointers to symmetry block of integrals
+call mma_allocate(PINT1,NBINT1,Label='PINT1')
+call mma_allocate(PINT2,NBINT2,Label='PINT2')
+! Pointers to nonsymmetric one-electron integrals
+do ISM=1,NSMOB
+  ! triangular packed
+  call mma_allocate(PGINT1(ISM)%I,NSMOB,Label='PGINT1(ISM)%I')
+  ! no packing
+  call mma_allocate(PGINT1A(ISM)%I,NSMOB,Label='PGINT1A(ISM)%I')
+end do
+! Symmetry of last index as a function of initial index
+call mma_allocate(LSM1,NBINT1,Label='LSM1')
+call mma_allocate(LSM2,NBINT2,Label='LSM2')
+! 3 One-body density
+call mma_allocate(RHO1,NTOOB**2,Label='RHO1')
+! 3.1 : One-body spin density
+call mma_allocate(SRHO1,NTOOB**2,Label='SRHO1')
+! indices for pair of orbitals symmetry ordered
+! Lower half packed
+call mma_allocate(KINH1,NTOOB*NTOOB,Label='KINTH1')
+! Complete form
+call mma_allocate(KINH1_NOCCSYM,NTOOB*NTOOB,Label='KINTH1_NOCCSYM')
+
+end subroutine ALLOC_LUCIA

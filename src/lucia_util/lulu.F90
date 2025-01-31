@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE LULU(A,L,U,NDIM)
-!
+
+subroutine LULU(A,L,U,NDIM)
 ! LU DECOMPOSITION OF MATRIX A
 !
 !     A = L * U
@@ -21,15 +21,14 @@
 !
 ! L AND U ARE STORED AS ONE DIMENSIONAL ARRAYS
 !
-!   L(I,J) = L(I*(I-1)/2 + J ) ( I .GE. J )
+!   L(I,J) = L(I*(I-1)/2 + J ) ( I >= J )
 !
-!   U(I,J) = U(J*(J-1)/2 + I ) ( J .GE. I )
+!   U(I,J) = U(J*(J-1)/2 + I ) ( J >= I )
 !
-! THIS ADRESSING SCHEMES SUPPORTS VECTORIZATION OVER COLUMNS
+! THIS ADDRESSING SCHEMES SUPPORTS VECTORIZATION OVER COLUMNS
 ! FOR L AND  OVER ROWS FOR U .
 !
-!
-! NO PIVOTING IS DONE HERE , SO THE SCHEME GOES :
+! NO PIVOTING IS DONE HERE, SO THE SCHEME GOES :
 !
 !     LOOP OVER R=1, NDIM
 !        LOOP OVER J = R, NDIM
@@ -41,39 +40,34 @@
 !        END OF LOOP OVER I
 !     END OF LOOP OVER R
 !
-! JEPPE OLSEN , OCTOBER 1988
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(NDIM,NDIM)
-      REAL*8  L(*),U(*)
-      REAL * 8  INPROD
-      INTEGER R
-!
-!
-      DO 1000 R = 1, NDIM
-!
-        DO 100 J = R, NDIM
-         U(J*(J-1)/2 + R ) = A(R,J) -                                   &
-     &   INPROD(L(R*(R-1)/2+1),U(J*(J-1)/2+1),R-1)
-  100   CONTINUE
-!
-        XFACI = 1.0D0/ U(R*(R+1)/2)
-        L(R*(R+1)/2 ) = 1.0D0
-        DO 200 I = R+1, NDIM
-          L(I*(I-1)/2 + R) = (A(I,R) -                                  &
-     &   INPROD(L(I*(I-1)/2+1),U(R*(R-1)/2+1),R-1) ) * XFACI
-  200  CONTINUE
-!
- 1000 CONTINUE
-!
-      NTEST = 0
-      IF ( NTEST .NE. 0 ) THEN
-         WRITE(6,*) ' L MATRIX '
-         CALL PRSYM(L,NDIM)
-         WRITE(6,*) ' U MATRIX ( TRANSPOSED ) '
-         CALL PRSYM(U,NDIM)
-      END IF
-!
-      RETURN
-      END
-!
+! JEPPE OLSEN, OCTOBER 1988
+
+implicit real*8(A-H,O-Z)
+dimension A(NDIM,NDIM)
+real*8 L(*), U(*)
+real*8 INPROD
+integer R
+
+do R=1,NDIM
+
+  do J=R,NDIM
+    U(J*(J-1)/2+R) = A(R,J)-INPROD(L(R*(R-1)/2+1),U(J*(J-1)/2+1),R-1)
+  end do
+
+  XFACI = 1.0d0/U(R*(R+1)/2)
+  L(R*(R+1)/2) = 1.0d0
+  do I=R+1,NDIM
+    L(I*(I-1)/2+R) = (A(I,R)-INPROD(L(I*(I-1)/2+1),U(R*(R-1)/2+1),R-1))*XFACI
+  end do
+
+end do
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' L MATRIX'
+  call PRSYM(L,NDIM)
+  write(6,*) ' U MATRIX ( TRANSPOSED )'
+  call PRSYM(U,NDIM)
+end if
+
+end subroutine LULU

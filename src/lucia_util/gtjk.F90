@@ -8,41 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GTJK(       RJ,       RK,    NTOOB,      SCR,   IREOTS,&
-     &                   IREOST)
-!
+
+subroutine GTJK(RJ,RK,NTOOB,SCR,IREOTS,IREOST)
 ! Interface routine for obtaining Coulomb (RJ) and
 ! Exchange integrals (RK)
 !
 ! Ordering of integrals is in the internal order
-      IMPLICIT None
-!
-!.Input
-      INTEGER NTOOB
-      INTEGER IREOTS(*), IREOST(*)
-!.Output
-      REAL*8 RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
-!.Scratch
-      REAL*8 SCR(2*NTOOB ** 2)
 
-      INTEGER NTEST
+implicit none
+! Input
+integer NTOOB
+integer IREOTS(*), IREOST(*)
+! Output
+real*8 RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
+! Scratch
+real*8 SCR(2*NTOOB**2)
+integer NTEST
 
-      CALL GTJK_RASSCF(RJ,RK,NTOOB,IREOST)
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' RJ and RK from GTJK '
-        CALL WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
-        CALL WRTMAT(RK,NTOOB,NTOOB,NTOOB,NTOOB)
-      END IF
-!
+call GTJK_RASSCF(RJ,RK,NTOOB,IREOST)
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' RJ and RK from GTJK'
+  call WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
+  call WRTMAT(RK,NTOOB,NTOOB,NTOOB,NTOOB)
+end if
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_real_array(SCR)
-        CALL Unused_integer_array(IREOTS)
-      END IF
-      END SUBROUTINE GTJK
+if (.false.) then
+  call Unused_real_array(SCR)
+  call Unused_integer_array(IREOTS)
+end if
 
-! Working on EXPHAM
-! some known problems :
-!     1 : if CSF are used diagonal is not delivered to H0mat
+end subroutine GTJK

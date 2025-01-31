@@ -10,37 +10,37 @@
 !                                                                      *
 ! Copyright (C) 1991,1997, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE INTIM()
-      use GLBBAS, only: INT1, INT1O, PINT1, PINT2, LSM1, LSM2, KINH1,   &
-     &                  KINH1_NOCCSYM
-      use Constants, only: Zero
-      use lucia_data, only: ECORE_HEX,ECORE_ORIG,ECORE
-      use lucia_data, only: NOINT
-      use lucia_data, only: NSMOB
-      use lucia_data, only: NTOOB,NTOOBS
-!
+
+subroutine INTIM()
 ! Interface to external integrals
 !
-! If NOINT .ne. 0, only pointers are constructed
+! If NOINT /= 0, only pointers are constructed
 ! Jeppe Olsen, Winter of 1991
 !
 ! Version : Fall 97
-!
-      IMPLICIT None
-!
-!. : Pointers for symmetry blocks of integrals
-!
-      CALL INTPNT(PINT1,LSM1,PINT2,LSM2)
-!
-!. Pointer for orbital indices for symmetry blocked matrices
-      CALL ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
-!
-!. Change one-electron integrals to inactive fock matrix
-      IF(NOINT.EQ.0) THEN
-        INT1O(:)=INT1(:)
-        ECORE_HEX = Zero
-      END IF
-      ECORE_ORIG = ECORE
-      ECORE = ECORE + ECORE_HEX
 
-      END SUBROUTINE INTIM
+use GLBBAS, only: INT1, INT1O, PINT1, PINT2, LSM1, LSM2, KINH1, KINH1_NOCCSYM
+use Constants, only: Zero
+use lucia_data, only: ECORE_HEX, ECORE_ORIG, ECORE
+use lucia_data, only: NOINT
+use lucia_data, only: NSMOB
+use lucia_data, only: NTOOB, NTOOBS
+
+implicit none
+
+! Pointers for symmetry blocks of integrals
+
+call INTPNT(PINT1,LSM1,PINT2,LSM2)
+
+! Pointer for orbital indices for symmetry blocked matrices
+call ORBINH1(KINH1,KINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
+
+! Change one-electron integrals to inactive fock matrix
+if (NOINT == 0) then
+  INT1O(:) = INT1(:)
+  ECORE_HEX = Zero
+end if
+ECORE_ORIG = ECORE
+ECORE = ECORE+ECORE_HEX
+
+end subroutine INTIM

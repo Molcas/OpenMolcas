@@ -8,86 +8,83 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GET_CKAJJB(     CB,     NJ,    NJA, CKAJJB,    NKA,    &
-     &                          NJB,      J,   ISCA,   SSCA)
-!
+
+subroutine GET_CKAJJB(CB,NJ,NJA,CKAJJB,NKA,NJB,J,ISCA,SSCA)
 ! Obtain for given orbital index j the gathered matrix
 !
 ! C(Ka,j,Jb) = SSCA(Ka)C(Jb,ISCA(Ka))
 !
 ! For efficient processing of alpha-beta loop
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. Input
-       DIMENSION CB(NJB,NJA), SSCA(*),ISCA(*)
-!. Output
-       DIMENSION CKAJJB(*)
-!
-!. To get rid of annoying and incorrect compiler warnings
-      ICOFF = 0
-!
-!?    WRITE(6,*) ' From GET_CKAJJB'
-!     LBLK = 100
-      LBLK = 40
-      NBLK = NJB/LBLK
-      IF(LBLK*NBLK.LT.NJB) NBLK = NBLK + 1
-      DO ICBL = 1, NBLK
-        IF(ICBL.EQ.1) THEN
-          ICOFF = 1
-        ELSE
-          ICOFF = ICOFF + LBLK
-        END IF
-        ICEND = MIN(ICOFF+LBLK-1,NJB)
-        ICONST = NKA*NJ
-        IADR0 =  (J-1)*NKA+(ICOFF-1-1)*NKA*NJ
-        IF(ICEND.GT.ICOFF) THEN
-!. Inner loop over JB
-          DO KA  = 1, NKA
-            IF(ISCA(KA).NE.0) THEN
-              S = SSCA(KA)
-              IROW = ISCA(KA)
-!             IADR = KA + (J-1)*NKA+(ICOFF-1-1)*NKA*NJ
-              IADR = IADR0 + KA
-              DO JB = ICOFF,ICEND
-!. Adress of C(Ka,j,Jb)
-                IADR = IADR + ICONST
-                CKAJJB(IADR) = S*CB(JB,IROW)
-              END DO
-            ELSE
-              IADR = IADR0 + KA
-              DO JB = ICOFF,ICEND
-!               IADR = KA + (J-1)*NKA+(JB-1)*NKA*NJ
-                IADR = IADR + ICONST
-                CKAJJB(IADR) = 0.0D0
-              END DO
-            END IF
-          END DO
-        ELSE
-!. No inner loop over JB
-          DO KA  = 1, NKA
-            IF(ISCA(KA).NE.0) THEN
-              S = SSCA(KA)
-              IROW = ISCA(KA)
-!             IADR = KA + (J-1)*NKA+(ICOFF-1-1)*NKA*NJ
-              IADR = IADR0 + KA
-!             DO JB = ICOFF,ICEND
-!. Adress of C(Ka,j,Jb)
-                IADR = IADR + ICONST
-                CKAJJB(IADR) = S*CB(ICOFF,IROW)
-!             END DO
-            ELSE
-              IADR = IADR0 + KA
-!             DO JB = ICOFF,ICEND
-!               IADR = KA + (J-1)*NKA+(JB-1)*NKA*NJ
-                IADR = IADR + ICONST
-                CKAJJB(IADR) = 0.0D0
-!             END DO
-            END IF
-          END DO
-        END IF
-!       ^ End of test ICEND,ICOFF
-      END DO
-!
-      RETURN
-      END
-!
+
+implicit real*8(A-H,O-Z)
+! Input
+dimension CB(NJB,NJA), SSCA(*), ISCA(*)
+! Output
+dimension CKAJJB(*)
+
+! To get rid of annoying and incorrect compiler warnings
+ICOFF = 0
+
+!write(6,*) ' From GET_CKAJJB'
+!LBLK = 100
+LBLK = 40
+NBLK = NJB/LBLK
+if (LBLK*NBLK < NJB) NBLK = NBLK+1
+do ICBL=1,NBLK
+  if (ICBL == 1) then
+    ICOFF = 1
+  else
+    ICOFF = ICOFF+LBLK
+  end if
+  ICEND = min(ICOFF+LBLK-1,NJB)
+  ICONST = NKA*NJ
+  IADR0 = (J-1)*NKA+(ICOFF-1-1)*NKA*NJ
+  if (ICEND > ICOFF) then
+    ! Inner loop over JB
+    do KA=1,NKA
+      if (ISCA(KA) /= 0) then
+        S = SSCA(KA)
+        IROW = ISCA(KA)
+        !IADR = KA+(J-1)*NKA+(ICOFF-1-1)*NKA*NJ
+        IADR = IADR0+KA
+        do JB=ICOFF,ICEND
+          ! Address of C(Ka,j,Jb)
+          IADR = IADR+ICONST
+          CKAJJB(IADR) = S*CB(JB,IROW)
+        end do
+      else
+        IADR = IADR0+KA
+        do JB=ICOFF,ICEND
+          !IADR = KA+(J-1)*NKA+(JB-1)*NKA*NJ
+          IADR = IADR+ICONST
+          CKAJJB(IADR) = 0.0d0
+        end do
+      end if
+    end do
+  else
+    ! No inner loop over JB
+    do KA=1,NKA
+      if (ISCA(KA) /= 0) then
+        S = SSCA(KA)
+        IROW = ISCA(KA)
+        !IADR = KA+(J-1)*NKA+(ICOFF-1-1)*NKA*NJ
+        IADR = IADR0+KA
+        !do JB=ICOFF,ICEND
+        ! Address of C(Ka,j,Jb)
+        IADR = IADR+ICONST
+        CKAJJB(IADR) = S*CB(ICOFF,IROW)
+        !end do
+      else
+        IADR = IADR0+KA
+        !do JB=ICOFF,ICEND
+        !  IADR = KA + (J-1)*NKA+(JB-1)*NKA*NJ
+        IADR = IADR+ICONST
+        CKAJJB(IADR) = 0.0d0
+        !end do
+      end if
+    end do
+  end if
+  ! End of test ICEND,ICOFF
+end do
+
+end subroutine GET_CKAJJB

@@ -90,7 +90,7 @@
 *   PSSIGN : Spin combination sign
 *
 * =========================================
-* Jeppe Olsen , Spring of 90 , from PHPCSF
+* Jeppe Olsen, Spring of 90 , from PHPCSF
 * =========================================
 *  Lucia Version, September 1993
 * =========================================
@@ -333,7 +333,7 @@
       END IF
 *. End if for IWAY = 2
 *
-*. This is not beautiful, but neccessary
+*. This is not beautiful, but necessary
       MXP1DM = NP1CSF
       MXP2DM = NP2CSF
       MXQDM = NQCSF

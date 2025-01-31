@@ -11,12 +11,8 @@
 ! Copyright (C) 1991,1997, Jeppe Olsen                                 *
 !               2015, Lasse Kragh Soerensen                            *
 !***********************************************************************
-      SUBROUTINE RASSG3(      CB,      SB,   NBATS,   LBATS,  LEBATS,   &
-     &                    I1BATS,   IBATS,     LUC,    LUHC,            &
-     &                    I_AM_OUT,N_ELIMINATED_BATCHES)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use lucia_data, only: IDISK
-!
+
+subroutine RASSG3(CB,SB,NBATS,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,I_AM_OUT,N_ELIMINATED_BATCHES)
 ! Direct RAS routine employing combined MOC/n-1 resolution method
 !
 ! Jeppe Olsen   Winter of 1991
@@ -25,32 +21,28 @@
 ! Lasse Soerensen October 2015
 !                 Do not calculate unwanted batches for highly
 !                 excited states.
-!
-! =====
-! Input
-! =====
-!
 
-      IMPLICIT NONE
-      INTEGER NBATS,LUC,LUHC,N_ELIMINATED_BATCHES
-!. Batches of sigma
-      INTEGER LBATS(*),LEBATS(*),I1BATS(*),IBATS(8,*)
-      INTEGER I_AM_OUT(*)
-!.Scratch
-      REAL*8 SB(*),CB(*)
+use stdalloc, only: mma_allocate, mma_deallocate
+use lucia_data, only: IDISK
 
-      Integer, Allocatable:: SBSIZ(:), SBOFF(:)
-      INTEGER NSB,JBATS,ISTA,IEND,I_AM_NOT_WANTED,ISBLK,I,ISBOFF,IOFF,  &
-     &        ILEN
-!
-      IF (.FALSE.) Call Unused_integer_array(LEBATS)
+implicit none
+integer NBATS, LUC, LUHC, N_ELIMINATED_BATCHES
+! Batches of sigma
+integer LBATS(*), LEBATS(*), I1BATS(*), IBATS(8,*)
+integer I_AM_OUT(*)
+! Scratch
+real*8 SB(*), CB(*)
+integer, allocatable :: SBSIZ(:), SBOFF(:)
+integer NSB, JBATS, ISTA, IEND, I_AM_NOT_WANTED, ISBLK, I, ISBOFF, IOFF, ILEN
+
+if (.false.) call Unused_integer_array(LEBATS)
 #ifdef _DEBUGPRINT_
-      WRITE(6,*) ' ================='
-      WRITE(6,*) ' RASSG3 speaking :'
-      WRITE(6,*) ' ================='
-      WRITE(6,*) ' RASSG3 : NBATS = ',NBATS
+write(6,*) ' ================='
+write(6,*) ' RASSG3 speaking :'
+write(6,*) ' ================='
+write(6,*) ' RASSG3 : NBATS = ',NBATS
 #endif
-!
+
 !SVC: Compute offsets of a sigma batch in the sigma array.
 !     The batches used inside sblock(s) use a batch size corresponding
 !     to the 'expanded form' as computed inside part_civ2. This is
@@ -58,89 +50,89 @@
 !     be actually written to disc uses the 'packed form', stored inside
 !     the 8th element of IBATS. This also computes the total size NSB.
 
-      Call mma_allocate(SBSIZ,NBATS,Label='SBSIZ')
-      Call mma_allocate(SBOFF,NBATS,Label='SBOFF')
+call mma_allocate(SBSIZ,NBATS,Label='SBSIZ')
+call mma_allocate(SBOFF,NBATS,Label='SBOFF')
 
-      NSB=0
-      DO JBATS = 1, NBATS
-        ISTA=I1BATS(JBATS)
-        IEND=I1BATS(JBATS)+LBATS(JBATS)-1
-        SBSIZ(JBATS)=SUM(IBATS(7,ISTA:IEND))
-        NSB=NSB+SBSIZ(JBATS)
-      END DO
-      SBOFF(1) = 1
-      DO JBATS = 2, NBATS
-        SBOFF(JBATS) = SBOFF(JBATS-1) + SBSIZ(JBATS-1)
-      END DO
+NSB = 0
+do JBATS=1,NBATS
+  ISTA = I1BATS(JBATS)
+  IEND = I1BATS(JBATS)+LBATS(JBATS)-1
+  SBSIZ(JBATS) = sum(IBATS(7,ISTA:IEND))
+  NSB = NSB+SBSIZ(JBATS)
+end do
+SBOFF(1) = 1
+do JBATS=2,NBATS
+  SBOFF(JBATS) = SBOFF(JBATS-1)+SBSIZ(JBATS-1)
+end do
 
 !SVC: the entire sigma array is zeroed here, because each process will
 !     zero only its own sigma blocks, and we need to do a global sum
 !     operations later to combine blocks before writing.
-      CALL DCOPY_(NSB,[0.0D0],0,SB,1)
+call DCOPY_(NSB,[0.0d0],0,SB,1)
 
-      DO JBATS=1,NBATS
-!
-! Lasse addition start
-! MGD here we try to remove the whole batch if possible
-! later, we will put to zero individual blocks in case
-! the batch had a mix of maximum and non-maximum occupation
-! and thus survived this test
-!
-        I_AM_NOT_WANTED = 0
-        DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
-          I_AM_NOT_WANTED = 0
-          DO I = 1, N_ELIMINATED_BATCHES
-            IF(I_AM_OUT(I).EQ.ISBLK) THEN
-              I_AM_NOT_WANTED = 1
-              EXIT
-            END IF
-          END DO
-          if (I_AM_NOT_WANTED.eq.0) exit
-        EndDo
-        IF(I_AM_NOT_WANTED.EQ.1) CYCLE
-!
-! Lasse addition end
-!
+do JBATS=1,NBATS
 
-      ISBOFF=SBOFF(JBATS)
-!. Obtain sigma for batch of blocks
-      CALL SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,                &
-     &            CB,SB(ISBOFF),LUC,0,0,0,0,0)
+  ! Lasse addition start
+  ! MGD here we try to remove the whole batch if possible
+  ! later, we will put to zero individual blocks in case
+  ! the batch had a mix of maximum and non-maximum occupation
+  ! and thus survived this test
 
-      END DO
+  I_AM_NOT_WANTED = 0
+  do ISBLK=I1BATS(JBATS),I1BATS(JBATS)+LBATS(JBATS)-1
+    I_AM_NOT_WANTED = 0
+    do I=1,N_ELIMINATED_BATCHES
+      if (I_AM_OUT(I) == ISBLK) then
+        I_AM_NOT_WANTED = 1
+        exit
+      end if
+    end do
+    if (I_AM_NOT_WANTED == 0) exit
+  end do
+  if (I_AM_NOT_WANTED == 1) cycle
 
-      CALL GADSUM(SB,NSB)
+  ! Lasse addition end
+
+
+  ISBOFF = SBOFF(JBATS)
+  ! Obtain sigma for batch of blocks
+  call SBLOCK(LBATS(JBATS),IBATS(1,I1BATS(JBATS)),1,CB,SB(ISBOFF),LUC,0,0,0,0,0)
+
+end do
+
+call GADSUM(SB,NSB)
 !SVC: Write sigma array to disk here, after sum reduction.
 !     The writing is done in consecutive blocks, but since I don't know
 !     if this block structure is used internally, I didn't optimize this.
-      IF(LUHC.GT.0) IDISK(LUHC)=0
-      DO JBATS = 1, NBATS
-        ISBOFF=SBOFF(JBATS)
-        DO ISBLK = I1BATS(JBATS),I1BATS(JBATS)+ LBATS(JBATS)-1
-          IOFF = IBATS(6,ISBLK)
-          ILEN = IBATS(8,ISBLK)
-          CALL ITODS([ILEN],1,-1,LUHC)
-!MGD zero afterwards since it is easier
-          I_AM_NOT_WANTED = 0
-          DO I = 1, N_ELIMINATED_BATCHES
-            IF(I_AM_OUT(I).EQ.ISBLK) THEN
-               I_AM_NOT_WANTED = 1
-               EXIT
-             EndIf
-          End Do
-          If (I_AM_NOT_WANTED.eq.1) Call fzero(SB(ISBOFF-1+IOFF),ILEN)
-!
-          CALL TODSC(SB(ISBOFF-1+IOFF),ILEN,-1,LUHC)
-        END DO
-      END DO
+if (LUHC > 0) IDISK(LUHC) = 0
+do JBATS=1,NBATS
+  ISBOFF = SBOFF(JBATS)
+  do ISBLK=I1BATS(JBATS),I1BATS(JBATS)+LBATS(JBATS)-1
+    IOFF = IBATS(6,ISBLK)
+    ILEN = IBATS(8,ISBLK)
+    call ITODS([ILEN],1,-1,LUHC)
+    !MGD zero afterwards since it is easier
+    I_AM_NOT_WANTED = 0
+    do I=1,N_ELIMINATED_BATCHES
+      if (I_AM_OUT(I) == ISBLK) then
+        I_AM_NOT_WANTED = 1
+        exit
+      end if
+    end do
+    if (I_AM_NOT_WANTED == 1) call fzero(SB(ISBOFF-1+IOFF),ILEN)
 
-      Call mma_deallocate(SBSIZ)
-      Call mma_deallocate(SBOFF)
+    call TODSC(SB(ISBOFF-1+IOFF),ILEN,-1,LUHC)
+  end do
+end do
 
-      CALL ITODS([-1],1,-1,LUHC)
+call mma_deallocate(SBSIZ)
+call mma_deallocate(SBOFF)
+
+call ITODS([-1],1,-1,LUHC)
 
 #ifdef _DEBUGPRINT_
-      WRITE(6,*) ' Final S-vector on disc'
-      CALL WRTVCD(SB,LUHC,1,-1)
+write(6,*) ' Final S-vector on disc'
+call WRTVCD(SB,LUHC,1,-1)
 #endif
-      END SUBROUTINE RASSG3
+
+end subroutine RASSG3

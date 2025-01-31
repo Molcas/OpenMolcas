@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,&
-     &                     NLIST_PTDET, ISCR)
-!
+
+subroutine REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,NLIST_PTDET,ISCR)
 ! A list(ILIST_PTDET) of prototype determinants with NOPEN unpaired electrons and
 ! NALPHA alpha electrons is given.
 !
@@ -25,64 +24,60 @@
 !            ILIST_PTDET are given zero address
 !
 !. Jeppe Olsen, December 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. Input
-      INTEGER ILIST_PTDET(NOPEN,*)
-!. Output
-      INTEGER IZ_PTDET(NOPEN,NALPHA), IREO_PTDET(*)
-!. Local scratch : Min length : 2*NOPEN + (NALPHA+1)*(NOPEN+1)
-      INTEGER ISCR(*)
-      INTEGER NOPEN_ARR(1),NALPHA_ARR(1),IDUM(1)
-      NTEST = 00
-!
+
+implicit real*8(A-H,O-Z)
+! Input
+integer ILIST_PTDET(NOPEN,*)
+! Output
+integer IZ_PTDET(NOPEN,NALPHA), IREO_PTDET(*)
+! Local scratch : Min length : 2*NOPEN + (NALPHA+1)*(NOPEN+1)
+integer ISCR(*)
+integer NOPEN_ARR(1), NALPHA_ARR(1), IDUM(1)
+NTEST = 0
+
 ! 1 : Set up lexical order array for prototype determinants
 !     (alpha considered as occupied electron)
-      KLMIN = 1
-      KLMAX = KLMIN + NOPEN
-      KLW   = KLMAX + NOPEN
-      NOPEN_ARR(1) =NOPEN
-      NALPHA_ARR(1)=NALPHA
-      CALL MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX), 1,NOPEN_ARR,NALPHA_ARR, &
-     &                      NTEST)
-      NOPEN =NOPEN_ARR(1)
-      NALPHA=NALPHA_ARR(1)
-!
-!. Arc weights
-!
-      CALL GRAPW( ISCR(KLW),  IZ_PTDET,ISCR(KLMIN),ISCR(KLMAX),   NOPEN,&
-     &               NALPHA,     NTEST)
-      NOPEN_ARR(1)=NOPEN
-      NALPHA_ARR(1)=NALPHA
-!
-!. Reorder array
-!
-!. Total number of prototype determinants
-      NTOT_PTDET = 0
-      IF (NALPHA .GE. 0 .AND. NALPHA .LE. NOPEN) THEN
-         NTOT_PTDET = IBION_LUCIA(NOPEN,NALPHA)
-      ELSE
-         NTOT_PTDET = 0
-      ENDIF
-      IZERO = 0
-      CALL ISETVC(IREO_PTDET,IZERO,NTOT_PTDET)
-!
-      DO JPTDT = 1, NLIST_PTDET
-!?     WRITE(6,*) ' JPTDT = ', JPTDT
-!. Lexical address of prototype determiant JPTDT
-       IF(NALPHA.EQ.0) THEN
-         ILEX=1
-       ELSE
-         ILEX = IZNUM_PTDT(ILIST_PTDET(1,JPTDT),NOPEN,NALPHA,IZ_PTDET,  &
-     &                   IDUM,0)
-       END IF
-       IREO_PTDET(ILEX) = JPTDT
-      END DO
-!
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Reorder array for prototype determinants '
-        CALL IWRTMA(IREO_PTDET,1,NTOT_PTDET,1,NTOT_PTDET)
-      END IF
-!
-      RETURN
-      END
+KLMIN = 1
+KLMAX = KLMIN+NOPEN
+KLW = KLMAX+NOPEN
+NOPEN_ARR(1) = NOPEN
+NALPHA_ARR(1) = NALPHA
+call MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX),1,NOPEN_ARR,NALPHA_ARR,NTEST)
+NOPEN = NOPEN_ARR(1)
+NALPHA = NALPHA_ARR(1)
+
+! Arc weights
+
+call GRAPW(ISCR(KLW),IZ_PTDET,ISCR(KLMIN),ISCR(KLMAX),NOPEN,NALPHA,NTEST)
+NOPEN_ARR(1) = NOPEN
+NALPHA_ARR(1) = NALPHA
+
+! Reorder array
+
+! Total number of prototype determinants
+NTOT_PTDET = 0
+if ((NALPHA >= 0) .and. (NALPHA <= NOPEN)) then
+  NTOT_PTDET = IBION_LUCIA(NOPEN,NALPHA)
+else
+  NTOT_PTDET = 0
+end if
+IZERO = 0
+call ISETVC(IREO_PTDET,IZERO,NTOT_PTDET)
+
+do JPTDT=1,NLIST_PTDET
+  !write(6,*) ' JPTDT = ',JPTDT
+  ! Lexical address of prototype determiant JPTDT
+  if (NALPHA == 0) then
+    ILEX = 1
+  else
+    ILEX = IZNUM_PTDT(ILIST_PTDET(1,JPTDT),NOPEN,NALPHA,IZ_PTDET,IDUM,0)
+  end if
+  IREO_PTDET(ILEX) = JPTDT
+end do
+
+if (NTEST >= 100) then
+  write(6,*) ' Reorder array for prototype determinants'
+  call IWRTMA(IREO_PTDET,1,NTOT_PTDET,1,NTOT_PTDET)
+end if
+
+end subroutine REO_PTDET

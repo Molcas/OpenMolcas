@@ -583,7 +583,7 @@ write(u6,*) 'Exit input_process'
 ! properties:
 !-----------------------------------------------------------------------
 ! in case J coupling parameters are not known, proceed to get them from
-! a minimization scheme between caclulated and measured magnetic susceptibility
+! a minimization scheme between calculated and measured magnetic susceptibility
 !
 ! the function below optimizes the N+1 parameters:
 ! N - exchange couplings J, and one parameter for total shift of all experimental points;

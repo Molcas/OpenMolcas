@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE SHTOOB(  NSHPIR,  NIRREP,  MXPOBS,   NSMOB,  NOSPIR,   &
-     &                    IOSPIR,   NOBPS,     NOB)
-!
+
+subroutine SHTOOB(NSHPIR,NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NOBPS,NOB)
 ! Number of shells per irrep => Number of orbitals per symmetry
 !
 ! =====
@@ -33,30 +32,30 @@
 !  NOB    : Number of orbitals
 !
 ! Jeppe Olsen, Winter of 1991
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. Input
-      DIMENSION NSHPIR(*),NOSPIR(*),IOSPIR(MXPOBS,*)
-!. Output
-      DIMENSION NOBPS(*)
-      CALL ISETVC(NOBPS,0,NSMOB)
-      NOB = 0
-      DO 100 IRREP = 1, NIRREP
-        DO 90 ISM = 1, NOSPIR(IRREP)
-          IISM = IOSPIR(ISM,IRREP)
-          NOBPS(IISM) = NOBPS(IISM) + NSHPIR(IRREP)
-          NOB = NOB + NSHPIR(IRREP)
-   90   CONTINUE
-  100 CONTINUE
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-         WRITE(6,*) ' SHTOOB Speaking '
-         WRITE(6,*) ' =============== '
-         WRITE(6,*) ' Number of orbitals obtained ', NOB
-         WRITE(6,*) ' Number of orbitals per symmetry '
-         CALL IWRTMA(NOBPS,1,NSMOB,1,NSMOB)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+dimension NSHPIR(*), NOSPIR(*), IOSPIR(MXPOBS,*)
+! Output
+dimension NOBPS(*)
+
+call ISETVC(NOBPS,0,NSMOB)
+NOB = 0
+do IRREP=1,NIRREP
+  do ISM=1,NOSPIR(IRREP)
+    IISM = IOSPIR(ISM,IRREP)
+    NOBPS(IISM) = NOBPS(IISM)+NSHPIR(IRREP)
+    NOB = NOB+NSHPIR(IRREP)
+  end do
+end do
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' SHTOOB Speaking'
+  write(6,*) ' ==============='
+  write(6,*) ' Number of orbitals obtained ',NOB
+  write(6,*) ' Number of orbitals per symmetry'
+  call IWRTMA(NOBPS,1,NSMOB,1,NSMOB)
+end if
+
+end subroutine SHTOOB

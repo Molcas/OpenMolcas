@@ -10,14 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1999, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE CON_BLOCKS(   IATP,   IBTP,   JATP,   JBTP,   IASM,    &
-     &                         IBSM,   JASM,   JBSM,                    &
-     &                      ICONSPA,ICONSPB, NOCTPA, NOCTPB,  MXEXC,    &
-     &                      IH_OCC_CONS,INTERACT)
-!
+
+subroutine CON_BLOCKS(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,ICONSPA,ICONSPB,NOCTPA,NOCTPB,MXEXC,IH_OCC_CONS,INTERACT)
 ! Does CI blocks IATP IBTP interact with blocks JATP JBTP
 !
-!. Input
+! Input
 ! ======
 ! IATP IBTP JATP JBTP : Supergroups, relative numbers
 ! IOCTPA, IOBTPB : Offset for type
@@ -27,72 +24,66 @@
 ! IH_OCC_CONS : = 1 => Use only occupation conserving part of
 !                     Hamiltonian
 !
-!. Output
-!. INTERACT : =1 => The two blocks does interact
+! Output
+! INTERACT : =1 => The two blocks does interact
+!
 ! Jeppe Olsen, April 99
-!
-      IMPLICIT NONE
-      INTEGER IATP,   IBTP,   JATP,   JBTP,   IASM,                     &
-     &        IBSM,   JASM,   JBSM,                                     &
-     &        NOCTPA, NOCTPB,  MXEXC,                                   &
-     &        IH_OCC_CONS,INTERACT
-      INTEGER ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
 
-      INTEGER IA_EXC,IB_EXC,NTEST
-!
-      IA_EXC = ICONSPA(IATP,JATP)
-      IB_EXC = ICONSPB(IBTP,JBTP)
-      IF(IH_OCC_CONS.EQ.0) THEN
-!. Usual one- or two- electron operator
-        IF(MXEXC.EQ.1) THEN
-          IF((IA_EXC.LE.1.AND.IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM).OR.        &
-     &       (IB_EXC.LE.1.AND.IATP.EQ.JATP.AND.IASM.EQ.JASM)    )       &
-     &        INTERACT = 1
-        ELSE IF(MXEXC.EQ.2) THEN
-          IF((IA_EXC.LE.1.AND.IB_EXC.LE.1)                  .OR.        &
-     &       (IA_EXC.EQ.2.AND.IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM).OR.        &
-     &       (IB_EXC.EQ.2.AND.IATP.EQ.JATP.AND.IASM.EQ.JASM)    )       &
-     &        INTERACT = 1
-        END IF
-!      ELSE
-!*. Orbital conserving part of  Hamiltonian
-!        IF(IA_EXC.EQ.IB_EXC .AND. IB_EXC.LE.1 ) THEN
-!          IATP_ABS = IATP + IOCTPA-1
-!          IBTP_ABS = IBTP + IOCTPB-1
-!          JATP_ABS = JATP + IOCTPA-1
-!          JBTP_ABS = JBTP + IOCTPB-1
-!*. Find Orb space where alpha strings differ
-!          IPGAS = 0
-!          IMGAS = 0
-!          DO IGAS = 1, NGAS
-!            IAEL = NELFSPGP(IGAS,IATP_ABS)
-!            JAEL = NELFSPGP(IGAS,JATP_ABS)
-!            IF(IAEL-JAEL.EQ.1) IPGAS = IGAS
-!            IF(IAEL-JAEL.EQ.-1)IMGAS = IGAS
-!          END DO
-!          IF(IPGAS.NE.0) THEN
-!            IPDIF = NELFSPGP(IPGAS,IBTP_ABS)-NELFSPGP(IPGAS,JBTP_ABS)
-!          ELSE
-!            IPDIF = 0
-!          END IF
-!*. corresponding differences in beta
-!          IF(IMGAS.NE.0) THEN
-!            IMDIF = NELFSPGP(IMGAS,IBTP_ABS)-NELFSPGP(IMGAS,JBTP_ABS)
-!          ELSE
-!            IMDIF = 0
-!          END IF
-!          IF(IPGAS.EQ.0.AND.IMGAS.EQ.0) INTERACT = 1
-!          IF(IPGAS.NE.0.AND.IMGAS.NE.0) THEN
-!            IF(IPDIF.EQ.-1.AND.IMDIF.EQ.1) INTERACT = 1
-!          END IF
-!        END IF
-      END IF
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Output from CONBLOCKS '
-        WRITE(6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
-        WRITE(6,*) ' IH_OCC_CONS, INTERACT = ', IH_OCC_CONS,INTERACT
-      END IF
-!
-      END SUBROUTINE CON_BLOCKS
+implicit none
+integer IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, NOCTPA, NOCTPB, MXEXC, IH_OCC_CONS, INTERACT
+integer ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
+integer IA_EXC, IB_EXC, NTEST
+
+IA_EXC = ICONSPA(IATP,JATP)
+IB_EXC = ICONSPB(IBTP,JBTP)
+if (IH_OCC_CONS == 0) then
+  ! Usual one- or two- electron operator
+  if (MXEXC == 1) then
+    if (((IA_EXC <= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) .or. &
+        ((IB_EXC <= 1) .and. (IATP == JATP) .and. (IASM == JASM))) INTERACT = 1
+  else if (MXEXC == 2) then
+    if (((IA_EXC <= 1) .and. (IB_EXC <= 1)) .or. ((IA_EXC == 2) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) .or. &
+        ((IB_EXC == 2) .and. (IATP == JATP) .and. (IASM == JASM))) INTERACT = 1
+  end if
+!else
+!  ! Orbital conserving part of  Hamiltonian
+!  if ((IA_EXC == IB_EXC) .and. (IB_EXC <= 1)) then
+!    IATP_ABS = IATP+IOCTPA-1
+!    IBTP_ABS = IBTP+IOCTPB-1
+!    JATP_ABS = JATP+IOCTPA-1
+!    JBTP_ABS = JBTP+IOCTPB-1
+!    ! Find Orb space where alpha strings differ
+!    IPGAS = 0
+!    IMGAS = 0
+!    do IGAS=1,NGAS
+!      IAEL = NELFSPGP(IGAS,IATP_ABS)
+!      JAEL = NELFSPGP(IGAS,JATP_ABS)
+!      if (IAEL-JAEL == 1) IPGAS = IGAS
+!      if (IAEL-JAEL == -1)IMGAS = IGAS
+!    end do
+!    if (IPGAS /= 0) then
+!      IPDIF = NELFSPGP(IPGAS,IBTP_ABS)-NELFSPGP(IPGAS,JBTP_ABS)
+!    else
+!      IPDIF = 0
+!    end if
+!    ! corresponding differences in beta
+!    if (IMGAS /= 0) then
+!      IMDIF = NELFSPGP(IMGAS,IBTP_ABS)-NELFSPGP(IMGAS,JBTP_ABS)
+!    else
+!      IMDIF = 0
+!    end if
+!    if ((IPGAS == 0) .and. (IMGAS == 0)) INTERACT = 1
+!    if ((IPGAS /= 0) .and. (IMGAS /= 0)) then
+!      if ((IPDIF == -1) .and. (IMDIF == 1)) INTERACT = 1
+!    end if
+!  end if
+end if
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Output from CONBLOCKS'
+  write(6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
+  write(6,*) ' IH_OCC_CONS, INTERACT = ',IH_OCC_CONS,INTERACT
+end if
+
+end subroutine CON_BLOCKS

@@ -8,17 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SWAPVE(VEC1,VEC2,NDIM)
-!
-!      SWAP ELEMENTS OF VECTORS VEC1 AND VEC2
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION VEC1(*) ,VEC2(*)
-      DO 100 I=1,NDIM
-       BUF=VEC1(I)
-       VEC1(I)=VEC2(I)
-       VEC2(I)=BUF
-  100 CONTINUE
-!
-      RETURN
-      END
+
+subroutine SWAPVE(VEC1,VEC2,NDIM)
+! SWAP ELEMENTS OF VECTORS VEC1 AND VEC2
+
+implicit real*8(A-H,O-Z)
+dimension VEC1(*), VEC2(*)
+
+do I=1,NDIM
+  BUF = VEC1(I)
+  VEC1(I) = VEC2(I)
+  VEC2(I) = BUF
+end do
+
+end subroutine SWAPVE

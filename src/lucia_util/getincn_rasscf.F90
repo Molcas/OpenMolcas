@@ -8,23 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GETINCN_RASSCF(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,   &
-     &                IXCHNG,IKSM,JLSM,                                 &
-     &                IPNT2,NSMOB,INH1,ICOUL)
-      use wadr, only: tuvx
+
+subroutine GETINCN_RASSCF(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,IPNT2,NSMOB,INH1,ICOUL)
 ! interface to RASSCF common blocks
-      IMPLICIT None
-      INTEGER ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,NSMOB,   &
-     & ICOUL
-!. For Jesper and openMP
-      INTEGER IPNT2(*),INH1(*)
-      Real*8 XINT(*)
-!
-      CALL GETINCN_RASSCFS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,        &
-     &                IXCHNG,IKSM,JLSM,TUVX,NSMOB,ICOUL)
+
+use wadr, only: tuvx
+
+implicit none
+integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, NSMOB, ICOUL
+! For Jesper and openMP
+integer IPNT2(*), INH1(*)
+real*8 XINT(*)
+
+call GETINCN_RASSCFS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,TUVX,NSMOB,ICOUL)
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer_array(IPNT2)
-        CALL Unused_integer_array(INH1)
-      END IF
-      END SUBROUTINE GETINCN_RASSCF
+if (.false.) then
+  call Unused_integer_array(IPNT2)
+  call Unused_integer_array(INH1)
+end if
+
+end subroutine GETINCN_RASSCF

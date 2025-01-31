@@ -10,15 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE TRACI_LUCIA(      X,  LUCIN, LUCOUT,  IXSPC,   IXSM,   &
-     &                          VEC1,   VEC2)
-      use stdalloc, only: mma_allocate, mma_deallocate
-!. Module for communicating with sigma
-      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
-      use lucia_data, only: NSMOB
-      use lucia_data, only: NTOOB,NTOOBS
-      use lucia_data, only: LUSC1,LUSC2,LUSC3
-!
+
+subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 ! A rotation matrix X is defining expansion from
 ! old to new orbitals
 !        PHI(NEW) = PHI(OLD) * X
@@ -30,7 +23,7 @@
 ! will be delivered on LUCOUT.
 !
 ! Transformation as conceived by Per-AAke Malmquist
-! (I.J.Q.C. vol XXX, p479 ,1986 (OCTOBER ISSUE ))
+! (I.J.Q.C. vol XXX, p479, 1986 (OCTOBER ISSUE))
 !
 !  Jeppe Olsen 1988
 !
@@ -38,51 +31,54 @@
 !
 ! note The transformation matrix X is supposed to be in complete form
 ! as a matrix over NTOOB orbitals.
-!
-      IMPLICIT NONE
-      Integer LUCIN, LUCOUT,  IXSPC,   IXSM
-      Real*8 X(*),VEC1(*),VEC2(*)
 
-      Real*8, Allocatable:: SCR(:), LT(:)
-      INTEGER IOFF,NTEST,ISM
+use stdalloc, only: mma_allocate, mma_deallocate
+! Module for communicating with sigma
+use CandS, only: ICSM, ISSM, ICSPC, ISSPC
+use lucia_data, only: NSMOB
+use lucia_data, only: NTOOB, NTOOBS
+use lucia_data, only: LUSC1, LUSC2, LUSC3
+
+implicit none
+integer LUCIN, LUCOUT, IXSPC, IXSM
+real*8 X(*), VEC1(*), VEC2(*)
+real*8, allocatable :: SCR(:), LT(:)
+integer IOFF, NTEST, ISM
+
 ! Some dummy initializations
-      IOFF = 0 ! jwk-cleanup
-!
-      NTEST = 0
-      IF(NTEST.GE.5) THEN
-        WRITE(6,*) ' ================'
-        WRITE(6,*) ' Welcome to TRACI '
-        WRITE(6,*) ' ================'
-        WRITE(6,*)
-        WRITE(6,*) ' IXSPC,IXSM = ', IXSPC,IXSM
-      END IF
-!. Memory allocation
+IOFF = 0 ! jwk-cleanup
+
+NTEST = 0
+if (NTEST >= 5) then
+  write(6,*) ' ================'
+  write(6,*) ' Welcome to TRACI'
+  write(6,*) ' ================'
+  write(6,*)
+  write(6,*) ' IXSPC,IXSM = ',IXSPC,IXSM
+end if
+! Memory allocation
 ! for a matrix T
-      Call mma_allocate(LT,NTOOB**2,Label='LT')
-!. Scratch in PAMTMT
-      Call mma_allocate(SCR,NTOOB**2 + NTOOB*(NTOOB+1)/2, Label='SCR')
-!. Obtain T matrix used for transformation, for each symmetry separately
-      DO ISM = 1, NSMOB
-        IF(ISM.EQ.1) THEN
-          IOFF = 1
-        ELSE
-          IOFF = IOFF + NTOOBS(ISM-1)**2
-        END IF
-        IF(NTOOBS(ISM).GT.0) THEN
-         CALL PAMTMT(X(IOFF),LT(IOFF),SCR,NTOOBS(ISM))
-        END IF
-      END DO
-!. Transform CI-vector
-      ICSPC = IXSPC
-      ICSM  = ICSM
-      ISSPC = IXSPC
-      ISSM  = IXSM
-!
-      CALL TRACID(LT,    LUCIN,   LUCOUT,    LUSC1,    LUSC2,           &
-     &                LUSC3,     VEC1,     VEC2)
-!
-      Call mma_deallocate(SCR)
-      Call mma_deallocate(LT)
-!
-!
-      END SUBROUTINE TRACI_LUCIA
+call mma_allocate(LT,NTOOB**2,Label='LT')
+! Scratch in PAMTMT
+call mma_allocate(SCR,NTOOB**2+NTOOB*(NTOOB+1)/2,Label='SCR')
+! Obtain T matrix used for transformation, for each symmetry separately
+do ISM=1,NSMOB
+  if (ISM == 1) then
+    IOFF = 1
+  else
+    IOFF = IOFF+NTOOBS(ISM-1)**2
+  end if
+  if (NTOOBS(ISM) > 0) call PAMTMT(X(IOFF),LT(IOFF),SCR,NTOOBS(ISM))
+end do
+! Transform CI-vector
+ICSPC = IXSPC
+ICSM = ICSM
+ISSPC = IXSPC
+ISSM = IXSM
+
+call TRACID(LT,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
+
+call mma_deallocate(SCR)
+call mma_deallocate(LT)
+
+end subroutine TRACI_LUCIA

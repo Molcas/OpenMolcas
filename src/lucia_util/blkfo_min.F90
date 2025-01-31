@@ -10,19 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE BLKFO_MIN(ISM,NBLK,LEN_BLK)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use strbas
-      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,          &
-     &                        Allocate_Local_Arrays,                    &
-     &                      deallocate_Local_Arrays
-      use CandS, only: ISSPC
-      use lucia_data, only: ISMOST,MXNTTS,MXSOOB
-      use lucia_data, only: ISIMSYM,LCSBLK
-      use lucia_data, only: IDC
-      use lucia_data, only: NOCTYP
-      use csm_data, only: NSMST
-!
+
+subroutine BLKFO_MIN(ISM,NBLK,LEN_BLK)
 ! Number of blocks and length of each block for CI expansion
 !
 ! Jeppe Olsen, June 2001
@@ -36,46 +25,49 @@
 !
 ! NBLK : Number of blocks in expansion
 ! LEN_BLK(IBLK) : Length of block IBLK
-!
-      IMPLICIT NONE
-      INTEGER ISM,NBLK
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use strbas
+use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP, Allocate_Local_Arrays, deallocate_Local_Arrays
+use CandS, only: ISSPC
+use lucia_data, only: ISMOST, MXNTTS, MXSOOB
+use lucia_data, only: ISIMSYM, LCSBLK
+use lucia_data, only: IDC
+use lucia_data, only: NOCTYP
+use csm_data, only: NSMST
 
-!. Output : Should outside be dimensioned as MXNTTS
-      INTEGER LEN_BLK(*)
+implicit none
+integer ISM, NBLK
+! Output : Should outside be dimensioned as MXNTTS
+integer LEN_BLK(*)
+integer I_DUMMY(1)
+integer, external :: IFRMR
+integer, allocatable :: CIOIO(:)
+integer IATP, IBTP, NOCTPA, NOCTPB, LBLOCK, NBATCH
 
-      INTEGER I_DUMMY(1)
-      INTEGER, External:: IFRMR
-      Integer, Allocatable:: CIOIO(:)
-      INTEGER IATP,IBTP,NOCTPA,NOCTPB,LBLOCK,NBATCH
-!
-      I_DUMMY(1) = 0 ! jwk-cleanup
-      IATP = 1
-      IBTP = 2
-!
-      NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
-!. Pointers to local arrays
-      Call Allocate_Local_Arrays(MXNTTS,NSMST)
-!. Info needed for generation of block info
-      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
-      CALL IAIBCM(ISSPC,CIOIO) ! Jesper
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,I_DUMMY)
-!. Allowed length of each batch( not important for final output )
-      LBLOCK = MAX(MXSOOB,LCSBLK)
-!. Batches  of C vector
-      CALL PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,                           &
-     &                         NSTSO(IBTP)%I,                           &
-     &              NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,                   &
-     &              ISMOST(1,ISM),                                      &
-     &              NBATCH,CLBT,CLEBT,                                  &
-     &              CI1BT,CIBT,0,ISIMSYM)
-!. Number of BLOCKS
-      NBLK = IFRMR(CI1BT,1,NBATCH) + IFRMR(CLBT,1,NBATCH) - 1
-!. Length of each block
-      CALL EXTRROW(CIBT,8,8,NBLK,LEN_BLK)
-!
-      Call Deallocate_Local_Arrays()
-      Call mma_deallocate(CIOIO)
+I_DUMMY(1) = 0 ! jwk-cleanup
+IATP = 1
+IBTP = 2
 
-      END SUBROUTINE BLKFO_MIN
+NOCTPA = NOCTYP(IATP)
+NOCTPB = NOCTYP(IBTP)
+! Pointers to local arrays
+call Allocate_Local_Arrays(MXNTTS,NSMST)
+! Info needed for generation of block info
+call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
+call IAIBCM(ISSPC,CIOIO) ! Jesper
+call ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,I_DUMMY)
+! Allowed length of each batch( not important for final output )
+LBLOCK = max(MXSOOB,LCSBLK)
+! Batches  of C vector
+call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
+               0,ISIMSYM)
+! Number of BLOCKS
+NBLK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
+! Length of each block
+call EXTRROW(CIBT,8,8,NBLK,LEN_BLK)
+
+call Deallocate_Local_Arrays()
+call mma_deallocate(CIOIO)
+
+end subroutine BLKFO_MIN

@@ -10,33 +10,33 @@
 !                                                                      *
 ! Copyright (C) 2011, Giovanni Li Manni                                *
 !***********************************************************************
-      FUNCTION ICHECK_OCC_IN_ACCSPC(IOCC,IMINMAX,NGAS,MXPNGAS)
+
+function ICHECK_OCC_IN_ACCSPC(IOCC,IMINMAX,NGAS,MXPNGAS)
 ! Check if Occupation of GAS Spaces defined by IOCC are
 ! within the constraints of  IMINMAX chosen by the user
 !
 ! Giovanni Li Manni 7Nov2011, for BK implementation
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. Input
-      INTEGER IOCC(NGAS)
-      INTEGER IMINMAX(MXPNGAS,2)
-!
-      I_AM_IN = 1
-      DO IGAS = 1, NGAS
-       IF(IOCC(IGAS).LT.IMINMAX(IGAS,1) .OR.                            &
-     &    IOCC(IGAS).GT.IMINMAX(IGAS,2)) I_AM_IN=0
-      END DO
-      ICHECK_OCC_IN_ACCSPC = I_AM_IN
-!
-      NTEST = 000
-      IF(NTEST.GE.100) THEN
-       WRITE(6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IMINMAX'
-       CALL IWRTMA(IMINMAX,NGAS,2,MXPNGAS,2)
-      END IF
-      IF(NTEST.GE.10) THEN
-       WRITE(6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IOCC'
-       CALL IWRTMA(IOCC,1,NGAS,1,NGAS)
-       WRITE(6,*) ' And the verdict is ', I_AM_IN
-      END IF
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+integer IOCC(NGAS)
+integer IMINMAX(MXPNGAS,2)
+
+I_AM_IN = 1
+do IGAS=1,NGAS
+  if ((IOCC(IGAS) < IMINMAX(IGAS,1)) .or. (IOCC(IGAS) > IMINMAX(IGAS,2))) I_AM_IN = 0
+end do
+ICHECK_OCC_IN_ACCSPC = I_AM_IN
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IMINMAX'
+  call IWRTMA(IMINMAX,NGAS,2,MXPNGAS,2)
+end if
+if (NTEST >= 10) then
+  write(6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IOCC'
+  call IWRTMA(IOCC,1,NGAS,1,NGAS)
+  write(6,*) ' And the verdict is ',I_AM_IN
+end if
+
+end function ICHECK_OCC_IN_ACCSPC

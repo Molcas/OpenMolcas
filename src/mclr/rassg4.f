@@ -34,7 +34,7 @@
 *
 *      LOOP OVER SIGMA AND C VECTOR
 *
-* Jeppe Olsen , Winter of 1991
+* Jeppe Olsen, Winter of 1991
 * small modifications by eaw 96
 *
 * =====

@@ -8,9 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module HIDSCR
-      Integer, Allocatable:: ZSCR(:)
-      Integer, Allocatable:: OCSTR(:,:)
-      Integer, Allocatable:: REO(:,:)
-      Integer, Allocatable:: Z(:,:)
-End Module HIDSCR
+
+subroutine DETCTL_FREE()
+
+use lucia_data, only: IREFSM
+
+implicit none
+
+call CSFDIM_FREE(IREFSM)
+
+call LUCIA2MOLCAS_FREE()
+
+end subroutine DETCTL_FREE

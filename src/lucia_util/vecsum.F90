@@ -8,37 +8,36 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE VECSUM(       C,       A,       B,    FACA,    FACB,   &
-     &                      NDIM)
-!
-!     CACLULATE THE VECTOR C(I)=FACA*A(I)+FACB*B(I)
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*),B(*),C(*)
-!
-      IF(FACA.NE.0.0D0.AND.FACB.NE.0.0D0) THEN
-        DO 100 I=1,NDIM
-          S=FACA*A(I)+FACB*B(I)
-          C(I)=S
-  100   CONTINUE
-!
-      ELSE IF(FACA.EQ.0.0D0.AND.FACB.NE.0.0D0) THEN
-        DO 200 I=1,NDIM
-          S=FACB*B(I)
-          C(I)=S
-  200   CONTINUE
-!
-      ELSE IF(FACA.NE.0.0D0.AND.FACB.EQ.0.0D0) THEN
-        DO 300 I=1,NDIM
-          S=FACA*A(I)
-          C(I)=S
-  300   CONTINUE
-!
-      ELSE IF(FACA.EQ.0.0D0.AND.FACB.EQ.0.0D0) THEN
-        DO 400 I=1,NDIM
-          C(I)=0.0D0
-  400   CONTINUE
-      END IF
-!
-      RETURN
-      END
+
+subroutine VECSUM(C,A,B,FACA,FACB,NDIM)
+! CALCULATE THE VECTOR C(I)=FACA*A(I)+FACB*B(I)
+
+implicit real*8(A-H,O-Z)
+dimension A(*), B(*), C(*)
+
+if ((FACA /= 0.0d0) .and. (FACB /= 0.0d0)) then
+  do I=1,NDIM
+    S = FACA*A(I)+FACB*B(I)
+    C(I) = S
+  end do
+
+else if ((FACA == 0.0d0) .and. (FACB /= 0.0d0)) then
+  do I=1,NDIM
+    S = FACB*B(I)
+    C(I) = S
+  end do
+
+else if ((FACA /= 0.0d0) .and. (FACB == 0.0d0)) then
+  do I=1,NDIM
+    S = FACA*A(I)
+    C(I) = S
+  end do
+
+else if ((FACA == 0.0d0) .and. (FACB == 0.0d0)) then
+  do I=1,NDIM
+    C(I) = 0.0d0
+  end do
+
+end if
+
+end subroutine VECSUM

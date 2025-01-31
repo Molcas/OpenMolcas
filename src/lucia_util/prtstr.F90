@@ -8,17 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRTSTR(ISTR,NEL,NSTR)
-!
+
+subroutine PRTSTR(ISTR,NEL,NSTR)
 ! Print NSTR strings each containing NEL electrons
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION ISTR(NEL,NSTR)
-!
-      DO JSTR = 1, NSTR
-        WRITE(6,'("0",A,I6,A,4X,10(2X,I4),/,(1X,19X,10(2X,I4)))' )      &
-     &   ' String ',JSTR,' : ',(ISTR(IEL,JSTR),IEL=1,NEL)
-      END DO
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension ISTR(NEL,NSTR)
+
+do JSTR=1,NSTR
+  write(6,100) ' String ',JSTR,' : ',(ISTR(IEL,JSTR),IEL=1,NEL)
+end do
+
+return
+100 format('0',A,I6,A,4X,10(2X,I4),/,(1X,19X,10(2X,I4)))
+
+end subroutine PRTSTR

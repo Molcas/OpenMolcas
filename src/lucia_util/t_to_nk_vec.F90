@@ -10,20 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1998, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE T_TO_NK_VEC(      T,   KORB,    ISM,   ISPC,  LUCIN,   &
-     &                        LUCOUT,      C)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CIBT, CBLTP, Deallocate_Local_Arrays
-      use strbas, only: NSTSO
-      use lucia_data, only: ICISTR
-      use lucia_data, only: MXNSTR
-      use lucia_data, only: IREOST,NTOOB
-      use lucia_data, only: NELEC
-      use csm_data, only: NSMST
-!
+
+subroutine T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
 ! Evaluate T**(NK_operator) times vector on file LUIN
 ! to yield vector on file LUOUT
-! (NK_operator is number operator for orbital K )
+! (NK_operator is number operator for orbital K)
 !
 ! Note LUCIN and LUCOUT are both rewinded before read/write
 ! Input
@@ -34,54 +25,58 @@
 !  ISM,ISPC : Symmetry and space of state on LUIN
 !  C : Scratch block
 !
-!
 ! Jeppe Olsen, Feb. 98
-!
-      IMPLICIT None
-      REAL*8 T
-      INTEGER KORB, ISM, ISPC, LUCIN, LUCOUT
 
-!. Scratch block, must hold a batch of blocks
-      REAL*8 C(*)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Local_Arrays, only: CIBT, CBLTP, Deallocate_Local_Arrays
+use strbas, only: NSTSO
+use lucia_data, only: ICISTR
+use lucia_data, only: MXNSTR
+use lucia_data, only: IREOST, NTOOB
+use lucia_data, only: NELEC
+use csm_data, only: NSMST
 
-      Integer, Allocatable:: LASTR(:), LBSTR(:)
-      Integer, Allocatable:: LKAOC(:), LKBOC(:)
-      INTEGER NTEST,IATP,IBTP,NAEL,NBEL,KKORB,NBATCH,NBLOCK
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' T_TO_NK_VEC speaking '
-        WRITE(6,*) ' ISM, ISPC = ', ISM,ISPC
-      END IF
-!. Set up block and batch structure of vector
-      IATP = 1
-      IBTP = 2
-!
-      NAEL = NELEC(IATP)
-      NBEL = NELEC(IBTP)
-!
-      CALL Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
-      NAEL = NELEC(IATP)
-      NBEL = NELEC(IBTP)
-!
-      Call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
-      Call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
-      Call mma_allocate(LKAOC,MXNSTR,Label='LKAOC')
-      Call mma_allocate(LKBOC,MXNSTR,Label='LKBOC')
-!. Orbital K in type ordering
-      KKORB = IREOST(KORB)
-      CALL T_TO_NK_VECS   (       T,   KKORB,       C,   LUCIN,  LUCOUT,&
-     &                     NSTSO(IATP)%I,                               &
-     &                     NSTSO(IBTP)%I,                               &
-     &                     NBLOCK,CIBT,NAEL,NBEL,LASTR,                 &
-     &                     LBSTR,CBLTP,                                 &
-     &                     NSMST,ICISTR,NTOOB,LKAOC,LKBOC)
+implicit none
+real*8 T
+integer KORB, ISM, ISPC, LUCIN, LUCOUT
 
-      Call mma_deallocate(LASTR)
-      Call mma_deallocate(LBSTR)
-      Call mma_deallocate(LKAOC)
-      Call mma_deallocate(LKBOC)
+! Scratch block, must hold a batch of blocks
+real*8 C(*)
 
-      Call Deallocate_Local_Arrays()
-!
-      END SUBROUTINE T_TO_NK_VEC
+integer, allocatable :: LASTR(:), LBSTR(:)
+integer, allocatable :: LKAOC(:), LKBOC(:)
+integer NTEST, IATP, IBTP, NAEL, NBEL, KKORB, NBATCH, NBLOCK
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' T_TO_NK_VEC speaking'
+  write(6,*) ' ISM, ISPC = ',ISM,ISPC
+end if
+! Set up block and batch structure of vector
+IATP = 1
+IBTP = 2
+
+NAEL = NELEC(IATP)
+NBEL = NELEC(IBTP)
+
+call Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
+NAEL = NELEC(IATP)
+NBEL = NELEC(IBTP)
+
+call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
+call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
+call mma_allocate(LKAOC,MXNSTR,Label='LKAOC')
+call mma_allocate(LKBOC,MXNSTR,Label='LKBOC')
+! Orbital K in type ordering
+KKORB = IREOST(KORB)
+call T_TO_NK_VECS(T,KKORB,C,LUCIN,LUCOUT,NSTSO(IATP)%I,NSTSO(IBTP)%I,NBLOCK,CIBT,NAEL,NBEL,LASTR,LBSTR,CBLTP,NSMST,ICISTR,NTOOB, &
+                  LKAOC,LKBOC)
+
+call mma_deallocate(LASTR)
+call mma_deallocate(LBSTR)
+call mma_deallocate(LKAOC)
+call mma_deallocate(LKBOC)
+
+call Deallocate_Local_Arrays()
+
+end subroutine T_TO_NK_VEC

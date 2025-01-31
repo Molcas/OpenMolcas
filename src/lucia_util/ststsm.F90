@@ -8,29 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE STSTSM(STSTSX,STSTDX,NSMST)
-!
+
+subroutine STSTSM(STSTSX,STSTDX,NSMST)
 ! construct  STSTSX and STSTDX giving
 ! symmetry of sx (dx) connecting two given string symmetries
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER STSTSX(NSMST,NSMST),STSTDX(NSMST,NSMST)
-!
-      DO 100 ILSTSM = 1, NSMST
-        DO 50 IRSTSM = 1, NSMST
-          CALL SYMCOM(1,5,ISXSM,IRSTSM,ILSTSM)
-          CALL SYMCOM(1,6,IDXSM,IRSTSM,ILSTSM)
-          STSTSX(ILSTSM,IRSTSM) = ISXSM
-          STSTDX(ILSTSM,IRSTSM) = IDXSM
-   50   CONTINUE
-  100 CONTINUE
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' STSTSM : STSTSX, STSTDX '
-        CALL IWRTMA(STSTSX,NSMST,NSMST,NSMST,NSMST)
-        CALL IWRTMA(STSTDX,NSMST,NSMST,NSMST,NSMST)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+integer STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST)
+
+do ILSTSM=1,NSMST
+  do IRSTSM=1,NSMST
+    call SYMCOM(1,5,ISXSM,IRSTSM,ILSTSM)
+    call SYMCOM(1,6,IDXSM,IRSTSM,ILSTSM)
+    STSTSX(ILSTSM,IRSTSM) = ISXSM
+    STSTDX(ILSTSM,IRSTSM) = IDXSM
+  end do
+end do
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' STSTSM : STSTSX, STSTDX'
+  call IWRTMA(STSTSX,NSMST,NSMST,NSMST,NSMST)
+  call IWRTMA(STSTDX,NSMST,NSMST,NSMST,NSMST)
+end if
+
+end subroutine STSTSM

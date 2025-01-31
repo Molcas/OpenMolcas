@@ -8,10 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CRESTR_GAS( STRING, NSTINI, NSTINO,    NEL,   NORB,    &
-     &                       IORBOF,      Z, NEWORD, LSGSTR, ISGSTI,    &
-     &                       ISGSTO,     TI,    TTO,  NACOB,  IPRNT)
-!
+
+subroutine CRESTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI,TTO,NACOB,IPRNT)
 ! A type of strings containing NEL electrons are given
 ! set up all possible ways of adding an electron to this type of strings
 !
@@ -27,7 +25,7 @@
 ! Z      : Lexical ordering matrix for output strings containing
 !          NEL + 1 electrons
 ! NEWORD : Reordering array for N+1 strings
-! LSGSTR : .NE.0 => Include sign arrays ISGSTI,ISGSTO of strings
+! LSGSTR : /= 0 => Include sign arrays ISGSTI,ISGSTO of strings
 ! ISGSTI : Sign array for NEL   strings
 ! ISGSTO : Sign array for NEL+1 strings
 !
@@ -35,106 +33,100 @@
 ! Output :
 !=========
 !
-!TI      : TI(I,ISTRIN) .gt. 0 indicates that orbital I can be added
+!TI      : TI(I,ISTRIN) > 0 indicates that orbital I can be added
 !          to string ISTRIN .
 !TTO     : Resulting NEL + 1 strings
 !          if the string have a negative sign
 !          then the phase equals - 1
-      IMPLICIT REAL*8           (A-H,O-Z)
-      INTEGER STRING,TI,TTO,STRIN2,Z
-!.Input
-      DIMENSION STRING(NEL,NSTINI),NEWORD(NSTINO),Z(NORB,NEL+1)
-      DIMENSION ISGSTI(NSTINI),ISGSTO(NSTINO)
-!.Output
-      DIMENSION TI(NORB,NSTINI),TTO(NORB,NSTINI)
-!.Scratch
-      DIMENSION STRIN2(500)
-!
-      NTEST0 =  1
-      NTEST = MAX(IPRNT,NTEST0)
-      IF( NTEST .GE. 20 ) THEN
-        WRITE(6,*)  ' =============== '
-        WRITE(6,*)  ' CRESTR speaking '
-        WRITE(6,*)  ' =============== '
-        WRITE(6,*)
-         WRITE(6,*) ' Number of input electrons ', NEL
-      END IF
-!?    WRITE(6,*) ' Reorder array NEWORD '
-!?    CALL IWRTMA(NEWORD,1,NSTINO,1,NSTINO)
-!
-      DO ISTRIN = 1,NSTINI
-        DO IORB = IORBOF, IORBOF-1+NORB
 
+implicit real*8(A-H,O-Z)
+integer STRING, TI, TTO, STRIN2, Z
+! Input
+dimension STRING(NEL,NSTINI), NEWORD(NSTINO), Z(NORB,NEL+1)
+dimension ISGSTI(NSTINI), ISGSTO(NSTINO)
+! Output
+dimension TI(NORB,NSTINI), TTO(NORB,NSTINI)
+! Scratch
+dimension STRIN2(500)
+
+NTEST0 = 1
+NTEST = max(IPRNT,NTEST0)
+if (NTEST >= 20) then
+  write(6,*) ' ==============='
+  write(6,*) ' CRESTR speaking'
+  write(6,*) ' ==============='
+  write(6,*)
+  write(6,*) ' Number of input electrons ',NEL
+end if
+!write(6,*) ' Reorder array NEWORD'
+!call IWRTMA(NEWORD,1,NSTINO,1,NSTINO)
+
+do ISTRIN=1,NSTINI
+  do IORB=IORBOF,IORBOF-1+NORB
+
+    IPLACE = 0
+
+    if (NEL == 0) then
+
+      IPLACE = 1
+
+    else if (NEL /= 0) then
+
+      do IEL=1,NEL
+        if ((IEL == 1) .and. (STRING(1,ISTRIN) > IORB)) then
+          IPLACE = 1
+          exit
+        else if (((IEL == NEL) .and. (IORB > STRING(IEL,ISTRIN))) .or. &
+                 ((IEL < NEL) .and. (IORB > STRING(IEL,ISTRIN)) .and. (IORB < STRING(min(NEL,IEL+1),ISTRIN)))) then
+          IPLACE = IEL+1
+          exit
+        else if (STRING(IEL,ISTRIN) == IORB) then
           IPLACE = 0
+          exit
+        end if
+      end do
 
-          IF(NEL.EQ.0) THEN
+    end if
 
-            IPLACE = 1
+    if (IPLACE == 0) cycle
 
-          ELSE IF ( NEL .NE. 0 ) THEN
+    ! Generate next string
+    do I=1,IPLACE-1
+      STRIN2(I) = STRING(I,ISTRIN)
+    end do
+    STRIN2(IPLACE) = IORB
+    do I=IPLACE,NEL
+      STRIN2(I+1) = STRING(I,ISTRIN)
+    end do
+    !write(6,*) ' updated string (STRIN2)'
+    !call iwrtma(STRIN2,1,NEL+1,1,NEL+1)
+    JSTRIN = ISTRNM(STRIN2,NACOB,NEL+1,Z,NEWORD,1)
+    !write(6,*) ' corresponding number ',JSTRIN
 
-            DO IEL = 1, NEL
-              IF(IEL.EQ.1.AND.STRING(1,ISTRIN).GT.IORB) THEN
-                IPLACE = 1
-                EXIT
-              ELSE IF( (IEL.EQ.NEL.AND.IORB.GT.STRING(IEL,ISTRIN)) .OR. &
-     &                 (IEL.LT.NEL.AND.IORB.GT.STRING(IEL,ISTRIN).AND.  &
-     &                  IORB.LT.STRING(MIN(NEL,IEL+1),ISTRIN)) ) THEN
-                IPLACE = IEL+1
-                EXIT
-              ELSE IF(STRING(IEL,ISTRIN).EQ.IORB) THEN
-                IPLACE = 0
-                EXIT
-              END IF
-            END DO
+    TTO(IORB-IORBOF+1,ISTRIN) = JSTRIN
+    IIISGN = (-1)**(IPLACE-1)
+    if (LSGSTR /= 0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+    if (IIISGN == -1) TTO(IORB-IORBOF+1,ISTRIN) = -TTO(IORB-IORBOF+1,ISTRIN)
+    TI(IORB-IORBOF+1,ISTRIN) = IORB
 
-          END IF
-!
-          IF(IPLACE==0) CYCLE
+  end do
 
-!. Generate next string
-          DO I = 1, IPLACE-1
-             STRIN2(I) = STRING(I,ISTRIN)
-          END DO
-          STRIN2(IPLACE) = IORB
-          DO  I = IPLACE,NEL
-            STRIN2(I+1) = STRING(I,ISTRIN)
-          END DO
-!?        write(6,*) ' updated string (STRIN2) '
-!?        call iwrtma(STRIN2,1,NEL+1,1,NEL+1)
-          JSTRIN = ISTRNM(STRIN2,NACOB,NEL+1,Z,NEWORD,1)
-!?        write(6,*) ' corresponding number ', JSTRIN
-!
-          TTO(IORB-IORBOF+1,ISTRIN) = JSTRIN
-          IIISGN = (-1)**(IPLACE-1)
-          IF(LSGSTR.NE.0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
-          IF(IIISGN .EQ. -1 )                                           &
-     &      TTO(IORB-IORBOF+1,ISTRIN) = - TTO(IORB-IORBOF+1,ISTRIN)
-          TI(IORB-IORBOF+1,ISTRIN ) = IORB
+end do
 
-        END DO
-!
-      END DO
-!
-      IF ( NTEST .GE. 20) THEN
-        MAXPR = 60
-        NPR = MIN(NSTINI,MAXPR)
-        WRITE(6,*) ' Output from CRESTR : '
-        WRITE(6,*) '==================='
-!
-        WRITE(6,*)
-        WRITE(6,*) ' Strings with an electron added  '
-        DO ISTRIN = 1, NPR
-           WRITE(6,'(2X,A,I4,A,/,(10I5))')                              &
-     &     'String..',ISTRIN,' New strings.. ',                         &
-     &     (TTO(I,ISTRIN),I = 1,NORB)
-        END DO
-        DO ISTRIN = 1, NPR
-           WRITE(6,'(2X,A,I4,A,/,(10I5))')                              &
-     &     'String..',ISTRIN,' orbitals added or removed ' ,            &
-     &     (TI(I,ISTRIN),I = 1,NORB)
-        END DO
-      END IF
-!
-      RETURN
-      END
+if (NTEST >= 20) then
+  MAXPR = 60
+  NPR = min(NSTINI,MAXPR)
+  write(6,*) ' Output from CRESTR :'
+  write(6,*) '==================='
+
+  write(6,*)
+  write(6,*) ' Strings with an electron added'
+  do ISTRIN=1,NPR
+    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,NORB)
+  end do
+  do ISTRIN=1,NPR
+    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,NORB)
+  end do
+end if
+
+end subroutine CRESTR_GAS

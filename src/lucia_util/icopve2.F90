@@ -8,19 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ICOPVE2(IIN,IOFF,NDIM,IOUT)
-!
+
+subroutine ICOPVE2(IIN,IOFF,NDIM,IOUT)
 ! IOUT(I) = IIN(IOFF-1+I),I = 1, NDIM
-!
-      IMPLICIT REAL*8(A,H,O-Z)
-!. Input
-      DIMENSION IIN(*)
-!. Output
-      DIMENSION IOUT(*)
-!
-      DO I = 1, NDIM
-        IOUT(I) = IIN(IOFF-1+I)
-      END DO
-!
-      RETURN
-      END
+
+implicit real*8(A,H,O-Z)
+! Input
+dimension IIN(*)
+! Output
+dimension IOUT(*)
+
+do I=1,NDIM
+  IOUT(I) = IIN(IOFF-1+I)
+end do
+
+end subroutine ICOPVE2

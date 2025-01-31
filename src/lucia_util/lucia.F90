@@ -8,74 +8,76 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE LUCIA()
-      use stdalloc, only: mma_allocate
-      use GLBBAS, only: CI_VEC, SIGMA_VEC
-      use lucia_data, only: MXSOOB,XISPSM
-      use lucia_data, only: IPRCIX,IPRORB,IPRSTR
-      use lucia_data, only: NOINT,LCSBLK
-      use lucia_data, only: IREFSM,PSSIGN
-!
-      IMPLICIT NONE
-!. Parameters for dimensioning
+
+subroutine LUCIA()
+
+use stdalloc, only: mma_allocate
+use GLBBAS, only: CI_VEC, SIGMA_VEC
+use lucia_data, only: MXSOOB, XISPSM
+use lucia_data, only: IPRCIX, IPRORB, IPRSTR
+use lucia_data, only: NOINT, LCSBLK
+use lucia_data, only: IREFSM, PSSIGN
+
+implicit none
+! Parameters for dimensioning
 #include "warnings.h"
-!.Scratch : A character line
-      Integer LBLOCK
-!
-!.    No floating point underflow
-      !CALL XUFLOW
-!. Assign diskunits
-!      IF (ENVIRO(1:6) .EQ. 'RASSCF') THEN
-         CALL DISKUN2()
-!      ELSE
-!         CALL DISKUN
-!      ENDIF
-!. Header
-!. From shells to orbitals
-      CALL ORBINF(IPRORB)
-!. Number of string types
-      CALL STRTYP_GAS(IPRSTR)
-!. Divide orbital spaces into inactive/active/secondary
-      CALL GASSPC()
-!. Symmetry information
-      CALL SYMINF_LUCIA(IPRORB)
-!. Number of integrals
-      CALL INTDIM(IPRORB)
-!. Static memory, initialization and  allocation
-!      IF (ENVIRO(1:6) .NE. 'RASSCF') then
-!         KBASE = 1
-!         KADD = MXPWRD
-!         CALL MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY')
-!      ENDIF
-      CALL ALLOC_LUCIA()
-!. Read in integrals
-         IF(NOINT.EQ.0) THEN
-            CALL INTIM()
-         ELSE
-            WRITE(6,*) ' No integrals imported '
-         END IF
-!. READ in MO-AO matrix
-!      IF(NOMOFL.EQ.0) CALL GET_CMOAO(MOAOIN)
-!. Internal string information
-      CALL STRINF_GAS(IPRSTR)
-!. Internal subspaces
-      CALL LCISPC(IPRCIX)
-!
-!. Symmetry of reference
-!      IF(PNTGRP.GT.1) CALL MLSM(IREFSM,IREFPA,IREFSM,'CI',1)
-      IF(NOINT.EQ.1) THEN
-        WRITE(6,*) ' End of calculation without integrals'
-        CALL QUIT(_RC_ALL_IS_WELL_)
-      END IF
-!
-      LBLOCK = MXSOOB
-      LBLOCK = MAX(LBLOCK,LCSBLK)
+!Scratch : A character line
+integer LBLOCK
+
+! No floating point underflow
+!call XUFLOW()
+! Assign diskunits
+!if (ENVIRO(1:6) == 'RASSCF') then
+call DISKUN2()
+!else
+!  call DISKUN()
+!end if
+! Header
+! From shells to orbitals
+call ORBINF(IPRORB)
+! Number of string types
+call STRTYP_GAS(IPRSTR)
+! Divide orbital spaces into inactive/active/secondary
+call GASSPC()
+! Symmetry information
+call SYMINF_LUCIA(IPRORB)
+! Number of integrals
+call INTDIM(IPRORB)
+! Static memory, initialization and  allocation
+!if (ENVIRO(1:6) /= 'RASSCF') then
+!  KBASE = 1
+!  KADD = MXPWRD
+!  call MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY')
+!end if
+call ALLOC_LUCIA()
+! Read in integrals
+if (NOINT == 0) then
+  call INTIM()
+else
+  write(6,*) ' No integrals imported'
+end if
+! READ in MO-AO matrix
+!if (NOMOFL == 0) call GET_CMOAO(MOAOIN)
+! Internal string information
+call STRINF_GAS(IPRSTR)
+! Internal subspaces
+call LCISPC(IPRCIX)
+
+! Symmetry of reference
+!if (PNTGRP > 1) call MLSM(IREFSM,IREFPA,IREFSM,'CI',1)
+if (NOINT == 1) then
+  write(6,*) ' End of calculation without integrals'
+  call QUIT(_RC_ALL_IS_WELL_)
+end if
+
+LBLOCK = MXSOOB
+LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
-!         IF (ENVIRO(1:6).EQ.'RASSCF') THEN
-      LBLOCK = MAX(INT(XISPSM(IREFSM,1)),MXSOOB)
-      IF(PSSIGN.NE.0.0D0) LBLOCK = INT(2.0D0*XISPSM(IREFSM,1))
+!if (ENVIRO(1:6) == 'RASSCF') then
+LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
+if (PSSIGN /= 0.0d0) LBLOCK = int(2.0d0*XISPSM(IREFSM,1))
 
-      CALL mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
-      CALL mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
+call mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
+call mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')
 
-      END SUBROUTINE LUCIA
+end subroutine LUCIA

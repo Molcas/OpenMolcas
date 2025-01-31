@@ -8,17 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRSM2(A,NDIM)
-!
+
+subroutine PRSM2(A,NDIM)
 ! PRINT LOWER TRIANGULAR MATRIX PACKED IN COLUMN WISE FASHION
-!
-      IMPLICIT REAL*8           ( A-H,O-Z)
-      DIMENSION A(*)
-!
-      DO 100 I=1,NDIM
-        WRITE(6,1010) I,                                                &
-     &  (A((J-1)*NDIM-J*(J-1)/2+I),J=1,I)
-  100 CONTINUE
-      RETURN
- 1010 FORMAT('0',2X,I3,5(ES14.7),/,(1X,5X,5(ES14.7)))
-      END
+
+implicit real*8(A-H,O-Z)
+dimension A(*)
+
+do I=1,NDIM
+  write(6,1010) I,(A((J-1)*NDIM-J*(J-1)/2+I),J=1,I)
+end do
+
+return
+1010 format('0',2X,I3,5(ES14.7),/,(1X,5X,5(ES14.7)))
+
+end subroutine PRSM2

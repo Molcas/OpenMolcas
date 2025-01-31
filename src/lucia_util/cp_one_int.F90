@@ -8,16 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CP_ONE_INT(W1,NDIM)
-      use GLBBAS, only: INT1, INT1O
-      use Constants, only: Zero
-      IMPLICIT None
-      Integer nDIM
-      Real*8 W1(NDIM)
 
-      INT1(:)=Zero
-      INT1(1:NDIM)=W1(1:NDIM)
-      INT1O(:)=Zero
-      INT1O(:)=INT1(:)
+subroutine CP_ONE_INT(W1,NDIM)
 
-      End SUBROUTINE CP_ONE_INT
+use GLBBAS, only: INT1, INT1O
+use Constants, only: Zero
+
+implicit none
+integer nDIM
+real*8 W1(NDIM)
+
+INT1(:) = Zero
+INT1(1:NDIM) = W1(1:NDIM)
+INT1O(:) = Zero
+INT1O(:) = INT1(:)
+
+end subroutine CP_ONE_INT

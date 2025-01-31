@@ -80,7 +80,7 @@
 *
 * XINT : Scratch space for integrals.
 *
-* Jeppe Olsen , Winter of 1991
+* Jeppe Olsen, Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
       INTEGER  ADSXA(*),SXSTST(*)

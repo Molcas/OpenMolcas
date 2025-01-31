@@ -23,25 +23,27 @@
 !
 ! Lucia.f : GAS implementing no pair relativistic Theory
 !
-! Version of March 2000 , Jeppe Olsen
-!
-      SUBROUTINE ZERORC(MBLOCK,IFIL,IAMPACKED)
-!
-! A record was known to be identical  zero
+! Version of March 2000, Jeppe Olsen
+
+subroutine ZERORC(MBLOCK,IFIL,IAMPACKED)
+! A record was known to be identical zero
 !
 ! Write corresponding info to file IFIL
 !
 ! IAMPACKED added Oct. 98 / Jeppe Olsen
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER ISCR(2)
+
+implicit real*8(A-H,O-Z)
+integer ISCR(2)
+
 ! Zero record
-      ISCR(1) = 1
-!. Packed form
-      ISCR(2) = IAMPACKED
-!
-      CALL ITODS(ISCR,2,2,IFIL)
-!
-      RETURN
+ISCR(1) = 1
+! Packed form
+ISCR(2) = IAMPACKED
+
+call ITODS(ISCR,2,2,IFIL)
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(MBLOCK)
-      END
+if (.false.) call Unused_integer(MBLOCK)
+
+end subroutine ZERORC

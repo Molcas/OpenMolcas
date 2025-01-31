@@ -10,30 +10,30 @@
 !                                                                      *
 ! Copyright (C) 1998, Jeppe Olsen                                      *
 !***********************************************************************
-      Integer FUNCTION ISYMSTR(ISYM,NSTR)
-!
+
+integer function ISYMSTR(ISYM,NSTR)
 ! Symmetry of product of NSTR string symmetries
 !
 ! works currently only for D2H and subgroups
 !
 ! Jeppe Olsen, 1998
-!
-      use symmetry_info, only: MULTD2H => Mul
-      IMPLICIT None
-!. Input
-      INTEGER ISYM(*),NSTR
 
-      INTEGER IISYM, JSTR
-!
-      IF(NSTR.EQ.0) THEN
-        IISYM = 1
-      ELSE
-        IISYM = ISYM(1)
-        DO JSTR = 2, NSTR
-           IISYM = MULTD2H(IISYM,ISYM(JSTR))
-        END DO
-      END IF
-!
-      ISYMSTR = IISYM
-!
-      END FUNCTION ISYMSTR
+use symmetry_info, only: MULTD2H => Mul
+
+implicit none
+! Input
+integer ISYM(*), NSTR
+integer IISYM, JSTR
+
+if (NSTR == 0) then
+  IISYM = 1
+else
+  IISYM = ISYM(1)
+  do JSTR=2,NSTR
+    IISYM = MULTD2H(IISYM,ISYM(JSTR))
+  end do
+end if
+
+ISYMSTR = IISYM
+
+end function ISYMSTR

@@ -8,20 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GT1DIA(H1DIA)
-      use GLBBAS, Only: INT1O, PINT1
-      use lucia_data, only: IBSO,IREOTS,ISMFTO,NACOB
-!
+
+subroutine GT1DIA(H1DIA)
 ! Obtain diagonal of one electron matrix over active
 ! orbitals
 !
 !. Dec 97 : obtained from INT1O
-      IMPLICIT None
-      REAL*8 H1DIA(*)
 
-!.GLobal pointers
-!
-!INA  CALL GT1DIS(H1DIA,IREOTS(1+NINOB),PINT1,INT1,ISMFTO,IBSO,NACOB)
-      CALL GT1DIS(H1DIA,IREOTS(1),PINT1,INT1O,ISMFTO,IBSO,NACOB)
-!
-      END SUBROUTINE GT1DIA
+use GLBBAS, only: INT1O, PINT1
+use lucia_data, only: IBSO, IREOTS, ISMFTO, NACOB
+
+implicit none
+real*8 H1DIA(*)
+
+! Global pointers
+
+!INA call GT1DIS(H1DIA,IREOTS(1+NINOB),PINT1,INT1,ISMFTO,IBSO,NACOB)
+call GT1DIS(H1DIA,IREOTS(1),PINT1,INT1O,ISMFTO,IBSO,NACOB)
+
+end subroutine GT1DIA

@@ -10,43 +10,43 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      FUNCTION NOP_FOR_CONF(ICONF,NEL)
-!
+
+function NOP_FOR_CONF(ICONF,NEL)
 ! A configuration is given as a nonstrict ascending sequence of occupied
 ! occupied orbitals. Find number of double occupied orbitals
 !
 ! Jeppe Olsen, Nov. 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-      INTEGER ICONF(NEL)
-!. Loop over electrons
-      NOPEN = 0
-      IEL = 1
- 1000 CONTINUE
-        IF(IEL.LT.NEL) THEN
-          IF(ICONF(IEL).NE.ICONF(IEL+1)) THEN
-           NOPEN = NOPEN + 1
-           IEL = IEL + 1
-          ELSE IF (ICONF(IEL).EQ.ICONF(IEL+1) ) THEN
-           IEL = IEL + 2
-          END IF
-        END IF
-!
-        IF(IEL.EQ.NEL) THEN
-!. The last orbital is not identical to any later orbitals so
-         NOPEN = NOPEN+1
-         IEL = IEL + 1
-        END IF
-      IF(IEL.LT.NEL) GOTO 1000
-!
-      NOP_FOR_CONF = NOPEN
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Configuration '
-        CALL IWRTMA(ICONF,1,NEL,1,NEL)
-        WRITE(6,*) ' Number of open orbitals = ', NOP_FOR_CONF
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+integer ICONF(NEL)
+
+! Loop over electrons
+NOPEN = 0
+IEL = 1
+1000 continue
+if (IEL < NEL) then
+  if (ICONF(IEL) /= ICONF(IEL+1)) then
+    NOPEN = NOPEN+1
+    IEL = IEL+1
+  else if (ICONF(IEL) == ICONF(IEL+1)) then
+    IEL = IEL+2
+  end if
+end if
+
+if (IEL == NEL) then
+  ! The last orbital is not identical to any later orbitals so
+  NOPEN = NOPEN+1
+  IEL = IEL+1
+end if
+if (IEL < NEL) goto 1000
+
+NOP_FOR_CONF = NOPEN
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Configuration'
+  call IWRTMA(ICONF,1,NEL,1,NEL)
+  write(6,*) ' Number of open orbitals = ',NOP_FOR_CONF
+end if
+
+end function NOP_FOR_CONF

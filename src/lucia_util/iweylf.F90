@@ -8,33 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION IWEYLF(NOPEN,MULTS)
-!
+
+integer function IWEYLF(NOPEN,MULTS)
 ! NUMBER OF CSF'S WITH NOPEN ORBITALS AND TOTAL MULTIPLICITY
 ! MULTS ACCORDING TO WEYLS FORMULAE
 !
 !     (2S+1)/(NOPEN+1) * BION(NOPEN+1/0.5NOPEN-S)
-!
-      IMPLICIT REAL*8           (A-H,O-Z)
-!
-      NTEST = 00
 
-      IF(NOPEN.EQ.0 .AND. MULTS .EQ. 1 ) THEN
-        NCSF = 1
-      ELSEIF(MOD(MULTS-1,2) .NE. MOD(NOPEN,2) ) THEN
-        NCSF = 0
-      ELSEIF(MOD(MULTS-1,2) .EQ. MOD(NOPEN,2) ) THEN
-        NCSF = MULTS*IBION_LUCIA(NOPEN+1,(NOPEN+1-MULTS)/2)/(NOPEN+1)
-      END IF
-!
-      IWEYLF = NCSF
-!
-      IF(NTEST .NE. 0 ) THEN
-        WRITE(6,'(A,4I4)')                                              &
-     &  '  IWEYLF SAYS : NOPEN MULTS NCSF : ', NOPEN,MULTS,NCSF
-      END IF
-!
-      RETURN
-      END FUNCTION IWEYLF
+implicit real*8(A-H,O-Z)
 
-!
+NTEST = 0
+
+if ((NOPEN == 0) .and. (MULTS == 1)) then
+  NCSF = 1
+elseif (mod(MULTS-1,2) /= mod(NOPEN,2)) then
+  NCSF = 0
+elseif (mod(MULTS-1,2) == mod(NOPEN,2)) then
+  NCSF = MULTS*IBION_LUCIA(NOPEN+1,(NOPEN+1-MULTS)/2)/(NOPEN+1)
+end if
+
+IWEYLF = NCSF
+
+if (NTEST /= 0) write(6,'(A,4I4)') '  IWEYLF SAYS : NOPEN MULTS NCSF : ',NOPEN,MULTS,NCSF
+
+end function IWEYLF

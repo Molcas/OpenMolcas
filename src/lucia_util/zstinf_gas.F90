@@ -8,16 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ZSTINF_GAS(IPRNT)
-      use lucia_data, only: NGAS
-      use lucia_data, only: IBGPSTR,NGPSTR,NGRP
-      use lucia_data, only: ISTAC
-      use lucia_data, only: MXPSTT
-      IMPLICIT NONE
-      INTEGER IPRNT
 
-      INTEGER NTEST,IGAS,MGRP,IGRP,IIGRP
-!
+subroutine ZSTINF_GAS(IPRNT)
 ! Set up common block /STINF/ from information in /STINP/
 !
 !=========
@@ -35,39 +27,43 @@
 !                    Only strings belonging to the same
 !                    Orbital group are mapped
 !                    mapped
-!. Input
-!. Only the first element, i.e. ISTAC  is defined
+! Input
+! Only the first element, i.e. ISTAC  is defined
 
-!
-      NTEST = 0
-      NTEST = MAX(NTEST,IPRNT)
-! ******************************************************************
-! Mappings between strings with the same type ISTTP index , +/- 1 el
-! ******************************************************************
-      CALL ISETVC(ISTAC,0,2*MXPSTT)
-      DO  IGAS = 1, NGAS
-!. groups for a given gas spaces goes with increasing number of orbitals,
-!  so the first space does not have any creation mapping
-!  and the last space does not have any annihilation mapping
-!
-        MGRP = NGPSTR(IGAS)
-        DO IGRP = 1, MGRP
-          IIGRP = IGRP + IBGPSTR(IGAS) -1
-          IF(IGRP.NE.1) THEN
-!. Annihilation map is present : IIGRP => IIGRP - 1
-            ISTAC(IIGRP,1) = IIGRP -1
-          END IF
-          IF(IGRP.NE.MGRP) THEN
-!. Creation map is present : IIGRP => IIGRP + 1
-             ISTAC(IIGRP,2) = IIGRP + 1
-          END IF
-        END DO
-      END DO
-!
-      IF(NTEST .GE. 10 ) THEN
-        WRITE(6,*) ' Type - type mapping array ISTAC '
-        WRITE(6,*) ' =============================== '
-        CALL IWRTMA(ISTAC,NGRP  ,2,MXPSTT,2)
-      END IF
-!
-      END SUBROUTINE ZSTINF_GAS
+use lucia_data, only: NGAS
+use lucia_data, only: IBGPSTR, NGPSTR, NGRP
+use lucia_data, only: ISTAC
+use lucia_data, only: MXPSTT
+
+implicit none
+integer IPRNT
+integer NTEST, IGAS, MGRP, IGRP, IIGRP
+
+NTEST = 0
+NTEST = max(NTEST,IPRNT)
+! *****************************************************************
+! Mappings between strings with the same type ISTTP index, +/- 1 el
+! *****************************************************************
+call ISETVC(ISTAC,0,2*MXPSTT)
+do IGAS=1,NGAS
+  ! groups for a given gas spaces goes with increasing number of orbitals,
+  ! so the first space does not have any creation mapping
+  ! and the last space does not have any annihilation mapping
+
+  MGRP = NGPSTR(IGAS)
+  do IGRP=1,MGRP
+    IIGRP = IGRP+IBGPSTR(IGAS)-1
+    ! Annihilation map is present : IIGRP => IIGRP - 1
+    if (IGRP /= 1) ISTAC(IIGRP,1) = IIGRP-1
+    ! Creation map is present : IIGRP => IIGRP + 1
+    if (IGRP /= MGRP) ISTAC(IIGRP,2) = IIGRP+1
+  end do
+end do
+
+if (NTEST >= 10) then
+  write(6,*) ' Type - type mapping array ISTAC'
+  write(6,*) ' ==============================='
+  call IWRTMA(ISTAC,NGRP,2,MXPSTT,2)
+end if
+
+end subroutine ZSTINF_GAS

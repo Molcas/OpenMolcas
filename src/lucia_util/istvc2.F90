@@ -8,16 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ISTVC2(IVEC,IBASE,IFACT,NDIM)
-!
+
+subroutine ISTVC2(IVEC,IBASE,IFACT,NDIM)
 ! IVEC(I) = IBASE + IFACT * I
-!
-!     DIMENSION IVEC(1   )
-      DIMENSION IVEC(NDIM)
-!
-      DO 100 I = 1,NDIM
-        IVEC(I) = IBASE + IFACT*I
-  100 CONTINUE
-!
-      RETURN
-      END
+
+!dimension IVEC(1)
+dimension IVEC(NDIM)
+
+do I=1,NDIM
+  IVEC(I) = IBASE+IFACT*I
+end do
+
+end subroutine ISTVC2

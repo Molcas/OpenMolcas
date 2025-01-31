@@ -8,24 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE diag_master()
-      use GLBBAS, only: INT1, INT1O
-      use CandS, only: ISSM
-      use lucia_data, only: IPRDIA
+
+subroutine diag_master()
+! To do in this subroutine:
 !
-!  To do in this subroutine:
+! - Make sure all calling parameters are accounted for
+! - Make sure mxntts is set in previous subroutine
+! - Make sure nsmst is set in previous subroutine
 !
-!     - Make sure all calling parameters are accounted for
-!     - Make sure mxntts is set in previous subroutine
-!     - Make sure nsmst is set in previous subroutine
-!
-!  Set up the diagonal for the CI calculation
-!
-      implicit None
-      REAL*8 EREF
-!
-      INT1(:)=INT1O(:)
-      CALL GASCI(ISSM, 1, IPRDIA, EREF, 0, 0)
-!
-      END SUBROUTINE diag_master
-!
+! Set up the diagonal for the CI calculation
+
+use GLBBAS, only: INT1, INT1O
+use CandS, only: ISSM
+use lucia_data, only: IPRDIA
+
+implicit none
+real*8 EREF
+
+INT1(:) = INT1O(:)
+call GASCI(ISSM,1,IPRDIA,EREF,0,0)
+
+end subroutine diag_master

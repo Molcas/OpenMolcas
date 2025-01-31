@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE CMP_IVEC_ILIST(IVEC,ILIST,LLIST,NLIST,INUM)
+
+subroutine CMP_IVEC_ILIST(IVEC,ILIST,LLIST,NLIST,INUM)
 ! An integer IVEC of LLIST entries are given.
 ! compare with list of vectors in ILIST and find first
 ! vector in LLIST that is identical to IVEC.
@@ -18,31 +19,30 @@
 ! If INUM = 0, the list was not found
 !
 !  Jeppe Olsen, December 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. General input
-      INTEGER ILIST(LLIST,NLIST)
-!. Specific input
-      INTEGER IVEC(LLIST)
-!
-      INUM = 0
-      DO JLIST = 1, NLIST
-        IFOUND = 1
-        DO IELMNT = 1, LLIST
-          IF(IVEC(IELMNT).NE.ILIST(IELMNT,JLIST))IFOUND = 0
-        END DO
-        IF(IFOUND.EQ.1) INUM = JLIST
-        IF(INUM.NE.0) GOTO 1001
-      END DO
-!
- 1001 CONTINUE
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Input list : '
-        CALL IWRTMA(IVEC,1,LLIST,1,LLIST)
-        WRITE(6,*) ' Address of list : ', INUM
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! General input
+integer ILIST(LLIST,NLIST)
+! Specific input
+integer IVEC(LLIST)
+
+INUM = 0
+do JLIST=1,NLIST
+  IFOUND = 1
+  do IELMNT=1,LLIST
+    if (IVEC(IELMNT) /= ILIST(IELMNT,JLIST)) IFOUND = 0
+  end do
+  if (IFOUND == 1) INUM = JLIST
+  if (INUM /= 0) goto 1001
+end do
+
+1001 continue
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Input list :'
+  call IWRTMA(IVEC,1,LLIST,1,LLIST)
+  write(6,*) ' Address of list : ',INUM
+end if
+
+end subroutine CMP_IVEC_ILIST

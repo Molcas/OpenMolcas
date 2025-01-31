@@ -8,109 +8,102 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE FRMDSC2(   ARRAY,    NDIM,  MBLOCK,   IFILE,  IMZERO,  &
-     &                   I_AM_PACKED,NO_ZEROING)
+
+subroutine FRMDSC2(ARRAY,NDIM,MBLOCK,IFILE,IMZERO,I_AM_PACKED,NO_ZEROING)
+! TRANSFER ARRAY FROM DISC FILE IFILE
 !
-!     TRANSFER ARRAY FROM DISC FILE IFILE
-!
-!. Version allowing zero and packed blocks
+! Version allowing zero and packed blocks
 !
 ! If NO_ZEROING = 1, the elements of zero blocks
-!    are not set to zero, the routine just returns with
-!    IMZERO = 1
-!
-      use Constants, only: Zero
-      use lucia_data, only: IDISK
-      IMPLICIT NONE
-      INTEGER NDIM,MBLOCK,IFILE,IMZERO,I_AM_PACKED,NO_ZEROING
-      REAL*8 ARRAY(*)
-!
-      INTEGER ISCR(2)
-      INTEGER, PARAMETER :: LPBLK=50000
-      INTEGER IPAK(LPBLK)
-      REAL*8 XPAK(LPBLK)
-      INTEGER IDUMMY(1)
-      INTEGER IPACK,NBATCH,LBATCH,LBATCHP,ISTOP,IELMNT,NBLOCK,IREST,    &
-     &        IBASE
+! are not set to zero, the routine just returns with
+! IMZERO = 1
 
-      IMZERO = 0
-!
-      IPACK = 1
-      IF(IPACK.NE.0) THEN
-!. Read if ARRAY is zero
-!       MMBLOCK = MBLOCK
-!       IF(MMBLOCK.GE.2) MMBLOCK = 2
-!       CALL IFRMDS(ISCR,2,MMBLOCK,IFILE)
-         CALL IFRMDS(ISCR,2,2,IFILE)
-         IMZERO=ISCR(1)
-         I_AM_PACKED=ISCR(2)
-         IF(IMZERO.EQ.1) THEN
-            IF(NO_ZEROING.EQ.0) THEN
-               CALL SETVEC(ARRAY,ZERO,NDIM)
-            END IF
-            GOTO 1001
-         END IF
-      END IF
-!
-      IF(I_AM_PACKED.EQ.1) THEN
-         CALL SETVEC(ARRAY,ZERO,NDIM)
-!. Loop over packed records of dimension LPBLK
-         NBATCH = 0
-!1000 CONTINUE
-!. The next LPBLK elements
-         LBATCH=-2**30
- 999     CONTINUE
-         NBATCH = NBATCH + 1
-         IF(NBATCH.NE.1) THEN
-            LBATCHP = LBATCH
-         END IF
-!. Read next batch
-         CALL IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
-         LBATCH=IDUMMY(1)
-         IF(LBATCH.GT.0) THEN
-           CALL IDAFILE(IFILE,2,IPAK,LBATCH,IDISK(IFILE))
-           CALL DDAFILE(IFILE,2,XPAK,LBATCH,IDISK(IFILE))
-         END IF
-         CALL IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
-         ISTOP=IDUMMY(1)
-         DO IELMNT = 1, LBATCH
-            IF(IPAK(IELMNT).LE.0.OR.IPAK(IELMNT).GT.NDIM) THEN
-               WRITE(6,*) ' FRMDSC : Problemo IELMNT = ',IELMNT
-               WRITE(6,*) ' IPAK(IELMNT) = ',IPAK(IELMNT )
-               WRITE(6,*) ' LBATCH IFILE  = ',LBATCH,IFILE
-               IF(NBATCH.EQ.1) THEN
-                  WRITE(6,*) ' NBATCH = 1 '
-               ELSE
-                  WRITE(6,*) ' NBATCH, LBATCHP', NBATCH,LBATCHP
-               END IF
-               WRITE(6,*) ' NDIM,IMZERO = ', NDIM,IMZERO
-!              STOP ' problem in FRMDSC '
-               CALL SYSABENDMSG('lucia_util/frmdsc','Internal error',   &
-     &                          ' ')
-            END IF
-            ARRAY(IPAK(IELMNT)) = XPAK(IELMNT)
-         END DO
-         IF(ISTOP.EQ.0) GOTO 999
-!. End of loop over records of truncated elements
-      ELSE IF ( I_AM_PACKED.EQ.0) THEN
-            NBLOCK = MBLOCK
-            IF ( MBLOCK .LE. 0 ) NBLOCK = NDIM
-            IREST=NDIM
-            IBASE=0
- 100        CONTINUE
-            IF(IREST.GT.NBLOCK) THEN
-               CALL DDAFILE(IFILE,2,ARRAY(IBASE+1),NBLOCK,IDISK(IFILE))
-               IBASE=IBASE+NBLOCK
-               IREST=IREST-NBLOCK
-            ELSE
-               CALL DDAFILE(IFILE,2,ARRAY(IBASE+1),IREST,IDISK(IFILE))
-               IREST=0
-            END IF
-            CALL IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
-            IF( IREST .GT. 0 ) GOTO 100
-!
-      END IF
-!
- 1001 CONTINUE
-!
-      END SUBROUTINE FRMDSC2
+use Constants, only: Zero
+use lucia_data, only: IDISK
+
+implicit none
+integer NDIM, MBLOCK, IFILE, IMZERO, I_AM_PACKED, NO_ZEROING
+real*8 ARRAY(*)
+integer ISCR(2)
+integer, parameter :: LPBLK = 50000
+integer IPAK(LPBLK)
+real*8 XPAK(LPBLK)
+integer IDUMMY(1)
+integer IPACK, NBATCH, LBATCH, LBATCHP, ISTOP, IELMNT, NBLOCK, IREST, IBASE
+
+IMZERO = 0
+
+IPACK = 1
+if (IPACK /= 0) then
+  ! Read if ARRAY is zero
+  !MMBLOCK = MBLOCK
+  !if (MMBLOCK >= 2) MMBLOCK = 2
+  !    IFRMDS(ISCR,2,MMBLOCK,IFILE)
+  call IFRMDS(ISCR,2,2,IFILE)
+  IMZERO = ISCR(1)
+  I_AM_PACKED = ISCR(2)
+  if (IMZERO == 1) then
+    if (NO_ZEROING == 0) call SETVEC(ARRAY,ZERO,NDIM)
+    goto 1001
+  end if
+end if
+
+if (I_AM_PACKED == 1) then
+  call SETVEC(ARRAY,ZERO,NDIM)
+  ! Loop over packed records of dimension LPBLK
+  NBATCH = 0
+  !1000 continue
+  ! The next LPBLK elements
+  LBATCH = -2**30
+999 continue
+  NBATCH = NBATCH+1
+  if (NBATCH /= 1) LBATCHP = LBATCH
+  ! Read next batch
+  call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
+  LBATCH = IDUMMY(1)
+  if (LBATCH > 0) then
+    call IDAFILE(IFILE,2,IPAK,LBATCH,IDISK(IFILE))
+    call DDAFILE(IFILE,2,XPAK,LBATCH,IDISK(IFILE))
+  end if
+  call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
+  ISTOP = IDUMMY(1)
+  do IELMNT=1,LBATCH
+    if ((IPAK(IELMNT) <= 0) .or. (IPAK(IELMNT) > NDIM)) then
+      write(6,*) ' FRMDSC : Problemo IELMNT = ',IELMNT
+      write(6,*) ' IPAK(IELMNT) = ',IPAK(IELMNT)
+      write(6,*) ' LBATCH IFILE  = ',LBATCH,IFILE
+      if (NBATCH == 1) then
+        write(6,*) ' NBATCH = 1'
+      else
+        write(6,*) ' NBATCH, LBATCHP',NBATCH,LBATCHP
+      end if
+      write(6,*) ' NDIM,IMZERO = ',NDIM,IMZERO
+      !stop ' problem in FRMDSC'
+      call SYSABENDMSG('lucia_util/frmdsc','Internal error','')
+    end if
+    ARRAY(IPAK(IELMNT)) = XPAK(IELMNT)
+  end do
+  if (ISTOP == 0) goto 999
+  ! End of loop over records of truncated elements
+else if (I_AM_PACKED == 0) then
+  NBLOCK = MBLOCK
+  if (MBLOCK <= 0) NBLOCK = NDIM
+  IREST = NDIM
+  IBASE = 0
+100 continue
+  if (IREST > NBLOCK) then
+    call DDAFILE(IFILE,2,ARRAY(IBASE+1),NBLOCK,IDISK(IFILE))
+    IBASE = IBASE+NBLOCK
+    IREST = IREST-NBLOCK
+  else
+    call DDAFILE(IFILE,2,ARRAY(IBASE+1),IREST,IDISK(IFILE))
+    IREST = 0
+  end if
+  call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
+  if (IREST > 0) goto 100
+
+end if
+
+1001 continue
+
+end subroutine FRMDSC2

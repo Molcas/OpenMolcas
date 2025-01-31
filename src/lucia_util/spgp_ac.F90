@@ -14,88 +14,82 @@
 !
 ! Nomenclature
 !
-!. Group of strings : set of strings with a given number of orbitals
-!                    in a given GASspace
+! Group of strings : set of strings with a given number of orbitals
+!                   in a given GASspace
 !
-!. Supergroup of strings  : product of NGAS groups, i.e. a string with a
-!                    given numb er of electrons in each GAS space
+! Supergroup of strings : product of NGAS groups, i.e. a string with a
+!                         given numb er of electrons in each GAS space
 !
-!. Type of string : Type is defined by the total number of electrons
-!                   in the string. A type will therefore in general
-!                   consists of several supergroups
-!
-      SUBROUTINE SPGP_AC( INSPGRP,NINSPGRP,IOUTSPGRP,NOUTSPGRP,  NGAS,  &
-     &                    MXPNGAS,     IAC,ISPGRP_AC,IBASEIN,IBASEOUT)
-!
+! Type of string : Type is defined by the total number of electrons
+!                  in the string. A type will therefore in general
+!                  consists of several supergroups
+
+subroutine SPGP_AC(INSPGRP,NINSPGRP,IOUTSPGRP,NOUTSPGRP,NGAS,MXPNGAS,IAC,ISPGRP_AC,IBASEIN,IBASEOUT)
 ! Annihilation/Creation mapping of strings
 !
 ! Jeppe Olsen, April 1, 1997
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. General input : Number of electrons in each gasspace
-      INTEGER INSPGRP(MXPNGAS,*),IOUTSPGRP(MXPNGAS,*)
-!. Output
-      INTEGER ISPGRP_AC(NGAS,*)
-!. Check first that supergroups + IAC information is consistent
-      NELIN = 0
-      NELOUT = 0
-      DO IGAS = 1, NGAS
-        NELIN  = NELIN + INSPGRP(IGAS,IBASEIN)
-        NELOUT = NELOUT + IOUTSPGRP(IGAS,IBASEOUT)
-      END DO
-      IF(.NOT.((IAC.EQ.1.AND.NELIN.EQ.NELOUT+1).OR.                     &
-     &         (IAC.EQ.2.AND.NELIN.EQ.NELOUT-1))) THEN
-        WRITE(6,*) ' Inconsistent data provided to SPGP_AC'
-        WRITE(6,*) ' NELIN NELOUT IAC=',NELIN,NELOUT,IAC
-!        STOP' Inconsistent data provided to SPGRP_AC'
-        CALL SYSABENDMSG('lucia_util/spgp_ac','Internal error',' ')
-      END IF
-!
-      DO ISPGRP = IBASEIN, IBASEIN+NINSPGRP-1
-        DO IGAS = 1, NGAS
-          IF(IAC.EQ.1) THEN
-            INSPGRP(IGAS,ISPGRP) = INSPGRP(IGAS,ISPGRP) - 1
-          ELSE IF (IAC.EQ.2) THEN
-             INSPGRP(IGAS,ISPGRP) = INSPGRP(IGAS,ISPGRP) + 1
-          END IF
-!. Find corresponding supergroup
-          ITO = 0
-          DO JSPGRP = IBASEOUT, IBASEOUT+NOUTSPGRP-1
-            IAMOKAY = 1
-            DO JGAS = 1, NGAS
-              IF( INSPGRP(JGAS,ISPGRP).NE.IOUTSPGRP(JGAS,JSPGRP))       &
-     &        IAMOKAY=0
-            END DO
-            IF(IAMOKAY.EQ.1) ITO = JSPGRP
-          END DO
-          ISPGRP_AC(IGAS,ISPGRP) = ITO
-!. And clean up
-          IF(IAC.EQ.1) THEN
-            INSPGRP(IGAS,ISPGRP) = INSPGRP(IGAS,ISPGRP) + 1
-          ELSE IF (IAC.EQ.2) THEN
-             INSPGRP(IGAS,ISPGRP) = INSPGRP(IGAS,ISPGRP) - 1
-          END IF
-        END DO
-      END DO
-!
-      NTEST = 000
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Input supergroups '
-        CALL IWRTMA(INSPGRP(1,IBASEIN),NGAS,NINSPGRP,                   &
-     &  MXPNGAS,NINSPGRP)
-        WRITE(6,*) ' Output supergroups '
-        CALL IWRTMA(IOUTSPGRP(1,IBASEOUT),NGAS,NOUTSPGRP,               &
-     &  MXPNGAS,NOUTSPGRP)
-      END IF
-!
-      IF(NTEST.GE.100) THEN
-       WRITE(6,*) ' Output from SPGP_AC '
-       WRITE(6,*) ' ===================='
-       WRITE(6,*)
-       WRITE(6,*) ' IAC = ', IAC
-       WRITE(6,*) ' Mapping : '
-       CALL IWRTMA(ISPGRP_AC(1,IBASEIN),NGAS,NINSPGRP,NGAS,NINSPGRP)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! General input : Number of electrons in each gasspace
+integer INSPGRP(MXPNGAS,*), IOUTSPGRP(MXPNGAS,*)
+! Output
+integer ISPGRP_AC(NGAS,*)
+
+! Check first that supergroups + IAC information is consistent
+NELIN = 0
+NELOUT = 0
+do IGAS=1,NGAS
+  NELIN = NELIN+INSPGRP(IGAS,IBASEIN)
+  NELOUT = NELOUT+IOUTSPGRP(IGAS,IBASEOUT)
+end do
+if (.not. (((IAC == 1) .and. (NELIN == NELOUT+1)) .or. ((IAC == 2) .and. (NELIN == NELOUT-1)))) then
+  write(6,*) ' Inconsistent data provided to SPGP_AC'
+  write(6,*) ' NELIN NELOUT IAC=',NELIN,NELOUT,IAC
+  !stop ' Inconsistent data provided to SPGRP_AC'
+  call SYSABENDMSG('lucia_util/spgp_ac','Internal error','')
+end if
+
+do ISPGRP=IBASEIN,IBASEIN+NINSPGRP-1
+  do IGAS=1,NGAS
+    if (IAC == 1) then
+      INSPGRP(IGAS,ISPGRP) = INSPGRP(IGAS,ISPGRP)-1
+    else if (IAC == 2) then
+      INSPGRP(IGAS,ISPGRP) = INSPGRP(IGAS,ISPGRP)+1
+    end if
+    ! Find corresponding supergroup
+    ITO = 0
+    do JSPGRP=IBASEOUT,IBASEOUT+NOUTSPGRP-1
+      IAMOKAY = 1
+      do JGAS=1,NGAS
+        if (INSPGRP(JGAS,ISPGRP) /= IOUTSPGRP(JGAS,JSPGRP)) IAMOKAY = 0
+      end do
+      if (IAMOKAY == 1) ITO = JSPGRP
+    end do
+    ISPGRP_AC(IGAS,ISPGRP) = ITO
+    ! And clean up
+    if (IAC == 1) then
+      INSPGRP(IGAS,ISPGRP) = INSPGRP(IGAS,ISPGRP)+1
+    else if (IAC == 2) then
+      INSPGRP(IGAS,ISPGRP) = INSPGRP(IGAS,ISPGRP)-1
+    end if
+  end do
+end do
+
+NTEST = 0
+if (NTEST >= 1000) then
+  write(6,*) ' Input supergroups'
+  call IWRTMA(INSPGRP(1,IBASEIN),NGAS,NINSPGRP,MXPNGAS,NINSPGRP)
+  write(6,*) ' Output supergroups'
+  call IWRTMA(IOUTSPGRP(1,IBASEOUT),NGAS,NOUTSPGRP,MXPNGAS,NOUTSPGRP)
+end if
+
+if (NTEST >= 100) then
+  write(6,*) ' Output from SPGP_AC'
+  write(6,*) ' ==================='
+  write(6,*)
+  write(6,*) ' IAC = ',IAC
+  write(6,*) ' Mapping :'
+  call IWRTMA(ISPGRP_AC(1,IBASEIN),NGAS,NINSPGRP,NGAS,NINSPGRP)
+end if
+
+end subroutine SPGP_AC

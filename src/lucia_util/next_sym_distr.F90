@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE NEXT_SYM_DISTR(  NGAS, MINVAL, MAXVAL,   ISYM,ISYM_TOT,&
-     &                           IFIRST,  NONEW)
-!
+
+subroutine NEXT_SYM_DISTR(NGAS,MINVAL,MAXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
 ! Obtain next distribution of symmetries with given total
 ! Symmetry.
 !
@@ -27,50 +26,47 @@
 ! of the last space is then fixed by the required total sym
 !
 ! Jeppe Olsen, Sept 97
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. Input
-      DIMENSION MINVAL(NGAS),MAXVAL(NGAS)
-!. Input and output
-      DIMENSION ISYM(NGAS)
-!
-!. Symmetry of first NGAS -1 spaces
-!
-      IF(IFIRST.EQ.1) THEN
-        DO IGAS = 1, NGAS-1
-          ISYM(IGAS) = MINVAL(IGAS)
-        END DO
-        NONEW = 0
-      END IF
- 1001 CONTINUE
-      IF(IFIRST.EQ.0) CALL NXTNUM3(ISYM,NGAS-1,MINVAL,MAXVAL,NONEW)
-      IFIRST = 0
-!
-!. Symmetry of last space
-!
-      IF(NONEW.EQ.0) THEN
-!       JSYM = 1
-!       DO IGAS = 1, NGAS-1
-!         CALL SYMCOM(3,0,JSYM,ISYM(IGAS),KSYM)
-!         JSYM = KSYM
-!       END DO
-        JSYM = ISYMSTR(ISYM,NGAS-1)
-        CALL SYMCOM(2,0,JSYM,ISYM(NGAS),ISYM_TOT)
-!
-        IF(MINVAL(NGAS).GT.ISYM(NGAS).OR.                               &
-     &     MAXVAL(NGAS).LT.ISYM(NGAS)    )GOTO 1001
-      END IF
-!
-      NTEST = 000
-      IF(NTEST.GE.100) THEN
-        IF(NONEW.EQ.1) THEN
-         WRITE(6,*) ' No new symmetry distributions '
-        ELSE
-         WRITE(6,*) ' Next symmetry distribution '
-         CALL IWRTMA(ISYM,1,NGAS,1,NGAS)
-        END IF
-      END IF
-!
-      RETURN
-      END
-!
+
+implicit real*8(A-H,O-Z)
+! Input
+dimension minval(NGAS), maxval(NGAS)
+! Input and output
+dimension ISYM(NGAS)
+
+! Symmetry of first NGAS -1 spaces
+
+if (IFIRST == 1) then
+  do IGAS=1,NGAS-1
+    ISYM(IGAS) = minval(IGAS)
+  end do
+  NONEW = 0
+end if
+1001 continue
+if (IFIRST == 0) call NXTNUM3(ISYM,NGAS-1,MINVAL,MAXVAL,NONEW)
+IFIRST = 0
+
+! Symmetry of last space
+
+if (NONEW == 0) then
+  !JSYM = 1
+  !do IGAS=1,NGAS-1
+  !  call SYMCOM(3,0,JSYM,ISYM(IGAS),KSYM)
+  !  JSYM = KSYM
+  !end do
+  JSYM = ISYMSTR(ISYM,NGAS-1)
+  call SYMCOM(2,0,JSYM,ISYM(NGAS),ISYM_TOT)
+
+  if ((minval(NGAS) > ISYM(NGAS)) .or. (maxval(NGAS) < ISYM(NGAS))) goto 1001
+end if
+
+NTEST = 0
+if (NTEST >= 100) then
+  if (NONEW == 1) then
+    write(6,*) ' No new symmetry distributions'
+  else
+    write(6,*) ' Next symmetry distribution'
+    call IWRTMA(ISYM,1,NGAS,1,NGAS)
+  end if
+end if
+
+end subroutine NEXT_SYM_DISTR

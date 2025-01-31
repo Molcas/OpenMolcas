@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN,NCOMP_PER_OPEN,     &
-     &                         NCOMP)
-!
+
+subroutine NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN,NCOMP_PER_OPEN,NCOMP)
 ! Number of configurations per number of open orbitals is given
 ! Find total number of some components, defined by number
 ! of components per open
@@ -20,16 +19,14 @@
 ! In practice : components are SD's, CSF's or CMB's
 !
 ! Jeppe Olsen, Dec. 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. Input
-      INTEGER NCONF_PER_OPEN(*), NCOMP_PER_OPEN(*)
-!
-      NCOMP = 0
-      DO IOPEN = 0, MAXOP
-        NCOMP =                                                         &
-     &  NCOMP + NCONF_PER_OPEN(IOPEN+1)*NCOMP_PER_OPEN(IOPEN+1)
-      END DO
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+integer NCONF_PER_OPEN(*), NCOMP_PER_OPEN(*)
+
+NCOMP = 0
+do IOPEN=0,MAXOP
+  NCOMP = NCOMP+NCONF_PER_OPEN(IOPEN+1)*NCOMP_PER_OPEN(IOPEN+1)
+end do
+
+end subroutine NCNF_TO_NCOMP

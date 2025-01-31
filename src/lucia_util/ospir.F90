@@ -10,65 +10,63 @@
 !                                                                      *
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE OSPIR(  NOSPIR,  IOSPIR,  PNTGRP,  NIRREP,  MXPIRR,    &
-     &                   MXPOBS,   IPRNT)
-!
+
+subroutine OSPIR(NOSPIR,IOSPIR,PNTGRP,NIRREP,MXPIRR,MXPOBS,IPRNT)
 ! Number and symmetries of orbitals corresponding to a given shell
 !
 ! =====
 ! Input
 ! =====
 !
-!   PNTGRP  : type of pointgroup
-!         = 1 => D2h or a subgroup of D2H
-!         = 2 => C inf v
-!         = 3 => D inf h
-!         = 4 => O 3
-!   NIRREP : Number of irreducible representations per point group
-!   MXPIRR : Largest allowed number of shell irreps
-!   MXPOBS : Largest allowed number of orbital symmetries
+! PNTGRP  : type of pointgroup
+!       = 1 => D2h or a subgroup of D2H
+!       = 2 => C inf v
+!       = 3 => D inf h
+!       = 4 => O 3
+! NIRREP : Number of irreducible representations per point group
+! MXPIRR : Largest allowed number of shell irreps
+! MXPOBS : Largest allowed number of orbital symmetries
 !
 ! ======
 ! Output
 ! ======
 !
-!   NOSPIR : Number of orbital symmetries per irrep
-!   IOSPIR : Orbital symmetries corresponding to a given irrep
+! NOSPIR : Number of orbital symmetries per irrep
+! IOSPIR : Orbital symmetries corresponding to a given irrep
 !
-! Jeppe Olsen , Winter of 1991
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER PNTGRP
-!. Output
-      DIMENSION NOSPIR(MXPIRR),IOSPIR(MXPOBS,MXPIRR)
-!
-      IF(PNTGRP.EQ.1) THEN
-!=====
-!.D2h
-!=====
-        DO 10 IRREP = 1, 8
-          NOSPIR(IRREP) = 1
-          IOSPIR(1,IRREP) = IRREP
-   10   CONTINUE
-      ELSE
-        WRITE(6,*) ' Sorry  PNTGRP out of range , PNTGRP = ', PNTGRP
-        WRITE(6,*) ' OSPIR fatally wounded '
-!        STOP 5
-        CALL SYSABENDMSG('lucia_util/ospir','Internal error',' ')
-      END IF
-!
-      NTEST = 0
-      NTEST = MAX(IPRNT,NTEST)
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' OSPIR speaking '
-        WRITE(6,*) ' ================'
-        WRITE(6,*) ' Number of orbitals per irrep '
-        CALL IWRTMA(NOSPIR,1,NIRREP,1,NIRREP)
-        WRITE(6,*) ' Orbital symmetries per irrep '
-        DO 100 IRREP = 1, NIRREP
-          CALL IWRTMA(IOSPIR(1,IRREP),1,NOSPIR(IRREP),1,NOSPIR(IRREP))
-  100   CONTINUE
-      END IF
-!
-      RETURN
-      END
+! Jeppe Olsen, Winter of 1991
+
+implicit real*8(A-H,O-Z)
+integer PNTGRP
+! Output
+dimension NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR)
+
+if (PNTGRP == 1) then
+  !=====
+  !.D2h
+  !=====
+  do IRREP=1,8
+    NOSPIR(IRREP) = 1
+    IOSPIR(1,IRREP) = IRREP
+  end do
+else
+  write(6,*) ' Sorry  PNTGRP out of range, PNTGRP = ',PNTGRP
+  write(6,*) ' OSPIR fatally wounded'
+  !stop 5
+  call SYSABENDMSG('lucia_util/ospir','Internal error','')
+end if
+
+NTEST = 0
+NTEST = max(IPRNT,NTEST)
+if (NTEST /= 0) then
+  write(6,*) ' OSPIR speaking'
+  write(6,*) ' ================'
+  write(6,*) ' Number of orbitals per irrep'
+  call IWRTMA(NOSPIR,1,NIRREP,1,NIRREP)
+  write(6,*) ' Orbital symmetries per irrep'
+  do IRREP=1,NIRREP
+    call IWRTMA(IOSPIR(1,IRREP),1,NOSPIR(IRREP),1,NOSPIR(IRREP))
+  end do
+end if
+
+end subroutine OSPIR

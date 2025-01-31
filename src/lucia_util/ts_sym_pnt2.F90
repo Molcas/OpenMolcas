@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE TS_SYM_PNT2(   IGRP,  NIGRP, MAXVAL, MINVAL,   ISYM,   &
-     &                          IPNT,   LPNT)
-!
+
+subroutine TS_SYM_PNT2(IGRP,NIGRP,MAXVAL,MINVAL,ISYM,IPNT,LPNT)
 ! Construct pointers to start of symmetrydistributions
 ! for supergroup of strings with given symmetry
 !
@@ -22,9 +21,7 @@
 !     +  (ISM1-MINVAL(1))
 !     +  (ISM2-MINVAL(2))*(MAXVAL(1)-MINVAL(1)+1)
 !     +  (ISM3-MINVAL(3))*(MAXVAL(1)-MINVAL(1)+1)*(MAXVAL(2)-MINVAL(2)+1)
-!     +
-!     +
-!     +
+!     +  ...
 !     +  (ISM L-1-MINVAL(L-1))*Prod(i=1,L-2)(MAXVAL(i)-MINVAL(i)+1)
 !
 ! Where L is the last group of strings with nonvanishing occupation
@@ -32,133 +29,127 @@
 ! Jeppe Olsen, September 1997
 !
 ! Version 2 : Uses IGRP and NIGRP to define supergroup
-!
-      use lucia_data, only: MINMAX_SM_GP,NELFGP,NSTFSMGP
-      use lucia_data, only: MXPNGAS,MXPNSMST
-      use csm_data, only: NSMST
-      IMPLICIT NONE
-      INTEGER NIGRP,ISYM,LPNT
-!. Specific Input
-      INTEGER IGRP(NIGRP)
-!. Local scratch
-      INTEGER ISMFGS(MXPNGAS)
-!     INTEGER ITPFGS(MXPNGAS)
-!-jwk-cleanup      INTEGER NELFGS(MXPNGAS)
-      INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
-!. Output
-      INTEGER MINVAL(*),MAXVAL(*),IPNT(*)
 
-      INTEGER NTEST,NGASL,IGAS,NBLKS,IFIRST,NSTRINT,NONEW,ISTSMM1,      &
-     &        ISMGSN,NSTRII,IOFF,MULT,ISYMSTR
-!
-      NTEST = 00
-!. Info on groups of strings in supergroup
-      NGASL = 1
-      DO IGAS = 1, NIGRP
-!      ITPFGS(IGAS) = IGRP(IGAS)
-       IF(NELFGP(IGRP(IGAS)).GT.0) NGASL = IGAS
-!. Number of strings per symmetry in each gasspace
-!       CALL ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,
-!    &               NNSTSGP(1,IGAS))
-        CALL ICOPVE(NSTFSMGP(1,IGRP(IGAS)),NNSTSGP(1,IGAS),NSMST)
-      END DO
-!
-!     NGASL = NIGRP
-!
-!     DO IGAS = 1, NIGRP
-!       DO ISMST = 1, NSMST
-!         IF(NNSTSGP(ISMST,IGAS).GT.0) MAXVAL(IGAS) = ISMST
-!       END DO
-!       DO ISMST = NSMST,1,-1
-!         IF(NNSTSGP(ISMST,IGAS).GT.0) MINVAL(IGAS) = ISMST
-!       END DO
-!     END DO
-      DO IGAS = 1, NIGRP
-        MINVAL(IGAS) = MINMAX_SM_GP(1,IGRP(IGAS))
-        MAXVAL(IGAS) = MINMAX_SM_GP(2,IGRP(IGAS))
-      END DO
-!
-      IF(NTEST.GE.1000) THEN
-        write(6,*) 'NIGRP:', NIGRP
-        WRITE(6,*)  ' MINVAL and MAXVAL '
-        CALL IWRTMA(MINVAL,1,NIGRP,1,NIGRP)
-        CALL IWRTMA(MAXVAL,1,NIGRP,1,NIGRP)
-      END IF
+use lucia_data, only: MINMAX_SM_GP, NELFGP, NSTFSMGP
+use lucia_data, only: MXPNGAS, MXPNSMST
+use csm_data, only: NSMST
 
-!. Total number of symmetry blocks that will be generated
-      NBLKS = 1
-      DO IGAS = 1, NGASL-1
-       NBLKS = NBLKS*(MAXVAL(IGAS)-MINVAL(IGAS)+1)
-      END DO
-      IF(NBLKS.GT.LPNT) THEN
-        WRITE(6,*) ' Problem in TS_SYM_PNT'
-        WRITE(6,*) ' Dimension of IPNT too small'
-        WRITE(6,*) ' Actual and required length',NBLKS,LPNT
-        WRITE(6,*)
-        WRITE(6,*) ' I will Stop and wait for instructions'
-!        STOP' TS_SYM_PNT too small'
-        CALL SYSABENDMSG('lucia_util/ts_sym_pnt',                       &
-     &                    'Internal error',' ')
-      END IF
-!. Loop over symmetry blocks in standard order
-      IFIRST = 1
-      NSTRINT = 0
- 2000 CONTINUE
-        IF(IFIRST .EQ. 1 ) THEN
-          DO IGAS = 1, NGASL - 1
-            ISMFGS(IGAS) = MINVAL(IGAS)
-          END DO
-        ELSE
-!. Next distribution of symmetries in NGAS -1
-         CALL NXTNUM3(ISMFGS,NGASL-1,MINVAL,MAXVAL,NONEW)
-         IF(NONEW.NE.0) GOTO 2001
-        END IF
-        IFIRST = 0
-!. Symmetry of NGASL -1 spaces given, symmetry of full space
-!       ISTSMM1 = 1
-!       DO IGAS = 1, NGASL -1
-!         CALL  SYMCOM(3,1,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-!         ISTSMM1 = JSTSMM1
-!       END DO
-        ISTSMM1 = ISYMSTR(ISMFGS,NGASL-1)
-!.  sym of SPACE NGASL
-        CALL SYMCOM(2,1,ISTSMM1,ISMGSN,ISYM)
-        ISMFGS(NGASL) = ISMGSN
-        IF(NTEST.GE.1000) THEN
-          WRITE(6,*) ' next symmetry of NGASL spaces '
-          CALL IWRTMA(ISMFGS,1,NGASL,1,NGASL)
-        END IF
-!. Number of strings with this symmetry combination
-        NSTRII = 1
-        DO IGAS = 1, NGASL
-          NSTRII = NSTRII*NNSTSGP(ISMFGS(IGAS),IGAS)
-        END DO
-!. Offset for this symmetry distribution in IOFFI
-        IOFF = 1
-        MULT = 1
-        DO IGAS = 1, NGASL-1
-          IOFF = IOFF + (ISMFGS(IGAS)-MINVAL(IGAS))*MULT
-          MULT = MULT * (MAXVAL(IGAS)-MINVAL(IGAS)+1)
-        END DO
+implicit none
+integer NIGRP, ISYM, LPNT
+! Specific Input
+integer IGRP(NIGRP)
+! Local scratch
+integer ISMFGS(MXPNGAS)
+!integer ITPFGS(MXPNGAS)
+!-jwk-cleanup integer NELFGS(MXPNGAS)
+integer NNSTSGP(MXPNSMST,MXPNGAS)
+! Output
+integer minval(*), maxval(*), IPNT(*)
+integer NTEST, NGASL, IGAS, NBLKS, IFIRST, NSTRINT, NONEW, ISTSMM1, ISMGSN, NSTRII, IOFF, MULT, ISYMSTR
+
+NTEST = 0
+! Info on groups of strings in supergroup
+NGASL = 1
+do IGAS=1,NIGRP
+  !ITPFGS(IGAS) = IGRP(IGAS)
+  if (NELFGP(IGRP(IGAS)) > 0) NGASL = IGAS
+  !. Number of strings per symmetry in each gasspace
+  !call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
+  call ICOPVE(NSTFSMGP(1,IGRP(IGAS)),NNSTSGP(1,IGAS),NSMST)
+end do
+
+!NGASL = NIGRP
 !
-        IPNT(IOFF) = NSTRINT + 1
-        NSTRINT = NSTRINT + NSTRII
-        IF(NTEST.GE.1000) THEN
-          WRITE(6,*) ' IOFF, IPNT(IOFF) NSTRII ',                       &
-     &                 IOFF, IPNT(IOFF),NSTRII
-        END IF
-!
-      IF(NGASL-1.GT.0) GOTO 2000
- 2001 CONTINUE
-!
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' Output from TS_SYM_PNT'
-        WRITE(6,*) ' Required total symmetry',ISYM
-        WRITE(6,*) ' Number of symmetry blocks ', NBLKS
-        WRITE(6,*)
-        WRITE(6,*) ' Offset array  for symmetry blocks'
-        CALL IWRTMA(IPNT,1,NBLKS,1,NBLKS)
-      END IF
-!
-      END SUBROUTINE TS_SYM_PNT2
+!do IGAS=1,NIGRP
+!  do ISMST=1,NSMST
+!    if (NNSTSGP(ISMST,IGAS) > 0) MAXVAL(IGAS) = ISMST
+!  end do
+!  do ISMST=NSMST,1,-1
+!    if (NNSTSGP(ISMST,IGAS) > 0) MINVAL(IGAS) = ISMST
+!  end do
+!end do
+do IGAS=1,NIGRP
+  minval(IGAS) = MINMAX_SM_GP(1,IGRP(IGAS))
+  maxval(IGAS) = MINMAX_SM_GP(2,IGRP(IGAS))
+end do
+
+if (NTEST >= 1000) then
+  write(6,*) 'NIGRP:',NIGRP
+  write(6,*) ' MINVAL and MAXVAL'
+  call IWRTMA(MINVAL,1,NIGRP,1,NIGRP)
+  call IWRTMA(MAXVAL,1,NIGRP,1,NIGRP)
+end if
+
+! Total number of symmetry blocks that will be generated
+NBLKS = 1
+do IGAS=1,NGASL-1
+  NBLKS = NBLKS*(maxval(IGAS)-minval(IGAS)+1)
+end do
+if (NBLKS > LPNT) then
+  write(6,*) ' Problem in TS_SYM_PNT'
+  write(6,*) ' Dimension of IPNT too small'
+  write(6,*) ' Actual and required length',NBLKS,LPNT
+  write(6,*)
+  write(6,*) ' I will Stop and wait for instructions'
+  !stop ' TS_SYM_PNT too small'
+  call SYSABENDMSG('lucia_util/ts_sym_pnt','Internal error','')
+end if
+! Loop over symmetry blocks in standard order
+IFIRST = 1
+NSTRINT = 0
+2000 continue
+if (IFIRST == 1) then
+  do IGAS=1,NGASL-1
+    ISMFGS(IGAS) = minval(IGAS)
+  end do
+else
+  ! Next distribution of symmetries in NGAS -1
+  call NXTNUM3(ISMFGS,NGASL-1,MINVAL,MAXVAL,NONEW)
+  if (NONEW /= 0) goto 2001
+end if
+IFIRST = 0
+! Symmetry of NGASL -1 spaces given, symmetry of full space
+!ISTSMM1 = 1
+!do IGAS=1,NGASL-1
+!  call SYMCOM(3,1,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
+!  ISTSMM1 = JSTSMM1
+!end do
+ISTSMM1 = ISYMSTR(ISMFGS,NGASL-1)
+! sym of SPACE NGASL
+call SYMCOM(2,1,ISTSMM1,ISMGSN,ISYM)
+ISMFGS(NGASL) = ISMGSN
+if (NTEST >= 1000) then
+  write(6,*) ' next symmetry of NGASL spaces'
+  call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
+end if
+! Number of strings with this symmetry combination
+NSTRII = 1
+do IGAS=1,NGASL
+  NSTRII = NSTRII*NNSTSGP(ISMFGS(IGAS),IGAS)
+end do
+! Offset for this symmetry distribution in IOFFI
+IOFF = 1
+MULT = 1
+do IGAS=1,NGASL-1
+  IOFF = IOFF+(ISMFGS(IGAS)-minval(IGAS))*MULT
+  MULT = MULT*(maxval(IGAS)-minval(IGAS)+1)
+end do
+
+IPNT(IOFF) = NSTRINT+1
+NSTRINT = NSTRINT+NSTRII
+if (NTEST >= 1000) write(6,*) ' IOFF, IPNT(IOFF) NSTRII ',IOFF,IPNT(IOFF),NSTRII
+
+if (NGASL-1 > 0) goto 2000
+2001 continue
+
+if (NTEST >= 100) then
+  write(6,*)
+  write(6,*) ' Output from TS_SYM_PNT'
+  write(6,*) ' Required total symmetry',ISYM
+  write(6,*) ' Number of symmetry blocks ',NBLKS
+  write(6,*)
+  write(6,*) ' Offset array  for symmetry blocks'
+  call IWRTMA(IPNT,1,NBLKS,1,NBLKS)
+end if
+
+end subroutine TS_SYM_PNT2

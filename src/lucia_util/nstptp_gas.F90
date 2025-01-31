@@ -12,10 +12,8 @@
 !               2001, Giovanni Li Manni                                *
 !               2001, Dongxia Ma                                       *
 !***********************************************************************
-      SUBROUTINE NSTPTP_GAS(NGAS,ISPGRP,NSTSGP,NSMST,                   &
-     &                      NSTSSPGP,IGRP,MXNSTR,                       &
-     &                      NSMCLS,NSMCLSE,NSMCLSE1)
-!
+
+subroutine NSTPTP_GAS(NGAS,ISPGRP,NSTSGP,NSMST,NSTSSPGP,IGRP,MXNSTR,NSMCLS,NSMCLSE,NSMCLSE1)
 ! Find number of strings per symmetry for the supergroup defined
 ! by the groups of ISPGRP. The obtained number of strings per sym
 ! is stored in NSTSSPGP(*,IGRP)
@@ -24,7 +22,7 @@
 ! Dicember 2011 - the old version is too slow for many GAS spaces
 !                 (new version simpler and quicker)
 !
-!. Also delivered:
+! Also delivered:
 !
 ! NSMCLS : MAX Number of symmetry classes for given supergroup,
 !          i.e. number of combinations of symmetries of groups
@@ -35,107 +33,103 @@
 ! NSMCLSE1 : As NSMCLSE, but the symmetry of the last active
 !            orbital space where there is more than one symmetry
 !            is left out
-!
-      use symmetry_info, only: MULTD2H => Mul
-      use lucia_data, only: MXPNGAS,MXPNSMST
-      IMPLICIT None
-      INTEGER NGAS,NSMST,IGRP,MXNSTR,NSMCLS,NSMCLSE,NSMCLSE1
-!. Input
-      INTEGER ISPGRP(NGAS),NSTSGP(NSMST,*)
-!. Input and Output (column IGRP updated)
-      INTEGER NSTSSPGP(NSMST,IGRP)
-!. Scratch
-      INTEGER ISM,MNSM(MXPNGAS),MXSM(MXPNGAS)
-      INTEGER MSM1(MXPNSMST),MSM2(MXPNSMST)
-      INTEGER ISM1(MXPNSMST),ISM2(MXPNSMST)
-      INTEGER NTEST,ISYM,IGAS,NGASL,IZERO,ISM_IGASM1,ISM_IGAS,ISTRSM
-!
-      NTEST = 0
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*) ' ======================='
-        WRITE(6,*) ' NSTPTP_GAS is speaking '
-        WRITE(6,*) ' ======================='
-!
-        WRITE(6,*) ' Supergroup in action '
-        CALL IWRTMA(ISPGRP,1,NGAS,1,NGAS)
-      END IF
-!
-!. The NSMCLS* parameters
-!
-!. Max and min for each GASpace
 
+use symmetry_info, only: MULTD2H => Mul
+use lucia_data, only: MXPNGAS, MXPNSMST
 
-      DO IGAS = 1, NGAS
-        MXSM(IGAS) = 1
-        DO ISYM = 1, NSMST
-          IF(NSTSGP(ISYM,ISPGRP(IGAS)) .NE. 0 ) MXSM(IGAS) = ISYM
-        END DO
-        MNSM(IGAS) = NSMST
-        DO ISYM = NSMST,1, -1
-          IF(NSTSGP(ISYM,ISPGRP(IGAS)) .NE. 0 ) MNSM(IGAS) = ISYM
-        END DO
-      END DO
-!. Last space with more than one symmetry
-      NGASL = 1
-      DO IGAS = 1, NGAS
-        IF(MXSM(IGAS).NE.MNSM(IGAS)) NGASL = IGAS
-      END DO
-!. NSMCLSE
-      NSMCLSE = 1
-      DO IGAS = 1, NGAS
-        NSMCLSE = (MXSM(IGAS)-MNSM(IGAS)+1)*NSMCLSE
-      END DO
-!. NSMCLSE1
-      NSMCLSE1 = 1
-      DO IGAS = 1, NGASL-1
-        NSMCLSE1 = (MXSM(IGAS)-MNSM(IGAS)+1)*NSMCLSE1
-      END DO
-      IZERO = 0
-      DO IGAS = 1, NGAS
-!. In ISM1, the number of strings per symmetry for the first
-!  IGAS-1 spaces are given, obtain in ISM2 the number of strings per sym
-!  for the first IGAS spaces
-!. Also: in MSM1, MSM2, counts the number of nontrivial combinations per
-!  sym
-        IF(IGAS.EQ.1) THEN
-!. ISM1: The number of strings per symmetry for zero electrons
-         CALL ISETVC(ISM1,IZERO,NSMST)
-         ISM1(1) = 1
-         CALL ISETVC(MSM1,IZERO,NSMST)
-         MSM1(1) = 1
-        ELSE
-!. copy from the ISM2 obtained for preceding IGAS
-         CALL ICOPVE(ISM2,ISM1,NSMST)
-         CALL ICOPVE(MSM2,MSM1,NSMST)
-        END IF
-        CALL ISETVC(ISM2,IZERO,NSMST)
-        CALL ISETVC(MSM2,IZERO,NSMST)
-        DO ISM_IGASM1 = 1, NSMST
-         DO ISM_IGAS = 1, NSMST
-           ISM = MULTD2H(ISM_IGASM1,ISM_IGAS)
-           ISM2(ISM) = ISM2(ISM) +                                      &
-     &     ISM1(ISM_IGASM1)*NSTSGP(ISM_IGAS,ISPGRP(IGAS))
-           IF(ISM1(ISM_IGASM1)*NSTSGP(ISM_IGAS,ISPGRP(IGAS)).NE.0)      &
-     &     MSM2(ISM) = MSM2(ISM) + MSM1(ISM_IGASM1)
-         END DO
-        END DO
-      END DO !loop over IGAS
-      CALL ICOPVE(ISM2,NSTSSPGP(1,IGRP),NSMST)
-!
-      MXNSTR = 0
-      NSMCLS = 0
-      DO ISTRSM = 1, NSMST
-        MXNSTR = MAX(MXNSTR,NSTSSPGP(ISTRSM,IGRP))
-        NSMCLS = MAX(NSMCLS,MSM2(ISTRSM))
-      END DO
-!
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*)                                                      &
-     &  ' Number of strings per symmetry for supergroup',IGRP
-        CALL IWRTMA10(NSTSSPGP(1,IGRP),1,NSMST,1,NSMST)
-        WRITE(6,*) ' Largest number of strings of given sym ',MXNSTR
-!
-        WRITE(6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',            &
-     &                       NSMCLS,NSMCLSE,NSMCLSE1
-      END IF
-      END SUBROUTINE NSTPTP_GAS
+implicit none
+integer NGAS, NSMST, IGRP, MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
+! Input
+integer ISPGRP(NGAS), NSTSGP(NSMST,*)
+! Input and Output (column IGRP updated)
+integer NSTSSPGP(NSMST,IGRP)
+! Scratch
+integer ISM, MNSM(MXPNGAS), MXSM(MXPNGAS)
+integer MSM1(MXPNSMST), MSM2(MXPNSMST)
+integer ISM1(MXPNSMST), ISM2(MXPNSMST)
+integer NTEST, ISYM, IGAS, NGASL, IZERO, ISM_IGASM1, ISM_IGAS, ISTRSM
+
+NTEST = 0
+if (NTEST >= 10) then
+  write(6,*) ' ======================'
+  write(6,*) ' NSTPTP_GAS is speaking'
+  write(6,*) ' ======================'
+
+  write(6,*) ' Supergroup in action'
+  call IWRTMA(ISPGRP,1,NGAS,1,NGAS)
+end if
+
+! The NSMCLS* parameters
+
+! Max and min for each GASpace
+
+do IGAS=1,NGAS
+  MXSM(IGAS) = 1
+  do ISYM=1,NSMST
+    if (NSTSGP(ISYM,ISPGRP(IGAS)) /= 0) MXSM(IGAS) = ISYM
+  end do
+  MNSM(IGAS) = NSMST
+  do ISYM=NSMST,1,-1
+    if (NSTSGP(ISYM,ISPGRP(IGAS)) /= 0) MNSM(IGAS) = ISYM
+  end do
+end do
+! Last space with more than one symmetry
+NGASL = 1
+do IGAS=1,NGAS
+  if (MXSM(IGAS) /= MNSM(IGAS)) NGASL = IGAS
+end do
+! NSMCLSE
+NSMCLSE = 1
+do IGAS=1,NGAS
+  NSMCLSE = (MXSM(IGAS)-MNSM(IGAS)+1)*NSMCLSE
+end do
+! NSMCLSE1
+NSMCLSE1 = 1
+do IGAS=1,NGASL-1
+  NSMCLSE1 = (MXSM(IGAS)-MNSM(IGAS)+1)*NSMCLSE1
+end do
+IZERO = 0
+do IGAS=1,NGAS
+  ! In ISM1, the number of strings per symmetry for the first
+  ! IGAS-1 spaces are given, obtain in ISM2 the number of strings per sym
+  ! for the first IGAS spaces
+  ! Also: in MSM1, MSM2, counts the number of nontrivial combinations per sym
+  if (IGAS == 1) then
+    ! ISM1: The number of strings per symmetry for zero electrons
+    call ISETVC(ISM1,IZERO,NSMST)
+    ISM1(1) = 1
+    call ISETVC(MSM1,IZERO,NSMST)
+    MSM1(1) = 1
+  else
+    ! copy from the ISM2 obtained for preceding IGAS
+    call ICOPVE(ISM2,ISM1,NSMST)
+    call ICOPVE(MSM2,MSM1,NSMST)
+  end if
+  call ISETVC(ISM2,IZERO,NSMST)
+  call ISETVC(MSM2,IZERO,NSMST)
+  do ISM_IGASM1=1,NSMST
+    do ISM_IGAS=1,NSMST
+      ISM = MULTD2H(ISM_IGASM1,ISM_IGAS)
+      ISM2(ISM) = ISM2(ISM)+ISM1(ISM_IGASM1)*NSTSGP(ISM_IGAS,ISPGRP(IGAS))
+      if (ISM1(ISM_IGASM1)*NSTSGP(ISM_IGAS,ISPGRP(IGAS)) /= 0) MSM2(ISM) = MSM2(ISM)+MSM1(ISM_IGASM1)
+    end do
+  end do
+end do !loop over IGAS
+call ICOPVE(ISM2,NSTSSPGP(1,IGRP),NSMST)
+
+MXNSTR = 0
+NSMCLS = 0
+do ISTRSM=1,NSMST
+  MXNSTR = max(MXNSTR,NSTSSPGP(ISTRSM,IGRP))
+  NSMCLS = max(NSMCLS,MSM2(ISTRSM))
+end do
+
+if (NTEST >= 10) then
+  write(6,*) ' Number of strings per symmetry for supergroup',IGRP
+  call IWRTMA10(NSTSSPGP(1,IGRP),1,NSMST,1,NSMST)
+  write(6,*) ' Largest number of strings of given sym ',MXNSTR
+
+  write(6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',NSMCLS,NSMCLSE,NSMCLSE1
+end if
+
+end subroutine NSTPTP_GAS

@@ -8,19 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION IELSUM(IVEC,NELMNT)
-      IMPLICIT NONE
-!
+
+integer function IELSUM(IVEC,NELMNT)
 ! Sum elements of integer vector IVEC
-!
-      INTEGER IVEC(*),NELMNT
-      INTEGER ISUM,IELMNT
-!
-      ISUM = 0
-      DO 100 IELMNT = 1, NELMNT
-        ISUM = ISUM + IVEC(IELMNT)
-  100 CONTINUE
-!
-      IELSUM = ISUM
-!
-      END FUNCTION IELSUM
+
+implicit none
+
+integer IVEC(*), NELMNT
+integer ISUM, IELMNT
+
+ISUM = 0
+do IELMNT=1,NELMNT
+  ISUM = ISUM+IVEC(IELMNT)
+end do
+
+IELSUM = ISUM
+
+end function IELSUM

@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1995,2000, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
-!
+
+subroutine ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 ! Obtain array of 2 orbital indices,
 ! for symmetry packed matrices
 !
@@ -23,68 +23,67 @@
 !
 ! Jeppe Olsen, March 1995
 !              ORBINH1_NOCCSYM added August 2000
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. Input
-      DIMENSION NTOOBS(NSMOB)
-!. output
-      DIMENSION IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB)
-!
-!?    WRITE(6,*) ' ORBINH1 speaking '
-!?    WRITE(6,*) ' NSMOB NTOOB ',NSMOB,NTOOB
-!?    WRITE(6,*) ' NTOOBS '
-!?    CALL IWRTMA(NTOOBS,1,NSMOB,1,NSMOB)
-!. To eliminate annoying and incorrect compiler warnings
-      IOFF = 0
-      JOFF = 0
-      INDEX = 0
 
-!. Loop over symmetries of orbitals
+implicit real*8(A-H,O-Z)
+! Input
+dimension NTOOBS(NSMOB)
+! output
+dimension IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB)
 
-      DO ISM = 1, NSMOB
-        IF(ISM.EQ.1) THEN
-          IOFF = 1
-        ELSE
-          IOFF = IOFF + NTOOBS(ISM-1)
-        END IF
-        DO JSM = 1, NSMOB
-          IF(JSM.EQ.1) THEN
-            JOFF = 1
-          ELSE
-            JOFF = JOFF + NTOOBS(JSM-1)
-          END IF
-!?        WRITE(6,*) ' ISM JSM IOFF JOFF', ISM,JSM,IOFF,JOFF
-          DO IORB = 1, NTOOBS(ISM)
-            IABS = IOFF -1 + IORB
-            DO JORB = 1, NTOOBS(JSM)
-              JABS = JOFF -1 + JORB
-!?            write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
-              IF(ISM.GT.JSM) THEN
-                INDEX = (IORB-1)*NTOOBS(JSM) + JORB
-              ELSE IF(ISM.EQ.JSM) THEN
-                IF(IORB.GE.JORB) THEN
-                  INDEX = IORB*(IORB-1)/2 + JORB
-                ELSE
-                  INDEX = JORB*(JORB-1)/2 + IORB
-                END IF
-              ELSE IF(ISM.LT.JSM) THEN
-                INDEX = (JORB-1)*NTOOBS(ISM) + IORB
-              END IF
-              INDEX_NOCCSYM = (IORB-1)*NTOOBS(JSM) + JORB
-              IORBINH1(IABS,JABS) = INDEX
-              IORBINH1_NOCCSYM(IABS,JABS) = INDEX_NOCCSYM
-            END DO
-          END DO
-!. End of loops over orbital indices
-        END DO
-      END DO
-!. End of loop over orbital symmetries
-!
-      NTEST = 000
-      IF(NTEST .GE. 100 ) THEN
-        WRITE(6,*) ' IORBINH1 matrix delivered from ORBINH1'
-        CALL IWRTMA(IORBINH1,NTOOB,NTOOB,NTOOB,NTOOB)
-      END IF
-!
-      RETURN
-      END
+!write(6,*) ' ORBINH1 speaking'
+!write(6,*) ' NSMOB NTOOB ',NSMOB,NTOOB
+!write(6,*) ' NTOOBS'
+!call IWRTMA(NTOOBS,1,NSMOB,1,NSMOB)
+! To eliminate annoying and incorrect compiler warnings
+IOFF = 0
+JOFF = 0
+INDEX = 0
+
+! Loop over symmetries of orbitals
+
+do ISM=1,NSMOB
+  if (ISM == 1) then
+    IOFF = 1
+  else
+    IOFF = IOFF+NTOOBS(ISM-1)
+  end if
+  do JSM=1,NSMOB
+    if (JSM == 1) then
+      JOFF = 1
+    else
+      JOFF = JOFF+NTOOBS(JSM-1)
+    end if
+    !write(6,*) ' ISM JSM IOFF JOFF',ISM,JSM,IOFF,JOFF
+    do IORB=1,NTOOBS(ISM)
+      IABS = IOFF-1+IORB
+      do JORB=1,NTOOBS(JSM)
+        JABS = JOFF-1+JORB
+        !write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
+        if (ISM > JSM) then
+          INDEX = (IORB-1)*NTOOBS(JSM)+JORB
+        else if (ISM == JSM) then
+          if (IORB >= JORB) then
+            INDEX = IORB*(IORB-1)/2+JORB
+          else
+            INDEX = JORB*(JORB-1)/2+IORB
+          end if
+        else if (ISM < JSM) then
+          INDEX = (JORB-1)*NTOOBS(ISM)+IORB
+        end if
+        INDEX_NOCCSYM = (IORB-1)*NTOOBS(JSM)+JORB
+        IORBINH1(IABS,JABS) = INDEX
+        IORBINH1_NOCCSYM(IABS,JABS) = INDEX_NOCCSYM
+      end do
+    end do
+    ! End of loops over orbital indices
+  end do
+end do
+! End of loop over orbital symmetries
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' IORBINH1 matrix delivered from ORBINH1'
+  call IWRTMA(IORBINH1,NTOOB,NTOOB,NTOOB,NTOOB)
+end if
+
+end subroutine ORBINH1

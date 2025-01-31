@@ -27,7 +27,7 @@
 * If obtained symmetry I1 or I2 is outside bounds,
 * zero is returned.
 *
-* Jeppe Olsen , Spring of 1991
+* Jeppe Olsen, Spring of 1991
 *
 * ================
 *. Driver routine

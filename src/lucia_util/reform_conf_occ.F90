@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
-!
+
+subroutine REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
 ! Reform between two ways of writing occupations
 !
 ! IOCC_EXP : Occupation in expanded form, i.e. the orbital for each
@@ -25,73 +25,71 @@
 ! IWAY = 2 Packed to expanded form
 !
 ! Jeppe Olsen, Nov. 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. Input/Output
-      INTEGER IOCC_EXP(NEL),IOCC_PCK(NOCOB)
-!
-      IF(IWAY.EQ.1) THEN
-!
-!. Expanded => Packed form
-!
-!. Loop over electrons
-        IEL = 1
-        IOCC = 0
- 1000   CONTINUE
-!         IEL = IEL + 1
-          IF(IEL.LT.NEL) THEN
-            IF(IOCC_EXP(IEL).EQ.IOCC_EXP(IEL+1)) THEN
-              IOCC = IOCC + 1
-              IOCC_PCK(IOCC) = -IOCC_EXP(IEL)
-              IEL = IEL + 2
-            ELSE
-              IOCC = IOCC + 1
-              IOCC_PCK(IOCC) =  IOCC_EXP(IEL)
-              IEL = IEL + 1
-            END IF
-          ELSE
-!. Last occupation was not identical to previous, so single occupied
-            IOCC = IOCC + 1
-            IOCC_PCK(IOCC) =  IOCC_EXP(IEL)
-            IEL = IEL + 1
-          END IF
-        IF(IEL.LE.NEL) GOTO 1000
-!
-      ELSE IF( IWAY.EQ.2) THEN
-!
-! Packed to expanded form
-!
-        IEL = 0
-        DO IORB = 1, NOCOB
-          IF(IOCC_PCK(IORB).LT.0) THEN
-            JORB = - IOCC_PCK(IORB)
-            IEL = IEL +1
-            IOCC_EXP(IEL) = JORB
-            IEL = IEL + 1
-            IOCC_EXP(IEL) = JORB
-          END IF
-        END DO
-      ELSE
-        WRITE(6,*) ' REFORM_CONF... in error, IWAY = ', IWAY
-!        STOP       ' REFORM_CONF... in error, IWAY '
-         CALL SYSABENDMSG('lucia_util/reform_conv',                     &
-     &                    'Internal error',' ')
-      END IF
-!     ^ End of IWAY switch
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Reforming form of configuration '
-        IF(IWAY.EQ.1) THEN
-           WRITE(6,*) ' Expanded to packed form '
-        ELSE
-           WRITE(6,*) ' Packed to expanded form '
-        END IF
-        WRITE(6,*) ' IOCC_EXP : '
-        CALL IWRTMA(IOCC_EXP,1,NEL,1,NEL)
-        WRITE(6,*) ' IOCC_PCK : '
-        CALL IWRTMA(IOCC_PCK,1,NOCOB,1,NOCOB)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input/Output
+integer IOCC_EXP(NEL), IOCC_PCK(NOCOB)
+
+if (IWAY == 1) then
+
+  ! Expanded => Packed form
+
+  ! Loop over electrons
+  IEL = 1
+  IOCC = 0
+1000 continue
+  !IEL = IEL+1
+  if (IEL < NEL) then
+    if (IOCC_EXP(IEL) == IOCC_EXP(IEL+1)) then
+      IOCC = IOCC+1
+      IOCC_PCK(IOCC) = -IOCC_EXP(IEL)
+      IEL = IEL+2
+    else
+      IOCC = IOCC+1
+      IOCC_PCK(IOCC) = IOCC_EXP(IEL)
+      IEL = IEL+1
+    end if
+  else
+    ! Last occupation was not identical to previous, so single occupied
+    IOCC = IOCC+1
+    IOCC_PCK(IOCC) = IOCC_EXP(IEL)
+    IEL = IEL+1
+  end if
+  if (IEL <= NEL) goto 1000
+
+else if (IWAY == 2) then
+
+  ! Packed to expanded form
+
+  IEL = 0
+  do IORB=1,NOCOB
+    if (IOCC_PCK(IORB) < 0) then
+      JORB = -IOCC_PCK(IORB)
+      IEL = IEL+1
+      IOCC_EXP(IEL) = JORB
+      IEL = IEL+1
+      IOCC_EXP(IEL) = JORB
+    end if
+  end do
+else
+  write(6,*) ' REFORM_CONF... in error, IWAY = ',IWAY
+  !stop ' REFORM_CONF... in error, IWAY'
+  call SYSABENDMSG('lucia_util/reform_conv','Internal error','')
+end if
+! End of IWAY switch
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Reforming form of configuration'
+  if (IWAY == 1) then
+    write(6,*) ' Expanded to packed form'
+  else
+    write(6,*) ' Packed to expanded form'
+  end if
+  write(6,*) ' IOCC_EXP :'
+  call IWRTMA(IOCC_EXP,1,NEL,1,NEL)
+  write(6,*) ' IOCC_PCK :'
+  call IWRTMA(IOCC_PCK,1,NOCOB,1,NOCOB)
+end if
+
+end subroutine REFORM_CONF_OCC

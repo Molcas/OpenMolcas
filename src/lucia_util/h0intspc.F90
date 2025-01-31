@@ -10,10 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE H0INTSPC(  IH0SPC,  NPTSPC,IOCPTSPC,  NOCTPA,  NOCTPB, &
-     &                        IOCA,    IOCB,    NGAS, MXPNGAS,INTH0SPC, &
-     &                      NELFTP)
-!
+
+subroutine H0INTSPC(IH0SPC,NPTSPC,IOCPTSPC,NOCTPA,NOCTPB,IOCA,IOCB,NGAS,MXPNGAS,INTH0SPC,NELFTP)
 ! Set up INTH0SPC : Division of CI space, so only determinants
 !                   belonging to the same space  have nonvanishing
 !                   matrix elements of H0
@@ -22,9 +20,9 @@
 ! Input
 ! =====
 !
-! IH0SPC : ne. 0 : Interacting subspaces have been defined
-!          .eq.0 : Interacting subspaces not defined, let
-!                  evrything interact
+! IH0SPC : /= 0 : Interacting subspaces have been defined
+!          == 0 : Interacting subspaces not defined, let
+!                 everything interact
 ! NPTSPC : Number of subspaces defined
 ! IOCPTSPC : Allowed occumulated occupation of each subspace
 ! NOCTPA :  Number of alpha occupation types
@@ -33,59 +31,52 @@
 ! IOCB : Occupation  of beta string
 !
 ! Jeppe Olsen, January 1996
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!. Input
-      DIMENSION IOCPTSPC(2,MXPNGAS,*)
-      DIMENSION IOCA(MXPNGAS,*),IOCB(MXPNGAS,*)
-      DIMENSION NELFTP(*)
-!. Output
-      DIMENSION INTH0SPC(NOCTPA,NOCTPB)
-!
-      IF(IH0SPC.EQ.0) THEN
-!. All interactions allowed
-        IONE = 1
-        CALL ISETVC(INTH0SPC,IONE,NOCTPA*NOCTPB)
-      ELSE
-!. Explicit construction of matrix giving partitionning of
-!  subspaces
-        IZERO = 0
-        CALL ISETVC(INTH0SPC,IZERO,NOCTPA*NOCTPB)
-!
-        DO ISPC = 1, NPTSPC
-          DO IATP = 1, NOCTPA
-            DO IBTP = 1, NOCTPB
-              IAMOKAY = 1
-              IEL = 0
-!?            WRITE(6,*) ' ISPC IATP IBTP ', ISPC,IATP,IBTP
-              DO IGAS = 1, NGAS
-               IEL = IEL                                                &
-     &             + NELFTP(IOCA(IGAS,IATP))+NELFTP(IOCB(IGAS,IBTP))
-!?             WRITE(6,*) ' IGAS IEL ', IGAS,IEL
-!?             WRITE(6,*)
-!?   &          ' Limits :',IOCPTSPC(1,IGAS,ISPC),IOCPTSPC(2,IGAS,ISPC)
-               IF(IEL.LT.IOCPTSPC(1,IGAS,ISPC).OR.                      &
-     &            IEL.GT.IOCPTSPC(2,IGAS,ISPC)    ) IAMOKAY = 0
-              END DO
-!?            WRITE(6,*) ' IAMOKAY = ', IAMOKAY
-!. Allowed
-              IF(IAMOKAY.EQ.1.AND.INTH0SPC(IATP,IBTP).EQ.0) THEN
-                INTH0SPC(IATP,IBTP) = ISPC
-              END IF
-            END DO
-          END DO
-        END DO
-      END IF
-!
-      NTEST = 0
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' ======================'
-        WRITE(6,*) ' Output from  H0INTSPC '
-        WRITE(6,*) ' ======================'
-        WRITE(6,*)
-        CALL IWRTMA(INTH0SPC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+dimension IOCPTSPC(2,MXPNGAS,*)
+dimension IOCA(MXPNGAS,*), IOCB(MXPNGAS,*)
+dimension NELFTP(*)
+! Output
+dimension INTH0SPC(NOCTPA,NOCTPB)
+
+if (IH0SPC == 0) then
+  ! All interactions allowed
+  IONE = 1
+  call ISETVC(INTH0SPC,IONE,NOCTPA*NOCTPB)
+else
+  ! Explicit construction of matrix giving partitionning of subspaces
+  IZERO = 0
+  call ISETVC(INTH0SPC,IZERO,NOCTPA*NOCTPB)
+
+  do ISPC=1,NPTSPC
+    do IATP=1,NOCTPA
+      do IBTP=1,NOCTPB
+        IAMOKAY = 1
+        IEL = 0
+        !write(6,*) ' ISPC IATP IBTP ',ISPC,IATP,IBTP
+        do IGAS=1,NGAS
+          IEL = IEL+NELFTP(IOCA(IGAS,IATP))+NELFTP(IOCB(IGAS,IBTP))
+          !write(6,*) ' IGAS IEL ',IGAS,IEL
+          !write(6,*) ' Limits :',IOCPTSPC(1,IGAS,ISPC),IOCPTSPC(2,IGAS,ISPC)
+          if ((IEL < IOCPTSPC(1,IGAS,ISPC)) .or. (IEL > IOCPTSPC(2,IGAS,ISPC))) IAMOKAY = 0
+        end do
+        !write(6,*) ' IAMOKAY = ',IAMOKAY
+        ! Allowed
+        if ((IAMOKAY == 1) .and. (INTH0SPC(IATP,IBTP) == 0)) INTH0SPC(IATP,IBTP) = ISPC
+      end do
+    end do
+  end do
+end if
+
+NTEST = 0
+if (NTEST >= 10) then
+  write(6,*)
+  write(6,*) ' ====================='
+  write(6,*) ' Output from  H0INTSPC'
+  write(6,*) ' ====================='
+  write(6,*)
+  call IWRTMA(INTH0SPC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+end if
+
+end subroutine H0INTSPC

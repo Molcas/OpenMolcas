@@ -17,7 +17,7 @@
 *                       symmetry of the other string is
 *                       ISMOST(ISYM,ITOTSM)
 *
-* Jeppe Olsen , Spring of 1991
+* Jeppe Olsen, Spring of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION ISMOST(MXPCSM,MXPCSM)

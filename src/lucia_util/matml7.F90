@@ -10,17 +10,15 @@
 !                                                                      *
 ! Copyright (C) 2003, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE MATML7(       C,       A,       B,   NCROW,   NCCOL,   &
-     &                     NAROW,   NACOL,   NBROW,   NBCOL, FACTORC,   &
-     &                  FACTORAB, ITRNSP )
-!
+
+subroutine MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP)
 ! MULTIPLY A AND B TO GIVE C
 !
-!     C =  FACTORC*C + FACTORAB* A * B             FOR ITRNSP = 0
+!     C =  FACTORC*C + FACTORAB* A * B       FOR ITRNSP = 0
 !
-!     C =  FACTORC*C + FACTORAB* A(T) * B FOR ITRNSP = 1
+!     C =  FACTORC*C + FACTORAB* A(T) * B    FOR ITRNSP = 1
 !
-!     C =  FACTORC*C + FACTORAB* A * B(T) FOR ITRNSP = 2
+!     C =  FACTORC*C + FACTORAB* A * B(T)    FOR ITRNSP = 2
 !
 !     C =  FACTORC*C + FACTORAB* A(T) * B(T) FOR ITRNSP = 3
 !
@@ -35,138 +33,129 @@
 !
 !. Notice : If the summation index has dimension zero nothing
 !           is performed
-      IMPLICIT REAL*8           (A-H,O-Z)
-      DIMENSION A(NAROW,NACOL),B(NBROW,NBCOL)
-      DIMENSION C(NCROW,NCCOL)
 
-      IF(NAROW.eq.0.or.NACOL.eq.0.or.NBROW.eq.0.or.                     &
-     &   NBCOL.eq.0.or.NCROW.eq.0.or.NCCOL .EQ. 0) THEN
-        IZERO = 1
-      ELSE
-        IZERO = 0
-      END IF
-!
-      IF(IZERO.EQ.1.AND.NCROW*NCCOL.NE.0) THEN
-        IF(FACTORC.NE.0.0D0) THEN
-         CALL SCALVE(C,FACTORC,NCROW*NCCOL)
-        ELSE
-         ZERO = 0.0D0
-         CALL SETVEC(C,ZERO,NCROW*NCCOL)
-        END IF
-      END IF
-!
-      IF (IZERO.EQ.0 ) THEN
-!. DGEMM from CONVEX/ESSL  lib
-        LDA = MAX(1,NAROW)
-        LDB = MAX(1,NBROW)
-!
-        LDC = MAX(1,NCROW)
-        IF(ITRNSP.EQ.0) THEN
-        CALL DGEMM_(      'N',      'N',    NAROW,    NBCOL,    NACOL,  &
-     &               FACTORAB,        A,      LDA,        B,      LDB,  &
-     &                FACTORC,        C,      LDC)
-        ELSE IF (ITRNSP.EQ.1) THEN
-        CALL DGEMM_(      'T',      'N',    NACOL,    NBCOL,    NAROW,  &
-     &               FACTORAB,        A,      LDA,        B,      LDB,  &
-     &                FACTORC,        C,      LDC)
-        ELSE IF(ITRNSP.EQ.2) THEN
-        CALL DGEMM_(      'N',      'T',    NAROW,    NBROW,    NACOL,  &
-     &               FACTORAB,        A,      LDA,        B,      LDB,  &
-     &                FACTORC,        C,      LDC)
-        END IF
+implicit real*8(A-H,O-Z)
+dimension A(NAROW,NACOL), B(NBROW,NBCOL)
+dimension C(NCROW,NCCOL)
 
-! here if iZERO == 1
-      ELSE
-! Use Jeppes version ( it should be working )
-        IF( ITRNSP .EQ. 0 ) THEN
-! ======
-! C=A*B
-! ======
-!
-!         CALL SCALVE(C,FACTORC,NCROW*NCCOL)
-          DO J =1, NCCOL
-!. Initialize with FACTORC*C(I,J) + FACTORAB*A(I,1)*B(1,J)
-            IF(NBROW.GE.1) THEN
-              B1J = FACTORAB*B(1,J)
-              DO I = 1, NCROW
-                C(I,J) = FACTORC*C(I,J) + B1J*A(I,1)
-              END DO
-            END IF
-!. and the major part
-            DO K =2, NBROW
-              BKJ = FACTORAB*B(K,J)
-              DO I = 1, NCROW
-                C(I,J) = C(I,J) + BKJ*A(I,K)
-              END DO
-            END DO
-          END DO
-!
-        END IF
-        IF ( ITRNSP .EQ. 1 ) THEN
-!
-! =========
-! C=A(T)*B
-! =========
-!
-          DO J = 1, NCCOL
-            DO I = 1, NCROW
-              T = 0.0D0
-              DO K = 1, NBROW
-                T = T  + A(K,I)*B(K,J)
-              END DO
-              C(I,J) = FACTORC*C(I,J) + FACTORAB*T
-            END DO
-          END DO
-        END IF
-!
-        IF ( ITRNSP .EQ. 2 ) THEN
-! ===========
-!. C = A*B(T)
-! ===========
-          DO J = 1,NCCOL
-!. Initialization
-            IF(NBCOL.GE.1) THEN
-              BJ1 = FACTORAB*B(J,1)
-              DO I = 1, NCROW
-                C(I,J) = FACTORC*C(I,J) + BJ1*A(I,1)
-              END DO
-            END IF
-!. And the rest
-            DO K = 2,NBCOL
-              BJK = FACTORAB*B(J,K)
-              DO I = 1, NCROW
-                C(I,J) = C(I,J) + BJK*A(I,K)
-              END DO
-            END DO
-          END DO
-        END IF
-      END IF
-!
-! end of iZero ==1
+if ((NAROW == 0) .or. (NACOL == 0) .or. (NBROW == 0) .or. (NBCOL == 0) .or. (NCROW == 0) .or. (NCCOL == 0)) then
+  IZERO = 1
+else
+  IZERO = 0
+end if
 
-      IF(ITRNSP.EQ.3) THEN
-! ================
-!. C = A(T)*B(T)
-! ================
-! C(I,J) = FACTORC*C(I,J) + FACTORAB*sum(K) A(K,I)*B(J,K)
-        CALL SCALVE(C,FACTORC,NCROW*NCCOL)
-        DO I = 1, NCROW
-          DO K = 1, NAROW
-            AKI = FACTORAB*A(K,I)
-            DO J = 1,NBROW
-              C(I,J) = C(I,J) + AKI*B(J,K)
-            END DO
-          END DO
-        END DO
-      END IF
-!
-!      IF ( NTEST .NE. 0 ) THEN
-!      WRITE(6,*)
-!      WRITE(6,*) ' C MATRIX FROM MATML7 '
-!      WRITE(6,*)
-!      CALL WRTMAT(C,NCROW,NCCOL,NCROW,NCCOL)
-!      END IF
-!
-!
-      RETURN
-      END
+if ((IZERO == 1) .and. (NCROW*NCCOL /= 0)) then
+  if (FACTORC /= 0.0d0) then
+    call SCALVE(C,FACTORC,NCROW*NCCOL)
+  else
+    ZERO = 0.0d0
+    call SETVEC(C,ZERO,NCROW*NCCOL)
+  end if
+end if
+
+if (IZERO == 0) then
+  ! DGEMM from CONVEX/ESSL  lib
+  LDA = max(1,NAROW)
+  LDB = max(1,NBROW)
+
+  LDC = max(1,NCROW)
+  if (ITRNSP == 0) then
+    call DGEMM_('N','N',NAROW,NBCOL,NACOL,FACTORAB,A,LDA,B,LDB,FACTORC,C,LDC)
+  else if (ITRNSP == 1) then
+    call DGEMM_('T','N',NACOL,NBCOL,NAROW,FACTORAB,A,LDA,B,LDB,FACTORC,C,LDC)
+  else if (ITRNSP == 2) then
+    call DGEMM_('N','T',NAROW,NBROW,NACOL,FACTORAB,A,LDA,B,LDB,FACTORC,C,LDC)
+  end if
+
+else
+  ! here if iZERO == 1
+  ! Use Jeppes version ( it should be working )
+  if (ITRNSP == 0) then
+    ! ======
+    ! C=A*B
+    ! ======
+
+    !call SCALVE(C,FACTORC,NCROW*NCCOL)
+    do J=1,NCCOL
+      ! Initialize with FACTORC*C(I,J) + FACTORAB*A(I,1)*B(1,J)
+      if (NBROW >= 1) then
+        B1J = FACTORAB*B(1,J)
+        do I=1,NCROW
+          C(I,J) = FACTORC*C(I,J)+B1J*A(I,1)
+        end do
+      end if
+      ! and the major part
+      do K=2,NBROW
+        BKJ = FACTORAB*B(K,J)
+        do I=1,NCROW
+          C(I,J) = C(I,J)+BKJ*A(I,K)
+        end do
+      end do
+    end do
+
+  end if
+  if (ITRNSP == 1) then
+
+    ! =========
+    ! C=A(T)*B
+    ! =========
+
+    do J=1,NCCOL
+      do I=1,NCROW
+        T = 0.0d0
+        do K=1,NBROW
+          T = T+A(K,I)*B(K,J)
+        end do
+        C(I,J) = FACTORC*C(I,J)+FACTORAB*T
+      end do
+    end do
+  end if
+
+  if (ITRNSP == 2) then
+    !===========
+    ! C = A*B(T)
+    !===========
+    do J=1,NCCOL
+      ! Initialization
+      if (NBCOL >= 1) then
+        BJ1 = FACTORAB*B(J,1)
+        do I=1,NCROW
+          C(I,J) = FACTORC*C(I,J)+BJ1*A(I,1)
+        end do
+      end if
+      ! And the rest
+      do K=2,NBCOL
+        BJK = FACTORAB*B(J,K)
+        do I=1,NCROW
+          C(I,J) = C(I,J)+BJK*A(I,K)
+        end do
+      end do
+    end do
+  end if
+  ! end of iZero ==1
+end if
+
+if (ITRNSP == 3) then
+  !================
+  ! C = A(T)*B(T)
+  !================
+  ! C(I,J) = FACTORC*C(I,J) + FACTORAB*sum(K) A(K,I)*B(J,K)
+  call SCALVE(C,FACTORC,NCROW*NCCOL)
+  do I=1,NCROW
+    do K=1,NAROW
+      AKI = FACTORAB*A(K,I)
+      do J=1,NBROW
+        C(I,J) = C(I,J)+AKI*B(J,K)
+      end do
+    end do
+  end do
+end if
+
+!if (NTEST == 0) then
+!  write(6,*)
+!  write(6,*) ' C MATRIX FROM MATML7'
+!  write(6,*)
+!  call WRTMAT(C,NCROW,NCCOL,NCROW,NCCOL)
+!end if
+
+end subroutine MATML7

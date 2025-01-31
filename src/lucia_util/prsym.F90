@@ -8,18 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PRSYM(A,MATDIM)
+
+subroutine PRSYM(A,MATDIM)
 ! PRINT LOWER HALF OF A SYMMETRIC MATRIX OF DIMENSION MATDIM.
 ! THE LOWER HALF OF THE MATRIX IS SUPPOSED TO BE IN VECTOR A.
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*)
-      JSTART=1
-      JSTOP=0
-      DO 100 I=1,MATDIM
-        JSTART=JSTART+I-1
-        JSTOP=JSTOP +I
-        WRITE(6,1010) I,(A(J),J=JSTART,JSTOP)
-  100 CONTINUE
-      RETURN
- 1010 FORMAT('0',2X,I3,5(ES14.7),/,(1X,5X,5(ES14.7)))
-      END
+
+implicit real*8(A-H,O-Z)
+dimension A(*)
+
+JSTART = 1
+JSTOP = 0
+do I=1,MATDIM
+  JSTART = JSTART+I-1
+  JSTOP = JSTOP+I
+  write(6,1010) I,(A(J),J=JSTART,JSTOP)
+end do
+
+return
+1010 format('0',2X,I3,5(ES14.7),/,(1X,5X,5(ES14.7)))
+
+end subroutine PRSYM

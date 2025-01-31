@@ -8,16 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SDCMRF(     CSD,     CCM,    IWAY,    IATP,    IBTP,   &
-     &                      IASM,    IBSM,      NA,      NB,     IDC,   &
-     &                        PS,      PL,  ISGVST,    LDET,   LCOMB,   &
-     &                    ISCALE,  SCLFAC)
-!
+
+subroutine SDCMRF(CSD,CCM,IWAY,IATP,IBTP,IASM,IBSM,NA,NB,IDC,PS,PL,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
 ! Change a block of coefficients bwtween combination format and
 ! Slater determinant format
 !
-!     IWAY = 1 : SD => Combinations
-!     IWAY = 2 : Combinations => SD
+! IWAY = 1 : SD => Combinations
+! IWAY = 2 : Combinations => SD
 !
 ! Input
 ! =====
@@ -31,123 +28,113 @@
 ! PL   : Ml   combination sign
 ! ISGVST : Ml reflection of strings
 !
-!
-! If ISCALE .EQ. 0, no overall scaling is performed,
-!                   the overall scale factor is returned
-!                   as SCLFAC
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CSD(*),CCM(*),ISGVST(*)
-      Logical Test1, Test2
-!
-      NTEST = 00
-!
-      SQRT2  = SQRT(2.0D0)
-      SQRT2I = 1.0D0/SQRT2
-!
-!. Is combination array packed ?
-!
-      SCLFAC = 1.0D0
-      IPACK = 0
-      FACTOR = 1.0D0
-!
-      Test1 = IDC.EQ.2.OR.IDC.EQ.4
-      If (.Not.Test1) Then
-         Test2 = IDC.EQ.4
-         If (Test2) Test2 = Test2 .and. IASM.EQ.ISGVST(IBSM)
-      Else
-         Test2 = .False.
-      End If
+! If ISCALE == 0, no overall scaling is performed,
+!                 the overall scale factor is returned as SCLFAC
 
-      IF( Test1 ) THEN
-         SIGN = PS
-         FACTOR = SQRT2
-         IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP) IPACK = 1
-      ELSE IF( Test2 ) THEN
-        IF(IATP.EQ.IBTP) IPACK = 1
-        SIGN = PS*PL
-        FACTOR = 2.0D0
-      END IF
-!
-      LDET = NA * NB
-      IF(NTEST.GE.100) WRITE(6,*) ' SDCMRF : NA, NB =', NA,NB
-      IF( IPACK.EQ.0) THEN
-        LCOMB = LDET
-      ELSE
-        LCOMB = NA*(NA+1)/2
-      END IF
-      IF(IDC.EQ.4.AND.IPACK.EQ.0) FACTOR = SQRT2
-      IF(IWAY.EQ.2) FACTOR = 1.0D0/FACTOR
-!
-!. SD => combination transformation
-!
-      IF(IWAY .EQ. 1 ) THEN
-        IF(IPACK.EQ.1) THEN
-!. Pack to triangular form
-          CALL TRIPK3(      CSD,      CCM,        1,       NA,       NA,&
-     &                     SIGN)
-!              TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
-        ELSE
-          CALL COPVEC(CSD,CCM,NA*NB)
-        END IF
-!. Scale
-        IF(FACTOR.NE.1.0D0) THEN
-          IF(ISCALE.EQ.1) THEN
-            SCLFAC = 1.0D0
-            CALL SCALVE(CCM,FACTOR,LCOMB)
-          ELSE
-            SCLFAC = FACTOR
-          END IF
-          IF(IPACK.EQ.1 ) THEN
-            CALL SCLDIA(CCM,SQRT2I,NA,1)
-          END IF
-        END IF
-      END IF
-!
-!. Combination => SD transformation
-!
-      IF(IWAY.EQ.2) THEN
-        IF(IPACK.EQ.1) THEN
-!. Unpack from triangular form
-          CALL TRIPK3(      CSD,      CCM,        2,       NA,       NA,&
-     &                     SIGN)
-        ELSE
-           CALL COPVEC(CCM,CSD,NA*NB)
-        END IF
-!. Scale
-        IF(FACTOR.NE.1.0D0) THEN
-          IF(ISCALE.EQ.1) THEN
-            SCLFAC = 1.0D0
-            CALL SCALVE(CSD,FACTOR,LDET)
-          ELSE
-            SCLFAC = FACTOR
-          END IF
-          IF(IPACK.EQ.1) THEN
-             CALL SCLDIA(CSD,SQRT2,NA,0)
-          END IF
-        END IF
-      END IF
-!
-      NTEST = 00
-      IF(NTEST.NE.0) THEN
-!     IF(NTEST.NE.0.AND.IWAY.EQ.1) THEN
-        WRITE(6,*) ' Information from SDCMRF '
+implicit real*8(A-H,O-Z)
+dimension CSD(*), CCM(*), ISGVST(*)
+logical Test1, Test2
 
-        WRITE(6,'(A,6I4)') ' IWAY IATP IBTP IASM IBSM IDC ',            &
-     &                   IWAY,IATP,IBTP,IASM,IBSM,IDC
-        WRITE(6,'(A,I4,3X,2ES15.8)') ' IPACK FACTOR SIGN',              &
-     &  IPACK,FACTOR,SIGN
-        IF(NTEST.GE. 100 ) THEN
-          WRITE(6,*) ' Slater determinant block '
-          CALL WRTMAT(CSD,NA,NB,NA,NB)
-          WRITE(6,*)
-          WRITE(6,*) ' Combination block '
-          IF(IPACK.EQ.1) THEN
-            CALL PRSM2(CCM,NA)
-          ELSE
-            CALL WRTMAT(CCM,NA,NB,NA,NB)
-          END IF
-        END IF
-      END IF
-!
-      RETURN
-      END
+NTEST = 0
+
+SQRT2 = sqrt(2.0d0)
+SQRT2I = 1.0d0/SQRT2
+
+! Is combination array packed ?
+
+SCLFAC = 1.0d0
+IPACK = 0
+FACTOR = 1.0d0
+
+Test1 = (IDC == 2) .or. (IDC == 4)
+if (.not. Test1) then
+  Test2 = IDC == 4
+  if (Test2) Test2 = Test2 .and. (IASM == ISGVST(IBSM))
+else
+  Test2 = .false.
+end if
+
+if (Test1) then
+  SIGN = PS
+  FACTOR = SQRT2
+  if ((IASM == IBSM) .and. (IATP == IBTP)) IPACK = 1
+else if (Test2) then
+  if (IATP == IBTP) IPACK = 1
+  SIGN = PS*PL
+  FACTOR = 2.0d0
+end if
+
+LDET = NA*NB
+if (NTEST >= 100) write(6,*) ' SDCMRF : NA, NB =',NA,NB
+if (IPACK == 0) then
+  LCOMB = LDET
+else
+  LCOMB = NA*(NA+1)/2
+end if
+if ((IDC == 4) .and. (IPACK == 0)) FACTOR = SQRT2
+if (IWAY == 2) FACTOR = 1.0d0/FACTOR
+
+! SD => combination transformation
+
+if (IWAY == 1) then
+  if (IPACK == 1) then
+    ! Pack to triangular form
+    call TRIPK3(CSD,CCM,1,NA,NA,SIGN)
+    !    TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
+  else
+    call COPVEC(CSD,CCM,NA*NB)
+  end if
+  ! Scale
+  if (FACTOR /= 1.0d0) then
+    if (ISCALE == 1) then
+      SCLFAC = 1.0d0
+      call SCALVE(CCM,FACTOR,LCOMB)
+    else
+      SCLFAC = FACTOR
+    end if
+    if (IPACK == 1) call SCLDIA(CCM,SQRT2I,NA,1)
+  end if
+end if
+
+! Combination => SD transformation
+
+if (IWAY == 2) then
+  if (IPACK == 1) then
+    ! Unpack from triangular form
+    call TRIPK3(CSD,CCM,2,NA,NA,SIGN)
+  else
+    call COPVEC(CCM,CSD,NA*NB)
+  end if
+  ! Scale
+  if (FACTOR /= 1.0d0) then
+    if (ISCALE == 1) then
+      SCLFAC = 1.0d0
+      call SCALVE(CSD,FACTOR,LDET)
+    else
+      SCLFAC = FACTOR
+    end if
+    if (IPACK == 1) call SCLDIA(CSD,SQRT2,NA,0)
+  end if
+end if
+
+NTEST = 0
+!if ((NTEST /= 0) .and. (IWAY == 1)) then
+if (NTEST /= 0) then
+  write(6,*) ' Information from SDCMRF'
+
+  write(6,'(A,6I4)') ' IWAY IATP IBTP IASM IBSM IDC ',IWAY,IATP,IBTP,IASM,IBSM,IDC
+  write(6,'(A,I4,3X,2ES15.8)') ' IPACK FACTOR SIGN',IPACK,FACTOR,SIGN
+  if (NTEST >= 100) then
+    write(6,*) ' Slater determinant block'
+    call WRTMAT(CSD,NA,NB,NA,NB)
+    write(6,*)
+    write(6,*) ' Combination block'
+    if (IPACK == 1) then
+      call PRSM2(CCM,NA)
+    else
+      call WRTMAT(CCM,NA,NB,NA,NB)
+    end if
+  end if
+end if
+
+end subroutine SDCMRF

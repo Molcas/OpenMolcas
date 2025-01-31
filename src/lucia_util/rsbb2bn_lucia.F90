@@ -10,26 +10,16 @@
 !                                                                      *
 ! Copyright (C) 1991-1994,1996,1997,2000, Jeppe Olsen                  *
 !***********************************************************************
-      SUBROUTINE RSBB2BN_LUCIA(   IASM,   IATP,   IBSM,   IBTP,    NIA, &
-     &                             NIB,   JASM,   JATP,   JBSM,   JBTP, &
-     &                             NJA,    NJB,  IAGRP,  IBGRP,   NGAS, &
-     &                            IAOC,   IBOC,   JAOC,   JBOC,     SB, &
-     &                              CB,  ADSXA, STSTSX,MXPNGASX,NOBPTS, &
-!
-     &                            MAXK,   SSCR,   CSCR,     I1,   XI1S, &
-     &                              I2,   XI2S,     I3,   XI3S,     I4, &
-     &                            XI4S,   XINT,  NSMOB,  NSMST,  NSMSX, &
-     &                           NSMDX,MXPOBSX, IUSEAB,  CJRES,  SIRES, &
-     &                          SCLFAC, NTESTG, NSEL2E, ISEL2E,IUSE_PH, &
-!
-     &                          IPHGAS,  XINT2)
-!
+
+subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,ADSXA, &
+                         STSTSX,MXPNGASX,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX,NSMDX, &
+                         MXPOBSX,IUSEAB,CJRES,SIRES,SCLFAC,NTESTG,NSEL2E,ISEL2E,IUSE_PH,IPHGAS,XINT2)
 ! SUBROUTINE RSBB2BN_LUCIA --> 52
-!
 !
 ! Combined alpha-beta double excitation
 ! contribution from given C block to given S block
-!. If IUSAB only half the terms are constructed
+! If IUSAB only half the terms are constructed
+!
 ! =====
 ! Input
 ! =====
@@ -55,7 +45,6 @@
 ! NSMOB,NSMST,NSMSX : Number of symmetries of orbitals,strings,
 !       single excitations
 ! MAXK   : Largest number of inner resolution strings treated at simult.
-!
 !
 ! ======
 ! Output
@@ -86,342 +75,301 @@
 ! October   97 : allowing for N-1/N+1 switch
 !
 ! Last change : Aug 2000
-!
-      use Constants, only: Zero, One
-      USE Para_Info, ONLY: MyRank, nProcs
-      use lucia_data, only: MXPOBS,MXPNGAS
-      IMPLICIT NONE
-      INTEGER IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,          &
-     &        NJA,NJB,IAGRP,IBGRP,NGAS,MXPNGASX,MAXK,NSMOB,NSMST,NSMSX, &
-     &        NSMDX,MXPOBSX,IUSEAB,NTESTG,NSEL2E,IUSE_PH
-      REAL*8 SCLFAC
-!. General input
+
+use Constants, only: Zero, One
+use Para_Info, only: MyRank, nProcs
+use lucia_data, only: MXPOBS, MXPNGAS
+
+implicit none
+integer IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, MXPNGASX, MAXK, NSMOB, NSMST, &
+        NSMSX, NSMDX, MXPOBSX, IUSEAB, NTESTG, NSEL2E, IUSE_PH
+real*8 SCLFAC
+! General input
 #include "timers.fh"
-      INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
-      INTEGER NOBPTS(MXPNGAS,*)
-!
-      INTEGER ISEL2E(*)
-!.Input
-      REAL*8 CB(*)
-      INTEGER IBOC(*),JBOC(*),IAOC(*),JAOC(*),IPHGAS(*)
-!.Output
-      REAL*8 SB(*)
-!.Scratch
-      REAL*8 SSCR(*),CSCR(*)
-      INTEGER I1(*),I2(*),I3(*),I4(*)
-      REAL*8 XI1S(*),XI2S(*),XI3S(*),XI4S(*)
-      REAL*8 XINT(*), XINT2(*)
-      REAL*8 CJRES(*),SIRES(*)
-!
-!.Local arrays
-      INTEGER ITP(20),JTP(20),KTP(20),LTP(20)
-!
-      INTEGER IJ_TYP(2),IJ_DIM(2),IJ_REO(2),IJ_SYM(2)
-      INTEGER KL_TYP(2),KL_DIM(2),KL_REO(2),KL_SYM(2)
-!
-      INTEGER IASPGP(20),IBSPGP(20),JASPGP(20),JBSPGP(20)
-      INTEGER NTESTL,NTEST,IJSM,KLSM,NIJTYP,NKLTYP,IJTYP,ITYP,JTYP,ISM, &
-     &        JSM,NI,NJ,IJAC,IDOCOMP,NKAEFF,NKASTR,NKABTC,NKABTCSZ,     &
-     &        IKABTC,KABOT,KATOP,LKABTC,JJ,KLTYP,KTYP,LTYP,IAMOKAY,     &
-     &        JSEL2E,KSM,LSM,NK,NL,KLAC,IKORD,NKBSTR,IXCHNG,ICOUL,      &
-     &        IROUTE,II,IEND,IFRST,KACT,KFRST
-      REAL*8 SIGNIJ2,WALL1,WALL0,FACS,SIGNKL,CPU,CPU0,CPU1,WALL
-!
-      NTESTL = 000
-      NTEST = MAX(NTESTG,NTESTL)
-!
-      IF(NTEST.GE.500) THEN
-!
-        WRITE(6,*) ' =============== '
-        WRITE(6,*) ' RSBB2BN speaking '
-        WRITE(6,*) ' =============== '
-!
-      END IF
-!. Groups defining each supergroup
-      CALL GET_SPGP_INF(IATP,IAGRP,IASPGP)
-      CALL GET_SPGP_INF(JATP,IAGRP,JASPGP)
-      CALL GET_SPGP_INF(IBTP,IBGRP,IBSPGP)
-      CALL GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
-!
-!. Symmetry of allowed excitations
-      IJSM = STSTSX(IASM,JASM)
-      KLSM = STSTSX(IBSM,JBSM)
-      IF(IJSM.EQ.0.OR.KLSM.EQ.0) Return
-      IF(NTEST.GE.600) THEN
-        write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
-        write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
-      END IF
-!.Types of SX that connects the two strings
-      CALL SXTYP2_GAS(   NKLTYP,      KTP,      LTP,     NGAS,     IBOC,&
-     &                     JBOC,   IPHGAS)
-      CALL SXTYP2_GAS(   NIJTYP,      ITP,      JTP,     NGAS,     IAOC,&
-     &                     JAOC,   IPHGAS)
-      IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) Return
+integer ADSXA(MXPOBS,MXPOBS), STSTSX(NSMST,NSMST)
+integer NOBPTS(MXPNGAS,*)
+integer ISEL2E(*)
+! Input
+real*8 CB(*)
+integer IBOC(*), JBOC(*), IAOC(*), JAOC(*), IPHGAS(*)
+! Output
+real*8 SB(*)
+! Scratch
+real*8 SSCR(*), CSCR(*)
+integer I1(*), I2(*), I3(*), I4(*)
+real*8 XI1S(*), XI2S(*), XI3S(*), XI4S(*)
+real*8 XINT(*), XINT2(*)
+real*8 CJRES(*), SIRES(*)
+! Local arrays
+integer ITP(20), JTP(20), KTP(20), LTP(20)
 
-      DO 2001 IJTYP = 1, NIJTYP
-!
-        ITYP = ITP(IJTYP)
-        JTYP = JTP(IJTYP)
-        DO 1940 ISM = 1, NSMOB
-          JSM = ADSXA(ISM,IJSM)
-          IF(JSM.EQ.0) GOTO 1940
-          NI = NOBPTS(ITYP,ISM)
-          NJ = NOBPTS(JTYP,JSM)
-          IF(NI.EQ.0.OR.NJ.EQ.0) GOTO 1940
-!. Should N-1 or N+1 projection be used for alpha strings
-          IJ_TYP(1) = ITYP
-          IJ_TYP(2) = JTYP
-!          IJ_AC(1)  = 2
-!          IJ_AC(2) =  1
-!          NOP = 2
-!          IF(IUSE_PH.EQ.1) THEN
-!            CALL ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TYP,IJ_AC,IJ_REO,
-!     &           SIGNIJ)
-!          ELSE
-!. Enforced a+ a
-            IJ_REO(1) = 1
-            IJ_REO(2) = 2
-!          END IF
-!. Two choices here :
-!  1 : <Ia!a+ ia!Ka><Ja!a+ ja!Ka> ( good old creation mapping)
-!  2 :-<Ia!a  ja!Ka><Ja!a  ia!Ka>  + delta(i,j)
-!?        WRITE(6,*) ' RSBB2BN : IOP_REO : ', (IOP_REO(II),II=1,2)
-          IF(IJ_REO(1).EQ.1.AND.IJ_REO(2).EQ.2) THEN
-!. Business as usual i.e. creation map
-            IJAC = 2
-            SIGNIJ2 = SCLFAC
-!
-            IJ_DIM(1) = NI
-            IJ_DIM(2) = NJ
-            IJ_SYM(1) = ISM
-            IJ_SYM(2) = JSM
-            IJ_TYP(1) = ITYP
-            IJ_TYP(2) = JTYP
-          ELSE
-!. Terra Nova, annihilation map
-            IJAC = 1
-            SIGNIJ2 = -SCLFAC
-!
-            IJ_DIM(1) = NJ
-            IJ_DIM(2) = NI
-            IJ_SYM(1) = JSM
-            IJ_SYM(2) = ISM
-            IJ_TYP(1) = JTYP
-            IJ_TYP(2) = ITYP
-          END IF
-!
-!. Generate creation- or annihilation- mappings for all Ka strings
-!
-!. For operator connecting to |Ka> and |Ja> i.e. operator 2
-          CALL ADAST_GAS(IJ_SYM(2),IJ_TYP(2),  NGAS,JASPGP,  JASM,      &
-     &                         I1,    XI1S,  NKASTR,    IEND,   IFRST,  &
-     &                      KFRST,    KACT, SIGNIJ2,    IJAC)
-!         CALL ADAST_GAS(JSM,JTYP,JATP,JASM,IAGRP,
-!    &         I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC)
-!. For operator connecting |Ka> and |Ia>, i.e. operator 1
-          CALL ADAST_GAS(IJ_SYM(1),IJ_TYP(1),  NGAS,IASPGP,  IASM,      &
-     &                         I3,    XI3S,  NKASTR,    IEND,   IFRST,  &
-     &                      KFRST,    KACT,     ONE,    IJAC)
-!         CALL ADAST_GAS(ISM,ITYP,NGAS,IASPGP,IASM,
-!    &         I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJ_AC)
-!. Compress list to common nonvanishing elements
-          IDOCOMP = 0
-          IF(IDOCOMP.EQ.1) THEN
-              CALL COMPRS2LST(     I1,   XI1S,IJ_DIM(2),   I3, XI3S,    &
-     &                        IJ_DIM(1),NKASTR,NKAEFF)
-          ELSE
-              NKAEFF = NKASTR
-          END IF
+integer IJ_TYP(2), IJ_DIM(2), IJ_REO(2), IJ_SYM(2)
+integer KL_TYP(2), KL_DIM(2), KL_REO(2), KL_SYM(2)
+integer IASPGP(20), IBSPGP(20), JASPGP(20), JBSPGP(20)
+integer NTESTL, NTEST, IJSM, KLSM, NIJTYP, NKLTYP, IJTYP, ITYP, JTYP, ISM, JSM, NI, NJ, IJAC, IDOCOMP, NKAEFF, NKASTR, NKABTC, &
+        NKABTCSZ, IKABTC, KABOT, KATOP, LKABTC, JJ, KLTYP, KTYP, LTYP, IAMOKAY, JSEL2E, KSM, LSM, NK, NL, KLAC, IKORD, NKBSTR, &
+        IXCHNG, ICOUL, IROUTE, II, IEND, IFRST, KACT, KFRST
+real*8 SIGNIJ2, WALL1, WALL0, FACS, SIGNKL, CPU, CPU0, CPU1, WALL
 
-!. Loop over batches of KA strings
-          NKABTC=0
-          DO
-            NKABTC=NKABTC+NPROCS
-            NKABTCSZ=MAX(NKAEFF-1,0)/NKABTC+1
-            IF (NKABTCSZ.LE.MAXK) EXIT
-          END DO
-!
-          DO 1801 IKABTC = 1+MYRANK, NKABTC, NPROCS
-            KABOT = (IKABTC-1)*NKABTCSZ + 1
-            KATOP = MIN(KABOT+NKABTCSZ-1,NKAEFF)
-            LKABTC = KATOP-KABOT+1
-            IF (LKABTC.LE.0) EXIT
-!. Obtain C(ka,J,JB) for Ka in batch
-            CALL TIMING(CPU0,CPU,WALL0,WALL)
-            DO JJ = 1, IJ_DIM(2)
-              CALL GET_CKAJJB(     CB,IJ_DIM(2),  NJA,CJRES,LKABTC,     &
-     &                            NJB,                                  &
-     &                             JJ,                                  &
-     &                        I1(KABOT+(JJ-1)*NKASTR),                  &
-     &                        XI1S(KABOT+(JJ-1)*NKASTR))
-!
-            END DO
-            CALL TIMING(CPU1,CPU,WALL1,WALL)
-            TSIGMA(4)=TSIGMA(4)+(WALL1-WALL0)
-            IF(NTEST.GE.500) THEN
-              WRITE(6,*) ' Updated CJRES as C(Kaj,Jb)'
-              CALL WRTMAT(CJRES,NKASTR*NJ,NJB,NKASTR*NJ,NJB)
-            END IF
-!
-!            MXACJ=MAX(MXACJ,NIB*LKABTC*IJ_DIM(1),NJB*LKABTC*IJ_DIM(2))
-            CALL SETVEC(SIRES,ZERO,NIB*LKABTC*IJ_DIM(1))
-            FACS = 1.0D0
-!
-            DO 2000 KLTYP = 1, NKLTYP
-              KTYP = KTP(KLTYP)
-              LTYP = LTP(KLTYP)
-!. Allowed double excitation ?
-!              IJKL_ACT = 1
-!              IF(IJKL_ACT.EQ.0) GOTO 2000
-              IF(NTEST.GE.100) THEN
-                WRITE(6,*) ' KTYP, LTYP', KTYP, LTYP
-              END IF
-!. Should this group of excitations be included
-              IF(NSEL2E.NE.0) THEN
-               IAMOKAY=0
-               IF(ITYP.EQ.JTYP.AND.ITYP.EQ.KTYP.AND.ITYP.EQ.LTYP)THEN
-                 DO JSEL2E = 1, NSEL2E
-                   IF(ISEL2E(JSEL2E).EQ.ITYP)IAMOKAY = 1
-                 END DO
-               END IF
-               IF(IAMOKAY.EQ.0) GOTO 2000
-              END IF
-!
-              KL_TYP(1) = KTYP
-              KL_TYP(2) = LTYP
-!              KL_AC(1)  = 2
-!              KL_AC(2) =  1
-!              NOP = 2
-!              IF(IUSE_PH.EQ.1) THEN
-!                CALL ALG_ROUTERX(IBOC,JBOC,NOP,KL_TYP,KL_AC,KL_REO,
-!     &               SIGNKL)
-!              ELSE
-!. Enforced a+ a
-                KL_REO(1) = 1
-                KL_REO(2) = 2
-                SIGNKL = 1.0D0
-!              END IF
-!
-              DO 1930 KSM = 1, NSMOB
-                LSM = ADSXA(KSM,KLSM)
-                IF(NTEST.GE.100) THEN
-                  WRITE(6,*) ' KSM, LSM', KSM, LSM
-                END IF
-                IF(LSM.EQ.0) GOTO 1930
-                NK = NOBPTS(KTYP,KSM)
-                NL = NOBPTS(LTYP,LSM)
-!
-                IF(KL_REO(1).EQ.1.AND.KL_REO(2).EQ.2) THEN
-!. Business as usual i.e. creation map
-                  KLAC = 2
-                  KL_DIM(1) = NK
-                  KL_DIM(2) = NL
-                  KL_SYM(1) = KSM
-                  KL_SYM(2) = LSM
-                  KL_TYP(1) = KTYP
-                  KL_TYP(2) = LTYP
-                ELSE
-!. Terra Nova, annihilation map
-                  KLAC = 1
-                  KL_DIM(1) = NL
-                  KL_DIM(2) = NK
-                  KL_SYM(1) = LSM
-                  KL_SYM(2) = KSM
-                  KL_TYP(1) = LTYP
-                  KL_TYP(2) = KTYP
-                END IF
-!. If IUSEAB is used, only terms with i.ge.k will be generated so
-                IKORD = 0
-                IF(IUSEAB.EQ.1.AND.ISM.GT.KSM) GOTO 1930
-                IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.LT.KTYP)         &
-     &          GOTO 1930
-                IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.EQ.KTYP)         &
-     &          IKORD = 1
-!
-                IF(NK.EQ.0.OR.NL.EQ.0) GOTO 1930
-!. Obtain all connections a+l!Kb> = +/-/0!Jb>
-!. currently we are using creation mappings for kl
-                CALL ADAST_GAS(KL_SYM(2),KL_TYP(2),NGAS,JBSPGP,  JBSM,  &
-     &                              I2,   XI2S, NKBSTR,   IEND,  IFRST, &
-     &                           KFRST,   KACT, SIGNKL,   KLAC)
-                IF(NKBSTR.EQ.0) GOTO 1930
-!. Obtain all connections a+k!Kb> = +/-/0!Ib>
-                CALL ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,  IBSM,  &
-     &                              I4,   XI4S, NKBSTR,   IEND,  IFRST, &
-     &                           KFRST,   KACT,    ONE,   KLAC)
-                IF(NKBSTR.EQ.0) GOTO 1930
-!
-! Fetch Integrals as (iop2 iop1 |  k l )
-!
-                IXCHNG = 0
-                ICOUL = 1
-!. Normal integrals with conjugation symmetry
-                  CALL GETINT(   XINT,                                  &
-     &                        IJ_TYP(2),                                &
-     &                        IJ_SYM(2),                                &
-     &                        IJ_TYP(1),                                &
-     &                        IJ_SYM(1),                                &
-!
-     &                        KL_TYP(1),                                &
-     &                        KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG, 0,  &
-     &                              0,  ICOUL)
-!
-! S(Ka,i,Ib) = sum(j,k,l,Jb)<Ib!a+kba lb!Jb>C(Ka,j,Jb)*(ji!kl)
-!
-                IROUTE = 3
-                CALL TIMING(CPU0,CPU,WALL0,WALL)
-                CALL SKICKJ_LUCIA( SIRES, CJRES,LKABTC,NKBSTR,  XINT,   &
-     &                            IJ_DIM(1),                            &
-     &                            IJ_DIM(2),                            &
-     &                            KL_DIM(1),KL_DIM(2),NKBSTR,I4,XI4S,   &
-     &                                I2,  XI2S, IKORD,  FACS,IROUTE )
-                CALL TIMING(CPU1,CPU,WALL1,WALL)
-                TSIGMA(5)=TSIGMA(5)+(WALL1-WALL0)
-!
-!
-                IF(NTEST.GE.500) THEN
-                  WRITE(6,*) ' Updated Sires as S(Kai,Ib)'
-                  CALL WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
-                END IF
-!
- 1930         CONTINUE
-!             ^ End of loop over KSM
- 2000       CONTINUE
-!           ^ End of loop over KLTYP
-!
-!. Scatter out from s(Ka,Ib,i)
-!
-            IF(NTEST.GE.1000) THEN
-              WRITE(6,*) ' S(Ka,Ib,i) as S(Ka,Ibi)'
-              CALL WRTMAT(SIRES,LKABTC,NIB*IJ_DIM(1),LKABTC,IJ_DIM(1))
-            END IF
-!
-            CALL TIMING(CPU0,CPU,WALL0,WALL)
-            DO II = 1, IJ_DIM(1)
-              CALL ADD_SKAIIB(  SB,IJ_DIM(1),  NIA,SIRES,LKABTC,        &
-     &                            NIB,                                  &
-     &                             II,                                  &
-     &                        I3(KABOT+(II-1)*NKASTR),                  &
-     &                        XI3S(KABOT+(II-1)*NKASTR))
-            END DO
-            CALL TIMING(CPU1,CPU,WALL1,WALL)
-            TSIGMA(6)=TSIGMA(6)+(WALL1-WALL0)
- 1801     CONTINUE
-!.        ^End of loop over partitioning of alpha strings
- 1940   CONTINUE
-!       ^ End of loop over ISM
- 2001 CONTINUE
-!     ^ End of loop over IJTYP
-!
+NTESTL = 0
+NTEST = max(NTESTG,NTESTL)
+
+if (NTEST >= 500) then
+
+  write(6,*) ' ================'
+  write(6,*) ' RSBB2BN speaking'
+  write(6,*) ' ================'
+
+end if
+!  Groups defining each supergroup
+call GET_SPGP_INF(IATP,IAGRP,IASPGP)
+call GET_SPGP_INF(JATP,IAGRP,JASPGP)
+call GET_SPGP_INF(IBTP,IBGRP,IBSPGP)
+call GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
+
+! Symmetry of allowed excitations
+IJSM = STSTSX(IASM,JASM)
+KLSM = STSTSX(IBSM,JBSM)
+if ((IJSM == 0) .or. (KLSM == 0)) return
+if (NTEST >= 600) then
+  write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
+  write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
+end if
+! Types of SX that connects the two strings
+call SXTYP2_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC,IPHGAS)
+call SXTYP2_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC,IPHGAS)
+if ((NIJTYP == 0) .or. (NKLTYP == 0)) return
+
+do IJTYP=1,NIJTYP
+
+  ITYP = ITP(IJTYP)
+  JTYP = JTP(IJTYP)
+  do ISM=1,NSMOB
+    JSM = ADSXA(ISM,IJSM)
+    if (JSM == 0) goto 1940
+    NI = NOBPTS(ITYP,ISM)
+    NJ = NOBPTS(JTYP,JSM)
+    if ((NI == 0) .or. (NJ == 0)) goto 1940
+    ! Should N-1 or N+1 projection be used for alpha strings
+    IJ_TYP(1) = ITYP
+    IJ_TYP(2) = JTYP
+    !IJ_AC(1) = 2
+    !IJ_AC(2) = 1
+    !NOP = 2
+    !if (IUSE_PH == 1) then
+    !  call ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TYP,IJ_AC,IJ_REO,SIGNIJ)
+    !else
+    ! Enforced a+ a
+    IJ_REO(1) = 1
+    IJ_REO(2) = 2
+    !end if
+    ! Two choices here :
+    !  1 : <Ia!a+ ia!Ka><Ja!a+ ja!Ka> ( good old creation mapping)
+    !  2 :-<Ia!a  ja!Ka><Ja!a  ia!Ka>  + delta(i,j)
+    !write(6,*) ' RSBB2BN : IOP_REO : ',(IOP_REO(II),II=1,2)
+    if ((IJ_REO(1) == 1) .and. (IJ_REO(2) == 2)) then
+      ! Business as usual i.e. creation map
+      IJAC = 2
+      SIGNIJ2 = SCLFAC
+
+      IJ_DIM(1) = NI
+      IJ_DIM(2) = NJ
+      IJ_SYM(1) = ISM
+      IJ_SYM(2) = JSM
+      IJ_TYP(1) = ITYP
+      IJ_TYP(2) = JTYP
+    else
+      ! Terra Nova, annihilation map
+      IJAC = 1
+      SIGNIJ2 = -SCLFAC
+
+      IJ_DIM(1) = NJ
+      IJ_DIM(2) = NI
+      IJ_SYM(1) = JSM
+      IJ_SYM(2) = ISM
+      IJ_TYP(1) = JTYP
+      IJ_TYP(2) = ITYP
+    end if
+
+    ! Generate creation- or annihilation- mappings for all Ka strings
+
+    ! For operator connecting to |Ka> and |Ja> i.e. operator 2
+    call ADAST_GAS(IJ_SYM(2),IJ_TYP(2),NGAS,JASPGP,JASM,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SIGNIJ2,IJAC)
+    !call ADAST_GAS(JSM,JTYP,JATP,JASM,IAGRP,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC)
+    ! For operator connecting |Ka> and |Ia>, i.e. operator 1
+    call ADAST_GAS(IJ_SYM(1),IJ_TYP(1),NGAS,IASPGP,IASM,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJAC)
+    !call ADAST_GAS(ISM,ITYP,NGAS,IASPGP,IASM,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJ_AC)
+    ! Compress list to common nonvanishing elements
+    IDOCOMP = 0
+    if (IDOCOMP == 1) then
+      call COMPRS2LST(I1,XI1S,IJ_DIM(2),I3,XI3S,IJ_DIM(1),NKASTR,NKAEFF)
+    else
+      NKAEFF = NKASTR
+    end if
+
+    ! Loop over batches of KA strings
+    NKABTC = 0
+    do
+      NKABTC = NKABTC+NPROCS
+      NKABTCSZ = max(NKAEFF-1,0)/NKABTC+1
+      if (NKABTCSZ <= MAXK) exit
+    end do
+
+    do IKABTC=1+MYRANK,NKABTC,NPROCS
+      KABOT = (IKABTC-1)*NKABTCSZ+1
+      KATOP = min(KABOT+NKABTCSZ-1,NKAEFF)
+      LKABTC = KATOP-KABOT+1
+      if (LKABTC <= 0) exit
+      ! Obtain C(ka,J,JB) for Ka in batch
+      call TIMING(CPU0,CPU,WALL0,WALL)
+      do JJ=1,IJ_DIM(2)
+        call GET_CKAJJB(CB,IJ_DIM(2),NJA,CJRES,LKABTC,NJB,JJ,I1(KABOT+(JJ-1)*NKASTR),XI1S(KABOT+(JJ-1)*NKASTR))
+
+      end do
+      call TIMING(CPU1,CPU,WALL1,WALL)
+      TSIGMA(4) = TSIGMA(4)+(WALL1-WALL0)
+      if (NTEST >= 500) then
+        write(6,*) ' Updated CJRES as C(Kaj,Jb)'
+        call WRTMAT(CJRES,NKASTR*NJ,NJB,NKASTR*NJ,NJB)
+      end if
+
+      !MXACJ = MAX(MXACJ,NIB*LKABTC*IJ_DIM(1),NJB*LKABTC*IJ_DIM(2))
+      call SETVEC(SIRES,ZERO,NIB*LKABTC*IJ_DIM(1))
+      FACS = 1.0d0
+
+      do KLTYP=1,NKLTYP
+        KTYP = KTP(KLTYP)
+        LTYP = LTP(KLTYP)
+        ! Allowed double excitation ?
+        !IJKL_ACT = 1
+        !if (IJKL_ACT == 0) goto 2000
+        if (NTEST >= 100) write(6,*) ' KTYP, LTYP',KTYP,LTYP
+        ! Should this group of excitations be included
+        if (NSEL2E /= 0) then
+          IAMOKAY = 0
+          if ((ITYP == JTYP) .and. (ITYP == KTYP) .and. (ITYP == LTYP)) then
+            do JSEL2E=1,NSEL2E
+              if (ISEL2E(JSEL2E) == ITYP) IAMOKAY = 1
+            end do
+          end if
+          if (IAMOKAY == 0) goto 2000
+        end if
+
+        KL_TYP(1) = KTYP
+        KL_TYP(2) = LTYP
+        !KL_AC(1) = 2
+        !KL_AC(2) = 1
+        !NOP = 2
+        !if (IUSE_PH == 1) then
+        !  call ALG_ROUTERX(IBOC,JBOC,NOP,KL_TYP,KL_AC,KL_REO,SIGNKL)
+        !else
+        ! Enforced a+ a
+        KL_REO(1) = 1
+        KL_REO(2) = 2
+        SIGNKL = 1.0d0
+        !end if
+
+        do KSM=1,NSMOB
+          LSM = ADSXA(KSM,KLSM)
+          if (NTEST >= 100) write(6,*) ' KSM, LSM',KSM,LSM
+          if (LSM == 0) goto 1930
+          NK = NOBPTS(KTYP,KSM)
+          NL = NOBPTS(LTYP,LSM)
+
+          if ((KL_REO(1) == 1) .and. (KL_REO(2) == 2)) then
+            ! Business as usual i.e. creation map
+            KLAC = 2
+            KL_DIM(1) = NK
+            KL_DIM(2) = NL
+            KL_SYM(1) = KSM
+            KL_SYM(2) = LSM
+            KL_TYP(1) = KTYP
+            KL_TYP(2) = LTYP
+          else
+            ! Terra Nova, annihilation map
+            KLAC = 1
+            KL_DIM(1) = NL
+            KL_DIM(2) = NK
+            KL_SYM(1) = LSM
+            KL_SYM(2) = KSM
+            KL_TYP(1) = LTYP
+            KL_TYP(2) = KTYP
+          end if
+          ! If IUSEAB is used, only terms with i >= k will be generated so
+          IKORD = 0
+          if ((IUSEAB == 1) .and. (ISM > KSM)) goto 1930
+          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP < KTYP)) goto 1930
+          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP == KTYP)) IKORD = 1
+
+          if ((NK == 0) .or. (NL == 0)) goto 1930
+          ! Obtain all connections a+l!Kb> = +/-/0!Jb>
+          ! currently we are using creation mappings for kl
+          call ADAST_GAS(KL_SYM(2),KL_TYP(2),NGAS,JBSPGP,JBSM,I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,SIGNKL,KLAC)
+          if (NKBSTR == 0) goto 1930
+          ! Obtain all connections a+k!Kb> = +/-/0!Ib>
+          call ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,IBSM,I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE,KLAC)
+          if (NKBSTR == 0) goto 1930
+
+          ! Fetch Integrals as (iop2 iop1 |  k l )
+
+          IXCHNG = 0
+          ICOUL = 1
+          ! Normal integrals with conjugation symmetry
+          call GETINT(XINT,IJ_TYP(2),IJ_SYM(2),IJ_TYP(1),IJ_SYM(1),KL_TYP(1),KL_SYM(1),KL_TYP(2),KL_SYM(2),IXCHNG,0,0,ICOUL)
+
+          ! S(Ka,i,Ib) = sum(j,k,l,Jb)<Ib!a+kba lb!Jb>C(Ka,j,Jb)*(ji!kl)
+
+          IROUTE = 3
+          call TIMING(CPU0,CPU,WALL0,WALL)
+          call SKICKJ_LUCIA(SIRES,CJRES,LKABTC,NKBSTR,XINT,IJ_DIM(1),IJ_DIM(2),KL_DIM(1),KL_DIM(2),NKBSTR,I4,XI4S,I2,XI2S,IKORD, &
+                            FACS,IROUTE)
+          call TIMING(CPU1,CPU,WALL1,WALL)
+          TSIGMA(5) = TSIGMA(5)+(WALL1-WALL0)
+
+          if (NTEST >= 500) then
+            write(6,*) ' Updated Sires as S(Kai,Ib)'
+            call WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
+          end if
+
+1930      continue
+        end do
+        ! End of loop over KSM
+2000    continue
+      end do
+      ! End of loop over KLTYP
+
+      ! Scatter out from s(Ka,Ib,i)
+
+      if (NTEST >= 1000) then
+        write(6,*) ' S(Ka,Ib,i) as S(Ka,Ibi)'
+        call WRTMAT(SIRES,LKABTC,NIB*IJ_DIM(1),LKABTC,IJ_DIM(1))
+      end if
+
+      call TIMING(CPU0,CPU,WALL0,WALL)
+      do II=1,IJ_DIM(1)
+        call ADD_SKAIIB(SB,IJ_DIM(1),NIA,SIRES,LKABTC,NIB,II,I3(KABOT+(II-1)*NKASTR),XI3S(KABOT+(II-1)*NKASTR))
+      end do
+      call TIMING(CPU1,CPU,WALL1,WALL)
+      TSIGMA(6) = TSIGMA(6)+(WALL1-WALL0)
+    end do
+    ! End of loop over partitioning of alpha strings
+1940 continue
+  end do
+  ! End of loop over ISM
+end do
+! End of loop over IJTYP
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(MXPNGASX)
-        CALL Unused_real_array(SSCR)
-        CALL Unused_real_array(CSCR)
-        CALL Unused_integer(NSMSX)
-        CALL Unused_integer(NSMDX)
-        CALL Unused_integer(MXPOBSX)
-        CALL Unused_integer(IUSE_PH)
-        CALL Unused_real_array(XINT2)
-      END IF
-      END SUBROUTINE RSBB2BN_LUCIA
+if (.false.) then
+  call Unused_integer(MXPNGASX)
+  call Unused_real_array(SSCR)
+  call Unused_real_array(CSCR)
+  call Unused_integer(NSMSX)
+  call Unused_integer(NSMDX)
+  call Unused_integer(MXPOBSX)
+  call Unused_integer(IUSE_PH)
+  call Unused_real_array(XINT2)
+end if
+
+end subroutine RSBB2BN_LUCIA

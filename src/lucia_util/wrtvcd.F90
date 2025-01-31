@@ -8,57 +8,56 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE WRTVCD(SEGMNT,LU,IREW,LBLK)
-!
+
+subroutine WRTVCD(SEGMNT,LU,IREW,LBLK)
 ! PRINT VECTOR ON FILE LU
 !
 ! LBLK DEFINES STRUCTURE OF FILES :
-!
-      use lucia_data, only: IDISK
-      IMPLICIT NONE
-      REAL*8 SEGMNT(*)
-      INTEGER LU,IREW,LBLK
 
-      INTEGER IDUMMY(1)
-      INTEGER IBLK,LBL,KBLK,IAMPACK,IMZERO
-!
-      IF( IREW .NE. 0 ) THEN
-        IF( LBLK .GE. 0 ) THEN
-          IDISK(LU)=0
-        ELSE
-          IDISK(LU)=0
-        END IF
-      END IF
+use lucia_data, only: IDISK
+
+implicit none
+real*8 SEGMNT(*)
+integer LU, IREW, LBLK
+
+integer IDUMMY(1)
+integer IBLK, LBL, KBLK, IAMPACK, IMZERO
+
+if (IREW /= 0) then
+  if (LBLK >= 0) then
+    IDISK(LU) = 0
+  else
+    IDISK(LU) = 0
+  end if
+end if
 ! LOOP OVER BLOCKS
-!
-      IBLK = 0
- 1000 CONTINUE
-        IF ( LBLK .GT. 0 ) THEN
-          LBL = LBLK
-        ELSE IF ( LBLK .EQ. 0 ) THEN
-          CALL IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
-          LBL=IDUMMY(1)
-        ELSE
-          CALL IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
-          LBL=IDUMMY(1)
-          CALL IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
-        END IF
-        IBLK = IBLK + 1
-        IF(LBL .GE. 0 ) THEN
-          IF(LBLK .GE.0 ) THEN
-            KBLK = LBL
-          ELSE
-            KBLK = -1
-          END IF
-           CALL FRMDSC(  SEGMNT,    LBL ,    KBLK,      LU,  IMZERO,    &
-     &                  IAMPACK)
-           IF(LBL .GT. 0 ) THEN
-             WRITE(6,'(A,I3,A,I6)')                                     &
-     &       ' Number of elements in segment ',IBLK,' IS ',LBL
-             CALL WRTMAT(SEGMNT,1,LBL,1,LBL)
-           END IF
-        END IF
-!
-      IF( LBL.GE. 0 .AND. LBLK .LE. 0) GOTO 1000
-!
-      END SUBROUTINE WRTVCD
+
+IBLK = 0
+1000 continue
+if (LBLK > 0) then
+  LBL = LBLK
+else if (LBLK == 0) then
+  call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
+  LBL = IDUMMY(1)
+else
+  call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
+  LBL = IDUMMY(1)
+  call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
+end if
+IBLK = IBLK+1
+if (LBL >= 0) then
+  if (LBLK >= 0) then
+    KBLK = LBL
+  else
+    KBLK = -1
+  end if
+  call FRMDSC(SEGMNT,LBL,KBLK,LU,IMZERO,IAMPACK)
+  if (LBL > 0) then
+    write(6,'(A,I3,A,I6)') ' Number of elements in segment ',IBLK,' IS ',LBL
+    call WRTMAT(SEGMNT,1,LBL,1,LBL)
+  end if
+end if
+
+if ((LBL >= 0) .and. (LBLK <= 0)) goto 1000
+
+end subroutine WRTVCD

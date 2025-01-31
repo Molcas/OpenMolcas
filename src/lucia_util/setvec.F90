@@ -8,16 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SETVEC(VECTOR,VALUE,NDIM)
-!
-! VECTOR (*) = VALUE
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION VECTOR(*)
-!
-      DO 10 I=1,NDIM
-         VECTOR(I) = VALUE
- 10   enddo
-!
-      RETURN
-      END
+
+subroutine SETVEC(VECTOR,value,NDIM)
+! VECTOR(*) = VALUE
+
+implicit real*8(A-H,O-Z)
+dimension VECTOR(*)
+
+do I=1,NDIM
+  VECTOR(I) = value
+end do
+
+end subroutine SETVEC

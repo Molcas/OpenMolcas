@@ -8,23 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE FRMDSCN(VEC,NREC,LBLK,LU)
-!
+
+subroutine FRMDSCN(VEC,NREC,LBLK,LU)
 ! Read  VEC as multiple record file, NREC records read
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION LREC(1)
-!. OUtput
-      DIMENSION VEC(*)
-!
-      IOFF = 1
-      DO IREC = 1, NREC
-        CALL IFRMDS(LREC(1),1,LBLK,LU)
-        CALL FRMDSC(VEC(IOFF),  LREC(1),     LBLK,       LU,   IMZERO,  &
-     &                IAMPACK)
-        IOFF = IOFF + LREC(1)
-      END DO
-!
-      RETURN
-      END
-! !!! End trace !!!
+
+implicit real*8(A-H,O-Z)
+dimension LREC(1)
+! Output
+dimension VEC(*)
+
+IOFF = 1
+do IREC=1,NREC
+  call IFRMDS(LREC(1),1,LBLK,LU)
+  call FRMDSC(VEC(IOFF),LREC(1),LBLK,LU,IMZERO,IAMPACK)
+  IOFF = IOFF+LREC(1)
+end do
+
+end subroutine FRMDSCN

@@ -21,7 +21,7 @@
 *
 * Obtain internal CI spaces relevant for MRSDCI
 *       /STRINP/+/LUCINP/ = > /CICISP/
-* Jeppe Olsen , Dec 1990
+* Jeppe Olsen, Dec 1990
 *
 * Input
 * =====

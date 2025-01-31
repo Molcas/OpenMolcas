@@ -8,72 +8,67 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
-!
+
+subroutine COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
 ! COPY VECTOR ON FILE LUIN TO FILE LUOUT
-!
 !
 ! LBLK DEFINES STRUCTURE OF FILE
 !
 ! Structure of output file is inherited by output file,
 ! if input file is packed, so is output file
 !
-!
 ! Type of file LUOUT is inherited from LUIN
-      use lucia_data, only: IDISK
-      IMPLICIT NONE
-      INTEGER LUIN,LUOUT,IREW,LBLK
-      REAL*8 SEGMNT(*)
 
-      INTEGER LBL(1),IDUMMY(1)
-      INTEGER KBLK,NO_ZEROING,IAMPACK,IMZERO
-!
-      IF( IREW .NE. 0 ) THEN
-        IDISK(LUIN)=0
-        IDISK(LUOUT)=0
-      END IF
+use lucia_data, only: IDISK
 
-!
+implicit none
+integer LUIN, LUOUT, IREW, LBLK
+real*8 SEGMNT(*)
+integer LBL(1), IDUMMY(1)
+integer KBLK, NO_ZEROING, IAMPACK, IMZERO
+
+if (IREW /= 0) then
+  IDISK(LUIN) = 0
+  IDISK(LUOUT) = 0
+end if
+
 ! LOOP OVER BLOCKS
-!
-!?      write(6,*) ' COPVCD LBLK : ', LBLK
- 1000 CONTINUE
-        IF(LBLK .GT. 0 ) THEN
-          LBL(1) = LBLK
-        ELSE IF ( LBLK .EQ. 0 ) THEN
-          CALL IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
-          CALL IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
-!?        write(6,*) ' COPVCD LBL : ', LBL(1)
-        ELSE IF  (LBLK .LT. 0 ) THEN
-          CALL IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
-          CALL IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
-          CALL IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
-          IDUMMY(1)=-1
-          CALL IDAFILE(LUOUT,1,IDUMMY,1,IDISK(LUOUT))
-        END IF
-        IF( LBL(1) .GE. 0 ) THEN
-          IF(LBLK .GE.0 ) THEN
-            KBLK = LBL(1)
-          ELSE
-            KBLK = -1
-          END IF
-!?        write(6,*) ' LBL and KBLK ', LBL(1),KBLK
-          NO_ZEROING = 1
-          CALL FRMDSC2(  SEGMNT,  LBL(1),    KBLK,    LUIN,  IMZERO,    &
-     &                  IAMPACK,NO_ZEROING)
-          IF(IAMPACK.NE.0) THEN
-!?          WRITE(6,*) ' COPVCD, IAMPACK,FILE = ', IAMPACK,LUIN
-          END IF
-          IF(IMZERO.EQ.0) THEN
-            IF(IAMPACK.EQ.0) THEN
-              CALL TODSC (SEGMNT,LBL(1),KBLK,LUOUT)
-            ELSE
-              CALL TODSCP(SEGMNT,LBL(1),KBLK,LUOUT)
-            END IF
-          ELSE
-            CALL ZERORC(LBL(1),LUOUT,IAMPACK)
-          END IF
-        END IF
-      IF( LBL(1) .GE. 0 .AND. LBLK .LE. 0 ) GOTO 1000
-!
-      END SUBROUTINE COPVCD
+
+!write(6,*) ' COPVCD LBLK : ',LBLK
+1000 continue
+if (LBLK > 0) then
+  LBL(1) = LBLK
+else if (LBLK == 0) then
+  call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
+  call IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
+  !write(6,*) ' COPVCD LBL : ',LBL(1)
+else if (LBLK < 0) then
+  call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
+  call IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
+  call IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
+  IDUMMY(1) = -1
+  call IDAFILE(LUOUT,1,IDUMMY,1,IDISK(LUOUT))
+end if
+if (LBL(1) >= 0) then
+  if (LBLK >= 0) then
+    KBLK = LBL(1)
+  else
+    KBLK = -1
+  end if
+  !write(6,*) ' LBL and KBLK ',LBL(1),KBLK
+  NO_ZEROING = 1
+  call FRMDSC2(SEGMNT,LBL(1),KBLK,LUIN,IMZERO,IAMPACK,NO_ZEROING)
+  !if (IAMPACK /= 0) write(6,*) ' COPVCD, IAMPACK,FILE = ',IAMPACK,LUIN
+  if (IMZERO == 0) then
+    if (IAMPACK == 0) then
+      call TODSC(SEGMNT,LBL(1),KBLK,LUOUT)
+    else
+      call TODSCP(SEGMNT,LBL(1),KBLK,LUOUT)
+    end if
+  else
+    call ZERORC(LBL(1),LUOUT,IAMPACK)
+  end if
+end if
+if ((LBL(1) >= 0) .and. (LBLK <= 0)) goto 1000
+
+end subroutine COPVCD

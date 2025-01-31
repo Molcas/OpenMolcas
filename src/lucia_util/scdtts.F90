@@ -10,13 +10,10 @@
 !                                                                      *
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE SCDTTS(  BLOCKS,  IBLOCK,  NBLOCK,   NSMST,            &
-     &                      NSASO,   NSBSO,     IDC,    IWAY,           &
-     &                     IPRNT)
-!
+
+subroutine SCDTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC,IWAY,IPRNT)
 ! Scale batch of
 ! blocks between determinant and combination form
-!
 !
 ! IWAY = 1 : dets to combs
 ! IWAY = 2 : combs to dets
@@ -24,74 +21,69 @@
 ! The blocks are assumed to be in packed form !!
 !
 !. Jeppe Olsen, August 1995
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. General input
-      DIMENSION NSASO(NSMST,*),NSBSO(NSMST,*)
-!.
-      DIMENSION BLOCKS(*)
-      INTEGER IBLOCK(8,NBLOCK)
-!
-!?    LOGICAL DIAGBL
-!
-      NTEST = 00
-      NTEST = MAX(NTEST,IPRNT)
-      IF( NTEST .GT. 10 ) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' ======================= '
-        WRITE(6,*) ' Information from SCDTTS '
-        WRITE(6,*) ' ======================= '
-        WRITE(6,*) ' Input vector '
-        CALL WRTTTS(   BLOCKS,   IBLOCK,   NBLOCK,    NSMST,            &
-     &                 NSASO,    NSBSO,        2)
-      END IF
-!
-      SQ2 = SQRT(2.0D0)
-      SQ2I = 1.0D0/SQ2
-!
-      DO JBLOCK = 1, NBLOCK
-!
-        IATP = IBLOCK(1, JBLOCK)
-        IBTP = IBLOCK(2, JBLOCK)
-        IASM = IBLOCK(3, JBLOCK)
-        IBSM = IBLOCK(4, JBLOCK)
-        IOFFP= IBLOCK(6, JBLOCK)
-        IF(IBLOCK(1,JBLOCK).GT.0) THEN
-!. Is this block diagonal in packed form
-        IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP) THEN
-          IPACK = 1
-        ELSE
-          IPACK = 0
-        END IF
-        NIA   = NSASO(IASM,IATP)
-        NIB = NSBSO(IBSM,IBTP)
-        IF(IPACK .EQ. 1 ) THEN
-          NELMNT =  NIA*(NIA+1)/2
-        ELSE
-          NELMNT =  NIA*NIB
-        END IF
-!Ms combinations
-        IF(IDC.EQ.2) THEN
-          IF(IWAY.EQ.1) THEN
-            FACTOR = SQ2
-          ELSE
-            FACTOR = SQ2I
-          END IF
-          CALL SCALVE(BLOCKS(IOFFP),FACTOR,NELMNT)
-          IF(IPACK.EQ.1 ) THEN
-            FACTOR = 1.0D0/FACTOR
-            CALL SCLDIA(BLOCKS(IOFFP),FACTOR,NIA,1)
-          END IF
-        END IF
-!
-        END IF
-      END DO
-!
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*) ' Output vector '
-        CALL WRTTTS(   BLOCKS,   IBLOCK,   NBLOCK,    NSMST,            &
-     &                 NSASO,    NSBSO,        2)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! General input
+dimension NSASO(NSMST,*), NSBSO(NSMST,*)
+dimension BLOCKS(*)
+integer IBLOCK(8,NBLOCK)
+!logical DIAGBL
+
+NTEST = 0
+NTEST = max(NTEST,IPRNT)
+if (NTEST > 10) then
+  write(6,*)
+  write(6,*) ' ======================='
+  write(6,*) ' Information from SCDTTS'
+  write(6,*) ' ======================='
+  write(6,*) ' Input vector'
+  call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
+end if
+
+SQ2 = sqrt(2.0d0)
+SQ2I = 1.0d0/SQ2
+
+do JBLOCK=1,NBLOCK
+
+  IATP = IBLOCK(1,JBLOCK)
+  IBTP = IBLOCK(2,JBLOCK)
+  IASM = IBLOCK(3,JBLOCK)
+  IBSM = IBLOCK(4,JBLOCK)
+  IOFFP = IBLOCK(6,JBLOCK)
+  if (IBLOCK(1,JBLOCK) > 0) then
+    ! Is this block diagonal in packed form
+    if ((IASM == IBSM) .and. (IATP == IBTP)) then
+      IPACK = 1
+    else
+      IPACK = 0
+    end if
+    NIA = NSASO(IASM,IATP)
+    NIB = NSBSO(IBSM,IBTP)
+    if (IPACK == 1) then
+      NELMNT = NIA*(NIA+1)/2
+    else
+      NELMNT = NIA*NIB
+    end if
+    ! Ms combinations
+    if (IDC == 2) then
+      if (IWAY == 1) then
+        FACTOR = SQ2
+      else
+        FACTOR = SQ2I
+      end if
+      call SCALVE(BLOCKS(IOFFP),FACTOR,NELMNT)
+      if (IPACK == 1) then
+        FACTOR = 1.0d0/FACTOR
+        call SCLDIA(BLOCKS(IOFFP),FACTOR,NIA,1)
+      end if
+    end if
+
+  end if
+end do
+
+if (NTEST >= 10) then
+  write(6,*) ' Output vector'
+  call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
+end if
+
+end subroutine SCDTTS

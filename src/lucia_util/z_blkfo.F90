@@ -10,17 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1998, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,          &
-     &                        Allocate_Local_Arrays
-      use strbas, only: NSTSO
-      use lucia_data, only: MXSOOB,ISMOST,MXNTTS,XISPSM
-      use lucia_data, only: ENVIRO,ISIMSYM,LCSBLK
-      use lucia_data, only: IREFSM,PSSIGN,IDC
-      use lucia_data, only: NOCTYP
-      use csm_data, only: NSMST
-!
+
+subroutine Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
 ! Construct information about batch and block structure of CI space
 ! defined by ISPC,ISM,IATP,IBTP.
 !
@@ -37,77 +28,75 @@
 ! NBLOCK : Number of blocks
 !
 ! Jeppe Olsen, Feb. 98
-!
-      IMPLICIT NONE
-      INTEGER ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK
-      Integer, Allocatable:: LCIOIO(:)
-      Integer, Allocatable:: SVST(:)
-      INTEGER, External:: IFRMR
-      INTEGER NTEST,NOCTPA,NOCTPB,LBLOCK
-!
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP, Allocate_Local_Arrays
+use strbas, only: NSTSO
+use lucia_data, only: MXSOOB, ISMOST, MXNTTS, XISPSM
+use lucia_data, only: ENVIRO, ISIMSYM, LCSBLK
+use lucia_data, only: IREFSM, PSSIGN, IDC
+use lucia_data, only: NOCTYP
+use csm_data, only: NSMST
+
+implicit none
+integer ISPC, ISM, IATP, IBTP, NBATCH, NBLOCK
+integer, allocatable :: LCIOIO(:)
+integer, allocatable :: SVST(:)
+integer, external :: IFRMR
+integer NTEST, NOCTPA, NOCTPB, LBLOCK
+
 ! Some dummy initializations
-      NTEST = 00
+NTEST = 0
 #ifdef _DEBUGPRINT_
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' =================== '
-        WRITE(6,*) ' Output from Z_BLKFO '
-        WRITE(6,*) ' =================== '
-        WRITE(6,*)
-        WRITE(6,*) ' ISM, ISPC = ', ISM,ISPC
-      END IF
+if (NTEST >= 100) then
+  write(6,*)
+  write(6,*) ' ==================='
+  write(6,*) ' Output from Z_BLKFO'
+  write(6,*) ' ==================='
+  write(6,*)
+  write(6,*) ' ISM, ISPC = ',ISM,ISPC
+end if
 #endif
-!
-      NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
-!.    Allocate local arrays
-      Call Allocate_Local_Arrays(MXNTTS,NSMST)
-!.    ^ These should be preserved after exit so put mark for flushing here
-!. Info needed for generation of block info
-      Call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
-      CALL IAIBCM(ISPC,LCIOIO)
-      Call mma_allocate(SVST,1,Label='SVST')
-      CALL ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,SVST)
-      Call mma_deallocate(SVST)
-!. Allowed length of each batch
-!      IF(ISIMSYM.EQ.0) THEN
-        LBLOCK = MXSOOB
-!      ELSE
-!        LBLOCK = MXSOOB_AS
-!      END IF
-!
-      LBLOCK = MAX(LBLOCK,LCSBLK)
+
+NOCTPA = NOCTYP(IATP)
+NOCTPB = NOCTYP(IBTP)
+! Allocate local arrays
+call Allocate_Local_Arrays(MXNTTS,NSMST)
+! These should be preserved after exit so put mark for flushing here
+! Info needed for generation of block info
+call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
+call IAIBCM(ISPC,LCIOIO)
+call mma_allocate(SVST,1,Label='SVST')
+call ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,SVST)
+call mma_deallocate(SVST)
+! Allowed length of each batch
+!if (ISIMSYM == 0) then
+LBLOCK = MXSOOB
+!else
+!  LBLOCK = MXSOOB_AS
+!end if
+
+LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
-      IF (ENVIRO(1:6).EQ.'RASSCF') THEN
-         LBLOCK = MAX(INT(XISPSM(IREFSM,1)),MXSOOB)
-         IF(PSSIGN.NE.0.0D0) LBLOCK = INT(2.0D0*XISPSM(IREFSM,1))
-      ENDIF
-!
-      IF(NTEST.GE.10) THEN
-        WRITE(6,*) ' LBLOCK = ', LBLOCK
-      END IF
-!
-!. Batches  of C vector
-      CALL PART_CIV2(      IDC,                                         &
-     &               CBLTP,                                             &
-     &               NSTSO(IATP)%I,                                     &
-     &               NSTSO(IBTP)%I,NOCTPA,NOCTPB, NSMST,LBLOCK,         &
-     &               LCIOIO,                                            &
-!
-     &               ISMOST(1,ISM),                                     &
-     &               NBATCH,                                            &
-     &               CLBT,                                              &
-     &               CLEBT,CI1BT,                                       &
-     &               CIBT,0,ISIMSYM)
-!. Number of BLOCKS
-      NBLOCK = IFRMR(CI1BT,1,NBATCH)                                    &
-     &       + IFRMR(CLBT,1,NBATCH) - 1
-      IF(NTEST.GE.1) THEN
-         WRITE(6,*) ' Number of batches', NBATCH
-         WRITE(6,*) ' Number of blocks ', NBLOCK
-      END IF
-!. Length of each block
-      CALL EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
-!
-      Call mma_deallocate(LCIOIO)
-      END SUBROUTINE Z_BLKFO
+if (ENVIRO(1:6) == 'RASSCF') then
+  LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
+  if (PSSIGN /= 0.0d0) LBLOCK = int(2.0d0*XISPSM(IREFSM,1))
+end if
+
+if (NTEST >= 10) write(6,*) ' LBLOCK = ',LBLOCK
+
+! Batches of C vector
+call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
+               0,ISIMSYM)
+! Number of BLOCKS
+NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
+if (NTEST >= 1) then
+  write(6,*) ' Number of batches',NBATCH
+  write(6,*) ' Number of blocks ',NBLOCK
+end if
+! Length of each block
+call EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
+
+call mma_deallocate(LCIOIO)
+
+end subroutine Z_BLKFO

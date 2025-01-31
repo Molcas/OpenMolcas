@@ -8,73 +8,68 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ADD_SKAIIB(     SB,     NI,    NIA, SKAIIB,    NKA,    &
-     &                          NIB,      I,   ISCA,   SSCA)
-!
+
+subroutine ADD_SKAIIB(SB,NI,NIA,SKAIIB,NKA,NIB,I,ISCA,SSCA)
 ! Update Transposed sigma block with contributions for given orbital index j
 ! from the matrix S(Ka,i,Ib)
 !
 ! S(Ib,Isca(Ka)) =  S(Ib,Isca(Ka)) + Ssca(Ka)*S(Ka,I,Ib)
 !
-!
 ! For efficient processing of alpha-beta loop
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. Input
-       DIMENSION SKAIIB(*),SSCA(*),ISCA(*)
-!. Input and Output
-       DIMENSION SB(NIB,NIA)
-!
-!. To get rid of annoying and incorrect compiler warnings
-      ICOFF = 0
-!
-!     LBLK = 100
-      LBLK = 40
-      NBLK = NIB/LBLK
-      IF(LBLK*NBLK.LT.NIB) NBLK = NBLK + 1
-      DO ICBL = 1, NBLK
-        IF(ICBL.EQ.1) THEN
-          ICOFF = 1
-        ELSE
-          ICOFF = ICOFF + LBLK
-        END IF
-        ICEND = MIN(ICOFF+LBLK-1,NIB)
-        ICONST = NKA*NI
-        IADR0 =  (I-1)*NKA+(ICOFF-1-1)*NKA*NI
-        IF(ICEND.GT.ICOFF) THEN
-!. Use form with Inner loop over IB
-          DO KA  = 1, NKA
-            IF(ISCA(KA).NE.0) THEN
-              S = SSCA(KA)
-              IROW = ISCA(KA)
-!             IADR = KA + (I-1)*NKA+(ICOFF-1-1)*NKA*NI
-              IADR = IADR0 + KA
-              DO IB = ICOFF,ICEND
-!. Adress of S(Ka,i,Ib)
-                IADR = IADR + ICONST
-                SB(Ib,IROW) = SB(Ib,IROW)+S*SKAIIB(IADR)
-              END DO
-            END IF
-          END DO
-        ELSE
-!. Form with no loop over IB
-          DO KA  = 1, NKA
-            IF(ISCA(KA).NE.0) THEN
-              S = SSCA(KA)
-              IROW = ISCA(KA)
-              IADR = IADR0 + KA + ICONST
-!             DO IB = ICOFF,ICEND
-!. Adress of S(Ka,i,Ib)
-!               IADR = IADR + ICONST
-                SB(ICOFF,IROW) = SB(ICOFF,IROW)+S*SKAIIB(IADR)
-!             END DO
-            END IF
-          END DO
-        END IF
-!       ^ End of test of ICOFF=ICEND
-      END DO
-!
-      RETURN
-      END
-!               GET_CKAJJB(CB,NJ,NJA,CJRES,NKABTC,NJB,
-!    &                          JJ,I1(1,JJ),XI1S(1,JJ)
+
+implicit real*8(A-H,O-Z)
+! Input
+dimension SKAIIB(*), SSCA(*), ISCA(*)
+! Input and Output
+dimension SB(NIB,NIA)
+
+! To get rid of annoying and incorrect compiler warnings
+ICOFF = 0
+
+!LBLK = 100
+LBLK = 40
+NBLK = NIB/LBLK
+if (LBLK*NBLK < NIB) NBLK = NBLK+1
+do ICBL=1,NBLK
+  if (ICBL == 1) then
+    ICOFF = 1
+  else
+    ICOFF = ICOFF+LBLK
+  end if
+  ICEND = min(ICOFF+LBLK-1,NIB)
+  ICONST = NKA*NI
+  IADR0 = (I-1)*NKA+(ICOFF-1-1)*NKA*NI
+  if (ICEND > ICOFF) then
+    ! Use form with Inner loop over IB
+    do KA=1,NKA
+      if (ISCA(KA) /= 0) then
+        S = SSCA(KA)
+        IROW = ISCA(KA)
+        !IADR = KA+(I-1)*NKA+(ICOFF-1-1)*NKA*NI
+        IADR = IADR0+KA
+        do IB=ICOFF,ICEND
+          ! Address of S(Ka,i,Ib)
+          IADR = IADR+ICONST
+          SB(Ib,IROW) = SB(Ib,IROW)+S*SKAIIB(IADR)
+        end do
+      end if
+    end do
+  else
+    ! Form with no loop over IB
+    do KA=1,NKA
+      if (ISCA(KA) /= 0) then
+        S = SSCA(KA)
+        IROW = ISCA(KA)
+        IADR = IADR0+KA+ICONST
+        !do IB=ICOFF,ICEND
+        ! Address of S(Ka,i,Ib)
+        !IADR = IADR+ICONST
+        SB(ICOFF,IROW) = SB(ICOFF,IROW)+S*SKAIIB(IADR)
+        !end do
+      end if
+    end do
+  end if
+  ! End of test of ICOFF=ICEND
+end do
+
+end subroutine ADD_SKAIIB

@@ -8,100 +8,99 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE TRPAD3(MAT,FACTOR,NDIM)
+
+subroutine TRPAD3(MAT,FACTOR,NDIM)
+! MAT(I,J) = MAT(I,J) + FACTOR*MAT(J,I)
 !
-!  MAT(I,J) = MAT(I,J) + FACTOR*MAT(J,I)
+! With some considerations of effective cache use for large matrices
 !
-!. With some considerations of effective cache use for large
-!  matrices
-!
-      IMPLICIT REAL*8           (A-H,O-Z)
-      REAL*8            MAT(NDIM,NDIM)
-              FAC2 = 1.0D0 - FACTOR**2
-!
-!     IWAY = 1
-      IWAY = 2
-      IF(IWAY.EQ.1) THEN
-!
-!. No blocking
-!
-!. Lower half
-        DO  J = 1, NDIM
-          DO  I = J, NDIM
-            MAT(I,J) =MAT(I,J) + FACTOR * MAT(J,I)
-          END DO
-        END DO
-!. Upper half
-        IF( ABS(FACTOR) .NE. 1.0D0 ) THEN
-          FAC2 = 1.0D0 - FACTOR**2
-          DO I = 1, NDIM
-            DO J = 1, I - 1
-              MAT(J,I) = FACTOR*MAT(I,J ) + FAC2 * MAT(J,I)
-            END DO
-          END DO
-        ELSE IF(FACTOR .EQ. 1.0D0) THEN
-          DO I = 1, NDIM
-            DO J = 1, I - 1
-              MAT(J,I) = MAT(I,J )
-            END DO
-          END DO
-        ELSE IF(FACTOR .EQ. -1.0D0) THEN
-          DO I = 1, NDIM
-            DO J = 1, I - 1
-              MAT(J,I) =-MAT(I,J )
-            END DO
-          END DO
-        END IF
-      ELSE IF(IWAY .EQ. 2 ) THEN
-!. Simple blocking of matrix
-        LBLK = 40
-        NBLK = NDIM/LBLK
-        IF(NBLK*LBLK.LT.NDIM) NBLK = NBLK + 1
-        IOFF = 1-LBLK
-!?      write(6,*) 'NBLK ',nblk
-        DO IBLK = 1, NBLK
-          IF(IBLK.EQ.-1) write(6,*) 'IBLK = ',IBLK
-          IOFF = IOFF + LBLK
-          IEND = MIN(IOFF+LBLK-1,NDIM)
-          JOFF = 1 - LBLK
-          DO JBLK = 1, IBLK
-            JOFF = JOFF + LBLK
-            JEND = MIN(JOFF+LBLK-1,NDIM)
-!. Lower half
-            DO  I = IOFF,IEND
-              IF(IBLK.EQ.JBLK) JEND = I
-              DO J = JOFF,JEND
-                MAT(I,J) = MAT(I,J) + FACTOR*MAT(J,I)
-              END DO
-            END DO
-!. Upper half
-            IF( ABS(FACTOR) .NE. 1.0D0 ) THEN
-              FAC2 = 1.0D0 - FACTOR**2
-              DO I = IOFF, IEND
-                IF(IBLK.EQ.JBLK) JEND = I
-                DO J = JOFF, JEND
-                  MAT(J,I) = FACTOR*MAT(I,J ) + FAC2 * MAT(J,I)
-                 END DO
-               END DO
-            ELSE IF(FACTOR .EQ. 1.0D0) THEN
-              DO I = IOFF, IEND
-                IF(IBLK.EQ.JBLK) JEND = I -1
-                DO J = JOFF, JEND
-                  MAT(J,I) = MAT(I,J )
-                END DO
-              END DO
-            ELSE IF(FACTOR .EQ. -1.0D0) THEN
-              DO I = IOFF, IEND
-                IF(IBLK.EQ.JBLK) JEND = I
-                DO J = JOFF, JEND
-                  MAT(J,I) = - MAT(I,J )
-                END DO
-              END DO
-            END IF
-!. ENd of loop over blocks
-          END DO
-        END DO
-!. End of IWAY branching
-      END IF
-      RETURN
-      END
+implicit real*8(A-H,O-Z)
+real*8 MAT(NDIM,NDIM)
+FAC2 = 1.0d0-FACTOR**2
+
+!IWAY = 1
+IWAY = 2
+if (IWAY == 1) then
+
+  ! No blocking
+
+  ! Lower half
+  do J=1,NDIM
+    do I=J,NDIM
+      MAT(I,J) = MAT(I,J)+FACTOR*MAT(J,I)
+    end do
+  end do
+  ! Upper half
+  if (abs(FACTOR) /= 1.0d0) then
+    FAC2 = 1.0d0-FACTOR**2
+    do I=1,NDIM
+      do J=1,I-1
+        MAT(J,I) = FACTOR*MAT(I,J)+FAC2*MAT(J,I)
+      end do
+    end do
+  else if (FACTOR == 1.0d0) then
+    do I=1,NDIM
+      do J=1,I-1
+        MAT(J,I) = MAT(I,J)
+      end do
+    end do
+  else if (FACTOR == -1.0d0) then
+    do I=1,NDIM
+      do J=1,I-1
+        MAT(J,I) = -MAT(I,J)
+      end do
+    end do
+  end if
+else if (IWAY == 2) then
+  ! Simple blocking of matrix
+  LBLK = 40
+  NBLK = NDIM/LBLK
+  if (NBLK*LBLK < NDIM) NBLK = NBLK+1
+  IOFF = 1-LBLK
+  !write(6,*) 'NBLK ',nblk
+  do IBLK=1,NBLK
+    if (IBLK == -1) write(6,*) 'IBLK = ',IBLK
+    IOFF = IOFF+LBLK
+    IEND = min(IOFF+LBLK-1,NDIM)
+    JOFF = 1-LBLK
+    do JBLK=1,IBLK
+      JOFF = JOFF+LBLK
+      JEND = min(JOFF+LBLK-1,NDIM)
+      ! Lower half
+      do I=IOFF,IEND
+        if (IBLK == JBLK) JEND = I
+        do J=JOFF,JEND
+          MAT(I,J) = MAT(I,J)+FACTOR*MAT(J,I)
+        end do
+      end do
+      ! Upper half
+      if (abs(FACTOR) /= 1.0d0) then
+        FAC2 = 1.0d0-FACTOR**2
+        do I=IOFF,IEND
+          if (IBLK == JBLK) JEND = I
+          do J=JOFF,JEND
+            MAT(J,I) = FACTOR*MAT(I,J)+FAC2*MAT(J,I)
+          end do
+        end do
+      else if (FACTOR == 1.0d0) then
+        do I=IOFF,IEND
+          if (IBLK == JBLK) JEND = I-1
+          do J=JOFF,JEND
+            MAT(J,I) = MAT(I,J)
+          end do
+        end do
+      else if (FACTOR == -1.0d0) then
+        do I=IOFF,IEND
+          if (IBLK == JBLK) JEND = I
+          do J=JOFF,JEND
+            MAT(J,I) = -MAT(I,J)
+          end do
+        end do
+      end if
+      ! End of loop over blocks
+    end do
+  end do
+  ! End of IWAY branching
+end if
+
+end subroutine TRPAD3

@@ -8,71 +8,68 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SKPRCD2(NDIM,MBLOCK,IFILE)
-!
-!     Skip record in file IFILE
-!
-!. Version allowing zero and packed blocks
-!
-! Dos not work with FASTIO - I expect
-!
-      use lucia_data, only: IDISK
-      IMPLICIT NONE
-      INTEGER NDIM,MBLOCK,IFILE
-!
-      INTEGER ISCR(2), IDUMMY(1)
-      REAL*8 DUMMY(1)
-      INTEGER IPACK,IMZERO,I_AM_PACKED,LBATCH,ISTOP,NBLOCK,IREST,IBASE
 
+subroutine SKPRCD2(NDIM,MBLOCK,IFILE)
+! Skip record in file IFILE
 !
-      IPACK = 1
-      IF(IPACK.NE.0) THEN
-!. Read if ARRAY is zero
-        CALL IFRMDS(ISCR,2,2,IFILE)
-        IMZERO=ISCR(1)
-        I_AM_PACKED=ISCR(2)
-        IF(IMZERO.EQ.1) THEN
-          GOTO 1001
-        END IF
-      END IF
+! Version allowing zero and packed blocks
 !
-      IF(I_AM_PACKED.EQ.1) THEN
-!. Loop over packed records of dimension LPBLK
-!. The next LPBLK elements
-  999   CONTINUE
-!. Read next batch
-          CALL IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))
-          LBATCH=ISCR(1)
-          IF(LBATCH.GT.0) THEN
-            IDUMMY(1)=0
-            CALL IDAFILE(IFILE,0,IDUMMY,LBATCH,IDISK(IFILE))
-            DUMMY(1)=0.0d0
-            CALL DDAFILE(IFILE,0,DUMMY,LBATCH,IDISK(IFILE))
-          END IF
-          CALL IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))
-          ISTOP=ISCR(1)
-        IF(ISTOP.EQ.0) GOTO 999
-      ELSE IF ( I_AM_PACKED.EQ.0) THEN
-!vv        IF(.true.) THEN
-          NBLOCK = MBLOCK
-          IF ( MBLOCK .LE. 0 ) NBLOCK = NDIM
-          IREST=NDIM
-          IBASE=0
-  100     CONTINUE
-          IF(IREST.GT.NBLOCK) THEN
-           CALL DDAFILE(IFILE,0,DUMMY,NBLOCK,IDISK(IFILE))
-           IBASE=IBASE+NBLOCK
-           IREST=IREST-NBLOCK
-          ELSE
-           CALL DDAFILE(IFILE,0,DUMMY,IREST,IDISK(IFILE))
-           IREST=0
-          END IF
-          CALL IDAFILE(IFILE,0,IDUMMY,1,IDISK(IFILE))
-        IF( IREST .GT. 0 ) GOTO 100
-!vv        END IF
-!
-      END IF
-!
- 1001 CONTINUE
-!
-      END SUBROUTINE SKPRCD2
+! Does not work with FASTIO - I expect
+
+use lucia_data, only: IDISK
+
+implicit none
+integer NDIM, MBLOCK, IFILE
+integer ISCR(2), IDUMMY(1)
+real*8 DUMMY(1)
+integer IPACK, IMZERO, I_AM_PACKED, LBATCH, ISTOP, NBLOCK, IREST, IBASE
+
+IPACK = 1
+if (IPACK /= 0) then
+  ! Read if ARRAY is zero
+  call IFRMDS(ISCR,2,2,IFILE)
+  IMZERO = ISCR(1)
+  I_AM_PACKED = ISCR(2)
+  if (IMZERO == 1) goto 1001
+end if
+
+if (I_AM_PACKED == 1) then
+  ! Loop over packed records of dimension LPBLK
+  ! The next LPBLK elements
+  999 continue
+  ! Read next batch
+  call IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))
+  LBATCH = ISCR(1)
+  if (LBATCH > 0) then
+    IDUMMY(1) = 0
+    call IDAFILE(IFILE,0,IDUMMY,LBATCH,IDISK(IFILE))
+    DUMMY(1) = 0.0d0
+    call DDAFILE(IFILE,0,DUMMY,LBATCH,IDISK(IFILE))
+  end if
+  call IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))
+  ISTOP = ISCR(1)
+  if (ISTOP == 0) goto 999
+else if (I_AM_PACKED == 0) then
+  !vv if (.true.) then
+  NBLOCK = MBLOCK
+  if (MBLOCK <= 0) NBLOCK = NDIM
+  IREST = NDIM
+  IBASE = 0
+100 continue
+  if (IREST > NBLOCK) then
+    call DDAFILE(IFILE,0,DUMMY,NBLOCK,IDISK(IFILE))
+    IBASE = IBASE+NBLOCK
+    IREST = IREST-NBLOCK
+  else
+    call DDAFILE(IFILE,0,DUMMY,IREST,IDISK(IFILE))
+    IREST = 0
+  end if
+  call IDAFILE(IFILE,0,IDUMMY,1,IDISK(IFILE))
+  if (IREST > 0) goto 100
+  !vv end if
+
+end if
+
+1001 continue
+
+end subroutine SKPRCD2

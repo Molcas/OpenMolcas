@@ -8,38 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE MATCAS(     CIN,    COUT,   NROWI,   NROWO,  IROWO1,   &
-     &                     NGCOL,    ISCA,  SCASGN)
-!
+
+subroutine MATCAS(CIN,COUT,NROWI,NROWO,IROWO1,NGCOL,ISCA,SCASGN)
 ! COUT(IR+IROWO1-1,ISCA(IC)) =
 ! COUT(IR+IROWO1-1,ISCA(IC)) + CIN(IR,IC)*SCASGN(IC)
-! (if IGAT(IC).ne.0)
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION CIN(NROWI,*),COUT(NROWO,*)
-      INTEGER ISCA(*)
-      DIMENSION SCASGN(*)
-!
-      MAXCOL = 0
-      DO 100 IC = 1, NGCOL
-        IF(ISCA(IC).NE.0) THEN
-          ICEXP = ISCA(IC)
-          MAXCOL = MAX(MAXCOL,ICEXP)
-          SIGN = SCASGN(IC)
-          DO 50 IR = 1,NROWI
-            COUT(IR+IROWO1-1,ICEXP) =                                   &
-     &      COUT(IR+IROWO1-1,ICEXP) + SIGN*CIN(IR,IC)
-   50     CONTINUE
-        END IF
-  100 CONTINUE
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' Output from MATCAS '
-        CALL WRTMAT(COUT,NROWO,MAXCOL,NROWO,MAXCOL)
-      END IF
-!
-      RETURN
-      END
-!                 CALL MATCG(C,CB(ICGOFF),NROW,NIBTC,IBOT,
-!                            NKBTC,I1,XI1S)
+! (if IGAT(IC) /= 0)
+
+implicit real*8(A-H,O-Z)
+dimension CIN(NROWI,*), COUT(NROWO,*)
+integer ISCA(*)
+dimension SCASGN(*)
+
+MAXCOL = 0
+do IC=1,NGCOL
+  if (ISCA(IC) /= 0) then
+    ICEXP = ISCA(IC)
+    MAXCOL = max(MAXCOL,ICEXP)
+    SIGN = SCASGN(IC)
+    do IR=1,NROWI
+      COUT(IR+IROWO1-1,ICEXP) = COUT(IR+IROWO1-1,ICEXP)+SIGN*CIN(IR,IC)
+    end do
+  end if
+end do
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' Output from MATCAS'
+  call WRTMAT(COUT,NROWO,MAXCOL,NROWO,MAXCOL)
+end if
+
+end subroutine MATCAS

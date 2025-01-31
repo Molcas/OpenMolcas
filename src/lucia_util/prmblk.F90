@@ -10,10 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE PRMBLK(     IDC,    ISGV,    IASM,    IBSM,    IATP,   &
-     &                      IBTP,      PS,      PL,    JATP,    JBTP,   &
-     &                      JASM,    JBSM,    ISGN,    ITRP,   NPERM)
-!
+
+subroutine PRMBLK(IDC,ISGV,IASM,IBSM,IATP,IBTP,PS,PL,JATP,JBTP,JASM,JBSM,ISGN,ITRP,NPERM)
 ! A block of CI coefficients defined by by IATP,IASM,IBTP,IBSM is given
 !
 ! Obtain the number of other blocks that can be obtained by spin
@@ -30,7 +28,6 @@
 !         = 0 => block should not be transposed
 ! ISGN   : Sign to multiply previous block with to getnew sign
 !
-!
 ! There are four types of permutations
 !
 !    operation   *      JASM  *      JBSM  * JATP * JBTP * Iperm * Sign *
@@ -40,129 +37,125 @@
 !   * Ms         *      IBSM  *      IASM  * IBTP * IATP *   1   * PS   *
 !   * Ms+Ml      * ISGV(IBSM) * ISGV(IASM) * IBTP * IATP *   1   * PS PL*
 !   *********************************************************************
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!.Input
-      DIMENSION ISGV(*)
-!.Output
-      DIMENSION JATP(4),JBTP(4),JASM(4),JBSM(4),ISGN(4),ITRP(4)
-!
-!. To eliminate some compiler warnings
-      KASM = 0
-      KBSM = 0
-      KATP = 0
-      KBTP = 0
-      KSIGN = 0
-      KTRP = 0
-      LSIGN = 0
-      LTRP = 0
-!
-      NPERM = 0
-      DO 100 IPERM = 1, 4
-        ISET = 0
-        IF(IPERM.EQ.1) THEN
-!
-! Identity operation
-!
-          KASM = IASM
-          KBSM = IBSM
-          KATP = IATP
-          KBTP = IBTP
-          KSIGN = 1
-          KTRP = 0
-          ISET = 1
-        ELSE IF(IPERM.EQ.2.AND.(IDC.EQ.3.OR.IDC.EQ.4)) THEN
-!
-! Ml reflection
-!
-          KASM = ISGV(IASM)
-          KBSM = ISGV(IBSM)
-          KATP = IATP
-          KBTP = IBTP
-          IF(PL.EQ.1.0D0) THEN
-            KSIGN = 1
-          ELSE IF (PL .EQ. -1.0D0) THEN
-            KSIGN = -1
-          END IF
-          KTRP = 0
-          ISET = 1
-        ELSE IF(IPERM.EQ.3.AND.(IDC.EQ.2.OR.IDC.EQ.4)) THEN
-!
-! Ms reflection
-!
-          KASM = IBSM
-          KBSM = IASM
-          KATP = IBTP
-          KBTP = IATP
-          IF(PS.EQ.1.0D0) THEN
-            KSIGN = 1
-          ELSE IF (PS .EQ. -1.0D0) THEN
-            KSIGN = -1
-          END IF
-          KTRP = 1
-          ISET = 1
-        ELSE IF(IPERM.EQ.4 .AND. IDC.EQ.4) THEN
-!
-! Ms Ml  reflection
-!
-          KASM = ISGV(IBSM)
-          KBSM = ISGV(IASM)
-          KATP = IBTP
-          KBTP = IATP
-          IF(PS*PL.EQ.1.0D0) THEN
-            KSIGN = 1
-          ELSE IF (PS .EQ. -1.0D0) THEN
-            KSIGN = -1
-          END IF
-          KTRP = 1
-          ISET = 1
-        END IF
-!
-        IF(ISET.EQ.1) THEN
-!. A new permutation was found, check and see if it was obtained previously
-          INEW = 1
-          DO 50 LPERM = 1, NPERM
-            IF(JATP(LPERM).EQ.KATP  .AND. JASM(LPERM).EQ.KASM .AND.     &
-     &         JBTP(LPERM).EQ.KBTP  .AND. JBSM(LPERM).EQ.KBSM) INEW = 0
-   50     CONTINUE
-          IF(INEW.EQ.1) THEN
-!. The permutation was new, add it to the list
-            NPERM = NPERM + 1
-            JASM(NPERM) = KASM
-            JBSM(NPERM) = KBSM
-            JATP(NPERM) = KATP
-            JBTP(NPERM) = KBTP
-            IF(NPERM.EQ.1 .OR. (NPERM.GE.1.AND.KSIGN.EQ.LSIGN))THEN
-              ISGN(NPERM) = 1
-            ELSE
-              ISGN(NPERM) = -1
-            END IF
-            LSIGN = KSIGN
-            IF(NPERM.EQ.1 .OR. (NPERM.GE.1.AND.KTRP.EQ.LTRP))THEN
-              ITRP(NPERM) = 0
-            ELSE
-              ITRP(NPERM) = 1
-            END IF
-            LTRP = KTRP
-          END IF
-        END IF
-  100 CONTINUE
-!
-!. Should the block be trnasposed or scaled to return to initial form
-      ITRP(NPERM+1) = LTRP
-      ISGN(NPERM+1) = LSIGN
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,'(A,4I4)') ' Blocks obtained from IASM IBSM IATP IBTP ',&
-     &  IASM,IBSM,IATP,IBTP
-        WRITE(6,*)
-        WRITE(6,'(A)') ' JASM JBSM JATP JBTP Isgn Itrp  '
-        WRITE(6,*)
-        DO 10 IPERM = 1, NPERM
-          WRITE(6,'(2x,6I4)') JASM(IPERM),JBSM(IPERM),JATP(IPERM),      &
-     &                        JBTP(IPERM),ISGN(IPERM),ITRP(IPERM)
-   10   CONTINUE
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+dimension ISGV(*)
+! Output
+dimension JATP(4), JBTP(4), JASM(4), JBSM(4), ISGN(4), ITRP(4)
+
+! To eliminate some compiler warnings
+KASM = 0
+KBSM = 0
+KATP = 0
+KBTP = 0
+KSIGN = 0
+KTRP = 0
+LSIGN = 0
+LTRP = 0
+
+NPERM = 0
+do IPERM=1,4
+  ISET = 0
+  if (IPERM == 1) then
+
+    ! Identity operation
+
+    KASM = IASM
+    KBSM = IBSM
+    KATP = IATP
+    KBTP = IBTP
+    KSIGN = 1
+    KTRP = 0
+    ISET = 1
+  else if ((IPERM == 2) .and. ((IDC == 3) .or. (IDC == 4))) then
+
+    ! Ml reflection
+
+    KASM = ISGV(IASM)
+    KBSM = ISGV(IBSM)
+    KATP = IATP
+    KBTP = IBTP
+    if (PL == 1.0d0) then
+      KSIGN = 1
+    else if (PL == -1.0d0) then
+      KSIGN = -1
+    end if
+    KTRP = 0
+    ISET = 1
+  else if ((IPERM == 3) .and. ((IDC == 2) .or. (IDC == 4))) then
+
+    ! Ms reflection
+
+    KASM = IBSM
+    KBSM = IASM
+    KATP = IBTP
+    KBTP = IATP
+    if (PS == 1.0d0) then
+      KSIGN = 1
+    else if (PS == -1.0d0) then
+      KSIGN = -1
+    end if
+    KTRP = 1
+    ISET = 1
+  else if ((IPERM == 4) .and. (IDC == 4)) then
+
+    ! Ms Ml  reflection
+
+    KASM = ISGV(IBSM)
+    KBSM = ISGV(IASM)
+    KATP = IBTP
+    KBTP = IATP
+    if (PS*PL == 1.0d0) then
+      KSIGN = 1
+    else if (PS == -1.0d0) then
+      KSIGN = -1
+    end if
+    KTRP = 1
+    ISET = 1
+  end if
+
+  if (ISET == 1) then
+    ! A new permutation was found, check and see if it was obtained previously
+    INEW = 1
+    do LPERM=1,NPERM
+      if ((JATP(LPERM) == KATP) .and. (JASM(LPERM) == KASM) .and. (JBTP(LPERM) == KBTP) .and. (JBSM(LPERM) == KBSM)) INEW = 0
+    end do
+    if (INEW == 1) then
+      ! The permutation was new, add it to the list
+      NPERM = NPERM+1
+      JASM(NPERM) = KASM
+      JBSM(NPERM) = KBSM
+      JATP(NPERM) = KATP
+      JBTP(NPERM) = KBTP
+      if ((NPERM == 1) .or. ((NPERM >= 1) .and. (KSIGN == LSIGN))) then
+        ISGN(NPERM) = 1
+      else
+        ISGN(NPERM) = -1
+      end if
+      LSIGN = KSIGN
+      if ((NPERM == 1) .or. ((NPERM >= 1) .and. (KTRP == LTRP))) then
+        ITRP(NPERM) = 0
+      else
+        ITRP(NPERM) = 1
+      end if
+      LTRP = KTRP
+    end if
+  end if
+end do
+
+! Should the block be trnasposed or scaled to return to initial form
+ITRP(NPERM+1) = LTRP
+ISGN(NPERM+1) = LSIGN
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,'(A,4I4)') ' Blocks obtained from IASM IBSM IATP IBTP ',IASM,IBSM,IATP,IBTP
+  write(6,*)
+  write(6,'(A)') ' JASM JBSM JATP JBTP Isgn Itrp'
+  write(6,*)
+  do IPERM=1,NPERM
+    write(6,'(2x,6I4)') JASM(IPERM),JBSM(IPERM),JATP(IPERM),JBTP(IPERM),ISGN(IPERM),ITRP(IPERM)
+  end do
+end if
+
+end subroutine PRMBLK

@@ -10,28 +10,25 @@
 !                                                                      *
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE EXTRROW(INMAT,IROW,NROW,NCOL,IOUTVEC)
-!
+
+subroutine EXTRROW(INMAT,IROW,NROW,NCOL,IOUTVEC)
 ! Extract row IROW from integer matrix INMAT
 !
 ! Jeppe Olsen, Winter 1996
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!
-      DIMENSION INMAT(NROW,NCOL)
-      DIMENSION IOUTVEC(NCOL)
-!
-      DO ICOL = 1, NCOL
-        IOUTVEC(ICOL) = INMAT(IROW,ICOL)
-      END DO
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Output vector from EXTRROW '
-        WRITE(6,*) ' Extracted ROW ', IROW
-        CALL IWRTMA(IOUTVEC,1,NCOL,1,NCOL)
-      END IF
-!
-      RETURN
-      END
-! !!! Start trace !!!
+
+implicit real*8(A-H,O-Z)
+dimension INMAT(NROW,NCOL)
+dimension IOUTVEC(NCOL)
+
+do ICOL=1,NCOL
+  IOUTVEC(ICOL) = INMAT(IROW,ICOL)
+end do
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Output vector from EXTRROW'
+  write(6,*) ' Extracted ROW ',IROW
+  call IWRTMA(IOUTVEC,1,NCOL,1,NCOL)
+end if
+
+end subroutine EXTRROW

@@ -10,11 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE GTSPGP(IEL,ISPGP,IWAY)
-      use lucia_data, only: NGAS
-      use lucia_data, only: NTSPGP,NELFSPGP
-!
-!
+
+subroutine GTSPGP(IEL,ISPGP,IWAY)
 ! Relation between number of electrons in AS1, AS2 ... and
 ! supergoup number
 !
@@ -27,39 +24,40 @@
 !
 ! Jeppe Olsen, Another lonely night in Lund
 !               GAS version July 1995
-!
-      IMPLICIT NONE
-      INTEGER ISPGP,IWAY
-!. Generel input
-!. input(IWAY = 2 ), output (IWAY = 1 )
-      INTEGER IEL(*)
 
-      INTEGER JSPGP,IEQUAL,IGAS,NTEST
-!
-      IF(IWAY.EQ.1) THEN
-!. Occupation => Number
-        ISPGP = -1
-        DO JSPGP = 1, NTSPGP
-          IF(ISPGP.EQ.-1) THEN
-            IEQUAL = 1
-            DO IGAS = 1, NGAS
-              IF(NELFSPGP(IGAS,JSPGP).NE.IEL(IGAS))  IEQUAL= 0
-            END DO
-            IF(IEQUAL.EQ.1) ISPGP = JSPGP
-          END IF
-        END DO
-      ELSE IF (IWAY .EQ. 2 ) THEN
-!. Number => Occupation
-        DO IGAS = 1, NGAS
-         IEL(IGAS) = NELFSPGP(IGAS,ISPGP)
-        END DO
-      END IF
-!
-      NTEST  = 000
-      IF(NTEST .GE. 100 ) THEN
-        WRITE(6,*) ' Output from GTSPGP '
-        WRITE(6,*)                                                      &
-     &   ' IWAY ISPGP IEL ', IWAY,ISPGP,(IEL(IGAS),IGAS = 1, NGAS)
-      END IF
-!
-      END SUBROUTINE GTSPGP
+use lucia_data, only: NGAS
+use lucia_data, only: NTSPGP, NELFSPGP
+
+implicit none
+integer ISPGP, IWAY
+! Generel input
+! input(IWAY = 2 ), output (IWAY = 1 )
+integer IEL(*)
+integer JSPGP, IEQUAL, IGAS, NTEST
+
+if (IWAY == 1) then
+  ! Occupation => Number
+  ISPGP = -1
+  do JSPGP=1,NTSPGP
+    if (ISPGP == -1) then
+      IEQUAL = 1
+      do IGAS=1,NGAS
+        if (NELFSPGP(IGAS,JSPGP) /= IEL(IGAS)) IEQUAL = 0
+      end do
+      if (IEQUAL == 1) ISPGP = JSPGP
+    end if
+  end do
+else if (IWAY == 2) then
+  ! Number => Occupation
+  do IGAS=1,NGAS
+    IEL(IGAS) = NELFSPGP(IGAS,ISPGP)
+  end do
+end if
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Output from GTSPGP'
+  write(6,*) ' IWAY ISPGP IEL ',IWAY,ISPGP,(IEL(IGAS),IGAS=1,NGAS)
+end if
+
+end subroutine GTSPGP

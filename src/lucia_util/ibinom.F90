@@ -10,48 +10,50 @@
 !                                                                      *
 ! Copyright (C) 1998, Per Ake Malmqvist                                *
 !***********************************************************************
-      INTEGER FUNCTION IBINOM(N,M)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      SAVE INIT,NOMTAB
-      DIMENSION NOMTAB(225)
-      DATA INIT / 0 /
-      IBINOM=0
-      IF(N.LT.0) RETURN
-      MM=M
-      IF(2*MM.GT.N) MM=N-M
-      IF(MM.LT.0) RETURN
-      IBINOM=1
-      IF(MM.EQ.0) RETURN
-      IBINOM=N
-      IF(MM.EQ.1) RETURN
-      IF(INIT.EQ.0) THEN
-        IPOS=0
-        DO I=4,32
-         X=DBLE(I)
-         DO J=2,I/2
-          IPOS=IPOS+1
-          X=(X*DBLE(I+1-J))/DBLE(J)
-          NOMTAB(IPOS)=NINT(X)
-         END DO
-        END DO
-!PAM      write(*,'(1x,5I9)') NOMTAB
-        INIT=1
-      END IF
-      IF(N.LE.32) THEN
-        IBINOM=NOMTAB(((N-3)**2)/4+MM-1)
-      ELSE
-        X=DBLE(IBINOM)
-        DO K=2,MM
-         X=(X*DBLE(N+1-K))/DBLE(K)
-        END DO
-        IBINOM=NINT(X)
-        IF(X.NE.DBLE(IBINOM)) THEN
-          WRITE(6,*)' IBINOM: Unable to compute N over M'
-          WRITE(6,*)' N=',N
-          WRITE(6,*)' M=',M
-          CALL SYSABENDMSG('lucia_util/ibinom','Internal error',        &
-     &                          ' ')
-        END IF
-      END IF
-      RETURN
-      END
+
+integer function IBINOM(N,M)
+
+implicit real*8(A-H,O-Z)
+save INIT, NOMTAB
+dimension NOMTAB(225)
+data INIT/0/
+
+IBINOM = 0
+if (N < 0) return
+MM = M
+if (2*MM > N) MM = N-M
+if (MM < 0) return
+IBINOM = 1
+if (MM == 0) return
+IBINOM = N
+if (MM == 1) return
+if (INIT == 0) then
+  IPOS = 0
+  do I=4,32
+    X = dble(I)
+    do J=2,I/2
+      IPOS = IPOS+1
+      X = (X*dble(I+1-J))/dble(J)
+      NOMTAB(IPOS) = nint(X)
+    end do
+  end do
+  !PAM write(6,'(1x,5I9)') NOMTAB
+  INIT = 1
+end if
+if (N <= 32) then
+  IBINOM = NOMTAB(((N-3)**2)/4+MM-1)
+else
+  X = dble(IBINOM)
+  do K=2,MM
+    X = (X*dble(N+1-K))/dble(K)
+  end do
+  IBINOM = nint(X)
+  if (X /= dble(IBINOM)) then
+    write(6,*) ' IBINOM: Unable to compute N over M'
+    write(6,*) ' N=',N
+    write(6,*) ' M=',M
+    call SYSABENDMSG('lucia_util/ibinom','Internal error','')
+  end if
+end if
+
+end function IBINOM

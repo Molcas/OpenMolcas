@@ -8,18 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE COPVEC(FROM,TO,NDIM)
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!
-!     COMMON/COPVECST/XNCALL_COPVEC, XNMOVE_COPVEC
-      DIMENSION FROM(*),TO(*)
-!
-!     XNCALL_COPVEC = XNCALL_COPVEC + 1.0D0
-!     XNMOVE_COPVEC = XNMOVE_COPVEC + DBLE(NDIM)
-      DO 100 I=1,NDIM
-       TO(I)=FROM(I)
-  100 CONTINUE
-!
-      RETURN
-      END
+
+subroutine COPVEC(FROM,TO,NDIM)
+
+implicit real*8(A-H,O-Z)
+dimension FROM(*), TO(*)
+
+do I=1,NDIM
+  TO(I) = FROM(I)
+end do
+
+end subroutine COPVEC

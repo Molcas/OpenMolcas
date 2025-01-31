@@ -8,36 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE IFRMDS(IARRAY,NDIM,MBLOCK,IFILE)
-!
-!     TRANSFER INTEGER ARRAY FROM DISC FILE IFILE
-!
-! NBLOCK .LT. 0 INDICATES USE OF FASTIO
-!
-! If nblock .eq. 0 NBLOCK = NDIM
-      use lucia_data, only: IDISK
-      IMPLICIT NONE
-      INTEGER IARRAY(*)
-      INTEGER NDIM,MBLOCK,IFILE
 
-      INTEGER IDUMMY(1)
-      INTEGER NBLOCK,IREST,IBASE
+subroutine IFRMDS(IARRAY,NDIM,MBLOCK,IFILE)
+! TRANSFER INTEGER ARRAY FROM DISC FILE IFILE
 !
-      NBLOCK = MBLOCK
+! NBLOCK < 0 INDICATES USE OF FASTIO
+!
+! If nblock == 0 NBLOCK = NDIM
 
-!       DO NOT USE FASTIO
-        IF(NBLOCK .LE. 0 ) NBLOCK = NDIM
-        IREST=NDIM
-        IBASE=0
-  100   CONTINUE
-          IF(IREST.GT.NBLOCK) THEN
-            CALL IDAFILE(IFILE,2,IARRAY(IBASE+1),NBLOCK,IDISK(IFILE))
-            IBASE=IBASE+NBLOCK
-            IREST=IREST-NBLOCK
-          ELSE
-            CALL IDAFILE(IFILE,2,IARRAY(IBASE+1),IREST,IDISK(IFILE))
-            IREST=0
-          END IF
-          CALL IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
-        IF( IREST .GT. 0 ) GOTO 100
-      END SUBROUTINE IFRMDS
+use lucia_data, only: IDISK
+
+implicit none
+integer IARRAY(*)
+integer NDIM, MBLOCK, IFILE
+integer IDUMMY(1)
+integer NBLOCK, IREST, IBASE
+
+NBLOCK = MBLOCK
+
+! DO NOT USE FASTIO
+if (NBLOCK <= 0) NBLOCK = NDIM
+IREST = NDIM
+IBASE = 0
+100 continue
+if (IREST > NBLOCK) then
+  call IDAFILE(IFILE,2,IARRAY(IBASE+1),NBLOCK,IDISK(IFILE))
+  IBASE = IBASE+NBLOCK
+  IREST = IREST-NBLOCK
+else
+  call IDAFILE(IFILE,2,IARRAY(IBASE+1),IREST,IDISK(IFILE))
+  IREST = 0
+end if
+call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
+if (IREST > 0) goto 100
+
+end subroutine IFRMDS

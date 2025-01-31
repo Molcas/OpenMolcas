@@ -8,13 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 FUNCTION GET_ECORE()
-      use lucia_data, only: ECORE_HEX
-!
+
+real*8 function GET_ECORE()
 ! Lets the MOLCAS environment retrieve eCore_Hex.
-!
-      IMPLICIT NONE
 
-      GET_ECORE = ECORE_HEX
+use lucia_data, only: ECORE_HEX
 
-      END FUNCTION GET_ECORE
+implicit none
+
+GET_ECORE = ECORE_HEX
+
+end function GET_ECORE

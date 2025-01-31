@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE INVMAT(A,B,MATDIM,NDIM,ISING)
+
+subroutine INVMAT(A,B,MATDIM,NDIM,ISING)
 ! FIND INVERSE OF MATRIX A
 ! INPUT :
 !        A : MATRIX TO BE INVERTED
@@ -21,39 +22,34 @@
 !
 ! ISING = 0 => No convergence problems
 !       = 1  => Convergence problems
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(MATDIM,MATDIM),B(MATDIM,MATDIM)
-!
-      ITEST=0
-      IF(NDIM.EQ.1)THEN
-        IF(A(1,1) .NE. 0.0D0 ) THEN
-           A(1,1) = 1.0D0/A(1,1)
-        ELSE
-           ITEST = 1
-        END IF
-      ELSE
-        DETERM=0.0D0
-        EPSIL=0.0D0
-        CALL BNDINV(        A,        B,     NDIM,   DETERM,    EPSIL,  &
-     &                  ITEST,   MATDIM)
-      END IF
-!
-      IF( ITEST .NE. 0 ) THEN
-        WRITE (6,'(A,I3)') ' INVERSION PROBLEM NUMBER..',ITEST
-      END IF
-!
-      IF(ITEST.NE.0) THEN
-        ISING = 1
-      ELSE
-        ISING = 0
-      END IF
-!
-      NTEST = 0
-      IF ( NTEST .NE. 0 ) THEN
-        WRITE(6,*) ' INVERTED MATRIX '
-        CALL WRTMAT(A,NDIM,NDIM,MATDIM,MATDIM)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension A(MATDIM,MATDIM), B(MATDIM,MATDIM)
+
+ITEST = 0
+if (NDIM == 1) then
+  if (A(1,1) /= 0.0d0) then
+    A(1,1) = 1.0d0/A(1,1)
+  else
+    ITEST = 1
+  end if
+else
+  DETERM = 0.0d0
+  EPSIL = 0.0d0
+  call BNDINV(A,B,NDIM,DETERM,EPSIL,ITEST,MATDIM)
+end if
+
+if (ITEST /= 0) then
+  write(6,'(A,I3)') ' INVERSION PROBLEM NUMBER..',ITEST
+  ISING = 1
+else
+  ISING = 0
+end if
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' INVERTED MATRIX'
+  call WRTMAT(A,NDIM,NDIM,MATDIM,MATDIM)
+end if
+
+end subroutine INVMAT

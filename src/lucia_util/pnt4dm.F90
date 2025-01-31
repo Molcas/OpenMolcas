@@ -8,11 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PNT4DM(   NSMOB,   NSMSX,  MXPOBS,   NO1PS,   NO2PS,   &
-     &                     NO3PS,   NO4PS,   IDXSM,   ADSXA,  SXDXSX,   &
-     &                      IS12,    IS34,  IS1234,   IPNTR,   ISM4A,   &
-     &                     ADASX)
-!
+
+subroutine PNT4DM(NSMOB,NSMSX,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS12,IS34,IS1234,IPNTR,ISM4A,ADASX)
 ! Pointer for 4 dimensionl array with total symmetry IDXSM
 ! Pointer is given as 3 dimensional array corresponding
 ! to the first 3 indices
@@ -21,90 +18,90 @@
 ! IS12 (0,1,-1)   : Permutational symmetry between indices 1 and 2
 ! IS34 (0,1,-1)   : Permutational symmetry between indices 3 and 3
 ! IS1234 (0,1,-1) : permutational symmetry between indices 12 and 34
-!
-!. General input
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),SXDXSX(2*MXPOBS,4*MXPOBS)
-      INTEGER ADASX(MXPOBS,MXPOBS)
-!. Specific input
-      INTEGER NO1PS(*),NO2PS(*),NO3PS(*),NO4PS(*)
-!.Output
-      INTEGER IPNTR(NSMOB,NSMOB,NSMOB),ISM4A(NSMOB,NSMOB,NSMOB)
-!
-      CALL ISETVC(IPNTR,0,NSMOB ** 3 )
-      CALL ISETVC(ISM4A,0,NSMOB ** 3 )
-!
-!?    WRITE(6,*) 'NO1PS NO2PS NO3PS NO4PS '
-!?    CALL IWRTMA(NO1PS,1,NSMOB,1,NSMOB)
-!?    CALL IWRTMA(NO2PS,1,NSMOB,1,NSMOB)
-!?    CALL IWRTMA(NO3PS,1,NSMOB,1,NSMOB)
-!?    CALL IWRTMA(NO4PS,1,NSMOB,1,NSMOB)
-      IOFF= 1
-      N12 = 0
-      N34 = 0
-!
-      DO 10 I1SM = 1, NSMOB
-        DO 20 I2SM = 1, NSMOB
-          I12SM = ADASX(I1SM,I2SM)
-          I34SM = SXDXSX(I12SM,IDXSM)
-          IF(I34SM.EQ.0) GOTO 20
-          IF(IS12.NE.0.AND.I1SM.LT.I2SM) GOTO 20
-          IF(IS12.EQ.0) THEN
-           I12NUM = (I1SM-1)*NSMOB+I2SM
-          ELSE
-           I12NUM =  I1SM*(I1SM+1)/2+I2SM
-          END IF
-          IF(IS12.EQ.0.OR.I1SM.NE.I2SM) THEN
-            N12 = NO1PS(I1SM)*NO2PS(I2SM)
-          ELSE IF(IS12.EQ.1.AND.I1SM.EQ.I2SM) THEN
-            N12 = NO1PS(I1SM)*(NO1PS(I1SM)+1)/2
-          ELSE IF(IS12.EQ.-1.AND.I1SM.EQ.I2SM) THEN
-            N12 = NO1PS(I1SM)*(NO1PS(I1SM)-1)/2
-          END IF
-          DO 30 I3SM = 1, NSMOB
-            I4SM = ADSXA(I3SM,I34SM)
-            IF(I4SM.EQ.0) GOTO 30
-            IF(IS34.NE.0.AND.I3SM.LT.I4SM) GOTO 30
-            IF(IS34.EQ.0) THEN
-             I34NUM = (I3SM-1)*NSMOB+I4SM
-            ELSE
-             I34NUM =  I3SM*(I3SM+1)/2+I4SM
-            END IF
-            IF(IS1234.NE.0.AND.I12NUM.LT.I34NUM) GOTO 30
-            IF(IS34.EQ.0.OR.I3SM.NE.I4SM) THEN
-            N34 = NO3PS(I3SM)*NO4PS(I4SM)
-            ELSE IF(IS34.EQ.1.AND.I3SM.EQ.I4SM) THEN
-              N34 = NO3PS(I3SM)*(NO3PS(I3SM)+1)/2
-            ELSE IF(IS34.EQ.-1.AND.I3SM.EQ.I4SM) THEN
-              N34 = NO3PS(I3SM)*(NO3PS(I3SM)-1)/2
-            END IF
-            IF(IS1234.EQ.0.OR.I12NUM.NE.I34NUM) THEN
-              IPNTR(I1SM,I2SM,I3SM) = IOFF
-              ISM4A(I1SM,I2SM,I3SM) = I4SM
-              IOFF= IOFF+ N12 * N34
-            ELSE IF( IS1234.EQ.1.AND.I12NUM.EQ.I34NUM) THEN
-              IPNTR(I1SM,I2SM,I3SM) = IOFF
-              ISM4A(I1SM,I2SM,I3SM) = I4SM
-              IOFF= IOFF + N12*(N12+1)/2
-            ELSE IF( IS1234.EQ.-1.AND.I12NUM.EQ.I34NUM) THEN
-              IPNTR(I1SM,I2SM,I3SM) = IOFF
-              ISM4A(I1SM,I2SM,I3SM) = I4SM
-              IOFF=  IOFF+ N12*(N12-1)/2
-            END IF
-!?          WRITE(6,*) ' I1SM I2SM I3SM I4SM    IOFF'
-!?          WRITE(6,'(1X,4I4,I9)')   I1SM,I2SM,I3SM,I4SM,IOFF
-   30       CONTINUE
-   20     CONTINUE
-   10   CONTINUE
-!
-!
-!?    WRITE(6,*) ' PNT4DM , 64 elemets of IPNTR '
-!?    call IWRTMA(IPNTR,1,64,1,64)
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-         WRITE(6,*) ' Length of 4 index array ', IOFF - 1
-      END IF
-!
-      RETURN
+
+! General input
+integer ADSXA(MXPOBS,2*MXPOBS), SXDXSX(2*MXPOBS,4*MXPOBS)
+integer ADASX(MXPOBS,MXPOBS)
+! Specific input
+integer NO1PS(*), NO2PS(*), NO3PS(*), NO4PS(*)
+! Output
+integer IPNTR(NSMOB,NSMOB,NSMOB), ISM4A(NSMOB,NSMOB,NSMOB)
+
+call ISETVC(IPNTR,0,NSMOB**3)
+call ISETVC(ISM4A,0,NSMOB**3)
+
+!write(6,*) 'NO1PS NO2PS NO3PS NO4PS'
+!call IWRTMA(NO1PS,1,NSMOB,1,NSMOB)
+!call IWRTMA(NO2PS,1,NSMOB,1,NSMOB)
+!call IWRTMA(NO3PS,1,NSMOB,1,NSMOB)
+!call IWRTMA(NO4PS,1,NSMOB,1,NSMOB)
+IOFF = 1
+N12 = 0
+N34 = 0
+
+do I1SM=1,NSMOB
+  do I2SM=1,NSMOB
+    I12SM = ADASX(I1SM,I2SM)
+    I34SM = SXDXSX(I12SM,IDXSM)
+    if (I34SM == 0) goto 20
+    if ((IS12 /= 0) .and. (I1SM < I2SM)) goto 20
+    if (IS12 == 0) then
+      I12NUM = (I1SM-1)*NSMOB+I2SM
+    else
+      I12NUM = I1SM*(I1SM+1)/2+I2SM
+    end if
+    if ((IS12 == 0) .or. (I1SM /= I2SM)) then
+      N12 = NO1PS(I1SM)*NO2PS(I2SM)
+    else if ((IS12 == 1) .and. (I1SM == I2SM)) then
+      N12 = NO1PS(I1SM)*(NO1PS(I1SM)+1)/2
+    else if ((IS12 == -1) .and. (I1SM == I2SM)) then
+      N12 = NO1PS(I1SM)*(NO1PS(I1SM)-1)/2
+    end if
+    do I3SM=1,NSMOB
+      I4SM = ADSXA(I3SM,I34SM)
+      if (I4SM == 0) goto 30
+      if ((IS34 /= 0) .and. (I3SM < I4SM)) goto 30
+      if (IS34 == 0) then
+        I34NUM = (I3SM-1)*NSMOB+I4SM
+      else
+        I34NUM = I3SM*(I3SM+1)/2+I4SM
+      end if
+      if ((IS1234 /= 0) .and. (I12NUM < I34NUM)) goto 30
+      if ((IS34 == 0) .or. (I3SM /= I4SM)) then
+        N34 = NO3PS(I3SM)*NO4PS(I4SM)
+      else if ((IS34 == 1) .and. (I3SM == I4SM)) then
+        N34 = NO3PS(I3SM)*(NO3PS(I3SM)+1)/2
+      else if ((IS34 == -1) .and. (I3SM == I4SM)) then
+        N34 = NO3PS(I3SM)*(NO3PS(I3SM)-1)/2
+      end if
+      if ((IS1234 == 0) .or. (I12NUM /= I34NUM)) then
+        IPNTR(I1SM,I2SM,I3SM) = IOFF
+        ISM4A(I1SM,I2SM,I3SM) = I4SM
+        IOFF = IOFF+N12*N34
+      else if ((IS1234 == 1) .and. (I12NUM == I34NUM)) then
+        IPNTR(I1SM,I2SM,I3SM) = IOFF
+        ISM4A(I1SM,I2SM,I3SM) = I4SM
+        IOFF = IOFF+N12*(N12+1)/2
+      else if ((IS1234 == -1) .and. (I12NUM == I34NUM)) then
+        IPNTR(I1SM,I2SM,I3SM) = IOFF
+        ISM4A(I1SM,I2SM,I3SM) = I4SM
+        IOFF = IOFF+N12*(N12-1)/2
+      end if
+      !write(6,*) ' I1SM I2SM I3SM I4SM    IOFF'
+      !write(6,'(1X,4I4,I9)') I1SM,I2SM,I3SM,I4SM,IOFF
+30    continue
+    end do
+20  continue
+  end do
+end do
+
+!write(6,*) ' PNT4DM, 64 elemets of IPNTR'
+!call IWRTMA(IPNTR,1,64,1,64)
+NTEST = 0
+if (NTEST /= 0) write(6,*) ' Length of 4 index array ',IOFF-1
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(NSMSX)
-      END
+if (.false.) call Unused_integer(NSMSX)
+
+end subroutine PNT4DM

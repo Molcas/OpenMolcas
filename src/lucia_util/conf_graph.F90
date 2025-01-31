@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE CONF_GRAPH(IOCC_MIN,IOCC_MAX, NORB,  NEL,IARCW,        &
-     &                        NCONF,   ISCR)
-!
+
+subroutine CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
 ! A group of configurations is described by the
 ! accumulated min and max, IOCC_MIN and IOCC_MAX.
 !
@@ -20,36 +19,34 @@
 ! of configurations ( all symmetries)
 !
 ! Jeppe Olsen, Oct. 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. Input
-      INTEGER IOCC_MIN(NORB), IOCC_MAX(NORB)
-!. Output
-      INTEGER IARCW(NORB,NEL,2)
+
+implicit real*8(A-H,O-Z)
+! Input
+integer IOCC_MIN(NORB), IOCC_MAX(NORB)
+! Output
+integer IARCW(NORB,NEL,2)
 ! IARCW(I,J,K) gives weight of arc ending at vertex (I,J)
 ! with occupation K (=1,2)
-!. Local scratch : Length should be (NORB+1)*(NEL+1)
-      INTEGER ISCR(NORB+1,NEL+1)
-!. Set up vertex weights
-      CALL CONF_VERTEX_W(IOCC_MIN,IOCC_MAX,NORB,NEL,ISCR)
-      NCONF = ISCR(NORB+1,NEL+1)
-!. Obtain arcweights from vertex weights
-!?    WRITE(6,*) ' CONF_GRAPH, NORB, NEL = ', NORB, NEL
-      CALL CONF_ARC_W( IOCC_MIN, IOCC_MAX,     NORB,      NEL,     ISCR,&
-     &                    IARCW)
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' IOCMIN and IOCMAX  '
-        CALL IWRTMA(IOCC_MIN,1,NORB,1,NORB)
-        CALL IWRTMA(IOCC_MAX,1,NORB,1,NORB)
-        WRITE(6,*) ' Arcweights for single occupied arcs '
-        CALL IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
-        WRITE(6,*) ' Arcweights for double occupied arcs '
-        CALL IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
-        WRITE(6,*) ' Total number of configurations ', NCONF
-      END IF
-!
-      RETURN
-      END
-!
+! Local scratch : Length should be (NORB+1)*(NEL+1)
+integer ISCR(NORB+1,NEL+1)
+
+! Set up vertex weights
+call CONF_VERTEX_W(IOCC_MIN,IOCC_MAX,NORB,NEL,ISCR)
+NCONF = ISCR(NORB+1,NEL+1)
+! Obtain arcweights from vertex weights
+!write(6,*) ' CONF_GRAPH, NORB, NEL = ',NORB,NEL
+call CONF_ARC_W(IOCC_MIN,IOCC_MAX,NORB,NEL,ISCR,IARCW)
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' IOCMIN and IOCMAX'
+  call IWRTMA(IOCC_MIN,1,NORB,1,NORB)
+  call IWRTMA(IOCC_MAX,1,NORB,1,NORB)
+  write(6,*) ' Arcweights for single occupied arcs'
+  call IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
+  write(6,*) ' Arcweights for double occupied arcs'
+  call IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
+  write(6,*) ' Total number of configurations ',NCONF
+end if
+
+end subroutine CONF_GRAPH

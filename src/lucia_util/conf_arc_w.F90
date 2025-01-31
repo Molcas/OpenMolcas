@@ -10,43 +10,41 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE CONF_ARC_W(IOCC_MIN,IOCC_MAX, NORB,  NEL,IVERTEXW,     &
-     &                        IARCW)
-!
+
+subroutine CONF_ARC_W(IOCC_MIN,IOCC_MAX,NORB,NEL,IVERTEXW,IARCW)
 ! Obtain arcweights for single and double occupied arcs
 ! from vertex weights
 !
 ! Jeppe Olsen, October 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!. Input
-      INTEGER IVERTEXW(NORB+1,NEL+1)
-      INTEGER IOCC_MIN(NORB),IOCC_MAX(NORB)
-!. Output
-      INTEGER IARCW(NORB,NEL,2)
-      IZERO = 0
-      CALL ISETVC(IARCW,IZERO,2*NORB*NEL)
+
+implicit real*8(A-H,O-Z)
+! Input
+integer IVERTEXW(NORB+1,NEL+1)
+integer IOCC_MIN(NORB), IOCC_MAX(NORB)
+! Output
+integer IARCW(NORB,NEL,2)
+
+IZERO = 0
+call ISETVC(IARCW,IZERO,2*NORB*NEL)
 ! IARCW(I,J,K) is weight of arc with occupation K ending at (I,J)
 ! IARCW(I,J,K) = Sum(J-K < L <= J)   IVERTEXW(I-1,L)
-      DO I = 1, NORB
-       DO J = 1, NEL
-        IF(IOCC_MIN(I).LE.J .AND. J.LE.IOCC_MAX(I)) THEN
-          DO K = 1, NEL
-            IF(K.EQ.1) IARCW(I,J,K) = IVERTEXW(I-1+1,J+1)
-            IF(K.EQ.2.AND.J.GE.2) IARCW(I,J,K) = IVERTEXW(I-1+1,J+1)    &
-     &                                         + IVERTEXW(I-1+1,J-1+1)
-          END DO
-        END IF
-       END DO
-      END DO
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Arc weights for single occupied arcs '
-        CALL IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
-        WRITE(6,*) ' Arc weights for double occupied arcs '
-        CALL IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
-      END IF
-!
-      RETURN
-      END
+do I=1,NORB
+  do J=1,NEL
+    if ((IOCC_MIN(I) <= J) .and. (J <= IOCC_MAX(I))) then
+      do K=1,NEL
+        if (K == 1) IARCW(I,J,K) = IVERTEXW(I-1+1,J+1)
+        if ((K == 2) .and. (J >= 2)) IARCW(I,J,K) = IVERTEXW(I-1+1,J+1)+IVERTEXW(I-1+1,J-1+1)
+      end do
+    end if
+  end do
+end do
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Arc weights for single occupied arcs'
+  call IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
+  write(6,*) ' Arc weights for double occupied arcs'
+  call IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
+end if
+
+end subroutine CONF_ARC_W

@@ -10,22 +10,14 @@
 !                                                                      *
 ! Copyright (C) 1991,1997, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE RSBB1E_LUCIA(  ISCSM,  ISCTP,  ICCSM,  ICCTP,   IGRP,  &
-     &                           NROW,   NGAS,   ISEL,   ICEL,     SB,  &
-     &                             CB,  ADSXA, STSTSX, NOBPTS,   MAXI,  &
-     &                           MAXK,   SSCR,   CSCR,     I1,   XI1S,  &
-     &                             I2,   XI2S,      H,  NSMOB,  NSMST,  &
-!
-     &                          NSMSX,    MOC, MXSXST, IH2TRM, SCLFAC,  &
-     &                        IUSE_PH, IPHGAS, NTESTG)
-!
+
+subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2, &
+                        XI2S,H,NSMOB,NSMST,NSMSX,MOC,MXSXST,IH2TRM,SCLFAC,IUSE_PH,IPHGAS,NTESTG)
 ! SUBROUTINE RSBB1E_LUCIA --> 33
 !
-!
 ! One electron excitations on column strings
-!. If IH2TRM .ne. 0 then the diagonal and one-electron
-!  excitations arising from the two body operator is also
-! included
+! If IH2TRM /= 0 then the diagonal and one-electron
+! excitations arising from the two body operator is also included
 !
 ! =====
 ! Input
@@ -55,7 +47,6 @@
 !
 ! MOC  : Use MOC method ( instead of N-1 resolution method )
 !
-!
 ! ======
 ! Output
 ! ======
@@ -74,281 +65,259 @@
 !
 ! Jeppe Olsen, Winter of 1991
 !              IUSE_PH added winter of 97
-!
-      use Constants, only: One
-      USE Para_Info, ONLY: MyRank, nProcs
-      use lucia_data, only: MXPOBS,MXPNGAS,MXPTSOB
-      IMPLICIT NONE
-      INTEGER ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,MAXI,MAXK,NSMOB,   &
-     &        NSMST,NSMSX, MOC,MXSXST,IH2TRM,IUSE_PH,NTESTG
-      REAL*8  SCLFAC
-!. General input
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),                                   &
-     &        STSTSX(NSMST,NSMST)
-      INTEGER NOBPTS(MXPNGAS,*)
-      INTEGER IPHGAS(NGAS)
-!.Specific Input
-      INTEGER ISEL(NGAS),ICEL(NGAS)
-      REAL*8 CB(*)
-!.Output
-      REAL*8 SB(*)
-!.Scatch
-      REAL*8 SSCR(*),CSCR(*),XI1S(*),H(*),XI2S(*)
-      INTEGER I1(*),I2(*)
-!.Local arrays ( assume MPNGAS = 16 ) !!!
-      INTEGER ITP(16),JTP(16)
-      INTEGER ISGRP(16),ICGRP(16)
-!. For transposing integral block
-      REAL*8 HSCR(MXPTSOB*MXPTSOB)
-!
-      INTEGER IJ_REO(2),IJ_DIM(2),IJ_SM(2),IJ_TP(2),IJ_AC(2)
+
+use Constants, only: One
+use Para_Info, only: MyRank, nProcs
+use lucia_data, only: MXPOBS, MXPNGAS, MXPTSOB
+
+implicit none
+integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, MAXI, MAXK, NSMOB, NSMST, NSMSX, MOC, MXSXST, IH2TRM, IUSE_PH, NTESTG
+real*8 SCLFAC
+! General input
+integer ADSXA(MXPOBS,2*MXPOBS), STSTSX(NSMST,NSMST)
+integer NOBPTS(MXPNGAS,*)
+integer IPHGAS(NGAS)
+! Specific Input
+integer ISEL(NGAS), ICEL(NGAS)
+real*8 CB(*)
+! Output
+real*8 SB(*)
+! Scatch
+real*8 SSCR(*), CSCR(*), XI1S(*), H(*), XI2S(*)
+integer I1(*), I2(*)
+! Local arrays ( assume MPNGAS = 16 ) !!!
+integer ITP(16), JTP(16)
+integer ISGRP(16), ICGRP(16)
+! For transposing integral block
+real*8 HSCR(MXPTSOB*MXPTSOB)
+integer IJ_REO(2), IJ_DIM(2), IJ_SM(2), IJ_TP(2), IJ_AC(2)
 ! Type of single excitations that connects the two column strings
-      INTEGER NTESTL,NTEST,NIPART,NIPARTSZ,IFRST,IJSM,IJTP,NSXTP,ITYP,  &
-     &        JTYP,IXXX,ISM,JSM,KFRST,NIORB,NJORB,IDOCOMP,NKAEFF,NKASTR,&
-     &        KBOT,KTOP,KEND,LKABTC,IIPART,IBOT,ITOP,NIBTC,JJORB,ICGOFF,&
-     &        NIK,IIORB,ISBOFF,IEND,KACT
-      REAL*8 SIGNIJ,SCLFACS,FACTORC,FACTORAB
+integer NTESTL, NTEST, NIPART, NIPARTSZ, IFRST, IJSM, IJTP, NSXTP, ITYP, JTYP, IXXX, ISM, JSM, KFRST, NIORB, NJORB, IDOCOMP, &
+        NKAEFF, NKASTR, KBOT, KTOP, KEND, LKABTC, IIPART, IBOT, ITOP, NIBTC, JJORB, ICGOFF, NIK, IIORB, ISBOFF, IEND, KACT
+real*8 SIGNIJ, SCLFACS, FACTORC, FACTORAB
 
-!     MOC = 1
-      NTESTL = 000
-      NTEST = MAX(NTESTL,NTESTG)
-      IF(NTEST.GE.500)THEN
-        WRITE(6,*)
-        WRITE(6,*) ' ======================= '
-        WRITE(6,*) ' Information from RSBB1E '
-        WRITE(6,*) ' ======================= '
-        WRITE(6,*)
-        WRITE(6,*) ' RSBB1E : MOC,IH2TRM,IUSE_PH ', MOC,IH2TRM,IUSE_PH
-        WRITE(6,*) ' ISEL : '
-        CALL IWRTMA(ISEL,1,NGAS,1,NGAS)
-        WRITE(6,*) ' ICEL : '
-        CALL IWRTMA(ICEL,1,NGAS,1,NGAS)
-      END IF
+!MOC = 1
+NTESTL = 0
+NTEST = max(NTESTL,NTESTG)
+if (NTEST >= 500) then
+  write(6,*)
+  write(6,*) ' ======================='
+  write(6,*) ' Information from RSBB1E'
+  write(6,*) ' ======================='
+  write(6,*)
+  write(6,*) ' RSBB1E : MOC,IH2TRM,IUSE_PH ',MOC,IH2TRM,IUSE_PH
+  write(6,*) ' ISEL :'
+  call IWRTMA(ISEL,1,NGAS,1,NGAS)
+  write(6,*) ' ICEL :'
+  call IWRTMA(ICEL,1,NGAS,1,NGAS)
+end if
 
-!. Number of partitionings over column strings
+! Number of partitionings over column strings
 !SVC: determine optimum number of partitions as the lowest multiple of
 !     NPROCS that satisfies a block size smaller than MAXI:
-      NIPART=0
-      DO
-        NIPART=NIPART+NPROCS
-        NIPARTSZ=MAX(NROW-1,0)/NIPART+1
-        IF (NIPARTSZ.LE.MAXI) EXIT
-      END DO
+NIPART = 0
+do
+  NIPART = NIPART+NPROCS
+  NIPARTSZ = max(NROW-1,0)/NIPART+1
+  if (NIPARTSZ <= MAXI) exit
+end do
 
-!. Obtain groups
-!     GET_SPGP_INF(ISPGP,ITP,IGRP)
-      CALL GET_SPGP_INF(ICCTP,IGRP,ICGRP)
-      CALL GET_SPGP_INF(ISCTP,IGRP,ISGRP)
-!
-      IFRST = 1
-!. Types of single excitations that connect ISEL and ICEL
-      CALL SXTYP2_GAS(    NSXTP,      ITP,      JTP,     NGAS,     ISEL,&
-     &                     ICEL,   IPHGAS)
-!.Symmetry of single excitation that connects IBSM and JBSM
-      IJSM = STSTSX(ISCSM,ICCSM)
-      IF(IJSM.EQ.0) GOTO 1001
-      DO 900 IJTP=  1, NSXTP
-        ITYP = ITP(IJTP)
-        JTYP = JTP(IJTP)
-        IF(NTEST.GE.2000)                                               &
-     &  write(6,*) ' ITYP JTYP ', ITYP,JTYP
-!. Is this combination of types allowed
-!        IJ_ACT = 1
-!        IF(IJ_ACT.EQ.0) GOTO 900
-!. Hvilken vej skal vi valge,
-!        NOP = 2
-        IJ_AC(1) = 2
-        IJ_AC(2) = 1
-        IJ_TP(1) = ITYP
-        IJ_TP(2) = JTYP
-!        IF(IUSE_PH.EQ.1) THEN
-!          CALL ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TP,IJ_AC,IJ_REO,SIGNIJ)
-!        ELSE
-          IJ_REO(1) = 1
-          IJ_REO(2) = 2
-          SIGNIJ = 1.0D0
-!        END IF
-!
-        if (IJ_REO(1).eq.1) THEN
+! Obtain groups
+!    GET_SPGP_INF(ISPGP,ITP,IGRP)
+call GET_SPGP_INF(ICCTP,IGRP,ICGRP)
+call GET_SPGP_INF(ISCTP,IGRP,ISGRP)
 
-!
-        IJ_TP(1) = ITYP
-        IJ_TP(2) = JTYP
-        else
-        IXXX = IJ_AC(1)
-        IJ_AC(1) = IJ_AC(2)
-        IJ_AC(2) = IXXX
-!
-!        ISCR(1) = ITYP
-!        ISCR(2) = JTYP
-        IJ_TP(1) = JTYP
-        IJ_TP(2) = ITYP
-        endif
+IFRST = 1
+! Types of single excitations that connect ISEL and ICEL
+call SXTYP2_GAS(NSXTP,ITP,JTP,NGAS,ISEL,ICEL,IPHGAS)
+! Symmetry of single excitation that connects IBSM and JBSM
+IJSM = STSTSX(ISCSM,ICCSM)
+if (IJSM == 0) goto 1001
+do IJTP=1,NSXTP
+  ITYP = ITP(IJTP)
+  JTYP = JTP(IJTP)
+  if (NTEST >= 2000) write(6,*) ' ITYP JTYP ',ITYP,JTYP
+  ! Is this combination of types allowed
+  !IJ_ACT = 1
+  !if (IJ_ACT == 0) cycle
+  ! Hvilken vej skal vi valge,
+  !NOP = 2
+  IJ_AC(1) = 2
+  IJ_AC(2) = 1
+  IJ_TP(1) = ITYP
+  IJ_TP(2) = JTYP
+  !if (IUSE_PH == 1) then
+  !  call ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TP,IJ_AC,IJ_REO,SIGNIJ)
+  !else
+  IJ_REO(1) = 1
+  IJ_REO(2) = 2
+  SIGNIJ = 1.0d0
+  !end if
 
+  if (IJ_REO(1) == 1) then
 
-!        ISCR(1) = IJ_AC(1)
-!        ISCR(2) = IJ_AC(2)
-!        IJ_AC(1) = ISCR(IJ_REO(1))
-!        IJ_AC(2) = ISCR(IJ_REO(2))
-!
-! nasty code to avoid optimization
-!        if(iscr(1).eq.-1000) print *,IJ_TP,IJ_REO
-!
-!        ISCR(1) = ITYP
-!        ISCR(2) = JTYP
-!        IJ_TP(1) = ISCR(IJ_REO(1))
-!        IJ_TP(2) = ISCR(IJ_REO(2))
-!
-        DO 800 ISM = 1, NSMOB
-          JSM = ADSXA(ISM,IJSM)
-!. New intermediate strings will be accessed so
-          KFRST = 1
-          IF(JSM.EQ.0) GOTO 800
-          IF(NTEST.GE.2000)                                             &
-     &    write(6,*) ' ISM JSM ', ISM,JSM
-          NIORB = NOBPTS(ITYP,ISM)
-          NJORB = NOBPTS(JTYP,JSM)
-!. Reorder
-!
-!          ISCR(1) = ISM
-!          ISCR(2) = JSM
-!          IJ_SM(1) = ISCR(IJ_REO(1))
-!          IJ_SM(2) = ISCR(IJ_REO(2))
-!
-!          ISCR(1) = NIORB
-!          ISCR(2) = NJORB
-!          IJ_DIM(1) = ISCR(IJ_REO(1))
-!          IJ_DIM(2) = ISCR(IJ_REO(2))
-!
-      IF(IJ_REO(1).EQ.1) THEN
-        IJ_SM(1)=ISM
-        IJ_SM(2)=JSM
-        IJ_DIM(1)=NIORB
-        IJ_DIM(2)=NJORB
-      ELSE
-        IJ_SM(1)=JSM
-        IJ_SM(2)=ISM
-        IJ_DIM(1)=NJORB
-        IJ_DIM(2)=NIORB
-      END IF
+    IJ_TP(1) = ITYP
+    IJ_TP(2) = JTYP
+  else
+    IXXX = IJ_AC(1)
+    IJ_AC(1) = IJ_AC(2)
+    IJ_AC(2) = IXXX
 
-          IF(NIORB.EQ.0.OR.NJORB.EQ.0) GOTO 800
-!. Fetch integrals : For CI-transformations using RSBB1E
-!. most of the blocks vanishes
-!.Obtain one electron integrals (ISM,ITP,JSM,JTP) transposed
-           IF(IJ_REO(1).EQ.1) THEN
-!. obtain integrals h(j,i)
-             CALL GETH1(HSCR,IJ_SM(1),IJ_TP(1),IJ_SM(2),IJ_TP(2))
-             CALL TRPMAT(HSCR,IJ_DIM(1),IJ_DIM(2),H)
-           ELSE
-!. Obtain integrals h(i,j)
-             CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
-           END IF
-!OLD       XNORM = INPROD(H,H,IJ_DIM(1)*IJ_DIM(2))
-!OLD       IF(XNORM.EQ.0) GOTO 800
-          IF(MOC.EQ.0) THEN
-!
-!
-! ======================================================================
-!.                   Use N-1 resolution method
-! ======================================================================
-!
-!
-!. Obtain annihilation/creation maps for all K strings
-!
-!. For operator connecting to |Ka> and |Ja> i.e. operator 2
-          SCLFACS = SIGNIJ*SCLFAC
-          IF(NTEST.GE.1000)                                             &
-     &    WRITE(6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
-          CALL ADAST_GAS(IJ_SM(2),IJ_TP(2),    NGAS,   ICGRP,   ICCSM,  &
-     &                         I1,    XI1S,  NKASTR,    IEND,   IFRST,  &
-     &                      KFRST,    KACT, SCLFACS,IJ_AC(1))
-!. For operator connecting |Ka> and |Ia>, i.e. operator 1
-          CALL ADAST_GAS(IJ_SM(1),IJ_TP(1),    NGAS,   ISGRP,   ISCSM,  &
-     &                         I2,    XI2S,  NKASTR,    IEND,   IFRST,  &
-     &                      KFRST,    KACT,     ONE,IJ_AC(1))
-!. Compress list to common nonvanishing elements
-          IDOCOMP = 1
-          IF(IDOCOMP.EQ.1) THEN
-              CALL COMPRS2LST(     I1,   XI1S,IJ_DIM(2),   I2, XI2S,    &
-     &                        IJ_DIM(1),NKASTR,NKAEFF)
-          ELSE
-              NKAEFF = NKASTR
-          END IF
-!. Loop over partitionings of the row strings
-!. Loop over partitionings of N-1 strings
-            KBOT = 1-MAXK
-            KTOP = 0
-  700       CONTINUE
-              KBOT = KBOT + MAXK
-              KTOP = MIN(KTOP + MAXK,NKAEFF)
-              IF(KTOP.EQ.NKAEFF) THEN
-                KEND = 1
-              ELSE
-                KEND = 0
-              END IF
-              LKABTC = KTOP - KBOT +1
-!. This is the place to start over partitioning of I strings
-              DO 701 IIPART = 1+MYRANK, NIPART, NPROCS
-                IBOT = (IIPART-1)*MAXI+1
-                ITOP = MIN(IBOT+MAXI-1,NROW)
-                NIBTC = ITOP - IBOT + 1
-                IF (NIBTC.LE.0) EXIT
-! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
-                DO JJORB = 1,IJ_DIM(2)
-                  ICGOFF = 1 + (JJORB-1)*LKABTC*NIBTC
-                  CALL MATCG(     CB,CSCR(ICGOFF),NROW,NIBTC, IBOT,     &
-     &                        LKABTC,                                   &
-     &                       I1(KBOT+(JJORB-1)*NKASTR),                 &
-     &                       XI1S(KBOT+(JJORB-1)*NKASTR) )
-                END DO
-!.Obtain one electron integrals (ISM,ITP,JSM,JTP) transposed
-!               CALL GETH1(HSCR,IJ_SM(1),IJ_TP(1),IJ_SM(2),IJ_TP(2))
-!               CALL TRPMAT(HSCR,IJ_DIM(1),IJ_DIM(2),H)
-!. Problems when HOLE switches blocks around ?
-!               CALL GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
-                IF(NTEST.GE.1000) THEN
-                  WRITE(6,*) ' RSBB1E H BLOCK '
-                  CALL WRTMAT(H,IJ_DIM(2),IJ_DIM(1),IJ_DIM(2),IJ_DIM(1))
-                END IF
-!.Sscr(I,K,i) = CSCR(I,K,j)*h(j,i)
-                NIK = NIBTC*LKABTC
-                FACTORC = 0.0D0
-                FACTORAB = 1.0D0
-                IF(NTEST.GE.2000) THEN
-                  WRITE(6,*) ' CSCR array,NIK X NJORB array '
-                  CALL WRTMAT(CSCR,NIK,IJ_DIM(2),NIK,IJ_DIM(2))
-                END IF
-                CALL MATML7(   SSCR,   CSCR,      H,    NIK,IJ_DIM(1),  &
-     &                        NIK,IJ_DIM(2),IJ_DIM(2),IJ_DIM(1),FACTORC,&
-     &                      FACTORAB,     0)
-                IF(NTEST.GE.2000) THEN
-                  WRITE(6,*) ' SSCR array,NIK X NIORB array '
-                  CALL WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
-                END IF
-!.S(I,a+ K) =  S(I, a+ K) + sgn*Sscr(I,K,i)
-                DO IIORB = 1,IJ_DIM(1)
-                  ISBOFF = 1+(IIORB-1)*LKABTC*NIBTC
-                  CALL MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,          &
-     &                         LKABTC,                                  &
-     &                        I2(KBOT+(IIORB-1)*NKASTR),                &
-     &                        XI2S(KBOT+(IIORB-1)*NKASTR))
-                END DO
-!
-  701       CONTINUE
-!.end of this K partitioning
-            IF(KEND.EQ.0) GOTO 700
-!. End of loop over I partitioninigs
-          END IF
-!.(End of algorithm switch)
-  800   CONTINUE
-!.(end of loop over symmetries)
-  900 CONTINUE
- 1001 CONTINUE
-!
+    !ISCR(1) = ITYP
+    !ISCR(2) = JTYP
+    IJ_TP(1) = JTYP
+    IJ_TP(2) = ITYP
+  end if
+
+  !ISCR(1) = IJ_AC(1)
+  !ISCR(2) = IJ_AC(2)
+  !IJ_AC(1) = ISCR(IJ_REO(1))
+  !IJ_AC(2) = ISCR(IJ_REO(2))
+
+  ! nasty code to avoid optimization
+  !if (iscr(1) == -1000) write(6,*) IJ_TP,IJ_REO
+  !
+  !ISCR(1) = ITYP
+  !ISCR(2) = JTYP
+  !IJ_TP(1) = ISCR(IJ_REO(1))
+  !IJ_TP(2) = ISCR(IJ_REO(2))
+
+  do ISM=1,NSMOB
+    JSM = ADSXA(ISM,IJSM)
+    ! New intermediate strings will be accessed so
+    KFRST = 1
+    if (JSM == 0) goto 800
+    if (NTEST >= 2000) write(6,*) ' ISM JSM ',ISM,JSM
+    NIORB = NOBPTS(ITYP,ISM)
+    NJORB = NOBPTS(JTYP,JSM)
+    ! Reorder
+
+    !ISCR(1) = ISM
+    !ISCR(2) = JSM
+    !IJ_SM(1) = ISCR(IJ_REO(1))
+    !IJ_SM(2) = ISCR(IJ_REO(2))
+
+    !ISCR(1) = NIORB
+    !ISCR(2) = NJORB
+    !IJ_DIM(1) = ISCR(IJ_REO(1))
+    !IJ_DIM(2) = ISCR(IJ_REO(2))
+
+    if (IJ_REO(1) == 1) then
+      IJ_SM(1) = ISM
+      IJ_SM(2) = JSM
+      IJ_DIM(1) = NIORB
+      IJ_DIM(2) = NJORB
+    else
+      IJ_SM(1) = JSM
+      IJ_SM(2) = ISM
+      IJ_DIM(1) = NJORB
+      IJ_DIM(2) = NIORB
+    end if
+
+    if ((NIORB == 0) .or. (NJORB == 0)) goto 800
+      ! Fetch integrals : For CI-transformations using RSBB1E
+      ! most of the blocks vanishes
+      ! Obtain one electron integrals (ISM,ITP,JSM,JTP) transposed
+    if (IJ_REO(1) == 1) then
+      ! obtain integrals h(j,i)
+      call GETH1(HSCR,IJ_SM(1),IJ_TP(1),IJ_SM(2),IJ_TP(2))
+      call TRPMAT(HSCR,IJ_DIM(1),IJ_DIM(2),H)
+    else
+      ! Obtain integrals h(i,j)
+      call GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
+    end if
+    !OLD XNORM = INPROD(H,H,IJ_DIM(1)*IJ_DIM(2))
+    !OLD if (XNORM == 0) goto 800
+    if (MOC == 0) then
+
+      ! ================================================================
+      !                    Use N-1 resolution method
+      ! ================================================================
+
+      ! Obtain annihilation/creation maps for all K strings
+
+      ! For operator connecting to |Ka> and |Ja> i.e. operator 2
+      SCLFACS = SIGNIJ*SCLFAC
+      if (NTEST >= 1000) write(6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
+      call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC(1))
+      ! For operator connecting |Ka> and |Ia>, i.e. operator 1
+      call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJ_AC(1))
+      ! Compress list to common nonvanishing elements
+      IDOCOMP = 1
+      if (IDOCOMP == 1) then
+        call COMPRS2LST(I1,XI1S,IJ_DIM(2),I2,XI2S,IJ_DIM(1),NKASTR,NKAEFF)
+      else
+        NKAEFF = NKASTR
+      end if
+      ! Loop over partitionings of the row strings
+      ! Loop over partitionings of N-1 strings
+      KBOT = 1-MAXK
+      KTOP = 0
+700   continue
+      KBOT = KBOT+MAXK
+      KTOP = min(KTOP+MAXK,NKAEFF)
+      if (KTOP == NKAEFF) then
+        KEND = 1
+      else
+        KEND = 0
+      end if
+      LKABTC = KTOP-KBOT+1
+      ! This is the place to start over partitioning of I strings
+      do IIPART=1+MYRANK,NIPART,NPROCS
+        IBOT = (IIPART-1)*MAXI+1
+        ITOP = min(IBOT+MAXI-1,NROW)
+        NIBTC = ITOP-IBOT+1
+        if (NIBTC <= 0) exit
+        ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
+        do JJORB=1,IJ_DIM(2)
+          ICGOFF = 1+(JJORB-1)*LKABTC*NIBTC
+          call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,LKABTC,I1(KBOT+(JJORB-1)*NKASTR),XI1S(KBOT+(JJORB-1)*NKASTR))
+        end do
+        ! Obtain one electron integrals (ISM,ITP,JSM,JTP) transposed
+        !call GETH1(HSCR,IJ_SM(1),IJ_TP(1),IJ_SM(2),IJ_TP(2))
+        !call TRPMAT(HSCR,IJ_DIM(1),IJ_DIM(2),H)
+        ! Problems when HOLE switches blocks around ?
+        !call GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
+        if (NTEST >= 1000) then
+          write(6,*) ' RSBB1E H BLOCK'
+          call WRTMAT(H,IJ_DIM(2),IJ_DIM(1),IJ_DIM(2),IJ_DIM(1))
+        end if
+        ! Sscr(I,K,i) = CSCR(I,K,j)*h(j,i)
+        NIK = NIBTC*LKABTC
+        FACTORC = 0.0d0
+        FACTORAB = 1.0d0
+        if (NTEST >= 2000) then
+          write(6,*) ' CSCR array,NIK X NJORB array'
+          call WRTMAT(CSCR,NIK,IJ_DIM(2),NIK,IJ_DIM(2))
+        end if
+        call MATML7(SSCR,CSCR,H,NIK,IJ_DIM(1),NIK,IJ_DIM(2),IJ_DIM(2),IJ_DIM(1),FACTORC,FACTORAB,0)
+        if (NTEST >= 2000) then
+          write(6,*) ' SSCR array,NIK X NIORB array'
+          call WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
+        end if
+        ! S(I,a+ K) =  S(I, a+ K) + sgn*Sscr(I,K,i)
+        do IIORB=1,IJ_DIM(1)
+          ISBOFF = 1+(IIORB-1)*LKABTC*NIBTC
+          call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,LKABTC,I2(KBOT+(IIORB-1)*NKASTR),XI2S(KBOT+(IIORB-1)*NKASTR))
+        end do
+
+      end do
+      ! end of this K partitioning
+      if (KEND == 0) goto 700
+      ! End of loop over I partitioninigs
+    end if
+    ! (End of algorithm switch)
+800 continue
+  end do
+  ! (end of loop over symmetries)
+end do
+1001 continue
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(NSMSX)
-        CALL Unused_integer(MXSXST)
-      END IF
-      END SUBROUTINE RSBB1E_LUCIA
+if (.false.) then
+  call Unused_integer(NSMSX)
+  call Unused_integer(MXSXST)
+end if
+
+end subroutine RSBB1E_LUCIA

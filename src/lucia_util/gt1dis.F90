@@ -8,32 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GT1DIS(   H1DIA,  IREOTS,    IPNT,       H,  ISMFTO,   &
-     &                      IBSO,   NACOB)
-!
+
+subroutine GT1DIS(H1DIA,IREOTS,IPNT,H,ISMFTO,IBSO,NACOB)
 ! diagonal of one electron integrals over active orbitals
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!.Input
-      INTEGER IREOTS(*),IPNT(*),ISMFTO(*),IBSO(*)
-      DIMENSION H(*)
-!.Output
-      DIMENSION H1DIA(*)
-!
-      DO 100 IIOB = 1, NACOB
-        IOB = IREOTS(IIOB)
-        ISM = ISMFTO(IIOB)
-        IOBREL = IOB-IBSO(ISM)+1
-!        WRITE(6,*) ' IIOB IOB ISM IOBREL '
-!        WRITE(6,*)   IIOB,IOB,ISM,IOBREL
-        H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
-  100 CONTINUE
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' Diagonal one electron integrals '
-        CALL WRTMAT(H1DIA,1,NACOB,1,NACOB)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+integer IREOTS(*), IPNT(*), ISMFTO(*), IBSO(*)
+dimension H(*)
+! Output
+dimension H1DIA(*)
+
+do IIOB=1,NACOB
+  IOB = IREOTS(IIOB)
+  ISM = ISMFTO(IIOB)
+  IOBREL = IOB-IBSO(ISM)+1
+  !write(6,*) ' IIOB IOB ISM IOBREL'
+  !write(6,*) IIOB,IOB,ISM,IOBREL
+  H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
+end do
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' Diagonal one electron integrals'
+  call WRTMAT(H1DIA,1,NACOB,1,NACOB)
+end if
+
+end subroutine GT1DIS

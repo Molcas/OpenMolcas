@@ -30,8 +30,8 @@
      &           LUL,LUR,PSL,PSR,RHO1P,XNATO,ieaw,n1,n2 )
 *
 *
-* Jeppe Olsen , Winter of 1991
-* GAS modificatios, August 1995
+* Jeppe Olsen, Winter of 1991
+* GAS modifications, August 1995
 *
 * =====
 * Input

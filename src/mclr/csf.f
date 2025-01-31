@@ -70,7 +70,7 @@
 *
 * =========================================================
 * Obtain determinants for each configuration and determine
-* the corresponding adress and phaseshift to reform into
+* the corresponding address and phaseshift to reform into
 * string form and ordering.
 * ==========================================================
 *
@@ -93,7 +93,7 @@
      &                 PSSIGN,IPRNT)
 
 *
-* Obtain pointer abs(ICTSDT(I)) giving adress of determinant I in
+* Obtain pointer abs(ICTSDT(I)) giving address of determinant I in
 * STRING ordering for determinant I in CSF ordering.
 * Going between the two formats can involve a sign change . this is
 * stored in the sign of ICTSDT)
@@ -1595,7 +1595,7 @@ c Avoid unused argument warnings
 *
 * 2 : THE INPUT STRING IS A CSF GIVEN IN A
 *     BRANCHING DIAGRAM, WHERE
-*     1'S INDICATE UPWARDS SPIN COUPLEING
+*     1'S INDICATE UPWARDS SPIN COUPLING
 *     WHILE THE 0'S INDICATES DOWNWARDS SPIN COUPLING ,
 *     REEXPRESS THIS AS S VALUES OF ALL COUPLINGS
 *
@@ -1955,7 +1955,7 @@ C
 * Number of dets and combinations
 * per symmetry for each type of internal space
 *
-* Jeppe Olsen , Winter 1991
+* Jeppe Olsen, Winter 1991
 * Last revision April 1991
       IMPLICIT None
       Integer IPRNT

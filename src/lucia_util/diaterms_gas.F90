@@ -10,13 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE DIATERMS_GAS(   NAEL,  IASTR,   NBEL,  IBSTR,   NORB,  &
-     &                            VEC,  NSMST,      H,    IDC,          &
-     &                             XB,             RJ,     RK,  NSSOA,  &
-     &                          NSSOB,  ECORE,   LUIN,  LUOUT,  IPRNT,  &
-     &                          NTOOB,  RJKAA,    I12, IBLOCK, NBLOCK,  &
-     &                          ITASK, FACTOR,  I0CHK,  I0BLK)
-!
+
+subroutine DIATERMS_GAS(NAEL,IASTR,NBEL,IBSTR,NORB,VEC,NSMST,H,IDC,XB,RJ,RK,NSSOA,NSSOB,ECORE,LUIN,LUOUT,IPRNT,NTOOB,RJKAA,I12, &
+                        IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
 ! Terms from diagonal to specific blocks
 !
 ! Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -32,62 +28,59 @@
 !
 ! I12 = 1 => only one-body part
 !     = 2 =>      one+two-body part
-!
-      use lucia_data, only: IDISK
-      IMPLICIT None
-      INTEGER NAEL,NBEL,NORB,NSMST,IDC,LUIN,LUOUT,IPRNT,NTOOB,I12,      &
-     &        NBLOCK,ITASK,  I0CHK
-      REAL*8 ECORE, FACTOR
-!.General input
-      INTEGER NSSOA(NSMST,*), NSSOB(NSMST,*)
-      REAL*8 H(NORB)
-      INTEGER IBLOCK(8,*)
-!.
-      INTEGER I0BLK(*)
-!. Scratch
-      REAL*8 RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
-      REAL*8 XB(NORB)
-      INTEGER IASTR(NAEL,*),IBSTR(NBEL,*)
-      REAL*8 RJKAA(*)
-!. Output
-      REAL*8 VEC (*)
 
-      INTEGER IDUM_ARR(1)
-      INTEGER NTEST,ITDET,IDET,JBLOCK,IATP,IBTP,IASM,IBSM,IOFF,IPACK,   &
-     &        NAST,NIA,IA,IEL,IAEL,JEL,NIB,IMZERO,LDET,IB,IBEL,IORB,    &
-     &        IASTRT,IASTOP,IAMPACK,NASTR1,NBSTR1
-      REAL*8 EAA,HB,RJBB,EB,X
-!
-      NTEST =  00
-      NTEST = MAX(NTEST,IPRNT)
-!?    WRITE(6,*) ' NTEST = ',NTEST
-!
-      IF(LUIN.GT.0) IDISK(LUIN)=0
-      IF(LUOUT.GT.0) IDISK(LUOUT)=0
+use lucia_data, only: IDISK
 
-      IF( NTEST .GE. 20 ) THEN
-        WRITE(6,*) ' ======================= '
-        WRITE(6,*) ' DIATERMS_GAS in action '
-        WRITE(6,*) ' ======================= '
-        WRITE(6,*)
-        WRITE(6,*) ' LUIN,LUOUT = ', LUIN,LUOUT
-        WRITE(6,*) ' NBLOCK =', NBLOCK
-        WRITE(6,*) ' I0CHK = ', I0CHK
-      END IF
-!
-      IF(NTEST.GE.1000) THEN
-        WRITE(6,*) ' Diagonal one electron integrals'
-        CALL WRTMAT(H,1,NORB,1,NORB)
-        IF(I12.EQ.2) THEN
-          WRITE(6,*) ' Coulomb and exchange integrals '
-          CALL WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
-          WRITE(6,*)
-          CALL WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
-          WRITE(6,*) ' I12 and ITASK = ', I12,ITASK
-        END IF
-      WRITE(6,*) ' FACTOR = ',FACTOR
-      END IF
-!
+implicit none
+integer NAEL, NBEL, NORB, NSMST, IDC, LUIN, LUOUT, IPRNT, NTOOB, I12, NBLOCK, ITASK, I0CHK
+real*8 ECORE, FACTOR
+! General input
+integer NSSOA(NSMST,*), NSSOB(NSMST,*)
+real*8 H(NORB)
+integer IBLOCK(8,*)
+integer I0BLK(*)
+! Scratch
+real*8 RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
+real*8 XB(NORB)
+integer IASTR(NAEL,*), IBSTR(NBEL,*)
+real*8 RJKAA(*)
+! Output
+real*8 VEC(*)
+integer IDUM_ARR(1)
+integer NTEST, ITDET, IDET, JBLOCK, IATP, IBTP, IASM, IBSM, IOFF, IPACK, NAST, NIA, IA, IEL, IAEL, JEL, NIB, IMZERO, LDET, IB, &
+        IBEL, IORB, IASTRT, IASTOP, IAMPACK, NASTR1, NBSTR1
+real*8 EAA, HB, RJBB, EB, X
+
+NTEST = 0
+NTEST = max(NTEST,IPRNT)
+!write(6,*) ' NTEST = ',NTEST
+
+if (LUIN > 0) IDISK(LUIN) = 0
+if (LUOUT > 0) IDISK(LUOUT) = 0
+
+if (NTEST >= 20) then
+  write(6,*) ' ======================'
+  write(6,*) ' DIATERMS_GAS in action'
+  write(6,*) ' ======================'
+  write(6,*)
+  write(6,*) ' LUIN,LUOUT = ',LUIN,LUOUT
+  write(6,*) ' NBLOCK =',NBLOCK
+  write(6,*) ' I0CHK = ',I0CHK
+end if
+
+if (NTEST >= 1000) then
+  write(6,*) ' Diagonal one electron integrals'
+  call WRTMAT(H,1,NORB,1,NORB)
+  if (I12 == 2) then
+    write(6,*) ' Coulomb and exchange integrals'
+    call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
+    write(6,*)
+    call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
+    write(6,*) ' I12 and ITASK = ',I12,ITASK
+  end if
+  write(6,*) ' FACTOR = ',FACTOR
+end if
+
 !*3 Diagonal elements according to Handys formulae
 !   (corrected for error)
 !
@@ -96,161 +89,149 @@
 !              + 0.5 * ( J(I,J)-K(I,J) ) * NIB*NJB
 !              +         J(I,J) * NIA*NJB
 !
-!. K goes to J - K
-      IF(I12.EQ.2)                                                      &
-     &CALL VECSUM(RK,RK,RJ,-1.0D0,+1.0D0,NTOOB **2)
-!
-      ITDET = 0
-      IDET = 0
-      DO JBLOCK = 1, NBLOCK
-        IF(IBLOCK(1,JBLOCK).GT.0) THEN
-        IATP = IBLOCK(1,JBLOCK)
-        IBTP = IBLOCK(2,JBLOCK)
-        IASM = IBLOCK(3,JBLOCK)
-        IBSM = IBLOCK(4,JBLOCK)
-        IOFF = IBLOCK(6,JBLOCK)
-        IF(NTEST.GE.20) THEN
-         WRITE(6,*) ' Block in action : IATP IBTP IASM IBSM ',          &
-     &               IATP,IBTP,IASM,IBSM
-        END IF
-!
-        IF(IDC.EQ.2.AND.IASM.EQ.IBSM.AND.IATP.EQ.IBTP) THEN
-          IPACK = 1
-        ELSE
-          IPACK = 0
-        END IF
-!
-!
-!. Construct array RJKAA(*) =   SUM(I) H(I)*N(I) +
-!                           0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
-!
-!. Obtain alpha strings of sym IASM and type IATP
-        IDUM_ARR = 0
-        CALL GETSTR_TOTSM_SPGP(      1,   IATP,   IASM,   NAEL, NASTR1, &
-     &                           IASTR,   NORB,     0,IDUM_ARR,IDUM_ARR)
-        IF(NTEST.GE.1000) THEN
-          write(6,*) ' After GETSTR for A strings '
-          WRITE(6,*) ' alpha strings obtained '
-          NAST = NSSOA(IASM,IATP)
-          CALL IWRTMA(IASTR,NAEL,NAST,NAEL,NAST)
-        END IF
-!
-        IOFF =  1
-        NIA = NSSOA(IASM,IATP)
-        DO IA = 1 ,NSSOA(IASM,IATP)
-          EAA = 0.0D0
-          DO IEL = 1, NAEL
-            IAEL = IASTR(IEL,IA)
-            EAA = EAA + H(IAEL)
-            IF(I12.EQ.2) THEN
-              DO JEL = 1, NAEL
-                EAA =   EAA + 0.5D0*RK(IASTR(JEL,IA),IAEL )
-              END DO
-            END IF
-          END DO
-          RJKAA(IA-IOFF+1) = EAA
-        END DO
-!. Obtain alpha strings of sym IBSM and type IBTP
-        CALL GETSTR_TOTSM_SPGP(      2,   IBTP,   IBSM,   NBEL, NBSTR1, &
-     &                           IBSTR,   NORB,     0,IDUM_ARR,IDUM_ARR)
-        NIB =  NSSOB(IBSM,IBTP)
-!
-        IMZERO=0
-        IF(LUIN.GT.0) THEN
-          CALL IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
-          LDET=IDUM_ARR(1)
-          CALL IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
-          IDET = 0
-          CALL FRMDSC(   VEC(1),     LDET,       -1,     LUIN,   IMZERO,&
-     &                  IAMPACK)
-        END IF
-!
-        IF(I0CHK.EQ.1) THEN
-          IMZERO = I0BLK(JBLOCK)
-          IF(IMZERO.EQ.1) THEN
-!.Update offset to next block
-            IF(IPACK.EQ.1.AND.IATP.EQ.IBTP) THEN
-              IDET = IDET + NIA*(NIA+1)/2
-            ELSE
-              IDET = IDET + NIA*NIB
-            END IF
-          END IF
-        END IF
-!?      WRITE(6,*) ' DIATERMS_GAS : I0CHK,JBLOCK IMZERO',
-!?   &  I0CHK,JBLOCK,IMZERO
-!
-        IF(IMZERO.NE.1) THEN
-!. Calculate ...
-!
-        DO IB = 1 ,NIB
-!
-!. Terms depending only on IB
-!
-          HB = 0.0D0
-          RJBB = 0.0D0
-          CALL SETVEC(XB,0.0D0,NORB)
+! K goes to J - K
+if (I12 == 2) call VECSUM(RK,RK,RJ,-1.0d0,+1.0d0,NTOOB**2)
 
-          DO IEL = 1, NBEL
-            IBEL = IBSTR(IEL,IB)
-            HB = HB + H(IBEL )
-!
-            IF(I12.EQ.2) THEN
-              DO JEL = 1, NBEL
-                RJBB = RJBB + RK(IBSTR(JEL,IB),IBEL )
-              END DO
-!
-              DO IORB = 1, NORB
-                XB(IORB) = XB(IORB) + RJ(IORB,IBEL)
-              END DO
-            END IF
-          END DO
-          EB = HB + 0.5D0*RJBB + ECORE
-!
-          IF(IPACK.EQ.1.AND.IATP.EQ.IBTP) THEN
-            IASTRT =  IB
-          ELSE
-            IASTRT = 1
-          END IF
-!
-          IASTOP = NSSOA(IASM,IATP)
-          DO IA = IASTRT,IASTOP
-            IDET = IDET + 1
-            ITDET = ITDET + 1
-            X = EB + RJKAA(IA-IOFF+1)
-            DO IEL = 1, NAEL
-              X = X +XB(IASTR(IEL,IA))
-            END DO
-! Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
-! Obtain VEC = (DIAGONAL + FACTOR)       VEC (ITASK = 2)
-            IF(ITASK.EQ.1) THEN
-              IF(ABS(X+FACTOR) .GT. 1.0D-10) THEN
-                VEC(IDET) = VEC(IDET)/(X+FACTOR)
-              ELSE
-                VEC(IDET) = 0.0D0
-              END IF
-            ELSE
-              VEC(IDET) = VEC(IDET)*(X+FACTOR)
-            END IF
-!?         write(6,*) ' IDET,X,VEC(IDET) ', IDET,X,VEC(IDET)
-          END DO
-        END DO
-        END IF
-!
-        IF(LUOUT.GT.0) THEN
-          CALL ITODS([LDET],1,-1,LUOUT)
-          CALL TODSC(VEC,LDET,-1,LUOUT)
-!?        WRITE(6,*) ' Number of elements transferred to DISC ',
-!?   &    LDET
-          IDET = 0
-        END IF
-!
-      END IF
-      END DO
-!
-      IF(LUOUT.GT.0) THEN
-       CALL ITODS([-1],1,-1,LUOUT)
-      END IF
-!
-!?    WRITE(6,*) ' Mission DIATERMS finished '
-!
-      END SUBROUTINE DIATERMS_GAS
+ITDET = 0
+IDET = 0
+do JBLOCK=1,NBLOCK
+  if (IBLOCK(1,JBLOCK) > 0) then
+    IATP = IBLOCK(1,JBLOCK)
+    IBTP = IBLOCK(2,JBLOCK)
+    IASM = IBLOCK(3,JBLOCK)
+    IBSM = IBLOCK(4,JBLOCK)
+    IOFF = IBLOCK(6,JBLOCK)
+    if (NTEST >= 20) write(6,*) ' Block in action : IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
+
+    if ((IDC == 2) .and. (IASM == IBSM) .and. (IATP == IBTP)) then
+      IPACK = 1
+    else
+      IPACK = 0
+    end if
+
+    ! Construct array RJKAA(*) =   SUM(I) H(I)*N(I) +
+    !                          0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
+
+    ! Obtain alpha strings of sym IASM and type IATP
+    IDUM_ARR = 0
+    call GETSTR_TOTSM_SPGP(1,IATP,IASM,NAEL,NASTR1,IASTR,NORB,0,IDUM_ARR,IDUM_ARR)
+    if (NTEST >= 1000) then
+      write(6,*) ' After GETSTR for A strings'
+      write(6,*) ' alpha strings obtained'
+      NAST = NSSOA(IASM,IATP)
+      call IWRTMA(IASTR,NAEL,NAST,NAEL,NAST)
+    end if
+
+    IOFF = 1
+    NIA = NSSOA(IASM,IATP)
+    do IA=1,NSSOA(IASM,IATP)
+      EAA = 0.0d0
+      do IEL=1,NAEL
+        IAEL = IASTR(IEL,IA)
+        EAA = EAA+H(IAEL)
+        if (I12 == 2) then
+          do JEL=1,NAEL
+            EAA = EAA+0.5d0*RK(IASTR(JEL,IA),IAEL)
+          end do
+        end if
+      end do
+      RJKAA(IA-IOFF+1) = EAA
+    end do
+    ! Obtain alpha strings of sym IBSM and type IBTP
+    call GETSTR_TOTSM_SPGP(2,IBTP,IBSM,NBEL,NBSTR1,IBSTR,NORB,0,IDUM_ARR,IDUM_ARR)
+    NIB = NSSOB(IBSM,IBTP)
+
+    IMZERO = 0
+    if (LUIN > 0) then
+      call IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
+      LDET = IDUM_ARR(1)
+      call IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
+      IDET = 0
+      call FRMDSC(VEC(1),LDET,-1,LUIN,IMZERO,IAMPACK)
+    end if
+
+    if (I0CHK == 1) then
+      IMZERO = I0BLK(JBLOCK)
+      if (IMZERO == 1) then
+        ! Update offset to next block
+        if ((IPACK == 1) .and. (IATP == IBTP)) then
+          IDET = IDET+NIA*(NIA+1)/2
+        else
+          IDET = IDET+NIA*NIB
+        end if
+      end if
+    end if
+    !write(6,*) ' DIATERMS_GAS : I0CHK,JBLOCK IMZERO',I0CHK,JBLOCK,IMZERO
+
+    if (IMZERO /= 1) then
+      ! Calculate ...
+
+      do IB=1,NIB
+
+        ! Terms depending only on IB
+
+        HB = 0.0d0
+        RJBB = 0.0d0
+        call SETVEC(XB,0.0d0,NORB)
+
+        do IEL=1,NBEL
+          IBEL = IBSTR(IEL,IB)
+          HB = HB+H(IBEL)
+
+          if (I12 == 2) then
+            do JEL=1,NBEL
+              RJBB = RJBB+RK(IBSTR(JEL,IB),IBEL)
+            end do
+
+            do IORB=1,NORB
+              XB(IORB) = XB(IORB)+RJ(IORB,IBEL)
+            end do
+          end if
+        end do
+        EB = HB+0.5d0*RJBB+ECORE
+
+        if ((IPACK == 1) .and. (IATP == IBTP)) then
+          IASTRT = IB
+        else
+          IASTRT = 1
+        end if
+
+        IASTOP = NSSOA(IASM,IATP)
+        do IA=IASTRT,IASTOP
+          IDET = IDET+1
+          ITDET = ITDET+1
+          X = EB+RJKAA(IA-IOFF+1)
+          do IEL=1,NAEL
+            X = X+XB(IASTR(IEL,IA))
+          end do
+          ! Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
+          ! Obtain VEC = (DIAGONAL + FACTOR)       VEC (ITASK = 2)
+          if (ITASK == 1) then
+            if (abs(X+FACTOR) > 1.0D-10) then
+              VEC(IDET) = VEC(IDET)/(X+FACTOR)
+            else
+              VEC(IDET) = 0.0d0
+            end if
+          else
+            VEC(IDET) = VEC(IDET)*(X+FACTOR)
+          end if
+          !write(6,*) ' IDET,X,VEC(IDET) ',IDET,X,VEC(IDET)
+        end do
+      end do
+    end if
+
+    if (LUOUT > 0) then
+      call ITODS([LDET],1,-1,LUOUT)
+      call TODSC(VEC,LDET,-1,LUOUT)
+      !write(6,*) ' Number of elements transferred to DISC ',LDET
+      IDET = 0
+    end if
+
+  end if
+end do
+
+if (LUOUT > 0) call ITODS([-1],1,-1,LUOUT)
+
+!write(6,*) ' Mission DIATERMS finished'
+
+end subroutine DIATERMS_GAS

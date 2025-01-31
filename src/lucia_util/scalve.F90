@@ -8,16 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SCALVE(VECTOR,FACTOR,NDIM)
-!
+
+subroutine SCALVE(VECTOR,FACTOR,NDIM)
 ! CALCULATE SCALAR(FACTOR) TIMES VECTOR
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION VECTOR(*)
-!
-      DO 100 I=1,NDIM
-       VECTOR(I)=VECTOR(I)*FACTOR
-  100 CONTINUE
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension VECTOR(*)
+
+do I=1,NDIM
+  VECTOR(I) = VECTOR(I)*FACTOR
+end do
+
+end subroutine SCALVE

@@ -142,7 +142,7 @@ call mma_allocate(IndBin,lBin,Label='IndBin')
 
 !----------------------------------------------------------------------*
 !     compute various offsets for each Bin and also                    *
-!     initialize various pointers, counters and disk adresses          *
+!     initialize various pointers, counters and disk addresses         *
 !----------------------------------------------------------------------*
 
 call MKSRT2()

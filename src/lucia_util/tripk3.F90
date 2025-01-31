@@ -8,99 +8,97 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE TRIPK3(  AUTPAK,    APAK,    IWAY,  MATDIM,    NDIM,   &
-     &                      SIGN)
+
+subroutine TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
+! REFORMATING BETWEEN LOWER TRIANGULAR PACKING
+! AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
 !
-!
-!.. REFORMATING BETWEEN LOWER TRIANGULAR PACKING
-!   AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
-!
-!   IWAY = 1 : FULL TO PACKED
-!              LOWER HALF OF AUTPAK IS STORED IN APAK
-!   IWAY = 2 : PACKED TO FULL FORM
-!              APAK STORED IN LOWER HALF
-!               SIGN * APAK TRANSPOSED IS STORED IN UPPPER PART
-!.. NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
+! IWAY = 1 : FULL TO PACKED
+!            LOWER HALF OF AUTPAK IS STORED IN APAK
+! IWAY = 2 : PACKED TO FULL FORM
+!            APAK STORED IN LOWER HALF
+!             SIGN * APAK TRANSPOSED IS STORED IN UPPPER PART
+! NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 !
 ! Some considerations on cache minimization used for IMET = 2 Loop
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION AUTPAK(MATDIM,MATDIM),APAK(*)
-!. To get rid of annoying and incorrect compiler warnings
-      IOFF = 0
-      JOFF = 0
-!
-!. Packing : No problem with cache misses
-!
-      IF( IWAY .EQ. 1 ) THEN
-        IJ = 0
-        DO J = 1,NDIM
-          DO I = J , NDIM
-            APAK(IJ+I) = AUTPAK(I,J)
-          END DO
-          IJ = IJ +NDIM-J
-        END DO
-      END IF
-!
+
+implicit real*8(A-H,O-Z)
+dimension AUTPAK(MATDIM,MATDIM), APAK(*)
+
+! To get rid of annoying and incorrect compiler warnings
+IOFF = 0
+JOFF = 0
+
+!.Packing : No problem with cache misses
+
+if (IWAY == 1) then
+  IJ = 0
+  do J=1,NDIM
+    do I=J,NDIM
+      APAK(IJ+I) = AUTPAK(I,J)
+    end do
+    IJ = IJ+NDIM-J
+  end do
+end if
+
 ! Unpacking : cache misses can occur so two routes
-!
-      IF( IWAY .EQ. 2 ) THEN
-!. Use blocked algorithm
-      IMET = 2
-      IF(IMET.EQ.1) THEN
-!. No blocking
-        IJ = 0
-        DO J = 1,NDIM
-          DO I = J,NDIM
-           AUTPAK(J,I) = SIGN*APAK(IJ+I)
-           AUTPAK(I,J) = APAK(IJ+I)
-          END DO
-          IJ = IJ + NDIM-J
-        END DO
-      ELSE IF (IMET .EQ. 2 ) THEN
-!. Blocking
-        LBLK = 40
-        NBLK = MATDIM/LBLK
-        IF(LBLK*NBLK.LT.MATDIM) NBLK = NBLK + 1
-        DO JBLK = 1, NBLK
-          IF(JBLK.EQ.1) THEN
-            JOFF = 1
-          ELSE
-            JOFF = JOFF + LBLK
-          END IF
-          JEND = MIN(JOFF+LBLK-1,MATDIM)
-          DO IBLK = JBLK, NBLK
-            IF(IBLK.EQ.JBLK) THEN
-              IOFF = JOFF
-            ELSE
-              IOFF = IOFF + LBLK
-            END IF
-            IEND = MIN(IOFF+LBLK-1,MATDIM)
-              DO J = JOFF,JEND
-                IF(IBLK.EQ.JBLK) THEN
-                  IOFF2 = J
-                ELSE
-                  IOFF2 = IOFF
-                END IF
-                IJOFF = (J-1)*MATDIM-J*(J-1)/2
-                DO I = IOFF2,IEND
-                  AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
-                  AUTPAK(I,J) = APAK(IJOFF+I)
-                END DO
-              END DO
-!. End of loop over I and J
-            END DO
-          END DO
-!. End of loop over blocks of I and J
-        END IF
-      END IF
-!
-      NTEST = 0
-      IF( NTEST .NE. 0 ) THEN
-        WRITE(6,*) ' AUTPAK AND APAK FROM TRIPK3 '
-        CALL WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
-        CALL PRSM2(APAK,NDIM)
-      END IF
-!
-      RETURN
-      END
+
+if (IWAY == 2) then
+  ! Use blocked algorithm
+  IMET = 2
+  if (IMET == 1) then
+    ! No blocking
+    IJ = 0
+    do J=1,NDIM
+      do I=J,NDIM
+        AUTPAK(J,I) = SIGN*APAK(IJ+I)
+        AUTPAK(I,J) = APAK(IJ+I)
+      end do
+      IJ = IJ+NDIM-J
+    end do
+  else if (IMET == 2) then
+    ! Blocking
+    LBLK = 40
+    NBLK = MATDIM/LBLK
+    if (LBLK*NBLK < MATDIM) NBLK = NBLK+1
+    do JBLK=1,NBLK
+      if (JBLK == 1) then
+        JOFF = 1
+      else
+        JOFF = JOFF+LBLK
+      end if
+      JEND = min(JOFF+LBLK-1,MATDIM)
+      do IBLK=JBLK,NBLK
+        if (IBLK == JBLK) then
+          IOFF = JOFF
+        else
+          IOFF = IOFF+LBLK
+        end if
+        IEND = min(IOFF+LBLK-1,MATDIM)
+        do J=JOFF,JEND
+          if (IBLK == JBLK) then
+            IOFF2 = J
+          else
+            IOFF2 = IOFF
+          end if
+          IJOFF = (J-1)*MATDIM-J*(J-1)/2
+          do I=IOFF2,IEND
+            AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
+            AUTPAK(I,J) = APAK(IJOFF+I)
+          end do
+        end do
+        ! End of loop over I and J
+      end do
+    end do
+    ! End of loop over blocks of I and J
+  end if
+end if
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' AUTPAK AND APAK FROM TRIPK3'
+  call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
+  call PRSM2(APAK,NDIM)
+end if
+
+end subroutine TRIPK3

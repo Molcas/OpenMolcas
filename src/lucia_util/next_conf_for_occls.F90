@@ -10,160 +10,132 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE NEXT_CONF_FOR_OCCLS            (ICONF,                 &
-     &                                           IOCCLS,                &
-     &                                           NGAS,                  &
-     &                                           NOBPT,                 &
-     &                                           INI,                   &
-!
-     &                                           NONEW)
-!
+
+subroutine NEXT_CONF_FOR_OCCLS(ICONF,IOCCLS,NGAS,NOBPT,INI,NONEW)
 ! Obtain next configuration for occupation class
 !
 ! Jeppe Olsen, Nov. 2001
-!
-      use lucia_data, only: MXPNGAS,MXPORB
-      Implicit NONE
-      INTEGER NGAS,INI,NONEW
-!. Input
-!
-!. Number of electrons per gas space
-      INTEGER IOCCLS(NGAS)
-!. Number of orbitals per gasspace
-      INTEGER NOBPT(NGAS)
-!. Input and output
-      INTEGER ICONF(*)
-!. Local scratch
-      INTEGER IBORB(MXPNGAS), ICONF_GAS(MXPORB)
-      INTEGER IBEL(MXPNGAS)
-      INTEGER, External:: IELSUM
-      INTEGER NTEST,NEL,IGAS,INI_L,NONEW_L,NEL_GAS,NORB_GAS,JBEL,       &
-     &        JBORB,JEL,JORB,JGAS
-!
-      NTEST = 000
-!. Total number of electrons
-      NEL = IELSUM(IOCCLS,NGAS)
-!?    WRITE(6,*) ' NEXT_CONF ... NEL, NGAS = ', NEL, NGAS
-!. Offset for orbitals and electrons
-      DO IGAS = 1, NGAS
-        IF(IGAS.EQ.1) THEN
-          IBORB(IGAS) = 1
-          IBEL(IGAS)  = 1
-        ELSE
-          IBORB(IGAS) = IBORB(IGAS-1)+NOBPT(IGAS-1)
-          IBEL(IGAS)  = IBEL(IGAS-1) + IOCCLS(IGAS-1)
-        END IF
-      END DO
-!
-      NONEW = 1
 
-      IF(INI.EQ.1) THEN
-!
-!. Initial configuration
-!
-        NONEW = 0
+use lucia_data, only: MXPNGAS, MXPORB
+
+implicit none
+integer NGAS, INI, NONEW
+! Input
+! Number of electrons per gas space
+integer IOCCLS(NGAS)
+! Number of orbitals per gasspace
+integer NOBPT(NGAS)
+! Input and output
+integer ICONF(*)
+! Local scratch
+integer IBORB(MXPNGAS), ICONF_GAS(MXPORB)
+integer IBEL(MXPNGAS)
+integer, external :: IELSUM
+integer NTEST, NEL, IGAS, INI_L, NONEW_L, NEL_GAS, NORB_GAS, JBEL, JBORB, JEL, JORB, JGAS
+
+NTEST = 0
+! Total number of electrons
+NEL = IELSUM(IOCCLS,NGAS)
+!write(6,*) ' NEXT_CONF ... NEL, NGAS = ',NEL,NGAS
+! Offset for orbitals and electrons
+do IGAS=1,NGAS
+  if (IGAS == 1) then
+    IBORB(IGAS) = 1
+    IBEL(IGAS) = 1
+  else
+    IBORB(IGAS) = IBORB(IGAS-1)+NOBPT(IGAS-1)
+    IBEL(IGAS) = IBEL(IGAS-1)+IOCCLS(IGAS-1)
+  end if
+end do
+
+NONEW = 1
+
+if (INI == 1) then
+
+  ! Initial configuration
+
+  NONEW = 0
+  INI_L = 1
+  NONEW_L = 0
+  do IGAS=1,NGAS
+    ! Initial configuration for this GASSPACE
+    NEL_GAS = IOCCLS(IGAS)
+    NORB_GAS = NOBPT(IGAS)
+    !write(6,*) ' IGAS, NEL_GAS, NORB_GAS = ',IGAS,NEL_GAS,NORB_GAS
+    call NXT_CONF(ICONF_GAS,NEL_GAS,NORB_GAS,INI_L,NONEW_L)
+    if (NONEW_L == 1) then
+      NONEW = 1
+      goto 1001
+    else
+      JBEL = IBEL(IGAS)
+      JBORB = IBORB(IGAS)
+      JEL = IOCCLS(IGAS)
+      JORB = NOBPT(IGAS)
+      call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,MXPORB,JEL,2)
+      !call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,2)
+      !call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,IBORB,IBEL,NORB,NEL,IWAY)
+    end if
+  end do
+
+  if (NTEST >= 1000) then
+    write(6,*) ' Initial configuration'
+    call IWRTMA(ICONF,1,NEL,1,NEL)
+  end if
+
+else
+
+  ! Next configuration
+
+  ! Loop over GAS spaces and find first GASspace where a new configuration
+  ! could be obtained
+  do IGAS=1,NGAS
+    !write(6,*) ' IGAS = ',IGAS
+    ! Remove the offsets for this space
+    JBEL = IBEL(IGAS)
+    JBORB = IBORB(IGAS)
+    JEL = IOCCLS(IGAS)
+    JORB = NOBPT(IGAS)
+    !write(6,*) ' JBEL, JBORB, JEL, JORB = ',JBEL,JBORB,JEL,JORB
+    call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,MXPORB,JEL,1)
+    !call REFORM_CONF-FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,1)
+    ! Generate next configuration for this space
+    INI_L = 0
+    call NXT_CONF(ICONF_GAS,JEL,JORB,INI_L,NONEW_L)
+    if (NONEW_L == 0) then
+      NONEW = 0
+      ! Configuration in space IGAS, was increased. Copy this and reset configurations
+      ! in previous gasspaces to initial form
+      call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,MXPORB,JEL,2)
+      !call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,2)
+
+      do JGAS=1,IGAS-1
+        JBEL = IBEL(JGAS)
+        JBORB = IBORB(JGAS)
+        JEL = IOCCLS(JGAS)
+        JORB = NOBPT(JGAS)
+        call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,MXPORB,JEL,1)
+        !call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,1)
         INI_L = 1
-        NONEW_L = 0
-        DO IGAS = 1, NGAS
-!. Initial configuration for this GASSPACE
-          NEL_GAS = IOCCLS(IGAS)
-          NORB_GAS = NOBPT(IGAS)
-!?        WRITE(6,*) ' IGAS, NEL_GAS, NORB_GAS = ',
-!?   &                 IGAS, NEL_GAS, NORB_GAS
-          CALL NXT_CONF(ICONF_GAS,NEL_GAS,NORB_GAS,INI_L,NONEW_L)
-          IF(NONEW_L.EQ.1) THEN
-             NONEW = 1
-             GOTO 1001
-          ELSE
-             JBEL   = IBEL(IGAS)
-             JBORB  = IBORB(IGAS)
-             JEL = IOCCLS(IGAS)
-             JORB  = NOBPT(IGAS)
-             CALL REFORM_CONF_FOR_GAS             (ICONF_GAS,           &
-     &                                             ICONF,               &
-     &                                             JBORB,               &
-     &                                             JBEL,MXPORB,JEL,2)
-!    &            (ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,2)
-!                 (ICONF_GAS,ICONF,IBORB,IBEL,NORB,NEL,IWAY)
-          END IF
-        END DO
-!
-        IF(NTEST.GE.1000) THEN
-          WRITE(6,*) ' Initial configuration '
-          CALL IWRTMA(ICONF,1,NEL,1,NEL)
-        END IF
-!
-      ELSE
-!
-!. Next configuration
-!
-!. Loop over GAS spaces and find first GASspace where a new configuration
-!. could be obtained
-        DO IGAS = 1, NGAS
-!?        WRITE(6,*) ' IGAS = ', IGAS
-!. Remove the offsets for this space
-          JBEL   = IBEL(IGAS)
-          JBORB  = IBORB(IGAS)
-          JEL = IOCCLS(IGAS)
-          JORB = NOBPT(IGAS)
-!?        WRITE(6,*) ' JBEL, JBORB, JEL, JORB = ',
-!?   &                 JBEL, JBORB, JEL, JORB
-          CALL REFORM_CONF_FOR_GAS          (ICONF_GAS,                 &
-     &                                       ICONF,                     &
-     &                                       JBORB,JBEL,MXPORB,JEL, 1)
-!    &         (ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,1)
-!. Generate next configuration for this space
-          INI_L = 0
-          CALL NXT_CONF(ICONF_GAS,JEL,JORB,INI_L,NONEW_L)
-          IF(NONEW_L.EQ.0) THEN
-            NONEW = 0
-!. Configuration in space IGAS, was increased. Copy this and reset configurations
-!. in previous gasspaces to initial form
-            CALL REFORM_CONF_FOR_GAS            (ICONF_GAS,             &
-     &                                           ICONF,                 &
-     &                                           JBORB,                 &
-     &                                           JBEL,                  &
-     &                                           MXPORB,                &
-!
-     &                                           JEL,                   &
-     &                                             2)
-!    &           (ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,2)
-!
-            DO JGAS = 1, IGAS-1
-              JBEL   = IBEL(JGAS)
-              JBORB  = IBORB(JGAS)
-              JEL = IOCCLS(JGAS)
-              JORB = NOBPT(JGAS)
-              CALL REFORM_CONF_FOR_GAS              (ICONF_GAS,         &
-     &                                               ICONF,             &
-     &                                               JBORB,             &
-     &                                               JBEL,MXPORB,JEL,1)
-!    &             (ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,1)
-              INI_L = 1
-              CALL NXT_CONF(ICONF_GAS,JEL,JORB,INI_L,NONEW_L)
-!                                     NEL_GAS,NORB_GAS,INI_L,NONEW_L)
-              CALL REFORM_CONF_FOR_GAS              (ICONF_GAS,         &
-     &                                               ICONF,             &
-     &                                               JBORB,             &
-     &                                               JBEL,MXPORB,JEL,2)
-!    &             (ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,2)
-            END DO
-!. Get out of the loop
-            GOTO 1001
-          END IF
-        END DO
-!       ^ End of loop over gasspaces
-      END IF
-!     ^ End if swith between initialization/next
- 1001 CONTINUE
-!
-      IF(NTEST.GE.100) THEN
-        IF(NONEW.EQ.1) THEN
-          WRITE(6,*) ' No new configuration '
-        ELSE
-          WRITE(6,*) ' New configuration '
-          CALL IWRTMA(ICONF,1,NEL,1,NEL)
-        END IF
-      END IF
-!
-      END SUBROUTINE NEXT_CONF_FOR_OCCLS
+        call NXT_CONF(ICONF_GAS,JEL,JORB,INI_L,NONEW_L)
+        call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,MXPORB,JEL,2)
+        !call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,2)
+      end do
+      ! Get out of the loop
+      goto 1001
+    end if
+  end do
+  ! End of loop over gasspaces
+end if
+! End if switch between initialization/next
+1001 continue
+
+if (NTEST >= 100) then
+  if (NONEW == 1) then
+    write(6,*) ' No new configuration'
+  else
+    write(6,*) ' New configuration'
+    call IWRTMA(ICONF,1,NEL,1,NEL)
+  end if
+end if
+
+end subroutine NEXT_CONF_FOR_OCCLS

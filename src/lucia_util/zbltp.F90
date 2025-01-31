@@ -8,68 +8,62 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
-!
+
+subroutine ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
 ! Generate vector ICBLTP giving type of each block
-!
 !
 ! ICBLTP gives type of symmetry block :
 ! = 0 : symmetry block is not included
-! = 1 : symmetry block is included , all OO types
-! = 2 : symmetry block is included , lower OO types
-!
-!. Input
-      Integer MAXSYM, IDC
-      INTEGER ISMOST(MAXSYM),IMMLST(MAXSYM)
-!. Output
-      INTEGER ICBLTP(MAXSYM)
-!. Changed to simplify structure for IDC .le. 2
-      IF(IDC.LE.2) THEN
-!. No spatial degeneracy
-        DO IASYM = 1, MAXSYM
-          IBSYM = ISMOST(IASYM)
-          IF(IDC.EQ.2.AND.IBSYM.GT.IASYM) THEN
-!.Symmetry block excluded
-            ICBLTP(IASYM) = 0
-          ELSE IF((IDC.EQ.2.AND.IASYM.GT.IBSYM).OR.IDC.EQ.1) THEN
-!.Complete symmetry block included
-            ICBLTP(IASYM) = 1
-          ELSE
-!.Lower half  symmetry block included
-            ICBLTP(IASYM) = 2
-          END IF
-        END DO
-      ELSE
-!. Also spatial degeneracy
-      DO 100 IASYM = 1, MAXSYM
-!
-        IBSYM = ISMOST(IASYM)
-        IF(IBSYM .EQ. 0 ) GOTO 100
-        IF(((IDC.EQ.2.OR.IDC.EQ.4).AND.(IBSYM.GT.IASYM))                &
-     &                    .OR.                                          &
-     &       (IDC.EQ.3.AND.IMMLST(IASYM).GT.IASYM)) THEN
-!.Symmetry block excluded
-          ICBLTP(IASYM) = 0
-        ELSE IF((IDC.EQ.2.AND.IASYM.GT.IBSYM)                           &
-     &                   .OR.                                           &
-     &                IDC.EQ.1                                          &
-     &                   .OR.                                           &
-     &          (IDC.EQ.3.AND.IASYM.GE.IMMLST(IASYM))) THEN
-!.Complete symmetry block included
-          ICBLTP(IASYM) = 1
-        ELSE
-!.Lower half  symmetry block included
-          ICBLTP(IASYM) = 2
-        END IF
-  100 CONTINUE
-      END IF
-!     ^ End of IDC switch
-!
-      NTEST = 0
-      IF ( NTEST .NE. 0 ) THEN
-         WRITE(6,*) ' Block type of symmetry blocks '
-         CALL IWRTMA(ICBLTP,1,MAXSYM,1,MAXSYM)
-      END IF
-!
-      RETURN
-      END
+! = 1 : symmetry block is included, all OO types
+! = 2 : symmetry block is included, lower OO types
+
+! Input
+integer MAXSYM, IDC
+integer ISMOST(MAXSYM), IMMLST(MAXSYM)
+! Output
+integer ICBLTP(MAXSYM)
+
+! Changed to simplify structure for IDC <= 2
+if (IDC <= 2) then
+  ! No spatial degeneracy
+  do IASYM=1,MAXSYM
+    IBSYM = ISMOST(IASYM)
+    if ((IDC == 2) .and. (IBSYM > IASYM)) then
+      ! Symmetry block excluded
+      ICBLTP(IASYM) = 0
+    else if (((IDC == 2) .and. (IASYM > IBSYM)) .or. (IDC == 1)) then
+      ! Complete symmetry block included
+      ICBLTP(IASYM) = 1
+    else
+      ! Lower half  symmetry block included
+      ICBLTP(IASYM) = 2
+    end if
+  end do
+else
+  ! Also spatial degeneracy
+  do IASYM=1,MAXSYM
+
+    IBSYM = ISMOST(IASYM)
+    if (IBSYM == 0) goto 100
+    if ((((IDC == 2) .or. (IDC == 4)) .and. (IBSYM > IASYM)) .or. ((IDC == 3) .and. (IMMLST(IASYM) > IASYM))) then
+      ! Symmetry block excluded
+      ICBLTP(IASYM) = 0
+    else if (((IDC == 2) .and. (IASYM > IBSYM)) .or. (IDC == 1) .or. ((IDC == 3) .and. (IASYM >= IMMLST(IASYM)))) then
+      ! Complete symmetry block included
+      ICBLTP(IASYM) = 1
+    else
+      ! Lower half  symmetry block included
+      ICBLTP(IASYM) = 2
+    end if
+100 continue
+  end do
+end if
+! End of IDC switch
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' Block type of symmetry blocks'
+  call IWRTMA(ICBLTP,1,MAXSYM,1,MAXSYM)
+end if
+
+end subroutine ZBLTP

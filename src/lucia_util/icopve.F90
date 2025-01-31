@@ -8,15 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ICOPVE(IFROM,ITO,NDIM)
-!
+
+subroutine ICOPVE(IFROM,ITO,NDIM)
 ! COPY INTEGER ARRAY
-!
-      DIMENSION IFROM(*),ITO(*)
-!
-      DO 100 I = 1,NDIM
-        ITO(I) = IFROM(I)
-  100 CONTINUE
-!
-      RETURN
-      END
+
+dimension IFROM(*), ITO(*)
+
+do I=1,NDIM
+  ITO(I) = IFROM(I)
+end do
+
+end subroutine ICOPVE

@@ -10,42 +10,36 @@
 !                                                                      *
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE SPSPCLS(ISPSPCLS,ICLS,NCLS)
-!
+
+subroutine SPSPCLS(ISPSPCLS,ICLS,NCLS)
 ! Obtain mapping a-supergroup X b-supergroup => class
 !
 ! Classes are specified by ICLS
 !
 ! Jeppe Olsen, Jan 97
-!
-      use lucia_data, only: NGAS
-      use lucia_data, only: IPRDIA
-      use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP
-      use lucia_data, only: NOCTYP
-      use lucia_data, only: MXPNGAS
-      IMPLICIT None
-!. Specific input
-      INTEGER NCLS,ICLS(*)
-!. OUtput
-      INTEGER ISPSPCLS(*)
 
-      INTEGER IATP,IBTP,NOCTPA,NOCTPB,IOCTPA,IOCTPB
-!
-      IATP = 1
-      IBTP = 2
-!
-      NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
-!
-      IOCTPA = IBSPGPFTP(IATP)
-      IOCTPB = IBSPGPFTP(IBTP)
+use lucia_data, only: NGAS
+use lucia_data, only: IPRDIA
+use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP
+use lucia_data, only: NOCTYP
+use lucia_data, only: MXPNGAS
 
-      CALL SPSPCLS_GAS(  NOCTPA,                                        &
-     &                   NOCTPB,                                        &
-     &                 ISPGPFTP(1,IOCTPA),                              &
-     &                 ISPGPFTP(1,IOCTPB),NELFGP,MXPNGAS,NGAS,ISPSPCLS, &
-     &                     ICLS,    NCLS,  IPRDIA)
-!
-!
-      END SUBROUTINE SPSPCLS
-!
+implicit none
+! Specific input
+integer NCLS, ICLS(*)
+! OUtput
+integer ISPSPCLS(*)
+integer IATP, IBTP, NOCTPA, NOCTPB, IOCTPA, IOCTPB
+
+IATP = 1
+IBTP = 2
+
+NOCTPA = NOCTYP(IATP)
+NOCTPB = NOCTYP(IBTP)
+
+IOCTPA = IBSPGPFTP(IATP)
+IOCTPB = IBSPGPFTP(IBTP)
+
+call SPSPCLS_GAS(NOCTPA,NOCTPB,ISPGPFTP(1,IOCTPA),ISPGPFTP(1,IOCTPB),NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS,NCLS,IPRDIA)
+
+end subroutine SPSPCLS

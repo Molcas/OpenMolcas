@@ -16,7 +16,7 @@
 * Occupation in KCNF
 * Type in KTYP
 *
-* Jeppe Olsen , summer of 89
+* Jeppe Olsen, summer of 89
 *
       use MCLR_Data, only: NTYP,MINOP,NCNATS
       IMPLICIT NONE

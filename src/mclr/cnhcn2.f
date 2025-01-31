@@ -18,9 +18,9 @@
 *
 * Obtain Hamilton matrix over CSFs of configurations ICNL,ICNR
 *
-* Jeppe Olsen , Summer of 89
+* Jeppe Olsen, Summer of 89
 *
-*. Modified for LUCIA, september 1993
+*. Modified for LUCIA, September 1993
 *
       Implicit None
       Integer ITPL,ITPR,NEL,NAEL,NBEL,INTSPC,NINOC

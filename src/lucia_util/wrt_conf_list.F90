@@ -10,32 +10,31 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE WRT_CONF_LIST(ICONF,NCONF_FOR_OPEN,MAXOP,NCONF,NELEC)
-!
+
+subroutine WRT_CONF_LIST(ICONF,NCONF_FOR_OPEN,MAXOP,NCONF,NELEC)
 ! Write list of configurations, given in packed form
 !
 ! Jeppe Olsen, November 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!
-      INTEGER ICONF(*), NCONF_FOR_OPEN(MAXOP+1)
-!
-      IB = 1
-      DO IOPEN = 0, MAXOP
-        NCONF_OP = NCONF_FOR_OPEN(IOPEN+1)
-        IF(NCONF_OP.NE.0) THEN
-          WRITE(6,*) ' Number of configurations with ', IOPEN,          &
-     &               ' open orbitals is ', NCONF_OP
-!
-          NOCC_ORB = IOPEN + (NELEC-IOPEN)/2
-          DO JCONF = 1, NCONF_OP
-            CALL IWRTMA(ICONF(IB),1,NOCC_ORB,1,NOCC_ORB)
-            IB = IB + NOCC_ORB
-          END DO
-        END IF
-      END DO
-!
-      RETURN
+
+implicit real*8(A-H,O-Z)
+integer ICONF(*), NCONF_FOR_OPEN(MAXOP+1)
+
+IB = 1
+do IOPEN=0,MAXOP
+  NCONF_OP = NCONF_FOR_OPEN(IOPEN+1)
+  if (NCONF_OP /= 0) then
+    write(6,*) ' Number of configurations with ',IOPEN,' open orbitals is ',NCONF_OP
+
+    NOCC_ORB = IOPEN+(NELEC-IOPEN)/2
+    do JCONF=1,NCONF_OP
+      call IWRTMA(ICONF(IB),1,NOCC_ORB,1,NOCC_ORB)
+      IB = IB+NOCC_ORB
+    end do
+  end if
+end do
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(NCONF)
-      END
+if (.false.) call Unused_integer(NCONF)
+
+end subroutine WRT_CONF_LIST

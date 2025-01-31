@@ -10,50 +10,49 @@
 !                                                                      *
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
-!
+
+subroutine EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 ! A determinant IDET_OC, IDET_MS is given. Extract spinprojections
 ! for open shells
 !
 ! Jeppe Olsen, December 2001
-!
-      Implicit REAL*8 (A-H,O-Z)
-!.input
-      INTEGER IDET_OC(NEL),IDET_MS(NEL)
-!. Output
-      INTEGER IDET_OPEN_MS(*)
-!
-      IEL = 1
-      IOPEN = 0
-!. Loop over electrons
- 1000 CONTINUE
-       IF(IEL.LT.NEL) THEN
-         IF(IDET_OC(IEL).NE.IDET_OC(IEL+1)) THEN
-!. Single occupied orbital so
-            IOPEN = IOPEN + 1
-            IDET_OPEN_MS(IOPEN) = IDET_MS(IEL)
-            IEL = IEL + 1
-          ELSE
-            IEL = IEL + 2
-          END IF
-       ELSE
-!. Last electron was not identical to previous, so
-!. neccessarily single occupied.
-          IOPEN = IOPEN + 1
-          IDET_OPEN_MS(IOPEN) = IDET_MS(IEL)
-          IEL = IEL + 1
-       END IF
-      IF(IEL.LE.NEL) GOTO 1000
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Input det, occ and ms '
-        CALL IWRTMA(IDET_OC,1,NEL,1,NEL)
-        CALL IWRTMA(IDET_MS,1,NEL,1,NEL)
-        WRITE(6,*) ' Number of open orbitals = ', IOPEN
-        WRITE(6,*) ' Output det : ms of open orbitals '
-        CALL IWRTMA(IDET_OPEN_MS,1,IOPEN,1,IOPEN)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+integer IDET_OC(NEL), IDET_MS(NEL)
+! Output
+integer IDET_OPEN_MS(*)
+
+IEL = 1
+IOPEN = 0
+! Loop over electrons
+1000 continue
+if (IEL < NEL) then
+  if (IDET_OC(IEL) /= IDET_OC(IEL+1)) then
+    ! Single occupied orbital so
+    IOPEN = IOPEN+1
+    IDET_OPEN_MS(IOPEN) = IDET_MS(IEL)
+    IEL = IEL+1
+  else
+    IEL = IEL+2
+  end if
+else
+  ! Last electron was not identical to previous, so
+  ! necessarily single occupied.
+  IOPEN = IOPEN+1
+  IDET_OPEN_MS(IOPEN) = IDET_MS(IEL)
+  IEL = IEL+1
+end if
+if (IEL <= NEL) goto 1000
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Input det, occ and ms'
+  call IWRTMA(IDET_OC,1,NEL,1,NEL)
+  call IWRTMA(IDET_MS,1,NEL,1,NEL)
+  write(6,*) ' Number of open orbitals = ',IOPEN
+  write(6,*) ' Output det : ms of open orbitals'
+  call IWRTMA(IDET_OPEN_MS,1,IOPEN,1,IOPEN)
+end if
+
+end subroutine EXTRT_MS_OPEN_OB

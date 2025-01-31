@@ -8,33 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE NXTIJ(       I,       J,      NI,      NJ,    IJSM,    &
-     &                    NONEW)
+
+subroutine NXTIJ(I,J,NI,NJ,IJSM,NONEW)
+! An ordered pair (I,J) is given,I<=NI,J<=NJ
 !
-! An ordered pair (I,J) is given ,I.LE.NI,J.LE.NJ
-!
-! Find next pair, if IJSM .ne. 0 ,I .ge. J
-!
-      NONEW = 0
-  100 CONTINUE
-      IF(I.LT.NI) THEN
-        I = I + 1
-      ELSE
-        IF(J.LT.NJ) THEN
-          I = 1
-          J = J+1
-        ELSE
-          NONEW = 1
-          GOTO 101
-        END IF
-      END IF
-      IF(IJSM.NE.0.AND.I.LT.J) GOTO 100
-  101 CONTINUE
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' next (i,j) pair ', I,J
-      END IF
-!
-      RETURN
-      END
+! Find next pair, if IJSM /= 0, I >= J
+
+NONEW = 0
+100 continue
+if (I < NI) then
+  I = I+1
+else
+  if (J < NJ) then
+    I = 1
+    J = J+1
+  else
+    NONEW = 1
+    goto 101
+  end if
+end if
+if ((IJSM /= 0) .and. (I < J)) goto 100
+101 continue
+
+NTEST = 0
+if (NTEST /= 0) write(6,*) ' next (i,j) pair ',I,J
+
+end subroutine NXTIJ

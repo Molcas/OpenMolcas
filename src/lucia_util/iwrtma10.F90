@@ -8,14 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE IWRTMA10(IMAT,NROW,NCOL,MAXROW,MAXCOL)
+
+subroutine IWRTMA10(IMAT,NROW,NCOL,MAXROW,MAXCOL)
 ! I10 format
-      DIMENSION IMAT(MAXROW,MAXCOL)
-!
-      DO 100 I = 1, NROW
-        WRITE(6,1110) (IMAT(I,J),J= 1,NCOL)
-  100 CONTINUE
- 1110 FORMAT(/,1X,8I10,/,(1X,8I10))
-!
-      RETURN
-      END
+
+dimension IMAT(MAXROW,MAXCOL)
+
+do I=1,NROW
+  write(6,1110) (IMAT(I,J),J=1,NCOL)
+end do
+
+1110 format(/,1X,8I10,/,(1X,8I10))
+
+end subroutine IWRTMA10

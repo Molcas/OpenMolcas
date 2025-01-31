@@ -8,18 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE TRPMAT(XIN,NROW,NCOL,XOUT)
-!
+
+subroutine TRPMAT(XIN,NROW,NCOL,XOUT)
 ! XOUT(I,J) = XIN(J,I)
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION XIN(NROW,NCOL),XOUT(NCOL,NROW)
-!
-      DO 200 IROW =1, NROW
-        DO 100 ICOL = 1, NCOL
-          XOUT(ICOL,IROW) = XIN(IROW,ICOL)
-  100   CONTINUE
-  200 CONTINUE
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension XIN(NROW,NCOL), XOUT(NCOL,NROW)
+
+do IROW=1,NROW
+  do ICOL=1,NCOL
+    XOUT(ICOL,IROW) = XIN(IROW,ICOL)
+  end do
+end do
+
+end subroutine TRPMAT

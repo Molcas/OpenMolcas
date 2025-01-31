@@ -10,10 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993,1995, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
-      use strbas, only: SPGPAN,SPGPCR
-      use lucia_data, only: NGAS
-!
+
+subroutine NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
 ! an input  supergroup is given.
 ! apply an string of elementary operators to this supergroup and
 ! obtain supergroup mumber of new string
@@ -33,19 +31,20 @@
 ! Output
 ! ------
 ! OUTSPGP  : supergroup of resulting string
-!
-!
-      IMPLICIT NONE
-!. Input
-      INTEGER INSPGP,IACOP,ITPOP
-!. output
-      INTEGER OUTSPGP
-!
-      IF(IACOP.EQ.1) THEN
-        OUTSPGP = SPGPAN(ITPOP+NGAS*(INSPGP-1))
-      ELSE
-        OUTSPGP = SPGPCR(ITPOP+NGAS*(INSPGP-1))
-      END IF
-!
-      RETURN
-      END SUBROUTINE NEWTYP
+
+use strbas, only: SPGPAN, SPGPCR
+use lucia_data, only: NGAS
+
+implicit none
+! Input
+integer INSPGP, IACOP, ITPOP
+! output
+integer OUTSPGP
+
+if (IACOP == 1) then
+  OUTSPGP = SPGPAN(ITPOP+NGAS*(INSPGP-1))
+else
+  OUTSPGP = SPGPCR(ITPOP+NGAS*(INSPGP-1))
+end if
+
+end subroutine NEWTYP

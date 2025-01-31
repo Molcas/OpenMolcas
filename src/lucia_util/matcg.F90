@@ -8,41 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE MATCG(     CIN,    COUT,   NROWI,   NROWO,  IROWI1,    &
-     &                    NGCOL,    IGAT,  GATSGN)
-!
+
+subroutine MATCG(CIN,COUT,NROWI,NROWO,IROWI1,NGCOL,IGAT,GATSGN)
 ! Gather columns of CIN with phase
 !
-! COUT(IR,IC) = GATSGN(IC)*CIN(IR+IROWI1-1,IGAT(IC)) if IGAT(IC) .ne.0
-! COUT(IR,IC) = 0                           if IGAT(IC) .ne.0
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER IGAT(*)
-      DIMENSION GATSGN(*)
-      DIMENSION CIN(NROWI,*),COUT(NROWO,*)
-!
-!?    write(6,*) ' MATCG NROWI,NROWO,IROWI1,NGCOL '
-!?    write(6,*)         NROWI,NROWO,IROWI1,NGCOL
-      DO 100 IG = 1, NGCOL
-!?      write(6,*) ' igat,sign ',IGAT(IG),GATSGN(IG)
-        IF(IGAT(IG).EQ.0) THEN
-          DO 20 IR = 1, NROWO
-            COUT(IR,IG)=0.0D0
-   20     CONTINUE
-        ELSE
-         IGFRM = IGAT(IG)
-         SIGN = GATSGN(IG)
-         DO 30 IR = 1, NROWO
-           COUT(IR,IG) = SIGN*CIN(IROWI1-1+IR,IGFRM)
-   30    CONTINUE
-        END IF
-  100 CONTINUE
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' Column gathered matrix '
-        CALL WRTMAT(COUT,NROWO,NGCOL,NROWO,NGCOL)
-      END IF
-!
-      RETURN
-      END
+! COUT(IR,IC) = GATSGN(IC)*CIN(IR+IROWI1-1,IGAT(IC)) if IGAT(IC) /= 0
+! COUT(IR,IC) = 0                                    if IGAT(IC) /= 0
+
+implicit real*8(A-H,O-Z)
+integer IGAT(*)
+dimension GATSGN(*)
+dimension CIN(NROWI,*), COUT(NROWO,*)
+
+!write(6,*) ' MATCG NROWI,NROWO,IROWI1,NGCOL'
+!write(6,*) NROWI,NROWO,IROWI1,NGCOL
+do IG=1,NGCOL
+  !write(6,*) ' igat,sign ',IGAT(IG),GATSGN(IG)
+  if (IGAT(IG) == 0) then
+    do IR=1,NROWO
+      COUT(IR,IG) = 0.0d0
+    end do
+  else
+    IGFRM = IGAT(IG)
+    SIGN = GATSGN(IG)
+    do IR=1,NROWO
+      COUT(IR,IG) = SIGN*CIN(IROWI1-1+IR,IGFRM)
+    end do
+  end if
+end do
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' Column gathered matrix'
+  call WRTMAT(COUT,NROWO,NGCOL,NROWO,NGCOL)
+end if
+
+end subroutine MATCG

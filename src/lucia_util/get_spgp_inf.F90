@@ -10,31 +10,30 @@
 !                                                                      *
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE GET_SPGP_INF(ISPGP,ITP,IGRP)
-!
+
+subroutine GET_SPGP_INF(ISPGP,ITP,IGRP)
 ! Obtain groups defining supergroup ISPGP,ITP
 !
 ! Jeppe Olsen, November 97
-!
-      use lucia_data, only: NGAS
-      use lucia_data, only: IBSPGPFTP,ISPGPFTP
-      IMPLICIT NONE
-      INTEGER ISPGP,ITP
-      integer IGRP(*)
 
-      INTEGER NTEST,ISPGPABS
-!
-      NTEST = 00
-!. Absolute group number
-!?    WRITE(6,*) ' GET_SPGP_INF : ISPGP, ITP', ISPGP, ITP
-      ISPGPABS = ISPGP + IBSPGPFTP(ITP) -1
-      CALL ICOPVE(ISPGPFTP(1,ISPGPABS),IGRP,NGAS)
-!
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' GET_SPGP_INF : ISPGP ITP ISPGPABS',                &
-     &              ISPGP, ITP, ISPGPABS
-        WRITE(6,*) ' Groups of supergroups'
-        CALL IWRTMA(IGRP,1,NGAS,1,NGAS)
-      END IF
-!
-      END SUBROUTINE GET_SPGP_INF
+use lucia_data, only: NGAS
+use lucia_data, only: IBSPGPFTP, ISPGPFTP
+
+implicit none
+integer ISPGP, ITP
+integer IGRP(*)
+integer NTEST, ISPGPABS
+
+NTEST = 0
+! Absolute group number
+!write(6,*) ' GET_SPGP_INF : ISPGP, ITP',ISPGP,ITP
+ISPGPABS = ISPGP+IBSPGPFTP(ITP)-1
+call ICOPVE(ISPGPFTP(1,ISPGPABS),IGRP,NGAS)
+
+if (NTEST >= 100) then
+  write(6,*) ' GET_SPGP_INF : ISPGP ITP ISPGPABS',ISPGP,ITP,ISPGPABS
+  write(6,*) ' Groups of supergroups'
+  call IWRTMA(IGRP,1,NGAS,1,NGAS)
+end if
+
+end subroutine GET_SPGP_INF

@@ -8,102 +8,94 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE VECSMDP(    VEC1,    VEC2,    FAC1,    FAC2,     LU1,  &
-     &                        LU2,     LU3,    IREW,    LBLK)
-!
+
+subroutine VECSMDP(VEC1,VEC2,FAC1,FAC2,LU1,LU2,LU3,IREW,LBLK)
 ! DISC VERSION OF VECSUM :
 !
-!      ADD BLOCKED VECTORS ON FILES LU1 AND LU2
-!      AND STORE ON LU3
+! ADD BLOCKED VECTORS ON FILES LU1 AND LU2
+! AND STORE ON LU3
 !
 ! Packed version, May 1996
 !
 ! LBLK DEFINES STRUCTURE OF FILE
-!
-      use Constants, only: Zero
-      use lucia_data, only: IDISK
-      IMPLICIT None
-      REAL*8 VEC1(*),VEC2(*)
-      REAL*8 FAC1,FAC2
-      INTEGER LU1,LU2,LU3,IREW,LBLK
 
-      INTEGER IDUMMY(1)
-      INTEGER NBL1,NBL2,KBLK,NO_ZEROING,IMZERO1,IMZERO2,IAMPACK
-!
-      IF(IREW .NE. 0 ) THEN
-        IDISK(LU1)=0
-        IDISK(LU2)=0
-        IDISK(LU3)=0
-      END IF
-!
+use Constants, only: Zero
+use lucia_data, only: IDISK
+
+implicit none
+real*8 VEC1(*), VEC2(*)
+real*8 FAC1, FAC2
+integer LU1, LU2, LU3, IREW, LBLK
+integer IDUMMY(1)
+integer NBL1, NBL2, KBLK, NO_ZEROING, IMZERO1, IMZERO2, IAMPACK
+
+if (IREW /= 0) then
+  IDISK(LU1) = 0
+  IDISK(LU2) = 0
+  IDISK(LU3) = 0
+end if
+
 ! LOOP OVER BLOCKS OF VECTOR
-!
- 1000 CONTINUE
-!
-        IF( LBLK .GT. 0 ) THEN
-          NBL1 = LBLK
-          NBL2 = LBLK
-        ELSE IF(LBLK .EQ. 0 ) THEN
-          CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-          NBL1=IDUMMY(1)
-          CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-          NBL2=IDUMMY(1)
-          IDUMMY(1)=NBL1
-          CALL IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
-        ELSE IF (LBLK .LT. 0 ) THEN
-          CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-          NBL1=IDUMMY(1)
-          CALL IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-          CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-          NBL2=IDUMMY(1)
-          CALL IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-          IDUMMY(1)=NBL1
-          CALL IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
-          IDUMMY(1)=-1
-          CALL IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
-        END IF
-        IF( NBL1 .NE. NBL2 ) THEN
-        WRITE(6,'(A,2I5)') 'DIFFERENT BLOCKSIZES IN VECSMD ',           &
-     &  NBL1,NBL2
-!       STOP ' INCOMPATIBLE BLOCKSIZES IN VECSMF '
-        CALL SYSABENDMSG('lucia_util/vecsmf','Different block sizes',   &
-     &                   ' ')
-      END IF
-!
-      IF(NBL1 .GE. 0 ) THEN
-          IF(LBLK .GE.0 ) THEN
-            KBLK = NBL1
-          ELSE
-            KBLK = -1
-          END IF
-        NO_ZEROING = 1
-        CALL FRMDSC2(     VEC1,     NBL1,     KBLK,      LU1,  IMZERO1, &
-     &                 IAMPACK,NO_ZEROING)
-        CALL FRMDSC2(     VEC2,     NBL1,     KBLK,      LU2,  IMZERO2, &
-     &                 IAMPACK,NO_ZEROING)
-        IF( NBL1 .GT. 0 ) THEN
-          IF(IMZERO1.EQ.1.AND.IMZERO2.EQ.1) THEN
-!. Simple zero record
-            CALL ZERORC(NBL1,LU3,IAMPACK)
-          ELSE
-!. Nonvanishing record
-            IF(IMZERO1.EQ.1) THEN
-              CALL VECSUM(    VEC1,    VEC1,    VEC2,    ZERO,    FAC2, &
-     &                        NBL1)
-            ELSE IF(IMZERO2.EQ.1) THEN
-              CALL VECSUM(    VEC1,    VEC1,    VEC2,    FAC1,    ZERO, &
-     &                        NBL1)
-            ELSE
-              CALL VECSUM(    VEC1,    VEC1,    VEC2,    FAC1,    FAC2, &
-     &                        NBL1)
-            END IF
-            CALL TODSCP(VEC1,NBL1,KBLK,LU3)
-          END IF
-        ELSE IF (NBL1.EQ.0) THEN
-          CALL TODSCP(VEC1,NBL1,KBLK,LU3)
-        END IF
-      END IF
-!
-      IF(NBL1.GE. 0 .AND. LBLK .LE. 0) GOTO 1000
-!
-      END SUBROUTINE VECSMDP
+
+1000 continue
+
+if (LBLK > 0) then
+  NBL1 = LBLK
+  NBL2 = LBLK
+else if (LBLK == 0) then
+  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+  NBL1 = IDUMMY(1)
+  call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+  NBL2 = IDUMMY(1)
+  IDUMMY(1) = NBL1
+  call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
+else if (LBLK < 0) then
+  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+  NBL1 = IDUMMY(1)
+  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+  call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+  NBL2 = IDUMMY(1)
+  call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+  IDUMMY(1) = NBL1
+  call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
+  IDUMMY(1) = -1
+  call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
+end if
+if (NBL1 /= NBL2) then
+  write(6,'(A,2I5)') 'DIFFERENT BLOCKSIZES IN VECSMD ',NBL1,NBL2
+  !stop ' INCOMPATIBLE BLOCKSIZES IN VECSMF'
+  call SYSABENDMSG('lucia_util/vecsmf','Different block sizes','')
+end if
+
+if (NBL1 >= 0) then
+  if (LBLK >= 0) then
+    KBLK = NBL1
+  else
+    KBLK = -1
+  end if
+  NO_ZEROING = 1
+  call FRMDSC2(VEC1,NBL1,KBLK,LU1,IMZERO1,IAMPACK,NO_ZEROING)
+  call FRMDSC2(VEC2,NBL1,KBLK,LU2,IMZERO2,IAMPACK,NO_ZEROING)
+  if (NBL1 > 0) then
+    if ((IMZERO1 == 1) .and. (IMZERO2 == 1)) then
+      ! Simple zero record
+      call ZERORC(NBL1,LU3,IAMPACK)
+    else
+      ! Nonvanishing record
+      if (IMZERO1 == 1) then
+        call VECSUM(VEC1,VEC1,VEC2,ZERO,FAC2,NBL1)
+      else if (IMZERO2 == 1) then
+        call VECSUM(VEC1,VEC1,VEC2,FAC1,ZERO,NBL1)
+      else
+        call VECSUM(VEC1,VEC1,VEC2,FAC1,FAC2,NBL1)
+      end if
+      call TODSCP(VEC1,NBL1,KBLK,LU3)
+    end if
+  else if (NBL1 == 0) then
+    call TODSCP(VEC1,NBL1,KBLK,LU3)
+  end if
+end if
+
+if ((NBL1 >= 0) .and. (LBLK <= 0)) goto 1000
+
+end subroutine VECSMDP

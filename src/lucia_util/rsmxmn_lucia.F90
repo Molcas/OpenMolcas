@@ -8,53 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE RSMXMN_LUCIA(  MAXEL,  MINEL,  NORB1,  NORB2,  NORB3,  &
-     &                            NEL,   MIN1,   MAX1,   MIN3,   MAX3,  &
-     &                          NTEST)
-!
+
+subroutine RSMXMN_LUCIA(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MIN1,MAX1,MIN3,MAX3,NTEST)
 ! Construct accumulated MAX and MIN arrays for a RAS set of strings
-!
-      IMPLICIT REAL*8           ( A-H,O-Z)
-      DIMENSION  MINEL(*),MAXEL(*)
-!
-      NORB = NORB1 + NORB2 + NORB3
-!. accumulated max and min in each of the three spaces
-!. ( required max and min at final orbital in each space )
-!OLD  MIN1A = MIN1
-      MIN1A = MAX(MIN1,NEL-MAX3-NORB2)
-      MAX1A = MAX1
-!
-      MIN2A = NEL - MAX3
-      MAX2A = NEL - MIN3
-!
-      MIN3A = NEL
-      MAX3A = NEL
-!
-      DO 100 IORB = 1, NORB
-        IF(IORB .LE. NORB1 ) THEN
-          MINEL(IORB) = MAX(MIN1A+IORB-NORB1,0)
-          MAXEL(IORB) = MIN(IORB,MAX1A)
-        ELSE IF ( NORB1.LT.IORB .AND. IORB.LE.(NORB1+NORB2)) THEN
-          MINEL(IORB) = MAX(MIN2A+IORB-NORB1-NORB2,0)
-          IF(NORB1 .GT. 0 )                                             &
-     &    MINEL(IORB) = MAX(MINEL(IORB),MINEL(NORB1))
-          MAXEL(IORB) = MIN(IORB,MAX2A)
-        ELSE IF ( IORB .GT. NORB1 + NORB2 ) THEN
-          MINEL(IORB) = MAX(MIN3A+IORB-NORB,0)
-          IF(NORB1+NORB2 .GT. 0 )                                       &
-     &    MINEL(IORB) = MAX(MINEL(IORB),MINEL(NORB1+NORB2))
-          MAXEL(IORB) = MIN(IORB,MAX3A)
-        END IF
-  100 CONTINUE
-!
-      IF( NTEST .GE. 100 ) THEN
-        WRITE(6,*) ' Output from RSMXMN '
-        WRITE(6,*) ' ================== '
-        WRITE(6,*) ' MINEL : '
-        CALL IWRTMA(MINEL,1,NORB,1,NORB)
-        WRITE(6,*) ' MAXEL : '
-        CALL IWRTMA(MAXEL,1,NORB,1,NORB)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension MINEL(*), MAXEL(*)
+
+NORB = NORB1+NORB2+NORB3
+! accumulated max and min in each of the three spaces
+! (required max and min at final orbital in each space)
+!OLD MIN1A = MIN1
+MIN1A = max(MIN1,NEL-MAX3-NORB2)
+MAX1A = MAX1
+
+MIN2A = NEL-MAX3
+MAX2A = NEL-MIN3
+
+MIN3A = NEL
+MAX3A = NEL
+
+do IORB=1,NORB
+  if (IORB <= NORB1) then
+    MINEL(IORB) = max(MIN1A+IORB-NORB1,0)
+    MAXEL(IORB) = min(IORB,MAX1A)
+  else if ((NORB1 < IORB) .and. (IORB <= (NORB1+NORB2))) then
+    MINEL(IORB) = max(MIN2A+IORB-NORB1-NORB2,0)
+    if (NORB1 > 0) MINEL(IORB) = max(MINEL(IORB),MINEL(NORB1))
+    MAXEL(IORB) = min(IORB,MAX2A)
+  else if (IORB > NORB1+NORB2) then
+    MINEL(IORB) = max(MIN3A+IORB-NORB,0)
+    if (NORB1+NORB2 > 0) MINEL(IORB) = max(MINEL(IORB),MINEL(NORB1+NORB2))
+    MAXEL(IORB) = min(IORB,MAX3A)
+  end if
+end do
+
+if (NTEST >= 100) then
+  write(6,*) ' Output from RSMXMN'
+  write(6,*) ' =================='
+  write(6,*) ' MINEL :'
+  call IWRTMA(MINEL,1,NORB,1,NORB)
+  write(6,*) ' MAXEL :'
+  call IWRTMA(MAXEL,1,NORB,1,NORB)
+end if
+
+end subroutine RSMXMN_LUCIA

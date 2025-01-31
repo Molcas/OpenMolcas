@@ -8,13 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ISETVC(IVEC,IVALUE,NDIM)
-!
-      DIMENSION IVEC(NDIM)
-!
-      DO 100 I = 1, NDIM
-        IVEC(I) = IVALUE
-  100 CONTINUE
-!
-      RETURN
-      END
+
+subroutine ISETVC(IVEC,IVALUE,NDIM)
+
+dimension IVEC(NDIM)
+
+do I=1,NDIM
+  IVEC(I) = IVALUE
+end do
+
+end subroutine ISETVC

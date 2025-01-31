@@ -10,98 +10,92 @@
 !                                                                      *
 ! Copyright (C) 1998, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE GASSPC()
-!
-!
+
+subroutine GASSPC()
 ! Divide orbital spaces into
 !
-!  Inactive spaces : Orbitals that are doubly occupied in all CI spaces
-!  Active orbitals : Orbitals that have variable occ in atleast some spaces.
-!  Secondary spaces: Orbitals that are unoccupied in all spaces
+! Inactive spaces : Orbitals that are doubly occupied in all CI spaces
+! Active orbitals : Orbitals that have variable occ in atleast some spaces.
+! Secondary spaces: Orbitals that are unoccupied in all spaces
 !
 ! I_IAD : Division based upon occupation in Compound CI spaces IGSOCC
 ! I_IADX: Division based upon occupation in First CI space
 !
 ! Jeppe Olsen, Summer of 98 ( not much of an summer !)
-!
-!
-      use lucia_data, only: NGAS,IGSOCC,IGSOCCX,NGSOBT
-      use lucia_data, only: I_IAD,I_IADX
-      use lucia_data, only: NELEC
-      IMPLICIT None
-      INTEGER NEL_MAX,NEL_REF,IGAS,NTEST
+
+use lucia_data, only: NGAS, IGSOCC, IGSOCCX, NGSOBT
+use lucia_data, only: I_IAD, I_IADX
+use lucia_data, only: NELEC
+
+implicit none
+integer NEL_MAX, NEL_REF, IGAS, NTEST
+
 ! Some dummy initializtions
-      NEL_MAX = 0 ! jwk-cleanup
-!
-      NEL_REF = NELEC(1) + NELEC(2)
-!
+NEL_MAX = 0 ! jwk-cleanup
+
+NEL_REF = NELEC(1)+NELEC(2)
+
 ! For compound space
-!
-      DO IGAS = 1, NGAS
-!
-       IF(IGAS.EQ.1) THEN
-         NEL_MAX = 2*NGSOBT(IGAS)
-       ELSE
-         NEL_MAX = NEL_MAX + 2*NGSOBT(IGAS)
-       END IF
-!
-       IF(IGSOCC(IGAS,1) .EQ. NEL_MAX  .AND.                            &
-     &    IGSOCC(IGAS,2) .EQ. NEL_MAX       ) THEN
-!. Inactive  space
-          I_IAD(IGAS) = 1
-       ELSE IF(IGAS.GT.1.AND.IGSOCC(IGAS-1,1) .EQ. NEL_REF ) THEN
-!. Delete space
-          I_IAD(IGAS) = 3
-       ELSE
-!. Active space
-          I_IAD(IGAS) = 2
-       END IF
-!
-      END DO
-!
+
+do IGAS=1,NGAS
+
+  if (IGAS == 1) then
+    NEL_MAX = 2*NGSOBT(IGAS)
+  else
+    NEL_MAX = NEL_MAX+2*NGSOBT(IGAS)
+  end if
+
+  if ((IGSOCC(IGAS,1) == NEL_MAX) .and. (IGSOCC(IGAS,2) == NEL_MAX)) then
+    ! Inactive  space
+    I_IAD(IGAS) = 1
+  else if ((IGAS > 1) .and. (IGSOCC(IGAS-1,1) == NEL_REF)) then
+    ! Delete space
+    I_IAD(IGAS) = 3
+  else
+    ! Active space
+    I_IAD(IGAS) = 2
+  end if
+
+end do
+
 ! For First CI space
-!
-      DO IGAS = 1, NGAS
-!
-       IF(IGAS.EQ.1) THEN
-         NEL_MAX = 2*NGSOBT(IGAS)
-       ELSE
-         NEL_MAX = NEL_MAX + 2*NGSOBT(IGAS)
-       END IF
-!
-       IF(IGSOCCX(IGAS,1,1) .EQ. NEL_MAX  .AND.                         &
-     &    IGSOCCX(IGAS,2,1) .EQ. NEL_MAX       ) THEN
-!. Inactive  space
-          I_IADX(IGAS) = 1
-       ELSE IF(IGAS.GT.1.AND.IGSOCCX(IGAS-1,1,1) .EQ. NEL_REF ) THEN
-!. Delete space
-          I_IADX(IGAS) = 3
-       ELSE
-!. Active space
-          I_IADX(IGAS) = 2
-       END IF
-!
-      END DO
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*)                                                      &
-     &  ' Division of orbitals according to compound CI space'
-        WRITE(6,*)                                                      &
-     &  ' ================================================== '
-        WRITE(6,*)
-        WRITE(6,*) ' Inactive = 1, Active = 2, Delete = 3 '
-        WRITE(6,*)
-        CALL IWRTMA(I_IAD,1,NGAS,1,NGAS)
-        WRITE(6,*)
-        WRITE(6,*)                                                      &
-     &  ' Division of orbitals according to first CI space'
-        WRITE(6,*)                                                      &
-     &  ' ================================================== '
-        WRITE(6,*)
-        WRITE(6,*) ' Inactive = 1, Active = 2, Delete = 3 '
-        WRITE(6,*)
-        CALL IWRTMA(I_IADX,1,NGAS,1,NGAS)
-      END IF
-!
-      END SUBROUTINE GASSPC
+
+do IGAS=1,NGAS
+
+  if (IGAS == 1) then
+    NEL_MAX = 2*NGSOBT(IGAS)
+  else
+    NEL_MAX = NEL_MAX+2*NGSOBT(IGAS)
+  end if
+
+  if ((IGSOCCX(IGAS,1,1) == NEL_MAX) .and. (IGSOCCX(IGAS,2,1) == NEL_MAX)) then
+    ! Inactive  space
+    I_IADX(IGAS) = 1
+  else if ((IGAS > 1) .and. (IGSOCCX(IGAS-1,1,1) == NEL_REF)) then
+    ! Delete space
+    I_IADX(IGAS) = 3
+  else
+    ! Active space
+    I_IADX(IGAS) = 2
+  end if
+
+end do
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Division of orbitals according to compound CI space'
+  write(6,*) ' ==================================================='
+  write(6,*)
+  write(6,*) ' Inactive = 1, Active = 2, Delete = 3'
+  write(6,*)
+  call IWRTMA(I_IAD,1,NGAS,1,NGAS)
+  write(6,*)
+  write(6,*) ' Division of orbitals according to first CI space'
+  write(6,*) ' ================================================'
+  write(6,*)
+  write(6,*) ' Inactive = 1, Active = 2, Delete = 3'
+  write(6,*)
+  call IWRTMA(I_IADX,1,NGAS,1,NGAS)
+end if
+
+end subroutine GASSPC

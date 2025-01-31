@@ -8,17 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module STRBAS
-use lucia_data, only: MXPSTT,MXPNGAS
-Private
-Type iArray
-   Integer, Allocatable:: I(:)
-End Type iArray
-Type (iArray):: OCSTR(MXPSTT), STREO(MXPSTT), STSTM(MXPSTT,2),    &
-                NSTSGP(MXPNGAS), ISTSGP(MXPNGAS), NSTSO(MXPSTT),  &
-                ISTSO(MXPSTT), Zmat(MXPSTT)
-Integer, Allocatable:: IOCLS(:), SPGPAN(:), SPGPCR(:)
 
-Public ::     OCSTR,NSTSO,ISTSO,STSTM,Zmat,STREO,                 &
-              NSTSGP,ISTSGP,IOCLS,SPGPAN,SPGPCR
-End Module STRBAS
+subroutine COMBINATIONS(ICOMBI,SIGN)
+
+use lucia_data, only: PSSIGN
+
+implicit none
+integer ICOMBI
+real*8 SIGN
+
+ICOMBI = 0
+SIGN = PSSIGN
+if (PSSIGN /= 0.0d0) ICOMBI = 1
+
+end subroutine COMBINATIONS

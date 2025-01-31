@@ -8,228 +8,194 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE REO_GASDET_S(   IREO,  NSSOA,  NSSOB, NOCTPA, NOCTPB,  &
-     &                        MXPNGAS, IOCTPA, IOCTPB, NBLOCK, IBLOCK,  &
-     &                           NAEL,   NBEL,  IASTR,  IBSTR,          &
-     &                          NSMST,NELFSPGP,NOCCLS,  NGAS,IOCCLS,    &
-     &                           NORB,NOBPT,DFTP,IB_CONF_OPEN,iconf_reo,&
-!
-     &                        nconf_tot,                                &
-     &                        ib_conf_reo,                              &
-     &                          maxop,                                  &
-     &                        nconf_per_open,                           &
-     &                        IB_SD_FOR_OPEN,IZSCR,IZ,IOCMIN,IOCMAX,    &
-!
-     &                        IDET_OC,IDET_MS,IDET_VC,                  &
-     &                          MINOP,                                  &
-     &                        IBCONF_ALL_SYM_FOR_OCCLS,                 &
-     &                         PSSIGN,                                  &
-!
-     &                        NPDTCNF)
-      use GLBBAS, only: Z_PTDT, REO_PTDT
-!
+
+subroutine REO_GASDET_S(IREO,NSSOA,NSSOB,NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,NBLOCK,IBLOCK,NAEL,NBEL,IASTR,IBSTR,NSMST,NELFSPGP, &
+                        NOCCLS,NGAS,IOCCLS,NORB,NOBPT,DFTP,IB_CONF_OPEN,iconf_reo,nconf_tot,ib_conf_reo,maxop,nconf_per_open, &
+                        IB_SD_FOR_OPEN,IZSCR,IZ,IOCMIN,IOCMAX,IDET_OC,IDET_MS,IDET_VC,MINOP,IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 ! SUBROUTINE REO_GASDET_S --> 44
 !
-!
 ! Reorder determinants in GAS space from det to configuration order
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. General input
-      DIMENSION NSSOA(NSMST,*), NSSOB(NSMST,*)
-      DIMENSION NELFSPGP(MXPNGAS,*)
-      DIMENSION IOCCLS(NGAS,NOCCLS)
-      INTEGER NOBPT(*)
-      INTEGER DFTP(*)
-      INTEGER IB_CONF_OPEN(*),iconf_reo(nconf_tot)
-      integer ib_conf_reo(maxop+1),nconf_per_open(maxop+1)
-      INTEGER IB_SD_FOR_OPEN(*)
-      INTEGER NPDTCNF(*)
-!. Offset to start of configurations of given occls in list containing all symmetries
-      INTEGER IBCONF_ALL_SYM_FOR_OCCLS(NOCCLS)
-!. Z_PTDT(IOPEN+1)%I gives Z  array for prototype dets with IOPEN
-!. REO_PTDT(IOPEN+1)%1 gives the corresponding reorder array open orbitals
-!. Specific input
-      DIMENSION IBLOCK(8,NBLOCK)
-!. Scratch space
-!PAM06 Note: NAEL and NBEL could legally be =0!
-!PAM06      DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
-      DIMENSION IASTR(*),IBSTR(*)
-      INTEGER IZSCR(*),IZ(*),IOCMIN(*),IOCMAX(*)
-      INTEGER IDET_OC(*), IDET_MS(*) , IDET_VC(*)
-!. Output
-      INTEGER IREO(*)
-!     DIMENSION SREO(*)
-      DIMENSION IDUM(1)
-!
-      NTEST = 0
-!
-      IAGRP = 1
-      IBGRP = 2
-!
-      NEL = NAEL + NBEL
-!
-      IDET = 0
-      DO JBLOCK = 1, NBLOCK
-        IATP = IBLOCK(1,JBLOCK)
-        IBTP = IBLOCK(2,JBLOCK)
-        IASM = IBLOCK(3,JBLOCK)
-        IBSM = IBLOCK(4,JBLOCK)
-!?      WRITE(6,*) ' REO_GASDET, IATP, IBTP = ', IATP, IBTP
-!. Occupation class of this combination of string
-        CALL IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
-!            IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
-!. Arcweights for this occupation class
-        CALL MXMNOC_OCCLS(IOCMIN,IOCMAX,    NGAS,   NOBPT,IOCCLS(1,IOC),&
-     &                       MINOP,   NTEST)
-!     MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,NTESTG)
-!. the arcweights
-         CALL CONF_GRAPH(  IOCMIN,  IOCMAX,    NORB,     NEL,      IZ,  &
-     &                    NCONF_P,   IZSCR)
-!             CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
-!. Obtain alpha strings of sym IASM and type IATP
-        IDUM(1) = 0
-        CALL GETSTR_TOTSM_SPGP(      1,   IATP,   IASM,   NAEL, NASTR1, &
-     &                           IASTR,   NORB,      0,   IDUM,   IDUM)
-!. Obtain Beta  strings of sym IBSM and type IBTP
-        IDUM(1) = 0
-        CALL GETSTR_TOTSM_SPGP(      2,   IBTP,   IBSM,   NBEL, NBSTR1, &
-     &                           IBSTR,   NORB,      0,   IDUM,   IDUM)
-!. Occupation class corresponding to this combination
-!            IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
-! The following call should presumably use 'IOC' rather than 'IOCNUM'
-! The variable name IOCNUM seems to be used nowhere... PAM 2009
-!        CALL IAIB_TO_OCCLS(1,IATP,2,IBTP,IOCNUM)
-        CALL IAIB_TO_OCCLS(1,IATP,2,IBTP,IOC)
-!. Offset to this occupation class in occupation class ordered cnf list
-        IB_OCCLS = IBCONF_ALL_SYM_FOR_OCCLS(IOC)
-!. Info for this occupation class :
-        IRESTR = 0
-        IF(PSSIGN.EQ.1.0D0.AND.IASM.EQ.IBSM.AND.IATP.EQ.IBTP) THEN
-         IRESTR = 1
-        END IF
-!
-        NIA = NSSOA(IASM,IATP)
-        NIB = NSSOB(IBSM,IBTP)
-!
-        DO  IB = 1,NIB
-          IF(IRESTR.EQ.1) THEN
-            MINIA = IB
-          ELSE
-            MINIA = 1
-          END IF
-          DO  IA = MINIA,NIA
-            IDET = IDET + 1
-!                ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISIGN)
-!PAM06       CALL ABSTR_TO_ORDSTR(IASTR(1,IA),IBSTR(1,IB),NAEL,NBEL,
-            CALL ABSTR_TO_ORDSTR(IASTR(1+NAEL*(IA-1)),                  &
-     &                           IBSTR(1+NBEL*(IB-1)),                  &
-     &                             NAEL,  NBEL,IDET_OC,IDET_MS,ISIGN)
-!. Number of open orbitals in this configuration
-            NOPEN = NOP_FOR_CONF(IDET_OC,NEL)
-!                   NOP_FOR_CONF(ICONF,NEL)
-            NDOUBLE = (NEL-NOPEN)/2
-            NOCOB = NOPEN + NDOUBLE
-            NOPEN_AL = NAEL - NDOUBLE
-!?          WRITE(6,*) ' NOPEN, NOPEN_AL = ', NOPEN,NOPEN_AL
-!ERRROR     NPTDT = IBION_LUCIA(NOPEN,NOPEN_AL)
-            NPTDT = NPDTCNF(NOPEN+1)
-!. Packed form of this configuration
-!                REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
-            CALL REFORM_CONF_OCC(IDET_OC,IDET_VC,NEL,NOCOB,1)
-!. Address of this configuration
-!. Offset to configurations with this number of open orbitals in
-!. reordered cnf list
-!                      ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
-!           write(6,*)'iconf_reo_new array:'
-!           call iwrtma(iconf_reo_new,1,nconf_tot,1,nconf_tot)
-!.... Giovanni and Dongxia comment off the following 2 lines
-!           ICNF_OUT = ILEX_FOR_CONF(IDET_VC,NOCOB,NORB,NEL,IZ,1,
-!    &                 ICONF_REO(IB_OCCLS))
-!..... end
-!           write(6,*)'ib_conf_reo at line 2401, and maxop',maxop
-!           call iwrtma(ib_conf_reo,1,maxop+1,1,maxop+1)
-!           call iwrtma(nconf_per_open,1,maxop+1,1,maxop+1)
-!          write(6,*)'before calling ilex_for_conf_new, in reogas_det_s'
-!          write(6,*)'nopen =',nopen
-!          write(6,*)'and nconf_per_open(nopen+1) =',
-!    &          nconf_per_open(nopen+1)
-!          write(6,*)'check iconf_reo array'
-!          call iwrtma(iconf_reo,1,nconf_tot,1,nconf_tot)
-            nconf_op = nconf_per_open(nopen+1)
-!          call iwrtma(nconf_per_open,1,maxop+1,1,maxop+1)
-            icnf_out=ilex_for_conf_new(idet_vc,nocob,norb,nel,iz,1,     &
-     &          iconf_reo(ib_conf_reo(nopen+1)),nconf_op,ib_occls)      &
-     &         +ib_conf_reo(nopen+1)-1
-!?          WRITE(6,*) ' number of configuration in output list',
-!?   &      ICNF_OUT
-!. Spinprojections of open orbitals
-            CALL EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_VC,NEL)
-!                EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 
-            ISIGN_2003 = 1
-            IF(ABS(PSSIGN).EQ.1.0D0) THEN
-!. If combinations are used, then the prototype determinants
-!. are defined so the first open spin-orbital is having alpha spin.
-!. In ab order, the included determinant is defined, by having
-!. alpha-spin in the first singly occupied orbital. These definitions
-!. may differ, so ensure that the included det obeys prototype constraint
-!. Address of this spinprojection pattern
-              IF(IDET_VC(1).LT.0) THEN
-                DO I = 1, NOPEN
-                  IDET_VC(I) = -1*IDET_VC(I)
-                END DO
-                IF(PSSIGN.EQ.-1.0D0) ISIGN_2003 = -1
-!. Update sign AB => ordered list
-!PAM06          CALL ABSTR_TO_ORDSTR(IBSTR(1,IB),IASTR(1,IA),NBEL,NAEL,
-            CALL ABSTR_TO_ORDSTR(IBSTR(1+NBEL*(IB-1)),                  &
-     &                           IASTR(1+NAEL*(IA-1)),                  &
-     &                             NBEL,  NAEL,IDET_OC,IDET_MS,ISIGN)
-              END IF
-           END IF
-!  IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
-            IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,                  &
-     &              Z_PTDT(NOPEN+1)%I,REO_PTDT(NOPEN+1)%I,              &
-     &              1)
-!?          WRITE(6,*) ' Number of det in list of PTDT ', IPTDT
-!?          WRITE(6,*) ' IB_SD_FOR_OPEN(NOPEN+1) = ',
-!?   &                   IB_SD_FOR_OPEN(NOPEN+1)
-!?          WRITE(6,*) ' ICNF_OUT, NPTDT ', ICNF_OUT, NPTDT
-            IBCNF_OUT = IB_CONF_OPEN(NOPEN+1)
-!?          WRITE(6,*) ' IBCNF_OUT = ', IBCNF_OUT
-            IADR_SD_CONF_ORDER = IB_SD_FOR_OPEN(NOPEN+1) - 1            &
-     &                         + (ICNF_OUT-IBCNF_OUT)*NPTDT + IPTDT
-            IF(IADR_SD_CONF_ORDER.LE.0) THEN
-              WRITE(6,*) ' Problemo, IADR_SD_CONF_ORDER < 0 '
-              WRITE(6,*) ' IADR_SD_CONF_ORDER = ', IADR_SD_CONF_ORDER
-              CALL XFLUSH(6)
-            END IF
-!?          WRITE(6,*) ' IADR_SD_CONF_ORDER, ISIGN, IDET = ',
-!?   &                   IADR_SD_CONF_ORDER, ISIGN, IDET
-            IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGN_2003
-!
-          END DO
-!         ^ End of loop over alpha strings
-        END DO
-!       ^ End of loop over beta strings
-        END DO
-!       ^ End of loop over blocks
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*) ' Reorder array, CONF order => string order '
-        WRITE(6,*) ' ========================================== '
-        CALL IWRTMA(IREO,1,IDET,1,IDET)
-      END IF
-!
-      RETURN
+use GLBBAS, only: Z_PTDT, REO_PTDT
+
+implicit real*8(A-H,O-Z)
+! General input
+dimension NSSOA(NSMST,*), NSSOB(NSMST,*)
+dimension NELFSPGP(MXPNGAS,*)
+dimension IOCCLS(NGAS,NOCCLS)
+integer NOBPT(*)
+integer DFTP(*)
+integer IB_CONF_OPEN(*), iconf_reo(nconf_tot)
+integer ib_conf_reo(maxop+1), nconf_per_open(maxop+1)
+integer IB_SD_FOR_OPEN(*)
+integer NPDTCNF(*)
+! Offset to start of configurations of given occls in list containing all symmetries
+integer IBCONF_ALL_SYM_FOR_OCCLS(NOCCLS)
+! Z_PTDT(IOPEN+1)%I gives Z  array for prototype dets with IOPEN
+! REO_PTDT(IOPEN+1)%1 gives the corresponding reorder array open orbitals
+! Specific input
+dimension IBLOCK(8,NBLOCK)
+! Scratch space
+!PAM06 Note: NAEL and NBEL could legally be =0!
+!PAM06 dimension IASTR(NAEL,*), IBSTR(NBEL,*)
+dimension IASTR(*), IBSTR(*)
+integer IZSCR(*), IZ(*), IOCMIN(*), IOCMAX(*)
+integer IDET_OC(*), IDET_MS(*), IDET_VC(*)
+! Output
+integer IREO(*)
+!dimension SREO(*)
+dimension IDUM(1)
+
+NTEST = 0
+
+IAGRP = 1
+IBGRP = 2
+
+NEL = NAEL+NBEL
+
+IDET = 0
+do JBLOCK=1,NBLOCK
+  IATP = IBLOCK(1,JBLOCK)
+  IBTP = IBLOCK(2,JBLOCK)
+  IASM = IBLOCK(3,JBLOCK)
+  IBSM = IBLOCK(4,JBLOCK)
+  !write(6,*) ' REO_GASDET, IATP, IBTP = ',IATP,IBTP
+  ! Occupation class of this combination of string
+  call IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
+  !    IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
+  ! Arcweights for this occupation class
+  call MXMNOC_OCCLS(IOCMIN,IOCMAX,NGAS,NOBPT,IOCCLS(1,IOC),MINOP,NTEST)
+  !    MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,NTESTG)
+  ! the arcweights
+  call CONF_GRAPH(IOCMIN,IOCMAX,NORB,NEL,IZ,NCONF_P,IZSCR)
+  !    CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
+  ! Obtain alpha strings of sym IASM and type IATP
+  IDUM(1) = 0
+  call GETSTR_TOTSM_SPGP(1,IATP,IASM,NAEL,NASTR1,IASTR,NORB,0,IDUM,IDUM)
+  ! Obtain Beta strings of sym IBSM and type IBTP
+  IDUM(1) = 0
+  call GETSTR_TOTSM_SPGP(2,IBTP,IBSM,NBEL,NBSTR1,IBSTR,NORB,0,IDUM,IDUM)
+  ! Occupation class corresponding to this combination
+  ! The following call should presumably use 'IOC' rather than 'IOCNUM'
+  ! The variable name IOCNUM seems to be used nowhere... PAM 2009
+  !call IAIB_TO_OCCLS(1,IATP,2,IBTP,IOCNUM)
+  call IAIB_TO_OCCLS(1,IATP,2,IBTP,IOC)
+  !    IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
+  ! Offset to this occupation class in occupation class ordered cnf list
+  IB_OCCLS = IBCONF_ALL_SYM_FOR_OCCLS(IOC)
+  ! Info for this occupation class:
+  IRESTR = 0
+  if ((PSSIGN == 1.0d0) .and. (IASM == IBSM) .and. (IATP == IBTP)) IRESTR = 1
+
+  NIA = NSSOA(IASM,IATP)
+  NIB = NSSOB(IBSM,IBTP)
+
+  do IB=1,NIB
+    if (IRESTR == 1) then
+      MINIA = IB
+    else
+      MINIA = 1
+    end if
+    do IA=MINIA,NIA
+      IDET = IDET+1
+      !PAM06 call ABSTR_TO_ORDSTR(IASTR(1,IA),IBSTR(1,IB),NAEL,NBEL,
+      call ABSTR_TO_ORDSTR(IASTR(1+NAEL*(IA-1)),IBSTR(1+NBEL*(IB-1)),NAEL,NBEL,IDET_OC,IDET_MS,ISIGN)
+      !    ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISIGN)
+      ! Number of open orbitals in this configuration
+      NOPEN = NOP_FOR_CONF(IDET_OC,NEL)
+      !       NOP_FOR_CONF(ICONF,NEL)
+      NDOUBLE = (NEL-NOPEN)/2
+      NOCOB = NOPEN+NDOUBLE
+      NOPEN_AL = NAEL-NDOUBLE
+      !write(6,*) ' NOPEN, NOPEN_AL = ',NOPEN,NOPEN_AL
+      !ERROR NPTDT = IBION_LUCIA(NOPEN,NOPEN_AL)
+      NPTDT = NPDTCNF(NOPEN+1)
+      ! Packed form of this configuration
+      call REFORM_CONF_OCC(IDET_OC,IDET_VC,NEL,NOCOB,1)
+      !    REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
+      ! Address of this configuration
+      ! Offset to configurations with this number of open orbitals in
+      ! reordered cnf list
+      !write(6,*) 'iconf_reo_new array:'
+      !call iwrtma(iconf_reo_new,1,nconf_tot,1,nconf_tot)
+      !.. Giovanni and Dongxia comment off the following line
+      !ICNF_OUT = ILEX_FOR_CONF(IDET_VC,NOCOB,NORB,NEL,IZ,1,ICONF_REO(IB_OCCLS))
+      !!          ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
+      !.. end
+      !write(6,*) 'ib_conf_reo at line 2401, and maxop',maxop
+      !call iwrtma(ib_conf_reo,1,maxop+1,1,maxop+1)
+      !call iwrtma(nconf_per_open,1,maxop+1,1,maxop+1)
+      !write(6,*) 'before calling ilex_for_conf_new, in reogas_det_s'
+      !write(6,*) 'nopen =',nopen
+      !write(6,*) 'and nconf_per_open(nopen+1) =',nconf_per_open(nopen+1)
+      !write(6,*) 'check iconf_reo array'
+      !call iwrtma(iconf_reo,1,nconf_tot,1,nconf_tot)
+      nconf_op = nconf_per_open(nopen+1)
+      !call iwrtma(nconf_per_open,1,maxop+1,1,maxop+1)
+      icnf_out = ilex_for_conf_new(idet_vc,nocob,norb,nel,iz,1,iconf_reo(ib_conf_reo(nopen+1)),nconf_op,ib_occls)+ &
+                 ib_conf_reo(nopen+1)-1
+      !write(6,*) ' number of configuration in output list',ICNF_OUT
+      ! Spinprojections of open orbitals
+      call EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_VC,NEL)
+      !    EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
+
+      ISIGN_2003 = 1
+      if (abs(PSSIGN) == 1.0d0) then
+        ! If combinations are used, then the prototype determinants
+        ! are defined so the first open spin-orbital is having alpha spin.
+        ! In ab order, the included determinant is defined, by having
+        ! alpha-spin in the first singly occupied orbital. These definitions
+        ! may differ, so ensure that the included det obeys prototype constraint
+        ! Address of this spinprojection pattern
+        if (IDET_VC(1) < 0) then
+          do I=1,NOPEN
+            IDET_VC(I) = -1*IDET_VC(I)
+          end do
+          if (PSSIGN == -1.0d0) ISIGN_2003 = -1
+          ! Update sign AB => ordered list
+          !PAM06 call ABSTR_TO_ORDSTR(IBSTR(1,IB),IASTR(1,IA),NBEL,NAEL,
+          call ABSTR_TO_ORDSTR(IBSTR(1+NBEL*(IB-1)),IASTR(1+NAEL*(IA-1)),NBEL,NAEL,IDET_OC,IDET_MS,ISIGN)
+        end if
+      end if
+      IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,Z_PTDT(NOPEN+1)%I,REO_PTDT(NOPEN+1)%I,1)
+      !       IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
+      !write(6,*) ' Number of det in list of PTDT ', IPTDT
+      !write(6,*) ' IB_SD_FOR_OPEN(NOPEN+1) = ',IB_SD_FOR_OPEN(NOPEN+1)
+      !write(6,*) ' ICNF_OUT, NPTDT ',ICNF_OUT, NPTDT
+      IBCNF_OUT = IB_CONF_OPEN(NOPEN+1)
+      !write(6,*) ' IBCNF_OUT = ',IBCNF_OUT
+      IADR_SD_CONF_ORDER = IB_SD_FOR_OPEN(NOPEN+1)-1+(ICNF_OUT-IBCNF_OUT)*NPTDT+IPTDT
+      if (IADR_SD_CONF_ORDER <= 0) then
+        write(6,*) ' Problemo, IADR_SD_CONF_ORDER < 0'
+        write(6,*) ' IADR_SD_CONF_ORDER = ',IADR_SD_CONF_ORDER
+        call XFLUSH(6)
+      end if
+      !write(6,*) ' IADR_SD_CONF_ORDER, ISIGN, IDET = ',IADR_SD_CONF_ORDER,ISIGN,IDET
+      IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGN_2003
+
+    end do
+    ! End of loop over alpha strings
+  end do
+  ! End of loop over beta strings
+end do
+! End of loop over blocks
+
+NTEST = 0
+if (NTEST >= 100) then
+  write(6,*) ' Reorder array, CONF order => string order'
+  write(6,*) ' ========================================='
+  call IWRTMA(IREO,1,IDET,1,IDET)
+end if
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(NOCTPA)
-        CALL Unused_integer(NOCTPB)
-        CALL Unused_integer(IOCTPA)
-        CALL Unused_integer(IOCTPB)
-        CALL Unused_integer_array(NELFSPGP)
-        CALL Unused_integer_array(DFTP)
-      END IF
-      END
-!
+if (.false.) then
+  call Unused_integer(NOCTPA)
+  call Unused_integer(NOCTPB)
+  call Unused_integer(IOCTPA)
+  call Unused_integer(IOCTPB)
+  call Unused_integer_array(NELFSPGP)
+  call Unused_integer_array(DFTP)
+end if
+
+end subroutine REO_GASDET_S

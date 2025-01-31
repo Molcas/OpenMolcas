@@ -8,30 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION IBION_LUCIA(M,N)
-      IMPLICIT NONE
-      INTEGER M,N
-      INTEGER, EXTERNAL:: IBINOM
+
+integer function IBION_LUCIA(M,N)
+
+implicit none
+integer M, N
+integer, external :: IBINOM
+
 ! PAM05:
 ! The following code does not always work.
 ! Replaced by call to my 'NOVERM' routine, renamed IBINOM.
 !
 ! BIONOMIAL COEFFICIENT (M / N ) = IFAC(M)/(IFAC(M-N)*IFAC(N))
 !
-!      IB = 1
-!      IF(M-N.GE.N) THEN
-!         DO 100 K = (M-N+1), M
-!           IB = IB * K
-!  100    CONTINUE
-!         IB = IB/IFAC(N)
-!      ELSE
-!         DO 200 K = N+1,M
-!           IB = IB * K
-!  200    CONTINUE
-!         IB = IB/IFAC(M-N)
-!      END IF
-!*
-!      IBION_LUCIA = IB
-!C
-      IBION_LUCIA=IBINOM(M,N)
-      END FUNCTION IBION_LUCIA
+!IB = 1
+!if (M-N >= N) then
+!  do K=(M-N+1),M
+!    IB = IB*K
+!  end do
+!  IB = IB/IFAC(N)
+!else
+!  do K=N+1,M
+!    IB = IB*K
+!  end do
+!  IB = IB/IFAC(M-N)
+!end if
+!
+!IBION_LUCIA = IB
+
+IBION_LUCIA = IBINOM(M,N)
+
+end function IBION_LUCIA

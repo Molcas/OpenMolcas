@@ -33,7 +33,7 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !              and nSyBlk                                              *
 !     vInt   : Buffer of 2el integral values                           *
 !     nSqNum : sequence number of the integral relative to             *
-!              the first adress of the symmetry block                  *
+!              the first address of the symmetry block                 *
 !     nSyBlk : symmetry block number of an integral                    *
 !                                                                      *
 !----------------------------------------------------------------------*
