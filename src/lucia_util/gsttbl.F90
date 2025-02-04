@@ -18,17 +18,19 @@ subroutine GSTTBL(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,PSSI
 ! from vector packed in combination format according to IDC
 !
 ! If ISCALE = 1, the routine scales and returns the block
-! in determinant notmalization, and SCLFAC = 1.0D0
+! in determinant normalization, and SCLFAC = 1.0
 !
 ! If ISCALE = 0, the routine does not perform any overall
 ! scaling, and a scale factor is returned in SCLFAC
 !
 ! IF ISCALE = 0, zero blocks are not set explicitly to zero,
-! instead  zero is returned in SCLFAC
+! instead zero is returned in SCLFAC
 !
 ! ISCALE, SCLFAC added May 97
 
 use lucia_data, only: IDISK
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, IDC, LUC, NSMST, ISCALE
@@ -43,8 +45,8 @@ integer IDUMMY(1)
 integer LBL, NO_ZEROING, IMZERO, NAST, NBST, IBASE, NELMNT, NRI, NCI, IAMPACK, LCOMB, LDET
 real*8 PSIGN
 
-!write(6,*) ' GSTTBL,  IATP,IASM,IBTP,IBSM,ISCALE'
-!write(6,*) IATP,IASM,IBTP,IBSM,ISCALE
+!write(u6,*) ' GSTTBL,  IATP,IASM,IBTP,IBSM,ISCALE'
+!write(u6,*) IATP,IASM,IBTP,IBSM,ISCALE
 ! =================
 ! Read in from disc
 ! =================
@@ -52,7 +54,7 @@ if (LUC /= 0) then
   call IDAFILE(LUC,2,IDUMMY,1,IDISK(LUC))
   LBL = IDUMMY(1)
   call IDAFILE(LUC,2,IDUMMY,1,IDISK(LUC))
-  !write(6,*) ' LBL = ',LBL
+  !write(u6,*) ' LBL = ',LBL
   if (ISCALE == 1) then
     call FRMDSC(SCR,LBL,-1,LUC,IMZERO,IAMPACK)
   else
@@ -61,18 +63,18 @@ if (LUC /= 0) then
   end if
 
   if ((IMZERO == 1) .and. (ISCALE == 0)) then
-    SCLFAC = 0.0d0
+    SCLFAC = Zero
   else
     NAST = NSASO(IASM,IATP)
     NBST = NSBSO(IBSM,IBTP)
     if (LBL /= 0) then
       call SDCMRF(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
     else
-      SCLFAC = 0.0d0
+      SCLFAC = Zero
     end if
   end if
 
-  !write(6,*) ' ISCALE and SCLFAC on return in GSTTBL',ISCALE,SCLFAC
+  !write(u6,*) ' ISCALE and SCLFAC on return in GSTTBL',ISCALE,SCLFAC
 
 else
   ! ISGVST and PLSIGN missing to make it work for IDC = 3,4
@@ -80,13 +82,13 @@ else
   ! Pack out from C
   ! =================
   if (ISCALE == 0) then
-    write(6,*) ' GSTTBL : LUC = 0 and ISCALE = 0'
-    write(6,*) ' I will scale as normal'
-    SCLFAC = 1.0d0
+    write(u6,*) ' GSTTBL : LUC = 0 and ISCALE = 0'
+    write(u6,*) ' I will scale as normal'
+    SCLFAC = One
   end if
   ! Permutation sign
   ! To get rid of annoying compiler warning
-  PSIGN = 0.0d0
+  PSIGN = Zero
   if (IDC == 2) then
     PSIGN = PSSIGN
   else if (IDC == 3) then
@@ -103,7 +105,7 @@ else
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IASM,IATP)*NSBSO(IBSM,IBTP)
       call COPVEC(C(IBASE),CTT,NELMNT)
-      !write(6,*) ' simple copy IBASE NELMNT ',IBASE,NELMNT
+      !write(u6,*) ' simple copy IBASE NELMNT ',IBASE,NELMNT
       !call WRTMAT(CTT,NSASO(IASM,IATP),NSBSO(IBSM,IBTP),NSASO(IASM,IATP),NSBSO(IBSM,IBTP))
     !idc else if (IDC == 4) then
     !      !MLMS packed
@@ -144,7 +146,7 @@ else
       NRI = NSASO(IASM,IBTP)
       NCI = NSBSO(IASM,IATP)
       call TRPMT3(C(IBASE),NRI,NCI,CTT)
-      if (PSSIGN == -1.0d0) call SCALVE(CTT,-1.0d0,NRI*NCI)
+      if (PSSIGN == -One) call SCALVE(CTT,-One,NRI*NCI)
     end if
   else if (IASM < IBSM) then
     !*************
@@ -160,25 +162,25 @@ else
       !else if (IDC == 3) then
       !  call COPVEC(C(IBASE),CTT,NRI*NCI)
       end if
-      if (PSIGN == -1.0d0) call SCALVE(CTT,-1.0d0,NRI*NCI)
+      if (PSIGN == -One) call SCALVE(CTT,-One,NRI*NCI)
     !idc else if (IDC  == 4) then
     !      if (IBTP > IATP) then
     !        IBASE = ICOOSC(IBTP,IATP,IBSM)
     !        NRI = NSASO(IBSM,IBTP)
     !        NCI = NSBSO(IASM,IATP)
     !        call TRPMT3(C(IBASE),NRI,NCI,CTT)
-    !        if (PSSIGN == -1.0D0) call SCALVE(CTT,-1.0D0,NRI*NCI)
+    !        if (PSSIGN == -One) call SCALVE(CTT,-One,NRI*NCI)
     !      else if (IBTP == IATP) then
     !        IBASE = ICOOSC(IBTP,IATP,IBSM)
     !        NRI   = NSASO(IBSM,IATP)
     !        NCI   = NSBSO(IASM,IATP)
     !        call TRIPK3(CTT,C(IBASE),2,NRI,NCI,PLSSGN)
-    !        if (PLSIGN == -1.0D0) call SCALVE(CTT,-1.0D0,NRI*NCI)
+    !        if (PLSIGN == -One) call SCALVE(CTT,-One,NRI*NCI)
     !      else if (IBTP < IATP) then
     !        IBASE = ICOOSC(IATP,IBTP,IBSM)
     !        NELMNT = NSASO(IBSM,IATP)*NSBSO(IASM,IBTP)
     !        call COPVEC(C(IBASE),CTT,NELMNT)
-    !        if (PLSIGN == -1.0D0) call SCALVE(CTT,-1.0D0,NELMNT)
+    !        if (PLSIGN == -One) call SCALVE(CTT,-One,NELMNT)
     !idc   end if
     end if
   end if

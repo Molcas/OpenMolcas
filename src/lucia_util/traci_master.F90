@@ -23,6 +23,8 @@ use lucia_data, only: IREFSM, PSSIGN, NROOT
 use lucia_data, only: IDISK
 use lucia_data, only: NSMOB
 use lucia_data, only: NTOOB, NTOOBS
+use Constants, only: Zero, Two
+use Definitions, only: u6
 
 implicit none
 integer JOBDISK, JOBIPH
@@ -40,7 +42,7 @@ NDIM = NTOOB*NTOOB
 NCONF = NCSF_PER_SYM(ISSM)
 ! JESPER: Should reduce I/O
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-if (PSSIGN /= 0.0d0) LBLOCK = int(2.0d0*XISPSM(IREFSM,1))
+if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 
 ! The three scratch  blocks
 call mma_allocate(VEC1,LBLOCK,Label='VEC1')
@@ -57,10 +59,9 @@ do JROOT=1,NROOT
   call DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
   call CSDTVC(VEC4,VEC1,1,DTOC,SDREO,ISSM,0)
   if (NTEST >= 50) then
-    write(6,*) 'CI-vector written to disk for root = ',JROOT
+    write(u6,*) 'CI-vector written to disk for root = ',JROOT
     call WRTMAT(VEC1,1,20,1,20)
-    call XFLUSH(6)
-    write(6,*) 'Writing this to disk:'
+    write(u6,*) 'Writing this to disk:'
     IOFF = 1
     do IREC=1,NREC
       if (LREC(IREC) >= 0) then
@@ -68,7 +69,6 @@ do JROOT=1,NROOT
         IOFF = IOFF+LREC(IREC)
       end if
     end do
-    call XFLUSH(6)
   end if
   call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
   call ITODS([-1],1,LBLK,LUC)
@@ -90,7 +90,7 @@ call Deallocate_Local_Arrays()
 ! The input transformation matrix contains a lot of zeros which
 ! is expected not to be there in Traci_Lucia, so remove them.
 
-LCMOMO(:) = 0.0d0
+LCMOMO(:) = Zero
 IOFF = 1
 IADR = 1
 ICOL = 1
@@ -134,7 +134,7 @@ do JROOT=1,NROOT
     do IREC=1,NREC
       NUM_ELE = NUM_ELE+LREC(IREC)
     end do
-    write(6,*) 'CI-Vector read from disk for root = ',JROOT
+    write(u6,*) 'CI-Vector read from disk for root = ',JROOT
     call WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
   end if
   call CSDTVC(VEC2,VEC1,2,DTOC,SDREO,ISSM,0)
@@ -146,7 +146,6 @@ IDISK(LUDIA) = 0
 if (NTEST >= 100) then
   do JROOT=1,NROOT
     call WRTVCD(VEC1,LUDIA,0,LBLK)
-    call XFLUSH(6)
   end do
 end if
 

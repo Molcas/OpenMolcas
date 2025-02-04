@@ -17,6 +17,8 @@ subroutine ZSPGPIB(NSTSO,ISTSO,NSPGP,NSMST)
 !
 ! Jeppe Olsen, Still summer of 95
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer NSTSO(NSMST,NSPGP)
@@ -32,9 +34,9 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Output from ZSPGPIB'
-  write(6,*) ' ==================='
-  write(6,*)
+  write(u6,*) ' Output from ZSPGPIB'
+  write(u6,*) ' ==================='
+  write(u6,*)
   call IWRTMA(ISTSO,NSMST,NSPGP,NSMST,NSPGP)
 end if
 

@@ -33,6 +33,9 @@ use strbas, only: OCSTR
 use lucia_data, only: NGAS
 use lucia_data, only: NELFGP
 use lucia_data, only: MXPNSMST, MXPNGAS
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer NSTR, NEL
@@ -46,20 +49,20 @@ integer ISTROC(NEL,*)
 integer IGAS, IGASL, NSTRTOT, NELB, NELI, NSTA, JGAS, NSTB, NSTI
 
 ! Number of strings per GAS space
-!write(6,*) ' entering problem child'
+!write(u6,*) ' entering problem child'
 do IGAS=1,NGAS
   NSTFGS(IGAS) = NNSTSGP(ISMFGS(IGAS),IGAS)
   IBSTFGS(IGAS) = IISTSGP(ISMFGS(IGAS),IGAS)
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) '  GETSTR_GASSM_SPGP speaking'
-write(6,*) '  =========================='
-write(6,*) ' ISMFGS,ITPFGS (input)'
+write(u6,*) '  GETSTR_GASSM_SPGP speaking'
+write(u6,*) '  =========================='
+write(u6,*) ' ISMFGS,ITPFGS (input)'
 call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
 call IWRTMA(ITPFGS,1,NGAS,1,NGAS)
-write(6,*)
-write(6,*) ' NSTFGS, IBSTFGS ( intermediate results )'
+write(u6,*)
+write(u6,*) ' NSTFGS, IBSTFGS ( intermediate results )'
 call IWRTMA(NSTFGS,1,NGAS,1,NGAS)
 call IWRTMA(IBSTFGS,1,NGAS,1,NGAS)
 #endif
@@ -101,8 +104,8 @@ do IGAS=1,IGASL
     NSTI = NSTFGS(IGAS)
 
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' NSTI,NSTB,NSTA,NELB,NELI,NEL ',NSTI,NSTB,NSTA,NELB,NELI,NEL
-    write(6,*) ' IBSTFGS(IGAS)',IBSTFGS(IGAS)
+    write(u6,*) ' NSTI,NSTB,NSTA,NELB,NELI,NEL ',NSTI,NSTB,NSTA,NELB,NELI,NEL
+    write(u6,*) ' IBSTFGS(IGAS)',IBSTFGS(IGAS)
 #   endif
 
     call ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),OCSTR(ITPFGS(IGAS))%I,NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
@@ -115,19 +118,19 @@ end do
 NSTR = NSTRTOT
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Info from  GETSTR_GASSM_SPGP'
-write(6,*) ' ============================'
-write(6,*)
-write(6,*) ' Symmetry and type strings :'
-write(6,*)
-write(6,*) '   AS    Sym  Type'
-write(6,*) ' ================='
+write(u6,*) ' Info from  GETSTR_GASSM_SPGP'
+write(u6,*) ' ============================'
+write(u6,*)
+write(u6,*) ' Symmetry and type strings :'
+write(u6,*)
+write(u6,*) '   AS    Sym  Type'
+write(u6,*) ' ================='
 do IGAS=1,NGAS
-  write(6,'(3I6)') IGAS,ISMFGS(IGAS),ITPFGS(IGAS)
+  write(u6,'(3I6)') IGAS,ISMFGS(IGAS),ITPFGS(IGAS)
 end do
-write(6,*)
-write(6,*) ' Number of strings generated : ',NSTR
-write(6,*) ' Strings generated'
+write(u6,*)
+write(u6,*) ' Number of strings generated : ',NSTR
+write(u6,*) ' Strings generated'
 call PRTSTR(ISTROC,NEL,NSTR)
 #endif
 

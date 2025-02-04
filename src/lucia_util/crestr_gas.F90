@@ -39,6 +39,8 @@ subroutine CRESTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGST
 !          if the string have a negative sign
 !          then the phase equals - 1
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer STRING, TI, TTO, STRIN2, Z
 ! Input
@@ -52,13 +54,13 @@ dimension STRIN2(500)
 NTEST0 = 1
 NTEST = max(IPRNT,NTEST0)
 if (NTEST >= 20) then
-  write(6,*) ' ==============='
-  write(6,*) ' CRESTR speaking'
-  write(6,*) ' ==============='
-  write(6,*)
-  write(6,*) ' Number of input electrons ',NEL
+  write(u6,*) ' ==============='
+  write(u6,*) ' CRESTR speaking'
+  write(u6,*) ' ==============='
+  write(u6,*)
+  write(u6,*) ' Number of input electrons ',NEL
 end if
-!write(6,*) ' Reorder array NEWORD'
+!write(u6,*) ' Reorder array NEWORD'
 !call IWRTMA(NEWORD,1,NSTINO,1,NSTINO)
 
 do ISTRIN=1,NSTINI
@@ -98,10 +100,10 @@ do ISTRIN=1,NSTINI
     do I=IPLACE,NEL
       STRIN2(I+1) = STRING(I,ISTRIN)
     end do
-    !write(6,*) ' updated string (STRIN2)'
+    !write(u6,*) ' updated string (STRIN2)'
     !call iwrtma(STRIN2,1,NEL+1,1,NEL+1)
     JSTRIN = ISTRNM(STRIN2,NACOB,NEL+1,Z,NEWORD,1)
-    !write(6,*) ' corresponding number ',JSTRIN
+    !write(u6,*) ' corresponding number ',JSTRIN
 
     TTO(IORB-IORBOF+1,ISTRIN) = JSTRIN
     IIISGN = (-1)**(IPLACE-1)
@@ -116,16 +118,16 @@ end do
 if (NTEST >= 20) then
   MAXPR = 60
   NPR = min(NSTINI,MAXPR)
-  write(6,*) ' Output from CRESTR :'
-  write(6,*) '==================='
+  write(u6,*) ' Output from CRESTR :'
+  write(u6,*) '==================='
 
-  write(6,*)
-  write(6,*) ' Strings with an electron added'
+  write(u6,*)
+  write(u6,*) ' Strings with an electron added'
   do ISTRIN=1,NPR
-    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,NORB)
+    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,NORB)
   end do
   do ISTRIN=1,NPR
-    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,NORB)
+    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,NORB)
   end do
 end if
 

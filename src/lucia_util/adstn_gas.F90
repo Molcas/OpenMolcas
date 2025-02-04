@@ -37,6 +37,7 @@ use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP, NSTFGP, NSTFSMSPGP
 use lucia_data, only: IOBPTS, NOBPT, NOBPTS
 use lucia_data, only: MXPNGAS, MXPNSMST
 use csm_data, only: NSMST
+use Definitions, only: wp, u6
 
 implicit none
 real*8 :: OFFI(*)
@@ -64,26 +65,26 @@ integer NTEST, ISPGRPABS, KSM, KSPGRPABS, NORBTS, IZERO, IBORBSP, IBORBSPS, NGAS
 ! correct symmetry . Nk is provided by this routine.
 
 if (NGAS > MXLNGAS) then
-  write(6,*) ' Ad hoc programming in ADSTN (IOFFI)'
-  write(6,*) ' Must be changed - or redimensioned'
+  write(u6,*) ' Ad hoc programming in ADSTN (IOFFI)'
+  write(u6,*) ' Must be changed - or redimensioned'
   !stop 'ADST : IOFFI problem'
   call SYSABENDMSG('lucia_util/adstn_gas','Internal error','')
 end if
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ===================='
-  write(6,*) ' ADSTN_GAS in service'
-  write(6,*) ' ===================='
-  write(6,*)
-  write(6,*) '  IOBTP IOBSM : ',IOBTP,IOBSM
-  write(6,*) '  ISPGP ISPGPSM ISPGPTP :  ',ISPGP,ISPGPSM,ISPGPTP
+  write(u6,*)
+  write(u6,*) ' ===================='
+  write(u6,*) ' ADSTN_GAS in service'
+  write(u6,*) ' ===================='
+  write(u6,*)
+  write(u6,*) '  IOBTP IOBSM : ',IOBTP,IOBSM
+  write(u6,*) '  ISPGP ISPGPSM ISPGPTP :  ',ISPGP,ISPGPSM,ISPGPTP
 end if
 
-!if (SCLFAC /= 1.0D0) then
-!  write(6,*) ' Problemo : ADSTN_GAS'
-!  write(6,*) ' SCLFAC /= 1'
+!if (SCLFAC /= One) then
+!  write(u6,*) ' Problemo : ADSTN_GAS'
+!  write(u6,*) ' SCLFAC /= 1'
 !end if
 
 ! Supergroup and symmetry of K strings
@@ -92,11 +93,11 @@ ISPGRPABS = IBSPGPFTP(ISPGPTP)-1+ISPGP
 call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
 call SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
 NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
-if (NTEST >= 200) write(6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
+if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
 if (NKSTR == 0) goto 9999
 
 NORBTS = NOBPTS(IOBTP,IOBSM)
-call SETVEC(XI1S,ZERO,NORBTS*NKSTR)
+call SETVEC(XI1S,Zero,NORBTS*NKSTR)
 IZERO = 0
 call ISETVC(I1,IZERO,NORBTS*NKSTR)
 
@@ -130,7 +131,7 @@ end do
 ! Offset and dimension for active group in I strings
 call ICOPVE2(ISTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,IACIST)
 call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,NACIST)
-!write(6,*) ' IACIST and NACIST arrays'
+!write(u6,*) ' IACIST and NACIST arrays'
 !call IWRTMA(IACIST,1,NSMST,1,NSMST)
 !call IWRTMA(NACIST,1,NSMST,1,NSMST)
 
@@ -167,7 +168,7 @@ end do
 call SYMCOM(2,1,ISTSMM1,ISMGSN,ISPGPSM)
 ISMFGS(NGASL) = ISMGSN
 if (NTEST >= 200) then
-  write(6,*) ' next symmetry of NGASL spaces'
+  write(u6,*) ' next symmetry of NGASL spaces'
   call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
 end if
 ! Number of strings with this symmetry combination
@@ -184,16 +185,16 @@ do IGAS=1,NGASL
 end do
 
 if (NTEST >= 1) then !SJS
-  write(6,*)
-  write(6,*) ' ============================'
-  write(6,*) ' If program is crashing here,'
-  write(6,*) ' LOFFI needs to be increased.'
-  write(6,*) ' ============================'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' ============================'
+  write(u6,*) ' If program is crashing here,'
+  write(u6,*) ' LOFFI needs to be increased.'
+  write(u6,*) ' ============================'
+  write(u6,*)
 end if
-OFFI(IOFF) = dble(NSTRINT)+1.001d0
+OFFI(IOFF) = real(NSTRINT,kind=wp)+1.001_wp
 NSTRINT = NSTRINT+NSTRII
-if (NTEST >= 200) write(6,*) ' IOFF, OFFI(IOFF) NSTRII ',IOFF,OFFI(IOFF),NSTRII
+if (NTEST >= 200) write(u6,*) ' IOFF, OFFI(IOFF) NSTRII ',IOFF,OFFI(IOFF),NSTRII
 
 if (NGASL-1 > 0) goto 2000
 2001 continue
@@ -203,7 +204,7 @@ if (NGASL-1 > 0) goto 2000
 !M call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
 !M call SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
 !M NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
-!M if (NTEST >= 200) write(6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
+!M if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
 
 ! Gas structure of K strings
 
@@ -246,7 +247,7 @@ else
 end if
 KFIRST = 0
 if (NTEST >= 200) then
-  write(6,*) ' next symmetry of NGASL-1 spaces'
+  write(u6,*) ' next symmetry of NGASL-1 spaces'
   call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
 end if
 ! Symmetry of NGASL -1 spaces given, symmetry of total space
@@ -257,15 +258,15 @@ do IGAS=1,NGASL-1
 end do
 ! required sym of SPACE NGASL
 call SYMCOM(2,1,ISTSMM1,ISMGSN,KSM)
-!write(6,*) ' after  SYMCOM'
-!write(6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
+!write(u6,*) ' after  SYMCOM'
+!write(u6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
 ISMFGS(NGASL) = ISMGSN
 
 do IGAS=NGASL+1,NGAS
   ISMFGS(IGAS) = 1
 end do
 if (NTEST >= 200) then
-  write(6,*) ' Next symmetry distribution'
+  write(u6,*) ' Next symmetry distribution'
   call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
 end if
 ! Number of strings of this symmetry distribution
@@ -285,7 +286,7 @@ do IGAS=1,NGAS
 end do
 ISMFGS(IOBTP) = ISAVE
 IBSTRINI = int(OFFI(IOFF))
-!write(6,*) ' IOFF IBSTRINI ',IOFF,IBSTRINI
+!write(u6,*) ' IOFF IBSTRINI ',IOFF,IBSTRINI
 ! Number of strings before active GAS space
 NSTB = 1
 do IGAS=1,IOBTP-1
@@ -297,7 +298,7 @@ do IGAS=IOBTP+1,NGAS
   NSTA = NSTA*NNSTSGP(ISMFGS(IGAS),IGAS)
 end do
 ! Number and offset for active group
-!write(6,*) ' IACSM = ',IACSM
+!write(u6,*) ' IACSM = ',IACSM
 NIAC = NACIST(IACSM)
 IIAC = IACIST(IACSM)
 
@@ -305,13 +306,13 @@ NKAC = NNSTSGP(ISMFGS(IOBTP),IOBTP)
 IKAC = IISTSGP(ISMFGS(IOBTP),IOBTP)
 ! I and K strings of given symmetry distribution
 NKSD = NSTB*NKAC*NSTA
-!write(6,*) ' nstb nsta niac nkac ',nstb,nsta,niac,nkac
+!write(u6,*) ' nstb nsta niac nkac ',nstb,nsta,niac,nkac
 ! Obtain annihilation n mapping for all strings of this type
 
 NORBTS = NOBPTS(IOBTP,IOBSM)
 
 NKACT = NSTFGP(KACGRP)
-!write(6,*) ' KACGRP ',KACGRP
+!write(u6,*) ' KACGRP ',KACGRP
 call ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC, &
                  NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC)
 KSTRBS = KSTRBS+NKSD
@@ -321,14 +322,14 @@ if (NGASL-1 > 0) goto 1000
 9999 continue
 
 if (NTEST >= 100) then
-  write(6,*) ' Output from ADSTN_GAS'
-  write(6,*) ' ====================='
-  write(6,*) ' Total number of K strings ',NKSTR
+  write(u6,*) ' Output from ADSTN_GAS'
+  write(u6,*) ' ====================='
+  write(u6,*) ' Total number of K strings ',NKSTR
   if (NKSTR /= 0) then
     do IORB=IBORBSPS,IBORBSPS+NORBTS-1
       IORBR = IORB-IBORBSPS+1
-      write(6,*) ' Info for orbital ',IORB
-      write(6,*) ' Excited strings and sign'
+      write(u6,*) ' Info for orbital ',IORB
+      write(u6,*) ' Excited strings and sign'
       call IWRTMA(I1((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
       call WRTMAT(XI1S((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
     end do

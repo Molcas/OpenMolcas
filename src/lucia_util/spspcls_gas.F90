@@ -13,7 +13,7 @@ subroutine SPSPCLS_GAS(NOCTPA,NOCTPB,IOCA,IOCB,NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS
 ! Obtain mapping a-supergroup X b-supergroup => class
 !
 ! =====
-!.Input
+! Input
 ! =====
 !
 ! NOCTPA : Number of alpha types
@@ -26,11 +26,13 @@ subroutine SPSPCLS_GAS(NOCTPA,NOCTPB,IOCA,IOCB,NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS
 ! NGAS    : Actual number of gas spaces
 !
 ! ======
-!.Output
+! Output
 ! ======
 !
 ! ISPSPCLS(IATP,IBTP) => Class of this block of determinants
 !                        =0 indicates unallowed(class less) combination
+
+use Definitions, only: u6
 
 ! Input
 integer IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB)
@@ -42,14 +44,14 @@ integer ISPSPCLS(NOCTPA,NOCTPB)
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST >= 10) then
-  write(6,*) ' ISPSPCLS_GAS entered'
-  write(6,*) ' ===================='
-  write(6,*)
-  write(6,*) ' IOCA and IOCB'
+  write(u6,*) ' ISPSPCLS_GAS entered'
+  write(u6,*) ' ===================='
+  write(u6,*)
+  write(u6,*) ' IOCA and IOCB'
   call IWRTMA(IOCA,NGAS,NOCTPA,MXPNGAS,NGAS)
   call IWRTMA(IOCB,NGAS,NOCTPB,MXPNGAS,NGAS)
-  write(6,*)
-  write(6,*) ' ICLS'
+  write(u6,*)
+  write(u6,*) ' ICLS'
   call IWRTMA(ICLS,NGAS,NCLS,NGAS,NCLS)
 end if
 
@@ -69,9 +71,9 @@ do IATP=1,NOCTPA
 end do
 
 if (NTEST >= 10) then
-  write(6,*)
-  write(6,*) ' Matrix giving classes for alpha-beta supergroups'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Matrix giving classes for alpha-beta supergroups'
+  write(u6,*)
   call IWRTMA(ISPSPCLS,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end if
 

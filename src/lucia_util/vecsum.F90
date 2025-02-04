@@ -12,30 +12,32 @@
 subroutine VECSUM(C,A,B,FACA,FACB,NDIM)
 ! CALCULATE THE VECTOR C(I)=FACA*A(I)+FACB*B(I)
 
+use Constants, only: Zero
+
 implicit real*8(A-H,O-Z)
 dimension A(*), B(*), C(*)
 
-if ((FACA /= 0.0d0) .and. (FACB /= 0.0d0)) then
+if ((FACA /= Zero) .and. (FACB /= Zero)) then
   do I=1,NDIM
     S = FACA*A(I)+FACB*B(I)
     C(I) = S
   end do
 
-else if ((FACA == 0.0d0) .and. (FACB /= 0.0d0)) then
+else if ((FACA == Zero) .and. (FACB /= Zero)) then
   do I=1,NDIM
     S = FACB*B(I)
     C(I) = S
   end do
 
-else if ((FACA /= 0.0d0) .and. (FACB == 0.0d0)) then
+else if ((FACA /= Zero) .and. (FACB == Zero)) then
   do I=1,NDIM
     S = FACA*A(I)
     C(I) = S
   end do
 
-else if ((FACA == 0.0d0) .and. (FACB == 0.0d0)) then
+else if ((FACA == Zero) .and. (FACB == Zero)) then
   do I=1,NDIM
-    C(I) = 0.0d0
+    C(I) = Zero
   end do
 
 end if

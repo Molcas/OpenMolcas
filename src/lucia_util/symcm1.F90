@@ -25,16 +25,16 @@ data SYMPRO/1,2,3,4,5,6,7,8,2,1,4,3,6,5,8,7,3,4,1,2,7,8,5,6,4,3,2,1,8,7,6,5,5,6,
 if (ITASK == 1) then
   I1 = SYMPRO(I2,I12)
 
-  !if ((I12 > 8) .or. (I2 > 8) .or. (I12 <= 0) .or. (I2 <= 0)) write(6,*) ' I12 and I2 = ',I12,I2
+  !if ((I12 > 8) .or. (I2 > 8) .or. (I12 <= 0) .or. (I2 <= 0)) write(u6,*) ' I12 and I2 = ',I12,I2
 
 else if (ITASK == 2) then
 
-  !if ((I12 > 8) .or. (I1 > 8) .or. (I12 <= 0) .or. (I1 <= 0)) write(6,*) ' I12 and I1 = ',I12,I1
+  !if ((I12 > 8) .or. (I1 > 8) .or. (I12 <= 0) .or. (I1 <= 0)) write(u6,*) ' I12 and I1 = ',I12,I1
 
   I2 = SYMPRO(I1,I12)
 else if (ITASK == 3) then
 
-  !if ((I2 > 8) .or. (I1 > 8) .or. (I2 <= 0) .or. (I1 <= 0)) write(6,*) ' I2 and I1 = ',I2,I1
+  !if ((I2 > 8) .or. (I1 > 8) .or. (I2 <= 0) .or. (I1 <= 0)) write(u6,*) ' I2 and I1 = ',I2,I1
 
   I12 = SYMPRO(I1,I2)
 

@@ -31,20 +31,23 @@ subroutine SDCMRF(CSD,CCM,IWAY,IATP,IBTP,IASM,IBSM,NA,NB,IDC,PS,PL,ISGVST,LDET,L
 ! If ISCALE == 0, no overall scaling is performed,
 !                 the overall scale factor is returned as SCLFAC
 
+use Constants, only: One, Two
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension CSD(*), CCM(*), ISGVST(*)
 logical Test1, Test2
 
 NTEST = 0
 
-SQRT2 = sqrt(2.0d0)
-SQRT2I = 1.0d0/SQRT2
+SQRT2 = sqrt(Two)
+SQRT2I = One/SQRT2
 
 ! Is combination array packed ?
 
-SCLFAC = 1.0d0
+SCLFAC = One
 IPACK = 0
-FACTOR = 1.0d0
+FACTOR = One
 
 Test1 = (IDC == 2) .or. (IDC == 4)
 if (.not. Test1) then
@@ -61,18 +64,18 @@ if (Test1) then
 else if (Test2) then
   if (IATP == IBTP) IPACK = 1
   SIGN = PS*PL
-  FACTOR = 2.0d0
+  FACTOR = Two
 end if
 
 LDET = NA*NB
-if (NTEST >= 100) write(6,*) ' SDCMRF : NA, NB =',NA,NB
+if (NTEST >= 100) write(u6,*) ' SDCMRF : NA, NB =',NA,NB
 if (IPACK == 0) then
   LCOMB = LDET
 else
   LCOMB = NA*(NA+1)/2
 end if
 if ((IDC == 4) .and. (IPACK == 0)) FACTOR = SQRT2
-if (IWAY == 2) FACTOR = 1.0d0/FACTOR
+if (IWAY == 2) FACTOR = One/FACTOR
 
 ! SD => combination transformation
 
@@ -85,9 +88,9 @@ if (IWAY == 1) then
     call COPVEC(CSD,CCM,NA*NB)
   end if
   ! Scale
-  if (FACTOR /= 1.0d0) then
+  if (FACTOR /= One) then
     if (ISCALE == 1) then
-      SCLFAC = 1.0d0
+      SCLFAC = One
       call SCALVE(CCM,FACTOR,LCOMB)
     else
       SCLFAC = FACTOR
@@ -106,9 +109,9 @@ if (IWAY == 2) then
     call COPVEC(CCM,CSD,NA*NB)
   end if
   ! Scale
-  if (FACTOR /= 1.0d0) then
+  if (FACTOR /= One) then
     if (ISCALE == 1) then
-      SCLFAC = 1.0d0
+      SCLFAC = One
       call SCALVE(CSD,FACTOR,LDET)
     else
       SCLFAC = FACTOR
@@ -120,15 +123,15 @@ end if
 NTEST = 0
 !if ((NTEST /= 0) .and. (IWAY == 1)) then
 if (NTEST /= 0) then
-  write(6,*) ' Information from SDCMRF'
+  write(u6,*) ' Information from SDCMRF'
 
-  write(6,'(A,6I4)') ' IWAY IATP IBTP IASM IBSM IDC ',IWAY,IATP,IBTP,IASM,IBSM,IDC
-  write(6,'(A,I4,3X,2ES15.8)') ' IPACK FACTOR SIGN',IPACK,FACTOR,SIGN
+  write(u6,'(A,6I4)') ' IWAY IATP IBTP IASM IBSM IDC ',IWAY,IATP,IBTP,IASM,IBSM,IDC
+  write(u6,'(A,I4,3X,2ES15.8)') ' IPACK FACTOR SIGN',IPACK,FACTOR,SIGN
   if (NTEST >= 100) then
-    write(6,*) ' Slater determinant block'
+    write(u6,*) ' Slater determinant block'
     call WRTMAT(CSD,NA,NB,NA,NB)
-    write(6,*)
-    write(6,*) ' Combination block'
+    write(u6,*)
+    write(u6,*) ' Combination block'
     if (IPACK == 1) then
       call PRSM2(CCM,NA)
     else

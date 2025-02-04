@@ -19,6 +19,8 @@ subroutine SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
 !
 ! Jeppe Olsen, Spring of 1991
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension ISMOST(MXPCSM,MXPCSM)
 
@@ -32,11 +34,11 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' ==============='
-  write(6,*) ' Info from SMOST'
-  write(6,*) ' ==============='
+  write(u6,*) ' ==============='
+  write(u6,*) ' Info from SMOST'
+  write(u6,*) ' ==============='
   do ITOTSM=1,NSMCI
-    write(6,*) ' ISMOST array for ITOTSM = ',ITOTSM
+    write(u6,*) ' ISMOST array for ITOTSM = ',ITOTSM
     call IWRTMA(ISMOST(1,ITOTSM),1,NSMST,1,NSMST)
   end do
 end if

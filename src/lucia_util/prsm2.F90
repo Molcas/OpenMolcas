@@ -12,11 +12,13 @@
 subroutine PRSM2(A,NDIM)
 ! PRINT LOWER TRIANGULAR MATRIX PACKED IN COLUMN WISE FASHION
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension A(*)
 
 do I=1,NDIM
-  write(6,1010) I,(A((J-1)*NDIM-J*(J-1)/2+I),J=1,I)
+  write(u6,1010) I,(A((J-1)*NDIM-J*(J-1)/2+I),J=1,I)
 end do
 
 return

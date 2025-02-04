@@ -19,6 +19,7 @@ subroutine MINMAX_FOR_SYM_DIST(NIGRP,IGRP,MNVAL,MXVAL,NDIST)
 !              April 1998     From  MINMAX_SM_GP
 
 use lucia_data, only: MINMAX_SM_GP
+use Definitions, only: u6
 
 implicit none
 ! Input
@@ -30,7 +31,7 @@ integer MNVAL(NIGRP), MXVAL(NIGRP)
 integer NTEST, JGRP
 
 NTEST = 0
-if (NTEST >= 100) write(6,*) ' >> Entering MINMAX_... <<'
+if (NTEST >= 100) write(u6,*) ' >> Entering MINMAX_... <<'
 
 do JGRP=1,NIGRP
   MNVAL(JGRP) = MINMAX_SM_GP(1,IGRP(JGRP))
@@ -42,7 +43,7 @@ end do
 !  call ICOPVE2(NSTSGP(1)%I,(IGRP(JGRP)-1)*NSMST+1,NSMST,LSMGP(1,JGRP))
 !end do
 !if (NTEST >= 1000) then
-!  write(6,*) ' LSMGP'
+!  write(u6,*) ' LSMGP'
 !  call IWRTMA(LSMGP,NSMST,NIGRP,MXPOBS,NIGRP)
 !end if
 ! Max and min sym in each group
@@ -67,18 +68,18 @@ do JGRP=1,NIGRP
 end do
 
 if (NTEST >= 100) then
-  write(6,*) ' Group combination :'
-  write(6,'(5X,10I3)') (IGRP(JGRP),JGRP=1,NIGRP)
-  write(6,*)
-  write(6,*) ' Group Minsym Maxsym'
-  write(6,*) ' ==================='
+  write(u6,*) ' Group combination :'
+  write(u6,'(5X,10I3)') (IGRP(JGRP),JGRP=1,NIGRP)
+  write(u6,*)
+  write(u6,*) ' Group Minsym Maxsym'
+  write(u6,*) ' ==================='
   do JGRP=1,NIGRP
-    write(6,'(3I6)') IGRP(JGRP),MNVAL(JGRP),MXVAL(JGRP)
+    write(u6,'(3I6)') IGRP(JGRP),MNVAL(JGRP),MXVAL(JGRP)
   end do
-  write(6,*)
-  write(6,*) ' Total number of distributions',NDIST
+  write(u6,*)
+  write(u6,*) ' Total number of distributions',NDIST
 end if
 
-if (NTEST >= 1000) write(6,*) ' >> Leaving MINMAX_... <<'
+if (NTEST >= 1000) write(u6,*) ' >> Leaving MINMAX_... <<'
 
 end subroutine MINMAX_FOR_SYM_DIST

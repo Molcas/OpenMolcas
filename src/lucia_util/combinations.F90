@@ -12,6 +12,7 @@
 subroutine COMBINATIONS(ICOMBI,SIGN)
 
 use lucia_data, only: PSSIGN
+use Constants, only: Zero
 
 implicit none
 integer ICOMBI
@@ -19,6 +20,6 @@ real*8 SIGN
 
 ICOMBI = 0
 SIGN = PSSIGN
-if (PSSIGN /= 0.0d0) ICOMBI = 1
+if (PSSIGN /= Zero) ICOMBI = 1
 
 end subroutine COMBINATIONS

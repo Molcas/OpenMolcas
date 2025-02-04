@@ -16,6 +16,8 @@ subroutine GET_CKAJJB(CB,NJ,NJA,CKAJJB,NKA,NJB,J,ISCA,SSCA)
 !
 ! For efficient processing of alpha-beta loop
 
+use Constants, only: Zero
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension CB(NJB,NJA), SSCA(*), ISCA(*)
@@ -25,7 +27,7 @@ dimension CKAJJB(*)
 ! To get rid of annoying and incorrect compiler warnings
 ICOFF = 0
 
-!write(6,*) ' From GET_CKAJJB'
+!write(u6,*) ' From GET_CKAJJB'
 !LBLK = 100
 LBLK = 40
 NBLK = NJB/LBLK
@@ -57,7 +59,7 @@ do ICBL=1,NBLK
         do JB=ICOFF,ICEND
           !IADR = KA+(J-1)*NKA+(JB-1)*NKA*NJ
           IADR = IADR+ICONST
-          CKAJJB(IADR) = 0.0d0
+          CKAJJB(IADR) = Zero
         end do
       end if
     end do
@@ -79,7 +81,7 @@ do ICBL=1,NBLK
         !do JB=ICOFF,ICEND
         !  IADR = KA + (J-1)*NKA+(JB-1)*NKA*NJ
         IADR = IADR+ICONST
-        CKAJJB(IADR) = 0.0d0
+        CKAJJB(IADR) = Zero
         !end do
       end if
     end do

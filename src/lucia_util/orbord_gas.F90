@@ -47,6 +47,8 @@ subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NOCOBS,NTOOBS,NTOOB
 !
 ! Jeppe Olsen, Winter 1994
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension NGSOB(MXPOBS,MXPNGAS), NOCOBS(*), NTOOBS(*)
@@ -142,35 +144,35 @@ end do
 NTEST = 0
 NTEST = max(IPRNT,NTEST)
 if (NTEST /= 0) then
-  write(6,*)
-  write(6,*) ' =================='
-  write(6,*) ' Output from ORBORD'
-  write(6,*) ' =================='
-  write(6,*)
-  write(6,*) ' Symmetry of orbitals, type ordered'
+  write(u6,*)
+  write(u6,*) ' =================='
+  write(u6,*) ' Output from ORBORD'
+  write(u6,*) ' =================='
+  write(u6,*)
+  write(u6,*) ' Symmetry of orbitals, type ordered'
   call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-  write(6,*) ' Symmetry => type reordering array'
+  write(u6,*) ' Symmetry => type reordering array'
   call IWRTMA(IREOST,1,NTOOB,1,NTOOB)
-  write(6,*) ' Type => symmetry reordering array'
+  write(u6,*) ' Type => symmetry reordering array'
   call IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
-  write(6,*) ' IBSO array'
+  write(u6,*) ' IBSO array'
   call IWRTMA(IBSO,1,NSMOB,1,NSMOB)
 
-  write(6,*) ' NOBPTS'
+  write(u6,*) ' NOBPTS'
   call IWRTMA(NOBPTS,NGAS,NSMOB,MXPNGAS,MXPOBS)
-  write(6,*) ' NOBPT'
+  write(u6,*) ' NOBPT'
   call IWRTMA(NOBPT,NGAS,1,MXPNGAS,1)
-  write(6,*) ' IOBPTS'
+  write(u6,*) ' IOBPTS'
   call IWRTMA(IOBPTS,NGAS,NSMOB,MXPNGAS,MXPOBS)
 
-  write(6,*) ' ISFTO array :'
+  write(u6,*) ' ISFTO array :'
   call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-  write(6,*) ' ITFSO array :'
+  write(u6,*) ' ITFSO array :'
   call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
 
-  write(6,*) ' ISFSO array :'
+  write(u6,*) ' ISFSO array :'
   call IWRTMA(ISFSO,1,NTOOB,1,NTOOB)
-  write(6,*) ' ITFTO array :'
+  write(u6,*) ' ITFTO array :'
   call IWRTMA(ITFTO,1,NTOOB,1,NTOOB)
 end if
 

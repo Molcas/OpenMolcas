@@ -18,6 +18,7 @@ subroutine GET_SPGP_INF(ISPGP,ITP,IGRP)
 
 use lucia_data, only: NGAS
 use lucia_data, only: IBSPGPFTP, ISPGPFTP
+use Definitions, only: u6
 
 implicit none
 integer ISPGP, ITP
@@ -26,13 +27,13 @@ integer NTEST, ISPGPABS
 
 NTEST = 0
 ! Absolute group number
-!write(6,*) ' GET_SPGP_INF : ISPGP, ITP',ISPGP,ITP
+!write(u6,*) ' GET_SPGP_INF : ISPGP, ITP',ISPGP,ITP
 ISPGPABS = ISPGP+IBSPGPFTP(ITP)-1
 call ICOPVE(ISPGPFTP(1,ISPGPABS),IGRP,NGAS)
 
 if (NTEST >= 100) then
-  write(6,*) ' GET_SPGP_INF : ISPGP ITP ISPGPABS',ISPGP,ITP,ISPGPABS
-  write(6,*) ' Groups of supergroups'
+  write(u6,*) ' GET_SPGP_INF : ISPGP ITP ISPGPABS',ISPGP,ITP,ISPGPABS
+  write(u6,*) ' Groups of supergroups'
   call IWRTMA(IGRP,1,NGAS,1,NGAS)
 end if
 

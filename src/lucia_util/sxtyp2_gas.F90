@@ -21,6 +21,8 @@ subroutine SXTYP2_GAS(NSXTYP,ITP,JTP,NGAS,ILTP,IRTP,IPHGAS)
 !          Occupations of particle spaces (IPHGAS=2) are allowed to
 !          have occupations less than zero in intermidiate steps
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension ILTP(NGAS), IRTP(NGAS), IPHGAS(*)
@@ -65,17 +67,17 @@ end if
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Output from SXTYP_GAS :'
-  write(6,*) ' ======================='
-  write(6,*) ' Input left  supergroup'
+  write(u6,*) ' Output from SXTYP_GAS :'
+  write(u6,*) ' ======================='
+  write(u6,*) ' Input left  supergroup'
   call IWRTMA(ILTP,1,NGAS,1,NGAS)
-  write(6,*) ' Input right supergroup'
+  write(u6,*) ' Input right supergroup'
   call IWRTMA(IRTP,1,NGAS,1,NGAS)
-  write(6,*) ' Number of connecting single excitations ',NSXTYP
+  write(u6,*) ' Number of connecting single excitations ',NSXTYP
   if (NSXTYP /= 0) then
-    write(6,*) ' Connecting single excitations'
+    write(u6,*) ' Connecting single excitations'
     do ISX=1,NSXTYP
-      write(6,*) ITP(ISX),JTP(ISX)
+      write(u6,*) ITP(ISX),JTP(ISX)
     end do
   end if
 end if

@@ -19,8 +19,8 @@ integer LREC(NREC)
 
 IOFF = 1
 do IREC=1,NREC
-  !write(6,*) ' TODSCN: IREC, LREC ',IREC,LREC(IREC)
-  !write(6,*) ' Input record'
+  !write(u6,*) ' TODSCN: IREC, LREC ',IREC,LREC(IREC)
+  !write(u6,*) ' Input record'
   !call WRTMAT(VEC(IOFF),1,LREC(IREC),1,LREC(IREC))
   if (LREC(IREC) >= 0) then
     call ITODS(LREC(IREC),1,LBLK,LU)

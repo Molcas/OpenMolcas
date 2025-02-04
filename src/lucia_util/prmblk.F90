@@ -38,6 +38,9 @@ subroutine PRMBLK(IDC,ISGV,IASM,IBSM,IATP,IBTP,PS,PL,JATP,JBTP,JASM,JBSM,ISGN,IT
 !   * Ms+Ml      * ISGV(IBSM) * ISGV(IASM) * IBTP * IATP *   1   * PS PL*
 !   *********************************************************************
 
+use Constants, only: One
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension ISGV(*)
@@ -76,9 +79,9 @@ do IPERM=1,4
     KBSM = ISGV(IBSM)
     KATP = IATP
     KBTP = IBTP
-    if (PL == 1.0d0) then
+    if (PL == One) then
       KSIGN = 1
-    else if (PL == -1.0d0) then
+    else if (PL == -One) then
       KSIGN = -1
     end if
     KTRP = 0
@@ -91,9 +94,9 @@ do IPERM=1,4
     KBSM = IASM
     KATP = IBTP
     KBTP = IATP
-    if (PS == 1.0d0) then
+    if (PS == One) then
       KSIGN = 1
-    else if (PS == -1.0d0) then
+    else if (PS == -One) then
       KSIGN = -1
     end if
     KTRP = 1
@@ -106,9 +109,9 @@ do IPERM=1,4
     KBSM = ISGV(IASM)
     KATP = IBTP
     KBTP = IATP
-    if (PS*PL == 1.0d0) then
+    if (PS*PL == One) then
       KSIGN = 1
-    else if (PS == -1.0d0) then
+    else if (PS == -One) then
       KSIGN = -1
     end if
     KTRP = 1
@@ -149,12 +152,12 @@ ITRP(NPERM+1) = LTRP
 ISGN(NPERM+1) = LSIGN
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,'(A,4I4)') ' Blocks obtained from IASM IBSM IATP IBTP ',IASM,IBSM,IATP,IBTP
-  write(6,*)
-  write(6,'(A)') ' JASM JBSM JATP JBTP Isgn Itrp'
-  write(6,*)
+  write(u6,'(A,4I4)') ' Blocks obtained from IASM IBSM IATP IBTP ',IASM,IBSM,IATP,IBTP
+  write(u6,*)
+  write(u6,'(A)') ' JASM JBSM JATP JBTP Isgn Itrp'
+  write(u6,*)
   do IPERM=1,NPERM
-    write(6,'(2x,6I4)') JASM(IPERM),JBSM(IPERM),JATP(IPERM),JBTP(IPERM),ISGN(IPERM),ITRP(IPERM)
+    write(u6,'(2x,6I4)') JASM(IPERM),JBSM(IPERM),JATP(IPERM),JBTP(IPERM),ISGN(IPERM),ITRP(IPERM)
   end do
 end if
 

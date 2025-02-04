@@ -67,6 +67,8 @@ subroutine GSBBD2B_LUCIA(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,
 use stdalloc, only: mma_allocate, mma_deallocate
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: LOFFI
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -90,22 +92,22 @@ real*8, allocatable :: OFFI(:)
 NTESTL = 0
 NTEST = max(NTESTL,NTESTG)
 if (NTEST >= 500) then
-  write(6,*) ' ================'
-  write(6,*) ' GSBBD2B speaking'
-  write(6,*) ' ================'
+  write(u6,*) ' ================'
+  write(u6,*) ' GSBBD2B speaking'
+  write(u6,*) ' ================'
 end if
-!write(6,*) ' NJAS NJB = ',NJA,NJB
-!write(6,*) ' IAGRP IBGRP = ',IAGRP,IBGRP
-!write(6,*) ' MXPNGAS = ',MXPNGAS
-!write(6,*) ' NSMOB = ',NSMOB
+!write(u6,*) ' NJAS NJB = ',NJA,NJB
+!write(u6,*) ' IAGRP IBGRP = ',IAGRP,IBGRP
+!write(u6,*) ' MXPNGAS = ',MXPNGAS
+!write(u6,*) ' NSMOB = ',NSMOB
 
 ! Symmetry of allowed excitations
 IJSM = STSTSX(IASM,JASM)
 KLSM = STSTSX(IBSM,JBSM)
 if ((IJSM == 0) .or. (KLSM == 0)) return
 if (NTEST >= 600) then
-  write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
-  write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
+  write(u6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
+  write(u6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
 end if
 ! Types of SX that connects the two strings
 call SXTYP_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC)
@@ -115,7 +117,7 @@ if ((NIJTYP == 0) .or. (NKLTYP == 0)) return
 ! outerlooped to here. OFFI added to call parameters of
 ! ADSTN_GAS. PAM March 2006.
 call mma_allocate(OFFI,lOFFI,Label='OFFI')
-OFFI(:) = 0.0d0
+OFFI(:) = Zero
 
 do IJTYP=1,NIJTYP
   ITYP = ITP(IJTYP)
@@ -124,7 +126,7 @@ do IJTYP=1,NIJTYP
     JSM = ADSXA(ISM,IJSM)
     if (JSM == 0) goto 1940
     ntest = 0 !yjma
-    if (ntest >= 1500) write(6,*) ' ISM JSM ',ISM,JSM
+    if (ntest >= 1500) write(u6,*) ' ISM JSM ',ISM,JSM
     IOFF = IOBPTS(ITYP,ISM)
     JOFF = IOBPTS(JTYP,JSM)
     NI = NOBPTS(ITYP,ISM)
@@ -135,8 +137,7 @@ do IJTYP=1,NIJTYP
     call ADSTN_GAS(OFFI,JSM,JTYP,JATP,JASM,IAGRP,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFAC)
     if (NKASTR == 0) goto 1940
     ! a+i!ka> = +/-/0 * !Ia>
-    ONE = 1.0d0
-    call ADSTN_GAS(OFFI,ISM,ITYP,IATP,IASM,IAGRP,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,ONE)
+    call ADSTN_GAS(OFFI,ISM,ITYP,IATP,IASM,IAGRP,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,One)
     if (NKASTR == 0) goto 1940
     ! Compress list to common nonvanishing elements
     IDOCOMP = 1
@@ -190,18 +191,16 @@ do IJTYP=1,NIJTYP
 
           if ((NK == 0) .or. (NL == 0)) goto 1930
           ! Obtain all connections a+l!Kb> = +/-/0!Jb>
-          ONE = 1.0d0
-          call ADSTN_GAS(OFFI,LSM,LTYP,JBTP,JBSM,IBGRP,I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE)
+          call ADSTN_GAS(OFFI,LSM,LTYP,JBTP,JBSM,IBGRP,I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,One)
           if (NKBSTR == 0) goto 1930
           ! Obtain all connections a+k!Kb> = +/-/0!Ib>
-          call ADSTN_GAS(OFFI,KSM,KTYP,IBTP,IBSM,IBGRP,I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE)
+          call ADSTN_GAS(OFFI,KSM,KTYP,IBTP,IBSM,IBGRP,I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,One)
           if (NKBSTR == 0) goto 1930
 
           ! Update two-electron density matrix
           ! Rho2b(ij,kl) =  Sum(ka)S(Ka,i,Ib)<Ib!Eb(kl)!Jb>C(Ka,j,Jb)
 
-          ZERO = 0.0d0
-          call SETVEC(X,ZERO,NI*NJ*NK*NL)
+          call SETVEC(X,Zero,NI*NJ*NK*NL)
 
           call ABTOR2(SIRES,CJRES,LKABTC,NIB,NJB,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
           ! contributions to Rho2(ij,kl) has been obtained, scatter out
@@ -220,8 +219,8 @@ do IJTYP=1,NIJTYP
 
           call ADTOR2(RHO2,RHO2S,RHO2A,X,2,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB,IPACK)
 
-          !write(6,*) ' updated density matrix B ','norb = ',norb
-          !write(6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
+          !write(u6,*) ' updated density matrix B ','norb = ',norb
+          !write(u6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
           !call prsym(rho2s,NORB*(NORB+1)/2)
 
 1930      continue

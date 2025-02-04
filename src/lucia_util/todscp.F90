@@ -31,8 +31,8 @@ real*8 XPAK(LPBLK)
 integer IPACK, IMZERO, MMBLOCK, IELMNT, LBATCH
 real*8 XNORM
 
-!write(6,*) ' entering TODSCP, file = ',IFIL
-!call XFLUSH(6)
+!write(u6,*) ' entering TODSCP, file = ',IFIL
+!call XFLUSH(u6)
 IPACK = 1
 if (IPACK /= 0) then
   ! Check norm of A before writing
@@ -62,7 +62,7 @@ LBATCH = 0
 999 continue
 if (NDIM >= 1) then
   IELMNT = IELMNT+1
-  if (A(IELMNT) /= ZERO) then
+  if (A(IELMNT) /= Zero) then
     LBATCH = LBATCH+1
     IPAK(LBATCH) = IELMNT
     XPAK(LBATCH) = A(IELMNT)

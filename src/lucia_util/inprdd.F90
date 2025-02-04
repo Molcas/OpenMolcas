@@ -14,8 +14,8 @@ real*8 function INPRDD(VEC1,VEC2,LU1,LU2,IREW,LBLK)
 !
 ! LBLK DEFINES STRUCTURE OF FILE
 
-use Constants, only: Zero
 use lucia_data, only: IDISK
+use Constants, only: Zero
 
 implicit none
 real*8 VEC1(*), VEC2(*)
@@ -71,7 +71,7 @@ if (NBL1 >= 0) then
   if (DIFVEC) then
     call FRMDSC(VEC2,NBL1,KBLK,LU2,IMZERO,IAMPACK)
     if (NBL1 > 0) X = X+INPROD(VEC1,VEC2,NBL1)
-    !write(6,*) ' vec1 and vec2 in INPRDD'
+    !write(u6,*) ' vec1 and vec2 in INPRDD'
     !call WRTMAT(VEC1,1,NBL1,1,NBL1)
     !call WRTMAT(VEC2,1,NBL1,1,NBL1)
   else

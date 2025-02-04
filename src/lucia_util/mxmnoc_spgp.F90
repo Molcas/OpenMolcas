@@ -12,6 +12,8 @@
 subroutine MXMNOC_SPGP(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,NTESTG)
 ! Construct accumulated MAX and MIN arrays for a GAS supergroup
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Output
 dimension MINEL(*), MAXEL(*)
@@ -25,12 +27,12 @@ NTESTL = 0
 NTEST = max(NTESTG,NTESTL)
 
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ==========='
-  write(6,*) ' MXMNOC_SPGP'
-  write(6,*) ' ==========='
-  write(6,*)
-  !write(6,*) ' NORBFTP :'
+  write(u6,*)
+  write(u6,*) ' ==========='
+  write(u6,*) ' MXMNOC_SPGP'
+  write(u6,*) ' ==========='
+  write(u6,*)
+  !write(u6,*) ' NORBFTP :'
   !call IWRTMA(NORBFTP,1,NORBTP,1,NORBTP)
 end if
 
@@ -48,8 +50,8 @@ do IORBTP=1,NORBTP
     NEL_END = NEL_START+NELFTP(IORBTP)
   end if
   if (NTEST >= 1000) then
-    write(6,*) ' IORBTP,IORB_START-IORB_END,NEL_START,NEL_END'
-    write(6,*) IORBTP,IORB_START-IORB_END,NEL_START,NEL_END
+    write(u6,*) ' IORBTP,IORB_START-IORB_END,NEL_START,NEL_END'
+    write(u6,*) IORBTP,IORB_START-IORB_END,NEL_START,NEL_END
   end if
 
   do IORB=IORB_START,IORB_END
@@ -61,9 +63,9 @@ end do
 
 if (NTEST >= 100) then
   NORB = IELSUM(NORBFTP,NORBTP)
-  write(6,*) ' MINEL :'
+  write(u6,*) ' MINEL :'
   call IWRTMA(MINEL,1,NORB,1,NORB)
-  write(6,*) ' MAXEL :'
+  write(u6,*) ' MAXEL :'
   call IWRTMA(MAXEL,1,NORB,1,NORB)
 end if
 

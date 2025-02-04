@@ -29,6 +29,8 @@ subroutine SPGP_AC(INSPGRP,NINSPGRP,IOUTSPGRP,NOUTSPGRP,NGAS,MXPNGAS,IAC,ISPGRP_
 !
 ! Jeppe Olsen, April 1, 1997
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! General input : Number of electrons in each gasspace
 integer INSPGRP(MXPNGAS,*), IOUTSPGRP(MXPNGAS,*)
@@ -43,8 +45,8 @@ do IGAS=1,NGAS
   NELOUT = NELOUT+IOUTSPGRP(IGAS,IBASEOUT)
 end do
 if (.not. (((IAC == 1) .and. (NELIN == NELOUT+1)) .or. ((IAC == 2) .and. (NELIN == NELOUT-1)))) then
-  write(6,*) ' Inconsistent data provided to SPGP_AC'
-  write(6,*) ' NELIN NELOUT IAC=',NELIN,NELOUT,IAC
+  write(u6,*) ' Inconsistent data provided to SPGP_AC'
+  write(u6,*) ' NELIN NELOUT IAC=',NELIN,NELOUT,IAC
   !stop ' Inconsistent data provided to SPGRP_AC'
   call SYSABENDMSG('lucia_util/spgp_ac','Internal error','')
 end if
@@ -77,18 +79,18 @@ end do
 
 NTEST = 0
 if (NTEST >= 1000) then
-  write(6,*) ' Input supergroups'
+  write(u6,*) ' Input supergroups'
   call IWRTMA(INSPGRP(1,IBASEIN),NGAS,NINSPGRP,MXPNGAS,NINSPGRP)
-  write(6,*) ' Output supergroups'
+  write(u6,*) ' Output supergroups'
   call IWRTMA(IOUTSPGRP(1,IBASEOUT),NGAS,NOUTSPGRP,MXPNGAS,NOUTSPGRP)
 end if
 
 if (NTEST >= 100) then
-  write(6,*) ' Output from SPGP_AC'
-  write(6,*) ' ==================='
-  write(6,*)
-  write(6,*) ' IAC = ',IAC
-  write(6,*) ' Mapping :'
+  write(u6,*) ' Output from SPGP_AC'
+  write(u6,*) ' ==================='
+  write(u6,*)
+  write(u6,*) ' IAC = ',IAC
+  write(u6,*) ' Mapping :'
   call IWRTMA(ISPGRP_AC(1,IBASEIN),NGAS,NINSPGRP,NGAS,NINSPGRP)
 end if
 

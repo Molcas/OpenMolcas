@@ -28,6 +28,7 @@ use lucia_data, only: NGAS
 use lucia_data, only: N_ELIMINATED_GAS, N_2ELIMINATED_GAS, I_ELIMINATE_GAS, N_ELIMINATED_BATCHES, I_AM_OUT, I2ELIMINATED_IN_GAS, &
                       IBSPGPFTP, IELIMINATED_IN_GAS, ISPGPFTP, NELFGP, NSPGPFTP
 use lucia_data, only: MXPSTT
+use Definitions, only: u6
 
 implicit none
 integer NBATCH
@@ -43,22 +44,22 @@ integer NTEST, I, IZERO, JBATCH, IBLOCK, ISPGP, IOFF, IGAS, IITYPE, IEL, NALPHA,
 NTEST = 0
 
 if (NTEST >= 100) then
-  write(6,*) ' Oh I am so excited'
-  write(6,*)
-  write(6,*) ' Number of GAS without max (max-1) occupation = ',N_ELIMINATED_GAS+N_2ELIMINATED_GAS
-  write(6,*)
+  write(u6,*) ' Oh I am so excited'
+  write(u6,*)
+  write(u6,*) ' Number of GAS without max (max-1) occupation = ',N_ELIMINATED_GAS+N_2ELIMINATED_GAS
+  write(u6,*)
   if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
-    write(6,*) ' GAS without maximum occupation (HEXS)'
-    write(6,*)
+    write(u6,*) ' GAS without maximum occupation (HEXS)'
+    write(u6,*)
     do I=1,N_ELIMINATED_GAS
-      write(6,*) IELIMINATED_IN_GAS(I)
+      write(u6,*) IELIMINATED_IN_GAS(I)
     end do
   end if
   if (I_ELIMINATE_GAS > 1) then
-    write(6,*) ' GAS without maximum-1 occupation (DEXS)'
-    write(6,*)
+    write(u6,*) ' GAS without maximum-1 occupation (DEXS)'
+    write(u6,*)
     do I=1,N_2ELIMINATED_GAS
-      write(6,*) I2ELIMINATED_IN_GAS(I)
+      write(u6,*) I2ELIMINATED_IN_GAS(I)
     end do
   end if
 end if
@@ -88,16 +89,16 @@ end do
 if (NTEST >= 100) then
   do JBATCH=1,2
     if (JBATCH == 1) then
-      write(6,*) ' Maximum number of alpha electrons in each GAS'
+      write(u6,*) ' Maximum number of alpha electrons in each GAS'
     else
-      write(6,*) ' Maximum number of beta electrons in each GAS'
+      write(u6,*) ' Maximum number of beta electrons in each GAS'
     end if
-    write(6,*)
-    write(6,*) ' GAS, Electrons, Group'
+    write(u6,*)
+    write(u6,*) ' GAS, Electrons, Group'
     do IGAS=1,NGAS
-      write(6,*) IGAS,IMAX_OCC(JBATCH,IGAS,1),IMAX_OCC(JBATCH,IGAS,2)
+      write(u6,*) IGAS,IMAX_OCC(JBATCH,IGAS,1),IMAX_OCC(JBATCH,IGAS,2)
     end do
-    write(6,*)
+    write(u6,*)
   end do
 end if
 
@@ -145,46 +146,46 @@ do JBATCH=1,2 ! only alpha and beta
 end do
 
 if (NTEST >= 100) then
-  write(6,*) 'Maximum number of alpha supergroups that can be eliminated',NALPHA+NALPHAM1
-  write(6,*)
-  write(6,*) ' GAS Supergroup for HEXS'
-  write(6,*)
+  write(u6,*) 'Maximum number of alpha supergroups that can be eliminated',NALPHA+NALPHAM1
+  write(u6,*)
+  write(u6,*) ' GAS Supergroup for HEXS'
+  write(u6,*)
   do IGAS=1,NGAS
     do I=1,NALPHA
-      if (MAX_E_GAS_ALPHA(1,I) == IGAS) write(6,*) MAX_E_GAS_ALPHA(1,I),MAX_E_GAS_ALPHA(2,I)
+      if (MAX_E_GAS_ALPHA(1,I) == IGAS) write(u6,*) MAX_E_GAS_ALPHA(1,I),MAX_E_GAS_ALPHA(2,I)
     end do
   end do
   if (I_ELIMINATE_GAS > 1) then ! DEXS
-    write(6,*)
-    write(6,*) ' GAS Supergroup for DEXS'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' GAS Supergroup for DEXS'
+    write(u6,*)
     do IGAS=1,NGAS
       do I=1,NALPHAM1
-        if (MAXM1_E_GAS_ALPHA(1,I) == IGAS) write(6,*) MAXM1_E_GAS_ALPHA(1,I),MAXM1_E_GAS_ALPHA(2,I)
+        if (MAXM1_E_GAS_ALPHA(1,I) == IGAS) write(u6,*) MAXM1_E_GAS_ALPHA(1,I),MAXM1_E_GAS_ALPHA(2,I)
       end do
     end do
   end if
-  write(6,*)
-  write(6,*) 'Maximum number of beta supergroups that can be eliminated',NBETA+NBETAM1
-  write(6,*)
-  write(6,*) ' GAS Supergroup for HEXS'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'Maximum number of beta supergroups that can be eliminated',NBETA+NBETAM1
+  write(u6,*)
+  write(u6,*) ' GAS Supergroup for HEXS'
+  write(u6,*)
   do IGAS=1,NGAS
     do I=1,NBETA
-      if (MAX_E_GAS_BETA(1,I) == IGAS) write(6,*) MAX_E_GAS_BETA(1,I),MAX_E_GAS_BETA(2,I)
+      if (MAX_E_GAS_BETA(1,I) == IGAS) write(u6,*) MAX_E_GAS_BETA(1,I),MAX_E_GAS_BETA(2,I)
     end do
   end do
   if (I_ELIMINATE_GAS > 1) then ! DEXS
-    write(6,*)
-    write(6,*) ' GAS Supergroup for DEXS'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' GAS Supergroup for DEXS'
+    write(u6,*)
     do IGAS=1,NGAS
       do I=1,NBETAM1
-        if (MAXM1_E_GAS_BETA(1,I) == IGAS) write(6,*) MAXM1_E_GAS_BETA(1,I),MAXM1_E_GAS_BETA(2,I)
+        if (MAXM1_E_GAS_BETA(1,I) == IGAS) write(u6,*) MAXM1_E_GAS_BETA(1,I),MAXM1_E_GAS_BETA(2,I)
       end do
     end do
   end if
-  write(6,*)
+  write(u6,*)
 end if
 
 ! Now find the batches to possibly eliminate
@@ -271,19 +272,19 @@ do JBATCH=1,NBATCH
 end do
 
 if (N_ELIMINATED_BATCHES > MXPSTT) then
-  write(6,*) ' Increase MXPSTT to ',N_ELIMINATED_BATCHES
+  write(u6,*) ' Increase MXPSTT to ',N_ELIMINATED_BATCHES
   call SYSABENDMSG('lucia_util/i_am_so_excited','Dimension of I_AM_OUT is too small','Increase MXPSTT')
 end if
 
 if (NTEST >= 100) then
-  write(6,*) ' Number of eliminated blocks ',N_ELIMINATED_BATCHES
-  write(6,*)
-  write(6,*) ' The blocks eliminated'
-  write(6,*)
+  write(u6,*) ' Number of eliminated blocks ',N_ELIMINATED_BATCHES
+  write(u6,*)
+  write(u6,*) ' The blocks eliminated'
+  write(u6,*)
   do I=1,N_ELIMINATED_BATCHES
-    write(6,*) I_AM_OUT(I)
+    write(u6,*) I_AM_OUT(I)
   end do
-  write(6,*)
+  write(u6,*)
 end if
 
 end subroutine I_AM_SO_EXCITED

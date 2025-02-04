@@ -14,6 +14,8 @@ subroutine SPNCOM_LUCIA(NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN,IPRCSF)
 ! spin projection MS2/2.
 
 use lucia_data, only: MXPORB
+use Constants, only: Zero, Half
+use Definitions, only: wp, u6
 
 implicit none
 integer NOPEN, MS2, NDET, IFLAG, IPRCSF
@@ -64,7 +66,7 @@ do I=1,MX
     NALPHA = NALPHA+IWORK(J)
   end do
 
-  if ((2*NALPHA-NOPEN == MS2) .and. ((PSSIGN == 0.0d0) .or. (IWORK(1) /= 0))) then
+  if ((2*NALPHA-NOPEN == MS2) .and. ((PSSIGN == Zero) .or. (IWORK(1) /= 0))) then
     if (IFLAG < 3) then
       NDET = NDET+1
       call ICOPVE(IWORK,IABDET(1,NDET),NOPEN)
@@ -93,26 +95,26 @@ do I=1,MX
 
 end do
 
-XMSD2 = 0.5d0*dble(MS2)
+XMSD2 = Half*real(MS2,kind=wp)
 
 if ((NTEST >= 5) .and. (IFLAG /= 3)) then
-  write(6,1010) NOPEN,NDET,XMSD2
-  write(6,*)
-  write(6,'(A)') '  Combinations :'
-  write(6,'(A)') '  =============='
-  write(6,*)
+  write(u6,1010) NOPEN,NDET,XMSD2
+  write(u6,*)
+  write(u6,'(A)') '  Combinations :'
+  write(u6,'(A)') '  =============='
+  write(u6,*)
   do J=1,NDET
-    write(6,1020) J,(IABDET(K,J),K=1,NOPEN)
+    write(u6,1020) J,(IABDET(K,J),K=1,NOPEN)
   end do
 end if
 
 if ((IFLAG > 1) .and. (NTEST >= 5)) then
-  write(6,*)
-  write(6,'(A)') ' Upper determinants'
-  write(6,'(A)') ' =================='
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A)') ' Upper determinants'
+  write(u6,'(A)') ' =================='
+  write(u6,*)
   do J=1,NUPPER
-    write(6,1020) J,(IABUPP(K,J),K=1,NOPEN)
+    write(u6,1020) J,(IABUPP(K,J),K=1,NOPEN)
   end do
 end if
 

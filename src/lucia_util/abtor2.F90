@@ -20,6 +20,9 @@ subroutine ABTOR2(SKII,CKJJ,NKA,NIB,NJB,NKB,RHO2B,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KB
 !
 ! Jeppe Olsen, Fall of 96
 
+use Constants, only: One
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension CKJJ(*), SKII(*)
@@ -28,8 +31,8 @@ dimension KBIB(MAXK,*), XKBIB(MAXK,*)
 dimension KBJB(MAXK,*), XKBJB(MAXK,*)
 
 if (IKORD /= 0) then
-  write(6,*) ' ABTOR2 : IKORD /= 0'
-  write(6,*) ' I am not ready for this'
+  write(u6,*) ' ABTOR2 : IKORD /= 0'
+  write(u6,*) ' I am not ready for this'
   !stop ' ABTOR2 : IKORD /= 0'
   call SYSABENDMSG('lucia_util/abtor2_gas','Internal error','')
 end if
@@ -69,13 +72,12 @@ do KB=1,NKB
             !  do J=L,NL
             !    XIJILS(J) = XIJKL(JKINTOF-1+J)
             !  end do
-            !  XIJKL(JKINTOF-1+L) = 0.5D0*XIJKL(JKINTOF-1+L)
+            !  XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
             !  do J=L+1,NL
-            !    XIJKL(JKINTOF-1+J) = 0.0D0
+            !    XIJKL(JKINTOF-1+J) = Zero
             !  end do
             !end if
-            ONE = 1.0d0
-            call MATML7(RHO2B(KLOFF),SKII(ISOFF),CKJJ(ICOFF),NI,NJ,NKA,IMAX,NKA,NJ,ONE,FACTOR,1)
+            call MATML7(RHO2B(KLOFF),SKII(ISOFF),CKJJ(ICOFF),NI,NJ,NKA,IMAX,NKA,NJ,One,FACTOR,1)
             !if (IKORD /= 0) then
             !  do J=L,NL
             !    XIJKL(JKINTOF-1+J) = XIJILS(J)

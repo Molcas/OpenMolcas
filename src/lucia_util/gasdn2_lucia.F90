@@ -71,6 +71,8 @@ subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,CB,SB,C2,ICOCOC,ISOCOC,ICS
 ! Symmetry-occupation-occupation blocks
 
 use lucia_data, only: IDISK
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer I12, NACOB, NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NOCTPA, NOCTPB, NSMST, NSMOB, NSMSX, NSMDX, MXPNGAS, MAXK, MAXI, LC, &
@@ -125,21 +127,21 @@ INTERACT = 0 ! jwk-cleanup
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST >= 20) then
-  write(6,*) ' ================='
-  write(6,*) ' GASDN2 speaking :'
-  write(6,*) ' ================='
-  write(6,*)
-  write(6,*) ' NACOB,MAXK,NGAS,IDC,MXPOBS',NACOB,MAXK,NGAS,IDC,MXPOBS
-  write(6,*) ' LUL, LUR ',LUL,LUR
+  write(u6,*) ' ================='
+  write(u6,*) ' GASDN2 speaking :'
+  write(u6,*) ' ================='
+  write(u6,*)
+  write(u6,*) ' NACOB,MAXK,NGAS,IDC,MXPOBS',NACOB,MAXK,NGAS,IDC,MXPOBS
+  write(u6,*) ' LUL, LUR ',LUL,LUR
 end if
 if (NTEST >= 100) then
-  write(6,*) ' Initial L vector'
+  write(u6,*) ' Initial L vector'
   if (LUL == 0) then
     call WRTRS2(L,ISSMOS,ISBLTP,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
   else
     call WRTVCD(L,LUL,1,-1)
   end if
-  write(6,*) ' Initial R vector'
+  write(u6,*) ' Initial R vector'
   if (LUR == 0) then
     call WRTRS2(R,ICSMOS,ICBLTP,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
   else
@@ -151,7 +153,7 @@ if (LUL /= 0) IDISK(LUL) = 0
 do IBATCHL=1,NBATCHL
   ! Obtain L blocks
   NBLKL = LBATL(IBATCHL)
-  if (NTEST >= 200) write(6,*) ' Left batch, number of blocks',IBATCHL,NBLKL
+  if (NTEST >= 200) write(u6,*) ' Left batch, number of blocks',IBATCHL,NBLKL
   do IIL=1,NBLKL
     IL = I1BATL(IBATCHL)-1+IIL
     IATP = IBLOCKL(1,IL)
@@ -159,9 +161,9 @@ do IBATCHL=1,NBATCHL
     IASM = IBLOCKL(3,IL)
     IBSM = IBLOCKL(4,IL)
     IOFF = IBLOCKL(5,IL)
-    if (NTEST >= 200) write(6,*) 'IATP IBTP IASM IBSM',IATP,IBTP,IASM,IBSM
+    if (NTEST >= 200) write(u6,*) 'IATP IBTP IASM IBSM',IATP,IBTP,IASM,IBSM
     ISCALE = 0
-    if (NTEST >= 200) write(6,*) 'IOFF ',IOFF
+    if (NTEST >= 200) write(u6,*) 'IOFF ',IOFF
     call GSTTBL(L,SB(IOFF),IATP,IASM,IBTP,IBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PSL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
   end do
   ! Loop over batches  of R vector
@@ -169,7 +171,7 @@ do IBATCHL=1,NBATCHL
   do IBATCHR=1,NBATCHR
     ! Read R blocks into core
     NBLKR = LBATR(IBATCHR)
-    if (NTEST >= 200) write(6,*) ' Right batch, number of blocks',IBATCHR,NBLKR
+    if (NTEST >= 200) write(u6,*) ' Right batch, number of blocks',IBATCHR,NBLKR
     do IIR=1,NBLKR
       IR = I1BATR(IBATCHR)-1+IIR
       JATP = IBLOCKR(1,IR)
@@ -177,7 +179,7 @@ do IBATCHL=1,NBATCHL
       JASM = IBLOCKR(3,IR)
       JBSM = IBLOCKR(4,IR)
       JOFF = IBLOCKR(5,IR)
-      if (NTEST >= 200) write(6,*) ' JATP JBTP JASM JBSM ',JATP,JBTP,JASM,JBSM
+      if (NTEST >= 200) write(u6,*) ' JATP JBTP JASM JBSM ',JATP,JBTP,JASM,JBSM
       ! Read R blocks into core
 
       ! Only blocks interacting with current batch of L are read in
@@ -189,8 +191,8 @@ do IBATCHL=1,NBATCHL
         IASM = IBLOCKL(3,IL)
         IBSM = IBLOCKL(4,IL)
         ! Well, permutations of L blocks
-        PS = 1.0d0
-        PL = 1.0d0
+        PS = One
+        PL = One
         call PRMBLK(IDC,ISTRFL,IASM,IBSM,IATP,IBTP,PS,PL,LATP,LBTP,LASM,LBSM,LSGN,LTRP,NPERM)
         do IPERM=1,NPERM
           IIASM = LASM(IPERM)
@@ -213,20 +215,20 @@ do IBATCHL=1,NBATCHL
         call GSTTBL(R,CB(JOFF),JATP,JASM,JBTP,JBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PCL,LUR,C2,NSMST,ISCALE, &
                     SCLFAC_R(IR))
       else
-        !write(6,*) ' TTSS for C block skipped'
+        !write(u6,*) ' TTSS for C block skipped'
         !call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
         call IDAFILE(LUR,2,LBL,1,IDISK(LUR))
         call IDAFILE(LUR,2,IDUMMY,1,IDISK(LUR))
         call SKPRCD2(LBL(1),-1,LUR)
-        SCLFAC_R(IR) = 0.0d0
+        SCLFAC_R(IR) = Zero
       end if
 
       if (NTEST >= 100) then
         if (INTERACT == 1) then
-          write(6,*) ' TTSS for C block read in'
+          write(u6,*) ' TTSS for C block read in'
           call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
         else
-          write(6,*) ' TTSS for C block skipped'
+          write(u6,*) ' TTSS for C block skipped'
           call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
         end if
       end if
@@ -234,10 +236,10 @@ do IBATCHL=1,NBATCHL
 
     ! Loop over L and R blocks in batches and obtain  contribution from
     ! given L and R blocks
-    PLR = 1.d0
+    PLR = One
     do IIL=1,NBLKL
       IL = I1BATL(IBATCHL)-1+IIL
-      if (SCLFAC_L(IL) /= 0.0d0) then
+      if (SCLFAC_L(IL) /= Zero) then
         IATP = IBLOCKL(1,IL)
         IBTP = IBLOCKL(2,IL)
         IASM = IBLOCKL(3,IL)
@@ -249,7 +251,7 @@ do IBATCHL=1,NBATCHL
         ! Possible permutations of L blocks
         call PRMBLK(IDC,ISTRFL,IASM,IBSM,IATP,IBTP,PSL,PLR,LATP,LBTP,LASM,LBSM,LSGN,LTRP,NLPERM)
         do ILPERM=1,NLPERM
-          !write(6,*) ' Loop 9999 ILPERM = ',ILPERM
+          !write(u6,*) ' Loop 9999 ILPERM = ',ILPERM
           IIASM = LASM(ILPERM)
           IIBSM = LBSM(ILPERM)
           IIATP = LATP(ILPERM)
@@ -263,11 +265,11 @@ do IBATCHL=1,NBATCHL
             call TRPMT3(SB(IOFF),LROW,LCOL,C2)
             call COPVEC(C2,SB(IOFF),LROW*LCOL)
           end if
-          if (LSGN(ILPERM) == -1) call SCALVE(SB(IOFF),-1.0d0,NIA*NIB)
+          if (LSGN(ILPERM) == -1) call SCALVE(SB(IOFF),-One,NIA*NIB)
 
           do IIR=1,NBLKR
             IR = I1BATR(IBATCHR)-1+IIR
-            if (SCLFAC_R(IR) /= 0.0d0) then
+            if (SCLFAC_R(IR) /= Zero) then
               JATP = IBLOCKR(1,IR)
               JBTP = IBLOCKR(2,IR)
               JASM = IBLOCKR(3,IR)
@@ -297,20 +299,20 @@ do IBATCHL=1,NBATCHL
                 ! if there are two terms just calculate and and multiply with
                 ! 1+PSL*PSR
                 if (NRPERM == 1) then
-                  FACTOR = 1.0d0
+                  FACTOR = One
                 else
-                  FACTOR = 1.0d0+PSL*PSR
+                  FACTOR = One+PSL*PSR
                 end if
                 SCLFAC = FACTOR*SCLFAC_L(IL)*SCLFAC_R(IR)
-                if ((INTERACT == 1) .and. (SCLFAC /= 0.0d0)) then
+                if ((INTERACT == 1) .and. (SCLFAC /= Zero)) then
                   if (NTEST >= 20) then
-                    write(6,*) ' RSDNBB will be called for'
-                    write(6,*) ' L block :'
-                    write(6,'(A,5I5)') ' IIASM IIBSM IIATP IIBTP',IIASM,IIBSM,IIATP,IIBTP
-                    write(6,*) ' R  block :'
-                    write(6,'(A,5I5)') ' JASM JBSM JATP JBTP',JASM,JBSM,JATP,JBTP
-                    write(6,*) ' IOFF,JOFF ',IOFF,JOFF
-                    write(6,*) ' SCLFAC = ',SCLFAC
+                    write(u6,*) ' RSDNBB will be called for'
+                    write(u6,*) ' L block :'
+                    write(u6,'(A,5I5)') ' IIASM IIBSM IIATP IIBTP',IIASM,IIBSM,IIATP,IIBTP
+                    write(u6,*) ' R  block :'
+                    write(u6,'(A,5I5)') ' JASM JBSM JATP JBTP',JASM,JBSM,JATP,JBTP
+                    write(u6,*) ' IOFF,JOFF ',IOFF,JOFF
+                    write(u6,*) ' SCLFAC = ',SCLFAC
                   end if
 
                   call GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IIASM,IIATP,IIBSM,IIBTP,JASM,JATP,JBSM,JBTP,NGAS, &
@@ -323,9 +325,9 @@ do IBATCHL=1,NBATCHL
                   ! CALL GSDNBB2_LUCIA --> 66
 
                   if (NTEST >= 500) then
-                    write(6,*) ' Updated rho1'
+                    write(u6,*) ' Updated rho1'
                     call wrtmat(rho1,nacob,nacob,nacob,nacob)
-                    write(6,*) ' Updated srho1'
+                    write(u6,*) ' Updated srho1'
                     call wrtmat(srho1,nacob,nacob,nacob,nacob)
                   end if
 
@@ -340,7 +342,7 @@ do IBATCHL=1,NBATCHL
           call TRPMT3(SB(IOFF),NIB,NIA,C2)
           call COPVEC(C2,SB(IOFF),NIA*NIB)
         end if
-        if (LSGN(NLPERM+1) == -1) call SCALVE(SB(IOFF),-1.0d0,NIA*NIB)
+        if (LSGN(NLPERM+1) == -1) call SCALVE(SB(IOFF),-One,NIA*NIB)
 
       end if
     end do

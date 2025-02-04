@@ -64,9 +64,12 @@ subroutine RSBB2A_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NSCOL,NGAS,ISOC,ICOC,S
 ! Jeppe Olsen, Winter of 1991
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPOBS, MXPNGAS, MXPTSOB
+use Constants, only: Zero, One, Half
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NSCOL, NGAS, MAXI, MAXK, NSMOB, NSMST, NSMDX
@@ -106,10 +109,10 @@ integer II, JIKBT, JJLBT
 
 call mma_allocate(SCR,MXPTSOB**4,Label='SCR')
 #ifdef _DEBUGPRINT_
-write(6,*) ' ==============='
-write(6,*) ' RSBB2A speaking'
-write(6,*) ' ==============='
-write(6,*) ' ISOC and ICOC :'
+write(u6,*) ' ==============='
+write(u6,*) ' RSBB2A speaking'
+write(u6,*) ' ==============='
+write(u6,*) ' ISOC and ICOC :'
 call IWRTMA(ISOC,1,NGAS,1,NGAS)
 call IWRTMA(ICOC,1,NGAS,1,NGAS)
 #endif
@@ -131,7 +134,7 @@ do IDXTYP=1,NDXTYP
   !IJKL_ACT = 1
   !if (IJKL_ACT == 0) cycle
 
-  !write(6,*) ' test inserted in RSBB2AN'
+  !write(u6,*) ' test inserted in RSBB2AN'
   !NPTOT = 0
   !if (ITYP == 3) NPTOT = NPTOT+1
   !if (JTYP == 3) NPTOT = NPTOT+1
@@ -144,7 +147,7 @@ do IDXTYP=1,NDXTYP
   LTYP_ORIG = LTYP
 
 # ifdef _DEBUGPRINT_
-  write(6,*) ' ITYP_ORIG, JTYP_ORIG, KTYP_ORIG, LTYP_ORIG',ITYP_ORIG,JTYP_ORIG,KTYP_ORIG,LTYP_ORIG
+  write(u6,*) ' ITYP_ORIG, JTYP_ORIG, KTYP_ORIG, LTYP_ORIG',ITYP_ORIG,JTYP_ORIG,KTYP_ORIG,LTYP_ORIG
 # endif
   NIJKL1 = 0
   if (ITYP == 1) NIJKL1 = NIJKL1+1
@@ -187,8 +190,8 @@ do IDXTYP=1,NDXTYP
     I4_AC(IJKL) = ISCR(IJKL)
   end do
 # ifdef _DEBUGPRINT_
-  write(6,*) ' I4_AC, IT_TP  defined'
-  write(6,*) ' I4_AC, I4_TP'
+  write(u6,*) ' I4_AC, IT_TP  defined'
+  write(u6,*) ' I4_AC, I4_TP'
   call IWRTMA(I4_AC,1,4,1,4)
   call IWRTMA(I4_TP,1,4,1,4)
 # endif
@@ -222,7 +225,7 @@ do IDXTYP=1,NDXTYP
     do IKOBSM=1,NSMOB
       JLOBSM = SXDXSX(IKOBSM,IDXSM)
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' IKOBSM,JLOBSM',IKOBSM,JLOBSM
+      write(u6,*) ' IKOBSM,JLOBSM',IKOBSM,JLOBSM
 #     endif
       if (JLOBSM == 0) goto 1950
       ! types + symmetries defined => K strings are defined
@@ -239,7 +242,7 @@ do IDXTYP=1,NDXTYP
         NI = NOBPTS(ITYP,ISM)
         NK = NOBPTS(KTYP,KSM)
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' NI, NK',NI,NK
+        write(u6,*) ' NI, NK',NI,NK
 #       endif
 
         if ((ISM == KSM) .and. (ITYP == KTYP)) then
@@ -275,12 +278,12 @@ do IDXTYP=1,NDXTYP
       end if
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' ITYP, KTYP, IKOBSM,  NIKBT = ',ITYP,KTYP,IKOBSM,NIKBT
-      write(6,*) ' IKBT : Offset, number, length'
+      write(u6,*) ' ITYP, KTYP, IKOBSM,  NIKBT = ',ITYP,KTYP,IKOBSM,NIKBT
+      write(u6,*) ' IKBT : Offset, number, length'
       do JIKBT=1,NIKBT
-        write(6,'(3i3)') (IKBT(II,JIKBT),II=1,3)
+        write(u6,'(3i3)') (IKBT(II,JIKBT),II=1,3)
       end do
-      write(6,*) ' IKSMBT'
+      write(u6,*) ' IKSMBT'
       call IWRTMA(IKSMBT,2,NBLKT,2,8)
 #     endif
 
@@ -328,19 +331,19 @@ do IDXTYP=1,NDXTYP
       end if
 
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' JTYP, LTYP, JLOBSM,  NJLBT = ',JTYP,LTYP,JLOBSM,NJLBT
-      write(6,*) ' JLBT : Offset, number, length'
+      write(u6,*) ' JTYP, LTYP, JLOBSM,  NJLBT = ',JTYP,LTYP,JLOBSM,NJLBT
+      write(u6,*) ' JLBT : Offset, number, length'
       do JJLBT=1,NJLBT
-        write(6,'(3i3)') (JLBT(II,JJLBT),II=1,3)
+        write(u6,'(3i3)') (JLBT(II,JJLBT),II=1,3)
       end do
-      write(6,*) ' JLSMBT'
+      write(u6,*) ' JLSMBT'
       call IWRTMA(JLSMBT,2,NBLKT,2,8)
 #     endif
 
       ! Loop over batches of IK strings
       do IKBTC=1,NIKBT
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' IKBTC = ',IKBTC
+        write(u6,*) ' IKBTC = ',IKBTC
 #       endif
         ! Loop over batches of JL strings
         do JLBTC=1,NJLBT
@@ -380,7 +383,7 @@ do IDXTYP=1,NDXTYP
               II12 = 1
               K12 = 1
               IONE = 1
-              !write(6,*) ' Before ADAADAST'
+              !write(u6,*) ' Before ADAADAST'
               ! Creation / annihilation maps, conjugated of above
               if (I4_AC(4) == 1) then
                 JAC = 2
@@ -410,7 +413,7 @@ do IDXTYP=1,NDXTYP
                 JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
                 if ((JLSM == 1) .and. (J == L)) then
                   ! a+j a+j gives trivially zero
-                  call SETVEC(CSCR(JLOFF),ZERO,NKBTC*NIBTC)
+                  call SETVEC(CSCR(JLOFF),Zero,NKBTC*NIBTC)
                 else
                   call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
                 end if
@@ -477,26 +480,26 @@ do IDXTYP=1,NDXTYP
             ! and now, to the work
             LIKB = NIBTC*NKBTC
 #           ifdef _DEBUGPRINT_
-            write(6,*) ' Integral block'
+            write(u6,*) ' Integral block'
             call WRTMAT(XINT,NIKT,NJLT,NIKT,NJLT)
-            write(6,*) ' CSCR matrix'
+            write(u6,*) ' CSCR matrix'
             call WRTMAT(CSCR,LIKB,NJLT,LIKB,NJLT)
 #           endif
 
             !!MXACIJO = MXACIJ
             !MXACIJ = MAX(MXACIJ,LIKB*NJLT,LIKB*NIKT)
             !!if (MXACIJ > MXACIJO) then
-            !!  write(6,*) ' New max MXACIJ = ', MXACIJ
-            !!  write(6,*) ' ISCTP,ICCTP', ISCTP,ICCTP
-            !!  write(6,*) ' ITYP,JTYP,KTYP,LTYP',ITYP,JTYP,KTYP,LTYP
-            !!  write(6,*) 'NIJT, NJLT, NIBTC NKBTC',NIJT,NJLT,NIBTC,NKBTC
+            !!  write(u6,*) ' New max MXACIJ = ', MXACIJ
+            !!  write(u6,*) ' ISCTP,ICCTP', ISCTP,ICCTP
+            !!  write(u6,*) ' ITYP,JTYP,KTYP,LTYP',ITYP,JTYP,KTYP,LTYP
+            !!  write(u6,*) 'NIJT, NJLT, NIBTC NKBTC',NIJT,NJLT,NIBTC,NKBTC
             !!end if
 
             FACTORC = Zero
             FACTORAB = One
             call MATML7(SSCR,CSCR,XINT,LIKB,NIKT,LIKB,NJLT,NIKT,NJLT,FACTORC,FACTORAB,2)
 #           ifdef _DEBUGPRINT_
-            write(6,*) ' SSCR matrix'
+            write(u6,*) ' SSCR matrix'
             call WRTMAT(SSCR,LIKB,NIKT,LIKB,NIKT)
 #           endif
             ! ============================
@@ -526,7 +529,7 @@ do IDXTYP=1,NDXTYP
               KAC = I4_AC(2)
 
               call ADAADAST_GAS(IONE,ISM,ITYP,NI,IAC,IONE,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND, &
-                                IFRST,KFRST,II12,K12,ONE)
+                                IFRST,KFRST,II12,K12,One)
 
               IFRST = 0
               KFRST = 0
@@ -587,7 +590,7 @@ do IDXTYP=1,NDXTYP
         do JSM=1,NSMOB
           LSM = ADSXA(JSM,JLOBSM)
 #         ifdef _DEBUGPRINT_
-          write(6,*) ' ISM KSM LSM JSM',ISM,KSM,LSM,JSM
+          write(u6,*) ' ISM KSM LSM JSM',ISM,KSM,LSM,JSM
 #         endif
           ISCR(I4_REO(1)) = ISM
           ISCR(I4_REO(2)) = KSM
@@ -709,7 +712,7 @@ do IDXTYP=1,NDXTYP
                   FACX = -One
                 end if
 #               ifdef _DEBUGPRINT_
-                write(6,*) ' ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX',ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX
+                write(u6,*) ' ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX',ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX
 #               endif
                 ! fetch integrals
                 ! we want the operator in the form a+i ak a+l aj ((ij!lk)-(ik!lj))
@@ -726,26 +729,26 @@ do IDXTYP=1,NDXTYP
               ! and now, to the work
               LIKB = NIBTC*NKBTC
 #             ifdef _DEBUGPRINT_
-              write(6,*) ' Integral block'
+              write(u6,*) ' Integral block'
               call WRTMAT(XINT,NIK,NJL,NIK,NJL)
-              write(6,*) ' CSCR matrix'
+              write(u6,*) ' CSCR matrix'
               call WRTMAT(CSCR,LIKB,NJL,LIKB,NJL)
 #             endif
 
               !!MXACIJO = MXACIJ
               !MXACIJ = MAX(MXACIJ,LIKB*NJL,LIKB*NIK)
               !!if (MXACIJ > MXACIJO) then
-              !!  write(6,*) ' New max MXACIJ = ', MXACIJ
-              !!  write(6,*) ' ISCTP,ICCTP', ISCTP,ICCTP
-              !!  write(6,*) ' ITYP,JTYP,KTYP,LTYP',ITYP,JTYP,KTYP,LTYP
-              !!  write(6,*) 'NIJ NJL NIBTC NKBTC',NIJ,NJL,NIBTC,NKBTC
+              !!  write(u6,*) ' New max MXACIJ = ', MXACIJ
+              !!  write(u6,*) ' ISCTP,ICCTP', ISCTP,ICCTP
+              !!  write(u6,*) ' ITYP,JTYP,KTYP,LTYP',ITYP,JTYP,KTYP,LTYP
+              !!  write(u6,*) 'NIJ NJL NIBTC NKBTC',NIJ,NJL,NIBTC,NKBTC
               !!end if
 
               FACTORC = Zero
               FACTORAB = FACX
               call MATML7(SSCR,CSCR,XINT,LIKB,NIK,LIKB,NJL,NIK,NJL,FACTORC,FACTORAB,2)
 #             ifdef _DEBUGPRINT_
-              write(6,*) ' SSCR matrix'
+              write(u6,*) ' SSCR matrix'
               call WRTMAT(SSCR,LIKB,NIK,LIKB,NIK)
 #             endif
               ! ============================
@@ -763,7 +766,7 @@ do IDXTYP=1,NDXTYP
 
               !KFRST = 1
               call ADAADAST_GAS(IONE,ISM,ITYP,NI,IAC,IONE,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND, &
-                                IFRST,KFRST,II12,K12,ONE)
+                                IFRST,KFRST,II12,K12,One)
 
               IFRST = 0
               KFRST = 0
@@ -776,7 +779,7 @@ do IDXTYP=1,NDXTYP
                 ISBOFF = 1+(IK-1)*NIBTC*NKBTC
                 call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(1,IKOFF),XI1S(1,IKOFF))
               end do
-              !write(6,*) ' first element of updated SB',SB(1)
+              !write(u6,*) ' first element of updated SB',SB(1)
 
               if (KEND == 0) goto 2800
               ! End of loop over partitionings of resolution strings

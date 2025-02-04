@@ -29,6 +29,7 @@ use lucia_data, only: MXTSOB_P, MXTSOB_H, NOBPT
 use lucia_data, only: NOCTYP, ISTAC
 use lucia_data, only: NSTTYP, NELEC
 use lucia_data, only: MXPSTT
+use Definitions, only: u6
 
 implicit none
 integer IPRNT
@@ -45,28 +46,28 @@ NTEST = max(IPRNT,NTESTL)
 ! As input NCISPC GAS spaces IGSOCCX are given.
 ! Obtain space that cantains all these as special cases
 
-!write(6,*) ' NCISPC ',NCISPC
+!write(u6,*) ' NCISPC ',NCISPC
 do IGAS=1,NGAS
   MINI = IGSOCCX(IGAS,1,1)
   MAXI = IGSOCCX(IGAS,2,1)
-  !write(6,*) ' MINI and MAXI for ISPC = 1 ',MINI,MAXI
+  !write(u6,*) ' MINI and MAXI for ISPC = 1 ',MINI,MAXI
   do ICISPC=2,NCISPC
     MINI = min(MINI,IGSOCCX(IGAS,1,ICISPC))
     MAXI = max(MAXI,IGSOCCX(IGAS,2,ICISPC))
-    !write(6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
+    !write(u6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
   end do
   IGSOCC(IGAS,1) = MINI
   IGSOCC(IGAS,2) = MAXI
 end do
 
 if (NTEST >= 5) then
-  write(6,*) ' Compound GAS space :'
-  write(6,*) ' ===================='
-  write(6,'(A)')
-  write(6,'(A)') '         Min. occ    Max. occ'
-  write(6,'(A)') '         ========    ========'
+  write(u6,*) ' Compound GAS space :'
+  write(u6,*) ' ===================='
+  write(u6,'(A)')
+  write(u6,'(A)') '         Min. occ    Max. occ'
+  write(u6,'(A)') '         ========    ========'
   do IGAS=1,NGAS
-    write(6,'(A,I2,3X,I3,9X,I3)') '   GAS',IGAS,IGSOCC(IGAS,1),IGSOCC(IGAS,2)
+    write(u6,'(A,I2,3X,I3,9X,I3)') '   GAS',IGAS,IGSOCC(IGAS,1),IGSOCC(IGAS,2)
   end do
 end if
 
@@ -123,21 +124,21 @@ do IGAS=1,NGAS
     MXTSOB_H = max(MXTSOB_H,NOBPT(IGAS))
   end if
 end do
-if (NTEST > 0) write(6,*) ' MXTSOB_H, MXTSOB_P = ',MXTSOB_H,MXTSOB_P
+if (NTEST > 0) write(u6,*) ' MXTSOB_H, MXTSOB_P = ',MXTSOB_H,MXTSOB_P
 
 !if (IUSE_PH == 1) then
 !  IPHGAS(1) = 2
 !  do I=1,100
-!    write(6,*) ' First space enforced to hole spaces'
+!    write(u6,*) ' First space enforced to hole spaces'
 !  end do
 !end if
 
 ! In the following I assume that the hole spaces are the first NPGAS spaces
 ! (only used when calculating min number of electrons, so it can be modified easily)
 ! Min number of electrons in hole spaces
-!if (NTEST > 0) write(6,*) ' IPHGASL, NPHGAS ',IPHGASL,NPHGAS
+!if (NTEST > 0) write(u6,*) ' IPHGASL, NPHGAS ',IPHGASL,NPHGAS
 !_Jesper if (IPHGASL /= NPHGAS) then
-!_Jesper   write(6,*) ' The hole spaces are not the first orbital spaces'
+!_Jesper   write(u6,*) ' The hole spaces are not the first orbital spaces'
 !_Jesper   stop ' The hole spaces are not the first orbital spaces'
 !_Jesper end if
 !MNHL = IGSOCC(IPHGASL,1)
@@ -147,22 +148,22 @@ if (NTEST > 0) write(6,*) ' MXTSOB_H, MXTSOB_P = ',MXTSOB_H,MXTSOB_P
 !end do
 
 if (NTEST > 0) then
-  write(6,*) ' IPHGASL,NPHGAS:',IPHGASL,NPHGAS
-  if (IPHGASL > 0) write(6,*) 'IGSOCC(IPHGASL,1):',IGSOCC(IPHGASL,1)
+  write(u6,*) ' IPHGASL,NPHGAS:',IPHGASL,NPHGAS
+  if (IPHGASL > 0) write(u6,*) 'IGSOCC(IPHGASL,1):',IGSOCC(IPHGASL,1)
 end if
 
 if (NTEST >= 5) then
-  write(6,*)
-  write(6,'(A)') ' Min and Max occupation in each GAS space:'
-  write(6,'(A)') ' ========================================='
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A)') ' Min and Max occupation in each GAS space:'
+  write(u6,'(A)') ' ========================================='
+  write(u6,*)
   do IGAS=1,NGAS
-    write(6,'(A,I2,4X,2I3)') '  GAS',IGAS,MNGSOC(IGAS),MXGSOC(IGAS)
+    write(u6,'(A,I2,4X,2I3)') '  GAS',IGAS,MNGSOC(IGAS),MXGSOC(IGAS)
   end do
 
-  write(6,*) ' Particle(1) or hole(2) spaces (for compound space)'
+  write(u6,*) ' Particle(1) or hole(2) spaces (for compound space)'
   call IWRTMA(IPHGAS,1,NGAS,1,NGAS)
-  write(6,*) ' Particle(1) or hole(2) spaces (for initial space)'
+  write(u6,*) ' Particle(1) or hole(2) spaces (for initial space)'
   call IWRTMA(IPHGAS1,1,NGAS,1,NGAS)
 end if
 
@@ -180,22 +181,22 @@ NAEL = (MS2+NACTEL)/2
 NBEL = (NACTEL-MS2)/2
 
 if (NAEL+NBEL /= NACTEL) then
-  write(6,*) '  MS2 NACTEL NAEL NBEL'
-  write(6,'(5I4)') MS2,NACTEL,NAEL,NBEL
-  write(6,*) ' STOP : NUMBER OF ELECTRONS AND MULTIPLICITY INCONSISTENT'
+  write(u6,*) '  MS2 NACTEL NAEL NBEL'
+  write(u6,'(5I4)') MS2,NACTEL,NAEL,NBEL
+  write(u6,*) ' STOP : NUMBER OF ELECTRONS AND MULTIPLICITY INCONSISTENT'
   !stop ' NUMBER OF ELECTRONS INCONSISTENT WITH MULTIPLICITY'
   call SYSABENDMSG('lucia_util/strtyp_gas','Internal error','')
 end if
 
 if (NTEST >= 5) then
-  write(6,*) '  MS2 NACTEL NAEL NBEL'
-  write(6,'(5I6)') MS2,NACTEL,NAEL,NBEL
+  write(u6,*) '  MS2 NACTEL NAEL NBEL'
+  write(u6,'(5I6)') MS2,NACTEL,NAEL,NBEL
 end if
 
 if (NAEL+NBEL /= NACTEL) then
-  write(6,*) '  MS2 NACTEL NAEL NBEL'
-  write(6,'(5I4)') MS2,NACTEL,NAEL,NBEL
-  write(6,*) ' STOP : NUMBER OF ELECTRONS AND MULTIPLICITY INCONSISTENT'
+  write(u6,*) '  MS2 NACTEL NAEL NBEL'
+  write(u6,'(5I4)') MS2,NACTEL,NAEL,NBEL
+  write(u6,*) ' STOP : NUMBER OF ELECTRONS AND MULTIPLICITY INCONSISTENT'
   !stop ' NUMBER OF ELECTRONS INCONSISTENT WITH MULTIPLICITY'
   call SYSABENDMSG('lucia_util/strtyp_gas','Internal error','')
 end if
@@ -228,9 +229,9 @@ do IGAS=1,NGAS
   MNBL = max(0,MNBL-MXB)
 
   if (NTEST >= 100) then
-    write(6,*) ' Occupation numbers for IGAS = ',IGAS
-    write(6,*) ' MXAL MNAL MXBL MNBL ',MXAL,MNAL,MXBL,MNBL
-    write(6,*) ' MXA MNA MXB MNB ',MXA,MNA,MXB,MNB
+    write(u6,*) ' Occupation numbers for IGAS = ',IGAS
+    write(u6,*) ' MXAL MNAL MXBL MNBL ',MXAL,MNAL,MXBL,MNBL
+    write(u6,*) ' MXA MNA MXB MNB ',MXA,MNA,MXB,MNB
   end if
 
   MNAB = min(MNA,MNB)
@@ -246,7 +247,7 @@ do IGAS=1,NGAS
   MNAB = 0
   if (IPHGAS(IGAS) == 2) MXAB = min(MXAB+2,NOBPT(IGAS))
 
-  if (NTEST >= 100) write(6,*) ' MNAB,MXAB',MNAB,MXAB
+  if (NTEST >= 100) write(u6,*) ' MNAB,MXAB',MNAB,MXAB
   NGPSTR(IGAS) = MXAB-MNAB+1
   if ((Nactel == MS2) .and. (Nactel > 2) .and. (Nactel == NOBPT(2)) .and. (IGAS == 2)) then
     NGPSTR(IGAS) = 4 ! Either EMPTY, (FULL-2), (FULL -1), FULL
@@ -259,9 +260,9 @@ do IGAS=1,NGAS
   IADD = 0
   do JGRP=IGRP+1,IGRP+NGPSTR(IGAS)
     if (JGRP > MXPSTT) then
-      write(6,*) ' Too many string groups'
-      write(6,*) ' Current limit ',MXPSTT
-      write(6,*) ' STOP : GASSTR, Too many string groups'
+      write(u6,*) ' Too many string groups'
+      write(u6,*) ' Current limit ',MXPSTT
+      write(u6,*) ' STOP : GASSTR, Too many string groups'
       !stop' GASSTR, Too many string groups'
       call SYSABENDMSG('lucia_util/gasstr','Internal error','')
     end if
@@ -281,26 +282,26 @@ end do
 NGRP = IGRP
 
 if (NTEST >= 5) then
-  write(6,*)
-  write(6,'(A)') ' Information about Groups of strings'
-  write(6,'(A)') ' ==================================='
-  write(6,*)
-  write(6,*) '     GAS  MNEL  MXEL IBGRP  NGRP'
-  write(6,*) '    ============================'
+  write(u6,*)
+  write(u6,'(A)') ' Information about Groups of strings'
+  write(u6,'(A)') ' ==================================='
+  write(u6,*)
+  write(u6,*) '     GAS  MNEL  MXEL IBGRP  NGRP'
+  write(u6,*) '    ============================'
   do IGAS=1,NGAS
-    write(6,'(5(2X,I4))') IGAS,MNELFGP(IGAS),MXELFGP(IGAS),IBGPSTR(IGAS),NGPSTR(IGAS)
+    write(u6,'(5(2X,I4))') IGAS,MNELFGP(IGAS),MXELFGP(IGAS),IBGPSTR(IGAS),NGPSTR(IGAS)
   end do
-  write(6,'(A,I3)') ' Total number of groups generated ',NGRP
+  write(u6,'(A,I3)') ' Total number of groups generated ',NGRP
 
-  write(6,'(A)') ' Information about each string group'
-  write(6,'(A)') ' ==================================='
-  write(6,*)
+  write(u6,'(A)') ' Information about each string group'
+  write(u6,'(A)') ' ==================================='
+  write(u6,*)
   IITYPE = 0
-  write(6,'(A)') ' GROUP  GAS   NEL      NSTR'
-  write(6,'(A)') ' =========================='
+  write(u6,'(A)') ' GROUP  GAS   NEL      NSTR'
+  write(u6,'(A)') ' =========================='
   do IGRP=1,NGRP
     IITYPE = IITYPE+1
-    write(6,'(3(2X,I4),2X,I8)') IITYPE,IGSFGP(IGRP),NELFGP(IGRP),NSTFGP(IGRP)
+    write(u6,'(3(2X,I4),2X,I8)') IITYPE,IGSFGP(IGRP),NELFGP(IGRP),NSTFGP(IGRP)
   end do
 end if
 
@@ -316,11 +317,11 @@ do IGRP=1,NGRP
 end do
 
 if (NTEST >= 5) then
-  write(6,*)
-  write(6,*) ' ======================================'
-  write(6,*) ' Annihilation / Creation connections'
-  write(6,*) ' ======================================'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' ======================================'
+  write(u6,*) ' Annihilation / Creation connections'
+  write(u6,*) ' ======================================'
+  write(u6,*)
   call IWRTMA(ISTAC,NGRP,2,MXPSTT,2)
 end if
 
@@ -403,7 +404,7 @@ do ITYP=1,NSTTYP
   else
     ! Number of electrons removed compared to reference
     IDEL = NELEC(ITYP)-NELEC_REF
-    !write(6,*) '  GASSPC : ITYP IDEL ',ITYP,IDEL
+    !write(u6,*) '  GASSPC : ITYP IDEL ',ITYP,IDEL
     ! Initial type of strings, relative to offset for given group
     do IGAS=1,NGAS
       IOCTYP(IGAS) = 1
@@ -467,9 +468,9 @@ do ITYP=1,NSTTYP
       !E   end do
       !E   if ((IDELM > 0) .or. (IDELP > MAX(0,IDEL))) then
       !E     I_AM_OKAY = 0
-      !E     write(6,*) ' P/H rejected supergroup'
+      !E     write(u6,*) ' P/H rejected supergroup'
       !E     call IWRTMA(IOCTYP,1,NGAS,1,NGAS)
-      !E     write(6,*) ' IDELM, IDELP ',IDELM,IDELP
+      !E     write(u6,*) ' IDELM, IDELP ',IDELM,IDELP
       !E   end if
       !E end if
 
@@ -521,11 +522,11 @@ end do
 NTSPGP = NSPGP_TOT
 
 if (NSPGP_TOT > MXPSTT) then
-  write(6,*) ' Too many super groups = ',NSPGP_TOT
-  write(6,*) ' Increase MXPSTT to this value'
-  write(6,*) ' See you later'
-  write(6,*)
-  write(6,*) ' STOP Increase MXPSTT'
+  write(u6,*) ' Too many super groups = ',NSPGP_TOT
+  write(u6,*) ' Increase MXPSTT to this value'
+  write(u6,*) ' See you later'
+  write(u6,*)
+  write(u6,*) ' STOP Increase MXPSTT'
   !stop ' Increase MXPSTT'
   call SYSABENDMSG('lucia_util/strtyp_gas','Internal error','')
 end if
@@ -546,7 +547,7 @@ do ITYP=1,NSTTP
   ! Reorder
   !    ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)
   call ORDINT(IOCTYP,ISCR,NSPGP,IREOSPGP,NTEST)
-  !write(6,*) ' IREO array'
+  !write(u6,*) ' IREO array'
   !call IWRTMA(IREOSPGP,1,NSPGP,1,NSPGP)
   ! And reorder the definition of supergroups
   do ISPGP=1,NSPGP
@@ -561,24 +562,24 @@ end do
 ! End of loop over types
 
 if (NTEST >= 2) then
-  write(6,*) ' Total number of super groups ',NTSPGP
-  write(6,*) ' Number of alpha supergroups  ',NSPGPFTP(1)
-  write(6,*) ' Number of beta  supergroups  ',NSPGPFTP(2)
-  write(6,*)
-  write(6,*)
+  write(u6,*) ' Total number of super groups ',NTSPGP
+  write(u6,*) ' Number of alpha supergroups  ',NSPGPFTP(1)
+  write(u6,*) ' Number of beta  supergroups  ',NSPGPFTP(2)
+  write(u6,*)
+  write(u6,*)
 end if
 
 if (NTEST >= 5) then
-  write(6,*) ' Information about types of strings'
-  write(6,*) ' =================================='
-  write(6,*)
+  write(u6,*) ' Information about types of strings'
+  write(u6,*) ' =================================='
+  write(u6,*)
   do ITYP=1,NSTTYP
-    write(6,*)
-    write(6,*) '      Type : ',ITYP
-    write(6,*) '      ==============='
-    write(6,*) '      Number of electrons  ',NELFTP(ITYP)
-    write(6,*) '      Number of super groups ',NSPGPFTP(ITYP)
-    write(6,*) '      Supergroups'
+    write(u6,*)
+    write(u6,*) '      Type : ',ITYP
+    write(u6,*) '      ==============='
+    write(u6,*) '      Number of electrons  ',NELFTP(ITYP)
+    write(u6,*) '      Number of super groups ',NSPGPFTP(ITYP)
+    write(u6,*) '      Supergroups'
     do ISPGP=1,NSPGPFTP(ITYP)
       IOFF = IBSPGPFTP(ITYP)
       call IWRTMA(ISPGPFTP(1,IOFF-1+ISPGP),1,NGAS,1,NGAS)

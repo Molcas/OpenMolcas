@@ -17,6 +17,8 @@ function NOP_FOR_CONF(ICONF,NEL)
 !
 ! Jeppe Olsen, Nov. 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer ICONF(NEL)
 
@@ -44,9 +46,9 @@ NOP_FOR_CONF = NOPEN
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Configuration'
+  write(u6,*) ' Configuration'
   call IWRTMA(ICONF,1,NEL,1,NEL)
-  write(6,*) ' Number of open orbitals = ',NOP_FOR_CONF
+  write(u6,*) ' Number of open orbitals = ',NOP_FOR_CONF
 end if
 
 end function NOP_FOR_CONF

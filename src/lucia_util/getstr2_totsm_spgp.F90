@@ -50,6 +50,7 @@ use lucia_data, only: NGAS
 use lucia_data, only: NELFGP
 use lucia_data, only: MXPNGAS, MXPNSMST
 use csm_data, only: NSMST
+use Definitions, only: u6
 
 implicit none
 integer NIGRP, ISPGRPSM, NEL, NSTR, NORBT, IDOREO
@@ -68,24 +69,24 @@ integer NTEST, I, NGASL, IGAS, ISMST, MAXLEX, IFIRST, ISTRBS, NONEW, ISTSMM1, JS
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ============================'
-  write(6,*) ' Welcome to GETSTR_TOTSM_SPGP'
-  write(6,*) ' ============================'
-  write(6,*)
-  write(6,'(A)') ' Strings to be obtained :'
-  write(6,'(A)') ' ************************'
-  write(6,'(A)')
-  write(6,'(A,I2)') '   Symmetry : ',ISPGRPSM
-  write(6,'(A,16I3)') ' Groups : ',(IGRP(I),I=1,NIGRP)
-  write(6,*) ' NEL = ',NEL
+  write(u6,*)
+  write(u6,*) ' ============================'
+  write(u6,*) ' Welcome to GETSTR_TOTSM_SPGP'
+  write(u6,*) ' ============================'
+  write(u6,*)
+  write(u6,'(A)') ' Strings to be obtained :'
+  write(u6,'(A)') ' ************************'
+  write(u6,'(A)')
+  write(u6,'(A,I2)') '   Symmetry : ',ISPGRPSM
+  write(u6,'(A,16I3)') ' Groups : ',(IGRP(I),I=1,NIGRP)
+  write(u6,*) ' NEL = ',NEL
   if (IDOREO /= 0) then
-    write(6,*)
-    write(6,*) ' ============='
-    write(6,*) ' The Z array :'
-    write(6,*) ' ============='
-    write(6,*)
-    write(6,*) ' NORBT,NEL = ',NORBT,NEL
+    write(u6,*)
+    write(u6,*) ' ============='
+    write(u6,*) ' The Z array :'
+    write(u6,*) ' ============='
+    write(u6,*)
+    write(u6,*) ' NORBT,NEL = ',NORBT,NEL
     call IWRTMA(IZ,NORBT,NEL,NORBT,NEL)
   end if
 end if
@@ -116,9 +117,9 @@ do IGAS=1,NGAS
 end do
 ! Largest and lowest active symmetries for each GAS space
 if (NTEST >= 200) then
-  write(6,*) ' Type of each GAS space'
+  write(u6,*) ' Type of each GAS space'
   call IWRTMA(ITPFGS,1,NGAS,1,NGAS)
-  write(6,*) ' Number of elecs per GAS space'
+  write(u6,*) ' Number of elecs per GAS space'
   call IWRTMA(NELFGS,1,NGAS,1,NGAS)
 end if
 
@@ -139,7 +140,7 @@ else
 end if
 IFIRST = 0
 if (NTEST >= 200) then
-  write(6,*) ' next symmetry of NGASL-1 spaces'
+  write(u6,*) ' next symmetry of NGASL-1 spaces'
   call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
 end if
 ! Symmetry of NGASL -1 spaces given, symmetry of total space
@@ -156,7 +157,7 @@ do IGAS=NGASL+1,NGAS
   ISMFGS(IGAS) = 1
 end do
 if (NTEST >= 200) then
-  write(6,*) ' Next symmetry distribution'
+  write(u6,*) ' Next symmetry distribution'
   call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
 end if
 ! Obtain all strings of this symmetry
@@ -172,9 +173,9 @@ if (IDOREO /= 0) then
       !LEX = LEX+IZ(ISTR(IEL,JSTR)),IEL)
       LEX = LEX+IZ(ISTR(IEL+NEL*(JSTR-1)),IEL)
     end do
-    !write(6,*) ' string'
+    !write(u6,*) ' string'
     !call IWRTMA(ISTR(1,JSTR),1,NEL,1,NEL)
-    !write(6,*) ' JSTR and LEX ',JSTR,LEX
+    !write(u6,*) ' JSTR and LEX ',JSTR,LEX
 
     MAXLEX = max(MAXLEX,LEX)
     IREO(LEX) = JSTR
@@ -189,16 +190,16 @@ if (NGAS-1 /= 0) goto 1000
 NSTR = ISTRBS-1
 
 if (NTEST >= 100) then
-  write(6,*) ' NEL(b) = ',NEL
-  write(6,*) ' Number of strings generated ',NSTR
-  write(6,*)
-  write(6,*) ' Strings :'
-  write(6,*)
+  write(u6,*) ' NEL(b) = ',NEL
+  write(u6,*) ' Number of strings generated ',NSTR
+  write(u6,*)
+  write(u6,*) ' Strings :'
+  write(u6,*)
   call PRTSTR(ISTR,NEL,NSTR)
 
   if (IDOREO /= 0) then
-    write(6,*) 'Largest Lexical number obtained ',MAXLEX
-    write(6,*) ' Reorder array'
+    write(u6,*) 'Largest Lexical number obtained ',MAXLEX
+    write(u6,*) ' Reorder array'
     call IWRTMA(IREO,1,NSTR,1,NSTR)
   end if
 end if

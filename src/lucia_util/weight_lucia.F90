@@ -14,16 +14,18 @@ subroutine WEIGHT_LUCIA(Z,NEL,NORB1,NORB2,NORB3,MNRS1,MXRS1,MNRS3,MXRS3,ISCR,NTE
 !
 ! Reverse lexical ordering is used for restricted space
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer Z(*), ISCR(*)
 
 NORB = NORB1+NORB2+NORB3
 
 if (NTEST >= 100) then
-  write(6,*) ' >>>> WEIGHT <<<<<'
-  write(6,*) ' NORB1 NORB2 NORB3 ',NORB1,NORB2,NORB3
-  write(6,*) ' NEL MNRS1 MXRS1 MNRS3 MXRS3'
-  write(6,*) NEL,MNRS1,MXRS1,MNRS3,MXRS3
+  write(u6,*) ' >>>> WEIGHT <<<<<'
+  write(u6,*) ' NORB1 NORB2 NORB3 ',NORB1,NORB2,NORB3
+  write(u6,*) ' NEL MNRS1 MXRS1 MNRS3 MXRS3'
+  write(u6,*) NEL,MNRS1,MXRS1,MNRS3,MXRS3
 end if
 
 KLFREE = 1

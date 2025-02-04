@@ -17,6 +17,8 @@ function GTH1ES(IREOTS,IPNT,H,IBSO,MXPNGAS,IBTSOB,NACOBS,IORB,ITP,ISM,JORB,JTP,J
 !
 ! Last Revision January 98 (IJSM added )
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IREOTS(*), IPNT(*), IBTSOB(MXPNGAS,*), IBSO(*)
@@ -27,9 +29,9 @@ IABS = IORB+IBTSOB(ITP,ISM)-1
 IREO = IREOTS(IABS)
 JABS = JORB+IBTSOB(JTP,JSM)-1
 JREO = IREOTS(JABS)
-!write(6,*) ' GTH1ES : IREO JREO ',IREO,JREO
+!write(u6,*) ' GTH1ES : IREO JREO ',IREO,JREO
 
-!write(6,*) ' GTH1ES : IBSO ',IBSO(ISM)
+!write(u6,*) ' GTH1ES : IBSO ',IBSO(ISM)
 IJ = -2**30
 if (IJSM == 1) then
   if (ISM > JSM) then
@@ -51,10 +53,10 @@ end if
 GTH1ES = H(IJ)
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' one electron integral'
-  write(6,*) ' IORB ITP ISM ',IORB,ITP,ISM
-  write(6,*) ' JORB JTP JSM ',JORB,JTP,JSM
-  write(6,*) ' IJ and H(IJ) ',IJ,H(IJ)
+  write(u6,*) ' one electron integral'
+  write(u6,*) ' IORB ITP ISM ',IORB,ITP,ISM
+  write(u6,*) ' JORB JTP JSM ',JORB,JTP,JSM
+  write(u6,*) ' IJ and H(IJ) ',IJ,H(IJ)
 end if
 
 end function GTH1ES

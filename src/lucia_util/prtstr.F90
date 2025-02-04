@@ -12,11 +12,13 @@
 subroutine PRTSTR(ISTR,NEL,NSTR)
 ! Print NSTR strings each containing NEL electrons
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension ISTR(NEL,NSTR)
 
 do JSTR=1,NSTR
-  write(6,100) ' String ',JSTR,' : ',(ISTR(IEL,JSTR),IEL=1,NEL)
+  write(u6,100) ' String ',JSTR,' : ',(ISTR(IEL,JSTR),IEL=1,NEL)
 end do
 
 return

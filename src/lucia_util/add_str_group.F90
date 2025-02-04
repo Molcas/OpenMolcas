@@ -19,7 +19,7 @@ subroutine ADD_STR_GROUP(NSTADD,IOFADD,ISTADD,NSTB,NSTA,ISTRING,IELOF,NELADD,NEL
 !
 ! Jeppe Olsen, for once improving performance of LUCIA
 !
-!.Input
+! Input
 ! =====
 ! NSTADD : Number of strings to be added
 ! IOFADD : First string to be added
@@ -39,7 +39,7 @@ dimension ISTADD(*)
 !dimension ISTRING(NELTOT,*)
 dimension ISTRING(*)
 
-!write(6,*) '  Inside ADD ...'
+!write(u6,*) '  Inside ADD ...'
 if (NSTA > 1) then
   do IISTR=1,NSTADD
     ! Address of A(1,IISTR,1)
@@ -80,9 +80,9 @@ else if (NSTA == 1) then
         !ISTRING(IELOF-1+JEL+(IOFF2-1)*NELTOT) = ISTADD(JEL+(IOFADD-1+IISTR-1)*NELADD)
         !ISTRING(IELOF-1+JEL,IOFF2) = ISTADD(JEL,IOFADD-1+IISTR)
       end do
-      !write(6,*) ' New string from ADD'
+      !write(u6,*) ' New string from ADD'
       !call IWRTMA(ISTRING(IOFFX+1),1,NELADD,1,NELADD)
-      !write(6,*) ' IOFFX, IOFFY, NELADD',IOFFX,IOFFY,NELADD
+      !write(u6,*) ' IOFFX, IOFFY, NELADD',IOFFX,IOFFY,NELADD
     end do
   end do
 end if

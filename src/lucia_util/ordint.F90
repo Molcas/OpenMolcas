@@ -18,7 +18,9 @@ subroutine ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)
 ! INO : Mapping array from new to old order
 !
 ! THIS CODE CONTAINS THE OLD ORDER CODE OF JOE GOLAB
-! (HE IS HEREBY AKNOWLEDGED, AND I AM EXCUSED)
+! (HE IS HEREBY ACKNOWLEDGED, AND I AM EXCUSED)
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 dimension IINST(NELMNT), IOUTST(NELMNT), INO(NELMNT)
@@ -58,13 +60,13 @@ GO TO 20
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST >= 200) then
-  write(6,*) ' Result from ORDINT'
-  write(6,*)
-  write(6,*) ' Input string'
+  write(u6,*) ' Result from ORDINT'
+  write(u6,*)
+  write(u6,*) ' Input string'
   call IWRTMA(IINST,1,NELMNT,1,NELMNT)
-  write(6,*) ' Ordered string'
+  write(u6,*) ' Ordered string'
   call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
-  write(6,*) ' New to old order'
+  write(u6,*) ' New to old order'
   call IWRTMA(INO,1,NELMNT,1,NELMNT)
 end if
 

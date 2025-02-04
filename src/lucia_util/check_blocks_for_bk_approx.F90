@@ -30,6 +30,7 @@ use lucia_data, only: NGAS
 use lucia_data, only: IBSPGPFTP, NELFSPGP
 use lucia_data, only: MXPNGAS
 use spinfo, only: NGASBK, IOCCPSPC
+use Definitions, only: u6
 
 implicit none
 integer IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, IOCTPA, IOCTPB, I_DO_EXACT_BLOCK
@@ -43,26 +44,26 @@ IONE = 1
 IOCTPA = IBSPGPFTP(1)
 IOCTPB = IBSPGPFTP(2)
 if (ntest >= 100) then
-  write(6,*) 'IOCTPA, IOCTPB',IOCTPA,IOCTPB
-  write(6,*) 'IATP,IBTP,JATP,JBTP'
-  write(6,'(5x,I4,5x,I4,5x,I4,5X,I4)') IATP,IBTP,JATP,JBTP
-  write(6,*) 'NELFSPGP (IA), (IB), (JA), (JB)'
-  write(6,*) (NELFSPGP(igas,IOCTPA-1+IATP),igas=1,NGAS)
-  write(6,*) (NELFSPGP(igas,IOCTPB-1+IBTP),igas=1,NGAS)
-  write(6,*) (NELFSPGP(igas,IOCTPA-1+JATP),igas=1,NGAS)
-  write(6,*) (NELFSPGP(igas,IOCTPB-1+JBTP),igas=1,NGAS)
+  write(u6,*) 'IOCTPA, IOCTPB',IOCTPA,IOCTPB
+  write(u6,*) 'IATP,IBTP,JATP,JBTP'
+  write(u6,'(5x,I4,5x,I4,5x,I4,5X,I4)') IATP,IBTP,JATP,JBTP
+  write(u6,*) 'NELFSPGP (IA), (IB), (JA), (JB)'
+  write(u6,*) (NELFSPGP(igas,IOCTPA-1+IATP),igas=1,NGAS)
+  write(u6,*) (NELFSPGP(igas,IOCTPB-1+IBTP),igas=1,NGAS)
+  write(u6,*) (NELFSPGP(igas,IOCTPA-1+JATP),igas=1,NGAS)
+  write(u6,*) (NELFSPGP(igas,IOCTPB-1+JBTP),igas=1,NGAS)
 end if
 call IVCSUM(IOCC,NELFSPGP(1,IOCTPA-1+IATP),NELFSPGP(1,IOCTPB-1+IBTP),IONE,IONE,NGAS)
 call IVCSUM(JOCC,NELFSPGP(1,IOCTPA-1+JATP),NELFSPGP(1,IOCTPB-1+JBTP),IONE,IONE,NGAS)
 if (ntest >= 100) then
-  write(6,*) ' Routine CHECK_BLOCKS_FOR_BK_APPROX is speaking!'
-  write(6,*) ' I am doing BK-type of approximation'
-  write(6,*) ' Min and Max for subspace with exact Hamiltonian'
-  write(6,*) ' ==============================================='
-  write(6,*) 'NGASBK : ',NGASBK
-  write(6,*) '              Min. Occ.      Max. Occ.'
+  write(u6,*) ' Routine CHECK_BLOCKS_FOR_BK_APPROX is speaking!'
+  write(u6,*) ' I am doing BK-type of approximation'
+  write(u6,*) ' Min and Max for subspace with exact Hamiltonian'
+  write(u6,*) ' ==============================================='
+  write(u6,*) 'NGASBK : ',NGASBK
+  write(u6,*) '              Min. Occ.      Max. Occ.'
   do IGAS=1,NGASBK
-    write(6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
+    write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
   end do
 end if
 !
@@ -86,10 +87,10 @@ else
 end if
 
 if (NTEST >= 10) then
-  write(6,*) ' CHECK_BLOCKS_FOR_BK_APPROX is speaking'
-  write(6,'(A, 4I4)') ' Input blocks IA, IB, JA, JB = ',IATP,IBTP,JATP,JBTP
-  write(6,'(A, 4I4)') ' Input blocks IASM, IBSM, JASM, JBSM = ',IASM,IBSM,JASM,JBSM
-  write(6,'(A,I4)') ' I_DO_EXACT_BLOCK = ',I_DO_EXACT_BLOCK
+  write(u6,*) ' CHECK_BLOCKS_FOR_BK_APPROX is speaking'
+  write(u6,'(A, 4I4)') ' Input blocks IA, IB, JA, JB = ',IATP,IBTP,JATP,JBTP
+  write(u6,'(A, 4I4)') ' Input blocks IASM, IBSM, JASM, JBSM = ',IASM,IBSM,JASM,JBSM
+  write(u6,'(A,I4)') ' I_DO_EXACT_BLOCK = ',I_DO_EXACT_BLOCK
 end if
 
 end subroutine CHECK_BLOCKS_FOR_BK_APPROX

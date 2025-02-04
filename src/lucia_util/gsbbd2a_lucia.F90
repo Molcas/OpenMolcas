@@ -64,6 +64,8 @@ subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NRO
 ! Jeppe Olsen, Fall of 96
 
 use Para_Info, only: MyRank, nProcs
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -81,18 +83,17 @@ dimension I1(MAXK,*), XI1S(MAXK,*), I2(MAXK,*), XI2S(MAXK,*)
 ! Local arrays
 dimension ITP(256), JTP(256), KTP(256), LTP(256)
 !integer IKBT(3,8), IKSMBT(2,8), JLBT(3,8), JLSMBT(2,8)
-real*8, parameter :: ZERO = 0.0d0
 
 NTEST = 0
 if (NTEST >= 1000) then
-  write(6,*)
-  write(6,*) ' ================='
-  write(6,*) ' GSBBD2A in action'
-  write(6,*) ' ================='
-  write(6,*)
-  write(6,*) ' Occupation of active left strings'
+  write(u6,*)
+  write(u6,*) ' ================='
+  write(u6,*) ' GSBBD2A in action'
+  write(u6,*) ' ================='
+  write(u6,*)
+  write(u6,*) ' Occupation of active left strings'
   call IWRTMA(ISEL,1,NGAS,1,NGAS)
-  write(6,*) ' Occupation of active Right strings'
+  write(u6,*) ' Occupation of active Right strings'
   call IWRTMA(ICEL,1,NGAS,1,NGAS)
 end if
 
@@ -114,13 +115,13 @@ call DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NGAS,ISEL,ICEL)
 ! For general use : STSTSX => STSTDX
 IDXSM = STSTSX(ISCSM,ICCSM)
 if (IDXSM == 0) goto 2001
-if (NTEST >= 1000) write(6,*) ' ISCSM,ICCSM ',ISCSM,ICCSM
+if (NTEST >= 1000) write(u6,*) ' ISCSM,ICCSM ',ISCSM,ICCSM
 do IDXTP=1,NDXTP
   ITYP = ITP(IDXTP)
   JTYP = JTP(IDXTP)
   KTYP = KTP(IDXTP)
   LTYP = LTP(IDXTP)
-  if (NTEST >= 1000) write(6,*) ' ITYP JTYP KTYP LTYP ',ITYP,JTYP,KTYP,LTYP
+  if (NTEST >= 1000) write(u6,*) ' ITYP JTYP KTYP LTYP ',ITYP,JTYP,KTYP,LTYP
   do IKOBSM=1,NSMOB
     JLOBSM = SXDXSX(IKOBSM,IDXSM)
     if (JLOBSM == 0) goto 1950
@@ -153,7 +154,7 @@ do IDXTP=1,NDXTP
 
         IFIRST = 1
         ! Loop over batches of I strings
-        call SETVEC(X,ZERO,NI*NJ*NK*NL)
+        call SETVEC(X,Zero,NI*NJ*NK*NL)
         do IIPART=1+MYRANK,NPART,NPROCS
           IBOT = 1+(IIPART-1)*NPARTSZ
           ITOP = min(IBOT+NPARTSZ-1,NROW)
@@ -211,7 +212,7 @@ do IDXTP=1,NDXTP
             JLOFF = (JLBOFF-1+IJLE-1)*NKBTC*NIBTC+1
             if ((JLSM == 1) .and. (J == L)) then
               ! a+j a+j gives trivially zero
-              call SETVEC(CSCR(JLOFF),ZERO,NKBTC*NIBTC)
+              call SETVEC(CSCR(JLOFF),Zero,NKBTC*NIBTC)
             else
               call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
             end if
@@ -237,9 +238,8 @@ do IDXTP=1,NDXTP
           K12 = 1
           IONE = 1
           if (IFRST == 1) KFRST = 1
-          ONE = 1.0d0
           call ADADST_GAS(IONE,ISM,ITYP,NI,IONE,KSM,KTYP,NK,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST,KFRST,II12, &
-                          K12,ONE)
+                          K12,One)
 
           IFRST = 0
           KFRST = 0
@@ -264,7 +264,7 @@ do IDXTP=1,NDXTP
             IKOFF = (IKBOFF-1+IIKE-1)*NKBTC*NIBTC+1
             if ((IKSM == 1) .and. (I == K)) then
               ! a+j a+j gives trivially zero
-              call SETVEC(SSCR(IKOFF),ZERO,NKBTC*NIBTC)
+              call SETVEC(SSCR(IKOFF),Zero,NKBTC*NIBTC)
             else
               call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1IK),XI1S(1,I1IK))
             end if
@@ -290,24 +290,24 @@ do IDXTP=1,NDXTP
           !if ((IOFF == 3) .and. (JOFF == 3) .and. (KOFF == 4) .and. (LOFF == 4)) NTEST = 5000
           LDUMMY = NKBTC*NIBTC
           if (NTEST >= 2000) then
-            write(6,*) ' CSCR matrix'
+            write(u6,*) ' CSCR matrix'
             call WRTMAT(CSCR,LDUMMY,NJL,LDUMMY,NJL)
-            write(6,*) ' SSCR matrix'
+            write(u6,*) ' SSCR matrix'
             call WRTMAT(SSCR,LDUMMY,NIK,LDUMMY,NIK)
           end if
 
           if (IFIRST == 1) then
-            FACTOR = 0.0d0
+            FACTOR = Zero
           else
-            FACTOR = 1.0d0
+            FACTOR = One
           end if
           LDUMMY = NKBTC*NIBTC
-          ONEM = -1.0d0
+          ONEM = -One
           !    MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP)
           call MATML7(X,SSCR,CSCR,NIK,NJL,LDUMMY,NIK,LDUMMY,NJL,FACTOR,ONEM,1)
           IFIRST = 0
           if (NTEST >= 2000) then
-            write(6,*) ' Updated X matrix IK,JL,IK,JL',NIK,NJL,NIK,NJL
+            write(u6,*) ' Updated X matrix IK,JL,IK,JL',NIK,NJL,NIK,NJL
             call WRTMAT(X,NIK,NJL,NIK,NJL)
           end if
 
@@ -320,12 +320,12 @@ do IDXTP=1,NDXTP
         JOFF = IOBPTS(JTYP,JSM)
         KOFF = IOBPTS(KTYP,KSM)
         LOFF = IOBPTS(LTYP,LSM)
-        !write(6,*) 'I, J, K, L offsets & IPACK :',IOFF,JOFF,KOFF,LOFF,Ipack
+        !write(u6,*) 'I, J, K, L offsets & IPACK :',IOFF,JOFF,KOFF,LOFF,Ipack
         call ADTOR2(RHO2,RHO2S,RHO2A,X,1,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NACOB,IPACK)
         !    ADTOR2(RHO2,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 
-        !write(6,*) ' updated density matrix A',' norb = 4 ',norb
-        !write(6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
+        !write(u6,*) ' updated density matrix A',' norb = 4 ',norb
+        !write(u6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
         !call prsym(rho2s,NORB*(NORB+1)/2)
 
 1930    continue

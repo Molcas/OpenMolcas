@@ -23,7 +23,9 @@ subroutine REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,NLIST_PTDET,IS
 !            Prototype determinants not included in
 !            ILIST_PTDET are given zero address
 !
-!. Jeppe Olsen, December 2001
+! Jeppe Olsen, December 2001
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Input
@@ -65,7 +67,7 @@ IZERO = 0
 call ISETVC(IREO_PTDET,IZERO,NTOT_PTDET)
 
 do JPTDT=1,NLIST_PTDET
-  !write(6,*) ' JPTDT = ',JPTDT
+  !write(u6,*) ' JPTDT = ',JPTDT
   ! Lexical address of prototype determiant JPTDT
   if (NALPHA == 0) then
     ILEX = 1
@@ -76,7 +78,7 @@ do JPTDT=1,NLIST_PTDET
 end do
 
 if (NTEST >= 100) then
-  write(6,*) ' Reorder array for prototype determinants'
+  write(u6,*) ' Reorder array for prototype determinants'
   call IWRTMA(IREO_PTDET,1,NTOT_PTDET,1,NTOT_PTDET)
 end if
 

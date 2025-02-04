@@ -16,6 +16,8 @@ function NDXFSM(NSMOB,NSMSX,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS
 ! IS34 (0,1,-1)   : Permutational symmetry between index 3 and 3
 ! IS1234 (0,1,-1) : permutational symmetry between index 12 and 34
 
+use Definitions, only: u6
+
 ! General input
 integer ADSXA(MXPOBS,2*MXPOBS), SXDXSX(2*MXPOBS,4*MXPOBS)
 ! Specific input
@@ -64,8 +66,8 @@ do I12SM=1,NSMSX
       else if ((IS1234 == -1) .and. (I12NUM == I34NUM)) then
         MDX = MDX+N12*(N12-1)/2
       end if
-      !write(6,*) ' I1SM I2SM I3SM I4SM MDX'
-      !write(6,*) I1SM,I2SM,I3SM,I4SM,MDX
+      !write(u6,*) ' I1SM I2SM I3SM I4SM MDX'
+      !write(u6,*) I1SM,I2SM,I3SM,I4SM,MDX
 90  continue
     end do
 190 continue
@@ -76,6 +78,6 @@ NDXFSM = MDX
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
-if (NTEST /= 0) write(6,*) ' Number of double excitations obtained ',MDX
+if (NTEST /= 0) write(u6,*) ' Number of double excitations obtained ',MDX
 
 end function NDXFSM

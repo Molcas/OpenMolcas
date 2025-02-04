@@ -68,12 +68,13 @@ subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,ICBLTP,NSSOA,NSSOB,NAE
 ! sigma(iblk) = summa(jblk <= iblk) (2-delta(iblk,jblk))/2
 !                                                 * <Iblk!H!Jblk>C(Jblk)
 
-use Constants, only: Zero
 use lucia_data, only: IDISK
 use spinfo, only: DOBKAP
 #ifdef _DEBUGPRINT_
 use spinfo, only: NGASBK, IOCCPSPC
 #endif
+use Constants, only: Zero, One, Half
+use Definitions, only: u6
 
 implicit none
 integer NSBLOCK, NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NOCTPA, NOCTPB, NSMST, NSMOB, NSMSX, NSMDX, MXPNGAS, MAXK, MAXI, LC, &
@@ -126,33 +127,33 @@ if (.false.) call unused_integer(mxsxbl)
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST >= 10) then
-  write(6,*) ' ================='
-  write(6,*) ' SBLOCKS speaking :'
-  write(6,*) ' ================='
-  write(6,*)
-  write(6,*) ' Number of sigma blocks to be calculated ',NSBLOCK
-  write(6,*) ' TTSS for each ACTIVE sigma block'
+  write(u6,*) ' ================='
+  write(u6,*) ' SBLOCKS speaking :'
+  write(u6,*) ' ================='
+  write(u6,*)
+  write(u6,*) ' Number of sigma blocks to be calculated ',NSBLOCK
+  write(u6,*) ' TTSS for each ACTIVE sigma block'
   do IBLOCK=1,NSBLOCK
-    if (ISBLOCK(1,IBLOCK) > 0) write(6,'(10X,4I3,2I8)') (ISBLOCK(II,IBLOCK),II=1,4)
+    if (ISBLOCK(1,IBLOCK) > 0) write(u6,'(10X,4I3,2I8)') (ISBLOCK(II,IBLOCK),II=1,4)
   end do
-  write(6,*) ' IDC PS IPERTOP',IDC,PS,IPERTOP
-  write(6,*) ' IDOH2 = ',IDOH2
-  write(6,*) ' I_RES_AB=',I_RES_AB
+  write(u6,*) ' IDC PS IPERTOP',IDC,PS,IPERTOP
+  write(u6,*) ' IDOH2 = ',IDOH2
+  write(u6,*) ' I_RES_AB=',I_RES_AB
   if (DoBKAP) then
-    write(6,*) ' I am doing BK-type of approximation'
-    write(6,*) ' It is based on orbital splitting'
-    write(6,*) ' Min and Max for subspace with exact Hamiltonian'
-    write(6,*) ' ==============================================='
-    write(6,*) 'NGASBK : ',NGASBK
-    write(6,*) '              Min. Occ.      Max. Occ.'
+    write(u6,*) ' I am doing BK-type of approximation'
+    write(u6,*) ' It is based on orbital splitting'
+    write(u6,*) ' Min and Max for subspace with exact Hamiltonian'
+    write(u6,*) ' ==============================================='
+    write(u6,*) 'NGASBK : ',NGASBK
+    write(u6,*) '              Min. Occ.      Max. Occ.'
     do IGAS=1,NGASBK
-      write(6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
+      write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
     end do
   end if
 end if
 
 if (NTEST >= 50) then
-  write(6,*) ' Initial C vector'
+  write(u6,*) ' Initial C vector'
   call WRTVCD(CB,LUC,1,-1)
 end if
 #endif
@@ -173,7 +174,7 @@ do JSBLOCK=1,NSBLOCK
   IOFF = ISBLOCK(5,JSBLOCK)
   NASTR = NSSOA(IASM,IATP)
   NBSTR = NSSOB(IBSM,IBTP)
-  if (ISBLOCK(1,JSBLOCK) > 0) call SETVEC(SB(IOFF),ZERO,NASTR*NBSTR)
+  if (ISBLOCK(1,JSBLOCK) > 0) call SETVEC(SB(IOFF),Zero,NASTR*NBSTR)
 end do
 ! Loop over batches over C blocks
 if (IDOH2 == 1) then
@@ -183,8 +184,8 @@ else
 end if
 IDISK(LUC) = 0
 if (ICBAT_RES == 1) then
-  write(6,*) ' Restricted set of C batches'
-  write(6,*) ' ICBAT_INI ICBAT_END',ICBAT_INI,ICBAT_END
+  write(u6,*) ' Restricted set of C batches'
+  write(u6,*) ' ICBAT_INI ICBAT_END',ICBAT_INI,ICBAT_END
   JCBAT_INI = ICBAT_INI
   JCBAT_END = ICBAT_END
 else
@@ -203,13 +204,13 @@ do JCBATCH=JCBAT_INI,JCBAT_END
     JBLOCK = I1CBLOCK(JCBATCH)-1+JJCBLOCK
     ! Will this block be needed ??
     INTERACT = 0
-    if (SCLFAC(JBLOCK) == 1.0d0) then
+    if (SCLFAC(JBLOCK) == One) then
       JATP = ICBLOCK(1,JBLOCK)
       JBTP = ICBLOCK(2,JBLOCK)
       JASM = ICBLOCK(3,JBLOCK)
       JBSM = ICBLOCK(4,JBLOCK)
       JOFF = ICBLOCK(5,JBLOCK)
-      PL = 1.d0
+      PL = One
       call PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PS,PL,LATP,LBTP,LASM,LBSM,LSGN,LTRP,NPERM)
       do IPERM=1,NPERM
         LLASM = LASM(IPERM)
@@ -244,16 +245,16 @@ do JCBATCH=JCBAT_INI,JCBAT_END
       LBL = iDUMMY(1)
       call IDAFILE(LUC,2,iDUMMY,1,IDISK(LUC))
       call SKPRCD2(LBL,-1,LUC)
-      SCLFAC(JBLOCK) = 0.0d0
+      SCLFAC(JBLOCK) = Zero
     end if
 
 #   ifdef _DEBUGPRINT_
     if (NTEST >= 100) then
       if (INTERACT == 1) then
-        write(6,*) ' TTSS for C block read in'
+        write(u6,*) ' TTSS for C block read in'
         call IWRTMA(ICBLOCK(1,JBLOCK),4,1,4,1)
       else
-        write(6,*) ' TTSS for C block skipped'
+        write(u6,*) ' TTSS for C block skipped'
         call IWRTMA(ICBLOCK(1,JBLOCK),4,1,4,1)
       end if
     end if
@@ -274,7 +275,7 @@ do JCBATCH=JCBAT_INI,JCBAT_END
     NJA = NSSOA(JASM,JATP)
     NJB = NSSOB(JBSM,JBTP)
 
-    if (SCLFAC(ICBLK) /= 0.0d0) then
+    if (SCLFAC(ICBLK) /= Zero) then
       ! Other symmetry blocks that can be obtained from this block
       call PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PS,PL,LATP,LBTP,LASM,LBSM,LSGN,LTRP,NPERM)
       ! Start with transposed block
@@ -290,7 +291,7 @@ do JCBATCH=JCBAT_INI,JCBAT_END
         if (IPERM == 1) then
           if ((IDC == 2) .and. (JATP == JBTP) .and. (JASM == JBSM)) then
             ! Diagonal blocks, Transposing corresponds to scaling
-            if (PS == -1.0d0) call SCALVE(CB(ICOFF),PS,NJA*NJB)
+            if (PS == -One) call SCALVE(CB(ICOFF),PS,NJA*NJB)
           else
             ! off-diagonal blocks, explicit transposing
             call TRPMT3(CB(ICOFF),NJA,NJB,C2)
@@ -324,9 +325,9 @@ do JCBATCH=JCBAT_INI,JCBAT_END
 
 #           ifdef _DEBUGPRINT_
             if (NTEST >= 100) then
-              write(6,*) ' Next s block in batch :'
-              write(6,*) ' ISBLK IASM IBSM IATP IBTP'
-              write(6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
+              write(u6,*) ' Next s block in batch :'
+              write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
+              write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
             end if
 #           endif
 
@@ -335,23 +336,23 @@ do JCBATCH=JCBAT_INI,JCBAT_END
 
 #           ifdef _DEBUGPRINT_
             if (NTEST >= 60) then
-              write(6,*) ' RSSBCB will be called for'
-              write(6,*) ' Sigma block :'
-              write(6,*) ' ISOFF ',ISOFF
-              write(6,*) ' ISBLK IASM IBSM IATP IBTP'
-              write(6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
-              write(6,*) ' C     block :'
-              write(6,*) ' ICBLK LLASM LLBSM LLATP LLBTP'
-              write(6,'(5I5)') ICBLK,LLASM,LLBSM,LLATP,LLBTP
-              write(6,*) ' ICOFF ',ICOFF
-              write(6,*) ' Overall scale',SCLFAC(ICBLK)
+              write(u6,*) ' RSSBCB will be called for'
+              write(u6,*) ' Sigma block :'
+              write(u6,*) ' ISOFF ',ISOFF
+              write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
+              write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
+              write(u6,*) ' C     block :'
+              write(u6,*) ' ICBLK LLASM LLBSM LLATP LLBTP'
+              write(u6,'(5I5)') ICBLK,LLASM,LLBSM,LLATP,LLBTP
+              write(u6,*) ' ICOFF ',ICOFF
+              write(u6,*) ' Overall scale',SCLFAC(ICBLK)
             end if
 #           endif
 
             if ((IRESTRICT == 1) .and. &
                 (((IASM == LLASM) .and. (IBSM == LLBSM) .and. (IATP == LLATP) .and. (IBTP == LLBTP)) .or. &
                  ((IDC == 2) .and. (IASM == LLBSM) .and. (IBSM == LLASM) .and. (IATP == LLBTP) .and. (IBTP == LLATP)))) then
-              XFAC = 0.5d0*SCLFAC(ICBLK)
+              XFAC = Half*SCLFAC(ICBLK)
             else
               XFAC = SCLFAC(ICBLK)
             end if
@@ -375,7 +376,7 @@ do JCBATCH=JCBAT_INI,JCBAT_END
               call COPVEC(C2,SB(ISOFF),NIA*NIB)
               call TRPMT3(CB(ICOFF),NLLB,NLLA,C2)
               call COPVEC(C2,CB(ICOFF),NLLA*NLLB)
-              FACTOR = 0.0d0
+              FACTOR = Zero
               call ADDDIA_TERM(FACTOR,CB(ICOFF),SB(ISOFF),IATP,IBTP,IASM,IBSM)
               ! Giovanni.... transposing back sigma and CI vectors:
               call TRPMT3(SB(ISOFF),NIA,NIB,C2)
@@ -420,7 +421,7 @@ end do
 
 #ifdef _DEBUGPRINT_
 if (NTEST >= 50) then
-  write(6,*) ' output blocks from SBLOCKS'
+  write(u6,*) ' output blocks from SBLOCKS'
   call WRTTTS(SB,ISBLOCK,NSBLOCK,NSMST,NSSOA,NSSOB,1)
 end if
 #endif

@@ -24,15 +24,17 @@ subroutine ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 ! Jeppe Olsen, March 1995
 !              ORBINH1_NOCCSYM added August 2000
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension NTOOBS(NSMOB)
 ! output
 dimension IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB)
 
-!write(6,*) ' ORBINH1 speaking'
-!write(6,*) ' NSMOB NTOOB ',NSMOB,NTOOB
-!write(6,*) ' NTOOBS'
+!write(u6,*) ' ORBINH1 speaking'
+!write(u6,*) ' NSMOB NTOOB ',NSMOB,NTOOB
+!write(u6,*) ' NTOOBS'
 !call IWRTMA(NTOOBS,1,NSMOB,1,NSMOB)
 ! To eliminate annoying and incorrect compiler warnings
 IOFF = 0
@@ -53,12 +55,12 @@ do ISM=1,NSMOB
     else
       JOFF = JOFF+NTOOBS(JSM-1)
     end if
-    !write(6,*) ' ISM JSM IOFF JOFF',ISM,JSM,IOFF,JOFF
+    !write(u6,*) ' ISM JSM IOFF JOFF',ISM,JSM,IOFF,JOFF
     do IORB=1,NTOOBS(ISM)
       IABS = IOFF-1+IORB
       do JORB=1,NTOOBS(JSM)
         JABS = JOFF-1+JORB
-        !write(6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
+        !write(u6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
         if (ISM > JSM) then
           INDEX = (IORB-1)*NTOOBS(JSM)+JORB
         else if (ISM == JSM) then
@@ -82,7 +84,7 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' IORBINH1 matrix delivered from ORBINH1'
+  write(u6,*) ' IORBINH1 matrix delivered from ORBINH1'
   call IWRTMA(IORBINH1,NTOOB,NTOOB,NTOOB,NTOOB)
 end if
 

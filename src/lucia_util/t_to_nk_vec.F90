@@ -35,6 +35,7 @@ use lucia_data, only: MXNSTR
 use lucia_data, only: IREOST, NTOOB
 use lucia_data, only: NELEC
 use csm_data, only: NSMST
+use Definitions, only: u6
 
 implicit none
 real*8 T
@@ -49,8 +50,8 @@ integer NTEST, IATP, IBTP, NAEL, NBEL, KKORB, NBATCH, NBLOCK
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' T_TO_NK_VEC speaking'
-  write(6,*) ' ISM, ISPC = ',ISM,ISPC
+  write(u6,*) ' T_TO_NK_VEC speaking'
+  write(u6,*) ' ISM, ISPC = ',ISM,ISPC
 end if
 ! Set up block and batch structure of vector
 IATP = 1

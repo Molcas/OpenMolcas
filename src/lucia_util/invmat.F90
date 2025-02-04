@@ -21,26 +21,29 @@ subroutine INVMAT(A,B,MATDIM,NDIM,ISING)
 ! WARNINGS ARE ISSUED IN CASE OF CONVERGENCE PROBLEMS )
 !
 ! ISING = 0 => No convergence problems
-!       = 1  => Convergence problems
+!       = 1 => Convergence problems
+
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 dimension A(MATDIM,MATDIM), B(MATDIM,MATDIM)
 
 ITEST = 0
 if (NDIM == 1) then
-  if (A(1,1) /= 0.0d0) then
-    A(1,1) = 1.0d0/A(1,1)
+  if (A(1,1) /= Zero) then
+    A(1,1) = One/A(1,1)
   else
     ITEST = 1
   end if
 else
-  DETERM = 0.0d0
-  EPSIL = 0.0d0
+  DETERM = Zero
+  EPSIL = Zero
   call BNDINV(A,B,NDIM,DETERM,EPSIL,ITEST,MATDIM)
 end if
 
 if (ITEST /= 0) then
-  write(6,'(A,I3)') ' INVERSION PROBLEM NUMBER..',ITEST
+  write(u6,'(A,I3)') ' INVERSION PROBLEM NUMBER..',ITEST
   ISING = 1
 else
   ISING = 0
@@ -48,7 +51,7 @@ end if
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' INVERTED MATRIX'
+  write(u6,*) ' INVERTED MATRIX'
   call WRTMAT(A,NDIM,NDIM,MATDIM,MATDIM)
 end if
 

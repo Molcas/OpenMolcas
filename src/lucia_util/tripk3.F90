@@ -22,6 +22,8 @@ subroutine TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 !
 ! Some considerations on cache minimization used for IMET = 2 Loop
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension AUTPAK(MATDIM,MATDIM), APAK(*)
 
@@ -29,7 +31,7 @@ dimension AUTPAK(MATDIM,MATDIM), APAK(*)
 IOFF = 0
 JOFF = 0
 
-!.Packing : No problem with cache misses
+! Packing : No problem with cache misses
 
 if (IWAY == 1) then
   IJ = 0
@@ -96,7 +98,7 @@ end if
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' AUTPAK AND APAK FROM TRIPK3'
+  write(u6,*) ' AUTPAK AND APAK FROM TRIPK3'
   call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
   call PRSM2(APAK,NDIM)
 end if

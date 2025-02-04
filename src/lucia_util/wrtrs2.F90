@@ -10,10 +10,11 @@
 !***********************************************************************
 
 subroutine WRTRS2(VECTOR,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
-! Write RAS vector . Storage form is defined by ICBLTP
+! Write RAS vector. Storage form is defined by ICBLTP
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
-
 dimension VECTOR(*)
 dimension IOCOC(NOCTPA,NOCTPB)
 dimension NSASO(NSMST,*), NSBSO(NSMST,*)
@@ -39,16 +40,16 @@ do IASM=1,NSMST
         ! Diagonal block
         NELMNT = NAST*(NAST+1)/2
         if (NELMNT /= 0) then
-          write(6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
-          write(6,'(A)') '  ============================'
+          write(u6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
+          write(u6,'(A)') '  ============================'
           call PRSM2(VECTOR(IBASE),NAST)
           IBASE = IBASE+NELMNT
         end if
       else
         NELMNT = NAST*NBST
         if (NELMNT /= 0) then
-          write(6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
-          write(6,'(A)') '  ============================'
+          write(u6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
+          write(u6,'(A)') '  ============================'
           call WRTMAT(VECTOR(IBASE),NAST,NBST,NAST,NBST)
           IBASE = IBASE+NELMNT
         end if

@@ -28,9 +28,9 @@ integer, external :: IsFreeUnit
 ! Standard input and output
 ! =========================
 ! Input file
-!LUIN = 5
+!LUIN = u5
 ! Output file
-!LUOUT = 6
+!LUOUT = u6
 ! =================
 ! Input information
 ! =================

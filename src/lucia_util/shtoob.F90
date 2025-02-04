@@ -33,6 +33,8 @@ subroutine SHTOOB(NSHPIR,NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NOBPS,NOB)
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension NSHPIR(*), NOSPIR(*), IOSPIR(MXPOBS,*)
@@ -51,10 +53,10 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' SHTOOB Speaking'
-  write(6,*) ' ==============='
-  write(6,*) ' Number of orbitals obtained ',NOB
-  write(6,*) ' Number of orbitals per symmetry'
+  write(u6,*) ' SHTOOB Speaking'
+  write(u6,*) ' ==============='
+  write(u6,*) ' Number of orbitals obtained ',NOB
+  write(u6,*) ' Number of orbitals per symmetry'
   call IWRTMA(NOBPS,1,NSMOB,1,NSMOB)
 end if
 

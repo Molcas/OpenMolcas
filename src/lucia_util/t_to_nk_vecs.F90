@@ -41,7 +41,7 @@ do JBLOCK=1,NBLOCK
   IBTP = IBLOCK(2,JBLOCK)
   IASM = IBLOCK(3,JBLOCK)
   IBSM = IBLOCK(4,JBLOCK)
-  !write(6,*) ' IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
+  !write(u6,*) ' IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
   ! Obtain alpha strings of sym IASM and type IATP
   IDUM(1) = 0
   call GETSTR_TOTSM_SPGP(1,IATP,IASM,NAEL,NASTR1,IASTR,NORB,0,IDUM,IDUM)
@@ -53,24 +53,24 @@ do JBLOCK=1,NBLOCK
     end do
     IKAOCC(JSTR) = KOCC
   end do
-  !write(6,*) ' IKAOCC array'
+  !write(u6,*) ' IKAOCC array'
   !call IWRTMA(IKAOCC,1,NASTR1,1,NASTR1)
 
   ! Obtain Beta  strings of sym IBSM and type IBTP
   IDUM(1) = 0
   call GETSTR_TOTSM_SPGP(2,IBTP,IBSM,NBEL,NBSTR1,IBSTR,NORB,0,IDUM,IDUM)
-  !write(6,*) ' After GETSTR, NBSTR1=',NBSTR1
+  !write(u6,*) ' After GETSTR, NBSTR1=',NBSTR1
   ! Occupation of orb KORB
   do JSTR=1,NBSTR1
-    !write(6,*) ' JSTR = ',JSTR
+    !write(u6,*) ' JSTR = ',JSTR
     KOCC = 0
     do JBEL=1,NBEL
-      !write(6,*) JBEL,IBSTR(JBEL,JSTR)
+      !write(u6,*) JBEL,IBSTR(JBEL,JSTR)
       if (IBSTR(JBEL,JSTR) == KORB) KOCC = 1
     end do
     IKBOCC(JSTR) = KOCC
   end do
-  !write(6,*) ' IKBOCC array'
+  !write(u6,*) ' IKBOCC array'
   !call IWRTMA(IKBOCC,1,NBSTR1,1,NBSTR1)
 
   if (IBLTP(IASM) == 2) then
@@ -78,11 +78,11 @@ do JBLOCK=1,NBLOCK
   else
     IRESTR = 0
   end if
-  !write(6,*) ' IBLTP ',IBLTP(IASM)
+  !write(u6,*) ' IBLTP ',IBLTP(IASM)
 
   NIA = NSSOA(IASM,IATP)
   NIB = NSSOB(IBSM,IBTP)
-  !write(6,*) ' NIA NIB ',NIA,NIB
+  !write(u6,*) ' NIA NIB ',NIA,NIB
 
   IMZERO = 0
   if (ICISTR >= 2) then
@@ -104,7 +104,7 @@ do JBLOCK=1,NBLOCK
       do IA=MINIA,NIA
 
         IDET = IDET+1
-        !write(6,*) ' IA IB IDET',IA,IB,IDET
+        !write(u6,*) ' IA IB IDET',IA,IB,IDET
         KABOCC = IKAOCC(IA)+IKBOCC(IB)
         if (KABOCC == 1) then
           C(IDET) = T*C(IDET)

@@ -13,6 +13,7 @@ integer function IBASSPC_FOR_CLS(ICLS)
 ! Obtain base space for occupation class ICLS
 
 use lucia_data, only: NGAS, NCMBSPC, ICMBSPC, IGSOCCX, LCMBSPC, NCMBSPC
+use Definitions, only: u6
 
 implicit none
 ! Specific input
@@ -51,9 +52,9 @@ IBASSPC_FOR_CLS = IBASE
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Occupation class and its basespace'
+  write(u6,*) ' Occupation class and its basespace'
   call IWRTMA(ICLS,1,NGAS,1,NGAS)
-  write(6,*) IBASE
+  write(u6,*) IBASE
 end if
 
 end function IBASSPC_FOR_CLS

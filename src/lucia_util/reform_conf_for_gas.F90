@@ -20,6 +20,8 @@ subroutine REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,IBORB,IBEL,MXPORB,NEL,IWAY)
 !
 ! Jeppe Olsen, November 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer ICONF_GAS(MXPORB)
 integer ICONF(*)
@@ -33,7 +35,7 @@ else if (IWAY == 2) then
     ICONF(IBEL-1+IEL) = ICONF_GAS(IEL)+IBORB-1
   end do
 else
-  write(6,*) ' Problem in REFORM_CONF ..., IWAY = ',IWAY
+  write(u6,*) ' Problem in REFORM_CONF ..., IWAY = ',IWAY
   !stop ' Problem in REFORM_CONF ..., IWAY ='
   call SYSABENDMSG('lucia_util/reform_conv','Internal error','')
 end if
@@ -41,13 +43,13 @@ end if
 NTEST = 0
 if (NTEST >= 100) then
   if (IWAY == 1) then
-    write(6,*) ' Global => Local reform of conf'
+    write(u6,*) ' Global => Local reform of conf'
   else
-    write(6,*) ' Local => Global reform of conf'
+    write(u6,*) ' Local => Global reform of conf'
   end if
-  write(6,*) ' ICONF_GAS :'
+  write(u6,*) ' ICONF_GAS :'
   call IWRTMA(ICONF_GAS,1,NEL,1,NEL)
-  write(6,*) ' Accessed part of ICONF'
+  write(u6,*) ' Accessed part of ICONF'
   call IWRTMA(ICONF,1,IBEL-1+NEL,1,IBEL-1+NEL)
 end if
 

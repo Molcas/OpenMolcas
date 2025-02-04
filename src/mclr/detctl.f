@@ -15,7 +15,7 @@
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
       use MCLR_Data, only: MS2,idc,PSSIGN
       use MCLR_Data, only: FnCSF2SD, LuCSF2SD
-      use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INTIMP,INCORE,
+      use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INCORE,
      &                     ICISTR
       use input_mclr, only: nSym,PntGrp,nIrrep,nsMOB,iSpin,
      &                      nHole1,nActEl,nElec3,
@@ -38,7 +38,6 @@
       nsmob=nSym
       mxr4tp=0
       idiag=1
-      intimp=5
       incore=1
       icistr=1
       ist=1

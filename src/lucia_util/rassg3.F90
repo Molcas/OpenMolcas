@@ -24,6 +24,10 @@ subroutine RASSG3(CB,SB,NBATS,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,I_AM_OUT,N_ELIM
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use lucia_data, only: IDISK
+use Constants, only: Zero
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer NBATS, LUC, LUHC, N_ELIMINATED_BATCHES
@@ -37,10 +41,10 @@ integer NSB, JBATS, ISTA, IEND, I_AM_NOT_WANTED, ISBLK, I, ISBOFF, IOFF, ILEN
 
 if (.false.) call Unused_integer_array(LEBATS)
 #ifdef _DEBUGPRINT_
-write(6,*) ' ================='
-write(6,*) ' RASSG3 speaking :'
-write(6,*) ' ================='
-write(6,*) ' RASSG3 : NBATS = ',NBATS
+write(u6,*) ' ================='
+write(u6,*) ' RASSG3 speaking :'
+write(u6,*) ' ================='
+write(u6,*) ' RASSG3 : NBATS = ',NBATS
 #endif
 
 !SVC: Compute offsets of a sigma batch in the sigma array.
@@ -68,7 +72,7 @@ end do
 !SVC: the entire sigma array is zeroed here, because each process will
 !     zero only its own sigma blocks, and we need to do a global sum
 !     operations later to combine blocks before writing.
-call DCOPY_(NSB,[0.0d0],0,SB,1)
+call DCOPY_(NSB,[Zero],0,SB,1)
 
 do JBATS=1,NBATS
 
@@ -131,7 +135,7 @@ call mma_deallocate(SBOFF)
 call ITODS([-1],1,-1,LUHC)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Final S-vector on disc'
+write(u6,*) ' Final S-vector on disc'
 call WRTVCD(SB,LUHC,1,-1)
 #endif
 

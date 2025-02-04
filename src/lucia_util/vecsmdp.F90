@@ -19,8 +19,9 @@ subroutine VECSMDP(VEC1,VEC2,FAC1,FAC2,LU1,LU2,LU3,IREW,LBLK)
 !
 ! LBLK DEFINES STRUCTURE OF FILE
 
-use Constants, only: Zero
 use lucia_data, only: IDISK
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 real*8 VEC1(*), VEC2(*)
@@ -62,7 +63,7 @@ else if (LBLK < 0) then
   call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
 end if
 if (NBL1 /= NBL2) then
-  write(6,'(A,2I5)') 'DIFFERENT BLOCKSIZES IN VECSMD ',NBL1,NBL2
+  write(u6,'(A,2I5)') 'DIFFERENT BLOCKSIZES IN VECSMD ',NBL1,NBL2
   !stop ' INCOMPATIBLE BLOCKSIZES IN VECSMF'
   call SYSABENDMSG('lucia_util/vecsmf','Different block sizes','')
 end if
@@ -83,9 +84,9 @@ if (NBL1 >= 0) then
     else
       ! Nonvanishing record
       if (IMZERO1 == 1) then
-        call VECSUM(VEC1,VEC1,VEC2,ZERO,FAC2,NBL1)
+        call VECSUM(VEC1,VEC1,VEC2,Zero,FAC2,NBL1)
       else if (IMZERO2 == 1) then
-        call VECSUM(VEC1,VEC1,VEC2,FAC1,ZERO,NBL1)
+        call VECSUM(VEC1,VEC1,VEC2,FAC1,Zero,NBL1)
       else
         call VECSUM(VEC1,VEC1,VEC2,FAC1,FAC2,NBL1)
       end if

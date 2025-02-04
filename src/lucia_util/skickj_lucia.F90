@@ -20,6 +20,8 @@ subroutine SKICKJ_LUCIA(SKII,CKJJ,NKA,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB
 ! : Note : Route 1 has retired, March 97
 
 use lucia_data, only: MXPTSOB
+use Constants, only: Zero, Half
+use Definitions, only: u6
 
 implicit none
 integer NKA, NKB, NI, NJ, NK, NL, MAXK, IKORD, IROUTE
@@ -41,8 +43,8 @@ JKINTOF = 0
 IKINTOF = 0
 
 if ((NI > MXPTSOB) .or. (NJ > MXPTSOB) .or. (NK > MXPTSOB) .or. (NL > MXPTSOB)) then
-  write(6,*) ' SKICKJ : Too many orbs : > MXPTSOB'
-  write(6,*) ' N, MXPTSOB ',max(NI,NJ,NK,NL),MXPTSOB
+  write(u6,*) ' SKICKJ : Too many orbs : > MXPTSOB'
+  write(u6,*) ' N, MXPTSOB ',max(NI,NJ,NK,NL),MXPTSOB
   !stop ' Redim MXPTSOB'
   call SYSABENDMSG('lucia_util/skickj','Redim MXPTSOB','')
 end if
@@ -69,7 +71,7 @@ if (IROUTE == 3) then
           SGNK = XKBIB(KB,K)
           do L=1,NL
             JB = KBJB(KB,L)
-            if (NTEST >= 100) write(6,*) ' KB,K,L,IB,JB',KB,K,L,IB,JB
+            if (NTEST >= 100) write(u6,*) ' KB,K,L,IB,JB',KB,K,L,IB,JB
             if (JB /= 0) then
               SGNL = XKBJB(KB,L)
               FACTOR = SGNK*SGNL
@@ -87,12 +89,11 @@ if (IROUTE == 3) then
                 do J=L,NL
                   XIJILS(J) = XIJKL(JKINTOF-1+J)
                 end do
-                XIJKL(JKINTOF-1+L) = 0.5d0*XIJKL(JKINTOF-1+L)
+                XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
                 do J=L+1,NL
-                  XIJKL(JKINTOF-1+J) = 0.0d0
+                  XIJKL(JKINTOF-1+J) = Zero
                 end do
               end if
-              !ONE = 1.0D0
               call MATML7(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NKA,NJ,NJ,IMAX,FACS,FACTOR,0)
               if (IKORD /= 0) then
                 do J=L,NL
@@ -141,13 +142,12 @@ else if (IROUTE == 2) then
                 ! Restrict so (ji) <= (kl)
                 IKINTOF = INTOF+(K-1)*NI
                 call COPVEC(XIJKL(IKINTOF),XIJILS,NI)
-                XIJKL(IKINTOF-1+L) = 0.5d0*XIJKL(IKINTOF-1+L)
+                XIJKL(IKINTOF-1+L) = Half*XIJKL(IKINTOF-1+L)
                 do I=L+1,NL
-                  XIJKL(IKINTOF-1+I) = 0.0d0
+                  XIJKL(IKINTOF-1+I) = Zero
                 end do
               end if
 
-              !ONE = 1.0D0
               call MATML7(SKII(ISOFF),XIJKL(INTOF),CKJJ(ICOFF),NI,NKA,NI,NJ,NJ,NKA,FACS,FACTOR,0)
 
               if (IKORD /= 0) call COPVEC(XIJILS,XIJKL(IKINTOF),NI)
@@ -161,7 +161,7 @@ else if (IROUTE == 2) then
   ! (end over loop over Kb strings )
 
 else if (IROUTE == 1) then
-  write(6,*) ' Sorry route 1 has retired, March 1997'
+  write(u6,*) ' Sorry route 1 has retired, March 1997'
   !stop 'SKICKJ:Invalid route=1'
   call SYSABENDMSG('lucia_util/skickj','Internal error','')
   !do KB=1,NKB
@@ -197,7 +197,7 @@ else if (IROUTE == 1) then
   !        LEFF = LEFF+1
   !        SGNL = XKBJB(KB,L)
   !        if ((IKORD == 1) .and. (I == K)) then
-  !          FACTOR = 0.5D0*SGNK*SGNL
+  !          FACTOR = Half*SGNK*SGNL
   !        else
   !          FACTOR = SGNK*SGNL
   !        end if

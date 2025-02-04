@@ -32,7 +32,7 @@ use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
 use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP, Allocate_Local_Arrays, Deallocate_Local_Arrays
 use strbas, only: NSTSO
 use lucia_data, only: NGAS, IPHGAS
-!.Definition of c and sigma spaces
+! Definition of c and sigma spaces
 use CandS, only: ICSM, ICSPC, ISSPC
 use lucia_data, only: MXSOOB, MXNTTS, ISMOST
 use lucia_data, only: IPRCIX, IPRDIA
@@ -46,11 +46,12 @@ use lucia_data, only: MXTSOB, NTOOB, NOCOB, IOBPTS, ITSOB, NOBPTS
 use lucia_data, only: NOCTYP
 use lucia_data, only: NELEC
 use lucia_data, only: MXPOBS, MXPNGAS, MXPNSMST
-#ifdef _DEBUGPRINT_
-use lucia_data, only: ICISTR
-#endif
 use csm_data, only: NSMST, NSMDX, NSMSX
 use csm_data, only: ADSXA, SXDXSX
+#ifdef _DEBUGPRINT_
+use lucia_data, only: ICISTR
+use Definitions, only: u6
+#endif
 
 implicit none
 ! =====
@@ -141,7 +142,7 @@ if (NBEL >= 1) then
 end if
 MXSTBL = max(MAXA,MAXB)
 #ifdef _DEBUGPRINT_
-if (IPRCIX >= 3) write(6,*) ' Largest block of strings with given symmetry and type',MXSTBL
+if (IPRCIX >= 3) write(u6,*) ' Largest block of strings with given symmetry and type',MXSTBL
 #endif
 ! Largest number of resolution strings and spectator strings
 ! that can be treated simultaneously
@@ -154,8 +155,8 @@ do IOBTP=1,NGAS
     MXTSOB = max(MXTSOB,NOBPTS(IOBTP,IOBSM))
   end do
 end do
-!write(6,*) ' MXTSOB = ',MXTSOB
-!.Local scratch arrays for blocks of C and sigma
+!write(u6,*) ' MXTSOB = ',MXTSOB
+! Local scratch arrays for blocks of C and sigma
 !if (ISIMSYM == 0) then
 LSCR1 = MXSOOB
 !else
@@ -163,13 +164,13 @@ LSCR1 = MXSOOB
 !end if
 LSCR1 = max(LSCR1,LCSBLK)
 #ifdef _DEBUGPRINT_
-if (IPRCIX >= 3) write(6,*) ' ICISTR,LSCR1 ',ICISTR,LSCR1
+if (IPRCIX >= 3) write(u6,*) ' ICISTR,LSCR1 ',ICISTR,LSCR1
 #endif
 ! SCRATCH space for integrals
 ! A 4 index integral block with four indices belonging OS class
 INTSCR = max(MXTSOB**4,NTOOB**2)
 #ifdef _DEBUGPRINT_
-if (IPRCIX >= 3) write(6,*) ' Integral scratch space ',INTSCR
+if (IPRCIX >= 3) write(u6,*) ' Integral scratch space ',INTSCR
 #endif
 call mma_allocate(INSCR,INTSCR,Label='INSCR')
 call mma_allocate(INSCR2,INTSCR,Label='INSCR2')
@@ -203,17 +204,17 @@ call MXRESCPH(SCIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NSMOB
               MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,MXADKBLK_AS,MX_NSPII)
 #ifdef _DEBUGPRINT_
 if (IPRCIX >= 3) then
-  write(6,*) 'SBLOCK : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXCJ_ALLSYM',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXCJ_ALLSYM
-  write(6,*) 'SBLOCK : MXADKBLK ',MXADKBLK
-  write(6,*) ' MX_NSPII = ',MX_NSPII
+  write(u6,*) 'SBLOCK : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXCJ_ALLSYM',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXCJ_ALLSYM
+  write(u6,*) 'SBLOCK : MXADKBLK ',MXADKBLK
+  write(u6,*) ' MX_NSPII = ',MX_NSPII
 end if
 #endif
 ! For hardwired routines MXCIJAB is also used
 LSCR2 = max(MXCJ,MXCIJA,MXCIJB,MXCIJAB,MX_NSPII)
 #ifdef _DEBUGPRINT_
-if (IPRCIX >= 3) write(6,*) ' Space for resolution matrices ',LSCR2
+if (IPRCIX >= 3) write(u6,*) ' Space for resolution matrices ',LSCR2
 
-if (IPRCIX >= 3) write(6,*) ' LSCR2 = ',LSCR2
+if (IPRCIX >= 3) write(u6,*) ' LSCR2 = ',LSCR2
 #endif
 ! I assume memory was allocated for blocks, so
 !
@@ -253,7 +254,7 @@ call mma_allocate(Z,LZ,I1234,Label='Z')
 call mma_allocate(ZSCR,LZSCR,Label='ZSCR')
 ! 4 arrays containing all strings of given sym. Dimension can  be
 !   reduced to largest number of strings in alpha or beta.
-!write(6,*) ' SBLOCKS : MAX_STR_SPGP = ',MAX_STR_SPGP
+!write(u6,*) ' SBLOCKS : MAX_STR_SPGP = ',MAX_STR_SPGP
 
 if (I12 == 2) then
   IDOH2 = 1

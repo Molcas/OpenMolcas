@@ -42,6 +42,9 @@ subroutine LULU(A,L,U,NDIM)
 !
 ! JEPPE OLSEN, OCTOBER 1988
 
+use Constants, only: One
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension A(NDIM,NDIM)
 real*8 L(*), U(*)
@@ -54,8 +57,8 @@ do R=1,NDIM
     U(J*(J-1)/2+R) = A(R,J)-INPROD(L(R*(R-1)/2+1),U(J*(J-1)/2+1),R-1)
   end do
 
-  XFACI = 1.0d0/U(R*(R+1)/2)
-  L(R*(R+1)/2) = 1.0d0
+  XFACI = One/U(R*(R+1)/2)
+  L(R*(R+1)/2) = One
   do I=R+1,NDIM
     L(I*(I-1)/2+R) = (A(I,R)-INPROD(L(I*(I-1)/2+1),U(R*(R-1)/2+1),R-1))*XFACI
   end do
@@ -64,9 +67,9 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' L MATRIX'
+  write(u6,*) ' L MATRIX'
   call PRSYM(L,NDIM)
-  write(6,*) ' U MATRIX ( TRANSPOSED )'
+  write(u6,*) ' U MATRIX ( TRANSPOSED )'
   call PRSYM(U,NDIM)
 end if
 

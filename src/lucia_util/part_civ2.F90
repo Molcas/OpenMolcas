@@ -47,6 +47,8 @@ subroutine PART_CIV2(IDC,IBLTP,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,MXLNG,IOCOC,ISMOS
 !
 ! Jeppe Olsen, August 1995
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 !integer NOOS(NOCTPA,NOCTPB,NSMST)
@@ -67,22 +69,22 @@ LBLOCKP = 0
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' =================='
-  write(6,*) '     PART_CIV2'
-  write(6,*) ' =================='
-  write(6,*) ' IDC = ',IDC
-  write(6,*)
-  write(6,*) ' IOCOC Array'
+  write(u6,*)
+  write(u6,*) ' =================='
+  write(u6,*) '     PART_CIV2'
+  write(u6,*) ' =================='
+  write(u6,*) ' IDC = ',IDC
+  write(u6,*)
+  write(u6,*) ' IOCOC Array'
   call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  write(6,*) ' ISMOST array'
+  write(u6,*) ' ISMOST array'
   call IWRTMA(ISMOST,1,NSMST,1,NSMST)
-  write(6,*) ' IBLTP array'
+  write(u6,*) ' IBLTP array'
   call IWRTMA(IBLTP,1,NSMST,1,NSMST)
-  write(6,*) ' NSSOA, NSSOB'
+  write(u6,*) ' NSSOA, NSSOB'
   call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
   call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
-  write(6,*) 'ISIMSYM, ICOMP = ',ISIMSYM,ICOMP
+  write(u6,*) 'ISIMSYM, ICOMP = ',ISIMSYM,ICOMP
 end if
 
 ! block 1
@@ -139,7 +141,7 @@ if (IOCOC(IA,IB) == 0) goto 1000
 !99 continue
 !  end do
 !  include = 0
-!  !write(6,*) ' IA IB LBLOCK_AS',IA,IB,LBLOCK_AS
+!  !write(u6,*) ' IA IB LBLOCK_AS',IA,IB,LBLOCK_AS
 !  if ((LENGTH+LBLOCK_AS <= MXLNG) .or. (ICOMP == 1)) INCLUDE = 1
 !end if
 ! Should this block be included
@@ -158,7 +160,7 @@ if ((IDC == 1) .or. (IA > IB) .or. ((IA == IB) .and. (IASM > IBSM))) then
 else if ((IDC == 2) .and. (IA == IB) .and. (IASM == IBSM)) then
   LBLOCKP = NSTA*(NSTA+1)/2
 end if
-!write(6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK',IASM,IBSM,IA,IB,LBLOCKP,LBLOCK
+!write(u6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK',IASM,IBSM,IA,IB,LBLOCKP,LBLOCK
 
 !if (ISIMSYM == 0) then
 include = 0
@@ -182,10 +184,10 @@ if (include == 1) then
   LEBATCH(NBATCH) = LENGTHP
   goto 1000
 else if ((ICOMP == 0) .and. (include == 0) .and. (NBLOCK == 0)) then
-  write(6,*) ' Not enough space to include a single Block'
-  write(6,*) ' Since I cannot proceed I will stop'
-  write(6,*) ' Insufficient space detected in PART_CIV'
-  write(6,*) ' Alter GAS space or raise Buffer from ',MXLNG
+  write(u6,*) ' Not enough space to include a single Block'
+  write(u6,*) ' Since I cannot proceed I will stop'
+  write(u6,*) ' Insufficient space detected in PART_CIV'
+  write(u6,*) ' Alter GAS space or raise Buffer from ',MXLNG
   !stop 'Error in PART_CIV2'
   call SYSABENDMSG('lucia_util/part_civ2','Internal error','')
 else
@@ -195,19 +197,19 @@ end if
 2002 continue
 
 if (NTEST /= 0) then
-  !write(6,*) 'Output from PART_CIV'
-  !write(6,*) '====================='
-  write(6,*)
-  write(6,*) ' Number of batches ',NBATCH
+  !write(u6,*) 'Output from PART_CIV'
+  !write(u6,*) '====================='
+  write(u6,*)
+  write(u6,*) ' Number of batches ',NBATCH
   do JBATCH=1,NBATCH
-    write(6,*)
-    write(6,*) ' Info on batch ',JBATCH
-    write(6,*) ' ***********************'
-    write(6,*)
-    write(6,*) '      Number of blocks included ',LBATCH(JBATCH)
-    write(6,*) '      TTSS and offsets and lengths of each block'
+    write(u6,*)
+    write(u6,*) ' Info on batch ',JBATCH
+    write(u6,*) ' ***********************'
+    write(u6,*)
+    write(u6,*) '      Number of blocks included ',LBATCH(JBATCH)
+    write(u6,*) '      TTSS and offsets and lengths of each block'
     do IBLOCK=I1BATCH(JBATCH),I1BATCH(JBATCH)+LBATCH(JBATCH)-1
-      write(6,'(10X,4I3,4I8)') (IBATCH(II,IBLOCK),II=1,8)
+      write(u6,'(10X,4I3,4I8)') (IBATCH(II,IBLOCK),II=1,8)
     end do
   end do
 end if

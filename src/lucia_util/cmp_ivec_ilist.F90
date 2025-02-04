@@ -20,6 +20,8 @@ subroutine CMP_IVEC_ILIST(IVEC,ILIST,LLIST,NLIST,INUM)
 !
 !  Jeppe Olsen, December 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! General input
 integer ILIST(LLIST,NLIST)
@@ -40,9 +42,9 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Input list :'
+  write(u6,*) ' Input list :'
   call IWRTMA(IVEC,1,LLIST,1,LLIST)
-  write(6,*) ' Address of list : ',INUM
+  write(u6,*) ' Address of list : ',INUM
 end if
 
 end subroutine CMP_IVEC_ILIST

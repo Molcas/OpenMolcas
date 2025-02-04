@@ -21,6 +21,7 @@ use strbas, only: IOCLS
 use lucia_data, only: NGAS, NMXOCCLS
 use lucia_data, only: IBSPGPFTP, NELFSPGP
 use lucia_data, only: MXPNGAS
+use Definitions, only: u6
 
 implicit none
 integer IAGRP, IATP, IBGRP, IBTP, IOC
@@ -30,8 +31,8 @@ integer IATP_ABS, IBTP_ABS, IONE, INUM
 
 IATP_ABS = IATP+IBSPGPFTP(IAGRP)-1
 IBTP_ABS = IBTP+IBSPGPFTP(IBGRP)-1
-!write(6,*) ' IATP, IBTP, IAGRP, IBGRP = ',ATP,IBTP,IAGRP,IBGRP
-!write(6,*) ' IATP_ABS, IBTP_ABS ',IATP_ABS,IBTP_ABS
+!write(u6,*) ' IATP, IBTP, IAGRP, IBGRP = ',ATP,IBTP,IAGRP,IBGRP
+!write(u6,*) ' IATP_ABS, IBTP_ABS ',IATP_ABS,IBTP_ABS
 
 IONE = 1
 !    IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
@@ -42,8 +43,8 @@ call CMP_IVEC_ILIST(IABOCC,IOCLS,NGAS,NMXOCCLS,INUM)
 IOC = INUM
 
 if (INUM == 0) then
-  write(6,*) ' Combination of alpha and beta string not found as occ-class'
-  write(6,*) ' Occ of alpha, Occ of beta, Occ of alpha+beta'
+  write(u6,*) ' Combination of alpha and beta string not found as occ-class'
+  write(u6,*) ' Occ of alpha, Occ of beta, Occ of alpha+beta'
   call IWRTMA(NELFSPGP(1,IATP_ABS),1,NGAS,1,NGAS)
   call IWRTMA(NELFSPGP(1,IBTP_ABS),1,NGAS,1,NGAS)
   call IWRTMA(IABOCC,1,NGAS,1,NGAS)

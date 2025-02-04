@@ -31,11 +31,12 @@ subroutine SYMCOM(ITASK,IOBJ,I1,I2,I12)
 !
 ! Jeppe Olsen, Spring of 1991
 !
-! ================
-!. Driver routine
-! ================
+! ==============
+! Driver routine
+! ==============
 
 use lucia_data, only: PNTGRP
+use Definitions, only: u6
 
 implicit none
 integer ITASK, IOBJ, I1, I2, I12
@@ -43,8 +44,8 @@ integer ITASK, IOBJ, I1, I2, I12
 if (PNTGRP == 1) then
   call SYMCM1(ITASK,IOBJ,I1,I2,I12)
 else
-  write(6,*) ' PNTGRP parameter out of bounds ',PNTGRP
-  write(6,*) ' Enforced stop in SYMCOM'
+  write(u6,*) ' PNTGRP parameter out of bounds ',PNTGRP
+  write(u6,*) ' Enforced stop in SYMCOM'
   call SYSABENDMSG('lucia_util/symcom','Internal error','')
 end if
 

@@ -19,6 +19,8 @@ subroutine PNT4DM(NSMOB,NSMSX,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,
 ! IS34 (0,1,-1)   : Permutational symmetry between indices 3 and 3
 ! IS1234 (0,1,-1) : permutational symmetry between indices 12 and 34
 
+use Definitions, only: u6
+
 ! General input
 integer ADSXA(MXPOBS,2*MXPOBS), SXDXSX(2*MXPOBS,4*MXPOBS)
 integer ADASX(MXPOBS,MXPOBS)
@@ -30,7 +32,7 @@ integer IPNTR(NSMOB,NSMOB,NSMOB), ISM4A(NSMOB,NSMOB,NSMOB)
 call ISETVC(IPNTR,0,NSMOB**3)
 call ISETVC(ISM4A,0,NSMOB**3)
 
-!write(6,*) 'NO1PS NO2PS NO3PS NO4PS'
+!write(u6,*) 'NO1PS NO2PS NO3PS NO4PS'
 !call IWRTMA(NO1PS,1,NSMOB,1,NSMOB)
 !call IWRTMA(NO2PS,1,NSMOB,1,NSMOB)
 !call IWRTMA(NO3PS,1,NSMOB,1,NSMOB)
@@ -87,18 +89,18 @@ do I1SM=1,NSMOB
         ISM4A(I1SM,I2SM,I3SM) = I4SM
         IOFF = IOFF+N12*(N12-1)/2
       end if
-      !write(6,*) ' I1SM I2SM I3SM I4SM    IOFF'
-      !write(6,'(1X,4I4,I9)') I1SM,I2SM,I3SM,I4SM,IOFF
+      !write(u6,*) ' I1SM I2SM I3SM I4SM    IOFF'
+      !write(u6,'(1X,4I4,I9)') I1SM,I2SM,I3SM,I4SM,IOFF
 30    continue
     end do
 20  continue
   end do
 end do
 
-!write(6,*) ' PNT4DM, 64 elemets of IPNTR'
+!write(u6,*) ' PNT4DM, 64 elemets of IPNTR'
 !call IWRTMA(IPNTR,1,64,1,64)
 NTEST = 0
-if (NTEST /= 0) write(6,*) ' Length of 4 index array ',IOFF-1
+if (NTEST /= 0) write(u6,*) ' Length of 4 index array ',IOFF-1
 
 return
 ! Avoid unused argument warnings

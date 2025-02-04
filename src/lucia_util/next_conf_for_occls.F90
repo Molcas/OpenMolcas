@@ -17,6 +17,7 @@ subroutine NEXT_CONF_FOR_OCCLS(ICONF,IOCCLS,NGAS,NOBPT,INI,NONEW)
 ! Jeppe Olsen, Nov. 2001
 
 use lucia_data, only: MXPNGAS, MXPORB
+use Definitions, only: u6
 
 implicit none
 integer NGAS, INI, NONEW
@@ -36,7 +37,7 @@ integer NTEST, NEL, IGAS, INI_L, NONEW_L, NEL_GAS, NORB_GAS, JBEL, JBORB, JEL, J
 NTEST = 0
 ! Total number of electrons
 NEL = IELSUM(IOCCLS,NGAS)
-!write(6,*) ' NEXT_CONF ... NEL, NGAS = ',NEL,NGAS
+!write(u6,*) ' NEXT_CONF ... NEL, NGAS = ',NEL,NGAS
 ! Offset for orbitals and electrons
 do IGAS=1,NGAS
   if (IGAS == 1) then
@@ -61,7 +62,7 @@ if (INI == 1) then
     ! Initial configuration for this GASSPACE
     NEL_GAS = IOCCLS(IGAS)
     NORB_GAS = NOBPT(IGAS)
-    !write(6,*) ' IGAS, NEL_GAS, NORB_GAS = ',IGAS,NEL_GAS,NORB_GAS
+    !write(u6,*) ' IGAS, NEL_GAS, NORB_GAS = ',IGAS,NEL_GAS,NORB_GAS
     call NXT_CONF(ICONF_GAS,NEL_GAS,NORB_GAS,INI_L,NONEW_L)
     if (NONEW_L == 1) then
       NONEW = 1
@@ -78,7 +79,7 @@ if (INI == 1) then
   end do
 
   if (NTEST >= 1000) then
-    write(6,*) ' Initial configuration'
+    write(u6,*) ' Initial configuration'
     call IWRTMA(ICONF,1,NEL,1,NEL)
   end if
 
@@ -89,13 +90,13 @@ else
   ! Loop over GAS spaces and find first GASspace where a new configuration
   ! could be obtained
   do IGAS=1,NGAS
-    !write(6,*) ' IGAS = ',IGAS
+    !write(u6,*) ' IGAS = ',IGAS
     ! Remove the offsets for this space
     JBEL = IBEL(IGAS)
     JBORB = IBORB(IGAS)
     JEL = IOCCLS(IGAS)
     JORB = NOBPT(IGAS)
-    !write(6,*) ' JBEL, JBORB, JEL, JORB = ',JBEL,JBORB,JEL,JORB
+    !write(u6,*) ' JBEL, JBORB, JEL, JORB = ',JBEL,JBORB,JEL,JORB
     call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,MXPORB,JEL,1)
     !call REFORM_CONF-FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,1)
     ! Generate next configuration for this space
@@ -131,9 +132,9 @@ end if
 
 if (NTEST >= 100) then
   if (NONEW == 1) then
-    write(6,*) ' No new configuration'
+    write(u6,*) ' No new configuration'
   else
-    write(6,*) ' New configuration'
+    write(u6,*) ' New configuration'
     call IWRTMA(ICONF,1,NEL,1,NEL)
   end if
 end if

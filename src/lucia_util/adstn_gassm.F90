@@ -34,32 +34,34 @@ subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! ISTAKTS : Offset for K supergroup strings with hiven symmetrydistribution
 ! NSTAI   : Number of I groupstrings in active gasspace
 
+use Definitions, only: u6
+
 implicit real*8(A,H,O-Z)
 ! Input
 dimension ICREORB(NACGSOB,*), ICRESTR(NACGSOB,*)
 ! Output
 dimension ISTMAP(NSTAKTS,*), SGNMAP(NSTAKTS,*)
 
-!write(6,*) ' ADSTN_GASSM : NSTA, NSTB, NSTAK',NSTA,NSTB,NSTAK
-!write(6,*) ' IOFFISP,IOFFKSP',IOFFISP,IOFFKSP
-!write(6,*) ' IORBTSF IORBTF ',IORBTSF,IORBTF
-!write(6,*) ' NSTAKT ',NSTAKT
+!write(u6,*) ' ADSTN_GASSM : NSTA, NSTB, NSTAK',NSTA,NSTB,NSTAK
+!write(u6,*) ' IOFFISP,IOFFKSP',IOFFISP,IOFFKSP
+!write(u6,*) ' IORBTSF IORBTF ',IORBTSF,IORBTF
+!write(u6,*) ' NSTAKT ',NSTAKT
 
-!SIGN0 = DBLE((-1)**NELB)*SCLFAC
+!SIGN0 = SCLFAC*(-One)**NELB
 if (mod(NELB,2) == 0) then
   SIGN0 = SCLFAC
 else
   SIGN0 = -SCLFAC
 end if
-!write(6,*) ' NELB sign0 = ',NELB,SIGN0
+!write(u6,*) ' NELB sign0 = ',NELB,SIGN0
 do KSTR=IOFFK,NSTAK+IOFFK-1
   do IORB=IORBTSF,IORBTSF-1+NORBTS
     ! Relative to Type-symmetry start
     IORBRTS = IORB-IORBTSF+1
     ! Relative to type start
     IORBRT = IORB-IORBTF+1
-    !write(6,*) 'IORB IORBRT KSTR ',IORB,IORBRT,KSTR
-    !write(6,*) 'ICRESTR(IORBRT,KSTR),ICREORB(IORBRT,KSTR)',ICRESTR(IORBRT,KSTR),ICREORB(IORBRT,KSTR)
+    !write(u6,*) 'IORB IORBRT KSTR ',IORB,IORBRT,KSTR
+    !write(u6,*) 'ICRESTR(IORBRT,KSTR),ICREORB(IORBRT,KSTR)',ICRESTR(IORBRT,KSTR),ICREORB(IORBRT,KSTR)
     if (ICREORB(IORBRT,KSTR) > 0) then
       ! Excitation is open, corresponding active I string
       if (ICRESTR(IORBRT,KSTR) > 0) then
@@ -75,7 +77,7 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
       ! before and after the active type. Store the corrsponding mappings
       IADRK0 = (KSTR-IOFFK)*NSTA+IOFFKSP-1
       IADRI0 = (ISTR-1)*NSTA+IOFFISP-1
-      !write(6,*) ' ISTR IADRK0 IADRI0 = ',ISTR,IADRK0,IADRI0
+      !write(u6,*) ' ISTR IADRK0 IADRI0 = ',ISTR,IADRK0,IADRI0
 
       NSTAINSTA = NSTAI*NSTA
       NSTAKNSTA = NSTAK*NSTA
@@ -83,7 +85,7 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
         do IA=1,NSTA
           !IBKA = IADRI0+(IB-1)*NSTAI*NSTA+IA
           !KBKA = IADRK0+(IB-1)*NSTAK*NSTA+IA
-          !write(6,*) ' IBKA, KBKA ',IBKA,KBKA
+          !write(u6,*) ' IBKA, KBKA ',IBKA,KBKA
           ISTMAP(IADRK0+IA,IORBRTS) = IADRI0+IA
           SGNMAP(IADRK0+IA,IORBRTS) = SIGN
         end do
@@ -91,20 +93,20 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
         IADRK0 = IADRK0+NSTAKNSTA
       end do
     !else
-    !  SIGN = 0.0D0
+    !  SIGN = Zero
     !  ISTR = 0
     !  ! This Creation is inactive for all choices of strings in supergroup
     !  ! before and after the active type.
     !  IADRK0 = (KSTR-IOFFK)*NSTA+IOFFKSP-1
-    !  !write(6,*) ' ISTR IADRK0 = ',ISTR,IADRK0
+    !  !write(u6,*) ' ISTR IADRK0 = ',ISTR,IADRK0
     !
     !  do IB=1,NSTB
     !    do IA=1,NSTA
     !      KBKA = IADRK0+(IB-1)*NSTAK*NSTA+IA
-    !      !write(6,*) ' IBKA, KBKA ',IBKA,KBKA
+    !      !write(u6,*) ' IBKA, KBKA ',IBKA,KBKA
     !      if (ISTMAP(KBKA,IORBRTS) /= 999) then
-    !        write(6,*) ' overwriting ???'
-    !        write(6,*) ' Element ',(IORBRTS-1)*NSTAKTS+KBKA
+    !        write(u6,*) ' overwriting ???'
+    !        write(u6,*) ' Element ',(IORBRTS-1)*NSTAKTS+KBKA
     !        stop
     !      end if
     !      ISTMAP(KBKA,IORBRTS) = ISTR
@@ -117,13 +119,13 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
     ! before and after the active type. Store the corrsponding mappings
     !OLD IADRK0 = (KSTR-IOFFK)*NSTA+IOFFKSP-1
     !OLD IADRI0 = (ISTR-1)*NSTA+IOFFISP-1
-    !write(6,*) ' ISTR IADRK0 IADRI0 = ',ISTR,IADRK0,IADRI0
+    !write(u6,*) ' ISTR IADRK0 IADRI0 = ',ISTR,IADRK0,IADRI0
 
     !OLD do IB=1,NSTB
     !OLD  do IA=1,NSTA
     !OLD    IBKA = IADRI0+(IB-1)*NSTAI*NSTA+IA
     !OLD    KBKA = IADRK0+(IB-1)*NSTAK*NSTA+IA
-    !?      write(6,*) ' IBKA, KBKA ',IBKA,KBKA
+    !?      write(u6,*) ' IBKA, KBKA ',IBKA,KBKA
     !OLD    ISTMAP(KBKA,IORBRTS) = IBKA
     !OLD    SGNMAP(KBKA,IORBRTS) = SIGN
     !OLD  end do
@@ -135,15 +137,15 @@ end do
 
 NTEST = 0
 if (NTEST > 0) then
-  write(6,*) ' Output from ADSTN_GASSM'
-  write(6,*) ' ======================='
+  write(u6,*) ' Output from ADSTN_GASSM'
+  write(u6,*) ' ======================='
   NK = NSTB*NSTAK*NSTA
-  write(6,*) ' Number of K strings accessed ',NK
+  write(u6,*) ' Number of K strings accessed ',NK
   if (NK /= 0) then
     do IORB=IORBTSF,IORBTSF+NORBTS-1
       IORBR = IORB-IORBTSF+1
-      write(6,*) ' Update Info for orbital ',IORB
-      write(6,*) ' Excited strings and sign'
+      write(u6,*) ' Update Info for orbital ',IORB
+      write(u6,*) ' Excited strings and sign'
       call IWRTMA(ISTMAP(1,IORBR),1,NK,1,NK)
       call WRTMAT(SGNMAP(1,IORBR),1,NK,1,NK)
     end do

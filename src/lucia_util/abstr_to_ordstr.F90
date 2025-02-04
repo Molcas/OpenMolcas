@@ -23,6 +23,8 @@ subroutine ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISIGN)
 !
 ! Jeppe Olsen, November 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IA_OC(NAEL), IB_OC(NBEL)
@@ -67,14 +69,14 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' ABSTR to ORDSTR :'
-  write(6,*) ' ================='
-  write(6,*) ' Input alpha and beta strings'
+  write(u6,*) ' ABSTR to ORDSTR :'
+  write(u6,*) ' ================='
+  write(u6,*) ' Input alpha and beta strings'
   call IWRTMA(IA_OC,1,NAEL,1,NAEL)
   call IWRTMA(IB_OC,1,NBEL,1,NBEL)
-  write(6,*) ' Configuration'
+  write(u6,*) ' Configuration'
   call IWRTMA(IDET_OC,1,NAEL+NBEL,1,NAEL+NBEL)
-  write(6,*) ' Spin projections'
+  write(u6,*) ' Spin projections'
   call IWRTMA(IDET_SP,1,NAEL+NBEL,1,NAEL+NBEL)
 end if
 

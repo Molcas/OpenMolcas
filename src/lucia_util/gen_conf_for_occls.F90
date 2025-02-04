@@ -28,6 +28,7 @@ subroutine GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM
 ! G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 
 use lucia_data, only: MXPORB
+use Definitions, only: u6
 
 implicit none
 integer IB_OCCLS, INITIALIZE_CONF_COUNTERS, NGAS, ISYM, MINOP, MAXOP, NSMST, IONLY_NCONF, NTORB, NCONF, IDOREO, NCONF_ALL_SYM, &
@@ -112,21 +113,21 @@ end if
 ! End if nonew = 0
 
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ======================================'
-  write(6,*) ' Results from configuration generator :'
-  write(6,*) ' ======================================'
-  write(6,*)
-  write(6,*) ' Occupation class in action :'
+  write(u6,*)
+  write(u6,*) ' ======================================'
+  write(u6,*) ' Results from configuration generator :'
+  write(u6,*) ' ======================================'
+  write(u6,*)
+  write(u6,*) ' Occupation class in action :'
   call IWRTMA(IOCCLS,1,NGAS,1,NGAS)
-  write(6,*) ' Number of configurations of correct symmetry ',NCONF
-  write(6,*) ' Number of configurations of all symmetries   ',NCONF_ALL_SYM
-  write(6,*) ' Number of configurations for various number of open orbs'
+  write(u6,*) ' Number of configurations of correct symmetry ',NCONF
+  write(u6,*) ' Number of configurations of all symmetries   ',NCONF_ALL_SYM
+  write(u6,*) ' Number of configurations for various number of open orbs'
   call IWRTMA(NCONF_OP,1,MAXOP+1,1,MAXOP+1)
   if (IONLY_NCONF == 0) then
-    write(6,*) ' Updated list of configurations (may not be the final...)'
+    write(u6,*) ' Updated list of configurations (may not be the final...)'
     call WRT_CONF_LIST(ICONF,NCONF_OP,MAXOP,NCONF,NEL)
-    write(6,*) ' Updated reordering of conf, Lex=>Act (may not be the final'
+    write(u6,*) ' Updated reordering of conf, Lex=>Act (may not be the final'
     call IWRTMA(IREO,1,NCONF_tot,1,NCONF_tot)
   end if
 end if

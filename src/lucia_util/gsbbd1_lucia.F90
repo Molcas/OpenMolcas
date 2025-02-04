@@ -67,6 +67,8 @@ subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 ! Updated for GAS, August '95
 
 use Para_Info, only: MyRank, nProcs
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -92,25 +94,25 @@ dimension H(*)
 
 ! Add or subtract for spindensity
 if (IAB == 1) then
-  XAB = 1.0d0
+  XAB = One
 else
-  XAB = -1.0d0
+  XAB = -One
 end if
 ! Local arrays
 NTEST = 0
 if (NTEST >= 1000) then
-  write(6,*)
-  write(6,*) ' ================'
-  write(6,*) ' GSBBD1 in action'
-  write(6,*) ' ================'
-  write(6,*)
-  write(6,*) ' Occupation of active left strings'
+  write(u6,*)
+  write(u6,*) ' ================'
+  write(u6,*) ' GSBBu61 in action'
+  write(u6,*) ' ================'
+  write(u6,*)
+  write(u6,*) ' Occupation of active left strings'
   call IWRTMA(ISEL,1,NGAS,1,NGAS)
-  write(6,*) ' Occupation of active Right strings'
+  write(u6,*) ' Occupation of active Right strings'
   call IWRTMA(ICEL,1,NGAS,1,NGAS)
-  write(6,*) ' ISCSM, ICCSM = ',ISCSM,ICCSM
+  write(u6,*) ' ISCSM, ICCSM = ',ISCSM,ICCSM
 
-  write(6,*) ' GSBBD1, sclfac ',SCLFAC
+  write(u6,*) ' GSBBD1, sclfac ',SCLFAC
 end if
 
 IFRST = 1
@@ -133,12 +135,12 @@ call GET_SPGP_INF(ISCTP,IGRP,ISGRP)
 call SXTYP2_GAS(NSXTP,ITP,JTP,NGAS,ISEL,ICEL,IPHGAS)
 ! Symmetry of single excitation that connects IBSM and JBSM
 IJSM = STSTSX(ISCSM,ICCSM)
-if (NTEST >= 1000) write(6,*) ' ISCSM,ICCSM IJSM ',ISCSM,ICCSM,IJSM
+if (NTEST >= 1000) write(u6,*) ' ISCSM,ICCSM IJSM ',ISCSM,ICCSM,IJSM
 if (IJSM == 0) goto 1001
 do IJTP=1,NSXTP
   ITYP = ITP(IJTP)
   JTYP = JTP(IJTP)
-  if (NTEST >= 1000) write(6,*) ' ITYP JTYP ',ITYP,JTYP
+  if (NTEST >= 1000) write(u6,*) ' ITYP JTYP ',ITYP,JTYP
   ! Hvilken vej skal vi valge,
   ! Mi pojdem drugim putem (C)
   ! VV: the code below confuses Absoft compiler and was rewritten.
@@ -150,7 +152,7 @@ do IJTP=1,NSXTP
   !if (IUSE_PH == 1) call ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TP,IJ_AC,IJ_REO,SIGNIJ)
   IJ_REO(1) = 1
   IJ_REO(2) = 2
-  SIGNIJ = 1.0d0
+  SIGNIJ = One
   !end if
 
   if (IJ_REO(1) == 1) then
@@ -174,7 +176,7 @@ do IJTP=1,NSXTP
   !IJ_AC(2) = ISCR(IJ_REO(2))
 
   ! nasty code to avoid optimization
-  !if (iscr(1) == -1000) write(6,*) IJ_TP,IJ_REO
+  !if (iscr(1) == -1000) write(u6,*) IJ_TP,IJ_REO
   !ISCR(1) = ITYP
   !ISCR(2) = JTYP
   !IJ_TP(1) = ISCR(IJ_REO(1))
@@ -186,7 +188,7 @@ do IJTP=1,NSXTP
 
     JSM = ADSXA(ISM,IJSM)
     if (JSM == 0) goto 800
-    if (NTEST >= 1000) write(6,*) ' ISM JSM ',ISM,JSM
+    if (NTEST >= 1000) write(u6,*) ' ISM JSM ',ISM,JSM
     NIORB = NOBPTS(ITYP,ISM)
     NJORB = NOBPTS(JTYP,JSM)
     IBIORB = IOBPTS(ITYP,ISM)
@@ -223,17 +225,16 @@ do IJTP=1,NSXTP
       IJ_OFF(2) = IBIORB
     end if
 
-    if (NTEST >= 2000) write(6,*) ' NIORB NJORB ',NIORB,NJORB
+    if (NTEST >= 2000) write(u6,*) ' NIORB NJORB ',NIORB,NJORB
     if ((NIORB == 0) .or. (NJORB == 0)) goto 800
 
     ! For operator connecting to |Ka> and |Ja> i.e. operator 2
     SCLFACS = SCLFAC*SIGNIJ
-    if (NTEST >= 1000) write(6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
+    if (NTEST >= 1000) write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
     call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC(1))
     ! For operator connecting |Ka> and |Ia>, i.e. operator 1
     if (NKASTR == 0) goto 800
-    ONE = 1.0d0
-    call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJ_AC(1))
+    call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,IEND,IFRST,KFRST,KACT,One,IJ_AC(1))
     if (NKASTR == 0) goto 800
     ! Compress list to common nonvanishing elements
     IDOCOMP = 1
@@ -242,7 +243,7 @@ do IJTP=1,NSXTP
     else
       NKAEFF = NKASTR
     end if
-    !write(6,*) ' NKAEFF NKASTR',NKAEFF,NKASTR
+    !write(u6,*) ' NKAEFF NKASTR',NKAEFF,NKASTR
 
     ! Loop over partitionings of N-1 strings
     KBOT = 1-MAXK
@@ -276,19 +277,19 @@ do IJTP=1,NSXTP
       end do
 
       if (NTEST >= 1000) then
-        write(6,*) ' CSCR and SSCR'
+        write(u6,*) ' CSCR and SSCR'
         call WRTMAT(CSCR,IJ_DIM(2),NKI,IJ_DIM(2),NKI)
         call WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
       end if
 
       ! And then the hard work
       NKI = LKABTC*NIBTC
-      FACTORC = 0.0d0
-      FACTORAB = 1.0d0
+      FACTORC = Zero
+      FACTORAB = One
       call MATML7(RHO1S,SSCR,CSCR,IJ_DIM(1),IJ_DIM(2),NKI,IJ_DIM(1),NKI,IJ_DIM(2),FACTORC,FACTORAB,1)
 
       if (NTEST >= 100) then
-        write(6,*) ' Block to one-body density'
+        write(u6,*) ' Block to one-body density'
         call WRTMAT(RHO1S,IJ_DIM(1),IJ_DIM(2),IJ_DIM(1),IJ_DIM(2))
       end if
       ! Scatter out to complete matrix

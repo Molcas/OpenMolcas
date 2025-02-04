@@ -17,6 +17,8 @@ subroutine MLSM(IML,IPARI,ISM,type,IWAY)
 !
 ! TYPE : 'SX','OB','ST','DX','CI'
 
+use Definitions, only: u6
+
 implicit none
 integer IML, IPARI, ISM, IWAY
 character(len=2) type
@@ -53,16 +55,16 @@ else if (IWAY == 2) then
     IML = ISM+MNML-1
   end if
 else
-  write(6,*) ' Error in MLSM, IWAY = ',IWAY
-  write(6,*) ' MLSM stop !!!'
+  write(u6,*) ' Error in MLSM, IWAY = ',IWAY
+  write(u6,*) ' MLSM stop !!!'
   !stop 20
   call SYSABENDMSG('lucia_util/mlsm','Internal error','')
 end if
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,'(A,A)') ' MLSM speaking, type= ',type
-  write(6,'(A,3I4)') ' IML IPARI ISM ',IML,IPARI,ISM
+  write(u6,'(A,A)') ' MLSM speaking, type= ',type
+  write(u6,'(A,3I4)') ' IML IPARI ISM ',IML,IPARI,ISM
 end if
 
 end subroutine MLSM

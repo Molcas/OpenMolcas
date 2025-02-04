@@ -39,6 +39,9 @@ subroutine ADAADAS1_GAS(NK,I1,XI1S,LI1,IORB,NIORB,IAC,JORB,NJORB,JAC,KSTR,NKEL,N
 !
 ! L.R. Jan 20, 1998
 
+use Constants, only: Zero, One
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer KSTR(NKEL,NKSTR)
@@ -48,28 +51,28 @@ integer I1(LI1,*)
 dimension XI1S(LI1,*)
 ! Local scratch, at most 1000 orbitals in a given TS block)
 dimension ISCR(1000)
-!PAM2009 Array of values, replacing expressions such as ''DBLE((-1)**INT8)'':
+!PAM2009 Array of values, replacing expressions such as (-One)**INT:
 dimension SGNARR(0:63)
 
 do I=0,62,2
-  SGNARR(I) = 1.0d0
-  SGNARR(I+1) = -1.0d0
+  SGNARR(I) = One
+  SGNARR(I+1) = -One
 end do
 
 ! Some dummy initializations
-SIGN = 0.0d0
+SIGN = Zero
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' ===================='
-  write(6,*) ' ADADS1_GAS speaking'
-  write(6,*) ' ===================='
-  write(6,*) ' IORB,NIORB,IAC ',IORB,NIORB,IAC
-  write(6,*) ' JORB,NJORB,JAC ',JORB,NJORB,JAC
+  write(u6,*) ' ===================='
+  write(u6,*) ' ADADS1_GAS speaking'
+  write(u6,*) ' ===================='
+  write(u6,*) ' IORB,NIORB,IAC ',IORB,NIORB,IAC
+  write(u6,*) ' JORB,NJORB,JAC ',JORB,NJORB,JAC
 
-  !write(6,*) ' Kstrings in action (el,string)'
-  !write(6,*) ' ==============================='
-  write(6,*) ' 24 elements of reorder array'
+  !write(u6,*) ' Kstrings in action (el,string)'
+  !write(u6,*) ' ==============================='
+  write(u6,*) ' 24 elements of reorder array'
   call IWRTMA(IREO,1,24,1,24)
   !    IWRTMA(KSTR,NKEL,NKSTR,NKEL,NKSTR)
 
@@ -97,7 +100,7 @@ if ((IAC == 2) .and. (JAC == 2)) then
 
   do KKSTR=KMIN,KEND
     if (NTEST >= 1000) then
-      write(6,*) ' Occupation of string ',KKSTR
+      write(u6,*) ' Occupation of string ',KKSTR
       call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
     end if
     ! Loop over electrons after which JORB can be added
@@ -113,7 +116,7 @@ if ((IAC == 2) .and. (JAC == 2)) then
       else
         JORB2 = min(JORBMAX+1,KSTR(JEL+1,KKSTR))
       end if
-      if (NTEST >= 1000) write(6,*) ' JEL JORB1 JORB2 ',JEL,JORB1,JORB2
+      if (NTEST >= 1000) write(u6,*) ' JEL JORB1 JORB2 ',JEL,JORB1,JORB2
 
       if ((JEL > 0) .and. (JORB1 >= JORBMIN) .and. (JORB1 <= JORBMAX)) then
         ! vanishing for any IORB
@@ -121,13 +124,13 @@ if ((IAC == 2) .and. (JAC == 2)) then
         do IIORB=1,NIORB
           IJ = IJOFF+IIORB
           I1(KKSTR-KMIN+1,IJ) = 0
-          XI1S(KKSTR-KMIN+1,IJ) = 0.0d0
+          XI1S(KKSTR-KMIN+1,IJ) = Zero
         end do
       end if
 
       if ((JORB1 < JORBMAX) .and. (JORB2 > JORBMIN)) then
         ! Orbitals JORB1+1 - JORB2-1 can be added after electron JEL
-        !PAM2009 SIGNJ = DBLE((-1)**JEL)*SCLFAC
+        !PAM2009 SIGNJ = SCLFAC*(-One)**JEL)
         SIGNJ = SGNARR(JEL)*SCLFAC
         ! reverse lexical number of the first JEL ELECTRONS
         ILEX0 = 1
@@ -149,11 +152,11 @@ if ((IAC == 2) .and. (JAC == 2)) then
             else
               IORB2 = min(IORBMAX+1,KSTR(IEL+1,KKSTR))
             end if
-            if (NTEST >= 5000) write(6,*) ' IEL IORB1 IORB2 ',IEL,IORB1,IORB2
+            if (NTEST >= 5000) write(u6,*) ' IEL IORB1 IORB2 ',IEL,IORB1,IORB2
             if ((IEL > JEL) .and. (IORB1 >= IORBMIN) .and. (IORB1 <= IORBMAX)) then
               IJ = (JJORB-JORBMIN)*NIORB+IORB1-IORBMIN+1
               I1(KKSTR-KMIN+1,IJ) = 0
-              XI1S(KKSTR-KMIN+1,IJ) = 0.0d0
+              XI1S(KKSTR-KMIN+1,IJ) = Zero
             end if
             if ((IORB1 < IORBMAX) .and. (IORB2 > IORBMIN)) then
               ! Orbitals IORB1+1 - IORB2 -1 can be added after ELECTRON IEL in KSTR
@@ -167,15 +170,15 @@ if ((IAC == 2) .and. (JAC == 2)) then
                 ILEX2 = ILEX2+IZ(KSTR(IIEL,KKSTR),IIEL+2)
               end do
               IJOFF = (JJORB-JORBMIN)*NIORB
-              !PAM2009 SIGNIJ = SIGNJ*(-1.0D0)**(IEL+1)
+              !PAM2009 SIGNIJ = SIGNJ*(-One)**(IEL+1)
               SIGNIJ = SIGNJ*SGNARR(IEL+1)
               do IIORB=IORB1+1,IORB2-1
                 IJ = IJOFF+IIORB-IORBMIN+1
                 ILEX = ILEX2+IZ(IIORB,IEL+2)
                 IACT = IREO(ILEX)
                 if (NTEST >= 1000) then
-                  write(6,*) 'IIORB JJORB',IIORB,JJORB
-                  write(6,*) ' ILEX IACT ',ILEX,IACT
+                  write(u6,*) 'IIORB JJORB',IIORB,JJORB
+                  write(u6,*) ' ILEX IACT ',ILEX,IACT
                 end if
                 I1(KKSTR-KMIN+1,IJ) = IACT
                 XI1S(KKSTR-KMIN+1,IJ) = SIGNIJ
@@ -210,7 +213,7 @@ else if ((IAC == 1) .and. (JAC == 1)) then
     if (JJELMIN == 0) JJELMIN = NKEL+1
 
     if (NTEST >= 1000) then
-      write(6,*) ' Occupation of string ',KKSTR
+      write(u6,*) ' Occupation of string ',KKSTR
       call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
     end if
     ! Loop over first electron to be removed
@@ -221,9 +224,9 @@ else if ((IAC == 1) .and. (JAC == 1)) then
       !do IEL=JEL+1,NKEL
       do IEL=max(JEL+1,IIELMIN),IIELMAX
         IIORB = KSTR(IEL,KKSTR)
-        if (NTEST >= 1000) write(6,*) ' IEL JEL IORB JORB ',IEL,JEL,IORB,JORB
+        if (NTEST >= 1000) write(u6,*) ' IEL JEL IORB JORB ',IEL,JEL,IORB,JORB
         if ((IIORB >= IORBMIN) .and. (IIORB <= IORBMAX) .and. (JJORB >= JORBMIN) .and. (JJORB <= JORBMAX)) then
-          !PAM09 SIGN = DBLE((-1)**(IEL+JEL-1))*SCLFAC
+          !PAM09 SIGN = SCLFAC*(-One)**(IEL+JEL-1)
           SIGN = SGNARR(IEL+JEL+1)*SCLFAC
           ! reverse lexical number of the double annihilated string
           ILEX = 1
@@ -238,11 +241,11 @@ else if ((IAC == 1) .and. (JAC == 1)) then
           end do
           IACT = IREO(ILEX)
           if ((IACT <= 0) .or. (IACT > NSTRI)) then
-            write(6,*) ' IACT out of bounds, IACT =  ',IACT
+            write(u6,*) ' IACT out of bounds, IACT =  ',IACT
             !stop ' IACT out of bounds'
             call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
           end if
-          if (NTEST >= 1000) write(6,*) ' ILEX and IACT ',ILEX,IACT
+          if (NTEST >= 1000) write(u6,*) ' ILEX and IACT ',ILEX,IACT
 
           IJ = (JJORB-JORB)*NIORB+IIORB-IORB+1
           I1(KKSTR-KMIN+1,IJ) = IACT
@@ -285,8 +288,8 @@ else if ((IAC == 2) .and. (JAC == 1)) then
       end if
     end do
     if (NTEST >= 10000) then
-      write(6,*) ' ISCR from IORBMIN array for KKSTR = ',KKSTR
-      write(6,*) ' IORBMIN, NIORB',IORBMIN,NIORB
+      write(u6,*) ' ISCR from IORBMIN array for KKSTR = ',KKSTR
+      write(u6,*) ' IORBMIN, NIORB',IORBMIN,NIORB
       call IWRTMA(ISCR(IORBMIN),1,NIORB,1,NIORB)
     end if
     do JEL=1,NKEL
@@ -294,7 +297,7 @@ else if ((IAC == 2) .and. (JAC == 1)) then
       if ((JJORB >= JORBMIN) .and. (JJORB <= JORBMAX)) then
         do IIORB=IORBMIN,IORBMAX
           IEL = ISCR(IIORB)
-          !write(6,*) ' JEL IEL JJORB IIORB',JEL,IEL,JJORB,IIORB
+          !write(u6,*) ' JEL IEL JJORB IIORB',JEL,IEL,JJORB,IIORB
           IACT = 0
           if ((IEL > 0) .and. (IIORB > JJORB)) then
             ! New string is  a+1 ... a+ jel-1 a+jel+1 ..a+iel-1 a+iiorb a+iel+1 ...
@@ -312,18 +315,18 @@ else if ((IAC == 2) .and. (JAC == 1)) then
             end do
             IACT = IREO(ILEX)
             if ((IACT <= 0) .or. (IACT > NSTRI)) then
-              write(6,*) ' 1: IACT out of bounds, IACT =  ',IACT
-              write(6,*) ' NSTRI = ',NSTRI
-              write(6,*) 'IIORB,JJORB ',IIORB,JJORB
-              write(6,*) ' Kstring :'
+              write(u6,*) ' 1: IACT out of bounds, IACT =  ',IACT
+              write(u6,*) ' NSTRI = ',NSTRI
+              write(u6,*) 'IIORB,JJORB ',IIORB,JJORB
+              write(u6,*) ' Kstring :'
               call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
-              write(6,*) ' ILEX = ',ILEX
-              write(6,*) 'IZ matrix'
+              write(u6,*) ' ILEX = ',ILEX
+              write(u6,*) 'IZ matrix'
               call IWRTMA(IZ,NOCOB,NKEL,NOCOB,NKEL)
               !stop ' IACT out of bounds'
               call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
             end if
-            !PAM2009 SIGN = DBLE((-1)**(IEL+JEL-1))*SCLFAC
+            !PAM2009 SIGN = SCLFAC*(-One)**(IEL+JEL-1)
             SIGN = SGNARR(IEL+JEL+1)*SCLFAC
           else if ((IEL > 0) .and. (IIORB < JJORB)) then
             ! New string is  a+1 ... a+ iel-1 a+ iiorb a+iel+1 ..a+jel-1 a+jel+1 ...
@@ -338,15 +341,15 @@ else if ((IAC == 2) .and. (JAC == 1)) then
             do KEL=JEL+1,NKEL
               ILEX = ILEX+IZ(KSTR(KEL,KKSTR),KEL)
             end do
-            !write(6,*) ' ILEX =',ILEX
+            !write(u6,*) ' ILEX =',ILEX
             IACT = IREO(ILEX)
             if ((IACT <= 0) .or. (IACT > NSTRI)) then
-              write(6,*) '2 IACT out of bounds, IACT =  ',IACT
+              write(u6,*) '2 IACT out of bounds, IACT =  ',IACT
               !stop ' IACT out of bounds'
               call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
             end if
-            !write(6,*) ' IACT = ',IACT
-            !PAM2009 SIGN = DBLE((-1)**(IEL+JEL))*SCLFAC
+            !write(u6,*) ' IACT = ',IACT
+            !PAM2009 SIGN = SCLFAC*(-One)**(IEL+JEL)
             SIGN = SGNARR(IEL+JEL)*SCLFAC
           else if ((IEL < 0) .and. (IIORB == JJORB)) then
             ! Diagonal excitation
@@ -401,7 +404,7 @@ else if ((IAC == 1) .and. (JAC == 2)) then
       end if
     end do
     if (NTEST >= 10000) then
-      write(6,*) ' ISCR from JORBMIN array for KKSTR = ',KKSTR
+      write(u6,*) ' ISCR from JORBMIN array for KKSTR = ',KKSTR
       call IWRTMA(ISCR(JORBMIN),1,NJORB,1,NJORB)
     end if
     do IEL=1,NKEL+IDIAG
@@ -410,7 +413,7 @@ else if ((IAC == 1) .and. (JAC == 2)) then
       if (((IIORB >= IORBMIN) .and. (IIORB <= IORBMAX)) .or. (IEL == NKEL+1)) then
         do JJORB=JORBMIN,JORBMAX
           JEL = ISCR(JJORB)
-          !write(6,*) ' IEL IIORB JEL JJORB ',IEL,IIORB,JEL,JJORB
+          !write(u6,*) ' IEL IIORB JEL JJORB ',IEL,IIORB,JEL,JJORB
           IACT = 0
           if (IEL <= NKEL) then
             if ((JEL > 0) .and. (JJORB > IIORB)) then
@@ -429,16 +432,16 @@ else if ((IAC == 1) .and. (JAC == 2)) then
               end do
               IACT = IREO(ILEX)
               if ((IACT <= 0) .or. (IACT > NSTRI)) then
-                write(6,*) '3 IACT out of bounds, IACT =  ',IACT
-                write(6,*) ' ILEX,KKSTR ',ILEX,KKSTR
-                write(6,*) ' occupation of KSTR'
+                write(u6,*) '3 IACT out of bounds, IACT =  ',IACT
+                write(u6,*) ' ILEX,KKSTR ',ILEX,KKSTR
+                write(u6,*) ' occupation of KSTR'
                 call IWRTMA(KSTR,1,NKEL,1,NKEL)
-                write(6,*) ' IEL JEL ',IEL,JEL
-                write(6,*) ' IIORB,JJORB',IIORB,JJORB
+                write(u6,*) ' IEL JEL ',IEL,JEL
+                write(u6,*) ' IIORB,JJORB',IIORB,JJORB
                 !stop ' IACT out of bounds'
                 call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
               end if
-              !PAM2009 SIGN = DBLE((-1)**(IEL+JEL))*SCLFAC
+              !PAM2009 SIGN = SCLFAC*(-One)**(IEL+JEL)
               SIGN = SGNARR(IEL+JEL)*SCLFAC
             else if ((JEL > 0) .and. (JJORB < IIORB)) then
               ! New string is  a+1 ... a+ jel-1 a+ jjorb a+jel+1 ..a+iel-1 a+iel+1 ...
@@ -454,16 +457,16 @@ else if ((IAC == 1) .and. (JAC == 2)) then
                 ILEX = ILEX+IZ(KSTR(KEL,KKSTR),KEL)
               end do
               IACT = IREO(ILEX)
-              !PAM2009 SIGN = DBLE((-1)**(IEL+JEL-1))*SCLFAC
+              !PAM2009 SIGN = SCLFAC*(-One)**(IEL+JEL-1)
               SIGN = SGNARR(IEL+JEL+1)*SCLFAC
               if ((IACT <= 0) .or. (IACT > NSTRI)) then
-                write(6,*) '4 IACT out of bounds, IACT =  ',IACT
-                write(6,*) ' NSTRI = ',NSTRI
-                write(6,*) 'IIORB,JJORB ',IIORB,JJORB
-                write(6,*) ' Kstring :'
+                write(u6,*) '4 IACT out of bounds, IACT =  ',IACT
+                write(u6,*) ' NSTRI = ',NSTRI
+                write(u6,*) 'IIORB,JJORB ',IIORB,JJORB
+                write(u6,*) ' Kstring :'
                 call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
-                write(6,*) ' ILEX = ',ILEX
-                write(6,*) 'IZ matrix'
+                write(u6,*) ' ILEX = ',ILEX
+                write(u6,*) 'IZ matrix'
                 call IWRTMA(IZ,NOCOB,NKEL,NOCOB,NKEL)
                 !stop ' IACT out of bounds'
                 call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
@@ -492,18 +495,18 @@ end if
 ! End of types of creation mappings
 
 if (NTEST > 0) then
-  write(6,*) ' Output from ADADST1_GAS'
-  write(6,*) ' ====================='
-  write(6,*) ' Number of K strings accessed ',NK
+  write(u6,*) ' Output from ADADST1_GAS'
+  write(u6,*) ' ====================='
+  write(u6,*) ' Number of K strings accessed ',NK
   if (NK /= 0) then
     IJ = 0
     do JJORB=JORB,JORB+NJORB-1
       do IIORB=IORB,IORB+NIORB-1
         IJ = IJ+1
-        !write(6,*) ' IJ = ',IJ
+        !write(u6,*) ' IJ = ',IJ
         !if (IIORB > JJORB) then
-        write(6,*) ' Info for orbitals (iorb,jorb) ',IIORB,JJORB
-        write(6,*) ' Excited strings and sign'
+        write(u6,*) ' Info for orbitals (iorb,jorb) ',IIORB,JJORB
+        write(u6,*) ' Excited strings and sign'
         call IWRTMA(I1(1,IJ),1,NK,1,NK)
         call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
         !end if

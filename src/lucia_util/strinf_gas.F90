@@ -16,13 +16,13 @@ subroutine STRINF_GAS(IPRNT)
 ! Obtain string information for GAS expansion
 !
 ! =====
-!.Input
+! Input
 ! =====
 !
 ! /LUCINP/,/ORBINP/,/CSM/, /CGAS/, /GASSTR/
 !
 ! =====
-!.Output
+! Output
 ! =====
 !
 ! /STRINP/,/STINF/,STRBAS and string information in STIN
@@ -42,6 +42,7 @@ use lucia_data, only: ISTAC
 use lucia_data, only: NSTTYP
 use lucia_data, only: MXPNSMST, MXPNGAS
 use csm_data, only: NSMST
+use Definitions, only: u6
 
 implicit none
 integer IPRNT
@@ -120,11 +121,11 @@ call mma_allocate(ISMSCR,NGRP,Label='ISMSCR')
 call SMDFGP_GEN(NGRP,NSMST,MXPNSMST,NSTFSMGP,NACTSYM,ISMDFGP)
 
 if (NTEST >= 10) then
-  write(6,*) 'NGRP',NGRP
-  write(6,*) 'NSMST*NGRP',NSMST*NGRP
-  write(6,*) ' Number of strings per group and symmetry'
+  write(u6,*) 'NGRP',NGRP
+  write(u6,*) 'NSMST*NGRP',NSMST*NGRP
+  write(u6,*) ' Number of strings per group and symmetry'
   call IWRTMA10(NSTSGP(1)%I,NSMST,NGRP,NSMST,NGRP)
-  write(6,*) ' Number of strings per group and symmetry(2)'
+  write(u6,*) ' Number of strings per group and symmetry(2)'
   call IWRTMA10(NSTFSMGP,NSMST,NGRP,MXPNSMST,NGRP)
 end if
 
@@ -146,8 +147,8 @@ do IGP=1,NGRP
 
 end do
 if (NTEST > 5) then
-  write(6,*) ' MINMAX array for sym of groups'
-  write(6,*) ' =============================='
+  write(u6,*) ' MINMAX array for sym of groups'
+  write(u6,*) ' =============================='
   call IWRTMA(MINMAX_SM_GP,2,NGRP,2,NGRP)
 end if
 
@@ -230,10 +231,10 @@ do ITP=1,NSTTYP
   call ZSPGPIB(NSTSO(ITP)%I,ISTSO(ITP)%I,NSPGPFTP(ITP),NSMST)
 
   if (NTEST >= 5) then
-    write(6,*) ' Number of strings per sym (row) and supergroup(column) for type = ',ITP
+    write(u6,*) ' Number of strings per sym (row) and supergroup(column) for type = ',ITP
     call IWRTMA(NSTSO(ITP)%I,NSMST,NSPGPFTP(ITP),NSMST,NSPGPFTP(ITP))
-    write(6,'(A,3I6)') ' NSMCLS,NSMCLSE,NSMCLSE1=',NSMCLS,NSMCLSE,NSMCLSE1
-    write(6,*)
+    write(u6,'(A,3I6)') ' NSMCLS,NSMCLSE,NSMCLSE1=',NSMCLS,NSMCLSE,NSMCLSE1
+    write(u6,*)
   end if
 
 end do
@@ -249,7 +250,7 @@ do IISPGP=1,NTSPGP
   NHLFSPGP(IISPGP) = NHOLE
 end do
 if (NTEST >= 10) then
-  write(6,*) ' Number of electrons in hole spaces per supergroup'
+  write(u6,*) ' Number of electrons in hole spaces per supergroup'
   call IWRTMA(NHLFSPGP,1,NTSPGP,1,NTSPGP)
 end if
 ! Largest number of strings belonging to given supergroup
@@ -267,12 +268,12 @@ do ISPGP=1,NTSPGP
 end do
 
 if (NTEST >= 2) then
-  write(6,*) ' Largest number of strings of given supergroup        ',MAX_STR_SPGP
-  write(6,*) ' Largest block of string occupations ',MAX_STR_OC_BLK
+  write(u6,*) ' Largest number of strings of given supergroup        ',MAX_STR_SPGP
+  write(u6,*) ' Largest block of string occupations ',MAX_STR_OC_BLK
 
-  write(6,*) ' Largest number of strings of given supergroup and sym',MXNSTR
+  write(u6,*) ' Largest number of strings of given supergroup and sym',MXNSTR
 end if
-!write(6,'(A,3I6)') ' MXSMCLS,MXSMCLSE,MXSMCLSE1 = ',MXSMCLS,MXSMCLSE,MXSMCLSE1
+!write(u6,'(A,3I6)') ' MXSMCLS,MXSMCLSE,MXSMCLSE1 = ',MXSMCLS,MXSMCLSE,MXSMCLSE1
 
 ! Possible occupation classes
 
@@ -294,7 +295,7 @@ do ISTTYP=1,NSTTYP
   do JSTTYP=1,NSTTYP
     if ((mod(ISTTYP,2) == mod(JSTTYP,2)) .and. (NELFTP(JSTTYP) == IIEL+1)) ISTTYPC = JSTTYP
   end do
-  !write(6,*) ' ISTTYP and ISTTYPC ',ISTTYP,ISTTYPC
+  !write(u6,*) ' ISTTYP and ISTTYPC ',ISTTYP,ISTTYPC
   if (NSPGPFTP(ISTTYP) > 0) then
 
     if ((ISTTYPC >= 1) .and. (NSPGPFTP(ISTTYPC) > 0)) &
@@ -305,7 +306,7 @@ do ISTTYP=1,NSTTYP
     do JSTTYP=1,NSTTYP
       if ((mod(ISTTYP,2) == mod(JSTTYP,2)) .and. (NELFTP(JSTTYP) == IIEL-1)) ISTTYPA = JSTTYP
     end do
-    !write(6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
+    !write(g6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
     if ((ISTTYPA >= 1) .and. (NSPGPFTP(ISTTYPA) > 0)) &
       call SPGP_AC(NELFSPGP(1,1),NSPGPFTP(ISTTYP),NELFSPGP(1,1),NSPGPFTP(ISTTYPA),NGAS,MXPNGAS,1,SPGPAN,IBSPGPFTP(ISTTYP), &
                    IBSPGPFTP(ISTTYPA))

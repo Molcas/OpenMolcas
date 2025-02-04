@@ -44,7 +44,7 @@ subroutine DENSI2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRH
 ! Input
 ! =====
 !
-!.Definition of L and R is picked up from CANDS
+! Definition of L and R is picked up from CANDS
 ! with L being S and  R being C
 !
 
@@ -53,7 +53,6 @@ use GLBBAS, only: VEC3
 use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
 use strbas, only: NSTSO, ISTSO
 use CandS, only: ICSM, ISSM, ISSPC
-use Constants, only: Zero
 use lucia_data, only: NGAS, IPHGAS
 use lucia_data, only: MXSB, MXSOOB, MXNTTS, ISMOST, XISPSM
 use lucia_data, only: IPRDEN, IPRCIX
@@ -67,6 +66,8 @@ use lucia_data, only: NELEC
 use lucia_data, only: MXPOBS, MXPNGAS, MXPNSMST
 use csm_data, only: NSMST, NSMDX, NSMSX
 use csm_data, only: ADSXA, ASXAD, SXDXSX
+use Constants, only: Zero, Two, Quart
+use Definitions, only: wp, u6
 
 implicit none
 ! Specific input
@@ -102,7 +103,7 @@ real*8 S2_TERM1
 ! Before I forget it :
 !IDUM = 0
 !call MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
-call SETVEC(RHO1,ZERO,NACOB**2)
+call SETVEC(RHO1,Zero,NACOB**2)
 if (I12 == 2) then
   if (IPACK) then
     ! If IPACK == .TRUE. then
@@ -110,14 +111,14 @@ if (I12 == 2) then
     ! density matrices are given in Nijkl.
     NIJ = (NACOB*(NACOB+1))/2
     NIJKL = (NIJ*(NIJ+1))/2
-    call SETVEC(RHO2S,ZERO,NIJKL)
-    call SETVEC(RHO2A,ZERO,NIJKL)
+    call SETVEC(RHO2S,Zero,NIJKL)
+    call SETVEC(RHO2A,Zero,NIJKL)
   else
-    call SETVEC(RHO2,ZERO,NACOB**2*(NACOB**2+1)/2)
+    call SETVEC(RHO2,Zero,NACOB**2*(NACOB**2+1)/2)
   end if
 end if
 
-if (IDOSRHO1 == 1) call SETVEC(SRHO1,ZERO,NACOB**2)
+if (IDOSRHO1 == 1) call SETVEC(SRHO1,Zero,NACOB**2)
 
 ! Info for this internal space
 ! type of alpha and beta strings
@@ -175,13 +176,13 @@ end if
 MAXA = max(MAXA,MAXA0)
 MAXB = max(MAXB,MAXB0)
 MXSTBL = max(MAXA,MAXB)
-if (IPRDEN >= 2) write(6,*) ' Largest block of strings with given symmetry and type',MXSTBL
+if (IPRDEN >= 2) write(u6,*) ' Largest block of strings with given symmetry and type',MXSTBL
 ! Largest number of resolution strings and spectator strings
 ! that can be treated simultaneously
 ! replace with MXINKA !!!
 MAXI = min(MXINKA,MXSTBL)
 MAXK = min(MXINKA,MXSTBL)
-!write(6,*) ' DENSI2 : MAXI MAXK ',MAXI,MAXK
+!write(u6,*) ' DENSI2 : MAXI MAXK ',MAXI,MAXK
 ! Largest active orbital block belonging to given type and symmetry
 MXTSOB = 0
 do IOBTP=1,NGAS
@@ -190,7 +191,7 @@ do IOBTP=1,NGAS
   end do
 end do
 ! Local scratch arrays for blocks of C and sigma
-if (IPRDEN >= 2) write(6,*) ' DENSI2 : MXSB MXTSOB MXSOOB ',MXSB,MXTSOB,MXSOOB
+if (IPRDEN >= 2) write(u6,*) ' DENSI2 : MXSB MXTSOB MXSOOB ',MXSB,MXTSOB,MXSOOB
 !if (ISIMSYM /= 1) THEN
 LSCR1 = MXSOOB
 !else
@@ -200,13 +201,13 @@ LSCR1 = max(LSCR1,LCSBLK)
 ! JESPER: Should reduce I/O
 if (ENVIRO(1:6) == 'RASSCF') then
   LSCR1 = max(int(XISPSM(IREFSM,1)),MXSOOB)
-  if (PSSIGN /= 0.0d0) LSCR1 = int(2.0d0*XISPSM(IREFSM,1))
+  if (PSSIGN /= Zero) LSCR1 = int(Two*XISPSM(IREFSM,1))
 end if
-if (IPRDEN >= 2) write(6,*) ' ICISTR,LSCR1 ',ICISTR,LSCR1
+if (IPRDEN >= 2) write(u6,*) ' ICISTR,LSCR1 ',ICISTR,LSCR1
 ! SCRATCH space for block of two-electron density matrix
 ! A 4 index block with four indices belonging OS class
 INTSCR = MXTSOB**4
-if (IPRDEN >= 2) write(6,*) ' Density scratch space ',INTSCR
+if (IPRDEN >= 2) write(u6,*) ' Density scratch space ',INTSCR
 call mma_allocate(INSCR,INTSCR,Label='INSCR')
 
 ! Arrays giving allowed type combinations
@@ -218,13 +219,13 @@ call IAIBCM(ISSPC,CIOIO)
 ! Scratch space for CJKAIB resolution matrices
 call MXRESCPH(CIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,NELFSPGP,MXCJ, &
               MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,MXADKBLK_AS,MX_NSPII)
-if (IPRDEN >= 2) write(6,*) ' DENSI12 :  : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
+if (IPRDEN >= 2) write(u6,*) ' DENSI12 :  : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
 LSCR2 = max(MXCJ,MXCIJA,MXCIJB)
-if (IPRDEN >= 2) write(6,*) ' Space for resolution matrices ',LSCR2
+if (IPRDEN >= 2) write(u6,*) ' Space for resolution matrices ',LSCR2
 LSCR12 = max(LSCR1,2*LSCR2)
 if (ENVIRO(1:6) == 'RASSCF') LSCR12 = max(LSCR1,LSCR2)
 ! It is assumed that the third block already has been allocated, so
-if (IPRCIX >= 2) write(6,*) ' Space for resolution matrices ',LSCR12
+if (IPRCIX >= 2) write(u6,*) ' Space for resolution matrices ',LSCR12
 if (ENVIRO(1:6) == 'RASSCF') then
   KCSCR = LSCR12
 else
@@ -294,12 +295,12 @@ call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LSCR1,C
                LIBTR,0,ISIMSYM)
 
 if (ICISTR == 1) then
-  write(6,*) ' Sorry, ICISTR = 1 is out of fashion'
-  write(6,*) ' Switch to ICISTR = 2 - or reprogram'
+  write(u6,*) ' Sorry, ICISTR = 1 is out of fashion'
+  write(u6,*) ' Switch to ICISTR = 2 - or reprogram'
   !stop ' DENSI2T : ICISTR = 1 in use'
   call SYSABENDMSG('lucia_util/densi2_lucia','Internal error','')
 else if (ICISTR >= 2) then
-  S2_TERM1 = 0.0d0
+  S2_TERM1 = Zero
   call GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,L,R,VEC3,CIOIO,SIOIO,ISMOST(1,ICSM),ISMOST(1,ISSM),CBLTP,SBLTP,NACOB, &
                     NSTSO(IATP)%I,ISTSO(IATP)%I,NSTSO(IBTP)%I,ISTSO(IBTP)%I,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST, &
                     NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,LSCR1,LSCR1,VEC3(1+KCSCR),VEC3,SXSTSM,STSTS,STSTD,SXDXSX, &
@@ -340,28 +341,28 @@ end if
 call NATORB_LUCIA(RHO1,NSMOB,NTOOBS,NACOBS,NINOBS,IREOST,XNATO,RHO1SM,OCCSM,NACOB,RHO1P,IPRDEN)
 
 if (IPRDEN >= 5) then
-  write(6,*) ' One-electron density matrix'
-  write(6,*) ' ==========================='
+  write(u6,*) ' One-electron density matrix'
+  write(u6,*) ' ==========================='
   call WRTMAT(RHO1,NTOOB,NTOOB,NTOOB,NTOOB)
   if (I12 == 2) then
-    write(6,*) ' Two-electron density'
+    write(u6,*) ' Two-electron density'
     call PRSYM(RHO2,NACOB**2)
   end if
 end if
 
 if (I12 == 2) then
   ! <L!S**2|R>
-  EXPS2 = S2_TERM1+0.25d0*dble(4*NAEL+(NAEL-NBEL)*(NAEL-NBEL-2))
+  EXPS2 = S2_TERM1+Quart*real(4*NAEL+(NAEL-NBEL)*(NAEL-NBEL-2),kind=wp)
   if (IPRDEN > 0) then
-    write(6,*) ' Term 1 to S2 ',S2_TERM1
-    write(6,*) ' Expectation value of S2 ',EXPS2
+    write(u6,*) ' Term 1 to S2 ',S2_TERM1
+    write(u6,*) ' Expectation value of S2 ',EXPS2
   end if
 else
-  EXPS2 = 0.0d0
+  EXPS2 = Zero
 end if
 
 if ((IDOSRHO1 == 1) .and. (IPRDEN >= 2)) then
-  write(6,*) ' One-electron spindensity <0!E(aa) - E(bb)!0>'
+  write(u6,*) ' One-electron spindensity <0!E(aa) - E(bb)!0>'
   call WRTMAT(SRHO1,NTOOB,NTOOB,NTOOB,NTOOB)
 end if
 

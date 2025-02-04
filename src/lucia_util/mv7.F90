@@ -25,6 +25,8 @@ use lucia_data, only: IDC, IREFSM, PSSIGN
 use lucia_data, only: I_AM_OUT, N_ELIMINATED_BATCHES
 use lucia_data, only: NOCTYP
 use csm_data, only: NSMST
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer LUC, LUHC
@@ -37,8 +39,8 @@ integer, allocatable :: CBLTP(:), CLBT(:), CLEBT(:), CI1BT(:), CIBT(:)
 integer IATP, IBTP, NOCTPA, NOCTPB, NTTS, LBLOCK, LLUC, LLUHC, NBATCH
 
 if (ICISTR == 1) then
-  write(6,*) ' MV7 does not work for ICISTR = 1'
-  write(6,*) ' SWITCH to ICISTR = 2,3 or program'
+  write(u6,*) ' MV7 does not work for ICISTR = 1'
+  write(u6,*) ' SWITCH to ICISTR = 2,3 or program'
   !stop ' MV7 does not work for ICISTR = 1'
   call SYSABENDMSG('lucia_util/mv7','Internal error','')
 end if
@@ -78,7 +80,7 @@ LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
 if (ENVIRO(1:6) == 'RASSCF') then
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-  if (PSSIGN /= 0.0d0) LBLOCK = int(2*XISPSM(IREFSM,1))
+  if (PSSIGN /= Zero) LBLOCK = int(2*XISPSM(IREFSM,1))
 end if
 call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
                0,ISIMSYM)
@@ -94,7 +96,7 @@ else
 end if
 
 call RASSG3(C,HC,NBATCH,CLBT,CLEBT,CI1BT,CIBT,LLUC,LLUHC,I_AM_OUT,N_ELIMINATED_BATCHES)
-!write(6,*) ' LSCMAX_MX = ',LSCMAX_MX
+!write(u6,*) ' LSCMAX_MX = ',LSCMAX_MX
 ! Eliminate local memory
 call mma_deallocate(CLBT)
 call mma_deallocate(CLEBT)

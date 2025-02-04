@@ -12,6 +12,8 @@
 subroutine RSMXMN_LUCIA(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MIN1,MAX1,MIN3,MAX3,NTEST)
 ! Construct accumulated MAX and MIN arrays for a RAS set of strings
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension MINEL(*), MAXEL(*)
 
@@ -44,11 +46,11 @@ do IORB=1,NORB
 end do
 
 if (NTEST >= 100) then
-  write(6,*) ' Output from RSMXMN'
-  write(6,*) ' =================='
-  write(6,*) ' MINEL :'
+  write(u6,*) ' Output from RSMXMN'
+  write(u6,*) ' =================='
+  write(u6,*) ' MINEL :'
   call IWRTMA(MINEL,1,NORB,1,NORB)
-  write(6,*) ' MAXEL :'
+  write(u6,*) ' MAXEL :'
   call IWRTMA(MAXEL,1,NORB,1,NORB)
 end if
 

@@ -15,6 +15,7 @@ subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
 use GLBBAS, only: PINT2, KINH1
 use lucia_data, only: NSMOB
 use lucia_data, only: NOBPTS, NTOOBS
+use Definitions, only: u6
 
 implicit none
 integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
@@ -24,10 +25,10 @@ integer NTEST, NI, NK, NIK, NJ, NL, NJL
 NTEST = 0
 
 if (NTEST >= 1) then
-  !write(6,*) ' I_USE_SIMTRH in GETINT =',I_USE_SIMTRH
-  write(6,*) ' GETINT : ICOUL = ',ICOUL
-  write(6,*) 'ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM :'
-  write(6,'(8I4)') ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM
+  !write(u6,*) ' I_USE_SIMTRH in GETINT =',I_USE_SIMTRH
+  write(u6,*) ' GETINT : ICOUL = ',ICOUL
+  write(u6,*) 'ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM :'
+  write(u6,'(8I4)') ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM
 end if
 ! Read integrals in in RASSCF format
 call GETINCN_RASSCF(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,PINT2,NSMOB,KINH1,ICOUL)
@@ -68,10 +69,10 @@ if (NTEST /= 0) then
   else
     NJL = NJ*(NJ+1)/2
   end if
-  write(6,*) ' 2 electron integral block for TS blocks'
-  write(6,*) ' Ixchng :',IXCHNG
-  write(6,*) ' After GETINC'
-  write(6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
+  write(u6,*) ' 2 electron integral block for TS blocks'
+  write(u6,*) ' Ixchng :',IXCHNG
+  write(u6,*) ' After GETINC'
+  write(u6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
   call WRTMAT(XINT,NIK,NJL,NIK,NJL)
 end if
 

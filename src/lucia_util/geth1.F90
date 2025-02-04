@@ -24,6 +24,7 @@ subroutine GETH1(H,ISM,ITP,JSM,JTP)
 !              Summer of 98 : CC options added
 
 use lucia_data, only: NOBPTS
+use Definitions, only: u6
 
 implicit none
 integer ISM, ITP, JSM, JTP
@@ -47,7 +48,7 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
+  write(u6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
   call WRTMAT(H,NI,NJ,NI,NJ)
 end if
 

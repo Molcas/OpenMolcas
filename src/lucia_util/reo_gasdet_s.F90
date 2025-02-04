@@ -17,6 +17,8 @@ subroutine REO_GASDET_S(IREO,NSSOA,NSSOB,NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,NBL
 ! Reorder determinants in GAS space from det to configuration order
 
 use GLBBAS, only: Z_PTDT, REO_PTDT
+use Constants, only: One
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -59,7 +61,7 @@ do JBLOCK=1,NBLOCK
   IBTP = IBLOCK(2,JBLOCK)
   IASM = IBLOCK(3,JBLOCK)
   IBSM = IBLOCK(4,JBLOCK)
-  !write(6,*) ' REO_GASDET, IATP, IBTP = ',IATP,IBTP
+  !write(u6,*) ' REO_GASDET, IATP, IBTP = ',IATP,IBTP
   ! Occupation class of this combination of string
   call IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
   !    IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
@@ -85,7 +87,7 @@ do JBLOCK=1,NBLOCK
   IB_OCCLS = IBCONF_ALL_SYM_FOR_OCCLS(IOC)
   ! Info for this occupation class:
   IRESTR = 0
-  if ((PSSIGN == 1.0d0) .and. (IASM == IBSM) .and. (IATP == IBTP)) IRESTR = 1
+  if ((PSSIGN == One) .and. (IASM == IBSM) .and. (IATP == IBTP)) IRESTR = 1
 
   NIA = NSSOA(IASM,IATP)
   NIB = NSSOB(IBSM,IBTP)
@@ -107,7 +109,7 @@ do JBLOCK=1,NBLOCK
       NDOUBLE = (NEL-NOPEN)/2
       NOCOB = NOPEN+NDOUBLE
       NOPEN_AL = NAEL-NDOUBLE
-      !write(6,*) ' NOPEN, NOPEN_AL = ',NOPEN,NOPEN_AL
+      !write(u6,*) ' NOPEN, NOPEN_AL = ',NOPEN,NOPEN_AL
       !ERROR NPTDT = IBION_LUCIA(NOPEN,NOPEN_AL)
       NPTDT = NPDTCNF(NOPEN+1)
       ! Packed form of this configuration
@@ -116,31 +118,31 @@ do JBLOCK=1,NBLOCK
       ! Address of this configuration
       ! Offset to configurations with this number of open orbitals in
       ! reordered cnf list
-      !write(6,*) 'iconf_reo_new array:'
+      !write(u6,*) 'iconf_reo_new array:'
       !call iwrtma(iconf_reo_new,1,nconf_tot,1,nconf_tot)
       !.. Giovanni and Dongxia comment off the following line
       !ICNF_OUT = ILEX_FOR_CONF(IDET_VC,NOCOB,NORB,NEL,IZ,1,ICONF_REO(IB_OCCLS))
       !!          ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
       !.. end
-      !write(6,*) 'ib_conf_reo at line 2401, and maxop',maxop
+      !write(u6,*) 'ib_conf_reo at line 2401, and maxop',maxop
       !call iwrtma(ib_conf_reo,1,maxop+1,1,maxop+1)
       !call iwrtma(nconf_per_open,1,maxop+1,1,maxop+1)
-      !write(6,*) 'before calling ilex_for_conf_new, in reogas_det_s'
-      !write(6,*) 'nopen =',nopen
-      !write(6,*) 'and nconf_per_open(nopen+1) =',nconf_per_open(nopen+1)
-      !write(6,*) 'check iconf_reo array'
+      !write(u6,*) 'before calling ilex_for_conf_new, in reogas_det_s'
+      !write(u6,*) 'nopen =',nopen
+      !write(u6,*) 'and nconf_per_open(nopen+1) =',nconf_per_open(nopen+1)
+      !write(u6,*) 'check iconf_reo array'
       !call iwrtma(iconf_reo,1,nconf_tot,1,nconf_tot)
       nconf_op = nconf_per_open(nopen+1)
       !call iwrtma(nconf_per_open,1,maxop+1,1,maxop+1)
       icnf_out = ilex_for_conf_new(idet_vc,nocob,norb,nel,iz,1,iconf_reo(ib_conf_reo(nopen+1)),nconf_op,ib_occls)+ &
                  ib_conf_reo(nopen+1)-1
-      !write(6,*) ' number of configuration in output list',ICNF_OUT
+      !write(u6,*) ' number of configuration in output list',ICNF_OUT
       ! Spinprojections of open orbitals
       call EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_VC,NEL)
       !    EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 
       ISIGN_2003 = 1
-      if (abs(PSSIGN) == 1.0d0) then
+      if (abs(PSSIGN) == One) then
         ! If combinations are used, then the prototype determinants
         ! are defined so the first open spin-orbital is having alpha spin.
         ! In ab order, the included determinant is defined, by having
@@ -151,7 +153,7 @@ do JBLOCK=1,NBLOCK
           do I=1,NOPEN
             IDET_VC(I) = -1*IDET_VC(I)
           end do
-          if (PSSIGN == -1.0d0) ISIGN_2003 = -1
+          if (PSSIGN == -One) ISIGN_2003 = -1
           ! Update sign AB => ordered list
           !PAM06 call ABSTR_TO_ORDSTR(IBSTR(1,IB),IASTR(1,IA),NBEL,NAEL,
           call ABSTR_TO_ORDSTR(IBSTR(1+NBEL*(IB-1)),IASTR(1+NAEL*(IA-1)),NBEL,NAEL,IDET_OC,IDET_MS,ISIGN)
@@ -159,18 +161,18 @@ do JBLOCK=1,NBLOCK
       end if
       IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,Z_PTDT(NOPEN+1)%I,REO_PTDT(NOPEN+1)%I,1)
       !       IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
-      !write(6,*) ' Number of det in list of PTDT ', IPTDT
-      !write(6,*) ' IB_SD_FOR_OPEN(NOPEN+1) = ',IB_SD_FOR_OPEN(NOPEN+1)
-      !write(6,*) ' ICNF_OUT, NPTDT ',ICNF_OUT, NPTDT
+      !write(u6,*) ' Number of det in list of PTDT ', IPTDT
+      !write(u6,*) ' IB_SD_FOR_OPEN(NOPEN+1) = ',IB_SD_FOR_OPEN(NOPEN+1)
+      !write(u6,*) ' ICNF_OUT, NPTDT ',ICNF_OUT, NPTDT
       IBCNF_OUT = IB_CONF_OPEN(NOPEN+1)
-      !write(6,*) ' IBCNF_OUT = ',IBCNF_OUT
+      !write(u6,*) ' IBCNF_OUT = ',IBCNF_OUT
       IADR_SD_CONF_ORDER = IB_SD_FOR_OPEN(NOPEN+1)-1+(ICNF_OUT-IBCNF_OUT)*NPTDT+IPTDT
       if (IADR_SD_CONF_ORDER <= 0) then
-        write(6,*) ' Problemo, IADR_SD_CONF_ORDER < 0'
-        write(6,*) ' IADR_SD_CONF_ORDER = ',IADR_SD_CONF_ORDER
-        call XFLUSH(6)
+        write(u6,*) ' Problemo, IADR_SD_CONF_ORDER < 0'
+        write(u6,*) ' IADR_SD_CONF_ORDER = ',IADR_SD_CONF_ORDER
+        call XFLUSH(u6)
       end if
-      !write(6,*) ' IADR_SD_CONF_ORDER, ISIGN, IDET = ',IADR_SD_CONF_ORDER,ISIGN,IDET
+      !write(u6,*) ' IADR_SD_CONF_ORDER, ISIGN, IDET = ',IADR_SD_CONF_ORDER,ISIGN,IDET
       IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGN_2003
 
     end do
@@ -182,8 +184,8 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Reorder array, CONF order => string order'
-  write(6,*) ' ========================================='
+  write(u6,*) ' Reorder array, CONF order => string order'
+  write(u6,*) ' ========================================='
   call IWRTMA(IREO,1,IDET,1,IDET)
 end if
 

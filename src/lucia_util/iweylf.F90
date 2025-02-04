@@ -13,7 +13,9 @@ integer function IWEYLF(NOPEN,MULTS)
 ! NUMBER OF CSF'S WITH NOPEN ORBITALS AND TOTAL MULTIPLICITY
 ! MULTS ACCORDING TO WEYLS FORMULAE
 !
-!     (2S+1)/(NOPEN+1) * BION(NOPEN+1/0.5NOPEN-S)
+! (2S+1)/(NOPEN+1) * BION(NOPEN+1/0.5*NOPEN-S)
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 
@@ -29,6 +31,6 @@ end if
 
 IWEYLF = NCSF
 
-if (NTEST /= 0) write(6,'(A,4I4)') '  IWEYLF SAYS : NOPEN MULTS NCSF : ',NOPEN,MULTS,NCSF
+if (NTEST /= 0) write(u6,'(A,4I4)') '  IWEYLF SAYS : NOPEN MULTS NCSF : ',NOPEN,MULTS,NCSF
 
 end function IWEYLF

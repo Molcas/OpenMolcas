@@ -17,6 +17,8 @@ subroutine EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 !
 ! Jeppe Olsen, December 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IDET_OC(NEL), IDET_MS(NEL)
@@ -47,11 +49,11 @@ if (IEL <= NEL) goto 1000
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Input det, occ and ms'
+  write(u6,*) ' Input det, occ and ms'
   call IWRTMA(IDET_OC,1,NEL,1,NEL)
   call IWRTMA(IDET_MS,1,NEL,1,NEL)
-  write(6,*) ' Number of open orbitals = ',IOPEN
-  write(6,*) ' Output det : ms of open orbitals'
+  write(u6,*) ' Number of open orbitals = ',IOPEN
+  write(u6,*) ' Output det : ms of open orbitals'
   call IWRTMA(IDET_OPEN_MS,1,IOPEN,1,IOPEN)
 end if
 

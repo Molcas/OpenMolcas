@@ -21,6 +21,8 @@ subroutine SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
 !
 ! Jeppe Olsen, September 1996
 
+use Definitions, only: wp, u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension IELFSPGRP(MXPNGAS,*)
@@ -45,11 +47,11 @@ do ISPGRP=1,NSPGRP
 end do
 
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) '===================='
-  write(6,*) 'output from SPGRPCON'
-  write(6,*) '===================='
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '===================='
+  write(u6,*) 'output from SPGRPCON'
+  write(u6,*) '===================='
+  write(u6,*)
   NEXC1 = 0
   NEXC2 = 0
   do ISPGRP=1,NSPGRP
@@ -62,13 +64,13 @@ if (NTEST >= 100) then
     end do
   end do
 
-  write(6,*) ' single excitation interactions',NEXC1,'( ',dble(NEXC1)*100.0d0/dble(NSPGRP)**2,' % )'
-  write(6,*) ' double excitation interactions',NEXC2,'( ',dble(NEXC2)*100.0d0/dble(NSPGRP)**2,' % )'
+  write(u6,*) ' single excitation interactions',NEXC1,'( ',real(NEXC1,kind=wp)*100.0_wp/real(NSPGRP,kind=wp)**2,' % )'
+  write(u6,*) ' double excitation interactions',NEXC2,'( ',real(NEXC2,kind=wp)*100.0_wp/real(NSPGRP,kind=wp)**2,' % )'
 
 end if
 
 if (NTEST >= 1000) then
-  write(6,*) ' Supergroup connection matrix'
+  write(u6,*) ' Supergroup connection matrix'
   call IWRTMA(ISPGRPCON,NSPGRP,NSPGRP,NSPGRP,NSPGRP)
 end if
 

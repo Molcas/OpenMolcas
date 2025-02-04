@@ -26,6 +26,9 @@ subroutine NGASDT(IOCCMN,IOCCMX,NGAS,ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,IAOC
 ! May 1999 : Loops restructrured to sym,type,type (leftmost innerst)
 !            MXSB not calculated
 
+use Constants, only: Zero, Half
+use Definitions, only: wp, u6
+
 implicit real*8(A-H,O-Z)
 ! Allowed combinations of alpha and beta types
 integer IOCOC(NOCTPA,NOCTPB)
@@ -40,16 +43,16 @@ dimension IBLTP(*)
 
 NTEST = 0
 if (NTEST >= 5) then
-  write(6,*) ' NGASDT speaking'
-  write(6,*) ' ==============='
-  write(6,*) ' NGAS NOCTPA,NOCTPB ',NGAS,NOCTPA,NOCTPB
-  write(6,*) ' ITOTSM ',ITOTSM
-  write(6,*) ' Upper and lower occupation constraints'
+  write(u6,*) ' NGASDT speaking'
+  write(u6,*) ' ==============='
+  write(u6,*) ' NGAS NOCTPA,NOCTPB ',NGAS,NOCTPA,NOCTPB
+  write(u6,*) ' ITOTSM ',ITOTSM
+  write(u6,*) ' Upper and lower occupation constraints'
   call IWRTMA(IOCCMN,1,NGAS,1,NGAS)
   call IWRTMA(IOCCMX,1,NGAS,1,NGAS)
-  write(6,*) ' IOCOC matrix'
+  write(u6,*) ' IOCOC matrix'
   call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  write(6,*) ' Number of alpha and beta strings'
+  write(u6,*) ' Number of alpha and beta strings'
   call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
   call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
 end if
@@ -58,7 +61,7 @@ MXSB = 0
 MXSOOB = 0
 MXSOOB_AS = 0
 NCOMB = 0
-XNCOMB = 0.0d0
+XNCOMB = Zero
 NTTSBL = 0
 LCOL = 0
 
@@ -66,7 +69,7 @@ do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
 
     if (NTEST >= 10) then
-      write(6,*) ' Alpha super group and beta super group'
+      write(u6,*) ' Alpha super group and beta super group'
       call IWRTMA(IAOCC(1,IATP),1,NGAS,1,NGAS)
       call IWRTMA(IBOCC(1,IBTP),1,NGAS,1,NGAS)
     end if
@@ -91,10 +94,10 @@ do IATP=1,NOCTPA
           ! Size of packed block
           if ((ISYM == 0) .or. (IATP /= IBTP)) then
             LTTSBL = LASTR*LBSTR
-            XNCOMB = XNCOMB+dble(LASTR)*dble(LBSTR)
+            XNCOMB = XNCOMB+real(LASTR,kind=wp)*real(LBSTR,kind=wp)
           else
             LTTSBL = LASTR*(LASTR+1)/2
-            XNCOMB = XNCOMB+0.5d0*dble(LASTR+1)*dble(LASTR)
+            XNCOMB = XNCOMB+Half*real(LASTR+1,kind=wp)*real(LASTR,kind=wp)
           end if
           LTTS_AS = LTTS_AS+LTTSUP
           NCOMB = NCOMB+LTTSBL
@@ -109,6 +112,6 @@ do IATP=1,NOCTPA
   end do
 end do
 
-if (NTEST >= 1) write(6,*) ' NGASDT : NCOMB XNCOMB, NTTSBL',NCOMB,XNCOMB,NTTSBL
+if (NTEST >= 1) write(u6,*) ' NGASDT : NCOMB XNCOMB, NTTSBL',NCOMB,XNCOMB,NTTSBL
 
 end subroutine NGASDT

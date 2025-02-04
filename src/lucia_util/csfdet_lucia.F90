@@ -31,6 +31,9 @@ subroutine CSFDET_LUCIA(NOPEN,IDET,NDET,ICSF,NCSF,CDC,SCR,nSCR,PSSIGN,IPRCSF)
 ! a combination being 1/sqrt(2) times the sum or difference of two
 ! determinants
 
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer nOpen, nDet, nCSF, nSCR
 integer IDET(NOPEN,NDET), ICSF(NOPEN,NCSF)
@@ -39,10 +42,10 @@ real*8 SCR(nSCR)
 
 NTEST = 0
 NTEST = max(IPRCSF,NTEST)
-if (PSSIGN == 0.0d0) then
-  CMBFAC = 1.0d0
+if (PSSIGN == Zero) then
+  CMBFAC = One
 else
-  CMBFAC = sqrt(2.0d0)
+  CMBFAC = sqrt(Two)
 end if
 
 KLFREE = 1
@@ -57,31 +60,31 @@ do JDET=1,NDET
 end do
 
 do JCSF=1,NCSF
-  if (NTEST >= 105) write(6,*) ' ....Output for CSF ',JCSF
+  if (NTEST >= 105) write(u6,*) ' ....Output for CSF ',JCSF
 
   ! OBTAIN INTERMEDIATE COUPLINGS FOR CSF
   call MSSTRN_LUCIA(ICSF(1,JCSF),SCR(KLSCSF),NOPEN,IPRCSF)
 
   do JDET=1,NDET
     ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
-    COEF = 1.0d0
-    SIGN = 1.0d0
+    COEF = One
+    SIGN = One
     JDADD = (JDET-1)*NOPEN
     do IOPEN=1,NOPEN
 
       if ((ICSF(IOPEN,JCSF) == 1) .and. (IDET(IOPEN,JDET) == 1)) then
         ! + + CASE
-        COEF = COEF*(SCR(KLSCSF-1+IOPEN)+SCR(KLMDET-1+JDADD+IOPEN))/(2.0d0*SCR(KLSCSF-1+IOPEN))
+        COEF = COEF*(SCR(KLSCSF-1+IOPEN)+SCR(KLMDET-1+JDADD+IOPEN))/(Two*SCR(KLSCSF-1+IOPEN))
       else if ((ICSF(IOPEN,JCSF) == 1) .and. (IDET(IOPEN,JDET) == 0)) then
         ! + - CASE
-        COEF = COEF*(SCR(KLSCSF-1+IOPEN)-SCR(KLMDET-1+JDADD+IOPEN))/(2.0d0*SCR(KLSCSF-1+IOPEN))
+        COEF = COEF*(SCR(KLSCSF-1+IOPEN)-SCR(KLMDET-1+JDADD+IOPEN))/(Two*SCR(KLSCSF-1+IOPEN))
       else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 1)) then
         ! - + CASE
-        COEF = COEF*(SCR(KLSCSF-1+IOPEN)-SCR(KLMDET-1+JDADD+IOPEN)+1.0d0)/(2.0d0*SCR(KLSCSF-1+IOPEN)+2.0d0)
+        COEF = COEF*(SCR(KLSCSF-1+IOPEN)-SCR(KLMDET-1+JDADD+IOPEN)+One)/(Two*SCR(KLSCSF-1+IOPEN)+Two)
         SIGN = -SIGN
       else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 0)) then
         ! - - CASE
-        COEF = COEF*(SCR(KLSCSF-1+IOPEN)+SCR(KLMDET-1+JDADD+IOPEN)+1.0d0)/(2.0d0*SCR(KLSCSF-1+IOPEN)+2.0d0)
+        COEF = COEF*(SCR(KLSCSF-1+IOPEN)+SCR(KLMDET-1+JDADD+IOPEN)+One)/(Two*SCR(KLSCSF-1+IOPEN)+Two)
       end if
     end do
     CDC(JDET,JCSF) = SIGN*CMBFAC*sqrt(COEF)
@@ -89,10 +92,10 @@ do JCSF=1,NCSF
 end do
 
 if (NTEST >= 5) then
-  write(6,*)
-  write(6,'(A,2I2)') '  The CDC array for  NOPEN ',NOPEN
-  write(6,*) ' NDET, NCSF = ',NDET,NCSF
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,2I2)') '  The CDC array for  NOPEN ',NOPEN
+  write(u6,*) ' NDET, NCSF = ',NDET,NCSF
+  write(u6,*)
   call WRTMAT(CDC,NDET,NCSF,NDET,NCSF)
 end if
 

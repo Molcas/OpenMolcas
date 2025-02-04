@@ -14,6 +14,8 @@ subroutine NXTIJ(I,J,NI,NJ,IJSM,NONEW)
 !
 ! Find next pair, if IJSM /= 0, I >= J
 
+use Definitions, only: u6
+
 NONEW = 0
 100 continue
 if (I < NI) then
@@ -31,6 +33,6 @@ if ((IJSM /= 0) .and. (I < J)) goto 100
 101 continue
 
 NTEST = 0
-if (NTEST /= 0) write(6,*) ' next (i,j) pair ',I,J
+if (NTEST /= 0) write(u6,*) ' next (i,j) pair ',I,J
 
 end subroutine NXTIJ

@@ -13,6 +13,7 @@ subroutine SYMINF_LUCIA(IPRNT)
 ! Information about number of symmetries
 
 use lucia_data, only: PNTGRP, NIRREP
+use Definitions, only: u6
 
 implicit none
 integer IPRNT
@@ -23,8 +24,8 @@ if (PNTGRP == 1) then
   ! ===
   call ZSYM1(NIRREP,IPRNT)
 else
-  write(6,*) ' You are too early, sorry'
-  write(6,*) ' Illegal PNTGRP in SYMINF ',PNTGRP
+  write(u6,*) ' You are too early, sorry'
+  write(u6,*) ' Illegal PNTGRP in SYMINF ',PNTGRP
   !stop 11
   call SYSABENDMSG('lucia_util/syminf','Internal error','')
 end if

@@ -10,8 +10,10 @@
 !***********************************************************************
 
 subroutine STSTSM(STSTSX,STSTDX,NSMST)
-! construct  STSTSX and STSTDX giving
+! construct STSTSX and STSTDX giving
 ! symmetry of sx (dx) connecting two given string symmetries
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 integer STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST)
@@ -27,7 +29,7 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' STSTSM : STSTSX, STSTDX'
+  write(u6,*) ' STSTSM : STSTSX, STSTDX'
   call IWRTMA(STSTSX,NSMST,NSMST,NSMST,NSMST)
   call IWRTMA(STSTDX,NSMST,NSMST,NSMST,NSMST)
 end if

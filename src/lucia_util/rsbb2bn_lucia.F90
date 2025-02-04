@@ -76,9 +76,10 @@ subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB
 !
 ! Last change : Aug 2000
 
-use Constants, only: Zero, One
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPOBS, MXPNGAS
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, MXPNGASX, MAXK, NSMOB, NSMST, &
@@ -116,9 +117,9 @@ NTEST = max(NTESTG,NTESTL)
 
 if (NTEST >= 500) then
 
-  write(6,*) ' ================'
-  write(6,*) ' RSBB2BN speaking'
-  write(6,*) ' ================'
+  write(u6,*) ' ================'
+  write(u6,*) ' RSBB2BN speaking'
+  write(u6,*) ' ================'
 
 end if
 !  Groups defining each supergroup
@@ -132,8 +133,8 @@ IJSM = STSTSX(IASM,JASM)
 KLSM = STSTSX(IBSM,JBSM)
 if ((IJSM == 0) .or. (KLSM == 0)) return
 if (NTEST >= 600) then
-  write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
-  write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
+  write(u6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
+  write(u6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
 end if
 ! Types of SX that connects the two strings
 call SXTYP2_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC,IPHGAS)
@@ -166,7 +167,7 @@ do IJTYP=1,NIJTYP
     ! Two choices here :
     !  1 : <Ia!a+ ia!Ka><Ja!a+ ja!Ka> ( good old creation mapping)
     !  2 :-<Ia!a  ja!Ka><Ja!a  ia!Ka>  + delta(i,j)
-    !write(6,*) ' RSBB2BN : IOP_REO : ',(IOP_REO(II),II=1,2)
+    !write(u6,*) ' RSBB2BN : IOP_REO : ',(IOP_REO(II),II=1,2)
     if ((IJ_REO(1) == 1) .and. (IJ_REO(2) == 2)) then
       ! Business as usual i.e. creation map
       IJAC = 2
@@ -197,8 +198,8 @@ do IJTYP=1,NIJTYP
     call ADAST_GAS(IJ_SYM(2),IJ_TYP(2),NGAS,JASPGP,JASM,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SIGNIJ2,IJAC)
     !call ADAST_GAS(JSM,JTYP,JATP,JASM,IAGRP,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC)
     ! For operator connecting |Ka> and |Ia>, i.e. operator 1
-    call ADAST_GAS(IJ_SYM(1),IJ_TYP(1),NGAS,IASPGP,IASM,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJAC)
-    !call ADAST_GAS(ISM,ITYP,NGAS,IASPGP,IASM,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJ_AC)
+    call ADAST_GAS(IJ_SYM(1),IJ_TYP(1),NGAS,IASPGP,IASM,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,One,IJAC)
+    !call ADAST_GAS(ISM,ITYP,NGAS,IASPGP,IASM,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,One,IJ_AC)
     ! Compress list to common nonvanishing elements
     IDOCOMP = 0
     if (IDOCOMP == 1) then
@@ -229,13 +230,13 @@ do IJTYP=1,NIJTYP
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(4) = TSIGMA(4)+(WALL1-WALL0)
       if (NTEST >= 500) then
-        write(6,*) ' Updated CJRES as C(Kaj,Jb)'
+        write(u6,*) ' Updated CJRES as C(Kaj,Jb)'
         call WRTMAT(CJRES,NKASTR*NJ,NJB,NKASTR*NJ,NJB)
       end if
 
       !MXACJ = MAX(MXACJ,NIB*LKABTC*IJ_DIM(1),NJB*LKABTC*IJ_DIM(2))
-      call SETVEC(SIRES,ZERO,NIB*LKABTC*IJ_DIM(1))
-      FACS = 1.0d0
+      call SETVEC(SIRES,Zero,NIB*LKABTC*IJ_DIM(1))
+      FACS = One
 
       do KLTYP=1,NKLTYP
         KTYP = KTP(KLTYP)
@@ -243,7 +244,7 @@ do IJTYP=1,NIJTYP
         ! Allowed double excitation ?
         !IJKL_ACT = 1
         !if (IJKL_ACT == 0) goto 2000
-        if (NTEST >= 100) write(6,*) ' KTYP, LTYP',KTYP,LTYP
+        if (NTEST >= 100) write(u6,*) ' KTYP, LTYP',KTYP,LTYP
         ! Should this group of excitations be included
         if (NSEL2E /= 0) then
           IAMOKAY = 0
@@ -266,12 +267,12 @@ do IJTYP=1,NIJTYP
         ! Enforced a+ a
         KL_REO(1) = 1
         KL_REO(2) = 2
-        SIGNKL = 1.0d0
+        SIGNKL = One
         !end if
 
         do KSM=1,NSMOB
           LSM = ADSXA(KSM,KLSM)
-          if (NTEST >= 100) write(6,*) ' KSM, LSM',KSM,LSM
+          if (NTEST >= 100) write(u6,*) ' KSM, LSM',KSM,LSM
           if (LSM == 0) goto 1930
           NK = NOBPTS(KTYP,KSM)
           NL = NOBPTS(LTYP,LSM)
@@ -307,7 +308,7 @@ do IJTYP=1,NIJTYP
           call ADAST_GAS(KL_SYM(2),KL_TYP(2),NGAS,JBSPGP,JBSM,I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,SIGNKL,KLAC)
           if (NKBSTR == 0) goto 1930
           ! Obtain all connections a+k!Kb> = +/-/0!Ib>
-          call ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,IBSM,I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,ONE,KLAC)
+          call ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,IBSM,I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,One,KLAC)
           if (NKBSTR == 0) goto 1930
 
           ! Fetch Integrals as (iop2 iop1 |  k l )
@@ -327,7 +328,7 @@ do IJTYP=1,NIJTYP
           TSIGMA(5) = TSIGMA(5)+(WALL1-WALL0)
 
           if (NTEST >= 500) then
-            write(6,*) ' Updated Sires as S(Kai,Ib)'
+            write(u6,*) ' Updated Sires as S(Kai,Ib)'
             call WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
           end if
 
@@ -341,7 +342,7 @@ do IJTYP=1,NIJTYP
       ! Scatter out from s(Ka,Ib,i)
 
       if (NTEST >= 1000) then
-        write(6,*) ' S(Ka,Ib,i) as S(Ka,Ibi)'
+        write(u6,*) ' S(Ka,Ib,i) as S(Ka,Ibi)'
         call WRTMAT(SIRES,LKABTC,NIB*IJ_DIM(1),LKABTC,IJ_DIM(1))
       end if
 

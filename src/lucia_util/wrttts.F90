@@ -19,16 +19,18 @@ subroutine WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,ISC)
 !
 ! Jeppe Olsen, August 1995
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! General input
 dimension NSASO(NSMST,*), NSBSO(NSMST,*)
 dimension BLOCKS(*)
 integer IBLOCK(8,NBLOCK)
 
-write(6,*) ' Batch of blocks'
-write(6,*) ' ==============='
-write(6,*)
-write(6,'(A,I4)') ' Number of blocks in batch ',NBLOCK
+write(u6,*) ' Batch of blocks'
+write(u6,*) ' ==============='
+write(u6,*)
+write(u6,'(A,I4)') ' Number of blocks in batch ',NBLOCK
 
 do JBLOCK=1,NBLOCK
 
@@ -52,20 +54,20 @@ do JBLOCK=1,NBLOCK
     end if
     NIA = NSASO(IASM,IATP)
     NIB = NSBSO(IBSM,IBTP)
-    !write(6,*) ' iatp ibtp iasm ibsm nia nib ',iatp,ibtp,iasm,ibsm,nia,nib
+    !write(u6,*) ' iatp ibtp iasm ibsm nia nib ',iatp,ibtp,iasm,ibsm,nia,nib
 
     if (IPACK == 1) then
       NELMNT = NIA*(NIA+1)/2
       if (NELMNT /= 0) then
-        write(6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
-        write(6,'(A)') '  ============================'
+        write(u6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
+        write(u6,'(A)') '  ============================'
         call PRSM2(BLOCKS(IOFF),NIA)
       end if
     else
       NELMNT = NIA*NIB
       if (NELMNT /= 0) then
-        write(6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
-        write(6,'(A)') '  ============================'
+        write(u6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
+        write(u6,'(A)') '  ============================'
         call WRTMAT(BLOCKS(IOFF),NIA,NIB,NIA,NIB)
       end if
     end if

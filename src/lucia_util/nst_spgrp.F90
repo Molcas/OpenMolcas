@@ -31,6 +31,7 @@ subroutine NST_SPGRP(NGRP,IGRP,ISM_TOT,NSTSGP,NSMST,NSTRIN,NDIST)
 
 use distsym
 use lucia_data, only: MXPNGAS
+use Definitions, only: u6
 
 implicit none
 integer NGRP, ISM_TOT, NSMST, NSTRIN, NDIST
@@ -44,13 +45,13 @@ integer NTEST, I, IFIRST, LENGTH, NONEW, LDIST, JGRP, NDISTX
 
 NTEST = 0
 if (NTEST >= 10) then
-  write(6,*) ' ===================='
-  write(6,*) ' NST_SPGP is speaking'
-  write(6,*) ' ===================='
+  write(u6,*) ' ===================='
+  write(u6,*) ' NST_SPGP is speaking'
+  write(u6,*) ' ===================='
 
-  write(6,*) ' Supergroup in action :'
-  write(6,'(A,I3  )') ' Number of active spaces ',NGRP
-  write(6,'(A,20I3)') ' The active groups       ',(IGRP(I),I=1,NGRP)
+  write(u6,*) ' Supergroup in action :'
+  write(u6,'(A,I3  )') ' Number of active spaces ',NGRP
+  write(u6,'(A,20I3)') ' The active groups       ',(IGRP(I),I=1,NGRP)
 end if
 ! Set up min and max values for symmetries
 call MINMAX_FOR_SYM_DIST(NGRP,IGRP,MNSM,MXSM,NDISTX)
@@ -77,8 +78,8 @@ end if
 NSTRIN = LENGTH
 
 if (NTEST >= 100) then
-  write(6,*) ' Number of strings obtained ',LENGTH
-  write(6,*) ' Number of symmetry-distributions',NDIST
+  write(u6,*) ' Number of strings obtained ',LENGTH
+  write(u6,*) ' Number of symmetry-distributions',NDIST
 end if
 
 end subroutine NST_SPGRP

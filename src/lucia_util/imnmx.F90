@@ -13,6 +13,8 @@ integer function IMNMX(IVEC,NDIM,MINMAX)
 ! Find smallest (MINMAX=1) or largest (MINMAX=2)
 ! absolute value of elements in integer vector IVEC
 
+use Definitions, only: u6
+
 implicit none
 integer IVEC(*), NDIM, MINMAX
 integer IX, I
@@ -37,7 +39,7 @@ if (NDIM > 0) then
 else if (NDIM == 0) then
   ! No components : set to zero and write a warning
   IX = 0
-  write(6,*) ' Min/Max taken zero length vector set to zero'
+  write(u6,*) ' Min/Max taken zero length vector set to zero'
 end if
 
 IMNMX = IX

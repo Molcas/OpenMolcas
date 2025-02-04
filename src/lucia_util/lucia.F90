@@ -17,6 +17,8 @@ use lucia_data, only: MXSOOB, XISPSM
 use lucia_data, only: IPRCIX, IPRORB, IPRSTR
 use lucia_data, only: NOINT, LCSBLK
 use lucia_data, only: IREFSM, PSSIGN
+use Constants, only: Zero, Two
+use Definitions, only: u6
 
 implicit none
 ! Parameters for dimensioning
@@ -54,7 +56,7 @@ call ALLOC_LUCIA()
 if (NOINT == 0) then
   call INTIM()
 else
-  write(6,*) ' No integrals imported'
+  write(u6,*) ' No integrals imported'
 end if
 ! READ in MO-AO matrix
 !if (NOMOFL == 0) call GET_CMOAO(MOAOIN)
@@ -66,7 +68,7 @@ call LCISPC(IPRCIX)
 ! Symmetry of reference
 !if (PNTGRP > 1) call MLSM(IREFSM,IREFPA,IREFSM,'CI',1)
 if (NOINT == 1) then
-  write(6,*) ' End of calculation without integrals'
+  write(u6,*) ' End of calculation without integrals'
   call QUIT(_RC_ALL_IS_WELL_)
 end if
 
@@ -75,7 +77,7 @@ LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
 !if (ENVIRO(1:6) == 'RASSCF') then
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-if (PSSIGN /= 0.0d0) LBLOCK = int(2.0d0*XISPSM(IREFSM,1))
+if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 
 call mma_allocate(CI_VEC,LBLOCK,Label='CI_VEC')
 call mma_allocate(SIGMA_VEC,LBLOCK,Label='SIGMA_VEC')

@@ -20,6 +20,8 @@ subroutine CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
 !
 ! Jeppe Olsen, Oct. 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IOCC_MIN(NORB), IOCC_MAX(NORB)
@@ -34,19 +36,19 @@ integer ISCR(NORB+1,NEL+1)
 call CONF_VERTEX_W(IOCC_MIN,IOCC_MAX,NORB,NEL,ISCR)
 NCONF = ISCR(NORB+1,NEL+1)
 ! Obtain arcweights from vertex weights
-!write(6,*) ' CONF_GRAPH, NORB, NEL = ',NORB,NEL
+!write(u6,*) ' CONF_GRAPH, NORB, NEL = ',NORB,NEL
 call CONF_ARC_W(IOCC_MIN,IOCC_MAX,NORB,NEL,ISCR,IARCW)
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' IOCMIN and IOCMAX'
+  write(u6,*) ' IOCMIN and IOCMAX'
   call IWRTMA(IOCC_MIN,1,NORB,1,NORB)
   call IWRTMA(IOCC_MAX,1,NORB,1,NORB)
-  write(6,*) ' Arcweights for single occupied arcs'
+  write(u6,*) ' Arcweights for single occupied arcs'
   call IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
-  write(6,*) ' Arcweights for double occupied arcs'
+  write(u6,*) ' Arcweights for double occupied arcs'
   call IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
-  write(6,*) ' Total number of configurations ',NCONF
+  write(u6,*) ' Total number of configurations ',NCONF
 end if
 
 end subroutine CONF_GRAPH

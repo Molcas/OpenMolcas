@@ -38,6 +38,7 @@ use CandS, only: ICSM, ISSM, ICSPC, ISSPC
 use lucia_data, only: NSMOB
 use lucia_data, only: NTOOB, NTOOBS
 use lucia_data, only: LUSC1, LUSC2, LUSC3
+use Definitions, only: u6
 
 implicit none
 integer LUCIN, LUCOUT, IXSPC, IXSM
@@ -50,11 +51,11 @@ IOFF = 0 ! jwk-cleanup
 
 NTEST = 0
 if (NTEST >= 5) then
-  write(6,*) ' ================'
-  write(6,*) ' Welcome to TRACI'
-  write(6,*) ' ================'
-  write(6,*)
-  write(6,*) ' IXSPC,IXSM = ',IXSPC,IXSM
+  write(u6,*) ' ================'
+  write(u6,*) ' Welcome to TRACI'
+  write(u6,*) ' ================'
+  write(u6,*)
+  write(u6,*) ' IXSPC,IXSM = ',IXSPC,IXSM
 end if
 ! Memory allocation
 ! for a matrix T

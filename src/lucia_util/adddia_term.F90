@@ -28,6 +28,10 @@ use lucia_data, only: NTOOB, NACOB, IREOST, IREOTS
 use lucia_data, only: NOCTYP
 use lucia_data, only: NELEC
 use csm_data, only: NSMST
+use Constants, only: Zero
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 real*8 FACTOR
@@ -54,11 +58,11 @@ NOCTPA = NOCTYP(IATP)
 
 #ifdef _DEBUGPRINT_
 if (NTEST >= 10) then
-  write(6,*) ' =============================='
-  write(6,*) ' ADDDIA_TERM for BK is speaking'
-  write(6,*) ' =============================='
-  write(6,*) ' NAEL NBEL =',NAEL,NBEL
-  write(6,*) ' IASPGP, IBSPGP = ',IASPGP,IBSPGP
+  write(u6,*) ' =============================='
+  write(u6,*) ' ADDDIA_TERM for BK is speaking'
+  write(u6,*) ' =============================='
+  write(u6,*) ' NAEL NBEL =',NAEL,NBEL
+  write(u6,*) ' IASPGP, IBSPGP = ',IASPGP,IBSPGP
 end if
 #endif
 ! A bit of scracth
@@ -80,7 +84,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 call GT1DIA(LH1D)
 call GTJK(LJ,LK,NTOOB,LSCR2,IREOTS,IREOST)
 ! Core energy not included
-ECOREP = 0.0d0
+ECOREP = Zero
 call GTJK(LJ,LK,NTOOB,LSCR2,IREOTS,IREOST)
 
 SHIFT = ECORE_ORIG-ECORE

@@ -34,6 +34,7 @@ use lucia_data, only: NGAS
 use lucia_data, only: IBGPSTR, NGPSTR, NGRP
 use lucia_data, only: ISTAC
 use lucia_data, only: MXPSTT
+use Definitions, only: u6
 
 implicit none
 integer IPRNT
@@ -61,8 +62,8 @@ do IGAS=1,NGAS
 end do
 
 if (NTEST >= 10) then
-  write(6,*) ' Type - type mapping array ISTAC'
-  write(6,*) ' ==============================='
+  write(u6,*) ' Type - type mapping array ISTAC'
+  write(u6,*) ' ==============================='
   call IWRTMA(ISTAC,NGRP,2,MXPSTT,2)
 end if
 

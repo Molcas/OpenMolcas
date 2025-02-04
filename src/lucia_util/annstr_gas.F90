@@ -42,6 +42,8 @@ subroutine ANNSTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGST
 !          if the string have a negative sign
 !          then the phase equals - 1
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer STRING, TI, TTO, STRIN2, Z
 ! Input
@@ -55,11 +57,11 @@ dimension STRIN2(500)
 NTEST0 = 1
 NTEST = max(IPRNT,NTEST0)
 if (NTEST >= 20) then
-  write(6,*) ' ==============='
-  write(6,*) ' ANNSTR speaking'
-  write(6,*) ' ==============='
-  write(6,*)
-  write(6,*) ' Number of input electrons ',NEL
+  write(u6,*) ' ==============='
+  write(u6,*) ' ANNSTR speaking'
+  write(u6,*) ' ==============='
+  write(u6,*)
+  write(u6,*) ' Number of input electrons ',NEL
 end if
 
 do ISTRIN=1,NSTINI
@@ -72,9 +74,9 @@ do ISTRIN=1,NSTINI
       STRIN2(JEL-1) = STRING(JEL,ISTRIN)
     end do
     JSTRIN = ISTRNM(STRIN2,NACOB,NEL-1,Z,NEWORD,1)
-    !write(6,*) ' anni-string and number'
+    !write(u6,*) ' anni-string and number'
     !call IWRTMA(STRIN2,1,NEL-1,1,NEL-1)
-    !write(6,*) ' JSTRIN = ',JSTRIN
+    !write(u6,*) ' JSTRIN = ',JSTRIN
 
     IORBABS = STRING(IEL,ISTRIN)
     IORB = STRING(IEL,ISTRIN)-IORBOF+1
@@ -98,16 +100,16 @@ end do
 if (NTEST >= 20) then
   MAXPR = 60
   NPR = min(NSTINI,MAXPR)
-  write(6,*) 'Output from ANNSTR:'
-  write(6,*) '==================='
+  write(u6,*) 'Output from ANNSTR:'
+  write(u6,*) '==================='
 
-  write(6,*)
-  write(6,*) ' Strings with an electron added or removed'
+  write(u6,*)
+  write(u6,*) ' Strings with an electron added or removed'
   do ISTRIN=1,NPR
-    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,LDIM)
+    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,LDIM)
   end do
   do ISTRIN=1,NPR
-    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,LDIM)
+    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,LDIM)
   end do
 end if
 

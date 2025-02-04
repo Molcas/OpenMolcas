@@ -18,6 +18,7 @@ use lucia_data, only: MXSOOB, XISPSM
 use lucia_data, only: LCSBLK
 use lucia_data, only: IREFSM, PSSIGN
 use lucia_data, only: NSMOB
+use Constants, only: Zero, Two
 
 implicit none
 ! Input
@@ -55,7 +56,7 @@ call mma_deallocate(KINH1_NOCCSYM)
 LBLOCK = MXSOOB
 LBLOCK = max(LBLOCK,LCSBLK)
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-if (PSSIGN /= 0.0d0) LBLOCK = int(2.0d0*XISPSM(IREFSM,1))
+if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 call mma_deallocate(CI_VEC)
 call mma_deallocate(SIGMA_VEC)
 

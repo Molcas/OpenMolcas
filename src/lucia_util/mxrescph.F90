@@ -21,7 +21,7 @@ subroutine MXRESCPH(IAB,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NS
 !
 ! Largest block of single excitations MXSXBL
 !
-!. Input
+! Input
 ! IAB :allowed combination of alpha and beta supergroups
 ! IOCPTA : Number of first active alpha supergroup
 ! IOCPTB : Number of first active beta  supergroup
@@ -29,6 +29,8 @@ subroutine MXRESCPH(IAB,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NS
 ! NOCTPB : Number of active alpha supergroups
 !
 ! Version of Jan 98 : IPHGAS added
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 dimension IAB(NOCTPA,NOCTPB)
@@ -40,7 +42,7 @@ integer NHLFSPGP(*)
 
 NTESTL = 0
 NTEST = max(NTESTG,NTESTL)
-if (NTEST >= 100) write(6,*) ' MXRESC : MXPKA ',MXPKA
+if (NTEST >= 100) write(u6,*) ' MXRESC : MXPKA ',MXPKA
 
 ! matrix C(j,Ka,Ib)
 
@@ -57,27 +59,27 @@ do IAORC=1,2
       IBTPABS = IBTP+IOCTPB-1
 
       if (IAB(IATP,IBTP) /= 0) then
-        if (NTEST >= 100) write(6,*) ' allowed IATP,IBTP',IATP,IBTP
+        if (NTEST >= 100) write(u6,*) ' allowed IATP,IBTP',IATP,IBTP
         MXB = 0
         ITOTB = 0
         do ISM=1,NSMST
           MXB = max(MXB,NSTFSMSPGP(ISM,IBTPABS))
           ITOTB = ITOTB+NSTFSMSPGP(ISM,IBTPABS)
         end do
-        if (NTEST >= 100) write(6,*) ' MXB,ITOTB = ',MXB,ITOTB
+        if (NTEST >= 100) write(u6,*) ' MXB,ITOTB = ',MXB,ITOTB
         do IOBTP=1,NTPOB
           ! No K strings obtained from creation in particle space
           if ((IAORC == 2) .and. (IPHGAS(IOBTP) == 1)) goto 300
           ! type of K string obtained
           call NEWTYP(IATPABS,IAORC,IOBTP,KATP)
-          if (NTEST >= 100) write(6,*) ' IOBTP KATP ',IOBTP,KATP
+          if (NTEST >= 100) write(u6,*) ' IOBTP KATP ',IOBTP,KATP
           ! addi constraint to avoid calc with long columns and few rows
           ! Works only in connection with active advice routine !
           if (KATP > 0) then
             if ((IAORC == 1) .and. (IADVICE == 1) .and. (NHLFSPGP(IBTPABS)+NHLFSPGP(KATP) < MNHL) .and. &
                 (NHLFSPGP(IATPABS) > (NHLFSPGP(IBTPABS)+1))) then
-              !write(6,*) ' N-1 hole space eliminated'
-              !write(6,*) ' IOBTP,IBTPABS,KATP',IOBTP,IBTPABS,KATP
+              !write(u6,*) ' N-1 hole space eliminated'
+              !write(u6,*) ' IOBTP,IBTPABS,KATP',IOBTP,IBTPABS,KATP
               KATP = 0
             end if
           end if
@@ -94,7 +96,7 @@ do IAORC=1,2
             do KSM=1,NSMST
               MXKA = max(MXKA,NSTFSMSPGP(KSM,KATP))
             end do
-            if (NTEST >= 100) write(6,*) ' MXKA = ',MXKA
+            if (NTEST >= 100) write(u6,*) ' MXKA = ',MXKA
             MXKAO = MXKA
             if ((MXPKA > 0) .and. (MXKA > MXPKA)) MXKA = MXPKA
             MXSOB = 0
@@ -103,7 +105,7 @@ do IAORC=1,2
               MXSOB = max(MXSOB,NTSOB(IOBTP,ISMOB))
               NSOB_AS = NSOB_AS+NTSOB(IOBTP,ISMOB)
             end do
-            if (NTEST >= 100) write(6,*) ' MXSOB = ',MXSOB
+            if (NTEST >= 100) write(u6,*) ' MXSOB = ',MXSOB
 
             MXADKBLK = max(MXADKBLK,MXSOB*MXKAO)
             MXADKBLK_AS = max(MXADKBLK_AS,NSOB_AS*MXKAO)
@@ -138,24 +140,24 @@ do IAORC=1,2
       IBTPABS = IBTP+IOCTPB-1
 
       if (IAB(IATP,IBTP) /= 0) then
-        if (NTEST >= 100) write(6,*) ' allowed IATP,IBTP',IATP,IBTP
+        if (NTEST >= 100) write(u6,*) ' allowed IATP,IBTP',IATP,IBTP
         MXA = 0
         ITOTA = 0
         do ISM=1,NSMST
           MXA = max(MXA,NSTFSMSPGP(ISM,IATPABS))
           ITOTA = ITOTA+NSTFSMSPGP(ISM,IATPABS)
         end do
-        if (NTEST >= 100) write(6,*) ' MXA = ',MXA
+        if (NTEST >= 100) write(u6,*) ' MXA = ',MXA
         do IOBTP=1,NTPOB
           ! type of K string obtained by removing one elec of type IOPBTP from IATP
           if ((IAORC == 2) .and. (IPHGAS(IOBTP) == 1)) goto 2812
           call NEWTYP(IBTPABS,IAORC,IOBTP,KBTP)
-          if (NTEST >= 100) write(6,*) ' IOBTP KBTP ',IOBTP,KBTP
+          if (NTEST >= 100) write(u6,*) ' IOBTP KBTP ',IOBTP,KBTP
           if (KBTP > 0) then
             if ((IAORC == 1) .and. (IADVICE == 1) .and. (NHLFSPGP(IATPABS)+NHLFSPGP(KBTP) < MNHL) .and. &
                 (NHLFSPGP(IBTPABS) > NHLFSPGP(IATPABS)+1)) then
-              !write(6,*) ' N-1 hole space eliminated'
-              !write(6,*) ' IOBTP,IATPABS,KBTP',IOBTP,IATPABS,KBTP
+              !write(u6,*) ' N-1 hole space eliminated'
+              !write(u6,*) ' IOBTP,IATPABS,KBTP',IOBTP,IATPABS,KBTP
               KBTP = 0
             end if
           end if
@@ -170,7 +172,7 @@ do IAORC=1,2
             do KSM=1,NSMST
               MXKB = max(MXKB,NSTFSMSPGP(KSM,KBTP))
             end do
-            if (NTEST >= 100) write(6,*) ' MXKB = ',MXKB
+            if (NTEST >= 100) write(u6,*) ' MXKB = ',MXKB
             MXKBO = MXKB
             if ((MXPKA > 0) .and. (MXKB > MXPKA)) MXKB = MXPKA
             MXSOB = 0
@@ -179,7 +181,7 @@ do IAORC=1,2
               MXSOB = max(MXSOB,NTSOB(IOBTP,ISMOB))
               NSOB_AS = NSOB_AS+NTSOB(IOBTP,ISMOB)
             end do
-            if (NTEST >= 100) write(6,*) ' MXSOB = ',MXSOB
+            if (NTEST >= 100) write(u6,*) ' MXSOB = ',MXSOB
 
             MXADKBLK = max(MXADKBLK,MXSOB*MXKBO)
             MXADKBLK_AS = max(MXADKBLK_AS,NSOB_AS*MXKBO)
@@ -199,8 +201,8 @@ do IAORC=1,2
 end do
 ! End of loop over creation/annihilation
 if (NTEST > 100) then
-  write(6,*) 'MXRESC : MXADKBLK,MXCJ ',MXADKBLK,MXCJ
-  write(6,*) ' MXCJ_ALLSYM = ',MXCJ_ALLSYM
+  write(u6,*) 'MXRESC : MXADKBLK,MXCJ ',MXADKBLK,MXCJ
+  write(u6,*) ' MXCJ_ALLSYM = ',MXCJ_ALLSYM
 end if
 
 ! matrix C(ij,Ka,Ib)
@@ -218,20 +220,20 @@ do IATP=1,NOCTPA
         MXIB = max(MXIB,NSTFSMSPGP(ISM,IBTPABS))
       end do
       if (MXIB > MXPKA) MXIB = MXPKA
-      if (NTEST >= 100) write(6,*) ' MXIB = ',MXIB
+      if (NTEST >= 100) write(u6,*) ' MXIB = ',MXIB
       do IAORC=1,2
         do IOBTP=1,NTPOB
           ! type of K string obtained by removing one elec of type IOPBTP from IATP
           call NEWTYP(IATPABS,IAORC,IOBTP,K1ATP)
           ! No N+1 mappings for particle spaces
           if ((IAORC == 2) .and. (IPHGAS(IOBTP) == 1)) K1ATP = 0
-          if (NTEST >= 100) write(6,*) ' IOBTP K1ATP ',IOBTP,K1ATP
+          if (NTEST >= 100) write(u6,*) ' IOBTP K1ATP ',IOBTP,K1ATP
           if (K1ATP > 0) then
             MXISOB = 0
             do ISMOB=1,NSMOB
               MXISOB = max(MXISOB,NTSOB(IOBTP,ISMOB))
             end do
-            if (NTEST >= 100) write(6,*) ' MXISOB = ',MXISOB
+            if (NTEST >= 100) write(u6,*) ' MXISOB = ',MXISOB
             do JAORC=1,2
               do JOBTP=1,NTPOB
                 ! type of K string obtained by removing one elec of type JOPBTP from K1ATP
@@ -242,13 +244,13 @@ do IATP=1,NOCTPA
                   do KSM=1,NSMST
                     MXKA = max(MXKA,NSTFSMSPGP(KSM,KATP))
                   end do
-                  if (NTEST >= 100) write(6,*) ' MXKA = ',MXKA
+                  if (NTEST >= 100) write(u6,*) ' MXKA = ',MXKA
                   if ((MXPKA > 0) .and. (MXKA > MXPKA)) MXKA = MXPKA
                   MXJSOB = 0
                   do JSMOB=1,NSMOB
                     MXJSOB = max(MXJSOB,NTSOB(JOBTP,JSMOB))
                   end do
-                  if (NTEST >= 100) write(6,*) ' MXJSOB = ',MXJSOB
+                  if (NTEST >= 100) write(u6,*) ' MXJSOB = ',MXJSOB
 
                   LBLK = MXISOB*MXJSOB*MXKA*MXIB
                   MXCIJA = max(MXCIJA,LBLK)
@@ -264,7 +266,7 @@ do IATP=1,NOCTPA
   end do
 end do
 
-if (NTEST >= 10) write(6,*) 'MXRESC : MXCIJA ',MXCIJA
+if (NTEST >= 10) write(u6,*) 'MXRESC : MXCIJA ',MXCIJA
 
 ! matrix C(ij,Ia,kb)
 ! both Ka and Ib blocked
@@ -280,19 +282,19 @@ do IATP=1,NOCTPA
         MXIA = max(MXIA,NSTFSMSPGP(ISM,IATPABS))
       end do
       if (MXIA > MXPKA) MXIA = MXPKA
-      if (NTEST >= 100) write(6,*) ' MXIA = ',MXIA
+      if (NTEST >= 100) write(u6,*) ' MXIA = ',MXIA
       do IAORC=1,2
         do IOBTP=1,NTPOB
           ! type of K string obtained by removing one elec of type IOPBTP from IBTP
           call NEWTYP(IBTPABS,IAORC,IOBTP,K1BTP)
-          if (NTEST >= 100) write(6,*) ' IOBTP K1BTP ',IOBTP,K1BTP
+          if (NTEST >= 100) write(u6,*) ' IOBTP K1BTP ',IOBTP,K1BTP
           if ((IAORC == 2) .and. (IPHGAS(IOBTP) == 1)) K1BTP = 0
           if (K1BTP > 0) then
             MXISOB = 0
             do ISMOB=1,NSMOB
               MXISOB = max(MXISOB,NTSOB(IOBTP,ISMOB))
             end do
-            if (NTEST >= 100) write(6,*) ' MXISOB = ',MXISOB
+            if (NTEST >= 100) write(u6,*) ' MXISOB = ',MXISOB
             do JAORC=1,2
               do JOBTP=1,NTPOB
                 ! type of K string obtained by removing one elec of type JOPBTP from K1ATP
@@ -303,13 +305,13 @@ do IATP=1,NOCTPA
                   do KSM=1,NSMST
                     MXKB = max(MXKB,NSTFSMSPGP(KSM,KBTP))
                   end do
-                  if (NTEST >= 100) write(6,*) ' MXKB = ',MXKB
+                  if (NTEST >= 100) write(u6,*) ' MXKB = ',MXKB
                   if ((MXPKA > 0) .and. (MXKB > MXPKA)) MXKB = MXPKA
                   MXJSOB = 0
                   do JSMOB=1,NSMOB
                     MXJSOB = max(MXJSOB,NTSOB(JOBTP,JSMOB))
                   end do
-                  if (NTEST >= 100) write(6,*) ' MXJSOB = ',MXJSOB
+                  if (NTEST >= 100) write(u6,*) ' MXJSOB = ',MXJSOB
 
                   LBLK = MXISOB*MXJSOB*MXKB*MXIA
                   MXCIJB = max(MXCIJB,LBLK)
@@ -325,7 +327,7 @@ do IATP=1,NOCTPA
   end do
 end do
 
-if (NTEST > 10) write(6,*) 'MXRESC : MXCIJB ',MXCIJB
+if (NTEST > 10) write(u6,*) 'MXRESC : MXCIJB ',MXCIJB
 
 ! matrix C(ij,Ka,kb)
 ! both Ka and Kb blocked
@@ -343,7 +345,7 @@ do IATP=1,NOCTPA
       do IOBTP=1,NTPOB
         ! type of Ka string obtained by removing one elec of type IOPBTP from IATP
         call NEWTYP(IATPABS,1,IOBTP,KATP)
-        if (NTEST >= 100) write(6,*) ' IOBTP KATP ',IOBTP,KATP
+        if (NTEST >= 100) write(u6,*) ' IOBTP KATP ',IOBTP,KATP
         if (KATP > 0) then
           !   NEL1234(JOBTP,IATPABS)
           if (NEL1234(IOBTP,KATP) > MXKACTEL) KATP = 0
@@ -353,7 +355,7 @@ do IATP=1,NOCTPA
           do KSM=1,NSMST
             MXKA = max(MXKA,NSTFSMSPGP(KSM,KATP))
           end do
-          if (NTEST >= 100) write(6,*) ' MXKA = ',MXKA
+          if (NTEST >= 100) write(u6,*) ' MXKA = ',MXKA
           ! No partitioning
           !if ((MXPKA > 0) .and. (MXKA > MXPKA)) MXKA = MXPKA
 
@@ -361,7 +363,7 @@ do IATP=1,NOCTPA
           do ISMOB=1,NSMOB
             MXISOB = max(MXISOB,NTSOB(IOBTP,ISMOB))
           end do
-          if (NTEST >= 100) write(6,*) ' MXISOB = ',MXISOB
+          if (NTEST >= 100) write(u6,*) ' MXISOB = ',MXISOB
           do JOBTP=1,NTPOB
             ! type of K string obtained by removing one elec of type JOPBTP from IBTP
             call NEWTYP(IBTPABS,1,JOBTP,KBTP)
@@ -373,14 +375,14 @@ do IATP=1,NOCTPA
               do KSM=1,NSMST
                 MXKB = max(MXKB,NSTFSMSPGP(KSM,KBTP))
               end do
-              if (NTEST >= 100) write(6,*) ' MXKB = ',MXKB
+              if (NTEST >= 100) write(u6,*) ' MXKB = ',MXKB
               ! No partitioning
               !if ((MXPKA > 0) .and. (MXKB > MXPKA)) MXKB = MXPKA
               MXJSOB = 0
               do JSMOB=1,NSMOB
                 MXJSOB = max(MXJSOB,NTSOB(JOBTP,JSMOB))
               end do
-              if (NTEST >= 100) write(6,*) ' MXJSOB = ',MXJSOB
+              if (NTEST >= 100) write(u6,*) ' MXJSOB = ',MXJSOB
 
               LBLK = MXISOB*MXJSOB*MXKB*MXKA
               MXCIJAB = max(MXCIJAB,LBLK)
@@ -405,12 +407,12 @@ do IATP=1,NOCTPA
   do ISM=1,NSMST
     MXIA = max(MXIA,NSTFSMSPGP(ISM,IATPABS))
   end do
-  if (NTEST >= 100) write(6,*) ' MXIA = ',MXIA
+  if (NTEST >= 100) write(u6,*) ' MXIA = ',MXIA
   ! Orbitals to be removed
   do JOBTP=1,NTPOB
     ! Is this removal allowed ??
     call NEWTYP(IATPABS,1,JOBTP,KATP)
-    if (NTEST >= 100) write(6,*) ' JOBTP KATP ',JOBTP,KATP
+    if (NTEST >= 100) write(u6,*) ' JOBTP KATP ',JOBTP,KATP
     if (KATP > 0) then
       ! Number of possible choices of J orbitals
       MXJOB = 0
@@ -418,7 +420,7 @@ do IATP=1,NOCTPA
         MXJOB = max(MXJOB,NTSOB(JOBTP,JSMOB))
       end do
       MXJOB = min(MXJOB,NEL1234(JOBTP,IATPABS))
-      if (NTEST >= 100) write(6,*) ' MXJOB = ',MXJOB
+      if (NTEST >= 100) write(u6,*) ' MXJOB = ',MXJOB
       ! Then  : add an electron
       do IOBTP=1,NTPOB
         ! Allowed ?
@@ -436,19 +438,19 @@ do IATP=1,NOCTPA
   end do
 end do
 
-!. For beta  strings :
+! For beta  strings :
 do IBTP=1,NOCTPB
   IBTPABS = IBTP+IOCTPB-1
   MXIB = 0
   do ISM=1,NSMST
     MXIB = max(MXIB,NSTFSMSPGP(ISM,IBTPABS))
   end do
-  if (NTEST >= 100) write(6,*) ' MXIB = ',MXIB
+  if (NTEST >= 100) write(u6,*) ' MXIB = ',MXIB
   ! Orbitals to be removed
   do JOBTP=1,NTPOB
     ! Is this removal allowed ??
     call NEWTYP(IBTPABS,1,JOBTP,KBTP)
-    if (NTEST >= 100) write(6,*) ' JOBTP KBTP ',JOBTP,KBTP
+    if (NTEST >= 100) write(u6,*) ' JOBTP KBTP ',JOBTP,KBTP
     if (KBTP > 0) then
       ! Number of possible choices of J orbitals
       MXJOB = 0
@@ -456,7 +458,7 @@ do IBTP=1,NOCTPB
         MXJOB = max(MXJOB,NTSOB(JOBTP,JSMOB))
       end do
       MXJOB = min(MXJOB,NEL1234(JOBTP,IBTP))
-      if (NTEST >= 100) write(6,*) ' MXJOB = ',MXJOB
+      if (NTEST >= 100) write(u6,*) ' MXJOB = ',MXJOB
       ! Then  : add an electron
       do IOBTP=1,NTPOB
         ! Allowed ?
@@ -475,11 +477,11 @@ do IBTP=1,NOCTPB
 end do
 
 if (NTEST > 10) then
-  write(6,*) 'MXRESC: MXSXBL : ',MXSXBL
-  write(6,*) ' MXRESC_PH : MXKAB = ',MXKAB
-  write(6,*) ' Info on largest C(Ka,j,Jb) block'
-  write(6,*) ' IATP_MX, IBTP_MX, KATP_MX, IOBTP_MX ',IATP_MX,IBTP_MX,KATP_MX,IOBTP_MX
-  write(6,*) ' MX_NSPII = ',MX_NSPII
+  write(u6,*) 'MXRESC: MXSXBL : ',MXSXBL
+  write(u6,*) ' MXRESC_PH : MXKAB = ',MXKAB
+  write(u6,*) ' Info on largest C(Ka,j,Jb) block'
+  write(u6,*) ' IATP_MX, IBTP_MX, KATP_MX, IOBTP_MX ',IATP_MX,IBTP_MX,KATP_MX,IOBTP_MX
+  write(u6,*) ' MX_NSPII = ',MX_NSPII
 end if
 
 end subroutine MXRESCPH

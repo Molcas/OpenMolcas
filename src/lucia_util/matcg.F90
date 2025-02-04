@@ -15,18 +15,21 @@ subroutine MATCG(CIN,COUT,NROWI,NROWO,IROWI1,NGCOL,IGAT,GATSGN)
 ! COUT(IR,IC) = GATSGN(IC)*CIN(IR+IROWI1-1,IGAT(IC)) if IGAT(IC) /= 0
 ! COUT(IR,IC) = 0                                    if IGAT(IC) /= 0
 
+use Constants, only: Zero
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer IGAT(*)
 dimension GATSGN(*)
 dimension CIN(NROWI,*), COUT(NROWO,*)
 
-!write(6,*) ' MATCG NROWI,NROWO,IROWI1,NGCOL'
-!write(6,*) NROWI,NROWO,IROWI1,NGCOL
+!write(u6,*) ' MATCG NROWI,NROWO,IROWI1,NGCOL'
+!write(u6,*) NROWI,NROWO,IROWI1,NGCOL
 do IG=1,NGCOL
-  !write(6,*) ' igat,sign ',IGAT(IG),GATSGN(IG)
+  !write(u6,*) ' igat,sign ',IGAT(IG),GATSGN(IG)
   if (IGAT(IG) == 0) then
     do IR=1,NROWO
-      COUT(IR,IG) = 0.0d0
+      COUT(IR,IG) = Zero
     end do
   else
     IGFRM = IGAT(IG)
@@ -39,7 +42,7 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' Column gathered matrix'
+  write(u6,*) ' Column gathered matrix'
   call WRTMAT(COUT,NROWO,NGCOL,NROWO,NGCOL)
 end if
 

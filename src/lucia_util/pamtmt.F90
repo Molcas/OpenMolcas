@@ -29,6 +29,9 @@ subroutine PAMTMT(X,T,SCR,NORB)
 !
 ! JEPPE OLSEN OCTOBER 1988
 
+use Constants, only: Zero
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer nOrb
 real*8 X(NORB,NORB), T(NORB,NORB)
@@ -36,9 +39,9 @@ real*8 SCR(nOrb**2+nOrb*(nOrb+1)/2)
 
 NTEST = 0
 if (NTEST >= 2) then
-  write(6,*) ' Wellcome to PAMTMT'
-  write(6,*) ' =================='
-  write(6,*)
+  write(u6,*) ' Wellcome to PAMTMT'
+  write(u6,*) ' =================='
+  write(u6,*)
 end if
 ! Allocate local memory
 KLFREE = 1
@@ -50,20 +53,20 @@ KLFREE = KLU+NORB**2
 ! LU factorize X
 call LULU(X,SCR(KLL),SCR(KLU),NORB)
 ! Expand U to full matrix
-call SETVEC(T,0.0d0,NORB**2)
+call SETVEC(T,Zero,NORB**2)
 do I=1,NORB
   do J=I,NORB
     T(I,J) = SCR(KLU-1+J*(J-1)/2+I)
   end do
 end do
 if (NTEST >= 100) then
-  write(6,*) ' MATRIX TO BE INVERTED'
+  write(u6,*) ' MATRIX TO BE INVERTED'
   call WRTMAT(T,NORB,NORB,NORB,NORB)
 end if
 ! Invert U
 call INVMAT(T,SCR(KLU),NORB,NORB,ISING)
 if (NTEST >= 100) then
-  write(6,*) ' INVERTED MATRIX'
+  write(u6,*) ' INVERTED MATRIX'
   call WRTMAT(T,NORB,NORB,NORB,NORB)
 end if
 ! Subtract L
@@ -74,9 +77,9 @@ do I=1,NORB
 end do
 
 if (NTEST >= 2) then
-  write(6,*) ' INPUT X MATRIX'
+  write(u6,*) ' INPUT X MATRIX'
   call WRTMAT(X,NORB,NORB,NORB,NORB)
-  write(6,*) ' T MATRIX'
+  write(u6,*) ' T MATRIX'
   call WRTMAT(T,NORB,NORB,NORB,NORB)
 end if
 

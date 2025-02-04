@@ -20,7 +20,10 @@ subroutine SCDTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC,IWAY,IPRNT)
 !
 ! The blocks are assumed to be in packed form !!
 !
-!. Jeppe Olsen, August 1995
+! Jeppe Olsen, August 1995
+
+use Constants, only: One, Two
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -32,16 +35,16 @@ integer IBLOCK(8,NBLOCK)
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST > 10) then
-  write(6,*)
-  write(6,*) ' ======================='
-  write(6,*) ' Information from SCDTTS'
-  write(6,*) ' ======================='
-  write(6,*) ' Input vector'
+  write(u6,*)
+  write(u6,*) ' ======================='
+  write(u6,*) ' Information from SCDTTS'
+  write(u6,*) ' ======================='
+  write(u6,*) ' Input vector'
   call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
 end if
 
-SQ2 = sqrt(2.0d0)
-SQ2I = 1.0d0/SQ2
+SQ2 = sqrt(Two)
+SQ2I = One/SQ2
 
 do JBLOCK=1,NBLOCK
 
@@ -73,7 +76,7 @@ do JBLOCK=1,NBLOCK
       end if
       call SCALVE(BLOCKS(IOFFP),FACTOR,NELMNT)
       if (IPACK == 1) then
-        FACTOR = 1.0d0/FACTOR
+        FACTOR = One/FACTOR
         call SCLDIA(BLOCKS(IOFFP),FACTOR,NIA,1)
       end if
     end if
@@ -82,7 +85,7 @@ do JBLOCK=1,NBLOCK
 end do
 
 if (NTEST >= 10) then
-  write(6,*) ' Output vector'
+  write(u6,*) ' Output vector'
   call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
 end if
 

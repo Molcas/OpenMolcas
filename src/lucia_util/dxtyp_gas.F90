@@ -15,16 +15,18 @@ subroutine DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NOBTP,IL,IR)
 ! only combinations with type(I) >= type(K) and type(J) >= type(L)
 ! are included
 
+use Definitions, only: u6
+
 integer IL(NOBTP), IR(NOBTP)
 integer ITP(*), JTP(*), KTP(*), LTP(*)
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' DXTYP_GAS in action'
-  write(6,*) ' ==================='
-  write(6,*) ' Occupation of left string'
+  write(u6,*) ' DXTYP_GAS in action'
+  write(u6,*) ' ==================='
+  write(u6,*) ' Occupation of left string'
   call IWRTMA(IL,1,NOBTP,1,NOBTP)
-  write(6,*) ' Occupation of right string'
+  write(u6,*) ' Occupation of right string'
   call IWRTMA(IR,1,NOBTP,1,NOBTP)
 end if
 
@@ -70,9 +72,9 @@ do IOBTP=1,NOBTP
 end do
 
 if (NTEST >= 1000) then
-  write(6,*) ' NCREA, NANNI ',NCREA,NANNI
-  write(6,*) ' ICREA1, IANNI1 ',ICREA1,IANNI1
-  write(6,*) ' ICREA2, IANNI2 ',ICREA2,IANNI2
+  write(u6,*) ' NCREA, NANNI ',NCREA,NANNI
+  write(u6,*) ' ICREA1, IANNI1 ',ICREA1,IANNI1
+  write(u6,*) ' ICREA2, IANNI2 ',ICREA2,IANNI2
 end if
 
 NDXTP = 0
@@ -117,12 +119,12 @@ else
 end if
 
 if (NTEST /= 0) then
-  write(6,'(A,I4)') ' Number of connecting double excitations ',NDXTP
+  write(u6,'(A,I4)') ' Number of connecting double excitations ',NDXTP
   if (NDXTP /= 0) then
-    write(6,*) '  ITYP KTYP LTYP JTYP'
-    write(6,*) '  ==================='
+    write(u6,*) '  ITYP KTYP LTYP JTYP'
+    write(u6,*) '  ==================='
     do IDX=1,NDXTP
-      write(6,'(1X,4I5)') ITP(IDX),KTP(IDX),LTP(IDX),JTP(IDX)
+      write(u6,'(1X,4I5)') ITP(IDX),KTP(IDX),LTP(IDX),JTP(IDX)
     end do
   end if
 end if

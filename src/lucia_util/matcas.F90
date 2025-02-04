@@ -14,6 +14,8 @@ subroutine MATCAS(CIN,COUT,NROWI,NROWO,IROWO1,NGCOL,ISCA,SCASGN)
 ! COUT(IR+IROWO1-1,ISCA(IC)) + CIN(IR,IC)*SCASGN(IC)
 ! (if IGAT(IC) /= 0)
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension CIN(NROWI,*), COUT(NROWO,*)
 integer ISCA(*)
@@ -33,7 +35,7 @@ end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' Output from MATCAS'
+  write(u6,*) ' Output from MATCAS'
   call WRTMAT(COUT,NROWO,MAXCOL,NROWO,MAXCOL)
 end if
 

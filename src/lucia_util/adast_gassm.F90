@@ -34,6 +34,9 @@ subroutine ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! ISTAKTS: Offset for K supergroup strings with hiven symmetrydistribution
 ! NSTAI : Number of I groupstrings in active gasspace
 
+use Constants, only: Zero
+use Definitions, only: u6
+
 implicit real*8(A,H,O-Z)
 ! Input
 dimension ICREORB(LROW_IN,*), ICRESTR(LROW_IN,*)
@@ -41,13 +44,13 @@ dimension ICREORB(LROW_IN,*), ICRESTR(LROW_IN,*)
 dimension ISTMAP(NSTAKTS,*), SGNMAP(NSTAKTS,*)
 
 ! Some dummy initializations
-SIGN = 0.0d0 ! jwk-cleanup
+SIGN = Zero ! jwk-cleanup
 ISTR = 0 ! jwk-cleanup
 
-!write(6,*) ' ICRESTR'
+!write(u6,*) ' ICRESTR'
 !call IWRTMA(ICRESTR,LROW_IN,NSTAK,LROW_IN,NSTAK)
-!write(6,*) ' IOFFI = ',IOFFI
-!PAM2009 SIGN0 = DBLE((-1)**NELB)*SCLFAC
+!write(u6,*) ' IOFFI = ',IOFFI
+!PAM2009 SIGN0 = SCLFAC*(-One)**NELB
 if (mod(NELB,2) == 0) then
   SIGN0 = SCLFAC
 else
@@ -59,12 +62,12 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
     IORBRTS = IORB-IORBTSF+1
     ! Relative to type start
     IORBRT = IORB-IORBTF+1
-    !write(6,*) ' IORBRTS IORBRT',IORBRTS,IORBRT
+    !write(u6,*) ' IORBRTS IORBRT',IORBRTS,IORBRT
     ! Change of active group
     I_AM_ACTIVE = 0
     if (IAC == 2) then
-      !write(6,*) ' ICREORB = ',ICREORB(IORBRT,KSTR)
-      !write(6,*) ' ICRESTR = ',ICRESTR(IORBRT,KSTR)
+      !write(u6,*) ' ICREORB = ',ICREORB(IORBRT,KSTR)
+      !write(u6,*) ' ICRESTR = ',ICRESTR(IORBRT,KSTR)
       if (ICREORB(IORBRT,KSTR) > 0) then
         ! Creation is nonvanishing
         I_AM_ACTIVE = 1
@@ -93,7 +96,7 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
       else
         ! Compressed map
         do IROW=1,LROW_IN
-          !write(6,*) ' IROW, ICREORB(IROW,KSTR)',IROW,ICREORB(IROW,KSTR)
+          !write(u6,*) ' IROW, ICREORB(IROW,KSTR)',IROW,ICREORB(IROW,KSTR)
           !OLD if (ICREORB(IROW,KSTR)  == -IORBRT) then
           if (ICREORB(IROW,KSTR) == -IORB) then
             ! Annihilation is non-vanishing
@@ -116,19 +119,19 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
       ! Excitation is open, corresponding active I string
       ! Relative to start of given symmetry for this group
       ISTR = ISTR-IOFFI+1
-      !write(6,*) ' ISTR, relative = ',ISTR
+      !write(u6,*) ' ISTR, relative = ',ISTR
       ! This Creation is active for all choices of strings in supergroup
       ! before and after the active type. Store the corrsponding mappings
       IADRK0 = (KSTR-IOFFK)*NSTA+IOFFKSP-1
       IADRI0 = (ISTR-1)*NSTA+IOFFISP-1
-      !write(6,*) ' IADRK0 IOFFK IOFFKSP ',IADRK0,IOFFK,IOFFKSP
-      !write(6,*) ' IADRI0, IOFFISP ',IADRI0,IOFFISP
+      !write(u6,*) ' IADRK0 IOFFK IOFFKSP ',IADRK0,IOFFK,IOFFKSP
+      !write(u6,*) ' IADRI0, IOFFISP ',IADRI0,IOFFISP
 
       NSTAINSTA = NSTAI*NSTA
       NSTAKNSTA = NSTAK*NSTA
 
-      !write(6,*) ' ISTR NSTA NSTB ',ISTR,NSTA,NSTB
-      !write(6,*) ' NSTAI,NSTAK',NSTAI,NSTAK
+      !write(u6,*) ' ISTR NSTA NSTB ',ISTR,NSTA,NSTB
+      !write(u6,*) ' NSTAI,NSTAK',NSTAI,NSTAK
       do IB=1,NSTB
         do IA=1,NSTA
           !IBKA = IADRI0+(IB-1)*NSTAI*NSTA+IA
@@ -145,15 +148,15 @@ end do
 
 NTEST = 0
 if (NTEST > 0) then
-  write(6,*) ' Output from ADAST_GASSM'
-  write(6,*) ' ======================='
+  write(u6,*) ' Output from ADAST_GASSM'
+  write(u6,*) ' ======================='
   NK = NSTB*NSTAK*NSTA
-  write(6,*) ' Number of K strings accessed ',NK
+  write(u6,*) ' Number of K strings accessed ',NK
   if (NK /= 0) then
     do IORB=IORBTSF,IORBTSF+NORBTS-1
       IORBR = IORB-IORBTSF+1
-      write(6,*) ' Update Info for orbital ',IORB
-      write(6,*) ' Mapped strings and sign'
+      write(u6,*) ' Update Info for orbital ',IORB
+      write(u6,*) ' Mapped strings and sign'
       call IWRTMA(ISTMAP(1,IORBR),1,NK,1,NK)
       call WRTMAT(SGNMAP(1,IORBR),1,NK,1,NK)
     end do

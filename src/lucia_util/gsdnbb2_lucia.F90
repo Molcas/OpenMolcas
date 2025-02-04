@@ -75,6 +75,8 @@ subroutine GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,JASM,JATP
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 #include "timers.fh"
 integer ADSXA(*), SXSTST(*), STSTSX(*), DXSTST(*), STSTDX(*), SXDXSX(*)
@@ -93,31 +95,31 @@ dimension ITSOB(1), IPHGAS(*), SRHO1(*)
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST >= 200) then
-  write(6,*) ' =================='
-  write(6,*) ' GSDNBB2 :  R block'
-  write(6,*) ' =================='
+  write(u6,*) ' =================='
+  write(u6,*) ' GSDNBB2 :  R block'
+  write(u6,*) ' =================='
   call WRTMAT(CB,NJA,NJB,NJA,NJB)
-  write(6,*) ' =================='
-  write(6,*) ' GSDNBB2 :  L block'
-  write(6,*) ' =================='
+  write(u6,*) ' =================='
+  write(u6,*) ' GSDNBB2 :  L block'
+  write(u6,*) ' =================='
   call WRTMAT(SB,NIA,NIB,NIA,NIB)
 
-  write(6,*)
-  write(6,*) ' Occupation of alpha strings in L'
+  write(u6,*)
+  write(u6,*) ' Occupation of alpha strings in L'
   call IWRTMA(IAOC,1,NGAS,1,NGAS)
-  write(6,*)
-  write(6,*) ' Occupation of beta  strings in L'
+  write(u6,*)
+  write(u6,*) ' Occupation of beta  strings in L'
   call IWRTMA(IBOC,1,NGAS,1,NGAS)
-  write(6,*)
-  write(6,*) ' Occupation of alpha strings in R'
+  write(u6,*)
+  write(u6,*) ' Occupation of alpha strings in R'
   call IWRTMA(JAOC,1,NGAS,1,NGAS)
-  write(6,*)
-  write(6,*) ' Occupation of beta  strings in R'
+  write(u6,*)
+  write(u6,*) ' Occupation of beta  strings in R'
   call IWRTMA(JBOC,1,NGAS,1,NGAS)
 
-  write(6,*) ' MAXI,MAXK,NSMOB',MAXI,MAXK,NSMOB
+  write(u6,*) ' MAXI,MAXK,NSMOB',MAXI,MAXK,NSMOB
 
-  write(6,*) 'SCLFAC =',SCLFAC
+  write(u6,*) 'SCLFAC =',SCLFAC
 end if
 
 if ((IATP == JATP) .and. (IASM == JASM)) then
@@ -126,7 +128,7 @@ if ((IATP == JATP) .and. (IASM == JASM)) then
   ! beta contribution to RHO1
   ! =========================
 
-  !write(6,*) ' GSBBD1 will be called (beta)'
+  !write(u6,*) ' GSBBD1 will be called (beta)'
   IAB = 2
   call TIMING(CPU0,CPU,WALL0,WALL)
   call GSBBD1_LUCIA(RHO1,NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,ADSXA,SXSTST,STSTSX,MXPNGAS,NOBPTS,IOBPTS, &
@@ -142,7 +144,7 @@ if ((IATP == JATP) .and. (IASM == JASM)) then
   ! ==============================
 
   if ((I12 == 2) .and. (NBEL >= 2)) then
-    !write(6,*) ' GSBBD2A will be called (beta)'
+    !write(u6,*) ' GSBBD2A will be called (beta)'
     call TIMING(CPU0,CPU,WALL0,WALL)
     call GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,ADSXA,SXSTST,STSTSX,SXDXSX, &
                        MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS,SCLFAC,IPACK)
@@ -153,7 +155,7 @@ if ((IATP == JATP) .and. (IASM == JASM)) then
 
     ! CALL GSBBD2A_LUCIA --> 37
 
-    !write(6,*) ' GSBBD2A was called'
+    !write(u6,*) ' GSBBD2A was called'
 
   end if
 end if
@@ -168,7 +170,7 @@ if ((IBTP == JBTP) .and. (IBSM == JBSM)) then
   call COPVEC(C2,CB,NJA*NJB)
   call TRPMT3(SB,NIA,NIB,C2)
   call COPVEC(C2,SB,NIA*NIB)
-  !write(6,*) ' GSBBD1 will be called (alpha)'
+  !write(u6,*) ' GSBBD1 will be called (alpha)'
   IAB = 1
   call TIMING(CPU0,CPU,WALL0,WALL)
   call GSBBD1_LUCIA(RHO1,NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,ADSXA,SXSTST,STSTSX,MXPNGAS,NOBPTS,IOBPTS, &
@@ -179,14 +181,14 @@ if ((IBTP == JBTP) .and. (IBSM == JBSM)) then
 
   ! CALL GSBBD1_LUCIA --> 40
 
-  !write(6,*) ' GSBBD1 was called'
+  !write(u6,*) ' GSBBD1 was called'
   if ((I12 == 2) .and. (NAEL >= 2)) then
 
     ! ================================
     ! alpha-alpha contribution to RHO2
     ! ================================
 
-    !write(6,*) ' GSBBD2A will be called (alpha)'
+    !write(u6,*) ' GSBBD2A will be called (alpha)'
     call TIMING(CPU0,CPU,WALL0,WALL)
     call GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,ADSXA,SXSTST,STSTSX,SXDXSX, &
                        MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS,SCLFAC,IPACK)
@@ -195,7 +197,7 @@ if ((IBTP == JBTP) .and. (IBSM == JBSM)) then
 
     ! CALL GSBBD2A_LUCIA --> 37
 
-    !write(6,*) ' GSBBD2A was called'
+    !write(u6,*) ' GSBBD2A was called'
   end if
   call TRPMT3(CB,NJB,NJA,C2)
   call COPVEC(C2,CB,NJA*NJB)
@@ -213,7 +215,7 @@ if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   call COPVEC(C2,CB,NJA*NJB)
   call TRPMT3(SB,NIA,NIB,C2)
   call COPVEC(C2,SB,NIA*NIB)
-  !write(6,*) ' GSBBD2B will be called'
+  !write(u6,*) ' GSBBD2B will be called'
   IUSEAB = 0
   call TIMING(CPU0,CPU,WALL0,WALL)
   call GSBBD2B_LUCIA(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC, &
@@ -227,7 +229,7 @@ if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
 
   ! CALL GSBBD2B_LUCIA --> 52
 
-  !write(6,*) ' GSBBD2B was called'
+  !write(u6,*) ' GSBBD2B was called'
 
   call TRPMT3(CB,NJB,NJA,C2)
   call COPVEC(C2,CB,NJA*NJB)

@@ -33,6 +33,7 @@ subroutine TS_SYM_PNT2(IGRP,NIGRP,MAXVAL,MINVAL,ISYM,IPNT,LPNT)
 use lucia_data, only: MINMAX_SM_GP, NELFGP, NSTFSMGP
 use lucia_data, only: MXPNGAS, MXPNSMST
 use csm_data, only: NSMST
+use Definitions, only: u6
 
 implicit none
 integer NIGRP, ISYM, LPNT
@@ -53,7 +54,7 @@ NGASL = 1
 do IGAS=1,NIGRP
   !ITPFGS(IGAS) = IGRP(IGAS)
   if (NELFGP(IGRP(IGAS)) > 0) NGASL = IGAS
-  !. Number of strings per symmetry in each gasspace
+  ! Number of strings per symmetry in each gasspace
   !call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
   call ICOPVE(NSTFSMGP(1,IGRP(IGAS)),NNSTSGP(1,IGAS),NSMST)
 end do
@@ -74,8 +75,8 @@ do IGAS=1,NIGRP
 end do
 
 if (NTEST >= 1000) then
-  write(6,*) 'NIGRP:',NIGRP
-  write(6,*) ' MINVAL and MAXVAL'
+  write(u6,*) 'NIGRP:',NIGRP
+  write(u6,*) ' MINVAL and MAXVAL'
   call IWRTMA(MINVAL,1,NIGRP,1,NIGRP)
   call IWRTMA(MAXVAL,1,NIGRP,1,NIGRP)
 end if
@@ -86,11 +87,11 @@ do IGAS=1,NGASL-1
   NBLKS = NBLKS*(maxval(IGAS)-minval(IGAS)+1)
 end do
 if (NBLKS > LPNT) then
-  write(6,*) ' Problem in TS_SYM_PNT'
-  write(6,*) ' Dimension of IPNT too small'
-  write(6,*) ' Actual and required length',NBLKS,LPNT
-  write(6,*)
-  write(6,*) ' I will Stop and wait for instructions'
+  write(u6,*) ' Problem in TS_SYM_PNT'
+  write(u6,*) ' Dimension of IPNT too small'
+  write(u6,*) ' Actual and required length',NBLKS,LPNT
+  write(u6,*)
+  write(u6,*) ' I will Stop and wait for instructions'
   !stop ' TS_SYM_PNT too small'
   call SYSABENDMSG('lucia_util/ts_sym_pnt','Internal error','')
 end if
@@ -119,7 +120,7 @@ ISTSMM1 = ISYMSTR(ISMFGS,NGASL-1)
 call SYMCOM(2,1,ISTSMM1,ISMGSN,ISYM)
 ISMFGS(NGASL) = ISMGSN
 if (NTEST >= 1000) then
-  write(6,*) ' next symmetry of NGASL spaces'
+  write(u6,*) ' next symmetry of NGASL spaces'
   call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
 end if
 ! Number of strings with this symmetry combination
@@ -137,18 +138,18 @@ end do
 
 IPNT(IOFF) = NSTRINT+1
 NSTRINT = NSTRINT+NSTRII
-if (NTEST >= 1000) write(6,*) ' IOFF, IPNT(IOFF) NSTRII ',IOFF,IPNT(IOFF),NSTRII
+if (NTEST >= 1000) write(u6,*) ' IOFF, IPNT(IOFF) NSTRII ',IOFF,IPNT(IOFF),NSTRII
 
 if (NGASL-1 > 0) goto 2000
 2001 continue
 
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' Output from TS_SYM_PNT'
-  write(6,*) ' Required total symmetry',ISYM
-  write(6,*) ' Number of symmetry blocks ',NBLKS
-  write(6,*)
-  write(6,*) ' Offset array  for symmetry blocks'
+  write(u6,*)
+  write(u6,*) ' Output from TS_SYM_PNT'
+  write(u6,*) ' Required total symmetry',ISYM
+  write(u6,*) ' Number of symmetry blocks ',NBLKS
+  write(u6,*)
+  write(u6,*) ' Offset array  for symmetry blocks'
   call IWRTMA(IPNT,1,NBLKS,1,NBLKS)
 end if
 

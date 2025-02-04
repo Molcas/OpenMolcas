@@ -16,6 +16,8 @@ subroutine WRT_CONF_LIST(ICONF,NCONF_FOR_OPEN,MAXOP,NCONF,NELEC)
 !
 ! Jeppe Olsen, November 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer ICONF(*), NCONF_FOR_OPEN(MAXOP+1)
 
@@ -23,7 +25,7 @@ IB = 1
 do IOPEN=0,MAXOP
   NCONF_OP = NCONF_FOR_OPEN(IOPEN+1)
   if (NCONF_OP /= 0) then
-    write(6,*) ' Number of configurations with ',IOPEN,' open orbitals is ',NCONF_OP
+    write(u6,*) ' Number of configurations with ',IOPEN,' open orbitals is ',NCONF_OP
 
     NOCC_ORB = IOPEN+(NELEC-IOPEN)/2
     do JCONF=1,NCONF_OP

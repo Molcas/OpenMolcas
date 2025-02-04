@@ -30,6 +30,8 @@ subroutine DIATERMS_GAS(NAEL,IASTR,NBEL,IBSTR,NORB,VEC,NSMST,H,IDC,XB,RJ,RK,NSSO
 !     = 2 =>      one+two-body part
 
 use lucia_data, only: IDISK
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
 
 implicit none
 integer NAEL, NBEL, NORB, NSMST, IDC, LUIN, LUOUT, IPRNT, NTOOB, I12, NBLOCK, ITASK, I0CHK
@@ -53,32 +55,32 @@ real*8 EAA, HB, RJBB, EB, X
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
-!write(6,*) ' NTEST = ',NTEST
+!write(u6,*) ' NTEST = ',NTEST
 
 if (LUIN > 0) IDISK(LUIN) = 0
 if (LUOUT > 0) IDISK(LUOUT) = 0
 
 if (NTEST >= 20) then
-  write(6,*) ' ======================'
-  write(6,*) ' DIATERMS_GAS in action'
-  write(6,*) ' ======================'
-  write(6,*)
-  write(6,*) ' LUIN,LUOUT = ',LUIN,LUOUT
-  write(6,*) ' NBLOCK =',NBLOCK
-  write(6,*) ' I0CHK = ',I0CHK
+  write(u6,*) ' ======================'
+  write(u6,*) ' DIATERMS_GAS in action'
+  write(u6,*) ' ======================'
+  write(u6,*)
+  write(u6,*) ' LUIN,LUOUT = ',LUIN,LUOUT
+  write(u6,*) ' NBLOCK =',NBLOCK
+  write(u6,*) ' I0CHK = ',I0CHK
 end if
 
 if (NTEST >= 1000) then
-  write(6,*) ' Diagonal one electron integrals'
+  write(u6,*) ' Diagonal one electron integrals'
   call WRTMAT(H,1,NORB,1,NORB)
   if (I12 == 2) then
-    write(6,*) ' Coulomb and exchange integrals'
+    write(u6,*) ' Coulomb and exchange integrals'
     call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
-    write(6,*)
+    write(u6,*)
     call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
-    write(6,*) ' I12 and ITASK = ',I12,ITASK
+    write(u6,*) ' I12 and ITASK = ',I12,ITASK
   end if
-  write(6,*) ' FACTOR = ',FACTOR
+  write(u6,*) ' FACTOR = ',FACTOR
 end if
 
 !*3 Diagonal elements according to Handys formulae
@@ -90,7 +92,7 @@ end if
 !              +         J(I,J) * NIA*NJB
 !
 ! K goes to J - K
-if (I12 == 2) call VECSUM(RK,RK,RJ,-1.0d0,+1.0d0,NTOOB**2)
+if (I12 == 2) call VECSUM(RK,RK,RJ,-One,One,NTOOB**2)
 
 ITDET = 0
 IDET = 0
@@ -101,7 +103,7 @@ do JBLOCK=1,NBLOCK
     IASM = IBLOCK(3,JBLOCK)
     IBSM = IBLOCK(4,JBLOCK)
     IOFF = IBLOCK(6,JBLOCK)
-    if (NTEST >= 20) write(6,*) ' Block in action : IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
+    if (NTEST >= 20) write(u6,*) ' Block in action : IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
 
     if ((IDC == 2) .and. (IASM == IBSM) .and. (IATP == IBTP)) then
       IPACK = 1
@@ -116,8 +118,8 @@ do JBLOCK=1,NBLOCK
     IDUM_ARR = 0
     call GETSTR_TOTSM_SPGP(1,IATP,IASM,NAEL,NASTR1,IASTR,NORB,0,IDUM_ARR,IDUM_ARR)
     if (NTEST >= 1000) then
-      write(6,*) ' After GETSTR for A strings'
-      write(6,*) ' alpha strings obtained'
+      write(u6,*) ' After GETSTR for A strings'
+      write(u6,*) ' alpha strings obtained'
       NAST = NSSOA(IASM,IATP)
       call IWRTMA(IASTR,NAEL,NAST,NAEL,NAST)
     end if
@@ -125,13 +127,13 @@ do JBLOCK=1,NBLOCK
     IOFF = 1
     NIA = NSSOA(IASM,IATP)
     do IA=1,NSSOA(IASM,IATP)
-      EAA = 0.0d0
+      EAA = Zero
       do IEL=1,NAEL
         IAEL = IASTR(IEL,IA)
         EAA = EAA+H(IAEL)
         if (I12 == 2) then
           do JEL=1,NAEL
-            EAA = EAA+0.5d0*RK(IASTR(JEL,IA),IAEL)
+            EAA = EAA+Half*RK(IASTR(JEL,IA),IAEL)
           end do
         end if
       end do
@@ -161,7 +163,7 @@ do JBLOCK=1,NBLOCK
         end if
       end if
     end if
-    !write(6,*) ' DIATERMS_GAS : I0CHK,JBLOCK IMZERO',I0CHK,JBLOCK,IMZERO
+    !write(u6,*) ' DIATERMS_GAS : I0CHK,JBLOCK IMZERO',I0CHK,JBLOCK,IMZERO
 
     if (IMZERO /= 1) then
       ! Calculate ...
@@ -170,9 +172,9 @@ do JBLOCK=1,NBLOCK
 
         ! Terms depending only on IB
 
-        HB = 0.0d0
-        RJBB = 0.0d0
-        call SETVEC(XB,0.0d0,NORB)
+        HB = Zero
+        RJBB = Zero
+        call SETVEC(XB,Zero,NORB)
 
         do IEL=1,NBEL
           IBEL = IBSTR(IEL,IB)
@@ -188,7 +190,7 @@ do JBLOCK=1,NBLOCK
             end do
           end if
         end do
-        EB = HB+0.5d0*RJBB+ECORE
+        EB = HB+Half*RJBB+ECORE
 
         if ((IPACK == 1) .and. (IATP == IBTP)) then
           IASTRT = IB
@@ -207,15 +209,15 @@ do JBLOCK=1,NBLOCK
           ! Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
           ! Obtain VEC = (DIAGONAL + FACTOR)       VEC (ITASK = 2)
           if (ITASK == 1) then
-            if (abs(X+FACTOR) > 1.0D-10) then
+            if (abs(X+FACTOR) > 1.0e-10_wp) then
               VEC(IDET) = VEC(IDET)/(X+FACTOR)
             else
-              VEC(IDET) = 0.0d0
+              VEC(IDET) = Zero
             end if
           else
             VEC(IDET) = VEC(IDET)*(X+FACTOR)
           end if
-          !write(6,*) ' IDET,X,VEC(IDET) ',IDET,X,VEC(IDET)
+          !write(u6,*) ' IDET,X,VEC(IDET) ',IDET,X,VEC(IDET)
         end do
       end do
     end if
@@ -223,7 +225,7 @@ do JBLOCK=1,NBLOCK
     if (LUOUT > 0) then
       call ITODS([LDET],1,-1,LUOUT)
       call TODSC(VEC,LDET,-1,LUOUT)
-      !write(6,*) ' Number of elements transferred to DISC ',LDET
+      !write(u6,*) ' Number of elements transferred to DISC ',LDET
       IDET = 0
     end if
 
@@ -232,6 +234,6 @@ end do
 
 if (LUOUT > 0) call ITODS([-1],1,-1,LUOUT)
 
-!write(6,*) ' Mission DIATERMS finished'
+!write(u6,*) ' Mission DIATERMS finished'
 
 end subroutine DIATERMS_GAS

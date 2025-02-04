@@ -21,6 +21,8 @@ subroutine NXTNUM3(INUM,NELMNT,MINVAL,MAXVAL,NONEW)
 !
 ! Jeppe Olsen Oct 1994
 
+use Definitions, only: u6
+
 ! Input
 dimension minval(*), maxval(*)
 ! Input and output
@@ -28,7 +30,7 @@ dimension INUM(*)
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' Initial number in NXTNUM'
+  write(u6,*) ' Initial number in NXTNUM'
   call IWRTMA(INUM,1,NELMNT,1,NELMNT)
 end if
 
@@ -56,7 +58,7 @@ goto 1000
 1001 continue
 
 if (NTEST /= 0) then
-  write(6,*) ' New number'
+  write(u6,*) ' New number'
   call IWRTMA(INUM,1,NELMNT,1,NELMNT)
 end if
 

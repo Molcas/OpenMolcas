@@ -17,6 +17,7 @@ subroutine SKPRCD2(NDIM,MBLOCK,IFILE)
 ! Does not work with FASTIO - I expect
 
 use lucia_data, only: IDISK
+use Constants, only: Zero
 
 implicit none
 integer NDIM, MBLOCK, IFILE
@@ -43,7 +44,7 @@ if (I_AM_PACKED == 1) then
   if (LBATCH > 0) then
     IDUMMY(1) = 0
     call IDAFILE(IFILE,0,IDUMMY,LBATCH,IDISK(IFILE))
-    DUMMY(1) = 0.0d0
+    DUMMY(1) = Zero
     call DDAFILE(IFILE,0,DUMMY,LBATCH,IDISK(IFILE))
   end if
   call IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))

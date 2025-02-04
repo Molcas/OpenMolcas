@@ -17,6 +17,7 @@ subroutine MAX_OPEN_ORB(MAXOP,IOCLS,NGAS,NOCLS,NOBPT)
 ! Jeppe Olsen, November 2001
 
 use csfbas, only: maxop_lucia
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Input
@@ -24,13 +25,13 @@ integer IOCLS(NGAS,NOCLS)
 integer NOBPT(NGAS)
 
 MAXOP = 0
-!write(6,*) ' NOCLS, NGAS = ',NOCLS,NGAS
+!write(u6,*) ' NOCLS, NGAS = ',NOCLS,NGAS
 do JOCLS=1,NOCLS
   MAXOP_J = 0
   do IGAS=1,NGAS
     NEL = IOCLS(IGAS,JOCLS)
     NORB = NOBPT(IGAS)
-    !write(6,*) ' IGAS, NEL, NORB = ',IGAS,NEL,NORB
+    !write(u6,*) ' IGAS, NEL, NORB = ',IGAS,NEL,NORB
     MAXOP_IGAS = min(NEL,2*NORB-NEL)
     MAXOP_J = MAXOP_J+MAXOP_IGAS
   end do
@@ -39,6 +40,6 @@ end do
 maxop_lucia = maxop
 
 NTEST = 0
-if (NTEST >= 100) write(6,*) ' Max number of unpaired orbitals = ',MAXOP
+if (NTEST >= 100) write(u6,*) ' Max number of unpaired orbitals = ',MAXOP
 
 end subroutine MAX_OPEN_ORB

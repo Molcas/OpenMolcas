@@ -27,19 +27,22 @@ subroutine MSSTRN_LUCIA(INSTRN,UTSTRN,NOPEN,IPRCSF)
 !
 ! THE TWO PROCEDURES ARE IDENTICAL.
 
+use Constants, only: Half
+use Definitions, only: wp, u6
+
 implicit real*8(A-H,O-Z)
 dimension INSTRN(NOPEN), UTSTRN(NOPEN)
 
-UTSTRN(1) = dble(INSTRN(1))-0.5d0
+UTSTRN(1) = real(INSTRN(1),kind=wp)-Half
 do IOPEN=2,NOPEN
-  UTSTRN(IOPEN) = UTSTRN(IOPEN-1)+dble(INSTRN(IOPEN))-0.5d0
+  UTSTRN(IOPEN) = UTSTRN(IOPEN-1)+real(INSTRN(IOPEN),kind=wp)-Half
 end do
 
 NTEST = 0
 NTEST = max(NTEST,IPRCSF)
 if (NTEST >= 10) then
-  write(6,*) ' ... Output from MSSTRN'
-  write(6,*) ' INSTRN AND UTSTRN'
+  write(u6,*) ' ... Output from MSSTRN'
+  write(u6,*) ' INSTRN AND UTSTRN'
   call IWRTMA(INSTRN,1,NOPEN,1,NOPEN)
   call WRTMAT(UTSTRN,1,NOPEN,1,NOPEN)
 end if

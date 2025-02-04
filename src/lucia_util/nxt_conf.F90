@@ -24,14 +24,16 @@ subroutine NXT_CONF(ICONF,NEL,NORB,INI,NONEW)
 !
 ! Jeppe Olsen, November 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer ICONF(NEL)
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Input configuration to NXT_CONF'
+  write(u6,*) ' Input configuration to NXT_CONF'
   call IWRTMA(ICONF,1,NEL,1,NEL)
-  write(6,*) ' NEL, NORB = ',NEL,NORB
+  write(u6,*) ' NEL, NORB = ',NEL,NORB
 end if
 if (INI == 1) then
   ! Check that NEL electrons can be distributed in NORB orbitals
@@ -98,11 +100,11 @@ end if
 
 if (NTEST >= 100) then
   if (NONEW == 1) then
-    write(6,*) ' No new configurations'
-    write(6,*) ' Input configuration'
+    write(u6,*) ' No new configurations'
+    write(u6,*) ' Input configuration'
     call IWRTMA(ICONF,1,NEL,1,NEL)
   else
-    write(6,*) ' Next configurations'
+    write(u6,*) ' Next configurations'
     call IWRTMA(ICONF,1,NEL,1,NEL)
   end if
 end if

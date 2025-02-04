@@ -13,6 +13,9 @@ subroutine BNDINV(A,EL,N,DETERM,EPSIL,ITEST,NSIZE)
 ! MATRIX INVERSION SUBROUTINE
 ! FROM "DLYTAP".
 
+use Constants, only: Zero, One
+use Definitions, only: wp
+
 implicit real*8(A-H,O-Z)
 dimension A(NSIZE,*), EL(NSIZE,*)
 
@@ -29,9 +32,9 @@ if (ISL2 == 1) INDSNL = 1
 ! SET EL = IDENTITY MATRIX
 do I=1,N
   do J=1,N
-    EL(I,J) = 0.0d0
+    EL(I,J) = Zero
   end do
-  EL(I,I) = 1.0d0
+  EL(I,I) = One
 end do
 
 ! TRIANGULARIZE A, FORM EL
@@ -40,7 +43,7 @@ N1 = N-1
 M = 2
 do J=1,N1
   do I=M,N
-    if (A(I,J) == 0.0d0) GO TO 45
+    if (A(I,J) == Zero) GO TO 45
     D = sqrt(A(J,J)*A(J,J)+A(I,J)*A(I,J))
     C = A(J,J)/D
     S = A(I,J)/D
@@ -79,17 +82,17 @@ do I=2,N
   if (abs(E) > abs(A(I,I))) E = A(I,I)
 end do
 EPSILP = EPSIL
-if (EPSILP <= 0.0d0) EPSILP = 1.0D-8
+if (EPSILP <= Zero) EPSILP = 1.0e-8_wp
 RAT = E/F
 if (abs(RAT) < EPSILP) GO TO 130
 
 ! INVERT TRIANGULAR MATRIX
 J = N
 do J1=1,N
-  A(J,J) = 1.0d0/A(J,J)
+  A(J,J) = One/A(J,J)
   I = J-1
   do I1=2,J
-    D = 0.0d0
+    D = Zero
     do K=I+1,J
       D = D+A(I,K)*A(K,J)
     end do
@@ -108,7 +111,7 @@ end do
 M = 1
 do I=1,N
   do J=1,N
-    D = 0.0d0
+    D = Zero
     do K=M,N
       D = D+A(I,K)*EL(K,J)
     end do

@@ -13,7 +13,7 @@ subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPN
 ! Allowed combinations of alpha and beta types, GAS version
 !
 ! =====
-!.Input
+! Input
 ! =====
 !
 ! LCMBSPC : Number of GAS spaces included in this expnasion
@@ -32,11 +32,13 @@ subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPN
 ! NGAS    : Actual number of gas spaces
 !
 ! ======
-!.Output
+! Output
 ! ======
 !
 ! IOCOC(IATP,IBTP)  = 1 =>      allowed combination
 ! IOCOC(IATP,IBTP)  = 0 => not allowed combination
+
+use Definitions, only: u6
 
 !Input
 integer ICMBSPC(LCMBSPC)
@@ -50,14 +52,14 @@ integer IOCOC(NOCTPA,NOCTPB)
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST >= 10) then
-  write(6,*) ' IAICBM_GAS entered'
-  write(6,*) ' ==================='
-  write(6,*)
-  write(6,*) ' Number of GAS spaces included ',LCMBSPC
-  write(6,*) ' GAS spaces included ',(ICMBSPC(II),II=1,LCMBSPC)
-  write(6,*)
+  write(u6,*) ' IAICBM_GAS entered'
+  write(u6,*) ' ==================='
+  write(u6,*)
+  write(u6,*) ' Number of GAS spaces included ',LCMBSPC
+  write(u6,*) ' GAS spaces included ',(ICMBSPC(II),II=1,LCMBSPC)
+  write(u6,*)
   if (NTEST >= 20) then
-    write(6,*) ' IOCA and IOCB'
+    write(u6,*) ' IOCA and IOCB'
     call IWRTMA(IOCA,NGAS,NOCTPA,MXPNGAS,NGAS)
     call IWRTMA(IOCB,NGAS,NOCTPB,MXPNGAS,NGAS)
   end if
@@ -94,9 +96,9 @@ do IATP=1,NOCTPA
 end do
 
 if (NTEST >= 10) then
-  write(6,*)
-  write(6,*) ' Matrix giving allowed combinations of types'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Matrix giving allowed combinations of types'
+  write(u6,*)
   call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end if
 

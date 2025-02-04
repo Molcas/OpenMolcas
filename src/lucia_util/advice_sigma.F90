@@ -31,6 +31,8 @@ use lucia_data, only: NGAS, IPHGAS
 use lucia_data, only: IADVICE
 use lucia_data, only: MNHL
 use lucia_data, only: NOBPT
+use Constants, only: One
+use Definitions, only: wp, u6
 
 implicit none
 ! Specific input
@@ -53,7 +55,7 @@ NTEST = 0
 !    SXTYP2_GAS(NSXTYP,ITP,JTP,NGAS,ILTP,IRTP,IPHGAS)
 call SXTYP2_GAS(NIJTYP,ITP,JTP,NGAS,IAOCC,JAOCC,IPHGAS)
 call SXTYP2_GAS(NKLTYP,KTP,LTP,NGAS,IBOCC,JBOCC,IPHGAS)
-!write(6,*) 'NIJTYP, NKLTYP',NIJTYP,NKLTYP
+!write(u6,*) 'NIJTYP, NKLTYP',NIJTYP,NKLTYP
 ! P-h modifications (I cannot predict these at the moment
 if ((NIJTYP >= 1) .and. (NKLTYP >= 1)) then
 
@@ -77,28 +79,28 @@ else
   ! ======================================
   ! Dim of C(j,Ka,Jb) relative to C(Ja,Jb)
   ! going from Ja to  Ka reduces occ by one elec, changes dim by n/(N-n+1)
-  XNJOB = dble(NOBPT(JTP(1)))
-  XNJEL = dble(JAOCC(JTP(1)))
-  XCJKAJB = XNJOB*XNJEL/(XNJOB-XNJEL+1.0d0)
+  XNJOB = real(NOBPT(JTP(1)),kind=wp)
+  XNJEL = real(JAOCC(JTP(1)),kind=wp)
+  XCJKAJB = XNJOB*XNJEL/(XNJOB-XNJEL+One)
   ! Number of kl excitations per beta string :
-  XNKLSX = dble((NOBPT(KTP(1))-JBOCC(KTP(1)))*JBOCC(LTP(1)))
+  XNKLSX = real((NOBPT(KTP(1))-JBOCC(KTP(1)))*JBOCC(LTP(1)),kind=wp)
   ! Number of ops (relative to dim of C)
-  XNIOB = dble(NOBPT(ITP(1)))
+  XNIOB = real(NOBPT(ITP(1)),kind=wp)
   XFLOPA = XCJKAJB*XNKLSX*XNIOB
   ! ======================================
   ! Index for flops along C(l,Ja,Kb) route
   ! ======================================
   ! Dim of C(l,Ja,Kb) relative to C(Ja,Jb)
-  XNLOB = dble(NOBPT(LTP(1)))
-  XNLEL = dble(JBOCC(LTP(1)))
-  XCLJAKB = XNLOB*XNLEL/(XNLOB-XNLEL+1.0d0)
+  XNLOB = real(NOBPT(LTP(1)),kind=wp)
+  XNLEL = real(JBOCC(LTP(1)),kind=wp)
+  XCLJAKB = XNLOB*XNLEL/(XNLOB-XNLEL+One)
   ! Number of ij excitations per alpha string :
-  XNIJSX = dble((NOBPT(ITP(1))-JAOCC(ITP(1)))*JAOCC(JTP(1)))
+  XNIJSX = real((NOBPT(ITP(1))-JAOCC(ITP(1)))*JAOCC(JTP(1)),kind=wp)
   ! Number of ops (relative to dim of C)
-  XNKOB = dble(NOBPT(KTP(1)))
+  XNKOB = real(NOBPT(KTP(1)),kind=wp)
   XFLOPB = XCLJAKB*XNIJSX*XNKOB
   ! Switch to second route if atleast 20 percent less work
-  if (XFLOPB <= 0.8d0*XFLOPA) then
+  if (XFLOPB <= 0.8_wp*XFLOPA) then
     LADVICE = 2
   else
     LADVICE = 1
@@ -135,22 +137,22 @@ else
       LLADVICE = 2
     end if
     if ((NTEST >= 100) .and. (LADVICE /= LLADVICE)) then
-      write(6,*) ' Advice changed by hole considetions'
-      write(6,*) ' LADVICE, LLADVICE',LADVICE,LLADVICE
+      write(u6,*) ' Advice changed by hole considetions'
+      write(u6,*) ' LADVICE, LLADVICE',LADVICE,LLADVICE
     end if
     LADVICE = LLADVICE
   end if
 
   if (NTEST >= 100) then
-    write(6,*) ' ADVICE active'
-    write(6,*) ' IAOCC JAOCC IBOCC JBOCC'
+    write(u6,*) ' ADVICE active'
+    write(u6,*) ' IAOCC JAOCC IBOCC JBOCC'
     call IWRTMA(IAOCC,1,NGAS,1,NGAS)
     call IWRTMA(JAOCC,1,NGAS,1,NGAS)
     call IWRTMA(IBOCC,1,NGAS,1,NGAS)
     call IWRTMA(JBOCC,1,NGAS,1,NGAS)
-    write(6,*) ' ITP JTP KTP LTP ',ITP(1),JTP(1),KTP(1),LTP(1)
-    write(6,*) ' XFLOPA,XFLOPB',XFLOPA,XFLOPB
-    write(6,*) ' ADVICE given : ',LADVICE
+    write(u6,*) ' ITP JTP KTP LTP ',ITP(1),JTP(1),KTP(1),LTP(1)
+    write(u6,*) ' XFLOPA,XFLOPB',XFLOPA,XFLOPB
+    write(u6,*) ' ADVICE given : ',LADVICE
   end if
 end if
 ! End if several types/ph modi

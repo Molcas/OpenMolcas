@@ -15,6 +15,7 @@ subroutine WRTVCD(SEGMNT,LU,IREW,LBLK)
 ! LBLK DEFINES STRUCTURE OF FILES :
 
 use lucia_data, only: IDISK
+use Definitions, only: u6
 
 implicit none
 real*8 SEGMNT(*)
@@ -53,7 +54,7 @@ if (LBL >= 0) then
   end if
   call FRMDSC(SEGMNT,LBL,KBLK,LU,IMZERO,IAMPACK)
   if (LBL > 0) then
-    write(6,'(A,I3,A,I6)') ' Number of elements in segment ',IBLK,' IS ',LBL
+    write(u6,'(A,I3,A,I6)') ' Number of elements in segment ',IBLK,' IS ',LBL
     call WRTMAT(SEGMNT,1,LBL,1,LBL)
   end if
 end if

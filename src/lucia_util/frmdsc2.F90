@@ -18,8 +18,9 @@ subroutine FRMDSC2(ARRAY,NDIM,MBLOCK,IFILE,IMZERO,I_AM_PACKED,NO_ZEROING)
 ! are not set to zero, the routine just returns with
 ! IMZERO = 1
 
-use Constants, only: Zero
 use lucia_data, only: IDISK
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer NDIM, MBLOCK, IFILE, IMZERO, I_AM_PACKED, NO_ZEROING
@@ -43,13 +44,13 @@ if (IPACK /= 0) then
   IMZERO = ISCR(1)
   I_AM_PACKED = ISCR(2)
   if (IMZERO == 1) then
-    if (NO_ZEROING == 0) call SETVEC(ARRAY,ZERO,NDIM)
+    if (NO_ZEROING == 0) call SETVEC(ARRAY,Zero,NDIM)
     goto 1001
   end if
 end if
 
 if (I_AM_PACKED == 1) then
-  call SETVEC(ARRAY,ZERO,NDIM)
+  call SETVEC(ARRAY,Zero,NDIM)
   ! Loop over packed records of dimension LPBLK
   NBATCH = 0
   !1000 continue
@@ -69,15 +70,15 @@ if (I_AM_PACKED == 1) then
   ISTOP = IDUMMY(1)
   do IELMNT=1,LBATCH
     if ((IPAK(IELMNT) <= 0) .or. (IPAK(IELMNT) > NDIM)) then
-      write(6,*) ' FRMDSC : Problemo IELMNT = ',IELMNT
-      write(6,*) ' IPAK(IELMNT) = ',IPAK(IELMNT)
-      write(6,*) ' LBATCH IFILE  = ',LBATCH,IFILE
+      write(u6,*) ' FRMDSC : Problemo IELMNT = ',IELMNT
+      write(u6,*) ' IPAK(IELMNT) = ',IPAK(IELMNT)
+      write(u6,*) ' LBATCH IFILE  = ',LBATCH,IFILE
       if (NBATCH == 1) then
-        write(6,*) ' NBATCH = 1'
+        write(u6,*) ' NBATCH = 1'
       else
-        write(6,*) ' NBATCH, LBATCHP',NBATCH,LBATCHP
+        write(u6,*) ' NBATCH, LBATCHP',NBATCH,LBATCHP
       end if
-      write(6,*) ' NDIM,IMZERO = ',NDIM,IMZERO
+      write(u6,*) ' NDIM,IMZERO = ',NDIM,IMZERO
       !stop ' problem in FRMDSC'
       call SYSABENDMSG('lucia_util/frmdsc','Internal error','')
     end if

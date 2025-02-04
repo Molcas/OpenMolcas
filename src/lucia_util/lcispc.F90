@@ -29,6 +29,9 @@ use lucia_data, only: IBSPGPFTP, ISPGPFTP
 use lucia_data, only: NOCTYP
 use lucia_data, only: MXPCSM, MXPNGAS
 use csm_data, only: NSMST, NSMCI
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer IPRNT
@@ -41,7 +44,7 @@ integer NTEST, II
 
 ! Number of spaces
 NICISP = NCMBSPC
-!write(6,*) ' LCISPC : NICISP ',NICISP
+!write(u6,*) ' LCISPC : NICISP ',NICISP
 ! Type of alpha- and beta strings
 IATP = 1
 IBTP = 2
@@ -90,26 +93,26 @@ end do
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST >= 5) then
-  write(6,*)
-  write(6,*)
-  write(6,*) ' Number of internal combinations per symmetry'
-  write(6,*) ' ==========================================='
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) ' Number of internal combinations per symmetry'
+  write(u6,*) ' ==========================================='
 
   do ICI=1,NCMBSPC
-    write(6,*) ' CI space ',ICI
-    write(6,'(1X, 4ES22.15)') (XISPSM(II,ICI),II=1,NSMCI)
+    write(u6,*) ' CI space ',ICI
+    write(u6,'(1X, 4ES22.15)') (XISPSM(II,ICI),II=1,NSMCI)
     !call WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
   end do
-  write(6,*)
-  write(6,*) ' Largest Symmetry-type-type block ',MXSOOB
-  write(6,*) ' Largest type-type block (all symmetries) ',MXSOOB_AS
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Largest Symmetry-type-type block ',MXSOOB
+  write(u6,*) ' Largest type-type block (all symmetries) ',MXSOOB_AS
+  write(u6,*)
 
-  write(6,*) ' Number of TTS subblocks per CI expansion'
-  write(6,*) ' ========================================'
+  write(u6,*) ' Number of TTS subblocks per CI expansion'
+  write(u6,*) ' ========================================'
 
   do ICI=1,NCMBSPC
-    write(6,*) ' Internal CI space ',ICI
+    write(u6,*) ' Internal CI space ',ICI
     call IWRTMA(NBLKIC(1,ICI),1,NSMCI,1,NSMCI)
   end do
 end if
@@ -126,13 +129,13 @@ end do
 
 #ifdef _DEBUGPRINT_
 if (NTEST >= 5) then
-  write(6,*) ' Largest number of blocks in CI expansion',MXNTTS
+  write(u6,*) ' Largest number of blocks in CI expansion',MXNTTS
 
-  write(6,*) ' Number of columns per CI expansion'
-  write(6,*) ' =================================='
+  write(u6,*) ' Number of columns per CI expansion'
+  write(u6,*) ' =================================='
 
   do ICI=1,NCMBSPC
-    write(6,*) ' Internal CI space ',ICI
+    write(u6,*) ' Internal CI space ',ICI
     call IWRTMA(LCOLIC(1,ICI),1,NSMCI,1,NSMCI)
   end do
 end if

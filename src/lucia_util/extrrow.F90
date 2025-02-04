@@ -16,6 +16,8 @@ subroutine EXTRROW(INMAT,IROW,NROW,NCOL,IOUTVEC)
 !
 ! Jeppe Olsen, Winter 1996
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension INMAT(NROW,NCOL)
 dimension IOUTVEC(NCOL)
@@ -26,8 +28,8 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Output vector from EXTRROW'
-  write(6,*) ' Extracted ROW ',IROW
+  write(u6,*) ' Output vector from EXTRROW'
+  write(u6,*) ' Extracted ROW ',IROW
   call IWRTMA(IOUTVEC,1,NCOL,1,NCOL)
 end if
 

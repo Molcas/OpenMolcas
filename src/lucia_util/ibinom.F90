@@ -13,6 +13,8 @@
 
 integer function IBINOM(N,M)
 
+use Definitions, only: wp, u6
+
 implicit real*8(A-H,O-Z)
 save INIT, NOMTAB
 dimension NOMTAB(225)
@@ -30,28 +32,28 @@ if (MM == 1) return
 if (INIT == 0) then
   IPOS = 0
   do I=4,32
-    X = dble(I)
+    X = real(I,kind=wp)
     do J=2,I/2
       IPOS = IPOS+1
-      X = (X*dble(I+1-J))/dble(J)
+      X = (X*real(I+1-J,kind=wp))/real(J,kind=wp)
       NOMTAB(IPOS) = nint(X)
     end do
   end do
-  !PAM write(6,'(1x,5I9)') NOMTAB
+  !PAM write(u6,'(1x,5I9)') NOMTAB
   INIT = 1
 end if
 if (N <= 32) then
   IBINOM = NOMTAB(((N-3)**2)/4+MM-1)
 else
-  X = dble(IBINOM)
+  X = real(IBINOM,kind=wp)
   do K=2,MM
-    X = (X*dble(N+1-K))/dble(K)
+    X = (X*real(N+1-K,kind=wp))/real(K,kind=wp)
   end do
   IBINOM = nint(X)
-  if (X /= dble(IBINOM)) then
-    write(6,*) ' IBINOM: Unable to compute N over M'
-    write(6,*) ' N=',N
-    write(6,*) ' M=',M
+  if (X /= real(IBINOM,kind=wp)) then
+    write(u6,*) ' IBINOM: Unable to compute N over M'
+    write(u6,*) ' N=',N
+    write(u6,*) ' M=',M
     call SYSABENDMSG('lucia_util/ibinom','Internal error','')
   end if
 end if

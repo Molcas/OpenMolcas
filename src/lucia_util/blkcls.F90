@@ -16,6 +16,8 @@ subroutine BLKCLS(IBLKS,NBLKS,IBLKCLS,ISPSPCL,NCLS,LCLS,NOCTPA,NOCTPB)
 !
 ! Jeppe Olsen
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IBLKS(8,NBLKS)
@@ -23,7 +25,7 @@ integer ISPSPCL(NOCTPA,NOCTPB)
 ! Output
 integer IBLKCLS(NBLKS), LCLS(NCLS)
 
-!write(6,*) ' ISPSPCL'
+!write(u6,*) ' ISPSPCL'
 !call IWRTMA(ISPSPCL,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 IZERO = 0
 call ISETVC(LCLS,IZERO,NCLS)
@@ -35,14 +37,14 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' BLKCLS Speaking'
-  write(6,*) ' ==============='
-  write(6,*)
-  write(6,*) ' Dimension of each class'
+  write(u6,*)
+  write(u6,*) ' BLKCLS Speaking'
+  write(u6,*) ' ==============='
+  write(u6,*)
+  write(u6,*) ' Dimension of each class'
   call IWRTMA(LCLS,1,NCLS,1,NCLS)
-  write(6,*)
-  write(6,*) ' Class of each block :'
+  write(u6,*)
+  write(u6,*) ' Class of each block :'
   call IWRTMA(IBLKCLS,1,NBLKS,1,NBLKS)
 end if
 

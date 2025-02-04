@@ -41,6 +41,7 @@ use lucia_data, only: NGAS
 use lucia_data, only: IBSPGPFTP, NELFSPGP, NELFTP
 use lucia_data, only: NELIS, NSTRKS
 use lucia_data, only: IOBPTS, NOBPT, NOCOB
+use Definitions, only: u6
 
 implicit none
 integer IOB, IOBSM, IOBTP, NIOB, JOB, JOBSM, JOBTP, NJOB, ISPGP, ISM, ITP, KMIN, KMAX, LI1, NK, IEND, IFRST, KFRST, I12, K12
@@ -52,25 +53,25 @@ integer NTEST, ISPGPABS, K1SM, K1SPGPABS, KSM, KSPGPABS, NTEST2, NELI, NELK, NST
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ====================='
-  write(6,*) ' ADADST_GAS in service'
-  write(6,*) ' ====================='
-  write(6,*)
-  write(6,*) ' IOB,IOBSM,IOBTP ',IOB,IOBSM,IOBTP
-  write(6,*) ' JOB,JOBSM,JOBTP ',JOB,JOBSM,JOBTP
+  write(u6,*)
+  write(u6,*) ' ====================='
+  write(u6,*) ' ADADST_GAS in service'
+  write(u6,*) ' ====================='
+  write(u6,*)
+  write(u6,*) ' IOB,IOBSM,IOBTP ',IOB,IOBSM,IOBTP
+  write(u6,*) ' JOB,JOBSM,JOBTP ',JOB,JOBSM,JOBTP
 end if
 
-!if (SCLFAC /= 1.0D0) then
-!  write(6,*) 'Problemo, ADADST'
-!  write(6,*) ' SCLFAC = ',SCLFAC
+!if (SCLFAC /= One) then
+!  write(u6,*) 'Problemo, ADADST'
+!  write(u6,*) ' SCLFAC = ',SCLFAC
 !end if
 
 ! Internal affairs
 
 if ((I12 > size(Z,2)) .or. (K12 > size(ZOCSTR,2))) then
-  write(6,*) ' ADST_GAS : Illegal value of K12 = ',K12
-  write(6,*) ' ADST_GAS : Illegal value of I12 = ',I12
+  write(u6,*) ' ADST_GAS : Illegal value of K12 = ',K12
+  write(u6,*) ' ADST_GAS : Illegal value of I12 = ',I12
   !stop ' ADST_GAS : Illegal value of I12'
   call SYSABENDMSG('lucia_util/adst_gas','Internal error','')
   return
@@ -83,7 +84,7 @@ call NEWTYP(ISPGPABS,1,IOBTP,K1SPGPABS)
 call NEWTYP(K1SPGPABS,1,JOBTP,KSPGPABS)
 call SYMCOM(2,0,IOBSM,K1SM,ISM)
 call SYMCOM(2,0,JOBSM,KSM,K1SM)
-if (NTEST >= 100) write(6,*) ' K1SM,K1SPGPABS,KSM,KSPGPABS : ',K1SM,K1SPGPABS,KSM,KSPGPABS
+if (NTEST >= 100) write(u6,*) ' K1SM,K1SPGPABS,KSM,KSPGPABS : ',K1SM,K1SPGPABS,KSM,KSPGPABS
 ! In ADADS1_GAS we need : Occupation of KSTRINGS
 !                         lexical => Actual order for I strings
 ! Generate if required

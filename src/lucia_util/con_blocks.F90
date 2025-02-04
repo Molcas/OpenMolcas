@@ -29,6 +29,8 @@ subroutine CON_BLOCKS(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,ICONSPA,ICONSPB,NO
 !
 ! Jeppe Olsen, April 99
 
+use Definitions, only: u6
+
 implicit none
 integer IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, NOCTPA, NOCTPB, MXEXC, IH_OCC_CONS, INTERACT
 integer ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
@@ -81,9 +83,9 @@ end if
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Output from CONBLOCKS'
-  write(6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
-  write(6,*) ' IH_OCC_CONS, INTERACT = ',IH_OCC_CONS,INTERACT
+  write(u6,*) ' Output from CONBLOCKS'
+  write(u6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
+  write(u6,*) ' IH_OCC_CONS, INTERACT = ',IH_OCC_CONS,INTERACT
 end if
 
 end subroutine CON_BLOCKS

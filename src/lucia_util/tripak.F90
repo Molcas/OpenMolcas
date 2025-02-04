@@ -18,6 +18,8 @@ subroutine TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
 ! IWAY = 1 : FULL TO PACKED
 ! IWAY = 2 : PACKED TO FULL FORM
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension AUTPAK(MATDIM,MATDIM), APAK(*)
 
@@ -42,7 +44,7 @@ end if
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' AUTPAK AND APAK FROM TRIPAK'
+  write(u6,*) ' AUTPAK AND APAK FROM TRIPAK'
   call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
   call PRSYM(APAK,NDIM)
 end if

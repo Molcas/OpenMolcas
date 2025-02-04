@@ -66,9 +66,10 @@ subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,A
 ! Jeppe Olsen, Winter of 1991
 !              IUSE_PH added winter of 97
 
-use Constants, only: One
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPOBS, MXPNGAS, MXPTSOB
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, MAXI, MAXK, NSMOB, NSMST, NSMSX, MOC, MXSXST, IH2TRM, IUSE_PH, NTESTG
@@ -100,15 +101,15 @@ real*8 SIGNIJ, SCLFACS, FACTORC, FACTORAB
 NTESTL = 0
 NTEST = max(NTESTL,NTESTG)
 if (NTEST >= 500) then
-  write(6,*)
-  write(6,*) ' ======================='
-  write(6,*) ' Information from RSBB1E'
-  write(6,*) ' ======================='
-  write(6,*)
-  write(6,*) ' RSBB1E : MOC,IH2TRM,IUSE_PH ',MOC,IH2TRM,IUSE_PH
-  write(6,*) ' ISEL :'
+  write(u6,*)
+  write(u6,*) ' ======================='
+  write(u6,*) ' Information from RSBB1E'
+  write(u6,*) ' ======================='
+  write(u6,*)
+  write(u6,*) ' RSBB1E : MOC,IH2TRM,IUSE_PH ',MOC,IH2TRM,IUSE_PH
+  write(u6,*) ' ISEL :'
   call IWRTMA(ISEL,1,NGAS,1,NGAS)
-  write(6,*) ' ICEL :'
+  write(u6,*) ' ICEL :'
   call IWRTMA(ICEL,1,NGAS,1,NGAS)
 end if
 
@@ -136,7 +137,7 @@ if (IJSM == 0) goto 1001
 do IJTP=1,NSXTP
   ITYP = ITP(IJTP)
   JTYP = JTP(IJTP)
-  if (NTEST >= 2000) write(6,*) ' ITYP JTYP ',ITYP,JTYP
+  if (NTEST >= 2000) write(u6,*) ' ITYP JTYP ',ITYP,JTYP
   ! Is this combination of types allowed
   !IJ_ACT = 1
   !if (IJ_ACT == 0) cycle
@@ -151,7 +152,7 @@ do IJTP=1,NSXTP
   !else
   IJ_REO(1) = 1
   IJ_REO(2) = 2
-  SIGNIJ = 1.0d0
+  SIGNIJ = One
   !end if
 
   if (IJ_REO(1) == 1) then
@@ -175,7 +176,7 @@ do IJTP=1,NSXTP
   !IJ_AC(2) = ISCR(IJ_REO(2))
 
   ! nasty code to avoid optimization
-  !if (iscr(1) == -1000) write(6,*) IJ_TP,IJ_REO
+  !if (iscr(1) == -1000) write(u6,*) IJ_TP,IJ_REO
   !
   !ISCR(1) = ITYP
   !ISCR(2) = JTYP
@@ -187,7 +188,7 @@ do IJTP=1,NSXTP
     ! New intermediate strings will be accessed so
     KFRST = 1
     if (JSM == 0) goto 800
-    if (NTEST >= 2000) write(6,*) ' ISM JSM ',ISM,JSM
+    if (NTEST >= 2000) write(u6,*) ' ISM JSM ',ISM,JSM
     NIORB = NOBPTS(ITYP,ISM)
     NJORB = NOBPTS(JTYP,JSM)
     ! Reorder
@@ -238,10 +239,10 @@ do IJTP=1,NSXTP
 
       ! For operator connecting to |Ka> and |Ja> i.e. operator 2
       SCLFACS = SIGNIJ*SCLFAC
-      if (NTEST >= 1000) write(6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
+      if (NTEST >= 1000) write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
       call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC(1))
       ! For operator connecting |Ka> and |Ia>, i.e. operator 1
-      call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,IEND,IFRST,KFRST,KACT,ONE,IJ_AC(1))
+      call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,IEND,IFRST,KFRST,KACT,One,IJ_AC(1))
       ! Compress list to common nonvanishing elements
       IDOCOMP = 1
       if (IDOCOMP == 1) then
@@ -279,20 +280,20 @@ do IJTP=1,NSXTP
         ! Problems when HOLE switches blocks around ?
         !call GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
         if (NTEST >= 1000) then
-          write(6,*) ' RSBB1E H BLOCK'
+          write(u6,*) ' RSBB1E H BLOCK'
           call WRTMAT(H,IJ_DIM(2),IJ_DIM(1),IJ_DIM(2),IJ_DIM(1))
         end if
         ! Sscr(I,K,i) = CSCR(I,K,j)*h(j,i)
         NIK = NIBTC*LKABTC
-        FACTORC = 0.0d0
-        FACTORAB = 1.0d0
+        FACTORC = Zero
+        FACTORAB = One
         if (NTEST >= 2000) then
-          write(6,*) ' CSCR array,NIK X NJORB array'
+          write(u6,*) ' CSCR array,NIK X NJORB array'
           call WRTMAT(CSCR,NIK,IJ_DIM(2),NIK,IJ_DIM(2))
         end if
         call MATML7(SSCR,CSCR,H,NIK,IJ_DIM(1),NIK,IJ_DIM(2),IJ_DIM(2),IJ_DIM(1),FACTORC,FACTORAB,0)
         if (NTEST >= 2000) then
-          write(6,*) ' SSCR array,NIK X NIORB array'
+          write(u6,*) ' SSCR array,NIK X NIORB array'
           call WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
         end if
         ! S(I,a+ K) =  S(I, a+ K) + sgn*Sscr(I,K,i)

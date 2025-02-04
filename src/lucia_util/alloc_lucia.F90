@@ -42,9 +42,9 @@ use lucia_data, only: NBINT1, NBINT2
 use lucia_data, only: NSMOB
 use lucia_data, only: NTOOB
 
-!. Input
+! Input
 implicit none
-!.Output
+! Output
 integer ISM
 
 ! 1 : One electron integrals( Complete matrix allocated )
@@ -53,8 +53,8 @@ call mma_allocate(INT1,NTOOB**2,Label='INT1')
 call mma_allocate(INT1O,NTOOB**2,Label='Int1O')
 ! Zero to avoid problems with elements that will not
 ! be initialized
-INT1(:) = ZERO
-INT1O(:) = ZERO
+INT1(:) = Zero
+INT1O(:) = Zero
 ! 2 : Two electron integrals
 ! Pointers to symmetry block of integrals
 call mma_allocate(PINT1,NBINT1,Label='PINT1')

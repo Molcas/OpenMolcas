@@ -18,7 +18,7 @@ subroutine NXTDIST(NSMST,NGRP,NELMNT,KGRP,ISMDFGP,SCR,NACTSYM,NONEW)
 !Giovanni Li Manni Feb 2012
 !
 !*************
-!. Input
+! Input
 !*************
 ! NSMST   = Number of Irreps
 ! NGRP    = Number of Groups
@@ -30,18 +30,20 @@ subroutine NXTDIST(NSMST,NGRP,NELMNT,KGRP,ISMDFGP,SCR,NACTSYM,NONEW)
 !*************
 ! NONEW
 
+use Definitions, only: u6
+
 integer KGRP(NELMNT), ISMDFGP(NSMST,NGRP), NELMNT
 integer SCR(NELMNT), NACTSYM(NGRP)
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) 'NACTSYM :'
+  write(u6,*) 'NACTSYM :'
   call IWRTMA(NACTSYM,1,NGRP,1,NGRP)
-  write(6,*) ' ISMDFGP  Table:'
+  write(u6,*) ' ISMDFGP  Table:'
   do J=1,NSMST
-    write(6,'(40I2)') (ISMDFGP(J,I),I=1,NGRP)
+    write(u6,'(40I2)') (ISMDFGP(J,I),I=1,NGRP)
   end do
-  write(6,*) 'Initial SCR'
+  write(u6,*) 'Initial SCR'
   call IWRTMA(SCR,1,NELMNT,1,NELMNT)
 end if
 
@@ -69,12 +71,12 @@ goto 1000
 1001 continue
 
 if (NTEST /= 0) then
-  write(6,*) 'New ISMDFGP'
-  write(6,'(40I2)') (ISMDFGP(SCR(IGAS),KGRP(IGAS)),IGAS=1,NELMNT)
+  write(u6,*) 'New ISMDFGP'
+  write(u6,'(40I2)') (ISMDFGP(SCR(IGAS),KGRP(IGAS)),IGAS=1,NELMNT)
 end if
 
 if (NTEST /= 0) then
-  write(6,*) ' New SCR'
+  write(u6,*) ' New SCR'
   call IWRTMA(SCR,1,NELMNT,1,NELMNT)
 end if
 

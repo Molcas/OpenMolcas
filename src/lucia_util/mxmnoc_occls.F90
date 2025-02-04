@@ -19,6 +19,7 @@ subroutine MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,MINOP,NTESTG)
 ! April2, 2003, JO (modified by JWK, April - June 2003)
 
 use lucia_data, only: MXPNGAS
+use Definitions, only: u6
 
 implicit none
 integer NORBTP, MINOP, NTESTG
@@ -35,14 +36,14 @@ NTESTL = 0
 NTEST = max(NTESTG,NTESTL)
 
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ============'
-  write(6,*) ' MXMNOC_OCCLS'
-  write(6,*) ' ============'
-  write(6,*)
-  write(6,*) ' MINOP  = ',MINOP
-  write(6,*) ' NORBTP = ',NORBTP
-  write(6,*) ' NORBFTP :'
+  write(u6,*)
+  write(u6,*) ' ============'
+  write(u6,*) ' MXMNOC_OCCLS'
+  write(u6,*) ' ============'
+  write(u6,*)
+  write(u6,*) ' MINOP  = ',MINOP
+  write(u6,*) ' NORBTP = ',NORBTP
+  write(u6,*) ' NORBFTP :'
   call IWRTMA(NORBFTP,1,NORBTP,1,NORBTP)
 end if
 ! Well
@@ -116,12 +117,12 @@ do IGAS=1,NGAS
   IORB_START = max(1,NORBFTP(IGAS)-MAX_DOUBLE)
   do IORB=IORB_START,NORBFTP(IGAS)
     MINEL(IORB+IBORB-1) = NEL_INI+NELEC-2*(NORBFTP(IGAS)-IORB)
-    !write(6,*) ' 1 IORB+IBORB-1, MINEL() ',IORB+IBORB-1,MINEL(IORB+IBORB-1)
+    !write(u6,*) ' 1 IORB+IBORB-1, MINEL() ',IORB+IBORB-1,MINEL(IORB+IBORB-1)
   end do
   ! Singly occupy
   do IORB=NORBFTP(IGAS)-MAX_DOUBLE-1,1,-1
     MINEL(IORB+IBORB-1) = max(NEL_INI,MINEL(IORB+IBORB-1+1)-1)
-    !write(6,*) ' 2 IORB+IBORB-1, MINEL() ',IORB+IBORB-1,MINEL(IORB+IBORB-1)
+    !write(u6,*) ' 2 IORB+IBORB-1, MINEL() ',IORB+IBORB-1,MINEL(IORB+IBORB-1)
   end do
 
   ! The max number of electrons
@@ -143,9 +144,9 @@ end do
 
 if (NTEST >= 100) then
   NORB = IELSUM(NORBFTP,NORBTP)
-  write(6,*) ' MINEL :'
+  write(u6,*) ' MINEL :'
   call IWRTMA(MINEL,1,NORB,1,NORB)
-  write(6,*) ' MAXEL :'
+  write(u6,*) ' MAXEL :'
   call IWRTMA(MAXEL,1,NORB,1,NORB)
 end if
 

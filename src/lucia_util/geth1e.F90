@@ -21,6 +21,7 @@ use lucia_data, only: IH1FORM
 use symmetry_info, only: MULTD2H => Mul
 use lucia_data, only: IBSO, IOBPTS, IREOTS, NACOBS
 use lucia_data, only: MXPNGAS
+use Constants, only: Zero
 
 implicit none
 integer IORB, ITP, ISM, JORB, JTP, JSM
@@ -29,11 +30,11 @@ real*8 GETH1E
 real*8, external :: GTH1ES
 
 IJSM = MULTD2H(ISM,JSM)
-GETH1E = 0.0d0
+GETH1E = Zero
 if (IH1FORM == 1) then
   ! Normal integrals, lower triangular packed
   if (IJSM == 1) then
-    !write(6,*) ' GETH1E, old route'
+    !write(u6,*) ' GETH1E, old route'
     GETH1E = GTH1ES(IREOTS,PINT1,INT1,IBSO,MXPNGAS,IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)
   else
     GETH1E = GTH1ES(IREOTS,PGINT1(IJSM)%I,INT1,IBSO,MXPNGAS,IOBPTS,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,1)

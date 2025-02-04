@@ -27,6 +27,7 @@ subroutine GTSPGP(IEL,ISPGP,IWAY)
 
 use lucia_data, only: NGAS
 use lucia_data, only: NTSPGP, NELFSPGP
+use Definitions, only: u6
 
 implicit none
 integer ISPGP, IWAY
@@ -56,8 +57,8 @@ end if
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Output from GTSPGP'
-  write(6,*) ' IWAY ISPGP IEL ',IWAY,ISPGP,(IEL(IGAS),IGAS=1,NGAS)
+  write(u6,*) ' Output from GTSPGP'
+  write(u6,*) ' IWAY ISPGP IEL ',IWAY,ISPGP,(IEL(IGAS),IGAS=1,NGAS)
 end if
 
 end subroutine GTSPGP

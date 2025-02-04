@@ -31,6 +31,7 @@ use lucia_data, only: NSMOB, NIRREP, PNTGRP
 use lucia_data, only: NTOOB, NACOB, NOCOB, NINOB, NDEOB, MXTSOB, MXTOB, ITOOBS, IBSO, IOBPTS, IOSPIR, IREOST, IREOTS, ISMFSO, &
                       ISMFTO, ITOOBS, ITPFSO, ITPFTO, NACOBS, NDEOB, NDEOBS, NINOB, NINOBS, NOBPT, NOBPTS, NOCOBS, NOSPIR, NTOOBS
 use lucia_data, only: MXPIRR, MXPNGAS, MXPOBS
+use Definitions, only: u6
 
 implicit none
 integer IPRNT
@@ -100,18 +101,18 @@ end do
 ! Well, report back
 ! =================
 if (NTEST > 0) then
-  write(6,*)
-  write(6,*) ' Number of orbitals per symmetry :'
-  write(6,*) ' ================================='
-  write(6,*)
-  write(6,'(1X,A,10I4,A)') '            Symmetry  ',(I,I=1,NSMOB)
-  write(6,'(1X,A,2X,10A)') '           ========== ',('====',I=1,NSMOB)
+  write(u6,*)
+  write(u6,*) ' Number of orbitals per symmetry :'
+  write(u6,*) ' ================================='
+  write(u6,*)
+  write(u6,'(1X,A,10I4,A)') '            Symmetry  ',(I,I=1,NSMOB)
+  write(u6,'(1X,A,2X,10A)') '           ========== ',('====',I=1,NSMOB)
   do IGAS=1,NGAS
-    write(6,'(1X,A,I3,7X,A,10I4,8X,I3)') '   GAS',IGAS,'      ',(NGSOB(I,IGAS),I=1,NSMOB),NGSOBT(IGAS)
+    write(u6,'(1X,A,I3,7X,A,10I4,8X,I3)') '   GAS',IGAS,'      ',(NGSOB(I,IGAS),I=1,NSMOB),NGSOBT(IGAS)
   end do
 
-  write(6,*) ' Total number of orbitals ',NTOOB
-  write(6,*) ' Total number of occupied orbitals ',NOCOB
+  write(u6,*) ' Total number of orbitals ',NTOOB
+  write(u6,*) ' Total number of occupied orbitals ',NOCOB
 end if
 ! Offsets for orbitals of given symmetry
 ITOOBS(1) = 1
@@ -120,7 +121,7 @@ do ISMOB=2,NSMOB
 end do
 
 if (NTEST > 0) then
-  write(6,*) ' Offsets for orbital of given symmetry'
+  write(u6,*) ' Offsets for orbital of given symmetry'
   call IWRTMA(ITOOBS,1,NSMOB,1,NSMOB)
 end if
 
@@ -143,6 +144,6 @@ do IOBTP=1,NGAS
   end do
   MXTOB = max(LTOB,MXTOB)
 end do
-if (NTEST > 0) write(6,*) ' MXTSOB,MXTOB from ORBINF = ',MXTSOB,MXTOB
+if (NTEST > 0) write(u6,*) ' MXTSOB,MXTOB from ORBINF = ',MXTSOB,MXTOB
 
 end subroutine ORBINF

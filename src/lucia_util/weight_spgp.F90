@@ -14,6 +14,8 @@ subroutine WEIGHT_SPGP(Z,NORBTP,NELFTP,NORBFTP,ISCR,NTEST)
 !
 ! Reverse lexical ordering is used
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer NELFTP(NORBTP), NORBFTP(NORBTP)
@@ -27,9 +29,9 @@ NORB = IELSUM(NORBFTP,NORBTP)
 NEL = IELSUM(NELFTP,NORBTP)
 
 if (NTEST >= 100) then
-  write(6,*) ' Subroutine WEIGHT_SPGP in action'
-  write(6,*) ' ================================'
-  write(6,*) 'NELFTP'
+  write(u6,*) ' Subroutine WEIGHT_SPGP in action'
+  write(u6,*) ' ================================'
+  write(u6,*) 'NELFTP'
   call IWRTMA(NELFTP,1,NORBTP,1,NORBTP)
 end if
 

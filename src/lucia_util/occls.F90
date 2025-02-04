@@ -28,6 +28,7 @@ subroutine OCCLS(IWAY,NOCCLS,IOCCLS,NEL,NGAS,IGSMIN,IGSMAX,I_DO_BASSPC,IBASSPC,N
 ! Jeppe Olsen, August 1995
 
 use lucia_data, only: MXPNGAS
+use Definitions, only: u6
 
 implicit none
 integer IWAY, NOCCLS, NEL, NGAS, I_DO_BASSPC
@@ -43,9 +44,9 @@ integer NTEST, ISKIP, IGAS, NONEW, IFIRST, KGAS, NEGA, IM_TO_STUFFED, IEL, I, IB
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' OCCLS in action'
-  write(6,*) ' =================='
-  write(6,*) ' NGAS NEL ',NGAS,NEL
+  write(u6,*) ' OCCLS in action'
+  write(u6,*) ' =================='
+  write(u6,*) ' NGAS NEL ',NGAS,NEL
 end if
 
 ISKIP = 1
@@ -77,7 +78,7 @@ if (NONEW == 0) then
       IOCA(KGAS) = IOCA(KGAS)+1
     end if
   end if
-  !write(6,*) ' Another accumulated occupation:'
+  !write(u6,*) ' Another accumulated occupation:'
   !call IWRTMA(IOCA,1,NGAS,1,NGAS)
   ! corresponding occupation of each active space
   NEGA = 0
@@ -91,7 +92,7 @@ if (NONEW == 0) then
       if (IOC(IGAS) > 2*NOBPT(IGAS)) IM_TO_STUFFED = 1
     end if
   end do
-  !write(6,*) ' Another occupation:'
+  !write(u6,*) ' Another occupation:'
   !call IWRTMA(IOC,1,NGAS,1,NGAS)
   IFIRST = 0
   ! Correct number of electrons
@@ -100,7 +101,7 @@ if (NONEW == 0) then
     NOCCLS = NOCCLS+1
     if (IWAY == 2) then
       if (NTEST >= 100) then
-        write(6,*) ' Another allowed class :'
+        write(u6,*) ' Another allowed class :'
         call IWRTMA(IOC,1,NGAS,1,NGAS)
       end if
       call ICOPVE(IOC,IOCCLS(1,NOCCLS),NGAS)
@@ -113,22 +114,22 @@ end if
 if (NONEW == 0) goto 1000
 
 if (NTEST >= 10) then
-  write(6,*) ' Number of Allowed occupation classes ',NOCCLS
+  write(u6,*) ' Number of Allowed occupation classes ',NOCCLS
   if ((IWAY == 2) .and. (NTEST >= 20)) then
-    write(6,*) ' Occupation classes :'
-    write(6,*) ' ===================='
-    write(6,*)
-    write(6,*) ' Class    Occupation in GASpaces'
-    write(6,*) ' ================================'
+    write(u6,*) ' Occupation classes :'
+    write(u6,*) ' ===================='
+    write(u6,*)
+    write(u6,*) ' Class    Occupation in GASpaces'
+    write(u6,*) ' ================================'
     do I=1,NOCCLS
-      write(6,'(1X,I5,3X,16I3)') I,(IOCCLS(IGAS,I),IGAS=1,NGAS)
+      write(u6,'(1X,I5,3X,16I3)') I,(IOCCLS(IGAS,I),IGAS=1,NGAS)
     end do
     !call IWRTMA(IOCCLS,NGAS,NOCCLS,NGAS,NOCCLS)
   end if
 end if
 
 !if (I_DO_BASSPC == 1) then
-!  write(6,*) ' Base CI spaces for the classes'
+!  write(u6,*) ' Base CI spaces for the classes'
 !  call IWRTMA(IBASSPC,1,NOCCLS,1,NOCCLS)
 !end if
 

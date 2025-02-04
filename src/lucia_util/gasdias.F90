@@ -31,8 +31,9 @@ subroutine GASDIAS(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,XB,RJ,RK,NSSOA,NSSOB,
 ! Added the possibility to zero out unwanted diagonal part
 ! which is needed for highly excited states. Lasse 2015
 
-use Constants, only: Zero
 use lucia_data, only: IDISK
+use Constants, only: Zero, One, Half
+use Definitions, only: wp, u6
 
 implicit none
 integer NAEL, NBEL, NORB, NSMST, LUDIA, IPRNT, NTOOB, ICISTR, I12, NBLOCK, N_ELIMINATED_BATCHES
@@ -57,29 +58,29 @@ real*8 XADD, EAA, RJBB, EB, X, HB
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
-if (PSSIGN == -1.0d0) then
-  XADD = 1.0d6
+if (PSSIGN == -One) then
+  XADD = 1.0e6_wp
 else
-  XADD = ZERO
+  XADD = Zero
 end if
 
 if (NTEST >= 20) then
-  write(6,*) ' Diagonal one electron integrals'
+  write(u6,*) ' Diagonal one electron integrals'
   call WRTMAT(H,1,NORB,1,NORB)
-  write(6,*) ' Core energy ',ECORE
+  write(u6,*) ' Core energy ',ECORE
   if (I12 == 2) then
-    write(6,*) ' Coulomb and exchange integrals'
+    write(u6,*) ' Coulomb and exchange integrals'
     call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
-    write(6,*)
+    write(u6,*)
     call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
   end if
 
-  write(6,*) ' TTSS for Blocks'
+  write(u6,*) ' TTSS for Blocks'
   do IBLOCK=1,NBLOCK
-    write(6,'(10X,4I3,2I8)') (IBLKFO(II,IBLOCK),II=1,4)
+    write(u6,'(10X,4I3,2I8)') (IBLKFO(II,IBLOCK),II=1,4)
   end do
 
-  write(6,*) ' I12 = ',I12
+  write(u6,*) ' I12 = ',I12
 end if
 
 ! Diagonal elements according to Handys formulae
@@ -91,7 +92,7 @@ end if
 !            +         J(I,J) * NIA*NJB
 !
 ! K goes to J - K
-if (I12 == 2) call VECSUM(RK,RK,RJ,-1.0d0,+1.0d0,NTOOB**2)
+if (I12 == 2) call VECSUM(RK,RK,RJ,-One,One,NTOOB**2)
 IDET = 0
 ITDET = 0
 if (LUDIA /= 0) IDISK(LUDIA) = 0
@@ -132,7 +133,7 @@ do IBLK=1,NBLOCK
       EAA = EAA+H(IAEL)
       if (I12 == 2) then
         do JEL=1,NAEL
-          EAA = EAA+0.5d0*RK(IASTR(JEL,IA),IAEL)
+          EAA = EAA+Half*RK(IASTR(JEL,IA),IAEL)
         end do
       end if
     end do
@@ -164,7 +165,7 @@ do IBLK=1,NBLOCK
         end do
       end if
     end do
-    EB = HB+0.5d0*RJBB+ECORE
+    EB = HB+Half*RJBB+ECORE
 
     if ((IREST1 == 1) .and. (IATP == IBTP)) then
       IASTRT = IB
@@ -195,7 +196,7 @@ do IBLK=1,NBLOCK
   ! Yet a RAS block of the diagonal has been constructed
   if (ICISTR >= 2) then
     if (NTEST >= 100) then
-      write(6,*) ' number of diagonal elements to disc ',IDET
+      write(u6,*) ' number of diagonal elements to disc ',IDET
       call WRTMAT(DIAG,1,IDET,1,IDET)
     end if
     call ITODS([IDET],1,-1,LUDIA)
@@ -205,10 +206,10 @@ do IBLK=1,NBLOCK
 end do
 ! End of loop over blocks
 
-if (NTEST >= 5) write(6,*) ' Number of diagonal elements generated (1)',ITDET
+if (NTEST >= 5) write(u6,*) ' Number of diagonal elements generated (1)',ITDET
 
 if ((NTEST >= 100) .and. (ICISTR <= 1)) then
-  write(6,*) ' CIDIAGONAL'
+  write(u6,*) ' CIDIAGONAL'
   call WRTMAT(DIAG(1),1,IDET,1,IDET)
 end if
 

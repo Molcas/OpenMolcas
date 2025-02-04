@@ -24,6 +24,9 @@ subroutine ADTOR2(RHO2,RHO2S,RHO2A,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,N
 ! Itype = 2 => alpha-beta loop
 !              input is in form Rho2t(ij,kl)
 
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: u6
+
 implicit none
 ! Input
 real*8 RHO2T(*)
@@ -44,7 +47,7 @@ NKK = 0 ! jwk-cleanup
 NLL = 0 ! jwk-cleanup
 KKOFF = 0 ! jwk-cleanup
 LLOFF = 0 ! jwk-cleanup
-SIGN = 1.0d0 ! jwk-cleanup
+SIGN = One ! jwk-cleanup
 IACTIVE = 1 ! jwk-cleanup
 I = 0 ! jwk-cleanup
 K = 0 ! jwk-cleanup
@@ -57,22 +60,22 @@ L_PACK = 0
 IJ_PACK = 0
 JI_PACK = 0
 KL_PACK = 0
-FACTOR = 0.0d0
+FACTOR = Zero
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Welcome to ADTOR2'
-  write(6,*) ' ================='
-  write(6,*) ' NI NJ NK NL = ',NI,NJ,NK,NL
-  write(6,*) ' IOFF JOFF KOFF LOFF =',IOFF,JOFF,KOFF,LOFF
-  write(6,*) ' ITYPE = ',ITYPE
-  write(6,*) ' NORB ',NORB
+  write(u6,*) ' Welcome to ADTOR2'
+  write(u6,*) ' ================='
+  write(u6,*) ' NI NJ NK NL = ',NI,NJ,NK,NL
+  write(u6,*) ' IOFF JOFF KOFF LOFF =',IOFF,JOFF,KOFF,LOFF
+  write(u6,*) ' ITYPE = ',ITYPE
+  write(u6,*) ' NORB ',NORB
   if ((NTEST >= 2000) .and. (.not. IPACK)) then
-    write(6,*) ' Initial two body density matrix'
+    write(u6,*) ' Initial two body density matrix'
     call PRSYM(RHO2,NORB**2)
   end if
 
-  write(6,*) ' RHO2T :'
+  write(u6,*) ' RHO2T :'
   if (ITYPE == 1) then
     if (IOFF == KOFF) then
       NROW = NI*(NI+1)/2
@@ -112,7 +115,7 @@ if (ITYPE == 1) then
       KKOFF = KOFF
       NLL = NL
       LLOFF = LOFF
-      SIGN = 1.0d0
+      SIGN = One
       IACTIVE = 1
     else if (IPERM == 2) then
       if (IOFF /= KOFF) then
@@ -128,7 +131,7 @@ if (ITYPE == 1) then
       else
         IACTIVE = 0
       end if
-      SIGN = -1.0d0
+      SIGN = -One
     else if (IPERM == 3) then
       if (JOFF /= LOFF) then
         NII = NI
@@ -139,7 +142,7 @@ if (ITYPE == 1) then
         JJOFF = LOFF
         NLL = NJ
         LLOFF = JOFF
-        SIGN = -1.0d0
+        SIGN = -One
         IACTIVE = 1
       else
         IACTIVE = 0
@@ -154,7 +157,7 @@ if (ITYPE == 1) then
         JJOFF = LOFF
         NLL = NJ
         LLOFF = JOFF
-        SIGN = 1.0d0
+        SIGN = One
         IACTIVE = 1
       else
         IACTIVE = 0
@@ -189,9 +192,9 @@ if (ITYPE == 1) then
                 KL_PACK = K_PACK*(K_PACK-1)/2+L_PACK
 
                 if (K_PACK == L_PACK) then
-                  FACTOR = 0.25d0
+                  FACTOR = Quart
                 else
-                  FACTOR = 0.5d0
+                  FACTOR = Half
                 end if
 
                 if (K_PACK >= L_PACK) then
@@ -207,7 +210,7 @@ if (ITYPE == 1) then
               else if (IJ >= KL) then
                 DO_IJKL = .true.
                 IPROCEED = .true.
-                FACTOR = 1.0d0
+                FACTOR = One
               end if
 
               if (IPROCEED) then
@@ -235,25 +238,25 @@ if (ITYPE == 1) then
                 if (IOFF /= KOFF) then
                   IKIND = (K-1)*NI+I
                   NIK = NI*NK
-                  SIGNIK = 1.0d0
+                  SIGNIK = One
                 else
                   IKIND = max(I,K)*(max(I,K)-1)/2+min(I,K)
                   NIK = NI*(NI+1)/2
                   if (I == max(I,K)) then
-                    SIGNIK = 1.0d0
+                    SIGNIK = One
                   else
-                    SIGNIK = -1.0d0
+                    SIGNIK = -One
                   end if
                 end if
                 if (JOFF /= LOFF) then
                   JLIND = (L-1)*NJ+J
-                  SIGNJL = 1.0d0
+                  SIGNJL = One
                 else
                   JLIND = max(J,L)*(max(J,L)-1)/2+min(J,L)
                   if (J == max(J,L)) then
-                    SIGNJL = 1.0d0
+                    SIGNJL = One
                   else
-                    SIGNJL = -1.0d0
+                    SIGNJL = -One
                   end if
                 end if
                 IKJLT = (JLIND-1)*NIK+IKIND
@@ -272,12 +275,12 @@ if (ITYPE == 1) then
                 if (DO_IJKL) then
                   IJKL = IJ*(IJ-1)/2+KL
                   if (IJKL > NELMNT) then
-                    write(6,*) ' Problemo 1 : IJKL > NELMNT'
-                    write(6,*) ' IJKL, NELMNT',IJKL,NELMNT
-                    write(6,*) ' IJ, KL',IJ,KL
-                    write(6,*) ' JJ JJOFF ',JJ,JJOFF
-                    write(6,*) ' II IIOFF ',II,IIOFF
-                    write(6,*) ' IPERM = ',IPERM
+                    write(u6,*) ' Problemo 1 : IJKL > NELMNT'
+                    write(u6,*) ' IJKL, NELMNT',IJKL,NELMNT
+                    write(u6,*) ' IJ, KL',IJ,KL
+                    write(u6,*) ' JJ JJOFF ',JJ,JJOFF
+                    write(u6,*) ' II IIOFF ',II,IIOFF
+                    write(u6,*) ' IPERM = ',IPERM
                   end if
                   RHO2(IJKL) = RHO2(IJKL)-TERM
                 end if
@@ -305,15 +308,15 @@ else if (ITYPE == 2) then
           IJ = (J+JOFF-2)*NORB+I+IOFF-1
           KL = (L+LOFF-2)*NORB+K+KOFF-1
           if (IJ == KL) then
-            FACTOR = 2.0d0
+            FACTOR = Two
           else
-            FACTOR = 1.0d0
+            FACTOR = One
           end if
           IJKL = max(IJ,KL)*(max(IJ,KL)-1)/2+min(IJ,KL)
           IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI+(J-1)*NI+I
           if (IJKL > NELMNT) then
-            write(6,*) ' Problemo 2 : IJKL > NELMNT'
-            write(6,*) ' IJKL, NELMNT',IJKL,NELMNT
+            write(u6,*) ' Problemo 2 : IJKL > NELMNT'
+            write(u6,*) ' IJKL, NELMNT',IJKL,NELMNT
           end if
           TERM = FACTOR*RHO2T(IJKLT)
           if (IPACK) then
@@ -337,11 +340,11 @@ else if (ITYPE == 2) then
               end if
 
               if (K_PACK == L_PACK) then
-                FACTOR_PACK = .25d0
+                FACTOR_PACK = Quart
               else
-                FACTOR_PACK = .5d0
+                FACTOR_PACK = Half
               end if
-              if ((I_PACK == K_PACK) .and. (J_PACK == L_PACK)) FACTOR_PACK = FACTOR_PACK*.5d0
+              if ((I_PACK == K_PACK) .and. (J_PACK == L_PACK)) FACTOR_PACK = FACTOR_PACK*Half
 
               if ((I_PACK >= J_PACK) .and. (K_PACK >= L_PACK) .and. (IJ_PACK >= KL_PACK)) then
                 IJKL_PACK = IJ_PACK*(IJ_PACK-1)/2+KL_PACK

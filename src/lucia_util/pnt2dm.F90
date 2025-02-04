@@ -31,6 +31,8 @@ subroutine PNT2DM(I12SM,NSMOB,NSMSX,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 !         = 0 indicates forbidden block
 ! ISM2  : symmetry of second index for given first index
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer OSXO(MXPOBS,2*MXPOBS), IPSM(*), JPSM(*)
@@ -57,11 +59,11 @@ do ISM=1,NSMOB
 end do
 
 NTEST = 0
-if (NTEST >= 1) write(6,*) ' dimension of two-dimensional array ',IOFF-1
+if (NTEST >= 1) write(u6,*) ' dimension of two-dimensional array ',IOFF-1
 if (NTEST >= 5) then
-  write(6,*) ' Pointer'
+  write(u6,*) ' Pointer'
   call IWRTMA(IPNTR,1,NSMOB,1,NSMOB)
-  write(6,*) ' Symmetry of other array'
+  write(u6,*) ' Symmetry of other array'
   call IWRTMA(ISM2,1,NSMOB,1,NSMOB)
 end if
 

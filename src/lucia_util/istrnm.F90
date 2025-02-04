@@ -16,6 +16,8 @@ function ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
 !
 ! version of Winter 1990, Jeppe Olsen
 
+use Definitions, only: u6
+
 integer Z
 dimension IOCC(*), NEWORD(*), Z(NORB,*)
 
@@ -32,14 +34,14 @@ end if
 
 NTEST = 0
 if (NTEST > 1) then
-  write(6,*) ' STRING'
+  write(u6,*) ' STRING'
   call IWRTMA(IOCC,1,NEL,1,NEL)
-  write(6,*) ' Z matrix'
+  write(u6,*) ' Z matrix'
   call IWRTMA(Z,NORB,NEL,NORB,NEL)
-  !write(6,*) ' First two elements of reorder array'
+  !write(u6,*) ' First two elements of reorder array'
   !call IWRTMA(NEWORD,1,2,1,2)
-  write(6,*) ' ADDRESS OF STRING ',ISTRNM
-  write(6,*) ' REV LEX number : ',IZ
+  write(u6,*) ' ADDRESS OF STRING ',ISTRNM
+  write(u6,*) ' REV LEX number : ',IZ
 end if
 
 end function ISTRNM

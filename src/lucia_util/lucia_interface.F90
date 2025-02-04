@@ -34,6 +34,7 @@ subroutine Lucia_Util(module,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
 
   use stdalloc, only: mma_allocate, mma_deallocate
   use lucia_data, only: MXNTTS
+  use Definitions, only: u6
 
   implicit none
   character(len=*) module
@@ -51,7 +52,7 @@ subroutine Lucia_Util(module,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
   integer, save :: COUNTER = 0
 
   COUNTER = COUNTER+1
-  write(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','ENTRY LUCIA_UTIL','(',module,')'
+  write(u6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','ENTRY LUCIA_UTIL','(',module,')'
 # endif
 
   ! Make sure the Module variable is in upper case.
@@ -67,10 +68,10 @@ subroutine Lucia_Util(module,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
     ! iSym_LI is the symmetry to be used.
     call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,size(CI_VECTOR),iSym)
   else if (Module_(1:5) == 'SIGMA') then
-    !write(6,*) 'blubbbbbbhc'
+    !write(u6,*) 'blubbbbbbhc'
     call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,size(CI_VECTOR))
   else if (Module_(1:5) == 'TRACI') then
-    !write(6,*) 'blubbbbbbtraci'
+    !write(u6,*) 'blubbbbbbtraci'
     ! iDisk is the initial disk address (for read/write of JOBIPH)
     ! Lu is the file unit for JOBIPH
     ! Array is the transformation matrix (not sorted as LUCIA needs it).
@@ -90,15 +91,15 @@ subroutine Lucia_Util(module,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
     call DetCtl_Free()
     call Lucia_Close()
   else
-    write(6,*) 'Unknown module requested in Lucia_Util.'
-    write(6,*) 'Module = ',module
-    write(6,*) 'Known modules are:'
-    write(6,*) 'Diag, Sigma, Sigma_CVB, Densi, DetCtl, Ini'
+    write(u6,*) 'Unknown module requested in Lucia_Util.'
+    write(u6,*) 'Module = ',module
+    write(u6,*) 'Known modules are:'
+    write(u6,*) 'Diag, Sigma, Sigma_CVB, Densi, DetCtl, Ini'
     call Abend()
   end if
 
 # ifdef _DEBUGPRINT_
-  write(6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','EXIT LUCIA_UTIL','(',module,')'
+  write(u6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','EXIT LUCIA_UTIL','(',module,')'
 # endif
 
 end subroutine Lucia_Util
@@ -115,6 +116,7 @@ subroutine densi_master(CIVec,nCIVec,RVec)
   use lucia_data, only: IREFSM, PSSIGN
   use lucia_data, only: IDISK
   use lucia_data, only: NTOOB
+  use Constants, only: Zero
 
   ! Controls the calculation of the densities, when Lucia is called
   ! from Molcas Rasscf.
@@ -169,9 +171,9 @@ subroutine densi_master(CIVec,nCIVec,RVec)
   !end if
   LBLOCK = max(LBLOCK,LCSBLK)
   ! JESPER : Should reduce I/O
-  !PAM06 LBLOCK = max(XISPSM(IREFSM,1),dble(MXSOOB))
+  !PAM06 LBLOCK = max(XISPSM(IREFSM,1),real(MXSOOB,kind=wp))
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-  if (PSSIGN /= 0.0d0) LBLOCK = 2*int(XISPSM(IREFSM,1))
+  if (PSSIGN /= Zero) LBLOCK = 2*int(XISPSM(IREFSM,1))
 
   ! Allocate arrays
 
@@ -186,7 +188,7 @@ subroutine densi_master(CIVec,nCIVec,RVec)
     call cpsivc(lusc34,mxntts,vec2,lVec)
     call mma_deallocate(lVec)
   else
-    vec2(:) = 0.0d0
+    vec2(:) = Zero
   end if
 
   ! Information needed on file handling
@@ -203,7 +205,7 @@ subroutine densi_master(CIVec,nCIVec,RVec)
   ! Calculate one- and two-body densities
 
   IPACK = .true.
-  DUMMY = 0.0d0
+  DUMMY = Zero
   if (tdm) then
     call densi2_lucia(1,Dtmp,dummy,dummy,dummy,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
   else
@@ -364,6 +366,9 @@ subroutine cpcivc(CIVec,nCIVEC,ifile,mxrec,isym,iway,lrec)
   ! IWAY = 2: from Lucia to Molcas (from disk unit ifile to core).
 
   use lucia_data, only: IDISK
+# ifdef _DEBUGPRINT_
+  use Definitions, only: u6
+# endif
 
   implicit none
   integer nCIVEC, ifile, mxrec, isym, iway
@@ -388,7 +393,7 @@ subroutine cpcivc(CIVec,nCIVEC,ifile,mxrec,isym,iway,lrec)
   if (iway == 1) then
 #   ifdef _DEBUGPRINT_
     ioff = 1
-    write(6,*) 'CI-vector put to disk:'
+    write(u6,*) 'CI-vector put to disk:'
     do IREC=1,NREC
       if (LREC(IREC) >= 0) then
         call wrtmat(CIVec(ioff),1,lrec(irec),1,lrec(irec))

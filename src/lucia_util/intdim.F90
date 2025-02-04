@@ -44,7 +44,7 @@ I12 = 0
 I34 = 0
 I1234 = 1
 NINT2_NO_CCSYM = NDXFSM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,ITSDX,ADSXA,SXDXSX,I12,I34,I1234,IPRNT)
-!if (ISIMTRH == 1) write(6,*) ' Number of two-electron integrals in exp(-T1)Hexp(T1) ',NINT2_NO_CCSYM
+!if (ISIMTRH == 1) write(u6,*) ' Number of two-electron integrals in exp(-T1)Hexp(T1) ',NINT2_NO_CCSYM
 ! Number of symmetry blocks of one- and two-electron integrals
 NBINT1 = NSMOB
 NBINT2 = NSMOB**3

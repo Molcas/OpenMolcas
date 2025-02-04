@@ -20,6 +20,7 @@ subroutine ZNELFSPGP(NTESTG)
 use lucia_data, only: NGAS
 use lucia_data, only: NSTTP, IBSPGPFTP, ISPGPFTP, NELFGP, NELFSPGP, NSPGPFTP
 use lucia_data, only: MXPNGAS
+use Definitions, only: u6
 
 implicit none
 integer NTESTG
@@ -40,10 +41,10 @@ do ITP=1,NSTTP
 end do
 
 if (NTEST >= 10) then
-  write(6,*) ' Distribution of electrons in Active spaces'
+  write(u6,*) ' Distribution of electrons in Active spaces'
   do ITP=1,NSTTP
-    write(6,*) ' String type ',ITP
-    write(6,*) ' Row : active space, Column: supergroup'
+    write(u6,*) ' String type ',ITP
+    write(u6,*) ' Row : active space, Column: supergroup'
     NSPGP = NSPGPFTP(ITP)
     IBSPGP = IBSPGPFTP(ITP)
     call IWRTMA(NELFSPGP(1,IBSPGP),NGAS,NSPGP,MXPNGAS,NSPGP)

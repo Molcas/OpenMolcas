@@ -38,6 +38,9 @@ subroutine ADADS1_GAS(NK,I1,XI1S,LI1,IORB,NIORB,JORB,NJORB,KSTR,NKEL,NKSTR,IREO,
 !          : eq. 0    a + JORB !KSTR> = 0
 ! Offset is KMIN
 
+use Constants, only: Zero, One
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer KSTR(NKEL,NKSTR)
@@ -48,11 +51,11 @@ dimension XI1S(LI1,*)
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' ===================='
-  write(6,*) ' ADADS1_GAS speaking'
-  write(6,*) ' ===================='
-  write(6,*) ' IORB,NIORB ',IORB,NIORB
-  write(6,*) ' JORB,NJORB ',JORB,NJORB
+  write(u6,*) ' ===================='
+  write(u6,*) ' ADADS1_GAS speaking'
+  write(u6,*) ' ===================='
+  write(u6,*) ' IORB,NIORB ',IORB,NIORB
+  write(u6,*) ' JORB,NJORB ',JORB,NJORB
 end if
 
 IORBMIN = IORB
@@ -73,12 +76,12 @@ NK = KEND-KMIN+1
 
 do KKSTR=KMIN,KEND
   if (NTEST >= 1000) then
-    write(6,*) ' Occupation of string ',KKSTR
+    write(u6,*) ' Occupation of string ',KKSTR
     call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
   end if
   ! Loop over electrons after which JORB can be added
-  !PAM2009 Added variable ODDJEL to replace ''DBLE((-1)**JEL)''
-  ODDJEL = -1.0d0
+  !PAM2009 Added variable ODDJEL to replace (-One)**JEL
+  ODDJEL = -One
   do JEL=0,NKEL
     ODDJEL = -ODDJEL
 
@@ -92,7 +95,7 @@ do KKSTR=KMIN,KEND
     else
       JORB2 = min(JORBMAX+1,KSTR(JEL+1,KKSTR))
     end if
-    if (NTEST >= 1000) write(6,*) ' JEL JORB1 JORB2 ',JEL,JORB1,JORB2
+    if (NTEST >= 1000) write(u6,*) ' JEL JORB1 JORB2 ',JEL,JORB1,JORB2
 
     if ((JEL > 0) .and. (JORB1 >= JORBMIN) .and. (JORB1 <= JORBMAX)) then
       ! vanishing for any IORB
@@ -100,20 +103,20 @@ do KKSTR=KMIN,KEND
       do IIORB=1,NIORB
         IJ = IJOFF+IIORB
         if (ij > nij) then
-          write(6,*) ' ij > nij'
-          write(6,*) ' JORB1 IIORB',JORB1,IIORB
-          write(6,*) ' ijoff ',ijoff
+          write(u6,*) ' ij > nij'
+          write(u6,*) ' JORB1 IIORB',JORB1,IIORB
+          write(u6,*) ' ijoff ',ijoff
           !stop
           call SYSABENDMSG('lucia_util/adads1_gas','Internal error','')
         end if
         I1(KKSTR-KMIN+1,IJ) = 0
-        XI1S(KKSTR-KMIN+1,IJ) = 0.0d0
+        XI1S(KKSTR-KMIN+1,IJ) = Zero
       end do
     end if
 
     if ((JORB1 < JORBMAX) .and. (JORB2 > JORBMIN)) then
       ! Orbitals JORB1+1 - JORB2-1 can be added after electron JEL
-      !PAM2009 SIGNJ = DBLE((-1)**JEL)*SCLFAC
+      !PAM2009 SIGNJ = SCLFAC*(-One)**JEL
       SIGNJ = ODDJEL*SCLFAC
       ! reverse lexical number of the first JEL ELECTRONS
       ILEX0 = 1
@@ -124,7 +127,7 @@ do KKSTR=KMIN,KEND
         ! And electron JEL + 1
         ILEX1 = ILEX0+IZ(JJORB,JEL+1)
         ! Add electron IORB
-        !PAM2009 Added ODDIEL to replace ''(-1.0)**IEL''
+        !PAM2009 Added ODDIEL to replace (-One)**IEL
         ODDIEL = -ODDJEL
         do IEL=JEL,NKEL
           ODDIEL = -ODDIEL
@@ -138,18 +141,18 @@ do KKSTR=KMIN,KEND
           else
             IORB2 = min(IORBMAX+1,KSTR(IEL+1,KKSTR))
           end if
-          if (NTEST >= 1000) write(6,*) ' IEL IORB1 IORB2 ',IEL,IORB1,IORB2
+          if (NTEST >= 1000) write(u6,*) ' IEL IORB1 IORB2 ',IEL,IORB1,IORB2
           if ((IEL > JEL) .and. (IORB1 >= IORBMIN) .and. (IORB1 <= IORBMAX)) then
             IJ = (JJORB-JORBMIN)*NIORB+IORB1-IORBMIN+1
             if (ij > nij) then
-              write(6,*) ' ij > nij'
-              write(6,*) ' JJORB IORB1',JJORB,IORB1
-              write(6,*) ' ijoff ',ijoff
+              write(u6,*) ' ij > nij'
+              write(u6,*) ' JJORB IORB1',JJORB,IORB1
+              write(u6,*) ' ijoff ',ijoff
               !stop
               call SYSABENDMSG('lucia_util/adads1_gas','Internal error','')
             end if
             I1(KKSTR-KMIN+1,IJ) = 0
-            XI1S(KKSTR-KMIN+1,IJ) = 0.0d0
+            XI1S(KKSTR-KMIN+1,IJ) = Zero
           end if
           if ((IORB1 < IORBMAX) .and. (IORB2 > IORBMIN)) then
             ! Orbitals IORB1+1 - IORB2 -1 can be added after ELECTRON IEL in KSTR
@@ -163,27 +166,27 @@ do KKSTR=KMIN,KEND
               ILEX2 = ILEX2+IZ(KSTR(IIEL,KKSTR),IIEL+2)
             end do
             IJOFF = (JJORB-JORBMIN)*NIORB
-            !PAM2009 SIGNIJ = SIGNJ*(-1.0D0)**(IEL+1)
+            !PAM2009 SIGNIJ = SIGNJ*(-One)**(IEL+1)
             SIGNIJ = SIGNJ*(-ODDIEL)
             do IIORB=IORB1+1,IORB2-1
               IJ = IJOFF+IIORB-IORBMIN+1
               if ((IJ <= 0) .or. (IJ > NIJ)) then
-                write(6,*) ' PROBLEMO ADADS1 : IJ : ',IJ
-                write(6,*) ' IJOFF IORBMIN ',IJOFF,IORBMIN
-                write(6,*) ' IIORB JJORB ',IIORB,JJORB
+                write(u6,*) ' PROBLEMO ADADS1 : IJ : ',IJ
+                write(u6,*) ' IJOFF IORBMIN ',IJOFF,IORBMIN
+                write(u6,*) ' IIORB JJORB ',IIORB,JJORB
                 !stop
                 call SYSABENDMSG('lucia_util/adads1_gas','Internal error','')
                 NTEST = 1000
               end if
               ILEX = ILEX2+IZ(IIORB,IEL+2)
               IACT = IREO(ILEX)
-              if (NTEST >= 1000) write(6,*) ' IIORB JJORB ',IIORB,JJORB
-              if (NTEST >= 1000) write(6,*) ' IJ ILEX,IACT',IJ,ILEX,IACT
-              if (NTEST >= 1000) write(6,*) ' ILEX0 ILEX1 ILEX2 ILEX ',ILEX0,ILEX1,ILEX2,ILEX
+              if (NTEST >= 1000) write(u6,*) ' IIORB JJORB ',IIORB,JJORB
+              if (NTEST >= 1000) write(u6,*) ' IJ ILEX,IACT',IJ,ILEX,IACT
+              if (NTEST >= 1000) write(u6,*) ' ILEX0 ILEX1 ILEX2 ILEX ',ILEX0,ILEX1,ILEX2,ILEX
               I1(KKSTR-KMIN+1,IJ) = IACT
               XI1S(KKSTR-KMIN+1,IJ) = SIGNIJ
               if (IJ < 0) then
-                write(6,*) ' NEGATIVE IJ in ADADS1'
+                write(u6,*) ' NEGATIVE IJ in ADADS1'
                 !stop ' NEGATIVE IJ in ADADS1'
                 call SYSABENDMSG('lucia_util/adads1_gas','Internal error','')
               end if
@@ -196,18 +199,18 @@ do KKSTR=KMIN,KEND
 end do
 
 if (NTEST > 0) then
-  write(6,*) ' Output from ADADST1_GAS'
-  write(6,*) ' ====================='
-  write(6,*) ' Number of K strings accessed ',NK
+  write(u6,*) ' Output from ADADST1_GAS'
+  write(u6,*) ' ====================='
+  write(u6,*) ' Number of K strings accessed ',NK
   if (NK /= 0) then
     IJ = 0
     do JJORB=JORB,JORB+NJORB-1
       do IIORB=IORB,IORB+NIORB-1
         IJ = IJ+1
-        !write(6,*) ' IJ = ',IJ
+        !write(u6,*) ' IJ = ',IJ
         !if (IIORB > JJORB) then
-        write(6,*) ' Info for orbitals (iorb,jorb) ',IIORB,JJORB
-        write(6,*) ' Excited strings and sign'
+        write(u6,*) ' Info for orbitals (iorb,jorb) ',IIORB,JJORB
+        write(u6,*) ' Excited strings and sign'
         call IWRTMA(I1(1,IJ),1,NK,1,NK)
         call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
         !end if

@@ -12,10 +12,12 @@
 real*8 function INPROD(A,B,NDIM)
 ! CALCULATE SCALAR PRODUCT BETWEEN TWO VECTORS A,B
 
+use Constants, only: Zero
+
 implicit real*8(A-H,O-Z)
 dimension A(*), B(*)
 
-INPROD = 0.0d0
+INPROD = Zero
 do I=1,NDIM
   INPROD = INPROD+A(I)*B(I)
 end do

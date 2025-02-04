@@ -16,6 +16,8 @@ subroutine CONF_VERTEX_W(IOCC_MIN,IOCC_MAX,NORB,NEL,IVERTEXW)
 !
 ! Jeppe Olsen, October 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IOCC_MIN(NORB), IOCC_MAX(NORB)
@@ -23,10 +25,10 @@ integer IOCC_MIN(NORB), IOCC_MAX(NORB)
 integer IVERTEXW(NORB+1,NEL+1)
 
 IZERO = 0
-!write(6,*) ' CONF_VERTEX : NORB, NEL = ',NORB,NEL
+!write(u6,*) ' CONF_VERTEX : NORB, NEL = ',NORB,NEL
 call ISETVC(IVERTEXW,IZERO,(NORB+1)*(NEL+1))
 
-IVERTEXW(0+1,0+1) = 1
+IVERTEXW(1,1) = 1
 do IORB=1,NORB
   !$$$ Jesper DO IEL=0,NEL
   do IEL=IOCC_MIN(IORB),IOCC_MAX(IORB)
@@ -46,7 +48,7 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Vertex weights as an (NORB+1)*(NEL+1) matrix'
+  write(u6,*) ' Vertex weights as an (NORB+1)*(NEL+1) matrix'
   call IWRTMA(IVERTEXW,NORB+1,NEL+1,NORB+1,NEL+1)
 end if
 

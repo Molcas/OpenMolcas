@@ -22,6 +22,8 @@ subroutine RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,ICOPY,NSMST,NSASO,NSBSO,IDC,PS,IW
 !
 ! Jeppe Olsen, August 1995
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! General input
 dimension NSASO(NSMST,*), NSBSO(NSMST,*)
@@ -41,9 +43,9 @@ else
 end if
 
 if (NTEST > 10) then
-  write(6,*) ' Information from RFTTS'
-  write(6,*) ' ======================'
-  write(6,*) ' Input vector'
+  write(u6,*) ' Information from RFTTS'
+  write(u6,*) ' ======================'
+  write(u6,*) ' Input vector'
   call WRTTTS(BLOCKSI,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,ISCI)
 end if
 
@@ -76,9 +78,9 @@ do JBLOCK=1,NBLOCK
     else
       NELMNT = NIA*NIB
     end if
-    !write(6,*) ' JBLOCK, NELMNT = ',JBLOCK,NELMNT
-    !write(6,*) ' RFTTS : IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
-    !write(6,*) ' RFTTS : NIA NIB IOFFI,IOFFO',NIA,NIB,IOFFI,IOFFO
+    !write(u6,*) ' JBLOCK, NELMNT = ',JBLOCK,NELMNT
+    !write(u6,*) ' RFTTS : IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
+    !write(u6,*) ' RFTTS : NIA NIB IOFFI,IOFFO',NIA,NIB,IOFFI,IOFFO
 
     if (IPACK == 0) then
       ! Just copy
@@ -100,9 +102,9 @@ end do
 if (ICOPY /= 0) call COPVEC(BLOCKSO,BLOCKSI,LENGTH)
 
 if (NTEST > 10) then
-  write(6,*) ' Information from RFTTS'
-  write(6,*) ' ======================'
-  write(6,*) ' Output vector'
+  write(u6,*) ' Information from RFTTS'
+  write(u6,*) ' ======================'
+  write(u6,*) ' Output vector'
   call WRTTTS(BLOCKSO,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,ISCO)
 end if
 

@@ -17,6 +17,8 @@ subroutine CONF_ARC_W(IOCC_MIN,IOCC_MAX,NORB,NEL,IVERTEXW,IARCW)
 !
 ! Jeppe Olsen, October 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IVERTEXW(NORB+1,NEL+1)
@@ -41,9 +43,9 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Arc weights for single occupied arcs'
+  write(u6,*) ' Arc weights for single occupied arcs'
   call IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
-  write(6,*) ' Arc weights for double occupied arcs'
+  write(u6,*) ' Arc weights for double occupied arcs'
   call IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
 end if
 

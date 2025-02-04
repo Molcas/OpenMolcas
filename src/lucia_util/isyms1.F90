@@ -14,6 +14,7 @@ integer function ISYMS1(STRING,NEL)
 
 use symmetry_info, only: SYMPRO => Mul
 use lucia_data, only: ISMFTO
+use Definitions, only: u6
 
 implicit none
 ! Specific input
@@ -30,9 +31,9 @@ ISYMS1 = ISYM
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' ISYMS1, String and symmetry'
+  write(u6,*) ' ISYMS1, String and symmetry'
   call IWRTMA(STRING,1,NEL,1,NEL)
-  write(6,*) ISYM
+  write(u6,*) ISYM
 end if
 
 end function ISYMS1

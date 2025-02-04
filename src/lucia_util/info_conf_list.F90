@@ -12,9 +12,11 @@
 !***********************************************************************
 
 subroutine INFO_CONF_LIST(NCONF_PER_OPEN,MAXOP,NEL,LENGTH_LIST,NCONF_TOT,IB_REO,IB_OCC)
-! Info on  configuration list form NCONF_PER_OPEN
+! Info on configuration list form NCONF_PER_OPEN
 !
 ! Jeppe Olsen, November 2001
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Input
@@ -29,7 +31,7 @@ integer IB_OCC(MAXOP+1)
 
 JB_REO = 1
 JB_OCC = 1
-!write(6,*) ' MAXOP, NEL = ',MAXOP,NEL
+!write(u6,*) ' MAXOP, NEL = ',MAXOP,NEL
 do NOPEN=0,MAXOP
   IB_REO(NOPEN+1) = JB_REO
   IB_OCC(NOPEN+1) = JB_OCC
@@ -45,10 +47,10 @@ NCONF_TOT = JB_REO-1
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' NCONF_PER_OPEN list'
+  write(u6,*) ' NCONF_PER_OPEN list'
   call IWRTMA(NCONF_PER_OPEN,1,MAXOP+1,1,MAXOP+1)
-  write(6,*) ' Length of configuration list :',LENGTH_LIST
-  write(6,*) ' Total number of configurations : ',NCONF_TOT
+  write(u6,*) ' Length of configuration list :',LENGTH_LIST
+  write(u6,*) ' Total number of configurations : ',NCONF_TOT
 end if
 
 end subroutine INFO_CONF_LIST

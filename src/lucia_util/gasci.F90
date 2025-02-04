@@ -45,6 +45,8 @@ use lucia_data, only: MXPNGAS, MXPNSMST
 use lucia_data, only: LCMBSPC, ICMBSPC, IGSOCCX
 #endif
 use csm_data, only: NSMST
+use Constants, only: Zero, Two
+use Definitions, only: u6
 
 implicit none
 integer ISM, ISPC, IPRNT, IIUSEH0P, MPORENP_E
@@ -77,38 +79,38 @@ IH2FORM = 1
 ! Not just number conserving part
 !IH_OCC_CONS_TEST = 0
 !if (IH_OCC_CONS_TEST == 1) then
-!  write(6,*) ' IH_OCC_CONS set to one in GASCI'
+!  write(u6,*) ' IH_OCC_CONS set to one in GASCI'
 !  IH_OCC_CONS = 1
 !end if
 
 #ifdef _DEBUGPRINT_
 if (NTEST >= 20) then
-  write(6,*)
-  write(6,*) ' ====================================='
-  write(6,*) ' Control has been transferred to GASCI'
-  write(6,*) ' ====================================='
-  write(6,*)
-  write(6,*) ' IIUSEH0P = ',IIUSEH0P
-  write(6,*) ' MPORENP_E = ',MPORENP_E
+  write(u6,*)
+  write(u6,*) ' ====================================='
+  write(u6,*) ' Control has been transferred to GASCI'
+  write(u6,*) ' ====================================='
+  write(u6,*)
+  write(u6,*) ' IIUSEH0P = ',IIUSEH0P
+  write(u6,*) ' MPORENP_E = ',MPORENP_E
 end if
 if (NTEST >= 5) then
-  write(6,'(A)') '  A few pertinent data :'
-  write(6,*)
-  write(6,'(A,I2)') '  CI space         ',ISPC
-  write(6,*)
-  write(6,*) ' Number of GAS spaces included ',LCMBSPC(ISPC)
-  write(6,'(A,10I3)') '  GAS spaces included           ',(ICMBSPC(II,ISPC),II=1,LCMBSPC(ISPC))
-  write(6,*)
-  write(6,*) ' Occupation constraints :'
-  write(6,*) '========================='
-  write(6,*)
-  write(6,*)
+  write(u6,'(A)') '  A few pertinent data :'
+  write(u6,*)
+  write(u6,'(A,I2)') '  CI space         ',ISPC
+  write(u6,*)
+  write(u6,*) ' Number of GAS spaces included ',LCMBSPC(ISPC)
+  write(u6,'(A,10I3)') '  GAS spaces included           ',(ICMBSPC(II,ISPC),II=1,LCMBSPC(ISPC))
+  write(u6,*)
+  write(u6,*) ' Occupation constraints :'
+  write(u6,*) '========================='
+  write(u6,*)
+  write(u6,*)
   do JJGASSPC=1,LCMBSPC(ISPC)
     JGASSPC = ICMBSPC(JJGASSPC,ISPC)
-    write(6,*) ' Gas space  Min acc. occupation Max acc. occupation'
-    write(6,*) ' =================================================='
+    write(u6,*) ' Gas space  Min acc. occupation Max acc. occupation'
+    write(u6,*) ' =================================================='
     do IGAS=1,NGAS
-      write(6,'(3X,I2,13X,I3,16X,I3)') IGAS,IGSOCCX(IGAS,1,JGASSPC),IGSOCCX(IGAS,2,JGASSPC)
+      write(u6,'(3X,I2,13X,I3,16X,I3)') IGAS,IGSOCCX(IGAS,1,JGASSPC),IGSOCCX(IGAS,2,JGASSPC)
     end do
   end do
 end if
@@ -119,14 +121,14 @@ call Unused_Integer(MPORENP_E)
 
 NDET = int(XISPSM(ISM,ISPC))
 NEL = NELCI(ISPC)
-if (NTEST >= 20) write(6,*) ' Number of determinants/combinations  ',NDET
+if (NTEST >= 20) write(u6,*) ' Number of determinants/combinations  ',NDET
 if (NDET == 0) then
-  write(6,*) ' The number of determinants/combinations is zero.'
-  write(6,*) ' I am sure that fascinating discussions about'
-  write(6,*) ' the energy of such a wave function exists,'
-  write(6,*) ' but I am just a dumb program, so I will stop'
-  write(6,*)
-  write(6,*) ' GASCI : Vanishing number of parameters'
+  write(u6,*) ' The number of determinants/combinations is zero.'
+  write(u6,*) ' I am sure that fascinating discussions about'
+  write(u6,*) ' the energy of such a wave function exists,'
+  write(u6,*) ' but I am just a dumb program, so I will stop'
+  write(u6,*)
+  write(u6,*) ' GASCI : Vanishing number of parameters'
   !stop ' GASCI : Vanishing number of parameters'
   call SYSABENDMSG('lucia_util/gasci','User error','')
 end if
@@ -155,7 +157,7 @@ else
   NVAR = NCSF_PER_SYM(ISM)
   !*JESPER : Addition end
 end if
-if (IPRNT >= 5) write(6,*) '  NVAR in GASCI ',NVAR
+if (IPRNT >= 5) write(u6,*) '  NVAR in GASCI ',NVAR
 ! Allocate memory for diagonalization
 !if (ISIMSYM == 0) then
 LBLOCK = MXSOOB
@@ -165,7 +167,7 @@ LBLOCK = MXSOOB
 LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-if (PSSIGN /= 0.0d0) LBLOCK = int(2.0d0*XISPSM(IREFSM,1))
+if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 
 ! Information about block structure- needed by new PICO2 routine.
 ! Memory for partitioning of C vector
@@ -227,7 +229,7 @@ NBEL = NELEC(IBTP)
 MAXA = 0
 if (NAEL >= 1) then
   MAXA1 = IMNMX(NSTSO(IATPM1)%I,NSMST*NOCTYP(IATPM1),2)
-  !write(6,*) ' MAXA1 1',MAXA1
+  !write(u6,*) ' MAXA1 1',MAXA1
   MAXA = max(MAXA,MAXA1)
   if (NAEL >= 2) then
     MAXA1 = IMNMX(NSTSO(IATPM2)%I,NSMST*NOCTYP(IATPM2),2)
@@ -244,7 +246,7 @@ if (NBEL >= 1) then
   end if
 end if
 MXSTBL = max(MAXA,MAXB,MXSTBL0)
-if (IPRCIX >= 2) write(6,*) ' Largest block of strings with given symmetry and type',MXSTBL
+if (IPRCIX >= 2) write(u6,*) ' Largest block of strings with given symmetry and type',MXSTBL
 ! Largest number of resolution strings and spectator strings
 ! that can be treated simultaneously
 MAXK = min(MXINKA,MXSTBL)
@@ -257,8 +259,8 @@ IOCTPB = IBSPGPFTP(IBTP)
 call MXRESCPH(CIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,NELFSPGP,MXCJ, &
               MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,MXADKBLK_AS,MX_NSPII)
 if (IPRCIX >= 2) then
-  write(6,*) 'GASCI  : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
-  write(6,*) ' MXADKBLK, MXADKBLK_AS',MXADKBLK,MXADKBLK_AS
+  write(u6,*) 'GASCI  : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
+  write(u6,*) ' MXADKBLK, MXADKBLK_AS',MXADKBLK,MXADKBLK_AS
 end if
 !if (ISIMSYM == 1) then
 !  MXCJ = MAX(MXCJ_ALLSYM,MX_NSPII)
@@ -266,7 +268,7 @@ end if
 !end if
 ! Using hardwired routines, MXCIJAB also used
 LSCR2 = max(MXCJ,MXCIJA,MXCIJB,MXCIJAB,MX_NSPII)
-if (IPRCIX >= 2) write(6,*) ' Space for two resolution matrices ',2*LSCR2
+if (IPRCIX >= 2) write(u6,*) ' Space for two resolution matrices ',2*LSCR2
 LSCR12 = max(LBLOCK,2*LSCR2)
 call mma_allocate(VEC3,LSCR12,Label='VEC3')
 KVEC3_LENGTH = max(LSCR12,2*LBLOCK,KVEC3_LENGTH)
@@ -284,9 +286,9 @@ if (.not. ((IDIAG == 2) .and. (IRESTR == 1))) then
     IDISK(LUDIA) = 0
     call TODSC(SCR,NVAR,-1,LUDIA)
   end if
-  if (IPRCIX >= 2) write(6,*) ' Diagonal constructed'
+  if (IPRCIX >= 2) write(u6,*) ' Diagonal constructed'
 else
-  write(6,*) ' Diagonal not calculated'
+  write(u6,*) ' Diagonal not calculated'
 end if
 
 IDUMMY = 1

@@ -27,6 +27,8 @@ subroutine NEXT_SYM_DISTR(NGAS,MINVAL,MAXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
 !
 ! Jeppe Olsen, Sept 97
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension minval(NGAS), maxval(NGAS)
@@ -62,9 +64,9 @@ end if
 NTEST = 0
 if (NTEST >= 100) then
   if (NONEW == 1) then
-    write(6,*) ' No new symmetry distributions'
+    write(u6,*) ' No new symmetry distributions'
   else
-    write(6,*) ' Next symmetry distribution'
+    write(u6,*) ' Next symmetry distribution'
     call IWRTMA(ISYM,1,NGAS,1,NGAS)
   end if
 end if

@@ -19,6 +19,9 @@ subroutine NATORB_LUCIA(RHO1,NSMOB,NTOPSM,NACPSM,NINPSM,ISTOB,XNAT,RHO1SM,OCCNUM
 !              Modification, Oct 94
 !              Last modification, Feb. 1998 (reorder deg eigenvalues)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension RHO1(NACOB,NACOB)
@@ -58,20 +61,19 @@ do ISMOB=1,NSMOB
   end do
 
   if (NTEST >= 2) then
-    write(6,*)
-    write(6,*) ' Density matrix for symmetry  = ',ISMOB
-    write(6,*) ' ======================================='
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' Density matrix for symmetry  = ',ISMOB
+    write(u6,*) ' ======================================='
+    write(u6,*)
     call WRTMAT(RHO1SM(IMTOFF),LOB,LOB,LOB,LOB)
   end if
   ! Pack and diagonalize
   !    TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
   call TRIPAK(RHO1SM(IMTOFF),SCR,1,LOB,LOB)
-  ONEM = -1.0d0
   ! scale with -1 to get highest occupation numbers as first eigenvectors
-  call SCALVE(SCR,ONEM,LOB*(LOB+1)/2)
-  call DCopy_(LOB**2,[0.0d0],0,XNAT(IMTOFF),1)
-  call DCopy_(LOB,[1.0d0],0,XNAT(IMTOFF),1+LOB)
+  call SCALVE(SCR,-One,LOB*(LOB+1)/2)
+  call DCopy_(LOB**2,[Zero],0,XNAT(IMTOFF),1)
+  call DCopy_(LOB,[One],0,XNAT(IMTOFF),1+LOB)
   call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB)
   call JACORD(SCR,XNAT(IMTOFF),LOB,LOB)
 
@@ -79,7 +81,7 @@ do ISMOB=1,NSMOB
     OCCNUM(IOBOFF-1+I) = -SCR(I*(I+1)/2)
   end do
   ! Order the degenerate eigenvalues so diagonal terms are maximized
-  TESTY = 1.0D-11
+  TESTY = 1.0e-11_wp
   do IOB=2,LOB
     if (abs(OCCNUM(IOBOFF-1+IOB)-OCCNUM(IOBOFF-2+IOB)) <= TESTY) then
       XII = abs(XNAT(IMTOFF-1+(IOB-1)*LOB+IOB))
@@ -93,21 +95,21 @@ do ISMOB=1,NSMOB
         SS = OCCNUM(IOBOFF-1+IOB-1)
         OCCNUM(IOBOFF-1+IOB-1) = OCCNUM(IOBOFF-1+IOB)
         OCCNUM(IOBOFF-1+IOB) = SS
-        if (NTEST >= 1) write(6,*) ' Orbitals interchanged ',IOBOFF-1+IOB,IOBOFF-2+IOB
+        if (NTEST >= 1) write(u6,*) ' Orbitals interchanged ',IOBOFF-1+IOB,IOBOFF-2+IOB
       end if
     end if
   end do
 
   if (NTEST >= 1) then
-    write(6,*)
-    write(6,*) ' Natural occupation numbers for symmetry = ',ISMOB
-    write(6,*) ' ==================================================='
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' Natural occupation numbers for symmetry = ',ISMOB
+    write(u6,*) ' ==================================================='
+    write(u6,*)
     call WRTMAT(OCCNUM(IOBOFF),1,LOB,1,LOB)
     if (NTEST >= 2) then
-      write(6,*)
-      write(6,*) ' Corresponding Eigenvectors'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) ' Corresponding Eigenvectors'
+      write(u6,*)
       call WRTMAT(XNAT(IMTOFF),LOB,LOB,LOB,LOB)
     end if
   end if

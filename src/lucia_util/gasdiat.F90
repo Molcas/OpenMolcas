@@ -26,10 +26,11 @@ use lucia_data, only: IDISK
 use lucia_data, only: NTOOB, IREOST, IREOTS, NACOB
 use lucia_data, only: NOCTYP
 use lucia_data, only: NELEC
+use csm_data, only: NSMST
 #ifdef _DEBUGPRINT_
 use lucia_data, only: IBSPGPFTP
+use Definitions, only: u6
 #endif
-use csm_data, only: NSMST
 
 implicit none
 ! =====
@@ -69,12 +70,12 @@ NOCTPB = NOCTYP(IBTP)
 IOCTPA = IBSPGPFTP(IATP)
 IOCTPB = IBSPGPFTP(IBTP)
 if (NTEST >= 10) then
-  write(6,*) ' ==============='
-  write(6,*) ' GASDIA speaking'
-  write(6,*) ' ==============='
-  write(6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
-  write(6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
-  write(6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
+  write(u6,*) ' ==============='
+  write(u6,*) ' GASDIA speaking'
+  write(u6,*) ' ==============='
+  write(u6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
+  write(u6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
+  write(u6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
 end if
 #endif
 

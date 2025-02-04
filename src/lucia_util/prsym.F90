@@ -13,6 +13,8 @@ subroutine PRSYM(A,MATDIM)
 ! PRINT LOWER HALF OF A SYMMETRIC MATRIX OF DIMENSION MATDIM.
 ! THE LOWER HALF OF THE MATRIX IS SUPPOSED TO BE IN VECTOR A.
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 dimension A(*)
 
@@ -21,7 +23,7 @@ JSTOP = 0
 do I=1,MATDIM
   JSTART = JSTART+I-1
   JSTOP = JSTOP+I
-  write(6,1010) I,(A(J),J=JSTART,JSTOP)
+  write(u6,1010) I,(A(J),J=JSTART,JSTOP)
 end do
 
 return

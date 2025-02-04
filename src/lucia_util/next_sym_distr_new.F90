@@ -20,6 +20,8 @@ subroutine NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NGAS,ISYM,ISYM_TOT,IFIRST,NONEW,IS
 ! Loop over first NGAS-1 spaces are performed, and the symmetry
 ! of the last space is then fixed by the required total sym
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer ISMDFGP(NSMST,NGRP), NACTSYM(NGRP), ISMSCR(NGRP)
@@ -30,19 +32,19 @@ integer ISYM(NGAS)
 NTEST = 0
 
 if (NTEST >= 100) then
-  write(6,*) '***************************'
-  write(6,*) 'INPUT IN NEXT_SYM_DISTR_NEW'
-  write(6,*) '***************************'
-  write(6,*) 'NGRP :',NGRP
-  write(6,*) 'KGRP :'
-  write(6,'(40I3)') (KGRP(i),i=1,NGAS)
-  write(6,*) 'NACTSYM(NGRP) :'
-  write(6,'(40I2)') (NACTSYM(i),i=1,NGRP)
-  write(6,*) 'ISMDFGP(ISYM,NGRP) :'
+  write(u6,*) '***************************'
+  write(u6,*) 'INPUT IN NEXT_SYM_DISTR_NEW'
+  write(u6,*) '***************************'
+  write(u6,*) 'NGRP :',NGRP
+  write(u6,*) 'KGRP :'
+  write(u6,'(40I3)') (KGRP(i),i=1,NGAS)
+  write(u6,*) 'NACTSYM(NGRP) :'
+  write(u6,'(40I2)') (NACTSYM(i),i=1,NGRP)
+  write(u6,*) 'ISMDFGP(ISYM,NGRP) :'
   do Ism=1,NSMST
-    write(6,'(40I2)') (ISMDFGP(ism,i),i=1,NGRP)
+    write(u6,'(40I2)') (ISMDFGP(ism,i),i=1,NGRP)
   end do
-  write(6,*) 'IFIRST',IFIRST
+  write(u6,*) 'IFIRST',IFIRST
 end if
 
 if (IFIRST == 1) then
@@ -54,8 +56,8 @@ if (IFIRST == 1) then
 end if
 
 if (NTEST >= 100) then
-  write(6,*) 'Symmetry distribution :'
-  write(6,'(40I2)') (ISYM(IGAS),IGAS=1,NGAS)
+  write(u6,*) 'Symmetry distribution :'
+  write(u6,'(40I2)') (ISYM(IGAS),IGAS=1,NGAS)
 end if
 
 1001 continue
@@ -73,9 +75,9 @@ end if
 
 if (NTEST >= 100) then
   if (NONEW == 1) then
-    write(6,*) ' No new symmetry distributions'
+    write(u6,*) ' No new symmetry distributions'
   else
-    write(6,*) ' Next symmetry distribution'
+    write(u6,*) ' Next symmetry distribution'
     call IWRTMA(ISYM,1,NGAS,1,NGAS)
   end if
 end if

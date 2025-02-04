@@ -14,6 +14,7 @@ subroutine TODSC(A,NDIM,MBLOCK,IFIL)
 ! RECORDS WITH LENGTH NBLOCK.
 
 use lucia_data, only: IDISK
+use Constants, only: Zero
 
 implicit none
 integer NDIM, MBLOCK, IFIL
@@ -28,7 +29,7 @@ IPACK = 1
 if (IPACK /= 0) then
   ! Check norm of A before writing
   XNORM = INPROD(A,A,NDIM)
-  if (XNORM == 0.0d0) then
+  if (XNORM == Zero) then
     IMZERO = 1
   else
     IMZERO = 0

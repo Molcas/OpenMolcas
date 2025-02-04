@@ -37,6 +37,8 @@ use lucia_data, only: ENVIRO, ISIMSYM, LCSBLK
 use lucia_data, only: IREFSM, PSSIGN, IDC
 use lucia_data, only: NOCTYP
 use csm_data, only: NSMST
+use Constants, only: Zero, Two
+use Definitions, only: u6
 
 implicit none
 integer ISPC, ISM, IATP, IBTP, NBATCH, NBLOCK
@@ -49,12 +51,12 @@ integer NTEST, NOCTPA, NOCTPB, LBLOCK
 NTEST = 0
 #ifdef _DEBUGPRINT_
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ==================='
-  write(6,*) ' Output from Z_BLKFO'
-  write(6,*) ' ==================='
-  write(6,*)
-  write(6,*) ' ISM, ISPC = ',ISM,ISPC
+  write(u6,*)
+  write(u6,*) ' ==================='
+  write(u6,*) ' Output from Z_BLKFO'
+  write(u6,*) ' ==================='
+  write(u6,*)
+  write(u6,*) ' ISM, ISPC = ',ISM,ISPC
 end if
 #endif
 
@@ -80,10 +82,10 @@ LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
 if (ENVIRO(1:6) == 'RASSCF') then
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-  if (PSSIGN /= 0.0d0) LBLOCK = int(2.0d0*XISPSM(IREFSM,1))
+  if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 end if
 
-if (NTEST >= 10) write(6,*) ' LBLOCK = ',LBLOCK
+if (NTEST >= 10) write(u6,*) ' LBLOCK = ',LBLOCK
 
 ! Batches of C vector
 call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
@@ -91,8 +93,8 @@ call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,
 ! Number of BLOCKS
 NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
 if (NTEST >= 1) then
-  write(6,*) ' Number of batches',NBATCH
-  write(6,*) ' Number of blocks ',NBLOCK
+  write(u6,*) ' Number of batches',NBATCH
+  write(u6,*) ' Number of blocks ',NBLOCK
 end if
 ! Length of each block
 call EXTRROW(CIBT,8,8,NBLOCK,CI1BT)

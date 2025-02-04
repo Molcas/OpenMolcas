@@ -15,6 +15,8 @@ subroutine FIND_ACTIVE_BLOCKS(LUIN,LBLK,BLK_A,SEGMNT)
 ! in BLK_A
 
 use lucia_data, only: IDISK
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer LUIN, LBLK
@@ -50,18 +52,18 @@ if (LBL(1) >= 0) then
   call FRMDSC2(SEGMNT,LBL(1),KBLK,LUIN,IMZERO,IAMPACK,NO_ZEROING)
   if (IMZERO == 0) then
     NBLK_A = NBLK_A+1
-    BLK_A(IBLK) = 1.0d0
+    BLK_A(IBLK) = One
   else
-    BLK_A(IBLK) = 0.0d0
+    BLK_A(IBLK) = Zero
   end if
 end if
 if ((LBL(1) >= 0) .and. (LBLK <= 0)) goto 1000
 NBLK = IBLK-1
 
 NTEST = 0
-if (NTEST >= 1) write(6,*) ' FIND_A.... Number of total and active Blocks',NBLK,NBLK_A
+if (NTEST >= 1) write(u6,*) ' FIND_A.... Number of total and active Blocks',NBLK,NBLK_A
 if (NTEST >= 100) then
-  write(6,*) ' Active blocks'
+  write(u6,*) ' Active blocks'
   call WRTMAT(BLK_A,1,NBLK,1,NBLK)
 end if
 

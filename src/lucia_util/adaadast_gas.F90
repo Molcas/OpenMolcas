@@ -24,7 +24,7 @@ subroutine ADAADAST_GAS(IOB,IOBSM,IOBTP,NIOB,IAC,JOB,JOBSM,JOBTP,NJOB,JAC,ISPGP,
 ! I1(KSTR) =  ISTR if a+/a IORB a+/a JORB !KSTR> = +/-!ISTR>, ISTR is in
 ! ISPGP,ISM,IGRP.
 ! (numbering relative to TS start)
-!. Only excitations IOB >= JOB are included
+! Only excitations IOB >= JOB are included
 ! The orbitals are in GROUP-SYM IOBTP,IOBSM, JOBTP,JOBSM respectively,
 ! and IOB (JOB) is the first orbital to be used, and the number of orbitals
 ! to be checked is NIOB ( NJOB).
@@ -48,6 +48,7 @@ use lucia_data, only: IBGPSTR, IBSPGPFTP, ISPGPFTP, NELFGP, NELFSPGP, NELFTP, NG
 use lucia_data, only: NELIS, NSTRKS
 use lucia_data, only: IOBPTS, NOBPT, NOCOB
 use lucia_data, only: MXPNGAS
+use Definitions, only: u6
 
 implicit none
 integer IOB, IOBSM, IOBTP, NIOB, IAC, JOB, JOBSM, JOBTP, NJOB, JAC, ISPGP, ISM, ITP, KMIN, KMAX, LI1, NK, IEND, IFRST, KFRST, I12, &
@@ -67,21 +68,21 @@ JJGRP = 0 ! jwk-cleanup
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ======================'
-  write(6,*) ' ADAADST_GAS in service'
-  write(6,*) ' ======================'
-  write(6,*)
-  write(6,*) ' IOB,IOBSM,IOBTP,IAC ',IOB,IOBSM,IOBTP,IAC
-  write(6,*) ' JOB,JOBSM,JOBTP,JAC ',JOB,JOBSM,JOBTP,JAC
-  write(6,*) ' I12, K12 ',I12,K12
-  write(6,*) ' IFRST,KFRST',IFRST,KFRST
+  write(u6,*)
+  write(u6,*) ' ======================'
+  write(u6,*) ' ADAADST_GAS in service'
+  write(u6,*) ' ======================'
+  write(u6,*)
+  write(u6,*) ' IOB,IOBSM,IOBTP,IAC ',IOB,IOBSM,IOBTP,IAC
+  write(u6,*) ' JOB,JOBSM,JOBTP,JAC ',JOB,JOBSM,JOBTP,JAC
+  write(u6,*) ' I12, K12 ',I12,K12
+  write(u6,*) ' IFRST,KFRST',IFRST,KFRST
 end if
 
 ! Internal affairs
 
 if ((I12 > size(Z,2)) .or. (K12 > size(ZOCSTR,2))) then
-  write(6,*) ' ADST_GAS : Illegal value of I12 or K12 ',I12,K12
+  write(u6,*) ' ADST_GAS : Illegal value of I12 or K12 ',I12,K12
   !stop ' ADST_GAS : Illegal value of I12 or K12'
   call SYSABENDMSG('lucia_util/adst_gas','Internal error','')
   return
@@ -91,7 +92,7 @@ end if
 
 call SYMCOM(2,0,IOBSM,K1SM,ISM)
 call SYMCOM(2,0,JOBSM,KSM,K1SM)
-if (NTEST >= 100) write(6,*) ' K1SM,KSM : ',K1SM,KSM
+if (NTEST >= 100) write(u6,*) ' K1SM,KSM : ',K1SM,KSM
 ISPGPABS = IBSPGPFTP(ITP)-1+ISPGP
 IACADJ = 2
 IDELTA = -1
@@ -106,8 +107,8 @@ if (JAC == 2) then
   JDELTA = 1
 end if
 if (NTEST >= 100) then
-  write(6,*) ' IACADJ, JACADJ',IACADJ,JACADJ
-  write(6,*) ' IDELTA, JDELTA',IDELTA,JDELTA
+  write(u6,*) ' IACADJ, JACADJ',IACADJ,JACADJ
+  write(u6,*) ' IDELTA, JDELTA',IDELTA,JDELTA
 end if
 ! Occupation of K-strings
 if (IOBTP == JOBTP) then
@@ -117,13 +118,13 @@ else
   IEL = NELFSPGP(IOBTP,ISPGPABS)-IDELTA
   JEL = NELFSPGP(JOBTP,ISPGPABS)-JDELTA
 end if
-if (NTEST >= 100) write(6,*) ' IEL, JEL',IEL,JEL
+if (NTEST >= 100) write(u6,*) ' IEL, JEL',IEL,JEL
 ! Trivial zero ? (Nice, then mission is complete )
 ITRIVIAL = 0
 if ((IEL < 0) .or. (JEL < 0) .or. (IEL > NOBPT(IOBTP)) .or. (JEL > NOBPT(JOBTP))) then
   ! No strings with this number of elecs - be happy : No work
   NK = 0
-  if (NTEST >= 100) write(6,*) ' Trivial zero excitations'
+  if (NTEST >= 100) write(u6,*) ' Trivial zero excitations'
   ITRIVIAL = 1
   !return
 else
@@ -136,12 +137,12 @@ else
   do JGRP=IBGPSTR(JOBTP),IBGPSTR(JOBTP)+NGPSTR(JOBTP)-1
     if (NELFGP(JGRP) == JEL) JJGRP = JGRP
   end do
-  !write(6,*) ' ADAADA : IIGRP, JJGRP',IIGRP,JJGRP
+  !write(u6,*) ' ADAADA : IIGRP, JJGRP',IIGRP,JJGRP
 
   if ((IIGRP == 0) .or. (JJGRP == 0)) then
-    write(6,*) ' ADAADAST : cul de sac, active K groups not found'
-    write(6,*) ' Active GAS spaces  ',IOBTP,JOBTP
-    write(6,*) ' Number of electrons',IEL,JEL
+    write(u6,*) ' ADAADAST : cul de sac, active K groups not found'
+    write(u6,*) ' Active GAS spaces  ',IOBTP,JOBTP
+    write(u6,*) ' Number of electrons',IEL,JEL
     !stop ' ADAADAST : cul de sac, active K groups not found'
     call SYSABENDMSG('lucia_util/adaadast_gas','Internal error','')
   end if
@@ -153,7 +154,7 @@ if (ITRIVIAL /= 1) then
   KGRP(IOBTP) = IIGRP
   KGRP(JOBTP) = JJGRP
   if (NTEST >= 100) then
-    write(6,*) ' Groups in KGRP'
+    write(u6,*) ' Groups in KGRP'
     call IWRTMA(KGRP,1,NGAS,1,NGAS)
   end if
 end if
@@ -172,16 +173,16 @@ if (IFRST /= 0) then
   ! Reorder array for I strings
   call GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,ZOCSTR(:,K12),NOCOB,1,Z(:,I12),REO(:,I12))
   if (NTEST >= 1000) then
-    write(6,*) ' Info on I strings generated'
-    write(6,*) ' NSTRI = ',NSTRI
-    write(6,*) ' REORDER array'
+    write(u6,*) ' Info on I strings generated'
+    write(u6,*) ' NSTRI = ',NSTRI
+    write(u6,*) ' REORDER array'
     call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
   end if
   NSTRI_ = NSTRI
 
 end if
 if (NTEST >= 1000) then
-  write(6,*) ' REORDER array for I STRINGS'
+  write(u6,*) ' REORDER array for I STRINGS'
   call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
 end if
 
@@ -197,7 +198,7 @@ if (JAC == 1) then
 else
   NELK = NELK-1
 end if
-if (NTEST >= 100) write(6,*) ' NELK = ',NELK
+if (NTEST >= 100) write(u6,*) ' NELK = ',NELK
 if (KFRST /= 0) then
   ! Generate occupation of K STRINGS
   IDUM(1) = 0
@@ -205,8 +206,8 @@ if (KFRST /= 0) then
   !    GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,IZ,IREO)
   NSTRKS(K12) = NSTRK
   if (NTEST >= 1000) then
-    write(6,*) ' K strings generated'
-    write(6,*) ' Reorder array after generation of K strings'
+    write(u6,*) ' K strings generated'
+    write(u6,*) ' Reorder array after generation of K strings'
     call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
   end if
 end if
@@ -218,14 +219,13 @@ JJOB = IOBPTS(JOBTP,JOBSM)+JOB-1
 
 IZERO = 0
 call ISETVC(I1,IZERO,LI1*NIOB*NJOB)
-!OLD ZERO = 0.0D0
-!OLD call SETVEC(XI1S,ZERO,LI1*NIOB*NJOB)
+!OLD call SETVEC(XI1S,Zero,LI1*NIOB*NJOB)
 
 call ADAADAS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,IAC,JJOB,NJOB,JAC,ZOCSTR(:,K12),NELK,NSTRK,REO(:,I12),Z(:,I12),NOCOB,KMAX,KMIN,IEND, &
                   SCLFAC,NSTRI_)
 
 if (NTEST >= 1000) then
-  write(6,*) ' Reorder array after ADAADAS1'
+  write(u6,*) ' Reorder array after ADAADAS1'
   call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
 end if
 

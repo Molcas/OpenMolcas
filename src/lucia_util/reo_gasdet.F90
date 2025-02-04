@@ -44,7 +44,7 @@ integer, allocatable :: LOCMIN(:), LOCMAX(:)
 integer, allocatable :: DET_OC(:), DET_MS(:), DET_VC(:)
 integer NTEST, IATP, IBTP, NAEL, NBEL, NEL, NOCTPA, NOCTPB, IOCTPA, IOCTPB
 
-!write(6,*) 'nconf_per_open in reo_gasdet'
+!write(u6,*) 'nconf_per_open in reo_gasdet'
 !call iwrtma(nconf_per_open,1,4,1,4)
 
 ! Specifications of internal space

@@ -26,6 +26,8 @@ subroutine REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
 !
 ! Jeppe Olsen, Nov. 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input/Output
 integer IOCC_EXP(NEL), IOCC_PCK(NOCOB)
@@ -72,7 +74,7 @@ else if (IWAY == 2) then
     end if
   end do
 else
-  write(6,*) ' REFORM_CONF... in error, IWAY = ',IWAY
+  write(u6,*) ' REFORM_CONF... in error, IWAY = ',IWAY
   !stop ' REFORM_CONF... in error, IWAY'
   call SYSABENDMSG('lucia_util/reform_conv','Internal error','')
 end if
@@ -80,15 +82,15 @@ end if
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Reforming form of configuration'
+  write(u6,*) ' Reforming form of configuration'
   if (IWAY == 1) then
-    write(6,*) ' Expanded to packed form'
+    write(u6,*) ' Expanded to packed form'
   else
-    write(6,*) ' Packed to expanded form'
+    write(u6,*) ' Packed to expanded form'
   end if
-  write(6,*) ' IOCC_EXP :'
+  write(u6,*) ' IOCC_EXP :'
   call IWRTMA(IOCC_EXP,1,NEL,1,NEL)
-  write(6,*) ' IOCC_PCK :'
+  write(u6,*) ' IOCC_PCK :'
   call IWRTMA(IOCC_PCK,1,NOCOB,1,NOCOB)
 end if
 

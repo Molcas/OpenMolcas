@@ -30,6 +30,8 @@ use lucia_data, only: NOCTYP
 use lucia_data, only: NELEC
 use lucia_data, only: MXPCSM, MXPNGAS, MXPNSMST, MXPORB
 use csm_data, only: NSMST
+use Constants, only: Zero, Two
+use Definitions, only: u6
 
 implicit none
 integer IOCCLS(1), IBASSPC(1)
@@ -76,9 +78,9 @@ LBLOCK = MXSOOB
 !end if
 LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
-!PAM06 LBLOCK = MAX(XISPSM(IREFSM,1),DBLE(MXSOOB))
+!PAM06 LBLOCK = MAX(XISPSM(IREFSM,1),real(MXSOOB,kind=wp))
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-if (PSSIGN /= 0.0d0) LBLOCK = int(2.0d0*XISPSM(IREFSM,1))
+if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 
 ! Infomation about block structure- needed by new PICO2 routine.
 ! Memory for partitioning of C vector
@@ -146,7 +148,7 @@ end if
 
 MXSTBL = max(MAXA,MAXB,MXSTBL0)
 
-if (IPRCIX >= 2) write(6,*) ' Largest block of strings with given symmetry and type',MXSTBL
+if (IPRCIX >= 2) write(u6,*) ' Largest block of strings with given symmetry and type',MXSTBL
 ! Largest number of resolution strings and spectator strings
 ! that can be treated simultaneously
 MAXI = min(MXINKA,MXSTBL)
@@ -163,8 +165,8 @@ call MXRESCPH(LCIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NSMOB
 call mma_deallocate(LCIOIO)
 
 if (IPRCIX >= 2) then
-  write(6,*) 'DETCTL : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
-  write(6,*) ' MXADKBLK, MXADKBLK_AS',MXADKBLK,MXADKBLK_AS
+  write(u6,*) 'DETCTL : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
+  write(u6,*) ' MXADKBLK, MXADKBLK_AS',MXADKBLK,MXADKBLK_AS
 end if
 !if (ISIMSYM == 1) then
 !  MXCJ = MAX(MXCJ_ALLSYM,MX_NSPII)
@@ -172,7 +174,7 @@ end if
 !end if
 ! Using hardwired routines, MXCIJAB also used
 LSCR2 = max(MXCJ,MXCIJA,MXCIJB,MXCIJAB,MX_NSPII)
-if (IPRCIX >= 2) write(6,*) ' Space for two resolution matrices ',2*LSCR2
+if (IPRCIX >= 2) write(u6,*) ' Space for two resolution matrices ',2*LSCR2
 LSCR12 = max(LBLOCK,2*LSCR2)
 
 KVEC3_LENGTH = max(LSCR12,2*LBLOCK)

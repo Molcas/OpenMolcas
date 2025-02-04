@@ -18,6 +18,8 @@ subroutine NSTRSO_GAS(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NORB
 !
 ! Jeppe Olsen Winter of 1994
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 !dimension IOC(*), NSTASO(NOCTYP,NSMST)
 dimension IOC(*), NSTASO(NSMST,*), ISTASO(NSMST,*)
@@ -52,7 +54,7 @@ do IEL1=NELMX1,NELMN1,-1
       end if
     end if
     if (NTEST >= 500) then
-      write(6,*) ' RAS 1 string'
+      write(u6,*) ' RAS 1 string'
       call IWRTMA(IOC,1,IEL1,1,IEL1)
     end if
     IFRST2 = 1
@@ -72,7 +74,7 @@ do IEL1=NELMX1,NELMN1,-1
       end if
     end if
     if (NTEST >= 500) then
-      write(6,*) ' RAS 1 2 string'
+      write(u6,*) ' RAS 1 2 string'
       call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
     end if
     IFRST3 = 1
@@ -92,7 +94,7 @@ do IEL1=NELMX1,NELMN1,-1
       end if
     end if
     if (NTEST >= 500) then
-      write(6,*) ' RAS 1 2 3 string'
+      write(u6,*) ' RAS 1 2 3 string'
       call IWRTMA(IOC,1,NEL,1,NEL)
     end if
     ! Next string has been constructed, enlist it !
@@ -124,14 +126,14 @@ do ISM=1,NSMST
   end if
 end do
 
-if (NTEST >= 5) write(6,*) ' Number of strings generated   ',NSTRIN
+if (NTEST >= 5) write(u6,*) ' Number of strings generated   ',NSTRIN
 if (NTEST >= 10) then
-  write(6,*)
-  write(6,*) ' Number of strings per sym for group = ',IOTYP
-  write(6,*) '================================================'
+  write(u6,*)
+  write(u6,*) ' Number of strings per sym for group = ',IOTYP
+  write(u6,*) '================================================'
   call IWRTMA(NSTASO(1,IOTYP),1,NSMST,1,NSMST)
-  write(6,*) ' Offset for given symmetry for group = ',IOTYP
-  write(6,*) '================================================'
+  write(u6,*) ' Offset for given symmetry for group = ',IOTYP
+  write(u6,*) '================================================'
   call IWRTMA(ISTASO(1,IOTYP),1,NSMST,1,NSMST)
 end if
 

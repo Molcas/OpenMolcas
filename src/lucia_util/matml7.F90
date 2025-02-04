@@ -27,12 +27,14 @@ subroutine MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITR
 ! As Lasse points out, it is better to calculate C(T) = BA
 ! and then transpose C
 !
-!... JEPPE OLSEN,
+! JEPPE OLSEN,
 !
 ! ITRNSP = 3 added, march 2003
 !
-!. Notice : If the summation index has dimension zero nothing
-!           is performed
+! Notice : If the summation index has dimension zero nothing
+!          is performed
+
+use Constants, only: Zero
 
 implicit real*8(A-H,O-Z)
 dimension A(NAROW,NACOL), B(NBROW,NBCOL)
@@ -45,11 +47,10 @@ else
 end if
 
 if ((IZERO == 1) .and. (NCROW*NCCOL /= 0)) then
-  if (FACTORC /= 0.0d0) then
+  if (FACTORC /= Zero) then
     call SCALVE(C,FACTORC,NCROW*NCCOL)
   else
-    ZERO = 0.0d0
-    call SETVEC(C,ZERO,NCROW*NCCOL)
+    call SETVEC(C,Zero,NCROW*NCCOL)
   end if
 end if
 
@@ -102,7 +103,7 @@ else
 
     do J=1,NCCOL
       do I=1,NCROW
-        T = 0.0d0
+        T = Zero
         do K=1,NBROW
           T = T+A(K,I)*B(K,J)
         end do
@@ -152,9 +153,9 @@ if (ITRNSP == 3) then
 end if
 
 !if (NTEST == 0) then
-!  write(6,*)
-!  write(6,*) ' C MATRIX FROM MATML7'
-!  write(6,*)
+!  write(u6,*)
+!  write(u6,*) ' C MATRIX FROM MATML7'
+!  write(u6,*)
 !  call WRTMAT(C,NCROW,NCCOL,NCROW,NCCOL)
 !end if
 

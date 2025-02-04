@@ -17,14 +17,16 @@ function IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
 !
 ! Jeppe Olsen, Dec. 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer Z(NOPEN,NALPHA)
 dimension IAB(*), NEWORD(*)
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' IZNUM_PTDT, NOPEN, NALPHA = ',NOPEN,NALPHA
-  write(6,*) ' Input Z- matrix'
+  write(u6,*) ' IZNUM_PTDT, NOPEN, NALPHA = ',NOPEN,NALPHA
+  write(u6,*) ' Input Z- matrix'
   call IWRTMA(Z,NOPEN,NALPHA,NOPEN,NALPHA)
 end if
 
@@ -37,7 +39,7 @@ do I=1,NOPEN
   end if
 end do
 
-!write(6,*) ' IZ = ',IZ
+!write(u6,*) ' IZ = ',IZ
 if (IREORD == 0) then
   IZNUM_PTDT = IZ
 else
@@ -45,10 +47,10 @@ else
 end if
 
 if (NTEST >= 100) then
-  write(6,*) ' Output from IZNUM_PTDT'
-  write(6,*) ' Prototype determinant'
+  write(u6,*) ' Output from IZNUM_PTDT'
+  write(u6,*) ' Prototype determinant'
   call IWRTMA(IAB,1,NOPEN,1,NOPEN)
-  write(6,*) ' Address = ',IZNUM_PTDT
+  write(u6,*) ' Address = ',IZNUM_PTDT
 end if
 
 end function IZNUM_PTDT

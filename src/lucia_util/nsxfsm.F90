@@ -16,14 +16,16 @@ function NSXFSM(NSMOB,MXPOBS,NO1PS,NO2PS,ISXSM,ADSXA,ISYM,IPRNT)
 ! ISYM = 1 : Only excitations a+iaj with I >= J
 ! ISYM =-1 : Only excitations a+iaj with I > J
 
+use Definitions, only: u6
+
 integer ADSXA(MXPOBS,2*MXPOBS)
 integer NO1PS(*), NO2PS(*)
 
 MSXFSM = 0
-!write(6,*) ' NSMOB ',NSMOB
+!write(u6,*) ' NSMOB ',NSMOB
 do IO1SM=1,NSMOB
   IO2SM = ADSXA(IO1SM,ISXSM)
-  !write(6,*) ' IO1SM,IO2SM',IO1SM,IO2SM
+  !write(u6,*) ' IO1SM,IO2SM',IO1SM,IO2SM
   if ((ISYM == 0) .or. (IO1SM > IO2SM)) then
     MSXFSM = MSXFSM+NO1PS(IO1SM)*NO2PS(IO2SM)
   else if ((ISYM == 1) .and. (IO1SM == IO2SM)) then
@@ -38,6 +40,6 @@ NSXFSM = MSXFSM
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 
-if (NTEST /= 0) write(6,*) ' Number of single excitations of symmetry ',ISXSM,',',NSXFSM
+if (NTEST /= 0) write(u6,*) ' Number of single excitations of symmetry ',ISXSM,',',NSXFSM
 
 end function NSXFSM

@@ -13,13 +13,15 @@
 
 function ILEX_FOR_CONF_NEW(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO_new,nconf_op,ib_occls)
 ! A configuration ICONF of NOCC_ORB orbitals are given
-! ICONF(I) = IORB implies  IORB is singly occupied
-! ICONF(I) = -IORB  implies that IORB is doubly occupied
+! ICONF(I) = IORB implies IORB is singly occupied
+! ICONF(I) = -IORB implies that IORB is doubly occupied
 !
 ! Find lexical address
 !
 ! IF IDOREO /= 0, IREO is used to reorder lexical number
 ! Jeppe Olsen, November 2001
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Arcweights for single and doubly occupied arcs
@@ -49,11 +51,11 @@ if (IDOREO /= 0) then
   length = nconf_op
   ntest = 0
   if (ntest >= 10) then
-    write(6,*) 'in ilex_for_conf_new, check if all is right'
-    write(6,*) 'iconf:',(iconf(i),i=1,nocc_orb)
-    write(6,*) 'ilex and offset:',ilex,ib_occls
-    write(6,*) 'nconf_op =',nconf_op
-    write(6,*) 'ireo_new:'
+    write(u6,*) 'in ilex_for_conf_new, check if all is right'
+    write(u6,*) 'iconf:',(iconf(i),i=1,nocc_orb)
+    write(u6,*) 'ilex and offset:',ilex,ib_occls
+    write(u6,*) 'nconf_op =',nconf_op
+    write(u6,*) 'ireo_new:'
     call iwrtma(ireo_new,1,length,1,length)
   end if
   !call iwrtma(nconf_per_open,1,4,1,4)
@@ -82,10 +84,10 @@ end if
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Configuration'
+  write(u6,*) ' Configuration'
   call IWRTMA(ICONF,1,NOCC_ORB,1,NOCC_ORB)
-  write(6,*) ' new Lexical number = ',ILEX
-  if (IDOREO /= 0) write(6,*) ' new Reordered number = ',ILEX_FOR_CONF_NEW
+  write(u6,*) ' new Lexical number = ',ILEX
+  if (IDOREO /= 0) write(u6,*) ' new Reordered number = ',ILEX_FOR_CONF_NEW
 end if
 
 end function ILEX_FOR_CONF_NEW

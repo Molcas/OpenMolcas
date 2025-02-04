@@ -36,6 +36,8 @@ subroutine OSPIR(NOSPIR,IOSPIR,PNTGRP,NIRREP,MXPIRR,MXPOBS,IPRNT)
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer PNTGRP
 ! Output
@@ -43,15 +45,15 @@ dimension NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR)
 
 if (PNTGRP == 1) then
   !=====
-  !.D2h
+  ! D2h
   !=====
   do IRREP=1,8
     NOSPIR(IRREP) = 1
     IOSPIR(1,IRREP) = IRREP
   end do
 else
-  write(6,*) ' Sorry  PNTGRP out of range, PNTGRP = ',PNTGRP
-  write(6,*) ' OSPIR fatally wounded'
+  write(u6,*) ' Sorry  PNTGRP out of range, PNTGRP = ',PNTGRP
+  write(u6,*) ' OSPIR fatally wounded'
   !stop 5
   call SYSABENDMSG('lucia_util/ospir','Internal error','')
 end if
@@ -59,11 +61,11 @@ end if
 NTEST = 0
 NTEST = max(IPRNT,NTEST)
 if (NTEST /= 0) then
-  write(6,*) ' OSPIR speaking'
-  write(6,*) ' ================'
-  write(6,*) ' Number of orbitals per irrep'
+  write(u6,*) ' OSPIR speaking'
+  write(u6,*) ' ================'
+  write(u6,*) ' Number of orbitals per irrep'
   call IWRTMA(NOSPIR,1,NIRREP,1,NIRREP)
-  write(6,*) ' Orbital symmetries per irrep'
+  write(u6,*) ' Orbital symmetries per irrep'
   do IRREP=1,NIRREP
     call IWRTMA(IOSPIR(1,IRREP),1,NOSPIR(IRREP),1,NOSPIR(IRREP))
   end do

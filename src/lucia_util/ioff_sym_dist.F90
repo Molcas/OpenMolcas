@@ -16,6 +16,8 @@ integer function IOFF_SYM_DIST(ISYM,NGASL,IOFF,MAXVAL,MINVAL)
 !
 ! Obtain offset for symmetrycombination defined by ISYM
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer ISYM(*), IOFF(*), maxval(*), minval(*)
 
@@ -29,7 +31,7 @@ integer ISYM(*), IOFF(*), maxval(*), minval(*)
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Isym, minval, ioff:'
+  write(u6,*) ' Isym, minval, ioff:'
   call iwrtma(isym,1,ngasl,1,ngasl)
   call iwrtma(minval,1,ngasl,1,ngasl)
   call iwrtma(ioff,1,ngasl,1,ngasl)
@@ -40,7 +42,7 @@ IMULT = 1
 do IGAS=1,NGASL-1
   I = I+(ISYM(IGAS)-minval(IGAS))*IMULT
   IMULT = IMULT*(maxval(IGAS)-minval(IGAS)+1)
-  !write(6,*) ' igas,i,imult ',igas,i,imult
+  !write(u6,*) ' igas,i,imult ',igas,i,imult
 end do
 ! The following IF block is needed for avoinging going outside the IOFF bounds.
 ! This is possible for certain GAS setups. Test 897 helped in finding this issue.
@@ -51,11 +53,11 @@ else
 end if
 
 if (NTEST >= 100) then
-  write(6,*) ' Info from IOFF_SYM_DIST'
-  write(6,*) ' ======================='
-  write(6,*)
-  write(6,*) ' Address and offset ',I,IOFF_SYM_DIST
-  write(6,*) ' Symmetry distribution : ',(ISYM(J),J=1,NGASL)
+  write(u6,*) ' Info from IOFF_SYM_DIST'
+  write(u6,*) ' ======================='
+  write(u6,*)
+  write(u6,*) ' Address and offset ',I,IOFF_SYM_DIST
+  write(u6,*) ' Symmetry distribution : ',(ISYM(J),J=1,NGASL)
 end if
 
 end function IOFF_SYM_DIST

@@ -28,6 +28,8 @@ subroutine GRAPW(W,Y,MINEL,MAXEL,NORB,NEL,IPRNT)
 !
 ! Jeppe Olsen
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer W(NORB+1,NEL+1)
 integer Y(NORB,NEL)
@@ -68,9 +70,9 @@ do IEL=1,NEL
 end do
 
 if (NTEST >= 100) then
-  write(6,*) ' vertex weights'
+  write(u6,*) ' vertex weights'
   call IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
-  write(6,*) ' arc weights'
+  write(u6,*) ' arc weights'
   call IWRTMA(Y,NORB,NEL,NORB,NEL)
 end if
 

@@ -12,6 +12,8 @@
 subroutine GT1DIS(H1DIA,IREOTS,IPNT,H,ISMFTO,IBSO,NACOB)
 ! diagonal of one electron integrals over active orbitals
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IREOTS(*), IPNT(*), ISMFTO(*), IBSO(*)
@@ -23,14 +25,14 @@ do IIOB=1,NACOB
   IOB = IREOTS(IIOB)
   ISM = ISMFTO(IIOB)
   IOBREL = IOB-IBSO(ISM)+1
-  !write(6,*) ' IIOB IOB ISM IOBREL'
-  !write(6,*) IIOB,IOB,ISM,IOBREL
+  !write(u6,*) ' IIOB IOB ISM IOBREL'
+  !write(u6,*) IIOB,IOB,ISM,IOBREL
   H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
 end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' Diagonal one electron integrals'
+  write(u6,*) ' Diagonal one electron integrals'
   call WRTMAT(H1DIA,1,NACOB,1,NACOB)
 end if
 

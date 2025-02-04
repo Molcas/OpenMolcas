@@ -29,12 +29,14 @@ use lucia_data, only: ECORE_ORIG, ECORE
 use lucia_data, only: IPRDIA
 use lucia_data, only: MXNSTR
 use lucia_data, only: NTOOB, IREOST, IREOTS, NACOB
-#ifdef _DEBUGPRINT_
-use lucia_data, only: IDC, IPERTOP, IBSPGPFTP
-#endif
 use lucia_data, only: NOCTYP
 use lucia_data, only: NELEC
 use csm_data, only: NSMST
+use Constants, only: Zero
+#ifdef _DEBUGPRINT_
+use lucia_data, only: IDC, IPERTOP, IBSPGPFTP
+use Definitions, only: u6
+#endif
 
 implicit none
 real*8 FACTOR
@@ -83,13 +85,13 @@ NOCTPB = NOCTYP(IBTP)
 IOCTPA = IBSPGPFTP(IATP)
 IOCTPB = IBSPGPFTP(IBTP)
 if (NTEST >= 10) then
-  write(6,*) ' ====================='
-  write(6,*) ' DIATERM2_GAS speaking'
-  write(6,*) ' ====================='
-  write(6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
-  write(6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
-  write(6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
-  write(6,*) ' JPERT,IPART,J12,IPERTOP',JPERT,J12,IPERTOP
+  write(u6,*) ' ====================='
+  write(u6,*) ' DIATERM2_GAS speaking'
+  write(u6,*) ' ====================='
+  write(u6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
+  write(u6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
+  write(u6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
+  write(u6,*) ' JPERT,IPART,J12,IPERTOP',JPERT,J12,IPERTOP
 end if
 #else
 call Unused_Integer(JPERT)
@@ -110,7 +112,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 call GT1DIA(LH1D)
 if (J12 == 2) call GTJK(LJ,LK,NTOOB,LSCR2,IREOTS,IREOST)
 ! Core energy not included
-ECOREP = 0.0d0
+ECOREP = Zero
 SHIFT = ECORE_ORIG-ECORE
 FACTORX = FACTOR+SHIFT
 call DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,NACOB,VEC,NSMST,LH1D,JDC,LXB,LJ,LK,NSTSO(IATP)%I,NSTSO(IBTP)%I,ECOREP,0,0,IPRDIA,NTOOB, &
@@ -128,7 +130,7 @@ call mma_deallocate(LRJKA)
 
 #ifdef _DEBUGPRINT_
 if (NTEST >= 100) then
-  write(6,*) ' output vector from DIATRM'
+  write(u6,*) ' output vector from DIATRM'
   call WRTTTS(VEC,IBLOCK(1,IOFF),NBLOCK,NSMST,NSTSO(IATP)%I,NSTSO(IBTP)%I,IDC)
 end if
 #endif

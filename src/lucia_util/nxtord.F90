@@ -23,11 +23,13 @@ subroutine NXTORD(INUM,NELMNT,MINVAL,MAXVAL,NONEW)
 !
 ! Jeppe Olsen May 1989
 
+use Definitions, only: u6
+
 dimension INUM(*)
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' Initial number in NXTORD'
+  write(u6,*) ' Initial number in NXTORD'
   call IWRTMA(INUM,1,NELMNT,1,NELMNT)
 end if
 
@@ -52,7 +54,7 @@ goto 1000
 1001 continue
 
 if (NTEST /= 0) then
-  write(6,*) ' New number'
+  write(u6,*) ' New number'
   call IWRTMA(INUM,1,NELMNT,1,NELMNT)
 end if
 

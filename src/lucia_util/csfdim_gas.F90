@@ -40,6 +40,8 @@ use lucia_data, only: PSSIGN, MULTS, MS2
 use lucia_data, only: N_ELIMINATED_GAS, N_2ELIMINATED_GAS, I_ELIMINATE_GAS, I2ELIMINATED_IN_GAS, IELIMINATED_IN_GAS
 use lucia_data, only: NOBPT, NOCOB
 use lucia_data, only: MXPORB, MXPCSM
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 #include "warnings.h"
@@ -60,8 +62,8 @@ IDUM_ARR = 0
 
 NTEST = 0
 NTEST = max(IPRCSF,NTEST)
-if (NTEST >= 10) write(6,*) '  PSSIGN : ',PSSIGN
-if (NTEST >= 10) write(6,*) ' MULTS, MS2 = ',MULTS,MS2
+if (NTEST >= 10) write(u6,*) '  PSSIGN : ',PSSIGN
+if (NTEST >= 10) write(u6,*) ' MULTS, MS2 = ',MULTS,MS2
 NELEC = IELSUM(IOCCLS(1,1),NGAS)
 
 ! Define parameters in SPINFO
@@ -69,7 +71,7 @@ NELEC = IELSUM(IOCCLS(1,1),NGAS)
 ! Allowed number of open orbitals
 MINOP = abs(MS2)
 call MAX_OPEN_ORB(MAXOP,IOCCLS,NGAS,NOCCLS,NOBPT)
-if (NTEST >= 6) write(6,*) ' MINOP MAXOP ',MINOP,MAXOP
+if (NTEST >= 6) write(u6,*) ' MINOP MAXOP ',MINOP,MAXOP
 
 ! Number of prototype sd's and csf's per configuration prototype
 
@@ -80,7 +82,7 @@ do IOPEN=MINOP,MAXOP
   IAEL = (IOPEN+MS2)/2
   IBEL = (IOPEN-MS2)/2
   if ((IAEL+IBEL == IOPEN) .and. (IAEL-IBEL == MS2) .and. (IAEL >= 0) .and. (IBEL >= 0)) then
-    if ((PSSIGN == 0.0d0) .or. (IOPEN == 0)) then
+    if ((PSSIGN == Zero) .or. (IOPEN == 0)) then
       ! Number of determinants is in general set to number of combinations
       NPDTCNF(ITP) = IBION_LUCIA(IOPEN,IAEL)
       NPCMCNF(ITP) = NPDTCNF(ITP)
@@ -101,16 +103,16 @@ do IOPEN=MINOP,MAXOP
 end do
 
 if (NTEST >= 5) then
-  if (PSSIGN == 0.0d0) then
-    write(6,*) '  (Combinations = Determinants )'
+  if (PSSIGN == Zero) then
+    write(u6,*) '  (Combinations = Determinants )'
   else
-    write(6,*) '  (Spin combinations in use )'
+    write(u6,*) '  (Spin combinations in use )'
   end if
-  write(6,'(/A)') ' Information about prototype configurations'
-  write(6,'( A)') ' =========================================='
-  write(6,'(/A)') '  Open orbitals   Combinations    CSFs'
+  write(u6,'(/A)') ' Information about prototype configurations'
+  write(u6,'( A)') ' =========================================='
+  write(u6,'(/A)') '  Open orbitals   Combinations    CSFs'
   do IOPEN=MINOP,MAXOP,2
-    write(6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NPCMCNF(IOPEN+1),NPCSCNF(IOPEN+1)
+    write(u6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NPCMCNF(IOPEN+1),NPCSCNF(IOPEN+1)
   end do
 
 end if
@@ -118,16 +120,16 @@ end if
 ! Number of Configurations per occupation type
 
 if (NOCCLS > MXPCSM) then
-  write(6,*) ' A known bug has reoccurred -- It seems that'
-  write(6,*) ' the named constant MXPCSM must be increased'
-  write(6,*) ' from its current value MXPCSM=',MXPCSM
-  write(6,*) ' to AT LEAST NOCCLS=',NOCCLS
-  write(6,*) ' This parameter is found in the module'
-  write(6,*) '  <molcas>/src/lucia_util/lucia_data.F90'
-  write(6,*) ' Change it. Then ''cd'' to molcas root'
-  write(6,*) ' directory and give command ''make''.'
-  write(6,*) ' But this may also be a bug. Please tell the'
-  write(6,*) ' molcas developers!'
+  write(u6,*) ' A known bug has reoccurred -- It seems that'
+  write(u6,*) ' the named constant MXPCSM must be increased'
+  write(u6,*) ' from its current value MXPCSM=',MXPCSM
+  write(u6,*) ' to AT LEAST NOCCLS=',NOCCLS
+  write(u6,*) ' This parameter is found in the module'
+  write(u6,*) '  <molcas>/src/lucia_util/lucia_data.F90'
+  write(u6,*) ' Change it. Then ''cd'' to molcas root'
+  write(u6,*) ' directory and give command ''make''.'
+  write(u6,*) ' But this may also be a bug. Please tell the'
+  write(u6,*) ' molcas developers!'
   call Quit(_RC_INTERNAL_ERROR_)
 end if
 !MGD : max occupation in removed GAS spaces
@@ -194,7 +196,7 @@ do JOCCLS=1,NOCCLS
     end if
   end if
   ! testing
-  !write(6,*) 'nconf_per_open after first call of gen_conf_for_occls'
+  !write(u6,*) 'nconf_per_open after first call of gen_conf_for_occls'
   !call iwrtma(nconf_per_open,1,4,1,4)
 
   ! NCONF_ALL_SYM is accumulated, so
@@ -227,10 +229,10 @@ NCSF_PER_SYM(ISYM) = NCSF
 NSD_PER_SYM(ISYM) = NSD
 NCONF_PER_SYM(ISYM) = IELSUM(NCONF_PER_OPEN(1,ISYM),MAXOP+1)
 if (NTEST >= 5) then
-  write(6,*) ' Number of CSFs  ',NCSF
-  write(6,*) ' Number of SDs   ',NSD
-  write(6,*) ' Number of Confs ',NCONF_PER_SYM(ISYM)
-  write(6,*) ' Number of CMBs  ',NCMB
+  write(u6,*) ' Number of CSFs  ',NCSF
+  write(u6,*) ' Number of SDs   ',NSD
+  write(u6,*) ' Number of Confs ',NCONF_PER_SYM(ISYM)
+  write(u6,*) ' Number of CMBs  ',NCMB
 end if
 
 ! Total number of configurations and length of configuration list
@@ -269,14 +271,14 @@ do IOPEN=MINOP,MAXOP
   LLCONF = LLCONF+NCONF_PER_OPEN(ITYP,ISYM)*(IOPEN+ICL)
   ILLCNF = ILLCNF+NCONF_PER_OPEN(ITYP,ISYM)
 end do
-!write(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
+!write(u6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
 LCONF = max(LCONF,LLCONF)
 ILCNF = max(ILCNF,ILLCNF)
 
 if (NTEST >= 5) then
-  write(6,'(/A,I8)') '  Memory for holding list of configurations ',LCONF
-  write(6,'(/A,I8)') '  Size of CI expansion (combinations)',NSD
-  write(6,'(/A,I8)') '  Size of CI expansion (confs)',ILCNF
+  write(u6,'(/A,I8)') '  Memory for holding list of configurations ',LCONF
+  write(u6,'(/A,I8)') '  Size of CI expansion (combinations)',NSD
+  write(u6,'(/A,I8)') '  Size of CI expansion (confs)',ILCNF
 end if
 
 ! permanent memory for csf proto type arrays

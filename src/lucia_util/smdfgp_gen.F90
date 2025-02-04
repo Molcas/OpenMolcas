@@ -11,6 +11,8 @@
 
 subroutine SMDFGP_GEN(NGRP,NSMST,MXPNS,NSTFSMGP,NACTSYM,ISMDFGP)
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer ISMDFGP(NSMST,NGRP)
 integer NSTFSMGP(MXPNS,NGRP)
@@ -20,13 +22,13 @@ integer IOFF
 NTEST = 0
 
 if (NTEST >= 1000) then
-  write(6,*) 'Entering  SMDFGP_GEN'
-  write(6,*) 'NGRP : ',NGRP
-  write(6,*) 'NSMST: ',NSMST
-  write(6,*) 'MXPNS',MXPNS
-  write(6,*) 'INPUT: NSTFSMGP'
+  write(u6,*) 'Entering  SMDFGP_GEN'
+  write(u6,*) 'NGRP : ',NGRP
+  write(u6,*) 'NSMST: ',NSMST
+  write(u6,*) 'MXPNS',MXPNS
+  write(u6,*) 'INPUT: NSTFSMGP'
   do ISYM=1,NSMST
-    write(6,'(40I5)') (NSTFSMGP(ISYM,IGRP),IGRP=1,NGRP)
+    write(u6,'(40I5)') (NSTFSMGP(ISYM,IGRP),IGRP=1,NGRP)
   end do
 end if
 
@@ -44,11 +46,11 @@ do IGRP=1,NGRP
 end do
 
 if (NTEST >= 100) then
-  write(6,*) 'Number of Active Symm per GRP:'
-  write(6,*) (NACTSYM(IGRP),IGRP=1,NGRP)
-  write(6,*) 'Symmetries allowed by each group:'
+  write(u6,*) 'Number of Active Symm per GRP:'
+  write(u6,*) (NACTSYM(IGRP),IGRP=1,NGRP)
+  write(u6,*) 'Symmetries allowed by each group:'
   do ISYM=1,NSMST
-    write(6,'(40I2)') (ISMDFGP(ISYM,IGRP),IGRP=1,NGRP)
+    write(u6,'(40I2)') (ISMDFGP(ISYM,IGRP),IGRP=1,NGRP)
   end do
 end if
 

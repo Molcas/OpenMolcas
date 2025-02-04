@@ -12,10 +12,12 @@
 subroutine IWRTMA10(IMAT,NROW,NCOL,MAXROW,MAXCOL)
 ! I10 format
 
+use Definitions, only: u6
+
 dimension IMAT(MAXROW,MAXCOL)
 
 do I=1,NROW
-  write(6,1110) (IMAT(I,J),J=1,NCOL)
+  write(u6,1110) (IMAT(I,J),J=1,NCOL)
 end do
 
 1110 format(/,1X,8I10,/,(1X,8I10))

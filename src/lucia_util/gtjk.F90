@@ -15,6 +15,8 @@ subroutine GTJK(RJ,RK,NTOOB,SCR,IREOTS,IREOST)
 !
 ! Ordering of integrals is in the internal order
 
+use Definitions, only: u6
+
 implicit none
 ! Input
 integer NTOOB
@@ -29,7 +31,7 @@ call GTJK_RASSCF(RJ,RK,NTOOB,IREOST)
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' RJ and RK from GTJK'
+  write(u6,*) ' RJ and RK from GTJK'
   call WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
   call WRTMAT(RK,NTOOB,NTOOB,NTOOB,NTOOB)
 end if

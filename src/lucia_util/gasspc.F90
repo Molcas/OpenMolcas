@@ -26,6 +26,7 @@ subroutine GASSPC()
 use lucia_data, only: NGAS, IGSOCC, IGSOCCX, NGSOBT
 use lucia_data, only: I_IAD, I_IADX
 use lucia_data, only: NELEC
+use Definitions, only: u6
 
 implicit none
 integer NEL_MAX, NEL_REF, IGAS, NTEST
@@ -83,18 +84,18 @@ end do
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Division of orbitals according to compound CI space'
-  write(6,*) ' ==================================================='
-  write(6,*)
-  write(6,*) ' Inactive = 1, Active = 2, Delete = 3'
-  write(6,*)
+  write(u6,*) ' Division of orbitals according to compound CI space'
+  write(u6,*) ' ==================================================='
+  write(u6,*)
+  write(u6,*) ' Inactive = 1, Active = 2, Delete = 3'
+  write(u6,*)
   call IWRTMA(I_IAD,1,NGAS,1,NGAS)
-  write(6,*)
-  write(6,*) ' Division of orbitals according to first CI space'
-  write(6,*) ' ================================================'
-  write(6,*)
-  write(6,*) ' Inactive = 1, Active = 2, Delete = 3'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' Division of orbitals according to first CI space'
+  write(u6,*) ' ================================================'
+  write(u6,*)
+  write(u6,*) ' Inactive = 1, Active = 2, Delete = 3'
+  write(u6,*)
   call IWRTMA(I_IADX,1,NGAS,1,NGAS)
 end if
 

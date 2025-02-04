@@ -34,14 +34,14 @@ end if
 
 ! LOOP OVER BLOCKS
 
-!write(6,*) ' COPVCD LBLK : ',LBLK
+!write(u6,*) ' COPVCD LBLK : ',LBLK
 1000 continue
 if (LBLK > 0) then
   LBL(1) = LBLK
 else if (LBLK == 0) then
   call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
   call IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
-  !write(6,*) ' COPVCD LBL : ',LBL(1)
+  !write(u6,*) ' COPVCD LBL : ',LBL(1)
 else if (LBLK < 0) then
   call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
   call IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
@@ -55,10 +55,10 @@ if (LBL(1) >= 0) then
   else
     KBLK = -1
   end if
-  !write(6,*) ' LBL and KBLK ',LBL(1),KBLK
+  !write(u6,*) ' LBL and KBLK ',LBL(1),KBLK
   NO_ZEROING = 1
   call FRMDSC2(SEGMNT,LBL(1),KBLK,LUIN,IMZERO,IAMPACK,NO_ZEROING)
-  !if (IAMPACK /= 0) write(6,*) ' COPVCD, IAMPACK,FILE = ',IAMPACK,LUIN
+  !if (IAMPACK /= 0) write(u6,*) ' COPVCD, IAMPACK,FILE = ',IAMPACK,LUIN
   if (IMZERO == 0) then
     if (IAMPACK == 0) then
       call TODSC(SEGMNT,LBL(1),KBLK,LUOUT)

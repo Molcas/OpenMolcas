@@ -36,6 +36,7 @@ subroutine NSTPTP_GAS(NGAS,ISPGRP,NSTSGP,NSMST,NSTSSPGP,IGRP,MXNSTR,NSMCLS,NSMCL
 
 use symmetry_info, only: MULTD2H => Mul
 use lucia_data, only: MXPNGAS, MXPNSMST
+use Definitions, only: u6
 
 implicit none
 integer NGAS, NSMST, IGRP, MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
@@ -51,11 +52,11 @@ integer NTEST, ISYM, IGAS, NGASL, IZERO, ISM_IGASM1, ISM_IGAS, ISTRSM
 
 NTEST = 0
 if (NTEST >= 10) then
-  write(6,*) ' ======================'
-  write(6,*) ' NSTPTP_GAS is speaking'
-  write(6,*) ' ======================'
+  write(u6,*) ' ======================'
+  write(u6,*) ' NSTPTP_GAS is speaking'
+  write(u6,*) ' ======================'
 
-  write(6,*) ' Supergroup in action'
+  write(u6,*) ' Supergroup in action'
   call IWRTMA(ISPGRP,1,NGAS,1,NGAS)
 end if
 
@@ -125,11 +126,11 @@ do ISTRSM=1,NSMST
 end do
 
 if (NTEST >= 10) then
-  write(6,*) ' Number of strings per symmetry for supergroup',IGRP
+  write(u6,*) ' Number of strings per symmetry for supergroup',IGRP
   call IWRTMA10(NSTSSPGP(1,IGRP),1,NSMST,1,NSMST)
-  write(6,*) ' Largest number of strings of given sym ',MXNSTR
+  write(u6,*) ' Largest number of strings of given sym ',MXNSTR
 
-  write(6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',NSMCLS,NSMCLSE,NSMCLSE1
+  write(u6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',NSMCLS,NSMCLSE,NSMCLSE1
 end if
 
 end subroutine NSTPTP_GAS

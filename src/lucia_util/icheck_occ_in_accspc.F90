@@ -13,9 +13,11 @@
 
 function ICHECK_OCC_IN_ACCSPC(IOCC,IMINMAX,NGAS,MXPNGAS)
 ! Check if Occupation of GAS Spaces defined by IOCC are
-! within the constraints of  IMINMAX chosen by the user
+! within the constraints of IMINMAX chosen by the user
 !
-! Giovanni Li Manni 7Nov2011, for BK implementation
+! Giovanni Li Manni 7 Nov 2011, for BK implementation
+
+use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Input
@@ -30,13 +32,13 @@ ICHECK_OCC_IN_ACCSPC = I_AM_IN
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IMINMAX'
+  write(u6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IMINMAX'
   call IWRTMA(IMINMAX,NGAS,2,MXPNGAS,2)
 end if
 if (NTEST >= 10) then
-  write(6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IOCC'
+  write(u6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IOCC'
   call IWRTMA(IOCC,1,NGAS,1,NGAS)
-  write(6,*) ' And the verdict is ',I_AM_IN
+  write(u6,*) ' And the verdict is ',I_AM_IN
 end if
 
 end function ICHECK_OCC_IN_ACCSPC

@@ -12,6 +12,8 @@
 subroutine SIGVST(ISGVST,NSMST)
 ! Obtain ISGVST(ISM) : Symmetry of sigma v on string of symmetry ism
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 integer ISGVST(*)
 
@@ -25,8 +27,8 @@ end do
 
 NTEST = 1
 if (NTEST /= 0) then
-  write(6,*) ' ISGVST array'
-  write(6,*) ' ============'
+  write(u6,*) ' ISGVST array'
+  write(u6,*) ' ============'
   call IWRTMA(ISGVST,1,NSMST,1,NSMST)
 end if
 

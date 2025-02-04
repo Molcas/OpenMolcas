@@ -82,6 +82,9 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Constants, only: Zero, Half
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 #include "timers.fh"
 integer ADSXA(*), STSTSX(*), DXSTST(*), STSTDX(*), SXDXSX(*)
@@ -104,35 +107,35 @@ NTEST = 0
 NTEST = max(NTEST,IPRNT)
 
 if (NTEST >= 200) then
-  write(6,*) ' ==============================='
-  write(6,*) ' RSSBCB2 :  C block (transposed)'
-  write(6,*) ' ================================'
+  write(u6,*) ' ==============================='
+  write(u6,*) ' RSSBCB2 :  C block (transposed)'
+  write(u6,*) ' ================================'
   call WRTMAT(CB,NJB,NJA,NJB,NJA)
-  write(6,*) ' ======================================'
-  write(6,*) ' RSSBCB2 : Initial  S block(transposed)'
-  write(6,*) ' ======================================'
+  write(u6,*) ' ======================================'
+  write(u6,*) ' RSSBCB2 : Initial  S block(transposed)'
+  write(u6,*) ' ======================================'
   call WRTMAT(SB,NIA,NIB,NIA,NIB)
-  write(6,*) ' Overall scalefactor ',SCLFAC
-  write(6,*) ' IHAPR,JDOH2 = ',IHAPR,JDOH2
-  write(6,*) ' IUSE_PH,I_RES_AB = ',IUSE_PH,I_RES_AB
+  write(u6,*) ' Overall scalefactor ',SCLFAC
+  write(u6,*) ' IHAPR,JDOH2 = ',IHAPR,JDOH2
+  write(u6,*) ' IUSE_PH,I_RES_AB = ',IUSE_PH,I_RES_AB
 end if
 
 if (NTEST >= 500) then
-  write(6,*) ' IAOC and IBOC'
+  write(u6,*) ' IAOC and IBOC'
   call IWRTMA(IAOC,1,NGAS,1,NGAS)
   call IWRTMA(IBOC,1,NGAS,1,NGAS)
-  write(6,*) ' JAOC and JBOC  :'
+  write(u6,*) ' JAOC and JBOC  :'
   call IWRTMA(JAOC,1,NGAS,1,NGAS)
   call IWRTMA(JBOC,1,NGAS,1,NGAS)
-  write(6,*) ' IASM IATP JASM JATP ',IASM,IATP,JASM,JATP
-  write(6,*) ' IBSM IBTP JBSM JBTP ',IBSM,IBTP,JBSM,JBTP
-  write(6,*) ' NAEL NBEL ',NAEL,NBEL
+  write(u6,*) ' IASM IATP JASM JATP ',IASM,IATP,JASM,JATP
+  write(u6,*) ' IBSM IBTP JBSM JBTP ',IBSM,IBTP,JBSM,JBTP
+  write(u6,*) ' NAEL NBEL ',NAEL,NBEL
 end if
 ! Should the corresponding Hamiltonian matrix block be
 ! calculated exactly or approximately
 !if (IHAPR /= 0) then
 !  call HMATAPR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IPTSPC,JPTSPC,IJOP,IJOP,IIF,JDOH2,IDOH2,IMZERO,IDIAG)
-!  if (NTEST >= 20) write(6,*) ' RSSBCBN : ',NNSEL2E,ISEL2E(1)
+!  if (NTEST >= 20) write(u6,*) ' RSSBCBN : ',NNSEL2E,ISEL2E(1)
 !  NSEL2E = NNSEL2E
 !  if (IMZERO /= 0) goto 9999
 !else
@@ -140,7 +143,7 @@ end if
 IDOH2 = JDOH2
 IDIAG = 0
 !end if
-if (NTEST >= 20) write(6,*) ' IHAPR, IDIAG IDOH2 ',IHAPR,IDIAG,IDOH2
+if (NTEST >= 20) write(u6,*) ' IHAPR, IDIAG IDOH2 ',IHAPR,IDIAG,IDOH2
 
 if ((IDC == 2) .and. (IATP == IBTP) .and. (IASM == IBSM) .and. (I_RES_AB == 0) .and. (JASM == JBSM) .and. (JATP == JBTP)) then
   ! Diagonal sigma block, use alpha-beta symmetry to reduce computations.
@@ -170,10 +173,10 @@ if (IDIAG == 0) then
 
     if (NBEL >= 0) then
       if (NTEST >= 500) then
-        write(6,*) ' SB before RSBB1E'
+        write(u6,*) ' SB before RSBB1E'
         call wrtmat(sb,nia,nib,nia,nib)
       end if
-      if (NTEST >= 101) write(6,*) ' I am going to call RSBB1E'
+      if (NTEST >= 101) write(u6,*) ' I am going to call RSBB1E'
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB1E_LUCIA(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2, &
                         XI2S,XINT,NSMOB,NSMST,NSMSX,MOCAA,MXSXST,MOCAA,SCLFAC,IUSE_PH,IPHGAS,NTEST)
@@ -183,15 +186,15 @@ if (IDIAG == 0) then
       ! CALL RSBB1E_LUCIA --> 33
 
       if (NTEST >= 500) then
-        write(6,*) ' SB after RSBB1E'
+        write(u6,*) ' SB after RSBB1E'
         call wrtmat(sb,nib,nia,nib,nia)
       end if
-      if (NTEST >= 100) write(6,*) ' first element of SB after RSBB1E',SB(1)
+      if (NTEST >= 100) write(u6,*) ' first element of SB after RSBB1E',SB(1)
 
     end if
     if ((IDOH2 /= 0) .and. (NBEL >= 0)) then
       ! Two electron part
-      if (NTEST >= 101) write(6,*) ' I am going to call RSBB2A'
+      if (NTEST >= 101) write(u6,*) ' I am going to call RSBB2A'
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2A_LUCIA(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NIB,NGAS,IBOC,JBOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
                         XI1S,XINT,NSMOB,NSMST,NSMDX,SCLFAC,IPHGAS)
@@ -201,10 +204,10 @@ if (IDIAG == 0) then
       ! CALL RSBB2A_LUCIA --> 46
 
       if (NTEST >= 500) then
-        write(6,*) ' SB after RSBB2a'
+        write(u6,*) ' SB after RSBB2a'
         call wrtmat(sb,nib,nia,nib,nia)
       end if
-      if (NTEST >= 100) write(6,*) ' first element of SB after RSBB1E',SB(1)
+      if (NTEST >= 100) write(u6,*) ' first element of SB after RSBB1E',SB(1)
     end if
     call TRPMT3(SB,NIA,NIB,C2)
     call COPVEC(C2,SB,NIA*NIB)
@@ -217,7 +220,7 @@ if (IDIAG == 0) then
   ! =============================
 
   if ((IDOH2 /= 0) .and. (NAEL >= 0) .and. (NBEL >= 0)) then
-    if (NTEST >= 101) write(6,*) ' I am going to call RSBB2B'
+    if (NTEST >= 101) write(u6,*) ' I am going to call RSBB2B'
     IIITRNS = 1
     if (IIITRNS == 1) then
       ! Call advice routine
@@ -231,7 +234,7 @@ if (IDIAG == 0) then
       end if
     end if
 
-    !write(6,*) ' IUSE_PA = ',IUSE_PA
+    !write(u6,*) ' IUSE_PA = ',IUSE_PA
 
     if (JJJTRNS == 0) then
       !if (IUSE_PA == 0) then
@@ -245,7 +248,7 @@ if (IDIAG == 0) then
       ! CALL RSBB2BN_LUCIA --> 52
 
       !else if (IUSE_PA == 1) then
-      !  !write(6,*) ' RSBB2BVN will be called'
+      !  !write(u6,*) ' RSBB2BVN will be called'
       !  call RSBB2BVN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,ADSXA, &
       !                STSTSX,MXPNGAS,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS, &
       !                IUSEAB,CJRES,SIRES,SCLFAC,NTEST,0,0,IUSE_PH,IPHGAS,CJPA,SIPA)
@@ -258,7 +261,7 @@ if (IDIAG == 0) then
 
       call TRPMT3(CB,NJB,NJA,C2)
       call COPVEC(C2,CB,NJA*NJB)
-      !write(6,*) ' RSSBCB2 : Transpose path choosen'
+      !write(u6,*) ' RSSBCB2 : Transpose path choosen'
 
       !if (IUSE_PA == 0) then
       ! No division into active/passive
@@ -285,11 +288,11 @@ if (IDIAG == 0) then
       call COPVEC(C2,CB,NJA*NJB)
     end if
     if (NTEST >= 101) then
-      write(6,*) ' SB after RSBB2B, first element'
+      write(u6,*) ' SB after RSBB2B, first element'
       call wrtmat(sb,1,1,nia,nib)
     end if
     if (NTEST >= 500) then
-      write(6,*) ' SB after RSBB2b'
+      write(u6,*) ' SB after RSBB2b'
       call wrtmat(sb,nia,nib,nia,nib)
     end if
   end if
@@ -302,7 +305,7 @@ if (IDIAG == 0) then
 
     ! alpha single excitation
 
-    if (NTEST >= 101) write(6,*) ' I am going to call RSBB1E (last time )'
+    if (NTEST >= 101) write(u6,*) ' I am going to call RSBB1E (last time )'
     call TIMING(CPU0,CPU,WALL0,WALL)
     call RSBB1E_LUCIA(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S, &
                       XINT,NSMOB,NSMST,NSMSX,MOCAA,MXSXST,MOCAA,SCLFAC,IUSE_PH,IPHGAS,NTEST)
@@ -312,18 +315,18 @@ if (IDIAG == 0) then
     ! CALL RSBB1E_LUCIA --> 33
 
     if (NTEST >= 101) then
-      write(6,*) ' SB transposed after RSBB1, first element'
+      write(u6,*) ' SB transposed after RSBB1, first element'
       call wrtmat(sb,1,1,nia,nib)
     end if
     if (NTEST >= 500) then
-      write(6,*) ' SB transposed  after RSBB1E'
+      write(u6,*) ' SB transposed  after RSBB1E'
       call wrtmat(SB,nib,nia,nib,nia)
     end if
 
     ! alpha double excitation
 
     if ((IDOH2 /= 0) .and. (NAEL >= 0)) then
-      if (NTEST >= 101) write(6,*) ' I am going to call RSBB2A (last time )'
+      if (NTEST >= 101) write(u6,*) ' I am going to call RSBB2A (last time )'
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2A_LUCIA(IASM,IATP,JASM,JATP,IJAGRP,NIB,NIA,NGAS,IAOC,JAOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
                         XI1S,XINT,NSMOB,NSMST,NSMDX,SCLFAC,IPHGAS)
@@ -335,11 +338,11 @@ if (IDIAG == 0) then
     end if
 
     if (NTEST >= 101) then
-      write(6,*) ' SB transposed after RSBB2A, first element'
+      write(u6,*) ' SB transposed after RSBB2A, first element'
       call wrtmat(sb,1,1,nia,nib)
     end if
     if (NTEST >= 500) then
-      write(6,*) ' SB after RSBB2A'
+      write(u6,*) ' SB after RSBB2A'
       call wrtmat(sb,nia,nib,nia,nib)
     end if
   end if
@@ -360,22 +363,21 @@ else if (IDIAG == 1) then
   else
     I12 = 2
   end if
-  !write(6,*) ' IDOH2, I12 ', IDOH2,I12
+  !write(u6,*) ' IDOH2, I12 ', IDOH2,I12
   ITASK = 2
-  FACTOR = 0.0d0
+  FACTOR = Zero
   ! Well, we are not using transposed matrices here so
   call TRPMT3(CB,NJB,NJA,C2)
   call COPVEC(C2,CB,NJA*NJB)
 
   if ((IATP == JATP) .and. (IBTP == JBTP) .and. (IASM == JASM) .and. (IBSM == JBSM)) then
-    !write(6,*) ' DIATERM2_GAS will be called'
+    !write(u6,*) ' DIATERM2_GAS will be called'
     call COPVEC(CB,C2,NJA*NJB)
     ! Input is in det basis
     IIDC = 1
     call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,0,I12,IIDC)
   else
-    ZERO = 0.0d0
-    call SETVEC(C2,ZERO,NIA*NIB)
+    call SETVEC(C2,Zero,NIA*NIB)
   end if
   ! Remaining occupation conserving operator
   !if (IH_OCC_CONS == 1) &
@@ -383,9 +385,9 @@ else if (IDIAG == 1) then
   !                    CB,C2)
 
   if (IUSEAB == 0) then
-    FACTOR = 1.0d0*SCLFAC
+    FACTOR = SCLFAC
   else
-    FACTOR = 0.5d0*SCLFAC
+    FACTOR = Half*SCLFAC
   end if
   !    MAT_P_MATT(A,B,NR,NC,COEF)
   call MAT_P_MATT(SB,C2,NIB,NIA,FACTOR)
@@ -398,9 +400,9 @@ end if
 !if (IHAPR /= 0) call HMATAPR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IPTSPC,JPTSPC,IJOP,IJOP,IIF,JDOH2,IDOH2,IMZERO,IDIAG)
 
 if (NTEST >= 200) then
-  write(6,*) ' ==================================='
-  write(6,*) ' RSSBCB : Final S block (transposed)'
-  write(6,*) ' ==================================='
+  write(u6,*) ' ==================================='
+  write(u6,*) ' RSSBCB : Final S block (transposed)'
+  write(u6,*) ' ==================================='
   call WRTMAT(SB,NIB,NIA,NIB,NIA)
 end if
 

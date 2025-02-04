@@ -31,6 +31,7 @@ subroutine GENSTR_GAS(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,IGRP,NOCTYP,NSMST,Z
 !                      order to symmetry and occupation type order.
 
 use lucia_data, only: NACOB, NORB1, NORB2, NORB3
+use Definitions, only: u6
 
 implicit none
 integer NEL, NELMN1, NELMX1, NELMN3, NELMX3, IGRP, NOCTYP, NSMST, IOTYP, IPRNT
@@ -49,9 +50,9 @@ call ISETVC(LSTASO,0,NOCTYP*NSMST)
 NTEST0 = 0
 NTEST = max(NTEST0,IPRNT)
 if (NTEST >= 10) then
-  write(6,*) ' ==============='
-  write(6,*) ' GENSTR speaking'
-  write(6,*) ' ==============='
+  write(u6,*) ' ==============='
+  write(u6,*) ' GENSTR speaking'
+  write(u6,*) ' ==============='
 end if
 
 NSTRIN = 0
@@ -81,7 +82,7 @@ do IEL1=NELMX1,NELMN1,-1
       end if
     end if
     if (NTEST >= 500) then
-      write(6,*) ' RAS 1 string'
+      write(u6,*) ' RAS 1 string'
       call IWRTMA(IOC,1,IEL1,1,IEL1)
     end if
     IFRST2 = 1
@@ -101,7 +102,7 @@ do IEL1=NELMX1,NELMN1,-1
       end if
     end if
     if (NTEST >= 500) then
-      write(6,*) ' RAS 1 2 string'
+      write(u6,*) ' RAS 1 2 string'
       call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
     end if
     IFRST3 = 1
@@ -121,7 +122,7 @@ do IEL1=NELMX1,NELMN1,-1
       end if
     end if
     if (NTEST >= 500) then
-      write(6,*) ' RAS 1 2 3 string'
+      write(u6,*) ' RAS 1 2 3 string'
       call IWRTMA(IOC,1,NEL,1,NEL)
     end if
     ! Next string has been constructed, enlist it!
@@ -139,7 +140,7 @@ do IEL1=NELMX1,NELMN1,-1
       LEXCI = ISTRNM(IOC,NACOB,NEL,Z,IREORD,0)
       LACTU = ISTASO(ISYM,IGRP)-1+LSTASO(ITYP,ISYM)
       IREORD(LEXCI) = LACTU
-      if (NTEST > 10) write(6,*) ' LEXCI,LACTU',LEXCI,LACTU
+      if (NTEST > 10) write(u6,*) ' LEXCI,LACTU',LEXCI,LACTU
       if (NEL > 0) call ICOPVE(IOC,STRING(1,LACTU),NEL)
     end if
 
@@ -151,31 +152,31 @@ do IEL1=NELMX1,NELMN1,-1
 1001 continue
 end do
 
-if (NTEST >= 1) write(6,*) ' Number of strings generated   ',NSTRIN
+if (NTEST >= 1) write(u6,*) ' Number of strings generated   ',NSTRIN
 if (NTEST >= 10) then
   if (NTEST >= 100) then
     NPR = NSTRIN
   else
     NPR = min(NSTRIN,50)
   end if
-  write(6,*) ' Strings generated'
-  write(6,*) ' ================='
+  write(u6,*) ' Strings generated'
+  write(u6,*) ' ================='
   ISTRIN = 0
   do ISYM=1,NSMST
     do ITYP=1,NOCTYP
       LSTRIN = min(LSTASO(ITYP,ISYM),NPR-ISTRIN)
       if (LSTRIN > 0) then
-        write(6,*) ' Strings of type and symmetry ',ITYP,ISYM
+        write(u6,*) ' Strings of type and symmetry ',ITYP,ISYM
         do KSTRIN=1,LSTRIN
           ISTRIN = ISTRIN+1
-          write(6,'(2X,I4,8X,(10I5))') ISTRIN,(STRING(IEL,ISTRIN),IEL=1,NEL)
+          write(u6,'(2X,I4,8X,(10I5))') ISTRIN,(STRING(IEL,ISTRIN),IEL=1,NEL)
         end do
       end if
     end do
   end do
 
-  write(6,*) ' Array giving actual place from lexical place'
-  write(6,*) ' ============================================'
+  write(u6,*) ' Array giving actual place from lexical place'
+  write(u6,*) ' ============================================'
   call IWRTMA(IREORD,1,NPR,1,NPR)
 end if
 

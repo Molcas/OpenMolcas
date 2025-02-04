@@ -21,6 +21,8 @@ function ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
 ! IF IDOREO /= 0, IREO is used to reorder lexical number
 ! Jeppe Olsen, November 2001
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Arcweights for single and doubly occupied arcs
 integer IARCW(NORB,NEL,2)
@@ -50,10 +52,10 @@ end if
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(6,*) ' Configuration'
+  write(u6,*) ' Configuration'
   call IWRTMA(ICONF,1,NOCC_ORB,1,NOCC_ORB)
-  write(6,*) ' Lexical number = ',ILEX
-  if (IDOREO /= 0) write(6,*) ' Reordered number = ',ILEX_FOR_CONF
+  write(u6,*) ' Lexical number = ',ILEX
+  if (IDOREO /= 0) write(u6,*) ' Reordered number = ',ILEX_FOR_CONF
 end if
 
 end function ILEX_FOR_CONF

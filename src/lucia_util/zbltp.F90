@@ -17,6 +17,8 @@ subroutine ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
 ! = 1 : symmetry block is included, all OO types
 ! = 2 : symmetry block is included, lower OO types
 
+use Definitions, only: u6
+
 ! Input
 integer MAXSYM, IDC
 integer ISMOST(MAXSYM), IMMLST(MAXSYM)
@@ -62,7 +64,7 @@ end if
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(6,*) ' Block type of symmetry blocks'
+  write(u6,*) ' Block type of symmetry blocks'
   call IWRTMA(ICBLTP,1,MAXSYM,1,MAXSYM)
 end if
 

@@ -25,11 +25,12 @@ subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
 
 use GLBBAS, only: INT1
 use CandS, only: ISSM, ISSPC
-use Constants, only: Half, One
 use lucia_data, only: IH1FORM
 use lucia_data, only: IDISK
 use lucia_data, only: I_RES_AB, I12
 use lucia_data, only: NTOOB
+use Constants, only: One, Half
+use Definitions, only: u6
 
 implicit none
 integer LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
@@ -62,43 +63,43 @@ do K=1,NTOOB
   call T_TO_NK_VEC(TKK,K,ISSM,ISSPC,LUSC1,LUSC2,VEC1)
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
   if (NTEST >= 1000) then
-    write(6,*) ' output from T_TO_NK'
+    write(u6,*) ' output from T_TO_NK'
     call WRTVCD(VEC1,LUSC1,1,LBLK)
   end if
   ! For each orbital calculate (1+T+1/2 T^2)|0>
   ! + T
   call MV7(VEC1,VEC2,LUSC1,LUSC2)
   if (NTEST >= 1000) then
-    write(6,*) ' Correction vector'
+    write(u6,*) ' Correction vector'
     call WRTVCD(VEC1,LUSC2,1,LBLK)
   end if
-  call VECSMDP(VEC1,VEC2,ONE,ONE,LUSC1,LUSC2,LUSC3,1,LBLK)
+  call VECSMDP(VEC1,VEC2,One,One,LUSC1,LUSC2,LUSC3,1,LBLK)
   call COPVCD(LUSC3,LUSC1,VEC1,1,LBLK)
   if (NTEST >= 1000) then
-    write(6,*) ' Updated vector'
+    write(u6,*) ' Updated vector'
     call WRTVCD(VEC1,LUSC1,1,LBLK)
   end if
   ! + 1/2 T^2
   call MV7(VEC1,VEC2,LUSC2,LUSC3)
   if (NTEST >= 1000) then
-    write(6,*) ' Correction vector'
+    write(u6,*) ' Correction vector'
     call WRTVCD(VEC1,LUSC3,1,LBLK)
   end if
-  call VECSMDP(VEC1,VEC2,ONE,HALF,LUSC1,LUSC3,LUSC2,1,LBLK)
+  call VECSMDP(VEC1,VEC2,One,Half,LUSC1,LUSC3,LUSC2,1,LBLK)
   ! and transfer back to LUSC1
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
   if (NTEST >= 1000) then
-    write(6,*) ' Updated vector'
+    write(u6,*) ' Updated vector'
     call WRTVCD(VEC1,LUSC1,1,LBLK)
   end if
 end do
 ! And transfer to LUCOUT
 CNORM = INPRDD(VEC1,VEC2,LUSC1,LUSC1,1,LBLK)
-if (NTEST > 0) write(6,*) ' Norm of transformed vector',CNORM
-!write(6,*) ' Transformed vector'
+if (NTEST > 0) write(u6,*) ' Norm of transformed vector',CNORM
+!write(u6,*) ' Transformed vector'
 !call WRTVCD(VEC1,LUSC1,1,LBLK)
 IDISK(LUSC1) = 0
-!write(6,*) ' LUCOUT LUSC1 = ',LUCOUT,LUSC1
+!write(u6,*) ' LUCOUT LUSC1 = ',LUCOUT,LUSC1
 call COPVCD(LUSC1,LUCOUT,VEC1,0,LBLK)
 
 end subroutine TRACID
