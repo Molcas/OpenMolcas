@@ -22,7 +22,6 @@ subroutine IAIBCM(ICISPC,IAIB)
 
 use lucia_data, only: ICMBSPC, IGSOCCX, LCMBSPC, NGAS
 use lucia_data, only: IPRDIA
-use lucia_data, only: I_RE_MS2_SPACE, I_RE_MS2_VALUE
 use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP
 use lucia_data, only: NOCTYP
 use lucia_data, only: MXPNGAS
@@ -48,6 +47,6 @@ IOCTPB = IBSPGPFTP(IBTP)
 !write(u6,*) (ICMBSPC(II,ICISPC),II=1,LCMBSPC(ICISPC))
 
 call IAIBCM_GAS(LCMBSPC(ICISPC),ICMBSPC(1,ICISPC),IGSOCCX,NOCTPA,NOCTPB,ISPGPFTP(1,IOCTPA),ISPGPFTP(1,IOCTPB),NELFGP,MXPNGAS,NGAS, &
-                IAIB,IPRDIA,I_RE_MS2_SPACE,I_RE_MS2_VALUE)
+                IAIB,IPRDIA)
 
 end subroutine IAIBCM

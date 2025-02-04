@@ -25,7 +25,7 @@
 !
 ! Version of March 2000, Jeppe Olsen
 
-subroutine ZERORC(MBLOCK,IFIL,IAMPACKED)
+subroutine ZERORC(IFIL,IAMPACKED)
 ! A record was known to be identical zero
 !
 ! Write corresponding info to file IFIL
@@ -41,9 +41,5 @@ ISCR(1) = 1
 ISCR(2) = IAMPACKED
 
 call ITODS(ISCR,2,2,IFIL)
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(MBLOCK)
 
 end subroutine ZERORC

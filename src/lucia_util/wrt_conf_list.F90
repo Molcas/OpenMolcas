@@ -11,7 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine WRT_CONF_LIST(ICONF,NCONF_FOR_OPEN,MAXOP,NCONF,NELEC)
+subroutine WRT_CONF_LIST(ICONF,NCONF_FOR_OPEN,MAXOP,NELEC)
 ! Write list of configurations, given in packed form
 !
 ! Jeppe Olsen, November 2001
@@ -34,9 +34,5 @@ do IOPEN=0,MAXOP
     end do
   end if
 end do
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NCONF)
 
 end subroutine WRT_CONF_LIST

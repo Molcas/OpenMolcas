@@ -23,9 +23,8 @@ use CandS, only: ISSM
 use lucia_data, only: IPRDIA
 
 implicit none
-real*8 EREF
 
 INT1(:) = INT1O(:)
-call GASCI(ISSM,1,IPRDIA,EREF,0,0)
+call GASCI(ISSM,1,IPRDIA)
 
 end subroutine diag_master

@@ -121,19 +121,19 @@ C?    write(6,*) ' ktype ', ktype
         GOTO 101
       END IF
 *. Symmetry of K strings
-C          SYMCOM(ITASK,IOBJ,I1,I2,I12)
-      CALL SYMCOM_MCLR(2,4,IOBSM,JKSM,ISM)
+C          SYMCOM_MCLR(ITASK,I1,I2,I12)
+      CALL SYMCOM_MCLR(2,IOBSM,JKSM,ISM)
       IF(JKSM.EQ.0) THEN
-        CALL SYMCOM_MCLR(2,4,JOBSM      ,IKSM,ISM)
+        CALL SYMCOM_MCLR(2,JOBSM      ,IKSM,ISM)
         IF(IKSM.EQ.0) THEN
           NK = 0
           IEND = 1
           GOTO 101
         ELSE
-          CALL SYMCOM_MCLR(2,4,IOBSM,KSM,IKSM)
+          CALL SYMCOM_MCLR(2,IOBSM,KSM,IKSM)
         END IF
       ELSE
-        CALL SYMCOM_MCLR(2,4,JOBSM,KSM,JKSM)
+        CALL SYMCOM_MCLR(2,JOBSM,KSM,JKSM)
       END IF
 C?    write(6,*) ' JOBSM,KSM,JKSM ',JOBSM,KSM,JKSM
       IF(KSM.EQ.0) THEN

@@ -130,8 +130,8 @@ end if
 ! Part 2 : Reordering arrays for orbitals  *
 !                                          *
 !*******************************************
-call ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NOCOBS,NTOOBS,NTOOB,IREOST,IREOTS,ISMFTO,ITPFSO,IBSO,NOBPTS,IOBPTS,ISMFSO, &
-                ITPFTO,NOBPT,IPRNT)
+call ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISMFTO,ITPFSO,IBSO,NOBPTS,IOBPTS,ISMFSO,ITPFTO, &
+                NOBPT,IPRNT)
 
 ! Largest number of orbitals of given sym and type
 MXTSOB = 0

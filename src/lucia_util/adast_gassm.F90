@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IORBTSF,IORBTF,NORBTS,NSTAK,NSTAKT,NSTAI,NSTAKTS, &
-                       ISTAKTS,NELB,NACGSOB,ISTMAP,SGNMAP,SCLFAC,IAC,LROW_IN,IEC)
+subroutine ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IORBTSF,IORBTF,NORBTS,NSTAK,NSTAI,NSTAKTS,NELB, &
+                       ISTMAP,SGNMAP,SCLFAC,IAC,LROW_IN,IEC)
 ! Annihilation/Creation mappings from K-strings of given sym in each gasspace
 !
 ! Input
@@ -29,9 +29,7 @@ subroutine ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! IORBTF   : First orbital in active gas space, (can have any sym)
 ! NORBTS  : Number of orbitals of given symmetry and type
 ! NSTAK : Number of K groupstrings with given correct symmetry
-! NSTAKT: Total Number of K groupstrings in active group (all symmetries)
 ! NSTAKTS: Total Number of K supergroup strings with correct symmetry
-! ISTAKTS: Offset for K supergroup strings with hiven symmetrydistribution
 ! NSTAI : Number of I groupstrings in active gasspace
 
 use Constants, only: Zero
@@ -161,14 +159,6 @@ if (NTEST > 0) then
       call WRTMAT(SGNMAP(1,IORBR),1,NK,1,NK)
     end do
   end if
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NSTAKT)
-  call Unused_integer(ISTAKTS)
-  call Unused_integer(NACGSOB)
 end if
 
 end subroutine ADAST_GASSM

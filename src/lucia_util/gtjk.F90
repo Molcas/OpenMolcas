@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GTJK(RJ,RK,NTOOB,SCR,IREOTS,IREOST)
+subroutine GTJK(RJ,RK,NTOOB,IREOST)
 ! Interface routine for obtaining Coulomb (RJ) and
 ! Exchange integrals (RK)
 !
@@ -20,11 +20,9 @@ use Definitions, only: u6
 implicit none
 ! Input
 integer NTOOB
-integer IREOTS(*), IREOST(*)
+integer IREOST(*)
 ! Output
 real*8 RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-! Scratch
-real*8 SCR(2*NTOOB**2)
 integer NTEST
 
 call GTJK_RASSCF(RJ,RK,NTOOB,IREOST)
@@ -34,13 +32,6 @@ if (NTEST /= 0) then
   write(u6,*) ' RJ and RK from GTJK'
   call WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
   call WRTMAT(RK,NTOOB,NTOOB,NTOOB,NTOOB)
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(SCR)
-  call Unused_integer_array(IREOTS)
 end if
 
 end subroutine GTJK

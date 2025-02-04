@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine REO_GASDET_S(IREO,NSSOA,NSSOB,NOCTPA,NOCTPB,MXPNGAS,IOCTPA,IOCTPB,NBLOCK,IBLOCK,NAEL,NBEL,IASTR,IBSTR,NSMST,NELFSPGP, &
-                        NOCCLS,NGAS,IOCCLS,NORB,NOBPT,DFTP,IB_CONF_OPEN,iconf_reo,nconf_tot,ib_conf_reo,maxop,nconf_per_open, &
-                        IB_SD_FOR_OPEN,IZSCR,IZ,IOCMIN,IOCMAX,IDET_OC,IDET_MS,IDET_VC,MINOP,IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
+subroutine REO_GASDET_S(IREO,NSSOA,NSSOB,NBLOCK,IBLOCK,NAEL,NBEL,IASTR,IBSTR,NSMST,NOCCLS,NGAS,IOCCLS,NORB,NOBPT,IB_CONF_OPEN, &
+                        iconf_reo,nconf_tot,ib_conf_reo,maxop,nconf_per_open,IB_SD_FOR_OPEN,IZSCR,IZ,IOCMIN,IOCMAX,IDET_OC, &
+                        IDET_MS,IDET_VC,MINOP,IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 ! SUBROUTINE REO_GASDET_S --> 44
 !
 ! Reorder determinants in GAS space from det to configuration order
@@ -23,10 +23,8 @@ use Definitions, only: u6
 implicit real*8(A-H,O-Z)
 ! General input
 dimension NSSOA(NSMST,*), NSSOB(NSMST,*)
-dimension NELFSPGP(MXPNGAS,*)
 dimension IOCCLS(NGAS,NOCCLS)
 integer NOBPT(*)
-integer DFTP(*)
 integer IB_CONF_OPEN(*), iconf_reo(nconf_tot)
 integer ib_conf_reo(maxop+1), nconf_per_open(maxop+1)
 integer IB_SD_FOR_OPEN(*)
@@ -187,17 +185,6 @@ if (NTEST >= 100) then
   write(u6,*) ' Reorder array, CONF order => string order'
   write(u6,*) ' ========================================='
   call IWRTMA(IREO,1,IDET,1,IDET)
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NOCTPA)
-  call Unused_integer(NOCTPB)
-  call Unused_integer(IOCTPA)
-  call Unused_integer(IOCTPB)
-  call Unused_integer_array(NELFSPGP)
-  call Unused_integer_array(DFTP)
 end if
 
 end subroutine REO_GASDET_S

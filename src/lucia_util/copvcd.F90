@@ -66,7 +66,7 @@ if (LBL(1) >= 0) then
       call TODSCP(SEGMNT,LBL(1),KBLK,LUOUT)
     end if
   else
-    call ZERORC(LBL(1),LUOUT,IAMPACK)
+    call ZERORC(LUOUT,IAMPACK)
   end if
 end if
 if ((LBL(1) >= 0) .and. (LBLK <= 0)) goto 1000

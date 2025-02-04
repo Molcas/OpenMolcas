@@ -12,8 +12,8 @@
 !               2011, Giovanni Li Manni                                *
 !***********************************************************************
 
-subroutine ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,NORB,CVEC,SVEC,NSMST,H,XA,XB,SCR,RJ,RK,NSSOA,NSSOB,ECORE,IPRNT,NTOOB,RJKAA,IASPGP, &
-                        IASM,IBSPGP,IBSM,FACTOR)
+subroutine ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,NORB,CVEC,SVEC,NSMST,H,XB,RJ,RK,NSSOA,NSSOB,ECORE,IPRNT,NTOOB,RJKAA,IASPGP,IASM, &
+                        IBSPGP,IBSM,FACTOR)
 ! Update Sigma vector with diagonal terms for a given block
 !     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
 !                         + FACTOR*DIAG(IASPGP,IBSPGP)CVEC(IASPGP,IBSPGP)
@@ -36,7 +36,7 @@ dimension H(NORB)
 dimension CVEC(*)
 ! Scratch
 dimension RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-dimension XA(NORB), XB(NORB), SCR(2*NORB)
+dimension XB(NORB)
 dimension IASTR(NAEL,*), IBSTR(NBEL,*)
 dimension RJKAA(*)
 dimension IDUM(1)
@@ -149,13 +149,6 @@ if (NTEST >= 1000) then
   write(u6,*) ' Input and output vectord, ADDDIA_TERMS'
   call WRTMAT(CVEC,1,IDET,1,IDET)
   call WRTMAT(SVEC,1,IDET,1,IDET)
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(XA)
-  call Unused_real_array(SCR)
 end if
 
 end subroutine ADDDIA_TERMS

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SYMCM1(ITASK,IOBJ,I1,I2,I12)
+subroutine SYMCM1(ITASK,I1,I2,I12)
 ! Symmetries I1,I2,I12 are related as
 ! I1*I2 = I12
 ! IF (ITASK == 1) I2 and I12 are known, find I1
@@ -39,9 +39,5 @@ else if (ITASK == 3) then
   I12 = SYMPRO(I1,I2)
 
 end if
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(IOBJ)
 
 end subroutine SYMCM1

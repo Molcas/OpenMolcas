@@ -52,11 +52,11 @@ IFIRST = 0
 if (NONEW == 0) then
   !JSYM = 1
   !do IGAS=1,NGAS-1
-  !  call SYMCOM(3,0,JSYM,ISYM(IGAS),KSYM)
+  !  call SYMCOM(3,JSYM,ISYM(IGAS),KSYM)
   !  JSYM = KSYM
   !end do
   JSYM = ISYMSTR(ISYM,NGAS-1)
-  call SYMCOM(2,0,JSYM,ISYM(NGAS),ISYM_TOT)
+  call SYMCOM(2,JSYM,ISYM(NGAS),ISYM_TOT)
 
   if ((minval(NGAS) > ISYM(NGAS)) .or. (maxval(NGAS) < ISYM(NGAS))) goto 1001
 end if

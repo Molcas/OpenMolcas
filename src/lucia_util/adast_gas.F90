@@ -12,7 +12,7 @@
 !               2012, Giovanni Li Manni                                *
 !***********************************************************************
 
-subroutine ADAST_GAS(IOBSM,IOBTP,NIGRP,IGRP,ISPGPSM,I1,XI1S,NKSTR,IEND,IFRST,KFRST,KACT,SCLFAC,IAC)
+subroutine ADAST_GAS(IOBSM,IOBTP,NIGRP,IGRP,ISPGPSM,I1,XI1S,NKSTR,KACT,SCLFAC,IAC)
 ! Obtain creation or annihilation mapping
 !
 ! IAC = 2 : Creation map
@@ -47,7 +47,7 @@ subroutine ADAST_GAS(IOBSM,IOBTP,NIGRP,IGRP,ISPGPSM,I1,XI1S,NKSTR,IEND,IFRST,KFR
 use strbas, only: NSTSGP, ISTSGP, STSTM
 use distsym, only: ISMDFGP, ISMSCR, NACTSYM
 use stdalloc, only: mma_allocate, mma_deallocate
-use lucia_data, only: IBGPSTR, IGSFGP, NELFGP, NGPSTR, NGRP, NSTFGP
+use lucia_data, only: IBGPSTR, IGSFGP, NELFGP, NGPSTR, NGRP
 use lucia_data, only: LOFFI
 use lucia_data, only: IOBPTS, NOBPT, NOBPTS
 use lucia_data, only: ISTAC
@@ -56,7 +56,7 @@ use csm_data, only: NSMST
 use Definitions, only: u6
 
 implicit none
-integer IOBSM, IOBTP, NIGRP, ISPGPSM, NKSTR, IEND, IFRST, KFRST, KACT, IAC
+integer IOBSM, IOBTP, NIGRP, ISPGPSM, NKSTR, KACT, IAC
 real*8 SCLFAC
 ! Input
 integer IGRP(NIGRP)
@@ -78,7 +78,7 @@ integer IACIST(MXPNSMST), NACIST(MXPNSMST)
 allocatable IOFFI(:)
 integer NTEST, I, NORBTS, NORBT, IACGAS, IBORBSP, IBORBSPS, IDELTA, IACGRP, JGRP, NIEL, NKEL, KACGRP, KSM, NKDIST, NGASL, NIGASL, &
         NELB, IZERO, KFIRST, KSTRBS, IGAS, NONEW, NSTRIK, ISAVE, IACSM, IBSTRINI, NSTB, NSTA, NIAC, IIAC, NKAC, IKAC, NKSD, IEC, &
-        LROW_IN, NKACT, IORB, IORBR, IOFFI, KBSTRIN, NACGSOB
+        LROW_IN, IORB, IORBR, IOFFI
 integer, external :: IOFF_SYM_DIST
 integer, external :: IELSUM
 
@@ -173,7 +173,7 @@ else
   end if
 end if
 ! Okay active K group was found and is nontrivial
-call SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
+call SYMCOM(2,IOBSM,KSM,ISPGPSM)
 ! The K supergroup
 call ICOPVE(IGRP,KGRP,NIGRP)
 KGRP(IACGRP) = KACGRP
@@ -248,7 +248,7 @@ do IGAS=1,NGASL
 end do
 ! Offset for corresponding I strings
 ISAVE = ISMFGS(IACGRP)
-call SYMCOM(3,1,IOBSM,ISMFGS(IACGRP),IACSM)
+call SYMCOM(3,IOBSM,ISMFGS(IACGRP),IACSM)
 ISMFGS(IACGRP) = IACSM
 IBSTRINI = IOFF_SYM_DIST(ISMFGS,NIGASL,IOFFI,MXVLI,MNVLI)
 !write(u6,*) 'IBSTRINI :',IBSTRINI
@@ -282,11 +282,10 @@ else
   IEC = 1
   LROW_IN = NORBT
 end if
-NKACT = NSTFGP(KACGRP)
 
 if (NSTA*NSTB*NIAC*NKAC /= 0) &
-  call ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT, &
-                   NIAC,NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC,IAC,LROW_IN,IEC)
+  call ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC, &
+                   NKSTR,NELB,I1,XI1S,SCLFAC,IAC,LROW_IN,IEC)
 KSTRBS = KSTRBS+NKSD
 goto 1000
 
@@ -306,14 +305,6 @@ if (NTEST >= 100) then
       call WRTMAT(XI1S((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
     end do
   end if
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(IEND)
-  call Unused_integer(IFRST)
-  call Unused_integer(KFRST)
 end if
 
 end subroutine ADAST_GAS

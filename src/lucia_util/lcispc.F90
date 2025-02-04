@@ -11,7 +11,7 @@
 ! Copyright (C) 1994,1995,1999, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine LCISPC(IPRNT)
+subroutine LCISPC()
 ! Number of dets and combinations
 ! per symmetry for each type of internal space
 !
@@ -30,11 +30,11 @@ use lucia_data, only: NOCTYP
 use lucia_data, only: MXPCSM, MXPNGAS
 use csm_data, only: NSMST, NSMCI
 #ifdef _DEBUGPRINT_
+use lucia_data, only: IPRCIX
 use Definitions, only: u6
 #endif
 
 implicit none
-integer IPRNT
 integer, allocatable :: LBLTP(:), LIOIO(:), CVST(:)
 integer IATP, IBTP, NOCTPA, NOCTPB, ICI, ISYM, NTTSBL, LCOL, ISM, MXS, MXSOO, MXSOO_AS, NCOMB
 real*8 XNCOMB
@@ -91,7 +91,7 @@ end do
 
 #ifdef _DEBUGPRINT_
 NTEST = 0
-NTEST = max(NTEST,IPRNT)
+NTEST = max(NTEST,IPRCIX)
 if (NTEST >= 5) then
   write(u6,*)
   write(u6,*)
@@ -116,8 +116,6 @@ if (NTEST >= 5) then
     call IWRTMA(NBLKIC(1,ICI),1,NSMCI,1,NSMCI)
   end do
 end if
-#else
-call Unused_Integer(IPRNT)
 #endif
 ! Largest number of BLOCKS in a CI expansion
 MXNTTS = 0

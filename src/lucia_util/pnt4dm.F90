@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PNT4DM(NSMOB,NSMSX,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS12,IS34,IS1234,IPNTR,ISM4A,ADASX)
+subroutine PNT4DM(NSMOB,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS12,IS34,IS1234,IPNTR,ISM4A,ADASX)
 ! Pointer for 4 dimensionl array with total symmetry IDXSM
 ! Pointer is given as 3 dimensional array corresponding
 ! to the first 3 indices
@@ -101,9 +101,5 @@ end do
 !call IWRTMA(IPNTR,1,64,1,64)
 NTEST = 0
 if (NTEST /= 0) write(u6,*) ' Length of 4 index array ',IOFF-1
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NSMSX)
 
 end subroutine PNT4DM

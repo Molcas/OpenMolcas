@@ -112,12 +112,12 @@ IFIRST = 0
 ! Symmetry of NGASL -1 spaces given, symmetry of full space
 !ISTSMM1 = 1
 !do IGAS=1,NGASL-1
-!  call SYMCOM(3,1,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
+!  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
 !  ISTSMM1 = JSTSMM1
 !end do
 ISTSMM1 = ISYMSTR(ISMFGS,NGASL-1)
 ! sym of SPACE NGASL
-call SYMCOM(2,1,ISTSMM1,ISMGSN,ISYM)
+call SYMCOM(2,ISTSMM1,ISMGSN,ISYM)
 ISMFGS(NGASL) = ISMGSN
 if (NTEST >= 1000) then
   write(u6,*) ' next symmetry of NGASL spaces'

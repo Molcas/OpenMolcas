@@ -90,8 +90,8 @@ end if
 
 ! Supergroup and symmetry of K strings
 
-call SYMCOM(2,0,IOBSM,K1SM,ISM)
-call SYMCOM(2,0,JOBSM,KSM,K1SM)
+call SYMCOM(2,IOBSM,K1SM,ISM)
+call SYMCOM(2,JOBSM,KSM,K1SM)
 if (NTEST >= 100) write(u6,*) ' K1SM,KSM : ',K1SM,KSM
 ISPGPABS = IBSPGPFTP(ITP)-1+ISPGP
 IACADJ = 2

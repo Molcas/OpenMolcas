@@ -12,8 +12,8 @@
 !               2024, Giovanni Li Manni                                *
 !***********************************************************************
 
-subroutine GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,NSMST,IONLY_NCONF,NTORB,NOBPT, &
-                              NCONF_OP,NCONF,IBCONF_REO,IBCONF_OCC,ICONF,IDOREO,IZ_CONF,NCONF_ALL_SYM,ireo,nconf_tot)
+subroutine GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,IONLY_NCONF,NTORB,NOBPT,NCONF_OP, &
+                              NCONF,IBCONF_REO,IBCONF_OCC,ICONF,IDOREO,IZ_CONF,NCONF_ALL_SYM,ireo,nconf_tot)
 ! IONLY_NCONF = 1 :
 !
 ! Generate number of configurations of occclass IOCCLS and sym ISYM
@@ -31,7 +31,7 @@ use lucia_data, only: MXPORB
 use Definitions, only: u6
 
 implicit none
-integer IB_OCCLS, INITIALIZE_CONF_COUNTERS, NGAS, ISYM, MINOP, MAXOP, NSMST, IONLY_NCONF, NTORB, NCONF, IDOREO, NCONF_ALL_SYM, &
+integer IB_OCCLS, INITIALIZE_CONF_COUNTERS, NGAS, ISYM, MINOP, MAXOP, IONLY_NCONF, NTORB, NCONF, IDOREO, NCONF_ALL_SYM, &
         nconf_tot
 ! Input
 ! Number of electrons per gas space
@@ -126,14 +126,10 @@ if (NTEST >= 100) then
   call IWRTMA(NCONF_OP,1,MAXOP+1,1,MAXOP+1)
   if (IONLY_NCONF == 0) then
     write(u6,*) ' Updated list of configurations (may not be the final...)'
-    call WRT_CONF_LIST(ICONF,NCONF_OP,MAXOP,NCONF,NEL)
+    call WRT_CONF_LIST(ICONF,NCONF_OP,MAXOP,NEL)
     write(u6,*) ' Updated reordering of conf, Lex=>Act (may not be the final'
     call IWRTMA(IREO,1,NCONF_tot,1,NCONF_tot)
   end if
 end if
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NSMST)
 
 end subroutine GEN_CONF_FOR_OCCLS

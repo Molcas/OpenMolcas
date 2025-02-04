@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GSTTBL(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICOOSC,IDC,PLSIGN,LUC,SCR,NSMST,ISCALE,SCLFAC)
-!****************************************************************************
+subroutine GSTTBL(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICOOSC,IDC,PLSIGN,LUC,SCR,NSMST,ISCALE,SCLFAC)
+!***********************************************************************
 ! Variables status:
 ! C     = input CI vector
 ! CTT   = output CI vector in SD format
@@ -37,7 +37,7 @@ integer IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, IDC, LUC, NSMST, ISCALE
 real*8 PSSIGN, PLSIGN, SCLFAC
 real*8 C(*), CTT(*)
 integer NSASO(NSMST,*), NSBSO(NSMST,*)
-integer IOCOC(NOCTPA,NOCTPB), ICOOSC(NOCTPA,NOCTPB,*)
+integer ICOOSC(NOCTPA,NOCTPB,*)
 real*8 SCR(*)
 
 integer ISGVST(1)
@@ -185,9 +185,5 @@ else
     end if
   end if
 end if
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(IOCOC)
 
 end subroutine GSTTBL

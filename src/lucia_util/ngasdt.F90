@@ -79,7 +79,7 @@ do IATP=1,NOCTPA
       LTTS_AS = 0
       do IASM=1,NSMST
         if (IBLTP(IASM) == 0) goto 300
-        call SYMCOM(2,1,IASM,IBSM,ITOTSM)
+        call SYMCOM(2,IASM,IBSM,ITOTSM)
         if (IBSM /= 0) then
           if (IBLTP(IASM) == 2) then
             ISYM = 1

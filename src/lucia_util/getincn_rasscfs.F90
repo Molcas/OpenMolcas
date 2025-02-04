@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GETINCN_RASSCFS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,INTLST,NSMOB,ICOUL)
+subroutine GETINCN_RASSCFS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
 ! Obtain integrals
 !
 !     ICOUL = 0 :
@@ -25,17 +25,16 @@ subroutine GETINCN_RASSCFS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM
 !
 ! Storing for ICOUL = 1 not working if IKSM or JLSM /= 0
 !
-! Version for integrals stored in INTLST
+! Version for integrals stored in TUVX
 !
 ! If type equals zero, all integrals of given type are fetched
-! ( added aug8, 98)
+! (added aug 8, 98)
 
 use lucia_data, only: IBSO, NOBPTS, NTOOBS
+use wadr, only: TUVX
 
 implicit none
-integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, NSMOB, ICOUL
-! Integral list
-real*8 Intlst(*)
+integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
 ! Output
 real*8 XINT(*)
 ! Local scratch
@@ -111,7 +110,7 @@ do l=lOff,lOff+lOrb-1
         ! Next line inserted by Jesper: "I don't think iInt should be the same
         ! for all i"
         iInt = iInt+1
-        Xint(iInt) = Intlst(ijkl)
+        Xint(iInt) = TUVX(ijkl)
       end do
     end do
   end do
@@ -142,15 +141,11 @@ if (IXCHNG /= 0) then
           KJ = max(K,J)*(max(K,J)-1)/2+min(K,J)
           ILKJ = max(IL,KJ)*(max(IL,KJ)-1)/2+min(IL,KJ)
           iInt = iInt+1
-          XInt(iInt) = XInt(iInt)-Intlst(ilkj)
+          XInt(iInt) = XInt(iInt)-TUVX(ilkj)
         end do
       end do
     end do
   end do
 end if
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NSMOB)
 
 end subroutine GETINCN_RASSCFS

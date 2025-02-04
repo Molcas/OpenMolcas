@@ -12,10 +12,10 @@
 !***********************************************************************
 
 subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,ICBLTP,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB, &
-                   NSMST,NSMOB,NSMSX,NSMDX,NOBPTS,IOBPTS,MXPNGAS,ITSOB,MAXK,MAXI,LC,XINT,CSCR,SSCR,STSTSX,STSTDX,SXDXSX,ADSXA, &
-                   NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,IDOH2,MXPOBS,ISTRFL,PS,IPRNT,LUC,ICJKAIB,CJRES,SIRES,I3,XI3S,I4,XI4S,MXSXST, &
-                   MXSXBL,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IPERTOP,IH0INSPC,IH0SPC, &
-                   ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,ISIMSYM,XINT2)
+                   NSMST,NSMOB,NOBPTS,MXPNGAS,MAXK,MAXI,LC,XINT,CSCR,SSCR,STSTSX,STSTDX,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2, &
+                   XI2S,IDOH2,MXPOBS,ISTRFL,PS,IPRNT,LUC,ICJKAIB,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK, &
+                   ICBLOCK,IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IPERTOP,IH0SPC,ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB, &
+                   ISIMSYM,XINT2)
 ! SUBROUTINE SBLOCKS --> 91
 !
 ! Direct RAS routine employing combined MOC/n-1 resolution method
@@ -44,7 +44,6 @@ subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,ICBLTP,NSSOA,NSSOB,NAE
 ! NBEL  : Number of active beta electrons
 ! NTSOB : Number of orbitals per type and symmetry
 ! NOBPTS: Orbitals of given type and symmetry
-! IOBPTS: Offset for orbitals of given sym and type
 !
 ! MAXIJ : Largest allowed number of orbital pairs treated simultaneously
 ! MAXK  : Largest number of N-2,N-1 strings treated simultaneously
@@ -77,9 +76,8 @@ use Constants, only: Zero, One, Half
 use Definitions, only: u6
 
 implicit none
-integer NSBLOCK, NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NOCTPA, NOCTPB, NSMST, NSMOB, NSMSX, NSMDX, MXPNGAS, MAXK, MAXI, LC, &
-        NGAS, IDC, IDOH2, MXPOBS, IPRNT, LUC, ICJKAIB, MXSXST, MXSXBL, MOCAA, IRESTRICT, IPERTOP, ICBAT_RES, ICBAT_INI, ICBAT_END, &
-        IUSE_PH, I_RES_AB, ISIMSYM
+integer NSBLOCK, NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NOCTPA, NOCTPB, NSMST, NSMOB, MXPNGAS, MAXK, MAXI, LC, NGAS, IDC, &
+        IDOH2, MXPOBS, IPRNT, LUC, ICJKAIB, MOCAA, IRESTRICT, IPERTOP, ICBAT_RES, ICBAT_INI, ICBAT_END, IUSE_PH, I_RES_AB, ISIMSYM
 real*8 PS
 ! Specific input
 integer ISBLOCK(8,*)
@@ -91,7 +89,7 @@ integer NSSOA(NSMST,*), NSSOB(NSMST,*)
 integer STSTSX(NSMST,NSMST)
 integer STSTDX(NSMST,NSMST), ADSXA(MXPOBS,2*MXPOBS)
 integer SXDXSX(2*MXPOBS,4*MXPOBS)
-integer NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), ITSOB(*)
+integer NOBPTS(MXPNGAS,*)
 integer NELFSPGP(MXPNGAS,*)
 integer ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
 ! Scratch
@@ -103,13 +101,11 @@ integer LCBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*), LECBLOCK(*)
 integer ISTRFL(*)
 ! Zero order Hamiltonian
 integer IH0SPC(NOCTPA,NOCTPB)
-integer IH0INSPC(*)
 real*8 CJRES(*), SIRES(*)
 integer LASM(4), LBSM(4), LATP(4), LBTP(4), LSGN(5), LTRP(5)
 real*8 SCLFAC(*)
 real*8 C(1)
 integer ICOOSC(1), IPHGAS(*), iDUMMY(1)
-integer DXSTST(1)
 integer :: IH_OCC_CONS = 0
 ! IH_OCC_CONS =1 implies that we should employ occupation conserving
 ! part of Hamiltonian
@@ -120,8 +116,6 @@ real*8 PL, XFAC, FACTOR
 #ifdef _DEBUGPRINT_
 integer IBLOCK, IGAS, II, NTEST
 #endif
-
-if (.false.) call unused_integer(mxsxbl)
 
 #ifdef _DEBUGPRINT_
 NTEST = 0
@@ -236,8 +230,7 @@ do JCBATCH=JCBAT_INI,JCBAT_END
 
     ISCALE = 0
     if (INTERACT == 1) then
-      call GSTTBL(C,CB(JOFF),JATP,JASM,JBTP,JBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,PL,LUC,C2,NSMST,ISCALE, &
-                  SCLFAC(JBLOCK))
+      call GSTTBL(C,CB(JOFF),JATP,JASM,JBTP,JBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,PL,LUC,C2,NSMST,ISCALE,SCLFAC(JBLOCK))
       ! Note in GSTTBL : ICOOSC only used for CI vectors in core,
     else
       ! not relevant
@@ -367,9 +360,8 @@ do JCBATCH=JCBAT_INI,JCBAT_END
             if (I_DO_EXACT_BLK == 1) then
               call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(1,IATP+IOCTPA-1),NELFSPGP(1,IBTP+IOCTPB-1), &
                            NELFSPGP(1,LLATP+IOCTPA-1),NELFSPGP(1,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
-                           ADSXA,STSTSX,DXSTST,STSTDX,SXDXSX,NOBPTS,IOBPTS,MXPNGAS,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT, &
-                           C2,NSMOB,NSMST,NSMSX,NSMDX,NIA,NIB,NLLA,NLLB,MXPOBS,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MXSXST,MOCAA,IPRNT, &
-                           IPERTOP,XFAC,IUSE_PH,IPHGAS,I_RES_AB,XINT2)
+                           ADSXA,STSTSX,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA, &
+                           NLLB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,IPRNT,IPERTOP,XFAC,IUSE_PH,IPHGAS,I_RES_AB,XINT2)
             else if (I_DO_EXACT_BLK == -1) then
               ! Giovanni.... transposing sigma and CI vectors:
               call TRPMT3(SB(ISOFF),NIB,NIA,C2)
@@ -425,9 +417,5 @@ if (NTEST >= 50) then
   call WRTTTS(SB,ISBLOCK,NSBLOCK,NSMST,NSSOA,NSSOB,1)
 end if
 #endif
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(IH0INSPC)
 
 end subroutine SBLOCKS

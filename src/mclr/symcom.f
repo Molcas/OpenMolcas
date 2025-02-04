@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE SYMCOM_MCLR(ITASK,IOBJ,I1,I2,I12)
+      SUBROUTINE SYMCOM_MCLR(ITASK,I1,I2,I12)
 *
 * Symmetries I1,I2,I12 are related as
 * I1 I2 = 12
@@ -34,12 +34,14 @@
 * ================
       use input_mclr, only: PNTGRP
       Implicit None
-      Integer ITASK,IOBJ,I1,I2,I12
+      Integer ITASK,I1,I2,I12
 *
       IF(PNTGRP.EQ.1) THEN
-        CALL SYMCM1(ITASK,IOBJ,I1,I2,I12)
+        CALL SYMCM1(ITASK,I1,I2,I12)
       ELSE IF(PNTGRP.GE.2.AND.PNTGRP.LE.4) THEN
-        CALL SYMCM2(ITASK,IOBJ,I1,I2,I12)
+        CALL SysAbendMsg('SYMCOM_MCLR',
+     &  ' Entering dummy SYMCM2 is fatal for me',' ')
+        !CALL SYMCM2(ITASK,IOBJ,I1,I2,I12)
       ELSE
         WRITE(6,*) ' PNTGRP parameter out of bounds ', PNTGRP
         WRITE(6,*) ' Enforced stop in SYMCOM '

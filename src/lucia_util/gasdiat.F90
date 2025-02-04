@@ -23,7 +23,7 @@ use lucia_data, only: IPRDIA
 use lucia_data, only: PSSIGN
 use lucia_data, only: MXNSTR, I_AM_OUT, N_ELIMINATED_BATCHES
 use lucia_data, only: IDISK
-use lucia_data, only: NTOOB, IREOST, IREOTS, NACOB
+use lucia_data, only: NTOOB, IREOST, NACOB
 use lucia_data, only: NOCTYP
 use lucia_data, only: NELEC
 use csm_data, only: NSMST
@@ -45,7 +45,6 @@ integer IBLKFO(8,NBLOCK)
 ! ======
 real*8 DIAG(*)
 integer, allocatable :: LASTR(:), LBSTR(:)
-real*8, allocatable :: LSCR2(:)
 real*8, allocatable :: LJ(:), LK(:), LXB(:), LH1D(:), LRJKA(:)
 integer, external :: IMNMX
 integer NTEST, IATP, IBTP, NAEL, NBEL, NOCTPA, MAXA
@@ -83,7 +82,6 @@ end if
 
 call mma_allocate(LJ,NTOOB**2,Label='LJ')
 call mma_allocate(LK,NTOOB**2,Label='LK')
-call mma_allocate(LSCR2,2*NTOOB**2,Label='LSCR2')
 call mma_allocate(LXB,NACOB,Label='LXB')
 call mma_allocate(LH1D,NACOB,Label='LH1D')
 ! Space for blocks of strings
@@ -95,14 +93,13 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 
 call GT1DIA(LH1D)
-call GTJK(LJ,LK,NTOOB,LSCR2,IREOTS,IREOST)
+call GTJK(LJ,LK,NTOOB,IREOST)
 if (LUDIA > 0) IDISK(LUDIA) = 0
 call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%I,NSTSO(IBTP)%I,LUDIA,ECORE,PSSIGN,IPRDIA,NTOOB, &
              ICISTR,LRJKA,I12,IBLTP,NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
 ! Flush local memory
 call mma_deallocate(LJ)
 call mma_deallocate(LK)
-call mma_deallocate(LSCR2)
 call mma_deallocate(LXB)
 call mma_deallocate(LH1D)
 call mma_deallocate(LASTR)

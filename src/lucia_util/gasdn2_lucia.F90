@@ -11,11 +11,11 @@
 ! Copyright (C) 1991,1995,1997-1999, Jeppe Olsen                       *
 !***********************************************************************
 
-subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NACOB,NSSOA,ISSOA,NSSOB, &
-                        ISSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS, &
-                        MAXK,MAXI,LC,LS,CSCR,SSCR,SXSTSM,STSTSX,STSTDX,SXDXSX,ADSXA,ASXAD,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,I3, &
-                        XI3S,I4,XI4S,X,MXPOBS,IPRNT,RHO1S,LUL,LUR,PSL,PSR,RHO1P,XNATO,NBATCHL,LBATL,LEBATL,I1BATL,IBLOCKL,NBATCHR, &
-                        LBATR,LEBATR,I1BATR,IBLOCKR,ICONSPA,ICONSPB,SCLFAC_L,SCLFAC_R,S2_TERM1,IUSE_PH,IPHGAS,IDOSRHO1,SRHO1,IPACK)
+subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NACOB,NSSOA,NSSOB,NAEL, &
+                        IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,CSCR,SSCR,STSTSX, &
+                        SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,MXPOBS,IPRNT,RHO1S,LUL,LUR,PSL,PSR, &
+                        NBATCHL,LBATL,I1BATL,IBLOCKL,NBATCHR,LBATR,I1BATR,IBLOCKR,ICONSPA,ICONSPB,SCLFAC_L,SCLFAC_R,S2_TERM1, &
+                        IPHGAS,IDOSRHO1,SRHO1,IPACK)
 ! SUBROUTINE GASDN2_LUCIA --> 89
 !
 ! Jeppe Olsen, Winter of 1991
@@ -46,10 +46,8 @@ subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,CB,SB,C2,ICOCOC,ISOCOC,ICS
 !
 ! NACOB : Number of active orbitals
 ! NSSOA : Number of strings per type and symmetry for alpha strings
-! ISSOA : Offset for strings if given type and symmetry, alpha strings
 ! NAEL  : Number of active alpha electrons
 ! NSSOB : Number of strings per type and symmetry for beta strings
-! ISSOB : Offset for strings if given type and symmetry, beta strings
 ! NBEL  : Number of active beta electrons
 !
 ! MAXIJ : Largest allowed number of orbital pairs treated simultaneously
@@ -59,9 +57,6 @@ subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,CB,SB,C2,ICOCOC,ISOCOC,ICS
 ! IPACK : Logical: If true calculate symmetry packed densities (i.e.
 !         RHO2S and RHO2A instead of RHO2
 !
-!
-! LC : Length of scratch array for C
-! LS : Length of scratch array for S
 ! RHO1S: Scratch array for one body
 ! CSCR : Scratch array for C vector
 ! SSCR : Scratch array for S vector
@@ -75,19 +70,17 @@ use Constants, only: Zero, One
 use Definitions, only: u6
 
 implicit none
-integer I12, NACOB, NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NOCTPA, NOCTPB, NSMST, NSMOB, NSMSX, NSMDX, MXPNGAS, MAXK, MAXI, LC, &
-        LS, NGAS, IDC, MXPOBS, IPRNT, LUL, LUR, NBATCHL, NBATCHR, IUSE_PH, IDOSRHO1
+integer I12, NACOB, NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NOCTPA, NOCTPB, NSMST, NSMOB, MXPNGAS, MAXK, MAXI, NGAS, IDC, &
+        MXPOBS, IPRNT, LUL, LUR, NBATCHL, NBATCHR, IDOSRHO1
 real*8 PSL, PSR, S2_TERM1
 ! General input
 integer ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB)
 integer ICSMOS(NSMST), ISSMOS(NSMST)
 integer ICBLTP(*), ISBLTP(*)
-integer NSSOA(NSMST,NOCTPA), ISSOA(NSMST,NOCTPA)
-integer NSSOB(NSMST,NOCTPB), ISSOB(NSMST,NOCTPB)
-integer SXSTSM(NSMSX,NSMST)
+integer NSSOA(NSMST,NOCTPA)
+integer NSSOB(NSMST,NOCTPB)
 integer STSTSX(NSMST,NSMST)
-integer STSTDX(NSMST,NSMST)
-integer ADSXA(MXPOBS,2*MXPOBS), ASXAD(MXPOBS,2*MXPOBS)
+integer ADSXA(MXPOBS,2*MXPOBS)
 integer SXDXSX(2*MXPOBS,4*MXPOBS)
 integer NOBPTS(MXPNGAS,NSMOB), IOBPTS(MXPNGAS,NSMOB)
 integer NELFSPGP(MXPNGAS,*)
@@ -95,8 +88,8 @@ logical IPACK
 integer IPHGAS(*)
 real*8 SRHO1(*)
 ! Info on batches and blocks
-integer LBATL(NBATCHL), LEBATL(NBATCHL), I1BATL(NBATCHL), IBLOCKL(8,*)
-integer LBATR(NBATCHR), LEBATR(NBATCHR), I1BATR(NBATCHR), IBLOCKR(8,*)
+integer LBATL(NBATCHL), I1BATL(NBATCHL), IBLOCKL(8,*)
+integer LBATR(NBATCHR), I1BATR(NBATCHR), IBLOCKR(8,*)
 ! Interaction between supergroups
 integer ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
 ! Scratch
@@ -113,9 +106,7 @@ integer RASM(4), RBSM(4), RATP(4), RBTP(4), RSGN(5), RTRP(5)
 real*8 L(*), R(*)
 ! Output
 real*8 RHO1(*), RHO2(*), RHO2S(*), RHO2A(*)
-real*8 RHO1P(*), XNATO(*)
 integer ISTRFL(1), LBL(1), IDUMMY(1)
-integer SXSTST(1), DXSTST(1)
 integer INTERACT, NTEST, IBATCHL, NBLKL, IIL, IL, IATP, IBTP, IASM, IBSM, IOFF, ISCALE, IBATCHR, NBLKR, IIR, IR, JATP, JBTP, JASM, &
         JBSM, JOFF, IPERM, NPERM, IIASM, IIBSM, IIATP, IIBTP, IAEXC, IBEXC, IABEXC, NIA, NIB, ILPERM, NLPERM, NIIA, NIIB, LROW, &
         LCOL, NJA, NJB, NRPERM
@@ -164,7 +155,7 @@ do IBATCHL=1,NBATCHL
     if (NTEST >= 200) write(u6,*) 'IATP IBTP IASM IBSM',IATP,IBTP,IASM,IBSM
     ISCALE = 0
     if (NTEST >= 200) write(u6,*) 'IOFF ',IOFF
-    call GSTTBL(L,SB(IOFF),IATP,IASM,IBTP,IBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PSL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
+    call GSTTBL(L,SB(IOFF),IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PSL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
   end do
   ! Loop over batches  of R vector
   if (LUR /= 0) IDISK(LUR) = 0
@@ -212,8 +203,7 @@ do IBATCHL=1,NBATCHL
       ISCALE = 0
       if (INTERACT == 1) then
         ISCALE = 0
-        call GSTTBL(R,CB(JOFF),JATP,JASM,JBTP,JBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PCL,LUR,C2,NSMST,ISCALE, &
-                    SCLFAC_R(IR))
+        call GSTTBL(R,CB(JOFF),JATP,JASM,JBTP,JBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PCL,LUR,C2,NSMST,ISCALE,SCLFAC_R(IR))
       else
         !write(u6,*) ' TTSS for C block skipped'
         !call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
@@ -317,10 +307,9 @@ do IBATCHL=1,NBATCHL
 
                   call GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IIASM,IIATP,IIBSM,IIBTP,JASM,JATP,JBSM,JBTP,NGAS, &
                                      NELFSPGP(1,IOCTPA-1+IIATP),NELFSPGP(1,IOCTPB-1+IIBTP),NELFSPGP(1,IOCTPA-1+JATP), &
-                                     NELFSPGP(1,IOCTPB-1+JBTP),NAEL,NBEL,IAGRP,IBGRP,SB(IOFF),CB(JOFF),C2,ADSXA,SXSTST,STSTSX, &
-                                     DXSTST,STSTDX,SXDXSX,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4, &
-                                     XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,NIIA,NIIB,NJA,NJB,MXPOBS,IPRNT,NACOB,RHO1S,SCLFAC,S2_TERM1, &
-                                     IUSE_PH,IPHGAS,IDOSRHO1,SRHO1,IPACK)
+                                     NELFSPGP(1,IOCTPB-1+JBTP),NAEL,NBEL,IAGRP,IBGRP,SB(IOFF),CB(JOFF),C2,ADSXA,STSTSX,SXDXSX, &
+                                     MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NIIA, &
+                                     NIIB,NJA,NJB,MXPOBS,IPRNT,NACOB,RHO1S,SCLFAC,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
 
                   ! CALL GSDNBB2_LUCIA --> 66
 
@@ -351,20 +340,5 @@ do IBATCHL=1,NBATCHL
   ! End of loop over batches of R blocks
 end do
 ! End of loop over batches of L blocks
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(ISSOA)
-  call Unused_integer_array(ISSOB)
-  call Unused_integer(LC)
-  call Unused_integer(LS)
-  call Unused_integer_array(SXSTSM)
-  call Unused_integer_array(ASXAD)
-  call Unused_real_array(RHO1P)
-  call Unused_real_array(XNATO)
-  call Unused_integer_array(LEBATL)
-  call Unused_integer_array(LEBATR)
-end if
 
 end subroutine GASDN2_LUCIA

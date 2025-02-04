@@ -9,20 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SYMINF_LUCIA(IPRNT)
+subroutine SYMINF_LUCIA()
 ! Information about number of symmetries
 
 use lucia_data, only: PNTGRP, NIRREP
 use Definitions, only: u6
 
 implicit none
-integer IPRNT
 
 if (PNTGRP == 1) then
   ! ===
   ! D2h
   ! ===
-  call ZSYM1(NIRREP,IPRNT)
+  call ZSYM1(NIRREP)
 else
   write(u6,*) ' You are too early, sorry'
   write(u6,*) ' Illegal PNTGRP in SYMINF ',PNTGRP

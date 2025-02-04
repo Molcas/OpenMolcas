@@ -11,8 +11,8 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,SXSTST,STSTSX,SXDXSX, &
-                         MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS,SCLFAC,IPACK)
+subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,SXDXSX, &
+                         MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,X,NSMOB,NSMST,MXPOBS,SCLFAC,IPACK)
 ! SUBROUTINE GSBBD2A_LUCIA --> 37
 !
 ! Contributions to two-electron density matrix from column excitations
@@ -34,14 +34,12 @@ subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NRO
 ! CB   : Input C block
 ! ADASX : sym of a+, a => sym of a+a
 ! ADSXA : sym of a+, a+a => sym of a
-! SXSTST : Sym of sx,!st> => sym of sx !st>
 ! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 ! MXPNGAS : Max number of AS spaces ( program parameter )
 ! NOBPTS  : Number of orbitals per type and symmetry
 ! IOBPTS : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
-!       single excitations, double excitations
+! NSMOB,NSMST,NSMDX : Number of symmetries of orbitals, strings, double excitations
 ! MAXI   : Largest Number of ' spectator strings 'treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 ! IPACK  : Should we pack the density?
@@ -58,8 +56,7 @@ subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NRO
 ! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
 !              largest number of orbital pairs of given symmetries and
 !              types.
-! I1, XI1S, I2,XI2S : For holding creations/annihilations
-!              type and symmetry
+! I1, XI1S,  : For holding creations/annihilations type and symmetry
 !
 ! Jeppe Olsen, Fall of 96
 
@@ -69,7 +66,7 @@ use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! General input
-integer ADSXA(MXPOBS,2*MXPOBS), SXSTST(NSMSX,NSMST), STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS)
+integer ADSXA(MXPOBS,2*MXPOBS), STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS)
 integer NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*)
 logical IPACK
 ! Input
@@ -79,7 +76,7 @@ dimension CB(*), SB(*), X(*)
 dimension RHO2(*), RHO2S(*), RHO2A(*)
 ! Scatch
 dimension SSCR(*), CSCR(*)
-dimension I1(MAXK,*), XI1S(MAXK,*), I2(MAXK,*), XI2S(MAXK,*)
+dimension I1(MAXK,*), XI1S(MAXK,*)
 ! Local arrays
 dimension ITP(256), JTP(256), KTP(256), LTP(256)
 !integer IKBT(3,8), IKSMBT(2,8), JLBT(3,8), JLSMBT(2,8)
@@ -336,13 +333,5 @@ do IDXTP=1,NDXTP
   end do
 end do
 2001 continue
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(SXSTST)
-  call Unused_integer_array(I2)
-  call Unused_real_array(XI2S)
-end if
 
 end subroutine GSBBD2A_LUCIA

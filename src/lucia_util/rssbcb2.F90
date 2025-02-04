@@ -12,9 +12,8 @@
 !***********************************************************************
 
 subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL,IJAGRP,IJBGRP,SB,CB,JDOH2,ADSXA, &
-                   STSTSX,DXSTST,STSTDX,SXDXSX,NOBPTS,IOBPTS,MXPNGAS,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB, &
-                   NSMST,NSMSX,NSMDX,NIA,NIB,NJA,NJB,MXPOBS,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MXSXST,MOCAA,IPRNT,IHAPR,SCLFAC, &
-                   IUSE_PH,IPHGAS,I_RES_AB,XINT2)
+                   STSTSX,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NJA,NJB,IDC,CJRES, &
+                   SIRES,I3,XI3S,I4,XI4S,MOCAA,IPRNT,IHAPR,SCLFAC,IUSE_PH,IPHGAS,I_RES_AB)
 ! SUBROUTINE RSSBCB2 --> 82
 !
 ! Contributions to sigma block (iasm iatp, ibsm ibtp) from
@@ -43,7 +42,6 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 ! SXSTST : Sym of sx,!st> => sym of sx !st>
 ! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 !          is nonvanishing by symmetry
-! DXSTST : Sym of dx,!st> => sym of dx !st>
 ! STSTDX : Sym of !st>,dx!st'> => sym of dx so <st!dx!st'>
 !          is nonvanishing by symmetry
 ! NTSOB  : Number of orbitals per type and symmetry
@@ -87,7 +85,7 @@ use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 #include "timers.fh"
-integer ADSXA(*), STSTSX(*), DXSTST(*), STSTDX(*), SXDXSX(*)
+integer ADSXA(*), STSTSX(*), STSTDX(*), SXDXSX(*)
 ! Output
 dimension CB(*), SB(*)
 ! Scratch
@@ -97,8 +95,8 @@ dimension C2(*)
 dimension CJRES(*), SIRES(*)
 dimension IBLOCK(8)
 dimension IPHGAS(*)
-dimension XINT(*), XINT2(*)
-dimension ITSOB(*), NOBPTS(*), IOBPTS(*)
+dimension XINT(*)
+dimension NOBPTS(*)
 dimension IAOC(*), JAOC(*), IBOC(*), JBOC(*)
 
 ! For H(apr)
@@ -179,7 +177,7 @@ if (IDIAG == 0) then
       if (NTEST >= 101) write(u6,*) ' I am going to call RSBB1E'
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB1E_LUCIA(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2, &
-                        XI2S,XINT,NSMOB,NSMST,NSMSX,MOCAA,MXSXST,MOCAA,SCLFAC,IUSE_PH,IPHGAS,NTEST)
+                        XI2S,XINT,NSMOB,NSMST,MOCAA,MOCAA,SCLFAC,IUSE_PH,IPHGAS,NTEST)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(1) = TSIGMA(1)+(WALL1-WALL0)
 
@@ -196,8 +194,8 @@ if (IDIAG == 0) then
       ! Two electron part
       if (NTEST >= 101) write(u6,*) ' I am going to call RSBB2A'
       call TIMING(CPU0,CPU,WALL0,WALL)
-      call RSBB2A_LUCIA(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NIB,NGAS,IBOC,JBOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
-                        XI1S,XINT,NSMOB,NSMST,NSMDX,SCLFAC,IPHGAS)
+      call RSBB2A_LUCIA(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
+                        XI1S,XINT,NSMOB,NSMST,SCLFAC,IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(2) = TSIGMA(2)+(WALL1-WALL0)
 
@@ -240,8 +238,8 @@ if (IDIAG == 0) then
       !if (IUSE_PA == 0) then
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB, &
-                         ADSXA,STSTSX,MXPNGAS,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX,NSMDX, &
-                         MXPOBS,IUSEAB,CJRES,SIRES,SCLFAC,NTEST,0,[0],IUSE_PH,IPHGAS,XINT2)
+                         ADSXA,STSTSX,NOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,IUSEAB,CJRES,SIRES,SCLFAC, &
+                         NTEST,0,[0],IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(3) = TSIGMA(3)+(WALL1-WALL0)
 
@@ -267,8 +265,8 @@ if (IDIAG == 0) then
       ! No division into active/passive
       call TIMING(CPU0,CPU,WALL0,WALL)
       call RSBB2BN_LUCIA(IBSM,IBTP,IASM,IATP,NIB,NIA,JBSM,JBTP,JASM,JATP,NJB,NJA,IJBGRP,IJAGRP,NGAS,IBOC,IAOC,JBOC,JAOC,SB,CB, &
-                         ADSXA,STSTSX,MXPNGAS,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX,NSMDX, &
-                         MXPOBS,IUSEAB,CJRES,SIRES,SCLFAC,NTEST,0,[0],IUSE_PH,IPHGAS,XINT2)
+                         ADSXA,STSTSX,NOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,IUSEAB,CJRES,SIRES,SCLFAC, &
+                         NTEST,0,[0],IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(3) = TSIGMA(3)+(WALL1-WALL0)
 
@@ -308,7 +306,7 @@ if (IDIAG == 0) then
     if (NTEST >= 101) write(u6,*) ' I am going to call RSBB1E (last time )'
     call TIMING(CPU0,CPU,WALL0,WALL)
     call RSBB1E_LUCIA(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S, &
-                      XINT,NSMOB,NSMST,NSMSX,MOCAA,MXSXST,MOCAA,SCLFAC,IUSE_PH,IPHGAS,NTEST)
+                      XINT,NSMOB,NSMST,MOCAA,MOCAA,SCLFAC,IUSE_PH,IPHGAS,NTEST)
     call TIMING(CPU1,CPU,WALL1,WALL)
     TSIGMA(1) = TSIGMA(1)+(WALL1-WALL0)
 
@@ -328,8 +326,8 @@ if (IDIAG == 0) then
     if ((IDOH2 /= 0) .and. (NAEL >= 0)) then
       if (NTEST >= 101) write(u6,*) ' I am going to call RSBB2A (last time )'
       call TIMING(CPU0,CPU,WALL0,WALL)
-      call RSBB2A_LUCIA(IASM,IATP,JASM,JATP,IJAGRP,NIB,NIA,NGAS,IAOC,JAOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
-                        XI1S,XINT,NSMOB,NSMST,NSMDX,SCLFAC,IPHGAS)
+      call RSBB2A_LUCIA(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
+                        XI1S,XINT,NSMOB,NSMST,SCLFAC,IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(2) = TSIGMA(2)+(WALL1-WALL0)
 
@@ -375,7 +373,7 @@ else if (IDIAG == 1) then
     call COPVEC(CB,C2,NJA*NJB)
     ! Input is in det basis
     IIDC = 1
-    call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,0,I12,IIDC)
+    call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,I12,IIDC)
   else
     call SETVEC(C2,Zero,NIA*NIB)
   end if
@@ -404,14 +402,6 @@ if (NTEST >= 200) then
   write(u6,*) ' RSSBCB : Final S block (transposed)'
   write(u6,*) ' ==================================='
   call WRTMAT(SB,NIB,NIA,NIB,NIA)
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(DXSTST)
-  call Unused_integer_array(IOBPTS)
-  call Unused_integer_array(ITSOB)
 end if
 
 end subroutine RSSBCB2

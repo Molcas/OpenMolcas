@@ -107,8 +107,8 @@
             IF(KSM.EQ.0) GOTO 1940
 *. sym of intermediate strings
 *
-            CALL SYMCOM_MCLR(3,0,ISM,ISCSM,K1SM)
-            CALL SYMCOM_MCLR(3,0,KSM,K1SM,K2SM)
+            CALL SYMCOM_MCLR(3,ISM,ISCSM,K1SM)
+            CALL SYMCOM_MCLR(3,KSM,K1SM,K2SM)
 * Intermediate K strings are of type K2TP and Sym K2Sm
 *
             NKSTR = NSTAGTS(K2GRP,K2TP,K2SM)

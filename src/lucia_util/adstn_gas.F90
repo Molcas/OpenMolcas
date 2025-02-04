@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,1994-1996, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,IEND,IFRST,KFRST,KACT,SCLFAC)
+subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,SCLFAC)
 ! Obtain mappings
 ! a+IORB !KSTR> = +/-!ISTR> for orbitals of symmetry IOBSM and type IOBTP
 ! and I strings belonging to supergroup ISPGP wih symmetry ISPGPSM
@@ -22,9 +22,6 @@ subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,IEND,I
 ! (numbering relative to TS start)
 ! Above +/- is stored in XI1S
 !
-! if some nonvanishing excitations were found, KACT is set to 1,
-! else it is zero
-!
 ! Jeppe Olsen, Winter of 1991
 !              January 1994 : modified to allow for several orbitals
 !              August 95    : GAS version
@@ -33,7 +30,7 @@ subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,IEND,I
 use strbas, only: NSTSGP, ISTSGP, STSTM
 use Constants, only: Zero
 use lucia_data, only: NGAS
-use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP, NSTFGP, NSTFSMSPGP
+use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP, NSTFSMSPGP
 use lucia_data, only: IOBPTS, NOBPT, NOBPTS
 use lucia_data, only: MXPNGAS, MXPNSMST
 use csm_data, only: NSMST
@@ -41,7 +38,7 @@ use Definitions, only: wp, u6
 
 implicit none
 real*8 :: OFFI(*)
-integer IOBSM, IOBTP, ISPGP, ISPGPSM, ISPGPTP, NKSTR, IEND, IFRST, KFRST, KACT
+integer IOBSM, IOBTP, ISPGP, ISPGPSM, ISPGPTP, NKSTR
 real*8 SCLFAC
 ! ======
 ! Output
@@ -58,7 +55,7 @@ integer, parameter :: MXLNGAS = 20
 integer, external :: IELSUM
 integer NTEST, ISPGRPABS, KSM, KSPGRPABS, NORBTS, IZERO, IBORBSP, IBORBSPS, NGASL, IGAS, NELB, NACGSOB, ISMST, IFIRST, NSTRINT, &
         NONEW, ISTSMM1, JSTSMM1, ISMGSN, NSTRII, IOFF, MULT, KACGRP, KFIRST, KSTRBS, NSTRIK, ISAVE, IACSM, IBSTRINI, NSTB, NSTA, &
-        NIAC, IIAC, NKAC, IKAC, NKSD, NKACT, IORB, IORBR, KBSTRIN
+        NIAC, IIAC, NKAC, IKAC, NKSD, IORB, IORBR
 
 ! Will be stored as an matrix of dimension
 ! (NKSTR,*), Where NKSTR is the number of K-strings of
@@ -91,7 +88,7 @@ end if
 
 ISPGRPABS = IBSPGPFTP(ISPGPTP)-1+ISPGP
 call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
-call SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
+call SYMCOM(2,IOBSM,KSM,ISPGPSM)
 NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
 if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
 if (NKSTR == 0) goto 9999
@@ -161,11 +158,11 @@ IFIRST = 0
 ! Symmetry of NGASL -1 spaces given, symmetry of full space
 ISTSMM1 = 1
 do IGAS=1,NGASL-1
-  call SYMCOM(3,1,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
+  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
   ISTSMM1 = JSTSMM1
 end do
 ! sym of SPACE NGASL
-call SYMCOM(2,1,ISTSMM1,ISMGSN,ISPGPSM)
+call SYMCOM(2,ISTSMM1,ISMGSN,ISPGPSM)
 ISMFGS(NGASL) = ISMGSN
 if (NTEST >= 200) then
   write(u6,*) ' next symmetry of NGASL spaces'
@@ -202,7 +199,7 @@ if (NGASL-1 > 0) goto 2000
 ! Supergroup and symmetry of K strings
 
 !M call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
-!M call SYMCOM(2,0,IOBSM,KSM,ISPGPSM)
+!M call SYMCOM(2,IOBSM,KSM,ISPGPSM)
 !M NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
 !M if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
 
@@ -253,11 +250,11 @@ end if
 ! Symmetry of NGASL -1 spaces given, symmetry of total space
 ISTSMM1 = 1
 do IGAS=1,NGASL-1
-  call SYMCOM(3,1,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
+  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
   ISTSMM1 = JSTSMM1
 end do
 ! required sym of SPACE NGASL
-call SYMCOM(2,1,ISTSMM1,ISMGSN,KSM)
+call SYMCOM(2,ISTSMM1,ISMGSN,KSM)
 !write(u6,*) ' after  SYMCOM'
 !write(u6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
 ISMFGS(NGASL) = ISMGSN
@@ -276,7 +273,7 @@ do IGAS=1,NGASL
 end do
 ! Offset for corresponding I strings
 ISAVE = ISMFGS(IOBTP)
-call SYMCOM(3,1,IOBSM,ISMFGS(IOBTP),IACSM)
+call SYMCOM(3,IOBSM,ISMFGS(IOBTP),IACSM)
 ISMFGS(IOBTP) = IACSM
 IOFF = 1
 MULT = 1
@@ -311,10 +308,9 @@ NKSD = NSTB*NKAC*NSTA
 
 NORBTS = NOBPTS(IOBTP,IOBSM)
 
-NKACT = NSTFGP(KACGRP)
 !write(u6,*) ' KACGRP ',KACGRP
-call ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,IBORBSPS,IBORBSP,NORBTS,NKAC,NKACT,NIAC, &
-                 NKSTR,KBSTRIN,NELB,NACGSOB,I1,XI1S,SCLFAC)
+call ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC,NKSTR, &
+                 NELB,NACGSOB,I1,XI1S,SCLFAC)
 KSTRBS = KSTRBS+NKSD
 if (NGASL-1 > 0) goto 1000
 1001 continue
@@ -338,14 +334,5 @@ end if
 
 ! PAM Mars-2006: This flush moved outside of this subroutine
 !call MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'ADSTN ')
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(IEND)
-  call Unused_integer(IFRST)
-  call Unused_integer(KFRST)
-  call Unused_integer(KACT)
-end if
 
 end subroutine ADSTN_GAS

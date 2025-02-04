@@ -11,15 +11,13 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine DIATERM2_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,JPERT,J12,JDC)
+subroutine DIATERM2_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,J12,JDC)
 ! = DIATERM_GAS, just J12 added !
 !
 ! Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
 ! Obtain VEC = (DIAGONAL + FACTOR)       VEC (ITASK = 2)
 !
 ! For the NBLOCKS givem in IBLOCK starting from BLOCK IOFF
-!
-! If JPERT /= 0, the perturbation operator as defined by IPART is used.
 !
 ! Jeppe Olsen, August 1995
 
@@ -28,7 +26,7 @@ use strbas, only: NSTSO
 use lucia_data, only: ECORE_ORIG, ECORE
 use lucia_data, only: IPRDIA
 use lucia_data, only: MXNSTR
-use lucia_data, only: NTOOB, IREOST, IREOTS, NACOB
+use lucia_data, only: NTOOB, IREOST, NACOB
 use lucia_data, only: NOCTYP
 use lucia_data, only: NELEC
 use csm_data, only: NSMST
@@ -42,9 +40,8 @@ implicit none
 real*8 FACTOR
 integer ITASK, IBLOCK(8,*)
 real*8 VEC(*)
-integer IOFF, JPERT, J12, JDC
+integer IOFF, J12, JDC
 integer, allocatable :: LASTR(:), LBSTR(:)
-real*8, allocatable :: LSCR2(:)
 real*8, allocatable :: LJ(:), LK(:), LXB(:), LH1D(:), LRJKA(:)
 integer, external :: IMNMX
 integer NTEST, IATP, IBTP, NAEL, NBEL, NOCTPA, MAXA, NBLOCK
@@ -91,15 +88,12 @@ if (NTEST >= 10) then
   write(u6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
   write(u6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
   write(u6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
-  write(u6,*) ' JPERT,IPART,J12,IPERTOP',JPERT,J12,IPERTOP
+  write(u6,*) ' IPART,J12,IPERTOP',J12,IPERTOP
 end if
-#else
-call Unused_Integer(JPERT)
 #endif
 ! A bit of scracth
 call mma_allocate(LJ,NTOOB**2,Label='LJ')
 call mma_allocate(LK,NTOOB**2,Label='LK')
-call mma_allocate(LSCR2,2*NTOOB**2,Label='LSCR2')
 call mma_allocate(LXB,NACOB,Label='LX')
 call mma_allocate(LH1D,NACOB,Label='LH1D')
 ! Space for blocks of strings
@@ -110,7 +104,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 ! Integrals assumed in place so :
 call GT1DIA(LH1D)
-if (J12 == 2) call GTJK(LJ,LK,NTOOB,LSCR2,IREOTS,IREOST)
+if (J12 == 2) call GTJK(LJ,LK,NTOOB,IREOST)
 ! Core energy not included
 ECOREP = Zero
 SHIFT = ECORE_ORIG-ECORE
@@ -121,7 +115,6 @@ call DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,NACOB,VEC,NSMST,LH1D,JDC,LXB,LJ,LK,NSTSO
 ! Flush local memory
 call mma_deallocate(LJ)
 call mma_deallocate(LK)
-call mma_deallocate(LSCR2)
 call mma_deallocate(LXB)
 call mma_deallocate(LH1D)
 call mma_deallocate(LASTR)

@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IORBTSF,IORBTF,NORBTS,NSTAK,NSTAKT,NSTAI,NSTAKTS, &
-                       ISTAKTS,NELB,NACGSOB,ISTMAP,SGNMAP,SCLFAC)
+subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IORBTSF,IORBTF,NORBTS,NSTAK,NSTAI,NSTAKTS,NELB, &
+                       NACGSOB,ISTMAP,SGNMAP,SCLFAC)
 ! Creation mappings from K-strings of given sym in each gasspace
 !
 ! Input
@@ -29,9 +29,7 @@ subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! IORBTF  : First orbital in active gas space, (can have any sym)
 ! NORBTS  : Number of orbitals of given symmetry and type
 ! NSTAK   : Number of K groupstrings with given correct symmetry
-! NSTAKT  : Total Number of K groupstrings in active group (all symmetries)
 ! NSTAKTS : Total Number of K supergroup strings with correct symmetry
-! ISTAKTS : Offset for K supergroup strings with hiven symmetrydistribution
 ! NSTAI   : Number of I groupstrings in active gasspace
 
 use Definitions, only: u6
@@ -45,7 +43,6 @@ dimension ISTMAP(NSTAKTS,*), SGNMAP(NSTAKTS,*)
 !write(u6,*) ' ADSTN_GASSM : NSTA, NSTB, NSTAK',NSTA,NSTB,NSTAK
 !write(u6,*) ' IOFFISP,IOFFKSP',IOFFISP,IOFFKSP
 !write(u6,*) ' IORBTSF IORBTF ',IORBTSF,IORBTF
-!write(u6,*) ' NSTAKT ',NSTAKT
 
 !SIGN0 = SCLFAC*(-One)**NELB
 if (mod(NELB,2) == 0) then
@@ -150,13 +147,6 @@ if (NTEST > 0) then
       call WRTMAT(SGNMAP(1,IORBR),1,NK,1,NK)
     end do
   end if
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NSTAKT)
-  call Unused_integer(ISTAKTS)
 end if
 
 end subroutine ADSTN_GASSM

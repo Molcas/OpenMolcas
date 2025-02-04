@@ -180,7 +180,7 @@
 *               IF(NKBSTR.EQ.0) GOTO 1930
                 CALL SETVEC(X,ZERO,NI*NJ*NK*NL)
 *
-                CALL ABTOR2(SIRES,CJRES,LKABTC,NIB,NJB,
+                CALL ABTOR2(SIRES,CJRES,LKABTC,
      &               NKBSTR,X,NI,NJ,NK,NL,NKBSTR,
      &               I4,XI4S,I2,XI2S,IKORD)
 *. contributions to Rho2(ij,kl) has been obtained, scatter out

@@ -12,8 +12,6 @@
 subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
 ! Outer routine for accessing integral block
 
-use GLBBAS, only: PINT2, KINH1
-use lucia_data, only: NSMOB
 use lucia_data, only: NOBPTS, NTOOBS
 use Definitions, only: u6
 
@@ -31,7 +29,7 @@ if (NTEST >= 1) then
   write(u6,'(8I4)') ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM
 end if
 ! Read integrals in in RASSCF format
-call GETINCN_RASSCF(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,PINT2,NSMOB,KINH1,ICOUL)
+call GETINCN_RASSCFS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
 
 if (NTEST /= 0) then
   if (ITP == 0) then

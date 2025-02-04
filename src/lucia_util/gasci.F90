@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GASCI(ISM,ISPC,IPRNT,EREF,IIUSEH0P,MPORENP_E)
+subroutine GASCI(ISM,ISPC,IPRNT)
 ! CI optimization in GAS space number ISPC for symmetry ISM
 !
 ! Jeppe Olsen, Winter of 1995
@@ -49,8 +49,7 @@ use Constants, only: Zero, Two
 use Definitions, only: u6
 
 implicit none
-integer ISM, ISPC, IPRNT, IIUSEH0P, MPORENP_E
-real*8 EREF
+integer ISM, ISPC, IPRNT
 integer IOCCLS_ARR(1), ZERO_ARR(1)
 integer, allocatable :: CIOIO(:)
 integer, allocatable :: SVST(:)
@@ -90,8 +89,6 @@ if (NTEST >= 20) then
   write(u6,*) ' Control has been transferred to GASCI'
   write(u6,*) ' ====================================='
   write(u6,*)
-  write(u6,*) ' IIUSEH0P = ',IIUSEH0P
-  write(u6,*) ' MPORENP_E = ',MPORENP_E
 end if
 if (NTEST >= 5) then
   write(u6,'(A)') '  A few pertinent data :'
@@ -114,9 +111,6 @@ if (NTEST >= 5) then
     end do
   end do
 end if
-#else
-call Unused_Integer(IIUSEH0P)
-call Unused_Integer(MPORENP_E)
 #endif
 
 NDET = int(XISPSM(ISM,ISPC))
@@ -295,9 +289,5 @@ IDUMMY = 1
 call Deallocate_Local_Arrays()
 call mma_deallocate(CIOIO)
 call mma_deallocate(VEC3)
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(EREF)
 
 end subroutine GASCI

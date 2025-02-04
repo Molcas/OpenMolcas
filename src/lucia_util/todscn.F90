@@ -28,7 +28,7 @@ do IREC=1,NREC
     IOFF = IOFF+LREC(IREC)
   else
     call ITODS(-LREC(IREC),1,LBLK,LU)
-    call ZERORC(IDUMMY,LU,0)
+    call ZERORC(LU,0)
   end if
 end do
 

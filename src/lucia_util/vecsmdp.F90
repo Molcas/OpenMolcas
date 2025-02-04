@@ -80,7 +80,7 @@ if (NBL1 >= 0) then
   if (NBL1 > 0) then
     if ((IMZERO1 == 1) .and. (IMZERO2 == 1)) then
       ! Simple zero record
-      call ZERORC(NBL1,LU3,IAMPACK)
+      call ZERORC(LU3,IAMPACK)
     else
       ! Nonvanishing record
       if (IMZERO1 == 1) then

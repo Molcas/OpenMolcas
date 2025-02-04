@@ -11,7 +11,7 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine NSTRSO_GAS(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NORB,NSTASO,ISTASO,NOCTYP,NSMST,IOTYP,IPRNT)
+subroutine NSTRSO_GAS(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NSTASO,ISTASO,NSMST,IOTYP,IPRNT)
 ! Number of strings per symmetry for group IOTYP
 !
 ! Gas version, no check of type : set to 1
@@ -21,7 +21,6 @@ subroutine NSTRSO_GAS(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NORB
 use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
-!dimension IOC(*), NSTASO(NOCTYP,NSMST)
 dimension IOC(*), NSTASO(NSMST,*), ISTASO(NSMST,*)
 
 call ISETVC(NSTASO(1,IOTYP),0,NSMST)
@@ -135,13 +134,6 @@ if (NTEST >= 10) then
   write(u6,*) ' Offset for given symmetry for group = ',IOTYP
   write(u6,*) '================================================'
   call IWRTMA(ISTASO(1,IOTYP),1,NSMST,1,NSMST)
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NORB)
-  call Unused_integer(NOCTYP)
 end if
 
 end subroutine NSTRSO_GAS

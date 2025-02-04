@@ -11,7 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine CNFORD_GAS(IOCCLS,NOCCLS,ISYM,PSSIGN,IPRCSF,ICONF_OCC,ICONF_REO,ICTSDT,IBLOCK,NBLOCK)
+subroutine CNFORD_GAS(IOCCLS,NOCCLS,ISYM,ICTSDT,IBLOCK,NBLOCK)
 ! Generate configurations in ICONF
 !
 ! Generate determinants in configuration order and obtain
@@ -30,17 +30,15 @@ use lucia_data, only: NOCOB, NOBPT
 
 implicit none
 ! Specific input
-integer NOCCLS, ISYM, IPRCSF, NBLOCK
+integer NOCCLS, ISYM, NBLOCK
 integer IOCCLS(NGAS,NOCCLS)
 integer IBLOCK(8,NBLOCK)
-real*8 PSSIGN
 ! Output
-integer ICONF_OCC(*), ICONF_REO(*)
 integer ICTSDT(*)
 integer, allocatable :: ZSCR(:), Z(:)
 integer, allocatable :: LOCMIN(:), LOCMAX(:)
 ! Local variables
-integer NTEST, NELEC, IZERO, IB_OCCLS, JOCCLS, INITIALIZE_CONF_COUNTERS, IDOREO, NCONF_OCCLS, NCONF_P, NSMST
+integer NTEST, NELEC, IZERO, IB_OCCLS, JOCCLS, INITIALIZE_CONF_COUNTERS, IDOREO, NCONF_OCCLS, NCONF_P
 integer, external :: IELSUM
 
 NTEST = 0
@@ -82,11 +80,11 @@ do JOCCLS=1,NOCCLS
   ! Lexical addressing for configurations of this type
   IB_OCCLS = IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS)
 
-  call GEN_CONF_FOR_OCCLS(IOCCLS(1,JOCCLS),IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,NSMST,0,NOCOB,NOBPT, &
+  call GEN_CONF_FOR_OCCLS(IOCCLS(1,JOCCLS),IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,0,NOCOB,NOBPT, &
                           NCONF_PER_OPEN(1,ISYM),NCONF_OCCLS,IB_CONF_REO,IB_CONF_OCC,CONF_OCC(ISYM)%I,IDOREO,Z(:),NCONF_ALL_SYM, &
                           conf_reo(isym)%I,nconf_tot)
 
-  !    GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,NSMST,IONLY_NCONF,NTORB,NOBPT,NCONF_OP, &
+  !    GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,IONLY_NCONF,NTORB,NOBPT,NCONF_OP, &
   !                       IBCONF_REO,IBCONF_OCC,ICONF,IDOREO,IZ_CONF,IREO,NCONF_ALL_SYM)
   !Error IB_OCCLS = IB_OCCLS+NCONF_ALL_SYM
 end do
@@ -102,14 +100,5 @@ call mma_deallocate(ZSCR)
 call mma_deallocate(Z)
 call mma_deallocate(LOCMIN)
 call mma_deallocate(LOCMAX)
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real(PSSIGN)
-  call Unused_integer(IPRCSF)
-  call Unused_integer_array(ICONF_OCC)
-  call Unused_integer_array(ICONF_REO)
-end if
 
 end subroutine CNFORD_GAS

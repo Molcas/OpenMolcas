@@ -11,7 +11,7 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GENSTR_GAS(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,IGRP,NOCTYP,NSMST,Z,LSTASO,IREORD,STRING,IOC,IOTYP,IPRNT)
+subroutine GENSTR_GAS(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,IGRP,NOCTYP,NSMST,Z,LSTASO,IREORD,STRING,IOC,IPRNT)
 ! Generate strings consisting of  NEL electrons fulfilling
 !   1 : Between NELMN1 AND NELMX1 electrons in the first NORB1 orbitals
 !   2 : Between NELMN3 AND NELMX3 electrons in the last  NORB3 orbitals
@@ -34,7 +34,7 @@ use lucia_data, only: NACOB, NORB1, NORB2, NORB3
 use Definitions, only: u6
 
 implicit none
-integer NEL, NELMN1, NELMX1, NELMN3, NELMX3, IGRP, NOCTYP, NSMST, IOTYP, IPRNT
+integer NEL, NELMN1, NELMX1, NELMN3, NELMX3, IGRP, NOCTYP, NSMST, IPRNT
 ! Input
 integer ISTASO(NSMST,*)
 ! Orbinp
@@ -179,9 +179,5 @@ if (NTEST >= 10) then
   write(u6,*) ' ============================================'
   call IWRTMA(IREORD,1,NPR,1,NPR)
 end if
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(IOTYP)
 
 end subroutine GENSTR_GAS

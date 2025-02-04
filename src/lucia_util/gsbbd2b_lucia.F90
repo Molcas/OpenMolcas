@@ -12,8 +12,8 @@
 !***********************************************************************
 
 subroutine GSBBD2B_LUCIA(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC, &
-                         JBOC,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX, &
-                         NSMDX,MXPOBS,IUSEAB,CJRES,SIRES,NORB,NTESTG,SCLFAC,S2_TERM1,IPACK)
+                         JBOC,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,MXPOBS, &
+                         IUSEAB,CJRES,SIRES,NORB,NTESTG,SCLFAC,S2_TERM1,IPACK)
 ! SUBROUTINE GSBBD2B_LUCIA --> 52
 !
 ! alpha-beta contribution to two-particle density matrix
@@ -42,8 +42,7 @@ subroutine GSBBD2B_LUCIA(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX : Number of symmetries of orbitals,strings,
-!       single excitations
+! NSMOB,NSMST : Number of symmetries of orbitals, strings
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 ! IPACK  : Should we pack the density?
 !
@@ -134,10 +133,10 @@ do IJTYP=1,NIJTYP
     if ((NI == 0) .or. (NJ == 0)) goto 1940
     ! Generate annihilation mappings for all Ka strings
     ! a+j!ka> = +/-/0 * !Ja>
-    call ADSTN_GAS(OFFI,JSM,JTYP,JATP,JASM,IAGRP,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFAC)
+    call ADSTN_GAS(OFFI,JSM,JTYP,JATP,JASM,IAGRP,I1,XI1S,NKASTR,SCLFAC)
     if (NKASTR == 0) goto 1940
     ! a+i!ka> = +/-/0 * !Ia>
-    call ADSTN_GAS(OFFI,ISM,ITYP,IATP,IASM,IAGRP,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,One)
+    call ADSTN_GAS(OFFI,ISM,ITYP,IATP,IASM,IAGRP,I3,XI3S,NKASTR,One)
     if (NKASTR == 0) goto 1940
     ! Compress list to common nonvanishing elements
     IDOCOMP = 1
@@ -191,10 +190,10 @@ do IJTYP=1,NIJTYP
 
           if ((NK == 0) .or. (NL == 0)) goto 1930
           ! Obtain all connections a+l!Kb> = +/-/0!Jb>
-          call ADSTN_GAS(OFFI,LSM,LTYP,JBTP,JBSM,IBGRP,I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,One)
+          call ADSTN_GAS(OFFI,LSM,LTYP,JBTP,JBSM,IBGRP,I2,XI2S,NKBSTR,One)
           if (NKBSTR == 0) goto 1930
           ! Obtain all connections a+k!Kb> = +/-/0!Ib>
-          call ADSTN_GAS(OFFI,KSM,KTYP,IBTP,IBSM,IBGRP,I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,One)
+          call ADSTN_GAS(OFFI,KSM,KTYP,IBTP,IBSM,IBGRP,I4,XI4S,NKBSTR,One)
           if (NKBSTR == 0) goto 1930
 
           ! Update two-electron density matrix
@@ -202,7 +201,7 @@ do IJTYP=1,NIJTYP
 
           call SETVEC(X,Zero,NI*NJ*NK*NL)
 
-          call ABTOR2(SIRES,CJRES,LKABTC,NIB,NJB,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
+          call ABTOR2(SIRES,CJRES,LKABTC,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
           ! contributions to Rho2(ij,kl) has been obtained, scatter out
           !call wrtmat(x,ni*nj,nk*nl,ni*nj,nk*nl)
           ! Contribution to S2
@@ -233,12 +232,5 @@ do IJTYP=1,NIJTYP
 end do
 ! This 'flush' outerlooped here. Was previously inside ADSTN_GAS.
 call mma_deallocate(OFFI)
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NSMSX)
-  call Unused_integer(NSMDX)
-end if
 
 end subroutine GSBBD2B_LUCIA

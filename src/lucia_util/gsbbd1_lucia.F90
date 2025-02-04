@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991,1995,1998, Jeppe Olsen                            *
 !***********************************************************************
-subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,SXSTST,STSTSX,MXPNGAS,NOBPTS, &
-                        IOBPTS,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,H,NSMOB,NSMST,NSMSX,MXPOBS,RHO1S,SCLFAC,IUSE_PH,IPHGAS, &
-                        IDOSRHO1,SRHO1,IAB)
+subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS, &
+                        MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,NSMST,MXPOBS,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
 ! SUBROUTINE GSBBD1_LUCIA --> 40
 !
 ! Contributions to one electron density matrix from column excitations
@@ -35,14 +34,12 @@ subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 ! CB   : Input C block
 ! ADASX : sym of a+, a => sym of a+a
 ! ADSXA : sym of a+, a+a => sym of a
-! SXSTST : Sym of sx,!st> => sym of sx !st>
 ! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 ! MXPNGAS : Max number of AS spaces ( program parameter )
 ! NOBPTS  : Number of orbitals per type and symmetry
 ! IOBPTS : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
-!       single excitations, double excitations
+! NSMOB,NSMST,NSMDX : Number of symmetries of orbitals, strings, double excitations
 ! MAXI   : Largest Number of ' spectator strings 'treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
@@ -72,8 +69,8 @@ use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! General input
-integer ADSXA(MXPOBS,2*MXPOBS), SXSTST(NSMSX,NSMST), STSTSX(NSMST,NSMST)
-integer NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), ITSOB(*)
+integer ADSXA(MXPOBS,2*MXPOBS), STSTSX(NSMST,NSMST)
+integer NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*)
 integer IPHGAS(*)
 ! Input
 integer ISEL(NGAS), ICEL(NGAS)
@@ -90,7 +87,6 @@ dimension IJ_REO(2), IJ_DIM(2), IJ_SM(2), IJ_TP(2), IJ_AC(2)
 dimension IJ_OFF(2)
 !dimension ISCR(2)
 dimension ICGRP(16), ISGRP(16)
-dimension H(*)
 
 ! Add or subtract for spindensity
 if (IAB == 1) then
@@ -115,7 +111,6 @@ if (NTEST >= 1000) then
   write(u6,*) ' GSBBD1, sclfac ',SCLFAC
 end if
 
-IFRST = 1
 ! Number of partitionings over column strings
 !SVC: determine optimum number of partitions as the lowest multiple of
 !     NPROCS that satisfies a block size smaller than MAXI:
@@ -184,7 +179,6 @@ do IJTP=1,NSXTP
 
   do ISM=1,NSMOB
     ! new i and j so new intermediate strings
-    KFRST = 1
 
     JSM = ADSXA(ISM,IJSM)
     if (JSM == 0) goto 800
@@ -231,10 +225,10 @@ do IJTP=1,NSXTP
     ! For operator connecting to |Ka> and |Ja> i.e. operator 2
     SCLFACS = SCLFAC*SIGNIJ
     if (NTEST >= 1000) write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
-    call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC(1))
+    call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,KACT,SCLFACS,IJ_AC(1))
     ! For operator connecting |Ka> and |Ia>, i.e. operator 1
     if (NKASTR == 0) goto 800
-    call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,IEND,IFRST,KFRST,KACT,One,IJ_AC(1))
+    call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,KACT,One,IJ_AC(1))
     if (NKASTR == 0) goto 800
     ! Compress list to common nonvanishing elements
     IDOCOMP = 1
@@ -315,14 +309,5 @@ end do
 1001 continue
 
 !stop ' enforced stop in RSBBD1'
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(SXSTST)
-  call Unused_integer_array(ITSOB)
-  call Unused_real_array(H)
-  call Unused_integer(IUSE_PH)
-end if
 
 end subroutine GSBBD1_LUCIA

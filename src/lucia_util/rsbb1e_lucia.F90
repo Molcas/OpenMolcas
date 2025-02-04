@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2, &
-                        XI2S,H,NSMOB,NSMST,NSMSX,MOC,MXSXST,IH2TRM,SCLFAC,IUSE_PH,IPHGAS,NTESTG)
+                        XI2S,H,NSMOB,NSMST,MOC,IH2TRM,SCLFAC,IUSE_PH,IPHGAS,NTESTG)
 ! SUBROUTINE RSBB1E_LUCIA --> 33
 !
 ! One electron excitations on column strings
@@ -40,8 +40,7 @@ subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,A
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
-!       single excitations, double excitations
+! NSMOB,NSMST,NSMDX : Number of symmetries of orbitals, strings, double excitations
 ! MAXI   : Largest Number of ' spectator strings 'treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
@@ -72,7 +71,7 @@ use Constants, only: Zero, One
 use Definitions, only: u6
 
 implicit none
-integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, MAXI, MAXK, NSMOB, NSMST, NSMSX, MOC, MXSXST, IH2TRM, IUSE_PH, NTESTG
+integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, MAXI, MAXK, NSMOB, NSMST, MOC, IH2TRM, IUSE_PH, NTESTG
 real*8 SCLFAC
 ! General input
 integer ADSXA(MXPOBS,2*MXPOBS), STSTSX(NSMST,NSMST)
@@ -93,8 +92,8 @@ integer ISGRP(16), ICGRP(16)
 real*8 HSCR(MXPTSOB*MXPTSOB)
 integer IJ_REO(2), IJ_DIM(2), IJ_SM(2), IJ_TP(2), IJ_AC(2)
 ! Type of single excitations that connects the two column strings
-integer NTESTL, NTEST, NIPART, NIPARTSZ, IFRST, IJSM, IJTP, NSXTP, ITYP, JTYP, IXXX, ISM, JSM, KFRST, NIORB, NJORB, IDOCOMP, &
-        NKAEFF, NKASTR, KBOT, KTOP, KEND, LKABTC, IIPART, IBOT, ITOP, NIBTC, JJORB, ICGOFF, NIK, IIORB, ISBOFF, IEND, KACT
+integer NTESTL, NTEST, NIPART, NIPARTSZ, IJSM, IJTP, NSXTP, ITYP, JTYP, IXXX, ISM, JSM, NIORB, NJORB, IDOCOMP, NKAEFF, NKASTR, &
+        KBOT, KTOP, KEND, LKABTC, IIPART, IBOT, ITOP, NIBTC, JJORB, ICGOFF, NIK, IIORB, ISBOFF, KACT
 real*8 SIGNIJ, SCLFACS, FACTORC, FACTORAB
 
 !MOC = 1
@@ -128,7 +127,6 @@ end do
 call GET_SPGP_INF(ICCTP,IGRP,ICGRP)
 call GET_SPGP_INF(ISCTP,IGRP,ISGRP)
 
-IFRST = 1
 ! Types of single excitations that connect ISEL and ICEL
 call SXTYP2_GAS(NSXTP,ITP,JTP,NGAS,ISEL,ICEL,IPHGAS)
 ! Symmetry of single excitation that connects IBSM and JBSM
@@ -186,7 +184,6 @@ do IJTP=1,NSXTP
   do ISM=1,NSMOB
     JSM = ADSXA(ISM,IJSM)
     ! New intermediate strings will be accessed so
-    KFRST = 1
     if (JSM == 0) goto 800
     if (NTEST >= 2000) write(u6,*) ' ISM JSM ',ISM,JSM
     NIORB = NOBPTS(ITYP,ISM)
@@ -240,9 +237,9 @@ do IJTP=1,NSXTP
       ! For operator connecting to |Ka> and |Ja> i.e. operator 2
       SCLFACS = SIGNIJ*SCLFAC
       if (NTEST >= 1000) write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
-      call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC(1))
+      call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,KACT,SCLFACS,IJ_AC(1))
       ! For operator connecting |Ka> and |Ia>, i.e. operator 1
-      call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,IEND,IFRST,KFRST,KACT,One,IJ_AC(1))
+      call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,KACT,One,IJ_AC(1))
       ! Compress list to common nonvanishing elements
       IDOCOMP = 1
       if (IDOCOMP == 1) then
@@ -313,12 +310,5 @@ do IJTP=1,NSXTP
   ! (end of loop over symmetries)
 end do
 1001 continue
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NSMSX)
-  call Unused_integer(MXSXST)
-end if
 
 end subroutine RSBB1E_LUCIA

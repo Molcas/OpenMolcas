@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ABTOR2(SKII,CKJJ,NKA,NIB,NJB,NKB,RHO2B,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD)
+subroutine ABTOR2(SKII,CKJJ,NKA,NKB,RHO2B,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD)
 ! Obtain contributions alpha-beta contributions to two-particle
 ! density matrix
 !
@@ -92,12 +92,5 @@ do KB=1,NKB
   end if
 end do
 ! (end over loop over Kb strings )
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NIB)
-  call Unused_integer(NJB)
-end if
 
 end subroutine ABTOR2

@@ -12,7 +12,7 @@
 subroutine DETCTL_GAS()
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use GLBBAS, only: SDREO_I, CONF_OCC, CONF_REO
+use GLBBAS, only: SDREO_I, CONF_OCC
 use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP, Allocate_Local_Arrays, Deallocate_Local_Arrays
 use strbas, only: NSTSO
 use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
@@ -22,7 +22,7 @@ use lucia_data, only: NGAS, IGSOCC, IPHGAS
 use lucia_data, only: MXSOOB, MXNTTS, ISMOST, XISPSM
 use lucia_data, only: IPRCIX
 use lucia_data, only: NOCSF, IADVICE, ISIMSYM, LCSBLK, MXINKA
-use lucia_data, only: IREFSM, PSSIGN, PSSIGN, IDC
+use lucia_data, only: IREFSM, PSSIGN, IDC
 use lucia_data, only: MXNSTR, MAX_STR_OC_BLK, MAX_STR_SPGP, IBSPGPFTP, MNHL, NELFSPGP, NELFTP, NHLFSPGP, NSTFSMSPGP
 use lucia_data, only: NSMOB
 use lucia_data, only: MXTSOB, NTOOB, NOCOB, NOBPT, NOBPTS
@@ -106,7 +106,7 @@ call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,
 NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
 ! Length of each block
 call EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
-if (NEL > 0) call CNFORD_GAS(KLOCCLS,NOCCLS,jsym,PSSIGN,IPRCIX,CONF_OCC(JSYM)%I,CONF_REO(jsym)%I,SDREO_I(jsym)%I,CIBT,NBLOCK)
+if (NEL > 0) call CNFORD_GAS(KLOCCLS,NOCCLS,jsym,SDREO_I(jsym)%I,CIBT,NBLOCK)
 
 call Deallocate_Local_Arrays()
 ! If PICO2/SBLOCK are used, three blocks are used in PICO2, so

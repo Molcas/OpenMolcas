@@ -14,7 +14,7 @@ subroutine LUCIA()
 use stdalloc, only: mma_allocate
 use GLBBAS, only: CI_VEC, SIGMA_VEC
 use lucia_data, only: MXSOOB, XISPSM
-use lucia_data, only: IPRCIX, IPRORB, IPRSTR
+use lucia_data, only: IPRORB, IPRSTR
 use lucia_data, only: NOINT, LCSBLK
 use lucia_data, only: IREFSM, PSSIGN
 use Constants, only: Zero, Two
@@ -42,7 +42,7 @@ call STRTYP_GAS(IPRSTR)
 ! Divide orbital spaces into inactive/active/secondary
 call GASSPC()
 ! Symmetry information
-call SYMINF_LUCIA(IPRORB)
+call SYMINF_LUCIA()
 ! Number of integrals
 call INTDIM(IPRORB)
 ! Static memory, initialization and  allocation
@@ -63,7 +63,7 @@ end if
 ! Internal string information
 call STRINF_GAS(IPRSTR)
 ! Internal subspaces
-call LCISPC(IPRCIX)
+call LCISPC()
 
 ! Symmetry of reference
 !if (PNTGRP > 1) call MLSM(IREFSM,IREFPA,IREFSM,'CI',1)

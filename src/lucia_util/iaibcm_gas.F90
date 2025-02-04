@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPNGAS,NGAS,IOCOC,IPRNT,I_RE_MS2_SPACE,I_RE_MS2_VALUE)
+subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPNGAS,NGAS,IOCOC,IPRNT)
 ! Allowed combinations of alpha and beta types, GAS version
 !
 ! =====
@@ -100,13 +100,6 @@ if (NTEST >= 10) then
   write(u6,*) ' Matrix giving allowed combinations of types'
   write(u6,*)
   call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-end if
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(I_RE_MS2_SPACE)
-  call Unused_integer(I_RE_MS2_VALUE)
 end if
 
 end subroutine IAIBCM_GAS

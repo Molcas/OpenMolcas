@@ -12,7 +12,7 @@
 !               2015, Lasse Kragh Soerensen                            *
 !***********************************************************************
 
-subroutine RASSG3(CB,SB,NBATS,LBATS,LEBATS,I1BATS,IBATS,LUC,LUHC,I_AM_OUT,N_ELIMINATED_BATCHES)
+subroutine RASSG3(CB,SB,NBATS,LBATS,I1BATS,IBATS,LUC,LUHC,I_AM_OUT,N_ELIMINATED_BATCHES)
 ! Direct RAS routine employing combined MOC/n-1 resolution method
 !
 ! Jeppe Olsen   Winter of 1991
@@ -32,14 +32,13 @@ use Definitions, only: u6
 implicit none
 integer NBATS, LUC, LUHC, N_ELIMINATED_BATCHES
 ! Batches of sigma
-integer LBATS(*), LEBATS(*), I1BATS(*), IBATS(8,*)
+integer LBATS(*), I1BATS(*), IBATS(8,*)
 integer I_AM_OUT(*)
 ! Scratch
 real*8 SB(*), CB(*)
 integer, allocatable :: SBSIZ(:), SBOFF(:)
 integer NSB, JBATS, ISTA, IEND, I_AM_NOT_WANTED, ISBLK, I, ISBOFF, IOFF, ILEN
 
-if (.false.) call Unused_integer_array(LEBATS)
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ================='
 write(u6,*) ' RASSG3 speaking :'

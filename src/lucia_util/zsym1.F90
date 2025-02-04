@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ZSYM1(NIRREP,IPRNT)
+subroutine ZSYM1(NIRREP)
 
 use symmetry_info, only: SYMPRO => Mul
 use lucia_data, only: MXPOBS
@@ -17,7 +17,7 @@ use csm_data, only: NSMSX, NSMDX, NSMST, NSMCI, NSMXT, ITSSX, ITSDX, ITSXT
 use csm_data, only: ADASX, ADSXA, ASXAD, SXDXSX, SXSXDX
 
 implicit none
-integer NIRREP, IPRNT
+integer NIRREP
 
 NSMSX = NIRREP
 NSMDX = NIRREP
@@ -33,9 +33,5 @@ call ICPMT2(SYMPRO,ADSXA,8,8,MXPOBS,2*MXPOBS,1)
 call ICPMT2(SYMPRO,ASXAD,8,8,MXPOBS,2*MXPOBS,1)
 call ICPMT2(SYMPRO,SXSXDX,8,8,2*MXPOBS,2*MXPOBS,1)
 call ICPMT2(SYMPRO,SXDXSX,8,8,2*MXPOBS,4*MXPOBS,1)
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(IPRNT)
 
 end subroutine ZSYM1

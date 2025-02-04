@@ -11,8 +11,8 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NOCOBS,NTOOBS,NTOOB,IREOST,IREOTS,ISFTO,ITFSO,IBSO,NOBPTS,IOBPTS, &
-                      ISFSO,ITFTO,NOBPT,IPRNT)
+subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISFTO,ITFSO,IBSO,NOBPTS,IOBPTS,ISFSO, &
+                      ITFTO,NOBPT,IPRNT)
 ! Obtain Reordering arrays for orbitals
 ! (See note below for assumed ordering)
 !
@@ -27,7 +27,6 @@ subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NOCOBS,NTOOBS,NTOOB
 !  NGAS   : Number of GAS spaces
 !  NGSOB  : Number of GAS orbitals per symmetry and space
 !  NGSOBT : Number of GAS orbitals per space
-!  NOCOBS : Number of occupied orbitals per symmetry
 !  NTOOBS : Number of orbitals per symmetry,all types
 !
 ! ======
@@ -51,7 +50,7 @@ use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Input
-dimension NGSOB(MXPOBS,MXPNGAS), NOCOBS(*), NTOOBS(*)
+dimension NGSOB(MXPOBS,MXPNGAS), NTOOBS(*)
 dimension NGSOBT(MXPNGAS)
 ! Output
 dimension IREOST(*), IREOTS(*), ISFTO(*), ITFSO(*), IBSO(*)
@@ -175,9 +174,5 @@ if (NTEST /= 0) then
   write(u6,*) ' ITFTO array :'
   call IWRTMA(ITFTO,1,NTOOB,1,NTOOB)
 end if
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(NOCOBS)
 
 end subroutine ORBORD_GAS

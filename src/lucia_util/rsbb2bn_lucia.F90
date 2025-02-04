@@ -12,8 +12,8 @@
 !***********************************************************************
 
 subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,ADSXA, &
-                         STSTSX,MXPNGASX,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX,NSMDX, &
-                         MXPOBSX,IUSEAB,CJRES,SIRES,SCLFAC,NTESTG,NSEL2E,ISEL2E,IUSE_PH,IPHGAS,XINT2)
+                         STSTSX,NOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,IUSEAB,CJRES,SIRES,SCLFAC,NTESTG, &
+                         NSEL2E,ISEL2E,IPHGAS)
 ! SUBROUTINE RSBB2BN_LUCIA --> 52
 !
 ! Combined alpha-beta double excitation
@@ -42,8 +42,7 @@ subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX : Number of symmetries of orbitals,strings,
-!       single excitations
+! NSMOB,NSMST : Number of symmetries of orbitals, strings
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
 ! ======
@@ -55,9 +54,6 @@ subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB
 ! Scratch
 ! =======
 !
-! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-!              largest number of orbital pairs of given symmetries and
-!              types.
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
 !              type and symmetry
 ! I2, XI2S   : at least MXSTSO : Largest number of strings of given
@@ -72,7 +68,7 @@ subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB
 ! February 1994 : Fetching and adding to transposed blocks
 ! October 96 : New routines for accessing annihilation information
 !             Cleaned and shaved, only IROUTE = 3 option active
-! October   97 : allowing for N-1/N+1 switch
+! October 97 : allowing for N-1/N+1 switch
 !
 ! Last change : Aug 2000
 
@@ -82,8 +78,8 @@ use Constants, only: Zero, One
 use Definitions, only: u6
 
 implicit none
-integer IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, MXPNGASX, MAXK, NSMOB, NSMST, &
-        NSMSX, NSMDX, MXPOBSX, IUSEAB, NTESTG, NSEL2E, IUSE_PH
+integer IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, MAXK, NSMOB, NSMST, IUSEAB, &
+        NTESTG, NSEL2E
 real*8 SCLFAC
 ! General input
 #include "timers.fh"
@@ -96,10 +92,9 @@ integer IBOC(*), JBOC(*), IAOC(*), JAOC(*), IPHGAS(*)
 ! Output
 real*8 SB(*)
 ! Scratch
-real*8 SSCR(*), CSCR(*)
 integer I1(*), I2(*), I3(*), I4(*)
 real*8 XI1S(*), XI2S(*), XI3S(*), XI4S(*)
-real*8 XINT(*), XINT2(*)
+real*8 XINT(*)
 real*8 CJRES(*), SIRES(*)
 ! Local arrays
 integer ITP(20), JTP(20), KTP(20), LTP(20)
@@ -109,7 +104,7 @@ integer KL_TYP(2), KL_DIM(2), KL_REO(2), KL_SYM(2)
 integer IASPGP(20), IBSPGP(20), JASPGP(20), JBSPGP(20)
 integer NTESTL, NTEST, IJSM, KLSM, NIJTYP, NKLTYP, IJTYP, ITYP, JTYP, ISM, JSM, NI, NJ, IJAC, IDOCOMP, NKAEFF, NKASTR, NKABTC, &
         NKABTCSZ, IKABTC, KABOT, KATOP, LKABTC, JJ, KLTYP, KTYP, LTYP, IAMOKAY, JSEL2E, KSM, LSM, NK, NL, KLAC, IKORD, NKBSTR, &
-        IXCHNG, ICOUL, IROUTE, II, IEND, IFRST, KACT, KFRST
+        IXCHNG, ICOUL, IROUTE, II, KACT
 real*8 SIGNIJ2, WALL1, WALL0, FACS, SIGNKL, CPU, CPU0, CPU1, WALL
 
 NTESTL = 0
@@ -195,11 +190,11 @@ do IJTYP=1,NIJTYP
     ! Generate creation- or annihilation- mappings for all Ka strings
 
     ! For operator connecting to |Ka> and |Ja> i.e. operator 2
-    call ADAST_GAS(IJ_SYM(2),IJ_TYP(2),NGAS,JASPGP,JASM,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SIGNIJ2,IJAC)
-    !call ADAST_GAS(JSM,JTYP,JATP,JASM,IAGRP,I1,XI1S,NKASTR,IEND,IFRST,KFRST,KACT,SCLFACS,IJ_AC)
+    call ADAST_GAS(IJ_SYM(2),IJ_TYP(2),NGAS,JASPGP,JASM,I1,XI1S,NKASTR,KACT,SIGNIJ2,IJAC)
+    !call ADAST_GAS(JSM,JTYP,JATP,JASM,IAGRP,I1,XI1S,NKASTR,KACT,SCLFACS,IJ_AC)
     ! For operator connecting |Ka> and |Ia>, i.e. operator 1
-    call ADAST_GAS(IJ_SYM(1),IJ_TYP(1),NGAS,IASPGP,IASM,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,One,IJAC)
-    !call ADAST_GAS(ISM,ITYP,NGAS,IASPGP,IASM,I3,XI3S,NKASTR,IEND,IFRST,KFRST,KACT,One,IJ_AC)
+    call ADAST_GAS(IJ_SYM(1),IJ_TYP(1),NGAS,IASPGP,IASM,I3,XI3S,NKASTR,KACT,One,IJAC)
+    !call ADAST_GAS(ISM,ITYP,NGAS,IASPGP,IASM,I3,XI3S,NKASTR,KACT,One,IJ_AC)
     ! Compress list to common nonvanishing elements
     IDOCOMP = 0
     if (IDOCOMP == 1) then
@@ -305,10 +300,10 @@ do IJTYP=1,NIJTYP
           if ((NK == 0) .or. (NL == 0)) goto 1930
           ! Obtain all connections a+l!Kb> = +/-/0!Jb>
           ! currently we are using creation mappings for kl
-          call ADAST_GAS(KL_SYM(2),KL_TYP(2),NGAS,JBSPGP,JBSM,I2,XI2S,NKBSTR,IEND,IFRST,KFRST,KACT,SIGNKL,KLAC)
+          call ADAST_GAS(KL_SYM(2),KL_TYP(2),NGAS,JBSPGP,JBSM,I2,XI2S,NKBSTR,KACT,SIGNKL,KLAC)
           if (NKBSTR == 0) goto 1930
           ! Obtain all connections a+k!Kb> = +/-/0!Ib>
-          call ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,IBSM,I4,XI4S,NKBSTR,IEND,IFRST,KFRST,KACT,One,KLAC)
+          call ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,IBSM,I4,XI4S,NKBSTR,KACT,One,KLAC)
           if (NKBSTR == 0) goto 1930
 
           ! Fetch Integrals as (iop2 iop1 |  k l )
@@ -359,18 +354,5 @@ do IJTYP=1,NIJTYP
   ! End of loop over ISM
 end do
 ! End of loop over IJTYP
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(MXPNGASX)
-  call Unused_real_array(SSCR)
-  call Unused_real_array(CSCR)
-  call Unused_integer(NSMSX)
-  call Unused_integer(NSMDX)
-  call Unused_integer(MXPOBSX)
-  call Unused_integer(IUSE_PH)
-  call Unused_real_array(XINT2)
-end if
 
 end subroutine RSBB2BN_LUCIA

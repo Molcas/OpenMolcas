@@ -100,8 +100,8 @@ C      write(6,*) ' kel1 kel3 ktype ',KEL1,KEL3,KTYPE
         GOTO 101
       END IF
 *. Symmetry of K strings
-C          SYMCOM(ITASK,IOBJ,I1,I2,I12)
-      CALL SYMCOM_MCLR(2,4,ORBSM(IORB),KSM,ISM)
+C          SYMCOM_MCLR(ITASK,I1,I2,I12)
+      CALL SYMCOM_MCLR(2,ORBSM(IORB),KSM,ISM)
       IF(KSM.EQ.0) THEN
         NK = 0
         IEND = 1

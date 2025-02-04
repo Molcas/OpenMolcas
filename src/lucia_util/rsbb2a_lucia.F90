@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine RSBB2A_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NSCOL,NGAS,ISOC,ICOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR, &
-                        CSCR,I1,XI1S,XINT,NSMOB,NSMST,NSMDX,SCLFAC,IPHGAS)
+subroutine RSBB2A_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
+                        XI1S,XINT,NSMOB,NSMST,SCLFAC,IPHGAS)
 ! SUBROUTINE RSBB2A_LUCIA --> 46
 !
 ! two electron excitations on column strings
@@ -25,7 +25,6 @@ subroutine RSBB2A_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NSCOL,NGAS,ISOC,ICOC,S
 ! ICCSM,ICCTP : Symmetry and type of C     columns
 ! IGRP : String group of columns
 ! NROW : Number of rows in S and C block
-! NSCOL : Number of columns in S block
 ! ISEL1(3) : Number of electrons in RAS1(3) for S block
 ! ICEL1(3) : Number of electrons in RAS1(3) for C block
 ! CB   : Input C block
@@ -37,8 +36,7 @@ subroutine RSBB2A_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NSCOL,NGAS,ISOC,ICOC,S
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals, strings,
-!                           single excitations, double excitations
+! NSMOB,NSMST,NSMSX : Number of symmetries of orbitals, strings, single excitations
 ! MAXI   : Largest number of 'spectator strings' treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
@@ -72,7 +70,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NSCOL, NGAS, MAXI, MAXK, NSMOB, NSMST, NSMDX
+integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, MAXI, MAXK, NSMOB, NSMST
 real*8 SCLFAC
 ! General input
 integer ADSXA(MXPOBS,2*MXPOBS)
@@ -803,12 +801,5 @@ end do
 2001 continue
 
 call mma_deallocate(SCR)
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NSCOL)
-  call Unused_integer(NSMDX)
-end if
 
 end subroutine RSBB2A_LUCIA
