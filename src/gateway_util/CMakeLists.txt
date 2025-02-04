@@ -15,8 +15,8 @@ set (sources
      amfi_info.F90
      basis2run.F90
      basis_info.F90
-     calcamt.F90
      calc_lstvec.F90
+     calcamt.F90
      center_info.F90
      clean_bname.F90
      cow.F90
@@ -43,8 +43,8 @@ set (sources
      index_nosym.F90
      info2runfile.F90
      lbl2nr.F90
-     mergebs.F90
      merge_lists.F90
+     mergebs.F90
      misc.F90
      mk_chdisp.F90
      name_to_lm.F90
@@ -53,19 +53,19 @@ set (sources
      oeisg.F90
      one_int.F90
      order_axis.F90
-     ordexp1.F90
      ordexp.F90
+     ordexp1.F90
      ovlmp.F90
      period.F90
      phase_info.F90
-     print_basis2.F90
      print_basis.F90
+     print_basis2.F90
      print_geometry.F90
      print_isotopes.F90
      print_opinfo.F90
      print_symmetry.F90
-     processrp.F90
      process_weights.F90
+     processrp.F90
      pso_stuff.F90
      rdbsl.F90
      rdctl_seward.F90

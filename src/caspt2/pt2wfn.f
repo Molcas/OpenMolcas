@@ -83,6 +83,7 @@
         call mh5_init_attr (pt2wfn_id,'NELEC3', nEle3)
         call mh5_init_attr (pt2wfn_id,'NCONF',  nConf)
         call mh5_init_attr (pt2wfn_id,'NSTATES', NSTATE)
+        call mh5_init_attr (pt2wfn_id,'NDET', NDET)
 
         call mh5_init_attr (pt2wfn_id,'L2ACT', 1, [mxAct], L2ACT)
         call mh5_init_attr (pt2wfn_id,'A2LEV', 1, [mxAct], LEVEL)

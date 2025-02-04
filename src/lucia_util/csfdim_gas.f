@@ -19,6 +19,19 @@
       use stdalloc, only: mma_allocate
       use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
      &                  Z_PTDT, REO_PTDT, SDREO
+      use lucia_data, only: MINOP,MAXOP,NCONF_ALL_SYM,NCSF_HEXS,
+     &                      NCONF_PER_OPEN,NPCMCNF,NPCSCNF,
+     &                      IBCONF_ALL_SYM_FOR_OCCLS,IB_CONF_OCC,
+     &                      IB_CONF_REO,IB_SD_FOR_OPEN,NPDTCNF,
+     &                      NCONF_ALL_SYM_FOR_OCCLS,NCONF_PER_SYM,
+     &                      NCONF_TOT,NCSF_PER_SYM,NSD_PER_SYM
+      use lucia_data, only: NGAS
+      use lucia_data, only: PSSIGN,MULTS,MS2
+      use lucia_data, only: N_ELIMINATED_GAS,N_2ELIMINATED_GAS,
+     &                      I_ELIMINATE_GAS,I2ELIMINATED_IN_GAS,
+     &                      IELIMINATED_IN_GAS
+      use lucia_data, only: NOBPT,NOCOB
+      use lucia_data, only: MXPORB,MXPCSM
 *
 * Initializing routine for CSF-DET expansions
 *
@@ -35,20 +48,24 @@
 *                        CONFIGURATION EXPANSIONS
 * ( Spin signaled by PSSIGN in CIINFO)
 *
-      Implicit REAL*8 (A-H,O-Z)
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "cstate.fh"
-#include "cgas.fh"
-#include "spinfo_lucia.fh"
+      Implicit NONE
 #include "warnings.h"
-#include "gasstr.fh"
 * Input type of occupation classes
+      INTEGER NOCCLS,ISYM,IPRCSF
       INTEGER IOCCLS(NGAS,*)
+
       INTEGER IDUM_ARR(1)
       INTEGER TMP_CNF(MXPORB+1),HEXS_CNF(MXPORB+1),
      &        maxingas(N_ELIMINATED_GAS),
      &        maxingas2(N_2ELIMINATED_GAS)
+      INTEGER IDUM,NTEST,NELEC,ITP,IOPEN,IAEL,IBEL,I,IGAS,JOCCLS,
+     &        INITIALIZE_CONF_COUNTERS, IDOREO,NCONF_ALL_SYM_PREV,
+     &        IELIM,J,JGAS,NCSF,NSD,NCMB,LIDT,LDTOC,MXPTBL,MXDT,LCONF,
+     &        ILCNF,LLCONF,ILLCNF,ITYP,ICL,IALPHA,LZ,LPTDT,IZERO,IB,
+     &        LICS,LENGTH_LIST,NCONF_OCCLS,NSMST
+      INTEGER, EXTERNAL:: IELSUM
+      INTEGER, EXTERNAL:: IBION_LUCIA
+      INTEGER, EXTERNAL:: IWEYLF
 *
       IDUM = 0
       IDUM_ARR=0
@@ -121,8 +138,8 @@ C
          WRITE(6,*)' the named constant MXPCSM must be increased'
          WRITE(6,*)' from its current value MXPCSM=',MXPCSM
          WRITE(6,*)' to AT LEAST NOCCLS=',NOCCLS
-         WRITE(6,*)' This parameter is found in the file'
-         WRITE(6,*)'  <molcas>/src/lucia_util/mxpdim.fh'
+         WRITE(6,*)' This parameter is found in the module'
+         WRITE(6,*)'  <molcas>/src/lucia_util/lucia_data.F90'
          WRITE(6,*)' Change it. Then ''cd'' to molcas root'
          WRITE(6,*)' directory and give command ''make''.'
          WRITE(6,*)' But this may also be a bug. Please tell the'
@@ -217,8 +234,8 @@ c
              IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = 1
            ELSE
 * PAM2009: It was discovered that these two arrays could be overrun.
-* The arrays are declared in spinfo_lucia.fh, and their dimension
-* is MXPCSM, which is set in mxpdim.fh -- both included above.
+* The arrays are declared in lucia_data.F90, and their dimension
+* is MXPCSM, which is set in lucia_data.F90 -- both included above.
 * So MXPCSM is now increased from 20 to 40 -- if this is not a final
 * solution remains to be discovered:
              NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM
@@ -352,22 +369,19 @@ C
         END IF
       END DO
 *
-      RETURN
-      END
+      END SUBROUTINE CSFDIM_GAS
 
       SUBROUTINE CSFDIM_FREE(ISYM)
       use stdalloc, only: mma_deallocate
       use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO,
      &                  Z_PTDT, REO_PTDT, SDREO
+      use lucia_data, only: MINOP,MAXOP
 * Free resources allocated by CSFDIM_GAS
 
-      Implicit REAL*8 (A-H,O-Z)
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "cstate.fh"
-#include "cgas.fh"
-#include "spinfo_lucia.fh"
+      Implicit NONE
+      INTEGER ISYM
 #include "warnings.h"
+      INTEGER IOPEN,ITYP
 
       DO IOPEN = MINOP, MAXOP
         ITYP = IOPEN + 1
@@ -398,4 +412,4 @@ c     LCONF = MAX(LCONF,LLCONF)
 
       CALL mma_deallocate(SDREO_I(ISYM)%I)
       nullify(SDREO)
-      END
+      END SUBROUTINE CSFDIM_FREE

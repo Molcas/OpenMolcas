@@ -6,10 +6,6 @@
 * Responsible person: Stefano Battaglia
 * Comments: Use SS-CASSCF ref. wf, no frozen orbitals, RICD
 *-------------------------------------------------------------------------------
-* analytic gradients do not work in parallel for the time being
-> IF ( $MOLCAS_NPROCS != 1)
->   EXIT 36
-> ENDIF
 
 *-------------------------------------------------------------------------------
 * Analytic gradient with real shift

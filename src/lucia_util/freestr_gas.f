@@ -10,21 +10,17 @@
 ************************************************************************
       SUBROUTINE FREESTR_GAS()
       use stdalloc, only: mma_deallocate
-      use strbas
+      use strbas, only: OCSTR,STREO,NSTSGP,ISTSGP,NSTSO,ISTSO,ZMAT,
+     &                  STSTM,IOCLS,SPGPAN,SPGPCR
 * allocations during strinf_gas
-      use distsym
+      use distsym, only: ISMDFGP,ISMSCR,NACTSYM
 * Deallocate the memory that was set up in MEMSTR_GAS
+      use lucia_data, only: NGRP,NSTTP
 
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT None
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "csm.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "stinf.fh"
-#include "crun.fh"
+      Integer IGRP,ITP
 *
 *.  Offsets for occupation and reorder array of strings
 *
@@ -74,4 +70,4 @@
       CALL mma_deallocate(ISMDFGP)
       CALL mma_deallocate(NACTSYM)
       CALL mma_deallocate(ISMSCR)
-      END
+      END SUBROUTINE FREESTR_GAS

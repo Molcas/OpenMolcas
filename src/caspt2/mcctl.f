@@ -43,7 +43,7 @@ C Loop over the bra states
         Write(string,'(A,I0,A,I0,A,I0)')
      &     'Multistate coupling between state ',ISTATE,' and ',JSTATE,
      &     ' out of ',NSTATE
-        Call StatusLine('CASPT2: MCCTL: ',trim(string))
+        Call StatusLine('CASPT2: MCCTL: ',string)
         TOTCPU1=0.0d0; TOTWALL1=0.0d0; TOTCPU2=0.0d0; TOTWALL2=0.0d0;
         Call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 

@@ -20,19 +20,18 @@ subroutine MSPDFTGrad_Misc(si_pdft,states)
 ! in MS-PDFT gradient calculation.
   use definitions,only:iwp,wp
   use constants,only:zero,one
+  use stdalloc,only:mma_allocate,mma_deallocate
   use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS,P2MOT,D1aoMS,DIDA,D1SAOMS
   use rasscf_global,only:lroots,NACPR2,nTot4
-  use general_data,only:ispin,nsym,ntot1,nbas
+  use general_data,only:ispin,ntot1
 
   implicit none
 
   real(kind=wp),intent(in) :: si_pdft(lroots,lroots)
   integer(kind=iwp),intent(in) :: states(2)
 
-  integer(kind=iwp) :: ij,iS,jRoot,iBas,jBas
-  ! rotated (ie, in final MS-PDFT) eigenbasis quantities
-  real(kind=wp) :: r_fock_occ(ntot1),r_active_dm1(ntot1),r_Fxy(ntot4),r_casdm2(nacpr2)
-  real(kind=wp) :: u_rlx_sq(lroots)
+  ! rotated (ie, in final MS-PDFT) eigenbasis quantities (i think...)
+  real(kind=wp),allocatable :: r_fock_occ(:),r_active_dm1(:),r_Fxy(:),r_casdm2(:),u_rlx_sq(:)
 
 ! Functions added by Paul Calio for MECI Opt *****
 ! Original calls are in slapaf_util/start_alasaks.f
@@ -49,24 +48,8 @@ subroutine MSPDFTGrad_Misc(si_pdft,states)
   endif
 
   ! Takes the rlxroot column of the rotation matrix and squares it
-  u_rlx_sq = si_pdft(:,states(1))*si_pdft(:,states(2))
-  !u_rlx_sq = si_pdft(:,mcpdft_options%rlxroot)**2
-
-  ! Now storing the density matrix needed for computing 1RDM
-  ! First rescale the off-diagonal elements as done in
-  ! integral_util/prep.f
-  ij = 0
-  Do iS = 1,nSym
-    do iBas = 1,nBas(iS)
-      do jBas = 1,iBas-1
-        ij = ij+1
-        do jRoot = 1,lRoots+1
-          DIDA(ij,jRoot) = 0.5D0*DIDA(ij,jRoot)
-        enddo
-      enddo
-      ij = ij+1
-    enddo
-  EndDo
+  call mma_allocate(u_rlx_sq,lroots,label='u_rlx_sq')
+  u_rlx_sq(:) = si_pdft(:,states(1))*si_pdft(:,states(2))
 
   ! Then add the matrix for each state to the ground state
   ! add put the ground state one in the runfile. Do not
@@ -75,21 +58,30 @@ subroutine MSPDFTGrad_Misc(si_pdft,states)
   ! DIDA(:,lRoots+1) is currently DI
   CALL Put_DArray('MSPDFTD5        ',DIDA(:,lRoots+1),nTot1)
 
-  call dgemm_('n','n',ntot1,1,lroots,one,FocMS(:,:),ntot1,u_rlx_sq,lroots,zero,r_fock_occ,ntot1)
+  call mma_allocate(r_fock_occ,ntot1,label='r_fock_occ')
+  call dgemv_('n',ntot1,lroots,one,FocMS,ntot1,u_rlx_sq,1,zero,r_fock_occ,1)
   Call Put_dArray('FockOcc',r_fock_occ,ntot1)
+  call mma_deallocate(r_fock_occ)
 
   ! DIDA is currently DA over intermediate states
   ! DIDA for prepp
-  call dgemm_('n','n',ntot1,1,lroots,one,DIDA(:,:lroots),ntot1,-u_rlx_sq,lroots,zero,r_active_dm1,ntot1)
+  call mma_allocate(r_active_dm1,ntot1,label='r_active_dm1')
+  call dgemv_('n',ntot1,lroots,one,DIDA(:,:lroots),ntot1,-u_rlx_sq,1,zero,r_active_dm1,1)
   CALL Put_DArray('MSPDFTD6        ',r_active_dm1,nTot1)
+  call mma_deallocate(r_active_dm1)
 
   ! FT99 for bk
-  call dgemm_('n','n',ntot4,1,lroots,one,FxyMS(:,:),ntot4,u_rlx_sq,lroots,zero,r_Fxy,ntot4)
+  call mma_allocate(r_Fxy,ntot4,label='r_fxy')
+  call dgemv_('n',ntot4,lroots,one,FxyMS,ntot4,u_rlx_sq,1,zero,r_Fxy,1)
   CALL Put_DArray('FxyMS           ',r_Fxy,nTot4)
+  call mma_deallocate(r_Fxy)
 
   ! P2MOt for active 2RDM
-  call dgemm_('n','n',nacpr2,1,lroots,one,P2MOt(:,:),nacpr2,u_rlx_sq,lroots,zero,r_casdm2,nacpr2)
+  call mma_allocate(r_casdm2,nacpr2,label='r_casdm2')
+  call dgemv_('n',nacpr2,lroots,one,P2MOt,nacpr2,u_rlx_sq,1,zero,r_casdm2,1)
   Call Put_dArray('P2MOt',r_casdm2,NACPR2)
+  call mma_deallocate(r_casdm2)
 
+  call mma_deallocate(u_rlx_sq)
 EndSubroutine
 

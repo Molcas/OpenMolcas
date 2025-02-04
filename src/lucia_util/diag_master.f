@@ -10,7 +10,8 @@
 ************************************************************************
       SUBROUTINE diag_master()
       use GLBBAS, only: INT1, INT1O
-      use cands, only: ISSM
+      use CandS, only: ISSM
+      use lucia_data, only: IPRDIA
 *
 *  To do in this subroutine:
 *
@@ -20,14 +21,11 @@
 *
 *  Set up the diagonal for the CI calculation
 *
-      implicit real*8 (a-h,o-z)
-#include "mxpdim.fh"
-#include "cstate.fh"
-#include "cprnt.fh"
-#include "orbinp.fh"
+      implicit None
+      REAL*8 EREF
 *
       INT1(:)=INT1O(:)
       CALL GASCI(ISSM, 1, IPRDIA, EREF, 0, 0)
 *
-      END
+      END SUBROUTINE diag_master
 *

@@ -35,7 +35,8 @@ integer(kind=iwp) :: iEta, iZeta, n
 real(kind=wp) :: ai, B001, B002, dddx, Eu21, Eu22, PAQPx1, PAQPx2, PAQPy1, PAQPy2, PAQPz1, PAQPz2, PQ2, PQx, PQy, PQz, PreFct, &
                  QCPQx1, QCPQx2, QCPQy1, QCPQy2, QCPQz1, QCPQz2, r1, r2, rho, si, T, w1, w2, x011, x012, x101, x102, x111, x112, &
                  xdInv, y011, y012, y101, y102, y111, y112, z, z011, z012, z101, z102, z111, z112, ZEInv, Zu21, Zu22
-logical(kind=iwp) :: ABeqCD, EQ
+logical(kind=iwp) :: ABeqCD
+logical(kind=iwp), external :: EQ
 
 xdInv = One/ddx
 dddx = ddx/Ten+ddx

@@ -118,8 +118,6 @@ C      CALL RecPrt(' ','(1X,15(F9.6,1X))',XScr,1,nSPair)
       use CMS, only: NCMSScale
       use rasscf_global, only: CMSThreshold, lRoots
       Implicit None
-#include "rasdim.fh"
-#include "general.fh"
 #include "SysDef.fh"
 #include "warnings.h"
       INTEGER nSPair,lRoots2,nGD,NAC2,nDDg

@@ -23,7 +23,7 @@ logical(kind=iwp), intent(in) :: m_paranoid, smagn, DBG
 integer(kind=iwp) :: I, IM, J, mem_local, nT_torq
 real(kind=wp) :: AngRad, AngStep, g(3), mg(3,3), MT(3), ST(3), ZT(1) !, det, dlth, ma_inv(3,3)
 complex(kind=wp) :: MM(3,2,2)
-character(len=99) :: STLNE1, STLNE2
+character(len=99) :: STLNE2
 real(kind=wp), allocatable :: Ang(:), dX(:), dY(:), dZ(:), ty(:), W(:) !, tx(:,:), tz(:,:)
 complex(kind=wp), allocatable :: M(:,:,:), S(:,:,:)
 integer(kind=iwp), parameter :: nPlanes = 1
@@ -124,9 +124,8 @@ end if
 !-----------------------------------------------------------------------
 
 do IM=1,AngPoints
-  write(STLNE1,'(A   )') 'SINGLE_ANISO:  torque:'
-  write(STLNE2,'(A,I3)') ' Magnetization at point ',IM
-  call StatusLine(trim(STLNE1),trim(STLNE2))
+  write(STLNE2,'(A,I3)') 'Magnetization at point ',IM
+  call StatusLine('SINGLE_ANISO: torque: ',STLNE2)
   ! exchange magnetization:
   call MAGN(nss,NM,dX(iM),dY(iM),dZ(iM),H_torq,eso,zJ,THRS,M,S,nT_torq,[T_torq],smagn,W,ZT,ST,MT,m_paranoid,DBG)
   if (dbg) write(u6,'(A,3F18.10)') 'TORQ: MT=',MT(1),MT(2),MT(3)

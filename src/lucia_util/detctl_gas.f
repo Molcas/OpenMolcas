@@ -14,31 +14,42 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
-      use strbas
+      use strbas, only: NSTSO
       use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
-      use cands
+      use CandS, only: ICSM, ICSPC, ISSM, ISSPC
+      use lucia_data, only: NCONF_PER_OPEN,NCONF_PER_SYM,NCSF_HEXS,
+     &                      NCSF_PER_SYM,NPCSCNF,NPDTCNF,NSD_PER_SYM
+      use lucia_data, only: NGAS,IGSOCC,IPHGAS
+      use lucia_data, only: MXSOOB,MXNTTS,ISMOST,XISPSM
+      use lucia_data, only: IPRCIX
+      use lucia_data, only: NOCSF,IADVICE,ISIMSYM,LCSBLK,MXINKA
+      use lucia_data, only: IREFSM,PSSIGN,PSSIGN,IDC
+      use lucia_data, only: MXNSTR,MAX_STR_OC_BLK,MAX_STR_SPGP,
+     &                      IBSPGPFTP,MNHL,NELFSPGP,NELFTP,NHLFSPGP,
+     &                      NSTFSMSPGP
+      use lucia_data, only: NSMOB
+      use lucia_data, only: MXTSOB,NTOOB,NOCOB,NOBPT,NOBPTS
+      use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
+      use lucia_data, only: MXPCSM,MXPNGAS,MXPNSMST,MXPORB
+      use csm_data, only: NSMST
 
 *
-      IMPLICIT REAL*8 (A-H, O-Z)
-#include "mxpdim.fh"
-#include "gasstr.fh"
-#include "cgas.fh"
-#include "orbinp.fh"
-#include "crun.fh"
-#include "cstate.fh"
-#include "cicisp.fh"
-#include "cprnt.fh"
-#include "stinf.fh"
-#include "csm.fh"
-#include "spinfo_lucia.fh"
-#include "strinp.fh"
-#include "lucinp.fh"
+      IMPLICIT NONE
 
       INTEGER IOCCLS(1),IBASSPC(1)
       Integer, Allocatable:: LCIOIO(:)
       Integer, Allocatable:: SVST(:)
       Integer, Allocatable:: BASSPC(:)
       Integer, Allocatable:: KLOCCLS(:)
+      INTEGER JSYM,NDET,IATP,IBTP,NEL,NOCCLS,LBLOCK,NOCTPA,NOCTPB,NTTS,
+     &        NBLOCK,MXSTBL0,IATPM1,IBTPM1,IATPM2,IBTPM2,NAEL,NBEL,MAXA,
+     &        MAXA1,MAXB,MAXB1,MXSTBL,MAXI,MAXK,IOCTPA,IOCTPB,MXCJ,
+     &        MXCIJA,MXCIJB,MXSXBL,MXADKBLK,MXADKBLK_AS,LSCR2,LSCR12,
+     &        IOBTP,IOBSM,INTSCR,MAXIK,LSCR3,LZSCR,LZ,MXCIJAB,
+     &        MXCJ_ALLSYM,MX_NSPII,NBATCH
+      INTEGER, External:: IFRMR
+      INTEGER, EXTERNAL:: IMNMX
 
 *. Set variables in Module cands
       JSYM = IREFSM
@@ -235,31 +246,15 @@ c      END IF
       CALL LUCIA2MOLCAS(
      &     CONF_OCC(jsym)%I,SDREO_I(jsym)%I,
      &     ndet, ncsf_per_sym, nsd_per_sym, nconf_per_sym, mxpcsm,
-     &     mxporb, nconf_per_open, npdtcnf, npcscnf, mults,
-     &     nCSF_HEXS)
+     &     mxporb, nconf_per_open, npdtcnf, npcscnf, nCSF_HEXS)
 
       CALL mma_deallocate(KLOCCLS)
 
       END SUBROUTINE DETCTL_GAS
 *
       SUBROUTINE DETCTL_FREE()
-      use strbas
-      use cands
-      Implicit real*8(a-h,o-z)
-#include "mxpdim.fh"
-#include "gasstr.fh"
-#include "cgas.fh"
-#include "orbinp.fh"
-#include "crun.fh"
-#include "cstate.fh"
-#include "cicisp.fh"
-#include "cprnt.fh"
-#include "stinf.fh"
-#include "csm.fh"
-#include "spinfo_lucia.fh"
-#include "strinp.fh"
-#include "lucinp.fh"
-
+      use lucia_data, only: IREFSM
+      Implicit None
       Integer JSYM
 
       JSYM = IREFSM

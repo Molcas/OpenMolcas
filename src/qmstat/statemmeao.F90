@@ -23,7 +23,6 @@ integer(kind=iwp), intent(in) :: nAObas, nState, nTyp, iCent(nTri_Elem(nAObas))
 type(Alloc1DArray_Type), intent(in) :: MME(nTri3_Elem(MxMltp))
 real(kind=wp), intent(inout) :: Cha(nTri_Elem(nState),*), Dip(nTri_Elem(nState),3,*), Qua(nTri_Elem(nState),6,*)
 integer(kind=iwp) :: iB1, iB2, iS1, iS2, iTyp, kaunta, kaunter, nSize
-real(kind=wp) :: PerAake
 real(kind=wp), allocatable :: AOG(:), O(:)
 ! The reason why 8 and 7 are interchanged is that
 ! QMSTAT uses the ordering xx,xy,yy,xz,yz,zz while
@@ -47,10 +46,10 @@ do iS1=1,nState
     do iB1=1,nAObas
       do iB2=1,iB1
         kaunta = kaunta+1
-        PerAake = AOG(kaunta)
         do iTyp=1,nTyp
-          O(iTyp) = MME(xTyp(iTyp))%A(kaunta)*PerAake
+          O(iTyp) = MME(xTyp(iTyp))%A(kaunta)
         end do
+        O(:) = AOG(kaunta)*O(:)
         Cha(kaunter,iCent(kaunta)) = Cha(kaunter,iCent(kaunta))+O(1)
         Dip(kaunter,:,iCent(kaunta)) = Dip(kaunter,:,iCent(kaunta))+O(2:4)
         Qua(kaunter,:,iCent(kaunta)) = Qua(kaunter,:,iCent(kaunta))+O(5:10)

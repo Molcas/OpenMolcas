@@ -39,6 +39,7 @@ subroutine get_Cm(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICON
 ! IREOTS     : Type => symmetry reordering array
 ! Ctot       : Vector of all nConf CI-coeff for a single root (Output)
 
+use spinfo, only: NCSFTP, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -50,7 +51,6 @@ real(kind=wp), intent(in) :: Cn(NPCSF), EnFin, DTOC(*), ONEBOD(NACTOB,NACTOB), E
 integer(kind=iwp), intent(inout) :: NTEST
 logical(kind=iwp), intent(in) :: FordSplit
 real(kind=wp), intent(out) :: Ctot(MXPDIM)
-#include "spinfo.fh"
 integer(kind=iwp) :: iAlpha, IATYP, IIA, IIAB, IIL, IILACT, IILB, ILAI, ILTYP, ITYP, Mindex, MXCSFC, MXXWS, NCSFA, NCSFL
 real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_ComputeH_AB, C_computeH_AB1, C_computeH_AB2, C_Oper, C_oper1, C_oper2, &
                  W_AlphaLoop1, W_AlphaLoop2, W_ComputeH_AB, W_computeH_AB1, W_computeH_AB2, W_Oper, W_oper1, W_oper2

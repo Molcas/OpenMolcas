@@ -36,8 +36,8 @@
       use Cntrl, only: NSTATE, CIH5, NJOB, DO_TMOM, NQUAD, IFSO, RhoDyn,
      &                 DYSO, IFSO, IRREP, MLTPLT, NDET
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NBASF,NASHT,NCMO
       implicit none
-#  include "rassi.fh"
       integer :: ISTATE, NSS
       integer :: nData, nIJ
       integer, allocatable :: state_irreps(:), state_mult(:)

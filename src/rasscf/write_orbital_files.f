@@ -48,8 +48,10 @@
      &  nTot, nTot2, nConf
       use gas_data, only : nGssh
       use stdalloc, only: mma_allocate, mma_deallocate
+      use printlevel, only: USUAL
+      use output_ras, only: LF
+      Implicit None
 
-#include "output_ras.fh"
 #include "rasdim.fh"
       integer, intent(in) :: JobIph, iPrlev
 

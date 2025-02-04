@@ -30,12 +30,17 @@
       use rasscf_global, only: iRlxRoot, NAC, NACPAR, NACPR2, NIN, NO2M,
      &                         NORBT, NROOTS, NSEC, NTIT, NTOT3, NTOT4,
      &                         Title, iZROT, iROOT
+      use jobiph_j, only:nactel_j,ispin_j,lsym_j,nfro_j,nish_j,ndel_j,
+     &                   title_j,nrs1_j,nrs2_j,nrs3_j,nhole1_j,nelec3_j
+      use general_data, only: INVEC,NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,
+     &                        NFRO,NISH,NRS1,NRS2,NRS3,NDEL,NSYM,NTOT,
+     &                        NTOT1,NTOT2,NDELT,NFROT,NTOTSP,NRS1T,
+     &                        NRS2T,NRS3T,NASH,NBAS,NORB,NSSH,STSYM
+
 
       Implicit None
 #include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
-#include "jobiph_j.fh"
       Integer IGAS, II, ISYM, ITU, J, NAO, NGSSH_HI, NGSSH_LO, NT, NU
 
 *

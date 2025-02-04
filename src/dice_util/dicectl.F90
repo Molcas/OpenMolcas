@@ -20,16 +20,17 @@ use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
 use Index_Functions, only: nTri_Elem
-use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, ENER, ITER, lroots, mxSym, &
-                       NAC, nref_dice
+use rasscf_global, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, ENER, ITER, lroots, &
+                         NAC, nref_dice
+use general_data, only: ISPIN, NACTEL, NASH, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
+#include "Molcas.fh"
 real(kind=wp), intent(in) :: W1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL, IRST
-#include "general.fh"
 integer(kind=iwp) :: chemroot, iChMolpro(8), iErr, iOper(0:7), iOrb, iref_dice, iSigma, iSym, jOrb, LINSIZE, lSymMolpro, LUDICEIN, &
                      LUTOTE, nIrrep, NUM_TEI
 integer(kind=iwp), allocatable :: OrbSym(:)

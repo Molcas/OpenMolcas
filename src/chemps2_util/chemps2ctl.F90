@@ -25,6 +25,7 @@ use Definitions, only: MPIInt
 #endif
 use rasscf_global, only: CBLBM, chemps2_blb, chemps2_lrestart, chemps2_noise, chemps2_restart, davidson_tol, Do3RDM, ENER, &
                          iCIonly, iOrbTyp, ITER, lroots, max_canonical, max_sweep, MxDMRG, NAC, THRE, hfocc
+use general_data, only: ISPIN, NACTEL, NASH, NSYM, STSYM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Five, Ten, Half
 use Definitions, only: wp, iwp, u6
@@ -32,8 +33,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(in) :: W1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL, IRST
-#include "Molcas.fh"
-#include "general.fh"
 integer(kind=iwp) :: iChMolpro(8), LINSIZE, NUM_TEI, dtemp, nooctemp, labelpsi4, conversion(8), activesize(8), chemroot, &
                      chemps2_info, iOper(0:7), ihfocc, iErr, iOrb, iSigma, iSym, jOrb, lSymMolpro, LUCHEMIN, LUCONV, LUTOTE, &
                      nIrrep

@@ -30,7 +30,6 @@ use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use Para_Info, only: King
 use nq_Info, only: nAshT, Grid_Type, Moving_Grid
-use Disp, only: ChDisp
 use NAC, only: isNAC, NACStates
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -88,7 +87,7 @@ end if
 call Get_iScalar('System BitSwitch',iDFT)
 if (btest(iDFT,6)) then
 
-  call StatusLine(' Alaska:',' Computing DFT gradients')
+  call StatusLine('Alaska: ','Computing DFT gradients')
 
   call Get_cArray('DFT functional',KSDFT,80)
   ExFac = Zero ! Set to proper value at retrun!
@@ -150,7 +149,7 @@ if (btest(iDFT,6)) then
         if (jPrint >= 15) then
           Label = 'DFT Int Contribution'
           write(u6,*) 'state, coeff i, coeff j',IK,R((II-1)*nRoots+IK),R((iJ-1)*nRoots+IK)
-          call PrGrad(Label,Temp2,nGrad,ChDisp)
+          call PrGrad(Label,Temp2,nGrad)
         end if
       else
         call Get_iScalar('Relax CASSCF root',iI)
@@ -158,7 +157,7 @@ if (btest(iDFT,6)) then
         if (jPrint >= 15) then
           Label = 'DFT Int Contribution'
           write(u6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
-          call PrGrad(Label,Temp2,nGrad,ChDisp)
+          call PrGrad(Label,Temp2,nGrad)
         end if
       end if
     end do
@@ -193,7 +192,7 @@ if (btest(iDFT,6)) then
   jPrint = nPrint(112)
   !AMS
   !jPrint = 15
-  if (jPrint >= 15) call PrGrad(Label,Temp,nGrad,ChDisp)
+  if (jPrint >= 15) call PrGrad(Label,Temp,nGrad)
   if (king()) call DaXpY_(nGrad,One,Temp,1,Grad,1)
   if (iPrint >= 6) then
     write(LuWr,*)

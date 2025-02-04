@@ -20,9 +20,9 @@
       use Constants, only: Zero, Two
       use Cntrl, only: LSYM1, LSYM2
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NASHT,NTDMAB,NASH,NISH,NOSH
       IMPLICIT NONE
       REAL*8 OVER
-#include "rassi.fh"
       REAL*8 GAMMA1(NASHT,NASHT)
       REAL*8 TDMAB(NTDMAB)
       INTEGER iRC

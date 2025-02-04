@@ -44,12 +44,16 @@ subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !                                                                      *
 !***********************************************************************
 
-#ifdef _HDF5_
-use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
-#endif
 use csfbas, only: CONF
 use glbbas, only: CFTP
 use rasscf_global, only: hRoots, IADR15, ICIRST, iTOC, lRoots, NAC, Start_Vectors
+use general_data, only: JOBIPH, JOBOLD, LUDAVID, NACTEL, NCONF, NSEL, STSYM
+#ifdef _HDF5_
+use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_fetch_dset, mh5_close_file
+use general_data, only: STARTORBFILE
+#endif
+use output_ras, only: IPRLOC
+use printlevel, only: DEBUG, INSANE, TERSE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -69,9 +73,6 @@ logical(kind=iwp) :: Exists
 character(len=80) :: String
 integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Tmp1(:)
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
 
 IPRLEV = IPRLOC(3)
 

@@ -55,9 +55,10 @@ C      use para_info, only: nProcs, is_real_par, king
      &                 RASTYP
       use cntrl, only: iToc15, LuIph, LuTDM
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NASHT,NISHT,NCMO,ENUC,NASH,NDEL,NFRO,NISH,
+     &                      NOSH,NSSH,NTDMAB,NTDMZZ,NTRA
 
       IMPLICIT NONE
-#include "rassi.fh"
       Type (SGStruct), Target :: SGS(2)
       Type (CIStruct) :: CIS(2)
       Type (EXStruct) :: EXS(2)
@@ -69,7 +70,6 @@ C      use para_info, only: nProcs, is_real_par, king
       LOGICAL IF00, IF10,IF01,IF20,IF11,IF02,IF21,IF12,IF22
       LOGICAL IFTWO,TRORB
       CHARACTER(LEN=8) WFTP1,WFTP2
-      CHARACTER(LEN=6) STLNE1
       CHARACTER(LEN=48) STLNE2
       Real*8 Energies(1:20)
       Integer IAD,LUIPHn,LUCITH
@@ -880,10 +880,9 @@ C Loop over the states of JOBIPH nr JOB1
 CC-----------------------------------------------------------------------
 
 C Entry into monitor: Status line
-        WRITE(STLNE1,'(A6)') 'RASSI:'
         WRITE(STLNE2,'(A33,I5,A5,I5)')
      &      'Trans. dens. matrices for states ',ISTATE,' and ',JSTATE
-        Call StatusLine(STLNE1,STLNE2)
+        Call StatusLine('RASSI: ',STLNE2)
 
 C Read ISTATE WF from TOTDET1 and JSTATE WF from TOTDET2
 #ifdef _DMRG_

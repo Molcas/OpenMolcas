@@ -26,29 +26,28 @@ subroutine PrepP()
 
 use Index_Functions, only: nTri_Elem
 use setup, only: mSkal, nSOs
-use pso_stuff, only: Bin, Case_2C, Case_3C, Case_MP2, CMO, D0, DS, DSVar, DVar, FnGam, G1, G2, G_ToC, Gamma_MRCISD, Gamma_On, &
-                     iD0Lbl, KCMO, lBin, lPSO, lSA, LuGam, LuGamma, mCMO, mDens, mG1, mG2, nDens, nG1, nG2, SO2CI
-use pso_stuff, only: nBasT, NSSDM, CMOPT2, LuCMOPT2, nOcc, nFro, SSDM, MaxShlAO,iOffAO,LuGamma_PT2,Wrk1,Wrk2,CASPT2_On
-use pso_stuff, only: nBasA,nBasASQ,A_PT2,B_PT2
-use iSD_data, only: iSO2Sh, iSD
+use pso_stuff, only: A_PT2, B_PT2, Bin, Case_2C, Case_3C, Case_MP2, CASPT2_On, CMO, CMOPT2, D0, DS, DSVar, DVar, FnGam, G1, G2, &
+                     G_ToC, Gamma_MRCISD, Gamma_On, iD0Lbl, iOffAO, KCMO, lBin, lPSO, lSA, LuCMOPT2, LuGam, LuGamma, LuGamma_PT2, &
+                     mCMO, mDens, mG1, mG2, nBasA, nBasASQ, nBasT, nDens, nFro, nG1, nG2, nOcc, NSSDM, SO2CI, SSDM, Wrk1, Wrk2
+use iSD_data, only: iSD, iSO2Sh
 use Basis_Info, only: nBas, nBas_Aux
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use RICD_Info, only: Cholesky, Do_RI, Cholesky
+use dmrginfo, only: DoDMRG, LRRAS2
 use etwas, only: CoulFac, ExFac, mBas, mIrrep, nAsh, nCMO, nDSO, nIsh
 use NAC, only: IsNAC
 use mspdft_grad, only: DoGradMSPD
+#ifdef _CD_TIMING_
+use temptime, only: PREPP_CPU, PREPP_WALL
+#endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
-use RICD_Info, only: Do_RI, Cholesky
-use dmrginfo, only: DoDMRG, LRRAS2
 
 implicit none
-#ifdef _CD_TIMING_
-#include "temptime.fh"
-#endif
-integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iSeed, iSpin, jBas, LgToC, n, nAct, nDim0, nDim1, nDim2, &
-                     nXro(0:7), nPair, nQUad, nSA, nShell, nTsT, lRealName, iost, iSSDM, iSh, nBasI, MxInShl
+integer(kind=iwp) :: Columbus, i, iBas, iDisk, iGo, iIrrep, ij, iost, iSeed, iSh, iSpin, iSSDM, jBas, LgToC, lRealName, MaxShlAO, &
+                     MxInShl, n, nAct, nBasI, nDim0, nDim1, nDim2, nPair, nQUad, nSA, nShell, nTsT, nXro(0:7)
 character(len=4096) :: RealName
 real(kind=wp) :: CoefR, CoefX
 logical(kind=iwp) :: Do_Hybrid, DoCholesky, is_error
@@ -62,6 +61,9 @@ character(len=60) :: Frmt
 character(len=8) :: RlxLbl
 integer(kind=iwp), parameter :: iComp = 1
 #endif
+#ifdef _CD_TIMING_
+real(kind=wp) :: PREPPCPU1, PREPPCPU2, PREPPWALL1, PREPPWALL2
+#endif
 integer(kind=iwp), external :: IsFreeUnit
 real(kind=wp), external :: Get_ExFac
 
@@ -71,7 +73,7 @@ real(kind=wp), external :: Get_ExFac
 call CWTIME(PreppCPU1,PreppWall1)
 #endif
 
-call StatusLine(' Alaska:',' Prepare the 2-particle matrix')
+call StatusLine('Alaska: ','Prepare the 2-particle matrix')
 
 iD0Lbl = 1
 
@@ -237,7 +239,7 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
   write(u6,*)
 # endif
   if (Method == 'CASPT2  ') then
-    CASPT2_On=.True.
+    CASPT2_On = .true.
     call DecideOnCholesky(DoCholesky)
     !if (.not. DoCholesky) then
     Gamma_On = .true.
@@ -250,95 +252,94 @@ else if ((Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. (Method == 'GAS
     call mma_allocate(SO2cI,1,1,Label='SO2cI')
     call mma_allocate(Bin,1,1,Label='Bin')
     !end if
-    If (Cholesky .or. Do_RI) Then
-       nBasT = 0
-       nBasA = 0
-       nBasASQ = 0
-       do i=0,nIrrep-1
-         nBasT = nBasT+nBas(i)
-         nBasA = nBasA+nBas_Aux(i)-1
-         nBasASQ = nBasASQ+(nBas_Aux(i)-1)**2
-       end do
-       call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
+    if (Cholesky .or. Do_RI) then
+      nBasT = 0
+      nBasA = 0
+      nBasASQ = 0
+      do i=0,nIrrep-1
+        nBasT = nBasT+nBas(i)
+        nBasA = nBasA+nBas_Aux(i)-1
+        nBasASQ = nBasASQ+(nBas_Aux(i)-1)**2
+      end do
+      call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
 
-       Call Set_Basis_Mode('Valence')
-       Call Setup_iSD()
-       MxInShl = 1
-       do i=1,mSkal
-          MxInShl = max(MxInShl,iSD(3,i)*iSD(2,i))
-       end do
-       Call Free_iSD()
-       call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
+      call Set_Basis_Mode('Valence')
+      call Setup_iSD()
+      MxInShl = 1
+      do i=1,mSkal
+        MxInShl = max(MxInShl,iSD(3,i)*iSD(2,i))
+      end do
+      call Free_iSD()
+      call mma_allocate(B_PT2,nBasA,MxInShl,MxInShl,Label='B_PT2')
+    else
+      nBasT = 0
+      do i=0,nIrrep-1
+        nBasT = nBasT+nBas(i)
+      end do
 
-    Else
-        nBasT = 0
-        do i=0,nIrrep-1
-          nBasT = nBasT+nBas(i)
-        end do
+      nSSDM = 0
 
-        nSSDM = 0
+      ! The two MO indices in the half-transformed amplitude are
+      ! not CASSCF but quasi-canonical orbitals.
+      call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
+      LuCMOPT2 = isFreeUnit(66)
+      call PrgmTranslate('CMOPT2',RealName,lRealName)
+      call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
 
-        !! The two MO indices in the half-transformed amplitude are
-        !! not CASSCF but quasi-canonical orbitals.
-        call mma_allocate(CMOPT2,nBasT*nBasT,Label='CMOPT2')
-        LuCMOPT2 = isFreeUnit(66)
-        call PrgmTranslate('CMOPT2',RealName,lRealName)
-        call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
+      do i=1,nBasT*nBasT
+        read(LuCMOPT2) CMOPT2(i)
+      end do
 
-        do i=1,nBasT*nBasT
-           read(LuCMOPT2) CMOPT2(i)
-        end do
+      read(LuCMOPT2) nOcc(1)
+      read(LuCMOPT2) nOcc(2)
+      read(LuCMOPT2) nOcc(3)
+      read(LuCMOPT2) nOcc(4)
+      read(LuCMOPT2) nOcc(5)
+      read(LuCMOPT2) nOcc(6)
+      read(LuCMOPT2) nOcc(7)
+      read(LuCMOPT2) nOcc(8)
+      read(LuCMOPT2) nFro(1)
+      read(LuCMOPT2) nFro(2)
+      read(LuCMOPT2) nFro(3)
+      read(LuCMOPT2) nFro(4)
+      read(LuCMOPT2) nFro(5)
+      read(LuCMOPT2) nFro(6)
+      read(LuCMOPT2) nFro(7)
+      read(LuCMOPT2) nFro(8)
+      read(LuCMOPT2) nSSDM
 
-        read(LuCMOPT2) nOcc(1)
-        read(LuCMOPT2) nOcc(2)
-        read(LuCMOPT2) nOcc(3)
-        read(LuCMOPT2) nOcc(4)
-        read(LuCMOPT2) nOcc(5)
-        read(LuCMOPT2) nOcc(6)
-        read(LuCMOPT2) nOcc(7)
-        read(LuCMOPT2) nOcc(8)
-        read(LuCMOPT2) nFro(1)
-        read(LuCMOPT2) nFro(2)
-        read(LuCMOPT2) nFro(3)
-        read(LuCMOPT2) nFro(4)
-        read(LuCMOPT2) nFro(5)
-        read(LuCMOPT2) nFro(6)
-        read(LuCMOPT2) nFro(7)
-        read(LuCMOPT2) nFro(8)
-        read(LuCMOPT2) nSSDM
-
-        if (nSSDM /= 0) then
-          call mma_allocate(SSDM,nBas(0)*(nBas(0)+1)/2,2,nSSDM,Label='SSDM')
-          do iSSDM=1,nSSDM
-            do i=1,nBas(0)*(nBas(0)+1)/2
-              read(LuCMOPT2) SSDM(i,1,iSSDM),SSDM(i,2,iSSDM)
-            end do
+      if (nSSDM /= 0) then
+        call mma_allocate(SSDM,nBas(0)*(nBas(0)+1)/2,2,nSSDM,Label='SSDM')
+        do iSSDM=1,nSSDM
+          do i=1,nBas(0)*(nBas(0)+1)/2
+            read(LuCMOPT2) SSDM(i,1,iSSDM),SSDM(i,2,iSSDM)
           end do
-        end if
-
-        close(LuCMOPT2)
-
-        write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
-        write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
-
-        call mma_allocate(iOffAO,mSkal+1,Label='iOffAO')
-        MaxShlAO = 0
-        iOffAO(1) = 0
-        do iSh=1,mSkal
-          nBasI = iSD(2,iSh)*iSD(3,iSh)
-          if (nBasI > MaxShlAO) MaxShlAO = nBasI
-          iOffAO(iSh+1) = iOffAO(iSh)+nBasI
         end do
-        call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
+      end if
 
-        LuGAMMA_PT2 = isFreeUnit(65)
-        call PrgmTranslate('GAMMA',RealName,lRealName)
-        call MOLCAS_Open_Ext2(LuGamma_PT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
+      close(LuCMOPT2)
 
-        call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
-        call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
+      write(u6,*) 'Number of Non-Frozen Occupied Orbitals = ',nOcc(1)
+      write(u6,*) 'Number of     Frozen          Orbitals = ',nFro(1)
 
-    End If
+      call mma_allocate(iOffAO,mSkal+1,Label='iOffAO')
+      MaxShlAO = 0
+      iOffAO(1) = 0
+      do iSh=1,mSkal
+        nBasI = iSD(2,iSh)*iSD(3,iSh)
+        if (nBasI > MaxShlAO) MaxShlAO = nBasI
+        iOffAO(iSh+1) = iOffAO(iSh)+nBasI
+      end do
+      call mma_allocate(G_toc,MaxShlAO**4,Label='GtocCASPT2')
+
+      LuGAMMA_PT2 = isFreeUnit(65)
+      call PrgmTranslate('GAMMA',RealName,lRealName)
+      call MOLCAS_Open_Ext2(LuGamma_PT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.true.,nOcc(1)*nOcc(1)*8,'OLD',is_error)
+
+      call mma_allocate(WRK1,nOcc(1)*nOcc(1),Label='WRK1')
+      call mma_allocate(WRK2,MaxShlAO*nOcc(1),Label='WRK2')
+
+    end if
   end if
   Method = 'RASSCF  '
   !                                                                    *

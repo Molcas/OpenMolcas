@@ -25,8 +25,6 @@ C
       Integer NDIM, NDIMH, NTRIAL
       REAL*8 C(*),HC(*),HH(*)
       REAL*8 HD(NDIM)
-#include "rasdim.fh"
-#include "general.fh"
       Real*8, Allocatable:: XX(:), XC(:)
       Integer IST, IJ, L1, I, JST, J
       REAL*8, External :: DDot_

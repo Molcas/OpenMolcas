@@ -46,7 +46,6 @@
      &       ENERGY(NSTATE), EigVec(NSTATE,NSTATE)
 
       Real*8, parameter:: THRSH=1.0D-10
-#include "rassi.fh"
       Character(LEN=1), Parameter :: xyzchr(3)=['x','y','z']
       Integer IPAMFI(3),IPAM(3)
       Real*8 DTENS(3,3),GTENS(3,3),GSTENS(3,3),SOSTERM(9)

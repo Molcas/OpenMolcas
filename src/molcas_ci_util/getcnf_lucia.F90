@@ -18,12 +18,12 @@ subroutine GETCNF_LUCIA(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 !
 ! Adapted for LUCIA Jeppe Olsen, summer of 02
 
+use spinfo, only: MINOP, NCNFTP, NTYP
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: K, ICONF(*), IREFSM, NEL
 integer(kind=iwp), intent(out) :: KCNF(NEL), KTYP
-#include "spinfo.fh"
 integer(kind=iwp) :: ICNFB1, ICNFB2, IIBCL, IIBOP, JCL, JOCC, JOP, JTYP, KADD, KOCC, KORB, KREL, NJCNF, NOCC, NTEST
 ! Configuration list is assumed to be in the form used
 ! in LUCIA, i.e. doubly occupied orbitals are flagged by

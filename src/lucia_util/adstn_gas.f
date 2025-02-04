@@ -13,7 +13,13 @@
       SUBROUTINE ADSTN_GAS(OFFI,   IOBSM,   IOBTP,   ISPGP, ISPGPSM,
      &                     ISPGPTP,      I1,    XI1S,   NKSTR,    IEND,
      &                     IFRST,   KFRST,    KACT,  SCLFAC)
-      use strbas
+      use strbas, only:NSTSGP,ISTSGP,STSTM
+      use Constants, only: Zero
+      use lucia_data, only: NGAS
+      use lucia_data, only: IBSPGPFTP,ISPGPFTP,NELFGP,NSTFGP,NSTFSMSPGP
+      use lucia_data, only: IOBPTS,NOBPT,NOBPTS
+      use lucia_data, only: MXPNGAS,MXPNSMST
+      use csm_data, only: NSMST
 *
 *
 * Obtain mappings
@@ -39,32 +45,34 @@
 *. Input
 * ======
 *
-*./BIGGY
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "gasstr.fh"
-#include "cgas.fh"
-#include "csm.fh"
-#include "lucinp.fh"
+      IMPLICIT NONE
       Real*8 :: OFFI(*)
-*. Local scratch
-      INTEGER NELFGS(MXPNGAS), ISMFGS(MXPNGAS),ITPFGS(MXPNGAS)
-      INTEGER MAXVAL(MXPNGAS),MINVAL(MXPNGAS)
-      INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
-      INTEGER IISTSGP(MXPNSMST,MXPNGAS)
-*
-      INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
-      PARAMETER(MXLNGAS=20)
+      INTEGER IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,NKSTR,IEND,IFRST,KFRST,
+     &        KACT
+      REAL*8 SCLFAC
 *
 * =======
 *. Output
 * =======
 *
       INTEGER I1(*)
-      DIMENSION XI1S(*)
+      REAL*8 XI1S(*)
+*. Local scratch
+      INTEGER NELFGS(MXPNGAS), ISMFGS(MXPNGAS),ITPFGS(MXPNGAS)
+
+      INTEGER MAXVAL(MXPNGAS),MINVAL(MXPNGAS)
+      INTEGER NNSTSGP(MXPNSMST,MXPNGAS)
+      INTEGER IISTSGP(MXPNSMST,MXPNGAS)
+*
+      INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
+      INTEGER, PARAMETER :: MXLNGAS=20
+
+      INTEGER, External:: IELSUM
+      INTEGER NTEST,ISPGRPABS,KSM,KSPGRPABS,NORBTS,IZERO,IBORBSP,
+     &        IBORBSPS,NGASL,IGAS,NELB,NACGSOB,ISMST,IFIRST,NSTRINT,
+     &        NONEW,ISTSMM1,JSTSMM1,ISMGSN,NSTRII,IOFF,MULT,KACGRP,
+     &        KFIRST,KSTRBS,NSTRIK,ISAVE,IACSM,IBSTRINI,NSTB,NSTA,
+     &        NIAC,IIAC,NKAC,IKAC,NKSD,NKACT,IORB,IORBR,KBSTRIN
 *. Will be stored as an matrix of dimension
 * (NKSTR,*), Where NKSTR is the number of K-strings of
 *  correct symmetry . Nk is provided by this routine.
@@ -105,7 +113,6 @@ C?    END IF
       IF(NKSTR.EQ.0) GOTO 9999
 *
       NORBTS= NOBPTS(IOBTP,IOBSM)
-      ZERO =0.0D0
       CALL SETVEC(XI1S,ZERO,NORBTS*NKSTR)
       IZERO = 0
       CALL ISETVC(I1,IZERO,NORBTS*NKSTR)
@@ -367,7 +374,6 @@ C?      write(6,*) ' KACGRP ', KACGRP
 * PAM Mars-2006: This flush moved outside of this subroutine
 *      CALL MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'ADSTN ')
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(IEND)
@@ -375,4 +381,4 @@ c Avoid unused argument warnings
         CALL Unused_integer(KFRST)
         CALL Unused_integer(KACT)
       END IF
-      END
+      END SUBROUTINE ADSTN_GAS

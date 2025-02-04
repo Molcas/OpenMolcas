@@ -42,13 +42,13 @@ set (sources
      get_mxos.F90
      get_pivot_idx.F90
      get_pivot_idx_w.F90
+     in_place_diag.F90
+     in_place_square.F90
      indsft_ri_2.F90
      indsft_ri_3.F90
      inicho_ri.F90
      inicho_ri_xtras.F90
      init_tsk2.F90
-     in_place_diag.F90
-     in_place_square.F90
      integral_ri_2.F90
      integral_ri_3.F90
      integral_ricd.F90
@@ -60,8 +60,8 @@ set (sources
      mk_indkl.F90
      mk_iso2ind.F90
      mk_list2.F90
-     mk_ricd_shells.F90
      mk_ri_shells.F90
+     mk_ricd_shells.F90
      mk_tint_p.F90
      mk_tvt.F90
      mk_tvtf.F90

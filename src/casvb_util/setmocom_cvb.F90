@@ -15,11 +15,11 @@
 subroutine setmocom_cvb()
 
 use casvb_global, only: iact_mo, nact_mo, nbas_mo, nbasf_mo, nbasi_mo, nbasisq_mo, nbassqf_mo, nbassqi_mo, nsym_mo
+use jobiph_j, only: nash_j, nbas_j, nfro_j, nish_j, nsym_j
 use Definitions, only: iwp, u6
 
 implicit none
 #include "rasdim.fh"
-#include "jobiph_j.fh"
 integer(kind=iwp) :: i, ii, j
 logical(kind=iwp), parameter :: debug = .false.
 

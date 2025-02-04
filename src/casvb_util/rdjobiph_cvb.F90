@@ -14,25 +14,26 @@
 
 subroutine rdjobiph_cvb(fnjob)
 
-use Definitions, only: iwp, u6
+use jobiph_j, only: iadr15_j, iroot_j, ispin_j, lroots_j, lsym_j, nactel_j, nash_j, nbas_j, nconf_j, ndel_j, nelec3_j, nfro_j, &
+                    nhole1_j, nish_j, nroots_j, nrs1_j, nrs2_j, nrs3_j, nsym_j, title_j, weight_j
+use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*), intent(in) :: fnjob
 #include "rasdim.fh"
-#include "jobiph_j.fh"
-integer(kind=iwp) :: idisk, ii, lujob
+integer(kind=iwp) :: idisk, ii, ipt2_j, lujob
+real(kind=wp) :: potnuc_j
+character(len=LenIn8) :: name_j(mxorb)
+character :: header_j(144)
 logical(kind=iwp), parameter :: debug = .false.
 
 ! Output parameters (in jobiph_j):
 ! --------------------------------
 ! iadr15_j(15)
 ! nactel_j, ispin_j, nsym_j, lsym_j, nfro_j(mxsym), nish_j(mxsym), nash_j(mxsym), ndel_j(mxsym), nbas_j(mxsym)
-! name_j(mxorb)
 ! nconf_j
-! header_j(72)
 ! title_j(18)
-! potnuc_j
-! lroots_j, nroots_j, iroot_j(mxroot), nrs1_j(mxsym), nrs2_j(mxsym), nrs3_j(mxsym), nhole1_j, nelec3_j, ipt2_j
+! lroots_j, nroots_j, iroot_j(mxroot), nrs1_j(mxsym), nrs2_j(mxsym), nrs3_j(mxsym), nhole1_j, nelec3_j
 ! weight_j(mxroot)
 !w
 !w    NA                   NORB                NNA              NTASH

@@ -69,7 +69,7 @@ contains
     lambda = zero
     otxc = ""
 
-    call StatusLine("MCPDFT:","Reading in input")
+    call StatusLine("MCPDFT: ","Reading in input")
 
     call spoolinp(lu_input)
     rewind(lu_input)
@@ -99,7 +99,10 @@ contains
           mcpdft_options%is_hdf5_wfn = mh5_is_hdf5(mcpdft_options%wfn_file)
 #endif
         endif
-      case("KSDF")
+      case('FUNC','KSDF')
+        if(command == 'KSDF') then
+          call WarningMessage(1,'Deprecation warning: KSDF should be replaced with FUNC keyword')
+        endif
         if(.not. next_non_comment(lu_input,buffer)) then
           call EOFError(buffer)
         endif
@@ -181,6 +184,8 @@ contains
       call get_iScalar('Relax CASSCF root',mcpdft_options%rlxroot)
     endif
     call put_iScalar('NumGradRoot',mcpdft_options%rlxroot)
+
+    mcpdft_options%grad = decide_on_grad(mcpdft_options%grad)
 
     call verify_input()
 
@@ -299,6 +304,37 @@ contains
     endif
 
   endsubroutine
+
+  !> @brief decide on calculating potential terms for analytical gradients
+  !>
+  !> @details
+  !>   If grad is true, determines if we still need gradients terms given
+  !>   request for numerical gradients in GATEWAY, or if this is calculation
+  !>   is being called from programs LAST_ENERGY or NUMERICAL_GRADIENT
+  !>
+  !> @author Matthew R. Hennefarth
+  !>
+  !> @param[in] grad whether analytical potential terms were requested to be computed in input
+  function decide_on_grad(grad)
+    use UnixInfo,only:SuperName
+    logical(kind=iwp) :: decide_on_grad
+    logical(kind=iwp),intent(in) :: grad
+
+    logical(kind=iwp) :: do_numgrad
+    integer(kind=iwp) :: dng
+
+    if(.not. grad) then
+      decide_on_grad = .false.
+      return
+    endif
+    ! numerical gradients requested in GATEWAY
+    call qpg_iscalar('DNG',do_numgrad)
+    if(do_numgrad) then
+      call get_iscalar('DNG',DNG)
+      do_numgrad = (dng == 1)
+    endif
+    decide_on_grad = .not.(do_numgrad .or. supername(:11) == 'last_energy' .or. supername(:18) == 'numerical_gradient')
+  endfunction decide_on_grad
 
   subroutine EOFError(buffer)
     use definitions,only:u6

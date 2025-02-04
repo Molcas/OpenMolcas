@@ -25,11 +25,11 @@ subroutine WelInt( &
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem1
+use Basis_info, only: ExpB, r0
 use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "int_interface.fh"
-#include "wldata.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, ik, iOff, ip, ip1, ip2, ip3, ip4, ip5, ipA, ipGri, ipGrin, iPrint, ipScr, iPxyz, iRout, jsum, k
 

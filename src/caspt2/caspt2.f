@@ -12,9 +12,8 @@
 *               2019, Stefano Battaglia                                *
 ************************************************************************
       SUBROUTINE CASPT2(IRETURN)
-      USE SUPERINDEX
       USE INPUTDATA, ONLY: INPUT
-      USE PT2WFN
+      use PT2WFN, ONLY: PT2WFN_ESTORE,PT2WFN_DATA
       use fciqmc_interface, only: DoFCIQMC
       use caspt2_global, only: iPrGlb
       use caspt2_global, only: do_grad, nStpGrd, iStpGrd, IDSAVGRD
@@ -24,8 +23,7 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
-      use EQSOLV
-      use ChoCASPT2
+      use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
       IMPLICIT NONE
       INTEGER IRETURN
 *----------------------------------------------------------------------*
@@ -77,7 +75,6 @@ C
 #include "warnings.h"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
       CHARACTER(len=60) STLNE2
 * Timers
       REAL*8  CPTF0, CPTF10, CPTF11, CPTF12, CPTF13, CPTF14,
@@ -259,7 +256,7 @@ C       Call EQCTL2(ICONV)
 
          Write(STLNE2,'(A,I0)')'Solve CASPT2 eqs. for state ',
      &                               MSTATE(JSTATE)
-         Call StatusLine('CASPT2: ',TRIM(STLNE2))
+         Call StatusLine('CASPT2: ',STLNE2)
          CALL EQCTL2(ICONV)
 
 * Save the final caspt2 energy in the global array ENERGY():
@@ -315,33 +312,38 @@ C       Call EQCTL2(ICONV)
 * Note: Quantities computed in gradients section can also
 * be used efficiently for computing Multi-State HEFF.
 * NOTE: atm the MS-CASPT2 couplings computed here are wrong!
-         IF (IFDENS.AND..NOT.IFGRDT0) THEN
-           IF (IPRGLB.GE.VERBOSE) THEN
-              WRITE(6,*)
-              WRITE(6,'(20A4)')('****',I=1,20)
-              IF(NSTATE.GT.1) THEN
-              WRITE(6,*)' CASPT2 GRADIENT/MULTI-STATE COUPLINGS SECTION'
-              ELSE
-                 WRITE(6,*)' CASPT2 GRADIENT SECTION'
-              END IF
-           END IF
-           Call StatusLine('CASPT2: ','Multi-State couplings')
-* SVC: for now, this part is only performed on the master node
-#ifdef _MOLCAS_MPP_
-           IF (Is_Real_Par()) THEN
-             Call Set_Do_Parallel(.False.)
-             IF (KING()) CALL GRDCTL(HEFF)
-             Call Set_Do_Parallel(.True.)
-             CALL GASync()
-           ELSE
-#endif
-             CALL GRDCTL(HEFF)
-#ifdef _MOLCAS_MPP_
-           END IF
-#endif
-         END IF
 
-         IF ((.NOT.IFDENS.OR.IFGRDT0).AND.IFMSCOUP) THEN
+! The following gradient section computes neither gradient-related
+! quantities and effective Hamiltonian elements correctly. Commenting
+! it out must be a sensible solution.
+        !IF (IFDENS.AND..NOT.IFGRDT0) THEN
+        !  IF (IPRGLB.GE.VERBOSE) THEN
+        !     WRITE(6,*)
+        !     WRITE(6,'(20A4)')('****',I=1,20)
+        !     IF(NSTATE.GT.1) THEN
+        !     WRITE(6,*)' CASPT2 GRADIENT/MULTI-STATE COUPLINGS SECTION'
+        !     ELSE
+        !        WRITE(6,*)' CASPT2 GRADIENT SECTION'
+        !     END IF
+        !  END IF
+        !  Call StatusLine('CASPT2: ','Multi-State couplings')
+* SVC: for now, this part is only performed on the master node
+!#ifdef _MOLCAS_MPP_
+        !  IF (Is_Real_Par()) THEN
+        !    Call Set_Do_Parallel(.False.)
+        !    IF (KING()) CALL GRDCTL(HEFF)
+        !    Call Set_Do_Parallel(.True.)
+        !    CALL GASync()
+        !  ELSE
+!#endif
+        !    CALL GRDCTL(HEFF)
+!#ifdef _MOLCAS_MPP_
+        !  END IF
+!#endif
+        !END IF
+
+!        IF ((.NOT.IFDENS.OR.IFGRDT0).AND.IFMSCOUP) THEN
+         IF (IFMSCOUP) THEN
 C     If this was NOT a gradient, calculation, then the multi-state
 C     couplings are more efficiently computed via three-body
 C     transition density matrices.
@@ -532,7 +534,7 @@ C     transition density matrices.
         CALL PT2WFN_ESTORE(HEFF)
 
 * Store rotated states if XMUL + NOMUL
-        IF ((IFXMS .or. IFRMS) .AND. (.NOT.IFMSCOUP)) CALL PT2WFN_DATA
+        IF ((IFXMS .or. IFRMS) .AND. (.NOT.IFMSCOUP)) CALL PT2WFN_DATA()
 
 * store information on runfile for geometry optimizations
         Call Put_iScalar('NumGradRoot',iRlxRoot)

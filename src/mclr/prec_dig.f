@@ -31,7 +31,7 @@
 ************************************************************************
       use MCLR_Data, only: nrec
       use input_mclr, only: nSym,nAsh,nIsh,nBas,nRS1,nRS2,nRS3,iMethod,
-     &                      iCASSCF,TimeDep
+     &                      TimeDep
       Implicit None
       Real*8 rpre(*)
       Integer idsym
@@ -94,7 +94,7 @@
             Temp3(1:nD**2)=0.0D0
             ibb=nBas(is)*(ib-1)+ib-2
 *
-            If (iMethod.eq.iCASSCF) Then
+            If (iMethod.eq.2) Then
 *
 *              G
 *               iaib

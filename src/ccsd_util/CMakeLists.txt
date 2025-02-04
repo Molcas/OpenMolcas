@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     add.F90
      add10.F90
      add21.F90
      add22.F90
@@ -18,12 +19,11 @@ set (sources
      add42.F90
      add43.F90
      add44.F90
-     add.F90
      calcr.F90
      calcrh1.F90
      ccmult.F90
-     ccsd_exc.F90
      ccsd.F90
+     ccsd_exc.F90
      ccsd_global.F90
      contf12.F90
      contf14.F90
@@ -38,8 +38,8 @@ set (sources
      contt147.F90
      contt29.F90
      contw1.F90
-     diiscf.F90
      diis.F90
+     diiscf.F90
      diish1.F90
      diish2.F90
      diish3.F90
@@ -53,13 +53,13 @@ set (sources
      divthelp1.F90
      divthelp2.F90
      divthelp3.F90
+     expand.F90
      expand0.F90
      expand1.F90
      expand2.F90
      expand3.F90
      expand40.F90
      expand41.F90
-     expand.F90
      extstack.F90
      extstackhlp1.F90
      fack.F90
@@ -91,6 +91,7 @@ set (sources
      initfiles.F90
      intermezzo.F90
      joinamplitudes.F90
+     map.F90
      map11.F90
      map21.F90
      map22.F90
@@ -98,7 +99,6 @@ set (sources
      map32.F90
      map41.F90
      map42.F90
-     map.F90
      max5.F90
      max5h1.F90
      max5h2.F90
@@ -138,14 +138,14 @@ set (sources
      saverest2.F90
      set0.F90
      sumabdistt.F90
-     sumoverab.F90
      sumovera.F90
+     sumoverab.F90
      unpackab1.F90
      unpackab2.F90
      unpackab3.F90
+     unpckhelp1.F90
      unpckhelp10.F90
      unpckhelp11.F90
-     unpckhelp1.F90
      unpckhelp2.F90
      unpckhelp3.F90
      unpckhelp4.F90

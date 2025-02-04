@@ -14,23 +14,24 @@ set (sources
      cho_gene.F90
      cho_motra.F90
      cho_motra_inner.F90
+     cho_tr_drv.F90
+     cho_tra.F90
+     cho_traa.F90
+     cho_tractl.F90
+     cho_tras.F90
+     cho_twoel.F90
      chomp2_gene.F90
      chomp2_traa.F90
      chomp2_tractl.F90
      chomp2_tras.F90
      chomp2_twoel.F90
-     cho_traa.F90
-     cho_tractl.F90
-     cho_tra.F90
-     cho_tras.F90
-     cho_tr_drv.F90
-     cho_twoel.F90
      coul.F90
      def_subblocke.F90
      def_tcvx.F90
      exch.F90
      filler.F90
      get_nvnode.F90
+     intgrl.F90
      lenint.F90
      local_triang.F90
      mem_est.F90
@@ -45,10 +46,9 @@ set (sources
      prodsa_2.F90
      prodsa_2t.F90
      prodss_1.F90
-     put_tra_comm.F90
+     rbuf_tra2.F90
      rbuff_tra2.F90
      rbufo_tra2.F90
-     rbuf_tra2.F90
      rdint2.F90
      tr2nsa1.F90
      tr2nsa2.F90
@@ -56,11 +56,15 @@ set (sources
      tr2nsb.F90
      tr2sq.F90
      tractl.F90
+     trafo.F90
      transform_procedures.F90
      transp_MOs.F90
+     tratoc.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     tratoc.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

@@ -57,6 +57,7 @@
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
       use rasscf_lucia, only: RF1, RF2
       use rasscf_global, only: DoNEVPT2Prep, DoDelChk
+      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
 #endif
       use OneDat, only: sNoNuc, sNoOri
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
@@ -85,6 +86,8 @@
       use rasscf_lucia, only: DStmp, Dtmp
       use raswfn, only: wfn_iter, wfn_energy, wfn_transdens,
      &                  wfn_transsdens
+      use rasscf_global, only: lRoots
+      use general_data, only: NACTEL,STSYM
 #endif
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
@@ -113,26 +116,21 @@
      &                         THRTE, TMin, Tot_Charge, EMY,
      &                         VIA_DFT, iRoot, Weight, iAdr15, Ener,
      &                         Conv, DoDMRG, iCIRST, KSDFT_Temp
-#ifdef _DMRG_
-      use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
-#endif
-#ifdef _HDF5_
-      use rasscf_global, only: lRoots
-#endif
+      use SplitCas_Data, only: DoSPlitCas,IterSplit,lRootSplit
+      use printlevel, only: DEBUG,USUAL,TERSE
+      use output_ras, only: LF,IPRLOC,RC_CI,RC_SX
+      use general_data, only: NALTER,ITERFILE,NSYM,INVEC,ISPIN,NCONF,
+     &                        NCRVEC,JOBIPH,NASH,NBAS,NDEL,NFRO,
+     &                        NISH,NRS1,NRS2,NRS3,NTOT,NTOT1,NTOT2
+      use spinfo, only: DOBKAP
 
       Implicit None
 
 #include "rasdim.fh"
 #include "warnings.h"
-#include "general.fh"
-#include "splitcas.fh"
-#include "bk_approx.fh"
-#include "output_ras.fh"
 #include "timers.fh"
-#include "lucia_ini.fh"
-#include "ciinfo.fh"
 
-      Integer IReturn
+      Integer IReturn, RC_RAS
       Logical DSCF
       Logical lTemp, lOPTO
       Character(LEN=80) Line
@@ -193,7 +191,7 @@
       Integer, External :: isStructure
 
 * Set status line for monitor:
-      Call StatusLine('RASSCF:',' Just started.')
+      Call StatusLine('RASSCF: ','Just started.')
 
 * Set the return code(s)
       ITERM  = 0
@@ -228,7 +226,7 @@
         Write (6,*) 'integral file.'
         Call Quit(_RC_INTERNAL_ERROR_)
        End If
-       Call StatusLine('RASSCF:',' Read-in ONEINT')
+       Call StatusLine('RASSCF: ','Read-in ONEINT')
       If (IfVB.eq.2) go to 10
 
 *
@@ -275,7 +273,7 @@
 * Printed program header:
 
 * Process the input:
-      Call StatusLine('RASSCF:',' Processing input')
+      Call StatusLine('RASSCF: ','Processing input')
       Call Proc_Inp(DSCF,lOPTO,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
@@ -472,7 +470,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 *
 ************************************************************************
 
-      Call StatusLine('RASSCF:',' Compute wave function.')
+      Call StatusLine('RASSCF: ','Compute wave function.')
       If ( IPRLEV.GE.2 .AND..NOT.lOPTO) then
        Write(LF,*)
        Write(LF,'(6X,A)') repeat('*',120)
@@ -627,8 +625,8 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       end if
 
       ITER=ITER+1
-      Write(STLNE2,'(A12,I3)')' Iteration ',ITER
-      Call StatusLine('RASSCF:',STLNE2)
+      Write(STLNE2,'(A12,I3)')'Iteration ',ITER
+      Call StatusLine('RASSCF: ',STLNE2)
       Call Timing(dum1,dum2,Certina_1,dum3)
 #ifdef _DMRG_
       ! Leon 27/11/2017: Skip the first CI iteration if we're using
@@ -1602,7 +1600,7 @@ cGLM some additional printout for MC-PDFT
 
       IF (IFINAL.EQ.1) GOTO 2000
       IF (DE.GT.1.0D0) THEN
-        Call StatusLine('RASSCF:','No convergence.')
+        Call StatusLine('RASSCF: ','No convergence.')
         Write(LF,*)
         Write(LF,'(6X,A)') repeat('=',120)
         Call WarningMessage(2,'Rasscf energy diverges.')
@@ -1619,8 +1617,8 @@ cGLM some additional printout for MC-PDFT
         GOTO 2000
       ENDIF
       IF(ITER.LT.MAXIT) THEN
-        Write(STLNE2,'(A12,I3)')' Iteration ',ITER
-        Call StatusLine('RASSCF converged:',STLNE2)
+        Write(STLNE2,'(A12,I3)')'Iteration ',ITER
+        Call StatusLine('RASSCF converged: ',STLNE2)
         IF(ABS(DE).GT.THRE) GO TO 1000
         IF(ABS(CBLBM).GT.THRSX) GO TO 1000
         IF(ABS(ROTMAX).GT.THRTE) GO TO 1000
@@ -1651,8 +1649,8 @@ cGLM some additional printout for MC-PDFT
       ELSE
         IF(IPRLEV.ge.TERSE) Write(LF,'(6X,A,I3,A)')
      &        'No convergence after',ITER,' iterations'
-        Write(STLNE2,'(A12,I3)')' Iteration ',ITER
-        Call StatusLine('RASSCF max iter:',STLNE2)
+        Write(STLNE2,'(A12,I3)')'Iteration ',ITER
+        Call StatusLine('RASSCF max iter: ',STLNE2)
         IFINAL=1
         ITERM=16
         GOTO 1000
@@ -1708,9 +1706,9 @@ c Clean-close as much as you can the CASDFT stuff...
          End Do
         End If
       IF (NROOTS.GT.1) THEN
-       Call StatusLine('RASSCF:','Compute final CI vectors')
+       Call StatusLine('RASSCF: ','Compute final CI vectors')
       ELSE
-       Call StatusLine('RASSCF:','Compute final CI vector')
+       Call StatusLine('RASSCF: ','Compute final CI vector')
       END IF
 *
 * Transform two-electron integrals
@@ -1813,7 +1811,7 @@ c Clean-close as much as you can the CASDFT stuff...
 * NATORB args: Arg1 is current CMO coeffs, used in CI;
 *  all the rest should be regarded as scratch.
 *
-      Call StatusLine('RASSCF:','Compute natural orbitals')
+      Call StatusLine('RASSCF: ','Compute natural orbitals')
       IPR=0
       IF(IPRLOC(6).EQ.4) IPR=5
       IF(IPRLOC(6).EQ.5) IPR=10
@@ -1913,7 +1911,7 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
 ************************************************************************
 *                                                                      *
 
-      Call StatusLine('RASSCF:','Printing results')
+      Call StatusLine('RASSCF: ','Printing results')
       IF (IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
         Write(LF,*)
         Write(LF,'(6X,A)') repeat('*',120)
@@ -2030,7 +2028,7 @@ c deallocating TUVX memory...
       end if
 
 
-      Call StatusLine('RASSCF:','Finished.')
+      Call StatusLine('RASSCF: ','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
       if(ifvb.eq.1) call make_close_rvb
 cvv call to grid is moved up, in order to call clssew safely..
@@ -2046,6 +2044,10 @@ c      End If
       Call ClsFls_RASSCF()
 
 *
+c Rc_RAS  =  0 : The RASSCF wave function is converged
+c         = 16 : The RASSCF wave function is not(!) converged
+c         = 99 : The RASSCF energy is divergent or
+c                the CI and SX energies differ
       Rc_RAS = ITERM
       Rc_RAS = Max(RC_RAS,Rc_CI)
       Rc_RAS = Max(RC_RAS,Rc_SX)

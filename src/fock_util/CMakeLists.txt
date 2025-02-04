@@ -22,8 +22,8 @@ set (sources
      cho_focktwo_red.F90
      cho_fscf.F90
      cho_ftwo_mo.F90
-     cho_geth1.F90
      cho_get_mo.F90
+     cho_geth1.F90
      cho_getshfull.F90
      cho_lk_casscf.F90
      cho_lk_maxvecperbatch.F90
@@ -32,23 +32,21 @@ set (sources
      cho_lk_rassi_x.F90
      cho_lk_scf.F90
      cho_lk_screeningthreshold.F90
-     #cho_lr_mos.F90    These two files are #include'd in
-     #choras_drv.F90    the fock_util_interface module
      cho_rassi_twxy.F90
-     choscf_mem.F90
      cho_sum.F90
      cho_x_quit.F90
+     choscf_mem.F90
      coul_dmb.F90
      findmax.F90
      fmmfck.F90
-     focktwo_drv.F90
-     focktwo.F90
      fock_util_global.F90
      fock_util_interface.F90
+     focktwo.F90
+     focktwo_drv.F90
      fold_mat.F90
      fold_tmat.F90
-     ftwo_drv.F90
      ftwo.F90
+     ftwo_drv.F90
      get_tuvx.F90
      getumat_t1.F90
      mk_ishp_rs.F90

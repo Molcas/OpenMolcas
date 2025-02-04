@@ -33,18 +33,24 @@
 * IREORD             : Reordering array going from lexical
 *                      order to symmetry and occupation type order.
 *
-      IMPLICIT REAL*8           ( A-H,O-Z)
+      use lucia_data, only: NACOB,NORB1,NORB2,NORB3
+      IMPLICIT None
+      INTEGER NEL,NELMN1,NELMX1,NELMN3,NELMX3,IGRP,NOCTYP,NSMST,IOTYP,
+     &        IPRNT
 *. Input
-      DIMENSION ISTASO(NSMST,*)
-      INTEGER Z(NACOB,NEL)
+      INTEGER ISTASO(NSMST,*)
 *.Orbinp
-#include "mxpdim.fh"
-#include "orbinp.fh"
+      INTEGER Z(NACOB,NEL)
 *
 *.Output
       INTEGER STRING(NEL,*),IREORD(*)
 *.Scratch arrays
-      DIMENSION IOC(*),LSTASO(NOCTYP,NSMST)
+      INTEGER IOC(*),LSTASO(NOCTYP,NSMST)
+
+      INTEGER NTEST0,NTEST,NSTRIN,IORB1F,IORB1L,IORB2F,IORB2L,
+     &        IORB3F,IORB3L,IEL1,IEL3,IEL2,IFRST1,NONEW1,IFRST2,IFRST3,
+     &        NONEW2,NONEW3,ISYM,ITYP,LEXCI,LACTU,NPR,ISTRIN,LSTRIN,
+     &        KSTRIN,IEL,ISTRNM,ISYMST
 *
       CALL ISETVC(LSTASO,0,NOCTYP*NSMST)
       NTEST0 = 00
@@ -184,7 +190,6 @@ C                      ISTRNM(IOCC,NACTOB,NEL,Z,NEWORD,IREORD)
         CALL IWRTMA(IREORD,1,NPR,1,NPR)
       END IF
 
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IOTYP)
-      END
+      END SUBROUTINE GENSTR_GAS

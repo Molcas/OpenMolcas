@@ -14,14 +14,17 @@ C DISC VERSION OF INPROD
 C
 C LBLK DEFINES STRUCTURE OF FILE
 C
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
-      REAL*8 INPROD
-      DIMENSION VEC1(*),VEC2(*)
+      use Constants, only: Zero
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      REAL*8 VEC1(*),VEC2(*)
+      INTEGER LU1,LU2,IREW,LBLK
+
+      REAL*8 INPROD,X
       LOGICAL DIFVEC
-      DIMENSION IDUMMY(1)
+      INTEGER IDUMMY(1),NBL1,KBLK,IAMPACK,IMZERO
 C
-      X = 0.0D0
+      X = Zero
       IF( LU1 .NE. LU2 ) THEN
         DIFVEC = .TRUE.
       ELSE
@@ -85,5 +88,4 @@ C?         CALL WRTMAT(VEC2,1,NBL1,1,NBL1)
 C
       INPRDD = X
 C
-      RETURN
-      END
+      END FUNCTION INPRDD

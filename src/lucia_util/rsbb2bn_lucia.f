@@ -87,43 +87,45 @@
 *
 * Last change : Aug 2000
 *
+      use Constants, only: Zero, One
       USE Para_Info, ONLY: MyRank, nProcs
-      IMPLICIT REAL*8(A-H,O-Z)
+      use lucia_data, only: MXPOBS,MXPNGAS
+      IMPLICIT NONE
+      INTEGER IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,
+     &        NJA,NJB,IAGRP,IBGRP,NGAS,MXPNGASX,MAXK,NSMOB,NSMST,NSMSX,
+     &        NSMDX,MXPOBSX,IUSEAB,NTESTG,NSEL2E,IUSE_PH
+      REAL*8 SCLFAC
 *. General input
-#include "mxpdim.fh"
 #include "timers.fh"
       INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
       INTEGER NOBPTS(MXPNGAS,*)
 *
       INTEGER ISEL2E(*)
 *.Input
-      DIMENSION CB(*),IBOC(*),JBOC(*),IAOC(*),JAOC(*),IPHGAS(*)
+      REAL*8 CB(*)
+      INTEGER IBOC(*),JBOC(*),IAOC(*),JAOC(*),IPHGAS(*)
 *.Output
-      DIMENSION SB(*)
+      REAL*8 SB(*)
 *.Scratch
-      DIMENSION SSCR(*),CSCR(*)
-      DIMENSION I1(*),XI1S(*),I2(*),XI2S(*)
-      DIMENSION I3(*),XI3S(*),I4(*),XI4S(*)
-      DIMENSION XINT(*), XINT2(*)
-      DIMENSION CJRES(*),SIRES(*)
+      REAL*8 SSCR(*),CSCR(*)
+      INTEGER I1(*),I2(*),I3(*),I4(*)
+      REAL*8 XI1S(*),XI2S(*),XI3S(*),XI4S(*)
+      REAL*8 XINT(*), XINT2(*)
+      REAL*8 CJRES(*),SIRES(*)
 *
-C-jwk-cleanup      DIMENSION H(MXPTSOB*MXPTSOB)
 *.Local arrays
-      DIMENSION ITP(20),JTP(20),KTP(20),LTP(20)
-C-jwk-cleanup      DIMENSION IOP_TYP(2),IOP_AC(2),IOP_REO(2)
+      INTEGER ITP(20),JTP(20),KTP(20),LTP(20)
 *
-      DIMENSION IJ_TYP(2),IJ_DIM(2),IJ_REO(2),IJ_SYM(2)
-c      DIMENSION IJ_AC(2)
-      DIMENSION KL_TYP(2),KL_DIM(2),KL_REO(2),KL_SYM(2)
-c      DIMENSION KL_AC(2)
+      INTEGER IJ_TYP(2),IJ_DIM(2),IJ_REO(2),IJ_SYM(2)
+      INTEGER KL_TYP(2),KL_DIM(2),KL_REO(2),KL_SYM(2)
 *
-      DIMENSION IASPGP(20),IBSPGP(20),JASPGP(20),JBSPGP(20)
-*. Arrays for reorganization
-C-jwk-cleanup      DIMENSION NADDEL(6),IADDEL(4,6),IADOP(4,6),ADSIGN(6)
-C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
-*
-
-#include "oper.fh"
+      INTEGER IASPGP(20),IBSPGP(20),JASPGP(20),JBSPGP(20)
+      INTEGER NTESTL,NTEST,IJSM,KLSM,NIJTYP,NKLTYP,IJTYP,ITYP,JTYP,ISM,
+     &        JSM,NI,NJ,IJAC,IDOCOMP,NKAEFF,NKASTR,NKABTC,NKABTCSZ,
+     &        IKABTC,KABOT,KATOP,LKABTC,JJ,KLTYP,KTYP,LTYP,IAMOKAY,
+     &        JSEL2E,KSM,LSM,NK,NL,KLAC,IKORD,NKBSTR,IXCHNG,ICOUL,
+     &        IROUTE,II,IEND,IFRST,KACT,KFRST
+      REAL*8 SIGNIJ2,WALL1,WALL0,FACS,SIGNKL,CPU,CPU0,CPU1,WALL
 *
       NTESTL = 000
       NTEST = MAX(NTESTG,NTESTL)
@@ -135,9 +137,6 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
         WRITE(6,*) ' =============== '
 *
       END IF
-*. A few constants
-      ZERO = 0.0D0
-      ONE = 1.0D0
 *. Groups defining each supergroup
       CALL GET_SPGP_INF(IATP,IAGRP,IASPGP)
       CALL GET_SPGP_INF(JATP,IAGRP,JASPGP)
@@ -147,7 +146,7 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
 *. Symmetry of allowed excitations
       IJSM = STSTSX(IASM,JASM)
       KLSM = STSTSX(IBSM,JBSM)
-      IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
+      IF(IJSM.EQ.0.OR.KLSM.EQ.0) Return
       IF(NTEST.GE.600) THEN
         write(6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
         write(6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
@@ -157,7 +156,7 @@ C    &          SIGNREO,NADOP,NADDEL,IADDEL,ADSIGN)
      &                     JBOC,   IPHGAS)
       CALL SXTYP2_GAS(   NIJTYP,      ITP,      JTP,     NGAS,     IAOC,
      &                     JAOC,   IPHGAS)
-      IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
+      IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) Return
 
       DO 2001 IJTYP = 1, NIJTYP
 *
@@ -414,9 +413,6 @@ c              END IF
  2001 CONTINUE
 *     ^ End of loop over IJTYP
 *
- 9999 CONTINUE
-*
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(MXPNGASX)
@@ -428,4 +424,4 @@ c Avoid unused argument warnings
         CALL Unused_integer(IUSE_PH)
         CALL Unused_real_array(XINT2)
       END IF
-      END
+      END SUBROUTINE RSBB2BN_LUCIA

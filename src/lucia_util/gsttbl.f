@@ -30,13 +30,20 @@
 *
 * ISCALE, SCLFAC added May 97
 *
-      IMPLICIT REAL*8           (A-H,O-Z)
-#include "io_util.fh"
-      DIMENSION C(*),CTT(*),NSASO(NSMST, *),NSBSO(NSMST, *)
-      DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
-      DIMENSION SCR(*)
-      DIMENSION ISGVST(1)
-      DIMENSION IDUMMY(1)
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      INTEGER IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,IDC,LUC,NSMST,ISCALE
+      REAL*8 PSSIGN,PLSIGN,SCLFAC
+      REAL*8 C(*),CTT(*)
+      INTEGER NSASO(NSMST, *),NSBSO(NSMST, *)
+      INTEGER IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
+      REAL*8 SCR(*)
+
+      INTEGER ISGVST(1)
+      INTEGER IDUMMY(1)
+      INTEGER LBL,NO_ZEROING,IMZERO,NAST,NBST,IBASE,NELMNT,NRI,NCI,
+     &        IAMPACK,LCOMB,LDET
+      REAL*8 PSIGN
 *
 C?    write(6,*) ' GSTTBL  ,IATP,IASM,IBTP,IBSM,ISCALE'
 C?    write(6,*)            IATP,IASM,IBTP,IBSM,ISCALE
@@ -188,7 +195,6 @@ c               END IF
          END IF
       END IF
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer_array(IOCOC)
-      END
+      END SUBROUTINE GSTTBL

@@ -11,7 +11,8 @@
 * Copyright (C) 1990,1994,1995, Jeppe Olsen                            *
 ************************************************************************
       SUBROUTINE FREESTR()
-      Use Str_Info
+      Use Str_Info, only: NSTTYP,STR,ITYP_DUMMY,IUNIQMP,INDMAP,INUMAP,
+     &                    ISTAC,IUNIQTP
       use stdalloc, only: mma_deallocate
 *
 * Free pointers for saving information about strings and
@@ -36,7 +37,6 @@
 * Modified for deallocation, Sept. 25, 2005.
       IMPLICIT None
 *
-#include "csm.fh"
       INTEGER ITYP,IITYP,IIIITEST,IMNEW,JJTYP,IANEQ,ICREQ
 *. Start of string information
 * =====================================================================

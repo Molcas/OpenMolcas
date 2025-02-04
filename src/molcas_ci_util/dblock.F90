@@ -18,12 +18,11 @@ subroutine DBLOCK(D)
 ! ********** IBM-3090 release 88 10 10 **********
 
 use rasscf_global, only: ITRI
+use general_data, only: NASH, NSYM
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: D(*)
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: IA, ISYM, ITU, NA, NAT, NAU, NTU
 
 IA = NASH(1)

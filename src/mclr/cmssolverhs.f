@@ -49,7 +49,7 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use cmslag,   only : ResQaaLag2
       use Constants, only: Pi
-      use input_mclr, only: nRoots,Epsilon
+      use input_mclr, only: nRoots,Eps
       Implicit None
 #include "warnings.h"
 ****** Output
@@ -88,7 +88,7 @@
 
       write(6,'(6X,A37,2X,ES17.9)')
      & 'Residual in Qaa Lagrange Multipliers:',SQRT(ResQaaLag2)
-      IF(ResQaaLag2.gt.epsilon**2) THEN
+      IF(ResQaaLag2.gt.Eps**2) THEN
         write(6,*)
         write(6,'(6X,A)')
      &    'ERROR: RESIDUAL(S) FOR INTERMEDIATE STATE TOO BIG!'

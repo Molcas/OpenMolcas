@@ -43,7 +43,7 @@ CMSO=Newton
 CMTH=1.0d-10
 
 &MCPDFT
-KSDFT=T:PBE
+FUNC=T:PBE
 MSPD
 
 >>FILE InitOrb

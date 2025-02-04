@@ -19,9 +19,9 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Cntrl, only: NSTATE, MLTPLT
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NTDMAB,NASHT,NTDMZZ,NCMO,CHFRACMEM,NBASF
 
       IMPLICIT None
-#include "rassi.fh"
       type(DSBA_Type) :: DLT(1), SDLT(1), Salpha(1), Sbeta(1)
       integer(kind=iwp) :: nbas_tot(1), nbas_A(1), nbas_B(1),
      &        iRC, NNLTD, istate, jstate, run,

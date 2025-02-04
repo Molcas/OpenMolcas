@@ -39,7 +39,7 @@ character(len=64) :: sline
 !!! density0 (can't be) used as a temporary storage for dm in required basis
 
 write(sline,'(f10.3)') time*auToFs
-call StatusLine('RhoDyn: current time ',trim(sline))
+call StatusLine('RhoDyn: current time ',sline)
 
 call mh5_put_dset(out_tout,[time*auToFs],[1],[popcount-1])
 

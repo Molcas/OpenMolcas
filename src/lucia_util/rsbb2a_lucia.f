@@ -74,9 +74,13 @@
 *
 * Jeppe Olsen, Winter of 1991
 *
+      use Constants, only: Zero, Half,One
       USE Para_Info, ONLY: MyRank, nProcs
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
+      use lucia_data, only: MXPOBS,MXPNGAS,MXPTSOB
+      IMPLICIT NONE
+      INTEGER ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NSCOL,NGAS,MAXI,MAXK,
+     &        NSMOB,NSMST,NSMDX
+      REAL*8 SCLFAC
 *. General input
       INTEGER ADSXA(MXPOBS,2*MXPOBS)
       INTEGER STSTDX(NSMST,NSMST)
@@ -85,26 +89,38 @@
       INTEGER IPHGAS(NGAS)
 *
 *.Input
-      DIMENSION CB(*)
+      REAL*8 CB(*)
       INTEGER ISOC(NGAS),ICOC(NGAS)
 *.Output
-      DIMENSION SB(*)
+      REAL*8 SB(*)
 *.Scatch
-      DIMENSION SSCR(*),CSCR(*),XINT(*)
-      DIMENSION I1(MAXK,*),XI1S(MAXK,*)
-c      DIMENSION RIKSX(MXSXBL,4),RKJSX(MXSXBL,4)
+      REAL*8 SSCR(*),CSCR(*),XINT(*)
+      INTEGER I1(MAXK,*)
+      REAL*8 XI1S(MAXK,*)
 *.Local arrays
-      DIMENSION ITP(256),JTP(256),KTP(256),LTP(256)
-C-jwk-cleanup      INTEGER I4_DIM(4),I4_SM(4)
-      DIMENSION I4_TP(4),I4_REO(4),ISCR(4)
+      INTEGER ITP(256),JTP(256),KTP(256),LTP(256)
+      INTEGER I4_TP(4),I4_REO(4),ISCR(4)
       INTEGER I4_AC(4)
 *
       INTEGER IKBT(3,8),IKSMBT(2,8),JLBT(3,8),JLSMBT(2,8)
 *
       Real*8, Allocatable:: SCR(:)
-      Real*8 :: FACX=0.0D0
+      Real*8 :: FACX=Zero
+      Integer IFRST,JFRST,IDXSM,IDXTYP,NDXTYP,ITYP,JTYP,KTYP,LTYP,
+     &        ITYP_ORIG,JTYP_ORIG,KTYP_ORIG,LTYP_ORIG,NIJKL1,IJKL,NPART,
+     &        NPARTSZ,MI,MJ,MK,ML,IOBSM,MXPAIR,IKOBSM,JLOBSM,KFRST,
+     &        LENGTH,NIKBT,NBLK,NBLKT,ISM,KSM,NI,NK,NIK,NJLBT,JSM,LSM,
+     &        NJ,NL,NJL,IKBTC,JLBTC,IFIRST,IIPART,IBOT,ITOP,NIBTC,KBOT,
+     &        KTOP,IONE,JLBOFF,NJLT,JLPAIR,JLSM,II12,K12,JAC,LAC,NKBTC,
+     &        J,L,IJL,I1JL,JLOFF,IXCHNG,NIKT,IKOFF,IKPAIR,IKSM,ICOUL,
+     &        JL,LIKB,IKBOFF,IAC,KAC,I,K,IK,ISBOFF,KEND,ISM_ORIG,
+     &        KSM_ORIG,LSM_ORIG,JSM_ORIG,ITPSM_ORIG,JTPSM_ORIG,
+     &        KTPSM_ORIG,LTPSM_ORIG,NONEW
+      REAL*8 FACTORC,FACTORAB
+#ifdef _DEBUGPRINT_
+      INTEGER II,JIKBT,JJLBT
+#endif
 
-#include "oper.fh"
 *
 C-jwk-cleanup      DIMENSION IACAR(2),ITPAR(2)
       Call mma_allocate(SCR,MXPTSOB**4,Label='SCR')
@@ -115,7 +131,6 @@ C-jwk-cleanup      DIMENSION IACAR(2),ITPAR(2)
       WRITE(6,*) ' ISOC and ICOC : '
       CALL IWRTMA(ISOC,1,NGAS,1,NGAS)
       CALL IWRTMA(ICOC,1,NGAS,1,NGAS)
-*
 #endif
       IFRST = 1
       JFRST = 1
@@ -200,7 +215,7 @@ C         ISCR( I4_REO(IJKL) ) = I4_TP(IJKL)
         CALL IWRTMA(I4_TP,1,4,1,4)
 #endif
 *
-CSVC: determine optimum number of partions as the lowest multiple of
+CSVC: determine optimum number of partitions as the lowest multiple of
 C     NPROCS that satisfies a block size smaller than MAXI:
         NPART=0
         DO
@@ -427,7 +442,6 @@ C?       write(6,*) ' Before ADAADAST '
                         JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
                         IF(JLSM.EQ.1.AND.J.EQ.L) THEN
 *. a+j a+j gives trivially zero
-                          ZERO = 0.0D0
                           CALL SETVEC(CSCR(JLOFF),ZERO,NKBTC*NIBTC)
                         ELSE
                           CALL MATCG(    CB,CSCR(JLOFF),NROW,NIBTC,IBOT,
@@ -522,8 +536,8 @@ C?                    WRITE(6,*)'NIJT, NJLT, NIBTC NKBTC',
 C?   &                           NIJT, NJLT,NIBTC,NKBTC
 C?                  END IF
 *
-                    FACTORC = 0.0D0
-                    FACTORAB = 1.0D0
+                    FACTORC = Zero
+                    FACTORAB = One
                     CALL MATML7(   SSCR,   CSCR,   XINT,   LIKB,   NIKT,
      &                             LIKB,   NJLT,   NIKT,   NJLT,FACTORC,
      &                          FACTORAB,     2)
@@ -553,7 +567,6 @@ C?                  END IF
                         IKSM = 0
                       END IF
                       IF(IFRST.EQ.1) KFRST = 1
-                      ONE = 1.0D0
 *
                       IAC = I4_AC(1)
                       KAC = I4_AC(2)
@@ -594,7 +607,7 @@ C?                  END IF
                   IF(KEND.EQ.0) GOTO 1800
 *.                ^ End of loop over partitionings of resolution strings
  1801           CONTINUE
-*               ^ End of loop over partionings of I strings
+*               ^ End of loop over partitionings of I strings
  1930         CONTINUE
 *             ^ End of loop over batches of JL
  1940       CONTINUE
@@ -748,18 +761,18 @@ C                   KFRST = 1
      &                .AND.JTPSM_ORIG.EQ.LTPSM_ORIG)THEN
 *. No use of exchange
                         IXCHNG = 0
-                        FACX = -0.5D0
+                        FACX = -Half
                       ELSE IF(ITPSM_ORIG.NE.KTPSM_ORIG
      &                .OR.JTPSM_ORIG.NE.LTPSM_ORIG) THEN
 *. Exchange used, combines two terms
                         IXCHNG = 1
-                        FACX = -0.5D0
+                        FACX = -Half
                       END IF
                       IF(ITPSM_ORIG.NE.KTPSM_ORIG
      &                .AND.JTPSM_ORIG.NE.LTPSM_ORIG)THEN
 *. Exchange used, combines four terms
                         IXCHNG = 1
-                        FACX = -1.0D0
+                        FACX = -One
                       END IF
 #ifdef _DEBUGPRINT_
            WRITE(6,*)
@@ -802,7 +815,7 @@ C?                    WRITE(6,*)'NIJ NJL NIBTC NKBTC',
 C?   &                           NIJ,NJL,NIBTC,NKBTC
 C?                  END IF
 *
-                    FACTORC = 0.0D0
+                    FACTORC = Zero
                     FACTORAB = FACX
                     CALL MATML7(   SSCR,   CSCR,   XINT,   LIKB,    NIK,
      &                             LIKB,    NJL,    NIK,    NJL,FACTORC,
@@ -820,7 +833,6 @@ C?                  END IF
 *
                     IONE = 1
                     IF(IFRST.EQ.1) KFRST = 1
-                    ONE = 1.0D0
 *
                     IAC = I4_AC(1)
                     KAC = I4_AC(2)
@@ -872,10 +884,9 @@ C                   write(6,*) ' first element of updated SB', SB(1)
  2001 CONTINUE
 *
       Call mma_deallocate(SCR)
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(NSCOL)
         CALL Unused_integer(NSMDX)
       END IF
-      END
+      END SUBROUTINE RSBB2A_LUCIA

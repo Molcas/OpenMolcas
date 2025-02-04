@@ -8,12 +8,15 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION IMNMX(IVEC,NDIM,MINMAX)
+      INTEGER FUNCTION IMNMX(IVEC,NDIM,MINMAX)
+      IMPLICIT NONE
 *
 *     Find smallest (MINMAX=1) or largest (MINMAX=2)
 *     absolute value of elements in integer vector IVEC
 *
-      DIMENSION IVEC(*)
+      INTEGER IVEC(*),NDIM,MINMAX
+
+      INTEGER IX,I
 *
       IX = 0
       IF(NDIM.GT.0) THEN
@@ -40,5 +43,4 @@
 *
       IMNMX = IX
 *
-      RETURN
-      END
+      END FUNCTION IMNMX

@@ -16,11 +16,13 @@ C
 *
 * Dos not work with FASTIO - I expect
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      INTEGER NDIM,MBLOCK,IFILE
 *
-      DIMENSION ISCR(2), IDUMMY(1), DUMMY(1)
-c      PARAMETER(LPBLK=50000)
+      INTEGER ISCR(2), IDUMMY(1)
+      REAL*8 DUMMY(1)
+      INTEGER IPACK,IMZERO,I_AM_PACKED,LBATCH,ISTOP,NBLOCK,IREST,IBASE
 
 C
       IPACK = 1
@@ -73,5 +75,4 @@ C
 *
  1001 CONTINUE
 *
-      RETURN
-      END
+      END SUBROUTINE SKPRCD2

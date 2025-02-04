@@ -19,14 +19,14 @@ set (sources
      normalizevec.F90
      printgeom.F90
      quater.F90
-     quaterfinish.F90
      quater_globals.F90
+     quater_sub.F90
+     quaterfinish.F90
      quaterinit.F90
      quaterreport.F90
      quaterrotation.F90
      quatersetup.F90
      quatersolve.F90
-     quater_sub.F90
      rdinput.F90
      readgeo.F90
      rotategeom.F90

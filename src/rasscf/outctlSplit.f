@@ -38,15 +38,20 @@
      &                         RFPert, RlxGrd, RotMax, Tot_Charge,
      &                         Tot_El_Charge, Tot_Nuc_Charge, Via_DFT,
      &                         ixSym, iADR15, IPT2, iRLXRoot, Ener
+      use SplitCas_Data, only: MxIterSplit,ThrSplit,
+     &                         lRootSplit,EnerSplit,GapSpli,PerSplit,
+     &                         PerCSpli,iDimBlockA
+      use printlevel, only: DEBUG,USUAL,TERSE,VERBOSE
+      use output_ras, only: LF,IPRLOC
+      use general_data, only: NACTEL,NHOLE1,NELEC3,ISPIN,STSYM,NSYM,
+     &                        NTOT1,NCONF,JOBIPH,NASH,NBAS,NDEL,NFRO,
+     &                        NISH,NRS1,NRS2,NRS3,NSSH,NTOT,NTOT2
+      use spinfo, only: NCSASM,NDTASM
 
       Implicit None
 
 #include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter:: ROUTINE='OUTCTL  '
-#include "ciinfo.fh"
-#include "splitcas.fh"
 #include "SysDef.fh"
       Real*8, Allocatable:: DSave(:)
       Character(LEN=8)  Fmt2, Label

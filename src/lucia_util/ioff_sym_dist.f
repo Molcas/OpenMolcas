@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      FUNCTION IOFF_SYM_DIST(ISYM,NGASL,IOFF,MAXVAL,MINVAL)
+      INTEGER FUNCTION IOFF_SYM_DIST(ISYM,NGASL,IOFF,MAXVAL,MINVAL)
 *
 * A ts block of string is given and the individual
 * symmetrydisrtributions has been obtained ( for example
@@ -59,5 +59,4 @@ c This is possible for certain GAS setups. Test 897 helped in finding this issue
         WRITE(6,*) ' Symmetry distribution : ', (ISYM(J),J=1,NGASL)
       END IF
 *
-      RETURN
-      END
+      END FUNCTION IOFF_SYM_DIST

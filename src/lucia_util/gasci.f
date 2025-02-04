@@ -18,47 +18,58 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
-      use strbas
+      use strbas, only: NSTSO
       use rasscf_lucia, only: kvec3_length
 *. module for communicating with sigma
-      use cands, only: ICSM,ISSM,ICSPC,ISSPC
+      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
+      use lucia_data, only: NCSF_PER_SYM
+      use lucia_data, only: ECORE_ORIG,ECORE
+      use lucia_data, only: IGSOCC,IPHGAS,NGAS
+      use lucia_data, only: MXSOOB,MXNTTS,IDUMMY,ISMOST,NELCI,XISPSM
+      use lucia_data, only: LUDIA,LUSC1
+      use lucia_data, only: IPRCIX
+      use lucia_data, only: NOCSF,IDIAG,IRESTR,ICISTR,IADVICE,ISIMSYM,
+     &                      LCSBLK,MXINKA
+      use lucia_data, only: IREFSM,PSSIGN,IDC
+      use lucia_data, only: I_ELIMINATE_GAS,MXNSTR,IBSPGPFTP,MNHL,
+     &                      NELFSPGP,NELFTP,NHLFSPGP,NSTFSMSPGP
+      use lucia_data, only: IH1FORM,IH2FORM
+      use lucia_data, only: IDISK
+      use lucia_data, only: NSMOB
+      use lucia_data, only: I_RES_AB,I12
+      use lucia_data, only: NOBPT,NOBPTS
+      use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
+      use lucia_data, only: MXPNGAS,MXPNSMST
+#ifdef _DEBUGPRINT_
+      use lucia_data, only: LCMBSPC,ICMBSPC,IGSOCCX
+#endif
+      use csm_data, only: NSMST
 *
 * CI optimization in GAS space number ISPC for symmetry ISM
 *
 *
 * Jeppe Olsen, Winter of 1995
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "cicisp.fh"
-#include "orbinp.fh"
-#include "clunit.fh"
-#include "csm.fh"
-#include "cstate.fh"
-#include "crun.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "cprnt.fh"
-#include "oper.fh"
-#include "gasstr.fh"
-#include "cgas.fh"
-#include "lucinp.fh"
-#include "intform.fh"
+      IMPLICIT NONE
+*
+      INTEGER ISM, ISPC,IPRNT,IIUSEH0P,MPORENP_E
+      REAL*8 EREF
 
-
-#include "cintfo.fh"
-#include "spinfo_lucia.fh"
-#include "io_util.fh"
-*
-*
-#include "cecore.fh"
-#include "cmxcj.fh"
-*
-*     COMMON/H_OCC_CONS/IH_OCC_CONS
-*
       INTEGER IOCCLS_ARR(1), ZERO_ARR(1)
       Integer, Allocatable:: CIOIO(:)
       Integer, Allocatable:: SVST(:)
+      INTEGER NTEST,NDET,IATP,IBTP,NEL,NOCCLS,LBLOCK,NOCTPA,NOCTPB,NTTS,
+     &        NBLOCK,MXSTBL0,IATPM1,IBTPM1,IATPM2,IBTPM2,NAEL,NBEL,MAXA,
+     &        MAXA1,MAXB,MAXB1,MXSTBL,MAXK,IOCTPA,IOCTPB,
+     &        MXCIJA,MXCIJB,MXSXBL,MXADKBLK,MXADKBLK_AS,LSCR2,LSCR12,
+     &        MXCIJAB,NVAR,MXCJ_ALLSYM,MX_NSPII,NBATCH,MXCJ
+      INTEGER, External:: IFRMR
+      INTEGER, EXTERNAL:: IMNMX
+      REAL*8 SHIFT
+#ifdef _DEBUGPRINT_
+      INTEGER IGAS,II,JJGASSPC,JGASSPC
+#endif
 *
 *. Should all parameters be tranfered to Molcas?
 c      PARAMETER (IALL = 0)
@@ -317,7 +328,7 @@ c         END IF
       Call Deallocate_Local_Arrays()
       Call mma_deallocate(CIOIO)
       Call mma_deallocate(VEC3)
-      RETURN
+
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_real(EREF)
-      END
+      END SUBROUTINE GASCI

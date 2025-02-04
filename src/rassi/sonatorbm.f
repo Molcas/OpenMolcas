@@ -17,6 +17,7 @@
       use Cntrl, only: NSTATE, LSYM1, LSYM2, IRREP, MLTPLT
       use cntrl, Only: LuTDM
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBTRI,NBASF,NTDMZZ
 
       IMPLICIT None
       CHARACTER(LEN=8) CHARTYPE
@@ -24,7 +25,6 @@
       Real*8 USOR(NSS,NSS),USOI(NSS,NSS)
       INTEGER iOpt
       Real*8 ROTMAT(3,3)
-#include "rassi.fh"
       Real*8 DENSOUT(6,NBTRI)
 
       Integer IOFF(8)

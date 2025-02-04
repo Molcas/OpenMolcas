@@ -16,22 +16,21 @@
 ************************************************************************
       use stdalloc, only: mma_allocate, mma_deallocate
       use rasscf_global, only: iPT2, OutFmt2, PreThr, ProThr, BName
-
+      use output_ras, only: LF
+      use general_data, only: NSYM,NASH,NBAS,NDEL,NFRO,NISH
       Implicit None
 
       Character(LEN=*) VecTit
       Real*8 CMO(*),Occ(*),Ene(*)
 
 #include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
 
       Integer NSLCT(8)
       Logical   PrOcc,PrEne
-      Character*3 lIrrep(8)
+      Character(LEN=3) lIrrep(8)
 
-      Character*8 Fmt1,Fmt2
-      Character*132 Line,Blank
+      Character(LEN=8) Fmt1,Fmt2
+      Character(LEN=132) Line,Blank
       Character(LEN=LENIN8), External:: Clean_BName
 * PAM Nov 05: Non-valence orbitals
       Integer NVSH(8)

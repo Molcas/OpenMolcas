@@ -18,7 +18,6 @@
       Real*8 PRMAT(NSS,NSS)
       Integer INUM, JNUM
       Integer ISS_INDEX(NSTATE+1), IST(INUM), JST(JNUM)
-#include "rassi.fh"
       Real*8 PROP(NSTATE,NSTATE,NPROP)
 
       REAL*8, EXTERNAL :: DCLEBS

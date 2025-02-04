@@ -9,15 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE GET_IREOTS(IARRAY,NACTOB)
-      IMPLICIT REAL*8 (A-H,O-Z)
-#include "mxpdim.fh"
-#include "orbinp.fh"
-      DIMENSION IARRAY(NACTOB)
+      use lucia_data, only: IREOTS
+      IMPLICIT NONE
+      INTEGER NACTOB
+      INTEGER IARRAY(NACTOB)
 *
 * Make the IREOTS reorder array available in ARRAY.
 * Added in order to let MOLCAS use IREOTS.
 *
       CALL ICOPY(NACTOB,IREOTS,1,IARRAY,1)
 
-      RETURN
-      END
+      END SUBROUTINE GET_IREOTS

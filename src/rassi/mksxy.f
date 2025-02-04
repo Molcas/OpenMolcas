@@ -14,14 +14,16 @@
       use OneDat, only: sNoNuc, sNoOri
       use stdalloc, only: mma_allocate, mma_deallocate
       use Symmetry_Info, only: nSym=>nIrrep
-      IMPLICIT REAL*8 (A-H,O-Z)
+      use rassi_data, only: NSXY,NCMO,NBASF,NOSH
+      IMPLICIT None
       Real*8 SXY(NSXY),CMO1(NCMO),CMO2(NCMO)
 
       character(len=8) :: LABEL
 C  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
 C  CODED 1987-02-18, P-AA M.
-#include "rassi.fh"
       Real*8, Allocatable:: SZZ(:), SSQ(:), PROD(:)
+      INTEGER NSZZ,NSSQ,NPROD,ISY,NO,NB,IRC,IOPT,ICMP,ISYLAB,LSZZ1,
+     &        ISXY,ICMO
 C  CALCULATE SIZE AND ALLOCATE A FIELD SZZ FOR OVERLAP MATRIX
 C  IN COMMON BASIS SET (TRIANGULAR), SSQ TEMPORARY STORAGE
 C  FOR EACH OF ITS SYMMETRY BLOCKS (SQUARE), AND PROD FOR

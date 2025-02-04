@@ -18,9 +18,9 @@
       use Cntrl, only: NJOB, PRORB, JBNAME
       use cntrl, only: IDCMO, iTOC15, LuIph
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NCMO,NBASF,NOSH
 
       IMPLICIT NONE
-#include "rassi.fh"
 #ifdef _HDF5_
       integer :: refwfn_id
 #endif

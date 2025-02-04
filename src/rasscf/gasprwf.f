@@ -42,15 +42,12 @@
 ************************************************************************
 
       use rasscf_global, only: PrwThr, nSm
+      use output_ras, only: LF
+      use spinfo, only: NTYP,MINOP,NCNFTP,NCSFTP
 
       Implicit None
 
-
 #include "rasdim.fh"
-#include "strnum.fh"
-#include "ciinfo.fh"
-#include "spinfo.fh"
-#include "output_ras.fh"
 C
       Integer nOrb, nEl
       Integer ICONF(*),ISPIN(*)

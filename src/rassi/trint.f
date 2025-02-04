@@ -21,9 +21,10 @@
       use cntrl, only: ALGO, Nscreen, dmpk
       use cntrl, only: LuOrd
       use Symmetry_Info, only: nSym=>nIrrep
+      use rassi_data, only: NCMO,NBSQ,NISH,NASH,NASHT,CHFRACMEM,NBASF,
+     &                      NBTRI,NOSH
 
       IMPLICIT None
-#include "rassi.fh"
       Integer NGAM1, NGAM2
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
 

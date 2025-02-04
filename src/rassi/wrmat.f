@@ -24,7 +24,6 @@
       Integer ISY12, NMAT
       Integer NDIM1(NSYM),NDIM2(NSYM)
       Real*8 XMAT(NMAT)
-#include "rassi.fh"
 
       Integer ISTA, ISY1, ISY2, NN
       ISTA=1

@@ -61,6 +61,7 @@ subroutine Ftwo(icase,ExFac,iSym,kSym,iBas,kBas,off_sqMat,off_ltMat,D1I,FI,D1A,F
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use general_data, only: NBAS
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
@@ -68,8 +69,6 @@ implicit none
 integer(kind=iwp), intent(in) :: icase, iSym, kSym, iBas, kBas, off_sqMat(*), off_ltMat(*)
 real(kind=wp), intent(in) :: Exfac, D1I(*), D1A(*), PQRS(*)
 real(kind=wp), intent(inout) :: FI(*), FA(*)
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp) :: iOff, iOff_ij, iOff_kl, jBas, k, kl, kOff, l
 real(kind=wp) :: D1A_ij, D1I_ij
 real(kind=wp), external :: dDot_

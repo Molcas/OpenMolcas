@@ -11,8 +11,8 @@
 
 set (sources
      main.F90
-     crystalfield_1.F90
      crystalfield.F90
+     crystalfield_1.F90
      fetch_data_runfile_all.F90
      fetch_data_runfile_init.F90
      individual_ranks.F90

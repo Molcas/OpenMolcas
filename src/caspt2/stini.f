@@ -14,11 +14,9 @@
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: DREF, PREF
       use PrintLevel, only: debug, usual
-      use EQSOLV
       IMPLICIT NONE
 #include "caspt2.fh"
 #include "pt2_guga.fh"
-#include "intgrl.fh"
       CHARACTER(LEN=50)  STLNE2
 C     timers
       REAL*8 CPU0,CPU1,CPU,
@@ -29,7 +27,7 @@ C     indices
 
       Write(STLNE2,'(A,I0)')
      &                'Compute H0 matrices for state ',MSTATE(JSTATE)
-      Call StatusLine('CASPT2: ',trim(STLNE2))
+      Call StatusLine('CASPT2: ',STLNE2)
       IF(IPRGLB.GE.USUAL) THEN
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A,I4)')

@@ -50,7 +50,7 @@ else
   write(u6,'(5x,I3,a,f4.1,a,f6.1,a)') nT,' points, equally distributed in temperature range',Tmin,' ---',Tmax,' K.'
 end if
 write(u6,'(5X,A)') 'The algorithm employed for XT=f(T) in this section is based on the zero magnetic field limit.'
-if (doplot) write(u6,'(5X,A)') 'The GNUPLOT script and correponding images are generated in $WorkDir'
+if (doplot) write(u6,'(5X,A)') 'The GNUPLOT script and corresponding images are generated in $WorkDir'
 write(u6,*)
 !-----------------------------------------------------------------------
 if (iPrint > 2) then

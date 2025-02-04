@@ -26,10 +26,10 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use output_ras, only: LF
+      use general_data, only: JOBIPH,JOBOLD,LUONEL,LUINTA,LUINTM,LUQUNE,
+     &                        LUDAVID,ITERFILE
       Implicit None
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
       Logical DSCF,DoCholesky
 
       Logical test
@@ -56,9 +56,6 @@
       LUQUNE=27
 *...  Temporary unit for diagonalization
       LUDAVID=37
-*...  general purpose communication file COMFILE
-*     Note: subr. GetInf uses unit 33 as logical unit
-      LUCOM=30
 * Opening the JOBIPH file is delayed till after input processing at end
 * of READIN_RASSCF. Only then is file name known.
 
@@ -92,7 +89,7 @@
 *---  open the file carrying the transfromed two-electron integrals ---*
       Call DaName(LUINTM,'TRAINT')
 *---  open the DAVID file carrying temporary CI and sigma vectors -----*
-*     Note the unit number is defined in the general.fh file
+*     Note the unit number is defined in the module general_data.F90
       Call DaName(LuDavid,'TEMP01')
 *---  open the file carrying the hessian update vectors ---------------*
       Call DaName(LuQune,'TEMP02')

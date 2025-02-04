@@ -17,43 +17,41 @@ set (sources
      cmbn2dc.F90
      cmbnacb1.F90
      cmbnacb2.F90
-     cmbneldot.F90
      cmbnel.F90
+     cmbneldot.F90
      cmbns1_mck.F90
+     cmbns2.F90
      cmbns2a.F90
      cmbns2b.F90
-     cmbns2.F90
      cmbnt1_mck.F90
      cmbnt2.F90
-     cnt1el2.F90
      cnt1el.F90
+     cnt1el2.F90
      cnthlf_mck.F90
      cntrct_mck.F90
      coreb.F90
      crsph_mck.F90
      ctldns.F90
-     ctrlmo.F90
      dan.F90
      dede_mck.F90
      derctr.F90
      din.F90
-     dot1el2.F90
      dot1el.F90
+     dot1el2.F90
      drvel1.F90
      drvetc.F90
      drvg2.F90
      drvh1_mck.F90
      drvh2.F90
-     drvk2_mck.F90
      drvn1_mck.F90
      drvn2.F90
-     elgrddot.F90
      elgrd.F90
+     elgrddot.F90
      elmem.F90
+     eval_g2_ijkl.F90
      fckacc_mck.F90
      hssprt.F90
      inputh.F90
-     k2loop_mck.F90
      knegrd_mck.F90
      knehss.F90
      knemem_mck.F90
@@ -67,10 +65,10 @@ set (sources
      m1mm1.F90
      m1mmh.F90
      makemo.F90
-     mckinley_banner.F90
-     mckinley.F90
-     mckinley_global.F90
      mck_interface.F90
+     mckinley.F90
+     mckinley_banner.F90
+     mckinley_global.F90
      mkfck.F90
      moacc.F90
      mult_sro.F90
@@ -86,7 +84,6 @@ set (sources
      ovrhss.F90
      ovrmem_mck.F90
      ovrmmh.F90
-     pckint_mck.F90
      pckmo2.F90
      pickmo.F90
      prjgrd_mck.F90
@@ -98,7 +95,6 @@ set (sources
      request_mclr_run.F90
      rtocore.F90
      rtosph.F90
-     schint_mck.F90
      screen_mck.F90
      smadna.F90
      sort_mck.F90
@@ -108,8 +104,9 @@ set (sources
      srommh.F90
      sttstc.F90
      supermac.F90
-     symado_mck2.F90
      symado_mck.F90
+     symado_mck2.F90
+     picky_mck.F90
      tcrtnc_h.F90
      tnchlf_h.F90
      translation.F90

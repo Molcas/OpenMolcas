@@ -32,7 +32,7 @@
      &    IFINVAR
 
       INTEGER     MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
-     &    NFRO,NFROT,NISH,NIES,NISHT,NRAS1,NRAS1T,                      &
+     &    NFRO,NFROT,NISH,NIES,NISHT,NRAS1,NRAS1T,NDET,                 &
      &    NRAS2,NRAS2T,NRAS3,NRAS3T,NASH,NAES,NASHT,                    &
      &    NOSH,NOSHT,NSSH,NSES,NSSHT,NORB,NORBT,NOTRI,                  &
      &    NDEL,NDELT,NBAS,NBAST,NBTRI,NIMX,NAMX,NSMX,NOMX,NBMX,         &
@@ -47,7 +47,7 @@
      &    DWTYPE
 ! Note: MUL(8,8) is just a copy of Mul in the Symmetry_Info module
       COMMON/INPI/MAXIT,NTIT,NACTEL,ISPIN,NSYM,STSYM,NCONF,NUNIQAT,     &
-     &    NFRO(8),NFROT,NISH(8),NIES(8),NISHT,NRAS1(8),NRAS1T,          &
+     &    NFRO(8),NFROT,NISH(8),NIES(8),NISHT,NRAS1(8),NRAS1T,NDET,     &
      &    NRAS2(8),NRAS2T,NRAS3(8),NRAS3T,NASH(8),NAES(8),NASHT,        &
      &    NOSH(8),NOSHT,NSSH(8),NSES(8),NSSHT,NORB(8),NORBT,NOTRI,      &
      &    NDEL(8),NDELT,NBAS(8),NBAST,NBTRI,NIMX,NAMX,NSMX,NOMX,NBMX,   &

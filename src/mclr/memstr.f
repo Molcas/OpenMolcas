@@ -16,6 +16,7 @@
      &                    NSTFTP,NSTTYP,IUNIQTP
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: NACOB,NOBPT,NORB1,NORB2,NORB3
+      use csm_data, only: NSMST
 *
 *
 * Construct pointers for saving information about strings and
@@ -39,7 +40,6 @@
 * Updated with iuniqtp, dec 11, 1994
       IMPLICIT None
 *
-#include "csm.fh"
 
 *     Local variables
       Integer LENGTH,ITYP,NSTRIN,LSTRIN,IITYP,IIIITEST,IMNEW,JJTYP,

@@ -15,13 +15,12 @@
 subroutine setretvals_cvb(esym,n_iter)
 
 use rasscf_global, only: Emy, Ener, Iter, iterci, lRoots, NAC
+use general_data, only: STSYM
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n_iter
 real(kind=wp), intent(in) :: esym(*)
-#include "rasdim.fh"
-#include "general.fh"
 
 if (nac == 0) then
   ener(1,iter) = emy

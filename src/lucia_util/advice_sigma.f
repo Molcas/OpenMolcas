@@ -28,17 +28,20 @@
 * Jeppe Olsen, Tirstrup Airport, Jan 12, 98
 *
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-*. General input
-#include "mxpdim.fh"
-#include "gasstr.fh"
-#include "orbinp.fh"
-#include "cgas.fh"
-#include "crun.fh"
+      use lucia_data, only: NGAS,IPHGAS
+      use lucia_data, only: IADVICE
+      use lucia_data, only: MNHL
+      use lucia_data, only: NOBPT
+      IMPLICIT NONE
 *. Specific input
       INTEGER IAOCC(*),IBOCC(*),JAOCC(*),JBOCC(*)
+      INTEGER LADVICE
 *. Local Scratch
-       DIMENSION ITP(16),JTP(16),KTP(16),LTP(16)
+      INTEGER ITP(16),JTP(16),KTP(16),LTP(16)
+      INTEGER NTEST,NIJTYP,NKLTYP,IPHMODI,LHOLEA,LHOLEB,IGAS,KHOLEA,
+     &        KHOLEB,LLADVICE
+      REAL*8 XNJOB,XNJEL,XCJKAJB,XNKLSX,XNIOB,XFLOPA,XNLOB,XNLEL,
+     &       XCLJAKB,XNIJSX,XNKOB,XFLOPB
 *
       NTEST = 00
 *.
@@ -160,4 +163,4 @@ C?      WRITE(6,*) 'NIJTYP, NKLTYP', NIJTYP,NKLTYP
           END IF
         END IF
 *       ^ End if several types/ph modi
-      END
+      END SUBROUTINE ADVICE_SIGMA

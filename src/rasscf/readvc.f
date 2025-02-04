@@ -80,11 +80,12 @@
 !     See comment below why this is commented out.
 !     use sxci, only: IDXCI, IDXSX
       use general_data, only: CleanMask
+      use printlevel, only: DEBUG,TERSE,VERBOSE
+      use output_ras, only: LF,IPRGLB,IPRLOC
 
       implicit none
 
 *     global data declarations
-#include "output_ras.fh"
 #include "rasdim.fh"
       Character(LEN=16), Parameter :: ROUTINE='READVC  '
 #include "SysDef.fh"

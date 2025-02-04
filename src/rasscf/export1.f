@@ -43,15 +43,13 @@
       use gas_data, only: iDoGAS
       use rasscf_global, only: DoDMRG, iRLXRoot, KSDFT, NAC, NACPAR,
      &                         NACPR2, nRoots, ThrTE, ThrSX, Weight
+      use general_data, only: NACTEL,NSYM,NHOLE1,NELEC3,NASH,NDEL,NFRO,
+     &                        NISH,NTOT1,NTOT2
 
       Implicit None
       Integer iFinal
       Real*8 CMO(*),DA(*),PA(*),DAO(*),Focc(*)
 
-*...  Define global variables .........................................*
-#include "rasdim.fh"
-#include "general.fh"
-#include "SysDef.fh"
 *...  Define local variables ..........................................*
       Character(LEN=8) RlxLbl,Method
       Logical SCF, Found

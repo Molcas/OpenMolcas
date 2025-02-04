@@ -18,7 +18,6 @@ set (sources
      clsmck.F90
      clsone.F90
      clsord.F90
-     CMakeLists.txt
      cmpint.F90
      crdmck.F90
      crecprt.F90
@@ -36,7 +35,6 @@ set (sources
      dsq.F90
      dvcprt.F90
      dwrmck.F90
-     efp_on.F90
      expand_coor.F90
      fcidump_output.F90
      fix_symmetry.F90
@@ -44,12 +42,12 @@ set (sources
      full_svd.F90
      gen_int.F90
      gen_int_dccd.F90
-     getdiagscr.F90
-     getfullcoord.F90
      get_int.F90
      get_int_close.F90
      get_int_dccd.F90
      get_int_open.F90
+     getdiagscr.F90
+     getfullcoord.F90
      getint_mod.F90
      getord.F90
      getseed.F90
@@ -67,8 +65,8 @@ set (sources
      init_numcv.F90
      int2real.F90
      irdone.F90
-     isconstant.F90
      is_first_iter.F90
+     isconstant.F90
      issymmetric.F90
      iswap.F90
      itrnsps.F90
@@ -88,9 +86,9 @@ set (sources
      ntoken.F90
      oa.F90
      obeyscauchyschwarz.F90
+     one_ulp.c
      onebas.F90
      onedat.F90
-     one_ulp.c
      opnfl.F90
      opnmck.F90
      opnone.F90
@@ -140,9 +138,9 @@ set (sources
      tcd_r8.c
      tce_r8.c
      tcl_r8.c
-     thermochem_.F90
      thermo_driver.F90
      thermo_vibg.F90
+     thermochem_.F90
      tmltpl.F90
      trcprt.F90
      triprt.F90
@@ -153,18 +151,18 @@ set (sources
      upki4.F90
      upkr8.F90
      veig.F90
+     wr_motra_info.F90
+     wr_rasscf_info.F90
      wrh.F90
      wrmck.F90
-     wr_motra_info.F90
      wrone.F90
-     wr_rasscf_info.F90
      wrtmat.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     index_functions.F90
      getint_mod.F90
+     index_functions.F90
      onedat.F90
      pack_mod.F90
      sorting.F90

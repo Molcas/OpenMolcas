@@ -39,12 +39,13 @@
 #ifdef _DMRG_
       use rasscf_global, only: DoDMRG
 #endif
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NTOT1,NACTEL,ISPIN,NASH,NBAS,NFRO,
+     &                        NISH
 
       Implicit None
 *
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
 #include "timers.fh"
 #include "SysDef.fh"
 *

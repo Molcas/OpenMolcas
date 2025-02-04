@@ -43,6 +43,7 @@ subroutine RDINT2(IPRX,DoTCVA)
 ! THE LAST ADRESS IS ZERO IF SYM T = SYM U
 
 use caspt2_global, only: LUINTM
+use trafo, only: IAD13, ISR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -55,7 +56,6 @@ integer(kind=iwp) :: i, IAD131, IAD132, IAD13C, IAD2M(3,36*36), IADC, IADX1, IAD
 logical(kind=iwp) :: Found
 real(kind=wp), allocatable :: Tmp(:)
 #include "caspt2.fh"
-#include "trafo.fh"
 
 ! GG-Dec04  The following informations must be passed to the Cholesky
 ! transformation section through RunFile. COMMON blocks could not be

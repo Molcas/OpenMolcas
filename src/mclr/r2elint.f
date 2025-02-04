@@ -28,8 +28,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
-      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,iMethod,CasInt,
-     &                      iCASSCF
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,iMethod,CasInt
       Implicit None
       Real*8 rKappa(nDens2),rMO1(nMba),rmo2(*),FockI(nDens2),
      &       FockA(nDens2)
@@ -154,7 +153,7 @@
      &            rkappa(ipMat(iS,jS)),nOrb(is),
      &            FIMO(ipCM(jS)),nOrb(jS),
      &            One,FockI(ipMat(iS,jS)),nOrb(is))
-       If (iMethod.eq.iCASSCF) Then
+       If (iMethod.eq.2) Then
        If (.not.CASINT)
      &   Call DGEMM_('T','N',
      &               nOrb(iS),nOrb(jS),nBas(iS),

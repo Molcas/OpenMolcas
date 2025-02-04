@@ -36,6 +36,9 @@ subroutine tr2NsA2(CMO,NCMO,X1,nX1,X2,nX2,pqrU,npqrU,pqTU,npqTU)
 ! subroutine does.
 
 use caspt2_global, only: LUHLF2, LUHLF3, LUINTM
+use Intgrl, only: IAD2M
+use trafo, only: IAD13, ISP, ISQ, ISR, ISS, LMOP, LMOP2, LMOQ, LMOQ2, LMOR, LMOR2, LRUPQ, LTUPQ, NBP, NBPQ, NBQ, NBR, NOCP, NOCQ, &
+                 NOCR, NOCS, NOP, NOQ, NOR
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -45,8 +48,6 @@ real(kind=wp), intent(in) :: CMO(NCMO)
 real(kind=wp), intent(out) :: X1(nX1), X2(nX2)
 real(kind=wp), intent(inout) :: pqrU(npqrU), pqTU(npqTU)
 #include "caspt2.fh"
-#include "trafo.fh"
-#include "intgrl.fh"
 integer(kind=iwp) :: IAD2S, IAD3, IAD3S, icc, icxc1, icxc5, IPQMX2, IPQMX3, IPQST, IPQTU, IR, IRU, ISPQRS, IST, ITU, IX2, KKTU, &
                      LAR, LR, NA, NAT, NORU, NOTU, NR, NSYMP, NT, NTM, NTMAX, NU, Num, NUMAX
 

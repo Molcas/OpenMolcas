@@ -17,9 +17,30 @@
       use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP,
      &                        Allocate_Local_Arrays,
      &                      Deallocate_Local_Arrays
-      use strbas
+      use strbas, only: NSTSO
+      use lucia_data, only: NGAS,IPHGAS
 *.Definition of c and sigma spaces
-      use cands, only: ICSM,ICSPC,ISSPC
+      use CandS, only: ICSM,ICSPC,ISSPC
+      use lucia_data, only: MXSOOB,MXNTTS,ISMOST
+      use lucia_data, only: IPRCIX,IPRDIA
+      use lucia_data, only: IADVICE,ICJKAIB,IH0INSPC,IH0SPC,IOCPTSPC,
+     &                      ISIMSYM,IUSE_PH,LCSBLK,MOCAA,MXINKA,NPTSPC
+      use lucia_data, only: IDC,PSSIGN
+      use lucia_data, only: MXNSTR,IBSPGPFTP,ISPGPFTP,MAX_STR_OC_BLK,
+     &                      MAX_STR_SPGP,MNHL,NELFGP,NELFSPGP,NHLFSPGP,
+     &                      NSTFSMSPGP
+      use lucia_data, only: IDISK
+      use lucia_data, only: NSMOB
+      use lucia_data, only: I12,IPART,IPERTOP,I_RES_AB
+      use lucia_data, only: MXTSOB,NTOOB,NOCOB,IOBPTS,ITSOB,NOBPTS
+      use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
+      use lucia_data, only: MXPOBS,MXPNGAS,MXPNSMST
+#ifdef _DEBUGPRINT_
+      use lucia_data, only: ICISTR
+#endif
+      use csm_data, only: NSMST,NSMDX,NSMSX
+      use csm_data, only: ADSXA,SXDXSX
 *
 * Generate a set of sigma blocks,
 * The NBLOCK specified in IBLOCK starting from IBOFF,
@@ -38,34 +59,19 @@
 * Cbatches ICBAT_INI to ICBAT_END are stored on  LUC
 *
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
+      IMPLICIT NONE
 *
 * =====
 *.Input
 * =====
 *
 *. Sigma blocks require
+      INTEGER NBLOCK,IBOFF,LUC,IRESTRICT, LUCBLK,ICBAT_RES,ICBAT_INI,
+     &        ICBAT_END
       INTEGER IBLOCK(8,*)
 *
-*./ORBINP/ : NACOB used
-#include "orbinp.fh"
-#include "cicisp.fh"
-#include "cstate.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "csm.fh"
-#include "crun.fh"
-#include "gasstr.fh"
-#include "cgas.fh"
-#include "lucinp.fh"
-#include "cprnt.fh"
-#include "oper.fh"
-#include "io_util.fh"
-*
-#include "csmprd.fh"
-#include "cintfo.fh"
-      DIMENSION CB(*),HCB(*)
+      REAL*8 CB(*),HCB(*)
+
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:), INSCR2(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
@@ -76,9 +82,13 @@
       Real*8, Allocatable:: LSCLFAC(:)
       Integer, Allocatable:: SVST(:)
       Integer, Allocatable:: H0SPC(:)
-*
-*     IDUM = 0
-*     CALL MEMMAN(IDUM,IDUM,'MARK  ',IDUM,'SBLOCK')
+      INTEGER, EXTERNAL:: IMNMX
+      INTEGER NTEST,IATP,IBTP,IATPM1,IBTPM1,IATPM2,IBTPM2,NOCTPA,NOCTPB,
+     &        IOCTPA,IOCTPB,NAEL,NBEL,MXSTBL0,MAXA,MAXA0,MAXA1,MAXB,
+     &        MAXB0,MAXB1,MXSTBL,MAXI,MAXK,IOBTP,IOBSM,LSCR1,INTSCR,
+     &        LSCR2,MAXIK,LSCR3,NTTS,LZSCR,LZ,K12,I1234,IDOH2,MXADKBLK,
+     &        MXADKBLK_AS,MXCIJA,MXCIJAB,MXCIJB,MXCJ,MXCJ_ALLSYM,MXSXBL,
+     &        MXSXST,MX_NSPII
 *
       NTEST = 00
       IF(LUCBLK.GT.0) THEN
@@ -370,4 +380,4 @@ c      KSIPA = 1 ! jwk-cleanup
       Call mma_deallocate(ZSCR)
       Call mma_deallocate(SVST)
       Call mma_deallocate(H0SPC)
-      END
+      END SUBROUTINE SBLOCK

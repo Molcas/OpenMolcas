@@ -14,7 +14,6 @@ module Integral_Interfaces
 ! Dummy modules to get correct order of compilation
 use IOBuf, only:
 use Real_Spherical, only:
-use iSD_data, only:
 use k2_arrays, only:
 use rmat, only:
 use define_af, only:
@@ -25,9 +24,11 @@ use Gateway_Info, only:
 use Sizes_of_Seward, only:
 use Symmetry_Info, only:
 use SOAO_Info, only:
+use Dens_Stuff, only:
 use stdalloc, only:
 use Constants, only:
 
+use iSD_data, only: nSD
 use Index_Functions, only: nTri_Elem1
 use k2_structure, only: k2_type
 use Definitions, only: wp, iwp
@@ -72,7 +73,7 @@ abstract interface
 #                         define _CALLING_
 #                         include "twoel_interface.fh"
                          )
-    import :: wp, iwp, k2_type
+    import :: wp, iwp, k2_type, nSD
 #   include "twoel_interface.fh"
   end subroutine twoel_kernel
 end interface

@@ -18,6 +18,7 @@ subroutine esb_ic_2(symp,symq,Vic,dimp,dimq,pqind)
 ! matrix vic (pr,qs)
 
 use ccsort_global, only: idis, LUINTM, mbas, NORB, np, nq, nr, ns, typ
+use TraToc, only: NTRABUF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -27,7 +28,6 @@ implicit none
 integer(kind=iwp), intent(in) :: symp, symq, dimp, dimq
 real(kind=wp), intent(_OUT_) :: Vic(dimp*(dimp+1)/2,dimq*(dimq+1)/2)
 integer(kind=iwp), intent(out) :: pqind(mbas,mbas)
-#include "tratoc.fh"
 integer(kind=iwp) :: i, i1, idis13, ilow, ind(4), indtemp, iold, iup, j, j1, jlow, jold, jup, k1, kold, kup, l1, lold, lup, maxx, &
                      ni, nj, nk, nl, nsi, nsj, nsk, nsl, typp, yes234, yes5, yes678
 real(kind=wp) :: val1

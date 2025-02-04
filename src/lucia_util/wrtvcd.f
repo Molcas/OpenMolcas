@@ -14,9 +14,13 @@ C PRINT VECTOR ON FILE LU
 C
 C LBLK DEFINES STRUCTURE OF FILES :
 C
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
-      DIMENSION SEGMNT(*),IDUMMY(1)
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      REAL*8 SEGMNT(*)
+      INTEGER LU,IREW,LBLK
+
+      INTEGER IDUMMY(1)
+      INTEGER IBLK,LBL,KBLK,IAMPACK,IMZERO
 C
       IF( IREW .NE. 0 ) THEN
         IF( LBLK .GE. 0 ) THEN
@@ -57,5 +61,4 @@ C
 C
       IF( LBL.GE. 0 .AND. LBLK .LE. 0) GOTO 1000
 C
-      RETURN
-      END
+      END SUBROUTINE WRTVCD

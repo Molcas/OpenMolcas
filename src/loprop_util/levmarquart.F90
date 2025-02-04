@@ -188,7 +188,7 @@ do
   ! the problem. (2) The modifier parameter has to stabalize and not
   ! be far out in the linear region, rather in the second order regime.
   ! (3) The last step should be a decrease. (4) A certain number of
-  ! steps should preceed that decreases the error; this threshold
+  ! steps should precede that decreases the error; this threshold
   ! 'overlaps' some with second threshold. Halt the optimization if
   ! no convergence is reached after 40 iterations. This is by far
   ! a generous limit.

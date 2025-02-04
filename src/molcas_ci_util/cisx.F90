@@ -19,8 +19,6 @@ use Definitions, only: wp, iwp
 #include "intent.fh"
 
 implicit none
-#include "rasdim.fh"
-#include "general.fh"
 integer(kind=iwp), intent(in) :: IDX(NAC)
 real(kind=wp), intent(inout) :: D(*), DS(*), PS(*), PA(*)
 real(kind=wp), intent(_OUT_) :: SCR(*)

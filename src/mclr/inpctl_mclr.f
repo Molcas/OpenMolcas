@@ -29,7 +29,7 @@
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: SA,ISTATE
       use MCLR_Data, only: LuPT2
-      use input_mclr, only: PT2,iMethod,iCASSCF,TimeDep,nCSF,nSym,
+      use input_mclr, only: PT2,iMethod,TimeDep,nCSF,nSym,
      &                      State_Sym,iMCPD,nDisp,iRoot,iSpin,nActEl,
      &                      nElec3,nHole1,nRS1,nRS2,nRS3,Page,nRoots,
      &                      nConf
@@ -91,8 +91,8 @@
         Call check_caspt2(1)
       End If
 *
-C     write(6,*) "iMethod:",iMethod,iCASSCF
-      If (iMethod.eq.iCASSCF) Then
+C     write(6,*) "iMethod:",iMethod,2
+      If (iMethod.eq.2) Then
          If (TimeDep) Then
             Call RdJobIph_td(CIVec)
          Else

@@ -17,11 +17,11 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE PRPCTL(MODE,UEFF,U0)
-      USE PT2WFN
+      USE PT2WFN, only: PT2WFN_DENSSTORE
       use caspt2_global, only:iPrGlb
       use OneDat, only: sNoNuc, sNoOri
-      use caspt2_global, only: do_nac,iRoot1,iRoot2,SLag,DPT2_tot,
-     *                           DPT2C_tot
+      use caspt2_global, only: do_grad,do_nac,iRoot1,iRoot2,SLag,
+     *                         DPT2_tot,DPT2C_tot
       use caspt2_global, only: CMO, CMO_Internal, CMOPT2, TORB, NCMO,
      &                       LISTS
       use caspt2_global, only: LUONEM
@@ -47,7 +47,7 @@
 
 
 #ifdef _MOLCAS_MPP_
-      IF (Is_Real_Par()) THEN
+      IF (Is_Real_Par() .AND. IPRGLB.GE.USUAL .AND. .not.do_grad) THEN
         WRITE(6,'(1X,A)') ' ====================================='
         WRITE(6,'(1X,A)') ' CASPT2 properties were requested, but'
         WRITE(6,'(1X,A)') ' these are not efficiently implemented'
@@ -56,6 +56,8 @@
         WRITE(6,'(1X,A)') ' to a significant speed up.'
         WRITE(6,'(1X,A)') ' ====================================='
       END IF
+#else
+      call unused_logical(do_grad)
 #endif
 
 * PAM2008 When this subroutine is called, the calculation has been done

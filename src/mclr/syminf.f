@@ -13,6 +13,9 @@
 * Information about number of symmetries
 *
       use DetDim, only: MXPOBS
+      use csm_data, only: NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,
+     &                    ITSXT
+      use csm_data, only: ADASX,ADSXA,ASXAD,SXDXSX,SXSXDX
       IMPLICIT None
       INTEGER NIRREP,IPRNT
 *
@@ -22,9 +25,6 @@
 * NSMCI : NUmber of symmetries of CI spaces
 * ITSSX : Total symmetrix single excitation
 * ITSDX : Total symmetrix double excitation
-*
-#include "csm.fh"
-#include "csmprd.fh"
 *
 * ADASX : symmetry of orbs i and i => symmetry of a+iaj
 * ASXAD : symmetry of orb j and excit a+iaj => symmetry of i

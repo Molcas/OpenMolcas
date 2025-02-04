@@ -11,12 +11,18 @@
       Subroutine Mod_P2(P2mo,nP2Act,D1mo,nD1mo,DS1mo,ExFac,nDet)
       use nq_Info, only: iOff_Ash, mIrrep, nAsh
       use Constants, only: One, Two
-      Implicit Real*8 (A-H,O-Z)
-#include "output_ras.fh"
-      Real*8 P2mo(nP2Act),D1mo(nD1mo), DS1mo(nD1mo)
+      use output_ras, only: LF
+      Implicit None
+      Integer nP2Act,nD1mo,nDet
+      Real*8 P2mo(nP2Act),D1mo(nD1mo), DS1mo(nD1mo),ExFac
+
+      Integer iOff_, iIrrep,jIrrep,kIrrep,ijIrrep,ijkIrrep,k_,k,l_,l,kl,
+     &        i,i_,j,j_,il,ik,ij,ijkl,jk,jl
+      Real*8 P2Act,Fact
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Integer iTri
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 *                                                                      *
 ************************************************************************

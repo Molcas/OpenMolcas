@@ -23,7 +23,7 @@ subroutine Drv1El()
 !***********************************************************************
 
 use AMFI_Info, only: No_AMFI
-use Basis_Info, only: dbsc, nCnttp, PAMexp
+use Basis_Info, only: dbsc, ExpB, nCnttp, PAMexp, r0
 use GeoList, only: Centr, Chrg
 use MpmC, only: Coor_MpM
 use PrpPnt, only: Den, Occ, Vec
@@ -47,7 +47,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "print.fh"
-#include "wldata.fh"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
                      iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCmp, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, &
                      iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, &
@@ -95,7 +94,7 @@ procedure(int_mem) :: DumMem
 iRout = 131
 iPrint = nPrint(iRout)
 
-call StatusLine(' Seward:',' Computing 1-electron integrals')
+call StatusLine('Seward: ','Computing 1-electron integrals')
 
 call Set_Basis_Mode('Valence')
 call Setup_iSD()

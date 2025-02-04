@@ -10,6 +10,9 @@
 ************************************************************************
       SUBROUTINE COVLP(C1IN,C2IN,DIA,PA,SXN,C1,C2,X,OVL)
       use rasscf_global, only: NROOT, NSXS, ITRI
+      use printlevel, only: DEBUG
+      use output_ras, only: LF,IPRLOC
+      use general_data, only: NSYM,NASH,NISH,NSSH
 
       IMPLICIT None
 C
@@ -25,9 +28,6 @@ CPAM01 quantity to the overlap of brillouin states.
 C
       REAL*8 C1IN(*),C2IN(*),DIA(*),SXN(*),X(*),C1(*),C2(*),PA(*)
       REAL*8 OVL
-#include "rasdim.fh"
-#include "general.fh"
-#include "output_ras.fh"
       Character(LEN=16), Parameter :: ROUTINE='COVLP   '
       Integer iPrLev
       REAL*8 C1C2, FAC, OVLADD, PRQS, TERM

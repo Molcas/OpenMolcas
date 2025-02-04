@@ -22,7 +22,6 @@
       Integer ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
      &                  IKSM,JLSM,ICTL,ieaw
 *
-#include "csm.fh"
        Integer nTest,iXChng,iCoul,nI,nK,nIK,nJ,nL,nJL,nIJ,nKL
 *
        NTEST=0

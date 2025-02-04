@@ -32,7 +32,7 @@
 >> COPY $WorkDir/$Project.dmrgscf.h5 $WorkDir/ref.h5
 
 &MCPDFT
-  ksdft = ft:pbe
+  func = ft:pbe
   wjob
   fileorb=ref.h5
 

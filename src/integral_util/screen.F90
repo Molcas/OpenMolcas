@@ -54,8 +54,8 @@ integer(kind=iwp) :: iEta, iZeta, jEta, jZeta
 real(kind=wp) :: aaaa, abMax, cdMax, Cut, DMax, ppaa, test, vMax
 logical(kind=iwp) :: Skip
 
-abMax = k2Data1%abMax
-cdMax = k2Data2%abMax
+abMax = k2Data1%abConMax
+cdMax = k2Data2%abConMax
 
 Skip = .false.
 if (.not. Prescreen_On_Int_Only) then

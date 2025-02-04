@@ -12,15 +12,9 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,nRys,nData1,nData2, &
-                     k2Data1,k2Data2, &
-                     Pren,Prem,nAlpha,nBeta,jPrInc,nGamma,nDelta,lPrInc, &
-                     Coeff1,iBasi,Coeff2,jBasj,Coeff3,kBask,Coeff4,lBasl, &
-                     nZeta,nEta,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nPSO, &
-                     Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux,nAux,WorkX,nWorkX, &
-                     Shijij,Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk, &
-                     Djl1,Djl2,mDjl,nDjl,icmpi,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din, &
-                     moip,naco,rMOIN,nMOIN,new_fock)
+subroutine TwoEl_mck(Coor,nRys,Hess,nHess,IfGrd,IndGrd,IfHss,IndHss,IfG,PSO,nijkl,nPSO,Work2,nWork2,Work3,nWork3,Work4,nWork4,Aux, &
+                     nAux,WorkX,nWorkX,Fin,nfin,Temp,nTemp,nTwo2,nFt,TwoHam,Buffer,nBuffer,lgrad,ldot,n8,ltri,Dan,Din,moip,naco, &
+                     rMOIN,nMOIN,iSD4)
 !***********************************************************************
 !                                                                      *
 !     Input:                                                           *
@@ -76,44 +70,43 @@ subroutine TwoEl_mck(Coor,iAngV,iCmp,iShell,iShll,iAO,iAOst,iStb,jStb,kStb,lStb,
 !***********************************************************************
 
 use McKinley_global, only: CPUStat, nIntegrals, nScreen, nTrans, nTwoDens, PreScr
-use Index_Functions, only: nTri_Elem1
-use k2_structure, only: k2_type
-use k2_arrays, only: BraKet
+use iSD_data, only: nSD
+use Index_Functions, only: iTri, nTri_Elem1
+use k2_structure, only: Indk2, k2_type, k2Data
+use k2_arrays, only: BraKet, DeDe, DeDe2
 use Real_Spherical, only: ipSph, RSph
-use Basis_Info, only: MolWgh, Shells
-use Center_Info, only: dc
+use Basis_Info, only: Shells
 use Phase_Info, only: iPhase
 use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, tval1_kernel
+use Dens_stuff, only: ipDDij, ipDDij2, ipDDik, ipDDik2, ipDDil, ipDDil2, ipDDjk, ipDDjk2, ipDDjl, ipDDjl2, ipDDkl, ipDDkl2, &
+                      mDCRij, mDCRik, mDCRil, mDCRjk, mDCRjl, mDCRkl, mDij, mDik, mDil, mDjk, mDjl, mDkl
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: iAngV(4), iCmp(4), iShell(4), iShll(4), iAO(4), iAOst(4), iStb, jStb, kStb, lStb, nRys, nData1, &
-                                 nData2, nAlpha, nBeta, jPrInc, nGamma, nDelta, lPrInc, iBasi, jBasj, kBask, lBasl, nZeta, nEta, &
-                                 nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nPSO, nWork2, nWork3, nWork4, nAux, nWorkX, mDij, &
-                                 nDij, mDkl, nDkl, mDik, nDik, mDil, nDil, mDjk, nDjk, mDjl, nDjl, icmpi(4), nfin, nTemp, nTwo2, &
-                                 nFt, nBuffer, moip(0:7), naco, nMOIN
-real(kind=wp), intent(in) :: Coor(3,4), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), Coeff4(nDelta,lBasl), &
-                             PSO(iBasi*jBasj*kBask*lBasl,nPSO), Dij1(mDij,nDij), Dij2(mDij,nDij), Dkl1(mDkl,nDkl), &
-                             Dkl2(mDkl,nDkl), Dik1(mDik,nDik), Dik2(mDik,nDik), Dil1(mDil,nDil), Dil2(mDil,nDil), Djk1(mDjk,nDjk), &
-                             Djk2(mDjk,nDjk), Djl1(mDjl,nDjl), Djl2(mDjl,nDjl), Dan(*), Din(*)
-type(k2_type), intent(in) :: k2Data1(nData1), k2Data2(nData2)
-real(kind=wp), intent(inout) :: Pren, Prem, Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
-logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), Shijij, lgrad, ldot, n8, ltri, new_fock
+integer(kind=iwp), intent(in) :: nRys, nHess, IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7), nijkl, nPSO, nWork2, nWork3, nWork4, nAux, &
+                                 nWorkX, nfin, nTemp, nTwo2, nFt, nBuffer, moip(0:7), naco, nMOIN, iSD4(0:nSD,4)
+real(kind=wp), intent(in) :: Coor(3,4), PSO(nijkl,nPSO), Dan(*), Din(*)
+real(kind=wp), intent(inout) :: Hess(nHess), WorkX(nWorkX), TwoHam(nTwo2), Buffer(nBuffer), rMOIN(nMOIN)
+logical(kind=iwp), intent(in) :: IfGrd(3,4), IfHss(4,3,4,3), lgrad, ldot, n8, ltri
 logical(kind=iwp), intent(out) :: IfG(4)
 real(kind=wp), intent(out) :: Work2(nWork2), Work3(nWork3), Work4(nWork4), Aux(nAux), Fin(nfin), Temp(nTemp)
-integer(kind=iwp) :: iCar, iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, iIrr, IncEta, IncZet, Indx(3,4), ip, &
-                     ip2, ipFT, ipS1, ipS2, ipTemp, iShlla, iStabM(0:7), iStabN(0:7), iuvwx(4), ix2, iy2, iz2, iZeta, jCmpb, &
-                     JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jShllb, kCmpc, kShllc, la, lb, lc, lCmpd, ld, lDCR1, lDCR2, lDCRR, &
-                     lDCRS, lDCRT, lEta, LmbdR, LmbdS, LmbdT, lShlld, lStabM, lStabN, lZeta, mab, mcd, mEta, mZeta, n, nabcd, &
-                     nDCRR, nDCRS, nDCRT, nEta_Tot, nGr, niag, nijkl, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta_Tot
-real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, FactNd, Time, u, v, w, x
-logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4)
+integer(kind=iwp) :: iAngV(4), iAO(4), iAOst(4), iBasi, iCar, iCmp(4), iCmpa, iCNT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, &
+                     iEta, iIrr, ijS, ik2, IncEta, IncZet, Indx(3,4), ip, ip2, ipFT, ipS1, ipS2, ipTemp, iS, iShell(4), iShll(4), &
+                     iShlla, iuvwx(4), ix2, iy2, iz2, iZeta, jBasj, jCmpb, jk2, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), jPrInc, jS, &
+                     jShllb, kBask, kCmpc, klS, kS, kShllc, la, lb, lBasl, lc, lCmpd, ld, lDCR1, lDCR2, lDCRR, lDCRS, lDCRT, lEta, &
+                     lPrInc, lS, lShlld, lZeta, mab, mcd, mEta, mZeta, n, nabcd, nAlpha, nBeta, nDCR1, nDCR2, nDCRR, nDCRS, nDCRT, &
+                     nDelta, nEta, nEta_Tot, nGamma, nGr, niag, nOp(4), nS1, nS2, nTe, nw3, nw3_2, nZeta, nZeta_Tot
+real(kind=wp) :: CoorAC(3,2), CoorM(3,4), dum1, dum2, dum3, Fact, Time
+logical(kind=iwp) :: ABeqCD, AeqB, AeqC, CeqD, first, JfGrd(3,4), JfHss(4,3,4,3), l_og, ldot2, Tr(4), Shijij
 procedure(cff2d_kernel) :: Cff2D
 procedure(modu2_kernel) :: ModU2
 procedure(tval1_kernel) :: TERI1
+type(k2_type), pointer :: k2data1(:), k2data2(:)
+real(kind=wp), pointer :: Coeff1(:,:), Coeff2(:,:), Coeff3(:,:), Coeff4(:,:), Dij1(:,:), Dij2(:,:), Dik1(:,:), Dik2(:,:), &
+                          Dil1(:,:), Dil2(:,:), Djk1(:,:), Djk2(:,:), Djl1(:,:), Djl2(:,:), Dkl1(:,:), Dkl2(:,:)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ
 
@@ -124,12 +117,37 @@ logical(kind=iwp), external :: EQ
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+jPrInc = iSD4(6,2)
+lPrInc = iSD4(6,4)
+
+iAO(:) = iSD4(7,:)
+iCmp(:) = iSD4(2,:)
+iShll(:) = iSD4(0,:)
+iShell(:) = iSD4(11,:)
+iAngV(:) = iSD4(1,:)
+iAOst(:) = iSD4(8,:)
+
+nAlpha = iSD4(5,1)
+nBeta = iSD4(5,2)
+nGamma = iSD4(5,3)
+nDelta = iSD4(5,4)
+
+iBasi = iSD4(19,1)
+jBasj = iSD4(19,2)
+kBask = iSD4(19,3)
+lBasl = iSD4(19,4)
+
+nZeta = iSD4(5,1)*iSD4(5,2)
+nEta = iSD4(5,3)*iSD4(5,4)
+
+Shijij = ((iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4)))
+
 nGr = 0
+ldot2 = ldot
 la = iAngV(1)
 lb = iAngV(2)
 lc = iAngV(3)
 ld = iAngV(4)
-ldot2 = ldot
 iCmpa = iCmp(1)
 jCmpb = iCmp(2)
 kCmpc = iCmp(3)
@@ -140,8 +158,6 @@ kShllc = iShll(3)
 lShlld = iShll(4)
 IncZet = nAlpha*jPrInc
 IncEta = nGamma*lPrInc
-LmbdT = 0
-nijkl = iBasi*jBasj*kBask*lBasl
 nabcd = iCmp(1)*iCmp(2)*iCmp(3)*iCmp(4)
 mab = nTri_Elem1(la)*nTri_Elem1(lb)
 mcd = nTri_Elem1(lc)*nTri_Elem1(ld)
@@ -169,11 +185,43 @@ end if
 ! Avoid some warnings about unset output arguments
 Temp(nTemp) = One
 #endif
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Pick up pointers to k2 entities.
 
-iuvwx(1) = dc(iStb)%nStab
-iuvwx(2) = dc(jStb)%nStab
-iuvwx(3) = dc(kStb)%nStab
-iuvwx(4) = dc(lStb)%nStab
+iS = iShell(1)
+jS = iShell(2)
+kS = iShell(3)
+lS = iShell(4)
+ijS = iTri(iS,jS)
+klS = iTri(kS,lS)
+nDCR1 = IndK2(2,ijS)
+ik2 = IndK2(3,ijS)
+nDCR2 = IndK2(2,klS)
+jk2 = IndK2(3,klS)
+k2data1(1:nDCR1) => k2Data(1:nDCR1,ik2)
+k2data2(1:nDCR2) => k2Data(1:nDCR2,jk2)
+
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
+Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+
+Dij1(1:mDij,1:mDCRij) => DeDe(ipDDij:ipDDij+mDij*mDCRij-1)
+Dkl1(1:mDkl,1:mDCRkl) => DeDe(ipDDkl:ipDDkl+mDkl*mDCRkl-1)
+Dik1(1:mDik,1:mDCRik) => DeDe(ipDDik:ipDDik+mDik*mDCRik-1)
+Dil1(1:mDil,1:mDCRil) => DeDe(ipDDil:ipDDil+mDil*mDCRil-1)
+Djk1(1:mDjk,1:mDCRjk) => DeDe(ipDDjk:ipDDjk+mDjk*mDCRjk-1)
+Djl1(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
+
+Dij2(1:mDij,1:mDCRij) => DeDe2(ipDDij2:ipDDij2+mDij*mDCRij-1)
+Dkl2(1:mDkl,1:mDCRkl) => DeDe2(ipDDkl2:ipDDkl2+mDkl*mDCRkl-1)
+Dik2(1:mDik,1:mDCRik) => DeDe2(ipDDik2:ipDDik2+mDik*mDCRik-1)
+Dil2(1:mDil,1:mDCRil) => DeDe2(ipDDil2:ipDDil2+mDil*mDCRil-1)
+Djk2(1:mDjk,1:mDCRjk) => DeDe2(ipDDjk2:ipDDjk2+mDjk*mDCRjk-1)
+Djl2(1:mDjl,1:mDCRjl) => DeDe2(ipDDjl2:ipDDjl2+mDjl*mDCRjl-1)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -181,78 +229,7 @@ iuvwx(4) = dc(lStb)%nStab
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Find the Double Coset Representatives for center A and B
-
-if (nIrrep == 1) then
-  nDCRR = 1
-  iDCRR(0) = 0
-  LmbdR = 1
-else
-  call DCR(LmbdR,dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iDCRR,nDCRR)
-end if
-u = real(dc(iStb)%nStab,kind=wp)
-v = real(dc(jStb)%nStab,kind=wp)
-
-! Find stabilizer for center A and B
-
-if (nIrrep == 1) then
-  lStabM = 1
-  iStabM(0) = 0
-else
-  call Inter(dc(iStb)%iStab,dc(iStb)%nStab,dc(jStb)%iStab,dc(jStb)%nStab,iStabM,lStabM)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for center C and D.
-
-if (nIrrep == 1) then
-  nDCRS = 1
-  iDCRS(0) = 0
-  LmbdS = 1
-else
-  call DCR(LmbdS,dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iDCRS,nDCRS)
-end if
-w = real(dc(kStb)%nStab,kind=wp)
-x = real(dc(lStb)%nStab,kind=wp)
-
-! Find stabilizer for center C and D
-
-if (nIrrep == 1) then
-  lStabN = 1
-  iStabN(0) = 0
-else
-  call Inter(dc(kStb)%iStab,dc(kStb)%nStab,dc(lStb)%iStab,dc(lStb)%nStab,iStabN,lStabN)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Find the Double Coset Representatives for the two charge distributions.
-
-if (nIrrep == 1) then
-  nDCRT = 1
-  iDCRT(0) = 0
-  LmbdT = 1
-else
-  call DCR(LmbdT,iStabM,lStabM,iStabN,lStabN,iDCRT,nDCRT)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Factor due to summation over DCR
-
-if (MolWgh == 1) then
-  Fact = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
-else if (MolWgh == 0) then
-  Fact = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
-else
-  Fact = sqrt(u*v*w*x)/real(nIrrep*LmbdT,kind=wp)
-end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-nOp(1) = NrOpr(0)
-CoorM(:,1) = Coor(:,1)
+call mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT,nSD,iSD4)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -260,6 +237,8 @@ CoorM(:,1) = Coor(:,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+nOp(1) = NrOpr(0)
+CoorM(:,1) = Coor(:,1)
 do lDCRR=0,nDCRR-1
   nOp(2) = NrOpr(iDCRR(lDCRR))
   call OA(iDCRR(lDCRR),Coor(1:3,2),CoorM(1:3,2))
@@ -321,6 +300,27 @@ do lDCRR=0,nDCRR-1
 
       call Timing(dum1,Time,dum2,dum3)
       CpuStat(nTwoDens) = CpuStat(nTwoDens)+Time
+      !----------------------------------------------------------------*
+      !
+      ! Fix the control matrices for derivatives and try to use
+      ! translation invariance as efficiently as possible.
+      !
+      !----------------------------------------------------------------*
+      JfHss(:,:,:,:) = IfHss
+      JfGrd(:,:) = IfGrd
+      ifg(:) = .true.
+      Tr(:) = .false.
+      JndHss(:,:,:,:,0:nIrrep-1) = IndHss(:,:,:,:,0:nIrrep-1)
+      JndGrd(:,:,0:nIrrep-1) = IndGrd(:,:,0:nIrrep-1)
+
+      ! Delete one center that should be calculated with translation invariance
+
+      call Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,coorm,nirrep,indgrd,indhss)
+
+      if (.not. ldot) then
+        JfHss(:,:,:,:) = .false.
+        JndHss(:,:,:,:,:) = 0
+      end if
 
       !----------------------------------------------------------------*
       !
@@ -346,31 +346,6 @@ do lDCRR=0,nDCRR-1
           mEta = min(IncEta,nEta_Tot-iEta+1)
           ! Check that subblock of contraction matrix has non-zero elements.
           if (all(Coeff4(:,:) == Zero)) cycle
-          Pren = Pren+real(mab*mcd*mZeta*mEta,kind=wp)
-          !------------------------------------------------------------*
-          !
-          ! Fix the control matrixes for derivatives
-          ! and try to use translation invariance as
-          ! efficient as possible.
-          !
-          ! OBS DETTA SKALL FLYTTAS UT UR INRE LOOPEN
-          !
-          !------------------------------------------------------------*
-          JfHss(:,:,:,:) = IfHss
-          JfGrd(:,:) = IfGrd
-          ifg(:) = .true.
-          Tr(:) = .false.
-          JndHss(:,:,:,:,0:nIrrep-1) = IndHss(:,:,:,:,0:nIrrep-1)
-          JndGrd(:,:,0:nIrrep-1) = IndGrd(:,:,0:nIrrep-1)
-
-          ! Delete one center that should be calculated with translation invariance
-
-          call Translation(ifg,jfgrd,jfhss,tr,jndgrd,jndhss,coorm,nirrep,indgrd,indhss)
-
-          if (.not. ldot) then
-            JfHss(:,:,:,:) = .false.
-            JndHss(:,:,:,:,:) = 0
-          end if
           !------------------------------------------------------------*
           !     PRE PRESCREENING                                       *
           !------------------------------------------------------------*
@@ -402,7 +377,6 @@ do lDCRR=0,nDCRR-1
           call Timing(dum1,Time,dum2,dum3)
           CPUStat(nScreen) = CPUStat(nScreen)+Time
 
-          Prem = Prem+real(mab*mcd*lZeta*lEta,kind=wp)
           if (lZeta*lEta == 0) cycle
 
           ! Compute integral derivative and accumulate
@@ -450,17 +424,9 @@ do lDCRR=0,nDCRR-1
         end if
       end do
 
-      if (MolWgh == 1) then
-        FactNd = real(nIrrep,kind=wp)/real(LmbdT,kind=wp)
-      else if (MolWgh == 0) then
-        FactNd = u*v*w*x/real(nIrrep**3*LmbdT,kind=wp)
-      else
-        factNd = sqrt(u*v*w*x)/real(nirrep*lmbdt,kind=wp)
-      end if
-
-      if (FactNd /= One) then
+      if (Fact /= One) then
         n = nGr*mab*mcd*nijkl
-        WorkX(1:n) = FactNd*WorkX(1:n)
+        WorkX(1:n) = Fact*WorkX(1:n)
       end if
 
       !----------------------------------------------------------------*
@@ -537,10 +503,10 @@ do lDCRR=0,nDCRR-1
       !
       !----------------------------------------------------------------*
 
-      call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,Shijij,iAngV,iCmpi,iCmp,iShll,iShell,iShell,iBasi,jBasj,kBask,lBasl, &
-                  Dij1,Dij2,mDij,nDij,Dkl1,Dkl2,mDkl,nDkl,Dik1,Dik2,mDik,nDik,Dil1,Dil2,mDil,nDil,Djk1,Djk2,mDjk,nDjk,Djl1,Djl2, &
-                  mDjl,nDjl,fin,nfin,Temp(ipFT),nFT,Temp(ipS1),nS1,Temp(ipS2),nS2,Temp(ipTemp),nTe,TwoHam,nTwo2,JndGrd,Indx,iao, &
-                  iaost,iuvwx,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,nOp,Din,Dan,new_fock)
+      call ClrBuf(idcrr(ldcrr),idcrs(ldcrs),idcrt(ldcrt),nGr,Shijij,iAngV,iCmp,iShll,iShell,iShell,iBasi,jBasj,kBask,lBasl,Dij1, &
+                  Dij2,mDij,mDCRij,Dkl1,Dkl2,mDkl,mDCRkl,Dik1,Dik2,mDik,mDCRik,Dil1,Dil2,mDil,mDCRil,Djk1,Djk2,mDjk,mDCRjk,Djl1, &
+                  Djl2,mDjl,mDCRjl,fin,nfin,Temp(ipFT),nFT,Temp(ipS1),nS1,Temp(ipS2),nS2,Temp(ipTemp),nTe,TwoHam,nTwo2,JndGrd, &
+                  Indx,iao,iaost,iuvwx,n8,ltri,moip,nAcO,rMoin,nmoin,ntemp,Buffer,nOp,Din,Dan)
 
     end do
 
@@ -550,7 +516,5 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
-return
 
 end subroutine Twoel_Mck

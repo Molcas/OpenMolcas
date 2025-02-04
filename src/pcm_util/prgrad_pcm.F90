@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PrGrad_pcm(Label,Grad,nGrad,Names,iPrint)
+subroutine PrGrad_pcm(Label,Grad,nGrad,iPrint)
 !***********************************************************************
 !                                                                      *
 ! Object: to print set gradient with respect to the symmetrical dis-   *
@@ -23,6 +23,7 @@ subroutine PrGrad_pcm(Label,Grad,nGrad,Names,iPrint)
 !***********************************************************************
 
 use Symmetry_Info, only: lIrrep
+use Disp, only: ChDisp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -31,7 +32,6 @@ implicit none
 #include "Molcas.fh"
 character(len=*), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nGrad, iPrint
-character(len=LenIn6), intent(in) :: Names(nGrad)
 real(kind=wp), intent(in) :: Grad(nGrad)
 integer(kind=iwp) :: iCen, iGrad, mGrad
 real(kind=wp) :: Temp, TempX, TempY, TempZ
@@ -75,7 +75,7 @@ else
   do iGrad=1,mGrad
     Temp = Grad(iGrad)
     if (abs(Temp) < 1.0e-15_wp) Temp = Zero
-    write(u6,'(16X,A,15X,ES15.7)') Names(iGrad),Temp
+    write(u6,'(16X,A,15X,ES15.7)') ChDisp(iGrad),Temp
   end do
 
   !if (nGrad > 21) then

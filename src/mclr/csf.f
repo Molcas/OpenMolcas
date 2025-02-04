@@ -372,12 +372,12 @@ C?    END IF
       use MCLR_Data, only: IASTFI,IBSTFI,ISMOST,MNR1IC,MXR3IC,NELCI
       use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
       use MCLR_Data, only: MAXOP,MINOP,NCNATS
-      use cands, only: ICSM,ISSM,ICSPC,ISSPC
+      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
+      use csm_data, only: NSMST
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
 *
-#include "csm.fh"
       integer idum(1)
       Integer, Allocatable:: SIOIO(:), SBLTP(:), IOOS1(:),
      &                       NOOS1(:)
@@ -1950,6 +1950,7 @@ C
      &                       MXSOOB,NICISP
       use DetDim, only: MXPCSM
       use Constants, only: Zero
+      use csm_data, only: NSMCI,NSMST
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -1963,15 +1964,9 @@ C
       Integer MXCEXP,ICI,ISYM,IATP,IBTP,IIDC,NTEST,MX,MXS,MXSOO,NCOMB
       Real*8 XNCOMB
 *
-* ===================
-*.Input common blocks
-* ===================
-*
-#include "csm.fh"
-*
       Integer, Allocatable:: LBLTP(:), LCVST(:)
 * ====================
-*. Output common block : XISPSM is calculated
+*. Output  XISPSM is calculated
 * ====================
 *
 *

@@ -516,7 +516,7 @@ outer: do
   !* For  |LXPCT| = 2  write eigenvalues and expectation values in
   !                       compact form on channel-7.
   !* For  |LXPCT| > 2  calculate matrix elements coupling each level
-  !  to all (up to VIBMX) preceeding levels of the same potential (for
+  !  to all (up to VIBMX) preceding levels of the same potential (for
   !  NUMPOT <= 1), or to NLEV2 (see below) vib. levels of potential-2
   !  (for NUMPOT >= 2), and if (|LXPCT| > 3) write the overall
   !  off-diagonal matrix elements on channel-8.

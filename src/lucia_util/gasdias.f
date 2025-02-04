@@ -16,7 +16,6 @@
      &                            RJ,      RK,   NSSOA,   NSSOB,
      &                      LUDIA,   ECORE,   PSSIGN,   IPRNT,
      &                      NTOOB,  ICISTR,   RJKAA,     I12,   IBLTP,
-*
      &                     NBLOCK, IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
 *
 * Calculate determinant diagonal
@@ -36,31 +35,38 @@
 * Added the possibility to zero out unwanted diagonal part
 * which is needed for highly excited states. Lasse 2015
 *
-      IMPLICIT REAL*8           (A-H,O-Z)
-#include "io_util.fh"
-C     REAL * 8  INPROD
+      use Constants, only: Zero
+      use lucia_data, only: IDISK
+      IMPLICIT NONE
+      INTEGER NAEL,NBEL,NORB,NSMST,LUDIA,IPRNT,NTOOB,ICISTR,
+     &        I12,NBLOCK,N_ELIMINATED_BATCHES
+      Real*8 ECORE,   PSSIGN
 *.General input
-      DIMENSION NSSOA(NSMST,*),NSSOB(NSMST,*)
-      DIMENSION H(NORB)
-      DIMENSION I_AM_OUT(*)
+      INTEGER NSSOA(NSMST,*),NSSOB(NSMST,*)
+      REAL*8 H(NORB)
+      INTEGER I_AM_OUT(*)
 *. Specific input
-      DIMENSION IBLTP(*),IBLKFO(8,NBLOCK)
+      INTEGER IBLTP(*),IBLKFO(8,NBLOCK)
 *. Scratch
-      DIMENSION RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
-      DIMENSION XB(NORB)
-      DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
-      DIMENSION RJKAA(*)
+      REAL*8 RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
+      REAL*8 XB(NORB)
+      INTEGER IASTR(NAEL,*),IBSTR(NBEL,*)
+      REAL*8 RJKAA(*)
 *. Output
-      DIMENSION DIAG(*)
+      REAL*8 DIAG(*)
 
       INTEGER IDUM_ARR(1)
+      INTEGER NTEST,IBLOCK,II,IDET,ITDET,IBLK,I_AM_NOT_WANTED,I,IATP,
+     &        IBTP,IASM,IBSM,IREST1,IOFF,IA,IEL,IAEL,JEL,IBSTRT,IBSTOP,
+     &        IB,IBEL,IORB,IASTRT,IASTOP,NASTR1,NBSTR1
+      REAL*8 XADD,EAA,RJBB,EB,X,HB
 *
       NTEST =  0
       NTEST = MAX(NTEST,IPRNT)
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1.0D6
       ELSE
-         XADD = 0.0D0
+         XADD = ZERO
       END IF
 *
 
@@ -129,7 +135,7 @@ C     REAL * 8  INPROD
      &                           IASTR,   NORB,     0,IDUM_ARR,IDUM_ARR)
         IOFF =  1
         DO IA = 1, NSSOA(IASM,IATP)
-          EAA = 0.0D0
+          EAA = Zero
           DO IEL = 1, NAEL
             IAEL = IASTR(IEL,IA)
             EAA = EAA + H(IAEL)
@@ -150,9 +156,9 @@ C     REAL * 8  INPROD
 *
 *. Terms depending only on IB
 *
-          HB = 0.0D0
-          RJBB = 0.0D0
-          CALL SETVEC(XB,0.0D0,NORB)
+          HB = Zero
+          RJBB = Zero
+          CALL SETVEC(XB,Zero,NORB)
 *
           DO IEL = 1, NBEL
             IBEL = IBSTR(IEL,IB)
@@ -189,7 +195,7 @@ C     REAL * 8  INPROD
               DIAG(IDET) = X
               IF(IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
             ELSE
-              DIAG(IDET) = 0.0D0
+              DIAG(IDET) = Zero
             END IF
 * Lasse addition end
           END DO
@@ -219,5 +225,4 @@ C     REAL * 8  INPROD
 *
       IF ( ICISTR.GE.2 ) CALL ITODS([-1],1,-1,LUDIA)
 *
-      RETURN
-      END
+      END SUBROUTINE GASDIAS

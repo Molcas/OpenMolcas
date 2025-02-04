@@ -14,9 +14,15 @@
       SUBROUTINE ADAST_GAS(   IOBSM,   IOBTP,   NIGRP,    IGRP, ISPGPSM,
      &                           I1,    XI1S,   NKSTR,    IEND,   IFRST,
      &                        KFRST,    KACT,  SCLFAC,     IAC)
-      use strbas
-      use distsym
+      use strbas, only: NSTSGP,ISTSGP,STSTM
+      use distsym, only: ISMDFGP,ISMSCR,NACTSYM
       use stdalloc, only: mma_allocate, mma_deallocate
+      use lucia_data, only: IBGPSTR,IGSFGP,NELFGP,NGPSTR,NGRP,NSTFGP
+      use lucia_data, only: LOFFI
+      use lucia_data, only: IOBPTS,NOBPT,NOBPTS
+      use lucia_data, only: ISTAC
+      use lucia_data, only: MXPNGAS,MXPNSMST
+      use csm_data, only: NSMST
 *
 *
 * Obtain creation or annihilation mapping
@@ -54,19 +60,18 @@
 *. Input
 * ======
 *
-*./BIGGY
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "gasstr.fh"
-#include "cgas.fh"
-#include "csm.fh"
-#include "lucinp.fh"
-#include "loff.fh"
+      IMPLICIT NONE
+      INTEGER IOBSM,IOBTP,NIGRP,ISPGPSM,NKSTR,IEND,IFRST,KFRST,KACT,IAC
+      REAL*8 SCLFAC
 *. Input
       INTEGER IGRP(NIGRP)
+* =======
+*. Output
+* =======
+*
+      INTEGER I1(*)
+      REAL*8 XI1S(*)
+
 *. Local scratch
       INTEGER ISMFGS(MXPNGAS)
       INTEGER MXVLI(MXPNGAS),MNVLI(MXPNGAS)
@@ -76,14 +81,16 @@
       INTEGER KGRP(MXPNGAS)
       INTEGER IACIST(MXPNSMST), NACIST(MXPNSMST)
       ALLOCATABLE IOFFI(:)
+      INTEGER NTEST,I,NORBTS,NORBT,IACGAS,IBORBSP,IBORBSPS,IDELTA,
+     &        IACGRP,JGRP,NIEL,NKEL,KACGRP,KSM,NKDIST,NGASL,NIGASL,
+     &        NELB,IZERO,KFIRST,KSTRBS,IGAS,NONEW,NSTRIK,ISAVE,IACSM,
+     &        IBSTRINI,NSTB,NSTA,NIAC,IIAC,NKAC,IKAC,NKSD,IEC,LROW_IN,
+     &        NKACT,IORB,IORBR,IOFFI,KBSTRIN,NACGSOB
+      INTEGER, EXTERNAL :: IOFF_SYM_DIST
 *
 *
-* =======
-*. Output
-* =======
-*
-      INTEGER I1(*)
-      DIMENSION XI1S(*)
+
+      INTEGER, External:: IELSUM
 *. Will be stored as an matrix of dimension
 * (NKSTR,*), Where NKSTR is the number of K-strings of
 *  correct symmetry . Nk is provided by this routine.
@@ -331,11 +338,10 @@ C       DO IGAS =  IOBTP +1, NIGRP
         END IF
       END IF
 *
-      RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(IEND)
         CALL Unused_integer(IFRST)
         CALL Unused_integer(KFRST)
       END IF
-      END
+      END SUBROUTINE ADAST_GAS

@@ -27,8 +27,8 @@ set (sources
      change.F90
      chcar.F90
      chk_lblcnt.F90
-     closep.F90
      close_semidscf.F90
+     closep.F90
      clssew.F90
      cmbnac.F90
      cmbncb.F90
@@ -40,9 +40,10 @@ set (sources
      cntrct.F90
      conmax.F90
      contei.F90
+     coor_setup.F90
      coset.F90
-     covrad_data.F90
      covrad.F90
+     covrad_data.F90
      covradt.F90
      crsph1.F90
      crsph2.F90
@@ -50,9 +51,10 @@ set (sources
      dcr.F90
      dcr_mod.F90
      deaf.F90
-     define_af.F90
      def_shells.F90
+     define_af.F90
      dens_info.F90
+     dens_stuff.F90
      desym1.F90
      desymd.F90
      desymp.F90
@@ -60,11 +62,13 @@ set (sources
      dgamma.F90
      diagmtrx_x.F90
      disp.F90
+     doreadbpt2.F90
      dozeta.F90
      drbuf.F90
      drv1_pcm.F90
      drv1_rf.F90
      drv2_rf.F90
+     drv2el_ijij.F90
      drvefp.F90
      drvk2.F90
      drvpcm.F90
@@ -77,6 +81,7 @@ set (sources
      efnuc.F90
      efp_.F90
      efp_module.F90
+     efp_on.F90
      efprm.F90
      efxf.F90
      ener.F90
@@ -98,8 +103,8 @@ set (sources
      free_dede.F90
      free_herrw.F90
      free_isd.F90
-     freek2.F90
      free_rctfld.F90
+     freek2.F90
      gamma2.F90
      gamma_blocks.F90
      gammln.F90
@@ -108,22 +113,22 @@ set (sources
      get_d1a.F90
      get_d1i.F90
      get_efp.F90
-     get_f1.F90
      get_f.F90
-     get_i1.F90
+     get_f1.F90
      get_i.F90
-     getinf.F90
+     get_i1.F90
      get_info_dynamic.F90
      get_info_static.F90
-     getline_mod.F90
-     get_ln_eof.F90
      get_ln.F90
+     get_ln_eof.F90
      get_ln_quit.F90
      get_s.F90
+     getinf.F90
+     getline_mod.F90
      highfm.F90
      hmod.F90
-     hrr1.F90
      hrr.F90
+     hrr1.F90
      hrrmtrx.F90
      icfrst.F90
      ichatm.F90
@@ -135,16 +140,17 @@ set (sources
      inew.F90
      inisew.F90
      inisewm.F90
-     initia.F90
      init_pcm.F90
      init_rctfld.F90
      init_semidscf.F90
-     integral_interfaces.F90
-     integral_wrout2.F90
-     inter1.F90
-     inter.F90
+     initia.F90
      int_options.F90
      int_setup.F90
+     integral_ijij.F90
+     integral_interfaces.F90
+     integral_wrout2.F90
+     inter.F90
+     inter1.F90
      iobuf.F90
      ipd.F90
      ipntso.F90
@@ -154,11 +160,11 @@ set (sources
      isd_data.F90
      iwbuf.F90
      k2_arrays.F90
-     k2loop.F90
      k2_structure.F90
+     k2loop.F90
      kneprm.F90
-     langevin_arrays.F90
      langevin.F90
+     langevin_arrays.F90
      lattcr.F90
      lattxpol.F90
      lhr.F90
@@ -187,8 +193,8 @@ set (sources
      nddo.F90
      newpk.F90
      no_routine.F90
-     nropr.F90
      nr_shells.F90
+     nropr.F90
      ntmul.F90
      nucexp.F90
      ochrr.F90
@@ -200,10 +206,10 @@ set (sources
      pcmint.F90
      pgamma.F90
      pget0.F90
-     pget1_aces.F90
      pget1.F90
-     pget2_aces.F90
+     pget1_aces.F90
      pget2.F90
+     pget2_aces.F90
      pget3.F90
      pget4.F90
      phase.F90
@@ -226,8 +232,8 @@ set (sources
      radlq.F90
      rctfld.F90
      rctfld_module.F90
-     read_bin_columbus.F90
      read_bin.F90
+     read_bin_columbus.F90
      read_blocks.F90
      read_iv.F90
      read_lgtoc.F90
@@ -247,37 +253,37 @@ set (sources
      rrint.F90
      schint.F90
      screen.F90
-     set_basis_mode_atomic.F90
      set_basis_mode.F90
+     set_basis_mode_atomic.F90
      set_binom.F90
      set_canind.F90
      setmltplcenters.F90
-     setup1.F90
-     setupa.F90
      setup.F90
+     setup1.F90
      setup_ints.F90
      setup_isd.F90
+     setupa.F90
      seward_init.F90
      shell_mxdens.F90
      shell_mxschwz.F90
-     size_sob.F90
      soadd.F90
      sodist.F90
      sofsh1.F90
      sogthr.F90
      soout.F90
-     sosctt.F90
      sos.F90
+     sosctt.F90
+     sp_mlt.F90
      sphcar.F90
      sphcr1.F90
      sphcr2.F90
-     sp_mlt.F90
      stblz.F90
      stblzr.F90
      symad1.F90
      symado.F90
      symadp.F90
      tcrtnc.F90
+     temptime.F90
      term_ints.F90
      tetin.F90
      tf.F90
@@ -310,13 +316,14 @@ set (modfile_list
      covrad_data.F90
      dcr_mod.F90
      define_af.F90
+     dens_stuff.F90 # dependency from integral_interfaces.F90
      disp.F90
      efp_.F90
      efp_module.F90
      etwas.F90
      getline_mod.F90
-     integral_interfaces.F90
      int_options.F90
+     integral_interfaces.F90
      iobuf.F90 # dependency from integral_interfaces.F90
      isd_data.F90
      k2_arrays.F90
@@ -329,6 +336,7 @@ set (modfile_list
      real_spherical.F90
      rmat.F90
      setup.F90
+     temptime.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

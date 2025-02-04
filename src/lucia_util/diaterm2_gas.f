@@ -13,7 +13,17 @@
       SUBROUTINE DIATERM2_GAS( FACTOR,  ITASK,    VEC, NBLOCK, IBLOCK,
      &                           IOFF,  JPERT,    J12,    JDC)
       use stdalloc, only: mma_allocate, mma_deallocate
-      use strbas
+      use strbas, only: NSTSO
+      use lucia_data, only: ECORE_ORIG,ECORE
+      use lucia_data, only: IPRDIA
+      use lucia_data, only: MXNSTR
+      use lucia_data, only: NTOOB,IREOST,IREOTS,NACOB
+#ifdef _DEBUGPRINT_
+      use lucia_data, only: IDC,IPERTOP,IBSPGPFTP
+#endif
+      use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
+      use csm_data, only: NSMST
 * = DIATERM_GAS, just J12 added !
 *
 * Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -25,29 +35,22 @@
 *
 * Jeppe Olsen, August 1995
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "cicisp.fh"
-#include "cstate.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "csm.fh"
-#include "cprnt.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "oper.fh"
-#include "cecore.fh"
-*
-#include "cintfo.fh"
-*
-      INTEGER IBLOCK(8,*)
-*
-      DIMENSION VEC(*)
+      REAL*8 FACTOR
+      INTEGER ITASK,IBLOCK(8,*)
+      REAL*8 VEC(*)
+      INTEGER IOFF,JPERT,J12,JDC
+
       Integer, Allocatable:: LASTR(:), LBSTR(:)
       Real*8, Allocatable:: LSCR2(:)
       Real*8, Allocatable:: LJ(:), LK(:), LXB(:), LH1D(:), LRJKA(:)
+      INTEGER, EXTERNAL:: IMNMX
+      INTEGER NTEST,IATP,IBTP,NAEL,NBEL,NOCTPA,MAXA,NBLOCK
+      REAL*8 ECOREP,SHIFT,FACTORX
+#ifdef _DEBUGPRINT_
+      INTEGER NOCTPB,IOCTPA,IOCTPB
+#endif
 *
       NTEST = 000
       NTEST = MAX(NTEST,IPRDIA)
@@ -139,4 +142,4 @@ C    &                  IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
       END IF
 #endif
 *
-      END
+      END SUBROUTINE DIATERM2_GAS

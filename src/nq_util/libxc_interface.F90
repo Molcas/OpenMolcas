@@ -18,10 +18,10 @@ use xc_f03_lib_m, only: XC_EXCHANGE, xc_f03_func_info_get_family, xc_f03_func_in
                         xc_f03_gga_exc, xc_f03_gga_exc_vxc, xc_f03_lda_exc, xc_f03_lda_exc_vxc, xc_f03_mgga_exc, &
                         xc_f03_mgga_exc_vxc, XC_FAMILY_GGA, XC_FAMILY_HYB_GGA, XC_FAMILY_HYB_MGGA, XC_FAMILY_LDA, XC_FAMILY_MGGA
 use nq_Grid, only: F_xca, F_xcb, l_casdft, Lapl, Rho, Sigma, Tau, vLapl, vRho, vSigma, vTau
+use nq_pdft, only: tmpTau
 use libxc, only: dfunc_dLapl, dfunc_drho, dfunc_dSigma, dfunc_dTau, func, Only_exc
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, LibxcReal, LibxcSize
-use nq_pdft, only: tmpTau
 
 implicit none
 type(xc_f03_func_t), intent(in) :: xc_func      ! xc functional

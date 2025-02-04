@@ -17,7 +17,7 @@
       use MCLR_Data, only: i12,iST,Square
       use MCLR_Data, only: iRefSM
       use MCLR_Data, only: XISPSM
-      use cands, only: ICSM,ISSM
+      use CandS, only: ICSM,ISSM
       use input_mclr, only: State_Sym,nSym,Page,nCSF
       Implicit None
       Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2

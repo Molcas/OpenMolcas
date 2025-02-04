@@ -186,8 +186,9 @@
      &    n_to_ON, nNew,
      &    nDel, nSSH, nOrb, nDelt, nSec, nOrbt, nTot3, nTot4)
       use general_data, only : nSym
+      use printlevel, only: USUAL
+      use output_ras, only: LF,IPRLOC
 #include "warnings.h"
-#include "output_ras.fh"
       integer, intent(in) :: n_to_ON(:), nNew(:)
       integer, intent(inout) :: nDel(:), nSSH(:), nOrb(:),
      &  nDelt, nSec, nOrbt, nTot3, nTot4
@@ -236,6 +237,7 @@
 
       subroutine read_raw_S(S_buffer)
         use OneDat, only: sNoOri
+        use output_ras, only: LF
         real(wp), intent(inout) :: S_buffer(:)
         integer :: i_Rc, i_Opt, i_Component, i_SymLbl
         character(len=8) :: Label
@@ -248,10 +250,10 @@
         Label = 'Mltpl  0'
         Call RdOne(i_Rc, i_Opt, Label, i_Component, S_buffer, i_SymLbl)
         if ( i_rc /= 0 ) then
-          write(6,*)' RASSCF is trying to orthonormalize orbitals but'
-          write(6,*)' could not read overlaps from ONEINT. Something'
-          write(6,*)' is wrong with the file, or possibly with the'
-          write(6,*)' program. Please check.'
+          write(LF,*)' RASSCF is trying to orthonormalize orbitals but'
+          write(LF,*)' could not read overlaps from ONEINT. Something'
+          write(LF,*)' is wrong with the file, or possibly with the'
+          write(LF,*)' program. Please check.'
           call quit(_RC_IO_ERROR_READ_)
         end if
       end subroutine
@@ -260,8 +262,9 @@
       subroutine read_S(S)
         use general_data, only : nBas, nSym, nActEl
         use rasscf_global, only : nFr, nIn, Tot_Nuc_Charge
+      use printlevel, only: USUAL
+      use output_ras, only: LF,IPRLOC
 #include "warnings.h"
-#include "output_ras.fh"
         type(t_blockdiagonal) :: S(nSym)
 
         integer :: size_S_buffer
@@ -279,8 +282,8 @@
         Mol_Charge = Tot_Nuc_Charge - dble(2 * (nFr + nIn) + nActEl)
         call put_dscalar('Total Charge    ', Mol_Charge)
         if (IPRLOC(1) >= usual) then
-          write(6,*)
-          write(6,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
+          write(LF,*)
+          write(LF,'(6x,A,f8.2)') 'Total molecular charge',Mol_Charge
         end if
 
       end subroutine

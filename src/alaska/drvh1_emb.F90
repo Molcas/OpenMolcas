@@ -36,7 +36,7 @@ procedure(grd_mem) :: FragPMmG, M1MmG, M2MmG, NAMmG, PPMmG, PrjMmG, SROMmG
 iRout = 131
 iPrint = nPrint(iRout)
 call CWTime(TCpu1,TWall1)
-call StatusLine(' Alaska:',' Computing 1-el OFE gradients')
+call StatusLine('Alaska: ','Computing 1-el OFE gradients')
 
 call Set_Basis_Mode('Valence')
 call Setup_iSD()

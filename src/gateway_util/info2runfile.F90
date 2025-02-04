@@ -22,7 +22,7 @@ subroutine Info2Runfile()
 !***********************************************************************
 
 use Period, only: AdCell, Cell_l, ispread, lthCell, VCell
-use Basis_Info, only: dbsc, nBas, nCnttp
+use Basis_Info, only: dbsc, DOEMPC, nBas, nCnttp
 use Center_Info, only: dc
 use External_Centers, only: iXPolType, XF, nXF
 use Gateway_global, only: Expert, DirInt
@@ -38,7 +38,6 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
-#include "embpcharg.fh"
 integer(kind=iwp) :: i, iCnt, iCnttp, iFMM, iGO, iNTC, iNuc, iOption, iter_S, mdc, nData, nNuc, nDel(8)
 logical(kind=iwp) :: Found, Pseudo
 integer(kind=iwp), allocatable :: ICh(:), IsMM(:), nStab(:), NTC(:)

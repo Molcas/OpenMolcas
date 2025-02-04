@@ -11,32 +11,28 @@
 ! Copyright (C) 1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine DerCtr(mdci,mdcj,mdck,mdcl,ldot,JfGrd,IndGrd,JfHss,IndHss,JfG)
+subroutine DerCtr(ldot,JfGrd,IndGrd,JfHss,IndHss,JfG,nSD,iSD4)
 
-!#define _OLD_CODE_
 use McKinley_global, only: sIrrep
 use Index_Functions, only: iTri
 use Disp, only: IndDsp
 use Symmetry_Info, only: nIrrep
-#ifdef _OLD_CODE_
-use Center_Info, only: dc
-use Symmetry_Info, only: iOper
-#endif
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: mdci, mdcj, mdck, mdcl
 logical(kind=iwp), intent(in) :: ldot
 logical(kind=iwp), intent(out) :: JfGrd(3,4), JfHss(4,3,4,3), JfG(4)
 integer(kind=iwp), intent(out) :: IndGrd(3,4,0:7), IndHss(4,3,4,3,0:7)
-integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, istop, jAtom, jCar, JndGrd(3,4,0:7), nDisp, nnIrrep
+integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
+integer(kind=iwp) :: iAtom, ic1, ic2, iCar, iComp, ii, iIrrep, ij, istop, jAtom, jCar, JndGrd(3,4,0:7), mdci, mdcj, mdck, mdcl, &
+                     nDisp, nnIrrep
 logical(kind=iwp) :: IfG(4), IfGrd(3,4), IfHss(4,3,4,3)
 logical(kind=iwp), external :: TF
-#ifdef _OLD_CODE_
-integer(kind=iwp) :: i, iCo(4), iCom(0:7,0:7), idcrr(0:7), ielem, iStabM(0:7), iTmp(0:7), j, jOper, LmbdR, nDCRR, nCoM, nMax, nStabM
-logical(kind=iwp) :: chck
-logical(kind=iwp), external :: TstFnc
-#endif
+
+mdci = iSD4(10,1)
+mdcj = iSD4(10,2)
+mdck = iSD4(10,3)
+mdcl = iSD4(10,4)
 
 nnIrrep = nIrrep
 IfGrd(:,:) = .false.
@@ -96,12 +92,6 @@ do iIrrep=0,nnIrrep-1
 end do
 JndGrd(:,:,0:nnIrrep-1) = IndGrd(:,:,0:nnIrrep-1)
 JfGrd(:,:) = IfGrd(:,:)
-#ifdef _OLD_CODE_
-iCo(1) = mdci
-iCo(2) = mdcj
-iCo(3) = mdck
-iCo(4) = mdcl
-#endif
 IndHss(:,:,:,:,0:nirrep-1) = 0
 IfHss(:,:,:,:) = .false.
 JfHss(:,:,:,:) = .false.
@@ -109,61 +99,6 @@ if (.not. ldot) return
 
 do iAtom=1,4
   do jAtom=1,iAtom
-
-    ! This segment of the code is not really needed.
-    ! If turned on it should not do much of a difference.
-
-#   ifdef _OLD_CODE_
-    call DCR(LmbdR,dc(iCo(iAtom))%iStab,dc(iCo(iAtom))%nStab,dc(iCo(jAtom))%iStab,dc(iCo(jAtom))%nStab,iDCRR,nDCRR)
-
-    ! Find the stabilizer for A and B
-
-    call Inter(dc(iCo(iAtom))%iStab,dc(iCo(iAtom))%nStab,dc(iCo(jAtom))%iStab,dc(iCo(jAtom))%nStab,iStabM,nStabM)
-
-    ! Generate all possible (left) CoSet
-    ! To the stabilizer of A and B
-
-    do jOper=0,nStabM-1
-      iCoM(0:nIrrep-1,jOper) = ieor(iOper(0:nIrrep-1),iStabM(jOper))
-    end do
-
-    ! Order the Coset so we will have the unique ones first
-    ! Check uniqueness
-
-    nMax = 1
-    outer: do j=1,nIrrep-1
-      do i=0,nMax-1
-        do ielem=0,nStabM-1
-          if (iCoM(i,1) == iCoM(j,ielem)) cycle outer
-        end do
-      end do
-
-      ! Move unique CoSet
-
-      nMax = nMax+1
-      iTmp(0:nStabM-1) = iCoM(nMax-1,0:nStabM-1)
-      iCoM(nMax-1,0:nStabM-1) = iCoM(j,0:nStabM-1)
-      iCoM(j,0:nStabM-1) = iTmp(0:nStabM-1)
-      if (nMax == nIrrep/nStabM) exit outer
-    end do outer
-
-    ! Check if the derivative is needed in the present symmetry
-
-    nCoM = nIrrep/nStabM
-
-    do iCar=1,3
-      if (iAtom == jAtom) then
-        istop = iCar
-      else
-        iStop = 3
-      end if
-      do jCar=1,istop
-        iComp = ieor(2**(iCar-1),2**(jCar-1))
-        Chck = TstFnc(iCoM,0,iComp,nStabM)
-        if (Chck) IfHss(iAtom,iCar,jAtom,jCar) = .true.
-      end do
-    end do
-#   endif
 
     ! Calculate the index for the derivative
 
@@ -224,7 +159,5 @@ end if
 !  End Hess
 !
 !----------------------------------------------------------------------*
-
-return
 
 end subroutine DerCtr

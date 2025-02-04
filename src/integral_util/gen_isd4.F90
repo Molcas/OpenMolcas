@@ -22,6 +22,4 @@ iSD4(:,2) = iSD(:,jS)
 iSD4(:,3) = iSD(:,kS)
 iSD4(:,4) = iSD(:,lS)
 
-return
-
 end subroutine Gen_iSD4

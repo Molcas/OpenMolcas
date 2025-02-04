@@ -13,11 +13,10 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine PSOAO2(nSO,MemPrm,MemM,iAnga,iCmpa,iAO,iFnc,iBas,iBsInc,jBas,jBsInc,kBas,kBsInc,lBas,lBsInc,iPrim,iPrInc,jPrim,jPrInc, &
-                  kPrim,kPrInc,lPrim,lPrInc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,nCMO,MemFin,MemBuffer,iMemB)
+subroutine PSOAO2(nSO,MemPrm,MemM,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,MemBuffer,nSD,iSD4)
 !***********************************************************************
 !                                                                      *
-!  Object: to partion the SO and AO block. It will go to some length   *
+!  Object: to partition the SO and AO block. It will go to some length *
 !          before it will start and break up the SO block. This will   *
 !          reduce the total flop count. However, as we are breaking up *
 !          the AO block this will affect the vectorization. Hence, at  *
@@ -84,26 +83,39 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, iAnga(4), iCmpa(4), iAO(4), iBas, jBas, kBas, lBas, iPrim, jPrim, kPrim, &
-                                 lPrim, nAco, iMemB
-integer(kind=iwp), intent(out) :: iFnc(4), iBsInc, jBsInc, kBsInc, lBsInc, iPrInc, jPrInc, kPrInc, lPrInc, Mem1, Mem2, Mem3, Mem4, &
-                                  MemX, MemPSO, MemFck, nFT, nCMO, MemFin, MemBuffer
-integer(kind=iwp) :: i1, iiBas(4), iCmp, iFac, iTmp1, j, jCmp, jPam, kCmp, kSOInt, la, lb, lc, lCmp, ld, mabcd, Mem0, MemAux, &
-                     MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nFac, nijkl, nMax, nMaxC, &
-                     nPam(4,0:7), nTmp1, nTmp2
+integer(kind=iwp), intent(in) :: nSO, MemPrm, MemM, nAco, nSD, MemBuffer
+integer(kind=iwp), intent(out) :: iFnc(4), Mem1, Mem2, Mem3, Mem4, MemX, MemPSO, MemFck, nFT, MemFin
+integer(kind=iwp), intent(inout) :: iSD4(0:nSD,4)
+integer(kind=iwp) :: i1, iAO(4), iBas, iBsInc, iCmp, iCmpa(4), iFac, iiBas(4), iPrim, iPrInc, iTmp1, j, jBas, jBsInc, jCmp, jPam, &
+                     jPrim, jPrInc, kBas, kBsInc, kCmp, kPrim, kPrInc, kSOInt, la, lb, lBas, lBsInc, lc, lCmp, ld, lPrim, lPrInc, &
+                     mabcd, Mem0, MemAux, MemCntrct, MemDep, MemF, MemMax, MemMO, MemRys, MemScr, MemSph, MemTrn, nabcd, nCMO, &
+                     nFac, nijkl, nMax, nMaxC, nPam(4,0:7), nTmp1, nTmp2
 logical(kind=iwp) :: Fail, QiBas, QjBas, QjPrim, QkBas, QlBas, QlPrim
 integer(kind=iwp), external :: MemTra
 
-!iRout = 10
-!iPrint = nPrint(iRout)
-la = iAnga(1)
-lb = iAnga(2)
-lc = iAnga(3)
-ld = iAnga(4)
+iAO(:) = iSD4(7,:)
+iCmpa(:) = iSD4(2,:)
+
+la = iSD4(1,1)
+lb = iSD4(1,2)
+lc = iSD4(1,3)
+ld = iSD4(1,4)
+
 iCmp = iCmpa(1)
 jCmp = iCmpa(2)
 kCmp = iCmpa(3)
 lCmp = iCmpa(4)
+
+iBas = iSD4(3,1)
+jBas = iSD4(3,2)
+kBas = iSD4(3,3)
+lBas = iSD4(3,4)
+
+iPrim = iSD4(5,1)
+jPrim = iSD4(5,2)
+kPrim = iSD4(5,3)
+lPrim = iSD4(5,4)
+
 mabcd = nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lc)*nTri_Elem1(ld)
 nabcd = iCmp*jCmp*kCmp*lCmp
 
@@ -128,7 +140,6 @@ end if
 iPrInc = iPrim
 kPrInc = kPrim
 lPrInc = lPrim
-MemBuffer = iMemB
 MemMax = MemM-MemBuffer
 
 do
@@ -356,6 +367,14 @@ else
   Mem4 = Mem2
 end if
 
-return
+iSD4(4,1) = iBsInc
+iSD4(4,2) = jBsInc
+iSD4(4,3) = kBsInc
+iSD4(4,4) = lBsInc
+
+iSD4(6,1) = iPrInc
+iSD4(6,2) = jPrInc
+iSD4(6,3) = kPrInc
+iSD4(6,4) = lPrInc
 
 end subroutine PSOAO2

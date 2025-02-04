@@ -11,19 +11,21 @@
 * Copyright (C) 1995, Jeppe Olsen                                      *
 ************************************************************************
       SUBROUTINE ZNELFSPGP(NTESTG)
-      use strbas
+      use lucia_data, only: NGAS
+      use lucia_data, only: NSTTP,IBSPGPFTP,ISPGPFTP,NELFGP,
+     &                      NELFSPGP,NSPGPFTP
+      use lucia_data, only: MXPNGAS
 *
 * Generate for each supergroup the number of electrons in each active
 * orbital space and store in NELFSPGP
 *
 * Jeppe Olsen, July 1995
 *
-      IMPLICIT REAL*8(A-H,O-Z)
+      IMPLICIT NONE
+      INTEGER NTESTG
 *. input
-#include "mxpdim.fh"
-#include "cgas.fh"
 *. Input and Output ( NELFSPGP(MXPNGAS,MXPSTT) )
-#include "gasstr.fh"
+      INTEGER NTESTL,NTEST,ITP,NSPGP,IBSPGP,ISPGP,IGAS
 *
       NTESTL = 0
       NTEST = MAX(NTESTG,NTESTL)
@@ -49,5 +51,4 @@
         END DO
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE ZNELFSPGP

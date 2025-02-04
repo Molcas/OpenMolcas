@@ -48,6 +48,7 @@ subroutine Drv2El_dscf(Dens,TwoHam,nDens,nDisc,FstItr)
 !***********************************************************************
 
 use IOBUF, only: lBuf
+use Basis_Info, only: dbsc
 use Gateway_Info, only: CutInt, ThrInt
 use RICD_Info, only: Do_DCCD
 use iSD_data, only: iSD
@@ -61,12 +62,12 @@ integer(kind=iwp), intent(in) :: nDens, nDisc
 real(kind=wp), target, intent(inout) :: Dens(nDens), TwoHam(nDens)
 logical(kind=iwp), intent(inout) :: FstItr
 integer(kind=iwp), parameter :: nTInt = 1
-integer(kind=iwp) :: ijS, iOpt, iS, jS, klS, kS, lS, mDens, nIJ, nSkal
-real(kind=wp) :: A_Int, Dtst, P_Eff, PP_Count, PP_Eff, PP_Eff_Delta, S_Eff, ST_Eff, T_Eff, TCPU1, TCPU2, ThrAO, TInt(nTInt), &
-                 TMax_All, TskHi, TskLw, TWALL1, TWALL2
-logical(kind=iwp) :: DoGrad, Indexation, Semi_Direct, Skip, Triangular
+integer(kind=iwp) :: iCnttp, ijS, iOpt, iS, jCnttp, jS, kCnttp, klS, kS, lCnttp, lS, mDens, nIJ, nSkal
+real(kind=wp) :: A_Int, Dtst, P_Eff, PP_Count, PP_Eff, PP_Eff_Delta, S_Eff, ST_Eff, T_Eff, ThrAO, TInt(nTInt), TMax_All, TskHi, &
+                 TskLw
+logical(kind=iwp) :: DoGrad, Indexation, Semi_Direct, Triangular
 character(len=72) :: SLine
-integer(kind=iwp), allocatable :: ip_ij(:,:)
+integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: DMax(:,:), TMax(:,:)
 procedure(int_wrout) :: No_Routine
 logical(kind=iwp), external :: Rsv_GTList
@@ -75,7 +76,7 @@ logical(kind=iwp), external :: Rsv_GTList
 !***********************************************************************
 !                                                                      *
 SLine = 'Computing 2-electron integrals'
-call StatusLine(' SCF:',SLine)
+call StatusLine('Seward: ',SLine)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -146,24 +147,19 @@ call Shell_MxDens(Dens,DMax,nSkal)
 !                                                                      *
 ! Create list of non-vanishing pairs
 
-call mma_allocate(ip_ij,2,nSkal*(nSkal+1),Label='ip_ij')
+call mma_allocate(Pair_Index,2,nSkal*(nSkal+1),Label='ip_ij')
 nij = 0
 do iS=1,nSkal
   do jS=1,iS
     if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,jS))) cycle
     if (TMax_All*TMax(iS,jS) >= CutInt) then
       nij = nij+1
-      ip_ij(1,nij) = iS
-      ip_ij(2,nij) = jS
+      Pair_Index(1,nij) = iS
+      Pair_Index(2,nij) = jS
     end if
   end do
 end do
 P_Eff = real(nij,kind=wp)
-
-PP_Eff = P_Eff**2
-PP_Eff_delta = 0.1_wp*PP_Eff
-PP_Count = Zero
-
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -186,7 +182,9 @@ end if
 iOpt = 0
 if ((.not. FstItr) .and. Semi_direct) iOpt = 2
 
-call CWTime(TCpu1,TWall1)
+PP_Eff = P_Eff**2
+PP_Eff_delta = 0.1_wp*PP_Eff
+PP_Count = Zero
 
 ! big loop over individual tasks, distributed over individual nodes
 
@@ -197,36 +195,50 @@ do
   if (.not. Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) exit
 
   call Mode_SemiDSCF(W2Disc)
-  !write(u6,*) 'TskLw,TskHi,W2Disc=',TskLw,TskHi,W2Disc
 
   ! Now do a quadruple loop over shells
 
   ijS = int((One+sqrt(Eight*TskLw-Three))/Two)
-  iS = ip_ij(1,ijS)
-  jS = ip_ij(2,ijS)
   klS = int(TskLw-real(ijS,kind=wp)*(real(ijS,kind=wp)-One)/Two)
-  kS = ip_ij(1,klS)
-  lS = ip_ij(2,klS)
   Quad_ijkl = TskLw
 
-  Skip = (Quad_ijkl-TskHi > 1.0e-10_wp) ! Cut off check
-
+  Quad_ijkl = Quad_ijkl-One
+  klS = klS-1
   do
-    if (Skip) exit
-    ! What are these variables
+    Quad_ijkl = Quad_ijkl+One
+    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
+    klS = klS+1
+    if (klS > ijS) then
+      ijS = ijS+1
+      klS = 1
+    end if
+    iS = Pair_Index(1,ijS)
+    jS = Pair_Index(2,ijS)
+    kS = Pair_Index(1,klS)
+    lS = Pair_Index(2,klS)
+
+    ! Logic to avoid computing integrals in a mixed muonic and electronic basis.
+
+    iCnttp = iSD(13,iS)
+    jCnttp = iSD(13,jS)
+    if (dbsc(iCnttp)%fMass /= dbsc(jCnttp)%fMass) cycle
+    kCnttp = iSD(13,kS)
+    lCnttp = iSD(13,lS)
+    if (dbsc(kCnttp)%fMass /= dbsc(lCnttp)%fMass) cycle
     S_Eff = real(ijS,kind=wp)
     T_Eff = real(klS,kind=wp)
     ST_Eff = S_Eff*(S_Eff-One)*Half+T_Eff
 
     if (ST_Eff >= PP_Count) then
       write(SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',ST_Eff/PP_Eff,'% done so far.'
-      call StatusLine(' Seward:',SLine)
+      call StatusLine('Seward: ',SLine)
       PP_Count = PP_Count+PP_Eff_delta
     end if
     !                                                                  *
     !*******************************************************************
     !                                                                  *
     A_int = TMax(iS,jS)*TMax(kS,lS)
+
     if (Semi_Direct) then
 
       ! No density screening in semi-direct case!
@@ -237,7 +249,8 @@ do
       !         threshold
       !         for the current iteration
 
-      if (A_Int < CutInt) Skip = .true.
+      if (A_Int < CutInt) cycle
+
     else
 
       if (FckNoClmb) then
@@ -248,27 +261,16 @@ do
         Dtst = max(DMax(is,ls)/Four,DMax(is,ks)/Four,DMax(js,ls)/Four,DMax(js,ks)/Four,DMax(is,js),DMax(ks,ls))
       end if
 
-      if (A_int*Dtst < ThrInt) Skip = .true.
+      if (A_int*Dtst < ThrInt) cycle
 
     end if
-    if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) Skip = .true.
+
+    if (Do_DCCD .and. (iSD(10,iS) /= iSD(10,kS))) cycle
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    if (.not. Skip) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
-    Skip = .false.
+    call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt)
 
-    Quad_ijkl = Quad_ijkl+One
-    if (Quad_ijkl-TskHi > 1.0e-10_wp) exit
-    klS = klS+1
-    if (klS > ijS) then
-      ijS = ijS+1
-      klS = 1
-    end if
-    iS = ip_ij(1,ijS)
-    jS = ip_ij(2,ijS)
-    kS = ip_ij(1,klS)
-    lS = ip_ij(2,klS)
   end do
 
   ! Task endpoint
@@ -283,7 +285,6 @@ do
 
 end do
 ! End of big task loop
-call CWTime(TCpu2,TWall2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -294,7 +295,7 @@ call CWTime(TCpu2,TWall2)
 if (Semi_Direct) call Close_SemiDSCF()
 FstItr = .false.
 
-call mma_deallocate(ip_ij)
+call mma_deallocate(Pair_Index)
 call mma_deallocate(DMax)
 call mma_deallocate(TMax)
 

@@ -243,7 +243,7 @@ do
       Slct = .true.
       if (lEq) then
         call WarningMessage(2,'Error in InputG')
-        write(LuWr,*) ' The Selection option must preceed the Equivalence option to work together.'
+        write(LuWr,*) ' The Selection option must precede the Equivalence option to work together.'
         call Quit_OnUserError()
       end if
       do i=1,3*MxAtom

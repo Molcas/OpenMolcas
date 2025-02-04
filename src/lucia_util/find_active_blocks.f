@@ -8,19 +8,22 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE FIND_ACTIVE_BLOCKS
-     &           (LUIN,LBLK,BLK_A,SEGMNT)
+      SUBROUTINE FIND_ACTIVE_BLOCKS(LUIN,LBLK,BLK_A,SEGMNT)
 *
 *. Find the active (nonvanishing blocks) on LUIN
 *. Non vanishing block is flagged by a 1.0 ( note : real)
 *  in BLK_A
 *
-      IMPLICIT REAL*8(A-H,O-Z)
-#include "io_util.fh"
+      use lucia_data, only: IDISK
+      IMPLICIT None
+      INTEGER LUIN,LBLK
 *. Output
-      DIMENSION BLK_A(*)
+      REAL*8 BLK_A(*)
 *. Scratch
-      DIMENSION SEGMNT(*),LBL(1),IDUMMY(1)
+      REAL*8 SEGMNT(*)
+
+      INTEGER LBL(1),IDUMMY(1)
+      INTEGER IBLK,NBLK_A,KBLK,NO_ZEROING,IMZERO,NBLK,NTEST,IAMPACK
 *
       IDISK(LUIN)=0
 *
@@ -66,8 +69,7 @@
         CALL WRTMAT(BLK_A,1,NBLK,1,NBLK)
       END IF
 *
-      RETURN
-      END
+      END SUBROUTINE FIND_ACTIVE_BLOCKS
 *
 * Obtain property integrals with LABEL LABEL from LU91,
 * LUCIA format

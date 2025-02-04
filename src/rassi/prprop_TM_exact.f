@@ -30,6 +30,7 @@
      &                 PTYPE
       use cntrl, only: LuTDM
       use Symmetry_Info, only: nSym=>nIrrep, MUL
+      use rassi_data, only: NBST,NBASF,NTDMZZ
 
       IMPLICIT None
       Integer NSS
@@ -39,11 +40,9 @@
       Real*8 EigVec(NSTATE,NSTATE)
 
       Real*8, parameter ::THRSH=1.0D-10
-#include "rassi.fh"
       LOGICAL TMOgroup
       INTEGER IOFF(8),IJSS(4),IPRTMOM(14)
       CHARACTER(LEN=8) LABEL
-      CHARACTER(LEN=6) STLNE1
       CHARACTER(LEN=52) STLNE2
       Integer, Dimension(:), Allocatable :: TMOgrp1,TMOgrp2,ISS_INDEX,
      &   iMask,jMask,iSSMask,jSSMask
@@ -450,10 +449,9 @@ C     ALLOCATE A BUFFER FOR READING ONE-ELECTRON INTEGRALS
             IJSS(3)=jstart_
             IJSS(4)=jend_
 *
-            WRITE(STLNE1,'(A6)') 'RASSI:'
             WRITE(STLNE2,'(A33,I5,A5,I5)')
      &         'Trans. intensities for SO groups ',igrp,' and ',jgrp
-            Call StatusLine(STLNE1,STLNE2)
+            Call StatusLine('RASSI: ',STLNE2)
 *
             IF (ABS(EDIFF_).LE.1.0D-8) CYCLE
             IF(EDIFF_.LT.0.0D0) CYCLE

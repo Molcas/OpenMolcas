@@ -55,12 +55,12 @@ use mh5, only: mh5_is_hdf5, mh5_open_file_r
 use InfSCF, only: FileOrb_ID
 #endif
 use spool, only: Close_LuSpool, Spoolinp
+use hfc_logical, only: UHF_HFC
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Ten, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "hfc_logical.fh"
 integer(kind=iwp) :: i, iArray(32), iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, &
                      LuSpool, nOccSet_e, nOccSet_m, Mode(1), nFunc, nnn
 real(kind=wp) :: Tot_Ml_Charge

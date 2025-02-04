@@ -27,6 +27,7 @@ subroutine WelGrd( &
 !***********************************************************************
 
 use Center_Info, only: dc
+use Basis_Info, only: ExpB, r0
 use Index_Functions, only: nTri_Elem1
 use Definitions, only: wp, iwp, u6
 
@@ -34,7 +35,6 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iBeta, ik, iOff, ip, ip0m, ip0p, ip1, ip2, ip3, ip4, ip5, ipAlph, ipAMx, ipBeta, ipGri, ipGrin, &
                      ipm0, ipp0, iPrint, ipScr, ipTGri, iPxyz, iRout, jp, jsumm, jsump, k, k0
-#include "wldata.fh"
 #include "print.fh"
 
 #include "macros.fh"

@@ -14,8 +14,26 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       USE GLBBAS, only: VEC3
       use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
-      use strbas
-      use cands, only: ICSM,ISSM,ISSPC
+      use strbas, only: NSTSO,ISTSO
+      use CandS, only: ICSM,ISSM,ISSPC
+      use Constants, only: Zero
+      use lucia_data, only: NGAS,IPHGAS
+      use lucia_data, only: MXSB,MXSOOB,MXNTTS,ISMOST,XISPSM
+      use lucia_data, only: IPRDEN,IPRCIX
+      use lucia_data, only: ENVIRO,ICISTR,IADVICE,ISIMSYM,IUSE_PH,
+     &                      LCSBLK,MXINKA
+      use lucia_data, only: IREFSM,PSSIGN,IDC
+      use lucia_data, only: MXNSTR,IBSPGPFTP,MAX_STR_OC_BLK,
+     &                      MAX_STR_SPGP,MNHL,NELFSPGP,NHLFSPGP,
+     &                      NSTFSMSPGP
+      use lucia_data, only: NSMOB
+      use lucia_data, only: NACOB,MXTSOB,NOCOB,IOBPTS,IREOST,NACOBS,
+     &                      NINOBS,NOBPTS,NTOOB,NTOOBS
+      use lucia_data, only: NOCTYP
+      use lucia_data, only: NELEC
+      use lucia_data, only: MXPOBS,MXPNGAS,MXPNSMST
+      use csm_data, only: NSMST,NSMDX,NSMSX
+      use csm_data, only: ADSXA,ASXAD,SXDXSX
 *
 * Density matrices between L and R
 *
@@ -46,8 +64,7 @@
 *      = -Sum(ij) a+i alpha a+j beta a i beta a j alpha + Nalpha +
 *        1/2(N alpha - N beta))(1/2(N alpha - Nbeta) - 1)
 * If IDOSRHO1 = 1, spin density is also calculated
-      IMPLICIT REAL*8(A-H,O-Z)
-c      REAL*8 INPRDD
+      IMPLICIT NONE
 *
 * =====
 *.Input
@@ -56,30 +73,14 @@ c      REAL*8 INPRDD
 *.Definition of L and R is picked up from CANDS
 * with L being S and  R being C
 *
-#include "mxpdim.fh"
-#include "orbinp.fh"
-#include "cicisp.fh"
-#include "cstate.fh"
-#include "strinp.fh"
-#include "stinf.fh"
-#include "csm.fh"
-#include "crun.fh"
-#include "cgas.fh"
-#include "gasstr.fh"
-#include "cprnt.fh"
-#include "spinfo_lucia.fh"
-*
-      LOGICAL IPACK
-#include "csmprd.fh"
-#include "lucinp.fh"
-#include "clunit.fh"
-*. Scratch for string information
-      INTEGER SXSTSM(1)
 *. Specific input
-      REAL*8 L
-      DIMENSION L(*),R(*)
+      INTEGER I12,LUL,LUR,IDOSRHO1
+      LOGICAL IPACK
+      REAL*8 L(*),R(*)
 *.Output
-      DIMENSION RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
+      REAL*8 RHO1(*),RHO2(*),RHO2S(*),RHO2A(*),SRHO1(*)
+      REAL*8 EXPS2
+
       Integer, Allocatable:: CONSPA(:), CONSPB(:)
       Real*8, Allocatable:: INSCR(:)
       Integer, Allocatable:: STSTS(:), STSTD(:)
@@ -95,11 +96,23 @@ c      REAL*8 INPRDD
       Integer, Allocatable:: SVST(:)
       Real*8, Allocatable:: RHO1S(:), RHO1P(:), XNATO(:), RHO1SM(:),
      &                       OCCSM(:)
+*. Scratch for string information
+      INTEGER SXSTSM(1)
+
+      INTEGER NIJ,NIJKL,IATP,IBTP,IATPM1,IBTPM1,IATPM2,IBTPM2,NOCTPA,
+     &        NOCTPB,IOCTPA,IOCTPB,NAEL,NBEL,MAXA0,
+     &        MAXB0,MXSTBL0,MAXA,MAXA1,MAXB,MAXB1,MXSTBL,MAXI,
+     &        MAXK,IOBTP,IOBSM,LSCR1,INTSCR,MXCJ,
+     &        MXCIJA,MXCIJB,MXCIJAB,MXSXBL,LSCR2,LSCR12,KCSCR,MAXIK,
+     &        LSCR3,LZSCR,LZ,K12,I1234,NTTS
+      INTEGER MXADKBLK,MXADKBLK_AS,MXCJ_ALLSYM,MX_NSPII,NBATCHL,
+     &        NBATCHR
+      INTEGER, EXTERNAL:: IMNMX
+      REAL*8 S2_TERM1
 
 *. Before I forget it :
 *     IDUM = 0
 *     CALL MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
-      ZERO = 0.0D0
       CALL SETVEC(RHO1,ZERO ,NACOB ** 2 )
       IF(I12.EQ.2) THEN
          IF(IPACK) THEN
@@ -466,5 +479,4 @@ c      END IF
       Call mma_deallocate(LIBTR)
       Call mma_deallocate(LSCLFCR)
 
-      RETURN
-      END
+      END SUBROUTINE DENSI2_LUCIA

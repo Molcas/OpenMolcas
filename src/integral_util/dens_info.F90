@@ -9,20 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nr_of_Densities)
+subroutine Dens_Info(ijS,ipDij,ipDSij,mDCRij,ipDDij,ipTmp,nr_of_Densities,nMethod,ipTmp2,ipDij2,ipDDij2)
 
-use k2_arrays, only: ipOffD
+use k2_arrays, only: ipOffD, ipOffDA
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: ijS, nr_of_Densities
-integer(kind=iwp), intent(out) :: ipDij, ipDSij, mDCRij, ipDDij
-integer(kind=iwp), intent(inout) :: ipTmp
+integer(kind=iwp), intent(in) :: ijS, nr_of_Densities, nMethod
+integer(kind=iwp), intent(out) :: ipDij, ipDSij, mDCRij, ipDDij, ipDij2, ipDDij2
+integer(kind=iwp), intent(inout) :: ipTmp, ipTmp2
 integer(kind=iwp) :: nDij
+integer(kind=iwp), parameter :: SCF = 1, RASSCF = 2
 
 ipDij = ipOffD(1,ijS)
 mDCRij = ipOffD(2,ijS)
 nDij = ipOffD(3,ijS)
+if (nMethod == RASSCF) ipDij2 = ipOffDA(1,ijS)
+
 if (nr_of_Densities == 2) then
   ipDSij = ipOffD(4,ijS)
 else
@@ -32,10 +35,13 @@ end if
 if (mDCRij*nDij /= 0) then
   ipDDij = ipTmp
   ipTmp = ipTmp+nDij*mDCRij
+  if (nMethod == RASSCF) then
+    ipDDij2 = ipTmp2
+    ipTmp2 = ipTmp2+nDij*mDCRij
+  end if
+
 else
   ipDDij = 1
 end if
-
-return
 
 end subroutine Dens_Info
