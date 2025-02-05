@@ -468,7 +468,10 @@ do while (.not. Last)
 #   ifdef _DEBUGPRINT_
     write(u6,'(2X,A,1X,I5)') 'Reducing search space to',mink
 #   endif
-    call DGeMM_('N','N',n,mink,mk,One,Sub,n,EVec,maxk,Zero,Sub,n)
+    call mma_allocate(TmpVec,mink*n,Label='TmpVec')
+    call DGeMM_('N','N',n,mink,mk,One,Sub,n,EVec,maxk,Zero,TmpVec,n)
+    Sub(:,1:mink) = reshape(TmpVec,[n,mink])
+    call mma_deallocate(TmpVec)
 
     ! To make sure Sub' is orthonormal, add the vectors one by one
 

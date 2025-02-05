@@ -24,7 +24,7 @@ subroutine Screen_g(iOffZ,iOffE,PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta
 !                                                                      *
 !   nZeta, nEta : unpartitioned length of primitives.                  *
 !                                                                      *
-!   mZeta, mEta : section length due to partioning. These are usually  *
+!   mZeta, mEta : section length due to partitioning. These are usually*
 !                 equal to nZeta and nEta.                             *
 !                                                                      *
 !   lZeta, lEta : section length after prescreening.                   *

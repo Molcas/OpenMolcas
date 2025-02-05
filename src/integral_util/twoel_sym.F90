@@ -54,12 +54,11 @@ implicit none
 #include "twoel_interface.fh"
 integer(kind=iwp) :: i_Int, iAO(4), iAOst(4), iBasi, iCmp(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij1, ij2, ij3, &
                      ij4, ijS, ik1, ik2, ik3, ik4, il1, il2, il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, iRTS, iS, &
-                     iShell(4), iShll(4), ISMAng, iT, iTS, iW3, iW4, iW4_, iWR(2), ix1, &
-                     ix2, iy1, iy2, iz1, iz2, iZeta, jBasj, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, jOp(6), jPrInc, jS, &
-                     kabcd, kBask, kInts, kl1, kl2, kl3, kl4, klS, kOp(4), kS, la, lb, lBasl, lc, ld, lDCR1, lDCR2, lDCRE_, &
-                     lDCRR, lDCRS, lDCRT, lDCRT_, lPrInc, lS, mabcd, mabMax, mabMin, &
-                     mcdMax, mcdMin, mEta, mInts, mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nAlpha, nAux, nBeta, nByte, ncd, &
-                     nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nInts, nZeta, nZeta_Tot, iuvwx(4)
+                     iShell(4), iShll(4), ISMAng, iT, iTS, iuvwx(4), iW3, iW4, iW4_, iWR(2), ix1, ix2, iy1, iy2, iz1, iz2, iZeta, &
+                     jBasj, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, jOp(6), jPrInc, jS, kabcd, kBask, kInts, kl1, kl2, kl3, kl4, &
+                     klS, kOp(4), kS, la, lb, lBasl, lc, ld, lDCR1, lDCR2, lDCRE_, lDCRR, lDCRS, lDCRT, lDCRT_, lPrInc, lS, mabcd, &
+                     mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nAlpha, nAux, nBeta, &
+                     nByte, ncd, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nInts, nZeta, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), Fact, QInd(2), RS_doublet, RST_Triplet, vij, vijij, vijkl, vik, vil, vjk, vjl, vkl
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, NoPInts, &
                      Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij

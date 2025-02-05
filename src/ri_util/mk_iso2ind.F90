@@ -29,13 +29,12 @@ iSO = 0
 do iIrrep=0,nIrrep-1
 
   nTemp(:) = 0
-! Loop over the canonical index of the auxiliary functions, starting from 1 for the
-! first irrep.
+  ! Loop over the canonical index of the auxiliary functions, starting from 1 for the first irrep.
   do iB=1,nBas_Aux(iIrrep)
     iSO = iSO+1
-    iSh = iSO2Sh(iSO)   ! Pick up the corresponding shell index
+    iSh = iSO2Sh(iSO)  ! Pick up the corresponding shell index
     nTemp(iSh) = nTemp(iSh)+1  ! Increment the count of basis functions for shell ish
-!   This table translates the global index of a basis function, iSO, to the local index of the shell to which it belongs.
+    ! This table translates the global index of a basis function, iSO, to the local index of the shell to which it belongs.
     iSO2Ind(iSO) = nTemp(iSh)
   end do
 

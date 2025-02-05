@@ -20,13 +20,13 @@ real(kind=wp), intent(out) :: Coor(3,4)
 integer(kind=iwp) :: iCnt, iCnttp, jCnt, jCnttp, kCnt, kCnttp, lCnt, lCnttp
 
 iCnttp = iSD4(13,1)
-iCnt   = iSD4(14,1)
+iCnt = iSD4(14,1)
 jCnttp = iSD4(13,2)
-jCnt   = iSD4(14,2)
+jCnt = iSD4(14,2)
 kCnttp = iSD4(13,3)
-kCnt   = iSD4(14,3)
+kCnt = iSD4(14,3)
 lCnttp = iSD4(13,4)
-lCnt   = iSD4(14,4)
+lCnt = iSD4(14,4)
 
 if (dbsc(iCnttp)%Aux) then
   Coor(:,1) = dbsc(jCnttp)%Coor(:,jCnt)

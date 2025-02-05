@@ -34,8 +34,7 @@ use setup, only: MxPrm
 use McKinley_global, only: ipDisp, ipDisp2, ipDisp3, ipMO, nFck, nMethod, RASSCF
 use Index_Functions, only: nTri_Elem, nTri_Elem1
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: DeDe, DeDe2, ipDijS, ipDijS2, ipOffD, ipOffDA, MxDij, nDeDe, Sew_Scr
-use k2_arrays, only: DoHess_
+use k2_arrays, only: DeDe, DeDe2, DoHess_, ipDijS, ipDijS2, ipOffD, ipOffDA, MxDij, nDeDe, Sew_Scr
 use Disp, only: lDisp
 use Etwas, only: nAsh
 use pso_stuff, only: nDens
@@ -51,12 +50,11 @@ implicit none
 integer(kind=iwp), intent(in) :: nHess
 real(kind=wp), intent(out) :: Hess(nHess)
 logical(kind=iwp), intent(in) :: lGrad, lHess
-integer(kind=iwp) :: i, iBas, iCmp, iCnttp, id, id_Tsk, idd, iDisk, iDisp, iIrr, iIrrep, ij, ijSh,  &
-                     ip, iPrim, iS, iShll, jBas, jCmp, jDisp, jIrr, js, kIrr, klSh, iAng, ks, ls, &
-                     mDeDe, nBuffer, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, ndisp, &
-                     nij, nIndij, nMO, nPairs, nQuad, nSkal, nTemp
-real(kind=wp) :: A_int, TMax_all, ThrAO
-logical(kind=iwp) :: lpick, Post_Process, Indexation, DoFock, DoGrad
+integer(kind=iwp) :: i, iAng, iBas, iCmp, iCnttp, id, id_Tsk, idd, iDisk, iDisp, iIrr, iIrrep, ij, ijSh, ip, iPrim, iS, iShll, &
+                     jBas, jCmp, jDisp, jIrr, js, kIrr, klSh, ks, ls, mDeDe, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, &
+                     nBuffer, ndisp, nij, nIndij, nMO, nPairs, nQuad, nSkal, nTemp
+real(kind=wp) :: A_int, ThrAO, TMax_all
+logical(kind=iwp) :: DoFock, DoGrad, Indexation, lpick, Post_Process
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: DInAc(:), DTemp(:), iInt(:), TMax(:,:), Buffer(:)
 real(kind=wp), pointer :: Temp(:)
@@ -74,7 +72,7 @@ call StatusLine('McKinley: ','Computing 2-electron 2nd order derivatives')
 
 ipDijS = 0
 ipDijS2 = 0
-lpick = lgrad .and. (nIrrep/=1)
+lpick = lgrad .and. (nIrrep /= 1)
 
 ndisp = 0
 nACO = 0
@@ -92,10 +90,10 @@ call Set_Basis_Mode('Valence')
 call Setup_iSD()
 
 Indexation = .false.
-ThrAO=Zero
-DoFock=.False.
-DoGrad=.False.
-DoHess_=.True.
+ThrAO = Zero
+DoFock = .false.
+DoGrad = .false.
+DoHess_ = .true.
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
@@ -251,7 +249,7 @@ if (lGrad) then
     end if
   end if
 
-  call mma_allocate(DeDe ,0,label='DeDe ',safe='*') ! Dummy allocation
+  call mma_allocate(DeDe,0,label='DeDe',safe='*') ! Dummy allocation
   call mma_allocate(DeDe2,0,label='DeDe2',safe='*') ! Dummy allocation
 
 end if ! lGrad
@@ -276,7 +274,7 @@ call Shell_MxSchwz(nSkal,TMax)
 TMax_all = Zero
 do iS=1,nSkal
   do jS=1,iS
-     TMax_all = max(TMax_all,TMax(iS,jS))
+    TMax_all = max(TMax_all,TMax(iS,jS))
   end do
 end do
 
@@ -298,12 +296,11 @@ do iS=1,nSkal
       nij = nij+1
       Pair_Index(1,nij) = iS
       Pair_Index(2,nij) = jS
-      if ((nMethod == RASSCF) .and. lGrad)   &
-         nBuffer = Max(nBuffer,nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nIrrep)
+      if ((nMethod == RASSCF) .and. lGrad) nBuffer = max(nBuffer,nTri_Elem(nACO)*iCmp*iBas*jCmp*jBas*nDisp*nIrrep)
     end if
   end do
 end do
-Call mma_allocate(Buffer,nBuffer,Label='Buffer')
+call mma_allocate(Buffer,nBuffer,Label='Buffer')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -336,20 +333,20 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
     A_int = TMax(iS,jS)*TMax(kS,lS)
     if (A_Int < CutInt) cycle
 
-    Call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer, &
-                      Buffer,nDens, DTemp, DInAc, moip, n_Int, nQuad)
+    call Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer,Buffer,nDens,DTemp,DInAc,moip, &
+                      n_Int,nQuad)
 
   end do ! klS
 
   if ((nMethod == RASSCF) .and. Post_Process) then
-    nTemp = Size(Sew_Scr)
+    nTemp = size(Sew_Scr)
     Temp(1:nTemp) => Sew_Scr(1:nTemp)
     call CLR2(Buffer,iInt,nACO,nSD,iSD(:,iS),iSD(:,jS),nDisp,nTemp,Temp)
     nullify(Temp)
   end if
 
 end do
-Call mma_deallocate(Buffer)
+call mma_deallocate(Buffer)
 ! End of big task loop
 !                                                                      *
 !***********************************************************************
@@ -358,7 +355,7 @@ Call mma_deallocate(Buffer)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (nIrrep==1) then
+if (nIrrep == 1) then
   idd = 0
   do iS=0,nirrep-1
     do iD=1,ldisp(is)
@@ -409,7 +406,7 @@ call Free_iSD()
 
 call mma_deallocate(DeDe)
 call mma_deallocate(DeDe2)
-if (nIrrep/=1) then
+if (nIrrep /= 1) then
   call mma_deallocate(ipOffD)
   if (nMethod == RASSCF) then
     call mma_deallocate(ipOffDA)
@@ -427,4 +424,4 @@ call mma_deallocate(ipDisp2,safe='*')
 call mma_deallocate(ipDisp3,safe='*')
 call mma_deallocate(ipMO,safe='*')
 
-End subroutine Drvg2
+end subroutine Drvg2

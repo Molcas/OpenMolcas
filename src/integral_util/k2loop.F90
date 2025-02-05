@@ -13,9 +13,9 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine k2Loop(Coor,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta, &
-                  ZInv,Kappab,P,IndP,nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,ijCmp,DoFock,Scr,nScr,Knew, &
-                  Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx,nSD,iSD4)
+subroutine k2Loop(Coor,iDCRR,nDCRR,k2data,Alpha,nAlpha,Beta,nBeta,Alpha_,Beta_,Coeff1,iBasn,Coeff2,jBasn,Zeta,ZInv,Kappab,P,IndP, &
+                  nZeta,IncZZ,Con,Wrk,nWork2,nScree,mScree,ijCmp,DoFock,Scr,nScr,Knew,Lnew,Pnew,Qnew,nNew,DoGrad,HMtrx,nHrrMtrx, &
+                  nSD,iSD4)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute zeta, kappa, P, and the integrals [nm|nm] for     *
@@ -40,7 +40,7 @@ use Disp, only: Dirct, IndDsp
 use k2_structure, only: k2_type
 use k2_arrays, only: DeDe, DoHess_
 use Rys_interfaces, only: cff2d_kernel, modu2_kernel, rys2d_kernel, tval_kernel
-use Dens_Stuff, only: ipDij, nDCR=>mDCRij, nDij=>mDij
+use Dens_Stuff, only: ipDij, mDCRij, mDij
 use Constants, only: Zero, One, Four
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -48,35 +48,39 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: iDCRR(0:7), nDCRR, nAlpha, nBeta, iBasn, jBasn, nZeta, IncZZ, &
-                                 nWork2, ijCmp, nScr, nNew, nHRRMtrx, nSD, iSD4(0:nSD,4)
+integer(kind=iwp), intent(in) :: iDCRR(0:7), nDCRR, nAlpha, nBeta, iBasn, jBasn, nZeta, IncZZ, nWork2, ijCmp, nScr, nNew, &
+                                 nHRRMtrx, nSD, iSD4(0:nSD,4)
 real(kind=wp), intent(in) :: Coor(3,4), Alpha(nAlpha), Beta(nBeta), Coeff1(nAlpha,iBasn), Coeff2(nBeta,jBasn), Con(nZeta)
 type(k2_type), intent(inout) :: k2data(nDCRR)
 real(kind=wp), intent(out) :: Alpha_(nZeta), Beta_(nZeta), Zeta(nZeta), ZInv(nZeta), Kappab(nZeta), P(nZeta,3), Scr(nScr,3), &
                               Knew(nNew), Lnew(nNew), Pnew(nNew*3), Qnew(nNew*3), HMtrx(nHrrMtrx,2)
 integer(kind=iwp), intent(out) :: IndP(nZeta)
-integer(kind=iwp), intent(inout) :: nScree, mScree
 real(kind=wp), intent(inout) :: Wrk(nWork2)
+integer(kind=iwp), intent(inout) :: nScree, mScree
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-
-integer(kind=iwp) :: i_Int, iCmp, iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShlla, iSmAng, iw2, iw3, iZeta, jCmpb_, Jnd, jShllb, la, &
-                     lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, nDisp, ne, nT, iAnga(4), iCmpa(4), &
-                     iShll(4)
-real(kind=wp) :: abMax, abConMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Dummy(1), Q(3), TA(3), TB(3), TEMP, ZetaM
+integer(kind=iwp) :: i_Int, iAnga(4), iCmp, iCmpa(4), iCmpa_, iCnt, iComp, iIrrep, iOffZ, iShll(4), iShlla, iSmAng, iw2, iw3, &
+                     iZeta, jCmpb_, Jnd, jShllb, la, lb, lDCRR, lZeta, mabcd, mabMax, mabMin, mcdMax, mcdMin, mStb(2), mZeta, &
+                     nDisp, ne, nT
+real(kind=wp) :: abConMax, abMax, abMaxD, CoorAC(3,2), CoorM(3,4), Delta, Q(3), TA(3), TB(3), TEMP, ZetaM
+real(kind=wp), target :: Dummy(1)
+real(kind=wp), pointer :: Dij(:,:)
 logical(kind=iwp) :: AeqB, NoSpecial
 procedure(cff2d_kernel) :: Cff2DS
 procedure(modu2_kernel) :: ModU2
 procedure(rys2d_kernel) :: Rys2D
 procedure(tval_kernel) :: TERIS
-logical(kind=iwp), external :: EQ, TF
 real(kind=wp), external :: EstI
-real(kind=wp), pointer :: Dij(:,:)=>null()
+logical(kind=iwp), external :: EQ, TF
 
-iShll(:)=iSD4(0,:)
-iAnga(:)=iSD4(1,:)
-iCmpa(:)=iSD4(2,:)
+iShll(:) = iSD4(0,:)
+iAnga(:) = iSD4(1,:)
+iCmpa(:) = iSD4(2,:)
 
-If (DoFock) Dij(1:nDij,1:nDCR)=>DeDe(ipDij:ipDij+nDij*nDCR-1)
+if (DoFock) then
+  Dij(1:mDij,1:mDCRij) => DeDe(ipDij:ipDij+mDij*mDCRij-1)
+else
+  Dij(1:1,1:1) => Dummy(1:1)
+end if
 
 !                                                                      *
 !***********************************************************************
@@ -127,7 +131,7 @@ do lDCRR=0,nDCRR-1
   do iIrrep=0,nIrrep-1
     call OA(iOper(iIrrep),CoorM(1:3,1),TA)
     call OA(iOper(iIrrep),CoorM(1:3,2),TB)
-    k2Data(lDCRR+1)%HrrMtrx(:,iIrrep+1)=Zero
+    k2Data(lDCRR+1)%HrrMtrx(:,iIrrep+1) = Zero
     call HrrMtrx(k2Data(lDCRR+1)%HrrMtrx(:,iIrrep+1),ne,la,lb,TA,TB,Shells(iShlla)%Transf,RSph(ipSph(la)),iCmpa_, &
                  Shells(jShllb)%Transf,RSph(ipSph(lb)),jCmpb_)
   end do
@@ -214,15 +218,15 @@ do lDCRR=0,nDCRR-1
   end do
   k2Data(lDCRR+1)%ZetaM = ZetaM
 
-  iOffZ = nDij-nZeta-1
+  iOffZ = mDij-nZeta-1
   abMax = Zero
   abConMax = Zero
   abMaxD = Zero
   do iZeta=0,Jnd-1
-    abConMax=Max(abConMax,k2Data(lDCRR+1)%abCon(iZeta+1))
-    abMax=Max(abMax,k2Data(lDCRR+1)%ab(iZeta+1))
+    abConMax = max(abConMax,k2Data(lDCRR+1)%abCon(iZeta+1))
+    abMax = max(abMax,k2Data(lDCRR+1)%ab(iZeta+1))
     if (DoFock) then
-      abMaxD = Max(abMaxD,k2Data(lDCRR+1)%ab(iZeta+1)*Dij(iOffZ+iZeta,lDCRR+1))
+      abMaxD = max(abMaxD,k2Data(lDCRR+1)%ab(iZeta+1)*Dij(iOffZ+iZeta,lDCRR+1))
     else
       abMaxD = Zero
     end if
@@ -231,13 +235,13 @@ do lDCRR=0,nDCRR-1
   k2Data(lDCRR+1)%abConMax = abConMax
   k2Data(lDCRR+1)%abMaxD = abMaxD
 
-  If (DoHess_) Then
+  if (DoHess_) then
     abMax = Zero
     do iZeta=1,Jnd
-      abMax = Max(abMax,k2Data(lDCRR+1)%ab(iZeta))
+      abMax = max(abMax,k2Data(lDCRR+1)%ab(iZeta))
     end do
     k2data(lDCRR+1)%abMax = abMax
-  End If
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -354,7 +358,5 @@ do lDCRR=0,nDCRR-1
   call WrCheck(' HrrMtrx',k2Data(lDCRR+1)%HrrMtrx(:,:),ne*iCmpa_*jCmpb_)
 # endif
 end do ! lDCRR
-
-Dij=> Null()
 
 end subroutine k2Loop

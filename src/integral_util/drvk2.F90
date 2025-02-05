@@ -34,7 +34,7 @@ use setup, only: mSkal
 use iSD_data, only: iSD, nSD
 use k2_structure, only: Indk2, k2_Processed, k2Data
 use k2_arrays, only: BraKet, Create_BraKet, Destroy_BraKet, DoGrad_, ipOffD, Sew_Scr
-use Dens_Stuff, only: ipDij, nDCR=>mDCRij, nDij=>mDij
+use Dens_Stuff, only: ipDij, mDCRij, mDij
 use Basis_Info, only: Shells
 use Symmetry_Info, only: iOper, nIrrep
 use Gateway_global, only: force_part_c
@@ -49,10 +49,9 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iCmp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipMem1, ipMem2, iPrim, &
-                     iPrimi, iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jPrim, jPrimj, &
-                     jS, jShell, jShll, la_, mabMax_, mabMin_, Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, &
-                     mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta, iPrimSave(4)
+integer(kind=iwp) :: iAng, iBas, iCmp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipMem1, ipMem2, iPrim, iPrimi, iPrimSave(4), iS, &
+                     iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jPrim, jPrimj, jS, jShell, jShll, la_, mabMax_, mabMin_, &
+                     Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
 real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
 character(len=8) :: Method
@@ -145,7 +144,7 @@ do iS=1,mSkal
 
   do jS=1,iS
 
-    Call Gen_iSD4(iS,jS,iS,jS,iSD,nSD,iSD4)
+    call Gen_iSD4(iS,jS,iS,jS,iSD,nSD,iSD4)
 
     jShll = iSD4(0,2)
 
@@ -159,7 +158,7 @@ do iS=1,mSkal
     jPrim = iSD4(5,2)
     jShell = iSD4(11,2)
 
-    Call Coor_Setup(iSD4,nSD,Coor)
+    call Coor_Setup(iSD4,nSD,Coor)
 
     iPrimi = iPrim
     jPrimj = jPrim
@@ -167,7 +166,7 @@ do iS=1,mSkal
     nBasi = iBas
     nBasj = jBas
 
-!   Fake shell 3 and 4
+    ! Fake shell 3 and 4
     iSD4(5,3:4) = 1
     iSD4(3,3:4) = 1
 
@@ -182,12 +181,12 @@ do iS=1,mSkal
     ijS = iTri(iShell,jShell)
     if (DoFock) then
       ipDij = ipOffD(1,ijS)
-      nDCR = ipOffD(2,ijS)
-      nDij = ipOffD(3,ijS)
+      mDCRij = ipOffD(2,ijS)
+      mDij = ipOffD(3,ijS)
     else
       ipDij = -1
-      nDCR = 1
-      nDij = 1
+      mDCRij = 1
+      mDij = 1
     end if
 
     nSO = 1
@@ -197,13 +196,13 @@ do iS=1,mSkal
 
     call MemRys(iSD4(1,:),MemPrm)
 
-    ! Decide on the partioning of the shells based on
+    ! Decide on the partitioning of the shells based on
     ! on the available memory and the requested memory
 
     ! Now do a dirty trick to avoid splitting of the first
     ! contracted index. Move all over on the second index.
 
-    iPrimSave(:)=iSD4(5,:) ! Store away original setting
+    iPrimSave(:) = iSD4(5,:) ! Store away original setting
 
     iSD4(3,1) = 1
     iSD4(3,2) = nZeta
@@ -219,14 +218,14 @@ do iS=1,mSkal
     force_part_c = force_part_save
     ijInc = min(iSD4(4,2),iSD4(6,2))
 
-!   restore correct index
-    iSD4(5,:)=iPrimSave(:)
+    ! restore correct index
+    iSD4(5,:) = iPrimSave(:)
 
     iPrimi = iSD4(5,1)
     jPrimj = iSD4(5,2)
 
 #   ifdef _DEBUGPRINT_
-    write(u6,*) ' ************** Memory partioning **************'
+    write(u6,*) ' ************** Memory partitioning **************'
     write(u6,*) ' ipMem1=',ipMem1
     write(u6,*) ' ipMem2=',ipMem2
     write(u6,*) ' Mem1=',Mem1
@@ -254,11 +253,10 @@ do iS=1,mSkal
 
     ik2 = Indk2(3,ijS)
 
-    call k2Loop(Coor,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj, &
-                BraKet%xA(:),BraKet%xB(:),Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:), &
-                BraKet%KappaAB(:),BraKet%P(:,:),BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree, &
-                ijCmp,DoFock,Scr,MemTmp,Knew,Lnew,Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD, &
-                iSD4)
+    call k2Loop(Coor,iDCRR,nDCRR,k2data(:,ik2),Shells(iShll)%Exp,iPrimi,Shells(jShll)%Exp,jPrimj,BraKet%xA(:),BraKet%xB(:), &
+                Shells(iShll)%pCff,nBasi,Shells(jShll)%pCff,nBasj,BraKet%Zeta(:),BraKet%ZInv(:),BraKet%KappaAB(:),BraKet%P(:,:), &
+                BraKet%IndZet(:),nZeta,ijInc,BraKet%Eta(:),Sew_Scr(ipMem2),Mem2,nScree,mScree,ijCmp,DoFock,Scr,MemTmp,Knew,Lnew, &
+                Pnew,Qnew,S%m2Max,DoGrad,HrrMtrx,nHrrMtrx,nSD,iSD4)
 
     Indk2(2,ijS) = nDCRR
     mk2 = mk2+nDCRR

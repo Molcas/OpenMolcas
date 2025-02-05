@@ -39,8 +39,8 @@ set (sources
      cnthlf.F90
      cntrct.F90
      conmax.F90
-     coor_setup.F90
      contei.F90
+     coor_setup.F90
      coset.F90
      covrad.F90
      covrad_data.F90
@@ -81,6 +81,7 @@ set (sources
      efnuc.F90
      efp_.F90
      efp_module.F90
+     efp_on.F90
      efprm.F90
      efxf.F90
      ener.F90
@@ -145,9 +146,9 @@ set (sources
      initia.F90
      int_options.F90
      int_setup.F90
+     integral_ijij.F90
      integral_interfaces.F90
      integral_wrout2.F90
-     integral_ijij.F90
      inter.F90
      inter1.F90
      iobuf.F90

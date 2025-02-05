@@ -215,7 +215,7 @@ C         ISCR( I4_REO(IJKL) ) = I4_TP(IJKL)
         CALL IWRTMA(I4_TP,1,4,1,4)
 #endif
 *
-CSVC: determine optimum number of partions as the lowest multiple of
+CSVC: determine optimum number of partitions as the lowest multiple of
 C     NPROCS that satisfies a block size smaller than MAXI:
         NPART=0
         DO
@@ -607,7 +607,7 @@ C?                  END IF
                   IF(KEND.EQ.0) GOTO 1800
 *.                ^ End of loop over partitionings of resolution strings
  1801           CONTINUE
-*               ^ End of loop over partionings of I strings
+*               ^ End of loop over partitionings of I strings
  1930         CONTINUE
 *             ^ End of loop over batches of JL
  1940       CONTINUE

@@ -58,7 +58,7 @@ integer(kind=iwp) :: i, iAddr, iAddr_R(0:7), iChoVec, id, iIrrep, iLB, iMax_R(2,
                      kCnttp, klS_, kQv, kS, lCnttp, LenVec, LenVec_Red, lJ, lS, Lu_R(0:7), m3C, MaxCntr, MaxMem, MemLow, MemSew, &
                      mMuNu, mQv, MuNu_e, MuNu_s, n3C, n3CMax, n_Rv, nB_Aux, nDiag, nMuNu, NoChoVec(0:7), nQv, nRv, nRvMax, nSkal, &
                      nSkal2, nSkal_Auxiliary, nTask, NumVec, NumVec_
-real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all_v, TMax_all_a, TW0, TW1, TWall1, Twall2
+real(kind=wp) :: A_int, A_int_kl, TC0, TC1, TCpu1, TCpu2, TMax_all_a, TMax_all_v, TW0, TW1, TWall1, Twall2
 character(len=6) :: Name_R
 logical(kind=iwp) :: DoFock, DoGrad, Indexation, Out_of_Core, Skip
 integer(kind=iwp), allocatable :: Addr(:), iRv(:), LBList(:), NuMu(:,:), TmpList(:)

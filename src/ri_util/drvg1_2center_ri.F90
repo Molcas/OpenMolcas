@@ -53,13 +53,13 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad, nij_Eff, ij2(2,nij_Eff)
 real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
-integer(kind=iwp) :: i, iAng, id, ij, iS, iSym1, iSym2, jDen, jlS, jS, jS_, kS, lA, lA_MP2, &
-                     lS, lS_, mij, nij, nIJRMax, nSkal
+integer(kind=iwp) :: i, iAng, id, ij, iS, iSym1, iSym2, jDen, jlS, jS, jS_, kS, lA, lA_MP2, lS, lS_, mij, nij, nIJRMax, nSkal
 real(kind=wp) :: A_int, ThrAO, TMax_all
 logical(kind=iwp) :: DoFock, DoGrad, Indexation
 integer(kind=iwp), allocatable :: Pair_Index(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:)
 logical(kind=iwp), external :: Rsv_Tsk
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -71,7 +71,7 @@ Temp(:) = Zero
 
 if (Do_RI) then
   call Set_Basis_Mode('Auxiliary')
-  RI_2C=.True.
+  RI_2C = .true.
 else
   call Set_Basis_Mode('Valence')
 end if
@@ -218,9 +218,9 @@ call Init_Tsk(id,nTri_Elem(nij))
 if ((nProcs > 1) .and. King()) then
   if (Do_RI) call Free_iSD()
   call Drvh1(Grad,Temp,nGrad)
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   call PrGrad(' Gradient excluding two-electron contribution',Grad,nGrad)
-#endif
+# endif
   Temp(:) = Zero
   if (Do_RI) then
     call Set_Basis_Mode('Auxiliary')
@@ -254,7 +254,7 @@ do while (Rsv_Tsk(id,jlS))
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  Call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
+  call Eval_g1_ijkl(iS,jS,kS,lS,Temp,nGrad,A_Int)
 
 end do
 ! End of big task loop
@@ -265,7 +265,7 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-RI_2C=.False.
+RI_2C = .false.
 call mma_deallocate(Sew_Scr,safe='*')
 call Free_Tsk(id)
 call mma_deallocate(A_PT2,safe='*')

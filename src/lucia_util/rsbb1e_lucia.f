@@ -126,7 +126,7 @@ C     MOC = 1
       END IF
 
 *. Number of partitionings over column strings
-CSVC: determine optimum number of partions as the lowest multiple of
+CSVC: determine optimum number of partitions as the lowest multiple of
 C     NPROCS that satisfies a block size smaller than MAXI:
       NIPART=0
       DO

@@ -30,6 +30,7 @@ set (sources
      m1mmg.F90
      m2grd.F90
      m2mmg.F90
+     mk_dcrs_and_stabilizers.F90
      mltgrd.F90
      mltgrdnuc.F90
      mltmmg.F90

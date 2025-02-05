@@ -12,78 +12,68 @@
 !               1995,1996, Anders Bernhardsson                         *
 !***********************************************************************
 
+subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer,Buffer,nDens,DTemp,DInAc, &
+                        MOip,nTwo2,nQuad)
 
-subroutine Eval_g2_ijkl(iS,jS,kS,lS,Hess,nHess,Post_Process,iInt,n_Int,nACO,lGrad,lHess,lPick,nBuffer, &
-                        Buffer,nDens, DTemp, DInAc, MOip, nTwo2, nQuad)
 use setup, only: nAux
 use McKinley_global, only: nMethod, RASSCF
 use Index_Functions, only: iTri
-use Definitions, only: wp, iwp, u6
 use iSD_data, only: iSD, nSD
-use k2_arrays, only: Create_Braket, Destroy_Braket, Sew_Scr, nFT, Aux
+use k2_arrays, only: Aux, Create_Braket, Destroy_Braket, nFT, Sew_Scr
 use stdalloc, only: mma_allocate, mma_maxDBLE
 use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-Implicit None
-integer(kind=iwp), intent(in):: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nDens, MOip(0:7), nTwo2, &
-                                nQuad
+implicit none
+integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nDens, MOip(0:7), nTwo2, nQuad
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(nBuffer), DTemp(nDens), DInAc(nDens)
-logical(kind=iwp), intent(inout):: Post_Process
-logical(kind=iwp), intent(in):: lGrad, lHess, lPick
-
+logical(kind=iwp), intent(inout) :: Post_Process
+logical(kind=iwp), intent(in) :: lGrad, lHess, lPick
+integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, iDer, iFnc(4), ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, ipPSO, &
+                     iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kBasAO, kBask, kBasn, &
+                     kBsInc, kCmp, lBasAO, lBasl, lBasn, lBsInc, lCmp, Mem1, Mem2, Mem3, Mem4, MemCMO, MemFck, MemFin, MemMax, &
+                     MemPrm, MemPSO, MemX, nijkl, nRys, nSO, nTemp
 real(kind=wp) :: Coor(3,4), PMax
-logical(kind=iwp) :: lTri, lDot, lDot2
-logical(kind=iwp), parameter :: n8=.true.
-integer(kind=iwp) :: nSO, nRys, iFnc(4), iSD4(0:nSD,4), iDer
-integer(kind=iwp) :: iBasAO, jBasAO, kBasAO, lBasAO
-integer(kind=iwp) :: iBasi, jBasj, kBask, lBasl
-integer(kind=iwp) :: iBsInc, jBsInc, kBsInc, lBsInc
-integer(kind=iwp) :: iBasn, jBasn, kBasn, lBasn
-integer(kind=iwp) :: JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7)
-logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3)
-integer(kind=iwp) :: MemMax, ipMOC, MemCMO
-integer(kind=iwp) :: Mem1, Mem2, Mem3, Mem4, nTemp
-integer(kind=iwp) :: ipPSO, ipFin, ipMem2, ipMem3, ipMem4, ipMemX
-integer(kind=iwp) :: MemFck, MemFin, MemPrm, MemPSO, MemX
-integer(kind=iwp) :: kCmp, lCmp, nijkl
+logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), lDot, lDot2, lTri
+real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Temp(:), Work2(:), Work3(:), Work4(:), WorkX(:)
+logical(kind=iwp), parameter :: n8 = .true.
 integer(kind=iwp), external :: MemSO2_P
-real(kind=wp), pointer :: Fin(:), MOC(:), PSO(:,:), Work2(:), Work3(:), Work4(:), WorkX(:), Temp(:)
 
-iFnc(:)=-99
-PMax=Zero
-if (.not. allocated(Sew_Scr)) Then
-   call mma_MaxDBLE(MemMax)
-   if (MemMax > 8000) MemMax = MemMax-8000
-   call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
+iFnc(:) = -99
+PMax = Zero
+if (.not. allocated(Sew_Scr)) then
+  call mma_MaxDBLE(MemMax)
+  if (MemMax > 8000) MemMax = MemMax-8000
+  call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 else
-   MemMax=Size(Sew_Scr)
-endif
+  MemMax = size(Sew_Scr)
+end if
 ipMOC = 1
 
 call Gen_iSD4(iS,jS,kS,lS,iSD,nSD,iSD4)
 
-Call Coor_setup(iSD4,nSD,Coor)
-!                                                                  *
-!*******************************************************************
-!                                                                  *
+call Coor_setup(iSD4,nSD,Coor)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 ! The code is working in such away that the MO needs upper and lower
 ! triangular parts of ij kl but hessian needs only lower, check if the
 ! integralbatch is lower or upper!!
 
-lTri = iTri(iS,jS) >= iTri(kS,lS)
-if ((.not. lTri) .and. (nMethod /= RASSCF)) Return
+lTri = (iTri(iS,jS) >= iTri(kS,lS))
+if ((.not. lTri) .and. (nMethod /= RASSCF)) return
 lDot = (lTri .and. lHess)
 
-!                                                                  *
-!*******************************************************************
-!                                                                  *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 ! Allocate memory for zeta, eta, kappa, P and Q.
 ! Allocate also for Alpha, Beta , Gamma and Delta in expanded form.
 
 call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
-!                                                                  *
-!*******************************************************************
-!                                                                  *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 ! Fix the 1st order density matrix
 
 ! Pick up pointers to desymmetrized 1st order density matrices.
@@ -92,11 +82,11 @@ call Create_BraKet(iSD4(5,1)*iSD4(5,2),iSD4(5,3)*iSD4(5,4))
 
 if (lTri .and. lPick) call Dens_Infos(nMethod)
 
-!                                                                  *
-!*******************************************************************
-!                                                                  *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 ! Compute total size of the second order density matrix in SO basis.
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 nSO = MemSO2_P(nSD,iSD4)
 ldot2 = ldot
 if (nSO == 0) ldot2 = .false.
@@ -107,20 +97,20 @@ iDer = 2
 if (.not. ldot2) iDer = 1
 call MemRg2(iSD4(1,:),nRys,MemPrm,iDer)
 
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 !
 ! Calculate which derivatives should be made.
 !
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 
 call DerCtr(ldot2,JfGrd,JndGrd,JfHss,JndHss,JfG,nSD,iSD4)
 
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 !
-! Decide on the partioning of the shells based on the
+! Decide on the partitioning of the shells based on the
 ! available memory and the requested memory.
 !
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 
 call PSOAO2(nSO,MemPrm,MemMax,iFnc,nAco,Mem1,Mem2,Mem3,Mem4,MemX,MemPSO,MemFck,nFT,MemFin,nBuffer,nSD,iSD4)
 
@@ -137,22 +127,22 @@ lBsInc = iSD4(4,4)
 kCmp = iSD(2,kS)
 lCmp = iSD(2,lS)
 
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 !
 ! Loop over basis function if we do not have enough of memory to
 ! calculate them in one step.
 !
-!------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 do iBasAO=1,iBasi,iBsInc
   iBasn = min(iBsInc,iBasi-iBasAO+1)
   iSD4(8,1) = iBasAO-1
   iSD4(19,1) = iBasn
 
-  !----------------------------------------------------------------*
+  !--------------------------------------------------------------------*
   !
   ! Move appropriate portions of the desymmetrized 1st order density matrix.
   !
-  !----------------------------------------------------------------*
+  !--------------------------------------------------------------------*
   do jBasAO=1,jBasj,jBsInc
     jBasn = min(jBsInc,jBasj-jBasAO+1)
     iSD4(8,2) = jBasAO-1
@@ -181,7 +171,7 @@ do iBasAO=1,iBasi,iBsInc
           call Picky_Mck(nSD,iSD4,2,4,nMethod)
         end if
 
-        !----------------------------------------------------------*
+        !--------------------------------------------------------------*
 
         nijkl = iBasn*jBasn*kBasn*lBasn
 
@@ -218,20 +208,20 @@ do iBasAO=1,iBasi,iBsInc
         nTemp = Mem2+Mem3+MemX
         Temp(1:nTemp) => Sew_Scr(ipMem2:ipMem2+nTemp-1)
 
-        !----------------------------------------------------------*
+        !--------------------------------------------------------------*
         !
         ! Get the 2nd order density matrix in SO basis.
         !
-        !----------------------------------------------------------*
+        !--------------------------------------------------------------*
 
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
         if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
 
         ! Compute gradients of shell quadruplet
 
-        call TwoEl_mck(Coor,nRys,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4, &
-                       Mem4,Aux,nAux,WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,nBuffer,lgrad,ldot2,n8,ltri, &
-                       DTemp,DInAc,moip,nAco,MOC,MemCMO,iSD4)
+        call TwoEl_mck(Coor,nRys,Hess,nHess,JfGrd,JndGrd,JfHss,JndHss,JfG,PSO,nijkl,nSO,Work2,Mem2,Work3,Mem3,Work4,Mem4,Aux,nAux, &
+                       WorkX,MemX,Fin,MemFin,Temp,nTemp,nTwo2,nFT,iInt,Buffer,nBuffer,lgrad,ldot2,n8,ltri,DTemp,DInAc,moip,nAco, &
+                       MOC,MemCMO,iSD4)
         Post_Process = .true.
 
         nullify(MOC)
@@ -243,7 +233,7 @@ do iBasAO=1,iBasi,iBsInc
         nullify(Work4)
         nullify(Temp)
 
-        !----------------------------------------------------------*
+        !--------------------------------------------------------------*
 
       end do
     end do
@@ -262,8 +252,8 @@ subroutine Dens_Infos(nMethod)
   use Index_Functions, only: iTri
 
   integer(kind=iwp), intent(in) :: nMethod
-  integer(kind=iwp) :: ijS, ikS, ilS, ipTmp, ipTmp2, iS, jkS, jlS, jS, klS, kS, lS, ipDum
-integer(kind=iwp), parameter :: Nr_of_Densities = 1
+  integer(kind=iwp) :: ijS, ikS, ilS, ipDum, ipTmp, ipTmp2, iS, jkS, jlS, jS, klS, kS, lS
+  integer(kind=iwp), parameter :: Nr_of_Densities = 1
 
   iS = iSD4(11,1)
   jS = iSD4(11,2)

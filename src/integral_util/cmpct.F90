@@ -43,7 +43,7 @@ real(kind=wp), intent(inout) :: xZeta(nijkl), xKapp(nijkl), xP(nijkl,3), xZInv(n
 integer(kind=iwp), intent(inout) :: IndZ(nijkl+1), Jnd
 logical(kind=iwp), intent(in) :: AeqB
 integer(kind=iwp) :: ia, ib, ijkl, ijkl_
-real(kind=wp) :: Check, abMax, abConMax
+real(kind=wp) :: abConMax, abMax, Check
 
 #include "compiler_features.h"
 
