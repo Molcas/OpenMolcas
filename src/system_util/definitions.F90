@@ -19,6 +19,9 @@ use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
 #   ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
 #   endif
+#ifdef _MOLCAS_MPP_
+use MPI, only: MPI_ADDRESS_KIND
+#endif
 
 implicit none
 private
@@ -64,7 +67,13 @@ integer(kind=iwp), parameter :: LibxcInt = c_int, &
 ! NOTE: If legacy `integer*4` declarations are replaced with integer(MPIInt)
 !       we can support 32bit and 64bit versions.
 !       Which will require appropiate compile flags here.
+#ifdef _MOLCAS_MPP_
+!integer(kind=iwp), parameter :: MPIInt = kind(MPI_INTEGER) ! int64
+! https://rookiehpc.org/mpi/docs/mpi_address_kind/index.html
+integer(kind=iwp), parameter :: MPIInt = kind(MPI_ADDRESS_KIND)
+#else
 integer(kind=iwp), parameter :: MPIInt = int32
+#endif
 
 ! This is the type of HDF5 arguments
 ! NOTE: If legacy `integer*4` declarations are replaced with integer(HDF5Int)

@@ -2624,7 +2624,7 @@ C
       USE MPI
       USE SUPERINDEX
       USE EQSOLV
-      use definitions, only: iwp,wp
+      use definitions, only: iwp,RtoB,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
       USE Para_Info, ONLY: Is_Real_Par, nProcs
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -2655,7 +2655,10 @@ C
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      ! we need two real and two integer values per element
+      iscal = (iwp*2 + wp*2)/RtoB
+      !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
       MAXBUF=MAXBUF-2*NG3 !! for NELBsav and NELSsav
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
@@ -3390,7 +3393,7 @@ C
       USE SUPERINDEX
       USE EQSOLV
       USE Para_Info, only: nProcs
-      use definitions, only: iwp,wp
+      use definitions, only: iwp,RtoB,wp
       use stdalloc, only: mma_allocate, mma_deallocate, mma_MaxDBLE
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -3422,7 +3425,10 @@ C
       ! find out how much memory is left for buffering (4 equally sized
       ! buffers for sending and receiving values and indices)
       CALL mma_MaxDBLE(MAXMEM)
-      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      ! we need two real and two integer values per element
+      iscal = (iwp*2 + wp*2)/RtoB
+      !MAXBUF=MIN(NINT(0.95D0*MAXMEM)/4,2000000000/8)
+      MAXBUF=MIN(NINT(0.95D0*MAXMEM)/iscal,2000000000/8)
       MAXBUF=MAXBUF-2*NG3 !! for NELBsav and NELSsav
 
       ! Loop over blocks NG3B of NG3, so that 12*NG3B < MAXBUF/NPROCS.
