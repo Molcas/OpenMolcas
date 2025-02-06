@@ -11,13 +11,11 @@
 
 subroutine SMDFGP_GEN(NGRP,NSMST,MXPNS,NSTFSMGP,NACTSYM,ISMDFGP)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer ISMDFGP(NSMST,NGRP)
-integer NSTFSMGP(MXPNS,NGRP)
-integer NACTSYM(NGRP)
-integer IOFF
+implicit none
+integer(kind=iwp) :: NGRP, NSMST, MXPNS, NSTFSMGP(MXPNS,NGRP), NACTSYM(NGRP), ISMDFGP(NSMST,NGRP)
+integer(kind=iwp) :: IGRP, IOFF, ISYM, NTEST
 
 NTEST = 0
 

@@ -20,26 +20,19 @@ subroutine STRTYP_GAS(IPRNT)
 ! Jeppe Olsen,  Oct 1994
 ! G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 
-use lucia_data, only: NGAS, NCISPC, NMXOCCLS, IGSOCC, IGSOCCX, IPHGAS, IPHGAS1
-use lucia_data, only: MS2
-use lucia_data, only: NGRP, NSTTP, NTSPGP, NSPGPFTP, IBSPGPFTP, NELFTP, NGPSTR, MXGSOC, MNGSOC, IBGPSTR, IGSFGP, ISPGPFTP, &
-                      MNELFGP, MNGSOC, MXELFGP, MXGSOC, NELFGP, NELFSPGP, NSTFGP
-use lucia_data, only: NACTEL
-use lucia_data, only: MXTSOB_P, MXTSOB_H, NOBPT
-use lucia_data, only: NOCTYP, ISTAC
-use lucia_data, only: NSTTYP, NELEC
-use lucia_data, only: MXPSTT
-use Definitions, only: u6
+use lucia_data, only: IBGPSTR, IBSPGPFTP, IGSFGP, IGSOCC, IGSOCCX, IPHGAS, ISPGPFTP, ISTAC, MNGSOC, MNGSOC, MS2, MXGSOC, MXGSOC, &
+                      MXPSTT, NACTEL, NCISPC, NELEC, NELFGP, NELFSPGP, NELFTP, NGAS, NGPSTR, NGRP, NMXOCCLS, NOBPT, NOCTYP, &
+                      NSPGPFTP, NSTFGP, NSTTP, NSTTYP, NTSPGP
+use Definitions, only: iwp, u6
 
 implicit none
-integer IPRNT
-! Local scratch
-integer IOCTYP(MXPSTT), IREOSPGP(MXPSTT), ISCR(MXPSTT)
-integer IOCCLS(1), IBASSPC(1)
-integer NTESTL, NTEST, IGAS, MINI, MAXI, ICISPC, IPHGASL, NPHGAS, NOCCLS, NAEL, NBEL, MAXSUB, IGRP, MXAL, MNAL, MXBL, MNBL, MXA1, &
-        MXB1, MNA1, MNB1, MXA, MXB, MNA, MNB, MNAB, MXAB, IADD, JGRP, IEL, IITYPE, ITP, IOFF, NABEL, NSPGP_TOT, ITYP, NELEC_REF, &
-        IDEL, NSPGP, IONE, NEL, IRED, NONEW, I_AM_OKAY, IOELMX, IBTYP, ISPGP, IDIM, JGAS, ISPGP_N, ISPGP_O
-integer, external :: IBION_LUCIA
+integer(kind=iwp) :: IPRNT
+integer(kind=iwp) :: I_AM_OKAY, I_DIM, IADD, IBASSPC(1), IBTYP, ICISPC, IDEL, IEL, IGAS, IGRP, IITYPE, IOCCLS(1), IOCTYP(MXPSTT), &
+                     IOELMX, IOFF, IPHGAS1(NGAS), IPHGASL, IRED, IREOSPGP(MXPSTT), ISCR(MXPSTT), ISPGP, ISPGP_N, ISPGP_O, ITP, &
+                     ITYP, JGAS, JGRP, MAXI, MAXSUB, MINI, MNA, MNA1, MNAB, MNAL, MNB, MNB1, MNBL, MNELFGP(NGAS), MXA, MXA1, MXAB, &
+                     MXAL, MXB, MXB1, MXBL, MXELFGP(NGAS), NABEL, NAEL, NBEL, NEL, NELEC_REF, NOCCLS, NONEW, NPHGAS, NSPGP, &
+                     NSPGP_TOT, NTEST, NTESTL
+integer(kind=iwp), external :: IBINOM
 
 NTESTL = 0
 NTEST = max(IPRNT,NTESTL)
@@ -88,6 +81,7 @@ end do
 
 IPHGASL = 0
 NPHGAS = 0
+IPHGAS1(:) = 0
 do IGAS=1,NGAS
   !if (IUSE_PH == 1) then
   !  ! P/H separation for compound space
@@ -115,16 +109,16 @@ do IGAS=1,NGAS
   !end if
 end do
 ! Large number of particle and hole orbitals
-MXTSOB_P = 0
-MXTSOB_H = 0
-do IGAS=1,NGAS
-  if (IPHGAS1(IGAS) == 1) then
-    MXTSOB_P = max(MXTSOB_P,NOBPT(IGAS))
-  else
-    MXTSOB_H = max(MXTSOB_H,NOBPT(IGAS))
-  end if
-end do
-if (NTEST > 0) write(u6,*) ' MXTSOB_H, MXTSOB_P = ',MXTSOB_H,MXTSOB_P
+!MXTSOB_P = 0
+!MXTSOB_H = 0
+!do IGAS=1,NGAS
+!  if (IPHGAS1(IGAS) == 1) then
+!    MXTSOB_P = max(MXTSOB_P,NOBPT(IGAS))
+!  else
+!    MXTSOB_H = max(MXTSOB_H,NOBPT(IGAS))
+!  end if
+!end do
+!if (NTEST > 0) write(u6,*) ' MXTSOB_H, MXTSOB_P = ',MXTSOB_H,MXTSOB_P
 
 !if (IUSE_PH == 1) then
 !  IPHGAS(1) = 2
@@ -275,7 +269,7 @@ do IGAS=1,NGAS
     end if
     NELFGP(JGRP) = IEL
     IGSFGP(JGRP) = IGAS
-    NSTFGP(JGRP) = IBION_LUCIA(NOBPT(IGAS),IEL)
+    NSTFGP(JGRP) = IBINOM(NOBPT(IGAS),IEL)
   end do
   IGRP = IGRP+NGPSTR(IGAS)
 end do
@@ -418,7 +412,6 @@ do ITYP=1,NSTTYP
     end if
     ! Number of electrons in present type
     ! Loop over  SUPER GROUPS with current nomenclature!
-    IONE = 1
 1000 continue
     ! Number of electrons in present supergroup
     NEL = 0
@@ -446,7 +439,7 @@ do ITYP=1,NSTTYP
       else if (IRED < NGAS) then
         IOCTYP(IRED) = 1
         ! Increase remanining part
-        call NXTNUM2(IOCTYP(IRED+1),NGAS-IRED,IONE,NGPSTR(IRED+1),NONEW)
+        call NXTNUM2(IOCTYP(IRED+1),NGAS-IRED,1,NGPSTR(IRED+1),NONEW)
       end if
       goto 2803
     end if
@@ -507,8 +500,7 @@ do ITYP=1,NSTTYP
 
     end if
     ! Next type of strings
-    IONE = 1
-    call NXTNUM2(IOCTYP,NGAS,IONE,NGPSTR,NONEW)
+    call NXTNUM2(IOCTYP,NGAS,1,NGPSTR,NONEW)
 2803 continue
     if (NONEW == 0) goto 1000
     ! End of loop over possible supergroups, save information about current type
@@ -538,11 +530,11 @@ do ITYP=1,NSTTP
   NSPGP = NSPGPFTP(ITYP)
   ! Dimension of supergroups
   do ISPGP=1,NSPGP
-    IDIM = 1
+    I_DIM = 1
     do JGAS=1,NGAS
-      IDIM = IDIM*NSTFGP(ISPGPFTP(JGAS,ISPGP+IBTYP-1))
+      I_DIM = I_DIM*NSTFGP(ISPGPFTP(JGAS,ISPGP+IBTYP-1))
     end do
-    IOCTYP(ISPGP) = IDIM
+    IOCTYP(ISPGP) = I_DIM
   end do
   ! Reorder
   !    ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)

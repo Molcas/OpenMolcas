@@ -11,7 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISIGN)
+subroutine ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,SGN)
 ! An alpha string (IA) and a betastring (IB) is given.
 ! Combine these two strings to give an determinant with
 ! orbitals in ascending order. For doubly occupied orbitals
@@ -19,23 +19,20 @@ subroutine ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISIGN)
 ! The output is given as IDET_OC : Orbital occupation (configuration )
 !                        IDET_SP : Spin projections
 !
-! The phase required to change IA IB into IDET is computes as ISIGN
+! The phase required to change IA IB into IDET is computed as SGN
 !
 ! Jeppe Olsen, November 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IA_OC(NAEL), IB_OC(NBEL)
-! Output
-integer IDET_OC(NAEL+NBEL)
-integer IDET_SP(NAEL+NBEL)
+implicit none
+integer(kind=iwp), intent(in) :: NAEL, IA_OC(NAEL), NBEL, IB_OC(NBEL)
+integer(kind=iwp), intent(out) :: IDET_OC(NAEL+NBEL), IDET_SP(NAEL+NBEL), SGN
+integer(kind=iwp) :: NEXT_AL, NEXT_BE, NEXT_EL, NTEST
 
 NEXT_AL = 1
 NEXT_BE = 1
-NEXT_EL = 0
-ISIGN = 1
+SGN = 1
 ! Loop over next electron in outputstring
 do NEXT_EL=1,NAEL+NBEL
   if ((NEXT_AL <= NAEL) .and. (NEXT_BE <= NBEL)) then
@@ -43,26 +40,26 @@ do NEXT_EL=1,NAEL+NBEL
     if (IA_OC(NEXT_AL) <= IB_OC(NEXT_BE)) then
       ! Next electron is alpha electron
       IDET_OC(NEXT_EL) = IA_OC(NEXT_AL)
-      IDET_SP(NEXT_EL) = +1
+      IDET_SP(NEXT_EL) = 1
       NEXT_AL = NEXT_AL+1
     else
       ! Next electron is beta electron
       IDET_OC(NEXT_EL) = IB_OC(NEXT_BE)
       IDET_SP(NEXT_EL) = -1
       NEXT_BE = NEXT_BE+1
-      ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
+      SGN = SGN*(-1)**(NAEL-NEXT_AL+1)
     end if
   else if (NEXT_BE > NBEL) then
     ! Next electron is alpha electron
     IDET_OC(NEXT_EL) = IA_OC(NEXT_AL)
-    IDET_SP(NEXT_EL) = +1
+    IDET_SP(NEXT_EL) = 1
     NEXT_AL = NEXT_AL+1
   else if (NEXT_AL > NAEL) then
     ! Next electron is beta electron
     IDET_OC(NEXT_EL) = IB_OC(NEXT_BE)
     IDET_SP(NEXT_EL) = -1
     NEXT_BE = NEXT_BE+1
-    ISIGN = ISIGN*(-1)**(NAEL-NEXT_AL+1)
+    SGN = SGN*(-1)**(NAEL-NEXT_AL+1)
   end if
 end do
 ! End of loop over electrons in outputlist

@@ -36,12 +36,11 @@ subroutine OSPIR(NOSPIR,IOSPIR,PNTGRP,NIRREP,MXPIRR,MXPOBS,IPRNT)
 !
 ! Jeppe Olsen, Winter of 1991
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer PNTGRP
-! Output
-dimension NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR)
+implicit none
+integer(kind=iwp) :: MXPIRR, MXPOBS, NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR), PNTGRP, NIRREP, IPRNT
+integer(kind=iwp) :: IRREP, NTEST
 
 if (PNTGRP == 1) then
   !=====

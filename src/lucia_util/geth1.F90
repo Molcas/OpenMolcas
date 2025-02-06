@@ -24,14 +24,13 @@ subroutine GETH1(H,ISM,ITP,JSM,JTP)
 !              Summer of 98 : CC options added
 
 use lucia_data, only: NOBPTS
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer ISM, ITP, JSM, JTP
-! Output
-real*8 H(*)
-integer NI, NJ, IJ, J, I, NTEST
-real*8, external :: GETH1E
+real(kind=wp) :: H(*)
+integer(kind=iwp) :: ISM, ITP, JSM, JTP
+integer(kind=iwp) :: I, IJ, J, NI, NJ, NTEST
+real(kind=wp), external :: GETH1E
 
 NI = NOBPTS(ITP,ISM)
 NJ = NOBPTS(JTP,JSM)

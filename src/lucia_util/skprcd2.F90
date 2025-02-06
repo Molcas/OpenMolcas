@@ -18,12 +18,12 @@ subroutine SKPRCD2(NDIM,MBLOCK,IFILE)
 
 use lucia_data, only: IDISK
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer NDIM, MBLOCK, IFILE
-integer ISCR(2), IDUMMY(1)
-real*8 DUMMY(1)
-integer IPACK, IMZERO, I_AM_PACKED, LBATCH, ISTOP, NBLOCK, IREST, IBASE
+integer(kind=iwp) :: NDIM, MBLOCK, IFILE
+integer(kind=iwp) :: I_AM_PACKED, IBASE, IDUMMY(1), IMZERO, IPACK, IREST, ISCR(2), ISTOP, LBATCH, NBLOCK
+real(kind=wp) :: DUMMY(1)
 
 IPACK = 1
 if (IPACK /= 0) then

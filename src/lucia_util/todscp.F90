@@ -14,22 +14,19 @@ subroutine TODSCP(A,NDIM,MBLOCK,IFIL)
 ! RECORDS WITH LENGTH NBLOCK.
 !
 ! Packed version : Store only nonzero elements
-! Small elements should be xeroed outside
+! Small elements should be zeroed outside
 
-use Constants, only: Zero
 use lucia_data, only: IDISK
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer NDIM, MBLOCK, IFIL
-real*8 A(*)
-!-jwk-cleanup integer START, STOP
-real*8, external :: INPROD
-integer ISCR(2), IDUMMY(1)
-integer, parameter :: LPBLK = 50000
-integer IPAK(LPBLK)
-real*8 XPAK(LPBLK)
-integer IPACK, IMZERO, MMBLOCK, IELMNT, LBATCH
-real*8 XNORM
+real(kind=wp) :: A(*)
+integer(kind=iwp) :: NDIM, MBLOCK, IFIL
+integer(kind=iwp), parameter :: LPBLK = 50000
+integer(kind=iwp) :: IDUMMY(1), IELMNT, IMZERO, IPACK, IPAK(LPBLK), ISCR(2), LBATCH, MMBLOCK
+real(kind=wp) :: XNORM, XPAK(LPBLK)
+real(kind=wp), external :: INPROD
 
 !write(u6,*) ' entering TODSCP, file = ',IFIL
 !call XFLUSH(u6)

@@ -22,15 +22,15 @@ subroutine SCDTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC,IWAY,IPRNT)
 !
 ! Jeppe Olsen, August 1995
 
-use Constants, only: One, Two
-use Definitions, only: u6
+use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input
-dimension NSASO(NSMST,*), NSBSO(NSMST,*)
-dimension BLOCKS(*)
-integer IBLOCK(8,NBLOCK)
-!logical DIAGBL
+implicit none
+real(kind=wp) :: BLOCKS(*)
+integer(kind=iwp) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC, IWAY, IPRNT
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFFP, IPACK, JBLOCK, NELMNT, NIA, NIB, NTEST
+real(kind=wp) :: FACTOR
+real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
@@ -42,9 +42,6 @@ if (NTEST > 10) then
   write(u6,*) ' Input vector'
   call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
 end if
-
-SQ2 = sqrt(Two)
-SQ2I = One/SQ2
 
 do JBLOCK=1,NBLOCK
 

@@ -19,7 +19,7 @@ subroutine INTPNT(IPNT1,ISL1,IPNT2,ISL2)
 ! ISL1  : Symmetry of last index for given first index, 1 e-
 !
 ! In addition pointers to one-electron integrals with general
-! symmetry is generated in PGINT1(ISM%I)
+! symmetry is generated in PGINT1(ISM)%A
 !
 ! Pointers for similarity transformed Hamiltonian may also be
 ! generated
@@ -27,25 +27,21 @@ subroutine INTPNT(IPNT1,ISL1,IPNT2,ISL2)
 ! Jeppe Olsen, Last Update : August 2000
 
 use GLBBAS, only: PGINT1, PGINT1A
-use lucia_data, only: I1234S, I12S, I34S
-use lucia_data, only: NSMOB
-use lucia_data, only: NTOOBS
-use lucia_data, only: MXPOBS
-use csm_data, only: ITSDX, ITSSX
-use csm_data, only: ADASX, ADSXA, SXDXSX
+use lucia_data, only: I1234S, I12S, I34S, MXPOBS, NSMOB, NTOOBS
+use csm_data, only: ADASX, ADSXA, ITSDX, ITSSX, SXDXSX
+use Definitions, only: iwp
 
 implicit none
-integer IPNT1(NSMOB), ISL1(NSMOB)
-integer IPNT2(NSMOB,NSMOB,NSMOB), ISL2(NSMOB,NSMOB,NSMOB)
-integer ISM
+integer(kind=iwp) :: IPNT1(NSMOB), ISL1(NSMOB), IPNT2(NSMOB,NSMOB,NSMOB), ISL2(NSMOB,NSMOB,NSMOB)
+integer(kind=iwp) :: ISM
 
 ! 0 : Pointers to one-integrals, all symmetries, Lower half matrices
 do ISM=1,NSMOB
-  call PNT2DM(1,NSMOB,ADSXA,NTOOBS,NTOOBS,ISM,ISL1,PGINT1(ISM)%I,MXPOBS)
+  call PNT2DM(1,NSMOB,ADSXA,NTOOBS,NTOOBS,ISM,ISL1,PGINT1(ISM)%A,MXPOBS)
 end do
 ! 0.5 : Pointers to one-electron integrals, all symmetries, complete form
 do ISM=1,NSMOB
-  call PNT2DM(0,NSMOB,ADSXA,NTOOBS,NTOOBS,ISM,ISL1,PGINT1A(ISM)%I,MXPOBS)
+  call PNT2DM(0,NSMOB,ADSXA,NTOOBS,NTOOBS,ISM,ISL1,PGINT1A(ISM)%A,MXPOBS)
 end do
 ! 1 : Number of one-electron integrals
 call PNT2DM(1,NSMOB,ADSXA,NTOOBS,NTOOBS,ITSSX,ISL1,IPNT1,MXPOBS)

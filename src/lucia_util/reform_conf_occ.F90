@@ -26,11 +26,11 @@ subroutine REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
 !
 ! Jeppe Olsen, Nov. 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input/Output
-integer IOCC_EXP(NEL), IOCC_PCK(NOCOB)
+implicit none
+integer(kind=iwp) :: NEL, IOCC_EXP(NEL), NOCOB, IOCC_PCK(NOCOB), IWAY
+integer(kind=iwp) :: IEL, IOCC, IORB, JORB, NTEST
 
 if (IWAY == 1) then
 

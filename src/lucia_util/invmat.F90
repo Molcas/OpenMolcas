@@ -24,10 +24,13 @@ subroutine INVMAT(A,B,MATDIM,NDIM,ISING)
 !       = 1 => Convergence problems
 
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension A(MATDIM,MATDIM), B(MATDIM,MATDIM)
+implicit none
+integer(kind=iwp) :: MATDIM, NDIM, ISING
+real(kind=wp) :: A(MATDIM,MATDIM), B(MATDIM,MATDIM)
+integer(kind=iwp) :: ITEST, NTEST
+real(kind=wp) :: DETERM, EPSIL
 
 ITEST = 0
 if (NDIM == 1) then

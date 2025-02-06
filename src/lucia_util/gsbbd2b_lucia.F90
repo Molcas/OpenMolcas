@@ -63,30 +63,23 @@ subroutine GSBBD2B_LUCIA(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,
 !
 ! Jeppe Olsen, Fall of 1996
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: LOFFI
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input
-integer ADSXA(MXPOBS,MXPOBS), STSTSX(NSMST,NSMST)
-integer NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*)
-! Input
-dimension CB(*), SB(*)
-logical IPACK
-! Output
-dimension RHO2(*), RHO2S(*), RHO2A(*)
-! Scratch
-dimension I1(*), XI1S(*), I2(*), XI2S(*)
-dimension I3(*), XI3S(*), I4(*), XI4S(*)
-dimension X(*)
-dimension CJRES(*), SIRES(*)
-! Local arrays
-dimension ITP(20), JTP(20), KTP(20), LTP(20)
-dimension IAOC(*), JAOC(*), IBOC(*), JBOC(*)
-real*8, allocatable :: OFFI(:)
+implicit none
+real(kind=wp) :: RHO2(*), RHO2S(*), RHO2A(*), SB(*), CB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), CJRES(*), SIRES(*), SCLFAC, &
+                 S2_TERM1
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), IBOC(*), &
+                     JAOC(*), JBOC(*), MXPOBS, ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), MXPNGAS, NOBPTS(MXPNGAS,*), &
+                     IOBPTS(MXPNGAS,*), MAXK, I1(*), I2(*), I3(*), I4(*), NSMOB, IUSEAB, NORB, NTESTG
+logical(kind=iwp) :: IPACK
+integer(kind=iwp) :: I, IDOCOMP, II, IJ, IJSM, IJTYP, IKABTC, IKORD, IOFF, ISM, ITP(20), ITYP, J, JI, JJ, JOFF, JSM, JTP(20), &
+                     JTYP, KABOT, KATOP, KLSM, KLTYP, KOFF, KSM, KTP(20), KTYP, LKABTC, LOFF, LSM, LTP(20), LTYP, NI, NIJ, NIJTYP, &
+                     NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL, NTEST, NTESTL
+real(kind=wp), allocatable :: OFFI(:)
 
 NTESTL = 0
 NTEST = max(NTESTL,NTESTG)

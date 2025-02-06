@@ -16,21 +16,19 @@ subroutine CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
 ! accumulated min and max, IOCC_MIN and IOCC_MAX.
 !
 ! Find arcweights of corresponding graph and total number
-! of configurations ( all symmetries)
+! of configurations (all symmetries)
+!
+! IARCW(I,J,K) : gives weight of arc ending at vertex (I,J)
+!                with occupation K (=1,2)
+! ISCR : Length should be (NORB+1)*(NEL+1)
 !
 ! Jeppe Olsen, Oct. 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IOCC_MIN(NORB), IOCC_MAX(NORB)
-! Output
-integer IARCW(NORB,NEL,2)
-! IARCW(I,J,K) gives weight of arc ending at vertex (I,J)
-! with occupation K (=1,2)
-! Local scratch : Length should be (NORB+1)*(NEL+1)
-integer ISCR(NORB+1,NEL+1)
+implicit none
+integer(kind=iwp) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL, IARCW(NORB,NEL,2), NCONF, ISCR(NORB+1,NEL+1)
+integer(kind=iwp) :: NTEST
 
 ! Set up vertex weights
 call CONF_VERTEX_W(IOCC_MIN,IOCC_MAX,NORB,NEL,ISCR)

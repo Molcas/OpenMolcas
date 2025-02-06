@@ -16,10 +16,12 @@ function ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
 !
 ! version of Winter 1990, Jeppe Olsen
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-integer Z
-dimension IOCC(*), NEWORD(*), Z(NORB,*)
+implicit none
+integer(kind=iwp) :: ISTRNM
+integer(kind=iwp) :: IOCC(*), NORB, NEL, Z(NORB,*), NEWORD(*), IREORD
+integer(kind=iwp) :: I, IZ, NTEST
 
 IZ = 1
 do I=1,NEL

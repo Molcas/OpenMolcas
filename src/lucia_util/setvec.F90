@@ -9,14 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SETVEC(VECTOR,value,NDIM)
-! VECTOR(*) = VALUE
+subroutine SETVEC(VECTOR,VAL,NDIM)
+! VECTOR(*) = VAL
 
-implicit real*8(A-H,O-Z)
-dimension VECTOR(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VECTOR(*), VAL
+integer(kind=iwp) :: NDIM
+integer(kind=iwp) :: I
 
 do I=1,NDIM
-  VECTOR(I) = value
+  VECTOR(I) = VAL
 end do
 
 end subroutine SETVEC

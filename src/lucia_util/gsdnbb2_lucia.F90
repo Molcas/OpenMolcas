@@ -71,22 +71,18 @@ subroutine GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,JASM,JATP
 !
 ! Jeppe Olsen, Winter of 1991
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: I12, IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(*), IBOC(*), JAOC(*), JBOC(*), NAEL, NBEL, &
+                     IJAGRP, IJBGRP, ADSXA(*), STSTSX(*), SXDXSX(*), MXPNGAS, NOBPTS(*), IOBPTS(*), MAXI, MAXK, I1(*), I2(*), &
+                     I3(*), I4(*), NSMOB, NSMST, NIA, NIB, NJA, NJB, MXPOBS, IPRNT, NACOB, IPHGAS(*), IDOSRHO1
+real(kind=wp) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), SB(*), CB(*), C2(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), &
+                 X(*), RHO1S(*), SCLFAC, S2_TERM1, SRHO1(*)
+logical(kind=iwp) :: IPACK
 #include "timers.fh"
-integer ADSXA(*), STSTSX(*), SXDXSX(*)
-! Input
-dimension CB(*), SB(*), NOBPTS(*), IOBPTS(*), X(*)
-logical IPACK
-! Output
-dimension RHO1(*), RHO2(*), RHO2S(*), RHO2A(*)
-! Scratch
-dimension SSCR(*), CSCR(*)
-dimension I1(*), XI1S(*), I2(*), XI2S(*), I3(*), XI3S(*), I4(*), XI4S(*)
-dimension C2(*), RHO1S(*)
-dimension IAOC(*), JAOC(*), IBOC(*), JBOC(*)
-dimension IPHGAS(*), SRHO1(*)
+real(kind=wp) :: CPU, CPU0, CPU1, WALL, WALL0, WALL1
+integer(kind=iwp) :: IAB, IUSEAB, NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

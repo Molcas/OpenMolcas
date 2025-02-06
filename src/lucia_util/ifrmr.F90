@@ -9,16 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function IFRMR(iArray,IROFF,IELMNT)
+function IFRMR(iArray,IROFF,IELMNT)
 ! An integer array is stored in real array iArray,
 ! starting from iArray(IROFF). Obtain element
 ! IELMNT of this array
 
 use lucia_data, only: irat
+use Definitions, only: iwp
 
 implicit none
-integer iArray(*), IROFF, IELMNT
-integer IIOFF
+integer(kind=iwp) :: IFRMR
+integer(kind=iwp) :: iArray(*), IROFF, IELMNT
+integer(kind=iwp) :: IIOFF
 
 ! offset when iArray is integer array
 IIOFF = 1+IRAT*(IROFF-1)

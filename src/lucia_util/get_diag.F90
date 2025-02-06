@@ -12,13 +12,13 @@
 subroutine get_diag(diag,ndet)
 ! Copies CI diagonal from Lucia enviroment to RASSCF envirmonet
 
-use lucia_data, only: LUDIA
-use lucia_data, only: IDISK
+use lucia_data, only: IDISK, LUDIA
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 diag(*)
-integer nDet
-integer idummy(1), iDet, IMZERO, I_AM_PACKED
+real(kind=wp) :: diag(*)
+integer(kind=iwp) :: nDet
+integer(kind=iwp) :: I_AM_PACKED, iDet, idummy(1), IMZERO
 
 ndet = 0
 IDISK(LUDIA) = 0

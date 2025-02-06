@@ -31,7 +31,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
 integer(kind=iwp) :: IPRINT, IPRL, IPRLEV
-real(kind=wp) :: dum1, dum2, dum3, eCore_Hex
+real(kind=wp) :: dum1, dum2, dum3
 real(kind=wp), allocatable :: DDIA(:)
 real(kind=wp), external :: Get_eCore
 #include "timers.fh"
@@ -51,8 +51,7 @@ call get_diag(DDIA,ndet)
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
 call CSDIAG_CI_UTIL(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,CTS,NDTFTP,NCSFTP,IPRINT)
-eCore_Hex = Get_eCore()
-CSFDIA(:) = CSFDIA(:)+eCore_Hex
+CSFDIA(:) = CSFDIA(:)+Get_eCore()
 
 ! DEALLOCATE LOCAL MEMORY
 

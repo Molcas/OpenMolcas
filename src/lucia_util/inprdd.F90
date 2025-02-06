@@ -9,20 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function INPRDD(VEC1,VEC2,LU1,LU2,IREW,LBLK)
+function INPRDD(VEC1,VEC2,LU1,LU2,IREW,LBLK)
 ! DISC VERSION OF INPROD
 !
 ! LBLK DEFINES STRUCTURE OF FILE
 
 use lucia_data, only: IDISK
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 VEC1(*), VEC2(*)
-integer LU1, LU2, IREW, LBLK
-real*8 INPROD, X
-logical DIFVEC
-integer IDUMMY(1), NBL1, KBLK, IAMPACK, IMZERO
+real(kind=wp) :: INPRDD
+real(kind=wp) :: VEC1(*), VEC2(*)
+integer(kind=iwp) :: LU1, LU2, IREW, LBLK
+integer(kind=iwp) :: IAMPACK, IDUMMY(1), IMZERO, KBLK, NBL1
+real(kind=wp) :: INPROD, X
+logical(kind=iwp) :: DIFVEC
 
 X = Zero
 if (LU1 /= LU2) then

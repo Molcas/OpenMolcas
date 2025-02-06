@@ -27,26 +27,18 @@ subroutine T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
 !
 ! Jeppe Olsen, Feb. 98
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Local_Arrays, only: CIBT, CBLTP, Deallocate_Local_Arrays
+use Local_Arrays, only: CBLTP, CIBT, Deallocate_Local_Arrays
 use strbas, only: NSTSO
-use lucia_data, only: ICISTR
-use lucia_data, only: MXNSTR
-use lucia_data, only: IREOST, NTOOB
-use lucia_data, only: NELEC
+use lucia_data, only: ICISTR, IREOST, MXNSTR, NELEC, NTOOB
 use csm_data, only: NSMST
-use Definitions, only: u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 T
-integer KORB, ISM, ISPC, LUCIN, LUCOUT
-
-! Scratch block, must hold a batch of blocks
-real*8 C(*)
-
-integer, allocatable :: LASTR(:), LBSTR(:)
-integer, allocatable :: LKAOC(:), LKBOC(:)
-integer NTEST, IATP, IBTP, NAEL, NBEL, KKORB, NBATCH, NBLOCK
+real(kind=wp) :: T, C(*)
+integer(kind=iwp) :: KORB, ISM, ISPC, LUCIN, LUCOUT
+integer(kind=iwp) :: IATP, IBTP, KKORB, NAEL, NBATCH, NBEL, NBLOCK, NTEST
+integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:), LKAOC(:), LKBOC(:)
 
 NTEST = 0
 if (NTEST >= 100) then
@@ -70,7 +62,7 @@ call mma_allocate(LKAOC,MXNSTR,Label='LKAOC')
 call mma_allocate(LKBOC,MXNSTR,Label='LKBOC')
 ! Orbital K in type ordering
 KKORB = IREOST(KORB)
-call T_TO_NK_VECS(T,KKORB,C,LUCIN,LUCOUT,NSTSO(IATP)%I,NSTSO(IBTP)%I,NBLOCK,CIBT,NAEL,NBEL,LASTR,LBSTR,CBLTP,NSMST,ICISTR,NTOOB, &
+call T_TO_NK_VECS(T,KKORB,C,LUCIN,LUCOUT,NSTSO(IATP)%A,NSTSO(IBTP)%A,NBLOCK,CIBT,NAEL,NBEL,LASTR,LBSTR,CBLTP,NSMST,ICISTR,NTOOB, &
                   LKAOC,LKBOC)
 
 call mma_deallocate(LASTR)

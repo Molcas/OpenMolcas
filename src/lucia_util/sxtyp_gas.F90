@@ -17,13 +17,11 @@ subroutine SXTYP_GAS(NSXTYP,ITP,JTP,NGAS,ILTP,IRTP)
 !
 ! Jeppe Olsen, July 1995
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension ILTP(NGAS), IRTP(NGAS)
-! Output
-dimension ITP(*), JTP(*)
+implicit none
+integer(kind=iwp) :: NSXTYP, ITP(*), JTP(*), NGAS, ILTP(NGAS), IRTP(NGAS)
+integer(kind=iwp) :: IANNI, IAS, ICREA, ISX, NANNI, NCREA, NTEST
 
 ! Some dummy initializations
 ICREA = 0 ! jwk-cleanup

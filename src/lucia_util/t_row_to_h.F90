@@ -21,21 +21,17 @@ subroutine T_ROW_TO_H(T,H,K,TKK)
 ! Jeppe Olsen, Jan 98
 ! For rotation of CI vectors
 
-use Constants, only: Zero, One
 use GLBBAS, only: PGINT1A
-use lucia_data, only: NTOOB, IBSO, ISMFSO, NTOOBS
+use lucia_data, only: IBSO, ISMFSO, NTOOB, NTOOBS
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer K
-real*8 TKK
-! Input (in blocked form)
-real*8 T(*)
-! Output (also in blocked form)
-real*8 H(*)
-
-integer, external :: IFRMR
-integer KSM, KOFF, KREL, NK, IOFF
-real*8 FAC
+real(kind=wp) :: T(*), H(*), TKK
+integer(kind=iwp) :: K
+integer(kind=iwp) :: IOFF, KOFF, KREL, KSM, NK
+real(kind=wp) :: FAC
+integer(kind=iwp), external :: IFRMR
 
 KSM = ISMFSO(K)
 KOFF = IBSO(KSM)
@@ -44,7 +40,7 @@ NK = NTOOBS(KSM)
 
 call SETVEC(H,Zero,NTOOB**2)
 
-IOFF = IFRMR(PGINT1A(1)%I,1,KSM)
+IOFF = IFRMR(PGINT1A(1)%A,1,KSM)
 call COPVEC(T(IOFF+(KREL-1)*NK),H(IOFF+(KREL-1)*NK),NK)
 TKK = H(IOFF-1+(KREL-1)*NK+KREL)
 if (TKK /= Zero) then

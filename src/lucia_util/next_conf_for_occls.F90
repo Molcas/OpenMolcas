@@ -17,22 +17,13 @@ subroutine NEXT_CONF_FOR_OCCLS(ICONF,IOCCLS,NGAS,NOBPT,INI,NONEW)
 ! Jeppe Olsen, Nov. 2001
 
 use lucia_data, only: MXPNGAS, MXPORB
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NGAS, INI, NONEW
-! Input
-! Number of electrons per gas space
-integer IOCCLS(NGAS)
-! Number of orbitals per gasspace
-integer NOBPT(NGAS)
-! Input and output
-integer ICONF(*)
-! Local scratch
-integer IBORB(MXPNGAS), ICONF_GAS(MXPORB)
-integer IBEL(MXPNGAS)
-integer, external :: IELSUM
-integer NTEST, NEL, IGAS, INI_L, NONEW_L, NEL_GAS, NORB_GAS, JBEL, JBORB, JEL, JORB, JGAS
+integer(kind=iwp) :: ICONF(*), NGAS, IOCCLS(NGAS), NOBPT(NGAS), INI, NONEW
+integer(kind=iwp) :: IBEL(MXPNGAS), IBORB(MXPNGAS), ICONF_GAS(MXPORB), IGAS, INI_L, JBEL, JBORB, JEL, JGAS, JORB, NEL, NEL_GAS, &
+                     NONEW_L, NORB_GAS, NTEST
+integer(kind=iwp), external :: IELSUM
 
 NTEST = 0
 ! Total number of electrons

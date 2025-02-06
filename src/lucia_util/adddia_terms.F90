@@ -27,21 +27,14 @@ subroutine ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,NORB,CVEC,SVEC,NSMST,H,XB,RJ,RK,NS
 !     = 2 =>      one+two-body part
 
 use Constants, only: Zero, One, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension NSSOA(NSMST,*), NSSOB(NSMST,*)
-dimension H(NORB)
-dimension CVEC(*)
-! Scratch
-dimension RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-dimension XB(NORB)
-dimension IASTR(NAEL,*), IBSTR(NBEL,*)
-dimension RJKAA(*)
-dimension IDUM(1)
-! Output
-dimension SVEC(*)
+implicit none
+integer(kind=iwp) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), IPRNT, NTOOB, IASPGP, &
+                     IASM, IBSPGP, IBSM
+real(kind=wp) :: CVEC(*), SVEC(*), H(NORB), XB(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, RJKAA(*), FACTOR
+integer(kind=iwp) :: I12, IA, IAEL, IB, IBEL, IDET, IDUM(1), IEL, IORB, JEL, NASTR1, NBSTR1, NIA, NIB, NTEST
+real(kind=wp) :: EAA, EB, HB, RJBB, X
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

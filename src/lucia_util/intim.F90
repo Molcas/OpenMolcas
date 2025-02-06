@@ -19,17 +19,13 @@ subroutine INTIM()
 !
 ! Version : Fall 97
 
-use GLBBAS, only: INT1, INT1O, PINT1, PINT2, LSM1, LSM2, KINH1, KINH1_NOCCSYM
+use GLBBAS, only: INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, PINT1, PINT2
+use lucia_data, only: ECORE, ECORE_HEX, ECORE_ORIG, NOINT, NSMOB, NTOOB, NTOOBS
 use Constants, only: Zero
-use lucia_data, only: ECORE_HEX, ECORE_ORIG, ECORE
-use lucia_data, only: NOINT
-use lucia_data, only: NSMOB
-use lucia_data, only: NTOOB, NTOOBS
 
 implicit none
 
 ! Pointers for symmetry blocks of integrals
-
 call INTPNT(PINT1,LSM1,PINT2,LSM2)
 
 ! Pointer for orbital indices for symmetry blocked matrices

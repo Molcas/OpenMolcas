@@ -17,12 +17,13 @@ subroutine GET_CKAJJB(CB,NJ,NJA,CKAJJB,NKA,NJB,J,ISCA,SSCA)
 ! For efficient processing of alpha-beta loop
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension CB(NJB,NJA), SSCA(*), ISCA(*)
-! Output
-dimension CKAJJB(*)
+implicit none
+integer(kind=iwp) :: NJ, NJA, NKA, NJB, J, ISCA(*)
+real(kind=wp) :: CB(NJB,NJA), CKAJJB(*), SSCA(*)
+integer(kind=iwp) :: IADR, IADR0, ICBL, ICEND, ICOFF, ICONST, IROW, JB, KA, LBLK, NBLK
+real(kind=wp) :: S
 
 ! To get rid of annoying and incorrect compiler warnings
 ICOFF = 0

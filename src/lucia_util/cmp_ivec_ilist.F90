@@ -18,15 +18,13 @@ subroutine CMP_IVEC_ILIST(IVEC,ILIST,LLIST,NLIST,INUM)
 !
 ! If INUM = 0, the list was not found
 !
-!  Jeppe Olsen, December 2001
+! Jeppe Olsen, December 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input
-integer ILIST(LLIST,NLIST)
-! Specific input
-integer IVEC(LLIST)
+implicit none
+integer(kind=iwp) :: LLIST, IVEC(LLIST), NLIST, ILIST(LLIST,NLIST), INUM
+integer(kind=iwp) :: IELMNT, IFOUND, JLIST, NTEST
 
 INUM = 0
 do JLIST=1,NLIST

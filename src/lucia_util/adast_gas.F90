@@ -44,43 +44,22 @@ subroutine ADAST_GAS(IOBSM,IOBTP,NIGRP,IGRP,ISPGPSM,I1,XI1S,NKSTR,KACT,SCLFAC,IA
 ! Smart Loop over symmetry distributions
 ! in order to make the code faster
 
-use strbas, only: NSTSGP, ISTSGP, STSTM
+use strbas, only: ISTSGP, NSTSGP, STSTM
 use distsym, only: ISMDFGP, ISMSCR, NACTSYM
-use stdalloc, only: mma_allocate, mma_deallocate
-use lucia_data, only: IBGPSTR, IGSFGP, NELFGP, NGPSTR, NGRP
-use lucia_data, only: LOFFI
-use lucia_data, only: IOBPTS, NOBPT, NOBPTS
-use lucia_data, only: ISTAC
-use lucia_data, only: MXPNGAS, MXPNSMST
+use lucia_data, only: IBGPSTR, IGSFGP, IOBPTS, ISTAC, LOFFI, MXPNGAS, MXPNSMST, NELFGP, NGPSTR, NGRP, NOBPT, NOBPTS
 use csm_data, only: NSMST
-use Definitions, only: u6
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IOBSM, IOBTP, NIGRP, ISPGPSM, NKSTR, KACT, IAC
-real*8 SCLFAC
-! Input
-integer IGRP(NIGRP)
-! ======
-! Output
-! ======
-
-integer I1(*)
-real*8 XI1S(*)
-
-! Local scratch
-integer ISMFGS(MXPNGAS)
-integer MXVLI(MXPNGAS), MNVLI(MXPNGAS)
-!integer MXVLK(MXPNGAS),MNVLK(MXPNGAS)
-integer NNSTSGP(MXPNSMST,MXPNGAS)
-integer IISTSGP(MXPNSMST,MXPNGAS)
-integer KGRP(MXPNGAS)
-integer IACIST(MXPNSMST), NACIST(MXPNSMST)
-allocatable IOFFI(:)
-integer NTEST, I, NORBTS, NORBT, IACGAS, IBORBSP, IBORBSPS, IDELTA, IACGRP, JGRP, NIEL, NKEL, KACGRP, KSM, NKDIST, NGASL, NIGASL, &
-        NELB, IZERO, KFIRST, KSTRBS, IGAS, NONEW, NSTRIK, ISAVE, IACSM, IBSTRINI, NSTB, NSTA, NIAC, IIAC, NKAC, IKAC, NKSD, IEC, &
-        LROW_IN, IORB, IORBR, IOFFI
-integer, external :: IOFF_SYM_DIST
-integer, external :: IELSUM
+integer(kind=iwp) :: IOBSM, IOBTP, NIGRP, IGRP(NIGRP), ISPGPSM, I1(*), NKSTR, KACT, IAC
+real(kind=wp) :: XI1S(*), SCLFAC
+integer(kind=iwp) :: I, IACGAS, IACGRP, IACIST(MXPNSMST), IACSM, IBORBSP, IBORBSPS, IBSTRINI, IDELTA, IEC, IGAS, IIAC, &
+                     IISTSGP(MXPNSMST,MXPNGAS), IKAC, IORB, IORBR, ISAVE, ISMFGS(MXPNGAS), JGRP, KACGRP, KFIRST, KGRP(MXPNGAS), &
+                     KSM, KSTRBS, LROW_IN, MNVLI(MXPNGAS), MXVLI(MXPNGAS), NACIST(MXPNSMST), NELB, NGASL, NIAC, NIEL, NIGASL, &
+                     NKAC, NKDIST, NKEL, NKSD, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NORBT, NORBTS, NSTA, NSTB, NSTRIK, NTEST
+integer(kind=iwp), allocatable :: IOFFI(:)
+integer(kind=iwp), external :: IELSUM, IOFF_SYM_DIST
 
 ! Will be stored as a matrix of dimension
 ! (NKSTR,*), Where NKSTR is the number of K-strings of
@@ -178,15 +157,15 @@ call SYMCOM(2,IOBSM,KSM,ISPGPSM)
 call ICOPVE(IGRP,KGRP,NIGRP)
 KGRP(IACGRP) = KACGRP
 ! Number of strings and symmetry distributions of K strings
-call NST_SPGRP(NIGRP,KGRP,KSM,NSTSGP(1)%I,NSMST,NKSTR,NKDIST)
+call NST_SPGRP(NIGRP,KGRP,KSM,NSTSGP,NSMST,NKSTR,NKDIST)
 if (NTEST >= 1000) write(u6,*) 'KSM,NKSTR,NKDIST:',KSM,NKSTR,NKDIST
 if (NKSTR == 0) goto 9999
 ! Last active space in K strings and number of strings per group and sym
 NGASL = 1
 do JGRP=1,NIGRP
   if (NELFGP(KGRP(JGRP)) > 0) NGASL = JGRP
-  call ICOPVE2(NSTSGP(1)%I,(KGRP(JGRP)-1)*NSMST+1,NSMST,NNSTSGP(1,JGRP))
-  call ICOPVE2(ISTSGP(1)%I,(KGRP(JGRP)-1)*NSMST+1,NSMST,IISTSGP(1,JGRP))
+  call ICOPVE2(NSTSGP,(KGRP(JGRP)-1)*NSMST+1,NSMST,NNSTSGP(1,JGRP))
+  call ICOPVE2(ISTSGP,(KGRP(JGRP)-1)*NSMST+1,NSMST,IISTSGP(1,JGRP))
 end do
 if (NTEST >= 100) write(u6,*) 'NGASL',NGASL
 ! MIN/MAX for Kstrings
@@ -203,9 +182,9 @@ if (NTEST >= 100) write(u6,*) 'NGASL',NGASL
 ! Generate symmetry distributions of I strings with given symmetry
 call TS_SYM_PNT2(IGRP,NIGRP,MXVLI,MNVLI,ISPGPSM,IOFFI,LOFFI)
 ! Offset and dimension for active group in I strings
-call ICOPVE2(ISTSGP(1)%I,(IGRP(IACGRP)-1)*NSMST+1,NSMST,IACIST)
+call ICOPVE2(ISTSGP,(IGRP(IACGRP)-1)*NSMST+1,NSMST,IACIST)
 
-call ICOPVE2(NSTSGP(1)%I,(IGRP(IACGRP)-1)*NSMST+1,NSMST,NACIST)
+call ICOPVE2(NSTSGP,(IGRP(IACGRP)-1)*NSMST+1,NSMST,NACIST)
 ! Last entry in IGRP with a nonvanisking number of strings
 NIGASL = 1
 do JGRP=1,NIGRP
@@ -217,8 +196,7 @@ do JGRP=1,IACGRP-1
   NELB = NELB+NELFGP(IGRP(JGRP))
 end do
 if (NTEST >= 1000) write(u6,*) ' NELB = ',NELB
-IZERO = 0
-call ISETVC(I1,IZERO,NORBTS*NKSTR)
+call ISETVC(I1,0,NORBTS*NKSTR)
 ! Loop over symmetry distribtions of K strings
 KFIRST = 1
 KSTRBS = 1
@@ -284,7 +262,7 @@ else
 end if
 
 if (NSTA*NSTB*NIAC*NKAC /= 0) &
-  call ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC, &
+  call ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%A,STSTM(KACGRP,2)%A,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC, &
                    NKSTR,NELB,I1,XI1S,SCLFAC,IAC,LROW_IN,IEC)
 KSTRBS = KSTRBS+NKSD
 goto 1000

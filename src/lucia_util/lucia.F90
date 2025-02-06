@@ -11,25 +11,20 @@
 
 subroutine LUCIA()
 
-use stdalloc, only: mma_allocate
 use GLBBAS, only: CI_VEC, SIGMA_VEC
-use lucia_data, only: MXSOOB, XISPSM
-use lucia_data, only: IPRORB, IPRSTR
-use lucia_data, only: NOINT, LCSBLK
-use lucia_data, only: IREFSM, PSSIGN
+use lucia_data, only: IPRORB, IREFSM, LCSBLK, MXSOOB, NOINT, PSSIGN, XISPSM
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, Two
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-! Parameters for dimensioning
 #include "warnings.h"
-!Scratch : A character line
-integer LBLOCK
+integer(kind=iwp) :: LBLOCK
 
 ! No floating point underflow
 !call XUFLOW()
 ! Assign diskunits
-!if (ENVIRO(1:6) == 'RASSCF') then
+!if (ENVIRO == 'RASSCF') then
 call DISKUN2()
 !else
 !  call DISKUN()
@@ -38,15 +33,15 @@ call DISKUN2()
 ! From shells to orbitals
 call ORBINF(IPRORB)
 ! Number of string types
-call STRTYP_GAS(IPRSTR)
+call STRTYP_GAS(0)
 ! Divide orbital spaces into inactive/active/secondary
 call GASSPC()
 ! Symmetry information
 call SYMINF_LUCIA()
 ! Number of integrals
-call INTDIM(IPRORB)
+call INTDIM()
 ! Static memory, initialization and  allocation
-!if (ENVIRO(1:6) /= 'RASSCF') then
+!if (ENVIRO /= 'RASSCF') then
 !  KBASE = 1
 !  KADD = MXPWRD
 !  call MEMMAN(KBASE,KADD,'INI   ',IDUMMY,'DUMMY')
@@ -61,7 +56,7 @@ end if
 ! READ in MO-AO matrix
 !if (NOMOFL == 0) call GET_CMOAO(MOAOIN)
 ! Internal string information
-call STRINF_GAS(IPRSTR)
+call STRINF_GAS(0)
 ! Internal subspaces
 call LCISPC()
 
@@ -75,7 +70,7 @@ end if
 LBLOCK = MXSOOB
 LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
-!if (ENVIRO(1:6) == 'RASSCF') then
+!if (ENVIRO == 'RASSCF') then
 LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
 if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 

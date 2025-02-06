@@ -11,7 +11,7 @@
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine NEXT_SYM_DISTR(NGAS,MINVAL,MAXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
+subroutine NEXT_SYM_DISTR(NGAS,MNVAL,MXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
 ! Obtain next distribution of symmetries with given total
 ! Symmetry.
 !
@@ -27,24 +27,23 @@ subroutine NEXT_SYM_DISTR(NGAS,MINVAL,MAXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
 !
 ! Jeppe Olsen, Sept 97
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension minval(NGAS), maxval(NGAS)
-! Input and output
-dimension ISYM(NGAS)
+implicit none
+integer(kind=iwp) :: NGAS, MNVAL(NGAS), MXVAL(NGAS), ISYM(NGAS), ISYM_TOT, IFIRST, NONEW
+integer(kind=iwp) :: IGAS, JSYM, NTEST
+integer(kind=iwp), external :: ISYMSTR
 
 ! Symmetry of first NGAS -1 spaces
 
 if (IFIRST == 1) then
   do IGAS=1,NGAS-1
-    ISYM(IGAS) = minval(IGAS)
+    ISYM(IGAS) = MNVAL(IGAS)
   end do
   NONEW = 0
 end if
 1001 continue
-if (IFIRST == 0) call NXTNUM3(ISYM,NGAS-1,MINVAL,MAXVAL,NONEW)
+if (IFIRST == 0) call NXTNUM3(ISYM,NGAS-1,MNVAL,MXVAL,NONEW)
 IFIRST = 0
 
 ! Symmetry of last space
@@ -58,7 +57,7 @@ if (NONEW == 0) then
   JSYM = ISYMSTR(ISYM,NGAS-1)
   call SYMCOM(2,JSYM,ISYM(NGAS),ISYM_TOT)
 
-  if ((minval(NGAS) > ISYM(NGAS)) .or. (maxval(NGAS) < ISYM(NGAS))) goto 1001
+  if ((MNVAL(NGAS) > ISYM(NGAS)) .or. (MXVAL(NGAS) < ISYM(NGAS))) goto 1001
 end if
 
 NTEST = 0

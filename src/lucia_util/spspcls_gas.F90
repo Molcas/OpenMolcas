@@ -32,14 +32,12 @@ subroutine SPSPCLS_GAS(NOCTPA,NOCTPB,IOCA,IOCB,NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS
 ! ISPSPCLS(IATP,IBTP) => Class of this block of determinants
 !                        =0 indicates unallowed(class less) combination
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-! Input
-integer IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB)
-integer NELFGP(*)
-integer ICLS(NGAS,NCLS)
-! Output
-integer ISPSPCLS(NOCTPA,NOCTPB)
+implicit none
+integer(kind=iwp) :: NOCTPA, NOCTPB, MXPNGAS, IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB), NELFGP(*), NGAS, &
+                     ISPSPCLS(NOCTPA,NOCTPB), NCLS, ICLS(NGAS,NCLS), IPRNT
+integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, IICLS, KCLS, NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

@@ -17,13 +17,11 @@ subroutine ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
 ! = 1 : symmetry block is included, all OO types
 ! = 2 : symmetry block is included, lower OO types
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-! Input
-integer MAXSYM, IDC
-integer ISMOST(MAXSYM), IMMLST(MAXSYM)
-! Output
-integer ICBLTP(MAXSYM)
+implicit none
+integer(kind=iwp) :: MAXSYM, ISMOST(MAXSYM), IDC, ICBLTP(MAXSYM), IMMLST(MAXSYM)
+integer(kind=iwp) :: IASYM, IBSYM, NTEST
 
 ! Changed to simplify structure for IDC <= 2
 if (IDC <= 2) then

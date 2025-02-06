@@ -73,39 +73,22 @@ subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB
 ! Last change : Aug 2000
 
 use Para_Info, only: MyRank, nProcs
-use lucia_data, only: MXPOBS, MXPNGAS
+use lucia_data, only: MXPNGAS, MXPOBS
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, MAXK, NSMOB, NSMST, IUSEAB, &
-        NTESTG, NSEL2E
-real*8 SCLFAC
-! General input
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), IBOC(*), &
+                     JAOC(*), JBOC(*), ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), MAXK, I1(*), I2(*), &
+                     I3(*), I4(*), NSMOB, IUSEAB, NTESTG, NSEL2E, ISEL2E(*), IPHGAS(*)
+real(kind=wp) :: SB(*), CB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), XINT(*), CJRES(*), SIRES(*), SCLFAC
 #include "timers.fh"
-integer ADSXA(MXPOBS,MXPOBS), STSTSX(NSMST,NSMST)
-integer NOBPTS(MXPNGAS,*)
-integer ISEL2E(*)
-! Input
-real*8 CB(*)
-integer IBOC(*), JBOC(*), IAOC(*), JAOC(*), IPHGAS(*)
-! Output
-real*8 SB(*)
-! Scratch
-integer I1(*), I2(*), I3(*), I4(*)
-real*8 XI1S(*), XI2S(*), XI3S(*), XI4S(*)
-real*8 XINT(*)
-real*8 CJRES(*), SIRES(*)
-! Local arrays
-integer ITP(20), JTP(20), KTP(20), LTP(20)
-
-integer IJ_TYP(2), IJ_DIM(2), IJ_REO(2), IJ_SYM(2)
-integer KL_TYP(2), KL_DIM(2), KL_REO(2), KL_SYM(2)
-integer IASPGP(20), IBSPGP(20), JASPGP(20), JBSPGP(20)
-integer NTESTL, NTEST, IJSM, KLSM, NIJTYP, NKLTYP, IJTYP, ITYP, JTYP, ISM, JSM, NI, NJ, IJAC, IDOCOMP, NKAEFF, NKASTR, NKABTC, &
-        NKABTCSZ, IKABTC, KABOT, KATOP, LKABTC, JJ, KLTYP, KTYP, LTYP, IAMOKAY, JSEL2E, KSM, LSM, NK, NL, KLAC, IKORD, NKBSTR, &
-        IXCHNG, ICOUL, IROUTE, II, KACT
-real*8 SIGNIJ2, WALL1, WALL0, FACS, SIGNKL, CPU, CPU0, CPU1, WALL
+integer(kind=iwp) :: IAMOKAY, IASPGP(20), IBSPGP(20), ICOUL, IDOCOMP, II, IJ_DIM(2), IJ_REO(2), IJ_SYM(2), IJ_TYP(2), IJAC, IJSM, &
+                     IJTYP, IKABTC, IKORD, IROUTE, ISM, ITP(20), ITYP, IXCHNG, JASPGP(20), JBSPGP(20), JJ, JSEL2E, JSM, JTP(20), &
+                     JTYP, KABOT, KACT, KATOP, KL_DIM(2), KL_REO(2), KL_SYM(2), KL_TYP(2), KLAC, KLSM, KLTYP, KSM, KTP(20), KTYP, &
+                     LKABTC, LSM, LTP(20), LTYP, NI, NIJTYP, NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL, NTEST, &
+                     NTESTL
+real(kind=wp) :: CPU, CPU0, CPU1, FACS, SIGNIJ2, SIGNKL, WALL, WALL0, WALL1
 
 NTESTL = 0
 NTEST = max(NTESTG,NTESTL)

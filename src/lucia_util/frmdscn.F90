@@ -10,12 +10,14 @@
 !***********************************************************************
 
 subroutine FRMDSCN(VEC,NREC,LBLK,LU)
-! Read  VEC as multiple record file, NREC records read
+! Read VEC as multiple record file, NREC records read
 
-implicit real*8(A-H,O-Z)
-dimension LREC(1)
-! Output
-dimension VEC(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VEC(*)
+integer(kind=iwp) :: NREC, LBLK, LU
+integer(kind=iwp) :: IAMPACK, IMZERO, IOFF, IREC, LREC(1)
 
 IOFF = 1
 do IREC=1,NREC

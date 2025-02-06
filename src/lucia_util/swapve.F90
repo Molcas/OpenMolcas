@@ -12,8 +12,13 @@
 subroutine SWAPVE(VEC1,VEC2,NDIM)
 ! SWAP ELEMENTS OF VECTORS VEC1 AND VEC2
 
-implicit real*8(A-H,O-Z)
-dimension VEC1(*), VEC2(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VEC1(*), VEC2(*)
+integer(kind=iwp) :: NDIM
+integer(kind=iwp) :: I
+real(kind=wp) :: BUF
 
 do I=1,NDIM
   BUF = VEC1(I)

@@ -17,13 +17,11 @@ subroutine EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 !
 ! Jeppe Olsen, December 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IDET_OC(NEL), IDET_MS(NEL)
-! Output
-integer IDET_OPEN_MS(*)
+implicit none
+integer(kind=iwp) :: NEL, IDET_OC(NEL), IDET_MS(NEL), IDET_OPEN_MS(*)
+integer(kind=iwp) :: IEL, IOPEN, NTEST
 
 IEL = 1
 IOPEN = 0

@@ -35,10 +35,13 @@ subroutine MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITR
 !          is performed
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension A(NAROW,NACOL), B(NBROW,NBCOL)
-dimension C(NCROW,NCCOL)
+implicit none
+integer(kind=iwp) :: NCROW, NCCOL, NAROW, NACOL, NBROW, NBCOL, ITRNSP
+real(kind=wp) :: C(NCROW,NCCOL), A(NAROW,NACOL), B(NBROW,NBCOL), FACTORC, FACTORAB
+integer(kind=iwp) :: I, IZERO, J, K, LDA, LDB, LDC
+real(kind=wp) :: AKI, B1J, BJ1, BJK, BKJ, T
 
 if ((NAROW == 0) .or. (NACOL == 0) .or. (NBROW == 0) .or. (NBCOL == 0) .or. (NCROW == 0) .or. (NCCOL == 0)) then
   IZERO = 1

@@ -15,14 +15,12 @@ subroutine WRTVCD(SEGMNT,LU,IREW,LBLK)
 ! LBLK DEFINES STRUCTURE OF FILES :
 
 use lucia_data, only: IDISK
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 SEGMNT(*)
-integer LU, IREW, LBLK
-
-integer IDUMMY(1)
-integer IBLK, LBL, KBLK, IAMPACK, IMZERO
+real(kind=wp) :: SEGMNT(*)
+integer(kind=iwp) :: LU, IREW, LBLK
+integer(kind=iwp) :: IAMPACK, IBLK, IDUMMY(1), IMZERO, KBLK, LBL
 
 if (IREW /= 0) then
   if (LBLK >= 0) then

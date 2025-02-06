@@ -19,10 +19,11 @@ subroutine SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
 !
 ! Jeppe Olsen, Spring of 1991
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension ISMOST(MXPCSM,MXPCSM)
+implicit none
+integer(kind=iwp) :: NSMST, NSMCI, MXPCSM, ISMOST(MXPCSM,MXPCSM)
+integer(kind=iwp) :: ISTSM, ITOTSM, JSTSM, NTEST
 
 do ITOTSM=1,NSMCI
   do ISTSM=1,NSMST

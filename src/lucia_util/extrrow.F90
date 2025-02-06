@@ -16,11 +16,11 @@ subroutine EXTRROW(INMAT,IROW,NROW,NCOL,IOUTVEC)
 !
 ! Jeppe Olsen, Winter 1996
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension INMAT(NROW,NCOL)
-dimension IOUTVEC(NCOL)
+implicit none
+integer(kind=iwp) :: NROW, NCOL, INMAT(NROW,NCOL), IROW, IOUTVEC(NCOL)
+integer(kind=iwp) :: ICOL, NTEST
 
 do ICOL=1,NCOL
   IOUTVEC(ICOL) = INMAT(IROW,ICOL)

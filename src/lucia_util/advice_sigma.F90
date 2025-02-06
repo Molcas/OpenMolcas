@@ -17,31 +17,25 @@ subroutine ADVICE_SIGMA(IAOCC,IBOCC,JAOCC,JBOCC,LADVICE)
 ! LADVICE : ADVICE given ( short, an integer !!)
 !
 ! For ITERM = 1 :
-!           LADVICE = 1 : Business as usual, no transpose of matrix
-!                         (resolution on alpha strings, direct exc on beta)
-!           LADVICE = 2 = Transpose matrices
-!                         (resolution on beta strings, direct exc on alpha)
+!   LADVICE = 1 : Business as usual, no transpose of matrix
+!                 (resolution on alpha strings, direct exc on beta)
+!   LADVICE = 2 = Transpose matrices
+!                 (resolution on beta strings, direct exc on alpha)
 ! (SVC: one call to this routine and ITERM is one, so I removed that
 ! argument and skipped the checking. Also, the arguments are all scalar,
 ! so that has been hard-coded now too)
 !
 ! Jeppe Olsen, Tirstrup Airport, Jan 12, 98
 
-use lucia_data, only: NGAS, IPHGAS
-use lucia_data, only: IADVICE
-use lucia_data, only: MNHL
-use lucia_data, only: NOBPT
+use lucia_data, only: IADVICE, IPHGAS, MNHL, NGAS, NOBPT
 use Constants, only: One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! Specific input
-integer IAOCC(*), IBOCC(*), JAOCC(*), JBOCC(*)
-integer LADVICE
-! Local Scratch
-integer ITP(16), JTP(16), KTP(16), LTP(16)
-integer NTEST, NIJTYP, NKLTYP, IPHMODI, LHOLEA, LHOLEB, IGAS, KHOLEA, KHOLEB, LLADVICE
-real*8 XNJOB, XNJEL, XCJKAJB, XNKLSX, XNIOB, XFLOPA, XNLOB, XNLEL, XCLJAKB, XNIJSX, XNKOB, XFLOPB
+integer(kind=iwp) :: IAOCC(*), IBOCC(*), JAOCC(*), JBOCC(*), LADVICE
+integer(kind=iwp) :: IGAS, IPHMODI, ITP(16), JTP(16), KHOLEA, KHOLEB, KTP(16), LHOLEA, LHOLEB, LLADVICE, LTP(16), NIJTYP, NKLTYP, &
+                     NTEST
+real(kind=wp) :: XCJKAJB, XCLJAKB, XFLOPA, XFLOPB, XNIJSX, XNIOB, XNJEL, XNJOB, XNKLSX, XNKOB, XNLEL, XNLOB
 
 NTEST = 0
 

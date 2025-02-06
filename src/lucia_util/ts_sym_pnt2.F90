@@ -11,18 +11,18 @@
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine TS_SYM_PNT2(IGRP,NIGRP,MAXVAL,MINVAL,ISYM,IPNT,LPNT)
+subroutine TS_SYM_PNT2(IGRP,NIGRP,MXVAL,MNVAL,ISYM,IPNT,LPNT)
 ! Construct pointers to start of symmetrydistributions
 ! for supergroup of strings with given symmetry
 !
 ! The start of symmetry block ISYM1 ISYM2 ISYM3 .... ISYMN
 ! is given as
 !     1
-!     +  (ISM1-MINVAL(1))
-!     +  (ISM2-MINVAL(2))*(MAXVAL(1)-MINVAL(1)+1)
-!     +  (ISM3-MINVAL(3))*(MAXVAL(1)-MINVAL(1)+1)*(MAXVAL(2)-MINVAL(2)+1)
+!     +  (ISM1-MNVAL(1))
+!     +  (ISM2-MNVAL(2))*(MXVAL(1)-MNVAL(1)+1)
+!     +  (ISM3-MNVAL(3))*(MXVAL(1)-MNVAL(1)+1)*(MXVAL(2)-MNVAL(2)+1)
 !     +  ...
-!     +  (ISM L-1-MINVAL(L-1))*Prod(i=1,L-2)(MAXVAL(i)-MINVAL(i)+1)
+!     +  (ISM L-1-MNVAL(L-1))*Prod(i=1,L-2)(MXVAL(i)-MNVAL(i)+1)
 !
 ! Where L is the last group of strings with nonvanishing occupation
 !
@@ -30,23 +30,14 @@ subroutine TS_SYM_PNT2(IGRP,NIGRP,MAXVAL,MINVAL,ISYM,IPNT,LPNT)
 !
 ! Version 2 : Uses IGRP and NIGRP to define supergroup
 
-use lucia_data, only: MINMAX_SM_GP, NELFGP, NSTFSMGP
-use lucia_data, only: MXPNGAS, MXPNSMST
+use lucia_data, only: MINMAX_SM_GP, MXPNGAS, MXPNSMST, NELFGP, NSTFSMGP
 use csm_data, only: NSMST
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NIGRP, ISYM, LPNT
-! Specific Input
-integer IGRP(NIGRP)
-! Local scratch
-integer ISMFGS(MXPNGAS)
-!integer ITPFGS(MXPNGAS)
-!-jwk-cleanup integer NELFGS(MXPNGAS)
-integer NNSTSGP(MXPNSMST,MXPNGAS)
-! Output
-integer minval(*), maxval(*), IPNT(*)
-integer NTEST, NGASL, IGAS, NBLKS, IFIRST, NSTRINT, NONEW, ISTSMM1, ISMGSN, NSTRII, IOFF, MULT, ISYMSTR
+integer(kind=iwp) :: NIGRP, IGRP(NIGRP), ISYM, MNVAL(*), MXVAL(*), IPNT(*), LPNT
+integer(kind=iwp) :: IFIRST, IGAS, IOFF, ISMFGS(MXPNGAS), ISMGSN, ISTSMM1, ISYMSTR, MULT, NBLKS, NGASL, NNSTSGP(MXPNSMST,MXPNGAS), &
+                     NONEW, NSTRII, NSTRINT, NTEST
 
 NTEST = 0
 ! Info on groups of strings in supergroup
@@ -63,28 +54,28 @@ end do
 !
 !do IGAS=1,NIGRP
 !  do ISMST=1,NSMST
-!    if (NNSTSGP(ISMST,IGAS) > 0) MAXVAL(IGAS) = ISMST
+!    if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
 !  end do
 !  do ISMST=NSMST,1,-1
-!    if (NNSTSGP(ISMST,IGAS) > 0) MINVAL(IGAS) = ISMST
+!    if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
 !  end do
 !end do
 do IGAS=1,NIGRP
-  minval(IGAS) = MINMAX_SM_GP(1,IGRP(IGAS))
-  maxval(IGAS) = MINMAX_SM_GP(2,IGRP(IGAS))
+  MNVAL(IGAS) = MINMAX_SM_GP(1,IGRP(IGAS))
+  MXVAL(IGAS) = MINMAX_SM_GP(2,IGRP(IGAS))
 end do
 
 if (NTEST >= 1000) then
   write(u6,*) 'NIGRP:',NIGRP
-  write(u6,*) ' MINVAL and MAXVAL'
-  call IWRTMA(MINVAL,1,NIGRP,1,NIGRP)
-  call IWRTMA(MAXVAL,1,NIGRP,1,NIGRP)
+  write(u6,*) ' MNVAL and MXVAL'
+  call IWRTMA(MNVAL,1,NIGRP,1,NIGRP)
+  call IWRTMA(MXVAL,1,NIGRP,1,NIGRP)
 end if
 
 ! Total number of symmetry blocks that will be generated
 NBLKS = 1
 do IGAS=1,NGASL-1
-  NBLKS = NBLKS*(maxval(IGAS)-minval(IGAS)+1)
+  NBLKS = NBLKS*(MXVAL(IGAS)-MNVAL(IGAS)+1)
 end do
 if (NBLKS > LPNT) then
   write(u6,*) ' Problem in TS_SYM_PNT'
@@ -101,11 +92,11 @@ NSTRINT = 0
 2000 continue
 if (IFIRST == 1) then
   do IGAS=1,NGASL-1
-    ISMFGS(IGAS) = minval(IGAS)
+    ISMFGS(IGAS) = MNVAL(IGAS)
   end do
 else
   ! Next distribution of symmetries in NGAS -1
-  call NXTNUM3(ISMFGS,NGASL-1,MINVAL,MAXVAL,NONEW)
+  call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
   if (NONEW /= 0) goto 2001
 end if
 IFIRST = 0
@@ -132,8 +123,8 @@ end do
 IOFF = 1
 MULT = 1
 do IGAS=1,NGASL-1
-  IOFF = IOFF+(ISMFGS(IGAS)-minval(IGAS))*MULT
-  MULT = MULT*(maxval(IGAS)-minval(IGAS)+1)
+  IOFF = IOFF+(ISMFGS(IGAS)-MNVAL(IGAS))*MULT
+  MULT = MULT*(MXVAL(IGAS)-MNVAL(IGAS)+1)
 end do
 
 IPNT(IOFF) = NSTRINT+1

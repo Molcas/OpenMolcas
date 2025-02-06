@@ -19,9 +19,8 @@ subroutine NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
 ! Jeppe Olsen, October 1993
 ! GAS-version : July 95
 !
-! ------
 ! Input
-! ------
+! -----
 !
 ! INSPGP  : input super group ( given occupation in each AS )
 ! IACOP = 1 : operator is an annihilation operator
@@ -34,12 +33,10 @@ subroutine NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
 
 use strbas, only: SPGPAN, SPGPCR
 use lucia_data, only: NGAS
+use Definitions, only: iwp
 
 implicit none
-! Input
-integer INSPGP, IACOP, ITPOP
-! output
-integer OUTSPGP
+integer(kind=iwp) :: INSPGP, IACOP, ITPOP, OUTSPGP
 
 if (IACOP == 1) then
   OUTSPGP = SPGPAN(ITPOP+NGAS*(INSPGP-1))

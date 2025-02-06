@@ -20,9 +20,11 @@ subroutine NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN,NCOMP_PER_OPEN,NCOMP)
 !
 ! Jeppe Olsen, Dec. 2001
 
-implicit real*8(A-H,O-Z)
-! Input
-integer NCONF_PER_OPEN(*), NCOMP_PER_OPEN(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: MAXOP, NCONF_PER_OPEN(*), NCOMP_PER_OPEN(*), NCOMP
+integer(kind=iwp) :: IOPEN
 
 NCOMP = 0
 do IOPEN=0,MAXOP

@@ -19,18 +19,15 @@ subroutine T_TO_NK_VECS(T,KORB,C,LUCIN,LUCOUT,NSSOA,NSSOB,NBLOCK,IBLOCK,NAEL,NBE
 ! Jeppe Olsen, Feb. 1998
 
 use lucia_data, only: IDISK
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! General input
-dimension NSSOA(NSMST,*), NSSOB(NSMST,*)
-! Scratch
-dimension C(*)
-dimension IASTR(NAEL,*), IBSTR(NBEL,*)
-dimension IKAOCC(*), IKBOCC(*)
-! Specific input
-dimension IBLOCK(8,NBLOCK)
-dimension IBLTP(*)
-dimension IDUM(1)
+implicit none
+real(kind=wp) :: T, C(*)
+integer(kind=iwp) :: KORB, LUCIN, LUCOUT, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NBLOCK, IBLOCK(8,NBLOCK), NAEL, NBEL, &
+                     IASTR(NAEL,*), IBSTR(NBEL,*), IBLTP(*), ICISTR, NORB, IKAOCC(*), IKBOCC(*)
+integer(kind=iwp) :: IA, IAMPACK, IASM, IATP, IB, IBSM, IBTP, IDET, IDUM(1), IMZERO, IRESTR, JAEL, JBEL, JBLOCK, JSTR, KABOCC, &
+                     KOCC, LDET, MINIA, NASTR1, NBSTR1, NIA, NIB
+real(kind=wp) :: T2
 
 IDISK(LUCIN) = 0
 IDISK(LUCOUT) = 0

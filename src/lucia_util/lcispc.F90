@@ -20,27 +20,24 @@ subroutine LCISPC()
 !
 ! GAS VERSION
 
+use strbas, only: NSTSO
+use lucia_data, only: IBSPGPFTP, IDC, IGSOCCX, ISMOST, ISPGPFTP, MXNTTS, MXPCSM, MXPNGAS, MXSB, MXSOOB, NCMBSPC, NGAS, NOCTYP, &
+                      XISPSM
+use csm_data, only: NSMCI, NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
-use strbas
-use lucia_data, only: NCMBSPC, IGSOCCX, NGAS
-use lucia_data, only: NICISP, MXSB, MXSOOB, MXSOOB_AS, MXNTTS, ISMOST, LCOLIC, NBLKIC, XISPSM
-use lucia_data, only: IDC
-use lucia_data, only: IBSPGPFTP, ISPGPFTP
-use lucia_data, only: NOCTYP
-use lucia_data, only: MXPCSM, MXPNGAS
-use csm_data, only: NSMST, NSMCI
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use lucia_data, only: IPRCIX
 use Definitions, only: u6
 #endif
 
 implicit none
-integer, allocatable :: LBLTP(:), LIOIO(:), CVST(:)
-integer IATP, IBTP, NOCTPA, NOCTPB, ICI, ISYM, NTTSBL, LCOL, ISM, MXS, MXSOO, MXSOO_AS, NCOMB
-real*8 XNCOMB
+integer(kind=iwp) :: IATP, IBTP, ICI, ISM, ISYM, LCOL, MXS, MXSOO, MXSOO_AS, NCOMB, NICISP, NOCTPA, NOCTPB, NTTSBL
 #ifdef _DEBUGPRINT_
-integer NTEST, II
+integer(kind=iwp) :: II, NTEST
 #endif
+real(kind=wp) :: XNCOMB
+integer(kind=iwp), allocatable :: CVST(:), LBLTP(:), LIOIO(:), NBLKIC(:,:)
 
 ! Number of spaces
 NICISP = NCMBSPC
@@ -55,6 +52,7 @@ NOCTPB = NOCTYP(IBTP)
 call mma_allocate(LBLTP,NSMST,Label='LBLTP')
 call mma_allocate(CVST,NSMST,Label='CVST')
 call mma_allocate(LIOIO,NOCTPA*NOCTPB,Label='LIOIO')
+call mma_allocate(NBLKIC,NSMCI,NICISP,Label='NBLKIC')
 ! Obtain array giving symmetry of sigma v reflection times string
 ! symmetry.
 !if ((IDC == 3) .or. (IDC == 4)) call SIGVST(CVST,NSMST)
@@ -66,28 +64,27 @@ call SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
 MXSB = 0
 
 MXSOOB = 0
-MXSOOB_AS = 0
 do ICI=1,NICISP
   ! allowed combination of types
   call IAIBCM(ICI,LIOIO)
 
   do ISYM=1,NSMCI
     call ZBLTP(ISMOST(1,ISYM),NSMST,IDC,LBLTP,CVST)
-    call NGASDT(IGSOCCX(1,1,ICI),IGSOCCX(1,2,ICI),NGAS,ISYM,NSMST,NOCTPA,NOCTPB,NSTSO(IATP)%I,NSTSO(IBTP)%I, &
+    call NGASDT(IGSOCCX(1,1,ICI),IGSOCCX(1,2,ICI),NGAS,ISYM,NSMST,NOCTPA,NOCTPB,NSTSO(IATP)%A,NSTSO(IBTP)%A, &
                 ISPGPFTP(1,IBSPGPFTP(IATP)),ISPGPFTP(1,IBSPGPFTP(IBTP)),MXPNGAS,NCOMB,XNCOMB,MXS,MXSOO,LBLTP,NTTSBL,LCOL,LIOIO, &
                 MXSOO_AS)
 
     XISPSM(ISYM,ICI) = XNCOMB
     MXSOOB = max(MXSOOB,MXSOO)
     MXSB = max(MXSB,MXS)
-    MXSOOB_AS = max(MXSOO_AS,MXSOOB_AS)
+    !MXSOOB_AS = max(MXSOO_AS,MXSOOB_AS)
     NBLKIC(ISYM,ICI) = NTTSBL
-    LCOLIC(ISYM,ICI) = LCOL
+    !LCOLIC(ISYM,ICI) = LCOL
   end do
-  call mma_deallocate(LBLTP)
-  call mma_deallocate(CVST)
-  call mma_deallocate(LIOIO)
 end do
+call mma_deallocate(LBLTP)
+call mma_deallocate(CVST)
+call mma_deallocate(LIOIO)
 
 #ifdef _DEBUGPRINT_
 NTEST = 0
@@ -105,7 +102,7 @@ if (NTEST >= 5) then
   end do
   write(u6,*)
   write(u6,*) ' Largest Symmetry-type-type block ',MXSOOB
-  write(u6,*) ' Largest type-type block (all symmetries) ',MXSOOB_AS
+  !write(u6,*) ' Largest type-type block (all symmetries) ',MXSOOB_AS
   write(u6,*)
 
   write(u6,*) ' Number of TTS subblocks per CI expansion'
@@ -132,11 +129,13 @@ if (NTEST >= 5) then
   write(u6,*) ' Number of columns per CI expansion'
   write(u6,*) ' =================================='
 
-  do ICI=1,NCMBSPC
-    write(u6,*) ' Internal CI space ',ICI
-    call IWRTMA(LCOLIC(1,ICI),1,NSMCI,1,NSMCI)
-  end do
+  !do ICI=1,NCMBSPC
+  !  write(u6,*) ' Internal CI space ',ICI
+  !  call IWRTMA(LCOLIC(1,ICI),1,NSMCI,1,NSMCI)
+  !end do
 end if
 #endif
+
+call mma_deallocate(NBLKIC)
 
 end subroutine LCISPC

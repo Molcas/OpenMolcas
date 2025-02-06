@@ -12,8 +12,12 @@
 subroutine VVTOV(VECIN1,VECIN2,VECUT,NDIM)
 ! VECUT(I) = VECIN1(I) * VECIN2(I)
 
-implicit real*8(A-H,O-Z)
-dimension VECIN1(*), VECIN2(*), VECUT(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VECIN1(*), VECIN2(*), VECUT(*)
+integer(kind=iwp) :: NDIM
+integer(kind=iwp) :: I
 
 do I=1,NDIM
   VECUT(I) = VECIN1(I)*VECIN2(I)

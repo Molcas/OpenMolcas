@@ -17,12 +17,12 @@ function ICHECK_OCC_IN_ACCSPC(IOCC,IMINMAX,NGAS,MXPNGAS)
 !
 ! Giovanni Li Manni 7 Nov 2011, for BK implementation
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IOCC(NGAS)
-integer IMINMAX(MXPNGAS,2)
+implicit none
+integer(kind=iwp) :: ICHECK_OCC_IN_ACCSPC
+integer(kind=iwp) :: NGAS, IOCC(NGAS), MXPNGAS, IMINMAX(MXPNGAS,2)
+integer(kind=iwp) :: I_AM_IN, IGAS, NTEST
 
 I_AM_IN = 1
 do IGAS=1,NGAS

@@ -66,35 +66,19 @@ subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,A
 !              IUSE_PH added winter of 97
 
 use Para_Info, only: MyRank, nProcs
-use lucia_data, only: MXPOBS, MXPNGAS, MXPTSOB
+use lucia_data, only: MXPNGAS, MXPOBS, MXPTSOB
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, MAXI, MAXK, NSMOB, NSMST, MOC, IH2TRM, IUSE_PH, NTESTG
-real*8 SCLFAC
-! General input
-integer ADSXA(MXPOBS,2*MXPOBS), STSTSX(NSMST,NSMST)
-integer NOBPTS(MXPNGAS,*)
-integer IPHGAS(NGAS)
-! Specific Input
-integer ISEL(NGAS), ICEL(NGAS)
-real*8 CB(*)
-! Output
-real*8 SB(*)
-! Scatch
-real*8 SSCR(*), CSCR(*), XI1S(*), H(*), XI2S(*)
-integer I1(*), I2(*)
-! Local arrays ( assume MPNGAS = 16 ) !!!
-integer ITP(16), JTP(16)
-integer ISGRP(16), ICGRP(16)
-! For transposing integral block
-real*8 HSCR(MXPTSOB*MXPTSOB)
-integer IJ_REO(2), IJ_DIM(2), IJ_SM(2), IJ_TP(2), IJ_AC(2)
-! Type of single excitations that connects the two column strings
-integer NTESTL, NTEST, NIPART, NIPARTSZ, IJSM, IJTP, NSXTP, ITYP, JTYP, IXXX, ISM, JSM, NIORB, NJORB, IDOCOMP, NKAEFF, NKASTR, &
-        KBOT, KTOP, KEND, LKABTC, IIPART, IBOT, ITOP, NIBTC, JJORB, ICGOFF, NIK, IIORB, ISBOFF, KACT
-real*8 SIGNIJ, SCLFACS, FACTORC, FACTORAB
+integer(kind=iwp) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), ADSXA(MXPOBS,2*MXPOBS), NSMST, &
+                     STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), MAXI, MAXK, I1(*), I2(*), NSMOB, MOC, IH2TRM, IUSE_PH, IPHGAS(NGAS), &
+                     NTESTG
+real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), H(*), SCLFAC
+integer(kind=iwp) :: IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, IIPART, IJ_AC(2), IJ_DIM(2), IJ_REO(2), IJ_SM(2), IJ_TP(2), IJSM, &
+                     IJTP, ISBOFF, ISGRP(16), ISM, ITOP, ITP(16), ITYP, IXXX, JJORB, JSM, JTP(16), JTYP, KACT, KBOT, KEND, KTOP, &
+                     LKABTC, NIBTC, NIK, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NSXTP, NTEST, NTESTL
+real(kind=wp) :: FACTORAB, FACTORC, HSCR(MXPTSOB*MXPTSOB), SCLFACS, SIGNIJ
 
 !MOC = 1
 NTESTL = 0

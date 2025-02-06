@@ -15,10 +15,13 @@ subroutine TRPAD3(MAT,FACTOR,NDIM)
 ! With some considerations of effective cache use for large matrices
 
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-real*8 MAT(NDIM,NDIM)
+implicit none
+integer(kind=iwp) :: NDIM
+real(kind=wp) :: MAT(NDIM,NDIM), FACTOR
+integer(kind=iwp) :: I, IBLK, IEND, IOFF, IWAY, J, JBLK, JEND, JOFF, LBLK, NBLK
+real(kind=wp) :: FAC2
 
 FAC2 = One-FACTOR**2
 

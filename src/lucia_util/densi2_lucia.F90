@@ -48,56 +48,34 @@ subroutine DENSI2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRH
 ! with L being S and  R being C
 !
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use GLBBAS, only: VEC3
-use hidscr, only: ZSCR, ZOCSTR => OCSTR, REO, Z
+use hidscr, only: OCSTR, REO, Z, ZSCR
 use strbas, only: NSTSO
 use CandS, only: ICSM, ISSM, ISSPC
-use lucia_data, only: NGAS, IPHGAS
-use lucia_data, only: MXSB, MXSOOB, MXNTTS, ISMOST, XISPSM
-use lucia_data, only: IPRDEN, IPRCIX
-use lucia_data, only: ENVIRO, ICISTR, IADVICE, ISIMSYM, LCSBLK, MXINKA
-use lucia_data, only: IREFSM, PSSIGN, IDC
-use lucia_data, only: MXNSTR, IBSPGPFTP, MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, NELFSPGP, NHLFSPGP, NSTFSMSPGP
-use lucia_data, only: NSMOB
-use lucia_data, only: NACOB, MXTSOB, NOCOB, IOBPTS, IREOST, NACOBS, NINOBS, NOBPTS, NTOOB, NTOOBS
-use lucia_data, only: NOCTYP
-use lucia_data, only: NELEC
-use lucia_data, only: MXPOBS, MXPNGAS, MXPNSMST
-use csm_data, only: NSMST
-use csm_data, only: ADSXA, SXDXSX
+use lucia_data, only: ENVIRO, IADVICE, IBSPGPFTP, ICISTR, IDC, IOBPTS, IPHGAS, IPRCIX, IPRDEN, IREFSM, IREOST, ISIMSYM, ISMOST, &
+                      LCSBLK, MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXPOBS, MXSB, MXSOOB, &
+                      MXTSOB, NACOB, NACOBS, NELEC, NELFSPGP, NGAS, NHLFSPGP, NINOBS, NOBPTS, NOCOB, NOCTYP, NSMOB, NSTFSMSPGP, &
+                      NTOOB, NTOOBS, PSSIGN, XISPSM
+use csm_data, only: ADSXA, NSMST, SXDXSX
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Quart
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! Specific input
-integer I12, LUL, LUR, IDOSRHO1
-logical IPACK
-real*8 L(*), R(*)
-! Output
-real*8 RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), SRHO1(*)
-real*8 EXPS2
-integer, allocatable :: CONSPA(:), CONSPB(:)
-real*8, allocatable :: INSCR(:)
-integer, allocatable :: STSTS(:), STSTD(:)
-integer, allocatable :: CIOIO(:), SIOIO(:)
-integer, allocatable :: CBLTP(:), SBLTP(:)
-integer, allocatable :: I1(:), I2(:), I3(:), I4(:)
-real*8, allocatable :: XI1S(:), XI2S(:), XI3S(:), XI4S(:)
-integer, allocatable :: LLBTL(:), LLBTR(:)
-integer, allocatable :: LLEBTL(:), LLEBTR(:)
-integer, allocatable :: LI1BTL(:), LI1BTR(:)
-integer, allocatable :: LIBTL(:), LIBTR(:)
-real*8, allocatable :: LSCLFCL(:), LSCLFCR(:)
-integer, allocatable :: SVST(:)
-real*8, allocatable :: RHO1S(:), RHO1P(:), XNATO(:), RHO1SM(:), OCCSM(:)
-! Scratch for string information
-integer NIJ, NIJKL, IATP, IBTP, IATPM1, IBTPM1, IATPM2, IBTPM2, NOCTPA, NOCTPB, IOCTPA, IOCTPB, NAEL, NBEL, MAXA0, MAXB0, MXSTBL0, &
-        MAXA, MAXA1, MAXB, MAXB1, MXSTBL, MAXI, MAXK, IOBTP, IOBSM, LSCR1, INTSCR, MXCJ, MXCIJA, MXCIJB, MXCIJAB, MXSXBL, LSCR2, &
-        LSCR12, KCSCR, MAXIK, LSCR3, LZSCR, LZ, K12, I1234, NTTS
-integer MXADKBLK, MXADKBLK_AS, MXCJ_ALLSYM, MX_NSPII, NBATCHL, NBATCHR
-integer, external :: IMNMX
-real*8 S2_TERM1
+integer(kind=iwp) :: I12, LUL, LUR, IDOSRHO1
+real(kind=wp) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), L(*), R(*), EXPS2, SRHO1(*)
+logical(kind=iwp) :: IPACK
+integer(kind=iwp) :: I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, INTSCR, IOBSM, IOBTP, IOCTPA, IOCTPB, K12, KCSCR, LSCR1, &
+                     LSCR12, LSCR2, LSCR3, LZ, LZSCR, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, &
+                     MXADKBLK, MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCHL, &
+                     NBATCHR, NBEL, NIJ, NIJKL, NOCTPA, NOCTPB, NTTS
+real(kind=wp) :: S2_TERM1
+integer(kind=iwp), allocatable :: CBLTP(:), CIOIO(:), CONSPA(:), CONSPB(:), I1(:), I2(:), I3(:), I4(:), LI1BTL(:), LI1BTR(:), &
+                                  LIBTL(:), LIBTR(:), LLBTL(:), LLBTR(:), LLEBTL(:), LLEBTR(:), SBLTP(:), SIOIO(:), STSTD(:), &
+                                  STSTS(:), SVST(:)
+real(kind=wp), allocatable :: INSCR(:), LSCLFCL(:), LSCLFCR(:), OCCSM(:), RHO1P(:), RHO1S(:), RHO1SM(:), XI1S(:), XI2S(:), &
+                              XI3S(:), XI4S(:), XNATO(:)
+integer(kind=iwp), external :: IMNMX
 
 ! Before I forget it :
 !IDUM = 0
@@ -150,25 +128,25 @@ call mma_allocate(CONSPB,NOCTPB**2,Label='CONSPB')
 call SPGRPCON(IOCTPA,NOCTPA,NGAS,MXPNGAS,NELFSPGP,CONSPA,IPRCIX)
 call SPGRPCON(IOCTPB,NOCTPB,NGAS,MXPNGAS,NELFSPGP,CONSPB,IPRCIX)
 ! Largest block of strings in zero order space
-MAXA0 = IMNMX(NSTSO(IATP)%I,NSMST*NOCTYP(IATP),2)
-MAXB0 = IMNMX(NSTSO(IBTP)%I,NSMST*NOCTYP(IBTP),2)
+MAXA0 = IMNMX(NSTSO(IATP)%A,NSMST*NOCTYP(IATP),2)
+MAXB0 = IMNMX(NSTSO(IBTP)%A,NSMST*NOCTYP(IBTP),2)
 MXSTBL0 = MXNSTR
 ! Largest number of strings of given symmetry and type
 MAXA = 0
 if (NAEL >= 1) then
-  MAXA1 = IMNMX(NSTSO(IATPM1)%I,NSMST*NOCTYP(IATPM1),2)
+  MAXA1 = IMNMX(NSTSO(IATPM1)%A,NSMST*NOCTYP(IATPM1),2)
   MAXA = max(MAXA,MAXA1)
   if (NAEL >= 2) then
-    MAXA1 = IMNMX(NSTSO(IATPM2)%I,NSMST*NOCTYP(IATPM2),2)
+    MAXA1 = IMNMX(NSTSO(IATPM2)%A,NSMST*NOCTYP(IATPM2),2)
     MAXA = max(MAXA,MAXA1)
   end if
 end if
 MAXB = 0
 if (NBEL >= 1) then
-  MAXB1 = IMNMX(NSTSO(IBTPM1)%I,NSMST*NOCTYP(IBTPM1),2)
+  MAXB1 = IMNMX(NSTSO(IBTPM1)%A,NSMST*NOCTYP(IBTPM1),2)
   MAXB = max(MAXB,MAXB1)
   if (NBEL >= 2) then
-    MAXB1 = IMNMX(NSTSO(IBTPM2)%I,NSMST*NOCTYP(IBTPM2),2)
+    MAXB1 = IMNMX(NSTSO(IBTPM2)%A,NSMST*NOCTYP(IBTPM2),2)
     MAXB = max(MAXB,MAXB1)
   end if
 end if
@@ -198,7 +176,7 @@ LSCR1 = MXSOOB
 !end if
 LSCR1 = max(LSCR1,LCSBLK)
 ! JESPER: Should reduce I/O
-if (ENVIRO(1:6) == 'RASSCF') then
+if (ENVIRO == 'RASSCF') then
   LSCR1 = max(int(XISPSM(IREFSM,1)),MXSOOB)
   if (PSSIGN /= Zero) LSCR1 = int(Two*XISPSM(IREFSM,1))
 end if
@@ -222,10 +200,10 @@ if (IPRDEN >= 2) write(u6,*) ' DENSI12 :  : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',M
 LSCR2 = max(MXCJ,MXCIJA,MXCIJB)
 if (IPRDEN >= 2) write(u6,*) ' Space for resolution matrices ',LSCR2
 LSCR12 = max(LSCR1,2*LSCR2)
-if (ENVIRO(1:6) == 'RASSCF') LSCR12 = max(LSCR1,LSCR2)
+if (ENVIRO == 'RASSCF') LSCR12 = max(LSCR1,LSCR2)
 ! It is assumed that the third block already has been allocated, so
 if (IPRCIX >= 2) write(u6,*) ' Space for resolution matrices ',LSCR12
-if (ENVIRO(1:6) == 'RASSCF') then
+if (ENVIRO == 'RASSCF') then
   KCSCR = LSCR12
 else
   KCSCR = LSCR2
@@ -270,7 +248,7 @@ LZSCR = (max(NAEL,NBEL)+3)*(NOCOB+1)+2*NOCOB
 LZ = (max(NAEL,NBEL)+2)*NOCOB
 call mma_allocate(ZSCR,lZSCR,Label='ZSCR')
 K12 = 1
-call mma_allocate(ZOCSTR,MAX_STR_OC_BLK,K12,Label='ZOCSTR')
+call mma_allocate(OCSTR,MAX_STR_OC_BLK,K12,Label='OCSTR')
 I1234 = 2
 call mma_allocate(REO,MAX_STR_SPGP,I1234,Label='REO')
 call mma_allocate(Z,LZ,I1234,Label='Z')
@@ -281,7 +259,7 @@ call mma_allocate(LLEBTL,NTTS,Label='LLEBTL')
 call mma_allocate(LI1BTL,NTTS,Label='LI1BTL')
 call mma_allocate(LIBTL,8*NTTS,Label='LIBTL')
 call mma_allocate(LSCLFCL,NTTS,Label='LSCLFCL')
-call PART_CIV2(IDC,SBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LSCR1,SIOIO,ISMOST(1,ISSM),NBATCHL,LLBTL,LLEBTL,LI1BTL, &
+call PART_CIV2(IDC,SBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LSCR1,SIOIO,ISMOST(1,ISSM),NBATCHL,LLBTL,LLEBTL,LI1BTL, &
                LIBTL,0,ISIMSYM)
 ! Arrays for partitioning of Right  vector = C
 NTTS = MXNTTS
@@ -290,7 +268,7 @@ call mma_allocate(LLEBTR,NTTS,Label='LLEBTR')
 call mma_allocate(LI1BTR,NTTS,Label='LI1BTR')
 call mma_allocate(LIBTR,8*NTTS,Label='LIBTR')
 call mma_allocate(LSCLFCR,NTTS,Label='LSCLFCR')
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LSCR1,CIOIO,ISMOST(1,ICSM),NBATCHR,LLBTR,LLEBTR,LI1BTR, &
+call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LSCR1,CIOIO,ISMOST(1,ICSM),NBATCHR,LLBTR,LLEBTR,LI1BTR, &
                LIBTR,0,ISIMSYM)
 
 if (ICISTR == 1) then
@@ -301,7 +279,7 @@ if (ICISTR == 1) then
 else if (ICISTR >= 2) then
   S2_TERM1 = Zero
   call GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,L,R,VEC3,CIOIO,SIOIO,ISMOST(1,ICSM),ISMOST(1,ISSM),CBLTP,SBLTP,NACOB, &
-                    NSTSO(IATP)%I,NSTSO(IBTP)%I,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS, &
+                    NSTSO(IATP)%A,NSTSO(IBTP)%A,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS, &
                     MAXK,MAXI,VEC3(1+KCSCR),VEC3,STSTS,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,INSCR, &
                     MXPOBS,IPRDEN,RHO1S,LUL,LUR,PSSIGN,PSSIGN,NBATCHL,LLBTL,LI1BTL,LIBTL,NBATCHR,LLBTR,LI1BTR,LIBTR,CONSPA,CONSPB, &
                     LSCLFCL,LSCLFCR,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
@@ -388,7 +366,7 @@ call mma_deallocate(XNATO)
 call mma_deallocate(RHO1SM)
 call mma_deallocate(OCCSM)
 call mma_deallocate(ZSCR)
-call mma_deallocate(ZOCSTR)
+call mma_deallocate(OCSTR)
 call mma_deallocate(REO)
 call mma_deallocate(Z)
 call mma_deallocate(LLBTL)

@@ -32,14 +32,13 @@ subroutine GETINCN_RASSCFS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM
 
 use lucia_data, only: IBSO, NOBPTS, NTOOBS
 use wadr, only: TUVX
+use Definitions, only: wp, iwp
 
 implicit none
-integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
-! Output
-real*8 XINT(*)
-! Local scratch
-integer IORB, JORB, KORB, LORB, IOFF, IITP, JOFF, JJTP, KOFF, KKTP, LOFF, LLTP, IINT, L, JMIN, J, K, IMIN, I, IJ, KL, IJKL, IL, &
-        KJ, ILKJ
+real(kind=wp) :: XINT(*)
+integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
+integer(kind=iwp) :: I, IINT, IITP, IJ, IJKL, IL, ILKJ, IMIN, IOFF, IORB, J, JJTP, JMIN, JOFF, JORB, K, KJ, KKTP, KL, KOFF, KORB, &
+                     L, LLTP, LOFF, LORB
 
 if (ITP >= 1) then
   iOrb = NOBPTS(ITP,ISM)

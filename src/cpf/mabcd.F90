@@ -21,6 +21,7 @@ use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
+implicit none
 integer(kind=iwp), intent(in) :: JSY(*), INDX(*), ISAB(*), NII
 real(kind=wp), intent(inout) :: C(*), S(*), W(*)
 real(kind=wp), intent(_OUT_) :: ACBDS(*), ACBDT(*), BUFIN(*)

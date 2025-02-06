@@ -10,23 +10,18 @@
 !***********************************************************************
 
 subroutine SPNCOM_LUCIA(NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN,IPRCSF)
-! Combinations of nopen unpaired electrons.Required
+! Combinations of nopen unpaired electrons. Required
 ! spin projection MS2/2.
 
 use lucia_data, only: MXPORB
 use Constants, only: Zero, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NOPEN, MS2, NDET, IFLAG, IPRCSF
-real*8 PSSIGN
-integer IABDET(NOPEN,*), IABUPP(NOPEN,*)
-integer ADD
-! Should have length of max number of open orbitals
-integer IWORK(MXPORB)
-! LENGTH OF IWORK MUST BE AT LEAST NOPEN
-integer NTEST, NUPPER, MX, IFIRST, I, IZERO, J, NALPHA, MS2L, LUPPER, IEL, K
-real*8 XMSD2
+integer(kind=iwp) :: NOPEN, MS2, NDET, IABDET(NOPEN,*), IABUPP(NOPEN,*), IFLAG, IPRCSF
+real(kind=wp) :: PSSIGN
+integer(kind=iwp) :: ADD, I, IEL, IFIRST, IWORK(MXPORB), J, K, LUPPER, MS2L, MX, NALPHA, NTEST, NUPPER
+real(kind=wp) :: XMSD2
 
 NTEST = 0
 NTEST = max(NTEST,IPRCSF)
@@ -42,8 +37,7 @@ IFIRST = 1
 do I=1,MX
   if (IFIRST == 1) then
     ! Initial number
-    IZERO = 0
-    call ISETVC(IWORK,IZERO,NOPEN)
+    call ISETVC(IWORK,0,NOPEN)
     IFIRST = 0
   else
     ! Next number

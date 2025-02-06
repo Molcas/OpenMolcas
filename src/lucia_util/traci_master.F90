@@ -11,30 +11,22 @@
 
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use GLBBAS
+use GLBBAS, only: DTOC, INT1, SDREO, VEC3
 use Local_Arrays, only: Deallocate_Local_Arrays
 use rasscf_lucia, only: kvec3_length
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: NCSF_PER_SYM
-use lucia_data, only: MXNTTS, MXSOOB, XISPSM
-use lucia_data, only: LUC, LUDIA, LUSC1, LUHC, LUSC2
-use lucia_data, only: IREFSM, PSSIGN, NROOT
-use lucia_data, only: IDISK
-use lucia_data, only: NSMOB
-use lucia_data, only: NTOOB, NTOOBS
+use lucia_data, only: IDISK, IREFSM, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, &
+                      PSSIGN, XISPSM
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer JOBDISK, JOBIPH
-real*8 CMOMO(*)
-integer LREC(MXNTTS)
-integer I_DUMMY(1)
-real*8, allocatable :: VEC1(:), VEC2(:), VEC4(:)
-real*8, allocatable :: LCMOMO(:), LH1SAVE(:)
-integer NTEST, LBLK, NDIM, NCONF, LBLOCK, JDISK, JROOT, IOFF, IREC, NREC, IATP, IBTP, IADR, ICOL, ISM, IROW, I, J, NUM_ELE, &
-        NBATCH, NBLOCK
+integer(kind=iwp) :: JOBDISK, JOBIPH, LREC(MXNTTS)
+real(kind=wp) :: CMOMO(*)
+integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IREC, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, &
+                     NCONF, NDIM, NREC, NTEST, NUM_ELE
+real(kind=wp), allocatable :: LCMOMO(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
 
 NTEST = 0
 LBLK = -1

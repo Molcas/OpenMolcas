@@ -39,15 +39,15 @@ subroutine ADADS1_GAS(NK,I1,XI1S,LI1,IORB,NIORB,JORB,NJORB,KSTR,NKEL,NKSTR,IREO,
 ! Offset is KMIN
 
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer KSTR(NKEL,NKSTR)
-integer IREO(*), IZ(NOCOB,*)
-! Output
-integer I1(LI1,*)
-dimension XI1S(LI1,*)
+implicit none
+integer(kind=iwp) :: NK, LI1, I1(LI1,*), IORB, NIORB, JORB, NJORB, NKEL, NKSTR, KSTR(NKEL,NKSTR), IREO(*), NOCOB, IZ(NOCOB,*), &
+                     KMAX, KMIN, IEND
+real(kind=wp) :: XI1S(LI1,*), SCLFAC
+integer(kind=iwp) :: IACT, IEL, IIEL, IIORB, IJ, IJOFF, ILEX, ILEX0, ILEX1, ILEX2, IORB1, IORB2, IORBMAX, IORBMIN, JEL, JJEL, &
+                     JJORB, JORB1, JORB2, JORBMAX, JORBMIN, KEND, KKSTR, NIJ, NTEST
+real(kind=wp) :: ODDIEL, ODDJEL, SIGNIJ, SIGNJ
 
 NTEST = 0
 if (NTEST /= 0) then

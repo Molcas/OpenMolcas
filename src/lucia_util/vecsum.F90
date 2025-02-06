@@ -13,9 +13,13 @@ subroutine VECSUM(C,A,B,FACA,FACB,NDIM)
 ! CALCULATE THE VECTOR C(I)=FACA*A(I)+FACB*B(I)
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(*), C(*)
+implicit none
+real(kind=wp) :: C(*), A(*), B(*), FACA, FACB
+integer(kind=iwp) :: NDIM
+integer(kind=iwp) :: I
+real(kind=wp) :: S
 
 if ((FACA /= Zero) .and. (FACB /= Zero)) then
   do I=1,NDIM

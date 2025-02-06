@@ -12,10 +12,11 @@
 subroutine SIGVST(ISGVST,NSMST)
 ! Obtain ISGVST(ISM) : Symmetry of sigma v on string of symmetry ism
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer ISGVST(*)
+implicit none
+integer(kind=iwp) :: ISGVST(*), NSMST
+integer(kind=iwp) :: IML, IPARI, ISM, MIML, MISM, NTEST
 
 do ISM=1,NSMST
   call MLSM(IML,IPARI,ISM,'ST',2)
@@ -25,7 +26,7 @@ do ISM=1,NSMST
   ISGVST(ISM) = MISM
 end do
 
-NTEST = 1
+NTEST = 0
 if (NTEST /= 0) then
   write(u6,*) ' ISGVST array'
   write(u6,*) ' ============'

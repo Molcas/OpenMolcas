@@ -15,15 +15,12 @@ subroutine GTJK(RJ,RK,NTOOB,IREOST)
 !
 ! Ordering of integrals is in the internal order
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! Input
-integer NTOOB
-integer IREOST(*)
-! Output
-real*8 RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-integer NTEST
+integer(kind=iwp) :: NTOOB, IREOST(*)
+real(kind=wp) :: RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
+integer(kind=iwp) :: NTEST
 
 call GTJK_RASSCF(RJ,RK,NTOOB,IREOST)
 

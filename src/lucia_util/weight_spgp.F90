@@ -14,16 +14,12 @@ subroutine WEIGHT_SPGP(Z,NORBTP,NELFTP,NORBFTP,ISCR,NTEST)
 !
 ! Reverse lexical ordering is used
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer NELFTP(NORBTP), NORBFTP(NORBTP)
-! Ouput
-integer Z(*)
-! Scratch length : 2 * NORB + (NEL+1)*(NORB+1)
-integer ISCR(*)
-integer, external :: IELSUM
+implicit none
+integer(kind=iwp) :: Z(*), NORBTP, NELFTP(NORBTP), NORBFTP(NORBTP), ISCR(*), NTEST
+integer(kind=iwp) :: KLFREE, KLMAX, KLMIN, KW, NEL, NORB
+integer(kind=iwp), external :: IELSUM
 
 NORB = IELSUM(NORBFTP,NORBTP)
 NEL = IELSUM(NELFTP,NORBTP)

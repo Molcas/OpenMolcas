@@ -31,25 +31,26 @@ subroutine LULU(A,L,U,NDIM)
 ! NO PIVOTING IS DONE HERE, SO THE SCHEME GOES :
 !
 !     LOOP OVER R=1, NDIM
-!        LOOP OVER J = R, NDIM
-!          U(R,J) = A(R,J) - SUM(K=1,R-1) L(R,K) * U(K,J)
-!        END OF LOOP OVER J
+!       LOOP OVER J = R, NDIM
+!         U(R,J) = A(R,J) - SUM(K=1,R-1) L(R,K) * U(K,J)
+!       END OF LOOP OVER J
 !
-!        LOOP OVER I = R+1, NDIM
-!          L(I,R) = (A(I,R) - SUM(K=1,R-1)L(I,K) * U(K,R) ) /U(R,R)
-!        END OF LOOP OVER I
+!       LOOP OVER I = R+1, NDIM
+!         L(I,R) = (A(I,R) - SUM(K=1,R-1)L(I,K) * U(K,R) ) /U(R,R)
+!       END OF LOOP OVER I
 !     END OF LOOP OVER R
 !
 ! JEPPE OLSEN, OCTOBER 1988
 
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension A(NDIM,NDIM)
-real*8 L(*), U(*)
-real*8 INPROD
-integer R
+implicit none
+integer(kind=iwp) :: NDIM
+real(kind=wp) :: A(NDIM,NDIM), L(*), U(*)
+integer(kind=iwp) :: I, J, NTEST, R
+real(kind=wp) :: XFACI
+real(kind=wp), external :: INPROD
 
 do R=1,NDIM
 

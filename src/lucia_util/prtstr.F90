@@ -12,10 +12,11 @@
 subroutine PRTSTR(ISTR,NEL,NSTR)
 ! Print NSTR strings each containing NEL electrons
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension ISTR(NEL,NSTR)
+implicit none
+integer(kind=iwp) :: NEL, NSTR, ISTR(NEL,NSTR)
+integer(kind=iwp) :: IEL, JSTR
 
 do JSTR=1,NSTR
   write(u6,100) ' String ',JSTR,' : ',(ISTR(IEL,JSTR),IEL=1,NEL)

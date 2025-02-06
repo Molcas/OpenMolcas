@@ -32,8 +32,11 @@ subroutine ZERORC(IFIL,IAMPACKED)
 !
 ! IAMPACKED added Oct. 98 / Jeppe Olsen
 
-implicit real*8(A-H,O-Z)
-integer ISCR(2)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IFIL, IAMPACKED
+integer(kind=iwp) :: ISCR(2)
 
 ! Zero record
 ISCR(1) = 1

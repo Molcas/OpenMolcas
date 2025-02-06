@@ -17,29 +17,21 @@ subroutine CNFORD_GAS(IOCCLS,NOCCLS,ISYM,ICTSDT,IBLOCK,NBLOCK)
 ! Generate determinants in configuration order and obtain
 ! sign array for switching between the two formats.
 !
-!
 ! It is assumed that CSFDIM has been called
 !
 ! Jeppe Olsen Dec. 2001 from CNFORD
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use GLBBAS, only: CONF_OCC, CONF_REO
-use lucia_data, only: IBCONF_ALL_SYM_FOR_OCCLS, IB_CONF_OCC, IB_CONF_REO, MAXOP, MINOP, NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_TOT
-use lucia_data, only: NGAS
-use lucia_data, only: NOCOB, NOBPT
+use lucia_data, only: IB_CONF_OCC, IB_CONF_REO, IBCONF_ALL_SYM_FOR_OCCLS, MAXOP, MINOP, NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_TOT, &
+                      NGAS, NOBPT, NOCOB
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-! Specific input
-integer NOCCLS, ISYM, NBLOCK
-integer IOCCLS(NGAS,NOCCLS)
-integer IBLOCK(8,NBLOCK)
-! Output
-integer ICTSDT(*)
-integer, allocatable :: ZSCR(:), Z(:)
-integer, allocatable :: LOCMIN(:), LOCMAX(:)
-! Local variables
-integer NTEST, NELEC, IZERO, IB_OCCLS, JOCCLS, INITIALIZE_CONF_COUNTERS, IDOREO, NCONF_OCCLS, NCONF_P
-integer, external :: IELSUM
+integer(kind=iwp) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM, ICTSDT(*), NBLOCK, IBLOCK(8,NBLOCK)
+integer(kind=iwp) :: IB_OCCLS, IDOREO, INITIALIZE_CONF_COUNTERS, JOCCLS, NCONF_OCCLS, NCONF_P, NELEC, NTEST
+integer(kind=iwp), allocatable :: LOCMAX(:), LOCMIN(:), Z(:), ZSCR(:)
+integer(kind=iwp), external :: IELSUM
 
 NTEST = 0
 NELEC = IELSUM(IOCCLS(1,1),NGAS)
@@ -49,8 +41,7 @@ call mma_allocate(Z,NOCOB*NELEC*2,Label='Z')
 call mma_allocate(LOCMIN,NOCOB,Label='LOCMIN')
 call mma_allocate(LOCMAX,NOCOB,Label='LOCMAX')
 ! Zero configuration reorder array using NCONF_ALL_SYM
-IZERO = 0
-call ISETVC(CONF_REO(ISYM)%I,IZERO,NCONF_tot)
+call ISETVC(CONF_REO(ISYM)%A,0,NCONF_tot)
 
 ! Generate configurations for all occupation classes
 
@@ -81,8 +72,8 @@ do JOCCLS=1,NOCCLS
   IB_OCCLS = IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS)
 
   call GEN_CONF_FOR_OCCLS(IOCCLS(1,JOCCLS),IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,0,NOCOB,NOBPT, &
-                          NCONF_PER_OPEN(1,ISYM),NCONF_OCCLS,IB_CONF_REO,IB_CONF_OCC,CONF_OCC(ISYM)%I,IDOREO,Z(:),NCONF_ALL_SYM, &
-                          conf_reo(isym)%I,nconf_tot)
+                          NCONF_PER_OPEN(1,ISYM),NCONF_OCCLS,IB_CONF_REO,IB_CONF_OCC,CONF_OCC(ISYM)%A,IDOREO,Z(:),NCONF_ALL_SYM, &
+                          CONF_REO(ISYM)%A,nconf_tot)
 
   !    GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,IONLY_NCONF,NTORB,NOBPT,NCONF_OP, &
   !                       IBCONF_REO,IBCONF_OCC,ICONF,IDOREO,IZ_CONF,IREO,NCONF_ALL_SYM)

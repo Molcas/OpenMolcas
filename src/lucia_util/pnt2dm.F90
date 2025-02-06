@@ -30,13 +30,11 @@ subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 !         = 0 indicates forbidden block
 ! ISM2  : symmetry of second index for given first index
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer OSXO(MXPOBS,2*MXPOBS), IPSM(*), JPSM(*)
-! Output
-dimension IPNTR(*), ISM2(*)
+implicit none
+integer(kind=iwp) :: I12SM, NSMOB, MXPOBS, OSXO(MXPOBS,2*MXPOBS), IPSM(*), JPSM(*), IJSM, ISM2(*), IPNTR(*)
+integer(kind=iwp) :: IOFF, ISM, JSM, NTEST
 
 call ISETVC(IPNTR,0,NSMOB)
 call ISETVC(ISM2,0,NSMOB)

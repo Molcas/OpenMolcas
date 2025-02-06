@@ -19,13 +19,12 @@ subroutine WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,ISC)
 !
 ! Jeppe Olsen, August 1995
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input
-dimension NSASO(NSMST,*), NSBSO(NSMST,*)
-dimension BLOCKS(*)
-integer IBLOCK(8,NBLOCK)
+implicit none
+real(kind=wp) :: BLOCKS(*)
+integer(kind=iwp) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), ISC
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFF, IPACK, JBLOCK, NELMNT, NIA, NIB
 
 write(u6,*) ' Batch of blocks'
 write(u6,*) ' ==============='

@@ -9,13 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function IELSUM(IVEC,NELMNT)
+function IELSUM(IVEC,NELMNT)
 ! Sum elements of integer vector IVEC
 
-implicit none
+use Definitions, only: iwp
 
-integer IVEC(*), NELMNT
-integer ISUM, IELMNT
+implicit none
+integer(kind=iwp) :: IELSUM
+integer(kind=iwp) :: IVEC(*), NELMNT
+integer(kind=iwp) :: IELMNT, ISUM
 
 ISUM = 0
 do IELMNT=1,NELMNT

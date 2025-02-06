@@ -39,13 +39,12 @@ subroutine PRMBLK(IDC,ISGV,IASM,IBSM,IATP,IBTP,PS,PL,JATP,JBTP,JASM,JBSM,ISGN,IT
 !   *********************************************************************
 
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension ISGV(*)
-! Output
-dimension JATP(4), JBTP(4), JASM(4), JBSM(4), ISGN(4), ITRP(4)
+implicit none
+integer(kind=iwp) :: IDC, ISGV(*), IASM, IBSM, IATP, IBTP, JATP(4), JBTP(4), JASM(4), JBSM(4), ISGN(4), ITRP(4), NPERM
+real(kind=wp) :: PS, PL
+integer(kind=iwp) :: INEW, IPERM, ISET, KASM, KATP, KBSM, KBTP, KSIGN, KTRP, LPERM, LSIGN, LTRP, NTEST
 
 ! To eliminate some compiler warnings
 KASM = 0

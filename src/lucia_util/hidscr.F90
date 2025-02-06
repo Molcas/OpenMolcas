@@ -11,9 +11,13 @@
 
 module HIDSCR
 
-integer, allocatable :: ZSCR(:)
-integer, allocatable :: OCSTR(:,:)
-integer, allocatable :: REO(:,:)
-integer, allocatable :: Z(:,:)
+use Definitions, only: iwp
+
+implicit none
+private
+
+integer(kind=iwp), allocatable :: OCSTR(:,:), REO(:,:), Z(:,:), ZSCR(:)
+
+public :: OCSTR, REO, Z, ZSCR
 
 end module HIDSCR

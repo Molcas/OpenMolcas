@@ -27,35 +27,22 @@ subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,SCLFAC
 !              August 95    : GAS version
 !              October 96   : Improved version
 
-use strbas, only: NSTSGP, ISTSGP, STSTM
-use Constants, only: Zero
-use lucia_data, only: NGAS
-use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP, NSTFSMSPGP
-use lucia_data, only: IOBPTS, NOBPT, NOBPTS
-use lucia_data, only: MXPNGAS, MXPNSMST
+use strbas, only: ISTSGP, NSTSGP, STSTM
+use lucia_data, only: IBSPGPFTP, IOBPTS, ISPGPFTP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NOBPT, NOBPTS, NSTFSMSPGP
 use csm_data, only: NSMST
-use Definitions, only: wp, u6
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 :: OFFI(*)
-integer IOBSM, IOBTP, ISPGP, ISPGPSM, ISPGPTP, NKSTR
-real*8 SCLFAC
-! ======
-! Output
-! ======
-integer I1(*)
-real*8 XI1S(*)
-! Local scratch
-integer NELFGS(MXPNGAS), ISMFGS(MXPNGAS), ITPFGS(MXPNGAS)
-integer maxval(MXPNGAS), minval(MXPNGAS)
-integer NNSTSGP(MXPNSMST,MXPNGAS)
-integer IISTSGP(MXPNSMST,MXPNGAS)
-integer IACIST(MXPNSMST), NACIST(MXPNSMST)
-integer, parameter :: MXLNGAS = 20
-integer, external :: IELSUM
-integer NTEST, ISPGRPABS, KSM, KSPGRPABS, NORBTS, IZERO, IBORBSP, IBORBSPS, NGASL, IGAS, NELB, NACGSOB, ISMST, IFIRST, NSTRINT, &
-        NONEW, ISTSMM1, JSTSMM1, ISMGSN, NSTRII, IOFF, MULT, KACGRP, KFIRST, KSTRBS, NSTRIK, ISAVE, IACSM, IBSTRINI, NSTB, NSTA, &
-        NIAC, IIAC, NKAC, IKAC, NKSD, IORB, IORBR
+real(kind=wp) :: OFFI(*), XI1S(*), SCLFAC
+integer(kind=iwp) :: IOBSM, IOBTP, ISPGP, ISPGPSM, ISPGPTP, I1(*), NKSTR
+integer(kind=iwp) :: IACIST(MXPNSMST), IACSM, IBORBSP, IBORBSPS, IBSTRINI, IFIRST, IGAS, IIAC, IISTSGP(MXPNSMST,MXPNGAS), IKAC, &
+                     IOFF, IORB, IORBR, ISAVE, ISMFGS(MXPNGAS), ISMGSN, ISMST, ISPGRPABS, ISTSMM1, ITPFGS(MXPNGAS), JSTSMM1, &
+                     KACGRP, KFIRST, KSM, KSPGRPABS, KSTRBS, MNVAL(MXPNGAS), MULT, MXVAL(MXPNGAS), NACGSOB, NACIST(MXPNSMST), &
+                     NELB, NELFGS(MXPNGAS), NGASL, NIAC, NKAC, NKSD, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NORBTS, NSTA, NSTB, NSTRII, &
+                     NSTRIK, NSTRINT, NTEST
+integer(kind=iwp), parameter :: MXLNGAS = 20
+integer(kind=iwp), external :: IELSUM
 
 ! Will be stored as an matrix of dimension
 ! (NKSTR,*), Where NKSTR is the number of K-strings of
@@ -95,8 +82,7 @@ if (NKSTR == 0) goto 9999
 
 NORBTS = NOBPTS(IOBTP,IOBSM)
 call SETVEC(XI1S,Zero,NORBTS*NKSTR)
-IZERO = 0
-call ISETVC(I1,IZERO,NORBTS*NKSTR)
+call ISETVC(I1,0,NORBTS*NKSTR)
 
 ! First orbital of given GASSpace
 IBORBSP = IELSUM(NOBPT,IOBTP-1)+1
@@ -123,11 +109,11 @@ NACGSOB = NOBPT(IOBTP)
 
 ! Number of strings per symmetry for each symmetry
 do IGAS=1,NGAS
-  call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
+  call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
 end do
 ! Offset and dimension for active group in I strings
-call ICOPVE2(ISTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,IACIST)
-call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,NACIST)
+call ICOPVE2(ISTSGP,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,IACIST)
+call ICOPVE2(NSTSGP,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,NACIST)
 !write(u6,*) ' IACIST and NACIST arrays'
 !call IWRTMA(IACIST,1,NSMST,1,NSMST)
 !call IWRTMA(NACIST,1,NSMST,1,NSMST)
@@ -136,10 +122,10 @@ call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,NACIST)
 
 do IGAS=1,NGAS
   do ISMST=1,NSMST
-    if (NNSTSGP(ISMST,IGAS) > 0) maxval(IGAS) = ISMST
+    if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
   end do
   do ISMST=NSMST,1,-1
-    if (NNSTSGP(ISMST,IGAS) > 0) minval(IGAS) = ISMST
+    if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
   end do
 end do
 IFIRST = 1
@@ -147,11 +133,11 @@ NSTRINT = 0
 2000 continue
 if (IFIRST == 1) then
   do IGAS=1,NGASL-1
-    ISMFGS(IGAS) = minval(IGAS)
+    ISMFGS(IGAS) = MNVAL(IGAS)
   end do
 else
   ! Next distribution of symmetries in NGAS -1
-  call NXTNUM3(ISMFGS,NGASL-1,MINVAL,MAXVAL,NONEW)
+  call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
   if (NONEW /= 0) goto 2001
 end if
 IFIRST = 0
@@ -215,16 +201,16 @@ end do
 KACGRP = ITPFGS(IOBTP)
 ! Number of strings per symmetry distribution
 do IGAS=1,NGAS
-  call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
-  call ICOPVE2(ISTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,IISTSGP(1,IGAS))
+  call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
+  call ICOPVE2(ISTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,IISTSGP(1,IGAS))
 end do
 
 do IGAS=1,NGAS
   do ISMST=1,NSMST
-    if (NNSTSGP(ISMST,IGAS) > 0) maxval(IGAS) = ISMST
+    if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
   end do
   do ISMST=NSMST,1,-1
-    if (NNSTSGP(ISMST,IGAS) > 0) minval(IGAS) = ISMST
+    if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
   end do
 end do
 
@@ -235,11 +221,11 @@ KSTRBS = 1
 1000 continue
 if (KFIRST == 1) then
   do IGAS=1,NGASL-1
-    ISMFGS(IGAS) = minval(IGAS)
+    ISMFGS(IGAS) = MNVAL(IGAS)
   end do
 else
   ! Next distribution of symmetries in NGAS -1
-  call NXTNUM3(ISMFGS,NGASL-1,MINVAL,MAXVAL,NONEW)
+  call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
   if (NONEW /= 0) goto 1001
 end if
 KFIRST = 0
@@ -309,7 +295,7 @@ NKSD = NSTB*NKAC*NSTA
 NORBTS = NOBPTS(IOBTP,IOBSM)
 
 !write(u6,*) ' KACGRP ',KACGRP
-call ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%I,STSTM(KACGRP,2)%I,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC,NKSTR, &
+call ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%A,STSTM(KACGRP,2)%A,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC,NKSTR, &
                  NELB,NACGSOB,I1,XI1S,SCLFAC)
 KSTRBS = KSTRBS+NKSD
 if (NGASL-1 > 0) goto 1000

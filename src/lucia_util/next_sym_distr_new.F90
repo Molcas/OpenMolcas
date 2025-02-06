@@ -20,14 +20,13 @@ subroutine NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NGAS,ISYM,ISYM_TOT,IFIRST,NONEW,IS
 ! Loop over first NGAS-1 spaces are performed, and the symmetry
 ! of the last space is then fixed by the required total sym
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer ISMDFGP(NSMST,NGRP), NACTSYM(NGRP), ISMSCR(NGRP)
-integer KGRP(NGAS)
-! Input and output
-integer ISYM(NGAS)
+implicit none
+integer(kind=iwp) :: NSMST, NGRP, NGAS, KGRP(NGAS), ISYM(NGAS), ISYM_TOT, IFIRST, NONEW, ISMDFGP(NSMST,NGRP), NACTSYM(NGRP), &
+                     ISMSCR(NGRP)
+integer(kind=iwp) :: I, IGAS, ISM, JSYM, NTEST
+integer(kind=iwp), external :: ISYMSTR
 
 NTEST = 0
 

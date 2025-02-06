@@ -36,20 +36,15 @@ subroutine ADADST_GAS(IOB,IOBSM,IOBTP,NIOB,JOB,JOBSM,JOBTP,NJOB,ISPGP,ISM,ITP,KM
 !
 ! Jeppe Olsen, August of 95
 
-use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
-use lucia_data, only: NGAS
-use lucia_data, only: IBSPGPFTP, NELFSPGP, NELFTP
-use lucia_data, only: NELIS, NSTRKS
-use lucia_data, only: IOBPTS, NOBPT, NOCOB
-use Definitions, only: u6
+use HIDSCR, only: OCSTR, REO, Z, ZSCR
+use lucia_data, only: IBSPGPFTP, IOBPTS, NELFSPGP, NELFTP, NELIS, NGAS, NOBPT, NOCOB, NSTRKS
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IOB, IOBSM, IOBTP, NIOB, JOB, JOBSM, JOBTP, NJOB, ISPGP, ISM, ITP, KMIN, KMAX, LI1, NK, IEND, IFRST, KFRST, I12, K12
-real*8 SCLFAC
-integer I1(*)
-real*8 XI1S(*)
-integer IDUM_ARR(1)
-integer NTEST, ISPGPABS, K1SM, K1SPGPABS, KSM, KSPGPABS, NTEST2, NELI, NELK, NSTRK, IIOB, JJOB, NSTRI
+integer(kind=iwp) :: IOB, IOBSM, IOBTP, NIOB, JOB, JOBSM, JOBTP, NJOB, ISPGP, ISM, ITP, KMIN, KMAX, LI1, I1(*), NK, IEND, IFRST, &
+                     KFRST, I12, K12
+real(kind=wp) :: XI1S(*), SCLFAC
+integer(kind=iwp) :: IDUM_ARR(1), IIOB, ISPGPABS, JJOB, K1SM, K1SPGPABS, KSM, KSPGPABS, NELI, NELK, NSTRI, NSTRK, NTEST, NTEST2
 
 NTEST = 0
 if (NTEST >= 100) then
@@ -69,7 +64,7 @@ end if
 
 ! Internal affairs
 
-if ((I12 > size(Z,2)) .or. (K12 > size(ZOCSTR,2))) then
+if ((I12 > size(Z,2)) .or. (K12 > size(OCSTR,2))) then
   write(u6,*) ' ADST_GAS : Illegal value of K12 = ',K12
   write(u6,*) ' ADST_GAS : Illegal value of I12 = ',I12
   !stop ' ADST_GAS : Illegal value of I12'
@@ -97,12 +92,12 @@ if (IFRST /= 0) then
   NELI = NELFTP(ITP)
   NELIS(I12) = NELI
   ! Reorder array for I strings
-  call GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,ZOCSTR(:,K12),NOCOB,1,Z(:,I12),REO(:,I12))
+  call GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,OCSTR(:,K12),NOCOB,1,Z(:,I12),REO(:,I12))
 end if
 NELK = NELIS(I12)-2
 if (KFRST /= 0) then
   ! Generate occupation of K STRINGS
-  call GETSTR_TOTSM_SPGP(1,KSPGPABS,KSM,NELK,NSTRK,ZOCSTR(:,K12),NOCOB,0,IDUM_ARR,IDUM_ARR)
+  call GETSTR_TOTSM_SPGP(1,KSPGPABS,KSM,NELK,NSTRK,OCSTR(:,K12),NOCOB,0,IDUM_ARR,IDUM_ARR)
   NSTRKS(K12) = NSTRK
 end if
 
@@ -110,6 +105,6 @@ NSTRK = NSTRKS(K12)
 
 IIOB = IOBPTS(IOBTP,IOBSM)+IOB-1
 JJOB = IOBPTS(JOBTP,JOBSM)+JOB-1
-call ADADS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,JJOB,NJOB,ZOCSTR(:,K12),NELK,NSTRK,REO(:,I12),Z(:,I12),NOCOB,KMAX,KMIN,IEND,SCLFAC)
+call ADADS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,JJOB,NJOB,OCSTR(:,K12),NELK,NSTRK,REO(:,I12),Z(:,I12),NOCOB,KMAX,KMIN,IEND,SCLFAC)
 
 end subroutine ADADST_GAS

@@ -16,8 +16,12 @@ subroutine SCLDIA(A,FACTOR,NDIM,IPACK)
 ! IPACK /= 0 : Lower triangular packed matrix
 !              assumed packed columnwise !!!!
 
-implicit real*8(A-H,O-Z)
-dimension A(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: A(*), FACTOR
+integer(kind=iwp) :: NDIM, IPACK
+integer(kind=iwp) :: I, II
 
 if (IPACK == 0) then
   do I=1,NDIM

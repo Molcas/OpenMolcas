@@ -32,19 +32,16 @@ subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 ! note The transformation matrix X is supposed to be in complete form
 ! as a matrix over NTOOB orbitals.
 
+use CandS, only: ICSM, ICSPC, ISSM, ISSPC
+use lucia_data, only: LUSC1, LUSC2, LUSC3, NSMOB, NTOOB, NTOOBS
 use stdalloc, only: mma_allocate, mma_deallocate
-! Module for communicating with sigma
-use CandS, only: ICSM, ISSM, ICSPC, ISSPC
-use lucia_data, only: NSMOB
-use lucia_data, only: NTOOB, NTOOBS
-use lucia_data, only: LUSC1, LUSC2, LUSC3
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer LUCIN, LUCOUT, IXSPC, IXSM
-real*8 X(*), VEC1(*), VEC2(*)
-real*8, allocatable :: SCR(:), LT(:)
-integer IOFF, NTEST, ISM
+real(kind=wp) :: X(*), VEC1(*), VEC2(*)
+integer(kind=iwp) :: LUCIN, LUCOUT, IXSPC, IXSM
+real(kind=wp), allocatable :: SCR(:), LT(:)
+integer(kind=iwp) :: IOFF, ISM, NTEST
 
 ! Some dummy initializations
 IOFF = 0 ! jwk-cleanup

@@ -21,13 +21,11 @@ subroutine SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
 !
 ! Jeppe Olsen, September 1996
 
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension IELFSPGRP(MXPNGAS,*)
-! output
-dimension ISPGRPCON(NSPGRP,NSPGRP)
+implicit none
+integer(kind=iwp) :: IOFSPGRP, NSPGRP, NGAS, MXPNGAS, IELFSPGRP(MXPNGAS,*), ISPGRPCON(NSPGRP,NSPGRP), IPRNT
+integer(kind=iwp) :: IDIF, IGAS, ISPGRP, ISPGRPA, JSPGRP, JSPGRPA, NEXC, NEXC1, NEXC2, NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

@@ -13,10 +13,11 @@ subroutine STSTSM(STSTSX,STSTDX,NSMST)
 ! construct STSTSX and STSTDX giving
 ! symmetry of sx (dx) connecting two given string symmetries
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST)
+implicit none
+integer(kind=iwp) :: NSMST, STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST)
+integer(kind=iwp) :: IDXSM, ILSTSM, IRSTSM, ISXSM, NTEST
 
 do ILSTSM=1,NSMST
   do IRSTSM=1,NSMST

@@ -20,17 +20,13 @@ subroutine NATORB_LUCIA(RHO1,NSMOB,NTOPSM,NACPSM,NINPSM,ISTOB,XNAT,RHO1SM,OCCNUM
 !              Last modification, Feb. 1998 (reorder deg eigenvalues)
 
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension RHO1(NACOB,NACOB)
-dimension ISTOB(*)
-dimension NTOPSM(NSMOB), NACPSM(NSMOB), NINPSM(NSMOB)
-! Output
-dimension RHO1SM(*), OCCNUM(*), XNAT(*)
-! Scratch ( Largest symmetry block )
-dimension SCR(*)
+implicit none
+integer(kind=iwp) :: NSMOB, NTOPSM(NSMOB), NACPSM(NSMOB), NINPSM(NSMOB), ISTOB(*), NACOB, IPRDEN
+real(kind=wp) :: RHO1(NACOB,NACOB), XNAT(*), RHO1SM(*), OCCNUM(*), SCR(*)
+integer(kind=iwp) :: I, IMTOFF, IOB, IOBOFF, IOBP, ISMOB, JOB, JOBP, LOB, NTEST, NTESTL
+real(kind=wp) :: SS, TESTY, XI1I, XI1I1, XII, XII1
 
 NTESTL = 0
 NTEST = max(NTESTL,IPRDEN)

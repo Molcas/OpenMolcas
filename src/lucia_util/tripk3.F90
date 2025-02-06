@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
+subroutine TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SGN)
 ! REFORMATING BETWEEN LOWER TRIANGULAR PACKING
 ! AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
 !
@@ -17,15 +17,17 @@ subroutine TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 !            LOWER HALF OF AUTPAK IS STORED IN APAK
 ! IWAY = 2 : PACKED TO FULL FORM
 !            APAK STORED IN LOWER HALF
-!             SIGN * APAK TRANSPOSED IS STORED IN UPPPER PART
+!             SGN * APAK TRANSPOSED IS STORED IN UPPPER PART
 ! NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 !
 ! Some considerations on cache minimization used for IMET = 2 Loop
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension AUTPAK(MATDIM,MATDIM), APAK(*)
+implicit none
+integer(kind=iwp) :: IWAY, MATDIM, NDIM
+real(kind=wp) AUTPAK(MATDIM,MATDIM), APAK(*), SGN
+integer(kind=iwp) :: I, IBLK, IEND, IJ, IJOFF, IMET, IOFF, IOFF2, J, JBLK, JEND, JOFF, LBLK, NBLK, NTEST
 
 ! To get rid of annoying and incorrect compiler warnings
 IOFF = 0
@@ -53,7 +55,7 @@ if (IWAY == 2) then
     IJ = 0
     do J=1,NDIM
       do I=J,NDIM
-        AUTPAK(J,I) = SIGN*APAK(IJ+I)
+        AUTPAK(J,I) = SGN*APAK(IJ+I)
         AUTPAK(I,J) = APAK(IJ+I)
       end do
       IJ = IJ+NDIM-J
@@ -85,7 +87,7 @@ if (IWAY == 2) then
           end if
           IJOFF = (J-1)*MATDIM-J*(J-1)/2
           do I=IOFF2,IEND
-            AUTPAK(J,I) = SIGN*APAK(IJOFF+I)
+            AUTPAK(J,I) = SGN*APAK(IJOFF+I)
             AUTPAK(I,J) = APAK(IJOFF+I)
           end do
         end do

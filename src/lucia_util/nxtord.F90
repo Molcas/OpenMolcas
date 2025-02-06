@@ -11,10 +11,10 @@
 ! Copyright (C) 1989, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine NXTORD(INUM,NELMNT,MINVAL,MAXVAL,NONEW)
+subroutine NXTORD(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 ! An ordered set of numbers INUM(I),I=1,NELMNT is
 ! given in strictly ascending order. Values of INUM(*) is
-! restricted to the interval MINVAL,MAXVAL .
+! restricted to the interval MNVAL,MXVAL.
 !
 ! Find next higher number.
 !
@@ -23,9 +23,11 @@ subroutine NXTORD(INUM,NELMNT,MINVAL,MAXVAL,NONEW)
 !
 ! Jeppe Olsen May 1989
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-dimension INUM(*)
+implicit none
+integer(kind=iwp) :: INUM(*), NELMNT, MNVAL, MXVAL, NONEW
+integer(kind=iwp) :: IPLACE, NTEST
 
 NTEST = 0
 if (NTEST /= 0) then
@@ -36,13 +38,13 @@ end if
 IPLACE = 0
 1000 continue
 IPLACE = IPLACE+1
-if ((IPLACE < NELMNT) .and. (INUM(IPLACE)+1 < INUM(IPLACE+1)) .or. (IPLACE == NELMNT) .and. (INUM(IPLACE)+1 <= MAXVAL)) then
+if ((IPLACE < NELMNT) .and. (INUM(IPLACE)+1 < INUM(IPLACE+1)) .or. (IPLACE == NELMNT) .and. (INUM(IPLACE)+1 <= MXVAL)) then
   INUM(IPLACE) = INUM(IPLACE)+1
   NONEW = 0
   goto 1001
 else if (IPLACE < NELMNT) then
   if (IPLACE == 1) then
-    INUM(IPLACE) = MINVAL
+    INUM(IPLACE) = MNVAL
   else
     INUM(IPLACE) = INUM(IPLACE-1)+1
   end if

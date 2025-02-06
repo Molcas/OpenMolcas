@@ -10,15 +10,14 @@
 !***********************************************************************
 
 subroutine GET_IREOTS(IARRAY,NACTOB)
-
-use lucia_data, only: IREOTS
-
-implicit none
-integer NACTOB
-integer IARRAY(NACTOB)
-
 ! Make the IREOTS reorder array available in ARRAY.
 ! Added in order to let MOLCAS use IREOTS.
+
+use lucia_data, only: IREOTS
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NACTOB, IARRAY(NACTOB)
 
 call ICOPY(NACTOB,IREOTS,1,IARRAY,1)
 

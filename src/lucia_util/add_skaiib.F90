@@ -17,11 +17,13 @@ subroutine ADD_SKAIIB(SB,NI,NIA,SKAIIB,NKA,NIB,I,ISCA,SSCA)
 !
 ! For efficient processing of alpha-beta loop
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension SKAIIB(*), SSCA(*), ISCA(*)
-! Input and Output
-dimension SB(NIB,NIA)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NI, NIA, NKA, NIB, I, ISCA(*)
+real(kind=wp) :: SB(NIB,NIA), SKAIIB(*), SSCA(*)
+integer(kind=iwp) :: IADR, IADR0, IB, ICBL, ICEND, ICOFF, ICONST, IROW, KA, LBLK, NBLK
+real(kind=wp) :: S
 
 ! To get rid of annoying and incorrect compiler warnings
 ICOFF = 0

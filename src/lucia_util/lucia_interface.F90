@@ -11,9 +11,13 @@
 
 module LUCIA_INTERFACE
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
 private
 
-public Lucia_Util
+public :: Lucia_Util
 
 contains
 
@@ -30,37 +34,30 @@ contains
 !>
 !> @param[in] Module Identifier
 !***********************************************************************
-subroutine Lucia_Util(module,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
+subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
 
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use lucia_data, only: MXNTTS
-  use Definitions, only: u6
+  use lucia_data, only: IREFSM, MXNTTS
 
   implicit none
-  character(len=*) module
-  integer, optional :: iSym
-  integer, optional :: iDisk
-  integer, optional :: LU
-  real*8, optional :: Array(:)
-  real*8, optional :: RVEC(:)
-  real*8, optional :: CI_Vector(:)
-  real*8, optional :: SIGMA_Vector(:)
-  integer, parameter :: MxpLnc = 72
-  character(len=MxpLnc) Module_
-  integer, allocatable :: lVec(:)
+  character(len=*) :: ModLab
+  integer(kind=iwp), optional :: iSym, iDisk, LU
+  real(kind=wp), optional :: Array(:), RVEC(:), CI_Vector(:), SIGMA_Vector(:)
+  integer(kind=iwp), parameter :: MxpLnc = 72
+  character(len=MxpLnc) :: Module_
+  integer(kind=iwp), allocatable :: lVec(:)
 # ifdef _DEBUGPRINT_
-  integer, save :: COUNTER = 0
+  integer(kind=iwp) :: COUNTER = 0
 
   COUNTER = COUNTER+1
-  write(u6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','ENTRY LUCIA_UTIL','(',module,')'
+  write(u6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','ENTRY LUCIA_UTIL','(',ModLab,')'
 # endif
 
-  ! Make sure the Module variable is in upper case.
+  ! Make sure the ModLab variable is in upper case.
 
-  Module_ = module
+  Module_ = ModLab
   call UppCas(Module_,MxpLnc)
 
-  ! Call the appropriate routines according to Module
+  ! Call the appropriate routines according to ModLab
 
   if (Module_(1:4) == 'DIAG') then
     call Diag_Master()
@@ -88,51 +85,43 @@ subroutine Lucia_Util(module,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
     call Lucia_Ini()
     call DetCtl_Gas()
   else if (Module_(1:5) == 'CLOSE') then
-    call DetCtl_Free()
+    call CSFDIM_FREE(IREFSM)
+    call LUCIA2MOLCAS_FREE()
     call Lucia_Close()
   else
     write(u6,*) 'Unknown module requested in Lucia_Util.'
-    write(u6,*) 'Module = ',module
+    write(u6,*) 'Module = ',ModLab
     write(u6,*) 'Known modules are:'
     write(u6,*) 'Diag, Sigma, Sigma_CVB, Densi, DetCtl, Ini'
     call Abend()
   end if
 
 # ifdef _DEBUGPRINT_
-  write(u6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','EXIT LUCIA_UTIL','(',module,')'
+  write(u6,'(1X,A1,I6,A1,1X,A,1X,A1,A,A1)') '[',COUNTER,']','EXIT LUCIA_UTIL','(',ModLab,')'
 # endif
 
 end subroutine Lucia_Util
 
 subroutine densi_master(CIVec,nCIVec,RVec)
-
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use GLBBAS, only: VEC3, DTOC, RHO1, SRHO1, SDREO
-  use rasscf_lucia, only: kvec3_length, Sigma_on_Disk, PAtmp, Ptmp, DSTmp, Dtmp
-  use lucia_data, only: NCSF_PER_SYM, NSD_PER_SYM
-  use lucia_data, only: MXSOOB, MXNTTS, XISPSM
-  use lucia_data, only: LUC, LUSC1, LUHC, LUSC34
-  use lucia_data, only: LCSBLK
-  use lucia_data, only: IREFSM, PSSIGN
-  use lucia_data, only: IDISK
-  use lucia_data, only: NTOOB
-  use Constants, only: Zero
-
   ! Controls the calculation of the densities, when Lucia is called
   ! from Molcas Rasscf.
 
+  use GLBBAS, only: DTOC, RHO1, SDREO, SRHO1, VEC3
+  use rasscf_lucia, only: DSTmp, Dtmp, kvec3_length, PAtmp, Ptmp, Sigma_on_Disk
+  use lucia_data, only: IDISK, IREFSM, LCSBLK, LUC, LUHC, LUSC1, LUSC34, MXNTTS, MXSOOB, NCSF_PER_SYM, NSD_PER_SYM, NTOOB, PSSIGN, &
+                        XISPSM
+  use Constants, only: Zero
+
   implicit none
-  integer nCIVec
-  real*8 CIVec(nCIVEC)
-  real*8, optional :: RVec(:)
-  logical iPack, tdm
-  real*8 dummy(1)
-  real*8, allocatable :: VEC1(:), VEC2(:)
-  integer, allocatable :: lVec(:)
-  real*8, allocatable, target :: SCR1(:), SCR3(:)
-  real*8, allocatable :: SCR2(:), SCR4(:)
-  integer NSD, NCSF, LBLOCK, LBLK
-  real*8 EXPS2
+  integer(kind=iwp) :: nCIVec
+  real(kind=wp) :: CIVec(nCIVEC)
+  real(kind=wp), optional :: RVec(:)
+  integer(kind=iwp) :: LBLK, LBLOCK, NCSF, NSD
+  real(kind=wp) :: dummy(1), EXPS2
+  logical(kind=iwp) :: iPack, tdm
+  integer(kind=iwp), allocatable :: lVec(:)
+  real(kind=wp), allocatable :: SCR2(:), SCR4(:), VEC1(:), VEC2(:)
+  real(kind=wp), allocatable, target :: SCR1(:), SCR3(:)
 
   ! Put CI-vector from RASSCF on luc
 
@@ -243,26 +232,18 @@ subroutine densi_master(CIVec,nCIVec,RVec)
 end subroutine densi_master
 
 subroutine sigma_master(CIVEC,SIGMAVEC,nCIVEC)
-
-  use stdalloc, only: mma_allocate, mma_deallocate
-  ! Note that CI_VEC is used as a scratch array!
-  use GLBBAS, only: INT1, INT1O, VEC3, CI_SCR => CI_VEC, SIGMA_SCR => SIGMA_VEC
-  use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
-  use lucia_data, only: NSD_PER_SYM
-  use lucia_data, only: ECORE, ECORE_ORIG
-  use lucia_data, only: MXNTTS
-  use lucia_data, only: LUC, LUSC34
-  use lucia_data, only: IREFSM
-
   ! Controls the calculation of the sigma vector, when Lucia is called
   ! from Molcas Rasscf.
 
-  implicit none
-  integer nCIVEC
-  real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
+  use GLBBAS, only: CI_VEC, INT1, INT1O, SIGMA_VEC, VEC3
+  use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
+  use lucia_data, only: ECORE, ECORE_ORIG, IREFSM, LUC, LUSC34, MXNTTS, NSD_PER_SYM
 
-  integer, allocatable :: lVec(:)
-  integer nSD
+  implicit none
+  integer(kind=iwp) :: nCIVEC
+  real(kind=wp) :: CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
+  integer(kind=iwp) :: nSD
+  integer(kind=iwp), allocatable :: lVec(:)
 
   nSD = NSD_PER_SYM(IREFSM)
 
@@ -273,21 +254,22 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nCIVEC)
   INT1(:) = INT1O(:)
   ECORE_ORIG = ECORE
   !if (IUSE_PH == 1) then
-  !   call FI(INT1,ECORE_HEX,1)
-  !   ECORE = ECORE+ECORE_HEX
+  !  call FI(INT1,ECORE_HEX,1)
+  !  ECORE = ECORE+ECORE_HEX
   !end if
   call mma_allocate(lVec,MXNTTS,Label='lVec')
   call CPCIVC(CIVEC,nSD,LUC,MXNTTS,IREFSM,1,lVec)
   call mma_deallocate(lVec)
 
   ! Calculate the sigma vector:
-  ! LUC      : unit from which the CI vector is picked
-  ! LUSC34   : unit to which the sigma vector is put
-  ! CI_SCR   : scratch area to store the CI vector temporarily
-  ! SIGMAVec : the computed sigmavector in core.
+  ! LUC       : unit from which the CI vector is picked
+  ! LUSC34    : unit to which the sigma vector is put
+  ! CI_VEC    : scratch area to store the CI vector temporarily
+  ! SIGMA_VEC : the computed sigmavector in core.
 
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-  call MV7(CI_SCR,SIGMA_SCR,LUC,LUSC34)
+  ! Note that CI_VEC is used as a scratch array!
+  call MV7(CI_VEC,SIGMA_VEC,LUC,LUSC34)
   call mma_deallocate(VEC3)
 
   ! Export lusc34 to RASSCF
@@ -300,22 +282,16 @@ end subroutine SIGMA_MASTER
 
 subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,nCIVEC,IREFSM_CASVB)
 
-  ! Note that CI_VEC is used as a scratch array!
-  use GLBBAS, only: INT1, INT1O, SCR => CI_VEC, VEC3
-  use stdalloc, only: mma_allocate, mma_deallocate
+  use GLBBAS, only: CI_VEC, INT1, INT1O, VEC3
   use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, SIGMA_ON_DISK
   use CandS, only: ICSM, ISSM
-  use lucia_data, only: NSD_PER_SYM
-  use lucia_data, only: ECORE, ECORE_ORIG
-  use lucia_data, only: MXNTTS
-  use lucia_data, only: LUC, LUSC34
-  use lucia_data, only: IREFSM
+  use lucia_data, only: ECORE, ECORE_ORIG, IREFSM, LUC, LUSC34, MXNTTS, NSD_PER_SYM
 
   implicit none
-  integer nCIVEC, IREFSM_CASVB
-  real*8 CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
-  integer, allocatable :: lVec(:)
-  integer nSD
+  integer(kind=iwp) :: nCIVEC, IREFSM_CASVB
+  real(kind=wp) :: CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
+  integer(kind=iwp) :: nSD
+  integer(kind=iwp), allocatable :: lVec(:)
 
   ! Set ICSM and ISSM (from module CandS to the correct symmetry for this call
 
@@ -332,8 +308,8 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,nCIVEC,IREFSM_CASVB)
   INT1(:) = INT1O(:)
   ECORE_ORIG = ECORE
   !if (IUSE_PH == 1) then
-  !   call FI(INT1,ECORE_HEX,1)
-  !   ECORE = ECORE+ECORE_HEX
+  !  call FI(INT1,ECORE_HEX,1)
+  !  ECORE = ECORE+ECORE_HEX
   !end if
 
   ! Write CI-vector to disc
@@ -346,7 +322,8 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,nCIVEC,IREFSM_CASVB)
 
   call DIAG_MASTER()
   call mma_allocate(VEC3,KVEC3_LENGTH,Label='VEC3')
-  call MV7(SCR,SIGMAVec,LUC,LUSC34)
+  ! Note that CI_VEC is used as a scratch array!
+  call MV7(CI_VEC,SIGMAVec,LUC,LUSC34)
   call mma_deallocate(VEC3)
 
   ! Export lusc34 to RASSCF
@@ -366,17 +343,13 @@ subroutine cpcivc(CIVec,nCIVEC,ifile,mxrec,isym,iway,lrec)
   ! IWAY = 2: from Lucia to Molcas (from disk unit ifile to core).
 
   use lucia_data, only: IDISK
-# ifdef _DEBUGPRINT_
-  use Definitions, only: u6
-# endif
 
   implicit none
-  integer nCIVEC, ifile, mxrec, isym, iway
-  integer lrec(mxrec)
-  real*8 CIVec(nCIVec)
-  integer nRec
+  integer(kind=iwp) :: nCIVEC, ifile, mxrec, isym, iway, lrec(mxrec)
+  real(kind=wp) :: CIVec(nCIVec)
+  integer(kind=iwp) :: nRec
 # ifdef _DEBUGPRINT_
-  integer iOff, iRec
+  integer(kind=iwp) :: iOff, iRec
 # endif
 
   ! ==================
@@ -414,16 +387,15 @@ subroutine cpcivc(CIVec,nCIVEC,ifile,mxrec,isym,iway,lrec)
 end subroutine cpcivc
 
 subroutine cpsivc(ifile,mxrec,vec,lrec)
-
   ! Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment
 
   use lucia_data, only: IDISK
   use general_data, only: STSYM
 
-  implicit real*8(a-h,o-z)
-  integer ifile, mxrec
-  integer lrec(mxrec)
-  real*8 vec(mxrec)
+  implicit none
+  integer(kind=iwp) :: ifile, mxrec, lrec(mxrec)
+  real(kind=wp) :: vec(mxrec)
+  integer(kind=iwp) :: nrec
 
   ! ==================
   ! Find nrec and lrec

@@ -17,9 +17,12 @@ subroutine COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
 !
 ! Jeppe Olsen, November 1996
 
-implicit real*8(A-H,O-Z)
-dimension I1(NKIN,N1), XI1(NKIN,N1)
-dimension I2(NKIN,N2), XI2(NKIN,N2)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N1, N2, NKIN, I1(NKIN,N1), I2(NKIN,N2), NKOUT
+real(kind=wp) :: XI1(NKIN,N1), XI2(NKIN,N2)
+integer(kind=iwp) :: I, I1ACT, I2ACT, K
 
 NKOUT = 0
 do K=1,NKIN

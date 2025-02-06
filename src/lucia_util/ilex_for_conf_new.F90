@@ -21,16 +21,12 @@ function ILEX_FOR_CONF_NEW(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO_new,nconf_o
 ! IF IDOREO /= 0, IREO is used to reorder lexical number
 ! Jeppe Olsen, November 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Arcweights for single and doubly occupied arcs
-integer IARCW(NORB,NEL,2)
-! Reorder array
-integer IREO_new(*)
-!integer nconf_per_open(1,*)
-! Configuration
-integer ICONF(NOCC_ORB)
+implicit none
+integer(kind=iwp) :: ILEX_FOR_CONF_NEW
+integer(kind=iwp) :: NOCC_ORB, ICONF(NOCC_ORB), NORb, NEL, IARCW(NORB,NEL,2), IDOREO, IREO_new(*), nconf_op, ib_occls
+integer(kind=iwp) :: i, IEL, ILEX, IOCC, length, n_ave, n_end, n_fin, n_ini, NTEST
 
 IEL = 0
 ILEX = 1

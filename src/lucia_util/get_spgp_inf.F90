@@ -16,14 +16,12 @@ subroutine GET_SPGP_INF(ISPGP,ITP,IGRP)
 !
 ! Jeppe Olsen, November 97
 
-use lucia_data, only: NGAS
-use lucia_data, only: IBSPGPFTP, ISPGPFTP
-use Definitions, only: u6
+use lucia_data, only: IBSPGPFTP, ISPGPFTP, NGAS
+use Definitions, only: iwp, u6
 
 implicit none
-integer ISPGP, ITP
-integer IGRP(*)
-integer NTEST, ISPGPABS
+integer(kind=iwp) :: ISPGP, ITP, IGRP(*)
+integer(kind=iwp) :: ISPGPABS, NTEST
 
 NTEST = 0
 ! Absolute group number

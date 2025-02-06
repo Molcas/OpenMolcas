@@ -12,10 +12,12 @@
 subroutine TODSCN(VEC,NREC,LREC,LBLK,LU)
 ! Write VEC as multiple record file accordin to NREC and LREC
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension VEC(*)
-integer LREC(NREC)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VEC(*)
+integer(kind=iwp) :: NREC, LREC(NREC), LBLK, LU
+integer(kind=iwp) :: IOFF, IREC
 
 IOFF = 1
 do IREC=1,NREC

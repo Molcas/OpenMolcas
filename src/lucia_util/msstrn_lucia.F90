@@ -28,10 +28,12 @@ subroutine MSSTRN_LUCIA(INSTRN,UTSTRN,NOPEN,IPRCSF)
 ! THE TWO PROCEDURES ARE IDENTICAL.
 
 use Constants, only: Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension INSTRN(NOPEN), UTSTRN(NOPEN)
+implicit none
+integer(kind=iwp) :: NOPEN, INSTRN(NOPEN), IPRCSF
+real(kind=wp) :: UTSTRN(NOPEN)
+integer(kind=iwp) :: IOPEN, NTEST
 
 UTSTRN(1) = real(INSTRN(1),kind=wp)-Half
 do IOPEN=2,NOPEN

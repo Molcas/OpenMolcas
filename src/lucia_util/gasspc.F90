@@ -23,13 +23,11 @@ subroutine GASSPC()
 !
 ! Jeppe Olsen, Summer of 98 ( not much of an summer !)
 
-use lucia_data, only: NGAS, IGSOCC, IGSOCCX, NGSOBT
-use lucia_data, only: I_IAD, I_IADX
-use lucia_data, only: NELEC
-use Definitions, only: u6
+use lucia_data, only: IGSOCC, IGSOCCX, NELEC, NGAS, NGSOBT
+use Definitions, only: iwp, u6
 
 implicit none
-integer NEL_MAX, NEL_REF, IGAS, NTEST
+integer(kind=iwp) :: I_IAD(NGAS), I_IADX(NGAS), IGAS, NEL_MAX, NEL_REF, NTEST
 
 ! Some dummy initializtions
 NEL_MAX = 0 ! jwk-cleanup

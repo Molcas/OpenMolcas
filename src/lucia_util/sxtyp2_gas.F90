@@ -21,13 +21,11 @@ subroutine SXTYP2_GAS(NSXTYP,ITP,JTP,NGAS,ILTP,IRTP,IPHGAS)
 !          Occupations of particle spaces (IPHGAS=2) are allowed to
 !          have occupations less than zero in intermidiate steps
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension ILTP(NGAS), IRTP(NGAS), IPHGAS(*)
-! Output
-dimension ITP(*), JTP(*)
+implicit none
+integer(kind=iwp) :: NSXTYP, ITP(*), JTP(*), NGAS, ILTP(NGAS), IRTP(NGAS), IPHGAS(*)
+integer(kind=iwp) :: IANNI, IAS, ICREA, ISX, NANNI, NCREA, NTEST
 
 ! Some dummy initializations
 ICREA = 0 ! jwk-cleanup

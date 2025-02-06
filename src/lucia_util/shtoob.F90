@@ -17,7 +17,6 @@ subroutine SHTOOB(NSHPIR,NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NOBPS,NOB)
 ! =====
 ! Input
 ! =====
-!
 !  NSHPIR : Number of shells per irrep
 !  NIRREP : Number of irreps
 !  MXPOBS : Largest allowed number of orbitals symmetries
@@ -33,13 +32,11 @@ subroutine SHTOOB(NSHPIR,NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NOBPS,NOB)
 !
 ! Jeppe Olsen, Winter of 1991
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension NSHPIR(*), NOSPIR(*), IOSPIR(MXPOBS,*)
-! Output
-dimension NOBPS(*)
+implicit none
+integer(kind=iwp) :: NSHPIR(*), NIRREP, MXPOBS, NSMOB, NOSPIR(*), IOSPIR(MXPOBS,*), NOBPS(*), NOB
+integer(kind=iwp) :: IISM, IRREP, ISM, NTEST
 
 call ISETVC(NOBPS,0,NSMOB)
 NOB = 0

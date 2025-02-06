@@ -29,23 +29,19 @@ subroutine Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
 !
 ! Jeppe Olsen, Feb. 98
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP, Allocate_Local_Arrays
+use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT
 use strbas, only: NSTSO
-use lucia_data, only: MXSOOB, ISMOST, MXNTTS, XISPSM
-use lucia_data, only: ENVIRO, ISIMSYM, LCSBLK
-use lucia_data, only: IREFSM, PSSIGN, IDC
-use lucia_data, only: NOCTYP
+use lucia_data, only: ENVIRO, IDC, IREFSM, ISIMSYM, ISMOST, LCSBLK, MXNTTS, MXSOOB, NOCTYP, PSSIGN, XISPSM
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer ISPC, ISM, IATP, IBTP, NBATCH, NBLOCK
-integer, allocatable :: LCIOIO(:)
-integer, allocatable :: SVST(:)
-integer, external :: IFRMR
-integer NTEST, NOCTPA, NOCTPB, LBLOCK
+integer(kind=iwp) :: ISPC, ISM, IATP, IBTP, NBATCH, NBLOCK
+integer(kind=iwp) :: LBLOCK, NOCTPA, NOCTPB, NTEST
+integer(kind=iwp), allocatable :: LCIOIO(:), SVST(:)
+integer(kind=iwp), external :: IFRMR
 
 ! Some dummy initializations
 NTEST = 0
@@ -80,7 +76,7 @@ LBLOCK = MXSOOB
 
 LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
-if (ENVIRO(1:6) == 'RASSCF') then
+if (ENVIRO == 'RASSCF') then
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
   if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 end if
@@ -88,7 +84,7 @@ end if
 if (NTEST >= 10) write(u6,*) ' LBLOCK = ',LBLOCK
 
 ! Batches of C vector
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
+call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
                0,ISIMSYM)
 ! Number of BLOCKS
 NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1

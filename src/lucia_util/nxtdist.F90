@@ -30,10 +30,11 @@ subroutine NXTDIST(NSMST,NGRP,NELMNT,KGRP,ISMDFGP,SCR,NACTSYM,NONEW)
 !*************
 ! NONEW
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-integer KGRP(NELMNT), ISMDFGP(NSMST,NGRP), NELMNT
-integer SCR(NELMNT), NACTSYM(NGRP)
+implicit none
+integer(kind=iwp) :: NSMST, NGRP, NELMNT, KGRP(NELMNT), ISMDFGP(NSMST,NGRP), SCR(NELMNT), NACTSYM(NGRP), NONEW
+integer(kind=iwp) :: I, IGAS, IPLACE, J, JPLACE, NTEST
 
 NTEST = 0
 if (NTEST /= 0) then

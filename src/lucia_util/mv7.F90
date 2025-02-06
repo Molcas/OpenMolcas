@@ -15,28 +15,20 @@ subroutine MV7(C,HC,LUC,LUHC)
 !
 ! Written in terms of RASG3/SBLOCK, May 1997
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use strbas, only: NSTSO
-! Definition of c and sigma
-use CandS, only: ISSPC, ISSM
-use lucia_data, only: MXNTTS, MXSOOB, ISMOST, XISPSM
-use lucia_data, only: ICISTR, ENVIRO, ISIMSYM, LCSBLK
-use lucia_data, only: IDC, IREFSM, PSSIGN
-use lucia_data, only: I_AM_OUT, N_ELIMINATED_BATCHES
-use lucia_data, only: NOCTYP
+use CandS, only: ISSM, ISSPC
+use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, ISIMSYM, ISMOST, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, &
+                      NOCTYP, PSSIGN, XISPSM
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer LUC, LUHC
-real*8 C(*), HC(*)
-integer, allocatable :: SIOIO(:)
-integer, allocatable :: SVST(:)
-! this is a the same structure as for local_arrays but it can not be
-! used since lower level routines will use it.
-integer, allocatable :: CBLTP(:), CLBT(:), CLEBT(:), CI1BT(:), CIBT(:)
-integer IATP, IBTP, NOCTPA, NOCTPB, NTTS, LBLOCK, LLUC, LLUHC, NBATCH
+real(kind=wp) :: C(*), HC(*)
+integer(kind=iwp) :: LUC, LUHC
+integer(kind=iwp) :: IATP, IBTP, LBLOCK, LLUC, LLUHC, NBATCH, NOCTPA, NOCTPB, NTTS
+integer(kind=iwp), allocatable :: CBLTP(:), CI1BT(:), CIBT(:), CLBT(:), CLEBT(:), SIOIO(:), SVST(:)
 
 if (ICISTR == 1) then
   write(u6,*) ' MV7 does not work for ICISTR = 1'
@@ -78,11 +70,11 @@ LBLOCK = MXSOOB
 !end if
 LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
-if (ENVIRO(1:6) == 'RASSCF') then
+if (ENVIRO == 'RASSCF') then
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
   if (PSSIGN /= Zero) LBLOCK = int(2*XISPSM(IREFSM,1))
 end if
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
+call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
                0,ISIMSYM)
 call mma_deallocate(SIOIO)
 call mma_deallocate(CBLTP)

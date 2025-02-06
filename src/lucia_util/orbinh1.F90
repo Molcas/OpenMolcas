@@ -24,13 +24,11 @@ subroutine ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 ! Jeppe Olsen, March 1995
 !              ORBINH1_NOCCSYM added August 2000
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension NTOOBS(NSMOB)
-! output
-dimension IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB)
+implicit none
+integer(kind=iwp) :: NTOOB, IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB), NSMOB, NTOOBS(NSMOB)
+integer(kind=iwp) :: I_ABS, INDEX_NOCCSYM, INDX, IOFF, IORB, ISM, JABS, JOFF, JORB, JSM, NTEST
 
 !write(u6,*) ' ORBINH1 speaking'
 !write(u6,*) ' NSMOB NTOOB ',NSMOB,NTOOB
@@ -39,7 +37,7 @@ dimension IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB)
 ! To eliminate annoying and incorrect compiler warnings
 IOFF = 0
 JOFF = 0
-INDEX = 0
+INDX = 0
 
 ! Loop over symmetries of orbitals
 
@@ -57,24 +55,24 @@ do ISM=1,NSMOB
     end if
     !write(u6,*) ' ISM JSM IOFF JOFF',ISM,JSM,IOFF,JOFF
     do IORB=1,NTOOBS(ISM)
-      IABS = IOFF-1+IORB
+      I_ABS = IOFF-1+IORB
       do JORB=1,NTOOBS(JSM)
         JABS = JOFF-1+JORB
-        !write(u6,*) ' IORB JORB IABS JABS ',IORB,JORB,IABS,JABS
+        !write(u6,*) ' IORB JORB I_ABS JABS ',IORB,JORB,I_ABS,JABS
         if (ISM > JSM) then
-          INDEX = (IORB-1)*NTOOBS(JSM)+JORB
+          INDX = (IORB-1)*NTOOBS(JSM)+JORB
         else if (ISM == JSM) then
           if (IORB >= JORB) then
-            INDEX = IORB*(IORB-1)/2+JORB
+            INDX = IORB*(IORB-1)/2+JORB
           else
-            INDEX = JORB*(JORB-1)/2+IORB
+            INDX = JORB*(JORB-1)/2+IORB
           end if
         else if (ISM < JSM) then
-          INDEX = (JORB-1)*NTOOBS(ISM)+IORB
+          INDX = (JORB-1)*NTOOBS(ISM)+IORB
         end if
         INDEX_NOCCSYM = (IORB-1)*NTOOBS(JSM)+JORB
-        IORBINH1(IABS,JABS) = INDEX
-        IORBINH1_NOCCSYM(IABS,JABS) = INDEX_NOCCSYM
+        IORBINH1(I_ABS,JABS) = INDX
+        IORBINH1_NOCCSYM(I_ABS,JABS) = INDEX_NOCCSYM
       end do
     end do
     ! End of loops over orbital indices

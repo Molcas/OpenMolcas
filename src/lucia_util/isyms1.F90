@@ -9,22 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function ISYMS1(STRING,NEL)
+function ISYMS1(STRING,NEL)
 ! Symmmetry of string, D2H version
 
-use symmetry_info, only: SYMPRO => Mul
+use Symmetry_Info, only: Mul
 use lucia_data, only: ISMFTO
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-! Specific input
-integer NEL
-integer STRING(*)
-integer ISYM, IEL, NTEST
+integer(kind=iwp) :: ISYMS1
+integer(kind=iwp) :: STRING(*), NEL
+integer(kind=iwp) :: IEL, ISYM, NTEST
 
 ISYM = 1
 do IEL=1,NEL
-  ISYM = SYMPRO(ISYM,ISMFTO(STRING(IEL)))
+  ISYM = Mul(ISYM,ISMFTO(STRING(IEL)))
 end do
 
 ISYMS1 = ISYM

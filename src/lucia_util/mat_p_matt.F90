@@ -14,11 +14,12 @@
 subroutine MAT_P_MATT(A,B,NR,NC,COEF)
 ! A(I,J) = A(I,J) + Coef*B(J,I)
 
-implicit real*8(A-H,O-Z)
-! Input and output
-dimension A(NR,NC)
-! Input
-dimension B(NC,NR)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NR, NC
+real(kind=wp) :: A(NR,NC), B(NC,NR), COEF
+integer(kind=iwp) :: I, J
 
 do J=1,NC
   do I=1,NR

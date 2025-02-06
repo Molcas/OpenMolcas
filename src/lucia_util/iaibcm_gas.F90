@@ -35,19 +35,15 @@ subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPN
 ! Output
 ! ======
 !
-! IOCOC(IATP,IBTP)  = 1 =>      allowed combination
-! IOCOC(IATP,IBTP)  = 0 => not allowed combination
+! IOCOC(IATP,IBTP) == 1 =>     allowed combination
+! IOCOC(IATP,IBTP) == 0 => not allowed combination
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-!Input
-integer ICMBSPC(LCMBSPC)
-integer MNMXOC(MXPNGAS,2,*)
-!integer MNOCC(NGAS), MXOCC(NGAS)
-integer IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB)
-integer NELFTP(*)
-! Output
-integer IOCOC(NOCTPA,NOCTPB)
+implicit none
+integer(kind=iwp) :: LCMBSPC, ICMBSPC(LCMBSPC), MXPNGAS, MNMXOC(MXPNGAS,2,*), NOCTPA, NOCTPB, IOCA(MXPNGAS,NOCTPA), &
+                     IOCB(MXPNGAS,NOCTPB), NELFTP(*), NGAS, IOCOC(NOCTPA,NOCTPB), IPRNT
+integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, II, INC, JCMBSPC, JJCMBSPC, NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
@@ -69,7 +65,7 @@ call ISETVC(IOCOC,0,NOCTPA*NOCTPB)
 do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
     ! is this combination allowed in any of the GAS spaces included
-    include = 0
+    INC = 0
     do JJCMBSPC=1,LCMBSPC
       JCMBSPC = ICMBSPC(JJCMBSPC)
       IEL = 0
@@ -78,7 +74,7 @@ do IATP=1,NOCTPA
         IEL = IEL+NELFTP(IOCA(IGAS,IATP))+NELFTP(IOCB(IGAS,IBTP))
         if ((IEL < MNMXOC(IGAS,1,JCMBSPC)) .or. (IEL > MNMXOC(IGAS,2,JCMBSPC))) IAMOKAY = 0
       end do
-      if (IAMOKAY == 1) include = 1
+      if (IAMOKAY == 1) INC = 1
     end do
 
     !if (I_RE_MS2_SPACE /= 0) then
@@ -87,11 +83,11 @@ do IATP=1,NOCTPA
     !  do IGAS=1,I_RE_MS2_SPACE
     !    MS2_INTERM = MS2_INTERM+NELFTP(IOCA(IGAS,IATP))-NELFTP(IOCB(IGAS,IBTP))
     !  end do
-    !  if (MS2_INTERM /= I_RE_MS2_VALUE) INCLUDE = 0
+    !  if (MS2_INTERM /= I_RE_MS2_VALUE) INC = 0
     !end if
 
     ! Congratulations, you are allowed
-    if (include == 1) IOCOC(IATP,IBTP) = 1
+    if (INC == 1) IOCOC(IATP,IBTP) = 1
   end do
 end do
 

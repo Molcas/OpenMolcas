@@ -32,13 +32,13 @@ subroutine CSFDET_LUCIA(NOPEN,IDET,NDET,ICSF,NCSF,CDC,SCR,nSCR,PSSIGN,IPRCSF)
 ! determinants
 
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer nOpen, nDet, nCSF, nSCR
-integer IDET(NOPEN,NDET), ICSF(NOPEN,NCSF)
-real*8 CDC(NDET,NCSF)
-real*8 SCR(nSCR)
+implicit none
+integer(kind=iwp) :: nOpen, nDet, IDET(NOPEN,NDET), nCSF, ICSF(NOPEN,NCSF), nSCR, IPRCSF
+real(kind=wp) :: CDC(NDET,NCSF), SCR(nSCR), PSSIGN
+integer(kind=iwp) :: IOPEN, JCSF, JDADD, JDET, KLFREE, KLMDET, KLSCSF, NTEST
+real(kind=wp) :: CMBFAC, COEF, SGN
 
 NTEST = 0
 NTEST = max(IPRCSF,NTEST)
@@ -68,7 +68,7 @@ do JCSF=1,NCSF
   do JDET=1,NDET
     ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
     COEF = One
-    SIGN = One
+    SGN = One
     JDADD = (JDET-1)*NOPEN
     do IOPEN=1,NOPEN
 
@@ -81,13 +81,13 @@ do JCSF=1,NCSF
       else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 1)) then
         ! - + CASE
         COEF = COEF*(SCR(KLSCSF-1+IOPEN)-SCR(KLMDET-1+JDADD+IOPEN)+One)/(Two*SCR(KLSCSF-1+IOPEN)+Two)
-        SIGN = -SIGN
+        SGN = -SGN
       else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 0)) then
         ! - - CASE
         COEF = COEF*(SCR(KLSCSF-1+IOPEN)+SCR(KLMDET-1+JDADD+IOPEN)+One)/(Two*SCR(KLSCSF-1+IOPEN)+Two)
       end if
     end do
-    CDC(JDET,JCSF) = SIGN*CMBFAC*sqrt(COEF)
+    CDC(JDET,JCSF) = SGN*CMBFAC*sqrt(COEF)
   end do
 end do
 

@@ -19,15 +19,13 @@ subroutine PNT4DM(NSMOB,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS12,I
 ! IS34 (0,1,-1)   : Permutational symmetry between indices 3 and 3
 ! IS1234 (0,1,-1) : permutational symmetry between indices 12 and 34
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-! General input
-integer ADSXA(MXPOBS,2*MXPOBS), SXDXSX(2*MXPOBS,4*MXPOBS)
-integer ADASX(MXPOBS,MXPOBS)
-! Specific input
-integer NO1PS(*), NO2PS(*), NO3PS(*), NO4PS(*)
-! Output
-integer IPNTR(NSMOB,NSMOB,NSMOB), ISM4A(NSMOB,NSMOB,NSMOB)
+implicit none
+integer(kind=iwp) :: NSMOB, MXPOBS, NO1PS(*), NO2PS(*), NO3PS(*), NO4PS(*), IDXSM, ADSXA(MXPOBS,2*MXPOBS), &
+                     SXDXSX(2*MXPOBS,4*MXPOBS), IS12, IS34, IS1234, IPNTR(NSMOB,NSMOB,NSMOB), ISM4A(NSMOB,NSMOB,NSMOB), &
+                     ADASX(MXPOBS,MXPOBS)
+integer(kind=iwp) :: I12NUM, I12SM, I1SM, I2SM, I34NUM, I34SM, I3SM, I4SM, IOFF, N12, N34, NTEST
 
 call ISETVC(IPNTR,0,NSMOB**3)
 call ISETVC(ISM4A,0,NSMOB**3)

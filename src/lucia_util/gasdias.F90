@@ -33,28 +33,15 @@ subroutine GASDIAS(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,XB,RJ,RK,NSSOA,NSSOB,
 
 use lucia_data, only: IDISK
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NAEL, NBEL, NORB, NSMST, LUDIA, IPRNT, NTOOB, ICISTR, I12, NBLOCK, N_ELIMINATED_BATCHES
-real*8 ECORE, PSSIGN
-! General input
-integer NSSOA(NSMST,*), NSSOB(NSMST,*)
-real*8 H(NORB)
-integer I_AM_OUT(*)
-! Specific input
-integer IBLTP(*), IBLKFO(8,NBLOCK)
-! Scratch
-real*8 RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-real*8 XB(NORB)
-integer IASTR(NAEL,*), IBSTR(NBEL,*)
-real*8 RJKAA(*)
-! Output
-real*8 DIAG(*)
-integer IDUM_ARR(1)
-integer NTEST, IBLOCK, II, IDET, ITDET, IBLK, I_AM_NOT_WANTED, I, IATP, IBTP, IASM, IBSM, IREST1, IOFF, IA, IEL, IAEL, JEL, &
-        IBSTRT, IBSTOP, IB, IBEL, IORB, IASTRT, IASTOP, NASTR1, NBSTR1
-real*8 XADD, EAA, RJBB, EB, X, HB
+integer(kind=iwp) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), LUDIA, IPRNT, NTOOB, &
+                     ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK), I_AM_OUT(*), N_ELIMINATED_BATCHES
+real(kind=wp) :: DIAG(*), H(NORB), XB(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, PSSIGN, RJKAA(*)
+integer(kind=iwp) :: I, I_AM_NOT_WANTED, IA, IAEL, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBLK, IBLOCK, IBSM, IBSTOP, IBSTRT, IBTP, &
+                     IDET, IDUM_ARR(1), IEL, II, IOFF, IORB, IREST1, ITDET, JEL, NASTR1, NBSTR1, NTEST
+real(kind=wp) :: EAA, EB, HB, RJBB, X, XADD
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

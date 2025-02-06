@@ -10,6 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1991,1995,1998, Jeppe Olsen                            *
 !***********************************************************************
+
 subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS, &
                         MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,NSMST,MXPOBS,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
 ! SUBROUTINE GSBBD1_LUCIA --> 40
@@ -65,28 +66,18 @@ subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input
-integer ADSXA(MXPOBS,2*MXPOBS), STSTSX(NSMST,NSMST)
-integer NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*)
-integer IPHGAS(*)
-! Input
-integer ISEL(NGAS), ICEL(NGAS)
-dimension CB(*), SB(*)
-! Output
-dimension RHO1(*), SRHO1(*)
-! Scratch
-dimension SSCR(*), CSCR(*), RHO1S(*)
-dimension I1(*), XI1S(*)
-dimension I2(*), XI2S(*)
-! Local arrays ( assume MPNGAS = 16 ) !!!
-dimension ITP(16*16), JTP(16*16)
-dimension IJ_REO(2), IJ_DIM(2), IJ_SM(2), IJ_TP(2), IJ_AC(2)
-dimension IJ_OFF(2)
-!dimension ISCR(2)
-dimension ICGRP(16), ISGRP(16)
+implicit none
+real(kind=wp) :: RHO1(*), SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), RHO1S(*), SCLFAC, SRHO1(*)
+integer(kind=iwp) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPOBS, ADSXA(MXPOBS,2*MXPOBS), &
+                     NSMST, STSTSX(NSMST,NSMST), MXPNGAS, NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, I1(*), I2(*), NSMOB, &
+                     IPHGAS(*), IDOSRHO1, IAB
+integer(kind=iwp) :: IBIORB, IBJORB, IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, IIPART, IJ_AC(2), IJ_DIM(2), IJ_OFF(2), IJ_REO(2), &
+                     IJ_SM(2), IJ_TP(2), IJSM, IJTP, IORB, ISGOFF, ISGRP(16), ISM, ITOP, ITP(256), ITYP, IXXX, JJORB, JORB, JSM, &
+                     JTP(256), JTYP, KACT, KBOT, KEND, KTOP, LKABTC, NIBTC, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NKI, &
+                     NSXTP, NTEST
+real(kind=wp) :: FACTORAB, FACTORC, SCLFACS, SIGNIJ, XAB
 
 ! Add or subtract for spindensity
 if (IAB == 1) then

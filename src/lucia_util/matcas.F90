@@ -14,21 +14,22 @@ subroutine MATCAS(CIN,COUT,NROWI,NROWO,IROWO1,NGCOL,ISCA,SCASGN)
 ! COUT(IR+IROWO1-1,ISCA(IC)) + CIN(IR,IC)*SCASGN(IC)
 ! (if IGAT(IC) /= 0)
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension CIN(NROWI,*), COUT(NROWO,*)
-integer ISCA(*)
-dimension SCASGN(*)
+implicit none
+integer(kind=iwp) :: NROWI, NROWO, IROWO1, NGCOL, ISCA(*)
+real(kind=wp) :: CIN(NROWI,*), COUT(NROWO,*), SCASGN(*)
+integer(kind=iwp) :: IC, ICEXP, IR, MAXCOL, NTEST
+real(kind=wp) :: SGN
 
 MAXCOL = 0
 do IC=1,NGCOL
   if (ISCA(IC) /= 0) then
     ICEXP = ISCA(IC)
     MAXCOL = max(MAXCOL,ICEXP)
-    SIGN = SCASGN(IC)
+    SGN = SCASGN(IC)
     do IR=1,NROWI
-      COUT(IR+IROWO1-1,ICEXP) = COUT(IR+IROWO1-1,ICEXP)+SIGN*CIN(IR,IC)
+      COUT(IR+IROWO1-1,ICEXP) = COUT(IR+IROWO1-1,ICEXP)+SGN*CIN(IR,IC)
     end do
   end if
 end do

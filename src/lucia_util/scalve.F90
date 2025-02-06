@@ -12,8 +12,12 @@
 subroutine SCALVE(VECTOR,FACTOR,NDIM)
 ! CALCULATE SCALAR(FACTOR) TIMES VECTOR
 
-implicit real*8(A-H,O-Z)
-dimension VECTOR(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: VECTOR(*), FACTOR
+integer(kind=iwp) :: NDIM
+integer(kind=iwp) :: I
 
 do I=1,NDIM
   VECTOR(I) = VECTOR(I)*FACTOR

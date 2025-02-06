@@ -22,22 +22,19 @@ subroutine RASSG3(CB,SB,NBATS,LBATS,I1BATS,IBATS,LUC,LUHC,I_AM_OUT,N_ELIMINATED_
 !                 Do not calculate unwanted batches for highly
 !                 excited states.
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use lucia_data, only: IDISK
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer NBATS, LUC, LUHC, N_ELIMINATED_BATCHES
-! Batches of sigma
-integer LBATS(*), I1BATS(*), IBATS(8,*)
-integer I_AM_OUT(*)
-! Scratch
-real*8 SB(*), CB(*)
-integer, allocatable :: SBSIZ(:), SBOFF(:)
-integer NSB, JBATS, ISTA, IEND, I_AM_NOT_WANTED, ISBLK, I, ISBOFF, IOFF, ILEN
+real(kind=wp) :: CB(*), SB(*)
+integer(kind=iwp) :: NBATS, LBATS(*), I1BATS(*), IBATS(8,*), LUC, LUHC, I_AM_OUT(*), N_ELIMINATED_BATCHES
+integer(kind=iwp) :: I, I_AM_NOT_WANTED, IEND, ILEN, IOFF, ISBLK, ISBOFF, ISTA, JBATS, NSB
+integer(kind=iwp), allocatable :: SBOFF(:), SBSIZ(:)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ================='

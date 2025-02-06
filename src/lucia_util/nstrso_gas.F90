@@ -18,10 +18,14 @@ subroutine NSTRSO_GAS(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NSTA
 !
 ! Jeppe Olsen Winter of 1994
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension IOC(*), NSTASO(NSMST,*), ISTASO(NSMST,*)
+implicit none
+integer(kind=iwp) :: NEL, NORB1, NORB2, NORB3, NELMN1, NELMX1, NELMN3, NELMX3, IOC(*), NSMST, NSTASO(NSMST,*), ISTASO(NSMST,*), &
+                     IOTYP, IPRNT
+integer(kind=iwp) :: IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISM, ISYM, NONEW1, &
+                     NONEW2, NONEW3, NSTRIN, NTEST, NTEST0
+integer(kind=iwp), external :: ISYMST
 
 call ISETVC(NSTASO(1,IOTYP),0,NSMST)
 NTEST0 = 0

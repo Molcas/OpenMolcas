@@ -31,27 +31,15 @@ subroutine DIATERMS_GAS(NAEL,IASTR,NBEL,IBSTR,NORB,VEC,NSMST,H,IDC,XB,RJ,RK,NSSO
 
 use lucia_data, only: IDISK
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NAEL, NBEL, NORB, NSMST, IDC, LUIN, LUOUT, IPRNT, NTOOB, I12, NBLOCK, ITASK, I0CHK
-real*8 ECORE, FACTOR
-! General input
-integer NSSOA(NSMST,*), NSSOB(NSMST,*)
-real*8 H(NORB)
-integer IBLOCK(8,*)
-integer I0BLK(*)
-! Scratch
-real*8 RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-real*8 XB(NORB)
-integer IASTR(NAEL,*), IBSTR(NBEL,*)
-real*8 RJKAA(*)
-! Output
-real*8 VEC(*)
-integer IDUM_ARR(1)
-integer NTEST, ITDET, IDET, JBLOCK, IATP, IBTP, IASM, IBSM, IOFF, IPACK, NAST, NIA, IA, IEL, IAEL, JEL, NIB, IMZERO, LDET, IB, &
-        IBEL, IORB, IASTRT, IASTOP, IAMPACK, NASTR1, NBSTR1
-real*8 EAA, HB, RJBB, EB, X
+integer(kind=iwp) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSMST, IDC, NSSOA(NSMST,*), NSSOB(NSMST,*), LUIN, LUOUT, &
+                     IPRNT, NTOOB, I12, IBLOCK(8,*), NBLOCK, ITASK, I0CHK, I0BLK(*)
+real(kind=wp) :: VEC(*), H(NORB), XB(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, RJKAA(*), FACTOR
+integer(kind=iwp) :: IA, IAEL, IAMPACK, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBSM, IBTP, IDET, IDUM_ARR(1), IEL, IMZERO, IOFF, &
+                     IORB, IPACK, ITDET, JBLOCK, JEL, LDET, NAST, NASTR1, NBSTR1, NIA, NIB, NTEST
+real(kind=wp) :: EAA, EB, HB, RJBB, X
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

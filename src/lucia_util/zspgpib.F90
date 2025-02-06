@@ -17,13 +17,11 @@ subroutine ZSPGPIB(NSTSO,ISTSO,NSPGP,NSMST)
 !
 ! Jeppe Olsen, Still summer of 95
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer NSTSO(NSMST,NSPGP)
-! Output
-integer ISTSO(NSMST,NSPGP)
+implicit none
+integer(kind=iwp) :: NSMST, NSPGP, NSTSO(NSMST,NSPGP), ISTSO(NSMST,NSPGP)
+integer(kind=iwp) :: ISMST, ISPGP, NTEST
 
 do ISPGP=1,NSPGP
   ISTSO(1,ISPGP) = 1

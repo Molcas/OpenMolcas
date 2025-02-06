@@ -16,12 +16,13 @@ subroutine MATCG(CIN,COUT,NROWI,NROWO,IROWI1,NGCOL,IGAT,GATSGN)
 ! COUT(IR,IC) = 0                                    if IGAT(IC) /= 0
 
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer IGAT(*)
-dimension GATSGN(*)
-dimension CIN(NROWI,*), COUT(NROWO,*)
+implicit none
+integer(kind=iwp) :: NROWI, NROWO, IROWI1, NGCOL, IGAT(*)
+real(kind=wp) :: CIN(NROWI,*), COUT(NROWO,*), GATSGN(*)
+integer(kind=iwp) :: IG, IGFRM, IR, NTEST
+real(kind=wp) :: SGN
 
 !write(u6,*) ' MATCG NROWI,NROWO,IROWI1,NGCOL'
 !write(u6,*) NROWI,NROWO,IROWI1,NGCOL
@@ -33,9 +34,9 @@ do IG=1,NGCOL
     end do
   else
     IGFRM = IGAT(IG)
-    SIGN = GATSGN(IG)
+    SGN = GATSGN(IG)
     do IR=1,NROWO
-      COUT(IR,IG) = SIGN*CIN(IROWI1-1+IR,IGFRM)
+      COUT(IR,IG) = SGN*CIN(IROWI1-1+IR,IGFRM)
     end do
   end if
 end do

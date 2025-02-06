@@ -12,8 +12,12 @@
 subroutine TRPMAT(XIN,NROW,NCOL,XOUT)
 ! XOUT(I,J) = XIN(J,I)
 
-implicit real*8(A-H,O-Z)
-dimension XIN(NROW,NCOL), XOUT(NCOL,NROW)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NROW, NCOL
+real(kind=wp) :: XIN(NROW,NCOL), XOUT(NCOL,NROW)
+integer(kind=iwp) :: IROW, ICOL
 
 do IROW=1,NROW
   do ICOL=1,NCOL

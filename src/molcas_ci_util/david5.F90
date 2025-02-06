@@ -36,8 +36,7 @@ real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
 integer(kind=iwp) :: i, iConf, iConv, idelta, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, kRoot, l1, &
                      l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
-real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, &
-                 updsiz, Z
+real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, E0, E1, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, updsiz, Z
 logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
@@ -87,7 +86,7 @@ if (DoFaro) then
   ! non-specified SYG to GUGA format befor converting to
   ! determinants. This is because for Lucia, CSFs have been
   ! converted to SYG format somewhere up in cistart.
-  call mma_allocate(VECSVC,nconf,label='CIVEC')
+  call mma_allocate(VECSVC,nconf,label='VECSVC')
   call mma_allocate(vkcnf,nactel,label='kcnf')
 end if
 
@@ -200,8 +199,7 @@ do it_ci=1,mxItr
     end if
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
-    ECORE_HEX = GET_ECORE()
-    Vec1(:) = Vec1(:)+ecore_hex*Vec2(:)
+    Vec1(:) = Vec1(:)+GET_ECORE()*Vec2(:)
     ! Timings on generation of the sigma vector
     call Timing(Rolex_2,dum1,dum2,dum3)
     Rolex_2 = Rolex_2-Rolex_1

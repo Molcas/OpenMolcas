@@ -16,16 +16,12 @@ subroutine FIND_ACTIVE_BLOCKS(LUIN,LBLK,BLK_A,SEGMNT)
 
 use lucia_data, only: IDISK
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer LUIN, LBLK
-! Output
-real*8 BLK_A(*)
-! Scratch
-real*8 SEGMNT(*)
-integer LBL(1), IDUMMY(1)
-integer IBLK, NBLK_A, KBLK, NO_ZEROING, IMZERO, NBLK, NTEST, IAMPACK
+integer(kind=iwp) :: LUIN, LBLK
+real(kind=wp) :: BLK_A(*), SEGMNT(*)
+integer(kind=iwp) :: IAMPACK, IBLK, IDUMMY(1), IMZERO, KBLK, LBL(1), NBLK, NBLK_A, NO_ZEROING, NTEST
 
 IDISK(LUIN) = 0
 

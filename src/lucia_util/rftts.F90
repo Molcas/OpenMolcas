@@ -22,13 +22,12 @@ subroutine RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,ICOPY,NSMST,NSASO,NSBSO,IDC,PS,IW
 !
 ! Jeppe Olsen, August 1995
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input
-dimension NSASO(NSMST,*), NSBSO(NSMST,*)
-dimension BLOCKSI(*), BLOCKSO(*)
-integer IBLOCK(8,NBLOCK)
+implicit none
+real(kind=wp) :: BLOCKSI(*), BLOCKSO(*), PS
+integer(kind=iwp) :: NBLOCK, IBLOCK(8,NBLOCK), ICOPY, NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC, IWAY, IPRNT
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFFI, IOFFO, IPACK, ISCI, ISCO, JBLOCK, LENGTH, NELMNT, NIA, NIB, NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

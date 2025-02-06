@@ -17,6 +17,12 @@ subroutine NGASDT(IOCCMN,IOCCMX,NGAS,ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,IAOC
 ! In view of the limited range of I*4, the number of dets
 ! is returned as integer and real*8
 !
+! IOCOC  : Allowed combinations of alpha and beta types
+! IOCCMN : Occupation constraints
+! IAOCC  : Occupation of alpha and beta strings
+! NSSOA  : Number of strings per supergroup and symmetry
+! IBLTP  : Block types
+!
 ! MXSB is largest UNPACKED symmetry block
 ! MXSOOB is largest UNPACKED symmetry-type-type block
 ! NTTSBL is number of TTS blocks in vector
@@ -27,19 +33,14 @@ subroutine NGASDT(IOCCMN,IOCCMX,NGAS,ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,IAOC
 !            MXSB not calculated
 
 use Constants, only: Zero, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Allowed combinations of alpha and beta types
-integer IOCOC(NOCTPA,NOCTPB)
-! Occupation constraints
-dimension IOCCMN(NGAS), IOCCMX(NGAS)
-! Occupation of alpha and beta strings
-dimension IAOCC(MXPNGAS,*), IBOCC(MXPNGAS,*)
-! Number of strings per supergroup and symmetry
-dimension NSSOA(NSMST,*), NSSOB(NSMST,*)
-! block types
-dimension IBLTP(*)
+implicit none
+integer(kind=iwp) :: NGAS, IOCCMN(NGAS), IOCCMX(NGAS), ITOTSM, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,*), NSSOB(NSMST,*), MXPNGAS, &
+                     IAOCC(MXPNGAS,*), IBOCC(MXPNGAS,*), NCOMB, MXSB, MXSOOB, IBLTP(*), NTTSBL, LCOL, IOCOC(NOCTPA,NOCTPB), &
+                     MXSOOB_AS
+real(kind=wp) :: XNCOMB
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ISYM, LASTR, LBSTR, LTTS_AS, LTTSBL, LTTSUP, NTEST
 
 NTEST = 0
 if (NTEST >= 5) then

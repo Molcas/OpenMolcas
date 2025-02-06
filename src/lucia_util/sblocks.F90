@@ -73,49 +73,28 @@ use spinfo, only: DOBKAP
 use spinfo, only: NGASBK, IOCCPSPC
 #endif
 use Constants, only: Zero, One, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NSBLOCK, NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NOCTPA, NOCTPB, NSMST, NSMOB, MXPNGAS, MAXK, MAXI, LC, NGAS, IDC, &
-        IDOH2, MXPOBS, IPRNT, LUC, ICJKAIB, MOCAA, IRESTRICT, IPERTOP, ICBAT_RES, ICBAT_INI, ICBAT_END, IUSE_PH, I_RES_AB, ISIMSYM
-real*8 PS
-! Specific input
-integer ISBLOCK(8,*)
-! General input
-integer ICOCOC(NOCTPA,NOCTPB)
-integer ICSMOS(NSMST)
-integer ICBLTP(*)
-integer NSSOA(NSMST,*), NSSOB(NSMST,*)
-integer STSTSX(NSMST,NSMST)
-integer STSTDX(NSMST,NSMST), ADSXA(MXPOBS,2*MXPOBS)
-integer SXDXSX(2*MXPOBS,4*MXPOBS)
-integer NOBPTS(MXPNGAS,*)
-integer NELFSPGP(MXPNGAS,*)
-integer ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
-! Scratch
-real*8 SB(*), CB(*), C2(*)
-real*8 XINT(*), XINT2(*), CSCR(*), SSCR(*)
-integer I1(*), I2(*), I3(*), I4(*)
-real*8 XI1S(*), XI2S(*), XI3S(*), XI4S(*)
-integer LCBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*), LECBLOCK(*)
-integer ISTRFL(*)
-! Zero order Hamiltonian
-integer IH0SPC(NOCTPA,NOCTPB)
-real*8 CJRES(*), SIRES(*)
-integer LASM(4), LBSM(4), LATP(4), LBTP(4), LSGN(5), LTRP(5)
-real*8 SCLFAC(*)
-real*8 C(1)
-integer ICOOSC(1), IPHGAS(*), iDUMMY(1)
-integer :: IH_OCC_CONS = 0
-! IH_OCC_CONS =1 implies that we should employ occupation conserving
-! part of Hamiltonian
-integer JSBLOCK, IATP, IBTP, IASM, IBSM, IOFF, NASTR, NBSTR, MXEXC, JCBAT_INI, JCBAT_END, NCBATCH, JOFF, JCBATCH, ICOFF, NJBLOCK, &
-        JJCBLOCK, JBLOCK, INTERACT, JATP, JBTP, JASM, JBSM, IPERM, NPERM, LLASM, LLBSM, LLATP, LLBTP, ISCALE, LBL, ICBLK, NJA, &
-        NJB, NLLA, NLLB, ISBLK, ISOFF, NIA, NIB, I_DO_EXACT_BLK, IPTSPC, JPTSPC
-real*8 PL, XFAC, FACTOR
+integer(kind=iwp) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), ICBLTP(*), &
+                     NSSOA(NSMST,*), NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), &
+                     MAXK, MAXI, LC, STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST), MXPOBS, SXDXSX(2*MXPOBS,4*MXPOBS), &
+                     ADSXA(MXPOBS,2*MXPOBS), NGAS, NELFSPGP(MXPNGAS,*), IDC, I1(*), I2(*), IDOH2, ISTRFL(*), IPRNT, LUC, ICJKAIB, &
+                     I3(*), I4(*), MOCAA, LCBLOCK(*), LECBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*), IRESTRICT, ICONSPA(NOCTPA,NOCTPA), &
+                     ICONSPB(NOCTPB,NOCTPB), IPERTOP, IH0SPC(NOCTPA,NOCTPB), ICBAT_RES, ICBAT_INI, ICBAT_END, IUSE_PH, IPHGAS(*), &
+                     I_RES_AB, ISIMSYM
+real(kind=wp) :: CB(*), SB(*), C2(*), XINT(*), CSCR(*), SSCR(*), XI1S(*), XI2S(*), PS, CJRES(*), SIRES(*), XI3S(*), XI4S(*), &
+                     SCLFAC(*), XINT2(*)
+integer(kind=iwp) :: I_DO_EXACT_BLK, IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1), INTERACT, IOFF, IPERM, IPTSPC, &
+                     ISBLK, ISCALE, ISOFF, JASM, JATP, JBLOCK, JBSM, JBTP, JCBAT_END, JCBAT_INI, JCBATCH, JJCBLOCK, JOFF, JPTSPC, &
+                     JSBLOCK, LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, &
+                     NBSTR, NCBATCH, NIA, NIB, NJA, NJB, NJBLOCK, NLLA, NLLB, NPERM
 #ifdef _DEBUGPRINT_
-integer IBLOCK, IGAS, II, NTEST
+integer(kind=iwp) :: IBLOCK, IGAS, II, NTEST
 #endif
+real(kind=wp) :: C(1), FACTOR, PL, XFAC
+! IH_OCC_CONS = 1 implies that we should employ occupation conserving part of Hamiltonian
+integer(kind=iwp), parameter :: IH_OCC_CONS = 0
 
 #ifdef _DEBUGPRINT_
 NTEST = 0

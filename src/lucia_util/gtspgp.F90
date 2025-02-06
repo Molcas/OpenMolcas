@@ -25,16 +25,12 @@ subroutine GTSPGP(IEL,ISPGP,IWAY)
 ! Jeppe Olsen, Another lonely night in Lund
 !               GAS version July 1995
 
-use lucia_data, only: NGAS
-use lucia_data, only: NTSPGP, NELFSPGP
-use Definitions, only: u6
+use lucia_data, only: NELFSPGP, NGAS, NTSPGP
+use Definitions, only: iwp, u6
 
 implicit none
-integer ISPGP, IWAY
-! Generel input
-! input(IWAY = 2 ), output (IWAY = 1 )
-integer IEL(*)
-integer JSPGP, IEQUAL, IGAS, NTEST
+integer(kind=iwp) :: IEL(*), ISPGP, IWAY
+integer(kind=iwp) :: IEQUAL, IGAS, JSPGP, NTEST
 
 if (IWAY == 1) then
   ! Occupation => Number

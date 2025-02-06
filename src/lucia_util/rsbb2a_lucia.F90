@@ -61,49 +61,31 @@ subroutine RSBB2A_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,A
 !
 ! Jeppe Olsen, Winter of 1991
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Para_Info, only: MyRank, nProcs
-use lucia_data, only: MXPOBS, MXPNGAS, MXPTSOB
+use lucia_data, only: MXPNGAS, MXPOBS, MXPTSOB
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, MAXI, MAXK, NSMOB, NSMST
-real*8 SCLFAC
-! General input
-integer ADSXA(MXPOBS,2*MXPOBS)
-integer STSTDX(NSMST,NSMST)
-integer SXDXSX(2*MXPOBS,4*MXPOBS)
-integer NOBPTS(MXPNGAS,*)
-integer IPHGAS(NGAS)
-! Input
-real*8 CB(*)
-integer ISOC(NGAS), ICOC(NGAS)
-! Output
-real*8 SB(*)
-! Scatch
-real*8 SSCR(*), CSCR(*), XINT(*)
-integer I1(MAXK,*)
-real*8 XI1S(MAXK,*)
-! Local arrays
-integer ITP(256), JTP(256), KTP(256), LTP(256)
-integer I4_TP(4), I4_REO(4), ISCR(4)
-integer I4_AC(4)
-integer IKBT(3,8), IKSMBT(2,8), JLBT(3,8), JLSMBT(2,8)
-real*8, allocatable :: SCR(:)
-real*8 :: FACX = Zero
-integer IFRST, JFRST, IDXSM, IDXTYP, NDXTYP, ITYP, JTYP, KTYP, LTYP, ITYP_ORIG, JTYP_ORIG, KTYP_ORIG, LTYP_ORIG, NIJKL1, IJKL, &
-        NPART, NPARTSZ, MI, MJ, MK, ML, IOBSM, MXPAIR, IKOBSM, JLOBSM, KFRST, LENGTH, NIKBT, NBLK, NBLKT, ISM, KSM, NI, NK, NIK, &
-        NJLBT, JSM, LSM, NJ, NL, NJL, IKBTC, JLBTC, IFIRST, IIPART, IBOT, ITOP, NIBTC, KBOT, KTOP, IONE, JLBOFF, NJLT, JLPAIR, &
-        JLSM, II12, K12, JAC, LAC, NKBTC, J, L, IJL, I1JL, JLOFF, IXCHNG, NIKT, IKOFF, IKPAIR, IKSM, ICOUL, JL, LIKB, IKBOFF, IAC, &
-        KAC, I, K, IK, ISBOFF, KEND, ISM_ORIG, KSM_ORIG, LSM_ORIG, JSM_ORIG, ITPSM_ORIG, JTPSM_ORIG, KTPSM_ORIG, LTPSM_ORIG, NONEW
-real*8 FACTORC, FACTORAB
+integer(kind=iwp) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), ADSXA(MXPOBS,2*MXPOBS), NSMST, &
+                     STSTDX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS), NOBPTS(MXPNGAS,*), MAXI, MAXK, I1(MAXK,*), NSMOB, IPHGAS(NGAS)
+real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*), SCLFAC
+integer(kind=iwp) :: I, I1JL, I4_AC(4), I4_REO(4), I4_TP(4), IAC, IBOT, ICOUL, IDXSM, IDXTYP, IFIRST, IFRST, II12, IIPART, IJKL, &
+                     IJL, IK, IKBOFF, IKBT(3,8), IKBTC, IKOBSM, IKOFF, IKPAIR, IKSM, IKSMBT(2,8), IOBSM, ISBOFF, ISCR(4), ISM, &
+                     ISM_ORIG, ITOP, ITP(256), ITPSM_ORIG, ITYP, ITYP_ORIG, IXCHNG, J, JAC, JFRST, JL, JLBOFF, JLBT(3,8), JLBTC, &
+                     JLOBSM, JLOFF, JLPAIR, JLSM, JLSMBT(2,8), JSM, JSM_ORIG, JTP(256), JTPSM_ORIG, JTYP, JTYP_ORIG, K, K12, KAC, &
+                     KBOT, KEND, KFRST, KSM, KSM_ORIG, KTOP, KTP(256), KTPSM_ORIG, KTYP, KTYP_ORIG, L, LAC, LENGTH, LIKB, LSM, &
+                     LSM_ORIG, LTP(256), LTPSM_ORIG, LTYP, LTYP_ORIG, MI, MJ, MK, ML, MXPAIR, NBLK, NBLKT, NDXTYP, NI, NIBTC, &
+                     NIJKL1, NIK, NIKBT, NIKT, NJ, NJL, NJLBT, NJLT, NK, NKBTC, NL, NONEW, NPART, NPARTSZ
 #ifdef _DEBUGPRINT_
-integer II, JIKBT, JJLBT
+integer(kind=iwp) :: II, JIKBT, JJLBT
 #endif
-!-jwk-cleanup dimension IACAR(2), ITPAR(2)
+real(kind=wp) :: FACTORAB, FACTORC, FACX
+real(kind=wp), allocatable :: SCR(:)
 
 call mma_allocate(SCR,MXPTSOB**4,Label='SCR')
 #ifdef _DEBUGPRINT_
@@ -359,7 +341,6 @@ do IDXTYP=1,NDXTYP
             KBOT = KBOT+MAXK
             KTOP = KTOP+MAXK
 
-            IONE = 1
             JLBOFF = 1
             NJLT = JLBT(3,JLBTC)
             do JLPAIR=1,JLBT(2,JLBTC)
@@ -380,7 +361,6 @@ do IDXTYP=1,NDXTYP
               ! Obtain all double excitations from this group of K strings
               II12 = 1
               K12 = 1
-              IONE = 1
               !write(u6,*) ' Before ADAADAST'
               ! Creation / annihilation maps, conjugated of above
               if (I4_AC(4) == 1) then
@@ -393,8 +373,8 @@ do IDXTYP=1,NDXTYP
               else
                 LAC = 1
               end if
-              call ADAADAST_GAS(IONE,JSM,JTYP,NJ,JAC,IONE,LSM,LTYP,NL,LAC,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND, &
-                                JFRST,KFRST,II12,K12,SCLFAC)
+              call ADAADAST_GAS(1,JSM,JTYP,NJ,JAC,1,LSM,LTYP,NL,LAC,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,JFRST, &
+                                KFRST,II12,K12,SCLFAC)
 
               JFRST = 0
               KFRST = 0
@@ -507,7 +487,6 @@ do IDXTYP=1,NDXTYP
             ! I strings connected with K strings in batch <I!a+i a+k!K)
             II12 = 2
 
-            IONE = 1
             IKBOFF = 1
             do IKPAIR=1,IKBT(2,IKBTC)
               ISM = IKSMBT(1,IKBT(1,IKBTC)-1+IKPAIR)
@@ -526,8 +505,8 @@ do IDXTYP=1,NDXTYP
               IAC = I4_AC(1)
               KAC = I4_AC(2)
 
-              call ADAADAST_GAS(IONE,ISM,ITYP,NI,IAC,IONE,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND, &
-                                IFRST,KFRST,II12,K12,One)
+              call ADAADAST_GAS(1,ISM,ITYP,NI,IAC,1,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST, &
+                                KFRST,II12,K12,One)
 
               IFRST = 0
               KFRST = 0
@@ -649,7 +628,6 @@ do IDXTYP=1,NDXTYP
               ! Obtain all double excitations from this group of K strings
               II12 = 1
               K12 = 1
-              IONE = 1
               ! Creation / annihilation maps, conjugated of above
               if (I4_AC(4) == 1) then
                 JAC = 2
@@ -662,8 +640,8 @@ do IDXTYP=1,NDXTYP
                 LAC = 1
               end if
               !KFRST = 1
-              call ADAADAST_GAS(IONE,JSM,JTYP,NJ,JAC,IONE,LSM,LTYP,NL,LAC,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND, &
-                                JFRST,KFRST,II12,K12,SCLFAC)
+              call ADAADAST_GAS(1,JSM,JTYP,NJ,JAC,1,LSM,LTYP,NL,LAC,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,JFRST, &
+                                KFRST,II12,K12,SCLFAC)
 
               JFRST = 0
               KFRST = 0
@@ -698,16 +676,15 @@ do IDXTYP=1,NDXTYP
                 if ((ITPSM_ORIG == KTPSM_ORIG) .and. (JTPSM_ORIG == LTPSM_ORIG)) then
                   ! No use of exchange
                   IXCHNG = 0
-                  FACX = -Half
-                else if ((ITPSM_ORIG /= KTPSM_ORIG) .or. (JTPSM_ORIG /= LTPSM_ORIG)) then
+                else
                   ! Exchange used, combines two terms
                   IXCHNG = 1
-                  FACX = -Half
                 end if
                 if ((ITPSM_ORIG /= KTPSM_ORIG) .and. (JTPSM_ORIG /= LTPSM_ORIG)) then
                   ! Exchange used, combines four terms
-                  IXCHNG = 1
                   FACX = -One
+                else
+                  FACX = -Half
                 end if
 #               ifdef _DEBUGPRINT_
                 write(u6,*) ' ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX',ITPSM_ORIG,KTPSM_ORIG,JTPSM_ORIG,LTPSM_ORIG,FACX
@@ -756,15 +733,14 @@ do IDXTYP=1,NDXTYP
               ! I strings connected with K strings in batch <I!a+i a+k!K)
               II12 = 2
 
-              IONE = 1
               if (IFRST == 1) KFRST = 1
 
               IAC = I4_AC(1)
               KAC = I4_AC(2)
 
               !KFRST = 1
-              call ADAADAST_GAS(IONE,ISM,ITYP,NI,IAC,IONE,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND, &
-                                IFRST,KFRST,II12,K12,One)
+              call ADAADAST_GAS(1,ISM,ITYP,NI,IAC,1,KSM,KTYP,NK,KAC,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST, &
+                                KFRST,II12,K12,One)
 
               IFRST = 0
               KFRST = 0

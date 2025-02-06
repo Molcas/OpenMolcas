@@ -14,14 +14,17 @@ subroutine UPPCAS(LINE,LENGTH)
 !
 ! very stupid and not vectorized!
 
-character*(*) LINE
-parameter(NCHAR=41)
-character*1 LOWER(NCHAR)
-character*1 UPPER(NCHAR)
-data LOWER/'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','+','-','<', &
-           '>','=','0','1','2','3','4','5','6','7','8','9'/
-data UPPER/'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','+','-','<', &
-           '>','=','0','1','2','3','4','5','6','7','8','9'/
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: LENGTH
+character(len=LENGTH) :: LINE
+integer(kind=iwp) :: I, ICHA
+integer(kind=iwp), parameter :: NCHAR = 41
+character, parameter :: LOWER(NCHAR) = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v', &
+                                        'w','x','y','z','+','-','<','>','=','0','1','2','3','4','5','6','7','8','9'], &
+                        UPPER(NCHAR) = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V', &
+                                        'W','X','Y','Z','+','-','<','>','=','0','1','2','3','4','5','6','7','8','9']
 
 do ICHA=1,LENGTH
   do I=1,NCHAR

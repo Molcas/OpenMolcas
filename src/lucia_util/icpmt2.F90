@@ -14,11 +14,11 @@ subroutine ICPMT2(AIN,AOUT,NINR,NINC,NOUTR,NOUTC,IZERO)
 !
 ! If IZERO /= 0, AOUT is zeroed  first
 
-implicit real*8(A-H,O-Z)
-! Input
-integer AIN(NINR,NINC)
-! Output
-integer AOUT(NOUTR,NOUTC)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NINR, NINC, AIN(NINR,NINC), NOUTR, NOUTC, AOUT(NOUTR,NOUTC), IZERO
+integer(kind=iwp) :: J
 
 if (IZERO /= 0) call ISETVC(AOUT,0,NOUTR*NOUTC)
 do J=1,NINC

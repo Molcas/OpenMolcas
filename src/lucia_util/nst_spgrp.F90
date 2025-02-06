@@ -29,19 +29,13 @@ subroutine NST_SPGRP(NGRP,IGRP,ISM_TOT,NSTSGP,NSMST,NSTRIN,NDIST)
 !
 ! Jeppe Olsen, September 1997
 
-use distsym
+use distsym, only: INGRP_VAL, ISMDFGP, ISMSCR, NACTSYM
 use lucia_data, only: MXPNGAS
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NGRP, ISM_TOT, NSMST, NSTRIN, NDIST
-! Specific Input
-integer IGRP(NGRP)
-! General input
-integer NSTSGP(NSMST,*)
-! Scratch
-integer ISM(MXPNGAS), MNSM(MXPNGAS), MXSM(MXPNGAS)
-integer NTEST, I, IFIRST, LENGTH, NONEW, LDIST, JGRP, NDISTX
+integer(kind=iwp) :: NGRP, IGRP(NGRP), ISM_TOT, NSMST, NSTSGP(NSMST,*), NSTRIN, NDIST
+integer(kind=iwp) :: I, IFIRST, ISM(MXPNGAS), JGRP, LDIST, LENGTH, MNSM(MXPNGAS), MXSM(MXPNGAS), NDISTX, NONEW, NTEST
 
 NTEST = 0
 if (NTEST >= 10) then

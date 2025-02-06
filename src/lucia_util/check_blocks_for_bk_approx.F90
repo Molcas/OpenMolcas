@@ -26,21 +26,16 @@ subroutine CHECK_BLOCKS_FOR_BK_APPROX(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,IO
 !                  =-1 => Use diagonal aproximation
 ! Giovanni +Jeppe Olsen, Sept 2011, on a bench at Torre Normanna, Sicily
 
-use lucia_data, only: NGAS
-use lucia_data, only: IBSPGPFTP, NELFSPGP
-use lucia_data, only: MXPNGAS
-use spinfo, only: NGASBK, IOCCPSPC
-use Definitions, only: u6
+use lucia_data, only: IBSPGPFTP, MXPNGAS, NELFSPGP, NGAS
+use spinfo, only: IOCCPSPC, NGASBK
+use Definitions, only: iwp, u6
 
 implicit none
-integer IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, IOCTPA, IOCTPB, I_DO_EXACT_BLOCK
-! Local
-integer IOCC(MXPNGAS), JOCC(MXPNGAS)
-integer NTEST, IONE, IGAS, IOCC_IN, JOCC_IN, ICHECK_OCC_IN_ACCSPC
+integer(kind=iwp) :: IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, IOCTPA, IOCTPB, I_DO_EXACT_BLOCK
+integer(kind=iwp) :: ICHECK_OCC_IN_ACCSPC, IGAS, IOCC(MXPNGAS), IOCC_IN, JOCC(MXPNGAS), JOCC_IN, NTEST
 
 NTEST = 0
 
-IONE = 1
 IOCTPA = IBSPGPFTP(1)
 IOCTPB = IBSPGPFTP(2)
 if (ntest >= 100) then
@@ -53,8 +48,8 @@ if (ntest >= 100) then
   write(u6,*) (NELFSPGP(igas,IOCTPA-1+JATP),igas=1,NGAS)
   write(u6,*) (NELFSPGP(igas,IOCTPB-1+JBTP),igas=1,NGAS)
 end if
-call IVCSUM(IOCC,NELFSPGP(1,IOCTPA-1+IATP),NELFSPGP(1,IOCTPB-1+IBTP),IONE,IONE,NGAS)
-call IVCSUM(JOCC,NELFSPGP(1,IOCTPA-1+JATP),NELFSPGP(1,IOCTPB-1+JBTP),IONE,IONE,NGAS)
+call IVCSUM(IOCC,NELFSPGP(1,IOCTPA-1+IATP),NELFSPGP(1,IOCTPB-1+IBTP),1,1,NGAS)
+call IVCSUM(JOCC,NELFSPGP(1,IOCTPA-1+JATP),NELFSPGP(1,IOCTPB-1+JBTP),1,1,NGAS)
 if (ntest >= 100) then
   write(u6,*) ' Routine CHECK_BLOCKS_FOR_BK_APPROX is speaking!'
   write(u6,*) ' I am doing BK-type of approximation'

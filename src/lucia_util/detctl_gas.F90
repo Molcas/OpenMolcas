@@ -11,39 +11,27 @@
 
 subroutine DETCTL_GAS()
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use GLBBAS, only: SDREO_I, CONF_OCC
-use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP, Allocate_Local_Arrays, Deallocate_Local_Arrays
+use GLBBAS, only: CONF_OCC, SDREO_I
+use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays
 use strbas, only: NSTSO
 use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
-use lucia_data, only: NCONF_PER_OPEN, NCONF_PER_SYM, NCSF_HEXS, NCSF_PER_SYM, NPCSCNF, NPDTCNF, NSD_PER_SYM
-use lucia_data, only: NGAS, IGSOCC, IPHGAS
-use lucia_data, only: MXSOOB, MXNTTS, ISMOST, XISPSM
-use lucia_data, only: IPRCIX
-use lucia_data, only: NOCSF, IADVICE, ISIMSYM, LCSBLK, MXINKA
-use lucia_data, only: IREFSM, PSSIGN, IDC
-use lucia_data, only: MXNSTR, MAX_STR_OC_BLK, MAX_STR_SPGP, IBSPGPFTP, MNHL, NELFSPGP, NELFTP, NHLFSPGP, NSTFSMSPGP
-use lucia_data, only: NSMOB
-use lucia_data, only: MXTSOB, NTOOB, NOCOB, NOBPT, NOBPTS
-use lucia_data, only: NOCTYP
-use lucia_data, only: NELEC
-use lucia_data, only: MXPCSM, MXPNGAS, MXPNSMST, MXPORB
+use lucia_data, only: IADVICE, IBSPGPFTP, IDC, IGSOCC, IPHGAS, IPRCIX, IREFSM, ISIMSYM, ISMOST, LCSBLK, MAX_STR_OC_BLK, &
+                      MAX_STR_SPGP, MNHL, MXINKA, MXNSTR, MXNTTS, MXPCSM, MXPNGAS, MXPNSMST, MXPORB, MXSOOB, MXTSOB, &
+                      NCONF_PER_OPEN, NCONF_PER_SYM, NCSF_HEXS, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NOBPT, &
+                      NOBPTS, NOCOB, NOCSF, NOCTYP, NPCSCNF, NPDTCNF, NSD_PER_SYM, NSMOB, NSTFSMSPGP, NTOOB, PSSIGN, XISPSM
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IOCCLS(1), IBASSPC(1)
-integer, allocatable :: LCIOIO(:)
-integer, allocatable :: SVST(:)
-integer, allocatable :: BASSPC(:)
-integer, allocatable :: KLOCCLS(:)
-integer JSYM, NDET, IATP, IBTP, NEL, NOCCLS, LBLOCK, NOCTPA, NOCTPB, NTTS, NBLOCK, MXSTBL0, IATPM1, IBTPM1, IATPM2, IBTPM2, NAEL, &
-        NBEL, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, MAXI, MAXK, IOCTPA, IOCTPB, MXCJ, MXCIJA, MXCIJB, MXSXBL, MXADKBLK, MXADKBLK_AS, &
-        LSCR2, LSCR12, IOBTP, IOBSM, INTSCR, MAXIK, LSCR3, LZSCR, LZ, MXCIJAB, MXCJ_ALLSYM, MX_NSPII, NBATCH
-integer, external :: IFRMR
-integer, external :: IMNMX
+integer(kind=iwp) :: IATP, IATPM1, IATPM2, IBASSPC(1), IBTP, IBTPM1, IBTPM2, INTSCR, IOBSM, IOBTP, IOCCLS(1), IOCTPA, IOCTPB, &
+                     JSYM, LBLOCK, LSCR12, LSCR2, LSCR3, LZ, LZSCR, MAXA, MAXA1, MAXB, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, &
+                     MXADKBLK, MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCH, &
+                     NBEL, NBLOCK, NDET, NEL, NOCCLS, NOCTPA, NOCTPB, NTTS
+integer(kind=iwp), allocatable :: BASSPC(:), KLOCCLS(:), LCIOIO(:), SVST(:)
+integer(kind=iwp), external :: IFRMR, IMNMX
 
 ! Set variables in Module cands
 JSYM = IREFSM
@@ -100,13 +88,13 @@ call ZBLTP(ISMOST(1,jsym),NSMST,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 
 ! Batches  of C vector
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,jsym),NBATCH,CLBT,CLEBT,CI1BT, &
+call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,jsym),NBATCH,CLBT,CLEBT,CI1BT, &
                CIBT,0,ISIMSYM)
 ! Number of BLOCKS
 NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
 ! Length of each block
 call EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
-if (NEL > 0) call CNFORD_GAS(KLOCCLS,NOCCLS,jsym,SDREO_I(jsym)%I,CIBT,NBLOCK)
+if (NEL > 0) call CNFORD_GAS(KLOCCLS,NOCCLS,jsym,SDREO_I(jsym)%A,CIBT,NBLOCK)
 
 call Deallocate_Local_Arrays()
 ! If PICO2/SBLOCK are used, three blocks are used in PICO2, so
@@ -129,19 +117,19 @@ NBEL = NELEC(IBTP)
 ! Largest number of strings of given symmetry and type
 MAXA = 0
 if (NAEL >= 1) then
-  MAXA1 = IMNMX(NSTSO(IATPM1)%I,NSMST*NOCTYP(IATPM1),2)
+  MAXA1 = IMNMX(NSTSO(IATPM1)%A,NSMST*NOCTYP(IATPM1),2)
   MAXA = max(MAXA,MAXA1)
   if (NAEL >= 2) then
-    MAXA1 = IMNMX(NSTSO(IATPM2)%I,NSMST*NOCTYP(IATPM2),2)
+    MAXA1 = IMNMX(NSTSO(IATPM2)%A,NSMST*NOCTYP(IATPM2),2)
     MAXA = max(MAXA,MAXA1)
   end if
 end if
 MAXB = 0
 if (NBEL >= 1) then
-  MAXB1 = IMNMX(NSTSO(IBTPM1)%I,NSMST*NOCTYP(IBTPM1),2)
+  MAXB1 = IMNMX(NSTSO(IBTPM1)%A,NSMST*NOCTYP(IBTPM1),2)
   MAXB = max(MAXB,MAXB1)
   if (NBEL >= 2) then
-    MAXB1 = IMNMX(NSTSO(IBTPM2)%I,NSMST*NOCTYP(IBTPM2),2)
+    MAXB1 = IMNMX(NSTSO(IBTPM2)%A,NSMST*NOCTYP(IBTPM2),2)
     MAXB = max(MAXB,MAXB1)
   end if
 end if
@@ -210,7 +198,7 @@ MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA+NOCTPA**2+NOCTPB**2+2*NSMST**2+2*INTSC
 MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA+4*MAX_STR_SPGP
 !end iF
 
-call LUCIA2MOLCAS(CONF_OCC(jsym)%I,SDREO_I(jsym)%I,ndet,ncsf_per_sym,nsd_per_sym,nconf_per_sym,mxpcsm,mxporb,nconf_per_open, &
+call LUCIA2MOLCAS(CONF_OCC(jsym)%A,SDREO_I(jsym)%A,ndet,ncsf_per_sym,nsd_per_sym,nconf_per_sym,mxpcsm,mxporb,nconf_per_open, &
                   npdtcnf,npcscnf,nCSF_HEXS)
 
 call mma_deallocate(KLOCCLS)

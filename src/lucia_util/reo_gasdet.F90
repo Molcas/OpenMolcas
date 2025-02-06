@@ -16,31 +16,18 @@ subroutine REO_GASDET(IBLOCK,NBLOCK,ISYM,IREO)
 !
 ! Jeppe Olsen, November 2001, from GASANA
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use GLBBAS, only: CONF_REO
-use strbas, only: NSTSO, IOCLS
-use lucia_data, only: IBCONF_ALL_SYM_FOR_OCCLS, IB_CONF_REO, IB_SD_FOR_OPEN, MAXOP, MINOP, NCONF_PER_OPEN, NCONF_TOT, NPDTCNF
-use lucia_data, only: NGAS, NMXOCCLS
-use lucia_data, only: IPRDIA
-use lucia_data, only: PSSIGN
-use lucia_data, only: MXNSTR
-use lucia_data, only: NOCOB, NOBPT, NTOOB
-use lucia_data, only: NELEC
+use strbas, only: IOCLS, NSTSO
+use lucia_data, only: IB_CONF_REO, IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, IPRDIA, MAXOP, MINOP, MXNSTR, NCONF_PER_OPEN, &
+                      NCONF_TOT, NELEC, NGAS, NMXOCCLS, NOBPT, NOCOB, NPDTCNF, NTOOB, PSSIGN
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-! =====
-! Input
-! =====
-integer NBLOCK, ISYM
-integer IBLOCK(8,NBLOCK)
-! Output
-integer IREO(*)
-integer, allocatable :: LASTR(:), LBSTR(:)
-integer, allocatable :: ZSCR(:), Z(:)
-integer, allocatable :: LOCMIN(:), LOCMAX(:)
-integer, allocatable :: DET_OC(:), DET_MS(:), DET_VC(:)
-integer NTEST, IATP, IBTP, NAEL, NBEL, NEL
+integer(kind=iwp) :: NBLOCK, IBLOCK(8,NBLOCK), ISYM, IREO(*)
+integer(kind=iwp) :: IATP, IBTP, NAEL, NBEL, NEL, NTEST
+integer(kind=iwp), allocatable :: DET_MS(:), DET_OC(:), DET_VC(:), LASTR(:), LBSTR(:), LOCMAX(:), LOCMIN(:), Z(:), ZSCR(:)
 
 !write(u6,*) 'nconf_per_open in reo_gasdet'
 !call iwrtma(nconf_per_open,1,4,1,4)
@@ -73,8 +60,8 @@ call mma_allocate(DET_MS,NAEL+NBEL,Label='DET_MS')
 call mma_allocate(DET_VC,NOCOB,Label='DET_VC')
 
 !/ Jesper Wisborg Krogh, 2005-06-22
-call REO_GASDET_S(IREO,NSTSO(IATP)%I,NSTSO(IBTP)%I,NBLOCK,IBLOCK,NAEL,NBEL,LASTR,LBSTR,NSMST,NMXOCCLS,NGAS,IOCLS,NTOOB,NOBPT, &
-                  IB_CONF_REO,conf_reo(isym)%I,nconf_tot,ib_conf_reo,maxop,nconf_per_open(1,isym),IB_SD_FOR_OPEN,ZSCR,Z,LOCMIN, &
+call REO_GASDET_S(IREO,NSTSO(IATP)%A,NSTSO(IBTP)%A,NBLOCK,IBLOCK,NAEL,NBEL,LASTR,LBSTR,NSMST,NMXOCCLS,NGAS,IOCLS,NTOOB,NOBPT, &
+                  IB_CONF_REO,CONF_REO(ISYM)%A,nconf_tot,ib_conf_reo,maxop,nconf_per_open(1,isym),IB_SD_FOR_OPEN,ZSCR,Z,LOCMIN, &
                   LOCMAX,DET_OC,DET_MS,DET_VC,MINOP,IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 
 call mma_deallocate(LASTR)

@@ -30,20 +30,14 @@ subroutine GSTTBL(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICO
 
 use lucia_data, only: IDISK
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, IDC, LUC, NSMST, ISCALE
-real*8 PSSIGN, PLSIGN, SCLFAC
-real*8 C(*), CTT(*)
-integer NSASO(NSMST,*), NSBSO(NSMST,*)
-integer ICOOSC(NOCTPA,NOCTPB,*)
-real*8 SCR(*)
-
-integer ISGVST(1)
-integer IDUMMY(1)
-integer LBL, NO_ZEROING, IMZERO, NAST, NBST, IBASE, NELMNT, NRI, NCI, IAMPACK, LCOMB, LDET
-real*8 PSIGN
+real(kind=wp) :: C(*), CTT(*), PSSIGN, PLSIGN, SCR(*), SCLFAC
+integer(kind=iwp) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), ICOOSC(NOCTPA,NOCTPB,*), IDC, &
+                     LUC, ISCALE
+integer(kind=iwp) :: IAMPACK, IBASE, IDUMMY(1), IMZERO, ISGVST(1), LBL, LCOMB, LDET, NAST, NBST, NCI, NELMNT, NO_ZEROING, NRI
+real(kind=wp) :: PSIGN
 
 !write(u6,*) ' GSTTBL,  IATP,IASM,IBTP,IBSM,ISCALE'
 !write(u6,*) IATP,IASM,IBTP,IBSM,ISCALE

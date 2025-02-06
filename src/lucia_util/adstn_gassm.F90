@@ -32,13 +32,14 @@ subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! NSTAKTS : Total Number of K supergroup strings with correct symmetry
 ! NSTAI   : Number of I groupstrings in active gasspace
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A,H,O-Z)
-! Input
-dimension ICREORB(NACGSOB,*), ICRESTR(NACGSOB,*)
-! Output
-dimension ISTMAP(NSTAKTS,*), SGNMAP(NSTAKTS,*)
+implicit none
+integer(kind=iwp) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, NACGSOB, ICREORB(NACGSOB,*), ICRESTR(NACGSOB,*), IORBTSF, IORBTF, &
+                     NORBTS, NSTAK, NSTAI, NSTAKTS, NELB, ISTMAP(NSTAKTS,*)
+real(kind=wp) :: SGNMAP(NSTAKTS,*), SCLFAC
+integer(kind=iwp) :: IA, IADRI0, IADRK0, IB, IORB, IORBR, IORBRT, IORBRTS, ISTR, KSTR, NK, NSTAINSTA, NSTAKNSTA, NTEST
+real(kind=wp) :: SIGN0, SGN
 
 !write(u6,*) ' ADSTN_GASSM : NSTA, NSTB, NSTAK',NSTA,NSTB,NSTAK
 !write(u6,*) ' IOFFISP,IOFFKSP',IOFFISP,IOFFKSP
@@ -62,10 +63,10 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
     if (ICREORB(IORBRT,KSTR) > 0) then
       ! Excitation is open, corresponding active I string
       if (ICRESTR(IORBRT,KSTR) > 0) then
-        SIGN = SIGN0
+        SGN = SIGN0
         ISTR = ICRESTR(IORBRT,KSTR)
       else
-        SIGN = -SIGN0
+        SGN = -SIGN0
         ISTR = -ICRESTR(IORBRT,KSTR)
       end if
       ! Relative to start of given symmetry for this group
@@ -84,13 +85,13 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
           !KBKA = IADRK0+(IB-1)*NSTAK*NSTA+IA
           !write(u6,*) ' IBKA, KBKA ',IBKA,KBKA
           ISTMAP(IADRK0+IA,IORBRTS) = IADRI0+IA
-          SGNMAP(IADRK0+IA,IORBRTS) = SIGN
+          SGNMAP(IADRK0+IA,IORBRTS) = SGN
         end do
         IADRI0 = IADRI0+NSTAINSTA
         IADRK0 = IADRK0+NSTAKNSTA
       end do
     !else
-    !  SIGN = Zero
+    !  SGN = Zero
     !  ISTR = 0
     !  ! This Creation is inactive for all choices of strings in supergroup
     !  ! before and after the active type.
@@ -107,7 +108,7 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
     !        stop
     !      end if
     !      ISTMAP(KBKA,IORBRTS) = ISTR
-    !      SGNMAP(KBKA,IORBRTS) = SIGN
+    !      SGNMAP(KBKA,IORBRTS) = SGN
     !
     !    end do
     !  end do
@@ -124,7 +125,7 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
     !OLD    KBKA = IADRK0+(IB-1)*NSTAK*NSTA+IA
     !?      write(u6,*) ' IBKA, KBKA ',IBKA,KBKA
     !OLD    ISTMAP(KBKA,IORBRTS) = IBKA
-    !OLD    SGNMAP(KBKA,IORBRTS) = SIGN
+    !OLD    SGNMAP(KBKA,IORBRTS) = SGN
     !OLD  end do
     !OLD end do
     !end if

@@ -11,17 +11,15 @@
 
 module RASSCF_LUCIA
 
+use Definitions, only: wp, iwp
+
+implicit none
 private
 
-integer, public :: kvec3_length = 0, ini_h0, Memory_Needed_Lucia = 0
-logical, public :: Sigma_on_disk = .false.
-real*8, allocatable, public :: CIVec(:)
-real*8, allocatable, public :: PAtmp(:)
-real*8, allocatable, public :: Pscr(:)
-real*8, allocatable, public :: Ptmp(:)
-real*8, allocatable, public :: DStmp(:)
-real*8, allocatable, public :: Dtmp(:)
-real*8, allocatable, public :: RF1(:)
-real*8, allocatable, public :: RF2(:)
+integer(kind=iwp) :: ini_h0, kvec3_length = 0, Memory_Needed_Lucia = 0
+logical(kind=iwp) :: Sigma_on_disk = .false.
+real(kind=wp), allocatable :: DStmp(:), Dtmp(:), PAtmp(:), Pscr(:), Ptmp(:), RF1(:), RF2(:)
+
+public :: ini_h0, kvec3_length, Memory_Needed_Lucia, Sigma_on_disk, DStmp, Dtmp, PAtmp, Pscr, Ptmp, RF1, RF2
 
 end module RASSCF_LUCIA

@@ -11,17 +11,16 @@
 
 module STRBAS
 
-use lucia_data, only: MXPSTT, MXPNGAS
+use Data_Structures, only: Alloc1DiArray_Type
+use lucia_data, only: MXPSTT
+use Definitions, only: iwp
 
+implicit none
 private
 
-type iArray
-  integer, allocatable :: I(:)
-end type iArray
-type(iArray) :: OCSTR(MXPSTT), STREO(MXPSTT), STSTM(MXPSTT,2), NSTSGP(MXPNGAS), ISTSGP(MXPNGAS), NSTSO(MXPSTT), ISTSO(MXPSTT), &
-                Zmat(MXPSTT)
-integer, allocatable :: IOCLS(:), SPGPAN(:), SPGPCR(:)
+type(Alloc1DiArray_Type) :: ISTSO(MXPSTT), NSTSO(MXPSTT), OCSTR(MXPSTT), STREO(MXPSTT), STSTM(MXPSTT,2), Zmat(MXPSTT)
+integer(kind=iwp), allocatable :: IOCLS(:), ISTSGP(:), NSTSGP(:), SPGPAN(:), SPGPCR(:)
 
-public :: OCSTR, NSTSO, ISTSO, STSTM, Zmat, STREO, NSTSGP, ISTSGP, IOCLS, SPGPAN, SPGPCR
+public :: IOCLS, ISTSGP, ISTSO, NSTSGP, NSTSO, OCSTR, SPGPAN, SPGPCR, STREO, STSTM, Zmat
 
 end module STRBAS

@@ -20,10 +20,11 @@ subroutine ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)
 ! THIS CODE CONTAINS THE OLD ORDER CODE OF JOE GOLAB
 ! (HE IS HEREBY ACKNOWLEDGED, AND I AM EXCUSED)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension IINST(NELMNT), IOUTST(NELMNT), INO(NELMNT)
+implicit none
+integer(kind=iwp) :: NELMNT, IINST(NELMNT), IOUTST(NELMNT), INO(NELMNT), IPRNT
+integer(kind=iwp) :: I, ISWAP, JOE, NTEST
 
 if (NELMNT == 0) goto 1001
 call ICOPVE(IINST,IOUTST,NELMNT)

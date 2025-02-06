@@ -15,36 +15,26 @@ subroutine REO_GASDET_S(IREO,NSSOA,NSSOB,NBLOCK,IBLOCK,NAEL,NBEL,IASTR,IBSTR,NSM
 ! SUBROUTINE REO_GASDET_S --> 44
 !
 ! Reorder determinants in GAS space from det to configuration order
+!
+! IBCONF_ALL_SYM_FOR_OCCLS : Offset to start of configurations of given occls in list containing all symmetries
+! Z_PTDT(IOPEN+1)%A gives Z array for prototype dets with IOPEN
+! REO_PTDT(IOPEN+1)%A gives the corresponding reorder array open orbitals
 
-use GLBBAS, only: Z_PTDT, REO_PTDT
+use GLBBAS, only: REO_PTDT, Z_PTDT
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input
-dimension NSSOA(NSMST,*), NSSOB(NSMST,*)
-dimension IOCCLS(NGAS,NOCCLS)
-integer NOBPT(*)
-integer IB_CONF_OPEN(*), iconf_reo(nconf_tot)
-integer ib_conf_reo(maxop+1), nconf_per_open(maxop+1)
-integer IB_SD_FOR_OPEN(*)
-integer NPDTCNF(*)
-! Offset to start of configurations of given occls in list containing all symmetries
-integer IBCONF_ALL_SYM_FOR_OCCLS(NOCCLS)
-! Z_PTDT(IOPEN+1)%I gives Z  array for prototype dets with IOPEN
-! REO_PTDT(IOPEN+1)%1 gives the corresponding reorder array open orbitals
-! Specific input
-dimension IBLOCK(8,NBLOCK)
-! Scratch space
-!PAM06 Note: NAEL and NBEL could legally be =0!
-!PAM06 dimension IASTR(NAEL,*), IBSTR(NBEL,*)
-dimension IASTR(*), IBSTR(*)
-integer IZSCR(*), IZ(*), IOCMIN(*), IOCMAX(*)
-integer IDET_OC(*), IDET_MS(*), IDET_VC(*)
-! Output
-integer IREO(*)
-!dimension SREO(*)
-dimension IDUM(1)
+implicit none
+integer(kind=iwp) :: IREO(*), NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NBLOCK, IBLOCK(8,NBLOCK), NAEL, NBEL, IASTR(*), IBSTR(*), &
+                     NOCCLS, NGAS, IOCCLS(NGAS,NOCCLS), NORB, NOBPT(*), IB_CONF_OPEN(*), nconf_tot, iconf_reo(nconf_tot), maxop, &
+                     ib_conf_reo(maxop+1), nconf_per_open(maxop+1), IB_SD_FOR_OPEN(*), IZSCR(*), IZ(*), IOCMIN(*), IOCMAX(*), &
+                     IDET_OC(*), IDET_MS(*), IDET_VC(*), MINOP, IBCONF_ALL_SYM_FOR_OCCLS(NOCCLS), NPDTCNF(*)
+real(kind=wp) :: PSSIGN
+integer(kind=iwp) :: I, IA, IADR_SD_CONF_ORDER, IAGRP, IASM, IATP, IB, IB_OCCLS, IBCNF_OUT, IBGRP, IBSM, IBTP, icnf_out, IDET, &
+                     IDUM(1), IOC, IPTDT, IRESTR, ISIGN_2003, ISGN, JBLOCK, MINIA, NASTR1, NBSTR1, nconf_op, NCONF_P, NDOUBLE, &
+                     NEL, NIA, NIB, NOCOB, NOPEN, NOPEN_AL, NPTDT, NTEST
+integer(kind=iwp), external :: ilex_for_conf_new, IZNUM_PTDT, NOP_FOR_CONF
+
 
 NTEST = 0
 
@@ -99,8 +89,8 @@ do JBLOCK=1,NBLOCK
     do IA=MINIA,NIA
       IDET = IDET+1
       !PAM06 call ABSTR_TO_ORDSTR(IASTR(1,IA),IBSTR(1,IB),NAEL,NBEL,
-      call ABSTR_TO_ORDSTR(IASTR(1+NAEL*(IA-1)),IBSTR(1+NBEL*(IB-1)),NAEL,NBEL,IDET_OC,IDET_MS,ISIGN)
-      !    ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISIGN)
+      call ABSTR_TO_ORDSTR(IASTR(1+NAEL*(IA-1)),IBSTR(1+NBEL*(IB-1)),NAEL,NBEL,IDET_OC,IDET_MS,ISGN)
+      !    ABSTR_TO_ORDSTR(IA_OC,IB_OC,NAEL,NBEL,IDET_OC,IDET_SP,ISGN)
       ! Number of open orbitals in this configuration
       NOPEN = NOP_FOR_CONF(IDET_OC,NEL)
       !       NOP_FOR_CONF(ICONF,NEL)
@@ -108,7 +98,7 @@ do JBLOCK=1,NBLOCK
       NOCOB = NOPEN+NDOUBLE
       NOPEN_AL = NAEL-NDOUBLE
       !write(u6,*) ' NOPEN, NOPEN_AL = ',NOPEN,NOPEN_AL
-      !ERROR NPTDT = IBION_LUCIA(NOPEN,NOPEN_AL)
+      !ERROR NPTDT = IBINOM(NOPEN,NOPEN_AL)
       NPTDT = NPDTCNF(NOPEN+1)
       ! Packed form of this configuration
       call REFORM_CONF_OCC(IDET_OC,IDET_VC,NEL,NOCOB,1)
@@ -154,10 +144,10 @@ do JBLOCK=1,NBLOCK
           if (PSSIGN == -One) ISIGN_2003 = -1
           ! Update sign AB => ordered list
           !PAM06 call ABSTR_TO_ORDSTR(IBSTR(1,IB),IASTR(1,IA),NBEL,NAEL,
-          call ABSTR_TO_ORDSTR(IBSTR(1+NBEL*(IB-1)),IASTR(1+NAEL*(IA-1)),NBEL,NAEL,IDET_OC,IDET_MS,ISIGN)
+          call ABSTR_TO_ORDSTR(IBSTR(1+NBEL*(IB-1)),IASTR(1+NAEL*(IA-1)),NBEL,NAEL,IDET_OC,IDET_MS,ISGN)
         end if
       end if
-      IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,Z_PTDT(NOPEN+1)%I,REO_PTDT(NOPEN+1)%I,1)
+      IPTDT = IZNUM_PTDT(IDET_VC,NOPEN,NOPEN_AL,Z_PTDT(NOPEN+1)%A,REO_PTDT(NOPEN+1)%A,1)
       !       IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
       !write(u6,*) ' Number of det in list of PTDT ', IPTDT
       !write(u6,*) ' IB_SD_FOR_OPEN(NOPEN+1) = ',IB_SD_FOR_OPEN(NOPEN+1)
@@ -170,8 +160,8 @@ do JBLOCK=1,NBLOCK
         write(u6,*) ' IADR_SD_CONF_ORDER = ',IADR_SD_CONF_ORDER
         call XFLUSH(u6)
       end if
-      !write(u6,*) ' IADR_SD_CONF_ORDER, ISIGN, IDET = ',IADR_SD_CONF_ORDER,ISIGN,IDET
-      IREO(IADR_SD_CONF_ORDER) = ISIGN*IDET*ISIGN_2003
+      !write(u6,*) ' IADR_SD_CONF_ORDER, ISGN, IDET = ',IADR_SD_CONF_ORDER,ISGN,IDET
+      IREO(IADR_SD_CONF_ORDER) = ISGN*IDET*ISIGN_2003
 
     end do
     ! End of loop over alpha strings

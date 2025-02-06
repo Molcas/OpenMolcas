@@ -30,23 +30,15 @@ subroutine GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTROC,NSTR,NEL,NNSTSGP,IISTSGP)
 !     Loop over gas N strings
 
 use strbas, only: OCSTR
-use lucia_data, only: NGAS
-use lucia_data, only: NELFGP
-use lucia_data, only: MXPNSMST, MXPNGAS
+use lucia_data, only: MXPNGAS, MXPNSMST, NELFGP, NGAS
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer NSTR, NEL
-! Specific input
-integer ITPFGS(*), ISMFGS(*)
-integer NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
-! Local scratch
-integer NSTFGS(MXPNGAS), IBSTFGS(MXPNGAS)
-! Output
-integer ISTROC(NEL,*)
-integer IGAS, IGASL, NSTRTOT, NELB, NELI, NSTA, JGAS, NSTB, NSTI
+integer(kind=iwp) :: ISMFGS(*), ITPFGS(*), NEL, ISTROC(NEL,*), NSTR, NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
+integer(kind=iwp) :: IBSTFGS(MXPNGAS), IGAS, IGASL, JGAS, NELB, NELI, NSTA, NSTB, NSTFGS(MXPNGAS), NSTI, NSTRTOT
 
 ! Number of strings per GAS space
 !write(u6,*) ' entering problem child'
@@ -108,7 +100,7 @@ do IGAS=1,IGASL
     write(u6,*) ' IBSTFGS(IGAS)',IBSTFGS(IGAS)
 #   endif
 
-    call ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),OCSTR(ITPFGS(IGAS))%I,NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
+    call ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),OCSTR(ITPFGS(IGAS))%A,NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
 
     ! Loop over strings in IGAS
   end if

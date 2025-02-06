@@ -15,6 +15,7 @@ use RunFile_data, only: lw
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
+implicit none
 integer(kind=iwp), intent(in) :: nToc, i_run_used(nToc)
 character(len=*), intent(in) :: Label
 integer(kind=iwp) :: i, nData, RecTyp

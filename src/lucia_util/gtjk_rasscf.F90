@@ -13,14 +13,18 @@ subroutine GTJK_RASSCF(RJ,RK,NAC,IREOST)
 ! PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 !          WITH THE CHARGE DISTRIBUTION JK
 !
+! Input
+! IREOST : Reorder array, symmetry => type (sic!)
+!
 ! Modified by addition of IREOST, August 2003.
 
 use wadr, only: TUVX
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! Input : Reorder array, symmetry => type (sic!)
-integer IREOST(*)
-real*8 RJ(*), RK(*)
+implicit none
+real(kind=wp) :: RJ(*), RK(*)
+integer(kind=iwp) :: NAC, IREOST(*)
+integer(kind=iwp) :: NT, NT_REO, NTT, NTU_REO, NTUJ, NTUK, NTUT, NU, NU_REO, NUT_REO
 
 ! FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
 ! THE TWO-ELECTRON INTEGRAL LIST

@@ -11,42 +11,41 @@
 
 subroutine FREESTR_GAS()
 
-use stdalloc, only: mma_deallocate
-use strbas, only: OCSTR, STREO, NSTSGP, ISTSGP, NSTSO, ISTSO, ZMAT, STSTM, IOCLS, SPGPAN, SPGPCR
-! allocations during strinf_gas
+use strbas, only: IOCLS, ISTSGP, ISTSO, NSTSGP, NSTSO, OCSTR, SPGPAN, SPGPCR, STREO, STSTM, ZMAT
 use distsym, only: ISMDFGP, ISMSCR, NACTSYM
-! Deallocate the memory that was set up in MEMSTR_GAS
 use lucia_data, only: NGRP, NSTTP
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer IGRP, ITP
+integer(kind=iwp) :: IGRP, ITP
 
 ! Offsets for occupation and reorder array of strings
 
 do IGRP=1,NGRP
-  call mma_deallocate(OCSTR(IGRP)%I)
-  call mma_deallocate(STREO(IGRP)%I)
+  call mma_deallocate(OCSTR(IGRP)%A)
+  call mma_deallocate(STREO(IGRP)%A)
 end do
 
 ! Number of strings per symmetry and offset for strings of given sym
 ! for groups
 
-call mma_deallocate(NSTSGP(1)%I)
-call mma_deallocate(ISTSGP(1)%I)
+call mma_deallocate(NSTSGP)
+call mma_deallocate(ISTSGP)
 
 ! Number of strings per symmetry and offset for strings of given sym
 ! for types
 
 do ITP=1,NSTTP
-  call mma_deallocate(NSTSO(ITP)%I)
-  call mma_deallocate(ISTSO(ITP)%I)
+  call mma_deallocate(NSTSO(ITP)%A)
+  call mma_deallocate(ISTSO(ITP)%A)
 end do
 
 ! Lexical addressing of arrays : use array indices for complete active space
 
 ! Not in use so
 do IGRP=1,NGRP
-  call mma_deallocate(Zmat(IGRP)%I)
+  call mma_deallocate(Zmat(IGRP)%A)
 end do
 
 ! Mappings between different groups
@@ -54,8 +53,8 @@ end do
 do IGRP=1,NGRP
   ! IF creation is involve : Use full orbital notation
   ! If only annihilation is involved, compact form will be used
-  call mma_deallocate(STSTM(IGRP,1)%I)
-  call mma_deallocate(STSTM(IGRP,2)%I)
+  call mma_deallocate(STSTM(IGRP,1)%A)
+  call mma_deallocate(STSTM(IGRP,2)%A)
 end do
 
 ! Occupation classes

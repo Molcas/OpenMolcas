@@ -21,22 +21,13 @@ subroutine SKICKJ_LUCIA(SKII,CKJJ,NKA,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB
 
 use lucia_data, only: MXPTSOB
 use Constants, only: Zero, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NKA, NKB, NI, NJ, NK, NL, MAXK, IKORD, IROUTE
-real*8 FACS
-! Input
-real*8 CKJJ(*)
-real*8 XIJKL(*)
-integer KBIB(MAXK,*), KBJB(MAXK,*)
-real*8 XKBIB(MAXK,*), XKBJB(MAXK,*)
-! Input and output
-real*8 SKII(*)
-! Scratch
-real*8 XIJILS(MXPTSOB)
-integer JKINTOF, IKINTOF, NTEST, KB, LL, KK, L, K, IB, JB, ISOFF, ICOFF, INTOF, IMAX, J, I
-real*8 SGNK, SGNL, FACTOR
+integer(kind=iwp) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD, IROUTE
+real(kind=wp) :: SKII(*), CKJJ(*), XIJKL(*), XKBIB(MAXK,*), XKBJB(MAXK,*), FACS
+integer(kind=iwp) :: I, IB, ICOFF, IKINTOF, IMAX, INTOF, ISOFF, J, JB, JKINTOF, K, KB, KK, L, LL, NTEST
+real(kind=wp) :: FACTOR, SGNK, SGNL, XIJILS(MXPTSOB)
 
 ! To get rid of annoying and incorrect compiler warnings
 JKINTOF = 0

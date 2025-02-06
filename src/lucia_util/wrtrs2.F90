@@ -12,13 +12,12 @@
 subroutine WRTRS2(VECTOR,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
 ! Write RAS vector. Storage form is defined by ICBLTP
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension VECTOR(*)
-dimension IOCOC(NOCTPA,NOCTPB)
-dimension NSASO(NSMST,*), NSBSO(NSMST,*)
-dimension ICBLTP(*), ISMOST(*)
+implicit none
+real(kind=wp) :: VECTOR(*)
+integer(kind=iwp) :: ISMOST(*), ICBLTP(*), NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*)
+integer(kind=iwp) :: IASM, IATP, IBASE, IBSM, IBTP, IBTPMX, NAST, NBST, NELMNT
 
 IBASE = 1
 do IASM=1,NSMST

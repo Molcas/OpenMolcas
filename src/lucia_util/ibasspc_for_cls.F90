@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function IBASSPC_FOR_CLS(ICLS)
+function IBASSPC_FOR_CLS(ICLS)
 ! Obtain base space for occupation class ICLS
 
-use lucia_data, only: NGAS, NCMBSPC, ICMBSPC, IGSOCCX, LCMBSPC, NCMBSPC
-use Definitions, only: u6
+use lucia_data, only: ICMBSPC, IGSOCCX, LCMBSPC, NCMBSPC, NCMBSPC, NGAS
+use Definitions, only: iwp, u6
 
 implicit none
-! Specific input
-integer ICLS(NGAS)
-integer NEL, IBASE, ISPC, JJSPC, JSPC, I_AM_OKAY, IGAS, NTEST
+integer(kind=iwp) :: IBASSPC_FOR_CLS
+integer(kind=iwp) :: ICLS(NGAS)
+integer(kind=iwp) :: I_AM_OKAY, IBASE, IGAS, ISPC, JJSPC, JSPC, NEL, NTEST
 
 ! Some dummy initializations
 

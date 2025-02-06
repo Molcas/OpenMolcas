@@ -18,10 +18,11 @@ subroutine DXTYP2_GAS(NDXTP,ITP,JTP,KTP,LTP,NOBTP,IL,IR,IPHGAS)
 ! Intermediate occupations less than zero allowed for particle spaces
 ! (IPHGAS=2)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-integer IL(NOBTP), IR(NOBTP), IPHGAS(NOBTP)
-integer ITP(*), JTP(*), KTP(*), LTP(*)
+implicit none
+integer(kind=iwp) :: NDXTP, ITP(*), JTP(*), KTP(*), LTP(*), NOBTP, IL(NOBTP), IR(NOBTP), IPHGAS(NOBTP)
+integer(kind=iwp) :: IANNI1, IANNI2, ICREA1, ICREA2, IDIA, IDX, IJTP, IOBTP, KLTP, NANNI, NCREA, NDIF, NDIFT, NTEST
 
 NTEST = 0
 if (NTEST >= 100) then

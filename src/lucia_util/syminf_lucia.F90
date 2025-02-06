@@ -12,7 +12,7 @@
 subroutine SYMINF_LUCIA()
 ! Information about number of symmetries
 
-use lucia_data, only: PNTGRP, NIRREP
+use lucia_data, only: NIRREP, PNTGRP
 use Definitions, only: u6
 
 implicit none

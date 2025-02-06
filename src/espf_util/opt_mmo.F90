@@ -227,7 +227,7 @@ return
 contains
 
 function mmslave_calc_energy_wrapper(gms,x,f,A,phi,energy)
-  integer :: mmslave_calc_energy_wrapper
+  integer(kind=iwp) :: mmslave_calc_energy_wrapper
   type(c_ptr), intent(in) :: gms
   real(kind=wp), target, intent(in) :: x(*), f(*), A(*), phi(*)
   real(kind=wp), intent(out) :: energy

@@ -9,16 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function ISYMST(STRING,NEL)
+function ISYMST(STRING,NEL)
 ! Master routine for symmetry of string
 
 use lucia_data, only: PNTGRP
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NEL
-integer STRING(*)
-integer, external :: ISYMS1
+integer(kind=iwp) :: ISYMST
+integer(kind=iwp) :: STRING(*), NEL
+integer(kind=iwp), external :: ISYMS1
 
 if (PNTGRP == 1) then
   ! D2h

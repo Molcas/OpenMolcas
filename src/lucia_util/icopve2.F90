@@ -12,11 +12,11 @@
 subroutine ICOPVE2(IIN,IOFF,NDIM,IOUT)
 ! IOUT(I) = IIN(IOFF-1+I),I = 1, NDIM
 
-implicit real*8(A,H,O-Z)
-! Input
-dimension IIN(*)
-! Output
-dimension IOUT(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IIN(*), IOFF, NDIM, IOUT(*)
+integer(kind=iwp) :: I
 
 do I=1,NDIM
   IOUT(I) = IIN(IOFF-1+I)

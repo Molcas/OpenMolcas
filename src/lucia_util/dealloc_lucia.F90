@@ -12,17 +12,14 @@
 subroutine DEALLOC_LUCIA()
 ! Deallocate memory allocated during alloc_lucia
 
+use GLBBAS, only: CI_VEC, INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, PGINT1, PGINT1A, PINT1, PINT2, RHO1, SIGMA_VEC, SRHO1
+use lucia_data, only: IREFSM, LCSBLK, MXSOOB, NSMOB, PSSIGN, XISPSM
 use stdalloc, only: mma_deallocate
-use GLBBAS, only: INT1, INT1O, PINT1, PINT2, PGINT1, PGINT1A, LSM1, LSM2, RHO1, SRHO1, KINH1_NOCCSYM, KINH1, CI_VEC, SIGMA_VEC
-use lucia_data, only: MXSOOB, XISPSM
-use lucia_data, only: LCSBLK
-use lucia_data, only: IREFSM, PSSIGN
-use lucia_data, only: NSMOB
 use Constants, only: Zero, Two
+use Definitions, only: iwp
 
 implicit none
-! Input
-integer ISM, LBLOCK
+integer(kind=iwp) :: ISM, LBLOCK
 
 ! 1 : One electron integrals( Complete matrix allocated )
 call mma_deallocate(INT1)
@@ -35,9 +32,9 @@ call mma_deallocate(PINT2)
 !  Pointers to nonsymmetric one-electron integrals
 do ISM=1,NSMOB
   ! triangular packed
-  call mma_deallocate(PGINT1(ISM)%I)
+  call mma_deallocate(PGINT1(ISM)%A)
   ! no packing
-  call mma_deallocate(PGINT1A(ISM)%I)
+  call mma_deallocate(PGINT1A(ISM)%A)
 end do
 ! Symmetry of last index as a function of initial index
 call mma_deallocate(LSM1)

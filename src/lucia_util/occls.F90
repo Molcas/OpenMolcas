@@ -28,19 +28,13 @@ subroutine OCCLS(IWAY,NOCCLS,IOCCLS,NEL,NGAS,IGSMIN,IGSMAX,I_DO_BASSPC,IBASSPC,N
 ! Jeppe Olsen, August 1995
 
 use lucia_data, only: MXPNGAS
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IWAY, NOCCLS, NEL, NGAS, I_DO_BASSPC
-! Input
-integer IGSMIN(NGAS), IGSMAX(NGAS), NOBPT(NGAS)
-! Output
-integer IOCCLS(NGAS,*)
-integer IBASSPC(*)
-! Local scratch
-integer IOCA(MXPNGAS), IOC(MXPNGAS)
-integer, external :: IELSUM
-integer NTEST, ISKIP, IGAS, NONEW, IFIRST, KGAS, NEGA, IM_TO_STUFFED, IEL, I, IBASSPC_FOR_CLS
+integer(kind=iwp) :: IWAY, NOCCLS, NGAS, IOCCLS(NGAS,*), NEL, IGSMIN(NGAS), IGSMAX(NGAS), I_DO_BASSPC, IBASSPC(*), NOBPT(NGAS)
+integer(kind=iwp) :: I, IBASSPC_FOR_CLS, IEL, IFIRST, IGAS, IM_TO_STUFFED, IOC(MXPNGAS), IOCA(MXPNGAS), ISKIP, KGAS, NEGA, NONEW, &
+                     NTEST
+integer(kind=iwp), external :: IELSUM
 
 NTEST = 0
 if (NTEST >= 100) then

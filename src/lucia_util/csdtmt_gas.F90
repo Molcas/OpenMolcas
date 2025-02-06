@@ -27,19 +27,17 @@ subroutine CSDTMT_GAS(IPRCSF)
 ! Changed to Combination form, June 92
 ! Adapted to LUCIA December 2001
 
+use GLBBAS, only: CFTP, DFTP, DTOC, REO_PTDT, Z_PTDT
+use lucia_data, only: MAXOP, MINOP, MS2, MULTS, NPCMCNF, NPCSCNF, PSSIGN
 use stdalloc, only: mma_allocate, mma_deallocate
-use GLBBAS, only: DFTP, CFTP, DTOC, Z_PTDT, REO_PTDT
-use lucia_data, only: MAXOP, MINOP, NPCMCNF, NPCSCNF
-use lucia_data, only: MS2, MULTS, PSSIGN
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IPRCSF
-! Output
-real*8, allocatable :: SCR1(:)
-integer, allocatable :: iSCR2(:)
-integer NTEST, MAX_DC, IOPEN, L, LSCR, IDTBS, ICSBS, ITP, IFLAG, IALPHA, IDET, ICDCBS, NNCS, NNCM, NNDET
+integer(kind=iwp) :: IPRCSF
+integer(kind=iwp) :: IALPHA, ICDCBS, ICSBS, IDET, IDTBS, IFLAG, IOPEN, ITP, L, LSCR, MAX_DC, NNCM, NNCS, NNDET, NTEST
+integer(kind=iwp), allocatable :: iSCR2(:)
+real(kind=wp), allocatable :: SCR1(:)
 
 NTEST = 0
 NTEST = max(NTEST,IPRCSF)
@@ -126,7 +124,7 @@ do IOPEN=MINOP,MAXOP
   IALPHA = (IOPEN+MS2)/2
   IDET = NPCMCNF(IOPEN+1)
   !write(u6,*) ' IOPEN, IDET = ',IOPEN,IDET
-  call REO_PTDET(IOPEN,IALPHA,Z_PTDT(ITP)%I,REO_PTDT(ITP)%I,DFTP(IDTBS),IDET,iSCR2)
+  call REO_PTDET(IOPEN,IALPHA,Z_PTDT(ITP)%A,REO_PTDT(ITP)%A,DFTP(IDTBS),IDET,iSCR2)
 end do
 
 ! matrix expressing csf's in terms of determinants

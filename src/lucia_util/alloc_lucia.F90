@@ -26,7 +26,6 @@ subroutine ALLOC_LUCIA()
 ! KFREE : First array of free space after allocation of static memory
 ! /GLBBAS/,/CDIM/
 !
-!
 ! =======
 ! Version
 ! =======
@@ -35,17 +34,14 @@ subroutine ALLOC_LUCIA()
 !           Fall 97 (PGINT1 added )
 !           Spring 99
 
+use GLBBAS, only: INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, PGINT1, PGINT1A, PINT1, PINT2, RHO1, SRHO1
+use lucia_data, only: NBINT1, NBINT2, NSMOB, NTOOB
 use stdalloc, only: mma_allocate
-use GLBBAS, only: INT1, INT1O, PINT1, PINT2, PGINT1, PGINT1A, LSM1, LSM2, RHO1, SRHO1, KINH1_NOCCSYM, KINH1
 use Constants, only: Zero
-use lucia_data, only: NBINT1, NBINT2
-use lucia_data, only: NSMOB
-use lucia_data, only: NTOOB
+use Definitions, only: iwp
 
-! Input
 implicit none
-! Output
-integer ISM
+integer(kind=iwp) :: ISM
 
 ! 1 : One electron integrals( Complete matrix allocated )
 call mma_allocate(INT1,NTOOB**2,Label='INT1')
@@ -62,9 +58,9 @@ call mma_allocate(PINT2,NBINT2,Label='PINT2')
 ! Pointers to nonsymmetric one-electron integrals
 do ISM=1,NSMOB
   ! triangular packed
-  call mma_allocate(PGINT1(ISM)%I,NSMOB,Label='PGINT1(ISM)%I')
+  call mma_allocate(PGINT1(ISM)%A,NSMOB,Label='PGINT1(ISM)%I')
   ! no packing
-  call mma_allocate(PGINT1A(ISM)%I,NSMOB,Label='PGINT1A(ISM)%I')
+  call mma_allocate(PGINT1A(ISM)%A,NSMOB,Label='PGINT1A(ISM)%I')
 end do
 ! Symmetry of last index as a function of initial index
 call mma_allocate(LSM1,NBINT1,Label='LSM1')

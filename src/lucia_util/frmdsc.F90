@@ -16,16 +16,14 @@ subroutine FRMDSC(ARRAY,NDIM,MBLOCK,IFILE,IMZERO,I_AM_PACKED)
 
 use lucia_data, only: IDISK
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 ARRAY(*)
-integer ISCR(2)
-integer, parameter :: LPBLK = 50000
-integer IPAK(LPBLK)
-real*8 XPAK(LPBLK)
-integer IDUMMY(1)
-integer IPACK, IFILE, IMZERO, I_AM_PACKED, NDIM, NBATCH, LBATCH, LBATCHP, ISTOP, IELMNT, NBLOCK, MBLOCK, IREST, IBASE
+real(kind=wp) :: ARRAY(*)
+integer(kind=iwp) :: NDIM, MBLOCK, IFILE, IMZERO, I_AM_PACKED
+integer(kind=iwp), parameter :: LPBLK = 50000
+integer(kind=iwp) :: IBASE, IDUMMY(1), IELMNT, IPACK, IPAK(LPBLK), IREST, ISCR(2), ISTOP, LBATCH, LBATCHP, NBATCH, NBLOCK
+real(kind=wp) :: XPAK(LPBLK)
 
 IPACK = 1
 if (IPACK /= 0) then

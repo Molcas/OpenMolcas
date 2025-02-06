@@ -17,16 +17,16 @@ function GTH1ES(IREOTS,IPNT,H,IBSO,MXPNGAS,IBTSOB,NACOBS,IORB,ITP,ISM,JORB,JTP,J
 !
 ! Last Revision January 98 (IJSM added )
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IREOTS(*), IPNT(*), IBTSOB(MXPNGAS,*), IBSO(*)
-integer NACOBS(*)
-dimension H(*)
+implicit none
+real(kind=wp) :: GTH1ES
+integer(kind=iwp) :: IREOTS(*), IPNT(*), IBSO(*), MXPNGAS, IBTSOB(MXPNGAS,*), NACOBS(*), IORB, ITP, ISM, JORB, JTP, JSM, IJSM
+real(kind=wp) :: H(*)
+integer(kind=iwp) :: I_ABS, IJ, IJMAX, IJMIN, IREO, JABS, JREO, NI, NJ, NTEST
 
-IABS = IORB+IBTSOB(ITP,ISM)-1
-IREO = IREOTS(IABS)
+I_ABS = IORB+IBTSOB(ITP,ISM)-1
+IREO = IREOTS(I_ABS)
 JABS = JORB+IBTSOB(JTP,JSM)-1
 JREO = IREOTS(JABS)
 !write(u6,*) ' GTH1ES : IREO JREO ',IREO,JREO

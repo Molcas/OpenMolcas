@@ -16,8 +16,9 @@ subroutine BLKFO_MIN(ISM,NBLK,LEN_BLK)
 !
 ! Jeppe Olsen, June 2001
 !
-!   Input
-! =========
+! Input
+! =====
+!
 ! ISM : Symmetry of CI expansion
 !
 ! Output
@@ -25,25 +26,21 @@ subroutine BLKFO_MIN(ISM,NBLK,LEN_BLK)
 !
 ! NBLK : Number of blocks in expansion
 ! LEN_BLK(IBLK) : Length of block IBLK
+!                 Should outside be dimensioned as MXNTTS
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use strbas
-use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP, Allocate_Local_Arrays, deallocate_Local_Arrays
+use strbas, only: NSTSO
+use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays
 use CandS, only: ISSPC
-use lucia_data, only: ISMOST, MXNTTS, MXSOOB
-use lucia_data, only: ISIMSYM, LCSBLK
-use lucia_data, only: IDC
-use lucia_data, only: NOCTYP
+use lucia_data, only: IDC, ISIMSYM, ISMOST, LCSBLK, MXNTTS, MXSOOB, NOCTYP
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer ISM, NBLK
-! Output : Should outside be dimensioned as MXNTTS
-integer LEN_BLK(*)
-integer I_DUMMY(1)
-integer, external :: IFRMR
-integer, allocatable :: CIOIO(:)
-integer IATP, IBTP, NOCTPA, NOCTPB, LBLOCK, NBATCH
+integer(kind=iwp) :: ISM, NBLK, LEN_BLK(*)
+integer(kind=iwp) :: I_DUMMY(1), IATP, IBTP, LBLOCK, NBATCH, NOCTPA, NOCTPB
+integer(kind=iwp), allocatable :: CIOIO(:)
+integer(kind=iwp), external :: IFRMR
 
 I_DUMMY(1) = 0 ! jwk-cleanup
 IATP = 1
@@ -60,7 +57,7 @@ call ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,I_DUMMY)
 ! Allowed length of each batch( not important for final output )
 LBLOCK = max(MXSOOB,LCSBLK)
 ! Batches  of C vector
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
+call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
                0,ISIMSYM)
 ! Number of BLOCKS
 NBLK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1

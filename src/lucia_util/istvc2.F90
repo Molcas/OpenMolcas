@@ -12,8 +12,11 @@
 subroutine ISTVC2(IVEC,IBASE,IFACT,NDIM)
 ! IVEC(I) = IBASE + IFACT * I
 
-!dimension IVEC(1)
-dimension IVEC(NDIM)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NDIM, IVEC(NDIM), IBASE, IFACT
+integer(kind=iwp) :: I
 
 do I=1,NDIM
   IVEC(I) = IBASE+IFACT*I

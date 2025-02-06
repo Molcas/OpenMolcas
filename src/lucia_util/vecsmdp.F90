@@ -21,14 +21,12 @@ subroutine VECSMDP(VEC1,VEC2,FAC1,FAC2,LU1,LU2,LU3,IREW,LBLK)
 
 use lucia_data, only: IDISK
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 VEC1(*), VEC2(*)
-real*8 FAC1, FAC2
-integer LU1, LU2, LU3, IREW, LBLK
-integer IDUMMY(1)
-integer NBL1, NBL2, KBLK, NO_ZEROING, IMZERO1, IMZERO2, IAMPACK
+real(kind=wp) :: VEC1(*), VEC2(*), FAC1, FAC2
+integer(kind=iwp) :: LU1, LU2, LU3, IREW, LBLK
+integer(kind=iwp) :: IAMPACK, IDUMMY(1), IMZERO1, IMZERO2, KBLK, NBL1, NBL2, NO_ZEROING
 
 if (IREW /= 0) then
   IDISK(LU1) = 0

@@ -16,19 +16,15 @@ subroutine BLKCLS(IBLKS,NBLKS,IBLKCLS,ISPSPCL,NCLS,LCLS,NOCTPA,NOCTPB)
 !
 ! Jeppe Olsen
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IBLKS(8,NBLKS)
-integer ISPSPCL(NOCTPA,NOCTPB)
-! Output
-integer IBLKCLS(NBLKS), LCLS(NCLS)
+implicit none
+integer(kind=iwp) :: NBLKS, IBLKS(8,NBLKS), IBLKCLS(NBLKS), NOCTPA, NOCTPB, ISPSPCL(NOCTPA,NOCTPB), NCLS, LCLS(NCLS)
+integer(kind=iwp) :: IICLS, JBLK, NTEST
 
 !write(u6,*) ' ISPSPCL'
 !call IWRTMA(ISPSPCL,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-IZERO = 0
-call ISETVC(LCLS,IZERO,NCLS)
+call ISETVC(LCLS,0,NCLS)
 do JBLK=1,NBLKS
   IICLS = ISPSPCL(IBLKS(1,JBLK),IBLKS(2,JBLK))
   IBLKCLS(JBLK) = IICLS

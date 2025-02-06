@@ -28,12 +28,11 @@ subroutine GRAPW(W,Y,MINEL,MAXEL,NORB,NEL,IPRNT)
 !
 ! Jeppe Olsen
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer W(NORB+1,NEL+1)
-integer Y(NORB,NEL)
-integer MAXEL(NORB), MINEL(NORB)
+implicit none
+integer(kind=iwp) :: NORB, NEL, W(NORB+1,NEL+1), Y(NORB,NEL), MINEL(NORB), MAXEL(NORB), IPRNT
+integer(kind=iwp) :: IEL, IORB, NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

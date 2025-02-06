@@ -30,15 +30,12 @@ subroutine ZSTINF_GAS(IPRNT)
 ! Input
 ! Only the first element, i.e. ISTAC  is defined
 
-use lucia_data, only: NGAS
-use lucia_data, only: IBGPSTR, NGPSTR, NGRP
-use lucia_data, only: ISTAC
-use lucia_data, only: MXPSTT
-use Definitions, only: u6
+use lucia_data, only: IBGPSTR, ISTAC, MXPSTT, NGAS, NGPSTR, NGRP
+use Definitions, only: iwp, u6
 
 implicit none
-integer IPRNT
-integer NTEST, IGAS, MGRP, IGRP, IIGRP
+integer(kind=iwp) :: IPRNT
+integer(kind=iwp) :: IGAS, IGRP, IIGRP, MGRP, NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)

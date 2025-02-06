@@ -11,26 +11,28 @@
 
 module Local_Arrays
 
-use stdalloc, only: mma_allocate, mma_deallocate
-
-private
-
 ! CLBT  : Length of each Batch ( in blocks)
 ! CLEBT : Length of each Batch ( in elements)
 ! CI1BT : Length of each block
 ! CIBT  : Info on each block
 ! CBLTP : BLock type for each symmetry
 
-integer, allocatable, public :: CLBT(:), CLEBT(:), CI1BT(:), CIBT(:)
-integer, allocatable, public, target :: CBLTP(:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
-public :: Allocate_Local_Arrays, Deallocate_Local_Arrays
+implicit none
+private
+
+integer(kind=iwp), allocatable :: CI1BT(:), CIBT(:), CLBT(:), CLEBT(:)
+integer(kind=iwp), allocatable, target :: CBLTP(:)
+
+public :: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays
 
 contains
 
 subroutine Allocate_Local_Arrays(MXNTTS,NSMST)
 
-  integer :: MXNTTS, NSMST
+  integer(kind=iwp) :: MXNTTS, NSMST
 
   if (allocated(CLBT)) call Abend()
   call mma_allocate(CLBT,MXNTTS,Label='CLBT',safe='*')

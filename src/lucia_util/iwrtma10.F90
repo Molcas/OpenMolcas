@@ -12,9 +12,11 @@
 subroutine IWRTMA10(IMAT,NROW,NCOL,MAXROW,MAXCOL)
 ! I10 format
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-dimension IMAT(MAXROW,MAXCOL)
+implicit none
+integer(kind=iwp) :: MAXROW, MAXCOL, IMAT(MAXROW,MAXCOL), NROW, NCOL
+integer(kind=iwp) :: I, J
 
 do I=1,NROW
   write(u6,1110) (IMAT(I,J),J=1,NCOL)

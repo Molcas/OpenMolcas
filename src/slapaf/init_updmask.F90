@@ -21,7 +21,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: nInter
 integer(kind=iwp) :: iAtom, nAtMM, nsAtom
-integer, allocatable :: IsMM(:)
+integer(kind=iwp), allocatable :: IsMM(:)
 
 nsAtom = size(Coor,2)
 

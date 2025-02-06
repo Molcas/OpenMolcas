@@ -9,13 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function INPROD(A,B,NDIM)
+function INPROD(A,B,NDIM)
 ! CALCULATE SCALAR PRODUCT BETWEEN TWO VECTORS A,B
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(*)
+implicit none
+real(kind=wp) :: INPROD
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: NDIM
+integer(kind=iwp) :: I
 
 INPROD = Zero
 do I=1,NDIM

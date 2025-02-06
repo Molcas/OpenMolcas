@@ -25,22 +25,15 @@ subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
 
 use GLBBAS, only: INT1
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: IH1FORM
-use lucia_data, only: IDISK
-use lucia_data, only: I_RES_AB, I12
-use lucia_data, only: NTOOB
+use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, NTOOB
 use Constants, only: One, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
-real*8 INPRDD
-! Input
-real*8 T(*)
-! Scratch blocks ( two of them)
-real*8 VEC1(*), VEC2(*)
-integer NTEST, LBLK, K
-real*8 CNORM, TKK
+real(kind=wp) :: T(*), VEC1(*), VEC2(*)
+integer(kind=iwp) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
+integer(kind=iwp) :: K, LBLK, NTEST
+real(kind=wp) :: CNORM, INPRDD, TKK
 
 NTEST = 0
 LBLK = -1

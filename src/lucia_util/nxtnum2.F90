@@ -11,22 +11,21 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine NXTNUM2(INUM,NELMNT,MINVAL,MAXVAL,NONEW)
+subroutine NXTNUM2(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 ! An set of numbers INUM(I),I=1,NELMNT is
 ! given. Find next compund number.
-! Digit I must be in the range MINVAL,MAXVAL(I).
+! Digit I must be in the range MNVAL,MXVAL(I).
 !
 ! NONEW = 1 on return indicates that no additional numbers
 ! could be obtained.
 !
 ! Jeppe Olsen Oct 1994
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-! Input
-dimension maxval(*)
-! Input and output
-dimension INUM(*)
+implicit none
+integer(kind=iwp) :: INUM(*), NELMNT, MNVAL, MXVAL(*), NONEW
+integer(kind=iwp) :: IPLACE, JPLACE, NTEST
 
 NTEST = 0
 if (NTEST /= 0) then
@@ -42,14 +41,14 @@ end if
 IPLACE = 0
 1000 continue
 IPLACE = IPLACE+1
-if (INUM(IPLACE) < maxval(IPLACE)) then
+if (INUM(IPLACE) < MXVAL(IPLACE)) then
   INUM(IPLACE) = INUM(IPLACE)+1
   NONEW = 0
   goto 1001
 else if (IPLACE < NELMNT) then
   do JPLACE=1,IPLACE
     !08-08-01 INUM(JPLACE) = 1
-    INUM(JPLACE) = MINVAL
+    INUM(JPLACE) = MNVAL
   end do
 else if (IPLACE == NELMNT) then
   NONEW = 1

@@ -18,18 +18,12 @@ subroutine SPSPCLS(ISPSPCLS,ICLS,NCLS)
 !
 ! Jeppe Olsen, Jan 97
 
-use lucia_data, only: NGAS
-use lucia_data, only: IPRDIA
-use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP
-use lucia_data, only: NOCTYP
-use lucia_data, only: MXPNGAS
+use lucia_data, only: IBSPGPFTP, IPRDIA, ISPGPFTP, MXPNGAS, NELFGP, NGAS, NOCTYP
+use Definitions, only: iwp
 
 implicit none
-! Specific input
-integer NCLS, ICLS(*)
-! OUtput
-integer ISPSPCLS(*)
-integer IATP, IBTP, NOCTPA, NOCTPB, IOCTPA, IOCTPB
+integer(kind=iwp) :: ISPSPCLS(*), ICLS(*), NCLS
+integer(kind=iwp) :: IATP, IBTP, IOCTPA, IOCTPB, NOCTPA, NOCTPB
 
 IATP = 1
 IBTP = 2

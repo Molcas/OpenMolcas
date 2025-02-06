@@ -14,10 +14,13 @@ subroutine BNDINV(A,EL,N,DETERM,EPSIL,ITEST,NSIZE)
 ! FROM "DLYTAP".
 
 use Constants, only: Zero, One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension A(NSIZE,*), EL(NSIZE,*)
+implicit none
+integer(kind=iwp) :: N, ITEST, NSIZE
+real(kind=wp) :: A(NSIZE,*), EL(NSIZE,*), DETERM, EPSIL
+integer(kind=iwp) :: I, I1, INDSNL, ISL2, J, J1, K, M, N1
+real(kind=wp) :: C, D, DETERP, E, EPSILP, F, RAT, S
 
 INDSNL = 0
 if (N < 2) GO TO 140

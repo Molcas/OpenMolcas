@@ -11,26 +11,27 @@
 ! Copyright (C) 1998, Jeppe Olsen                                      *
 !***********************************************************************
 
-integer function ISYMSTR(ISYM,NSTR)
+function ISYMSTR(ISYM,NSTR)
 ! Symmetry of product of NSTR string symmetries
 !
 ! works currently only for D2H and subgroups
 !
 ! Jeppe Olsen, 1998
 
-use symmetry_info, only: MULTD2H => Mul
+use Symmetry_Info, only: Mul
+use Definitions, only: iwp
 
 implicit none
-! Input
-integer ISYM(*), NSTR
-integer IISYM, JSTR
+integer(kind=iwp) :: ISYMSTR
+integer(kind=iwp) :: ISYM(*), NSTR
+integer(kind=iwp) :: IISYM, JSTR
 
 if (NSTR == 0) then
   IISYM = 1
 else
   IISYM = ISYM(1)
   do JSTR=2,NSTR
-    IISYM = MULTD2H(IISYM,ISYM(JSTR))
+    IISYM = Mul(IISYM,ISYM(JSTR))
   end do
 end if
 

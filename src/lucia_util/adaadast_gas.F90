@@ -42,25 +42,18 @@ subroutine ADAADAST_GAS(IOB,IOBSM,IOBTP,NIOB,IAC,JOB,JOBSM,JOBTP,NJOB,JAC,ISPGP,
 ! Jeppe Olsen, August of 95   ( adadst)
 !              November 1997 : annihilation added
 
-use HIDSCR, only: ZSCR, ZOCSTR => OCSTR, REO, Z
-use lucia_data, only: NGAS
-use lucia_data, only: IBGPSTR, IBSPGPFTP, ISPGPFTP, NELFGP, NELFSPGP, NELFTP, NGPSTR
-use lucia_data, only: NELIS, NSTRKS
-use lucia_data, only: IOBPTS, NOBPT, NOCOB
-use lucia_data, only: MXPNGAS
-use Definitions, only: u6
+use HIDSCR, only: OCSTR, REO, Z, ZSCR
+use lucia_data, only: IBGPSTR, IBSPGPFTP, IOBPTS, ISPGPFTP, MXPNGAS, NELFGP, NELFSPGP, NELFTP, NELIS, NGAS, NGPSTR, NOBPT, NOCOB, &
+                      NSTRKS
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer IOB, IOBSM, IOBTP, NIOB, IAC, JOB, JOBSM, JOBTP, NJOB, JAC, ISPGP, ISM, ITP, KMIN, KMAX, LI1, NK, IEND, IFRST, KFRST, I12, &
-        K12
-real*8 SCLFAC
-integer I1(*)
-real*8 XI1S(*)
-integer KGRP(MXPNGAS)
-integer IDUM(1)
-integer, save :: NSTRI_
-integer IIGRP, JJGRP, NTEST, K1SM, KSM, ISPGPABS, IACADJ, IDELTA, JACADJ, JDELTA, IEL, JEL, ITRIVIAL, IGRP, JGRP, NTEST2, NELI, &
-        NSTRI, NELK, NSTRK, IIOB, JJOB, IZERO
+integer(kind=iwp) :: IOB, IOBSM, IOBTP, NIOB, IAC, JOB, JOBSM, JOBTP, NJOB, JAC, ISPGP, ISM, ITP, KMIN, KMAX, I1(*), LI1, NK, &
+                     IEND, IFRST, KFRST, I12, K12
+real(kind=wp) :: XI1S(*), SCLFAC
+integer(kind=iwp) :: IACADJ, IDELTA, IDUM(1), IEL, IGRP, IIGRP, IIOB, ISPGPABS, ITRIVIAL, JACADJ, JDELTA, JEL, JGRP, JJGRP, JJOB, &
+                     K1SM, KGRP(MXPNGAS), KSM, NELI, NELK, NSTRI, NSTRK, NTEST, NTEST2
+integer(kind=iwp), save :: NSTRI_
 
 ! Some dummy initializations
 IIGRP = 0 ! jwk-cleanup
@@ -81,7 +74,7 @@ end if
 
 ! Internal affairs
 
-if ((I12 > size(Z,2)) .or. (K12 > size(ZOCSTR,2))) then
+if ((I12 > size(Z,2)) .or. (K12 > size(OCSTR,2))) then
   write(u6,*) ' ADST_GAS : Illegal value of I12 or K12 ',I12,K12
   !stop ' ADST_GAS : Illegal value of I12 or K12'
   call SYSABENDMSG('lucia_util/adst_gas','Internal error','')
@@ -171,7 +164,7 @@ if (IFRST /= 0) then
   NELI = NELFTP(ITP)
   NELIS(I12) = NELI
   ! Reorder array for I strings
-  call GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,ZOCSTR(:,K12),NOCOB,1,Z(:,I12),REO(:,I12))
+  call GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,OCSTR(:,K12),NOCOB,1,Z(:,I12),REO(:,I12))
   if (NTEST >= 1000) then
     write(u6,*) ' Info on I strings generated'
     write(u6,*) ' NSTRI = ',NSTRI
@@ -202,7 +195,7 @@ if (NTEST >= 100) write(u6,*) ' NELK = ',NELK
 if (KFRST /= 0) then
   ! Generate occupation of K STRINGS
   IDUM(1) = 0
-  call GETSTR2_TOTSM_SPGP(KGRP,NGAS,KSM,NELK,NSTRK,ZOCSTR(:,K12),NOCOB,0,IDUM,IDUM)
+  call GETSTR2_TOTSM_SPGP(KGRP,NGAS,KSM,NELK,NSTRK,OCSTR(:,K12),NOCOB,0,IDUM,IDUM)
   !    GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,IZ,IREO)
   NSTRKS(K12) = NSTRK
   if (NTEST >= 1000) then
@@ -217,11 +210,10 @@ NSTRK = NSTRKS(K12)
 IIOB = IOBPTS(IOBTP,IOBSM)+IOB-1
 JJOB = IOBPTS(JOBTP,JOBSM)+JOB-1
 
-IZERO = 0
-call ISETVC(I1,IZERO,LI1*NIOB*NJOB)
+call ISETVC(I1,0,LI1*NIOB*NJOB)
 !OLD call SETVEC(XI1S,Zero,LI1*NIOB*NJOB)
 
-call ADAADAS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,IAC,JJOB,NJOB,JAC,ZOCSTR(:,K12),NELK,NSTRK,REO(:,I12),Z(:,I12),NOCOB,KMAX,KMIN,IEND, &
+call ADAADAS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,IAC,JJOB,NJOB,JAC,OCSTR(:,K12),NELK,NSTRK,REO(:,I12),Z(:,I12),NOCOB,KMAX,KMIN,IEND, &
                   SCLFAC,NSTRI_)
 
 if (NTEST >= 1000) then

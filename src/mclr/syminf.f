@@ -13,8 +13,7 @@
 * Information about number of symmetries
 *
       use DetDim, only: MXPOBS
-      use csm_data, only: NSMSX,NSMDX,NSMST,NSMCI,NSMXT,ITSSX,ITSDX,
-     &                    ITSXT
+      use csm_data, only: NSMSX,NSMDX,NSMST,NSMCI,ITSSX,ITSDX
       use csm_data, only: ADASX,ADSXA,ASXAD,SXDXSX,SXSXDX
       IMPLICIT None
       INTEGER NIRREP,IPRNT
@@ -42,10 +41,8 @@
       NSMDX = NIRREP
       NSMST = NIRREP
       NSMCI = NIRREP
-      NSMXT = NIRREP
       ITSSX = 1
       ITSDX = 1
-      ITSXT = 1
 *
       Call iCopy(MXPOBS*MXPOBS,[0],0,ADASX,1)
       Call iCopy(MXPOBS*2*MXPOBS,[0],0,ADSXA,1)

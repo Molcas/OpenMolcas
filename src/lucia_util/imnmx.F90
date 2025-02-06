@@ -9,15 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function IMNMX(IVEC,NDIM,MINMAX)
+function IMNMX(IVEC,NDIM,MINMAX)
 ! Find smallest (MINMAX=1) or largest (MINMAX=2)
 ! absolute value of elements in integer vector IVEC
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IVEC(*), NDIM, MINMAX
-integer IX, I
+integer(kind=iwp) :: IMNMX
+integer(kind=iwp) :: IVEC(*), NDIM, MINMAX
+integer(kind=iwp) :: IX, I
 
 IX = 0
 if (NDIM > 0) then

@@ -25,20 +25,17 @@ subroutine ADTOR2(RHO2,RHO2S,RHO2A,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,N
 !              input is in form Rho2t(ij,kl)
 
 use Constants, only: Zero, One, Two, Half, Quart
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! Input
-real*8 RHO2T(*)
-integer ITYPE, NI, IOFF, NJ, JOFF, NK, KOFF, NL, LOFF, NORB
-logical IPACK
-! Input and output
-real*8 RHO2(*), RHO2S(*), RHO2A(*)
-! Program flow flags
-logical IPROCEED, DO_IJKL, DO_IJKL_PACK, DO_JIKL_PACK
-integer NII, NJJ, NKK, NLL, KKOFF, LLOFF, IACTIVE, I, J, K, L, I_PACK, J_PACK, K_PACK, L_PACK, IJ_PACK, JI_PACK, KL_PACK, NTEST, &
-        NROW, NCOL, NELMNT, IPERM, IIOFF, JJOFF, II, JJ, KK, LL, IJ, KL, IKIND, NIK, JLIND, IKJLT, IJKL_PACK, JIKL_PACK, IJKL, IJKLT
-real*8 SIGN, FACTOR, SIGNIK, SIGNJL, TERM, FACTOR_PACK
+real(kind=wp) :: RHO2(*), RHO2S(*), RHO2A(*), RHO2T(*)
+integer(kind=iwp) :: ITYPE, NI, IOFF, NJ, JOFF, NK, KOFF, NL, LOFF, NORB
+logical(kind=iwp) :: IPACK
+integer(kind=iwp) :: I, I_PACK, IACTIVE, II, IIOFF, IJ, IJ_PACK, IJKL, IJKL_PACK, IJKLT, IKIND, IKJLT, IPERM, J, J_PACK, JI_PACK, &
+                     JIKL_PACK, JJ, JJOFF, JLIND, K, K_PACK, KK, KKOFF, KL, KL_PACK, L, L_PACK, LL, LLOFF, NCOL, NELMNT, NII, NIK, &
+                     NJJ, NKK, NLL, NROW, NTEST
+real(kind=wp) :: FACTOR, FACTOR_PACK, SGN, SIGNIK, SIGNJL, TERM
+logical(kind=iwp) :: DO_IJKL, DO_IJKL_PACK, DO_JIKL_PACK, IPROCEED
 
 ! Some dummy initializations
 NII = 0 ! jwk-cleanup
@@ -47,7 +44,7 @@ NKK = 0 ! jwk-cleanup
 NLL = 0 ! jwk-cleanup
 KKOFF = 0 ! jwk-cleanup
 LLOFF = 0 ! jwk-cleanup
-SIGN = One ! jwk-cleanup
+SGN = One ! jwk-cleanup
 IACTIVE = 1 ! jwk-cleanup
 I = 0 ! jwk-cleanup
 K = 0 ! jwk-cleanup
@@ -115,7 +112,7 @@ if (ITYPE == 1) then
       KKOFF = KOFF
       NLL = NL
       LLOFF = LOFF
-      SIGN = One
+      SGN = One
       IACTIVE = 1
     else if (IPERM == 2) then
       if (IOFF /= KOFF) then
@@ -131,7 +128,7 @@ if (ITYPE == 1) then
       else
         IACTIVE = 0
       end if
-      SIGN = -One
+      SGN = -One
     else if (IPERM == 3) then
       if (JOFF /= LOFF) then
         NII = NI
@@ -142,7 +139,7 @@ if (ITYPE == 1) then
         JJOFF = LOFF
         NLL = NJ
         LLOFF = JOFF
-        SIGN = -One
+        SGN = -One
         IACTIVE = 1
       else
         IACTIVE = 0
@@ -157,7 +154,7 @@ if (ITYPE == 1) then
         JJOFF = LOFF
         NLL = NJ
         LLOFF = JOFF
-        SIGN = One
+        SGN = One
         IACTIVE = 1
       else
         IACTIVE = 0
@@ -260,7 +257,7 @@ if (ITYPE == 1) then
                   end if
                 end if
                 IKJLT = (JLIND-1)*NIK+IKIND
-                TERM = FACTOR*SIGN*SIGNJL*SIGNIK*RHO2T(IKJLT)
+                TERM = FACTOR*SGN*SIGNJL*SIGNIK*RHO2T(IKJLT)
 
                 if (DO_IJKL_PACK) then
                   IJKL_PACK = IJ_PACK*(IJ_PACK-1)/2+KL_PACK

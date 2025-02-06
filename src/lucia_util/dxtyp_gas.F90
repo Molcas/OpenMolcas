@@ -15,10 +15,11 @@ subroutine DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NOBTP,IL,IR)
 ! only combinations with type(I) >= type(K) and type(J) >= type(L)
 ! are included
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-integer IL(NOBTP), IR(NOBTP)
-integer ITP(*), JTP(*), KTP(*), LTP(*)
+implicit none
+integer(kind=iwp) :: NDXTP, ITP(*), JTP(*), KTP(*), LTP(*), NOBTP, IL(NOBTP), IR(NOBTP)
+integer(kind=iwp) :: IANNI1, IANNI2, ICREA1, ICREA2, IDIA, IDX, IJTP, IOBTP, KLTP, NANNI, NCREA, NDIF, NDIFT, NTEST
 
 NTEST = 0
 if (NTEST >= 100) then

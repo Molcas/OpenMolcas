@@ -39,17 +39,13 @@ subroutine CRESTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGST
 !          if the string have a negative sign
 !          then the phase equals - 1
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer STRING, TI, TTO, STRIN2, Z
-! Input
-dimension STRING(NEL,NSTINI), NEWORD(NSTINO), Z(NORB,NEL+1)
-dimension ISGSTI(NSTINI), ISGSTO(NSTINO)
-! Output
-dimension TI(NORB,NSTINI), TTO(NORB,NSTINI)
-! Scratch
-dimension STRIN2(500)
+implicit none
+integer(kind=iwp) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, IORBOF, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, ISGSTI(NSTINI), &
+                     ISGSTO(NSTINO), TI(NORB,NSTINI), TTO(NORB,NSTINI), NACOB, IPRNT
+integer(kind=iwp) :: I, IEL, IIISGN, IORB, IPLACE, ISTRIN, JSTRIN, MAXPR, NPR, NTEST, NTEST0, STRIN2(500)
+integer(kind=iwp), external :: ISTRNM
 
 NTEST0 = 1
 NTEST = max(IPRNT,NTEST0)

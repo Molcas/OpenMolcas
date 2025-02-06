@@ -17,40 +17,26 @@ subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO)
 !
 ! Driven by table of TTS blocks, May97
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use strbas, only: NSTSO
-use lucia_data, only: IPRDIA
-use lucia_data, only: PSSIGN
-use lucia_data, only: MXNSTR, I_AM_OUT, N_ELIMINATED_BATCHES
-use lucia_data, only: IDISK
-use lucia_data, only: NTOOB, IREOST, NACOB
-use lucia_data, only: NOCTYP
-use lucia_data, only: NELEC
+use lucia_data, only: I_AM_OUT, IDISK, IPRDIA, IREOST, MXNSTR, N_ELIMINATED_BATCHES, NACOB, NELEC, NOCTYP, NTOOB, PSSIGN
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use lucia_data, only: IBSPGPFTP
 use Definitions, only: u6
 #endif
 
 implicit none
-! =====
-! Input
-! =====
-integer LUDIA, ICISTR, I12, NBLOCK
-real*8 ECORE
-integer IBLTP(*)
-integer IBLKFO(8,NBLOCK)
-! ======
-! Output
-! ======
-real*8 DIAG(*)
-integer, allocatable :: LASTR(:), LBSTR(:)
-real*8, allocatable :: LJ(:), LK(:), LXB(:), LH1D(:), LRJKA(:)
-integer, external :: IMNMX
-integer NTEST, IATP, IBTP, NAEL, NBEL, NOCTPA, MAXA
+real(kind=wp) :: DIAG(*), ECORE
+integer(kind=iwp) :: LUDIA, ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK)
+integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA, NTEST
 #ifdef _DEBUGPRINT_
-integer NOCTPB, IOCTPA, IOCTPB
+integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB
 #endif
+integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:)
+real(kind=wp), allocatable :: LH1D(:), LJ(:), LK(:), LRJKA(:), LXB(:)
+integer(kind=iwp), external :: IMNMX
 
 NTEST = 0
 NTEST = max(NTEST,IPRDIA)
@@ -87,7 +73,7 @@ call mma_allocate(LH1D,NACOB,Label='LH1D')
 ! Space for blocks of strings
 call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
 call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
-MAXA = IMNMX(NSTSO(IATP)%I,NSMST*NOCTPA,2)
+MAXA = IMNMX(NSTSO(IATP)%A,NSMST*NOCTPA,2)
 call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 
 ! Diagonal of one-body integrals and coulomb and exchange integrals
@@ -95,7 +81,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 call GT1DIA(LH1D)
 call GTJK(LJ,LK,NTOOB,IREOST)
 if (LUDIA > 0) IDISK(LUDIA) = 0
-call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%I,NSTSO(IBTP)%I,LUDIA,ECORE,PSSIGN,IPRDIA,NTOOB, &
+call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,LUDIA,ECORE,PSSIGN,IPRDIA,NTOOB, &
              ICISTR,LRJKA,I12,IBLTP,NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
 ! Flush local memory
 call mma_deallocate(LJ)

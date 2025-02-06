@@ -11,27 +11,28 @@
 
 module CSM_data
 
-use lucia_data, only: mxpobs
+! NSMSX  : Number of symmetries single ex    (nIrrep)
+! NSMDX  : Number of symmetries double ex    (nIrrep)
+! NSMST  : Number of symmetries string       (nIrrep)
+! NSMCI  : Number of symmetries CI Space     (nIrrep)
+! ITSSX  : Total symmetrix single excitation (1)
+! ITSDX  : Total symmetrix double excitation (1)
+!
+! ADASX  : symmetry operator initialized in syminf
+! ASXAD  :                   initialized in syminf
+! ADSXA  :                   initialized in syminf
+! SXSXDX :                   initialized in syminf
+! SXDXSX :                   initialized in syminf
 
-private mxpobs
+use lucia_data, only: MXPOBS
+use Definitions, only: iwp
 
-! stuff from csm.fh
-! NSMSX : Number of symmetries single ex    (nIrrep)
-! NSMDX : Number of symmetries double ex    (nIrrep)
-! NSMST : Number of symmetries string       (nIrrep)
-! NSMCI : Number of symmetries CI Space     (nIrrep)
-! NSMXT : Not in use                        (nIrrep)
-! ITSSX : Total symmetrix single excitation (1)
-! ITSDX : Total symmetrix double excitation (1)
-! ITSXT : Not in use                        (1)
-integer NSMSX, NSMDX, NSMST, NSMCI, NSMXT, ITSSX, ITSDX, ITSXT
+implicit none
+private
 
-! stuff from csmprd.fh
-! ADASX  : symmetry operator   initialized in syminf
-! ASXAD  :                     initialized in syminf
-! ADSXA  :                     initialized in syminf
-! SXSXDX :                     initialized in syminf
-! SXDXSX :                     initialized in syminf
-integer ADASX(MXPOBS,MXPOBS), ASXAD(MXPOBS,2*MXPOBS), ADSXA(MXPOBS,2*MXPOBS), SXSXDX(2*MXPOBS,2*MXPOBS), SXDXSX(2*MXPOBS,4*MXPOBS)
+integer(kind=iwp) :: ADASX(MXPOBS,MXPOBS), ADSXA(MXPOBS,2*MXPOBS), ASXAD(MXPOBS,2*MXPOBS), ITSDX, ITSSX, NSMCI, NSMDX, NSMST, &
+                     NSMSX, SXDXSX(2*MXPOBS,4*MXPOBS), SXSXDX(2*MXPOBS,2*MXPOBS)
+
+public :: ADASX, ADSXA, ASXAD, ITSDX, ITSSX, NSMCI, NSMDX, NSMST, NSMSX, SXDXSX, SXSXDX
 
 end module CSM_data

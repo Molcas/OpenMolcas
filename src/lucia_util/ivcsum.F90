@@ -14,7 +14,11 @@ subroutine IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
 !
 ! IA(*) = IFACB*IB(*) + IFACC*IC(*)
 
-dimension IA(*), IB(*), IC(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IA(*), IB(*), IC(*), IFACB, IFACC, NDIM
+integer(kind=iwp) :: I
 
 do I=1,NDIM
   IA(I) = IFACB*IB(I)+IFACC*IC(I)

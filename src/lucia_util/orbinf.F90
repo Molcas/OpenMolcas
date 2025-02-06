@@ -26,16 +26,15 @@ subroutine ORBINF(IPRNT)
 !
 ! Jeppe Olsen, Winter of 1991
 
-use lucia_data, only: NGAS, IGSINA, IGSDEL, NGSOB, NGSOBT, NGSSH
-use lucia_data, only: NSMOB, NIRREP, PNTGRP
-use lucia_data, only: NTOOB, NACOB, NOCOB, NINOB, NDEOB, MXTSOB, MXTOB, ITOOBS, IBSO, IOBPTS, IOSPIR, IREOST, IREOTS, ISMFSO, &
-                      ISMFTO, ITOOBS, ITPFSO, ITPFTO, NACOBS, NDEOB, NDEOBS, NINOB, NINOBS, NOBPT, NOBPTS, NOCOBS, NOSPIR, NTOOBS
-use lucia_data, only: MXPIRR, MXPNGAS, MXPOBS
-use Definitions, only: u6
+use lucia_data, only: IBSO, IOBPTS, IREOST, IREOTS, ISMFSO, ISMFTO, ITOOBS, ITOOBS, MXPIRR, MXPNGAS, MXPOBS, MXTSOB, NACOB, &
+                      NACOBS, NDEOB, NDEOB, NGAS, NGSOBT, NGSSH, NINOB, NINOB, NINOBS, NIRREP, NOBPT, NOBPTS, NOCOB, NSMOB, NTOOB, &
+                      NTOOBS, PNTGRP
+use Definitions, only: iwp, u6
 
 implicit none
-integer IPRNT
-integer NTEST, IGAS, I, ISMOB, IOBTP, LTOB, IOBSM
+integer(kind=iwp) :: IPRNT
+integer(kind=iwp) :: I, IGAS, IGSDEL, IGSINA, IOBSM, IOBTP, IOSPIR(MXPOBS,MXPIRR), ISMOB, LTOB, NDEOBS(MXPOBS), &
+                     NGSOB(MXPOBS,MXPNGAS), NOSPIR(MXPIRR), NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
@@ -66,7 +65,7 @@ IGSINA = 0
 IGSDEL = 0
 
 call ISETVC(NTOOBS,0,NSMOB)
-call ISETVC(NOCOBS,0,NSMOB)
+!call ISETVC(NOCOBS,0,NSMOB)
 call ISETVC(NACOBS,0,NSMOB)
 
 NTOOB = 0
@@ -88,7 +87,7 @@ do IGAS=1,NGAS
   NTOOB = NTOOB+NGSOBT(IGAS)
   ! Add to occupied orbitals
   if (IGAS /= IGSDEL) then
-    call IVCSUM(NOCOBS,NOCOBS,NGSOB(1,IGAS),1,1,NSMOB)
+    !call IVCSUM(NOCOBS,NOCOBS,NGSOB(1,IGAS),1,1,NSMOB)
     NOCOB = NOCOB+NGSOBT(IGAS)
   end if
   ! Add to active orbitals
@@ -130,20 +129,17 @@ end if
 ! Part 2 : Reordering arrays for orbitals  *
 !                                          *
 !*******************************************
-call ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISMFTO,ITPFSO,IBSO,NOBPTS,IOBPTS,ISMFSO,ITPFTO, &
-                NOBPT,IPRNT)
+call ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISMFTO,IBSO,NOBPTS,IOBPTS,ISMFSO,NOBPT,IPRNT)
 
 ! Largest number of orbitals of given sym and type
 MXTSOB = 0
-MXTOB = 0
 do IOBTP=1,NGAS
   LTOB = 0
   do IOBSM=1,NSMOB
     MXTSOB = max(MXTSOB,NOBPTS(IOBTP,IOBSM))
     LTOB = LTOB+NOBPTS(IOBTP,IOBSM)
   end do
-  MXTOB = max(LTOB,MXTOB)
 end do
-if (NTEST > 0) write(u6,*) ' MXTSOB,MXTOB from ORBINF = ',MXTSOB,MXTOB
+if (NTEST > 0) write(u6,*) ' MXTSOB from ORBINF = ',MXTSOB
 
 end subroutine ORBINF

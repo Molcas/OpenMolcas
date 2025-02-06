@@ -17,12 +17,11 @@ subroutine MAX_OPEN_ORB(MAXOP,IOCLS,NGAS,NOCLS,NOBPT)
 ! Jeppe Olsen, November 2001
 
 use csfbas, only: maxop_lucia
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IOCLS(NGAS,NOCLS)
-integer NOBPT(NGAS)
+implicit none
+integer(kind=iwp) :: MAXOP, NGAS, NOCLS, IOCLS(NGAS,NOCLS), NOBPT(NGAS)
+integer(kind=iwp) :: IGAS, JOCLS, MAXOP_IGAS, MAXOP_J, NEL, NORB, NTEST
 
 MAXOP = 0
 !write(u6,*) ' NOCLS, NGAS = ',NOCLS,NGAS

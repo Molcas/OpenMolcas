@@ -16,10 +16,11 @@ subroutine WRT_CONF_LIST(ICONF,NCONF_FOR_OPEN,MAXOP,NELEC)
 !
 ! Jeppe Olsen, November 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer ICONF(*), NCONF_FOR_OPEN(MAXOP+1)
+implicit none
+integer(kind=iwp) :: ICONF(*), MAXOP, NCONF_FOR_OPEN(MAXOP+1), NELEC
+integer(kind=iwp) :: IB, IOPEN, JCONF, NCONF_OP, NOCC_ORB
 
 IB = 1
 do IOPEN=0,MAXOP

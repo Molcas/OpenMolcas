@@ -19,18 +19,13 @@ subroutine MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,MINOP,NTESTG)
 ! April2, 2003, JO (modified by JWK, April - June 2003)
 
 use lucia_data, only: MXPNGAS
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NORBTP, MINOP, NTESTG
-! Output
-integer MINEL(*), MAXEL(*)
-! Input
-integer NORBFTP(*), NELFTP(*)
-! Local scratch added April 2, 2003
-integer MINOP_GAS(MXPNGAS), MAXOP_GAS(MXPNGAS)
-integer, external :: IELSUM
-integer NTESTL, NTEST, NGAS, IGAS, MAXOP_T, MAXOP_EXL, NEL_INI, IBORB, NELEC, MAX_DOUBLE, IORB, IORB_START, NORB
+integer(kind=iwp) :: MINEL(*), MAXEL(*), NORBTP, NORBFTP(*), NELFTP(*), MINOP, NTESTG
+integer(kind=iwp) :: IBORB, IGAS, IORB, IORB_START, MAX_DOUBLE, MAXOP_EXL, MAXOP_GAS(MXPNGAS), MAXOP_T, MINOP_GAS(MXPNGAS), &
+                     NEL_INI, NELEC, NGAS, NORB, NTEST, NTESTL
+integer(kind=iwp), external :: IELSUM
 
 NTESTL = 0
 NTEST = max(NTESTG,NTESTL)

@@ -18,25 +18,20 @@ subroutine IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
 ! Jeppe Olsen, December 2001
 
 use strbas, only: IOCLS
-use lucia_data, only: NGAS, NMXOCCLS
-use lucia_data, only: IBSPGPFTP, NELFSPGP
-use lucia_data, only: MXPNGAS
-use Definitions, only: u6
+use lucia_data, only: IBSPGPFTP, MXPNGAS, NELFSPGP, NGAS, NMXOCCLS
+use Definitions, only: iwp, u6
 
 implicit none
-integer IAGRP, IATP, IBGRP, IBTP, IOC
-! Local scratch
-integer IABOCC(MXPNGAS)
-integer IATP_ABS, IBTP_ABS, IONE, INUM
+integer(kind=iwp) :: IAGRP, IATP, IBGRP, IBTP, IOC
+integer(kind=iwp) :: IABOCC(MXPNGAS), IATP_ABS, IBTP_ABS, INUM
 
 IATP_ABS = IATP+IBSPGPFTP(IAGRP)-1
 IBTP_ABS = IBTP+IBSPGPFTP(IBGRP)-1
 !write(u6,*) ' IATP, IBTP, IAGRP, IBGRP = ',ATP,IBTP,IAGRP,IBGRP
 !write(u6,*) ' IATP_ABS, IBTP_ABS ',IATP_ABS,IBTP_ABS
 
-IONE = 1
 !    IVCSUM(IA,IB,IC,IFACB,IFACC,NDIM)
-call IVCSUM(IABOCC,NELFSPGP(1,IATP_ABS),NELFSPGP(1,IBTP_ABS),IONE,IONE,NGAS)
+call IVCSUM(IABOCC,NELFSPGP(1,IATP_ABS),NELFSPGP(1,IBTP_ABS),1,1,NGAS)
 ! And the address of this occupation class
 call CMP_IVEC_ILIST(IABOCC,IOCLS,NGAS,NMXOCCLS,INUM)
 

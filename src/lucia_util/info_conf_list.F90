@@ -14,20 +14,18 @@
 subroutine INFO_CONF_LIST(NCONF_PER_OPEN,MAXOP,NEL,LENGTH_LIST,NCONF_TOT,IB_REO,IB_OCC)
 ! Info on configuration list form NCONF_PER_OPEN
 !
+! IB_REO : Offset for configuration  with given number of
+!          open orbitals in of configuration reordering
+! IB_OCC : Offset for configuration  with given number of
+!          open orbitals in list of configuration occupations
+!
 ! Jeppe Olsen, November 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer NCONF_PER_OPEN(MAXOP+1)
-! Output :
-! Offset for configuration  with given number of
-! open orbitals in of configuration reordering
-integer IB_REO(MAXOP+1)
-! Offset for configuration  with given number of
-! open orbitals in list of configuration occupations
-integer IB_OCC(MAXOP+1)
+implicit none
+integer(kind=iwp) :: MAXOP, NCONF_PER_OPEN(MAXOP+1), NEL, LENGTH_LIST, NCONF_TOT, IB_REO(MAXOP+1), IB_OCC(MAXOP+1)
+integer(kind=iwp) :: JB_OCC, JB_REO, NOCOB, NOPEN, NTEST
 
 JB_REO = 1
 JB_OCC = 1

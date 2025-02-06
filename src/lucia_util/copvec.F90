@@ -11,8 +11,12 @@
 
 subroutine COPVEC(FROM,TO,NDIM)
 
-implicit real*8(A-H,O-Z)
-dimension FROM(*), TO(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NDIM
+real(kind=wp) :: FROM(NDIM), TO(NDIM)
+integer(kind=iwp) :: I
 
 do I=1,NDIM
   TO(I) = FROM(I)

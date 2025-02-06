@@ -11,7 +11,11 @@
 
 subroutine ISETVC(IVEC,IVALUE,NDIM)
 
-dimension IVEC(NDIM)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NDIM, IVEC(NDIM), IVALUE
+integer(kind=iwp) :: I
 
 do I=1,NDIM
   IVEC(I) = IVALUE

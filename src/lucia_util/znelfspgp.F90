@@ -17,15 +17,12 @@ subroutine ZNELFSPGP(NTESTG)
 !
 ! Jeppe Olsen, July 1995
 
-use lucia_data, only: NGAS
-use lucia_data, only: NSTTP, IBSPGPFTP, ISPGPFTP, NELFGP, NELFSPGP, NSPGPFTP
-use lucia_data, only: MXPNGAS
-use Definitions, only: u6
+use lucia_data, only: IBSPGPFTP, ISPGPFTP, MXPNGAS, NELFGP, NELFSPGP, NGAS, NSPGPFTP, NSTTP
+use Definitions, only: iwp, u6
 
 implicit none
-integer NTESTG
-! Input and Output ( NELFSPGP(MXPNGAS,MXPSTT) )
-integer NTESTL, NTEST, ITP, NSPGP, IBSPGP, ISPGP, IGAS
+integer(kind=iwp) :: NTESTG
+integer(kind=iwp) :: IBSPGP, IGAS, ISPGP, ITP, NSPGP, NTEST, NTESTL
 
 NTESTL = 0
 NTEST = max(NTESTG,NTESTL)

@@ -18,10 +18,12 @@ subroutine TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
 ! IWAY = 1 : FULL TO PACKED
 ! IWAY = 2 : PACKED TO FULL FORM
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension AUTPAK(MATDIM,MATDIM), APAK(*)
+implicit none
+integer(kind=iwp) :: IWAY, MATDIM, NDIM
+real(kind=wp) :: AUTPAK(MATDIM,MATDIM), APAK(*)
+integer(kind=iwp) :: I, IJ, J, NTEST
 
 if (IWAY == 1) then
   IJ = 0

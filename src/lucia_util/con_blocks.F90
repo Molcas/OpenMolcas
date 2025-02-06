@@ -22,19 +22,19 @@ subroutine CON_BLOCKS(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,ICONSPA,ICONSPB,NO
 !                    level between two string types
 ! MXEXC : Largest excitation level
 ! IH_OCC_CONS : = 1 => Use only occupation conserving part of
-!                     Hamiltonian
+!                      Hamiltonian
 !
 ! Output
 ! INTERACT : =1 => The two blocks does interact
 !
 ! Jeppe Olsen, April 99
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, NOCTPA, NOCTPB, MXEXC, IH_OCC_CONS, INTERACT
-integer ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
-integer IA_EXC, IB_EXC, NTEST
+integer(kind=iwp) :: IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, NOCTPA, ICONSPA(NOCTPA,NOCTPA), NOCTPB, &
+                     ICONSPB(NOCTPB,NOCTPB), MXEXC, IH_OCC_CONS, INTERACT
+integer(kind=iwp) :: IA_EXC, IB_EXC, NTEST
 
 IA_EXC = ICONSPA(IATP,JATP)
 IB_EXC = ICONSPB(IBTP,JBTP)

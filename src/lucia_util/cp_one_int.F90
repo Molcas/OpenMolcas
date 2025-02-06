@@ -13,10 +13,11 @@ subroutine CP_ONE_INT(W1,NDIM)
 
 use GLBBAS, only: INT1, INT1O
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nDIM
-real*8 W1(NDIM)
+integer(kind=iwp) :: NDIM
+real(kind=wp) :: W1(NDIM)
 
 INT1(:) = Zero
 INT1(1:NDIM) = W1(1:NDIM)

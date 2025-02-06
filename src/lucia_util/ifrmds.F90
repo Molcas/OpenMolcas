@@ -17,12 +17,11 @@ subroutine IFRMDS(IARRAY,NDIM,MBLOCK,IFILE)
 ! If nblock == 0 NBLOCK = NDIM
 
 use lucia_data, only: IDISK
+use Definitions, only: iwp
 
 implicit none
-integer IARRAY(*)
-integer NDIM, MBLOCK, IFILE
-integer IDUMMY(1)
-integer NBLOCK, IREST, IBASE
+integer(kind=iwp) :: IARRAY(*), NDIM, MBLOCK, IFILE
+integer(kind=iwp) :: IBASE, IDUMMY(1), IREST, NBLOCK
 
 NBLOCK = MBLOCK
 

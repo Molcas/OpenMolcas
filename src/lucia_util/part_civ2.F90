@@ -47,24 +47,16 @@ subroutine PART_CIV2(IDC,IBLTP,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,MXLNG,IOCOC,ISMOS
 !
 ! Jeppe Olsen, August 1995
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-!integer NOOS(NOCTPA,NOCTPB,NSMST)
-!integer NOOSP(NOCTPA,NOCTPB,NSMST)
-integer NSSOA(NSMST,*), NSSOB(NSMST,*)
-integer IOCOC(NOCTPA,NOCTPB)
-integer IBLTP(*)
-integer ISMOST(*)
-! Output
-integer LBATCH(*)
-integer LEBATCH(*)
-integer I1BATCH(*)
-integer IBATCH(8,*)
+implicit none
+integer(kind=iwp) :: IDC, IBLTP(*), NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NOCTPA, NOCTPB, MXLNG, IOCOC(NOCTPA,NOCTPB), ISMOST(*), &
+                     NBATCH, LBATCH(*), LEBATCH(*), I1BATCH(*), IBATCH(8,*), ICOMP, ISIMSYM
+integer(kind=iwp) :: IA, IASM, IB, IBLOCK, IBSM, IFINI, IFRST, II, INC, ISM, JBATCH, LBLOCK, LBLOCKP, LENGTH, LENGTHP, NBLOCK, &
+                     NSTA, NSTB, NTEST
 
 ! Dummy initialize
-include = 0
+INC = 0
 LBLOCKP = 0
 
 NTEST = 0
@@ -140,9 +132,9 @@ if (IOCOC(IA,IB) == 0) goto 1000
 !    LBLOCK_AS = LBLOCK_AS+NSTA*NSTB
 !99 continue
 !  end do
-!  include = 0
+!  INC = 0
 !  !write(u6,*) ' IA IB LBLOCK_AS',IA,IB,LBLOCK_AS
-!  if ((LENGTH+LBLOCK_AS <= MXLNG) .or. (ICOMP == 1)) INCLUDE = 1
+!  if ((LENGTH+LBLOCK_AS <= MXLNG) .or. (ICOMP == 1)) INC = 1
 !end if
 ! Should this block be included
 IASM = ISM
@@ -163,11 +155,11 @@ end if
 !write(u6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK',IASM,IBSM,IA,IB,LBLOCKP,LBLOCK
 
 !if (ISIMSYM == 0) then
-include = 0
-if ((LENGTH+LBLOCK <= LBLOCK) .or. (ICOMP == 1)) include = 1
+INC = 0
+if ((LENGTH+LBLOCK <= LBLOCK) .or. (ICOMP == 1)) INC = 1
 !end if
 
-if (include == 1) then
+if (INC == 1) then
   NBLOCK = NBLOCK+1
   IBLOCK = IBLOCK+1
   LBATCH(NBATCH) = LBATCH(NBATCH)+1
@@ -183,7 +175,7 @@ if (include == 1) then
   LENGTHP = LENGTHP+LBLOCKP
   LEBATCH(NBATCH) = LENGTHP
   goto 1000
-else if ((ICOMP == 0) .and. (include == 0) .and. (NBLOCK == 0)) then
+else if ((ICOMP == 0) .and. (INC == 0) .and. (NBLOCK == 0)) then
   write(u6,*) ' Not enough space to include a single Block'
   write(u6,*) ' Since I cannot proceed I will stop'
   write(u6,*) ' Insufficient space detected in PART_CIV'

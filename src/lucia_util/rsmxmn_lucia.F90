@@ -9,23 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RSMXMN_LUCIA(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MIN1,MAX1,MIN3,MAX3,NTEST)
+subroutine RSMXMN_LUCIA(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MN1,MX1,MN3,MX3,NTEST)
 ! Construct accumulated MAX and MIN arrays for a RAS set of strings
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension MINEL(*), MAXEL(*)
+implicit none
+integer(kind=iwp) :: MAXEL(*), MINEL(*), NORB1, NORB2, NORB3, NEL, MN1, MX1, MN3, MX3, NTEST
+integer(kind=iwp) :: IORB, MAX1A, MAX2A, MAX3A, MIN1A, MIN2A, MIN3A, NORB
 
 NORB = NORB1+NORB2+NORB3
 ! accumulated max and min in each of the three spaces
 ! (required max and min at final orbital in each space)
-!OLD MIN1A = MIN1
-MIN1A = max(MIN1,NEL-MAX3-NORB2)
-MAX1A = MAX1
+!OLD MIN1A = MN1
+MIN1A = max(MN1,NEL-MX3-NORB2)
+MAX1A = MX1
 
-MIN2A = NEL-MAX3
-MAX2A = NEL-MIN3
+MIN2A = NEL-MX3
+MAX2A = NEL-MN3
 
 MIN3A = NEL
 MAX3A = NEL

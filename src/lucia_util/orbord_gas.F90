@@ -11,8 +11,7 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISFTO,ITFSO,IBSO,NOBPTS,IOBPTS,ISFSO, &
-                      ITFTO,NOBPT,IPRNT)
+subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISFTO,IBSO,NOBPTS,IOBPTS,ISFSO,NOBPT,IPRNT)
 ! Obtain Reordering arrays for orbitals
 ! (See note below for assumed ordering)
 !
@@ -35,28 +34,21 @@ subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST
 !  IREOST : Reordering array symmetry => type
 !  IREOTS : Reordering array type     => symmetry
 !  ISFTO  : Symmetry array for type ordered orbitals
-!  ITFSO  : Type array for symmetry ordered orbitals( not activated )
 !  IBSO   : First orbital of given symmetry ( symmetry ordered )
 !  NOBPTS : Number of orbitals per subtype and symmetry
 !  IOBPTS : Off sets for orbitals of given subtype and symmetry
 !           ordered according to input integrals
 !
 ! ISFSO  : Symmetry of orbitals, symmetry ordereing
-! ITFTO  : Type of orbital, type ordering
 !
 ! Jeppe Olsen, Winter 1994
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension NGSOB(MXPOBS,MXPNGAS), NTOOBS(*)
-dimension NGSOBT(MXPNGAS)
-! Output
-dimension IREOST(*), IREOTS(*), ISFTO(*), ITFSO(*), IBSO(*)
-dimension ISFSO(*), ITFTO(*)
-dimension NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*)
-dimension NOBPT(MXPNGAS)
+implicit none
+integer(kind=iwp) :: NSMOB, MXPOBS, MXPNGAS, NGAS, NGSOB(MXPOBS,MXPNGAS), NGSOBT(MXPNGAS), NTOOBS(*), NTOOB, IREOST(*), IREOTS(*), &
+                     ISFTO(*), IBSO(*), NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), ISFSO(*), NOBPT(MXPNGAS), IPRNT
+integer(kind=iwp) :: IADD, IBSSM, IGAS, IOFF, IORB, ISM, ISTOFF, ISYM, ITSOFF, JGAS, NPREV, NTEST
 
 ! ==========================
 ! Note on order of orbitals
@@ -83,7 +75,7 @@ dimension NOBPT(MXPNGAS)
 !  End of loop over symmetries
 ! End of Loop over Gas spaces
 !
-! 1:  Construct ISFTO, ITFTO, IREOST,IREOTS,NOBPTS,IOBPTS
+! 1:  Construct ISFTO, IREOST,IREOTS,NOBPTS,IOBPTS
 !
 ! To get rid of annoying and incorrect compiler warnings
 IBSSM = 0
@@ -109,7 +101,7 @@ do IGAS=1,NGAS
       IADD = IADD+1
       IREOTS(IORB) = IBSSM-1+NPREV+IADD
       IREOST(IBSSM-1+NPREV+IADD) = IORB
-      ITFTO(IORB) = IGAS
+      !ITFTO(IORB) = IGAS
       ISFTO(IORB) = ISYM
     end do
     ITSOFF = ITSOFF+NGSOB(ISYM,IGAS)
@@ -123,7 +115,7 @@ do ISYM=1,NSMOB
   do IGAS=1,NGAS
     do IORB=ISTOFF,ISTOFF+NGSOB(ISYM,IGAS)-1
       ISFSO(IORB) = ISYM
-      ITFSO(IORB) = IGAS
+      !ITFSO(IORB) = IGAS
     end do
     ISTOFF = ISTOFF+NGSOB(ISYM,IGAS)
   end do
@@ -166,13 +158,13 @@ if (NTEST /= 0) then
 
   write(u6,*) ' ISFTO array :'
   call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-  write(u6,*) ' ITFSO array :'
-  call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
+  !write(u6,*) ' ITFSO array :'
+  !call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
 
   write(u6,*) ' ISFSO array :'
   call IWRTMA(ISFSO,1,NTOOB,1,NTOOB)
-  write(u6,*) ' ITFTO array :'
-  call IWRTMA(ITFTO,1,NTOOB,1,NTOOB)
+  !write(u6,*) ' ITFTO array :'
+  !call IWRTMA(ITFTO,1,NTOOB,1,NTOOB)
 end if
 
 end subroutine ORBORD_GAS

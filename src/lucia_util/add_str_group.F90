@@ -31,13 +31,11 @@ subroutine ADD_STR_GROUP(NSTADD,IOFADD,ISTADD,NSTB,NSTA,ISTRING,IELOF,NELADD,NEL
 ! NELADD : Number of electrons to be added
 ! NELTOT : Total number of electrons
 
-implicit real*8(A-H,O-Z)
-! Input
-!dimension ISTADD(NELADD,*)
-dimension ISTADD(*)
-! Input and output
-!dimension ISTRING(NELTOT,*)
-dimension ISTRING(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NSTADD, IOFADD, ISTADD(*), NSTB, NSTA, ISTRING(*), IELOF, NELADD, NELTOT
+integer(kind=iwp) :: IADD2, IISTR, IOFF0, IOFF1, IOFF2, IOFFX, IOFFY, ISTA, ISTB, JEL
 
 !write(u6,*) '  Inside ADD ...'
 if (NSTA > 1) then

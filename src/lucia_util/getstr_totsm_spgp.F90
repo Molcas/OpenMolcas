@@ -41,23 +41,15 @@ subroutine GETSTR_TOTSM_SPGP(ISTRTP,ISPGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,I
 ! Jeppe Olsen, July 1995
 
 use strbas, only: NSTSGP, ISTSGP
-use lucia_data, only: NGAS
-use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP
-use lucia_data, only: MXPNGAS, MXPNSMST
+use lucia_data, only: IBSPGPFTP, ISPGPFTP, MXPNGAS, MXPNSMST, NELFGP, NGAS
 use csm_data, only: NSMST
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer ISTRTP, ISPGRP, ISPGRPSM, NEL, NSTR, NORBT, IDOREO
-integer IZ(NORBT,NEL)
-! output
-integer ISTR(*), IREO(*)
-! Local scratch
-integer NELFGS(MXPNGAS), ISMFGS(MXPNGAS), ITPFGS(MXPNGAS)
-integer maxval(MXPNGAS), minval(MXPNGAS)
-integer NNSTSGP(MXPNSMST,MXPNGAS)
-integer IISTSGP(MXPNSMST,MXPNGAS)
-integer NTEST, ISPGRPA, NGASL, IGAS, ISMST, MAXLEX, IFIRST, ISTRBS, NONEW, ISTSMM1, JSTSMM1, ISMGSN, JSTR, LEX, IEL
+integer(kind=iwp) :: ISTRTP, ISPGRP, ISPGRPSM, NEL, NSTR, ISTR(*), NORBT, IDOREO, IZ(NORBT,NEL), IREO(*)
+integer(kind=iwp) :: IEL, IFIRST, IGAS, IISTSGP(MXPNSMST,MXPNGAS), ISMFGS(MXPNGAS), ISMGSN, ISMST, ISPGRPA, ISTRBS, ISTSMM1, &
+                     ITPFGS(MXPNGAS), JSTR, JSTSMM1, LEX, MAXLEX, MNVAL(MXPNGAS), MXVAL(MXPNGAS), NELFGS(MXPNGAS), NGASL, &
+                     NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NTEST
 
 NTEST = 0
 if (NTEST >= 100) then
@@ -83,16 +75,16 @@ end do
 if (NGASL == 0) NGASL = 1
 ! Number of strings per GAS space and offsets for strings of given sym
 do IGAS=1,NGAS
-  call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
-  call ICOPVE2(ISTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,IISTSGP(1,IGAS))
+  call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
+  call ICOPVE2(ISTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,IISTSGP(1,IGAS))
 end do
 
 do IGAS=1,NGAS
   do ISMST=1,NSMST
-    if (NNSTSGP(ISMST,IGAS) > 0) maxval(IGAS) = ISMST
+    if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
   end do
   do ISMST=NSMST,1,-1
-    if (NNSTSGP(ISMST,IGAS) > 0) minval(IGAS) = ISMST
+    if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
   end do
 end do
 ! Largest and lowest active symmetries for each GAS space
@@ -111,14 +103,14 @@ ISTRBS = 1
 1000 continue
 if (IFIRST == 1) then
   do IGAS=1,NGASL-1
-    ISMFGS(IGAS) = minval(IGAS)
+    ISMFGS(IGAS) = MNVAL(IGAS)
   end do
 else
   ! Next distribution of symmetries in NGAS -1
-  !     NXTNUM2(INUM,NELMNT,MINVAL,MAXVAL,NONEW)
-  !call NXTNUM2(ISMFGS,NGASL-1,1,MAXVAL,NONEW)
+  !     NXTNUM2(INUM,NELMNT,MNVAL,MXVAL,NONEW)
+  !call NXTNUM2(ISMFGS,NGASL-1,1,MXVAL,NONEW)
   !call NXTNUM3(IOCA,NGAS,IGSMIN,IGSMAX,NONEW)
-  call NXTNUM3(ISMFGS,NGASL-1,MINVAL,MAXVAL,NONEW)
+  call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
   if (NONEW /= 0) goto 1001
 end if
 IFIRST = 0

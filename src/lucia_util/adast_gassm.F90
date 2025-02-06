@@ -33,16 +33,18 @@ subroutine ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! NSTAI : Number of I groupstrings in active gasspace
 
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A,H,O-Z)
-! Input
-dimension ICREORB(LROW_IN,*), ICRESTR(LROW_IN,*)
-! Output
-dimension ISTMAP(NSTAKTS,*), SGNMAP(NSTAKTS,*)
+implicit none
+integer(kind=iwp) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, LROW_IN, ICREORB(LROW_IN,*), ICRESTR(LROW_IN,*), IORBTSF, IORBTF, &
+                     NORBTS, NSTAK, NSTAI, NSTAKTS, NELB, ISTMAP(NSTAKTS,*), IAC, IEC
+real(kind=wp) :: SGNMAP(NSTAKTS,*), SCLFAC
+integer(kind=iwp) :: I_AM_ACTIVE, IA, IADRI0, IADRK0, IB, IORB, IORBR, IORBRT, IORBRTS, IROW, ISTR, KSTR, NK, NSTAINSTA, &
+                     NSTAKNSTA, NTEST
+real(kind=wp) :: SIGN0, SGN
 
 ! Some dummy initializations
-SIGN = Zero ! jwk-cleanup
+SGN = Zero ! jwk-cleanup
 ISTR = 0 ! jwk-cleanup
 
 !write(u6,*) ' ICRESTR'
@@ -70,10 +72,10 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
         ! Creation is nonvanishing
         I_AM_ACTIVE = 1
         if (ICRESTR(IORBRT,KSTR) > 0) then
-          SIGN = SIGN0
+          SGN = SIGN0
           ISTR = ICRESTR(IORBRT,KSTR)
         else
-          SIGN = -SIGN0
+          SGN = -SIGN0
           ISTR = -ICRESTR(IORBRT,KSTR)
         end if
       end if
@@ -84,10 +86,10 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
           ! Annihilation is non-vanishing
           I_AM_ACTIVE = 1
           if (ICRESTR(IORBRT,KSTR) > 0) then
-            SIGN = SIGN0
+            SGN = SIGN0
             ISTR = ICRESTR(IORBRT,KSTR)
           else
-            SIGN = -SIGN0
+            SGN = -SIGN0
             ISTR = -ICRESTR(IORBRT,KSTR)
           end if
         end if
@@ -100,10 +102,10 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
             ! Annihilation is non-vanishing
             I_AM_ACTIVE = 1
             if (ICRESTR(IROW,KSTR) > 0) then
-              SIGN = SIGN0
+              SGN = SIGN0
               ISTR = ICRESTR(IROW,KSTR)
             else
-              SIGN = -SIGN0
+              SGN = -SIGN0
               ISTR = -ICRESTR(IROW,KSTR)
             end if
           end if
@@ -135,7 +137,7 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
           !IBKA = IADRI0+(IB-1)*NSTAI*NSTA+IA
           !KBKA = IADRK0+(IB-1)*NSTAK*NSTA+IA
           ISTMAP(IADRK0+IA,IORBRTS) = IADRI0+IA
-          SGNMAP(IADRK0+IA,IORBRTS) = SIGN
+          SGNMAP(IADRK0+IA,IORBRTS) = SGN
         end do
         IADRI0 = IADRI0+NSTAINSTA
         IADRK0 = IADRK0+NSTAKNSTA

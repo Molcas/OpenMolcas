@@ -25,40 +25,32 @@ subroutine CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
 !             DTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
 !             ONF_OCC%I(I) : SPACE FOR STORING  NCNSM
 !                        CONFIGURATION EXPANSIONS
-! ( Spin signaled by PSSIGN in CIINFO)
+! (Spin signaled by PSSIGN in CIINFO)
 !
 ! Adapted for GAS calculations and LUCIA, Dec. 2001
 ! G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 
+use Data_Structures, only: Allocate_DT
+use GLBBAS, only: CFTP, CONF_OCC, CONF_REO, DFTP, DTOC, REO_PTDT, SDREO, SDREO_I, Z_PTDT
+use lucia_data, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IB_CONF_OCC, IB_CONF_REO, IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, &
+                      IELIMINATED_IN_GAS, MAXOP, MINOP, MS2, MULTS, MXPCSM, MXPORB, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, &
+                      NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_PER_SYM, NCONF_TOT, NCSF_HEXS, NCSF_PER_SYM, NGAS, NOBPT, NOCOB, &
+                      NPCMCNF, NPCSCNF, NPDTCNF, NSD_PER_SYM, PSSIGN
 use stdalloc, only: mma_allocate
-use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO, Z_PTDT, REO_PTDT, SDREO
-use lucia_data, only: MINOP, MAXOP, NCONF_ALL_SYM, NCSF_HEXS, NCONF_PER_OPEN, NPCMCNF, NPCSCNF, IBCONF_ALL_SYM_FOR_OCCLS, &
-                      IB_CONF_OCC, IB_CONF_REO, IB_SD_FOR_OPEN, NPDTCNF, NCONF_ALL_SYM_FOR_OCCLS, NCONF_PER_SYM, NCONF_TOT, &
-                      NCSF_PER_SYM, NSD_PER_SYM
-use lucia_data, only: NGAS
-use lucia_data, only: PSSIGN, MULTS, MS2
-use lucia_data, only: N_ELIMINATED_GAS, N_2ELIMINATED_GAS, I_ELIMINATE_GAS, I2ELIMINATED_IN_GAS, IELIMINATED_IN_GAS
-use lucia_data, only: NOBPT, NOCOB
-use lucia_data, only: MXPORB, MXPCSM
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
+integer(kind=iwp) :: IOCCLS(NGAS,*), NOCCLS, ISYM, IPRCSF
 #include "warnings.h"
-! Input type of occupation classes
-integer NOCCLS, ISYM, IPRCSF
-integer IOCCLS(NGAS,*)
-integer IDUM_ARR(1)
-integer TMP_CNF(MXPORB+1), HEXS_CNF(MXPORB+1), maxingas(N_ELIMINATED_GAS), maxingas2(N_2ELIMINATED_GAS)
-integer IDUM, NTEST, NELEC, ITP, IOPEN, IAEL, IBEL, I, IGAS, JOCCLS, INITIALIZE_CONF_COUNTERS, IDOREO, NCONF_ALL_SYM_PREV, IELIM, &
-        J, JGAS, NCSF, NSD, NCMB, LIDT, LDTOC, MXPTBL, MXDT, LCONF, ILCNF, LLCONF, ILLCNF, ITYP, ICL, IALPHA, LZ, LPTDT, IZERO, &
-        IB, LICS, LENGTH_LIST, NCONF_OCCLS
-integer, external :: IELSUM
-integer, external :: IBION_LUCIA
-integer, external :: IWEYLF
+integer(kind=iwp) :: HEXS_CNF(MXPORB+1), I, IAEL, IALPHA, IB, IBEL, ICL, IDOREO, IDUM, IDUM_ARR(1), IELIM, IGAS, ILCNF, ILLCNF, &
+                     INITIALIZE_CONF_COUNTERS, IOPEN, ITP, ITYP, J, JGAS, JOCCLS, LCONF, LDTOC, LENGTH_LIST, LICS, LIDT, LLCONF, &
+                     LPTDT, LZ, maxingas(N_ELIMINATED_GAS), maxingas2(N_2ELIMINATED_GAS), MXDT, MXPTBL, NCMB, &
+                     NCONF_ALL_SYM_FOR_OCCLS(MXPCSM), NCONF_ALL_SYM_PREV, NCONF_OCCLS, NCSF, NELEC, NSD, NTEST, TMP_CNF(MXPORB+1)
+integer(kind=iwp), external :: IBINOM, IELSUM, IWEYLF
 
 IDUM = 0
-IDUM_ARR = 0
+IDUM_ARR(1) = 0
 
 NTEST = 0
 NTEST = max(IPRCSF,NTEST)
@@ -84,10 +76,10 @@ do IOPEN=MINOP,MAXOP
   if ((IAEL+IBEL == IOPEN) .and. (IAEL-IBEL == MS2) .and. (IAEL >= 0) .and. (IBEL >= 0)) then
     if ((PSSIGN == Zero) .or. (IOPEN == 0)) then
       ! Number of determinants is in general set to number of combinations
-      NPDTCNF(ITP) = IBION_LUCIA(IOPEN,IAEL)
+      NPDTCNF(ITP) = IBINOM(IOPEN,IAEL)
       NPCMCNF(ITP) = NPDTCNF(ITP)
     else
-      NPDTCNF(ITP) = IBION_LUCIA(IOPEN,IAEL)/2
+      NPDTCNF(ITP) = IBINOM(IOPEN,IAEL)/2
       NPCMCNF(ITP) = NPDTCNF(ITP)
     end if
     if (IOPEN >= MULTS-1) then
@@ -291,32 +283,31 @@ call mma_allocate(DTOC,LDTOC,Label='DTOC')
 ! HOLDING CONFIGURATION EXPANSIONS AND REORDER ARRAYS
 
 ! Occupation of configurations
-call mma_allocate(CONF_OCC(ISYM)%I,LCONF,Label='CONF_OCC()')
+call mma_allocate(CONF_OCC(ISYM)%A,LCONF,Label='CONF_OCC()')
 ! Reorder array for configurations
-call mma_allocate(CONF_REO(ISYM)%I,NCONF_TOT,Label='CONF_REO()')
+call mma_allocate(CONF_REO(ISYM)%A,NCONF_TOT,Label='CONF_REO()')
 ! Reorder array for determinants, index and sign
-call mma_allocate(SDREO_I(ISYM)%I,NSD,Label='SDREO_I()')
-SDREO(1:NSD) => SDREO_I(ISYM)%I(1:NSD)
+call mma_allocate(SDREO_I(ISYM)%A,NSD,Label='SDREO_I()')
+SDREO(1:NSD) => SDREO_I(ISYM)%A(1:NSD)
 
 ! Arrays for addressing prototype determinants for each number of orbitals
 
-allocate(Z_PTDT(MINOP+1:MAXOP+1))
-allocate(REO_PTDT(MINOP+1:MAXOP+1))
+call Allocate_DT(Z_PTDT,[MINOP+1,MAXOP+1],Label='Z_PTDT')
+call Allocate_DT(REO_PTDT,[MINOP+1,MAXOP+1],Label='REO_PTDT')
 do IOPEN=MINOP,MAXOP
   ITYP = IOPEN+1
 
   IALPHA = (IOPEN+MS2)/2
   LZ = IOPEN*IALPHA
-  LPTDT = IBION_LUCIA(IOPEN,IALPHA)
-  call mma_allocate(Z_PTDT(ITYP)%I,LZ,Label='Z_PTDT()')
-  call mma_allocate(REO_PTDT(ITYP)%I,LPTDT,Label='REO_PTDT()')
+  LPTDT = IBINOM(IOPEN,IALPHA)
+  call mma_allocate(Z_PTDT(ITYP)%A,LZ,Label='Z_PTDT()')
+  call mma_allocate(REO_PTDT(ITYP)%A,LPTDT,Label='REO_PTDT()')
 end do
 
 ! Array giving first determinant with given number of electrons
 ! in list of determinants ordered  according to the number of open orbitals
 
-IZERO = 0
-call ISETVC(IB_SD_FOR_OPEN,IZERO,MAXOP+1)
+call ISETVC(IB_SD_FOR_OPEN,0,MAXOP+1)
 IB = 1
 do IOPEN=MINOP,MAXOP
   IB_SD_FOR_OPEN(IOPEN+1) = IB

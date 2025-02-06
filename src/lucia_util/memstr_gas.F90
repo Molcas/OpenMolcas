@@ -21,8 +21,8 @@ subroutine MEMSTR_GAS()
 ! Input :
 !========
 ! Number and groups of strings defined by /GASSTR/
-! Symmetry information stored in         /CSM/
-! String information stored in           /STINF/
+! Symmetry information stored in          /CSM/
+! String information stored in            /STINF/
 !=========
 ! Output
 !=========
@@ -30,16 +30,14 @@ subroutine MEMSTR_GAS()
 !
 ! Jeppe Olsen, Winter of 1994
 
-use stdalloc, only: mma_allocate
-use strbas, only: OCSTR, STREO, NSTSGP, ISTSGP, NSTSO, ISTSO, ZMAT, STSTM, IOCLS, SPGPAN, SPGPCR
-use lucia_data, only: NMXOCCLS, NGAS
-use lucia_data, only: NGRP, NSTTP, NTSPGP, IGSFGP, NELFGP, NSPGPFTP, NSTFGP
-use lucia_data, only: NACOB, NOBPT
-use lucia_data, only: ISTAC
+use strbas, only: IOCLS, ISTSGP, ISTSO, NSTSGP, NSTSO, OCSTR, SPGPAN, SPGPCR, STREO, STSTM, ZMAT
+use lucia_data, only: IGSFGP, ISTAC, NACOB, NELFGP, NGAS, NGRP, NMXOCCLS, NOBPT, NSPGPFTP, NSTFGP, NSTTP, NTSPGP
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-integer IGRP, NSTRIN, LSTRIN, ITP, IEL, IGAS, IORB, ISTRIN, LENGTH
+integer(kind=iwp) :: IEL, IGAS, IGRP, IORB, ISTRIN, ITP, LENGTH, LSTRIN, NSTRIN
 
 ! Start of string information
 
@@ -48,29 +46,29 @@ integer IGRP, NSTRIN, LSTRIN, ITP, IEL, IGAS, IORB, ISTRIN, LENGTH
 do IGRP=1,NGRP
   NSTRIN = NSTFGP(IGRP)
   LSTRIN = NSTRIN*NELFGP(IGRP)
-  call mma_allocate(OCSTR(IGRP)%I,LSTRIN,Label='OCSTR()')
-  call mma_allocate(STREO(IGRP)%I,NSTRIN,Label='STREO()')
+  call mma_allocate(OCSTR(IGRP)%A,LSTRIN,Label='OCSTR()')
+  call mma_allocate(STREO(IGRP)%A,NSTRIN,Label='STREO()')
 end do
 
 ! Number of strings per symmetry and offset for strings of given sym
 ! for groups
 
-call mma_allocate(NSTSGP(1)%I,NSMST*NGRP,Label='NSTSGP(1)')
-call mma_allocate(ISTSGP(1)%I,NSMST*NGRP,Label='ISTSGP(1)')
+call mma_allocate(NSTSGP,NSMST*NGRP,Label='NSTSGP')
+call mma_allocate(ISTSGP,NSMST*NGRP,Label='ISTSGP')
 
 ! Number of strings per symmetry and offset for strings of given sym
 ! for types
 
 do ITP=1,NSTTP
-  call mma_allocate(NSTSO(ITP)%I,NSPGPFTP(ITP)*NSMST,Label='NSTSO(ITP)')
-  call mma_allocate(ISTSO(ITP)%I,NSPGPFTP(ITP)*NSMST,Label='ISTSO(ITP)')
+  call mma_allocate(NSTSO(ITP)%A,NSPGPFTP(ITP)*NSMST,Label='NSTSO(ITP)')
+  call mma_allocate(ISTSO(ITP)%A,NSPGPFTP(ITP)*NSMST,Label='ISTSO(ITP)')
 end do
 
 ! Lexical addressing of arrays : use array indices for complete active space
 
 ! Not in use so
 do IGRP=1,NGRP
-  call mma_allocate(Zmat(IGRP)%I,NACOB*NELFGP(IGRP),Label='ZMat()')
+  call mma_allocate(Zmat(IGRP)%A,NACOB*NELFGP(IGRP),Label='ZMat()')
 end do
 
 ! Mappings between different groups
@@ -89,8 +87,8 @@ do IGRP=1,NGRP
     ! Only annihilation map so
     LENGTH = IEL*ISTRIN
   end if
-  call mma_allocate(STSTM(IGRP,1)%I,LENGTH,LABEL='STSTM(IGRP,1)')
-  call mma_allocate(STSTM(IGRP,2)%I,LENGTH,LABEL='STSTM(IGRP,2)')
+  call mma_allocate(STSTM(IGRP,1)%A,LENGTH,LABEL='STSTM(IGRP,1)')
+  call mma_allocate(STSTM(IGRP,2)%A,LENGTH,LABEL='STSTM(IGRP,2)')
 end do
 
 ! Occupation classes

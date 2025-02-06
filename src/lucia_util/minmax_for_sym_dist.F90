@@ -19,16 +19,11 @@ subroutine MINMAX_FOR_SYM_DIST(NIGRP,IGRP,MNVAL,MXVAL,NDIST)
 !              April 1998     From  MINMAX_SM_GP
 
 use lucia_data, only: MINMAX_SM_GP
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-! Input
-integer NIGRP, NDIST
-integer IGRP(NIGRP)
-! Output
-integer MNVAL(NIGRP), MXVAL(NIGRP)
-! Local scratch
-integer NTEST, JGRP
+integer(kind=iwp) :: NIGRP, IGRP(NIGRP), MNVAL(NIGRP), MXVAL(NIGRP), NDIST
+integer(kind=iwp) :: JGRP, NTEST
 
 NTEST = 0
 if (NTEST >= 100) write(u6,*) ' >> Entering MINMAX_... <<'

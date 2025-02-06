@@ -9,17 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine COMBINATIONS(ICOMBI,SIGN)
+subroutine COMBINATIONS(ICOMBI,SGN)
 
 use lucia_data, only: PSSIGN
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer ICOMBI
-real*8 SIGN
+integer(kind=iwp) :: ICOMBI
+real(kind=wp) :: SGN
 
 ICOMBI = 0
-SIGN = PSSIGN
+SGN = PSSIGN
 if (PSSIGN /= Zero) ICOMBI = 1
 
 end subroutine COMBINATIONS

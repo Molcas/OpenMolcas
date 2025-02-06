@@ -17,10 +17,12 @@ function NOP_FOR_CONF(ICONF,NEL)
 !
 ! Jeppe Olsen, Nov. 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer ICONF(NEL)
+implicit none
+integer(kind=iwp) :: NOP_FOR_CONF
+integer(kind=iwp) :: NEL, ICONF(NEL)
+integer(kind=iwp) :: IEL, NOPEN, NTEST
 
 ! Loop over electrons
 NOPEN = 0

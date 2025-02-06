@@ -12,14 +12,12 @@
 subroutine GT1DIS(H1DIA,IREOTS,IPNT,H,ISMFTO,IBSO,NACOB)
 ! diagonal of one electron integrals over active orbitals
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IREOTS(*), IPNT(*), ISMFTO(*), IBSO(*)
-dimension H(*)
-! Output
-dimension H1DIA(*)
+implicit none
+real(kind=wp) :: H1DIA(*), H(*)
+integer(kind=iwp) :: IREOTS(*), IPNT(*), ISMFTO(*), IBSO(*), NACOB
+integer(kind=iwp) :: IIOB, IOB, IOBREL, ISM, NTEST
 
 do IIOB=1,NACOB
   IOB = IREOTS(IIOB)

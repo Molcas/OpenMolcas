@@ -66,51 +66,27 @@ subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,CB,SB,C2,ICOCOC,ISOCOC,ICS
 ! Symmetry-occupation-occupation blocks
 
 use lucia_data, only: IDISK
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer I12, NACOB, NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NOCTPA, NOCTPB, NSMST, NSMOB, MXPNGAS, MAXK, MAXI, NGAS, IDC, &
-        MXPOBS, IPRNT, LUL, LUR, NBATCHL, NBATCHR, IDOSRHO1
-real*8 PSL, PSR, S2_TERM1
-! General input
-integer ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB)
-integer ICSMOS(NSMST), ISSMOS(NSMST)
-integer ICBLTP(*), ISBLTP(*)
-integer NSSOA(NSMST,NOCTPA)
-integer NSSOB(NSMST,NOCTPB)
-integer STSTSX(NSMST,NSMST)
-integer ADSXA(MXPOBS,2*MXPOBS)
-integer SXDXSX(2*MXPOBS,4*MXPOBS)
-integer NOBPTS(MXPNGAS,NSMOB), IOBPTS(MXPNGAS,NSMOB)
-integer NELFSPGP(MXPNGAS,*)
-logical IPACK
-integer IPHGAS(*)
-real*8 SRHO1(*)
-! Info on batches and blocks
-integer LBATL(NBATCHL), I1BATL(NBATCHL), IBLOCKL(8,*)
-integer LBATR(NBATCHR), I1BATR(NBATCHR), IBLOCKR(8,*)
-! Interaction between supergroups
-integer ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB)
-! Scratch
-real*8 SB(*), CB(*), C2(*)
-real*8 CSCR(*), SSCR(*)
-integer I1(*), I2(*), I3(*), I4(*)
-real*8 XI1S(*), XI2S(*), XI3S(*), XI4S(*)
-real*8 X(*)
-real*8 RHO1S(*)
-real*8 SCLFAC_L(*), SCLFAC_R(*)
-integer ICOOSC(NOCTPA,NOCTPB), ISOOSC(NOCTPA,NOCTPB)
-integer LASM(4), LBSM(4), LATP(4), LBTP(4), LSGN(5), LTRP(5)
-integer RASM(4), RBSM(4), RATP(4), RBTP(4), RSGN(5), RTRP(5)
-real*8 L(*), R(*)
-! Output
-real*8 RHO1(*), RHO2(*), RHO2S(*), RHO2A(*)
-integer ISTRFL(1), LBL(1), IDUMMY(1)
-integer INTERACT, NTEST, IBATCHL, NBLKL, IIL, IL, IATP, IBTP, IASM, IBSM, IOFF, ISCALE, IBATCHR, NBLKR, IIR, IR, JATP, JBTP, JASM, &
-        JBSM, JOFF, IPERM, NPERM, IIASM, IIBSM, IIATP, IIBTP, IAEXC, IBEXC, IABEXC, NIA, NIB, ILPERM, NLPERM, NIIA, NIIB, LROW, &
-        LCOL, NJA, NJB, NRPERM
-real*8 PS, PL, PLR, FACTOR, SCLFAC, PCL
+integer(kind=iwp) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), ISSMOS(NSMST), &
+                     ICBLTP(*), ISBLTP(*), NACOB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, &
+                     IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,NSMOB), IOBPTS(MXPNGAS,NSMOB), MAXK, MAXI, NGAS, NELFSPGP(MXPNGAS,*), &
+                     IDC, I1(*), I2(*), I3(*), I4(*), MXPOBS, IPRNT, LUL, LUR, NBATCHL, LBATL(NBATCHL), I1BATL(NBATCHL), &
+                     IBLOCKL(8,*), NBATCHR, LBATR(NBATCHR), I1BATR(NBATCHR), IBLOCKR(8,*), ICONSPA(NOCTPA,NOCTPA), &
+                     ICONSPB(NOCTPB,NOCTPB), IPHGAS(*), IDOSRHO1
+real(kind=wp) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), L(*), R(*), CB(*), SB(*), C2(*), CSCR(*), SSCR(*), STSTSX(NSMST,NSMST), &
+                 SXDXSX(2*MXPOBS,4*MXPOBS), ADSXA(MXPOBS,2*MXPOBS), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), RHO1S(*), PSL, PSR, &
+                 SCLFAC_L(*), SCLFAC_R(*), S2_TERM1, SRHO1(*)
+logical(kind=iwp) :: IPACK
+integer(kind=iwp) :: IABEXC, IAEXC, IASM, IATP, IBATCHL, IBATCHR, IBEXC, IBSM, IBTP, IDUMMY(1), IIASM, IIATP, IIBSM, IIBTP, IIL, &
+                     IIR, IL, ILPERM, INTERACT, IOFF, IPERM, IR, ISCALE, ISTRFL(1), JASM, JATP, JBSM, JBTP, JOFF, LASM(4), &
+                     LATP(4), LBL(1), LBSM(4), LBTP(4), LCOL, LROW, LSGN(5), LTRP(5), NBLKL, NBLKR, NIA, NIB, NIIA, NIIB, NJA, &
+                     NJB, NLPERM, NPERM, NRPERM, NTEST, RASM(4), RATP(4), RBSM(4), RBTP(4), RSGN(5), RTRP(5)
+integer(kind=iwp), allocatable :: ICOOSC(:,:), ISOOSC(:,:)
+real(kind=wp) :: FACTOR, PCL, PL, PLR, PS, SCLFAC
 
 ! Some dummy initializations
 INTERACT = 0 ! jwk-cleanup
@@ -141,6 +117,8 @@ if (NTEST >= 100) then
 end if
 ! Loop over batches over L blocks
 if (LUL /= 0) IDISK(LUL) = 0
+call mma_allocate(ICOOSC,NOCTPA,NOCTPB,Label='ICOOSC')
+call mma_allocate(ISOOSC,NOCTPA,NOCTPB,Label='ISOOSC')
 do IBATCHL=1,NBATCHL
   ! Obtain L blocks
   NBLKL = LBATL(IBATCHL)
@@ -340,5 +318,8 @@ do IBATCHL=1,NBATCHL
   ! End of loop over batches of R blocks
 end do
 ! End of loop over batches of L blocks
+
+call mma_deallocate(ICOOSC)
+call mma_deallocate(ISOOSC)
 
 end subroutine GASDN2_LUCIA

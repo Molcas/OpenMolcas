@@ -28,27 +28,20 @@ subroutine NSTPTP_GAS(NGAS,ISPGRP,NSTSGP,NSMST,NSTSSPGP,IGRP,MXNSTR,NSMCLS,NSMCL
 !          i.e. number of combinations of symmetries of groups
 !          containing strings
 ! NSMCLSE : Number of symmetry classes for given supergroup
-!          obtained by restricting allowed symmetries in
-!          a given group by a max and min.
+!           obtained by restricting allowed symmetries in
+!           a given group by a max and min.
 ! NSMCLSE1 : As NSMCLSE, but the symmetry of the last active
 !            orbital space where there is more than one symmetry
 !            is left out
 
-use symmetry_info, only: MULTD2H => Mul
+use Symmetry_Info, only: Mul
 use lucia_data, only: MXPNGAS, MXPNSMST
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NGAS, NSMST, IGRP, MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
-! Input
-integer ISPGRP(NGAS), NSTSGP(NSMST,*)
-! Input and Output (column IGRP updated)
-integer NSTSSPGP(NSMST,IGRP)
-! Scratch
-integer ISM, MNSM(MXPNGAS), MXSM(MXPNGAS)
-integer MSM1(MXPNSMST), MSM2(MXPNSMST)
-integer ISM1(MXPNSMST), ISM2(MXPNSMST)
-integer NTEST, ISYM, IGAS, NGASL, IZERO, ISM_IGASM1, ISM_IGAS, ISTRSM
+integer(kind=iwp) :: NGAS, ISPGRP(NGAS), NSMST, NSTSGP(NSMST,*), IGRP, NSTSSPGP(NSMST,IGRP), MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
+integer(kind=iwp) :: IGAS, ISM, ISM1(MXPNSMST), ISM2(MXPNSMST), ISM_IGAS, ISM_IGASM1, ISTRSM, ISYM, MNSM(MXPNGAS), MSM1(MXPNSMST), &
+                     MSM2(MXPNSMST), MXSM(MXPNGAS), NGASL, NTEST
 
 NTEST = 0
 if (NTEST >= 10) then
@@ -89,7 +82,6 @@ NSMCLSE1 = 1
 do IGAS=1,NGASL-1
   NSMCLSE1 = (MXSM(IGAS)-MNSM(IGAS)+1)*NSMCLSE1
 end do
-IZERO = 0
 do IGAS=1,NGAS
   ! In ISM1, the number of strings per symmetry for the first
   ! IGAS-1 spaces are given, obtain in ISM2 the number of strings per sym
@@ -97,20 +89,20 @@ do IGAS=1,NGAS
   ! Also: in MSM1, MSM2, counts the number of nontrivial combinations per sym
   if (IGAS == 1) then
     ! ISM1: The number of strings per symmetry for zero electrons
-    call ISETVC(ISM1,IZERO,NSMST)
+    call ISETVC(ISM1,0,NSMST)
     ISM1(1) = 1
-    call ISETVC(MSM1,IZERO,NSMST)
+    call ISETVC(MSM1,0,NSMST)
     MSM1(1) = 1
   else
     ! copy from the ISM2 obtained for preceding IGAS
     call ICOPVE(ISM2,ISM1,NSMST)
     call ICOPVE(MSM2,MSM1,NSMST)
   end if
-  call ISETVC(ISM2,IZERO,NSMST)
-  call ISETVC(MSM2,IZERO,NSMST)
+  call ISETVC(ISM2,0,NSMST)
+  call ISETVC(MSM2,0,NSMST)
   do ISM_IGASM1=1,NSMST
     do ISM_IGAS=1,NSMST
-      ISM = MULTD2H(ISM_IGASM1,ISM_IGAS)
+      ISM = Mul(ISM_IGASM1,ISM_IGAS)
       ISM2(ISM) = ISM2(ISM)+ISM1(ISM_IGASM1)*NSTSGP(ISM_IGAS,ISPGRP(IGAS))
       if (ISM1(ISM_IGASM1)*NSTSGP(ISM_IGAS,ISPGRP(IGAS)) /= 0) MSM2(ISM) = MSM2(ISM)+MSM1(ISM_IGASM1)
     end do

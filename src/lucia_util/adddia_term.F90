@@ -19,32 +19,24 @@ subroutine ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM)
 !
 ! Jeppe Olsen and Giovanni Li Manni, September 2011
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use strbas, only: NSTSO
-use lucia_data, only: ECORE_ORIG, ECORE
-use lucia_data, only: IPRDIA
-use lucia_data, only: MXNSTR
-use lucia_data, only: NTOOB, NACOB, IREOST
-use lucia_data, only: NOCTYP
-use lucia_data, only: NELEC
+use lucia_data, only: ECORE, ECORE_ORIG, IPRDIA, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NTOOB
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-real*8 FACTOR
-integer IASPGP, IBSPGP, IASM, IBSM
-! Input
-real*8 CVEC(*)
-! Output
-real*8 SVEC(*)
-integer, allocatable :: LASTR(:), LBSTR(:)
-real*8, allocatable :: LJ(:), LK(:), LXB(:), LRJKA(:), LH1D(:)
-integer, external :: IMNMX
-integer NTEST, IATP, IBTP, NAEL, NBEL, NOCTPA, MAXA
-real*8 ECOREP, SHIFT, FACTORX
+real(kind=wp) :: FACTOR, CVEC(*), SVEC(*)
+integer(kind=iwp) :: IASPGP, IBSPGP, IASM, IBSM
+integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA, NTEST
+real(kind=wp) :: ECOREP, FACTORX, SHIFT
+integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:)
+real(kind=wp), allocatable :: LH1D(:), LJ(:), LK(:), LRJKA(:), LXB(:)
+integer(kind=iwp), external :: IMNMX
 
 NTEST = 0
 NTEST = max(NTEST,IPRDIA)
@@ -73,7 +65,7 @@ call mma_allocate(LXB,NACOB,Label='LXB')
 call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
 call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
 
-MAXA = IMNMX(NSTSO(IATP)%I,NSMST*NOCTPA,2)
+MAXA = IMNMX(NSTSO(IATP)%A,NSMST*NOCTPA,2)
 call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 ! Integrals assumed in place so :
@@ -86,7 +78,7 @@ call GTJK(LJ,LK,NTOOB,IREOST)
 SHIFT = ECORE_ORIG-ECORE
 FACTORX = FACTOR+SHIFT
 
-call ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,NACOB,CVEC,SVEC,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%I,NSTSO(IBTP)%I,ECOREP,IPRDIA, &
+call ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,NACOB,CVEC,SVEC,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,IPRDIA, &
                   NTOOB,LRJKA,IASPGP,IASM,IBSPGP,IBSM,FACTORX)
 ! Flush local memory
 call mma_deallocate(LH1D)

@@ -24,22 +24,16 @@ subroutine I_AM_SO_EXCITED(NBATCH,IBATCH,LBATCH,I1BATCH)
 ! Notice that for the doubly excited states (DEXS) all
 ! singly excited states (HEXS) are in effect.
 
-use lucia_data, only: NGAS
-use lucia_data, only: N_ELIMINATED_GAS, N_2ELIMINATED_GAS, I_ELIMINATE_GAS, N_ELIMINATED_BATCHES, I_AM_OUT, I2ELIMINATED_IN_GAS, &
-                      IBSPGPFTP, IELIMINATED_IN_GAS, ISPGPFTP, NELFGP, NSPGPFTP
-use lucia_data, only: MXPSTT
-use Definitions, only: u6
+use lucia_data, only: I2ELIMINATED_IN_GAS, I_AM_OUT, I_ELIMINATE_GAS, IBSPGPFTP, IELIMINATED_IN_GAS, ISPGPFTP, MXPSTT, &
+                      N_2ELIMINATED_GAS, N_ELIMINATED_BATCHES, N_ELIMINATED_GAS, NELFGP, NGAS, NSPGPFTP
+use Definitions, only: iwp, u6
 
 implicit none
-integer NBATCH
-! Input
-integer IBATCH(8,*), LBATCH(*), I1BATCH(*)
-! Scratch
-integer IMAX_OCC(2,NGAS,2)
-integer MAX_E_GAS_ALPHA(2,MXPSTT), MAX_E_GAS_BETA(2,MXPSTT)
-integer MAXM1_E_GAS_ALPHA(2,MXPSTT), MAXM1_E_GAS_BETA(2,MXPSTT)
-integer NTEST, I, IZERO, JBATCH, IBLOCK, ISPGP, IOFF, IGAS, IITYPE, IEL, NALPHA, NBETA, NALPHAM1, NBETAM1, ITYPE_A, ITYPE_B, &
-        IMATCH_BLOCK, IGAS_ELIM, IMATCH_BETA, J, IMATCH_ALPHA, IMATCH_BETAM1, IMATCH_ALPHAM1
+integer(kind=iwp) :: NBATCH, IBATCH(8,*), LBATCH(*), I1BATCH(*)
+integer(kind=iwp) :: I, IBLOCK, IEL, IGAS, IGAS_ELIM, IITYPE, IMATCH_ALPHA, IMATCH_ALPHAM1, IMATCH_BETA, IMATCH_BETAM1, &
+                     IMATCH_BLOCK, IMAX_OCC(2,NGAS,2), IOFF, ISPGP, ITYPE_A, ITYPE_B, J, JBATCH, MAX_E_GAS_ALPHA(2,MXPSTT), &
+                     MAX_E_GAS_BETA(2,MXPSTT), MAXM1_E_GAS_ALPHA(2,MXPSTT), MAXM1_E_GAS_BETA(2,MXPSTT), NALPHA, NALPHAM1, NBETA, &
+                     NBETAM1, NTEST
 
 NTEST = 0
 
@@ -67,8 +61,7 @@ end if
 ! First we need to find the GAS spaces for which we will eliminate
 ! the maximum occupation.
 
-IZERO = 0
-IMAX_OCC = IZERO
+IMAX_OCC = 0
 
 do JBATCH=1,2 ! only alpha and beta
   do IBLOCK=I1BATCH(JBATCH),I1BATCH(JBATCH)+LBATCH(JBATCH)-1

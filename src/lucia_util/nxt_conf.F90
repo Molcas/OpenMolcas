@@ -24,10 +24,11 @@ subroutine NXT_CONF(ICONF,NEL,NORB,INI,NONEW)
 !
 ! Jeppe Olsen, November 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer ICONF(NEL)
+implicit none
+integer(kind=iwp) :: NEL, ICONF(NEL), NORB, INI, NONEW
+integer(kind=iwp) :: I, IADD, IEL, INCREASE, JORB, N_DOUBLE, NDOUBLE, NTEST
 
 NTEST = 0
 if (NTEST >= 100) then

@@ -9,15 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function IWEYLF(NOPEN,MULTS)
+function IWEYLF(NOPEN,MULTS)
 ! NUMBER OF CSF'S WITH NOPEN ORBITALS AND TOTAL MULTIPLICITY
 ! MULTS ACCORDING TO WEYLS FORMULAE
 !
 ! (2S+1)/(NOPEN+1) * BION(NOPEN+1/0.5*NOPEN-S)
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: IWEYLF
+integer(kind=iwp) :: NOPEN, MULTS
+integer(kind=iwp) :: NCSF, NTEST
+integer(kind=iwp), external :: IBINOM
 
 NTEST = 0
 
@@ -26,7 +30,7 @@ if ((NOPEN == 0) .and. (MULTS == 1)) then
 elseif (mod(MULTS-1,2) /= mod(NOPEN,2)) then
   NCSF = 0
 elseif (mod(MULTS-1,2) == mod(NOPEN,2)) then
-  NCSF = MULTS*IBION_LUCIA(NOPEN+1,(NOPEN+1-MULTS)/2)/(NOPEN+1)
+  NCSF = MULTS*IBINOM(NOPEN+1,(NOPEN+1-MULTS)/2)/(NOPEN+1)
 end if
 
 IWEYLF = NCSF

@@ -20,12 +20,12 @@ subroutine COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
 ! Type of file LUOUT is inherited from LUIN
 
 use lucia_data, only: IDISK
+use Definitions, only: wp, iwp
 
 implicit none
-integer LUIN, LUOUT, IREW, LBLK
-real*8 SEGMNT(*)
-integer LBL(1), IDUMMY(1)
-integer KBLK, NO_ZEROING, IAMPACK, IMZERO
+integer(kind=iwp) :: LUIN, LUOUT, IREW, LBLK
+real(kind=wp) :: SEGMNT(*)
+integer(kind=iwp) :: IAMPACK, IDUMMY(1), IMZERO, KBLK, LBL(1), NO_ZEROING
 
 if (IREW /= 0) then
   IDISK(LUIN) = 0

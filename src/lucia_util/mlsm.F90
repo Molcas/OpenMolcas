@@ -9,47 +9,50 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MLSM(IML,IPARI,ISM,type,IWAY)
+subroutine MLSM(IML,IPARI,ISM,TYP,IWAY)
 ! Transfer between ML,IPARI notation and compound notation ISM
 !
 ! IWAY = 1 : IML,IPARI => Compound
 ! IWAY = 2 : IML,IPARI <= Compound
 !
-! TYPE : 'SX','OB','ST','DX','CI'
+! TYP : 'SX','OB','ST','DX','CI'
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IML, IPARI, ISM, IWAY
-character(len=2) type
-integer, parameter :: MNMLOB = 0, NMLOB = 0, MNMLST = 0, NMLST = 0, MNMLSX = 0, NMLSX = 0, MNMLCI = 0, NMLCI = 0, MNMLDX = 0, &
-                      NMLDX = 0
-integer :: NML = 0, MNML = 0, NTEST
+integer(kind=iwp) :: IML, IPARI, ISM, IWAY
+character(len=2) :: TYP
+integer(kind=iwp) :: MNML, NML_, NTEST
+integer(kind=iwp), parameter :: MNMLCI = 0, MNMLDX = 0, MNMLOB = 0, MNMLST = 0, MNMLSX = 0, NMLCI = 0, NMLDX = 0, NMLOB = 0, &
+                                NMLST = 0, NMLSX = 0
 
-if (type == 'OB') then
-  NML = NMLOB
-  MNML = MNMLOB
-else if (type == 'SX') then
-  NML = NMLSX
-  MNML = MNMLSX
-else if (type == 'DX') then
-  NML = NMLDX
-  MNML = MNMLDX
-else if (type == 'ST') then
-  NML = NMLST
-  MNML = MNMLST
-else if (type == 'CI') then
-  NML = NMLCI
-  MNML = MNMLCI
-end if
+select case (TYP)
+  case ('OB')
+    NML_ = NMLOB
+    MNML = MNMLOB
+  case ('SX')
+    NML_ = NMLSX
+    MNML = MNMLSX
+  case ('DX')
+    NML_ = NMLDX
+    MNML = MNMLDX
+  case ('ST')
+    NML_ = NMLST
+    MNML = MNMLST
+  case ('CI')
+    NML_ = NMLCI
+    MNML = MNMLCI
+  case default
+    call Abend()
+end select
 
 if (IWAY == 1) then
-  !ISM = (IPARI-1)*NML+MNML-1
-  ISM = (IPARI-1)*NML+IML-MNML+1
+  !ISM = (IPARI-1)*NML_+MNML-1
+  ISM = (IPARI-1)*NML_+IML-MNML+1
 else if (IWAY == 2) then
-  if (ISM > NML) then
+  if (ISM > NML_) then
     IPARI = 2
-    IML = ISM-NML+MNML-1
+    IML = ISM-NML_+MNML-1
   else
     IPARI = 1
     IML = ISM+MNML-1
@@ -63,7 +66,7 @@ end if
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(u6,'(A,A)') ' MLSM speaking, type= ',type
+  write(u6,'(A,A)') ' MLSM speaking, type= ',TYP
   write(u6,'(A,3I4)') ' IML IPARI ISM ',IML,IPARI,ISM
 end if
 

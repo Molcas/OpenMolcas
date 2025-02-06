@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine H0INTSPC(IH0SPC,NPTSPC,IOCPTSPC,NOCTPA,NOCTPB,IOCA,IOCB,NGAS,MXPNGAS,INTH0SPC,NELFTP)
+subroutine H0INTSPC(IH0SPC,NPTSPC,NOCTPA,NOCTPB,IOCA,IOCB,NGAS,MXPNGAS,INTH0SPC,NELFTP)
 ! Set up INTH0SPC : Division of CI space, so only determinants
 !                   belonging to the same space  have nonvanishing
 !                   matrix elements of H0
@@ -24,7 +24,6 @@ subroutine H0INTSPC(IH0SPC,NPTSPC,IOCPTSPC,NOCTPA,NOCTPB,IOCA,IOCB,NGAS,MXPNGAS,
 !          == 0 : Interacting subspaces not defined, let
 !                 everything interact
 ! NPTSPC : Number of subspaces defined
-! IOCPTSPC : Allowed occumulated occupation of each subspace
 ! NOCTPA :  Number of alpha occupation types
 ! NOCTPB : Number of beta occupation types
 ! IOCA : Occupation  of alpha string
@@ -32,24 +31,19 @@ subroutine H0INTSPC(IH0SPC,NPTSPC,IOCPTSPC,NOCTPA,NOCTPB,IOCA,IOCB,NGAS,MXPNGAS,
 !
 ! Jeppe Olsen, January 1996
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension IOCPTSPC(2,MXPNGAS,*)
-dimension IOCA(MXPNGAS,*), IOCB(MXPNGAS,*)
-dimension NELFTP(*)
-! Output
-dimension INTH0SPC(NOCTPA,NOCTPB)
+implicit none
+integer(kind=iwp) :: IH0SPC, NPTSPC, MXPNGAS, NOCTPA, NOCTPB, IOCA(MXPNGAS,*), IOCB(MXPNGAS,*), NGAS, INTH0SPC(NOCTPA,NOCTPB), &
+                     NELFTP(*)
+integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, ISPC, NTEST
 
 if (IH0SPC == 0) then
   ! All interactions allowed
-  IONE = 1
-  call ISETVC(INTH0SPC,IONE,NOCTPA*NOCTPB)
+  call ISETVC(INTH0SPC,1,NOCTPA*NOCTPB)
 else
   ! Explicit construction of matrix giving partitionning of subspaces
-  IZERO = 0
-  call ISETVC(INTH0SPC,IZERO,NOCTPA*NOCTPB)
+  call ISETVC(INTH0SPC,0,NOCTPA*NOCTPB)
 
   do ISPC=1,NPTSPC
     do IATP=1,NOCTPA
@@ -61,7 +55,8 @@ else
           IEL = IEL+NELFTP(IOCA(IGAS,IATP))+NELFTP(IOCB(IGAS,IBTP))
           !write(u6,*) ' IGAS IEL ',IGAS,IEL
           !write(u6,*) ' Limits :',IOCPTSPC(1,IGAS,ISPC),IOCPTSPC(2,IGAS,ISPC)
-          if ((IEL < IOCPTSPC(1,IGAS,ISPC)) .or. (IEL > IOCPTSPC(2,IGAS,ISPC))) IAMOKAY = 0
+          !if ((IEL < IOCPTSPC(1,IGAS,ISPC)) .or. (IEL > IOCPTSPC(2,IGAS,ISPC))) IAMOKAY = 0
+          if (IEL /= 0) IAMOKAY = 0
         end do
         !write(u6,*) ' IAMOKAY = ',IAMOKAY
         ! Allowed

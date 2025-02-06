@@ -16,54 +16,35 @@ subroutine GASCI(ISM,ISPC,IPRNT)
 !
 ! Jeppe Olsen, Winter of 1995
 
-use stdalloc, only: mma_allocate, mma_deallocate
-! Note that CI_VEC is used as a scratch array here and below.
-use GLBBAS, only: VEC3, SCR => CI_VEC
-use Local_Arrays, only: CLBT, CLEBT, CI1BT, CIBT, CBLTP, Allocate_Local_Arrays, Deallocate_Local_Arrays
+use GLBBAS, only: CI_VEC, VEC3
+use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays
 use strbas, only: NSTSO
 use rasscf_lucia, only: kvec3_length
-! module for communicating with sigma
-use CandS, only: ICSM, ISSM, ICSPC, ISSPC
-use lucia_data, only: NCSF_PER_SYM
-use lucia_data, only: ECORE_ORIG, ECORE
-use lucia_data, only: IGSOCC, IPHGAS, NGAS
-use lucia_data, only: MXSOOB, MXNTTS, IDUMMY, ISMOST, NELCI, XISPSM
-use lucia_data, only: LUDIA, LUSC1
-use lucia_data, only: IPRCIX
-use lucia_data, only: NOCSF, IDIAG, IRESTR, ICISTR, IADVICE, ISIMSYM, LCSBLK, MXINKA
-use lucia_data, only: IREFSM, PSSIGN, IDC
-use lucia_data, only: I_ELIMINATE_GAS, MXNSTR, IBSPGPFTP, MNHL, NELFSPGP, NELFTP, NHLFSPGP, NSTFSMSPGP
-use lucia_data, only: IH1FORM, IH2FORM
-use lucia_data, only: IDISK
-use lucia_data, only: NSMOB
-use lucia_data, only: I_RES_AB, I12
-use lucia_data, only: NOBPT, NOBPTS
-use lucia_data, only: NOCTYP
-use lucia_data, only: NELEC
-use lucia_data, only: MXPNGAS, MXPNSMST
+use CandS, only: ICSM, ICSPC, ISSM, ISSPC
+use lucia_data, only: ECORE, ECORE_ORIG, I12, I_ELIMINATE_GAS, I_RES_AB, IADVICE, IBSPGPFTP, ICISTR, IDC, IDIAG, IDISK, IGSOCC, &
+                      IH1FORM, IPHGAS, IPRCIX, IREFSM, IRESTR, ISIMSYM, ISMOST, LCSBLK, LUDIA, LUSC1, MNHL, MXINKA, &
+                      MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXSOOB, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, &
+                      NOBPT, NOBPTS, NOCSF, NOCTYP, NSMOB, NSTFSMSPGP, PSSIGN, XISPSM
 #ifdef _DEBUGPRINT_
-use lucia_data, only: LCMBSPC, ICMBSPC, IGSOCCX
+use lucia_data, only: ICMBSPC, IGSOCCX, LCMBSPC
 #endif
 use csm_data, only: NSMST
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer ISM, ISPC, IPRNT
-integer IOCCLS_ARR(1), ZERO_ARR(1)
-integer, allocatable :: CIOIO(:)
-integer, allocatable :: SVST(:)
-integer NTEST, NDET, IATP, IBTP, NEL, NOCCLS, LBLOCK, NOCTPA, NOCTPB, NTTS, NBLOCK, MXSTBL0, IATPM1, IBTPM1, IATPM2, IBTPM2, NAEL, &
-        NBEL, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, MAXK, IOCTPA, IOCTPB, MXCIJA, MXCIJB, MXSXBL, MXADKBLK, MXADKBLK_AS, LSCR2, &
-        LSCR12, MXCIJAB, NVAR, MXCJ_ALLSYM, MX_NSPII, NBATCH, MXCJ
-integer, external :: IFRMR
-integer, external :: IMNMX
-real*8 SHIFT
+integer(kind=iwp) :: ISM, ISPC, IPRNT
+integer(kind=iwp) :: IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, IOCCLS_ARR(1), IOCTPA, IOCTPB, LBLOCK, LSCR12, LSCR2, MAXA, &
+                     MAXA1, MAXB, MAXB1, MAXK, MX_NSPII, MXADKBLK, MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, &
+                     MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCH, NBEL, NBLOCK, NDET, NEL, NOCCLS, NOCTPA, NOCTPB, NTEST, NTTS, NVAR, &
+                     ZERO_ARR(1)
 #ifdef _DEBUGPRINT_
-integer IGAS, II, JJGASSPC, JGASSPC
+integer(kind=iwp) :: IGAS, II, JGASSPC, JJGASSPC
 #endif
-! Should all parameters be tranfered to Molcas?
-!parameter (IALL = 0)
+real(kind=wp) :: SHIFT
+integer(kind=iwp), allocatable :: CIOIO(:), SVST(:)
+integer(kind=iwp), external :: IFRMR, IMNMX
 
 NTEST = 1
 NTEST = max(NTEST,IPRNT)
@@ -73,7 +54,6 @@ NTEST = max(NTEST,IPRNT)
 ! Normal integrals accessed
 IH1FORM = 1
 I_RES_AB = 0
-IH2FORM = 1
 ! CI not CC
 ! Not just number conserving part
 !IH_OCC_CONS_TEST = 0
@@ -114,7 +94,8 @@ end if
 #endif
 
 NDET = int(XISPSM(ISM,ISPC))
-NEL = NELCI(ISPC)
+!NEL = NELCI(ISPC)
+NEL = 0
 if (NTEST >= 20) write(u6,*) ' Number of determinants/combinations  ',NDET
 if (NDET == 0) then
   write(u6,*) ' The number of determinants/combinations is zero.'
@@ -180,7 +161,7 @@ call ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 
 ! Batches  of C vector
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%I,NSTSO(IBTP)%I,NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
+call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
                0,ISIMSYM)
 ! Number of BLOCKS
 NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
@@ -222,20 +203,20 @@ NBEL = NELEC(IBTP)
 ! Largest number of strings of given symmetry and type
 MAXA = 0
 if (NAEL >= 1) then
-  MAXA1 = IMNMX(NSTSO(IATPM1)%I,NSMST*NOCTYP(IATPM1),2)
+  MAXA1 = IMNMX(NSTSO(IATPM1)%A,NSMST*NOCTYP(IATPM1),2)
   !write(u6,*) ' MAXA1 1',MAXA1
   MAXA = max(MAXA,MAXA1)
   if (NAEL >= 2) then
-    MAXA1 = IMNMX(NSTSO(IATPM2)%I,NSMST*NOCTYP(IATPM2),2)
+    MAXA1 = IMNMX(NSTSO(IATPM2)%A,NSMST*NOCTYP(IATPM2),2)
     MAXA = max(MAXA,MAXA1)
   end if
 end if
 MAXB = 0
 if (NBEL >= 1) then
-  MAXB1 = IMNMX(NSTSO(IBTPM1)%I,NSMST*NOCTYP(IBTPM1),2)
+  MAXB1 = IMNMX(NSTSO(IBTPM1)%A,NSMST*NOCTYP(IBTPM1),2)
   MAXB = max(MAXB,MAXB1)
   if (NBEL >= 2) then
-    MAXB1 = IMNMX(NSTSO(IBTPM2)%I,NSMST*NOCTYP(IBTPM2),2)
+    MAXB1 = IMNMX(NSTSO(IBTPM2)%A,NSMST*NOCTYP(IBTPM2),2)
     MAXB = max(MAXB,MAXB1)
   end if
 end if
@@ -274,18 +255,18 @@ if (.not. ((IDIAG == 2) .and. (IRESTR == 1))) then
   if (ICISTR >= 2) IDISK(LUDIA) = 0
   I12 = 2
   SHIFT = ECORE_ORIG-ECORE
-  call GASDIAT(SCR,LUDIA,SHIFT,ICISTR,I12,CBLTP,NBLOCK,CIBT)
+   ! Note that CI_VEC is used as a scratch array here and below.
+  call GASDIAT(CI_VEC,LUDIA,SHIFT,ICISTR,I12,CBLTP,NBLOCK,CIBT)
 
   if ((NOCSF == 1) .and. (ICISTR == 1)) then
     IDISK(LUDIA) = 0
-    call TODSC(SCR,NVAR,-1,LUDIA)
+    call TODSC(CI_VEC,NVAR,-1,LUDIA)
   end if
   if (IPRCIX >= 2) write(u6,*) ' Diagonal constructed'
 else
   write(u6,*) ' Diagonal not calculated'
 end if
 
-IDUMMY = 1
 call Deallocate_Local_Arrays()
 call mma_deallocate(CIOIO)
 call mma_deallocate(VEC3)

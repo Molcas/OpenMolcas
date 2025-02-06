@@ -23,53 +23,46 @@ subroutine GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM
 ! Generate number and actual configurations of occclass IOCCLS
 ! and sym ISYM
 !
+! Input
+! =====
+! IOCCLS  : Number of electrons per gas space
+! NOBPT   : Number of orbitals per gasspace
+! IZ_CONF : Arc weights for configurations
+! IBCONF_REO, IBCONF_OCC : Offset for reordering array and occupation array
+!
+! Output
+! ======
+! NCONF_OP : Number of configurations per number of open shells, all symmetries
+! ICONF    : The actual configurations
+! IREO     : Reorder array : Lex number => Actual number
+!
 ! Jeppe Olsen, Nov. 2001
 !
 ! G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 
 use lucia_data, only: MXPORB
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer IB_OCCLS, INITIALIZE_CONF_COUNTERS, NGAS, ISYM, MINOP, MAXOP, IONLY_NCONF, NTORB, NCONF, IDOREO, NCONF_ALL_SYM, &
-        nconf_tot
-! Input
-! Number of electrons per gas space
-integer IOCCLS(NGAS)
-! Number of orbitals per gasspace
-integer NOBPT(NGAS)
-! Arc weights for configurations
-integer IZ_CONF(*)
-! Offset for reordering array and occupation array
-integer IBCONF_REO(*), IBCONF_OCC(*)
-! Output
-! Number of configurations per number of open shells, all symmetries
-integer NCONF_OP(MAXOP+1)
-! And the actual configurations
-integer ICONF(*)
-! Reorder array : Lex number => Actual number
-!integer IREO(*)
-integer ireo(nconf_tot)
-! Local scratch
-integer JCONF(2*MXPORB)
-integer IDUM_ARR(1)
-integer, external :: IELSUM
-integer NTEST, NEL, IZERO, INI, ISUM, I, NONEW, ISYM_CONF, NOPEN, NOCOB, IB_OCC, ILEXNUM, JREO, IDUM, ILEX_FOR_CONF_NEW, ISYMST, &
-        NOP_FOR_CONF
+integer(kind=iwp) :: NGAS, IOCCLS(NGAS), IB_OCCLS, INITIALIZE_CONF_COUNTERS, ISYM, MINOP, MAXOP, IONLY_NCONF, NTORB, NOBPT(NGAS), &
+                     NCONF_OP(MAXOP+1), NCONF, IBCONF_REO(*), IBCONF_OCC(*), ICONF(*), IDOREO, IZ_CONF(*), NCONF_ALL_SYM, &
+                     nconf_tot, ireo(nconf_tot)
+integer(kind=iwp) :: I, IB_OCC, IDUM, IDUM_ARR(1), ILEX_FOR_CONF_NEW, ILEXNUM, INI, ISUM, ISYM_CONF, ISYMST, JCONF(2*MXPORB), &
+                     JREO, NEL, NOCOB, NONEW, NOP_FOR_CONF, NOPEN, NTEST
+integer(kind=iwp), external :: IELSUM
 
 NTEST = 0
 ! Total number of electrons
 NEL = IELSUM(IOCCLS,NGAS)
 if (INITIALIZE_CONF_COUNTERS == 1) then
-  IZERO = 0
-  call ISETVC(NCONF_OP,IZERO,MAXOP+1)
+  call ISETVC(NCONF_OP,0,MAXOP+1)
   NCONF_ALL_SYM = 0
 end if
 ! Loop over configurations
 INI = 1
 NCONF = 0
 ISUM = 0
-call ISETVC(JCONF,IZERO,2*MXPORB)
+call ISETVC(JCONF,0,2*MXPORB)
 
 1000 continue
 ! Generate an array of integers from 1 to NEL.

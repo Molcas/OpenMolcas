@@ -21,14 +21,14 @@ subroutine ABTOR2(SKII,CKJJ,NKA,NKB,RHO2B,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB
 ! Jeppe Olsen, Fall of 96
 
 use Constants, only: One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 ! Input
-dimension CKJJ(*), SKII(*)
-dimension RHO2B(*)
-dimension KBIB(MAXK,*), XKBIB(MAXK,*)
-dimension KBJB(MAXK,*), XKBJB(MAXK,*)
+integer(kind=iwp) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD
+real(kind=wp) :: SKII(*), CKJJ(*), RHO2B(*), XKBIB(MAXK,*), XKBJB(MAXK,*)
+integer(kind=iwp) :: IB, ICOFF, IMAX, ISOFF, JB, K, KB, KK, KLOFF, L, LL
+real(kind=wp) :: FACTOR, SGNK, SGNL
 
 if (IKORD /= 0) then
   write(u6,*) ' ABTOR2 : IKORD /= 0'

@@ -23,18 +23,17 @@ subroutine REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,NLIST_PTDET,IS
 !            Prototype determinants not included in
 !            ILIST_PTDET are given zero address
 !
+! ISCR : Min length : 2*NOPEN + (NALPHA+1)*(NOPEN+1)
+!
 ! Jeppe Olsen, December 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer ILIST_PTDET(NOPEN,*)
-! Output
-integer IZ_PTDET(NOPEN,NALPHA), IREO_PTDET(*)
-! Local scratch : Min length : 2*NOPEN + (NALPHA+1)*(NOPEN+1)
-integer ISCR(*)
-integer NOPEN_ARR(1), NALPHA_ARR(1), IDUM(1)
+implicit none
+integer(kind=iwp) :: NOPEN, NALPHA, IZ_PTDET(NOPEN,NALPHA), IREO_PTDET(*), ILIST_PTDET(NOPEN,*), NLIST_PTDET, ISCR(*)
+integer(kind=iwp) :: IDUM(1), ILEX, JPTDT, KLMAX, KLMIN, KLW, NALPHA_ARR(1), NOPEN_ARR(1), NTEST, NTOT_PTDET
+integer(kind=iwp), external :: IBINOM, IZNUM_PTDT
+
 NTEST = 0
 
 ! 1 : Set up lexical order array for prototype determinants
@@ -59,12 +58,11 @@ NALPHA_ARR(1) = NALPHA
 ! Total number of prototype determinants
 NTOT_PTDET = 0
 if ((NALPHA >= 0) .and. (NALPHA <= NOPEN)) then
-  NTOT_PTDET = IBION_LUCIA(NOPEN,NALPHA)
+  NTOT_PTDET = IBINOM(NOPEN,NALPHA)
 else
   NTOT_PTDET = 0
 end if
-IZERO = 0
-call ISETVC(IREO_PTDET,IZERO,NTOT_PTDET)
+call ISETVC(IREO_PTDET,0,NTOT_PTDET)
 
 do JPTDT=1,NLIST_PTDET
   !write(u6,*) ' JPTDT = ',JPTDT

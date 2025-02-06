@@ -17,11 +17,12 @@ function IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
 !
 ! Jeppe Olsen, Dec. 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer Z(NOPEN,NALPHA)
-dimension IAB(*), NEWORD(*)
+implicit none
+integer(kind=iwp) :: IZNUM_PTDT
+integer(kind=iwp) :: IAB(*), NOPEN, NALPHA, Z(NOPEN,NALPHA), NEWORD(*), IREORD
+integer(kind=iwp) :: I, IALPHA, IZ, NTEST
 
 NTEST = 0
 if (NTEST >= 100) then

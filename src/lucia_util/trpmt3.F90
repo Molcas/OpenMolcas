@@ -14,12 +14,12 @@ subroutine TRPMT3(XIN,NROW,NCOL,XOUT)
 !
 ! With a few considerations for large scale cases with cache minimization
 
-implicit real*8(A-H,O-Z)
-dimension XIN(NROW,NCOL), XOUT(NCOL,NROW)
+use Definitions, only: wp, iwp
 
-! To get rid of annoying and incorrect compiler warnings
-IROFF = 0
-ICOFF = 0
+implicit none
+integer(kind=iwp) :: NROW, NCOL
+real(kind=wp) :: XIN(NROW,NCOL), XOUT(NCOL,NROW)
+integer(kind=iwp) :: ICBLK, ICEND, ICOFF, ICOL, IRBLK, IREND, IROFF, IROW, IWAY, LCBLK, LRBLK, NCBLK, NRBLK
 
 IWAY = 2
 if (IWAY == 1) then

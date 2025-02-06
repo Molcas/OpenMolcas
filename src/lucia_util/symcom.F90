@@ -28,10 +28,10 @@ subroutine SYMCOM(ITASK,I1,I2,I12)
 ! ==============
 
 use lucia_data, only: PNTGRP
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer ITASK, I1, I2, I12
+integer(kind=iwp) :: ITASK, I1, I2, I12
 
 if (PNTGRP == 1) then
   call SYMCM1(ITASK,I1,I2,I12)

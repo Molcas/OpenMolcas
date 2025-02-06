@@ -17,12 +17,12 @@ subroutine DISKUN2()
 ! Scratch files                                 :  40 - 59
 ! Internal files (retained through job)         :  60 - 69
 
-use lucia_data, only: LUMOIN, LU2INT, LU1INT, LUPRP, LUEXC, LUDIA, LUC, LUHC, LUSC1, LUSC2, LUSC3, LUSC34, LUSC35, LUSC36, LUSC37, &
-                      LUSC38, LUSC39, LUSC40, LUSC51, LUSC52, LUSC53, LUCIVO, LUMOUT
-use lucia_data, only: IDISK
+use lucia_data, only: IDISK, LUC, LUDIA, LUHC, LUMOUT, LUSC1, LUSC2, LUSC3, LUSC34, &
+                      LUSC35, LUSC36, LUSC37, LUSC38, LUSC39, LUSC40
+use Definitions, only: iwp
 
 implicit none
-integer, external :: IsFreeUnit
+integer(kind=iwp), external :: IsFreeUnit
 
 ! =========================
 ! Standard input and output
@@ -35,17 +35,17 @@ integer, external :: IsFreeUnit
 ! Input information
 ! =================
 ! Input file containing MO-AO transformation matrix
-LUMOIN = 12
+!LUMOIN = 12
 ! Input file for CI-vectors
 ! restart from file 21 is assumed
 ! Input, two electron integrals - MOLCAS
-LU2INT = 13
+!LU2INT = 13
 ! Input, one electron integrals - MOLCAS
-LU1INT = 14
+!LU1INT = 14
 ! Input, property one-electron integral files
-LUPRP = 15
+!LUPRP = 15
 ! File containing additional states for transition densities
-LUEXC = 17
+!LUEXC = 17
 ! =================
 ! Internal files
 ! =================
@@ -105,16 +105,12 @@ call DANAME_WA(LUSC39,'LUSC39')
 LUSC40 = IsFreeUnit(Lusc39)
 call DANAME_WA(LUSC40,'LUSC40')
 
-LUSC51 = 51
-LUSC52 = 52
-LUSC53 = 53
-
 ! =================
 ! Output files
 ! =================
 ! output file for CI-vectors
 ! Not in use
-LUCIVO = 98
+!LUCIVO = 98
 ! Natural orbitals in terms of input orbitals
 LUMOUT = IsFreeUnit(Lusc40)
 call DANAME_WA(LUMOUT,'LUMOUT')

@@ -13,12 +13,12 @@ subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
 ! Outer routine for accessing integral block
 
 use lucia_data, only: NOBPTS, NTOOBS
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
-real*8 XINT(*)
-integer NTEST, NI, NK, NIK, NJ, NL, NJL
+real(kind=wp) :: XINT(*)
+integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
+integer(kind=iwp) :: NI, NIK, NJ, NJL, NK, NL, NTEST
 
 NTEST = 0
 

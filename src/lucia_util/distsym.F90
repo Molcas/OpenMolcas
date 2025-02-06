@@ -11,11 +11,14 @@
 
 module DISTSYM
 
+use Definitions, only: iwp
+
+implicit none
 private
 
-integer, public :: INGRP_VAL
-integer, allocatable, public :: ISMDFGP(:)
-integer, allocatable, public :: NACTSYM(:)
-integer, allocatable, public :: ISMSCR(:)
+integer(kind=iwp) :: INGRP_VAL
+integer(kind=iwp), allocatable :: ISMDFGP(:), ISMSCR(:), NACTSYM(:)
+
+public :: INGRP_VAL, ISMDFGP, ISMSCR, NACTSYM
 
 end module DISTSYM

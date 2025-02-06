@@ -17,20 +17,15 @@ subroutine IAIBCM(ICISPC,IAIB)
 !
 ! Master for IAIBCM_GAS
 !
-!      Jeppe Olsen, august 1995
-!                   I_RE_MS2 added, May 99
+! Jeppe Olsen, august 1995
+! I_RE_MS2 added, May 99
 
-use lucia_data, only: ICMBSPC, IGSOCCX, LCMBSPC, NGAS
-use lucia_data, only: IPRDIA
-use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP
-use lucia_data, only: NOCTYP
-use lucia_data, only: MXPNGAS
+use lucia_data, only: IBSPGPFTP, ICMBSPC, IGSOCCX, IPRDIA, ISPGPFTP, LCMBSPC, MXPNGAS, NELFGP, NGAS, NOCTYP
+use Definitions, only: iwp
 
 implicit none
-integer ICISPC
-! Output
-integer IAIB(*)
-integer IATP, IBTP, NOCTPA, NOCTPB, IOCTPA, IOCTPB
+integer(kind=iwp) :: ICISPC, IAIB(*)
+integer(kind=iwp) :: IATP, IBTP, IOCTPA, IOCTPB, NOCTPA, NOCTPB
 
 IATP = 1
 IBTP = 2

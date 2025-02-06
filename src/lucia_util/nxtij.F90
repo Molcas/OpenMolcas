@@ -14,7 +14,11 @@ subroutine NXTIJ(I,J,NI,NJ,IJSM,NONEW)
 !
 ! Find next pair, if IJSM /= 0, I >= J
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: I, J, NI, NJ, IJSM, NONEW
+integer(kind=iwp) :: NTEST
 
 NONEW = 0
 100 continue

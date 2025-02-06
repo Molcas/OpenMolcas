@@ -12,10 +12,11 @@
 subroutine ICOPMT(MATI,NRI,NCI,MATO,NRO,NCO)
 ! Copy integer matrix MATI to MATO
 
-! Input
-integer MATI(NRI,NCI)
-! Output
-integer MATO(NRO,NCO)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NRI, NCI, MATI(NRI,NCI), NRO, NCO, MATO(NRO,NCO)
+integer(kind=iwp) :: IC, IR, NCEFF, NREFF
 
 NREFF = min(NRI,NRO)
 NCEFF = min(NCI,NCO)

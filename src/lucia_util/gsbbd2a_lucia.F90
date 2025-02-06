@@ -62,24 +62,19 @@ subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NRO
 
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input
-integer ADSXA(MXPOBS,2*MXPOBS), STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS)
-integer NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*)
-logical IPACK
-! Input
-integer ISEL(NGAS), ICEL(NGAS)
-dimension CB(*), SB(*), X(*)
-! Output
-dimension RHO2(*), RHO2S(*), RHO2A(*)
-! Scatch
-dimension SSCR(*), CSCR(*)
-dimension I1(MAXK,*), XI1S(MAXK,*)
-! Local arrays
-dimension ITP(256), JTP(256), KTP(256), LTP(256)
-!integer IKBT(3,8), IKSMBT(2,8), JLBT(3,8), JLSMBT(2,8)
+implicit none
+integer(kind=iwp) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPOBS, ADSXA(MXPOBS,2*MXPOBS), &
+                     NSMST, STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS), MXPNGAS, NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, &
+                     MAXK, I1(MAXK,*), NSMOB
+real(kind=wp) :: RHO2(*), RHO2S(*), RHO2A(*), SB(*), CB(*), SSCR(*), CSCR(*), XI1S(MAXK,*), X(*), SCLFAC
+logical(kind=iwp) :: IPACK
+integer(kind=iwp) :: I, I1IK, I1JL, IBOT, IDXSM, IDXTP, IFIRST, IFRST, II12, IIK, IIKE, IIPART, IJL, IJLE, IKBOFF, IKOBSM, IKOFF, &
+                     IKSM, IOFF, ISM, ITOP, ITP(256), ITYP, J, JFRST, JLBOFF, JLOBSM, JLOFF, JLSM, JOFF, JSM, JTP(256), JTYP, K, &
+                     K12, KBOT, KEND, KFRST, KOFF, KSM, KTOP, KTP(256), KTYP, L, LDUMMY, LOFF, LSM, LTP(256), LTYP, NDXTP, NI, &
+                     NIBTC, NIK, NJ, NJL, NK, NKBTC, NL, NONEW, NPART, NPARTSZ, NTEST
+real(kind=wp) :: FACTOR
 
 NTEST = 0
 if (NTEST >= 1000) then
@@ -170,7 +165,6 @@ do IDXTP=1,NDXTP
           !
           ! =======================================================
 
-          IONE = 1
           JLBOFF = 1
           if ((JSM == LSM) .and. (JTYP == LTYP)) then
             NJL = NJ*(NJ+1)/2
@@ -182,9 +176,8 @@ do IDXTP=1,NDXTP
           ! Obtain all double excitations from this group of K strings
           II12 = 1
           K12 = 1
-          IONE = 1
-          call ADADST_GAS(IONE,JSM,JTYP,NJ,IONE,LSM,LTYP,NL,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,JFRST,KFRST,II12, &
-                          K12,SCLFAC)
+          call ADADST_GAS(1,JSM,JTYP,NJ,1,LSM,LTYP,NL,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,JFRST,KFRST,II12,K12, &
+                          SCLFAC)
 
           JFRST = 0
           KFRST = 0
@@ -221,7 +214,6 @@ do IDXTP=1,NDXTP
           !
           ! =======================================================
 
-          IONE = 1
           IKBOFF = 1
           if ((ISM == KSM) .and. (ITYP == KTYP)) then
             NIK = NI*(NI+1)/2
@@ -233,10 +225,8 @@ do IDXTP=1,NDXTP
           ! Obtain all double excitations from this group of K strings
           II12 = 2
           K12 = 1
-          IONE = 1
           if (IFRST == 1) KFRST = 1
-          call ADADST_GAS(IONE,ISM,ITYP,NI,IONE,KSM,KTYP,NK,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST,KFRST,II12, &
-                          K12,One)
+          call ADADST_GAS(1,ISM,ITYP,NI,1,KSM,KTYP,NK,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST,KFRST,II12,K12,One)
 
           IFRST = 0
           KFRST = 0
@@ -299,9 +289,8 @@ do IDXTP=1,NDXTP
             FACTOR = One
           end if
           LDUMMY = NKBTC*NIBTC
-          ONEM = -One
           !    MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP)
-          call MATML7(X,SSCR,CSCR,NIK,NJL,LDUMMY,NIK,LDUMMY,NJL,FACTOR,ONEM,1)
+          call MATML7(X,SSCR,CSCR,NIK,NJL,LDUMMY,NIK,LDUMMY,NJL,FACTOR,-One,1)
           IFIRST = 0
           if (NTEST >= 2000) then
             write(u6,*) ' Updated X matrix IK,JL,IK,JL',NIK,NJL,NIK,NJL

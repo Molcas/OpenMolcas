@@ -9,12 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function GET_ECORE()
+function GET_ECORE()
 ! Lets the MOLCAS environment retrieve eCore_Hex.
 
 use lucia_data, only: ECORE_HEX
+use Definitions, only: wp
 
 implicit none
+real(kind=wp) :: GET_ECORE
 
 GET_ECORE = ECORE_HEX
 

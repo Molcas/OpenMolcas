@@ -30,12 +30,12 @@ subroutine PAMTMT(X,T,SCR,NORB)
 ! JEPPE OLSEN OCTOBER 1988
 
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer nOrb
-real*8 X(NORB,NORB), T(NORB,NORB)
-real*8 SCR(nOrb**2+nOrb*(nOrb+1)/2)
+implicit none
+integer(kind=iwp) :: nOrb
+real(kind=wp) :: X(NORB,NORB), T(NORB,NORB), SCR(nOrb**2+nOrb*(nOrb+1)/2)
+integer(kind=iwp) :: I, ISING, J, KLFREE, KLL, KLU, NTEST
 
 NTEST = 0
 if (NTEST >= 2) then

@@ -12,7 +12,11 @@
 subroutine ICOPVE(IFROM,ITO,NDIM)
 ! COPY INTEGER ARRAY
 
-dimension IFROM(*), ITO(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: IFROM(*), ITO(*), NDIM
+integer(kind=iwp) :: I
 
 do I=1,NDIM
   ITO(I) = IFROM(I)

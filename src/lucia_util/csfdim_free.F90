@@ -15,23 +15,16 @@
 subroutine CSFDIM_FREE(ISYM)
 ! Free resources allocated by CSFDIM_GAS
 
+use Data_Structures, only: Deallocate_DT
+use GLBBAS, only: CFTP, CONF_OCC, CONF_REO, DFTP, DTOC, REO_PTDT, SDREO, SDREO_I, Z_PTDT
 use stdalloc, only: mma_deallocate
-use GLBBAS, only: DFTP, CFTP, DTOC, SDREO_I, CONF_OCC, CONF_REO, Z_PTDT, REO_PTDT, SDREO
-use lucia_data, only: MINOP, MAXOP
+use Definitions, only: iwp
 
 implicit none
-integer ISYM
-#include "warnings.h"
-integer IOPEN, ITYP
+integer(kind=iwp) :: ISYM
 
-do IOPEN=MINOP,MAXOP
-  ITYP = IOPEN+1
-
-  call mma_deallocate(Z_PTDT(ITYP)%I)
-  call mma_deallocate(REO_PTDT(ITYP)%I)
-end do
-deallocate(Z_PTDT)
-deallocate(REO_PTDT)
+call Deallocate_DT(Z_PTDT)
+call Deallocate_DT(REO_PTDT)
 
 !LDET = NSD_PER_SYM(ISYM)
 !LCONF = 0
@@ -48,10 +41,10 @@ call mma_deallocate(DFTP)
 call mma_deallocate(CFTP)
 call mma_deallocate(DTOC)
 
-call mma_deallocate(CONF_OCC(ISYM)%I)
-call mma_deallocate(CONF_REO(ISYM)%I)
+call mma_deallocate(CONF_OCC(ISYM)%A)
+call mma_deallocate(CONF_REO(ISYM)%A)
 
-call mma_deallocate(SDREO_I(ISYM)%I)
+call mma_deallocate(SDREO_I(ISYM)%A)
 nullify(SDREO)
 
 end subroutine CSFDIM_FREE

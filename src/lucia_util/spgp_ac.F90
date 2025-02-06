@@ -29,13 +29,12 @@ subroutine SPGP_AC(INSPGRP,NINSPGRP,IOUTSPGRP,NOUTSPGRP,NGAS,MXPNGAS,IAC,ISPGRP_
 !
 ! Jeppe Olsen, April 1, 1997
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! General input : Number of electrons in each gasspace
-integer INSPGRP(MXPNGAS,*), IOUTSPGRP(MXPNGAS,*)
-! Output
-integer ISPGRP_AC(NGAS,*)
+implicit none
+integer(kind=iwp) :: MXPNGAS, INSPGRP(MXPNGAS,*), NINSPGRP, IOUTSPGRP(MXPNGAS,*), NOUTSPGRP, NGAS, IAC, ISPGRP_AC(NGAS,*), &
+                     IBASEIN, IBASEOUT
+integer(kind=iwp) :: IAMOKAY, IGAS, ISPGRP, ITO, JGAS, JSPGRP, NELIN, NELOUT, NTEST
 
 ! Check first that supergroups + IAC information is consistent
 NELIN = 0

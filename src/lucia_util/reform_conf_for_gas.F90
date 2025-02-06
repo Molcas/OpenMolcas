@@ -20,11 +20,11 @@ subroutine REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,IBORB,IBEL,MXPORB,NEL,IWAY)
 !
 ! Jeppe Olsen, November 2001
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-integer ICONF_GAS(MXPORB)
-integer ICONF(*)
+implicit none
+integer(kind=iwp) :: MXPORb, ICONF_GAS(MXPORB), ICONF(*), IBORB, IBEL, NEL, IWAY
+integer(kind=iwp) :: IEL, NTEST
 
 if (IWAY == 1) then
   do IEL=1,NEL

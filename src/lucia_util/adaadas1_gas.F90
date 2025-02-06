@@ -15,6 +15,7 @@ subroutine ADAADAS1_GAS(NK,I1,XI1S,LI1,IORB,NIORB,IAC,JORB,NJORB,JAC,KSTR,NKEL,N
 !
 ! KSTR is restricted to strings with relative numbers in the
 ! range KMAX to KMIN
+!
 ! =====
 ! Input
 ! =====
@@ -32,35 +33,35 @@ subroutine ADAADAS1_GAS(NK,I1,XI1S,LI1,IORB,NIORB,IAC,JORB,NJORB,JAC,KSTR,NKEL,N
 ! ======
 !
 ! NK      : Number of K strings
-! I1(KSTR,JORB) : ne. 0 =>  a+IORB a+JORB !KSTR> = +/-!ISTR>
+! I1(KSTR,JORB) : /= 0 =>  a+IORB a+JORB !KSTR> = +/-!ISTR>
 ! XI1S(KSTR,JORB) : above +/-
-!          : eq. 0    a + JORB !KSTR> = 0
+!               : == 0    a + JORB !KSTR> = 0
 ! Offset is KMIN
+!
+! ISCR : Local scratch, at most 1000 orbitals in a given TS block)
 !
 ! L.R. Jan 20, 1998
 
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer KSTR(NKEL,NKSTR)
-integer IREO(*), IZ(NOCOB,*)
-! Output
-integer I1(LI1,*)
-dimension XI1S(LI1,*)
-! Local scratch, at most 1000 orbitals in a given TS block)
-dimension ISCR(1000)
+implicit none
+integer(kind=iwp) :: NK, LI1, I1(LI1,*), IORB, NIORB, IAC, JORB, NJORB, JAC, NKEL, NKSTR, KSTR(NKEL,NKSTR), IREO(*), NOCOB, &
+                     IZ(NOCOB,*), KMAX, KMIN, IEND, NSTRI
+real(kind=wp) :: XI1S(LI1,*), SCLFAC
+integer(kind=iwp) :: I, IACT, IDIAG, IEL, IIEL, IIELMAX, IIELMIN, IIORB, IJ, IJOFF, ILEX, ILEX0, ILEX1, ILEX2, IORB1, IORB2, &
+                     IORBMAX, IORBMIN, ISCR(1000), JEL, JJ, JJEL, JJELMAX, JJELMIN, JJORB, JORB1, JORB2, JORBMAX, JORBMIN, KEL, &
+                     KEND, KKORB, KKSTR, NTEST
+real(kind=wp) :: SIGNIJ, SIGNJ, SGN, SGNARR(0:63)
+
 !PAM2009 Array of values, replacing expressions such as (-One)**INT:
-dimension SGNARR(0:63)
-
 do I=0,62,2
   SGNARR(I) = One
   SGNARR(I+1) = -One
 end do
 
 ! Some dummy initializations
-SIGN = Zero
+SGN = Zero
 
 NTEST = 0
 if (NTEST /= 0) then
@@ -226,8 +227,8 @@ else if ((IAC == 1) .and. (JAC == 1)) then
         IIORB = KSTR(IEL,KKSTR)
         if (NTEST >= 1000) write(u6,*) ' IEL JEL IORB JORB ',IEL,JEL,IORB,JORB
         if ((IIORB >= IORBMIN) .and. (IIORB <= IORBMAX) .and. (JJORB >= JORBMIN) .and. (JJORB <= JORBMAX)) then
-          !PAM09 SIGN = SCLFAC*(-One)**(IEL+JEL-1)
-          SIGN = SGNARR(IEL+JEL+1)*SCLFAC
+          !PAM09 SGN = SCLFAC*(-One)**(IEL+JEL-1)
+          SGN = SGNARR(IEL+JEL+1)*SCLFAC
           ! reverse lexical number of the double annihilated string
           ILEX = 1
           do JJEL=1,JEL-1
@@ -249,7 +250,7 @@ else if ((IAC == 1) .and. (JAC == 1)) then
 
           IJ = (JJORB-JORB)*NIORB+IIORB-IORB+1
           I1(KKSTR-KMIN+1,IJ) = IACT
-          XI1S(KKSTR-KMIN+1,IJ) = SIGN
+          XI1S(KKSTR-KMIN+1,IJ) = SGN
         end if
         ! End if orbitals are in correct range
       end do
@@ -268,8 +269,7 @@ else if ((IAC == 2) .and. (JAC == 1)) then
   !do KKSTR=1,NKSTR
   do KKSTR=KMIN,KEND
     ! Indicate where a given orbital i should be added in KKSTR
-    IZERO = 0
-    call ISETVC(ISCR(IORBMIN),IZERO,NIORB)
+    call ISETVC(ISCR(IORBMIN),0,NIORB)
     IIEL = 1
     do IIORB=IORBMIN,IORBMAX
 2810  continue
@@ -326,8 +326,8 @@ else if ((IAC == 2) .and. (JAC == 1)) then
               !stop ' IACT out of bounds'
               call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
             end if
-            !PAM2009 SIGN = SCLFAC*(-One)**(IEL+JEL-1)
-            SIGN = SGNARR(IEL+JEL+1)*SCLFAC
+            !PAM2009 SGN = SCLFAC*(-One)**(IEL+JEL-1)
+            SGN = SGNARR(IEL+JEL+1)*SCLFAC
           else if ((IEL > 0) .and. (IIORB < JJORB)) then
             ! New string is  a+1 ... a+ iel-1 a+ iiorb a+iel+1 ..a+jel-1 a+jel+1 ...
             ILEX = 1
@@ -349,17 +349,17 @@ else if ((IAC == 2) .and. (JAC == 1)) then
               call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
             end if
             !write(u6,*) ' IACT = ',IACT
-            !PAM2009 SIGN = SCLFAC*(-One)**(IEL+JEL)
-            SIGN = SGNARR(IEL+JEL)*SCLFAC
+            !PAM2009 SGN = SCLFAC*(-One)**(IEL+JEL)
+            SGN = SGNARR(IEL+JEL)*SCLFAC
           else if ((IEL < 0) .and. (IIORB == JJORB)) then
             ! Diagonal excitation
-            SIGN = SCLFAC
+            SGN = SCLFAC
             IACT = KKSTR
           end if
           if (IACT /= 0) then
             IJ = (JJORB-JORB)*NIORB+IIORB-IORB+1
             I1(KKSTR-KMIN+1,IJ) = IACT
-            XI1S(KKSTR-KMIN+1,IJ) = SIGN
+            XI1S(KKSTR-KMIN+1,IJ) = SGN
           end if
         end do
         ! End of loop over IIORB
@@ -384,8 +384,7 @@ else if ((IAC == 1) .and. (JAC == 2)) then
   !do KKSTR=1,NKSTR
   do KKSTR=KMIN,KEND
     ! Indicate where a given orbital j should be added in KKSTR
-    IZERO = 0
-    call ISETVC(ISCR(JORBMIN),IZERO,NJORB)
+    call ISETVC(ISCR(JORBMIN),0,NJORB)
     JJEL = 1
     do JJORB=JORBMIN,JORBMAX
 0803  continue
@@ -441,8 +440,8 @@ else if ((IAC == 1) .and. (JAC == 2)) then
                 !stop ' IACT out of bounds'
                 call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
               end if
-              !PAM2009 SIGN = SCLFAC*(-One)**(IEL+JEL)
-              SIGN = SGNARR(IEL+JEL)*SCLFAC
+              !PAM2009 SGN = SCLFAC*(-One)**(IEL+JEL)
+              SGN = SGNARR(IEL+JEL)*SCLFAC
             else if ((JEL > 0) .and. (JJORB < IIORB)) then
               ! New string is  a+1 ... a+ jel-1 a+ jjorb a+jel+1 ..a+iel-1 a+iel+1 ...
               ILEX = 1
@@ -457,8 +456,8 @@ else if ((IAC == 1) .and. (JAC == 2)) then
                 ILEX = ILEX+IZ(KSTR(KEL,KKSTR),KEL)
               end do
               IACT = IREO(ILEX)
-              !PAM2009 SIGN = SCLFAC*(-One)**(IEL+JEL-1)
-              SIGN = SGNARR(IEL+JEL+1)*SCLFAC
+              !PAM2009 SGN = SCLFAC*(-One)**(IEL+JEL-1)
+              SGN = SGNARR(IEL+JEL+1)*SCLFAC
               if ((IACT <= 0) .or. (IACT > NSTRI)) then
                 write(u6,*) '4 IACT out of bounds, IACT =  ',IACT
                 write(u6,*) ' NSTRI = ',NSTRI
@@ -475,7 +474,7 @@ else if ((IAC == 1) .and. (JAC == 2)) then
             if (IACT /= 0) then
               IJ = (JJORB-JORB)*NIORB+IIORB-IORB+1
               I1(KKSTR-KMIN+1,IJ) = IACT
-              XI1S(KKSTR-KMIN+1,IJ) = SIGN
+              XI1S(KKSTR-KMIN+1,IJ) = SGN
             end if
           else if ((IEL == NKEL+1) .and. (JEL > 0)) then
             ! Diagonal excitations aja+j

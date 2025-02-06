@@ -23,6 +23,7 @@ use Symmetry_Info, only: ChOper
 use Definitions, only: u6
 #endif
 
+implicit none
 real(kind=wp), intent(out) :: Fact
 integer(kind=iwp), intent(out) :: iuvwx(4), nDCRR, nDCRS, nDCRT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7)
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)

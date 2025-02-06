@@ -14,12 +14,11 @@ subroutine ITODS(IA,NDIM,MBLOCK,IFIL)
 ! RECORDS WITH LENGTH NBLOCK.
 
 use lucia_data, only: IDISK
+use Definitions, only: iwp
 
 implicit none
-integer IA(*)
-integer NDIM, MBLOCK, IFIL
-integer IDUMMY(1)
-integer START, ISTOP, NBLOCK, NBACK, NTRANS, NLABEL
+integer(kind=iwp) :: IA(*), NDIM, MBLOCK, IFIL
+integer(kind=iwp) :: IDUMMY(1), ISTOP, NBACK, NBLOCK, NLABEL, NTRANS, START
 
 NBLOCK = MBLOCK
 

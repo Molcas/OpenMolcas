@@ -11,14 +11,15 @@
 ! Copyright (C) 1998, Per Ake Malmqvist                                *
 !***********************************************************************
 
-integer function IBINOM(N,M)
+function IBINOM(N,M)
 
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-save INIT, NOMTAB
-dimension NOMTAB(225)
-data INIT/0/
+implicit none
+integer(kind=iwp) :: IBINOM
+integer(kind=iwp) :: N, M
+integer(kind=iwp) :: I, INIT = 0, IPOS, J, K, MM, NOMTAB(225) = 0
+real(kind=wp) :: X
 
 IBINOM = 0
 if (N < 0) return

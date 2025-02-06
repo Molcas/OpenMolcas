@@ -81,23 +81,16 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 ! Jeppe Olsen, Winter of 1991
 
 use Constants, only: Zero, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(*), IBOC(*), JAOC(*), JBOC(*), NAEL, NBEL, IJAGRP, &
+                     IJBGRP, JDOH2, ADSXA(*), STSTSX(*), STSTDX(*), SXDXSX(*), NOBPTS(*), MAXI, MAXK, I1(*), I2(*), NSMOB, NSMST, &
+                     NIA, NIB, NJA, NJB, IDC, I3(*), I4(*), MOCAA, IPRNT, IHAPR, IUSE_PH, IPHGAS(*), I_RES_AB
+real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), C2(*), XINT(*), CJRES(*), SIRES(*), XI3S(*), XI4S(*), SCLFAC
 #include "timers.fh"
-integer ADSXA(*), STSTSX(*), STSTDX(*), SXDXSX(*)
-! Output
-dimension CB(*), SB(*)
-! Scratch
-dimension SSCR(*), CSCR(*), I1(*), XI1S(*), I2(*), XI2S(*)
-dimension I3(*), XI3S(*), I4(*), XI4S(*)
-dimension C2(*)
-dimension CJRES(*), SIRES(*)
-dimension IBLOCK(8)
-dimension IPHGAS(*)
-dimension XINT(*)
-dimension NOBPTS(*)
-dimension IAOC(*), JAOC(*), IBOC(*), JBOC(*)
+integer(kind=iwp) :: I12, IBLOCK(8), IDIAG, IDOH2, IIDC, IIITRNS, ITASK, IUSEAB, JJJTRNS, LADVICE, NTEST
+real(kind=wp) :: CPU, CPU0, CPU1, FACTOR, WALL, WALL0, WALL1
 
 ! For H(apr)
 
