@@ -261,7 +261,7 @@ if (NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
   ###############################
 
   set(reference_git_repo https://github.com/qcscine/qcmaquis)
-  set(reference_git_commit nag-compiler-fix)
+  set(reference_git_commit nag-compiler-fix-internal)
 
   set (last_hash "None")
   set (hash_file ${extprojpath}/${EP_PROJECT}.hash)
