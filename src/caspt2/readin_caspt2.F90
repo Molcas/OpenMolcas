@@ -177,7 +177,7 @@ module InputData
     ! DMRG      DMRG-CASPT2 using QCMaquis
     Logical(kind=iwp) :: DMRG = .false.
     ! Compress MPS for (t)3-RDM computation to bond dimension given by CompressMPD
-    Integer(kind=iwp) :: CompressMPS = 0 
+    Integer(kind=iwp) :: CompressMPS = 0
     ! SADREF    use state-averaged density even for SS-CASPT2 with
     !           SA-CASSCF reference and MS-CASPT2 (not XMS)
     Logical :: SADREF = .False.
