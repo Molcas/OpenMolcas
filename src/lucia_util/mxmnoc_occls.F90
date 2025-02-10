@@ -100,39 +100,37 @@ do IGAS=1,NGAS
         MAXEL(IORB+IBORB-1) = MAXEL(IORB+IBORB-2)
       end if
     end do
-    goto 10
+  else
+    ! The min number of electrons
+
+    ! Doubly occupy the last MAX_DOUBLE orbitals
+    ! Start Jesper !!!
+    if ((NORBFTP(IGAS)-MAX_DOUBLE <= 0) .and. (MINOP_GAS(IGAS) > 0)) call Abend()
+    ! End Jesper !!!
+    IORB_START = max(1,NORBFTP(IGAS)-MAX_DOUBLE)
+    do IORB=IORB_START,NORBFTP(IGAS)
+      MINEL(IORB+IBORB-1) = NEL_INI+NELEC-2*(NORBFTP(IGAS)-IORB)
+      !write(u6,*) ' 1 IORB+IBORB-1, MINEL() ',IORB+IBORB-1,MINEL(IORB+IBORB-1)
+    end do
+    ! Singly occupy
+    do IORB=NORBFTP(IGAS)-MAX_DOUBLE-1,1,-1
+      MINEL(IORB+IBORB-1) = max(NEL_INI,MINEL(IORB+IBORB-1+1)-1)
+      !write(u6,*) ' 2 IORB+IBORB-1, MINEL() ',IORB+IBORB-1,MINEL(IORB+IBORB-1)
+    end do
+
+    ! The max number of electrons
+
+    do IORB=1,MAX_DOUBLE
+      MAXEL(IORB+IBORB-1) = NEL_INI+2*IORB
+    end do
+    do IORB=MAX_DOUBLE+1,NORBFTP(IGAS)
+      if (IORB+IBORB-1 == 1) then
+        MAXEL(IORB+IBORB-1) = 1
+      else
+        MAXEL(IORB+IBORB-1) = min(NEL_INI+NELEC,MAXEL(IORB+IBORB-2)+1)
+      end if
+    end do
   end if
-
-  ! The min number of electrons
-
-  ! Doubly occupy the last MAX_DOUBLE orbitals
-  ! Start Jesper !!!
-  if ((NORBFTP(IGAS)-MAX_DOUBLE <= 0) .and. (MINOP_GAS(IGAS) > 0)) call Abend()
-  ! End Jesper !!!
-  IORB_START = max(1,NORBFTP(IGAS)-MAX_DOUBLE)
-  do IORB=IORB_START,NORBFTP(IGAS)
-    MINEL(IORB+IBORB-1) = NEL_INI+NELEC-2*(NORBFTP(IGAS)-IORB)
-    !write(u6,*) ' 1 IORB+IBORB-1, MINEL() ',IORB+IBORB-1,MINEL(IORB+IBORB-1)
-  end do
-  ! Singly occupy
-  do IORB=NORBFTP(IGAS)-MAX_DOUBLE-1,1,-1
-    MINEL(IORB+IBORB-1) = max(NEL_INI,MINEL(IORB+IBORB-1+1)-1)
-    !write(u6,*) ' 2 IORB+IBORB-1, MINEL() ',IORB+IBORB-1,MINEL(IORB+IBORB-1)
-  end do
-
-  ! The max number of electrons
-
-  do IORB=1,MAX_DOUBLE
-    MAXEL(IORB+IBORB-1) = NEL_INI+2*IORB
-  end do
-  do IORB=MAX_DOUBLE+1,NORBFTP(IGAS)
-    if (IORB+IBORB-1 == 1) then
-      MAXEL(IORB+IBORB-1) = 1
-    else
-      MAXEL(IORB+IBORB-1) = min(NEL_INI+NELEC,MAXEL(IORB+IBORB-2)+1)
-    end if
-  end do
-10 continue
   NEL_INI = NEL_INI+NELFTP(IGAS)
   IBORB = IBORB+NORBFTP(IGAS)
 end do

@@ -63,13 +63,12 @@ if (IDOREO /= 0) then
   else
     n_ini = 1
     n_end = length
-666 continue
-    n_ave = (n_ini+n_end)/2
-    if (ireo_new(n_ave) == ilex+ib_occls-1) goto 100
-    if (ireo_new(n_ave) < ilex+ib_occls-1) n_ini = n_ave
-    if (ireo_new(n_ave) > ilex+ib_occls-1) n_end = n_ave
-    goto 666
-100 continue
+    do
+      n_ave = (n_ini+n_end)/2
+      if (ireo_new(n_ave) == ilex+ib_occls-1) exit
+      if (ireo_new(n_ave) < ilex+ib_occls-1) n_ini = n_ave
+      if (ireo_new(n_ave) > ilex+ib_occls-1) n_end = n_ave
+    end do
     n_fin = n_ave
   end if
   ilex_for_conf_new = n_fin

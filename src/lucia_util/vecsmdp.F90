@@ -36,65 +36,67 @@ end if
 
 ! LOOP OVER BLOCKS OF VECTOR
 
-1000 continue
+do
 
-if (LBLK > 0) then
-  NBL1 = LBLK
-  NBL2 = LBLK
-else if (LBLK == 0) then
-  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-  NBL1 = IDUMMY(1)
-  call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-  NBL2 = IDUMMY(1)
-  IDUMMY(1) = NBL1
-  call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
-else if (LBLK < 0) then
-  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-  NBL1 = IDUMMY(1)
-  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-  call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-  NBL2 = IDUMMY(1)
-  call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-  IDUMMY(1) = NBL1
-  call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
-  IDUMMY(1) = -1
-  call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
-end if
-if (NBL1 /= NBL2) then
-  write(u6,'(A,2I5)') 'DIFFERENT BLOCKSIZES IN VECSMD ',NBL1,NBL2
-  !stop ' INCOMPATIBLE BLOCKSIZES IN VECSMF'
-  call SYSABENDMSG('lucia_util/vecsmf','Different block sizes','')
-end if
-
-if (NBL1 >= 0) then
-  if (LBLK >= 0) then
-    KBLK = NBL1
-  else
-    KBLK = -1
+  if (LBLK > 0) then
+    NBL1 = LBLK
+    NBL2 = LBLK
+  else if (LBLK == 0) then
+    call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+    NBL1 = IDUMMY(1)
+    call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+    NBL2 = IDUMMY(1)
+    IDUMMY(1) = NBL1
+    call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
+  else if (LBLK < 0) then
+    call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+    NBL1 = IDUMMY(1)
+    call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+    call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+    NBL2 = IDUMMY(1)
+    call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+    IDUMMY(1) = NBL1
+    call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
+    IDUMMY(1) = -1
+    call IDAFILE(LU3,1,IDUMMY,1,IDISK(LU3))
   end if
-  NO_ZEROING = 1
-  call FRMDSC2(VEC1,NBL1,KBLK,LU1,IMZERO1,IAMPACK,NO_ZEROING)
-  call FRMDSC2(VEC2,NBL1,KBLK,LU2,IMZERO2,IAMPACK,NO_ZEROING)
-  if (NBL1 > 0) then
-    if ((IMZERO1 == 1) .and. (IMZERO2 == 1)) then
-      ! Simple zero record
-      call ZERORC(LU3,IAMPACK)
+  if (NBL1 /= NBL2) then
+    write(u6,'(A,2I5)') 'DIFFERENT BLOCKSIZES IN VECSMD ',NBL1,NBL2
+    !stop ' INCOMPATIBLE BLOCKSIZES IN VECSMF'
+    call SYSABENDMSG('lucia_util/vecsmf','Different block sizes','')
+  end if
+
+  if (NBL1 >= 0) then
+    if (LBLK >= 0) then
+      KBLK = NBL1
     else
-      ! Nonvanishing record
-      if (IMZERO1 == 1) then
-        call VECSUM(VEC1,VEC1,VEC2,Zero,FAC2,NBL1)
-      else if (IMZERO2 == 1) then
-        call VECSUM(VEC1,VEC1,VEC2,FAC1,Zero,NBL1)
+      KBLK = -1
+    end if
+    NO_ZEROING = 1
+    call FRMDSC2(VEC1,NBL1,KBLK,LU1,IMZERO1,IAMPACK,NO_ZEROING)
+    call FRMDSC2(VEC2,NBL1,KBLK,LU2,IMZERO2,IAMPACK,NO_ZEROING)
+    if (NBL1 > 0) then
+      if ((IMZERO1 == 1) .and. (IMZERO2 == 1)) then
+        ! Simple zero record
+        call ZERORC(LU3,IAMPACK)
       else
-        call VECSUM(VEC1,VEC1,VEC2,FAC1,FAC2,NBL1)
+        ! Nonvanishing record
+        if (IMZERO1 == 1) then
+          call VECSUM(VEC1,VEC1,VEC2,Zero,FAC2,NBL1)
+        else if (IMZERO2 == 1) then
+          call VECSUM(VEC1,VEC1,VEC2,FAC1,Zero,NBL1)
+        else
+          call VECSUM(VEC1,VEC1,VEC2,FAC1,FAC2,NBL1)
+        end if
+        call TODSCP(VEC1,NBL1,KBLK,LU3)
       end if
+    else if (NBL1 == 0) then
       call TODSCP(VEC1,NBL1,KBLK,LU3)
     end if
-  else if (NBL1 == 0) then
-    call TODSCP(VEC1,NBL1,KBLK,LU3)
   end if
-end if
 
-if ((NBL1 >= 0) .and. (LBLK <= 0)) goto 1000
+  if ((NBL1 < 0) .or. (LBLK > 0)) exit
+
+end do
 
 end subroutine VECSMDP

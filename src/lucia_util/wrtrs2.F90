@@ -22,7 +22,7 @@ integer(kind=iwp) :: IASM, IATP, IBASE, IBSM, IBTP, IBTPMX, NAST, NBST, NELMNT
 IBASE = 1
 do IASM=1,NSMST
   IBSM = ISMOST(IASM)
-  if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) goto 1000
+  if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) cycle
 
   do IATP=1,NOCTPA
     if (ICBLTP(IASM) == 2) then
@@ -33,7 +33,7 @@ do IASM=1,NSMST
     NAST = NSASO(IASM,IATP)
 
     do IBTP=1,IBTPMX
-      if (IOCOC(IATP,IBTP) == 0) goto 800
+      if (IOCOC(IATP,IBTP) == 0) cycle
       NBST = NSBSO(IBSM,IBTP)
       if ((ICBLTP(IASM) == 2) .and. (IATP == IBTP)) then
         ! Diagonal block
@@ -53,10 +53,8 @@ do IASM=1,NSMST
           IBASE = IBASE+NELMNT
         end if
       end if
-800   continue
     end do
   end do
-1000 continue
 end do
 
 end subroutine WRTRS2

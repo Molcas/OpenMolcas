@@ -27,22 +27,23 @@ integer(kind=iwp) :: IEL, NOPEN, NTEST
 ! Loop over electrons
 NOPEN = 0
 IEL = 1
-1000 continue
-if (IEL < NEL) then
-  if (ICONF(IEL) /= ICONF(IEL+1)) then
+do
+  if (IEL < NEL) then
+    if (ICONF(IEL) /= ICONF(IEL+1)) then
+      NOPEN = NOPEN+1
+      IEL = IEL+1
+    else if (ICONF(IEL) == ICONF(IEL+1)) then
+      IEL = IEL+2
+    end if
+  end if
+
+  if (IEL == NEL) then
+    ! The last orbital is not identical to any later orbitals so
     NOPEN = NOPEN+1
     IEL = IEL+1
-  else if (ICONF(IEL) == ICONF(IEL+1)) then
-    IEL = IEL+2
   end if
-end if
-
-if (IEL == NEL) then
-  ! The last orbital is not identical to any later orbitals so
-  NOPEN = NOPEN+1
-  IEL = IEL+1
-end if
-if (IEL < NEL) goto 1000
+  if (IEL >= NEL) exit
+end do
 
 NOP_FOR_CONF = NOPEN
 

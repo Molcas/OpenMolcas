@@ -50,26 +50,26 @@ end if
 
 if (NELMNT == 0) then
   NONEW = 1
-  goto 1001
-end if
+else
 
-IPLACE = 0
-1000 continue
-IPLACE = IPLACE+1
-if (SCR(IPLACE) < NACTSYM(KGRP(IPLACE))) then
-  SCR(IPLACE) = SCR(IPLACE)+1
-  NONEW = 0
-  goto 1001
-else if (IPLACE < NELMNT) then
-  do JPLACE=1,IPLACE
-    SCR(JPLACE) = 1
+  IPLACE = 0
+  do
+    IPLACE = IPLACE+1
+    if (SCR(IPLACE) < NACTSYM(KGRP(IPLACE))) then
+      SCR(IPLACE) = SCR(IPLACE)+1
+      NONEW = 0
+      exit
+    else if (IPLACE < NELMNT) then
+      do JPLACE=1,IPLACE
+        SCR(JPLACE) = 1
+      end do
+    else if (IPLACE == NELMNT) then
+      NONEW = 1
+      exit
+    end if
   end do
-else if (IPLACE == NELMNT) then
-  NONEW = 1
-  goto 1001
+
 end if
-goto 1000
-1001 continue
 
 if (NTEST /= 0) then
   write(u6,*) 'New ISMDFGP'

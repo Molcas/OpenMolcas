@@ -57,7 +57,7 @@ if (INI == 1) then
     call NXT_CONF(ICONF_GAS,NEL_GAS,NORB_GAS,INI_L,NONEW_L)
     if (NONEW_L == 1) then
       NONEW = 1
-      goto 1001
+      exit
     else
       JBEL = IBEL(IGAS)
       JBORB = IBORB(IGAS)
@@ -70,8 +70,10 @@ if (INI == 1) then
   end do
 
   if (NTEST >= 1000) then
-    write(u6,*) ' Initial configuration'
-    call IWRTMA(ICONF,1,NEL,1,NEL)
+    if (IGAS > NGAS) then
+      write(u6,*) ' Initial configuration'
+      call IWRTMA(ICONF,1,NEL,1,NEL)
+    end if
   end if
 
 else
@@ -113,13 +115,12 @@ else
         !call REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,JBORB,JBEL,JORB,JEL,2)
       end do
       ! Get out of the loop
-      goto 1001
+      exit
     end if
   end do
   ! End of loop over gasspaces
 end if
 ! End if switch between initialization/next
-1001 continue
 
 if (NTEST >= 100) then
   if (NONEW == 1) then

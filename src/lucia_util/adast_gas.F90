@@ -91,7 +91,6 @@ end if
 NORBTS = NOBPTS(IOBTP,IOBSM)
 NORBT = NOBPT(IOBTP)
 IACGAS = IOBTP
-call mma_allocate(IOFFI,LOFFI,label='IOFFI')
 ! First orbital of given GASpace
 IBORBSP = IELSUM(NOBPT,IOBTP-1)+1
 ! First orbital of given GASpace and Symmetry
@@ -136,7 +135,6 @@ if ((NKEL == -1) .or. (NKEL == NOBPT(IACGAS)+1)) then
   NKSTR = 0
   KACT = 0
   KACGRP = 0
-  goto 9999
 else
   ! Find group with NKEL electrons in IACGAS
   KACGRP = 0
@@ -150,125 +148,126 @@ else
     write(u6,*) ' GAS space and number of electrons ',IACGAS,NKEL
     call SYSABENDMSG('lucia_util/adast_gas','Internal error','')
   end if
-end if
-! Okay active K group was found and is nontrivial
-call SYMCOM(2,IOBSM,KSM,ISPGPSM)
-! The K supergroup
-call ICOPVE(IGRP,KGRP,NIGRP)
-KGRP(IACGRP) = KACGRP
-! Number of strings and symmetry distributions of K strings
-call NST_SPGRP(NIGRP,KGRP,KSM,NSTSGP,NSMST,NKSTR,NKDIST)
-if (NTEST >= 1000) write(u6,*) 'KSM,NKSTR,NKDIST:',KSM,NKSTR,NKDIST
-if (NKSTR == 0) goto 9999
-! Last active space in K strings and number of strings per group and sym
-NGASL = 1
-do JGRP=1,NIGRP
-  if (NELFGP(KGRP(JGRP)) > 0) NGASL = JGRP
-  call ICOPVE2(NSTSGP,(KGRP(JGRP)-1)*NSMST+1,NSMST,NNSTSGP(1,JGRP))
-  call ICOPVE2(ISTSGP,(KGRP(JGRP)-1)*NSMST+1,NSMST,IISTSGP(1,JGRP))
-end do
-if (NTEST >= 100) write(u6,*) 'NGASL',NGASL
-! MIN/MAX for Kstrings
-!call MINMAX_FOR_SYM_DIST(NIGRP,KGRP,MNVLK,MXVLK,NKDIST_TOT)
-!if (NTEST >= 100) then
-!  write(u6,*) 'MNVLK and MXVLK'
-!  call IWRTMA(MNVLK,1,NIGRP,1,NIGRP)
-!  call IWRTMA(MXVLK,1,NIGRP,1,NIGRP)
-!end if
-! (NKDIST_TOT is number of distributions, all symmetries )
-! =========
-! I Strings
-! =========
-! Generate symmetry distributions of I strings with given symmetry
-call TS_SYM_PNT2(IGRP,NIGRP,MXVLI,MNVLI,ISPGPSM,IOFFI,LOFFI)
-! Offset and dimension for active group in I strings
-call ICOPVE2(ISTSGP,(IGRP(IACGRP)-1)*NSMST+1,NSMST,IACIST)
+  ! Okay active K group was found and is nontrivial
+  call SYMCOM(2,IOBSM,KSM,ISPGPSM)
+  ! The K supergroup
+  call ICOPVE(IGRP,KGRP,NIGRP)
+  KGRP(IACGRP) = KACGRP
+  ! Number of strings and symmetry distributions of K strings
+  call NST_SPGRP(NIGRP,KGRP,KSM,NSTSGP,NSMST,NKSTR,NKDIST)
+  if (NTEST >= 1000) write(u6,*) 'KSM,NKSTR,NKDIST:',KSM,NKSTR,NKDIST
+  if (NKSTR /= 0) then
+    ! Last active space in K strings and number of strings per group and sym
+    NGASL = 1
+    do JGRP=1,NIGRP
+      if (NELFGP(KGRP(JGRP)) > 0) NGASL = JGRP
+      call ICOPVE2(NSTSGP,(KGRP(JGRP)-1)*NSMST+1,NSMST,NNSTSGP(1,JGRP))
+      call ICOPVE2(ISTSGP,(KGRP(JGRP)-1)*NSMST+1,NSMST,IISTSGP(1,JGRP))
+    end do
+    if (NTEST >= 100) write(u6,*) 'NGASL',NGASL
+    ! MIN/MAX for Kstrings
+    !call MINMAX_FOR_SYM_DIST(NIGRP,KGRP,MNVLK,MXVLK,NKDIST_TOT)
+    !if (NTEST >= 100) then
+    !  write(u6,*) 'MNVLK and MXVLK'
+    !  call IWRTMA(MNVLK,1,NIGRP,1,NIGRP)
+    !  call IWRTMA(MXVLK,1,NIGRP,1,NIGRP)
+    !end if
+    ! (NKDIST_TOT is number of distributions, all symmetries )
+    ! =========
+    ! I Strings
+    ! =========
+    call mma_allocate(IOFFI,LOFFI,label='IOFFI')
+    ! Generate symmetry distributions of I strings with given symmetry
+    call TS_SYM_PNT2(IGRP,NIGRP,MXVLI,MNVLI,ISPGPSM,IOFFI,LOFFI)
+    ! Offset and dimension for active group in I strings
+    call ICOPVE2(ISTSGP,(IGRP(IACGRP)-1)*NSMST+1,NSMST,IACIST)
 
-call ICOPVE2(NSTSGP,(IGRP(IACGRP)-1)*NSMST+1,NSMST,NACIST)
-! Last entry in IGRP with a nonvanisking number of strings
-NIGASL = 1
-do JGRP=1,NIGRP
-  if (NELFGP(IGRP(JGRP)) > 0) NIGASL = JGRP
-end do
-! Number of electrons before active space
-NELB = 0
-do JGRP=1,IACGRP-1
-  NELB = NELB+NELFGP(IGRP(JGRP))
-end do
-if (NTEST >= 1000) write(u6,*) ' NELB = ',NELB
-call ISETVC(I1,0,NORBTS*NKSTR)
-! Loop over symmetry distribtions of K strings
-KFIRST = 1
-KSTRBS = 1
-do IGAS=1,NIGRP
-  ISMFGS(IGAS) = 1
-end do
-1000 continue
-!GLM if (KFIRST == 1) then
-!GLM   do IGAS=1,NIGRP
-!GLM     ISMFGS(IGAS) = MNVLI(IGAS)
-!GLM   end do
-!GLM else
-! Next distribution
-call NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,ISMFGS,KSM,KFIRST,NONEW,ISMDFGP,NACTSYM,ISMSCR)
-!GLM   if (NONEW == 1) goto 9999
-!GLM end iF
-if (NTEST >= 1000) then
-  write(u6,*) ' Symmetry distribution'
-  call iwrtma(ISMFGS,1,NIGRP,1,NIGRP)
-end if
-if (NONEW == 1) goto 9999
-KFIRST = 0
-! Number of strings of this symmetry distribution
-NSTRIK = 1
-do IGAS=1,NGASL
-  NSTRIK = NSTRIK*NNSTSGP(ISMFGS(IGAS),IGAS)
-end do
-! Offset for corresponding I strings
-ISAVE = ISMFGS(IACGRP)
-call SYMCOM(3,IOBSM,ISMFGS(IACGRP),IACSM)
-ISMFGS(IACGRP) = IACSM
-IBSTRINI = IOFF_SYM_DIST(ISMFGS,NIGASL,IOFFI,MXVLI,MNVLI)
-!write(u6,*) 'IBSTRINI :',IBSTRINI
-ISMFGS(IACGRP) = ISAVE
-! Number of strings before active GAS space
-NSTB = 1
-!do IGAS=1,IOBTP-1
-do IGAS=1,IACGRP-1
-  NSTB = NSTB*NNSTSGP(ISMFGS(IGAS),IGAS)
-end do
-! Number of strings After active GAS space
-NSTA = 1
-!do IGAS=IOBTP+1,NIGRP
-do IGAS=IACGRP+1,NIGRP
-  NSTA = NSTA*NNSTSGP(ISMFGS(IGAS),IGAS)
-end do
-! Number and offset for active group
-NIAC = NACIST(IACSM)
-IIAC = IACIST(IACSM)
-NKAC = NNSTSGP(ISMFGS(IACGRP),IACGRP)
-IKAC = IISTSGP(ISMFGS(IACGRP),IACGRP)
-! I and K strings of given symmetry distribution
-NKSD = NSTB*NKAC*NSTA
-if (NTEST >= 1000) write(u6,*) ' nstb nsta niac nkac ',nstb,nsta,niac,nkac
-! Obtain annihilation/creation mapping for all strings of this type
-! Are group mappings in expanded or compact form
-if ((IAC == 1) .and. (ISTAC(KACGRP,2) == 0)) then
-  IEC = 2
-  LROW_IN = NKEL
-else
-  IEC = 1
-  LROW_IN = NORBT
-end if
+    call ICOPVE2(NSTSGP,(IGRP(IACGRP)-1)*NSMST+1,NSMST,NACIST)
+    ! Last entry in IGRP with a nonvanisking number of strings
+    NIGASL = 1
+    do JGRP=1,NIGRP
+      if (NELFGP(IGRP(JGRP)) > 0) NIGASL = JGRP
+    end do
+    ! Number of electrons before active space
+    NELB = 0
+    do JGRP=1,IACGRP-1
+      NELB = NELB+NELFGP(IGRP(JGRP))
+    end do
+    if (NTEST >= 1000) write(u6,*) ' NELB = ',NELB
+    call ISETVC(I1,0,NORBTS*NKSTR)
+    ! Loop over symmetry distribtions of K strings
+    KFIRST = 1
+    KSTRBS = 1
+    do IGAS=1,NIGRP
+      ISMFGS(IGAS) = 1
+    end do
+    do
+      !GLM if (KFIRST == 1) then
+      !GLM   do IGAS=1,NIGRP
+      !GLM     ISMFGS(IGAS) = MNVLI(IGAS)
+      !GLM   end do
+      !GLM else
+      ! Next distribution
+      call NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,ISMFGS,KSM,KFIRST,NONEW,ISMDFGP,NACTSYM,ISMSCR)
+      !GLM   if (NONEW == 1) exit
+      !GLM end if
+      if (NTEST >= 1000) then
+        write(u6,*) ' Symmetry distribution'
+        call iwrtma(ISMFGS,1,NIGRP,1,NIGRP)
+      end if
+      if (NONEW == 1) exit
+      KFIRST = 0
+      ! Number of strings of this symmetry distribution
+      NSTRIK = 1
+      do IGAS=1,NGASL
+        NSTRIK = NSTRIK*NNSTSGP(ISMFGS(IGAS),IGAS)
+      end do
+      ! Offset for corresponding I strings
+      ISAVE = ISMFGS(IACGRP)
+      call SYMCOM(3,IOBSM,ISMFGS(IACGRP),IACSM)
+      ISMFGS(IACGRP) = IACSM
+      IBSTRINI = IOFF_SYM_DIST(ISMFGS,NIGASL,IOFFI,MXVLI,MNVLI)
+      !write(u6,*) 'IBSTRINI :',IBSTRINI
+      ISMFGS(IACGRP) = ISAVE
+      ! Number of strings before active GAS space
+      NSTB = 1
+      !do IGAS=1,IOBTP-1
+      do IGAS=1,IACGRP-1
+        NSTB = NSTB*NNSTSGP(ISMFGS(IGAS),IGAS)
+      end do
+      ! Number of strings After active GAS space
+      NSTA = 1
+      !do IGAS=IOBTP+1,NIGRP
+      do IGAS=IACGRP+1,NIGRP
+        NSTA = NSTA*NNSTSGP(ISMFGS(IGAS),IGAS)
+      end do
+      ! Number and offset for active group
+      NIAC = NACIST(IACSM)
+      IIAC = IACIST(IACSM)
+      NKAC = NNSTSGP(ISMFGS(IACGRP),IACGRP)
+      IKAC = IISTSGP(ISMFGS(IACGRP),IACGRP)
+      ! I and K strings of given symmetry distribution
+      NKSD = NSTB*NKAC*NSTA
+      if (NTEST >= 1000) write(u6,*) ' nstb nsta niac nkac ',nstb,nsta,niac,nkac
+      ! Obtain annihilation/creation mapping for all strings of this type
+      ! Are group mappings in expanded or compact form
+      if ((IAC == 1) .and. (ISTAC(KACGRP,2) == 0)) then
+        IEC = 2
+        LROW_IN = NKEL
+      else
+        IEC = 1
+        LROW_IN = NORBT
+      end if
 
-if (NSTA*NSTB*NIAC*NKAC /= 0) &
-  call ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%A,STSTM(KACGRP,2)%A,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC, &
-                   NKSTR,NELB,I1,XI1S,SCLFAC,IAC,LROW_IN,IEC)
-KSTRBS = KSTRBS+NKSD
-goto 1000
+      if (NSTA*NSTB*NIAC*NKAC /= 0) &
+        call ADAST_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%A,STSTM(KACGRP,2)%A,IBORBSPS,IBORBSP,NORBTS,NKAC, &
+                         NIAC,NKSTR,NELB,I1,XI1S,SCLFAC,IAC,LROW_IN,IEC)
+      KSTRBS = KSTRBS+NKSD
+    end do
 
-9999 continue
-call mma_deallocate(IOFFI)
+    call mma_deallocate(IOFFI)
+  end if
+end if
 
 if (NTEST >= 100) then
   write(u6,*) ' Output from ADAST_GAS'

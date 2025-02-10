@@ -165,7 +165,7 @@ else if (IROUTE == 1) then
   !  IKEFF = 0
   !  do K=1,NK
   !    IB = KBIB(KB,K)
-  !    if (IB == 0) goto 900
+  !    if (IB == 0) cycle
   !    SGNK = XKBIB(KB,K)
   !
   !    if (IKORD == 0) then
@@ -184,7 +184,7 @@ else if (IROUTE == 1) then
   !      LEFF = 0
   !      do L=1,NL
   !        JB = KBJB(KB,L)
-  !        if (JB == 0) goto 800
+  !        if (JB == 0) cycle
   !        LEFF = LEFF+1
   !        SGNL = XKBJB(KB,L)
   !        if ((IKORD == 1) .and. (I == K)) then
@@ -203,10 +203,8 @@ else if (IROUTE == 1) then
   !          SCR((IKEFF-1)*NJ*LL+JL) = FACTOR*XIJKL(JLIK)
   !          SCR(IOFF+JL) = FACTOR*XIJKL(JLIK0+J)
   !        end do
-  !800     continue
   !      end do
   !    end do
-  !900 continue
   !  end do
   !
   !  call GSAXPY_LUCIA(SKII,CKJJ,SCR,IKEFF,NJ*LL,NKA,IBOFF,JBOFF)

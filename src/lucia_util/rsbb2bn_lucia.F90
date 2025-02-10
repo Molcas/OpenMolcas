@@ -125,10 +125,10 @@ do IJTYP=1,NIJTYP
   JTYP = JTP(IJTYP)
   do ISM=1,NSMOB
     JSM = ADSXA(ISM,IJSM)
-    if (JSM == 0) goto 1940
+    if (JSM == 0) cycle
     NI = NOBPTS(ITYP,ISM)
     NJ = NOBPTS(JTYP,JSM)
-    if ((NI == 0) .or. (NJ == 0)) goto 1940
+    if ((NI == 0) .or. (NJ == 0)) cycle
     ! Should N-1 or N+1 projection be used for alpha strings
     IJ_TYP(1) = ITYP
     IJ_TYP(2) = JTYP
@@ -221,7 +221,7 @@ do IJTYP=1,NIJTYP
         LTYP = LTP(KLTYP)
         ! Allowed double excitation ?
         !IJKL_ACT = 1
-        !if (IJKL_ACT == 0) goto 2000
+        !if (IJKL_ACT == 0) cycle
         if (NTEST >= 100) write(u6,*) ' KTYP, LTYP',KTYP,LTYP
         ! Should this group of excitations be included
         if (NSEL2E /= 0) then
@@ -231,7 +231,7 @@ do IJTYP=1,NIJTYP
               if (ISEL2E(JSEL2E) == ITYP) IAMOKAY = 1
             end do
           end if
-          if (IAMOKAY == 0) goto 2000
+          if (IAMOKAY == 0) cycle
         end if
 
         KL_TYP(1) = KTYP
@@ -251,7 +251,7 @@ do IJTYP=1,NIJTYP
         do KSM=1,NSMOB
           LSM = ADSXA(KSM,KLSM)
           if (NTEST >= 100) write(u6,*) ' KSM, LSM',KSM,LSM
-          if (LSM == 0) goto 1930
+          if (LSM == 0) cycle
           NK = NOBPTS(KTYP,KSM)
           NL = NOBPTS(LTYP,LSM)
 
@@ -276,18 +276,18 @@ do IJTYP=1,NIJTYP
           end if
           ! If IUSEAB is used, only terms with i >= k will be generated so
           IKORD = 0
-          if ((IUSEAB == 1) .and. (ISM > KSM)) goto 1930
-          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP < KTYP)) goto 1930
+          if ((IUSEAB == 1) .and. (ISM > KSM)) cycle
+          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP < KTYP)) cycle
           if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP == KTYP)) IKORD = 1
 
-          if ((NK == 0) .or. (NL == 0)) goto 1930
+          if ((NK == 0) .or. (NL == 0)) cycle
           ! Obtain all connections a+l!Kb> = +/-/0!Jb>
           ! currently we are using creation mappings for kl
           call ADAST_GAS(KL_SYM(2),KL_TYP(2),NGAS,JBSPGP,JBSM,I2,XI2S,NKBSTR,KACT,SIGNKL,KLAC)
-          if (NKBSTR == 0) goto 1930
+          if (NKBSTR == 0) cycle
           ! Obtain all connections a+k!Kb> = +/-/0!Ib>
           call ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,IBSM,I4,XI4S,NKBSTR,KACT,One,KLAC)
-          if (NKBSTR == 0) goto 1930
+          if (NKBSTR == 0) cycle
 
           ! Fetch Integrals as (iop2 iop1 |  k l )
 
@@ -310,10 +310,8 @@ do IJTYP=1,NIJTYP
             call WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
           end if
 
-1930      continue
         end do
         ! End of loop over KSM
-2000    continue
       end do
       ! End of loop over KLTYP
 
@@ -332,7 +330,6 @@ do IJTYP=1,NIJTYP
       TSIGMA(6) = TSIGMA(6)+(WALL1-WALL0)
     end do
     ! End of loop over partitioning of alpha strings
-1940 continue
   end do
   ! End of loop over ISM
 end do

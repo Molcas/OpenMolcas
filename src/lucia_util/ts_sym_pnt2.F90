@@ -89,50 +89,50 @@ end if
 ! Loop over symmetry blocks in standard order
 IFIRST = 1
 NSTRINT = 0
-2000 continue
-if (IFIRST == 1) then
-  do IGAS=1,NGASL-1
-    ISMFGS(IGAS) = MNVAL(IGAS)
+do
+  if (IFIRST == 1) then
+    do IGAS=1,NGASL-1
+      ISMFGS(IGAS) = MNVAL(IGAS)
+    end do
+  else
+    ! Next distribution of symmetries in NGAS -1
+    call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
+    if (NONEW /= 0) exit
+  end if
+  IFIRST = 0
+  ! Symmetry of NGASL -1 spaces given, symmetry of full space
+  !ISTSMM1 = 1
+  !do IGAS=1,NGASL-1
+  !  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
+  !  ISTSMM1 = JSTSMM1
+  !end do
+  ISTSMM1 = ISYMSTR(ISMFGS,NGASL-1)
+  ! sym of SPACE NGASL
+  call SYMCOM(2,ISTSMM1,ISMGSN,ISYM)
+  ISMFGS(NGASL) = ISMGSN
+  if (NTEST >= 1000) then
+    write(u6,*) ' next symmetry of NGASL spaces'
+    call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
+  end if
+  ! Number of strings with this symmetry combination
+  NSTRII = 1
+  do IGAS=1,NGASL
+    NSTRII = NSTRII*NNSTSGP(ISMFGS(IGAS),IGAS)
   end do
-else
-  ! Next distribution of symmetries in NGAS -1
-  call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
-  if (NONEW /= 0) goto 2001
-end if
-IFIRST = 0
-! Symmetry of NGASL -1 spaces given, symmetry of full space
-!ISTSMM1 = 1
-!do IGAS=1,NGASL-1
-!  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-!  ISTSMM1 = JSTSMM1
-!end do
-ISTSMM1 = ISYMSTR(ISMFGS,NGASL-1)
-! sym of SPACE NGASL
-call SYMCOM(2,ISTSMM1,ISMGSN,ISYM)
-ISMFGS(NGASL) = ISMGSN
-if (NTEST >= 1000) then
-  write(u6,*) ' next symmetry of NGASL spaces'
-  call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
-end if
-! Number of strings with this symmetry combination
-NSTRII = 1
-do IGAS=1,NGASL
-  NSTRII = NSTRII*NNSTSGP(ISMFGS(IGAS),IGAS)
-end do
-! Offset for this symmetry distribution in IOFFI
-IOFF = 1
-MULT = 1
-do IGAS=1,NGASL-1
-  IOFF = IOFF+(ISMFGS(IGAS)-MNVAL(IGAS))*MULT
-  MULT = MULT*(MXVAL(IGAS)-MNVAL(IGAS)+1)
-end do
+  ! Offset for this symmetry distribution in IOFFI
+  IOFF = 1
+  MULT = 1
+  do IGAS=1,NGASL-1
+    IOFF = IOFF+(ISMFGS(IGAS)-MNVAL(IGAS))*MULT
+    MULT = MULT*(MXVAL(IGAS)-MNVAL(IGAS)+1)
+  end do
 
-IPNT(IOFF) = NSTRINT+1
-NSTRINT = NSTRINT+NSTRII
-if (NTEST >= 1000) write(u6,*) ' IOFF, IPNT(IOFF) NSTRII ',IOFF,IPNT(IOFF),NSTRII
+  IPNT(IOFF) = NSTRINT+1
+  NSTRINT = NSTRINT+NSTRII
+  if (NTEST >= 1000) write(u6,*) ' IOFF, IPNT(IOFF) NSTRII ',IOFF,IPNT(IOFF),NSTRII
 
-if (NGASL-1 > 0) goto 2000
-2001 continue
+  if (NGASL <= 1) exit
+end do
 
 if (NTEST >= 100) then
   write(u6,*)

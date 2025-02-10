@@ -43,8 +43,8 @@ do I1SM=1,NSMOB
   do I2SM=1,NSMOB
     I12SM = ADASX(I1SM,I2SM)
     I34SM = SXDXSX(I12SM,IDXSM)
-    if (I34SM == 0) goto 20
-    if ((IS12 /= 0) .and. (I1SM < I2SM)) goto 20
+    if (I34SM == 0) cycle
+    if ((IS12 /= 0) .and. (I1SM < I2SM)) cycle
     if (IS12 == 0) then
       I12NUM = (I1SM-1)*NSMOB+I2SM
     else
@@ -59,14 +59,14 @@ do I1SM=1,NSMOB
     end if
     do I3SM=1,NSMOB
       I4SM = ADSXA(I3SM,I34SM)
-      if (I4SM == 0) goto 30
-      if ((IS34 /= 0) .and. (I3SM < I4SM)) goto 30
+      if (I4SM == 0) cycle
+      if ((IS34 /= 0) .and. (I3SM < I4SM)) cycle
       if (IS34 == 0) then
         I34NUM = (I3SM-1)*NSMOB+I4SM
       else
         I34NUM = I3SM*(I3SM+1)/2+I4SM
       end if
-      if ((IS1234 /= 0) .and. (I12NUM < I34NUM)) goto 30
+      if ((IS1234 /= 0) .and. (I12NUM < I34NUM)) cycle
       if ((IS34 == 0) .or. (I3SM /= I4SM)) then
         N34 = NO3PS(I3SM)*NO4PS(I4SM)
       else if ((IS34 == 1) .and. (I3SM == I4SM)) then
@@ -89,9 +89,7 @@ do I1SM=1,NSMOB
       end if
       !write(u6,*) ' I1SM I2SM I3SM I4SM    IOFF'
       !write(u6,'(1X,4I4,I9)') I1SM,I2SM,I3SM,I4SM,IOFF
-30    continue
     end do
-20  continue
   end do
 end do
 

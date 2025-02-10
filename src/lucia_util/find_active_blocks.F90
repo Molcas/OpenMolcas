@@ -28,32 +28,33 @@ IDISK(LUIN) = 0
 IBLK = 0
 NBLK_A = 0
 ! Loop over blocks
-1000 continue
-IBLK = IBLK+1
-if (LBLK > 0) then
-  LBL(1) = LBLK
-else if (LBLK == 0) then
-  call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
-else if (LBLK < 0) then
-  call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
-  call IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
-end if
-if (LBL(1) >= 0) then
-  if (LBLK >= 0) then
-    KBLK = LBL(1)
-  else
-    KBLK = -1
+do
+  IBLK = IBLK+1
+  if (LBLK > 0) then
+    LBL(1) = LBLK
+  else if (LBLK == 0) then
+    call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
+  else if (LBLK < 0) then
+    call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
+    call IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
   end if
-  NO_ZEROING = 1
-  call FRMDSC2(SEGMNT,LBL(1),KBLK,LUIN,IMZERO,IAMPACK,NO_ZEROING)
-  if (IMZERO == 0) then
-    NBLK_A = NBLK_A+1
-    BLK_A(IBLK) = One
-  else
-    BLK_A(IBLK) = Zero
+  if (LBL(1) >= 0) then
+    if (LBLK >= 0) then
+      KBLK = LBL(1)
+    else
+      KBLK = -1
+    end if
+    NO_ZEROING = 1
+    call FRMDSC2(SEGMNT,LBL(1),KBLK,LUIN,IMZERO,IAMPACK,NO_ZEROING)
+    if (IMZERO == 0) then
+      NBLK_A = NBLK_A+1
+      BLK_A(IBLK) = One
+    else
+      BLK_A(IBLK) = Zero
+    end if
   end if
-end if
-if ((LBL(1) >= 0) .and. (LBLK <= 0)) goto 1000
+  if ((LBL(1) < 0) .or. (LBLK > 0)) exit
+end do
 NBLK = IBLK-1
 
 NTEST = 0

@@ -78,230 +78,230 @@ call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
 call SYMCOM(2,IOBSM,KSM,ISPGPSM)
 NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
 if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
-if (NKSTR == 0) goto 9999
+if (NKSTR /= 0) then
 
-NORBTS = NOBPTS(IOBTP,IOBSM)
-call SETVEC(XI1S,Zero,NORBTS*NKSTR)
-call ISETVC(I1,0,NORBTS*NKSTR)
+  NORBTS = NOBPTS(IOBTP,IOBSM)
+  call SETVEC(XI1S,Zero,NORBTS*NKSTR)
+  call ISETVC(I1,0,NORBTS*NKSTR)
 
-! First orbital of given GASSpace
-IBORBSP = IELSUM(NOBPT,IOBTP-1)+1
-! First orbital of fiven GASSPace and Symmetry
-IBORBSPS = IOBPTS(IOBTP,IOBSM)
+  ! First orbital of given GASSpace
+  IBORBSP = IELSUM(NOBPT,IOBTP-1)+1
+  ! First orbital of fiven GASSPace and Symmetry
+  IBORBSPS = IOBPTS(IOBTP,IOBSM)
 
-! Information about I strings
-! ===========================
+  ! Information about I strings
+  ! ===========================
 
-! structure of group of strings defining I strings
-NGASL = 1
-do IGAS=1,NGAS
-  ITPFGS(IGAS) = ISPGPFTP(IGAS,ISPGRPABS)
-  NELFGS(IGAS) = NELFGP(ITPFGS(IGAS))
-  if (NELFGS(IGAS) > 0) NGASL = IGAS
-end do
-! Number of electrons before active type
-NELB = 0
-do IGAS=1,IOBTP-1
-  NELB = NELB+NELFGS(IGAS)
-end do
-! Number of electrons in active space
-NACGSOB = NOBPT(IOBTP)
-
-! Number of strings per symmetry for each symmetry
-do IGAS=1,NGAS
-  call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
-end do
-! Offset and dimension for active group in I strings
-call ICOPVE2(ISTSGP,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,IACIST)
-call ICOPVE2(NSTSGP,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,NACIST)
-!write(u6,*) ' IACIST and NACIST arrays'
-!call IWRTMA(IACIST,1,NSMST,1,NSMST)
-!call IWRTMA(NACIST,1,NSMST,1,NSMST)
-
-! Generate offsets for I strings with given symmetry in each space
-
-do IGAS=1,NGAS
-  do ISMST=1,NSMST
-    if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
+  ! structure of group of strings defining I strings
+  NGASL = 1
+  do IGAS=1,NGAS
+    ITPFGS(IGAS) = ISPGPFTP(IGAS,ISPGRPABS)
+    NELFGS(IGAS) = NELFGP(ITPFGS(IGAS))
+    if (NELFGS(IGAS) > 0) NGASL = IGAS
   end do
-  do ISMST=NSMST,1,-1
-    if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
+  ! Number of electrons before active type
+  NELB = 0
+  do IGAS=1,IOBTP-1
+    NELB = NELB+NELFGS(IGAS)
   end do
-end do
-IFIRST = 1
-NSTRINT = 0
-2000 continue
-if (IFIRST == 1) then
-  do IGAS=1,NGASL-1
-    ISMFGS(IGAS) = MNVAL(IGAS)
+  ! Number of electrons in active space
+  NACGSOB = NOBPT(IOBTP)
+
+  ! Number of strings per symmetry for each symmetry
+  do IGAS=1,NGAS
+    call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
   end do
-else
-  ! Next distribution of symmetries in NGAS -1
-  call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
-  if (NONEW /= 0) goto 2001
-end if
-IFIRST = 0
-! Symmetry of NGASL -1 spaces given, symmetry of full space
-ISTSMM1 = 1
-do IGAS=1,NGASL-1
-  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-  ISTSMM1 = JSTSMM1
-end do
-! sym of SPACE NGASL
-call SYMCOM(2,ISTSMM1,ISMGSN,ISPGPSM)
-ISMFGS(NGASL) = ISMGSN
-if (NTEST >= 200) then
-  write(u6,*) ' next symmetry of NGASL spaces'
-  call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
-end if
-! Number of strings with this symmetry combination
-NSTRII = 1
-do IGAS=1,NGASL
-  NSTRII = NSTRII*NNSTSGP(ISMFGS(IGAS),IGAS)
-end do
-! Offset for this symmetry distribution in IOFFI
-IOFF = 1
-MULT = 1
-do IGAS=1,NGASL
-  IOFF = IOFF+(ISMFGS(IGAS)-1)*MULT
-  MULT = MULT*NSMST
-end do
+  ! Offset and dimension for active group in I strings
+  call ICOPVE2(ISTSGP,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,IACIST)
+  call ICOPVE2(NSTSGP,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,NACIST)
+  !write(u6,*) ' IACIST and NACIST arrays'
+  !call IWRTMA(IACIST,1,NSMST,1,NSMST)
+  !call IWRTMA(NACIST,1,NSMST,1,NSMST)
 
-if (NTEST >= 1) then !SJS
-  write(u6,*)
-  write(u6,*) ' ============================'
-  write(u6,*) ' If program is crashing here,'
-  write(u6,*) ' LOFFI needs to be increased.'
-  write(u6,*) ' ============================'
-  write(u6,*)
-end if
-OFFI(IOFF) = real(NSTRINT,kind=wp)+1.001_wp
-NSTRINT = NSTRINT+NSTRII
-if (NTEST >= 200) write(u6,*) ' IOFF, OFFI(IOFF) NSTRII ',IOFF,OFFI(IOFF),NSTRII
+  ! Generate offsets for I strings with given symmetry in each space
 
-if (NGASL-1 > 0) goto 2000
-2001 continue
-
-! Supergroup and symmetry of K strings
-
-!M call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
-!M call SYMCOM(2,IOBSM,KSM,ISPGPSM)
-!M NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
-!M if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
-
-! Gas structure of K strings
-
-NGASL = 1
-do IGAS=1,NGAS
-  ITPFGS(IGAS) = ISPGPFTP(IGAS,KSPGRPABS)
-  NELFGS(IGAS) = NELFGP(ITPFGS(IGAS))
-  if (NELFGS(IGAS) > 0) NGASL = IGAS
-end do
-! Active group of K-strings
-KACGRP = ITPFGS(IOBTP)
-! Number of strings per symmetry distribution
-do IGAS=1,NGAS
-  call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
-  call ICOPVE2(ISTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,IISTSGP(1,IGAS))
-end do
-
-do IGAS=1,NGAS
-  do ISMST=1,NSMST
-    if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
+  do IGAS=1,NGAS
+    do ISMST=1,NSMST
+      if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
+    end do
+    do ISMST=NSMST,1,-1
+      if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
+    end do
   end do
-  do ISMST=NSMST,1,-1
-    if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
+  IFIRST = 1
+  NSTRINT = 0
+  do
+    if (IFIRST == 1) then
+      do IGAS=1,NGASL-1
+        ISMFGS(IGAS) = MNVAL(IGAS)
+      end do
+    else
+      ! Next distribution of symmetries in NGAS -1
+      call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
+      if (NONEW /= 0) exit
+    end if
+    IFIRST = 0
+    ! Symmetry of NGASL -1 spaces given, symmetry of full space
+    ISTSMM1 = 1
+    do IGAS=1,NGASL-1
+      call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
+      ISTSMM1 = JSTSMM1
+    end do
+    ! sym of SPACE NGASL
+    call SYMCOM(2,ISTSMM1,ISMGSN,ISPGPSM)
+    ISMFGS(NGASL) = ISMGSN
+    if (NTEST >= 200) then
+      write(u6,*) ' next symmetry of NGASL spaces'
+      call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
+    end if
+    ! Number of strings with this symmetry combination
+    NSTRII = 1
+    do IGAS=1,NGASL
+      NSTRII = NSTRII*NNSTSGP(ISMFGS(IGAS),IGAS)
+    end do
+    ! Offset for this symmetry distribution in IOFFI
+    IOFF = 1
+    MULT = 1
+    do IGAS=1,NGASL
+      IOFF = IOFF+(ISMFGS(IGAS)-1)*MULT
+      MULT = MULT*NSMST
+    end do
+
+    if (NTEST >= 1) then !SJS
+      write(u6,*)
+      write(u6,*) ' ============================'
+      write(u6,*) ' If program is crashing here,'
+      write(u6,*) ' LOFFI needs to be increased.'
+      write(u6,*) ' ============================'
+      write(u6,*)
+    end if
+    OFFI(IOFF) = real(NSTRINT,kind=wp)+1.001_wp
+    NSTRINT = NSTRINT+NSTRII
+    if (NTEST >= 200) write(u6,*) ' IOFF, OFFI(IOFF) NSTRII ',IOFF,OFFI(IOFF),NSTRII
+
+    if (NGASL <= 1) exit
   end do
-end do
 
-! Loop over symmetry distribtions of K strings
+  ! Supergroup and symmetry of K strings
 
-KFIRST = 1
-KSTRBS = 1
-1000 continue
-if (KFIRST == 1) then
-  do IGAS=1,NGASL-1
-    ISMFGS(IGAS) = MNVAL(IGAS)
+  !M call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
+  !M call SYMCOM(2,IOBSM,KSM,ISPGPSM)
+  !M NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
+  !M if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
+
+  ! Gas structure of K strings
+
+  NGASL = 1
+  do IGAS=1,NGAS
+    ITPFGS(IGAS) = ISPGPFTP(IGAS,KSPGRPABS)
+    NELFGS(IGAS) = NELFGP(ITPFGS(IGAS))
+    if (NELFGS(IGAS) > 0) NGASL = IGAS
   end do
-else
-  ! Next distribution of symmetries in NGAS -1
-  call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
-  if (NONEW /= 0) goto 1001
+  ! Active group of K-strings
+  KACGRP = ITPFGS(IOBTP)
+  ! Number of strings per symmetry distribution
+  do IGAS=1,NGAS
+    call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
+    call ICOPVE2(ISTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,IISTSGP(1,IGAS))
+  end do
+
+  do IGAS=1,NGAS
+    do ISMST=1,NSMST
+      if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
+    end do
+    do ISMST=NSMST,1,-1
+      if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
+    end do
+  end do
+
+  ! Loop over symmetry distribtions of K strings
+
+  KFIRST = 1
+  KSTRBS = 1
+  do
+    if (KFIRST == 1) then
+      do IGAS=1,NGASL-1
+        ISMFGS(IGAS) = MNVAL(IGAS)
+      end do
+    else
+      ! Next distribution of symmetries in NGAS -1
+      call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
+      if (NONEW /= 0) exit
+    end if
+    KFIRST = 0
+    if (NTEST >= 200) then
+      write(u6,*) ' next symmetry of NGASL-1 spaces'
+      call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
+    end if
+    ! Symmetry of NGASL -1 spaces given, symmetry of total space
+    ISTSMM1 = 1
+    do IGAS=1,NGASL-1
+      call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
+      ISTSMM1 = JSTSMM1
+    end do
+    ! required sym of SPACE NGASL
+    call SYMCOM(2,ISTSMM1,ISMGSN,KSM)
+    !write(u6,*) ' after  SYMCOM'
+    !write(u6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
+    ISMFGS(NGASL) = ISMGSN
+
+    do IGAS=NGASL+1,NGAS
+      ISMFGS(IGAS) = 1
+    end do
+    if (NTEST >= 200) then
+      write(u6,*) ' Next symmetry distribution'
+      call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
+    end if
+    ! Number of strings of this symmetry distribution
+    NSTRIK = 1
+    do IGAS=1,NGASL
+      NSTRIK = NSTRIK*NNSTSGP(ISMFGS(IGAS),IGAS)
+    end do
+    ! Offset for corresponding I strings
+    ISAVE = ISMFGS(IOBTP)
+    call SYMCOM(3,IOBSM,ISMFGS(IOBTP),IACSM)
+    ISMFGS(IOBTP) = IACSM
+    IOFF = 1
+    MULT = 1
+    do IGAS=1,NGAS
+      IOFF = IOFF+(ISMFGS(IGAS)-1)*MULT
+      MULT = MULT*NSMST
+    end do
+    ISMFGS(IOBTP) = ISAVE
+    IBSTRINI = int(OFFI(IOFF))
+    !write(u6,*) ' IOFF IBSTRINI ',IOFF,IBSTRINI
+    ! Number of strings before active GAS space
+    NSTB = 1
+    do IGAS=1,IOBTP-1
+      NSTB = NSTB*NNSTSGP(ISMFGS(IGAS),IGAS)
+    end do
+    ! Number of strings before active GAS space
+    NSTA = 1
+    do IGAS=IOBTP+1,NGAS
+      NSTA = NSTA*NNSTSGP(ISMFGS(IGAS),IGAS)
+    end do
+    ! Number and offset for active group
+    !write(u6,*) ' IACSM = ',IACSM
+    NIAC = NACIST(IACSM)
+    IIAC = IACIST(IACSM)
+
+    NKAC = NNSTSGP(ISMFGS(IOBTP),IOBTP)
+    IKAC = IISTSGP(ISMFGS(IOBTP),IOBTP)
+    ! I and K strings of given symmetry distribution
+    NKSD = NSTB*NKAC*NSTA
+    !write(u6,*) ' nstb nsta niac nkac ',nstb,nsta,niac,nkac
+    ! Obtain annihilation n mapping for all strings of this type
+
+    NORBTS = NOBPTS(IOBTP,IOBSM)
+
+    !write(u6,*) ' KACGRP ',KACGRP
+    call ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%A,STSTM(KACGRP,2)%A,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC, &
+                     NKSTR,NELB,NACGSOB,I1,XI1S,SCLFAC)
+    KSTRBS = KSTRBS+NKSD
+    if (NGASL <= 1) exit
+  end do
+
 end if
-KFIRST = 0
-if (NTEST >= 200) then
-  write(u6,*) ' next symmetry of NGASL-1 spaces'
-  call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
-end if
-! Symmetry of NGASL -1 spaces given, symmetry of total space
-ISTSMM1 = 1
-do IGAS=1,NGASL-1
-  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-  ISTSMM1 = JSTSMM1
-end do
-! required sym of SPACE NGASL
-call SYMCOM(2,ISTSMM1,ISMGSN,KSM)
-!write(u6,*) ' after  SYMCOM'
-!write(u6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
-ISMFGS(NGASL) = ISMGSN
-
-do IGAS=NGASL+1,NGAS
-  ISMFGS(IGAS) = 1
-end do
-if (NTEST >= 200) then
-  write(u6,*) ' Next symmetry distribution'
-  call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
-end if
-! Number of strings of this symmetry distribution
-NSTRIK = 1
-do IGAS=1,NGASL
-  NSTRIK = NSTRIK*NNSTSGP(ISMFGS(IGAS),IGAS)
-end do
-! Offset for corresponding I strings
-ISAVE = ISMFGS(IOBTP)
-call SYMCOM(3,IOBSM,ISMFGS(IOBTP),IACSM)
-ISMFGS(IOBTP) = IACSM
-IOFF = 1
-MULT = 1
-do IGAS=1,NGAS
-  IOFF = IOFF+(ISMFGS(IGAS)-1)*MULT
-  MULT = MULT*NSMST
-end do
-ISMFGS(IOBTP) = ISAVE
-IBSTRINI = int(OFFI(IOFF))
-!write(u6,*) ' IOFF IBSTRINI ',IOFF,IBSTRINI
-! Number of strings before active GAS space
-NSTB = 1
-do IGAS=1,IOBTP-1
-  NSTB = NSTB*NNSTSGP(ISMFGS(IGAS),IGAS)
-end do
-! Number of strings before active GAS space
-NSTA = 1
-do IGAS=IOBTP+1,NGAS
-  NSTA = NSTA*NNSTSGP(ISMFGS(IGAS),IGAS)
-end do
-! Number and offset for active group
-!write(u6,*) ' IACSM = ',IACSM
-NIAC = NACIST(IACSM)
-IIAC = IACIST(IACSM)
-
-NKAC = NNSTSGP(ISMFGS(IOBTP),IOBTP)
-IKAC = IISTSGP(ISMFGS(IOBTP),IOBTP)
-! I and K strings of given symmetry distribution
-NKSD = NSTB*NKAC*NSTA
-!write(u6,*) ' nstb nsta niac nkac ',nstb,nsta,niac,nkac
-! Obtain annihilation n mapping for all strings of this type
-
-NORBTS = NOBPTS(IOBTP,IOBSM)
-
-!write(u6,*) ' KACGRP ',KACGRP
-call ADSTN_GASSM(NSTB,NSTA,IKAC,IIAC,IBSTRINI,KSTRBS,STSTM(KACGRP,1)%A,STSTM(KACGRP,2)%A,IBORBSPS,IBORBSP,NORBTS,NKAC,NIAC,NKSTR, &
-                 NELB,NACGSOB,I1,XI1S,SCLFAC)
-KSTRBS = KSTRBS+NKSD
-if (NGASL-1 > 0) goto 1000
-1001 continue
-
-9999 continue
 
 if (NTEST >= 100) then
   write(u6,*) ' Output from ADSTN_GAS'

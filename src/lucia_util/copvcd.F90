@@ -35,40 +35,41 @@ end if
 ! LOOP OVER BLOCKS
 
 !write(u6,*) ' COPVCD LBLK : ',LBLK
-1000 continue
-if (LBLK > 0) then
-  LBL(1) = LBLK
-else if (LBLK == 0) then
-  call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
-  call IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
-  !write(u6,*) ' COPVCD LBL : ',LBL(1)
-else if (LBLK < 0) then
-  call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
-  call IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
-  call IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
-  IDUMMY(1) = -1
-  call IDAFILE(LUOUT,1,IDUMMY,1,IDISK(LUOUT))
-end if
-if (LBL(1) >= 0) then
-  if (LBLK >= 0) then
-    KBLK = LBL(1)
-  else
-    KBLK = -1
+do
+  if (LBLK > 0) then
+    LBL(1) = LBLK
+  else if (LBLK == 0) then
+    call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
+    call IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
+    !write(u6,*) ' COPVCD LBL : ',LBL(1)
+  else if (LBLK < 0) then
+    call IDAFILE(LUIN,2,LBL,1,IDISK(LUIN))
+    call IDAFILE(LUIN,2,IDUMMY,1,IDISK(LUIN))
+    call IDAFILE(LUOUT,1,LBL,1,IDISK(LUOUT))
+    IDUMMY(1) = -1
+    call IDAFILE(LUOUT,1,IDUMMY,1,IDISK(LUOUT))
   end if
-  !write(u6,*) ' LBL and KBLK ',LBL(1),KBLK
-  NO_ZEROING = 1
-  call FRMDSC2(SEGMNT,LBL(1),KBLK,LUIN,IMZERO,IAMPACK,NO_ZEROING)
-  !if (IAMPACK /= 0) write(u6,*) ' COPVCD, IAMPACK,FILE = ',IAMPACK,LUIN
-  if (IMZERO == 0) then
-    if (IAMPACK == 0) then
-      call TODSC(SEGMNT,LBL(1),KBLK,LUOUT)
+  if (LBL(1) >= 0) then
+    if (LBLK >= 0) then
+      KBLK = LBL(1)
     else
-      call TODSCP(SEGMNT,LBL(1),KBLK,LUOUT)
+      KBLK = -1
     end if
-  else
-    call ZERORC(LUOUT,IAMPACK)
+    !write(u6,*) ' LBL and KBLK ',LBL(1),KBLK
+    NO_ZEROING = 1
+    call FRMDSC2(SEGMNT,LBL(1),KBLK,LUIN,IMZERO,IAMPACK,NO_ZEROING)
+    !if (IAMPACK /= 0) write(u6,*) ' COPVCD, IAMPACK,FILE = ',IAMPACK,LUIN
+    if (IMZERO == 0) then
+      if (IAMPACK == 0) then
+        call TODSC(SEGMNT,LBL(1),KBLK,LUOUT)
+      else
+        call TODSCP(SEGMNT,LBL(1),KBLK,LUOUT)
+      end if
+    else
+      call ZERORC(LUOUT,IAMPACK)
+    end if
   end if
-end if
-if ((LBL(1) >= 0) .and. (LBLK <= 0)) goto 1000
+  if ((LBL(1) < 0) .or. (LBLK > 0)) exit
+end do
 
 end subroutine COPVCD

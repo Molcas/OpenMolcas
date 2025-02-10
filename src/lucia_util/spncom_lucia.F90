@@ -43,15 +43,15 @@ do I=1,MX
     ! Next number
     ADD = 1
     J = 0
-190 continue
-    J = J+1
-    if (IWORK(J) == 1) then
-      IWORK(J) = 0
-    else
-      IWORK(J) = 1
-      ADD = 0
-    end if
-    if (ADD == 1) goto 190
+    do while (ADD == 1)
+      J = J+1
+      if (IWORK(J) == 1) then
+        IWORK(J) = 0
+      else
+        IWORK(J) = 1
+        ADD = 0
+      end if
+    end do
   end if
 
   ! 2 :  CORRECT SPIN PROJECTION ?

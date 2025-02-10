@@ -79,7 +79,7 @@ do IATP=1,NOCTPA
 
       LTTS_AS = 0
       do IASM=1,NSMST
-        if (IBLTP(IASM) == 0) goto 300
+        if (IBLTP(IASM) == 0) cycle
         call SYMCOM(2,IASM,IBSM,ITOTSM)
         if (IBSM /= 0) then
           if (IBLTP(IASM) == 2) then
@@ -87,7 +87,7 @@ do IATP=1,NOCTPA
           else
             ISYM = 0
           end if
-          if ((ISYM == 1) .and. (IBTP > IATP)) goto 300
+          if ((ISYM == 1) .and. (IBTP > IATP)) cycle
           LASTR = NSSOA(IASM,IATP)
           LBSTR = NSSOB(IBSM,IBTP)
           ! Size of unpacked block
@@ -106,7 +106,6 @@ do IATP=1,NOCTPA
           NTTSBL = NTTSBL+1
           LCOL = LCOL+NSSOB(IBSM,IBTP)
         end if
-300     continue
       end do
       MXSOOB_AS = max(MXSOOB_AS,LTTS_AS)
     end if

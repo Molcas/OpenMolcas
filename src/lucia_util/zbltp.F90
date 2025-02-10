@@ -44,7 +44,7 @@ else
   do IASYM=1,MAXSYM
 
     IBSYM = ISMOST(IASYM)
-    if (IBSYM == 0) goto 100
+    if (IBSYM == 0) cycle
     if ((((IDC == 2) .or. (IDC == 4)) .and. (IBSYM > IASYM)) .or. ((IDC == 3) .and. (IMMLST(IASYM) > IASYM))) then
       ! Symmetry block excluded
       ICBLTP(IASYM) = 0
@@ -55,7 +55,6 @@ else
       ! Lower half  symmetry block included
       ICBLTP(IASYM) = 2
     end if
-100 continue
   end do
 end if
 ! End of IDC switch

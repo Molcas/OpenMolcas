@@ -38,7 +38,7 @@ if (IPACK /= 0) then
   if (IMZERO == 1) then
     !write(u6,*) ' frmdsc, length of zero block',NDIM
     call SETVEC(ARRAY,Zero,NDIM)
-    goto 1001
+    return
   end if
 end if
 !write(u6,*) ' IMZERO I_AM_PACKED',IMZERO,I_AM_PACKED
@@ -47,57 +47,56 @@ if (I_AM_PACKED == 1) then
   call SETVEC(ARRAY,Zero,NDIM)
   ! Loop over packed records of dimension LPBLK
   NBATCH = 0
-  !1000 CONTINUE
   ! The next LPBLK elements
   LBATCH = -2**30
-999 continue
-  NBATCH = NBATCH+1
-  if (NBATCH /= 1) LBATCHP = LBATCH
-  ! Read next batch
-  call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
-  LBATCH = IDUMMY(1)
-  if (LBATCH > 0) then
-    call IDAFILE(IFILE,2,IPAK,LBATCH,IDISK(IFILE))
-    call DDAFILE(IFILE,2,XPAK,LBATCH,IDISK(IFILE))
-  end if
-  call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
-  ISTOP = IDUMMY(1)
-  do IELMNT=1,LBATCH
-    if ((IPAK(IELMNT) <= 0) .or. (IPAK(IELMNT) > NDIM)) then
-      write(u6,*) ' FRMDSC : Problemo IELMNT = ',IELMNT
-      write(u6,*) ' IPAK(IELMNT) = ',IPAK(IELMNT)
-      write(u6,*) ' LBATCH IFILE  = ',LBATCH,IFILE
-      if (NBATCH == 1) then
-        write(u6,*) ' NBATCH = 1'
-      else
-        write(u6,*) ' NBATCH, LBATCHP',NBATCH,LBATCHP
-      end if
-      write(u6,*) ' NDIM,IMZERO = ',NDIM,IMZERO
-      !stop ' problem in FRMDSC'
-      call SYSABENDMSG('lucia_util/frmdsc','Internal error','')
+  do
+    NBATCH = NBATCH+1
+    if (NBATCH /= 1) LBATCHP = LBATCH
+    ! Read next batch
+    call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
+    LBATCH = IDUMMY(1)
+    if (LBATCH > 0) then
+      call IDAFILE(IFILE,2,IPAK,LBATCH,IDISK(IFILE))
+      call DDAFILE(IFILE,2,XPAK,LBATCH,IDISK(IFILE))
     end if
-    ARRAY(IPAK(IELMNT)) = XPAK(IELMNT)
+    call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
+    ISTOP = IDUMMY(1)
+    do IELMNT=1,LBATCH
+      if ((IPAK(IELMNT) <= 0) .or. (IPAK(IELMNT) > NDIM)) then
+        write(u6,*) ' FRMDSC : Problemo IELMNT = ',IELMNT
+        write(u6,*) ' IPAK(IELMNT) = ',IPAK(IELMNT)
+        write(u6,*) ' LBATCH IFILE  = ',LBATCH,IFILE
+        if (NBATCH == 1) then
+          write(u6,*) ' NBATCH = 1'
+        else
+          write(u6,*) ' NBATCH, LBATCHP',NBATCH,LBATCHP
+        end if
+        write(u6,*) ' NDIM,IMZERO = ',NDIM,IMZERO
+        !stop ' problem in FRMDSC'
+        call SYSABENDMSG('lucia_util/frmdsc','Internal error','')
+      end if
+      ARRAY(IPAK(IELMNT)) = XPAK(IELMNT)
+    end do
+    if (ISTOP /= 0) exit
   end do
-  if (ISTOP == 0) goto 999
   ! End of loop over records of truncated elements
 else if (I_AM_PACKED == 0) then
   NBLOCK = MBLOCK
   if (MBLOCK <= 0) NBLOCK = NDIM
   IREST = NDIM
   IBASE = 0
-100 continue
-  if (IREST > NBLOCK) then
-    call DDAFILE(IFILE,2,ARRAY(IBASE+1),NBLOCK,IDISK(IFILE))
-    IBASE = IBASE+NBLOCK
-    IREST = IREST-NBLOCK
-  else
-    call DDAFILE(IFILE,2,ARRAY(IBASE+1),IREST,IDISK(IFILE))
-    IREST = 0
-  end if
-  call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
-  if (IREST > 0) goto 100
+  do
+    if (IREST > NBLOCK) then
+      call DDAFILE(IFILE,2,ARRAY(IBASE+1),NBLOCK,IDISK(IFILE))
+      IBASE = IBASE+NBLOCK
+      IREST = IREST-NBLOCK
+    else
+      call DDAFILE(IFILE,2,ARRAY(IBASE+1),IREST,IDISK(IFILE))
+      IREST = 0
+    end if
+    call IDAFILE(IFILE,2,IDUMMY,1,IDISK(IFILE))
+    if (IREST <= 0) exit
+  end do
 end if
-
-1001 continue
 
 end subroutine FRMDSC

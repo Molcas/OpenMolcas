@@ -89,104 +89,103 @@ NBATCH = 0
 IBLOCK = 0
 IFINI = 0
 ! Loop over batches of blocks
-2000 continue
-NBATCH = NBATCH+1
-LBATCH(NBATCH) = 0
-I1BATCH(NBATCH) = IBLOCK+1
-LENGTH = 0
-LENGTHP = 0
-NBLOCK = 0
-IFRST = 1
-! Loop over blocks in batch
-1000 continue
-if (IFRST == 0) then
-  ! New order : ISM,IB,IA (leftmost inner loop )
-  if (ISM < NSMST) then
-    ISM = ISM+1
-  else
-    ISM = 1
-    if (IB < NOCTPB) then
-      IB = IB+1
-    else
-      IB = 1
-      if (IA < NOCTPA) then
-        IA = IA+1
+outer: do
+  NBATCH = NBATCH+1
+  LBATCH(NBATCH) = 0
+  I1BATCH(NBATCH) = IBLOCK+1
+  LENGTH = 0
+  LENGTHP = 0
+  NBLOCK = 0
+  IFRST = 1
+  ! Loop over blocks in batch
+  do
+    if (IFRST == 0) then
+      ! New order : ISM,IB,IA (leftmost inner loop )
+      if (ISM < NSMST) then
+        ISM = ISM+1
       else
-        IFINI = 1
+        ISM = 1
+        if (IB < NOCTPB) then
+          IB = IB+1
+        else
+          IB = 1
+          if (IA < NOCTPA) then
+            IA = IA+1
+          else
+            IFINI = 1
+          end if
+        end if
       end if
     end if
-  end if
-end if
-IFRST = 0
-if (IFINI == 1) goto 2002
-if (IOCOC(IA,IB) == 0) goto 1000
-! Size of TT block ( all symmetries)
-!LBLOCK_AS = 0
-!if ((ISIMSYM == 1) .and. (ISM == 1)) then
-!  do IASM=1,NSMST
-!    IBSM = ISMOST(IASM)
-!    NSTA = NSSOA(IASM,IA)
-!    NSTB = NSSOB(IBSM,IB)
-!    if (IBLTP(IASM) == 0) GOTO 99
-!    if ((IBLTP(IASM) == 2) .and. (IA < IB)) goto 99
-!    LBLOCK_AS = LBLOCK_AS+NSTA*NSTB
-!99 continue
-!  end do
-!  INC = 0
-!  !write(u6,*) ' IA IB LBLOCK_AS',IA,IB,LBLOCK_AS
-!  if ((LENGTH+LBLOCK_AS <= MXLNG) .or. (ICOMP == 1)) INC = 1
-!end if
-! Should this block be included
-IASM = ISM
-IBSM = ISMOST(IASM)
-if (IDC == 2) then
-  if (IA < IB) goto 1000
-  if ((IA == IB) .and. (IASM < IBSM)) goto 1000
-end if
-! can this block be included
-NSTA = NSSOA(ISM,IA)
-NSTB = NSSOB(IBSM,IB)
-LBLOCK = NSTA*NSTB
-if ((IDC == 1) .or. (IA > IB) .or. ((IA == IB) .and. (IASM > IBSM))) then
-  LBLOCKP = NSTA*NSTB
-else if ((IDC == 2) .and. (IA == IB) .and. (IASM == IBSM)) then
-  LBLOCKP = NSTA*(NSTA+1)/2
-end if
-!write(u6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK',IASM,IBSM,IA,IB,LBLOCKP,LBLOCK
+    IFRST = 0
+    if (IFINI == 1) exit outer
+    if (IOCOC(IA,IB) == 0) cycle
+    ! Size of TT block ( all symmetries)
+    !LBLOCK_AS = 0
+    !if ((ISIMSYM == 1) .and. (ISM == 1)) then
+    !  do IASM=1,NSMST
+    !    IBSM = ISMOST(IASM)
+    !    NSTA = NSSOA(IASM,IA)
+    !    NSTB = NSSOB(IBSM,IB)
+    !    if (IBLTP(IASM) == 0) cycle
+    !    if ((IBLTP(IASM) == 2) .and. (IA < IB)) cycle
+    !    LBLOCK_AS = LBLOCK_AS+NSTA*NSTB
+    !  end do
+    !  INC = 0
+    !  !write(u6,*) ' IA IB LBLOCK_AS',IA,IB,LBLOCK_AS
+    !  if ((LENGTH+LBLOCK_AS <= MXLNG) .or. (ICOMP == 1)) INC = 1
+    !end if
+    ! Should this block be included
+    IASM = ISM
+    IBSM = ISMOST(IASM)
+    if (IDC == 2) then
+      if (IA < IB) cycle
+      if ((IA == IB) .and. (IASM < IBSM)) cycle
+    end if
+    ! can this block be included
+    NSTA = NSSOA(ISM,IA)
+    NSTB = NSSOB(IBSM,IB)
+    LBLOCK = NSTA*NSTB
+    if ((IDC == 1) .or. (IA > IB) .or. ((IA == IB) .and. (IASM > IBSM))) then
+      LBLOCKP = NSTA*NSTB
+    else if ((IDC == 2) .and. (IA == IB) .and. (IASM == IBSM)) then
+      LBLOCKP = NSTA*(NSTA+1)/2
+    end if
+    !write(u6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK',IASM,IBSM,IA,IB,LBLOCKP,LBLOCK
 
-!if (ISIMSYM == 0) then
-INC = 0
-if ((LENGTH+LBLOCK <= LBLOCK) .or. (ICOMP == 1)) INC = 1
-!end if
+    !if (ISIMSYM == 0) then
+    INC = 0
+    if ((LENGTH+LBLOCK <= LBLOCK) .or. (ICOMP == 1)) INC = 1
+    !end if
 
-if (INC == 1) then
-  NBLOCK = NBLOCK+1
-  IBLOCK = IBLOCK+1
-  LBATCH(NBATCH) = LBATCH(NBATCH)+1
-  IBATCH(1,IBLOCK) = IA
-  IBATCH(2,IBLOCK) = IB
-  IBATCH(3,IBLOCK) = ISM
-  IBATCH(4,IBLOCK) = IBSM
-  IBATCH(5,IBLOCK) = LENGTH+1
-  IBATCH(6,IBLOCK) = LENGTHP+1
-  IBATCH(7,IBLOCK) = LBLOCK
-  IBATCH(8,IBLOCK) = LBLOCKP
-  LENGTH = LENGTH+LBLOCK
-  LENGTHP = LENGTHP+LBLOCKP
-  LEBATCH(NBATCH) = LENGTHP
-  goto 1000
-else if ((ICOMP == 0) .and. (INC == 0) .and. (NBLOCK == 0)) then
-  write(u6,*) ' Not enough space to include a single Block'
-  write(u6,*) ' Since I cannot proceed I will stop'
-  write(u6,*) ' Insufficient space detected in PART_CIV'
-  write(u6,*) ' Alter GAS space or raise Buffer from ',MXLNG
-  !stop 'Error in PART_CIV2'
-  call SYSABENDMSG('lucia_util/part_civ2','Internal error','')
-else
-  ! This batch is finished, goto next batch
-  goto 2000
-end if
-2002 continue
+    if (INC == 1) then
+      NBLOCK = NBLOCK+1
+      IBLOCK = IBLOCK+1
+      LBATCH(NBATCH) = LBATCH(NBATCH)+1
+      IBATCH(1,IBLOCK) = IA
+      IBATCH(2,IBLOCK) = IB
+      IBATCH(3,IBLOCK) = ISM
+      IBATCH(4,IBLOCK) = IBSM
+      IBATCH(5,IBLOCK) = LENGTH+1
+      IBATCH(6,IBLOCK) = LENGTHP+1
+      IBATCH(7,IBLOCK) = LBLOCK
+      IBATCH(8,IBLOCK) = LBLOCKP
+      LENGTH = LENGTH+LBLOCK
+      LENGTHP = LENGTHP+LBLOCKP
+      LEBATCH(NBATCH) = LENGTHP
+    else if ((ICOMP == 0) .and. (INC == 0) .and. (NBLOCK == 0)) then
+      write(u6,*) ' Not enough space to include a single Block'
+      write(u6,*) ' Since I cannot proceed I will stop'
+      write(u6,*) ' Insufficient space detected in PART_CIV'
+      write(u6,*) ' Alter GAS space or raise Buffer from ',MXLNG
+      !stop 'Error in PART_CIV2'
+      call SYSABENDMSG('lucia_util/part_civ2','Internal error','')
+    else
+      ! This batch is finished, go to next batch
+      exit
+    end if
+  end do
+end do outer
 
 if (NTEST /= 0) then
   !write(u6,*) 'Output from PART_CIV'

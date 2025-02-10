@@ -122,182 +122,182 @@ call SXTYP2_GAS(NSXTP,ITP,JTP,NGAS,ISEL,ICEL,IPHGAS)
 ! Symmetry of single excitation that connects IBSM and JBSM
 IJSM = STSTSX(ISCSM,ICCSM)
 if (NTEST >= 1000) write(u6,*) ' ISCSM,ICCSM IJSM ',ISCSM,ICCSM,IJSM
-if (IJSM == 0) goto 1001
-do IJTP=1,NSXTP
-  ITYP = ITP(IJTP)
-  JTYP = JTP(IJTP)
-  if (NTEST >= 1000) write(u6,*) ' ITYP JTYP ',ITYP,JTYP
-  ! Hvilken vej skal vi valge,
-  ! Mi pojdem drugim putem (C)
-  ! VV: the code below confuses Absoft compiler and was rewritten.
-  !NOP = 2
-  IJ_AC(1) = 2
-  IJ_AC(2) = 1
-  IJ_TP(1) = ITYP
-  IJ_TP(2) = JTYP
-  !if (IUSE_PH == 1) call ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TP,IJ_AC,IJ_REO,SIGNIJ)
-  IJ_REO(1) = 1
-  IJ_REO(2) = 2
-  SIGNIJ = One
-  !end if
-
-  if (IJ_REO(1) == 1) then
-
+if (IJSM /= 0) then
+  do IJTP=1,NSXTP
+    ITYP = ITP(IJTP)
+    JTYP = JTP(IJTP)
+    if (NTEST >= 1000) write(u6,*) ' ITYP JTYP ',ITYP,JTYP
+    ! Hvilken vej skal vi valge,
+    ! Mi pojdem drugim putem (C)
+    ! VV: the code below confuses Absoft compiler and was rewritten.
+    !NOP = 2
+    IJ_AC(1) = 2
+    IJ_AC(2) = 1
     IJ_TP(1) = ITYP
     IJ_TP(2) = JTYP
-  else
-    IXXX = IJ_AC(1)
-    IJ_AC(1) = IJ_AC(2)
-    IJ_AC(2) = IXXX
-
-    !ISCR(1) = ITYP
-    !ISCR(2) = JTYP
-    IJ_TP(1) = JTYP
-    IJ_TP(2) = ITYP
-  end if
-
-  !ISCR(1) = IJ_AC(1)
-  !ISCR(2) = IJ_AC(2)
-  !IJ_AC(1) = ISCR(IJ_REO(1))
-  !IJ_AC(2) = ISCR(IJ_REO(2))
-
-  ! nasty code to avoid optimization
-  !if (iscr(1) == -1000) write(u6,*) IJ_TP,IJ_REO
-  !ISCR(1) = ITYP
-  !ISCR(2) = JTYP
-  !IJ_TP(1) = ISCR(IJ_REO(1))
-  !IJ_TP(2) = ISCR(IJ_REO(2))
-
-  do ISM=1,NSMOB
-    ! new i and j so new intermediate strings
-
-    JSM = ADSXA(ISM,IJSM)
-    if (JSM == 0) goto 800
-    if (NTEST >= 1000) write(u6,*) ' ISM JSM ',ISM,JSM
-    NIORB = NOBPTS(ITYP,ISM)
-    NJORB = NOBPTS(JTYP,JSM)
-    IBIORB = IOBPTS(ITYP,ISM)
-    IBJORB = IOBPTS(JTYP,JSM)
-    ! Reorder
-    !ISCR(1) = ISM
-    !ISCR(2) = JSM
-    !IJ_SM(1) = ISCR(IJ_REO(1))
-    !IJ_SM(2) = ISCR(IJ_REO(2))
-
-    !ISCR(1) = NIORB
-    !ISCR(2) = NJORB
-    !IJ_DIM(1) = ISCR(IJ_REO(1))
-    !IJ_DIM(2) = ISCR(IJ_REO(2))
-
-    !ISCR(1) = IBIORB
-    !ISCR(2) = IBJORB
-    !IJ_OFF(1) = ISCR(IJ_REO(1))
-    !IJ_OFF(2) = ISCR(IJ_REO(2))
+    !if (IUSE_PH == 1) call ALG_ROUTERX(IAOC,JAOC,NOP,IJ_TP,IJ_AC,IJ_REO,SIGNIJ)
+    IJ_REO(1) = 1
+    IJ_REO(2) = 2
+    SIGNIJ = One
+    !end if
 
     if (IJ_REO(1) == 1) then
-      IJ_SM(1) = ISM
-      IJ_SM(2) = JSM
-      IJ_DIM(1) = NIORB
-      IJ_DIM(2) = NJORB
-      IJ_OFF(1) = IBIORB
-      IJ_OFF(2) = IBJORB
+
+      IJ_TP(1) = ITYP
+      IJ_TP(2) = JTYP
     else
-      IJ_SM(1) = JSM
-      IJ_SM(2) = ISM
-      IJ_DIM(1) = NJORB
-      IJ_DIM(2) = NIORB
-      IJ_OFF(1) = IBJORB
-      IJ_OFF(2) = IBIORB
+      IXXX = IJ_AC(1)
+      IJ_AC(1) = IJ_AC(2)
+      IJ_AC(2) = IXXX
+
+      !ISCR(1) = ITYP
+      !ISCR(2) = JTYP
+      IJ_TP(1) = JTYP
+      IJ_TP(2) = ITYP
     end if
 
-    if (NTEST >= 2000) write(u6,*) ' NIORB NJORB ',NIORB,NJORB
-    if ((NIORB == 0) .or. (NJORB == 0)) goto 800
+    !ISCR(1) = IJ_AC(1)
+    !ISCR(2) = IJ_AC(2)
+    !IJ_AC(1) = ISCR(IJ_REO(1))
+    !IJ_AC(2) = ISCR(IJ_REO(2))
 
-    ! For operator connecting to |Ka> and |Ja> i.e. operator 2
-    SCLFACS = SCLFAC*SIGNIJ
-    if (NTEST >= 1000) write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
-    call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,KACT,SCLFACS,IJ_AC(1))
-    ! For operator connecting |Ka> and |Ia>, i.e. operator 1
-    if (NKASTR == 0) goto 800
-    call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,KACT,One,IJ_AC(1))
-    if (NKASTR == 0) goto 800
-    ! Compress list to common nonvanishing elements
-    IDOCOMP = 1
-    if (IDOCOMP == 1) then
-      call COMPRS2LST(I1,XI1S,IJ_DIM(2),I2,XI2S,IJ_DIM(1),NKASTR,NKAEFF)
-    else
-      NKAEFF = NKASTR
-    end if
-    !write(u6,*) ' NKAEFF NKASTR',NKAEFF,NKASTR
+    ! nasty code to avoid optimization
+    !if (iscr(1) == -1000) write(u6,*) IJ_TP,IJ_REO
+    !ISCR(1) = ITYP
+    !ISCR(2) = JTYP
+    !IJ_TP(1) = ISCR(IJ_REO(1))
+    !IJ_TP(2) = ISCR(IJ_REO(2))
 
-    ! Loop over partitionings of N-1 strings
-    KBOT = 1-MAXK
-    KTOP = 0
-700 continue
-    KBOT = KBOT+MAXK
-    KTOP = min(KTOP+MAXK,NKAEFF)
-    if (KTOP == NKAEFF) then
-      KEND = 1
-    else
-      KEND = 0
-    end if
-    LKABTC = KTOP-KBOT+1
+    do ISM=1,NSMOB
+      ! new i and j so new intermediate strings
 
-    ! This is the place to start over partitioning of I strings
-    do IIPART=1+MYRANK,NIPART,NPROCS
-      IBOT = (IIPART-1)*NIPARTSZ+1
-      ITOP = min(IBOT+NIPARTSZ-1,NROW)
-      NIBTC = ITOP-IBOT+1
-      if (NIBTC <= 0) exit
-      ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
-      do JJORB=1,IJ_DIM(2)
-        ICGOFF = 1+(JJORB-1)*LKABTC*NIBTC
-        call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,LKABTC,I1(KBOT+(JJORB-1)*NKASTR),XI1S(KBOT+(JJORB-1)*NKASTR))
-      end do
-      ! Obtain SSCR(I,K,IORB) = SUM(I)<K!A IORB!J>S(I,J)
-      do IIORB=1,IJ_DIM(1)
-        ! Gather S Block
-        ISGOFF = 1+(IIORB-1)*LKABTC*NIBTC
-        call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,LKABTC,I2(KBOT+(IIORB-1)*NKASTR),XI2S(KBOT+(IIORB-1)*NKASTR))
-      end do
+      JSM = ADSXA(ISM,IJSM)
+      if (JSM == 0) cycle
+      if (NTEST >= 1000) write(u6,*) ' ISM JSM ',ISM,JSM
+      NIORB = NOBPTS(ITYP,ISM)
+      NJORB = NOBPTS(JTYP,JSM)
+      IBIORB = IOBPTS(ITYP,ISM)
+      IBJORB = IOBPTS(JTYP,JSM)
+      ! Reorder
+      !ISCR(1) = ISM
+      !ISCR(2) = JSM
+      !IJ_SM(1) = ISCR(IJ_REO(1))
+      !IJ_SM(2) = ISCR(IJ_REO(2))
 
-      if (NTEST >= 1000) then
-        write(u6,*) ' CSCR and SSCR'
-        call WRTMAT(CSCR,IJ_DIM(2),NKI,IJ_DIM(2),NKI)
-        call WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
+      !ISCR(1) = NIORB
+      !ISCR(2) = NJORB
+      !IJ_DIM(1) = ISCR(IJ_REO(1))
+      !IJ_DIM(2) = ISCR(IJ_REO(2))
+
+      !ISCR(1) = IBIORB
+      !ISCR(2) = IBJORB
+      !IJ_OFF(1) = ISCR(IJ_REO(1))
+      !IJ_OFF(2) = ISCR(IJ_REO(2))
+
+      if (IJ_REO(1) == 1) then
+        IJ_SM(1) = ISM
+        IJ_SM(2) = JSM
+        IJ_DIM(1) = NIORB
+        IJ_DIM(2) = NJORB
+        IJ_OFF(1) = IBIORB
+        IJ_OFF(2) = IBJORB
+      else
+        IJ_SM(1) = JSM
+        IJ_SM(2) = ISM
+        IJ_DIM(1) = NJORB
+        IJ_DIM(2) = NIORB
+        IJ_OFF(1) = IBJORB
+        IJ_OFF(2) = IBIORB
       end if
 
-      ! And then the hard work
-      NKI = LKABTC*NIBTC
-      FACTORC = Zero
-      FACTORAB = One
-      call MATML7(RHO1S,SSCR,CSCR,IJ_DIM(1),IJ_DIM(2),NKI,IJ_DIM(1),NKI,IJ_DIM(2),FACTORC,FACTORAB,1)
+      if (NTEST >= 2000) write(u6,*) ' NIORB NJORB ',NIORB,NJORB
+      if ((NIORB == 0) .or. (NJORB == 0)) cycle
 
-      if (NTEST >= 100) then
-        write(u6,*) ' Block to one-body density'
-        call WRTMAT(RHO1S,IJ_DIM(1),IJ_DIM(2),IJ_DIM(1),IJ_DIM(2))
+      ! For operator connecting to |Ka> and |Ja> i.e. operator 2
+      SCLFACS = SCLFAC*SIGNIJ
+      if (NTEST >= 1000) write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
+      call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,KACT,SCLFACS,IJ_AC(1))
+      ! For operator connecting |Ka> and |Ia>, i.e. operator 1
+      if (NKASTR == 0) cycle
+      call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,KACT,One,IJ_AC(1))
+      if (NKASTR == 0) cycle
+      ! Compress list to common nonvanishing elements
+      IDOCOMP = 1
+      if (IDOCOMP == 1) then
+        call COMPRS2LST(I1,XI1S,IJ_DIM(2),I2,XI2S,IJ_DIM(1),NKASTR,NKAEFF)
+      else
+        NKAEFF = NKASTR
       end if
-      ! Scatter out to complete matrix
-      do JJORB=1,IJ_DIM(2)
-        JORB = IJ_OFF(2)-1+JJORB
-        do IIORB=1,IJ_DIM(1)
-          IORB = IJ_OFF(1)-1+IIORB
-          RHO1((JORB-1)*NACOB+IORB) = RHO1((JORB-1)*NACOB+IORB)+RHO1S((JJORB-1)*IJ_DIM(1)+IIORB)
-          if (IDOSRHO1 == 1) SRHO1((JORB-1)*NACOB+IORB) = SRHO1((JORB-1)*NACOB+IORB)+XAB*RHO1S((JJORB-1)*IJ_DIM(1)+IIORB)
+      !write(u6,*) ' NKAEFF NKASTR',NKAEFF,NKASTR
+
+      ! Loop over partitionings of N-1 strings
+      KBOT = 1-MAXK
+      KTOP = 0
+      do
+        KBOT = KBOT+MAXK
+        KTOP = min(KTOP+MAXK,NKAEFF)
+        if (KTOP == NKAEFF) then
+          KEND = 1
+        else
+          KEND = 0
+        end if
+        LKABTC = KTOP-KBOT+1
+
+        ! This is the place to start over partitioning of I strings
+        do IIPART=1+MYRANK,NIPART,NPROCS
+          IBOT = (IIPART-1)*NIPARTSZ+1
+          ITOP = min(IBOT+NIPARTSZ-1,NROW)
+          NIBTC = ITOP-IBOT+1
+          if (NIBTC <= 0) exit
+          ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
+          do JJORB=1,IJ_DIM(2)
+            ICGOFF = 1+(JJORB-1)*LKABTC*NIBTC
+            call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,LKABTC,I1(KBOT+(JJORB-1)*NKASTR),XI1S(KBOT+(JJORB-1)*NKASTR))
+          end do
+          ! Obtain SSCR(I,K,IORB) = SUM(I)<K!A IORB!J>S(I,J)
+          do IIORB=1,IJ_DIM(1)
+            ! Gather S Block
+            ISGOFF = 1+(IIORB-1)*LKABTC*NIBTC
+            call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,LKABTC,I2(KBOT+(IIORB-1)*NKASTR),XI2S(KBOT+(IIORB-1)*NKASTR))
+          end do
+
+          if (NTEST >= 1000) then
+            write(u6,*) ' CSCR and SSCR'
+            call WRTMAT(CSCR,IJ_DIM(2),NKI,IJ_DIM(2),NKI)
+            call WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
+          end if
+
+          ! And then the hard work
+          NKI = LKABTC*NIBTC
+          FACTORC = Zero
+          FACTORAB = One
+          call MATML7(RHO1S,SSCR,CSCR,IJ_DIM(1),IJ_DIM(2),NKI,IJ_DIM(1),NKI,IJ_DIM(2),FACTORC,FACTORAB,1)
+
+          if (NTEST >= 100) then
+            write(u6,*) ' Block to one-body density'
+            call WRTMAT(RHO1S,IJ_DIM(1),IJ_DIM(2),IJ_DIM(1),IJ_DIM(2))
+          end if
+          ! Scatter out to complete matrix
+          do JJORB=1,IJ_DIM(2)
+            JORB = IJ_OFF(2)-1+JJORB
+            do IIORB=1,IJ_DIM(1)
+              IORB = IJ_OFF(1)-1+IIORB
+              RHO1((JORB-1)*NACOB+IORB) = RHO1((JORB-1)*NACOB+IORB)+RHO1S((JJORB-1)*IJ_DIM(1)+IIORB)
+              if (IDOSRHO1 == 1) SRHO1((JORB-1)*NACOB+IORB) = SRHO1((JORB-1)*NACOB+IORB)+XAB*RHO1S((JJORB-1)*IJ_DIM(1)+IIORB)
+            end do
+          end do
+          ! End of hard work
+
         end do
+        ! end of this I partitioning
+        ! end of this K partitioning
+        if (KEND /= 0) exit
       end do
-      ! End of hard work
-
+      ! End of loop over I partitionings
     end do
-    ! end of this I partitioning
-    ! end of this K partitioning
-    if (KEND == 0) goto 700
-    ! End of loop over I partitionings
-800 continue
+    ! (end of loop over symmetries)
   end do
-  ! (end of loop over symmetries)
-end do
-1001 continue
+end if
 
 !stop ' enforced stop in RSBBD1'
 

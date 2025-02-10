@@ -1866,7 +1866,6 @@ return
 contains
 
 subroutine Allocate_Auxiliary()
-  implicit none
 
   call mma_Allocate(ipList,nComp,label='ipList')
   call mma_Allocate(OperI,nComp,label='OperI')
@@ -1878,7 +1877,6 @@ subroutine Allocate_Auxiliary()
 end subroutine Allocate_Auxiliary
 
 subroutine Deallocate_Auxiliary()
-  implicit none
 
   call mma_Deallocate(OperC)
   call mma_Deallocate(OperI)

@@ -39,84 +39,85 @@ IORB3F = IORB2L+1
 IORB3L = IORB3F+NORB3-1
 ! Loop over possible partitionings between RAS1,RAS2,RAS3
 do IEL1=NELMX1,NELMN1,-1
-  do IEL3=NELMN3,NELMX3,1
-    if (IEL1 > NORB1) goto 1001
-    if (IEL3 > NORB3) goto 1003
+  outer: do IEL3=NELMN3,NELMX3,1
+    if (IEL1 > NORB1) exit outer
+    if (IEL3 > NORB3) cycle outer
     IEL2 = NEL-IEL1-IEL3
-    if ((IEL2 < 0) .or. (IEL2 > NORB2)) goto 1003
+    if ((IEL2 < 0) .or. (IEL2 > NORB2)) cycle outer
     IFRST1 = 1
     ! Loop over RAS 1 occupancies
-901 continue
-    if (IEL1 /= 0) then
-      if (IFRST1 == 1) then
-        call ISTVC2(IOC(1),0,1,IEL1)
-        IFRST1 = 0
-      else
-        call NXTORD(IOC,IEL1,IORB1F,IORB1L,NONEW1)
-        if (NONEW1 == 1) goto 1003
-      end if
-    end if
-    if (NTEST >= 500) then
-      write(u6,*) ' RAS 1 string'
-      call IWRTMA(IOC,1,IEL1,1,IEL1)
-    end if
-    IFRST2 = 1
-    IFRST3 = 1
-    ! Loop over RAS 2 occupancies
-902 continue
-    if (IEL2 /= 0) then
-      if (IFRST2 == 1) then
-        call ISTVC2(IOC(IEL1+1),IORB2F-1,1,IEL2)
-        IFRST2 = 0
-      else
-        call NXTORD(IOC(IEL1+1),IEL2,IORB2F,IORB2L,NONEW2)
-        if (NONEW2 == 1) then
-          if (IEL1 /= 0) goto 901
-          if (IEL1 == 0) goto 1003
+    ras1: do
+      if (IEL1 /= 0) then
+        if (IFRST1 == 1) then
+          call ISTVC2(IOC(1),0,1,IEL1)
+          IFRST1 = 0
+        else
+          call NXTORD(IOC,IEL1,IORB1F,IORB1L,NONEW1)
+          if (NONEW1 == 1) cycle outer
         end if
       end if
-    end if
-    if (NTEST >= 500) then
-      write(u6,*) ' RAS 1 2 string'
-      call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
-    end if
-    IFRST3 = 1
-    ! Loop over RAS 3 occupancies
-903 continue
-    if (IEL3 /= 0) then
-      if (IFRST3 == 1) then
-        call ISTVC2(IOC(IEL1+IEL2+1),IORB3F-1,1,IEL3)
-        IFRST3 = 0
-      else
-        call NXTORD(IOC(IEL1+IEL2+1),IEL3,IORB3F,IORB3L,NONEW3)
-        if (NONEW3 == 1) then
-          if (IEL2 /= 0) goto 902
-          if (IEL1 /= 0) goto 901
-          goto 1003
-        end if
+      if (NTEST >= 500) then
+        write(u6,*) ' RAS 1 string'
+        call IWRTMA(IOC,1,IEL1,1,IEL1)
       end if
-    end if
-    if (NTEST >= 500) then
-      write(u6,*) ' RAS 1 2 3 string'
-      call IWRTMA(IOC,1,NEL,1,NEL)
-    end if
-    ! Next string has been constructed, enlist it !
-    NSTRIN = NSTRIN+1
-    ! Symmetry of string
-    ISYM = ISYMST(IOC,NEL)
-    !      ISYMST(STRING,NEL)
-    ! occupation type of string
-    !OLD ITYP = IOCTP2(IOC,NEL,IOTYP)
-    !           IOCTP2(STRING,NEL)
+      IFRST2 = 1
+      IFRST3 = 1
+      ! Loop over RAS 2 occupancies
+      ras2: do
+        if (IEL2 /= 0) then
+          if (IFRST2 == 1) then
+            call ISTVC2(IOC(IEL1+1),IORB2F-1,1,IEL2)
+            IFRST2 = 0
+          else
+            call NXTORD(IOC(IEL1+1),IEL2,IORB2F,IORB2L,NONEW2)
+            if (NONEW2 == 1) then
+              if (IEL1 /= 0) cycle ras1
+              if (IEL1 == 0) cycle outer
+            end if
+          end if
+        end if
+        if (NTEST >= 500) then
+          write(u6,*) ' RAS 1 2 string'
+          call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
+        end if
+        IFRST3 = 1
+        ! Loop over RAS 3 occupancies
+        ras3: do
+          if (IEL3 /= 0) then
+            if (IFRST3 == 1) then
+              call ISTVC2(IOC(IEL1+IEL2+1),IORB3F-1,1,IEL3)
+              IFRST3 = 0
+            else
+              call NXTORD(IOC(IEL1+IEL2+1),IEL3,IORB3F,IORB3L,NONEW3)
+              if (NONEW3 == 1) then
+                if (IEL2 /= 0) cycle ras2
+                if (IEL1 /= 0) cycle ras1
+                cycle outer
+              end if
+            end if
+          end if
+          if (NTEST >= 500) then
+            write(u6,*) ' RAS 1 2 3 string'
+            call IWRTMA(IOC,1,NEL,1,NEL)
+          end if
+          ! Next string has been constructed, enlist it !
+          NSTRIN = NSTRIN+1
+          ! Symmetry of string
+          ISYM = ISYMST(IOC,NEL)
+          !      ISYMST(STRING,NEL)
+          ! occupation type of string
+          !OLD ITYP = IOCTP2(IOC,NEL,IOTYP)
+          !           IOCTP2(STRING,NEL)
 
-    NSTASO(ISYM,IOTYP) = NSTASO(ISYM,IOTYP)+1
+          NSTASO(ISYM,IOTYP) = NSTASO(ISYM,IOTYP)+1
 
-    if (IEL3 /= 0) goto 903
-    if ((IEL3 == 0) .and. (IEL2 /= 0)) goto 902
-    if ((IEL3 == 0) .and. (IEL2 == 0) .and. (IEL1 /= 0)) goto 901
-1003 continue
-  end do
-1001 continue
+          if (IEL3 == 0) exit ras3
+        end do ras3
+        if ((IEL3 /= 0) .or. (IEL2 == 0)) exit ras2
+      end do ras2
+      if ((IEL3 /= 0) .or. (IEL2 /= 0) .or. (IEL1 == 0)) exit ras1
+    end do ras1
+  end do outer
 end do
 
 ! The corresponding offset

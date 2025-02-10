@@ -26,24 +26,25 @@ integer(kind=iwp) :: IEL, IOPEN, NTEST
 IEL = 1
 IOPEN = 0
 ! Loop over electrons
-1000 continue
-if (IEL < NEL) then
-  if (IDET_OC(IEL) /= IDET_OC(IEL+1)) then
-    ! Single occupied orbital so
+do
+  if (IEL < NEL) then
+    if (IDET_OC(IEL) /= IDET_OC(IEL+1)) then
+      ! Single occupied orbital so
+      IOPEN = IOPEN+1
+      IDET_OPEN_MS(IOPEN) = IDET_MS(IEL)
+      IEL = IEL+1
+    else
+      IEL = IEL+2
+    end if
+  else
+    ! Last electron was not identical to previous, so
+    ! necessarily single occupied.
     IOPEN = IOPEN+1
     IDET_OPEN_MS(IOPEN) = IDET_MS(IEL)
     IEL = IEL+1
-  else
-    IEL = IEL+2
   end if
-else
-  ! Last electron was not identical to previous, so
-  ! necessarily single occupied.
-  IOPEN = IOPEN+1
-  IDET_OPEN_MS(IOPEN) = IDET_MS(IEL)
-  IEL = IEL+1
-end if
-if (IEL <= NEL) goto 1000
+  if (IEL > NEL) exit
+end do
 
 NTEST = 0
 if (NTEST >= 100) then

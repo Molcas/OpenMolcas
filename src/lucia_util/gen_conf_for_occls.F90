@@ -64,46 +64,49 @@ NCONF = 0
 ISUM = 0
 call ISETVC(JCONF,0,2*MXPORB)
 
-1000 continue
-! Generate an array of integers from 1 to NEL.
-! It is the only CSF that matter for HS calculations.
-! Skip any loop below... It is an overwhelmingly long loop.
-if ((NEL == MINOP) .and. (NEL == NOBPT(2))) then
-  do i=1,NEL
-    JCONF(i) = i
-  end do
-  NONEW = 0
-else
-  call NEXT_CONF_FOR_OCCLS(JCONF,IOCCLS,NGAS,NOBPT,INI,NONEW)
-end if
-ISUM = ISUM+1
-INI = 0
-if (NONEW == 0) then
-  ! Check symmetry and number of open orbitals for this space
-  ISYM_CONF = ISYMST(JCONF,NEL)
-  NOPEN = NOP_FOR_CONF(JCONF,NEL)
-  NOCOB = NOPEN+(NEL-NOPEN)/2
-  if ((NOPEN >= MINOP) .or. (IONLY_NCONF /= 0)) NCONF_ALL_SYM = NCONF_ALL_SYM+1
-  if ((ISYM_CONF == ISYM) .and. (NOPEN >= MINOP)) then
-    ! A new configuration to be included, reform and save in packed form
-    NCONF = NCONF+1
-    NCONF_OP(NOPEN+1) = NCONF_OP(NOPEN+1)+1
-    if (IONLY_NCONF == 0) then
-      ! Lexical number of this configuration
-      IB_OCC = IBCONF_OCC(NOPEN+1)+(NCONF_OP(NOPEN+1)-1)*NOCOB
-      call REFORM_CONF_OCC(JCONF,ICONF(IB_OCC),NEL,NOCOB,1)
-      if (IDOREO /= 0) then
-        ! Giovanni and Dongxia 2011.1.31
-        ilexnum = ilex_for_conf_new(iconf(ib_occ),nocob,ntorb,nel,iz_conf,0,idum_arr,idum,idum)
-        JREO = IBCONF_REO(NOPEN+1)-1+NCONF_OP(NOPEN+1)
-        ! Giovanni and Dongxia 2011
-        ireo(jreo) = ib_occls-1+ilexnum
+do
+  ! Generate an array of integers from 1 to NEL.
+  ! It is the only CSF that matter for HS calculations.
+  ! Skip any loop below... It is an overwhelmingly long loop.
+  if ((NEL == MINOP) .and. (NEL == NOBPT(2))) then
+    do i=1,NEL
+      JCONF(i) = i
+    end do
+    NONEW = 0
+  else
+    call NEXT_CONF_FOR_OCCLS(JCONF,IOCCLS,NGAS,NOBPT,INI,NONEW)
+  end if
+  ISUM = ISUM+1
+  INI = 0
+  if (NONEW == 0) then
+    ! Check symmetry and number of open orbitals for this space
+    ISYM_CONF = ISYMST(JCONF,NEL)
+    NOPEN = NOP_FOR_CONF(JCONF,NEL)
+    NOCOB = NOPEN+(NEL-NOPEN)/2
+    if ((NOPEN >= MINOP) .or. (IONLY_NCONF /= 0)) NCONF_ALL_SYM = NCONF_ALL_SYM+1
+    if ((ISYM_CONF == ISYM) .and. (NOPEN >= MINOP)) then
+      ! A new configuration to be included, reform and save in packed form
+      NCONF = NCONF+1
+      NCONF_OP(NOPEN+1) = NCONF_OP(NOPEN+1)+1
+      if (IONLY_NCONF == 0) then
+        ! Lexical number of this configuration
+        IB_OCC = IBCONF_OCC(NOPEN+1)+(NCONF_OP(NOPEN+1)-1)*NOCOB
+        call REFORM_CONF_OCC(JCONF,ICONF(IB_OCC),NEL,NOCOB,1)
+        if (IDOREO /= 0) then
+          ! Giovanni and Dongxia 2011.1.31
+          ilexnum = ilex_for_conf_new(iconf(ib_occ),nocob,ntorb,nel,iz_conf,0,idum_arr,idum,idum)
+          JREO = IBCONF_REO(NOPEN+1)-1+NCONF_OP(NOPEN+1)
+          ! Giovanni and Dongxia 2011
+          ireo(jreo) = ib_occls-1+ilexnum
+        end if
       end if
     end if
+    if ((NEL == MINOP) .and. (NEL == NOBPT(2))) exit
+  else
+    exit
   end if
-  if ((NEL /= MINOP) .or. (NEL /= NOBPT(2))) goto 1000
-end if
-! End if nonew = 0
+  ! End if nonew = 0
+end do
 
 if (NTEST >= 100) then
   write(u6,*)

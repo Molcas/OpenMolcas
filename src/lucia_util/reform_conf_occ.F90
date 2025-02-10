@@ -39,25 +39,26 @@ if (IWAY == 1) then
   ! Loop over electrons
   IEL = 1
   IOCC = 0
-1000 continue
-  !IEL = IEL+1
-  if (IEL < NEL) then
-    if (IOCC_EXP(IEL) == IOCC_EXP(IEL+1)) then
-      IOCC = IOCC+1
-      IOCC_PCK(IOCC) = -IOCC_EXP(IEL)
-      IEL = IEL+2
+  do
+    !IEL = IEL+1
+    if (IEL < NEL) then
+      if (IOCC_EXP(IEL) == IOCC_EXP(IEL+1)) then
+        IOCC = IOCC+1
+        IOCC_PCK(IOCC) = -IOCC_EXP(IEL)
+        IEL = IEL+2
+      else
+        IOCC = IOCC+1
+        IOCC_PCK(IOCC) = IOCC_EXP(IEL)
+        IEL = IEL+1
+      end if
     else
+      ! Last occupation was not identical to previous, so single occupied
       IOCC = IOCC+1
       IOCC_PCK(IOCC) = IOCC_EXP(IEL)
       IEL = IEL+1
     end if
-  else
-    ! Last occupation was not identical to previous, so single occupied
-    IOCC = IOCC+1
-    IOCC_PCK(IOCC) = IOCC_EXP(IEL)
-    IEL = IEL+1
-  end if
-  if (IEL <= NEL) goto 1000
+    if (IEL > NEL) exit
+  end do
 
 else if (IWAY == 2) then
 

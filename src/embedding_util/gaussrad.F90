@@ -8,23 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2020, Roland Lindh                                     *
+! Copyright (C) Thomas Dresselhaus                                     *
 !***********************************************************************
 
-subroutine BackTrans_K(X,Y,nInter,nIter)
+!***********************************************************************
+! Returns the radial part of the value of a GTO with given exponent,   *
+! centered at the origin.                                              *
+!***********************************************************************
+function gaussRad(alpha,r)
 
-use kriging_mod, only: layer_U
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nInter, nIter
-real(kind=wp), intent(in) :: X(nInter,nIter)
-real(kind=wp), intent(out) :: Y(nInter,nIter)
+real(kind=wp) :: gaussRad
+real(kind=wp), intent(in) :: alpha, r(3)
+integer(kind=iwp) :: i
+real(kind=wp) :: rSquare
 
-!call RecPrt('layer_U',' ',layer_U,nInter,nInter)
-!call RecPrt('X',' ',X,nInter,nIter)
-call DGEMM_('N','N',nInter,nIter,nInter,One,layer_U,nInter,X,nInter,Zero,Y,nInter)
-!call RecPrt('Y',' ',Y,nInter,nIter)
+rSquare = Zero
+do i=1,3
+  rSquare = rSquare+r(i)**2
+end do
 
-end subroutine BackTrans_K
+! Radial part
+gaussRad = exp(-alpha*rSquare)
+
+return
+
+end function gaussRad

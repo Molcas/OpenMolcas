@@ -59,18 +59,21 @@ if (NTEST >= 100) then
   write(u6,'(40I2)') (ISYM(IGAS),IGAS=1,NGAS)
 end if
 
-1001 continue
-if (IFIRST == 0) then
-  call NXTDIST(NSMST,NGRP,NGAS,KGRP,ISMDFGP,ISMSCR,NACTSYM,NONEW)
-  do IGAS=1,NGAS
-    ISYM(IGAS) = ISMDFGP(ISMSCR(IGAS),KGRP(IGAS))
-  end do
-end if
-IFIRST = 0
-if (NONEW == 0) then
-  JSYM = ISYMSTR(ISYM,NGAS)
-  if (JSYM /= ISYM_TOT) goto 1001
-end if
+do
+  if (IFIRST == 0) then
+    call NXTDIST(NSMST,NGRP,NGAS,KGRP,ISMDFGP,ISMSCR,NACTSYM,NONEW)
+    do IGAS=1,NGAS
+      ISYM(IGAS) = ISMDFGP(ISMSCR(IGAS),KGRP(IGAS))
+    end do
+  end if
+  IFIRST = 0
+  if (NONEW == 0) then
+    JSYM = ISYMSTR(ISYM,NGAS)
+    if (JSYM == ISYM_TOT) exit
+  else
+    exit
+  end if
+end do
 
 if (NTEST >= 100) then
   if (NONEW == 1) then

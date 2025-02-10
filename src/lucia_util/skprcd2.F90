@@ -31,46 +31,46 @@ if (IPACK /= 0) then
   call IFRMDS(ISCR,2,2,IFILE)
   IMZERO = ISCR(1)
   I_AM_PACKED = ISCR(2)
-  if (IMZERO == 1) goto 1001
+  if (IMZERO == 1) return
 end if
 
 if (I_AM_PACKED == 1) then
   ! Loop over packed records of dimension LPBLK
   ! The next LPBLK elements
-  999 continue
-  ! Read next batch
-  call IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))
-  LBATCH = ISCR(1)
-  if (LBATCH > 0) then
-    IDUMMY(1) = 0
-    call IDAFILE(IFILE,0,IDUMMY,LBATCH,IDISK(IFILE))
-    DUMMY(1) = Zero
-    call DDAFILE(IFILE,0,DUMMY,LBATCH,IDISK(IFILE))
-  end if
-  call IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))
-  ISTOP = ISCR(1)
-  if (ISTOP == 0) goto 999
+  ISTOP = 0
+  do while (ISTOP == 0)
+    ! Read next batch
+    call IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))
+    LBATCH = ISCR(1)
+    if (LBATCH > 0) then
+      IDUMMY(1) = 0
+      call IDAFILE(IFILE,0,IDUMMY,LBATCH,IDISK(IFILE))
+      DUMMY(1) = Zero
+      call DDAFILE(IFILE,0,DUMMY,LBATCH,IDISK(IFILE))
+    end if
+    call IDAFILE(IFILE,2,ISCR,1,IDISK(IFILE))
+    ISTOP = ISCR(1)
+  end do
 else if (I_AM_PACKED == 0) then
   !vv if (.true.) then
   NBLOCK = MBLOCK
   if (MBLOCK <= 0) NBLOCK = NDIM
   IREST = NDIM
   IBASE = 0
-100 continue
-  if (IREST > NBLOCK) then
-    call DDAFILE(IFILE,0,DUMMY,NBLOCK,IDISK(IFILE))
-    IBASE = IBASE+NBLOCK
-    IREST = IREST-NBLOCK
-  else
-    call DDAFILE(IFILE,0,DUMMY,IREST,IDISK(IFILE))
-    IREST = 0
-  end if
-  call IDAFILE(IFILE,0,IDUMMY,1,IDISK(IFILE))
-  if (IREST > 0) goto 100
+  do
+    if (IREST > NBLOCK) then
+      call DDAFILE(IFILE,0,DUMMY,NBLOCK,IDISK(IFILE))
+      IBASE = IBASE+NBLOCK
+      IREST = IREST-NBLOCK
+    else
+      call DDAFILE(IFILE,0,DUMMY,IREST,IDISK(IFILE))
+      IREST = 0
+    end if
+    call IDAFILE(IFILE,0,IDUMMY,1,IDISK(IFILE))
+    if (IREST <= 0) exit
+  end do
   !vv end if
 
 end if
-
-1001 continue
 
 end subroutine SKPRCD2

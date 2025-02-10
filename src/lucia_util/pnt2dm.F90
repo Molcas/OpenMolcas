@@ -41,7 +41,7 @@ call ISETVC(ISM2,0,NSMOB)
 IOFF = 1
 do ISM=1,NSMOB
   JSM = OSXO(ISM,IJSM)
-  if (JSM == 0) goto 100
+  if (JSM == 0) exit
   if ((I12SM == 0) .or. (ISM >= JSM)) then
     ! Allowed block
     IPNTR(ISM) = IOFF
@@ -52,7 +52,6 @@ do ISM=1,NSMOB
       IOFF = IOFF+IPSM(ISM)*JPSM(JSM)
     end if
   end if
-100 continue
 end do
 
 NTEST = 0

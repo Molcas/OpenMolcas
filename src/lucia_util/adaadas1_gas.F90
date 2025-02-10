@@ -272,20 +272,23 @@ else if ((IAC == 2) .and. (JAC == 1)) then
     call ISETVC(ISCR(IORBMIN),0,NIORB)
     IIEL = 1
     do IIORB=IORBMIN,IORBMAX
-2810  continue
-      if (IIEL <= NKEL) then
-        if (IIORB < KSTR(IIEL,KKSTR)) then
+      do
+        if (IIEL <= NKEL) then
+          if (IIORB < KSTR(IIEL,KKSTR)) then
+            ISCR(IIORB) = IIEL
+            exit
+          else if (IIORB == KSTR(IIEL,KKSTR)) then
+            ISCR(IIORB) = -IIEL
+            IIEL = IIEL+1
+            exit
+          else if (IIORB > KSTR(IIEL,KKSTR)) then
+            IIEL = IIEL+1
+          end if
+        else if (IIEL == NKEL+1) then
           ISCR(IIORB) = IIEL
-        else if (IIORB == KSTR(IIEL,KKSTR)) then
-          ISCR(IIORB) = -IIEL
-          IIEL = IIEL+1
-        else if (IIORB > KSTR(IIEL,KKSTR)) then
-          IIEL = IIEL+1
-          goto 2810
+          exit
         end if
-      else if (IIEL == NKEL+1) then
-        ISCR(IIORB) = IIEL
-      end if
+      end do
     end do
     if (NTEST >= 10000) then
       write(u6,*) ' ISCR from IORBMIN array for KKSTR = ',KKSTR
@@ -387,20 +390,23 @@ else if ((IAC == 1) .and. (JAC == 2)) then
     call ISETVC(ISCR(JORBMIN),0,NJORB)
     JJEL = 1
     do JJORB=JORBMIN,JORBMAX
-0803  continue
-      if (JJEL <= NKEL) then
-        if (JJORB < KSTR(JJEL,KKSTR)) then
+      do
+        if (JJEL <= NKEL) then
+          if (JJORB < KSTR(JJEL,KKSTR)) then
+            ISCR(JJORB) = JJEL
+            exit
+          else if (JJORB == KSTR(JJEL,KKSTR)) then
+            ISCR(JJORB) = -JJEL
+            JJEL = JJEL+1
+            exit
+          else if (JJORB > KSTR(JJEL,KKSTR)) then
+            JJEL = JJEL+1
+          end if
+        else if (JJEL == NKEL+1) then
           ISCR(JJORB) = JJEL
-        else if (JJORB == KSTR(JJEL,KKSTR)) then
-          ISCR(JJORB) = -JJEL
-          JJEL = JJEL+1
-        else if (JJORB > KSTR(JJEL,KKSTR)) then
-          JJEL = JJEL+1
-          goto 0803
+          exit
         end if
-      else if (JJEL == NKEL+1) then
-        ISCR(JJORB) = JJEL
-      end if
+      end do
     end do
     if (NTEST >= 10000) then
       write(u6,*) ' ISCR from JORBMIN array for KKSTR = ',KKSTR

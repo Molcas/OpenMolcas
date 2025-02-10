@@ -68,45 +68,43 @@ NSTRTOT = 1
 do IGAS=1,NGAS
   NSTRTOT = NSTRTOT*NSTFGS(IGAS)
 end do
-if (IGASL == 0) goto 2810
 
-if (NSTRTOT == 0) goto 1001
-! Loop over GAS spaces
-NELB = 0
-do IGAS=1,IGASL
-  ! Number of electrons in GAS = 1, IGAS - 1
-  if (IGAS > 1) NELB = NELB+NELFGP(ITPFGS(IGAS-1))
-  ! Number of electron in IGAS
-  NELI = NELFGP(ITPFGS(IGAS))
-  if (NELI > 0) then
+if ((IGASL /= 0) .and. (NSTRTOT /= 0)) then
+  ! Loop over GAS spaces
+  NELB = 0
+  do IGAS=1,IGASL
+    ! Number of electrons in GAS = 1, IGAS - 1
+    if (IGAS > 1) NELB = NELB+NELFGP(ITPFGS(IGAS-1))
+    ! Number of electron in IGAS
+    NELI = NELFGP(ITPFGS(IGAS))
+    if (NELI > 0) then
 
-    ! The order of strings corresponds to a matrix A(I(after),Igas,I(before))
-    ! where I(after) loops over strings in IGAS+1 - IGASL and
-    ! I(before) loop over strings in 1 - IGAS -1
-    NSTA = 1
-    do JGAS=IGAS+1,IGASL
-      NSTA = NSTA*NSTFGS(JGAS)
-    end do
+      ! The order of strings corresponds to a matrix A(I(after),Igas,I(before))
+      ! where I(after) loops over strings in IGAS+1 - IGASL and
+      ! I(before) loop over strings in 1 - IGAS -1
+      NSTA = 1
+      do JGAS=IGAS+1,IGASL
+        NSTA = NSTA*NSTFGS(JGAS)
+      end do
 
-    NSTB = 1
-    do JGAS=1,IGAS-1
-      NSTB = NSTB*NSTFGS(JGAS)
-    end do
+      NSTB = 1
+      do JGAS=1,IGAS-1
+        NSTB = NSTB*NSTFGS(JGAS)
+      end do
 
-    NSTI = NSTFGS(IGAS)
+      NSTI = NSTFGS(IGAS)
 
-#   ifdef _DEBUGPRINT_
-    write(u6,*) ' NSTI,NSTB,NSTA,NELB,NELI,NEL ',NSTI,NSTB,NSTA,NELB,NELI,NEL
-    write(u6,*) ' IBSTFGS(IGAS)',IBSTFGS(IGAS)
-#   endif
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' NSTI,NSTB,NSTA,NELB,NELI,NEL ',NSTI,NSTB,NSTA,NELB,NELI,NEL
+      write(u6,*) ' IBSTFGS(IGAS)',IBSTFGS(IGAS)
+#     endif
 
-    call ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),OCSTR(ITPFGS(IGAS))%A,NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
+      call ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),OCSTR(ITPFGS(IGAS))%A,NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
 
-    ! Loop over strings in IGAS
-  end if
-end do
-1001 continue
-2810 continue
+      ! Loop over strings in IGAS
+    end if
+  end do
+end if
 NSTR = NSTRTOT
 
 #ifdef _DEBUGPRINT_

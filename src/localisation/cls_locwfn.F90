@@ -7,24 +7,17 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine BackTrans_K(X,Y,nInter,nIter)
+subroutine cls_locwfn()
 
-use kriging_mod, only: layer_U
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp
+#ifdef _HDF5_
+use Localisation_globals, only: wfn_fileid
+use mh5, only: mh5_close_file
 
 implicit none
-integer(kind=iwp), intent(in) :: nInter, nIter
-real(kind=wp), intent(in) :: X(nInter,nIter)
-real(kind=wp), intent(out) :: Y(nInter,nIter)
 
-!call RecPrt('layer_U',' ',layer_U,nInter,nInter)
-!call RecPrt('X',' ',X,nInter,nIter)
-call DGEMM_('N','N',nInter,nIter,nInter,One,layer_U,nInter,X,nInter,Zero,Y,nInter)
-!call RecPrt('Y',' ',Y,nInter,nIter)
+call mh5_close_file(wfn_fileid)
+#endif
 
-end subroutine BackTrans_K
+end subroutine cls_locwfn

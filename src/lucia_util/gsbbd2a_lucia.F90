@@ -106,221 +106,219 @@ call DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NGAS,ISEL,ICEL)
 ! Symmetry of Double excitation that connects IBSM and JBSM
 ! For general use : STSTSX => STSTDX
 IDXSM = STSTSX(ISCSM,ICCSM)
-if (IDXSM == 0) goto 2001
-if (NTEST >= 1000) write(u6,*) ' ISCSM,ICCSM ',ISCSM,ICCSM
-do IDXTP=1,NDXTP
-  ITYP = ITP(IDXTP)
-  JTYP = JTP(IDXTP)
-  KTYP = KTP(IDXTP)
-  LTYP = LTP(IDXTP)
-  if (NTEST >= 1000) write(u6,*) ' ITYP JTYP KTYP LTYP ',ITYP,JTYP,KTYP,LTYP
-  do IKOBSM=1,NSMOB
-    JLOBSM = SXDXSX(IKOBSM,IDXSM)
-    if (JLOBSM == 0) goto 1950
-    ! types + symmetries defined => K strings are defined
-    KFRST = 1
-    ! Loop over of symmetry of i orbitals
-    do ISM=1,NSMOB
-      KSM = ADSXA(ISM,IKOBSM)
-      NI = NOBPTS(ITYP,ISM)
-      NK = NOBPTS(KTYP,KSM)
-      if ((NI == 0) .or. (NK == 0)) goto 1940
-      ! Loop over batches of j orbitals
-      do JSM=1,NSMOB
-        LSM = ADSXA(JSM,JLOBSM)
-        NJ = NOBPTS(JTYP,JSM)
-        NL = NOBPTS(LTYP,LSM)
-        if ((NJ == 0) .or. (NL == 0)) goto 1930
-
-        IOFF = IOBPTS(ITYP,ISM)
-        JOFF = IOBPTS(JTYP,JSM)
-        KOFF = IOBPTS(KTYP,KSM)
-        LOFF = IOBPTS(LTYP,LSM)
-
-        if (IOFF < KOFF) goto 1930
-        if (JOFF < LOFF) goto 1930
-
-        ! ==============================================================
-        !                    Use N-2 projection method
-        ! ==============================================================
-
-        IFIRST = 1
-        ! Loop over batches of I strings
-        call SETVEC(X,Zero,NI*NJ*NK*NL)
-        do IIPART=1+MYRANK,NPART,NPROCS
-          IBOT = 1+(IIPART-1)*NPARTSZ
-          ITOP = min(IBOT+NPARTSZ-1,NROW)
-          NIBTC = ITOP-IBOT+1
-          if (NIBTC <= 0) exit
-          ! Loop over batches of intermediate strings
-          KBOT = 1-MAXK
-          KTOP = 0
-1800      continue
-          KBOT = KBOT+MAXK
-          KTOP = KTOP+MAXK
-
-          ! =======================================================
-          !
-          ! obtain cb(KB,IA,jl) = sum(JB)<KB!a lb a jb !IB>C(IA,JB)
-          !
-          ! =======================================================
-
-          JLBOFF = 1
-          if ((JSM == LSM) .and. (JTYP == LTYP)) then
-            NJL = NJ*(NJ+1)/2
-            JLSM = 1
-          else
-            NJL = NJ*NL
-            JLSM = 0
-          end if
-          ! Obtain all double excitations from this group of K strings
-          II12 = 1
-          K12 = 1
-          call ADADST_GAS(1,JSM,JTYP,NJ,1,LSM,LTYP,NL,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,JFRST,KFRST,II12,K12, &
-                          SCLFAC)
-
-          JFRST = 0
-          KFRST = 0
-
-          if (NKBTC == 0) goto 1930
-          ! Loop over jl in TS classes
-          J = 0
-          L = 1
-
-          do IJL=1,NJL
-            call NXTIJ(J,L,NJ,NL,JLSM,NONEW)
-            I1JL = (L-1)*NJ+J
-            ! JAN28
-            if (JLSM /= 0) then
-              IJLE = J*(J-1)/2+L
-            else
-              IJLE = IJL
-            end if
-            ! JAN28
-            ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
-            !JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
-            JLOFF = (JLBOFF-1+IJLE-1)*NKBTC*NIBTC+1
-            if ((JLSM == 1) .and. (J == L)) then
-              ! a+j a+j gives trivially zero
-              call SETVEC(CSCR(JLOFF),Zero,NKBTC*NIBTC)
-            else
-              call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
-            end if
-          end do
-
-          ! =======================================================
-          !
-          ! obtain sb(KB,IA,ik) = sum(IB)<KB!a kb a ib !IB>S(IA,IB)
-          !
-          ! =======================================================
-
-          IKBOFF = 1
-          if ((ISM == KSM) .and. (ITYP == KTYP)) then
-            NIK = NI*(NI+1)/2
-            IKSM = 1
-          else
-            NIK = NI*NK
-            IKSM = 0
-          end if
-          ! Obtain all double excitations from this group of K strings
-          II12 = 2
-          K12 = 1
-          if (IFRST == 1) KFRST = 1
-          call ADADST_GAS(1,ISM,ITYP,NI,1,KSM,KTYP,NK,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST,KFRST,II12,K12,One)
-
-          IFRST = 0
-          KFRST = 0
-
-          if (NKBTC == 0) goto 1930
-          ! Loop over jl in TS classes
-          I = 0
-          K = 1
-
-          do IIK=1,NIK
-            call NXTIJ(I,K,NI,NK,IKSM,NONEW)
-            I1IK = (K-1)*NI+I
-            ! JAN28
-            if (IKSM /= 0) then
-              IIKE = I*(I-1)/2+K
-            else
-              IIKE = IIK
-            end if
-            ! JAN28
-            ! SB(IA,KB,ik) = +/-S(IA,a+ka+iIA)
-            !IKOFF = (IKBOFF-1+IIK-1)*NKBTC*NIBTC+1
-            IKOFF = (IKBOFF-1+IIKE-1)*NKBTC*NIBTC+1
-            if ((IKSM == 1) .and. (I == K)) then
-              ! a+j a+j gives trivially zero
-              call SETVEC(SSCR(IKOFF),Zero,NKBTC*NIBTC)
-            else
-              call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1IK),XI1S(1,I1IK))
-            end if
-          end do
-
-          ! ==================================================================
-          !
-          ! RHO2C(ik,jl)  = RHO2C(ik,jl) - sum(Ia,Kb)SB(Ia,Kb,ik)*CB(Ia,Kb,jl)
-          !
-          ! ==================================================================
-
-          ! The minus ??
-          !
-          ! Well, the density matrices are constructed as
-          !
-          ! <I!a+i a+k aj al!> = -sum(K) <I!a+ia+k!K><J!aj al!K>, and
-          ! the latter matrices are the ones we are constructing
+if (IDXSM /= 0) then
+  if (NTEST >= 1000) write(u6,*) ' ISCSM,ICCSM ',ISCSM,ICCSM
+  do IDXTP=1,NDXTP
+    ITYP = ITP(IDXTP)
+    JTYP = JTP(IDXTP)
+    KTYP = KTP(IDXTP)
+    LTYP = LTP(IDXTP)
+    if (NTEST >= 1000) write(u6,*) ' ITYP JTYP KTYP LTYP ',ITYP,JTYP,KTYP,LTYP
+    do IKOBSM=1,NSMOB
+      JLOBSM = SXDXSX(IKOBSM,IDXSM)
+      if (JLOBSM == 0) cycle
+      ! types + symmetries defined => K strings are defined
+      KFRST = 1
+      ! Loop over of symmetry of i orbitals
+      do ISM=1,NSMOB
+        KSM = ADSXA(ISM,IKOBSM)
+        NI = NOBPTS(ITYP,ISM)
+        NK = NOBPTS(KTYP,KSM)
+        if ((NI == 0) .or. (NK == 0)) cycle
+        ! Loop over batches of j orbitals
+        outer: do JSM=1,NSMOB
+          LSM = ADSXA(JSM,JLOBSM)
+          NJ = NOBPTS(JTYP,JSM)
+          NL = NOBPTS(LTYP,LSM)
+          if ((NJ == 0) .or. (NL == 0)) cycle outer
 
           IOFF = IOBPTS(ITYP,ISM)
           JOFF = IOBPTS(JTYP,JSM)
           KOFF = IOBPTS(KTYP,KSM)
           LOFF = IOBPTS(LTYP,LSM)
-          !if ((IOFF == 3) .and. (JOFF == 3) .and. (KOFF == 4) .and. (LOFF == 4)) NTEST = 5000
-          LDUMMY = NKBTC*NIBTC
-          if (NTEST >= 2000) then
-            write(u6,*) ' CSCR matrix'
-            call WRTMAT(CSCR,LDUMMY,NJL,LDUMMY,NJL)
-            write(u6,*) ' SSCR matrix'
-            call WRTMAT(SSCR,LDUMMY,NIK,LDUMMY,NIK)
-          end if
 
-          if (IFIRST == 1) then
-            FACTOR = Zero
-          else
-            FACTOR = One
-          end if
-          LDUMMY = NKBTC*NIBTC
-          !    MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP)
-          call MATML7(X,SSCR,CSCR,NIK,NJL,LDUMMY,NIK,LDUMMY,NJL,FACTOR,-One,1)
-          IFIRST = 0
-          if (NTEST >= 2000) then
-            write(u6,*) ' Updated X matrix IK,JL,IK,JL',NIK,NJL,NIK,NJL
-            call WRTMAT(X,NIK,NJL,NIK,NJL)
-          end if
+          if ((IOFF < KOFF) .or. (JOFF < LOFF)) cycle outer
 
-          if (KEND == 0) goto 1800
-          ! End of loop over partitionings of resolution strings
-        end do
-        ! Rho2(ik,jl) has been constructed for ik,jl belonging to
-        ! Scatter out to density matrix
-        IOFF = IOBPTS(ITYP,ISM)
-        JOFF = IOBPTS(JTYP,JSM)
-        KOFF = IOBPTS(KTYP,KSM)
-        LOFF = IOBPTS(LTYP,LSM)
-        !write(u6,*) 'I, J, K, L offsets & IPACK :',IOFF,JOFF,KOFF,LOFF,Ipack
-        call ADTOR2(RHO2,RHO2S,RHO2A,X,1,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NACOB,IPACK)
-        !    ADTOR2(RHO2,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
+          ! ============================================================
+          !                  Use N-2 projection method
+          ! ============================================================
 
-        !write(u6,*) ' updated density matrix A',' norb = 4 ',norb
-        !write(u6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
-        !call prsym(rho2s,NORB*(NORB+1)/2)
+          IFIRST = 1
+          ! Loop over batches of I strings
+          call SETVEC(X,Zero,NI*NJ*NK*NL)
+          do IIPART=1+MYRANK,NPART,NPROCS
+            IBOT = 1+(IIPART-1)*NPARTSZ
+            ITOP = min(IBOT+NPARTSZ-1,NROW)
+            NIBTC = ITOP-IBOT+1
+            if (NIBTC <= 0) exit
+            ! Loop over batches of intermediate strings
+            KBOT = 1-MAXK
+            KTOP = 0
+            do
+              KBOT = KBOT+MAXK
+              KTOP = KTOP+MAXK
 
-1930    continue
+              ! =======================================================
+              !
+              ! obtain cb(KB,IA,jl) = sum(JB)<KB!a lb a jb !IB>C(IA,JB)
+              !
+              ! =======================================================
+
+              JLBOFF = 1
+              if ((JSM == LSM) .and. (JTYP == LTYP)) then
+                NJL = NJ*(NJ+1)/2
+                JLSM = 1
+              else
+                NJL = NJ*NL
+                JLSM = 0
+              end if
+              ! Obtain all double excitations from this group of K strings
+              II12 = 1
+              K12 = 1
+              call ADADST_GAS(1,JSM,JTYP,NJ,1,LSM,LTYP,NL,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,JFRST,KFRST,II12,K12, &
+                              SCLFAC)
+
+              JFRST = 0
+              KFRST = 0
+
+              if (NKBTC == 0) cycle outer
+              ! Loop over jl in TS classes
+              J = 0
+              L = 1
+
+              do IJL=1,NJL
+                call NXTIJ(J,L,NJ,NL,JLSM,NONEW)
+                I1JL = (L-1)*NJ+J
+                ! JAN28
+                if (JLSM /= 0) then
+                  IJLE = J*(J-1)/2+L
+                else
+                  IJLE = IJL
+                end if
+                ! JAN28
+                ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
+                !JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
+                JLOFF = (JLBOFF-1+IJLE-1)*NKBTC*NIBTC+1
+                if ((JLSM == 1) .and. (J == L)) then
+                  ! a+j a+j gives trivially zero
+                  call SETVEC(CSCR(JLOFF),Zero,NKBTC*NIBTC)
+                else
+                  call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
+                end if
+              end do
+
+              ! =======================================================
+              !
+              ! obtain sb(KB,IA,ik) = sum(IB)<KB!a kb a ib !IB>S(IA,IB)
+              !
+              ! =======================================================
+
+              IKBOFF = 1
+              if ((ISM == KSM) .and. (ITYP == KTYP)) then
+                NIK = NI*(NI+1)/2
+                IKSM = 1
+              else
+                NIK = NI*NK
+                IKSM = 0
+              end if
+              ! Obtain all double excitations from this group of K strings
+              II12 = 2
+              K12 = 1
+              if (IFRST == 1) KFRST = 1
+              call ADADST_GAS(1,ISM,ITYP,NI,1,KSM,KTYP,NK,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND,IFRST,KFRST,II12,K12, &
+                              One)
+
+              IFRST = 0
+              KFRST = 0
+
+              if (NKBTC == 0) cycle outer
+              ! Loop over jl in TS classes
+              I = 0
+              K = 1
+
+              do IIK=1,NIK
+                call NXTIJ(I,K,NI,NK,IKSM,NONEW)
+                I1IK = (K-1)*NI+I
+                ! JAN28
+                if (IKSM /= 0) then
+                  IIKE = I*(I-1)/2+K
+                else
+                  IIKE = IIK
+                end if
+                ! JAN28
+                ! SB(IA,KB,ik) = +/-S(IA,a+ka+iIA)
+                !IKOFF = (IKBOFF-1+IIK-1)*NKBTC*NIBTC+1
+                IKOFF = (IKBOFF-1+IIKE-1)*NKBTC*NIBTC+1
+                if ((IKSM == 1) .and. (I == K)) then
+                  ! a+j a+j gives trivially zero
+                  call SETVEC(SSCR(IKOFF),Zero,NKBTC*NIBTC)
+                else
+                  call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1IK),XI1S(1,I1IK))
+                end if
+              end do
+
+              ! ==================================================================
+              !
+              ! RHO2C(ik,jl)  = RHO2C(ik,jl) - sum(Ia,Kb)SB(Ia,Kb,ik)*CB(Ia,Kb,jl)
+              !
+              ! ==================================================================
+
+              ! The minus ??
+              !
+              ! Well, the density matrices are constructed as
+              !
+              ! <I!a+i a+k aj al!> = -sum(K) <I!a+ia+k!K><J!aj al!K>, and
+              ! the latter matrices are the ones we are constructing
+
+              IOFF = IOBPTS(ITYP,ISM)
+              JOFF = IOBPTS(JTYP,JSM)
+              KOFF = IOBPTS(KTYP,KSM)
+              LOFF = IOBPTS(LTYP,LSM)
+              !if ((IOFF == 3) .and. (JOFF == 3) .and. (KOFF == 4) .and. (LOFF == 4)) NTEST = 5000
+              LDUMMY = NKBTC*NIBTC
+              if (NTEST >= 2000) then
+                write(u6,*) ' CSCR matrix'
+                call WRTMAT(CSCR,LDUMMY,NJL,LDUMMY,NJL)
+                write(u6,*) ' SSCR matrix'
+                call WRTMAT(SSCR,LDUMMY,NIK,LDUMMY,NIK)
+              end if
+
+              if (IFIRST == 1) then
+                FACTOR = Zero
+              else
+                FACTOR = One
+              end if
+              LDUMMY = NKBTC*NIBTC
+              !    MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP)
+              call MATML7(X,SSCR,CSCR,NIK,NJL,LDUMMY,NIK,LDUMMY,NJL,FACTOR,-One,1)
+              IFIRST = 0
+              if (NTEST >= 2000) then
+                write(u6,*) ' Updated X matrix IK,JL,IK,JL',NIK,NJL,NIK,NJL
+                call WRTMAT(X,NIK,NJL,NIK,NJL)
+              end if
+
+              if (KEND /= 0) exit
+            end do
+            ! End of loop over partitionings of resolution strings
+          end do
+          ! Rho2(ik,jl) has been constructed for ik,jl belonging to
+          ! Scatter out to density matrix
+          IOFF = IOBPTS(ITYP,ISM)
+          JOFF = IOBPTS(JTYP,JSM)
+          KOFF = IOBPTS(KTYP,KSM)
+          LOFF = IOBPTS(LTYP,LSM)
+          !write(u6,*) 'I, J, K, L offsets & IPACK :',IOFF,JOFF,KOFF,LOFF,Ipack
+          call ADTOR2(RHO2,RHO2S,RHO2A,X,1,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NACOB,IPACK)
+          !    ADTOR2(RHO2,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
+
+          !write(u6,*) ' updated density matrix A',' norb = 4 ',norb
+          !write(u6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
+          !call prsym(rho2s,NORB*(NORB+1)/2)
+
+        end do outer
       end do
-1940  continue
     end do
-1950 continue
   end do
-end do
-2001 continue
+end if
 
 end subroutine GSBBD2A_LUCIA

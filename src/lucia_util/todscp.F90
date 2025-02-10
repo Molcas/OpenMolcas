@@ -47,43 +47,42 @@ if (IPACK /= 0) then
   ISCR(2) = 1
   !call ITODS(ISCR,2,MMBLOCK,IFIL)
   call ITODS(ISCR,2,2,IFIL)
-  if (IMZERO == 1) goto 1001
+  if (IMZERO == 1) return
 end if
 
 ! Loop over packed records of dimension LPBLK
 IELMNT = 0
-1000 continue
-! The next LPBLK elements
-LBATCH = 0
-! Obtain next batch of elemnts
-999 continue
-if (NDIM >= 1) then
-  IELMNT = IELMNT+1
-  if (A(IELMNT) /= Zero) then
-    LBATCH = LBATCH+1
-    IPAK(LBATCH) = IELMNT
-    XPAK(LBATCH) = A(IELMNT)
+do
+  ! The next LPBLK elements
+  LBATCH = 0
+  ! Obtain next batch of elemnts
+  do
+    if (NDIM >= 1) then
+      IELMNT = IELMNT+1
+      if (A(IELMNT) /= Zero) then
+        LBATCH = LBATCH+1
+        IPAK(LBATCH) = IELMNT
+        XPAK(LBATCH) = A(IELMNT)
+      end if
+    end if
+    if ((LBATCH == LPBLK) .or. (IELMNT == NDIM)) exit
+  end do
+  ! Send to DISC
+  IDUMMY(1) = LBATCH
+  call IDAFILE(IFIL,1,IDUMMY,1,IDISK(IFIL))
+  if (LBATCH > 0) then
+    call IDAFILE(IFIL,1,IPAK,LBATCH,IDISK(IFIL))
+    call DDAFILE(IFIL,1,XPAK,LBATCH,IDISK(IFIL))
   end if
-end if
-if ((LBATCH == LPBLK) .or. (IELMNT == NDIM)) goto 998
-goto 999
-! Send to DISC
-998 continue
-IDUMMY(1) = LBATCH
-call IDAFILE(IFIL,1,IDUMMY,1,IDISK(IFIL))
-if (LBATCH > 0) then
-  call IDAFILE(IFIL,1,IPAK,LBATCH,IDISK(IFIL))
-  call DDAFILE(IFIL,1,XPAK,LBATCH,IDISK(IFIL))
-end if
-if (IELMNT == NDIM) then
-  IDUMMY(1) = -1
-  call IDAFILE(IFIL,1,IDUMMY,1,IDISK(IFIL))
-else
-  IDUMMY(1) = 0
-  call IDAFILE(IFIL,1,IDUMMY,1,IDISK(IFIL))
-  goto 1000
-end if
+  if (IELMNT == NDIM) then
+    IDUMMY(1) = -1
+    call IDAFILE(IFIL,1,IDUMMY,1,IDISK(IFIL))
+    exit
+  else
+    IDUMMY(1) = 0
+    call IDAFILE(IFIL,1,IDUMMY,1,IDISK(IFIL))
+  end if
+end do
 ! End of loop over records of truncated elements
-1001 continue
 
 end subroutine TODSCP

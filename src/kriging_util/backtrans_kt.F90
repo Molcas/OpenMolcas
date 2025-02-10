@@ -11,7 +11,7 @@
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine BackTrans_K(X,Y,nInter,nIter)
+subroutine BackTrans_Kt(X,Y,nInter,nIter)
 
 use kriging_mod, only: layer_U
 use Constants, only: Zero, One
@@ -24,7 +24,7 @@ real(kind=wp), intent(out) :: Y(nInter,nIter)
 
 !call RecPrt('layer_U',' ',layer_U,nInter,nInter)
 !call RecPrt('X',' ',X,nInter,nIter)
-call DGEMM_('N','N',nInter,nIter,nInter,One,layer_U,nInter,X,nInter,Zero,Y,nInter)
+call DGEMM_('N','T',nInter,nIter,nInter,One,X,nInter,layer_U,nInter,Zero,Y,nInter)
 !call RecPrt('Y',' ',Y,nInter,nIter)
 
-end subroutine BackTrans_K
+end subroutine BackTrans_Kt

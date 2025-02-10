@@ -32,31 +32,32 @@ end if
 ! LOOP OVER BLOCKS
 
 IBLK = 0
-1000 continue
-if (LBLK > 0) then
-  LBL = LBLK
-else if (LBLK == 0) then
-  call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
-  LBL = IDUMMY(1)
-else
-  call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
-  LBL = IDUMMY(1)
-  call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
-end if
-IBLK = IBLK+1
-if (LBL >= 0) then
-  if (LBLK >= 0) then
-    KBLK = LBL
+do
+  if (LBLK > 0) then
+    LBL = LBLK
+  else if (LBLK == 0) then
+    call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
+    LBL = IDUMMY(1)
   else
-    KBLK = -1
+    call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
+    LBL = IDUMMY(1)
+    call IDAFILE(LU,2,IDUMMY,1,IDISK(LU))
   end if
-  call FRMDSC(SEGMNT,LBL,KBLK,LU,IMZERO,IAMPACK)
-  if (LBL > 0) then
-    write(u6,'(A,I3,A,I6)') ' Number of elements in segment ',IBLK,' IS ',LBL
-    call WRTMAT(SEGMNT,1,LBL,1,LBL)
+  IBLK = IBLK+1
+  if (LBL >= 0) then
+    if (LBLK >= 0) then
+      KBLK = LBL
+    else
+      KBLK = -1
+    end if
+    call FRMDSC(SEGMNT,LBL,KBLK,LU,IMZERO,IAMPACK)
+    if (LBL > 0) then
+      write(u6,'(A,I3,A,I6)') ' Number of elements in segment ',IBLK,' IS ',LBL
+      call WRTMAT(SEGMNT,1,LBL,1,LBL)
+    end if
   end if
-end if
 
-if ((LBL >= 0) .and. (LBLK <= 0)) goto 1000
+  if ((LBL < 0) .or. (LBLK > 0)) exit
+end do
 
 end subroutine WRTVCD

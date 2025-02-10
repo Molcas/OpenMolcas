@@ -55,49 +55,47 @@ else if (INI == 0) then
   IADD = 1
   IEL = 0
   ! Increase orbital number of next electron
-1000 continue
-  IEL = IEL+1
-  ! Can orbital number be increased for electron IEL ?
-  INCREASE = 0
-  if (IEL < NEL) then
-    if (ICONF(IEL) < ICONF(IEL+1)-1) INCREASE = 1
-    if (ICONF(IEL) == ICONF(IEL+1)-1) then
-      ! If ICONF(IEL) is increased, ICONF(IEL) = ICONF(IEL+1), check if this is ok
-      if (IEL == NEL-1) then
+  do while (IADD == 1)
+    IEL = IEL+1
+    ! Can orbital number be increased for electron IEL ?
+    INCREASE = 0
+    if (IEL < NEL) then
+      if (ICONF(IEL) < ICONF(IEL+1)-1) INCREASE = 1
+      if (ICONF(IEL) == ICONF(IEL+1)-1) then
+        ! If ICONF(IEL) is increased, ICONF(IEL) = ICONF(IEL+1), check if this is ok
+        if (IEL == NEL-1) then
+          INCREASE = 1
+        else if (ICONF(IEL+1) /= ICONF(IEL+2)) then
+          INCREASE = 1
+        end if
+      end if
+    else
+      !-jwk new if (ICONF(IEL) < NORB) then
+      if ((IEL == NEL) .and. (ICONF(IEL) < NORB)) then
         INCREASE = 1
-      else if (ICONF(IEL+1) /= ICONF(IEL+2)) then
-        INCREASE = 1
+      else
+        ! Nothing more to do
+        NONEW = 1
+        exit
       end if
     end if
-  else
-    !-jwk new if (ICONF(IEL) < NORB) then
-    if ((IEL == NEL) .and. (ICONF(IEL) < NORB)) then
-      INCREASE = 1
-    else
-      ! Nothing more to do
-      NONEW = 1
-      goto 1001
-    end if
-  end if
 
-  if (INCREASE == 1) then
-    ! Increase orbital for elec IEL
-    NONEW = 0
-    ICONF(IEL) = ICONF(IEL)+1
-    ! Minimize orbital occupations
-    NDOUBLE = (IEL-1)/2
-    do JORB=1,NDOUBLE
-      ICONF(2*JORB-1) = JORB
-      ICONF(2*JORB) = JORB
-    end do
-    if (2*NDOUBLE < IEL-1) ICONF(IEL-1) = NDOUBLE+1
-    IADD = 0
-  end if
-  if (IADD == 1) goto 1000
+    if (INCREASE == 1) then
+      ! Increase orbital for elec IEL
+      NONEW = 0
+      ICONF(IEL) = ICONF(IEL)+1
+      ! Minimize orbital occupations
+      NDOUBLE = (IEL-1)/2
+      do JORB=1,NDOUBLE
+        ICONF(2*JORB-1) = JORB
+        ICONF(2*JORB) = JORB
+      end do
+      if (2*NDOUBLE < IEL-1) ICONF(IEL-1) = NDOUBLE+1
+      IADD = 0
+    end if
+  end do
 end if
 ! End if INI = 0
-
-1001 continue
 
 if (NTEST >= 100) then
   if (NONEW == 1) then

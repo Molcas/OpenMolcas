@@ -52,12 +52,12 @@ end do
 NONEW = 0
 IFIRST = 1
 ! Loop over possible occupations
-1000 continue
-if (IFIRST == 0) then
-  ! Next accumulated occupation
-  call NXTNUM3(IOCA,NGAS,IGSMIN,IGSMAX,NONEW)
-end if
-if (NONEW == 0) then
+do
+  if (IFIRST == 0) then
+    ! Next accumulated occupation
+    call NXTNUM3(IOCA,NGAS,IGSMIN,IGSMAX,NONEW)
+  end if
+  if (NONEW /= 0) exit
   ! ensure that IOCA corresponds to an accumulating occupation,
   ! i.e. a non-decreasing sequence
   if (ISKIP == 1) then
@@ -104,8 +104,7 @@ if (NONEW == 0) then
 
     end if
   end if
-end if
-if (NONEW == 0) goto 1000
+end do
 
 if (NTEST >= 10) then
   write(u6,*) ' Number of Allowed occupation classes ',NOCCLS

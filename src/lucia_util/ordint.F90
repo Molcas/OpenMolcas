@@ -26,38 +26,40 @@ implicit none
 integer(kind=iwp) :: NELMNT, IINST(NELMNT), IOUTST(NELMNT), INO(NELMNT), IPRNT
 integer(kind=iwp) :: I, ISWAP, JOE, NTEST
 
-if (NELMNT == 0) goto 1001
-call ICOPVE(IINST,IOUTST,NELMNT)
-do I=1,NELMNT
-  INO(I) = I
-end do
+if (NELMNT /= 0) then
+  call ICOPVE(IINST,IOUTST,NELMNT)
+  do I=1,NELMNT
+    INO(I) = I
+  end do
 
-! BEGIN TO ORDER
+  ! BEGIN TO ORDER
 
-JOE = 1
-10 I = JOE
-20 continue
-if (I == NELMNT) GO TO 50
-if (IOUTST(I) <= IOUTST(I+1)) GO TO 40
-JOE = I+1
-30 ISWAP = IOUTST(I)
-IOUTST(I) = IOUTST(I+1)
-IOUTST(I+1) = ISWAP
-ISWAP = INO(I)
-INO(I) = INO(I+1)
-INO(I+1) = ISWAP
-if (I == 1) GO TO 10
-I = I-1
-if (IOUTST(I) > IOUTST(I+1)) GO TO 30
-GO TO 10
-40 I = I+1
-GO TO 20
+  JOE = 1
+  I = JOE
+  do
+    if (I == NELMNT) exit
+    if (IOUTST(I) <= IOUTST(I+1)) then
+      I = I+1
+      cycle
+    end if
+    JOE = I+1
+    do
+      ISWAP = IOUTST(I)
+      IOUTST(I) = IOUTST(I+1)
+      IOUTST(I+1) = ISWAP
+      ISWAP = INO(I)
+      INO(I) = INO(I+1)
+      INO(I+1) = ISWAP
+      if (I == 1) exit
+      I = I-1
+      if (IOUTST(I) <= IOUTST(I+1)) exit
+    end do
+    I = JOE
+  end do
 
-! END ORDER
+  ! END ORDER
+end if
 
-50 continue
-
-1001 continue
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 if (NTEST >= 200) then

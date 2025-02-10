@@ -54,18 +54,3 @@ call mh5_init_attr(wfn_orbene,'DESCRIPTION', &
 #endif
 
 end subroutine cre_locwfn
-
-!-----------------------------------------------------------------------
-
-subroutine cls_locwfn()
-
-#ifdef _HDF5_
-use Localisation_globals, only: wfn_fileid
-use mh5, only: mh5_close_file
-
-implicit none
-
-call mh5_close_file(wfn_fileid)
-#endif
-
-end subroutine cls_locwfn

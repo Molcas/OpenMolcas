@@ -40,7 +40,7 @@ if (IPACK /= 0) then
   ! No packing
   ISCR(2) = 0
   call ITODS(ISCR,2,2,IFIL)
-  if (IMZERO == 1) goto 1001
+  if (IMZERO == 1) return
 end if
 
 NBLOCK = MBLOCK
@@ -48,22 +48,21 @@ if (MBLOCK <= 0) NBLOCK = NDIM
 ISTOP = 0
 NBACK = NDIM
 ! LOOP OVER RECORDS
-100 continue
-if (NBACK <= NBLOCK) then
-  NTRANS = NBACK
-  NLABEL = -NTRANS
-else
-  NTRANS = NBLOCK
-  NLABEL = NTRANS
-end if
-START = ISTOP+1
-ISTOP = START+NBLOCK-1
-NBACK = NBACK-NTRANS
-call DDAFILE(IFIL,1,A(START),ISTOP-START+1,IDISK(IFIL))
-IDUMMY(1) = NLABEL
-call IDAFILE(IFIL,1,IDUMMY,1,IDISK(IFIL))
-if (NBACK /= 0) goto 100
-
-1001 continue
+do
+  if (NBACK <= NBLOCK) then
+    NTRANS = NBACK
+    NLABEL = -NTRANS
+  else
+    NTRANS = NBLOCK
+    NLABEL = NTRANS
+  end if
+  START = ISTOP+1
+  ISTOP = START+NBLOCK-1
+  NBACK = NBACK-NTRANS
+  call DDAFILE(IFIL,1,A(START),ISTOP-START+1,IDISK(IFIL))
+  IDUMMY(1) = NLABEL
+  call IDAFILE(IFIL,1,IDUMMY,1,IDISK(IFIL))
+  if (NBACK == 0) exit
+end do
 
 end subroutine TODSC

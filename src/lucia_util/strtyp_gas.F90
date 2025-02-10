@@ -408,108 +408,106 @@ do ITYP=1,NSTTYP
     if (NELEC(ITYP) < 0) then
       NOCTYP(ITYP) = 0
       NSPGPFTP(ITYP) = 0
-      goto 2000
+      cycle
     end if
     ! Number of electrons in present type
     ! Loop over  SUPER GROUPS with current nomenclature!
-1000 continue
-    ! Number of electrons in present supergroup
-    NEL = 0
-    do IGAS=1,NGAS
-      NEL = NEL+NELFGP(IOCTYP(IGAS)+IBGPSTR(IGAS)-1)
-    end do
-
-    if (NEL > NELEC(ITYP)) then
-      ! If the number of electrons is to large find next number that
-      ! can be correct.
-      ! The following uses that within a given GAS space
-      ! the number of elecs increases as the type number increases
-
-      ! First integer  that can be reduced
-      IRED = 0
+    NONEW = 0
+    do while (NONEW == 0)
+      ! Number of electrons in present supergroup
+      NEL = 0
       do IGAS=1,NGAS
-        if (IOCTYP(IGAS) /= 1) then
-          IRED = IGAS
-          goto 888
-        end if
-      end do
-888   continue
-      if (IRED == NGAS) then
-        NONEW = 1
-      else if (IRED < NGAS) then
-        IOCTYP(IRED) = 1
-        ! Increase remanining part
-        call NXTNUM2(IOCTYP(IRED+1),NGAS-IRED,1,NGPSTR(IRED+1),NONEW)
-      end if
-      goto 2803
-    end if
-
-    if (NEL == NELEC(ITYP)) then
-      ! test 1 has been passed, check additional occupation constraints
-
-      I_AM_OKAY = 1
-      ! Number of extra holes in hole spaces
-      !E if (IUSE_PH == 1) then
-      !E   IDELP = 0
-      !E   IDELM = 0
-      !E   do IGAS=1,NGAS
-      !E     if (IPHGAS(IGAS) == 2) then
-      !E       NELH = NELFGP(IOCTYP(IGAS)+IBGPSTR(IGAS)-1)
-      !E       if (NELH < MNGSOC(IGAS)) IDELM = IDELM+MNGSOC(IGAS)-NELH
-      !E       if (NELH > MXGSOC(IGAS)) IDELP = IDELP+NELH-MXGSOC(IGAS)
-      !E     end if
-      !E   end do
-      !E   if ((IDELM > 0) .or. (IDELP > MAX(0,IDEL))) then
-      !E     I_AM_OKAY = 0
-      !E     write(u6,*) ' P/H rejected supergroup'
-      !E     call IWRTMA(IOCTYP,1,NGAS,1,NGAS)
-      !E     write(u6,*) ' IDELM, IDELP ',IDELM,IDELP
-      !E   end if
-      !E end if
-
-      ! Check from above
-
-      do IGAS=NGAS,1,-1
-        ! Number of electrons when all electrons of AS IGAS have been added
-        if (IGAS == NGAS) then
-          IEL = max(NABEL,NABEL+IDEL)
-        else
-          IEL = IEL-NELFGP(IOCTYP(IGAS+1)+IBGPSTR(IGAS+1)-1)
-          if (IEL < max(IGSOCC(IGAS,1),IGSOCC(IGAS,1)+IDEL)) I_AM_OKAY = 0
-        end if
+        NEL = NEL+NELFGP(IOCTYP(IGAS)+IBGPSTR(IGAS)-1)
       end do
 
-      ! Check from below
+      if (NEL > NELEC(ITYP)) then
+        ! If the number of electrons is to large find next number that
+        ! can be correct.
+        ! The following uses that within a given GAS space
+        ! the number of elecs increases as the type number increases
 
-      IEL = 0
-      IOELMX = 0
-      do IGAS=1,NGAS
-        IEL = IEL+NELFGP(IOCTYP(IGAS)+IBGPSTR(IGAS)-1)
-        IOELMX = IOELMX+NOBPT(IGAS)
-        if (IEL+IOELMX < min(IGSOCC(IGAS,1),IGSOCC(IGAS,1)+IDEL)) I_AM_OKAY = 0
-      end do
-
-      if (I_AM_OKAY == 1) then
-        ! passed !!!
-        NSPGP = NSPGP+1
-        ! Copy supergroup to ISPGPFTP with absolute group numbers
+        ! First integer  that can be reduced
+        IRED = 0
         do IGAS=1,NGAS
-          ISPGPFTP(IGAS,IOFF-1+NSPGP) = IOCTYP(IGAS)+IBGPSTR(IGAS)-1
+          if (IOCTYP(IGAS) /= 1) then
+            IRED = IGAS
+            exit
+          end if
         end do
+        if (IRED == NGAS) then
+          NONEW = 1
+        else if (IRED < NGAS) then
+          IOCTYP(IRED) = 1
+          ! Increase remanining part
+          call NXTNUM2(IOCTYP(IRED+1),NGAS-IRED,1,NGPSTR(IRED+1),NONEW)
+        end if
+        cycle
       end if
 
-    end if
-    ! Next type of strings
-    call NXTNUM2(IOCTYP,NGAS,1,NGPSTR,NONEW)
-2803 continue
-    if (NONEW == 0) goto 1000
+      if (NEL == NELEC(ITYP)) then
+        ! test 1 has been passed, check additional occupation constraints
+
+        I_AM_OKAY = 1
+        ! Number of extra holes in hole spaces
+        !E if (IUSE_PH == 1) then
+        !E   IDELP = 0
+        !E   IDELM = 0
+        !E   do IGAS=1,NGAS
+        !E     if (IPHGAS(IGAS) == 2) then
+        !E       NELH = NELFGP(IOCTYP(IGAS)+IBGPSTR(IGAS)-1)
+        !E       if (NELH < MNGSOC(IGAS)) IDELM = IDELM+MNGSOC(IGAS)-NELH
+        !E       if (NELH > MXGSOC(IGAS)) IDELP = IDELP+NELH-MXGSOC(IGAS)
+        !E     end if
+        !E   end do
+        !E   if ((IDELM > 0) .or. (IDELP > MAX(0,IDEL))) then
+        !E     I_AM_OKAY = 0
+        !E     write(u6,*) ' P/H rejected supergroup'
+        !E     call IWRTMA(IOCTYP,1,NGAS,1,NGAS)
+        !E     write(u6,*) ' IDELM, IDELP ',IDELM,IDELP
+        !E   end if
+        !E end if
+
+        ! Check from above
+
+        do IGAS=NGAS,1,-1
+          ! Number of electrons when all electrons of AS IGAS have been added
+          if (IGAS == NGAS) then
+            IEL = max(NABEL,NABEL+IDEL)
+          else
+            IEL = IEL-NELFGP(IOCTYP(IGAS+1)+IBGPSTR(IGAS+1)-1)
+            if (IEL < max(IGSOCC(IGAS,1),IGSOCC(IGAS,1)+IDEL)) I_AM_OKAY = 0
+          end if
+        end do
+
+        ! Check from below
+
+        IEL = 0
+        IOELMX = 0
+        do IGAS=1,NGAS
+          IEL = IEL+NELFGP(IOCTYP(IGAS)+IBGPSTR(IGAS)-1)
+          IOELMX = IOELMX+NOBPT(IGAS)
+          if (IEL+IOELMX < min(IGSOCC(IGAS,1),IGSOCC(IGAS,1)+IDEL)) I_AM_OKAY = 0
+        end do
+
+        if (I_AM_OKAY == 1) then
+          ! passed !!!
+          NSPGP = NSPGP+1
+          ! Copy supergroup to ISPGPFTP with absolute group numbers
+          do IGAS=1,NGAS
+            ISPGPFTP(IGAS,IOFF-1+NSPGP) = IOCTYP(IGAS)+IBGPSTR(IGAS)-1
+          end do
+        end if
+
+      end if
+      ! Next type of strings
+      call NXTNUM2(IOCTYP,NGAS,1,NGPSTR,NONEW)
+    end do
     ! End of loop over possible supergroups, save information about current type
     IOFF = IOFF+NSPGP
     NOCTYP(ITYP) = NSPGP
     NSPGPFTP(ITYP) = NSPGP
     NSPGP_TOT = NSPGP_TOT+NSPGP
   end if
-2000 continue
 end do
 NTSPGP = NSPGP_TOT
 

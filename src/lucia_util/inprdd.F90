@@ -45,42 +45,44 @@ end if
 
 ! LOOP OVER BLOCKS OF VECTORS
 
-1000 continue
+do
 
-if (LBLK > 0) then
-  NBL1 = LBLK
-else if (LBLK == 0) then
-  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-  NBL1 = IDUMMY(1)
-  if (DIFVEC) call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-else if (LBLK < 0) then
-  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-  NBL1 = IDUMMY(1)
-  call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
-  if (DIFVEC) then
-    call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
-    call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+  if (LBLK > 0) then
+    NBL1 = LBLK
+  else if (LBLK == 0) then
+    call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+    NBL1 = IDUMMY(1)
+    if (DIFVEC) call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+  else if (LBLK < 0) then
+    call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+    NBL1 = IDUMMY(1)
+    call IDAFILE(LU1,2,IDUMMY,1,IDISK(LU1))
+    if (DIFVEC) then
+      call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+      call IDAFILE(LU2,2,IDUMMY,1,IDISK(LU2))
+    end if
   end if
-end if
 
-if (NBL1 >= 0) then
-  if (LBLK >= 0) then
-    KBLK = NBL1
-  else
-    KBLK = -1
+  if (NBL1 >= 0) then
+    if (LBLK >= 0) then
+      KBLK = NBL1
+    else
+      KBLK = -1
+    end if
+    call FRMDSC(VEC1,NBL1,KBLK,LU1,IMZERO,IAMPACK)
+    if (DIFVEC) then
+      call FRMDSC(VEC2,NBL1,KBLK,LU2,IMZERO,IAMPACK)
+      if (NBL1 > 0) X = X+INPROD(VEC1,VEC2,NBL1)
+      !write(u6,*) ' vec1 and vec2 in INPRDD'
+      !call WRTMAT(VEC1,1,NBL1,1,NBL1)
+      !call WRTMAT(VEC2,1,NBL1,1,NBL1)
+    else
+      if (NBL1 > 0) X = X+INPROD(VEC1,VEC1,NBL1)
+    end if
   end if
-  call FRMDSC(VEC1,NBL1,KBLK,LU1,IMZERO,IAMPACK)
-  if (DIFVEC) then
-    call FRMDSC(VEC2,NBL1,KBLK,LU2,IMZERO,IAMPACK)
-    if (NBL1 > 0) X = X+INPROD(VEC1,VEC2,NBL1)
-    !write(u6,*) ' vec1 and vec2 in INPRDD'
-    !call WRTMAT(VEC1,1,NBL1,1,NBL1)
-    !call WRTMAT(VEC2,1,NBL1,1,NBL1)
-  else
-    if (NBL1 > 0) X = X+INPROD(VEC1,VEC1,NBL1)
-  end if
-end if
-if ((NBL1 >= 0) .and. (LBLK <= 0)) goto 1000
+  if ((NBL1 < 0) .or. (LBLK > 0)) exit
+
+end do
 
 INPRDD = X
 

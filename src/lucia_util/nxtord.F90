@@ -36,24 +36,23 @@ if (NTEST /= 0) then
 end if
 
 IPLACE = 0
-1000 continue
-IPLACE = IPLACE+1
-if ((IPLACE < NELMNT) .and. (INUM(IPLACE)+1 < INUM(IPLACE+1)) .or. (IPLACE == NELMNT) .and. (INUM(IPLACE)+1 <= MXVAL)) then
-  INUM(IPLACE) = INUM(IPLACE)+1
-  NONEW = 0
-  goto 1001
-else if (IPLACE < NELMNT) then
-  if (IPLACE == 1) then
-    INUM(IPLACE) = MNVAL
-  else
-    INUM(IPLACE) = INUM(IPLACE-1)+1
+do
+  IPLACE = IPLACE+1
+  if ((IPLACE < NELMNT) .and. (INUM(IPLACE)+1 < INUM(IPLACE+1)) .or. (IPLACE == NELMNT) .and. (INUM(IPLACE)+1 <= MXVAL)) then
+    INUM(IPLACE) = INUM(IPLACE)+1
+    NONEW = 0
+    exit
+  else if (IPLACE < NELMNT) then
+    if (IPLACE == 1) then
+      INUM(IPLACE) = MNVAL
+    else
+      INUM(IPLACE) = INUM(IPLACE-1)+1
+    end if
+  else if (IPLACE == NELMNT) then
+    NONEW = 1
+    exit
   end if
-else if (IPLACE == NELMNT) then
-  NONEW = 1
-  goto 1001
-end if
-goto 1000
-1001 continue
+end do
 
 if (NTEST /= 0) then
   write(u6,*) ' New number'

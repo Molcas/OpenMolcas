@@ -42,23 +42,26 @@ if (IFIRST == 1) then
   end do
   NONEW = 0
 end if
-1001 continue
-if (IFIRST == 0) call NXTNUM3(ISYM,NGAS-1,MNVAL,MXVAL,NONEW)
-IFIRST = 0
+do
+  if (IFIRST == 0) call NXTNUM3(ISYM,NGAS-1,MNVAL,MXVAL,NONEW)
+  IFIRST = 0
 
-! Symmetry of last space
+  ! Symmetry of last space
 
-if (NONEW == 0) then
-  !JSYM = 1
-  !do IGAS=1,NGAS-1
-  !  call SYMCOM(3,JSYM,ISYM(IGAS),KSYM)
-  !  JSYM = KSYM
-  !end do
-  JSYM = ISYMSTR(ISYM,NGAS-1)
-  call SYMCOM(2,JSYM,ISYM(NGAS),ISYM_TOT)
+  if (NONEW == 0) then
+    !JSYM = 1
+    !do IGAS=1,NGAS-1
+    !  call SYMCOM(3,JSYM,ISYM(IGAS),KSYM)
+    !  JSYM = KSYM
+    !end do
+    JSYM = ISYMSTR(ISYM,NGAS-1)
+    call SYMCOM(2,JSYM,ISYM(NGAS),ISYM_TOT)
 
-  if ((MNVAL(NGAS) > ISYM(NGAS)) .or. (MXVAL(NGAS) < ISYM(NGAS))) goto 1001
-end if
+    if ((MNVAL(NGAS) <= ISYM(NGAS)) .and. (MXVAL(NGAS) >= ISYM(NGAS))) exit
+  else
+    exit
+  end if
+end do
 
 NTEST = 0
 if (NTEST >= 100) then

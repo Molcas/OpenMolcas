@@ -22,13 +22,13 @@ integer(kind=iwp) :: I_AM_PACKED, iDet, idummy(1), IMZERO
 
 ndet = 0
 IDISK(LUDIA) = 0
-100 continue
-call IDAFILE(LUDIA,2,IDUMMY,1,IDISK(LUDIA))
-IDET = IDUMMY(1)
-call IDAFILE(LUDIA,2,IDUMMY,1,IDISK(LUDIA))
-if (idet == -1) return
-call frmdsc(diag(ndet+1),idet,-1,ludia,imzero,i_am_packed)
-ndet = ndet+idet
-goto 100
+do
+  call IDAFILE(LUDIA,2,IDUMMY,1,IDISK(LUDIA))
+  IDET = IDUMMY(1)
+  call IDAFILE(LUDIA,2,IDUMMY,1,IDISK(LUDIA))
+  if (idet == -1) exit
+  call frmdsc(diag(ndet+1),idet,-1,ludia,imzero,i_am_packed)
+  ndet = ndet+idet
+end do
 
 end subroutine get_diag

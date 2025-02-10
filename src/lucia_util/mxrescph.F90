@@ -70,7 +70,7 @@ do IAORC=1,2
         if (NTEST >= 100) write(u6,*) ' MXB,ITOTB = ',MXB,ITOTB
         do IOBTP=1,NTPOB
           ! No K strings obtained from creation in particle space
-          if ((IAORC == 2) .and. (IPHGAS(IOBTP) == 1)) goto 300
+          if ((IAORC == 2) .and. (IPHGAS(IOBTP) == 1)) cycle
           ! type of K string obtained
           call NEWTYP(IATPABS,IAORC,IOBTP,KATP)
           if (NTEST >= 100) write(u6,*) ' IOBTP KATP ',IOBTP,KATP
@@ -124,7 +124,6 @@ do IAORC=1,2
             MXKAB = max(MXKAB,MXKA)
 
           end if
-300       continue
         end do
       end if
     end do
@@ -151,7 +150,7 @@ do IAORC=1,2
         if (NTEST >= 100) write(u6,*) ' MXA = ',MXA
         do IOBTP=1,NTPOB
           ! type of K string obtained by removing one elec of type IOPBTP from IATP
-          if ((IAORC == 2) .and. (IPHGAS(IOBTP) == 1)) goto 2812
+          if ((IAORC == 2) .and. (IPHGAS(IOBTP) == 1)) cycle
           call NEWTYP(IBTPABS,IAORC,IOBTP,KBTP)
           if (NTEST >= 100) write(u6,*) ' IOBTP KBTP ',IOBTP,KBTP
           if (KBTP > 0) then
@@ -194,7 +193,6 @@ do IAORC=1,2
             MXKAB = max(MXKAB,MXKB)
 
           end if
-2812      continue
         end do
       end if
     end do

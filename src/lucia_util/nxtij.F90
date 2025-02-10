@@ -21,20 +21,20 @@ integer(kind=iwp) :: I, J, NI, NJ, IJSM, NONEW
 integer(kind=iwp) :: NTEST
 
 NONEW = 0
-100 continue
-if (I < NI) then
-  I = I+1
-else
-  if (J < NJ) then
-    I = 1
-    J = J+1
+do
+  if (I < NI) then
+    I = I+1
   else
-    NONEW = 1
-    goto 101
+    if (J < NJ) then
+      I = 1
+      J = J+1
+    else
+      NONEW = 1
+      exit
+    end if
   end if
-end if
-if ((IJSM /= 0) .and. (I < J)) goto 100
-101 continue
+  if ((IJSM == 0) .or. (I >= J)) exit
+end do
 
 NTEST = 0
 if (NTEST /= 0) write(u6,*) ' next (i,j) pair ',I,J

@@ -19,15 +19,18 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: N, ITEST, NSIZE
 real(kind=wp) :: A(NSIZE,*), EL(NSIZE,*), DETERM, EPSIL
-integer(kind=iwp) :: I, I1, INDSNL, ISL2, J, J1, K, M, N1
+integer(kind=iwp) :: I, I1, J, J1, K, M, N1
 real(kind=wp) :: C, D, DETERP, E, EPSILP, F, RAT, S
 
-INDSNL = 0
-if (N < 2) GO TO 140
-ISL2 = 0
+!INDSNL = 0
+if (N < 2) then
+  ITEST = -1
+  return
+end if
+!ISL2 = 0
 !K000FX = 2
-if (ISL2 == 0) INDSNL = 2
-if (ISL2 == 1) INDSNL = 1
+!if (ISL2 == 0) INDSNL = 2
+!if (ISL2 == 1) INDSNL = 1
 !call SLITET(2,INDSNL)
 !call OVERFL(K000FX)
 !call DVCHK(K000FX)
@@ -46,7 +49,7 @@ N1 = N-1
 M = 2
 do J=1,N1
   do I=M,N
-    if (A(I,J) == Zero) GO TO 45
+    if (A(I,J) == Zero) cycle
     D = sqrt(A(J,J)*A(J,J)+A(I,J)*A(I,J))
     C = A(J,J)/D
     S = A(I,J)/D
@@ -60,12 +63,14 @@ do J=1,N1
       EL(I,K) = C*EL(I,K)-S*EL(J,K)
       EL(J,K) = D
     end do
-45  continue
   end do
   M = M+1
 end do
 !call OVERFL(K000FX)
-!goto (140,51),K000FX
+!if (K000FX == 0) then
+!  ITEST = -1
+!  goto 126
+!end if
 
 ! CALCULATE THE DETERMINANT
 DETERP = A(1,1)
@@ -74,10 +79,12 @@ do I=2,N
 end do
 DETERM = DETERP
 !call OVERFL(K000FX)
-!goto (140,520,520),K000FX
+!if (K000FX == 0) then
+!  ITEST = -1
+!  goto 126
+!end if
 
 ! IS MATRIX SINGULAR
-!520 continue
 F = A(1,1)
 E = A(1,1)
 do I=2,N
@@ -87,7 +94,10 @@ end do
 EPSILP = EPSIL
 if (EPSILP <= Zero) EPSILP = 1.0e-8_wp
 RAT = E/F
-if (abs(RAT) < EPSILP) GO TO 130
+if (abs(RAT) < EPSILP) then
+  ITEST = 1
+  return
+end if
 
 ! INVERT TRIANGULAR MATRIX
 J = N
@@ -105,10 +115,16 @@ do J1=1,N
   J = J-1
 end do
 !call OVERFL(K000FX)
-!goto (140,103,103),K000FX
+!if (K000FX == 0) then
+!  ITEST = -1
+!  goto 126
+!end if
 
-!103 call DVCHK(K000FX)
-!goto (140,105),K000FX
+!call DVCHK(K000FX)
+!if (K000FX == 0) then
+!  ITEST = -1
+!  goto 126
+!end if
 
 ! PREMULTIPLY EL BY INVERTED TRIANGULAR MATRIX
 M = 1
@@ -123,7 +139,10 @@ do I=1,N
   M = M+1
 end do
 !call OVERFL(K000FX)
-!goto (140,123,123),K000FX
+!if (K000FX == 0) then
+!  ITEST = -1
+!  goto 126
+!end if
 
 ! RECOPY EL TO A
 do I=1,N
@@ -133,13 +152,6 @@ do I=1,N
 end do
 ITEST = 0
 !126 if (INDSNL == 1) call SLITE(2)
-126 if (INDSNL == 1) ISL2 = 1
-
-return
-
-130 ITEST = 1
-goto 126
-140 ITEST = -1
-goto 126
+!126 if (INDSNL == 1) ISL2 = 1
 
 end subroutine BNDINV

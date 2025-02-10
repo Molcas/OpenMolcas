@@ -33,10 +33,8 @@ do JLIST=1,NLIST
     if (IVEC(IELMNT) /= ILIST(IELMNT,JLIST)) IFOUND = 0
   end do
   if (IFOUND == 1) INUM = JLIST
-  if (INUM /= 0) goto 1001
+  if (INUM /= 0) exit
 end do
-
-1001 continue
 
 NTEST = 0
 if (NTEST >= 100) then

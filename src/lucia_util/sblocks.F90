@@ -272,94 +272,90 @@ do JCBATCH=JCBAT_INI,JCBAT_END
         end if
 
         do ISBLK=1,NSBLOCK
-          if (ISBLOCK(1,ISBLK) > 0) then
-            IATP = ISBLOCK(1,ISBLK)
-            IBTP = ISBLOCK(2,ISBLK)
-            IASM = ISBLOCK(3,ISBLK)
-            IBSM = ISBLOCK(4,ISBLK)
-            ISOFF = ISBLOCK(5,ISBLK)
-            NIA = NSSOA(IASM,IATP)
-            NIB = NSSOB(IBSM,IBTP)
+          if (ISBLOCK(1,ISBLK) <= 0) cycle
+          IATP = ISBLOCK(1,ISBLK)
+          IBTP = ISBLOCK(2,ISBLK)
+          IASM = ISBLOCK(3,ISBLK)
+          IBSM = ISBLOCK(4,ISBLK)
+          ISOFF = ISBLOCK(5,ISBLK)
+          NIA = NSSOA(IASM,IATP)
+          NIB = NSSOB(IBSM,IBTP)
 
-            if (NIA*NIB == 0) goto 10000
-            if ((IRESTRICT == 1) .and. &
-                ((JASM > IASM) .or. (JASM == IASM) .and. (JATP > IATP) .or. (JASM == IASM) .and. (JATP == IATP) .and. &
-                 (JBTP > IBTP))) goto 10000
-            ! Are the two blocks connected by allowed excitation
-            call CON_BLOCKS(IATP,IBTP,LLATP,LLBTP,IASM,IBSM,LLASM,LLBSM,ICONSPA,ICONSPB,NOCTPA,NOCTPB,MXEXC,IH_OCC_CONS,INTERACT)
+          if (NIA*NIB == 0) cycle
+          if ((IRESTRICT == 1) .and. &
+              ((JASM > IASM) .or. (JASM == IASM) .and. (JATP > IATP) .or. (JASM == IASM) .and. (JATP == IATP) .and. &
+               (JBTP > IBTP))) cycle
+          ! Are the two blocks connected by allowed excitation
+          call CON_BLOCKS(IATP,IBTP,LLATP,LLBTP,IASM,IBSM,LLASM,LLBSM,ICONSPA,ICONSPB,NOCTPA,NOCTPB,MXEXC,IH_OCC_CONS,INTERACT)
 
-            ! IF BK approximation is active, check whether block should
-            ! be calculated exactly (1), by diagonal (-1) or is set to zero (0).
-            I_DO_EXACT_BLK = 1
-            if (DoBKAP) call CHECK_BLOCKS_FOR_BK_APPROX(IATP,IBTP,LLATP,LLBTP,IASM,IBSM,LLASM,LLBSM,IOCTPA,IOCTPB,I_DO_EXACT_BLK)
-            ! BK-like approximation stuff
-            if ((INTERACT == 0) .or. (I_DO_EXACT_BLK == 0)) goto 10000
+          ! IF BK approximation is active, check whether block should
+          ! be calculated exactly (1), by diagonal (-1) or is set to zero (0).
+          I_DO_EXACT_BLK = 1
+          if (DoBKAP) call CHECK_BLOCKS_FOR_BK_APPROX(IATP,IBTP,LLATP,LLBTP,IASM,IBSM,LLASM,LLBSM,IOCTPA,IOCTPB,I_DO_EXACT_BLK)
+          ! BK-like approximation stuff
+          if ((INTERACT == 0) .or. (I_DO_EXACT_BLK == 0)) cycle
 
-#           ifdef _DEBUGPRINT_
-            if (NTEST >= 100) then
-              write(u6,*) ' Next s block in batch :'
-              write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
-              write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
-            end if
-#           endif
-
-            if ((IDC == 2) .and. (IASM == IBSM) .and. (IATP == IBTP) .and. &
-                ((LLBSM > LLASM) .or. (LLASM == LLBSM) .and. (LLBTP > LLATP))) goto 8764
-
-#           ifdef _DEBUGPRINT_
-            if (NTEST >= 60) then
-              write(u6,*) ' RSSBCB will be called for'
-              write(u6,*) ' Sigma block :'
-              write(u6,*) ' ISOFF ',ISOFF
-              write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
-              write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
-              write(u6,*) ' C     block :'
-              write(u6,*) ' ICBLK LLASM LLBSM LLATP LLBTP'
-              write(u6,'(5I5)') ICBLK,LLASM,LLBSM,LLATP,LLBTP
-              write(u6,*) ' ICOFF ',ICOFF
-              write(u6,*) ' Overall scale',SCLFAC(ICBLK)
-            end if
-#           endif
-
-            if ((IRESTRICT == 1) .and. &
-                (((IASM == LLASM) .and. (IBSM == LLBSM) .and. (IATP == LLATP) .and. (IBTP == LLBTP)) .or. &
-                 ((IDC == 2) .and. (IASM == LLBSM) .and. (IBSM == LLASM) .and. (IATP == LLBTP) .and. (IBTP == LLATP)))) then
-              XFAC = Half*SCLFAC(ICBLK)
-            else
-              XFAC = SCLFAC(ICBLK)
-            end if
-            ! Form of operator in action
-            !if (IPERTOP /= 0) then
-            ! Not exact Hamiltonian in use
-            IPTSPC = IH0SPC(IATP,IBTP)
-            JPTSPC = IH0SPC(JATP,JBTP)
-
-            if (IPTSPC /= JPTSPC) goto 8764
-            ! BK-like approximation stuff
-            if (I_DO_EXACT_BLK == 1) then
-              call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(1,IATP+IOCTPA-1),NELFSPGP(1,IBTP+IOCTPB-1), &
-                           NELFSPGP(1,LLATP+IOCTPA-1),NELFSPGP(1,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
-                           ADSXA,STSTSX,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA, &
-                           NLLB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,IPRNT,IPERTOP,XFAC,IUSE_PH,IPHGAS,I_RES_AB,XINT2)
-            else if (I_DO_EXACT_BLK == -1) then
-              ! Giovanni.... transposing sigma and CI vectors:
-              call TRPMT3(SB(ISOFF),NIB,NIA,C2)
-              call COPVEC(C2,SB(ISOFF),NIA*NIB)
-              call TRPMT3(CB(ICOFF),NLLB,NLLA,C2)
-              call COPVEC(C2,CB(ICOFF),NLLA*NLLB)
-              FACTOR = Zero
-              call ADDDIA_TERM(FACTOR,CB(ICOFF),SB(ISOFF),IATP,IBTP,IASM,IBSM)
-              ! Giovanni.... transposing back sigma and CI vectors:
-              call TRPMT3(SB(ISOFF),NIA,NIB,C2)
-              call COPVEC(C2,SB(ISOFF),NIA*NIB)
-              call TRPMT3(CB(ICOFF),NLLA,NLLB,C2)
-              call COPVEC(C2,CB(ICOFF),NLLA*NLLB)
-            end if ! End BK stuff
-            ! CALL RSSBCB2 --> 82
-8764        continue
+#         ifdef _DEBUGPRINT_
+          if (NTEST >= 100) then
+            write(u6,*) ' Next s block in batch :'
+            write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
+            write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
           end if
-          ! End if S-block should be calculated
-10000     continue
+#         endif
+
+          if ((IDC == 2) .and. (IASM == IBSM) .and. (IATP == IBTP) .and. &
+              ((LLBSM > LLASM) .or. (LLASM == LLBSM) .and. (LLBTP > LLATP))) cycle
+
+#         ifdef _DEBUGPRINT_
+          if (NTEST >= 60) then
+            write(u6,*) ' RSSBCB will be called for'
+            write(u6,*) ' Sigma block :'
+            write(u6,*) ' ISOFF ',ISOFF
+            write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
+            write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
+            write(u6,*) ' C     block :'
+            write(u6,*) ' ICBLK LLASM LLBSM LLATP LLBTP'
+            write(u6,'(5I5)') ICBLK,LLASM,LLBSM,LLATP,LLBTP
+            write(u6,*) ' ICOFF ',ICOFF
+            write(u6,*) ' Overall scale',SCLFAC(ICBLK)
+          end if
+#         endif
+
+          if ((IRESTRICT == 1) .and. &
+              (((IASM == LLASM) .and. (IBSM == LLBSM) .and. (IATP == LLATP) .and. (IBTP == LLBTP)) .or. &
+               ((IDC == 2) .and. (IASM == LLBSM) .and. (IBSM == LLASM) .and. (IATP == LLBTP) .and. (IBTP == LLATP)))) then
+            XFAC = Half*SCLFAC(ICBLK)
+          else
+            XFAC = SCLFAC(ICBLK)
+          end if
+          ! Form of operator in action
+          !if (IPERTOP /= 0) then
+          ! Not exact Hamiltonian in use
+          IPTSPC = IH0SPC(IATP,IBTP)
+          JPTSPC = IH0SPC(JATP,JBTP)
+
+          if (IPTSPC /= JPTSPC) cycle
+          ! BK-like approximation stuff
+          if (I_DO_EXACT_BLK == 1) then
+            call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(1,IATP+IOCTPA-1),NELFSPGP(1,IBTP+IOCTPB-1), &
+                         NELFSPGP(1,LLATP+IOCTPA-1),NELFSPGP(1,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
+                         ADSXA,STSTSX,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA, &
+                         NLLB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,IPRNT,IPERTOP,XFAC,IUSE_PH,IPHGAS,I_RES_AB,XINT2)
+          else if (I_DO_EXACT_BLK == -1) then
+            ! Giovanni.... transposing sigma and CI vectors:
+            call TRPMT3(SB(ISOFF),NIB,NIA,C2)
+            call COPVEC(C2,SB(ISOFF),NIA*NIB)
+            call TRPMT3(CB(ICOFF),NLLB,NLLA,C2)
+            call COPVEC(C2,CB(ICOFF),NLLA*NLLB)
+            FACTOR = Zero
+            call ADDDIA_TERM(FACTOR,CB(ICOFF),SB(ISOFF),IATP,IBTP,IASM,IBSM)
+            ! Giovanni.... transposing back sigma and CI vectors:
+            call TRPMT3(SB(ISOFF),NIA,NIB,C2)
+            call COPVEC(C2,SB(ISOFF),NIA*NIB)
+            call TRPMT3(CB(ICOFF),NLLA,NLLB,C2)
+            call COPVEC(C2,CB(ICOFF),NLLA*NLLB)
+          end if ! End BK stuff
+          ! CALL RSSBCB2 --> 82
         end do
         ! End of loop over sigma blocks
       end do

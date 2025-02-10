@@ -17,8 +17,10 @@ set (sources
      embpotkernel.F90
      embpotmem.F90
      embpotoutput.F90
+     embpotoutputmodensities.F90
      embpotrdrun.F90
      embpotwrrun.F90
+     gaussrad.F90
 )
 
 # Source files defining modules that should be available to other *_util directories

@@ -78,7 +78,6 @@ subroutine Sphere(lMax)
 
   use define_af, only: iTabMx
 
-  implicit none
   integer(kind=iwp), intent(in) :: lMax
   integer(kind=iwp) :: iAng, iElem, ii, iii, jjj, l, m, MxFnc, n, nElem, nSphCr, nSphr
 # ifdef _DEBUGPRINT_
@@ -182,7 +181,6 @@ end subroutine Sphere
 
 subroutine Real_Sphere(ipSph,lMax,RSph,nSphr)
 
-  implicit none
   integer(kind=iwp), intent(in) :: lMax, ipSph(0:lMax), nSphr
   real(kind=wp), intent(out) :: RSph(nSphr)
   integer(kind=iwp) :: i, i00, i10, i2, i20, iCont, iOff, j, l, mElem, nElem
@@ -233,7 +231,6 @@ subroutine Recurse(P0,P1,P2,n2)
 !                                                                      *
 !***********************************************************************
 
-  implicit none
   integer(kind=iwp), intent(in) :: n2
   real(kind=wp), intent(in) :: P0(nTri_Elem1(n2-2)), P1(nTri_Elem1(n2-1))
   real(kind=wp), intent(out) :: P2(nTri_Elem1(n2))
@@ -282,7 +279,6 @@ end subroutine Recurse
 
 subroutine Ladder(P0,n)
 
-  implicit none
   integer(kind=iwp), intent(in) :: n
   real(kind=wp), intent(inout) :: P0(nTri_Elem1(n),-n:n)
   integer(kind=iwp) :: ix, iy, iz, m, m_m, m_p
@@ -360,7 +356,6 @@ subroutine Contaminant(P0,i,Px,j,l)
 ! This subroutine generates the lower ang mom contaminants for the
 ! given ang mom
 
-  implicit none
   integer(kind=iwp), intent(in) :: i, j, l
   real(kind=wp), intent(inout) :: P0(nTri_Elem1(i),-l:l)
   real(kind=wp), intent(in) :: Px(nTri_Elem1(j),-l:l)
@@ -384,7 +379,6 @@ end subroutine Contaminant
 
 subroutine NrmSph(P,n)
 
-  implicit none
   integer(kind=iwp), intent(in) :: n
   real(kind=wp), intent(inout) :: P(nTri_Elem1(n),nTri_Elem1(n))
   integer(kind=iwp) :: ijx, ijy, ijz, ix, iy, iz, jx, jy, jz, k, m, nt

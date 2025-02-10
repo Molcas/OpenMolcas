@@ -116,21 +116,21 @@ do IJTYP=1,NIJTYP
   JTYP = JTP(IJTYP)
   do ISM=1,NSMOB
     JSM = ADSXA(ISM,IJSM)
-    if (JSM == 0) goto 1940
+    if (JSM == 0) cycle
     ntest = 0 !yjma
     if (ntest >= 1500) write(u6,*) ' ISM JSM ',ISM,JSM
     IOFF = IOBPTS(ITYP,ISM)
     JOFF = IOBPTS(JTYP,JSM)
     NI = NOBPTS(ITYP,ISM)
     NJ = NOBPTS(JTYP,JSM)
-    if ((NI == 0) .or. (NJ == 0)) goto 1940
+    if ((NI == 0) .or. (NJ == 0)) cycle
     ! Generate annihilation mappings for all Ka strings
     ! a+j!ka> = +/-/0 * !Ja>
     call ADSTN_GAS(OFFI,JSM,JTYP,JATP,JASM,IAGRP,I1,XI1S,NKASTR,SCLFAC)
-    if (NKASTR == 0) goto 1940
+    if (NKASTR == 0) cycle
     ! a+i!ka> = +/-/0 * !Ia>
     call ADSTN_GAS(OFFI,ISM,ITYP,IATP,IASM,IAGRP,I3,XI3S,NKASTR,One)
-    if (NKASTR == 0) goto 1940
+    if (NKASTR == 0) cycle
     ! Compress list to common nonvanishing elements
     IDOCOMP = 1
     if (IDOCOMP == 1) then
@@ -170,24 +170,24 @@ do IJTYP=1,NIJTYP
 
         do KSM=1,NSMOB
           LSM = ADSXA(KSM,KLSM)
-          if (LSM == 0) goto 1930
+          if (LSM == 0) cycle
           KOFF = IOBPTS(KTYP,KSM)
           LOFF = IOBPTS(LTYP,LSM)
           NK = NOBPTS(KTYP,KSM)
           NL = NOBPTS(LTYP,LSM)
           ! If IUSEAB is used, only terms with i >= k will be generated so
           IKORD = 0
-          if ((IUSEAB == 1) .and. (ISM > KSM)) goto 1930
-          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP < KTYP)) goto 1930
+          if ((IUSEAB == 1) .and. (ISM > KSM)) cycle
+          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP < KTYP)) cycle
           if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP == KTYP)) IKORD = 1
 
-          if ((NK == 0) .or. (NL == 0)) goto 1930
+          if ((NK == 0) .or. (NL == 0)) cycle
           ! Obtain all connections a+l!Kb> = +/-/0!Jb>
           call ADSTN_GAS(OFFI,LSM,LTYP,JBTP,JBSM,IBGRP,I2,XI2S,NKBSTR,One)
-          if (NKBSTR == 0) goto 1930
+          if (NKBSTR == 0) cycle
           ! Obtain all connections a+k!Kb> = +/-/0!Ib>
           call ADSTN_GAS(OFFI,KSM,KTYP,IBTP,IBSM,IBGRP,I4,XI4S,NKBSTR,One)
-          if (NKBSTR == 0) goto 1930
+          if (NKBSTR == 0) cycle
 
           ! Update two-electron density matrix
           ! Rho2b(ij,kl) =  Sum(ka)S(Ka,i,Ib)<Ib!Eb(kl)!Jb>C(Ka,j,Jb)
@@ -215,12 +215,10 @@ do IJTYP=1,NIJTYP
           !write(u6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
           !call prsym(rho2s,NORB*(NORB+1)/2)
 
-1930      continue
         end do
       end do
     end do
     ! End of loop over partitioning of alpha strings
-1940 continue
   end do
 end do
 ! This 'flush' outerlooped here. Was previously inside ADSTN_GAS.

@@ -100,67 +100,67 @@ end if
 MAXLEX = 0
 IFIRST = 1
 ISTRBS = 1
-1000 continue
-if (IFIRST == 1) then
-  do IGAS=1,NGASL-1
-    ISMFGS(IGAS) = MNVAL(IGAS)
-  end do
-else
-  ! Next distribution of symmetries in NGAS -1
-  !     NXTNUM2(INUM,NELMNT,MNVAL,MXVAL,NONEW)
-  !call NXTNUM2(ISMFGS,NGASL-1,1,MXVAL,NONEW)
-  !call NXTNUM3(IOCA,NGAS,IGSMIN,IGSMAX,NONEW)
-  call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
-  if (NONEW /= 0) goto 1001
-end if
-IFIRST = 0
-if (NTEST >= 200) then
-  write(u6,*) ' next symmetry of NGASL-1 spaces'
-  call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
-end if
-! Symmetry of NGASL -1 spaces given, symmetry of total space
-ISTSMM1 = 1
-do IGAS=1,NGASL-1
-  !    SYMCOM(ITASK,I1,I2,I12)
-  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-  ISTSMM1 = JSTSMM1
-  !write(u6,*) ' ISTSMM1 : ',ISTSMM1
-end do
-! required sym of SPACE NGASL
-call SYMCOM(2,ISTSMM1,ISMGSN,ISPGRPSM)
-ISMFGS(NGASL) = ISMGSN
-
-do IGAS=NGASL+1,NGAS
-  ISMFGS(IGAS) = 1
-end do
-if (NTEST >= 200) then
-  write(u6,*) ' Next symmetry distribution'
-  call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
-end if
-! Obtain all strings of this symmetry
-call GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTR(1+NEL*(ISTRBS-1)),NSTR,NEL,NNSTSGP,IISTSGP)
-! Reorder Info : Lexical => actual number
-if (IDOREO /= 0) then
-  ! Lexical number of NEL electrons
-  ! Can be made smart by using common factor for first NGAS-1 spaces
-  do JSTR=ISTRBS,ISTRBS+NSTR-1
-    LEX = 1
-    do IEL=1,NEL
-      LEX = LEX+IZ(ISTR(IEL+NEL*(JSTR-1)),IEL)
+do
+  if (IFIRST == 1) then
+    do IGAS=1,NGASL-1
+      ISMFGS(IGAS) = MNVAL(IGAS)
     end do
-    !write(u6,*) ' string'
-    !call IWRTMA(ISTR(1,JSTR),1,NEL,1,NEL)
-    !write(u6,*) ' JSTR and LEX ',JSTR,LEX
-
-    MAXLEX = max(MAXLEX,LEX)
-    IREO(LEX) = JSTR
+  else
+    ! Next distribution of symmetries in NGAS -1
+    !     NXTNUM2(INUM,NELMNT,MNVAL,MXVAL,NONEW)
+    !call NXTNUM2(ISMFGS,NGASL-1,1,MXVAL,NONEW)
+    !call NXTNUM3(IOCA,NGAS,IGSMIN,IGSMAX,NONEW)
+    call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
+    if (NONEW /= 0) exit
+  end if
+  IFIRST = 0
+  if (NTEST >= 200) then
+    write(u6,*) ' next symmetry of NGASL-1 spaces'
+    call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
+  end if
+  ! Symmetry of NGASL -1 spaces given, symmetry of total space
+  ISTSMM1 = 1
+  do IGAS=1,NGASL-1
+    !    SYMCOM(ITASK,I1,I2,I12)
+    call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
+    ISTSMM1 = JSTSMM1
+    !write(u6,*) ' ISTSMM1 : ',ISTSMM1
   end do
-end if
+  ! required sym of SPACE NGASL
+  call SYMCOM(2,ISTSMM1,ISMGSN,ISPGRPSM)
+  ISMFGS(NGASL) = ISMGSN
 
-ISTRBS = ISTRBS+NSTR
-! ready for next symmetry distribution
-if (NGAS-1 /= 0) goto 1000
-1001 continue
+  do IGAS=NGASL+1,NGAS
+    ISMFGS(IGAS) = 1
+  end do
+  if (NTEST >= 200) then
+    write(u6,*) ' Next symmetry distribution'
+    call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
+  end if
+  ! Obtain all strings of this symmetry
+  call GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTR(1+NEL*(ISTRBS-1)),NSTR,NEL,NNSTSGP,IISTSGP)
+  ! Reorder Info : Lexical => actual number
+  if (IDOREO /= 0) then
+    ! Lexical number of NEL electrons
+    ! Can be made smart by using common factor for first NGAS-1 spaces
+    do JSTR=ISTRBS,ISTRBS+NSTR-1
+      LEX = 1
+      do IEL=1,NEL
+        LEX = LEX+IZ(ISTR(IEL+NEL*(JSTR-1)),IEL)
+      end do
+      !write(u6,*) ' string'
+      !call IWRTMA(ISTR(1,JSTR),1,NEL,1,NEL)
+      !write(u6,*) ' JSTR and LEX ',JSTR,LEX
+
+      MAXLEX = max(MAXLEX,LEX)
+      IREO(LEX) = JSTR
+    end do
+  end if
+
+  ISTRBS = ISTRBS+NSTR
+  ! ready for next symmetry distribution
+  if (NGAS == 1) exit
+end do
 ! End of loop over symmetry distributions
 NSTR = ISTRBS-1
 

@@ -64,18 +64,3 @@ call mh5_init_attr(wfn_orbene,'DESCRIPTION', &
 #endif
 
 end subroutine cre_gsswfn
-
-!-----------------------------------------------------------------------
-
-subroutine cls_gsswfn()
-
-#ifdef _HDF5_
-use GuessOrb_global, only: wfn_fileid
-use mh5, only: mh5_close_file
-
-implicit none
-
-call mh5_close_file(wfn_fileid)
-#endif
-
-end subroutine cls_gsswfn
