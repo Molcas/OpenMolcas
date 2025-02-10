@@ -125,7 +125,6 @@ if (HSet .or. (.not. (Curvilinear .or. User_Def))) call LNM(Coor2,mTtAtm,EVal,Hs
                                                             nBonds,nMax,nHidden)
 
 call mma_deallocate(Scr2)
-call mma_deallocate(Coor2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -167,7 +166,11 @@ else if (Curvilinear) then
 
   ! Re-generate the bonds if there were hidden atoms
 
-  if (nHidden /= 0) call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
+  if (nHidden /= 0) then
+    call mma_deallocate(TabA)
+    call mma_deallocate(TabB)
+    call Box(Coor2,mTtAtm,AN,TabB,TabA,nBonds,nMax)
+  end if
   call BMtrx_Internal(nsAtom,nDimBC,nIter,mTtAtm,iRef,mTR,TR,TabAI,TabA,TabB,nBonds,nMax,iRef,nQQ,nWndw)
 
   ! Set the Labels for internal coordinates.
@@ -209,6 +212,7 @@ call mma_deallocate(TabB)
 call mma_deallocate(AN)
 call mma_deallocate(Vec)
 call mma_deallocate(TabAI)
+call mma_deallocate(Coor2)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
