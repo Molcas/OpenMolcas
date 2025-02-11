@@ -47,6 +47,7 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
+use lucia_data, only: IREOTS
 use csfbas, only: CONF, NAEL, NBEL
 use glbbas, only: DFTP, DTOC
 use rasscf_global, only: ExFac, NAC
@@ -66,7 +67,7 @@ real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: ISEL(*)
 integer(kind=iwp) :: I, II, IPRINT, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
 real(kind=wp) :: dum1, dum2, dum3, ECORE
-integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
+integer(kind=iwp), allocatable :: CNF(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "timers.fh"
 
@@ -95,17 +96,14 @@ call Load_H_diag(nConf,DIAG,LuDavid)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call mma_allocate(IREOTS,NAC,label='IREOTS')
 call mma_maxDBLE(MXXWS)
 call mma_allocate(Scr,MXXWS,label='EXHSCR')
-call GET_IREOTS(IREOTS,NAC)
 call PHPCSF(EXHAM,ISEL,CNF,MXXSEL,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,NSEL,NPCNF,DIAG,TUVX, &
             IPRINT,ExFac,IREOTS)
 if (IPRLEV == INSANE) then
   call Square(EXHAM,EXPLV,1,NSEL,NSEL)
   call RECPRT('Square Explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
 end if
-call mma_deallocate(IREOTS)
 call mma_deallocate(Scr)
 call mma_deallocate(CNF)
 call mma_deallocate(HONE)

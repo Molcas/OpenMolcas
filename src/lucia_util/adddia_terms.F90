@@ -26,7 +26,7 @@ subroutine ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,NORB,CVEC,SVEC,NSMST,H,XB,RJ,RK,NS
 ! I12 = 1 => only one-body part
 !     = 2 =>      one+two-body part
 
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -73,7 +73,7 @@ end if
 ! N(X) are occupation numbers
 
 ! K goes to J - K
-if (I12 == 2) call VECSUM(RK,RK,RJ,-One,One,NTOOB**2)
+if (I12 == 2) RK(:,:) = RJ(:,:)-RK(:,:)
 
 ! Construct array RJKAA(*) =   SUM(I) H(I)*N(I) +
 !                          0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
@@ -110,7 +110,7 @@ do IB=1,NIB
   ! Terms depending only on IB
   HB = Zero
   RJBB = Zero
-  call SETVEC(XB,Zero,NORB)
+  XB(:) = Zero
 
   do IEL=1,NBEL
     IBEL = IBSTR(IEL,IB)

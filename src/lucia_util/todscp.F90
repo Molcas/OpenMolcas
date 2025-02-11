@@ -26,14 +26,14 @@ integer(kind=iwp) :: NDIM, MBLOCK, IFIL
 integer(kind=iwp), parameter :: LPBLK = 50000
 integer(kind=iwp) :: IDUMMY(1), IELMNT, IMZERO, IPACK, IPAK(LPBLK), ISCR(2), LBATCH, MMBLOCK
 real(kind=wp) :: XNORM, XPAK(LPBLK)
-real(kind=wp), external :: INPROD
+real(kind=wp), external :: dDot_
 
 !write(u6,*) ' entering TODSCP, file = ',IFIL
 !call XFLUSH(u6)
 IPACK = 1
 if (IPACK /= 0) then
   ! Check norm of A before writing
-  XNORM = INPROD(A,A,NDIM)
+  XNORM = dDot_(NDIM,A,1,A,1)
   if (XNORM == Zero) then
     IMZERO = 1
   else

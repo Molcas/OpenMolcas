@@ -23,29 +23,26 @@ subroutine T_ROW_TO_H(T,H,K,TKK)
 
 use GLBBAS, only: PGINT1A
 use lucia_data, only: IBSO, ISMFSO, NTOOB, NTOOBS
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: T(*), H(*), TKK
 integer(kind=iwp) :: K
 integer(kind=iwp) :: IOFF, KOFF, KREL, KSM, NK
-real(kind=wp) :: FAC
-integer(kind=iwp), external :: IFRMR
 
 KSM = ISMFSO(K)
 KOFF = IBSO(KSM)
 KREL = K-KOFF+1
 NK = NTOOBS(KSM)
 
-call SETVEC(H,Zero,NTOOB**2)
+H(1:NTOOB**2) = Zero
 
-IOFF = IFRMR(PGINT1A(1)%A,1,KSM)
-call COPVEC(T(IOFF+(KREL-1)*NK),H(IOFF+(KREL-1)*NK),NK)
+IOFF = PGINT1A(1)%A(KSM)
+H(IOFF+(KREL-1)*NK:IOFF+KREL*NK-1) = T(IOFF+(KREL-1)*NK:IOFF+KREL*NK-1)
 TKK = H(IOFF-1+(KREL-1)*NK+KREL)
 if (TKK /= Zero) then
-  FAC = One/TKK
-  call SCALVE(H(IOFF+(KREL-1)*NK),FAC,NK)
+  H(IOFF+(KREL-1)*NK:IOFF+KREL*NK-1) = H(IOFF+(KREL-1)*NK:IOFF+KREL*NK-1)/TKK
   !H(IOFF-1+(K-1)*NK+K) = H(IOFF-1+(K-1)*NK+K)-One
   H(IOFF-1+(KREL-1)*NK+KREL) = Zero
 else

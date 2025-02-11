@@ -185,7 +185,7 @@ c Avoid unused argument warnings
      &              NCSFL,NCSFR,NCSFL,NDETR,NDETR,NCSFR,0)
 *
       ELSE IF(NDIFF.GT. 2) THEN
-        CALL SETVEC(CNHCNM,0.0D0,NCSFL*NCSFR)
+        CNHCNM(1:NCSFL*NCSFR) = 0.0D0
       END IF
 *
 *

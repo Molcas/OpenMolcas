@@ -98,7 +98,7 @@ else
       ! Simple copy
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IASM,IATP)*NSBSO(IBSM,IBTP)
-      call COPVEC(C(IBASE),CTT,NELMNT)
+      CTT(1:NELMNT) = C(IBASE:IBASE+NELMNT-1)
       !write(u6,*) ' simple copy IBASE NELMNT ',IBASE,NELMNT
       !call WRTMAT(CTT,NSASO(IASM,IATP),NSBSO(IBSM,IBTP),NSASO(IASM,IATP),NSBSO(IBSM,IBTP))
     !idc else if (IDC == 4) then
@@ -106,7 +106,7 @@ else
     !      if (IATP > IBTP) then
     !        IBASE = ICOOSC(IATP,IBTP,IASM)
     !        NELMNT = NSASO(IASM,IATP)*NSBSO(IBSM,IBTP)
-    !        call COPVEC(C(IBASE),CTT,NELMNT)
+    !        CTT(1:NELMNT) = C(IBASE:IBASE+NELMNT-1)
     !      else if (IATP == IBTP) then
     !        IBASE = ICOOSC(IATP,IATP,IASM)
     !        NAST = NSASO(IASM,IATP)
@@ -117,7 +117,7 @@ else
     !        NCOL = NSBSO(IBSM,IATP)
     !        call TRPMT3(C(IBASE),NROW,NCOL,CTT)
     !        NELMNT = NROW*NCOL
-    !        call SCALVE(CTT,PLSIGN*PSSIGN,NELMNT)
+    !        CTT(1:NELMNT) = PLSIGN*PSSIGN*CTT(1:NELMNT)
     !idc   end if
     end if
   else if (IASM == IBSM) then
@@ -128,7 +128,7 @@ else
       ! simple copying
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IASM,IATP)*NSBSO(IBSM,IBTP)
-      call COPVEC(C(IBASE),CTT,NELMNT)
+      CTT(1:NELMNT) = C(IBASE:IBASE+NELMNT-1)
     else if (IATP == IBTP) then
       ! expand triangular packed matrix
       IBASE = ICOOSC(IATP,IBTP,IASM)
@@ -140,7 +140,7 @@ else
       NRI = NSASO(IASM,IBTP)
       NCI = NSBSO(IASM,IATP)
       call TRPMT3(C(IBASE),NRI,NCI,CTT)
-      if (PSSIGN == -One) call SCALVE(CTT,-One,NRI*NCI)
+      if (PSSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
     end if
   else if (IASM < IBSM) then
     !*************
@@ -154,27 +154,27 @@ else
       if (IDC == 2) then
         call TRPMT3(C(IBASE),NRI,NCI,CTT)
       !else if (IDC == 3) then
-      !  call COPVEC(C(IBASE),CTT,NRI*NCI)
+      !  CTT(1:NRI*NCI) = C(IBASE:IBASE+NRI*NCI-1)
       end if
-      if (PSIGN == -One) call SCALVE(CTT,-One,NRI*NCI)
+      if (PSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
     !idc else if (IDC  == 4) then
     !      if (IBTP > IATP) then
     !        IBASE = ICOOSC(IBTP,IATP,IBSM)
     !        NRI = NSASO(IBSM,IBTP)
     !        NCI = NSBSO(IASM,IATP)
     !        call TRPMT3(C(IBASE),NRI,NCI,CTT)
-    !        if (PSSIGN == -One) call SCALVE(CTT,-One,NRI*NCI)
+    !        if (PSSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
     !      else if (IBTP == IATP) then
     !        IBASE = ICOOSC(IBTP,IATP,IBSM)
     !        NRI   = NSASO(IBSM,IATP)
     !        NCI   = NSBSO(IASM,IATP)
     !        call TRIPK3(CTT,C(IBASE),2,NRI,NCI,PLSSGN)
-    !        if (PLSIGN == -One) call SCALVE(CTT,-One,NRI*NCI)
+    !        if (PLSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
     !      else if (IBTP < IATP) then
     !        IBASE = ICOOSC(IATP,IBTP,IBSM)
     !        NELMNT = NSASO(IBSM,IATP)*NSBSO(IASM,IBTP)
-    !        call COPVEC(C(IBASE),CTT,NELMNT)
-    !        if (PLSIGN == -One) call SCALVE(CTT,-One,NELMNT)
+    !        CTT(1:NELMNT) = C(IBASE:IBASE+NELMNT-1)
+    !        if (PLSIGN == -One) CTT(1:NELMNT) = -CTT(1:NELMNT)
     !idc   end if
     end if
   end if

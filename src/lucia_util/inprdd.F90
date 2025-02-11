@@ -23,7 +23,7 @@ real(kind=wp) :: INPRDD
 real(kind=wp) :: VEC1(*), VEC2(*)
 integer(kind=iwp) :: LU1, LU2, IREW, LBLK
 integer(kind=iwp) :: IAMPACK, IDUMMY(1), IMZERO, KBLK, NBL1
-real(kind=wp) :: INPROD, X
+real(kind=wp) :: dDot_, X
 logical(kind=iwp) :: DIFVEC
 
 X = Zero
@@ -72,12 +72,12 @@ do
     call FRMDSC(VEC1,NBL1,KBLK,LU1,IMZERO,IAMPACK)
     if (DIFVEC) then
       call FRMDSC(VEC2,NBL1,KBLK,LU2,IMZERO,IAMPACK)
-      if (NBL1 > 0) X = X+INPROD(VEC1,VEC2,NBL1)
+      if (NBL1 > 0) X = X+dDot_(NBL1,VEC1,1,VEC2,1)
       !write(u6,*) ' vec1 and vec2 in INPRDD'
       !call WRTMAT(VEC1,1,NBL1,1,NBL1)
       !call WRTMAT(VEC2,1,NBL1,1,NBL1)
     else
-      if (NBL1 > 0) X = X+INPROD(VEC1,VEC1,NBL1)
+      if (NBL1 > 0) X = X+dDot_(NBL1,VEC1,1,VEC1,1)
     end if
   end if
   if ((NBL1 < 0) .or. (LBLK > 0)) exit

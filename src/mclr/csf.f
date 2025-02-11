@@ -613,7 +613,7 @@ C
 * Determinants are considered as binary numbers,1=alpha,0=beta
 *
       MX=2 ** NOPEN
-      CALL ISETVC(IWORK,0,NOPEN+1)
+      IWORK(1:NOPEN+1) = 0
 * Loop over all possible binary numbers
       DO 200 I=1,MX
 C.. 1 : NEXT BINARY NUMBER
@@ -639,7 +639,7 @@ C
      &    .NOT.(PSSIGN.NE.0.0D0 .AND. IWORK(1).EQ.0)) THEN
           IF (IFLAG .LT. 3 ) THEN
             NDET=NDET+1
-            CALL ICOPVE(IWORK,IABDET(1,NDET),NOPEN)
+            IABDET(:,NDET) = IWORK(1:NOPEN)
           END IF
           IF (IFLAG .GT. 1 ) THEN
 C UPPER DET ?
@@ -656,7 +656,7 @@ C
    10       CONTINUE
             IF( LUPPER .EQ. 1 ) THEN
               NUPPER = NUPPER + 1
-              CALL ICOPVE(IWORK,IABUPP(1,NUPPER),NOPEN)
+              IABUPP(:,NUPPER) = IWORK(1:NOPEN)
             END IF
           END IF
         END  IF
@@ -2068,6 +2068,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
 *
 * Updated with IBLTP, Summer of 93
 *
+      use Symmetry_Info, only: Mul
       IMPLICIT None
       Integer MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,
      &                  NSMST,NOCTPA,NOCTPB
@@ -2089,7 +2090,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
       XNCOMB = 0.0D0
       DO 300 IASM = 1, NSMST
         IF(IBLTP(IASM).EQ.0) GOTO 300
-        CALL SYMCOM_MCLR(2,IASM,IBSM,ITOTSM)
+        IBSM = Mul(IASM,ITOTSM)
         LSB = 0
         IF(IBSM.NE.0) THEN
           IF(IBLTP(IASM).EQ.2) THEN

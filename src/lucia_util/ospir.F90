@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine OSPIR(NOSPIR,IOSPIR,PNTGRP,NIRREP,MXPIRR,MXPOBS,IPRNT)
+subroutine OSPIR(NOSPIR,IOSPIR,NIRREP,MXPIRR,MXPOBS,IPRNT)
 ! Number and symmetries of orbitals corresponding to a given shell
 !
 ! =====
@@ -39,23 +39,23 @@ subroutine OSPIR(NOSPIR,IOSPIR,PNTGRP,NIRREP,MXPIRR,MXPOBS,IPRNT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MXPIRR, MXPOBS, NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR), PNTGRP, NIRREP, IPRNT
+integer(kind=iwp) :: MXPIRR, MXPOBS, NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR), NIRREP, IPRNT
 integer(kind=iwp) :: IRREP, NTEST
 
-if (PNTGRP == 1) then
-  !=====
-  ! D2h
-  !=====
-  do IRREP=1,8
-    NOSPIR(IRREP) = 1
-    IOSPIR(1,IRREP) = IRREP
-  end do
-else
-  write(u6,*) ' Sorry  PNTGRP out of range, PNTGRP = ',PNTGRP
-  write(u6,*) ' OSPIR fatally wounded'
-  !stop 5
-  call SYSABENDMSG('lucia_util/ospir','Internal error','')
-end if
+!if (PNTGRP == 1) then
+!=====
+! D2h
+!=====
+do IRREP=1,8
+  NOSPIR(IRREP) = 1
+  IOSPIR(1,IRREP) = IRREP
+end do
+!else
+!  write(u6,*) ' Sorry  PNTGRP out of range, PNTGRP = ',PNTGRP
+!  write(u6,*) ' OSPIR fatally wounded'
+!  !stop 5
+!  call SYSABENDMSG('lucia_util/ospir','Internal error','')
+!end if
 
 NTEST = 0
 NTEST = max(IPRNT,NTEST)

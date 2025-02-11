@@ -43,7 +43,7 @@
 901    CONTINUE
          IF( IEL1 .NE. 0 ) THEN
            IF(IFRST1.EQ.1) THEN
-            CALL ISTVC2(IOC(1),0,1,IEL1)
+            IOC(1:IEL1) = [(i,i=1,IEL1)]
             IFRST1 = 0
            ELSE
              CALL NXTORD(IOC,IEL1,IORB1F,IORB1L,NONEW1)
@@ -56,7 +56,7 @@
 902      CONTINUE
            IF( IEL2 .NE. 0 ) THEN
              IF(IFRST2.EQ.1) THEN
-              CALL ISTVC2(IOC(IEL1+1),IORB2F-1,1,IEL2)
+              IOC(IEL1+1:IEL1+IEL2) = [(i,i=IORB2F,IORB2F+IEL2-1)]
               IFRST2 = 0
              ELSE
                CALL NXTORD(IOC(IEL1+1),IEL2,IORB2F,IORB2L,NONEW2)
@@ -71,7 +71,8 @@
 903        CONTINUE
              IF( IEL3 .NE. 0 ) THEN
                IF(IFRST3.EQ.1) THEN
-                CALL ISTVC2(IOC(IEL1+IEL2+1),IORB3F-1,1,IEL3)
+                IOC(IEL1+IEL2+1:IEL1+IEL2+IEL3) =
+     *            [(i,i=IORB3F,IORB3F+IEL3-1)]
                 IFRST3 = 0
                ELSE
                  CALL NXTORD(IOC(IEL1+IEL2+1),

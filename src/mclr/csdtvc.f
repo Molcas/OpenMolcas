@@ -43,7 +43,7 @@
 *.. CSF to DET transformation
 * ===========================
 *
-        CALL SETVEC(DETVEC,ZERO ,NDET)
+        DETVEC(1:NDET) = Zero
 *. Multiply with  expansion matrix
         DO 100 ITYP = 1,NTYP
           call xflush(6)
@@ -67,10 +67,10 @@
          END IF
   100   CONTINUE
 *. Sign changes
-        CALL COPVEC(DETVEC,CSFVEC,NDET)
+        CSFVEC(1:NDET) = DETVEC(1:NDET)
 *. Change to string ordering
         CALL SCAVCS(DETVEC,CSFVEC,ICTSDT,NDET)
-        IF(ICOPY.NE.0) CALL COPVEC(DETVEC,CSFVEC,NDET)
+        IF(ICOPY.NE.0) CSFVEC(1:NDET) = DETVEC(1:NDET)
       ELSE
 *
 * ====================================
@@ -80,7 +80,7 @@
 C. To CSF ordering
 
         CALL GATVCS(CSFVEC,DETVEC,ICTSDT,NDET)
-        CALL COPVEC(CSFVEC,DETVEC,NDET)
+        DETVEC(1:NDET) = CSFVEC(1:NDET)
 C. Multiply with CIND expansion matrix
         DO 200 ITYP = 1,NTYP
           IDET = NDPCNT(ITYP)
@@ -102,7 +102,7 @@ C. Multiply with CIND expansion matrix
      &                CSFVEC(IOFFCS),ICSF)
           END IF
   200   CONTINUE
-        IF( ICOPY .NE. 0 ) CALL COPVEC(CSFVEC,DETVEC,NCSF)
+        IF( ICOPY .NE. 0 ) DETVEC(1:NCSF) = CSFVEC(1:NCSF)
        END IF
 
 c Avoid unused argument warnings

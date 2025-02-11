@@ -22,9 +22,7 @@ C
         CALL IFRMDS(IDUM,1,MBLOCK,IFILE)
         IMZERO=IDUM(1)
         IF(IMZERO.EQ.1) THEN
-          ZERO = 0.0D0
-*         CALL SETVEC(ARRAY,ZERO,NDIM)
-          call dcopy_(NDIM,[ZERO],0,ARRAY,1)
+          ARRAY(1:NDIM) = 0.0D0
           GOTO 1001
         END IF
       END IF

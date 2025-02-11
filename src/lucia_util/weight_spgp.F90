@@ -19,10 +19,9 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: Z(*), NORBTP, NELFTP(NORBTP), NORBFTP(NORBTP), ISCR(*), NTEST
 integer(kind=iwp) :: KLFREE, KLMAX, KLMIN, KW, NEL, NORB
-integer(kind=iwp), external :: IELSUM
 
-NORB = IELSUM(NORBFTP,NORBTP)
-NEL = IELSUM(NELFTP,NORBTP)
+NORB = sum(NORBFTP)
+NEL = sum(NELFTP)
 
 if (NTEST >= 100) then
   write(u6,*) ' Subroutine WEIGHT_SPGP in action'

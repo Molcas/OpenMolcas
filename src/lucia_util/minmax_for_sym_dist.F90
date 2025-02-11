@@ -35,7 +35,7 @@ end do
 
 ! Number of strings per sym and group
 !do JGRP=1,NIGRP
-!  call ICOPVE2(NSTSGP(1)%I,(IGRP(JGRP)-1)*NSMST+1,NSMST,LSMGP(1,JGRP))
+!  LSMGP(1:NSMST,JGRP) = NSTSGP(1)%I((IGRP(JGRP)-1)*NSMST+1:IGRP(JGRP)*NSMST)
 !end do
 !if (NTEST >= 1000) then
 !  write(u6,*) ' LSMGP'

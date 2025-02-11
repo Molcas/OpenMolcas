@@ -40,10 +40,10 @@ integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, ISPC, NTEST
 
 if (IH0SPC == 0) then
   ! All interactions allowed
-  call ISETVC(INTH0SPC,1,NOCTPA*NOCTPB)
+  INTH0SPC(:,:) = 1
 else
   ! Explicit construction of matrix giving partitionning of subspaces
-  call ISETVC(INTH0SPC,0,NOCTPA*NOCTPB)
+  INTH0SPC(:,:) = 0
 
   do ISPC=1,NPTSPC
     do IATP=1,NOCTPA

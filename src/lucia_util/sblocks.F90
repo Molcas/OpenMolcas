@@ -147,7 +147,7 @@ do JSBLOCK=1,NSBLOCK
   IOFF = ISBLOCK(5,JSBLOCK)
   NASTR = NSSOA(IASM,IATP)
   NBSTR = NSSOB(IBSM,IBTP)
-  if (ISBLOCK(1,JSBLOCK) > 0) call SETVEC(SB(IOFF),Zero,NASTR*NBSTR)
+  if (ISBLOCK(1,JSBLOCK) > 0) SB(IOFF:IOFF+NASTR*NBSTR-1) = Zero
 end do
 ! Loop over batches over C blocks
 if (IDOH2 == 1) then
@@ -263,11 +263,11 @@ do JCBATCH=JCBAT_INI,JCBAT_END
         if (IPERM == 1) then
           if ((IDC == 2) .and. (JATP == JBTP) .and. (JASM == JBSM)) then
             ! Diagonal blocks, Transposing corresponds to scaling
-            if (PS == -One) call SCALVE(CB(ICOFF),PS,NJA*NJB)
+            if (PS == -One) CB(ICOFF:ICOFF+NJA*NJB-1) = -CB(ICOFF:ICOFF+NJA*NJB-1)
           else
             ! off-diagonal blocks, explicit transposing
             call TRPMT3(CB(ICOFF),NJA,NJB,C2)
-            call COPVEC(C2,CB(ICOFF),NJA*NJB)
+            CB(ICOFF:ICOFF+NJA*NJB-1) = C2(1:NJA*NJB)
           end if
         end if
 
@@ -344,16 +344,16 @@ do JCBATCH=JCBAT_INI,JCBAT_END
           else if (I_DO_EXACT_BLK == -1) then
             ! Giovanni.... transposing sigma and CI vectors:
             call TRPMT3(SB(ISOFF),NIB,NIA,C2)
-            call COPVEC(C2,SB(ISOFF),NIA*NIB)
+            SB(ISOFF:ISOFF+NIA*NIB-1) = C2(1:NIA*NIB)
             call TRPMT3(CB(ICOFF),NLLB,NLLA,C2)
-            call COPVEC(C2,CB(ICOFF),NLLA*NLLB)
+            CB(ICOFF:ICOFF+NLLA*NLLB-1) = C2(1:NLLA*NLLB)
             FACTOR = Zero
             call ADDDIA_TERM(FACTOR,CB(ICOFF),SB(ISOFF),IATP,IBTP,IASM,IBSM)
             ! Giovanni.... transposing back sigma and CI vectors:
             call TRPMT3(SB(ISOFF),NIA,NIB,C2)
-            call COPVEC(C2,SB(ISOFF),NIA*NIB)
+            SB(ISOFF:ISOFF+NIA*NIB-1) = C2(1:NIA*NIB)
             call TRPMT3(CB(ICOFF),NLLA,NLLB,C2)
-            call COPVEC(C2,CB(ICOFF),NLLA*NLLB)
+            CB(ICOFF:ICOFF+NLLA*NLLB-1) = C2(1:NLLA*NLLB)
           end if ! End BK stuff
           ! CALL RSSBCB2 --> 82
         end do
@@ -379,7 +379,7 @@ do ISBLK=1,NSBLOCK
     if (ICJKAIB /= 0) then
       ! Tranpose sigma block was obtained, transpose to obtain correct block
       call TRPMT3(SB(ISOFF),NSSOB(IBSM,IBTP),NSSOA(IASM,IATP),C2)
-      call COPVEC(C2,SB(ISOFF),NSSOA(IASM,IATP)*NSSOB(IBSM,IBTP))
+      SB(ISOFF:ISOFF+NSSOA(IASM,IATP)*NSSOB(IBSM,IBTP)-1) = C2(1:NSSOA(IASM,IATP)*NSSOB(IBSM,IBTP))
     end if
     if ((IDC == 2) .and. (IASM == IBSM) .and. (IATP == IBTP)) call TRPAD3(SB(ISOFF),PS,NSSOA(IASM,IATP))
 

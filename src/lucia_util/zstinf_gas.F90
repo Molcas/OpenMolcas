@@ -42,7 +42,7 @@ NTEST = max(NTEST,IPRNT)
 ! *****************************************************************
 ! Mappings between strings with the same type ISTTP index, +/- 1 el
 ! *****************************************************************
-call ISETVC(ISTAC,0,2*MXPSTT)
+ISTAC(:,:) = 0
 do IGAS=1,NGAS
   ! groups for a given gas spaces goes with increasing number of orbitals,
   ! so the first space does not have any creation mapping

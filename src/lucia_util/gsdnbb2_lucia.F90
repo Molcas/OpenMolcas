@@ -158,9 +158,9 @@ if ((IBTP == JBTP) .and. (IBSM == JBSM)) then
   ! ==========================
 
   call TRPMT3(CB,NJA,NJB,C2)
-  call COPVEC(C2,CB,NJA*NJB)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRPMT3(SB,NIA,NIB,C2)
-  call COPVEC(C2,SB,NIA*NIB)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
   !write(u6,*) ' GSBBD1 will be called (alpha)'
   IAB = 1
   call TIMING(CPU0,CPU,WALL0,WALL)
@@ -190,9 +190,9 @@ if ((IBTP == JBTP) .and. (IBSM == JBSM)) then
     !write(u6,*) ' GSBBD2A was called'
   end if
   call TRPMT3(CB,NJB,NJA,C2)
-  call COPVEC(C2,CB,NJA*NJB)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRPMAT(SB,NIB,NIA,C2)
-  call COPVEC(C2,SB,NIB*NIA)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
 end if
 !
 ! ===============================
@@ -202,9 +202,9 @@ end if
 if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   ! Routine uses transposed blocks
   call TRPMT3(CB,NJA,NJB,C2)
-  call COPVEC(C2,CB,NJA*NJB)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRPMT3(SB,NIA,NIB,C2)
-  call COPVEC(C2,SB,NIA*NIB)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
   !write(u6,*) ' GSBBD2B will be called'
   IUSEAB = 0
   call TIMING(CPU0,CPU,WALL0,WALL)
@@ -222,9 +222,9 @@ if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   !write(u6,*) ' GSBBD2B was called'
 
   call TRPMT3(CB,NJB,NJA,C2)
-  call COPVEC(C2,CB,NJA*NJB)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRPMAT(SB,NIB,NIA,C2)
-  call COPVEC(C2,SB,NIB*NIA)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
 end if
 
 end subroutine GSDNBB2_LUCIA

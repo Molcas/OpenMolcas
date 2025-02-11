@@ -49,20 +49,19 @@ integer(kind=iwp) :: NGAS, IOCCLS(NGAS), IB_OCCLS, INITIALIZE_CONF_COUNTERS, ISY
                      nconf_tot, ireo(nconf_tot)
 integer(kind=iwp) :: I, IB_OCC, IDUM, IDUM_ARR(1), ILEX_FOR_CONF_NEW, ILEXNUM, INI, ISUM, ISYM_CONF, ISYMST, JCONF(2*MXPORB), &
                      JREO, NEL, NOCOB, NONEW, NOP_FOR_CONF, NOPEN, NTEST
-integer(kind=iwp), external :: IELSUM
 
 NTEST = 0
 ! Total number of electrons
-NEL = IELSUM(IOCCLS,NGAS)
+NEL = sum(IOCCLS)
 if (INITIALIZE_CONF_COUNTERS == 1) then
-  call ISETVC(NCONF_OP,0,MAXOP+1)
+  NCONF_OP(:) = 0
   NCONF_ALL_SYM = 0
 end if
 ! Loop over configurations
 INI = 1
 NCONF = 0
 ISUM = 0
-call ISETVC(JCONF,0,2*MXPORB)
+JCONF(:) = 0
 
 do
   ! Generate an array of integers from 1 to NEL.

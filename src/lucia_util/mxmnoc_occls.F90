@@ -25,7 +25,6 @@ implicit none
 integer(kind=iwp) :: MINEL(*), MAXEL(*), NORBTP, NORBFTP(*), NELFTP(*), MINOP, NTESTG
 integer(kind=iwp) :: IBORB, IGAS, IORB, IORB_START, MAX_DOUBLE, MAXOP_EXL, MAXOP_GAS(MXPNGAS), MAXOP_T, MINOP_GAS(MXPNGAS), &
                      NEL_INI, NELEC, NGAS, NORB, NTEST, NTESTL
-integer(kind=iwp), external :: IELSUM
 
 NTESTL = 0
 NTEST = max(NTESTG,NTESTL)
@@ -64,7 +63,7 @@ end do
 ! also a constraint on the number of open orbitals
 
 ! The largest number of open orbitals, all spaces
-MAXOP_T = IELSUM(MAXOP_GAS,NGAS)
+MAXOP_T = sum(MAXOP_GAS(1:NGAS))
 do IGAS=1,NGAS
   ! Max number of open orbitals in all spaces except IGAS
   MAXOP_EXL = MAXOP_T-MAXOP_GAS(IGAS)
@@ -136,7 +135,7 @@ do IGAS=1,NGAS
 end do
 
 if (NTEST >= 100) then
-  NORB = IELSUM(NORBFTP,NORBTP)
+  NORB = sum(NORBFTP(1:NORBTP))
   write(u6,*) ' MINEL :'
   call IWRTMA(MINEL,1,NORB,1,NORB)
   write(u6,*) ' MAXEL :'

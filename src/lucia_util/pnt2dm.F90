@@ -36,8 +36,8 @@ implicit none
 integer(kind=iwp) :: I12SM, NSMOB, MXPOBS, OSXO(MXPOBS,2*MXPOBS), IPSM(*), JPSM(*), IJSM, ISM2(*), IPNTR(*)
 integer(kind=iwp) :: IOFF, ISM, JSM, NTEST
 
-call ISETVC(IPNTR,0,NSMOB)
-call ISETVC(ISM2,0,NSMOB)
+IPNTR(1:NSMOB) = 0
+ISM2(1:NSMOB) = 0
 IOFF = 1
 do ISM=1,NSMOB
   JSM = OSXO(ISM,IJSM)

@@ -28,13 +28,13 @@ subroutine ORBINF(IPRNT)
 
 use lucia_data, only: IBSO, IOBPTS, IREOST, IREOTS, ISMFSO, ISMFTO, ITOOBS, ITOOBS, MXPIRR, MXPNGAS, MXPOBS, MXTSOB, NACOB, &
                       NACOBS, NDEOB, NDEOB, NGAS, NGSOBT, NGSSH, NINOB, NINOB, NINOBS, NIRREP, NOBPT, NOBPTS, NOCOB, NSMOB, NTOOB, &
-                      NTOOBS, PNTGRP
+                      NTOOBS
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: IPRNT
-integer(kind=iwp) :: I, IGAS, IGSDEL, IGSINA, IOBSM, IOBTP, IOSPIR(MXPOBS,MXPIRR), ISMOB, LTOB, NDEOBS(MXPOBS), &
-                     NGSOB(MXPOBS,MXPNGAS), NOSPIR(MXPIRR), NTEST
+integer(kind=iwp) :: I, IGAS, IGSDEL, IGSINA, IOBSM, IOBTP, IOSPIR(MXPOBS,MXPIRR), ISMOB, LTOB, NGSOB(MXPOBS,MXPNGAS), &
+                     NOSPIR(MXPIRR), NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
@@ -43,7 +43,7 @@ NTEST = max(NTEST,IPRNT)
 ! Part 1 : From shell format to orbital format *
 !                                              *
 !***********************************************
-call OSPIR(NOSPIR,IOSPIR,PNTGRP,NIRREP,MXPIRR,MXPOBS,IPRNT)
+call OSPIR(NOSPIR,IOSPIR,NIRREP,MXPIRR,MXPOBS,IPRNT)
 
 ! 2 : Shell information to orbital information for each group of orbital
 
@@ -64,9 +64,9 @@ end do
 IGSINA = 0
 IGSDEL = 0
 
-call ISETVC(NTOOBS,0,NSMOB)
-!call ISETVC(NOCOBS,0,NSMOB)
-call ISETVC(NACOBS,0,NSMOB)
+NTOOBS(1:NSMOB) = 0
+!NOCOBS(1:NSMOB) = 0
+NACOBS(1:NSMOB) = 0
 
 NTOOB = 0
 NACOB = 0
@@ -74,25 +74,25 @@ NOCOB = 0
 do IGAS=1,NGAS
   ! Inactive orbitals
   if (IGAS == IGSINA) then
-    call ICOPVE(NGSOB(1,IGAS),NINOBS,NSMOB)
+    NINOBS(1:NSMOB) = NGSOB(1:NSMOB,IGAS)
     NINOB = NGSOBT(IGAS)
   end if
   ! Deleted orbitals
   if (IGAS == IGSDEL) then
-    call ICOPVE(NGSOB(1,IGAS),NDEOBS,NSMOB)
+    !NDEOBS(1:NSMOB) = NGSOB(1:NSMOB,IGAS)
     NDEOB = NGSOBT(IGAS)
   end if
   ! Add to total number of orbitals
-  call IVCSUM(NTOOBS,NTOOBS,NGSOB(1,IGAS),1,1,NSMOB)
+  NTOOBS(1:NSMOB) = NTOOBS(1:NSMOB)+NGSOB(1:NSMOB,IGAS)
   NTOOB = NTOOB+NGSOBT(IGAS)
   ! Add to occupied orbitals
   if (IGAS /= IGSDEL) then
-    !call IVCSUM(NOCOBS,NOCOBS,NGSOB(1,IGAS),1,1,NSMOB)
+    !NOCOBS(1:NSMOB) = NOCOBS(1:NSMOB)+NGSOB(1:NSMOB,IGAS)
     NOCOB = NOCOB+NGSOBT(IGAS)
   end if
   ! Add to active orbitals
   if ((IGAS /= IGSINA) .and. (IGAS /= IGSDEL)) then
-    call IVCSUM(NACOBS,NACOBS,NGSOB(1,IGAS),1,1,NSMOB)
+    NACOBS(1:NSMOB) = NACOBS(1:NSMOB)+NGSOB(1:NSMOB,IGAS)
     NACOB = NACOB+NGSOBT(IGAS)
   end if
 end do

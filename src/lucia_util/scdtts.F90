@@ -71,7 +71,7 @@ do JBLOCK=1,NBLOCK
       else
         FACTOR = SQ2I
       end if
-      call SCALVE(BLOCKS(IOFFP),FACTOR,NELMNT)
+      BLOCKS(IOFFP:IOFFP+NELMNT-1) = FACTOR*BLOCKS(IOFFP:IOFFP+NELMNT-1)
       if (IPACK == 1) then
         FACTOR = One/FACTOR
         call SCLDIA(BLOCKS(IOFFP),FACTOR,NIA,1)

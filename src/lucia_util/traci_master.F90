@@ -71,7 +71,7 @@ call mma_allocate(LCMOMO,NDIM,Label='LCMOMO')
 ! Copy of one-electron integrals
 call mma_allocate(LH1SAVE,NDIM,Label='LH1SAVE')
 ! We are going to mess with the one-electron integrals, take a copy
-call COPVEC(INT1,LH1SAVE,NDIM)
+LH1SAVE(:) = INT1(:)
 ! Set up block structure of CI space
 IATP = 1
 IBTP = 2
@@ -142,7 +142,7 @@ if (NTEST >= 100) then
 end if
 
 ! clean up time : copy 1-e integrals back in place
-call COPVEC(LH1SAVE,INT1,NDIM)
+INT1(:) = LH1SAVE(:)
 
 call mma_deallocate(VEC1)
 call mma_deallocate(VEC2)

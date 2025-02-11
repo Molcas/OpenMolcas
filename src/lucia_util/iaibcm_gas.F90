@@ -61,7 +61,7 @@ if (NTEST >= 10) then
   end if
 end if
 
-call ISETVC(IOCOC,0,NOCTPA*NOCTPB)
+IOCOC(:,:) = 0
 do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
     ! is this combination allowed in any of the GAS spaces included

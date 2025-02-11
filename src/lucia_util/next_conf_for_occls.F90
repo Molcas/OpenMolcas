@@ -23,11 +23,10 @@ implicit none
 integer(kind=iwp) :: ICONF(*), NGAS, IOCCLS(NGAS), NOBPT(NGAS), INI, NONEW
 integer(kind=iwp) :: IBEL(MXPNGAS), IBORB(MXPNGAS), ICONF_GAS(MXPORB), IGAS, INI_L, JBEL, JBORB, JEL, JGAS, JORB, NEL, NEL_GAS, &
                      NONEW_L, NORB_GAS, NTEST
-integer(kind=iwp), external :: IELSUM
 
 NTEST = 0
 ! Total number of electrons
-NEL = IELSUM(IOCCLS,NGAS)
+NEL = sum(IOCCLS)
 !write(u6,*) ' NEXT_CONF ... NEL, NGAS = ',NEL,NGAS
 ! Offset for orbitals and electrons
 do IGAS=1,NGAS

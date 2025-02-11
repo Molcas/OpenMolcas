@@ -86,13 +86,13 @@ if (IWAY == 1) then
     call TRIPK3(CSD,CCM,1,NA,NA,SGN)
     !    TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SGN)
   else
-    call COPVEC(CSD,CCM,NA*NB)
+    CCM(1:NA*NB) = CSD(1:NA*NB)
   end if
   ! Scale
   if (FACTOR /= One) then
     if (ISCALE == 1) then
       SCLFAC = One
-      call SCALVE(CCM,FACTOR,LCOMB)
+      CCM(1:LCOMB) = FACTOR*CCM(1:LCOMB)
     else
       SCLFAC = FACTOR
     end if
@@ -107,13 +107,13 @@ if (IWAY == 2) then
     ! Unpack from triangular form
     call TRIPK3(CSD,CCM,2,NA,NA,SGN)
   else
-    call COPVEC(CCM,CSD,NA*NB)
+    CSD(1:NA*NB) = CCM(1:NA*NB)
   end if
   ! Scale
   if (FACTOR /= One) then
     if (ISCALE == 1) then
       SCLFAC = One
-      call SCALVE(CSD,FACTOR,LDET)
+      CSD(1:LDET) = FACTOR*CSD(1:LDET)
     else
       SCLFAC = FACTOR
     end if

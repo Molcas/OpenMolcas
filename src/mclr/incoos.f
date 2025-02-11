@@ -53,7 +53,7 @@ C-May 7
       IPSM = 0
 *
 *.Initialize
-      CALL ISETVC(IACOOS,0,NOCTPA*NOCTPB*NSMST)
+      IACOOS(:,:,:) = 0
       ISM = ISTSM
       IA = ISTTA
       IB = ISTTB

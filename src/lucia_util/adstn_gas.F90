@@ -27,6 +27,7 @@ subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,SCLFAC
 !              August 95    : GAS version
 !              October 96   : Improved version
 
+use Symmetry_Info, only: Mul
 use strbas, only: ISTSGP, NSTSGP, STSTM
 use lucia_data, only: IBSPGPFTP, IOBPTS, ISPGPFTP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NOBPT, NOBPTS, NSTFSMSPGP
 use csm_data, only: NSMST
@@ -37,12 +38,10 @@ implicit none
 real(kind=wp) :: OFFI(*), XI1S(*), SCLFAC
 integer(kind=iwp) :: IOBSM, IOBTP, ISPGP, ISPGPSM, ISPGPTP, I1(*), NKSTR
 integer(kind=iwp) :: IACIST(MXPNSMST), IACSM, IBORBSP, IBORBSPS, IBSTRINI, IFIRST, IGAS, IIAC, IISTSGP(MXPNSMST,MXPNGAS), IKAC, &
-                     IOFF, IORB, IORBR, ISAVE, ISMFGS(MXPNGAS), ISMGSN, ISMST, ISPGRPABS, ISTSMM1, ITPFGS(MXPNGAS), JSTSMM1, &
-                     KACGRP, KFIRST, KSM, KSPGRPABS, KSTRBS, MNVAL(MXPNGAS), MULT, MXVAL(MXPNGAS), NACGSOB, NACIST(MXPNSMST), &
-                     NELB, NELFGS(MXPNGAS), NGASL, NIAC, NKAC, NKSD, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NORBTS, NSTA, NSTB, NSTRII, &
-                     NSTRIK, NSTRINT, NTEST
+                     IOFF, IORB, IORBR, ISAVE, ISMFGS(MXPNGAS), ISMST, ISPGRPABS, ISTSMM1, ITPFGS(MXPNGAS), KACGRP, KFIRST, KSM, &
+                     KSPGRPABS, KSTRBS, MNVAL(MXPNGAS), MULT, MXVAL(MXPNGAS), NACGSOB, NACIST(MXPNSMST), NELB, NELFGS(MXPNGAS), &
+                     NGASL, NIAC, NKAC, NKSD, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NORBTS, NSTA, NSTB, NSTRII, NSTRIK, NSTRINT, NTEST
 integer(kind=iwp), parameter :: MXLNGAS = 20
-integer(kind=iwp), external :: IELSUM
 
 ! Will be stored as an matrix of dimension
 ! (NKSTR,*), Where NKSTR is the number of K-strings of
@@ -75,17 +74,17 @@ end if
 
 ISPGRPABS = IBSPGPFTP(ISPGPTP)-1+ISPGP
 call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
-call SYMCOM(2,IOBSM,KSM,ISPGPSM)
+KSM = Mul(IOBSM,ISPGPSM)
 NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
 if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
 if (NKSTR /= 0) then
 
   NORBTS = NOBPTS(IOBTP,IOBSM)
-  call SETVEC(XI1S,Zero,NORBTS*NKSTR)
-  call ISETVC(I1,0,NORBTS*NKSTR)
+  XI1S(1:NORBTS*NKSTR) = Zero
+  I1(1:NORBTS*NKSTR) = 0
 
   ! First orbital of given GASSpace
-  IBORBSP = IELSUM(NOBPT,IOBTP-1)+1
+  IBORBSP = sum(NOBPT(1:IOBTP-1))+1
   ! First orbital of fiven GASSPace and Symmetry
   IBORBSPS = IOBPTS(IOBTP,IOBSM)
 
@@ -109,11 +108,11 @@ if (NKSTR /= 0) then
 
   ! Number of strings per symmetry for each symmetry
   do IGAS=1,NGAS
-    call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
+    NNSTSGP(1:NSMST,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
   end do
   ! Offset and dimension for active group in I strings
-  call ICOPVE2(ISTSGP,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,IACIST)
-  call ICOPVE2(NSTSGP,(ITPFGS(IOBTP)-1)*NSMST+1,NSMST,NACIST)
+  IACIST(1:NSMST) = ISTSGP((ITPFGS(IOBTP)-1)*NSMST+1:ITPFGS(IOBTP)*NSMST)
+  NACIST(1:NSMST) = NSTSGP((ITPFGS(IOBTP)-1)*NSMST+1:ITPFGS(IOBTP)*NSMST)
   !write(u6,*) ' IACIST and NACIST arrays'
   !call IWRTMA(IACIST,1,NSMST,1,NSMST)
   !call IWRTMA(NACIST,1,NSMST,1,NSMST)
@@ -144,12 +143,10 @@ if (NKSTR /= 0) then
     ! Symmetry of NGASL -1 spaces given, symmetry of full space
     ISTSMM1 = 1
     do IGAS=1,NGASL-1
-      call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-      ISTSMM1 = JSTSMM1
+      ISTSMM1 = Mul(ISTSMM1,ISMFGS(IGAS))
     end do
     ! sym of SPACE NGASL
-    call SYMCOM(2,ISTSMM1,ISMGSN,ISPGPSM)
-    ISMFGS(NGASL) = ISMGSN
+    ISMFGS(NGASL) = Mul(ISTSMM1,ISPGPSM)
     if (NTEST >= 200) then
       write(u6,*) ' next symmetry of NGASL spaces'
       call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
@@ -185,7 +182,7 @@ if (NKSTR /= 0) then
   ! Supergroup and symmetry of K strings
 
   !M call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
-  !M call SYMCOM(2,IOBSM,KSM,ISPGPSM)
+  !M KSM = Mul(IOBSM,ISPGPSM)
   !M NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
   !M if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
 
@@ -201,8 +198,8 @@ if (NKSTR /= 0) then
   KACGRP = ITPFGS(IOBTP)
   ! Number of strings per symmetry distribution
   do IGAS=1,NGAS
-    call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
-    call ICOPVE2(ISTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,IISTSGP(1,IGAS))
+    IISTSGP(1:NSMST,IGAS) = ISTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
+    NNSTSGP(1:NSMST,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
   end do
 
   do IGAS=1,NGAS
@@ -236,14 +233,12 @@ if (NKSTR /= 0) then
     ! Symmetry of NGASL -1 spaces given, symmetry of total space
     ISTSMM1 = 1
     do IGAS=1,NGASL-1
-      call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-      ISTSMM1 = JSTSMM1
+      ISTSMM1 = Mul(ISTSMM1,ISMFGS(IGAS))
     end do
     ! required sym of SPACE NGASL
-    call SYMCOM(2,ISTSMM1,ISMGSN,KSM)
     !write(u6,*) ' after  SYMCOM'
     !write(u6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
-    ISMFGS(NGASL) = ISMGSN
+    ISMFGS(NGASL) = Mul(ISTSMM1,KSM)
 
     do IGAS=NGASL+1,NGAS
       ISMFGS(IGAS) = 1
@@ -259,7 +254,7 @@ if (NKSTR /= 0) then
     end do
     ! Offset for corresponding I strings
     ISAVE = ISMFGS(IOBTP)
-    call SYMCOM(3,IOBSM,ISMFGS(IOBTP),IACSM)
+    IACSM = Mul(IOBSM,ISMFGS(IOBTP))
     ISMFGS(IOBTP) = IACSM
     IOFF = 1
     MULT = 1

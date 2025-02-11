@@ -17,7 +17,6 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: MINEL(*), MAXEL(*), NORBTP, NORBFTP(*), NELFTP(*), NTESTG
 integer(kind=iwp) :: IORB, IORB_END, IORB_START, IORBTP, NEL_END, NEL_START, NORB, NTEST, NTESTL
-integer(kind=iwp), external :: IELSUM
 
 ! Some dummy initializations
 IORB_START = 1 ! jwk-cleanup
@@ -61,7 +60,7 @@ do IORBTP=1,NORBTP
 end do
 
 if (NTEST >= 100) then
-  NORB = IELSUM(NORBFTP,NORBTP)
+  NORB = sum(NORBFTP(1:NORBTP))
   write(u6,*) ' MINEL :'
   call IWRTMA(MINEL,1,NORB,1,NORB)
   write(u6,*) ' MAXEL :'

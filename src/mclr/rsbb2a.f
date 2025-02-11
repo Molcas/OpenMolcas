@@ -64,6 +64,7 @@
 *
 * Jeppe Olsen, Winter of 1991
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
       Logical TimeDep
 *. General input
@@ -107,8 +108,8 @@
             IF(KSM.EQ.0) GOTO 1940
 *. sym of intermediate strings
 *
-            CALL SYMCOM_MCLR(3,ISM,ISCSM,K1SM)
-            CALL SYMCOM_MCLR(3,KSM,K1SM,K2SM)
+            K1SM = Mul(ISM,ISCSM)
+            K2SM = Mul(KSM,K1SM)
 * Intermediate K strings are of type K2TP and Sym K2Sm
 *
             NKSTR = NSTAGTS(K2GRP,K2TP,K2SM)
@@ -130,8 +131,7 @@
               NIK = NI*NK
             END IF
             IF(NOPART.EQ.1) THEN
-*             CALL SETVEC(SSCR,ZERO,NKSTREF*NROW*NIK)
-              call dcopy_(NKSTREF*NROW*NIK,[ZERO],0,SSCR,1)
+              SSCR(1:NKSTREF*NROW*NIK) = Zero
             END If
             DO 1930 JSM = 1, NSMOB
               LSM = ADSXA(JSM,JLSM)

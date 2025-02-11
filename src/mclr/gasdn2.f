@@ -227,10 +227,10 @@
                 LROW = NSSOA(LASM(ILPERM-1),LATP(ILPERM-1))
                 LCOL = NSSOB(LBSM(ILPERM-1),LBTP(ILPERM-1))
                 CALL TRPMT3(SB(ISOFF),LROW,LCOL,C2)
-                CALL COPVEC(C2,SB(ISOFF),LROW*LCOL)
+                SB(ISOFF:ISOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
                END IF
                IF(LSGN(ILPERM).EQ.-1)
-     &         CALL SCALVE(SB(ISOFF),-1.0D0,NIA*NIB)
+     &         SB(ISOFF:ISOFF+NIA*NIB-1) = -SB(ISOFF:ISOFF+NIA*NIB-1)
 
                JASM = ICSTSM
                JATP = ICSTTA
@@ -255,10 +255,10 @@
                         LROW = NSSOA(RASM(IRPERM-1),RATP(IRPERM-1))
                         LCOL = NSSOB(RBSM(IRPERM-1),RBTP(IRPERM-1))
                         CALL TRPMT3(CB(ICOFF),LROW,LCOL,C2)
-                        CALL COPVEC(C2,CB(ICOFF),LROW*LCOL)
+                        CB(ICOFF:ICOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
                       END IF
-                      IF(RSGN(IRPERM).EQ.-1)
-     &                CALL SCALVE(CB(ICOFF),-1.0D0,NJA*NJB)
+                      IF(RSGN(IRPERM).EQ.-1) CB(ICOFF:ICOFF+NJA*NJB-1) =
+     &                                      -CB(ICOFF:ICOFF+NJA*NJB-1)
                       JJASM = RASM(IRPERM)
                       JJBSM = RBSM(IRPERM)
                       JJATP = RATP(IRPERM)
@@ -285,10 +285,10 @@
 *. Transpose or scale R block to restore order ??
                   IF(RTRP(NRPERM+1).EQ.1) THEN
                     CALL TRPMT3(CB(ICOFF),NJB,NJA,C2)
-                    CALL COPVEC(C2,CB(ICOFF),NJA*NJB)
+                    CB(ICOFF:ICOFF+NJA*NJB-1) = C2(1:NJA*NJB)
                   END IF
-                  IF(RSGN(NRPERM+1).EQ.-1)
-     &            CALL SCALVE(CB(ICOFF),-1.0D0,NJA*NJB)
+                  IF(RSGN(NRPERM+1).EQ.-1) CB(ICOFF:ICOFF+NJA*NJB-1) =
+     &                                    -CB(ICOFF:ICOFF+NJA*NJB-1)
 *
               END IF
               ICOFF = ICOFF + NCOOSE(JATP,JBTP,JASM)
@@ -303,10 +303,10 @@
 *. Transpose or scale L block to restore order ??
           IF(LTRP(NLPERM+1).EQ.1) THEN
             CALL TRPMT3(SB(ISOFF),NIB,NIA,C2)
-            CALL COPVEC(C2,SB(ISOFF),NIA*NIB)
+            SB(ISOFF:ISOFF+NIA*NIB-1) = C2(1:NIA*NIB)
           END IF
           IF(LSGN(NLPERM+1).EQ.-1)
-     &    CALL SCALVE(SB(ISOFF),-1.0D0,NIA*NIB)
+     &    SB(ISOFF:ISOFF+NIA*NIB-1) = -SB(ISOFF:ISOFF+NIA*NIB-1)
 *. NeXt L block
                ISOFF = ISOFF + NSOOSE(IATP,IBTP,IASM)
             IF(ISBLK.NE.NSBLK) THEN

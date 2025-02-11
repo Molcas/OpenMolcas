@@ -23,11 +23,11 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: NEL, NORB1, NORB2, NORB3, NELMN1, NELMX1, NELMN3, NELMX3, IOC(*), NSMST, NSTASO(NSMST,*), ISTASO(NSMST,*), &
                      IOTYP, IPRNT
-integer(kind=iwp) :: IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISM, ISYM, NONEW1, &
-                     NONEW2, NONEW3, NSTRIN, NTEST, NTEST0
+integer(kind=iwp) :: i, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISM, ISYM, &
+                     NONEW1, NONEW2, NONEW3, NSTRIN, NTEST, NTEST0
 integer(kind=iwp), external :: ISYMST
 
-call ISETVC(NSTASO(1,IOTYP),0,NSMST)
+NSTASO(:,IOTYP) = 0
 NTEST0 = 0
 NTEST = max(IPRNT,NTEST0)
 NSTRIN = 0
@@ -49,7 +49,7 @@ do IEL1=NELMX1,NELMN1,-1
     ras1: do
       if (IEL1 /= 0) then
         if (IFRST1 == 1) then
-          call ISTVC2(IOC(1),0,1,IEL1)
+          IOC(1:IEL1) = [(i,i=1,IEL1)]
           IFRST1 = 0
         else
           call NXTORD(IOC,IEL1,IORB1F,IORB1L,NONEW1)
@@ -66,7 +66,7 @@ do IEL1=NELMX1,NELMN1,-1
       ras2: do
         if (IEL2 /= 0) then
           if (IFRST2 == 1) then
-            call ISTVC2(IOC(IEL1+1),IORB2F-1,1,IEL2)
+            IOC(IEL1+1:IEL1+IEL2) = [(i,i=IORB2F,IORB2F+IEL2-1)]
             IFRST2 = 0
           else
             call NXTORD(IOC(IEL1+1),IEL2,IORB2F,IORB2L,NONEW2)
@@ -85,7 +85,7 @@ do IEL1=NELMX1,NELMN1,-1
         ras3: do
           if (IEL3 /= 0) then
             if (IFRST3 == 1) then
-              call ISTVC2(IOC(IEL1+IEL2+1),IORB3F-1,1,IEL3)
+              IOC(IEL1+IEL2+1:IEL1+IEL2+IEL3) = [(i,i=IORB3F,IORB3F+IEL3-1)]
               IFRST3 = 0
             else
               call NXTORD(IOC(IEL1+IEL2+1),IEL3,IORB3F,IORB3L,NONEW3)

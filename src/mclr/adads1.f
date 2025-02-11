@@ -54,6 +54,7 @@
 * IEND : = 0 => end of N-2 strings has not been encountered
 * IEND : = 1 => end of N-2 strings has     been encountered
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
 *.Input
       INTEGER IEL1(*),IEL3(*),I2EL1(*),I2EL3(*)
@@ -121,19 +122,18 @@ C?    write(6,*) ' ktype ', ktype
         GOTO 101
       END IF
 *. Symmetry of K strings
-C          SYMCOM_MCLR(ITASK,I1,I2,I12)
-      CALL SYMCOM_MCLR(2,IOBSM,JKSM,ISM)
+      JKSM = Mul(IOBSM,ISM)
       IF(JKSM.EQ.0) THEN
-        CALL SYMCOM_MCLR(2,JOBSM      ,IKSM,ISM)
+        IKSM = Mul(JOBSM,ISM)
         IF(IKSM.EQ.0) THEN
           NK = 0
           IEND = 1
           GOTO 101
         ELSE
-          CALL SYMCOM_MCLR(2,IOBSM,KSM,IKSM)
+          KSM = Mul(IOBSM,IKSM)
         END IF
       ELSE
-        CALL SYMCOM_MCLR(2,JOBSM,KSM,JKSM)
+        KSM = Mul(JOBSM,JKSM)
       END IF
 C?    write(6,*) ' JOBSM,KSM,JKSM ',JOBSM,KSM,JKSM
       IF(KSM.EQ.0) THEN

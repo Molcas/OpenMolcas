@@ -70,8 +70,8 @@
       IPRDEN=1
       NGAS=3
 
-      CALL SETVEC(RHO1,ZERO ,NACOB ** 2 )
-      CALL SETVEC(RHO2,ZERO ,NACOB ** 2 *(NACOB**2+1)/2)
+      RHO1(1:NACOB**2) = Zero
+      RHO2(1:NACOB**2*(NACOB**2+1)/2) = Zero
 *
 * Info for this internal space
 *

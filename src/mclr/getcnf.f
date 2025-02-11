@@ -42,7 +42,7 @@
           KREL = K - ICNFB1 + 1
           KADD = (KREL-1)*JOCC
           KTYP = JTYP
-          CALL ICOPVE(ICONF(ICNFB2+KADD),KCNF,JOCC)
+          KCNF(1:JOCC) = ICONF(ICNFB2+KADD:ICNFB2+KADD+JOCC-1)
         END IF
 *
         ICNFB1 = ICNFB1 + NJCNF

@@ -40,7 +40,6 @@ implicit none
 integer(kind=iwp) :: ISM, NBLK, LEN_BLK(*)
 integer(kind=iwp) :: I_DUMMY(1), IATP, IBTP, LBLOCK, NBATCH, NOCTPA, NOCTPB
 integer(kind=iwp), allocatable :: CIOIO(:)
-integer(kind=iwp), external :: IFRMR
 
 I_DUMMY(1) = 0 ! jwk-cleanup
 IATP = 1
@@ -60,7 +59,7 @@ LBLOCK = max(MXSOOB,LCSBLK)
 call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
                0,ISIMSYM)
 ! Number of BLOCKS
-NBLK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
+NBLK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 ! Length of each block
 call EXTRROW(CIBT,8,8,NBLK,LEN_BLK)
 

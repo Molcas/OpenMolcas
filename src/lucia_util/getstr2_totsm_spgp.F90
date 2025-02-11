@@ -45,6 +45,7 @@ subroutine GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,IZ,
 ! Jeppe Olsen, Written  July 1995
 !              Version of Dec 1997
 
+use Symmetry_Info, only: Mul
 use strbas, only: NSTSGP, ISTSGP
 use lucia_data, only: MXPNGAS, MXPNSMST, NELFGP, NGAS
 use csm_data, only: NSMST
@@ -52,9 +53,9 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: NIGRP, IGRP(NIGRP), ISPGRPSM, NEL, NSTR, ISTR(*), NORBT, IDOREO, IZ(NORBT,NEL), IREO(*)
-integer(kind=iwp) :: I, IEL, IFIRST, IGAS, IISTSGP(MXPNSMST,MXPNGAS), ISMFGS(MXPNGAS), ISMGSN, ISMST, ISTRBS, ISTSMM1, &
-                     ITPFGS(MXPNGAS), JSTR, JSTSMM1, LEX, MAXLEX, MNVAL(MXPNGAS), MXVAL(MXPNGAS), NELFGS(MXPNGAS), NGASL, &
-                     NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NTEST
+integer(kind=iwp) :: I, IEL, IFIRST, IGAS, IISTSGP(MXPNSMST,MXPNGAS), ISMFGS(MXPNGAS), ISMST, ISTRBS, ISTSMM1, ITPFGS(MXPNGAS), &
+                     JSTR, LEX, MAXLEX, MNVAL(MXPNGAS), MXVAL(MXPNGAS), NELFGS(MXPNGAS), NGASL, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, &
+                     NTEST
 
 NTEST = 0
 if (NTEST >= 100) then
@@ -92,8 +93,8 @@ end do
 if (NGASL == 0) NGASL = 1
 ! Number of strings per GAS space and offsets for strings of given sym
 do IGAS=1,NGAS
-  call ICOPVE2(NSTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
-  call ICOPVE2(ISTSGP,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,IISTSGP(1,IGAS))
+  IISTSGP(1:NSMST,IGAS) = ISTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
+  NNSTSGP(1:NSMST,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
 end do
 
 do IGAS=1,NGAS
@@ -135,12 +136,10 @@ do
   ! Symmetry of NGASL -1 spaces given, symmetry of total space
   ISTSMM1 = 1
   do IGAS=1,NGASL-1
-    call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-    ISTSMM1 = JSTSMM1
+    ISTSMM1 = Mul(ISTSMM1,ISMFGS(IGAS))
   end do
   ! required sym of SPACE NGASL
-  call SYMCOM(2,ISTSMM1,ISMGSN,ISPGRPSM)
-  ISMFGS(NGASL) = ISMGSN
+  ISMFGS(NGASL) = Mul(ISTSMM1,ISPGRPSM)
 
   do IGAS=NGASL+1,NGAS
     ISMFGS(IGAS) = 1

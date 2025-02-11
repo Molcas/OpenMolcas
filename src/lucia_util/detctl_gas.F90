@@ -31,7 +31,7 @@ integer(kind=iwp) :: IATP, IATPM1, IATPM2, IBASSPC(1), IBTP, IBTPM1, IBTPM2, INT
                      MXADKBLK, MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCH, &
                      NBEL, NBLOCK, NDET, NEL, NOCCLS, NOCTPA, NOCTPB, NTTS
 integer(kind=iwp), allocatable :: BASSPC(:), KLOCCLS(:), LCIOIO(:), SVST(:)
-integer(kind=iwp), external :: IFRMR, IMNMX
+integer(kind=iwp), external :: IMNMX
 
 ! Set variables in Module cands
 JSYM = IREFSM
@@ -91,7 +91,7 @@ call mma_deallocate(SVST)
 call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,jsym),NBATCH,CLBT,CLEBT,CI1BT, &
                CIBT,0,ISIMSYM)
 ! Number of BLOCKS
-NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
+NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 ! Length of each block
 call EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
 if (NEL > 0) call CNFORD_GAS(KLOCCLS,NOCCLS,jsym,SDREO_I(jsym)%A,CIBT,NBLOCK)

@@ -391,7 +391,7 @@ if (IDXSM /= 0) then
                     JLOFF = (JLBOFF-1+IJL-1)*NKBTC*NIBTC+1
                     if ((JLSM == 1) .and. (J == L)) then
                       ! a+j a+j gives trivially zero
-                      call SETVEC(CSCR(JLOFF),Zero,NKBTC*NIBTC)
+                      CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = Zero
                     else
                       call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
                     end if
@@ -446,7 +446,7 @@ if (IDXSM /= 0) then
                       call GETINT(SCR,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
                       ! End if similarity transformed Hamiltonian is used
                       do JL=1,NJL
-                        call COPVEC(SCR((JL-1)*NIK+1),XINT((JLOFF-1+JL-1)*NIKT+IKOFF),NIK)
+                        XINT(IKOFF+(JLOFF-1+JL-1)*NIKT:IKOFF+(JLOFF-1+JL-1)*NIKT+NIK-1) = SCR((JL-1)*NIK+1:JL*NIK)
                       end do
                       IKOFF = IKOFF+NIK
                     end do

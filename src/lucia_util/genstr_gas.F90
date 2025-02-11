@@ -36,10 +36,10 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: NEL, NELMN1, NELMX1, NELMN3, NELMX3, NSMST, ISTASO(NSMST,*), IGRP, NOCTYP, Z(NACOB,NEL), &
                      LSTASO(NOCTYP,NSMST), IREORD(*), STRING(NEL,*), IOC(*), IPRNT
-integer(kind=iwp) :: IEL, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISTRIN, &
+integer(kind=iwp) :: i, IEL, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISTRIN, &
                      ISTRNM, ISYM, ISYMST, ITYP, KSTRIN, LACTU, LEXCI, LSTRIN, NONEW1, NONEW2, NONEW3, NPR, NSTRIN, NTEST, NTEST0
 
-call ISETVC(LSTASO,0,NOCTYP*NSMST)
+LSTASO(:,:) = 0
 NTEST0 = 0
 NTEST = max(NTEST0,IPRNT)
 if (NTEST >= 10) then
@@ -67,7 +67,7 @@ do IEL1=NELMX1,NELMN1,-1
     ras1: do
       if (IEL1 /= 0) then
         if (IFRST1 == 1) then
-          call ISTVC2(IOC(1),0,1,IEL1)
+          IOC(1:IEL1) = [(i,i=1,IEL1)]
           IFRST1 = 0
         else
           call NXTORD(IOC,IEL1,IORB1F,IORB1L,NONEW1)
@@ -84,7 +84,7 @@ do IEL1=NELMX1,NELMN1,-1
       ras2: do
         if (IEL2 /= 0) then
           if (IFRST2 == 1) then
-            call ISTVC2(IOC(IEL1+1),IORB2F-1,1,IEL2)
+            IOC(IEL1+1:IEL1+IEL2) = [(i,i=IORB2F,IORB2F+IEL2-1)]
             IFRST2 = 0
           else
             call NXTORD(IOC(IEL1+1),IEL2,IORB2F,IORB2L,NONEW2)
@@ -103,7 +103,7 @@ do IEL1=NELMX1,NELMN1,-1
         ras3: do
           if (IEL3 /= 0) then
             if (IFRST3 == 1) then
-              call ISTVC2(IOC(IEL1+IEL2+1),IORB3F-1,1,IEL3)
+              IOC(IEL1+IEL2+1:IEL1+IEL2+IEL3) = [(i,i=IORB3F,IORB3F+IEL3-1)]
               IFRST3 = 0
             else
               call NXTORD(IOC(IEL1+IEL2+1),IEL3,IORB3F,IORB3L,NONEW3)
@@ -134,7 +134,7 @@ do IEL1=NELMX1,NELMN1,-1
             LACTU = ISTASO(ISYM,IGRP)-1+LSTASO(ITYP,ISYM)
             IREORD(LEXCI) = LACTU
             if (NTEST > 10) write(u6,*) ' LEXCI,LACTU',LEXCI,LACTU
-            if (NEL > 0) call ICOPVE(IOC,STRING(1,LACTU),NEL)
+            STRING(:,LACTU) = IOC(1:NEL)
           end if
 
           if (IEL3 == 0) exit ras3

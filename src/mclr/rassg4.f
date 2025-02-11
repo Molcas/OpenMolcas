@@ -203,8 +203,7 @@
      &      ISBLTP,IDC,NONEWS,ISOCOC)
           END IF
         End Do
-*       CALL SETVEC(SB,ZERO ,LSBLK)
-        call dcopy_(LSBLK,[ZERO],0,SB,1)
+        SB(1:LSBLK) = Zero
 *. Initialize loop over blocks over C vector
         ICENSM = 1
         ICENTA = 1

@@ -13,15 +13,15 @@ subroutine Lucia_Ini()
 
 use rasscf_lucia, only: ini_h0, Sigma_on_disk
 use lucia_data, only: ECORE, ENVIRO, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IADVICE, ICISTR, ICJKAIB, ICMBSPC, IDC, IDIAG, &
-                      IELIMINATED_IN_GAS, IGSOCCX, IH0INSPC, IH0SPC, IPART, IPRCIX, IPRDEN, IPRDIA, IPRORB, irat, IREFSM, IRESTR, &
+                      IELIMINATED_IN_GAS, IGSOCCX, IH0INSPC, IH0SPC, IPART, IPRCIX, IPRDEN, IPRDIA, IPRORB, IREFSM, IRESTR, &
                       ISIMSYM, IUSE_PH, LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL, &
-                      NCISPC, NCMBSPC, NGAS, NGSSH, NIRREP, NOCSF, NOINT, NPTSPC, NROOT, NSMOB, PNTGRP, PSSIGN
+                      NCISPC, NCMBSPC, NGAS, NGSSH, NIRREP, NOCSF, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN
 use spinfo, only: I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, IGSOCCX_MOLCAS, &
                   INOCALC_MOLCAS, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, &
                   MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NGAS_MOLCAS, NGSSH_MOLCAS, &
                   NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, RtoI
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: MXPKW = 125
@@ -65,7 +65,7 @@ end do
 ! =========================
 !  Point group of orbitals
 ! =========================
-pntgrp = 1
+!PNTGRP = 1
 
 ! ==============================
 !  Number of irreps of orbitals
@@ -302,7 +302,7 @@ end if
 
 ! If CAS + Active have been set or RAS + Ras3 have been set,
 ! obtain for MOLCAS Interface from number of basis functions
-!call ISETVC(NDELSH,0,NIRREP)
+!NDELSH(1:NIRREP) = 0
 
 ! 27 : Ms combinations
 
@@ -1169,11 +1169,6 @@ if (IPRCIX >= 100) then
 
   write(u6,*) ' IPART before leaving READIN = ',IPART
 end if
-
-! ================================================
-!  Set ratio beteeen real and integer word length
-! ================================================
-irat = RtoI
 
 ! =============================================
 !  Find largest unused vector for use in Lucia

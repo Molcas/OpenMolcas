@@ -47,7 +47,7 @@ integer(kind=iwp) :: HEXS_CNF(MXPORB+1), I, IAEL, IALPHA, IB, IBEL, ICL, IDOREO,
                      INITIALIZE_CONF_COUNTERS, IOPEN, ITP, ITYP, J, JGAS, JOCCLS, LCONF, LDTOC, LENGTH_LIST, LICS, LIDT, LLCONF, &
                      LPTDT, LZ, maxingas(N_ELIMINATED_GAS), maxingas2(N_2ELIMINATED_GAS), MXDT, MXPTBL, NCMB, &
                      NCONF_ALL_SYM_FOR_OCCLS(MXPCSM), NCONF_ALL_SYM_PREV, NCONF_OCCLS, NCSF, NELEC, NSD, NTEST, TMP_CNF(MXPORB+1)
-integer(kind=iwp), external :: IBINOM, IELSUM, IWEYLF
+integer(kind=iwp), external :: IBINOM, IWEYLF
 
 IDUM = 0
 IDUM_ARR(1) = 0
@@ -56,7 +56,7 @@ NTEST = 0
 NTEST = max(IPRCSF,NTEST)
 if (NTEST >= 10) write(u6,*) '  PSSIGN : ',PSSIGN
 if (NTEST >= 10) write(u6,*) ' MULTS, MS2 = ',MULTS,MS2
-NELEC = IELSUM(IOCCLS(1,1),NGAS)
+NELEC = sum(IOCCLS(:,1))
 
 ! Define parameters in SPINFO
 
@@ -219,7 +219,7 @@ if (I_ELIMINATE_GAS > 0) call NCNF_TO_NCOMP(MAXOP,HEXS_CNF,NPCSCNF,NCSF_HEXS)
 
 NCSF_PER_SYM(ISYM) = NCSF
 NSD_PER_SYM(ISYM) = NSD
-NCONF_PER_SYM(ISYM) = IELSUM(NCONF_PER_OPEN(1,ISYM),MAXOP+1)
+NCONF_PER_SYM(ISYM) = sum(NCONF_PER_OPEN(:,ISYM))
 if (NTEST >= 5) then
   write(u6,*) ' Number of CSFs  ',NCSF
   write(u6,*) ' Number of SDs   ',NSD
@@ -307,7 +307,7 @@ end do
 ! Array giving first determinant with given number of electrons
 ! in list of determinants ordered  according to the number of open orbitals
 
-call ISETVC(IB_SD_FOR_OPEN,0,MAXOP+1)
+IB_SD_FOR_OPEN(:) = 0
 IB = 1
 do IOPEN=MINOP,MAXOP
   IB_SD_FOR_OPEN(IOPEN+1) = IB

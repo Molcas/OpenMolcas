@@ -192,7 +192,7 @@ do IJTYP=1,NIJTYP
           ! Update two-electron density matrix
           ! Rho2b(ij,kl) =  Sum(ka)S(Ka,i,Ib)<Ib!Eb(kl)!Jb>C(Ka,j,Jb)
 
-          call SETVEC(X,Zero,NI*NJ*NK*NL)
+          X(1:NI*NJ*NK*NL) = Zero
 
           call ABTOR2(SIRES,CJRES,LKABTC,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
           ! contributions to Rho2(ij,kl) has been obtained, scatter out

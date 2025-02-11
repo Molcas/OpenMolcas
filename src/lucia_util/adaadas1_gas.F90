@@ -269,7 +269,7 @@ else if ((IAC == 2) .and. (JAC == 1)) then
   !do KKSTR=1,NKSTR
   do KKSTR=KMIN,KEND
     ! Indicate where a given orbital i should be added in KKSTR
-    call ISETVC(ISCR(IORBMIN),0,NIORB)
+    ISCR(IORBMIN:IORBMIN+NIORB-1) = 0
     IIEL = 1
     do IIORB=IORBMIN,IORBMAX
       do
@@ -387,7 +387,7 @@ else if ((IAC == 1) .and. (JAC == 2)) then
   !do KKSTR=1,NKSTR
   do KKSTR=KMIN,KEND
     ! Indicate where a given orbital j should be added in KKSTR
-    call ISETVC(ISCR(JORBMIN),0,NJORB)
+    ISCR(JORBMIN:JORBMIN+NJORB-1) = 0
     JJEL = 1
     do JJORB=JORBMIN,JORBMAX
       do

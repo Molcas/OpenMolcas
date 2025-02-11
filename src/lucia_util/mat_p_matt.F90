@@ -17,14 +17,13 @@ subroutine MAT_P_MATT(A,B,NR,NC,COEF)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NR, NC
-real(kind=wp) :: A(NR,NC), B(NC,NR), COEF
-integer(kind=iwp) :: I, J
+integer(kind=iwp), intent(in) :: NR, NC
+real(kind=wp), intent(inout) :: A(NR,NC)
+real(kind=wp), intent(in) :: B(NC,NR), COEF
+integer(kind=iwp) :: J
 
 do J=1,NC
-  do I=1,NR
-    A(I,J) = A(I,J)+COEF*B(J,I)
-  end do
+  A(:,J) = A(:,J)+COEF*B(J,:)
 end do
 
 end subroutine MAT_P_MATT

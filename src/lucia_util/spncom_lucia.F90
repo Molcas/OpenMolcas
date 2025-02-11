@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: NOPEN, MS2, NDET, IABDET(NOPEN,*), IABUPP(NOPEN,*), IFLAG, IPRCSF
 real(kind=wp) :: PSSIGN
-integer(kind=iwp) :: ADD, I, IEL, IFIRST, IWORK(MXPORB), J, K, LUPPER, MS2L, MX, NALPHA, NTEST, NUPPER
+integer(kind=iwp) :: ADD, I, IEL, IWORK(MXPORB), J, K, LUPPER, MS2L, MX, NALPHA, NTEST, NUPPER
 real(kind=wp) :: XMSD2
 
 NTEST = 0
@@ -31,15 +31,10 @@ NUPPER = 0
 ! Determinants are considered as binary numbers,1=alpha,0=beta
 
 MX = 2**NOPEN
-call ISETVC(IWORK,0,NOPEN)
-IFIRST = 1
+IWORK(1:NOPEN) = 0
 ! Loop over all possible binary numbers
 do I=1,MX
-  if (IFIRST == 1) then
-    ! Initial number
-    call ISETVC(IWORK,0,NOPEN)
-    IFIRST = 0
-  else
+  if (I > 1) then
     ! Next number
     ADD = 1
     J = 0
@@ -63,7 +58,7 @@ do I=1,MX
   if ((2*NALPHA-NOPEN == MS2) .and. ((PSSIGN == Zero) .or. (IWORK(1) /= 0))) then
     if (IFLAG < 3) then
       NDET = NDET+1
-      call ICOPVE(IWORK,IABDET(1,NDET),NOPEN)
+      IABDET(:,NDET) = IWORK(1:NOPEN)
     end if
 
     if (IFLAG > 1) then
@@ -82,7 +77,7 @@ do I=1,MX
 
       if (LUPPER == 1) then
         NUPPER = NUPPER+1
-        call ICOPVE(IWORK,IABUPP(1,NUPPER),NOPEN)
+        IABUPP(:,NUPPER) = IWORK(1:NOPEN)
       end if
     end if
   end if

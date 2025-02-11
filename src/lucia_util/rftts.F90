@@ -83,7 +83,7 @@ do JBLOCK=1,NBLOCK
 
     if (IPACK == 0) then
       ! Just copy
-      call COPVEC(BLOCKSI(IOFFI),BLOCKSO(IOFFO),NELMNT)
+      BLOCKSO(IOFFO:IOFFO+NELMNT-1) = BLOCKSI(IOFFI:IOFFI+NELMNT-1)
     else
       if (IWAY == 1) then
         ! unpacked => packed
@@ -98,7 +98,7 @@ do JBLOCK=1,NBLOCK
   end if
 end do
 
-if (ICOPY /= 0) call COPVEC(BLOCKSO,BLOCKSI,LENGTH)
+if (ICOPY /= 0) BLOCKSI(1:LENGTH) = BLOCKSO(1:LENGTH)
 
 if (NTEST > 10) then
   write(u6,*) ' Information from RFTTS'

@@ -41,13 +41,13 @@ if (IPACK /= 0) then
   IMZERO = ISCR(1)
   I_AM_PACKED = ISCR(2)
   if (IMZERO == 1) then
-    if (NO_ZEROING == 0) call SETVEC(ARRAY,Zero,NDIM)
+    if (NO_ZEROING == 0) ARRAY(1:NDIM) = Zero
     return
   end if
 end if
 
 if (I_AM_PACKED == 1) then
-  call SETVEC(ARRAY,Zero,NDIM)
+  ARRAY(1:NDIM) = Zero
   ! Loop over packed records of dimension LPBLK
   NBATCH = 0
   !1000 continue

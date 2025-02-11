@@ -42,6 +42,7 @@ subroutine ADAADAST_GAS(IOB,IOBSM,IOBTP,NIOB,IAC,JOB,JOBSM,JOBTP,NJOB,JAC,ISPGP,
 ! Jeppe Olsen, August of 95   ( adadst)
 !              November 1997 : annihilation added
 
+use Symmetry_Info, only: Mul
 use HIDSCR, only: OCSTR, REO, Z, ZSCR
 use lucia_data, only: IBGPSTR, IBSPGPFTP, IOBPTS, ISPGPFTP, MXPNGAS, NELFGP, NELFSPGP, NELFTP, NELIS, NGAS, NGPSTR, NOBPT, NOCOB, &
                       NSTRKS
@@ -83,8 +84,8 @@ end if
 
 ! Supergroup and symmetry of K strings
 
-call SYMCOM(2,IOBSM,K1SM,ISM)
-call SYMCOM(2,JOBSM,KSM,K1SM)
+K1SM = Mul(IOBSM,ISM)
+KSM = Mul(JOBSM,K1SM)
 if (NTEST >= 100) write(u6,*) ' K1SM,KSM : ',K1SM,KSM
 ISPGPABS = IBSPGPFTP(ITP)-1+ISPGP
 IACADJ = 2
@@ -143,7 +144,7 @@ else
 end if
 ! Groups defining Kstrings
 if (ITRIVIAL /= 1) then
-  call ICOPVE(ISPGPFTP(1,ISPGPABS),KGRP,NGAS)
+  KGRP(1:NGAS) = ISPGPFTP(1:NGAS,ISPGPABS)
   KGRP(IOBTP) = IIGRP
   KGRP(JOBTP) = JJGRP
   if (NTEST >= 100) then
@@ -210,8 +211,8 @@ NSTRK = NSTRKS(K12)
 IIOB = IOBPTS(IOBTP,IOBSM)+IOB-1
 JJOB = IOBPTS(JOBTP,JOBSM)+JOB-1
 
-call ISETVC(I1,0,LI1*NIOB*NJOB)
-!OLD call SETVEC(XI1S,Zero,LI1*NIOB*NJOB)
+I1(1:LI1*NIOB*NJOB) = 0
+!OLD XI1S(1:LI1*NIOB*NJOB) = Zero
 
 call ADAADAS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,IAC,JJOB,NJOB,JAC,OCSTR(:,K12),NELK,NSTRK,REO(:,I12),Z(:,I12),NOCOB,KMAX,KMIN,IEND, &
                   SCLFAC,NSTRI_)

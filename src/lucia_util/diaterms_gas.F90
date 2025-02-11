@@ -30,7 +30,7 @@ subroutine DIATERMS_GAS(NAEL,IASTR,NBEL,IBSTR,NORB,VEC,NSMST,H,IDC,XB,RJ,RK,NSSO
 !     = 2 =>      one+two-body part
 
 use lucia_data, only: IDISK
-use Constants, only: Zero, One, Half
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -80,7 +80,7 @@ end if
 !              +         J(I,J) * NIA*NJB
 !
 ! K goes to J - K
-if (I12 == 2) call VECSUM(RK,RK,RJ,-One,One,NTOOB**2)
+if (I12 == 2) RK(:,:) = RJ(:,:)-RK(:,:)
 
 ITDET = 0
 IDET = 0
@@ -162,7 +162,7 @@ do JBLOCK=1,NBLOCK
 
         HB = Zero
         RJBB = Zero
-        call SETVEC(XB,Zero,NORB)
+        XB(:) = Zero
 
         do IEL=1,NBEL
           IBEL = IBSTR(IEL,IB)

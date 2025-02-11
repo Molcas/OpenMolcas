@@ -53,7 +53,7 @@ KLFREE = KLU+NORB**2
 ! LU factorize X
 call LULU(X,SCR(KLL),SCR(KLU),NORB)
 ! Expand U to full matrix
-call SETVEC(T,Zero,NORB**2)
+T(:,:) = Zero
 do I=1,NORB
   do J=I,NORB
     T(I,J) = SCR(KLU-1+J*(J-1)/2+I)

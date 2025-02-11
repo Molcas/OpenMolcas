@@ -37,6 +37,7 @@
      &                         NAC, NACPAR, NONEQ, PotNuc, Tot_Charge,
      &                         Tot_El_Charge, Tot_Nuc_Charge
 #ifdef _DMRG_
+      use glbbas, only: INT1, INT1O
       use rasscf_global, only: DoDMRG
 #endif
       use printlevel, only: DEBUG
@@ -391,7 +392,10 @@ c Tmp5 and Tmp6 are not updated in DrvXV...
       END DO
 #ifdef _DMRG_
       if(.not.doDMRG)then
-        CALL CP_ONE_INT(X0,ITU)
+        INT1(1:ITU) = X0(1:ITU)
+        INT1(ITU+1:) = Zero
+        INT1O(1:ITU) = X0(1:ITU)
+        INT1O(ITU+1:) = Zero
       end if
 #endif
       CALL mma_deallocate(X1)

@@ -41,7 +41,6 @@ implicit none
 integer(kind=iwp) :: ISPC, ISM, IATP, IBTP, NBATCH, NBLOCK
 integer(kind=iwp) :: LBLOCK, NOCTPA, NOCTPB, NTEST
 integer(kind=iwp), allocatable :: LCIOIO(:), SVST(:)
-integer(kind=iwp), external :: IFRMR
 
 ! Some dummy initializations
 NTEST = 0
@@ -87,7 +86,7 @@ if (NTEST >= 10) write(u6,*) ' LBLOCK = ',LBLOCK
 call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
                0,ISIMSYM)
 ! Number of BLOCKS
-NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
+NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 if (NTEST >= 1) then
   write(u6,*) ' Number of batches',NBATCH
   write(u6,*) ' Number of blocks ',NBLOCK

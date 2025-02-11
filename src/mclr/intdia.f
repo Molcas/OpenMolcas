@@ -10,7 +10,6 @@
 ************************************************************************
 
       SUBROUTINE INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
-      use Constants, only: One
       Use Str_Info, only: STR,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IPRDIA
@@ -50,7 +49,6 @@
       Integer, Allocatable:: BLTP(:), IOIO(:)
       Integer LUDIA,MXOCOC,IISPC,NOCTPA,NOCTPB,NLOOP,ILOOP,IATP,IBTP,
      &        NAEL,NBEL,MNRS1C,MXRS3C,LLUDIA
-      REAL*8 ONEG
 *
 * ======
 *.Output
@@ -96,8 +94,7 @@
       CALL GTJK_MCLR(JA,KA)
 *
 *. K goes to J - K
-      ONEG = -One
-      CALL VECSUM(KA,KA,JA,ONEG,ONE,NTOOB **2)
+      KA(:) = JA(:)-KA(:)
 *
 *
 *. Loop over internal CI spaces

@@ -79,7 +79,7 @@ end if
 !            +         J(I,J) * NIA*NJB
 !
 ! K goes to J - K
-if (I12 == 2) call VECSUM(RK,RK,RJ,-One,One,NTOOB**2)
+if (I12 == 2) RK(:,:) = RJ(:,:)-RK(:,:)
 IDET = 0
 ITDET = 0
 if (LUDIA /= 0) IDISK(LUDIA) = 0
@@ -136,7 +136,7 @@ do IBLK=1,NBLOCK
 
     HB = Zero
     RJBB = Zero
-    call SETVEC(XB,Zero,NORB)
+    XB(:) = Zero
 
     do IEL=1,NBEL
       IBEL = IBSTR(IEL,IB)

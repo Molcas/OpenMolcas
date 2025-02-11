@@ -22,12 +22,12 @@ integer(kind=iwp) :: NDIM, MBLOCK, IFIL
 real(kind=wp) :: A(NDIM)
 integer(kind=iwp) :: IDUMMY(1), IMZERO, IPACK, ISCR(2), ISTOP, MMBLOCK, NBACK, NBLOCK, NLABEL, NTRANS, START
 real(kind=wp) :: XNORM
-real(kind=wp), external :: INPROD
+real(kind=wp), external :: dDot_
 
 IPACK = 1
 if (IPACK /= 0) then
   ! Check norm of A before writing
-  XNORM = INPROD(A,A,NDIM)
+  XNORM = dDot_(NDIM,A,1,A,1)
   if (XNORM == Zero) then
     IMZERO = 1
   else

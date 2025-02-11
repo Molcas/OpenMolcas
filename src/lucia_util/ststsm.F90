@@ -13,18 +13,17 @@ subroutine STSTSM(STSTSX,STSTDX,NSMST)
 ! construct STSTSX and STSTDX giving
 ! symmetry of sx (dx) connecting two given string symmetries
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: NSMST, STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST)
-integer(kind=iwp) :: IDXSM, ILSTSM, IRSTSM, ISXSM, NTEST
+integer(kind=iwp) :: ILSTSM, IRSTSM, NTEST
 
 do ILSTSM=1,NSMST
   do IRSTSM=1,NSMST
-    call SYMCOM(1,ISXSM,IRSTSM,ILSTSM)
-    call SYMCOM(1,IDXSM,IRSTSM,ILSTSM)
-    STSTSX(ILSTSM,IRSTSM) = ISXSM
-    STSTDX(ILSTSM,IRSTSM) = IDXSM
+    STSTSX(ILSTSM,IRSTSM) = Mul(IRSTSM,ILSTSM)
+    STSTDX(ILSTSM,IRSTSM) = Mul(IRSTSM,ILSTSM)
   end do
 end do
 

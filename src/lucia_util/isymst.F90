@@ -12,23 +12,22 @@
 function ISYMST(STRING,NEL)
 ! Master routine for symmetry of string
 
-use lucia_data, only: PNTGRP
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ISYMST
 integer(kind=iwp) :: STRING(*), NEL
 integer(kind=iwp), external :: ISYMS1
 
-if (PNTGRP == 1) then
-  ! D2h
-  ISYMST = ISYMS1(STRING,NEL)
-else
-  write(u6,*) ' Sorry PNTGRP option not programmed ',PNTGRP
-  write(u6,*) ' Enforced stop in ISYMST'
-  !stop 5
-  call SYSABENDMSG('lucia_util/isymst','Internal error','')
-  ISYMST = -9999
-end if
+!if (PNTGRP == 1) then
+! D2h
+ISYMST = ISYMS1(STRING,NEL)
+!else
+!  write(u6,*) ' Sorry PNTGRP option not programmed ',PNTGRP
+!  write(u6,*) ' Enforced stop in ISYMST'
+!  !stop 5
+!  call SYSABENDMSG('lucia_util/isymst','Internal error','')
+!  ISYMST = -9999
+!end if
 
 end function ISYMST

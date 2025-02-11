@@ -19,6 +19,7 @@ subroutine SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
 !
 ! Jeppe Olsen, Spring of 1991
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
@@ -27,8 +28,7 @@ integer(kind=iwp) :: ISTSM, ITOTSM, JSTSM, NTEST
 
 do ITOTSM=1,NSMCI
   do ISTSM=1,NSMST
-    !    SYMCOM(ITASK,I1,I2,I12)
-    call SYMCOM(2,ISTSM,JSTSM,ITOTSM)
+    JSTSM = Mul(ISTSM,ITOTSM)
     ISMOST(ISTSM,ITOTSM) = JSTSM
   end do
 end do

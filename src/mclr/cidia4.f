@@ -88,12 +88,9 @@
 *
 *. Terms depending only on IB
 *
-            ZERO = 0.0D0
-*           CALL SETVEC(XB,ZERO,NORB)
-            call dcopy_(NORB,[ZERO],0,XB,1)
+            XB(:) = 0.0D0
             HB = 0.0D0
             RJBB = 0.0D0
-*           CALL SETVEC(XB,ZERO,NORB)
 *
             DO 990 IEL = 1, NBEL
               IBEL = IBSTR(IEL,IB)

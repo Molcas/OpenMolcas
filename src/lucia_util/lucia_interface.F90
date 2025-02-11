@@ -42,8 +42,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
   character(len=*) :: ModLab
   integer(kind=iwp), optional :: iSym, iDisk, LU
   real(kind=wp), optional :: Array(:), RVEC(:), CI_Vector(:), SIGMA_Vector(:)
-  integer(kind=iwp), parameter :: MxpLnc = 72
-  character(len=MxpLnc) :: Module_
+  character(len=72) :: Module_
   integer(kind=iwp), allocatable :: lVec(:)
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: COUNTER = 0
@@ -55,7 +54,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
   ! Make sure the ModLab variable is in upper case.
 
   Module_ = ModLab
-  call UppCas(Module_,MxpLnc)
+  call UpCase(Module_)
 
   ! Call the appropriate routines according to ModLab
 
@@ -134,14 +133,14 @@ subroutine densi_master(CIVec,nCIVec,RVec)
   call mma_allocate(SCR1,NSD,Label='SCR1')
   call mma_allocate(SCR2,NSD,Label='SCR2')
 
-  call COPVEC(CIVEC,SCR1,NCSF)
+  SCR1(1:NCSF) = CIVEC(1:NCSF)
 
   call mma_allocate(lVec,MXNTTS,Label='lVec')
   if (tdm) then
     call mma_allocate(SCR3,NSD,Label='SCR3')
     call mma_allocate(SCR4,NSD,Label='SCR4')
 
-    call COPVEC(rvec,SCR3,NCSF)
+    SCR3(1:NCSF) = rvec(1:NCSF)
     call CSDTVC(SCR3,SCR4,1,DTOC,SDREO,IREFSM,1)
     call CPCIVC(SCR3,NSD,LUHC,MXNTTS,IREFSM,1,lVec)
     call mma_deallocate(SCR3)

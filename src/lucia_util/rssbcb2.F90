@@ -158,9 +158,9 @@ if (IDIAG == 0) then
     !                 + sum(ij) <IB!Eb(ij)!JB> H(ij) C(IA,JB)
     ! One electron part
     call TRPMT3(SB,NIB,NIA,C2)
-    call COPVEC(C2,SB,NIA*NIB)
+    SB(1:NIA*NIB) = C2(1:NIA*NIB)
     call TRPMT3(CB,NJB,NJA,C2)
-    call COPVEC(C2,CB,NJA*NJB)
+    CB(1:NJA*NJB) = C2(1:NJA*NJB)
 
     if (NBEL >= 0) then
       if (NTEST >= 500) then
@@ -201,9 +201,9 @@ if (IDIAG == 0) then
       if (NTEST >= 100) write(u6,*) ' first element of SB after RSBB1E',SB(1)
     end if
     call TRPMT3(SB,NIA,NIB,C2)
-    call COPVEC(C2,SB,NIA*NIB)
+    SB(1:NIA*NIB) = C2(1:NIA*NIB)
     call TRPMT3(CB,NJA,NJB,C2)
-    call COPVEC(C2,CB,NJA*NJB)
+    CB(1:NJA*NJB) = C2(1:NJA*NJB)
   end if
 
   ! =============================
@@ -248,10 +248,9 @@ if (IDIAG == 0) then
     else if (JJJTRNS == 1) then
       ! well lets give the transpose routine some more practice : Transpose back
       call TRPMT3(SB,NIB,NIA,C2)
-      call COPVEC(C2,SB,NIA*NIB)
-
+      SB(1:NIA*NIB) = C2(1:NIA*NIB)
       call TRPMT3(CB,NJB,NJA,C2)
-      call COPVEC(C2,CB,NJA*NJB)
+      CB(1:NJA*NJB) = C2(1:NJA*NJB)
       !write(u6,*) ' RSSBCB2 : Transpose path choosen'
 
       !if (IUSE_PA == 0) then
@@ -274,9 +273,9 @@ if (IDIAG == 0) then
 
       ! Transpose ( To compensate later transposition )
       call TRPMT3(SB,NIA,NIB,C2)
-      call COPVEC(C2,SB,NIA*NIB)
+      SB(1:NIA*NIB) = C2(1:NIA*NIB)
       call TRPMT3(CB,NJA,NJB,C2)
-      call COPVEC(C2,CB,NJA*NJB)
+      CB(1:NJA*NJB) = C2(1:NJA*NJB)
     end if
     if (NTEST >= 101) then
       write(u6,*) ' SB after RSBB2B, first element'
@@ -359,16 +358,16 @@ else if (IDIAG == 1) then
   FACTOR = Zero
   ! Well, we are not using transposed matrices here so
   call TRPMT3(CB,NJB,NJA,C2)
-  call COPVEC(C2,CB,NJA*NJB)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
 
   if ((IATP == JATP) .and. (IBTP == JBTP) .and. (IASM == JASM) .and. (IBSM == JBSM)) then
     !write(u6,*) ' DIATERM2_GAS will be called'
-    call COPVEC(CB,C2,NJA*NJB)
+    C2(1:NJA*NJB) = CB(1:NJA*NJB)
     ! Input is in det basis
     IIDC = 1
     call DIATERM2_GAS(FACTOR,ITASK,C2,1,IBLOCK,1,I12,IIDC)
   else
-    call SETVEC(C2,Zero,NIA*NIB)
+    C2(1:NIA*NIB) = Zero
   end if
   ! Remaining occupation conserving operator
   !if (IH_OCC_CONS == 1) &
@@ -383,7 +382,7 @@ else if (IDIAG == 1) then
   !    MAT_P_MATT(A,B,NR,NC,COEF)
   call MAT_P_MATT(SB,C2,NIB,NIA,FACTOR)
   call TRPMT3(CB,NJA,NJB,C2)
-  call COPVEC(C2,CB,NJA*NJB)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
 end if
 
 !9999 continue

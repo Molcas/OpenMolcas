@@ -213,7 +213,7 @@ do IJTYP=1,NIJTYP
       end if
 
       !MXACJ = MAX(MXACJ,NIB*LKABTC*IJ_DIM(1),NJB*LKABTC*IJ_DIM(2))
-      call SETVEC(SIRES,Zero,NIB*LKABTC*IJ_DIM(1))
+      SIRES(1:NIB*LKABTC*IJ_DIM(1)) = Zero
       FACS = One
 
       do KLTYP=1,NKLTYP

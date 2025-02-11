@@ -17,7 +17,7 @@
       use MCLR_Data, only: FnCSF2SD, LuCSF2SD
       use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INCORE,
      &                     ICISTR
-      use input_mclr, only: nSym,PntGrp,nIrrep,nsMOB,iSpin,
+      use input_mclr, only: nSym,nIrrep,nsMOB,iSpin,
      &                      nHole1,nActEl,nElec3,
      &                      nRs1,nRs2,nRs3,State_Sym
 *
@@ -30,7 +30,6 @@
       Call mma_Allocate(pINT2,nSym**3,Label='pInt2')
       pInt2(:)=0
 
-      Pntgrp=1
       NOCSF  = 0
       idenmt=0
       nopart=0

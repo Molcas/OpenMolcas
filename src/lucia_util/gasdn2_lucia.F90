@@ -231,9 +231,9 @@ do IBATCHL=1,NBATCHL
             LROW = NSSOA(LASM(ILPERM-1),LATP(ILPERM-1))
             LCOL = NSSOB(LBSM(ILPERM-1),LBTP(ILPERM-1))
             call TRPMT3(SB(IOFF),LROW,LCOL,C2)
-            call COPVEC(C2,SB(IOFF),LROW*LCOL)
+            SB(IOFF:IOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
           end if
-          if (LSGN(ILPERM) == -1) call SCALVE(SB(IOFF),-One,NIA*NIB)
+          if (LSGN(ILPERM) == -1) SB(IOFF:IOFF+NIA*NIB-1) = -SB(IOFF:IOFF+NIA*NIB-1)
 
           do IIR=1,NBLKR
             IR = I1BATR(IBATCHR)-1+IIR
@@ -307,9 +307,9 @@ do IBATCHL=1,NBATCHL
         ! Transpose or scale L block to restore order ??
         if (LTRP(NLPERM+1) == 1) then
           call TRPMT3(SB(IOFF),NIB,NIA,C2)
-          call COPVEC(C2,SB(IOFF),NIA*NIB)
+          SB(IOFF:IOFF+NIA*NIB-1) = C2(1:NIA*NIB)
         end if
-        if (LSGN(NLPERM+1) == -1) call SCALVE(SB(IOFF),-One,NIA*NIB)
+        if (LSGN(NLPERM+1) == -1) SB(IOFF:IOFF+NIA*NIB-1) = -SB(IOFF:IOFF+NIA*NIB-1)
 
       end if
     end do

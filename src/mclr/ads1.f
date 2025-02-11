@@ -51,6 +51,7 @@
 *          : eq. 0    a + JORB !KSTR> = 0
 * Offset is KMIN
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
 *.Input
       INTEGER IEL1(*),IEL3(*),I1EL1(*),I1EL3(*)
@@ -100,8 +101,7 @@ C      write(6,*) ' kel1 kel3 ktype ',KEL1,KEL3,KTYPE
         GOTO 101
       END IF
 *. Symmetry of K strings
-C          SYMCOM_MCLR(ITASK,I1,I2,I12)
-      CALL SYMCOM_MCLR(2,ORBSM(IORB),KSM,ISM)
+      KSM = Mul(ORBSM(IORB),ISM)
       IF(KSM.EQ.0) THEN
         NK = 0
         IEND = 1

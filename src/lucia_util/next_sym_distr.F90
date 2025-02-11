@@ -27,6 +27,7 @@ subroutine NEXT_SYM_DISTR(NGAS,MNVAL,MXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
 !
 ! Jeppe Olsen, Sept 97
 
+use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
@@ -51,11 +52,10 @@ do
   if (NONEW == 0) then
     !JSYM = 1
     !do IGAS=1,NGAS-1
-    !  call SYMCOM(3,JSYM,ISYM(IGAS),KSYM)
-    !  JSYM = KSYM
+    !  JSYM = Mul(JSYM,ISYM(IGAS))
     !end do
     JSYM = ISYMSTR(ISYM,NGAS-1)
-    call SYMCOM(2,JSYM,ISYM(NGAS),ISYM_TOT)
+    ISYM(NGAS) = Mul(JSYM,ISYM_TOT)
 
     if ((MNVAL(NGAS) <= ISYM(NGAS)) .and. (MXVAL(NGAS) >= ISYM(NGAS))) exit
   else

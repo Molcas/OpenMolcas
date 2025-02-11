@@ -38,7 +38,7 @@ implicit none
 integer(kind=iwp) :: NSHPIR(*), NIRREP, MXPOBS, NSMOB, NOSPIR(*), IOSPIR(MXPOBS,*), NOBPS(*), NOB
 integer(kind=iwp) :: IISM, IRREP, ISM, NTEST
 
-call ISETVC(NOBPS,0,NSMOB)
+NOBPS(1:NSMOB) = 0
 NOB = 0
 do IRREP=1,NIRREP
   do ISM=1,NOSPIR(IRREP)

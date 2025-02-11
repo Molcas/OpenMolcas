@@ -208,7 +208,7 @@ if (IJSM /= 0) then
         ! Obtain integrals h(i,j)
         call GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
       end if
-      !OLD XNORM = INPROD(H,H,IJ_DIM(1)*IJ_DIM(2))
+      !OLD XNORM = dDot_(IJ_DIM(1)*IJ_DIM(2),H,1,H,1)
       !OLD if (XNORM == 0) cycle
       if (MOC == 0) then
 

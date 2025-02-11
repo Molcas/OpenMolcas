@@ -23,7 +23,7 @@ implicit none
 integer(kind=iwp) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL, IVERTEXW(NORB+1,NEL+1), IARCW(NORB,NEL,2)
 integer(kind=iwp) :: I, J, K, NTEST
 
-call ISETVC(IARCW,0,2*NORB*NEL)
+IARCW(:,:,:) = 0
 ! IARCW(I,J,K) is weight of arc with occupation K ending at (I,J)
 ! IARCW(I,J,K) = Sum(J-K < L <= J)   IVERTEXW(I-1,L)
 do I=1,NORB

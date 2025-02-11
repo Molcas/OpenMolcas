@@ -183,8 +183,7 @@
                     JLOFF = (JLBOFF-1+IJLE-1)*NKBTC*NIBTC+1
                     IF(JLSM.EQ.1.AND.J.EQ.L) THEN
 *. a+j a+j gives trivially zero
-                      ZERO = 0.0D0
-                      CALL SETVEC(CSCR(JLOFF),ZERO,NKBTC*NIBTC)
+                      CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = 0.0D0
                     ELSE
 *EAW BEGIN 970407
 *                     CALL MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,
@@ -241,8 +240,7 @@
                     IKOFF = (IKBOFF-1+IIKE-1)*NKBTC*NIBTC+1
                     IF(IKSM.EQ.1.AND.I.EQ.K) THEN
 *. a+j a+j gives trivially zero
-                      ZERO = 0.0D0
-                      CALL SETVEC(SSCR(IKOFF),ZERO,NKBTC*NIBTC)
+                      SSCR(IKOFF:IKOFF+NKBTC*NIBTC-1) = 0.0D0
                     ELSE
 *EAW-BEGIN 970407
 *                     CALL MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,

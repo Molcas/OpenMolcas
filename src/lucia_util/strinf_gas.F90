@@ -41,11 +41,10 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: IPRNT
-integer(kind=iwp) :: IDUM(1), IEC, IEL, IGAS, IGP, IGRP, IGRPABS, IGSOB, IIEL, IISPGP, IOCTYPX, ISM, ISPGP, ISTSM, ISTTYP, &
+integer(kind=iwp) :: i, IDUM(1), IEC, IEL, IGAS, IGP, IGRP, IGRPABS, IGSOB, IIEL, IISPGP, IOCTYPX, ISM, ISPGP, ISTSM, ISTTYP, &
                      ISTTYPA, ISTTYPC, ITP, JGRP, JSTTYP, LAC, LROW, MAXSCR, MN, MNRS1X, MNRS3X, MX, MXNSTRFSG, MXRS1X, MXRS3X, &
                      NACOB_EFFECTIVE, NEL, NGSOBP, NHOLE, NSMCLS, NSMCLSE, NSMCLSE1, NSTINI, NSTR, NTEST, ZERO_ARR(1)
 integer(kind=iwp), allocatable :: FREEL(:)
-integer(kind=iwp), external :: IELSUM
 
 ! Some dummy initializtions
 LAC = 0 ! jwk-cleanup
@@ -84,7 +83,7 @@ do IGRP=1,NGRP
   if (IGAS == 1) then
     NORB1 = 0
   else
-    NORB1 = IELSUM(NOBPT,IGAS-1)
+    NORB1 = sum(NOBPT(1:IGAS-1))
   end if
   NORB2 = NOBPT(IGAS)
   NORB3 = NACOB-NORB1-NORB2
@@ -102,8 +101,8 @@ do IGRP=1,NGRP
   call GENSTR_GAS(IEL,MNRS1X,MXRS1X,MNRS3X,MXRS3X,ISTSGP,IGRP,IOCTYPX,NSMST,Zmat(IGRP)%A,FREEL,STREO(IGRP)%A,OCSTR(IGRP)%A, &
                   FREEL(1+IOCTYPX*NSMST),IPRNT)
 
-  call ICOPVE2(NSTSGP,1+(IGRP-1)*NSMST,NSMST,NSTFSMGP(1,IGRP))
-  !call ICOPVE2(ISTSGP,1+(IGRP-1)*NSMST,NSMST,ISTFSMGP(1,IGRP))
+  NSTFSMGP(1:NSMST,IGRP) = NSTSGP((IGRP-1)*NSMST+1:IGRP*NSMST)
+  !ISTFSMGP(1:NSMST,IGRP) = ISTSGP((IGRP-1)*NSMST+1:IGRP*NSMST)
 end do
 call mma_deallocate(FREEL)
 
@@ -153,7 +152,7 @@ do IGRP=1,NGRP
   IGAS = IGSFGP(IGRP)
   NGSOBP = NOBPT(IGAS)
   ! First orbital in GAS spacce
-  IGSOB = IELSUM(NOBPT,IGAS-1)+1
+  IGSOB = sum(NOBPT(1:IGAS-1))+1
   IEL = NELFGP(IGRP)
   NSTINI = NSTFGP(IGRP)
 
@@ -181,8 +180,8 @@ do IGRP=1,NGRP
   end if
   ! Zero
   if (LAC /= 0) then
-    call ISETVC(STSTM(IGRP,1)%A,0,LROW*NSTINI)
-    call ISETVC(STSTM(IGRP,2)%A,0,LROW*NSTINI)
+    STSTM(IGRP,1)%A(1:LROW*NSTINI) = 0
+    STSTM(IGRP,2)%A(1:LROW*NSTINI) = 0
   end if
 
   if (ISTAC(IGRP,2) /= 0) then
@@ -201,7 +200,7 @@ end do
 
 ! Now to supergroups, i.e. strings of with given number of elecs in each GAspace
 
-call ISETVC(NSTFSMSPGP,0,MXPNSMST*NTSPGP)
+NSTFSMSPGP(:,1:NTSPGP) = 0
 MXNSTR = -1
 do ITP=1,NSTTYP
   ! Loop over supergroups of given type . i.e. strings
@@ -217,7 +216,9 @@ do ITP=1,NSTTYP
     MXNSTR = max(MXNSTR,MXNSTRFSG)
   end do
 
-  call ICOPMT(NSTSO(ITP)%A,NSMST,NSPGPFTP(ITP),NSTFSMSPGP(1,IBSPGPFTP(ITP)),MXPNSMST,NSPGPFTP(ITP))
+  do i=1,NSPGPFTP(ITP)
+    NSTFSMSPGP(1:NSMST,IBSPGPFTP(ITP)+i-1) = NSTSO(ITP)%A((i-1)*NSMST+1:i*NSMST)
+  end do
   ! Corresponding offset array : Each supergroup is generated individually
   ! so each supergroup starts with offset 1 !
   call ZSPGPIB(NSTSO(ITP)%A,ISTSO(ITP)%A,NSPGPFTP(ITP),NSMST)
@@ -250,9 +251,9 @@ end if
 MAX_STR_OC_BLK = -1
 MAX_STR_SPGP = 0
 do ISPGP=1,NTSPGP
-  NSTR = IELSUM(NSTFSMSPGP(1,ISPGP),NSMST)
+  NSTR = sum(NSTFSMSPGP(1:NSMST,ISPGP))
   MAX_STR_SPGP = max(MAX_STR_SPGP,NSTR)
-  NEL = IELSUM(NELFSPGP(1,ISPGP),NGAS)
+  NEL = sum(NELFSPGP(1:NGAS,ISPGP))
   do ISTSM=1,NSMST
     MAX_STR_OC_BLK = max(MAX_STR_OC_BLK,(NEL+4)*NSTFSMSPGP(ISTSM,ISPGP))
     !MOD = max(MAX_STR_OC_BLK,NEL*NSTFSMSPGP(ISTSM,ISPGP))
@@ -275,8 +276,8 @@ call OCCLS(2,NMXOCCLS,IOCLS,NACTEL,NGAS,IGSOCC(1,1),IGSOCC(1,2),0,ZERO_ARR,NOBPT
 ! Maps creation/annihilation of given gas orb from given supergroup
 ! gives new supergroup.
 
-call ISETVC(SPGPCR,0,NGAS*NTSPGP)
-call ISETVC(SPGPAN,0,NGAS*NTSPGP)
+SPGPCR(:) = 0
+SPGPAN(:) = 0
 
 do ISTTYP=1,NSTTYP
   ! Creation map from this type

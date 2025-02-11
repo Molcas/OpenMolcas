@@ -44,7 +44,7 @@ integer(kind=iwp) :: IGAS, II, JGASSPC, JJGASSPC
 #endif
 real(kind=wp) :: SHIFT
 integer(kind=iwp), allocatable :: CIOIO(:), SVST(:)
-integer(kind=iwp), external :: IFRMR, IMNMX
+integer(kind=iwp), external :: IMNMX
 
 NTEST = 1
 NTEST = max(NTEST,IPRNT)
@@ -164,7 +164,7 @@ call mma_deallocate(SVST)
 call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
                0,ISIMSYM)
 ! Number of BLOCKS
-NBLOCK = IFRMR(CI1BT,1,NBATCH)+IFRMR(CLBT,1,NBATCH)-1
+NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 
 ! Enabling the calculation of excited states in a new way. Lasse
 ! This can be realized for GAS1 to GASN (for the GAS version)

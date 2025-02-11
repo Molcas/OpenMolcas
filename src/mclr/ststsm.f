@@ -14,15 +14,14 @@
 * construct  STSTSX and STSTDX giving
 * symmetry of sx (dx) connecting two given string symmetries
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
       INTEGER STSTSX(NSMST,NSMST),STSTDX(NSMST,NSMST)
 *
       DO 100 ILSTSM = 1, NSMST
         DO 50 IRSTSM = 1, NSMST
-          CALL SYMCOM_MCLR(1,ISXSM,IRSTSM,ILSTSM)
-          CALL SYMCOM_MCLR(1,IDXSM,IRSTSM,ILSTSM)
-          STSTSX(ILSTSM,IRSTSM) = ISXSM
-          STSTDX(ILSTSM,IRSTSM) = IDXSM
+          STSTSX(ILSTSM,IRSTSM) = Mul(IRSTSM,ILSTSM)
+          STSTDX(ILSTSM,IRSTSM) = Mul(IRSTSM,ILSTSM)
    50   CONTINUE
   100 CONTINUE
 *

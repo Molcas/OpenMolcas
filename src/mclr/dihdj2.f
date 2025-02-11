@@ -64,7 +64,7 @@
       ELSE
         LHAMIL = NIDET*(NIDET+1) / 2
       END IF
-      CALL SETVEC(HAMIL,0.0D0,LHAMIL)
+      HAMIL(1:LHAMIL) = 0.0D0
 *
       NTERMS= 0
       NDIF0 = 0
@@ -94,8 +94,8 @@
          JXSGN = 1
         END IF
 *
-        CALL ISETVC(jWORK(KLJAE),0,NORB)
-        CALL ISETVC(jWORK(KLJBE),0,NORB)
+        jWORK(KLJAE:KLJAE+NORB-1) = 0
+        jWORK(KLJBE:KLJBE+NORB-1) = 0
         DO 40 IAEL = 1, NAEL
           jWORK(KLJAE-1+JASTRM(IAEL,JASTAC) ) = 1
    40   CONTINUE
@@ -148,11 +148,11 @@
            NTERMS = NTERMS + 1
 * For second part of spin combinations strings should be swopped
            IF(ILOOP.EQ.1) THEN
-             CALL ICOPVE(IASTRM(1,IASTAC),LIA,NAEL)
-             CALL ICOPVE(IBSTRM(1,IBSTAC),LIB,NBEL)
+             LIA(:) = IASTRM(:,IASTAC)
+             LIB(:) = IBSTRM(:,IBSTAC)
            ELSE IF (ILOOP.EQ.2) THEN
-             CALL ICOPVE(IASTRM(1,IASTAC),LIB,NAEL)
-             CALL ICOPVE(IBSTRM(1,IBSTAC),LIA,NBEL)
+             LIB(1:NAEL) = IASTRM(:,IBSTAC)
+             LIA(1:NBEL) = IBSTRM(:,IASTAC)
            END IF
 *
 * ==============================
@@ -195,8 +195,8 @@
 * ==================================================
 *
 * Expand idet
-           CALL ISETVC(jWORK(KLIAE),0,NORB)
-           CALL ISETVC(jWORK(KLIBE),0,NORB)
+           jWORK(KLIAE:KLIAE+NORB-1) = 0
+           jWORK(KLIBE:KLIBE+NORB-1) = 0
 *
            DO 42 IAEL = 1, NAEL
              jWORK(KLIAE-1+LIA(IAEL)) = 1

@@ -27,7 +27,7 @@ integer(kind=iwp) :: NELMNT, IINST(NELMNT), IOUTST(NELMNT), INO(NELMNT), IPRNT
 integer(kind=iwp) :: I, ISWAP, JOE, NTEST
 
 if (NELMNT /= 0) then
-  call ICOPVE(IINST,IOUTST,NELMNT)
+  IOUTST(:) = IINST(:)
   do I=1,NELMNT
     INO(I) = I
   end do

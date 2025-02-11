@@ -50,18 +50,18 @@ integer(kind=iwp) :: NDIM
 real(kind=wp) :: A(NDIM,NDIM), L(*), U(*)
 integer(kind=iwp) :: I, J, NTEST, R
 real(kind=wp) :: XFACI
-real(kind=wp), external :: INPROD
+real(kind=wp), external :: dDot_
 
 do R=1,NDIM
 
   do J=R,NDIM
-    U(J*(J-1)/2+R) = A(R,J)-INPROD(L(R*(R-1)/2+1),U(J*(J-1)/2+1),R-1)
+    U(J*(J-1)/2+R) = A(R,J)-dDot_(R-1,L(R*(R-1)/2+1),1,U(J*(J-1)/2+1),1)
   end do
 
   XFACI = One/U(R*(R+1)/2)
   L(R*(R+1)/2) = One
   do I=R+1,NDIM
-    L(I*(I-1)/2+R) = (A(I,R)-INPROD(L(I*(I-1)/2+1),U(R*(R-1)/2+1),R-1))*XFACI
+    L(I*(I-1)/2+R) = (A(I,R)-dDot_(R-1,L(I*(I-1)/2+1),1,U(R*(R-1)/2+1),1))*XFACI
   end do
 
 end do

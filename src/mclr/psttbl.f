@@ -54,7 +54,6 @@
           IBASE = ICOOSC(IATP,IBTP,IASM)
           NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
           IF(IAC .EQ. 1 ) THEN
-*           CALL VECSUM(C(IBASE),C(IBASE),CTT,1.0D0,1.0D0,NELMNT)
             Call DaXpY_(NELMNT,1.0d0,CTT,1,C(IBASE),1)
           ELSE IF(IAC .EQ.2 ) THEN
             CALL DCOPY_(NELMNT,CTT,1,C(IBASE),1)
@@ -64,7 +63,6 @@
             IBASE = ICOOSC(IATP,IBTP,IASM)
             NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
             IF(IAC .EQ. 1 ) THEN
-*             CALL VECSUM(C(IBASE),C(IBASE),CTT,1.0D0,1.0D0,NELMNT)
               Call DaXpY_(NELMNT,1.0d0,CTT,1,C(IBASE),1)
             ELSE IF(IAC .EQ.2 ) THEN
               CALL DCOPY_(NELMNT,CTT,1,C(IBASE),1)
@@ -88,7 +86,6 @@
           IBASE = ICOOSC(IATP,IBTP,IASM)
           NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
           IF(IAC .EQ. 1 ) THEN
-*           CALL VECSUM(C(IBASE),C(IBASE),CTT,1.0D0,1.0D0,NELMNT)
             Call DaXpY_(NELMNT,1.0d0,CTT,1,C(IBASE),1)
           ELSE IF(IAC .EQ.2 ) THEN
             CALL DCOPY_(NELMNT,CTT,1,C(IBASE),1)

@@ -11,6 +11,7 @@
 
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
 
+use lucia_data, only: ECORE_HEX
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 use rasscf_lucia, only: Sigma_on_disk
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
@@ -43,7 +44,7 @@ real(kind=wp), allocatable :: Cs(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi
                               sigtemp(:), sgm(:,:), Ss(:), Vec1(:), Vec3(:), VECSVC(:)
 real(kind=wp), allocatable, target :: ctemp(:), Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
-real(kind=wp), external :: dDot_, dnrm2_, GET_ECORE
+real(kind=wp), external :: dDot_, dnrm2_
 
 !-----------------------------------------------------------------------
 ! MGD dec 2017 : When optimizing many states, the lowest ones tend to
@@ -199,7 +200,7 @@ do it_ci=1,mxItr
     end if
 
     ! Add ECORE_HEX (different from zero when particle-hole formalism used)
-    Vec1(:) = Vec1(:)+GET_ECORE()*Vec2(:)
+    Vec1(:) = Vec1(:)+ECORE_HEX*Vec2(:)
     ! Timings on generation of the sigma vector
     call Timing(Rolex_2,dum1,dum2,dum3)
     Rolex_2 = Rolex_2-Rolex_1

@@ -67,7 +67,7 @@ do ISMOB=1,NSMOB
   !    TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
   call TRIPAK(RHO1SM(IMTOFF),SCR,1,LOB,LOB)
   ! scale with -1 to get highest occupation numbers as first eigenvectors
-  call SCALVE(SCR,-One,LOB*(LOB+1)/2)
+  SCR(1:LOB*(LOB+1)/2) = -SCR(1:LOB*(LOB+1)/2)
   call DCopy_(LOB**2,[Zero],0,XNAT(IMTOFF),1)
   call DCopy_(LOB,[One],0,XNAT(IMTOFF),1+LOB)
   call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB)
@@ -87,7 +87,7 @@ do ISMOB=1,NSMOB
 
       if ((XI1I > XII) .and. (XII1 > XI1I1)) then
         ! interchange orbital IOB and IOB -1
-        call SWAPVE(XNAT(IMTOFF+(IOB-1)*LOB),XNAT(IMTOFF+(IOB-1-1)*LOB),LOB)
+        call dSwap_(LOB,XNAT(IMTOFF+(IOB-1)*LOB),1,XNAT(IMTOFF+(IOB-1-1)*LOB),1)
         SS = OCCNUM(IOBOFF-1+IOB-1)
         OCCNUM(IOBOFF-1+IOB-1) = OCCNUM(IOBOFF-1+IOB)
         OCCNUM(IOBOFF-1+IOB) = SS

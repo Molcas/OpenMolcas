@@ -36,6 +36,7 @@ subroutine ADADST_GAS(IOB,IOBSM,IOBTP,NIOB,JOB,JOBSM,JOBTP,NJOB,ISPGP,ISM,ITP,KM
 !
 ! Jeppe Olsen, August of 95
 
+use Symmetry_Info, only: Mul
 use HIDSCR, only: OCSTR, REO, Z, ZSCR
 use lucia_data, only: IBSPGPFTP, IOBPTS, NELFSPGP, NELFTP, NELIS, NGAS, NOBPT, NOCOB, NSTRKS
 use Definitions, only: wp, iwp, u6
@@ -77,8 +78,8 @@ end if
 ISPGPABS = IBSPGPFTP(ITP)-1+ISPGP
 call NEWTYP(ISPGPABS,1,IOBTP,K1SPGPABS)
 call NEWTYP(K1SPGPABS,1,JOBTP,KSPGPABS)
-call SYMCOM(2,IOBSM,K1SM,ISM)
-call SYMCOM(2,JOBSM,KSM,K1SM)
+K1SM = Mul(IOBSM,ISM)
+KSM = Mul(JOBSM,K1SM)
 if (NTEST >= 100) write(u6,*) ' K1SM,K1SPGPABS,KSM,KSPGPABS : ',K1SM,K1SPGPABS,KSM,KSPGPABS
 ! In ADADS1_GAS we need : Occupation of KSTRINGS
 !                         lexical => Actual order for I strings

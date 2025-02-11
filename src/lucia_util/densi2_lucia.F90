@@ -80,7 +80,7 @@ integer(kind=iwp), external :: IMNMX
 ! Before I forget it :
 !IDUM = 0
 !call MEMMAN(IDUM,IDUM,'MARK ',IDUM,'DENSI ')
-call SETVEC(RHO1,Zero,NACOB**2)
+RHO1(1:NACOB**2) = Zero
 if (I12 == 2) then
   if (IPACK) then
     ! If IPACK == .TRUE. then
@@ -88,14 +88,14 @@ if (I12 == 2) then
     ! density matrices are given in Nijkl.
     NIJ = (NACOB*(NACOB+1))/2
     NIJKL = (NIJ*(NIJ+1))/2
-    call SETVEC(RHO2S,Zero,NIJKL)
-    call SETVEC(RHO2A,Zero,NIJKL)
+    RHO2S(1:NIJKL) = Zero
+    RHO2A(1:NIJKL) = Zero
   else
-    call SETVEC(RHO2,Zero,NACOB**2*(NACOB**2+1)/2)
+    RHO2(1:NACOB**2*(NACOB**2+1)/2) = Zero
   end if
 end if
 
-if (IDOSRHO1 == 1) call SETVEC(SRHO1,Zero,NACOB**2)
+if (IDOSRHO1 == 1) SRHO1(1:NACOB**2) = Zero
 
 ! Info for this internal space
 ! type of alpha and beta strings

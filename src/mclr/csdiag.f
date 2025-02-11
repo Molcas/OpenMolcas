@@ -36,7 +36,7 @@
             EAVER = EAVER +DETDIA(ABS(ICTSDT(IDTOFF-1+JDET) ))
           End Do
           IF( IDET .NE. 0 )EAVER = EAVER/DBLE(IDET)
-          CALL SETVEC(CSFDIA(ICSOFF),EAVER,ICSF)
+          CSFDIA(ICSOFF:ICSOFF+ICSF-1) = EAVER
           ICSOFF = ICSOFF + ICSF
           IDTOFF = IDTOFF + IDET
        End Do

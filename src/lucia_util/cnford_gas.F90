@@ -31,17 +31,16 @@ implicit none
 integer(kind=iwp) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM, ICTSDT(*), NBLOCK, IBLOCK(8,NBLOCK)
 integer(kind=iwp) :: IB_OCCLS, IDOREO, INITIALIZE_CONF_COUNTERS, JOCCLS, NCONF_OCCLS, NCONF_P, NELEC, NTEST
 integer(kind=iwp), allocatable :: LOCMAX(:), LOCMIN(:), Z(:), ZSCR(:)
-integer(kind=iwp), external :: IELSUM
 
 NTEST = 0
-NELEC = IELSUM(IOCCLS(1,1),NGAS)
+NELEC = sum(IOCCLS(:,1))
 
 call mma_allocate(ZSCR,(NOCOB+1)*(NELEC+1),Label='ZSCR')
 call mma_allocate(Z,NOCOB*NELEC*2,Label='Z')
 call mma_allocate(LOCMIN,NOCOB,Label='LOCMIN')
 call mma_allocate(LOCMAX,NOCOB,Label='LOCMAX')
 ! Zero configuration reorder array using NCONF_ALL_SYM
-call ISETVC(CONF_REO(ISYM)%A,0,NCONF_tot)
+CONF_REO(ISYM)%A(:) = 0
 
 ! Generate configurations for all occupation classes
 

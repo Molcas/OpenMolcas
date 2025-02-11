@@ -89,17 +89,17 @@ do IGAS=1,NGAS
   ! Also: in MSM1, MSM2, counts the number of nontrivial combinations per sym
   if (IGAS == 1) then
     ! ISM1: The number of strings per symmetry for zero electrons
-    call ISETVC(ISM1,0,NSMST)
+    ISM1(1:NSMST) = 0
     ISM1(1) = 1
-    call ISETVC(MSM1,0,NSMST)
+    MSM1(1:NSMST) = 0
     MSM1(1) = 1
   else
     ! copy from the ISM2 obtained for preceding IGAS
-    call ICOPVE(ISM2,ISM1,NSMST)
-    call ICOPVE(MSM2,MSM1,NSMST)
+    ISM1(1:NSMST) = ISM2(1:NSMST)
+    MSM1(1:NSMST) = MSM2(1:NSMST)
   end if
-  call ISETVC(ISM2,0,NSMST)
-  call ISETVC(MSM2,0,NSMST)
+  ISM2(1:NSMST) = 0
+  MSM2(1:NSMST) = 0
   do ISM_IGASM1=1,NSMST
     do ISM_IGAS=1,NSMST
       ISM = Mul(ISM_IGASM1,ISM_IGAS)
@@ -108,7 +108,7 @@ do IGAS=1,NGAS
     end do
   end do
 end do !loop over IGAS
-call ICOPVE(ISM2,NSTSSPGP(1,IGRP),NSMST)
+NSTSSPGP(:,IGRP) = ISM2(1:NSMST)
 
 MXNSTR = 0
 NSMCLS = 0

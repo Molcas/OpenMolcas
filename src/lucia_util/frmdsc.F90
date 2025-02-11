@@ -37,14 +37,14 @@ if (IPACK /= 0) then
   !if (I_AM_PACKED /= 0) write(u6,*) ' File is packed, file number = ',IFILE
   if (IMZERO == 1) then
     !write(u6,*) ' frmdsc, length of zero block',NDIM
-    call SETVEC(ARRAY,Zero,NDIM)
+    ARRAY(1:NDIM) = Zero
     return
   end if
 end if
 !write(u6,*) ' IMZERO I_AM_PACKED',IMZERO,I_AM_PACKED
 
 if (I_AM_PACKED == 1) then
-  call SETVEC(ARRAY,Zero,NDIM)
+  ARRAY(1:NDIM) = Zero
   ! Loop over packed records of dimension LPBLK
   NBATCH = 0
   ! The next LPBLK elements

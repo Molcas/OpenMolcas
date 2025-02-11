@@ -30,14 +30,15 @@ subroutine TS_SYM_PNT2(IGRP,NIGRP,MXVAL,MNVAL,ISYM,IPNT,LPNT)
 !
 ! Version 2 : Uses IGRP and NIGRP to define supergroup
 
+use Symmetry_Info, only: Mul
 use lucia_data, only: MINMAX_SM_GP, MXPNGAS, MXPNSMST, NELFGP, NSTFSMGP
 use csm_data, only: NSMST
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: NIGRP, IGRP(NIGRP), ISYM, MNVAL(*), MXVAL(*), IPNT(*), LPNT
-integer(kind=iwp) :: IFIRST, IGAS, IOFF, ISMFGS(MXPNGAS), ISMGSN, ISTSMM1, ISYMSTR, MULT, NBLKS, NGASL, NNSTSGP(MXPNSMST,MXPNGAS), &
-                     NONEW, NSTRII, NSTRINT, NTEST
+integer(kind=iwp) :: IFIRST, IGAS, IOFF, ISMFGS(MXPNGAS), ISTSMM1, ISYMSTR, MULT, NBLKS, NGASL, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, &
+                     NSTRII, NSTRINT, NTEST
 
 NTEST = 0
 ! Info on groups of strings in supergroup
@@ -46,8 +47,8 @@ do IGAS=1,NIGRP
   !ITPFGS(IGAS) = IGRP(IGAS)
   if (NELFGP(IGRP(IGAS)) > 0) NGASL = IGAS
   ! Number of strings per symmetry in each gasspace
-  !call ICOPVE2(NSTSGP(1)%I,(ITPFGS(IGAS)-1)*NSMST+1,NSMST,NNSTSGP(1,IGAS))
-  call ICOPVE(NSTFSMGP(1,IGRP(IGAS)),NNSTSGP(1,IGAS),NSMST)
+  !NNSTSGP(1:NSMST,IGAS) = NSTSGP(1)%I((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
+  NNSTSGP(1:NSMST,IGAS) = NSTFSMGP(1:NSMST,IGRP(IGAS))
 end do
 
 !NGASL = NIGRP
@@ -103,13 +104,11 @@ do
   ! Symmetry of NGASL -1 spaces given, symmetry of full space
   !ISTSMM1 = 1
   !do IGAS=1,NGASL-1
-  !  call SYMCOM(3,ISTSMM1,ISMFGS(IGAS),JSTSMM1)
-  !  ISTSMM1 = JSTSMM1
+  !  ISTSMM1 = Mul(ISTSMM1,ISMFGS(IGAS))
   !end do
   ISTSMM1 = ISYMSTR(ISMFGS,NGASL-1)
   ! sym of SPACE NGASL
-  call SYMCOM(2,ISTSMM1,ISMGSN,ISYM)
-  ISMFGS(NGASL) = ISMGSN
+  ISMFGS(NGASL) = Mul(ISTSMM1,ISYM)
   if (NTEST >= 1000) then
     write(u6,*) ' next symmetry of NGASL spaces'
     call IWRTMA(ISMFGS,1,NGASL,1,NGASL)

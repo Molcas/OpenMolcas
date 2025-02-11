@@ -58,7 +58,7 @@ real(kind=wp), intent(in) :: DTOC(*), ONEBOD(NACTOB,NACTOB), ECORE, DIAG(*), TUV
 real(kind=wp), intent(_OUT_) :: SCR(*)
 integer(kind=iwp), intent(out) :: NPCSF, NPCNF
 integer(kind=iwp), intent(inout) :: NTEST
-integer(kind=iwp) :: ICSFMN, IFINIT, IICNF, IICSF, IILACT, IILB, IIRACT, IIRB, IIRMAX, ILRI, ILRO, ILTYP, IMIN, IRTYP, KLCONF, &
+integer(kind=iwp) :: i, ICSFMN, IFINIT, IICNF, IICSF, IILACT, IILB, IIRACT, IIRB, IIRMAX, ILRI, ILRO, ILTYP, IMIN, IRTYP, KLCONF, &
                      KLFREE, KLPHPS, KRCONF, MXCSFC, NCSFL, NCSFMN, NCSFR, NIRREP, NJCNF
 real(kind=wp) :: XMAX, XMIN
 real(kind=wp), parameter :: Acc = 1.0e-13_wp ! Assumed machine accuray (give and take)
@@ -120,7 +120,7 @@ subroutine PHPCSF_INTERNAL(SCR)
       ! add new configuration
       NPCNF = NPCNF+1
       IPCNF(NPCNF) = IMIN
-      call ISTVC2(IPCSF(NPCSF+1),ICSFMN-1,1,NCSFMN)
+      IPCSF(NPCSF+1:NPCSF+NCSFMN) = [(i,i=ICSFMN,ICSFMN+NCSFMN-1)]
       NPCSF = NPCSF+NCSFMN
       SCR(IMIN) = XMAX+One
     else

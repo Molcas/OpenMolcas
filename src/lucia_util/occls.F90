@@ -34,7 +34,6 @@ implicit none
 integer(kind=iwp) :: IWAY, NOCCLS, NGAS, IOCCLS(NGAS,*), NEL, IGSMIN(NGAS), IGSMAX(NGAS), I_DO_BASSPC, IBASSPC(*), NOBPT(NGAS)
 integer(kind=iwp) :: I, IBASSPC_FOR_CLS, IEL, IFIRST, IGAS, IM_TO_STUFFED, IOC(MXPNGAS), IOCA(MXPNGAS), ISKIP, KGAS, NEGA, NONEW, &
                      NTEST
-integer(kind=iwp), external :: IELSUM
 
 NTEST = 0
 if (NTEST >= 100) then
@@ -90,7 +89,7 @@ do
   !call IWRTMA(IOC,1,NGAS,1,NGAS)
   IFIRST = 0
   ! Correct number of electrons
-  IEL = IELSUM(IOC,NGAS)
+  IEL = sum(IOC(1:NGAS))
   if ((IEL == NEL) .and. (NEGA == 0) .and. (IM_TO_STUFFED == 0)) then
     NOCCLS = NOCCLS+1
     if (IWAY == 2) then
@@ -98,7 +97,7 @@ do
         write(u6,*) ' Another allowed class :'
         call IWRTMA(IOC,1,NGAS,1,NGAS)
       end if
-      call ICOPVE(IOC,IOCCLS(1,NOCCLS),NGAS)
+      IOCCLS(:,NOCCLS) = IOC(1:NGAS)
 
       if (I_DO_BASSPC == 1) IBASSPC(NOCCLS) = IBASSPC_FOR_CLS(IOC)
 

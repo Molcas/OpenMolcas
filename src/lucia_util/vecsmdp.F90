@@ -20,7 +20,6 @@ subroutine VECSMDP(VEC1,VEC2,FAC1,FAC2,LU1,LU2,LU3,IREW,LBLK)
 ! LBLK DEFINES STRUCTURE OF FILE
 
 use lucia_data, only: IDISK
-use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -82,11 +81,11 @@ do
       else
         ! Nonvanishing record
         if (IMZERO1 == 1) then
-          call VECSUM(VEC1,VEC1,VEC2,Zero,FAC2,NBL1)
+          VEC1(1:NBL1) = FAC2*VEC2(1:NBL1)
         else if (IMZERO2 == 1) then
-          call VECSUM(VEC1,VEC1,VEC2,FAC1,Zero,NBL1)
+          VEC1(1:NBL1) = FAC1*VEC1(1:NBL1)
         else
-          call VECSUM(VEC1,VEC1,VEC2,FAC1,FAC2,NBL1)
+          VEC1(1:NBL1) = FAC1*VEC1(1:NBL1)+FAC2*VEC2(1:NBL1)
         end if
         call TODSCP(VEC1,NBL1,KBLK,LU3)
       end if

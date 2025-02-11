@@ -86,7 +86,6 @@
       DIMENSION ITP(3 ),JTP(3 ),KTP(3 ),LTP(3 )
 *
       NGAS = 3
-      ZERO = 0.0D0
 *
 *. Symmetry of allowed excitations
       IJSM = STSTSX(IASM,JASM)
@@ -178,7 +177,7 @@
      &                   I4,XI4S,MAXK,NKBSTR,KBEND)
 
 *               IF(NKBSTR.EQ.0) GOTO 1930
-                CALL SETVEC(X,ZERO,NI*NJ*NK*NL)
+                X(1:NI*NJ*NK*NL) = 0.0D0
 *
                 CALL ABTOR2(SIRES,CJRES,LKABTC,
      &               NKBSTR,X,NI,NJ,NK,NL,NKBSTR,

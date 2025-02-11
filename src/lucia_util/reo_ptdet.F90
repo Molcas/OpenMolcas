@@ -62,7 +62,7 @@ if ((NALPHA >= 0) .and. (NALPHA <= NOPEN)) then
 else
   NTOT_PTDET = 0
 end if
-call ISETVC(IREO_PTDET,0,NTOT_PTDET)
+IREO_PTDET(1:NTOT_PTDET) = 0
 
 do JPTDT=1,NLIST_PTDET
   !write(u6,*) ' JPTDT = ',JPTDT

@@ -17,7 +17,7 @@
       DIMENSION ISCR(*)
 * Length of Scratch : Number of orbitals
 *
-      CALL ISETVC(ISCR,0,NORB)
+      ISCR(1:NORB) = 0
       DO 10 ICL = 1, NCLL
         ISCR(ICNL(ICL) ) = 2
    10 CONTINUE

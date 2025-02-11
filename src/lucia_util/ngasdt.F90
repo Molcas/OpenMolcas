@@ -32,6 +32,7 @@ subroutine NGASDT(IOCCMN,IOCCMX,NGAS,ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,IAOC
 ! May 1999 : Loops restructrured to sym,type,type (leftmost innerst)
 !            MXSB not calculated
 
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
@@ -80,7 +81,7 @@ do IATP=1,NOCTPA
       LTTS_AS = 0
       do IASM=1,NSMST
         if (IBLTP(IASM) == 0) cycle
-        call SYMCOM(2,IASM,IBSM,ITOTSM)
+        IBSM = Mul(IASM,ITOTSM)
         if (IBSM /= 0) then
           if (IBLTP(IASM) == 2) then
             ISYM = 1

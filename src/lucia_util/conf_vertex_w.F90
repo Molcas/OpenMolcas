@@ -23,8 +23,7 @@ integer(kind=iwp) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL, IVERTEXW(NORB+1,
 integer(kind=iwp) :: IEL, IORB, NTEST
 
 !write(u6,*) ' CONF_VERTEX : NORB, NEL = ',NORB,NEL
-call ISETVC(IVERTEXW,0,(NORB+1)*(NEL+1))
-
+IVERTEXW(:,:) = 0
 IVERTEXW(1,1) = 1
 do IORB=1,NORB
   !Jesper DO IEL=0,NEL

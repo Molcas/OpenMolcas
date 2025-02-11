@@ -76,7 +76,7 @@ if (IROUTE == 3) then
                 ! Restrict so (ij) <= (kl)
                 IMAX = K
                 JKINTOF = INTOF+(K-1)*NJ
-                !call COPVEC(XIJKL(JKINTOF),XIJILS,NJ)
+                !XIJILS(1:NJ) = XIJKL(JKINTOF:JKINTOF+NJ-1)
                 do J=L,NL
                   XIJILS(J) = XIJKL(JKINTOF-1+J)
                 end do
@@ -90,7 +90,7 @@ if (IROUTE == 3) then
                 do J=L,NL
                   XIJKL(JKINTOF-1+J) = XIJILS(J)
                 end do
-                !call COPVEC(XIJILS,XIJKL(JKINTOF),NJ)
+                !XIJ(JKINTOF:JKINTOF+NJ-1) = XIJILS(1:NJ)
               end if
 
             end if
@@ -132,7 +132,7 @@ else if (IROUTE == 2) then
               if (IKORD /= 0) then
                 ! Restrict so (ji) <= (kl)
                 IKINTOF = INTOF+(K-1)*NI
-                call COPVEC(XIJKL(IKINTOF),XIJILS,NI)
+                XIJILS(1:NI) = XIJKL(IKINTOF:IKINTOF+NI-1)
                 XIJKL(IKINTOF-1+L) = Half*XIJKL(IKINTOF-1+L)
                 do I=L+1,NL
                   XIJKL(IKINTOF-1+I) = Zero
@@ -141,7 +141,7 @@ else if (IROUTE == 2) then
 
               call MATML7(SKII(ISOFF),XIJKL(INTOF),CKJJ(ICOFF),NI,NKA,NI,NJ,NJ,NKA,FACS,FACTOR,0)
 
-              if (IKORD /= 0) call COPVEC(XIJILS,XIJKL(IKINTOF),NI)
+              if (IKORD /= 0) XIJKL(IKINTOF:IKINTOF+NI-1) = XIJILS(1:NI)
 
             end if
           end do

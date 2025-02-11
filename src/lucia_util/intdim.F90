@@ -12,24 +12,24 @@
 subroutine INTDIM()
 ! Number of integrals and storage mode
 
-use lucia_data, only: I1234S, I12S, I34S, NBINT1, NBINT2, NSMOB, PNTGRP
+use lucia_data, only: I1234S, I12S, I34S, NBINT1, NBINT2, NSMOB
 
 implicit none
 
 ! 1 : Number of one-electron integrals
 !NINT1 = NSXFSM(NSMOB,MXPOBS,NTOOBS,NTOOBS,ITSSX,ADSXA,1,IPRNT)
 ! 2 : Number of two-electron integrals
-if (PNTGRP == 1) then
-  ! Full eightfold symmetry can be used
-  I12S = 1
-  I34S = 1
-  I1234S = 1
+!if (PNTGRP == 1) then
+!  ! Full eightfold symmetry can be used
+I12S = 1
+I34S = 1
+I1234S = 1
 !else
-!  !Only symmetry between 12 and 34
+!  ! Only symmetry between 12 and 34
 !  I12S = 0
 !  I34S = 0
 !  I1234S = 1
-end if
+!end if
 !NINT2 = NDXFSM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,ITSDX,ADSXA,SXDXSX,I12S,I34S,I1234S,IPRNT)
 ! Number of integrals without complex conjugation symmetry
 ! (used for T1 transformed Hamiltonian)

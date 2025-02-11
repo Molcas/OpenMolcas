@@ -139,9 +139,9 @@
 *
         ii=1
         CALL TRPMT3(CB,NJA,NJB,C2)
-        CALL COPVEC(C2,CB,NJA*NJB)
+        CB(1:NJA*NJB) = C2(1:NJA*NJB)
         CALL TRPMT3(SB,NIA,NIB,C2)
-        CALL COPVEC(C2,SB,NIA*NIB)
+        SB(1:NIA*NIB) = C2(1:NIA*NIB)
         CALL GSBBD1(RHO1(1,ii),
      &                   NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &                   NGAS,IAOC,JAOC,
@@ -166,9 +166,9 @@
      &         NSMOB,NSMST,NSMSX,MXPOBS)
         END IF
         CALL TRPMT3(CB,NJB,NJA,C2)
-        CALL COPVEC(C2,CB,NJA*NJB)
+        CB(1:NJA*NJB) = C2(1:NJA*NJB)
         CALL TRPMAT(SB,NIB,NIA,C2)
-        CALL COPVEC(C2,SB,NIB*NIA)
+        SB(1:NIA*NIB) = C2(1:NIA*NIB)
       END IF
 *
 * ===================================
@@ -180,9 +180,9 @@
       IF(I12.EQ.2.AND.NAEL.GE.1.AND.NBEL.GE.1) THEN
 *. Routine uses transposed blocks
         CALL TRPMT3(CB,NJA,NJB,C2)
-        CALL COPVEC(C2,CB,NJA*NJB)
+        CB(1:NJA*NJB) = C2(1:NJA*NJB)
         CALL TRPMT3(SB,NIA,NIB,C2)
-        CALL COPVEC(C2,SB,NIA*NIB)
+        SB(1:NIA*NIB) = C2(1:NIA*NIB)
         CALL GSBBD2B(RHO2(1,ii),
      &                    IASM,IATP,IBSM,IBTP,NIA,NIB,
      &                    JASM,JATP,JBSM,JBTP,NJA,NJB,
@@ -194,9 +194,9 @@
      &                    NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,
      &                    SSCR,CSCR,NACOB,NTEST,ieaw)
         CALL TRPMT3(CB,NJB,NJA,C2)
-        CALL COPVEC(C2,CB,NJA*NJB)
+        CB(1:NJA*NJB) = C2(1:NJA*NJB)
         CALL TRPMAT(SB,NIB,NIA,C2)
-        CALL COPVEC(C2,SB,NIB*NIA)
+        SB(1:NIA*NIB) = C2(1:NIA*NIB)
       END IF
 *
       RETURN

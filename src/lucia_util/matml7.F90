@@ -51,9 +51,9 @@ end if
 
 if ((IZERO == 1) .and. (NCROW*NCCOL /= 0)) then
   if (FACTORC /= Zero) then
-    call SCALVE(C,FACTORC,NCROW*NCCOL)
+    C(:,:) = FACTORC*C(:,:)
   else
-    call SETVEC(C,Zero,NCROW*NCCOL)
+    C(:,:) = Zero
   end if
 end if
 
@@ -79,7 +79,7 @@ else
     ! C=A*B
     ! ======
 
-    !call SCALVE(C,FACTORC,NCROW*NCCOL)
+    !C(:,:) = FACTORC*C(:,:)
     do J=1,NCCOL
       ! Initialize with FACTORC*C(I,J) + FACTORAB*A(I,1)*B(1,J)
       if (NBROW >= 1) then
@@ -144,7 +144,7 @@ if (ITRNSP == 3) then
   ! C = A(T)*B(T)
   !================
   ! C(I,J) = FACTORC*C(I,J) + FACTORAB*sum(K) A(K,I)*B(J,K)
-  call SCALVE(C,FACTORC,NCROW*NCCOL)
+  C(:,:) = FACTORC*C(:,:)
   do I=1,NCROW
     do K=1,NAROW
       AKI = FACTORAB*A(K,I)

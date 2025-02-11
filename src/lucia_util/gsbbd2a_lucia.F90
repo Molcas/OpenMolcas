@@ -145,7 +145,7 @@ if (IDXSM /= 0) then
 
           IFIRST = 1
           ! Loop over batches of I strings
-          call SETVEC(X,Zero,NI*NJ*NK*NL)
+          X(1:NI*NJ*NK*NL) = Zero
           do IIPART=1+MYRANK,NPART,NPROCS
             IBOT = 1+(IIPART-1)*NPARTSZ
             ITOP = min(IBOT+NPARTSZ-1,NROW)
@@ -201,7 +201,7 @@ if (IDXSM /= 0) then
                 JLOFF = (JLBOFF-1+IJLE-1)*NKBTC*NIBTC+1
                 if ((JLSM == 1) .and. (J == L)) then
                   ! a+j a+j gives trivially zero
-                  call SETVEC(CSCR(JLOFF),Zero,NKBTC*NIBTC)
+                  CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = Zero
                 else
                   call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
                 end if
@@ -251,7 +251,7 @@ if (IDXSM /= 0) then
                 IKOFF = (IKBOFF-1+IIKE-1)*NKBTC*NIBTC+1
                 if ((IKSM == 1) .and. (I == K)) then
                   ! a+j a+j gives trivially zero
-                  call SETVEC(SSCR(IKOFF),Zero,NKBTC*NIBTC)
+                  SSCR(IKOFF:IKOFF+NKBTC*NIBTC-1) = Zero
                 else
                   call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1IK),XI1S(1,I1IK))
                 end if

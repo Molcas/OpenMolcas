@@ -27,8 +27,8 @@ integer(kind=iwp) :: NSMOB, MXPOBS, NO1PS(*), NO2PS(*), NO3PS(*), NO4PS(*), IDXS
                      ADASX(MXPOBS,MXPOBS)
 integer(kind=iwp) :: I12NUM, I12SM, I1SM, I2SM, I34NUM, I34SM, I3SM, I4SM, IOFF, N12, N34, NTEST
 
-call ISETVC(IPNTR,0,NSMOB**3)
-call ISETVC(ISM4A,0,NSMOB**3)
+IPNTR(:,:,:) = 0
+ISM4A(:,:,:) = 0
 
 !write(u6,*) 'NO1PS NO2PS NO3PS NO4PS'
 !call IWRTMA(NO1PS,1,NSMOB,1,NSMOB)

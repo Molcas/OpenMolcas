@@ -20,7 +20,8 @@
       IBSF = 1
       DO 100 ICOL = 1, NDIM
         NELMNT = NDIM - ICOL + 1
-        CALL VECSUM(AP(IBSP),AP(IBSP),B(IBSF),1.0D0,1.0D0,NELMNT)
+        AP(IBSP:IBSP+NELMNT-1) = AP(IBSP:IBSP+NELMNT-1)+
+     &                           B(IBSF:IBSF+NELMNT-1)
         IBSP = IBSP + NELMNT
         IBSF = IBSF + NDIM
   100 CONTINUE
