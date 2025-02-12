@@ -226,8 +226,7 @@
 20       CONTINUE
          END DO
         ENDIF
-        CALL DGEADD(CMOX,NOT,'N',
-     *              VEC,NIO,'N',CMOX,NOT,NIO,NIO)
+        CALL DGEACC(CMOX,NOT,VEC,NIO,NIO,NIO)
        ENDIF
 *
 ************************************************************************
@@ -288,8 +287,7 @@
 41         CONTINUE
           END DO
          ENDIF
-         CALL DGEADD(CMOX(1+NOT*NIO+NIO),NOT,'N',
-     *               VEC,NR1,'N',CMOX(1+NOT*NIO+NIO),NOT,NR1,NR1)
+         CALL DGEACC(CMOX(1+NOT*NIO+NIO),NOT,VEC,NR1,NR1,NR1)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
          II=0
@@ -370,9 +368,8 @@
 42         CONTINUE
           END DO
          ENDIF
-         CALL DGEADD(CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,'N',
-     &               VEC,NR2,'N',
-     &               CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
+         CALL DGEACC(CMOX(1+NOT*(NIO+NR1)+NIO+NR1), NOT,
+     &               VEC,NR2,NR2,NR2)
 
 
 
@@ -460,9 +457,8 @@
 43         CONTINUE
           END DO
          ENDIF
-         CALL DGEADD(CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,'N',
-     *               VEC,NR3,'N',
-     *               CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,NR3,NR3)
+         CALL DGEACC(CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2), NOT,
+     &               VEC, NR3, NR3, NR3)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
          II=0
@@ -529,8 +525,7 @@
 60       CONTINUE
          END DO
         ENDIF
-        CALL DGEADD(CMOX(1+NOT*NOC+NOC),NOT,'N',
-     *              VEC,NEO,'N',CMOX(1+NOT*NOC+NOC),NOT,NEO,NEO)
+        CALL DGEACC(CMOX(1+NOT*NOC+NOC),NOT,VEC,NEO,NEO,NEO)
        ENDIF
 *
 * Transform molecular orbitals
@@ -715,3 +710,36 @@
       CALL DDAFILE(JOBIPH,1,SQ,NORBT,IAD15)
 *
       END SUBROUTINE FCKPT2
+
+
+      !-------------------------------------------------------------------
+      ! PURPOSE: Adds matrix B to matrix A element by element (A = A + B)
+      !
+      ! INPUT:
+      ! A(*)    - Target matrix stored in column-major format
+      ! LDA     - Leading dimension of matrix A
+      ! B(*)    - Source matrix stored in column-major format
+      ! LDB     - Leading dimension of matrix B
+      ! M       - Number of rows in both matrices
+      ! N       - Number of columns in both matrices
+      !
+      ! OUTPUT:
+      ! A(*)    - Updated matrix containing A + B
+      !-------------------------------------------------------------------
+      subroutine dgeacc(A,LDA,B,LDB,M,N)
+        use Definitions, only: wp, iwp
+
+        implicit none
+        real(kind=wp), intent(inout) :: A(*)
+        real(kind=wp), intent(in) :: B(*)
+        integer(kind=iwp), intent(in) :: LDA, LDB, M, N
+        integer(kind=iwp) :: iCol, iRow
+
+        do iRow=0,m-1
+          do iCol=0,n-1
+            a(iRow+iCol*lda+1) = a(iRow+iCol*lda+1)+b(iRow+iCol*ldb+1)
+          end do
+        end do
+
+        return
+      end subroutine dgeacc
