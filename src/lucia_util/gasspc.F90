@@ -47,9 +47,9 @@ do IGAS=1,NGAS
   if ((IGSOCC(IGAS,1) == NEL_MAX) .and. (IGSOCC(IGAS,2) == NEL_MAX)) then
     ! Inactive  space
     I_IAD(IGAS) = 1
-  else if ((IGAS > 1) .and. (IGSOCC(IGAS-1,1) == NEL_REF)) then
+  else if (IGAS > 1) then
     ! Delete space
-    I_IAD(IGAS) = 3
+    if (IGSOCC(IGAS-1,1) == NEL_REF) I_IAD(IGAS) = 3
   else
     ! Active space
     I_IAD(IGAS) = 2
@@ -70,9 +70,9 @@ do IGAS=1,NGAS
   if ((IGSOCCX(IGAS,1,1) == NEL_MAX) .and. (IGSOCCX(IGAS,2,1) == NEL_MAX)) then
     ! Inactive  space
     I_IADX(IGAS) = 1
-  else if ((IGAS > 1) .and. (IGSOCCX(IGAS-1,1,1) == NEL_REF)) then
+  else if (IGAS > 1) then
     ! Delete space
-    I_IADX(IGAS) = 3
+    if (IGSOCCX(IGAS-1,1,1) == NEL_REF) I_IADX(IGAS) = 3
   else
     ! Active space
     I_IADX(IGAS) = 2

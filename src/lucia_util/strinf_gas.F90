@@ -280,28 +280,32 @@ SPGPCR(:) = 0
 SPGPAN(:) = 0
 
 do ISTTYP=1,NSTTYP
-  ! Creation map from this type
-  IIEL = NELFTP(ISTTYP)
-  ! Type of string with one elec more
-  ISTTYPC = 0
-  do JSTTYP=1,NSTTYP
-    if ((mod(ISTTYP,2) == mod(JSTTYP,2)) .and. (NELFTP(JSTTYP) == IIEL+1)) ISTTYPC = JSTTYP
-  end do
-  !write(u6,*) ' ISTTYP and ISTTYPC ',ISTTYP,ISTTYPC
   if (NSPGPFTP(ISTTYP) > 0) then
+    ! Creation map from this type
+    IIEL = NELFTP(ISTTYP)
+    ! Type of string with one elec more
+    ISTTYPC = 0
+    do JSTTYP=1,NSTTYP
+      if ((mod(ISTTYP,2) == mod(JSTTYP,2)) .and. (NELFTP(JSTTYP) == IIEL+1)) ISTTYPC = JSTTYP
+    end do
+    !write(u6,*) ' ISTTYP and ISTTYPC ',ISTTYP,ISTTYPC
+    if (ISTTYPC >= 1) then
+      if (NSPGPFTP(ISTTYPC) > 0) &
+        call SPGP_AC(NELFSPGP(1,1),NSPGPFTP(ISTTYP),NELFSPGP(1,1),NSPGPFTP(ISTTYPC),NGAS,MXPNGAS,2,SPGPCR,IBSPGPFTP(ISTTYP), &
+                     IBSPGPFTP(ISTTYPC))
+    end if
 
-    if ((ISTTYPC >= 1) .and. (NSPGPFTP(ISTTYPC) > 0)) &
-      call SPGP_AC(NELFSPGP(1,1),NSPGPFTP(ISTTYP),NELFSPGP(1,1),NSPGPFTP(ISTTYPC),NGAS,MXPNGAS,2,SPGPCR,IBSPGPFTP(ISTTYP), &
-                   IBSPGPFTP(ISTTYPC))
     ! Annihilation maps
     ISTTYPA = 0
     do JSTTYP=1,NSTTYP
       if ((mod(ISTTYP,2) == mod(JSTTYP,2)) .and. (NELFTP(JSTTYP) == IIEL-1)) ISTTYPA = JSTTYP
     end do
     !write(g6,*) 'ISTTYP, ISTTYPA', ISTTYP,ISTTYPA
-    if ((ISTTYPA >= 1) .and. (NSPGPFTP(ISTTYPA) > 0)) &
-      call SPGP_AC(NELFSPGP(1,1),NSPGPFTP(ISTTYP),NELFSPGP(1,1),NSPGPFTP(ISTTYPA),NGAS,MXPNGAS,1,SPGPAN,IBSPGPFTP(ISTTYP), &
-                   IBSPGPFTP(ISTTYPA))
+    if (ISTTYPA >= 1) then
+      if (NSPGPFTP(ISTTYPA) > 0) &
+        call SPGP_AC(NELFSPGP(1,1),NSPGPFTP(ISTTYP),NELFSPGP(1,1),NSPGPFTP(ISTTYPA),NGAS,MXPNGAS,1,SPGPAN,IBSPGPFTP(ISTTYP), &
+                     IBSPGPFTP(ISTTYPA))
+    end if
   end if
 end do
 
