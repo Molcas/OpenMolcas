@@ -182,7 +182,7 @@ C9805EAW     IROUTE = 1
 *
              IF(IROUTE.EQ.2) THEN
 *. C(Ka,Jb,j) => C(j,Ka,Jb)
-               CALL TRPMAT(CJRES,LCJ,NJ,SIRES)
+               CALL TRNSPS(LCJ,NJ,CJRES,SIRES)
                CALL DCOPY_(NJ*LCJ,SIRES,1,CJRES,1)
              END IF
              IF(IROUTE.EQ.3) THEN
@@ -305,7 +305,7 @@ C9805EAW     IROUTE = 1
 *. Scatter out from s(Ka,Ib,i)
 *. Restore order !!
            IF(IROUTE.EQ.2) THEN
-             CALL TRPMAT(SIRES,NI,NIB*NKABTC,CJRES)
+             CALL TRNSPS(NI,NIB*NKABTC,SIRES,CJRES)
              CALL DCOPY_(NI*NIB*NKABTC,CJRES,1,SIRES,1)
            END IF
            IF(IROUTE.EQ.3) THEN

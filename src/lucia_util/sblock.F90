@@ -32,9 +32,9 @@ use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, 
 use strbas, only: NSTSO
 use CandS, only: ICSM, ICSPC, ISSPC
 use lucia_data, only: I12, I_RES_AB, IADVICE, IBSPGPFTP, ICJKAIB, IDC, IDISK, IH0INSPC, IH0SPC, IPART, IPERTOP, IPHGAS, IPRCIX, &
-                      IPRDIA, ISIMSYM, ISMOST, ISPGPFTP, IUSE_PH, LCSBLK, MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MOCAA, MXINKA, &
-                      MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXPOBS, MXSOOB, MXTSOB, NELEC, NELFGP, NELFSPGP, NGAS, NHLFSPGP, NOBPTS, &
-                      NOCOB, NOCTYP, NPTSPC, NSMOB, NSTFSMSPGP, NTOOB, PSSIGN
+                      IPRDIA, ISIMSYM, ISMOST, ISPGPFTP, IUSE_PH, MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MOCAA, MXINKA, MXNSTR, &
+                      MXNTTS, MXPNGAS, MXPNSMST, MXPOBS, MXTSOB, NELEC, NELFGP, NELFSPGP, NGAS, NHLFSPGP, NOBPTS, NOCOB, NOCTYP, &
+                      NPTSPC, NSMOB, NSTFSMSPGP, NTOOB, PSSIGN
 use csm_data, only: ADSXA, NSMST, SXDXSX
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -44,16 +44,16 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: NBLOCK, IBLOCK(8,*), IBOFF, LUC, IRESTRICT, LUCBLK, ICBAT_RES, ICBAT_INI, ICBAT_END
-real(kind=wp) :: CB(*), HCB(*)
-integer(kind=iwp) :: I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, IDOH2, INTSCR, IOBSM, IOBTP, IOCTPA, IOCTPB, K12, LSCR1, &
+integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,*), IBOFF, LUC, IRESTRICT, LUCBLK, ICBAT_RES, ICBAT_INI, ICBAT_END
+real(kind=wp), intent(inout) :: CB(*), HCB(*)
+integer(kind=iwp) :: DUM(1), I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, IDOH2, INTSCR, IOBSM, IOBTP, IOCTPA, IOCTPB, K12, &
                      LSCR2, LSCR3, LZ, LZSCR, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, MXADKBLK, &
                      MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBEL, NOCTPA, NOCTPB, &
                      NTEST, NTTS
 integer(kind=iwp), allocatable :: CONSPA(:), CONSPB(:), H0SPC(:), I1(:), I2(:), I3(:), I4(:), STSTD(:), STSTS(:), SVST(:)
 integer(kind=iwp), allocatable, target :: CIOIO(:), SIOIO(:)
 integer(kind=iwp), pointer :: SCIOIO(:)
-real(kind=wp), allocatable :: INSCR(:), INSCR2(:), LSCLFAC(:), XI1S(:), XI2S(:), XI3S(:), XI4S(:)
+real(kind=wp), allocatable :: INSCR(:), LSCLFAC(:), XI1S(:), XI2S(:), XI3S(:), XI4S(:)
 integer(kind=iwp), external :: IMNMX
 
 NTEST = 0
@@ -137,13 +137,13 @@ end do
 !write(u6,*) ' MXTSOB = ',MXTSOB
 ! Local scratch arrays for blocks of C and sigma
 !if (ISIMSYM == 0) then
-LSCR1 = MXSOOB
+!  LSCR1 = MXSOOB
 !else
 !  LSCR1 = MXSOOB_AS
 !end if
-LSCR1 = max(LSCR1,LCSBLK)
+!LSCR1 = max(LSCR1,LCSBLK)
 #ifdef _DEBUGPRINT_
-if (IPRCIX >= 3) write(u6,*) ' ICISTR,LSCR1 ',ICISTR,LSCR1
+if (IPRCIX >= 3) write(u6,*) ' ICISTR ',ICISTR
 #endif
 ! SCRATCH space for integrals
 ! A 4 index integral block with four indices belonging OS class
@@ -152,7 +152,6 @@ INTSCR = max(MXTSOB**4,NTOOB**2)
 if (IPRCIX >= 3) write(u6,*) ' Integral scratch space ',INTSCR
 #endif
 call mma_allocate(INSCR,INTSCR,Label='INSCR')
-call mma_allocate(INSCR2,INTSCR,Label='INSCR2')
 ! Arrays giving allowed type combinations
 call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
@@ -215,7 +214,7 @@ NTTS = MXNTTS
 
 ! for partitioning of vector
 call Allocate_Local_Arrays(NTTS,NSMST)
-call ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,SVST)
+call ZBLTP(ISMOST(:,ICSM),NSMST,IDC,CBLTP,SVST)
 ! For scaling for each TTS block
 call mma_allocate(LSCLFAC,8*NTTS,Label='LSCLFAC')
 
@@ -264,29 +263,31 @@ IH0INSPC(1) = IPART
 ! Jesper: Initializing ksvst
 !KCJPA = 1 ! jwk-cleanup
 !KSIPA = 1 ! jwk-cleanup
-call SBLOCKS(NBLOCK,IBLOCK(1,IBOFF),CB,HCB,VEC3,CIOIO,ISMOST(1,ICSM),CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NAEL,IATP,NBEL,IBTP,IOCTPA, &
-             IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,NOBPTS,MXPNGAS,MAXK,MAXI,LSCR1,INSCR,VEC3,VEC3(1+LSCR2),STSTS,STSTD,SXDXSX,ADSXA, &
-             NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,IDOH2,MXPOBS,SVST,PSSIGN,IPRDIA,LUC,ICJKAIB,VEC3,VEC3(1+LSCR2),I3,XI3S,I4,XI4S, &
-             MOCAA,CLBT,CLEBT,CI1BT,CIBT,IRESTRICT,CONSPA,CONSPB,LSCLFAC,IPERTOP,H0SPC,ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH, &
-             IPHGAS,I_RES_AB,ISIMSYM,INSCR2)
+call SBLOCKS(NBLOCK,IBLOCK(:,IBOFF),CB,HCB,VEC3,CIOIO,ISMOST(:,ICSM),NSTSO(IATP)%A,NSTSO(IBTP)%A,NAEL,IATP,NBEL,IBTP,IOCTPA, &
+             IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,NOBPTS,MXPNGAS,MAXK,MAXI,INSCR,VEC3,VEC3(1+LSCR2),STSTS,STSTD,SXDXSX,ADSXA,NGAS, &
+             NELFSPGP,IDC,I1,XI1S,I2,XI2S,IDOH2,MXPOBS,SVST,PSSIGN,IPRDIA,LUC,ICJKAIB,VEC3,VEC3(1+LSCR2),I3,XI3S,I4,XI4S,MOCAA, &
+             CLBT,CLEBT,CI1BT,CIBT,IRESTRICT,CONSPA,CONSPB,LSCLFAC,IPERTOP,H0SPC,ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS, &
+             I_RES_AB,ISIMSYM)
 
 ! CALL SBLOCKS --> 91
 
 if (IDC == 2) then
   ! reform
-  call RFTTS(HCB,CB,IBLOCK(1,IBOFF),NBLOCK,1,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC,PSSIGN,1,NTEST)
+  call RFTTS(HCB,CB,IBLOCK(:,IBOFF),NBLOCK,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC,PSSIGN,1,NTEST)
   ! scale
-  call SCDTTS(HCB,IBLOCK(1,IBOFF),NBLOCK,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC,1,NTEST)
+  call SCDTTS(HCB,IBLOCK(:,IBOFF),NBLOCK,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC,1,NTEST)
 end if
 
-if (LUCBLK > 0) call ITODS([-1],1,-1,LUCBLK)
+if (LUCBLK > 0) then
+  DUM(1) = -1
+  call ITODS(DUM,1,-1,LUCBLK)
+end if
 ! Eliminate local memory
 call mma_deallocate(CONSPA)
 call mma_deallocate(CONSPB)
 call mma_deallocate(STSTS)
 call mma_deallocate(STSTD)
 call mma_deallocate(INSCR)
-call mma_deallocate(INSCR2)
 call mma_deallocate(CIOIO)
 call mma_deallocate(SIOIO)
 nullify(SCIOIO)

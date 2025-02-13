@@ -41,7 +41,7 @@ use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IOCCLS(NGAS,*), NOCCLS, ISYM, IPRCSF
+integer(kind=iwp), intent(in) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM, IPRCSF
 #include "warnings.h"
 integer(kind=iwp) :: HEXS_CNF(MXPORB+1), I, IAEL, IALPHA, IB, IBEL, ICL, IDOREO, IDUM, IDUM_ARR(1), IELIM, IGAS, ILCNF, ILLCNF, &
                      INITIALIZE_CONF_COUNTERS, IOPEN, ITP, ITYP, J, JGAS, JOCCLS, LCONF, LDTOC, LENGTH_LIST, LICS, LIDT, LLCONF, &
@@ -160,7 +160,7 @@ do JOCCLS=1,NOCCLS
   do i=1,maxop+1
     TMP_CNF(i) = 0
   end do
-  call GEN_CONF_FOR_OCCLS(IOCCLS(1,JOCCLS),IDUM,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,1,NOCOB,NOBPT,TMP_CNF,NCONF_OCCLS, &
+  call GEN_CONF_FOR_OCCLS(IOCCLS(:,JOCCLS),IDUM,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,1,NOCOB,NOBPT,TMP_CNF,NCONF_OCCLS, &
                           IB_CONF_REO,IB_CONF_OCC,IDUM_ARR,IDOREO,IDUM_ARR,NCONF_ALL_SYM,idum_arr,nconf_tot)
   do i=1,maxop+1
     NCONF_PER_OPEN(i,ISYM) = NCONF_PER_OPEN(i,ISYM)+TMP_CNF(i)
@@ -208,11 +208,11 @@ do JOCCLS=1,NOCCLS
   end if
 end do
 ! Number of CSF's in expansion
-call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPCSCNF,NCSF)
+call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(:,ISYM),NPCSCNF,NCSF)
 ! Number of SD's in expansion
-call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPDTCNF,NSD)
+call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(:,ISYM),NPDTCNF,NSD)
 ! Number of combinations in expansion
-call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(1,ISYM),NPCMCNF,NCMB)
+call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(:,ISYM),NPCMCNF,NCMB)
 !MGD
 nCSF_HEXS = 0
 if (I_ELIMINATE_GAS > 0) call NCNF_TO_NCOMP(MAXOP,HEXS_CNF,NPCSCNF,NCSF_HEXS)
@@ -229,7 +229,7 @@ end if
 
 ! Total number of configurations and length of configuration list
 !    INFO_CONF_LIST(NCONF_PER_OPEN,MAXOP,NEL,LENGTH_LIST,NCONF_TOT,IB_REO,IB_OCC)
-call INFO_CONF_LIST(NCONF_PER_OPEN(1,ISYM),MAXOP,NELEC,LENGTH_LIST,NCONF_TOT,IB_CONF_REO,IB_CONF_OCC)
+call INFO_CONF_LIST(NCONF_PER_OPEN(:,ISYM),MAXOP,NELEC,LENGTH_LIST,NCONF_TOT,IB_CONF_REO,IB_CONF_OCC)
 ! Permanent and local memory for csf routines
 
 ! memory for CSDTMT arrays.
@@ -288,7 +288,7 @@ call mma_allocate(CONF_OCC(ISYM)%A,LCONF,Label='CONF_OCC()')
 call mma_allocate(CONF_REO(ISYM)%A,NCONF_TOT,Label='CONF_REO()')
 ! Reorder array for determinants, index and sign
 call mma_allocate(SDREO_I(ISYM)%A,NSD,Label='SDREO_I()')
-SDREO(1:NSD) => SDREO_I(ISYM)%A(1:NSD)
+SDREO(1:NSD) => SDREO_I(ISYM)%A(:)
 
 ! Arrays for addressing prototype determinants for each number of orbitals
 

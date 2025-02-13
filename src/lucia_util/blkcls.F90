@@ -19,7 +19,8 @@ subroutine BLKCLS(IBLKS,NBLKS,IBLKCLS,ISPSPCL,NCLS,LCLS,NOCTPA,NOCTPB)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NBLKS, IBLKS(8,NBLKS), IBLKCLS(NBLKS), NOCTPA, NOCTPB, ISPSPCL(NOCTPA,NOCTPB), NCLS, LCLS(NCLS)
+integer(kind=iwp), intent(in) :: NBLKS, IBLKS(8,NBLKS), NOCTPA, NOCTPB, ISPSPCL(NOCTPA,NOCTPB), NCLS
+integer(kind=iwp), intent(out) :: IBLKCLS(NBLKS), LCLS(NCLS)
 integer(kind=iwp) :: IICLS, JBLK, NTEST
 
 !write(u6,*) ' ISPSPCL'

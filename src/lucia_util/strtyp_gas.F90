@@ -26,7 +26,7 @@ use lucia_data, only: IBGPSTR, IBSPGPFTP, IGSFGP, IGSOCC, IGSOCCX, IPHGAS, ISPGP
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPRNT
+integer(kind=iwp), intent(in) :: IPRNT
 integer(kind=iwp) :: I_AM_OKAY, I_DIM, IADD, IBASSPC(1), IBTYP, ICISPC, IDEL, IEL, IGAS, IGRP, IITYPE, IOCCLS(1), IOCTYP(MXPSTT), &
                      IOELMX, IOFF, IPHGAS1(NGAS), IPHGASL, IRED, IREOSPGP(MXPSTT), ISCR(MXPSTT), ISPGP, ISPGP_N, ISPGP_O, ITP, &
                      ITYP, JGAS, JGRP, MAXI, MAXSUB, MINI, MNA, MNA1, MNAB, MNAL, MNB, MNB1, MNBL, MNELFGP(NGAS), MXA, MXA1, MXAB, &

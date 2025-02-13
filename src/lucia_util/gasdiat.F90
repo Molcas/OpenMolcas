@@ -27,9 +27,12 @@ use lucia_data, only: IBSPGPFTP
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: DIAG(*), ECORE
-integer(kind=iwp) :: LUDIA, ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK)
+real(kind=wp), intent(_OUT_) :: DIAG(*)
+integer(kind=iwp), intent(in) :: LUDIA, ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK)
+real(kind=wp), intent(in) :: ECORE
 integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA, NTEST
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB

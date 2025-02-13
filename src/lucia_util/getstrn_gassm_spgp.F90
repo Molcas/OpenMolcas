@@ -37,7 +37,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: ISMFGS(*), ITPFGS(*), NEL, ISTROC(NEL,*), NSTR, NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
+integer(kind=iwp), intent(in) :: ISMFGS(*), ITPFGS(*), NEL, NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
+integer(kind=iwp), intent(inout) :: ISTROC(NEL,*)
+integer(kind=iwp), intent(out) :: NSTR
 integer(kind=iwp) :: IBSTFGS(MXPNGAS), IGAS, IGASL, JGAS, NELB, NELI, NSTA, NSTB, NSTFGS(MXPNGAS), NSTI, NSTRTOT
 
 ! Number of strings per GAS space

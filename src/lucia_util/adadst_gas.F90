@@ -42,9 +42,11 @@ use lucia_data, only: IBSPGPFTP, IOBPTS, NELFSPGP, NELFTP, NELIS, NGAS, NOBPT, N
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IOB, IOBSM, IOBTP, NIOB, JOB, JOBSM, JOBTP, NJOB, ISPGP, ISM, ITP, KMIN, KMAX, LI1, I1(*), NK, IEND, IFRST, &
-                     KFRST, I12, K12
-real(kind=wp) :: XI1S(*), SCLFAC
+integer(kind=iwp), intent(in) :: IOB, IOBSM, IOBTP, NIOB, JOB, JOBSM, JOBTP, NJOB, ISPGP, ISM, ITP, KMIN, KMAX, LI1, IFRST, KFRST, &
+                                 I12, K12
+integer(kind=iwp), intent(out) :: I1(LI1,NIOB*NJOB), NK, IEND
+real(kind=wp), intent(out) :: XI1S(LI1,NIOB*NJOB)
+real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: IDUM_ARR(1), IIOB, ISPGPABS, JJOB, K1SM, K1SPGPABS, KSM, KSPGPABS, NELI, NELK, NSTRI, NSTRK, NTEST, NTEST2
 
 NTEST = 0

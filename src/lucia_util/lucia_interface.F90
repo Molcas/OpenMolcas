@@ -17,6 +17,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
+#include "intent.fh"
+
 public :: Lucia_Util
 
 contains
@@ -39,9 +41,12 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
   use lucia_data, only: IREFSM, MXNTTS
 
   implicit none
-  character(len=*) :: ModLab
-  integer(kind=iwp), optional :: iSym, iDisk, LU
-  real(kind=wp), optional :: Array(:), RVEC(:), CI_Vector(:), SIGMA_Vector(:)
+  character(len=*), intent(in) :: ModLab
+  integer(kind=iwp), intent(in), optional :: iSym, LU
+  integer(kind=iwp), intent(inout), optional :: iDisk
+  real(kind=wp), intent(in), optional :: Array(:), RVEC(:)
+  real(kind=wp), intent(_IN_), optional :: CI_Vector(:)
+  real(kind=wp), intent(out), optional :: SIGMA_Vector(:)
   character(len=72) :: Module_
   integer(kind=iwp), allocatable :: lVec(:)
 # ifdef _DEBUGPRINT_
@@ -62,10 +67,10 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
     call Diag_Master()
   else if (Module_(1:9) == 'SIGMA_CVB') then
     ! iSym_LI is the symmetry to be used.
-    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,size(CI_VECTOR),iSym)
+    call Sigma_Master_CVB(CI_VECTOR,SIGMA_VECTOR,iSym)
   else if (Module_(1:5) == 'SIGMA') then
     !write(u6,*) 'blubbbbbbhc'
-    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR,size(CI_VECTOR))
+    call Sigma_Master(CI_VECTOR,SIGMA_VECTOR)
   else if (Module_(1:5) == 'TRACI') then
     !write(u6,*) 'blubbbbbbtraci'
     ! iDisk is the initial disk address (for read/write of JOBIPH)
@@ -76,9 +81,9 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
     call mma_deallocate(lVec)
   else if (Module_(1:5) == 'DENSI') then
     if (present(RVEC)) then
-      call Densi_Master(CI_VECTOR,size(CI_VECTOR),RVEC=RVEC(:))
+      call Densi_Master(CI_VECTOR,RVEC=RVEC(:))
     else
-      call Densi_Master(CI_VECTOR,size(CI_VECTOR))
+      call Densi_Master(CI_VECTOR)
     end if
   else if (Module_(1:3) == 'INI') then
     call Lucia_Ini()
@@ -101,7 +106,7 @@ subroutine Lucia_Util(ModLab,iSym,iDisk,LU,Array,RVec,CI_VECTOR,SIGMA_VECTOR)
 
 end subroutine Lucia_Util
 
-subroutine densi_master(CIVec,nCIVec,RVec)
+subroutine densi_master(CIVec,RVec)
   ! Controls the calculation of the densities, when Lucia is called
   ! from Molcas Rasscf.
 
@@ -112,9 +117,8 @@ subroutine densi_master(CIVec,nCIVec,RVec)
   use Constants, only: Zero
 
   implicit none
-  integer(kind=iwp) :: nCIVec
-  real(kind=wp) :: CIVec(nCIVEC)
-  real(kind=wp), optional :: RVec(:)
+  real(kind=wp), intent(in) :: CIVec(:)
+  real(kind=wp), intent(in), optional :: RVec(:)
   integer(kind=iwp) :: LBLK, LBLOCK, NCSF, NSD
   real(kind=wp) :: dummy(1), EXPS2
   logical(kind=iwp) :: iPack, tdm
@@ -230,7 +234,7 @@ subroutine densi_master(CIVec,nCIVec,RVec)
 
 end subroutine densi_master
 
-subroutine sigma_master(CIVEC,SIGMAVEC,nCIVEC)
+subroutine sigma_master(CIVEC,SIGMAVEC)
   ! Controls the calculation of the sigma vector, when Lucia is called
   ! from Molcas Rasscf.
 
@@ -239,8 +243,8 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nCIVEC)
   use lucia_data, only: ECORE, ECORE_ORIG, IREFSM, LUC, LUSC34, MXNTTS, NSD_PER_SYM
 
   implicit none
-  integer(kind=iwp) :: nCIVEC
-  real(kind=wp) :: CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
+  real(kind=wp), intent(_IN_) :: CIVEC(:)
+  real(kind=wp), intent(out) :: SIGMAVEC(:)
   integer(kind=iwp) :: nSD
   integer(kind=iwp), allocatable :: lVec(:)
 
@@ -279,7 +283,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC,nCIVEC)
 
 end subroutine SIGMA_MASTER
 
-subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,nCIVEC,IREFSM_CASVB)
+subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
 
   use GLBBAS, only: CI_VEC, INT1, INT1O, VEC3
   use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, SIGMA_ON_DISK
@@ -287,8 +291,9 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,nCIVEC,IREFSM_CASVB)
   use lucia_data, only: ECORE, ECORE_ORIG, IREFSM, LUC, LUSC34, MXNTTS, NSD_PER_SYM
 
   implicit none
-  integer(kind=iwp) :: nCIVEC, IREFSM_CASVB
-  real(kind=wp) :: CIVEC(nCIVEC), SIGMAVEC(nCIVEC)
+  integer(kind=iwp), intent(in) :: IREFSM_CASVB
+  real(kind=wp), intent(_IN_) :: CIVEC(:)
+  real(kind=wp), intent(out) :: SIGMAVEC(:)
   integer(kind=iwp) :: nSD
   integer(kind=iwp), allocatable :: lVec(:)
 
@@ -344,9 +349,10 @@ subroutine cpcivc(CIVec,nCIVEC,ifile,mxrec,isym,iway,lrec)
   use lucia_data, only: IDISK
 
   implicit none
-  integer(kind=iwp) :: nCIVEC, ifile, mxrec, isym, iway, lrec(mxrec)
-  real(kind=wp) :: CIVec(nCIVec)
-  integer(kind=iwp) :: nRec
+  integer(kind=iwp), intent(in) :: nCIVEC, ifile, mxrec, isym, iway
+  real(kind=wp), intent(inout) :: CIVec(nCIVec)
+  integer(kind=iwp), intent(out) :: lrec(mxrec)
+  integer(kind=iwp) :: dum(1), nRec
 # ifdef _DEBUGPRINT_
   integer(kind=iwp) :: iOff, iRec
 # endif
@@ -374,7 +380,8 @@ subroutine cpcivc(CIVec,nCIVEC,ifile,mxrec,isym,iway,lrec)
     end do
 #   endif
     call todscn(CIVec,nrec,lrec,-1,ifile)
-    call itods([-1],1,-1,ifile)
+    dum(1) = -1
+    call itods(dum,1,-1,ifile)
 
   else
     ! ========================
@@ -392,8 +399,9 @@ subroutine cpsivc(ifile,mxrec,vec,lrec)
   use general_data, only: STSYM
 
   implicit none
-  integer(kind=iwp) :: ifile, mxrec, lrec(mxrec)
-  real(kind=wp) :: vec(mxrec)
+  integer(kind=iwp), intent(in) :: ifile, mxrec
+  real(kind=wp), intent(inout) :: vec(mxrec)
+  integer(kind=iwp), intent(out) :: lrec(mxrec)
   integer(kind=iwp) :: nrec
 
   ! ==================

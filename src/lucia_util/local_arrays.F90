@@ -32,7 +32,7 @@ contains
 
 subroutine Allocate_Local_Arrays(MXNTTS,NSMST)
 
-  integer(kind=iwp) :: MXNTTS, NSMST
+  integer(kind=iwp), intent(in) :: MXNTTS, NSMST
 
   if (allocated(CLBT)) call Abend()
   call mma_allocate(CLBT,MXNTTS,Label='CLBT',safe='*')

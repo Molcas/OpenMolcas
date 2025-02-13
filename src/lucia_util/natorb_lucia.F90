@@ -19,12 +19,14 @@ subroutine NATORB_LUCIA(RHO1,NSMOB,NTOPSM,NACPSM,NINPSM,ISTOB,XNAT,RHO1SM,OCCNUM
 !              Modification, Oct 94
 !              Last modification, Feb. 1998 (reorder deg eigenvalues)
 
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NSMOB, NTOPSM(NSMOB), NACPSM(NSMOB), NINPSM(NSMOB), ISTOB(*), NACOB, IPRDEN
-real(kind=wp) :: RHO1(NACOB,NACOB), XNAT(*), RHO1SM(*), OCCNUM(*), SCR(*)
+integer(kind=iwp), intent(in) :: NSMOB, NTOPSM(NSMOB), NACPSM(NSMOB), NINPSM(NSMOB), ISTOB(*), NACOB, IPRDEN
+real(kind=wp), intent(in) :: RHO1(NACOB,NACOB)
+real(kind=wp), intent(_OUT_) :: XNAT(*), RHO1SM(*), OCCNUM(*), SCR(*)
 integer(kind=iwp) :: I, IMTOFF, IOB, IOBOFF, IOBP, ISMOB, JOB, JOBP, LOB, NTEST, NTESTL
 real(kind=wp) :: SS, TESTY, XI1I, XI1I1, XII, XII1
 
@@ -68,8 +70,7 @@ do ISMOB=1,NSMOB
   call TRIPAK(RHO1SM(IMTOFF),SCR,1,LOB,LOB)
   ! scale with -1 to get highest occupation numbers as first eigenvectors
   SCR(1:LOB*(LOB+1)/2) = -SCR(1:LOB*(LOB+1)/2)
-  call DCopy_(LOB**2,[Zero],0,XNAT(IMTOFF),1)
-  call DCopy_(LOB,[One],0,XNAT(IMTOFF),1+LOB)
+  call unitmat(XNAT(IMTOFF),LOB)
   call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB)
   call JACORD(SCR,XNAT(IMTOFF),LOB,LOB)
 

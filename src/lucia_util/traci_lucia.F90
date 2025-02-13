@@ -37,9 +37,12 @@ use lucia_data, only: LUSC1, LUSC2, LUSC3, NSMOB, NTOOB, NTOOBS
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: X(*), VEC1(*), VEC2(*)
-integer(kind=iwp) :: LUCIN, LUCOUT, IXSPC, IXSM
+real(kind=wp), intent(in) :: X(*)
+integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM
+real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 real(kind=wp), allocatable :: SCR(:), LT(:)
 integer(kind=iwp) :: IOFF, ISM, NTEST
 

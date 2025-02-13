@@ -13,7 +13,7 @@
 
 subroutine SPSPCLS(ISPSPCLS,ICLS,NCLS)
 ! Obtain mapping a-supergroup X b-supergroup => class
-!
+
 ! Classes are specified by ICLS
 !
 ! Jeppe Olsen, Jan 97
@@ -21,8 +21,11 @@ subroutine SPSPCLS(ISPSPCLS,ICLS,NCLS)
 use lucia_data, only: IBSPGPFTP, IPRDIA, ISPGPFTP, MXPNGAS, NELFGP, NGAS, NOCTYP
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ISPSPCLS(*), ICLS(*), NCLS
+integer(kind=iwp), intent(_OUT_) :: ISPSPCLS(*)
+integer(kind=iwp), intent(in) :: ICLS(*), NCLS
 integer(kind=iwp) :: IATP, IBTP, IOCTPA, IOCTPB, NOCTPA, NOCTPB
 
 IATP = 1

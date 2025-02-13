@@ -24,7 +24,8 @@ subroutine INFO_CONF_LIST(NCONF_PER_OPEN,MAXOP,NEL,LENGTH_LIST,NCONF_TOT,IB_REO,
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MAXOP, NCONF_PER_OPEN(MAXOP+1), NEL, LENGTH_LIST, NCONF_TOT, IB_REO(MAXOP+1), IB_OCC(MAXOP+1)
+integer(kind=iwp), intent(in) :: MAXOP, NCONF_PER_OPEN(MAXOP+1), NEL
+integer(kind=iwp), intent(out) :: LENGTH_LIST, NCONF_TOT, IB_REO(MAXOP+1), IB_OCC(MAXOP+1)
 integer(kind=iwp) :: JB_OCC, JB_REO, NOCOB, NOPEN, NTEST
 
 JB_REO = 1

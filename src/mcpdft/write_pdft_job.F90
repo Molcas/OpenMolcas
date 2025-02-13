@@ -34,7 +34,7 @@ contains
 #include "rasdim.fh"
     integer(kind=iwp),intent(in) :: nstates
     real(kind=wp),intent(in) :: e_states(nstates)
-    real(kind=wp),optional,intent(in) :: si_pdft(nstates,nstates)
+    real(kind=wp),intent(in),optional :: si_pdft(nstates,nstates)
 
     real(kind=wp) :: energy(mxroot*mxiter)
     integer(kind=iwp) :: i,j ! Dummy index variables for loops

@@ -83,11 +83,17 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(*), IBOC(*), JAOC(*), JBOC(*), NAEL, NBEL, IJAGRP, &
-                     IJBGRP, JDOH2, ADSXA(*), STSTSX(*), STSTDX(*), SXDXSX(*), NOBPTS(*), MAXI, MAXK, I1(*), I2(*), NSMOB, NSMST, &
-                     NIA, NIB, NJA, NJB, IDC, I3(*), I4(*), MOCAA, IPRNT, IHAPR, IUSE_PH, IPHGAS(*), I_RES_AB
-real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), C2(*), XINT(*), CJRES(*), SIRES(*), XI3S(*), XI4S(*), SCLFAC
+integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(NGAS), IBOC(NGAS), JAOC(NGAS), &
+                                 JBOC(NGAS), NAEL, NBEL, IJAGRP, IJBGRP, JDOH2, ADSXA(*), STSTSX(*), STSTDX(*), SXDXSX(*), &
+                                 NOBPTS(*), MAXI, MAXK, NSMOB, NSMST, NIA, NIB, NJA, NJB, IDC, MOCAA, IPRNT, IHAPR, IUSE_PH, &
+                                 IPHGAS(*), I_RES_AB
+real(kind=wp), intent(inout) :: SB(NIA*NIB), CB(NJA*NJB), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), C2(*), XINT(*), CJRES(*), SIRES(*)
+integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
+real(kind=wp), intent(in) :: SCLFAC
 #include "timers.fh"
 integer(kind=iwp) :: I12, IBLOCK(8), IDIAG, IDOH2, IIDC, IIITRNS, ITASK, IUSEAB, JJJTRNS, LADVICE, NTEST
 real(kind=wp) :: CPU, CPU0, CPU1, FACTOR, WALL, WALL0, WALL1

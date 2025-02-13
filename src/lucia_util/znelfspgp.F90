@@ -21,7 +21,7 @@ use lucia_data, only: IBSPGPFTP, ISPGPFTP, MXPNGAS, NELFGP, NELFSPGP, NGAS, NSPG
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NTESTG
+integer(kind=iwp), intent(in) :: NTESTG
 integer(kind=iwp) :: IBSPGP, IGAS, ISPGP, ITP, NSPGP, NTEST, NTESTL
 
 NTESTL = 0

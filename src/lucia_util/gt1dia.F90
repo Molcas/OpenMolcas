@@ -18,8 +18,10 @@ use GLBBAS, only: INT1O, PINT1
 use lucia_data, only: IBSO, IREOTS, ISMFTO, NACOB
 use Definitions, only: wp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: H1DIA(*)
+real(kind=wp), intent(_OUT_) :: H1DIA(*)
 
 ! Global pointers
 

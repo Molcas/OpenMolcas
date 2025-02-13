@@ -17,9 +17,12 @@ use lucia_data, only: MXPORB
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NOPEN, MS2, NDET, IABDET(NOPEN,*), IABUPP(NOPEN,*), IFLAG, IPRCSF
-real(kind=wp) :: PSSIGN
+integer(kind=iwp), intent(in) :: NOPEN, MS2, IFLAG, IPRCSF
+integer(kind=iwp), intent(_OUT_) :: NDET, IABDET(NOPEN,*), IABUPP(NOPEN,*)
+real(kind=wp), intent(in) :: PSSIGN
 integer(kind=iwp) :: ADD, I, IEL, IWORK(MXPORB), J, K, LUPPER, MS2L, MX, NALPHA, NTEST, NUPPER
 real(kind=wp) :: XMSD2
 

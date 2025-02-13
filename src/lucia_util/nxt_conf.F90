@@ -15,7 +15,7 @@ subroutine NXT_CONF(ICONF,NEL,NORB,INI,NONEW)
 ! Next configuration of NEL electrons distributed in NORB orbitals
 !
 ! A configuration is stored as the occupied orbitals
-! in nonstrict ascending order - two consecutivw orbitals are allowed
+! in nonstrict ascending order - two consecutive orbitals are allowed
 ! to be identical
 ! allowing two
 !
@@ -27,7 +27,9 @@ subroutine NXT_CONF(ICONF,NEL,NORB,INI,NONEW)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NEL, ICONF(NEL), NORB, INI, NONEW
+integer(kind=iwp), intent(in) :: NEL, NORB, INI
+integer(kind=iwp), intent(inout) :: ICONF(NEL)
+integer(kind=iwp), intent(out) :: NONEW
 integer(kind=iwp) :: I, IADD, IEL, INCREASE, JORB, N_DOUBLE, NDOUBLE, NTEST
 
 NTEST = 0
@@ -60,8 +62,9 @@ else if (INI == 0) then
     ! Can orbital number be increased for electron IEL ?
     INCREASE = 0
     if (IEL < NEL) then
-      if (ICONF(IEL) < ICONF(IEL+1)-1) INCREASE = 1
-      if (ICONF(IEL) == ICONF(IEL+1)-1) then
+      if (ICONF(IEL) < ICONF(IEL+1)-1) then
+        INCREASE = 1
+      else if (ICONF(IEL) == ICONF(IEL+1)-1) then
         ! If ICONF(IEL) is increased, ICONF(IEL) = ICONF(IEL+1), check if this is ok
         if (IEL == NEL-1) then
           INCREASE = 1

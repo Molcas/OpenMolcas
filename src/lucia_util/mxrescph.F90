@@ -22,7 +22,7 @@ subroutine MXRESCPH(IAB,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NS
 ! Largest block of single excitations MXSXBL
 !
 ! Input
-! IAB :allowed combination of alpha and beta supergroups
+! IAB    : allowed combination of alpha and beta supergroups
 ! IOCPTA : Number of first active alpha supergroup
 ! IOCPTB : Number of first active beta  supergroup
 ! NOCTPA : Number of active alpha supergroups
@@ -33,9 +33,10 @@ subroutine MXRESCPH(IAB,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NS
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NOCTPA, NOCTPB, IAB(NOCTPA,NOCTPB), IOCTPA, IOCTPB, NSMST, MXPNSMST, NSTFSMSPGP(MXPNSMST,*), NSMOB, MXPTOB, &
-                     NTPOB, NTSOB(MXPTOB,NSMOB), NTESTG, MXPKA, NEL1234(MXPTOB,*), MXCJ, MXCIJA, MXCIJB, MXCIJAB, MXSXBL, &
-                     MXADKBLK, IPHGAS(*), NHLFSPGP(*), MNHL, IADVICE, MXCJ_ALLSYM, MXADKBLK_AS, MX_NSPII
+integer(kind=iwp), intent(in) :: NOCTPA, NOCTPB, IAB(NOCTPA,NOCTPB), IOCTPA, IOCTPB, NSMST, MXPNSMST, NSTFSMSPGP(MXPNSMST,*), &
+                                 NSMOB, MXPTOB, NTPOB, NTSOB(MXPTOB,NSMOB), NTESTG, MXPKA, NEL1234(MXPTOB,*), IPHGAS(*), &
+                                 NHLFSPGP(*), MNHL, IADVICE
+integer(kind=iwp), intent(out) :: MXCJ, MXCIJA, MXCIJB, MXCIJAB, MXSXBL, MXADKBLK, MXCJ_ALLSYM, MXADKBLK_AS, MX_NSPII
 integer(kind=iwp) :: IAORC, IATP, IATP_MX, IATPABS, IBTP, IBTP_MX, IBTPABS, IOBTP, IOBTP_MX, ISM, ISMOB, ITOTA, ITOTB, JAORC, &
                      JATP, JBTP, JOBTP, JSMOB, K1ATP, K1BTP, KATP, KATP_MX, KBTP, KSM, LBLK, LCJBLK, LCJBLK_ALLSYM, MXA, MXB, &
                      MXIA, MXIB, MXIOB, MXISOB, MXJOB, MXJSOB, MXKA, MXKAB, MXKACTEL, MXKAO, MXKB, MXKBO, MXSOB, NSOB_AS, NTEST, &

@@ -35,8 +35,9 @@ subroutine SPSPCLS_GAS(NOCTPA,NOCTPB,IOCA,IOCB,NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NOCTPA, NOCTPB, MXPNGAS, IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB), NELFGP(*), NGAS, &
-                     ISPSPCLS(NOCTPA,NOCTPB), NCLS, ICLS(NGAS,NCLS), IPRNT
+integer(kind=iwp), intent(in) :: NOCTPA, NOCTPB, MXPNGAS, IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB), NELFGP(*), NGAS, NCLS, &
+                                 ICLS(NGAS,NCLS), IPRNT
+integer(kind=iwp), intent(out) :: ISPSPCLS(NOCTPA,NOCTPB)
 integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, IICLS, KCLS, NTEST
 
 NTEST = 0

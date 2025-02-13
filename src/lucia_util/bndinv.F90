@@ -17,10 +17,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, ITEST, NSIZE
-real(kind=wp) :: A(NSIZE,*), EL(NSIZE,*), DETERM, EPSIL
+integer(kind=iwp), intent(in) :: N, NSIZE
+real(kind=wp), intent(inout) :: A(NSIZE,N)
+real(kind=wp), intent(out) :: EL(NSIZE,N), DETERM
+real(kind=wp), intent(in) :: EPSIL
+integer(kind=iwp), intent(out) :: ITEST
 integer(kind=iwp) :: I, I1, J, J1, K, M, N1
-real(kind=wp) :: C, D, DETERP, E, EPSILP, F, RAT, S
+real(kind=wp) :: C, D, E, EPSILP, F, RAT, S
 
 !INDSNL = 0
 if (N < 2) then
@@ -36,10 +39,8 @@ end if
 !call DVCHK(K000FX)
 
 ! SET EL = IDENTITY MATRIX
+EL(1:N,:)= Zero
 do I=1,N
-  do J=1,N
-    EL(I,J) = Zero
-  end do
   EL(I,I) = One
 end do
 
@@ -73,11 +74,10 @@ end do
 !end if
 
 ! CALCULATE THE DETERMINANT
-DETERP = A(1,1)
+DETERM = A(1,1)
 do I=2,N
-  DETERP = DETERP*A(I,I)
+  DETERM = DETERM*A(I,I)
 end do
-DETERM = DETERP
 !call OVERFL(K000FX)
 !if (K000FX == 0) then
 !  ITEST = -1

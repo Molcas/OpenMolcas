@@ -20,7 +20,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: ISTRNM
-integer(kind=iwp) :: IOCC(*), NORB, NEL, Z(NORB,*), NEWORD(*), IREORD
+integer(kind=iwp), intent(in) :: NEL, IOCC(NEL), NORB, Z(NORB,NEL), NEWORD(*), IREORD
 integer(kind=iwp) :: I, IZ, NTEST
 
 IZ = 1

@@ -154,9 +154,9 @@
 *
           ieaw=0
           if (ist.eq.2) ieaw=1
-          CALL TRPMAT(CB,NJA,NJB,C2)
+          CALL TRNSPS(NJA,NJB,CB,C2)
           CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-          CALL TRPMAT(SB,NIA,NIB,C2)
+          CALL TRNSPS(NIA,NIB,SB,C2)
           CALL DCOPY_(NIA*NIB,C2,1,SB,1)
           IIITRNS = 1
           IF(IIITRNS.EQ.1.AND.NIB.GT.NIA.AND.NJB.GT.NJA) THEN
@@ -183,9 +183,9 @@
      &                NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,0,1,
      &                CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,TimeDep)
           ELSE IF ( JJJTRNS.EQ.1) THEN
-            CALL TRPMAT(SB,NIB,NIA,C2)
+            CALL TRNSPS(NIB,NIA,SB,C2)
             CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-            CALL TRPMAT(CB,NJB,NJA,C2)
+            CALL TRNSPS(NJB,NJA,CB,C2)
             CALL DCOPY_(NJA*NJB,C2,1,CB,1)
 *
             CALL RSBB2BN(IBSM,IBTP,IASM,IATP,NIB,NIA,
@@ -200,15 +200,15 @@
      &                XINT,
      &                NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,0,1,
      &                CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,TimeDep)
-            CALL TRPMAT(SB,NIA,NIB,C2)
+            CALL TRNSPS(NIA,NIB,SB,C2)
             CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-            CALL TRPMAT(CB,NJA,NJB,C2)
+            CALL TRNSPS(NJA,NJB,CB,C2)
             CALL DCOPY_(NJA*NJB,C2,1,CB,1)
           END IF
 *.        Restore order !
-          CALL TRPMAT(CB,NJB,NJA,C2)
+          CALL TRNSPS(NJB,NJA,CB,C2)
           CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-          CALL TRPMAT(SB,NIB,NIA,C2)
+          CALL TRNSPS(NIB,NIA,SB,C2)
           CALL DCOPY_(NIA*NIB,C2,1,SB,1)
       END IF
 
@@ -220,9 +220,9 @@
 *. Transpose for alpha excitations
 *
       IF(NAEL.GE.1.AND.IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM) THEN
-           CALL TRPMAT(CB,NJA,NJB,C2)
+           CALL TRNSPS(NJA,NJB,CB,C2)
            CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-           CALL TRPMAT(SB,NIA,NIB,C2)
+           CALL TRNSPS(NIA,NIB,SB,C2)
            CALL DCOPY_(NIA*NIB,C2,1,SB,1)
 *
 * alpha single excitation
@@ -250,9 +250,9 @@
      &           NOPART,TimeDep,ieaw)
 
 * Restore order !
-           CALL TRPMAT(SB,NIB,NIA,C2)
+           CALL TRNSPS(NIB,NIA,SB,C2)
            CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-           CALL TRPMAT(CB,NJB,NJA,C2)
+           CALL TRNSPS(NJB,NJA,CB,C2)
            CALL DCOPY_(NJA*NJB,C2,1,CB,1)
       END IF
 *

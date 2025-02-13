@@ -26,19 +26,19 @@ subroutine BLKFO_MIN(ISM,NBLK,LEN_BLK)
 !
 ! NBLK : Number of blocks in expansion
 ! LEN_BLK(IBLK) : Length of block IBLK
-!                 Should outside be dimensioned as MXNTTS
 
 use strbas, only: NSTSO
 use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays
 use CandS, only: ISSPC
-use lucia_data, only: IDC, ISIMSYM, ISMOST, LCSBLK, MXNTTS, MXSOOB, NOCTYP
+use lucia_data, only: IDC, ISIMSYM, ISMOST, MXNTTS, NOCTYP
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ISM, NBLK, LEN_BLK(*)
-integer(kind=iwp) :: I_DUMMY(1), IATP, IBTP, LBLOCK, NBATCH, NOCTPA, NOCTPB
+integer(kind=iwp), intent(in) :: ISM
+integer(kind=iwp), intent(out) :: NBLK, LEN_BLK(MXNTTS)
+integer(kind=iwp) :: I_DUMMY(1), IATP, IBTP, NBATCH, NOCTPA, NOCTPB
 integer(kind=iwp), allocatable :: CIOIO(:)
 
 I_DUMMY(1) = 0 ! jwk-cleanup
@@ -52,12 +52,11 @@ call Allocate_Local_Arrays(MXNTTS,NSMST)
 ! Info needed for generation of block info
 call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 call IAIBCM(ISSPC,CIOIO) ! Jesper
-call ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,I_DUMMY)
+call ZBLTP(ISMOST(:,ISM),NSMST,IDC,CBLTP,I_DUMMY)
 ! Allowed length of each batch( not important for final output )
-LBLOCK = max(MXSOOB,LCSBLK)
+!LBLOCK = max(MXSOOB,LCSBLK)
 ! Batches  of C vector
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
-               0,ISIMSYM)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0,ISIMSYM)
 ! Number of BLOCKS
 NBLK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 ! Length of each block

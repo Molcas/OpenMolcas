@@ -15,11 +15,13 @@ subroutine SIGVST(ISGVST,NSMST)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ISGVST(*), NSMST
-integer(kind=iwp) :: IML, IPARI, ISM, MIML, MISM, NTEST
+integer(kind=iwp), intent(in) :: NSMST
+integer(kind=iwp), intent(out) :: ISGVST(NSMST)
+integer(kind=iwp) :: IML, IPARI, ISM, ISM_, MIML, MISM, NTEST
 
 do ISM=1,NSMST
-  call MLSM(IML,IPARI,ISM,'ST',2)
+  ISM_ = ISM
+  call MLSM(IML,IPARI,ISM_,'ST',2)
   !    MLSM(IML,IPARI,ISM,TYPE,IWAY)
   MIML = -IML
   call MLSM(MIML,IPARI,MISM,'ST',1)

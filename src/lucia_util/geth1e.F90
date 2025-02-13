@@ -24,9 +24,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IORB, ITP, ISM, JORB, JTP, JSM
-integer(kind=iwp) :: IJSM
 real(kind=wp) :: GETH1E
+integer(kind=iwp), intent(in) :: IORB, ITP, ISM, JORB, JTP, JSM
+integer(kind=iwp) :: IJSM
 real(kind=wp), external :: GTH1ES
 
 IJSM = Mul(ISM,JSM)

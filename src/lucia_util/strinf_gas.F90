@@ -40,7 +40,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPRNT
+integer(kind=iwp), intent(in) :: IPRNT
 integer(kind=iwp) :: i, IDUM(1), IEC, IEL, IGAS, IGP, IGRP, IGRPABS, IGSOB, IIEL, IISPGP, IOCTYPX, ISM, ISPGP, ISTSM, ISTTYP, &
                      ISTTYPA, ISTTYPC, ITP, JGRP, JSTTYP, LAC, LROW, MAXSCR, MN, MNRS1X, MNRS3X, MX, MXNSTRFSG, MXRS1X, MXRS3X, &
                      NACOB_EFFECTIVE, NEL, NGSOBP, NHOLE, NSMCLS, NSMCLSE, NSMCLSE1, NSTINI, NSTR, NTEST, ZERO_ARR(1)

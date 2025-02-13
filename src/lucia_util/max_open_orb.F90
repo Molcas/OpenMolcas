@@ -20,7 +20,8 @@ use csfbas, only: maxop_lucia
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MAXOP, NGAS, NOCLS, IOCLS(NGAS,NOCLS), NOBPT(NGAS)
+integer(kind=iwp), intent(out) :: MAXOP
+integer(kind=iwp), intent(in) :: NGAS, NOCLS, IOCLS(NGAS,NOCLS), NOBPT(NGAS)
 integer(kind=iwp) :: IGAS, JOCLS, MAXOP_IGAS, MAXOP_J, NEL, NORB, NTEST
 
 MAXOP = 0

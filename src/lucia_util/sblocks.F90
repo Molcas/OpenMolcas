@@ -11,11 +11,10 @@
 ! Copyright (C) 1991,1999, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,ICBLTP,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB, &
-                   NSMST,NSMOB,NOBPTS,MXPNGAS,MAXK,MAXI,LC,XINT,CSCR,SSCR,STSTSX,STSTDX,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2, &
-                   XI2S,IDOH2,MXPOBS,ISTRFL,PS,IPRNT,LUC,ICJKAIB,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK, &
-                   ICBLOCK,IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IPERTOP,IH0SPC,ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB, &
-                   ISIMSYM,XINT2)
+subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST, &
+                   NSMOB,NOBPTS,MXPNGAS,MAXK,MAXI,XINT,CSCR,SSCR,STSTSX,STSTDX,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S, &
+                   IDOH2,MXPOBS,ISTRFL,PS,IPRNT,LUC,ICJKAIB,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK, &
+                   IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IPERTOP,IH0SPC,ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,ISIMSYM)
 ! SUBROUTINE SBLOCKS --> 91
 !
 ! Direct RAS routine employing combined MOC/n-1 resolution method
@@ -36,7 +35,6 @@ subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,ICBLTP,NSSOA,NSSOB,NAE
 !
 ! ICOCOC : Allowed type combinations for C
 ! ICSMOS : Symmetry array for C
-! ICBLTP : Block types for C
 ! NACOB : Number of active orbitals
 ! NSSOA : Number of strings per type and symmetry for alpha strings
 ! NAEL  : Number of active alpha electrons
@@ -50,7 +48,6 @@ subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,ICBLTP,NSSOA,NSSOB,NAE
 ! MAXI  : Max number of N strings treated simultaneously
 !
 ! LI : Length of scratch array for integrals
-! LC : Length of scratch array for C
 ! LS : Length of scratch array for S
 ! XINT : Scratch array for integrals
 ! CSCR : Scratch array for C vector
@@ -75,16 +72,21 @@ use spinfo, only: NGASBK, IOCCPSPC
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), ICBLTP(*), &
-                     NSSOA(NSMST,*), NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), &
-                     MAXK, MAXI, LC, STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST), MXPOBS, SXDXSX(2*MXPOBS,4*MXPOBS), &
-                     ADSXA(MXPOBS,2*MXPOBS), NGAS, NELFSPGP(MXPNGAS,*), IDC, I1(*), I2(*), IDOH2, ISTRFL(*), IPRNT, LUC, ICJKAIB, &
-                     I3(*), I4(*), MOCAA, LCBLOCK(*), LECBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*), IRESTRICT, ICONSPA(NOCTPA,NOCTPA), &
-                     ICONSPB(NOCTPB,NOCTPB), IPERTOP, IH0SPC(NOCTPA,NOCTPB), ICBAT_RES, ICBAT_INI, ICBAT_END, IUSE_PH, IPHGAS(*), &
-                     I_RES_AB, ISIMSYM
-real(kind=wp) :: CB(*), SB(*), C2(*), XINT(*), CSCR(*), SSCR(*), XI1S(*), XI2S(*), PS, CJRES(*), SIRES(*), XI3S(*), XI4S(*), &
-                     SCLFAC(*), XINT2(*)
+integer(kind=iwp), intent(in) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), &
+                                 NSSOA(NSMST,*), NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), &
+                                 MAXK, MAXI, STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST), MXPOBS, SXDXSX(2*MXPOBS,4*MXPOBS), &
+                                 ADSXA(MXPOBS,2*MXPOBS), NGAS, NELFSPGP(MXPNGAS,*), IDC, IDOH2, ISTRFL(*), IPRNT, LUC, ICJKAIB, &
+                                 MOCAA, IRESTRICT, ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB), IPERTOP, IH0SPC(NOCTPA,NOCTPB), &
+                                 ICBAT_RES, ICBAT_INI, ICBAT_END, IUSE_PH, IPHGAS(*), I_RES_AB, ISIMSYM
+real(kind=wp), intent(inout) :: CB(*), SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
+real(kind=wp), intent(_OUT_) :: C2(*), XINT(*), CSCR(*), SSCR(*), CJRES(*), SIRES(*), SCLFAC(*)
+integer(kind=iwp), intent(out) :: IOCTPA, IOCTPB
+integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
+real(kind=wp), intent(in) :: PS
+integer(kind=iwp), intent(_OUT_) :: LCBLOCK(*), LECBLOCK(*), I1CBLOCK(*), ICBLOCK(8,*)
 integer(kind=iwp) :: I_DO_EXACT_BLK, IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOSC(1), iDUMMY(1), INTERACT, IOFF, IPERM, IPTSPC, &
                      ISBLK, ISCALE, ISOFF, JASM, JATP, JBLOCK, JBSM, JBTP, JCBAT_END, JCBAT_INI, JCBATCH, JJCBLOCK, JOFF, JPTSPC, &
                      JSBLOCK, LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, &
@@ -134,7 +136,7 @@ end if
 ! 1 : Arrays for accessing C
 ! ==========================
 ! Find batches of C - strings
-call PART_CIV2(IDC,ICBLTP,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,LC,ICOCOC,ICSMOS,NCBATCH,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,0,ISIMSYM)
+call PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,ICOCOC,ICSMOS,NCBATCH,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,0,ISIMSYM)
 ! Find the active blocks on LUC, store info in SCLFAC
 call FIND_ACTIVE_BLOCKS(LUC,-1,SCLFAC,CB)
 
@@ -337,10 +339,10 @@ do JCBATCH=JCBAT_INI,JCBAT_END
           if (IPTSPC /= JPTSPC) cycle
           ! BK-like approximation stuff
           if (I_DO_EXACT_BLK == 1) then
-            call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(1,IATP+IOCTPA-1),NELFSPGP(1,IBTP+IOCTPB-1), &
-                         NELFSPGP(1,LLATP+IOCTPA-1),NELFSPGP(1,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
+            call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(:,IATP+IOCTPA-1),NELFSPGP(:,IBTP+IOCTPB-1), &
+                         NELFSPGP(:,LLATP+IOCTPA-1),NELFSPGP(:,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
                          ADSXA,STSTSX,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA, &
-                         NLLB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,IPRNT,IPERTOP,XFAC,IUSE_PH,IPHGAS,I_RES_AB,XINT2)
+                         NLLB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,IPRNT,IPERTOP,XFAC,IUSE_PH,IPHGAS,I_RES_AB)
           else if (I_DO_EXACT_BLK == -1) then
             ! Giovanni.... transposing sigma and CI vectors:
             call TRPMT3(SB(ISOFF),NIB,NIA,C2)

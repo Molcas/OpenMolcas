@@ -51,8 +51,13 @@ use lucia_data, only: MXPNGAS, MXPNSMST, NELFGP, NGAS
 use csm_data, only: NSMST
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NIGRP, IGRP(NIGRP), ISPGRPSM, NEL, NSTR, ISTR(*), NORBT, IDOREO, IZ(NORBT,NEL), IREO(*)
+integer(kind=iwp), intent(in) :: NIGRP, IGRP(NIGRP), ISPGRPSM, NEL, NORBT, IDOREO, IZ(NORBT,NEL)
+integer(kind=iwp), intent(out) :: NSTR
+integer(kind=iwp), intent(inout) :: ISTR(*)
+integer(kind=iwp), intent(_OUT_) :: IREO(*)
 integer(kind=iwp) :: I, IEL, IFIRST, IGAS, IISTSGP(MXPNSMST,MXPNGAS), ISMFGS(MXPNGAS), ISMST, ISTRBS, ISTSMM1, ITPFGS(MXPNGAS), &
                      JSTR, LEX, MAXLEX, MNVAL(MXPNGAS), MXVAL(MXPNGAS), NELFGS(MXPNGAS), NGASL, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, &
                      NTEST

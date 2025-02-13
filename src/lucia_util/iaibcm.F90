@@ -23,8 +23,11 @@ subroutine IAIBCM(ICISPC,IAIB)
 use lucia_data, only: IBSPGPFTP, ICMBSPC, IGSOCCX, IPRDIA, ISPGPFTP, LCMBSPC, MXPNGAS, NELFGP, NGAS, NOCTYP
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICISPC, IAIB(*)
+integer(kind=iwp), intent(in) :: ICISPC
+integer(kind=iwp), intent(_OUT_) :: IAIB(*)
 integer(kind=iwp) :: IATP, IBTP, IOCTPA, IOCTPB, NOCTPA, NOCTPB
 
 IATP = 1
@@ -41,7 +44,7 @@ IOCTPB = IBSPGPFTP(IBTP)
 !write(u6,*) ICISPC,LCMBSPC(ICISPC)
 !write(u6,*) (ICMBSPC(II,ICISPC),II=1,LCMBSPC(ICISPC))
 
-call IAIBCM_GAS(LCMBSPC(ICISPC),ICMBSPC(1,ICISPC),IGSOCCX,NOCTPA,NOCTPB,ISPGPFTP(1,IOCTPA),ISPGPFTP(1,IOCTPB),NELFGP,MXPNGAS,NGAS, &
+call IAIBCM_GAS(LCMBSPC(ICISPC),ICMBSPC(:,ICISPC),IGSOCCX,NOCTPA,NOCTPB,ISPGPFTP(:,IOCTPA),ISPGPFTP(:,IOCTPB),NELFGP,MXPNGAS,NGAS, &
                 IAIB,IPRDIA)
 
 end subroutine IAIBCM

@@ -29,7 +29,7 @@ use lucia_data, only: I2ELIMINATED_IN_GAS, I_AM_OUT, I_ELIMINATE_GAS, IBSPGPFTP,
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NBATCH, IBATCH(8,*), LBATCH(*), I1BATCH(*)
+integer(kind=iwp), intent(in) :: NBATCH, IBATCH(8,*), LBATCH(max(NBATCH,2)), I1BATCH(max(NBATCH,2))
 integer(kind=iwp) :: I, IBLOCK, IEL, IGAS, IGAS_ELIM, IITYPE, IMATCH_ALPHA, IMATCH_ALPHAM1, IMATCH_BETA, IMATCH_BETAM1, &
                      IMATCH_BLOCK, IMAX_OCC(2,NGAS,2), IOFF, ISPGP, ITYPE_A, ITYPE_B, J, JBATCH, MAX_E_GAS_ALPHA(2,MXPSTT), &
                      MAX_E_GAS_BETA(2,MXPSTT), MAXM1_E_GAS_ALPHA(2,MXPSTT), MAXM1_E_GAS_BETA(2,MXPSTT), NALPHA, NALPHAM1, NBETA, &
@@ -184,7 +184,7 @@ end if
 ! Now find the batches to possibly eliminate
 
 N_ELIMINATED_BATCHES = 0
-!
+
 do JBATCH=1,NBATCH
   do IBLOCK=I1BATCH(JBATCH),I1BATCH(JBATCH)+LBATCH(JBATCH)-1
     ITYPE_A = IBATCH(1,IBLOCK)

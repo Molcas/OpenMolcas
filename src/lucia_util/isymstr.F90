@@ -23,7 +23,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ISYMSTR
-integer(kind=iwp) :: ISYM(*), NSTR
+integer(kind=iwp), intent(in) :: NSTR, ISYM(NSTR)
 integer(kind=iwp) :: IISYM, JSTR
 
 if (NSTR == 0) then

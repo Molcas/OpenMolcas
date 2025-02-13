@@ -68,11 +68,16 @@ use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: RHO1(*), SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), RHO1S(*), SCLFAC, SRHO1(*)
-integer(kind=iwp) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPOBS, ADSXA(MXPOBS,2*MXPOBS), &
-                     NSMST, STSTSX(NSMST,NSMST), MXPNGAS, NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, I1(*), I2(*), NSMOB, &
-                     IPHGAS(*), IDOSRHO1, IAB
+real(kind=wp), intent(inout) :: RHO1(*), XI1S(*), XI2S(*), RHO1S(*), SRHO1(*)
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPOBS, &
+                                 ADSXA(MXPOBS,2*MXPOBS), NSMST, STSTSX(NSMST,NSMST), MXPNGAS, NOBPTS(MXPNGAS,*), &
+                                 IOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, IPHGAS(*), IDOSRHO1, IAB
+real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*)
+integer(kind=iwp), intent(inout) :: I1(*), I2(*)
 integer(kind=iwp) :: IBIORB, IBJORB, IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, IIPART, IJ_AC(2), IJ_DIM(2), IJ_OFF(2), IJ_REO(2), &
                      IJ_SM(2), IJ_TP(2), IJSM, IJTP, IORB, ISGOFF, ISGRP(16), ISM, ITOP, ITP(256), ITYP, IXXX, JJORB, JORB, JSM, &
                      JTP(256), JTYP, KACT, KBOT, KEND, KTOP, LKABTC, NIBTC, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NKI, &

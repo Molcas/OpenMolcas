@@ -47,7 +47,9 @@ use csm_data, only: NSMST
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ISTRTP, ISPGRP, ISPGRPSM, NEL, NSTR, ISTR(*), NORBT, IDOREO, IZ(NORBT,NEL), IREO(*)
+integer(kind=iwp), intent(in) :: ISTRTP, ISPGRP, ISPGRPSM, NEL, NORBT, IDOREO, IZ(NORBT,NEL)
+integer(kind=iwp), intent(out) :: NSTR
+integer(kind=iwp), intent(inout) :: ISTR(*), IREO(*)
 integer(kind=iwp) :: IEL, IFIRST, IGAS, IISTSGP(MXPNSMST,MXPNGAS), ISMFGS(MXPNGAS), ISMST, ISPGRPA, ISTRBS, ISTSMM1, &
                      ITPFGS(MXPNGAS), JSTR, LEX, MAXLEX, MNVAL(MXPNGAS), MXVAL(MXPNGAS), NELFGS(MXPNGAS), NGASL, &
                      NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NTEST

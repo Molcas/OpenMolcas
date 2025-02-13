@@ -15,9 +15,11 @@ subroutine get_diag(diag,ndet)
 use lucia_data, only: IDISK, LUDIA
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: diag(*)
-integer(kind=iwp) :: nDet
+real(kind=wp), intent(_OUT_) :: diag(*)
+integer(kind=iwp), intent(out) :: nDet
 integer(kind=iwp) :: I_AM_PACKED, iDet, idummy(1), IMZERO
 
 ndet = 0

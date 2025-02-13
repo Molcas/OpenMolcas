@@ -37,9 +37,10 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NGAS, IOCCMN(NGAS), IOCCMX(NGAS), ITOTSM, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,*), NSSOB(NSMST,*), MXPNGAS, &
-                     IAOCC(MXPNGAS,*), IBOCC(MXPNGAS,*), NCOMB, MXSB, MXSOOB, IBLTP(*), NTTSBL, LCOL, IOCOC(NOCTPA,NOCTPB), &
-                     MXSOOB_AS
+integer(kind=iwp), intent(in) :: NGAS, IOCCMN(NGAS), IOCCMX(NGAS), ITOTSM, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), &
+                                 NSSOB(NSMST,NOCTPA), MXPNGAS, IAOCC(MXPNGAS,NOCTPA), IBOCC(MXPNGAS,NOCTPB), IBLTP(NSMST), &
+                                 IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp), intent(out) :: NCOMB, MXSB, MXSOOB, NTTSBL, LCOL, MXSOOB_AS
 real(kind=wp) :: XNCOMB
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ISYM, LASTR, LBSTR, LTTS_AS, LTTSBL, LTTSUP, NTEST
 
@@ -72,8 +73,8 @@ do IATP=1,NOCTPA
 
     if (NTEST >= 10) then
       write(u6,*) ' Alpha super group and beta super group'
-      call IWRTMA(IAOCC(1,IATP),1,NGAS,1,NGAS)
-      call IWRTMA(IBOCC(1,IBTP),1,NGAS,1,NGAS)
+      call IWRTMA(IAOCC(:,IATP),1,NGAS,1,NGAS)
+      call IWRTMA(IBOCC(:,IBTP),1,NGAS,1,NGAS)
     end if
 
     if (IOCOC(IATP,IBTP) == 1) then

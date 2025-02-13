@@ -12,8 +12,8 @@
 !***********************************************************************
 
 subroutine NXTNUM3(INUM,NELMNT,MNVAL,MXVAL,NONEW)
-! An set of numbers INUM(I),I=1,NELMNT is
-! given. Find next compund number.
+! A set of numbers INUM(I),I=1,NELMNT is given.
+! Find next compund number.
 ! Digit I must be in the range MNVAL(I),MXVAL(I).
 !
 ! NONEW = 1 on return indicates that no additional numbers
@@ -24,7 +24,9 @@ subroutine NXTNUM3(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: INUM(*), NELMNT, MNVAL(*), MXVAL(*), NONEW
+integer(kind=iwp), intent(in) :: NELMNT, MNVAL(NELMNT), MXVAL(NELMNT)
+integer(kind=iwp), intent(inout) :: INUM(NELMNT)
+integer(kind=iwp), intent(out) :: NONEW
 integer(kind=iwp) :: IPLACE, JPLACE, NTEST
 
 NTEST = 0

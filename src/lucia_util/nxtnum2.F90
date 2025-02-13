@@ -24,7 +24,9 @@ subroutine NXTNUM2(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: INUM(*), NELMNT, MNVAL, MXVAL(*), NONEW
+integer(kind=iwp), intent(in) :: NELMNT, MNVAL, MXVAL(NELMNT)
+integer(kind=iwp), intent(inout) :: INUM(NELMNT)
+integer(kind=iwp), intent(out) :: NONEW
 integer(kind=iwp) :: IPLACE, JPLACE, NTEST
 
 NTEST = 0

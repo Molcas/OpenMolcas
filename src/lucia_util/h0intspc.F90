@@ -34,8 +34,9 @@ subroutine H0INTSPC(IH0SPC,NPTSPC,NOCTPA,NOCTPB,IOCA,IOCB,NGAS,MXPNGAS,INTH0SPC,
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IH0SPC, NPTSPC, MXPNGAS, NOCTPA, NOCTPB, IOCA(MXPNGAS,*), IOCB(MXPNGAS,*), NGAS, INTH0SPC(NOCTPA,NOCTPB), &
-                     NELFTP(*)
+integer(kind=iwp), intent(in) :: IH0SPC, NPTSPC, MXPNGAS, NOCTPA, NOCTPB, IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB), NGAS, &
+                                 NELFTP(*)
+integer(kind=iwp), intent(out) :: INTH0SPC(NOCTPA,NOCTPB)
 integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, ISPC, NTEST
 
 if (IH0SPC == 0) then

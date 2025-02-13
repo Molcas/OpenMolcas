@@ -23,7 +23,8 @@ subroutine NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN,NCOMP_PER_OPEN,NCOMP)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: MAXOP, NCONF_PER_OPEN(*), NCOMP_PER_OPEN(*), NCOMP
+integer(kind=iwp), intent(in) :: MAXOP, NCONF_PER_OPEN(MAXOP+1), NCOMP_PER_OPEN(MAXOP+1)
+integer(kind=iwp), intent(out) :: NCOMP
 integer(kind=iwp) :: IOPEN
 
 NCOMP = 0

@@ -17,8 +17,9 @@ subroutine MATCAS(CIN,COUT,NROWI,NROWO,IROWO1,NGCOL,ISCA,SCASGN)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NROWI, NROWO, IROWO1, NGCOL, ISCA(*)
-real(kind=wp) :: CIN(NROWI,*), COUT(NROWO,*), SCASGN(*)
+integer(kind=iwp), intent(in) :: NROWI, NROWO, IROWO1, NGCOL, ISCA(NGCOL)
+real(kind=wp), intent(in) :: CIN(NROWI,*), SCASGN(*)
+real(kind=wp), intent(inout) :: COUT(NROWO,*)
 integer(kind=iwp) :: IC, ICEXP, IR, MAXCOL, NTEST
 real(kind=wp) :: SGN
 

@@ -19,7 +19,7 @@ subroutine WRT_CONF_LIST(ICONF,NCONF_FOR_OPEN,MAXOP,NELEC)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ICONF(*), MAXOP, NCONF_FOR_OPEN(MAXOP+1), NELEC
+integer(kind=iwp), intent(in) :: ICONF(*), MAXOP, NCONF_FOR_OPEN(MAXOP+1), NELEC
 integer(kind=iwp) :: IB, IOPEN, JCONF, NCONF_OP, NOCC_ORB
 
 IB = 1

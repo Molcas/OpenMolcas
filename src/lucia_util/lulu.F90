@@ -42,12 +42,14 @@ subroutine LULU(A,L,U,NDIM)
 !
 ! JEPPE OLSEN, OCTOBER 1988
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NDIM
-real(kind=wp) :: A(NDIM,NDIM), L(*), U(*)
+integer(kind=iwp), intent(in) :: NDIM
+real(kind=wp), intent(in) :: A(NDIM,NDIM)
+real(kind=wp), intent(inout) :: L(nTri_Elem(NDIM)), U(nTri_Elem(NDIM))
 integer(kind=iwp) :: I, J, NTEST, R
 real(kind=wp) :: XFACI
 real(kind=wp), external :: dDot_

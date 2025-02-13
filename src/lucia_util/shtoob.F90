@@ -35,7 +35,8 @@ subroutine SHTOOB(NSHPIR,NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NOBPS,NOB)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSHPIR(*), NIRREP, MXPOBS, NSMOB, NOSPIR(*), IOSPIR(MXPOBS,*), NOBPS(*), NOB
+integer(kind=iwp), intent(in) :: NIRREP, NSHPIR(NIRREP), MXPOBS, NSMOB, NOSPIR(NIRREP), IOSPIR(MXPOBS,NIRREP)
+integer(kind=iwp), intent(out) :: NOBPS(NSMOB), NOB
 integer(kind=iwp) :: IISM, IRREP, ISM, NTEST
 
 NOBPS(1:NSMOB) = 0

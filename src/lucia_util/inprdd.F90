@@ -18,10 +18,12 @@ use lucia_data, only: IDISK
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
 real(kind=wp) :: INPRDD
-real(kind=wp) :: VEC1(*), VEC2(*)
-integer(kind=iwp) :: LU1, LU2, IREW, LBLK
+real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
+integer(kind=iwp), intent(in) :: LU1, LU2, IREW, LBLK
 integer(kind=iwp) :: IAMPACK, IDUMMY(1), IMZERO, KBLK, NBL1
 real(kind=wp) :: dDot_, X
 logical(kind=iwp) :: DIFVEC

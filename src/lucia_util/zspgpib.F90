@@ -20,7 +20,8 @@ subroutine ZSPGPIB(NSTSO,ISTSO,NSPGP,NSMST)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSMST, NSPGP, NSTSO(NSMST,NSPGP), ISTSO(NSMST,NSPGP)
+integer(kind=iwp), intent(in) :: NSMST, NSPGP, NSTSO(NSMST,NSPGP)
+integer(kind=iwp), intent(out) :: ISTSO(NSMST,NSPGP)
 integer(kind=iwp) :: ISMST, ISPGP, NTEST
 
 do ISPGP=1,NSPGP

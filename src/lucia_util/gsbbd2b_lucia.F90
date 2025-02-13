@@ -69,13 +69,17 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: RHO2(*), RHO2S(*), RHO2A(*), SB(*), CB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), CJRES(*), SIRES(*), SCLFAC, &
-                 S2_TERM1
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), IBOC(*), &
-                     JAOC(*), JBOC(*), MXPOBS, ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), MXPNGAS, NOBPTS(MXPNGAS,*), &
-                     IOBPTS(MXPNGAS,*), MAXK, I1(*), I2(*), I3(*), I4(*), NSMOB, IUSEAB, NORB, NTESTG
-logical(kind=iwp) :: IPACK
+real(kind=wp), intent(inout) :: RHO2(*), RHO2S(*), RHO2A(*), S2_TERM1
+integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), &
+                                 IBOC(*), JAOC(*), JBOC(*), MXPOBS, ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), MXPNGAS, &
+                                 NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXK, NSMOB, IUSEAB, NORB, NTESTG
+integer(kind=iwp), intent(_OUT_) :: I1(*), I2(*), I3(*), I4(*)
+real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
+real(kind=wp), intent(_OUT_) :: XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), CJRES(*), SIRES(*)
+logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: I, IDOCOMP, II, IJ, IJSM, IJTYP, IKABTC, IKORD, IOFF, ISM, ITP(20), ITYP, J, JI, JJ, JOFF, JSM, JTP(20), &
                      JTYP, KABOT, KATOP, KLSM, KLTYP, KOFF, KSM, KTP(20), KTYP, LKABTC, LOFF, LSM, LTP(20), LTYP, NI, NIJ, NIJTYP, &
                      NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL, NTEST, NTESTL

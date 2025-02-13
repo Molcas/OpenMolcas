@@ -26,9 +26,11 @@ subroutine GETH1(H,ISM,ITP,JSM,JTP)
 use lucia_data, only: NOBPTS
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: H(*)
-integer(kind=iwp) :: ISM, ITP, JSM, JTP
+real(kind=wp), intent(_OUT_) :: H(*)
+integer(kind=iwp), intent(in) :: ISM, ITP, JSM, JTP
 integer(kind=iwp) :: I, IJ, J, NI, NJ, NTEST
 real(kind=wp), external :: GETH1E
 

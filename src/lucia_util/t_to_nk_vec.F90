@@ -34,9 +34,12 @@ use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: T, C(*)
-integer(kind=iwp) :: KORB, ISM, ISPC, LUCIN, LUCOUT
+real(kind=wp), intent(in) :: T
+integer(kind=iwp), intent(in) :: KORB, ISM, ISPC, LUCIN, LUCOUT
+real(kind=wp), intent(_OUT_) :: C(*)
 integer(kind=iwp) :: IATP, IBTP, KKORB, NAEL, NBATCH, NBEL, NBLOCK, NTEST
 integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:), LKAOC(:), LKBOC(:)
 

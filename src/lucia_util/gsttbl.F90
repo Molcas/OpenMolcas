@@ -32,10 +32,15 @@ use lucia_data, only: IDISK
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), CTT(*), PSSIGN, PLSIGN, SCR(*), SCLFAC
-integer(kind=iwp) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), ICOOSC(NOCTPA,NOCTPB,*), IDC, &
-                     LUC, ISCALE
+real(kind=wp), intent(_IN_) :: C(*)
+real(kind=wp), intent(_OUT_) :: CTT(*), SCR(*)
+integer(kind=iwp), intent(in) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), &
+                                 ICOOSC(NOCTPA,NOCTPB,*), IDC, LUC, ISCALE
+real(kind=wp), intent(in) :: PSSIGN, PLSIGN
+real(kind=wp), intent(inout) :: SCLFAC
 integer(kind=iwp) :: IAMPACK, IBASE, IDUMMY(1), IMZERO, ISGVST(1), LBL, LCOMB, LDET, NAST, NBST, NCI, NELMNT, NO_ZEROING, NRI
 real(kind=wp) :: PSIGN
 

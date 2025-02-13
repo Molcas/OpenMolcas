@@ -24,8 +24,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD, IROUTE
-real(kind=wp) :: SKII(*), CKJJ(*), XIJKL(*), XKBIB(MAXK,*), XKBJB(MAXK,*), FACS
+real(kind=wp), intent(inout) :: SKII(*), XIJKL(*)
+integer(kind=iwp), intent(in) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD, IROUTE
+real(kind=wp), intent(in) :: CKJJ(*), XKBIB(MAXK,*), XKBJB(MAXK,*), FACS
 integer(kind=iwp) :: I, IB, ICOFF, IKINTOF, IMAX, INTOF, ISOFF, J, JB, JKINTOF, K, KB, KK, L, LL, NTEST
 real(kind=wp) :: FACTOR, SGNK, SGNL, XIJILS(MXPTSOB)
 

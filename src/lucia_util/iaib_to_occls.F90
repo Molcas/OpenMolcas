@@ -22,7 +22,8 @@ use lucia_data, only: IBSPGPFTP, MXPNGAS, NELFSPGP, NGAS, NMXOCCLS
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IAGRP, IATP, IBGRP, IBTP, IOC
+integer(kind=iwp), intent(in) :: IAGRP, IATP, IBGRP, IBTP
+integer(kind=iwp), intent(out) :: IOC
 integer(kind=iwp) :: IABOCC(MXPNGAS), IATP_ABS, IBTP_ABS, INUM
 
 IATP_ABS = IATP+IBSPGPFTP(IAGRP)-1

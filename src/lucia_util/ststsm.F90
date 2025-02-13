@@ -17,7 +17,8 @@ use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSMST, STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST)
+integer(kind=iwp), intent(in) :: NSMST
+integer(kind=iwp), intent(out) :: STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST)
 integer(kind=iwp) :: ILSTSM, IRSTSM, NTEST
 
 do ILSTSM=1,NSMST

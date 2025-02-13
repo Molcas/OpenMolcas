@@ -33,10 +33,16 @@ use lucia_data, only: IDISK
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSMST, IDC, NSSOA(NSMST,*), NSSOB(NSMST,*), LUIN, LUOUT, &
-                     IPRNT, NTOOB, I12, IBLOCK(8,*), NBLOCK, ITASK, I0CHK, I0BLK(*)
-real(kind=wp) :: VEC(*), H(NORB), XB(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, RJKAA(*), FACTOR
+integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, IDC, NSSOA(NSMST,*), NSSOB(NSMST,*), LUIN, LUOUT, IPRNT, NTOOB, I12, &
+                                 IBLOCK(8,*), NBLOCK, ITASK, I0CHK, I0BLK(*)
+integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*)
+real(kind=wp), intent(_OUT_) :: VEC(*), RJKAA(*)
+real(kind=wp), intent(in) :: H(NORB), RJ(NTOOB,NTOOB), ECORE, FACTOR
+real(kind=wp), intent(out) :: XB(NORB)
+real(kind=wp), intent(inout) :: RK(NTOOB,NTOOB)
 integer(kind=iwp) :: IA, IAEL, IAMPACK, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBSM, IBTP, IDET, IDUM_ARR(1), IEL, IMZERO, IOFF, &
                      IORB, IPACK, ITDET, JBLOCK, JEL, LDET, NAST, NASTR1, NBSTR1, NIA, NIB, NTEST
 real(kind=wp) :: EAA, EB, HB, RJBB, X
@@ -137,7 +143,7 @@ do JBLOCK=1,NBLOCK
       LDET = IDUM_ARR(1)
       call IDAFILE(LUIN,2,IDUM_ARR,1,IDISK(LUIN))
       IDET = 0
-      call FRMDSC(VEC(1),LDET,-1,LUIN,IMZERO,IAMPACK)
+      call FRMDSC(VEC,LDET,-1,LUIN,IMZERO,IAMPACK)
     end if
 
     if (I0CHK == 1) then
@@ -211,7 +217,8 @@ do JBLOCK=1,NBLOCK
     end if
 
     if (LUOUT > 0) then
-      call ITODS([LDET],1,-1,LUOUT)
+      IDUM_ARR(1) = LDET
+      call ITODS(IDUM_ARR,1,-1,LUOUT)
       call TODSC(VEC,LDET,-1,LUOUT)
       !write(u6,*) ' Number of elements transferred to DISC ',LDET
       IDET = 0
@@ -220,7 +227,10 @@ do JBLOCK=1,NBLOCK
   end if
 end do
 
-if (LUOUT > 0) call ITODS([-1],1,-1,LUOUT)
+if (LUOUT > 0) then
+  IDUM_ARR(1) = -1
+  call ITODS(IDUM_ARR,1,-1,LUOUT)
+end if
 
 !write(u6,*) ' Mission DIATERMS finished'
 

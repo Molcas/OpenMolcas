@@ -19,8 +19,9 @@ subroutine SCLDIA(A,FACTOR,NDIM,IPACK)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: A(*), FACTOR
-integer(kind=iwp) :: NDIM, IPACK
+real(kind=wp), intent(inout) :: A(*)
+real(kind=wp), intent(in) :: FACTOR
+integer(kind=iwp), intent(in) :: NDIM, IPACK
 integer(kind=iwp) :: I, II
 
 if (IPACK == 0) then

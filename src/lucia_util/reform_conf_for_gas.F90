@@ -23,7 +23,8 @@ subroutine REFORM_CONF_FOR_GAS(ICONF_GAS,ICONF,IBORB,IBEL,MXPORB,NEL,IWAY)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MXPORb, ICONF_GAS(MXPORB), ICONF(*), IBORB, IBEL, NEL, IWAY
+integer(kind=iwp), intent(in) :: IBORB, IBEL, MXPORB, NEL, IWAY
+integer(kind=iwp), intent(inout) :: ICONF_GAS(MXPORB), ICONF(IBEL-1+NEL)
 integer(kind=iwp) :: IEL, NTEST
 
 if (IWAY == 1) then

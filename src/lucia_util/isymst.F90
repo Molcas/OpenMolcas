@@ -10,24 +10,29 @@
 !***********************************************************************
 
 function ISYMST(STRING,NEL)
-! Master routine for symmetry of string
+! Symmmetry of string, D2H version
 
-use Definitions, only: iwp
+use Symmetry_Info, only: Mul
+use lucia_data, only: ISMFTO
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: ISYMST
-integer(kind=iwp) :: STRING(*), NEL
-integer(kind=iwp), external :: ISYMS1
+integer(kind=iwp), intent(in) :: NEL, STRING(NEL)
+integer(kind=iwp) :: IEL, ISYM, NTEST
 
-!if (PNTGRP == 1) then
-! D2h
-ISYMST = ISYMS1(STRING,NEL)
-!else
-!  write(u6,*) ' Sorry PNTGRP option not programmed ',PNTGRP
-!  write(u6,*) ' Enforced stop in ISYMST'
-!  !stop 5
-!  call SYSABENDMSG('lucia_util/isymst','Internal error','')
-!  ISYMST = -9999
-!end if
+ISYM = 1
+do IEL=1,NEL
+  ISYM = Mul(ISYM,ISMFTO(STRING(IEL)))
+end do
+
+ISYMST = ISYM
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(u6,*) ' ISYMST, String and symmetry'
+  call IWRTMA(STRING,1,NEL,1,NEL)
+  write(u6,*) ISYM
+end if
 
 end function ISYMST

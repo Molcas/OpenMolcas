@@ -21,7 +21,7 @@ use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ISYM
+integer(kind=iwp), intent(in) :: ISYM
 
 call Deallocate_DT(Z_PTDT)
 call Deallocate_DT(REO_PTDT)

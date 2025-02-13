@@ -16,8 +16,11 @@ subroutine ITODS(IA,NDIM,MBLOCK,IFIL)
 use lucia_data, only: IDISK
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IA(*), NDIM, MBLOCK, IFIL
+integer(kind=iwp), intent(in) :: NDIM, MBLOCK, IFIL
+integer(kind=iwp), intent(_IN_) :: IA(NDIM)
 integer(kind=iwp) :: IDUMMY(1), ISTOP, NBACK, NBLOCK, NLABEL, NTRANS, START
 
 NBLOCK = MBLOCK

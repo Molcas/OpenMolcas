@@ -41,8 +41,9 @@ subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPN
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: LCMBSPC, ICMBSPC(LCMBSPC), MXPNGAS, MNMXOC(MXPNGAS,2,*), NOCTPA, NOCTPB, IOCA(MXPNGAS,NOCTPA), &
-                     IOCB(MXPNGAS,NOCTPB), NELFTP(*), NGAS, IOCOC(NOCTPA,NOCTPB), IPRNT
+integer(kind=iwp), intent(in) :: LCMBSPC, ICMBSPC(LCMBSPC), MXPNGAS, MNMXOC(MXPNGAS,2,*), NOCTPA, NOCTPB, IOCA(MXPNGAS,NOCTPA), &
+                                 IOCB(MXPNGAS,NOCTPB), NELFTP(*), NGAS, IPRNT
+integer(kind=iwp), intent(out) :: IOCOC(NOCTPA,NOCTPB)
 integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, II, INC, JCMBSPC, JJCMBSPC, NTEST
 
 NTEST = 0

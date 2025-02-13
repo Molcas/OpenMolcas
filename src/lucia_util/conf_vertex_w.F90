@@ -19,7 +19,8 @@ subroutine CONF_VERTEX_W(IOCC_MIN,IOCC_MAX,NORB,NEL,IVERTEXW)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL, IVERTEXW(NORB+1,NEL+1)
+integer(kind=iwp), intent(in) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL
+integer(kind=iwp), intent(out) :: IVERTEXW(NORB+1,NEL+1)
 integer(kind=iwp) :: IEL, IORB, NTEST
 
 !write(u6,*) ' CONF_VERTEX : NORB, NEL = ',NORB,NEL

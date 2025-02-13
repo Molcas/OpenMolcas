@@ -24,13 +24,17 @@ use GLBBAS, only: REO_PTDT, Z_PTDT
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IREO(*), NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NBLOCK, IBLOCK(8,NBLOCK), NAEL, NBEL, IASTR(*), IBSTR(*), &
-                     NOCCLS, NGAS, IOCCLS(NGAS,NOCCLS), NORB, NOBPT(*), IB_CONF_OPEN(*), nconf_tot, iconf_reo(nconf_tot), maxop, &
-                     ib_conf_reo(maxop+1), nconf_per_open(maxop+1), IB_SD_FOR_OPEN(*), IZSCR(*), IZ(*), IOCMIN(*), IOCMAX(*), &
-                     IDET_OC(*), IDET_MS(*), IDET_VC(*), MINOP, IBCONF_ALL_SYM_FOR_OCCLS(NOCCLS), NPDTCNF(*)
-real(kind=wp) :: PSSIGN
-integer(kind=iwp) :: I, IA, IADR_SD_CONF_ORDER, IAGRP, IASM, IATP, IB, IB_OCCLS, IBCNF_OUT, IBGRP, IBSM, IBTP, icnf_out, IDET, &
+integer(kind=iwp), intent(_OUT_) :: IREO(*), IZSCR(*), IZ(*), IOCMIN(*), IOCMAX(*), IDET_OC(*), IDET_MS(*), IDET_VC(*)
+integer(kind=iwp), intent(in) :: NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NBLOCK, IBLOCK(8,NBLOCK), NAEL, NBEL, NOCCLS, NGAS, &
+                                 IOCCLS(NGAS,NOCCLS), NORB, NOBPT(*), IB_CONF_OPEN(*), nconf_tot, iconf_reo(nconf_tot), maxop, &
+                                 ib_conf_reo(maxop+1), nconf_per_open(maxop+1), IB_SD_FOR_OPEN(*), MINOP, &
+                                 IBCONF_ALL_SYM_FOR_OCCLS(NOCCLS), NPDTCNF(*)
+integer(kind=iwp), intent(inout) :: IASTR(*), IBSTR(*)
+real(kind=wp), intent(in) :: PSSIGN
+integer(kind=iwp) :: IA, IADR_SD_CONF_ORDER, IAGRP, IASM, IATP, IB, IB_OCCLS, IBCNF_OUT, IBGRP, IBSM, IBTP, icnf_out, IDET, &
                      IDUM(1), IOC, IPTDT, IRESTR, ISIGN_2003, ISGN, JBLOCK, MINIA, NASTR1, NBSTR1, nconf_op, NCONF_P, NDOUBLE, &
                      NEL, NIA, NIB, NOCOB, NOPEN, NOPEN_AL, NPTDT, NTEST
 integer(kind=iwp), external :: ilex_for_conf_new, IZNUM_PTDT, NOP_FOR_CONF
@@ -54,7 +58,7 @@ do JBLOCK=1,NBLOCK
   call IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
   !    IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
   ! Arcweights for this occupation class
-  call MXMNOC_OCCLS(IOCMIN,IOCMAX,NGAS,NOBPT,IOCCLS(1,IOC),MINOP,NTEST)
+  call MXMNOC_OCCLS(IOCMIN,IOCMAX,NGAS,NOBPT,IOCCLS(:,IOC),MINOP,NTEST)
   !    MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,NTESTG)
   ! the arcweights
   call CONF_GRAPH(IOCMIN,IOCMAX,NORB,NEL,IZ,NCONF_P,IZSCR)
@@ -138,9 +142,7 @@ do JBLOCK=1,NBLOCK
         ! may differ, so ensure that the included det obeys prototype constraint
         ! Address of this spinprojection pattern
         if (IDET_VC(1) < 0) then
-          do I=1,NOPEN
-            IDET_VC(I) = -1*IDET_VC(I)
-          end do
+          IDET_VC(1:NOPEN) = -IDET_VC(1:NOPEN)
           if (PSSIGN == -One) ISIGN_2003 = -1
           ! Update sign AB => ordered list
           !PAM06 call ABSTR_TO_ORDSTR(IBSTR(1,IB),IASTR(1,IA),NBEL,NAEL,

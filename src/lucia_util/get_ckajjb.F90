@@ -19,26 +19,23 @@ subroutine GET_CKAJJB(CB,NJ,NJA,CKAJJB,NKA,NJB,J,ISCA,SSCA)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NJ, NJA, NKA, NJB, J, ISCA(*)
-real(kind=wp) :: CB(NJB,NJA), CKAJJB(*), SSCA(*)
+integer(kind=iwp), intent(in) :: NJ, NJA, NKA, NJB, J, ISCA(*)
+real(kind=wp), intent(in) :: CB(NJB,NJA), SSCA(*)
+real(kind=wp), intent(_OUT_) :: CKAJJB(*)
 integer(kind=iwp) :: IADR, IADR0, ICBL, ICEND, ICOFF, ICONST, IROW, JB, KA, LBLK, NBLK
 real(kind=wp) :: S
-
-! To get rid of annoying and incorrect compiler warnings
-ICOFF = 0
 
 !write(u6,*) ' From GET_CKAJJB'
 !LBLK = 100
 LBLK = 40
 NBLK = NJB/LBLK
 if (LBLK*NBLK < NJB) NBLK = NBLK+1
+ICOFF = 1
 do ICBL=1,NBLK
-  if (ICBL == 1) then
-    ICOFF = 1
-  else
-    ICOFF = ICOFF+LBLK
-  end if
+  if (ICBL > 1) ICOFF = ICOFF+LBLK
   ICEND = min(ICOFF+LBLK-1,NJB)
   ICONST = NKA*NJ
   IADR0 = (J-1)*NKA+(ICOFF-1-1)*NKA*NJ

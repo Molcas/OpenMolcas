@@ -35,9 +35,11 @@ subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, NACGSOB, ICREORB(NACGSOB,*), ICRESTR(NACGSOB,*), IORBTSF, IORBTF, &
-                     NORBTS, NSTAK, NSTAI, NSTAKTS, NELB, ISTMAP(NSTAKTS,*)
-real(kind=wp) :: SGNMAP(NSTAKTS,*), SCLFAC
+integer(kind=iwp), intent(in) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, NACGSOB, NSTAK, ICREORB(NACGSOB,NSTAK+IOFFK-1), &
+                                 ICRESTR(NACGSOB,NSTAK+IOFFK-1), IORBTSF, IORBTF, NORBTS, NSTAI, NSTAKTS, NELB
+integer(kind=iwp), intent(inout) :: ISTMAP(NSTAKTS,IORBTSF+NORBTS)
+real(kind=wp), intent(inout) :: SGNMAP(NSTAKTS,IORBTSF+NORBTS)
+real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: IA, IADRI0, IADRK0, IB, IORB, IORBR, IORBRT, IORBRTS, ISTR, KSTR, NK, NSTAINSTA, NSTAKNSTA, NTEST
 real(kind=wp) :: SIGN0, SGN
 

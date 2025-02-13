@@ -31,7 +31,8 @@ use spinfo, only: IOCCPSPC, NGASBK
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, IOCTPA, IOCTPB, I_DO_EXACT_BLOCK
+integer(kind=iwp), intent(in) :: IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM
+integer(kind=iwp), intent(out) :: IOCTPA, IOCTPB, I_DO_EXACT_BLOCK
 integer(kind=iwp) :: ICHECK_OCC_IN_ACCSPC, IGAS, IOCC(MXPNGAS), IOCC_IN, JOCC(MXPNGAS), JOCC_IN, NTEST
 
 NTEST = 0

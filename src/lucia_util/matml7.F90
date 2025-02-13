@@ -38,8 +38,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NCROW, NCCOL, NAROW, NACOL, NBROW, NBCOL, ITRNSP
-real(kind=wp) :: C(NCROW,NCCOL), A(NAROW,NACOL), B(NBROW,NBCOL), FACTORC, FACTORAB
+integer(kind=iwp), intent(in) :: NCROW, NCCOL, NAROW, NACOL, NBROW, NBCOL, ITRNSP
+real(kind=wp), intent(inout) :: C(NCROW,NCCOL)
+real(kind=wp), intent(in) :: A(NAROW,NACOL), B(NBROW,NBCOL), FACTORC, FACTORAB
 integer(kind=iwp) :: I, IZERO, J, K, LDA, LDB, LDC
 real(kind=wp) :: AKI, B1J, BJ1, BJK, BKJ, T
 

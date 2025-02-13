@@ -21,7 +21,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: ICHECK_OCC_IN_ACCSPC
-integer(kind=iwp) :: NGAS, IOCC(NGAS), MXPNGAS, IMINMAX(MXPNGAS,2)
+integer(kind=iwp), intent(in) :: NGAS, IOCC(NGAS), MXPNGAS, IMINMAX(MXPNGAS,2)
 integer(kind=iwp) :: I_AM_IN, IGAS, NTEST
 
 I_AM_IN = 1

@@ -24,9 +24,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), HC(*)
-integer(kind=iwp) :: LUC, LUHC
+real(kind=wp), intent(inout) :: C(*)
+real(kind=wp), intent(_OUT_) :: HC(*)
+integer(kind=iwp), intent(in) :: LUC, LUHC
 integer(kind=iwp) :: IATP, IBTP, LBLOCK, LLUC, LLUHC, NBATCH, NOCTPA, NOCTPB, NTTS
 integer(kind=iwp), allocatable :: CBLTP(:), CI1BT(:), CIBT(:), CLBT(:), CLEBT(:), SIOIO(:), SVST(:)
 
@@ -54,7 +57,7 @@ else
 end if
 ! Arrays giving block type
 call mma_allocate(CBLTP,NSMST,Label='CBLTP')
-call ZBLTP(ISMOST(1,ISSM),NSMST,IDC,CBLTP,SVST)
+call ZBLTP(ISMOST(:,ISSM),NSMST,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 ! Arrays for partitioning of sigma
 NTTS = MXNTTS
@@ -74,8 +77,7 @@ if (ENVIRO == 'RASSCF') then
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
   if (PSSIGN /= Zero) LBLOCK = int(2*XISPSM(IREFSM,1))
 end if
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
-               0,ISIMSYM)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0,ISIMSYM)
 call mma_deallocate(SIOIO)
 call mma_deallocate(CBLTP)
 

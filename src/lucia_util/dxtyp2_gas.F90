@@ -20,14 +20,18 @@ subroutine DXTYP2_GAS(NDXTP,ITP,JTP,KTP,LTP,NOBTP,IL,IR,IPHGAS)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NDXTP, ITP(*), JTP(*), KTP(*), LTP(*), NOBTP, IL(NOBTP), IR(NOBTP), IPHGAS(NOBTP)
+integer(kind=iwp), intent(out) :: NDXTP
+integer(kind=iwp), intent(_OUT_) :: ITP(*), JTP(*), KTP(*), LTP(*)
+integer(kind=iwp), intent(in) :: NOBTP, IL(NOBTP), IR(NOBTP), IPHGAS(NOBTP)
 integer(kind=iwp) :: IANNI1, IANNI2, ICREA1, ICREA2, IDIA, IDX, IJTP, IOBTP, KLTP, NANNI, NCREA, NDIF, NDIFT, NTEST
 
 NTEST = 0
 if (NTEST >= 100) then
-  write(u6,*) ' DXTYP_GAS in action'
-  write(u6,*) ' ==================='
+  write(u6,*) ' DXTYP2_GAS in action'
+  write(u6,*) ' ===================='
   write(u6,*) ' Occupation of left string'
   call IWRTMA(IL,1,NOBTP,1,NOBTP)
   write(u6,*) ' Occupation of right string'
@@ -82,9 +86,7 @@ if (NTEST >= 1000) then
 end if
 
 NDXTP = 0
-if (NDIFT > 4) then
-  NDXTP = 0
-else
+if (NDIFT <= 4) then
   if ((NCREA == 0) .and. (NANNI == 0)) then
     ! strings identical, include diagonal excitions  itp = jtp, ktp=ltp
     do IJTP=1,NOBTP
@@ -101,8 +103,8 @@ else
         end do
       end if
     end do
-    ! Strings differ by single excitation
   else if ((NCREA == 1) .and. (NANNI == 1)) then
+    ! strings differ by single excitation
     ! diagonal excitation plus creation in ICREA1 and annihilation in IANNI1
     do IDIA=1,NOBTP
       if (((IDIA /= IANNI1) .and. ((IR(IDIA) >= 1) .or. (IPHGAS(IDIA) == 2))) .or. &
@@ -115,7 +117,7 @@ else
       end if
     end do
   else if ((NCREA == 2) .and. (NANNI == 2)) then
-    ! Strings differ by double excitation
+    ! strings differ by double excitation
     NDXTP = 1
     ITP(1) = ICREA2
     KTP(1) = ICREA1

@@ -31,8 +31,8 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NOPEN, INSTRN(NOPEN), IPRCSF
-real(kind=wp) :: UTSTRN(NOPEN)
+integer(kind=iwp), intent(in) :: NOPEN, INSTRN(NOPEN), IPRCSF
+real(kind=wp), intent(out) :: UTSTRN(NOPEN)
 integer(kind=iwp) :: IOPEN, NTEST
 
 UTSTRN(1) = real(INSTRN(1),kind=wp)-Half

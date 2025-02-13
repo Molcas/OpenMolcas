@@ -22,8 +22,8 @@ subroutine WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,ISC)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: BLOCKS(*)
-integer(kind=iwp) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), ISC
+real(kind=wp), intent(in) :: BLOCKS(*)
+integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), ISC
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFF, IPACK, JBLOCK, NELMNT, NIA, NIB
 
 write(u6,*) ' Batch of blocks'

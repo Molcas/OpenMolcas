@@ -22,8 +22,10 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: JOBDISK, JOBIPH, LREC(MXNTTS)
-real(kind=wp) :: CMOMO(*)
+integer(kind=iwp), intent(inout) :: JOBDISK
+integer(kind=iwp), intent(in) :: JOBIPH
+real(kind=wp), intent(in) :: CMOMO(*)
+integer(kind=iwp), intent(out) :: LREC(MXNTTS)
 integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IREC, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, &
                      NCONF, NDIM, NREC, NTEST, NUM_ELE
 real(kind=wp), allocatable :: LCMOMO(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
@@ -63,7 +65,8 @@ do JROOT=1,NROOT
     end do
   end if
   call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
-  call ITODS([-1],1,LBLK,LUC)
+  I_DUMMY(1) = -1
+  call ITODS(I_DUMMY,1,LBLK,LUC)
 end do
 
 ! MO-MO transformation matrix :

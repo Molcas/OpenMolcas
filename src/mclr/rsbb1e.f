@@ -132,7 +132,7 @@
   500         CONTINUE
 *.Obtain one electron integrals (JSM,JTP,ISM,ITP)
               CALL NGETH1(SSCR,ISM,ITYP,JSM,JTYP)
-              CALL TRPMAT(SSCR,NIORB,NJORB,H)
+              CALL TRNSPS(NIORB,NJORB,SSCR,H)
 *
 *.Sscr(I,K,i) = CSCR(I,K,j)*h(j,i)
                 NIK = NIBTC*NKBTC

@@ -34,8 +34,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPRCSF
-integer(kind=iwp) :: IALPHA, ICDCBS, ICSBS, IDET, IDTBS, IFLAG, IOPEN, ITP, L, LSCR, MAX_DC, NNCM, NNCS, NNDET, NTEST
+integer(kind=iwp), intent(in) :: IPRCSF
+integer(kind=iwp) :: IALPHA, ICDCBS, ICSBS, IDET, IDTBS, IFLAG, IOPEN, IOPEN_, ITP, L, LSCR, MAX_DC, NNCM, NNCS, NNDET, NTEST
 integer(kind=iwp), allocatable :: iSCR2(:)
 real(kind=wp), allocatable :: SCR1(:)
 
@@ -124,7 +124,8 @@ do IOPEN=MINOP,MAXOP
   IALPHA = (IOPEN+MS2)/2
   IDET = NPCMCNF(IOPEN+1)
   !write(u6,*) ' IOPEN, IDET = ',IOPEN,IDET
-  call REO_PTDET(IOPEN,IALPHA,Z_PTDT(ITP)%A,REO_PTDT(ITP)%A,DFTP(IDTBS),IDET,iSCR2)
+  IOPEN_ = IOPEN
+  call REO_PTDET(IOPEN_,IALPHA,Z_PTDT(ITP)%A,REO_PTDT(ITP)%A,DFTP(IDTBS),IDET,iSCR2)
 end do
 
 ! matrix expressing csf's in terms of determinants

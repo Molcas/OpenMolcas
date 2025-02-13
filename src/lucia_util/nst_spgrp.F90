@@ -34,7 +34,8 @@ use lucia_data, only: MXPNGAS
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NGRP, IGRP(NGRP), ISM_TOT, NSMST, NSTSGP(NSMST,*), NSTRIN, NDIST
+integer(kind=iwp), intent(in) :: NGRP, IGRP(NGRP), ISM_TOT, NSMST, NSTSGP(NSMST,*)
+integer(kind=iwp), intent(out) :: NSTRIN, NDIST
 integer(kind=iwp) :: I, IFIRST, ISM(MXPNGAS), JGRP, LDIST, LENGTH, MNSM(MXPNGAS), MXSM(MXPNGAS), NDISTX, NONEW, NTEST
 
 NTEST = 0

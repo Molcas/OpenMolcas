@@ -16,7 +16,7 @@ use csm_data, only: ADASX, ADSXA, ASXAD, ITSDX, ITSSX, NSMCI, NSMDX, NSMST, NSMS
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NIRREP
+integer(kind=iwp), intent(in) :: NIRREP
 
 NSMSX = NIRREP
 NSMDX = NIRREP

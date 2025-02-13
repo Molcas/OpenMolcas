@@ -36,7 +36,8 @@ use lucia_data, only: NGAS
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: INSPGP, IACOP, ITPOP, OUTSPGP
+integer(kind=iwp), intent(in) :: INSPGP, IACOP, ITPOP
+integer(kind=iwp), intent(out) :: OUTSPGP
 
 if (IACOP == 1) then
   OUTSPGP = SPGPAN(ITPOP+NGAS*(INSPGP-1))

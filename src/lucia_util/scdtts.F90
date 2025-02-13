@@ -26,8 +26,8 @@ use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: BLOCKS(*)
-integer(kind=iwp) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC, IWAY, IPRNT
+real(kind=wp), intent(inout) :: BLOCKS(*)
+integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC, IWAY, IPRNT
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFFP, IPACK, JBLOCK, NELMNT, NIA, NIB, NTEST
 real(kind=wp) :: FACTOR
 real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)

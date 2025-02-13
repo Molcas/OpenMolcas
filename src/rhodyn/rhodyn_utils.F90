@@ -217,7 +217,7 @@ subroutine transformZ(a,u,b,order)
 
   complex(kind=wp), intent(in) :: a(:,:), u(:,:)
   complex(kind=wp), intent(out) :: b(:,:)
-  logical(kind=iwp), optional, intent(in) :: order
+  logical(kind=iwp), intent(in), optional :: order
   integer(kind=iwp) :: m, n
   complex(kind=wp), allocatable :: temp(:,:)
   logical(kind=iwp) :: order_
@@ -251,7 +251,7 @@ subroutine transformR(a,u,b,order)
 
   real(kind=wp), intent(in) :: a(:,:), u(:,:)
   real(kind=wp), intent(out) :: b(:,:)
-  logical(kind=iwp), optional, intent(in) :: order
+  logical(kind=iwp), intent(in), optional :: order
   integer(kind=iwp) :: m, n
   real(kind=wp), allocatable :: temp(:,:)
   logical(kind=iwp) :: order_

@@ -14,7 +14,8 @@ subroutine SMDFGP_GEN(NGRP,NSMST,MXPNS,NSTFSMGP,NACTSYM,ISMDFGP)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NGRP, NSMST, MXPNS, NSTFSMGP(MXPNS,NGRP), NACTSYM(NGRP), ISMDFGP(NSMST,NGRP)
+integer(kind=iwp), intent(in) :: NGRP, NSMST, MXPNS, NSTFSMGP(MXPNS,NGRP)
+integer(kind=iwp), intent(out) :: NACTSYM(NGRP), ISMDFGP(NSMST,NGRP)
 integer(kind=iwp) :: IGRP, IOFF, ISYM, NTEST
 
 NTEST = 0
@@ -32,7 +33,6 @@ end if
 
 do IGRP=1,NGRP
   IOFF = 0
-  NACTSYM(IGRP) = IOFF
   do ISYM=1,NSMST
     ISMDFGP(ISYM,IGRP) = 0
     if (NSTFSMGP(ISYM,IGRP) /= 0) then

@@ -16,8 +16,11 @@ subroutine WEIGHT_SPGP(Z,NORBTP,NELFTP,NORBFTP,ISCR,NTEST)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: Z(*), NORBTP, NELFTP(NORBTP), NORBFTP(NORBTP), ISCR(*), NTEST
+integer(kind=iwp), intent(_OUT_) :: Z(*), ISCR(*)
+integer(kind=iwp), intent(in) :: NORBTP, NELFTP(NORBTP), NORBFTP(NORBTP), NTEST
 integer(kind=iwp) :: KLFREE, KLMAX, KLMIN, KW, NEL, NORB
 
 NORB = sum(NORBFTP)

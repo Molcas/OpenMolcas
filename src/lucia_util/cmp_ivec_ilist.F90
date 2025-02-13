@@ -23,7 +23,8 @@ subroutine CMP_IVEC_ILIST(IVEC,ILIST,LLIST,NLIST,INUM)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: LLIST, IVEC(LLIST), NLIST, ILIST(LLIST,NLIST), INUM
+integer(kind=iwp), intent(in) :: LLIST, IVEC(LLIST), NLIST, ILIST(LLIST,NLIST)
+integer(kind=iwp), intent(out) :: INUM
 integer(kind=iwp) :: IELMNT, IFOUND, JLIST, NTEST
 
 INUM = 0

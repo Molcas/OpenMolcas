@@ -32,7 +32,7 @@ use csm_data, only: ADASX, ADSXA, ITSDX, ITSSX, SXDXSX
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IPNT1(NSMOB), ISL1(NSMOB), IPNT2(NSMOB,NSMOB,NSMOB), ISL2(NSMOB,NSMOB,NSMOB)
+integer(kind=iwp), intent(out) :: IPNT1(NSMOB), ISL1(NSMOB), IPNT2(NSMOB,NSMOB,NSMOB), ISL2(NSMOB,NSMOB,NSMOB)
 integer(kind=iwp) :: ISM
 
 ! 0 : Pointers to one-integrals, all symmetries, Lower half matrices

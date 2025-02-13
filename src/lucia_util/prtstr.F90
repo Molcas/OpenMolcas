@@ -15,7 +15,7 @@ subroutine PRTSTR(ISTR,NEL,NSTR)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NEL, NSTR, ISTR(NEL,NSTR)
+integer(kind=iwp), intent(in) :: NEL, NSTR, ISTR(NEL,NSTR)
 integer(kind=iwp) :: IEL, JSTR
 
 do JSTR=1,NSTR

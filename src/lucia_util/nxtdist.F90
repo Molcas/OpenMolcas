@@ -33,8 +33,10 @@ subroutine NXTDIST(NSMST,NGRP,NELMNT,KGRP,ISMDFGP,SCR,NACTSYM,NONEW)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSMST, NGRP, NELMNT, KGRP(NELMNT), ISMDFGP(NSMST,NGRP), SCR(NELMNT), NACTSYM(NGRP), NONEW
-integer(kind=iwp) :: I, IGAS, IPLACE, J, JPLACE, NTEST
+integer(kind=iwp), intent(in) :: NSMST, NGRP, NELMNT, KGRP(NELMNT), ISMDFGP(NSMST,NGRP), NACTSYM(NGRP)
+integer(kind=iwp), intent(inout) :: SCR(NELMNT)
+integer(kind=iwp), intent(out) :: NONEW
+integer(kind=iwp) :: I, IGAS, IPLACE, J, NTEST
 
 NTEST = 0
 if (NTEST /= 0) then
@@ -60,9 +62,7 @@ else
       NONEW = 0
       exit
     else if (IPLACE < NELMNT) then
-      do JPLACE=1,IPLACE
-        SCR(JPLACE) = 1
-      end do
+      SCR(1:IPLACE) = 1
     else if (IPLACE == NELMNT) then
       NONEW = 1
       exit
@@ -74,9 +74,6 @@ end if
 if (NTEST /= 0) then
   write(u6,*) 'New ISMDFGP'
   write(u6,'(40I2)') (ISMDFGP(SCR(IGAS),KGRP(IGAS)),IGAS=1,NELMNT)
-end if
-
-if (NTEST /= 0) then
   write(u6,*) ' New SCR'
   call IWRTMA(SCR,1,NELMNT,1,NELMNT)
 end if

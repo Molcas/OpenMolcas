@@ -22,9 +22,11 @@ subroutine COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
 use lucia_data, only: IDISK
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: LUIN, LUOUT, IREW, LBLK
-real(kind=wp) :: SEGMNT(*)
+integer(kind=iwp), intent(in) :: LUIN, LUOUT, IREW, LBLK
+real(kind=wp), intent(_OUT_) :: SEGMNT(*)
 integer(kind=iwp) :: IAMPACK, IDUMMY(1), IMZERO, KBLK, LBL(1), NO_ZEROING
 
 if (IREW /= 0) then

@@ -31,15 +31,15 @@ subroutine Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
 
 use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT
 use strbas, only: NSTSO
-use lucia_data, only: ENVIRO, IDC, IREFSM, ISIMSYM, ISMOST, LCSBLK, MXNTTS, MXSOOB, NOCTYP, PSSIGN, XISPSM
+use lucia_data, only: IDC, ISIMSYM, ISMOST, MXNTTS, NOCTYP
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Two
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ISPC, ISM, IATP, IBTP, NBATCH, NBLOCK
-integer(kind=iwp) :: LBLOCK, NOCTPA, NOCTPB, NTEST
+integer(kind=iwp), intent(in) :: ISPC, ISM, IATP, IBTP
+integer(kind=iwp), intent(out) :: NBATCH, NBLOCK
+integer(kind=iwp) :: NOCTPA, NOCTPB, NTEST
 integer(kind=iwp), allocatable :: LCIOIO(:), SVST(:)
 
 ! Some dummy initializations
@@ -64,27 +64,26 @@ call Allocate_Local_Arrays(MXNTTS,NSMST)
 call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
 call IAIBCM(ISPC,LCIOIO)
 call mma_allocate(SVST,1,Label='SVST')
-call ZBLTP(ISMOST(1,ISM),NSMST,IDC,CBLTP,SVST)
+call ZBLTP(ISMOST(:,ISM),NSMST,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 ! Allowed length of each batch
 !if (ISIMSYM == 0) then
-LBLOCK = MXSOOB
+!  LBLOCK = MXSOOB
 !else
 !  LBLOCK = MXSOOB_AS
 !end if
 
-LBLOCK = max(LBLOCK,LCSBLK)
+!LBLOCK = max(LBLOCK,LCSBLK)
 ! JESPER : Should reduce I/O
-if (ENVIRO == 'RASSCF') then
-  LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
-  if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
-end if
+!if (ENVIRO == 'RASSCF') then
+!  LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
+!  if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
+!end if
 
-if (NTEST >= 10) write(u6,*) ' LBLOCK = ',LBLOCK
+!if (NTEST >= 10) write(u6,*) ' LBLOCK = ',LBLOCK
 
 ! Batches of C vector
-call PART_CIV2(IDC,CBLTP,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LBLOCK,LCIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT, &
-               0,ISIMSYM)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LCIOIO,ISMOST(:,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0,ISIMSYM)
 ! Number of BLOCKS
 NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 if (NTEST >= 1) then

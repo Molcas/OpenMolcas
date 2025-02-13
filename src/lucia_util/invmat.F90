@@ -17,8 +17,8 @@ subroutine INVMAT(A,B,MATDIM,NDIM,ISING)
 !        MATDIM : PHYSICAL DIMENSION OF MATRICES
 !        NDIM :   DIMENSION OF SUBMATRIX TO BE INVERTED
 !
-! OUTPUT : A : INVERSE MATRIX ( ORIGINAL MATRIX THUS DESTROYED )
-! WARNINGS ARE ISSUED IN CASE OF CONVERGENCE PROBLEMS )
+! OUTPUT : A : INVERSE MATRIX (ORIGINAL MATRIX THUS DESTROYED)
+! (WARNINGS ARE ISSUED IN CASE OF CONVERGENCE PROBLEMS)
 !
 ! ISING = 0 => No convergence problems
 !       = 1 => Convergence problems
@@ -27,8 +27,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: MATDIM, NDIM, ISING
-real(kind=wp) :: A(MATDIM,MATDIM), B(MATDIM,MATDIM)
+integer(kind=iwp), intent(in) :: MATDIM, NDIM
+real(kind=wp), intent(inout) :: A(MATDIM,MATDIM)
+real(kind=wp), intent(out) :: B(MATDIM,MATDIM)
+integer(kind=iwp), intent(out) :: ISING
 integer(kind=iwp) :: ITEST, NTEST
 real(kind=wp) :: DETERM, EPSIL
 

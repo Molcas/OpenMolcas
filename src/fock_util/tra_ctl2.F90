@@ -40,8 +40,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(in) :: CMO(*), D1I(*), D1A(*), ExFac
 real(kind=wp), intent(inout) :: PUVX(*)
-real(kind=wp), intent(_OUT_) :: TUVX(*)
-real(kind=wp), intent(out) :: FI(*), FA(*)
+real(kind=wp), intent(_OUT_) :: TUVX(*), FI(*), FA(*)
 integer(kind=iwp), intent(in) :: IPR
 logical(kind=iwp), intent(in) :: lSquare
 #include "Molcas.fh"

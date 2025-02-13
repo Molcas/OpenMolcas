@@ -42,8 +42,9 @@ subroutine CRESTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGST
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, IORBOF, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, ISGSTI(NSTINI), &
-                     ISGSTO(NSTINO), TI(NORB,NSTINI), TTO(NORB,NSTINI), NACOB, IPRNT
+integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, IORBOF, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, &
+                                 ISGSTI(NSTINI), ISGSTO(NSTINO), NACOB, IPRNT
+integer(kind=iwp), intent(out) :: TI(NORB,NSTINI), TTO(NORB,NSTINI)
 integer(kind=iwp) :: I, IEL, IIISGN, IORB, IPLACE, ISTRIN, JSTRIN, MAXPR, NPR, NTEST, NTEST0, STRIN2(500)
 integer(kind=iwp), external :: ISTRNM
 

@@ -20,7 +20,8 @@ subroutine CONF_ARC_W(IOCC_MIN,IOCC_MAX,NORB,NEL,IVERTEXW,IARCW)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL, IVERTEXW(NORB+1,NEL+1), IARCW(NORB,NEL,2)
+integer(kind=iwp), intent(in) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL, IVERTEXW(NORB+1,NEL+1)
+integer(kind=iwp), intent(out) :: IARCW(NORB,NEL,2)
 integer(kind=iwp) :: I, J, K, NTEST
 
 IARCW(:,:,:) = 0

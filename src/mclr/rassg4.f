@@ -144,7 +144,7 @@
      &        JASM,JATP,NJA,NJB,IPERM,NPERM,LLASM,LLBSM,LLATP,LLBTP,
      &        NLLA,NLLB,LROW,LCOL,I1ASM,I1BSM,I1TA,I1TB,IOFF,LBLK,
      &        NCCMBC,NCCMBE,NONEWC,NONEWS,NSCMBC,NSCMBE,ISSTTB,JBTP,
-     &        JBSM
+     &        JBSM,DUM(1)
       REAL*8 XNORM2
       REAL*8, External:: DDot_
 *.
@@ -292,7 +292,7 @@ C    &                      TimeDep)
                   IF(LTRP(IPERM).EQ.1) THEN
                     LROW = NSSOA(LATP(IPERM-1),LASM(IPERM-1))
                     LCOL = NSSOB(LBTP(IPERM-1),LBSM(IPERM-1))
-                    CALL TRPMAT(CB(ICOFF),LROW,LCOL,C2)
+                    CALL TRNSPS(LROW,LCOL,CB(ICOFF),C2)
                     call dcopy_(LROW*LCOL,C2,1,CB(iCOFF),1)
                   END IF
                   IF(LSGN(IPERM).EQ.-1)
@@ -343,7 +343,7 @@ C    &                      TimeDep)
  8765           CONTINUE
 *. Transpose or scale to restore order ??
                   IF(LTRP(NPERM+1).EQ.1) THEN
-                    CALL TRPMAT(CB(ICOFF),NJB,NJA,C2)
+                    CALL TRNSPS(NJB,NJA,CB(ICOFF),C2)
                     call dcopy_(NJA*NJB,C2,1,CB(ICOFF),1)
                   END IF
                   IF(LSGN(NPERM+1).EQ.-1)
@@ -396,7 +396,10 @@ C
 *. End of loop over batches of S blocks
 10002 CONTINUE
 ********************************************************************
-      IF(LUHC.GT.0) CALL ITODS([-1],1,LBLK,LUHC)
+      IF(LUHC.GT.0) THEN
+        DUM(1)=-1
+        CALL ITODS(DUM,1,LBLK,LUHC)
+      END IF
 
 c Avoid unused argument warnings
       IF (.FALSE.) THEN

@@ -20,8 +20,9 @@ subroutine MLSM(IML,IPARI,ISM,TYP,IWAY)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IML, IPARI, ISM, IWAY
-character(len=2) :: TYP
+integer(kind=iwp), intent(inout) :: IML, IPARI, ISM
+integer(kind=iwp), intent(in) :: IWAY
+character(len=2), intent(in) :: TYP
 integer(kind=iwp) :: MNML, NML_, NTEST
 integer(kind=iwp), parameter :: MNMLCI = 0, MNMLDX = 0, MNMLOB = 0, MNMLST = 0, MNMLSX = 0, NMLCI = 0, NMLDX = 0, NMLOB = 0, &
                                 NMLST = 0, NMLSX = 0

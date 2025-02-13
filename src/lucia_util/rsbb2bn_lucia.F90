@@ -77,11 +77,16 @@ use lucia_data, only: MXPNGAS, MXPOBS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), IBOC(*), &
-                     JAOC(*), JBOC(*), ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), MAXK, I1(*), I2(*), &
-                     I3(*), I4(*), NSMOB, IUSEAB, NTESTG, NSEL2E, ISEL2E(*), IPHGAS(*)
-real(kind=wp) :: SB(*), CB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), XINT(*), CJRES(*), SIRES(*), SCLFAC
+integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), &
+                                 IBOC(*), JAOC(*), JBOC(*), ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), &
+                                 MAXK, NSMOB, IUSEAB, NTESTG, NSEL2E, ISEL2E(*), IPHGAS(*)
+real(kind=wp), intent(inout) :: SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
+real(kind=wp), intent(in) :: CB(*), SCLFAC
+integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
+real(kind=wp), intent(_OUT_) :: XINT(*), CJRES(*), SIRES(*)
 #include "timers.fh"
 integer(kind=iwp) :: IAMOKAY, IASPGP(20), IBSPGP(20), ICOUL, IDOCOMP, II, IJ_DIM(2), IJ_REO(2), IJ_SYM(2), IJ_TYP(2), IJAC, IJSM, &
                      IJTYP, IKABTC, IKORD, IROUTE, ISM, ITP(20), ITYP, IXCHNG, JASPGP(20), JBSPGP(20), JJ, JSEL2E, JSM, JTP(20), &

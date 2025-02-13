@@ -15,7 +15,8 @@ subroutine RSMXMN_LUCIA(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MN1,MX1,MN3,MX3,NTEST)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MAXEL(*), MINEL(*), NORB1, NORB2, NORB3, NEL, MN1, MX1, MN3, MX3, NTEST
+integer(kind=iwp), intent(in) :: NORB1, NORB2, NORB3, NEL, MN1, MX1, MN3, MX3, NTEST
+integer(kind=iwp), intent(out) :: MAXEL(NORB1+NORB2+NORB3), MINEL(NORB1+NORB2+NORB3)
 integer(kind=iwp) :: IORB, MAX1A, MAX2A, MAX3A, MIN1A, MIN2A, MIN3A, NORB
 
 NORB = NORB1+NORB2+NORB3
@@ -35,11 +36,11 @@ do IORB=1,NORB
   if (IORB <= NORB1) then
     MINEL(IORB) = max(MIN1A+IORB-NORB1,0)
     MAXEL(IORB) = min(IORB,MAX1A)
-  else if ((NORB1 < IORB) .and. (IORB <= (NORB1+NORB2))) then
+  else if (IORB <= (NORB1+NORB2)) then
     MINEL(IORB) = max(MIN2A+IORB-NORB1-NORB2,0)
     if (NORB1 > 0) MINEL(IORB) = max(MINEL(IORB),MINEL(NORB1))
     MAXEL(IORB) = min(IORB,MAX2A)
-  else if (IORB > NORB1+NORB2) then
+  else
     MINEL(IORB) = max(MIN3A+IORB-NORB,0)
     if (NORB1+NORB2 > 0) MINEL(IORB) = max(MINEL(IORB),MINEL(NORB1+NORB2))
     MAXEL(IORB) = min(IORB,MAX3A)

@@ -24,8 +24,11 @@ use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NBLOCK, IBLOCK(8,NBLOCK), ISYM, IREO(*)
+integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), ISYM
+integer(kind=iwp), intent(_OUT_) :: IREO(*)
 integer(kind=iwp) :: IATP, IBTP, NAEL, NBEL, NEL, NTEST
 integer(kind=iwp), allocatable :: DET_MS(:), DET_OC(:), DET_VC(:), LASTR(:), LBSTR(:), LOCMAX(:), LOCMIN(:), Z(:), ZSCR(:)
 
@@ -61,7 +64,7 @@ call mma_allocate(DET_VC,NOCOB,Label='DET_VC')
 
 !/ Jesper Wisborg Krogh, 2005-06-22
 call REO_GASDET_S(IREO,NSTSO(IATP)%A,NSTSO(IBTP)%A,NBLOCK,IBLOCK,NAEL,NBEL,LASTR,LBSTR,NSMST,NMXOCCLS,NGAS,IOCLS,NTOOB,NOBPT, &
-                  IB_CONF_REO,CONF_REO(ISYM)%A,nconf_tot,ib_conf_reo,maxop,nconf_per_open(1,isym),IB_SD_FOR_OPEN,ZSCR,Z,LOCMIN, &
+                  IB_CONF_REO,CONF_REO(ISYM)%A,nconf_tot,ib_conf_reo,maxop,nconf_per_open(:,isym),IB_SD_FOR_OPEN,ZSCR,Z,LOCMIN, &
                   LOCMAX,DET_OC,DET_MS,DET_VC,MINOP,IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
 
 call mma_deallocate(LASTR)

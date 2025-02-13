@@ -20,7 +20,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: IOFF_SYM_DIST
-integer(kind=iwp) :: ISYM(*), NGASL, IOFF(*), MXVAL(*), MNVAL(*)
+integer(kind=iwp), intent(in) :: NGASL, ISYM(NGASL), IOFF(NGASL), MXVAL(NGASL), MNVAL(NGASL)
 integer(kind=iwp) :: I, IGAS, IMULT, J, NTEST
 
 ! Address in IOFF is

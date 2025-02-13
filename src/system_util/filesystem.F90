@@ -20,6 +20,8 @@ use fortran_strings, only: split, StringWrapper_t, Cptr_to_str, str
 use linalg_mod, only: abort_
 use Definitions, only: iwp, MOLCAS_C_INT
 
+#include "intent.fh"
+
 implicit none
 private
 
@@ -29,7 +31,7 @@ public :: getcwd_, chdir_, symlink_, get_errno_, strerror_, mkdir_, &
 interface
   subroutine getcwd_c(path,n,err) bind(C,name='getcwd_wrapper')
     import :: c_char, MOLCAS_C_INT
-    character(len=1,kind=c_char), intent(out) :: path(*)
+    character(len=1,kind=c_char), intent(_OUT_) :: path(*)
     integer(kind=MOLCAS_C_INT), intent(in) :: n
     integer(kind=MOLCAS_C_INT), intent(out) :: err
   end subroutine getcwd_c
@@ -122,7 +124,7 @@ end subroutine symlink_
 !> Create a directory at `path`.
 subroutine mkdir_(path,err)
   character(len=*), intent(in) :: path
-  integer(kind=iwp), optional, intent(out) :: err
+  integer(kind=iwp), intent(out), optional :: err
   integer(kind=MOLCAS_C_INT) :: loc_err
   call mkdir_c(trim(path)//c_null_char,int(o'772',MOLCAS_C_INT),loc_err)
   if (present(err)) err = loc_err
@@ -156,7 +158,7 @@ end function strerror_
 !> Remove the file `path`.
 subroutine remove_(path,err)
   character(len=*) :: path
-  integer(kind=iwp), optional, intent(out) :: err
+  integer(kind=iwp), intent(out), optional :: err
   integer(kind=MOLCAS_C_INT) :: loc_err
   call remove_c(trim(path)//c_null_char,loc_err)
   if (present(err)) err = int(loc_err)

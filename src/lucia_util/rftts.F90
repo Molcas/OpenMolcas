@@ -11,9 +11,9 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,ICOPY,NSMST,NSASO,NSBSO,IDC,PS,IWAY,IPRNT)
-! Reformat between determinant and combination form of
-! matrices. No scaling is performed .
+subroutine RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC,PS,IWAY,IPRNT)
+! Reformat between determinant and combination form of matrices.
+! No scaling is performed.
 !
 ! IWAY = 1 : dets to combs
 ! IWAY = 2 : combs to dets
@@ -24,9 +24,13 @@ subroutine RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,ICOPY,NSMST,NSASO,NSBSO,IDC,PS,IW
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: BLOCKSI(*), BLOCKSO(*), PS
-integer(kind=iwp) :: NBLOCK, IBLOCK(8,NBLOCK), ICOPY, NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC, IWAY, IPRNT
+real(kind=wp), intent(inout) :: BLOCKSI(*)
+real(kind=wp), intent(_OUT_) :: BLOCKSO(*)
+real(kind=wp), intent(in) :: PS
+integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC, IWAY, IPRNT
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFFI, IOFFO, IPACK, ISCI, ISCO, JBLOCK, LENGTH, NELMNT, NIA, NIB, NTEST
 
 NTEST = 0
@@ -98,7 +102,7 @@ do JBLOCK=1,NBLOCK
   end if
 end do
 
-if (ICOPY /= 0) BLOCKSI(1:LENGTH) = BLOCKSO(1:LENGTH)
+BLOCKSI(1:LENGTH) = BLOCKSO(1:LENGTH)
 
 if (NTEST > 10) then
   write(u6,*) ' Information from RFTTS'

@@ -18,8 +18,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NDIM
-real(kind=wp) :: MAT(NDIM,NDIM), FACTOR
+integer(kind=iwp), intent(in) :: NDIM
+real(kind=wp), intent(inout) :: MAT(NDIM,NDIM)
+real(kind=wp), intent(in) :: FACTOR
 integer(kind=iwp) :: I, IBLK, IEND, IOFF, IWAY, J, JBLK, JEND, JOFF, LBLK, NBLK
 real(kind=wp) :: FAC2
 

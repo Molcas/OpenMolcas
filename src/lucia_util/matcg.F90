@@ -18,9 +18,12 @@ subroutine MATCG(CIN,COUT,NROWI,NROWO,IROWI1,NGCOL,IGAT,GATSGN)
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NROWI, NROWO, IROWI1, NGCOL, IGAT(*)
-real(kind=wp) :: CIN(NROWI,*), COUT(NROWO,*), GATSGN(*)
+integer(kind=iwp), intent(in) :: NROWI, NROWO, IROWI1, NGCOL, IGAT(NGCOL)
+real(kind=wp), intent(in) :: CIN(NROWI,*), GATSGN(NGCOL)
+real(kind=wp), intent(_OUT_) :: COUT(NROWO,NGCOL)
 integer(kind=iwp) :: IG, IGFRM, IR, NTEST
 real(kind=wp) :: SGN
 

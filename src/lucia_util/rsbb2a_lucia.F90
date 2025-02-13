@@ -70,10 +70,16 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), ADSXA(MXPOBS,2*MXPOBS), NSMST, &
-                     STSTDX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS), NOBPTS(MXPNGAS,*), MAXI, MAXK, I1(MAXK,*), NSMOB, IPHGAS(NGAS)
-real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*), SCLFAC
+integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), ADSXA(MXPOBS,2*MXPOBS), &
+                                 NSMST, STSTDX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS), NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, &
+                                 IPHGAS(NGAS)
+real(kind=wp), intent(inout) :: SB(*)
+real(kind=wp), intent(in) :: CB(*), SCLFAC
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*)
+integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*)
 integer(kind=iwp) :: I, I1JL, I4_AC(4), I4_REO(4), I4_TP(4), IAC, IBOT, ICOUL, IDXSM, IDXTYP, IFIRST, IFRST, II12, IIPART, IJKL, &
                      IJL, IK, IKBOFF, IKBT(3,8), IKBTC, IKOBSM, IKOFF, IKPAIR, IKSM, IKSMBT(2,8), IOBSM, ISBOFF, ISCR(4), ISM, &
                      ISM_ORIG, ITOP, ITP(256), ITPSM_ORIG, ITYP, ITYP_ORIG, IXCHNG, J, JAC, JFRST, JL, JLBOFF, JLBT(3,8), JLBTC, &
@@ -393,7 +399,7 @@ if (IDXSM /= 0) then
                       ! a+j a+j gives trivially zero
                       CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = Zero
                     else
-                      call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
+                      call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,I1JL),XI1S(:,I1JL))
                     end if
                   end do
 
@@ -520,7 +526,7 @@ if (IDXSM /= 0) then
                     if ((IKSM == 1) .and. (I == k)) then
                       ! a+ i a+i gives trivially zero
                     else
-                      call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(1,IKOFF),XI1S(1,IKOFF))
+                      call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(:,IKOFF),XI1S(:,IKOFF))
                     end if
                   end do
                   IKBOFF = IKBOFF+NIK
@@ -654,7 +660,7 @@ if (IDXSM /= 0) then
                     I1JL = (L-1)*NJ+J
                     ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
                     JLOFF = (IJL-1)*NKBTC*NIBTC+1
-                    call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
+                    call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,I1JL),XI1S(:,I1JL))
                   end do
 
                   !=============================================
@@ -750,7 +756,7 @@ if (IDXSM /= 0) then
                     call NXTIJ(I,K,NI,NK,IKSM,NONEW)
                     IKOFF = (K-1)*NI+I
                     ISBOFF = 1+(IK-1)*NIBTC*NKBTC
-                    call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(1,IKOFF),XI1S(1,IKOFF))
+                    call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(:,IKOFF),XI1S(:,IKOFF))
                   end do
                   !write(u6,*) ' first element of updated SB',SB(1)
 

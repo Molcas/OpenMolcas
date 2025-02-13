@@ -24,9 +24,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-! Input
-integer(kind=iwp) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD
-real(kind=wp) :: SKII(*), CKJJ(*), RHO2B(*), XKBIB(MAXK,*), XKBJB(MAXK,*)
+integer(kind=iwp), intent(in) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,NK), KBJB(MAXK,NL), IKORD
+real(kind=wp), intent(in) :: SKII(*), CKJJ(*), XKBIB(MAXK,NK), XKBJB(MAXK,NL)
+real(kind=wp), intent(inout) :: RHO2B(NI*NJ*NK*NL)
 integer(kind=iwp) :: IB, ICOFF, IMAX, ISOFF, JB, K, KB, KK, KLOFF, L, LL
 real(kind=wp) :: FACTOR, SGNK, SGNL
 

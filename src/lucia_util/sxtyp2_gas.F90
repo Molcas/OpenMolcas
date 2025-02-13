@@ -23,8 +23,12 @@ subroutine SXTYP2_GAS(NSXTYP,ITP,JTP,NGAS,ILTP,IRTP,IPHGAS)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NSXTYP, ITP(*), JTP(*), NGAS, ILTP(NGAS), IRTP(NGAS), IPHGAS(*)
+integer(kind=iwp), intent(out) :: NSXTYP
+integer(kind=iwp), intent(_OUT_) :: ITP(*), JTP(*)
+integer(kind=iwp), intent(in) :: NGAS, ILTP(NGAS), IRTP(NGAS), IPHGAS(*)
 integer(kind=iwp) :: IANNI, IAS, ICREA, ISX, NANNI, NCREA, NTEST
 
 ! Some dummy initializations

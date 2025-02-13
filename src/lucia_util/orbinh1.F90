@@ -27,7 +27,8 @@ subroutine ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NTOOB, IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB), NSMOB, NTOOBS(NSMOB)
+integer(kind=iwp), intent(in) :: NSMOB, NTOOBS(NSMOB), NTOOB
+integer(kind=iwp), intent(out) :: IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB)
 integer(kind=iwp) :: I_ABS, INDEX_NOCCSYM, INDX, IOFF, IORB, ISM, JABS, JOFF, JORB, JSM, NTEST
 
 !write(u6,*) ' ORBINH1 speaking'

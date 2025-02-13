@@ -17,7 +17,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: IMNMX
-integer(kind=iwp) :: IVEC(*), NDIM, MINMAX
+integer(kind=iwp), intent(in) :: NDIM, IVEC(NDIM), MINMAX
 integer(kind=iwp) :: IX, I
 
 IX = 0

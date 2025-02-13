@@ -20,7 +20,9 @@ use lucia_data, only: MXPNGAS, MXPORB
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ICONF(*), NGAS, IOCCLS(NGAS), NOBPT(NGAS), INI, NONEW
+integer(kind=iwp), intent(inout) :: ICONF(*)
+integer(kind=iwp), intent(in) :: NGAS, IOCCLS(NGAS), NOBPT(NGAS), INI
+integer(kind=iwp), intent(out) :: NONEW
 integer(kind=iwp) :: IBEL(MXPNGAS), IBORB(MXPNGAS), ICONF_GAS(MXPORB), IGAS, INI_L, JBEL, JBORB, JEL, JGAS, JORB, NEL, NEL_GAS, &
                      NONEW_L, NORB_GAS, NTEST
 

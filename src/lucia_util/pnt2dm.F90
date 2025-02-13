@@ -15,12 +15,12 @@ subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 ! =====
 ! Input
 ! =====
-! I12SM  : ne.0 => restrict to lower half
-!          eq.0 => complete matrix
+! I12SM : /= 0 => restrict to lower half
+!         == 0 => complete matrix
 ! NSMOB : Number of orbital symmetries
 ! OSXO  : Symmetry of orbital, SX => symmetry of other orbital
-! IPSM : Number of orbitals per symmetry for index 1
-! JPSM : Number of orbitals per symmetry for index 2
+! IPSM  : Number of orbitals per symmetry for index 1
+! JPSM  : Number of orbitals per symmetry for index 2
 ! IJSM  : Symmetry of two index array
 !
 ! =======
@@ -33,7 +33,8 @@ subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: I12SM, NSMOB, MXPOBS, OSXO(MXPOBS,2*MXPOBS), IPSM(*), JPSM(*), IJSM, ISM2(*), IPNTR(*)
+integer(kind=iwp), intent(in) :: I12SM, NSMOB, MXPOBS, OSXO(MXPOBS,2*MXPOBS), IPSM(NSMOB), JPSM(NSMOB), IJSM
+integer(kind=iwp), intent(out) :: ISM2(NSMOB), IPNTR(NSMOB)
 integer(kind=iwp) :: IOFF, ISM, JSM, NTEST
 
 IPNTR(1:NSMOB) = 0

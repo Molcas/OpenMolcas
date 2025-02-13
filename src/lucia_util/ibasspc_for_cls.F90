@@ -17,7 +17,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: IBASSPC_FOR_CLS
-integer(kind=iwp) :: ICLS(NGAS)
+integer(kind=iwp), intent(in) :: ICLS(NGAS)
 integer(kind=iwp) :: I_AM_OKAY, IBASE, IGAS, ISPC, JJSPC, JSPC, NEL, NTEST
 
 ! Some dummy initializations

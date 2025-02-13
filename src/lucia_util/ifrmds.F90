@@ -20,7 +20,8 @@ use lucia_data, only: IDISK
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IARRAY(*), NDIM, MBLOCK, IFILE
+integer(kind=iwp), intent(in) :: NDIM, MBLOCK, IFILE
+integer(kind=iwp), intent(out) :: IARRAY(NDIM)
 integer(kind=iwp) :: IBASE, IDUMMY(1), IREST, NBLOCK
 
 NBLOCK = MBLOCK

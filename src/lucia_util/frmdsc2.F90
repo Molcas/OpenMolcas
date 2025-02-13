@@ -23,8 +23,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: ARRAY(*)
-integer(kind=iwp) :: NDIM, MBLOCK, IFILE, IMZERO, I_AM_PACKED, NO_ZEROING
+integer(kind=iwp), intent(in) :: NDIM, MBLOCK, IFILE, NO_ZEROING
+real(kind=wp), intent(out) :: ARRAY(NDIM)
+integer(kind=iwp), intent(out) :: IMZERO
+integer(kind=iwp), intent(inout) :: I_AM_PACKED
 integer(kind=iwp), parameter :: LPBLK = 50000
 integer(kind=iwp) :: IBASE, IDUMMY(1), IELMNT, IPACK, IPAK(LPBLK), IREST, ISCR(2), ISTOP, LBATCH, LBATCHP, NBATCH, NBLOCK
 real(kind=wp) :: XPAK(LPBLK)
@@ -41,13 +43,13 @@ if (IPACK /= 0) then
   IMZERO = ISCR(1)
   I_AM_PACKED = ISCR(2)
   if (IMZERO == 1) then
-    if (NO_ZEROING == 0) ARRAY(1:NDIM) = Zero
+    if (NO_ZEROING == 0) ARRAY(:) = Zero
     return
   end if
 end if
 
 if (I_AM_PACKED == 1) then
-  ARRAY(1:NDIM) = Zero
+  ARRAY(:) = Zero
   ! Loop over packed records of dimension LPBLK
   NBATCH = 0
   !1000 continue

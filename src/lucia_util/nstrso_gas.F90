@@ -21,8 +21,9 @@ subroutine NSTRSO_GAS(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NSTA
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NEL, NORB1, NORB2, NORB3, NELMN1, NELMX1, NELMN3, NELMX3, IOC(*), NSMST, NSTASO(NSMST,*), ISTASO(NSMST,*), &
-                     IOTYP, IPRNT
+integer(kind=iwp), intent(in) :: NEL, NORB1, NORB2, NORB3, NELMN1, NELMX1, NELMN3, NELMX3, NSMST, IOTYP, IPRNT
+integer(kind=iwp), intent(out) :: IOC(NEL)
+integer(kind=iwp), intent(inout) :: NSTASO(NSMST,IOTYP), ISTASO(NSMST,IOTYP)
 integer(kind=iwp) :: i, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISM, ISYM, &
                      NONEW1, NONEW2, NONEW3, NSTRIN, NTEST, NTEST0
 integer(kind=iwp), external :: ISYMST
@@ -135,10 +136,10 @@ if (NTEST >= 10) then
   write(u6,*)
   write(u6,*) ' Number of strings per sym for group = ',IOTYP
   write(u6,*) '================================================'
-  call IWRTMA(NSTASO(1,IOTYP),1,NSMST,1,NSMST)
+  call IWRTMA(NSTASO(:,IOTYP),1,NSMST,1,NSMST)
   write(u6,*) ' Offset for given symmetry for group = ',IOTYP
   write(u6,*) '================================================'
-  call IWRTMA(ISTASO(1,IOTYP),1,NSMST,1,NSMST)
+  call IWRTMA(ISTASO(:,IOTYP),1,NSMST,1,NSMST)
 end if
 
 end subroutine NSTRSO_GAS

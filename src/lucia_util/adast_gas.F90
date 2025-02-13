@@ -53,8 +53,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IOBSM, IOBTP, NIGRP, IGRP(NIGRP), ISPGPSM, I1(*), NKSTR, KACT, IAC
-real(kind=wp) :: XI1S(*), SCLFAC
+integer(kind=iwp), intent(in) :: IOBSM, IOBTP, NIGRP, IGRP(NIGRP), ISPGPSM, IAC
+integer(kind=iwp), intent(inout) :: I1(*)
+real(kind=wp), intent(inout) :: XI1S(*)
+integer(kind=iwp), intent(out) :: NKSTR, KACT
+real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: I, IACGAS, IACGRP, IACIST(MXPNSMST), IACSM, IBORBSP, IBORBSPS, IBSTRINI, IDELTA, IEC, IGAS, IIAC, &
                      IISTSGP(MXPNSMST,MXPNGAS), IKAC, IORB, IORBR, ISAVE, ISMFGS(MXPNGAS), JGRP, KACGRP, KFIRST, KGRP(MXPNGAS), &
                      KSM, KSTRBS, LROW_IN, MNVLI(MXPNGAS), MXVLI(MXPNGAS), NACIST(MXPNSMST), NELB, NGASL, NIAC, NIEL, NIGASL, &

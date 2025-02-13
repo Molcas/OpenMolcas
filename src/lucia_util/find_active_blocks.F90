@@ -18,9 +18,11 @@ use lucia_data, only: IDISK
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: LUIN, LBLK
-real(kind=wp) :: BLK_A(*), SEGMNT(*)
+integer(kind=iwp), intent(in) :: LUIN, LBLK
+real(kind=wp), intent(_OUT_) :: BLK_A(*), SEGMNT(*)
 integer(kind=iwp) :: IAMPACK, IBLK, IDUMMY(1), IMZERO, KBLK, LBL(1), NBLK, NBLK_A, NO_ZEROING, NTEST
 
 IDISK(LUIN) = 0

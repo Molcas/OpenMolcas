@@ -32,8 +32,8 @@ subroutine SPGP_AC(INSPGRP,NINSPGRP,IOUTSPGRP,NOUTSPGRP,NGAS,MXPNGAS,IAC,ISPGRP_
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MXPNGAS, INSPGRP(MXPNGAS,*), NINSPGRP, IOUTSPGRP(MXPNGAS,*), NOUTSPGRP, NGAS, IAC, ISPGRP_AC(NGAS,*), &
-                     IBASEIN, IBASEOUT
+integer(kind=iwp), intent(in) :: MXPNGAS, NINSPGRP, IOUTSPGRP(MXPNGAS,*), NOUTSPGRP, NGAS, IAC, IBASEIN, IBASEOUT
+integer(kind=iwp), intent(inout) :: INSPGRP(MXPNGAS,*), ISPGRP_AC(NGAS,*)
 integer(kind=iwp) :: IAMOKAY, IGAS, ISPGRP, ITO, JGAS, JSPGRP, NELIN, NELOUT, NTEST
 
 ! Check first that supergroups + IAC information is consistent

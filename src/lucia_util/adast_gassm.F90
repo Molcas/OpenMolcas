@@ -14,31 +14,33 @@ subroutine ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! Annihilation/Creation mappings from K-strings of given sym in each gasspace
 !
 ! Input
-! NSTB : Number of strings before active gasspace
-! NSTA : Number of strings after accive gasspace
-! IOFFK : Offset for K group of strings in active gasspace, i.e. start of
-!         this symmetry of active K group strings
-! IOFFI : Offset for I group of strings in active gasspace, i.e. start of
-!         this symmetry of active I group strings
-! IOFFISP: Offset for this symmetrydistribution of active I supergroup strings
-! IOFFKSP: Offset for this symmetrydistribution of active K supergroup strings
+! NSTB    : Number of strings before active gasspace
+! NSTA    : Number of strings after accive gasspace
+! IOFFK   : Offset for K group of strings in active gasspace, i.e. start of
+!           this symmetry of active K group strings
+! IOFFI   : Offset for I group of strings in active gasspace, i.e. start of
+!           this symmetry of active I group strings
+! IOFFISP : Offset for this symmetrydistribution of active I supergroup strings
+! IOFFKSP : Offset for this symmetrydistribution of active K supergroup strings
 ! ICREORB : Orbital part of creation map for active K groupstrings
 ! ICRESTR : String  part of creation map for active K groupstrings
-! IORBTSF   : First active orbital ( first orbital in in active GASspace
+! IORBTSF : First active orbital (first orbital in in active GASspace
 !           with required sym)
-! IORBTF   : First orbital in active gas space, (can have any sym)
+! IORBTF  : First orbital in active gas space, (can have any sym)
 ! NORBTS  : Number of orbitals of given symmetry and type
-! NSTAK : Number of K groupstrings with given correct symmetry
-! NSTAKTS: Total Number of K supergroup strings with correct symmetry
-! NSTAI : Number of I groupstrings in active gasspace
+! NSTAK   : Number of K groupstrings with given correct symmetry
+! NSTAKTS : Total Number of K supergroup strings with correct symmetry
+! NSTAI   : Number of I groupstrings in active gasspace
 
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, LROW_IN, ICREORB(LROW_IN,*), ICRESTR(LROW_IN,*), IORBTSF, IORBTF, &
-                     NORBTS, NSTAK, NSTAI, NSTAKTS, NELB, ISTMAP(NSTAKTS,*), IAC, IEC
-real(kind=wp) :: SGNMAP(NSTAKTS,*), SCLFAC
+integer(kind=iwp), intent(in) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, LROW_IN, NSTAK, ICREORB(LROW_IN,NSTAK+IOFFK-1), &
+                                 ICRESTR(LROW_IN,NSTAK+IOFFK-1), IORBTSF, IORBTF, NORBTS, NSTAI, NSTAKTS, NELB, IAC, IEC
+integer(kind=iwp), intent(inout) :: ISTMAP(NSTAKTS,NORBTS)
+real(kind=wp), intent(inout) :: SGNMAP(NSTAKTS,NORBTS)
+real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: I_AM_ACTIVE, IA, IADRI0, IADRK0, IB, IORB, IORBR, IORBRT, IORBRTS, IROW, ISTR, KSTR, NK, NSTAINSTA, &
                      NSTAKNSTA, NTEST
 real(kind=wp) :: SIGN0, SGN

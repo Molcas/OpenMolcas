@@ -27,7 +27,8 @@ subroutine CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL, IARCW(NORB,NEL,2), NCONF, ISCR(NORB+1,NEL+1)
+integer(kind=iwp), intent(in) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL
+integer(kind=iwp), intent(out) :: IARCW(NORB,NEL,2), NCONF, ISCR(NORB+1,NEL+1)
 integer(kind=iwp) :: NTEST
 
 ! Set up vertex weights
@@ -43,9 +44,9 @@ if (NTEST >= 100) then
   call IWRTMA(IOCC_MIN,1,NORB,1,NORB)
   call IWRTMA(IOCC_MAX,1,NORB,1,NORB)
   write(u6,*) ' Arcweights for single occupied arcs'
-  call IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
+  call IWRTMA(IARCW(:,:,1),NORB,NEL,NORB,NEL)
   write(u6,*) ' Arcweights for double occupied arcs'
-  call IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
+  call IWRTMA(IARCW(:,:,2),NORB,NEL,NORB,NEL)
   write(u6,*) ' Total number of configurations ',NCONF
 end if
 

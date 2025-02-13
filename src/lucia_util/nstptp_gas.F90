@@ -39,7 +39,9 @@ use lucia_data, only: MXPNGAS, MXPNSMST
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NGAS, ISPGRP(NGAS), NSMST, NSTSGP(NSMST,*), IGRP, NSTSSPGP(NSMST,IGRP), MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
+integer(kind=iwp), intent(in) :: NGAS, ISPGRP(NGAS), NSMST, NSTSGP(NSMST,*), IGRP
+integer(kind=iwp), intent(inout) :: NSTSSPGP(NSMST,IGRP)
+integer(kind=iwp), intent(out) :: MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
 integer(kind=iwp) :: IGAS, ISM, ISM1(MXPNSMST), ISM2(MXPNSMST), ISM_IGAS, ISM_IGASM1, ISTRSM, ISYM, MNSM(MXPNGAS), MSM1(MXPNSMST), &
                      MSM2(MXPNSMST), MXSM(MXPNGAS), NGASL, NTEST
 
@@ -119,7 +121,7 @@ end do
 
 if (NTEST >= 10) then
   write(u6,*) ' Number of strings per symmetry for supergroup',IGRP
-  call IWRTMA10(NSTSSPGP(1,IGRP),1,NSMST,1,NSMST)
+  call IWRTMA10(NSTSSPGP(:,IGRP),1,NSMST,1,NSMST)
   write(u6,*) ' Largest number of strings of given sym ',MXNSTR
 
   write(u6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',NSMCLS,NSMCLSE,NSMCLSE1

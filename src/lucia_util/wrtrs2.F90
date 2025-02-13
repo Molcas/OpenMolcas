@@ -15,8 +15,9 @@ subroutine WRTRS2(VECTOR,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: VECTOR(*)
-integer(kind=iwp) :: ISMOST(*), ICBLTP(*), NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*)
+real(kind=wp), intent(in) :: VECTOR(*)
+integer(kind=iwp), intent(in) :: NSMST, ISMOST(NSMST), ICBLTP(NSMST), NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSASO(NSMST,NOCTPA), &
+                                 NSBSO(NSMST,NOCTPB)
 integer(kind=iwp) :: IASM, IATP, IBASE, IBSM, IBTP, IBTPMX, NAST, NBST, NELMNT
 
 IBASE = 1

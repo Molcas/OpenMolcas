@@ -29,7 +29,8 @@ use lucia_data, only: NELFSPGP, NGAS, NTSPGP
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IEL(*), ISPGP, IWAY
+integer(kind=iwp), intent(inout) :: IEL(NGAS), ISPGP
+integer(kind=iwp), intent(in) :: IWAY
 integer(kind=iwp) :: IEQUAL, IGAS, JSPGP, NTEST
 
 if (IWAY == 1) then

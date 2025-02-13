@@ -32,7 +32,7 @@ use lucia_data, only: IBSO, IOBPTS, IREOST, IREOTS, ISMFSO, ISMFTO, ITOOBS, ITOO
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPRNT
+integer(kind=iwp), intent(in) :: IPRNT
 integer(kind=iwp) :: I, IGAS, IGSDEL, IGSINA, IOBSM, IOBTP, IOSPIR(MXPOBS,MXPIRR), ISMOB, LTOB, NGSOB(MXPOBS,MXPNGAS), &
                      NOSPIR(MXPIRR), NTEST
 

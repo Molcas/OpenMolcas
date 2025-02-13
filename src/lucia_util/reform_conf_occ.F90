@@ -29,7 +29,8 @@ subroutine REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NEL, IOCC_EXP(NEL), NOCOB, IOCC_PCK(NOCOB), IWAY
+integer(kind=iwp), intent(in) :: NEL, NOCOB, IWAY
+integer(kind=iwp), intent(inout) :: IOCC_EXP(NEL), IOCC_PCK(NOCOB)
 integer(kind=iwp) :: IEL, IOCC, IORB, JORB, NTEST
 
 if (IWAY == 1) then

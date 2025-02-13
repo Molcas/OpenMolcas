@@ -25,7 +25,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: ILEX_FOR_CONF_NEW
-integer(kind=iwp) :: NOCC_ORB, ICONF(NOCC_ORB), NORb, NEL, IARCW(NORB,NEL,2), IDOREO, IREO_new(*), nconf_op, ib_occls
+integer(kind=iwp), intent(in) :: NOCC_ORB, ICONF(NOCC_ORB), NORB, NEL, IARCW(NORB,NEL,2), IDOREO, IREO_new(*), nconf_op, ib_occls
 integer(kind=iwp) :: i, IEL, ILEX, IOCC, length, n_ave, n_end, n_fin, n_ini, NTEST
 
 IEL = 0

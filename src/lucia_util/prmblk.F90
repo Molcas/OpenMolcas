@@ -42,8 +42,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IDC, ISGV(*), IASM, IBSM, IATP, IBTP, JATP(4), JBTP(4), JASM(4), JBSM(4), ISGN(4), ITRP(4), NPERM
-real(kind=wp) :: PS, PL
+integer(kind=iwp), intent(in) :: IDC, ISGV(*), IASM, IBSM, IATP, IBTP
+integer(kind=iwp), intent(out) :: JATP(4), JBTP(4), JASM(4), JBSM(4), ISGN(4), ITRP(4), NPERM
+real(kind=wp), intent(in) :: PS, PL
 integer(kind=iwp) :: INEW, IPERM, ISET, KASM, KATP, KBSM, KBTP, KSIGN, KTRP, LPERM, LSIGN, LTRP, NTEST
 
 ! To eliminate some compiler warnings

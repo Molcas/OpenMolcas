@@ -64,12 +64,17 @@ use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPOBS, ADSXA(MXPOBS,2*MXPOBS), &
-                     NSMST, STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS), MXPNGAS, NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, &
-                     MAXK, I1(MAXK,*), NSMOB
-real(kind=wp) :: RHO2(*), RHO2S(*), RHO2A(*), SB(*), CB(*), SSCR(*), CSCR(*), XI1S(MAXK,*), X(*), SCLFAC
-logical(kind=iwp) :: IPACK
+real(kind=wp), intent(inout) :: RHO2(*), RHO2S(*), RHO2A(*)
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPOBS, &
+                                 ADSXA(MXPOBS,2*MXPOBS), NSMST, STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS), MXPNGAS, &
+                                 NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB
+real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), X(*)
+integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*)
+logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: I, I1IK, I1JL, IBOT, IDXSM, IDXTP, IFIRST, IFRST, II12, IIK, IIKE, IIPART, IJL, IJLE, IKBOFF, IKOBSM, IKOFF, &
                      IKSM, IOFF, ISM, ITOP, ITP(256), ITYP, J, JFRST, JLBOFF, JLOBSM, JLOFF, JLSM, JOFF, JSM, JTP(256), JTYP, K, &
                      K12, KBOT, KEND, KFRST, KOFF, KSM, KTOP, KTP(256), KTYP, L, LDUMMY, LOFF, LSM, LTP(256), LTYP, NDXTP, NI, &
@@ -203,7 +208,7 @@ if (IDXSM /= 0) then
                   ! a+j a+j gives trivially zero
                   CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = Zero
                 else
-                  call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
+                  call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,I1JL),XI1S(:,I1JL))
                 end if
               end do
 
@@ -253,7 +258,7 @@ if (IDXSM /= 0) then
                   ! a+j a+j gives trivially zero
                   SSCR(IKOFF:IKOFF+NKBTC*NIBTC-1) = Zero
                 else
-                  call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1IK),XI1S(1,I1IK))
+                  call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,I1IK),XI1S(:,I1IK))
                 end if
               end do
 

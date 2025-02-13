@@ -13,11 +13,12 @@ subroutine PRSYM(A,MATDIM)
 ! PRINT LOWER HALF OF A SYMMETRIC MATRIX OF DIMENSION MATDIM.
 ! THE LOWER HALF OF THE MATRIX IS SUPPOSED TO BE IN VECTOR A.
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: A(*)
-integer(kind=iwp) :: MATDIM
+integer(kind=iwp), intent(in) :: MATDIM
+real(kind=wp), intent(in) :: A(nTri_Elem(MATDIM))
 integer(kind=iwp) :: I, J, JSTART, JSTOP
 
 JSTART = 1

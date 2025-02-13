@@ -30,8 +30,12 @@ subroutine OCCLS(IWAY,NOCCLS,IOCCLS,NEL,NGAS,IGSMIN,IGSMAX,I_DO_BASSPC,IBASSPC,N
 use lucia_data, only: MXPNGAS
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IWAY, NOCCLS, NGAS, IOCCLS(NGAS,*), NEL, IGSMIN(NGAS), IGSMAX(NGAS), I_DO_BASSPC, IBASSPC(*), NOBPT(NGAS)
+integer(kind=iwp), intent(in) :: IWAY, NGAS, NEL, IGSMIN(NGAS), IGSMAX(NGAS), I_DO_BASSPC, NOBPT(NGAS)
+integer(kind=iwp), intent(inout) :: NOCCLS, IBASSPC(*)
+integer(kind=iwp), intent(_OUT_) :: IOCCLS(NGAS,*)
 integer(kind=iwp) :: I, IBASSPC_FOR_CLS, IEL, IFIRST, IGAS, IM_TO_STUFFED, IOC(MXPNGAS), IOCA(MXPNGAS), ISKIP, KGAS, NEGA, NONEW, &
                      NTEST
 

@@ -14,9 +14,12 @@ subroutine GT1DIS(H1DIA,IREOTS,IPNT,H,ISMFTO,IBSO,NACOB)
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: H1DIA(*), H(*)
-integer(kind=iwp) :: IREOTS(*), IPNT(*), ISMFTO(*), IBSO(*), NACOB
+real(kind=wp), intent(_OUT_) :: H1DIA(*)
+integer(kind=iwp), intent(in) :: NACOB, IREOTS(NACOB), IPNT(*), ISMFTO(NACOB), IBSO(*)
+real(kind=wp), intent(in) :: H(*)
 integer(kind=iwp) :: IIOB, IOB, IOBREL, ISM, NTEST
 
 do IIOB=1,NACOB

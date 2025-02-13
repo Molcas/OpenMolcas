@@ -17,7 +17,8 @@ subroutine WEIGHT_LUCIA(Z,NEL,NORB1,NORB2,NORB3,MNRS1,MXRS1,MNRS3,MXRS3,ISCR,NTE
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: Z(*), NEL, NORB1, NORB2, NORB3, MNRS1, MXRS1, MNRS3, MXRS3, ISCR(*), NTEST
+integer(kind=iwp), intent(out) :: Z(*), ISCR(*)
+integer(kind=iwp), intent(in) :: NEL, NORB1, NORB2, NORB3, MNRS1, MXRS1, MNRS3, MXRS3, NTEST
 integer(kind=iwp) :: KLFREE, KLMAX, KLMIN, KW, NORB
 
 NORB = NORB1+NORB2+NORB3
@@ -37,7 +38,7 @@ KLMIN = KLFREE
 KLFREE = KLFREE+NORB
 
 KW = KLFREE
-KLFREE = KW+(NEL+1)*(NORB+1)
+!KLFREE = KW+(NEL+1)*(NORB+1)
 ! Max and min arrays for strings
 call RSMXMN_LUCIA(ISCR(KLMAX),ISCR(KLMIN),NORB1,NORB2,NORB3,NEL,MNRS1,MXRS1,MNRS3,MXRS3,NTEST)
 ! Arc weights

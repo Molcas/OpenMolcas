@@ -14,9 +14,11 @@ subroutine SIGMADET_CVB(C,HC,IREFSM,NCI)
 use Lucia_Interface, only: Lucia_Util
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
 integer(kind=iwp), intent(in) :: IREFSM, NCI
-real(kind=wp), intent(in) :: C(NCI)
+real(kind=wp), intent(_IN_) :: C(NCI)
 real(kind=wp), intent(out) :: HC(NCI)
 
 ! Export arguments to be used in sigma_master_cvb

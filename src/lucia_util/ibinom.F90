@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: IBINOM
-integer(kind=iwp) :: N, M
+integer(kind=iwp), intent(in) :: N, M
 integer(kind=iwp) :: I, INIT = 0, IPOS, J, K, MM, NOMTAB(225) = 0
 real(kind=wp) :: X
 

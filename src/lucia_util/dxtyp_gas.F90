@@ -17,8 +17,12 @@ subroutine DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NOBTP,IL,IR)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NDXTP, ITP(*), JTP(*), KTP(*), LTP(*), NOBTP, IL(NOBTP), IR(NOBTP)
+integer(kind=iwp), intent(out) :: NDXTP
+integer(kind=iwp), intent(_OUT_) :: ITP(*), JTP(*), KTP(*), LTP(*)
+integer(kind=iwp), intent(in) :: NOBTP, IL(NOBTP), IR(NOBTP)
 integer(kind=iwp) :: IANNI1, IANNI2, ICREA1, ICREA2, IDIA, IDX, IJTP, IOBTP, KLTP, NANNI, NCREA, NDIF, NDIFT, NTEST
 
 NTEST = 0
@@ -79,9 +83,7 @@ if (NTEST >= 1000) then
 end if
 
 NDXTP = 0
-if (NDIFT > 4) then
-  NDXTP = 0
-else
+if (NDIFT <= 4) then
   if ((NCREA == 0) .and. (NANNI == 0)) then
     ! strings identical, include diagonal excitions  itp = jtp, ktp=ltp
     do IJTP=1,NOBTP

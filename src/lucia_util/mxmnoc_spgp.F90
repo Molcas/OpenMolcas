@@ -14,8 +14,11 @@ subroutine MXMNOC_SPGP(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,NTESTG)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: MINEL(*), MAXEL(*), NORBTP, NORBFTP(*), NELFTP(*), NTESTG
+integer(kind=iwp), intent(_OUT_) :: MINEL(*), MAXEL(*)
+integer(kind=iwp), intent(in) :: NORBTP, NORBFTP(NORBTP), NELFTP(NORBTP), NTESTG
 integer(kind=iwp) :: IORB, IORB_END, IORB_START, IORBTP, NEL_END, NEL_START, NORB, NTEST, NTESTL
 
 ! Some dummy initializations

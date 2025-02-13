@@ -20,8 +20,9 @@ subroutine ADD_SKAIIB(SB,NI,NIA,SKAIIB,NKA,NIB,I,ISCA,SSCA)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NI, NIA, NKA, NIB, I, ISCA(*)
-real(kind=wp) :: SB(NIB,NIA), SKAIIB(*), SSCA(*)
+integer(kind=iwp), intent(in) :: NI, NIA, NKA, NIB, I, ISCA(*)
+real(kind=wp), intent(inout) :: SB(NIB,NIA)
+real(kind=wp), intent(in) :: SKAIIB(*), SSCA(*)
 integer(kind=iwp) :: IADR, IADR0, IB, ICBL, ICEND, ICOFF, ICONST, IROW, KA, LBLK, NBLK
 real(kind=wp) :: S
 

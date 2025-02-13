@@ -167,7 +167,7 @@
         END IF
         CALL TRPMT3(CB,NJB,NJA,C2)
         CB(1:NJA*NJB) = C2(1:NJA*NJB)
-        CALL TRPMAT(SB,NIB,NIA,C2)
+        CALL TRNSPS(NIB,NIA,SB,C2)
         SB(1:NIA*NIB) = C2(1:NIA*NIB)
       END IF
 *
@@ -195,7 +195,7 @@
      &                    SSCR,CSCR,NACOB,NTEST,ieaw)
         CALL TRPMT3(CB,NJB,NJA,C2)
         CB(1:NJA*NJB) = C2(1:NJA*NJB)
-        CALL TRPMAT(SB,NIB,NIA,C2)
+        CALL TRNSPS(NIB,NIA,SB,C2)
         SB(1:NIA*NIB) = C2(1:NIA*NIB)
       END IF
 *

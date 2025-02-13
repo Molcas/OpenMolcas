@@ -34,7 +34,7 @@ use lucia_data, only: IBGPSTR, ISTAC, MXPSTT, NGAS, NGPSTR, NGRP
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IPRNT
+integer(kind=iwp), intent(in) :: IPRNT
 integer(kind=iwp) :: IGAS, IGRP, IIGRP, MGRP, NTEST
 
 NTEST = 0

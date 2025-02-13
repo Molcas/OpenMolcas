@@ -31,7 +31,9 @@ use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NGAS, MNVAL(NGAS), MXVAL(NGAS), ISYM(NGAS), ISYM_TOT, IFIRST, NONEW
+integer(kind=iwp), intent(in) :: NGAS, MNVAL(NGAS), MXVAL(NGAS), ISYM_TOT
+integer(kind=iwp), intent(inout) :: ISYM(NGAS), IFIRST
+integer(kind=iwp), intent(out) :: NONEW
 integer(kind=iwp) :: IGAS, JSYM, NTEST
 integer(kind=iwp), external :: ISYMSTR
 

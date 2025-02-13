@@ -34,7 +34,8 @@ subroutine ADD_STR_GROUP(NSTADD,IOFADD,ISTADD,NSTB,NSTA,ISTRING,IELOF,NELADD,NEL
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NSTADD, IOFADD, ISTADD(*), NSTB, NSTA, ISTRING(*), IELOF, NELADD, NELTOT
+integer(kind=iwp), intent(in) :: NSTADD, IOFADD, ISTADD(*), NSTB, NSTA, IELOF, NELADD, NELTOT
+integer(kind=iwp), intent(inout) :: ISTRING(*)
 integer(kind=iwp) :: IADD2, IISTR, IOFF0, IOFF1, IOFF2, IOFFX, IOFFY, ISTA, ISTB, JEL
 
 !write(u6,*) '  Inside ADD ...'

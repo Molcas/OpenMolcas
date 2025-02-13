@@ -39,7 +39,8 @@ subroutine OSPIR(NOSPIR,IOSPIR,NIRREP,MXPIRR,MXPOBS,IPRNT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MXPIRR, MXPOBS, NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR), NIRREP, IPRNT
+integer(kind=iwp), intent(in) :: MXPIRR, MXPOBS, NIRREP, IPRNT
+integer(kind=iwp), intent(out) :: NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR)
 integer(kind=iwp) :: IRREP, NTEST
 
 !if (PNTGRP == 1) then
@@ -66,7 +67,7 @@ if (NTEST /= 0) then
   call IWRTMA(NOSPIR,1,NIRREP,1,NIRREP)
   write(u6,*) ' Orbital symmetries per irrep'
   do IRREP=1,NIRREP
-    call IWRTMA(IOSPIR(1,IRREP),1,NOSPIR(IRREP),1,NOSPIR(IRREP))
+    call IWRTMA(IOSPIR(:,IRREP),1,NOSPIR(IRREP),1,NOSPIR(IRREP))
   end do
 end if
 

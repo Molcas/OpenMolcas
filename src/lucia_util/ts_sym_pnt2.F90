@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine TS_SYM_PNT2(IGRP,NIGRP,MXVAL,MNVAL,ISYM,IPNT,LPNT)
-! Construct pointers to start of symmetrydistributions
+! Construct pointers to start of symmetry distributions
 ! for supergroup of strings with given symmetry
 !
 ! The start of symmetry block ISYM1 ISYM2 ISYM3 .... ISYMN
@@ -35,8 +35,12 @@ use lucia_data, only: MINMAX_SM_GP, MXPNGAS, MXPNSMST, NELFGP, NSTFSMGP
 use csm_data, only: NSMST
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NIGRP, IGRP(NIGRP), ISYM, MNVAL(*), MXVAL(*), IPNT(*), LPNT
+integer(kind=iwp), intent(in) :: NIGRP, IGRP(NIGRP), ISYM, LPNT
+integer(kind=iwp), intent(out) :: MNVAL(NIGRP), MXVAL(NIGRP)
+integer(kind=iwp), intent(_OUT_) :: IPNT(*)
 integer(kind=iwp) :: IFIRST, IGAS, IOFF, ISMFGS(MXPNGAS), ISTSMM1, ISYMSTR, MULT, NBLKS, NGASL, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, &
                      NSTRII, NSTRINT, NTEST
 
@@ -92,9 +96,7 @@ IFIRST = 1
 NSTRINT = 0
 do
   if (IFIRST == 1) then
-    do IGAS=1,NGASL-1
-      ISMFGS(IGAS) = MNVAL(IGAS)
-    end do
+    ISMFGS(1:NGASL-1) = MNVAL(1:NGASL-1)
   else
     ! Next distribution of symmetries in NGAS -1
     call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)

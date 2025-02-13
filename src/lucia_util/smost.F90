@@ -23,7 +23,8 @@ use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSMST, NSMCI, MXPCSM, ISMOST(MXPCSM,MXPCSM)
+integer(kind=iwp), intent(in) :: NSMST, NSMCI, MXPCSM
+integer(kind=iwp), intent(out) :: ISMOST(MXPCSM,MXPCSM)
 integer(kind=iwp) :: ISTSM, ITOTSM, JSTSM, NTEST
 
 do ITOTSM=1,NSMCI
@@ -40,7 +41,7 @@ if (NTEST /= 0) then
   write(u6,*) ' ==============='
   do ITOTSM=1,NSMCI
     write(u6,*) ' ISMOST array for ITOTSM = ',ITOTSM
-    call IWRTMA(ISMOST(1,ITOTSM),1,NSMST,1,NSMST)
+    call IWRTMA(ISMOST(:,ITOTSM),1,NSMST,1,NSMST)
   end do
 end if
 

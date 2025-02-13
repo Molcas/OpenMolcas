@@ -35,7 +35,7 @@ subroutine ZERORC(IFIL,IAMPACKED)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IFIL, IAMPACKED
+integer(kind=iwp), intent(in) :: IFIL, IAMPACKED
 integer(kind=iwp) :: ISCR(2)
 
 ! Zero record

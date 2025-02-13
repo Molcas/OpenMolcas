@@ -25,8 +25,9 @@ subroutine TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SGN)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IWAY, MATDIM, NDIM
-real(kind=wp) AUTPAK(MATDIM,MATDIM), APAK(*), SGN
+integer(kind=iwp), intent(in) :: IWAY, MATDIM, NDIM
+real(kind=wp), intent(inout) :: AUTPAK(MATDIM,MATDIM), APAK(*)
+real(kind=wp), intent(in) :: SGN
 integer(kind=iwp) :: I, IBLK, IEND, IJ, IJOFF, IMET, IOFF, IOFF2, J, JBLK, JEND, JOFF, LBLK, NBLK, NTEST
 
 ! To get rid of annoying and incorrect compiler warnings

@@ -13,15 +13,17 @@
 
 subroutine COMPRS2LST(I1,XI1,N1,I2,XI2,N2,NKIN,NKOUT)
 ! Two lists of excitations/annihilations/creations are given.
-! COmpress to common nonvanishing entries
+! Compress to common nonvanishing entries
 !
 ! Jeppe Olsen, November 1996
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N1, N2, NKIN, I1(NKIN,N1), I2(NKIN,N2), NKOUT
-real(kind=wp) :: XI1(NKIN,N1), XI2(NKIN,N2)
+integer(kind=iwp), intent(in) :: N1, N2, NKIN
+integer(kind=iwp), intent(inout) :: I1(NKIN,N1), I2(NKIN,N2)
+real(kind=wp), intent(inout) :: XI1(NKIN,N1), XI2(NKIN,N2)
+integer(kind=iwp), intent(out) :: NKOUT
 integer(kind=iwp) :: I, I1ACT, I2ACT, K
 
 NKOUT = 0

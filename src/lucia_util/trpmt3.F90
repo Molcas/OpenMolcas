@@ -17,18 +17,15 @@ subroutine TRPMT3(XIN,NROW,NCOL,XOUT)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NROW, NCOL
-real(kind=wp) :: XIN(NROW,NCOL), XOUT(NCOL,NROW)
+integer(kind=iwp), intent(in) :: NROW, NCOL
+real(kind=wp), intent(in) :: XIN(NROW,NCOL)
+real(kind=wp), intent(out) :: XOUT(NCOL,NROW)
 integer(kind=iwp) :: ICBLK, ICEND, ICOFF, ICOL, IRBLK, IREND, IROFF, IROW, IWAY, LCBLK, LRBLK, NCBLK, NRBLK
 
 IWAY = 2
 if (IWAY == 1) then
   ! Straightforward, no blocking
-  do IROW=1,NROW
-    do ICOL=1,NCOL
-      XOUT(ICOL,IROW) = XIN(IROW,ICOL)
-    end do
-  end do
+  call TRNSPS(NROW,NCOL,XIN,XOUT)
 else if (IWAY == 2) then
   ! Simple blocking of matrix
   LRBLK = 40

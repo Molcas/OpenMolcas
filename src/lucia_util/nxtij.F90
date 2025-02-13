@@ -17,7 +17,9 @@ subroutine NXTIJ(I,J,NI,NJ,IJSM,NONEW)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: I, J, NI, NJ, IJSM, NONEW
+integer(kind=iwp), intent(inout) :: I, J
+integer(kind=iwp), intent(in) :: NI, NJ, IJSM
+integer(kind=iwp), intent(out) :: NONEW
 integer(kind=iwp) :: NTEST
 
 NONEW = 0

@@ -18,10 +18,12 @@ use Symmetry_Info, only: iChBas, iChTbl, nIrrep
 use Real_Spherical, only: iSphCr, LblCBs, LblSBs
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
 #include "Molcas.fh"
 character(len=LenIn8), intent(out) :: Label(MaxBfn+MaxBfn_Aux)
-integer(kind=iwp), intent(out) :: cnt_ico(0:7,*), phase_ico(0:7,*)
+integer(kind=iwp), intent(_OUT_) :: cnt_ico(0:7,*), phase_ico(0:7,*)
 integer(kind=iwp) :: iAng, iChBs, iCnt, iCntrc, iCnttp, iCo, iComp, iIrrep, iSh, iSO, jComp, kComp, lComp, mc, mdc, nBasisi, &
                      nExpi, NrOpr
 character(len=8) :: ChTemp

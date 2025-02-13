@@ -33,9 +33,13 @@ subroutine GENSTR_GAS(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,IGRP,NOCTYP,NSMST,Z
 use lucia_data, only: NACOB, NORB1, NORB2, NORB3
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NEL, NELMN1, NELMX1, NELMN3, NELMX3, NSMST, ISTASO(NSMST,*), IGRP, NOCTYP, Z(NACOB,NEL), &
-                     LSTASO(NOCTYP,NSMST), IREORD(*), STRING(NEL,*), IOC(*), IPRNT
+integer(kind=iwp), intent(in) :: NEL, NELMN1, NELMX1, NELMN3, NELMX3, NSMST, ISTASO(NSMST,*), IGRP, NOCTYP, Z(NACOB,NEL), IPRNT
+integer(kind=iwp), intent(out) :: LSTASO(NOCTYP,NSMST), IOC(NEL)
+integer(kind=iwp), intent(inout) :: IREORD(*)
+integer(kind=iwp), intent(_OUT_) :: STRING(NEL,*)
 integer(kind=iwp) :: i, IEL, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISTRIN, &
                      ISTRNM, ISYM, ISYMST, ITYP, KSTRIN, LACTU, LEXCI, LSTRIN, NONEW1, NONEW2, NONEW3, NPR, NSTRIN, NTEST, NTEST0
 
@@ -70,7 +74,7 @@ do IEL1=NELMX1,NELMN1,-1
           IOC(1:IEL1) = [(i,i=1,IEL1)]
           IFRST1 = 0
         else
-          call NXTORD(IOC,IEL1,IORB1F,IORB1L,NONEW1)
+          call NXTORD(IOC(1:IEL1),IEL1,IORB1F,IORB1L,NONEW1)
           if (NONEW1 == 1) cycle outer
         end if
       end if
@@ -87,7 +91,7 @@ do IEL1=NELMX1,NELMN1,-1
             IOC(IEL1+1:IEL1+IEL2) = [(i,i=IORB2F,IORB2F+IEL2-1)]
             IFRST2 = 0
           else
-            call NXTORD(IOC(IEL1+1),IEL2,IORB2F,IORB2L,NONEW2)
+            call NXTORD(IOC(IEL1+1:IEL1+IEL2),IEL2,IORB2F,IORB2L,NONEW2)
             if (NONEW2 == 1) then
               if (IEL1 /= 0) cycle ras1
               if (IEL1 == 0) cycle outer
@@ -106,7 +110,7 @@ do IEL1=NELMX1,NELMN1,-1
               IOC(IEL1+IEL2+1:IEL1+IEL2+IEL3) = [(i,i=IORB3F,IORB3F+IEL3-1)]
               IFRST3 = 0
             else
-              call NXTORD(IOC(IEL1+IEL2+1),IEL3,IORB3F,IORB3L,NONEW3)
+              call NXTORD(IOC(IEL1+IEL2+1:IEL1+IEL2+IEL3),IEL3,IORB3F,IORB3L,NONEW3)
               if (NONEW3 == 1) then
                 if (IEL2 /= 0) cycle ras2
                 if (IEL1 /= 0) cycle ras1
@@ -129,7 +133,7 @@ do IEL1=NELMX1,NELMN1,-1
 
           if (ITYP /= 0) then
             LSTASO(ITYP,ISYM) = LSTASO(ITYP,ISYM)+1
-            !ISTRNM(IOCC,NACTOB,NEL,Z,NEWORD,IREORD)
+            !       ISTRNM(IOCC,NACTOB,NEL,Z,NEWORD,IREORD)
             LEXCI = ISTRNM(IOC,NACOB,NEL,Z,IREORD,0)
             LACTU = ISTASO(ISYM,IGRP)-1+LSTASO(ITYP,ISYM)
             IREORD(LEXCI) = LACTU

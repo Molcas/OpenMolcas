@@ -32,9 +32,12 @@ use lucia_data, only: IBSPGPFTP, IDC, IPERTOP
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: FACTOR, VEC(*)
-integer(kind=iwp) :: ITASK, NBLOCK, IBLOCK(8,*), IOFF, J12, JDC
+real(kind=wp), intent(in) :: FACTOR
+real(kind=wp), intent(_OUT_) :: VEC(*)
+integer(kind=iwp), intent(in) :: ITASK, NBLOCK, IBLOCK(8,*), IOFF, J12, JDC
 integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA, NTEST
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB
@@ -104,8 +107,7 @@ ECOREP = Zero
 SHIFT = ECORE_ORIG-ECORE
 FACTORX = FACTOR+SHIFT
 call DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,NACOB,VEC,NSMST,LH1D,JDC,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,0,0,IPRDIA,NTOOB, &
-                  LRJKA,J12,IBLOCK(1,IOFF),NBLOCK,ITASK,FACTORX,0,[0])
-!                           IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
+                  LRJKA,J12,IBLOCK(:,IOFF),NBLOCK,ITASK,FACTORX,0,[0])
 ! Flush local memory
 call mma_deallocate(LJ)
 call mma_deallocate(LK)
@@ -118,7 +120,7 @@ call mma_deallocate(LRJKA)
 #ifdef _DEBUGPRINT_
 if (NTEST >= 100) then
   write(u6,*) ' output vector from DIATRM'
-  call WRTTTS(VEC,IBLOCK(1,IOFF),NBLOCK,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC)
+  call WRTTTS(VEC,IBLOCK(:,IOFF),NBLOCK,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC)
 end if
 #endif
 

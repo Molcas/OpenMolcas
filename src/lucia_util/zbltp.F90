@@ -20,7 +20,8 @@ subroutine ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MAXSYM, ISMOST(MAXSYM), IDC, ICBLTP(MAXSYM), IMMLST(MAXSYM)
+integer(kind=iwp), intent(in) :: MAXSYM, ISMOST(MAXSYM), IDC, IMMLST(MAXSYM)
+integer(kind=iwp), intent(out) :: ICBLTP(MAXSYM)
 integer(kind=iwp) :: IASYM, IBSYM, NTEST
 
 ! Changed to simplify structure for IDC <= 2

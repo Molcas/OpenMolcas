@@ -75,7 +75,7 @@
             IBASE = ICOOSC(IBTP,IATP,IASM)
             NROW  = NSASO(IBTP,IASM)
             NCOL  = NSBSO(IATP,IBSM)
-            CALL TRPMAT(C(IBASE),NROW,NCOL,CTT)
+            CALL TRNSPS(NROW,NCOL,C(IBASE),CTT)
             NELMNT = NROW*NCOL
             CALL DSCAL_(NELMNT,PLSIGN*PSSIGN,CTT,1)
           END IF
@@ -99,7 +99,7 @@
           IBASE = ICOOSC(IBTP,IATP,IASM)
           NRI = NSASO(IBTP,IASM)
           NCI = NSBSO(IATP,IASM)
-          CALL TRPMAT(C(IBASE),NRI,NCI,CTT)
+          CALL TRNSPS(NRI,NCI,C(IBASE),CTT)
           IF(PSSIGN.EQ.-1.0D0) CALL DSCAL_(NRI*NCI,-1.0d0,CTT,1)
         END IF
       ELSE IF( IASM .LT. IBSM ) THEN
@@ -112,7 +112,7 @@
           NRI = NSASO(IBTP,IBSM)
           NCI = NSBSO(IATP,IASM)
           IF( IDC.EQ.2) THEN
-            CALL TRPMAT(C(IBASE),NRI,NCI,CTT)
+            CALL TRNSPS(NRI,NCI,C(IBASE),CTT)
           ELSE IF( IDC.EQ.3) THEN
             CALL DCOPY_(NRI*NCI,C(IBASE),1,CTT,1)
           END IF
@@ -122,7 +122,7 @@
             IBASE = ICOOSC(IBTP,IATP,IBSM)
             NRI = NSASO(IBTP,IBSM)
             NCI = NSBSO(IATP,IASM)
-            CALL TRPMAT(C(IBASE),NRI,NCI,CTT)
+            CALL TRNSPS(NRI,NCI,C(IBASE),CTT)
             IF(PSSIGN.EQ.-1.0D0) CALL DSCAL_(NRI*NCI,-1.0D0,CTT,1)
           ELSE IF (IBTP.EQ.IATP) THEN
             IBASE = ICOOSC(IBTP,IATP,IBSM)

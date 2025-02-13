@@ -24,7 +24,8 @@ subroutine SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IOFSPGRP, NSPGRP, NGAS, MXPNGAS, IELFSPGRP(MXPNGAS,*), ISPGRPCON(NSPGRP,NSPGRP), IPRNT
+integer(kind=iwp), intent(in) :: IOFSPGRP, NSPGRP, NGAS, MXPNGAS, IELFSPGRP(MXPNGAS,*), IPRNT
+integer(kind=iwp), intent(out) :: ISPGRPCON(NSPGRP,NSPGRP)
 integer(kind=iwp) :: IDIF, IGAS, ISPGRP, ISPGRPA, JSPGRP, JSPGRPA, NEXC, NEXC1, NEXC2, NTEST
 
 NTEST = 0

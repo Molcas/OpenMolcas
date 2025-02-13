@@ -29,10 +29,15 @@ subroutine ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,NORB,CVEC,SVEC,NSMST,H,XB,RJ,RK,NS
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), IPRNT, NTOOB, IASPGP, &
-                     IASM, IBSPGP, IBSM
-real(kind=wp) :: CVEC(*), SVEC(*), H(NORB), XB(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, RJKAA(*), FACTOR
+integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), IPRNT, NTOOB, IASPGP, IASM, IBSPGP, IBSM
+integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*)
+real(kind=wp), intent(in) :: CVEC(*), H(NORB), RJ(NTOOB,NTOOB), ECORE, FACTOR
+real(kind=wp), intent(inout) :: SVEC(*), RK(NTOOB,NTOOB)
+real(kind=wp), intent(out) :: XB(NORB)
+real(kind=wp), intent(_OUT_) :: RJKAA(*)
 integer(kind=iwp) :: I12, IA, IAEL, IB, IBEL, IDET, IDUM(1), IEL, IORB, JEL, NASTR1, NBSTR1, NIA, NIB, NTEST
 real(kind=wp) :: EAA, EB, HB, RJBB, X
 

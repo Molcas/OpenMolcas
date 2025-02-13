@@ -23,8 +23,9 @@ subroutine NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NGAS,ISYM,ISYM_TOT,IFIRST,NONEW,IS
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NSMST, NGRP, NGAS, KGRP(NGAS), ISYM(NGAS), ISYM_TOT, IFIRST, NONEW, ISMDFGP(NSMST,NGRP), NACTSYM(NGRP), &
-                     ISMSCR(NGRP)
+integer(kind=iwp), intent(in) :: NSMST, NGRP, NGAS, KGRP(NGAS), ISYM_TOT, ISMDFGP(NSMST,NGRP), NACTSYM(NGRP)
+integer(kind=iwp), intent(out) :: ISYM(NGAS), NONEW
+integer(kind=iwp), intent(inout) :: IFIRST, ISMSCR(NGRP)
 integer(kind=iwp) :: I, IGAS, ISM, JSYM, NTEST
 integer(kind=iwp), external :: ISYMSTR
 
@@ -47,8 +48,8 @@ if (NTEST >= 100) then
 end if
 
 if (IFIRST == 1) then
+  ISMSCR(1:NGAS) = 1
   do IGAS=1,NGAS
-    ISMSCR(IGAS) = 1
     ISYM(IGAS) = ISMDFGP(1,KGRP(IGAS))
   end do
   NONEW = 0

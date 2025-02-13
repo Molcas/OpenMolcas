@@ -12,11 +12,12 @@
 subroutine PRSM2(A,NDIM)
 ! PRINT LOWER TRIANGULAR MATRIX PACKED IN COLUMN WISE FASHION
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: A(*)
-integer(kind=iwp) :: NDIM
+integer(kind=iwp), intent(in) :: NDIM
+real(kind=wp), intent(in) :: A(nTri_Elem(NDIM))
 integer(kind=iwp) :: I, J
 
 do I=1,NDIM

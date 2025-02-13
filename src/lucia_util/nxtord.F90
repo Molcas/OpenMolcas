@@ -26,8 +26,10 @@ subroutine NXTORD(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: INUM(*), NELMNT, MNVAL, MXVAL, NONEW
-integer(kind=iwp) :: IPLACE, NTEST
+integer(kind=iwp), intent(in) :: NELMNT, MNVAL, MXVAL
+integer(kind=iwp), intent(inout) :: INUM(NELMNT)
+integer(kind=iwp), intent(out) :: NONEW
+integer(kind=iwp) :: ICMP, IPLACE, NTEST
 
 NTEST = 0
 if (NTEST /= 0) then
@@ -38,7 +40,12 @@ end if
 IPLACE = 0
 do
   IPLACE = IPLACE+1
-  if ((IPLACE < NELMNT) .and. (INUM(IPLACE)+1 < INUM(IPLACE+1)) .or. (IPLACE == NELMNT) .and. (INUM(IPLACE)+1 <= MXVAL)) then
+  if (IPLACE < NELMNT) then
+    ICMP = INUM(IPLACE+1)
+  else
+    ICMP = MXVAL+1
+  end if
+  if (INUM(IPLACE)+1 < ICMP) then
     INUM(IPLACE) = INUM(IPLACE)+1
     NONEW = 0
     exit

@@ -43,12 +43,17 @@ subroutine GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM
 use lucia_data, only: MXPORB
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NGAS, IOCCLS(NGAS), IB_OCCLS, INITIALIZE_CONF_COUNTERS, ISYM, MINOP, MAXOP, IONLY_NCONF, NTORB, NOBPT(NGAS), &
-                     NCONF_OP(MAXOP+1), NCONF, IBCONF_REO(*), IBCONF_OCC(*), ICONF(*), IDOREO, IZ_CONF(*), NCONF_ALL_SYM, &
-                     nconf_tot, ireo(nconf_tot)
-integer(kind=iwp) :: I, IB_OCC, IDUM, IDUM_ARR(1), ILEX_FOR_CONF_NEW, ILEXNUM, INI, ISUM, ISYM_CONF, ISYMST, JCONF(2*MXPORB), &
-                     JREO, NEL, NOCOB, NONEW, NOP_FOR_CONF, NOPEN, NTEST
+integer(kind=iwp), intent(in) :: NGAS, IOCCLS(NGAS), IB_OCCLS, INITIALIZE_CONF_COUNTERS, ISYM, MINOP, MAXOP, IONLY_NCONF, NTORB, &
+                                 NOBPT(NGAS), IBCONF_REO(*), IBCONF_OCC(*), IDOREO, IZ_CONF(*), nconf_tot
+integer(kind=iwp), intent(inout) :: NCONF_OP(MAXOP+1), NCONF_ALL_SYM
+integer(kind=iwp), intent(out) :: NCONF, ireo(nconf_tot)
+integer(kind=iwp), intent(_OUT_) :: ICONF(*)
+integer(kind=iwp) :: I, IB_OCC, IDUM, IDUM_ARR(1), ILEXNUM, INI, ISUM, ISYM_CONF, ISYMST, JCONF(2*MXPORB), JREO, NEL, NOCOB, &
+                     NONEW, NOP_FOR_CONF, NOPEN, NTEST
+integer(kind=iwp), external :: ILEX_FOR_CONF_NEW
 
 NTEST = 0
 ! Total number of electrons

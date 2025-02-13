@@ -21,7 +21,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: IZNUM_PTDT
-integer(kind=iwp) :: IAB(*), NOPEN, NALPHA, Z(NOPEN,NALPHA), NEWORD(*), IREORD
+integer(kind=iwp), intent(in) :: NOPEN, IAB(NOPEN), NALPHA, Z(NOPEN,NALPHA), NEWORD(*), IREORD
 integer(kind=iwp) :: I, IALPHA, IZ, NTEST
 
 NTEST = 0

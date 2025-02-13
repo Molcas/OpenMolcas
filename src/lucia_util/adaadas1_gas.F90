@@ -46,9 +46,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NK, LI1, I1(LI1,*), IORB, NIORB, IAC, JORB, NJORB, JAC, NKEL, NKSTR, KSTR(NKEL,NKSTR), IREO(*), NOCOB, &
-                     IZ(NOCOB,*), KMAX, KMIN, IEND, NSTRI
-real(kind=wp) :: XI1S(LI1,*), SCLFAC
+integer(kind=iwp), intent(in) :: LI1, IORB, NIORB, IAC, JORB, NJORB, JAC, NKEL, NKSTR, KSTR(NKEL,NKSTR), IREO(*), NOCOB, &
+                                 IZ(NOCOB,NKEL+2), KMAX, KMIN, NSTRI
+integer(kind=iwp), intent(out) :: NK, I1(LI1,NIORB*NJORB), IEND
+real(kind=wp), intent(out) :: XI1S(LI1,NIORB*NJORB)
+real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: I, IACT, IDIAG, IEL, IIEL, IIELMAX, IIELMIN, IIORB, IJ, IJOFF, ILEX, ILEX0, ILEX1, ILEX2, IORB1, IORB2, &
                      IORBMAX, IORBMIN, ISCR(1000), JEL, JJ, JJEL, JJELMAX, JJELMIN, JJORB, JORB1, JORB2, JORBMAX, JORBMIN, KEL, &
                      KEND, KKORB, KKSTR, NTEST

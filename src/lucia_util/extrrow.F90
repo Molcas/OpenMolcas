@@ -19,7 +19,8 @@ subroutine EXTRROW(INMAT,IROW,NROW,NCOL,IOUTVEC)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NROW, NCOL, INMAT(NROW,NCOL), IROW, IOUTVEC(NCOL)
+integer(kind=iwp), intent(in) :: NROW, NCOL, INMAT(NROW,NCOL), IROW
+integer(kind=iwp), intent(out) :: IOUTVEC(NCOL)
 integer(kind=iwp) :: ICOL, NTEST
 
 do ICOL=1,NCOL

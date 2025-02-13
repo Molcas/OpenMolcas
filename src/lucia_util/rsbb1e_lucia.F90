@@ -70,11 +70,16 @@ use lucia_data, only: MXPNGAS, MXPOBS, MXPTSOB
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), ADSXA(MXPOBS,2*MXPOBS), NSMST, &
-                     STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), MAXI, MAXK, I1(*), I2(*), NSMOB, MOC, IH2TRM, IUSE_PH, IPHGAS(NGAS), &
-                     NTESTG
-real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), H(*), SCLFAC
+integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), ADSXA(MXPOBS,2*MXPOBS), &
+                                 NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, MOC, IH2TRM, IUSE_PH, &
+                                 IPHGAS(NGAS), NTESTG
+real(kind=wp), intent(_OUT_) :: SB(*), SSCR(*), CSCR(*), H(*)
+real(kind=wp), intent(in) :: CB(*), SCLFAC
+integer(kind=iwp), intent(inout) :: I1(*), I2(*)
+real(kind=wp), intent(inout) :: XI1S(*), XI2S(*)
 integer(kind=iwp) :: IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, IIPART, IJ_AC(2), IJ_DIM(2), IJ_REO(2), IJ_SM(2), IJ_TP(2), IJSM, &
                      IJTP, ISBOFF, ISGRP(16), ISM, ITOP, ITP(16), ITYP, IXXX, JJORB, JSM, JTP(16), JTYP, KACT, KBOT, KEND, KTOP, &
                      LKABTC, NIBTC, NIK, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NSXTP, NTEST, NTESTL
@@ -203,7 +208,7 @@ if (IJSM /= 0) then
       if (IJ_REO(1) == 1) then
         ! obtain integrals h(j,i)
         call GETH1(HSCR,IJ_SM(1),IJ_TP(1),IJ_SM(2),IJ_TP(2))
-        call TRPMAT(HSCR,IJ_DIM(1),IJ_DIM(2),H)
+        call TRNSPS(IJ_DIM(1),IJ_DIM(2),HSCR,H)
       else
         ! Obtain integrals h(i,j)
         call GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
@@ -257,7 +262,7 @@ if (IJSM /= 0) then
             end do
             ! Obtain one electron integrals (ISM,ITP,JSM,JTP) transposed
             !call GETH1(HSCR,IJ_SM(1),IJ_TP(1),IJ_SM(2),IJ_TP(2))
-            !call TRPMAT(HSCR,IJ_DIM(1),IJ_DIM(2),H)
+            !call TRNSPS(IJ_DIM(1),IJ_DIM(2),HSCR,H)
             ! Problems when HOLE switches blocks around ?
             !call GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
             if (NTEST >= 1000) then

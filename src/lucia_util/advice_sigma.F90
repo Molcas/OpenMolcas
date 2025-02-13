@@ -32,7 +32,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IAOCC(*), IBOCC(*), JAOCC(*), JBOCC(*), LADVICE
+integer(kind=iwp), intent(in) :: IAOCC(*), IBOCC(*), JAOCC(*), JBOCC(*)
+integer(kind=iwp), intent(out) :: LADVICE
 integer(kind=iwp) :: IGAS, IPHMODI, ITP(16), JTP(16), KHOLEA, KHOLEB, KTP(16), LHOLEA, LHOLEB, LLADVICE, LTP(16), NIJTYP, NKLTYP, &
                      NTEST
 real(kind=wp) :: XCJKAJB, XCLJAKB, XFLOPA, XFLOPB, XNIJSX, XNIOB, XNJEL, XNJOB, XNKLSX, XNKOB, XNLEL, XNLOB

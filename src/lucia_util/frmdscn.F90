@@ -14,9 +14,11 @@ subroutine FRMDSCN(VEC,NREC,LBLK,LU)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: VEC(*)
-integer(kind=iwp) :: NREC, LBLK, LU
+real(kind=wp), intent(_OUT_) :: VEC(*)
+integer(kind=iwp), intent(in) :: NREC, LBLK, LU
 integer(kind=iwp) :: IAMPACK, IMZERO, IOFF, IREC, LREC(1)
 
 IOFF = 1

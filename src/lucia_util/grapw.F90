@@ -31,14 +31,15 @@ subroutine GRAPW(W,Y,MINEL,MAXEL,NORB,NEL,IPRNT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NORB, NEL, W(NORB+1,NEL+1), Y(NORB,NEL), MINEL(NORB), MAXEL(NORB), IPRNT
+integer(kind=iwp), intent(in) :: NORB, MINEL(NORB), MAXEL(NORB), NEL, IPRNT
+integer(kind=iwp), intent(out) :: W(NORB+1,NEL+1), Y(NORB,NEL)
 integer(kind=iwp) :: IEL, IORB, NTEST
 
 NTEST = 0
 NTEST = max(NTEST,IPRNT)
 
-call iCopy((NEL+1)*(NORB+1),[0],0,W,1)
-call iCopy(NEL*NORB,[0],0,Y,1)
+W(:,:) = 0
+Y(:,:) = 0
 
 !================
 !  Vertex weights

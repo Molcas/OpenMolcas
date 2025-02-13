@@ -19,8 +19,11 @@ subroutine EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NEL, IDET_OC(NEL), IDET_MS(NEL), IDET_OPEN_MS(*)
+integer(kind=iwp), intent(in) :: NEL, IDET_OC(NEL), IDET_MS(NEL)
+integer(kind=iwp), intent(_OUT_) :: IDET_OPEN_MS(*)
 integer(kind=iwp) :: IEL, IOPEN, NTEST
 
 IEL = 1

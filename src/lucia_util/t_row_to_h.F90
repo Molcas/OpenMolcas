@@ -27,8 +27,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: T(*), H(*), TKK
-integer(kind=iwp) :: K
+real(kind=wp), intent(in) :: T(NTOOB**2)
+real(kind=wp), intent(out) :: H(NTOOB**2), TKK
+integer(kind=iwp), intent(in) :: K
 integer(kind=iwp) :: IOFF, KOFF, KREL, KSM, NK
 
 KSM = ISMFSO(K)
@@ -36,7 +37,7 @@ KOFF = IBSO(KSM)
 KREL = K-KOFF+1
 NK = NTOOBS(KSM)
 
-H(1:NTOOB**2) = Zero
+H(:) = Zero
 
 IOFF = PGINT1A(1)%A(KSM)
 H(IOFF+(KREL-1)*NK:IOFF+KREL*NK-1) = T(IOFF+(KREL-1)*NK:IOFF+KREL*NK-1)
@@ -45,9 +46,8 @@ if (TKK /= Zero) then
   H(IOFF+(KREL-1)*NK:IOFF+KREL*NK-1) = H(IOFF+(KREL-1)*NK:IOFF+KREL*NK-1)/TKK
   !H(IOFF-1+(K-1)*NK+K) = H(IOFF-1+(K-1)*NK+K)-One
   H(IOFF-1+(KREL-1)*NK+KREL) = Zero
-else
-  !TKK = One
-  TKK = Zero
+!else
+!  TKK = One
 end if
 
 end subroutine T_ROW_TO_H

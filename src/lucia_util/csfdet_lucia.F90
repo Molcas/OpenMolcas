@@ -35,8 +35,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nOpen, nDet, IDET(NOPEN,NDET), nCSF, ICSF(NOPEN,NCSF), nSCR, IPRCSF
-real(kind=wp) :: CDC(NDET,NCSF), SCR(nSCR), PSSIGN
+integer(kind=iwp), intent(in) :: nOpen, nDet, IDET(NOPEN,NDET), nCSF, ICSF(NOPEN,NCSF), nSCR, IPRCSF
+real(kind=wp), intent(out) :: CDC(NDET,NCSF), SCR(nSCR)
+real(kind=wp), intent(in) :: PSSIGN
 integer(kind=iwp) :: IOPEN, JCSF, JDADD, JDET, KLFREE, KLMDET, KLSCSF, NTEST
 real(kind=wp) :: CMBFAC, COEF, SGN
 
@@ -56,14 +57,14 @@ KLFREE = KLSCSF+NOPEN
 
 ! OBTAIN INTERMEDIATE VALUES OF MS FOR ALL DETERMINANTS
 do JDET=1,NDET
-  call MSSTRN_LUCIA(IDET(1,JDET),SCR(KLMDET+(JDET-1)*NOPEN),NOPEN,IPRCSF)
+  call MSSTRN_LUCIA(IDET(:,JDET),SCR(KLMDET+(JDET-1)*NOPEN),NOPEN,IPRCSF)
 end do
 
 do JCSF=1,NCSF
   if (NTEST >= 105) write(u6,*) ' ....Output for CSF ',JCSF
 
   ! OBTAIN INTERMEDIATE COUPLINGS FOR CSF
-  call MSSTRN_LUCIA(ICSF(1,JCSF),SCR(KLSCSF),NOPEN,IPRCSF)
+  call MSSTRN_LUCIA(ICSF(:,JCSF),SCR(KLSCSF),NOPEN,IPRCSF)
 
   do JDET=1,NDET
     ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF

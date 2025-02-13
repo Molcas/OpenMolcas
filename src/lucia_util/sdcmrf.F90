@@ -35,8 +35,11 @@ use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CSD(*), CCM(*), PS, PL, SCLFAC
-integer(kind=iwp) :: IWAY, IATP, IBTP, IASM, IBSM, NA, NB, IDC, ISGVST(*), LDET, LCOMB, ISCALE
+real(kind=wp), intent(inout) :: CSD(*), CCM(*)
+integer(kind=iwp), intent(in) :: IWAY, IATP, IBTP, IASM, IBSM, NA, NB, IDC, ISGVST(IBSM), ISCALE
+real(kind=wp), intent(in) :: PS, PL
+integer(kind=iwp), intent(out) :: LDET, LCOMB
+real(kind=wp), intent(out) :: SCLFAC
 integer(kind=iwp) :: IPACK, NTEST
 real(kind=wp) :: FACTOR, SGN
 logical(kind=iwp) :: Test1, Test2

@@ -23,14 +23,13 @@ subroutine ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NELMNT, IINST(NELMNT), IOUTST(NELMNT), INO(NELMNT), IPRNT
+integer(kind=iwp), intent(in) :: NELMNT, IINST(NELMNT), IPRNT
+integer(kind=iwp), intent(out) :: IOUTST(NELMNT), INO(NELMNT)
 integer(kind=iwp) :: I, ISWAP, JOE, NTEST
 
 if (NELMNT /= 0) then
   IOUTST(:) = IINST(:)
-  do I=1,NELMNT
-    INO(I) = I
-  end do
+  INO(:) = [(I,I=1,NELMNT)]
 
   ! BEGIN TO ORDER
 

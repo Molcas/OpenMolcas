@@ -15,14 +15,17 @@
 subroutine MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,MINOP,NTESTG)
 ! Construct accumulated MAX and MIN arrays for an occupation class
 !
-! MINOP ( Smallest allowed number of open orbitals) added
+! MINOP (Smallest allowed number of open orbitals) added
 ! April2, 2003, JO (modified by JWK, April - June 2003)
 
 use lucia_data, only: MXPNGAS
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: MINEL(*), MAXEL(*), NORBTP, NORBFTP(*), NELFTP(*), MINOP, NTESTG
+integer(kind=iwp), intent(_OUT_) :: MINEL(*), MAXEL(*)
+integer(kind=iwp), intent(in) :: NORBTP, NORBFTP(*), NELFTP(*), MINOP, NTESTG
 integer(kind=iwp) :: IBORB, IGAS, IORB, IORB_START, MAX_DOUBLE, MAXOP_EXL, MAXOP_GAS(MXPNGAS), MAXOP_T, MINOP_GAS(MXPNGAS), &
                      NEL_INI, NELEC, NGAS, NORB, NTEST, NTESTL
 

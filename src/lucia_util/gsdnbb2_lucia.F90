@@ -73,13 +73,18 @@ subroutine GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,JASM,JATP
 
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: I12, IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(*), IBOC(*), JAOC(*), JBOC(*), NAEL, NBEL, &
-                     IJAGRP, IJBGRP, ADSXA(*), STSTSX(*), SXDXSX(*), MXPNGAS, NOBPTS(*), IOBPTS(*), MAXI, MAXK, I1(*), I2(*), &
-                     I3(*), I4(*), NSMOB, NSMST, NIA, NIB, NJA, NJB, MXPOBS, IPRNT, NACOB, IPHGAS(*), IDOSRHO1
-real(kind=wp) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), SB(*), CB(*), C2(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), &
-                 X(*), RHO1S(*), SCLFAC, S2_TERM1, SRHO1(*)
-logical(kind=iwp) :: IPACK
+integer(kind=iwp), intent(in) :: I12, IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(*), IBOC(*), JAOC(*), JBOC(*), &
+                                 NAEL, NBEL, IJAGRP, IJBGRP, ADSXA(*), STSTSX(*), SXDXSX(*), MXPNGAS, NOBPTS(*), IOBPTS(*), MAXI, &
+                                 MAXK, NSMOB, NSMST, NIA, NIB, NJA, NJB, MXPOBS, IPRNT, NACOB, IPHGAS(*), IDOSRHO1
+real(kind=wp), intent(inout) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), SB(*), CB(*), XI1S(*), XI2S(*), RHO1S(*), S2_TERM1, SRHO1(*)
+real(kind=wp), intent(_OUT_) :: C2(*), SSCR(*), CSCR(*), XI3S(*), XI4S(*), X(*)
+integer(kind=iwp), intent(inout) :: I1(*), I2(*)
+integer(kind=iwp), intent(_OUT_) :: I3(*), I4(*)
+real(kind=wp), intent(_OUT_) :: SCLFAC
+logical(kind=iwp), intent(in) :: IPACK
 #include "timers.fh"
 real(kind=wp) :: CPU, CPU0, CPU1, WALL, WALL0, WALL1
 integer(kind=iwp) :: IAB, IUSEAB, NTEST
@@ -191,14 +196,14 @@ if ((IBTP == JBTP) .and. (IBSM == JBSM)) then
   end if
   call TRPMT3(CB,NJB,NJA,C2)
   CB(1:NJA*NJB) = C2(1:NJA*NJB)
-  call TRPMAT(SB,NIB,NIA,C2)
+  call TRNSPS(NIB,NIA,SB,C2)
   SB(1:NIA*NIB) = C2(1:NIA*NIB)
 end if
-!
+
 ! ===============================
 ! alpha-beta contribution to RHO2
 ! ===============================
-!
+
 if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   ! Routine uses transposed blocks
   call TRPMT3(CB,NJA,NJB,C2)
@@ -223,7 +228,7 @@ if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
 
   call TRPMT3(CB,NJB,NJA,C2)
   CB(1:NJA*NJB) = C2(1:NJA*NJB)
-  call TRPMAT(SB,NIB,NIA,C2)
+  call TRNSPS(NIB,NIA,SB,C2)
   SB(1:NIA*NIB) = C2(1:NIA*NIB)
 end if
 

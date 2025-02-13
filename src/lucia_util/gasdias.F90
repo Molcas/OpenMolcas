@@ -35,10 +35,16 @@ use lucia_data, only: IDISK
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), LUDIA, IPRNT, NTOOB, &
-                     ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK), I_AM_OUT(*), N_ELIMINATED_BATCHES
-real(kind=wp) :: DIAG(*), H(NORB), XB(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, PSSIGN, RJKAA(*)
+integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), LUDIA, IPRNT, NTOOB, ICISTR, I12, &
+                                 IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK), I_AM_OUT(*), N_ELIMINATED_BATCHES
+integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*)
+real(kind=wp), intent(_OUT_) :: DIAG(*), RJKAA(*)
+real(kind=wp), intent(in) :: H(NORB), RJ(NTOOB,NTOOB), ECORE, PSSIGN
+real(kind=wp), intent(out) :: XB(NORB)
+real(kind=wp), intent(inout) :: RK(NTOOB,NTOOB)
 integer(kind=iwp) :: I, I_AM_NOT_WANTED, IA, IAEL, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBLK, IBLOCK, IBSM, IBSTOP, IBSTRT, IBTP, &
                      IDET, IDUM_ARR(1), IEL, II, IOFF, IORB, IREST1, ITDET, JEL, NASTR1, NBSTR1, NTEST
 real(kind=wp) :: EAA, EB, HB, RJBB, X, XADD
@@ -170,8 +176,11 @@ do IBLK=1,NBLOCK
       end do
       ! Lasse addition
       if (I_AM_NOT_WANTED == 0) then
-        DIAG(IDET) = X
-        if (IB == IA) DIAG(IDET) = DIAG(IDET)+XADD
+        if (IB == IA) then
+          DIAG(IDET) = X+XADD
+        else
+          DIAG(IDET) = X
+        end if
       else
         DIAG(IDET) = Zero
       end if
@@ -186,7 +195,8 @@ do IBLK=1,NBLOCK
       write(u6,*) ' number of diagonal elements to disc ',IDET
       call WRTMAT(DIAG,1,IDET,1,IDET)
     end if
-    call ITODS([IDET],1,-1,LUDIA)
+    IDUM_ARR(1) = IDET
+    call ITODS(IDUM_ARR,1,-1,LUDIA)
     call TODSC(DIAG,IDET,-1,LUDIA)
     IDET = 0
   end if
@@ -197,9 +207,12 @@ if (NTEST >= 5) write(u6,*) ' Number of diagonal elements generated (1)',ITDET
 
 if ((NTEST >= 100) .and. (ICISTR <= 1)) then
   write(u6,*) ' CIDIAGONAL'
-  call WRTMAT(DIAG(1),1,IDET,1,IDET)
+  call WRTMAT(DIAG,1,IDET,1,IDET)
 end if
 
-if (ICISTR >= 2) call ITODS([-1],1,-1,LUDIA)
+if (ICISTR >= 2) then
+  IDUM_ARR(1) = -1
+  call ITODS(IDUM_ARR,1,-1,LUDIA)
+end if
 
 end subroutine GASDIAS

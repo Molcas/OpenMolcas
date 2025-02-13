@@ -11,14 +11,12 @@
 ! Copyright (C) 1995,1999, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine PART_CIV2(IDC,IBLTP,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,MXLNG,IOCOC,ISMOST,NBATCH,LBATCH,LEBATCH,I1BATCH,IBATCH,ICOMP, &
-                     ISIMSYM)
+subroutine PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,IOCOC,ISMOST,NBATCH,LBATCH,LEBATCH,I1BATCH,IBATCH,ICOMP,ISIMSYM)
 ! Jeppe Olsen
 !
 ! Last update : May 1999 : ISIMSYM added
 !
 ! Partition a CI vector into batches of blocks.
-! The length of a batch must be at most MXLNG
 ! If ISIMSYM == 1, TTS blocks that differs only in symmetry are not split.
 !
 ! IF ICOMP == 1 the complete civector is constructed
@@ -28,20 +26,18 @@ subroutine PART_CIV2(IDC,IBLTP,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,MXLNG,IOCOC,ISMOS
 ! the laptop
 !
 ! Output
-! NBATCH : Number of batches
-! LBATCH : Number of blocks in a given batch
+! ======
+! NBATCH  : Number of batches
+! LBATCH  : Number of blocks in a given batch
 ! LEBATCH : Number of elements in a given batch ( packed ) !
 ! I1BATCH : Number of first block in a given batch
-! IBATCH : TTS blocks in Start of a given TTS block with respect to start
-!          of batch
+! IBATCH  : TTS blocks in Start of a given TTS block with respect to start of batch
 !   IBATCH(1,*) : Alpha type
 !   IBATCH(2,*) : Beta sym
 !   IBATCH(3,*) : Sym of alpha
 !   IBATCH(4,*) : Sym of beta
-!   IBATCH(5,*) : Offset of block with respect to start of block in
-!                 expanded form
-!   IBATCH(6,*) : Offset of block with respect to start of block in
-!                 packed form
+!   IBATCH(5,*) : Offset of block with respect to start of block in expanded form
+!   IBATCH(6,*) : Offset of block with respect to start of block in packed form
 !   IBATCH(7,*) : Length of block, expandend form
 !   IBATCH(8,*) : Length of block, packed form
 !
@@ -49,9 +45,13 @@ subroutine PART_CIV2(IDC,IBLTP,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,MXLNG,IOCOC,ISMOS
 
 use Definitions, only: iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IDC, IBLTP(*), NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NOCTPA, NOCTPB, MXLNG, IOCOC(NOCTPA,NOCTPB), ISMOST(*), &
-                     NBATCH, LBATCH(*), LEBATCH(*), I1BATCH(*), IBATCH(8,*), ICOMP, ISIMSYM
+integer(kind=iwp), intent(in) :: IDC, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), IOCOC(NOCTPA,NOCTPB), &
+                                 ISMOST(NSMST), ICOMP, ISIMSYM
+integer(kind=iwp), intent(out) :: NBATCH
+integer(kind=iwp), intent(_OUT_) :: LBATCH(*), LEBATCH(*), I1BATCH(*), IBATCH(8,*)
 integer(kind=iwp) :: IA, IASM, IB, IBLOCK, IBSM, IFINI, IFRST, II, INC, ISM, JBATCH, LBLOCK, LBLOCKP, LENGTH, LENGTHP, NBLOCK, &
                      NSTA, NSTB, NTEST
 
@@ -71,8 +71,8 @@ if (NTEST >= 100) then
   call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
   write(u6,*) ' ISMOST array'
   call IWRTMA(ISMOST,1,NSMST,1,NSMST)
-  write(u6,*) ' IBLTP array'
-  call IWRTMA(IBLTP,1,NSMST,1,NSMST)
+  !write(u6,*) ' IBLTP array'
+  !call IWRTMA(IBLTP,1,NSMST,1,NSMST)
   write(u6,*) ' NSSOA, NSSOB'
   call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
   call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
@@ -177,7 +177,7 @@ outer: do
       write(u6,*) ' Not enough space to include a single Block'
       write(u6,*) ' Since I cannot proceed I will stop'
       write(u6,*) ' Insufficient space detected in PART_CIV'
-      write(u6,*) ' Alter GAS space or raise Buffer from ',MXLNG
+      !write(u6,*) ' Alter GAS space or raise Buffer from ',MXLNG
       !stop 'Error in PART_CIV2'
       call SYSABENDMSG('lucia_util/part_civ2','Internal error','')
     else

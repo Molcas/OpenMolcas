@@ -49,9 +49,11 @@ use lucia_data, only: IBGPSTR, IBSPGPFTP, IOBPTS, ISPGPFTP, MXPNGAS, NELFGP, NEL
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IOB, IOBSM, IOBTP, NIOB, IAC, JOB, JOBSM, JOBTP, NJOB, JAC, ISPGP, ISM, ITP, KMIN, KMAX, I1(*), LI1, NK, &
-                     IEND, IFRST, KFRST, I12, K12
-real(kind=wp) :: XI1S(*), SCLFAC
+integer(kind=iwp), intent(in) :: IOB, IOBSM, IOBTP, NIOB, IAC, JOB, JOBSM, JOBTP, NJOB, JAC, ISPGP, ISM, ITP, KMIN, KMAX, LI1, &
+                                 IFRST, KFRST, I12, K12
+integer(kind=iwp), intent(out) :: I1(LI1*NIOB*NJOB), NK, IEND
+real(kind=wp), intent(out) :: XI1S(LI1*NIOB*NJOB)
+real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: IACADJ, IDELTA, IDUM(1), IEL, IGRP, IIGRP, IIOB, ISPGPABS, ITRIVIAL, JACADJ, JDELTA, JEL, JGRP, JJGRP, JJOB, &
                      K1SM, KGRP(MXPNGAS), KSM, NELI, NELK, NSTRI, NSTRK, NTEST, NTEST2
 integer(kind=iwp), save :: NSTRI_
@@ -211,8 +213,8 @@ NSTRK = NSTRKS(K12)
 IIOB = IOBPTS(IOBTP,IOBSM)+IOB-1
 JJOB = IOBPTS(JOBTP,JOBSM)+JOB-1
 
-I1(1:LI1*NIOB*NJOB) = 0
-!OLD XI1S(1:LI1*NIOB*NJOB) = Zero
+I1(:) = 0
+!OLD XI1S(:) = Zero
 
 call ADAADAS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,IAC,JJOB,NJOB,JAC,OCSTR(:,K12),NELK,NSTRK,REO(:,I12),Z(:,I12),NOCOB,KMAX,KMIN,IEND, &
                   SCLFAC,NSTRI_)

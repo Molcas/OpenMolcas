@@ -22,9 +22,12 @@ subroutine VECSMDP(VEC1,VEC2,FAC1,FAC2,LU1,LU2,LU3,IREW,LBLK)
 use lucia_data, only: IDISK
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: VEC1(*), VEC2(*), FAC1, FAC2
-integer(kind=iwp) :: LU1, LU2, LU3, IREW, LBLK
+real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
+real(kind=wp), intent(in) :: FAC1, FAC2
+integer(kind=iwp), intent(in) :: LU1, LU2, LU3, IREW, LBLK
 integer(kind=iwp) :: IAMPACK, IDUMMY(1), IMZERO1, IMZERO2, KBLK, NBL1, NBL2, NO_ZEROING
 
 if (IREW /= 0) then

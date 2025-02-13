@@ -29,9 +29,12 @@ use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, NTOOB
 use Constants, only: One, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: T(*), VEC1(*), VEC2(*)
-integer(kind=iwp) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
+real(kind=wp), intent(in) :: T(*)
+real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
+integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
 integer(kind=iwp) :: K, LBLK, NTEST
 real(kind=wp) :: CNORM, INPRDD, TKK
 

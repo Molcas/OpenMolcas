@@ -21,8 +21,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: GTH1ES
-integer(kind=iwp) :: IREOTS(*), IPNT(*), IBSO(*), MXPNGAS, IBTSOB(MXPNGAS,*), NACOBS(*), IORB, ITP, ISM, JORB, JTP, JSM, IJSM
-real(kind=wp) :: H(*)
+integer(kind=iwp), intent(in) :: IREOTS(*), IPNT(*), IBSO(*), MXPNGAS, IBTSOB(MXPNGAS,*), NACOBS(*), IORB, ITP, ISM, JORB, JTP, &
+                                 JSM, IJSM
+real(kind=wp), intent(in) :: H(*)
 integer(kind=iwp) :: I_ABS, IJ, IJMAX, IJMIN, IREO, JABS, JREO, NI, NJ, NTEST
 
 I_ABS = IORB+IBTSOB(ITP,ISM)-1

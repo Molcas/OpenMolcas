@@ -15,14 +15,31 @@ subroutine GTJK(RJ,RK,NTOOB,IREOST)
 !
 ! Ordering of integrals is in the internal order
 
+use wadr, only: TUVX
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NTOOB, IREOST(*)
-real(kind=wp) :: RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-integer(kind=iwp) :: NTEST
+integer(kind=iwp), intent(in) :: NTOOB, IREOST(NTOOB)
+real(kind=wp), intent(inout) :: RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
+integer(kind=iwp) :: NT, NT_REO, NTEST, NTT, NTUJ, NTUK, NTUT, NU, NU_REO
 
-call GTJK_RASSCF(RJ,RK,NTOOB,IREOST)
+NTUT = 0
+do NT=1,NTOOB
+  do NU=1,NT
+    NT_REO = IREOST(NT)
+    NU_REO = IREOST(NU)
+
+    NTUT = NTUT+1
+    NTUK = (NTUT**2+NTUT)/2
+    RK(NT_REO,NU_REO) = TUVX(NTUK)
+    RK(NU_REO,NT_REO) = TUVX(NTUK)
+
+    NTT = (NT**2+NT)/2
+    NTUJ = (NTT**2-NTT)/2+(NU**2+NU)/2
+    RJ(NT_REO,NU_REO) = TUVX(NTUJ)
+    RJ(NU_REO,NT_REO) = TUVX(NTUJ)
+  end do
+end do
 
 NTEST = 0
 if (NTEST /= 0) then

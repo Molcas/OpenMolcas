@@ -22,7 +22,8 @@ use lucia_data, only: MINMAX_SM_GP
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NIGRP, IGRP(NIGRP), MNVAL(NIGRP), MXVAL(NIGRP), NDIST
+integer(kind=iwp), intent(in) :: NIGRP, IGRP(NIGRP)
+integer(kind=iwp), intent(out) :: MNVAL(NIGRP), MXVAL(NIGRP), NDIST
 integer(kind=iwp) :: JGRP, NTEST
 
 NTEST = 0

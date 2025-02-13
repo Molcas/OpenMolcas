@@ -17,9 +17,11 @@ subroutine WRTVCD(SEGMNT,LU,IREW,LBLK)
 use lucia_data, only: IDISK
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: SEGMNT(*)
-integer(kind=iwp) :: LU, IREW, LBLK
+real(kind=wp), intent(_OUT_) :: SEGMNT(*)
+integer(kind=iwp), intent(in) :: LU, IREW, LBLK
 integer(kind=iwp) :: IAMPACK, IBLK, IDUMMY(1), IMZERO, KBLK, LBL
 
 if (IREW /= 0) then

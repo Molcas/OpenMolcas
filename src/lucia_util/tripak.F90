@@ -21,8 +21,8 @@ subroutine TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IWAY, MATDIM, NDIM
-real(kind=wp) :: AUTPAK(MATDIM,MATDIM), APAK(*)
+integer(kind=iwp), intent(in) :: IWAY, MATDIM, NDIM
+real(kind=wp), intent(inout) :: AUTPAK(MATDIM,MATDIM), APAK(*)
 integer(kind=iwp) :: I, IJ, J, NTEST
 
 if (IWAY == 1) then

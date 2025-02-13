@@ -15,7 +15,7 @@ subroutine CON_BLOCKS(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,ICONSPA,ICONSPB,NO
 ! Does CI blocks IATP IBTP interact with blocks JATP JBTP
 !
 ! Input
-! ======
+! =====
 ! IATP IBTP JATP JBTP : Supergroups, relative numbers
 ! IOCTPA, IOBTPB : Offset for type
 ! ICONSPA, ICONSPB : Connection matrices giving exciation
@@ -25,6 +25,7 @@ subroutine CON_BLOCKS(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,ICONSPA,ICONSPB,NO
 !                      Hamiltonian
 !
 ! Output
+! ======
 ! INTERACT : =1 => The two blocks does interact
 !
 ! Jeppe Olsen, April 99
@@ -32,8 +33,9 @@ subroutine CON_BLOCKS(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,ICONSPA,ICONSPB,NO
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, NOCTPA, ICONSPA(NOCTPA,NOCTPA), NOCTPB, &
-                     ICONSPB(NOCTPB,NOCTPB), MXEXC, IH_OCC_CONS, INTERACT
+integer(kind=iwp), intent(in) :: IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, NOCTPA, ICONSPA(NOCTPA,NOCTPA), NOCTPB, &
+                                 ICONSPB(NOCTPB,NOCTPB), MXEXC, IH_OCC_CONS
+integer(kind=iwp), intent(inout) :: INTERACT
 integer(kind=iwp) :: IA_EXC, IB_EXC, NTEST
 
 IA_EXC = ICONSPA(IATP,JATP)

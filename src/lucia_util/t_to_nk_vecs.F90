@@ -21,10 +21,15 @@ subroutine T_TO_NK_VECS(T,KORB,C,LUCIN,LUCOUT,NSSOA,NSSOB,NBLOCK,IBLOCK,NAEL,NBE
 use lucia_data, only: IDISK
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: T, C(*)
-integer(kind=iwp) :: KORB, LUCIN, LUCOUT, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NBLOCK, IBLOCK(8,NBLOCK), NAEL, NBEL, &
-                     IASTR(NAEL,*), IBSTR(NBEL,*), IBLTP(*), ICISTR, NORB, IKAOCC(*), IKBOCC(*)
+real(kind=wp), intent(in) :: T
+integer(kind=iwp), intent(in) :: KORB, LUCIN, LUCOUT, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NBLOCK, IBLOCK(8,NBLOCK), NAEL, NBEL, &
+                                 IBLTP(*), ICISTR, NORB
+real(kind=wp), intent(_OUT_) :: C(*)
+integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*)
+integer(kind=iwp), intent(_OUT_) :: IKAOCC(*), IKBOCC(*)
 integer(kind=iwp) :: IA, IAMPACK, IASM, IATP, IB, IBSM, IBTP, IDET, IDUM(1), IMZERO, IRESTR, JAEL, JBEL, JBLOCK, JSTR, KABOCC, &
                      KOCC, LDET, MINIA, NASTR1, NBSTR1, NIA, NIB
 real(kind=wp) :: T2
@@ -116,11 +121,13 @@ do JBLOCK=1,NBLOCK
   end if
   ! End of if statement for nonvanishing blocks
   ! Save result on LUCOUT
-  call ITODS([LDET],1,-1,LUCOUT)
+  IDUM(1) = LDET
+  call ITODS(IDUM,1,-1,LUCOUT)
   call TODSC(C,LDET,-1,LUCOUT)
 end do
 ! End of loop over blocks
 ! This is the end, the end of every file my friend, the end
-call ITODS([-1],1,-1,LUCOUT)
+IDUM(1) = -1
+call ITODS(IDUM,1,-1,LUCOUT)
 
 end subroutine T_TO_NK_VECS

@@ -21,8 +21,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: A(*)
-integer(kind=iwp) :: NDIM, MBLOCK, IFIL
+integer(kind=iwp), intent(in) :: NDIM, MBLOCK, IFIL
+real(kind=wp), intent(in) :: A(NDIM)
 integer(kind=iwp), parameter :: LPBLK = 50000
 integer(kind=iwp) :: IDUMMY(1), IELMNT, IMZERO, IPACK, IPAK(LPBLK), ISCR(2), LBATCH, MMBLOCK
 real(kind=wp) :: XNORM, XPAK(LPBLK)

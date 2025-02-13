@@ -30,8 +30,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-real(kind=wp) :: FACTOR, CVEC(*), SVEC(*)
-integer(kind=iwp) :: IASPGP, IBSPGP, IASM, IBSM
+real(kind=wp), intent(in) :: FACTOR, CVEC(*)
+real(kind=wp), intent(inout) :: SVEC(*)
+integer(kind=iwp), intent(in) :: IASPGP, IBSPGP, IASM, IBSM
 integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA, NTEST
 real(kind=wp) :: ECOREP, FACTORX, SHIFT
 integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:)

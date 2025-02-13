@@ -11,8 +11,8 @@
 ! Copyright (C) 1991,1995,1997-1999, Jeppe Olsen                       *
 !***********************************************************************
 
-subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NACOB,NSSOA,NSSOB,NAEL, &
-                        IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,CSCR,SSCR,STSTSX, &
+subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NACOB,NSSOA,NSSOB,NAEL,IAGRP, &
+                        NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,CSCR,SSCR,STSTSX, &
                         SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,MXPOBS,IPRNT,RHO1S,LUL,LUR,PSL,PSR, &
                         NBATCHL,LBATL,I1BATL,IBLOCKL,NBATCHR,LBATR,I1BATR,IBLOCKR,ICONSPA,ICONSPB,SCLFAC_L,SCLFAC_R,S2_TERM1, &
                         IPHGAS,IDOSRHO1,SRHO1,IPACK)
@@ -70,17 +70,24 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), ISSMOS(NSMST), &
-                     ICBLTP(*), ISBLTP(*), NACOB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, &
-                     IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,NSMOB), IOBPTS(MXPNGAS,NSMOB), MAXK, MAXI, NGAS, NELFSPGP(MXPNGAS,*), &
-                     IDC, I1(*), I2(*), I3(*), I4(*), MXPOBS, IPRNT, LUL, LUR, NBATCHL, LBATL(NBATCHL), I1BATL(NBATCHL), &
-                     IBLOCKL(8,*), NBATCHR, LBATR(NBATCHR), I1BATR(NBATCHR), IBLOCKR(8,*), ICONSPA(NOCTPA,NOCTPA), &
-                     ICONSPB(NOCTPB,NOCTPB), IPHGAS(*), IDOSRHO1
-real(kind=wp) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), L(*), R(*), CB(*), SB(*), C2(*), CSCR(*), SSCR(*), STSTSX(NSMST,NSMST), &
-                 SXDXSX(2*MXPOBS,4*MXPOBS), ADSXA(MXPOBS,2*MXPOBS), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), RHO1S(*), PSL, PSR, &
-                 SCLFAC_L(*), SCLFAC_R(*), S2_TERM1, SRHO1(*)
-logical(kind=iwp) :: IPACK
+integer(kind=iwp), intent(in) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), &
+                                 ISSMOS(NSMST), ICBLTP(*), ISBLTP(*), NACOB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), NAEL, &
+                                 IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,NSMOB), IOBPTS(MXPNGAS,NSMOB), &
+                                 MAXK, MAXI, STSTSX(NSMST,NSMST), MXPOBS, SXDXSX(2*MXPOBS,4*MXPOBS), ADSXA(MXPOBS,2*MXPOBS), NGAS, &
+                                 NELFSPGP(MXPNGAS,*), IDC, IPRNT, LUL, LUR, NBATCHL, LBATL(NBATCHL), I1BATL(NBATCHL), &
+                                 IBLOCKL(8,*), NBATCHR, LBATR(NBATCHR), I1BATR(NBATCHR), IBLOCKR(8,*), ICONSPA(NOCTPA,NOCTPA), &
+                                 ICONSPB(NOCTPB,NOCTPB), IPHGAS(*), IDOSRHO1
+real(kind=wp), intent(inout) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), XI1S(*), XI2S(*), RHO1S(*), SCLFAC_L(*), SCLFAC_R(*), &
+                                S2_TERM1, SRHO1(*)
+real(kind=wp), intent(inout) :: CB(*), SB(*)
+real(kind=wp), intent(_OUT_) :: C2(*), CSCR(*), SSCR(*), XI3S(*), XI4S(*), X(*)
+integer(kind=iwp), intent(inout) :: I1(*), I2(*)
+integer(kind=iwp), intent(_OUT_) :: I3(*), I4(*)
+real(kind=wp), intent(in) :: PSL, PSR
+logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: IABEXC, IAEXC, IASM, IATP, IBATCHL, IBATCHR, IBEXC, IBSM, IBTP, IDUMMY(1), IIASM, IIATP, IIBSM, IIBTP, IIL, &
                      IIR, IL, ILPERM, INTERACT, IOFF, IPERM, IR, ISCALE, ISTRFL(1), JASM, JATP, JBSM, JBTP, JOFF, LASM(4), &
                      LATP(4), LBL(1), LBSM(4), LBTP(4), LCOL, LROW, LSGN(5), LTRP(5), NBLKL, NBLKR, NIA, NIB, NIIA, NIIB, NJA, &
@@ -104,15 +111,15 @@ end if
 if (NTEST >= 100) then
   write(u6,*) ' Initial L vector'
   if (LUL == 0) then
-    call WRTRS2(L,ISSMOS,ISBLTP,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
+    call WRTRS2(CB,ISSMOS,ISBLTP,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
   else
-    call WRTVCD(L,LUL,1,-1)
+    call WRTVCD(CB,LUL,1,-1)
   end if
   write(u6,*) ' Initial R vector'
   if (LUR == 0) then
-    call WRTRS2(R,ICSMOS,ICBLTP,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
+    call WRTRS2(SB,ICSMOS,ICBLTP,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
   else
-    call WRTVCD(R,LUR,1,-1)
+    call WRTVCD(SB,LUR,1,-1)
   end if
 end if
 ! Loop over batches over L blocks
@@ -133,7 +140,7 @@ do IBATCHL=1,NBATCHL
     if (NTEST >= 200) write(u6,*) 'IATP IBTP IASM IBSM',IATP,IBTP,IASM,IBSM
     ISCALE = 0
     if (NTEST >= 200) write(u6,*) 'IOFF ',IOFF
-    call GSTTBL(L,SB(IOFF),IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PSL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
+    call GSTTBL(CB,SB(IOFF),IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PSL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
   end do
   ! Loop over batches  of R vector
   if (LUR /= 0) IDISK(LUR) = 0
@@ -181,7 +188,7 @@ do IBATCHL=1,NBATCHL
       ISCALE = 0
       if (INTERACT == 1) then
         ISCALE = 0
-        call GSTTBL(R,CB(JOFF),JATP,JASM,JBTP,JBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PCL,LUR,C2,NSMST,ISCALE,SCLFAC_R(IR))
+        call GSTTBL(SB,CB(JOFF),JATP,JASM,JBTP,JBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PCL,LUR,C2,NSMST,ISCALE,SCLFAC_R(IR))
       else
         !write(u6,*) ' TTSS for C block skipped'
         !call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
@@ -284,8 +291,8 @@ do IBATCHL=1,NBATCHL
                   end if
 
                   call GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IIASM,IIATP,IIBSM,IIBTP,JASM,JATP,JBSM,JBTP,NGAS, &
-                                     NELFSPGP(1,IOCTPA-1+IIATP),NELFSPGP(1,IOCTPB-1+IIBTP),NELFSPGP(1,IOCTPA-1+JATP), &
-                                     NELFSPGP(1,IOCTPB-1+JBTP),NAEL,NBEL,IAGRP,IBGRP,SB(IOFF),CB(JOFF),C2,ADSXA,STSTSX,SXDXSX, &
+                                     NELFSPGP(:,IOCTPA-1+IIATP),NELFSPGP(:,IOCTPB-1+IIBTP),NELFSPGP(:,IOCTPA-1+JATP), &
+                                     NELFSPGP(:,IOCTPB-1+JBTP),NAEL,NBEL,IAGRP,IBGRP,SB(IOFF),CB(JOFF),C2,ADSXA,STSTSX,SXDXSX, &
                                      MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NIIA, &
                                      NIIB,NJA,NJB,MXPOBS,IPRNT,NACOB,RHO1S,SCLFAC,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
 

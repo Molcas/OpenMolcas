@@ -21,7 +21,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: NOP_FOR_CONF
-integer(kind=iwp) :: NEL, ICONF(NEL)
+integer(kind=iwp), intent(in) :: NEL, ICONF(NEL)
 integer(kind=iwp) :: IEL, NOPEN, NTEST
 
 ! Loop over electrons

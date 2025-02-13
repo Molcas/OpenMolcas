@@ -19,7 +19,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: IWEYLF
-integer(kind=iwp) :: NOPEN, MULTS
+integer(kind=iwp), intent(in) :: NOPEN, MULTS
 integer(kind=iwp) :: NCSF, NTEST
 integer(kind=iwp), external :: IBINOM
 

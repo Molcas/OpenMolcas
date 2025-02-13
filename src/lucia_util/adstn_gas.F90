@@ -34,9 +34,14 @@ use csm_data, only: NSMST
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: OFFI(*), XI1S(*), SCLFAC
-integer(kind=iwp) :: IOBSM, IOBTP, ISPGP, ISPGPSM, ISPGPTP, I1(*), NKSTR
+real(kind=wp), intent(_OUT_) :: OFFI(*), XI1S(*)
+integer(kind=iwp), intent(in) :: IOBSM, IOBTP, ISPGP, ISPGPSM, ISPGPTP
+integer(kind=iwp), intent(_OUT_) :: I1(*)
+integer(kind=iwp), intent(out) :: NKSTR
+real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: IACIST(MXPNSMST), IACSM, IBORBSP, IBORBSPS, IBSTRINI, IFIRST, IGAS, IIAC, IISTSGP(MXPNSMST,MXPNGAS), IKAC, &
                      IOFF, IORB, IORBR, ISAVE, ISMFGS(MXPNGAS), ISMST, ISPGRPABS, ISTSMM1, ITPFGS(MXPNGAS), KACGRP, KFIRST, KSM, &
                      KSPGRPABS, KSTRBS, MNVAL(MXPNGAS), MULT, MXVAL(MXPNGAS), NACGSOB, NACIST(MXPNSMST), NELB, NELFGS(MXPNGAS), &

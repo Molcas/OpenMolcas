@@ -20,14 +20,15 @@ use lucia_data, only: IBSPGPFTP, ISPGPFTP, NGAS
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: ISPGP, ITP, IGRP(*)
+integer(kind=iwp), intent(in) :: ISPGP, ITP
+integer(kind=iwp), intent(out) :: IGRP(NGAS)
 integer(kind=iwp) :: ISPGPABS, NTEST
 
 NTEST = 0
 ! Absolute group number
 !write(u6,*) ' GET_SPGP_INF : ISPGP, ITP',ISPGP,ITP
 ISPGPABS = ISPGP+IBSPGPFTP(ITP)-1
-IGRP(1:NGAS) = ISPGPFTP(1:NGAS,ISPGPABS)
+IGRP(:) = ISPGPFTP(1:NGAS,ISPGPABS)
 
 if (NTEST >= 100) then
   write(u6,*) ' GET_SPGP_INF : ISPGP ITP ISPGPABS',ISPGP,ITP,ISPGPABS

@@ -28,9 +28,10 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: RHO2(*), RHO2S(*), RHO2A(*), RHO2T(*)
-integer(kind=iwp) :: ITYPE, NI, IOFF, NJ, JOFF, NK, KOFF, NL, LOFF, NORB
-logical(kind=iwp) :: IPACK
+real(kind=wp), intent(inout) :: RHO2(*), RHO2S(*), RHO2A(*)
+real(kind=wp), intent(in) :: RHO2T(*)
+integer(kind=iwp), intent(in) :: ITYPE, NI, IOFF, NJ, JOFF, NK, KOFF, NL, LOFF, NORB
+logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: I, I_PACK, IACTIVE, II, IIOFF, IJ, IJ_PACK, IJKL, IJKL_PACK, IJKLT, IKIND, IKJLT, IPERM, J, J_PACK, JI_PACK, &
                      JIKL_PACK, JJ, JJOFF, JLIND, K, K_PACK, KK, KKOFF, KL, KL_PACK, L, L_PACK, LL, LLOFF, NCOL, NELMNT, NII, NIK, &
                      NJJ, NKK, NLL, NROW, NTEST

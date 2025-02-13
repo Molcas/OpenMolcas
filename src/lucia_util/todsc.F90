@@ -17,9 +17,11 @@ use lucia_data, only: IDISK
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NDIM, MBLOCK, IFIL
-real(kind=wp) :: A(NDIM)
+integer(kind=iwp), intent(in) :: NDIM, MBLOCK, IFIL
+real(kind=wp), intent(_IN_) :: A(NDIM)
 integer(kind=iwp) :: IDUMMY(1), IMZERO, IPACK, ISCR(2), ISTOP, MMBLOCK, NBACK, NBLOCK, NLABEL, NTRANS, START
 real(kind=wp) :: XNORM
 real(kind=wp), external :: dDot_

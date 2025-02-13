@@ -33,8 +33,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nOrb
-real(kind=wp) :: X(NORB,NORB), T(NORB,NORB), SCR(nOrb**2+nOrb*(nOrb+1)/2)
+integer(kind=iwp), intent(in) :: nOrb
+real(kind=wp), intent(in) :: X(NORB,NORB)
+real(kind=wp), intent(out) :: T(NORB,NORB), SCR(nOrb**2+nOrb*(nOrb+1)/2)
 integer(kind=iwp) :: I, ISING, J, KLFREE, KLL, KLU, NTEST
 
 NTEST = 0
