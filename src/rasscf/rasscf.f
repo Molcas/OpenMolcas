@@ -1420,8 +1420,9 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
               maxtrW = 0.0d0
               maxtrR = -1
               maxBD = -1
+! These dmrg variables are arrays of rank 1
               ITERCI = MAXVAL(dmrg_energy%num_sweeps)
-              IROT   = MAXLOC(dmrg_energy%num_sweeps,1)
+              IROT   = MAXLOC(dmrg_energy%num_sweeps, 1)
               maxtrW = MAXVAL(dmrg_energy%max_truncW)
               maxtrR = MAXLOC(dmrg_energy%max_truncW, 1)
               maxBD   = MAXVAL(dmrg_energy%bond_dim)

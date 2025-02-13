@@ -19,6 +19,9 @@
       SUBROUTINE DENS1_RPT2 (CI,SGM1,G1,nLev)
       use caspt2_global, only:iPrGlb
       use fciqmc_interface, only: load_fciqmc_g1, DoFCIQMC
+#ifdef _DMRG_
+      use qcmaquis_interface, only:qcmaquis_interface_get_1rdm_full
+#endif
       use PrintLevel, only: debug
 #ifdef _DMRG_
       use qcmaquis_interface, only:qcmaquis_interface_get_1rdm_full

@@ -12,6 +12,11 @@
 ************************************************************************
       subroutine rdminit()
 
+#ifdef _DMRG_
+      use qcmaquis_interface, only:qcmaquis_interface_set_state
+      use iso_c_binding, only: c_int
+#endif
+
       use caspt2_global, only:iPrGlb
       use caspt2_global, only: CMO, CMO_Internal, DREF, DMIX, DWGT, NCMO
       use caspt2_global, only: LUONEM

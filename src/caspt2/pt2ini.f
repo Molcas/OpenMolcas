@@ -13,6 +13,10 @@
       use PT2WFN, ONLY: PT2WFN_INIT,PT2WFN_DATA
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
+      USE PT2WFN
+#ifdef _DMRG_
+      use qcmaquis_interface_cfg, only: qcmaquis_param
+#endif
       use caspt2_global, only: do_grad,iStpGrd
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, NTAT, TORB, NTORB,
@@ -166,6 +170,11 @@ C Initialize sizes, offsets etc used in equation solver.
       USE SUPERINDEX, ONLY: SUPFREE
       use PT2WFN, ONLY: PT2WFN_CLOSE
       use gugx, only: SGS, CIS, EXS
+#ifdef _DMRG_
+      use qcmaquis_interface, only:qcmaquis_interface_deinit
+      use qcmaquis_interface_cfg, only:dmrg_file
+      use qcmaquis_info, only: qcmaquis_info_deinit
+#endif
       use caspt2_global, only: FIMO, FAMO, FIFA, HONE, DREF, PREF, DMIX,
      &                       DWGT, CMOPT2, TAT, TORB, IDSCT
       use stdalloc, only: mma_deallocate

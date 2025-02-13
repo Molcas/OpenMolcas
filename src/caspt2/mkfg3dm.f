@@ -31,6 +31,9 @@ C However, because this introduces instability of CASPT2 calculation
 C (lots of negative denominators appear), relatively large IPEA and imaginary shifts
 C are required to converge CASPT2 iteration.
 C
+
+#include "compiler_features.h"
+
 #if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3,NLEV)
       use caspt2_global, only:iPrGlb

@@ -184,80 +184,83 @@ if (NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
   ################################################
   # set CXX FLAGS for ALPS/BOOST and QCMaquis    #
   ################################################
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-deprecated-declarations")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes -Wno-deprecated-declarations")
 
   # fix for Intel compiler
-  if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
-    if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-      set (CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
-    endif ()
-  endif ()
+  if(${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
+      if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+          set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+      endif()
+  endif()
 
   # default
-  set (QCMaquis_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  set(QCMaquis_CXX_FLAGS   "${CMAKE_CXX_FLAGS}")
 
   # OpenMP flags
-  if (OPENMP_FOUND)
-    set (QCMaquis_CXX_FLAGS "${QCMaquis_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-    set (QCMaquis_OPENMP "-DENABLE_OMP:BOOL=ON")
-  else ()
-    set (QCMaquis_OPENMP "-DENABLE_OMP:BOOL=OFF")
-  endif ()
-  unset (OPENMP_FOUND)
+  if(OPENMP_FOUND)
+      set(QCMaquis_CXX_FLAGS "${QCMaquis_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+      set(QCMaquis_OPENMP    "-DENABLE_OMP:BOOL=ON")
+  else()
+      set(QCMaquis_OPENMP    "-DENABLE_OMP:BOOL=OFF")
+  endif()
+  unset(OPENMP_FOUND)
 
-  list (APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
-  #list (APPEND CMAKE_MODULE_PATH ${extprojpath}/scripts/common/cmake)
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_ROOT})
+#     list(APPEND CMAKE_MODULE_PATH ${extprojpath}/scripts/common/cmake)
 
-  set (EP_PROJECT "qcmaquis")
+  set(EP_PROJECT  "qcmaquis")
 
   if (ADDRMODE EQUAL 64)
-    set (EP_CMAKE_ARGS "${QCMaquisCMakeArgs}" "-DLAPACK_64_BIT:BOOL=ON")
-  endif ()
+    set(EP_CMAKE_ARGS "${QCMaquisCMakeArgs}"
+                      "-DLAPACK_64_BIT:BOOL=ON")
+  endif()
 
-  set (EP_CMAKE_CACHE_ARGS
-       "-DBUILD_SYMMETRIES:STRING=TwoU1PG;SU2U1PG"
-       "${QCMaquis_OPENMP}"
-       "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
-       "-DDMRG_NUMSYMM:STRING=6"
-       "-DBUILD_DMRG:BOOL=ON"
-       "-DBUILD_MPS_TRANSFORM:BOOL=ON"
-       "-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}"
-       "-DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}"
-       "-DCMAKE_CXX_FLAGS:STRING=${QCMaquis_CXX_FLAGS}"
-       "-DCMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT:BOOL=OFF"
-       "-DBUILD_OPENMOLCAS_INTERFACE:BOOL=ON"
-  )
+  set(EP_CMAKE_CACHE_ARGS "-DBUILD_SYMMETRIES:STRING=TwoU1PG;SU2U1PG"
+                          "${QCMaquis_OPENMP}"
+                          "-DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}"
+                          "-DDMRG_NUMSYMM:STRING=6"
+                          "-DBUILD_DMRG:BOOL=ON"
+                          "-DBUILD_MPS_TRANSFORM:BOOL=ON"
+                          "-DCMAKE_CXX_COMPILER:STRING=${CMAKE_CXX_COMPILER}"
+                          "-DCMAKE_C_COMPILER:STRING=${CMAKE_C_COMPILER}"
+                          "-DCMAKE_CXX_FLAGS:STRING=${QCMaquis_CXX_FLAGS}"
+                          "-DCMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT:BOOL=OFF"
+                          "-DBUILD_OPENMOLCAS_INTERFACE:BOOL=ON"
+                      )
 
-  if (LINALG STREQUAL "MKL")
-    set (EP_CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS} "-DMKLROOT:STRING=${MKLROOT}")
-  endif ()
-
-  if (MPI AND GA)
-    target_files (GA_LIBRARIES_FILES ${GA_LIBRARIES})
-    set (EP_CMAKE_CACHE_ARGS
-         ${EP_CMAKE_CACHE_ARGS}
-         "-DBUILD_OPENMOLCAS_MPI:BOOL=ON"
-         "-DGA_INCLUDE_DIR:STRING=${GA_INCLUDE_PATH}"
-         "-DGA_LIBRARIES:STRING=${GA_LIBRARIES_FILES}"
+  if(LINALG STREQUAL "MKL")
+    set(EP_CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
+      "-DMKLROOT:STRING=${MKLROOT}"
     )
-  endif ()
+  endif()
+
+  if(MPI AND GA)
+    target_files(GA_LIBRARIES_FILES ${GA_LIBRARIES})
+    set(EP_CMAKE_CACHE_ARGS ${EP_CMAKE_CACHE_ARGS}
+      "-DBUILD_OPENMOLCAS_MPI:BOOL=ON"
+      "-DGA_INCLUDE_DIR:STRING=${GA_INCLUDE_PATH}"
+      "-DGA_LIBRARIES:STRING=${GA_LIBRARIES_FILES}"
+    )
+  endif()
+
 
   # Boost for QCMaquis is required already here
-  set (Boost_requirements program_options filesystem system serialization thread)
+  set(Boost_requirements program_options filesystem system serialization thread)
   set (Boost_NO_BOOST_CMAKE ON)
 
-  find_package (Boost 1.56 COMPONENTS ${Boost_requirements})
-  if (Boost_FOUND)
-    list (APPEND MAQUIS_DMRG_LIBRARIES ${Boost_LIBRARIES})
-  else (Boost_FOUND)
-    message (FATAL_ERROR "Boost >= 1.56 is required for QCMaquis")
-  endif (Boost_FOUND)
+  find_package(Boost 1.56 COMPONENTS ${Boost_requirements})
+  if(Boost_FOUND)
+      list(APPEND MAQUIS_DMRG_LIBRARIES ${Boost_LIBRARIES})
+  else(Boost_FOUND)
+      message(FATAL_ERROR "Boost >= 1.56 is required for QCMaquis")
+  endif(Boost_FOUND)
+
 
   ###############################
   # git references for QCMaquis #
   ###############################
 
-  set (reference_git_repo https://github.com/qcscine/qcmaquis.git)
+  set(reference_git_repo https://github.com/qcscine/qcmaquis)
   set(reference_git_commit nag-compiler-fix-internal)
 
   set (last_hash "None")
@@ -271,6 +274,7 @@ if (NOT MAQUIS_DMRG_FOUND) # Does the opposite work?
   else ()
     set (EP_SkipUpdate OFF)
   endif ()
+
 
   ExternalProject_Add (${EP_PROJECT}
                        PREFIX ${extprojpath}

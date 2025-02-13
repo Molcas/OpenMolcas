@@ -17,6 +17,9 @@
      &                       CMOPT2, NCMO
       use caspt2_global, only: LUONEM
       use fciqmc_interface, only: DoFCIQMC
+#ifdef _DMRG_
+      use qcmaquis_interface, only:qcmaquis_interface_set_param
+#endif
       use PrintLevel, only: debug, usual, verbose
       use stdalloc, only: mma_allocate, mma_deallocate
       use EQSOLV
