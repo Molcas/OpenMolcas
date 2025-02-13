@@ -25,9 +25,6 @@
       use EQSOLV
       IMPLICIT None
       Integer IGROUP,NGRP,JSTATE_OFF
-#ifdef _DMRG_
-      use qcmaquis_interface, only:qcmaquis_interface_set_param
-#endif
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
 * Purpose: For a selected set IGROUP, create a set of CMO coefficients
