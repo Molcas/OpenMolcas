@@ -31,13 +31,13 @@ real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, r
 integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &
                      id_Tsk, iData, iDisp, iEm, iEp, ii, iMlt, iPL, iPL_Save, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, &
                      irlxroot2, iRoot, iSave, ITkQMMM, ixyz, j, LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
-                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym
+                     nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym, iOption
 character(len=8) :: Method
 character(len=LenIn) :: Namei
 character(len=10) :: ESPFKey
 character(len=180) :: Line
 logical(kind=iwp) :: DispX, DispY, DispZ, Do_ESPF, DoDirect, DoFirst, DoTinker, DynExtPot, Exists, External_Coor_List, Found, &
-                     Is_Roots_Set, KeepOld, NMCart, StandAlone
+                     Is_Roots_Set, KeepOld, NMCart, StandAlone, Do_FFPT
 integer(kind=iwp), allocatable :: IsMM(:)
 real(kind=wp), allocatable :: EnergyArray(:,:), GradArray(:,:), OldGrads(:,:), Grad(:), GNew(:), MMGrd(:,:), BMtrx(:,:), &
                               TMtrx(:,:), Coor(:,:), Energies_Ref(:), XYZ(:,:), AllC(:,:), Disp(:), Deg(:,:), Mltp(:), C(:,:), &
@@ -64,6 +64,7 @@ iPL_Save = iPrintLevel(-1)
 iPL = iPL_Save
 
 if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -73,6 +74,9 @@ ireturn = _RC_ALL_IS_WELL_
 
 call Get_cArray('Relax Method',Method,8)
 call DecideOnESPF(Do_ESPF)
+call Get_iScalar('System Bitswitch',iOption)
+Do_FFPT=btest(iOption,14)
+
 Is_Roots_Set = .false.
 call Qpg_iScalar('Number of roots',Is_Roots_Set)
 if (Is_Roots_Set) then
@@ -549,6 +553,20 @@ do
     write(LuWr,*) 'Seward returned with return code, rc = ',iReturn
     write(LuWr,*) 'for the perturbation iDisp = ',iDisp
     call Abend()
+  end if
+
+  ! Add stuff from the FFPT module
+  if (Do_FFPT) then
+    call StartLight('ffpt')
+    call init_run_use()
+    call Disable_Spool()
+    call FFPT(ireturn)
+    if (iReturn /= 0) then
+      write(LuWr,*) 'Numerical_Gradient failed ...'
+      write(LuWr,*) 'FFPT returned with return code, rc = ',iReturn
+      write(LuWr,*) 'for the perturbation iDisp = ',iDisp
+      call Abend()
+    end if
   end if
 
   ! Compute the ESPF stuff

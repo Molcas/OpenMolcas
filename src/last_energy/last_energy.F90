@@ -16,9 +16,9 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-integer(kind=iwp) :: lengthlast
+integer(kind=iwp) :: lengthlast, iOption
 character(len=8) :: Method
-logical(kind=iwp) :: Do_ESPF, StandAlone, FoundLastEn
+logical(kind=iwp) :: Do_ESPF, StandAlone, FoundLastEn, Do_FFPT
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -32,6 +32,9 @@ if (FoundLastEn) then
 else
   call Get_cArray('Relax Method',Method,8)
 end if
+
+call Get_iScalar('System Bitswitch',iOption)
+Do_FFPT=btest(iOption,14)
 
 call DecideOnESPF(Do_ESPF)
 
@@ -68,6 +71,19 @@ if (iReturn /= 0) then
   write(u6,*) 'Last_Energy failed ...'
   write(u6,*) 'SEWARD returned with return code, rc = ',iReturn
   call Abend()
+end if
+
+! Compute FFPT
+
+if (Do_FFPT) then
+  call StartLight('ffpt')
+  call Disable_Spool()
+  call FFPT(iReturn)
+  if (iReturn /= 0) then
+    write(u6,*) 'Last_Energy failed ...'
+    write(u6,*) 'FFPT returned with return code, rc = ',iReturn
+    call Abend()
+  end if
 end if
 
 ! Compute ESPF
