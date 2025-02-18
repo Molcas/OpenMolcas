@@ -56,6 +56,7 @@ set (CXXFLAGS_GNU_GARBLE "-O2 -g -Wall")
 set (CXXFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
 set (CXXFLAGS_GNU_RELEASE "-O2")
 set (CXXFLAGS_GNU_FAST "-O2")
+set (CXXFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 # C compiler
 list (APPEND SUPPORTED_C_COMPILERS "GNU")
 set (CFLAGS_GNU_BASIC "-std=gnu99")
@@ -66,6 +67,7 @@ set (CFLAGS_GNU_GARBLE "-O2 -g -Wall")
 set (CFLAGS_GNU_RELWITHDEBINFO "-O2 -g -Wall")
 set (CFLAGS_GNU_RELEASE "-O2")
 set (CFLAGS_GNU_FAST "-O2")
+set (CFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
 set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # Or Work is assumed to be 8 elements long
