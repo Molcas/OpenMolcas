@@ -134,9 +134,6 @@ else
     call Put_cArray('BirthCertificate',cDNA,nDNA)
   end if
 end if
-call Get_iScalar('System Bitswitch',iOption)
-iOption = ibclr(iOption,14)
-call Put_iScalar('System Bitswitch',iOption)
 
 !                                                                      *
 !***********************************************************************
@@ -318,6 +315,9 @@ do
   Primitive_Pass = .false.
   call Free_iSD()
 end do
+call Get_iScalar('System Bitswitch',iOption)
+iOption = ibclr(iOption,14)
+call Put_iScalar('System Bitswitch',iOption)
 
 if (.not. Test) then
   !                                                                    *
