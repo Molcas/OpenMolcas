@@ -712,8 +712,8 @@
       END SUBROUTINE FCKPT2
 
 
-      !-------------------------------------------------------------------
-      ! PURPOSE: Adds matrix B to matrix A element by element (A = A + B)
+      !--------------------------------------------------------
+      ! PURPOSE: Adds matrix B to matrix A element by element
       !
       ! INPUT:
       ! A(*)    - Target matrix stored in column-major format
@@ -725,7 +725,7 @@
       !
       ! OUTPUT:
       ! A(*)    - Updated matrix containing A + B
-      !-------------------------------------------------------------------
+      !--------------------------------------------------------
       subroutine dgeacc(A,LDA,B,LDB,M,N)
         use Definitions, only: wp, iwp
 
