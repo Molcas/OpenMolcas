@@ -9,49 +9,35 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine dgeAdd(A,LDA,FORMA,B,LDB,FORMB,C,LDC,M,N)
-! MATRIX Addition FOR GENERAL MATRICES
+!--------------------------------------------------------
+! PURPOSE: Adds matrix B to matrix A element by element
+!
+! INPUT:
+! A(*)    - Target matrix stored in column-major format
+! LDA     - Leading dimension of matrix A
+! B(*)    - Source matrix stored in column-major format
+! LDB     - Leading dimension of matrix B
+! M       - Number of rows in both matrices
+! N       - Number of columns in both matrices
+!
+! OUTPUT:
+! A(*)    - Updated matrix containing A + B
+!--------------------------------------------------------
+subroutine dgeAcc(A, LDA, B, LDB, M, N)
+  use Definitions, only: wp, iwp
 
-#include "intent.fh"
+  implicit none
+  real(kind=wp), intent(inout) :: A(*)
+  real(kind=wp), intent(in) :: B(*)
+  integer(kind=iwp), intent(in) :: LDA, LDB, M, N
+  integer(kind=iwp) :: iCol, iRow
 
-use Definitions, only: wp, iwp, u6
-
-implicit none
-real(kind=wp), intent(in) :: A(*), B(*)
-integer(kind=iwp), intent(in) :: LDA, LDB, LDC, M, N
-character, intent(in) :: FORMA, FORMB
-real(kind=wp), intent(_OUT_) :: C(*)
-integer(kind=iwp) :: iCol, iRow
-
-if ((FORMA == 'N') .and. (FORMB == 'N')) then
-  do iRow=0,m-1
-    do iCol=0,n-1
-      c(iRow+iCol*ldc+1) = a(iRow+iCol*lda+1)+b(iRow+iCol*ldb+1)
+  do iRow = 0, m-1
+    do iCol = 0, n-1
+      a(iRow+iCol*lda+1) = a(iRow+iCol*lda+1)+b(iRow+iCol*ldb+1)
     end do
   end do
-else if ((FORMA == 'T') .and. (FORMB == 'N')) then
-  do iRow=0,m-1
-    do iCol=0,n-1
-      c(iRow+iCol*ldc+1) = a(iCol+iRow*lda+1)+b(iRow+iCol*ldb+1)
-    end do
-  end do
-else if ((FORMA == 'N') .and. (FORMB == 'T')) then
-  do iRow=0,m-1
-    do iCol=0,n-1
-      c(iRow+iCol*ldc+1) = a(iRow+iCol*lda+1)+b(iCol+iRow*ldb+1)
-    end do
-  end do
-else if ((FORMA == 'T') .and. (FORMB == 'T')) then
-  do iRow=0,m-1
-    do iCol=0,n-1
-      c(iRow+iCol*ldc+1) = a(iCol+iRow*lda+1)+b(iCol+iRow*ldb+1)
-    end do
-  end do
-else
-  write(u6,*) 'Error when calling DGEADD, forma=',FORMA,' formb=',FORMB
-  call Abend()
-end if
 
-return
+  return
+end subroutine dgeAcc
 
-end subroutine dgeAdd
