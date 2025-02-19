@@ -34,15 +34,13 @@ implicit none
 integer(kind=iwp), intent(in) :: NGAS, MNVAL(NGAS), MXVAL(NGAS), ISYM_TOT
 integer(kind=iwp), intent(inout) :: ISYM(NGAS), IFIRST
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: IGAS, JSYM, NTEST
+integer(kind=iwp) :: JSYM, NTEST
 integer(kind=iwp), external :: ISYMSTR
 
 ! Symmetry of first NGAS -1 spaces
 
 if (IFIRST == 1) then
-  do IGAS=1,NGAS-1
-    ISYM(IGAS) = MNVAL(IGAS)
-  end do
+  ISYM(1:NGAS-1) = MNVAL(1:NGAS-1)
   NONEW = 0
 end if
 do

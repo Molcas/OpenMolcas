@@ -44,7 +44,7 @@ real(kind=wp), intent(in) :: H(NORB), RJ(NTOOB,NTOOB), ECORE, FACTOR
 real(kind=wp), intent(out) :: XB(NORB)
 real(kind=wp), intent(inout) :: RK(NTOOB,NTOOB)
 integer(kind=iwp) :: IA, IAEL, IAMPACK, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBSM, IBTP, IDET, IDUM_ARR(1), IEL, IMZERO, IOFF, &
-                     IORB, IPACK, ITDET, JBLOCK, JEL, LDET, NAST, NASTR1, NBSTR1, NIA, NIB, NTEST
+                     IPACK, ITDET, JBLOCK, JEL, LDET, NAST, NASTR1, NBSTR1, NIA, NIB, NTEST
 real(kind=wp) :: EAA, EB, HB, RJBB, X
 
 NTEST = 0
@@ -179,9 +179,7 @@ do JBLOCK=1,NBLOCK
               RJBB = RJBB+RK(IBSTR(JEL,IB),IBEL)
             end do
 
-            do IORB=1,NORB
-              XB(IORB) = XB(IORB)+RJ(IORB,IBEL)
-            end do
+            XB(:) = XB(:)+RJ(1:NORB,IBEL)
           end if
         end do
         EB = HB+Half*RJBB+ECORE

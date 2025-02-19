@@ -90,13 +90,9 @@ do ISTRIN=1,NSTINI
     if (IPLACE == 0) cycle
 
     ! Generate next string
-    do I=1,IPLACE-1
-      STRIN2(I) = STRING(I,ISTRIN)
-    end do
+    STRIN2(1:IPLACE-1) = STRING(1:IPLACE-1,ISTRIN)
     STRIN2(IPLACE) = IORB
-    do I=IPLACE,NEL
-      STRIN2(I+1) = STRING(I,ISTRIN)
-    end do
+    STRIN2(IPLACE+1:NEL+1) = STRING(IPLACE:NEL,ISTRIN)
     !write(u6,*) ' updated string (STRIN2)'
     !call iwrtma(STRIN2,1,NEL+1,1,NEL+1)
     JSTRIN = ISTRNM(STRIN2,NACOB,NEL+1,Z,NEWORD,1)

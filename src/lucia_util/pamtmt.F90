@@ -65,7 +65,7 @@ if (NTEST >= 100) then
   call WRTMAT(T,NORB,NORB,NORB,NORB)
 end if
 ! Invert U
-call INVMAT(T,SCR(KLU),NORB,NORB,ISING)
+call INVMAT(T,SCR(KLU),NORB,ISING)
 if (NTEST >= 100) then
   write(u6,*) ' INVERTED MATRIX'
   call WRTMAT(T,NORB,NORB,NORB,NORB)

@@ -48,20 +48,12 @@ NGAS = NORBTP
 
 ! Largest number of unpaired electrons in each gas space
 
-do IGAS=1,NGAS
-  MAXOP_GAS(IGAS) = min(NELFTP(IGAS),2*NORBFTP(IGAS)-NELFTP(IGAS))
-end do
+MAXOP_GAS(1:NGAS) = min(NELFTP(1:NGAS),2*NORBFTP(1:NGAS)-NELFTP(1:NGAS))
 
 ! Smallest number of electrons in each GAS space
 
 ! 1 : Just based on number of electrons in each space
-do IGAS=1,NGAS
-  if (mod(NELFTP(IGAS),2) == 1) then
-    MINOP_GAS(IGAS) = 1
-  else
-    MINOP_GAS(IGAS) = 0
-  end if
-end do
+MINOP_GAS(1:NGAS) = mod(NELFTP(1:NGAS),2)
 ! 2 : the total number of open orbitals should be MINOP, this puts
 ! also a constraint on the number of open orbitals
 

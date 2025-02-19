@@ -25,8 +25,8 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: MXPKW = 125
-integer(kind=iwp) :: EXTSPC, I, ICISPC, ICLSSEL, IDENSI, IDOPERT, IEXPAND, IEXPERT, IFINMO, IGAS, INCORE, INOCALC, IRREP, IRST2, &
-                     ISAVE_EXP, isetkw(MXPKW), ISKIPEI, IUSED, J, JPTSPC, MXCIV, NMISS, NWARN
+integer(kind=iwp) :: EXTSPC, I, ICLSSEL, IDENSI, IDOPERT, IEXPAND, IEXPERT, IFINMO, INCORE, INOCALC, IRREP, IRST2, ISAVE_EXP, &
+                     isetkw(MXPKW), ISKIPEI, IUSED, MXCIV, NMISS, NWARN
 real(kind=wp) :: ECORE_ENV, PLSIGN, THRES_E
 character(len=4) :: ITRACI_CN, ITRACI_CR
 
@@ -58,9 +58,7 @@ Sigma_on_disk = .false.
 ! ===================
 !  Initialize isetkw
 ! ===================
-do i=1,mxpkw
-  isetkw(i) = 0
-end do
+isetkw(:) = 0
 
 ! =========================
 !  Point group of orbitals
@@ -149,20 +147,14 @@ MXINKA = 150
 ngas = ngas_molcas
 ngssh = 0
 do irrep=1,nirrep
-  do igas=1,ngas
-    ngssh(irrep,igas) = ngssh_molcas(igas,irrep)
-  end do
+  ngssh(irrep,1:ngas) = ngssh_molcas(1:ngas,irrep)
 end do
 
 ! ==================================================
 !  Generalized active space occupation restrictions
 ! ==================================================
 ncispc = 1
-do i=1,ngas
-  do j=1,2
-    igsoccx(i,j,1) = igsoccx_molcas(i,j)
-  end do
-end do
+igsoccx(1:ngas,:,1) = igsoccx_molcas(1:ngas,:)
 
 ! ==========================
 !  Energy convergence of CI
@@ -228,12 +220,8 @@ I_ELIMINATE_GAS = I_ELIMINATE_GAS_MOLCAS
 N_ELIMINATED_GAS = N_ELIMINATED_GAS_MOLCAS
 N_2ELIMINATED_GAS = N_2ELIMINATED_GAS_MOLCAS
 !write(u6,*) I_ELIMINATE_GAS_MOLCAS,N_ELIMINATED_GAS_MOLCAS
-do IGAS=1,N_ELIMINATED_GAS
-  IELIMINATED_IN_GAS(IGAS) = IELIMINATED_IN_GAS_MOLCAS(IGAS)
-end do
-do IGAS=1,N_2ELIMINATED_GAS
-  I2ELIMINATED_IN_GAS(IGAS) = I2ELIMINATED_IN_GAS_MOLCAS(IGAS)
-end do
+IELIMINATED_IN_GAS(1:N_ELIMINATED_GAS) = IELIMINATED_IN_GAS_MOLCAS(1:N_ELIMINATED_GAS)
+I2ELIMINATED_IN_GAS(1:N_2ELIMINATED_GAS) = I2ELIMINATED_IN_GAS_MOLCAS(1:N_2ELIMINATED_GAS)
 
 ! =============
 !  Printlevels
@@ -397,10 +385,8 @@ if (ISETKW(49) == 0) ISETKW(49) = 2
 
 if (ISETKW(52) == 0) then
   NCMBSPC = NCISPC
-  do ICISPC=1,NCISPC
-    LCMBSPC(ICISPC) = 1
-    ICMBSPC(1,ICISPC) = ICISPC
-  end do
+  LCMBSPC(1:NCISPC) = 1
+  ICMBSPC(1,1:NCISPC) = [(i,i=1,NCISPC)]
   ISETKW(52) = 2
 end if
 
@@ -433,11 +419,7 @@ end if
 ! Default is specified by IPART from keyword PERTU
 if (ISETKW(59) == 0) then
   ISETKW(59) = 2
-  if (IH0SPC /= 0) then
-    do JPTSPC=1,NPTSPC
-      IH0INSPC(JPTSPC) = IPART
-    end do
-  end if
+  if (IH0SPC /= 0) IH0INSPC(1:NPTSPC) = IPART
 end if
 
 ! 60 : Reference Root, default is NROOT
@@ -461,9 +443,7 @@ if (ISETKW(60) == 0) ISETKW(60) = 2
 IUSED = 0
 if (ISETKW(59) == 1) then
   IUSED = 0
-  do JPTSPC=1,NPTSPC
-    if (IH0INSPC(JPTSPC) == 5) IUSED = 1
-  end do
+  if (any(IH0INSPC(1:NPTSPC) == 5)) IUSED = 1
 end if
 !if ((IUSED == 0) .and. (ISETKW(61) == 0)) then
 !  ! No exact spaces included and none have been defined !

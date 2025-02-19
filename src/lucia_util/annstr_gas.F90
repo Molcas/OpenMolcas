@@ -48,7 +48,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, IORBOF, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, &
                                  ISGSTI(NSTINI), ISGSTO(NSTINO), NACOB, IEC, LDIM, IPRNT
 integer(kind=iwp), intent(out) :: TI(LDIM,NSTINI), TTO(LDIM,NSTINI)
-integer(kind=iwp) :: I, IEL, IIISGN, IORB, IORBABS, IROW, ISTRIN, JEL, JSTRIN, MAXPR, NPR, NTEST, NTEST0, STRIN2(500)
+integer(kind=iwp) :: I, IEL, IIISGN, IORB, IORBABS, IROW, ISTRIN, JSTRIN, MAXPR, NPR, NTEST, NTEST0, STRIN2(500)
 integer(kind=iwp), external :: ISTRNM
 
 NTEST0 = 1
@@ -64,12 +64,8 @@ end if
 do ISTRIN=1,NSTINI
   do IEL=1,NEL
     ! String with electron removed
-    do JEL=1,IEL-1
-      STRIN2(JEL) = STRING(JEL,ISTRIN)
-    end do
-    do JEL=IEL+1,NEL
-      STRIN2(JEL-1) = STRING(JEL,ISTRIN)
-    end do
+    STRIN2(1:IEL-1) = STRING(1:IEL-1,ISTRIN)
+    STRIN2(IEL:NEL-1) = STRING(IEL+1:NEL,ISTRIN)
     JSTRIN = ISTRNM(STRIN2,NACOB,NEL-1,Z,NEWORD,1)
     !write(u6,*) ' anni-string and number'
     !call IWRTMA(STRIN2,1,NEL-1,1,NEL-1)

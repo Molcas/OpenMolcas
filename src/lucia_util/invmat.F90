@@ -9,13 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine INVMAT(A,B,MATDIM,NDIM,ISING)
+subroutine INVMAT(A,B,NDIM,ISING)
 ! FIND INVERSE OF MATRIX A
 ! INPUT :
 !        A : MATRIX TO BE INVERTED
 !        B : SCRATCH ARRAY
-!        MATDIM : PHYSICAL DIMENSION OF MATRICES
-!        NDIM :   DIMENSION OF SUBMATRIX TO BE INVERTED
+!        NDIM : PHYSICAL DIMENSION OF MATRICES
 !
 ! OUTPUT : A : INVERSE MATRIX (ORIGINAL MATRIX THUS DESTROYED)
 ! (WARNINGS ARE ISSUED IN CASE OF CONVERGENCE PROBLEMS)
@@ -27,9 +26,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: MATDIM, NDIM
-real(kind=wp), intent(inout) :: A(MATDIM,MATDIM)
-real(kind=wp), intent(out) :: B(MATDIM,MATDIM)
+integer(kind=iwp), intent(in) :: NDIM
+real(kind=wp), intent(inout) :: A(NDIM,NDIM)
+real(kind=wp), intent(out) :: B(NDIM,NDIM)
 integer(kind=iwp), intent(out) :: ISING
 integer(kind=iwp) :: ITEST, NTEST
 real(kind=wp) :: DETERM, EPSIL
@@ -44,7 +43,7 @@ if (NDIM == 1) then
 else
   DETERM = Zero
   EPSIL = Zero
-  call BNDINV(A,B,NDIM,DETERM,EPSIL,ITEST,MATDIM)
+  call BNDINV(A,B,NDIM,DETERM,EPSIL,ITEST)
 end if
 
 if (ITEST /= 0) then
@@ -57,7 +56,7 @@ end if
 NTEST = 0
 if (NTEST /= 0) then
   write(u6,*) ' INVERTED MATRIX'
-  call WRTMAT(A,NDIM,NDIM,MATDIM,MATDIM)
+  call WRTMAT(A,NDIM,NDIM,NDIM,NDIM)
 end if
 
 end subroutine INVMAT

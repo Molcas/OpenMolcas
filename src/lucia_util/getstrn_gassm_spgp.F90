@@ -40,7 +40,7 @@ implicit none
 integer(kind=iwp), intent(in) :: ISMFGS(*), ITPFGS(*), NEL, NNSTSGP(MXPNSMST,*), IISTSGP(MXPNSMST,*)
 integer(kind=iwp), intent(inout) :: ISTROC(NEL,*)
 integer(kind=iwp), intent(out) :: NSTR
-integer(kind=iwp) :: IBSTFGS(MXPNGAS), IGAS, IGASL, JGAS, NELB, NELI, NSTA, NSTB, NSTFGS(MXPNGAS), NSTI, NSTRTOT
+integer(kind=iwp) :: IBSTFGS(MXPNGAS), IGAS, IGASL, NELB, NELI, NSTA, NSTB, NSTFGS(MXPNGAS), NSTI, NSTRTOT
 
 ! Number of strings per GAS space
 !write(u6,*) ' entering problem child'
@@ -65,11 +65,8 @@ IGASL = 0
 do IGAS=1,NGAS
   if (NELFGP(ITPFGS(IGAS)) /= 0) IGASL = IGAS
 end do
-!
-NSTRTOT = 1
-do IGAS=1,NGAS
-  NSTRTOT = NSTRTOT*NSTFGS(IGAS)
-end do
+
+NSTRTOT = product(NSTFGS(1:NGAS))
 
 if ((IGASL /= 0) .and. (NSTRTOT /= 0)) then
   ! Loop over GAS spaces
@@ -84,15 +81,9 @@ if ((IGASL /= 0) .and. (NSTRTOT /= 0)) then
       ! The order of strings corresponds to a matrix A(I(after),Igas,I(before))
       ! where I(after) loops over strings in IGAS+1 - IGASL and
       ! I(before) loop over strings in 1 - IGAS -1
-      NSTA = 1
-      do JGAS=IGAS+1,IGASL
-        NSTA = NSTA*NSTFGS(JGAS)
-      end do
+      NSTA = product(NSTFGS(IGAS+1:IGASL))
 
-      NSTB = 1
-      do JGAS=1,IGAS-1
-        NSTB = NSTB*NSTFGS(JGAS)
-      end do
+      NSTB = product(NSTFGS(1:IGAS-1))
 
       NSTI = NSTFGS(IGAS)
 

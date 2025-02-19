@@ -43,7 +43,6 @@ if (IDC <= 2) then
 else
   ! Also spatial degeneracy
   do IASYM=1,MAXSYM
-
     IBSYM = ISMOST(IASYM)
     if (IBSYM == 0) cycle
     if ((((IDC == 2) .or. (IDC == 4)) .and. (IBSYM > IASYM)) .or. ((IDC == 3) .and. (IMMLST(IASYM) > IASYM))) then

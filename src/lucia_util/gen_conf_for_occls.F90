@@ -73,9 +73,7 @@ do
   ! It is the only CSF that matter for HS calculations.
   ! Skip any loop below... It is an overwhelmingly long loop.
   if ((NEL == MINOP) .and. (NEL == NOBPT(2))) then
-    do i=1,NEL
-      JCONF(i) = i
-    end do
+    JCONF(1:NEL) = [(i,i=1,NEL)]
     NONEW = 0
   else
     call NEXT_CONF_FOR_OCCLS(JCONF,IOCCLS,NGAS,NOBPT,INI,NONEW)

@@ -201,15 +201,9 @@ else
     ! Loop over symmetry distribtions of K strings
     KFIRST = 1
     KSTRBS = 1
-    do IGAS=1,NIGRP
-      ISMFGS(IGAS) = 1
-    end do
+    ISMFGS(1:NIGRP) = 1
     do
-      !GLM if (KFIRST == 1) then
-      !GLM   do IGAS=1,NIGRP
-      !GLM     ISMFGS(IGAS) = MNVLI(IGAS)
-      !GLM   end do
-      !GLM else
+      !GLM if (KFIRST == 1) ISMFGS(1:NIGRP) = MNVLI(IGAS)
       ! Next distribution
       call NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,ISMFGS,KSM,KFIRST,NONEW,ISMDFGP,NACTSYM,ISMSCR)
       !GLM   if (NONEW == 1) exit

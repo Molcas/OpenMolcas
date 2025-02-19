@@ -35,18 +35,14 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRCSF
-integer(kind=iwp) :: IALPHA, ICDCBS, ICSBS, IDET, IDTBS, IFLAG, IOPEN, IOPEN_, ITP, L, LSCR, MAX_DC, NNCM, NNCS, NNDET, NTEST
+integer(kind=iwp) :: IALPHA, ICDCBS, ICSBS, IDET, IDTBS, IFLAG, IOPEN, IOPEN_, ITP, LSCR, MAX_DC, NNCM, NNCS, NNDET, NTEST
 integer(kind=iwp), allocatable :: iSCR2(:)
 real(kind=wp), allocatable :: SCR1(:)
 
 NTEST = 0
 NTEST = max(NTEST,IPRCSF)
 ! Size of largest csf-sd block
-MAX_DC = 0
-do IOPEN=0,MAXOP
-  L = NPCMCNF(IOPEN+1)
-  MAX_DC = max(MAX_DC,L)
-end do
+MAX_DC = max(0,maxval(NPCMCNF(1:MAXOP+1)))
 if (NTEST >= 100) write(u6,*) ' Size of largest D to C block ',MAX_DC
 LSCR = max(MAX_DC,MAXOP)
 LSCR = MAX_DC*MAXOP+MAXOP
@@ -105,8 +101,7 @@ LSCR = 0
 do IOPEN=MINOP,MAXOP
   if (mod(IOPEN-MS2,2) == 0) then
     IALPHA = (IOPEN+MS2)/2
-    L = 2*IOPEN+(IALPHA+1)*(IOPEN+1)
-    LSCR = max(L,LSCR)
+    LSCR = max(2*IOPEN+(IALPHA+1)*(IOPEN+1),LSCR)
   end if
 end do
 call mma_allocate(iSCR2,LSCR,Label='iSCR2')

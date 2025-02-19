@@ -53,10 +53,7 @@ do I=1,MX
   end if
 
   ! 2 :  CORRECT SPIN PROJECTION ?
-  NALPHA = 0
-  do J=1,NOPEN
-    NALPHA = NALPHA+IWORK(J)
-  end do
+  NALPHA = sum(IWORK(1:NOPEN))
 
   if ((2*NALPHA-NOPEN == MS2) .and. ((PSSIGN == Zero) .or. (IWORK(1) /= 0))) then
     if (IFLAG < 3) then
@@ -111,6 +108,7 @@ if ((IFLAG > 1) .and. (NTEST >= 5)) then
 end if
 
 return
+
 1010 format('0',2X,I3,' Unpaired electrons give ',I5,/,'           combinations with spin projection ',F12.7)
 1020 format('0',I5,2X,30I2,/,(1X,7X,30I2))
 

@@ -45,7 +45,7 @@ implicit none
 integer(kind=iwp), intent(in) :: IDC, ISGV(*), IASM, IBSM, IATP, IBTP
 integer(kind=iwp), intent(out) :: JATP(4), JBTP(4), JASM(4), JBSM(4), ISGN(4), ITRP(4), NPERM
 real(kind=wp), intent(in) :: PS, PL
-integer(kind=iwp) :: INEW, IPERM, ISET, KASM, KATP, KBSM, KBTP, KSIGN, KTRP, LPERM, LSIGN, LTRP, NTEST
+integer(kind=iwp) :: IPERM, ISET, KASM, KATP, KBSM, KBTP, KSIGN, KTRP, LPERM, LSIGN, LTRP, NTEST
 
 ! To eliminate some compiler warnings
 KASM = 0
@@ -120,11 +120,10 @@ do IPERM=1,4
 
   if (ISET == 1) then
     ! A new permutation was found, check and see if it was obtained previously
-    INEW = 1
     do LPERM=1,NPERM
-      if ((JATP(LPERM) == KATP) .and. (JASM(LPERM) == KASM) .and. (JBTP(LPERM) == KBTP) .and. (JBSM(LPERM) == KBSM)) INEW = 0
+      if ((JATP(LPERM) == KATP) .and. (JASM(LPERM) == KASM) .and. (JBTP(LPERM) == KBTP) .and. (JBSM(LPERM) == KBSM)) exit
     end do
-    if (INEW == 1) then
+    if (LPERM > NPERM) then
       ! The permutation was new, add it to the list
       NPERM = NPERM+1
       JASM(NPERM) = KASM

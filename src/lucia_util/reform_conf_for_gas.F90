@@ -25,16 +25,12 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: IBORB, IBEL, MXPORB, NEL, IWAY
 integer(kind=iwp), intent(inout) :: ICONF_GAS(MXPORB), ICONF(IBEL-1+NEL)
-integer(kind=iwp) :: IEL, NTEST
+integer(kind=iwp) :: NTEST
 
 if (IWAY == 1) then
-  do IEL=1,NEL
-    ICONF_GAS(IEL) = ICONF(IBEL-1+IEL)-IBORB+1
-  end do
+  ICONF_GAS(1:NEL) = ICONF(IBEL:IBEL+NEL-1)-IBORB+1
 else if (IWAY == 2) then
-  do IEL=1,NEL
-    ICONF(IBEL-1+IEL) = ICONF_GAS(IEL)+IBORB-1
-  end do
+  ICONF(IBEL:IBEL+NEL-1) = ICONF_GAS(1:NEL)+IBORB-1
 else
   write(u6,*) ' Problem in REFORM_CONF ..., IWAY = ',IWAY
   !stop ' Problem in REFORM_CONF ..., IWAY ='

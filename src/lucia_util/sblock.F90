@@ -46,10 +46,9 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,*), IBOFF, LUC, IRESTRICT, LUCBLK, ICBAT_RES, ICBAT_INI, ICBAT_END
 real(kind=wp), intent(inout) :: CB(*), HCB(*)
-integer(kind=iwp) :: DUM(1), I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, IDOH2, INTSCR, IOBSM, IOBTP, IOCTPA, IOCTPB, K12, &
-                     LSCR2, LSCR3, LZ, LZSCR, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, MXADKBLK, &
-                     MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBEL, NOCTPA, NOCTPB, &
-                     NTEST, NTTS
+integer(kind=iwp) :: DUM(1), I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, IDOH2, INTSCR, IOCTPA, IOCTPB, K12, LSCR2, LSCR3, &
+                     LZ, LZSCR, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, MXADKBLK, MXADKBLK_AS, &
+                     MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBEL, NOCTPA, NOCTPB, NTEST, NTTS
 integer(kind=iwp), allocatable :: CONSPA(:), CONSPB(:), H0SPC(:), I1(:), I2(:), I3(:), I4(:), STSTD(:), STSTS(:), SVST(:)
 integer(kind=iwp), allocatable, target :: CIOIO(:), SIOIO(:)
 integer(kind=iwp), pointer :: SCIOIO(:)
@@ -128,12 +127,7 @@ if (IPRCIX >= 3) write(u6,*) ' Largest block of strings with given symmetry and 
 MAXI = min(MXINKA,MXSTBL)
 MAXK = min(MXINKA,MXSTBL)
 ! Largest active orbital block belonging to given type and symmetry
-MXTSOB = 0
-do IOBTP=1,NGAS
-  do IOBSM=1,NSMOB
-    MXTSOB = max(MXTSOB,NOBPTS(IOBTP,IOBSM))
-  end do
-end do
+MXTSOB = max(0,maxval(NOBPTS(1:NGAS,1:NSMOB)))
 !write(u6,*) ' MXTSOB = ',MXTSOB
 ! Local scratch arrays for blocks of C and sigma
 !if (ISIMSYM == 0) then

@@ -24,29 +24,21 @@ integer(kind=iwp), intent(in) :: N1, N2, NKIN
 integer(kind=iwp), intent(inout) :: I1(NKIN,N1), I2(NKIN,N2)
 real(kind=wp), intent(inout) :: XI1(NKIN,N1), XI2(NKIN,N2)
 integer(kind=iwp), intent(out) :: NKOUT
-integer(kind=iwp) :: I, I1ACT, I2ACT, K
+integer(kind=iwp) :: I1ACT, I2ACT, K
 
 NKOUT = 0
 do K=1,NKIN
   I1ACT = 0
-  do I=1,N1
-    if (I1(K,I) /= 0) I1ACT = 1
-  end do
+  if (any(I1(K,:) /= 0)) I1ACT = 1
   I2ACT = 0
-  do I=1,N2
-    if (I2(K,I) /= 0) I2ACT = 1
-  end do
+  if (any(I2(K,:) /= 0)) I2ACT = 1
   if ((I1ACT == 1) .and. (I2ACT == 1)) then
     NKOUT = NKOUT+1
     if (NKOUT /= K) then
-      do I=1,N1
-        I1(NKOUT,I) = I1(K,I)
-        XI1(NKOUT,I) = XI1(K,I)
-      end do
-      do I=1,N2
-        I2(NKOUT,I) = I2(K,I)
-        XI2(NKOUT,I) = XI2(K,I)
-      end do
+      I1(NKOUT,:) = I1(K,:)
+      XI1(NKOUT,:) = XI1(K,:)
+      I2(NKOUT,:) = I2(K,:)
+      XI2(NKOUT,:) = XI2(K,:)
     end if
   end if
 end do

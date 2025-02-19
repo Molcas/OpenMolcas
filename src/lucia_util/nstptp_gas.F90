@@ -42,7 +42,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NGAS, ISPGRP(NGAS), NSMST, NSTSGP(NSMST,*), IGRP
 integer(kind=iwp), intent(inout) :: NSTSSPGP(NSMST,IGRP)
 integer(kind=iwp), intent(out) :: MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
-integer(kind=iwp) :: IGAS, ISM, ISM1(MXPNSMST), ISM2(MXPNSMST), ISM_IGAS, ISM_IGASM1, ISTRSM, ISYM, MNSM(MXPNGAS), MSM1(MXPNSMST), &
+integer(kind=iwp) :: IGAS, ISM, ISM1(MXPNSMST), ISM2(MXPNSMST), ISM_IGAS, ISM_IGASM1, ISYM, MNSM(MXPNGAS), MSM1(MXPNSMST), &
                      MSM2(MXPNSMST), MXSM(MXPNGAS), NGASL, NTEST
 
 NTEST = 0
@@ -75,15 +75,9 @@ do IGAS=1,NGAS
   if (MXSM(IGAS) /= MNSM(IGAS)) NGASL = IGAS
 end do
 ! NSMCLSE
-NSMCLSE = 1
-do IGAS=1,NGAS
-  NSMCLSE = (MXSM(IGAS)-MNSM(IGAS)+1)*NSMCLSE
-end do
+NSMCLSE = product(MXSM(1:NGAS)-MNSM(1:NGAS)+1)
 ! NSMCLSE1
-NSMCLSE1 = 1
-do IGAS=1,NGASL-1
-  NSMCLSE1 = (MXSM(IGAS)-MNSM(IGAS)+1)*NSMCLSE1
-end do
+NSMCLSE1 = NSMCLSE
 do IGAS=1,NGAS
   ! In ISM1, the number of strings per symmetry for the first
   ! IGAS-1 spaces are given, obtain in ISM2 the number of strings per sym
@@ -112,12 +106,8 @@ do IGAS=1,NGAS
 end do !loop over IGAS
 NSTSSPGP(:,IGRP) = ISM2(1:NSMST)
 
-MXNSTR = 0
-NSMCLS = 0
-do ISTRSM=1,NSMST
-  MXNSTR = max(MXNSTR,NSTSSPGP(ISTRSM,IGRP))
-  NSMCLS = max(NSMCLS,MSM2(ISTRSM))
-end do
+MXNSTR = max(0,maxval(NSTSSPGP(:,IGRP)))
+NSMCLS = max(0,maxval(MSM2(1:NSMST)))
 
 if (NTEST >= 10) then
   write(u6,*) ' Number of strings per symmetry for supergroup',IGRP

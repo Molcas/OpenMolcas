@@ -51,16 +51,14 @@ integer(kind=iwp), intent(in) :: LI1, IORB, NIORB, IAC, JORB, NJORB, JAC, NKEL, 
 integer(kind=iwp), intent(out) :: NK, I1(LI1,NIORB*NJORB), IEND
 real(kind=wp), intent(out) :: XI1S(LI1,NIORB*NJORB)
 real(kind=wp), intent(in) :: SCLFAC
-integer(kind=iwp) :: I, IACT, IDIAG, IEL, IIEL, IIELMAX, IIELMIN, IIORB, IJ, IJOFF, ILEX, ILEX0, ILEX1, ILEX2, IORB1, IORB2, &
-                     IORBMAX, IORBMIN, ISCR(1000), JEL, JJ, JJEL, JJELMAX, JJELMIN, JJORB, JORB1, JORB2, JORBMAX, JORBMIN, KEL, &
-                     KEND, KKORB, KKSTR, NTEST
+integer(kind=iwp) :: IACT, IDIAG, IEL, IIEL, IIELMAX, IIELMIN, IIORB, IJ, IJOFF, ILEX, ILEX0, ILEX1, ILEX2, IORB1, IORB2, IORBMAX, &
+                     IORBMIN, ISCR(1000), JEL, JJ, JJEL, JJELMAX, JJELMIN, JJORB, JORB1, JORB2, JORBMAX, JORBMIN, KEL, KEND, &
+                     KKORB, KKSTR, NTEST
 real(kind=wp) :: SIGNIJ, SIGNJ, SGN, SGNARR(0:63)
 
 !PAM2009 Array of values, replacing expressions such as (-One)**INT:
-do I=0,62,2
-  SGNARR(I) = One
-  SGNARR(I+1) = -One
-end do
+SGNARR(0::2) = One
+SGNARR(1::2) = -One
 
 ! Some dummy initializations
 SGN = Zero

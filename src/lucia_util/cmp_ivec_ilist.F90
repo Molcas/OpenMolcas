@@ -25,16 +25,17 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: LLIST, IVEC(LLIST), NLIST, ILIST(LLIST,NLIST)
 integer(kind=iwp), intent(out) :: INUM
-integer(kind=iwp) :: IELMNT, IFOUND, JLIST, NTEST
+integer(kind=iwp) :: IELMNT, JLIST, NTEST
 
 INUM = 0
 do JLIST=1,NLIST
-  IFOUND = 1
   do IELMNT=1,LLIST
-    if (IVEC(IELMNT) /= ILIST(IELMNT,JLIST)) IFOUND = 0
+    if (IVEC(IELMNT) /= ILIST(IELMNT,JLIST)) exit
   end do
-  if (IFOUND == 1) INUM = JLIST
-  if (INUM /= 0) exit
+  if (IELMNT > LLIST) then
+    INUM = JLIST
+    exit
+  end if
 end do
 
 NTEST = 0

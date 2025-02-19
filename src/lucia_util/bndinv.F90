@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine BNDINV(A,EL,N,DETERM,EPSIL,ITEST,NSIZE)
+subroutine BNDINV(A,EL,N,DETERM,EPSIL,ITEST)
 ! MATRIX INVERSION SUBROUTINE
 ! FROM "DLYTAP".
 
@@ -17,9 +17,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: N, NSIZE
-real(kind=wp), intent(inout) :: A(NSIZE,N)
-real(kind=wp), intent(out) :: EL(NSIZE,N), DETERM
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(inout) :: A(N,N)
+real(kind=wp), intent(out) :: EL(N,N), DETERM
 real(kind=wp), intent(in) :: EPSIL
 integer(kind=iwp), intent(out) :: ITEST
 integer(kind=iwp) :: I, I1, J, J1, K, M, N1
@@ -39,10 +39,7 @@ end if
 !call DVCHK(K000FX)
 
 ! SET EL = IDENTITY MATRIX
-EL(1:N,:)= Zero
-do I=1,N
-  EL(I,I) = One
-end do
+call unitmat(EL,N)
 
 ! TRIANGULARIZE A, FORM EL
 
@@ -105,10 +102,7 @@ do J1=1,N
   A(J,J) = One/A(J,J)
   I = J-1
   do I1=2,J
-    D = Zero
-    do K=I+1,J
-      D = D+A(I,K)*A(K,J)
-    end do
+    D = sum(A(I,I+1:J)*A(I+1:J,J))
     A(I,J) = -D/A(I,I)
     I = I-1
   end do
@@ -130,10 +124,7 @@ end do
 M = 1
 do I=1,N
   do J=1,N
-    D = Zero
-    do K=M,N
-      D = D+A(I,K)*EL(K,J)
-    end do
+    D = sum(A(I,M:N)*EL(M:N,J))
     EL(I,J) = D
   end do
   M = M+1
@@ -145,11 +136,7 @@ end do
 !end if
 
 ! RECOPY EL TO A
-do I=1,N
-  do J=1,N
-    A(I,J) = EL(I,J)
-  end do
-end do
+A(:,:) = EL(:,:)
 ITEST = 0
 !126 if (INDSNL == 1) call SLITE(2)
 !126 if (INDSNL == 1) ISL2 = 1

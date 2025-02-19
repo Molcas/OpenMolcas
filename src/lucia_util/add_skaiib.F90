@@ -53,7 +53,7 @@ do ICBL=1,NBLK
         do IB=ICOFF,ICEND
           ! Address of S(Ka,i,Ib)
           IADR = IADR+ICONST
-          SB(Ib,IROW) = SB(Ib,IROW)+S*SKAIIB(IADR)
+          SB(IB,IROW) = SB(IB,IROW)+S*SKAIIB(IADR)
         end do
       end if
     end do

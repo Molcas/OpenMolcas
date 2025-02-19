@@ -53,7 +53,7 @@ end do
 !
 !  IMIN = NSMST
 !  do ISM=NSMST,1,-1
-!   if (LSMGP(ISM,JGRP) > 0) IMIN = ISM
+!    if (LSMGP(ISM,JGRP) > 0) IMIN = ISM
 !  end do
 !  MNVAL(JGRP) = IMIN
 !end do

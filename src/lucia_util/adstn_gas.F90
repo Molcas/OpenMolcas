@@ -104,10 +104,7 @@ if (NKSTR /= 0) then
     if (NELFGS(IGAS) > 0) NGASL = IGAS
   end do
   ! Number of electrons before active type
-  NELB = 0
-  do IGAS=1,IOBTP-1
-    NELB = NELB+NELFGS(IGAS)
-  end do
+  NELB = sum(NELFGS(1:IOBTP-1))
   ! Number of electrons in active space
   NACGSOB = NOBPT(IOBTP)
 
@@ -136,9 +133,7 @@ if (NKSTR /= 0) then
   NSTRINT = 0
   do
     if (IFIRST == 1) then
-      do IGAS=1,NGASL-1
-        ISMFGS(IGAS) = MNVAL(IGAS)
-      end do
+      ISMFGS(1:NGASL-1) = MNVAL(1:NGASL-1)
     else
       ! Next distribution of symmetries in NGAS -1
       call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
@@ -222,9 +217,7 @@ if (NKSTR /= 0) then
   KSTRBS = 1
   do
     if (KFIRST == 1) then
-      do IGAS=1,NGASL-1
-        ISMFGS(IGAS) = MNVAL(IGAS)
-      end do
+      ISMFGS(1:NGASL-1) = MNVAL(1:NGASL-1)
     else
       ! Next distribution of symmetries in NGAS -1
       call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
@@ -245,9 +238,7 @@ if (NKSTR /= 0) then
     !write(u6,*) ' ngasl istsmm1 ksm',ngasl,istsmm1,ksm
     ISMFGS(NGASL) = Mul(ISTSMM1,KSM)
 
-    do IGAS=NGASL+1,NGAS
-      ISMFGS(IGAS) = 1
-    end do
+    ISMFGS(NGASL+1:NGAS) = 1
     if (NTEST >= 200) then
       write(u6,*) ' Next symmetry distribution'
       call IWRTMA(ISMFGS,1,NGAS,1,NGAS)

@@ -21,11 +21,9 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: NROW, NCOL, INMAT(NROW,NCOL), IROW
 integer(kind=iwp), intent(out) :: IOUTVEC(NCOL)
-integer(kind=iwp) :: ICOL, NTEST
+integer(kind=iwp) :: NTEST
 
-do ICOL=1,NCOL
-  IOUTVEC(ICOL) = INMAT(IROW,ICOL)
-end do
+IOUTVEC(:) = INMAT(IROW,:)
 
 NTEST = 0
 if (NTEST >= 100) then

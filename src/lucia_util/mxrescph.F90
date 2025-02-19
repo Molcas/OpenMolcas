@@ -94,10 +94,7 @@ do IAORC=1,2
           end if
 
           if (KATP > 0) then
-            MXKA = 0
-            do KSM=1,NSMST
-              MXKA = max(MXKA,NSTFSMSPGP(KSM,KATP))
-            end do
+            MXKA = max(0,maxval(NSTFSMSPGP(1:NSMST,KATP)))
             if (NTEST >= 100) write(u6,*) ' MXKA = ',MXKA
             MXKAO = MXKA
             if ((MXPKA > 0) .and. (MXKA > MXPKA)) MXKA = MXPKA

@@ -24,7 +24,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NROWI, NROWO, IROWI1, NGCOL, IGAT(NGCOL)
 real(kind=wp), intent(in) :: CIN(NROWI,*), GATSGN(NGCOL)
 real(kind=wp), intent(_OUT_) :: COUT(NROWO,NGCOL)
-integer(kind=iwp) :: IG, IGFRM, IR, NTEST
+integer(kind=iwp) :: IG, IGFRM, NTEST
 real(kind=wp) :: SGN
 
 !write(u6,*) ' MATCG NROWI,NROWO,IROWI1,NGCOL'
@@ -32,15 +32,11 @@ real(kind=wp) :: SGN
 do IG=1,NGCOL
   !write(u6,*) ' igat,sign ',IGAT(IG),GATSGN(IG)
   if (IGAT(IG) == 0) then
-    do IR=1,NROWO
-      COUT(IR,IG) = Zero
-    end do
+    COUT(:,IG) = Zero
   else
     IGFRM = IGAT(IG)
     SGN = GATSGN(IG)
-    do IR=1,NROWO
-      COUT(IR,IG) = SGN*CIN(IROWI1-1+IR,IGFRM)
-    end do
+    COUT(:,IG) = SGN*CIN(IROWI1:IROWI1+NROWO-1,IGFRM)
   end if
 end do
 

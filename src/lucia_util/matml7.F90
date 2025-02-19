@@ -85,16 +85,12 @@ else
       ! Initialize with FACTORC*C(I,J) + FACTORAB*A(I,1)*B(1,J)
       if (NBROW >= 1) then
         B1J = FACTORAB*B(1,J)
-        do I=1,NCROW
-          C(I,J) = FACTORC*C(I,J)+B1J*A(I,1)
-        end do
+        C(:,J) = FACTORC*C(:,J)+B1J*A(1:NCROW,1)
       end if
       ! and the major part
       do K=2,NBROW
         BKJ = FACTORAB*B(K,J)
-        do I=1,NCROW
-          C(I,J) = C(I,J)+BKJ*A(I,K)
-        end do
+        C(:,J) = C(:,J)+BKJ*A(1:NCROW,K)
       end do
     end do
 
@@ -107,10 +103,7 @@ else
 
     do J=1,NCCOL
       do I=1,NCROW
-        T = Zero
-        do K=1,NBROW
-          T = T+A(K,I)*B(K,J)
-        end do
+        T = sum(A(1:NBROW,I)*B(1:NBROW,J))
         C(I,J) = FACTORC*C(I,J)+FACTORAB*T
       end do
     end do
@@ -124,16 +117,12 @@ else
       ! Initialization
       if (NBCOL >= 1) then
         BJ1 = FACTORAB*B(J,1)
-        do I=1,NCROW
-          C(I,J) = FACTORC*C(I,J)+BJ1*A(I,1)
-        end do
+        C(:,J) = FACTORC*C(:,J)+BJ1*A(1:NCROW,1)
       end if
       ! And the rest
       do K=2,NBCOL
         BJK = FACTORAB*B(J,K)
-        do I=1,NCROW
-          C(I,J) = C(I,J)+BJK*A(I,K)
-        end do
+        C(:,J) = C(:,J)+BJK*A(1:NCROW,K)
       end do
     end do
   end if
@@ -149,9 +138,7 @@ if (ITRNSP == 3) then
   do I=1,NCROW
     do K=1,NAROW
       AKI = FACTORAB*A(K,I)
-      do J=1,NBROW
-        C(I,J) = C(I,J)+AKI*B(J,K)
-      end do
+      C(I,1:NBROW) = C(I,1:NBROW)+AKI*B(:,K)
     end do
   end do
 end if

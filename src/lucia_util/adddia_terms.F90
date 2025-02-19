@@ -38,7 +38,7 @@ real(kind=wp), intent(in) :: CVEC(*), H(NORB), RJ(NTOOB,NTOOB), ECORE, FACTOR
 real(kind=wp), intent(inout) :: SVEC(*), RK(NTOOB,NTOOB)
 real(kind=wp), intent(out) :: XB(NORB)
 real(kind=wp), intent(_OUT_) :: RJKAA(*)
-integer(kind=iwp) :: I12, IA, IAEL, IB, IBEL, IDET, IDUM(1), IEL, IORB, JEL, NASTR1, NBSTR1, NIA, NIB, NTEST
+integer(kind=iwp) :: I12, IA, IAEL, IB, IBEL, IDET, IDUM(1), IEL, JEL, NASTR1, NBSTR1, NIA, NIB, NTEST
 real(kind=wp) :: EAA, EB, HB, RJBB, X
 
 NTEST = 0
@@ -126,9 +126,7 @@ do IB=1,NIB
         RJBB = RJBB+RK(IBSTR(JEL,IB),IBEL)
       end do
 
-      do IORB=1,NORB
-        XB(IORB) = XB(IORB)+RJ(IORB,IBEL)
-      end do
+      XB(:) = XB(:)+RJ(1:NORB,IBEL)
     end if
   end do
 

@@ -39,8 +39,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(_OUT_) :: XINT(*)
 integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
-integer(kind=iwp) :: I, IINT, IITP, IJ, IJKL, IL, ILKJ, IMIN, IOFF, IORB, J, JJTP, JMIN, JOFF, JORB, K, KJ, KKTP, KL, KOFF, KORB, &
-                     L, LLTP, LOFF, LORB, NI, NIK, NJ, NJL, NK, NL, NTEST
+integer(kind=iwp) :: I, IINT, IJ, IJKL, IL, ILKJ, IMIN, IOFF, IORB, J, JMIN, JOFF, JORB, K, KJ, KL, KOFF, KORB, L, LOFF, LORB, NI, &
+                     NIK, NJ, NJL, NK, NL, NTEST
 
 NTEST = 0
 
@@ -76,25 +76,13 @@ else
   LORB = NTOOBS(LSM)
 end if
 ! Offsets relative to start of all orbitals, symmetry ordered
-IOFF = IBSO(ISM)
-do IITP=1,ITP-1
-  IOFF = IOFF+NOBPTS(IITP,ISM)
-end do
+IOFF = IBSO(ISM)+sum(NOBPTS(1:ITP-1,ISM))
 
-JOFF = IBSO(JSM)
-do JJTP=1,JTP-1
-  JOFF = JOFF+NOBPTS(JJTP,JSM)
-end do
+JOFF = IBSO(JSM)+sum(NOBPTS(1:JTP-1,JSM))
 
-KOFF = IBSO(KSM)
-do KKTP=1,KTP-1
-  KOFF = KOFF+NOBPTS(KKTP,KSM)
-end do
+KOFF = IBSO(KSM)+sum(NOBPTS(1:KTP-1,KSM))
 
-LOFF = IBSO(LSM)
-do LLTP=1,LTP-1
-  LOFF = LOFF+NOBPTS(LLTP,LSM)
-end do
+LOFF = IBSO(LSM)+sum(NOBPTS(1:LTP-1,LSM))
 
 ! Collect Coulomb terms
 

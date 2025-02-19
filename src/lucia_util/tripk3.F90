@@ -39,9 +39,7 @@ JOFF = 0
 if (IWAY == 1) then
   IJ = 0
   do J=1,NDIM
-    do I=J,NDIM
-      APAK(IJ+I) = AUTPAK(I,J)
-    end do
+    APAK(IJ+J:IJ+NDIM) = AUTPAK(J:NDIM,J)
     IJ = IJ+NDIM-J
   end do
 end if
@@ -59,6 +57,8 @@ if (IWAY == 2) then
         AUTPAK(J,I) = SGN*APAK(IJ+I)
         AUTPAK(I,J) = APAK(IJ+I)
       end do
+      AUTPAK(J,J+1:NDIM) = SGN*APAK(IJ+J+1:IJ+NDIM)
+      AUTPAK(J:NDIM,J) = APAK(IJ+J:IJ+NDIM)
       IJ = IJ+NDIM-J
     end do
   else if (IMET == 2) then
@@ -87,10 +87,8 @@ if (IWAY == 2) then
             IOFF2 = IOFF
           end if
           IJOFF = (J-1)*MATDIM-J*(J-1)/2
-          do I=IOFF2,IEND
-            AUTPAK(J,I) = SGN*APAK(IJOFF+I)
-            AUTPAK(I,J) = APAK(IJOFF+I)
-          end do
+          AUTPAK(J,IOFF2:IEND) = SGN*APAK(IJOFF+IOFF2:IJOFF+IEND)
+          AUTPAK(IOFF2:IEND,J) = APAK(IJOFF+IOFF2:IJOFF+IEND)
         end do
         ! End of loop over I and J
       end do

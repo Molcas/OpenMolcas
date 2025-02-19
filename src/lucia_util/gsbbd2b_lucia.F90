@@ -160,12 +160,10 @@ do IJTYP=1,NIJTYP
       ! Obtain C(ka,J,JB) for Ka in batch
       do JJ=1,NJ
         call GET_CKAJJB(CB,NJ,NJA,CJRES,LKABTC,NJB,JJ,I1(KABOT+(JJ-1)*NKASTR),XI1S(KABOT+(JJ-1)*NKASTR))
-
       end do
       ! Obtain S(ka,i,Ib) for Ka in batch
       do II=1,NI
         call GET_CKAJJB(SB,NI,NIA,SIRES,LKABTC,NIB,II,I3(KABOT+(II-1)*NKASTR),XI3S(KABOT+(II-1)*NKASTR))
-
       end do
 
       do KLTYP=1,NKLTYP

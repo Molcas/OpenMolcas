@@ -41,7 +41,7 @@ integer(kind=iwp) :: IEL, IGAS, IGRP, IORB, ISTRIN, ITP, LENGTH, LSTRIN, NSTRIN
 
 ! Start of string information
 
-!  Offsets for occupation and reorder array of strings
+! Offsets for occupation and reorder array of strings
 
 do IGRP=1,NGRP
   NSTRIN = NSTFGP(IGRP)

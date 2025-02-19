@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NROWI, NROWO, IROWO1, NGCOL, ISCA(NGCOL)
 real(kind=wp), intent(in) :: CIN(NROWI,*), SCASGN(*)
 real(kind=wp), intent(inout) :: COUT(NROWO,*)
-integer(kind=iwp) :: IC, ICEXP, IR, MAXCOL, NTEST
+integer(kind=iwp) :: IC, ICEXP, MAXCOL, NTEST
 real(kind=wp) :: SGN
 
 MAXCOL = 0
@@ -29,9 +29,7 @@ do IC=1,NGCOL
     ICEXP = ISCA(IC)
     MAXCOL = max(MAXCOL,ICEXP)
     SGN = SCASGN(IC)
-    do IR=1,NROWI
-      COUT(IR+IROWO1-1,ICEXP) = COUT(IR+IROWO1-1,ICEXP)+SGN*CIN(IR,IC)
-    end do
+    COUT(IROWO1:IROWO1+NROWI-1,ICEXP) = COUT(IROWO1:IROWO1+NROWI-1,ICEXP)+SGN*CIN(1:NROWI,IC)
   end if
 end do
 

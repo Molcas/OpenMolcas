@@ -49,7 +49,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NSMOB, MXPOBS, MXPNGAS, NGAS, NGSOB(MXPOBS,MXPNGAS), NGSOBT(MXPNGAS), NTOOBS(NSMOB), NTOOB, IPRNT
 integer(kind=iwp), intent(out) :: IREOST(NTOOB), IREOTS(NTOOB), ISFTO(NTOOB), IBSO(NSMOB), NOBPTS(MXPNGAS,MXPOBS), &
                                   IOBPTS(MXPNGAS,MXPOBS), ISFSO(NTOOB), NOBPT(MXPNGAS)
-integer(kind=iwp) :: IADD, IBSSM, IGAS, IOFF, IORB, ISM, ISTOFF, ISYM, ITSOFF, JGAS, NPREV, NTEST
+integer(kind=iwp) :: IADD, IBSSM, IGAS, IOFF, IORB, ISM, ISTOFF, ISYM, ITSOFF, NPREV, NTEST
 
 ! ==========================
 ! Note on order of orbitals
@@ -89,10 +89,7 @@ do IGAS=1,NGAS
     else
       IBSSM = IBSSM+NTOOBS(ISYM-1)
     end if
-    NPREV = 0
-    do JGAS=1,IGAS-1
-      NPREV = NPREV+NGSOB(ISYM,JGAS)
-    end do
+    NPREV = sum(NGSOB(ISYM,1:IGAS-1))
     IADD = 0
     NOBPTS(IGAS,ISYM) = NGSOB(ISYM,IGAS)
     IOBPTS(IGAS,ISYM) = ITSOFF
@@ -114,10 +111,8 @@ end do
 ISTOFF = 1
 do ISYM=1,NSMOB
   do IGAS=1,NGAS
-    do IORB=ISTOFF,ISTOFF+NGSOB(ISYM,IGAS)-1
-      ISFSO(IORB) = ISYM
-      !ITFSO(IORB) = IGAS
-    end do
+    ISFSO(ISTOFF:ISTOFF+NGSOB(ISYM,IGAS)-1) = ISYM
+    !ITFSO(ISTOFF:ISTOFF+NGSOB(ISYM,IGAS)-1) = IGAS
     ISTOFF = ISTOFF+NGSOB(ISYM,IGAS)
   end do
 end do

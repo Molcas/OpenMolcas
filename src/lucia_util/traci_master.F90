@@ -125,10 +125,7 @@ IDISK(LUDIA) = 0
 do JROOT=1,NROOT
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
   if (NTEST >= 50) then
-    NUM_ELE = 0
-    do IREC=1,NREC
-      NUM_ELE = NUM_ELE+LREC(IREC)
-    end do
+    NUM_ELE = sum(LREC(1:NREC))
     write(u6,*) 'CI-Vector read from disk for root = ',JROOT
     call WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
   end if

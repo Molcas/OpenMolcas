@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NELMNT, MNVAL(NELMNT), MXVAL(NELMNT)
 integer(kind=iwp), intent(inout) :: INUM(NELMNT)
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: IPLACE, JPLACE, NTEST
+integer(kind=iwp) :: IPLACE, NTEST
 
 NTEST = 0
 if (NTEST /= 0) then
@@ -47,9 +47,7 @@ else
       NONEW = 0
       exit
     else if (IPLACE < NELMNT) then
-      do JPLACE=1,IPLACE
-        INUM(JPLACE) = MNVAL(JPLACE)
-      end do
+      INUM(1:IPLACE) = MNVAL(1:IPLACE)
     else if (IPLACE == NELMNT) then
       NONEW = 1
       exit

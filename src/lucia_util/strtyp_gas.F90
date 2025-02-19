@@ -27,11 +27,10 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IPRNT
-integer(kind=iwp) :: I_AM_OKAY, I_DIM, IADD, IBASSPC(1), IBTYP, ICISPC, IDEL, IEL, IGAS, IGRP, IITYPE, IOCCLS(1), IOCTYP(MXPSTT), &
-                     IOELMX, IOFF, IPHGAS1(NGAS), IPHGASL, IRED, IREOSPGP(MXPSTT), ISCR(MXPSTT), ISPGP, ISPGP_N, ISPGP_O, ITP, &
-                     ITYP, JGAS, JGRP, MAXI, MAXSUB, MINI, MNA, MNA1, MNAB, MNAL, MNB, MNB1, MNBL, MNELFGP(NGAS), MXA, MXA1, MXAB, &
-                     MXAL, MXB, MXB1, MXBL, MXELFGP(NGAS), NABEL, NAEL, NBEL, NEL, NELEC_REF, NOCCLS, NONEW, NPHGAS, NSPGP, &
-                     NSPGP_TOT, NTEST, NTESTL
+integer(kind=iwp) :: I_AM_OKAY, I_DIM, IADD, IBASSPC(1), IBTYP, IDEL, IEL, IGAS, IGRP, IITYPE, IOCCLS(1), IOCTYP(MXPSTT), IOELMX, &
+                     IOFF, IPHGAS1(NGAS), IPHGASL, IRED, IREOSPGP(MXPSTT), ISCR(MXPSTT), ISPGP, ISPGP_N, ITYP, JGAS, JGRP, MAXSUB, &
+                     MNA, MNA1, MNAB, MNAL, MNB, MNB1, MNBL, MNELFGP(NGAS), MXA, MXA1, MXAB, MXAL, MXB, MXB1, MXBL, MXELFGP(NGAS), &
+                     NABEL, NAEL, NBEL, NEL, NELEC_REF, NOCCLS, NONEW, NPHGAS, NSPGP, NSPGP_TOT, NTEST, NTESTL
 integer(kind=iwp), external :: IBINOM
 
 NTESTL = 0
@@ -41,16 +40,9 @@ NTEST = max(IPRNT,NTESTL)
 
 !write(u6,*) ' NCISPC ',NCISPC
 do IGAS=1,NGAS
-  MINI = IGSOCCX(IGAS,1,1)
-  MAXI = IGSOCCX(IGAS,2,1)
-  !write(u6,*) ' MINI and MAXI for ISPC = 1 ',MINI,MAXI
-  do ICISPC=2,NCISPC
-    MINI = min(MINI,IGSOCCX(IGAS,1,ICISPC))
-    MAXI = max(MAXI,IGSOCCX(IGAS,2,ICISPC))
-    !write(u6,*) ' MINI and MAXI for ISPC =  ',ICISPC,MINI,MAXI
-  end do
-  IGSOCC(IGAS,1) = MINI
-  IGSOCC(IGAS,2) = MAXI
+  IGSOCC(IGAS,1) = minval(IGSOCCX(IGAS,1,1:NCISPC))
+  IGSOCC(IGAS,2) = maxval(IGSOCCX(IGAS,2,1:NCISPC))
+  !write(u6,*) ' MINI and MAXI for ISPC = 1 ',IGSOCC(IGAS,1),IGSOCC(IGAS,2)
 end do
 
 if (NTEST >= 5) then
@@ -82,32 +74,34 @@ end do
 IPHGASL = 0
 NPHGAS = 0
 IPHGAS1(:) = 0
-do IGAS=1,NGAS
-  !if (IUSE_PH == 1) then
-  !  ! P/H separation for compound space
-  !  if (MNGSOC(IGAS) > NOBPT(IGAS)) then
-  !    IPHGAS(IGAS) = 2
-  !    IPHGASL = IGAS
-  !    NPHGAS = NPHGAS+1
-  !  else
-  !    IPHGAS(IGAS) = 1
-  !  end if
-  !  ! P/H separation for initial space
-  !  if (IGAS == 1) then
-  !    MIN_OC1 = IGSOCCX(IGAS,1,1)
-  !  else
-  !    MIN_OC1 = IGSOCCX(IGAS,1,1)-IGSOCCX(IGAS-1,2,1)
-  !  end if
-  !  if (MIN_OC1 > NOBPT(IGAS)) then
-  !    IPHGAS1(IGAS) = 2
-  !  else
-  !    IPHGAS1(IGAS) = 1
-  !  end if
-  !else if (IUSE_PH == 0) then
-  IPHGAS(IGAS) = 1
-  IPHGAS1(IGAS) = 1
-  !end if
-end do
+!do IGAS=1,NGAS
+!  if (IUSE_PH == 1) then
+!    ! P/H separation for compound space
+!    if (MNGSOC(IGAS) > NOBPT(IGAS)) then
+!      IPHGAS(IGAS) = 2
+!      IPHGASL = IGAS
+!      NPHGAS = NPHGAS+1
+!    else
+!      IPHGAS(IGAS) = 1
+!    end if
+!    ! P/H separation for initial space
+!    if (IGAS == 1) then
+!      MIN_OC1 = IGSOCCX(IGAS,1,1)
+!    else
+!      MIN_OC1 = IGSOCCX(IGAS,1,1)-IGSOCCX(IGAS-1,2,1)
+!    end if
+!    if (MIN_OC1 > NOBPT(IGAS)) then
+!      IPHGAS1(IGAS) = 2
+!    else
+!      IPHGAS1(IGAS) = 1
+!    end if
+!  else if (IUSE_PH == 0) then
+!    IPHGAS(IGAS) = 1
+!    IPHGAS1(IGAS) = 1
+!  end if
+!end do
+IPHGAS(1:NGAS) = 1
+IPHGAS1(1:NGAS) = 1
 ! Large number of particle and hole orbitals
 !MXTSOB_P = 0
 !MXTSOB_H = 0
@@ -370,10 +364,8 @@ NELFTP(6) = NBEL-2
 !  NELFTP(10) = NBEL+2
 !end if
 ! Can easily be extended to relativistic case !!
-do ITP=1,NSTTYP
-  NOCTYP(ITP) = 0
-  NSPGPFTP(ITP) = 0
-end do
+NOCTYP(1:NSTTYP) = 0
+NSPGPFTP(1:NSTTYP) = 0
 
 ! Loop over types, i.e.  given number of electrons
 
@@ -400,9 +392,7 @@ do ITYP=1,NSTTYP
     IDEL = NELEC(ITYP)-NELEC_REF
     !write(u6,*) '  GASSPC : ITYP IDEL ',ITYP,IDEL
     ! Initial type of strings, relative to offset for given group
-    do IGAS=1,NGAS
-      IOCTYP(IGAS) = 1
-    end do
+    IOCTYP(1:NGAS) = 1
     NSPGP = 0
     IBSPGPFTP(ITYP) = IOFF
     if (NELEC(ITYP) < 0) then
@@ -493,9 +483,7 @@ do ITYP=1,NSTTYP
           ! passed !!!
           NSPGP = NSPGP+1
           ! Copy supergroup to ISPGPFTP with absolute group numbers
-          do IGAS=1,NGAS
-            ISPGPFTP(IGAS,IOFF-1+NSPGP) = IOCTYP(IGAS)+IBGPSTR(IGAS)-1
-          end do
+          ISPGPFTP(1:NGAS,IOFF-1+NSPGP) = IOCTYP(1:NGAS)+IBGPSTR(1:NGAS)-1
         end if
 
       end if
@@ -540,12 +528,9 @@ do ITYP=1,NSTTP
   !write(u6,*) ' IREO array'
   !call IWRTMA(IREOSPGP,1,NSPGP,1,NSPGP)
   ! And reorder the definition of supergroups
-  do ISPGP=1,NSPGP
-    NELFSPGP(1:NGAS,ISPGP) = ISPGPFTP(1:NGAS,ISPGP+IBTYP-1)
-  end do
+  NELFSPGP(1:NGAS,1:NSPGP) = ISPGPFTP(1:NGAS,IBTYP:IBTYP+NSPGP-1)
   do ISPGP_N=1,NSPGP
-    ISPGP_O = IREOSPGP(ISPGP_N)
-    ISPGPFTP(1:NGAS,ISPGP_N+IBTYP-1) = NELFSPGP(1:NGAS,ISPGP_O)
+    ISPGPFTP(1:NGAS,ISPGP_N+IBTYP-1) = NELFSPGP(1:NGAS,IREOSPGP(ISPGP_N))
   end do
 
 end do

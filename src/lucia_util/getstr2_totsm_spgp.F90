@@ -125,9 +125,7 @@ IFIRST = 1
 ISTRBS = 1
 do
   if (IFIRST == 1) then
-    do IGAS=1,NGASL-1
-      ISMFGS(IGAS) = MNVAL(IGAS)
-    end do
+    ISMFGS(1:NGASL-1) = MNVAL(1:NGASL-1)
   else
     ! Next distribution of symmetries in NGAS -1
     call NXTNUM3(ISMFGS,NGASL-1,MNVAL,MXVAL,NONEW)
@@ -146,9 +144,7 @@ do
   ! required sym of SPACE NGASL
   ISMFGS(NGASL) = Mul(ISTSMM1,ISPGRPSM)
 
-  do IGAS=NGASL+1,NGAS
-    ISMFGS(IGAS) = 1
-  end do
+  ISMFGS(NGASL+1:NGAS) = 1
   if (NTEST >= 200) then
     write(u6,*) ' Next symmetry distribution'
     call IWRTMA(ISMFGS,1,NGAS,1,NGAS)

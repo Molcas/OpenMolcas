@@ -31,25 +31,19 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(inout) :: IEL(NGAS), ISPGP
 integer(kind=iwp), intent(in) :: IWAY
-integer(kind=iwp) :: IEQUAL, IGAS, JSPGP, NTEST
+integer(kind=iwp) :: IGAS, JSPGP, NTEST
 
 if (IWAY == 1) then
   ! Occupation => Number
-  ISPGP = -1
   do JSPGP=1,NTSPGP
-    if (ISPGP == -1) then
-      IEQUAL = 1
-      do IGAS=1,NGAS
-        if (NELFSPGP(IGAS,JSPGP) /= IEL(IGAS)) IEQUAL = 0
-      end do
-      if (IEQUAL == 1) ISPGP = JSPGP
+    if (all(NELFSPGP(1:NGAS,JSPGP) /= IEL(:))) then
+      ISPGP = JSPGP
+      exit
     end if
   end do
 else if (IWAY == 2) then
   ! Number => Occupation
-  do IGAS=1,NGAS
-    IEL(IGAS) = NELFSPGP(IGAS,ISPGP)
-  end do
+  IEL(:) = NELFSPGP(1:NGAS,ISPGP)
 end if
 
 NTEST = 0

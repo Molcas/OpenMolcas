@@ -27,7 +27,7 @@ implicit none
 real(kind=wp), intent(inout) :: SKII(*), XIJKL(*)
 integer(kind=iwp), intent(in) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD, IROUTE
 real(kind=wp), intent(in) :: CKJJ(*), XKBIB(MAXK,*), XKBJB(MAXK,*), FACS
-integer(kind=iwp) :: I, IB, ICOFF, IKINTOF, IMAX, INTOF, ISOFF, J, JB, JKINTOF, K, KB, KK, L, LL, NTEST
+integer(kind=iwp) :: IB, ICOFF, IKINTOF, IMAX, INTOF, ISOFF, JB, JKINTOF, K, KB, KK, L, LL, NTEST
 real(kind=wp) :: FACTOR, SGNK, SGNL, XIJILS(MXPTSOB)
 
 ! To get rid of annoying and incorrect compiler warnings
@@ -78,19 +78,13 @@ if (IROUTE == 3) then
                 IMAX = K
                 JKINTOF = INTOF+(K-1)*NJ
                 !XIJILS(1:NJ) = XIJKL(JKINTOF:JKINTOF+NJ-1)
-                do J=L,NL
-                  XIJILS(J) = XIJKL(JKINTOF-1+J)
-                end do
+                XIJILS(L:NL) = XIJKL(JKINTOF-1+L:JKINTOF-1+NL)
                 XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
-                do J=L+1,NL
-                  XIJKL(JKINTOF-1+J) = Zero
-                end do
+                XIJKL(JKINTOF+L:JKINTOF-1+NL) = Zero
               end if
               call MATML7(SKII(ISOFF),CKJJ(ICOFF),XIJKL(INTOF),NKA,IMAX,NKA,NJ,NJ,IMAX,FACS,FACTOR,0)
               if (IKORD /= 0) then
-                do J=L,NL
-                  XIJKL(JKINTOF-1+J) = XIJILS(J)
-                end do
+                XIJKL(JKINTOF-1+L:JKINTOF-1+NL) = XIJILS(L:NL)
                 !XIJ(JKINTOF:JKINTOF+NJ-1) = XIJILS(1:NJ)
               end if
 
@@ -135,9 +129,7 @@ else if (IROUTE == 2) then
                 IKINTOF = INTOF+(K-1)*NI
                 XIJILS(1:NI) = XIJKL(IKINTOF:IKINTOF+NI-1)
                 XIJKL(IKINTOF-1+L) = Half*XIJKL(IKINTOF-1+L)
-                do I=L+1,NL
-                  XIJKL(IKINTOF-1+I) = Zero
-                end do
+                XIJKL(IKINTOF+L:IKINTOF-1+NL) = Zero
               end if
 
               call MATML7(SKII(ISOFF),XIJKL(INTOF),CKJJ(ICOFF),NI,NKA,NI,NJ,NJ,NKA,FACS,FACTOR,0)

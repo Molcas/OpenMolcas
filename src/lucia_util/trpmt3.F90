@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NROW, NCOL
 real(kind=wp), intent(in) :: XIN(NROW,NCOL)
 real(kind=wp), intent(out) :: XOUT(NCOL,NROW)
-integer(kind=iwp) :: ICBLK, ICEND, ICOFF, ICOL, IRBLK, IREND, IROFF, IROW, IWAY, LCBLK, LRBLK, NCBLK, NRBLK
+integer(kind=iwp) :: ICBLK, ICEND, ICOFF, IRBLK, IREND, IROFF, IROW, IWAY, LCBLK, LRBLK, NCBLK, NRBLK
 
 IWAY = 2
 if (IWAY == 1) then
@@ -51,9 +51,7 @@ else if (IWAY == 2) then
       ICEND = min(NCOL,ICOFF+LCBLK-1)
 
       do IROW=IROFF,IREND
-        do ICOL=ICOFF,ICEND
-          XOUT(ICOL,IROW) = XIN(IROW,ICOL)
-        end do
+        XOUT(ICOFF:ICEND,IROW) = XIN(IROW,ICOFF:ICEND)
       end do
 
     end do

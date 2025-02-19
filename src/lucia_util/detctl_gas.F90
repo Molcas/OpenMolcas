@@ -26,10 +26,10 @@ use Constants, only: Zero, Two
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IATP, IATPM1, IATPM2, IBASSPC(1), IBTP, IBTPM1, IBTPM2, INTSCR, IOBSM, IOBTP, IOCCLS(1), IOCTPA, IOCTPB, &
-                     JSYM, LBLOCK, LSCR12, LSCR2, LSCR3, LZ, LZSCR, MAXA, MAXA1, MAXB, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, &
-                     MXADKBLK, MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCH, &
-                     NBEL, NBLOCK, NDET, NEL, NOCCLS, NOCTPA, NOCTPB, NTTS
+integer(kind=iwp) :: IATP, IATPM1, IATPM2, IBASSPC(1), IBTP, IBTPM1, IBTPM2, INTSCR, IOCCLS(1), IOCTPA, IOCTPB, JSYM, LBLOCK, &
+                     LSCR12, LSCR2, LSCR3, LZ, LZSCR, MAXA, MAXA1, MAXB, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, MXADKBLK, &
+                     MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCH, NBEL, NBLOCK, &
+                     NDET, NEL, NOCCLS, NOCTPA, NOCTPB, NTTS
 integer(kind=iwp), allocatable :: BASSPC(:), KLOCCLS(:), LCIOIO(:), SVST(:)
 integer(kind=iwp), external :: IMNMX
 
@@ -175,12 +175,7 @@ MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA+2*1+NOCTPA*NOCTPB+NSMST+11*MXNTTS
 !if ((IDC == 3) .or. (IDC == 4)) MEMORY_NEEDED_LUCIA = MEMORY_NEEDED_LUCIA+NSMST
 ! Memory needed in SBLOCK
 ! Largest active orbital block belonging to given type and symmetry
-MXTSOB = 0
-do IOBTP=1,NGAS
-  do IOBSM=1,NSMOB
-    MXTSOB = max(MXTSOB,NOBPTS(IOBTP,IOBSM))
-  end do
-end do
+MXTSOB = max(0,maxval(NOBPTS(1:NGAS,1:NSMOB)))
 INTSCR = max(MXTSOB**4,NTOOB**2)
 ! vectors able to hold strings of given sym and type
 MAXIK = max(MAXI,MAXK)

@@ -32,16 +32,14 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: IATP, IBTP, ICI, ISM, ISYM, LCOL, MXS, MXSOO, MXSOO_AS, NCOMB, NICISP, NOCTPA, NOCTPB, NTTSBL
+integer(kind=iwp) :: IATP, IBTP, ICI, ISYM, LCOL, MXS, MXSOO, MXSOO_AS, NCOMB, NOCTPA, NOCTPB, NTTSBL
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: II, NTEST
 #endif
 real(kind=wp) :: XNCOMB
 integer(kind=iwp), allocatable :: CVST(:), LBLTP(:), LIOIO(:), NBLKIC(:,:)
 
-! Number of spaces
-NICISP = NCMBSPC
-!write(u6,*) ' LCISPC : NICISP ',NICISP
+!write(u6,*) ' LCISPC : NCMBSPC ',NCMBSPC
 ! Type of alpha- and beta strings
 IATP = 1
 IBTP = 2
@@ -52,7 +50,7 @@ NOCTPB = NOCTYP(IBTP)
 call mma_allocate(LBLTP,NSMST,Label='LBLTP')
 call mma_allocate(CVST,NSMST,Label='CVST')
 call mma_allocate(LIOIO,NOCTPA*NOCTPB,Label='LIOIO')
-call mma_allocate(NBLKIC,NSMCI,NICISP,Label='NBLKIC')
+call mma_allocate(NBLKIC,NSMCI,NCMBSPC,Label='NBLKIC')
 ! Obtain array giving symmetry of sigma v reflection times string
 ! symmetry.
 !if ((IDC == 3) .or. (IDC == 4)) call SIGVST(CVST,NSMST)
@@ -64,7 +62,7 @@ call SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
 MXSB = 0
 
 MXSOOB = 0
-do ICI=1,NICISP
+do ICI=1,NCMBSPC
   ! allowed combination of types
   call IAIBCM(ICI,LIOIO)
 
@@ -115,12 +113,7 @@ if (NTEST >= 5) then
 end if
 #endif
 ! Largest number of BLOCKS in a CI expansion
-MXNTTS = 0
-do ICI=1,NCMBSPC
-  do ISM=1,NSMCI
-    MXNTTS = max(MXNTTS,NBLKIC(ISM,ICI))
-  end do
-end do
+MXNTTS = max(0,maxval(NBLKIC(:,:)))
 
 #ifdef _DEBUGPRINT_
 if (NTEST >= 5) then

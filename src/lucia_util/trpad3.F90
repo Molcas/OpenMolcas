@@ -34,29 +34,21 @@ if (IWAY == 1) then
 
   ! Lower half
   do J=1,NDIM
-    do I=J,NDIM
-      MAT(I,J) = MAT(I,J)+FACTOR*MAT(J,I)
-    end do
+    MAT(J:NDIM,J) = MAT(J:NDIM,J)+FACTOR*MAT(J,J:NDIM)
   end do
   ! Upper half
   if (abs(FACTOR) /= One) then
     FAC2 = One-FACTOR**2
     do I=1,NDIM
-      do J=1,I-1
-        MAT(J,I) = FACTOR*MAT(I,J)+FAC2*MAT(J,I)
-      end do
+      MAT(1:I-1,I) = FACTOR*MAT(I,1:I-1)+FAC2*MAT(1:I-1,I)
     end do
   else if (FACTOR == One) then
     do I=1,NDIM
-      do J=1,I-1
-        MAT(J,I) = MAT(I,J)
-      end do
+      MAT(1:I-1,I) = MAT(I,1:I-1)
     end do
   else if (FACTOR == -One) then
     do I=1,NDIM
-      do J=1,I-1
-        MAT(J,I) = -MAT(I,J)
-      end do
+      MAT(1:I-1,I) = -MAT(I,1:I-1)
     end do
   end if
 else if (IWAY == 2) then
@@ -77,32 +69,24 @@ else if (IWAY == 2) then
       ! Lower half
       do I=IOFF,IEND
         if (IBLK == JBLK) JEND = I
-        do J=JOFF,JEND
-          MAT(I,J) = MAT(I,J)+FACTOR*MAT(J,I)
-        end do
+        MAT(I,JOFF:JEND) = MAT(I,JOFF:JEND)+FACTOR*MAT(JOFF:JEND,I)
       end do
       ! Upper half
       if (abs(FACTOR) /= One) then
         FAC2 = One-FACTOR**2
         do I=IOFF,IEND
           if (IBLK == JBLK) JEND = I
-          do J=JOFF,JEND
-            MAT(J,I) = FACTOR*MAT(I,J)+FAC2*MAT(J,I)
-          end do
+          MAT(JOFF:JEND,I) = FACTOR*MAT(I,JOFF:JEND)+FAC2*MAT(JOFF:JEND,I)
         end do
       else if (FACTOR == One) then
         do I=IOFF,IEND
           if (IBLK == JBLK) JEND = I-1
-          do J=JOFF,JEND
-            MAT(J,I) = MAT(I,J)
-          end do
+          MAT(JOFF:JEND,I) = MAT(I,JOFF:JEND)
         end do
       else if (FACTOR == -One) then
         do I=IOFF,IEND
           if (IBLK == JBLK) JEND = I
-          do J=JOFF,JEND
-            MAT(J,I) = -MAT(I,J)
-          end do
+          MAT(JOFF:JEND,I) = -MAT(I,JOFF:JEND)
         end do
       end if
       ! End of loop over blocks

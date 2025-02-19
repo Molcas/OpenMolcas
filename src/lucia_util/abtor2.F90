@@ -69,20 +69,12 @@ do KB=1,NKB
             !  ! Restrict so (ij) <= (kl)
             !  IMAX = K
             !  JKINTOF = INTOF+(K-1)*NJ
-            !  do J=L,NL
-            !    XIJILS(J) = XIJKL(JKINTOF-1+J)
-            !  end do
+            !  XIJILS(L:NL) = XIJKL(JKINTOF:JKINTOF+NL-1)
             !  XIJKL(JKINTOF-1+L) = Half*XIJKL(JKINTOF-1+L)
-            !  do J=L+1,NL
-            !    XIJKL(JKINTOF-1+J) = Zero
-            !  end do
+            !  XIJKL(JKINTOF+L:JKINTOF+NL-1) = Zero
             !end if
             call MATML7(RHO2B(KLOFF),SKII(ISOFF),CKJJ(ICOFF),NI,NJ,NKA,IMAX,NKA,NJ,One,FACTOR,1)
-            !if (IKORD /= 0) then
-            !  do J=L,NL
-            !    XIJKL(JKINTOF-1+J) = XIJILS(J)
-            !  end do
-            !end if
+            !if (IKORD /= 0) XIJKL(JKINTOF+L-1:JKINTOF+NL-1) = XIJILS(L:NL)
 
           end if
         end do

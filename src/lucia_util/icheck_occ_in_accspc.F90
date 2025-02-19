@@ -22,12 +22,11 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp) :: ICHECK_OCC_IN_ACCSPC
 integer(kind=iwp), intent(in) :: NGAS, IOCC(NGAS), MXPNGAS, IMINMAX(MXPNGAS,2)
-integer(kind=iwp) :: I_AM_IN, IGAS, NTEST
+integer(kind=iwp) :: I_AM_IN, NTEST
 
 I_AM_IN = 1
-do IGAS=1,NGAS
-  if ((IOCC(IGAS) < IMINMAX(IGAS,1)) .or. (IOCC(IGAS) > IMINMAX(IGAS,2))) I_AM_IN = 0
-end do
+if (any(IOCC(:) < IMINMAX(1:NGAS,1))) I_AM_IN = 0
+if (any(IOCC(:) > IMINMAX(1:NGAS,2))) I_AM_IN = 0
 ICHECK_OCC_IN_ACCSPC = I_AM_IN
 
 NTEST = 0

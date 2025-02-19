@@ -23,23 +23,19 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: IWAY, MATDIM, NDIM
 real(kind=wp), intent(inout) :: AUTPAK(MATDIM,MATDIM), APAK(*)
-integer(kind=iwp) :: I, IJ, J, NTEST
+integer(kind=iwp) :: I, IJ, NTEST
 
 if (IWAY == 1) then
   IJ = 0
   do I=1,NDIM
-    do J=1,I
-      APAK(IJ+J) = AUTPAK(J,I)
-    end do
+    APAK(IJ+1:IJ+I) = AUTPAK(1:I,I)
     IJ = IJ+I
   end do
 else if (IWAY == 2) then
   IJ = 0
   do I=1,NDIM
-    do J=1,I
-      AUTPAK(I,J) = APAK(IJ+J)
-      AUTPAK(J,I) = APAK(IJ+J)
-    end do
+    AUTPAK(I,1:I-1) = APAK(IJ+1:IJ+I-1)
+    AUTPAK(1:I,I) = APAK(IJ+1:IJ+I)
     IJ = IJ+I
   end do
 end if

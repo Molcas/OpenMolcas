@@ -56,7 +56,7 @@ do IGAS=1,NIGRP
 end do
 
 !NGASL = NIGRP
-!
+
 !do IGAS=1,NIGRP
 !  do ISMST=1,NSMST
 !    if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
@@ -78,10 +78,7 @@ if (NTEST >= 1000) then
 end if
 
 ! Total number of symmetry blocks that will be generated
-NBLKS = 1
-do IGAS=1,NGASL-1
-  NBLKS = NBLKS*(MXVAL(IGAS)-MNVAL(IGAS)+1)
-end do
+NBLKS = product(MXVAL(1:NGASL-1)-MNVAL(1:NGASL-1)+1)
 if (NBLKS > LPNT) then
   write(u6,*) ' Problem in TS_SYM_PNT'
   write(u6,*) ' Dimension of IPNT too small'

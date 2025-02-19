@@ -127,22 +127,14 @@ end if
 !MGD : max occupation in removed GAS spaces
 do i=1,N_ELIMINATED_GAS
   iGAS = IELIMINATED_IN_GAS(i)
-  maxingas(i) = 0
-  do JOCCLS=1,NOCCLS
-    maxingas(i) = max(IOCCLS(iGAS,JOCCLS),maxingas(i))
-  end do
+  maxingas(i) = max(0,maxval(IOCCLS(iGAS,:)))
 end do
 do i=1,N_2ELIMINATED_GAS
   iGAS = I2ELIMINATED_IN_GAS(i)
-  maxingas2(i) = 0
-  do JOCCLS=1,NOCCLS
-    maxingas2(i) = max(IOCCLS(iGAS,JOCCLS),maxingas2(i))
-  end do
+  maxingas2(i) = max(0,maxval(IOCCLS(iGAS,:)))
 end do
-do i=1,maxop+1
-  HEXS_CNF(i) = 0
-  NCONF_PER_OPEN(i,ISYM) = 0
-end do
+HEXS_CNF(:) = 0
+NCONF_PER_OPEN(:,ISYM) = 0
 
 do JOCCLS=1,NOCCLS
   if (JOCCLS == 1) then
@@ -157,14 +149,10 @@ do JOCCLS=1,NOCCLS
   else
     NCONF_ALL_SYM_PREV = NCONF_ALL_SYM
   end if
-  do i=1,maxop+1
-    TMP_CNF(i) = 0
-  end do
+  TMP_CNF(:) = 0
   call GEN_CONF_FOR_OCCLS(IOCCLS(:,JOCCLS),IDUM,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,1,NOCOB,NOBPT,TMP_CNF,NCONF_OCCLS, &
                           IB_CONF_REO,IB_CONF_OCC,IDUM_ARR,IDOREO,IDUM_ARR,NCONF_ALL_SYM,idum_arr,nconf_tot)
-  do i=1,maxop+1
-    NCONF_PER_OPEN(i,ISYM) = NCONF_PER_OPEN(i,ISYM)+TMP_CNF(i)
-  end do
+  NCONF_PER_OPEN(:,ISYM) = NCONF_PER_OPEN(:,ISYM)+TMP_CNF(:)
   !MGD add to hexs_cnf only if the configuration does not have max occupation
   ! in the selected GAS space
   if (I_ELIMINATE_GAS > 0) then
@@ -181,11 +169,7 @@ do JOCCLS=1,NOCCLS
         if (IOCCLS(jGAS,JOCCLS) >= maxingas2(j)-1) ielim = 1
       end do
     end if
-    if (ielim == 0) then
-      do i=1,maxop+1
-        HEXS_CNF(i) = HEXS_CNF(i)+TMP_CNF(i)
-      end do
-    end if
+    if (ielim == 0) HEXS_CNF(:) = HEXS_CNF(:)+TMP_CNF(:)
   end if
   ! testing
   !write(u6,*) 'nconf_per_open after first call of gen_conf_for_occls'
@@ -208,14 +192,17 @@ do JOCCLS=1,NOCCLS
   end if
 end do
 ! Number of CSF's in expansion
-call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(:,ISYM),NPCSCNF,NCSF)
+NCSF = sum(NCONF_PER_OPEN(1:MAXOP+1,ISYM)*NPCSCNF(1:MAXOP+1))
 ! Number of SD's in expansion
-call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(:,ISYM),NPDTCNF,NSD)
+NSD = sum(NCONF_PER_OPEN(1:MAXOP+1,ISYM)*NPDTCNF(1:MAXOP+1))
 ! Number of combinations in expansion
-call NCNF_TO_NCOMP(MAXOP,NCONF_PER_OPEN(:,ISYM),NPCMCNF,NCMB)
+NCMB = sum(NCONF_PER_OPEN(1:MAXOP+1,ISYM)*NPCMCNF(1:MAXOP+1))
 !MGD
-nCSF_HEXS = 0
-if (I_ELIMINATE_GAS > 0) call NCNF_TO_NCOMP(MAXOP,HEXS_CNF,NPCSCNF,NCSF_HEXS)
+if (I_ELIMINATE_GAS > 0) then
+  NCSF_HEXS = sum(HEXS_CNF(1:MAXOP+1)*NPCSCNF(1:MAXOP+1))
+else
+  NCSF_HEXS = 0
+end if
 
 NCSF_PER_SYM(ISYM) = NCSF
 NSD_PER_SYM(ISYM) = NSD

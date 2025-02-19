@@ -153,9 +153,7 @@ if (IDXSM /= 0) then
     !  NOP = 4
     !  call ALG_ROUTERX(ISOC,JSOC,NOP,I4_TP,I4_AC,I4_REO,SIGN4)
     !else
-    do IJKL=1,4
-      I4_REO(IJKL) = IJKL
-    end do
+    I4_REO(:) = [1,2,3,4]
     !end if
     ! Type of operators : TP and AC
     do IJKL=1,4

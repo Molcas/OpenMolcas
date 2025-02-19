@@ -67,10 +67,10 @@ real(kind=wp), intent(inout) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), SRHO1(*)
 real(kind=wp), intent(in) :: L(*), R(*)
 real(kind=wp), intent(out) :: EXPS2
 logical(kind=iwp), intent(in) :: IPACK
-integer(kind=iwp) :: I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, INTSCR, IOBSM, IOBTP, IOCTPA, IOCTPB, K12, KCSCR, LSCR1, &
-                     LSCR12, LSCR2, LSCR3, LZ, LZSCR, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, &
-                     MXADKBLK, MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCHL, &
-                     NBATCHR, NBEL, NIJ, NIJKL, NOCTPA, NOCTPB, NTTS
+integer(kind=iwp) :: I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, INTSCR, IOCTPA, IOCTPB, K12, KCSCR, LSCR1, LSCR12, LSCR2, &
+                     LSCR3, LZ, LZSCR, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXI, MAXIK, MAXK, MX_NSPII, MXADKBLK, MXADKBLK_AS, &
+                     MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCHL, NBATCHR, NBEL, NIJ, &
+                     NIJKL, NOCTPA, NOCTPB, NTTS
 real(kind=wp) :: S2_TERM1
 integer(kind=iwp), allocatable :: CBLTP(:), CIOIO(:), CONSPA(:), CONSPB(:), I1(:), I2(:), I3(:), I4(:), LI1BTL(:), LI1BTR(:), &
                                   LIBTL(:), LIBTR(:), LLBTL(:), LLBTR(:), LLEBTL(:), LLEBTR(:), SBLTP(:), SIOIO(:), STSTD(:), &
@@ -163,12 +163,7 @@ MAXI = min(MXINKA,MXSTBL)
 MAXK = min(MXINKA,MXSTBL)
 !write(u6,*) ' DENSI2 : MAXI MAXK ',MAXI,MAXK
 ! Largest active orbital block belonging to given type and symmetry
-MXTSOB = 0
-do IOBTP=1,NGAS
-  do IOBSM=1,NSMOB
-    MXTSOB = max(MXTSOB,NOBPTS(IOBTP,IOBSM))
-  end do
-end do
+MXTSOB = max(0,maxval(NOBPTS(1:NGAS,1:NSMOB)))
 ! Local scratch arrays for blocks of C and sigma
 if (IPRDEN >= 2) write(u6,*) ' DENSI2 : MXSB MXTSOB MXSOOB ',MXSB,MXTSOB,MXSOOB
 !if (ISIMSYM /= 1) THEN

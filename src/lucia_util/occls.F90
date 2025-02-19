@@ -49,9 +49,7 @@ end if
 ISKIP = 1
 NOCCLS = 0
 ! start with smallest allowed number
-do IGAS=1,NGAS
-  IOCA(IGAS) = IGSMIN(IGAS)
-end do
+IOCA(1:NGAS) = IGSMIN(1:NGAS)
 NONEW = 0
 IFIRST = 1
 ! Loop over possible occupations
@@ -69,9 +67,7 @@ do
       if (IOCA(IGAS-1) > IOCA(IGAS)) KGAS = IGAS
     end do
     if (KGAS /= 0) then
-      do IGAS=1,KGAS-1
-        IOCA(IGAS) = IGSMIN(IGAS)
-      end do
+      IOCA(1:KGAS-1) = IGSMIN(1:KGAS-1)
       IOCA(KGAS) = IOCA(KGAS)+1
     end if
   end if

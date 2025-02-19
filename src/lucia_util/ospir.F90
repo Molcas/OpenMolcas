@@ -47,10 +47,8 @@ integer(kind=iwp) :: IRREP, NTEST
 !=====
 ! D2h
 !=====
-do IRREP=1,8
-  NOSPIR(IRREP) = 1
-  IOSPIR(1,IRREP) = IRREP
-end do
+NOSPIR(1:8) = 1
+IOSPIR(1,1:8) = [1,2,3,4,5,6,7,8]
 !else
 !  write(u6,*) ' Sorry  PNTGRP out of range, PNTGRP = ',PNTGRP
 !  write(u6,*) ' OSPIR fatally wounded'

@@ -37,12 +37,8 @@ integer(kind=iwp), intent(inout) :: INSPGRP(MXPNGAS,*), ISPGRP_AC(NGAS,*)
 integer(kind=iwp) :: IAMOKAY, IGAS, ISPGRP, ITO, JGAS, JSPGRP, NELIN, NELOUT, NTEST
 
 ! Check first that supergroups + IAC information is consistent
-NELIN = 0
-NELOUT = 0
-do IGAS=1,NGAS
-  NELIN = NELIN+INSPGRP(IGAS,IBASEIN)
-  NELOUT = NELOUT+IOUTSPGRP(IGAS,IBASEOUT)
-end do
+NELIN = sum(INSPGRP(1:NGAS,IBASEIN))
+NELOUT = sum(IOUTSPGRP(1:NGAS,IBASEOUT))
 if (.not. (((IAC == 1) .and. (NELIN == NELOUT+1)) .or. ((IAC == 2) .and. (NELIN == NELOUT-1)))) then
   write(u6,*) ' Inconsistent data provided to SPGP_AC'
   write(u6,*) ' NELIN NELOUT IAC=',NELIN,NELOUT,IAC
