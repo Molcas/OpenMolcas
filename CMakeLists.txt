@@ -2486,6 +2486,7 @@ set (last_energy_deplibs
   motra
   rasscf
   scf
+  ffpt
   seward
 )
 set (loprop_deplibs
@@ -2509,6 +2510,7 @@ set (numerical_gradient_deplibs
   rasscf
   scf
   seward
+  ffpt
 )
 set (seward_deplibs
   guessorb
