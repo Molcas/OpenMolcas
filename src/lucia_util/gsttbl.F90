@@ -35,7 +35,7 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-real(kind=wp), intent(_IN_) :: C(*)
+real(kind=wp), intent(in) :: C(*)
 real(kind=wp), intent(_OUT_) :: CTT(*), SCR(*)
 integer(kind=iwp), intent(in) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), &
                                  ICOOSC(NOCTPA,NOCTPB,*), IDC, LUC, ISCALE
@@ -67,7 +67,7 @@ if (LUC /= 0) then
     NAST = NSASO(IASM,IATP)
     NBST = NSBSO(IBSM,IBTP)
     if (LBL /= 0) then
-      call SDCMRF(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
+      call SDCMRF(CTT,SCR,IATP,IBTP,IASM,IBSM,NAST,NBST,IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
     else
       SCLFAC = Zero
     end if
@@ -115,7 +115,7 @@ else
     !      else if (IATP == IBTP) then
     !        IBASE = ICOOSC(IATP,IATP,IASM)
     !        NAST = NSASO(IASM,IATP)
-    !        call TRIPK3(CTT,C(IBASE),2,NAST,NAST,PLSIGN*PSSIGN)
+    !        call TRIPK32(CTT,C(IBASE),NAST,NAST,PLSIGN*PSSIGN)
     !      else if (IATP < IBTP) then
     !        IBASE = ICOOSC(IBTP,IATP,IASM)
     !        NROW = NSASO(IASM,IBTP)
@@ -138,7 +138,7 @@ else
       ! expand triangular packed matrix
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NAST = NSASO(IASM,IATP)
-      call TRIPK3(CTT,C(IBASE),2,NAST,NAST,PSSIGN)
+      call TRIPK32(CTT,C(IBASE),NAST,NAST,PSSIGN)
     else if (IATP < IBTP) then
       ! transpose ibtp iasm iatp ibsm block
       IBASE = ICOOSC(IBTP,IATP,IASM)
@@ -173,7 +173,7 @@ else
     !        IBASE = ICOOSC(IBTP,IATP,IBSM)
     !        NRI   = NSASO(IBSM,IATP)
     !        NCI   = NSBSO(IASM,IATP)
-    !        call TRIPK3(CTT,C(IBASE),2,NRI,NCI,PLSSGN)
+    !        call TRIPK32(CTT,C(IBASE),NRI,NCI,PLSSGN)
     !        if (PLSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
     !      else if (IBTP < IATP) then
     !        IBASE = ICOOSC(IATP,IBTP,IBSM)

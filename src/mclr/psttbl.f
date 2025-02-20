@@ -24,6 +24,7 @@
 *
       DIMENSION SCR(*)
       DIMENSION ISGVST(IBSM)
+      DIMENSION IDUM(1)
 *
 * ======================
 * Write directly to disc
@@ -37,7 +38,8 @@
          CALL SDCMRF_MCLR(CTT,SCR,1,IATP,IBTP,IASM,IBSM,NAST,NBST,
      &               IDC,PSIGN,PLSIGN,ISGVST,LDET,LCOMB)
 *. Note : PLSIGN and ISGVST missing in order to make it work for IDC=3,4
-         CALL ITODS([LCOMB],1,-1,LUHC)
+         IDUM(1) = LCOMB
+         CALL ITODS(IDUM,1,-1,LUHC)
          CALL TODSC_MCLR(SCR,LCOMB,-1,LUHC)
       ELSE
 * ==================

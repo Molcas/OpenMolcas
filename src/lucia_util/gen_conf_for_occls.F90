@@ -93,7 +93,7 @@ do
       if (IONLY_NCONF == 0) then
         ! Lexical number of this configuration
         IB_OCC = IBCONF_OCC(NOPEN+1)+(NCONF_OP(NOPEN+1)-1)*NOCOB
-        call REFORM_CONF_OCC(JCONF,ICONF(IB_OCC),NEL,NOCOB,1)
+        call REFORM_CONF_OCC(JCONF,ICONF(IB_OCC),NEL,NOCOB)
         if (IDOREO /= 0) then
           ! Giovanni and Dongxia 2011.1.31
           ilexnum = ilex_for_conf_new(iconf(ib_occ),nocob,ntorb,nel,iz_conf,0,idum_arr,idum,idum)

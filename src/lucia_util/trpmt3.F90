@@ -20,13 +20,13 @@ implicit none
 integer(kind=iwp), intent(in) :: NROW, NCOL
 real(kind=wp), intent(in) :: XIN(NROW,NCOL)
 real(kind=wp), intent(out) :: XOUT(NCOL,NROW)
-integer(kind=iwp) :: ICBLK, ICEND, ICOFF, IRBLK, IREND, IROFF, IROW, IWAY, LCBLK, LRBLK, NCBLK, NRBLK
+integer(kind=iwp) :: ICBLK, ICEND, ICOFF, IRBLK, IREND, IROFF, IROW, LCBLK, LRBLK, NCBLK, NRBLK
+integer(kind=iwp), parameter :: IMET = 2
 
-IWAY = 2
-if (IWAY == 1) then
+if (IMET == 1) then
   ! Straightforward, no blocking
   call TRNSPS(NROW,NCOL,XIN,XOUT)
-else if (IWAY == 2) then
+else if (IMET == 2) then
   ! Simple blocking of matrix
   LRBLK = 40
   LCBLK = 40

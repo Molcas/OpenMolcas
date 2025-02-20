@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine TRIPAK(AUTPAK,APAK,MATDIM,NDIM)
-! (NOT A SIMPLIFIED VERSION OF TETRAPAK)
-!
+subroutine TRIPK31(AUTPAK,APAK,MATDIM,NDIM)
 ! REFORMATING BETWEEN LOWER TRIANGULAR PACKING
-! AND FULL MATRIX FORM FOR A SYMMETRIC MATRIX
+! AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
 !
 ! FULL TO PACKED
+! LOWER HALF OF AUTPAK IS STORED IN APAK
+! NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 
 use Definitions, only: wp, iwp, u6
 
@@ -25,19 +25,21 @@ implicit none
 integer(kind=iwp), intent(in) :: MATDIM, NDIM
 real(kind=wp), intent(in) :: AUTPAK(MATDIM,MATDIM)
 real(kind=wp), intent(_OUT_) :: APAK(*)
-integer(kind=iwp) :: I, IJ, NTEST
+integer(kind=iwp) :: IJ, J, NTEST
+
+! Packing : No problem with cache misses
 
 IJ = 0
-do I=1,NDIM
-  APAK(IJ+1:IJ+I) = AUTPAK(1:I,I)
-  IJ = IJ+I
+do J=1,NDIM
+  APAK(IJ+J:IJ+NDIM) = AUTPAK(J:NDIM,J)
+  IJ = IJ+NDIM-J
 end do
 
 NTEST = 0
 if (NTEST /= 0) then
-  write(u6,*) ' AUTPAK AND APAK FROM TRIPAK'
+  write(u6,*) ' AUTPAK AND APAK FROM TRIPK31'
   call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
-  call PRSYM(APAK,NDIM)
+  call PRSM2(APAK,NDIM)
 end if
 
-end subroutine TRIPAK
+end subroutine TRIPK31

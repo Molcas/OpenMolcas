@@ -17,16 +17,9 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: NSMST
 integer(kind=iwp), intent(out) :: ISGVST(NSMST)
-integer(kind=iwp) :: IML, IPARI, ISM, ISM_, MIML, MISM, NTEST
+integer(kind=iwp) :: ISM, NTEST
 
-do ISM=1,NSMST
-  ISM_ = ISM
-  call MLSM(IML,IPARI,ISM_,'ST',2)
-  !    MLSM(IML,IPARI,ISM,TYPE,IWAY)
-  MIML = -IML
-  call MLSM(MIML,IPARI,MISM,'ST',1)
-  ISGVST(ISM) = MISM
-end do
+ISGVST(:) = [(-ISM+2,ISM=1,NSMST)]
 
 NTEST = 0
 if (NTEST /= 0) then

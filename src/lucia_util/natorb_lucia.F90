@@ -66,8 +66,8 @@ do ISMOB=1,NSMOB
     call WRTMAT(RHO1SM(IMTOFF),LOB,LOB,LOB,LOB)
   end if
   ! Pack and diagonalize
-  !    TRIPAK(AUTPAK,APAK,IWAY,MATDIM,NDIM)
-  call TRIPAK(RHO1SM(IMTOFF),SCR,1,LOB,LOB)
+  !    TRIPAK(AUTPAK,APAK,MATDIM,NDIM)
+  call TRIPAK(RHO1SM(IMTOFF),SCR,LOB,LOB)
   ! scale with -1 to get highest occupation numbers as first eigenvectors
   SCR(1:LOB*(LOB+1)/2) = -SCR(1:LOB*(LOB+1)/2)
   call unitmat(XNAT(IMTOFF),LOB)

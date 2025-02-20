@@ -42,6 +42,7 @@
 *. Output
       DIMENSION DIAG(*)
 *
+      DIMENSION IDUM(1)
 *
       IF(PSSIGN.EQ.-1.0D0) THEN
          XADD = 1000000.0d0
@@ -130,7 +131,8 @@
   899     CONTINUE
 *. Yet a RAS block of the diagonal has been constructed
           IF(ICISTR.GE.2) THEN
-            CALL ITODS([IDET],1,-1,LUDIA)
+            IDUM(1) = IDET
+            CALL ITODS(IDUM,1,-1,LUDIA)
             CALL TODSC_MCLR(DIAG,IDET,-1,LUDIA)
             IDET = 0
           END IF
@@ -139,7 +141,10 @@
 *
  1000 CONTINUE
 *
-      IF ( ICISTR.GE.2 ) CALL ITODS([-1],1,-1,LUDIA)
+      IF ( ICISTR.GE.2 ) THEN
+        IDUM(1) = -1
+        CALL ITODS(IDUM,1,-1,LUDIA)
+      END IF
 *
       RETURN
 c Avoid unused argument lines

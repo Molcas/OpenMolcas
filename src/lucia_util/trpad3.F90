@@ -21,14 +21,13 @@ implicit none
 integer(kind=iwp), intent(in) :: NDIM
 real(kind=wp), intent(inout) :: MAT(NDIM,NDIM)
 real(kind=wp), intent(in) :: FACTOR
-integer(kind=iwp) :: I, IBLK, IEND, IOFF, IWAY, J, JBLK, JEND, JOFF, LBLK, NBLK
+integer(kind=iwp) :: I, IBLK, IEND, IOFF, J, JBLK, JEND, JOFF, LBLK, NBLK
 real(kind=wp) :: FAC2
+integer(kind=iwp), parameter :: IMET = 2
 
 FAC2 = One-FACTOR**2
 
-!IWAY = 1
-IWAY = 2
-if (IWAY == 1) then
+if (IMET == 1) then
 
   ! No blocking
 
@@ -51,8 +50,11 @@ if (IWAY == 1) then
       MAT(1:I-1,I) = -MAT(I,1:I-1)
     end do
   end if
-else if (IWAY == 2) then
+
+else if (IMET == 2) then
+
   ! Simple blocking of matrix
+
   LBLK = 40
   NBLK = NDIM/LBLK
   if (NBLK*LBLK < NDIM) NBLK = NBLK+1
@@ -92,7 +94,8 @@ else if (IWAY == 2) then
       ! End of loop over blocks
     end do
   end do
-  ! End of IWAY branching
+
 end if
+! End of IMET branching
 
 end subroutine TRPAD3

@@ -45,7 +45,7 @@ subroutine DENSI2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRH
 ! =====
 !
 ! Definition of L and R is picked up from CANDS
-! with L being S and  R being C
+! with L being S and R being C
 !
 
 use GLBBAS, only: VEC3
@@ -63,8 +63,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: I12, LUL, LUR, IDOSRHO1
-real(kind=wp), intent(inout) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), SRHO1(*)
-real(kind=wp), intent(in) :: L(*), R(*)
+real(kind=wp), intent(inout) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), L(*), R(*), SRHO1(*)
 real(kind=wp), intent(out) :: EXPS2
 logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, INTSCR, IOCTPA, IOCTPB, K12, KCSCR, LSCR1, LSCR12, LSCR2, &

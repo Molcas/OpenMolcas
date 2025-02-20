@@ -91,11 +91,12 @@ do JBLOCK=1,NBLOCK
     else
       if (IWAY == 1) then
         ! unpacked => packed
-        !    TRIPK3(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
-        call TRIPK3(BLOCKSI(IOFFI),BLOCKSO(IOFFO),1,NIA,NIA,PS)
+        !    TRIPK31(AUTPAK,APAK,MATDIM,NDIM)
+        call TRIPK31(BLOCKSI(IOFFI),BLOCKSO(IOFFO),NIA,NIA)
       else
         ! Packed => unpacked
-        call TRIPK3(BLOCKSO(IOFFO),BLOCKSI(IOFFI),2,NIA,NIA,PS)
+        !    TRIPK32(AUTPAK,APAK,MATDIM,NDIM,SGN)
+        call TRIPK32(BLOCKSO(IOFFO),BLOCKSI(IOFFI),NIA,NIA,PS)
       end if
     end if
     LENGTH = LENGTH+NELMNT

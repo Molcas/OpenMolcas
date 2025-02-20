@@ -14,10 +14,10 @@ module LUCIA_INTERFACE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
 private
-
-#include "intent.fh"
 
 public :: Lucia_Util
 
@@ -146,12 +146,12 @@ subroutine densi_master(CIVec,RVec)
 
     SCR3(1:NCSF) = rvec(1:NCSF)
     call CSDTVC(SCR3,SCR4,1,DTOC,SDREO,IREFSM,1)
-    call CPCIVC(SCR3,NSD,LUHC,MXNTTS,IREFSM,1,lVec)
+    call CPCIVC1(SCR3,NSD,LUHC,MXNTTS,IREFSM,lVec)
     call mma_deallocate(SCR3)
     call mma_deallocate(SCR4)
   end if
   call CSDTVC(SCR1,SCR2,1,DTOC,SDREO,IREFSM,1)
-  call CPCIVC(SCR1,NSD,LUC,MXNTTS,IREFSM,1,lVec)
+  call CPCIVC1(SCR1,NSD,LUC,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)
 
   ! Determine length of arrays VEC1 and VEC2
@@ -220,8 +220,8 @@ subroutine densi_master(CIVec,RVec)
   if (.not. tdm) then
     ! Save densities in trigonal format for use in Molcas
 
-    call TriPak(rho1,Dtmp,1,ntoob,ntoob)
-    call TriPak(srho1,DStmp,1,ntoob,ntoob)
+    call TriPak(rho1,Dtmp,ntoob,ntoob)
+    call TriPak(srho1,DStmp,ntoob,ntoob)
   end if
 
   call CSDTVC(scr1,scr2,2,dtoc,SDREO,iRefSm,1)
@@ -261,7 +261,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
   !  ECORE = ECORE+ECORE_HEX
   !end if
   call mma_allocate(lVec,MXNTTS,Label='lVec')
-  call CPCIVC(CIVEC,nSD,LUC,MXNTTS,IREFSM,1,lVec)
+  call CPCIVC1(CIVEC,nSD,LUC,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)
 
   ! Calculate the sigma vector:
@@ -278,7 +278,7 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
   ! Export lusc34 to RASSCF
 
   call mma_allocate(lVec,MXNTTS,Label='lVec')
-  call CPCIVC(SIGMAVEC,nSD,LUSC34,MXNTTS,IREFSM,2,lVec)
+  call CPCIVC2(SIGMAVEC,nSD,LUSC34,MXNTTS,IREFSM,lVec)
   call mma_deallocate(lVec)
 
 end subroutine SIGMA_MASTER
@@ -319,7 +319,7 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
   ! Write CI-vector to disc
 
   call mma_allocate(lVec,MXNTTS,Label='lVec')
-  call CPCIVC(CIVEC,nSD,LUC,MXNTTS,ISSM,1,lVec)
+  call CPCIVC1(CIVEC,nSD,LUC,MXNTTS,ISSM,lVec)
   call mma_deallocate(lVec)
 
   ! Calculate the sigma vector:
@@ -341,16 +341,14 @@ subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
 
 end subroutine SIGMA_MASTER_CVB
 
-subroutine cpcivc(CIVec,nCIVEC,ifile,mxrec,isym,iway,lrec)
-  ! Copies the CI-vector between Molcas Rasscf and Lucia enviroment
-  ! IWAY = 1: from Molcas to Lucia (from core to disk unit ifile).
-  ! IWAY = 2: from Lucia to Molcas (from disk unit ifile to core).
+subroutine cpcivc1(CIVec,nCIVEC,ifile,mxrec,isym,lrec)
+  ! Copies the CI-vector from Molcas to Lucia (from core to disk unit ifile).
 
   use lucia_data, only: IDISK
 
   implicit none
-  integer(kind=iwp), intent(in) :: nCIVEC, ifile, mxrec, isym, iway
-  real(kind=wp), intent(inout) :: CIVec(nCIVec)
+  integer(kind=iwp), intent(in) :: nCIVEC, ifile, mxrec, isym
+  real(kind=wp), intent(_IN_) :: CIVec(nCIVec)
   integer(kind=iwp), intent(out) :: lrec(mxrec)
   integer(kind=iwp) :: dum(1), nRec
 # ifdef _DEBUGPRINT_
@@ -368,29 +366,49 @@ subroutine cpcivc(CIVec,nCIVEC,ifile,mxrec,isym,iway,lrec)
   ! Write CI-vector to disc
   ! =======================
 
-  if (iway == 1) then
-#   ifdef _DEBUGPRINT_
-    ioff = 1
-    write(u6,*) 'CI-vector put to disk:'
-    do IREC=1,NREC
-      if (LREC(IREC) >= 0) then
-        call wrtmat(CIVec(ioff),1,lrec(irec),1,lrec(irec))
-        ioff = ioff+lrec(irec)
-      end if
-    end do
-#   endif
-    call todscn(CIVec,nrec,lrec,-1,ifile)
-    dum(1) = -1
-    call itods(dum,1,-1,ifile)
+# ifdef _DEBUGPRINT_
+  ioff = 1
+  write(u6,*) 'CI-vector put to disk:'
+  do IREC=1,NREC
+    if (LREC(IREC) >= 0) then
+      call wrtmat(CIVec(ioff),1,lrec(irec),1,lrec(irec))
+      ioff = ioff+lrec(irec)
+    end if
+  end do
+# endif
+  call todscn(CIVec,nrec,lrec,-1,ifile)
+  dum(1) = -1
+  call itods(dum,1,-1,ifile)
 
-  else
-    ! ========================
-    ! Read CI-vector from disc
-    ! ========================
-    call frmdscn(CIVec,nrec,-1,ifile)
-  end if
+end subroutine cpcivc1
 
-end subroutine cpcivc
+subroutine cpcivc2(CIVec,nCIVEC,ifile,mxrec,isym,lrec)
+  ! Copies the CI-vector from Lucia to Molcas (from disk unit ifile to core).
+
+  use lucia_data, only: IDISK
+
+  implicit none
+  integer(kind=iwp), intent(in) :: nCIVEC, ifile, mxrec, isym
+  real(kind=wp), intent(out) :: CIVec(nCIVec)
+  integer(kind=iwp), intent(out) :: lrec(mxrec)
+  integer(kind=iwp) :: nRec
+# ifdef _DEBUGPRINT_
+  integer(kind=iwp) :: iOff, iRec
+# endif
+
+  ! ==================
+  ! Find nrec and lrec
+  ! ==================
+
+  call blkfo_min(isym,nrec,lrec)
+  IDISK(IFILE) = 0
+
+  ! ========================
+  ! Read CI-vector from disc
+  ! ========================
+  call frmdscn(CIVec,nrec,-1,ifile)
+
+end subroutine cpcivc2
 
 subroutine cpsivc(ifile,mxrec,vec,lrec)
   ! Copies the Sigma-vector between Molcas Rasscf and Lucia enviroment

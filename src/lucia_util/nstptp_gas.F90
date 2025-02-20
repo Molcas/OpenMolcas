@@ -43,7 +43,7 @@ integer(kind=iwp), intent(in) :: NGAS, ISPGRP(NGAS), NSMST, NSTSGP(NSMST,*), IGR
 integer(kind=iwp), intent(inout) :: NSTSSPGP(NSMST,IGRP)
 integer(kind=iwp), intent(out) :: MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
 integer(kind=iwp) :: IGAS, ISM, ISM1(MXPNSMST), ISM2(MXPNSMST), ISM_IGAS, ISM_IGASM1, ISYM, MNSM(MXPNGAS), MSM1(MXPNSMST), &
-                     MSM2(MXPNSMST), MXSM(MXPNGAS), NGASL, NTEST
+                     MSM2(MXPNSMST), MXSM(MXPNGAS), NTEST
 
 NTEST = 0
 if (NTEST >= 10) then
@@ -68,11 +68,6 @@ do IGAS=1,NGAS
   do ISYM=NSMST,1,-1
     if (NSTSGP(ISYM,ISPGRP(IGAS)) /= 0) MNSM(IGAS) = ISYM
   end do
-end do
-! Last space with more than one symmetry
-NGASL = 1
-do IGAS=1,NGAS
-  if (MXSM(IGAS) /= MNSM(IGAS)) NGASL = IGAS
 end do
 ! NSMCLSE
 NSMCLSE = product(MXSM(1:NGAS)-MNSM(1:NGAS)+1)

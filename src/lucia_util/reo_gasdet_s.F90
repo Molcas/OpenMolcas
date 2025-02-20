@@ -105,8 +105,7 @@ do JBLOCK=1,NBLOCK
       !ERROR NPTDT = IBINOM(NOPEN,NOPEN_AL)
       NPTDT = NPDTCNF(NOPEN+1)
       ! Packed form of this configuration
-      call REFORM_CONF_OCC(IDET_OC,IDET_VC,NEL,NOCOB,1)
-      !    REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB,IWAY)
+      call REFORM_CONF_OCC(IDET_OC,IDET_VC,NEL,NOCOB)
       ! Address of this configuration
       ! Offset to configurations with this number of open orbitals in
       ! reordered cnf list

@@ -13,7 +13,7 @@ C TRANSFER ARRAY DOUBLE PRECISION  A(LENGTH NDIM) TO DISCFIL IFIL IN
 C RECORDS WITH LENGTH NBLOCK.
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(1)
-      INTEGER START,STOP
+      INTEGER START,STOP,IDUM(1)
 *
 C?    write(6,*) ' entering TODSC '
       IPACK = 1
@@ -28,7 +28,8 @@ C?    write(6,*) ' entering TODSC '
 C?      WRITE(6,*) ' I am going to call ITODS'
         MMBLOCK = MBLOCK
         IF(MMBLOCK.GT.1) MMBLOCK = 1
-        CALL ITODS([IMZERO],1,MMBLOCK,IFIL)
+        IDUM(1) = IMZERO
+        CALL ITODS(IDUM,1,MMBLOCK,IFIL)
 C?      WRITE(6,*) ' back from ITODS '
         IF(IMZERO.EQ.1) GOTO 1001
       END IF
