@@ -379,7 +379,6 @@ set (DMRG_INCLUDE ${mod_dir} PARENT_SCOPE)
 # kszenes: only include gsl library and not other imported targets from GSL
 # normally, it also includes cblas and blas which would overwrite the OpenMolcas BLAS
 get_target_property(GSL_LOCATION GSL::gsl IMPORTED_LOCATION)
-message(STATUS "GSL_LOCATION = ${GSL_LOCATION}")
 
 # set library paths
 if (MAQUIS_DMRG_FOUND)
