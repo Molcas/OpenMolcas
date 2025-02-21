@@ -11,8 +11,8 @@
 
 module Local_Arrays
 
-! CLBT  : Length of each Batch ( in blocks)
-! CLEBT : Length of each Batch ( in elements)
+! CLBT  : Length of each Batch (in blocks)
+! CLEBT : Length of each Batch (in elements)
 ! CI1BT : Length of each block
 ! CIBT  : Info on each block
 ! CBLTP : BLock type for each symmetry

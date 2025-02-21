@@ -11,6 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NXT_CONF(ICONF,NEL,NORB,INI,NONEW)
 ! Next configuration of NEL electrons distributed in NORB orbitals
 !
@@ -24,20 +25,22 @@ subroutine NXT_CONF(ICONF,NEL,NORB,INI,NONEW)
 !
 ! Jeppe Olsen, November 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NEL, NORB, INI
 integer(kind=iwp), intent(inout) :: ICONF(NEL)
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: I, IADD, IEL, INCREASE, JORB, N_DOUBLE, NDOUBLE, NTEST
+integer(kind=iwp) :: I, IADD, IEL, INCREASE, JORB, N_DOUBLE, NDOUBLE
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Input configuration to NXT_CONF'
-  call IWRTMA(ICONF,1,NEL,1,NEL)
-  write(u6,*) ' NEL, NORB = ',NEL,NORB
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Input configuration to NXT_CONF'
+call IWRTMA(ICONF,1,NEL,1,NEL)
+write(u6,*) ' NEL, NORB = ',NEL,NORB
+#endif
 if (INI == 1) then
   ! Check that NEL electrons can be distributed in NORB orbitals
   if (NEL <= 2*NORB) then
@@ -100,15 +103,15 @@ else if (INI == 0) then
 end if
 ! End if INI = 0
 
-if (NTEST >= 100) then
-  if (NONEW == 1) then
-    write(u6,*) ' No new configurations'
-    write(u6,*) ' Input configuration'
-    call IWRTMA(ICONF,1,NEL,1,NEL)
-  else
-    write(u6,*) ' Next configurations'
-    call IWRTMA(ICONF,1,NEL,1,NEL)
-  end if
+#ifdef _DEBUGPRINT_
+if (NONEW == 1) then
+  write(u6,*) ' No new configurations'
+  write(u6,*) ' Input configuration'
+  call IWRTMA(ICONF,1,NEL,1,NEL)
+else
+  write(u6,*) ' Next configurations'
+  call IWRTMA(ICONF,1,NEL,1,NEL)
 end if
+#endif
 
 end subroutine NXT_CONF

@@ -11,6 +11,7 @@
 ! Copyright (C) 1995,1997, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,IZ,IREO)
 ! Obtain all super-strings of given total symmetry and given
 ! occupation in each GAS space
@@ -49,7 +50,10 @@ use Symmetry_Info, only: Mul
 use strbas, only: NSTSGP, ISTSGP
 use lucia_data, only: MXPNGAS, MXPNSMST, NELFGP, NGAS
 use csm_data, only: NSMST
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -58,34 +62,33 @@ integer(kind=iwp), intent(in) :: NIGRP, IGRP(NIGRP), ISPGRPSM, NEL, NORBT, IDORE
 integer(kind=iwp), intent(out) :: NSTR
 integer(kind=iwp), intent(inout) :: ISTR(*)
 integer(kind=iwp), intent(_OUT_) :: IREO(*)
-integer(kind=iwp) :: I, IEL, IFIRST, IGAS, IISTSGP(MXPNSMST,MXPNGAS), ISMFGS(MXPNGAS), ISMST, ISTRBS, ISTSMM1, ITPFGS(MXPNGAS), &
-                     JSTR, LEX, MAXLEX, MNVAL(MXPNGAS), MXVAL(MXPNGAS), NELFGS(MXPNGAS), NGASL, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, &
-                     NTEST
+integer(kind=iwp) :: IEL, IFIRST, IGAS, IISTSGP(MXPNSMST,MXPNGAS), ISMFGS(MXPNGAS), ISMST, ISTRBS, ISTSMM1, ITPFGS(MXPNGAS), JSTR, &
+                     LEX, MAXLEX, MNVAL(MXPNGAS), MXVAL(MXPNGAS), NELFGS(MXPNGAS), NGASL, NNSTSGP(MXPNSMST,MXPNGAS), NONEW
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I
 
-NTEST = 0
-if (NTEST >= 100) then
+write(u6,*)
+write(u6,*) ' ============================'
+write(u6,*) ' Welcome to GETSTR_TOTSM_SPGP'
+write(u6,*) ' ============================'
+write(u6,*)
+write(u6,'(A)') ' Strings to be obtained :'
+write(u6,'(A)') ' ************************'
+write(u6,'(A)')
+write(u6,'(A,I2)') '   Symmetry : ',ISPGRPSM
+write(u6,'(A,16I3)') ' Groups : ',(IGRP(I),I=1,NIGRP)
+write(u6,*) ' NEL = ',NEL
+if (IDOREO /= 0) then
   write(u6,*)
-  write(u6,*) ' ============================'
-  write(u6,*) ' Welcome to GETSTR_TOTSM_SPGP'
-  write(u6,*) ' ============================'
+  write(u6,*) ' ============='
+  write(u6,*) ' The Z array :'
+  write(u6,*) ' ============='
   write(u6,*)
-  write(u6,'(A)') ' Strings to be obtained :'
-  write(u6,'(A)') ' ************************'
-  write(u6,'(A)')
-  write(u6,'(A,I2)') '   Symmetry : ',ISPGRPSM
-  write(u6,'(A,16I3)') ' Groups : ',(IGRP(I),I=1,NIGRP)
-  write(u6,*) ' NEL = ',NEL
-  if (IDOREO /= 0) then
-    write(u6,*)
-    write(u6,*) ' ============='
-    write(u6,*) ' The Z array :'
-    write(u6,*) ' ============='
-    write(u6,*)
-    write(u6,*) ' NORBT,NEL = ',NORBT,NEL
-    call IWRTMA(IZ,NORBT,NEL,NORBT,NEL)
-  end if
+  write(u6,*) ' NORBT,NEL = ',NORBT,NEL
+  call IWRTMA(IZ,NORBT,NEL,NORBT,NEL)
 end if
-! Absolut number of this supergroup
+#endif
+! Absolute number of this supergroup
 ! Occupation per gasspace
 ! Largest occupied space
 NGASL = 0
@@ -111,12 +114,12 @@ do IGAS=1,NGAS
   end do
 end do
 ! Largest and lowest active symmetries for each GAS space
-if (NTEST >= 200) then
-  write(u6,*) ' Type of each GAS space'
-  call IWRTMA(ITPFGS,1,NGAS,1,NGAS)
-  write(u6,*) ' Number of elecs per GAS space'
-  call IWRTMA(NELFGS,1,NGAS,1,NGAS)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Type of each GAS space'
+call IWRTMA(ITPFGS,1,NGAS,1,NGAS)
+write(u6,*) ' Number of elecs per GAS space'
+call IWRTMA(NELFGS,1,NGAS,1,NGAS)
+#endif
 
 ! Loop over symmetries of each GAS
 
@@ -132,10 +135,10 @@ do
     if (NONEW /= 0) exit
   end if
   IFIRST = 0
-  if (NTEST >= 200) then
-    write(u6,*) ' next symmetry of NGASL-1 spaces'
-    call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' next symmetry of NGASL-1 spaces'
+  call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
+# endif
   ! Symmetry of NGASL -1 spaces given, symmetry of total space
   ISTSMM1 = 1
   do IGAS=1,NGASL-1
@@ -145,10 +148,10 @@ do
   ISMFGS(NGASL) = Mul(ISTSMM1,ISPGRPSM)
 
   ISMFGS(NGASL+1:NGAS) = 1
-  if (NTEST >= 200) then
-    write(u6,*) ' Next symmetry distribution'
-    call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Next symmetry distribution'
+  call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
+# endif
   ! Obtain all strings of this symmetry
   !call GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTR(1,ISTRBS),NSTR,NEL,NNSTSGP,IISTSGP)
   call GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTR(1+NEL*(ISTRBS-1)),NSTR,NEL,NNSTSGP,IISTSGP)
@@ -178,19 +181,19 @@ end do
 ! End of loop over symmetry distributions
 NSTR = ISTRBS-1
 
-if (NTEST >= 100) then
-  write(u6,*) ' NEL(b) = ',NEL
-  write(u6,*) ' Number of strings generated ',NSTR
-  write(u6,*)
-  write(u6,*) ' Strings :'
-  write(u6,*)
-  call PRTSTR(ISTR,NEL,NSTR)
+#ifdef _DEBUGPRINT_
+write(u6,*) ' NEL(b) = ',NEL
+write(u6,*) ' Number of strings generated ',NSTR
+write(u6,*)
+write(u6,*) ' Strings :'
+write(u6,*)
+call PRTSTR(ISTR,NEL,NSTR)
 
-  if (IDOREO /= 0) then
-    write(u6,*) 'Largest Lexical number obtained ',MAXLEX
-    write(u6,*) ' Reorder array'
-    call IWRTMA(IREO,1,NSTR,1,NSTR)
-  end if
+if (IDOREO /= 0) then
+  write(u6,*) 'Largest Lexical number obtained ',MAXLEX
+  write(u6,*) ' Reorder array'
+  call IWRTMA(IREO,1,NSTR,1,NSTR)
 end if
+#endif
 
 end subroutine GETSTR2_TOTSM_SPGP

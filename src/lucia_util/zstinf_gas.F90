@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ZSTINF_GAS(IPRNT)
+!#define _DEBUGPRINT_
+subroutine ZSTINF_GAS()
 ! Set up common block /STINF/ from information in /STINP/
 !
 !=========
@@ -18,8 +19,8 @@ subroutine ZSTINF_GAS(IPRNT)
 ! Information in /CGAS/ and /GASSTR/
 !
 !======================
-! Output ( in /STINF/ )
-!======================
+! Output (in /STINF/)
+!====================
 ! ISTAC (MXPSTT,2) : string type obtained by creating (ISTAC(ITYP,2))
 !                    or annihilating (ISTAC(ITYP,1)) an electron
 !                    from a string of type  ITYP . A zero indicates
@@ -30,15 +31,16 @@ subroutine ZSTINF_GAS(IPRNT)
 ! Input
 ! Only the first element, i.e. ISTAC  is defined
 
-use lucia_data, only: IBGPSTR, ISTAC, MXPSTT, NGAS, NGPSTR, NGRP
-use Definitions, only: iwp, u6
+use lucia_data, only: IBGPSTR, ISTAC, NGAS, NGPSTR
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use lucia_data, only: MXPSTT, NGRP
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: IPRNT
-integer(kind=iwp) :: IGAS, IGRP, IIGRP, MGRP, NTEST
+integer(kind=iwp) :: IGAS, IGRP, IIGRP, MGRP
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
 ! *****************************************************************
 ! Mappings between strings with the same type ISTTP index, +/- 1 el
 ! *****************************************************************
@@ -58,10 +60,10 @@ do IGAS=1,NGAS
   end do
 end do
 
-if (NTEST >= 10) then
-  write(u6,*) ' Type - type mapping array ISTAC'
-  write(u6,*) ' ==============================='
-  call IWRTMA(ISTAC,NGRP,2,MXPSTT,2)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Type - type mapping array ISTAC'
+write(u6,*) ' ==============================='
+call IWRTMA(ISTAC,NGRP,2,MXPSTT,2)
+#endif
 
 end subroutine ZSTINF_GAS

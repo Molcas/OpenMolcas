@@ -12,8 +12,9 @@
 !               2011, Giovanni Li Manni                                *
 !***********************************************************************
 
-subroutine ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,NORB,CVEC,SVEC,NSMST,H,XB,RJ,RK,NSSOA,NSSOB,ECORE,IPRNT,NTOOB,RJKAA,IASPGP,IASM, &
-                        IBSPGP,IBSM,FACTOR)
+!#define _DEBUGPRINT_
+subroutine ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,NORB,CVEC,SVEC,NSMST,H,XB,RJ,RK,NSSOA,NSSOB,ECORE,NTOOB,RJKAA,IASPGP,IASM,IBSPGP, &
+                        IBSM,FACTOR)
 ! Update Sigma vector with diagonal terms for a given block
 !     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
 !                         + FACTOR*DIAG(IASPGP,IBSPGP)CVEC(IASPGP,IBSPGP)
@@ -27,46 +28,45 @@ subroutine ADDDIA_TERMS(NAEL,IASTR,NBEL,IBSTR,NORB,CVEC,SVEC,NSMST,H,XB,RJ,RK,NS
 !     = 2 =>      one+two-body part
 
 use Constants, only: Zero, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), IPRNT, NTOOB, IASPGP, IASM, IBSPGP, IBSM
+integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), NTOOB, IASPGP, IASM, IBSPGP, IBSM
 integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*)
 real(kind=wp), intent(in) :: CVEC(*), H(NORB), RJ(NTOOB,NTOOB), ECORE, FACTOR
 real(kind=wp), intent(inout) :: SVEC(*), RK(NTOOB,NTOOB)
 real(kind=wp), intent(out) :: XB(NORB)
 real(kind=wp), intent(_OUT_) :: RJKAA(*)
-integer(kind=iwp) :: I12, IA, IAEL, IB, IBEL, IDET, IDUM(1), IEL, JEL, NASTR1, NBSTR1, NIA, NIB, NTEST
+integer(kind=iwp) :: I12, IA, IAEL, IB, IBEL, IDET, IDUM(1), IEL, JEL, NASTR1, NBSTR1, NIA, NIB
 real(kind=wp) :: EAA, EB, HB, RJBB, X
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
 IDUM(1) = 0
 I12 = 2
 !if (LUIN > 0) rewind LUIN
 !if (LUOUT > 0) rewind LUOUT
 
-if (NTEST >= 20) then
-  write(u6,*) ' ======================'
-  write(u6,*) ' ADDDIA_TERMS in action'
-  write(u6,*) ' ======================'
-  write(u6,*)
-  write(u6,*) ' IASM, IASPGP, IBSM, IBSPGP = ',IASM,IASPGP,IBSM,IBSPGP
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ======================'
+write(u6,*) ' ADDDIA_TERMS in action'
+write(u6,*) ' ======================'
+write(u6,*)
+write(u6,*) ' IASM, IASPGP, IBSM, IBSPGP = ',IASM,IASPGP,IBSM,IBSPGP
 
-if (NTEST >= 1000) then
-  write(u6,*) ' Diagonal one electron integrals'
-  call WRTMAT(H,1,NORB,1,NORB)
-  if (I12 == 2) then
-    write(u6,*) ' Coulomb and exchange integrals'
-    call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
-    write(u6,*)
-    call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
-  end if
-  write(u6,*) ' FACTOR = ',FACTOR
+write(u6,*) ' Diagonal one electron integrals'
+call WRTMAT(H,1,NORB,1,NORB)
+if (I12 == 2) then
+  write(u6,*) ' Coulomb and exchange integrals'
+  call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
+  write(u6,*)
+  call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
 end if
+write(u6,*) ' FACTOR = ',FACTOR
+#endif
 
 !*3 Diagonal elements according to Handys formulae
 !   (corrected for error)
@@ -81,18 +81,18 @@ end if
 if (I12 == 2) RK(:,:) = RJ(:,:)-RK(:,:)
 
 ! Construct array RJKAA(*) =   SUM(I) H(I)*N(I) +
-!                          0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
+!                          0.5*SUM(I,J) (J(I,J) - K(I,J))*N(I)*N(J)
 !
 ! Obtain alpha strings of sym IASM and type IASPGP
 call GETSTR_TOTSM_SPGP(1,IASPGP,IASM,NAEL,NASTR1,IASTR,NORB,0,IDUM,IDUM)
 
 NIA = NSSOA(IASM,IASPGP)
 
-if (NTEST >= 1000) then
-  write(u6,*) ' After GETSTR for A strings'
-  write(u6,*) ' alpha strings obtained'
-  call IWRTMA(IASTR,NAEL,NIA,NAEL,NIA)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' After GETSTR for A strings'
+write(u6,*) ' alpha strings obtained'
+call IWRTMA(IASTR,NAEL,NIA,NAEL,NIA)
+#endif
 
 do IA=1,NIA
   EAA = Zero
@@ -141,10 +141,10 @@ do IB=1,NIB
   end do ! IA
 end do ! IB
 
-if (NTEST >= 1000) then
-  write(u6,*) ' Input and output vectord, ADDDIA_TERMS'
-  call WRTMAT(CVEC,1,IDET,1,IDET)
-  call WRTMAT(SVEC,1,IDET,1,IDET)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Input and output vectord, ADDDIA_TERMS'
+call WRTMAT(CVEC,1,IDET,1,IDET)
+call WRTMAT(SVEC,1,IDET,1,IDET)
+#endif
 
 end subroutine ADDDIA_TERMS

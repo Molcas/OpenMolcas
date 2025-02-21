@@ -11,6 +11,7 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,SXDXSX, &
                          MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,X,NSMOB,NSMST,MXPOBS,SCLFAC,IPACK)
 ! SUBROUTINE GSBBD2A_LUCIA --> 37
@@ -35,7 +36,7 @@ subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NRO
 ! ADASX : sym of a+, a => sym of a+a
 ! ADSXA : sym of a+, a+a => sym of a
 ! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-! MXPNGAS : Max number of AS spaces ( program parameter )
+! MXPNGAS : Max number of AS spaces (program parameter)
 ! NOBPTS  : Number of orbitals per type and symmetry
 ! IOBPTS : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
@@ -62,7 +63,10 @@ subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NRO
 
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -78,21 +82,20 @@ logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: I, I1IK, I1JL, IBOT, IDXSM, IDXTP, IFIRST, IFRST, II12, IIK, IIKE, IIPART, IJL, IJLE, IKBOFF, IKOBSM, IKOFF, &
                      IKSM, IOFF, ISM, ITOP, ITP(256), ITYP, J, JFRST, JLBOFF, JLOBSM, JLOFF, JLSM, JOFF, JSM, JTP(256), JTYP, K, &
                      K12, KBOT, KEND, KFRST, KOFF, KSM, KTOP, KTP(256), KTYP, L, LDUMMY, LOFF, LSM, LTP(256), LTYP, NDXTP, NI, &
-                     NIBTC, NIK, NJ, NJL, NK, NKBTC, NL, NONEW, NPART, NPARTSZ, NTEST
+                     NIBTC, NIK, NJ, NJL, NK, NKBTC, NL, NONEW, NPART, NPARTSZ
 real(kind=wp) :: FACTOR
 
-NTEST = 0
-if (NTEST >= 1000) then
-  write(u6,*)
-  write(u6,*) ' ================='
-  write(u6,*) ' GSBBD2A in action'
-  write(u6,*) ' ================='
-  write(u6,*)
-  write(u6,*) ' Occupation of active left strings'
-  call IWRTMA(ISEL,1,NGAS,1,NGAS)
-  write(u6,*) ' Occupation of active Right strings'
-  call IWRTMA(ICEL,1,NGAS,1,NGAS)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ================='
+write(u6,*) ' GSBBD2A in action'
+write(u6,*) ' ================='
+write(u6,*)
+write(u6,*) ' Occupation of active left strings'
+call IWRTMA(ISEL,1,NGAS,1,NGAS)
+write(u6,*) ' Occupation of active Right strings'
+call IWRTMA(ICEL,1,NGAS,1,NGAS)
+#endif
 
 IFRST = 1
 JFRST = 1
@@ -112,13 +115,17 @@ call DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NGAS,ISEL,ICEL)
 ! For general use : STSTSX => STSTDX
 IDXSM = STSTSX(ISCSM,ICCSM)
 if (IDXSM /= 0) then
-  if (NTEST >= 1000) write(u6,*) ' ISCSM,ICCSM ',ISCSM,ICCSM
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' ISCSM,ICCSM ',ISCSM,ICCSM
+# endif
   do IDXTP=1,NDXTP
     ITYP = ITP(IDXTP)
     JTYP = JTP(IDXTP)
     KTYP = KTP(IDXTP)
     LTYP = LTP(IDXTP)
-    if (NTEST >= 1000) write(u6,*) ' ITYP JTYP KTYP LTYP ',ITYP,JTYP,KTYP,LTYP
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' ITYP JTYP KTYP LTYP ',ITYP,JTYP,KTYP,LTYP
+#   endif
     do IKOBSM=1,NSMOB
       JLOBSM = SXDXSX(IKOBSM,IDXSM)
       if (JLOBSM == 0) cycle
@@ -279,14 +286,13 @@ if (IDXSM /= 0) then
               JOFF = IOBPTS(JTYP,JSM)
               KOFF = IOBPTS(KTYP,KSM)
               LOFF = IOBPTS(LTYP,LSM)
-              !if ((IOFF == 3) .and. (JOFF == 3) .and. (KOFF == 4) .and. (LOFF == 4)) NTEST = 5000
               LDUMMY = NKBTC*NIBTC
-              if (NTEST >= 2000) then
-                write(u6,*) ' CSCR matrix'
-                call WRTMAT(CSCR,LDUMMY,NJL,LDUMMY,NJL)
-                write(u6,*) ' SSCR matrix'
-                call WRTMAT(SSCR,LDUMMY,NIK,LDUMMY,NIK)
-              end if
+#             ifdef _DEBUGPRINT_
+              write(u6,*) ' CSCR matrix'
+              call WRTMAT(CSCR,LDUMMY,NJL,LDUMMY,NJL)
+              write(u6,*) ' SSCR matrix'
+              call WRTMAT(SSCR,LDUMMY,NIK,LDUMMY,NIK)
+#             endif
 
               if (IFIRST == 1) then
                 FACTOR = Zero
@@ -297,10 +303,10 @@ if (IDXSM /= 0) then
               !    MATML7(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,FACTORC,FACTORAB,ITRNSP)
               call MATML7(X,SSCR,CSCR,NIK,NJL,LDUMMY,NIK,LDUMMY,NJL,FACTOR,-One,1)
               IFIRST = 0
-              if (NTEST >= 2000) then
-                write(u6,*) ' Updated X matrix IK,JL,IK,JL',NIK,NJL,NIK,NJL
-                call WRTMAT(X,NIK,NJL,NIK,NJL)
-              end if
+#             ifdef _DEBUGPRINT_
+              write(u6,*) ' Updated X matrix IK,JL,IK,JL',NIK,NJL,NIK,NJL
+              call WRTMAT(X,NIK,NJL,NIK,NJL)
+#             endif
 
               if (KEND /= 0) exit
             end do

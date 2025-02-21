@@ -12,6 +12,7 @@
 !               2011, Giovanni Li Manni                                *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM)
 ! Update Sigma vector with diagonal terms for a given block
 !     SVEC(IASPGP,IBSPGP) = SVEC(IASPGP,IBSPGP)
@@ -20,7 +21,7 @@ subroutine ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM)
 ! Jeppe Olsen and Giovanni Li Manni, September 2011
 
 use strbas, only: NSTSO
-use lucia_data, only: ECORE, ECORE_ORIG, IPRDIA, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NTOOB
+use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NTOOB
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -33,14 +34,11 @@ implicit none
 real(kind=wp), intent(in) :: FACTOR, CVEC(*)
 real(kind=wp), intent(inout) :: SVEC(*)
 integer(kind=iwp), intent(in) :: IASPGP, IBSPGP, IASM, IBSM
-integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA, NTEST
+integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA
 real(kind=wp) :: ECOREP, FACTORX, SHIFT
 integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:)
 real(kind=wp), allocatable :: LH1D(:), LJ(:), LK(:), LRJKA(:), LXB(:)
 integer(kind=iwp), external :: IMNMX
-
-NTEST = 0
-NTEST = max(NTEST,IPRDIA)
 
 IATP = 1
 IBTP = 2
@@ -49,13 +47,11 @@ NBEL = NELEC(IBTP)
 NOCTPA = NOCTYP(IATP)
 
 #ifdef _DEBUGPRINT_
-if (NTEST >= 10) then
-  write(u6,*) ' =============================='
-  write(u6,*) ' ADDDIA_TERM for BK is speaking'
-  write(u6,*) ' =============================='
-  write(u6,*) ' NAEL NBEL =',NAEL,NBEL
-  write(u6,*) ' IASPGP, IBSPGP = ',IASPGP,IBSPGP
-end if
+write(u6,*) ' =============================='
+write(u6,*) ' ADDDIA_TERM for BK is speaking'
+write(u6,*) ' =============================='
+write(u6,*) ' NAEL NBEL =',NAEL,NBEL
+write(u6,*) ' IASPGP, IBSPGP = ',IASPGP,IBSPGP
 #endif
 ! A bit of scracth
 call mma_allocate(LH1D,NTOOB,Label='LH1D')
@@ -79,8 +75,8 @@ call GTJK(LJ,LK,NTOOB,IREOST)
 SHIFT = ECORE_ORIG-ECORE
 FACTORX = FACTOR+SHIFT
 
-call ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,NACOB,CVEC,SVEC,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,IPRDIA, &
-                  NTOOB,LRJKA,IASPGP,IASM,IBSPGP,IBSM,FACTORX)
+call ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,NACOB,CVEC,SVEC,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,NTOOB,LRJKA, &
+                  IASPGP,IASM,IBSPGP,IBSM,FACTORX)
 ! Flush local memory
 call mma_deallocate(LH1D)
 call mma_deallocate(LJ)

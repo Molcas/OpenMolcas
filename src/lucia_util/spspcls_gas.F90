@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SPSPCLS_GAS(NOCTPA,NOCTPB,IOCA,IOCB,NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS,NCLS,IPRNT)
+!#define _DEBUGPRINT_
+subroutine SPSPCLS_GAS(NOCTPA,NOCTPB,IOCA,IOCB,NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS,NCLS)
 ! Obtain mapping a-supergroup X b-supergroup => class
 !
 ! =====
@@ -32,27 +33,28 @@ subroutine SPSPCLS_GAS(NOCTPA,NOCTPB,IOCA,IOCB,NELFGP,MXPNGAS,NGAS,ISPSPCLS,ICLS
 ! ISPSPCLS(IATP,IBTP) => Class of this block of determinants
 !                        =0 indicates unallowed(class less) combination
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NOCTPA, NOCTPB, MXPNGAS, IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB), NELFGP(*), NGAS, NCLS, &
-                                 ICLS(NGAS,NCLS), IPRNT
+                                 ICLS(NGAS,NCLS)
 integer(kind=iwp), intent(out) :: ISPSPCLS(NOCTPA,NOCTPB)
-integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, IICLS, KCLS, NTEST
+integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, IICLS, KCLS
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
-if (NTEST >= 10) then
-  write(u6,*) ' ISPSPCLS_GAS entered'
-  write(u6,*) ' ===================='
-  write(u6,*)
-  write(u6,*) ' IOCA and IOCB'
-  call IWRTMA(IOCA,NGAS,NOCTPA,MXPNGAS,NGAS)
-  call IWRTMA(IOCB,NGAS,NOCTPB,MXPNGAS,NGAS)
-  write(u6,*)
-  write(u6,*) ' ICLS'
-  call IWRTMA(ICLS,NGAS,NCLS,NGAS,NCLS)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ISPSPCLS_GAS entered'
+write(u6,*) ' ===================='
+write(u6,*)
+write(u6,*) ' IOCA and IOCB'
+call IWRTMA(IOCA,NGAS,NOCTPA,MXPNGAS,NGAS)
+call IWRTMA(IOCB,NGAS,NOCTPB,MXPNGAS,NGAS)
+write(u6,*)
+write(u6,*) ' ICLS'
+call IWRTMA(ICLS,NGAS,NCLS,NGAS,NCLS)
+#endif
 
 do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
@@ -69,11 +71,11 @@ do IATP=1,NOCTPA
   end do
 end do
 
-if (NTEST >= 10) then
-  write(u6,*)
-  write(u6,*) ' Matrix giving classes for alpha-beta supergroups'
-  write(u6,*)
-  call IWRTMA(ISPSPCLS,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' Matrix giving classes for alpha-beta supergroups'
+write(u6,*)
+call IWRTMA(ISPSPCLS,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+#endif
 
 end subroutine SPSPCLS_GAS

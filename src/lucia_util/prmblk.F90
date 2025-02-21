@@ -11,6 +11,7 @@
 ! Copyright (C) 1993, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine PRMBLK(IDC,ISGV,IASM,IBSM,IATP,IBTP,PS,PL,JATP,JBTP,JASM,JBSM,ISGN,ITRP,NPERM)
 ! A block of CI coefficients defined by by IATP,IASM,IBTP,IBSM is given
 !
@@ -39,13 +40,16 @@ subroutine PRMBLK(IDC,ISGV,IASM,IBSM,IATP,IBTP,PS,PL,JATP,JBTP,JASM,JBSM,ISGN,IT
 !   *********************************************************************
 
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: IDC, ISGV(*), IASM, IBSM, IATP, IBTP
 integer(kind=iwp), intent(out) :: JATP(4), JBTP(4), JASM(4), JBSM(4), ISGN(4), ITRP(4), NPERM
 real(kind=wp), intent(in) :: PS, PL
-integer(kind=iwp) :: IPERM, ISET, KASM, KATP, KBSM, KBTP, KSIGN, KTRP, LPERM, LSIGN, LTRP, NTEST
+integer(kind=iwp) :: IPERM, ISET, KASM, KATP, KBSM, KBTP, KSIGN, KTRP, LPERM, LSIGN, LTRP
 
 ! To eliminate some compiler warnings
 KASM = 0
@@ -149,15 +153,14 @@ end do
 ! Should the block be trnasposed or scaled to return to initial form
 ITRP(NPERM+1) = LTRP
 ISGN(NPERM+1) = LSIGN
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,'(A,4I4)') ' Blocks obtained from IASM IBSM IATP IBTP ',IASM,IBSM,IATP,IBTP
-  write(u6,*)
-  write(u6,'(A)') ' JASM JBSM JATP JBTP Isgn Itrp'
-  write(u6,*)
-  do IPERM=1,NPERM
-    write(u6,'(2x,6I4)') JASM(IPERM),JBSM(IPERM),JATP(IPERM),JBTP(IPERM),ISGN(IPERM),ITRP(IPERM)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A,4I4)') ' Blocks obtained from IASM IBSM IATP IBTP ',IASM,IBSM,IATP,IBTP
+write(u6,*)
+write(u6,'(A)') ' JASM JBSM JATP JBTP Isgn Itrp'
+write(u6,*)
+do IPERM=1,NPERM
+  write(u6,'(2x,6I4)') JASM(IPERM),JBSM(IPERM),JATP(IPERM),JBTP(IPERM),ISGN(IPERM),ITRP(IPERM)
+end do
+#endif
 
 end subroutine PRMBLK

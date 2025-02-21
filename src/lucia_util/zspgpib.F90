@@ -11,18 +11,22 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ZSPGPIB(NSTSO,ISTSO,NSPGP,NSMST)
 ! Offset for supergroups of strings with given sym.
 ! Each supergroup is given start address 1
 !
 ! Jeppe Olsen, Still summer of 95
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NSMST, NSPGP, NSTSO(NSMST,NSPGP)
 integer(kind=iwp), intent(out) :: ISTSO(NSMST,NSPGP)
-integer(kind=iwp) :: ISMST, ISPGP, NTEST
+integer(kind=iwp) :: ISMST, ISPGP
 
 do ISPGP=1,NSPGP
   ISTSO(1,ISPGP) = 1
@@ -31,12 +35,11 @@ do ISPGP=1,NSPGP
   end do
 end do
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Output from ZSPGPIB'
-  write(u6,*) ' ==================='
-  write(u6,*)
-  call IWRTMA(ISTSO,NSMST,NSPGP,NSMST,NSPGP)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from ZSPGPIB'
+write(u6,*) ' ==================='
+write(u6,*)
+call IWRTMA(ISTSO,NSMST,NSPGP,NSMST,NSPGP)
+#endif
 
 end subroutine ZSPGPIB

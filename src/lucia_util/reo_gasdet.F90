@@ -18,8 +18,8 @@ subroutine REO_GASDET(IBLOCK,NBLOCK,ISYM,IREO)
 
 use GLBBAS, only: CONF_REO
 use strbas, only: IOCLS, NSTSO
-use lucia_data, only: IB_CONF_REO, IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, IPRDIA, MAXOP, MINOP, MXNSTR, NCONF_PER_OPEN, &
-                      NCONF_TOT, NELEC, NGAS, NMXOCCLS, NOBPT, NOCOB, NPDTCNF, NTOOB, PSSIGN
+use lucia_data, only: IB_CONF_REO, IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, MAXOP, MINOP, MXNSTR, NCONF_PER_OPEN, NCONF_TOT, &
+                      NELEC, NGAS, NMXOCCLS, NOBPT, NOCOB, NPDTCNF, NTOOB, PSSIGN
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
@@ -29,7 +29,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), ISYM
 integer(kind=iwp), intent(_OUT_) :: IREO(*)
-integer(kind=iwp) :: IATP, IBTP, NAEL, NBEL, NEL, NTEST
+integer(kind=iwp) :: IATP, IBTP, NAEL, NBEL, NEL
 integer(kind=iwp), allocatable :: DET_MS(:), DET_OC(:), DET_VC(:), LASTR(:), LBSTR(:), LOCMAX(:), LOCMIN(:), Z(:), ZSCR(:)
 
 !write(u6,*) 'nconf_per_open in reo_gasdet'
@@ -37,8 +37,6 @@ integer(kind=iwp), allocatable :: DET_MS(:), DET_OC(:), DET_VC(:), LASTR(:), LBS
 
 ! Specifications of internal space
 
-NTEST = 0
-NTEST = max(NTEST,IPRDIA)
 ! Type of alpha and beta strings
 IATP = 1
 IBTP = 2

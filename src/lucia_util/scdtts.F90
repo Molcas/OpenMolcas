@@ -11,37 +11,37 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine SCDTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC,IWAY,IPRNT)
+!#define _DEBUGPRINT_
+subroutine SCDTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC)
 ! Scale batch of
 ! blocks between determinant and combination form
 !
-! IWAY = 1 : dets to combs
-! IWAY = 2 : combs to dets
+! dets to combs
 !
 ! The blocks are assumed to be in packed form !!
 !
 ! Jeppe Olsen, August 1995
 
-use Constants, only: One, Two, Half
-use Definitions, only: wp, iwp, u6
+use Constants, only: Two, Half
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 real(kind=wp), intent(inout) :: BLOCKS(*)
-integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC, IWAY, IPRNT
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFFP, IPACK, JBLOCK, NELMNT, NIA, NIB, NTEST
-real(kind=wp) :: FACTOR
+integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFFP, IPACK, JBLOCK, NELMNT, NIA, NIB
 real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
-if (NTEST > 10) then
-  write(u6,*)
-  write(u6,*) ' ======================='
-  write(u6,*) ' Information from SCDTTS'
-  write(u6,*) ' ======================='
-  write(u6,*) ' Input vector'
-  call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ======================='
+write(u6,*) ' Information from SCDTTS'
+write(u6,*) ' ======================='
+write(u6,*) ' Input vector'
+call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
+#endif
 
 do JBLOCK=1,NBLOCK
 
@@ -66,24 +66,16 @@ do JBLOCK=1,NBLOCK
     end if
     ! Ms combinations
     if (IDC == 2) then
-      if (IWAY == 1) then
-        FACTOR = SQ2
-      else
-        FACTOR = SQ2I
-      end if
-      BLOCKS(IOFFP:IOFFP+NELMNT-1) = FACTOR*BLOCKS(IOFFP:IOFFP+NELMNT-1)
-      if (IPACK == 1) then
-        FACTOR = One/FACTOR
-        call SCLDIA(BLOCKS(IOFFP),FACTOR,NIA,1)
-      end if
+      BLOCKS(IOFFP:IOFFP+NELMNT-1) = SQ2*BLOCKS(IOFFP:IOFFP+NELMNT-1)
+      if (IPACK == 1) call SCLDIA(BLOCKS(IOFFP),SQ2I,NIA,1)
     end if
 
   end if
 end do
 
-if (NTEST >= 10) then
-  write(u6,*) ' Output vector'
-  call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output vector'
+call WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
+#endif
 
 end subroutine SCDTTS

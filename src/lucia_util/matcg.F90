@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine MATCG(CIN,COUT,NROWI,NROWO,IROWI1,NGCOL,IGAT,GATSGN)
 ! Gather columns of CIN with phase
 !
@@ -16,7 +17,10 @@ subroutine MATCG(CIN,COUT,NROWI,NROWO,IROWI1,NGCOL,IGAT,GATSGN)
 ! COUT(IR,IC) = 0                                    if IGAT(IC) /= 0
 
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -24,7 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NROWI, NROWO, IROWI1, NGCOL, IGAT(NGCOL)
 real(kind=wp), intent(in) :: CIN(NROWI,*), GATSGN(NGCOL)
 real(kind=wp), intent(_OUT_) :: COUT(NROWO,NGCOL)
-integer(kind=iwp) :: IG, IGFRM, NTEST
+integer(kind=iwp) :: IG, IGFRM
 real(kind=wp) :: SGN
 
 !write(u6,*) ' MATCG NROWI,NROWO,IROWI1,NGCOL'
@@ -40,10 +44,9 @@ do IG=1,NGCOL
   end if
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' Column gathered matrix'
-  call WRTMAT(COUT,NROWO,NGCOL,NROWO,NGCOL)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Column gathered matrix'
+call WRTMAT(COUT,NROWO,NGCOL,NROWO,NGCOL)
+#endif
 
 end subroutine MATCG

@@ -392,9 +392,6 @@ subroutine cpcivc2(CIVec,nCIVEC,ifile,mxrec,isym,lrec)
   real(kind=wp), intent(out) :: CIVec(nCIVec)
   integer(kind=iwp), intent(out) :: lrec(mxrec)
   integer(kind=iwp) :: nRec
-# ifdef _DEBUGPRINT_
-  integer(kind=iwp) :: iOff, iRec
-# endif
 
   ! ==================
   ! Find nrec and lrec

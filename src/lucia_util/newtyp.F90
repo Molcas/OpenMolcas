@@ -22,9 +22,9 @@ subroutine NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
 ! Input
 ! -----
 !
-! INSPGP  : input super group ( given occupation in each AS )
+! INSPGP  : input super group (given occupation in each AS)
 ! IACOP = 1 : operator is an annihilation operator
-!       = 2 : operator is a  creation   operator
+!       = 2 : operator is a creation operator
 ! ITPOP : orbitals space of operator
 !
 ! Output

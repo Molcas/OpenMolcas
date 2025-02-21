@@ -11,10 +11,11 @@
 ! Copyright (C) 1998, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADVICE_SIGMA(IAOCC,IBOCC,JAOCC,JBOCC,LADVICE)
 ! Advice Sigma routine about best route to take
 !
-! LADVICE : ADVICE given ( short, an integer !!)
+! LADVICE : ADVICE given (short, an integer !!)
 !
 ! For ITERM = 1 :
 !   LADVICE = 1 : Business as usual, no transpose of matrix
@@ -29,16 +30,16 @@ subroutine ADVICE_SIGMA(IAOCC,IBOCC,JAOCC,JBOCC,LADVICE)
 
 use lucia_data, only: IADVICE, IPHGAS, MNHL, NGAS, NOBPT
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: IAOCC(*), IBOCC(*), JAOCC(*), JBOCC(*)
 integer(kind=iwp), intent(out) :: LADVICE
-integer(kind=iwp) :: IGAS, IPHMODI, ITP(16), JTP(16), KHOLEA, KHOLEB, KTP(16), LHOLEA, LHOLEB, LLADVICE, LTP(16), NIJTYP, NKLTYP, &
-                     NTEST
+integer(kind=iwp) :: IGAS, IPHMODI, ITP(16), JTP(16), KHOLEA, KHOLEB, KTP(16), LHOLEA, LHOLEB, LLADVICE, LTP(16), NIJTYP, NKLTYP
 real(kind=wp) :: XCJKAJB, XCLJAKB, XFLOPA, XFLOPB, XNIJSX, XNIOB, XNJEL, XNJOB, XNKLSX, XNKOB, XNLEL, XNLOB
-
-NTEST = 0
 
 ! sigma(i,Ka,Ib) = sum(i,kl)<Ib!Eb_kl!Jb>(ij!kl)C(j,Ka,Jb)
 !
@@ -131,24 +132,26 @@ else
     else
       LLADVICE = 2
     end if
-    if ((NTEST >= 100) .and. (LADVICE /= LLADVICE)) then
+#   ifdef _DEBUGPRINT_
+    if (LADVICE /= LLADVICE) then
       write(u6,*) ' Advice changed by hole considetions'
       write(u6,*) ' LADVICE, LLADVICE',LADVICE,LLADVICE
     end if
+#   endif
     LADVICE = LLADVICE
   end if
 
-  if (NTEST >= 100) then
-    write(u6,*) ' ADVICE active'
-    write(u6,*) ' IAOCC JAOCC IBOCC JBOCC'
-    call IWRTMA(IAOCC,1,NGAS,1,NGAS)
-    call IWRTMA(JAOCC,1,NGAS,1,NGAS)
-    call IWRTMA(IBOCC,1,NGAS,1,NGAS)
-    call IWRTMA(JBOCC,1,NGAS,1,NGAS)
-    write(u6,*) ' ITP JTP KTP LTP ',ITP(1),JTP(1),KTP(1),LTP(1)
-    write(u6,*) ' XFLOPA,XFLOPB',XFLOPA,XFLOPB
-    write(u6,*) ' ADVICE given : ',LADVICE
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' ADVICE active'
+  write(u6,*) ' IAOCC JAOCC IBOCC JBOCC'
+  call IWRTMA(IAOCC,1,NGAS,1,NGAS)
+  call IWRTMA(JAOCC,1,NGAS,1,NGAS)
+  call IWRTMA(IBOCC,1,NGAS,1,NGAS)
+  call IWRTMA(JBOCC,1,NGAS,1,NGAS)
+  write(u6,*) ' ITP JTP KTP LTP ',ITP(1),JTP(1),KTP(1),LTP(1)
+  write(u6,*) ' XFLOPA,XFLOPB',XFLOPA,XFLOPB
+  write(u6,*) ' ADVICE given : ',LADVICE
+# endif
 end if
 ! End if several types/ph modi
 

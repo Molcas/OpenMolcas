@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine INVMAT(A,B,NDIM,ISING)
 ! FIND INVERSE OF MATRIX A
 ! INPUT :
@@ -30,7 +31,7 @@ integer(kind=iwp), intent(in) :: NDIM
 real(kind=wp), intent(inout) :: A(NDIM,NDIM)
 real(kind=wp), intent(out) :: B(NDIM,NDIM)
 integer(kind=iwp), intent(out) :: ISING
-integer(kind=iwp) :: ITEST, NTEST
+integer(kind=iwp) :: ITEST
 real(kind=wp) :: DETERM, EPSIL
 
 ITEST = 0
@@ -53,10 +54,9 @@ else
   ISING = 0
 end if
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' INVERTED MATRIX'
-  call WRTMAT(A,NDIM,NDIM,NDIM,NDIM)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' INVERTED MATRIX'
+call WRTMAT(A,NDIM,NDIM,NDIM,NDIM)
+#endif
 
 end subroutine INVMAT

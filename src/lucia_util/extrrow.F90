@@ -11,25 +11,27 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine EXTRROW(INMAT,IROW,NROW,NCOL,IOUTVEC)
 ! Extract row IROW from integer matrix INMAT
 !
 ! Jeppe Olsen, Winter 1996
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NROW, NCOL, INMAT(NROW,NCOL), IROW
 integer(kind=iwp), intent(out) :: IOUTVEC(NCOL)
-integer(kind=iwp) :: NTEST
 
 IOUTVEC(:) = INMAT(IROW,:)
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Output vector from EXTRROW'
-  write(u6,*) ' Extracted ROW ',IROW
-  call IWRTMA(IOUTVEC,1,NCOL,1,NCOL)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output vector from EXTRROW'
+write(u6,*) ' Extracted ROW ',IROW
+call IWRTMA(IOUTVEC,1,NCOL,1,NCOL)
+#endif
 
 end subroutine EXTRROW

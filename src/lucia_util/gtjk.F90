@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GTJK(RJ,RK,NTOOB,IREOST)
 ! Interface routine for obtaining Coulomb (RJ) and
 ! Exchange integrals (RK)
@@ -16,12 +17,15 @@ subroutine GTJK(RJ,RK,NTOOB,IREOST)
 ! Ordering of integrals is in the internal order
 
 use wadr, only: TUVX
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NTOOB, IREOST(NTOOB)
 real(kind=wp), intent(inout) :: RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-integer(kind=iwp) :: NT, NT_REO, NTEST, NTT, NTUJ, NTUK, NTUT, NU, NU_REO
+integer(kind=iwp) :: NT, NT_REO, NTT, NTUJ, NTUK, NTUT, NU, NU_REO
 
 NTUT = 0
 do NT=1,NTOOB
@@ -41,11 +45,10 @@ do NT=1,NTOOB
   end do
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' RJ and RK from GTJK'
-  call WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
-  call WRTMAT(RK,NTOOB,NTOOB,NTOOB,NTOOB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' RJ and RK from GTJK'
+call WRTMAT(RJ,NTOOB,NTOOB,NTOOB,NTOOB)
+call WRTMAT(RK,NTOOB,NTOOB,NTOOB,NTOOB)
+#endif
 
 end subroutine GTJK

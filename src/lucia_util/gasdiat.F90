@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO)
 ! CI diagonal in SD basis for state with symmetry ISM in internal
 ! space ISPC
@@ -18,7 +19,7 @@ subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO)
 ! Driven by table of TTS blocks, May97
 
 use strbas, only: NSTSO
-use lucia_data, only: I_AM_OUT, IDISK, IPRDIA, IREOST, MXNSTR, N_ELIMINATED_BATCHES, NACOB, NELEC, NOCTYP, NTOOB, PSSIGN
+use lucia_data, only: I_AM_OUT, IDISK, IREOST, MXNSTR, N_ELIMINATED_BATCHES, NACOB, NELEC, NOCTYP, NTOOB, PSSIGN
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -33,16 +34,13 @@ implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*)
 integer(kind=iwp), intent(in) :: LUDIA, ICISTR, I12, IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK)
 real(kind=wp), intent(in) :: ECORE
-integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA, NTEST
+integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB
 #endif
 integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:)
 real(kind=wp), allocatable :: LH1D(:), LJ(:), LK(:), LRJKA(:), LXB(:)
 integer(kind=iwp), external :: IMNMX
-
-NTEST = 0
-NTEST = max(NTEST,IPRDIA)
 
 ! Specifications of internal space
 
@@ -57,14 +55,12 @@ NOCTPB = NOCTYP(IBTP)
 ! Offsets for alpha and beta supergroups
 IOCTPA = IBSPGPFTP(IATP)
 IOCTPB = IBSPGPFTP(IBTP)
-if (NTEST >= 10) then
-  write(u6,*) ' ==============='
-  write(u6,*) ' GASDIA speaking'
-  write(u6,*) ' ==============='
-  write(u6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
-  write(u6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
-  write(u6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
-end if
+write(u6,*) ' ==============='
+write(u6,*) ' GASDIA speaking'
+write(u6,*) ' ==============='
+write(u6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
+write(u6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
+write(u6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
 #endif
 
 ! Local memory
@@ -84,8 +80,8 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 call GT1DIA(LH1D)
 call GTJK(LJ,LK,NTOOB,IREOST)
 if (LUDIA > 0) IDISK(LUDIA) = 0
-call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,LUDIA,ECORE,PSSIGN,IPRDIA,NTOOB, &
-             ICISTR,LRJKA,I12,IBLTP,NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
+call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,LUDIA,ECORE,PSSIGN,NTOOB,ICISTR, &
+             LRJKA,I12,IBLTP,NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
 ! Flush local memory
 call mma_deallocate(LJ)
 call mma_deallocate(LK)

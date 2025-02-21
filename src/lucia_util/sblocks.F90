@@ -13,8 +13,8 @@
 
 subroutine SBLOCKS(NSBLOCK,ISBLOCK,CB,SB,C2,ICOCOC,ICSMOS,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST, &
                    NSMOB,NOBPTS,MXPNGAS,MAXK,MAXI,XINT,CSCR,SSCR,STSTSX,STSTDX,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S, &
-                   IDOH2,MXPOBS,ISTRFL,PS,IPRNT,LUC,ICJKAIB,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK, &
-                   IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IPERTOP,IH0SPC,ICBAT_RES,ICBAT_INI,ICBAT_END,IUSE_PH,IPHGAS,I_RES_AB,ISIMSYM)
+                   IDOH2,MXPOBS,ISTRFL,PS,LUC,ICJKAIB,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK, &
+                   IRESTRICT,ICONSPA,ICONSPB,SCLFAC,IH0SPC,ICBAT_RES,ICBAT_INI,ICBAT_END,IPHGAS,I_RES_AB)
 ! SUBROUTINE SBLOCKS --> 91
 !
 ! Direct RAS routine employing combined MOC/n-1 resolution method
@@ -78,9 +78,9 @@ implicit none
 integer(kind=iwp), intent(in) :: NSBLOCK, ISBLOCK(8,*), NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), &
                                  NSSOA(NSMST,*), NSSOB(NSMST,*), NAEL, IAGRP, NBEL, IBGRP, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,*), &
                                  MAXK, MAXI, STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST), MXPOBS, SXDXSX(2*MXPOBS,4*MXPOBS), &
-                                 ADSXA(MXPOBS,2*MXPOBS), NGAS, NELFSPGP(MXPNGAS,*), IDC, IDOH2, ISTRFL(*), IPRNT, LUC, ICJKAIB, &
-                                 MOCAA, IRESTRICT, ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB), IPERTOP, IH0SPC(NOCTPA,NOCTPB), &
-                                 ICBAT_RES, ICBAT_INI, ICBAT_END, IUSE_PH, IPHGAS(*), I_RES_AB, ISIMSYM
+                                 ADSXA(MXPOBS,2*MXPOBS), NGAS, NELFSPGP(MXPNGAS,*), IDC, IDOH2, ISTRFL(*), LUC, ICJKAIB, MOCAA, &
+                                 IRESTRICT, ICONSPA(NOCTPA,NOCTPA), ICONSPB(NOCTPB,NOCTPB), IH0SPC(NOCTPA,NOCTPB), ICBAT_RES, &
+                                 ICBAT_INI, ICBAT_END, IPHGAS(*), I_RES_AB
 real(kind=wp), intent(inout) :: CB(*), SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(_OUT_) :: C2(*), XINT(*), CSCR(*), SSCR(*), CJRES(*), SIRES(*), SCLFAC(*)
 integer(kind=iwp), intent(out) :: IOCTPA, IOCTPB
@@ -92,51 +92,45 @@ integer(kind=iwp) :: I_DO_EXACT_BLK, IASM, IATP, IBSM, IBTP, ICBLK, ICOFF, ICOOS
                      JSBLOCK, LASM(4), LATP(4), LBL, LBSM(4), LBTP(4), LLASM, LLATP, LLBSM, LLBTP, LSGN(5), LTRP(5), MXEXC, NASTR, &
                      NBSTR, NCBATCH, NIA, NIB, NJA, NJB, NJBLOCK, NLLA, NLLB, NPERM
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: IBLOCK, IGAS, II, NTEST
+integer(kind=iwp) :: IBLOCK, IGAS, II
 #endif
 real(kind=wp) :: C(1), FACTOR, PL, XFAC
 ! IH_OCC_CONS = 1 implies that we should employ occupation conserving part of Hamiltonian
 integer(kind=iwp), parameter :: IH_OCC_CONS = 0
 
 #ifdef _DEBUGPRINT_
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
-if (NTEST >= 10) then
-  write(u6,*) ' ================='
-  write(u6,*) ' SBLOCKS speaking :'
-  write(u6,*) ' ================='
-  write(u6,*)
-  write(u6,*) ' Number of sigma blocks to be calculated ',NSBLOCK
-  write(u6,*) ' TTSS for each ACTIVE sigma block'
-  do IBLOCK=1,NSBLOCK
-    if (ISBLOCK(1,IBLOCK) > 0) write(u6,'(10X,4I3,2I8)') (ISBLOCK(II,IBLOCK),II=1,4)
+write(u6,*) ' ================='
+write(u6,*) ' SBLOCKS speaking :'
+write(u6,*) ' ================='
+write(u6,*)
+write(u6,*) ' Number of sigma blocks to be calculated ',NSBLOCK
+write(u6,*) ' TTSS for each ACTIVE sigma block'
+do IBLOCK=1,NSBLOCK
+  if (ISBLOCK(1,IBLOCK) > 0) write(u6,'(10X,4I3,2I8)') (ISBLOCK(II,IBLOCK),II=1,4)
+end do
+write(u6,*) ' IDC PS',IDC,PS
+write(u6,*) ' IDOH2 = ',IDOH2
+write(u6,*) ' I_RES_AB=',I_RES_AB
+if (DoBKAP) then
+  write(u6,*) ' I am doing BK-type of approximation'
+  write(u6,*) ' It is based on orbital splitting'
+  write(u6,*) ' Min and Max for subspace with exact Hamiltonian'
+  write(u6,*) ' ==============================================='
+  write(u6,*) 'NGASBK : ',NGASBK
+  write(u6,*) '              Min. Occ.      Max. Occ.'
+  do IGAS=1,NGASBK
+    write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
   end do
-  write(u6,*) ' IDC PS IPERTOP',IDC,PS,IPERTOP
-  write(u6,*) ' IDOH2 = ',IDOH2
-  write(u6,*) ' I_RES_AB=',I_RES_AB
-  if (DoBKAP) then
-    write(u6,*) ' I am doing BK-type of approximation'
-    write(u6,*) ' It is based on orbital splitting'
-    write(u6,*) ' Min and Max for subspace with exact Hamiltonian'
-    write(u6,*) ' ==============================================='
-    write(u6,*) 'NGASBK : ',NGASBK
-    write(u6,*) '              Min. Occ.      Max. Occ.'
-    do IGAS=1,NGASBK
-      write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
-    end do
-  end if
 end if
 
-if (NTEST >= 50) then
-  write(u6,*) ' Initial C vector'
-  call WRTVCD(CB,LUC,1,-1)
-end if
+write(u6,*) ' Initial C vector'
+call WRTVCD(CB,LUC,1,-1)
 #endif
 ! ==========================
 ! 1 : Arrays for accessing C
 ! ==========================
 ! Find batches of C - strings
-call PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,ICOCOC,ICSMOS,NCBATCH,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,0,ISIMSYM)
+call PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,ICOCOC,ICSMOS,NCBATCH,LCBLOCK,LECBLOCK,I1CBLOCK,ICBLOCK,0)
 ! Find the active blocks on LUC, store info in SCLFAC
 call FIND_ACTIVE_BLOCKS(LUC,-1,SCLFAC,CB)
 
@@ -223,14 +217,12 @@ do JCBATCH=JCBAT_INI,JCBAT_END
     end if
 
 #   ifdef _DEBUGPRINT_
-    if (NTEST >= 100) then
-      if (INTERACT == 1) then
-        write(u6,*) ' TTSS for C block read in'
-        call IWRTMA(ICBLOCK(1,JBLOCK),4,1,4,1)
-      else
-        write(u6,*) ' TTSS for C block skipped'
-        call IWRTMA(ICBLOCK(1,JBLOCK),4,1,4,1)
-      end if
+    if (INTERACT == 1) then
+      write(u6,*) ' TTSS for C block read in'
+      call IWRTMA(ICBLOCK(1,JBLOCK),4,1,4,1)
+    else
+      write(u6,*) ' TTSS for C block skipped'
+      call IWRTMA(ICBLOCK(1,JBLOCK),4,1,4,1)
     end if
 #   endif
 
@@ -298,29 +290,25 @@ do JCBATCH=JCBAT_INI,JCBAT_END
           if ((INTERACT == 0) .or. (I_DO_EXACT_BLK == 0)) cycle
 
 #         ifdef _DEBUGPRINT_
-          if (NTEST >= 100) then
-            write(u6,*) ' Next s block in batch :'
-            write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
-            write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
-          end if
+          write(u6,*) ' Next s block in batch :'
+          write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
+          write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
 #         endif
 
           if ((IDC == 2) .and. (IASM == IBSM) .and. (IATP == IBTP) .and. &
               ((LLBSM > LLASM) .or. (LLASM == LLBSM) .and. (LLBTP > LLATP))) cycle
 
 #         ifdef _DEBUGPRINT_
-          if (NTEST >= 60) then
-            write(u6,*) ' RSSBCB will be called for'
-            write(u6,*) ' Sigma block :'
-            write(u6,*) ' ISOFF ',ISOFF
-            write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
-            write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
-            write(u6,*) ' C     block :'
-            write(u6,*) ' ICBLK LLASM LLBSM LLATP LLBTP'
-            write(u6,'(5I5)') ICBLK,LLASM,LLBSM,LLATP,LLBTP
-            write(u6,*) ' ICOFF ',ICOFF
-            write(u6,*) ' Overall scale',SCLFAC(ICBLK)
-          end if
+          write(u6,*) ' RSSBCB will be called for'
+          write(u6,*) ' Sigma block :'
+          write(u6,*) ' ISOFF ',ISOFF
+          write(u6,*) ' ISBLK IASM IBSM IATP IBTP'
+          write(u6,'(5I5)') ISBLK,IASM,IBSM,IATP,IBTP
+          write(u6,*) ' C     block :'
+          write(u6,*) ' ICBLK LLASM LLBSM LLATP LLBTP'
+          write(u6,'(5I5)') ICBLK,LLASM,LLBSM,LLATP,LLBTP
+          write(u6,*) ' ICOFF ',ICOFF
+          write(u6,*) ' Overall scale',SCLFAC(ICBLK)
 #         endif
 
           if ((IRESTRICT == 1) .and. &
@@ -342,7 +330,7 @@ do JCBATCH=JCBAT_INI,JCBAT_END
             call RSSBCB2(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,NGAS,NELFSPGP(:,IATP+IOCTPA-1),NELFSPGP(:,IBTP+IOCTPB-1), &
                          NELFSPGP(:,LLATP+IOCTPA-1),NELFSPGP(:,LLBTP+IOCTPB-1),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),IDOH2, &
                          ADSXA,STSTSX,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NLLA, &
-                         NLLB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,IPRNT,IPERTOP,XFAC,IUSE_PH,IPHGAS,I_RES_AB)
+                         NLLB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA,XFAC,IPHGAS,I_RES_AB)
           else if (I_DO_EXACT_BLK == -1) then
             ! Giovanni.... transposing sigma and CI vectors:
             call TRPMT3(SB(ISOFF),NIB,NIA,C2)
@@ -389,10 +377,8 @@ do ISBLK=1,NSBLOCK
 end do
 
 #ifdef _DEBUGPRINT_
-if (NTEST >= 50) then
-  write(u6,*) ' output blocks from SBLOCKS'
-  call WRTTTS(SB,ISBLOCK,NSBLOCK,NSMST,NSSOA,NSSOB,1)
-end if
+write(u6,*) ' output blocks from SBLOCKS'
+call WRTTTS(SB,ISBLOCK,NSBLOCK,NSMST,NSSOA,NSSOB,1)
 #endif
 
 end subroutine SBLOCKS

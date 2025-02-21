@@ -13,6 +13,7 @@
 !               2001, Dongxia Ma                                       *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NSTPTP_GAS(NGAS,ISPGRP,NSTSGP,NSMST,NSTSSPGP,IGRP,MXNSTR,NSMCLS,NSMCLSE,NSMCLSE1)
 ! Find number of strings per symmetry for the supergroup defined
 ! by the groups of ISPGRP. The obtained number of strings per sym
@@ -36,24 +37,26 @@ subroutine NSTPTP_GAS(NGAS,ISPGRP,NSTSGP,NSMST,NSTSSPGP,IGRP,MXNSTR,NSMCLS,NSMCL
 
 use Symmetry_Info, only: Mul
 use lucia_data, only: MXPNGAS, MXPNSMST
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NGAS, ISPGRP(NGAS), NSMST, NSTSGP(NSMST,*), IGRP
 integer(kind=iwp), intent(inout) :: NSTSSPGP(NSMST,IGRP)
 integer(kind=iwp), intent(out) :: MXNSTR, NSMCLS, NSMCLSE, NSMCLSE1
 integer(kind=iwp) :: IGAS, ISM, ISM1(MXPNSMST), ISM2(MXPNSMST), ISM_IGAS, ISM_IGASM1, ISYM, MNSM(MXPNGAS), MSM1(MXPNSMST), &
-                     MSM2(MXPNSMST), MXSM(MXPNGAS), NTEST
+                     MSM2(MXPNSMST), MXSM(MXPNGAS)
 
-NTEST = 0
-if (NTEST >= 10) then
-  write(u6,*) ' ======================'
-  write(u6,*) ' NSTPTP_GAS is speaking'
-  write(u6,*) ' ======================'
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ======================'
+write(u6,*) ' NSTPTP_GAS is speaking'
+write(u6,*) ' ======================'
 
-  write(u6,*) ' Supergroup in action'
-  call IWRTMA(ISPGRP,1,NGAS,1,NGAS)
-end if
+write(u6,*) ' Supergroup in action'
+call IWRTMA(ISPGRP,1,NGAS,1,NGAS)
+#endif
 
 ! The NSMCLS* parameters
 
@@ -104,12 +107,12 @@ NSTSSPGP(:,IGRP) = ISM2(1:NSMST)
 MXNSTR = max(0,maxval(NSTSSPGP(:,IGRP)))
 NSMCLS = max(0,maxval(MSM2(1:NSMST)))
 
-if (NTEST >= 10) then
-  write(u6,*) ' Number of strings per symmetry for supergroup',IGRP
-  call IWRTMA10(NSTSSPGP(:,IGRP),1,NSMST,1,NSMST)
-  write(u6,*) ' Largest number of strings of given sym ',MXNSTR
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of strings per symmetry for supergroup',IGRP
+call IWRTMA10(NSTSSPGP(:,IGRP),1,NSMST,1,NSMST)
+write(u6,*) ' Largest number of strings of given sym ',MXNSTR
 
-  write(u6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',NSMCLS,NSMCLSE,NSMCLSE1
-end if
+write(u6,'(A,3(2X,I8))') ' NSMCLS,NSMCLSE,NSMCLSE1=',NSMCLS,NSMCLSE,NSMCLSE1
+#endif
 
 end subroutine NSTPTP_GAS

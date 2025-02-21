@@ -11,12 +11,13 @@
 ! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 ! A rotation matrix X is defining expansion from
 ! old to new orbitals
 !        PHI(NEW) = PHI(OLD) * X
 !
-! change CI coefficients(sym IXSM, space IXSPC )
+! change CI coefficients (sym IXSM, space IXSPC)
 ! so they corresponds to PHI(NEW) basis
 !
 ! The input CI vector is on LUCIN and the transformed CI vector
@@ -35,7 +36,10 @@ subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use lucia_data, only: LUSC1, LUSC2, LUSC3, NSMOB, NTOOB, NTOOBS
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -44,19 +48,18 @@ real(kind=wp), intent(in) :: X(*)
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, IXSPC, IXSM
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 real(kind=wp), allocatable :: SCR(:), LT(:)
-integer(kind=iwp) :: IOFF, ISM, NTEST
+integer(kind=iwp) :: IOFF, ISM
 
 ! Some dummy initializations
 IOFF = 0 ! jwk-cleanup
 
-NTEST = 0
-if (NTEST >= 5) then
-  write(u6,*) ' ================'
-  write(u6,*) ' Welcome to TRACI'
-  write(u6,*) ' ================'
-  write(u6,*)
-  write(u6,*) ' IXSPC,IXSM = ',IXSPC,IXSM
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ================'
+write(u6,*) ' Welcome to TRACI'
+write(u6,*) ' ================'
+write(u6,*)
+write(u6,*) ' IXSPC,IXSM = ',IXSPC,IXSM
+#endif
 ! Memory allocation
 ! for a matrix T
 call mma_allocate(LT,NTOOB**2,Label='LT')

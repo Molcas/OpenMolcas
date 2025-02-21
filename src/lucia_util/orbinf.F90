@@ -11,7 +11,8 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ORBINF(IPRNT)
+!#define _DEBUGPRINT_
+subroutine ORBINF()
 ! Obtain information about orbitals from shell information
 !
 ! =====
@@ -29,21 +30,23 @@ subroutine ORBINF(IPRNT)
 use lucia_data, only: IBSO, IOBPTS, IREOST, IREOTS, ISMFSO, ISMFTO, ITOOBS, ITOOBS, MXPIRR, MXPNGAS, MXPOBS, MXTSOB, NACOB, &
                       NACOBS, NDEOB, NDEOB, NGAS, NGSOBT, NGSSH, NINOB, NINOB, NINOBS, NIRREP, NOBPT, NOBPTS, NOCOB, NSMOB, NTOOB, &
                       NTOOBS
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: IPRNT
-integer(kind=iwp) :: I, IGAS, IGSDEL, IGSINA, IOBSM, IOBTP, IOSPIR(MXPOBS,MXPIRR), ISMOB, LTOB, NGSOB(MXPOBS,MXPNGAS), &
-                     NOSPIR(MXPIRR), NTEST
+integer(kind=iwp) :: IGAS, IGSDEL, IGSINA, IOBSM, IOBTP, IOSPIR(MXPOBS,MXPIRR), ISMOB, LTOB, NGSOB(MXPOBS,MXPNGAS), NOSPIR(MXPIRR)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I
+#endif
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
 !***********************************************
 !                                              *
 ! Part 1 : From shell format to orbital format *
 !                                              *
 !***********************************************
-call OSPIR(NOSPIR,IOSPIR,NIRREP,MXPIRR,MXPOBS,IPRNT)
+call OSPIR(NOSPIR,IOSPIR,MXPIRR,MXPOBS)
 
 ! 2 : Shell information to orbital information for each group of orbital
 
@@ -96,40 +99,40 @@ do IGAS=1,NGAS
     NACOB = NACOB+NGSOBT(IGAS)
   end if
 end do
+#ifdef _DEBUGPRINT_
 ! =================
 ! Well, report back
 ! =================
-if (NTEST > 0) then
-  write(u6,*)
-  write(u6,*) ' Number of orbitals per symmetry :'
-  write(u6,*) ' ================================='
-  write(u6,*)
-  write(u6,'(1X,A,10I4,A)') '            Symmetry  ',(I,I=1,NSMOB)
-  write(u6,'(1X,A,2X,10A)') '           ========== ',('====',I=1,NSMOB)
-  do IGAS=1,NGAS
-    write(u6,'(1X,A,I3,7X,A,10I4,8X,I3)') '   GAS',IGAS,'      ',(NGSOB(I,IGAS),I=1,NSMOB),NGSOBT(IGAS)
-  end do
+write(u6,*)
+write(u6,*) ' Number of orbitals per symmetry :'
+write(u6,*) ' ================================='
+write(u6,*)
+write(u6,'(1X,A,10I4,A)') '            Symmetry  ',(I,I=1,NSMOB)
+write(u6,'(1X,A,2X,10A)') '           ========== ',('====',I=1,NSMOB)
+do IGAS=1,NGAS
+  write(u6,'(1X,A,I3,7X,A,10I4,8X,I3)') '   GAS',IGAS,'      ',(NGSOB(I,IGAS),I=1,NSMOB),NGSOBT(IGAS)
+end do
 
-  write(u6,*) ' Total number of orbitals ',NTOOB
-  write(u6,*) ' Total number of occupied orbitals ',NOCOB
-end if
+write(u6,*) ' Total number of orbitals ',NTOOB
+write(u6,*) ' Total number of occupied orbitals ',NOCOB
+#endif
 ! Offsets for orbitals of given symmetry
 ITOOBS(1) = 1
 do ISMOB=2,NSMOB
   ITOOBS(ISMOB) = ITOOBS(ISMOB-1)+NTOOBS(ISMOB-1)
 end do
 
-if (NTEST > 0) then
-  write(u6,*) ' Offsets for orbital of given symmetry'
-  call IWRTMA(ITOOBS,1,NSMOB,1,NSMOB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Offsets for orbital of given symmetry'
+call IWRTMA(ITOOBS,1,NSMOB,1,NSMOB)
+#endif
 
 !*******************************************
 !                                          *
 ! Part 2 : Reordering arrays for orbitals  *
 !                                          *
 !*******************************************
-call ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISMFTO,IBSO,NOBPTS,IOBPTS,ISMFSO,NOBPT,IPRNT)
+call ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISMFTO,IBSO,NOBPTS,IOBPTS,ISMFSO,NOBPT)
 
 ! Largest number of orbitals of given sym and type
 MXTSOB = 0
@@ -140,6 +143,8 @@ do IOBTP=1,NGAS
     LTOB = LTOB+NOBPTS(IOBTP,IOBSM)
   end do
 end do
-if (NTEST > 0) write(u6,*) ' MXTSOB from ORBINF = ',MXTSOB
+#ifdef _DEBUGPRINT_
+write(u6,*) ' MXTSOB from ORBINF = ',MXTSOB
+#endif
 
 end subroutine ORBINF

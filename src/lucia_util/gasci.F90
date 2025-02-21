@@ -11,7 +11,7 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GASCI(ISM,ISPC,IPRNT)
+subroutine GASCI(ISM,ISPC)
 ! CI optimization in GAS space number ISPC for symmetry ISM
 !
 ! Jeppe Olsen, Winter of 1995
@@ -22,9 +22,9 @@ use strbas, only: NSTSO
 use rasscf_lucia, only: kvec3_length
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use lucia_data, only: ECORE, ECORE_ORIG, I12, I_ELIMINATE_GAS, I_RES_AB, IADVICE, IBSPGPFTP, ICISTR, IDC, IDIAG, IDISK, IGSOCC, &
-                      IH1FORM, IPHGAS, IPRCIX, IREFSM, IRESTR, ISIMSYM, ISMOST, LCSBLK, LUDIA, LUSC1, MNHL, MXINKA, &
-                      MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXSOOB, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, &
-                      NOBPT, NOBPTS, NOCSF, NOCTYP, NSMOB, NSTFSMSPGP, PSSIGN, XISPSM
+                      IH1FORM, IPHGAS, IPRCIX, IREFSM, IRESTR, ISMOST, LCSBLK, LUDIA, LUSC1, MNHL, MXINKA, MXNSTR, MXNTTS, &
+                      MXPNGAS, MXPNSMST, MXSOOB, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NOBPT, NOBPTS, NOCSF, &
+                      NOCTYP, NSMOB, NSTFSMSPGP, PSSIGN, XISPSM
 #ifdef _DEBUGPRINT_
 use lucia_data, only: ICMBSPC, IGSOCCX, LCMBSPC
 #endif
@@ -34,11 +34,10 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: ISM, ISPC, IPRNT
+integer(kind=iwp), intent(in) :: ISM, ISPC
 integer(kind=iwp) :: IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, IOCCLS_ARR(1), IOCTPA, IOCTPB, LBLOCK, LSCR12, LSCR2, MAXA, &
                      MAXA1, MAXB, MAXB1, MAXK, MX_NSPII, MXADKBLK, MXADKBLK_AS, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXCJ_ALLSYM, &
-                     MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCH, NBEL, NBLOCK, NDET, NEL, NOCCLS, NOCTPA, NOCTPB, NTEST, NTTS, NVAR, &
-                     ZERO_ARR(1)
+                     MXSTBL, MXSTBL0, MXSXBL, NAEL, NBATCH, NBEL, NBLOCK, NDET, NEL, NOCCLS, NOCTPA, NOCTPB, NTTS, NVAR, ZERO_ARR(1)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IGAS, II, JGASSPC, JJGASSPC
 #endif
@@ -46,8 +45,6 @@ real(kind=wp) :: SHIFT
 integer(kind=iwp), allocatable :: CIOIO(:), SVST(:)
 integer(kind=iwp), external :: IMNMX
 
-NTEST = 1
-NTEST = max(NTEST,IPRNT)
 !MXACJ = 0
 !MXACIJ = 0
 !MXAADST = 0
@@ -63,40 +60,38 @@ I_RES_AB = 0
 !end if
 
 #ifdef _DEBUGPRINT_
-if (NTEST >= 20) then
-  write(u6,*)
-  write(u6,*) ' ====================================='
-  write(u6,*) ' Control has been transferred to GASCI'
-  write(u6,*) ' ====================================='
-  write(u6,*)
-end if
-if (NTEST >= 5) then
-  write(u6,'(A)') '  A few pertinent data :'
-  write(u6,*)
-  write(u6,'(A,I2)') '  CI space         ',ISPC
-  write(u6,*)
-  write(u6,*) ' Number of GAS spaces included ',LCMBSPC(ISPC)
-  write(u6,'(A,10I3)') '  GAS spaces included           ',(ICMBSPC(II,ISPC),II=1,LCMBSPC(ISPC))
-  write(u6,*)
-  write(u6,*) ' Occupation constraints :'
-  write(u6,*) '========================='
-  write(u6,*)
-  write(u6,*)
-  do JJGASSPC=1,LCMBSPC(ISPC)
-    JGASSPC = ICMBSPC(JJGASSPC,ISPC)
-    write(u6,*) ' Gas space  Min acc. occupation Max acc. occupation'
-    write(u6,*) ' =================================================='
-    do IGAS=1,NGAS
-      write(u6,'(3X,I2,13X,I3,16X,I3)') IGAS,IGSOCCX(IGAS,1,JGASSPC),IGSOCCX(IGAS,2,JGASSPC)
-    end do
+write(u6,*)
+write(u6,*) ' ====================================='
+write(u6,*) ' Control has been transferred to GASCI'
+write(u6,*) ' ====================================='
+write(u6,*)
+write(u6,'(A)') '  A few pertinent data :'
+write(u6,*)
+write(u6,'(A,I2)') '  CI space         ',ISPC
+write(u6,*)
+write(u6,*) ' Number of GAS spaces included ',LCMBSPC(ISPC)
+write(u6,'(A,10I3)') '  GAS spaces included           ',(ICMBSPC(II,ISPC),II=1,LCMBSPC(ISPC))
+write(u6,*)
+write(u6,*) ' Occupation constraints :'
+write(u6,*) '========================='
+write(u6,*)
+write(u6,*)
+do JJGASSPC=1,LCMBSPC(ISPC)
+  JGASSPC = ICMBSPC(JJGASSPC,ISPC)
+  write(u6,*) ' Gas space  Min acc. occupation Max acc. occupation'
+  write(u6,*) ' =================================================='
+  do IGAS=1,NGAS
+    write(u6,'(3X,I2,13X,I3,16X,I3)') IGAS,IGSOCCX(IGAS,1,JGASSPC),IGSOCCX(IGAS,2,JGASSPC)
   end do
-end if
+end do
 #endif
 
 NDET = int(XISPSM(ISM,ISPC))
 !NEL = NELCI(ISPC)
 NEL = 0
-if (NTEST >= 20) write(u6,*) ' Number of determinants/combinations  ',NDET
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of determinants/combinations  ',NDET
+#endif
 if (NDET == 0) then
   write(u6,*) ' The number of determinants/combinations is zero.'
   write(u6,*) ' I am sure that fascinating discussions about'
@@ -130,7 +125,9 @@ else
   NVAR = NCSF_PER_SYM(ISM)
   !*JESPER : Addition end
 end if
-if (IPRNT >= 5) write(u6,*) '  NVAR in GASCI ',NVAR
+#ifdef _DEBUGPRINT_
+write(u6,*) '  NVAR in GASCI ',NVAR
+#endif
 ! Allocate memory for diagonalization
 !if (ISIMSYM == 0) then
 LBLOCK = MXSOOB
@@ -159,7 +156,7 @@ call ZBLTP(ISMOST(:,ISM),NSMST,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 
 ! Batches  of C vector
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,CIOIO,ISMOST(:,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0,ISIMSYM)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,CIOIO,ISMOST(:,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
 ! Number of BLOCKS
 NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 
@@ -228,8 +225,8 @@ MAXK = min(MXINKA,MXSTBL)
 ! Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
 IOCTPA = IBSPGPFTP(IATP)
 IOCTPB = IBSPGPFTP(IBTP)
-call MXRESCPH(CIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NSMOB,MXPNGAS,NGAS,NOBPTS,IPRCIX,MAXK,NELFSPGP,MXCJ, &
-              MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,MXADKBLK_AS,MX_NSPII)
+call MXRESCPH(CIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NSMOB,MXPNGAS,NGAS,NOBPTS,MAXK,NELFSPGP,MXCJ,MXCIJA, &
+              MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,MXADKBLK_AS,MX_NSPII)
 if (IPRCIX >= 2) then
   write(u6,*) 'GASCI  : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
   write(u6,*) ' MXADKBLK, MXADKBLK_AS',MXADKBLK,MXADKBLK_AS

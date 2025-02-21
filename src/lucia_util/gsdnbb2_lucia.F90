@@ -11,10 +11,10 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL, &
                          IJAGRP,IJBGRP,SB,CB,C2,ADSXA,STSTSX,SXDXSX,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3, &
-                         XI3S,I4,XI4S,X,NSMOB,NSMST,NIA,NIB,NJA,NJB,MXPOBS,IPRNT,NACOB,RHO1S,SCLFAC,S2_TERM1,IPHGAS,IDOSRHO1, &
-                         SRHO1,IPACK)
+                         XI3S,I4,XI4S,X,NSMOB,NSMST,NIA,NIB,NJA,NJB,MXPOBS,NACOB,RHO1S,SCLFAC,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
 ! SUBROUTINE GSDNBB2_LUCIA --> 66
 !
 ! Contributions to density matrix from sigma block (iasm iatp, ibsm ibtp) and
@@ -71,14 +71,17 @@ subroutine GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,JASM,JATP
 !
 ! Jeppe Olsen, Winter of 1991
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: I12, IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(*), IBOC(*), JAOC(*), JBOC(*), &
                                  NAEL, NBEL, IJAGRP, IJBGRP, ADSXA(*), STSTSX(*), SXDXSX(*), MXPNGAS, NOBPTS(*), IOBPTS(*), MAXI, &
-                                 MAXK, NSMOB, NSMST, NIA, NIB, NJA, NJB, MXPOBS, IPRNT, NACOB, IPHGAS(*), IDOSRHO1
+                                 MAXK, NSMOB, NSMST, NIA, NIB, NJA, NJB, MXPOBS, NACOB, IPHGAS(*), IDOSRHO1
 real(kind=wp), intent(inout) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), SB(*), CB(*), XI1S(*), XI2S(*), RHO1S(*), S2_TERM1, SRHO1(*)
 real(kind=wp), intent(_OUT_) :: C2(*), SSCR(*), CSCR(*), XI3S(*), XI4S(*), X(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*)
@@ -87,37 +90,35 @@ real(kind=wp), intent(_OUT_) :: SCLFAC
 logical(kind=iwp), intent(in) :: IPACK
 #include "timers.fh"
 real(kind=wp) :: CPU, CPU0, CPU1, WALL, WALL0, WALL1
-integer(kind=iwp) :: IAB, IUSEAB, NTEST
+integer(kind=iwp) :: IAB, IUSEAB
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
-if (NTEST >= 200) then
-  write(u6,*) ' =================='
-  write(u6,*) ' GSDNBB2 :  R block'
-  write(u6,*) ' =================='
-  call WRTMAT(CB,NJA,NJB,NJA,NJB)
-  write(u6,*) ' =================='
-  write(u6,*) ' GSDNBB2 :  L block'
-  write(u6,*) ' =================='
-  call WRTMAT(SB,NIA,NIB,NIA,NIB)
+#ifdef _DEBUGPRINT_
+write(u6,*) ' =================='
+write(u6,*) ' GSDNBB2 :  R block'
+write(u6,*) ' =================='
+call WRTMAT(CB,NJA,NJB,NJA,NJB)
+write(u6,*) ' =================='
+write(u6,*) ' GSDNBB2 :  L block'
+write(u6,*) ' =================='
+call WRTMAT(SB,NIA,NIB,NIA,NIB)
 
-  write(u6,*)
-  write(u6,*) ' Occupation of alpha strings in L'
-  call IWRTMA(IAOC,1,NGAS,1,NGAS)
-  write(u6,*)
-  write(u6,*) ' Occupation of beta  strings in L'
-  call IWRTMA(IBOC,1,NGAS,1,NGAS)
-  write(u6,*)
-  write(u6,*) ' Occupation of alpha strings in R'
-  call IWRTMA(JAOC,1,NGAS,1,NGAS)
-  write(u6,*)
-  write(u6,*) ' Occupation of beta  strings in R'
-  call IWRTMA(JBOC,1,NGAS,1,NGAS)
+write(u6,*)
+write(u6,*) ' Occupation of alpha strings in L'
+call IWRTMA(IAOC,1,NGAS,1,NGAS)
+write(u6,*)
+write(u6,*) ' Occupation of beta  strings in L'
+call IWRTMA(IBOC,1,NGAS,1,NGAS)
+write(u6,*)
+write(u6,*) ' Occupation of alpha strings in R'
+call IWRTMA(JAOC,1,NGAS,1,NGAS)
+write(u6,*)
+write(u6,*) ' Occupation of beta  strings in R'
+call IWRTMA(JBOC,1,NGAS,1,NGAS)
 
-  write(u6,*) ' MAXI,MAXK,NSMOB',MAXI,MAXK,NSMOB
+write(u6,*) ' MAXI,MAXK,NSMOB',MAXI,MAXK,NSMOB
 
-  write(u6,*) 'SCLFAC =',SCLFAC
-end if
+write(u6,*) 'SCLFAC =',SCLFAC
+#endif
 
 if ((IATP == JATP) .and. (IASM == JASM)) then
 
@@ -215,10 +216,10 @@ if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   call TIMING(CPU0,CPU,WALL0,WALL)
   call GSBBD2B_LUCIA(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC, &
                      JBOC,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,MXPOBS, &
-                     IUSEAB,SSCR,CSCR,NACOB,NTEST,SCLFAC,S2_TERM1,IPACK)
+                     IUSEAB,SSCR,CSCR,NACOB,SCLFAC,S2_TERM1,IPACK)
   !    GSBBD2B_LUCIA(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB, &
   !                  ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,MXPOBS,IUSEAB,CJRES, &
-  !                  SIRES,NORB,NTEST)
+  !                  SIRES,NORB)
   call TIMING(CPU1,CPU,WALL1,WALL)
   TDENSI(3) = TDENSI(3)+(WALL1-WALL0)
 

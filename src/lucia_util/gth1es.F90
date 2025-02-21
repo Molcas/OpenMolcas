@@ -9,22 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function GTH1ES(IREOTS,IPNT,H,IBSO,MXPNGAS,IBTSOB,NACOBS,IORB,ITP,ISM,JORB,JTP,JSM,IJSM)
 !
 ! correct combination of row and column symmetry is assumed
 ! IJSM = 1 => Lower triangular packed
 !      else=> No triangular packing
 !
-! Last Revision January 98 (IJSM added )
+! Last Revision January 98 (IJSM added)
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 real(kind=wp) :: GTH1ES
 integer(kind=iwp), intent(in) :: IREOTS(*), IPNT(*), IBSO(*), MXPNGAS, IBTSOB(MXPNGAS,*), NACOBS(*), IORB, ITP, ISM, JORB, JTP, &
                                  JSM, IJSM
 real(kind=wp), intent(in) :: H(*)
-integer(kind=iwp) :: I_ABS, IJ, IJMAX, IJMIN, IREO, JABS, JREO, NI, NJ, NTEST
+integer(kind=iwp) :: I_ABS, IJ, IJMAX, IJMIN, IREO, JABS, JREO, NI, NJ
 
 I_ABS = IORB+IBTSOB(ITP,ISM)-1
 IREO = IREOTS(I_ABS)
@@ -52,12 +56,11 @@ else
 end if
 
 GTH1ES = H(IJ)
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' one electron integral'
-  write(u6,*) ' IORB ITP ISM ',IORB,ITP,ISM
-  write(u6,*) ' JORB JTP JSM ',JORB,JTP,JSM
-  write(u6,*) ' IJ and H(IJ) ',IJ,H(IJ)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' one electron integral'
+write(u6,*) ' IORB ITP ISM ',IORB,ITP,ISM
+write(u6,*) ' JORB JTP JSM ',JORB,JTP,JSM
+write(u6,*) ' IJ and H(IJ) ',IJ,H(IJ)
+#endif
 
 end function GTH1ES

@@ -11,6 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB)
 ! Reform between two ways of writing occupations
 !
@@ -25,12 +26,15 @@ subroutine REFORM_CONF_OCC(IOCC_EXP,IOCC_PCK,NEL,NOCOB)
 !
 ! Jeppe Olsen, Nov. 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NEL, IOCC_EXP(NEL), NOCOB
 integer(kind=iwp), intent(out) :: IOCC_PCK(NOCOB)
-integer(kind=iwp) :: IEL, IOCC, NTEST
+integer(kind=iwp) :: IEL, IOCC
 
 ! Expanded => Packed form
 
@@ -58,14 +62,13 @@ do
   if (IEL > NEL) exit
 end do
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Reforming form of configuration'
-  write(u6,*) ' Expanded to packed form'
-  write(u6,*) ' IOCC_EXP :'
-  call IWRTMA(IOCC_EXP,1,NEL,1,NEL)
-  write(u6,*) ' IOCC_PCK :'
-  call IWRTMA(IOCC_PCK,1,NOCOB,1,NOCOB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Reforming form of configuration'
+write(u6,*) ' Expanded to packed form'
+write(u6,*) ' IOCC_EXP :'
+call IWRTMA(IOCC_EXP,1,NEL,1,NEL)
+write(u6,*) ' IOCC_PCK :'
+call IWRTMA(IOCC_PCK,1,NOCOB,1,NOCOB)
+#endif
 
 end subroutine REFORM_CONF_OCC

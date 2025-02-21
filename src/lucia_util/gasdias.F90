@@ -12,8 +12,8 @@
 !               2015, Lasse Kragh Soerensen                            *
 !***********************************************************************
 
-subroutine GASDIAS(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,XB,RJ,RK,NSSOA,NSSOB,LUDIA,ECORE,PSSIGN,IPRNT,NTOOB,ICISTR,RJKAA,I12, &
-                   IBLTP,NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
+subroutine GASDIAS(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,XB,RJ,RK,NSSOA,NSSOB,LUDIA,ECORE,PSSIGN,NTOOB,ICISTR,RJKAA,I12,IBLTP, &
+                   NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
 ! Calculate determinant diagonal
 ! Turbo-ras version
 !
@@ -33,48 +33,52 @@ subroutine GASDIAS(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,XB,RJ,RK,NSSOA,NSSOB,
 
 use lucia_data, only: IDISK
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), LUDIA, IPRNT, NTOOB, ICISTR, I12, &
-                                 IBLTP(*), NBLOCK, IBLKFO(8,NBLOCK), I_AM_OUT(*), N_ELIMINATED_BATCHES
+integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, NSSOA(NSMST,*), NSSOB(NSMST,*), LUDIA, NTOOB, ICISTR, I12, IBLTP(*), &
+                                 NBLOCK, IBLKFO(8,NBLOCK), I_AM_OUT(*), N_ELIMINATED_BATCHES
 integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*)
 real(kind=wp), intent(_OUT_) :: DIAG(*), RJKAA(*)
 real(kind=wp), intent(in) :: H(NORB), RJ(NTOOB,NTOOB), ECORE, PSSIGN
 real(kind=wp), intent(out) :: XB(NORB)
 real(kind=wp), intent(inout) :: RK(NTOOB,NTOOB)
-integer(kind=iwp) :: I, I_AM_NOT_WANTED, IA, IAEL, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBLK, IBLOCK, IBSM, IBSTOP, IBSTRT, IBTP, &
-                     IDET, IDUM_ARR(1), IEL, II, IOFF, IREST1, ITDET, JEL, NASTR1, NBSTR1, NTEST
+integer(kind=iwp) :: I, I_AM_NOT_WANTED, IA, IAEL, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBLK, IBSM, IBSTOP, IBSTRT, IBTP, IDET, &
+                     IDUM_ARR(1), IEL, IOFF, IREST1, ITDET, JEL, NASTR1, NBSTR1
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IBLOCK, II
+#endif
 real(kind=wp) :: EAA, EB, HB, RJBB, X, XADD
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
 if (PSSIGN == -One) then
   XADD = 1.0e6_wp
 else
   XADD = Zero
 end if
 
-if (NTEST >= 20) then
-  write(u6,*) ' Diagonal one electron integrals'
-  call WRTMAT(H,1,NORB,1,NORB)
-  write(u6,*) ' Core energy ',ECORE
-  if (I12 == 2) then
-    write(u6,*) ' Coulomb and exchange integrals'
-    call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
-    write(u6,*)
-    call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
-  end if
-
-  write(u6,*) ' TTSS for Blocks'
-  do IBLOCK=1,NBLOCK
-    write(u6,'(10X,4I3,2I8)') (IBLKFO(II,IBLOCK),II=1,4)
-  end do
-
-  write(u6,*) ' I12 = ',I12
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Diagonal one electron integrals'
+call WRTMAT(H,1,NORB,1,NORB)
+write(u6,*) ' Core energy ',ECORE
+if (I12 == 2) then
+  write(u6,*) ' Coulomb and exchange integrals'
+  call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
+  write(u6,*)
+  call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
 end if
+
+write(u6,*) ' TTSS for Blocks'
+do IBLOCK=1,NBLOCK
+  write(u6,'(10X,4I3,2I8)') (IBLKFO(II,IBLOCK),II=1,4)
+end do
+
+write(u6,*) ' I12 = ',I12
+#endif
 
 ! Diagonal elements according to Handys formulae
 ! (corrected for error)
@@ -113,7 +117,7 @@ do IBLK=1,NBLOCK
   end if
 
   ! Construct array RJKAA(*) =   SUM(I) H(I)*N(I) +
-  !                          0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
+  !                          0.5*SUM(I,J) (J(I,J) - K(I,J))*N(I)*N(J)
 
   ! Obtain alpha strings of sym IASM and type IATP
   IDUM_ARR = 0
@@ -189,10 +193,10 @@ do IBLK=1,NBLOCK
   ! End of loop over betastrings
   ! Yet a RAS block of the diagonal has been constructed
   if (ICISTR >= 2) then
-    if (NTEST >= 100) then
-      write(u6,*) ' number of diagonal elements to disc ',IDET
-      call WRTMAT(DIAG,1,IDET,1,IDET)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' number of diagonal elements to disc ',IDET
+    call WRTMAT(DIAG,1,IDET,1,IDET)
+#   endif
     IDUM_ARR(1) = IDET
     call ITODS(IDUM_ARR,1,-1,LUDIA)
     call TODSC(DIAG,IDET,-1,LUDIA)
@@ -201,12 +205,16 @@ do IBLK=1,NBLOCK
 end do
 ! End of loop over blocks
 
-if (NTEST >= 5) write(u6,*) ' Number of diagonal elements generated (1)',ITDET
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of diagonal elements generated (1)',ITDET
+#endif
 
-if ((NTEST >= 100) .and. (ICISTR <= 1)) then
+#ifdef _DEBUGPRINT_
+if (ICISTR <= 1) then
   write(u6,*) ' CIDIAGONAL'
   call WRTMAT(DIAG,1,IDET,1,IDET)
 end if
+#endif
 
 if (ICISTR >= 2) then
   IDUM_ARR(1) = -1

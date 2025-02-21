@@ -74,7 +74,7 @@ if (IZERO == 0) then
 
 else
   ! here if iZERO == 1
-  ! Use Jeppes version ( it should be working )
+  ! Use Jeppes version (it should be working)
   if (ITRNSP == 0) then
     ! ======
     ! C=A*B
@@ -143,11 +143,11 @@ if (ITRNSP == 3) then
   end do
 end if
 
-!if (NTEST == 0) then
-!  write(u6,*)
-!  write(u6,*) ' C MATRIX FROM MATML7'
-!  write(u6,*)
-!  call WRTMAT(C,NCROW,NCCOL,NCROW,NCCOL)
-!end if
+!#ifdef _DEBUGPRINT_
+!write(u6,*)
+!write(u6,*) ' C MATRIX FROM MATML7'
+!write(u6,*)
+!call WRTMAT(C,NCROW,NCCOL,NCROW,NCCOL)
+!#endif
 
 end subroutine MATML7

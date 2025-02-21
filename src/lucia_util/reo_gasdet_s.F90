@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine REO_GASDET_S(IREO,NSSOA,NSSOB,NBLOCK,IBLOCK,NAEL,NBEL,IASTR,IBSTR,NSMST,NOCCLS,NGAS,IOCCLS,NORB,NOBPT,IB_CONF_OPEN, &
                         iconf_reo,nconf_tot,ib_conf_reo,maxop,nconf_per_open,IB_SD_FOR_OPEN,IZSCR,IZ,IOCMIN,IOCMAX,IDET_OC, &
                         IDET_MS,IDET_VC,MINOP,IBCONF_ALL_SYM_FOR_OCCLS,PSSIGN,NPDTCNF)
@@ -36,11 +37,8 @@ integer(kind=iwp), intent(inout) :: IASTR(*), IBSTR(*)
 real(kind=wp), intent(in) :: PSSIGN
 integer(kind=iwp) :: IA, IADR_SD_CONF_ORDER, IAGRP, IASM, IATP, IB, IB_OCCLS, IBCNF_OUT, IBGRP, IBSM, IBTP, icnf_out, IDET, &
                      IDUM(1), IOC, IPTDT, IRESTR, ISIGN_2003, ISGN, JBLOCK, MINIA, NASTR1, NBSTR1, nconf_op, NCONF_P, NDOUBLE, &
-                     NEL, NIA, NIB, NOCOB, NOPEN, NOPEN_AL, NPTDT, NTEST
+                     NEL, NIA, NIB, NOCOB, NOPEN, NOPEN_AL, NPTDT
 integer(kind=iwp), external :: ilex_for_conf_new, IZNUM_PTDT, NOP_FOR_CONF
-
-
-NTEST = 0
 
 IAGRP = 1
 IBGRP = 2
@@ -58,8 +56,8 @@ do JBLOCK=1,NBLOCK
   call IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
   !    IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
   ! Arcweights for this occupation class
-  call MXMNOC_OCCLS(IOCMIN,IOCMAX,NGAS,NOBPT,IOCCLS(:,IOC),MINOP,NTEST)
-  !    MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,NTESTG)
+  call MXMNOC_OCCLS(IOCMIN,IOCMAX,NGAS,NOBPT,IOCCLS(:,IOC),MINOP)
+  !    MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP)
   ! the arcweights
   call CONF_GRAPH(IOCMIN,IOCMAX,NORB,NEL,IZ,NCONF_P,IZSCR)
   !    CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
@@ -171,11 +169,10 @@ do JBLOCK=1,NBLOCK
 end do
 ! End of loop over blocks
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Reorder array, CONF order => string order'
-  write(u6,*) ' ========================================='
-  call IWRTMA(IREO,1,IDET,1,IDET)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Reorder array, CONF order => string order'
+write(u6,*) ' ========================================='
+call IWRTMA(IREO,1,IDET,1,IDET)
+#endif
 
 end subroutine REO_GASDET_S

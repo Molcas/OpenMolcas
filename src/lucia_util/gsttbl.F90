@@ -14,7 +14,7 @@ subroutine GSTTBL(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICO
 ! Variables status:
 ! C     = input CI vector
 ! CTT   = output CI vector in SD format
-! obtain  determinant block (iatp iasm, ibtp ibsm )
+! obtain  determinant block (iatp iasm, ibtp ibsm)
 ! from vector packed in combination format according to IDC
 !
 ! If ISCALE = 1, the routine scales and returns the block

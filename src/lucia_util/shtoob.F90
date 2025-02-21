@@ -11,6 +11,7 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine SHTOOB(NSHPIR,NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NOBPS,NOB)
 ! Number of shells per irrep => Number of orbitals per symmetry
 !
@@ -32,12 +33,15 @@ subroutine SHTOOB(NSHPIR,NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NOBPS,NOB)
 !
 ! Jeppe Olsen, Winter of 1991
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NIRREP, NSHPIR(NIRREP), MXPOBS, NSMOB, NOSPIR(NIRREP), IOSPIR(MXPOBS,NIRREP)
 integer(kind=iwp), intent(out) :: NOBPS(NSMOB), NOB
-integer(kind=iwp) :: IISM, IRREP, ISM, NTEST
+integer(kind=iwp) :: IISM, IRREP, ISM
 
 NOBPS(1:NSMOB) = 0
 NOB = 0
@@ -49,13 +53,12 @@ do IRREP=1,NIRREP
   end do
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' SHTOOB Speaking'
-  write(u6,*) ' ==============='
-  write(u6,*) ' Number of orbitals obtained ',NOB
-  write(u6,*) ' Number of orbitals per symmetry'
-  call IWRTMA(NOBPS,1,NSMOB,1,NSMOB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' SHTOOB Speaking'
+write(u6,*) ' ==============='
+write(u6,*) ' Number of orbitals obtained ',NOB
+write(u6,*) ' Number of orbitals per symmetry'
+call IWRTMA(NOBPS,1,NSMOB,1,NSMOB)
+#endif
 
 end subroutine SHTOOB

@@ -9,18 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine MATCAS(CIN,COUT,NROWI,NROWO,IROWO1,NGCOL,ISCA,SCASGN)
 ! COUT(IR+IROWO1-1,ISCA(IC)) =
 ! COUT(IR+IROWO1-1,ISCA(IC)) + CIN(IR,IC)*SCASGN(IC)
 ! (if IGAT(IC) /= 0)
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NROWI, NROWO, IROWO1, NGCOL, ISCA(NGCOL)
 real(kind=wp), intent(in) :: CIN(NROWI,*), SCASGN(*)
 real(kind=wp), intent(inout) :: COUT(NROWO,*)
-integer(kind=iwp) :: IC, ICEXP, MAXCOL, NTEST
+integer(kind=iwp) :: IC, ICEXP, MAXCOL
 real(kind=wp) :: SGN
 
 MAXCOL = 0
@@ -33,10 +37,9 @@ do IC=1,NGCOL
   end if
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' Output from MATCAS'
-  call WRTMAT(COUT,NROWO,MAXCOL,NROWO,MAXCOL)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from MATCAS'
+call WRTMAT(COUT,NROWO,MAXCOL,NROWO,MAXCOL)
+#endif
 
 end subroutine MATCAS

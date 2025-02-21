@@ -11,6 +11,7 @@
 ! Copyright (C) 1999, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CON_BLOCKS(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,ICONSPA,ICONSPB,NOCTPA,NOCTPB,MXEXC,IH_OCC_CONS,INTERACT)
 ! Does CI blocks IATP IBTP interact with blocks JATP JBTP
 !
@@ -30,13 +31,16 @@ subroutine CON_BLOCKS(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,ICONSPA,ICONSPB,NO
 !
 ! Jeppe Olsen, April 99
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM, NOCTPA, ICONSPA(NOCTPA,NOCTPA), NOCTPB, &
                                  ICONSPB(NOCTPB,NOCTPB), MXEXC, IH_OCC_CONS
 integer(kind=iwp), intent(inout) :: INTERACT
-integer(kind=iwp) :: IA_EXC, IB_EXC, NTEST
+integer(kind=iwp) :: IA_EXC, IB_EXC
 
 IA_EXC = ICONSPA(IATP,JATP)
 IB_EXC = ICONSPB(IBTP,JBTP)
@@ -83,11 +87,10 @@ if (IH_OCC_CONS == 0) then
 !  end if
 end if
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Output from CONBLOCKS'
-  write(u6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
-  write(u6,*) ' IH_OCC_CONS, INTERACT = ',IH_OCC_CONS,INTERACT
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from CONBLOCKS'
+write(u6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
+write(u6,*) ' IH_OCC_CONS, INTERACT = ',IH_OCC_CONS,INTERACT
+#endif
 
 end subroutine CON_BLOCKS

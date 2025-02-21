@@ -9,16 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function IBASSPC_FOR_CLS(ICLS)
 ! Obtain base space for occupation class ICLS
 
 use lucia_data, only: ICMBSPC, IGSOCCX, LCMBSPC, NCMBSPC, NCMBSPC, NGAS
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: IBASSPC_FOR_CLS
 integer(kind=iwp), intent(in) :: ICLS(NGAS)
-integer(kind=iwp) :: I_AM_OKAY, IBASE, IGAS, ISPC, JJSPC, JSPC, NEL, NTEST
+integer(kind=iwp) :: I_AM_OKAY, IBASE, IGAS, ISPC, JJSPC, JSPC, NEL
 
 ! Some dummy initializations
 
@@ -50,11 +54,10 @@ end do
 
 IBASSPC_FOR_CLS = IBASE
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Occupation class and its basespace'
-  call IWRTMA(ICLS,1,NGAS,1,NGAS)
-  write(u6,*) IBASE
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Occupation class and its basespace'
+call IWRTMA(ICLS,1,NGAS,1,NGAS)
+write(u6,*) IBASE
+#endif
 
 end function IBASSPC_FOR_CLS

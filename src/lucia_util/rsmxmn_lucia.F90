@@ -9,13 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RSMXMN_LUCIA(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MN1,MX1,MN3,MX3,NTEST)
+!#define _DEBUGPRINT_
+subroutine RSMXMN_LUCIA(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MN1,MX1,MN3,MX3)
 ! Construct accumulated MAX and MIN arrays for a RAS set of strings
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NORB1, NORB2, NORB3, NEL, MN1, MX1, MN3, MX3, NTEST
+integer(kind=iwp), intent(in) :: NORB1, NORB2, NORB3, NEL, MN1, MX1, MN3, MX3
 integer(kind=iwp), intent(out) :: MAXEL(NORB1+NORB2+NORB3), MINEL(NORB1+NORB2+NORB3)
 integer(kind=iwp) :: IORB, MAX1A, MAX2A, MAX3A, MIN1A, MIN2A, MIN3A, NORB
 
@@ -47,13 +51,13 @@ do IORB=1,NORB
   end if
 end do
 
-if (NTEST >= 100) then
-  write(u6,*) ' Output from RSMXMN'
-  write(u6,*) ' =================='
-  write(u6,*) ' MINEL :'
-  call IWRTMA(MINEL,1,NORB,1,NORB)
-  write(u6,*) ' MAXEL :'
-  call IWRTMA(MAXEL,1,NORB,1,NORB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from RSMXMN'
+write(u6,*) ' =================='
+write(u6,*) ' MINEL :'
+call IWRTMA(MINEL,1,NORB,1,NORB)
+write(u6,*) ' MAXEL :'
+call IWRTMA(MAXEL,1,NORB,1,NORB)
+#endif
 
 end subroutine RSMXMN_LUCIA

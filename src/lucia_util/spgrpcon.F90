@@ -11,7 +11,8 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
+!#define _DEBUGPRINT_
+subroutine SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON)
 ! Find connection matrix for string types
 !
 ! ISPGRPCON(ISPGP,JSPGRP) = 0 => spgrps are identical
@@ -21,15 +22,18 @@ subroutine SPGRPCON(IOFSPGRP,NSPGRP,NGAS,MXPNGAS,IELFSPGRP,ISPGRPCON,IPRNT)
 !
 ! Jeppe Olsen, September 1996
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: wp, u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: IOFSPGRP, NSPGRP, NGAS, MXPNGAS, IELFSPGRP(MXPNGAS,*), IPRNT
+integer(kind=iwp), intent(in) :: IOFSPGRP, NSPGRP, NGAS, MXPNGAS, IELFSPGRP(MXPNGAS,*)
 integer(kind=iwp), intent(out) :: ISPGRPCON(NSPGRP,NSPGRP)
-integer(kind=iwp) :: IDIF, ISPGRP, ISPGRPA, JSPGRP, JSPGRPA, NEXC, NEXC1, NEXC2, NTEST
-
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
+integer(kind=iwp) :: IDIF, ISPGRP, ISPGRPA, JSPGRP, JSPGRPA, NEXC
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NEXC1, NEXC2
+#endif
 
 do ISPGRP=1,NSPGRP
   ISPGRPA = IOFSPGRP-1+ISPGRP
@@ -42,32 +46,29 @@ do ISPGRP=1,NSPGRP
   end do
 end do
 
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) '===================='
-  write(u6,*) 'output from SPGRPCON'
-  write(u6,*) '===================='
-  write(u6,*)
-  NEXC1 = 0
-  NEXC2 = 0
-  do ISPGRP=1,NSPGRP
-    do JSPGRP=1,NSPGRP
-      if (ISPGRPCON(ISPGRP,JSPGRP) == 1) then
-        NEXC1 = NEXC1+1
-      else if (ISPGRPCON(ISPGRP,JSPGRP) == 2) then
-        NEXC2 = NEXC2+1
-      end if
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) '===================='
+write(u6,*) 'output from SPGRPCON'
+write(u6,*) '===================='
+write(u6,*)
+NEXC1 = 0
+NEXC2 = 0
+do ISPGRP=1,NSPGRP
+  do JSPGRP=1,NSPGRP
+    if (ISPGRPCON(ISPGRP,JSPGRP) == 1) then
+      NEXC1 = NEXC1+1
+    else if (ISPGRPCON(ISPGRP,JSPGRP) == 2) then
+      NEXC2 = NEXC2+1
+    end if
   end do
+end do
 
-  write(u6,*) ' single excitation interactions',NEXC1,'( ',real(NEXC1,kind=wp)*100.0_wp/real(NSPGRP,kind=wp)**2,' % )'
-  write(u6,*) ' double excitation interactions',NEXC2,'( ',real(NEXC2,kind=wp)*100.0_wp/real(NSPGRP,kind=wp)**2,' % )'
+write(u6,*) ' single excitation interactions',NEXC1,'( ',real(NEXC1,kind=wp)*100.0_wp/real(NSPGRP,kind=wp)**2,' % )'
+write(u6,*) ' double excitation interactions',NEXC2,'( ',real(NEXC2,kind=wp)*100.0_wp/real(NSPGRP,kind=wp)**2,' % )'
 
-end if
-
-if (NTEST >= 1000) then
-  write(u6,*) ' Supergroup connection matrix'
-  call IWRTMA(ISPGRPCON,NSPGRP,NSPGRP,NSPGRP,NSPGRP)
-end if
+write(u6,*) ' Supergroup connection matrix'
+call IWRTMA(ISPGRPCON,NSPGRP,NSPGRP,NSPGRP,NSPGRP)
+#endif
 
 end subroutine SPGRPCON

@@ -11,11 +11,11 @@
 ! Copyright (C) 1991,1995,1997-1999, Jeppe Olsen                       *
 !***********************************************************************
 
-subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NACOB,NSSOA,NSSOB,NAEL,IAGRP, &
-                        NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,CSCR,SSCR,STSTSX, &
-                        SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,MXPOBS,IPRNT,RHO1S,LUL,LUR,PSL,PSR, &
-                        NBATCHL,LBATL,I1BATL,IBLOCKL,NBATCHR,LBATR,I1BATR,IBLOCKR,ICONSPA,ICONSPB,SCLFAC_L,SCLFAC_R,S2_TERM1, &
-                        IPHGAS,IDOSRHO1,SRHO1,IPACK)
+!#define _DEBUGPRINT_
+subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,CB,SB,C2,NACOB,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB, &
+                        NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,CSCR,SSCR,STSTSX,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S,I2, &
+                        XI2S,I3,XI3S,I4,XI4S,X,MXPOBS,RHO1S,LUL,LUR,PSL,PSR,NBATCHL,LBATL,I1BATL,IBLOCKL,NBATCHR,LBATR,I1BATR, &
+                        IBLOCKR,ICONSPA,ICONSPB,SCLFAC_L,SCLFAC_R,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
 ! SUBROUTINE GASDN2_LUCIA --> 89
 !
 ! Jeppe Olsen, Winter of 1991
@@ -68,17 +68,19 @@ subroutine GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,
 use lucia_data, only: IDISK
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), NSMST, ICSMOS(NSMST), &
-                                 ISSMOS(NSMST), ICBLTP(*), ISBLTP(*), NACOB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), NAEL, &
-                                 IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,NSMOB), IOBPTS(MXPNGAS,NSMOB), &
-                                 MAXK, MAXI, STSTSX(NSMST,NSMST), MXPOBS, SXDXSX(2*MXPOBS,4*MXPOBS), ADSXA(MXPOBS,2*MXPOBS), NGAS, &
-                                 NELFSPGP(MXPNGAS,*), IDC, IPRNT, LUL, LUR, NBATCHL, LBATL(NBATCHL), I1BATL(NBATCHL), &
-                                 IBLOCKL(8,*), NBATCHR, LBATR(NBATCHR), I1BATR(NBATCHR), IBLOCKR(8,*), ICONSPA(NOCTPA,NOCTPA), &
+integer(kind=iwp), intent(in) :: I12, NOCTPA, NOCTPB, NSMST, NACOB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), NAEL, IAGRP, NBEL, &
+                                 IBGRP, IOCTPA, IOCTPB, NSMOB, MXPNGAS, NOBPTS(MXPNGAS,NSMOB), IOBPTS(MXPNGAS,NSMOB), MAXK, MAXI, &
+                                 STSTSX(NSMST,NSMST), MXPOBS, SXDXSX(2*MXPOBS,4*MXPOBS), ADSXA(MXPOBS,2*MXPOBS), NGAS, &
+                                 NELFSPGP(MXPNGAS,*), IDC, LUL, LUR, NBATCHL, LBATL(NBATCHL), I1BATL(NBATCHL), IBLOCKL(8,*), &
+                                 NBATCHR, LBATR(NBATCHR), I1BATR(NBATCHR), IBLOCKR(8,*), ICONSPA(NOCTPA,NOCTPA), &
                                  ICONSPB(NOCTPB,NOCTPB), IPHGAS(*), IDOSRHO1
 real(kind=wp), intent(inout) :: RHO1(*), RHO2(*), RHO2S(*), RHO2A(*), XI1S(*), XI2S(*), RHO1S(*), SCLFAC_L(*), SCLFAC_R(*), &
                                 S2_TERM1, SRHO1(*)
@@ -91,37 +93,33 @@ logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: IABEXC, IAEXC, IASM, IATP, IBATCHL, IBATCHR, IBEXC, IBSM, IBTP, IDUMMY(1), IIASM, IIATP, IIBSM, IIBTP, IIL, &
                      IIR, IL, ILPERM, INTERACT, IOFF, IPERM, IR, ISCALE, ISTRFL(1), JASM, JATP, JBSM, JBTP, JOFF, LASM(4), &
                      LATP(4), LBL(1), LBSM(4), LBTP(4), LCOL, LROW, LSGN(5), LTRP(5), NBLKL, NBLKR, NIA, NIB, NIIA, NIIB, NJA, &
-                     NJB, NLPERM, NPERM, NRPERM, NTEST, RASM(4), RATP(4), RBSM(4), RBTP(4), RSGN(5), RTRP(5)
+                     NJB, NLPERM, NPERM, NRPERM, RASM(4), RATP(4), RBSM(4), RBTP(4), RSGN(5), RTRP(5)
 integer(kind=iwp), allocatable :: ICOOSC(:,:), ISOOSC(:,:)
 real(kind=wp) :: FACTOR, PCL, PL, PLR, PS, SCLFAC
 
 ! Some dummy initializations
 INTERACT = 0 ! jwk-cleanup
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
-if (NTEST >= 20) then
-  write(u6,*) ' ================='
-  write(u6,*) ' GASDN2 speaking :'
-  write(u6,*) ' ================='
-  write(u6,*)
-  write(u6,*) ' NACOB,MAXK,NGAS,IDC,MXPOBS',NACOB,MAXK,NGAS,IDC,MXPOBS
-  write(u6,*) ' LUL, LUR ',LUL,LUR
-end if
-if (NTEST >= 100) then
-  write(u6,*) ' Initial L vector'
-  if (LUL == 0) then
-    call WRTRS2(CB,ISSMOS,ISBLTP,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
-  else
-    call WRTVCD(CB,LUL,1,-1)
-  end if
-  write(u6,*) ' Initial R vector'
-  if (LUR == 0) then
-    call WRTRS2(SB,ICSMOS,ICBLTP,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
-  else
-    call WRTVCD(SB,LUR,1,-1)
-  end if
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ================='
+write(u6,*) ' GASDN2 speaking :'
+write(u6,*) ' ================='
+write(u6,*)
+write(u6,*) ' NACOB,MAXK,NGAS,IDC,MXPOBS',NACOB,MAXK,NGAS,IDC,MXPOBS
+write(u6,*) ' LUL, LUR ',LUL,LUR
+!write(u6,*) ' Initial L vector'
+!if (LUL == 0) then
+!  call WRTRS2(CB,ISSMOS,ISBLTP,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
+!else
+!  call WRTVCD(CB,LUL,1,-1)
+!end if
+!write(u6,*) ' Initial R vector'
+!if (LUR == 0) then
+!  call WRTRS2(SB,ICSMOS,ICBLTP,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,NSMST)
+!else
+!  call WRTVCD(SB,LUR,1,-1)
+!end if
+#endif
 ! Loop over batches over L blocks
 if (LUL /= 0) IDISK(LUL) = 0
 call mma_allocate(ICOOSC,NOCTPA,NOCTPB,Label='ICOOSC')
@@ -129,7 +127,9 @@ call mma_allocate(ISOOSC,NOCTPA,NOCTPB,Label='ISOOSC')
 do IBATCHL=1,NBATCHL
   ! Obtain L blocks
   NBLKL = LBATL(IBATCHL)
-  if (NTEST >= 200) write(u6,*) ' Left batch, number of blocks',IBATCHL,NBLKL
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Left batch, number of blocks',IBATCHL,NBLKL
+# endif
   do IIL=1,NBLKL
     IL = I1BATL(IBATCHL)-1+IIL
     IATP = IBLOCKL(1,IL)
@@ -137,9 +137,11 @@ do IBATCHL=1,NBATCHL
     IASM = IBLOCKL(3,IL)
     IBSM = IBLOCKL(4,IL)
     IOFF = IBLOCKL(5,IL)
-    if (NTEST >= 200) write(u6,*) 'IATP IBTP IASM IBSM',IATP,IBTP,IASM,IBSM
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'IATP IBTP IASM IBSM',IATP,IBTP,IASM,IBSM
+    write(u6,*) 'IOFF ',IOFF
+#   endif
     ISCALE = 0
-    if (NTEST >= 200) write(u6,*) 'IOFF ',IOFF
     call GSTTBL(CB,SB(IOFF),IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PSL,LUL,C2,NSMST,ISCALE,SCLFAC_L(IL))
   end do
   ! Loop over batches  of R vector
@@ -147,7 +149,9 @@ do IBATCHL=1,NBATCHL
   do IBATCHR=1,NBATCHR
     ! Read R blocks into core
     NBLKR = LBATR(IBATCHR)
-    if (NTEST >= 200) write(u6,*) ' Right batch, number of blocks',IBATCHR,NBLKR
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' Right batch, number of blocks',IBATCHR,NBLKR
+#   endif
     do IIR=1,NBLKR
       IR = I1BATR(IBATCHR)-1+IIR
       JATP = IBLOCKR(1,IR)
@@ -155,7 +159,9 @@ do IBATCHL=1,NBATCHL
       JASM = IBLOCKR(3,IR)
       JBSM = IBLOCKR(4,IR)
       JOFF = IBLOCKR(5,IR)
-      if (NTEST >= 200) write(u6,*) ' JATP JBTP JASM JBSM ',JATP,JBTP,JASM,JBSM
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' JATP JBTP JASM JBSM ',JATP,JBTP,JASM,JBSM
+#     endif
       ! Read R blocks into core
 
       ! Only blocks interacting with current batch of L are read in
@@ -198,15 +204,15 @@ do IBATCHL=1,NBATCHL
         SCLFAC_R(IR) = Zero
       end if
 
-      if (NTEST >= 100) then
-        if (INTERACT == 1) then
-          write(u6,*) ' TTSS for C block read in'
-          call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
-        else
-          write(u6,*) ' TTSS for C block skipped'
-          call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
-        end if
+#     ifdef _DEBUGPRINT_
+      if (INTERACT == 1) then
+        write(u6,*) ' TTSS for C block read in'
+        call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
+      else
+        write(u6,*) ' TTSS for C block skipped'
+        call IWRTMA(IBLOCKR(1,IR),4,1,4,1)
       end if
+#     endif
     end do
 
     ! Loop over L and R blocks in batches and obtain  contribution from
@@ -280,30 +286,30 @@ do IBATCHL=1,NBATCHL
                 end if
                 SCLFAC = FACTOR*SCLFAC_L(IL)*SCLFAC_R(IR)
                 if ((INTERACT == 1) .and. (SCLFAC /= Zero)) then
-                  if (NTEST >= 20) then
-                    write(u6,*) ' RSDNBB will be called for'
-                    write(u6,*) ' L block :'
-                    write(u6,'(A,5I5)') ' IIASM IIBSM IIATP IIBTP',IIASM,IIBSM,IIATP,IIBTP
-                    write(u6,*) ' R  block :'
-                    write(u6,'(A,5I5)') ' JASM JBSM JATP JBTP',JASM,JBSM,JATP,JBTP
-                    write(u6,*) ' IOFF,JOFF ',IOFF,JOFF
-                    write(u6,*) ' SCLFAC = ',SCLFAC
-                  end if
+#                 ifdef _DEBUGPRINT_
+                  write(u6,*) ' RSDNBB will be called for'
+                  write(u6,*) ' L block :'
+                  write(u6,'(A,5I5)') ' IIASM IIBSM IIATP IIBTP',IIASM,IIBSM,IIATP,IIBTP
+                  write(u6,*) ' R  block :'
+                  write(u6,'(A,5I5)') ' JASM JBSM JATP JBTP',JASM,JBSM,JATP,JBTP
+                  write(u6,*) ' IOFF,JOFF ',IOFF,JOFF
+                  write(u6,*) ' SCLFAC = ',SCLFAC
+#                 endif
 
                   call GSDNBB2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,IIASM,IIATP,IIBSM,IIBTP,JASM,JATP,JBSM,JBTP,NGAS, &
                                      NELFSPGP(:,IOCTPA-1+IIATP),NELFSPGP(:,IOCTPB-1+IIBTP),NELFSPGP(:,IOCTPA-1+JATP), &
                                      NELFSPGP(:,IOCTPB-1+JBTP),NAEL,NBEL,IAGRP,IBGRP,SB(IOFF),CB(JOFF),C2,ADSXA,STSTSX,SXDXSX, &
                                      MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NIIA, &
-                                     NIIB,NJA,NJB,MXPOBS,IPRNT,NACOB,RHO1S,SCLFAC,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
+                                     NIIB,NJA,NJB,MXPOBS,NACOB,RHO1S,SCLFAC,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
 
                   ! CALL GSDNBB2_LUCIA --> 66
 
-                  if (NTEST >= 500) then
-                    write(u6,*) ' Updated rho1'
-                    call wrtmat(rho1,nacob,nacob,nacob,nacob)
-                    write(u6,*) ' Updated srho1'
-                    call wrtmat(srho1,nacob,nacob,nacob,nacob)
-                  end if
+#                 ifdef _DEBUGPRINT_
+                  write(u6,*) ' Updated rho1'
+                  call wrtmat(rho1,nacob,nacob,nacob,nacob)
+                  write(u6,*) ' Updated srho1'
+                  call wrtmat(srho1,nacob,nacob,nacob,nacob)
+#                 endif
 
                 end if
               end if

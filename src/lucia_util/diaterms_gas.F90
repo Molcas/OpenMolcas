@@ -11,8 +11,9 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine DIATERMS_GAS(NAEL,IASTR,NBEL,IBSTR,NORB,VEC,NSMST,H,IDC,XB,RJ,RK,NSSOA,NSSOB,ECORE,LUIN,LUOUT,IPRNT,NTOOB,RJKAA,I12, &
-                        IBLOCK,NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
+!#define _DEBUGPRINT_
+subroutine DIATERMS_GAS(NAEL,IASTR,NBEL,IBSTR,NORB,VEC,NSMST,H,IDC,XB,RJ,RK,NSSOA,NSSOB,ECORE,LUIN,LUOUT,NTOOB,RJKAA,I12,IBLOCK, &
+                        NBLOCK,ITASK,FACTOR,I0CHK,I0BLK)
 ! Terms from diagonal to specific blocks
 !
 ! Obtain VEC = (DIAGONAL + FACTOR) ** -1 VEC (ITASK = 1)
@@ -31,12 +32,15 @@ subroutine DIATERMS_GAS(NAEL,IASTR,NBEL,IBSTR,NORB,VEC,NSMST,H,IDC,XB,RJ,RK,NSSO
 
 use lucia_data, only: IDISK
 use Constants, only: Zero, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, IDC, NSSOA(NSMST,*), NSSOB(NSMST,*), LUIN, LUOUT, IPRNT, NTOOB, I12, &
+integer(kind=iwp), intent(in) :: NAEL, NBEL, NORB, NSMST, IDC, NSSOA(NSMST,*), NSSOB(NSMST,*), LUIN, LUOUT, NTOOB, I12, &
                                  IBLOCK(8,*), NBLOCK, ITASK, I0CHK, I0BLK(*)
 integer(kind=iwp), intent(inout) :: IASTR(NAEL,*), IBSTR(NBEL,*)
 real(kind=wp), intent(_OUT_) :: VEC(*), RJKAA(*)
@@ -44,38 +48,36 @@ real(kind=wp), intent(in) :: H(NORB), RJ(NTOOB,NTOOB), ECORE, FACTOR
 real(kind=wp), intent(out) :: XB(NORB)
 real(kind=wp), intent(inout) :: RK(NTOOB,NTOOB)
 integer(kind=iwp) :: IA, IAEL, IAMPACK, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBSM, IBTP, IDET, IDUM_ARR(1), IEL, IMZERO, IOFF, &
-                     IPACK, ITDET, JBLOCK, JEL, LDET, NAST, NASTR1, NBSTR1, NIA, NIB, NTEST
+                     IPACK, ITDET, JBLOCK, JEL, LDET, NASTR1, NBSTR1, NIA, NIB
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NAST
+#endif
 real(kind=wp) :: EAA, EB, HB, RJBB, X
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
-!write(u6,*) ' NTEST = ',NTEST
 
 if (LUIN > 0) IDISK(LUIN) = 0
 if (LUOUT > 0) IDISK(LUOUT) = 0
 
-if (NTEST >= 20) then
-  write(u6,*) ' ======================'
-  write(u6,*) ' DIATERMS_GAS in action'
-  write(u6,*) ' ======================'
-  write(u6,*)
-  write(u6,*) ' LUIN,LUOUT = ',LUIN,LUOUT
-  write(u6,*) ' NBLOCK =',NBLOCK
-  write(u6,*) ' I0CHK = ',I0CHK
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ======================'
+write(u6,*) ' DIATERMS_GAS in action'
+write(u6,*) ' ======================'
+write(u6,*)
+write(u6,*) ' LUIN,LUOUT = ',LUIN,LUOUT
+write(u6,*) ' NBLOCK =',NBLOCK
+write(u6,*) ' I0CHK = ',I0CHK
 
-if (NTEST >= 1000) then
-  write(u6,*) ' Diagonal one electron integrals'
-  call WRTMAT(H,1,NORB,1,NORB)
-  if (I12 == 2) then
-    write(u6,*) ' Coulomb and exchange integrals'
-    call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
-    write(u6,*)
-    call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
-    write(u6,*) ' I12 and ITASK = ',I12,ITASK
-  end if
-  write(u6,*) ' FACTOR = ',FACTOR
+write(u6,*) ' Diagonal one electron integrals'
+call WRTMAT(H,1,NORB,1,NORB)
+if (I12 == 2) then
+  write(u6,*) ' Coulomb and exchange integrals'
+  call WRTMAT(RJ,NORB,NORB,NTOOB,NTOOB)
+  write(u6,*)
+  call WRTMAT(RK,NORB,NORB,NTOOB,NTOOB)
+  write(u6,*) ' I12 and ITASK = ',I12,ITASK
 end if
+write(u6,*) ' FACTOR = ',FACTOR
+#endif
 
 !*3 Diagonal elements according to Handys formulae
 !   (corrected for error)
@@ -97,7 +99,9 @@ do JBLOCK=1,NBLOCK
     IASM = IBLOCK(3,JBLOCK)
     IBSM = IBLOCK(4,JBLOCK)
     IOFF = IBLOCK(6,JBLOCK)
-    if (NTEST >= 20) write(u6,*) ' Block in action : IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' Block in action : IATP IBTP IASM IBSM ',IATP,IBTP,IASM,IBSM
+#   endif
 
     if ((IDC == 2) .and. (IASM == IBSM) .and. (IATP == IBTP)) then
       IPACK = 1
@@ -106,17 +110,17 @@ do JBLOCK=1,NBLOCK
     end if
 
     ! Construct array RJKAA(*) =   SUM(I) H(I)*N(I) +
-    !                          0.5*SUM(I,J) ( J(I,J) - K(I,J))*N(I)*N(J)
+    !                          0.5*SUM(I,J) (J(I,J) - K(I,J))*N(I)*N(J)
 
     ! Obtain alpha strings of sym IASM and type IATP
     IDUM_ARR = 0
     call GETSTR_TOTSM_SPGP(1,IATP,IASM,NAEL,NASTR1,IASTR,NORB,0,IDUM_ARR,IDUM_ARR)
-    if (NTEST >= 1000) then
-      write(u6,*) ' After GETSTR for A strings'
-      write(u6,*) ' alpha strings obtained'
-      NAST = NSSOA(IASM,IATP)
-      call IWRTMA(IASTR,NAEL,NAST,NAEL,NAST)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' After GETSTR for A strings'
+    write(u6,*) ' alpha strings obtained'
+    NAST = NSSOA(IASM,IATP)
+    call IWRTMA(IASTR,NAEL,NAST,NAEL,NAST)
+#   endif
 
     IOFF = 1
     NIA = NSSOA(IASM,IATP)

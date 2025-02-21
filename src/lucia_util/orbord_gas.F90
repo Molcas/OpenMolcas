@@ -11,7 +11,8 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISFTO,IBSO,NOBPTS,IOBPTS,ISFSO,NOBPT,IPRNT)
+!#define _DEBUGPRINT_
+subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST,IREOTS,ISFTO,IBSO,NOBPTS,IOBPTS,ISFSO,NOBPT)
 ! Obtain Reordering arrays for orbitals
 ! (See note below for assumed ordering)
 !
@@ -34,7 +35,7 @@ subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST
 !  IREOST : Reordering array symmetry => type
 !  IREOTS : Reordering array type     => symmetry
 !  ISFTO  : Symmetry array for type ordered orbitals
-!  IBSO   : First orbital of given symmetry ( symmetry ordered )
+!  IBSO   : First orbital of given symmetry (symmetry ordered)
 !  NOBPTS : Number of orbitals per subtype and symmetry
 !  IOBPTS : Off sets for orbitals of given subtype and symmetry
 !           ordered according to input integrals
@@ -43,13 +44,16 @@ subroutine ORBORD_GAS(NSMOB,MXPOBS,MXPNGAS,NGAS,NGSOB,NGSOBT,NTOOBS,NTOOB,IREOST
 !
 ! Jeppe Olsen, Winter 1994
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NSMOB, MXPOBS, MXPNGAS, NGAS, NGSOB(MXPOBS,MXPNGAS), NGSOBT(MXPNGAS), NTOOBS(NSMOB), NTOOB, IPRNT
+integer(kind=iwp), intent(in) :: NSMOB, MXPOBS, MXPNGAS, NGAS, NGSOB(MXPOBS,MXPNGAS), NGSOBT(MXPNGAS), NTOOBS(NSMOB), NTOOB
 integer(kind=iwp), intent(out) :: IREOST(NTOOB), IREOTS(NTOOB), ISFTO(NTOOB), IBSO(NSMOB), NOBPTS(MXPNGAS,MXPOBS), &
                                   IOBPTS(MXPNGAS,MXPOBS), ISFSO(NTOOB), NOBPT(MXPNGAS)
-integer(kind=iwp) :: IADD, IBSSM, IGAS, IOFF, IORB, ISM, ISTOFF, ISYM, ITSOFF, NPREV, NTEST
+integer(kind=iwp) :: IADD, IBSSM, IGAS, IOFF, IORB, ISM, ISTOFF, ISYM, ITSOFF, NPREV
 
 ! ==========================
 ! Note on order of orbitals
@@ -126,39 +130,37 @@ do ISM=1,NSMOB
 end do
 NOBPT(1:NGAS) = NGSOBT(1:NGAS)
 
-NTEST = 0
-NTEST = max(IPRNT,NTEST)
-if (NTEST /= 0) then
-  write(u6,*)
-  write(u6,*) ' =================='
-  write(u6,*) ' Output from ORBORD'
-  write(u6,*) ' =================='
-  write(u6,*)
-  write(u6,*) ' Symmetry of orbitals, type ordered'
-  call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-  write(u6,*) ' Symmetry => type reordering array'
-  call IWRTMA(IREOST,1,NTOOB,1,NTOOB)
-  write(u6,*) ' Type => symmetry reordering array'
-  call IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
-  write(u6,*) ' IBSO array'
-  call IWRTMA(IBSO,1,NSMOB,1,NSMOB)
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' =================='
+write(u6,*) ' Output from ORBORD'
+write(u6,*) ' =================='
+write(u6,*)
+write(u6,*) ' Symmetry of orbitals, type ordered'
+call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
+write(u6,*) ' Symmetry => type reordering array'
+call IWRTMA(IREOST,1,NTOOB,1,NTOOB)
+write(u6,*) ' Type => symmetry reordering array'
+call IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
+write(u6,*) ' IBSO array'
+call IWRTMA(IBSO,1,NSMOB,1,NSMOB)
 
-  write(u6,*) ' NOBPTS'
-  call IWRTMA(NOBPTS,NGAS,NSMOB,MXPNGAS,MXPOBS)
-  write(u6,*) ' NOBPT'
-  call IWRTMA(NOBPT,NGAS,1,MXPNGAS,1)
-  write(u6,*) ' IOBPTS'
-  call IWRTMA(IOBPTS,NGAS,NSMOB,MXPNGAS,MXPOBS)
+write(u6,*) ' NOBPTS'
+call IWRTMA(NOBPTS,NGAS,NSMOB,MXPNGAS,MXPOBS)
+write(u6,*) ' NOBPT'
+call IWRTMA(NOBPT,NGAS,1,MXPNGAS,1)
+write(u6,*) ' IOBPTS'
+call IWRTMA(IOBPTS,NGAS,NSMOB,MXPNGAS,MXPOBS)
 
-  write(u6,*) ' ISFTO array :'
-  call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-  !write(u6,*) ' ITFSO array :'
-  !call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
+write(u6,*) ' ISFTO array :'
+call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
+!write(u6,*) ' ITFSO array :'
+!call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
 
-  write(u6,*) ' ISFSO array :'
-  call IWRTMA(ISFSO,1,NTOOB,1,NTOOB)
-  !write(u6,*) ' ITFTO array :'
-  !call IWRTMA(ITFTO,1,NTOOB,1,NTOOB)
-end if
+write(u6,*) ' ISFSO array :'
+call IWRTMA(ISFSO,1,NTOOB,1,NTOOB)
+!write(u6,*) ' ITFTO array :'
+!call IWRTMA(ITFTO,1,NTOOB,1,NTOOB)
+#endif
 
 end subroutine ORBORD_GAS

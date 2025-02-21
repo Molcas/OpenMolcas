@@ -11,6 +11,7 @@
 ! Copyright (C) 1991,1995,1998, Jeppe Olsen                            *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS, &
                         MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,NSMST,MXPOBS,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
 ! SUBROUTINE GSBBD1_LUCIA --> 40
@@ -36,7 +37,7 @@ subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 ! ADASX : sym of a+, a => sym of a+a
 ! ADSXA : sym of a+, a+a => sym of a
 ! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-! MXPNGAS : Max number of AS spaces ( program parameter )
+! MXPNGAS : Max number of AS spaces (program parameter)
 ! NOBPTS  : Number of orbitals per type and symmetry
 ! IOBPTS : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
@@ -66,7 +67,10 @@ subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -81,7 +85,7 @@ integer(kind=iwp), intent(inout) :: I1(*), I2(*)
 integer(kind=iwp) :: IBIORB, IBJORB, IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, IIPART, IJ_AC(2), IJ_DIM(2), IJ_OFF(2), IJ_REO(2), &
                      IJ_SM(2), IJ_TP(2), IJSM, IJTP, IORB, ISGOFF, ISGRP(16), ISM, ITOP, ITP(256), ITYP, IXXX, JJORB, JORB, JSM, &
                      JTP(256), JTYP, KACT, KBOT, KEND, KTOP, LKABTC, NIBTC, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NKI, &
-                     NSXTP, NTEST
+                     NSXTP
 real(kind=wp) :: FACTORAB, FACTORC, SCLFACS, SIGNIJ, XAB
 
 ! Add or subtract for spindensity
@@ -91,21 +95,20 @@ else
   XAB = -One
 end if
 ! Local arrays
-NTEST = 0
-if (NTEST >= 1000) then
-  write(u6,*)
-  write(u6,*) ' ================'
-  write(u6,*) ' GSBBu61 in action'
-  write(u6,*) ' ================'
-  write(u6,*)
-  write(u6,*) ' Occupation of active left strings'
-  call IWRTMA(ISEL,1,NGAS,1,NGAS)
-  write(u6,*) ' Occupation of active Right strings'
-  call IWRTMA(ICEL,1,NGAS,1,NGAS)
-  write(u6,*) ' ISCSM, ICCSM = ',ISCSM,ICCSM
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ================'
+write(u6,*) ' GSBBu61 in action'
+write(u6,*) ' ================'
+write(u6,*)
+write(u6,*) ' Occupation of active left strings'
+call IWRTMA(ISEL,1,NGAS,1,NGAS)
+write(u6,*) ' Occupation of active Right strings'
+call IWRTMA(ICEL,1,NGAS,1,NGAS)
+write(u6,*) ' ISCSM, ICCSM = ',ISCSM,ICCSM
 
-  write(u6,*) ' GSBBD1, sclfac ',SCLFAC
-end if
+write(u6,*) ' GSBBD1, sclfac ',SCLFAC
+#endif
 
 ! Number of partitionings over column strings
 !SVC: determine optimum number of partitions as the lowest multiple of
@@ -126,12 +129,16 @@ call GET_SPGP_INF(ISCTP,IGRP,ISGRP)
 call SXTYP2_GAS(NSXTP,ITP,JTP,NGAS,ISEL,ICEL,IPHGAS)
 ! Symmetry of single excitation that connects IBSM and JBSM
 IJSM = STSTSX(ISCSM,ICCSM)
-if (NTEST >= 1000) write(u6,*) ' ISCSM,ICCSM IJSM ',ISCSM,ICCSM,IJSM
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ISCSM,ICCSM IJSM ',ISCSM,ICCSM,IJSM
+#endif
 if (IJSM /= 0) then
   do IJTP=1,NSXTP
     ITYP = ITP(IJTP)
     JTYP = JTP(IJTP)
-    if (NTEST >= 1000) write(u6,*) ' ITYP JTYP ',ITYP,JTYP
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' ITYP JTYP ',ITYP,JTYP
+#   endif
     ! Hvilken vej skal vi valge,
     ! Mi pojdem drugim putem (C)
     ! VV: the code below confuses Absoft compiler and was rewritten.
@@ -178,7 +185,9 @@ if (IJSM /= 0) then
 
       JSM = ADSXA(ISM,IJSM)
       if (JSM == 0) cycle
-      if (NTEST >= 1000) write(u6,*) ' ISM JSM ',ISM,JSM
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' ISM JSM ',ISM,JSM
+#     endif
       NIORB = NOBPTS(ITYP,ISM)
       NJORB = NOBPTS(JTYP,JSM)
       IBIORB = IOBPTS(ITYP,ISM)
@@ -215,12 +224,16 @@ if (IJSM /= 0) then
         IJ_OFF(2) = IBIORB
       end if
 
-      if (NTEST >= 2000) write(u6,*) ' NIORB NJORB ',NIORB,NJORB
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' NIORB NJORB ',NIORB,NJORB
+#     endif
       if ((NIORB == 0) .or. (NJORB == 0)) cycle
 
       ! For operator connecting to |Ka> and |Ja> i.e. operator 2
       SCLFACS = SCLFAC*SIGNIJ
-      if (NTEST >= 1000) write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
+#     endif
       call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,KACT,SCLFACS,IJ_AC(1))
       ! For operator connecting |Ka> and |Ia>, i.e. operator 1
       if (NKASTR == 0) cycle
@@ -266,11 +279,11 @@ if (IJSM /= 0) then
             call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,LKABTC,I2(KBOT+(IIORB-1)*NKASTR),XI2S(KBOT+(IIORB-1)*NKASTR))
           end do
 
-          if (NTEST >= 1000) then
-            write(u6,*) ' CSCR and SSCR'
-            call WRTMAT(CSCR,IJ_DIM(2),NKI,IJ_DIM(2),NKI)
-            call WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
-          end if
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' CSCR and SSCR'
+          call WRTMAT(CSCR,IJ_DIM(2),NKI,IJ_DIM(2),NKI)
+          call WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
+#         endif
 
           ! And then the hard work
           NKI = LKABTC*NIBTC
@@ -278,10 +291,10 @@ if (IJSM /= 0) then
           FACTORAB = One
           call MATML7(RHO1S,SSCR,CSCR,IJ_DIM(1),IJ_DIM(2),NKI,IJ_DIM(1),NKI,IJ_DIM(2),FACTORC,FACTORAB,1)
 
-          if (NTEST >= 100) then
-            write(u6,*) ' Block to one-body density'
-            call WRTMAT(RHO1S,IJ_DIM(1),IJ_DIM(2),IJ_DIM(1),IJ_DIM(2))
-          end if
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' Block to one-body density'
+          call WRTMAT(RHO1S,IJ_DIM(1),IJ_DIM(2),IJ_DIM(1),IJ_DIM(2))
+#         endif
           ! Scatter out to complete matrix
           do JJORB=1,IJ_DIM(2)
             JORB = IJ_OFF(2)-1+JJORB

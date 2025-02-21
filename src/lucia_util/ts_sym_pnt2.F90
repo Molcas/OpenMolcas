@@ -11,6 +11,7 @@
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine TS_SYM_PNT2(IGRP,NIGRP,MXVAL,MNVAL,ISYM,IPNT,LPNT)
 ! Construct pointers to start of symmetry distributions
 ! for supergroup of strings with given symmetry
@@ -42,9 +43,8 @@ integer(kind=iwp), intent(in) :: NIGRP, IGRP(NIGRP), ISYM, LPNT
 integer(kind=iwp), intent(out) :: MNVAL(NIGRP), MXVAL(NIGRP)
 integer(kind=iwp), intent(_OUT_) :: IPNT(*)
 integer(kind=iwp) :: IFIRST, IGAS, IOFF, ISMFGS(MXPNGAS), ISTSMM1, ISYMSTR, MULT, NBLKS, NGASL, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, &
-                     NSTRII, NSTRINT, NTEST
+                     NSTRII, NSTRINT
 
-NTEST = 0
 ! Info on groups of strings in supergroup
 NGASL = 1
 do IGAS=1,NIGRP
@@ -70,12 +70,12 @@ do IGAS=1,NIGRP
   MXVAL(IGAS) = MINMAX_SM_GP(2,IGRP(IGAS))
 end do
 
-if (NTEST >= 1000) then
-  write(u6,*) 'NIGRP:',NIGRP
-  write(u6,*) ' MNVAL and MXVAL'
-  call IWRTMA(MNVAL,1,NIGRP,1,NIGRP)
-  call IWRTMA(MXVAL,1,NIGRP,1,NIGRP)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'NIGRP:',NIGRP
+write(u6,*) ' MNVAL and MXVAL'
+call IWRTMA(MNVAL,1,NIGRP,1,NIGRP)
+call IWRTMA(MXVAL,1,NIGRP,1,NIGRP)
+#endif
 
 ! Total number of symmetry blocks that will be generated
 NBLKS = product(MXVAL(1:NGASL-1)-MNVAL(1:NGASL-1)+1)
@@ -108,10 +108,10 @@ do
   ISTSMM1 = ISYMSTR(ISMFGS,NGASL-1)
   ! sym of SPACE NGASL
   ISMFGS(NGASL) = Mul(ISTSMM1,ISYM)
-  if (NTEST >= 1000) then
-    write(u6,*) ' next symmetry of NGASL spaces'
-    call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' next symmetry of NGASL spaces'
+  call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
+# endif
   ! Number of strings with this symmetry combination
   NSTRII = 1
   do IGAS=1,NGASL
@@ -127,19 +127,21 @@ do
 
   IPNT(IOFF) = NSTRINT+1
   NSTRINT = NSTRINT+NSTRII
-  if (NTEST >= 1000) write(u6,*) ' IOFF, IPNT(IOFF) NSTRII ',IOFF,IPNT(IOFF),NSTRII
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' IOFF, IPNT(IOFF) NSTRII ',IOFF,IPNT(IOFF),NSTRII
+# endif
 
   if (NGASL <= 1) exit
 end do
 
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' Output from TS_SYM_PNT'
-  write(u6,*) ' Required total symmetry',ISYM
-  write(u6,*) ' Number of symmetry blocks ',NBLKS
-  write(u6,*)
-  write(u6,*) ' Offset array  for symmetry blocks'
-  call IWRTMA(IPNT,1,NBLKS,1,NBLKS)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' Output from TS_SYM_PNT'
+write(u6,*) ' Required total symmetry',ISYM
+write(u6,*) ' Number of symmetry blocks ',NBLKS
+write(u6,*)
+write(u6,*) ' Offset array  for symmetry blocks'
+call IWRTMA(IPNT,1,NBLKS,1,NBLKS)
+#endif
 
 end subroutine TS_SYM_PNT2

@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GENSTR_GAS(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,IGRP,NOCTYP,NSMST,Z,LSTASO,IREORD,STRING,IOC,IPRNT)
+!#define _DEBUGPRINT_
+subroutine GENSTR_GAS(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,IGRP,NOCTYP,NSMST,Z,LSTASO,IREORD,STRING,IOC)
 ! Generate strings consisting of  NEL electrons fulfilling
 !   1 : Between NELMN1 AND NELMX1 electrons in the first NORB1 orbitals
 !   2 : Between NELMN3 AND NELMX3 electrons in the last  NORB3 orbitals
@@ -31,26 +32,30 @@ subroutine GENSTR_GAS(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,IGRP,NOCTYP,NSMST,Z
 !                      order to symmetry and occupation type order.
 
 use lucia_data, only: NACOB, NORB1, NORB2, NORB3
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NEL, NELMN1, NELMX1, NELMN3, NELMX3, NSMST, ISTASO(NSMST,*), IGRP, NOCTYP, Z(NACOB,NEL), IPRNT
+integer(kind=iwp), intent(in) :: NEL, NELMN1, NELMX1, NELMN3, NELMX3, NSMST, ISTASO(NSMST,*), IGRP, NOCTYP, Z(NACOB,NEL)
 integer(kind=iwp), intent(out) :: LSTASO(NOCTYP,NSMST), IOC(NEL)
 integer(kind=iwp), intent(inout) :: IREORD(*)
 integer(kind=iwp), intent(_OUT_) :: STRING(NEL,*)
-integer(kind=iwp) :: i, IEL, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISTRIN, &
-                     ISTRNM, ISYM, ISYMST, ITYP, KSTRIN, LACTU, LEXCI, LSTRIN, NONEW1, NONEW2, NONEW3, NPR, NSTRIN, NTEST, NTEST0
+integer(kind=iwp) :: i, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISTRNM, ISYM, &
+                     ISYMST, ITYP, LACTU, LEXCI, NONEW1, NONEW2, NONEW3, NSTRIN
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IEL, ISTRIN, KSTRIN, LSTRIN, NPR
+#endif
 
 LSTASO(:,:) = 0
-NTEST0 = 0
-NTEST = max(NTEST0,IPRNT)
-if (NTEST >= 10) then
-  write(u6,*) ' ==============='
-  write(u6,*) ' GENSTR speaking'
-  write(u6,*) ' ==============='
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ==============='
+write(u6,*) ' GENSTR speaking'
+write(u6,*) ' ==============='
+#endif
 
 NSTRIN = 0
 IORB1F = 1
@@ -78,10 +83,10 @@ do IEL1=NELMX1,NELMN1,-1
           if (NONEW1 == 1) cycle outer
         end if
       end if
-      if (NTEST >= 500) then
-        write(u6,*) ' RAS 1 string'
-        call IWRTMA(IOC,1,IEL1,1,IEL1)
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' RAS 1 string'
+      call IWRTMA(IOC,1,IEL1,1,IEL1)
+#     endif
       IFRST2 = 1
       IFRST3 = 1
       ! Loop over RAS 2 occupancies
@@ -98,10 +103,10 @@ do IEL1=NELMX1,NELMN1,-1
             end if
           end if
         end if
-        if (NTEST >= 500) then
-          write(u6,*) ' RAS 1 2 string'
-          call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
-        end if
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' RAS 1 2 string'
+        call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
+#       endif
         IFRST3 = 1
         ! Loop over RAS 3 occupancies
         ras3: do
@@ -118,10 +123,10 @@ do IEL1=NELMX1,NELMN1,-1
               end if
             end if
           end if
-          if (NTEST >= 500) then
-            write(u6,*) ' RAS 1 2 3 string'
-            call IWRTMA(IOC,1,NEL,1,NEL)
-          end if
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' RAS 1 2 3 string'
+          call IWRTMA(IOC,1,NEL,1,NEL)
+#         endif
           ! Next string has been constructed, enlist it!
           NSTRIN = NSTRIN+1
           ! Symmetry
@@ -137,7 +142,9 @@ do IEL1=NELMX1,NELMN1,-1
             LEXCI = ISTRNM(IOC,NACOB,NEL,Z,IREORD,0)
             LACTU = ISTASO(ISYM,IGRP)-1+LSTASO(ITYP,ISYM)
             IREORD(LEXCI) = LACTU
-            if (NTEST > 10) write(u6,*) ' LEXCI,LACTU',LEXCI,LACTU
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' LEXCI,LACTU',LEXCI,LACTU
+#           endif
             STRING(:,LACTU) = IOC(1:NEL)
           end if
 
@@ -150,32 +157,29 @@ do IEL1=NELMX1,NELMN1,-1
   end do outer
 end do
 
-if (NTEST >= 1) write(u6,*) ' Number of strings generated   ',NSTRIN
-if (NTEST >= 10) then
-  if (NTEST >= 100) then
-    NPR = NSTRIN
-  else
-    NPR = min(NSTRIN,50)
-  end if
-  write(u6,*) ' Strings generated'
-  write(u6,*) ' ================='
-  ISTRIN = 0
-  do ISYM=1,NSMST
-    do ITYP=1,NOCTYP
-      LSTRIN = min(LSTASO(ITYP,ISYM),NPR-ISTRIN)
-      if (LSTRIN > 0) then
-        write(u6,*) ' Strings of type and symmetry ',ITYP,ISYM
-        do KSTRIN=1,LSTRIN
-          ISTRIN = ISTRIN+1
-          write(u6,'(2X,I4,8X,(10I5))') ISTRIN,(STRING(IEL,ISTRIN),IEL=1,NEL)
-        end do
-      end if
-    end do
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of strings generated   ',NSTRIN
+NPR = NSTRIN
+!NPR = min(NSTRIN,50)
+write(u6,*) ' Strings generated'
+write(u6,*) ' ================='
+ISTRIN = 0
+do ISYM=1,NSMST
+  do ITYP=1,NOCTYP
+    LSTRIN = min(LSTASO(ITYP,ISYM),NPR-ISTRIN)
+    if (LSTRIN > 0) then
+      write(u6,*) ' Strings of type and symmetry ',ITYP,ISYM
+      do KSTRIN=1,LSTRIN
+        ISTRIN = ISTRIN+1
+        write(u6,'(2X,I4,8X,(10I5))') ISTRIN,(STRING(IEL,ISTRIN),IEL=1,NEL)
+      end do
+    end if
   end do
+end do
 
-  write(u6,*) ' Array giving actual place from lexical place'
-  write(u6,*) ' ============================================'
-  call IWRTMA(IREORD,1,NPR,1,NPR)
-end if
+write(u6,*) ' Array giving actual place from lexical place'
+write(u6,*) ' ============================================'
+call IWRTMA(IREORD,1,NPR,1,NPR)
+#endif
 
 end subroutine GENSTR_GAS

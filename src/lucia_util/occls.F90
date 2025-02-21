@@ -11,6 +11,7 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine OCCLS(IWAY,NOCCLS,IOCCLS,NEL,NGAS,IGSMIN,IGSMAX,I_DO_BASSPC,IBASSPC,NOBPT)
 ! IWAY = 1 :
 ! obtain NOCCLS =
@@ -28,7 +29,10 @@ subroutine OCCLS(IWAY,NOCCLS,IOCCLS,NEL,NGAS,IGSMIN,IGSMAX,I_DO_BASSPC,IBASSPC,N
 ! Jeppe Olsen, August 1995
 
 use lucia_data, only: MXPNGAS
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -36,15 +40,14 @@ implicit none
 integer(kind=iwp), intent(in) :: IWAY, NGAS, NEL, IGSMIN(NGAS), IGSMAX(NGAS), I_DO_BASSPC, NOBPT(NGAS)
 integer(kind=iwp), intent(inout) :: NOCCLS, IBASSPC(*)
 integer(kind=iwp), intent(_OUT_) :: IOCCLS(NGAS,*)
-integer(kind=iwp) :: I, IBASSPC_FOR_CLS, IEL, IFIRST, IGAS, IM_TO_STUFFED, IOC(MXPNGAS), IOCA(MXPNGAS), ISKIP, KGAS, NEGA, NONEW, &
-                     NTEST
+integer(kind=iwp) :: IBASSPC_FOR_CLS, IEL, IFIRST, IGAS, IM_TO_STUFFED, IOC(MXPNGAS), IOCA(MXPNGAS), ISKIP, KGAS, NEGA, NONEW
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' OCCLS in action'
-  write(u6,*) ' =================='
-  write(u6,*) ' NGAS NEL ',NGAS,NEL
-end if
+write(u6,*) ' OCCLS in action'
+write(u6,*) ' =================='
+write(u6,*) ' NGAS NEL ',NGAS,NEL
+#endif
 
 ISKIP = 1
 NOCCLS = 0
@@ -93,10 +96,10 @@ do
   if ((IEL == NEL) .and. (NEGA == 0) .and. (IM_TO_STUFFED == 0)) then
     NOCCLS = NOCCLS+1
     if (IWAY == 2) then
-      if (NTEST >= 100) then
-        write(u6,*) ' Another allowed class :'
-        call IWRTMA(IOC,1,NGAS,1,NGAS)
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' Another allowed class :'
+      call IWRTMA(IOC,1,NGAS,1,NGAS)
+#     endif
       IOCCLS(:,NOCCLS) = IOC(1:NGAS)
 
       if (I_DO_BASSPC == 1) IBASSPC(NOCCLS) = IBASSPC_FOR_CLS(IOC)
@@ -105,20 +108,20 @@ do
   end if
 end do
 
-if (NTEST >= 10) then
-  write(u6,*) ' Number of Allowed occupation classes ',NOCCLS
-  if ((IWAY == 2) .and. (NTEST >= 20)) then
-    write(u6,*) ' Occupation classes :'
-    write(u6,*) ' ===================='
-    write(u6,*)
-    write(u6,*) ' Class    Occupation in GASpaces'
-    write(u6,*) ' ================================'
-    do I=1,NOCCLS
-      write(u6,'(1X,I5,3X,16I3)') I,(IOCCLS(IGAS,I),IGAS=1,NGAS)
-    end do
-    !call IWRTMA(IOCCLS,NGAS,NOCCLS,NGAS,NOCCLS)
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of Allowed occupation classes ',NOCCLS
+if (IWAY == 2) then
+  write(u6,*) ' Occupation classes :'
+  write(u6,*) ' ===================='
+  write(u6,*)
+  write(u6,*) ' Class    Occupation in GASpaces'
+  write(u6,*) ' ================================'
+  do I=1,NOCCLS
+    write(u6,'(1X,I5,3X,16I3)') I,(IOCCLS(IGAS,I),IGAS=1,NGAS)
+  end do
+  !call IWRTMA(IOCCLS,NGAS,NOCCLS,NGAS,NOCCLS)
 end if
+#endif
 
 !if (I_DO_BASSPC == 1) then
 !  write(u6,*) ' Base CI spaces for the classes'

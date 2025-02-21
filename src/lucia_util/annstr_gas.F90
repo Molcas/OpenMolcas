@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ANNSTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI,TTO,NACOB,IEC,LDIM,IPRNT)
+!#define _DEBUGPRINT_
+subroutine ANNSTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,TI,TTO,NACOB,IEC,LDIM)
 ! A group of strings containing NEL electrons is given
 ! Set up all possible ways of removing an electron
 !
@@ -30,7 +31,7 @@ subroutine ANNSTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGST
 ! ISGSTO : Sign array for NEL-1 strings
 ! IEC    : = 1 Extended map, dimension equals number of orbs
 ! IEC    : = 2 Compact  map, dimension equals number of elecs
-! LDIM   : Row dimension ( see IEC)
+! LDIM   : Row dimension (see IEC)
 !
 !=========
 ! Output :
@@ -42,24 +43,28 @@ subroutine ANNSTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGST
 !          if the string have a negative sign
 !          then the phase equals - 1
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, IORBOF, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, &
-                                 ISGSTI(NSTINI), ISGSTO(NSTINO), NACOB, IEC, LDIM, IPRNT
+integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, IORBOF, Z(NORB,NEL+1), NEWORD(NSTINO), NACOB, IEC, &
+                                 LDIM
 integer(kind=iwp), intent(out) :: TI(LDIM,NSTINI), TTO(LDIM,NSTINI)
-integer(kind=iwp) :: I, IEL, IIISGN, IORB, IORBABS, IROW, ISTRIN, JSTRIN, MAXPR, NPR, NTEST, NTEST0, STRIN2(500)
+integer(kind=iwp) :: IEL, IIISGN, IORB, IORBABS, IROW, ISTRIN, JSTRIN, STRIN2(500)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I, NPR
+#endif
 integer(kind=iwp), external :: ISTRNM
 
-NTEST0 = 1
-NTEST = max(IPRNT,NTEST0)
-if (NTEST >= 20) then
-  write(u6,*) ' ==============='
-  write(u6,*) ' ANNSTR speaking'
-  write(u6,*) ' ==============='
-  write(u6,*)
-  write(u6,*) ' Number of input electrons ',NEL
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ==============='
+write(u6,*) ' ANNSTR speaking'
+write(u6,*) ' ==============='
+write(u6,*)
+write(u6,*) ' Number of input electrons ',NEL
+#endif
 
 do ISTRIN=1,NSTINI
   do IEL=1,NEL
@@ -84,26 +89,25 @@ do ISTRIN=1,NSTINI
     TTO(IROW,ISTRIN) = JSTRIN
     !PAM2009 IIISGN = (-1)**(IEL-1)
     IIISGN = 1-2*mod(IEL+1,2)
-    if (LSGSTR /= 0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+    !if (LSGSTR /= 0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
     if (IIISGN == -1) TTO(IROW,ISTRIN) = -TTO(IROW,ISTRIN)
   end do
 
 end do
 
-if (NTEST >= 20) then
-  MAXPR = 60
-  NPR = min(NSTINI,MAXPR)
-  write(u6,*) 'Output from ANNSTR:'
-  write(u6,*) '==================='
+#ifdef _DEBUGPRINT_
+NPR = min(NSTINI,60)
+write(u6,*) 'Output from ANNSTR:'
+write(u6,*) '==================='
 
-  write(u6,*)
-  write(u6,*) ' Strings with an electron added or removed'
-  do ISTRIN=1,NPR
-    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,LDIM)
-  end do
-  do ISTRIN=1,NPR
-    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,LDIM)
-  end do
-end if
+write(u6,*)
+write(u6,*) ' Strings with an electron added or removed'
+do ISTRIN=1,NPR
+  write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,LDIM)
+end do
+do ISTRIN=1,NPR
+  write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,LDIM)
+end do
+#endif
 
 end subroutine ANNSTR_GAS

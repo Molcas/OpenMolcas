@@ -11,17 +11,21 @@
 ! Copyright (C) Jeppe Olsen                                            *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine BLKCLS(IBLKS,NBLKS,IBLKCLS,ISPSPCL,NCLS,LCLS,NOCTPA,NOCTPB)
 ! Class of each block, and dimension of each class
 !
 ! Jeppe Olsen
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NBLKS, IBLKS(8,NBLKS), NOCTPA, NOCTPB, ISPSPCL(NOCTPA,NOCTPB), NCLS
 integer(kind=iwp), intent(out) :: IBLKCLS(NBLKS), LCLS(NCLS)
-integer(kind=iwp) :: IICLS, JBLK, NTEST
+integer(kind=iwp) :: IICLS, JBLK
 
 !write(u6,*) ' ISPSPCL'
 !call IWRTMA(ISPSPCL,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
@@ -32,17 +36,16 @@ do JBLK=1,NBLKS
   LCLS(IICLS) = LCLS(IICLS)+IBLKS(8,JBLK)
 end do
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' BLKCLS Speaking'
-  write(u6,*) ' ==============='
-  write(u6,*)
-  write(u6,*) ' Dimension of each class'
-  call IWRTMA(LCLS,1,NCLS,1,NCLS)
-  write(u6,*)
-  write(u6,*) ' Class of each block :'
-  call IWRTMA(IBLKCLS,1,NBLKS,1,NBLKS)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' BLKCLS Speaking'
+write(u6,*) ' ==============='
+write(u6,*)
+write(u6,*) ' Dimension of each class'
+call IWRTMA(LCLS,1,NCLS,1,NCLS)
+write(u6,*)
+write(u6,*) ' Class of each block :'
+call IWRTMA(IBLKCLS,1,NBLKS,1,NBLKS)
+#endif
 
 end subroutine BLKCLS

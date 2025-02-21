@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine PNT4DM(NSMOB,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS12,IS34,IS1234,IPNTR,ISM4A,ADASX)
 ! Pointer for 4 dimensionl array with total symmetry IDXSM
 ! Pointer is given as 3 dimensional array corresponding
@@ -19,13 +20,16 @@ subroutine PNT4DM(NSMOB,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS12,I
 ! IS34 (0,1,-1)   : Permutational symmetry between indices 3 and 3
 ! IS1234 (0,1,-1) : permutational symmetry between indices 12 and 34
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NSMOB, MXPOBS, NO1PS(NSMOB), NO2PS(NSMOB), NO3PS(NSMOB), NO4PS(NSMOB), IDXSM, &
                                  ADSXA(MXPOBS,2*MXPOBS), SXDXSX(2*MXPOBS,4*MXPOBS), IS12, IS34, IS1234, ADASX(MXPOBS,MXPOBS)
 integer(kind=iwp), intent(out) :: IPNTR(NSMOB,NSMOB,NSMOB), ISM4A(NSMOB,NSMOB,NSMOB)
-integer(kind=iwp) :: I12NUM, I12SM, I1SM, I2SM, I34NUM, I34SM, I3SM, I4SM, IOFF, N12, N34, NTEST
+integer(kind=iwp) :: I12NUM, I12SM, I1SM, I2SM, I34NUM, I34SM, I3SM, I4SM, IOFF, N12, N34
 
 IPNTR(:,:,:) = 0
 ISM4A(:,:,:) = 0
@@ -95,7 +99,8 @@ end do
 
 !write(u6,*) ' PNT4DM, 64 elemets of IPNTR'
 !call IWRTMA(IPNTR,1,64,1,64)
-NTEST = 0
-if (NTEST /= 0) write(u6,*) ' Length of 4 index array ',IOFF-1
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Length of 4 index array ',IOFF-1
+#endif
 
 end subroutine PNT4DM

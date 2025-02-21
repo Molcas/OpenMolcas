@@ -9,21 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function IWEYLF(NOPEN,MULTS)
 ! NUMBER OF CSF'S WITH NOPEN ORBITALS AND TOTAL MULTIPLICITY
 ! MULTS ACCORDING TO WEYLS FORMULAE
 !
 ! (2S+1)/(NOPEN+1) * BION(NOPEN+1/0.5*NOPEN-S)
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: IWEYLF
 integer(kind=iwp), intent(in) :: NOPEN, MULTS
-integer(kind=iwp) :: NCSF, NTEST
+integer(kind=iwp) :: NCSF
 integer(kind=iwp), external :: IBINOM
-
-NTEST = 0
 
 if ((NOPEN == 0) .and. (MULTS == 1)) then
   NCSF = 1
@@ -35,6 +37,8 @@ end if
 
 IWEYLF = NCSF
 
-if (NTEST /= 0) write(u6,'(A,4I4)') '  IWEYLF SAYS : NOPEN MULTS NCSF : ',NOPEN,MULTS,NCSF
+#ifdef _DEBUGPRINT_
+write(u6,'(A,4I4)') '  IWEYLF SAYS : NOPEN MULTS NCSF : ',NOPEN,MULTS,NCSF
+#endif
 
 end function IWEYLF

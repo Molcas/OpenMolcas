@@ -11,6 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CMP_IVEC_ILIST(IVEC,ILIST,LLIST,NLIST,INUM)
 ! An integer IVEC of LLIST entries are given.
 ! compare with list of vectors in ILIST and find first
@@ -20,12 +21,15 @@ subroutine CMP_IVEC_ILIST(IVEC,ILIST,LLIST,NLIST,INUM)
 !
 ! Jeppe Olsen, December 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: LLIST, IVEC(LLIST), NLIST, ILIST(LLIST,NLIST)
 integer(kind=iwp), intent(out) :: INUM
-integer(kind=iwp) :: IELMNT, JLIST, NTEST
+integer(kind=iwp) :: IELMNT, JLIST
 
 INUM = 0
 do JLIST=1,NLIST
@@ -38,11 +42,10 @@ do JLIST=1,NLIST
   end if
 end do
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Input list :'
-  call IWRTMA(IVEC,1,LLIST,1,LLIST)
-  write(u6,*) ' Address of list : ',INUM
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Input list :'
+call IWRTMA(IVEC,1,LLIST,1,LLIST)
+write(u6,*) ' Address of list : ',INUM
+#endif
 
 end subroutine CMP_IVEC_ILIST

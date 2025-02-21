@@ -11,17 +11,21 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CONF_VERTEX_W(IOCC_MIN,IOCC_MAX,NORB,NEL,IVERTEXW)
 ! Obtain vertex weights for configuration graph
 !
 ! Jeppe Olsen, October 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL
 integer(kind=iwp), intent(out) :: IVERTEXW(NORB+1,NEL+1)
-integer(kind=iwp) :: IEL, IORB, NTEST
+integer(kind=iwp) :: IEL, IORB
 
 !write(u6,*) ' CONF_VERTEX : NORB, NEL = ',NORB,NEL
 IVERTEXW(:,:) = 0
@@ -43,10 +47,9 @@ end do
 ! Check whether a configuration has enough singly occupied orbitals
 !Jesper ??? call REDUCE_VERTEX_WEIGHTS(IVERTEXW(NORB+1,NEL+1),IVERTEXW,NEL,NORB,IOCC_MIN,IOCC_MAX)
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Vertex weights as an (NORB+1)*(NEL+1) matrix'
-  call IWRTMA(IVERTEXW,NORB+1,NEL+1,NORB+1,NEL+1)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Vertex weights as an (NORB+1)*(NEL+1) matrix'
+call IWRTMA(IVERTEXW,NORB+1,NEL+1,NORB+1,NEL+1)
+#endif
 
 end subroutine CONF_VERTEX_W

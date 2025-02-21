@@ -32,10 +32,9 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp), intent(in) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM, NBLOCK, IBLOCK(8,NBLOCK)
 integer(kind=iwp), intent(_OUT_) :: ICTSDT(*)
-integer(kind=iwp) :: IB_OCCLS, IDOREO, INITIALIZE_CONF_COUNTERS, JOCCLS, NCONF_OCCLS, NCONF_P, NELEC, NTEST
+integer(kind=iwp) :: IB_OCCLS, IDOREO, INITIALIZE_CONF_COUNTERS, JOCCLS, NCONF_OCCLS, NCONF_P, NELEC
 integer(kind=iwp), allocatable :: LOCMAX(:), LOCMIN(:), Z(:), ZSCR(:)
 
-NTEST = 0
 NELEC = sum(IOCCLS(:,1))
 
 call mma_allocate(ZSCR,(NOCOB+1)*(NELEC+1),Label='ZSCR')
@@ -60,7 +59,7 @@ do JOCCLS=1,NOCCLS
 
   !_REMOVED call ITOR(WORK(KIB_OCCLS(ISYM)),1,IB_OCCLS,JOCCLS)
   ! Max and min arrays for strings
-  call MXMNOC_OCCLS(LOCMIN,LOCMAX,NGAS,NOBPT,IOCCLS(:,JOCCLS),MINOP,NTEST)
+  call MXMNOC_OCCLS(LOCMIN,LOCMAX,NGAS,NOBPT,IOCCLS(:,JOCCLS),MINOP)
   ! the arcweights
   call CONF_GRAPH(LOCMIN,LOCMAX,NOCOB,NELEC,Z(:),NCONF_P,ZSCR)
 

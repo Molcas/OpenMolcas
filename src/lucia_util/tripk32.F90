@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine TRIPK32(AUTPAK,APAK,MATDIM,NDIM,SGN)
 ! REFORMATING BETWEEN LOWER TRIANGULAR PACKING
 ! AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
@@ -20,13 +21,16 @@ subroutine TRIPK32(AUTPAK,APAK,MATDIM,NDIM,SGN)
 !
 ! Some considerations on cache minimization used for IMET = 2 Loop
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 real(kind=wp), intent(in) :: APAK(*), SGN
 integer(kind=iwp), intent(in) :: MATDIM, NDIM
 real(kind=wp), intent(inout) :: AUTPAK(MATDIM,MATDIM)
-integer(kind=iwp) :: I, IBLK, IEND, IJ, IJOFF, IMET, IOFF, IOFF2, J, JBLK, JEND, JOFF, LBLK, NBLK, NTEST
+integer(kind=iwp) :: I, IBLK, IEND, IJ, IJOFF, IMET, IOFF, IOFF2, J, JBLK, JEND, JOFF, LBLK, NBLK
 
 ! Use blocked algorithm
 IMET = 2
@@ -77,11 +81,10 @@ else if (IMET == 2) then
   ! End of loop over blocks of I and J
 end if
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' AUTPAK AND APAK FROM TRIPK32'
-  call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
-  call PRSM2(APAK,NDIM)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' AUTPAK AND APAK FROM TRIPK32'
+call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
+call PRSM2(APAK,NDIM)
+#endif
 
 end subroutine TRIPK32

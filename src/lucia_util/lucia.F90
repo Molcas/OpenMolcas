@@ -12,7 +12,7 @@
 subroutine LUCIA()
 
 use GLBBAS, only: CI_VEC, SIGMA_VEC
-use lucia_data, only: IPRORB, IREFSM, LCSBLK, MXSOOB, NOINT, PSSIGN, XISPSM
+use lucia_data, only: IREFSM, LCSBLK, MXSOOB, NOINT, PSSIGN, XISPSM
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, Two
 use Definitions, only: iwp, u6
@@ -31,9 +31,9 @@ call DISKUN2()
 !end if
 ! Header
 ! From shells to orbitals
-call ORBINF(IPRORB)
+call ORBINF()
 ! Number of string types
-call STRTYP_GAS(0)
+call STRTYP_GAS()
 ! Divide orbital spaces into inactive/active/secondary
 call GASSPC()
 ! Symmetry information
@@ -56,7 +56,7 @@ end if
 ! READ in MO-AO matrix
 !if (NOMOFL == 0) call GET_CMOAO(MOAOIN)
 ! Internal string information
-call STRINF_GAS(0)
+call STRINF_GAS()
 ! Internal subspaces
 call LCISPC()
 

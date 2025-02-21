@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPNGAS,NGAS,IOCOC,IPRNT)
+!#define _DEBUGPRINT_
+subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPNGAS,NGAS,IOCOC)
 ! Allowed combinations of alpha and beta types, GAS version
 !
 ! =====
@@ -38,29 +39,29 @@ subroutine IAIBCM_GAS(LCMBSPC,ICMBSPC,MNMXOC,NOCTPA,NOCTPB,IOCA,IOCB,NELFTP,MXPN
 ! IOCOC(IATP,IBTP) == 1 =>     allowed combination
 ! IOCOC(IATP,IBTP) == 0 => not allowed combination
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: LCMBSPC, ICMBSPC(LCMBSPC), MXPNGAS, MNMXOC(MXPNGAS,2,*), NOCTPA, NOCTPB, IOCA(MXPNGAS,NOCTPA), &
-                                 IOCB(MXPNGAS,NOCTPB), NELFTP(*), NGAS, IPRNT
+                                 IOCB(MXPNGAS,NOCTPB), NELFTP(*), NGAS
 integer(kind=iwp), intent(out) :: IOCOC(NOCTPA,NOCTPB)
-integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, II, INC, JCMBSPC, JJCMBSPC, NTEST
+integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, INC, JCMBSPC, JJCMBSPC
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: II
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
-if (NTEST >= 10) then
-  write(u6,*) ' IAICBM_GAS entered'
-  write(u6,*) ' ==================='
-  write(u6,*)
-  write(u6,*) ' Number of GAS spaces included ',LCMBSPC
-  write(u6,*) ' GAS spaces included ',(ICMBSPC(II),II=1,LCMBSPC)
-  write(u6,*)
-  if (NTEST >= 20) then
-    write(u6,*) ' IOCA and IOCB'
-    call IWRTMA(IOCA,NGAS,NOCTPA,MXPNGAS,NGAS)
-    call IWRTMA(IOCB,NGAS,NOCTPB,MXPNGAS,NGAS)
-  end if
-end if
+write(u6,*) ' IAICBM_GAS entered'
+write(u6,*) ' ==================='
+write(u6,*)
+write(u6,*) ' Number of GAS spaces included ',LCMBSPC
+write(u6,*) ' GAS spaces included ',(ICMBSPC(II),II=1,LCMBSPC)
+write(u6,*)
+write(u6,*) ' IOCA and IOCB'
+call IWRTMA(IOCA,NGAS,NOCTPA,MXPNGAS,NGAS)
+call IWRTMA(IOCB,NGAS,NOCTPB,MXPNGAS,NGAS)
+#endif
 
 IOCOC(:,:) = 0
 do IATP=1,NOCTPA
@@ -92,11 +93,11 @@ do IATP=1,NOCTPA
   end do
 end do
 
-if (NTEST >= 10) then
-  write(u6,*)
-  write(u6,*) ' Matrix giving allowed combinations of types'
-  write(u6,*)
-  call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' Matrix giving allowed combinations of types'
+write(u6,*)
+call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+#endif
 
 end subroutine IAIBCM_GAS

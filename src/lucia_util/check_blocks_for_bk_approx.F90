@@ -12,6 +12,7 @@
 !               2011, Giovanni Li Manni                                *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CHECK_BLOCKS_FOR_BK_APPROX(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,IOCTPA,IOCTPB,I_DO_EXACT_BLOCK)
 ! Check whether block <IATP, IBTP! H! JATP, JBTP> should
 ! be calculated exactly or by BK approx
@@ -28,41 +29,45 @@ subroutine CHECK_BLOCKS_FOR_BK_APPROX(IATP,IBTP,JATP,JBTP,IASM,IBSM,JASM,JBSM,IO
 
 use lucia_data, only: IBSPGPFTP, MXPNGAS, NELFSPGP, NGAS
 use spinfo, only: IOCCPSPC, NGASBK
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: IATP, IBTP, JATP, JBTP, IASM, IBSM, JASM, JBSM
 integer(kind=iwp), intent(out) :: IOCTPA, IOCTPB, I_DO_EXACT_BLOCK
-integer(kind=iwp) :: ICHECK_OCC_IN_ACCSPC, IGAS, IOCC(MXPNGAS), IOCC_IN, JOCC(MXPNGAS), JOCC_IN, NTEST
-
-NTEST = 0
+integer(kind=iwp) :: ICHECK_OCC_IN_ACCSPC, IOCC(MXPNGAS), IOCC_IN, JOCC(MXPNGAS), JOCC_IN
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IGAS
+#endif
 
 IOCTPA = IBSPGPFTP(1)
 IOCTPB = IBSPGPFTP(2)
-if (ntest >= 100) then
-  write(u6,*) 'IOCTPA, IOCTPB',IOCTPA,IOCTPB
-  write(u6,*) 'IATP,IBTP,JATP,JBTP'
-  write(u6,'(5x,I4,5x,I4,5x,I4,5X,I4)') IATP,IBTP,JATP,JBTP
-  write(u6,*) 'NELFSPGP (IA), (IB), (JA), (JB)'
-  write(u6,*) (NELFSPGP(igas,IOCTPA-1+IATP),igas=1,NGAS)
-  write(u6,*) (NELFSPGP(igas,IOCTPB-1+IBTP),igas=1,NGAS)
-  write(u6,*) (NELFSPGP(igas,IOCTPA-1+JATP),igas=1,NGAS)
-  write(u6,*) (NELFSPGP(igas,IOCTPB-1+JBTP),igas=1,NGAS)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'IOCTPA, IOCTPB',IOCTPA,IOCTPB
+write(u6,*) 'IATP,IBTP,JATP,JBTP'
+write(u6,'(5x,I4,5x,I4,5x,I4,5X,I4)') IATP,IBTP,JATP,JBTP
+write(u6,*) 'NELFSPGP (IA), (IB), (JA), (JB)'
+write(u6,*) (NELFSPGP(igas,IOCTPA-1+IATP),igas=1,NGAS)
+write(u6,*) (NELFSPGP(igas,IOCTPB-1+IBTP),igas=1,NGAS)
+write(u6,*) (NELFSPGP(igas,IOCTPA-1+JATP),igas=1,NGAS)
+write(u6,*) (NELFSPGP(igas,IOCTPB-1+JBTP),igas=1,NGAS)
+#endif
 IOCC(1:NGAS) = NELFSPGP(1:NGAS,IOCTPA-1+IATP)+NELFSPGP(1:NGAS,IOCTPB-1+IBTP)
 JOCC(1:NGAS) = NELFSPGP(1:NGAS,IOCTPA-1+JATP)+NELFSPGP(1:NGAS,IOCTPB-1+JBTP)
-if (ntest >= 100) then
-  write(u6,*) ' Routine CHECK_BLOCKS_FOR_BK_APPROX is speaking!'
-  write(u6,*) ' I am doing BK-type of approximation'
-  write(u6,*) ' Min and Max for subspace with exact Hamiltonian'
-  write(u6,*) ' ==============================================='
-  write(u6,*) 'NGASBK : ',NGASBK
-  write(u6,*) '              Min. Occ.      Max. Occ.'
-  do IGAS=1,NGASBK
-    write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
-  end do
-end if
-!
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Routine CHECK_BLOCKS_FOR_BK_APPROX is speaking!'
+write(u6,*) ' I am doing BK-type of approximation'
+write(u6,*) ' Min and Max for subspace with exact Hamiltonian'
+write(u6,*) ' ==============================================='
+write(u6,*) 'NGASBK : ',NGASBK
+write(u6,*) '              Min. Occ.      Max. Occ.'
+do IGAS=1,NGASBK
+  write(u6,'(A,I2,10X,I3,9X,I3)') '   GAS',IGAS,IOCCPSPC(IGAS,1),IOCCPSPC(IGAS,2)
+end do
+#endif
+
 IOCC_IN = ICHECK_OCC_IN_ACCSPC(IOCC,IOCCPSPC,NGASBK,20)
 JOCC_IN = ICHECK_OCC_IN_ACCSPC(JOCC,IOCCPSPC,NGASBK,20)
 ! = 1 if the Occupation is IN
@@ -82,11 +87,11 @@ else
   I_DO_EXACT_BLOCK = 1
 end if
 
-if (NTEST >= 10) then
-  write(u6,*) ' CHECK_BLOCKS_FOR_BK_APPROX is speaking'
-  write(u6,'(A, 4I4)') ' Input blocks IA, IB, JA, JB = ',IATP,IBTP,JATP,JBTP
-  write(u6,'(A, 4I4)') ' Input blocks IASM, IBSM, JASM, JBSM = ',IASM,IBSM,JASM,JBSM
-  write(u6,'(A,I4)') ' I_DO_EXACT_BLOCK = ',I_DO_EXACT_BLOCK
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' CHECK_BLOCKS_FOR_BK_APPROX is speaking'
+write(u6,'(A, 4I4)') ' Input blocks IA, IB, JA, JB = ',IATP,IBTP,JATP,JBTP
+write(u6,'(A, 4I4)') ' Input blocks IASM, IBSM, JASM, JBSM = ',IASM,IBSM,JASM,JBSM
+write(u6,'(A,I4)') ' I_DO_EXACT_BLOCK = ',I_DO_EXACT_BLOCK
+#endif
 
 end subroutine CHECK_BLOCKS_FOR_BK_APPROX

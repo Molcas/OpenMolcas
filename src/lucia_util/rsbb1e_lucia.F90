@@ -11,8 +11,9 @@
 ! Copyright (C) 1991,1997, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2, &
-                        XI2S,H,NSMOB,NSMST,MOC,IH2TRM,SCLFAC,IUSE_PH,IPHGAS,NTESTG)
+                        XI2S,H,NSMOB,NSMST,MOC,SCLFAC,IPHGAS)
 ! SUBROUTINE RSBB1E_LUCIA --> 33
 !
 ! One electron excitations on column strings
@@ -44,7 +45,7 @@ subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,A
 ! MAXI   : Largest Number of ' spectator strings 'treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
-! MOC  : Use MOC method ( instead of N-1 resolution method )
+! MOC  : Use MOC method (instead of N-1 resolution method)
 !
 ! ======
 ! Output
@@ -68,38 +69,38 @@ subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,A
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPNGAS, MXPOBS, MXPTSOB
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), ADSXA(MXPOBS,2*MXPOBS), &
-                                 NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, MOC, IH2TRM, IUSE_PH, &
-                                 IPHGAS(NGAS), NTESTG
+                                 NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, MOC, IPHGAS(NGAS)
 real(kind=wp), intent(_OUT_) :: SB(*), SSCR(*), CSCR(*), H(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC
 integer(kind=iwp), intent(inout) :: I1(*), I2(*)
 real(kind=wp), intent(inout) :: XI1S(*), XI2S(*)
 integer(kind=iwp) :: IBOT, ICGOFF, ICGRP(16), IDOCOMP, IIORB, IIPART, IJ_AC(2), IJ_DIM(2), IJ_REO(2), IJ_SM(2), IJ_TP(2), IJSM, &
                      IJTP, ISBOFF, ISGRP(16), ISM, ITOP, ITP(16), ITYP, IXXX, JJORB, JSM, JTP(16), JTYP, KACT, KBOT, KEND, KTOP, &
-                     LKABTC, NIBTC, NIK, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NSXTP, NTEST, NTESTL
+                     LKABTC, NIBTC, NIK, NIORB, NIPART, NIPARTSZ, NJORB, NKAEFF, NKASTR, NSXTP
 real(kind=wp) :: FACTORAB, FACTORC, HSCR(MXPTSOB*MXPTSOB), SCLFACS, SIGNIJ
 
 !MOC = 1
-NTESTL = 0
-NTEST = max(NTESTL,NTESTG)
-if (NTEST >= 500) then
-  write(u6,*)
-  write(u6,*) ' ======================='
-  write(u6,*) ' Information from RSBB1E'
-  write(u6,*) ' ======================='
-  write(u6,*)
-  write(u6,*) ' RSBB1E : MOC,IH2TRM,IUSE_PH ',MOC,IH2TRM,IUSE_PH
-  write(u6,*) ' ISEL :'
-  call IWRTMA(ISEL,1,NGAS,1,NGAS)
-  write(u6,*) ' ICEL :'
-  call IWRTMA(ICEL,1,NGAS,1,NGAS)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ======================='
+write(u6,*) ' Information from RSBB1E'
+write(u6,*) ' ======================='
+write(u6,*)
+write(u6,*) ' RSBB1E : MOC ',MOC
+write(u6,*) ' ISEL :'
+call IWRTMA(ISEL,1,NGAS,1,NGAS)
+write(u6,*) ' ICEL :'
+call IWRTMA(ICEL,1,NGAS,1,NGAS)
+#endif
 
 ! Number of partitionings over column strings
 !SVC: determine optimum number of partitions as the lowest multiple of
@@ -124,7 +125,9 @@ if (IJSM /= 0) then
   do IJTP=1,NSXTP
     ITYP = ITP(IJTP)
     JTYP = JTP(IJTP)
-    if (NTEST >= 2000) write(u6,*) ' ITYP JTYP ',ITYP,JTYP
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' ITYP JTYP ',ITYP,JTYP
+#   endif
     ! Is this combination of types allowed
     !IJ_ACT = 1
     !if (IJ_ACT == 0) cycle
@@ -174,7 +177,9 @@ if (IJSM /= 0) then
       JSM = ADSXA(ISM,IJSM)
       ! New intermediate strings will be accessed so
       if (JSM == 0) cycle
-      if (NTEST >= 2000) write(u6,*) ' ISM JSM ',ISM,JSM
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' ISM JSM ',ISM,JSM
+#     endif
       NIORB = NOBPTS(ITYP,ISM)
       NJORB = NOBPTS(JTYP,JSM)
       ! Reorder
@@ -225,7 +230,9 @@ if (IJSM /= 0) then
 
         ! For operator connecting to |Ka> and |Ja> i.e. operator 2
         SCLFACS = SIGNIJ*SCLFAC
-        if (NTEST >= 1000) write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' IJ_SM,IJ_TP,IJ_AC',IJ_SM(2),IJ_TP(2),IJ_AC(2)
+#       endif
         call ADAST_GAS(IJ_SM(2),IJ_TP(2),NGAS,ICGRP,ICCSM,I1,XI1S,NKASTR,KACT,SCLFACS,IJ_AC(1))
         ! For operator connecting |Ka> and |Ia>, i.e. operator 1
         call ADAST_GAS(IJ_SM(1),IJ_TP(1),NGAS,ISGRP,ISCSM,I2,XI2S,NKASTR,KACT,One,IJ_AC(1))
@@ -265,23 +272,23 @@ if (IJSM /= 0) then
             !call TRNSPS(IJ_DIM(1),IJ_DIM(2),HSCR,H)
             ! Problems when HOLE switches blocks around ?
             !call GETH1(H,IJ_SM(2),IJ_TP(2),IJ_SM(1),IJ_TP(1))
-            if (NTEST >= 1000) then
-              write(u6,*) ' RSBB1E H BLOCK'
-              call WRTMAT(H,IJ_DIM(2),IJ_DIM(1),IJ_DIM(2),IJ_DIM(1))
-            end if
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' RSBB1E H BLOCK'
+            call WRTMAT(H,IJ_DIM(2),IJ_DIM(1),IJ_DIM(2),IJ_DIM(1))
+#           endif
             ! Sscr(I,K,i) = CSCR(I,K,j)*h(j,i)
             NIK = NIBTC*LKABTC
             FACTORC = Zero
             FACTORAB = One
-            if (NTEST >= 2000) then
-              write(u6,*) ' CSCR array,NIK X NJORB array'
-              call WRTMAT(CSCR,NIK,IJ_DIM(2),NIK,IJ_DIM(2))
-            end if
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' CSCR array,NIK X NJORB array'
+            call WRTMAT(CSCR,NIK,IJ_DIM(2),NIK,IJ_DIM(2))
+#           endif
             call MATML7(SSCR,CSCR,H,NIK,IJ_DIM(1),NIK,IJ_DIM(2),IJ_DIM(2),IJ_DIM(1),FACTORC,FACTORAB,0)
-            if (NTEST >= 2000) then
-              write(u6,*) ' SSCR array,NIK X NIORB array'
-              call WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
-            end if
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' SSCR array,NIK X NIORB array'
+            call WRTMAT(SSCR,NIK,IJ_DIM(1),NIK,IJ_DIM(1))
+#           endif
             ! S(I,a+ K) =  S(I, a+ K) + sgn*Sscr(I,K,i)
             do IIORB=1,IJ_DIM(1)
               ISBOFF = 1+(IIORB-1)*LKABTC*NIBTC

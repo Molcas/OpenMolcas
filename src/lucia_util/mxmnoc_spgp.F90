@@ -9,33 +9,32 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MXMNOC_SPGP(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,NTESTG)
+!#define _DEBUGPRINT_
+subroutine MXMNOC_SPGP(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP)
 ! Construct accumulated MAX and MIN arrays for a GAS supergroup
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(_OUT_) :: MINEL(*), MAXEL(*)
-integer(kind=iwp), intent(in) :: NORBTP, NORBFTP(NORBTP), NELFTP(NORBTP), NTESTG
-integer(kind=iwp) :: IORB, IORB_END, IORB_START, IORBTP, NEL_END, NEL_START, NORB, NTEST, NTESTL
+integer(kind=iwp), intent(in) :: NORBTP, NORBFTP(NORBTP), NELFTP(NORBTP)
+integer(kind=iwp) :: IORB, IORB_END, IORB_START, IORBTP, NEL_END, NEL_START
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NORB
 
-! Some dummy initializations
-IORB_START = 1 ! jwk-cleanup
-
-NTESTL = 0
-NTEST = max(NTESTG,NTESTL)
-
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' ==========='
-  write(u6,*) ' MXMNOC_SPGP'
-  write(u6,*) ' ==========='
-  write(u6,*)
-  !write(u6,*) ' NORBFTP :'
-  !call IWRTMA(NORBFTP,1,NORBTP,1,NORBTP)
-end if
+write(u6,*)
+write(u6,*) ' ==========='
+write(u6,*) ' MXMNOC_SPGP'
+write(u6,*) ' ==========='
+write(u6,*)
+!write(u6,*) ' NORBFTP :'
+!call IWRTMA(NORBFTP,1,NORBTP,1,NORBTP)
+#endif
 
 do IORBTP=1,NORBTP
   ! Max and min at start of this type and at end of this type
@@ -50,10 +49,10 @@ do IORBTP=1,NORBTP
     NEL_START = NEL_END
     NEL_END = NEL_START+NELFTP(IORBTP)
   end if
-  if (NTEST >= 1000) then
-    write(u6,*) ' IORBTP,IORB_START-IORB_END,NEL_START,NEL_END'
-    write(u6,*) IORBTP,IORB_START-IORB_END,NEL_START,NEL_END
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' IORBTP,IORB_START-IORB_END,NEL_START,NEL_END'
+  write(u6,*) IORBTP,IORB_START-IORB_END,NEL_START,NEL_END
+# endif
 
   do IORB=IORB_START,IORB_END
     MAXEL(IORB) = min(IORB,NEL_END)
@@ -62,12 +61,12 @@ do IORBTP=1,NORBTP
   end do
 end do
 
-if (NTEST >= 100) then
-  NORB = sum(NORBFTP(1:NORBTP))
-  write(u6,*) ' MINEL :'
-  call IWRTMA(MINEL,1,NORB,1,NORB)
-  write(u6,*) ' MAXEL :'
-  call IWRTMA(MAXEL,1,NORB,1,NORB)
-end if
+#ifdef _DEBUGPRINT_
+NORB = sum(NORBFTP(1:NORBTP))
+write(u6,*) ' MINEL :'
+call IWRTMA(MINEL,1,NORB,1,NORB)
+write(u6,*) ' MAXEL :'
+call IWRTMA(MAXEL,1,NORB,1,NORB)
+#endif
 
 end subroutine MXMNOC_SPGP

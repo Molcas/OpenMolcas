@@ -11,6 +11,7 @@
 ! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine PAMTMT(X,T,SCR,NORB)
 ! GENERATE PER AKE'S T MATRIX FROM AN
 ! ORBITAL ROTATION MATRIX X
@@ -30,20 +31,22 @@ subroutine PAMTMT(X,T,SCR,NORB)
 ! JEPPE OLSEN OCTOBER 1988
 
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: nOrb
 real(kind=wp), intent(in) :: X(NORB,NORB)
 real(kind=wp), intent(out) :: T(NORB,NORB), SCR(nOrb**2+nOrb*(nOrb+1)/2)
-integer(kind=iwp) :: I, ISING, J, KLFREE, KLL, KLU, NTEST
+integer(kind=iwp) :: I, ISING, J, KLFREE, KLL, KLU
 
-NTEST = 0
-if (NTEST >= 2) then
-  write(u6,*) ' Wellcome to PAMTMT'
-  write(u6,*) ' =================='
-  write(u6,*)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Welcome to PAMTMT'
+write(u6,*) ' ================='
+write(u6,*)
+#endif
 ! Allocate local memory
 KLFREE = 1
 !KLL = KFLREE
@@ -60,16 +63,16 @@ do I=1,NORB
     T(I,J) = SCR(KLU-1+J*(J-1)/2+I)
   end do
 end do
-if (NTEST >= 100) then
-  write(u6,*) ' MATRIX TO BE INVERTED'
-  call WRTMAT(T,NORB,NORB,NORB,NORB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' MATRIX TO BE INVERTED'
+call WRTMAT(T,NORB,NORB,NORB,NORB)
+#endif
 ! Invert U
 call INVMAT(T,SCR(KLU),NORB,ISING)
-if (NTEST >= 100) then
-  write(u6,*) ' INVERTED MATRIX'
-  call WRTMAT(T,NORB,NORB,NORB,NORB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' INVERTED MATRIX'
+call WRTMAT(T,NORB,NORB,NORB,NORB)
+#endif
 ! Subtract L
 do I=1,NORB
   do J=1,I-1
@@ -77,11 +80,11 @@ do I=1,NORB
   end do
 end do
 
-if (NTEST >= 2) then
-  write(u6,*) ' INPUT X MATRIX'
-  call WRTMAT(X,NORB,NORB,NORB,NORB)
-  write(u6,*) ' T MATRIX'
-  call WRTMAT(T,NORB,NORB,NORB,NORB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' INPUT X MATRIX'
+call WRTMAT(X,NORB,NORB,NORB,NORB)
+write(u6,*) ' T MATRIX'
+call WRTMAT(T,NORB,NORB,NORB,NORB)
+#endif
 
 end subroutine PAMTMT

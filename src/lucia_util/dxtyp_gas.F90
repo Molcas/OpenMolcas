@@ -9,13 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NOBTP,IL,IR)
 ! Obtain types of I,J,K,l so
 ! <L!a+I a+K a L a J!R> is nonvanishing
 ! only combinations with type(I) >= type(K) and type(J) >= type(L)
 ! are included
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -23,17 +27,17 @@ implicit none
 integer(kind=iwp), intent(out) :: NDXTP
 integer(kind=iwp), intent(_OUT_) :: ITP(*), JTP(*), KTP(*), LTP(*)
 integer(kind=iwp), intent(in) :: NOBTP, IL(NOBTP), IR(NOBTP)
-integer(kind=iwp) :: IANNI1, IANNI2, ICREA1, ICREA2, IDIA, IDX, IJTP, IOBTP, KLTP, NANNI, NCREA, NDIF, NDIFT, NTEST
+integer(kind=iwp) :: IANNI1, IANNI2, ICREA1, ICREA2, IDIA, IJTP, IOBTP, KLTP, NANNI, NCREA, NDIF, NDIFT
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IDX
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' DXTYP_GAS in action'
-  write(u6,*) ' ==================='
-  write(u6,*) ' Occupation of left string'
-  call IWRTMA(IL,1,NOBTP,1,NOBTP)
-  write(u6,*) ' Occupation of right string'
-  call IWRTMA(IR,1,NOBTP,1,NOBTP)
-end if
+write(u6,*) ' DXTYP_GAS in action'
+write(u6,*) ' ==================='
+write(u6,*) ' Occupation of left string'
+call IWRTMA(IL,1,NOBTP,1,NOBTP)
+write(u6,*) ' Occupation of right string'
+call IWRTMA(IR,1,NOBTP,1,NOBTP)
+#endif
 
 ! Number of differing occupations
 NANNI = 0
@@ -76,11 +80,11 @@ do IOBTP=1,NOBTP
   end if
 end do
 
-if (NTEST >= 1000) then
-  write(u6,*) ' NCREA, NANNI ',NCREA,NANNI
-  write(u6,*) ' ICREA1, IANNI1 ',ICREA1,IANNI1
-  write(u6,*) ' ICREA2, IANNI2 ',ICREA2,IANNI2
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' NCREA, NANNI ',NCREA,NANNI
+write(u6,*) ' ICREA1, IANNI1 ',ICREA1,IANNI1
+write(u6,*) ' ICREA2, IANNI2 ',ICREA2,IANNI2
+#endif
 
 NDXTP = 0
 if (NDIFT <= 4) then
@@ -121,15 +125,15 @@ if (NDIFT <= 4) then
   end if
 end if
 
-if (NTEST /= 0) then
-  write(u6,'(A,I4)') ' Number of connecting double excitations ',NDXTP
-  if (NDXTP /= 0) then
-    write(u6,*) '  ITYP KTYP LTYP JTYP'
-    write(u6,*) '  ==================='
-    do IDX=1,NDXTP
-      write(u6,'(1X,4I5)') ITP(IDX),KTP(IDX),LTP(IDX),JTP(IDX)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,'(A,I4)') ' Number of connecting double excitations ',NDXTP
+if (NDXTP /= 0) then
+  write(u6,*) '  ITYP KTYP LTYP JTYP'
+  write(u6,*) '  ==================='
+  do IDX=1,NDXTP
+    write(u6,'(1X,4I5)') ITP(IDX),KTP(IDX),LTP(IDX),JTP(IDX)
+  end do
 end if
+#endif
 
 end subroutine DXTYP_GAS

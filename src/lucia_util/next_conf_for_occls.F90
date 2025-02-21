@@ -11,24 +11,30 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NEXT_CONF_FOR_OCCLS(ICONF,IOCCLS,NGAS,NOBPT,INI,NONEW)
 ! Obtain next configuration for occupation class
 !
 ! Jeppe Olsen, Nov. 2001
 
 use lucia_data, only: MXPNGAS, MXPORB
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(inout) :: ICONF(*)
 integer(kind=iwp), intent(in) :: NGAS, IOCCLS(NGAS), NOBPT(NGAS), INI
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: IBEL(MXPNGAS), IBORB(MXPNGAS), ICONF_GAS(MXPORB), IGAS, INI_L, JBEL, JBORB, JEL, JGAS, JORB, NEL, NEL_GAS, &
-                     NONEW_L, NORB_GAS, NTEST
+integer(kind=iwp) :: IBEL(MXPNGAS), IBORB(MXPNGAS), ICONF_GAS(MXPORB), IGAS, INI_L, JBEL, JBORB, JEL, JGAS, JORB, NEL_GAS, &
+                     NONEW_L, NORB_GAS
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NEL
 
-NTEST = 0
 ! Total number of electrons
 NEL = sum(IOCCLS)
+#endif
 !write(u6,*) ' NEXT_CONF ... NEL, NGAS = ',NEL,NGAS
 ! Offset for orbitals and electrons
 do IGAS=1,NGAS
@@ -68,12 +74,12 @@ if (INI == 1) then
     end if
   end do
 
-  if (NTEST >= 1000) then
-    if (IGAS > NGAS) then
-      write(u6,*) ' Initial configuration'
-      call IWRTMA(ICONF,1,NEL,1,NEL)
-    end if
+# ifdef _DEBUGPRINT_
+  if (IGAS > NGAS) then
+    write(u6,*) ' Initial configuration'
+    call IWRTMA(ICONF,1,NEL,1,NEL)
   end if
+# endif
 
 else
 
@@ -117,13 +123,13 @@ else
 end if
 ! End if switch between initialization/next
 
-if (NTEST >= 100) then
-  if (NONEW == 1) then
-    write(u6,*) ' No new configuration'
-  else
-    write(u6,*) ' New configuration'
-    call IWRTMA(ICONF,1,NEL,1,NEL)
-  end if
+#ifdef _DEBUGPRINT_
+if (NONEW == 1) then
+  write(u6,*) ' No new configuration'
+else
+  write(u6,*) ' New configuration'
+  call IWRTMA(ICONF,1,NEL,1,NEL)
 end if
+#endif
 
 end subroutine NEXT_CONF_FOR_OCCLS

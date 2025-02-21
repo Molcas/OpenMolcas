@@ -11,33 +11,34 @@
 ! Copyright (C) 2011, Giovanni Li Manni                                *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function ICHECK_OCC_IN_ACCSPC(IOCC,IMINMAX,NGAS,MXPNGAS)
 ! Check if Occupation of GAS Spaces defined by IOCC are
 ! within the constraints of IMINMAX chosen by the user
 !
 ! Giovanni Li Manni 7 Nov 2011, for BK implementation
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: ICHECK_OCC_IN_ACCSPC
 integer(kind=iwp), intent(in) :: NGAS, IOCC(NGAS), MXPNGAS, IMINMAX(MXPNGAS,2)
-integer(kind=iwp) :: I_AM_IN, NTEST
+integer(kind=iwp) :: I_AM_IN
 
 I_AM_IN = 1
 if (any(IOCC(:) < IMINMAX(1:NGAS,1))) I_AM_IN = 0
 if (any(IOCC(:) > IMINMAX(1:NGAS,2))) I_AM_IN = 0
 ICHECK_OCC_IN_ACCSPC = I_AM_IN
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IMINMAX'
-  call IWRTMA(IMINMAX,NGAS,2,MXPNGAS,2)
-end if
-if (NTEST >= 10) then
-  write(u6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IOCC'
-  call IWRTMA(IOCC,1,NGAS,1,NGAS)
-  write(u6,*) ' And the verdict is ',I_AM_IN
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IMINMAX'
+call IWRTMA(IMINMAX,NGAS,2,MXPNGAS,2)
+write(u6,*) ' Input to ICHECK_OCC_IN_ACCSPC, IOCC'
+call IWRTMA(IOCC,1,NGAS,1,NGAS)
+write(u6,*) ' And the verdict is ',I_AM_IN
+#endif
 
 end function ICHECK_OCC_IN_ACCSPC

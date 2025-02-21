@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine TRIPK31(AUTPAK,APAK,MATDIM,NDIM)
 ! REFORMATING BETWEEN LOWER TRIANGULAR PACKING
 ! AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
@@ -17,7 +18,10 @@ subroutine TRIPK31(AUTPAK,APAK,MATDIM,NDIM)
 ! LOWER HALF OF AUTPAK IS STORED IN APAK
 ! NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -25,7 +29,7 @@ implicit none
 integer(kind=iwp), intent(in) :: MATDIM, NDIM
 real(kind=wp), intent(in) :: AUTPAK(MATDIM,MATDIM)
 real(kind=wp), intent(_OUT_) :: APAK(*)
-integer(kind=iwp) :: IJ, J, NTEST
+integer(kind=iwp) :: IJ, J
 
 ! Packing : No problem with cache misses
 
@@ -35,11 +39,10 @@ do J=1,NDIM
   IJ = IJ+NDIM-J
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' AUTPAK AND APAK FROM TRIPK31'
-  call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
-  call PRSM2(APAK,NDIM)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' AUTPAK AND APAK FROM TRIPK31'
+call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
+call PRSM2(APAK,NDIM)
+#endif
 
 end subroutine TRIPK31

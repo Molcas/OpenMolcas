@@ -11,30 +11,29 @@
 ! Copyright (C) 1994,1995,1999, Jeppe Olsen                            *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine LCISPC()
 ! Number of dets and combinations
 ! per symmetry for each type of internal space
 !
-! Jeppe Olsen, Winter 1994/1995 ( woops !)
+! Jeppe Olsen, Winter 1994/1995 (woops!)
 !              MXSOOB_AS added,MXSB removed May 1999
 !
 ! GAS VERSION
 
 use strbas, only: NSTSO
-use lucia_data, only: IBSPGPFTP, IDC, IGSOCCX, ISMOST, ISPGPFTP, MXNTTS, MXPCSM, MXPNGAS, MXSB, MXSOOB, NCMBSPC, NGAS, NOCTYP, &
-                      XISPSM
+use lucia_data, only: IDC, ISMOST, MXNTTS, MXPCSM, MXSB, MXSOOB, NCMBSPC, NOCTYP, XISPSM
 use csm_data, only: NSMCI, NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use lucia_data, only: IPRCIX
 use Definitions, only: u6
 #endif
 
 implicit none
 integer(kind=iwp) :: IATP, IBTP, ICI, ISYM, LCOL, MXS, MXSOO, MXSOO_AS, NCOMB, NOCTPA, NOCTPB, NTTSBL
 #ifdef _DEBUGPRINT_
-integer(kind=iwp) :: II, NTEST
+integer(kind=iwp) :: II
 #endif
 real(kind=wp) :: XNCOMB
 integer(kind=iwp), allocatable :: CVST(:), LBLTP(:), LIOIO(:), NBLKIC(:,:)
@@ -68,9 +67,7 @@ do ICI=1,NCMBSPC
 
   do ISYM=1,NSMCI
     call ZBLTP(ISMOST(:,ISYM),NSMST,IDC,LBLTP,CVST)
-    call NGASDT(IGSOCCX(:,1,ICI),IGSOCCX(:,2,ICI),NGAS,ISYM,NSMST,NOCTPA,NOCTPB,NSTSO(IATP)%A,NSTSO(IBTP)%A, &
-                ISPGPFTP(:,IBSPGPFTP(IATP)),ISPGPFTP(:,IBSPGPFTP(IBTP)),MXPNGAS,NCOMB,XNCOMB,MXS,MXSOO,LBLTP,NTTSBL,LCOL,LIOIO, &
-                MXSOO_AS)
+    call NGASDT(ISYM,NSMST,NOCTPA,NOCTPB,NSTSO(IATP)%A,NSTSO(IBTP)%A,NCOMB,XNCOMB,MXS,MXSOO,LBLTP,NTTSBL,LCOL,LIOIO,MXSOO_AS)
 
     XISPSM(ISYM,ICI) = XNCOMB
     MXSOOB = max(MXSOOB,MXSOO)
@@ -85,48 +82,42 @@ call mma_deallocate(CVST)
 call mma_deallocate(LIOIO)
 
 #ifdef _DEBUGPRINT_
-NTEST = 0
-NTEST = max(NTEST,IPRCIX)
-if (NTEST >= 5) then
-  write(u6,*)
-  write(u6,*)
-  write(u6,*) ' Number of internal combinations per symmetry'
-  write(u6,*) ' ==========================================='
+write(u6,*)
+write(u6,*)
+write(u6,*) ' Number of internal combinations per symmetry'
+write(u6,*) ' ============================================'
 
-  do ICI=1,NCMBSPC
-    write(u6,*) ' CI space ',ICI
-    write(u6,'(1X, 4ES22.15)') (XISPSM(II,ICI),II=1,NSMCI)
-    !call WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
-  end do
-  write(u6,*)
-  write(u6,*) ' Largest Symmetry-type-type block ',MXSOOB
-  !write(u6,*) ' Largest type-type block (all symmetries) ',MXSOOB_AS
-  write(u6,*)
+do ICI=1,NCMBSPC
+  write(u6,*) ' CI space ',ICI
+  write(u6,'(1X, 4ES22.15)') (XISPSM(II,ICI),II=1,NSMCI)
+  !call WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
+end do
+write(u6,*)
+write(u6,*) ' Largest Symmetry-type-type block ',MXSOOB
+!write(u6,*) ' Largest type-type block (all symmetries) ',MXSOOB_AS
+write(u6,*)
 
-  write(u6,*) ' Number of TTS subblocks per CI expansion'
-  write(u6,*) ' ========================================'
+write(u6,*) ' Number of TTS subblocks per CI expansion'
+write(u6,*) ' ========================================'
 
-  do ICI=1,NCMBSPC
-    write(u6,*) ' Internal CI space ',ICI
-    call IWRTMA(NBLKIC(1,ICI),1,NSMCI,1,NSMCI)
-  end do
-end if
+do ICI=1,NCMBSPC
+  write(u6,*) ' Internal CI space ',ICI
+  call IWRTMA(NBLKIC(1,ICI),1,NSMCI,1,NSMCI)
+end do
 #endif
 ! Largest number of BLOCKS in a CI expansion
 MXNTTS = max(0,maxval(NBLKIC(:,:)))
 
 #ifdef _DEBUGPRINT_
-if (NTEST >= 5) then
-  write(u6,*) ' Largest number of blocks in CI expansion',MXNTTS
+write(u6,*) ' Largest number of blocks in CI expansion',MXNTTS
 
-  write(u6,*) ' Number of columns per CI expansion'
-  write(u6,*) ' =================================='
+write(u6,*) ' Number of columns per CI expansion'
+write(u6,*) ' =================================='
 
-  !do ICI=1,NCMBSPC
-  !  write(u6,*) ' Internal CI space ',ICI
-  !  call IWRTMA(LCOLIC(1,ICI),1,NSMCI,1,NSMCI)
-  !end do
-end if
+!do ICI=1,NCMBSPC
+!  write(u6,*) ' Internal CI space ',ICI
+!  call IWRTMA(LCOLIC(1,ICI),1,NSMCI,1,NSMCI)
+!end do
 #endif
 
 call mma_deallocate(NBLKIC)

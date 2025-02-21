@@ -12,7 +12,8 @@
 !               2024, Giovanni Li Manni                                *
 !***********************************************************************
 
-subroutine CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
+!#define _DEBUGPRINT_
+subroutine CSFDIM_GAS(IOCCLS,NOCCLS,ISYM)
 ! Initializing routine for CSF-DET expansions
 !
 ! information about the number of dets,csf's for
@@ -33,7 +34,7 @@ subroutine CSFDIM_GAS(IOCCLS,NOCCLS,ISYM,IPRCSF)
 use Data_Structures, only: Allocate_DT
 use GLBBAS, only: CFTP, CONF_OCC, CONF_REO, DFTP, DTOC, REO_PTDT, SDREO, SDREO_I, Z_PTDT
 use lucia_data, only: I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IB_CONF_OCC, IB_CONF_REO, IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, &
-                      IELIMINATED_IN_GAS, MAXOP, MINOP, MS2, MULTS, MXPCSM, MXPORB, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, &
+                      IELIMINATED_IN_GAS, IPRCIX, MAXOP, MINOP, MS2, MULTS, MXPCSM, MXPORB, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, &
                       NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_PER_SYM, NCONF_TOT, NCSF_HEXS, NCSF_PER_SYM, NGAS, NOBPT, NOCOB, &
                       NPCMCNF, NPCSCNF, NPDTCNF, NSD_PER_SYM, PSSIGN
 use stdalloc, only: mma_allocate
@@ -41,21 +42,21 @@ use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM, IPRCSF
+integer(kind=iwp), intent(in) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM
 #include "warnings.h"
 integer(kind=iwp) :: HEXS_CNF(MXPORB+1), I, IAEL, IALPHA, IB, IBEL, ICL, IDOREO, IDUM, IDUM_ARR(1), IELIM, IGAS, ILCNF, ILLCNF, &
                      INITIALIZE_CONF_COUNTERS, IOPEN, ITP, ITYP, J, JGAS, JOCCLS, LCONF, LDTOC, LENGTH_LIST, LICS, LIDT, LLCONF, &
                      LPTDT, LZ, maxingas(N_ELIMINATED_GAS), maxingas2(N_2ELIMINATED_GAS), MXDT, MXPTBL, NCMB, &
-                     NCONF_ALL_SYM_FOR_OCCLS(MXPCSM), NCONF_ALL_SYM_PREV, NCONF_OCCLS, NCSF, NELEC, NSD, NTEST, TMP_CNF(MXPORB+1)
+                     NCONF_ALL_SYM_FOR_OCCLS(MXPCSM), NCONF_ALL_SYM_PREV, NCONF_OCCLS, NCSF, NELEC, NSD, TMP_CNF(MXPORB+1)
 integer(kind=iwp), external :: IBINOM, IWEYLF
 
 IDUM = 0
 IDUM_ARR(1) = 0
 
-NTEST = 0
-NTEST = max(IPRCSF,NTEST)
-if (NTEST >= 10) write(u6,*) '  PSSIGN : ',PSSIGN
-if (NTEST >= 10) write(u6,*) ' MULTS, MS2 = ',MULTS,MS2
+#ifdef _DEBUGPRINT_
+write(u6,*) '  PSSIGN : ',PSSIGN
+write(u6,*) ' MULTS, MS2 = ',MULTS,MS2
+#endif
 NELEC = sum(IOCCLS(:,1))
 
 ! Define parameters in SPINFO
@@ -63,7 +64,7 @@ NELEC = sum(IOCCLS(:,1))
 ! Allowed number of open orbitals
 MINOP = abs(MS2)
 call MAX_OPEN_ORB(MAXOP,IOCCLS,NGAS,NOCCLS,NOBPT)
-if (NTEST >= 6) write(u6,*) ' MINOP MAXOP ',MINOP,MAXOP
+if (IPRCIX >= 6) write(u6,*) ' MINOP MAXOP ',MINOP,MAXOP
 
 ! Number of prototype sd's and csf's per configuration prototype
 
@@ -94,11 +95,11 @@ do IOPEN=MINOP,MAXOP
   end if
 end do
 
-if (NTEST >= 5) then
+if (IPRCIX >= 5) then
   if (PSSIGN == Zero) then
-    write(u6,*) '  (Combinations = Determinants )'
+    write(u6,*) '  (Combinations = Determinants)'
   else
-    write(u6,*) '  (Spin combinations in use )'
+    write(u6,*) '  (Spin combinations in use)'
   end if
   write(u6,'(/A)') ' Information about prototype configurations'
   write(u6,'( A)') ' =========================================='
@@ -207,7 +208,7 @@ end if
 NCSF_PER_SYM(ISYM) = NCSF
 NSD_PER_SYM(ISYM) = NSD
 NCONF_PER_SYM(ISYM) = sum(NCONF_PER_OPEN(:,ISYM))
-if (NTEST >= 5) then
+if (IPRCIX >= 5) then
   write(u6,*) ' Number of CSFs  ',NCSF
   write(u6,*) ' Number of SDs   ',NSD
   write(u6,*) ' Number of Confs ',NCONF_PER_SYM(ISYM)
@@ -254,7 +255,7 @@ end do
 LCONF = max(LCONF,LLCONF)
 ILCNF = max(ILCNF,ILLCNF)
 
-if (NTEST >= 5) then
+if (IPRCIX >= 5) then
   write(u6,'(/A,I8)') '  Memory for holding list of configurations ',LCONF
   write(u6,'(/A,I8)') '  Size of CI expansion (combinations)',NSD
   write(u6,'(/A,I8)') '  Size of CI expansion (confs)',ILCNF

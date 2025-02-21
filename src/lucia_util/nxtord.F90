@@ -11,6 +11,7 @@
 ! Copyright (C) 1989, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NXTORD(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 ! An ordered set of numbers INUM(I),I=1,NELMNT is
 ! given in strictly ascending order. Values of INUM(*) is
@@ -23,19 +24,21 @@ subroutine NXTORD(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 !
 ! Jeppe Olsen May 1989
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NELMNT, MNVAL, MXVAL
 integer(kind=iwp), intent(inout) :: INUM(NELMNT)
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: ICMP, IPLACE, NTEST
+integer(kind=iwp) :: ICMP, IPLACE
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' Initial number in NXTORD'
-  call IWRTMA(INUM,1,NELMNT,1,NELMNT)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Initial number in NXTORD'
+call IWRTMA(INUM,1,NELMNT,1,NELMNT)
+#endif
 
 IPLACE = 0
 do
@@ -61,9 +64,9 @@ do
   end if
 end do
 
-if (NTEST /= 0) then
-  write(u6,*) ' New number'
-  call IWRTMA(INUM,1,NELMNT,1,NELMNT)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' New number'
+call IWRTMA(INUM,1,NELMNT,1,NELMNT)
+#endif
 
 end subroutine NXTORD

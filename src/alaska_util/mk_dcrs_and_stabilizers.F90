@@ -28,6 +28,9 @@ real(kind=wp), intent(out) :: Fact
 integer(kind=iwp), intent(out) :: iuvwx(4), nDCRR, nDCRS, nDCRT, iDCRR(0:7), iDCRS(0:7), iDCRT(0:7)
 integer(kind=iwp), intent(in) :: nSD, iSD4(0:nSD,4)
 integer(kind=iwp) :: iStabM(0:7), iStabN(0:7), iStb, jStb, kStb, LmbdR, LmbdS, LmbdT, lStabM, lStabN, lStb
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 real(kind=wp) :: u, v, w, x
 
 iStb = iSD4(10,1)

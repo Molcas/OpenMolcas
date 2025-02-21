@@ -11,6 +11,7 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
 ! ISMOST(ISYM,ITOTSM) : Symmetry of an internal state if ITOTSM
 !                       if symmetry of 1 string is ISYM, the
@@ -20,12 +21,15 @@ subroutine SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
 ! Jeppe Olsen, Spring of 1991
 
 use Symmetry_Info, only: Mul
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NSMST, NSMCI, MXPCSM
 integer(kind=iwp), intent(out) :: ISMOST(MXPCSM,MXPCSM)
-integer(kind=iwp) :: ISTSM, ITOTSM, JSTSM, NTEST
+integer(kind=iwp) :: ISTSM, ITOTSM, JSTSM
 
 do ITOTSM=1,NSMCI
   do ISTSM=1,NSMST
@@ -34,15 +38,14 @@ do ITOTSM=1,NSMCI
   end do
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' ==============='
-  write(u6,*) ' Info from SMOST'
-  write(u6,*) ' ==============='
-  do ITOTSM=1,NSMCI
-    write(u6,*) ' ISMOST array for ITOTSM = ',ITOTSM
-    call IWRTMA(ISMOST(:,ITOTSM),1,NSMST,1,NSMST)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ==============='
+write(u6,*) ' Info from SMOST'
+write(u6,*) ' ==============='
+do ITOTSM=1,NSMCI
+  write(u6,*) ' ISMOST array for ITOTSM = ',ITOTSM
+  call IWRTMA(ISMOST(:,ITOTSM),1,NSMST,1,NSMST)
+end do
+#endif
 
 end subroutine SMOST

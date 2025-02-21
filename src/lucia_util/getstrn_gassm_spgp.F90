@@ -56,7 +56,7 @@ write(u6,*) ' ISMFGS,ITPFGS (input)'
 call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
 call IWRTMA(ITPFGS,1,NGAS,1,NGAS)
 write(u6,*)
-write(u6,*) ' NSTFGS, IBSTFGS ( intermediate results )'
+write(u6,*) ' NSTFGS, IBSTFGS (intermediate results)'
 call IWRTMA(NSTFGS,1,NGAS,1,NGAS)
 call IWRTMA(IBSTFGS,1,NGAS,1,NGAS)
 #endif

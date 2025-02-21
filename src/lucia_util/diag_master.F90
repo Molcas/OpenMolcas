@@ -20,11 +20,10 @@ subroutine diag_master()
 
 use GLBBAS, only: INT1, INT1O
 use CandS, only: ISSM
-use lucia_data, only: IPRDIA
 
 implicit none
 
 INT1(:) = INT1O(:)
-call GASCI(ISSM,1,IPRDIA)
+call GASCI(ISSM,1)
 
 end subroutine diag_master

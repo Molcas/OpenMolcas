@@ -11,6 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
 ! A configuration ICONF of NOCC_ORB orbitals are given
 ! ICONF(I) = IORB implies  IORB is singly occupied
@@ -21,12 +22,15 @@ function ILEX_FOR_CONF(ICONF,NOCC_ORB,NORB,NEL,IARCW,IDOREO,IREO)
 ! IF IDOREO /= 0, IREO is used to reorder lexical number
 ! Jeppe Olsen, November 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: ILEX_FOR_CONF
 integer(kind=iwp), intent(in) :: NOCC_ORB, ICONF(NOCC_ORB), NORB, NEL, IARCW(NORB,NEL,2), IDOREO, IREO(*)
-integer(kind=iwp) :: IEL, ILEX, IOCC, NTEST
+integer(kind=iwp) :: IEL, ILEX, IOCC
 
 IEL = 0
 ILEX = 1
@@ -47,12 +51,11 @@ else
   ILEX_FOR_CONF = ILEX
 end if
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Configuration'
-  call IWRTMA(ICONF,1,NOCC_ORB,1,NOCC_ORB)
-  write(u6,*) ' Lexical number = ',ILEX
-  if (IDOREO /= 0) write(u6,*) ' Reordered number = ',ILEX_FOR_CONF
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Configuration'
+call IWRTMA(ICONF,1,NOCC_ORB,1,NOCC_ORB)
+write(u6,*) ' Lexical number = ',ILEX
+if (IDOREO /= 0) write(u6,*) ' Reordered number = ',ILEX_FOR_CONF
+#endif
 
 end function ILEX_FOR_CONF

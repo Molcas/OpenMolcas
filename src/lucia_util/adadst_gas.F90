@@ -11,6 +11,7 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADADST_GAS(IOB,IOBSM,IOBTP,NIOB,JOB,JOBSM,JOBTP,NJOB,ISPGP,ISM,ITP,KMIN,KMAX,I1,XI1S,LI1,NK,IEND,IFRST,KFRST,I12,K12, &
                       SCLFAC)
 ! Obtain mappings
@@ -22,7 +23,7 @@ subroutine ADADST_GAS(IOB,IOBSM,IOBTP,NIOB,JOB,JOBSM,JOBTP,NJOB,ISPGP,ISM,ITP,KM
 ! Only excitations IOB >= JOB are included
 ! The orbitals are in GROUP-SYM IOBTP,IOBSM, JOBTP,JOBSM respectively,
 ! and IOB (JOB) is the first orbital to be used, and the number of orbitals
-! to be checked is NIOB ( NJOB).
+! to be checked is NIOB (NJOB).
 !
 ! Only orbital pairs IOB > JOB are included
 !
@@ -47,18 +48,17 @@ integer(kind=iwp), intent(in) :: IOB, IOBSM, IOBTP, NIOB, JOB, JOBSM, JOBTP, NJO
 integer(kind=iwp), intent(out) :: I1(LI1,NIOB*NJOB), NK, IEND
 real(kind=wp), intent(out) :: XI1S(LI1,NIOB*NJOB)
 real(kind=wp), intent(in) :: SCLFAC
-integer(kind=iwp) :: IDUM_ARR(1), IIOB, ISPGPABS, JJOB, K1SM, K1SPGPABS, KSM, KSPGPABS, NELI, NELK, NSTRI, NSTRK, NTEST, NTEST2
+integer(kind=iwp) :: IDUM_ARR(1), IIOB, ISPGPABS, JJOB, K1SM, K1SPGPABS, KSM, KSPGPABS, NELI, NELK, NSTRI, NSTRK
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' ====================='
-  write(u6,*) ' ADADST_GAS in service'
-  write(u6,*) ' ====================='
-  write(u6,*)
-  write(u6,*) ' IOB,IOBSM,IOBTP ',IOB,IOBSM,IOBTP
-  write(u6,*) ' JOB,JOBSM,JOBTP ',JOB,JOBSM,JOBTP
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ====================='
+write(u6,*) ' ADADST_GAS in service'
+write(u6,*) ' ====================='
+write(u6,*)
+write(u6,*) ' IOB,IOBSM,IOBTP ',IOB,IOBSM,IOBTP
+write(u6,*) ' JOB,JOBSM,JOBTP ',JOB,JOBSM,JOBTP
+#endif
 
 !if (SCLFAC /= One) then
 !  write(u6,*) 'Problemo, ADADST'
@@ -82,7 +82,9 @@ call NEWTYP(ISPGPABS,1,IOBTP,K1SPGPABS)
 call NEWTYP(K1SPGPABS,1,JOBTP,KSPGPABS)
 K1SM = Mul(IOBSM,ISM)
 KSM = Mul(JOBSM,K1SM)
-if (NTEST >= 100) write(u6,*) ' K1SM,K1SPGPABS,KSM,KSPGPABS : ',K1SM,K1SPGPABS,KSM,KSPGPABS
+#ifdef _DEBUGPRINT_
+write(u6,*) ' K1SM,K1SPGPABS,KSM,KSPGPABS : ',K1SM,K1SPGPABS,KSM,KSPGPABS
+#endif
 ! In ADADS1_GAS we need : Occupation of KSTRINGS
 !                         lexical => Actual order for I strings
 ! Generate if required
@@ -90,8 +92,7 @@ if (NTEST >= 100) write(u6,*) ' K1SM,K1SPGPABS,KSM,KSPGPABS : ',K1SM,K1SPGPABS,K
 if (IFRST /= 0) then
   ! Generate information about I strings
   ! Arc weights for ISPGP
-  NTEST2 = NTEST
-  call WEIGHT_SPGP(Z(:,I12),NGAS,NELFSPGP(1,ISPGPABS),NOBPT,ZSCR,NTEST2)
+  call WEIGHT_SPGP(Z(:,I12),NGAS,NELFSPGP(1,ISPGPABS),NOBPT,ZSCR)
   NELI = NELFTP(ITP)
   NELIS(I12) = NELI
   ! Reorder array for I strings

@@ -12,6 +12,7 @@
 !               2003, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADTOR2(RHO2,RHO2S,RHO2A,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB,IPACK)
 ! Add contributions to two electron density matrix RHO2
 ! output density matrix is in the form Rho2(ij,kl),(ij) >= (kl)
@@ -33,8 +34,11 @@ real(kind=wp), intent(in) :: RHO2T(*)
 integer(kind=iwp), intent(in) :: ITYPE, NI, IOFF, NJ, JOFF, NK, KOFF, NL, LOFF, NORB
 logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: I, I_PACK, IACTIVE, II, IIOFF, IJ, IJ_PACK, IJKL, IJKL_PACK, IJKLT, IKIND, IKJLT, IPERM, J, J_PACK, JI_PACK, &
-                     JIKL_PACK, JJ, JJOFF, JLIND, K, K_PACK, KK, KKOFF, KL, KL_PACK, L, L_PACK, LL, LLOFF, NCOL, NELMNT, NII, NIK, &
-                     NJJ, NKK, NLL, NROW, NTEST
+                     JIKL_PACK, JJ, JJOFF, JLIND, K, K_PACK, KK, KKOFF, KL, KL_PACK, L, L_PACK, LL, LLOFF, NELMNT, NII, NIK, NJJ, &
+                     NKK, NLL
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NCOL, NROW
+#endif
 real(kind=wp) :: FACTOR, FACTOR_PACK, SGN, SIGNIK, SIGNJL, TERM
 logical(kind=iwp) :: DO_IJKL, DO_IJKL_PACK, DO_JIKL_PACK, IPROCEED
 
@@ -60,37 +64,36 @@ JI_PACK = 0
 KL_PACK = 0
 FACTOR = Zero
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Welcome to ADTOR2'
-  write(u6,*) ' ================='
-  write(u6,*) ' NI NJ NK NL = ',NI,NJ,NK,NL
-  write(u6,*) ' IOFF JOFF KOFF LOFF =',IOFF,JOFF,KOFF,LOFF
-  write(u6,*) ' ITYPE = ',ITYPE
-  write(u6,*) ' NORB ',NORB
-  if ((NTEST >= 2000) .and. (.not. IPACK)) then
-    write(u6,*) ' Initial two body density matrix'
-    call PRSYM(RHO2,NORB**2)
-  end if
-
-  write(u6,*) ' RHO2T :'
-  if (ITYPE == 1) then
-    if (IOFF == KOFF) then
-      NROW = NI*(NI+1)/2
-    else
-      NROW = NI*NK
-    end if
-    if (JOFF == LOFF) then
-      NCOL = NJ*(NJ+1)/2
-    else
-      NCOL = NJ*NL
-    end if
-  else if (ITYPE == 2) then
-    NROW = NI*NJ
-    NCOL = NK*NL
-  end if
-  call WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Welcome to ADTOR2'
+write(u6,*) ' ================='
+write(u6,*) ' NI NJ NK NL = ',NI,NJ,NK,NL
+write(u6,*) ' IOFF JOFF KOFF LOFF =',IOFF,JOFF,KOFF,LOFF
+write(u6,*) ' ITYPE = ',ITYPE
+write(u6,*) ' NORB ',NORB
+if (.not. IPACK) then
+  write(u6,*) ' Initial two body density matrix'
+  call PRSYM(RHO2,NORB**2)
 end if
+
+write(u6,*) ' RHO2T :'
+if (ITYPE == 1) then
+  if (IOFF == KOFF) then
+    NROW = NI*(NI+1)/2
+  else
+    NROW = NI*NK
+  end if
+  if (JOFF == LOFF) then
+    NCOL = NJ*(NJ+1)/2
+  else
+    NCOL = NJ*NL
+  end if
+else if (ITYPE == 2) then
+  NROW = NI*NJ
+  NCOL = NK*NL
+end if
+call WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
+#endif
 
 !return
 

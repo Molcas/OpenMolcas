@@ -83,6 +83,6 @@ do KB=1,NKB
     end do
   end if
 end do
-! (end over loop over Kb strings )
+! (end over loop over Kb strings)
 
 end subroutine ABTOR2

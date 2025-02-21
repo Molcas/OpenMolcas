@@ -11,6 +11,7 @@
 ! Copyright (C) 1995,2000, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 ! Obtain array of 2 orbital indices,
 ! for symmetry packed matrices
@@ -24,12 +25,15 @@ subroutine ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 ! Jeppe Olsen, March 1995
 !              ORBINH1_NOCCSYM added August 2000
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NSMOB, NTOOBS(NSMOB), NTOOB
 integer(kind=iwp), intent(out) :: IORBINH1(NTOOB,NTOOB), IORBINH1_NOCCSYM(NTOOB,NTOOB)
-integer(kind=iwp) :: I_ABS, INDEX_NOCCSYM, INDX, IOFF, IORB, ISM, JABS, JOFF, JORB, JSM, NTEST
+integer(kind=iwp) :: I_ABS, INDEX_NOCCSYM, INDX, IOFF, IORB, ISM, JABS, JOFF, JORB, JSM
 
 !write(u6,*) ' ORBINH1 speaking'
 !write(u6,*) ' NSMOB NTOOB ',NSMOB,NTOOB
@@ -81,10 +85,9 @@ do ISM=1,NSMOB
 end do
 ! End of loop over orbital symmetries
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' IORBINH1 matrix delivered from ORBINH1'
-  call IWRTMA(IORBINH1,NTOOB,NTOOB,NTOOB,NTOOB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' IORBINH1 matrix delivered from ORBINH1'
+call IWRTMA(IORBINH1,NTOOB,NTOOB,NTOOB,NTOOB)
+#endif
 
 end subroutine ORBINH1

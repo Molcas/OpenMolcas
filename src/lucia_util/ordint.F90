@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)
+!#define _DEBUGPRINT_
+subroutine ORDINT(IINST,IOUTST,NELMNT,INO)
 ! ORDER A STRING OF INTEGERS TO ASCENDING ORDER
 !
 ! IINST : INPUT STRING
@@ -23,9 +24,9 @@ subroutine ORDINT(IINST,IOUTST,NELMNT,INO,IPRNT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NELMNT, IINST(NELMNT), IPRNT
+integer(kind=iwp), intent(in) :: NELMNT, IINST(NELMNT)
 integer(kind=iwp), intent(out) :: IOUTST(NELMNT), INO(NELMNT)
-integer(kind=iwp) :: I, ISWAP, JOE, NTEST
+integer(kind=iwp) :: I, ISWAP, JOE
 
 if (NELMNT /= 0) then
   IOUTST(:) = IINST(:)
@@ -59,17 +60,15 @@ if (NELMNT /= 0) then
   ! END ORDER
 end if
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
-if (NTEST >= 200) then
-  write(u6,*) ' Result from ORDINT'
-  write(u6,*)
-  write(u6,*) ' Input string'
-  call IWRTMA(IINST,1,NELMNT,1,NELMNT)
-  write(u6,*) ' Ordered string'
-  call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
-  write(u6,*) ' New to old order'
-  call IWRTMA(INO,1,NELMNT,1,NELMNT)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Result from ORDINT'
+write(u6,*)
+write(u6,*) ' Input string'
+call IWRTMA(IINST,1,NELMNT,1,NELMNT)
+write(u6,*) ' Ordered string'
+call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
+write(u6,*) ' New to old order'
+call IWRTMA(INO,1,NELMNT,1,NELMNT)
+#endif
 
 end subroutine ORDINT

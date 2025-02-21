@@ -9,10 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GT1DIS(H1DIA,IREOTS,IPNT,H,ISMFTO,IBSO,NACOB)
 ! diagonal of one electron integrals over active orbitals
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -20,7 +24,7 @@ implicit none
 real(kind=wp), intent(_OUT_) :: H1DIA(*)
 integer(kind=iwp), intent(in) :: NACOB, IREOTS(NACOB), IPNT(*), ISMFTO(NACOB), IBSO(*)
 real(kind=wp), intent(in) :: H(*)
-integer(kind=iwp) :: IIOB, IOB, IOBREL, ISM, NTEST
+integer(kind=iwp) :: IIOB, IOB, IOBREL, ISM
 
 do IIOB=1,NACOB
   IOB = IREOTS(IIOB)
@@ -31,10 +35,9 @@ do IIOB=1,NACOB
   H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' Diagonal one electron integrals'
-  call WRTMAT(H1DIA,1,NACOB,1,NACOB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Diagonal one electron integrals'
+call WRTMAT(H1DIA,1,NACOB,1,NACOB)
+#endif
 
 end subroutine GT1DIS

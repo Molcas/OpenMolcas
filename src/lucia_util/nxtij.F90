@@ -9,18 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NXTIJ(I,J,NI,NJ,IJSM,NONEW)
 ! An ordered pair (I,J) is given,I<=NI,J<=NJ
 !
 ! Find next pair, if IJSM /= 0, I >= J
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(inout) :: I, J
 integer(kind=iwp), intent(in) :: NI, NJ, IJSM
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: NTEST
 
 NONEW = 0
 do
@@ -38,7 +41,8 @@ do
   if ((IJSM == 0) .or. (I >= J)) exit
 end do
 
-NTEST = 0
-if (NTEST /= 0) write(u6,*) ' next (i,j) pair ',I,J
+#ifdef _DEBUGPRINT_
+write(u6,*) ' next (i,j) pair ',I,J
+#endif
 
 end subroutine NXTIJ

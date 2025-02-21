@@ -11,7 +11,8 @@
 ! Copyright (C) 2012, Giovanni Li Manni                                *
 !***********************************************************************
 
-subroutine NXTDIST(NSMST,NGRP,NELMNT,KGRP,ISMDFGP,SCR,NACTSYM,NONEW)
+!#define _DEBUGPRINT_
+subroutine NXTDIST(NGRP,NELMNT,KGRP,SCR,NACTSYM,NONEW)
 ! NONEW = 1 on return indicates that no additional numbers
 ! could be obtained.
 !
@@ -20,35 +21,31 @@ subroutine NXTDIST(NSMST,NGRP,NELMNT,KGRP,ISMDFGP,SCR,NACTSYM,NONEW)
 !*************
 ! Input
 !*************
-! NSMST   = Number of Irreps
 ! NGRP    = Number of Groups
 ! NELMNT  = Number of GAS spaces
 ! KGRP    = K supergroup
-! ISMDFGP = Symmetry distributions per group
 !*************
 ! OUTPUT
 !*************
 ! NONEW
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NSMST, NGRP, NELMNT, KGRP(NELMNT), ISMDFGP(NSMST,NGRP), NACTSYM(NGRP)
+integer(kind=iwp), intent(in) :: NGRP, NELMNT, KGRP(NELMNT), NACTSYM(NGRP)
 integer(kind=iwp), intent(inout) :: SCR(NELMNT)
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: I, IGAS, IPLACE, J, NTEST
+integer(kind=iwp) :: IPLACE
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) 'NACTSYM :'
-  call IWRTMA(NACTSYM,1,NGRP,1,NGRP)
-  write(u6,*) ' ISMDFGP  Table:'
-  do J=1,NSMST
-    write(u6,'(40I2)') (ISMDFGP(J,I),I=1,NGRP)
-  end do
-  write(u6,*) 'Initial SCR'
-  call IWRTMA(SCR,1,NELMNT,1,NELMNT)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'NACTSYM :'
+call IWRTMA(NACTSYM,1,NGRP,1,NGRP)
+write(u6,*) 'Initial SCR'
+call IWRTMA(SCR,1,NELMNT,1,NELMNT)
+#endif
 
 if (NELMNT == 0) then
   NONEW = 1
@@ -71,11 +68,9 @@ else
 
 end if
 
-if (NTEST /= 0) then
-  write(u6,*) 'New ISMDFGP'
-  write(u6,'(40I2)') (ISMDFGP(SCR(IGAS),KGRP(IGAS)),IGAS=1,NELMNT)
-  write(u6,*) ' New SCR'
-  call IWRTMA(SCR,1,NELMNT,1,NELMNT)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' New SCR'
+call IWRTMA(SCR,1,NELMNT,1,NELMNT)
+#endif
 
 end subroutine NXTDIST

@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IORBTSF,IORBTF,NORBTS,NSTAK,NSTAI,NSTAKTS,NELB, &
                        NACGSOB,ISTMAP,SGNMAP,SCLFAC)
 ! Creation mappings from K-strings of given sym in each gasspace
@@ -24,7 +25,7 @@ subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! IOFFKSP : Offset for this symmetrydistribution of active K supergroup strings
 ! ICREORB : Orbital part of creation map for active K groupstrings
 ! ICRESTR : String  part of creation map for active K groupstrings
-! IORBTSF : First active orbital ( first orbital in in active GASspace
+! IORBTSF : First active orbital (first orbital in in active GASspace
 !           with required sym)
 ! IORBTF  : First orbital in active gas space, (can have any sym)
 ! NORBTS  : Number of orbitals of given symmetry and type
@@ -32,7 +33,10 @@ subroutine ADSTN_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! NSTAKTS : Total Number of K supergroup strings with correct symmetry
 ! NSTAI   : Number of I groupstrings in active gasspace
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, NACGSOB, NSTAK, ICREORB(NACGSOB,NSTAK+IOFFK-1), &
@@ -40,7 +44,10 @@ integer(kind=iwp), intent(in) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, NAC
 integer(kind=iwp), intent(inout) :: ISTMAP(NSTAKTS,IORBTSF+NORBTS)
 real(kind=wp), intent(inout) :: SGNMAP(NSTAKTS,IORBTSF+NORBTS)
 real(kind=wp), intent(in) :: SCLFAC
-integer(kind=iwp) :: IA, IADRI0, IADRK0, IB, IORB, IORBR, IORBRT, IORBRTS, ISTR, KSTR, NK, NSTAINSTA, NSTAKNSTA, NTEST
+integer(kind=iwp) :: IA, IADRI0, IADRK0, IB, IORB, IORBRT, IORBRTS, ISTR, KSTR, NSTAINSTA, NSTAKNSTA
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IORBR, NK
+#endif
 real(kind=wp) :: SIGN0, SGN
 
 !write(u6,*) ' ADSTN_GASSM : NSTA, NSTB, NSTAK',NSTA,NSTB,NSTAK
@@ -130,21 +137,20 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
   end do
 end do
 
-NTEST = 0
-if (NTEST > 0) then
-  write(u6,*) ' Output from ADSTN_GASSM'
-  write(u6,*) ' ======================='
-  NK = NSTB*NSTAK*NSTA
-  write(u6,*) ' Number of K strings accessed ',NK
-  if (NK /= 0) then
-    do IORB=IORBTSF,IORBTSF+NORBTS-1
-      IORBR = IORB-IORBTSF+1
-      write(u6,*) ' Update Info for orbital ',IORB
-      write(u6,*) ' Excited strings and sign'
-      call IWRTMA(ISTMAP(1,IORBR),1,NK,1,NK)
-      call WRTMAT(SGNMAP(1,IORBR),1,NK,1,NK)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from ADSTN_GASSM'
+write(u6,*) ' ======================='
+NK = NSTB*NSTAK*NSTA
+write(u6,*) ' Number of K strings accessed ',NK
+if (NK /= 0) then
+  do IORB=IORBTSF,IORBTSF+NORBTS-1
+    IORBR = IORB-IORBTSF+1
+    write(u6,*) ' Update Info for orbital ',IORB
+    write(u6,*) ' Excited strings and sign'
+    call IWRTMA(ISTMAP(1,IORBR),1,NK,1,NK)
+    call WRTMAT(SGNMAP(1,IORBR),1,NK,1,NK)
+  end do
 end if
+#endif
 
 end subroutine ADSTN_GASSM

@@ -9,27 +9,29 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine SMDFGP_GEN(NGRP,NSMST,MXPNS,NSTFSMGP,NACTSYM,ISMDFGP)
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NGRP, NSMST, MXPNS, NSTFSMGP(MXPNS,NGRP)
 integer(kind=iwp), intent(out) :: NACTSYM(NGRP), ISMDFGP(NSMST,NGRP)
-integer(kind=iwp) :: IGRP, IOFF, ISYM, NTEST
+integer(kind=iwp) :: IGRP, IOFF, ISYM
 
-NTEST = 0
-
-if (NTEST >= 1000) then
-  write(u6,*) 'Entering  SMDFGP_GEN'
-  write(u6,*) 'NGRP : ',NGRP
-  write(u6,*) 'NSMST: ',NSMST
-  write(u6,*) 'MXPNS',MXPNS
-  write(u6,*) 'INPUT: NSTFSMGP'
-  do ISYM=1,NSMST
-    write(u6,'(40I5)') (NSTFSMGP(ISYM,IGRP),IGRP=1,NGRP)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Entering  SMDFGP_GEN'
+write(u6,*) 'NGRP : ',NGRP
+write(u6,*) 'NSMST: ',NSMST
+write(u6,*) 'MXPNS',MXPNS
+write(u6,*) 'INPUT: NSTFSMGP'
+do ISYM=1,NSMST
+  write(u6,'(40I5)') (NSTFSMGP(ISYM,IGRP),IGRP=1,NGRP)
+end do
+#endif
 
 do IGRP=1,NGRP
   IOFF = 0
@@ -43,13 +45,13 @@ do IGRP=1,NGRP
   NACTSYM(IGRP) = IOFF
 end do
 
-if (NTEST >= 100) then
-  write(u6,*) 'Number of Active Symm per GRP:'
-  write(u6,*) (NACTSYM(IGRP),IGRP=1,NGRP)
-  write(u6,*) 'Symmetries allowed by each group:'
-  do ISYM=1,NSMST
-    write(u6,'(40I2)') (ISMDFGP(ISYM,IGRP),IGRP=1,NGRP)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Number of Active Symm per GRP:'
+write(u6,*) (NACTSYM(IGRP),IGRP=1,NGRP)
+write(u6,*) 'Symmetries allowed by each group:'
+do ISYM=1,NSMST
+  write(u6,'(40I2)') (ISMDFGP(ISYM,IGRP),IGRP=1,NGRP)
+end do
+#endif
 
 end subroutine SMDFGP_GEN

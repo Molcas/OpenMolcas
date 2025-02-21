@@ -11,7 +11,8 @@
 ! Copyright (C) Jeppe Olsen                                            *
 !***********************************************************************
 
-subroutine GRAPW(W,Y,MINEL,MAXEL,NORB,NEL,IPRNT)
+!#define _DEBUGPRINT_
+subroutine GRAPW(W,Y,MINEL,MAXEL,NORB,NEL)
 ! A graph of strings has been defined from
 !
 !  MINEL(I) is the smallest allowed number of electrons in
@@ -28,15 +29,15 @@ subroutine GRAPW(W,Y,MINEL,MAXEL,NORB,NEL,IPRNT)
 !
 ! Jeppe Olsen
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NORB, MINEL(NORB), MAXEL(NORB), NEL, IPRNT
+integer(kind=iwp), intent(in) :: NORB, MINEL(NORB), MAXEL(NORB), NEL
 integer(kind=iwp), intent(out) :: W(NORB+1,NEL+1), Y(NORB,NEL)
-integer(kind=iwp) :: IEL, IORB, NTEST
-
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
+integer(kind=iwp) :: IEL, IORB
 
 W(:,:) = 0
 Y(:,:) = 0
@@ -45,7 +46,7 @@ Y(:,:) = 0
 !  Vertex weights
 !================
 
-! (Weight for vertex(IEL,IORB) is stored in W(IORB+1,IEL+1) )
+! (Weight for vertex(IEL,IORB) is stored in W(IORB+1,IEL+1))
 W(1,1) = 1
 do IEL=0,NEL
   do IORB=1,NORB
@@ -69,11 +70,11 @@ do IEL=1,NEL
   end do
 end do
 
-if (NTEST >= 100) then
-  write(u6,*) ' vertex weights'
-  call IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
-  write(u6,*) ' arc weights'
-  call IWRTMA(Y,NORB,NEL,NORB,NEL)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' vertex weights'
+call IWRTMA(W,NORB+1,NEL+1,NORB+1,NEL+1)
+write(u6,*) ' arc weights'
+call IWRTMA(Y,NORB,NEL,NORB,NEL)
+#endif
 
 end subroutine GRAPW

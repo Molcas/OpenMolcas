@@ -11,6 +11,7 @@
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NST_SPGRP(NGRP,IGRP,ISM_TOT,NSTSGP,NSMST,NSTRIN,NDIST)
 ! Number of strings for given combination of groups and symmetry.
 !
@@ -31,23 +32,26 @@ subroutine NST_SPGRP(NGRP,IGRP,ISM_TOT,NSTSGP,NSMST,NSTRIN,NDIST)
 
 use distsym, only: INGRP_VAL, ISMDFGP, ISMSCR, NACTSYM
 use lucia_data, only: MXPNGAS
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NGRP, IGRP(NGRP), ISM_TOT, NSMST, NSTSGP(NSMST,*)
 integer(kind=iwp), intent(out) :: NSTRIN, NDIST
-integer(kind=iwp) :: I, IFIRST, ISM(MXPNGAS), JGRP, LDIST, LENGTH, MNSM(MXPNGAS), MXSM(MXPNGAS), NDISTX, NONEW, NTEST
+integer(kind=iwp) :: IFIRST, ISM(MXPNGAS), JGRP, LDIST, LENGTH, MNSM(MXPNGAS), MXSM(MXPNGAS), NDISTX, NONEW
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I
 
-NTEST = 0
-if (NTEST >= 10) then
-  write(u6,*) ' ===================='
-  write(u6,*) ' NST_SPGP is speaking'
-  write(u6,*) ' ===================='
+write(u6,*) ' ===================='
+write(u6,*) ' NST_SPGP is speaking'
+write(u6,*) ' ===================='
 
-  write(u6,*) ' Supergroup in action :'
-  write(u6,'(A,I3  )') ' Number of active spaces ',NGRP
-  write(u6,'(A,20I3)') ' The active groups       ',(IGRP(I),I=1,NGRP)
-end if
+write(u6,*) ' Supergroup in action :'
+write(u6,'(A,I3  )') ' Number of active spaces ',NGRP
+write(u6,'(A,20I3)') ' The active groups       ',(IGRP(I),I=1,NGRP)
+#endif
 ! Set up min and max values for symmetries
 call MINMAX_FOR_SYM_DIST(NGRP,IGRP,MNSM,MXSM,NDISTX)
 ! Loop over symmetry distributions
@@ -71,9 +75,9 @@ end do
 
 NSTRIN = LENGTH
 
-if (NTEST >= 100) then
-  write(u6,*) ' Number of strings obtained ',LENGTH
-  write(u6,*) ' Number of symmetry-distributions',NDIST
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of strings obtained ',LENGTH
+write(u6,*) ' Number of symmetry-distributions',NDIST
+#endif
 
 end subroutine NST_SPGRP

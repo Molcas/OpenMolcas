@@ -11,6 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
 ! A group of configurations is described by the
 ! accumulated min and max, IOCC_MIN and IOCC_MAX.
@@ -24,12 +25,14 @@ subroutine CONF_GRAPH(IOCC_MIN,IOCC_MAX,NORB,NEL,IARCW,NCONF,ISCR)
 !
 ! Jeppe Olsen, Oct. 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL
 integer(kind=iwp), intent(out) :: IARCW(NORB,NEL,2), NCONF, ISCR(NORB+1,NEL+1)
-integer(kind=iwp) :: NTEST
 
 ! Set up vertex weights
 call CONF_VERTEX_W(IOCC_MIN,IOCC_MAX,NORB,NEL,ISCR)
@@ -38,16 +41,15 @@ NCONF = ISCR(NORB+1,NEL+1)
 !write(u6,*) ' CONF_GRAPH, NORB, NEL = ',NORB,NEL
 call CONF_ARC_W(IOCC_MIN,IOCC_MAX,NORB,NEL,ISCR,IARCW)
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' IOCMIN and IOCMAX'
-  call IWRTMA(IOCC_MIN,1,NORB,1,NORB)
-  call IWRTMA(IOCC_MAX,1,NORB,1,NORB)
-  write(u6,*) ' Arcweights for single occupied arcs'
-  call IWRTMA(IARCW(:,:,1),NORB,NEL,NORB,NEL)
-  write(u6,*) ' Arcweights for double occupied arcs'
-  call IWRTMA(IARCW(:,:,2),NORB,NEL,NORB,NEL)
-  write(u6,*) ' Total number of configurations ',NCONF
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' IOCMIN and IOCMAX'
+call IWRTMA(IOCC_MIN,1,NORB,1,NORB)
+call IWRTMA(IOCC_MAX,1,NORB,1,NORB)
+write(u6,*) ' Arcweights for single occupied arcs'
+call IWRTMA(IARCW(:,:,1),NORB,NEL,NORB,NEL)
+write(u6,*) ' Arcweights for double occupied arcs'
+call IWRTMA(IARCW(:,:,2),NORB,NEL,NORB,NEL)
+write(u6,*) ' Total number of configurations ',NCONF
+#endif
 
 end subroutine CONF_GRAPH

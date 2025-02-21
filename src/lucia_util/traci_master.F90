@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
 
 use GLBBAS, only: DTOC, INT1, SDREO, VEC3
@@ -19,18 +20,23 @@ use lucia_data, only: IDISK, IREFSM, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXS
                       PSSIGN, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(inout) :: JOBDISK
 integer(kind=iwp), intent(in) :: JOBIPH
 real(kind=wp), intent(in) :: CMOMO(*)
 integer(kind=iwp), intent(out) :: LREC(MXNTTS)
-integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IREC, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, &
-                     NCONF, NDIM, NREC, NTEST, NUM_ELE
+integer(kind=iwp) :: I, I_DUMMY(1), IADR, IATP, IBTP, ICOL, IOFF, IROW, ISM, J, JDISK, JROOT, LBLK, LBLOCK, NBATCH, NBLOCK, NCONF, &
+                     NDIM, NREC
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IREC, NUM_ELE
+#endif
 real(kind=wp), allocatable :: LCMOMO(:), LH1SAVE(:), VEC1(:), VEC2(:), VEC4(:)
 
-NTEST = 0
 LBLK = -1
 NDIM = NTOOB*NTOOB
 NCONF = NCSF_PER_SYM(ISSM)
@@ -52,18 +58,18 @@ JDISK = JOBDISK
 do JROOT=1,NROOT
   call DDAFILE(JOBIPH,2,VEC4,NCONF,JDISK)
   call CSDTVC(VEC4,VEC1,1,DTOC,SDREO,ISSM,0)
-  if (NTEST >= 50) then
-    write(u6,*) 'CI-vector written to disk for root = ',JROOT
-    call WRTMAT(VEC1,1,20,1,20)
-    write(u6,*) 'Writing this to disk:'
-    IOFF = 1
-    do IREC=1,NREC
-      if (LREC(IREC) >= 0) then
-        call WRTMAT(VEC1(IOFF),1,LREC(IREC),1,LREC(IREC))
-        IOFF = IOFF+LREC(IREC)
-      end if
-    end do
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'CI-vector written to disk for root = ',JROOT
+  call WRTMAT(VEC1,1,20,1,20)
+  write(u6,*) 'Writing this to disk:'
+  IOFF = 1
+  do IREC=1,NREC
+    if (LREC(IREC) >= 0) then
+      call WRTMAT(VEC1(IOFF),1,LREC(IREC),1,LREC(IREC))
+      IOFF = IOFF+LREC(IREC)
+    end if
+  end do
+# endif
   call TODSCN(VEC1,NREC,LREC,LBLK,LUC)
   I_DUMMY(1) = -1
   call ITODS(I_DUMMY,1,LBLK,LUC)
@@ -124,22 +130,22 @@ IDISK(LUDIA) = 0
 
 do JROOT=1,NROOT
   call FRMDSCN(VEC1,NREC,LBLK,LUDIA)
-  if (NTEST >= 50) then
-    NUM_ELE = sum(LREC(1:NREC))
-    write(u6,*) 'CI-Vector read from disk for root = ',JROOT
-    call WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
-  end if
+# ifdef _DEBUGPRINT_
+  NUM_ELE = sum(LREC(1:NREC))
+  write(u6,*) 'CI-Vector read from disk for root = ',JROOT
+  call WRTMAT(VEC1,1,NUM_ELE,1,NUM_ELE)
+# endif
   call CSDTVC(VEC2,VEC1,2,DTOC,SDREO,ISSM,0)
   call DDAFILE(JOBIPH,1,VEC2,NCONF,JOBDISK)
   call IFRMDS(I_DUMMY,1,LBLK,LUDIA)
 end do
 IDISK(LUDIA) = 0
 
-if (NTEST >= 100) then
-  do JROOT=1,NROOT
-    call WRTVCD(VEC1,LUDIA,0,LBLK)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+do JROOT=1,NROOT
+  call WRTVCD(VEC1,LUDIA,0,LBLK)
+end do
+#endif
 
 ! clean up time : copy 1-e integrals back in place
 INT1(:) = LH1SAVE(:)

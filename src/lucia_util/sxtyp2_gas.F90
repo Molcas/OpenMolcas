@@ -11,6 +11,7 @@
 ! Copyright (C) 1995,1997, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine SXTYP2_GAS(NSXTYP,ITP,JTP,NGAS,ILTP,IRTP,IPHGAS)
 ! Two supergroups are given. Find single excitations that connects
 ! these supergroups
@@ -21,7 +22,10 @@ subroutine SXTYP2_GAS(NSXTYP,ITP,JTP,NGAS,ILTP,IRTP,IPHGAS)
 !          Occupations of particle spaces (IPHGAS=2) are allowed to
 !          have occupations less than zero in intermidiate steps
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -29,7 +33,10 @@ implicit none
 integer(kind=iwp), intent(out) :: NSXTYP
 integer(kind=iwp), intent(_OUT_) :: ITP(*), JTP(*)
 integer(kind=iwp), intent(in) :: NGAS, ILTP(NGAS), IRTP(NGAS), IPHGAS(*)
-integer(kind=iwp) :: IANNI, IAS, ICREA, ISX, NANNI, NCREA, NTEST
+integer(kind=iwp) :: IANNI, IAS, ICREA, NANNI, NCREA
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISX
+#endif
 
 ! Some dummy initializations
 ICREA = 0 ! jwk-cleanup
@@ -67,21 +74,20 @@ else if (NCREA == 0) then
   end do
 end if
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Output from SXTYP_GAS :'
-  write(u6,*) ' ======================='
-  write(u6,*) ' Input left  supergroup'
-  call IWRTMA(ILTP,1,NGAS,1,NGAS)
-  write(u6,*) ' Input right supergroup'
-  call IWRTMA(IRTP,1,NGAS,1,NGAS)
-  write(u6,*) ' Number of connecting single excitations ',NSXTYP
-  if (NSXTYP /= 0) then
-    write(u6,*) ' Connecting single excitations'
-    do ISX=1,NSXTYP
-      write(u6,*) ITP(ISX),JTP(ISX)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from SXTYP_GAS :'
+write(u6,*) ' ======================='
+write(u6,*) ' Input left  supergroup'
+call IWRTMA(ILTP,1,NGAS,1,NGAS)
+write(u6,*) ' Input right supergroup'
+call IWRTMA(IRTP,1,NGAS,1,NGAS)
+write(u6,*) ' Number of connecting single excitations ',NSXTYP
+if (NSXTYP /= 0) then
+  write(u6,*) ' Connecting single excitations'
+  do ISX=1,NSXTYP
+    write(u6,*) ITP(ISX),JTP(ISX)
+  end do
 end if
+#endif
 
 end subroutine SXTYP2_GAS

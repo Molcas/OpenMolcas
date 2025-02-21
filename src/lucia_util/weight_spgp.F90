@@ -9,29 +9,33 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine WEIGHT_SPGP(Z,NORBTP,NELFTP,NORBFTP,ISCR,NTEST)
+!#define _DEBUGPRINT_
+subroutine WEIGHT_SPGP(Z,NORBTP,NELFTP,NORBFTP,ISCR)
 ! construct vertex weights for given supergroup
 !
 ! Reverse lexical ordering is used
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(_OUT_) :: Z(*), ISCR(*)
-integer(kind=iwp), intent(in) :: NORBTP, NELFTP(NORBTP), NORBFTP(NORBTP), NTEST
+integer(kind=iwp), intent(in) :: NORBTP, NELFTP(NORBTP), NORBFTP(NORBTP)
 integer(kind=iwp) :: KLFREE, KLMAX, KLMIN, KW, NEL, NORB
 
 NORB = sum(NORBFTP)
 NEL = sum(NELFTP)
 
-if (NTEST >= 100) then
-  write(u6,*) ' Subroutine WEIGHT_SPGP in action'
-  write(u6,*) ' ================================'
-  write(u6,*) 'NELFTP'
-  call IWRTMA(NELFTP,1,NORBTP,1,NORBTP)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Subroutine WEIGHT_SPGP in action'
+write(u6,*) ' ================================'
+write(u6,*) 'NELFTP'
+call IWRTMA(NELFTP,1,NORBTP,1,NORBTP)
+#endif
 
 KLFREE = 1
 KLMAX = KLFREE
@@ -43,8 +47,8 @@ KLFREE = KLFREE+NORB
 KW = KLFREE
 KLFREE = KW+(NEL+1)*(NORB+1)
 ! Max and min arrays for strings
-call MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX),NORBTP,NORBFTP,NELFTP,NTEST)
+call MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX),NORBTP,NORBFTP,NELFTP)
 ! Arc weights
-call GRAPW(ISCR(KW),Z,ISCR(KLMIN),ISCR(KLMAX),NORB,NEL,NTEST)
+call GRAPW(ISCR(KW),Z,ISCR(KLMIN),ISCR(KLMAX),NORB,NEL)
 
 end subroutine WEIGHT_SPGP

@@ -11,26 +11,28 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine NSTRSO_GAS(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NSTASO,ISTASO,NSMST,IOTYP,IPRNT)
+!#define _DEBUGPRINT_
+subroutine NSTRSO_GAS(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NSTASO,ISTASO,NSMST,IOTYP)
 ! Number of strings per symmetry for group IOTYP
 !
 ! Gas version, no check of type : set to 1
 !
 ! Jeppe Olsen Winter of 1994
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NEL, NORB1, NORB2, NORB3, NELMN1, NELMX1, NELMN3, NELMX3, NSMST, IOTYP, IPRNT
+integer(kind=iwp), intent(in) :: NEL, NORB1, NORB2, NORB3, NELMN1, NELMX1, NELMN3, NELMX3, NSMST, IOTYP
 integer(kind=iwp), intent(out) :: IOC(NEL)
 integer(kind=iwp), intent(inout) :: NSTASO(NSMST,IOTYP), ISTASO(NSMST,IOTYP)
 integer(kind=iwp) :: i, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISM, ISYM, &
-                     NONEW1, NONEW2, NONEW3, NSTRIN, NTEST, NTEST0
+                     NONEW1, NONEW2, NONEW3, NSTRIN
 integer(kind=iwp), external :: ISYMST
 
 NSTASO(:,IOTYP) = 0
-NTEST0 = 0
-NTEST = max(IPRNT,NTEST0)
 NSTRIN = 0
 IORB1F = 1
 IORB1L = IORB1F+NORB1-1
@@ -57,10 +59,10 @@ do IEL1=NELMX1,NELMN1,-1
           if (NONEW1 == 1) cycle outer
         end if
       end if
-      if (NTEST >= 500) then
-        write(u6,*) ' RAS 1 string'
-        call IWRTMA(IOC,1,IEL1,1,IEL1)
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' RAS 1 string'
+      call IWRTMA(IOC,1,IEL1,1,IEL1)
+#     endif
       IFRST2 = 1
       IFRST3 = 1
       ! Loop over RAS 2 occupancies
@@ -77,10 +79,10 @@ do IEL1=NELMX1,NELMN1,-1
             end if
           end if
         end if
-        if (NTEST >= 500) then
-          write(u6,*) ' RAS 1 2 string'
-          call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
-        end if
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' RAS 1 2 string'
+        call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
+#       endif
         IFRST3 = 1
         ! Loop over RAS 3 occupancies
         ras3: do
@@ -97,10 +99,10 @@ do IEL1=NELMX1,NELMN1,-1
               end if
             end if
           end if
-          if (NTEST >= 500) then
-            write(u6,*) ' RAS 1 2 3 string'
-            call IWRTMA(IOC,1,NEL,1,NEL)
-          end if
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' RAS 1 2 3 string'
+          call IWRTMA(IOC,1,NEL,1,NEL)
+#         endif
           ! Next string has been constructed, enlist it !
           NSTRIN = NSTRIN+1
           ! Symmetry of string
@@ -131,15 +133,15 @@ do ISM=1,NSMST
   end if
 end do
 
-if (NTEST >= 5) write(u6,*) ' Number of strings generated   ',NSTRIN
-if (NTEST >= 10) then
-  write(u6,*)
-  write(u6,*) ' Number of strings per sym for group = ',IOTYP
-  write(u6,*) '================================================'
-  call IWRTMA(NSTASO(:,IOTYP),1,NSMST,1,NSMST)
-  write(u6,*) ' Offset for given symmetry for group = ',IOTYP
-  write(u6,*) '================================================'
-  call IWRTMA(ISTASO(:,IOTYP),1,NSMST,1,NSMST)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of strings generated   ',NSTRIN
+write(u6,*)
+write(u6,*) ' Number of strings per sym for group = ',IOTYP
+write(u6,*) '================================================'
+call IWRTMA(NSTASO(:,IOTYP),1,NSMST,1,NSMST)
+write(u6,*) ' Offset for given symmetry for group = ',IOTYP
+write(u6,*) '================================================'
+call IWRTMA(ISTASO(:,IOTYP),1,NSMST,1,NSMST)
+#endif
 
 end subroutine NSTRSO_GAS

@@ -12,6 +12,7 @@
 !               2012, Giovanni Li Manni                                *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADAST_GAS(IOBSM,IOBTP,NIGRP,IGRP,ISPGPSM,I1,XI1S,NKSTR,KACT,SCLFAC,IAC)
 ! Obtain creation or annihilation mapping
 !
@@ -59,9 +60,12 @@ real(kind=wp), intent(inout) :: XI1S(*)
 integer(kind=iwp), intent(out) :: NKSTR, KACT
 real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: I, IACGAS, IACGRP, IACIST(MXPNSMST), IACSM, IBORBSP, IBORBSPS, IBSTRINI, IDELTA, IEC, IGAS, IIAC, &
-                     IISTSGP(MXPNSMST,MXPNGAS), IKAC, IORB, IORBR, ISAVE, ISMFGS(MXPNGAS), JGRP, KACGRP, KFIRST, KGRP(MXPNGAS), &
-                     KSM, KSTRBS, LROW_IN, MNVLI(MXPNGAS), MXVLI(MXPNGAS), NACIST(MXPNSMST), NELB, NGASL, NIAC, NIEL, NIGASL, &
-                     NKAC, NKDIST, NKEL, NKSD, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NORBT, NORBTS, NSTA, NSTB, NSTRIK, NTEST
+                     IISTSGP(MXPNSMST,MXPNGAS), IKAC, ISAVE, ISMFGS(MXPNGAS), JGRP, KACGRP, KFIRST, KGRP(MXPNGAS), KSM, KSTRBS, &
+                     LROW_IN, MNVLI(MXPNGAS), MXVLI(MXPNGAS), NACIST(MXPNSMST), NELB, NGASL, NIAC, NIEL, NIGASL, NKAC, NKDIST, &
+                     NKEL, NKSD, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NORBT, NORBTS, NSTA, NSTB, NSTRIK
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IORB, IORBR
+#endif
 integer(kind=iwp), allocatable :: IOFFI(:)
 integer(kind=iwp), external :: IOFF_SYM_DIST
 
@@ -69,28 +73,27 @@ integer(kind=iwp), external :: IOFF_SYM_DIST
 ! (NKSTR,*), Where NKSTR is the number of K-strings of
 ! correct symmetry . Nk is provided by this routine.
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' ===================='
-  write(u6,*) ' ADAST_GAS in service'
-  write(u6,*) ' ===================='
-  write(u6,*)
-  write(u6,*) 'GAS space (IOBTP), Symm of it (IOBSM) :',IOBTP,IOBSM
-  write(u6,*) ' Supergroup in action :'
-  write(u6,'(A,I3  )') ' Number of active spaces ',NIGRP
-  write(u6,'(A,20I3)') ' The active groups       ',(IGRP(I),I=1,NIGRP)
-  write(u6,*) '  Symmetry of supergroup : ',ISPGPSM
-  write(u6,*) ' SCLFAC = ',SCLFAC
-  if (IAC == 1) then
-    write(u6,*) ' Annihilation mapping'
-  else if (IAC == 2) then
-    write(u6,*) ' Creation mapping'
-  else
-    write(u6,*) ' Unknown IAC parameter in ADAST ',IAC
-    call SYSABENDMSG('lucia_util/adast_gas','Internal error','')
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ===================='
+write(u6,*) ' ADAST_GAS in service'
+write(u6,*) ' ===================='
+write(u6,*)
+write(u6,*) 'GAS space (IOBTP), Symm of it (IOBSM) :',IOBTP,IOBSM
+write(u6,*) ' Supergroup in action :'
+write(u6,'(A,I3  )') ' Number of active spaces ',NIGRP
+write(u6,'(A,20I3)') ' The active groups       ',(IGRP(I),I=1,NIGRP)
+write(u6,*) '  Symmetry of supergroup : ',ISPGPSM
+write(u6,*) ' SCLFAC = ',SCLFAC
+if (IAC == 1) then
+  write(u6,*) ' Annihilation mapping'
+else if (IAC == 2) then
+  write(u6,*) ' Creation mapping'
+else
+  write(u6,*) ' Unknown IAC parameter in ADAST ',IAC
+  call SYSABENDMSG('lucia_util/adast_gas','Internal error','')
 end if
+#endif
 ! A few preparations
 NORBTS = NOBPTS(IOBTP,IOBSM)
 NORBT = NOBPT(IOBTP)
@@ -99,13 +102,13 @@ IACGAS = IOBTP
 IBORBSP = sum(NOBPT(1:IOBTP-1))+1
 ! First orbital of given GASpace and Symmetry
 IBORBSPS = IOBPTS(IOBTP,IOBSM)
-if (NTEST >= 100) then
-  write(u6,*) ' NORBTS per GAS and sym          :',NORBTS
-  write(u6,*) ' NORBT per GAS                   :',NORBT
-  write(u6,*) ' IACGAS GAS involved             :',IACGAS
-  write(u6,*) ' IBORBSP 1st orb per GAS         :',IBORBSP
-  write(u6,*) ' IBORBSPS 1st orb per GAS and sym:',IBORBSPS
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' NORBTS per GAS and sym          :',NORBTS
+write(u6,*) ' NORBT per GAS                   :',NORBT
+write(u6,*) ' IACGAS GAS involved             :',IACGAS
+write(u6,*) ' IBORBSP 1st orb per GAS         :',IBORBSP
+write(u6,*) ' IBORBSPS 1st orb per GAS and sym:',IBORBSPS
+#endif
 
 !===================================================
 ! K strings : Supergroup, symmetry and distributions
@@ -133,7 +136,9 @@ end if
 ! b:) active group in K strings
 NIEL = NELFGP(IGRP(IACGRP))
 NKEL = NIEL+IDELTA
-if (NTEST >= 1000) write(u6,*) ' NIEL and NKEL ',NIEL,NKEL
+#ifdef _DEBUGPRINT_
+write(u6,*) ' NIEL and NKEL ',NIEL,NKEL
+#endif
 if ((NKEL == -1) .or. (NKEL == NOBPT(IACGAS)+1)) then
   ! No strings with this number of elecs - be happy : No work
   NKSTR = 0
@@ -145,7 +150,9 @@ else
   do JGRP=IBGPSTR(IACGAS),IBGPSTR(IACGAS)+NGPSTR(IACGAS)-1
     if (NELFGP(JGRP) == NKEL) KACGRP = JGRP
   end do
-  if (NTEST >= 1000) write(u6,*) ' KACGRP = ',KACGRP
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' KACGRP = ',KACGRP
+# endif
   ! KACGRP is the Active group itself
   if (KACGRP == 0) then
     write(u6,*) ' ADAST : cul de sac, active K group not found'
@@ -159,7 +166,9 @@ else
   KGRP(IACGRP) = KACGRP
   ! Number of strings and symmetry distributions of K strings
   call NST_SPGRP(NIGRP,KGRP,KSM,NSTSGP,NSMST,NKSTR,NKDIST)
-  if (NTEST >= 1000) write(u6,*) 'KSM,NKSTR,NKDIST:',KSM,NKSTR,NKDIST
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'KSM,NKSTR,NKDIST:',KSM,NKSTR,NKDIST
+# endif
   if (NKSTR /= 0) then
     ! Last active space in K strings and number of strings per group and sym
     NGASL = 1
@@ -168,15 +177,17 @@ else
       NNSTSGP(1:NSMST,JGRP) = NSTSGP((KGRP(JGRP)-1)*NSMST+1:KGRP(JGRP)*NSMST)
       IISTSGP(1:NSMST,JGRP) = ISTSGP((KGRP(JGRP)-1)*NSMST+1:KGRP(JGRP)*NSMST)
     end do
-    if (NTEST >= 100) write(u6,*) 'NGASL',NGASL
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'NGASL',NGASL
+#   endif
     ! MIN/MAX for Kstrings
     !call MINMAX_FOR_SYM_DIST(NIGRP,KGRP,MNVLK,MXVLK,NKDIST_TOT)
-    !if (NTEST >= 100) then
-    !  write(u6,*) 'MNVLK and MXVLK'
-    !  call IWRTMA(MNVLK,1,NIGRP,1,NIGRP)
-    !  call IWRTMA(MXVLK,1,NIGRP,1,NIGRP)
-    !end if
-    ! (NKDIST_TOT is number of distributions, all symmetries )
+#   ifdef _DEBUGPRINT_
+    !write(u6,*) 'MNVLK and MXVLK'
+    !call IWRTMA(MNVLK,1,NIGRP,1,NIGRP)
+    !call IWRTMA(MXVLK,1,NIGRP,1,NIGRP)
+#   endif
+    ! (NKDIST_TOT is number of distributions, all symmetries)
     ! =========
     ! I Strings
     ! =========
@@ -196,7 +207,9 @@ else
     do JGRP=1,IACGRP-1
       NELB = NELB+NELFGP(IGRP(JGRP))
     end do
-    if (NTEST >= 1000) write(u6,*) ' NELB = ',NELB
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' NELB = ',NELB
+#   endif
     I1(1:NORBTS*NKSTR) = 0
     ! Loop over symmetry distribtions of K strings
     KFIRST = 1
@@ -208,10 +221,10 @@ else
       call NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,ISMFGS,KSM,KFIRST,NONEW,ISMDFGP,NACTSYM,ISMSCR)
       !GLM   if (NONEW == 1) exit
       !GLM end if
-      if (NTEST >= 1000) then
-        write(u6,*) ' Symmetry distribution'
-        call iwrtma(ISMFGS,1,NIGRP,1,NIGRP)
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' Symmetry distribution'
+      call iwrtma(ISMFGS,1,NIGRP,1,NIGRP)
+#     endif
       if (NONEW == 1) exit
       KFIRST = 0
       ! Number of strings of this symmetry distribution
@@ -245,7 +258,9 @@ else
       IKAC = IISTSGP(ISMFGS(IACGRP),IACGRP)
       ! I and K strings of given symmetry distribution
       NKSD = NSTB*NKAC*NSTA
-      if (NTEST >= 1000) write(u6,*) ' nstb nsta niac nkac ',nstb,nsta,niac,nkac
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' nstb nsta niac nkac ',nstb,nsta,niac,nkac
+#     endif
       ! Obtain annihilation/creation mapping for all strings of this type
       ! Are group mappings in expanded or compact form
       if ((IAC == 1) .and. (ISTAC(KACGRP,2) == 0)) then
@@ -266,19 +281,19 @@ else
   end if
 end if
 
-if (NTEST >= 100) then
-  write(u6,*) ' Output from ADAST_GAS'
-  write(u6,*) ' ====================='
-  write(u6,*) ' Total number of K strings ',NKSTR
-  if (NKSTR /= 0) then
-    do IORB=IBORBSPS,IBORBSPS+NORBTS-1
-      IORBR = IORB-IBORBSPS+1
-      write(u6,*) ' Info for orbital ',IORB
-      write(u6,*) ' Excited strings and sign'
-      call IWRTMA(I1((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
-      call WRTMAT(XI1S((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from ADAST_GAS'
+write(u6,*) ' ====================='
+write(u6,*) ' Total number of K strings ',NKSTR
+if (NKSTR /= 0) then
+  do IORB=IBORBSPS,IBORBSPS+NORBTS-1
+    IORBR = IORB-IBORBSPS+1
+    write(u6,*) ' Info for orbital ',IORB
+    write(u6,*) ' Excited strings and sign'
+    call IWRTMA(I1((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
+    call WRTMAT(XI1S((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
+  end do
 end if
+#endif
 
 end subroutine ADAST_GAS

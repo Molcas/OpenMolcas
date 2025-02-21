@@ -11,17 +11,21 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
 ! Address of string IOCC
 !
 ! version of Winter 1990, Jeppe Olsen
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: ISTRNM
 integer(kind=iwp), intent(in) :: NEL, IOCC(NEL), NORB, Z(NORB,NEL), NEWORD(*), IREORD
-integer(kind=iwp) :: I, IZ, NTEST
+integer(kind=iwp) :: I, IZ
 
 IZ = 1
 do I=1,NEL
@@ -34,16 +38,15 @@ else
   ISTRNM = NEWORD(IZ)
 end if
 
-NTEST = 0
-if (NTEST > 1) then
-  write(u6,*) ' STRING'
-  call IWRTMA(IOCC,1,NEL,1,NEL)
-  write(u6,*) ' Z matrix'
-  call IWRTMA(Z,NORB,NEL,NORB,NEL)
-  !write(u6,*) ' First two elements of reorder array'
-  !call IWRTMA(NEWORD,1,2,1,2)
-  write(u6,*) ' ADDRESS OF STRING ',ISTRNM
-  write(u6,*) ' REV LEX number : ',IZ
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' STRING'
+call IWRTMA(IOCC,1,NEL,1,NEL)
+write(u6,*) ' Z matrix'
+call IWRTMA(Z,NORB,NEL,NORB,NEL)
+!write(u6,*) ' First two elements of reorder array'
+!call IWRTMA(NEWORD,1,2,1,2)
+write(u6,*) ' ADDRESS OF STRING ',ISTRNM
+write(u6,*) ' REV LEX number : ',IZ
+#endif
 
 end function ISTRNM

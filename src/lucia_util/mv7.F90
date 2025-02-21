@@ -17,7 +17,7 @@ subroutine MV7(C,HC,LUC,LUHC)
 
 use strbas, only: NSTSO
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, ISIMSYM, ISMOST, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, &
+use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, ISMOST, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, &
                       NOCTYP, PSSIGN, XISPSM
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -77,7 +77,7 @@ if (ENVIRO == 'RASSCF') then
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
   if (PSSIGN /= Zero) LBLOCK = int(2*XISPSM(IREFSM,1))
 end if
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0,ISIMSYM)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
 call mma_deallocate(SIOIO)
 call mma_deallocate(CBLTP)
 

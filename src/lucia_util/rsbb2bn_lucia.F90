@@ -11,9 +11,9 @@
 ! Copyright (C) 1991-1994,1996,1997,2000, Jeppe Olsen                  *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,ADSXA, &
-                         STSTSX,NOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,IUSEAB,CJRES,SIRES,SCLFAC,NTESTG, &
-                         NSEL2E,ISEL2E,IPHGAS)
+                         STSTSX,NOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
 ! SUBROUTINE RSBB2BN_LUCIA --> 52
 !
 ! Combined alpha-beta double excitation
@@ -75,36 +75,33 @@ subroutine RSBB2BN_LUCIA(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPNGAS, MXPOBS
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), &
                                  IBOC(*), JAOC(*), JBOC(*), ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), &
-                                 MAXK, NSMOB, IUSEAB, NTESTG, NSEL2E, ISEL2E(*), IPHGAS(*)
+                                 MAXK, NSMOB, IUSEAB, IPHGAS(*)
 real(kind=wp), intent(inout) :: SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(_OUT_) :: XINT(*), CJRES(*), SIRES(*)
 #include "timers.fh"
-integer(kind=iwp) :: IAMOKAY, IASPGP(20), IBSPGP(20), ICOUL, IDOCOMP, II, IJ_DIM(2), IJ_REO(2), IJ_SYM(2), IJ_TYP(2), IJAC, IJSM, &
-                     IJTYP, IKABTC, IKORD, IROUTE, ISM, ITP(20), ITYP, IXCHNG, JASPGP(20), JBSPGP(20), JJ, JSEL2E, JSM, JTP(20), &
-                     JTYP, KABOT, KACT, KATOP, KL_DIM(2), KL_REO(2), KL_SYM(2), KL_TYP(2), KLAC, KLSM, KLTYP, KSM, KTP(20), KTYP, &
-                     LKABTC, LSM, LTP(20), LTYP, NI, NIJTYP, NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL, NTEST, &
-                     NTESTL
+integer(kind=iwp) :: IASPGP(20), IBSPGP(20), ICOUL, IDOCOMP, II, IJ_DIM(2), IJ_REO(2), IJ_SYM(2), IJ_TYP(2), IJAC, IJSM, IJTYP, &
+                     IKABTC, IKORD, IROUTE, ISM, ITP(20), ITYP, IXCHNG, JASPGP(20), JBSPGP(20), JJ, JSM, JTP(20), JTYP, KABOT, &
+                     KACT, KATOP, KL_DIM(2), KL_REO(2), KL_SYM(2), KL_TYP(2), KLAC, KLSM, KLTYP, KSM, KTP(20), KTYP, LKABTC, LSM, &
+                     LTP(20), LTYP, NI, NIJTYP, NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL
 real(kind=wp) :: CPU, CPU0, CPU1, FACS, SIGNIJ2, SIGNKL, WALL, WALL0, WALL1
 
-NTESTL = 0
-NTEST = max(NTESTG,NTESTL)
-
-if (NTEST >= 500) then
-
-  write(u6,*) ' ================'
-  write(u6,*) ' RSBB2BN speaking'
-  write(u6,*) ' ================'
-
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ================'
+write(u6,*) ' RSBB2BN speaking'
+write(u6,*) ' ================'
+#endif
 !  Groups defining each supergroup
 call GET_SPGP_INF(IATP,IAGRP,IASPGP)
 call GET_SPGP_INF(JATP,IAGRP,JASPGP)
@@ -115,10 +112,10 @@ call GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
 IJSM = STSTSX(IASM,JASM)
 KLSM = STSTSX(IBSM,JBSM)
 if ((IJSM == 0) .or. (KLSM == 0)) return
-if (NTEST >= 600) then
-  write(u6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
-  write(u6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
+write(u6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
+#endif
 ! Types of SX that connects the two strings
 call SXTYP2_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC,IPHGAS)
 call SXTYP2_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC,IPHGAS)
@@ -148,8 +145,8 @@ do IJTYP=1,NIJTYP
     IJ_REO(2) = 2
     !end if
     ! Two choices here :
-    !  1 : <Ia!a+ ia!Ka><Ja!a+ ja!Ka> ( good old creation mapping)
-    !  2 :-<Ia!a  ja!Ka><Ja!a  ia!Ka>  + delta(i,j)
+    !  1 : <Ia!a+ ia!Ka><Ja!a+ ja!Ka> (good old creation mapping)
+    !  2 :-<Ia!a  ja!Ka><Ja!a  ia!Ka> + delta(i,j)
     !write(u6,*) ' RSBB2BN : IOP_REO : ',(IOP_REO(II),II=1,2)
     if ((IJ_REO(1) == 1) .and. (IJ_REO(2) == 2)) then
       ! Business as usual i.e. creation map
@@ -211,10 +208,10 @@ do IJTYP=1,NIJTYP
       end do
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(4) = TSIGMA(4)+(WALL1-WALL0)
-      if (NTEST >= 500) then
-        write(u6,*) ' Updated CJRES as C(Kaj,Jb)'
-        call WRTMAT(CJRES,NKASTR*NJ,NJB,NKASTR*NJ,NJB)
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' Updated CJRES as C(Kaj,Jb)'
+      call WRTMAT(CJRES,NKASTR*NJ,NJB,NKASTR*NJ,NJB)
+#     endif
 
       !MXACJ = MAX(MXACJ,NIB*LKABTC*IJ_DIM(1),NJB*LKABTC*IJ_DIM(2))
       SIRES(1:NIB*LKABTC*IJ_DIM(1)) = Zero
@@ -226,17 +223,19 @@ do IJTYP=1,NIJTYP
         ! Allowed double excitation ?
         !IJKL_ACT = 1
         !if (IJKL_ACT == 0) cycle
-        if (NTEST >= 100) write(u6,*) ' KTYP, LTYP',KTYP,LTYP
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' KTYP, LTYP',KTYP,LTYP
+#       endif
         ! Should this group of excitations be included
-        if (NSEL2E /= 0) then
-          IAMOKAY = 0
-          if ((ITYP == JTYP) .and. (ITYP == KTYP) .and. (ITYP == LTYP)) then
-            do JSEL2E=1,NSEL2E
-              if (ISEL2E(JSEL2E) == ITYP) IAMOKAY = 1
-            end do
-          end if
-          if (IAMOKAY == 0) cycle
-        end if
+        !if (NSEL2E /= 0) then
+        !  IAMOKAY = 0
+        !  if ((ITYP == JTYP) .and. (ITYP == KTYP) .and. (ITYP == LTYP)) then
+        !    do JSEL2E=1,NSEL2E
+        !      if (ISEL2E(JSEL2E) == ITYP) IAMOKAY = 1
+        !    end do
+        !  end if
+        !  if (IAMOKAY == 0) cycle
+        !end if
 
         KL_TYP(1) = KTYP
         KL_TYP(2) = LTYP
@@ -254,7 +253,9 @@ do IJTYP=1,NIJTYP
 
         do KSM=1,NSMOB
           LSM = ADSXA(KSM,KLSM)
-          if (NTEST >= 100) write(u6,*) ' KSM, LSM',KSM,LSM
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' KSM, LSM',KSM,LSM
+#         endif
           if (LSM == 0) cycle
           NK = NOBPTS(KTYP,KSM)
           NL = NOBPTS(LTYP,LSM)
@@ -293,7 +294,7 @@ do IJTYP=1,NIJTYP
           call ADAST_GAS(KL_SYM(1),KL_TYP(1),NGAS,IBSPGP,IBSM,I4,XI4S,NKBSTR,KACT,One,KLAC)
           if (NKBSTR == 0) cycle
 
-          ! Fetch Integrals as (iop2 iop1 |  k l )
+          ! Fetch Integrals as (iop2 iop1 | k l)
 
           IXCHNG = 0
           ICOUL = 1
@@ -309,10 +310,10 @@ do IJTYP=1,NIJTYP
           call TIMING(CPU1,CPU,WALL1,WALL)
           TSIGMA(5) = TSIGMA(5)+(WALL1-WALL0)
 
-          if (NTEST >= 500) then
-            write(u6,*) ' Updated Sires as S(Kai,Ib)'
-            call WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
-          end if
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' Updated Sires as S(Kai,Ib)'
+          call WRTMAT(SIRES,LKABTC*NI,NIB,LKABTC*NI,NIB)
+#         endif
 
         end do
         ! End of loop over KSM
@@ -321,10 +322,10 @@ do IJTYP=1,NIJTYP
 
       ! Scatter out from s(Ka,Ib,i)
 
-      if (NTEST >= 1000) then
-        write(u6,*) ' S(Ka,Ib,i) as S(Ka,Ibi)'
-        call WRTMAT(SIRES,LKABTC,NIB*IJ_DIM(1),LKABTC,IJ_DIM(1))
-      end if
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' S(Ka,Ib,i) as S(Ka,Ibi)'
+      call WRTMAT(SIRES,LKABTC,NIB*IJ_DIM(1),LKABTC,IJ_DIM(1))
+#     endif
 
       call TIMING(CPU0,CPU,WALL0,WALL)
       do II=1,IJ_DIM(1)

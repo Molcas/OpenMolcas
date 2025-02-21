@@ -11,6 +11,7 @@
 ! Copyright (C) 1991,1994-1996, Jeppe Olsen                            *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,SCLFAC)
 ! Obtain mappings
 ! a+IORB !KSTR> = +/-!ISTR> for orbitals of symmetry IOBSM and type IOBTP
@@ -43,9 +44,12 @@ integer(kind=iwp), intent(_OUT_) :: I1(*)
 integer(kind=iwp), intent(out) :: NKSTR
 real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: IACIST(MXPNSMST), IACSM, IBORBSP, IBORBSPS, IBSTRINI, IFIRST, IGAS, IIAC, IISTSGP(MXPNSMST,MXPNGAS), IKAC, &
-                     IOFF, IORB, IORBR, ISAVE, ISMFGS(MXPNGAS), ISMST, ISPGRPABS, ISTSMM1, ITPFGS(MXPNGAS), KACGRP, KFIRST, KSM, &
-                     KSPGRPABS, KSTRBS, MNVAL(MXPNGAS), MULT, MXVAL(MXPNGAS), NACGSOB, NACIST(MXPNSMST), NELB, NELFGS(MXPNGAS), &
-                     NGASL, NIAC, NKAC, NKSD, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NORBTS, NSTA, NSTB, NSTRII, NSTRIK, NSTRINT, NTEST
+                     IOFF, ISAVE, ISMFGS(MXPNGAS), ISMST, ISPGRPABS, ISTSMM1, ITPFGS(MXPNGAS), KACGRP, KFIRST, KSM, KSPGRPABS, &
+                     KSTRBS, MNVAL(MXPNGAS), MULT, MXVAL(MXPNGAS), NACGSOB, NACIST(MXPNSMST), NELB, NELFGS(MXPNGAS), NGASL, NIAC, &
+                     NKAC, NKSD, NNSTSGP(MXPNSMST,MXPNGAS), NONEW, NORBTS, NSTA, NSTB, NSTRII, NSTRIK, NSTRINT
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IORB, IORBR
+#endif
 integer(kind=iwp), parameter :: MXLNGAS = 20
 
 ! Will be stored as an matrix of dimension
@@ -59,16 +63,15 @@ if (NGAS > MXLNGAS) then
   call SYSABENDMSG('lucia_util/adstn_gas','Internal error','')
 end if
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' ===================='
-  write(u6,*) ' ADSTN_GAS in service'
-  write(u6,*) ' ===================='
-  write(u6,*)
-  write(u6,*) '  IOBTP IOBSM : ',IOBTP,IOBSM
-  write(u6,*) '  ISPGP ISPGPSM ISPGPTP :  ',ISPGP,ISPGPSM,ISPGPTP
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ===================='
+write(u6,*) ' ADSTN_GAS in service'
+write(u6,*) ' ===================='
+write(u6,*)
+write(u6,*) '  IOBTP IOBSM : ',IOBTP,IOBSM
+write(u6,*) '  ISPGP ISPGPSM ISPGPTP :  ',ISPGP,ISPGPSM,ISPGPTP
+#endif
 
 !if (SCLFAC /= One) then
 !  write(u6,*) ' Problemo : ADSTN_GAS'
@@ -81,7 +84,9 @@ ISPGRPABS = IBSPGPFTP(ISPGPTP)-1+ISPGP
 call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
 KSM = Mul(IOBSM,ISPGPSM)
 NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
-if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
+#ifdef _DEBUGPRINT_
+write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
+#endif
 if (NKSTR /= 0) then
 
   NORBTS = NOBPTS(IOBTP,IOBSM)
@@ -147,10 +152,10 @@ if (NKSTR /= 0) then
     end do
     ! sym of SPACE NGASL
     ISMFGS(NGASL) = Mul(ISTSMM1,ISPGPSM)
-    if (NTEST >= 200) then
-      write(u6,*) ' next symmetry of NGASL spaces'
-      call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' next symmetry of NGASL spaces'
+    call IWRTMA(ISMFGS,1,NGASL,1,NGASL)
+#   endif
     ! Number of strings with this symmetry combination
     NSTRII = 1
     do IGAS=1,NGASL
@@ -164,17 +169,19 @@ if (NKSTR /= 0) then
       MULT = MULT*NSMST
     end do
 
-    if (NTEST >= 1) then !SJS
-      write(u6,*)
-      write(u6,*) ' ============================'
-      write(u6,*) ' If program is crashing here,'
-      write(u6,*) ' LOFFI needs to be increased.'
-      write(u6,*) ' ============================'
-      write(u6,*)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*)
+    write(u6,*) ' ============================'
+    write(u6,*) ' If program is crashing here,'
+    write(u6,*) ' LOFFI needs to be increased.'
+    write(u6,*) ' ============================'
+    write(u6,*)
+#   endif
     OFFI(IOFF) = real(NSTRINT,kind=wp)+1.001_wp
     NSTRINT = NSTRINT+NSTRII
-    if (NTEST >= 200) write(u6,*) ' IOFF, OFFI(IOFF) NSTRII ',IOFF,OFFI(IOFF),NSTRII
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' IOFF, OFFI(IOFF) NSTRII ',IOFF,OFFI(IOFF),NSTRII
+#   endif
 
     if (NGASL <= 1) exit
   end do
@@ -184,7 +191,9 @@ if (NKSTR /= 0) then
   !M call NEWTYP(ISPGRPABS,1,IOBTP,KSPGRPABS)
   !M KSM = Mul(IOBSM,ISPGPSM)
   !M NKSTR = NSTFSMSPGP(KSM,KSPGRPABS)
-  !M if (NTEST >= 200) write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
+# ifdef _DEBUGPRINT_
+  !M write(u6,*) ' KSM, KSPGPRABS, NKSTR : ',KSM,KSPGRPABS,NKSTR
+# endif
 
   ! Gas structure of K strings
 
@@ -224,10 +233,10 @@ if (NKSTR /= 0) then
       if (NONEW /= 0) exit
     end if
     KFIRST = 0
-    if (NTEST >= 200) then
-      write(u6,*) ' next symmetry of NGASL-1 spaces'
-      call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' next symmetry of NGASL-1 spaces'
+    call IWRTMA(ISMFGS,NGASL-1,1,NGASL-1,1)
+#   endif
     ! Symmetry of NGASL -1 spaces given, symmetry of total space
     ISTSMM1 = 1
     do IGAS=1,NGASL-1
@@ -239,10 +248,10 @@ if (NKSTR /= 0) then
     ISMFGS(NGASL) = Mul(ISTSMM1,KSM)
 
     ISMFGS(NGASL+1:NGAS) = 1
-    if (NTEST >= 200) then
-      write(u6,*) ' Next symmetry distribution'
-      call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' Next symmetry distribution'
+    call IWRTMA(ISMFGS,1,NGAS,1,NGAS)
+#   endif
     ! Number of strings of this symmetry distribution
     NSTRIK = 1
     do IGAS=1,NGASL
@@ -294,20 +303,20 @@ if (NKSTR /= 0) then
 
 end if
 
-if (NTEST >= 100) then
-  write(u6,*) ' Output from ADSTN_GAS'
-  write(u6,*) ' ====================='
-  write(u6,*) ' Total number of K strings ',NKSTR
-  if (NKSTR /= 0) then
-    do IORB=IBORBSPS,IBORBSPS+NORBTS-1
-      IORBR = IORB-IBORBSPS+1
-      write(u6,*) ' Info for orbital ',IORB
-      write(u6,*) ' Excited strings and sign'
-      call IWRTMA(I1((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
-      call WRTMAT(XI1S((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from ADSTN_GAS'
+write(u6,*) ' ====================='
+write(u6,*) ' Total number of K strings ',NKSTR
+if (NKSTR /= 0) then
+  do IORB=IBORBSPS,IBORBSPS+NORBTS-1
+    IORBR = IORB-IBORBSPS+1
+    write(u6,*) ' Info for orbital ',IORB
+    write(u6,*) ' Excited strings and sign'
+    call IWRTMA(I1((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
+    call WRTMAT(XI1S((IORBR-1)*NKSTR+1),1,NKSTR,1,NKSTR)
+  end do
 end if
+#endif
 
 ! PAM Mars-2006: This flush moved outside of this subroutine
 !call MEMMAN(IDUM,IDUM,'FLUSM',IDUM,'ADSTN ')

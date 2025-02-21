@@ -12,37 +12,39 @@
 !               2003, Jesper Wisborg Krogh                             *
 !***********************************************************************
 
-subroutine MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,MINOP,NTESTG)
+!#define _DEBUGPRINT_
+subroutine MXMNOC_OCCLS(MINEL,MAXEL,NORBTP,NORBFTP,NELFTP,MINOP)
 ! Construct accumulated MAX and MIN arrays for an occupation class
 !
 ! MINOP (Smallest allowed number of open orbitals) added
 ! April2, 2003, JO (modified by JWK, April - June 2003)
 
 use lucia_data, only: MXPNGAS
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(_OUT_) :: MINEL(*), MAXEL(*)
-integer(kind=iwp), intent(in) :: NORBTP, NORBFTP(*), NELFTP(*), MINOP, NTESTG
+integer(kind=iwp), intent(in) :: NORBTP, NORBFTP(*), NELFTP(*), MINOP
 integer(kind=iwp) :: IBORB, IGAS, IORB, IORB_START, MAX_DOUBLE, MAXOP_EXL, MAXOP_GAS(MXPNGAS), MAXOP_T, MINOP_GAS(MXPNGAS), &
-                     NEL_INI, NELEC, NGAS, NORB, NTEST, NTESTL
+                     NEL_INI, NELEC, NGAS
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NORB
 
-NTESTL = 0
-NTEST = max(NTESTG,NTESTL)
-
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' ============'
-  write(u6,*) ' MXMNOC_OCCLS'
-  write(u6,*) ' ============'
-  write(u6,*)
-  write(u6,*) ' MINOP  = ',MINOP
-  write(u6,*) ' NORBTP = ',NORBTP
-  write(u6,*) ' NORBFTP :'
-  call IWRTMA(NORBFTP,1,NORBTP,1,NORBTP)
-end if
+write(u6,*)
+write(u6,*) ' ============'
+write(u6,*) ' MXMNOC_OCCLS'
+write(u6,*) ' ============'
+write(u6,*)
+write(u6,*) ' MINOP  = ',MINOP
+write(u6,*) ' NORBTP = ',NORBTP
+write(u6,*) ' NORBFTP :'
+call IWRTMA(NORBFTP,1,NORBTP,1,NORBTP)
+#endif
 ! Well
 NGAS = NORBTP
 
@@ -129,12 +131,12 @@ do IGAS=1,NGAS
   IBORB = IBORB+NORBFTP(IGAS)
 end do
 
-if (NTEST >= 100) then
-  NORB = sum(NORBFTP(1:NORBTP))
-  write(u6,*) ' MINEL :'
-  call IWRTMA(MINEL,1,NORB,1,NORB)
-  write(u6,*) ' MAXEL :'
-  call IWRTMA(MAXEL,1,NORB,1,NORB)
-end if
+#ifdef _DEBUGPRINT_
+NORB = sum(NORBFTP(1:NORBTP))
+write(u6,*) ' MINEL :'
+call IWRTMA(MINEL,1,NORB,1,NORB)
+write(u6,*) ' MAXEL :'
+call IWRTMA(MAXEL,1,NORB,1,NORB)
+#endif
 
 end subroutine MXMNOC_OCCLS

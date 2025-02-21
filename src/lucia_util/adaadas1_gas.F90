@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADAADAS1_GAS(NK,I1,XI1S,LI1,IORB,NIORB,IAC,JORB,NJORB,JAC,KSTR,NKEL,NKSTR,IREO,IZ,NOCOB,KMAX,KMIN,IEND,SCLFAC,NSTRI)
 ! Obtain I1(KSTR) = +/- a+/a  IORB a+/a JORB !KSTR>
 ! Only orbital pairs IOB > JOB are included
@@ -53,7 +54,7 @@ real(kind=wp), intent(out) :: XI1S(LI1,NIORB*NJORB)
 real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: IACT, IDIAG, IEL, IIEL, IIELMAX, IIELMIN, IIORB, IJ, IJOFF, ILEX, ILEX0, ILEX1, ILEX2, IORB1, IORB2, IORBMAX, &
                      IORBMIN, ISCR(1000), JEL, JJ, JJEL, JJELMAX, JJELMIN, JJORB, JORB1, JORB2, JORBMAX, JORBMIN, KEL, KEND, &
-                     KKORB, KKSTR, NTEST
+                     KKORB, KKSTR
 real(kind=wp) :: SIGNIJ, SIGNJ, SGN, SGNARR(0:63)
 
 !PAM2009 Array of values, replacing expressions such as (-One)**INT:
@@ -63,21 +64,19 @@ SGNARR(1::2) = -One
 ! Some dummy initializations
 SGN = Zero
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' ===================='
-  write(u6,*) ' ADADS1_GAS speaking'
-  write(u6,*) ' ===================='
-  write(u6,*) ' IORB,NIORB,IAC ',IORB,NIORB,IAC
-  write(u6,*) ' JORB,NJORB,JAC ',JORB,NJORB,JAC
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ===================='
+write(u6,*) ' ADADS1_GAS speaking'
+write(u6,*) ' ===================='
+write(u6,*) ' IORB,NIORB,IAC ',IORB,NIORB,IAC
+write(u6,*) ' JORB,NJORB,JAC ',JORB,NJORB,JAC
 
-  !write(u6,*) ' Kstrings in action (el,string)'
-  !write(u6,*) ' ==============================='
-  write(u6,*) ' 24 elements of reorder array'
-  call IWRTMA(IREO,1,24,1,24)
-  !    IWRTMA(KSTR,NKEL,NKSTR,NKEL,NKSTR)
-
-end if
+!write(u6,*) ' Kstrings in action (el,string)'
+!write(u6,*) ' ==============================='
+write(u6,*) ' 24 elements of reorder array'
+call IWRTMA(IREO,1,24,1,24)
+!    IWRTMA(KSTR,NKEL,NKSTR,NKEL,NKSTR)
+#endif
 
 IORBMIN = IORB
 IORBMAX = IORB+NIORB-1
@@ -100,10 +99,10 @@ if ((IAC == 2) .and. (JAC == 2)) then
   ! ==========================
 
   do KKSTR=KMIN,KEND
-    if (NTEST >= 1000) then
-      write(u6,*) ' Occupation of string ',KKSTR
-      call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' Occupation of string ',KKSTR
+    call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
+#   endif
     ! Loop over electrons after which JORB can be added
     do JEL=0,NKEL
 
@@ -117,7 +116,9 @@ if ((IAC == 2) .and. (JAC == 2)) then
       else
         JORB2 = min(JORBMAX+1,KSTR(JEL+1,KKSTR))
       end if
-      if (NTEST >= 1000) write(u6,*) ' JEL JORB1 JORB2 ',JEL,JORB1,JORB2
+#     ifdef _DEBUGPRINT_
+      write(u6,*) ' JEL JORB1 JORB2 ',JEL,JORB1,JORB2
+#     endif
 
       if ((JEL > 0) .and. (JORB1 >= JORBMIN) .and. (JORB1 <= JORBMAX)) then
         ! vanishing for any IORB
@@ -153,7 +154,9 @@ if ((IAC == 2) .and. (JAC == 2)) then
             else
               IORB2 = min(IORBMAX+1,KSTR(IEL+1,KKSTR))
             end if
-            if (NTEST >= 5000) write(u6,*) ' IEL IORB1 IORB2 ',IEL,IORB1,IORB2
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' IEL IORB1 IORB2 ',IEL,IORB1,IORB2
+#           endif
             if ((IEL > JEL) .and. (IORB1 >= IORBMIN) .and. (IORB1 <= IORBMAX)) then
               IJ = (JJORB-JORBMIN)*NIORB+IORB1-IORBMIN+1
               I1(KKSTR-KMIN+1,IJ) = 0
@@ -177,10 +180,10 @@ if ((IAC == 2) .and. (JAC == 2)) then
                 IJ = IJOFF+IIORB-IORBMIN+1
                 ILEX = ILEX2+IZ(IIORB,IEL+2)
                 IACT = IREO(ILEX)
-                if (NTEST >= 1000) then
-                  write(u6,*) 'IIORB JJORB',IIORB,JJORB
-                  write(u6,*) ' ILEX IACT ',ILEX,IACT
-                end if
+#               ifdef _DEBUGPRINT_
+                write(u6,*) 'IIORB JJORB',IIORB,JJORB
+                write(u6,*) ' ILEX IACT ',ILEX,IACT
+#               endif
                 I1(KKSTR-KMIN+1,IJ) = IACT
                 XI1S(KKSTR-KMIN+1,IJ) = SIGNIJ
               end do
@@ -213,10 +216,10 @@ else if ((IAC == 1) .and. (JAC == 1)) then
     if (IIELMIN == 0) IIELMIN = NKEL+1
     if (JJELMIN == 0) JJELMIN = NKEL+1
 
-    if (NTEST >= 1000) then
-      write(u6,*) ' Occupation of string ',KKSTR
-      call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' Occupation of string ',KKSTR
+    call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
+#   endif
     ! Loop over first electron to be removed
     !do JEL=1,NKEL
     do JEL=JJELMIN,JJELMAX
@@ -225,7 +228,9 @@ else if ((IAC == 1) .and. (JAC == 1)) then
       !do IEL=JEL+1,NKEL
       do IEL=max(JEL+1,IIELMIN),IIELMAX
         IIORB = KSTR(IEL,KKSTR)
-        if (NTEST >= 1000) write(u6,*) ' IEL JEL IORB JORB ',IEL,JEL,IORB,JORB
+#       ifdef _DEBUGPRINT_
+        write(u6,*) ' IEL JEL IORB JORB ',IEL,JEL,IORB,JORB
+#       endif
         if ((IIORB >= IORBMIN) .and. (IIORB <= IORBMAX) .and. (JJORB >= JORBMIN) .and. (JJORB <= JORBMAX)) then
           !PAM09 SGN = SCLFAC*(-One)**(IEL+JEL-1)
           SGN = SGNARR(IEL+JEL+1)*SCLFAC
@@ -246,7 +251,9 @@ else if ((IAC == 1) .and. (JAC == 1)) then
             !stop ' IACT out of bounds'
             call SYSABENDMSG('lucia_util/adaadas1_gas','Internal error','')
           end if
-          if (NTEST >= 1000) write(u6,*) ' ILEX and IACT ',ILEX,IACT
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' ILEX and IACT ',ILEX,IACT
+#         endif
 
           IJ = (JJORB-JORB)*NIORB+IIORB-IORB+1
           I1(KKSTR-KMIN+1,IJ) = IACT
@@ -290,11 +297,11 @@ else if ((IAC == 2) .and. (JAC == 1)) then
         end if
       end do
     end do
-    if (NTEST >= 10000) then
-      write(u6,*) ' ISCR from IORBMIN array for KKSTR = ',KKSTR
-      write(u6,*) ' IORBMIN, NIORB',IORBMIN,NIORB
-      call IWRTMA(ISCR(IORBMIN),1,NIORB,1,NIORB)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' ISCR from IORBMIN array for KKSTR = ',KKSTR
+    write(u6,*) ' IORBMIN, NIORB',IORBMIN,NIORB
+    call IWRTMA(ISCR(IORBMIN),1,NIORB,1,NIORB)
+#   endif
     do JEL=1,NKEL
       JJORB = KSTR(JEL,KKSTR)
       if ((JJORB >= JORBMIN) .and. (JJORB <= JORBMAX)) then
@@ -408,10 +415,10 @@ else if ((IAC == 1) .and. (JAC == 2)) then
         end if
       end do
     end do
-    if (NTEST >= 10000) then
-      write(u6,*) ' ISCR from JORBMIN array for KKSTR = ',KKSTR
-      call IWRTMA(ISCR(JORBMIN),1,NJORB,1,NJORB)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' ISCR from JORBMIN array for KKSTR = ',KKSTR
+    call IWRTMA(ISCR(JORBMIN),1,NJORB,1,NJORB)
+#   endif
     do IEL=1,NKEL+IDIAG
       ! IEL = NKEL + 1 will be used for excitations a+j aj
       if (IEL <= NKEL) IIORB = KSTR(IEL,KKSTR)
@@ -499,25 +506,25 @@ else if ((IAC == 1) .and. (JAC == 2)) then
 end if
 ! End of types of creation mappings
 
-if (NTEST > 0) then
-  write(u6,*) ' Output from ADADST1_GAS'
-  write(u6,*) ' ====================='
-  write(u6,*) ' Number of K strings accessed ',NK
-  if (NK /= 0) then
-    IJ = 0
-    do JJORB=JORB,JORB+NJORB-1
-      do IIORB=IORB,IORB+NIORB-1
-        IJ = IJ+1
-        !write(u6,*) ' IJ = ',IJ
-        !if (IIORB > JJORB) then
-        write(u6,*) ' Info for orbitals (iorb,jorb) ',IIORB,JJORB
-        write(u6,*) ' Excited strings and sign'
-        call IWRTMA(I1(1,IJ),1,NK,1,NK)
-        call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
-        !end if
-      end do
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from ADADST1_GAS'
+write(u6,*) ' ====================='
+write(u6,*) ' Number of K strings accessed ',NK
+if (NK /= 0) then
+  IJ = 0
+  do JJORB=JORB,JORB+NJORB-1
+    do IIORB=IORB,IORB+NIORB-1
+      IJ = IJ+1
+      !write(u6,*) ' IJ = ',IJ
+      !if (IIORB > JJORB) then
+      write(u6,*) ' Info for orbitals (iorb,jorb) ',IIORB,JJORB
+      write(u6,*) ' Excited strings and sign'
+      call IWRTMA(I1(1,IJ),1,NK,1,NK)
+      call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
+      !end if
     end do
-  end if
+  end do
 end if
+#endif
 
 end subroutine ADAADAS1_GAS

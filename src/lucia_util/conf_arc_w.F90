@@ -11,18 +11,22 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CONF_ARC_W(IOCC_MIN,IOCC_MAX,NORB,NEL,IVERTEXW,IARCW)
 ! Obtain arcweights for single and double occupied arcs
 ! from vertex weights
 !
 ! Jeppe Olsen, October 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NORB, IOCC_MIN(NORB), IOCC_MAX(NORB), NEL, IVERTEXW(NORB+1,NEL+1)
 integer(kind=iwp), intent(out) :: IARCW(NORB,NEL,2)
-integer(kind=iwp) :: I, J, K, NTEST
+integer(kind=iwp) :: I, J, K
 
 IARCW(:,:,:) = 0
 ! IARCW(I,J,K) is weight of arc with occupation K ending at (I,J)
@@ -38,12 +42,11 @@ do I=1,NORB
   end do
 end do
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Arc weights for single occupied arcs'
-  call IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
-  write(u6,*) ' Arc weights for double occupied arcs'
-  call IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Arc weights for single occupied arcs'
+call IWRTMA(IARCW(1,1,1),NORB,NEL,NORB,NEL)
+write(u6,*) ' Arc weights for double occupied arcs'
+call IWRTMA(IARCW(1,1,2),NORB,NEL,NORB,NEL)
+#endif
 
 end subroutine CONF_ARC_W

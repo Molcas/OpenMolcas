@@ -24,6 +24,7 @@
 !                  in the string. A type will therefore in general
 !                  consists of several supergroups
 
+!#define _DEBUGPRINT_
 subroutine SPGP_AC(INSPGRP,NINSPGRP,IOUTSPGRP,NOUTSPGRP,NGAS,MXPNGAS,IAC,ISPGRP_AC,IBASEIN,IBASEOUT)
 ! Annihilation/Creation mapping of strings
 !
@@ -34,7 +35,7 @@ use Definitions, only: iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: MXPNGAS, NINSPGRP, IOUTSPGRP(MXPNGAS,*), NOUTSPGRP, NGAS, IAC, IBASEIN, IBASEOUT
 integer(kind=iwp), intent(inout) :: INSPGRP(MXPNGAS,*), ISPGRP_AC(NGAS,*)
-integer(kind=iwp) :: IAMOKAY, IGAS, ISPGRP, ITO, JGAS, JSPGRP, NELIN, NELOUT, NTEST
+integer(kind=iwp) :: IAMOKAY, IGAS, ISPGRP, ITO, JGAS, JSPGRP, NELIN, NELOUT
 
 ! Check first that supergroups + IAC information is consistent
 NELIN = sum(INSPGRP(1:NGAS,IBASEIN))
@@ -72,21 +73,18 @@ do ISPGRP=IBASEIN,IBASEIN+NINSPGRP-1
   end do
 end do
 
-NTEST = 0
-if (NTEST >= 1000) then
-  write(u6,*) ' Input supergroups'
-  call IWRTMA(INSPGRP(1,IBASEIN),NGAS,NINSPGRP,MXPNGAS,NINSPGRP)
-  write(u6,*) ' Output supergroups'
-  call IWRTMA(IOUTSPGRP(1,IBASEOUT),NGAS,NOUTSPGRP,MXPNGAS,NOUTSPGRP)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Input supergroups'
+call IWRTMA(INSPGRP(1,IBASEIN),NGAS,NINSPGRP,MXPNGAS,NINSPGRP)
+write(u6,*) ' Output supergroups'
+call IWRTMA(IOUTSPGRP(1,IBASEOUT),NGAS,NOUTSPGRP,MXPNGAS,NOUTSPGRP)
 
-if (NTEST >= 100) then
-  write(u6,*) ' Output from SPGP_AC'
-  write(u6,*) ' ==================='
-  write(u6,*)
-  write(u6,*) ' IAC = ',IAC
-  write(u6,*) ' Mapping :'
-  call IWRTMA(ISPGRP_AC(1,IBASEIN),NGAS,NINSPGRP,NGAS,NINSPGRP)
-end if
+write(u6,*) ' Output from SPGP_AC'
+write(u6,*) ' ==================='
+write(u6,*)
+write(u6,*) ' IAC = ',IAC
+write(u6,*) ' Mapping :'
+call IWRTMA(ISPGRP_AC(1,IBASEIN),NGAS,NINSPGRP,NGAS,NINSPGRP)
+#endif
 
 end subroutine SPGP_AC

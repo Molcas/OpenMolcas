@@ -11,6 +11,7 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine DIATERM2_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,J12,JDC)
 ! = DIATERM_GAS, just J12 added !
 !
@@ -22,13 +23,13 @@ subroutine DIATERM2_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,J12,JDC)
 ! Jeppe Olsen, August 1995
 
 use strbas, only: NSTSO
-use lucia_data, only: ECORE, ECORE_ORIG, IPRDIA, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NTOOB
+use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NTOOB
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use lucia_data, only: IBSPGPFTP, IDC, IPERTOP
+use lucia_data, only: IBSPGPFTP, IDC
 use Definitions, only: u6
 #endif
 
@@ -38,7 +39,7 @@ implicit none
 real(kind=wp), intent(in) :: FACTOR
 real(kind=wp), intent(_OUT_) :: VEC(*)
 integer(kind=iwp), intent(in) :: ITASK, NBLOCK, IBLOCK(8,*), IOFF, J12, JDC
-integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA, NTEST
+integer(kind=iwp) :: IATP, IBTP, MAXA, NAEL, NBEL, NOCTPA
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: IOCTPA, IOCTPB, NOCTPB
 #endif
@@ -46,9 +47,6 @@ real(kind=wp) :: ECOREP, FACTORX, SHIFT
 integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:)
 real(kind=wp), allocatable :: LH1D(:), LJ(:), LK(:), LRJKA(:), LXB(:)
 integer(kind=iwp), external :: IMNMX
-
-NTEST = 0
-NTEST = max(NTEST,IPRDIA)
 
 IATP = 1
 IBTP = 2
@@ -78,15 +76,13 @@ NOCTPA = NOCTYP(IATP)
 NOCTPB = NOCTYP(IBTP)
 IOCTPA = IBSPGPFTP(IATP)
 IOCTPB = IBSPGPFTP(IBTP)
-if (NTEST >= 10) then
-  write(u6,*) ' ====================='
-  write(u6,*) ' DIATERM2_GAS speaking'
-  write(u6,*) ' ====================='
-  write(u6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
-  write(u6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
-  write(u6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
-  write(u6,*) ' IPART,J12,IPERTOP',J12,IPERTOP
-end if
+write(u6,*) ' ====================='
+write(u6,*) ' DIATERM2_GAS speaking'
+write(u6,*) ' ====================='
+write(u6,*) ' IATP IBTP NAEL NBEL ',IATP,IBTP,NAEL,NBEL
+write(u6,*) ' NOCTPA NOCTPB  : ',NOCTPA,NOCTPB
+write(u6,*) ' IOCTPA IOCTPB  : ',IOCTPA,IOCTPB
+write(u6,*) ' IPART,J12',J12
 #endif
 ! A bit of scracth
 call mma_allocate(LJ,NTOOB**2,Label='LJ')
@@ -106,8 +102,8 @@ if (J12 == 2) call GTJK(LJ,LK,NTOOB,IREOST)
 ECOREP = Zero
 SHIFT = ECORE_ORIG-ECORE
 FACTORX = FACTOR+SHIFT
-call DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,NACOB,VEC,NSMST,LH1D,JDC,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,0,0,IPRDIA,NTOOB, &
-                  LRJKA,J12,IBLOCK(:,IOFF),NBLOCK,ITASK,FACTORX,0,[0])
+call DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,NACOB,VEC,NSMST,LH1D,JDC,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,0,0,NTOOB,LRJKA,J12, &
+                  IBLOCK(:,IOFF),NBLOCK,ITASK,FACTORX,0,[0])
 ! Flush local memory
 call mma_deallocate(LJ)
 call mma_deallocate(LK)
@@ -118,10 +114,8 @@ call mma_deallocate(LBSTR)
 call mma_deallocate(LRJKA)
 
 #ifdef _DEBUGPRINT_
-if (NTEST >= 100) then
-  write(u6,*) ' output vector from DIATRM'
-  call WRTTTS(VEC,IBLOCK(:,IOFF),NBLOCK,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC)
-end if
+write(u6,*) ' output vector from DIATRM'
+call WRTTTS(VEC,IBLOCK(:,IOFF),NBLOCK,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC)
 #endif
 
 end subroutine DIATERM2_GAS

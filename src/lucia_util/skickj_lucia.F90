@@ -11,6 +11,7 @@
 ! Copyright (C) 1994,1997, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine SKICKJ_LUCIA(SKII,CKJJ,NKA,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,FACS,IROUTE)
 ! Calculate S(Ka,Ib,i) = FACS*S(Ka,Ib,i)
 !          +SUM(j,k,l,Kb) <Ib!a+ kb!Kb><Kb!a lb !Jb>*(ij!kl)*C(Ka,Jb,j)
@@ -27,7 +28,7 @@ implicit none
 real(kind=wp), intent(inout) :: SKII(*), XIJKL(*)
 integer(kind=iwp), intent(in) :: NKA, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD, IROUTE
 real(kind=wp), intent(in) :: CKJJ(*), XKBIB(MAXK,*), XKBJB(MAXK,*), FACS
-integer(kind=iwp) :: IB, ICOFF, IKINTOF, IMAX, INTOF, ISOFF, JB, JKINTOF, K, KB, KK, L, LL, NTEST
+integer(kind=iwp) :: IB, ICOFF, IKINTOF, IMAX, INTOF, ISOFF, JB, JKINTOF, K, KB, KK, L, LL
 real(kind=wp) :: FACTOR, SGNK, SGNL, XIJILS(MXPTSOB)
 
 ! To get rid of annoying and incorrect compiler warnings
@@ -40,8 +41,6 @@ if ((NI > MXPTSOB) .or. (NJ > MXPTSOB) .or. (NK > MXPTSOB) .or. (NL > MXPTSOB)) 
   !stop ' Redim MXPTSOB'
   call SYSABENDMSG('lucia_util/skickj','Redim MXPTSOB','')
 end if
-
-NTEST = 0
 
 if (IROUTE == 3) then
   ! S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
@@ -63,7 +62,9 @@ if (IROUTE == 3) then
           SGNK = XKBIB(KB,K)
           do L=1,NL
             JB = KBJB(KB,L)
-            if (NTEST >= 100) write(u6,*) ' KB,K,L,IB,JB',KB,K,L,IB,JB
+#           ifdef _DEBUGPRINT_
+            write(u6,*) ' KB,K,L,IB,JB',KB,K,L,IB,JB
+#           endif
             if (JB /= 0) then
               SGNL = XKBJB(KB,L)
               FACTOR = SGNK*SGNL
@@ -95,7 +96,7 @@ if (IROUTE == 3) then
       end do
     end if
   end do
-  ! (end over loop over Kb strings )
+  ! (end over loop over Kb strings)
 else if (IROUTE == 2) then
   ! S(I,Ka,Ib) = S(I,Ka,Ib) + sum(j) (ij!kl) C(j,Ka,Jb)
   do KB=1,NKB
@@ -142,7 +143,7 @@ else if (IROUTE == 2) then
       end do
     end if
   end do
-  ! (end over loop over Kb strings )
+  ! (end over loop over Kb strings)
 
 else if (IROUTE == 1) then
   write(u6,*) ' Sorry route 1 has retired, March 1997'
@@ -192,7 +193,7 @@ else if (IROUTE == 1) then
   !          ! Offsets for C(1,JB,j)
   !          JBOFF(JL) = (J-1)*NJB+JB
   !          ! integral * signs in SCR(jl,ik)
-  !          ! Integrals are stored as (j l i k )
+  !          ! Integrals are stored as (j l i k)
   !          SCR((IKEFF-1)*NJ*LL+JL) = FACTOR*XIJKL(JLIK)
   !          SCR(IOFF+JL) = FACTOR*XIJKL(JLIK0+J)
   !        end do

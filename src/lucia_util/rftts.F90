@@ -11,46 +11,38 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC,PS,IWAY,IPRNT)
+!#define _DEBUGPRINT_
+subroutine RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC)
 ! Reformat between determinant and combination form of matrices.
 ! No scaling is performed.
 !
-! IWAY = 1 : dets to combs
-! IWAY = 2 : combs to dets
+! dets to combs
 !
 ! Combination storage mode is defined BY IDC
 !
 ! Jeppe Olsen, August 1995
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 real(kind=wp), intent(inout) :: BLOCKSI(*)
 real(kind=wp), intent(_OUT_) :: BLOCKSO(*)
-real(kind=wp), intent(in) :: PS
-integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC, IWAY, IPRNT
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFFI, IOFFO, IPACK, ISCI, ISCO, JBLOCK, LENGTH, NELMNT, NIA, NIB, NTEST
-
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
+integer(kind=iwp), intent(in) :: NBLOCK, IBLOCK(8,NBLOCK), NSMST, NSASO(NSMST,*), NSBSO(NSMST,*), IDC
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IOFFI, IOFFO, IPACK, JBLOCK, LENGTH, NELMNT, NIA, NIB
 
 LENGTH = 0
-if (IWAY == 1) then
-  ISCI = 1
-  ISCO = 2
-else
-  ISCI = 2
-  ISCO = 1
-end if
 
-if (NTEST > 10) then
-  write(u6,*) ' Information from RFTTS'
-  write(u6,*) ' ======================'
-  write(u6,*) ' Input vector'
-  call WRTTTS(BLOCKSI,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,ISCI)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Information from RFTTS'
+write(u6,*) ' ======================'
+write(u6,*) ' Input vector'
+call WRTTTS(BLOCKSI,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,1)
+#endif
 
 do JBLOCK=1,NBLOCK
 
@@ -60,13 +52,8 @@ do JBLOCK=1,NBLOCK
   IBSM = IBLOCK(4,JBLOCK)
   if (IBLOCK(1,JBLOCK) > 0) then
 
-    if (IWAY == 1) then
-      IOFFI = IBLOCK(5,JBLOCK)
-      IOFFO = IBLOCK(6,JBLOCK)
-    else
-      IOFFO = IBLOCK(5,JBLOCK)
-      IOFFI = IBLOCK(6,JBLOCK)
-    end if
+    IOFFI = IBLOCK(5,JBLOCK)
+    IOFFO = IBLOCK(6,JBLOCK)
     ! Is this block diagonal in packed form
     if ((IDC == 2) .and. (IASM == IBSM) .and. (IATP == IBTP)) then
       IPACK = 1
@@ -76,7 +63,7 @@ do JBLOCK=1,NBLOCK
     NIA = NSASO(IASM,IATP)
     NIB = NSBSO(IBSM,IBTP)
     ! Number of elements in output block
-    if ((IPACK == 1) .and. (ISCO == 2)) then
+    if (IPACK == 1) then
       NELMNT = NIA*(NIA+1)/2
     else
       NELMNT = NIA*NIB
@@ -89,15 +76,9 @@ do JBLOCK=1,NBLOCK
       ! Just copy
       BLOCKSO(IOFFO:IOFFO+NELMNT-1) = BLOCKSI(IOFFI:IOFFI+NELMNT-1)
     else
-      if (IWAY == 1) then
-        ! unpacked => packed
-        !    TRIPK31(AUTPAK,APAK,MATDIM,NDIM)
-        call TRIPK31(BLOCKSI(IOFFI),BLOCKSO(IOFFO),NIA,NIA)
-      else
-        ! Packed => unpacked
-        !    TRIPK32(AUTPAK,APAK,MATDIM,NDIM,SGN)
-        call TRIPK32(BLOCKSO(IOFFO),BLOCKSI(IOFFI),NIA,NIA,PS)
-      end if
+      ! unpacked => packed
+      !    TRIPK31(AUTPAK,APAK,MATDIM,NDIM)
+      call TRIPK31(BLOCKSI(IOFFI),BLOCKSO(IOFFO),NIA,NIA)
     end if
     LENGTH = LENGTH+NELMNT
   end if
@@ -105,11 +86,11 @@ end do
 
 BLOCKSI(1:LENGTH) = BLOCKSO(1:LENGTH)
 
-if (NTEST > 10) then
-  write(u6,*) ' Information from RFTTS'
-  write(u6,*) ' ======================'
-  write(u6,*) ' Output vector'
-  call WRTTTS(BLOCKSO,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,ISCO)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Information from RFTTS'
+write(u6,*) ' ======================'
+write(u6,*) ' Output vector'
+call WRTTTS(BLOCKSO,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,2)
+#endif
 
 end subroutine RFTTS

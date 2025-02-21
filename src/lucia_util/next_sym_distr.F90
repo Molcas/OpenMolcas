@@ -11,6 +11,7 @@
 ! Copyright (C) 1997, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NEXT_SYM_DISTR(NGAS,MNVAL,MXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
 ! Obtain next distribution of symmetries with given total
 ! Symmetry.
@@ -28,13 +29,16 @@ subroutine NEXT_SYM_DISTR(NGAS,MNVAL,MXVAL,ISYM,ISYM_TOT,IFIRST,NONEW)
 ! Jeppe Olsen, Sept 97
 
 use Symmetry_Info, only: Mul
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NGAS, MNVAL(NGAS), MXVAL(NGAS), ISYM_TOT
 integer(kind=iwp), intent(inout) :: ISYM(NGAS), IFIRST
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: JSYM, NTEST
+integer(kind=iwp) :: JSYM
 integer(kind=iwp), external :: ISYMSTR
 
 ! Symmetry of first NGAS -1 spaces
@@ -63,14 +67,13 @@ do
   end if
 end do
 
-NTEST = 0
-if (NTEST >= 100) then
-  if (NONEW == 1) then
-    write(u6,*) ' No new symmetry distributions'
-  else
-    write(u6,*) ' Next symmetry distribution'
-    call IWRTMA(ISYM,1,NGAS,1,NGAS)
-  end if
+#ifdef _DEBUGPRINT_
+if (NONEW == 1) then
+  write(u6,*) ' No new symmetry distributions'
+else
+  write(u6,*) ' Next symmetry distribution'
+  call IWRTMA(ISYM,1,NGAS,1,NGAS)
 end if
+#endif
 
 end subroutine NEXT_SYM_DISTR

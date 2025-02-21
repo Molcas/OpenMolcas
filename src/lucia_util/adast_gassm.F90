@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IORBTSF,IORBTF,NORBTS,NSTAK,NSTAI,NSTAKTS,NELB, &
                        ISTMAP,SGNMAP,SCLFAC,IAC,LROW_IN,IEC)
 ! Annihilation/Creation mappings from K-strings of given sym in each gasspace
@@ -33,7 +34,10 @@ subroutine ADAST_GASSM(NSTB,NSTA,IOFFK,IOFFI,IOFFISP,IOFFKSP,ICREORB,ICRESTR,IOR
 ! NSTAI   : Number of I groupstrings in active gasspace
 
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, LROW_IN, NSTAK, ICREORB(LROW_IN,NSTAK+IOFFK-1), &
@@ -41,8 +45,10 @@ integer(kind=iwp), intent(in) :: NSTB, NSTA, IOFFK, IOFFI, IOFFISP, IOFFKSP, LRO
 integer(kind=iwp), intent(inout) :: ISTMAP(NSTAKTS,NORBTS)
 real(kind=wp), intent(inout) :: SGNMAP(NSTAKTS,NORBTS)
 real(kind=wp), intent(in) :: SCLFAC
-integer(kind=iwp) :: I_AM_ACTIVE, IA, IADRI0, IADRK0, IB, IORB, IORBR, IORBRT, IORBRTS, IROW, ISTR, KSTR, NK, NSTAINSTA, &
-                     NSTAKNSTA, NTEST
+integer(kind=iwp) :: I_AM_ACTIVE, IA, IADRI0, IADRK0, IB, IORB, IORBRT, IORBRTS, IROW, ISTR, KSTR, NSTAINSTA, NSTAKNSTA
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IORBR, NK
+#endif
 real(kind=wp) :: SIGN0, SGN
 
 ! Some dummy initializations
@@ -144,21 +150,20 @@ do KSTR=IOFFK,NSTAK+IOFFK-1
   end do
 end do
 
-NTEST = 0
-if (NTEST > 0) then
-  write(u6,*) ' Output from ADAST_GASSM'
-  write(u6,*) ' ======================='
-  NK = NSTB*NSTAK*NSTA
-  write(u6,*) ' Number of K strings accessed ',NK
-  if (NK /= 0) then
-    do IORB=IORBTSF,IORBTSF+NORBTS-1
-      IORBR = IORB-IORBTSF+1
-      write(u6,*) ' Update Info for orbital ',IORB
-      write(u6,*) ' Mapped strings and sign'
-      call IWRTMA(ISTMAP(1,IORBR),1,NK,1,NK)
-      call WRTMAT(SGNMAP(1,IORBR),1,NK,1,NK)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from ADAST_GASSM'
+write(u6,*) ' ======================='
+NK = NSTB*NSTAK*NSTA
+write(u6,*) ' Number of K strings accessed ',NK
+if (NK /= 0) then
+  do IORB=IORBTSF,IORBTSF+NORBTS-1
+    IORBR = IORB-IORBTSF+1
+    write(u6,*) ' Update Info for orbital ',IORB
+    write(u6,*) ' Mapped strings and sign'
+    call IWRTMA(ISTMAP(1,IORBR),1,NK,1,NK)
+    call WRTMAT(SGNMAP(1,IORBR),1,NK,1,NK)
+  end do
 end if
+#endif
 
 end subroutine ADAST_GASSM

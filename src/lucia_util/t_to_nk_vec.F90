@@ -32,7 +32,10 @@ use strbas, only: NSTSO
 use lucia_data, only: ICISTR, IREOST, MXNSTR, NELEC, NTOOB
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -40,14 +43,13 @@ implicit none
 real(kind=wp), intent(in) :: T
 integer(kind=iwp), intent(in) :: KORB, ISM, ISPC, LUCIN, LUCOUT
 real(kind=wp), intent(_OUT_) :: C(*)
-integer(kind=iwp) :: IATP, IBTP, KKORB, NAEL, NBATCH, NBEL, NBLOCK, NTEST
+integer(kind=iwp) :: IATP, IBTP, KKORB, NAEL, NBATCH, NBEL, NBLOCK
 integer(kind=iwp), allocatable :: LASTR(:), LBSTR(:), LKAOC(:), LKBOC(:)
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' T_TO_NK_VEC speaking'
-  write(u6,*) ' ISM, ISPC = ',ISM,ISPC
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' T_TO_NK_VEC speaking'
+write(u6,*) ' ISM, ISPC = ',ISM,ISPC
+#endif
 ! Set up block and batch structure of vector
 IATP = 1
 IBTP = 2

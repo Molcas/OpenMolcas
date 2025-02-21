@@ -116,7 +116,7 @@ LUMOUT = IsFreeUnit(Lusc40)
 call DANAME_WA(LUMOUT,'LUMOUT')
 
 ! Dumping 1- and 2- electron integrals in formatted form
-! ( LU90 just defined here, it is not exported )
+! (LU90 just defined here, it is not exported)
 !LU90  = 90
 ! Dumping symmmetry info, MO-AO expansion matrix and property integrals
 !LU91 = 91

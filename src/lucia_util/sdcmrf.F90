@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine SDCMRF(CSD,CCM,IATP,IBTP,IASM,IBSM,NA,NB,IDC,PS,PL,ISGVST,LDET,LCOMB,ISCALE,SCLFAC)
 ! Change a block of coefficients bwtween combination format and
 ! Slater determinant format
@@ -30,7 +31,10 @@ subroutine SDCMRF(CSD,CCM,IATP,IBTP,IASM,IBSM,NA,NB,IDC,PS,PL,ISGVST,LDET,LCOMB,
 !                 the overall scale factor is returned as SCLFAC
 
 use Constants, only: One, Two, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -40,12 +44,10 @@ real(kind=wp), intent(in) :: CCM(*), PS, PL
 integer(kind=iwp), intent(in) :: IATP, IBTP, IASM, IBSM, NA, NB, IDC, ISGVST(IBSM), ISCALE
 integer(kind=iwp), intent(out) :: LDET, LCOMB
 real(kind=wp), intent(out) :: SCLFAC
-integer(kind=iwp) :: IPACK, NTEST
+integer(kind=iwp) :: IPACK
 real(kind=wp) :: FACTOR, SGN
 logical(kind=iwp) :: Test1, Test2
 real(kind=wp), parameter :: SQRT2 = sqrt(Two), SQRT2I = sqrt(Half)
-
-NTEST = 0
 
 ! Is combination array packed ?
 
@@ -72,7 +74,9 @@ else if (Test2) then
 end if
 
 LDET = NA*NB
-if (NTEST >= 100) write(u6,*) ' SDCMRF : NA, NB =',NA,NB
+#ifdef _DEBUGPRINT_
+write(u6,*) ' SDCMRF : NA, NB =',NA,NB
+#endif
 if (IPACK == 0) then
   LCOMB = LDET
 else
@@ -100,22 +104,20 @@ if (FACTOR /= One) then
   if (IPACK == 1) call SCLDIA(CSD,SQRT2,NA,0)
 end if
 
-if (NTEST /= 0) then
-  write(u6,*) ' Information from SDCMRF'
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Information from SDCMRF'
 
-  write(u6,'(A,6I4)') ' IATP IBTP IASM IBSM IDC ',IATP,IBTP,IASM,IBSM,IDC
-  write(u6,'(A,I4,3X,2ES15.8)') ' IPACK FACTOR SIGN',IPACK,FACTOR,SGN
-  if (NTEST >= 100) then
-    write(u6,*) ' Slater determinant block'
-    call WRTMAT(CSD,NA,NB,NA,NB)
-    write(u6,*)
-    write(u6,*) ' Combination block'
-    if (IPACK == 1) then
-      call PRSM2(CCM,NA)
-    else
-      call WRTMAT(CCM,NA,NB,NA,NB)
-    end if
-  end if
+write(u6,'(A,6I4)') ' IATP IBTP IASM IBSM IDC ',IATP,IBTP,IASM,IBSM,IDC
+write(u6,'(A,I4,3X,2ES15.8)') ' IPACK FACTOR SIGN',IPACK,FACTOR,SGN
+write(u6,*) ' Slater determinant block'
+call WRTMAT(CSD,NA,NB,NA,NB)
+write(u6,*)
+write(u6,*) ' Combination block'
+if (IPACK == 1) then
+  call PRSM2(CCM,NA)
+else
+  call WRTMAT(CCM,NA,NB,NA,NB)
 end if
+#endif
 
 end subroutine SDCMRF

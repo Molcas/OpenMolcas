@@ -11,6 +11,7 @@
 ! Copyright (C) 1995,1997, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADAADAST_GAS(IOB,IOBSM,IOBTP,NIOB,IAC,JOB,JOBSM,JOBTP,NJOB,JAC,ISPGP,ISM,ITP,KMIN,KMAX,I1,XI1S,LI1,NK,IEND,IFRST,KFRST, &
                         I12,K12,SCLFAC)
 ! Obtain two-operator mappings
@@ -21,13 +22,13 @@ subroutine ADAADAST_GAS(IOB,IOBSM,IOBTP,NIOB,IAC,JOB,JOBSM,JOBTP,NJOB,JAC,ISPGP,
 !                 2=> Creation
 !
 ! In the form
-! I1(KSTR) =  ISTR if a+/a IORB a+/a JORB !KSTR> = +/-!ISTR>, ISTR is in
+! I1(KSTR) = ISTR if a+/a IORB a+/a JORB !KSTR> = +/-!ISTR>, ISTR is in
 ! ISPGP,ISM,IGRP.
 ! (numbering relative to TS start)
 ! Only excitations IOB >= JOB are included
 ! The orbitals are in GROUP-SYM IOBTP,IOBSM, JOBTP,JOBSM respectively,
 ! and IOB (JOB) is the first orbital to be used, and the number of orbitals
-! to be checked is NIOB ( NJOB).
+! to be checked is NIOB (NJOB).
 !
 ! Only orbital pairs IOB > JOB are included (if the types are identical)
 !
@@ -39,7 +40,7 @@ subroutine ADAADAST_GAS(IOB,IOBSM,IOBTP,NIOB,IAC,JOB,JOBSM,JOBTP,NJOB,JAC,ISPGP,
 !
 ! If IEND /= 0 last string has been checked
 !
-! Jeppe Olsen, August of 95   ( adadst)
+! Jeppe Olsen, August of 95   (adadst)
 !              November 1997 : annihilation added
 
 use Symmetry_Info, only: Mul
@@ -54,26 +55,25 @@ integer(kind=iwp), intent(in) :: IOB, IOBSM, IOBTP, NIOB, IAC, JOB, JOBSM, JOBTP
 integer(kind=iwp), intent(out) :: I1(LI1*NIOB*NJOB), NK, IEND
 real(kind=wp), intent(out) :: XI1S(LI1*NIOB*NJOB)
 real(kind=wp), intent(in) :: SCLFAC
-integer(kind=iwp) :: IACADJ, IDELTA, IDUM(1), IEL, IGRP, IIGRP, IIOB, ISPGPABS, ITRIVIAL, JACADJ, JDELTA, JEL, JGRP, JJGRP, JJOB, &
-                     K1SM, KGRP(MXPNGAS), KSM, NELI, NELK, NSTRI, NSTRK, NTEST, NTEST2
+integer(kind=iwp) :: IDELTA, IDUM(1), IEL, IGRP, IIGRP, IIOB, ISPGPABS, ITRIVIAL, JDELTA, JEL, JGRP, JJGRP, JJOB, K1SM, &
+                     KGRP(MXPNGAS), KSM, NELI, NELK, NSTRI, NSTRK
 integer(kind=iwp), save :: NSTRI_
 
 ! Some dummy initializations
 IIGRP = 0 ! jwk-cleanup
 JJGRP = 0 ! jwk-cleanup
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' ======================'
-  write(u6,*) ' ADAADST_GAS in service'
-  write(u6,*) ' ======================'
-  write(u6,*)
-  write(u6,*) ' IOB,IOBSM,IOBTP,IAC ',IOB,IOBSM,IOBTP,IAC
-  write(u6,*) ' JOB,JOBSM,JOBTP,JAC ',JOB,JOBSM,JOBTP,JAC
-  write(u6,*) ' I12, K12 ',I12,K12
-  write(u6,*) ' IFRST,KFRST',IFRST,KFRST
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ======================'
+write(u6,*) ' ADAADST_GAS in service'
+write(u6,*) ' ======================'
+write(u6,*)
+write(u6,*) ' IOB,IOBSM,IOBTP,IAC ',IOB,IOBSM,IOBTP,IAC
+write(u6,*) ' JOB,JOBSM,JOBTP,JAC ',JOB,JOBSM,JOBTP,JAC
+write(u6,*) ' I12, K12 ',I12,K12
+write(u6,*) ' IFRST,KFRST',IFRST,KFRST
+#endif
 
 ! Internal affairs
 
@@ -88,24 +88,17 @@ end if
 
 K1SM = Mul(IOBSM,ISM)
 KSM = Mul(JOBSM,K1SM)
-if (NTEST >= 100) write(u6,*) ' K1SM,KSM : ',K1SM,KSM
+#ifdef _DEBUGPRINT_
+write(u6,*) ' K1SM,KSM : ',K1SM,KSM
+#endif
 ISPGPABS = IBSPGPFTP(ITP)-1+ISPGP
-IACADJ = 2
 IDELTA = -1
-if (IAC == 2) then
-  IACADJ = 1
-  IDELTA = 1
-end if
-JACADJ = 2
+if (IAC == 2) IDELTA = 1
 JDELTA = -1
-if (JAC == 2) then
-  JACADJ = 1
-  JDELTA = 1
-end if
-if (NTEST >= 100) then
-  write(u6,*) ' IACADJ, JACADJ',IACADJ,JACADJ
-  write(u6,*) ' IDELTA, JDELTA',IDELTA,JDELTA
-end if
+if (JAC == 2) JDELTA = 1
+#ifdef _DEBUGPRINT_
+write(u6,*) ' IDELTA, JDELTA',IDELTA,JDELTA
+#endif
 ! Occupation of K-strings
 if (IOBTP == JOBTP) then
   IEL = NELFSPGP(IOBTP,ISPGPABS)-IDELTA-JDELTA
@@ -114,13 +107,17 @@ else
   IEL = NELFSPGP(IOBTP,ISPGPABS)-IDELTA
   JEL = NELFSPGP(JOBTP,ISPGPABS)-JDELTA
 end if
-if (NTEST >= 100) write(u6,*) ' IEL, JEL',IEL,JEL
-! Trivial zero ? (Nice, then mission is complete )
+#ifdef _DEBUGPRINT_
+write(u6,*) ' IEL, JEL',IEL,JEL
+#endif
+! Trivial zero? (Nice, then mission is complete)
 ITRIVIAL = 0
 if ((IEL < 0) .or. (JEL < 0) .or. (IEL > NOBPT(IOBTP)) .or. (JEL > NOBPT(JOBTP))) then
   ! No strings with this number of elecs - be happy : No work
   NK = 0
-  if (NTEST >= 100) write(u6,*) ' Trivial zero excitations'
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Trivial zero excitations'
+# endif
   ITRIVIAL = 1
   !return
 else
@@ -149,10 +146,10 @@ if (ITRIVIAL /= 1) then
   KGRP(1:NGAS) = ISPGPFTP(1:NGAS,ISPGPABS)
   KGRP(IOBTP) = IIGRP
   KGRP(JOBTP) = JJGRP
-  if (NTEST >= 100) then
-    write(u6,*) ' Groups in KGRP'
-    call IWRTMA(KGRP,1,NGAS,1,NGAS)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Groups in KGRP'
+  call IWRTMA(KGRP,1,NGAS,1,NGAS)
+# endif
 end if
 
 ! In ADADS1_GAS we need : Occupation of KSTRINGS
@@ -162,25 +159,24 @@ end if
 if (IFRST /= 0) then
   ! Generate information about I strings
   ! Arc weights for ISPGP
-  NTEST2 = NTEST
-  call WEIGHT_SPGP(Z(:,I12),NGAS,NELFSPGP(1,ISPGPABS),NOBPT,ZSCR,NTEST2)
+  call WEIGHT_SPGP(Z(:,I12),NGAS,NELFSPGP(1,ISPGPABS),NOBPT,ZSCR)
   NELI = NELFTP(ITP)
   NELIS(I12) = NELI
   ! Reorder array for I strings
   call GETSTR_TOTSM_SPGP(ITP,ISPGP,ISM,NELI,NSTRI,OCSTR(:,K12),NOCOB,1,Z(:,I12),REO(:,I12))
-  if (NTEST >= 1000) then
-    write(u6,*) ' Info on I strings generated'
-    write(u6,*) ' NSTRI = ',NSTRI
-    write(u6,*) ' REORDER array'
-    call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Info on I strings generated'
+  write(u6,*) ' NSTRI = ',NSTRI
+  write(u6,*) ' REORDER array'
+  call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
+# endif
   NSTRI_ = NSTRI
 
 end if
-if (NTEST >= 1000) then
-  write(u6,*) ' REORDER array for I STRINGS'
-  call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' REORDER array for I STRINGS'
+call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
+#endif
 
 if (ITRIVIAL == 1) return
 NELK = NELIS(I12)
@@ -194,18 +190,20 @@ if (JAC == 1) then
 else
   NELK = NELK-1
 end if
-if (NTEST >= 100) write(u6,*) ' NELK = ',NELK
+#ifdef _DEBUGPRINT_
+write(u6,*) ' NELK = ',NELK
+#endif
 if (KFRST /= 0) then
   ! Generate occupation of K STRINGS
   IDUM(1) = 0
   call GETSTR2_TOTSM_SPGP(KGRP,NGAS,KSM,NELK,NSTRK,OCSTR(:,K12),NOCOB,0,IDUM,IDUM)
   !    GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,IZ,IREO)
   NSTRKS(K12) = NSTRK
-  if (NTEST >= 1000) then
-    write(u6,*) ' K strings generated'
-    write(u6,*) ' Reorder array after generation of K strings'
-    call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' K strings generated'
+  write(u6,*) ' Reorder array after generation of K strings'
+  call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
+# endif
 end if
 
 NSTRK = NSTRKS(K12)
@@ -219,9 +217,9 @@ I1(:) = 0
 call ADAADAS1_GAS(NK,I1,XI1S,LI1,IIOB,NIOB,IAC,JJOB,NJOB,JAC,OCSTR(:,K12),NELK,NSTRK,REO(:,I12),Z(:,I12),NOCOB,KMAX,KMIN,IEND, &
                   SCLFAC,NSTRI_)
 
-if (NTEST >= 1000) then
-  write(u6,*) ' Reorder array after ADAADAS1'
-  call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Reorder array after ADAADAS1'
+call IWRTMA(REO(:,I12),1,NSTRI,1,NSTRI)
+#endif
 
 end subroutine ADAADAST_GAS

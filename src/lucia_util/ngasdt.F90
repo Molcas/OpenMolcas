@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine NGASDT(IOCCMN,IOCCMX,NGAS,ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,IAOCC,IBOCC,MXPNGAS,NCOMB,XNCOMB,MXSB,MXSOOB,IBLTP, &
-                  NTTSBL,LCOL,IOCOC,MXSOOB_AS)
+!#define _DEBUGPRINT_
+subroutine NGASDT(ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,NCOMB,XNCOMB,MXSB,MXSOOB,IBLTP,NTTSBL,LCOL,IOCOC,MXSOOB_AS)
 ! Number of combinations with symmetry ITOTSM and
 ! occupation between IOCCMN and IOCCMX
 !
@@ -18,8 +18,6 @@ subroutine NGASDT(IOCCMN,IOCCMX,NGAS,ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,IAOC
 ! is returned as integer and real*8
 !
 ! IOCOC  : Allowed combinations of alpha and beta types
-! IOCCMN : Occupation constraints
-! IAOCC  : Occupation of alpha and beta strings
 ! NSSOA  : Number of strings per supergroup and symmetry
 ! IBLTP  : Block types
 !
@@ -34,31 +32,29 @@ subroutine NGASDT(IOCCMN,IOCCMX,NGAS,ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,IAOC
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NGAS, IOCCMN(NGAS), IOCCMX(NGAS), ITOTSM, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), &
-                                 NSSOB(NSMST,NOCTPA), MXPNGAS, IAOCC(MXPNGAS,NOCTPA), IBOCC(MXPNGAS,NOCTPB), IBLTP(NSMST), &
+integer(kind=iwp), intent(in) :: ITOTSM, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPA), IBLTP(NSMST), &
                                  IOCOC(NOCTPA,NOCTPB)
 integer(kind=iwp), intent(out) :: NCOMB, MXSB, MXSOOB, NTTSBL, LCOL, MXSOOB_AS
 real(kind=wp) :: XNCOMB
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ISYM, LASTR, LBSTR, LTTS_AS, LTTSBL, LTTSUP, NTEST
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, ISYM, LASTR, LBSTR, LTTS_AS, LTTSBL, LTTSUP
 
-NTEST = 0
-if (NTEST >= 5) then
-  write(u6,*) ' NGASDT speaking'
-  write(u6,*) ' ==============='
-  write(u6,*) ' NGAS NOCTPA,NOCTPB ',NGAS,NOCTPA,NOCTPB
-  write(u6,*) ' ITOTSM ',ITOTSM
-  write(u6,*) ' Upper and lower occupation constraints'
-  call IWRTMA(IOCCMN,1,NGAS,1,NGAS)
-  call IWRTMA(IOCCMX,1,NGAS,1,NGAS)
-  write(u6,*) ' IOCOC matrix'
-  call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  write(u6,*) ' Number of alpha and beta strings'
-  call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
-  call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' NGASDT speaking'
+write(u6,*) ' ==============='
+write(u6,*) ' NOCTPA,NOCTPB ',NOCTPA,NOCTPB
+write(u6,*) ' ITOTSM ',ITOTSM
+write(u6,*) ' IOCOC matrix'
+call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+write(u6,*) ' Number of alpha and beta strings'
+call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
+call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
+#endif
 
 MXSB = 0
 MXSOOB = 0
@@ -70,12 +66,6 @@ LCOL = 0
 
 do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
-
-    if (NTEST >= 10) then
-      write(u6,*) ' Alpha super group and beta super group'
-      call IWRTMA(IAOCC(:,IATP),1,NGAS,1,NGAS)
-      call IWRTMA(IBOCC(:,IBTP),1,NGAS,1,NGAS)
-    end if
 
     if (IOCOC(IATP,IBTP) == 1) then
 
@@ -114,6 +104,8 @@ do IATP=1,NOCTPA
   end do
 end do
 
-if (NTEST >= 1) write(u6,*) ' NGASDT : NCOMB XNCOMB, NTTSBL',NCOMB,XNCOMB,NTTSBL
+#ifdef _DEBUGPRINT_
+write(u6,*) ' NGASDT : NCOMB XNCOMB, NTTSBL',NCOMB,XNCOMB,NTTSBL
+#endif
 
 end subroutine NGASDT

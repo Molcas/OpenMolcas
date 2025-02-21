@@ -11,21 +11,22 @@
 ! Copyright (C) 1995, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ZNELFSPGP(NTESTG)
+!#define _DEBUGPRINT_
+subroutine ZNELFSPGP()
 ! Generate for each supergroup the number of electrons in each active
 ! orbital space and store in NELFSPGP
 !
 ! Jeppe Olsen, July 1995
 
-use lucia_data, only: IBSPGPFTP, ISPGPFTP, MXPNGAS, NELFGP, NELFSPGP, NGAS, NSPGPFTP, NSTTP
-use Definitions, only: iwp, u6
+use lucia_data, only: IBSPGPFTP, ISPGPFTP, NELFGP, NELFSPGP, NGAS, NSPGPFTP, NSTTP
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use lucia_data, only: MXPNGAS
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NTESTG
-integer(kind=iwp) :: IBSPGP, IGAS, ISPGP, ITP, NSPGP, NTEST, NTESTL
-
-NTESTL = 0
-NTEST = max(NTESTG,NTESTL)
+integer(kind=iwp) :: IBSPGP, IGAS, ISPGP, ITP, NSPGP
 
 do ITP=1,NSTTP
   NSPGP = NSPGPFTP(ITP)
@@ -37,15 +38,15 @@ do ITP=1,NSTTP
   end do
 end do
 
-if (NTEST >= 10) then
-  write(u6,*) ' Distribution of electrons in Active spaces'
-  do ITP=1,NSTTP
-    write(u6,*) ' String type ',ITP
-    write(u6,*) ' Row : active space, Column: supergroup'
-    NSPGP = NSPGPFTP(ITP)
-    IBSPGP = IBSPGPFTP(ITP)
-    call IWRTMA(NELFSPGP(1,IBSPGP),NGAS,NSPGP,MXPNGAS,NSPGP)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Distribution of electrons in Active spaces'
+do ITP=1,NSTTP
+  write(u6,*) ' String type ',ITP
+  write(u6,*) ' Row : active space, Column: supergroup'
+  NSPGP = NSPGPFTP(ITP)
+  IBSPGP = IBSPGPFTP(ITP)
+  call IWRTMA(NELFSPGP(1,IBSPGP),NGAS,NSPGP,MXPNGAS,NSPGP)
+end do
+#endif
 
 end subroutine ZNELFSPGP

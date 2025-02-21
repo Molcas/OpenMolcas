@@ -11,6 +11,7 @@
 ! Copyright (C) 1997,1998, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GETH1(H,ISM,ITP,JSM,JTP)
 ! One-electron integrals over orbitals belonging to
 ! given OS class
@@ -24,14 +25,17 @@ subroutine GETH1(H,ISM,ITP,JSM,JTP)
 !              Summer of 98 : CC options added
 
 use lucia_data, only: NOBPTS
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 real(kind=wp), intent(_OUT_) :: H(*)
 integer(kind=iwp), intent(in) :: ISM, ITP, JSM, JTP
-integer(kind=iwp) :: I, IJ, J, NI, NJ, NTEST
+integer(kind=iwp) :: I, IJ, J, NI, NJ
 real(kind=wp), external :: GETH1E
 
 NI = NOBPTS(ITP,ISM)
@@ -47,10 +51,9 @@ do J=1,NJ
   end do
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
-  call WRTMAT(H,NI,NJ,NI,NJ)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
+call WRTMAT(H,NI,NJ,NI,NJ)
+#endif
 
 end subroutine GETH1

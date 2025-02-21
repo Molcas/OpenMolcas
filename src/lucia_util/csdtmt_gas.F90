@@ -11,7 +11,8 @@
 ! Copyright (C) 1992,2001, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine CSDTMT_GAS(IPRCSF)
+!#define _DEBUGPRINT_
+subroutine CSDTMT_GAS()
 ! Construct in IDTFTP list of proto type combinations in IDFTP
 ! Construct in ICFTP list of proto type CSF's in ICFTP
 ! Construct in DTOC matrix expanding proto type CSF's in terms of
@@ -28,29 +29,31 @@ subroutine CSDTMT_GAS(IPRCSF)
 ! Adapted to LUCIA December 2001
 
 use GLBBAS, only: CFTP, DFTP, DTOC, REO_PTDT, Z_PTDT
-use lucia_data, only: MAXOP, MINOP, MS2, MULTS, NPCMCNF, NPCSCNF, PSSIGN
+use lucia_data, only: IPRCIX, MAXOP, MINOP, MS2, MULTS, NPCMCNF, NPCSCNF, PSSIGN
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: IPRCSF
-integer(kind=iwp) :: IALPHA, ICDCBS, ICSBS, IDET, IDTBS, IFLAG, IOPEN, IOPEN_, ITP, LSCR, MAX_DC, NNCM, NNCS, NNDET, NTEST
+integer(kind=iwp) :: IALPHA, ICDCBS, ICSBS, IDET, IDTBS, IFLAG, IOPEN, IOPEN_, ITP, LSCR, MAX_DC, NNDET
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NNCM, NNCS
+#endif
 integer(kind=iwp), allocatable :: iSCR2(:)
 real(kind=wp), allocatable :: SCR1(:)
 
-NTEST = 0
-NTEST = max(NTEST,IPRCSF)
 ! Size of largest csf-sd block
 MAX_DC = max(0,maxval(NPCMCNF(1:MAXOP+1)))
-if (NTEST >= 100) write(u6,*) ' Size of largest D to C block ',MAX_DC
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Size of largest D to C block ',MAX_DC
+#endif
 LSCR = max(MAX_DC,MAXOP)
 LSCR = MAX_DC*MAXOP+MAXOP
 call mma_allocate(SCR1,LSCR,Label='SCR1')
 
 ! Set up combinations and upper determinants
 
-if (NTEST >= 5) then
+if (IPRCIX >= 5) then
   write(u6,*)
   write(u6,*) ' *************************************'
   write(u6,*) ' Generation of proto type determinants'
@@ -62,7 +65,7 @@ IDTBS = 0
 ICSBS = 0
 do IOPEN=0,MAXOP
   ITP = IOPEN+1
-  if (NTEST >= 5) then
+  if (IPRCIX >= 5) then
     write(u6,*)
     write(u6,'(A,I3,A)') '       Type with ',IOPEN,' open orbitals'
     write(u6,'(A)') '       **********************************'
@@ -81,13 +84,13 @@ do IOPEN=0,MAXOP
     ! proto type combinations
     if (MS2+1 == MULTS) then
       IFLAG = 2
-      call SPNCOM_LUCIA(IOPEN,MS2,NNDET,DFTP(IDTBS),CFTP(ICSBS),IFLAG,PSSIGN,IPRCSF)
-      !    SPNCOM(NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN,IPRCSF)
+      call SPNCOM_LUCIA(IOPEN,MS2,NNDET,DFTP(IDTBS),CFTP(ICSBS),IFLAG,PSSIGN)
+      !    SPNCOM(NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN)
     else
       IFLAG = 1
-      call SPNCOM_LUCIA(IOPEN,MS2,NNDET,DFTP(IDTBS),CFTP(ICSBS),IFLAG,PSSIGN,IPRCSF)
+      call SPNCOM_LUCIA(IOPEN,MS2,NNDET,DFTP(IDTBS),CFTP(ICSBS),IFLAG,PSSIGN)
       IFLAG = 3
-      call SPNCOM_LUCIA(IOPEN,MULTS-1,NNDET,DFTP(IDTBS),CFTP(ICSBS),IFLAG,PSSIGN,IPRCSF)
+      call SPNCOM_LUCIA(IOPEN,MULTS-1,NNDET,DFTP(IDTBS),CFTP(ICSBS),IFLAG,PSSIGN)
     end if
   end if
 end do
@@ -141,7 +144,7 @@ do IOPEN=0,MAXOP
     ICDCBS = ICDCBS+NPCMCNF(ITP-1)*NPCSCNF(ITP-1)
   end if
   !if (NPCMCNF(ITP)*NPCSCNF(ITP) == 0) goto 30
-  if (NTEST >= 5) then
+  if (IPRCIX >= 5) then
     write(u6,*)
     write(u6,*) ' ***********************************'
     write(u6,*) ' CSF - SD/COMB transformation matrix'
@@ -154,8 +157,8 @@ do IOPEN=0,MAXOP
   if (IOPEN == 0) then
     DTOC(ICDCBS) = One
   else
-    call CSFDET_LUCIA(IOPEN,DFTP(IDTBS),NPCMCNF(ITP),CFTP(ICSBS),NPCSCNF(ITP),DTOC(ICDCBS),SCR1,size(SCR1),PSSIGN,IPRCSF)
-    !    CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,WORK,PSSIGN,IPRCSF)
+    call CSFDET_LUCIA(IOPEN,DFTP(IDTBS),NPCMCNF(ITP),CFTP(ICSBS),NPCSCNF(ITP),DTOC(ICDCBS),SCR1,size(SCR1),PSSIGN)
+    !    CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,WORK,PSSIGN)
   end if
 end do
 ! End of loop over number of open shells
@@ -163,33 +166,33 @@ end do
 call mma_deallocate(SCR1)
 call mma_deallocate(iSCR2)
 
-if (NTEST >= 10) then
-  write(u6,*) ' List of CSF-SD transformation matrices'
-  write(u6,*) ' ======================================'
-  write(u6,*)
-  IDTBS = 1
-  ICSBS = 1
-  ICDCBS = 1
-  do IOPEN=0,MAXOP
-    ITP = IOPEN+1
-    if (ITP == 1) then
-      IDTBS = 1
-      ICSBS = 1
-      ICDCBS = 1
-    else
-      IDTBS = IDTBS+(IOPEN-1)*NPCMCNF(ITP-1)
-      ICSBS = ICSBS+(IOPEN-1)*NPCSCNF(ITP-1)
-      ICDCBS = ICDCBS+NPCMCNF(ITP-1)*NPCSCNF(ITP-1)
-    end if
-    NNCS = NPCSCNF(ITP)
-    NNCM = NPCMCNF(ITP)
-    if ((NNCS > 0) .and. (NNCM > 0)) then
-      write(u6,*) ' Number of open shells : ',IOPEN
-      write(u6,*) ' Number of combinations per conf ',NNCM
-      write(u6,*) ' Number of CSFs per conf         ',NNCS
-      call WRTMAT(DTOC(ICDCBS),NNCM,NNCS,NNCM,NNCS)
-    end if
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' List of CSF-SD transformation matrices'
+write(u6,*) ' ======================================'
+write(u6,*)
+IDTBS = 1
+ICSBS = 1
+ICDCBS = 1
+do IOPEN=0,MAXOP
+  ITP = IOPEN+1
+  if (ITP == 1) then
+    IDTBS = 1
+    ICSBS = 1
+    ICDCBS = 1
+  else
+    IDTBS = IDTBS+(IOPEN-1)*NPCMCNF(ITP-1)
+    ICSBS = ICSBS+(IOPEN-1)*NPCSCNF(ITP-1)
+    ICDCBS = ICDCBS+NPCMCNF(ITP-1)*NPCSCNF(ITP-1)
+  end if
+  NNCS = NPCSCNF(ITP)
+  NNCM = NPCMCNF(ITP)
+  if ((NNCS > 0) .and. (NNCM > 0)) then
+    write(u6,*) ' Number of open shells : ',IOPEN
+    write(u6,*) ' Number of combinations per conf ',NNCM
+    write(u6,*) ' Number of CSFs per conf         ',NNCS
+    call WRTMAT(DTOC(ICDCBS),NNCM,NNCS,NNCM,NNCS)
+  end if
+end do
+#endif
 
 end subroutine CSDTMT_GAS

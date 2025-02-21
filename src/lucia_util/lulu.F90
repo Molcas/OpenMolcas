@@ -11,6 +11,7 @@
 ! Copyright (C) 1988, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine LULU(A,L,U,NDIM)
 ! LU DECOMPOSITION OF MATRIX A
 !
@@ -21,9 +22,9 @@ subroutine LULU(A,L,U,NDIM)
 !
 ! L AND U ARE STORED AS ONE DIMENSIONAL ARRAYS
 !
-!   L(I,J) = L(I*(I-1)/2 + J ) ( I >= J )
+!   L(I,J) = L(I*(I-1)/2 + J) ( I >= J )
 !
-!   U(I,J) = U(J*(J-1)/2 + I ) ( J >= I )
+!   U(I,J) = U(J*(J-1)/2 + I) ( J >= I )
 !
 ! THIS ADDRESSING SCHEMES SUPPORTS VECTORIZATION OVER COLUMNS
 ! FOR L AND  OVER ROWS FOR U .
@@ -36,7 +37,7 @@ subroutine LULU(A,L,U,NDIM)
 !       END OF LOOP OVER J
 !
 !       LOOP OVER I = R+1, NDIM
-!         L(I,R) = (A(I,R) - SUM(K=1,R-1)L(I,K) * U(K,R) ) /U(R,R)
+!         L(I,R) = (A(I,R) - SUM(K=1,R-1)L(I,K) * U(K,R)) /U(R,R)
 !       END OF LOOP OVER I
 !     END OF LOOP OVER R
 !
@@ -44,13 +45,16 @@ subroutine LULU(A,L,U,NDIM)
 
 use Index_Functions, only: nTri_Elem
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NDIM
 real(kind=wp), intent(in) :: A(NDIM,NDIM)
 real(kind=wp), intent(inout) :: L(nTri_Elem(NDIM)), U(nTri_Elem(NDIM))
-integer(kind=iwp) :: I, J, NTEST, R
+integer(kind=iwp) :: I, J, R
 real(kind=wp) :: XFACI
 real(kind=wp), external :: dDot_
 
@@ -68,12 +72,11 @@ do R=1,NDIM
 
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' L MATRIX'
-  call PRSYM(L,NDIM)
-  write(u6,*) ' U MATRIX ( TRANSPOSED )'
-  call PRSYM(U,NDIM)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' L MATRIX'
+call PRSYM(L,NDIM)
+write(u6,*) ' U MATRIX (TRANSPOSED)'
+call PRSYM(U,NDIM)
+#endif
 
 end subroutine LULU

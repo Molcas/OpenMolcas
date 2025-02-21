@@ -11,6 +11,7 @@
 ! Copyright (C) 1998, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GASSPC()
 ! Divide orbital spaces into
 !
@@ -21,18 +22,27 @@ subroutine GASSPC()
 ! I_IAD : Division based upon occupation in Compound CI spaces IGSOCC
 ! I_IADX: Division based upon occupation in First CI space
 !
-! Jeppe Olsen, Summer of 98 ( not much of an summer !)
+! Jeppe Olsen, Summer of 98 (not much of an summer!)
 
-use lucia_data, only: IGSOCC, IGSOCCX, NELEC, NGAS, NGSOBT
-use Definitions, only: iwp, u6
+use lucia_data, only: NGAS, NGSOBT
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use lucia_data, only: IGSOCC, IGSOCCX, NELEC
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp) :: I_IAD(NGAS), I_IADX(NGAS), IGAS, NEL_MAX, NEL_REF, NTEST
+integer(kind=iwp) :: IGAS, NEL_MAX
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I_IAD(NGAS), I_IADX(NGAS), NEL_REF
+#endif
 
-! Some dummy initializtions
+! Some dummy initializations
 NEL_MAX = 0 ! jwk-cleanup
 
+#ifdef _DEBUGPRINT_
 NEL_REF = NELEC(1)+NELEC(2)
+#endif
 
 ! For compound space
 
@@ -44,6 +54,7 @@ do IGAS=1,NGAS
     NEL_MAX = NEL_MAX+2*NGSOBT(IGAS)
   end if
 
+# ifdef _DEBUGPRINT_
   if ((IGSOCC(IGAS,1) == NEL_MAX) .and. (IGSOCC(IGAS,2) == NEL_MAX)) then
     ! Inactive  space
     I_IAD(IGAS) = 1
@@ -54,6 +65,7 @@ do IGAS=1,NGAS
     ! Active space
     I_IAD(IGAS) = 2
   end if
+# endif
 
 end do
 
@@ -67,6 +79,7 @@ do IGAS=1,NGAS
     NEL_MAX = NEL_MAX+2*NGSOBT(IGAS)
   end if
 
+# ifdef _DEBUGPRINT_
   if ((IGSOCCX(IGAS,1,1) == NEL_MAX) .and. (IGSOCCX(IGAS,2,1) == NEL_MAX)) then
     ! Inactive  space
     I_IADX(IGAS) = 1
@@ -77,24 +90,24 @@ do IGAS=1,NGAS
     ! Active space
     I_IADX(IGAS) = 2
   end if
+# endif
 
 end do
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Division of orbitals according to compound CI space'
-  write(u6,*) ' ==================================================='
-  write(u6,*)
-  write(u6,*) ' Inactive = 1, Active = 2, Delete = 3'
-  write(u6,*)
-  call IWRTMA(I_IAD,1,NGAS,1,NGAS)
-  write(u6,*)
-  write(u6,*) ' Division of orbitals according to first CI space'
-  write(u6,*) ' ================================================'
-  write(u6,*)
-  write(u6,*) ' Inactive = 1, Active = 2, Delete = 3'
-  write(u6,*)
-  call IWRTMA(I_IADX,1,NGAS,1,NGAS)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Division of orbitals according to compound CI space'
+write(u6,*) ' ==================================================='
+write(u6,*)
+write(u6,*) ' Inactive = 1, Active = 2, Delete = 3'
+write(u6,*)
+call IWRTMA(I_IAD,1,NGAS,1,NGAS)
+write(u6,*)
+write(u6,*) ' Division of orbitals according to first CI space'
+write(u6,*) ' ================================================'
+write(u6,*)
+write(u6,*) ' Inactive = 1, Active = 2, Delete = 3'
+write(u6,*)
+call IWRTMA(I_IADX,1,NGAS,1,NGAS)
+#endif
 
 end subroutine GASSPC

@@ -11,18 +11,22 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function NOP_FOR_CONF(ICONF,NEL)
 ! A configuration is given as a nonstrict ascending sequence of occupied
 ! occupied orbitals. Find number of double occupied orbitals
 !
 ! Jeppe Olsen, Nov. 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: NOP_FOR_CONF
 integer(kind=iwp), intent(in) :: NEL, ICONF(NEL)
-integer(kind=iwp) :: IEL, NOPEN, NTEST
+integer(kind=iwp) :: IEL, NOPEN
 
 ! Loop over electrons
 NOPEN = 0
@@ -47,11 +51,10 @@ end do
 
 NOP_FOR_CONF = NOPEN
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Configuration'
-  call IWRTMA(ICONF,1,NEL,1,NEL)
-  write(u6,*) ' Number of open orbitals = ',NOP_FOR_CONF
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Configuration'
+call IWRTMA(ICONF,1,NEL,1,NEL)
+write(u6,*) ' Number of open orbitals = ',NOP_FOR_CONF
+#endif
 
 end function NOP_FOR_CONF

@@ -9,17 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function ISYMST(STRING,NEL)
 ! Symmmetry of string, D2H version
 
 use Symmetry_Info, only: Mul
 use lucia_data, only: ISMFTO
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: ISYMST
 integer(kind=iwp), intent(in) :: NEL, STRING(NEL)
-integer(kind=iwp) :: IEL, ISYM, NTEST
+integer(kind=iwp) :: IEL, ISYM
 
 ISYM = 1
 do IEL=1,NEL
@@ -28,11 +32,10 @@ end do
 
 ISYMST = ISYM
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' ISYMST, String and symmetry'
-  call IWRTMA(STRING,1,NEL,1,NEL)
-  write(u6,*) ISYM
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ISYMST, String and symmetry'
+call IWRTMA(STRING,1,NEL,1,NEL)
+write(u6,*) ISYM
+#endif
 
 end function ISYMST

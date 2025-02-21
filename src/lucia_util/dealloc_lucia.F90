@@ -21,7 +21,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: ISM, LBLOCK
 
-! 1 : One electron integrals( Complete matrix allocated )
+! 1 : One electron integrals (Complete matrix allocated)
 call mma_deallocate(INT1)
 ! A copy of the original UNMODIFIED 1-elecs ints
 call mma_deallocate(INT1O)

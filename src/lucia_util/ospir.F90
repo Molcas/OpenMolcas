@@ -11,7 +11,8 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine OSPIR(NOSPIR,IOSPIR,NIRREP,MXPIRR,MXPOBS,IPRNT)
+!#define _DEBUGPRINT_
+subroutine OSPIR(NOSPIR,IOSPIR,MXPIRR,MXPOBS)
 ! Number and symmetries of orbitals corresponding to a given shell
 !
 ! =====
@@ -23,7 +24,6 @@ subroutine OSPIR(NOSPIR,IOSPIR,NIRREP,MXPIRR,MXPOBS,IPRNT)
 !       = 2 => C inf v
 !       = 3 => D inf h
 !       = 4 => O 3
-! NIRREP : Number of irreducible representations per point group
 ! MXPIRR : Largest allowed number of shell irreps
 ! MXPOBS : Largest allowed number of orbital symmetries
 !
@@ -36,12 +36,18 @@ subroutine OSPIR(NOSPIR,IOSPIR,NIRREP,MXPIRR,MXPOBS,IPRNT)
 !
 ! Jeppe Olsen, Winter of 1991
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use lucia_data, only: NIRREP
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: MXPIRR, MXPOBS, NIRREP, IPRNT
+integer(kind=iwp), intent(in) :: MXPIRR, MXPOBS
 integer(kind=iwp), intent(out) :: NOSPIR(MXPIRR), IOSPIR(MXPOBS,MXPIRR)
-integer(kind=iwp) :: IRREP, NTEST
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IRREP
+#endif
 
 !if (PNTGRP == 1) then
 !=====
@@ -56,17 +62,15 @@ IOSPIR(1,1:8) = [1,2,3,4,5,6,7,8]
 !  call SYSABENDMSG('lucia_util/ospir','Internal error','')
 !end if
 
-NTEST = 0
-NTEST = max(IPRNT,NTEST)
-if (NTEST /= 0) then
-  write(u6,*) ' OSPIR speaking'
-  write(u6,*) ' ================'
-  write(u6,*) ' Number of orbitals per irrep'
-  call IWRTMA(NOSPIR,1,NIRREP,1,NIRREP)
-  write(u6,*) ' Orbital symmetries per irrep'
-  do IRREP=1,NIRREP
-    call IWRTMA(IOSPIR(:,IRREP),1,NOSPIR(IRREP),1,NOSPIR(IRREP))
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' OSPIR speaking'
+write(u6,*) ' ================'
+write(u6,*) ' Number of orbitals per irrep'
+call IWRTMA(NOSPIR,1,NIRREP,1,NIRREP)
+write(u6,*) ' Orbital symmetries per irrep'
+do IRREP=1,NIRREP
+  call IWRTMA(IOSPIR(:,IRREP),1,NOSPIR(IRREP),1,NOSPIR(IRREP))
+end do
+#endif
 
 end subroutine OSPIR

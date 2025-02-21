@@ -11,6 +11,7 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,NLIST_PTDET,ISCR)
 ! A list(ILIST_PTDET) of prototype determinants with NOPEN unpaired electrons and
 ! NALPHA alpha electrons is given.
@@ -27,7 +28,10 @@ subroutine REO_PTDET(NOPEN,NALPHA,IZ_PTDET,IREO_PTDET,ILIST_PTDET,NLIST_PTDET,IS
 !
 ! Jeppe Olsen, December 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -35,21 +39,19 @@ implicit none
 integer(kind=iwp), intent(in) :: NOPEN, NALPHA, NLIST_PTDET, ILIST_PTDET(NOPEN,NLIST_PTDET)
 integer(kind=iwp), intent(out) :: IZ_PTDET(NOPEN,NALPHA)
 integer(kind=iwp), intent(_OUT_) :: IREO_PTDET(*), ISCR(*)
-integer(kind=iwp) :: IDUM(1), ILEX, JPTDT, KLMAX, KLMIN, KLW, NTEST, NTOT_PTDET
+integer(kind=iwp) :: IDUM(1), ILEX, JPTDT, KLMAX, KLMIN, KLW, NTOT_PTDET
 integer(kind=iwp), external :: IBINOM, IZNUM_PTDT
-
-NTEST = 0
 
 ! 1 : Set up lexical order array for prototype determinants
 !     (alpha considered as occupied electron)
 KLMIN = 1
 KLMAX = KLMIN+NOPEN
 KLW = KLMAX+NOPEN
-call MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX),1,[NOPEN],[NALPHA],NTEST)
+call MXMNOC_SPGP(ISCR(KLMIN),ISCR(KLMAX),1,[NOPEN],[NALPHA])
 
 ! Arc weights
 
-call GRAPW(ISCR(KLW),IZ_PTDET,ISCR(KLMIN),ISCR(KLMAX),NOPEN,NALPHA,NTEST)
+call GRAPW(ISCR(KLW),IZ_PTDET,ISCR(KLMIN),ISCR(KLMAX),NOPEN,NALPHA)
 
 ! Reorder array
 
@@ -73,9 +75,9 @@ do JPTDT=1,NLIST_PTDET
   IREO_PTDET(ILEX) = JPTDT
 end do
 
-if (NTEST >= 100) then
-  write(u6,*) ' Reorder array for prototype determinants'
-  call IWRTMA(IREO_PTDET,1,NTOT_PTDET,1,NTOT_PTDET)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Reorder array for prototype determinants'
+call IWRTMA(IREO_PTDET,1,NTOT_PTDET,1,NTOT_PTDET)
+#endif
 
 end subroutine REO_PTDET

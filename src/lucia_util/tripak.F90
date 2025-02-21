@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine TRIPAK(AUTPAK,APAK,MATDIM,NDIM)
 ! (NOT A SIMPLIFIED VERSION OF TETRAPAK)
 !
@@ -17,7 +18,10 @@ subroutine TRIPAK(AUTPAK,APAK,MATDIM,NDIM)
 !
 ! FULL TO PACKED
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -25,7 +29,7 @@ implicit none
 integer(kind=iwp), intent(in) :: MATDIM, NDIM
 real(kind=wp), intent(in) :: AUTPAK(MATDIM,MATDIM)
 real(kind=wp), intent(_OUT_) :: APAK(*)
-integer(kind=iwp) :: I, IJ, NTEST
+integer(kind=iwp) :: I, IJ
 
 IJ = 0
 do I=1,NDIM
@@ -33,11 +37,10 @@ do I=1,NDIM
   IJ = IJ+I
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' AUTPAK AND APAK FROM TRIPAK'
-  call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
-  call PRSYM(APAK,NDIM)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' AUTPAK AND APAK FROM TRIPAK'
+call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
+call PRSYM(APAK,NDIM)
+#endif
 
 end subroutine TRIPAK

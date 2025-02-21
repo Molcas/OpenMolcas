@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADADS1_GAS(NK,I1,XI1S,LI1,IORB,NIORB,JORB,NJORB,KSTR,NKEL,NKSTR,IREO,IZ,NOCOB,KMAX,KMIN,IEND,SCLFAC)
 ! Obtain I1(KSTR) = +/- A+ IORB A+ JORB !KSTR>
 ! Only orbital pairs IOB > JOB are included
@@ -48,17 +49,16 @@ integer(kind=iwp), intent(out) :: NK, I1(LI1,NIORB*NJORB), IEND
 real(kind=wp), intent(out) :: XI1S(LI1,NIORB*NJORB)
 real(kind=wp), intent(in) :: SCLFAC
 integer(kind=iwp) :: IACT, IEL, IIEL, IIORB, IJ, IJOFF, ILEX, ILEX0, ILEX1, ILEX2, IORB1, IORB2, IORBMAX, IORBMIN, JEL, JJEL, &
-                     JJORB, JORB1, JORB2, JORBMAX, JORBMIN, KEND, KKSTR, NIJ, NTEST
+                     JJORB, JORB1, JORB2, JORBMAX, JORBMIN, KEND, KKSTR, NIJ
 real(kind=wp) :: ODDIEL, ODDJEL, SIGNIJ, SIGNJ
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' ===================='
-  write(u6,*) ' ADADS1_GAS speaking'
-  write(u6,*) ' ===================='
-  write(u6,*) ' IORB,NIORB ',IORB,NIORB
-  write(u6,*) ' JORB,NJORB ',JORB,NJORB
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ===================='
+write(u6,*) ' ADADS1_GAS speaking'
+write(u6,*) ' ===================='
+write(u6,*) ' IORB,NIORB ',IORB,NIORB
+write(u6,*) ' JORB,NJORB ',JORB,NJORB
+#endif
 
 IORBMIN = IORB
 IORBMAX = IORB+NIORB-1
@@ -77,10 +77,10 @@ end if
 NK = KEND-KMIN+1
 
 do KKSTR=KMIN,KEND
-  if (NTEST >= 1000) then
-    write(u6,*) ' Occupation of string ',KKSTR
-    call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Occupation of string ',KKSTR
+  call IWRTMA(KSTR(1,KKSTR),1,NKEL,1,NKEL)
+# endif
   ! Loop over electrons after which JORB can be added
   !PAM2009 Added variable ODDJEL to replace (-One)**JEL
   ODDJEL = -One
@@ -97,7 +97,9 @@ do KKSTR=KMIN,KEND
     else
       JORB2 = min(JORBMAX+1,KSTR(JEL+1,KKSTR))
     end if
-    if (NTEST >= 1000) write(u6,*) ' JEL JORB1 JORB2 ',JEL,JORB1,JORB2
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' JEL JORB1 JORB2 ',JEL,JORB1,JORB2
+#   endif
 
     if ((JEL > 0) .and. (JORB1 >= JORBMIN) .and. (JORB1 <= JORBMAX)) then
       ! vanishing for any IORB
@@ -143,7 +145,9 @@ do KKSTR=KMIN,KEND
           else
             IORB2 = min(IORBMAX+1,KSTR(IEL+1,KKSTR))
           end if
-          if (NTEST >= 1000) write(u6,*) ' IEL IORB1 IORB2 ',IEL,IORB1,IORB2
+#         ifdef _DEBUGPRINT_
+          write(u6,*) ' IEL IORB1 IORB2 ',IEL,IORB1,IORB2
+#         endif
           if ((IEL > JEL) .and. (IORB1 >= IORBMIN) .and. (IORB1 <= IORBMAX)) then
             IJ = (JJORB-JORBMIN)*NIORB+IORB1-IORBMIN+1
             if (ij > nij) then
@@ -178,13 +182,14 @@ do KKSTR=KMIN,KEND
                 write(u6,*) ' IIORB JJORB ',IIORB,JJORB
                 !stop
                 call SYSABENDMSG('lucia_util/adads1_gas','Internal error','')
-                NTEST = 1000
               end if
               ILEX = ILEX2+IZ(IIORB,IEL+2)
               IACT = IREO(ILEX)
-              if (NTEST >= 1000) write(u6,*) ' IIORB JJORB ',IIORB,JJORB
-              if (NTEST >= 1000) write(u6,*) ' IJ ILEX,IACT',IJ,ILEX,IACT
-              if (NTEST >= 1000) write(u6,*) ' ILEX0 ILEX1 ILEX2 ILEX ',ILEX0,ILEX1,ILEX2,ILEX
+#             ifdef _DEBUGPRINT_
+              write(u6,*) ' IIORB JJORB ',IIORB,JJORB
+              write(u6,*) ' IJ ILEX,IACT',IJ,ILEX,IACT
+              write(u6,*) ' ILEX0 ILEX1 ILEX2 ILEX ',ILEX0,ILEX1,ILEX2,ILEX
+#             endif
               I1(KKSTR-KMIN+1,IJ) = IACT
               XI1S(KKSTR-KMIN+1,IJ) = SIGNIJ
               if (IJ < 0) then
@@ -200,25 +205,25 @@ do KKSTR=KMIN,KEND
   end do
 end do
 
-if (NTEST > 0) then
-  write(u6,*) ' Output from ADADST1_GAS'
-  write(u6,*) ' ====================='
-  write(u6,*) ' Number of K strings accessed ',NK
-  if (NK /= 0) then
-    IJ = 0
-    do JJORB=JORB,JORB+NJORB-1
-      do IIORB=IORB,IORB+NIORB-1
-        IJ = IJ+1
-        !write(u6,*) ' IJ = ',IJ
-        !if (IIORB > JJORB) then
-        write(u6,*) ' Info for orbitals (iorb,jorb) ',IIORB,JJORB
-        write(u6,*) ' Excited strings and sign'
-        call IWRTMA(I1(1,IJ),1,NK,1,NK)
-        call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
-        !end if
-      end do
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from ADADST1_GAS'
+write(u6,*) ' ====================='
+write(u6,*) ' Number of K strings accessed ',NK
+if (NK /= 0) then
+  IJ = 0
+  do JJORB=JORB,JORB+NJORB-1
+    do IIORB=IORB,IORB+NIORB-1
+      IJ = IJ+1
+      !write(u6,*) ' IJ = ',IJ
+      !if (IIORB > JJORB) then
+      write(u6,*) ' Info for orbitals (iorb,jorb) ',IIORB,JJORB
+      write(u6,*) ' Excited strings and sign'
+      call IWRTMA(I1(1,IJ),1,NK,1,NK)
+      call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
+      !end if
     end do
-  end if
+  end do
 end if
+#endif
 
 end subroutine ADADS1_GAS

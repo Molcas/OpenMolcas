@@ -11,6 +11,7 @@
 ! Copyright (C) 1998, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
 ! Construct information about batch and block structure of CI space
 ! defined by ISPC,ISM,IATP,IBTP.
@@ -18,8 +19,8 @@ subroutine Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
 ! Output is given in the form of pointers to vectors in WORK
 ! where the info is stored :
 !
-! CLBT : Length of each Batch ( in blocks)
-! CLEBT : Length of each Batch ( in elements)
+! CLBT : Length of each Batch (in blocks)
+! CLEBT : Length of each Batch (in elements)
 ! CI1BT : Length of each block
 ! CIBT  : Info on each block
 ! CBLTP : BLock type for each symmetry
@@ -31,28 +32,28 @@ subroutine Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
 
 use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT
 use strbas, only: NSTSO
-use lucia_data, only: IDC, ISIMSYM, ISMOST, MXNTTS, NOCTYP
+use lucia_data, only: IDC, ISMOST, MXNTTS, NOCTYP
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: ISPC, ISM, IATP, IBTP
 integer(kind=iwp), intent(out) :: NBATCH, NBLOCK
-integer(kind=iwp) :: NOCTPA, NOCTPB, NTEST
+integer(kind=iwp) :: NOCTPA, NOCTPB
 integer(kind=iwp), allocatable :: LCIOIO(:), SVST(:)
 
 ! Some dummy initializations
-NTEST = 0
 #ifdef _DEBUGPRINT_
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' ==================='
-  write(u6,*) ' Output from Z_BLKFO'
-  write(u6,*) ' ==================='
-  write(u6,*)
-  write(u6,*) ' ISM, ISPC = ',ISM,ISPC
-end if
+write(u6,*)
+write(u6,*) ' ==================='
+write(u6,*) ' Output from Z_BLKFO'
+write(u6,*) ' ==================='
+write(u6,*)
+write(u6,*) ' ISM, ISPC = ',ISM,ISPC
 #endif
 
 NOCTPA = NOCTYP(IATP)
@@ -80,16 +81,18 @@ call mma_deallocate(SVST)
 !  if (PSSIGN /= Zero) LBLOCK = int(Two*XISPSM(IREFSM,1))
 !end if
 
-!if (NTEST >= 10) write(u6,*) ' LBLOCK = ',LBLOCK
+!#ifdef _DEBUGPRINT_
+!write(u6,*) ' LBLOCK = ',LBLOCK
+!#endif
 
 ! Batches of C vector
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LCIOIO,ISMOST(:,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0,ISIMSYM)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LCIOIO,ISMOST(:,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
 ! Number of BLOCKS
 NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
-if (NTEST >= 1) then
-  write(u6,*) ' Number of batches',NBATCH
-  write(u6,*) ' Number of blocks ',NBLOCK
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of batches',NBATCH
+write(u6,*) ' Number of blocks ',NBLOCK
+#endif
 ! Length of each block
 call EXTRROW(CIBT,8,8,NBLOCK,CI1BT)
 

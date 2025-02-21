@@ -11,9 +11,10 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GSBBD2B_LUCIA(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC, &
                          JBOC,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,MXPOBS, &
-                         IUSEAB,CJRES,SIRES,NORB,NTESTG,SCLFAC,S2_TERM1,IPACK)
+                         IUSEAB,CJRES,SIRES,NORB,SCLFAC,S2_TERM1,IPACK)
 ! SUBROUTINE GSBBD2B_LUCIA --> 52
 !
 ! alpha-beta contribution to two-particle density matrix
@@ -67,7 +68,10 @@ use Para_Info, only: MyRank, nProcs
 use lucia_data, only: LOFFI
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -75,36 +79,34 @@ implicit none
 real(kind=wp), intent(inout) :: RHO2(*), RHO2S(*), RHO2A(*), S2_TERM1
 integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), &
                                  IBOC(*), JAOC(*), JBOC(*), MXPOBS, ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), MXPNGAS, &
-                                 NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXK, NSMOB, IUSEAB, NORB, NTESTG
+                                 NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXK, NSMOB, IUSEAB, NORB
 integer(kind=iwp), intent(_OUT_) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
 real(kind=wp), intent(_OUT_) :: XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), CJRES(*), SIRES(*)
 logical(kind=iwp), intent(in) :: IPACK
 integer(kind=iwp) :: I, IDOCOMP, II, IJ, IJSM, IJTYP, IKABTC, IKORD, IOFF, ISM, ITP(20), ITYP, J, JI, JJ, JOFF, JSM, JTP(20), &
                      JTYP, KABOT, KATOP, KLSM, KLTYP, KOFF, KSM, KTP(20), KTYP, LKABTC, LOFF, LSM, LTP(20), LTYP, NI, NIJ, NIJTYP, &
-                     NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL, NTEST, NTESTL
+                     NJ, NK, NKABTC, NKABTCSZ, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL
 real(kind=wp), allocatable :: OFFI(:)
 
-NTESTL = 0
-NTEST = max(NTESTL,NTESTG)
-if (NTEST >= 500) then
-  write(u6,*) ' ================'
-  write(u6,*) ' GSBBD2B speaking'
-  write(u6,*) ' ================'
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ================'
+write(u6,*) ' GSBBD2B speaking'
+write(u6,*) ' ================'
 !write(u6,*) ' NJAS NJB = ',NJA,NJB
 !write(u6,*) ' IAGRP IBGRP = ',IAGRP,IBGRP
 !write(u6,*) ' MXPNGAS = ',MXPNGAS
 !write(u6,*) ' NSMOB = ',NSMOB
+#endif
 
 ! Symmetry of allowed excitations
 IJSM = STSTSX(IASM,JASM)
 KLSM = STSTSX(IBSM,JBSM)
 if ((IJSM == 0) .or. (KLSM == 0)) return
-if (NTEST >= 600) then
-  write(u6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
-  write(u6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
+write(u6,*) ' IBSM JBSM KLSM ',IBSM,JBSM,KLSM
+#endif
 ! Types of SX that connects the two strings
 call SXTYP_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC)
 call SXTYP_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC)
@@ -121,8 +123,9 @@ do IJTYP=1,NIJTYP
   do ISM=1,NSMOB
     JSM = ADSXA(ISM,IJSM)
     if (JSM == 0) cycle
-    ntest = 0 !yjma
-    if (ntest >= 1500) write(u6,*) ' ISM JSM ',ISM,JSM
+#   ifdef _DEBUGPRINT_
+    write(u6,*) ' ISM JSM ',ISM,JSM
+#   endif
     IOFF = IOBPTS(ITYP,ISM)
     JOFF = IOBPTS(JTYP,JSM)
     NI = NOBPTS(ITYP,ISM)

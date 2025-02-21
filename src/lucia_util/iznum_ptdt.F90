@@ -11,25 +11,28 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function IZNUM_PTDT(IAB,NOPEN,NALPHA,Z,NEWORD,IREORD)
 ! Address of prototype determinant IAB
 ! alpha occupation is used to define lex address
 !
 ! Jeppe Olsen, Dec. 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: IZNUM_PTDT
 integer(kind=iwp), intent(in) :: NOPEN, IAB(NOPEN), NALPHA, Z(NOPEN,NALPHA), NEWORD(*), IREORD
-integer(kind=iwp) :: I, IALPHA, IZ, NTEST
+integer(kind=iwp) :: I, IALPHA, IZ
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' IZNUM_PTDT, NOPEN, NALPHA = ',NOPEN,NALPHA
-  write(u6,*) ' Input Z- matrix'
-  call IWRTMA(Z,NOPEN,NALPHA,NOPEN,NALPHA)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' IZNUM_PTDT, NOPEN, NALPHA = ',NOPEN,NALPHA
+write(u6,*) ' Input Z- matrix'
+call IWRTMA(Z,NOPEN,NALPHA,NOPEN,NALPHA)
+#endif
 
 IZ = 1
 IALPHA = 0
@@ -47,11 +50,11 @@ else
   IZNUM_PTDT = NEWORD(IZ)
 end if
 
-if (NTEST >= 100) then
-  write(u6,*) ' Output from IZNUM_PTDT'
-  write(u6,*) ' Prototype determinant'
-  call IWRTMA(IAB,1,NOPEN,1,NOPEN)
-  write(u6,*) ' Address = ',IZNUM_PTDT
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from IZNUM_PTDT'
+write(u6,*) ' Prototype determinant'
+call IWRTMA(IAB,1,NOPEN,1,NOPEN)
+write(u6,*) ' Address = ',IZNUM_PTDT
+#endif
 
 end function IZNUM_PTDT

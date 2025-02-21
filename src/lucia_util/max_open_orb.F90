@@ -11,18 +11,22 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine MAX_OPEN_ORB(MAXOP,IOCLS,NGAS,NOCLS,NOBPT)
 ! Max number of open orbitals in occupation classes
 !
 ! Jeppe Olsen, November 2001
 
 use csfbas, only: maxop_lucia
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(out) :: MAXOP
 integer(kind=iwp), intent(in) :: NGAS, NOCLS, IOCLS(NGAS,NOCLS), NOBPT(NGAS)
-integer(kind=iwp) :: IGAS, JOCLS, MAXOP_IGAS, MAXOP_J, NEL, NORB, NTEST
+integer(kind=iwp) :: IGAS, JOCLS, MAXOP_IGAS, MAXOP_J, NEL, NORB
 
 MAXOP = 0
 !write(u6,*) ' NOCLS, NGAS = ',NOCLS,NGAS
@@ -39,7 +43,8 @@ do JOCLS=1,NOCLS
 end do
 maxop_lucia = maxop
 
-NTEST = 0
-if (NTEST >= 100) write(u6,*) ' Max number of unpaired orbitals = ',MAXOP
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Max number of unpaired orbitals = ',MAXOP
+#endif
 
 end subroutine MAX_OPEN_ORB

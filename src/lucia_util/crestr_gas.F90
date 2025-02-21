@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CRESTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI,TTO,NACOB,IPRNT)
+!#define _DEBUGPRINT_
+subroutine CRESTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,TI,TTO,NACOB)
 ! A type of strings containing NEL electrons are given
 ! set up all possible ways of adding an electron to this type of strings
 !
@@ -39,26 +40,29 @@ subroutine CRESTR_GAS(STRING,NSTINI,NSTINO,NEL,NORB,IORBOF,Z,NEWORD,LSGSTR,ISGST
 !          if the string have a negative sign
 !          then the phase equals - 1
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, IORBOF, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, &
-                                 ISGSTI(NSTINI), ISGSTO(NSTINO), NACOB, IPRNT
+integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, IORBOF, Z(NORB,NEL+1), NEWORD(NSTINO), NACOB
 integer(kind=iwp), intent(out) :: TI(NORB,NSTINI), TTO(NORB,NSTINI)
-integer(kind=iwp) :: I, IEL, IIISGN, IORB, IPLACE, ISTRIN, JSTRIN, MAXPR, NPR, NTEST, NTEST0, STRIN2(500)
+integer(kind=iwp) :: IEL, IIISGN, IORB, IPLACE, ISTRIN, JSTRIN, STRIN2(500)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I, NPR
+#endif
 integer(kind=iwp), external :: ISTRNM
 
-NTEST0 = 1
-NTEST = max(IPRNT,NTEST0)
-if (NTEST >= 20) then
-  write(u6,*) ' ==============='
-  write(u6,*) ' CRESTR speaking'
-  write(u6,*) ' ==============='
-  write(u6,*)
-  write(u6,*) ' Number of input electrons ',NEL
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ==============='
+write(u6,*) ' CRESTR speaking'
+write(u6,*) ' ==============='
+write(u6,*)
+write(u6,*) ' Number of input electrons ',NEL
 !write(u6,*) ' Reorder array NEWORD'
 !call IWRTMA(NEWORD,1,NSTINO,1,NSTINO)
+#endif
 
 do ISTRIN=1,NSTINI
   do IORB=IORBOF,IORBOF-1+NORB
@@ -100,7 +104,7 @@ do ISTRIN=1,NSTINI
 
     TTO(IORB-IORBOF+1,ISTRIN) = JSTRIN
     IIISGN = (-1)**(IPLACE-1)
-    if (LSGSTR /= 0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+    !if (LSGSTR /= 0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
     if (IIISGN == -1) TTO(IORB-IORBOF+1,ISTRIN) = -TTO(IORB-IORBOF+1,ISTRIN)
     TI(IORB-IORBOF+1,ISTRIN) = IORB
 
@@ -108,20 +112,19 @@ do ISTRIN=1,NSTINI
 
 end do
 
-if (NTEST >= 20) then
-  MAXPR = 60
-  NPR = min(NSTINI,MAXPR)
-  write(u6,*) ' Output from CRESTR :'
-  write(u6,*) '==================='
+#ifdef _DEBUGPRINT_
+NPR = min(NSTINI,60)
+write(u6,*) ' Output from CRESTR :'
+write(u6,*) '==================='
 
-  write(u6,*)
-  write(u6,*) ' Strings with an electron added'
-  do ISTRIN=1,NPR
-    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,NORB)
-  end do
-  do ISTRIN=1,NPR
-    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,NORB)
-  end do
-end if
+write(u6,*)
+write(u6,*) ' Strings with an electron added'
+do ISTRIN=1,NPR
+  write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,NORB)
+end do
+do ISTRIN=1,NPR
+  write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(I,ISTRIN),I=1,NORB)
+end do
+#endif
 
 end subroutine CRESTR_GAS

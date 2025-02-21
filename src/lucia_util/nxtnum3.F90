@@ -11,6 +11,7 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NXTNUM3(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 ! A set of numbers INUM(I),I=1,NELMNT is given.
 ! Find next compund number.
@@ -21,19 +22,21 @@ subroutine NXTNUM3(INUM,NELMNT,MNVAL,MXVAL,NONEW)
 !
 ! Jeppe Olsen Oct 1994
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NELMNT, MNVAL(NELMNT), MXVAL(NELMNT)
 integer(kind=iwp), intent(inout) :: INUM(NELMNT)
 integer(kind=iwp), intent(out) :: NONEW
-integer(kind=iwp) :: IPLACE, NTEST
+integer(kind=iwp) :: IPLACE
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' Initial number in NXTNUM'
-  call IWRTMA(INUM,1,NELMNT,1,NELMNT)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Initial number in NXTNUM'
+call IWRTMA(INUM,1,NELMNT,1,NELMNT)
+#endif
 
 if (NELMNT == 0) then
   NONEW = 1
@@ -56,9 +59,9 @@ else
 
 end if
 
-if (NTEST /= 0) then
-  write(u6,*) ' New number'
-  call IWRTMA(INUM,1,NELMNT,1,NELMNT)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' New number'
+call IWRTMA(INUM,1,NELMNT,1,NELMNT)
+#endif
 
 end subroutine NXTNUM3

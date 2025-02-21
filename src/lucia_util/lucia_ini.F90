@@ -13,22 +13,28 @@ subroutine Lucia_Ini()
 
 use rasscf_lucia, only: ini_h0, Sigma_on_disk
 use lucia_data, only: ECORE, ENVIRO, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IADVICE, ICISTR, ICJKAIB, ICMBSPC, IDC, IDIAG, &
-                      IELIMINATED_IN_GAS, IGSOCCX, IH0INSPC, IH0SPC, IPART, IPRCIX, IPRDEN, IPRDIA, IPRORB, IREFSM, IRESTR, &
-                      ISIMSYM, IUSE_PH, LCMBSPC, LCSBLK, MOCAA, MS2, MULTS, MXINKA, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL, &
-                      NCISPC, NCMBSPC, NGAS, NGSSH, NIRREP, NOCSF, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN
-use spinfo, only: I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IEXPAND_MOLCAS, IGSOCCX_MOLCAS, &
-                  INOCALC_MOLCAS, IPRCI_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, &
-                  MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, NACTEL_MOLCAS, NGAS_MOLCAS, NGSSH_MOLCAS, &
-                  NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS, THRE_MOLCAS
+                      IELIMINATED_IN_GAS, IGSOCCX, IH0INSPC, IH0SPC, IPART, IPRCIX, IPRDEN, IREFSM, IRESTR, ISIMSYM, LCMBSPC, &
+                      LCSBLK, MOCAA, MS2, MULTS, MXINKA, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NACTEL, NCISPC, NCMBSPC, NGAS, &
+                      NGSSH, NIRREP, NOINT, NPTSPC, NROOT, NSMOB, PSSIGN
+use spinfo, only: I2ELIMINATED_IN_GAS_MOLCAS, I_ELIMINATE_GAS_MOLCAS, IELIMINATED_IN_GAS_MOLCAS, IGSOCCX_MOLCAS, IPRCI_MOLCAS, &
+                  ISPEED, ISPIN_MOLCAS, ITMAX_MOLCAS, LSYM_MOLCAS, MS2_MOLCAS, N_2ELIMINATED_GAS_MOLCAS, N_ELIMINATED_GAS_MOLCAS, &
+                  NACTEL_MOLCAS, NGAS_MOLCAS, NGSSH_MOLCAS, NROOTS_MOLCAS, NSYM_MOLCAS, POTNUC_MOLCAS
+#ifdef _DEBUGPRINT_
+use lucia_data, only: NOCSF
+use spinfo, only: IEXPAND_MOLCAS, INOCALC_MOLCAS, IPT2_MOLCAS, ISAVE_EXP_MOLCAS, THRE_MOLCAS
+#endif
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: MXPKW = 125
-integer(kind=iwp) :: EXTSPC, I, ICLSSEL, IDENSI, IDOPERT, IEXPAND, IEXPERT, IFINMO, INCORE, INOCALC, IRREP, IRST2, ISAVE_EXP, &
-                     isetkw(MXPKW), ISKIPEI, IUSED, MXCIV, NMISS, NWARN
-real(kind=wp) :: ECORE_ENV, PLSIGN, THRES_E
+integer(kind=iwp) :: I, IDENSI, IDOPERT, IEXPERT, IRREP, isetkw(MXPKW), IUSED, MXCIV, NMISS, NWARN
+real(kind=wp) :: ECORE_ENV
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ICLSSEL, IEXPAND, IFINMO, INOCALC, IRST2, ISKIPEI, ISAVE_EXP
+real(kind=wp) :: PLSIGN, THRES_E
 character(len=4) :: ITRACI_CN, ITRACI_CR
+#endif
 
 ! ================================================
 !  Some initialization to avoid compiler warnings
@@ -43,11 +49,12 @@ INI_H0 = 1
 
 IEXPERT = 0
 NWARN = 0
-EXTSPC = 0
+#ifdef _DEBUGPRINT_
 ICLSSEL = 0
 IFINMO = 0
 IRST2 = 0
 ISKIPEI = 0
+#endif
 ! No cc as default
 ! Start out with normal integrals
 !I_USE_SIMTRH = 0
@@ -156,45 +163,36 @@ end do
 ncispc = 1
 igsoccx(1:ngas,:,1) = igsoccx_molcas(1:ngas,:)
 
+#ifdef _DEBUGPRINT_
 ! ==========================
 !  Energy convergence of CI
 ! ==========================
 thres_e = thre_molcas
+#endif
 
 ! ==========================================
 !  Sequence of calculations to wavefunction
 ! ==========================================
 ncmbspc = ncispc
 
+#ifdef _DEBUGPRINT_
 ! =======================================================
 !  No calculation, save CI vector info, expand CI vector
 ! =======================================================
 INOCALC = INOCALC_MOLCAS
 ISAVE_EXP = ISAVE_EXP_MOLCAS
 IEXPAND = IEXPAND_MOLCAS
+#endif
 
 ! ================================================
 !  Length of smallest block og C an Sigma vectors
 ! ================================================
 lcsblk = 3000000
 
-! ===================
-! 66 : No MO-AO file
-! ===================
-
 ! =================================
 !  Calculation of density matrices
 ! =================================
 idensi = 2
-
-! ==================================================================
-!  Isimsym: Treat all symmetryblocks with given type simultaneously
-! ==================================================================
-
-! ==============================================
-!  Particle hole simplifications, default is no
-! ==============================================
-IUSE_PH = 0
 
 ! ============================================
 ! 87 : Allow the sigma routine to take advice
@@ -205,12 +203,14 @@ IADVICE = 1
 ! ============================================================
 !  Transform CI vectors to alternative orbital representation
 ! ============================================================
+#ifdef _DEBUGPRINT_
 itraci_cr = 'REST'
 if (ipt2_molcas == 1) then
   itraci_cn = 'CANO'
 else
   itraci_cn = 'NATU'
 end if
+#endif
 
 ! ==============================
 !  HEXS - Highly excited states
@@ -227,8 +227,6 @@ I2ELIMINATED_IN_GAS(1:N_2ELIMINATED_GAS) = I2ELIMINATED_IN_GAS_MOLCAS(1:N_2ELIMI
 !  Printlevels
 ! =============
 iprcix = iprci_molcas-2
-iprorb = 0
-iprdia = 0
 iprden = (iprci_molcas-2)/2
 
 ! ==============
@@ -278,14 +276,6 @@ IDIAG = 1
 ! Default is no explicit Hamiltonian
 IRESTR = 0
 
-! 25 : INCORE option for integrals
-
-if (EXTSPC == 0) then
-  INCORE = 1
-else
-  INCORE = 0
-end if
-
 ! 26 : DELETEd shells
 
 ! If CAS + Active have been set or RAS + Ras3 have been set,
@@ -308,7 +298,9 @@ end if
 
 ! 28 : Ml combinations
 
+#ifdef _DEBUGPRINT_
 PLSIGN = Zero
+#endif
 
 if (PSSIGN == Zero) then
   IDC = 1
@@ -316,7 +308,7 @@ else if (PSSIGN /= Zero) then
   IDC = 2
 end if
 
-!write(u6,* ) ' TEST readin IDC = ',IDC
+!write(u6,*) ' TEST readin IDC = ',IDC
 
 ! =======================================================================
 ! 44 : Use Minimal operatioon count method for alpha-alpha and beta-beta
@@ -341,11 +333,11 @@ end if
 
 ! 35 : Employ CSF expansion ?
 
-! Default is no ( only possibility at the moment )
+! Default is no (only possibility at the moment)
 ! CSF expansion must only be used when two vectors are stored in CORE
 
-! 37 : Avoid any readin of integrals ( useful for obtaining
-!      size of CI expansion etc.
+! 37 : Avoid any readin of integrals (useful for obtaining
+!      size of CI expansion etc.)
 
 NOINT = 0
 
@@ -402,7 +394,7 @@ if (ISETKW(55) == 0) ISETKW(55) = 2
 ! 56 : Default Machine : Good old BIM machine
 
 ! 57 : Allow first order correction to be saved on DISC
-!     (For vector free calculations )
+!     (For vector free calculations)
 !     Default is : NO !!
 if (ISETKW(57) == 0) ISETKW(57) = 2
 
@@ -459,7 +451,7 @@ end if
 
 ! If perturbation theory will be invoked be sure that the
 ! form of perturbation theory has been specified through
-! KEYWORD PERTU ( number 47 as you maybe know )
+! KEYWORD PERTU (number 47 as you maybe know)
 IDOPERT = 0
 !do JCMBSPC=1,NCMBSPC
 !  do JSEQCI=1,NSEQCI(JCMBSPC)
@@ -493,7 +485,9 @@ if (ISETKW(63) == 0) ISETKW(63) = 2
 
 if (ISETKW(68) == 0) then
   ISETKW(68) = 2
+# ifdef _DEBUGPRINT_
   IFINMO = 1
+# endif
 end if
 
 ! 69 : Default Threshold for individual energy correction = 0.0
@@ -515,11 +509,13 @@ if (ISETKW(72) == 0) ISETKW(72) = 2
 ! 73 : Perform Class selection : Default if Yes if TERACI is used
 
 if (ISETKW(73) == 0) then
+# ifdef _DEBUGPRINT_
   if (IDIAG == 1) then
     ICLSSEL = 0
   else if (IDIAG == 2) then
     ICLSSEL = 1
   end if
+# endif
   ISETKW(73) = 2
 end if
 
@@ -573,14 +569,18 @@ if (ISETKW(76) == 0) ISETKW(76) = 2
 !      Deafault is NO NO, ie. restart in calc 2
 
 if (ISETKW(77) == 0) then
+# ifdef _DEBUGPRINT_
   IRST2 = 1
+# endif
   ISETKW(77) = 2
 end if
 
 ! 78 : skip initial energy evaluations - if possible
 
 if (ISETKW(78) == 0) then
+# ifdef _DEBUGPRINT_
   ISKIPEI = 1
+# endif
   ISETKW(78) = 2
 end if
 
@@ -654,7 +654,7 @@ if (ISETKW(94) == 0) ISETKW(94) = 2
 
 if (ISETKW(95) == 0) ISETKW(95) = 2
 
-! Expert mode ( neglect mistyped keywords ) : default is no expert
+! Expert mode (neglect mistyped keywords) : default is no expert
 
 if (ISETKW(97) == 0) then
   IEXPERT = 0
@@ -720,7 +720,7 @@ if (NMISS /= 0) then
     !stop
     call SYSABENDMSG('lucia_util/lucia_ini','Input error','')
   else
-    write(u6,*) ' Processing continues (EXPERT mode )'
+    write(u6,*) ' Processing continues (EXPERT mode)'
   end if
 end if
 ! Open one-electron file to obtain core energy and
@@ -734,421 +734,418 @@ else
 end if
 ! Check number of orbitals and insert occupations for ALL/REST
 
+#ifdef _DEBUGPRINT_
 !***********************************************************
 !                                                          *
 ! Part 3 : Print input                                     *
 !                                                          *
 !***********************************************************
 
-! Machine in use
+write(u6,*)
+write(u6,*) '*************************************'
+write(u6,*) '*  Symmetry and spin of CI vectors  *'
+write(u6,*) '*************************************'
+write(u6,*)
+! Point group
+write(u6,'(1X,A)') '     Point group ............ D2H'
+! Spatial symmetry
+write(u6,'(1X,A,I1)') '     Spatial symmetry ....... ',IREFSM
+! Spin
+write(u6,'(1X,A,I2)') '     2 times spinprojection  ',MS2
+! Number of active electrons
+write(u6,'(1X,A,I2)') '     Active electrons .....  ',NACTEL
+write(u6,*)
+write(u6,*) '*********************************************'
+write(u6,*) '*  Shell spaces and occupation constraints  *'
+write(u6,*) '*********************************************'
+write(u6,*)
 
-! Type of reference state
-if (IPRCIX >= 100) then
-  write(u6,*)
-  write(u6,*) '*************************************'
-  write(u6,*) '*  Symmetry and spin of CI vectors  *'
-  write(u6,*) '*************************************'
-  write(u6,*)
-  ! Point group
-  write(u6,'(1X,A)') '     Point group ............ D2H'
-  ! Spatial symmetry
-  write(u6,'(1X,A,I1)') '     Spatial symmetry ....... ',IREFSM
-  ! Spin
-  write(u6,'(1X,A,I2)') '     2 times spinprojection  ',MS2
-  ! Number of active electrons
-  write(u6,'(1X,A,I2)') '     Active electrons .....  ',NACTEL
-  write(u6,*)
-  write(u6,*) '*********************************************'
-  write(u6,*) '*  Shell spaces and occupation constraints  *'
-  write(u6,*) '*********************************************'
-  write(u6,*)
+!if (XLAMBDA /= One) then
+!  write(u6,*)
+!  write(u6,'(A,F13.8)') ' Modified operator H(l) = l*F + l*(H-F) used with l =',XLAMBDA
+!  !if (IUSEH0P == 0) then
+!  write(u6,'(A)') ' Zero-order operator without projection used'
+!  !else
+!  !  write(u6,'(A)') ' Zero-order operator with projection used'
+!  !end if
+!  if (IRESTR == 0) then
+!    write(u6,*) ' Notice : This madness starts  in second calculation'
+!  else
+!    write(u6,*) ' You have specified a calculation with modified'
+!    write(u6,*) ' Hamiltonian (the LAMBDA option) and RESTART'
+!    write(u6,*) ' so this is what I will do'
+!    write(u6,*)
+!    write(u6,*) '   1:) Perform CI in space 1 to obtain Hamiltonian'
+!    write(u6,*) '       (no RESTART in this space)'
+!    write(u6,*) '   2:) CI calculation in space 2  with'
+!    write(u6,*) '       modified Hamiltonian and RESTART from LU21'
+!    write(u6,*) ' Space 2 should therefore correspond to the'
+!    write(u6,*) ' restarted calculation'
+!  end if
+!end if
 
-  !if (XLAMBDA /= One) then
-  !  write(u6,*)
-  !  write(u6,'(A,F13.8)') ' Modified operator H(l) = l*F + l*(H-F) used with l =',XLAMBDA
-  !  !if (IUSEH0P == 0) then
-  !  write(u6,'(A)') ' Zero-order operator without projection used'
-  !  !else
-  !  !  write(u6,'(A)') ' Zero-order operator with projection used'
-  !  !end if
-  !  if (IRESTR == 0) then
-  !    write(u6,*) ' Notice : This madness starts  in second calculation'
-  !  else
-  !    write(u6,*) ' You have specified a calculation with modified'
-  !    write(u6,*) ' Hamiltonian (the LAMBDA option) and RESTART'
-  !    write(u6,*) ' so this is what I will do'
-  !    write(u6,*)
-  !    write(u6,*) '   1:) Perform CI in space 1 to obtain Hamiltonian'
-  !    write(u6,*) '       (no RESTART in this space )'
-  !    write(u6,*) '   2:) CI calculation in space 2  with'
-  !    write(u6,*) '       modified Hamiltonian and RESTART from LU21'
-  !    write(u6,*) ' Space 2 should therefore correspond to the'
-  !    write(u6,*) ' restarted calculation'
-  !  end if
-  !end if
+write(u6,*)
+write(u6,*) '***********'
+write(u6,*) '*  Roots  *'
+write(u6,*) '***********'
+write(u6,*)
+write(u6,'(1X,A,I3)') '     Number of roots to be included  ',NROOT
+!write(u6,'(1X,A,(20I3))') '     Roots to be obtained ',(IROOT(I),I=1,NROOT)
+!write(u6,'(1X,A,I3)') '     Number of roots to be converged ',NCNV_RT
 
-  write(u6,*)
-  write(u6,*) '***********'
-  write(u6,*) '*  Roots  *'
-  write(u6,*) '***********'
-  write(u6,*)
-  write(u6,'(1X,A,I3)') '     Number of roots to be included  ',NROOT
-  !write(u6,'(1X,A,(20I3))') '     Roots to be obtained ',(IROOT(I),I=1,NROOT)
-  !write(u6,'(1X,A,I3)') '     Number of roots to be converged ',NCNV_RT
+write(u6,*)
+write(u6,*) '**************************'
+write(u6,*) '*  Run time definitions  *'
+write(u6,*) '**************************'
+write(u6,*)
+! Program environment
+write(u6,'(A,A6)') '      Program environment... ',ENVIRO
 
-  write(u6,*)
-  write(u6,*) '**************************'
-  write(u6,*) '*  Run time definitions  *'
-  write(u6,*) '**************************'
-  write(u6,*)
-  ! Program environment
-  write(u6,'(A,A6)') '      Program environment... ',ENVIRO
-
-  if (NOINT == 1) then
-    ! Integral import
-    write(u6,'(1X,A)') '     No integrals will be read in'
-  else if (NOINT == 0) then
-    ! Integral storage
-    if (INCORE == 1) write(u6,'(1X,A)') '     All integrals stored in core'
-  end if
-  write(u6,*)
-  ! ( END IF for NOINT
-  ! CSF or SD expansion
-  if (NOCSF == 0) then
-    write(u6,'(1X,A)') "     CI optimization performed with CSF's"
-  else
-    write(u6,'(1X,A)') "     CI optimization performed with SD's"
-  end if
-  ! Ms,Ml combinations
-  if (ISETKW(27) == 1) write(u6,'(1X,A,F8.3)') '     Spin combinations used with sign ',PSSIGN
-  if (ISETKW(28) == 1) write(u6,'(1X,A,F8.3)') '     ML   combinations used with sign ',PLSIGN
-  ! Initial approximation to vectors
-  write(u6,*)
-  !if ((IRESTR == 1) .and. (IRESTRF == 0)) then
-  if (IRESTR == 1) then
-    write(u6,'(1X,A)') '     Restarted calculation'
-  !else if (IRESTRF == 1) then
-  !  write(u6,'(1X,A)') '     Restarted calculation from REFERENCE space expansion'
-  else
-    !if (MXP1 /= 0) then
-    !  write(u6,'(1X,A)') '     Initial vectors obtained from explicit Hamiltonian'
-    !else if (MXP1 == 0) then
-    write(u6,'(1X,A)') '     Initial vectors obtained from diagonal'
-    !end if
-  end if
-  ! Handling of degenerencies of initial vectors
-  !if (INIDEG == 1) then
-  !  write(u6,'(1X,A)') '     Symmetric combination of degenerate initial vectors'
-  !else if (INIDEG == -1) then
-  !  write(u6,'(1X,A)') '     Antiymmetric combination of degenerate initial vectors'
-  !else if (INIDEG == 0) then
-  !  write(u6,'(1X,A)') '     No combination of degenerate initial vectors'
-  !end if
-  ! No calculation, save CI vector information and expand CI vector
-  if (INOCALC == 1) write(u6,'(1X,A)') ' No calculation will be performed'
-  if (ISAVE_EXP == 1) write(u6,'(1X,A)') ' Save CI vector information'
-  if (IEXPAND == 1) write(u6,'(1X,A)') ' Expand shorter CI vector in longer one'
-  ! Ms,Ml combinations
-  !if (ISETKW(27) == 1) write(u6,'(1X,A,F8.3)') '     Spin combinations used with sign ',PSSIGN
-  !if (ISETKW(28) == 1) write(u6,'(1X,A,F8.3)') '     ML   combinations used with sign ',PLSIGN
-  ! CI storage mode
-  write(u6,*)
-
-  write(u6,*) '     3 symmetry blocks will be held in core'
-
-  if (LCSBLK /= 0) write(u6,'(A,I10)') '      Smallest allowed size of sigma- and C-batch ',LCSBLK
-  write(u6,'(1X,A,I4)') '     Dimension of block of resolution strings ',MXINKA
-  !if (IUSE_PH == 1) then
-  !  WRITE(u6,'(1X,A)') '     Particle-hole separation used'
-  !else
-  write(u6,'(1X,A)') '      Particle-hole separation not used'
-  !end if
-
-  if (IADVICE == 1) write(u6,'(1X,A)') '     Advice routine call to optimize sigma generation'
-
-  !if (IUSE_PA == 1) then
-  !  write(u6,'(1X,A)') '     Strings divided into active and passive parts'
-  !else
-  write(u6,'(1X,A)') '     Strings not divided into active and passive parts'
-  !end if
-  !if (ISIMSYM == 1) write(u6,'(1X,A)') '     ALl TTS blocks with given types treated in sigma'
-  !if (IUSE_HW == 1) write(u6,*) ' Hardwired routines in use'
-
-  write(u6,*)
-  if (IDENSI == 0) then
-    write(u6,'(1X,A)') '     No calculation of density matrices'
-  else if (IDENSI == 1) then
-    write(u6,'(1X,A)') '     One-body density matrix calculated'
-  else if (IDENSI == 2) then
-    write(u6,'(1X,A)') '     One- and two-body density matrices  calculated'
-  end if
-  write(u6,*)
-  !if (MOCAA /= 0) write(u6,*) '     MOC method used for alpha-alpha+beta-beta loop'
-  !if (MOCAB /= 0) write(u6,*) '     MOC method used for alpha-beta loop'
-
-  ! Diagonalization information
-  write(u6,'(1X,A)') '     CI diagonalization :'
-  write(u6,'(1X,A)') '     ===================='
-  ! Subspace Hamiltinian
-  !if (MXP1+MXP2+MXQ == 0) then
-  write(u6,'(1X,A)') '        No subspace Hamiltonian'
-  !else
-  !  write(u6,'(1X,A,3I4)') '        Dimensions of subspace Hamiltonian ',MXP1,MXP2,MXQ
-  !end if
-  ! Diagonalizer
-  if ((IDIAG == 1) .and. (ICISTR == 1)) then
-    write(u6,'(1X,A)') '        Diagonalizer : MINDV4'
-  else if ((IDIAG == 1) .and. (ICISTR >= 2)) then
-    write(u6,'(1X,A)') '        Diagonalizer : MICDV*'
-  else if (IDIAG == 2) then
-    write(u6,'(1X,A)') '        Diagonalizer : PICO*'
-  end if
-  write(u6,'(1X,A)') '        Simple diagonal used as preconditioner'
-  ! Root homing
-  !if (IROOTHOMING == 1) then
-  !  write(u6,'(1X,A)') '        Root homing will be used'
-  !else
-  write(u6,'(1X,A)') '        No root homing'
-  !end if
-  ! No restart in CI calc 2
-  if (IRST2 == 0) write(u6,'(1X,A)') '        No restart from previous vectors in second calc'
-  if (ISKIPEI == 1) then
-    write(u6,'(1X,A)') '        Initial energy evaluations skipped after first calc'
-    write(u6,'(1X,A)') '        (Only active in connection with TERACI )'
-  end if
-  ! Number of iterations
-  !write(u6,'(1X,A,I2)') '        Allowed number of iterations    ',MAXIT
-  ! Number of CI vectors in subspace
-  write(u6,'(1X,A,I2)') '        Allowed Dimension of CI subspace',MXCIV
-
-  write(u6,'(1X,A,ES12.5)') '        Convergence threshold for energy',THRES_E
-  ! Multispace (multigrid info )
-  !if (MULSPC == 1) then
-  !  write(u6,'(1X,A,I3)') '        Multispace method in use from space ',IFMULSPC
-  !  write(u6,*) '        Pattern'
-  !  call IWRTMA(IPAT,1,LPAT,1,LPAT)
-  !else
-  write(u6,'(1X,A)') '        No multispace method in use'
-  !end if
-
-  write(u6,*)
-  if (IDIAG == 2) then
-    !write(u6,'(1X,A,ES12.5)') '        Individual second order energy threshold',E_THRE
-    !write(u6,'(1X,A,ES12.5)') '        Individual first order wavefunction threshold',C_THRE
-    if (ICLSSEL == 1) then
-      write(u6,*)
-      write(u6,'(1X,A)') '         Class selection will be performed :'
-      write(u6,'(1X,A)') '         ==================================='
-      !write(u6,'(1X,A,ES12.5)') '          Total second order energy threshold',E_CONV
-      !write(u6,'(1X,A,ES12.5)') '          Total first order wavefunction threshold',C_CONV
-    else
-      write(u6,'(1X,A)') '            No class selection in iterative procedure'
-    end if
-  end if
-
-  !if (IPERT /= 0) then
-  !  write(u6,'(1X,A)') '     Perturbation calculation'
-  !  write(u6,'(1X,A)') '     ======================='
-  !  write(u6,*) '        Root Choosen as zero order state ',IRFROOT
-  !  !write(u6,*) '        Root used for zero order operator ',IH0ROOT
-  !  !OLD if (MPORENP == 1) then
-  !  !OLD   write(u6,*) '        Moller Plesset partitioning'
-  !  !OLD else if (MPORENP == 2) then
-  !  !OLD   write(u6,*) '        Epstein-Nesbet partitioning'
-  !  !OLD else if  (MPORENP == 0) then
-  !  !OLD   write(u6,*) '        One-body Hamiltonian readin'
-  !  !OLD end if
-  !  !if (IE0AVEX == 1) then
-  !  !  write(u6,*) '        Expectation value of H0 used as zero order energy'
-  !  !else if (IE0AVEX == 2) then
-  !  !  write(u6,*) '        Exact energy of reference used as zero order energy'
-  !  !end if
-  !  write(u6,*) '        Correction vectors obtained through  order ',NPERT
-  !  if (IH0SPC == 0) then
-  !    write(u6,*) '        No restrictions on perturbation interactions'
-  !  else
-  !    write(u6,*) '        Perturbation restricted to interactions in subspaces'
-  !  end if
-  !
-  !  if (IH0SPC /= 0) then
-  !    write(u6,*)
-  !    write(u6,*) '        Number of perturbation subspaces ',NPTSPC
-  !    write(u6,*)
-  !    write(u6,*) '        ========================'
-  !    write(u6,*) '        Perturbation subspaces :'
-  !    write(u6,*) '        ========================'
-  !    do JPTSPC=1,NPTSPC
-  !      !OLD write(u6,'(A)') ' ======================================================'
-  !      write(u6,'(A)')
-  !      write(u6,'(7X,A)') '         Min. occ    Max. occ'
-  !      write(u6,'(7X,A)') '         ========    ========'
-  !      do IGAS=1,NGAS
-  !        write(u6,'(7X,A,I2,3X,I3,9X,I3)') '   GAS',IGAS,IOCPTSPC(1,IGAS,JPTSPC),IOCPTSPC(2,IGAS,JPTSPC)
-  !      end do
-  !    end do
-
-  !    write(u6,*)
-  !    write(u6,'(7X,A)') ' ======================================='
-  !    write(u6,'(7X,A)') ' Approximate Hamiltonian in CI subspaces'
-  !    write(u6,'(7X,A)') ' ======================================='
-  !    write(u6,'(7X,A)')
-  !    write(u6,'(7X,A)') '    Subspace          H(apr)'
-  !    write(u6,'(7X,A)') '  ============================='
-  !    write(u6,'(7X,A)')
-  !    do JPTSPC=1,NPTSPC
-  !      if (IH0INSPC(JPTSPC) == 1) then
-  !        write(u6,'(12X,I3,8X,A)') JPTSPC,' Diagonal Fock operator'
-  !      else if (IH0INSPC(JPTSPC) == 2) then
-  !        write(u6,'(12X,I3,8X,A)') JPTSPC,' Epstein-Nesbet operator'
-  !      else if (IH0INSPC(JPTSPC) == 3) then
-  !        write(u6,'(12X,I3,8X,A)') JPTSPC,' Nondiagonal Fock operator'
-  !      else if (IH0INSPC(JPTSPC) == 4) then
-  !        write(u6,'(12X,I3,8X,A)') JPTSPC,' Complete Hamiltonian'
-  !      else if (IH0INSPC(JPTSPC) == 5) then
-  !        write(u6,'(12X,I3,8X,A)') JPTSPC,' Mix of Fock and Exact operator'
-  !      end if
-  !    end do
-  !    !if (ISETKW(61) > 0) then
-  !    !  write(u6,*)
-  !    !  write(u6,'(7X,A)') ' Orbital subspaces where exact Hamiltonian is used :'
-  !    !  write(u6,'(7X,A)') '===================================================='
-  !    !  write(u6,*)
-  !    !  write(u6,'(10X,10(2X,I3))') (IH0EXSPC(I),I=1,NH0EXSPC)
-  !    !  write(u6,*)
-  !    !end if
-  !
-  !  end if
-  !end if
-
-  !if (NPROP == 0) then
-  write(u6,*)
-  !write(u6,*) '     No calculation of properties'
-  !else
-  !  write(u6,'(7X,A,I3)') ' Number of properties to be calculated',NPROP
-  !  write(u6,*)
-  !  write(u6,'(9X,A)') ' Properties :'
-  !  write(u6,'(9X,A)') ' ============'
-  !  do IPROP=1,NPROP
-  !    write(u6,'(16X,A)') PROPER(IPROP)
-  !  end do
-  !
-  !  !if (IRELAX == 0) then
-  !  write(u6,'(7X,A)') ' No use of relaxed densities'
-  !  !else
-  !  !  write(u6,'(7X,A)') ' Relaxed densities used for property evaluation'
-  !  !  write(u6,'(7X,A)') ' (implemented only for pert)'
-  !  !end if
-  !end if
-
-  !if ((IEXTKOP == 0) .and. (IPTEKT == 0)) then
-  !  !write(u6,'(5X,A)') " No extended Koopmans' calculations"
-  !else if (IEXTKOP /= 0) then
-  !  write(u6,'(5X,A)') " Extended Koopmans' calculations"
-  !else if (IPTEKT /= 0) then
-  !  write(u6,'(5X,A)') ' Perturbation expansion of EKT equations'
-  !end if
-
-  !if (IPTFOCK == 1) then
-  !  write(u6,*) ' Perturbation expansion of Fock matrix'
-  !else
-  !  !write(u6,*) 'No  Perturbation expansion of Fock matrix'
-  !end if
-
-  !if (ITRAPRP == 0) then
-  !  !write(u6,*)
-  !  !write(u6,'(5X,A)') ' No transition properties will be calculated'
-  !else
-  !  write(u6,*)
-  !  write(u6,'(5X,A)') ' Transition properties will be calculated'
-  !  !write(u6,*) ' Symmetry of additional states :',IEXCSYM
-  !  write(u6,*) ' Number   of additional states :',NEXCSTATE
-  !  write(u6,*)
-  !end if
-
-  !if (IRESPONS /= 0) then
-  !  write(u6,*)
-  !  write(u6,*) '**************************'
-  !  write(u6,*) '*  Response Calculation  *'
-  !  write(u6,*) '**************************'
-  !  write(u6,*)
-  !  write(u6,*) ' CI-Response will be called after each CI calculation'
-  !  write(u6,*) ' Root used for response calculations (RFROOT) ',IRFROOT
-  !  write(u6,*)
-  !  !write(u6,*) ' Number of A-operators : ', N_AVE_OP
-  !  !write(u6,*) ' Labels of A-operators'
-  !  !write(u6,*) ' ====================='
-  !  !write(u6,*)
-  !  !do IAVE=1,N_AVE_OP
-  !  !  write(u6,'(1X, 6X,A)') AVE_OP(IAVE)
-  !  !end do
-  !  !write(u6,*)
-  !  !write(u6,*) ' Number of response calculations ', NRESP
-  !  write(u6,*) ' Perturbations :'
-  !  write(u6,*) ' ==============='
-  !  write(u6,*)
-  !  write(u6,*) ' Calc  Op1    Op2    Mxord1     Mxord2    Freq'
-  !  do IRESP=1,NRESP
-  !    write(u6,'(1X,I2,2X,A,A,3X,I4,3X,I4,2X,F12.7)') IRESP,RESP_OP(1,IRESP),RESP_OP(2,IRESP),MAXORD_OP(1,IRESP), &
-  !                                                    MAXORD_OP(2,IRESP),RESP_W(IRESP)
-  !  end do
-  !end if
-
-  !if (NOMOFL == 0) then
-  write(u6,*)
-  write(u6,'(7X,A)') ' Final orbitals :'
-  write(u6,'(7X,A)') ' ================'
-  write(u6,*)
-  if (IFINMO == 1) then
-    write(u6,'(10X,A)') ' Natural orbitals'
-  else if (IFINMO == 2) then
-    write(u6,'(10X,A)') ' Canonical orbitals'
-  else if (IFINMO == 3) then
-    write(u6,'(10X,A)') ' Pseudo-natural orbitals'
-    write(u6,'(10X,A)') ' (Density matrix diagonalized in orbital subspaces )'
-  else if (IFINMO == 4) then
-    write(u6,'(10X,A)') ' Pseudo-canonical orbitals'
-    write(u6,'(10X,A)') ' (FI+FA  diagonalized in orbital subspaces )'
-  else if (IFINMO == 5) then
-    write(u6,'(10X,A)') ' Pseudo-natural-canonical orbitals (sic)'
-    write(u6,'(10X,A)') ' (Pseudo natural orbitals are first obtained'
-    write(u6,'(10X,A)') '  by diagonalizing density matrix in orbital subpspaces.'
-    write(u6,'(10X,A)') '  FI+FA is transformed to this basis, and the transformed'
-    write(u6,'(10X,A)') '  matrix is block diagonalized)'
-    write(u6,*)
-    !write(u6,'(10X,A)') ' Orbital spaces in which transformed FIFA is diagonalized'
-    !write(u6,'(10X,A)') ' ========================================================'
-    !do IPSSPC=1,NPSSPC
-    !  write(u6,'(A,I2,A,10I4,6X,2I6)') '     SPACE',IPSSPC,'          ',(NPSSH(IRREP,IPSSPC),IRREP=1,NIRREP)
-    !end do
-  end if
-  !end if
-  ! Transformation of CI vectors
-  !if (ITRACI == 0) then
-  !  write(u6,'(5X,A)') ' No transformation of CI vectors'
-  !else
-  write(u6,'(5X,A)') ' CI vectors transformed in each run'
-  write(u6,'(7X,A,A)') ' Complete or restricted rotations :',ITRACI_CR
-  write(u6,'(7X,A,A)') ' Type of Final orbitals           :',ITRACI_CN
-  !end if
-
-  ! Integral Transformations
-
-  !if (ITRA_FI == 1) write(u6,*) "      Integrals transformed to final MO's"
-  !if (ITRA_IN == 1) write(u6,*) "      Integrals transformed to initial MO's"
-
-  ! Print levels
-
-  write(u6,*)
-  write(u6,'(1X,A,ES18.9)') '      Core energy : ',ECORE
-
-  !if (IDMPIN == 1) then
-  !  write(u6,'(1X,A)')
-  !  write(u6,*) '      Integrals written in formatted form (ES22.15)'
-  !  write(u6,*) '      on file 90'
-  !end if
-
-  write(u6,*) ' IPART before leaving READIN = ',IPART
+if (NOINT == 1) then
+  ! Integral import
+  write(u6,'(1X,A)') '     No integrals will be read in'
+else if (NOINT == 0) then
+  ! Integral storage
+  write(u6,'(1X,A)') '     All integrals stored in core'
 end if
+write(u6,*)
+! END IF for NOINT
+! CSF or SD expansion
+if (NOCSF == 0) then
+  write(u6,'(1X,A)') "     CI optimization performed with CSF's"
+else
+  write(u6,'(1X,A)') "     CI optimization performed with SD's"
+end if
+! Ms,Ml combinations
+if (ISETKW(27) == 1) write(u6,'(1X,A,F8.3)') '     Spin combinations used with sign ',PSSIGN
+if (ISETKW(28) == 1) write(u6,'(1X,A,F8.3)') '     ML   combinations used with sign ',PLSIGN
+! Initial approximation to vectors
+write(u6,*)
+!if ((IRESTR == 1) .and. (IRESTRF == 0)) then
+if (IRESTR == 1) then
+  write(u6,'(1X,A)') '     Restarted calculation'
+!else if (IRESTRF == 1) then
+!  write(u6,'(1X,A)') '     Restarted calculation from REFERENCE space expansion'
+else
+  !if (MXP1 /= 0) then
+  !  write(u6,'(1X,A)') '     Initial vectors obtained from explicit Hamiltonian'
+  !else if (MXP1 == 0) then
+  write(u6,'(1X,A)') '     Initial vectors obtained from diagonal'
+  !end if
+end if
+! Handling of degenerencies of initial vectors
+!if (INIDEG == 1) then
+!  write(u6,'(1X,A)') '     Symmetric combination of degenerate initial vectors'
+!else if (INIDEG == -1) then
+!  write(u6,'(1X,A)') '     Antiymmetric combination of degenerate initial vectors'
+!else if (INIDEG == 0) then
+!  write(u6,'(1X,A)') '     No combination of degenerate initial vectors'
+!end if
+! No calculation, save CI vector information and expand CI vector
+if (INOCALC == 1) write(u6,'(1X,A)') ' No calculation will be performed'
+if (ISAVE_EXP == 1) write(u6,'(1X,A)') ' Save CI vector information'
+if (IEXPAND == 1) write(u6,'(1X,A)') ' Expand shorter CI vector in longer one'
+! Ms,Ml combinations
+!if (ISETKW(27) == 1) write(u6,'(1X,A,F8.3)') '     Spin combinations used with sign ',PSSIGN
+!if (ISETKW(28) == 1) write(u6,'(1X,A,F8.3)') '     ML   combinations used with sign ',PLSIGN
+! CI storage mode
+write(u6,*)
+
+write(u6,*) '     3 symmetry blocks will be held in core'
+
+if (LCSBLK /= 0) write(u6,'(A,I10)') '      Smallest allowed size of sigma- and C-batch ',LCSBLK
+write(u6,'(1X,A,I4)') '     Dimension of block of resolution strings ',MXINKA
+!if (IUSE_PH == 1) then
+!  WRITE(u6,'(1X,A)') '     Particle-hole separation used'
+!else
+write(u6,'(1X,A)') '      Particle-hole separation not used'
+!end if
+
+if (IADVICE == 1) write(u6,'(1X,A)') '     Advice routine call to optimize sigma generation'
+
+!if (IUSE_PA == 1) then
+!  write(u6,'(1X,A)') '     Strings divided into active and passive parts'
+!else
+write(u6,'(1X,A)') '     Strings not divided into active and passive parts'
+!end if
+!if (ISIMSYM == 1) write(u6,'(1X,A)') '     ALl TTS blocks with given types treated in sigma'
+!if (IUSE_HW == 1) write(u6,*) ' Hardwired routines in use'
+
+write(u6,*)
+if (IDENSI == 0) then
+  write(u6,'(1X,A)') '     No calculation of density matrices'
+else if (IDENSI == 1) then
+  write(u6,'(1X,A)') '     One-body density matrix calculated'
+else if (IDENSI == 2) then
+  write(u6,'(1X,A)') '     One- and two-body density matrices  calculated'
+end if
+write(u6,*)
+!if (MOCAA /= 0) write(u6,*) '     MOC method used for alpha-alpha+beta-beta loop'
+!if (MOCAB /= 0) write(u6,*) '     MOC method used for alpha-beta loop'
+
+! Diagonalization information
+write(u6,'(1X,A)') '     CI diagonalization :'
+write(u6,'(1X,A)') '     ===================='
+! Subspace Hamiltinian
+!if (MXP1+MXP2+MXQ == 0) then
+write(u6,'(1X,A)') '        No subspace Hamiltonian'
+!else
+!  write(u6,'(1X,A,3I4)') '        Dimensions of subspace Hamiltonian ',MXP1,MXP2,MXQ
+!end if
+! Diagonalizer
+if ((IDIAG == 1) .and. (ICISTR == 1)) then
+  write(u6,'(1X,A)') '        Diagonalizer : MINDV4'
+else if ((IDIAG == 1) .and. (ICISTR >= 2)) then
+  write(u6,'(1X,A)') '        Diagonalizer : MICDV*'
+else if (IDIAG == 2) then
+  write(u6,'(1X,A)') '        Diagonalizer : PICO*'
+end if
+write(u6,'(1X,A)') '        Simple diagonal used as preconditioner'
+! Root homing
+!if (IROOTHOMING == 1) then
+!  write(u6,'(1X,A)') '        Root homing will be used'
+!else
+write(u6,'(1X,A)') '        No root homing'
+!end if
+! No restart in CI calc 2
+if (IRST2 == 0) write(u6,'(1X,A)') '        No restart from previous vectors in second calc'
+if (ISKIPEI == 1) then
+  write(u6,'(1X,A)') '        Initial energy evaluations skipped after first calc'
+  write(u6,'(1X,A)') '        (Only active in connection with TERACI)'
+end if
+! Number of iterations
+!write(u6,'(1X,A,I2)') '        Allowed number of iterations    ',MAXIT
+! Number of CI vectors in subspace
+write(u6,'(1X,A,I2)') '        Allowed Dimension of CI subspace',MXCIV
+
+write(u6,'(1X,A,ES12.5)') '        Convergence threshold for energy',THRES_E
+! Multispace (multigrid info)
+!if (MULSPC == 1) then
+!  write(u6,'(1X,A,I3)') '        Multispace method in use from space ',IFMULSPC
+!  write(u6,*) '        Pattern'
+!  call IWRTMA(IPAT,1,LPAT,1,LPAT)
+!else
+write(u6,'(1X,A)') '        No multispace method in use'
+!end if
+
+write(u6,*)
+if (IDIAG == 2) then
+  !write(u6,'(1X,A,ES12.5)') '        Individual second order energy threshold',E_THRE
+  !write(u6,'(1X,A,ES12.5)') '        Individual first order wavefunction threshold',C_THRE
+  if (ICLSSEL == 1) then
+    write(u6,*)
+    write(u6,'(1X,A)') '         Class selection will be performed :'
+    write(u6,'(1X,A)') '         ==================================='
+    !write(u6,'(1X,A,ES12.5)') '          Total second order energy threshold',E_CONV
+    !write(u6,'(1X,A,ES12.5)') '          Total first order wavefunction threshold',C_CONV
+  else
+    write(u6,'(1X,A)') '            No class selection in iterative procedure'
+  end if
+end if
+
+!if (IPERT /= 0) then
+!  write(u6,'(1X,A)') '     Perturbation calculation'
+!  write(u6,'(1X,A)') '     ======================='
+!  write(u6,*) '        Root Choosen as zero order state ',IRFROOT
+!  !write(u6,*) '        Root used for zero order operator ',IH0ROOT
+!  !OLD if (MPORENP == 1) then
+!  !OLD   write(u6,*) '        Moller Plesset partitioning'
+!  !OLD else if (MPORENP == 2) then
+!  !OLD   write(u6,*) '        Epstein-Nesbet partitioning'
+!  !OLD else if  (MPORENP == 0) then
+!  !OLD   write(u6,*) '        One-body Hamiltonian readin'
+!  !OLD end if
+!  !if (IE0AVEX == 1) then
+!  !  write(u6,*) '        Expectation value of H0 used as zero order energy'
+!  !else if (IE0AVEX == 2) then
+!  !  write(u6,*) '        Exact energy of reference used as zero order energy'
+!  !end if
+!  write(u6,*) '        Correction vectors obtained through  order ',NPERT
+!  if (IH0SPC == 0) then
+!    write(u6,*) '        No restrictions on perturbation interactions'
+!  else
+!    write(u6,*) '        Perturbation restricted to interactions in subspaces'
+!  end if
+!
+!  if (IH0SPC /= 0) then
+!    write(u6,*)
+!    write(u6,*) '        Number of perturbation subspaces ',NPTSPC
+!    write(u6,*)
+!    write(u6,*) '        ========================'
+!    write(u6,*) '        Perturbation subspaces :'
+!    write(u6,*) '        ========================'
+!    do JPTSPC=1,NPTSPC
+!      !OLD write(u6,'(A)') ' ======================================================'
+!      write(u6,'(A)')
+!      write(u6,'(7X,A)') '         Min. occ    Max. occ'
+!      write(u6,'(7X,A)') '         ========    ========'
+!      do IGAS=1,NGAS
+!        write(u6,'(7X,A,I2,3X,I3,9X,I3)') '   GAS',IGAS,IOCPTSPC(1,IGAS,JPTSPC),IOCPTSPC(2,IGAS,JPTSPC)
+!      end do
+!    end do
+
+!    write(u6,*)
+!    write(u6,'(7X,A)') ' ======================================='
+!    write(u6,'(7X,A)') ' Approximate Hamiltonian in CI subspaces'
+!    write(u6,'(7X,A)') ' ======================================='
+!    write(u6,'(7X,A)')
+!    write(u6,'(7X,A)') '    Subspace          H(apr)'
+!    write(u6,'(7X,A)') '  ============================='
+!    write(u6,'(7X,A)')
+!    do JPTSPC=1,NPTSPC
+!      if (IH0INSPC(JPTSPC) == 1) then
+!        write(u6,'(12X,I3,8X,A)') JPTSPC,' Diagonal Fock operator'
+!      else if (IH0INSPC(JPTSPC) == 2) then
+!        write(u6,'(12X,I3,8X,A)') JPTSPC,' Epstein-Nesbet operator'
+!      else if (IH0INSPC(JPTSPC) == 3) then
+!        write(u6,'(12X,I3,8X,A)') JPTSPC,' Nondiagonal Fock operator'
+!      else if (IH0INSPC(JPTSPC) == 4) then
+!        write(u6,'(12X,I3,8X,A)') JPTSPC,' Complete Hamiltonian'
+!      else if (IH0INSPC(JPTSPC) == 5) then
+!        write(u6,'(12X,I3,8X,A)') JPTSPC,' Mix of Fock and Exact operator'
+!      end if
+!    end do
+!    !if (ISETKW(61) > 0) then
+!    !  write(u6,*)
+!    !  write(u6,'(7X,A)') ' Orbital subspaces where exact Hamiltonian is used :'
+!    !  write(u6,'(7X,A)') '===================================================='
+!    !  write(u6,*)
+!    !  write(u6,'(10X,10(2X,I3))') (IH0EXSPC(I),I=1,NH0EXSPC)
+!    !  write(u6,*)
+!    !end if
+!
+!  end if
+!end if
+
+!if (NPROP == 0) then
+write(u6,*)
+!write(u6,*) '     No calculation of properties'
+!else
+!  write(u6,'(7X,A,I3)') ' Number of properties to be calculated',NPROP
+!  write(u6,*)
+!  write(u6,'(9X,A)') ' Properties :'
+!  write(u6,'(9X,A)') ' ============'
+!  do IPROP=1,NPROP
+!    write(u6,'(16X,A)') PROPER(IPROP)
+!  end do
+!
+!  !if (IRELAX == 0) then
+!  write(u6,'(7X,A)') ' No use of relaxed densities'
+!  !else
+!  !  write(u6,'(7X,A)') ' Relaxed densities used for property evaluation'
+!  !  write(u6,'(7X,A)') ' (implemented only for pert)'
+!  !end if
+!end if
+
+!if ((IEXTKOP == 0) .and. (IPTEKT == 0)) then
+!  !write(u6,'(5X,A)') " No extended Koopmans' calculations"
+!else if (IEXTKOP /= 0) then
+!  write(u6,'(5X,A)') " Extended Koopmans' calculations"
+!else if (IPTEKT /= 0) then
+!  write(u6,'(5X,A)') ' Perturbation expansion of EKT equations'
+!end if
+
+!if (IPTFOCK == 1) then
+!  write(u6,*) ' Perturbation expansion of Fock matrix'
+!else
+!  !write(u6,*) 'No  Perturbation expansion of Fock matrix'
+!end if
+
+!if (ITRAPRP == 0) then
+!  !write(u6,*)
+!  !write(u6,'(5X,A)') ' No transition properties will be calculated'
+!else
+!  write(u6,*)
+!  write(u6,'(5X,A)') ' Transition properties will be calculated'
+!  !write(u6,*) ' Symmetry of additional states :',IEXCSYM
+!  write(u6,*) ' Number   of additional states :',NEXCSTATE
+!  write(u6,*)
+!end if
+
+!if (IRESPONS /= 0) then
+!  write(u6,*)
+!  write(u6,*) '**************************'
+!  write(u6,*) '*  Response Calculation  *'
+!  write(u6,*) '**************************'
+!  write(u6,*)
+!  write(u6,*) ' CI-Response will be called after each CI calculation'
+!  write(u6,*) ' Root used for response calculations (RFROOT) ',IRFROOT
+!  write(u6,*)
+!  !write(u6,*) ' Number of A-operators : ', N_AVE_OP
+!  !write(u6,*) ' Labels of A-operators'
+!  !write(u6,*) ' ====================='
+!  !write(u6,*)
+!  !do IAVE=1,N_AVE_OP
+!  !  write(u6,'(1X, 6X,A)') AVE_OP(IAVE)
+!  !end do
+!  !write(u6,*)
+!  !write(u6,*) ' Number of response calculations ', NRESP
+!  write(u6,*) ' Perturbations :'
+!  write(u6,*) ' ==============='
+!  write(u6,*)
+!  write(u6,*) ' Calc  Op1    Op2    Mxord1     Mxord2    Freq'
+!  do IRESP=1,NRESP
+!    write(u6,'(1X,I2,2X,A,A,3X,I4,3X,I4,2X,F12.7)') IRESP,RESP_OP(1,IRESP),RESP_OP(2,IRESP),MAXORD_OP(1,IRESP), &
+!                                                    MAXORD_OP(2,IRESP),RESP_W(IRESP)
+!  end do
+!end if
+
+!if (NOMOFL == 0) then
+write(u6,*)
+write(u6,'(7X,A)') ' Final orbitals :'
+write(u6,'(7X,A)') ' ================'
+write(u6,*)
+if (IFINMO == 1) then
+  write(u6,'(10X,A)') ' Natural orbitals'
+else if (IFINMO == 2) then
+  write(u6,'(10X,A)') ' Canonical orbitals'
+else if (IFINMO == 3) then
+  write(u6,'(10X,A)') ' Pseudo-natural orbitals'
+  write(u6,'(10X,A)') ' (Density matrix diagonalized in orbital subspaces)'
+else if (IFINMO == 4) then
+  write(u6,'(10X,A)') ' Pseudo-canonical orbitals'
+  write(u6,'(10X,A)') ' (FI+FA  diagonalized in orbital subspaces)'
+else if (IFINMO == 5) then
+  write(u6,'(10X,A)') ' Pseudo-natural-canonical orbitals (sic)'
+  write(u6,'(10X,A)') ' (Pseudo natural orbitals are first obtained'
+  write(u6,'(10X,A)') '  by diagonalizing density matrix in orbital subpspaces.'
+  write(u6,'(10X,A)') '  FI+FA is transformed to this basis, and the transformed'
+  write(u6,'(10X,A)') '  matrix is block diagonalized)'
+  write(u6,*)
+  !write(u6,'(10X,A)') ' Orbital spaces in which transformed FIFA is diagonalized'
+  !write(u6,'(10X,A)') ' ========================================================'
+  !do IPSSPC=1,NPSSPC
+  !  write(u6,'(A,I2,A,10I4,6X,2I6)') '     SPACE',IPSSPC,'          ',(NPSSH(IRREP,IPSSPC),IRREP=1,NIRREP)
+  !end do
+end if
+!end if
+! Transformation of CI vectors
+!if (ITRACI == 0) then
+!  write(u6,'(5X,A)') ' No transformation of CI vectors'
+!else
+write(u6,'(5X,A)') ' CI vectors transformed in each run'
+write(u6,'(7X,A,A)') ' Complete or restricted rotations :',ITRACI_CR
+write(u6,'(7X,A,A)') ' Type of Final orbitals           :',ITRACI_CN
+!end if
+
+! Integral Transformations
+
+!if (ITRA_FI == 1) write(u6,*) "      Integrals transformed to final MO's"
+!if (ITRA_IN == 1) write(u6,*) "      Integrals transformed to initial MO's"
+
+! Print levels
+
+write(u6,*)
+write(u6,'(1X,A,ES18.9)') '      Core energy : ',ECORE
+
+!if (IDMPIN == 1) then
+!  write(u6,'(1X,A)')
+!  write(u6,*) '      Integrals written in formatted form (ES22.15)'
+!  write(u6,*) '      on file 90'
+!end if
+
+write(u6,*) ' IPART before leaving READIN = ',IPART
+#endif
 
 ! =============================================
 !  Find largest unused vector for use in Lucia

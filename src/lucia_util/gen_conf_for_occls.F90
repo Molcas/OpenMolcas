@@ -12,6 +12,7 @@
 !               2024, Giovanni Li Manni                                *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,IONLY_NCONF,NTORB,NOBPT,NCONF_OP, &
                               NCONF,IBCONF_REO,IBCONF_OCC,ICONF,IDOREO,IZ_CONF,NCONF_ALL_SYM,ireo,nconf_tot)
 ! IONLY_NCONF = 1 :
@@ -41,7 +42,10 @@ subroutine GEN_CONF_FOR_OCCLS(IOCCLS,IB_OCCLS,INITIALIZE_CONF_COUNTERS,NGAS,ISYM
 ! G. Li Manni, June 2024: Scale-up capability for single SD ROHF type calculations
 
 use lucia_data, only: MXPORB
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -52,10 +56,9 @@ integer(kind=iwp), intent(inout) :: NCONF_OP(MAXOP+1), NCONF_ALL_SYM
 integer(kind=iwp), intent(out) :: NCONF, ireo(nconf_tot)
 integer(kind=iwp), intent(_OUT_) :: ICONF(*)
 integer(kind=iwp) :: I, IB_OCC, IDUM, IDUM_ARR(1), ILEXNUM, INI, ISUM, ISYM_CONF, ISYMST, JCONF(2*MXPORB), JREO, NEL, NOCOB, &
-                     NONEW, NOP_FOR_CONF, NOPEN, NTEST
+                     NONEW, NOP_FOR_CONF, NOPEN
 integer(kind=iwp), external :: ILEX_FOR_CONF_NEW
 
-NTEST = 0
 ! Total number of electrons
 NEL = sum(IOCCLS)
 if (INITIALIZE_CONF_COUNTERS == 1) then
@@ -110,24 +113,24 @@ do
   ! End if nonew = 0
 end do
 
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' ======================================'
-  write(u6,*) ' Results from configuration generator :'
-  write(u6,*) ' ======================================'
-  write(u6,*)
-  write(u6,*) ' Occupation class in action :'
-  call IWRTMA(IOCCLS,1,NGAS,1,NGAS)
-  write(u6,*) ' Number of configurations of correct symmetry ',NCONF
-  write(u6,*) ' Number of configurations of all symmetries   ',NCONF_ALL_SYM
-  write(u6,*) ' Number of configurations for various number of open orbs'
-  call IWRTMA(NCONF_OP,1,MAXOP+1,1,MAXOP+1)
-  if (IONLY_NCONF == 0) then
-    write(u6,*) ' Updated list of configurations (may not be the final...)'
-    call WRT_CONF_LIST(ICONF,NCONF_OP,MAXOP,NEL)
-    write(u6,*) ' Updated reordering of conf, Lex=>Act (may not be the final'
-    call IWRTMA(IREO,1,NCONF_tot,1,NCONF_tot)
-  end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ======================================'
+write(u6,*) ' Results from configuration generator :'
+write(u6,*) ' ======================================'
+write(u6,*)
+write(u6,*) ' Occupation class in action :'
+call IWRTMA(IOCCLS,1,NGAS,1,NGAS)
+write(u6,*) ' Number of configurations of correct symmetry ',NCONF
+write(u6,*) ' Number of configurations of all symmetries   ',NCONF_ALL_SYM
+write(u6,*) ' Number of configurations for various number of open orbs'
+call IWRTMA(NCONF_OP,1,MAXOP+1,1,MAXOP+1)
+if (IONLY_NCONF == 0) then
+  write(u6,*) ' Updated list of configurations (may not be the final...)'
+  call WRT_CONF_LIST(ICONF,NCONF_OP,MAXOP,NEL)
+  write(u6,*) ' Updated reordering of conf, Lex=>Act (may not be the final'
+  call IWRTMA(IREO,1,NCONF_tot,1,NCONF_tot)
 end if
+#endif
 
 end subroutine GEN_CONF_FOR_OCCLS

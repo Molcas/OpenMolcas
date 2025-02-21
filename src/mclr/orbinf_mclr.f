@@ -115,8 +115,8 @@
 *
       IF(NTEST.GT.0) THEN
         WRITE(6,*)
-        WRITE(6,*) ' ORBINF speaking'
-        WRITE(6,*) ' ==============='
+        WRITE(6,*) ' ORBINF_MCLR speaking'
+        WRITE(6,*) ' ===================='
         WRITE(6,*) ' Number of orbitals per symmetry + total '
         WRITE(6,'(1X,A,10I4,8X,I3)')
      *  '     Ras1             ',(NRSOBS(I,1),I=1,NSMOB),NORB1

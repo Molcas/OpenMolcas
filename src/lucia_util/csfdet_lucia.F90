@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSFDET_LUCIA(NOPEN,IDET,NDET,ICSF,NCSF,CDC,SCR,nSCR,PSSIGN,IPRCSF)
+!#define _DEBUGPRINT_
+subroutine CSFDET_LUCIA(NOPEN,IDET,NDET,ICSF,NCSF,CDC,SCR,nSCR,PSSIGN)
 ! Expand csf's in terms of combinations with
 ! the use of the Graebenstetter method ( I.J.Q.C.10,P142(1976) )
 !
@@ -31,18 +32,17 @@ subroutine CSFDET_LUCIA(NOPEN,IDET,NDET,ICSF,NCSF,CDC,SCR,nSCR,PSSIGN,IPRCSF)
 ! a combination being 1/sqrt(2) times the sum or difference of two
 ! determinants
 
+use lucia_data, only: IPRCIX
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nOpen, nDet, IDET(NOPEN,NDET), nCSF, ICSF(NOPEN,NCSF), nSCR, IPRCSF
+integer(kind=iwp), intent(in) :: nOpen, nDet, IDET(NOPEN,NDET), nCSF, ICSF(NOPEN,NCSF), nSCR
 real(kind=wp), intent(out) :: CDC(NDET,NCSF), SCR(nSCR)
 real(kind=wp), intent(in) :: PSSIGN
-integer(kind=iwp) :: IOPEN, JCSF, JDADD, JDET, KLFREE, KLMDET, KLSCSF, NTEST
+integer(kind=iwp) :: IOPEN, JCSF, JDADD, JDET, KLFREE, KLMDET, KLSCSF
 real(kind=wp) :: CMBFAC, COEF, SGN
 
-NTEST = 0
-NTEST = max(IPRCSF,NTEST)
 if (PSSIGN == Zero) then
   CMBFAC = One
 else
@@ -57,14 +57,16 @@ KLFREE = KLSCSF+NOPEN
 
 ! OBTAIN INTERMEDIATE VALUES OF MS FOR ALL DETERMINANTS
 do JDET=1,NDET
-  call MSSTRN_LUCIA(IDET(:,JDET),SCR(KLMDET+(JDET-1)*NOPEN),NOPEN,IPRCSF)
+  call MSSTRN_LUCIA(IDET(:,JDET),SCR(KLMDET+(JDET-1)*NOPEN),NOPEN)
 end do
 
 do JCSF=1,NCSF
-  if (NTEST >= 105) write(u6,*) ' ....Output for CSF ',JCSF
+# ifdef _DEBUGPRINT
+  write(u6,*) ' ....Output for CSF ',JCSF
+# endif
 
   ! OBTAIN INTERMEDIATE COUPLINGS FOR CSF
-  call MSSTRN_LUCIA(ICSF(:,JCSF),SCR(KLSCSF),NOPEN,IPRCSF)
+  call MSSTRN_LUCIA(ICSF(:,JCSF),SCR(KLSCSF),NOPEN)
 
   do JDET=1,NDET
     ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
@@ -92,7 +94,7 @@ do JCSF=1,NCSF
   end do
 end do
 
-if (NTEST >= 5) then
+if (IPRCIX >= 5) then
   write(u6,*)
   write(u6,'(A,2I2)') '  The CDC array for  NOPEN ',NOPEN
   write(u6,*) ' NDET, NCSF = ',NDET,NCSF

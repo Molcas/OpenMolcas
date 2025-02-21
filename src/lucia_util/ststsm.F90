@@ -9,17 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine STSTSM(STSTSX,STSTDX,NSMST)
 ! construct STSTSX and STSTDX giving
 ! symmetry of sx (dx) connecting two given string symmetries
 
 use Symmetry_Info, only: Mul
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NSMST
 integer(kind=iwp), intent(out) :: STSTSX(NSMST,NSMST), STSTDX(NSMST,NSMST)
-integer(kind=iwp) :: ILSTSM, IRSTSM, NTEST
+integer(kind=iwp) :: ILSTSM, IRSTSM
 
 do ILSTSM=1,NSMST
   do IRSTSM=1,NSMST
@@ -28,11 +32,10 @@ do ILSTSM=1,NSMST
   end do
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' STSTSM : STSTSX, STSTDX'
-  call IWRTMA(STSTSX,NSMST,NSMST,NSMST,NSMST)
-  call IWRTMA(STSTDX,NSMST,NSMST,NSMST,NSMST)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' STSTSM : STSTSX, STSTDX'
+call IWRTMA(STSTSX,NSMST,NSMST,NSMST,NSMST)
+call IWRTMA(STSTDX,NSMST,NSMST,NSMST,NSMST)
+#endif
 
 end subroutine STSTSM

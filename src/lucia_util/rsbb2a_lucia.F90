@@ -104,6 +104,7 @@ call IWRTMA(ICOC,1,NGAS,1,NGAS)
 #endif
 IFRST = 1
 JFRST = 1
+FACX = Zero
 
 ! Types of DX that connects the two strings
 
@@ -404,7 +405,7 @@ if (IDXSM /= 0) then
                   JLBOFF = JLBOFF+NJL
                 end do
 
-                ! ( End of loop over jlpair in batch )
+                ! (End of loop over jlpair in batch)
                 !=============================================
                 ! SSCR(I,K,ik) = CSR(I,K,jl)*((ij!kl)-(il!jk))
                 !=============================================
@@ -555,7 +556,7 @@ if (IDXSM /= 0) then
       ! -a+ i ak a+l aj X2(ik,jl)
       !
       ! Number two and three end up with
-      ! -a i a k a l aj XC(ik,jl)  ( In coulomb form)
+      ! -a i a k a l aj XC(ik,jl)  (In coulomb form)
 
       JLSM = 0
       IKSM = 0

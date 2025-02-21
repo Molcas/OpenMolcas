@@ -11,7 +11,8 @@
 ! Copyright (C) 1995,1999, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,IOCOC,ISMOST,NBATCH,LBATCH,LEBATCH,I1BATCH,IBATCH,ICOMP,ISIMSYM)
+!#define _DEBUGPRINT_
+subroutine PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,IOCOC,ISMOST,NBATCH,LBATCH,LEBATCH,I1BATCH,IBATCH,ICOMP)
 ! Jeppe Olsen
 !
 ! Last update : May 1999 : ISIMSYM added
@@ -29,7 +30,7 @@ subroutine PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,IOCOC,ISMOST,NBATCH,LBA
 ! ======
 ! NBATCH  : Number of batches
 ! LBATCH  : Number of blocks in a given batch
-! LEBATCH : Number of elements in a given batch ( packed ) !
+! LEBATCH : Number of elements in a given batch (packed)!
 ! I1BATCH : Number of first block in a given batch
 ! IBATCH  : TTS blocks in Start of a given TTS block with respect to start of batch
 !   IBATCH(1,*) : Alpha type
@@ -49,35 +50,36 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IDC, NSMST, NOCTPA, NOCTPB, NSSOA(NSMST,NOCTPA), NSSOB(NSMST,NOCTPB), IOCOC(NOCTPA,NOCTPB), &
-                                 ISMOST(NSMST), ICOMP, ISIMSYM
+                                 ISMOST(NSMST), ICOMP
 integer(kind=iwp), intent(out) :: NBATCH
 integer(kind=iwp), intent(_OUT_) :: LBATCH(*), LEBATCH(*), I1BATCH(*), IBATCH(8,*)
-integer(kind=iwp) :: IA, IASM, IB, IBLOCK, IBSM, IFINI, IFRST, II, INC, ISM, JBATCH, LBLOCK, LBLOCKP, LENGTH, LENGTHP, NBLOCK, &
-                     NSTA, NSTB, NTEST
+integer(kind=iwp) :: IA, IASM, IB, IBLOCK, IBSM, IFINI, IFRST, INC, ISM, LBLOCK, LBLOCKP, LENGTH, LENGTHP, NBLOCK, NSTA, NSTB
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: JBATCH
+#endif
 
 ! Dummy initialize
 INC = 0
 LBLOCKP = 0
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*)
-  write(u6,*) ' =================='
-  write(u6,*) '     PART_CIV2'
-  write(u6,*) ' =================='
-  write(u6,*) ' IDC = ',IDC
-  write(u6,*)
-  write(u6,*) ' IOCOC Array'
-  call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  write(u6,*) ' ISMOST array'
-  call IWRTMA(ISMOST,1,NSMST,1,NSMST)
-  !write(u6,*) ' IBLTP array'
-  !call IWRTMA(IBLTP,1,NSMST,1,NSMST)
-  write(u6,*) ' NSSOA, NSSOB'
-  call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
-  call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
-  write(u6,*) 'ISIMSYM, ICOMP = ',ISIMSYM,ICOMP
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' =================='
+write(u6,*) '     PART_CIV2'
+write(u6,*) ' =================='
+write(u6,*) ' IDC = ',IDC
+write(u6,*)
+write(u6,*) ' IOCOC Array'
+call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+write(u6,*) ' ISMOST array'
+call IWRTMA(ISMOST,1,NSMST,1,NSMST)
+!write(u6,*) ' IBLTP array'
+!call IWRTMA(IBLTP,1,NSMST,1,NSMST)
+write(u6,*) ' NSSOA, NSSOB'
+call IWRTMA(NSSOA,NSMST,NOCTPA,NSMST,NOCTPA)
+call IWRTMA(NSSOB,NSMST,NOCTPB,NSMST,NOCTPB)
+write(u6,*) 'ICOMP = ',ICOMP
+#endif
 
 ! block 1
 
@@ -100,7 +102,7 @@ outer: do
   ! Loop over blocks in batch
   do
     if (IFRST == 0) then
-      ! New order : ISM,IB,IA (leftmost inner loop )
+      ! New order : ISM,IB,IA (leftmost inner loop)
       if (ISM < NSMST) then
         ISM = ISM+1
       else
@@ -120,7 +122,7 @@ outer: do
     IFRST = 0
     if (IFINI == 1) exit outer
     if (IOCOC(IA,IB) == 0) cycle
-    ! Size of TT block ( all symmetries)
+    ! Size of TT block (all symmetries)
     !LBLOCK_AS = 0
     !if ((ISIMSYM == 1) .and. (ISM == 1)) then
     !  do IASM=1,NSMST
@@ -187,22 +189,22 @@ outer: do
   end do
 end do outer
 
-if (NTEST /= 0) then
-  !write(u6,*) 'Output from PART_CIV'
-  !write(u6,*) '====================='
+#ifdef _DEBUGPRINT_
+!write(u6,*) 'Output from PART_CIV'
+!write(u6,*) '====================='
+write(u6,*)
+write(u6,*) ' Number of batches ',NBATCH
+do JBATCH=1,NBATCH
   write(u6,*)
-  write(u6,*) ' Number of batches ',NBATCH
-  do JBATCH=1,NBATCH
-    write(u6,*)
-    write(u6,*) ' Info on batch ',JBATCH
-    write(u6,*) ' ***********************'
-    write(u6,*)
-    write(u6,*) '      Number of blocks included ',LBATCH(JBATCH)
-    write(u6,*) '      TTSS and offsets and lengths of each block'
-    do IBLOCK=I1BATCH(JBATCH),I1BATCH(JBATCH)+LBATCH(JBATCH)-1
-      write(u6,'(10X,4I3,4I8)') (IBATCH(II,IBLOCK),II=1,8)
-    end do
+  write(u6,*) ' Info on batch ',JBATCH
+  write(u6,*) ' ***********************'
+  write(u6,*)
+  write(u6,*) '      Number of blocks included ',LBATCH(JBATCH)
+  write(u6,*) '      TTSS and offsets and lengths of each block'
+  do IBLOCK=I1BATCH(JBATCH),I1BATCH(JBATCH)+LBATCH(JBATCH)-1
+    write(u6,'(10X,4I3,4I8)') IBATCH(:,IBLOCK)
   end do
-end if
+end do
+#endif
 
 end subroutine PART_CIV2

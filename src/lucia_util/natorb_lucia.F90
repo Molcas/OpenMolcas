@@ -12,26 +12,25 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine NATORB_LUCIA(RHO1,NSMOB,NTOPSM,NACPSM,NINPSM,ISTOB,XNAT,RHO1SM,OCCNUM,NACOB,SCR,IPRDEN)
+subroutine NATORB_LUCIA(RHO1,NSMOB,NTOPSM,NACPSM,NINPSM,ISTOB,XNAT,RHO1SM,OCCNUM,NACOB,SCR)
 ! Obtain natural orbitals in symmetry blocks
 !
 ! Jeppe Olsen, June 1994
 !              Modification, Oct 94
 !              Last modification, Feb. 1998 (reorder deg eigenvalues)
 
+use lucia_data, only: IPRDEN
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NSMOB, NTOPSM(NSMOB), NACPSM(NSMOB), NINPSM(NSMOB), ISTOB(*), NACOB, IPRDEN
+integer(kind=iwp), intent(in) :: NSMOB, NTOPSM(NSMOB), NACPSM(NSMOB), NINPSM(NSMOB), ISTOB(*), NACOB
 real(kind=wp), intent(in) :: RHO1(NACOB,NACOB)
 real(kind=wp), intent(_OUT_) :: XNAT(*), RHO1SM(*), OCCNUM(*), SCR(*)
-integer(kind=iwp) :: I, IMTOFF, IOB, IOBOFF, IOBP, ISMOB, JOB, JOBP, LOB, NTEST, NTESTL
+integer(kind=iwp) :: I, IMTOFF, IOB, IOBOFF, IOBP, ISMOB, JOB, JOBP, LOB
 real(kind=wp) :: SS, TESTY, XI1I, XI1I1, XII, XII1
 
-NTESTL = 0
-NTEST = max(NTESTL,IPRDEN)
 ! To get rid of annoying and incorrect compiler warnings
 IOBOFF = 0
 IMTOFF = 0
@@ -58,7 +57,7 @@ do ISMOB=1,NSMOB
     end do
   end do
 
-  if (NTEST >= 2) then
+  if (IPRDEN >= 2) then
     write(u6,*)
     write(u6,*) ' Density matrix for symmetry  = ',ISMOB
     write(u6,*) ' ======================================='
@@ -92,18 +91,18 @@ do ISMOB=1,NSMOB
         SS = OCCNUM(IOBOFF-1+IOB-1)
         OCCNUM(IOBOFF-1+IOB-1) = OCCNUM(IOBOFF-1+IOB)
         OCCNUM(IOBOFF-1+IOB) = SS
-        if (NTEST >= 1) write(u6,*) ' Orbitals interchanged ',IOBOFF-1+IOB,IOBOFF-2+IOB
+        if (IPRDEN >= 1) write(u6,*) ' Orbitals interchanged ',IOBOFF-1+IOB,IOBOFF-2+IOB
       end if
     end if
   end do
 
-  if (NTEST >= 1) then
+  if (IPRDEN >= 1) then
     write(u6,*)
     write(u6,*) ' Natural occupation numbers for symmetry = ',ISMOB
     write(u6,*) ' ==================================================='
     write(u6,*)
     call WRTMAT(OCCNUM(IOBOFF),1,LOB,1,LOB)
-    if (NTEST >= 2) then
+    if (IPRDEN >= 2) then
       write(u6,*)
       write(u6,*) ' Corresponding Eigenvectors'
       write(u6,*)
@@ -111,6 +110,6 @@ do ISMOB=1,NSMOB
     end if
   end if
 end do
-! ( End of loop over orbital symmetries )
+! (End of loop over orbital symmetries)
 
 end subroutine NATORB_LUCIA

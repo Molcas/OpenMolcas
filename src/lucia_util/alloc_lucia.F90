@@ -31,7 +31,7 @@ subroutine ALLOC_LUCIA()
 ! =======
 !
 ! Modified Jan 1997
-!           Fall 97 (PGINT1 added )
+!           Fall 97 (PGINT1 added)
 !           Spring 99
 
 use GLBBAS, only: INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, PGINT1, PGINT1A, PINT1, PINT2, RHO1, SRHO1
@@ -43,7 +43,7 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: ISM
 
-! 1 : One electron integrals( Complete matrix allocated )
+! 1 : One electron integrals (Complete matrix allocated)
 call mma_allocate(INT1,NTOOB**2,Label='INT1')
 ! A copy of the original UNMODIFIED 1-elecs ints
 call mma_allocate(INT1O,NTOOB**2,Label='Int1O')

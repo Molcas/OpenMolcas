@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 ! Pointer to two dimensional array
 !
@@ -30,12 +31,15 @@ subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 !         = 0 indicates forbidden block
 ! ISM2  : symmetry of second index for given first index
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: I12SM, NSMOB, MXPOBS, OSXO(MXPOBS,2*MXPOBS), IPSM(NSMOB), JPSM(NSMOB), IJSM
 integer(kind=iwp), intent(out) :: ISM2(NSMOB), IPNTR(NSMOB)
-integer(kind=iwp) :: IOFF, ISM, JSM, NTEST
+integer(kind=iwp) :: IOFF, ISM, JSM
 
 IPNTR(1:NSMOB) = 0
 ISM2(1:NSMOB) = 0
@@ -55,13 +59,12 @@ do ISM=1,NSMOB
   end if
 end do
 
-NTEST = 0
-if (NTEST >= 1) write(u6,*) ' dimension of two-dimensional array ',IOFF-1
-if (NTEST >= 5) then
-  write(u6,*) ' Pointer'
-  call IWRTMA(IPNTR,1,NSMOB,1,NSMOB)
-  write(u6,*) ' Symmetry of other array'
-  call IWRTMA(ISM2,1,NSMOB,1,NSMOB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' dimension of two-dimensional array ',IOFF-1
+write(u6,*) ' Pointer'
+call IWRTMA(IPNTR,1,NSMOB,1,NSMOB)
+write(u6,*) ' Symmetry of other array'
+call IWRTMA(ISM2,1,NSMOB,1,NSMOB)
+#endif
 
 end subroutine PNT2DM

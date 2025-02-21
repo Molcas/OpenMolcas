@@ -17,7 +17,7 @@ use lucia_data, only: I1234S, I12S, I34S, NBINT1, NBINT2, NSMOB
 implicit none
 
 ! 1 : Number of one-electron integrals
-!NINT1 = NSXFSM(NSMOB,MXPOBS,NTOOBS,NTOOBS,ITSSX,ADSXA,1,IPRNT)
+!NINT1 = NSXFSM(NSMOB,MXPOBS,NTOOBS,NTOOBS,ITSSX,ADSXA,1)
 ! 2 : Number of two-electron integrals
 !if (PNTGRP == 1) then
 !  ! Full eightfold symmetry can be used
@@ -30,13 +30,13 @@ I1234S = 1
 !  I34S = 0
 !  I1234S = 1
 !end if
-!NINT2 = NDXFSM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,ITSDX,ADSXA,SXDXSX,I12S,I34S,I1234S,IPRNT)
+!NINT2 = NDXFSM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,ITSDX,ADSXA,SXDXSX,I12S,I34S,I1234S)
 ! Number of integrals without complex conjugation symmetry
 ! (used for T1 transformed Hamiltonian)
 !I12 = 0
 !I34 = 0
 !I1234 = 1
-!NINT2_NO_CCSYM = NDXFSM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,ITSDX,ADSXA,SXDXSX,I12,I34,I1234,IPRNT)
+!NINT2_NO_CCSYM = NDXFSM(NSMOB,NSMSX,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,ITSDX,ADSXA,SXDXSX,I12,I34,I1234)
 !if (ISIMTRH == 1) write(u6,*) ' Number of two-electron integrals in exp(-T1)Hexp(T1) ',NINT2_NO_CCSYM
 ! Number of symmetry blocks of one- and two-electron integrals
 NBINT1 = NSMOB

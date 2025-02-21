@@ -11,20 +11,24 @@
 ! Copyright (C) 2001, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine EXTRT_MS_OPEN_OB(IDET_OC,IDET_MS,IDET_OPEN_MS,NEL)
 ! A determinant IDET_OC, IDET_MS is given. Extract spinprojections
 ! for open shells
 !
 ! Jeppe Olsen, December 2001
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(in) :: NEL, IDET_OC(NEL), IDET_MS(NEL)
 integer(kind=iwp), intent(_OUT_) :: IDET_OPEN_MS(*)
-integer(kind=iwp) :: IEL, IOPEN, NTEST
+integer(kind=iwp) :: IEL, IOPEN
 
 IEL = 1
 IOPEN = 0
@@ -49,14 +53,13 @@ do
   if (IEL > NEL) exit
 end do
 
-NTEST = 0
-if (NTEST >= 100) then
-  write(u6,*) ' Input det, occ and ms'
-  call IWRTMA(IDET_OC,1,NEL,1,NEL)
-  call IWRTMA(IDET_MS,1,NEL,1,NEL)
-  write(u6,*) ' Number of open orbitals = ',IOPEN
-  write(u6,*) ' Output det : ms of open orbitals'
-  call IWRTMA(IDET_OPEN_MS,1,IOPEN,1,IOPEN)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Input det, occ and ms'
+call IWRTMA(IDET_OC,1,NEL,1,NEL)
+call IWRTMA(IDET_MS,1,NEL,1,NEL)
+write(u6,*) ' Number of open orbitals = ',IOPEN
+write(u6,*) ' Output det : ms of open orbitals'
+call IWRTMA(IDET_OPEN_MS,1,IOPEN,1,IOPEN)
+#endif
 
 end subroutine EXTRT_MS_OPEN_OB

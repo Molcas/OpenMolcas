@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MSSTRN_LUCIA(INSTRN,UTSTRN,NOPEN,IPRCSF)
+!#define _DEBUGPRINT_
+subroutine MSSTRN_LUCIA(INSTRN,UTSTRN,NOPEN)
 ! A STRING IS GIVEN IN FORM A SEQUENCE OF ZEROES AND ONES
 !
 ! REINTERPRET THIS AS :
@@ -28,25 +29,26 @@ subroutine MSSTRN_LUCIA(INSTRN,UTSTRN,NOPEN,IPRCSF)
 ! THE TWO PROCEDURES ARE IDENTICAL.
 
 use Constants, only: Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NOPEN, INSTRN(NOPEN), IPRCSF
+integer(kind=iwp), intent(in) :: NOPEN, INSTRN(NOPEN)
 real(kind=wp), intent(out) :: UTSTRN(NOPEN)
-integer(kind=iwp) :: IOPEN, NTEST
+integer(kind=iwp) :: IOPEN
 
 UTSTRN(1) = real(INSTRN(1),kind=wp)-Half
 do IOPEN=2,NOPEN
   UTSTRN(IOPEN) = UTSTRN(IOPEN-1)+real(INSTRN(IOPEN),kind=wp)-Half
 end do
 
-NTEST = 0
-NTEST = max(NTEST,IPRCSF)
-if (NTEST >= 10) then
-  write(u6,*) ' ... Output from MSSTRN'
-  write(u6,*) ' INSTRN AND UTSTRN'
-  call IWRTMA(INSTRN,1,NOPEN,1,NOPEN)
-  call WRTMAT(UTSTRN,1,NOPEN,1,NOPEN)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' ... Output from MSSTRN'
+write(u6,*) ' INSTRN AND UTSTRN'
+call IWRTMA(INSTRN,1,NOPEN,1,NOPEN)
+call WRTMAT(UTSTRN,1,NOPEN,1,NOPEN)
+#endif
 
 end subroutine MSSTRN_LUCIA

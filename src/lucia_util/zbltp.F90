@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
 ! Generate vector ICBLTP giving type of each block
 !
@@ -17,12 +18,15 @@ subroutine ZBLTP(ISMOST,MAXSYM,IDC,ICBLTP,IMMLST)
 ! = 1 : symmetry block is included, all OO types
 ! = 2 : symmetry block is included, lower OO types
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: MAXSYM, ISMOST(MAXSYM), IDC, IMMLST(MAXSYM)
 integer(kind=iwp), intent(out) :: ICBLTP(MAXSYM)
-integer(kind=iwp) :: IASYM, IBSYM, NTEST
+integer(kind=iwp) :: IASYM, IBSYM
 
 ! Changed to simplify structure for IDC <= 2
 if (IDC <= 2) then
@@ -59,10 +63,9 @@ else
 end if
 ! End of IDC switch
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' Block type of symmetry blocks'
-  call IWRTMA(ICBLTP,1,MAXSYM,1,MAXSYM)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Block type of symmetry blocks'
+call IWRTMA(ICBLTP,1,MAXSYM,1,MAXSYM)
+#endif
 
 end subroutine ZBLTP

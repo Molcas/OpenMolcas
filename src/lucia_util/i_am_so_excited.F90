@@ -11,6 +11,7 @@
 ! Copyright (C) 2015, Lasse Kragh Soerensen                            *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine I_AM_SO_EXCITED(NBATCH,IBATCH,LBATCH,I1BATCH)
 ! Subroutine by Lasse from October 2015
 !
@@ -33,30 +34,28 @@ integer(kind=iwp), intent(in) :: NBATCH, IBATCH(8,*), LBATCH(max(NBATCH,2)), I1B
 integer(kind=iwp) :: I, IBLOCK, IEL, IGAS, IGAS_ELIM, IITYPE, IMATCH_ALPHA, IMATCH_ALPHAM1, IMATCH_BETA, IMATCH_BETAM1, &
                      IMATCH_BLOCK, IMAX_OCC(2,NGAS,2), IOFF, ISPGP, ITYPE_A, ITYPE_B, J, JBATCH, MAX_E_GAS_ALPHA(2,MXPSTT), &
                      MAX_E_GAS_BETA(2,MXPSTT), MAXM1_E_GAS_ALPHA(2,MXPSTT), MAXM1_E_GAS_BETA(2,MXPSTT), NALPHA, NALPHAM1, NBETA, &
-                     NBETAM1, NTEST
+                     NBETAM1
 
-NTEST = 0
-
-if (NTEST >= 100) then
-  write(u6,*) ' Oh I am so excited'
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Oh I am so excited'
+write(u6,*)
+write(u6,*) ' Number of GAS without max (max-1) occupation = ',N_ELIMINATED_GAS+N_2ELIMINATED_GAS
+write(u6,*)
+if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
+  write(u6,*) ' GAS without maximum occupation (HEXS)'
   write(u6,*)
-  write(u6,*) ' Number of GAS without max (max-1) occupation = ',N_ELIMINATED_GAS+N_2ELIMINATED_GAS
-  write(u6,*)
-  if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
-    write(u6,*) ' GAS without maximum occupation (HEXS)'
-    write(u6,*)
-    do I=1,N_ELIMINATED_GAS
-      write(u6,*) IELIMINATED_IN_GAS(I)
-    end do
-  end if
-  if (I_ELIMINATE_GAS > 1) then
-    write(u6,*) ' GAS without maximum-1 occupation (DEXS)'
-    write(u6,*)
-    do I=1,N_2ELIMINATED_GAS
-      write(u6,*) I2ELIMINATED_IN_GAS(I)
-    end do
-  end if
+  do I=1,N_ELIMINATED_GAS
+    write(u6,*) IELIMINATED_IN_GAS(I)
+  end do
 end if
+if (I_ELIMINATE_GAS > 1) then
+  write(u6,*) ' GAS without maximum-1 occupation (DEXS)'
+  write(u6,*)
+  do I=1,N_2ELIMINATED_GAS
+    write(u6,*) I2ELIMINATED_IN_GAS(I)
+  end do
+end if
+#endif
 
 ! First we need to find the GAS spaces for which we will eliminate
 ! the maximum occupation.
@@ -79,21 +78,21 @@ do JBATCH=1,2 ! only alpha and beta
   end do
 end do
 
-if (NTEST >= 100) then
-  do JBATCH=1,2
-    if (JBATCH == 1) then
-      write(u6,*) ' Maximum number of alpha electrons in each GAS'
-    else
-      write(u6,*) ' Maximum number of beta electrons in each GAS'
-    end if
-    write(u6,*)
-    write(u6,*) ' GAS, Electrons, Group'
-    do IGAS=1,NGAS
-      write(u6,*) IGAS,IMAX_OCC(JBATCH,IGAS,1),IMAX_OCC(JBATCH,IGAS,2)
-    end do
-    write(u6,*)
+#ifdef _DEBUGPRINT_
+do JBATCH=1,2
+  if (JBATCH == 1) then
+    write(u6,*) ' Maximum number of alpha electrons in each GAS'
+  else
+    write(u6,*) ' Maximum number of beta electrons in each GAS'
+  end if
+  write(u6,*)
+  write(u6,*) ' GAS, Electrons, Group'
+  do IGAS=1,NGAS
+    write(u6,*) IGAS,IMAX_OCC(JBATCH,IGAS,1),IMAX_OCC(JBATCH,IGAS,2)
   end do
-end if
+  write(u6,*)
+end do
+#endif
 
 ! Find which types contains the groups with a maximum number
 ! of alpha or beta electrons in a GAS
@@ -138,48 +137,48 @@ do JBATCH=1,2 ! only alpha and beta
   end do
 end do
 
-if (NTEST >= 100) then
-  write(u6,*) 'Maximum number of alpha supergroups that can be eliminated',NALPHA+NALPHAM1
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Maximum number of alpha supergroups that can be eliminated',NALPHA+NALPHAM1
+write(u6,*)
+write(u6,*) ' GAS Supergroup for HEXS'
+write(u6,*)
+do IGAS=1,NGAS
+  do I=1,NALPHA
+    if (MAX_E_GAS_ALPHA(1,I) == IGAS) write(u6,*) MAX_E_GAS_ALPHA(1,I),MAX_E_GAS_ALPHA(2,I)
+  end do
+end do
+if (I_ELIMINATE_GAS > 1) then ! DEXS
   write(u6,*)
-  write(u6,*) ' GAS Supergroup for HEXS'
+  write(u6,*) ' GAS Supergroup for DEXS'
   write(u6,*)
   do IGAS=1,NGAS
-    do I=1,NALPHA
-      if (MAX_E_GAS_ALPHA(1,I) == IGAS) write(u6,*) MAX_E_GAS_ALPHA(1,I),MAX_E_GAS_ALPHA(2,I)
+    do I=1,NALPHAM1
+      if (MAXM1_E_GAS_ALPHA(1,I) == IGAS) write(u6,*) MAXM1_E_GAS_ALPHA(1,I),MAXM1_E_GAS_ALPHA(2,I)
     end do
   end do
-  if (I_ELIMINATE_GAS > 1) then ! DEXS
-    write(u6,*)
-    write(u6,*) ' GAS Supergroup for DEXS'
-    write(u6,*)
-    do IGAS=1,NGAS
-      do I=1,NALPHAM1
-        if (MAXM1_E_GAS_ALPHA(1,I) == IGAS) write(u6,*) MAXM1_E_GAS_ALPHA(1,I),MAXM1_E_GAS_ALPHA(2,I)
-      end do
-    end do
-  end if
-  write(u6,*)
-  write(u6,*) 'Maximum number of beta supergroups that can be eliminated',NBETA+NBETAM1
-  write(u6,*)
-  write(u6,*) ' GAS Supergroup for HEXS'
-  write(u6,*)
-  do IGAS=1,NGAS
-    do I=1,NBETA
-      if (MAX_E_GAS_BETA(1,I) == IGAS) write(u6,*) MAX_E_GAS_BETA(1,I),MAX_E_GAS_BETA(2,I)
-    end do
-  end do
-  if (I_ELIMINATE_GAS > 1) then ! DEXS
-    write(u6,*)
-    write(u6,*) ' GAS Supergroup for DEXS'
-    write(u6,*)
-    do IGAS=1,NGAS
-      do I=1,NBETAM1
-        if (MAXM1_E_GAS_BETA(1,I) == IGAS) write(u6,*) MAXM1_E_GAS_BETA(1,I),MAXM1_E_GAS_BETA(2,I)
-      end do
-    end do
-  end if
-  write(u6,*)
 end if
+write(u6,*)
+write(u6,*) 'Maximum number of beta supergroups that can be eliminated',NBETA+NBETAM1
+write(u6,*)
+write(u6,*) ' GAS Supergroup for HEXS'
+write(u6,*)
+do IGAS=1,NGAS
+  do I=1,NBETA
+    if (MAX_E_GAS_BETA(1,I) == IGAS) write(u6,*) MAX_E_GAS_BETA(1,I),MAX_E_GAS_BETA(2,I)
+  end do
+end do
+if (I_ELIMINATE_GAS > 1) then ! DEXS
+  write(u6,*)
+  write(u6,*) ' GAS Supergroup for DEXS'
+  write(u6,*)
+  do IGAS=1,NGAS
+    do I=1,NBETAM1
+      if (MAXM1_E_GAS_BETA(1,I) == IGAS) write(u6,*) MAXM1_E_GAS_BETA(1,I),MAXM1_E_GAS_BETA(2,I)
+    end do
+  end do
+end if
+write(u6,*)
+#endif
 
 ! Now find the batches to possibly eliminate
 
@@ -269,15 +268,15 @@ if (N_ELIMINATED_BATCHES > MXPSTT) then
   call SYSABENDMSG('lucia_util/i_am_so_excited','Dimension of I_AM_OUT is too small','Increase MXPSTT')
 end if
 
-if (NTEST >= 100) then
-  write(u6,*) ' Number of eliminated blocks ',N_ELIMINATED_BATCHES
-  write(u6,*)
-  write(u6,*) ' The blocks eliminated'
-  write(u6,*)
-  do I=1,N_ELIMINATED_BATCHES
-    write(u6,*) I_AM_OUT(I)
-  end do
-  write(u6,*)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Number of eliminated blocks ',N_ELIMINATED_BATCHES
+write(u6,*)
+write(u6,*) ' The blocks eliminated'
+write(u6,*)
+do I=1,N_ELIMINATED_BATCHES
+  write(u6,*) I_AM_OUT(I)
+end do
+write(u6,*)
+#endif
 
 end subroutine I_AM_SO_EXCITED

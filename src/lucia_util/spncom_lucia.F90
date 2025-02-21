@@ -9,25 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SPNCOM_LUCIA(NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN,IPRCSF)
+subroutine SPNCOM_LUCIA(NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN)
 ! Combinations of nopen unpaired electrons. Required
 ! spin projection MS2/2.
 
-use lucia_data, only: MXPORB
+use lucia_data, only: IPRCIX, MXPORB
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: NOPEN, MS2, IFLAG, IPRCSF
+integer(kind=iwp), intent(in) :: NOPEN, MS2, IFLAG
 integer(kind=iwp), intent(_OUT_) :: NDET, IABDET(NOPEN,*), IABUPP(NOPEN,*)
 real(kind=wp), intent(in) :: PSSIGN
-integer(kind=iwp) :: ADD, I, IEL, IWORK(MXPORB), J, K, LUPPER, MS2L, MX, NALPHA, NTEST, NUPPER
+integer(kind=iwp) :: ADD, I, IEL, IWORK(MXPORB), J, K, LUPPER, MS2L, MX, NALPHA, NUPPER
 real(kind=wp) :: XMSD2
 
-NTEST = 0
-NTEST = max(NTEST,IPRCSF)
 NDET = 0
 NUPPER = 0
 
@@ -86,25 +84,27 @@ end do
 
 XMSD2 = Half*real(MS2,kind=wp)
 
-if ((NTEST >= 5) .and. (IFLAG /= 3)) then
-  write(u6,1010) NOPEN,NDET,XMSD2
-  write(u6,*)
-  write(u6,'(A)') '  Combinations :'
-  write(u6,'(A)') '  =============='
-  write(u6,*)
-  do J=1,NDET
-    write(u6,1020) J,(IABDET(K,J),K=1,NOPEN)
-  end do
-end if
+if (IPRCIX >= 5) then
+  if (IFLAG /= 3) then
+    write(u6,1010) NOPEN,NDET,XMSD2
+    write(u6,*)
+    write(u6,'(A)') '  Combinations :'
+    write(u6,'(A)') '  =============='
+    write(u6,*)
+    do J=1,NDET
+      write(u6,1020) J,(IABDET(K,J),K=1,NOPEN)
+    end do
+  end if
 
-if ((IFLAG > 1) .and. (NTEST >= 5)) then
-  write(u6,*)
-  write(u6,'(A)') ' Upper determinants'
-  write(u6,'(A)') ' =================='
-  write(u6,*)
-  do J=1,NUPPER
-    write(u6,1020) J,(IABUPP(K,J),K=1,NOPEN)
-  end do
+  if (IFLAG > 1) then
+    write(u6,*)
+    write(u6,'(A)') ' Upper determinants'
+    write(u6,'(A)') ' =================='
+    write(u6,*)
+    do J=1,NUPPER
+      write(u6,1020) J,(IABUPP(K,J),K=1,NOPEN)
+    end do
+  end if
 end if
 
 return

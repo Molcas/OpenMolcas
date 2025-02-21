@@ -11,6 +11,7 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine H0INTSPC(IH0SPC,NPTSPC,NOCTPA,NOCTPB,IOCA,IOCB,NGAS,MXPNGAS,INTH0SPC,NELFTP)
 ! Set up INTH0SPC : Division of CI space, so only determinants
 !                   belonging to the same space  have nonvanishing
@@ -31,13 +32,16 @@ subroutine H0INTSPC(IH0SPC,NPTSPC,NOCTPA,NOCTPB,IOCA,IOCB,NGAS,MXPNGAS,INTH0SPC,
 !
 ! Jeppe Olsen, January 1996
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: IH0SPC, NPTSPC, MXPNGAS, NOCTPA, NOCTPB, IOCA(MXPNGAS,NOCTPA), IOCB(MXPNGAS,NOCTPB), NGAS, &
                                  NELFTP(*)
 integer(kind=iwp), intent(out) :: INTH0SPC(NOCTPA,NOCTPB)
-integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, ISPC, NTEST
+integer(kind=iwp) :: IAMOKAY, IATP, IBTP, IEL, IGAS, ISPC
 
 if (IH0SPC == 0) then
   ! All interactions allowed
@@ -67,14 +71,13 @@ else
   end do
 end if
 
-NTEST = 0
-if (NTEST >= 10) then
-  write(u6,*)
-  write(u6,*) ' ====================='
-  write(u6,*) ' Output from  H0INTSPC'
-  write(u6,*) ' ====================='
-  write(u6,*)
-  call IWRTMA(INTH0SPC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' ====================='
+write(u6,*) ' Output from  H0INTSPC'
+write(u6,*) ' ====================='
+write(u6,*)
+call IWRTMA(INTH0SPC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+#endif
 
 end subroutine H0INTSPC

@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
 ! Transform CI vector on LUCIN with T matrix after
 ! Docent Malmquist's recipe. Place result as next vector on LUOUT
@@ -27,7 +28,10 @@ use GLBBAS, only: INT1
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, NTOOB
 use Constants, only: One, Half
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
@@ -35,10 +39,13 @@ implicit none
 real(kind=wp), intent(in) :: T(*)
 real(kind=wp), intent(_OUT_) :: VEC1(*), VEC2(*)
 integer(kind=iwp), intent(in) :: LUCIN, LUCOUT, LUSC1, LUSC2, LUSC3
-integer(kind=iwp) :: K, LBLK, NTEST
-real(kind=wp) :: CNORM, INPRDD, TKK
+integer(kind=iwp) :: K, LBLK
+real(kind=wp) :: TKK
+#ifdef _DEBUGPRINT_
+real(kind=wp) :: CNORM
+real(kind=wp), external :: INPRDD
+#endif
 
-NTEST = 0
 LBLK = -1
 ! Transfer vector on LUCIN to LUSC1
 !    COPVCD(LUIN,LUOUT,SEGMNT,IREW,LBLK)
@@ -58,40 +65,42 @@ do K=1,NTOOB
   !    T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
   call T_TO_NK_VEC(TKK,K,ISSM,ISSPC,LUSC1,LUSC2,VEC1)
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
-  if (NTEST >= 1000) then
-    write(u6,*) ' output from T_TO_NK'
-    call WRTVCD(VEC1,LUSC1,1,LBLK)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' output from T_TO_NK'
+  call WRTVCD(VEC1,LUSC1,1,LBLK)
+# endif
   ! For each orbital calculate (1+T+1/2 T^2)|0>
   ! + T
   call MV7(VEC1,VEC2,LUSC1,LUSC2)
-  if (NTEST >= 1000) then
-    write(u6,*) ' Correction vector'
-    call WRTVCD(VEC1,LUSC2,1,LBLK)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Correction vector'
+  call WRTVCD(VEC1,LUSC2,1,LBLK)
+# endif
   call VECSMDP(VEC1,VEC2,One,One,LUSC1,LUSC2,LUSC3,1,LBLK)
   call COPVCD(LUSC3,LUSC1,VEC1,1,LBLK)
-  if (NTEST >= 1000) then
-    write(u6,*) ' Updated vector'
-    call WRTVCD(VEC1,LUSC1,1,LBLK)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Updated vector'
+  call WRTVCD(VEC1,LUSC1,1,LBLK)
+# endif
   ! + 1/2 T^2
   call MV7(VEC1,VEC2,LUSC2,LUSC3)
-  if (NTEST >= 1000) then
-    write(u6,*) ' Correction vector'
-    call WRTVCD(VEC1,LUSC3,1,LBLK)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Correction vector'
+  call WRTVCD(VEC1,LUSC3,1,LBLK)
+# endif
   call VECSMDP(VEC1,VEC2,One,Half,LUSC1,LUSC3,LUSC2,1,LBLK)
   ! and transfer back to LUSC1
   call COPVCD(LUSC2,LUSC1,VEC1,1,LBLK)
-  if (NTEST >= 1000) then
-    write(u6,*) ' Updated vector'
-    call WRTVCD(VEC1,LUSC1,1,LBLK)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) ' Updated vector'
+  call WRTVCD(VEC1,LUSC1,1,LBLK)
+# endif
 end do
 ! And transfer to LUCOUT
+#ifdef _DEBUGPRINT_
 CNORM = INPRDD(VEC1,VEC2,LUSC1,LUSC1,1,LBLK)
-if (NTEST > 0) write(u6,*) ' Norm of transformed vector',CNORM
+write(u6,*) ' Norm of transformed vector',CNORM
+#endif
 !write(u6,*) ' Transformed vector'
 !call WRTVCD(VEC1,LUSC1,1,LBLK)
 IDISK(LUSC1) = 0
