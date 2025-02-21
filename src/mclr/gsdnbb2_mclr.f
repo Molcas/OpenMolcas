@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE GSDNBB2(I12,RHO1,RHO2,
+      SUBROUTINE GSDNBB2_MCLR(I12,RHO1,RHO2,
      &                  IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,
      &                  NGAS,IAOC,IBOC,JAOC,JBOC,
      &                  NAEL,NBEL,
@@ -104,7 +104,7 @@
 *  beta contribution to RHO1
 * =============================
 *
-        CALL GSBBD1(RHO1(1,ii),
+        CALL GSBBD1_MCLR(RHO1(1,ii),
      &       NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &       NGAS,IBOC,JBOC,
      &       SB,CB,
@@ -120,7 +120,7 @@
         ii=1
         If (ieaw.eq.1) ii=2
         IF(I12.EQ.2.AND.NBEL.GE.2) THEN
-          CALL GSBBD2A(RHO2(1,ii),
+          CALL GSBBD2A_MCLR(RHO2(1,ii),
      &         NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &         NGAS,IBOC,JBOC,SB,CB,
      &         ADSXA,SXSTST,STSTSX,SXDXSX,MXPNGAS,
@@ -142,7 +142,7 @@
         CB(1:NJA*NJB) = C2(1:NJA*NJB)
         CALL TRPMT3(SB,NIA,NIB,C2)
         SB(1:NIA*NIB) = C2(1:NIA*NIB)
-        CALL GSBBD1(RHO1(1,ii),
+        CALL GSBBD1_MCLR(RHO1(1,ii),
      &                   NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &                   NGAS,IAOC,JAOC,
      &                   SB,CB,
@@ -157,7 +157,7 @@
 *
         ii=1
         IF(I12.EQ.2.AND.NAEL.GE.2) THEN
-          CALL GSBBD2A(RHO2(1,ii),
+          CALL GSBBD2A_MCLR(RHO2(1,ii),
      &         NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &         NGAS,IAOC,JAOC,SB,CB,
      &         ADSXA,SXSTST,STSTSX,SXDXSX,MXPNGAS,
@@ -183,7 +183,7 @@
         CB(1:NJA*NJB) = C2(1:NJA*NJB)
         CALL TRPMT3(SB,NIA,NIB,C2)
         SB(1:NIA*NIB) = C2(1:NIA*NIB)
-        CALL GSBBD2B(RHO2(1,ii),
+        CALL GSBBD2B_MCLR(RHO2(1,ii),
      &                    IASM,IATP,IBSM,IBTP,NIA,NIB,
      &                    JASM,JATP,JBSM,JBTP,NJA,NJB,
      &                    IJAGRP,IJBGRP,NGAS,

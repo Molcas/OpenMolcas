@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SYMINF_LUCIA()
+subroutine SYMINF()
 ! Information about number of symmetries
 
 use lucia_data, only: NIRREP
@@ -28,4 +28,4 @@ call ZSYM1(NIRREP)
 !  call SYSABENDMSG('lucia_util/syminf','Internal error','')
 !end if
 
-end subroutine SYMINF_LUCIA
+end subroutine SYMINF

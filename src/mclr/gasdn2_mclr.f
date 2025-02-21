@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991,1995, Jeppe Olsen                                 *
 ************************************************************************
-      SUBROUTINE GASDN2(I12,RHO1,RHO2,
+      SUBROUTINE GASDN2_MCLR(I12,RHO1,RHO2,
      &           R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,
      &           ICBLTP,ISBLTP,NACOB,
      &           NSSOA,ISSOA,NSSOB,ISSOB,
@@ -265,7 +265,7 @@
                       JJBTP = RBTP(IRPERM)
                       NJJA = NSSOA(JJASM,JJATP)
                       NJJB = NSSOB(JJBSM,JJBTP)
-                      CALL GSDNBB2(I12,RHO1,RHO2,
+                      CALL GSDNBB2_MCLR(I12,RHO1,RHO2,
      &                     IIASM,IIATP,IIBSM,IIBTP,
      &                     JJASM,JJATP,JJBSM,JJBTP,NGAS,
      &                     NELFSPGPA(1,IOCTPA-1+IIATP),

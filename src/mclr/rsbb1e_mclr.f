@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE RSBB1E(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
+      SUBROUTINE RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
      &                  ISEL1,ISEL3,ICEL1,ICEL3,
      &                  SB,CB,
      &                  ADSXA,SXSTST,STSTSX,

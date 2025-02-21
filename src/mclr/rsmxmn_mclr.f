@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE RSMXMN(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,
+      SUBROUTINE RSMXMN_MCLR(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,
      *                  MIN1,MAX1,MIN3,MAX3,IPRNT)
 *
 * Construct accumulated MAX and MIN arrays for a RAS set of strings

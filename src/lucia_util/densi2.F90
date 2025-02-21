@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DENSI2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRHO1,IPACK)
+subroutine DENSI2(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRHO1,IPACK)
 ! Density matrices between L and R
 !
 ! I12 = 1 => only one-body density
@@ -269,13 +269,13 @@ if (ICISTR == 1) then
   write(u6,*) ' Sorry, ICISTR = 1 is out of fashion'
   write(u6,*) ' Switch to ICISTR = 2 - or reprogram'
   !stop ' DENSI2T : ICISTR = 1 in use'
-  call SYSABENDMSG('lucia_util/densi2_lucia','Internal error','')
+  call SYSABENDMSG('lucia_util/densi2','Internal error','')
 else if (ICISTR >= 2) then
   S2_TERM1 = Zero
-  call GASDN2_LUCIA(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,VEC3,NACOB,NSTSO(IATP)%A,NSTSO(IBTP)%A,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA, &
-                    NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,VEC3(1+KCSCR),VEC3,STSTS,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1, &
-                    XI1S,I2,XI2S,I3,XI3S,I4,XI4S,INSCR,MXPOBS,RHO1S,LUL,LUR,PSSIGN,PSSIGN,NBATCHL,LLBTL,LI1BTL,LIBTL,NBATCHR, &
-                    LLBTR,LI1BTR,LIBTR,CONSPA,CONSPB,LSCLFCL,LSCLFCR,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
+  call GASDN2(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,VEC3,NACOB,NSTSO(IATP)%A,NSTSO(IBTP)%A,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA, &
+              NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,VEC3(1+KCSCR),VEC3,STSTS,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S, &
+              I2,XI2S,I3,XI3S,I4,XI4S,INSCR,MXPOBS,RHO1S,LUL,LUR,PSSIGN,PSSIGN,NBATCHL,LLBTL,LI1BTL,LIBTL,NBATCHR,LLBTR,LI1BTR, &
+              LIBTR,CONSPA,CONSPB,LSCLFCL,LSCLFCR,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
 
   call GADSUM(RHO1,NACOB**2)
   if (I12 == 2) then
@@ -294,7 +294,7 @@ else if (ICISTR >= 2) then
   if (IDOSRHO1 == 1) call GADSUM(SRHO1,NACOB**2)
   call GADSUM_SCAL(S2_TERM1)
 
-  ! CALL GASDN2_LUCIA --> 89
+  ! CALL GASDN2 --> 89
   !
   ! LBTR  LLEBTR LI1BTR LIBTR
 end if
@@ -373,4 +373,4 @@ call mma_deallocate(LI1BTR)
 call mma_deallocate(LIBTR)
 call mma_deallocate(LSCLFCR)
 
-end subroutine DENSI2_LUCIA
+end subroutine DENSI2

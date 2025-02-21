@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1994, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE SKICKJ(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,
+      SUBROUTINE SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,
      &                  NI,NJ,NK,NL,MAXK,
      &                  KBIB,XKBIB,KBJB,XKBJB,IKORD,
      &                  IXBOFF,JXBOFF,SXCR,IROUTE,NTEST )
@@ -58,9 +58,9 @@
 *
       IF(NI.GT.MXTSOB.OR.NJ.GT.MXTSOB.OR.NK.GT.MXTSOB
      &   .OR.NL.GT.MXTSOB) THEN
-         WRITE(6,*) ' SKICKJ : Too many orbs : NI > MXTSOB '
+         WRITE(6,*) ' SKICKJ_MCLR : Too many orbs : NI > MXTSOB '
          WRITE(6,*) ' NI, MXTSOB ',MAX(NI,NJ,NK,NL),MXTSOB
-         Write (6,*) ' Redim MXTSOB in SKICKJ'
+         Write (6,*) ' Redim MXTSOB in SKICKJ_MCLR'
          Call Abend()
       END IF
 *
@@ -220,4 +220,4 @@ c Avoid unused argument warnings
         CALL Unused_integer(NTEST)
       END IF
 
-      END SUBROUTINE SKICKJ
+      END SUBROUTINE SKICKJ_MCLR

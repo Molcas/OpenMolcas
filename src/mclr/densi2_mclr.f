@@ -22,7 +22,7 @@
 ! Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
 ! ijkl = ij*(ij-1)/2+kl, ij.ge.kl
 !
-      SUBROUTINE DENSI2(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
+      SUBROUTINE DENSI2_MCLR(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
       use Str_Info, only: STR,MXNSTR,IATPM1,IATPM2,IBTPM1,IBTPM2,
      &                    ITYP_DUMMY,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -234,7 +234,7 @@
       END IF
 
       IF(ICISTR.EQ.1) THEN
-        CALL GASDN2(I12,RHO1,RHO2,R,L,CB,SB,C2,
+        CALL GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,
      &              CIOIO,SIOIO,ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),CBLTP,SBLTP,
      &       NACOB,
@@ -256,7 +256,7 @@
      &       MXPOBS,IPRDEN,RHO1S,LUL,LUR,
      &       PSSIGN,PSSIGN,RHO1P,XNATO,ieaw,n1,n2)
       ELSE IF(ICISTR.GE.2) THEN
-        CALL GASDN2(I12,RHO1,RHO2,R,L,R,L,C2,
+        CALL GASDN2_MCLR(I12,RHO1,RHO2,R,L,R,L,C2,
      &              CIOIO,SIOIO,ISMOST(1,ICSM),
      &       ISMOST(1,ISSM),CBLTP,SBLTP,
      &       NACOB,
@@ -313,4 +313,4 @@
       Call mma_deallocate(RHO1P)
       Call mma_deallocate(XNATO)
 
-      END SUBROUTINE DENSI2
+      END SUBROUTINE DENSI2_MCLR

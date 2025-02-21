@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1996, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE GSBBD2B(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,
+      SUBROUTINE GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,
      &                        JASM,JATP,JBSM,JBTP,NJA,NJB,
      &                  IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,
      &                  SB,CB,ADSXA,STSTSX,MXPNGAS,

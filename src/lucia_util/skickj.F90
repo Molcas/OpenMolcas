@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine SKICKJ_LUCIA(SKII,CKJJ,NKA,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,FACS,IROUTE)
+subroutine SKICKJ(SKII,CKJJ,NKA,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,FACS,IROUTE)
 ! Calculate S(Ka,Ib,i) = FACS*S(Ka,Ib,i)
 !          +SUM(j,k,l,Kb) <Ib!a+ kb!Kb><Kb!a lb !Jb>*(ij!kl)*C(Ka,Jb,j)
 !
@@ -206,4 +206,4 @@ else if (IROUTE == 1) then
 end if
 ! End of IROUTE branchning
 
-end subroutine SKICKJ_LUCIA
+end subroutine SKICKJ

@@ -11,9 +11,9 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine RSBB2A_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
-                        XI1S,XINT,NSMOB,NSMST,SCLFAC,IPHGAS)
-! SUBROUTINE RSBB2A_LUCIA --> 46
+subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                  XINT,NSMOB,NSMST,SCLFAC,IPHGAS)
+! SUBROUTINE RSBB2A --> 46
 !
 ! two electron excitations on column strings
 !
@@ -121,7 +121,7 @@ if (IDXSM /= 0) then
     !IJKL_ACT = 1
     !if (IJKL_ACT == 0) cycle
 
-    !write(u6,*) ' test inserted in RSBB2AN'
+    !write(u6,*) ' test inserted in RSBB2A'
     !NPTOT = 0
     !if (ITYP == 3) NPTOT = NPTOT+1
     !if (JTYP == 3) NPTOT = NPTOT+1
@@ -780,4 +780,4 @@ end if
 
 call mma_deallocate(SCR)
 
-end subroutine RSBB2A_LUCIA
+end subroutine RSBB2A

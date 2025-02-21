@@ -12,9 +12,9 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine RSBB1E_LUCIA(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2, &
-                        XI2S,H,NSMOB,NSMST,MOC,SCLFAC,IPHGAS)
-! SUBROUTINE RSBB1E_LUCIA --> 33
+subroutine RSBB1E(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S, &
+                  H,NSMOB,NSMST,MOC,SCLFAC,IPHGAS)
+! SUBROUTINE RSBB1E --> 33
 !
 ! One electron excitations on column strings
 ! If IH2TRM /= 0 then the diagonal and one-electron
@@ -307,4 +307,4 @@ if (IJSM /= 0) then
   end do
 end if
 
-end subroutine RSBB1E_LUCIA
+end subroutine RSBB1E

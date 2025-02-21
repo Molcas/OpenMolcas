@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 1991,1995, Jeppe Olsen                                 *
 ************************************************************************
-      SUBROUTINE GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
-     &                  NGAS,ISEL,ICEL,
+      SUBROUTINE GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,
+     &                  NROW,NGAS,ISEL,ICEL,
      &                  SB,CB,
      &                  ADSXA,SXSTST,STSTSX,MXPNGAS,
      &                  NOBPTS,IOBPTS,ITSOB,MAXI,MAXK,

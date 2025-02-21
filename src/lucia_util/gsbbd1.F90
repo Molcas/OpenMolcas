@@ -12,9 +12,9 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GSBBD1_LUCIA(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS, &
-                        MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,NSMST,MXPOBS,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
-! SUBROUTINE GSBBD1_LUCIA --> 40
+subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK, &
+                  SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,NSMST,MXPOBS,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
+! SUBROUTINE GSBBD1 --> 40
 !
 ! Contributions to one electron density matrix from column excitations
 !
@@ -319,4 +319,4 @@ end if
 
 !stop ' enforced stop in RSBBD1'
 
-end subroutine GSBBD1_LUCIA
+end subroutine GSBBD1

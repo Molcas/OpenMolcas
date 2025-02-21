@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SPNCOM_LUCIA(NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN)
+subroutine SPNCOM(NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN)
 ! Combinations of nopen unpaired electrons. Required
 ! spin projection MS2/2.
 
@@ -112,4 +112,4 @@ return
 1010 format('0',2X,I3,' Unpaired electrons give ',I5,/,'           combinations with spin projection ',F12.7)
 1020 format('0',I5,2X,30I2,/,(1X,7X,30I2))
 
-end subroutine SPNCOM_LUCIA
+end subroutine SPNCOM

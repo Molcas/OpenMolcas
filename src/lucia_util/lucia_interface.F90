@@ -199,9 +199,9 @@ subroutine densi_master(CIVec,RVec)
   IPACK = .true.
   DUMMY = Zero
   if (tdm) then
-    call densi2_lucia(1,Dtmp,dummy,dummy,dummy,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
+    call densi2(1,Dtmp,dummy,dummy,dummy,vec1,vec2,lusc1,luhc,exps2,1,DStmp,IPACK)
   else
-    call densi2_lucia(2,rho1,dummy,Ptmp,PAtmp,vec1,vec2,lusc1,luhc,exps2,1,srho1,IPACK)
+    call densi2(2,rho1,dummy,Ptmp,PAtmp,vec1,vec2,lusc1,luhc,exps2,1,srho1,IPACK)
   end if
 
   ! Explanation of calling parameters

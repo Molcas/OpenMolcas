@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991-1994, Jeppe Olsen                                 *
 ************************************************************************
-      SUBROUTINE RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,
+      SUBROUTINE RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,
      &                  JASM,JATP,JBSM,JBTP,NJA,NJB,
      &                  IAGRP,IBGRP,
      &                  IAEL1,IAEL3,JAEL1,JAEL3,
@@ -261,7 +261,7 @@ C9805EAW     IROUTE = 1
                  IXCHNG = 0
                  IF(IROUTE.EQ.1) THEN
 *. Integrals stored as (j l i k )
-*                   Write(*,*)'Timedep in rsbb2bn;',TimeDep
+*                   Write(*,*)'Timedep in rsbb2bn_mclr;',TimeDep
                    If (TimeDep) Then
                       CALL GETINT_td(XINT,JTYP,JSM,ITYP,ISM,LTYP,LSM,
      &                       KTYP,KSM,0,0,iroute,ieaw)
@@ -293,7 +293,7 @@ C9805EAW     IROUTE = 1
                  END IF
                  IFIRST = 0
                END IF
-               CALL SKICKJ(SIRES,CJRES,NKABTC,NIB,NJB,
+               CALL SKICKJ_MCLR(SIRES,CJRES,NKABTC,NIB,NJB,
      &                     NKBBTC,XINT,NI,NJ,NK,NL,MAXK,
      &                     I4,XI4S,I2,XI2S,IKORD,
      &                     IDUM,iXDUM,XDUM,IROUTE,NTEST )

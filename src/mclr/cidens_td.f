@@ -104,7 +104,7 @@ c
 *       ipL is the bra side vector
         call dcopy_(n1dens,[0.0d0],0,De,1)
         call dcopy_(n2dens,[0.0d0],0,Pe,1)
-        Call Densi2(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+        Call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 *
 *        write(*,*)'De*De',ddot_(n1dens,De,1,De,1)
 *        Call RecPrt('De',' ',De,n1dens,1)
@@ -130,7 +130,7 @@ c
         icsm=STATE_SYM
         call dcopy_(n1dens,[0.0d0],0,De,1)
         call dcopy_(n2dens,[0.0d0],0,Pe,1)
-        Call Densi2(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+        Call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 *
 *        write(*,*)'De*De',&   ddot_(n1dens,De,1,De,1)
 *        Call RecPrt('De',' ',De,n1dens,1)

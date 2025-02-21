@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine CSFDET_LUCIA(NOPEN,IDET,NDET,ICSF,NCSF,CDC,SCR,nSCR,PSSIGN)
+subroutine CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,SCR,nSCR,PSSIGN)
 ! Expand csf's in terms of combinations with
 ! the use of the Graebenstetter method ( I.J.Q.C.10,P142(1976) )
 !
@@ -57,7 +57,7 @@ KLFREE = KLSCSF+NOPEN
 
 ! OBTAIN INTERMEDIATE VALUES OF MS FOR ALL DETERMINANTS
 do JDET=1,NDET
-  call MSSTRN_LUCIA(IDET(:,JDET),SCR(KLMDET+(JDET-1)*NOPEN),NOPEN)
+  call MSSTRN(IDET(:,JDET),SCR(KLMDET+(JDET-1)*NOPEN),NOPEN)
 end do
 
 do JCSF=1,NCSF
@@ -66,7 +66,7 @@ do JCSF=1,NCSF
 # endif
 
   ! OBTAIN INTERMEDIATE COUPLINGS FOR CSF
-  call MSSTRN_LUCIA(ICSF(:,JCSF),SCR(KLSCSF),NOPEN)
+  call MSSTRN(ICSF(:,JCSF),SCR(KLSCSF),NOPEN)
 
   do JDET=1,NDET
     ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
@@ -102,4 +102,4 @@ if (IPRCIX >= 5) then
   call WRTMAT(CDC,NDET,NCSF,NDET,NCSF)
 end if
 
-end subroutine CSFDET_LUCIA
+end subroutine CSFDET

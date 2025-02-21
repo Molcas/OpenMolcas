@@ -12,10 +12,10 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GSBBD2B_LUCIA(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC, &
-                         JBOC,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,MXPOBS, &
-                         IUSEAB,CJRES,SIRES,NORB,SCLFAC,S2_TERM1,IPACK)
-! SUBROUTINE GSBBD2B_LUCIA --> 52
+subroutine GSBBD2B(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC, &
+                   SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,MXPOBS,IUSEAB, &
+                   CJRES,SIRES,NORB,SCLFAC,S2_TERM1,IPACK)
+! SUBROUTINE GSBBD2B --> 52
 !
 ! alpha-beta contribution to two-particle density matrix
 ! from given c-block and s-block.
@@ -229,4 +229,4 @@ end do
 ! This 'flush' outerlooped here. Was previously inside ADSTN_GAS.
 call mma_deallocate(OFFI)
 
-end subroutine GSBBD2B_LUCIA
+end subroutine GSBBD2B

@@ -95,7 +95,7 @@
         irc=ipnout(-1)
         icsm=iR
         issm=iL
-        Call Densi2(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+        Call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 
         If (RSP) Then
            Do iA=1,nnA

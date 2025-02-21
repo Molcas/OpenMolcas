@@ -468,7 +468,7 @@ c Avoid unused argument warnings
 *
 *----------------------------------------------------------------------
 *
-      SUBROUTINE CSFDET(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN,
+      SUBROUTINE CSFDET_MCLR(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN,
      &                  IPRCSF)
 
 * Expand csf's in terms of combinations with
@@ -518,7 +518,7 @@ c Avoid unused argument warnings
 C
 C.. OBTAIN INTERMEDIATE VALUES OF MS FOR ALL DETERMINANTS
       DO 10 JDET = 1, NDET
-        CALL MSSTRN(IDET(1,JDET),LMDET(1+(JDET-1)*NOPEN),NOPEN)
+        CALL MSSTRN_MCLR(IDET(1,JDET),LMDET(1+(JDET-1)*NOPEN),NOPEN)
    10 CONTINUE
 
 C
@@ -526,7 +526,7 @@ C
        IF( NTEST .GE. 105 ) WRITE(6,*) ' ....Output for CSF ',JCSF
 C
 C OBTAIN INTERMEDIATE COUPLINGS FOR CSF
-      CALL MSSTRN(ICSF(1,JCSF),LSCSF,NOPEN)
+      CALL MSSTRN_MCLR(ICSF(1,JCSF),LSCSF,NOPEN)
 C
       DO 900 JDET = 1, NDET
 C EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
@@ -570,14 +570,14 @@ C
       END IF
 
 C
-      END SUBROUTINE CSFDET
+      END SUBROUTINE CSFDET_MCLR
 *
 *----------------------------------------------------------------------
 *
 *
 *----------------------------------------------------------------------
 *
-      SUBROUTINE SPNCOM(iwork,NOPEN,MS2,NDET,IABDET,
+      SUBROUTINE SPNCOM_MCLR(iwork,NOPEN,MS2,NDET,IABDET,
      &                  IABUPP,IFLAG,PSSIGN,IPRCSF)
 *
 * Combinations of nopen unpaired electrons.Required
@@ -666,7 +666,7 @@ C
 *     XMSD2=DBLE(MS2)/2
 c Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRCSF)
-      END SUBROUTINE SPNCOM
+      END SUBROUTINE SPNCOM_MCLR
 *
 *----------------------------------------------------------------------
 *
@@ -718,14 +718,14 @@ c Avoid unused argument warnings
 *. Proto type determinants and upper determinants
           IF( MS2+1 .EQ. MULTS ) THEN
             IFLAG = 2
-            CALL SPNCOM(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
           ELSE
             IFLAG = 1
-            CALL SPNCOM(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
             IFLAG = 3
-            CALL SPNCOM(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),
+            CALL SPNCOM_MCLR(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),
      &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
           END IF
           CALL mma_deallocate(SCR7)
@@ -748,7 +748,7 @@ c Avoid unused argument warnings
         IF(IOPEN .EQ. 0 ) THEN
           DTOC(ICDCBS) = 1.0D0
         ELSE
-          CALL CSFDET(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),
+          CALL CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),
      &               ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),
      &               PSSIGN,IPRNT)
         END IF
@@ -775,7 +775,7 @@ c Avoid unused argument warnings
 * each symmetry
 *
 * find local memory requirements for CSF routines
-* Largest local memory requirements in CNFORD,CSFDET is returned in
+* Largest local memory requirements in CNFORD,CSFDET_MCLR is returned in
 * LLCSF
 *
 *             DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
@@ -927,7 +927,7 @@ C?    WRITE(6,*) ' MAXOP with RAS constraints :' ,MAXOP
         MXDT =   MAX(MXDT,NDPCNT(ITP) )
         MXPTBL = MAX(NDPCNT(ITP)*IOPEN,MXPTBL)
    11 CONTINUE
-*. local memory for CSFDET
+*. local memory for CSFDET_MCLR
       LCSFDT = MXPTBL + MAXOP
 *. local memory for CNFORD
       LCNFOR = MAX(2*NTYP+NACTOB,(MXDT+2)*NACTEL)
@@ -1581,7 +1581,7 @@ c Avoid unused argument warnings
 *
 *----------------------------------------------------------------------
 *
-      SUBROUTINE MSSTRN(INSTRN,UTSTRN,NOPEN)
+      SUBROUTINE MSSTRN_MCLR(INSTRN,UTSTRN,NOPEN)
 *
 * A STRING IS GIVEN IN FORM A SEQUENCE OF ZEROES
 * AND ONE ' S
@@ -1613,7 +1613,7 @@ c Avoid unused argument warnings
         UTSTRN(IOPEN) = UTSTRN(IOPEN-1) +DBLE(INSTRN(IOPEN))-Half
       END DO
 *
-      END SUBROUTINE MSSTRN
+      END SUBROUTINE MSSTRN_MCLR
 *
 *----------------------------------------------------------------------
 *

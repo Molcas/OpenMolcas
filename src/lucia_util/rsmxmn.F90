@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine RSMXMN_LUCIA(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MN1,MX1,MN3,MX3)
+subroutine RSMXMN(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MN1,MX1,MN3,MX3)
 ! Construct accumulated MAX and MIN arrays for a RAS set of strings
 
 use Definitions, only: iwp
@@ -60,4 +60,4 @@ write(u6,*) ' MAXEL :'
 call IWRTMA(MAXEL,1,NORB,1,NORB)
 #endif
 
-end subroutine RSMXMN_LUCIA
+end subroutine RSMXMN

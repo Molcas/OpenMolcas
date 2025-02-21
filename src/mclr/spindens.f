@@ -73,7 +73,7 @@
       Call CSF2SD(RS,CIR,iR)
       icsm=iR
       issm=iL
-      Call Densi2(2,Dens,Pens,CIL,CIR,0,0,1,n1dens,n2dens)
+      Call Densi2_mclr(2,Dens,Pens,CIL,CIR,0,0,1,n1dens,n2dens)
 *
       If (itype.eq.1) Then
 *

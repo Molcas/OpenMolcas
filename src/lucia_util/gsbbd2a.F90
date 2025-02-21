@@ -12,9 +12,9 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GSBBD2A_LUCIA(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,SXDXSX, &
-                         MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,X,NSMOB,NSMST,MXPOBS,SCLFAC,IPACK)
-! SUBROUTINE GSBBD2A_LUCIA --> 37
+subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,SXDXSX,MXPNGAS, &
+                   NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,X,NSMOB,NSMST,MXPOBS,SCLFAC,IPACK)
+! SUBROUTINE GSBBD2A --> 37
 !
 ! Contributions to two-electron density matrix from column excitations
 !
@@ -332,4 +332,4 @@ if (IDXSM /= 0) then
   end do
 end if
 
-end subroutine GSBBD2A_LUCIA
+end subroutine GSBBD2A

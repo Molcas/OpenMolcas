@@ -121,7 +121,7 @@
            SIGN = -1.0D0
          END IF
          IF(NBEL.GE.1) THEN
-            CALL RSBB1E(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
+            CALL RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &         IBEL1,IBEL3,JBEL1,JBEL3,
      &         SB,CB,
      &         ADSXA,SXSTST,STSTSX,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
@@ -134,7 +134,7 @@
 *
          IF(IDOH2.NE.0.AND.NBEL.GE.2) THEN
 *         Write(*,*)'Timedep in rssbcbn',TimeDep
-            CALL RSBB2A(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
+            CALL RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &                IBEL1,IBEL3,JBEL1,JBEL3,
      &                SB,CB,
      &                ADSXA,DXSTST,STSTDX,SXDXSX,
@@ -170,7 +170,7 @@
             IFACTOR = 1
           END IF
           IF (JJJTRNS.EQ.0) THEN
-            CALL RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,
+            CALL RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,
      &                JASM,JATP,JBSM,JBTP,NJA,NJB,
      &                IJAGRP,IJBGRP,
      &                IAEL1,IAEL3,JAEL1,JAEL3,
@@ -188,7 +188,7 @@
             CALL TRNSPS(NJB,NJA,CB,C2)
             CALL DCOPY_(NJA*NJB,C2,1,CB,1)
 *
-            CALL RSBB2BN(IBSM,IBTP,IASM,IATP,NIB,NIA,
+            CALL RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,
      &                JbSM,JbTP,JaSM,JaTP,NJb,NJa,
      &                IJbGRP,IJaGRP,
      &                IbEL1,IbEL3,JbEL1,JbEL3,
@@ -228,7 +228,7 @@
 * alpha single excitation
 *
            SIGN = 1.0D0
-           CALL RSBB1E(IASM,IATP,JASM,JATP,IJAGRP,NIB,
+           CALL RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &                IAEL1,IAEL3,JAEL1,JAEL3,
      &                SB,CB,
      &                ADSXA,SXSTST,STSTSX,
@@ -240,7 +240,7 @@
 *
 
            IF(NAEL.GE.2.AND.IDOH2.NE.0) CALL
-     &       RSBB2A(IASM,IATP,JASM,JATP,IJAGRP,NIB,
+     &       RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &           IAEL1,IAEL3,JAEL1,JAEL3,
      &           SB,CB,
      &           ADSXA,DXSTST,STSTDX,SXDXSX,

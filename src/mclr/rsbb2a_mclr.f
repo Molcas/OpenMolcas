@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1991, Jeppe Olsen                                      *
 ************************************************************************
-      SUBROUTINE RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
+      SUBROUTINE RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
      &                  ISEL1,ISEL3,ICEL1,ICEL3,
      &                  SB,CB,
      &                  ADSXA,DXSTST,STSTDX,SXDXSX,
@@ -83,7 +83,7 @@
 *
 *.Types of DX that connects the two strings
 *
-*      Write(*,*)'ieaw in rsbb2a', ieaw
+*      Write(*,*)'ieaw in rsbb2a_mclr', ieaw
       ONEM = -1.0D0
       ZERO = 0.0D0
       IDXSM = STSTDX(ISCSM,ICCSM)
@@ -204,7 +204,7 @@
 *.Obtain two electron integrals (ij!kl)-(il!kj)
                   IF(IFIRST.EQ.1) THEN
                     IXCHNG = 1
-*                   Write(*,*)'TimeDep in rsbb2a is:',TimeDep
+*                   Write(*,*)'TimeDep in rsbb2a_mclr is:',TimeDep
                    If (TimeDep) Then
                         CALL GETINT_td(XINT,ITYP,ISM,JTYP,JSM,KTYP,
      &                              KSM,LTYP,LSM,IKPSM,JLPSM,4,ieaw)

@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine MSSTRN_LUCIA(INSTRN,UTSTRN,NOPEN)
+subroutine MSSTRN(INSTRN,UTSTRN,NOPEN)
 ! A STRING IS GIVEN IN FORM A SEQUENCE OF ZEROES AND ONES
 !
 ! REINTERPRET THIS AS :
@@ -51,4 +51,4 @@ call IWRTMA(INSTRN,1,NOPEN,1,NOPEN)
 call WRTMAT(UTSTRN,1,NOPEN,1,NOPEN)
 #endif
 
-end subroutine MSSTRN_LUCIA
+end subroutine MSSTRN
