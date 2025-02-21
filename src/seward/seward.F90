@@ -61,7 +61,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "print.fh"
-integer(kind=iwp) :: i, iOpt, iRC, iRout, Lu_One, LuSpool, MaxDax, nChoV(8), nDiff, nDNA
+integer(kind=iwp) :: i, iOpt, iRC, iRout, Lu_One, LuSpool, MaxDax, nChoV(8), nDiff, nDNA, iOption
 real(kind=wp) :: ChFracMem, DiagErr(4), Dummy(2), TCpu1, TCpu2, TWall1, Twall2
 logical(kind=iwp) :: PrPrt_Save, Exists, DoRys, lOPTO, IsBorn, Do_OneEl
 !-SVC: identify runfile with a fingerprint
@@ -134,6 +134,7 @@ else
     call Put_cArray('BirthCertificate',cDNA,nDNA)
   end if
 end if
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -314,6 +315,9 @@ do
   Primitive_Pass = .false.
   call Free_iSD()
 end do
+call Get_iScalar('System Bitswitch',iOption)
+iOption = ibclr(iOption,14)
+call Put_iScalar('System Bitswitch',iOption)
 
 if (.not. Test) then
   !                                                                    *
