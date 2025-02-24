@@ -27,10 +27,9 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: Energy, HDiag, iter, iterso
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
-use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Four, Six, Ten, Half
+use Constants, only: Zero, One, Two, Four, Six, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -259,12 +258,13 @@ end do
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
 
+call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 !
 !===========================================================================================================================
 !
 !   Start the optimization
 
-Call GEK_Optimizer()
+Call GEK_Optimizer(nDiis,mDiis)
 !
 !===========================================================================================================================
 !
@@ -303,16 +303,20 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer()
+Subroutine GEK_Optimizer(nDiis,mDiis)
 use definitions, only: iwp
+use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
+use Constants, only: Ten
+
 implicit none
+integer(kind=iwp), intent(in) :: nDiis, mDiis
+
 integer(kind=iwp) :: i, j, k
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 
 !We need to set the bias
 
