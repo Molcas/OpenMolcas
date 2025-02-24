@@ -13,7 +13,7 @@
       SUBROUTINE GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,
      &                  NROW,NGAS,ISEL,ICEL,
      &                  SB,CB,
-     &                  ADSXA,SXSTST,STSTSX,MXPNGAS,
+     &                  MXPNGAS,
      &                  NOBPTS,IOBPTS,ITSOB,MAXI,MAXK,
      &                  SSCR,CSCR,I1,XI1S,I2,XI2S,H,
      &                  NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
@@ -37,17 +37,13 @@
 * ISEL : Number of electrons per AS for S block
 * ICEL : Number of electrons per AS for C block
 * CB   : Input C block
-* ADASX : sym of a+, a => sym of a+a
-* ADSXA : sym of a+, a+a => sym of a
-* SXSTST : Sym of sx,!st> => sym of sx !st>
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 * MXPNGAS : Max number of AS spaces ( program parameter )
 * NOBPTS  : Number of orbitals per type and symmetry
 * IOBPTS : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
 * NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
 *       single excitations, double excitations
-* MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+* MAXI   : Largest Number of "spectator strings" treated simultaneously
 * MAXK   : Largest number of inner resolution strings treated at simult.
 *
 * ======
@@ -70,10 +66,9 @@
 * Jeppe Olsen, Winter of 1991
 * Updated for GAS , August '95
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
 *. General input
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(NSMSX,NSMST),
-     &        STSTSX(NSMST,NSMST)
       INTEGER NOBPTS(3,*), IOBPTS(3,*), ITSOB(*)
 C     INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
 *.Input
@@ -92,14 +87,14 @@ C     INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
 * Type of single excitations that connects the two column strings
       CALL SXTYP_GAS(NSXTP,ITP,JTP,3,ISEL,ICEL)
 *.Symmetry of single excitation that connects IBSM and JBSM
-      IJSM = STSTSX(ISCSM,ICCSM)
+      IJSM = Mul(ISCSM,ICCSM)
       IF(IJSM.EQ.0) GOTO 1001
       DO 900 IJTP=  1, NSXTP
         ITYP = ITP(IJTP)
         JTYP = JTP(IJTP)
         DO 800 ISM = 1, NSMOB
 *. new i and j so new intermediate strings
-          JSM = ADSXA(ISM,IJSM)
+          JSM = Mul(ISM,IJSM)
           IF(JSM.EQ.0) GOTO 800
           NIORB = NOBPTS(ITYP,ISM)
           NJORB = NOBPTS(JTYP,JSM)
@@ -186,9 +181,11 @@ COLD. Loop over partitionings of the row strings
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
-        CALL Unused_integer_array(SXSTST)
         CALL Unused_integer(MXPNGAS)
         CALL Unused_integer_array(ITSOB)
         CALL Unused_real(H)
+        CALL Unused_integer(NSMST)
+        CALL Unused_integer(NSMSX)
+        CALL Unused_integer(MXPOBS)
       END IF
       END

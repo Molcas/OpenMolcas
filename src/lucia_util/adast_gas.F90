@@ -47,8 +47,7 @@ subroutine ADAST_GAS(IOBSM,IOBTP,NIGRP,IGRP,ISPGPSM,I1,XI1S,NKSTR,KACT,SCLFAC,IA
 
 use Symmetry_Info, only: Mul
 use lucia_data, only: IBGPSTR, IGSFGP, IOBPTS, ISMDFGP, ISMSCR, ISTAC, ISTSGP, LOFFI, MXPNGAS, MXPNSMST, NACTSYM, NELFGP, NGPSTR, &
-                      NGRP, NOBPT, NOBPTS, NSTSGP, STSTM
-use csm_data, only: NSMST
+                      NGRP, NIRREP, NOBPT, NOBPTS, NSTSGP, STSTM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -164,7 +163,7 @@ else
   KGRP(1:NIGRP) = IGRP(:)
   KGRP(IACGRP) = KACGRP
   ! Number of strings and symmetry distributions of K strings
-  call NST_SPGRP(NIGRP,KGRP,KSM,NSTSGP,NSMST,NKSTR,NKDIST)
+  call NST_SPGRP(NIGRP,KGRP,KSM,NSTSGP,NIRREP,NKSTR,NKDIST)
 # ifdef _DEBUGPRINT_
   write(u6,*) 'KSM,NKSTR,NKDIST:',KSM,NKSTR,NKDIST
 # endif
@@ -173,8 +172,8 @@ else
     NGASL = 1
     do JGRP=1,NIGRP
       if (NELFGP(KGRP(JGRP)) > 0) NGASL = JGRP
-      NNSTSGP(1:NSMST,JGRP) = NSTSGP((KGRP(JGRP)-1)*NSMST+1:KGRP(JGRP)*NSMST)
-      IISTSGP(1:NSMST,JGRP) = ISTSGP((KGRP(JGRP)-1)*NSMST+1:KGRP(JGRP)*NSMST)
+      NNSTSGP(1:NIRREP,JGRP) = NSTSGP((KGRP(JGRP)-1)*NIRREP+1:KGRP(JGRP)*NIRREP)
+      IISTSGP(1:NIRREP,JGRP) = ISTSGP((KGRP(JGRP)-1)*NIRREP+1:KGRP(JGRP)*NIRREP)
     end do
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'NGASL',NGASL
@@ -194,8 +193,8 @@ else
     ! Generate symmetry distributions of I strings with given symmetry
     call TS_SYM_PNT2(IGRP,NIGRP,MXVLI,MNVLI,ISPGPSM,IOFFI,LOFFI)
     ! Offset and dimension for active group in I strings
-    IACIST(1:NSMST) = ISTSGP((IGRP(IACGRP)-1)*NSMST+1:IGRP(IACGRP)*NSMST)
-    NACIST(1:NSMST) = NSTSGP((IGRP(IACGRP)-1)*NSMST+1:IGRP(IACGRP)*NSMST)
+    IACIST(1:NIRREP) = ISTSGP((IGRP(IACGRP)-1)*NIRREP+1:IGRP(IACGRP)*NIRREP)
+    NACIST(1:NIRREP) = NSTSGP((IGRP(IACGRP)-1)*NIRREP+1:IGRP(IACGRP)*NIRREP)
     ! Last entry in IGRP with a nonvanisking number of strings
     NIGASL = 1
     do JGRP=1,NIGRP
@@ -217,7 +216,7 @@ else
     do
       !GLM if (KFIRST == 1) ISMFGS(1:NIGRP) = MNVLI(IGAS)
       ! Next distribution
-      call NEXT_SYM_DISTR_NEW(NSMST,NGRP,KGRP,NIGRP,ISMFGS,KSM,KFIRST,NONEW,ISMDFGP,NACTSYM,ISMSCR)
+      call NEXT_SYM_DISTR_NEW(NIRREP,NGRP,KGRP,NIGRP,ISMFGS,KSM,KFIRST,NONEW,ISMDFGP,NACTSYM,ISMSCR)
       !GLM   if (NONEW == 1) exit
       !GLM end if
 #     ifdef _DEBUGPRINT_

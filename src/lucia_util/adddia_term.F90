@@ -20,8 +20,7 @@ subroutine ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM)
 !
 ! Jeppe Olsen and Giovanni Li Manni, September 2011
 
-use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NSTSO, NTOOB
-use csm_data, only: NSMST
+use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NIRREP, NOCTYP, NSTSO, NTOOB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -61,7 +60,7 @@ call mma_allocate(LXB,NACOB,Label='LXB')
 call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
 call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
 
-MAXA = IMNMX(NSTSO(IATP)%A,NSMST*NOCTPA,2)
+MAXA = IMNMX(NSTSO(IATP)%A,NIRREP*NOCTPA,2)
 call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 ! Integrals assumed in place so :
@@ -74,7 +73,7 @@ call GTJK(LJ,LK,NTOOB,IREOST)
 SHIFT = ECORE_ORIG-ECORE
 FACTORX = FACTOR+SHIFT
 
-call ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,NACOB,CVEC,SVEC,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,NTOOB,LRJKA, &
+call ADDDIA_TERMS(NAEL,LASTR,NBEL,LBSTR,NACOB,CVEC,SVEC,NIRREP,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,NTOOB,LRJKA, &
                   IASPGP,IASM,IBSPGP,IBSM,FACTORX)
 ! Flush local memory
 call mma_deallocate(LH1D)

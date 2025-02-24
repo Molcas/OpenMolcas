@@ -56,7 +56,7 @@ call OSPIR(NOSPIR,IOSPIR,MXPIRR,MXPOBS)
 
 do IGAS=1,NGAS
   ! Shell => orbitals for each GAS space
-  call SHTOOB(NGSSH(1,IGAS),NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NGSOB(1,IGAS),NGSOBT(IGAS))
+  call SHTOOB(NGSSH(:,IGAS),NIRREP,MXPOBS,NSMOB,NOSPIR,IOSPIR,NGSOB(:,IGAS),NGSOBT(IGAS))
 end do
 
 ! ======================================================

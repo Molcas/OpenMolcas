@@ -22,8 +22,7 @@ subroutine DIATERM2_GAS(FACTOR,ITASK,VEC,NBLOCK,IBLOCK,IOFF,J12,JDC)
 !
 ! Jeppe Olsen, August 1995
 
-use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NSTSO, NTOOB
-use csm_data, only: NSMST
+use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NIRREP, NOCTYP, NSTSO, NTOOB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -91,7 +90,7 @@ call mma_allocate(LH1D,NACOB,Label='LH1D')
 ! Space for blocks of strings
 call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
 call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
-MAXA = IMNMX(NSTSO(IATP)%A,NSMST*NOCTPA,2)
+MAXA = IMNMX(NSTSO(IATP)%A,NIRREP*NOCTPA,2)
 call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 ! Diagonal of one-body integrals and coulomb and exchange integrals
 ! Integrals assumed in place so :
@@ -101,8 +100,8 @@ if (J12 == 2) call GTJK(LJ,LK,NTOOB,IREOST)
 ECOREP = Zero
 SHIFT = ECORE_ORIG-ECORE
 FACTORX = FACTOR+SHIFT
-call DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,NACOB,VEC,NSMST,LH1D,JDC,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,0,0,NTOOB,LRJKA,J12, &
-                  IBLOCK(:,IOFF),NBLOCK,ITASK,FACTORX,0,[0])
+call DIATERMS_GAS(NAEL,LASTR,NBEL,LBSTR,NACOB,VEC,NIRREP,LH1D,JDC,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,ECOREP,0,0,NTOOB,LRJKA, &
+                  J12,IBLOCK(:,IOFF),NBLOCK,ITASK,FACTORX,0,[0])
 ! Flush local memory
 call mma_deallocate(LJ)
 call mma_deallocate(LK)
@@ -114,7 +113,7 @@ call mma_deallocate(LRJKA)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' output vector from DIATRM'
-call WRTTTS(VEC,IBLOCK(:,IOFF),NBLOCK,NSMST,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC)
+call WRTTTS(VEC,IBLOCK(:,IOFF),NBLOCK,NIRREP,NSTSO(IATP)%A,NSTSO(IBTP)%A,IDC)
 #endif
 
 end subroutine DIATERM2_GAS

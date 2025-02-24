@@ -12,9 +12,9 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL,IJAGRP,IJBGRP,SB,CB,JDOH2,ADSXA, &
-                   STSTSX,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NJA,NJB,IDC,CJRES, &
-                   SIRES,I3,XI3S,I4,XI4S,MOCAA,SCLFAC,IPHGAS,I_RES_AB)
+subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL,IJAGRP,IJBGRP,SB,CB,JDOH2,NOBPTS, &
+                   MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,C2,NSMOB,NSMST,NIA,NIB,NJA,NJB,IDC,CJRES,SIRES,I3,XI3S,I4,XI4S,MOCAA, &
+                   SCLFAC,IPHGAS,I_RES_AB)
 ! SUBROUTINE RSSBCB2 --> 82
 !
 ! Contributions to sigma block (iasm iatp, ibsm ibtp) from
@@ -38,17 +38,10 @@ subroutine RSSBCB2(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,J
 ! CB : Input c block
 ! IDOH2 : = 0 => no two electron operator
 ! IDOH2 : = 1 =>    two electron operator
-! ADASX : sym of a+, a => sym of a+a
-! ADSXA : sym of a+, a+a => sym of a
-! SXSTST : Sym of sx,!st> => sym of sx !st>
-! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-!          is nonvanishing by symmetry
-! STSTDX : Sym of !st>,dx!st'> => sym of dx so <st!dx!st'>
-!          is nonvanishing by symmetry
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+! MAXI   : Largest Number of "spectator strings" treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
 ! IHAPR : /= 0 implies thatt the exact Hamiltonian shoulf not be uses
@@ -91,8 +84,8 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(NGAS), IBOC(NGAS), JAOC(NGAS), &
-                                 JBOC(NGAS), NAEL, NBEL, IJAGRP, IJBGRP, JDOH2, ADSXA(*), STSTSX(*), STSTDX(*), SXDXSX(*), &
-                                 NOBPTS(*), MAXI, MAXK, NSMOB, NSMST, NIA, NIB, NJA, NJB, IDC, MOCAA, IPHGAS(*), I_RES_AB
+                                 JBOC(NGAS), NAEL, NBEL, IJAGRP, IJBGRP, JDOH2, NOBPTS(*), MAXI, MAXK, NSMOB, NSMST, NIA, NIB, &
+                                 NJA, NJB, IDC, MOCAA, IPHGAS(*), I_RES_AB
 real(kind=wp), intent(inout) :: SB(NIA*NIB), CB(NJA*NJB), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), C2(*), XINT(*), CJRES(*), SIRES(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
@@ -177,8 +170,8 @@ if (IDIAG == 0) then
       write(u6,*) ' I am going to call RSBB1E'
 #     endif
       call TIMING(CPU0,CPU,WALL0,WALL)
-      call RSBB1E(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S, &
-                  XINT,NSMOB,NSMST,MOCAA,SCLFAC,IPHGAS)
+      call RSBB1E(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,NSMOB,MOCAA, &
+                  SCLFAC,IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(1) = TSIGMA(1)+(WALL1-WALL0)
 
@@ -197,8 +190,8 @@ if (IDIAG == 0) then
       write(u6,*) ' I am going to call RSBB2A'
 #     endif
       call TIMING(CPU0,CPU,WALL0,WALL)
-      call RSBB2A(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT, &
-                  NSMOB,NSMST,SCLFAC,IPHGAS)
+      call RSBB2A(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST,SCLFAC, &
+                  IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(2) = TSIGMA(2)+(WALL1-WALL0)
 
@@ -242,8 +235,8 @@ if (IDIAG == 0) then
     if (JJJTRNS == 0) then
       !if (IUSE_PA == 0) then
       call TIMING(CPU0,CPU,WALL0,WALL)
-      call RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,ADSXA, &
-                   STSTSX,NOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
+      call RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,NOBPTS, &
+                   MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(3) = TSIGMA(3)+(WALL1-WALL0)
 
@@ -251,9 +244,9 @@ if (IDIAG == 0) then
 
       !else if (IUSE_PA == 1) then
       !  !write(u6,*) ' RSBB2BVN will be called'
-      !  call RSBB2BVN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,ADSXA, &
-      !                STSTSX,MXPNGAS,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS, &
-      !                IUSEAB,CJRES,SIRES,SCLFAC,0,0,0,IUSE_PH,IPHGAS,CJPA,SIPA)
+      !  call RSBB2BVN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB, &
+      !                MXPNGAS,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,0,0,0, &
+      !                IUSE_PH,IPHGAS,CJPA,SIPA)
       !end if
 
     else if (JJJTRNS == 1) then
@@ -267,8 +260,8 @@ if (IDIAG == 0) then
       !if (IUSE_PA == 0) then
       ! No division into active/passive
       call TIMING(CPU0,CPU,WALL0,WALL)
-      call RSBB2BN(IBSM,IBTP,IASM,IATP,NIB,NIA,JBSM,JBTP,JASM,JATP,NJB,NJA,IJBGRP,IJAGRP,NGAS,IBOC,IAOC,JBOC,JAOC,SB,CB,ADSXA, &
-                   STSTSX,NOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
+      call RSBB2BN(IBSM,IBTP,IASM,IATP,NIB,NIA,JBSM,JBTP,JASM,JATP,NJB,NJA,IJBGRP,IJAGRP,NGAS,IBOC,IAOC,JBOC,JAOC,SB,CB,NOBPTS, &
+                   MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(3) = TSIGMA(3)+(WALL1-WALL0)
 
@@ -276,9 +269,9 @@ if (IDIAG == 0) then
 
       !else
       !  ! Divide into active/passive
-      !  call RSBB2BVN(IBSM,IBTP,IASM,IATP,NIB,NIA,JBSM,JBTP,JASM,JATP,NJB,NJA,IJBGRP,IJAGRP,NGAS,IBOC,IAOC,JBOC,JAOC,SB,CB,ADSXA, &
-      !                STSTSX,MXPNGAS,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS, &
-      !                IUSEAB,CJRES,SIRES,SCLFAC,0,0,0,IUSE_PH,IPHGAS,CJPA,SIPA)
+      !  call RSBB2BVN(IBSM,IBTP,IASM,IATP,NIB,NIA,JBSM,JBTP,JASM,JATP,NJB,NJA,IJBGRP,IJAGRP,NGAS,IBOC,IAOC,JBOC,JAOC,SB,CB, &
+      !                MXPNGAS,NOBPTS,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,0,0,0, &
+      !                IUSE_PH,IPHGAS,CJPA,SIPA)
       !end if
 
       ! Transpose (To compensate later transposition)
@@ -307,8 +300,8 @@ if (IDIAG == 0) then
     write(u6,*) ' I am going to call RSBB1E (last time)'
 #   endif
     call TIMING(CPU0,CPU,WALL0,WALL)
-    call RSBB1E(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT, &
-                NSMOB,NSMST,MOCAA,SCLFAC,IPHGAS)
+    call RSBB1E(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,XINT,NSMOB,MOCAA, &
+                SCLFAC,IPHGAS)
     call TIMING(CPU1,CPU,WALL1,WALL)
     TSIGMA(1) = TSIGMA(1)+(WALL1-WALL0)
 
@@ -328,8 +321,8 @@ if (IDIAG == 0) then
       write(u6,*) ' I am going to call RSBB2A (last time)'
 #     endif
       call TIMING(CPU0,CPU,WALL0,WALL)
-      call RSBB2A(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT, &
-                  NSMOB,NSMST,SCLFAC,IPHGAS)
+      call RSBB2A(IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST,SCLFAC, &
+                  IPHGAS)
       call TIMING(CPU1,CPU,WALL1,WALL)
       TSIGMA(2) = TSIGMA(2)+(WALL1-WALL0)
 

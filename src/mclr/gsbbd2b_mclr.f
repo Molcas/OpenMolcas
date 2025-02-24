@@ -13,7 +13,7 @@
       SUBROUTINE GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,
      &                        JASM,JATP,JBSM,JBTP,NJA,NJB,
      &                  IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,
-     &                  SB,CB,ADSXA,STSTSX,MXPNGAS,
+     &                  SB,CB,MXPNGAS,
      &                  NOBPTS,IOBPTS,MAXK,
      &                  I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,
      &                  NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,
@@ -39,8 +39,6 @@
 * JAEL1(3) : Number of electrons in RAS1(3) for alpha strings in C
 * JBEL1(3) : Number of electrons in RAS1(3) for beta  strings in C
 * CB   : Input C block
-* ADSXA : sym of a+, a+a => sym of a
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 * NTSOB  : Number of orbitals per type and symmetry
 * IBTSOB : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
@@ -68,9 +66,9 @@
 *
 *
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
 *. General input
-      INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
       INTEGER NOBPTS(3,*),IOBPTS(3,*)
 *.Input
       DIMENSION CB(*),SB(*)
@@ -88,8 +86,8 @@
       NGAS = 3
 *
 *. Symmetry of allowed excitations
-      IJSM = STSTSX(IASM,JASM)
-      KLSM = STSTSX(IBSM,JBSM)
+      IJSM = Mul(IASM,JASM)
+      KLSM = Mul(IBSM,JBSM)
       itype=2
       If (ieaw.eq.1) itype=3
       IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
@@ -101,7 +99,7 @@
         ITYP = ITP(IJTYP)
         JTYP = JTP(IJTYP)
         DO 1940 ISM = 1, NSMOB
-          JSM = ADSXA(ISM,IJSM)
+          JSM = Mul(ISM,IJSM)
           IF(JSM.EQ.0) GOTO 1940
           IOFF = IOBPTS(ITYP,ISM)
           JOFF = IOBPTS(JTYP,JSM)
@@ -149,7 +147,7 @@
               LTYP = LTP(KLTYP)
 *
               DO 1930 KSM = 1, NSMOB
-                LSM = ADSXA(KSM,KLSM)
+                LSM = Mul(KSM,KLSM)
                 IF(LSM.EQ.0) GOTO 1930
                 KOFF = IOBPTS(KTYP,KSM)
                 LOFF = IOBPTS(LTYP,LSM)
@@ -200,8 +198,10 @@
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(MXPNGAS)
+        CALL Unused_integer(NSMST)
         CALL Unused_integer(NSMSX)
         CALL Unused_integer(NSMDX)
+        CALL Unused_integer(MXPOBS)
         CALL Unused_integer(NTESTG)
       END IF
       END

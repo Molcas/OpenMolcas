@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PNT4DM(NSMOB,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS12,IS34,IS1234,IPNTR,ISM4A,ADASX)
+subroutine PNT4DM(NSMOB,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,IS12,IS34,IS1234,IPNTR,ISM4A)
 ! Pointer for 4 dimensionl array with total symmetry IDXSM
 ! Pointer is given as 3 dimensional array corresponding
 ! to the first 3 indices
@@ -20,6 +20,7 @@ subroutine PNT4DM(NSMOB,MXPOBS,NO1PS,NO2PS,NO3PS,NO4PS,IDXSM,ADSXA,SXDXSX,IS12,I
 ! IS34 (0,1,-1)   : Permutational symmetry between indices 3 and 3
 ! IS1234 (0,1,-1) : Permutational symmetry between indices 12 and 34
 
+use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -27,8 +28,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: NSMOB, MXPOBS, NO1PS(NSMOB), NO2PS(NSMOB), NO3PS(NSMOB), NO4PS(NSMOB), IDXSM, &
-                                 ADSXA(MXPOBS,2*MXPOBS), SXDXSX(2*MXPOBS,4*MXPOBS), IS12, IS34, IS1234, ADASX(MXPOBS,MXPOBS)
+integer(kind=iwp), intent(in) :: NSMOB, NO1PS(NSMOB), NO2PS(NSMOB), NO3PS(NSMOB), NO4PS(NSMOB), IDXSM, IS12, IS34, IS1234
 integer(kind=iwp), intent(out) :: IPNTR(NSMOB,NSMOB,NSMOB), ISM4A(NSMOB,NSMOB,NSMOB)
 integer(kind=iwp) :: I12NUM, I12SM, I1SM, I2SM, I34NUM, I34SM, I3SM, I4SM, IOFF, N12, N34
 
@@ -46,8 +46,8 @@ N34 = 0
 
 do I1SM=1,NSMOB
   do I2SM=1,NSMOB
-    I12SM = ADASX(I1SM,I2SM)
-    I34SM = SXDXSX(I12SM,IDXSM)
+    I12SM = Mul(I1SM,I2SM)
+    I34SM = Mul(I12SM,IDXSM)
     if (I34SM == 0) cycle
     if ((IS12 /= 0) .and. (I1SM < I2SM)) cycle
     if (IS12 == 0) then
@@ -63,7 +63,7 @@ do I1SM=1,NSMOB
       N12 = nTri_Elem(NO1PS(I1SM)-1)
     end if
     do I3SM=1,NSMOB
-      I4SM = ADSXA(I3SM,I34SM)
+      I4SM = Mul(I3SM,I34SM)
       if (I4SM == 0) cycle
       if ((IS34 /= 0) .and. (I3SM < I4SM)) cycle
       if (IS34 == 0) then

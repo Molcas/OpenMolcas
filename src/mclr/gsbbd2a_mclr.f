@@ -13,7 +13,7 @@
 
       SUBROUTINE GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,
      &                  NROW,NGAS,ISEL,ICEL,SB,CB,
-     &                  ADSXA,SXSTST,STSTSX,SXDXSX,MXPNGAS,
+     &                  MXPNGAS,
      &                  NOBPTS,IOBPTS,MAXI,MAXK,
      &                  SSCR,CSCR,I1,XI1S,I2,XI2S,X,
      &                  NSMOB,NSMST,NSMSX,MXPOBS)
@@ -35,17 +35,13 @@
 * ISEL : Number of electrons per AS for S block
 * ICEL : Number of electrons per AS for C block
 * CB   : Input C block
-* ADASX : sym of a+, a => sym of a+a
-* ADSXA : sym of a+, a+a => sym of a
-* SXSTST : Sym of sx,!st> => sym of sx !st>
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 * MXPNGAS : Max number of AS spaces ( program parameter )
 * NOBPTS  : Number of orbitals per type and symmetry
 * IOBPTS : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
 * NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
 *       single excitations, double excitations
-* MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+* MAXI   : Largest Number of "spectator strings" treated simultaneously
 * MAXK   : Largest number of inner resolution strings treated at simult.
 *
 * ======
@@ -65,10 +61,9 @@
 *
 * Jeppe Olsen, Fall of 96
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
 *. General input
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(NSMSX,NSMST),
-     &        STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS)
       INTEGER NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*)
 *.Input
       INTEGER ISEL(NGAS),ICEL(NGAS)
@@ -86,8 +81,7 @@
       NTEST=0
       CALL DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,3,ISEL,ICEL)
 *.Symmetry of Double excitation that connects IBSM and JBSM
-*. For general use : STSTSX => STSTDX
-      IDXSM = STSTSX(ISCSM,ICCSM)
+      IDXSM = Mul(ISCSM,ICCSM)
       IF(IDXSM.EQ.0) GOTO 2001
       DO 2000 IDXTP =  1, NDXTP
         ITYP = ITP(IDXTP)
@@ -95,13 +89,13 @@
         KTYP = KTP(IDXTP)
         LTYP = LTP(IDXTP)
         DO 1950 IKOBSM = 1, NSMOB
-          JLOBSM = SXDXSX(IKOBSM,IDXSM)
+          JLOBSM = Mul(IKOBSM,IDXSM)
           IF(JLOBSM.EQ.0) GOTO 1950
 *. types + symmetries defined => K strings are defined
 *         KFRST = 1
 *. Loop over of symmetry of i orbitals
           DO 1940 ISM = 1, NSMOB
-          KSM = ADSXA(ISM,IKOBSM)
+          KSM = Mul(ISM,IKOBSM)
           NI = NOBPTS(ITYP,ISM)
           NK = NOBPTS(KTYP,KSM)
           IOFF = IOBPTS(ITYP,ISM)
@@ -110,7 +104,7 @@
 *. Loop over batches of j orbitals
           DO 1930 JSM = 1, NSMOB
           IFIRST = 1
-          LSM = ADSXA(JSM,JLOBSM)
+          LSM = Mul(JSM,JLOBSM)
           NJ = NOBPTS(JTYP,JSM)
           NL = NOBPTS(LTYP,LSM)
           JOFF = IOBPTS(JTYP,JSM)
@@ -301,8 +295,10 @@
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
-        CALL Unused_integer_array(SXSTST)
         CALL Unused_integer_array(I2)
         CALL Unused_real_array(XI2S)
+        CALL Unused_integer(NSMST)
+        CALL Unused_integer(NSMSX)
+        CALL Unused_integer(MXPOBS)
       END IF
       END

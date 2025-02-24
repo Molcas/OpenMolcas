@@ -16,9 +16,8 @@ subroutine MV7(C,HC,LUC,LUHC)
 ! Written in terms of RASG3/SBLOCK, May 1997
 
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, ISMOST, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, &
-                      NOCTYP, NSTSO, PSSIGN, XISPSM
-use csm_data, only: NSMST
+use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, ISMOST, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, NIRREP, NOCTYP, &
+                      NSTSO, PSSIGN, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -49,14 +48,14 @@ call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
 call IAIBCM(ISSPC,SIOIO)
 ! Arrays for additional symmetry operation
 if ((IDC == 3) .or. (IDC == 4)) then
-  call mma_allocate(SVST,NSMST,Label='SVST')
-  call SIGVST(SVST,NSMST)
+  call mma_allocate(SVST,NIRREP,Label='SVST')
+  call SIGVST(SVST,NIRREP)
 else
   call mma_allocate(SVST,1,Label='SVST')
 end if
 ! Arrays giving block type
-call mma_allocate(CBLTP,NSMST,Label='CBLTP')
-call ZBLTP(ISMOST(:,ISSM),NSMST,IDC,CBLTP,SVST)
+call mma_allocate(CBLTP,NIRREP,Label='CBLTP')
+call ZBLTP(ISMOST(:,ISSM),NIRREP,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 ! Arrays for partitioning of sigma
 NTTS = MXNTTS
@@ -76,7 +75,7 @@ if (ENVIRO == 'RASSCF') then
   LBLOCK = max(int(XISPSM(IREFSM,1)),MXSOOB)
   if (PSSIGN /= Zero) LBLOCK = int(2*XISPSM(IREFSM,1))
 end if
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,SIOIO,ISMOST(1,ISSM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
 call mma_deallocate(SIOIO)
 call mma_deallocate(CBLTP)
 

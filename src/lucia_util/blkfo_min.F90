@@ -29,8 +29,7 @@ subroutine BLKFO_MIN(ISM,NBLK,LEN_BLK)
 
 use CandS, only: ISSPC
 use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, IDC, ISMOST, MXNTTS, &
-                      NOCTYP, NSTSO
-use csm_data, only: NSMST
+                      NIRREP, NOCTYP, NSTSO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
@@ -47,15 +46,15 @@ IBTP = 2
 NOCTPA = NOCTYP(IATP)
 NOCTPB = NOCTYP(IBTP)
 ! Pointers to local arrays
-call Allocate_Local_Arrays(MXNTTS,NSMST)
+call Allocate_Local_Arrays(MXNTTS,NIRREP)
 ! Info needed for generation of block info
 call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 call IAIBCM(ISSPC,CIOIO) ! Jesper
-call ZBLTP(ISMOST(:,ISM),NSMST,IDC,CBLTP,I_DUMMY)
+call ZBLTP(ISMOST(:,ISM),NIRREP,IDC,CBLTP,I_DUMMY)
 ! Allowed length of each batch (not important for final output)
 !LBLOCK = max(MXSOOB,LCSBLK)
 ! Batches  of C vector
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,CIOIO,ISMOST(1,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
 ! Number of BLOCKS
 NBLK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 ! Length of each block

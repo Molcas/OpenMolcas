@@ -16,7 +16,6 @@
      &                  NAEL,NBEL,
      &                  IJAGRP,IJBGRP,
      &                  SB,CB,IDOH2,
-     &                  ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX,
      &                  NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                  SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                  XINT,C2,NSMOB,NSMST,NSMSX,NSMDX,
@@ -45,18 +44,10 @@
 * CB : Input c block
 * IDOH2 : = 0 => no two electron operator
 * IDOH2 : = 1 =>    two electron operator
-* ADASX : sym of a+, a => sym of a+a
-* ADSXA : sym of a+, a+a => sym of a
-* SXSTST : Sym of sx,!st> => sym of sx !st>
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-*          is nonvanishing by symmetry
-* DXSTST : Sym of dx,!st> => sym of dx !st>
-* STSTDX : Sym of !st>,dx!st'> => sym of dx so <st!dx!st'>
-*          is nonvanishing by symmetry
 * NTSOB  : Number of orbitals per type and symmetry
 * IBTSOB : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
-* MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+* MAXI   : Largest Number of "spectator strings" treated simultaneously
 * MAXK   : Largest number of inner resolution strings treated at simult.
 *
 * IST, IDOH2 : See RASSG3 input description
@@ -83,8 +74,6 @@
 * Jeppe Olsen, Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER  ADSXA(*),SXSTST(*)
-      INTEGER  STSTSX(*),DXSTST(*),STSTDX(*),SXDXSX(*)
       Logical TimeDep
 *. Output
       DIMENSION CB(*),SB(*)
@@ -124,7 +113,7 @@
             CALL RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &         IBEL1,IBEL3,JBEL1,JBEL3,
      &         SB,CB,
-     &         ADSXA,SXSTST,STSTSX,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
+     &         NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &         SSCR,CSCR,I1,XI1S,XINT,
      &         NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
 *
@@ -139,7 +128,6 @@
          CALL RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &                IBEL1,IBEL3,JBEL1,JBEL3,
      &                SB,CB,
-     &                ADSXA,DXSTST,STSTDX,SXDXSX,
      &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                SSCR,CSCR,I1,XI1S,XINT,
      &                NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,
@@ -181,7 +169,6 @@
      &                IAEL1,IAEL3,JAEL1,JAEL3,
      &                IBEL1,IBEL3,JBEL1,JBEL3,
      &                SB,CB,
-     &                ADSXA,STSTSX,
      &                NTSOB,IBTSOB,ITSOB,MAXK,
      &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                XINT,
@@ -203,7 +190,6 @@
      &                IbEL1,IbEL3,JbEL1,JbEL3,
      &                IaEL1,IaEL3,JaEL1,JaEL3,
      &                SB,CB,
-     &                ADSXA,STSTSX,
      &                NTSOB,IBTSOB,ITSOB,MAXK,
      &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                XINT,
@@ -243,7 +229,6 @@
            CALL RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &                IAEL1,IAEL3,JAEL1,JAEL3,
      &                SB,CB,
-     &                ADSXA,SXSTST,STSTSX,
      &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                SSCR,CSCR,I1,XI1S,XINT,
      &                NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
@@ -258,7 +243,6 @@
             CALL RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &           IAEL1,IAEL3,JAEL1,JAEL3,
      &           SB,CB,
-     &           ADSXA,DXSTST,STSTDX,SXDXSX,
      &           NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &           SSCR,CSCR,I1,XI1S,XINT,
      &           NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,

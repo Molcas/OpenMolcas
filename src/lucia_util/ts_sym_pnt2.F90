@@ -32,8 +32,7 @@ subroutine TS_SYM_PNT2(IGRP,NIGRP,MXVAL,MNVAL,ISYM,IPNT,LPNT)
 ! Version 2 : Uses IGRP and NIGRP to define supergroup
 
 use Symmetry_Info, only: Mul
-use lucia_data, only: MINMAX_SM_GP, MXPNGAS, MXPNSMST, NELFGP, NSTFSMGP
-use csm_data, only: NSMST
+use lucia_data, only: MINMAX_SM_GP, MXPNGAS, MXPNSMST, NELFGP, NIRREP, NSTFSMGP
 use Definitions, only: iwp, u6
 
 #include "intent.fh"
@@ -51,17 +50,17 @@ do IGAS=1,NIGRP
   !ITPFGS(IGAS) = IGRP(IGAS)
   if (NELFGP(IGRP(IGAS)) > 0) NGASL = IGAS
   ! Number of strings per symmetry in each gasspace
-  !NNSTSGP(1:NSMST,IGAS) = NSTSGP(1)%I((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
-  NNSTSGP(1:NSMST,IGAS) = NSTFSMGP(1:NSMST,IGRP(IGAS))
+  !NNSTSGP(1:NIRREP,IGAS) = NSTSGP(1)%I((ITPFGS(IGAS)-1)*NIRREP+1:ITPFGS(IGAS)*NIRREP)
+  NNSTSGP(1:NIRREP,IGAS) = NSTFSMGP(1:NIRREP,IGRP(IGAS))
 end do
 
 !NGASL = NIGRP
 
 !do IGAS=1,NIGRP
-!  do ISMST=1,NSMST
+!  do ISMST=1,NIRREP
 !    if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
 !  end do
-!  do ISMST=NSMST,1,-1
+!  do ISMST=NIRREP,1,-1
 !    if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
 !  end do
 !end do

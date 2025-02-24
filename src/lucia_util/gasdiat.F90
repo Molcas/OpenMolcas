@@ -18,8 +18,7 @@ subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO)
 !
 ! Driven by table of TTS blocks, May97
 
-use lucia_data, only: I_AM_OUT, IDISK, IREOST, MXNSTR, N_ELIMINATED_BATCHES, NACOB, NELEC, NOCTYP, NSTSO, NTOOB, PSSIGN
-use csm_data, only: NSMST
+use lucia_data, only: I_AM_OUT, IDISK, IREOST, MXNSTR, N_ELIMINATED_BATCHES, NACOB, NELEC, NIRREP, NOCTYP, NSTSO, NTOOB, PSSIGN
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -71,7 +70,7 @@ call mma_allocate(LH1D,NACOB,Label='LH1D')
 ! Space for blocks of strings
 call mma_allocate(LASTR,MXNSTR*NAEL,Label='LASTR')
 call mma_allocate(LBSTR,MXNSTR*NBEL,Label='LBSTR')
-MAXA = IMNMX(NSTSO(IATP)%A,NSMST*NOCTPA,2)
+MAXA = IMNMX(NSTSO(IATP)%A,NIRREP*NOCTPA,2)
 call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 
 ! Diagonal of one-body integrals and coulomb and exchange integrals
@@ -79,7 +78,7 @@ call mma_allocate(LRJKA,MAXA,Label='LRJKA')
 call GT1DIA(LH1D)
 call GTJK(LJ,LK,NTOOB,IREOST)
 if (LUDIA > 0) IDISK(LUDIA) = 0
-call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NSMST,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,LUDIA,ECORE,PSSIGN,NTOOB,ICISTR, &
+call GASDIAS(NAEL,LASTR,NBEL,LBSTR,NACOB,DIAG,NIRREP,LH1D,LXB,LJ,LK,NSTSO(IATP)%A,NSTSO(IBTP)%A,LUDIA,ECORE,PSSIGN,NTOOB,ICISTR, &
              LRJKA,I12,IBLTP,NBLOCK,IBLKFO,I_AM_OUT,N_ELIMINATED_BATCHES)
 ! Flush local memory
 call mma_deallocate(LJ)

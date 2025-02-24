@@ -12,8 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK, &
-                  SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,NSMST,MXPOBS,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
+subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
+                  XI1S,I2,XI2S,NSMOB,RHO1S,SCLFAC,IPHGAS,IDOSRHO1,SRHO1,IAB)
 ! SUBROUTINE GSBBD1 --> 40
 !
 ! Contributions to one electron density matrix from column excitations
@@ -34,15 +34,12 @@ subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB
 ! ISEL : Number of electrons per AS for S block
 ! ICEL : Number of electrons per AS for C block
 ! CB   : Input C block
-! ADASX : sym of a+, a => sym of a+a
-! ADSXA : sym of a+, a+a => sym of a
-! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 ! MXPNGAS : Max number of AS spaces (program parameter)
 ! NOBPTS  : Number of orbitals per type and symmetry
 ! IOBPTS : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMDX : Number of symmetries of orbitals, strings, double excitations
-! MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+! NSMOB  : Number of symmetries of orbitals
+! MAXI   : Largest Number of "spectator strings" treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
 ! ======
@@ -65,6 +62,7 @@ subroutine GSBBD1(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB
 ! Jeppe Olsen, Winter of 1991
 ! Updated for GAS, August '95
 
+use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -76,9 +74,8 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(inout) :: RHO1(*), XI1S(*), XI2S(*), RHO1S(*), SRHO1(*)
-integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPOBS, &
-                                 ADSXA(MXPOBS,2*MXPOBS), NSMST, STSTSX(NSMST,NSMST), MXPNGAS, NOBPTS(MXPNGAS,*), &
-                                 IOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, IPHGAS(*), IDOSRHO1, IAB
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPNGAS, &
+                                 NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, IPHGAS(*), IDOSRHO1, IAB
 real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*)
 integer(kind=iwp), intent(inout) :: I1(*), I2(*)
@@ -128,7 +125,7 @@ call GET_SPGP_INF(ISCTP,IGRP,ISGRP)
 ! Type of single excitations that connects the two column strings
 call SXTYP2_GAS(NSXTP,ITP,JTP,NGAS,ISEL,ICEL,IPHGAS)
 ! Symmetry of single excitation that connects IBSM and JBSM
-IJSM = STSTSX(ISCSM,ICCSM)
+IJSM = Mul(ISCSM,ICCSM)
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ISCSM,ICCSM IJSM ',ISCSM,ICCSM,IJSM
 #endif
@@ -183,7 +180,7 @@ if (IJSM /= 0) then
     do ISM=1,NSMOB
       ! new i and j so new intermediate strings
 
-      JSM = ADSXA(ISM,IJSM)
+      JSM = Mul(ISM,IJSM)
       if (JSM == 0) cycle
 #     ifdef _DEBUGPRINT_
       write(u6,*) ' ISM JSM ',ISM,JSM
@@ -279,14 +276,13 @@ if (IJSM /= 0) then
             call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,LKABTC,I2(KBOT+(IIORB-1)*NKASTR),XI2S(KBOT+(IIORB-1)*NKASTR))
           end do
 
+          ! And then the hard work
+          NKI = LKABTC*NIBTC
 #         ifdef _DEBUGPRINT_
           write(u6,*) ' CSCR and SSCR'
           call WRTMAT(CSCR,IJ_DIM(2),NKI,IJ_DIM(2),NKI)
           call WRTMAT(SSCR,IJ_DIM(1),NKI,IJ_DIM(1),NKI)
 #         endif
-
-          ! And then the hard work
-          NKI = LKABTC*NIBTC
           FACTORC = Zero
           FACTORAB = One
           call MATML7(RHO1S,SSCR,CSCR,IJ_DIM(1),IJ_DIM(2),NKI,IJ_DIM(1),NKI,IJ_DIM(2),FACTORC,FACTORAB,1)

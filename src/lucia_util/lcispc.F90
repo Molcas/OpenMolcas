@@ -21,8 +21,7 @@ subroutine LCISPC()
 !
 ! GAS VERSION
 
-use lucia_data, only: IDC, ISMOST, MXNTTS, MXPCSM, MXSB, MXSOOB, NCMBSPC, NOCTYP, NSTSO, XISPSM
-use csm_data, only: NSMCI, NSMST
+use lucia_data, only: IDC, ISMOST, MXNTTS, MXPCSM, MXSB, MXSOOB, NCMBSPC, NIRREP, NOCTYP, NSTSO, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -45,17 +44,17 @@ IBTP = 2
 NOCTPA = NOCTYP(IATP)
 NOCTPB = NOCTYP(IBTP)
 ! Local memory
-call mma_allocate(LBLTP,NSMST,Label='LBLTP')
-call mma_allocate(CVST,NSMST,Label='CVST')
+call mma_allocate(LBLTP,NIRREP,Label='LBLTP')
+call mma_allocate(CVST,NIRREP,Label='CVST')
 call mma_allocate(LIOIO,NOCTPA*NOCTPB,Label='LIOIO')
-call mma_allocate(NBLKIC,NSMCI,NCMBSPC,Label='NBLKIC')
+call mma_allocate(NBLKIC,NIRREP,NCMBSPC,Label='NBLKIC')
 ! Obtain array giving symmetry of sigma v reflection times string
 ! symmetry.
-!if ((IDC == 3) .or. (IDC == 4)) call SIGVST(CVST,NSMST)
+!if ((IDC == 3) .or. (IDC == 4)) call SIGVST(CVST,NIRREP)
 
 ! Array defining symmetry combinations of internal strings
 ! Number of internal dets for each symmetry
-call SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
+call SMOST(NIRREP,NIRREP,MXPCSM,ISMOST)
 ! MXSB is not calculated anymore, set to 0
 MXSB = 0
 
@@ -64,9 +63,9 @@ do ICI=1,NCMBSPC
   ! allowed combination of types
   call IAIBCM(ICI,LIOIO)
 
-  do ISYM=1,NSMCI
-    call ZBLTP(ISMOST(:,ISYM),NSMST,IDC,LBLTP,CVST)
-    call NGASDT(ISYM,NSMST,NOCTPA,NOCTPB,NSTSO(IATP)%A,NSTSO(IBTP)%A,NCOMB,XNCOMB,MXS,MXSOO,LBLTP,NTTSBL,LCOL,LIOIO,MXSOO_AS)
+  do ISYM=1,NIRREP
+    call ZBLTP(ISMOST(:,ISYM),NIRREP,IDC,LBLTP,CVST)
+    call NGASDT(ISYM,NIRREP,NOCTPA,NOCTPB,NSTSO(IATP)%A,NSTSO(IBTP)%A,NCOMB,XNCOMB,MXS,MXSOO,LBLTP,NTTSBL,LCOL,LIOIO,MXSOO_AS)
 
     XISPSM(ISYM,ICI) = XNCOMB
     MXSOOB = max(MXSOOB,MXSOO)
@@ -88,8 +87,8 @@ write(u6,*) ' ============================================'
 
 do ICI=1,NCMBSPC
   write(u6,*) ' CI space ',ICI
-  write(u6,'(1X, 4ES22.15)') (XISPSM(II,ICI),II=1,NSMCI)
-  !call WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
+  write(u6,'(1X, 4ES22.15)') (XISPSM(II,ICI),II=1,NIRREP)
+  !call WRTMAT(XISPSM(1,ICI),1,NIRREP,1,NIRREP)
 end do
 write(u6,*)
 write(u6,*) ' Largest Symmetry-type-type block ',MXSOOB
@@ -101,7 +100,7 @@ write(u6,*) ' ========================================'
 
 do ICI=1,NCMBSPC
   write(u6,*) ' Internal CI space ',ICI
-  call IWRTMA(NBLKIC(1,ICI),1,NSMCI,1,NSMCI)
+  call IWRTMA(NBLKIC(:,ICI),1,NIRREP,1,NIRREP)
 end do
 #endif
 ! Largest number of BLOCKS in a CI expansion
@@ -115,7 +114,7 @@ write(u6,*) ' =================================='
 
 !do ICI=1,NCMBSPC
 !  write(u6,*) ' Internal CI space ',ICI
-!  call IWRTMA(LCOLIC(1,ICI),1,NSMCI,1,NSMCI)
+!  call IWRTMA(LCOLIC(:,ICI),1,NIRREP,1,NIRREP)
 !end do
 #endif
 

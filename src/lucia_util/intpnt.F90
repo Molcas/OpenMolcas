@@ -27,8 +27,7 @@ subroutine INTPNT(IPNT1,ISL1,IPNT2,ISL2)
 ! Jeppe Olsen, Last Update : August 2000
 
 use GLBBAS, only: PGINT1, PGINT1A
-use lucia_data, only: I1234S, I12S, I34S, MXPOBS, NSMOB, NTOOBS
-use csm_data, only: ADASX, ADSXA, ITSDX, ITSSX, SXDXSX
+use lucia_data, only: I1234S, I12S, I34S, NSMOB, NTOOBS
 use Definitions, only: iwp
 
 implicit none
@@ -37,15 +36,15 @@ integer(kind=iwp) :: ISM
 
 ! 0 : Pointers to one-integrals, all symmetries, Lower half matrices
 do ISM=1,NSMOB
-  call PNT2DM(1,NSMOB,ADSXA,NTOOBS,NTOOBS,ISM,ISL1,PGINT1(ISM)%A,MXPOBS)
+  call PNT2DM(1,NSMOB,NTOOBS,NTOOBS,ISM,ISL1,PGINT1(ISM)%A)
 end do
 ! 0.5 : Pointers to one-electron integrals, all symmetries, complete form
 do ISM=1,NSMOB
-  call PNT2DM(0,NSMOB,ADSXA,NTOOBS,NTOOBS,ISM,ISL1,PGINT1A(ISM)%A,MXPOBS)
+  call PNT2DM(0,NSMOB,NTOOBS,NTOOBS,ISM,ISL1,PGINT1A(ISM)%A)
 end do
 ! 1 : Number of one-electron integrals
-call PNT2DM(1,NSMOB,ADSXA,NTOOBS,NTOOBS,ITSSX,ISL1,IPNT1,MXPOBS)
+call PNT2DM(1,NSMOB,NTOOBS,NTOOBS,1,ISL1,IPNT1)
 ! 2 : two-electron integrals
-call PNT4DM(NSMOB,MXPOBS,NTOOBS,NTOOBS,NTOOBS,NTOOBS,ITSDX,ADSXA,SXDXSX,I12S,I34S,I1234S,IPNT2,ISL2,ADASX)
+call PNT4DM(NSMOB,NTOOBS,NTOOBS,NTOOBS,NTOOBS,1,I12S,I34S,I1234S,IPNT2,ISL2)
 
 end subroutine INTPNT

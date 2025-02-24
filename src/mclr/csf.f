@@ -373,7 +373,7 @@ C?    END IF
       use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
       use MCLR_Data, only: MAXOP,MINOP,NCNATS
       use CandS, only: ICSM,ISSM,ICSPC,ISSPC
-      use csm_data, only: NSMST
+      use input_mclr, only: nIrrep
 *
       Implicit None
       Integer lSym,iSpin,MS,iSPC,iPrnt,nsym
@@ -408,8 +408,8 @@ C     MXELR3 = MNR1IC(ISPC)
      &            Str(IATP)%EL1,Str(IATP)%EL3,
      &            Str(IBTP)%EL1,Str(IBTP)%EL3,
      &            SIOIO,IPRNT)
-      CALL mma_allocate(SBLTP,NSMST,Label='SBLTP')
-      NOOS = NOCTPA*NOCTPB*NSMST
+      CALL mma_allocate(SBLTP,nIrrep,Label='SBLTP')
+      NOOS = NOCTPA*NOCTPB*nIrrep
       CALL mma_allocate(IOOS1,NOOS,Label='IOOS1')
       CALL mma_allocate(NOOS1,NOOS,Label='NOOS1')
       CALL INTCSF(NACOB,NEL,iSpin,MS2,
@@ -427,9 +427,9 @@ C     MXELR3 = MNR1IC(ISPC)
       iA=0
       Do iSym=1,nSym
 *.OOS arrayy
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IDC,SBLTP,idum)
+          CALL ZBLTP(ISMOST(1,ISYM),nIrrep,IDC,SBLTP,idum)
           CALL ZOOS(ISMOST(1,ISYM),SBLTP,
-     &          NSMST,SIOIO,
+     &          nIrrep,SIOIO,
      &          Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &          NOCTPA,NOCTPB,idc,IOOS1,NOOS1,NCOMB,0)
 *EAW           CALL CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,
@@ -1950,7 +1950,7 @@ C
      &                       MXSOOB,NICISP
       use DetDim, only: MXPCSM
       use Constants, only: Zero
-      use csm_data, only: NSMCI,NSMST
+      use input_mclr, only: nIrrep
 *
 * Number of dets and combinations
 * per symmetry for each type of internal space
@@ -1972,26 +1972,26 @@ C
 *
 *
 *.Local memory
-      Call mma_allocate(LBLTP,NSMST,Label='LBLTP')
+      Call mma_allocate(LBLTP,nIrrep,Label='LBLTP')
 *     IF(IDC.EQ.3 .OR. IDC .EQ. 4 )
-*    &Call mma_allocate(LCVST,NSMST,Label='LCVST')
-      Call mma_allocate(LCVST,NSMST,Label='LCVST')
+*    &Call mma_allocate(LCVST,nIrrep,Label='LCVST')
+      Call mma_allocate(LCVST,nIrrep,Label='LCVST')
 
 *. Obtain array giving symmetry of sigma v reflection times string
 *. symmetry.
-*     IF(IDC.EQ.3.OR.IDC.EQ.4) CALL SIGVST(LCVST,NSMST)
+*     IF(IDC.EQ.3.OR.IDC.EQ.4) CALL SIGVST(LCVST,nIrrep)
 
 *. Array defining symmetry combinations of internal strings
 *. Number of internal dets for each symmetry
-C            SMOST(NSMST,NSMCI,MXPCSM,ISMOST)
-        CALL SMOST_MCLR(NSMST,NSMCI,MXPCSM,ISMOST)
+C            SMOST(nIrrep,nIrrep,MXPCSM,ISMOST)
+        CALL SMOST_MCLR(nIrrep,nIrrep,MXPCSM,ISMOST)
 
       MXSB = 0
       MXSOOB = 0
       MXCEXP = 0
       XISPSM(:,:) = Zero
       DO 100 ICI = 1, NICISP
-      DO  50 ISYM = 1, NSMCI
+      DO  50 ISYM = 1, nIrrep
         IATP = IASTFI(ICI)
         IBTP = IBSTFI(ICI)
 CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
@@ -2001,9 +2001,9 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
           IIDC = 1
         END IF
         IF(IACTI(ICI).EQ.1) THEN
-          CALL ZBLTP(ISMOST(1,ISYM),NSMST,IIDC,LBLTP,LCVST)
+          CALL ZBLTP(ISMOST(1,ISYM),nIrrep,IIDC,LBLTP,LCVST)
           CALL NRASDT(MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI),
-     &         ISYM,NSMST,NOCTYP(IATP),NOCTYP(IBTP),Str(IATP)%EL1,
+     &         ISYM,nIrrep,NOCTYP(IATP),NOCTYP(IBTP),Str(IATP)%EL1,
      &         Str(IBTP)%EL1,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &         Str(IATP)%EL3,Str(IBTP)%EL3,
      &         NCOMB,XNCOMB,MXS,MXSOO,LBLTP)
@@ -2035,7 +2035,7 @@ CMS        write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
       DO 200 ICI = 1, MX
         IF(IACTI(ICI).EQ.1) THEN
           WRITE(6,*) ' Internal CI space ', ICI
-          CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
+          CALL WRTMAT(XISPSM(1,ICI),1,nIrrep,1,nIrrep)
         END IF
   200 CONTINUE
       WRITE(6,*) ' Largest CI space                 ',MXCEXP

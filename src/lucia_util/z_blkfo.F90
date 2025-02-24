@@ -30,8 +30,7 @@ subroutine Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
 !
 ! Jeppe Olsen, Feb. 98
 
-use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, IDC, ISMOST, MXNTTS, NSTSO, NOCTYP
-use csm_data, only: NSMST
+use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, IDC, ISMOST, MXNTTS, NIRREP, NSTSO, NOCTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -57,13 +56,13 @@ write(u6,*) ' ISM, ISPC = ',ISM,ISPC
 NOCTPA = NOCTYP(IATP)
 NOCTPB = NOCTYP(IBTP)
 ! Allocate local arrays
-call Allocate_Local_Arrays(MXNTTS,NSMST)
+call Allocate_Local_Arrays(MXNTTS,NIRREP)
 ! These should be preserved after exit so put mark for flushing here
 ! Info needed for generation of block info
 call mma_allocate(LCIOIO,NOCTPA*NOCTPB,Label='LCIOIO')
 call IAIBCM(ISPC,LCIOIO)
 call mma_allocate(SVST,1,Label='SVST')
-call ZBLTP(ISMOST(:,ISM),NSMST,IDC,CBLTP,SVST)
+call ZBLTP(ISMOST(:,ISM),NIRREP,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 ! Allowed length of each batch
 !if (ISIMSYM == 0) then
@@ -84,7 +83,7 @@ call mma_deallocate(SVST)
 !#endif
 
 ! Batches of C vector
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,LCIOIO,ISMOST(:,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,LCIOIO,ISMOST(:,ISM),NBATCH,CLBT,CLEBT,CI1BT,CIBT,0)
 ! Number of BLOCKS
 NBLOCK = CI1BT(NBATCH)+CLBT(NBATCH)-1
 #ifdef _DEBUGPRINT_

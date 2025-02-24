@@ -12,8 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,ADSXA, &
-                   STSTSX,NOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
+subroutine RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB,NOBPTS,MAXK, &
+                   I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,IUSEAB,CJRES,SIRES,SCLFAC,IPHGAS)
 ! SUBROUTINE RSBB2BN --> 52
 !
 ! Combined alpha-beta double excitation
@@ -37,12 +37,10 @@ subroutine RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP
 ! JAEL1(3) : Number of electrons in RAS1(3) for alpha strings in C
 ! JBEL1(3) : Number of electrons in RAS1(3) for beta  strings in C
 ! CB   : Input C block
-! ADSXA : sym of a+, a+a => sym of a
-! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST : Number of symmetries of orbitals, strings
+! NSMOB  : Number of symmetries of orbitals
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
 ! ======
@@ -72,8 +70,9 @@ subroutine RSBB2BN(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP
 !
 ! Last change : Aug 2000
 
+use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
-use lucia_data, only: MXPNGAS, MXPOBS
+use lucia_data, only: MXPNGAS
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -84,8 +83,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), &
-                                 IBOC(*), JAOC(*), JBOC(*), ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), &
-                                 MAXK, NSMOB, IUSEAB, IPHGAS(*)
+                                 IBOC(*), JAOC(*), JBOC(*), NOBPTS(MXPNGAS,*), MAXK, NSMOB, IUSEAB, IPHGAS(*)
 real(kind=wp), intent(inout) :: SB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC
 integer(kind=iwp), intent(inout) :: I1(*), I2(*), I3(*), I4(*)
@@ -109,8 +107,8 @@ call GET_SPGP_INF(IBTP,IBGRP,IBSPGP)
 call GET_SPGP_INF(JBTP,IBGRP,JBSPGP)
 
 ! Symmetry of allowed excitations
-IJSM = STSTSX(IASM,JASM)
-KLSM = STSTSX(IBSM,JBSM)
+IJSM = Mul(IASM,JASM)
+KLSM = Mul(IBSM,JBSM)
 if ((IJSM == 0) .or. (KLSM == 0)) return
 #ifdef _DEBUGPRINT_
 write(u6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
@@ -126,7 +124,7 @@ do IJTYP=1,NIJTYP
   ITYP = ITP(IJTYP)
   JTYP = JTP(IJTYP)
   do ISM=1,NSMOB
-    JSM = ADSXA(ISM,IJSM)
+    JSM = Mul(ISM,IJSM)
     if (JSM == 0) cycle
     NI = NOBPTS(ITYP,ISM)
     NJ = NOBPTS(JTYP,JSM)
@@ -252,7 +250,7 @@ do IJTYP=1,NIJTYP
         !end if
 
         do KSM=1,NSMOB
-          LSM = ADSXA(KSM,KLSM)
+          LSM = Mul(KSM,KLSM)
 #         ifdef _DEBUGPRINT_
           write(u6,*) ' KSM, LSM',KSM,LSM
 #         endif

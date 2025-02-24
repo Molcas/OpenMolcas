@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,ADSXA,STSTDX,SXDXSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                  XINT,NSMOB,NSMST,SCLFAC,IPHGAS)
+subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT,NSMOB,NSMST, &
+                  SCLFAC,IPHGAS)
 ! SUBROUTINE RSBB2A --> 46
 !
 ! two electron excitations on column strings
@@ -28,16 +28,11 @@ subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,ADSXA,S
 ! ISEL1(3) : Number of electrons in RAS1(3) for S block
 ! ICEL1(3) : Number of electrons in RAS1(3) for C block
 ! CB   : Input C block
-! ADASX : sym of a+, a => sym of a+a
-! ADSXA : sym of a+, a+a => sym of a
-! DXSTST : Sym of sx,!st> => sym of sx !st>
-! STSTDX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-! SXDXSX : Symmetry of SX1,SX1*SX2 => symmetry of SX2
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX : Number of symmetries of orbitals, strings, single excitations
-! MAXI   : Largest number of 'spectator strings' treated simultaneously
+! NSMOB,NSMST : Number of symmetries of orbitals, strings
+! MAXI   : Largest number of "spectator strings" treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
 ! ======
@@ -61,9 +56,10 @@ subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,ADSXA,S
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
-use lucia_data, only: MXPNGAS, MXPOBS, MXPTSOB
+use lucia_data, only: MXPNGAS, MXPTSOB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
@@ -74,9 +70,8 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), ADSXA(MXPOBS,2*MXPOBS), &
-                                 NSMST, STSTDX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS), NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, &
-                                 IPHGAS(NGAS)
+integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISOC(NGAS), ICOC(NGAS), NSMST, NOBPTS(MXPNGAS,*), &
+                                 MAXI, MAXK, NSMOB, IPHGAS(NGAS)
 real(kind=wp), intent(inout) :: SB(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XINT(*)
@@ -109,7 +104,7 @@ FACX = Zero
 
 ! Types of DX that connects the two strings
 
-IDXSM = STSTDX(ISCSM,ICCSM)
+IDXSM = Mul(ISCSM,ICCSM)
 if (IDXSM /= 0) then
   ! Connecting double excitations
   call DXTYP2_GAS(NDXTYP,ITP,JTP,KTP,LTP,NGAS,ISOC,ICOC,IPHGAS)
@@ -209,7 +204,7 @@ if (IDXSM /= 0) then
       ! Largest posssible
       ! Symmetry of allowed Double excitation,loop over excitations
       do IKOBSM=1,NSMOB
-        JLOBSM = SXDXSX(IKOBSM,IDXSM)
+        JLOBSM = Mul(IKOBSM,IDXSM)
 #       ifdef _DEBUGPRINT_
         write(u6,*) ' IKOBSM,JLOBSM',IKOBSM,JLOBSM
 #       endif
@@ -224,7 +219,7 @@ if (IDXSM /= 0) then
         NBLK = 0
         NBLKT = 0
         do ISM=1,NSMOB
-          KSM = ADSXA(ISM,IKOBSM)
+          KSM = Mul(ISM,IKOBSM)
           NI = NOBPTS(ITYP,ISM)
           NK = NOBPTS(KTYP,KSM)
 #         ifdef _DEBUGPRINT_
@@ -280,7 +275,7 @@ if (IDXSM /= 0) then
         NBLK = 0
         NBLKT = 0
         do JSM=1,NSMOB
-          LSM = ADSXA(JSM,JLOBSM)
+          LSM = Mul(JSM,JLOBSM)
           NJ = NOBPTS(JTYP,JSM)
           NL = NOBPTS(LTYP,LSM)
 
@@ -563,14 +558,14 @@ if (IDXSM /= 0) then
       IKSM = 0
       ! Symmetry of allowed Double excitation,loop over excitations
       do IKOBSM=1,NSMOB
-        JLOBSM = SXDXSX(IKOBSM,IDXSM)
+        JLOBSM = Mul(IKOBSM,IDXSM)
         if (JLOBSM == 0) cycle
         ! types + symmetries defined => K strings are defined
         KFRST = 1
         do ISM=1,NSMOB
-          KSM = ADSXA(ISM,IKOBSM)
+          KSM = Mul(ISM,IKOBSM)
           do JSM=1,NSMOB
-            LSM = ADSXA(JSM,JLOBSM)
+            LSM = Mul(JSM,JLOBSM)
 #           ifdef _DEBUGPRINT_
             write(u6,*) ' ISM KSM LSM JSM',ISM,KSM,LSM,JSM
 #           endif
@@ -585,9 +580,9 @@ if (IDXSM /= 0) then
             JSM_ORIG = ISCR(4)
 
             !do ISM_ORIG=1,NSMOB
-            !  KSM_ORIG = ADSXA(ISM_ORIG,IKOBSM)
+            !  KSM_ORIG = Mul(ISM_ORIG,IKOBSM)
             !  do JSM_ORIG=1,NSMOB
-            !    LSM_ORIG = ADSXA(JSM_ORIG,JLOBSM)
+            !    LSM_ORIG = Mul(JSM_ORIG,JLOBSM)
             !
             !    ISCR(1) = ISM_ORIG
             !    ISCR(2) = KSM_ORIG

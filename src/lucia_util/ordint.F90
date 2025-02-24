@@ -21,7 +21,10 @@ subroutine ORDINT(IINST,IOUTST,NELMNT,INO)
 ! THIS CODE CONTAINS THE OLD ORDER CODE OF JOE GOLAB
 ! (HE IS HEREBY ACKNOWLEDGED, AND I AM EXCUSED)
 
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: NELMNT, IINST(NELMNT)

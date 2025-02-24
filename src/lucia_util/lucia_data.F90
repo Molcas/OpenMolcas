@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer(kind=iwp), parameter :: LOFFI = 8**6, MXPCSM = 100, MXPICI = 30, MXPIRR = 20, MXPNSMST = 8, MXPOBS = 20, MXPORB = 500, &
+integer(kind=iwp), parameter :: LOFFI = 8**6, MXPCSM = 100, MXPICI = 30, MXPIRR = 20, MXPNSMST = 8, MXPOBS = 8, MXPORB = 500, &
                                 MXPPTSPC = 20, MXPR4T = 10, MXPSTT = 2500, MXPTSOB = 35
 integer(kind=iwp), parameter :: MXPNGAS = MXPR4T+6
 

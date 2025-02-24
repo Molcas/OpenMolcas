@@ -12,8 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine RSBB1E(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S, &
-                  H,NSMOB,NSMST,MOC,SCLFAC,IPHGAS)
+subroutine RSBB1E(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,H,NSMOB,MOC, &
+                  SCLFAC,IPHGAS)
 ! SUBROUTINE RSBB1E --> 33
 !
 ! One electron excitations on column strings
@@ -34,15 +34,11 @@ subroutine RSBB1E(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,S
 ! ISEL : Occupation in each active set for sigma block
 ! ICEL : Occupation in each active set for C     block
 ! CB   : Input C block
-! ADASX : sym of a+, a => sym of a+a
-! ADSXA : sym of a+, a+a => sym of a
-! SXSTST : Sym of sx,!st> => sym of sx !st>
-! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMDX : Number of symmetries of orbitals, strings, double excitations
-! MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+! NSMOB  : Number of symmetries of orbitals
+! MAXI   : Largest Number of "spectator strings" treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
 ! MOC  : Use MOC method (instead of N-1 resolution method)
@@ -66,8 +62,9 @@ subroutine RSBB1E(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,S
 ! Jeppe Olsen, Winter of 1991
 !              IUSE_PH added winter of 97
 
+use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
-use lucia_data, only: MXPNGAS, MXPOBS, MXPTSOB
+use lucia_data, only: MXPNGAS, MXPTSOB
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -77,8 +74,8 @@ use Definitions, only: u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), ADSXA(MXPOBS,2*MXPOBS), &
-                                 NSMST, STSTSX(NSMST,NSMST), NOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB, MOC, IPHGAS(NGAS)
+integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), NOBPTS(MXPNGAS,*), MAXI, &
+                                 MAXK, NSMOB, MOC, IPHGAS(NGAS)
 real(kind=wp), intent(_OUT_) :: SB(*), SSCR(*), CSCR(*), H(*)
 real(kind=wp), intent(in) :: CB(*), SCLFAC
 integer(kind=iwp), intent(inout) :: I1(*), I2(*)
@@ -120,7 +117,7 @@ call GET_SPGP_INF(ISCTP,IGRP,ISGRP)
 ! Types of single excitations that connect ISEL and ICEL
 call SXTYP2_GAS(NSXTP,ITP,JTP,NGAS,ISEL,ICEL,IPHGAS)
 ! Symmetry of single excitation that connects IBSM and JBSM
-IJSM = STSTSX(ISCSM,ICCSM)
+IJSM = Mul(ISCSM,ICCSM)
 if (IJSM /= 0) then
   do IJTP=1,NSXTP
     ITYP = ITP(IJTP)
@@ -174,7 +171,7 @@ if (IJSM /= 0) then
     !IJ_TP(2) = ISCR(IJ_REO(2))
 
     do ISM=1,NSMOB
-      JSM = ADSXA(ISM,IJSM)
+      JSM = Mul(ISM,IJSM)
       ! New intermediate strings will be accessed so
       if (JSM == 0) cycle
 #     ifdef _DEBUGPRINT_

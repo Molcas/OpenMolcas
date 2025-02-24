@@ -35,9 +35,7 @@
       use MCLR_Data, only: NACOB,IBTSOB,NOBPTS,NTSOB
       use DetDim, only: MXPOBS,MXINKA,MXPNGAS
       use CandS, only: ICSM,ISSM,ISSPC,ICSPC
-      use input_mclr, only: nsMOB
-      use csm_data, only: NSMST,NSMDX,NSMSX
-      use csm_data, only: ADSXA,ASXAD,SXDXSX
+      use input_mclr, only: nIrrep,nsMOB
       IMPLICIT None
       Integer I12
 *.Output
@@ -56,7 +54,7 @@
 *. Before I forget it :
       INTEGER iSXSTSM(1),IDUMMY(1)
       Integer, Allocatable:: SIOIO(:), CIOIO(:), SBLTP(:), CBLTP(:)
-      Integer, Allocatable:: STSTS(:), STSTD(:), IX(:,:), OOS(:,:)
+      Integer, Allocatable:: IX(:,:), OOS(:,:)
       Real*8, Allocatable:: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
       Real*8, Allocatable:: RHO1S(:), RHO1P(:), XNATO(:)
       Integer idum(1)
@@ -96,31 +94,25 @@
       NAEL = NELEC(IATP)
       NBEL = NELEC(IBTP)
 
-*
-* string sym, string sym => sx sym
-* string sym, string sym => dx sym
-      CALL mma_allocate(STSTS,NSMST ** 2,Label='STSTS')
-      CALL mma_allocate(STSTD,NSMST ** 2,Label='STSTD')
-      CALL STSTSM_MCLR(STSTS,STSTD,NSMST)
 *. Largest block of strings in zero order space
       MXSTBL0 = MXNSTR
 *. Largest number of strings of given symmetry and type
       MAXA = 0
       IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(Str(IATPM1)%NSTSO,NSMST*NOCTYP(IATPM1),2)
+        MAXA1 = IMNMX(Str(IATPM1)%NSTSO,nIrrep*NOCTYP(IATPM1),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(Str(IATPM2)%NSTSO,NSMST*NOCTYP(IATPM2),2)
+        MAXA1 = IMNMX(Str(IATPM2)%NSTSO,nIrrep*NOCTYP(IATPM2),2)
         MAXA = MAX(MAXA,MAXA1)
       END IF
       MAXB = 0
       IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(Str(IBTPM1)%NSTSO,NSMST*NOCTYP(IBTPM1),2)
+        MAXB1 = IMNMX(Str(IBTPM1)%NSTSO,nIrrep*NOCTYP(IBTPM1),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(Str(IBTPM2)%NSTSO,NSMST*NOCTYP(IBTPM2),2)
+        MAXB1 = IMNMX(Str(IBTPM2)%NSTSO,nIrrep*NOCTYP(IBTPM2),2)
         MAXB = MAX(MAXB,MAXB1)
       END IF
       MXSTBL = MAX(MAXA,MAXB)
@@ -177,7 +169,7 @@
 *
       IATP2 = MIN(IATP+2,ITYP_Dummy)
       IBTP2 = MIN(IBTP+2,ITYP_Dummy)
-      CALL MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,NSMST,
+      CALL MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nIrrep,
      &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &            IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1),
      &            Str(IBTP+1)%NSTSO,NOCTYP(IBTP+1),
@@ -199,13 +191,13 @@
       CALL mma_allocate(IX,LSCR3,4,Label='IX')
       CALL mma_allocate(XIXS,LSCR3,4,Label='XIXS')
 *. Arrays giving block type
-      CALL mma_allocate(SBLTP,NSMST,Label='SBLTP')
-      CALL mma_allocate(CBLTP,NSMST,Label='CBLTP')
+      CALL mma_allocate(SBLTP,nIrrep,Label='SBLTP')
+      CALL mma_allocate(CBLTP,nIrrep,Label='CBLTP')
 *. Arrays for additional symmetry operation
-      CALL ZBLTP(ISMOST(1,ISSM),NSMST,IDC,SBLTP,idum)
-      CALL ZBLTP(ISMOST(1,ICSM),NSMST,IDC,CBLTP,idum)
+      CALL ZBLTP(ISMOST(1,ISSM),nIrrep,IDC,SBLTP,idum)
+      CALL ZBLTP(ISMOST(1,ICSM),nIrrep,IDC,CBLTP,idum)
 *.10 OOS arrayy
-      NOOS = NOCTPA*NOCTPB*NSMST
+      NOOS = NOCTPA*NOCTPB*nIrrep
       CALL mma_allocate(OOS,NOOS,10,Label='OSS')
 * scratch space containing active one body
       CALL mma_allocate(RHO1S,NACOB ** 2,Label='RHO1S')
@@ -222,12 +214,12 @@
 *
       IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
 *. Left CI vector
-        CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),SBLTP,NSMST,
+        CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),SBLTP,nIrrep,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
      &              Str(IBTP)%NSTSO,SIOIO,IDC,
      &              2,IDUMMY,IPRDIA)
 *. Right CI vector
-        CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),CBLTP,NSMST,
+        CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),CBLTP,nIrrep,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
      &              Str(IBTP)%NSTSO,CIOIO,IDC,
      &              2,IDUMMY,IPRDIA)
@@ -242,12 +234,12 @@
      &       Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,
      &       NAEL,IATP,NBEL,IBTP,
      &       IOCTPA,IOCTPB,NOCTPA,NOCTPB,
-     &       NSMST,NSMOB,NSMSX,NSMDX,
+     &       nIrrep,NSMOB,nIrrep,nIrrep,
      &       MXPNGAS,NTSOB,IBTSOB,
      &       MAXK,MAXI,LSCR1,LSCR1,
      &       C2(LSCR2+1:LSCR12),C2(1:LSCR2),
-     &       iSXSTSM,STSTS,STSTD,SXDXSX,
-     &       ADSXA,ASXAD,NGAS,
+     &       iSXSTSM,
+     &       NGAS,
      &       Str(IATP)%EL123,Str(IBTP)%EL123,IDC,
      &       OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4), OOS(:,5),
      &       OOS(:,6), OOS(:,7), OOS(:,8), OOS(:,9), OOS(:,10),
@@ -264,12 +256,12 @@
      &       Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,
      &       NAEL,IATP,NBEL,IBTP,
      &       IOCTPA,IOCTPB,NOCTPA,NOCTPB,
-     &       NSMST,NSMOB,NSMSX,NSMDX,
+     &       nIrrep,NSMOB,nIrrep,nIrrep,
      &       MXPNGAS,NTSOB,IBTSOB,
      &       MAXK,MAXI,LSCR1,LSCR1,
      &       C2(LSCR2+1:LSCR12),C2(1:LSCR2),
-     &       iSXSTSM,STSTS,STSTD,SXDXSX,
-     &       ADSXA,ASXAD,NGAS,
+     &       iSXSTSM,
+     &       NGAS,
      &       Str(IATP)%EL123,Str(IBTP)%EL123,IDC,
      &       OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4), OOS(:,5),
      &       OOS(:,6), OOS(:,7), OOS(:,8), OOS(:,9), OOS(:,10),
@@ -282,11 +274,11 @@
       IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
 *. Transform from combination scaling to determinant scaling
 *
-        CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),SBLTP,NSMST,
+        CALL SCDTC2_MCLR(L,ISMOST(1,ISSM),SBLTP,nIrrep,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
      &              Str(IBTP)%NSTSO,SIOIO,IDC,
      &              1,IDUMMY,IPRDIA)
-        CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),CBLTP,NSMST,
+        CALL SCDTC2_MCLR(R,ISMOST(1,ICSM),CBLTP,nIrrep,
      &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,
      &              Str(IBTP)%NSTSO,CIOIO,IDC,
      &              1,IDUMMY,IPRDIA)
@@ -294,8 +286,6 @@
 *
 *     Free memory
 *
-      Call mma_deallocate(STSTS)
-      Call mma_deallocate(STSTD)
       If (ICISTR.eq.1) Then
          Call mma_deallocate(CB)
          Call mma_deallocate(SB)

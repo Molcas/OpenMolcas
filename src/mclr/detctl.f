@@ -69,8 +69,6 @@
       CALL ORBINF_MCLR(nSym,nSym,nRs1,nRs2,nRs3,mxr4tp,IPRORB) ! OK
 *. Number of string types
       CALL STRTYP(ms2,nActEl,MNRS10,MXRS30,IPRSTR)   ! looks allright
-*. Symmetry information
-      CALL SYMINF_MCLR(nSym,IPRORB) ! looks allright
 *. Internal string information
       CALL STRINF(IPRSTR)     ! looks allright, no!
 *. Internal subspaces

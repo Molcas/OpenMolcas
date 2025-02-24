@@ -13,7 +13,6 @@
       SUBROUTINE RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
      &                  ISEL1,ISEL3,ICEL1,ICEL3,
      &                  SB,CB,
-     &                  ADSXA,DXSTST,STSTDX,SXDXSX,
      &                  NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                  SSCR,CSCR,I1,XI1S,XINT,
      &                  NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,
@@ -33,17 +32,12 @@
 * ISEL1(3) : Number of electrons in RAS1(3) for S block
 * ICEL1(3) : Number of electrons in RAS1(3) for C block
 * CB   : Input C block
-* ADASX : sym of a+, a => sym of a+a
-* ADSXA : sym of a+, a+a => sym of a
-* DXSTST : Sym of sx,!st> => sym of sx !st>
-* STSTDX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-* SXDXSX : Symmetry of SX1,SX1*SX2 => symmetry of SX2
 * NTSOB  : Number of orbitals per type and symmetry
 * IBTSOB : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
 * NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
 *       single excitations, double excitations
-* MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+* MAXI   : Largest Number of "spectator strings" treated simultaneously
 * MAXK   : Largest number of inner resolution strings treated at simult.
 *
 * ======
@@ -68,9 +62,6 @@
       IMPLICIT REAL*8(A-H,O-Z)
       Logical TimeDep
 *. General input
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),DXSTST(*)
-      INTEGER STSTDX(NSMST,NSMST)
-      INTEGER SXDXSX(2*MXPOBS,4*MXPOBS)
       INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
 *.Input
       DIMENSION CB(*)
@@ -86,7 +77,7 @@
 *      Write(*,*)'ieaw in rsbb2a_mclr', ieaw
       ONEM = -1.0D0
       ZERO = 0.0D0
-      IDXSM = STSTDX(ISCSM,ICCSM)
+      IDXSM = Mul(ISCSM,ICCSM)
       IF(IDXSM.EQ.0)  GOTO 2001
       CALL DXTYP(NDXTYP,ITP,JTP,KTP,LTP,ISEL1,ISEL3,ICEL1,ICEL3)
       DO 2000 IDXTYP = 1, NDXTYP
@@ -100,11 +91,11 @@
         IF(K2TP.LE.0) GOTO 2000
 *. Symmetry of allowed Double excitation,loop over excitations
         DO 1950 IKSM = 1, NSMSX
-          JLSM = SXDXSX(IKSM,IDXSM)
+          JLSM = Mul(IKSM,IDXSM)
           IF(JLSM.EQ.0) GOTO 1950
           DO 1940 ISM = 1, NSMOB
 *. Works only for D2h
-            KSM = ADSXA(ISM,IKSM)
+            KSM = Mul(ISM,IKSM)
             IF(KSM.EQ.0) GOTO 1940
 *. sym of intermediate strings
 *
@@ -134,7 +125,7 @@
               SSCR(1:NKSTREF*NROW*NIK) = Zero
             END If
             DO 1930 JSM = 1, NSMOB
-              LSM = ADSXA(JSM,JLSM)
+              LSM = Mul(JSM,JLSM)
               IF(LSM.EQ.0) GOTO 1930
               JOFF = IBTSOB(JTYP,JSM)
               LOFF = IBTSOB(LTYP,LSM)
@@ -286,8 +277,9 @@
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
-        CALL Unused_integer_array(DXSTST)
         CALL Unused_integer_array(ITSOB)
+        CALL Unused_integer(NSMST)
         CALL Unused_integer(NSMDX)
+        CALL Unused_integer(MXPOBS)
       END IF
       END

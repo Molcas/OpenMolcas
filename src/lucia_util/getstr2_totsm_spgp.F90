@@ -47,8 +47,7 @@ subroutine GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,IZ,
 !              Version of Dec 1997
 
 use Symmetry_Info, only: Mul
-use lucia_data, only: ISTSGP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NSTSGP
-use csm_data, only: NSMST
+use lucia_data, only: ISTSGP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NIRREP, NSTSGP
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -100,15 +99,15 @@ end do
 if (NGASL == 0) NGASL = 1
 ! Number of strings per GAS space and offsets for strings of given sym
 do IGAS=1,NGAS
-  IISTSGP(1:NSMST,IGAS) = ISTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
-  NNSTSGP(1:NSMST,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
+  IISTSGP(1:NIRREP,IGAS) = ISTSGP((ITPFGS(IGAS)-1)*NIRREP+1:ITPFGS(IGAS)*NIRREP)
+  NNSTSGP(1:NIRREP,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NIRREP+1:ITPFGS(IGAS)*NIRREP)
 end do
 
 do IGAS=1,NGAS
-  do ISMST=1,NSMST
+  do ISMST=1,NIRREP
     if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
   end do
-  do ISMST=NSMST,1,-1
+  do ISMST=NIRREP,1,-1
     if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
   end do
 end do

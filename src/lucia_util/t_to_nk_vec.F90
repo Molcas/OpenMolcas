@@ -27,8 +27,7 @@ subroutine T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
 !
 ! Jeppe Olsen, Feb. 98
 
-use lucia_data, only: CBLTP, CIBT, Deallocate_Local_Arrays, ICISTR, IREOST, MXNSTR, NELEC, NSTSO, NTOOB
-use csm_data, only: NSMST
+use lucia_data, only: CBLTP, CIBT, Deallocate_Local_Arrays, ICISTR, IREOST, MXNSTR, NELEC, NIRREP, NSTSO, NTOOB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -65,7 +64,7 @@ call mma_allocate(LKAOC,MXNSTR,Label='LKAOC')
 call mma_allocate(LKBOC,MXNSTR,Label='LKBOC')
 ! Orbital K in type ordering
 KKORB = IREOST(KORB)
-call T_TO_NK_VECS(T,KKORB,C,LUCIN,LUCOUT,NSTSO(IATP)%A,NSTSO(IBTP)%A,NBLOCK,CIBT,NAEL,NBEL,LASTR,LBSTR,CBLTP,NSMST,ICISTR,NTOOB, &
+call T_TO_NK_VECS(T,KKORB,C,LUCIN,LUCOUT,NSTSO(IATP)%A,NSTSO(IBTP)%A,NBLOCK,CIBT,NAEL,NBEL,LASTR,LBSTR,CBLTP,NIRREP,ICISTR,NTOOB, &
                   LKAOC,LKBOC)
 
 call mma_deallocate(LASTR)

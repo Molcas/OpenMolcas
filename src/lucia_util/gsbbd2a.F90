@@ -12,8 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,ADSXA,STSTSX,SXDXSX,MXPNGAS, &
-                   NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,X,NSMOB,NSMST,MXPOBS,SCLFAC,IPACK)
+subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK, &
+                   SSCR,CSCR,I1,XI1S,X,NSMOB,SCLFAC,IPACK)
 ! SUBROUTINE GSBBD2A --> 37
 !
 ! Contributions to two-electron density matrix from column excitations
@@ -33,15 +33,12 @@ subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS
 ! ISEL : Number of electrons per AS for S block
 ! ICEL : Number of electrons per AS for C block
 ! CB   : Input C block
-! ADASX : sym of a+, a => sym of a+a
-! ADSXA : sym of a+, a+a => sym of a
-! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 ! MXPNGAS : Max number of AS spaces (program parameter)
 ! NOBPTS  : Number of orbitals per type and symmetry
 ! IOBPTS : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMDX : Number of symmetries of orbitals, strings, double excitations
-! MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+! NSMOB  : Number of symmetries of orbitals
+! MAXI   : Largest Number of "spectator strings" treated simultaneously
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 ! IPACK  : Should we pack the density?
 !
@@ -61,6 +58,7 @@ subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS
 !
 ! Jeppe Olsen, Fall of 96
 
+use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
@@ -73,8 +71,7 @@ use Definitions, only: u6
 
 implicit none
 real(kind=wp), intent(inout) :: RHO2(*), RHO2S(*), RHO2A(*)
-integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPOBS, &
-                                 ADSXA(MXPOBS,2*MXPOBS), NSMST, STSTSX(NSMST,NSMST), SXDXSX(2*MXPOBS,4*MXPOBS), MXPNGAS, &
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPNGAS, &
                                  NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, NSMOB
 real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
 real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), X(*)
@@ -113,8 +110,7 @@ end do
 ! Type of single excitations that connects the two column strings
 call DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,NGAS,ISEL,ICEL)
 ! Symmetry of Double excitation that connects IBSM and JBSM
-! For general use : STSTSX => STSTDX
-IDXSM = STSTSX(ISCSM,ICCSM)
+IDXSM = Mul(ISCSM,ICCSM)
 if (IDXSM /= 0) then
 # ifdef _DEBUGPRINT_
   write(u6,*) ' ISCSM,ICCSM ',ISCSM,ICCSM
@@ -128,19 +124,19 @@ if (IDXSM /= 0) then
     write(u6,*) ' ITYP JTYP KTYP LTYP ',ITYP,JTYP,KTYP,LTYP
 #   endif
     do IKOBSM=1,NSMOB
-      JLOBSM = SXDXSX(IKOBSM,IDXSM)
+      JLOBSM = Mul(IKOBSM,IDXSM)
       if (JLOBSM == 0) cycle
       ! types + symmetries defined => K strings are defined
       KFRST = 1
       ! Loop over of symmetry of i orbitals
       do ISM=1,NSMOB
-        KSM = ADSXA(ISM,IKOBSM)
+        KSM = Mul(ISM,IKOBSM)
         NI = NOBPTS(ITYP,ISM)
         NK = NOBPTS(KTYP,KSM)
         if ((NI == 0) .or. (NK == 0)) cycle
         ! Loop over batches of j orbitals
         outer: do JSM=1,NSMOB
-          LSM = ADSXA(JSM,JLOBSM)
+          LSM = Mul(JSM,JLOBSM)
           NJ = NOBPTS(JTYP,JSM)
           NL = NOBPTS(LTYP,LSM)
           if ((NJ == 0) .or. (NL == 0)) cycle outer

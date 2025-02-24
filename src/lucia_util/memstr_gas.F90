@@ -30,9 +30,8 @@ subroutine MEMSTR_GAS()
 !
 ! Jeppe Olsen, Winter of 1994
 
-use lucia_data, only: IGSFGP, IOCLS, ISTAC, ISTSGP, ISTSO, NACOB, NELFGP, NGAS, NGRP, NMXOCCLS, NOBPT, NSPGPFTP, NSTFGP, NSTSGP, &
-                      NSTSO, NSTTP, NTSPGP, OCCSTR, SPGPAN, SPGPCR, STREO, STSTM, ZMAT
-use csm_data, only: NSMST
+use lucia_data, only: IGSFGP, IOCLS, ISTAC, ISTSGP, ISTSO, NACOB, NELFGP, NGAS, NGRP, NIRREP, NMXOCCLS, NOBPT, NSPGPFTP, NSTFGP, &
+                      NSTSGP, NSTSO, NSTTP, NTSPGP, OCCSTR, SPGPAN, SPGPCR, STREO, STSTM, ZMAT
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
@@ -53,15 +52,15 @@ end do
 ! Number of strings per symmetry and offset for strings of given sym
 ! for groups
 
-call mma_allocate(NSTSGP,NSMST*NGRP,Label='NSTSGP')
-call mma_allocate(ISTSGP,NSMST*NGRP,Label='ISTSGP')
+call mma_allocate(NSTSGP,NIRREP*NGRP,Label='NSTSGP')
+call mma_allocate(ISTSGP,NIRREP*NGRP,Label='ISTSGP')
 
 ! Number of strings per symmetry and offset for strings of given sym
 ! for types
 
 do ITP=1,NSTTP
-  call mma_allocate(NSTSO(ITP)%A,NSPGPFTP(ITP)*NSMST,Label='NSTSO(ITP)')
-  call mma_allocate(ISTSO(ITP)%A,NSPGPFTP(ITP)*NSMST,Label='ISTSO(ITP)')
+  call mma_allocate(NSTSO(ITP)%A,NSPGPFTP(ITP)*NIRREP,Label='NSTSO(ITP)')
+  call mma_allocate(ISTSO(ITP)%A,NSPGPFTP(ITP)*NIRREP,Label='ISTSO(ITP)')
 end do
 
 ! Lexical addressing of arrays : use array indices for complete active space

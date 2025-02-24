@@ -19,8 +19,7 @@
      &           NSMST,NSMOB,NSMSX,NSMDX,
      &           MXPNGAS,NOBPTS,IOBPTS,
      &           MAXK,MAXI,LC,LS,
-     &           CSCR,SSCR,SXSTSM,STSTSX,STSTDX,
-     &           SXDXSX,ADSXA,ASXAD,
+     &           CSCR,SSCR,SXSTSM,
      &           NGAS,NELFSPGPA,NELFSPGPB,IDC,
      &           ISOOSC,NSOOSC,ISOOSE,NSOOSE,
      &           ICOOSC,NCOOSC,ICOOSE,NCOOSE,
@@ -73,7 +72,6 @@
 * Symmetry-occupation-occupation blocks
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER DXSTST(1),SXSTST(1)
 *.General input
       INTEGER ICOCOC(NOCTPA,NOCTPB),ISOCOC(NOCTPA,NOCTPB)
       INTEGER ICSMOS(NSMST),ISSMOS(NSMST)
@@ -81,10 +79,6 @@
       INTEGER NSSOA(NSMST,NOCTPA),ISSOA(NSMST,NOCTPA)
       INTEGER NSSOB(NSMST,NOCTPB),ISSOB(NSMST,NOCTPB)
       INTEGER SXSTSM(NSMSX,NSMST)
-      INTEGER STSTSX(NSMST,NSMST)
-      INTEGER STSTDX(NSMST,NSMST)
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),ASXAD(MXPOBS,2*MXPOBS)
-      INTEGER SXDXSX(2*MXPOBS,4*MXPOBS)
       INTEGER NELFSPGPA(3,*)
       INTEGER NELFSPGPB(3,*)
 *.Scratch
@@ -274,7 +268,6 @@
      &                     NELFSPGPB(1,IOCTPB-1+JJBTP),
      &                     NAEL,NBEL,IAGRP,IBGRP,
      &                     SB(ISOFF),CB(ICOFF),C2,
-     &                     ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX,
      &                     MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,
      &                     SSCR,CSCR,
      &                     I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
@@ -327,7 +320,6 @@ c Avoid unused argument warnings
         CALL Unused_integer_array(ISSOA)
         CALL Unused_integer_array(ISSOB)
         CALL Unused_integer_array(SXSTSM)
-        CALL Unused_integer_array(ASXAD)
         CALL Unused_real_array(RHO1P)
         CALL Unused_real_array(XNATO)
       END IF

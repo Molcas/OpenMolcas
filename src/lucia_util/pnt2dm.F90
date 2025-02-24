@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
+subroutine PNT2DM(I12SM,NSMOB,IPSM,JPSM,IJSM,ISM2,IPNTR)
 ! Pointer to two dimensional array
 !
 ! =====
@@ -19,7 +19,6 @@ subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 ! I12SM : /= 0 => restrict to lower half
 !         == 0 => complete matrix
 ! NSMOB : Number of orbital symmetries
-! OSXO  : Symmetry of orbital, SX => symmetry of other orbital
 ! IPSM  : Number of orbitals per symmetry for index 1
 ! JPSM  : Number of orbitals per symmetry for index 2
 ! IJSM  : Symmetry of two index array
@@ -31,6 +30,7 @@ subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 !         = 0 indicates forbidden block
 ! ISM2  : symmetry of second index for given first index
 
+use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -38,7 +38,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp), intent(in) :: I12SM, NSMOB, MXPOBS, OSXO(MXPOBS,2*MXPOBS), IPSM(NSMOB), JPSM(NSMOB), IJSM
+integer(kind=iwp), intent(in) :: I12SM, NSMOB, IPSM(NSMOB), JPSM(NSMOB), IJSM
 integer(kind=iwp), intent(out) :: ISM2(NSMOB), IPNTR(NSMOB)
 integer(kind=iwp) :: IOFF, ISM, JSM
 
@@ -46,7 +46,7 @@ IPNTR(1:NSMOB) = 0
 ISM2(1:NSMOB) = 0
 IOFF = 1
 do ISM=1,NSMOB
-  JSM = OSXO(ISM,IJSM)
+  JSM = Mul(ISM,IJSM)
   if (JSM == 0) exit
   if ((I12SM == 0) .or. (ISM >= JSM)) then
     ! Allowed block

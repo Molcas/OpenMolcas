@@ -41,23 +41,23 @@ end do
 
 ! Number of strings per sym and group
 !do JGRP=1,NIGRP
-!  LSMGP(1:NSMST,JGRP) = NSTSGP(1)%I((IGRP(JGRP)-1)*NSMST+1:IGRP(JGRP)*NSMST)
+!  LSMGP(1:NIRREP,JGRP) = NSTSGP(1)%I((IGRP(JGRP)-1)*NIRREP+1:IGRP(JGRP)*NIRREP)
 !end do
 !#ifdef _DEBUGPRINT_
 !write(u6,*) ' LSMGP'
-!call IWRTMA(LSMGP,NSMST,NIGRP,MXPOBS,NIGRP)
+!call IWRTMA(LSMGP,NIRREP,NIGRP,MXPOBS,NIGRP)
 !#endif
 ! Max and min sym in each group
 !do JGRP=1,NIGRP
 !
 !  IMAX = 1
-!  do ISM=1,NSMST
+!  do ISM=1,NIRREP
 !    if (LSMGP(ISM,JGRP) > 0) IMAX = ISM
 !  end do
 !  MXVAL(JGRP) = IMAX
 !
-!  IMIN = NSMST
-!  do ISM=NSMST,1,-1
+!  IMIN = NIRREP
+!  do ISM=NIRREP,1,-1
 !    if (LSMGP(ISM,JGRP) > 0) IMIN = ISM
 !  end do
 !  MNVAL(JGRP) = IMIN

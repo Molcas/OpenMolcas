@@ -16,7 +16,6 @@
      &                  NAEL,NBEL,
      &                  IJAGRP,IJBGRP,
      &                  SB,CB,C2,
-     &                  ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX,
      &                  MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,
      &                  SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                  X,NSMOB,NSMST,NSMSX,NSMDX,
@@ -44,19 +43,11 @@
 * IJAGRP    : IA and JA belongs to this group of strings
 * IJBGRP    : IB and JB belongs to this group of strings
 * CB : Input c block
-* ADASX : sym of a+, a => sym of a+a
-* ADSXA : sym of a+, a+a => sym of a
-* SXSTST : Sym of sx,!st> => sym of sx !st>
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
-*          is nonvanishing by symmetry
-* DXSTST : Sym of dx,!st> => sym of dx !st>
-* STSTDX : Sym of !st>,dx!st'> => sym of dx so <st!dx!st'>
-*          is nonvanishing by symmetry
 * MXPNGAS : Largest number of As'es allowed by program
 * NOBPTS  : Number of orbitals per type and symmetry
 * IOBPTS : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
-* MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+* MAXI   : Largest Number of "spectator strings" treated simultaneously
 * MAXK   : Largest number of inner resolution strings treated at simult.
 *
 * ieaw=0 Singlet
@@ -82,8 +73,6 @@
 * Jeppe Olsen, Winter of 1991
 *
       IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER ADSXA(*)
-      INTEGER SXSTST(*),STSTSX(*),DXSTST(*),STSTDX(*),SXDXSX(*)
 *. Input
       DIMENSION CB(*),SB(*)
 *. Output
@@ -108,7 +97,7 @@
      &       NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &       NGAS,IBOC,JBOC,
      &       SB,CB,
-     &       ADSXA,SXSTST,STSTSX,MXPNGAS,
+     &       MXPNGAS,
      &       NOBPTS,IOBPTS,ITSOB,MAXI,MAXK,
      &       SSCR,CSCR,I1,XI1S,I2,XI2S,X(1),
      &       NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
@@ -123,7 +112,7 @@
           CALL GSBBD2A_MCLR(RHO2(1,ii),
      &         NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,
      &         NGAS,IBOC,JBOC,SB,CB,
-     &         ADSXA,SXSTST,STSTSX,SXDXSX,MXPNGAS,
+     &         MXPNGAS,
      &         NOBPTS,IOBPTS,MAXI,MAXK,
      &         SSCR,CSCR,I1,XI1S,I2,XI2S,X,
      &         NSMOB,NSMST,NSMSX,MXPOBS)
@@ -146,7 +135,7 @@
      &                   NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &                   NGAS,IAOC,JAOC,
      &                   SB,CB,
-     &                   ADSXA,SXSTST,STSTSX,MXPNGAS,
+     &                   MXPNGAS,
      &                   NOBPTS,IOBPTS,ITSOB,MAXI,MAXK,
      &                   SSCR,CSCR,I1,XI1S,I2,XI2S,X(1),
      &                   NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
@@ -160,7 +149,7 @@
           CALL GSBBD2A_MCLR(RHO2(1,ii),
      &         NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,
      &         NGAS,IAOC,JAOC,SB,CB,
-     &         ADSXA,SXSTST,STSTSX,SXDXSX,MXPNGAS,
+     &         MXPNGAS,
      &         NOBPTS,IOBPTS,MAXI,MAXK,
      &         SSCR,CSCR,I1,XI1S,I2,XI2S,X,
      &         NSMOB,NSMST,NSMSX,MXPOBS)
@@ -188,7 +177,7 @@
      &                    JASM,JATP,JBSM,JBTP,NJA,NJB,
      &                    IJAGRP,IJBGRP,NGAS,
      &                    IAOC(1),IBOC(1),JAOC(1),JBOC(1),
-     &                    SB,CB,ADSXA,STSTSX,MXPNGAS,
+     &                    SB,CB,MXPNGAS,
      &                    NOBPTS,IOBPTS,MAXK,
      &                    I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,
      &                    NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,
@@ -202,8 +191,6 @@
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
-        Call Unused_integer_array(DXSTST)
-        Call Unused_integer_array(STSTDX)
         Call Unused_integer(IPRNT)
       END IF
       END

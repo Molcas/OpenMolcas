@@ -36,8 +36,6 @@ call ORBINF()
 call STRTYP_GAS()
 ! Divide orbital spaces into inactive/active/secondary
 call GASSPC()
-! Symmetry information
-call SYMINF()
 ! Number of integrals
 call INTDIM()
 ! Static memory, initialization and  allocation

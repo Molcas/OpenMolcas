@@ -18,7 +18,7 @@
       use MCLR_Data, only: ICISTR
       use MCLR_Data, only: NTOOB,NACOB
       use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
-      use csm_data, only: NSMST
+      use input_mclr, only: nIrrep
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -77,7 +77,7 @@
       else
         Call mma_allocate(H1D ,NACOB,Label='H1D')
       end if
-      Call mma_allocate(BLTP,NSMST,Label='BLTP')
+      Call mma_allocate(BLTP,nIrrep,Label='BLTP')
 
 *
 *. Largest NOCTPA*NOCTPB block
@@ -115,7 +115,7 @@
         MNRS1C = MNR1IC(ISPC(IISPC))
         MXRS3C = MXR3IC(ISPC(IISPC))
 *
-        CALL ZBLTP(ISMOST(1,ISM(IISPC)),NSMST,IDC,BLTP,idum)
+        CALL ZBLTP(ISMOST(1,ISM(IISPC)),nIrrep,IDC,BLTP,idum)
         CALL IAIBCM_MCLR(MNRS1C,MXRS3C,NOCTPA,NOCTPB,
      &                   Str(IATP)%EL1,Str(IATP)%EL3,
      &                   Str(IBTP)%EL1,Str(IBTP)%EL3,
@@ -127,7 +127,7 @@
           LLUDIA = LUDIA
         END IF
         CALL CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,
-     &              NACOB,DIAG,NSMST,H1D,
+     &              NACOB,DIAG,nIrrep,H1D,
      &              ISMOST(1,ISM(IISPC)),BLTP,
      &              XA,XB,SCR,JA,KA,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &              IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,

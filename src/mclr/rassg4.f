@@ -18,8 +18,7 @@
      &                  NAEL,IAGRP,NBEL,IBGRP,NOCTPA,NOCTPB,
      &                  NSMST,NSMOB,NSMSX,NSMDX,NTSOB,IBTSOB,ITSOB,
      &                  MAXIJ,MAXK,MAXI,ICSMOD,IINMOD,LI,LC,LS,
-     &                  XINT,CSCR,SSCR,SXSTSM,STSTSX,STSTDX,
-     &                  SXDXSX,ADSXA,ASXAD,
+     &                  XINT,CSCR,SSCR,SXSTSM,
      &                  IAEL1,IAEL3,
      &                  IBEL1,IBEL3,IDC,
      &                  ISOOSC,NSOOSC,ISOOSE,NSOOSE,
@@ -106,10 +105,6 @@
       INTEGER NSSOB(NOCTPB,nsmst),ISSOB(NOCTPB,nsmst)
       INTEGER NTSOB(3,NSMOB),IBTSOB(3,NSMOB),ITSOB(mxporb)
       INTEGER SXSTSM(NSMSX,NSMST)
-      INTEGER STSTSX(NSMST,NSMST)
-      INTEGER STSTDX(NSMST,NSMST)
-      INTEGER SXDXSX(2*MXPOBS,4*MXPOBS)
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),ASXAD(MXPOBS,2*MXPOBS)
       INTEGER IAEL1(*),IAEL3(*)
       INTEGER IBEL1(*),IBEL3(*)
       INTEGER IDC
@@ -134,7 +129,6 @@
 
 *
 *     Local variables
-      INTEGER SXSTST(1), DXSTST(1) ! HMMMMMM
       INTEGER LASM(4),LBSM(4),LATP(4),LBTP(4),LSGN(5),LTRP(5)
       REAL*8 PL
       INTEGER ISENSM,ISENTA,ISENTB,IFRSTS,ISSTSM,ISSTTA,NSBLK,ISFINI,
@@ -315,7 +309,6 @@ C    &                      TimeDep)
      &                NAEL,NBEL,
      &                IAGRP,IBGRP,
      &                SB(ISOFF),CB(ICOFF),IDOH2,
-     &                ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX,
      &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,
      &                C2,NSMOB,NSMST,NSMSX,NSMDX,NIA,NIB,NLLA,NLLB,
@@ -333,7 +326,6 @@ C    &                      TimeDep)
      &                NAEL,NBEL,
      &                IAGRP,IBGRP,
      &                SB(ISOFF),CB(ICOFF),IDOH2,
-     &                ADSXA,SXSTST,STSTSX,DXSTST,STSTDX,SXDXSX,
      &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,
      &                C2,NSMOB,NSMST,NSMSX,NSMDX,NIA,NIB,NLLA,NLLB,
@@ -414,6 +406,5 @@ c Avoid unused argument warnings
         CALL Unused_integer(IINMOD)
         CALL Unused_integer(LI)
         CALL Unused_integer_array(SXSTSM)
-        CALL Unused_integer_array(ASXAD)
       END IF
       END SUBROUTINE RASSG4

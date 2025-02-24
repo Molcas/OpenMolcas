@@ -52,10 +52,9 @@ use Index_Functions, only: nTri_Elem
 use GLBBAS, only: VEC3
 use CandS, only: ICSM, ISSM, ISSPC
 use lucia_data, only: ENVIRO, IADVICE, IBSPGPFTP, ICISTR, IDC, IOBPTS, IPHGAS, IPRCIX, IPRDEN, IREFSM, IREOST, ISMOST, LCSBLK, &
-                      MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXPOBS, MXSB, MXSOOB, MXTSOB, &
-                      NACOB, NACOBS, NELEC, NELFSPGP, NGAS, NHLFSPGP, NINOBS, NOBPTS, NOCOB, NOCTYP, NSMOB, NSTFSMSPGP, NSTSO, &
+                      MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXSB, MXSOOB, MXTSOB, NACOB, &
+                      NACOBS, NELEC, NELFSPGP, NGAS, NHLFSPGP, NINOBS, NIRREP, NOBPTS, NOCOB, NOCTYP, NSMOB, NSTFSMSPGP, NSTSO, &
                       NTOOB, NTOOBS, OCSTR, PSSIGN, REO, XISPSM, Z, ZSCR
-use csm_data, only: ADSXA, NSMST, SXDXSX
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Quart
 use Definitions, only: wp, iwp, u6
@@ -71,8 +70,7 @@ integer(kind=iwp) :: I1234, IATP, IATPM1, IATPM2, IBTP, IBTPM1, IBTPM2, INTSCR, 
                      NIJKL, NOCTPA, NOCTPB, NTTS
 real(kind=wp) :: S2_TERM1
 integer(kind=iwp), allocatable :: CBLTP(:), CIOIO(:), CONSPA(:), CONSPB(:), I1(:), I2(:), I3(:), I4(:), LI1BTL(:), LI1BTR(:), &
-                                  LIBTL(:), LIBTR(:), LLBTL(:), LLBTR(:), LLEBTL(:), LLEBTR(:), SBLTP(:), SIOIO(:), STSTD(:), &
-                                  STSTS(:), SVST(:)
+                                  LIBTL(:), LIBTR(:), LLBTL(:), LLBTR(:), LLEBTL(:), LLEBTR(:), SBLTP(:), SIOIO(:), SVST(:)
 real(kind=wp), allocatable :: INSCR(:), LSCLFCL(:), LSCLFCR(:), OCCSM(:), RHO1P(:), RHO1S(:), RHO1SM(:), XI1S(:), XI2S(:), &
                               XI3S(:), XI4S(:), XNATO(:)
 integer(kind=iwp), external :: IMNMX
@@ -117,36 +115,31 @@ IOCTPB = IBSPGPFTP(IBTP)
 NAEL = NELEC(IATP)
 NBEL = NELEC(IBTP)
 
-! string sym, string sym => sx sym
-! string sym, string sym => dx sym
-call mma_allocate(STSTS,NSMST**2,Label='STSTS')
-call mma_allocate(STSTD,NSMST**2,Label='STSTD')
-call STSTSM(STSTS,STSTD,NSMST)
 ! connection matrices for supergroups
 call mma_allocate(CONSPA,NOCTPA**2,Label='CONSPA')
 call mma_allocate(CONSPB,NOCTPB**2,Label='CONSPB')
 call SPGRPCON(IOCTPA,NOCTPA,NGAS,MXPNGAS,NELFSPGP,CONSPA)
 call SPGRPCON(IOCTPB,NOCTPB,NGAS,MXPNGAS,NELFSPGP,CONSPB)
 ! Largest block of strings in zero order space
-MAXA0 = IMNMX(NSTSO(IATP)%A,NSMST*NOCTYP(IATP),2)
-MAXB0 = IMNMX(NSTSO(IBTP)%A,NSMST*NOCTYP(IBTP),2)
+MAXA0 = IMNMX(NSTSO(IATP)%A,NIRREP*NOCTYP(IATP),2)
+MAXB0 = IMNMX(NSTSO(IBTP)%A,NIRREP*NOCTYP(IBTP),2)
 MXSTBL0 = MXNSTR
 ! Largest number of strings of given symmetry and type
 MAXA = 0
 if (NAEL >= 1) then
-  MAXA1 = IMNMX(NSTSO(IATPM1)%A,NSMST*NOCTYP(IATPM1),2)
+  MAXA1 = IMNMX(NSTSO(IATPM1)%A,NIRREP*NOCTYP(IATPM1),2)
   MAXA = max(MAXA,MAXA1)
   if (NAEL >= 2) then
-    MAXA1 = IMNMX(NSTSO(IATPM2)%A,NSMST*NOCTYP(IATPM2),2)
+    MAXA1 = IMNMX(NSTSO(IATPM2)%A,NIRREP*NOCTYP(IATPM2),2)
     MAXA = max(MAXA,MAXA1)
   end if
 end if
 MAXB = 0
 if (NBEL >= 1) then
-  MAXB1 = IMNMX(NSTSO(IBTPM1)%A,NSMST*NOCTYP(IBTPM1),2)
+  MAXB1 = IMNMX(NSTSO(IBTPM1)%A,NIRREP*NOCTYP(IBTPM1),2)
   MAXB = max(MAXB,MAXB1)
   if (NBEL >= 2) then
-    MAXB1 = IMNMX(NSTSO(IBTPM2)%A,NSMST*NOCTYP(IBTPM2),2)
+    MAXB1 = IMNMX(NSTSO(IBTPM2)%A,NIRREP*NOCTYP(IBTPM2),2)
     MAXB = max(MAXB,MAXB1)
   end if
 end if
@@ -189,7 +182,7 @@ call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 call IAIBCM(ISSPC,SIOIO)
 call IAIBCM(ISSPC,CIOIO)
 ! Scratch space for CJKAIB resolution matrices
-call MXRESCPH(CIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSTFSMSPGP,MXPNSMST,NSMOB,MXPNGAS,NGAS,NOBPTS,MAXK,NELFSPGP,MXCJ,MXCIJA, &
+call MXRESCPH(CIOIO,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NIRREP,NSTFSMSPGP,MXPNSMST,NSMOB,MXPNGAS,NGAS,NOBPTS,MAXK,NELFSPGP,MXCJ,MXCIJA, &
               MXCIJB,MXCIJAB,MXSXBL,MXADKBLK,IPHGAS,NHLFSPGP,MNHL,IADVICE,MXCJ_ALLSYM,MXADKBLK_AS,MX_NSPII)
 if (IPRDEN >= 2) write(u6,*) ' DENSI12 :  : MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL',MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL
 LSCR2 = max(MXCJ,MXCIJA,MXCIJB)
@@ -216,17 +209,17 @@ call mma_allocate(XI2S,LSCR3,Label='XI2S')
 call mma_allocate(XI3S,LSCR3,Label='XI3S')
 call mma_allocate(XI4S,LSCR3,Label='XI4S')
 ! Arrays giving block type
-call mma_allocate(SBLTP,NSMST,Label='SBLTP')
-call mma_allocate(CBLTP,NSMST,Label='CBLTP')
+call mma_allocate(SBLTP,NIRREP,Label='SBLTP')
+call mma_allocate(CBLTP,NIRREP,Label='CBLTP')
 ! Arrays for additional symmetry operation
 !if ((IDC == 3) .or. (IDC == 4)) then
-!  call mma_allocate(SVST,NSMST,Label='SVST')
-!  call SIGVST(SVST,NSMST)
+!  call mma_allocate(SVST,NIRREP,Label='SVST')
+!  call SIGVST(SVST,NIRREP)
 !else
 call mma_allocate(SVST,1,Label='SVST')
 !end if
-call ZBLTP(ISMOST(:,ISSM),NSMST,IDC,SBLTP,SVST)
-call ZBLTP(ISMOST(:,ICSM),NSMST,IDC,CBLTP,SVST)
+call ZBLTP(ISMOST(:,ISSM),NIRREP,IDC,SBLTP,SVST)
+call ZBLTP(ISMOST(:,ICSM),NIRREP,IDC,CBLTP,SVST)
 call mma_deallocate(SVST)
 ! scratch space containing active one body
 call mma_allocate(RHO1S,NACOB**2,Label='RHO1S')
@@ -254,7 +247,7 @@ call mma_allocate(LLEBTL,NTTS,Label='LLEBTL')
 call mma_allocate(LI1BTL,NTTS,Label='LI1BTL')
 call mma_allocate(LIBTL,8*NTTS,Label='LIBTL')
 call mma_allocate(LSCLFCL,NTTS,Label='LSCLFCL')
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,SIOIO,ISMOST(:,ISSM),NBATCHL,LLBTL,LLEBTL,LI1BTL,LIBTL,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,SIOIO,ISMOST(:,ISSM),NBATCHL,LLBTL,LLEBTL,LI1BTL,LIBTL,0)
 ! Arrays for partitioning of Right  vector = C
 NTTS = MXNTTS
 call mma_allocate(LLBTR,NTTS,Label='LLBTR')
@@ -262,7 +255,7 @@ call mma_allocate(LLEBTR,NTTS,Label='LLEBTR')
 call mma_allocate(LI1BTR,NTTS,Label='LI1BTR')
 call mma_allocate(LIBTR,8*NTTS,Label='LIBTR')
 call mma_allocate(LSCLFCR,NTTS,Label='LSCLFCR')
-call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NSMST,CIOIO,ISMOST(:,ICSM),NBATCHR,LLBTR,LLEBTR,LI1BTR,LIBTR,0)
+call PART_CIV2(IDC,NSTSO(IATP)%A,NSTSO(IBTP)%A,NOCTPA,NOCTPB,NIRREP,CIOIO,ISMOST(:,ICSM),NBATCHR,LLBTR,LLEBTR,LI1BTR,LIBTR,0)
 
 if (ICISTR == 1) then
   write(u6,*) ' Sorry, ICISTR = 1 is out of fashion'
@@ -272,9 +265,9 @@ if (ICISTR == 1) then
 else if (ICISTR >= 2) then
   S2_TERM1 = Zero
   call GASDN2(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,VEC3,NACOB,NSTSO(IATP)%A,NSTSO(IBTP)%A,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA, &
-              NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,VEC3(1+KCSCR),VEC3,STSTS,SXDXSX,ADSXA,NGAS,NELFSPGP,IDC,I1,XI1S, &
-              I2,XI2S,I3,XI3S,I4,XI4S,INSCR,MXPOBS,RHO1S,LUL,LUR,PSSIGN,PSSIGN,NBATCHL,LLBTL,LI1BTL,LIBTL,NBATCHR,LLBTR,LI1BTR, &
-              LIBTR,CONSPA,CONSPB,LSCLFCL,LSCLFCR,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
+              NOCTPB,NIRREP,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,VEC3(1+KCSCR),VEC3,NGAS,NELFSPGP,IDC,I1,XI1S,I2,XI2S,I3,XI3S,I4, &
+              XI4S,INSCR,RHO1S,LUL,LUR,PSSIGN,PSSIGN,NBATCHL,LLBTL,LI1BTL,LIBTL,NBATCHR,LLBTR,LI1BTR,LIBTR,CONSPA,CONSPB,LSCLFCL, &
+              LSCLFCR,S2_TERM1,IPHGAS,IDOSRHO1,SRHO1,IPACK)
 
   call GADSUM(RHO1,NACOB**2)
   if (I12 == 2) then
@@ -335,8 +328,6 @@ if ((IDOSRHO1 == 1) .and. (IPRDEN >= 2)) then
 end if
 
 ! Eliminate local memory
-call mma_deallocate(STSTS)
-call mma_deallocate(STSTD)
 call mma_deallocate(CONSPA)
 call mma_deallocate(CONSPB)
 call mma_deallocate(INSCR)

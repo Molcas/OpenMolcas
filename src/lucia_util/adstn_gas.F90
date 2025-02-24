@@ -29,8 +29,8 @@ subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,SCLFAC
 !              October 96   : Improved version
 
 use Symmetry_Info, only: Mul
-use lucia_data, only: IBSPGPFTP, IOBPTS, ISPGPFTP, ISTSGP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NOBPT, NOBPTS, NSTFSMSPGP, NSTSGP, STSTM
-use csm_data, only: NSMST
+use lucia_data, only: IBSPGPFTP, IOBPTS, ISPGPFTP, ISTSGP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NIRREP, NOBPT, NOBPTS, NSTFSMSPGP, &
+                      NSTSGP, STSTM
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -114,22 +114,22 @@ if (NKSTR /= 0) then
 
   ! Number of strings per symmetry for each symmetry
   do IGAS=1,NGAS
-    NNSTSGP(1:NSMST,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
+    NNSTSGP(1:NIRREP,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NIRREP+1:ITPFGS(IGAS)*NIRREP)
   end do
   ! Offset and dimension for active group in I strings
-  IACIST(1:NSMST) = ISTSGP((ITPFGS(IOBTP)-1)*NSMST+1:ITPFGS(IOBTP)*NSMST)
-  NACIST(1:NSMST) = NSTSGP((ITPFGS(IOBTP)-1)*NSMST+1:ITPFGS(IOBTP)*NSMST)
+  IACIST(1:NIRREP) = ISTSGP((ITPFGS(IOBTP)-1)*NIRREP+1:ITPFGS(IOBTP)*NIRREP)
+  NACIST(1:NIRREP) = NSTSGP((ITPFGS(IOBTP)-1)*NIRREP+1:ITPFGS(IOBTP)*NIRREP)
   !write(u6,*) ' IACIST and NACIST arrays'
-  !call IWRTMA(IACIST,1,NSMST,1,NSMST)
-  !call IWRTMA(NACIST,1,NSMST,1,NSMST)
+  !call IWRTMA(IACIST,1,NIRREP,1,NIRREP)
+  !call IWRTMA(NACIST,1,NIRREP,1,NIRREP)
 
   ! Generate offsets for I strings with given symmetry in each space
 
   do IGAS=1,NGAS
-    do ISMST=1,NSMST
+    do ISMST=1,NIRREP
       if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
     end do
-    do ISMST=NSMST,1,-1
+    do ISMST=NIRREP,1,-1
       if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
     end do
   end do
@@ -165,7 +165,7 @@ if (NKSTR /= 0) then
     MULT = 1
     do IGAS=1,NGASL
       IOFF = IOFF+(ISMFGS(IGAS)-1)*MULT
-      MULT = MULT*NSMST
+      MULT = MULT*NIRREP
     end do
 
 #   ifdef _DEBUGPRINT_
@@ -206,15 +206,15 @@ if (NKSTR /= 0) then
   KACGRP = ITPFGS(IOBTP)
   ! Number of strings per symmetry distribution
   do IGAS=1,NGAS
-    IISTSGP(1:NSMST,IGAS) = ISTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
-    NNSTSGP(1:NSMST,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NSMST+1:ITPFGS(IGAS)*NSMST)
+    IISTSGP(1:NIRREP,IGAS) = ISTSGP((ITPFGS(IGAS)-1)*NIRREP+1:ITPFGS(IGAS)*NIRREP)
+    NNSTSGP(1:NIRREP,IGAS) = NSTSGP((ITPFGS(IGAS)-1)*NIRREP+1:ITPFGS(IGAS)*NIRREP)
   end do
 
   do IGAS=1,NGAS
-    do ISMST=1,NSMST
+    do ISMST=1,NIRREP
       if (NNSTSGP(ISMST,IGAS) > 0) MXVAL(IGAS) = ISMST
     end do
-    do ISMST=NSMST,1,-1
+    do ISMST=NIRREP,1,-1
       if (NNSTSGP(ISMST,IGAS) > 0) MNVAL(IGAS) = ISMST
     end do
   end do
@@ -264,7 +264,7 @@ if (NKSTR /= 0) then
     MULT = 1
     do IGAS=1,NGAS
       IOFF = IOFF+(ISMFGS(IGAS)-1)*MULT
-      MULT = MULT*NSMST
+      MULT = MULT*NIRREP
     end do
     ISMFGS(IOBTP) = ISAVE
     IBSTRINI = int(OFFI(IOFF))

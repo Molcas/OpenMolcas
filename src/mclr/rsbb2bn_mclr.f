@@ -16,7 +16,6 @@
      &                  IAEL1,IAEL3,JAEL1,JAEL3,
      &                  IBEL1,IBEL3,JBEL1,JBEL3,
      &                  SB,CB,
-     &                  ADSXA,STSTSX,
      &                  NTSOB,IBTSOB,ITSOB,MAXK,
      &                  SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,
      &                  XINT,
@@ -44,8 +43,6 @@
 * JAEL1(3) : Number of electrons in RAS1(3) for alpha strings in C
 * JBEL1(3) : Number of electrons in RAS1(3) for beta  strings in C
 * CB   : Input C block
-* ADSXA : sym of a+, a+a => sym of a
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 * NTSOB  : Number of orbitals per type and symmetry
 * IBTSOB : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
@@ -82,10 +79,10 @@
 * February 1994 : Fetching and adding to transposed blocks
 *
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
 *. General input
       Logical TimeDep
-      INTEGER ADSXA(MXPOBS,MXPOBS),STSTSX(NSMST,NSMST)
       INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
 *.Input
       DIMENSION CB(*)
@@ -108,8 +105,8 @@
 *     ICJKAIB = 1
       IROUTE = 1
 *. Symmetry of allowed excitations
-      IJSM = STSTSX(IASM,JASM)
-      KLSM = STSTSX(IBSM,JBSM)
+      IJSM = Mul(IASM,JASM)
+      KLSM = Mul(IBSM,JBSM)
       IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
 *.Types of SX that connects the two strings
       CALL SXTYP(NKLTYP,KTP,LTP,IBEL1,IBEL3,JBEL1,JBEL3)
@@ -131,7 +128,7 @@
         IF(JTYP.EQ.3) N3IND = N3IND + 1
 *
         DO 1940 ISM = 1, NSMOB
-          JSM = ADSXA(ISM,IJSM)
+          JSM = Mul(ISM,IJSM)
           IF(JSM.EQ.0) GOTO 1940
           IOFF = IBTSOB(ITYP,ISM)
           JOFF = IBTSOB(JTYP,JSM)
@@ -227,7 +224,7 @@ C9805EAW     IROUTE = 1
              IF(LTYP.EQ.3) N3IND = N3IND + 1
              DO 1930 KSM = 1, NSMOB
               IFIRST = 1
-              LSM = ADSXA(KSM,KLSM)
+              LSM = Mul(KSM,KLSM)
               IF(LSM.EQ.0) GOTO 1930
               KOFF = IBTSOB(KTYP,KSM)
               LOFF = IBTSOB(LTYP,LSM)
@@ -340,8 +337,10 @@ c Avoid unused argument warnings
         CALL Unused_integer_array(ITSOB)
         CALL Unused_real_array(SSCR)
         CALL Unused_real_array(CSCR)
+        CALL Unused_integer(NSMST)
         CALL Unused_integer(NSMSX)
         CALL Unused_integer(NSMDX)
+        CALL Unused_integer(MXPOBS)
         CALL Unused_real_array(S2)
       END IF
       END

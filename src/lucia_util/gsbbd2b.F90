@@ -13,8 +13,8 @@
 
 !#define _DEBUGPRINT_
 subroutine GSBBD2B(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC, &
-                   SB,CB,ADSXA,STSTSX,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,MXPOBS,IUSEAB, &
-                   CJRES,SIRES,NORB,SCLFAC,S2_TERM1,IPACK)
+                   SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,IUSEAB,CJRES,SIRES,NORB,SCLFAC, &
+                   S2_TERM1,IPACK)
 ! SUBROUTINE GSBBD2B --> 52
 !
 ! alpha-beta contribution to two-particle density matrix
@@ -38,12 +38,10 @@ subroutine GSBBD2B(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,J
 ! JAEL1(3) : Number of electrons in RAS1(3) for alpha strings in C
 ! JBEL1(3) : Number of electrons in RAS1(3) for beta  strings in C
 ! CB   : Input C block
-! ADSXA : sym of a+, a+a => sym of a
-! STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 ! NTSOB  : Number of orbitals per type and symmetry
 ! IBTSOB : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST : Number of symmetries of orbitals, strings
+! NSMOB  : Number of symmetries of orbitals
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 ! IPACK  : Should we pack the density?
 !
@@ -64,6 +62,7 @@ subroutine GSBBD2B(RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,J
 !
 ! Jeppe Olsen, Fall of 1996
 
+use Symmetry_Info, only: Mul
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: LOFFI
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -78,8 +77,7 @@ use Definitions, only: u6
 implicit none
 real(kind=wp), intent(inout) :: RHO2(*), RHO2S(*), RHO2A(*), S2_TERM1
 integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), &
-                                 IBOC(*), JAOC(*), JBOC(*), MXPOBS, ADSXA(MXPOBS,MXPOBS), NSMST, STSTSX(NSMST,NSMST), MXPNGAS, &
-                                 NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXK, NSMOB, IUSEAB, NORB
+                                 IBOC(*), JAOC(*), JBOC(*), MXPNGAS, NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXK, NSMOB, IUSEAB, NORB
 integer(kind=iwp), intent(_OUT_) :: I1(*), I2(*), I3(*), I4(*)
 real(kind=wp), intent(in) :: SB(*), CB(*), SCLFAC
 real(kind=wp), intent(_OUT_) :: XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), CJRES(*), SIRES(*)
@@ -100,8 +98,8 @@ write(u6,*) ' ================'
 #endif
 
 ! Symmetry of allowed excitations
-IJSM = STSTSX(IASM,JASM)
-KLSM = STSTSX(IBSM,JBSM)
+IJSM = Mul(IASM,JASM)
+KLSM = Mul(IBSM,JBSM)
 if ((IJSM == 0) .or. (KLSM == 0)) return
 #ifdef _DEBUGPRINT_
 write(u6,*) ' IASM JASM IJSM ',IASM,JASM,IJSM
@@ -121,7 +119,7 @@ do IJTYP=1,NIJTYP
   ITYP = ITP(IJTYP)
   JTYP = JTP(IJTYP)
   do ISM=1,NSMOB
-    JSM = ADSXA(ISM,IJSM)
+    JSM = Mul(ISM,IJSM)
     if (JSM == 0) cycle
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' ISM JSM ',ISM,JSM
@@ -174,7 +172,7 @@ do IJTYP=1,NIJTYP
         LTYP = LTP(KLTYP)
 
         do KSM=1,NSMOB
-          LSM = ADSXA(KSM,KLSM)
+          LSM = Mul(KSM,KLSM)
           if (LSM == 0) cycle
           KOFF = IOBPTS(KTYP,KSM)
           LOFF = IOBPTS(LTYP,LSM)

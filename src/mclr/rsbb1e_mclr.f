@@ -13,7 +13,6 @@
       SUBROUTINE RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,
      &                  ISEL1,ISEL3,ICEL1,ICEL3,
      &                  SB,CB,
-     &                  ADSXA,SXSTST,STSTSX,
      &                  NTSOB,IBTSOB,ITSOB,MAXI,MAXK,
      &                  SSCR,CSCR,I1,XI1S,H,
      &                  NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
@@ -31,16 +30,12 @@
 * ISEL1(3) : Number of electrons in RAS1(3) for S block
 * ICEL1(3) : Number of electrons in RAS1(3) for C block
 * CB   : Input C block
-* ADASX : sym of a+, a => sym of a+a
-* ADSXA : sym of a+, a+a => sym of a
-* SXSTST : Sym of sx,!st> => sym of sx !st>
-* STSTSX : Sym of !st>,sx!st'> => sym of sx so <st!sx!st'>
 * NTSOB  : Number of orbitals per type and symmetry
 * IBTSOB : base for orbitals of given type and symmetry
 * IBORB  : Orbitals of given type and symmetry
 * NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
 *       single excitations, double excitations
-* MAXI   : Largest Number of ' spectator strings 'treated simultaneously
+* MAXI   : Largest Number of "spectator strings" treated simultaneously
 * MAXK   : Largest number of inner resolution strings treated at simult.
 *
 
@@ -62,9 +57,8 @@
 *
 * Jeppe Olsen, Winter of 1991
 *
+      USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER ADSXA(MXPOBS,2*MXPOBS),SXSTST(*),
-     &        STSTSX(NSMST,NSMST)
       INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
 *.Input
       DIMENSION CB(*)
@@ -84,14 +78,14 @@
 *
 *.Symmetry of single excitation that connects IBSM and JBSM
 *
-      IJSM = STSTSX(ISCSM,ICCSM)
+      IJSM = Mul(ISCSM,ICCSM)
       IF(IJSM.EQ.0) GOTO 1001
 *
       DO 900 IJTP=  1, NSXTP
         ITYP = ITP(IJTP)
         JTYP = JTP(IJTP)
         DO 800 ISM = 1, NSMOB
-          JSM = ADSXA(ISM,IJSM)
+          JSM = Mul(ISM,IJSM)
           IF(JSM.EQ.0) GOTO 800
           NIORB = NTSOB(ITYP,ISM)
           NJORB = NTSOB(JTYP,JSM)
@@ -167,7 +161,8 @@
       RETURN
 c Avoid unused argument warnings
       IF (.FALSE.) THEN
-        CALL Unused_integer_array(SXSTST)
+        CALL Unused_integer(NSMST)
         CALL Unused_integer(NSMSX)
+        CALL Unused_integer(MXPOBS)
       END IF
       END
