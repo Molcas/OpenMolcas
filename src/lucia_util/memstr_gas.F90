@@ -30,8 +30,8 @@ subroutine MEMSTR_GAS()
 !
 ! Jeppe Olsen, Winter of 1994
 
-use strbas, only: IOCLS, ISTSGP, ISTSO, NSTSGP, NSTSO, OCSTR, SPGPAN, SPGPCR, STREO, STSTM, ZMAT
-use lucia_data, only: IGSFGP, ISTAC, NACOB, NELFGP, NGAS, NGRP, NMXOCCLS, NOBPT, NSPGPFTP, NSTFGP, NSTTP, NTSPGP
+use lucia_data, only: IGSFGP, IOCLS, ISTAC, ISTSGP, ISTSO, NACOB, NELFGP, NGAS, NGRP, NMXOCCLS, NOBPT, NSPGPFTP, NSTFGP, NSTSGP, &
+                      NSTSO, NSTTP, NTSPGP, OCCSTR, SPGPAN, SPGPCR, STREO, STSTM, ZMAT
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate
 use Definitions, only: iwp
@@ -46,7 +46,7 @@ integer(kind=iwp) :: IEL, IGAS, IGRP, IORB, ISTRIN, ITP, LENGTH, LSTRIN, NSTRIN
 do IGRP=1,NGRP
   NSTRIN = NSTFGP(IGRP)
   LSTRIN = NSTRIN*NELFGP(IGRP)
-  call mma_allocate(OCSTR(IGRP)%A,LSTRIN,Label='OCSTR()')
+  call mma_allocate(OCCSTR(IGRP)%A,LSTRIN,Label='OCCSTR()')
   call mma_allocate(STREO(IGRP)%A,NSTRIN,Label='STREO()')
 end do
 

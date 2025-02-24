@@ -27,10 +27,9 @@ subroutine BLKFO_MIN(ISM,NBLK,LEN_BLK)
 ! NBLK : Number of blocks in expansion
 ! LEN_BLK(IBLK) : Length of block IBLK
 
-use strbas, only: NSTSO
-use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays
 use CandS, only: ISSPC
-use lucia_data, only: IDC, ISMOST, MXNTTS, NOCTYP
+use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, IDC, ISMOST, MXNTTS, &
+                      NOCTYP, NSTSO
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp

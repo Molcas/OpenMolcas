@@ -11,9 +11,8 @@
 
 subroutine FREESTR_GAS()
 
-use strbas, only: IOCLS, ISTSGP, ISTSO, NSTSGP, NSTSO, OCSTR, SPGPAN, SPGPCR, STREO, STSTM, ZMAT
-use distsym, only: ISMDFGP, ISMSCR, NACTSYM
-use lucia_data, only: NGRP, NSTTP
+use lucia_data, only: IOCLS, ISMDFGP, ISMSCR, ISTSGP, ISTSO, NACTSYM, NGRP, NSTSGP, NSTSO, NSTTP, OCCSTR, SPGPAN, SPGPCR, STREO, &
+                      STSTM, ZMAT
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
@@ -23,7 +22,7 @@ integer(kind=iwp) :: IGRP, ITP
 ! Offsets for occupation and reorder array of strings
 
 do IGRP=1,NGRP
-  call mma_deallocate(OCSTR(IGRP)%A)
+  call mma_deallocate(OCCSTR(IGRP)%A)
   call mma_deallocate(STREO(IGRP)%A)
 end do
 

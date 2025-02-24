@@ -20,8 +20,7 @@ subroutine ADDDIA_TERM(FACTOR,CVEC,SVEC,IASPGP,IBSPGP,IASM,IBSM)
 !
 ! Jeppe Olsen and Giovanni Li Manni, September 2011
 
-use strbas, only: NSTSO
-use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NTOOB
+use lucia_data, only: ECORE, ECORE_ORIG, IREOST, MXNSTR, NACOB, NELEC, NOCTYP, NSTSO, NTOOB
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

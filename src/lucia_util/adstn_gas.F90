@@ -29,8 +29,7 @@ subroutine ADSTN_GAS(OFFI,IOBSM,IOBTP,ISPGP,ISPGPSM,ISPGPTP,I1,XI1S,NKSTR,SCLFAC
 !              October 96   : Improved version
 
 use Symmetry_Info, only: Mul
-use strbas, only: ISTSGP, NSTSGP, STSTM
-use lucia_data, only: IBSPGPFTP, IOBPTS, ISPGPFTP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NOBPT, NOBPTS, NSTFSMSPGP
+use lucia_data, only: IBSPGPFTP, IOBPTS, ISPGPFTP, ISTSGP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NOBPT, NOBPTS, NSTFSMSPGP, NSTSGP, STSTM
 use csm_data, only: NSMST
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6

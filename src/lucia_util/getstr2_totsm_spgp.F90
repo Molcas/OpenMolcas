@@ -47,8 +47,7 @@ subroutine GETSTR2_TOTSM_SPGP(IGRP,NIGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,IZ,
 !              Version of Dec 1997
 
 use Symmetry_Info, only: Mul
-use strbas, only: NSTSGP, ISTSGP
-use lucia_data, only: MXPNGAS, MXPNSMST, NELFGP, NGAS
+use lucia_data, only: ISTSGP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NSTSGP
 use csm_data, only: NSMST
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

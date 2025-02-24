@@ -13,11 +13,10 @@
 subroutine TRACI_MASTER(JOBDISK,JOBIPH,CMOMO,lrec)
 
 use GLBBAS, only: DTOC, INT1, SDREO, VEC3
-use Local_Arrays, only: Deallocate_Local_Arrays
 use rasscf_lucia, only: kvec3_length
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: IDISK, IREFSM, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, NCSF_PER_SYM, NROOT, NSMOB, NTOOB, NTOOBS, &
-                      PSSIGN, XISPSM
+use lucia_data, only: Deallocate_Local_Arrays, IDISK, IREFSM, LUC, LUDIA, LUHC, LUSC1, LUSC2, MXNTTS, MXSOOB, NCSF_PER_SYM, NROOT, &
+                      NSMOB, NTOOB, NTOOBS, PSSIGN, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp

@@ -46,9 +46,8 @@ subroutine ADAST_GAS(IOBSM,IOBTP,NIGRP,IGRP,ISPGPSM,I1,XI1S,NKSTR,KACT,SCLFAC,IA
 ! in order to make the code faster
 
 use Symmetry_Info, only: Mul
-use strbas, only: ISTSGP, NSTSGP, STSTM
-use distsym, only: ISMDFGP, ISMSCR, NACTSYM
-use lucia_data, only: IBGPSTR, IGSFGP, IOBPTS, ISTAC, LOFFI, MXPNGAS, MXPNSMST, NELFGP, NGPSTR, NGRP, NOBPT, NOBPTS
+use lucia_data, only: IBGPSTR, IGSFGP, IOBPTS, ISMDFGP, ISMSCR, ISTAC, ISTSGP, LOFFI, MXPNGAS, MXPNSMST, NACTSYM, NELFGP, NGPSTR, &
+                      NGRP, NOBPT, NOBPTS, NSTSGP, STSTM
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6

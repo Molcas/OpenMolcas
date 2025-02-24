@@ -27,13 +27,12 @@ subroutine SBLOCK(NBLOCK,IBLOCK,IBOFF,CB,HCB,LUC,IRESTRICT,LUCBLK,ICBAT_RES,ICBA
 ! Cbatches ICBAT_INI to ICBAT_END are stored on  LUC
 
 use GLBBAS, only: VEC3
-use hidscr, only: OCSTR, REO, Z, ZSCR
-use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays
-use strbas, only: NSTSO
 use CandS, only: ICSM, ICSPC, ISSPC
-use lucia_data, only: I12, I_RES_AB, IADVICE, IBSPGPFTP, ICJKAIB, IDC, IDISK, IH0INSPC, IH0SPC, IPART, IPHGAS, ISMOST, ISPGPFTP, &
-                      MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MOCAA, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXPOBS, MXTSOB, NELEC, &
-                      NELFGP, NELFSPGP, NGAS, NHLFSPGP, NOBPTS, NOCOB, NOCTYP, NPTSPC, NSMOB, NSTFSMSPGP, NTOOB, PSSIGN
+use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, I12, I_RES_AB, IADVICE, &
+                      IBSPGPFTP, ICJKAIB, IDC, IDISK, IH0INSPC, IH0SPC, IPART, IPHGAS, ISMOST, ISPGPFTP, MAX_STR_OC_BLK, &
+                      MAX_STR_SPGP, MNHL, MOCAA, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXPOBS, MXTSOB, NELEC, NELFGP, &
+                      NELFSPGP, NGAS, NHLFSPGP, NOBPTS, NOCOB, NOCTYP, NPTSPC, NSMOB, NSTFSMSPGP, NSTSO, NTOOB, OCSTR, PSSIGN, &
+                      REO, Z, ZSCR
 use csm_data, only: ADSXA, NSMST, SXDXSX
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

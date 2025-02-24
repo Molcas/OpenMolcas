@@ -44,9 +44,8 @@ subroutine ADAADAST_GAS(IOB,IOBSM,IOBTP,NIOB,IAC,JOB,JOBSM,JOBTP,NJOB,JAC,ISPGP,
 !              November 1997 : annihilation added
 
 use Symmetry_Info, only: Mul
-use HIDSCR, only: OCSTR, REO, Z, ZSCR
 use lucia_data, only: IBGPSTR, IBSPGPFTP, IOBPTS, ISPGPFTP, MXPNGAS, NELFGP, NELFSPGP, NELFTP, NELIS, NGAS, NGPSTR, NOBPT, NOCOB, &
-                      NSTRKS
+                      NSTRKS, OCSTR, REO, Z, ZSCR
 use Definitions, only: wp, iwp, u6
 
 implicit none

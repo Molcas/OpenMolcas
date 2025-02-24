@@ -21,8 +21,7 @@ subroutine LCISPC()
 !
 ! GAS VERSION
 
-use strbas, only: NSTSO
-use lucia_data, only: IDC, ISMOST, MXNTTS, MXPCSM, MXSB, MXSOOB, NCMBSPC, NOCTYP, XISPSM
+use lucia_data, only: IDC, ISMOST, MXNTTS, MXPCSM, MXSB, MXSOOB, NCMBSPC, NOCTYP, NSTSO, XISPSM
 use csm_data, only: NSMCI, NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

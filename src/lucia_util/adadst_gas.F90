@@ -38,8 +38,7 @@ subroutine ADADST_GAS(IOB,IOBSM,IOBTP,NIOB,JOB,JOBSM,JOBTP,NJOB,ISPGP,ISM,ITP,KM
 ! Jeppe Olsen, August of 95
 
 use Symmetry_Info, only: Mul
-use HIDSCR, only: OCSTR, REO, Z, ZSCR
-use lucia_data, only: IBSPGPFTP, IOBPTS, NELFSPGP, NELFTP, NELIS, NGAS, NOBPT, NOCOB, NSTRKS
+use lucia_data, only: IBSPGPFTP, IOBPTS, NELFSPGP, NELFTP, NELIS, NGAS, NOBPT, NOCOB, NSTRKS, OCSTR, REO, Z, ZSCR
 use Definitions, only: wp, iwp, u6
 
 implicit none

@@ -27,9 +27,7 @@ subroutine T_TO_NK_VEC(T,KORB,ISM,ISPC,LUCIN,LUCOUT,C)
 !
 ! Jeppe Olsen, Feb. 98
 
-use Local_Arrays, only: CBLTP, CIBT, Deallocate_Local_Arrays
-use strbas, only: NSTSO
-use lucia_data, only: ICISTR, IREOST, MXNSTR, NELEC, NTOOB
+use lucia_data, only: CBLTP, CIBT, Deallocate_Local_Arrays, ICISTR, IREOST, MXNSTR, NELEC, NSTSO, NTOOB
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

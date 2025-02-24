@@ -31,8 +31,7 @@ subroutine NEWTYP(INSPGP,IACOP,ITPOP,OUTSPGP)
 ! ------
 ! OUTSPGP  : supergroup of resulting string
 
-use strbas, only: SPGPAN, SPGPCR
-use lucia_data, only: NGAS
+use lucia_data, only: NGAS, SPGPAN, SPGPCR
 use Definitions, only: iwp
 
 implicit none

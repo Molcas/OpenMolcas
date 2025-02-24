@@ -25,13 +25,12 @@ subroutine NST_SPGRP(NGRP,IGRP,ISM_TOT,NSTSGP,NSMST,NSTRIN,NDIST)
 !
 ! Output
 !
-!  NSTRIN : Number of strings with symmetry ISM_TOT
-!  NDIST  : Number of symmetry distributions
+!   NSTRIN : Number of strings with symmetry ISM_TOT
+!   NDIST  : Number of symmetry distributions
 !
 ! Jeppe Olsen, September 1997
 
-use distsym, only: INGRP_VAL, ISMDFGP, ISMSCR, NACTSYM
-use lucia_data, only: MXPNGAS
+use lucia_data, only: INGRP_VAL, ISMDFGP, ISMSCR, MXPNGAS, NACTSYM
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6

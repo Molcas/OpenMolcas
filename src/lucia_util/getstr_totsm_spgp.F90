@@ -42,8 +42,7 @@ subroutine GETSTR_TOTSM_SPGP(ISTRTP,ISPGRP,ISPGRPSM,NEL,NSTR,ISTR,NORBT,IDOREO,I
 ! Jeppe Olsen, July 1995
 
 use Symmetry_Info, only: Mul
-use strbas, only: NSTSGP, ISTSGP
-use lucia_data, only: IBSPGPFTP, ISPGPFTP, MXPNGAS, MXPNSMST, NELFGP, NGAS
+use lucia_data, only: IBSPGPFTP, ISPGPFTP, ISTSGP, MXPNGAS, MXPNSMST, NELFGP, NGAS, NSTSGP
 use csm_data, only: NSMST
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_

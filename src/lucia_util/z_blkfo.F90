@@ -30,9 +30,7 @@ subroutine Z_BLKFO(ISPC,ISM,IATP,IBTP,NBATCH,NBLOCK)
 !
 ! Jeppe Olsen, Feb. 98
 
-use Local_Arrays, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT
-use strbas, only: NSTSO
-use lucia_data, only: IDC, ISMOST, MXNTTS, NOCTYP
+use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, IDC, ISMOST, MXNTTS, NSTSO, NOCTYP
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp

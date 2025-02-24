@@ -29,8 +29,7 @@ subroutine GETSTRN_GASSM_SPGP(ISMFGS,ITPFGS,ISTROC,NSTR,NEL,NNSTSGP,IISTSGP)
 !   Loop over GAS 3 strings --
 !     Loop over gas N strings
 
-use strbas, only: OCSTR
-use lucia_data, only: MXPNGAS, MXPNSMST, NELFGP, NGAS
+use lucia_data, only: MXPNGAS, MXPNSMST, NELFGP, NGAS, OCCSTR
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -92,7 +91,7 @@ if ((IGASL /= 0) .and. (NSTRTOT /= 0)) then
       write(u6,*) ' IBSTFGS(IGAS)',IBSTFGS(IGAS)
 #     endif
 
-      call ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),OCSTR(ITPFGS(IGAS))%A,NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
+      call ADD_STR_GROUP(NSTI,IBSTFGS(IGAS),OCCSTR(ITPFGS(IGAS))%A,NSTB,NSTA,ISTROC,NELB+1,NELI,NEL)
 
       ! Loop over strings in IGAS
     end if

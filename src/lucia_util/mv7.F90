@@ -15,10 +15,9 @@ subroutine MV7(C,HC,LUC,LUHC)
 !
 ! Written in terms of RASG3/SBLOCK, May 1997
 
-use strbas, only: NSTSO
 use CandS, only: ISSM, ISSPC
 use lucia_data, only: ENVIRO, I_AM_OUT, ICISTR, IDC, IREFSM, ISMOST, LCSBLK, MXNTTS, MXSOOB, N_ELIMINATED_BATCHES, &
-                      NOCTYP, PSSIGN, XISPSM
+                      NOCTYP, NSTSO, PSSIGN, XISPSM
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

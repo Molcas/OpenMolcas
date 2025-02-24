@@ -18,8 +18,7 @@ subroutine GASDIAT(DIAG,LUDIA,ECORE,ICISTR,I12,IBLTP,NBLOCK,IBLKFO)
 !
 ! Driven by table of TTS blocks, May97
 
-use strbas, only: NSTSO
-use lucia_data, only: I_AM_OUT, IDISK, IREOST, MXNSTR, N_ELIMINATED_BATCHES, NACOB, NELEC, NOCTYP, NTOOB, PSSIGN
+use lucia_data, only: I_AM_OUT, IDISK, IREOST, MXNSTR, N_ELIMINATED_BATCHES, NACOB, NELEC, NOCTYP, NSTSO, NTOOB, PSSIGN
 use csm_data, only: NSMST
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

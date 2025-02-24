@@ -17,8 +17,7 @@ subroutine IAIB_TO_OCCLS(IAGRP,IATP,IBGRP,IBTP,IOC)
 !
 ! Jeppe Olsen, December 2001
 
-use strbas, only: IOCLS
-use lucia_data, only: IBSPGPFTP, MXPNGAS, NELFSPGP, NGAS, NMXOCCLS
+use lucia_data, only: IBSPGPFTP, IOCLS, MXPNGAS, NELFSPGP, NGAS, NMXOCCLS
 use Definitions, only: iwp, u6
 
 implicit none
