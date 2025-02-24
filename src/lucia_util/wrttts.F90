@@ -19,6 +19,7 @@ subroutine WRTTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,ISC)
 !
 ! Jeppe Olsen, August 1995
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -56,7 +57,7 @@ do JBLOCK=1,NBLOCK
     !write(u6,*) ' iatp ibtp iasm ibsm nia nib ',iatp,ibtp,iasm,ibsm,nia,nib
 
     if (IPACK == 1) then
-      NELMNT = NIA*(NIA+1)/2
+      NELMNT = nTri_Elem(NIA)
       if (NELMNT /= 0) then
         write(u6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
         write(u6,'(A)') '  ============================'

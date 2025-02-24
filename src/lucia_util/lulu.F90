@@ -22,9 +22,9 @@ subroutine LULU(A,L,U,NDIM)
 !
 ! L AND U ARE STORED AS ONE DIMENSIONAL ARRAYS
 !
-!   L(I,J) = L(I*(I-1)/2 + J) ( I >= J )
+!   L(I,J) = L(nTri_Elem(I-1) + J) ( I >= J )
 !
-!   U(I,J) = U(J*(J-1)/2 + I) ( J >= I )
+!   U(I,J) = U(nTri_Elem(J-1) + I) ( J >= I )
 !
 ! THIS ADDRESSING SCHEMES SUPPORTS VECTORIZATION OVER COLUMNS
 ! FOR L AND  OVER ROWS FOR U .
@@ -61,13 +61,13 @@ real(kind=wp), external :: dDot_
 do R=1,NDIM
 
   do J=R,NDIM
-    U(J*(J-1)/2+R) = A(R,J)-dDot_(R-1,L(R*(R-1)/2+1),1,U(J*(J-1)/2+1),1)
+    U(nTri_Elem(J-1)+R) = A(R,J)-dDot_(R-1,L(nTri_Elem(R-1)+1),1,U(nTri_Elem(J-1)+1),1)
   end do
 
-  XFACI = One/U(R*(R+1)/2)
-  L(R*(R+1)/2) = One
+  XFACI = One/U(nTri_Elem(R))
+  L(nTri_Elem(R)) = One
   do I=R+1,NDIM
-    L(I*(I-1)/2+R) = (A(I,R)-dDot_(R-1,L(I*(I-1)/2+1),1,U(R*(R-1)/2+1),1))*XFACI
+    L(nTri_Elem(I-1)+R) = (A(I,R)-dDot_(R-1,L(nTri_Elem(I-1)+1),1,U(nTri_Elem(R-1)+1),1))*XFACI
   end do
 
 end do

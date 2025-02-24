@@ -21,7 +21,7 @@ real(kind=wp), intent(in) :: A(nTri_Elem(NDIM))
 integer(kind=iwp) :: I, J
 
 do I=1,NDIM
-  write(u6,1010) I,(A((J-1)*NDIM-J*(J-1)/2+I),J=1,I)
+  write(u6,1010) I,(A((J-1)*NDIM-nTri_Elem(J-1)+I),J=1,I)
 end do
 
 return

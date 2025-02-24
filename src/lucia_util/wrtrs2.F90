@@ -12,6 +12,7 @@
 subroutine WRTRS2(VECTOR,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
 ! Write RAS vector. Storage form is defined by ICBLTP
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -38,7 +39,7 @@ do IASM=1,NSMST
       NBST = NSBSO(IBSM,IBTP)
       if ((ICBLTP(IASM) == 2) .and. (IATP == IBTP)) then
         ! Diagonal block
-        NELMNT = NAST*(NAST+1)/2
+        NELMNT = nTri_Elem(NAST)
         if (NELMNT /= 0) then
           write(u6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
           write(u6,'(A)') '  ============================'

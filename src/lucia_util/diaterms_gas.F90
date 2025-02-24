@@ -30,6 +30,7 @@ subroutine DIATERMS_GAS(NAEL,IASTR,NBEL,IBSTR,NORB,VEC,NSMST,H,IDC,XB,RJ,RK,NSSO
 ! I12 = 1 => only one-body part
 !     = 2 =>      one+two-body part
 
+use Index_Functions, only: nTri_Elem
 use lucia_data, only: IDISK
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
@@ -155,7 +156,7 @@ do JBLOCK=1,NBLOCK
       if (IMZERO == 1) then
         ! Update offset to next block
         if ((IPACK == 1) .and. (IATP == IBTP)) then
-          IDET = IDET+NIA*(NIA+1)/2
+          IDET = IDET+nTri_Elem(NIA)
         else
           IDET = IDET+NIA*NIB
         end if

@@ -25,6 +25,7 @@ subroutine ORBINH1(IORBINH1,IORBINH1_NOCCSYM,NTOOBS,NTOOB,NSMOB)
 ! Jeppe Olsen, March 1995
 !              ORBINH1_NOCCSYM added August 2000
 
+use Index_Functions, only: iTri
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -67,11 +68,7 @@ do ISM=1,NSMOB
         if (ISM > JSM) then
           INDX = (IORB-1)*NTOOBS(JSM)+JORB
         else if (ISM == JSM) then
-          if (IORB >= JORB) then
-            INDX = IORB*(IORB-1)/2+JORB
-          else
-            INDX = JORB*(JORB-1)/2+IORB
-          end if
+          INDX = iTri(IORB,JORB)
         else if (ISM < JSM) then
           INDX = (JORB-1)*NTOOBS(ISM)+IORB
         end if

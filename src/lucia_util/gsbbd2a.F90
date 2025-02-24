@@ -61,6 +61,7 @@ subroutine GSBBD2A(RHO2,RHO2S,RHO2A,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS
 !
 ! Jeppe Olsen, Fall of 96
 
+use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -178,7 +179,7 @@ if (IDXSM /= 0) then
 
               JLBOFF = 1
               if ((JSM == LSM) .and. (JTYP == LTYP)) then
-                NJL = NJ*(NJ+1)/2
+                NJL = nTri_Elem(NJ)
                 JLSM = 1
               else
                 NJL = NJ*NL
@@ -203,7 +204,7 @@ if (IDXSM /= 0) then
                 I1JL = (L-1)*NJ+J
                 ! JAN28
                 if (JLSM /= 0) then
-                  IJLE = J*(J-1)/2+L
+                  IJLE = nTri_Elem(J-1)+L
                 else
                   IJLE = IJL
                 end if
@@ -227,7 +228,7 @@ if (IDXSM /= 0) then
 
               IKBOFF = 1
               if ((ISM == KSM) .and. (ITYP == KTYP)) then
-                NIK = NI*(NI+1)/2
+                NIK = nTri_Elem(NI)
                 IKSM = 1
               else
                 NIK = NI*NK
@@ -253,7 +254,7 @@ if (IDXSM /= 0) then
                 I1IK = (K-1)*NI+I
                 ! JAN28
                 if (IKSM /= 0) then
-                  IIKE = I*(I-1)/2+K
+                  IIKE = nTri_Elem(I-1)+K
                 else
                   IIKE = IIK
                 end if
@@ -324,7 +325,7 @@ if (IDXSM /= 0) then
 
           !write(u6,*) ' updated density matrix A',' norb = 4 ',norb
           !write(u6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
-          !call prsym(rho2s,NORB*(NORB+1)/2)
+          !call prsym(rho2s,nTri_Elem(NORB))
 
         end do outer
       end do

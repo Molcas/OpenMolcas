@@ -30,6 +30,7 @@ subroutine SDCMRF(CSD,CCM,IATP,IBTP,IASM,IBSM,NA,NB,IDC,PS,PL,ISGVST,LDET,LCOMB,
 ! If ISCALE == 0, no overall scaling is performed,
 !                 the overall scale factor is returned as SCLFAC
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -80,7 +81,7 @@ write(u6,*) ' SDCMRF : NA, NB =',NA,NB
 if (IPACK == 0) then
   LCOMB = LDET
 else
-  LCOMB = NA*(NA+1)/2
+  LCOMB = nTri_Elem(NA)
 end if
 if ((IDC == 4) .and. (IPACK == 0)) FACTOR = SQRT2
 FACTOR = One/FACTOR

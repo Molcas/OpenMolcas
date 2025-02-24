@@ -33,6 +33,7 @@ subroutine TRACI_LUCIA(X,LUCIN,LUCOUT,IXSPC,IXSM,VEC1,VEC2)
 ! note The transformation matrix X is supposed to be in complete form
 ! as a matrix over NTOOB orbitals.
 
+use Index_Functions, only: nTri_Elem
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use lucia_data, only: LUSC1, LUSC2, LUSC3, NSMOB, NTOOB, NTOOBS
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -64,7 +65,7 @@ write(u6,*) ' IXSPC,IXSM = ',IXSPC,IXSM
 ! for a matrix T
 call mma_allocate(LT,NTOOB**2,Label='LT')
 ! Scratch in PAMTMT
-call mma_allocate(SCR,NTOOB**2+NTOOB*(NTOOB+1)/2,Label='SCR')
+call mma_allocate(SCR,NTOOB**2+nTri_Elem(NTOOB),Label='SCR')
 ! Obtain T matrix used for transformation, for each symmetry separately
 do ISM=1,NSMOB
   if (ISM == 1) then

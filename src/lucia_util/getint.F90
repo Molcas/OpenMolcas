@@ -31,10 +31,12 @@ subroutine GETINT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL)
 ! If type equals zero, all integrals of given type are fetched
 ! (added aug 8, 98)
 
+use Index_Functions, only: iTri
 use lucia_data, only: IBSO, NOBPTS, NTOOBS
 use wadr, only: TUVX
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem
 use Definitions, only: u6
 #endif
 
@@ -43,7 +45,7 @@ use Definitions, only: u6
 implicit none
 real(kind=wp), intent(_OUT_) :: XINT(*)
 integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL
-integer(kind=iwp) :: I, IINT, IJ, IJKL, IL, ILKJ, IMIN, IOFF, IORB, J, JMIN, JOFF, JORB, K, KJ, KL, KOFF, KORB, L, LOFF, LORB
+integer(kind=iwp) :: I, IINT, IJKL, ILKJ, IMIN, IOFF, IORB, J, JMIN, JOFF, JORB, K, KOFF, KORB, L, LOFF, LORB
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: NI, NIK, NJ, NJL, NK, NL
 
@@ -105,9 +107,7 @@ do l=lOff,lOff+lOrb-1
       end if
 
       do i=iMin,iOff+iOrb-1
-        IJ = max(I,J)*(max(I,J)-1)/2+min(I,J)
-        KL = max(K,L)*(max(K,L)-1)/2+min(K,L)
-        IJKL = max(IJ,KL)*(max(IJ,KL)-1)/2+min(IJ,KL)
+        IJKL = iTri(iTri(I,J),iTri(K,L))
         ! Next line inserted by Jesper: "I don't think iInt should be the same
         ! for all i"
         iInt = iInt+1
@@ -138,9 +138,7 @@ if (IXCHNG /= 0) then
         end if
 
         do i=iMin,iOff+iOrb-1
-          IL = max(I,L)*(max(I,L)-1)/2+min(I,L)
-          KJ = max(K,J)*(max(K,J)-1)/2+min(K,J)
-          ILKJ = max(IL,KJ)*(max(IL,KJ)-1)/2+min(IL,KJ)
+          ILKJ = iTri(iTri(I,L),iTri(K,J))
           iInt = iInt+1
           XInt(iInt) = XInt(iInt)-TUVX(ilkj)
         end do
@@ -165,7 +163,7 @@ end if
 if (IKSM == 0) then
   NIK = NI*NK
 else
-  NIK = NI*(NI+1)/2
+  NIK = nTri_Elem(NI)
 end if
 
 if (JTP == 0) then
@@ -183,7 +181,7 @@ end if
 if (JLSM == 0) then
   NJL = NJ*NL
 else
-  NJL = NJ*(NJ+1)/2
+  NJL = nTri_Elem(NJ)
 end if
 write(u6,*) ' 2 electron integral block for TS blocks'
 write(u6,*) ' Ixchng :',IXCHNG

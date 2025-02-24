@@ -22,6 +22,7 @@ subroutine SCDTTS(BLOCKS,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC)
 !
 ! Jeppe Olsen, August 1995
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -60,7 +61,7 @@ do JBLOCK=1,NBLOCK
     NIA = NSASO(IASM,IATP)
     NIB = NSBSO(IBSM,IBTP)
     if (IPACK == 1) then
-      NELMNT = NIA*(NIA+1)/2
+      NELMNT = nTri_Elem(NIA)
     else
       NELMNT = NIA*NIB
     end if

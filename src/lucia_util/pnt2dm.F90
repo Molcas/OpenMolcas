@@ -31,6 +31,7 @@ subroutine PNT2DM(I12SM,NSMOB,OSXO,IPSM,JPSM,IJSM,ISM2,IPNTR,MXPOBS)
 !         = 0 indicates forbidden block
 ! ISM2  : symmetry of second index for given first index
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -52,7 +53,7 @@ do ISM=1,NSMOB
     IPNTR(ISM) = IOFF
     ISM2(ISM) = JSM
     if ((I12SM > 0) .and. (ISM == JSM)) then
-      IOFF = IOFF+IPSM(ISM)*(IPSM(ISM)+1)/2
+      IOFF = IOFF+nTri_Elem(IPSM(ISM))
     else
       IOFF = IOFF+IPSM(ISM)*JPSM(JSM)
     end if

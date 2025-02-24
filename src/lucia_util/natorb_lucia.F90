@@ -19,6 +19,7 @@ subroutine NATORB_LUCIA(RHO1,NSMOB,NTOPSM,NACPSM,NINPSM,ISTOB,XNAT,RHO1SM,OCCNUM
 !              Modification, Oct 94
 !              Last modification, Feb. 1998 (reorder deg eigenvalues)
 
+use Index_Functions, only: nTri_Elem
 use lucia_data, only: IPRDEN
 use Definitions, only: wp, iwp, u6
 
@@ -68,13 +69,13 @@ do ISMOB=1,NSMOB
   !    TRIPAK(AUTPAK,APAK,MATDIM,NDIM)
   call TRIPAK(RHO1SM(IMTOFF),SCR,LOB,LOB)
   ! scale with -1 to get highest occupation numbers as first eigenvectors
-  SCR(1:LOB*(LOB+1)/2) = -SCR(1:LOB*(LOB+1)/2)
+  SCR(1:nTri_Elem(LOB)) = -SCR(1:nTri_ELem(LOB))
   call unitmat(XNAT(IMTOFF),LOB)
   call NIDiag(SCR,XNAT(IMTOFF),LOB,LOB)
   call JACORD(SCR,XNAT(IMTOFF),LOB,LOB)
 
   do I=1,LOB
-    OCCNUM(IOBOFF-1+I) = -SCR(I*(I+1)/2)
+    OCCNUM(IOBOFF-1+I) = -SCR(nTri_Elem(I))
   end do
   ! Order the degenerate eigenvalues so diagonal terms are maximized
   TESTY = 1.0e-11_wp

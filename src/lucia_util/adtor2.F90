@@ -25,6 +25,7 @@ subroutine ADTOR2(RHO2,RHO2S,RHO2A,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,N
 ! Itype = 2 => alpha-beta loop
 !              input is in form Rho2t(ij,kl)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
@@ -79,12 +80,12 @@ end if
 write(u6,*) ' RHO2T :'
 if (ITYPE == 1) then
   if (IOFF == KOFF) then
-    NROW = NI*(NI+1)/2
+    NROW = nTri_Elem(NI)
   else
     NROW = NI*NK
   end if
   if (JOFF == LOFF) then
-    NCOL = NJ*(NJ+1)/2
+    NCOL = nTri_Elem(NJ)
   else
     NCOL = NJ*NL
   end if
@@ -97,7 +98,7 @@ call WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
 
 !return
 
-NELMNT = NORB**2*(NORB**2+1)/2
+NELMNT = nTri_Elem(NORB**2)
 
 if (ITYPE == 1) then
 
@@ -188,9 +189,9 @@ if (ITYPE == 1) then
                 K_PACK = KK+KKOFF-1
                 L_PACK = LL+LLOFF-1
 
-                IJ_PACK = I_PACK*(I_PACK-1)/2+J_PACK
-                JI_PACK = J_PACK*(J_PACK-1)/2+I_PACK
-                KL_PACK = K_PACK*(K_PACK-1)/2+L_PACK
+                IJ_PACK = nTri_Elem(I_PACK-1)+J_PACK
+                JI_PACK = nTri_Elem(J_PACK-1)+I_PACK
+                KL_PACK = nTri_Elem(K_PACK-1)+L_PACK
 
                 if (K_PACK == L_PACK) then
                   FACTOR = Quart
@@ -241,9 +242,9 @@ if (ITYPE == 1) then
                   NIK = NI*NK
                   SIGNIK = One
                 else
-                  IKIND = max(I,K)*(max(I,K)-1)/2+min(I,K)
-                  NIK = NI*(NI+1)/2
-                  if (I == max(I,K)) then
+                  IKIND = iTri(I,K)
+                  NIK = nTri_Elem(NI)
+                  if (I >= K) then
                     SIGNIK = One
                   else
                     SIGNIK = -One
@@ -253,8 +254,8 @@ if (ITYPE == 1) then
                   JLIND = (L-1)*NJ+J
                   SIGNJL = One
                 else
-                  JLIND = max(J,L)*(max(J,L)-1)/2+min(J,L)
-                  if (J == max(J,L)) then
+                  JLIND = iTri(J,L)
+                  if (J >= L) then
                     SIGNJL = One
                   else
                     SIGNJL = -One
@@ -264,17 +265,17 @@ if (ITYPE == 1) then
                 TERM = FACTOR*SGN*SIGNJL*SIGNIK*RHO2T(IKJLT)
 
                 if (DO_IJKL_PACK) then
-                  IJKL_PACK = IJ_PACK*(IJ_PACK-1)/2+KL_PACK
+                  IJKL_PACK = nTri_Elem(IJ_PACK-1)+KL_PACK
                   RHO2S(IJKL_PACK) = RHO2S(IJKL_PACK)-TERM
                   RHO2A(IJKL_PACK) = RHO2A(IJKL_PACK)-TERM
                 end if
                 if (DO_JIKL_PACK) then
-                  JIKL_PACK = JI_PACK*(JI_PACK-1)/2+KL_PACK
+                  JIKL_PACK = nTri_Elem(JI_PACK-1)+KL_PACK
                   RHO2S(JIKL_PACK) = RHO2S(JIKL_PACK)-TERM
                   RHO2A(JIKL_PACK) = RHO2A(JIKL_PACK)+TERM
                 end if
                 if (DO_IJKL) then
-                  IJKL = IJ*(IJ-1)/2+KL
+                  IJKL = nTri_Elem(IJ-1)+KL
                   if (IJKL > NELMNT) then
                     write(u6,*) ' Problemo 1 : IJKL > NELMNT'
                     write(u6,*) ' IJKL, NELMNT',IJKL,NELMNT
@@ -313,7 +314,7 @@ else if (ITYPE == 2) then
           else
             FACTOR = One
           end if
-          IJKL = max(IJ,KL)*(max(IJ,KL)-1)/2+min(IJ,KL)
+          IJKL = iTri(IJ,KL)
           IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI+(J-1)*NI+I
           if (IJKL > NELMNT) then
             write(u6,*) ' Problemo 2 : IJKL > NELMNT'
@@ -327,17 +328,17 @@ else if (ITYPE == 2) then
                 J_PACK = J+JOFF-1
                 K_PACK = K+KOFF-1
                 L_PACK = L+LOFF-1
-                IJ_PACK = I_PACK*(I_PACK-1)/2+J_PACK
-                JI_PACK = J_PACK*(J_PACK-1)/2+I_PACK
-                KL_PACK = K_PACK*(K_PACK-1)/2+L_PACK
+                IJ_PACK = nTri_Elem(I_PACK-1)+J_PACK
+                JI_PACK = nTri_Elem(J_PACK-1)+I_PACK
+                KL_PACK = nTri_Elem(K_PACK-1)+L_PACK
               else
                 I_PACK = K+KOFF-1
                 J_PACK = L+LOFF-1
                 K_PACK = I+IOFF-1
                 L_PACK = J+JOFF-1
-                IJ_PACK = I_PACK*(I_PACK-1)/2+J_PACK
-                JI_PACK = J_PACK*(J_PACK-1)/2+I_PACK
-                KL_PACK = K_PACK*(K_PACK-1)/2+L_PACK
+                IJ_PACK = nTri_Elem(I_PACK-1)+J_PACK
+                JI_PACK = nTri_Elem(J_PACK-1)+I_PACK
+                KL_PACK = nTri_Elem(K_PACK-1)+L_PACK
               end if
 
               if (K_PACK == L_PACK) then
@@ -348,13 +349,13 @@ else if (ITYPE == 2) then
               if ((I_PACK == K_PACK) .and. (J_PACK == L_PACK)) FACTOR_PACK = FACTOR_PACK*Half
 
               if ((I_PACK >= J_PACK) .and. (K_PACK >= L_PACK) .and. (IJ_PACK >= KL_PACK)) then
-                IJKL_PACK = IJ_PACK*(IJ_PACK-1)/2+KL_PACK
+                IJKL_PACK = nTri_Elem(IJ_PACK-1)+KL_PACK
                 RHO2S(IJKL_PACK) = RHO2S(IJKL_PACK)+FACTOR_PACK*TERM
                 RHO2A(IJKL_PACK) = RHO2A(IJKL_PACK)+FACTOR_PACK*TERM
               end if
               if ((J_PACK >= I_PACK) .and. (K_PACK >= L_PACK) .and. (JI_PACK >= KL_PACK)) then
-                JIKL_PACK = JI_PACK*(JI_PACK-1)/2+KL_PACK
-                IJKL_PACK = IJ_PACK*(IJ_PACK-1)/2+KL_PACK
+                JIKL_PACK = nTri_Elem(JI_PACK-1)+KL_PACK
+                IJKL_PACK = nTri_Elem(IJ_PACK-1)+KL_PACK
                 RHO2S(JIKL_PACK) = RHO2S(JIKL_PACK)+FACTOR_PACK*TERM
                 RHO2A(JIKL_PACK) = RHO2A(JIKL_PACK)-FACTOR_PACK*TERM
               end if

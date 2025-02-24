@@ -30,6 +30,7 @@ subroutine NGASDT(ITOTSM,NSMST,NOCTPA,NOCTPB,NSSOA,NSSOB,NCOMB,XNCOMB,MXSB,MXSOO
 ! May 1999 : Loops restructrured to sym,type,type (leftmost innerst)
 !            MXSB not calculated
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
@@ -89,7 +90,7 @@ do IATP=1,NOCTPA
             LTTSBL = LASTR*LBSTR
             XNCOMB = XNCOMB+real(LASTR,kind=wp)*real(LBSTR,kind=wp)
           else
-            LTTSBL = LASTR*(LASTR+1)/2
+            LTTSBL = nTri_Elem(LASTR)
             XNCOMB = XNCOMB+Half*real(LASTR+1,kind=wp)*real(LASTR,kind=wp)
           end if
           LTTS_AS = LTTS_AS+LTTSUP

@@ -218,7 +218,7 @@ do IJTYP=1,NIJTYP
 
           !write(u6,*) ' updated density matrix B ','norb = ',norb
           !write(u6,*) ' offset ','IOFF,JOFF,KOFF,LOFF',IOFF,JOFF,KOFF,LOFF
-          !call prsym(rho2s,NORB*(NORB+1)/2)
+          !call prsym(rho2s,nTri_Elem(NORB))
 
         end do
       end do

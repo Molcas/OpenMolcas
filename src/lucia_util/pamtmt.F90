@@ -30,6 +30,7 @@ subroutine PAMTMT(X,T,SCR,NORB)
 !
 ! JEPPE OLSEN OCTOBER 1988
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -39,7 +40,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: nOrb
 real(kind=wp), intent(in) :: X(NORB,NORB)
-real(kind=wp), intent(out) :: T(NORB,NORB), SCR(nOrb**2+nOrb*(nOrb+1)/2)
+real(kind=wp), intent(out) :: T(NORB,NORB), SCR(nOrb**2+nTri_Elem(nOrb))
 integer(kind=iwp) :: I, ISING, J, KLFREE, KLL, KLU
 
 #ifdef _DEBUGPRINT_
@@ -51,7 +52,7 @@ write(u6,*)
 KLFREE = 1
 !KLL = KFLREE
 KLL = KLFREE
-KLFREE = KLL+NORB*(NORB+1)/2
+KLFREE = KLL+nTri_Elem(NORB)
 KLU = KLFREE
 KLFREE = KLU+NORB**2
 ! LU factorize X
@@ -60,7 +61,7 @@ call LULU(X,SCR(KLL),SCR(KLU),NORB)
 T(:,:) = Zero
 do I=1,NORB
   do J=I,NORB
-    T(I,J) = SCR(KLU-1+J*(J-1)/2+I)
+    T(I,J) = SCR(KLU-1+nTri_Elem(J-1)+I)
   end do
 end do
 #ifdef _DEBUGPRINT_
@@ -76,7 +77,7 @@ call WRTMAT(T,NORB,NORB,NORB,NORB)
 ! Subtract L
 do I=1,NORB
   do J=1,I-1
-    T(I,J) = -SCR(KLL-1+I*(I-1)/2+J)
+    T(I,J) = -SCR(KLL-1+nTri_Elem(I-1)+J)
   end do
 end do
 

@@ -21,6 +21,7 @@ subroutine TRIPK32(AUTPAK,APAK,MATDIM,NDIM,SGN)
 !
 ! Some considerations on cache minimization used for IMET = 2 Loop
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -71,7 +72,7 @@ else if (IMET == 2) then
         else
           IOFF2 = IOFF
         end if
-        IJOFF = (J-1)*MATDIM-J*(J-1)/2
+        IJOFF = (J-1)*MATDIM-nTri_Elem(J-1)
         AUTPAK(J,IOFF2:IEND) = SGN*APAK(IJOFF+IOFF2:IJOFF+IEND)
         AUTPAK(IOFF2:IEND,J) = APAK(IJOFF+IOFF2:IJOFF+IEND)
       end do

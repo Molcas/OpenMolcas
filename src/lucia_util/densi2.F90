@@ -26,7 +26,7 @@ subroutine DENSI2(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRHO1,IPA
 ! Allowing to symmetry pack on the fly, Sept. 2003
 !
 ! Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
-! ijkl = ij*(ij-1)/2+kl, ij >= kl
+! ijkl = nTri_Elem(ij)+kl, ij >= kl
 !
 ! Two-body symmetric density stored in rho2s
 ! Two-body anti-symmetric density stored in rho2a
@@ -48,6 +48,7 @@ subroutine DENSI2(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRHO1,IPA
 ! with L being S and R being C
 !
 
+use Index_Functions, only: nTri_Elem
 use GLBBAS, only: VEC3
 use CandS, only: ICSM, ISSM, ISSPC
 use lucia_data, only: ENVIRO, IADVICE, IBSPGPFTP, ICISTR, IDC, IOBPTS, IPHGAS, IPRCIX, IPRDEN, IREFSM, IREOST, ISMOST, LCSBLK, &
@@ -85,12 +86,12 @@ if (I12 == 2) then
     ! If IPACK == .TRUE. then
     ! Number of elements in symmetric and antisymmetric 2-body
     ! density matrices are given in Nijkl.
-    NIJ = (NACOB*(NACOB+1))/2
-    NIJKL = (NIJ*(NIJ+1))/2
+    NIJ = nTri_Elem(NACOB)
+    NIJKL = nTri_Elem(NIJ)
     RHO2S(1:NIJKL) = Zero
     RHO2A(1:NIJKL) = Zero
   else
-    RHO2(1:NACOB**2*(NACOB**2+1)/2) = Zero
+    RHO2(1:nTri_Elem(NACOB**2)) = Zero
   end if
 end if
 
@@ -230,7 +231,7 @@ call mma_deallocate(SVST)
 ! scratch space containing active one body
 call mma_allocate(RHO1S,NACOB**2,Label='RHO1S')
 ! For natural orbitals
-call mma_allocate(RHO1P,NACOB*(NACOB+1)/2,Label='RHO1P')
+call mma_allocate(RHO1P,nTri_Elem(NACOB),Label='RHO1P')
 call mma_allocate(XNATO,NACOB**2,Label='XNATO')
 ! Natural orbitals in symmetry blocks
 call mma_allocate(RHO1SM,NACOB**2,Label='RHO1SM')
@@ -281,12 +282,12 @@ else if (ICISTR >= 2) then
       ! If IPACK == .TRUE. then
       ! Number of elements in symmetric and antisymmetric 2-body
       ! density matrices are given in Nijkl.
-      NIJ = (NACOB*(NACOB+1))/2
-      NIJKL = (NIJ*(NIJ+1))/2
+      NIJ = nTri_Elem(NACOB)
+      NIJKL = nTri_Elem(NIJ)
       call GADSUM(RHO2S,NIJKL)
       call GADSUM(RHO2A,NIJKL)
     else
-      call GADSUM(RHO2,NACOB**2*(NACOB**2+1)/2)
+      call GADSUM(RHO2,nTri_Elem(NACOB**2))
     end if
   end if
   if (IDOSRHO1 == 1) call GADSUM(SRHO1,NACOB**2)

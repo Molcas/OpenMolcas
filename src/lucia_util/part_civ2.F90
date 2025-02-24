@@ -44,6 +44,7 @@ subroutine PART_CIV2(IDC,NSSOA,NSSOB,NOCTPA,NOCTPB,NSMST,IOCOC,ISMOST,NBATCH,LBA
 !
 ! Jeppe Olsen, August 1995
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: iwp, u6
 
 #include "intent.fh"
@@ -151,7 +152,7 @@ outer: do
     if ((IDC == 1) .or. (IA > IB) .or. ((IA == IB) .and. (IASM > IBSM))) then
       LBLOCKP = NSTA*NSTB
     else if ((IDC == 2) .and. (IA == IB) .and. (IASM == IBSM)) then
-      LBLOCKP = NSTA*(NSTA+1)/2
+      LBLOCKP = nTri_Elem(NSTA)
     end if
     !write(u6,*) ' IASM IBSM IA IB LBLOCKP,LBLOCK',IASM,IBSM,IA,IB,LBLOCKP,LBLOCK
 

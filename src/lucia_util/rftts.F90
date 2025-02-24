@@ -22,6 +22,7 @@ subroutine RFTTS(BLOCKSI,BLOCKSO,IBLOCK,NBLOCK,NSMST,NSASO,NSBSO,IDC)
 !
 ! Jeppe Olsen, August 1995
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -64,7 +65,7 @@ do JBLOCK=1,NBLOCK
     NIB = NSBSO(IBSM,IBTP)
     ! Number of elements in output block
     if (IPACK == 1) then
-      NELMNT = NIA*(NIA+1)/2
+      NELMNT = nTri_Elem(NIA)
     else
       NELMNT = NIA*NIB
     end if

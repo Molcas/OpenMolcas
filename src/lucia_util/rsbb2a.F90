@@ -61,6 +61,7 @@ subroutine RSBB2A(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISOC,ICOC,SB,CB,ADSXA,S
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Index_Functions, only: nTri_Elem
 use Para_Info, only: MyRank, nProcs
 use lucia_data, only: MXPNGAS, MXPOBS, MXPTSOB
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -231,7 +232,7 @@ if (IDXSM /= 0) then
 #         endif
 
           if ((ISM == KSM) .and. (ITYP == KTYP)) then
-            NIK = NI*(NI+1)/2
+            NIK = nTri_Elem(NI)
           else if ((ITYP > KTYP) .or. ((ITYP == KTYP) .and. (ISM > KSM))) then
             NIK = NI*NK
           else
@@ -284,7 +285,7 @@ if (IDXSM /= 0) then
           NL = NOBPTS(LTYP,LSM)
 
           if ((JSM == LSM) .and. (JTYP == LTYP)) then
-            NJL = NJ*(NJ+1)/2
+            NJL = nTri_Elem(NJ)
           else if ((JTYP > LTYP) .or. ((JTYP == LTYP) .and. (JSM > LSM))) then
             NJL = NJ*NL
           else
@@ -354,7 +355,7 @@ if (IDXSM /= 0) then
                   NJ = NOBPTS(JTYP,JSM)
                   NL = NOBPTS(LTYP,LSM)
                   if ((JSM == LSM) .and. (JTYP == LTYP)) then
-                    NJL = NJ*(NJ+1)/2
+                    NJL = nTri_Elem(NJ)
                     JLSM = 1
                   else
                     NJL = NJ*NL
@@ -427,7 +428,7 @@ if (IDXSM /= 0) then
 
                       if ((ISM == KSM) .and. (ITYP == KTYP)) then
                         IKSM = 1
-                        NIK = NOBPTS(ITYP,ISM)*(NOBPTS(ITYP,ISM)+1)/2
+                        NIK = nTri_Elem(NOBPTS(ITYP,ISM))
                       else
                         IKSM = 0
                         NIK = NOBPTS(ITYP,ISM)*NOBPTS(KTYP,KSM)
@@ -435,7 +436,7 @@ if (IDXSM /= 0) then
 
                       if ((JSM == LSM) .and. (JTYP == LTYP)) then
                         JLSM = 1
-                        NJL = NOBPTS(JTYP,JSM)*(NOBPTS(JTYP,JSM)+1)/2
+                        NJL = nTri_Elem(NOBPTS(JTYP,JSM))
                       else
                         JLSM = 0
                         NJL = NOBPTS(JTYP,JSM)*NOBPTS(LTYP,LSM)
@@ -499,7 +500,7 @@ if (IDXSM /= 0) then
                   NI = NOBPTS(ITYP,ISM)
                   NK = NOBPTS(KTYP,KSM)
                   if ((ISM == KSM) .and. (ITYP == KTYP)) then
-                    NIK = NI*(NI+1)/2
+                    NIK = nTri_Elem(NI)
                     IKSM = 1
                   else
                     NIK = NI*NK

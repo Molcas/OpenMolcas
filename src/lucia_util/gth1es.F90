@@ -18,6 +18,7 @@ function GTH1ES(IREOTS,IPNT,H,IBSO,MXPNGAS,IBTSOB,NACOBS,IORB,ITP,ISM,JORB,JTP,J
 !
 ! Last Revision January 98 (IJSM added)
 
+use Index_Functions, only: iTri
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -28,7 +29,7 @@ real(kind=wp) :: GTH1ES
 integer(kind=iwp), intent(in) :: IREOTS(*), IPNT(*), IBSO(*), MXPNGAS, IBTSOB(MXPNGAS,*), NACOBS(*), IORB, ITP, ISM, JORB, JTP, &
                                  JSM, IJSM
 real(kind=wp), intent(in) :: H(*)
-integer(kind=iwp) :: I_ABS, IJ, IJMAX, IJMIN, IREO, JABS, JREO, NI, NJ
+integer(kind=iwp) :: I_ABS, IJ, IREO, JABS, JREO, NI, NJ
 
 I_ABS = IORB+IBTSOB(ITP,ISM)-1
 IREO = IREOTS(I_ABS)
@@ -43,9 +44,7 @@ if (IJSM == 1) then
     NI = NACOBS(ISM)
     IJ = IPNT(ISM)-1+(JREO-IBSO(JSM))*NI+IREO-IBSO(ISM)+1
   else if (ISM == JSM) then
-    IJMAX = max(IREO-IBSO(ISM)+1,JREO-IBSO(JSM)+1)
-    IJMIN = min(IREO-IBSO(ISM)+1,JREO-IBSO(JSM)+1)
-    IJ = IPNT(ISM)-1+IJMAX*(IJMAX-1)/2+IJMIN
+    IJ = IPNT(ISM)-1+iTri(IREO-IBSO(ISM)+1,JREO-IBSO(JSM)+1)
   else if (ISM < JSM) then
     NJ = NACOBS(JSM)
     IJ = IPNT(JSM)-1+(IREO-IBSO(ISM))*NJ+JREO-IBSO(JSM)+1

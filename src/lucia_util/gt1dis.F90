@@ -13,6 +13,7 @@
 subroutine GT1DIS(H1DIA,IREOTS,IPNT,H,ISMFTO,IBSO,NACOB)
 ! diagonal of one electron integrals over active orbitals
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -32,7 +33,7 @@ do IIOB=1,NACOB
   IOBREL = IOB-IBSO(ISM)+1
   !write(u6,*) ' IIOB IOB ISM IOBREL'
   !write(u6,*) IIOB,IOB,ISM,IOBREL
-  H1DIA(IIOB) = H(IPNT(ISM)-1+IOBREL*(IOBREL+1)/2)
+  H1DIA(IIOB) = H(IPNT(ISM)-1+nTri_Elem(IOBREL))
 end do
 
 #ifdef _DEBUGPRINT_

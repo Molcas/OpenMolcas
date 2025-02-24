@@ -16,6 +16,7 @@ subroutine GTJK(RJ,RK,NTOOB,IREOST)
 !
 ! Ordering of integrals is in the internal order
 
+use Index_Functions, only: nTri_Elem
 use wadr, only: TUVX
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -34,12 +35,12 @@ do NT=1,NTOOB
     NU_REO = IREOST(NU)
 
     NTUT = NTUT+1
-    NTUK = (NTUT**2+NTUT)/2
+    NTUK = nTri_Elem(NTUT)
     RK(NT_REO,NU_REO) = TUVX(NTUK)
     RK(NU_REO,NT_REO) = TUVX(NTUK)
 
-    NTT = (NT**2+NT)/2
-    NTUJ = (NTT**2-NTT)/2+(NU**2+NU)/2
+    NTT = nTri_Elem(NT)
+    NTUJ = nTri_Elem(NTT-1)+nTri_Elem(NU)
     RJ(NT_REO,NU_REO) = TUVX(NTUJ)
     RJ(NU_REO,NT_REO) = TUVX(NTUJ)
   end do
