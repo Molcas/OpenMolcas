@@ -24,9 +24,8 @@ subroutine TRACID(T,LUCIN,LUCOUT,LUSC1,LUSC2,LUSC3,VEC1,VEC2)
 !
 ! each transformation is
 
-use GLBBAS, only: INT1
 use CandS, only: ISSM, ISSPC
-use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, NTOOB
+use lucia_data, only: I12, I_RES_AB, IDISK, IH1FORM, INT1, NTOOB
 use Constants, only: One, Half
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_

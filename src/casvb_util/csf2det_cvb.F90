@@ -15,7 +15,7 @@
 subroutine csf2det_cvb(vec,detvec,isym_loc,iWay)
 
 use csfbas, only: cts
-use glbbas, only: dtoc
+use lucia_data, only: dtoc
 use rasscf_global, only: NAC
 use Definitions, only: wp, iwp
 

@@ -37,7 +37,7 @@
      &                         NAC, NACPAR, NONEQ, PotNuc, Tot_Charge,
      &                         Tot_El_Charge, Tot_Nuc_Charge
 #ifdef _DMRG_
-      use glbbas, only: INT1, INT1O
+      use lucia_data, only: INT1, INT1O
       use rasscf_global, only: DoDMRG
 #endif
       use printlevel, only: DEBUG

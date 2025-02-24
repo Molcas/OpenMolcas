@@ -11,14 +11,13 @@
 
 subroutine DETCTL_GAS()
 
-use GLBBAS, only: CONF_OCC, SDREO_I
-use rasscf_lucia, only: kvec3_length, Memory_Needed_Lucia
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
-use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, IADVICE, IBSPGPFTP, IDC, &
-                      IGSOCC, IPHGAS, IPRCIX, IREFSM, ISMOST, LCSBLK, MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MXINKA, MXNSTR, MXNTTS, &
-                      MXPCSM, MXPNGAS, MXPNSMST, MXPORB, MXSOOB, MXTSOB, NCONF_PER_OPEN, NCONF_PER_SYM, NCSF_HEXS, NCSF_PER_SYM, &
-                      NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NIRREP, NOBPT, NOBPTS, NOCOB, NOCSF, NOCTYP, NPCSCNF, NPDTCNF, &
-                      NSD_PER_SYM, NSMOB, NSTFSMSPGP, NSTSO, NTOOB, PSSIGN, XISPSM
+use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, CONF_OCC, Deallocate_Local_Arrays, IADVICE, &
+                      IBSPGPFTP, IDC, IGSOCC, IPHGAS, IPRCIX, IREFSM, ISMOST, kvec3_length, LCSBLK, MAX_STR_OC_BLK, MAX_STR_SPGP, &
+                      Memory_Needed_Lucia, MNHL, MXINKA, MXNSTR, MXNTTS, MXPCSM, MXPNGAS, MXPNSMST, MXPORB, MXSOOB, MXTSOB, &
+                      NCONF_PER_OPEN, NCONF_PER_SYM, NCSF_HEXS, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NIRREP, &
+                      NOBPT, NOBPTS, NOCOB, NOCSF, NOCTYP, NPCSCNF, NPDTCNF, NSD_PER_SYM, NSMOB, NSTFSMSPGP, NSTSO, NTOOB, PSSIGN, &
+                      SDREO_I, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: iwp, u6

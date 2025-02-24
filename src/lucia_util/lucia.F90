@@ -11,8 +11,7 @@
 
 subroutine LUCIA()
 
-use GLBBAS, only: CI_VEC, SIGMA_VEC
-use lucia_data, only: IREFSM, LCSBLK, MXSOOB, NOINT, PSSIGN, XISPSM
+use lucia_data, only: CI_VEC, IREFSM, LCSBLK, MXSOOB, NOINT, PSSIGN, SIGMA_VEC, XISPSM
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, Two
 use Definitions, only: iwp, u6

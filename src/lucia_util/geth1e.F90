@@ -16,10 +16,8 @@ function GETH1E(IORB,ITP,ISM,JORB,JTP,JSM)
 ! The orbital symmetries are used to obtain the
 ! total symmetry of the operator
 
-use GLBBAS, only: INT1, PGINT1, PGINT1A, PINT1
-use lucia_data, only: IH1FORM
 use Symmetry_Info, only: Mul
-use lucia_data, only: IBSO, IOBPTS, IREOTS, MXPNGAS, NACOBS
+use lucia_data, only: IBSO, IH1FORM, INT1, IOBPTS, IREOTS, MXPNGAS, NACOBS, PGINT1, PGINT1A, PINT1
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

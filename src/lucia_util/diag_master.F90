@@ -18,7 +18,7 @@ subroutine diag_master()
 !
 ! Set up the diagonal for the CI calculation
 
-use GLBBAS, only: INT1, INT1O
+use lucia_data, only: INT1, INT1O
 use CandS, only: ISSM
 
 implicit none

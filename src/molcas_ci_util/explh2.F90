@@ -47,9 +47,8 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !                                                                      *
 !***********************************************************************
 
-use lucia_data, only: IREOTS
 use csfbas, only: CONF, NAEL, NBEL
-use glbbas, only: DFTP, DTOC
+use lucia_data, only: DFTP, DTOC, IREOTS
 use rasscf_global, only: ExFac, NAC
 use general_data, only: LUDAVID, NCONF, NSEL, STSYM
 use spinfo, only: NCNASM

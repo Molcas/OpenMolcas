@@ -52,7 +52,7 @@
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
 
-      use glbbas, only: INT1, INT1O
+      use lucia_data, only: INT1, INT1O
       use rasscf_global, only : EMY, KSDFT, dftfock, exfac, nac, nacpar,
      &    noneq, potnuc, rfpert,
      &    tot_charge, tot_el_charge, tot_nuc_charge,

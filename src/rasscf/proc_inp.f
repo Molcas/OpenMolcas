@@ -27,7 +27,7 @@
 #endif
 #endif
       use csfbas, only: CONF
-      use glbbas, only: CFTP
+      use lucia_data, only: CFTP
       use Fock_util_global, only: DoCholesky
       use Cholesky, only: ChFracMem
       use write_orbital_files, only: OrbFiles, write_orb_per_iter

@@ -11,13 +11,11 @@
 
 subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTRI)
 
-use lucia_data, only: ECORE_HEX
+use lucia_data, only: CFTP, DTOC, ECORE_HEX, Sigma_on_disk
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
-use rasscf_lucia, only: Sigma_on_disk
 use rasscf_global, only: DE, DoFaro, hRoots, ICIRST, lRoots, MAXJT
 use general_data, only: ITERFILE, LUDAVID, NACTEL, NCONF, NSEL, STSYM
 use csfbas, only: CONF, CTS
-use glbbas, only: CFTP, DTOC
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use Lucia_Interface, only: Lucia_Util

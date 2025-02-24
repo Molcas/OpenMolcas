@@ -26,8 +26,7 @@ subroutine INTPNT(IPNT1,ISL1,IPNT2,ISL2)
 !
 ! Jeppe Olsen, Last Update : August 2000
 
-use GLBBAS, only: PGINT1, PGINT1A
-use lucia_data, only: I1234S, I12S, I34S, NSMOB, NTOOBS
+use lucia_data, only: I1234S, I12S, I34S, NSMOB, NTOOBS, PGINT1, PGINT1A
 use Definitions, only: iwp
 
 implicit none

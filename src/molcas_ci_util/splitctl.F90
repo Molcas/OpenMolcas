@@ -31,9 +31,8 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !                                                                      *
 !***********************************************************************
 
-use lucia_data, only: IREOTS
 use csfbas, only: CONF, NAEL, NBEL
-use GLBBAS, only: DFTP, DTOC, CFTP
+use lucia_data, only: DFTP, DTOC, CFTP, IREOTS
 use splitcas_data, only: EnInSplit, EnerSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
                          NumSplit, percSpli, PerSplit, ThrSplit
 use rasscf_global, only: EMY, ENER, ExFac, IADR15, ICICH, iCIOnly, ICIRST, ITER, ITERCI, iTOC, n_Keep, NAC

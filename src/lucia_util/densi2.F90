@@ -49,12 +49,11 @@ subroutine DENSI2(I12,RHO1,RHO2,RHO2S,RHO2A,L,R,LUL,LUR,EXPS2,IDOSRHO1,SRHO1,IPA
 !
 
 use Index_Functions, only: nTri_Elem
-use GLBBAS, only: VEC3
 use CandS, only: ICSM, ISSM, ISSPC
 use lucia_data, only: ENVIRO, IADVICE, IBSPGPFTP, ICISTR, IDC, IOBPTS, IPHGAS, IPRCIX, IPRDEN, IREFSM, IREOST, ISMOST, LCSBLK, &
                       MAX_STR_OC_BLK, MAX_STR_SPGP, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXSB, MXSOOB, MXTSOB, NACOB, &
                       NACOBS, NELEC, NELFSPGP, NGAS, NHLFSPGP, NINOBS, NIRREP, NOBPTS, NOCOB, NOCTYP, NSMOB, NSTFSMSPGP, NSTSO, &
-                      NTOOB, NTOOBS, OCSTR, PSSIGN, REO, XISPSM, Z, ZSCR
+                      NTOOB, NTOOBS, OCSTR, PSSIGN, REO, VEC3, XISPSM, Z, ZSCR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Quart
 use Definitions, only: wp, iwp, u6

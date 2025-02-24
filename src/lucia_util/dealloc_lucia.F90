@@ -12,8 +12,8 @@
 subroutine DEALLOC_LUCIA()
 ! Deallocate memory allocated during alloc_lucia
 
-use GLBBAS, only: CI_VEC, INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, PGINT1, PGINT1A, PINT1, PINT2, RHO1, SIGMA_VEC, SRHO1
-use lucia_data, only: IREFSM, LCSBLK, MXSOOB, NSMOB, PSSIGN, XISPSM
+use lucia_data, only: CI_VEC, INT1, INT1O, IREFSM, KINH1, KINH1_NOCCSYM, LCSBLK, LSM1, LSM2, MXSOOB, NSMOB, PGINT1, PGINT1A, &
+                      PINT1, PINT2, PSSIGN, RHO1, SIGMA_VEC, SRHO1, XISPSM
 use stdalloc, only: mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: iwp

@@ -21,9 +21,8 @@ subroutine CNFORD_GAS(IOCCLS,NOCCLS,ISYM,ICTSDT,IBLOCK,NBLOCK)
 !
 ! Jeppe Olsen Dec. 2001 from CNFORD
 
-use GLBBAS, only: CONF_OCC, CONF_REO
-use lucia_data, only: IB_CONF_OCC, IB_CONF_REO, IBCONF_ALL_SYM_FOR_OCCLS, MAXOP, MINOP, NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_TOT, &
-                      NGAS, NOBPT, NOCOB
+use lucia_data, only: CONF_OCC, CONF_REO, IB_CONF_OCC, IB_CONF_REO, IBCONF_ALL_SYM_FOR_OCCLS, MAXOP, MINOP, NCONF_ALL_SYM, &
+                      NCONF_PER_OPEN, NCONF_TOT, NGAS, NOBPT, NOCOB
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

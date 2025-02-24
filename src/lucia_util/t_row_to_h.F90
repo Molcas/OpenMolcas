@@ -21,8 +21,7 @@ subroutine T_ROW_TO_H(T,H,K,TKK)
 ! Jeppe Olsen, Jan 98
 ! For rotation of CI vectors
 
-use GLBBAS, only: PGINT1A
-use lucia_data, only: IBSO, ISMFSO, NTOOB, NTOOBS
+use lucia_data, only: IBSO, ISMFSO, NTOOB, NTOOBS, PGINT1A
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

@@ -110,10 +110,8 @@ subroutine densi_master(CIVec,RVec)
   ! Controls the calculation of the densities, when Lucia is called
   ! from Molcas Rasscf.
 
-  use GLBBAS, only: DTOC, RHO1, SDREO, SRHO1, VEC3
-  use rasscf_lucia, only: DSTmp, Dtmp, kvec3_length, PAtmp, Ptmp, Sigma_on_Disk
-  use lucia_data, only: IDISK, IREFSM, LCSBLK, LUC, LUHC, LUSC1, LUSC34, MXNTTS, MXSOOB, NCSF_PER_SYM, NSD_PER_SYM, NTOOB, PSSIGN, &
-                        XISPSM
+  use lucia_data, only: DSTmp, Dtmp, DTOC, IDISK, IREFSM, LCSBLK, kvec3_length, LUC, LUHC, LUSC1, LUSC34, MXNTTS, MXSOOB, &
+                        NCSF_PER_SYM, NSD_PER_SYM, NTOOB, PAtmp, PSSIGN, Ptmp, RHO1, SDREO, Sigma_on_Disk, SRHO1, VEC3, XISPSM
   use Constants, only: Zero
 
   implicit none
@@ -207,15 +205,15 @@ subroutine densi_master(CIVec,RVec)
   ! Explanation of calling parameters
   !
   ! 2     : DONE!!! - Calculate both one and two body densities.
-  ! rho1  : DONE!!! - Output - include in module glbbas
-  ! rho2  : DONE!!! - Output - include in module glbbas
+  ! rho1  : DONE!!! - Output - include in module lucia_data
+  ! rho2  : DONE!!! - Output - include in module lucia_data
   ! vec1  : DONE!!! - CI-vector
   ! vec2  : DONE!!! - Sigma-vector
   ! lusc1 : DONE!!! - file pointer
   ! luhc  : DONE!!! - file pointer
   ! exps2 : DONE!!! - Output - expectation value of S**2.
   ! 1     : DONE!!! - Calculate spin density
-  ! srho1 : DONE!!! - Comming with module glbbas
+  ! srho1 : DONE!!! - Comming with module lucia_data
 
   if (.not. tdm) then
     ! Save densities in trigonal format for use in Molcas
@@ -238,9 +236,8 @@ subroutine sigma_master(CIVEC,SIGMAVEC)
   ! Controls the calculation of the sigma vector, when Lucia is called
   ! from Molcas Rasscf.
 
-  use GLBBAS, only: CI_VEC, INT1, INT1O, SIGMA_VEC, VEC3
-  use rasscf_lucia, only: INI_H0, KVEC3_LENGTH
-  use lucia_data, only: ECORE, ECORE_ORIG, IREFSM, LUC, LUSC34, MXNTTS, NSD_PER_SYM
+  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
+                        SIGMA_VEC, VEC3
 
   implicit none
   real(kind=wp), intent(_IN_) :: CIVEC(:)
@@ -285,10 +282,9 @@ end subroutine SIGMA_MASTER
 
 subroutine SIGMA_MASTER_CVB(CIVEC,SIGMAVEC,IREFSM_CASVB)
 
-  use GLBBAS, only: CI_VEC, INT1, INT1O, VEC3
-  use rasscf_lucia, only: INI_H0, KVEC3_LENGTH, SIGMA_ON_DISK
   use CandS, only: ICSM, ISSM
-  use lucia_data, only: ECORE, ECORE_ORIG, IREFSM, LUC, LUSC34, MXNTTS, NSD_PER_SYM
+  use lucia_data, only: CI_VEC, ECORE, ECORE_ORIG, INI_H0, INT1, INT1O, IREFSM, KVEC3_LENGTH, LUC, LUSC34, MXNTTS, NSD_PER_SYM, &
+                        SIGMA_ON_DISK, VEC3
 
   implicit none
   integer(kind=iwp), intent(in) :: IREFSM_CASVB

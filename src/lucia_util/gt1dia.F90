@@ -14,8 +14,7 @@ subroutine GT1DIA(H1DIA)
 !
 ! Dec 97 : obtained from INT1O
 
-use GLBBAS, only: INT1O, PINT1
-use lucia_data, only: IBSO, IREOTS, ISMFTO, NACOB
+use lucia_data, only: IBSO, INT1O, IREOTS, ISMFTO, NACOB, PINT1
 use Definitions, only: wp
 
 #include "intent.fh"

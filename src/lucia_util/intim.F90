@@ -19,8 +19,8 @@ subroutine INTIM()
 !
 ! Version : Fall 97
 
-use GLBBAS, only: INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, PINT1, PINT2
-use lucia_data, only: ECORE, ECORE_HEX, ECORE_ORIG, NOINT, NSMOB, NTOOB, NTOOBS
+use lucia_data, only: ECORE, ECORE_HEX, ECORE_ORIG, INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NOINT, NSMOB, NTOOB, NTOOBS, &
+                      PINT1, PINT2
 use Constants, only: Zero
 
 implicit none

@@ -34,8 +34,8 @@ subroutine ALLOC_LUCIA()
 !           Fall 97 (PGINT1 added)
 !           Spring 99
 
-use GLBBAS, only: INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, PGINT1, PGINT1A, PINT1, PINT2, RHO1, SRHO1
-use lucia_data, only: NBINT1, NBINT2, NSMOB, NTOOB
+use lucia_data, only: INT1, INT1O, KINH1, KINH1_NOCCSYM, LSM1, LSM2, NBINT1, NBINT2, NSMOB, NTOOB, PGINT1, PGINT1A, PINT1, PINT2, &
+                      RHO1, SRHO1
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp

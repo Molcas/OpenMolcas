@@ -16,7 +16,7 @@ subroutine CSFDIM_FREE(ISYM)
 ! Free resources allocated by CSFDIM_GAS
 
 use Data_Structures, only: Deallocate_DT
-use GLBBAS, only: CFTP, CONF_OCC, CONF_REO, DFTP, DTOC, REO_PTDT, SDREO, SDREO_I, Z_PTDT
+use lucia_data, only: CFTP, CONF_OCC, CONF_REO, DFTP, DTOC, REO_PTDT, SDREO, SDREO_I, Z_PTDT
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 

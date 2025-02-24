@@ -63,13 +63,12 @@
       use RASWfn, only: wfn_dens, wfn_spindens, wfn_cicoef
 #endif
       use csfbas, only: CONF
-      use glbbas, only: CFTP
       use casvb_global, only: ifvb
       use CMS, only: iCMSOpt,CMSGiveOpt
       use rctfld_module, only: lRF
-      use rasscf_lucia, only: PAtmp, Pscr, PTmp, DStmp, Dtmp
+      use lucia_data, only: CFTP, PAtmp, Pscr, PTmp, DStmp, Dtmp
 #ifdef _DMRG_
-      use rasscf_lucia, only: RF1, RF2
+      use lucia_data, only: RF1, RF2
       use RASWfn, only: wfn_dmrg_checkpoint
       use input_ras, only: KeyCION
 #endif

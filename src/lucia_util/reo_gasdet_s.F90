@@ -21,7 +21,7 @@ subroutine REO_GASDET_S(IREO,NSSOA,NSSOB,NBLOCK,IBLOCK,NAEL,NBEL,IASTR,IBSTR,NSM
 ! Z_PTDT(IOPEN+1)%A gives Z array for prototype dets with IOPEN
 ! REO_PTDT(IOPEN+1)%A gives the corresponding reorder array open orbitals
 
-use GLBBAS, only: REO_PTDT, Z_PTDT
+use lucia_data, only: REO_PTDT, Z_PTDT
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 

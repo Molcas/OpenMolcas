@@ -28,8 +28,7 @@ subroutine CSDTMT_GAS()
 ! Changed to Combination form, June 92
 ! Adapted to LUCIA December 2001
 
-use GLBBAS, only: CFTP, DFTP, DTOC, REO_PTDT, Z_PTDT
-use lucia_data, only: IPRCIX, MAXOP, MINOP, MS2, MULTS, NPCMCNF, NPCSCNF, PSSIGN
+use lucia_data, only: CFTP, DFTP, DTOC, IPRCIX, MAXOP, MINOP, MS2, MULTS, NPCMCNF, NPCSCNF, PSSIGN, REO_PTDT, Z_PTDT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6

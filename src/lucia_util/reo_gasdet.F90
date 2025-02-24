@@ -16,9 +16,8 @@ subroutine REO_GASDET(IBLOCK,NBLOCK,ISYM,IREO)
 !
 ! Jeppe Olsen, November 2001, from GASANA
 
-use GLBBAS, only: CONF_REO
-use lucia_data, only: IB_CONF_REO, IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, IOCLS, MAXOP, MINOP, MXNSTR, NCONF_PER_OPEN, &
-                      NCONF_TOT, NELEC, NGAS, NIRREP, NMXOCCLS, NOBPT, NOCOB, NPDTCNF, NSTSO, NTOOB, PSSIGN
+use lucia_data, only: CONF_REO, IB_CONF_REO, IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, IOCLS, MAXOP, MINOP, MXNSTR, &
+                      NCONF_PER_OPEN, NCONF_TOT, NELEC, NGAS, NIRREP, NMXOCCLS, NOBPT, NOCOB, NPDTCNF, NSTSO, NTOOB, PSSIGN
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 

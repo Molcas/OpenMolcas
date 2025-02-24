@@ -16,14 +16,12 @@ subroutine GASCI(ISM,ISPC)
 !
 ! Jeppe Olsen, Winter of 1995
 
-use GLBBAS, only: CI_VEC, VEC3
-use rasscf_lucia, only: kvec3_length
 use CandS, only: ICSM, ICSPC, ISSM, ISSPC
-use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, ECORE, ECORE_ORIG, I12, &
-                      I_ELIMINATE_GAS, I_RES_AB, IADVICE, IBSPGPFTP, ICISTR, IDC, IDIAG, IDISK, IGSOCC, IH1FORM, IPHGAS, IPRCIX, &
-                      IREFSM, IRESTR, ISMOST, LCSBLK, LUDIA, LUSC1, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, MXPNSMST, MXSOOB, &
-                      NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NIRREP, NOBPT, NOBPTS, NOCSF, NOCTYP, NSMOB, &
-                      NSTFSMSPGP, NSTSO, PSSIGN, XISPSM
+use lucia_data, only: Allocate_Local_Arrays, CBLTP, CI_VEC, CI1BT, CIBT, CLBT, CLEBT, Deallocate_Local_Arrays, ECORE, ECORE_ORIG, &
+                      I12, I_ELIMINATE_GAS, I_RES_AB, IADVICE, IBSPGPFTP, ICISTR, IDC, IDIAG, IDISK, IGSOCC, IH1FORM, IPHGAS, &
+                      IPRCIX, IREFSM, IRESTR, ISMOST, kvec3_length, LCSBLK, LUDIA, LUSC1, MNHL, MXINKA, MXNSTR, MXNTTS, MXPNGAS, &
+                      MXPNSMST, MXSOOB, NCSF_PER_SYM, NELEC, NELFSPGP, NELFTP, NGAS, NHLFSPGP, NIRREP, NOBPT, NOBPTS, NOCSF, &
+                      NOCTYP, NSMOB, NSTFSMSPGP, NSTSO, PSSIGN, VEC3, XISPSM
 #ifdef _DEBUGPRINT_
 use lucia_data, only: ICMBSPC, IGSOCCX, LCMBSPC
 #endif
