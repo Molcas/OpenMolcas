@@ -338,6 +338,18 @@ Below is a list of keywords that should cover the needs of most users.
               </HELP>
               </KEYWORD>
 
+:kword:`S-GEk`
+  Use this keyword to optimize the SCF orbitals using subspace GEK (S-GEK).
+  Default is the use of the quasi-Newton-Raphson C2-DIIS procedure.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="S-GEK" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: S-GEK <basic>
+              <HELP>
+              Use this keyword to optimize the SCF orbitals using subspace GEK (S-GEK).
+              Default is the use of the quasi-Newton-Raphson C2-DIIS procedure.
+              </HELP>
+              </KEYWORD>
+
 :kword:`KSDFT`
   Use this keyword to do density functional theory calculations.
   This keyword should be followed by a functional keyword.
