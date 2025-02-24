@@ -259,12 +259,13 @@ call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
 
 call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
+dq_diis(:)=Zero
 !
 !===========================================================================================================================
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_iter,q_diis,g_diis)
+Call GEK_Optimizer(mDiis,nDiis,Max_iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1)
 !
 !===========================================================================================================================
 !
@@ -303,14 +304,15 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(mDiis,nDiis,max_iter,q_diis,g_diis)
+Subroutine GEK_Optimizer(mDiis,nDiis,max_iter,q_diis,g_diis,dq_diis,Energy,iter)
 use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Constants, only: Ten
 
 implicit none
-integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_iter
+integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_iter, iter
 real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_iter),g_diis(mDiis,nDiis+Max_iter)
+real(kind=wp), intent(inout) :: dq_diis(mDiis), Energy(nDiis+Max_iter)
 
 integer(kind=iwp) :: i, j, k
 
@@ -322,8 +324,8 @@ integer(kind=iwp) :: i, j, k
 !We need to set the bias
 
 blavAI = Ten
-call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)
-!call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),HDiag=HDiag_diis)
+call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy,Hessian_HMF=H_diis)
+!call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy,HDiag=HDiag_diis)
 if (.false.) write(u6,*) blAI,mblAI,blaAI,blavAI
 call mma_deallocate(HDiag_diis)
 
@@ -396,7 +398,7 @@ do while ((.not. Converged) .and. (nDIIS > 1)) ! Micro iterate on the surrogate 
     call NIDiag_new(Val,Vec,mDIIS,mDIIS)
     call Jacord(Val,Vec,mDIIS,mDIIS)
 
-    ! If negative eigenvalues then correct and signal that the micro iterartions should be terminanted.
+    ! If negative eigenvalues then correct and signal that the micro iterations should be terminanted.
     do i=1,mDIIS
       ii = nTri_Elem(i)
 #     ifdef _DEBUGPRINT_
