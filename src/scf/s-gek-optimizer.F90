@@ -27,7 +27,6 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: Energy, HDiag, iter, iterso
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
-use Kriging_procedures, only: Setup_Kriging
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Six, Half
 use Definitions, only: wp, iwp, u6
@@ -307,6 +306,7 @@ Contains
 Subroutine GEK_Optimizer(mDiis,nDiis,max_iter,q_diis,g_diis,dq_diis,Energy,iter)
 use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
+use Kriging_procedures, only: Setup_Kriging
 use Constants, only: Ten
 
 implicit none
