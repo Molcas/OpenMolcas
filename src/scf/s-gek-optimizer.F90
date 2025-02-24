@@ -51,6 +51,9 @@ integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 8
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
 real(kind=wp), external :: DDot_
+!
+!===========================================================================================================================
+!
 
 Beta_Disp = Beta_Disp_Seed
 #ifdef _DEBUGPRINT_
@@ -100,6 +103,11 @@ call RecPrt('q',' ',q,mOV,nDIIS)
 call RecPrt('g',' ',g,mOV,nDIIS)
 call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
+
+!
+!===========================================================================================================================
+!
+!  Select the subspace
 
 #ifdef _FULL_SPACE_
 
@@ -250,6 +258,56 @@ end do
 #ifdef _DEBUGPRINT_
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
+
+!
+!===========================================================================================================================
+!
+!   Start the optimization
+
+Call GEK_Optimizer()
+!
+!===========================================================================================================================
+!
+
+! Compute the displacement in the full space.
+dq(:) = Zero
+do i=1,mDIIS
+  dq(:) = dq(:)+dq_diis(i)*e_diis(:,i)
+end do
+dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
+
+#ifdef _DEBUGPRINT_
+call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
+write(u6,*) '||dq||=',sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
+call RecPrt('dq',' ',dq(:),size(dq),1)
+call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
+#endif
+
+call Finish_Kriging()
+call mma_deallocate(dq_diis)
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+call mma_deallocate(h_diis)
+call mma_deallocate(q_diis)
+call mma_deallocate(g_diis)
+call mma_deallocate(e_diis,safe='*')
+
+call mma_deallocate(g)
+call mma_deallocate(q)
+
+#ifdef _DEBUGPRINT_
+write(u6,*) 'Exit S-GEK Optimizer'
+#endif
+
+Contains
+
+Subroutine GEK_Optimizer()
+use definitions, only: iwp
+implicit none
+integer(kind=iwp) :: i, j, k
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -464,36 +522,7 @@ write(UpMeth(5:6),'(I2)') Iteration_Micro
 
 ! Compute the displacement in the reduced space relative to the last structure of the full space
 dq_diis(:) = q_diis(:,Iteration+1)-q_diis(:,nDIIS)
-! Compute the displacement in the full space.
-dq(:) = Zero
-do i=1,mDIIS
-  dq(:) = dq(:)+dq_diis(i)*e_diis(:,i)
-end do
-dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
-#ifdef _DEBUGPRINT_
-call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
-write(u6,*) '||dq||=',sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
-call RecPrt('dq',' ',dq(:),size(dq),1)
-call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
-#endif
-
-call Finish_Kriging()
-call mma_deallocate(dq_diis)
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-call mma_deallocate(h_diis)
-call mma_deallocate(q_diis)
-call mma_deallocate(g_diis)
-call mma_deallocate(e_diis,safe='*')
-
-call mma_deallocate(g)
-call mma_deallocate(q)
-
-#ifdef _DEBUGPRINT_
-write(u6,*) 'Exit S-GEK Optimizer'
-#endif
+End Subroutine GEK_Optimizer
 
 end subroutine S_GEK_Optimizer
