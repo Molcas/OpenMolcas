@@ -13,9 +13,6 @@
 
 !#define _DEBUGPRINT_
 !#define _FULL_SPACE_ ! Debugging
-!#define _KRYLOV_
-!#define _HYBRID_
-!#define _HYBRID2_
 #define _HYBRID3_
 subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !***********************************************************************
@@ -51,9 +48,6 @@ logical(kind=iwp) :: Converged, Terminate
 character(len=6) :: UpMeth_
 character :: Step_Trunc_
 integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 8
-#ifdef _KRYLOV_
-integer(kind=iwp), parameter :: nKrylov = 20
-#endif
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
 real(kind=wp), external :: DDot_
@@ -116,122 +110,6 @@ e_diis(:,:) = Zero
 do k=1,nExplicit
   e_diis(k,k) = One
 end do
-
-#elif defined (_KRYLOV_)
-
-! Set up unit vectors corresponding to a Krylov subspace for Adx=g
-nExplicit = min(nKrylov,mOV)
-!nExplicit = mOV
-call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
-call mma_allocate(Aux_a,mOV,Label='Aux_a')
-call mma_allocate(Aux_b,mOV,Label='Aux_b')
-j = 1
-Aux_a(:) = dq(:)
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-j = j+1
-Aux_a(:) = g(:,nDIIS)
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-do j=3,nExplicit
-  call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
-  e_diis(:,j) = Aux_b(:)/sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
-  Aux_a(:) = Aux_b(:)
-end do
-call mma_deallocate(Aux_b)
-call mma_deallocate(Aux_a)
-
-#elif defined (_HYBRID_)
-
-! Set up unit vectors corresponding to the subspace which the BFGS update will span.
-nExplicit = min(2*(nDIIS-1)+nKrylov,mOV)
-call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
-
-call mma_allocate(Aux_a,mOV,Label='Aux_a')
-call mma_allocate(Aux_b,mOV,Label='Aux_b')
-IterSO_save = IterSO
-Iter_save = Iter
-Iter = iFirst
-IterSO = 1
-
-j = 0
-do k=1,nDIIS-1
-  j = j+1
-  Aux_a(:) = g(:,k+1)-g(:,k)
-  e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-
-  j = j+1
-  Aux_a(:) = q(:,k+1)-q(:,k)
-  call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
-  e_diis(:,j) = Aux_b(:)/sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
-
-  iter = iter+1
-  iterSO = iterSO+1
-end do
-IterSO = IterSO_save
-Iter = Iter_save
-
-! Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
-j = j+1
-Aux_a(:) = dq(:)
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-j = j+1
-Aux_a(:) = g(:,nDIIS)
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-do k=j+1,nExplicit
-  call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
-  e_diis(:,k) = Aux_b(:)/sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
-  Aux_a(:) = Aux_b(:)
-end do
-call mma_deallocate(Aux_b)
-call mma_deallocate(Aux_a)
-
-#elif defined (_HYBRID2_)
-
-! Set up unit vectors corresponding to the subspace which the BFGS update will span.
-nExplicit = min(2*nDIIS-1+nKrylov,mOV)
-call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
-
-call mma_allocate(Aux_a,mOV,Label='Aux_a')
-call mma_allocate(Aux_b,mOV,Label='Aux_b')
-IterSO_save = IterSO
-Iter_save = Iter
-Iter = iFirst
-IterSO = 1
-
-j = 0
-do k=1,nDIIS
-  j = j+1
-  Aux_a(:) = g(:,k)
-  e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-
-  if (j == 2*nDIIS-1) exit
-  j = j+1
-  Aux_a(:) = q(:,k)
-  call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
-  call RecPrt('Aux_b(:)',' ',Aux_b(:),1,mOV)
-  e_diis(:,j) = Aux_b(:)/sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
-
-  Iter = min(Iter+1,Iter_Save)
-  IterSO = min(IterSO+1,IterSO_Save)
-end do
-IterSO = IterSO_save
-Iter = Iter_save
-
-! Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
-j = j+1
-Aux_a(:) = dq(:)
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-j = j+1
-Aux_a(:) = g(:,nDIIS)
-e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-Aux_a(:) = e_diis(:,j)
-do k=j+1,nExplicit
-  call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
-  e_diis(:,k) = Aux_b(:)/sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
-  Aux_a(:) = Aux_b(:)
-  Aux_a(:) = e_diis(:,k)
-end do
-call mma_deallocate(Aux_b)
-call mma_deallocate(Aux_a)
 
 #elif defined (_HYBRID3_)
 
@@ -303,13 +181,7 @@ end do
 mDIIS = j
 #ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV
-#ifdef _HYBRID_
-write(u6,*) 'nExplicit:',nExplicit,'=',2*(nDIIS-1),'+',nKrylov
-#elif defined (_HYBRID2_)
-write(u6,*) 'nExplicit:',nExplicit,'=',2*nDIIS-1,'+',nKrylov
-#else
 write(u6,*) 'nExplicit:',nExplicit
-#endif
 write(u6,*) 'IterSO   :',IterSO
 write(u6,*) '    nDIIS:',nDIIS
 write(u6,*) '    mDIIS:',mDIIS
