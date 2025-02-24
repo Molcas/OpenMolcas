@@ -264,7 +264,7 @@ call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 !
 !   Start the optimization
 
-Call GEK_Optimizer(nDiis,mDiis)
+Call GEK_Optimizer(mDiis,nDiis,Max_iter,q_diis,g_diis)
 !
 !===========================================================================================================================
 !
@@ -303,13 +303,14 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(nDiis,mDiis)
-use definitions, only: iwp
+Subroutine GEK_Optimizer(mDiis,nDiis,max_iter,q_diis,g_diis)
+use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Constants, only: Ten
 
 implicit none
-integer(kind=iwp), intent(in) :: nDiis, mDiis
+integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_iter
+real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_iter),g_diis(mDiis,nDiis+Max_iter)
 
 integer(kind=iwp) :: i, j, k
 
