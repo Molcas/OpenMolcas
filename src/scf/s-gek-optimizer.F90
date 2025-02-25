@@ -264,7 +264,7 @@ dq_diis(:)=Zero
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1)
 !
 !===========================================================================================================================
 !
@@ -303,16 +303,16 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(mDiis,nDiis,max_iter,q_diis,g_diis,dq_diis,Energy,iter)
+Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter)
 use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
 use Constants, only: Ten
 
 implicit none
-integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_iter, iter
-real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_iter),g_diis(mDiis,nDiis+Max_iter)
-real(kind=wp), intent(inout) :: dq_diis(mDiis), Energy(nDiis+Max_iter)
+integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter, iter
+real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter)
+real(kind=wp), intent(inout) :: dq_diis(mDiis), Energy(nDiis+Max_Iter)
 
 integer(kind=iwp) :: i, j, k
 
