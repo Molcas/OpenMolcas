@@ -172,7 +172,7 @@ do
     case (9)
 
       StVec = 'Detected guessorb starting orbitals'
-      !One_Grid = .true.
+      One_Grid = .true.
       call start0x(CMO,nBB,nD,EOrb,nnB)
       !                                                                *
       !*****************************************************************

@@ -65,9 +65,10 @@ integer(kind=iwp) :: i, iAufOK, iBas, iCMO, iDummy(7,8), Ind(MxOptm), iNode, iOf
 real(kind=wp) :: ang, DD, DiisTH_Save, dqdq, dqHdq, Dummy(1), EnVOld, EThr_new, GradNorm, LastStatus, LastStep = 0.1_wp, TCP1, &
                  TCP2, TCPU1, TCPU2, TWall1, TWall2
 logical(kind=iwp) :: AllowFlip, AufBau_Done, Converged, Diis_Save, FckAuf_save, FrstDs, Loosen_Active, QNR1st, Reset, Reset_GEK, &
-                     Reset_Thresh, SORange
+                     Reset_NQ, Reset_Thresh, SORange
 character(len=128) :: OrbName
 character(len=72) :: Note
+character(len=32) :: IterText
 character(len=10) :: Meth_
 character(len=9) :: StrSave
 #ifdef _MSYM_
@@ -149,6 +150,8 @@ Iter_no_Diis = 2
 Converged = .false.
 SORange = Damping ! within 2nd-order range for S-GEK
 Reset_GEK = .false.
+Reset_NQ = .false.
+IterText = 'Iterations'
 !                                                                      *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
@@ -196,11 +199,12 @@ AufBau_Done = .false.
 
 Reset = .false.
 Reset_Thresh = .false.
-EThr_New = EThr*Ten**2
 
 ! pow: temporary disabling of threshold switching
 
 if ((DSCF .or. (KSDFT /= 'SCF')) .and. (nIter(nIterP) > 10)) then
+
+  EThr_New = EThr*Ten**2
 
   if (DSCF .and. (KSDFT == 'SCF') .and. Two_Thresholds) then
     Reset = .true.
@@ -668,16 +672,21 @@ do iter_=1,nIter(nIterP)
           !                                                            *
           ! update the S-GEK iteration counter
           if (Reset_GEK) then
-            !IterGEK = 1
+            ! Reset the GEK surrogate model if the NQ grid has been reset
+            if (Reset_NQ) IterGEK = 1
             IterSO = 1
             kOptim = 1
             SORange = .true.
             Reset_GEK = .false.
-            write(6,*) 'IFG Reset GEK'
+            Reset_NQ = .false.
+#           ifdef _DEBUGPRINT_
+            write(u6,*) 'Reset GEK'
+#           endif
           else
             IterGEK = min(IterGEK+1,IterSO_Max)
           end if
           Iter_Start = max(Iter_Start,Iter-IterGEK+1)
+          IterText = 'Macro Iterations'
 
           ! Get g(n)
 
@@ -1008,7 +1017,11 @@ do iter_=1,nIter(nIterP)
       IterSO = 0
       if (Reset_Thresh) call Reset_Thresholds()
       if (KSDFT /= 'SCF') then
-        if (.not. One_Grid) call Reset_NQ_grid()
+        if (.not. One_Grid) then
+          call Reset_NQ_grid()
+          Reset_GEK = .true.
+          Reset_NQ = .true.
+        end if
         if (iOpt == 0) kOptim = 1
       end if
       cycle
@@ -1100,19 +1113,19 @@ if (Converged) then
 
   if (jPrint >= 2) then
     write(u6,*)
-    write(u6,'(6X,A,I3,A)') ' Convergence after ',iter,' Macro Iterations'
+    write(u6,'(6X,A,I3,1X,A)') ' Convergence after ',iter,trim(IterText)
   end if
 
 else
 
   ! Here if we didn't converge or if this was a forced one
-  ! iteration  calculation.
+  ! iteration calculation.
 
   iter = iter-1
   if (nIter(nIterP) > 1) then
     if (jPrint >= 1) then
       write(u6,*)
-      write(u6,'(6X,A,I3,A)') ' No convergence after ',iter,' Iterations'
+      write(u6,'(6X,A,I3,1X,A)') ' No convergence after ',iter,trim(IterText)
     end if
     iTerm = _RC_NOT_CONVERGED_
   else
@@ -1126,7 +1139,11 @@ else
 
   if (Reset) then
     if (DSCF .and. (KSDFT == 'SCF')) call Reset_Thresholds()
-    if ((KSDFT /= 'SCF') .and. (.not. One_Grid)) call Reset_NQ_grid()
+    if ((KSDFT /= 'SCF') .and. (.not. One_Grid)) then
+      call Reset_NQ_grid()
+      Reset_GEK = .true.
+      Reset_NQ = .true.
+    end if
   end if
 
 end if
