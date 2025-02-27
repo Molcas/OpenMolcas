@@ -49,8 +49,8 @@ use Definitions, only: u6
 
 implicit none
 logical(kind=iwp), intent(in) :: DoFock, DoGrad
-integer(kind=iwp) :: iAng, iBas, iCmp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipMem1, ipMem2, iPrim, iPrimi, iPrimSave(4), iS, &
-                     iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jPrim, jPrimj, jS, jShell, jShll, la_, mabMax_, mabMin_, &
+integer(kind=iwp) :: iAng, iAng4(4), iBas, iCmp, iDCRR(0:7), ijCmp, ijInc, ijS, ik2, ipMem1, ipMem2, iPrim, iPrimi, iPrimSave(4), &
+                     iS, iSD4(0:nSD,4), iShell, iShll, jAng, jBas, jCmp, jPrim, jPrimj, jS, jShell, jShll, la_, mabMax_, mabMin_, &
                      Mem1, Mem2, MemMax, MemPrm, MemTmp, mk2, mScree, nBasi, nBasj, nDCRR, ne_, nHm, nHrrMtrx, nScree, nSO, nZeta
 real(kind=wp) :: Coor(3,4)
 logical(kind=iwp) :: force_part_save, ReOrder, Rls
@@ -194,7 +194,8 @@ do iS=1,mSkal
     ! Compute memory request for the primitives, i.e. how much
     ! memory is needed up to the transfer equation.
 
-    call MemRys(iSD4(1,:),MemPrm)
+    iAng4(:) = iSD4(1,:)
+    call MemRys(iAng4,MemPrm)
 
     ! Decide on the partitioning of the shells based on
     ! on the available memory and the requested memory

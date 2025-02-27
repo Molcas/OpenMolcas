@@ -52,13 +52,13 @@ use Definitions, only: wp, iwp, u6, RtoB, RtoI
 
 implicit none
 #include "twoel_interface.fh"
-integer(kind=iwp) :: i_Int, iAO(4), iAOst(4), iBasi, iCmp(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij1, ij2, ij3, &
-                     ij4, ijS, ik1, ik2, ik3, ik4, il1, il2, il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, iRTS, iS, &
-                     iShell(4), iShll(4), ISMAng, iT, iTS, iuvwx(4), iW3, iW4, iW4_, iWR(2), ix1, ix2, iy1, iy2, iz1, iz2, iZeta, &
-                     jBasj, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, jOp(6), jPrInc, jS, kabcd, kBask, kInts, kl1, kl2, kl3, kl4, &
-                     klS, kOp(4), kS, la, lb, lBasl, lc, ld, lDCR1, lDCR2, lDCRE_, lDCRR, lDCRS, lDCRT, lDCRT_, lPrInc, lS, mabcd, &
-                     mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nAlpha, nAux, nBeta, &
-                     nByte, ncd, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nInts, nZeta, nZeta_Tot
+integer(kind=iwp) :: i_Int, iAng(4), iAO(4), iAOst(4), iBasi, iCmp(4), iDCRR(0:7), iDCRS(0:7), iDCRT(0:7), iDCRTS, iEta, ij1, ij2, &
+                     ij3, ij4, ijS, ik1, ik2, ik3, ik4, il1, il2, il3, il4, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iR, iRT, &
+                     iRTS, iS, iShell(4), iShll(4), ISMAng, iT, iTS, iuvwx(4), iW3, iW4, iW4_, iWR(2), ix1, ix2, iy1, iy2, iz1, &
+                     iz2, iZeta, jBasj, jk1, jk2, jk3, jk4, jl1, jl2, jl3, jl4, jOp(6), jPrInc, jS, kabcd, kBask, kInts, kl1, kl2, &
+                     kl3, kl4, klS, kOp(4), kS, la, lb, lBasl, lc, ld, lDCR1, lDCR2, lDCRE_, lDCRR, lDCRS, lDCRT, lDCRT_, lPrInc, &
+                     lS, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mWork3, MxDCRS, mZeta, nab, nabcd, nAlpha, &
+                     nAux, nBeta, nByte, ncd, nDCRR, nDCRS, nDCRT, nDelta, nEta, nEta_Tot, nGamma, nInts, nZeta, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), CoorM(3,4), Fact, QInd(2), RS_doublet, RST_Triplet, vij, vijij, vijkl, vik, vil, vjk, vjl, vkl
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, NoPInts, &
                      Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij
@@ -78,6 +78,7 @@ nAux = size(Aux)
 
 iShell(:) = iSD4(11,:)
 iShll(:) = iSD4(0,:)
+iAng(:) = iSD4(1,:)
 iAO(:) = iSD4(7,:)
 iAOst(:) = iSD4(8,:)
 jPrInc = iSD4(6,2)
@@ -155,10 +156,10 @@ call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
 call RecPrt('Coor',' ',Coor,3,4)
 #endif
 
-la = iSD4(1,1)
-lb = iSD4(1,2)
-lc = iSD4(1,3)
-ld = iSD4(1,4)
+la = iAng(1)
+lb = iAng(2)
+lc = iAng(3)
+ld = iAng(4)
 iSmAng = la+lb+lc+ld
 iCmp(:) = iSD4(2,:)
 nab = iCmp(1)*iCmp(2)
@@ -456,12 +457,12 @@ do lDCRR=0,nDCRR-1
         ! be accumulated on. In that case we will use A and C of
         ! the order as defined by the basis functions types.
 
-        if (iSD4(1,1) >= iSD4(1,2)) then
+        if (la >= lb) then
           CoorAC(:,1) = CoorM(:,1)
         else
           CoorAC(:,1) = CoorM(:,2)
         end if
-        if (iSD4(1,3) >= iSD4(1,4)) then
+        if (lc >= ld) then
           CoorAC(:,2) = CoorM(:,3)
         else
           CoorAC(:,2) = CoorM(:,4)
@@ -502,9 +503,9 @@ do lDCRR=0,nDCRR-1
 
             call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(lDCR1),k2data2(lDCR2),nAlpha,nBeta,nGamma, &
                         nDelta,ix1,iy1,iz1,ix2,iy2,iz2,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts, &
-                        iSD4(1,:),CoorM,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2, &
-                        mWork2,k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),la,lb,lc,ld, &
-                        iCmp,iShll,NoPInts,Dij(:,jOp(1)),mDij,Dkl(:,jOp(2)),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &
+                        iAng,CoorM,CoorAC,mabMin,mabMax,mcdMin,mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2, &
+                        k2data1(lDCR1)%HrrMtrx(:,NrOpr(lDCRE_)+1),k2data2(lDCR2)%HrrMtrx(:,NrOpr(lDCRT_)+1),la,lb,lc,ld,iCmp, &
+                        iShll,NoPInts,Dij(:,jOp(1)),mDij,Dkl(:,jOp(2)),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &
                         kBask,Coeff4,lBasl)
 
           end do
@@ -613,15 +614,15 @@ do lDCRR=0,nDCRR-1
       ! adapted Fock matrix.
 
       mWork3 = nWork2-iW3+1
-      if (DoFock) call FckAcc(iSD4(1,:),iCmp,Shijij,iShll,iShell,kOp,nijkl/nComp,Wrk(ipAOInt),pFq,size(pFq),Wrk(iW3),mWork3,iAO, &
-                              iAOst,iBasi,jBasj,kBask,lBasl,Dij(:,jOp(1)),ij1,ij2,ij3,ij4,Dkl(:,jOp(2)),kl1,kl2,kl3,kl4, &
-                              Dik(:,jOp(3)),ik1,ik2,ik3,ik4,Dil(:,jOp(4)),il1,il2,il3,il4,Djk(:,jOp(5)),jk1,jk2,jk3,jk4, &
-                              Djl(:,jOp(6)),jl1,jl2,jl3,jl4,DoCoul,DoExch,ExFac)
+      if (DoFock) call FckAcc(iAng,iCmp,Shijij,iShll,iShell,kOp,nijkl/nComp,Wrk(ipAOInt),pFq,size(pFq),Wrk(iW3),mWork3,iAO,iAOst, &
+                              iBasi,jBasj,kBask,lBasl,Dij(:,jOp(1)),ij1,ij2,ij3,ij4,Dkl(:,jOp(2)),kl1,kl2,kl3,kl4,Dik(:,jOp(3)), &
+                              ik1,ik2,ik3,ik4,Dil(:,jOp(4)),il1,il2,il3,il4,Djk(:,jOp(5)),jk1,jk2,jk3,jk4,Djl(:,jOp(6)),jl1,jl2, &
+                              jl3,jl4,DoCoul,DoExch,ExFac)
 
       ! Transform from AO basis to SO basis
 
-      if (DoIntegrals) call SymAdp(iSD4(1,:),iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,kOp,nijkl,Aux,nAux, &
-                                   Wrk(ipAOInt),SOInt,nSOInt,NoInts)
+      if (DoIntegrals) call SymAdp(iAng,iCmp(1),iCmp(2),iCmp(3),iCmp(4),Shijij,iShll,iShell,iAO,kOp,nijkl,Aux,nAux,Wrk(ipAOInt), &
+                                   SOInt,nSOInt,NoInts)
 
     end do outer
   end do
