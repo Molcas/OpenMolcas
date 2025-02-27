@@ -90,12 +90,11 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU" AND
 endif ()
 
 # Add runtime checks
-# (No boundary checks because of the Work arrays)
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "GNU")
   if (CMAKE_Fortran_COMPILER_VERSION VERSION_LESS "6")
-    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=array-temps,do,mem,pointer,recursion")
+    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=array-temps,bounds,do,mem,pointer,recursion")
   else ()
-    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=all,no-bounds")
+    set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -fcheck=all")
   endif ()
   if (CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "8")
     set (FFLAGS_GNU_GARBLE "${FFLAGS_GNU_GARBLE} -finit-derived")
@@ -197,7 +196,7 @@ set (FFLAGS_Intel_OPENMP "-qopenmp")
 set (FFLAGS_Intel_ILP64 "-i8 -heap-arrays")
 # build targets
 set (FFLAGS_Intel_DEBUG "-g -debug -traceback -warn all,nodeclarations")
-set (FFLAGS_Intel_GARBLE "-O2 -g -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
+set (FFLAGS_Intel_GARBLE "-O2 -g -debug -traceback -warn all,nodeclarations -check all")
 set (FFLAGS_Intel_RELWITHDEBINFO "-O2 -fno-alias -g -debug -traceback -warn all,nodeclarations")
 set (FFLAGS_Intel_RELEASE "-O2 -fno-alias -traceback")
 set (FFLAGS_Intel_FAST "-Ofast -fno-alias")
@@ -277,7 +276,7 @@ set (FFLAGS_IntelLLVM_OPENMP "-qopenmp")
 set (FFLAGS_IntelLLVM_ILP64 "-i8 -heap-arrays")
 # build targets
 set (FFLAGS_IntelLLVM_DEBUG "-g -debug -traceback -warn all,nodeclarations")
-set (FFLAGS_IntelLLVM_GARBLE "-O2 -g -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
+set (FFLAGS_IntelLLVM_GARBLE "-O2 -g -debug -traceback -warn all,nodeclarations -check all")
 set (FFLAGS_IntelLLVM_RELWITHDEBINFO "-O2 -fno-alias -g -debug -traceback -warn all,nodeclarations")
 set (FFLAGS_IntelLLVM_RELEASE "-O2 -fno-alias -traceback")
 set (FFLAGS_IntelLLVM_FAST "-Ofast -fno-alias")
@@ -393,8 +392,8 @@ set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
 set (FFLAGS_NAG_FAST "-O4 -ieee=full")
 
 # Add runtime checks
-# (No boundary checks [-C=array -C=calls] because of the Work arrays. [-C=dangling] causes segfault)
-set (FFLAGS_NAG_GARBLE "${FFLAGS_NAG_GARBLE} -C=alias -C=bits -C=do -C=intovf -C=present -C=pointer -C=recursion")
+# ([-C=dangling] causes segfault)
+set (FFLAGS_NAG_GARBLE "${FFLAGS_NAG_GARBLE} -C=alias -C=array -C=bits -C=calls -C=do -C=intovf -C=pointer -C=present -C=recursion")
 
 # Fix for NAG compiler (similar to GNU Fortran)
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU" AND (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin"))
