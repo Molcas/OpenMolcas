@@ -37,13 +37,13 @@ real(kind=wp), intent(inout) :: dq(mOV)
 real(kind=wp), intent(out) :: dqdq
 character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
-integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iter_Save, Iteration, Iteration_Micro, Iteration_Total, IterSO_Save, j, k, l, mDIIS, &
+
+
+integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iter_Save, Iteration, Iteration_Total, IterSO_Save, j, k, l, mDIIS, &
                      nDIIS, nExplicit
 real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Variance(1)
 real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), &
                               q(:,:), q_diis(:,:), Val(:), Vec(:,:)
-logical(kind=iwp) :: Converged, Terminate
-character(len=6) :: UpMeth_
 character :: Step_Trunc_
 integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 8
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
@@ -149,7 +149,7 @@ IterSO = IterSO_save
 Iter = Iter_save
 call mma_deallocate(Aux_b)
 
-! Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
+! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
 j = j+1
 Aux_a(:) = g(:,nDIIS)
 e_diis(:,j) = Aux_a(:)/sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
@@ -301,6 +301,9 @@ call mma_deallocate(q)
 write(u6,*) 'Exit S-GEK Optimizer'
 #endif
 
+!=======================================================================================================================================
+!=======================================================================================================================================
+
 Contains
 
 Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter)
@@ -311,11 +314,11 @@ use Constants, only: Ten
 
 implicit none
 integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter, iter
-real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter)
-real(kind=wp), intent(inout) :: dq_diis(mDiis), Energy(nDiis+Max_Iter)
+real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), Energy(nDiis+Max_Iter)
 
-integer(kind=iwp) :: i, j, k
-
+integer(kind=iwp) :: i, j, k, Iteration_Micro
+character(len=6) :: UpMeth_
+logical(kind=iwp) :: Converged, Terminate
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -531,5 +534,8 @@ write(UpMeth(5:6),'(I2)') Iteration_Micro
 dq_diis(:) = q_diis(:,Iteration+1)-q_diis(:,nDIIS)
 
 End Subroutine GEK_Optimizer
+
+!=======================================================================================================================================
+!=======================================================================================================================================
 
 end subroutine S_GEK_Optimizer
