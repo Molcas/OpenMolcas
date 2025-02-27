@@ -38,9 +38,12 @@ real(kind=wp), intent(out) :: dqdq
 character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
 
+!used in outer and inner subroutine
+integer(kind=iwp) :: i, Iteration, j, k, l, mDIIS, &
+                     nDIIS
+!local in outer subroutine
+integer(kind=iwp) :: iFirst, ipg, ipq, Iter_save, IterSO_save, nExplicit
 
-integer(kind=iwp) :: i, iFirst, ii, ipg, ipq, Iter_Save, Iteration, Iteration_Total, IterSO_Save, j, k, l, mDIIS, &
-                     nDIIS, nExplicit
 real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Variance(1)
 real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), &
                               q(:,:), q_diis(:,:), Val(:), Vec(:,:)
@@ -264,7 +267,7 @@ dq_diis(:)=Zero
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1, Iteration)
 !
 !===========================================================================================================================
 !
@@ -306,7 +309,7 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter)
+Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter, Iteration)
 use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
@@ -316,7 +319,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter, iter
 real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), Energy(nDiis+Max_Iter)
 
-integer(kind=iwp) :: i, j, k, Iteration_Micro
+integer(kind=iwp) :: i, j, k, ii, Iteration_Micro, Iteration_Total, Iteration
 character(len=6) :: UpMeth_
 logical(kind=iwp) :: Converged, Terminate
 
