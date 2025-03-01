@@ -77,6 +77,7 @@ do iD=1,nD
     ! number of Orbitals, excluding frozen
     nOrbmF = nOrb(iSym)-nFro(iSym)
 
+    if (nOrb(iSym) < 1) cycle
     Fock(1:nOrb(iSym),1:nOrb(iSym)) => FockMO(iOff_F+1:iOff_F+nOrb(iSym)**2,iD)
 
     do iOcc=ioffs+1,ioffs+nOccmF

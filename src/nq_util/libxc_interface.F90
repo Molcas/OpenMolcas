@@ -117,9 +117,9 @@ select case (xc_f03_func_info_get_family(xc_info))
     dfunc_dSigma(:,1:mGrid) = Zero
 
     if (Only_exc) then
-      call xc_f03_gga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1))
+      call xc_f03_gga_exc(xc_func,mGrid,Rho,Sigma,func)
     else
-      call xc_f03_gga_exc_vxc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1),dfunc_dRho(1,1),dfunc_dSigma(1,1))
+      call xc_f03_gga_exc_vxc(xc_func,mGrid,Rho,Sigma,func,dfunc_dRho,dfunc_dSigma)
     end if
 
     ! Libxc evaluates energy density per particle; multiply by
@@ -165,7 +165,7 @@ select case (xc_f03_func_info_get_family(xc_info))
               F_xca(iGrid) = F_xca(iGrid)+Coeff*func(iGrid)*Rho(1,iGrid)
             end do
             Rho(1,1:mGrid) = Zero
-            Rho(2,1:mGrid) = dFunc_dRho(2,:)
+            Rho(2,1:mGrid) = dFunc_dRho(2,1:mGrid)
             func(1:mGrid) = Zero
             call xc_f03_gga_exc(xc_func,mGrid,Rho(1,1),Sigma(1,1),func(1))
             do iGrid=1,mGrid
@@ -262,7 +262,7 @@ select case (xc_f03_func_info_get_family(xc_info))
               F_xca(iGrid) = F_xca(iGrid)+Coeff*func(iGrid)*Rho(1,iGrid)
             end do
             Rho(1,1:mGrid) = Zero
-            Rho(2,1:mGrid) = dFunc_dRho(2,:)
+            Rho(2,1:mGrid) = dFunc_dRho(2,1:mGrid)
             Tau(2,1:mGrid) = tmpTau(1:mGrid)
             tmpTau(1:mGrid) = Tau(1,1:mGrid)
             Tau(1,1:mGrid) = Zero

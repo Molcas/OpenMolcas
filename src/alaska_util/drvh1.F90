@@ -359,7 +359,7 @@ if (.not. HF_Force) then
     lOper(1) = 1
     DiffOp = .true.
     if (iCOSMO > 0) then
-      call fzero(Temp,ngrad)
+      Temp(:) = Zero
       Label = ' The Electronic Reaction Field Contribution (COSMO)'
       call OneEl_g(COSGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
       if (iPrint >= 15) then

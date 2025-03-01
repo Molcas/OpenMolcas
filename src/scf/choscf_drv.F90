@@ -30,7 +30,7 @@ real(kind=wp), intent(inout) :: DLT_ab(*), FLT(*), FLT_ab(*), FSQ(nBSQT,nD)
 !***********************************************************************
 !                                                                      *
 
-call ChoSCF_Drv_Inner(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,ExFac,FSQ(:,1),FSQ(:,2),nOcc,nOcc_ab)
+call ChoSCF_Drv_Inner(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,ExFac,FSQ(:,1),FSQ(:,nD),nOcc,nOcc_ab)
 
 ! This is to allow type punning without an explicit interface
 contains

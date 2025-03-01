@@ -459,16 +459,18 @@ do iSym=1,nSym
   ipOkk = iOff
   nOkk = nIsh(iSym)+nAsh(iSym)
   ipCOk = jOff
-  do k=0,nOkk-1
-    xocc = sqrt(T1(k+ipOkk))
-    call dscal_(nBas(iSym),xocc,CMO(ipCOk),1)
-    ipCOk = ipCOk+nBas(iSym)
-  end do
-  call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,One,CMO(jOff),max(1,nBas(iSym)),CMO(jOff),max(1,nBas(iSym)),Zero,Ovl(kOff), &
-                 max(1,nBas(iSym)))
-  iOff = iOff+nBas(iSym)
-  jOff = jOff+nBas(iSym)**2
-  kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
+  if (nBas(iSym) > 0) then
+    do k=0,nOkk-1
+      xocc = sqrt(T1(k+ipOkk))
+      call dscal_(nBas(iSym),xocc,CMO(ipCOk),1)
+      ipCOk = ipCOk+nBas(iSym)
+    end do
+    call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,One,CMO(jOff),max(1,nBas(iSym)),CMO(jOff),max(1,nBas(iSym)),Zero,Ovl(kOff), &
+                   max(1,nBas(iSym)))
+    iOff = iOff+nBas(iSym)
+    jOff = jOff+nBas(iSym)**2
+    kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
+  end if
 end do
 call Fold_tMat(nSym,nBas,Ovl,Ovl)
 call Put_dArray('D1ao',Ovl,nTriTot)

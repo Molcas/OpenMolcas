@@ -118,10 +118,10 @@ jk2 = IndK2(3,klS)
 k2data1(1:nDCRR) => k2Data(1:nDCRR,ik2)
 k2data2(1:nDCRS) => k2Data(1:nDCRS,jk2)
 
-Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
-Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
-Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
-Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(:,iAOst(1)+1:)
+Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(:,iAOst(2)+1:)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(:,iAOst(3)+1:)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(:,iAOst(4)+1:)
 
 if (DoFock) then
   Dij(1:mDij,1:mDCRij) => DeDe(ipDDij:ipDDij+mDij*mDCRij-1)
@@ -132,12 +132,12 @@ if (DoFock) then
   Djl(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
 else
   ! dummy association
-  Dij(1:1,1:1) => DeDe(-1:-1)
-  Dkl(1:1,1:1) => DeDe(-1:-1)
-  Dik(1:1,1:1) => DeDe(-1:-1)
-  Dil(1:1,1:1) => DeDe(-1:-1)
-  Djk(1:1,1:1) => DeDe(-1:-1)
-  Djl(1:1,1:1) => DeDe(-1:-1)
+  Dij(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dkl(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dik(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dil(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Djk(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Djl(1:1,1:1) => DeDe(lbound(DeDe,1):)
 end if
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
@@ -170,7 +170,7 @@ SOInt(:,:) = Zero
 ipAOInt = 1
 iW3 = 1+nInts
 iW4 = 1
-jOp(:) = 0
+jOp(:) = 1
 
 call mk_DCRs_and_Stabilizers(Fact,iuvwx,nDCRR,nDCRS,nDCRT,iDCRR,iDCRS,iDCRT,nSD,iSD4)
 

@@ -46,7 +46,6 @@ unused_var(nHer)
 unused_var(CoorO)
 unused_var(nOrdOp)
 unused_var(PtChrg)
-unused_var(nGrid)
 unused_var(iAddPot)
 
 !                                                                      *

@@ -70,7 +70,7 @@ integer(kind=iwp), intent(in) :: iZeta, iEta, nZeta, nEta, mZeta, mEta, nZeta_To
                                  nWork2, mWork2, la, lb, lc, ld, iCmp(4), iShll(4), mDij, mDkl, iBasi, jBasj, kBask, lBasl
 type(k2_type), intent(in) :: k2data1, k2data2
 real(kind=wp), intent(in) :: ThrInt, CutInt, vij, vkl, vik, vil, vjk, vjl, Coor(3,4), CoorAC(3,2), HMtrxAB(*), HMtrxCD(*), &
-                             Dij(mDij), Dkl(mDkl), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
+                             Dij(max(1,mDij)), Dkl(max(1,mDkl)), Coeff1(nAlpha,iBasi), Coeff2(nBeta,jBasj), Coeff3(nGamma,kBask), &
                              Coeff4(nDelta,lBasl)
 logical(kind=iwp), intent(in) :: Prescreen_On_Int_Only
 logical(kind=iwp), intent(inout) :: NoInts, NoPInts, Do_TnsCtl
@@ -98,8 +98,8 @@ call RecPrt('KappCD',' ',BraKet%KappaCD,1,nEta)
 ! Transfer k2 data and prescreen
 ! In case of integral according to Breit we still will do the prescreening according to the conventional 1/r integrals.
 
-iOffZ = mDij-nZeta
-iOffE = mDkl-nEta
+iOffZ = max(1,mDij-nZeta)
+iOffE = max(1,mDkl-nEta)
 call Screen(iZeta-1,iEta-1,nZeta,nEta,mZeta,mEta,lZeta,lEta, &
             k2data1,k2data2, &
             BraKet%Zeta,BraKet%ZInv,BraKet%P,BraKet%KappaAB,BraKet%IndZet, &

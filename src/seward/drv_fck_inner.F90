@@ -116,7 +116,7 @@ do iS=1,nSkal
     if (iPrint >= 29) write(u6,*) ' nSO=',nSO
     if (nSO == 0) cycle
     call mma_allocate(SO,nSO*iBas*jBas)
-    call DCopy_(nSO*iBas*jBas,[Zero],0,SO,1)
+    SO(:) = Zero
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -130,7 +130,7 @@ do iS=1,nSkal
     jElem = (jAng+1)*(jAng+2)/2
     lFinal = nIC*S%MaxPrm(iAng)*S%MaxPrm(jAng)*iElem*jElem
     call mma_allocate(Fnl,lFinal)
-    call dCopy_(lFinal,[Zero],0,Fnl,1)
+    Fnl(:) = Zero
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -193,7 +193,7 @@ do iS=1,nSkal
       !*****************************************************************
       !                                                                *
       ! Pick up epsilon from memory
-      call FZero(Fnl,iBas*jBas*iCmp*jCmp*nIC)
+      Fnl(1:iBas*jBas*iCmp*jCmp*nIC) = Zero
       do iB=1,iBas
         do jB=1,iBas
           ijB = (jB-1)*iBas+iB
@@ -246,7 +246,7 @@ do iS=1,nSkal
     !                                                                  *
     ! Multiply with factors due to projection operators
 
-    if (Fact /= One) call DScal_(nSO*iBas*jBas,Fact,SO,1)
+    if (Fact /= One) SO(:) = Fact*SO(:)
     if (iPrint >= 99) then
       write(u6,*) ' Scaling SO''s',Fact
       call RecPrt(' Accumulated SO integrals',' ',SO,iBas*jBas,nSO)

@@ -117,7 +117,7 @@ end type Distinct_Basis_set_centers
 ! nBasis : number of contracted radial functions of the ith shell
 ! Cff_c  : Contraction coefficients in processed and raw input form
 ! Cff_p  : Contraction coefficient in the case of no contraction, processed and raw
-! Cff    : copy of Cff_c or Cff_p
+! pCff   : copy of Cff_c or Cff_p
 ! Transf : Cartesian transformed to real sphericals.
 ! Projct : real sphericals without contaminations (3s, 4d, etc.)
 ! Bk     : ECP proj shift parameters for ith shell, the number of parameters is given by nBasis
@@ -851,7 +851,7 @@ subroutine Basis_Info_Get()
         call DCopy_(2*nExp*nBasis,rDmp(nAux2+1,1),1,Shells(i)%Cff_c,1)
         nAux2 = nAux2+2*nExp*nBasis
 
-        call mma_allocate(Shells(i)%pCff,nExp,nBasis,Label='Cff',safe='*')
+        call mma_allocate(Shells(i)%pCff,nExp,nBasis,Label='pCff',safe='*')
         Shells(i)%pCff(:,:) = Shells(i)%Cff_c(:,:,1)
       end if
     end do

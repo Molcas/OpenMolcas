@@ -263,9 +263,9 @@ end if
 
 ! permanent memory for csf proto type arrays
 
-call mma_allocate(DFTP,LIDT,Label='DFTP')
-call mma_allocate(CFTP,LICS,Label='CFTP')
-call mma_allocate(DTOC,LDTOC,Label='DTOC')
+call mma_allocate(DFTP,max(1,LIDT),Label='DFTP')
+call mma_allocate(CFTP,max(1,LICS),Label='CFTP')
+call mma_allocate(DTOC,max(1,LDTOC),Label='DTOC')
 
 ! PERMANENT ARRAYS FOR
 ! HOLDING CONFIGURATION EXPANSIONS AND REORDER ARRAYS

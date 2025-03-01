@@ -281,7 +281,7 @@ end if
 ! original PrFin was splitted to 3 parts to run in UHF mode
 
 nDel(1:nSym) = nBas(1:nSym)-nOrb(1:nSym)
-call PrFin0(Dens(:,1,nDens),Dens(:,2,nDens),nBT,EOrb(:,1),nnB,CMO(:,1),nBO,KntE)
+call PrFin0(Dens(:,1,nDens),Dens(:,nD,nDens),nBT,EOrb(:,1),nnB,CMO(:,1),nBO,KntE)
 
 do iD=1,nD
   call PrFin(OneHam,Ovrlp,Dens(:,iD,nDens),TwoHam(:,iD,nDens),nBT,EOrb(:,iD),OccNo(:,iD),nnB,CMO(:,iD),nBO,Note,iD-1,MssVlc,Darwin)

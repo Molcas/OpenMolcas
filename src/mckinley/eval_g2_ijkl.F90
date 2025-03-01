@@ -216,7 +216,7 @@ do iBasAO=1,iBasi,iBsInc
         !--------------------------------------------------------------*
 
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
-        if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
+        if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Temp,nTemp,nQuad,PMax,iSD4)
 
         ! Compute gradients of shell quadruplet
 

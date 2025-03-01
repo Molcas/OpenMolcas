@@ -202,13 +202,15 @@
 *
        Do iS=1,nSym
         jS=iEOr(iS-1,loper)+1
+        if (nOrb(js) < 1) cycle
 *------ F~=2*Fi~
-        Call DaXpY_(nIsh(is)*nOrb(js),Two,
+        if (nIsh(is) > 0) Call DaXpY_(nIsh(is)*nOrb(js),Two,
      &            Temp4(ipMat(js,is)),1,Temp7(ipMat(js,is)),1)
         If (iMethod.eq.2) Then
 *------- F~=F~+2*FA~
-         Call DaXpY_(nIsh(is)*nOrb(js),Two,
+         if (nIsh(is) > 0) Call DaXpY_(nIsh(is)*nOrb(js),Two,
      &            Temp5(ipMat(js,is)),1,Temp7(ipMat(js,is)),1)
+         if (nAsh(iS) < 1) cycle
          Do iAsh=1,nAsh(iS)
           Do jAsh=1,nAsh(is)
            Dij=G1t(itri(iash+nA(is),jAsh+nA(is)))

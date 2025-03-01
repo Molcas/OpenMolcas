@@ -126,7 +126,7 @@ do iD=1,nD
     nOr = nOrb(iSym)
     nOrbmF = nOrb(iSym)-nFro(iSym)
 
-    if (nOrb(iSym) > 0) then
+    if (nOr > 0) then
 
       ! Square Fock matrix and perform C(T)F
       Aux2(:) = Zero
@@ -183,7 +183,7 @@ do iD=1,nD
       call NrmClc(Aux2,nOr*nOr,'EGrad','Aux2')
 #     endif
 
-      call Asym(Aux2,G(ig:ig+nOr**2,iD),nOr)
+      call Asym(Aux2,G(ig:ig+nOr**2-1,iD),nOr)
 #     ifdef _DEBUGPRINT_
       write(u6,*)
       call NrmClc(G,nG*nD,'EGrad','G')

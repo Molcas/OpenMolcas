@@ -329,6 +329,7 @@ if (NumAsh /= 0) then
 
     do iGrid=1,mGrid
       do IIrrep=0,mIrrep-1
+        if (nAsh(IIrrep) < 1) cycle
         IOff1 = iOff_Ash(IIrrep)+1
         P2_ontop_d(1,g_eff,iGrid) = P2_ontop_d(1,g_eff,iGrid)+Four*ddot_(nAsh(IIrrep),dMOs(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)
         if (lft .and. lGGA) then
@@ -348,6 +349,7 @@ if (NumAsh /= 0) then
 
   do iGrid=1,mGrid
     do IIrrep=0,mIrrep-1
+      if (nAsh(IIrrep) < 1) cycle
       IOff1 = iOff_Ash(IIrrep)+1
       P2_ontop(1,iGrid) = P2_ontop(1,iGrid)+ddot_(nAsh(IIrrep),MOs(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)
     end do
@@ -356,6 +358,7 @@ if (NumAsh /= 0) then
   if (lGGA .and. lft) then
     do iGrid=1,mGrid
       do IIrrep=0,mIrrep-1
+        if (nAsh(IIrrep) < 1) cycle
         IOff1 = iOff_Ash(IIrrep)+1
         P2_ontop(2,iGrid) = P2_ontop(2,iGrid)+Four*ddot_(nAsh(IIrrep),MOx(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)
         P2_ontop(3,iGrid) = P2_ontop(3,iGrid)+Four*ddot_(nAsh(IIrrep),MOy(IOff1:,iGrid),1,P2MOCube(IOff1:,iGrid),1)

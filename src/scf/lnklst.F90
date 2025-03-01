@@ -167,7 +167,9 @@ subroutine PutVec(vec,lvec,iterat,opcode,iLList)
 
     case ('NOOP')
 
-      if ((iroot > 0) .and. (nLList(iroot,4) == iterat)) return
+      if (iroot > 0) then
+        if (nLList(iroot,4) == iterat) return
+      endif
 
     case ('OVWR')
       do while ((iroot > 0))

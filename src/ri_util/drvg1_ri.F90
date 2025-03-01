@@ -192,7 +192,7 @@ if (lPSO) then
   call mma_allocate(DMdiag,nG1,nAdens,Label='DMdiag')
   call mma_allocate(DMtmp,nTri_Elem(nG1),Label='DMtmp')
   nnP(0:nIrrep-1) = 0
-  call Compute_txy(G1(1,1),nG1,Txy,n_Txy,nAdens,nIrrep,DMdiag,DMtmp,nAct)
+  call Compute_txy(G1,nG1,Txy,n_Txy,nAdens,nIrrep,DMdiag,DMtmp,nAct)
   call mma_deallocate(DMtmp)
 else
   call mma_allocate(Txy,1,1,Label='Txy')

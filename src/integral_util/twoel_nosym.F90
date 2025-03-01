@@ -106,12 +106,12 @@ if (DoFock) then
   Djl(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
 else
   ! Dummy association
-  Dij(1:1,1:1) => DeDe(-1:-1)
-  Dkl(1:1,1:1) => DeDe(-1:-1)
-  Dik(1:1,1:1) => DeDe(-1:-1)
-  Dil(1:1,1:1) => DeDe(-1:-1)
-  Djk(1:1,1:1) => DeDe(-1:-1)
-  Djl(1:1,1:1) => DeDe(-1:-1)
+  Dij(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dkl(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dik(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dil(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Djk(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Djl(1:1,1:1) => DeDe(lbound(DeDe,1):)
 end if
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
@@ -125,10 +125,10 @@ jBasj = iSD4(19,2)
 kBask = iSD4(19,3)
 lBasl = iSD4(19,4)
 
-Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
-Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
-Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
-Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(:,iAOst(1)+1:)
+Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(:,iAOst(2)+1:)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(:,iAOst(3)+1:)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(:,iAOst(4)+1:)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)

@@ -31,6 +31,7 @@ integer(kind=iwp) :: iD, iEnd, iSt
 iEnd = 0
 v2(:) = Zero
 do iD=1,nD
+  if (kOV(iD) < 1) cycle
   iSt = iEnd+1
   iEnd = iEnd+kOV(iD)
   call vOO2OV_inner(v1(:,iD),nOO,v2(iSt:iEnd),kOV(iD),iD)

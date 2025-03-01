@@ -173,7 +173,7 @@ if (nIrrep /= 1) then
   iCounter = 0
   jCounter = 0
   call mma_Allocate(SM,iBas,iBas,label='SM')
-  call FZero(SM,iBas**2)
+  SM(:,:) = Zero
   call mma_Allocate(IndC,2*S%mCentr)
   iAtoms = 0
 
