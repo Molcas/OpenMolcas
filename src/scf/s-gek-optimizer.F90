@@ -24,7 +24,6 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !             May '22, November-December '22                           *
 !***********************************************************************
 
-use Index_Functions, only: iTri, nTri_Elem
 use InfSCF, only: Energy, HDiag, iter, iterso
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -32,31 +31,31 @@ use Constants, only: Zero, One, Two, Four, Six, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: mOV
-real(kind=wp), intent(inout) :: dq(mOV)
-real(kind=wp), intent(out) :: dqdq
+!just used in inner subroutine, but outer uses it as input
 character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
+character :: Step_Trunc_
 
 !used in outer and inner subroutine
-integer(kind=iwp) :: i, Iteration, j, k, l, mDIIS, &
-                     nDIIS
-!local in outer subroutine
-integer(kind=iwp) :: iFirst, ipg, ipq, Iter_save, IterSO_save, nExplicit
-
-real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, gg, RMS, RMSMx, StepMax, Variance(1)
-real(kind=wp), allocatable :: aux_a(:), aux_b(:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), HDiag_Diis(:), &
-                              q(:,:), q_diis(:,:), Val(:), Vec(:,:)
-character :: Step_Trunc_
-integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 8
-real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
-                            ThrGrd = 1.0e-7_wp
+real(kind=wp), intent(out) :: dqdq
+integer(kind=iwp) :: i, Iteration, j, k, l, mDIIS, nDIIS
+real(kind=wp), allocatable :: Aux_a(:), Aux_b(:), dq_diis(:), e_diis(:,:), g_diis(:,:), H_Diis(:,:), q_diis(:,:)
+integer(kind=iwp), parameter :: Max_Iter = 50
 real(kind=wp), external :: DDot_
+
+!only in outer subroutine
+integer(kind=iwp), intent(in) :: mOV
+real(kind=wp), intent(inout) :: dq(mOV)
+
+integer(kind=iwp) :: iFirst, ipg, ipq, Iter_save, IterSO_save, nExplicit
+real(kind=wp) :: gg
+real(kind=wp), allocatable :: g(:,:), HDiag_Diis(:), q(:,:)
+integer(kind=iwp), parameter :: nWindow = 8
+
 !
 !===========================================================================================================================
 !
 
-Beta_Disp = Beta_Disp_Seed
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter S-GEK Optimizer'
 #endif
@@ -68,8 +67,19 @@ end if
 call mma_allocate(q,mOV,iterso,Label='q')
 call mma_allocate(g,mOV,iterso,Label='g')
 
-!Pick up coordinates and gradients in full space
 iFirst = iter-min(iterso,nWindow)+1
+nDIIS = iter-iFirst+1
+
+if (nDIIS == 1) then
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Exit S-GEK Optimizer'
+# endif
+  call mma_deallocate(g)
+  call mma_deallocate(q)
+  return
+end if
+
+!Pick up coordinates and gradients in full space
 j = 0
 do i=iFirst,iter
   j = i-iFirst+1
@@ -84,17 +94,6 @@ do i=iFirst,iter
   g(:,j) = SCF_V(ipg)%A(:)
 
 end do
-
-nDIIS = iter-iFirst+1
-
-if (nDIIS == 1) then
-# ifdef _DEBUGPRINT_
-  write(u6,*) 'Exit S-GEK Optimizer'
-# endif
-  call mma_deallocate(g)
-  call mma_deallocate(q)
-  return
-end if
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nWindow=',nWindow
@@ -128,10 +127,10 @@ call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
 
 call mma_allocate(Aux_a,mOV,Label='Aux_a')
 call mma_allocate(Aux_b,mOV,Label='Aux_b')
-IterSO_save = IterSO
-Iter_save = Iter
-Iter = iFirst
-IterSO = 1
+!IterSO_save = IterSO
+!Iter_save = Iter
+!Iter = iFirst
+!IterSO = 1
 
 j = 0
 do k=1,nDIIS-1
@@ -145,11 +144,11 @@ do k=1,nDIIS-1
   Aux_b(:) = Aux_a(:)
   e_diis(:,j) = Aux_b(:)/sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
 
-  iter = iter+1
-  iterSO = iterSO+1
+  !iter = iter+1
+  !iterSO = iterSO+1
 end do
-IterSO = IterSO_save
-Iter = Iter_save
+!IterSO = IterSO_save
+!Iter = Iter_save
 call mma_deallocate(Aux_b)
 
 ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
@@ -314,6 +313,8 @@ use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
 use Constants, only: Ten
+use Index_Functions, only: iTri, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter, iter
@@ -322,6 +323,15 @@ real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+
 integer(kind=iwp) :: i, j, k, ii, Iteration_Micro, Iteration_Total, Iteration
 character(len=6) :: UpMeth_
 logical(kind=iwp) :: Converged, Terminate
+real(kind=wp) :: Beta_Disp
+
+real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
+                            ThrGrd = 1.0e-7_wp
+
+real(kind=wp) :: dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1)
+
+real(kind=wp), allocatable :: Val(:), Vec(:,:)
+
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -344,6 +354,8 @@ Terminate = .false.
 Step_Trunc = 'N'
 Converged = .false.
 
+
+Beta_Disp = Beta_Disp_Seed
 Iteration = nDiis-1
 Iteration_Micro = 0
 Iteration_Total = iter-1
