@@ -47,7 +47,7 @@ real(kind=wp), external :: DDot_
 integer(kind=iwp), intent(in) :: mOV
 real(kind=wp), intent(inout) :: dq(mOV)
 
-integer(kind=iwp) :: iFirst, ipg, ipq, Iter_save, IterSO_save, nExplicit
+integer(kind=iwp) :: iFirst, ipg, ipq, nExplicit
 real(kind=wp) :: gg
 real(kind=wp), allocatable :: g(:,:), HDiag_Diis(:), q(:,:)
 integer(kind=iwp), parameter :: nWindow = 8
@@ -127,10 +127,6 @@ call mma_allocate(e_diis,mOV,nExplicit,Label='e_diis')
 
 call mma_allocate(Aux_a,mOV,Label='Aux_a')
 call mma_allocate(Aux_b,mOV,Label='Aux_b')
-!IterSO_save = IterSO
-!Iter_save = Iter
-!Iter = iFirst
-!IterSO = 1
 
 j = 0
 do k=1,nDIIS-1
@@ -144,11 +140,7 @@ do k=1,nDIIS-1
   Aux_b(:) = Aux_a(:)
   e_diis(:,j) = Aux_b(:)/sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
 
-  !iter = iter+1
-  !iterSO = iterSO+1
 end do
-!IterSO = IterSO_save
-!Iter = Iter_save
 call mma_deallocate(Aux_b)
 
 ! Add some unit vectors corresponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
