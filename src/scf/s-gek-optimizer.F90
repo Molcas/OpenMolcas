@@ -39,7 +39,7 @@ character :: Step_Trunc_
 !used in outer and inner subroutine
 real(kind=wp), intent(out) :: dqdq
 integer(kind=iwp) :: i, j, k, l, mDIIS, nDIIS
-real(kind=wp), allocatable :: Aux_a(:), Aux_b(:), dq_diis(:), e_diis(:,:), g_diis(:,:), H_Diis(:,:), q_diis(:,:)
+real(kind=wp), allocatable :: dq_diis(:), g_diis(:,:), H_Diis(:,:), q_diis(:,:)
 integer(kind=iwp), parameter :: Max_Iter = 50
 real(kind=wp), external :: DDot_
 
@@ -49,7 +49,7 @@ real(kind=wp), intent(inout) :: dq(mOV)
 
 integer(kind=iwp) :: iFirst, ipg, ipq, nExplicit
 real(kind=wp) :: gg
-real(kind=wp), allocatable :: g(:,:), q(:,:)
+real(kind=wp), allocatable :: g(:,:), q(:,:), Aux_a(:), Aux_b(:), e_diis(:,:)
 integer(kind=iwp), parameter :: nWindow = 8
 
 !
@@ -256,7 +256,7 @@ dq_diis(:)=Zero
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1, H_diis, dqdq)
 !
 !===========================================================================================================================
 !
@@ -281,7 +281,7 @@ call mma_deallocate(dq_diis)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-call mma_deallocate(h_diis)
+call mma_deallocate(H_diis)
 call mma_deallocate(q_diis)
 call mma_deallocate(g_diis)
 call mma_deallocate(e_diis,safe='*')
@@ -298,7 +298,7 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter)
+Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter, H_diis, dqdq)
 use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
@@ -308,19 +308,17 @@ use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter, iter
-real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), Energy(nDiis+Max_Iter)
+real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), &
+                                Energy(nDiis+Max_Iter),dqdq
 
 integer(kind=iwp) :: i, j, k, ii, Iteration_Micro, Iteration_Total, Iteration
 character(len=6) :: UpMeth_
 logical(kind=iwp) :: Converged, Terminate
 real(kind=wp) :: Beta_Disp
-
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
-
 real(kind=wp) :: dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1)
-
-real(kind=wp), allocatable :: Val(:), Vec(:,:)
+real(kind=wp), allocatable :: Val(:), Vec(:,:), H_diis(:,:)
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
