@@ -38,7 +38,7 @@ character :: Step_Trunc_
 
 !used in outer and inner subroutine
 real(kind=wp), intent(out) :: dqdq
-integer(kind=iwp) :: i, Iteration, j, k, l, mDIIS, nDIIS
+integer(kind=iwp) :: i, j, k, l, mDIIS, nDIIS
 real(kind=wp), allocatable :: Aux_a(:), Aux_b(:), dq_diis(:), e_diis(:,:), g_diis(:,:), H_Diis(:,:), q_diis(:,:)
 integer(kind=iwp), parameter :: Max_Iter = 50
 real(kind=wp), external :: DDot_
@@ -49,7 +49,7 @@ real(kind=wp), intent(inout) :: dq(mOV)
 
 integer(kind=iwp) :: iFirst, ipg, ipq, nExplicit
 real(kind=wp) :: gg
-real(kind=wp), allocatable :: g(:,:), HDiag_Diis(:), q(:,:)
+real(kind=wp), allocatable :: g(:,:), q(:,:)
 integer(kind=iwp), parameter :: nWindow = 8
 
 !
@@ -235,7 +235,6 @@ call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
-call mma_allocate(HDiag_diis,mDIIS,Label='HDiag_diis')
 
 do i=1,mDiis
   do j=1,mDiis
@@ -245,7 +244,6 @@ do i=1,mDiis
     end do
     H_diis(i,j) = gg
   end do
-  HDiag_Diis(i) = H_Diis(i,i)
 end do
 #ifdef _DEBUGPRINT_
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
@@ -258,7 +256,7 @@ dq_diis(:)=Zero
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1, Iteration)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1)
 !
 !===========================================================================================================================
 !
@@ -300,7 +298,7 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter, Iteration)
+Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter)
 use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
@@ -333,9 +331,7 @@ real(kind=wp), allocatable :: Val(:), Vec(:,:)
 
 blavAI = Ten
 call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy,Hessian_HMF=H_diis)
-!call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy,HDiag=HDiag_diis)
 if (.false.) write(u6,*) blAI,mblAI,blaAI,blavAI
-call mma_deallocate(HDiag_diis)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -346,12 +342,12 @@ Terminate = .false.
 Step_Trunc = 'N'
 Converged = .false.
 
-
 Beta_Disp = Beta_Disp_Seed
 Iteration = nDiis-1
 Iteration_Micro = 0
 Iteration_Total = iter-1
 if (nDIIS > 1) Beta_Disp = min(Beta_Disp_Seed,max(Beta_Disp_Min,abs(Energy(iter)-Energy(iter-1))))
+
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Energy(iter)-Energy(iter-1)=',Energy(iter)-Energy(iter-1)
 write(u6,*) 'nDIIS=',nDIIS
@@ -365,6 +361,7 @@ do while ((.not. Converged) .and. (nDIIS > 1)) ! Micro iterate on the surrogate 
   Iteration_Micro = Iteration_Micro+1
   Iteration_Total = Iteration_Total+1
   Iteration = Iteration+1
+
   if (Iteration_Micro == Max_Iter) then
     write(u6,*)
     write(u6,*) 'S-GEK-Optimizer: Iteration_Micro==Max_Iter'
