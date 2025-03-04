@@ -38,7 +38,7 @@ character :: Step_Trunc_
 
 !used in outer and inner subroutine
 real(kind=wp), intent(out) :: dqdq
-integer(kind=iwp) :: i, j, k, l, mDIIS, nDIIS
+integer(kind=iwp) :: i, j, k, l, mDIIS, nDIIS, Iteration
 real(kind=wp), allocatable :: dq_diis(:), g_diis(:,:), H_Diis(:,:), q_diis(:,:)
 integer(kind=iwp), parameter :: Max_Iter = 50
 real(kind=wp), external :: DDot_
@@ -256,7 +256,7 @@ dq_diis(:)=Zero
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1, H_diis, dqdq)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1, H_diis, dqdq, Iteration)
 !
 !===========================================================================================================================
 !
@@ -298,7 +298,7 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter, H_diis, dqdq)
+Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter, H_diis, dqdq, Iteration)
 use definitions, only: iwp, wp
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
