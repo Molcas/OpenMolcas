@@ -16,7 +16,8 @@ descriptor. It is useful for resetting allocatable components in a derived
 type array, after the contents have been garbled.
 */
 
-#include <stdint.h>
+#include "compiler_features.h"
+#ifndef _ALLOC_BIND_C_
 #ifdef _CAPITALS_
 # define c_null_alloc C_NULL_ALLOC
 # define c_null_alloc2 C_NULL_ALLOC2
@@ -28,6 +29,9 @@ type array, after the contents have been garbled.
 #   define c_null_alloc3 c_null_alloc3_
 # endif
 #endif
+#endif
+
+#include <stdint.h>
 
 void c_null_alloc(intptr_t *A) {
   *A = 0;

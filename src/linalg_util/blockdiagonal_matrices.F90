@@ -46,6 +46,8 @@ interface mma_deallocate
   module procedure :: block_mma_free_1D
 end interface
 
+#include "compiler_features.h"
+
 contains
 
 subroutine block_new(blocks,blocksizes)
@@ -54,7 +56,7 @@ subroutine block_new(blocks,blocksizes)
   integer(kind=iwp) :: i, L
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) _BIND_C_
       import :: wp
       real(kind=wp), allocatable :: A(:,:)
     end subroutine c_null_alloc

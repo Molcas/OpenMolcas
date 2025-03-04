@@ -131,6 +131,8 @@ interface mma_deallocate
   module procedure :: dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D, a1ia_mma_free_1D
 end interface
 
+#include "compiler_features.h"
+
 contains
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -815,7 +817,7 @@ subroutine Alloc_Alloc1DArray(Array,N,Label)
   character(len=*), intent(in) :: Label
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) _BIND_C_
       import :: wp
       real(kind=wp), allocatable :: A(:)
     end subroutine c_null_alloc
@@ -843,7 +845,7 @@ subroutine Alloc2D_Alloc1DArray(Array,N1,N2,Label)
   character(len=*), intent(in) :: Label
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) _BIND_C_
       import :: wp
       real(kind=wp), allocatable :: A(:)
     end subroutine c_null_alloc
@@ -873,7 +875,7 @@ subroutine Alloc_Alloc2DArray(Array,N,Label)
   character(len=*), intent(in) :: Label
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc2(A)
+    subroutine c_null_alloc2(A) _BIND_C_
       import :: wp
       real(kind=wp), allocatable :: A(:,:)
     end subroutine c_null_alloc2
@@ -902,7 +904,7 @@ subroutine Alloc_Alloc1DiArray(Array,N,Label)
   character(len=*), intent(in) :: Label
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc3(A)
+    subroutine c_null_alloc3(A) _BIND_C_
       import :: iwp
       integer(kind=iwp), allocatable :: A(:)
     end subroutine c_null_alloc3

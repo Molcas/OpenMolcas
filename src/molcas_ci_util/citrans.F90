@@ -105,6 +105,8 @@ interface mma_deallocate
   module procedure :: spt_mma_free_1D
 end interface
 
+#include "compiler_features.h"
+
 contains
 
 subroutine citrans_sort(mode,ciold,cinew)
@@ -367,7 +369,7 @@ subroutine spintabs_allocate()
 
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) _BIND_C_
       import :: wp
       real(kind=wp), allocatable :: A(:,:)
     end subroutine c_null_alloc
