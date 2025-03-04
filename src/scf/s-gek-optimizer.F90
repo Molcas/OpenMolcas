@@ -27,14 +27,13 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 use InfSCF, only: Energy, HDiag, iter, iterso
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Four, Six, Half
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 !just used in inner subroutine, but outer uses it as input
 character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
-character :: Step_Trunc_
 
 !used in outer and inner subroutine
 real(kind=wp), intent(out) :: dqdq
@@ -256,7 +255,8 @@ dq_diis(:)=Zero
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1, H_diis, dqdq, Iteration)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1, H_diis, dqdq, Iteration, &
+    Step_Trunc, UpMeth)
 !
 !===========================================================================================================================
 !
@@ -298,11 +298,11 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter, H_diis, dqdq, Iteration)
-use definitions, only: iwp, wp
+Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter, H_diis, dqdq, Iteration, Step_Trunc, UpMeth)
+use definitions, only: iwp, wp, u6
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
-use Constants, only: Ten
+use Constants, only: Ten, Four, Half, One, Six, Two
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -313,12 +313,16 @@ real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+
 
 integer(kind=iwp) :: i, j, k, ii, Iteration_Micro, Iteration_Total, Iteration
 character(len=6) :: UpMeth_
+character(len=6), intent(inout) :: UpMeth
+character, intent(inout) :: Step_Trunc
 logical(kind=iwp) :: Converged, Terminate
 real(kind=wp) :: Beta_Disp
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
 real(kind=wp) :: dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1)
 real(kind=wp), allocatable :: Val(:), Vec(:,:), H_diis(:,:)
+character :: Step_Trunc_
+real(kind=wp), external :: DDot_
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
