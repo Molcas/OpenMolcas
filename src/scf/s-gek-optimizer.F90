@@ -53,7 +53,6 @@ integer(kind=iwp) :: iFirst, ipg, ipq, nExplicit
 real(kind=wp) :: gg
 real(kind=wp), allocatable :: g(:,:), q(:,:), Aux_a(:), Aux_b(:), e_diis(:,:)
 integer(kind=iwp), parameter :: nWindow = 8
-
 !
 !===========================================================================================================================
 !
@@ -261,8 +260,8 @@ dq_diis(:)=Zero
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:), H_diis, dqdq, Iteration, &
-    Step_Trunc, UpMeth)
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis(:,:),g_diis(:,:),dq_diis(:),Energy(iFirst:), H_diis(:,:), dqdq, Iteration, &
+                   Step_Trunc, UpMeth)
 !
 !===========================================================================================================================
 !
@@ -297,12 +296,9 @@ call mma_deallocate(q)
 write(u6,*) 'Exit S-GEK Optimizer'
 #endif
 
-!=======================================================================================================================================
-!=======================================================================================================================================
+end subroutine S_GEK_Optimizer
 
-Contains
-
-Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy, H_diis, dqdq, Iteration, Step_Trunc, UpMeth)
+subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy, H_diis, dqdq, Iteration, Step_Trunc, UpMeth)
 
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
@@ -315,16 +311,16 @@ implicit none
 integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter
 real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), &
                                 Energy(nDiis+Max_Iter),dqdq
+character(len=6), intent(inout) :: UpMeth
+character, intent(inout) :: Step_Trunc
 
 integer(kind=iwp) :: i, j, k, ii, Iteration_Micro, Iteration_Total, Iteration
 character(len=6) :: UpMeth_
-character(len=6), intent(inout) :: UpMeth
-character, intent(inout) :: Step_Trunc
 logical(kind=iwp) :: Converged, Terminate
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
-real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1)
-real(kind=wp), allocatable :: Val(:), Vec(:,:), H_diis(:,:)
+real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1), H_diis(mDiis,mDiis)
+real(kind=wp), allocatable :: Val(:), Vec(:,:)
 character :: Step_Trunc_
 real(kind=wp), external :: DDot_
 
@@ -548,10 +544,4 @@ call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
 call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
 #endif
 
-
-End Subroutine GEK_Optimizer
-
-!=======================================================================================================================================
-!=======================================================================================================================================
-
-end subroutine S_GEK_Optimizer
+end subroutine GEK_Optimizer
