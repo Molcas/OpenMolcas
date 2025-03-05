@@ -69,7 +69,9 @@ end if
 call mma_allocate(q,mOV,iterso,Label='q')
 call mma_allocate(g,mOV,iterso,Label='g')
 
+!define first iteration considered in the subspace
 iFirst = iter-min(iterso,nWindow)+1
+!the last nDIIS iterations, of which the first is iFirst
 nDIIS = iter-iFirst+1
 
 if (nDIIS == 1) then
@@ -180,7 +182,8 @@ do l=1,2
     end if
   end do
 end do
-mDIIS = j
+mDIIS = j !normally mDIIS=2nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2nDIIS). mDIIS is then the number
+            !of linear independent e_diis column vectors that span the subspace
 #ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV
 write(u6,*) 'nExplicit:',nExplicit
@@ -258,7 +261,7 @@ dq_diis(:)=Zero
 !
 !   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),iter-iFirst+1, H_diis, dqdq, Iteration, &
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:), H_diis, dqdq, Iteration, &
     Step_Trunc, UpMeth)
 !
 !===========================================================================================================================
@@ -299,7 +302,7 @@ write(u6,*) 'Exit S-GEK Optimizer'
 
 Contains
 
-Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy,iter, H_diis, dqdq, Iteration, Step_Trunc, UpMeth)
+Subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy, H_diis, dqdq, Iteration, Step_Trunc, UpMeth)
 
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
 use Kriging_procedures, only: Setup_Kriging
@@ -309,7 +312,7 @@ use Constants, only: Zero, Half, One, Two, Four, Six, Ten
 use Definitions, only: iwp, wp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter, iter
+integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter
 real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), &
                                 Energy(nDiis+Max_Iter),dqdq
 
@@ -348,11 +351,11 @@ Converged = .false.
 Beta_Disp = Beta_Disp_Seed
 Iteration = nDiis-1
 Iteration_Micro = 0
-Iteration_Total = iter-1
-if (nDIIS > 1) Beta_Disp = min(Beta_Disp_Seed,max(Beta_Disp_Min,abs(Energy(iter)-Energy(iter-1))))
+Iteration_Total = nDIIS-1
+if (nDIIS > 1) Beta_Disp = min(Beta_Disp_Seed,max(Beta_Disp_Min,abs(Energy(nDiis)-Energy(nDiis-1))))
 
 #ifdef _DEBUGPRINT_
-write(u6,*) 'Energy(iter)-Energy(iter-1)=',Energy(iter)-Energy(iter-1)
+write(u6,*) 'Energy(nDiis)-Energy(nDiis-1)=',Energy(nDiis)-Energy(nDiis-1)
 write(u6,*) 'nDIIS=',nDIIS
 write(u6,*) 'Beta_Disp_Seed=',Beta_Disp_Seed
 write(u6,*) 'Beta_Disp_Min=',Beta_Disp_Min
