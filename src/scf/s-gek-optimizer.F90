@@ -27,8 +27,11 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 use InfSCF, only: Energy, HDiag, iter, iterso
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+#ifdef _FULL_SPACE_
+use Constants, only: One
+#endif
 
 implicit none
 !just used in inner subroutine, but outer uses it as input
@@ -269,10 +272,8 @@ end do
 dqdq = sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 
 #ifdef _DEBUGPRINT_
-call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
 write(u6,*) '||dq||=',sqrt(DDot_(size(dq),dq(:),1,dq(:),1))
 call RecPrt('dq',' ',dq(:),size(dq),1)
-call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
 #endif
 
 call Finish_Kriging()
@@ -538,6 +539,12 @@ write(UpMeth(5:6),'(I2)') Iteration_Micro
 
 ! Compute the displacement in the reduced space relative to the last structure of the full space
 dq_diis(:) = q_diis(:,Iteration+1)-q_diis(:,nDIIS)
+
+#ifdef _DEBUGPRINT_
+call RecPrt('dq_diis',' ',dq_diis(:),size(dq_diis),1)
+call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
+#endif
+
 
 End Subroutine GEK_Optimizer
 
