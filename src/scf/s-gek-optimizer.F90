@@ -296,8 +296,7 @@ call mma_deallocate(q)
 write(u6,*) 'Exit S-GEK Optimizer'
 #endif
 
-end subroutine S_GEK_Optimizer
-
+contains
 subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy, H_diis, dqdq, Iteration, Step_Trunc, UpMeth)
 
 use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
@@ -545,3 +544,5 @@ call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),size(g_diis,1),1)
 #endif
 
 end subroutine GEK_Optimizer
+
+end subroutine S_GEK_Optimizer
