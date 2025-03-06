@@ -70,7 +70,7 @@ set (CFLAGS_GNU_FAST "-O2")
 set (CFLAGS_GNU_BOUNDS "-fsanitize=address -fno-omit-frame-pointer")
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
-set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # Or Work is assumed to be 8 elements long
+set (FFLAGS_GNU_BASIC "")
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
 set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
@@ -398,11 +398,6 @@ set (FFLAGS_NAG_GARBLE "-O2 -g -gline -nan")
 set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
 set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
 set (FFLAGS_NAG_FAST "-O4 -ieee=full")
-
-# Fix for NAG compiler (similar to GNU Fortran)
-if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU" AND (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin"))
-  set (FFLAGS_NAG_BASIC "${FFLAGS_NAG_BASIC} -Wc,-fno-aggressive-loop-optimizations")
-endif ()
 
 # Add runtime checks
 # ([-C=calls, -C=dangling] causes segfault)
