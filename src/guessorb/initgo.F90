@@ -25,20 +25,17 @@
 
 subroutine InitGO()
 
-use GuessOrb_Global, only: GapThr, iPrFmt, Label, MxAtom, MxSym, AtName, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, &
-                           PrintPop, PrThr, SThr, TThr, xCharge
+use GuessOrb_Global, only: AtName, GapThr, iPrFmt, Label, MxAtom, MxSym, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, &
+                           PrintPop, PrThr, SThr, TThr
+#ifdef _OLD_
+use GuessOrb_Global, only: xCharge
+#endif
 use Constants, only: Five
 use Definitions, only: wp, iwp, u6
 
 implicit none
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-logical(kind=iwp) :: Debug, Trace, Found
-integer(kind=iwp) :: nBasTot, iSym, iBas, iPrt, i, lenName
-!----------------------------------------------------------------------*
-! External entry points                                                *
-!----------------------------------------------------------------------*
+integer(kind=iwp) :: i, iBas, iPrt, lenName, nBasTot
+logical(kind=iwp) :: Debug, Found, Trace
 integer(kind=iwp), external :: iPrintLevel
 
 !----------------------------------------------------------------------*
@@ -93,15 +90,10 @@ GapThr = 0.01_wp
 !----------------------------------------------------------------------*
 call get_iscalar('nSym',nSym)
 call get_iarray('nBas',nBas,nSym)
-do iSym=1,MxSym
-  nOcc(iSym) = 0
-  nVir(iSym) = 0
-  nDel(iSym) = 0
-end do
-nBasTot = 0
-do iSym=1,nSym
-  nBasTot = nBasTot+nBas(iSym)
-end do
+nOcc(:) = 0
+nVir(:) = 0
+nDel(:) = 0
+nBasTot = sum(nBas(1:nSym))
 if (Debug) then
   write(u6,'(a,8i5)') 'initgo: nSym',nSym
   write(u6,'(a,8i5)') 'initgo: nBas',nBas
@@ -110,16 +102,18 @@ if (Debug) then
   write(u6,'(a,8i5)') 'initgo: nBasTot',nBasTot
 end if
 call get_iscalar('Unique Atoms',nNuc)
-if (nNuc > MxAtom) then
-  call SysAbendMsg('initgo','Fatal:','Too many atoms, increase MxAtom')
-end if
+if (nNuc > MxAtom) call SysAbendMsg('initgo','Fatal:','Too many atoms, increase MxAtom')
 call get_carray('Unique Atom Names',AtName,lenName*nNuc)
 call get_carray('Unique Basis Names',Label,len(Label)*nBasTot)
+#ifdef _OLD_
 call get_darray('Nuclear Charge',xCharge,nNuc)
+#endif
 if (Debug) then
   write(u6,'(a,8i5)') 'initgo: nNuc',nNuc
   write(u6,'(a,8i5)') 'initgo: nBasTot',nBasTot
+# ifdef _OLD_
   write(u6,'(a,8f12.6)') 'initgo: Charge',(xCharge(i),i=1,nNuc)
+# endif
   write(u6,'(a,8a4)') 'initgo: Name ',(AtName(i),i=1,nNuc)
   write(u6,'(a)') 'initgo: Basis functions'
   do iBas=1,nBasTot
@@ -130,7 +124,5 @@ end if
 ! Done                                                                 *
 !----------------------------------------------------------------------*
 if (Trace) write(u6,*) '<<< Exiting initgo'
-
-return
 
 end subroutine InitGO

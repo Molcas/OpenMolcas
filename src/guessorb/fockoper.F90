@@ -31,25 +31,26 @@
 
 subroutine FockOper(RC,Fock)
 
-#include "intent.fh"
-
-use GuessOrb_Global, only: Label, MxAtom, AtName, nBas, nNuc, nSym, xCharge
+use GuessOrb_Global, only: AtName, MxAtom, nBas, nSym
+#if _OLD_
+use GuessOrb_Global, only: Label, nNuc, xCharge
+#endif
 use Constants, only: Zero, One, Three, Six, Seven, Eight
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
 integer(kind=iwp), intent(out) :: RC
 real(kind=wp), intent(_OUT_) :: Fock(*)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
 integer(kind=iwp), parameter :: MxComp = 4
-logical(kind=iwp) :: Debug, Trace, Found
-integer(kind=iwp) :: iSym, iBas, iOff, iNuc, nBasTot, iUse(MxAtom,MxComp), nData, i, k, lenName
+integer(kind=iwp) :: i, lenName, nBasTot, nData
+logical(kind=iwp) :: Debug, Found, Trace
+#if _OLD_
+integer(kind=iwp), parameter :: MxComp = 4
+integer(kind=iwp) :: iBas, iNuc, iOff, iSym, iUse(MxAtom,MxComp), k
 real(kind=wp) :: energy
+#endif
 
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
@@ -62,10 +63,7 @@ RC = 0
 !----------------------------------------------------------------------*
 ! Setup various counters.                                              *
 !----------------------------------------------------------------------*
-nBasTot = 0
-do iSym=1,nSym
-  nBasTot = nBasTot+nBas(iSym)
-end do
+nBasTot = sum(nBas(1:nSym))
 !----------------------------------------------------------------------*
 ! Is Fock operator on disk?                                            *
 !----------------------------------------------------------------------*
@@ -78,12 +76,11 @@ if (Found) then
     write(u6,'(10f12.6)') (Fock(i),i=1,nData)
     write(u6,*)
   end if
-  if (.true.) return
-end if
-if (.true.) then
+else
   RC = 1
-  return
 end if
+
+#if _OLD_
 write(u6,*) '***'
 write(u6,*) '*** Warning: using built-in fock operator'
 write(u6,*) '***'
@@ -97,23 +94,15 @@ do iSym=1,nSym
     write(u6,*) '*** Symmetry',iSym
     write(u6,*) '***'
   end if
-  do i=1,MxAtom
-    do k=1,MxComp
-      iUse(i,k) = 0
-    end do
-  end do
+  iUse(:,:) = 0
   do iBas=1,nBas(iSym)
     iNuc = 0
     do i=1,nNuc
       if (AtName(i) == Label(iBas+iOff)(1:lenName)) iNuc = i
     end do
-    if (Debug) then
-      write(u6,'(2(a,i3),3a,i3,f6.2)') 'iSym:',iSym,' iBas:',iBas,' = ',Label(iBas+iOff)(1:lenName),Label(iBas+iOff)(lenName+1:), &
-                                       iNuc,xCharge(iNuc)
-    end if
-    if (iNuc == 0) then
-      call SysAbendMsg('fockoper','Fatal','001')
-    end if
+    if (Debug) write(u6,'(2(a,i3),3a,i3,f6.2)') 'iSym:',iSym,' iBas:',iBas,' = ',Label(iBas+iOff)(1:lenName), &
+                                                Label(iBas+iOff)(lenName+1:),iNuc,xCharge(iNuc)
+    if (iNuc == 0) call SysAbendMsg('fockoper','Fatal','001')
     energy = Zero
     if (abs(xCharge(iNuc)-One) < 1.0e-3_wp) then
       if (Label(iBas+iOff)(lenName+1:) == '01s     ') then
@@ -182,7 +171,6 @@ end do
 ! Done, deallocate the rest.                                           *
 !----------------------------------------------------------------------*
 if (trace) write(u6,*) '<<< Exiting fockoper'
-
-return
+#endif
 
 end subroutine FockOper

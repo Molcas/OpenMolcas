@@ -30,15 +30,9 @@ use spool, only: Spoolinp
 use Definitions, only: iwp, u6
 
 implicit none
-!----------------------------------------------------------------------*
-! Local data                                                           *
-!----------------------------------------------------------------------*
+integer(kind=iwp) :: itmp, LuSpool
 logical(kind=iwp) :: Trace
 character(len=180) :: Key, Line
-integer(kind=iwp) :: LuSpool, itmp
-!----------------------------------------------------------------------*
-! External routines                                                    *
-!----------------------------------------------------------------------*
 integer(kind=iwp), external :: isFreeUnit
 character(len=180), external :: Get_Ln
 
@@ -55,7 +49,7 @@ LuSpool = isFreeUnit(LuSpool)
 call SpoolInp(LuSpool)
 call RdNLst(LuSpool,'GuessOrb')
 
-input_loop: do
+do
   Key = Get_Ln(LuSpool)
   Line = Key
   call UpCase(Line)
@@ -131,21 +125,18 @@ input_loop: do
       call Get_F1(1,GapThr)
 
     case ('END ')
-      exit input_loop
+      exit
 
     case default
       write(u6,*) 'InpCtl_GuessOrb: unidentified key word  : ',Key
       write(u6,*) 'InpCtl_GuessOrb: internal representation: ',Line(1:4)
       call FindErrorLine()
       call Quit_OnUserError()
-      exit input_loop
   end select
-end do input_loop
+end do
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
 if (Trace) write(u6,*) '<<< Exiting inpctl'
-
-return
 
 end subroutine InpCtl_GuessOrb
