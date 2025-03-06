@@ -34,7 +34,6 @@ use Sizes_of_Seward, only: S
 use RICD_Info, only: Cholesky, Do_RI
 use Symmetry_Info, only: nIrrep
 use EtWas, only: CoulFac, ExFac, nAsh, nCRED, nScr1, nScr2
-use mspdft_grad, only: DoGradMSPD
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -92,8 +91,10 @@ if (lPSO) then
   ipS1 = ipC+nCred
   ipS2 = ipS1+2*nScr1
 
-  if (lSA) nSA = 4
-  if (DoGradMSPD) nSA = 5
+  if (lSA) then
+    nSA = 4
+    if (size(D0,2) > 4) nSA = 5
+  end if
 
   if (nIrrep == 1) then
     kOp(1) = 0

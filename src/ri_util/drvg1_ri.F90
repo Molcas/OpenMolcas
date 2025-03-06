@@ -95,9 +95,7 @@ end if
 
 iMp2Prpt = 0
 call Get_cArray('Relax Method',Method,8)
-if (Method == 'MBPT2   ') then
-  call Get_iScalar('mp2prpt',iMp2Prpt)
-end if
+if (Method == 'MBPT2   ') call Get_iScalar('mp2prpt',iMp2Prpt)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -161,7 +159,8 @@ nKdens = nKdens+iUHF
 nKvec = nKdens
 
 if (lPSO .and. lSA) then
-  nJdens = 5
+  nJdens = 4
+  if ((Method == 'MCPDFT') .or.(Method == 'MSPDFT')) nJdens = 5
   nKdens = 4
   nKVec = 2
   nAdens = 2
