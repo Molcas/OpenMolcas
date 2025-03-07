@@ -3115,10 +3115,6 @@ if (lRP .and. RPset) call processRP(KeepGroup,SymThr)
 
 lAMFI = lAMFI .and. (.not. NoAMFI)
 
-! Disable the RI flag if only one-electron integrals are requested
-
-Do_RI = (.not. Onenly) .and. Do_RI
-
 iPrint = nPrint(iRout)
 
 S%Mx_Shll = iShll+1
