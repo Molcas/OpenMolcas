@@ -45,7 +45,6 @@ interface
         use Constants, only: Zero, Half, One, Two, Four, Six, Ten
         use Definitions, only: iwp, wp, u6
 
-        implicit none
         integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter
         real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), &
                                         Energy(nDiis+Max_Iter),dqdq
@@ -61,7 +60,7 @@ interface
         character :: Step_Trunc_
         character(len=6) :: UpMeth_
         logical(kind=iwp) :: Converged, Terminate
-    end subroutine
+    end subroutine GEK_Optimizer
 end interface
 !===========================================================================================================================
 
