@@ -73,7 +73,7 @@ INT lusopen(INT *lid, char *fname, INT *fname_len) {
   tmp0 = strlen(fname);
   ptr = strchr(fname, slash);
   if (ptr != NULL) {
-    strncpy(my, fname, MYMAXPATH - 1);
+    memcpy(my, fname, MYMAXPATH - 1);
     my[*fname_len] = 0;
   } else {
     prgmtranslatec(fname, &tmp0, my, &tmp1, &ms);

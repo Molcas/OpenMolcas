@@ -35,7 +35,7 @@ parnell_status_t parnell_base(int argc, char **argv) {
   }
 
   /* all processes need to create the parent directory */
-  strncpy(WorkDir, *argv, FILENAME_MAX - 1);
+  memcpy(WorkDir, *argv, FILENAME_MAX - 1);
   WorkDir[FILENAME_MAX - 1] = 0;
   if (stat(WorkDir, &info) != 0) {
     if (errno != ENOENT) {
@@ -63,10 +63,10 @@ parnell_status_t parnell_base(int argc, char **argv) {
 
   /* only slave processes need to create a subdirectory */
   if (MyRank == 0) {
-    strncpy(MyWorkDir, WorkDir, FILENAME_MAX);
+    memcpy(MyWorkDir, WorkDir, FILENAME_MAX);
   } else {
     snprintf(tmpWorkDir, FILENAME_MAX + 7, "%s/tmp_%d", WorkDir, MyRank);
-    strncpy(MyWorkDir, tmpWorkDir, FILENAME_MAX - 1);
+    memcpy(MyWorkDir, tmpWorkDir, FILENAME_MAX - 1);
     MyWorkDir[FILENAME_MAX - 1] = 0;
     if (stat(MyWorkDir, &info) != 0) {
       if (errno != ENOENT) {
