@@ -31,7 +31,7 @@ use GuessOrb_Global, only: Label, nBas, nSym, PrintMOs
 use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iBas, iComp, iDummy(7,8), indx, iOpt, ipTmp1, ipTmp2, ipTmp3, ipTmp4, irc, iSym, iSymlb, jBas, kBas, Lu, &

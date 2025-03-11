@@ -32,7 +32,10 @@ use GuessOrb_Global, only: nBas, nDel, nSym, SThr
 use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 

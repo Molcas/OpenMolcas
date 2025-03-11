@@ -32,39 +32,35 @@
 !#define _DEBUGPRINT_
 subroutine FockOper(RC,Fock)
 
-use GuessOrb_Global, only: AtName, MxAtom, nBas, nSym
 #if _OLD_
-use GuessOrb_Global, only: Label, nNuc, xCharge
-#endif
+use GuessOrb_Global, only: AtName, Label, MxAtom, nBas, nNuc, nSym, xCharge
 use Constants, only: Zero, One, Three, Six, Seven, Eight
-use Definitions, only: wp, iwp, u6
+#endif
+use Definitions, only: wp, iwp
+#if defined (_DEBUGPRINT_) || defined (_OLD_)
+use Definitions, only: u6
+#endif
 
 #include "intent.fh"
 
 implicit none
 integer(kind=iwp), intent(out) :: RC
 real(kind=wp), intent(_OUT_) :: Fock(*)
-integer(kind=iwp), parameter :: MxComp = 4
-integer(kind=iwp) :: lenName, nBasTot, nData
+integer(kind=iwp) :: nData
 logical(kind=iwp) :: Found
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i
 #endif
 #if _OLD_
 integer(kind=iwp), parameter :: MxComp = 4
-integer(kind=iwp) :: iBas, iNuc, iOff, iSym, iUse(MxAtom,MxComp), k
+integer(kind=iwp) :: iBas, iNuc, iOff, iSym, iUse(MxAtom,MxComp), k, lenName
 real(kind=wp) :: energy
 #endif
 
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
-lenName = len(AtName)
 RC = 0
-!----------------------------------------------------------------------*
-! Setup various counters.                                              *
-!----------------------------------------------------------------------*
-nBasTot = sum(nBas(1:nSym))
 !----------------------------------------------------------------------*
 ! Is Fock operator on disk?                                            *
 !----------------------------------------------------------------------*
@@ -82,6 +78,7 @@ else
 end if
 
 #if _OLD_
+lenName = len(AtName)
 write(u6,*) '***'
 write(u6,*) '*** Warning: using built-in fock operator'
 write(u6,*) '***'

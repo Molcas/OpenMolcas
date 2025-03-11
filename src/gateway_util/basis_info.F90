@@ -165,7 +165,7 @@ integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_T
 
 integer(kind=iwp) :: icent(MxAO), iCnttp_Dummy = 0, lant(MxAO), lmag(MxAO), lnang(MxAO), Max_Shells = 0, mFields = 11, MolWgh = 2, &
                      nAngr(MxAO), nBas(0:7) = 0, nBas_Aux(0:7) = 0, nBas_Frag(0:7) = 0, nBasisr(MxAO), nCnttp = 0, &
-                     nFields = 33+(1+iTabMx), nFrag_LineWords = 0, nPrimr(MxAO), nrBas(8), nrSym, Nuclear_Model = Point_Charge
+                     nFields = 34+(1+iTabMx), nFrag_LineWords = 0, nPrimr(MxAO), nrBas(8), nrSym, Nuclear_Model = Point_Charge
 real(kind=wp) :: ExpB, r0, rCof(MxrCof), rExp(MxPrim)
 logical(kind=iwp) :: DoEMPC, Initiated = .false., Seward_Activated = .false.
 real(kind=wp), allocatable :: PAMexp(:,:)

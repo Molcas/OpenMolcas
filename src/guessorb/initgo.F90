@@ -26,13 +26,16 @@
 !#define _DEBUGPRINT_
 subroutine InitGO()
 
-use GuessOrb_Global, only: AtName, GapThr, iPrFmt, Label, MxAtom, MxSym, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, &
+use GuessOrb_Global, only: AtName, GapThr, iPrFmt, Label, MxAtom, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, &
                            PrintPop, PrThr, SThr, TThr
 #ifdef _OLD_
 use GuessOrb_Global, only: xCharge
 #endif
 use Constants, only: Five
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp) :: iPrt, lenName, nBasTot
