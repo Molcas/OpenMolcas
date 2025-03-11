@@ -88,7 +88,7 @@ type Distinct_Basis_set_centers
   integer(kind=iwp) :: iSRO = 0, nSRO = 0
   integer(kind=iwp) :: iSOC = 0, nSOC = 0
   integer(kind=iwp) :: kDel(0:iTabMx)
-  integer(kind=iwp) :: iPP = 0, nPP = 0
+  integer(kind=iwp) :: iPP = 0, nPP = 0, cPP = 0
   integer(kind=iwp) :: nShells = 0
   integer(kind=iwp) :: AtmNr = 0
   real(kind=wp) :: Charge = Zero
@@ -350,20 +350,21 @@ subroutine Basis_Info_Dmp()
     iDmp(24,i) = dbsc(i)%nSOC
     iDmp(25,i) = dbsc(i)%iPP
     iDmp(26,i) = dbsc(i)%nPP
-    iDmp(27,i) = dbsc(i)%nShells
-    iDmp(28,i) = dbsc(i)%AtmNr
-    iDmp(29,i) = 0
-    if (dbsc(i)%NoPair) iDmp(29,i) = 1
+    iDmp(27,i) = dbsc(i)%cPP
+    iDmp(28,i) = dbsc(i)%nShells
+    iDmp(29,i) = dbsc(i)%AtmNr
     iDmp(30,i) = 0
-    if (dbsc(i)%SODk) iDmp(30,i) = 1
+    if (dbsc(i)%NoPair) iDmp(30,i) = 1
     iDmp(31,i) = 0
-    if (dbsc(i)%pChrg) iDmp(31,i) = 1
+    if (dbsc(i)%SODk) iDmp(31,i) = 1
     iDmp(32,i) = 0
-    if (dbsc(i)%Fixed) iDmp(32,i) = 1
+    if (dbsc(i)%pChrg) iDmp(32,i) = 1
     iDmp(33,i) = 0
-    if (dbsc(i)%lPAM2) iDmp(33,i) = 1
+    if (dbsc(i)%Fixed) iDmp(33,i) = 1
+    iDmp(34,i) = 0
+    if (dbsc(i)%lPAM2) iDmp(34,i) = 1
     do j=0,iTabMx
-      iDmp(34+j,i) = dbsc(i)%kDel(j)
+      iDmp(35+j,i) = dbsc(i)%kDel(j)
     end do
     if ((.not. dbsc(i)%Aux) .or. (i == iCnttp_Dummy)) then
       nAtoms = nAtoms+dbsc(i)%nCntr
@@ -644,15 +645,16 @@ subroutine Basis_Info_Get()
     dbsc(i)%nSOC = iDmp(24,i)
     dbsc(i)%iPP = iDmp(25,i)
     dbsc(i)%nPP = iDmp(26,i)
-    dbsc(i)%nShells = iDmp(27,i)
-    dbsc(i)%AtmNr = iDmp(28,i)
-    dbsc(i)%NoPair = iDmp(29,i) == 1
-    dbsc(i)%SODK = iDmp(30,i) == 1
-    dbsc(i)%pChrg = iDmp(31,i) == 1
-    dbsc(i)%Fixed = iDmp(32,i) == 1
-    dbsc(i)%lPAM2 = iDmp(33,i) == 1
+    dbsc(i)%cPP = iDmp(27,i)
+    dbsc(i)%nShells = iDmp(28,i)
+    dbsc(i)%AtmNr = iDmp(29,i)
+    dbsc(i)%NoPair = iDmp(30,i) == 1
+    dbsc(i)%SODK = iDmp(31,i) == 1
+    dbsc(i)%pChrg = iDmp(32,i) == 1
+    dbsc(i)%Fixed = iDmp(33,i) == 1
+    dbsc(i)%lPAM2 = iDmp(34,i) == 1
     do j=0,iTabMx
-      dbsc(i)%kDel(j) = iDmp(34+j,i)
+      dbsc(i)%kDel(j) = iDmp(35+j,i)
     end do
     nFragCoor = max(0,dbsc(i)%nFragCoor)
     nAux = nAux+2*dbsc(i)%nM1+2*dbsc(i)%nM2+nFrag_LineWords*dbsc(i)%nFragType+5*nFragCoor+dbsc(i)%nFragEner+ &
