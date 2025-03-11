@@ -11,6 +11,7 @@
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 !***********************************************************************
 !     The generation of starting orbitals suffers from the fact that   *
@@ -19,7 +20,6 @@ subroutine Virt_Space(C_Occ,C_Virt,Ovrlp,nBas,nOcc,nVirt)
 !     a set of well-defined occupied orbitals.                         *
 !***********************************************************************
 
-!#define _DEBUGPRINT_
 use Index_Functions, only: nTri_Elem
 #ifdef _DEBUGPRINT_
 use Index_Functions, only: iTri
@@ -33,7 +33,6 @@ integer(kind=iwp), intent(in) :: nBas, nOcc, nVirt
 real(kind=wp), intent(in) :: C_Occ(nBas,nOcc), Ovrlp(nTri_Elem(nBas))
 real(kind=wp), intent(inout) :: C_Virt(nBas,nVirt)
 integer(kind=iwp) :: iBas, iOcc, iVirt, jBas, kBas, lBas, mVirt
-logical(kind=iwp) :: Polished
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: C_tmp(:,:), EVa(:), EVe(:,:), Ovrlp_Sq(:,:), P(:,:), PNew(:)
 real(kind=wp), parameter :: thr = 1.0e-14_wp
@@ -66,8 +65,6 @@ do iVirt=1,nVirt
 end do
 #endif
 
-if (nVirt == 0) call Abend()
-
 ! Compute S^{1/2}
 
 call mma_allocate(Ovrlp_Sq,nBas,nBas,Label='Ovrlp_Sq')
@@ -87,11 +84,9 @@ do iBas=1,nBas
   end do
 end do
 
-! Now transform the the CMOs of the occupied orbitals to an
-! orthonormal basis.
+! Now transform the CMOs of the occupied orbitals to an orthonormal basis.
 
 call mma_allocate(C_tmp,nBas,nOcc,Label='C_tmp')
-C_tmp(:,:) = Zero
 call DGEMM_('N','N',nBas,nOcc,nBas,One,Ovrlp_Sq,nBas,C_Occ,nBas,Zero,C_tmp,nBas)
 
 call mma_allocate(P,nBas,nBas,Label='P')
@@ -99,13 +94,10 @@ call mma_allocate(PNew,nBas,Label='PNew')
 
 ! Form the P matrix = 1 - |C(occ)><C(occ)|
 
-do iBas=1,nBas
-  do jBas=1,nBas
-    P(iBas,jBas) = -sum(C_tmp(iBas,:)*C_tmp(jBas,:))
-  end do
-  P(iBas,iBas) = P(iBas,iBas)+One
-end do
+call unitmat(P,nBas)
+call DGEMM_('N','T',nBas,nBas,nOcc,-One,C_tmp,nBas,C_tmp,nBas,One,P,nBas)
 #ifdef _DEBUGPRINT_
+call RecPrt('C_tmp',' ',C_tmp,nBas,nOcc)
 call RecPrt('P-mat',' ',P,nBas,nBas)
 do iBas=1,nBas
   write(u6,*) 'iBas,P(iBas,iBas)=',iBas,P(iBas,iBas)
@@ -149,85 +141,65 @@ do kBas=1,nBas
   call RecPrt('Normalized PNew',' ',PNew,nBas,1)
 # endif
 
-  !Polished = .false.
-  Polished = .true.
-  do
+  do iOcc=1,nOcc
 
-    do iOcc=1,nOcc
+    ! From the trial vector eliminate the occupied space
 
-      ! From the trial vector eliminate the occupied space
-
-      tmp = sum(PNew(:)*C_tmp(:,iOcc))
-#     ifdef _DEBUGPRINT_
-      write(u6,*) 'iOcc,tmp=',iOcc,tmp
-#     endif
-      ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
-
-      PNew(:) = PNew(:)-tmp*C_Occ(:,iOcc)
-    end do
-    do iVirt=1,mVirt
-
-      ! From the trial vector eliminate parts which already expressed.
-
-      tmp = sum(PNew(:)*C_Virt(:,iVirt))
-#     ifdef _DEBUGPRINT_
-      write(u6,*) 'iVirt,tmp=',iVirt,tmp
-#     endif
-
-      ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
-
-      PNew(:) = PNew(:)-tmp*C_Virt(:,iVirt)
-    end do
-
-    ! Test that it is not a null vector!
-
-    tmp = sum(PNew(:)**2)
+    tmp = sum(PNew(:)*C_tmp(:,iOcc))
 #   ifdef _DEBUGPRINT_
-    write(u6,*) 'Norm after projection:',tmp
-    write(u6,*)
+    write(u6,*) 'iOcc,tmp=',iOcc,tmp
 #   endif
-    if (tmp > thr) then
-      tmp = One/sqrt(tmp)
-      PNew(:) = PNew(:)/sqrt(tmp) ! ?
-      if (.not. Polished) then
-        Polished = .true.
-        cycle
-      end if
+    ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
 
-      if (tmp > thr) then
-        if (mVirt+1 > nVirt) then
-          write(u6,*) 'mVirt > nVirt'
-          write(u6,*) 'mVirt=',mVirt
-          write(u6,*) 'nVirt=',nVirt
-          call Abend()
-        end if
-        mVirt = mVirt+1
-        C_Virt(:,mVirt) = PNew(:)
-
-        ! Update the P-matrix.
-
-        do jBas=1,nBas
-          P(:,jBas) = P(:,jBas)-PNew(:)*PNew(jBas)
-        end do
-      end if
-    end if
-    if (Polished) exit
+    PNew(:) = PNew(:)-tmp*C_Occ(:,iOcc)
   end do
+  do iVirt=1,mVirt
+
+    ! From the trial vector eliminate parts which are already expressed.
+
+    tmp = sum(PNew(:)*C_Virt(:,iVirt))
+#   ifdef _DEBUGPRINT_
+    write(u6,*) 'iVirt,tmp=',iVirt,tmp
+#   endif
+
+    ! Form PNew(2) = P(2) - <PNew(1)|Ovrlp|P(2)>PNew(1)
+
+    PNew(:) = PNew(:)-tmp*C_Virt(:,iVirt)
+  end do
+
+  ! Test that it is not a null vector!
+
+  tmp = sum(PNew(:)**2)
+# ifdef _DEBUGPRINT_
+  write(u6,*) 'Norm after projection:',tmp
+  write(u6,*)
+# endif
+  if (tmp > thr) then
+    PNew(:) = PNew(:)/sqrt(tmp)
+
+    mVirt = mVirt+1
+    C_Virt(:,mVirt) = PNew(:)
+
+    ! Update the P-matrix.
+
+    do jBas=1,nBas
+      P(:,jBas) = P(:,jBas)-PNew(:)*PNew(jBas)
+    end do
+  end if
 
   if (mVirt == nVirt) exit
 
 end do
 
 call mma_deallocate(C_tmp)
+call mma_deallocate(P)
+call mma_deallocate(PNew)
 
 if (mVirt /= nVirt) then
   write(u6,*) 'mVirt /= nVirt'
   write(u6,*) 'mVirt,nVirt=',mVirt,nVirt
   call Abend()
 end if
-
-call mma_deallocate(P)
-call mma_deallocate(PNew)
 
 ! Form S^(-1/2)
 

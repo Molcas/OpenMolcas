@@ -27,7 +27,8 @@
 !                                                                      *
 !***********************************************************************
 
-subroutine Fmod1n(StandAlone)
+!#ifdef _DEBUGPRINT_
+subroutine Fmod1n()
 
 use Index_Functions, only: nTri_Elem
 use GuessOrb_Global, only: Label, MxBasis, MxSym, nBas, nSym, PrintMOs
@@ -37,26 +38,13 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp), intent(in) :: StandAlone
 integer(kind=iwp) :: i, iBas, iComp, iDummy(7,8), iOff, iOpt, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iRc, iSym, iSymlb, jBas, k, &
                      kBas, Lu, nBasMax, nBasTot, nSqrTot, nTriTot, RC
 real(kind=wp) :: dsum, eps, orbene(MxBasis), Sik, Sjk
 real(kind=wp), allocatable :: Aux1(:), CMO(:), EVec(:), Fock(:), Hlf(:), Nrm(:), Ovl(:), SFk(:), TFk(:)
-logical(kind=iwp) :: Debug, Trace
 character(len=80) :: Title
 character(len=8) :: Lbl
 
-!----------------------------------------------------------------------*
-! Some setup                                                           *
-!----------------------------------------------------------------------*
-if (StandAlone) then
-  Debug = .false.
-  Trace = .false.
-else
-  Debug = .false.
-  Trace = .false.
-end if
-if (Trace) write(u6,*) '>>> Entering fmod1n'
 !----------------------------------------------------------------------*
 ! Setup various counters.                                              *
 !----------------------------------------------------------------------*
@@ -141,7 +129,9 @@ do iSym=1,nSym
       Fock(ipFock(iSym)-1+nTri_Elem(iBas-1)+jBas) = dsum
     end do
   end do
-  if (Debug) call TriPrt('Modified atomic Fock matrix','(12f12.6)',Fock(ipFock(iSym)),nBas(iSym))
+# ifdef _DEBUGPRINT_
+  call TriPrt('Modified atomic Fock matrix','(12f12.6)',Fock(ipFock(iSym)),nBas(iSym))
+# endif
   ipX = ipX+nTri_Elem(nBas(iSym))
   ipY = ipY+nBas(iSym)
   iOff = iOff+nBas(iSym)
@@ -151,18 +141,20 @@ end do
 !----------------------------------------------------------------------*
 ipX = 1
 do iSym=1,nSym
-  if (Debug) then
-    write(u6,*) '***'
-    write(u6,*) '*** Symmetry',iSym
-    write(u6,*) '***'
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '***'
+  write(u6,*) '*** Symmetry',iSym
+  write(u6,*) '***'
+# endif
   do iBas=1,nBas(iSym)
     do jBas=1,iBas
       Fock(ipFock(iSym)-1+nTri_Elem(iBas-1)+jBas) = Fock(ipFock(iSym)-1+nTri_Elem(iBas-1)+jBas)* &
                                                     sqrt(Ovl(ipX-1+nTri_Elem(iBas)))*sqrt(Ovl(ipX-1+nTri_Elem(jBas)))
     end do
   end do
-  if (Debug) call TriPrt('Scaled atomic Fock matrix','(12f12.6)',Fock(ipFock(iSym)),nBas(iSym))
+# ifdef _DEBUGPRINT_
+  call TriPrt('Scaled atomic Fock matrix','(12f12.6)',Fock(ipFock(iSym)),nBas(iSym))
+# endif
   ipX = ipX+nTri_Elem(nBas(iSym))
 end do
 !----------------------------------------------------------------------*
@@ -178,21 +170,25 @@ call mma_allocate(Hlf,nBasMax*nBasMax)
 call mma_allocate(TFk,nTri_Elem(nBasMax))
 iOff = 0
 do iSym=1,nSym
-  if (Debug) then
-    write(u6,*) '***'
-    write(u6,*) '*** Symmetry',iSym
-    write(u6,*) '***'
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '***'
+  write(u6,*) '*** Symmetry',iSym
+  write(u6,*) '***'
+# endif
   if (nBas(iSym) > 0) then
     call Square(Fock(ipFock(iSym)),SFk,1,nBas(iSym),nBas(iSym))
     call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,SFk,nBas(iSym),CMO(ipCMO(iSym)),nBas(iSym),Zero,Hlf,nBas(iSym))
     call DGEMM_Tri('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,CMO(ipCMO(iSym)),nBas(iSym),Hlf,nBas(iSym),Zero,TFk,nBas(iSym))
-    if (Debug) call TriPrt('Transformed Fock matrix','(12f12.6)',TFk,nBas(iSym))
+#   ifdef _DEBUGPRINT_
+    call TriPrt('Transformed Fock matrix','(12f12.6)',TFk,nBas(iSym))
+#   endif
   end if
 
   !call Jacob(TFk,CMO(ipCMO(iSym)),nbas(iSym),nbas(iSym))
   call NIdiag(TFk,CMO(ipCMO(iSym)),nbas(iSym),nbas(iSym))
-  if (Debug) call TriPrt('Diagonalized atomic Fock matrix','(12f12.6)',TFk,nBas(iSym))
+# ifdef _DEBUGPRINT_
+  call TriPrt('Diagonalized atomic Fock matrix','(12f12.6)',TFk,nBas(iSym))
+# endif
   call goPickup(TFk,orbene(iOff+1),nBas(iSym))
   call goSort(orbene(iOff+1),CMO(ipCMO(iSym)),nBas(iSym),nBas(iSym))
   iOff = iOff+nBas(iSym)
@@ -219,6 +215,5 @@ call mma_deallocate(Aux1)
 call mma_deallocate(Evec)
 call mma_deallocate(Fock)
 call mma_deallocate(CMO)
-if (trace) write(u6,*) '<<< Exiting fmod1n'
 
 end subroutine Fmod1n

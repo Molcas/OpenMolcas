@@ -51,9 +51,9 @@ call FckByInt(iRC,StandAlone)
 !if (iRC /= 0) then
 if (.false.) then
   if (nSym == 1) then
-    call Fmod1n(StandAlone)
+    call Fmod1n()
   else
-    call Fmod1s(StandAlone)
+    call Fmod1s()
   end if
 end if
 call cls_gsswfn()

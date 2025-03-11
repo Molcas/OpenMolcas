@@ -31,16 +31,10 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: itmp, LuSpool
-logical(kind=iwp) :: Trace
 character(len=180) :: Key, Line
 integer(kind=iwp), external :: isFreeUnit
 character(len=180), external :: Get_Ln
 
-!----------------------------------------------------------------------*
-! Setup                                                                *
-!----------------------------------------------------------------------*
-Trace = .false.
-if (Trace) write(u6,*) '>>> Entering inpctl'
 !----------------------------------------------------------------------*
 ! Process input                                                        *
 !----------------------------------------------------------------------*
@@ -137,6 +131,5 @@ end do
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-if (Trace) write(u6,*) '<<< Exiting inpctl'
 
 end subroutine InpCtl_GuessOrb

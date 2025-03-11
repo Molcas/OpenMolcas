@@ -29,6 +29,7 @@
 !                                                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine FockOper(RC,Fock)
 
 use GuessOrb_Global, only: AtName, MxAtom, nBas, nSym
@@ -44,8 +45,11 @@ implicit none
 integer(kind=iwp), intent(out) :: RC
 real(kind=wp), intent(_OUT_) :: Fock(*)
 integer(kind=iwp), parameter :: MxComp = 4
-integer(kind=iwp) :: i, lenName, nBasTot, nData
-logical(kind=iwp) :: Debug, Found, Trace
+integer(kind=iwp) :: lenName, nBasTot, nData
+logical(kind=iwp) :: Found
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i
+#endif
 #if _OLD_
 integer(kind=iwp), parameter :: MxComp = 4
 integer(kind=iwp) :: iBas, iNuc, iOff, iSym, iUse(MxAtom,MxComp), k
@@ -55,10 +59,7 @@ real(kind=wp) :: energy
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
-Debug = .false.
-Trace = .false.
 lenName = len(AtName)
-if (Trace) write(u6,*) '>>> Entering fockoper'
 RC = 0
 !----------------------------------------------------------------------*
 ! Setup various counters.                                              *
@@ -70,12 +71,12 @@ nBasTot = sum(nBas(1:nSym))
 call Qpg_dArray('Eorb',Found,nData)
 if (Found) then
   call Get_dArray('Eorb',Fock,nData)
-  if (Debug) then
-    write(u6,*)
-    write(u6,*) 'Found Eorb'
-    write(u6,'(10f12.6)') (Fock(i),i=1,nData)
-    write(u6,*)
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*)
+  write(u6,*) 'Found Eorb'
+  write(u6,'(10f12.6)') (Fock(i),i=1,nData)
+  write(u6,*)
+# endif
 else
   RC = 1
 end if
@@ -89,19 +90,21 @@ write(u6,*) '***'
 !----------------------------------------------------------------------*
 iOff = 0
 do iSym=1,nSym
-  if (Debug) then
-    write(u6,*) '***'
-    write(u6,*) '*** Symmetry',iSym
-    write(u6,*) '***'
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*) '***'
+  write(u6,*) '*** Symmetry',iSym
+  write(u6,*) '***'
+# endif
   iUse(:,:) = 0
   do iBas=1,nBas(iSym)
     iNuc = 0
     do i=1,nNuc
       if (AtName(i) == Label(iBas+iOff)(1:lenName)) iNuc = i
     end do
-    if (Debug) write(u6,'(2(a,i3),3a,i3,f6.2)') 'iSym:',iSym,' iBas:',iBas,' = ',Label(iBas+iOff)(1:lenName), &
-                                                Label(iBas+iOff)(lenName+1:),iNuc,xCharge(iNuc)
+#   ifdef _DEBUGPRINT_
+    write(u6,'(2(a,i3),3a,i3,f6.2)') 'iSym:',iSym,' iBas:',iBas,' = ',Label(iBas+iOff)(1:lenName),Label(iBas+iOff)(lenName+1:), &
+                                     iNuc,xCharge(iNuc)
+#   endif
     if (iNuc == 0) call SysAbendMsg('fockoper','Fatal','001')
     energy = Zero
     if (abs(xCharge(iNuc)-One) < 1.0e-3_wp) then
@@ -167,10 +170,6 @@ do iSym=1,nSym
   end do
   iOff = iOff+nBas(iSym)
 end do
-!----------------------------------------------------------------------*
-! Done, deallocate the rest.                                           *
-!----------------------------------------------------------------------*
-if (trace) write(u6,*) '<<< Exiting fockoper'
 #endif
 
 end subroutine FockOper

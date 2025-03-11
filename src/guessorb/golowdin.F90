@@ -24,6 +24,7 @@
 !                                                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine goLowdin(CMO)
 
 use Index_Functions, only: nTri_Elem
@@ -40,16 +41,12 @@ real(kind=wp), intent(_OUT_) :: CMO(*)
 integer(kind=iwp) :: iBas, iComp, iOff, iOpt, iOrb, ipCMO, ipOvl(8), irc, iSym, iSymlb, jBas, kBas, nBig, nElem, npSmat, nTot, &
                      nTriTot
 real(kind=wp) :: Temp
-logical(kind=iwp) :: Debug, Trace
 character(len=8) :: Lbl
-real(kind=wp), allocatable :: Eig(:), Ovl(:), SMat(:), Tmp(:,:), Vec(:)
+real(kind=wp), allocatable :: Eig(:), Ovl(:), SMat(:), Vec(:)
+#ifdef _DEBUGPRINT_
+real(kind=wp), allocatable :: Tmp(:,:)
+#endif
 
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-Debug = .false.
-Trace = .false.
-if (Trace) write(u6,*) '>>> Entering golowdin'
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -86,14 +83,14 @@ ipCMO = 1
 do iSym=1,nSym
   nElem = nTri_Elem(nBas(iSym))
   Smat(1:nElem) = Ovl(ipOvl(iSym):ipOvl(iSym)+nElem-1)
-  if (Debug) then
-    write(u6,*)
-    write(u6,*) '***'
-    write(u6,*) '*** lowdin: symmetry',iSym
-    write(u6,*) '***'
-    write(u6,*)
-    call TriPrt('Overlap matrix','(12f18.12)',Ovl(ipOvl(iSym)),nBas(iSym))
-  end if
+# ifdef _DEBUGPRINT_
+  write(u6,*)
+  write(u6,*) '***'
+  write(u6,*) '*** lowdin: symmetry',iSym
+  write(u6,*) '***'
+  write(u6,*)
+  call TriPrt('Overlap matrix','(12f18.12)',Ovl(ipOvl(iSym)),nBas(iSym))
+# endif
   call unitmat(Vec,nBas(iSym))
   call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym))
 
@@ -101,13 +98,19 @@ do iSym=1,nSym
     call VecPhase(Vec((iBas-1)*nBas(iSym)+1),nBas(iSym))
   end do
 
-  if (Debug) call RecPrt('Transformation','(12f18.12)',Vec,nBas(iSym),nBas(iSym))
+# ifdef _DEBUGPRINT_
+  call RecPrt('Transformation','(12f18.12)',Vec,nBas(iSym),nBas(iSym))
+# endif
   call goPickUp(Ovl(ipOvl(iSym)),Eig,nBas(iSym))
-  if (Debug) call RecPrt('Overlap eigenvalues before sort','(12f18.12)',Eig,1,nBas(iSym))
+# ifdef _DEBUGPRINT_
+  call RecPrt('Overlap eigenvalues before sort','(12f18.12)',Eig,1,nBas(iSym))
+# endif
   Eig(1:nBas(iSym)) = -Eig(1:nBas(iSym))
   call goSort(Eig,Vec,nBas(iSym),nBas(iSym))
   Eig(1:nBas(iSym)) = -Eig(1:nBas(iSym))
-  if (Debug) call RecPrt('Overlap eigenvalues after sort','(12f18.12)',Eig,1,nBas(iSym))
+# ifdef _DEBUGPRINT_
+  call RecPrt('Overlap eigenvalues after sort','(12f18.12)',Eig,1,nBas(iSym))
+# endif
   nDel(iSym) = 0
   do iBas=1,nBas(iSym)
     if (Eig(iBas) < SThr) nDel(iSym) = nDel(iSym)+1
@@ -131,24 +134,24 @@ do iSym=1,nSym
       CMO(iOff:iOff+nBas(iSym)-1) = Eig(iOrb)*CMO(iOff:iOff+nBas(iSym)-1)
     end do
   end if
-  if (Debug) call RecPrt('Symmetric orbitals','(12f18.12)',CMO(ipCMO),nBas(iSym),nBas(iSym))
-  if (Debug) then
-    call mma_allocate(Tmp,nBas(iSym),nBas(iSym))
-    iSymlb = 1
-    Lbl = 'Mltpl  0'
-    call RdOne(irc,iOpt,Lbl,iComp,Ovl(ipOvl(1)),iSymlb)
-    do iBas=1,nBas(iSym)
-      do jBas=1,nBas(iSym)
-        Temp = Zero
-        do kBas=1,nBas(iSym)
-          Temp = Temp+CMO(ipCMO+nBas(iSym)*(kBas-1)+(iBas-1))*CMO(ipCMO+nBas(iSym)*(jBas-1)+(kBas-1))
-        end do
-        Tmp(iBas,jBas) = Temp
+# ifdef _DEBUGPRINT_
+  call RecPrt('Symmetric orbitals','(12f18.12)',CMO(ipCMO),nBas(iSym),nBas(iSym))
+  call mma_allocate(Tmp,nBas(iSym),nBas(iSym))
+  iSymlb = 1
+  Lbl = 'Mltpl  0'
+  call RdOne(irc,iOpt,Lbl,iComp,Ovl(ipOvl(1)),iSymlb)
+  do iBas=1,nBas(iSym)
+    do jBas=1,nBas(iSym)
+      Temp = Zero
+      do kBas=1,nBas(iSym)
+        Temp = Temp+CMO(ipCMO+nBas(iSym)*(kBas-1)+(iBas-1))*CMO(ipCMO+nBas(iSym)*(jBas-1)+(kBas-1))
       end do
+      Tmp(iBas,jBas) = Temp
     end do
-    call RecPrt('Inverted overlap matrix','(12f18.12)',Tmp,nBas(iSym),nBas(iSym))
-    call mma_deallocate(Tmp)
-  end if
+  end do
+  call RecPrt('Inverted overlap matrix','(12f18.12)',Tmp,nBas(iSym),nBas(iSym))
+  call mma_deallocate(Tmp)
+# endif
   ipCMO = ipCMO+nBas(iSym)*nBas(iSym)
 end do
 
@@ -162,6 +165,5 @@ call mma_deallocate(Ovl)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-if (Trace) write(u6,*) '<<< Exiting golowdin'
 
 end subroutine goLowdin

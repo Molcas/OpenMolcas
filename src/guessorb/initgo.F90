@@ -23,6 +23,7 @@
 !                                                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine InitGO()
 
 use GuessOrb_Global, only: AtName, GapThr, iPrFmt, Label, MxAtom, MxSym, nBas, nDel, nNuc, nOcc, nSym, nVir, PrintEor, PrintMOs, &
@@ -34,17 +35,17 @@ use Constants, only: Five
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, iBas, iPrt, lenName, nBasTot
-logical(kind=iwp) :: Debug, Found, Trace
+integer(kind=iwp) :: iPrt, lenName, nBasTot
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: i, iBas
+#endif
+logical(kind=iwp) :: Found
 integer(kind=iwp), external :: iPrintLevel
 
 !----------------------------------------------------------------------*
 ! Setup                                                                *
 !----------------------------------------------------------------------*
-Debug = .false.
-Trace = .false.
 lenName = len(AtName)
-if (Trace) write(u6,*) '>>> Entering initgo'
 !----------------------------------------------------------------------*
 ! Set default for MO printing.                                         *
 !----------------------------------------------------------------------*
@@ -94,35 +95,32 @@ nOcc(:) = 0
 nVir(:) = 0
 nDel(:) = 0
 nBasTot = sum(nBas(1:nSym))
-if (Debug) then
-  write(u6,'(a,8i5)') 'initgo: nSym',nSym
-  write(u6,'(a,8i5)') 'initgo: nBas',nBas
-  write(u6,'(a,8i5)') 'initgo: nOcc',nOcc
-  write(u6,'(a,8i5)') 'initgo: nVir',nVir
-  write(u6,'(a,8i5)') 'initgo: nBasTot',nBasTot
-end if
+#ifdef _DEBUGPRINT_
+write(u6,'(a,8i5)') 'initgo: nSym',nSym
+write(u6,'(a,8i5)') 'initgo: nBas',nBas
+write(u6,'(a,8i5)') 'initgo: nOcc',nOcc
+write(u6,'(a,8i5)') 'initgo: nVir',nVir
+write(u6,'(a,8i5)') 'initgo: nBasTot',nBasTot
+#endif
 call get_iscalar('Unique Atoms',nNuc)
 if (nNuc > MxAtom) call SysAbendMsg('initgo','Fatal:','Too many atoms, increase MxAtom')
 call get_carray('Unique Atom Names',AtName,lenName*nNuc)
 call get_carray('Unique Basis Names',Label,len(Label)*nBasTot)
+#ifdef _DEBUGPRINT_
+write(u6,'(a,8i5)') 'initgo: nNuc',nNuc
+write(u6,'(a,8i5)') 'initgo: nBasTot',nBasTot
 #ifdef _OLD_
 call get_darray('Nuclear Charge',xCharge,nNuc)
+write(u6,'(a,8f12.6)') 'initgo: Charge',(xCharge(i),i=1,nNuc)
 #endif
-if (Debug) then
-  write(u6,'(a,8i5)') 'initgo: nNuc',nNuc
-  write(u6,'(a,8i5)') 'initgo: nBasTot',nBasTot
-# ifdef _OLD_
-  write(u6,'(a,8f12.6)') 'initgo: Charge',(xCharge(i),i=1,nNuc)
-# endif
-  write(u6,'(a,8a4)') 'initgo: Name ',(AtName(i),i=1,nNuc)
-  write(u6,'(a)') 'initgo: Basis functions'
-  do iBas=1,nBasTot
-    write(u6,'(2a)') Label(iBas)(1:lenName),Label(iBas)(lenName+1:)
-  end do
-end if
+write(u6,'(a,8a4)') 'initgo: Name ',(AtName(i),i=1,nNuc)
+write(u6,'(a)') 'initgo: Basis functions'
+do iBas=1,nBasTot
+  write(u6,'(2a)') Label(iBas)(1:lenName),Label(iBas)(lenName+1:)
+end do
+#endif
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-if (Trace) write(u6,*) '<<< Exiting initgo'
 
 end subroutine InitGO
