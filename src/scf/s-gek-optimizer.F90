@@ -38,28 +38,15 @@ implicit none
 !===========================================================================================================================
 interface
     subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy, H_diis, dqdq, Step_Trunc, UpMeth)
-        use Kriging_mod, only: blaAI, blAI, blavAI, mblAI
-        use Kriging_procedures, only: Setup_Kriging
-        use Index_Functions, only: iTri, nTri_Elem
-        use stdalloc, only: mma_allocate, mma_deallocate
-        use Constants, only: Zero, Half, One, Two, Four, Six, Ten
-        use Definitions, only: iwp, wp, u6
+        use Definitions, only: wp, iwp
 
         integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter
         real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), &
                                         Energy(nDiis+Max_Iter),dqdq
+        real(kind=wp), intent(inout) :: H_diis(mDiis,mDiis)
         character(len=6), intent(inout) :: UpMeth
         character, intent(inout) :: Step_Trunc
 
-        integer(kind=iwp) :: i, j, k, ii, Iteration_Micro, Iteration_Total, Iteration
-        real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1), H_diis(mDiis,mDiis)
-        real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp,&
-                                    Thr_RS = 1.0e-7_wp, ThrGrd = 1.0e-7_wp
-        real(kind=wp), allocatable :: Val(:), Vec(:,:)
-        real(kind=wp), external :: DDot_
-        character :: Step_Trunc_
-        character(len=6) :: UpMeth_
-        logical(kind=iwp) :: Converged, Terminate
     end subroutine GEK_Optimizer
 end interface
 !===========================================================================================================================
@@ -211,8 +198,8 @@ do l=1,2
     end if
   end do
 end do
-mDIIS = j !normally mDIIS=2nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2nDIIS). mDIIS is then the number
-            !of linear independent e_diis column vectors that span the subspace
+mDIIS = j !normally mDIIS=2nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2nDIIS).
+          ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
 #ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV
 write(u6,*) 'nExplicit:',nExplicit
@@ -343,13 +330,14 @@ real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+
                                 Energy(nDiis+Max_Iter),dqdq
 character(len=6), intent(inout) :: UpMeth
 character, intent(inout) :: Step_Trunc
+real(kind=wp), intent(inout) :: H_diis(mDiis,mDiis)
 
 integer(kind=iwp) :: i, j, k, ii, Iteration_Micro, Iteration_Total, Iteration
 character(len=6) :: UpMeth_
 logical(kind=iwp) :: Converged, Terminate
 real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
                             ThrGrd = 1.0e-7_wp
-real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1), H_diis(mDiis,mDiis)
+real(kind=wp) :: Beta_Disp, dqHdq, FAbs, Fact, RMS, RMSMx, StepMax, Variance(1)
 real(kind=wp), allocatable :: Val(:), Vec(:,:)
 character :: Step_Trunc_
 real(kind=wp), external :: DDot_
