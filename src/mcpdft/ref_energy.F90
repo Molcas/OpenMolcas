@@ -55,7 +55,7 @@ subroutine ref_energy(mcscf_energy,nstates)
       disk = iadr19(6)
 
       call mma_allocate(elist,mxroot,mxiter,label='EList')
-      elist = zero
+      elist(:,:) = zero
       call DDaFile(JOBIPH,2,elist,mxroot*mxiter,disk)
 
       nmaybe = 0
@@ -71,10 +71,7 @@ subroutine ref_energy(mcscf_energy,nstates)
         nmaybe = it
       enddo
 
-      mcscf_energy = elist(:,nmaybe)
-      do state = 1,nstates
-        mcscf_energy(state) = elist(state,nmaybe)
-      enddo
+      mcscf_energy(:) = elist(1:nstates,nmaybe)
 
       call mma_deallocate(elist)
 

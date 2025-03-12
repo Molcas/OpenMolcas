@@ -70,15 +70,17 @@ call TRPGen(nDimBC,nsAtom,Cx(:,:,iRef),mTR,.false.,TR)
 
 call mma_allocate(TRnew,3*nsAtom*mTR,Label='TRNew')
 TRNew(:) = Zero
-i = 0
-do ix=1,3*nsAtom
-  iAtom = (ix+2)/3
-  ixyz = ix-(iAtom-1)*3
-  if (Smmtrc(ixyz,iAtom)) then
-    i = i+1
-    call dcopy_(mTR,TR(i),-nDimBC,TRNew(ix),3*nsAtom)
-  end if
-end do
+if (mTR > 0) then
+  i = 0
+  do ix=1,3*nsAtom
+    iAtom = (ix+2)/3
+    ixyz = ix-(iAtom-1)*3
+    if (Smmtrc(ixyz,iAtom)) then
+      i = i+1
+      call dcopy_(mTR,TR(i),-nDimBC,TRNew(ix),3*nsAtom)
+    end if
+  end do
+end if
 call Put_dArray('TR',TRnew,3*nsAtom*mTR)
 call mma_deallocate(TRnew)
 

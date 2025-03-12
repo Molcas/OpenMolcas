@@ -85,10 +85,8 @@ else
   call PTrans(nPam,iPam,n1+n2+n3+n4,PSOPam,nPSOPam,Cred,nCred,Scr1,nScr1,Scr2,nScr2)
 end if
 
-! Quadruple loop over elements of the basis functions angular
-! description.
-! Observe that we will walk through the memory in AOInt in a
-! sequential way.
+! Quadruple loop over elements of the basis functions angular description.
+! Observe that we will walk through the memory in AOInt in a sequential way.
 
 PMax = Zero
 MemSO2 = 0

@@ -12,8 +12,10 @@
 ! This module contains procedures that need an interface
 module Slapaf_procedures
 
+implicit none
 private
-public :: Box, Hidden, OldFCM, SphInt
+
+public :: Box, Hidden, OldFCM
 
 contains
 

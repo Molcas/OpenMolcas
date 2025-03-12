@@ -68,6 +68,7 @@ if (index(Line,'PP') /= 0) then
   end if
   !write(u6,*) 'mPP=',mPP
   dbsc(nCnttp)%nPP = 1+mPP(1)+mPP(2)
+  call Get_i1(3,dbsc(nCnttp)%cPP)
 
   do iPP=0,mPP(1)
     iShll = iShll+1

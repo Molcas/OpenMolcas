@@ -60,7 +60,7 @@ end do
 return
 
 end subroutine ITO
-!=!=
+
 subroutine Liviu_ITO(n,k,q,O,W,redME)
 ! generate O, W as in previous Stewens_matrixel function:
 ! redME =  ratio between Naoya's and Liviu operators
@@ -82,7 +82,7 @@ O(:,:) = redME*O(:,:)
 return
 
 end subroutine Liviu_ITO
-!=!=
+
 subroutine Stev_ITO(n,k,q,O,W,redME)
 ! generate O, W as in previous Stewens_matrixel function:
 ! redME =  ratio between Naoya's and Liviu operators
@@ -111,7 +111,7 @@ O(:,:) = redME*O(:,:)
 return
 
 end subroutine Stev_ITO
-!=!=
+
 subroutine ESO(n,k,q,O,W,redME)
 ! generate Hermitian ESO operators, as in MATLAB EasySpin(stev) function
 ! only for q >= 0
@@ -152,7 +152,7 @@ call mma_deallocate(Cm)
 return
 
 end subroutine ESO
-!=!=
+
 subroutine Liviu_ESO(n,k,q,O,W,redME)
 ! generate Hermitian ESO operators, as in MATLAB EasySpin(stev) function
 ! only for q >= 0
@@ -186,7 +186,7 @@ call mma_deallocate(Cm)
 return
 
 end subroutine Liviu_ESO
-!=!=
+
 subroutine Stewens_matrixel(N,M,d,ITO_O,ITO_W,IPRINT)
 ! This Subroutine calculates the matrix elements of the ITO  (On)
 ! on the basis of the eigenfunctions of the effective spin.
@@ -349,7 +349,7 @@ call mma_deallocate(ITO_MINUS)
 return
 
 end subroutine Stewens_matrixel
-!=!=
+
 function fct(n)
 ! this function provides correct answer till n=169 only
 
@@ -397,7 +397,7 @@ fct = xct
 return
 
 end function fct
-!=!=
+
 subroutine COEFF_REDUS_SUB(d,N,COEFF_REDUS)
 ! THIS Subroutine ReturnS THE VALUE OF THE REDUCED MATRIX ELEMENT  <S|| On ||S>
 ! WHERE S-EFFECTIVE SPIN, On -- THE HIGHER ORDER SPIN OPERATORS
@@ -434,7 +434,7 @@ COEFF_REDUS = Norm(N/2+1)*s1/s2
 return
 
 end subroutine COEFF_REDUS_SUB
-!=!=
+
 subroutine Clebsch_Gordan(a,al,b,bt,c,gm,coeffCG)
 
 use Constants, only: Zero, Two
@@ -491,7 +491,7 @@ coeffCG = u*s1*s2
 return
 
 end subroutine Clebsch_Gordan
-!=!=
+
 function W9J(a,b,c,d,e,f,g,h,j)
 ! Calculates a Wigner 9-j symbol. Argument a-j are Integer and are
 ! twice the true value of the 9-j's arguments, in the form
@@ -542,7 +542,7 @@ end do
 return
 
 end function W9J
-!=!=
+
 function W6J(a,b,c,d,e,f)
 ! Calculates a Wigner 6-j symbol. Argument a-f are positive Integer
 ! and are twice the true value of the 6-j's arguments, in the form
@@ -592,7 +592,7 @@ W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*rsum
 return
 
 end function W6J
-!=!=
+
 function W3J(j1,j2,j3,m1,m2,m3)
 ! Calculates a Wigner 3-j symbol. Argument j1,j2,j3 are positive Integer
 ! and are twice the true value of the 3-j's arguments, in the form
@@ -620,7 +620,7 @@ W3J = real((-1)**((j1-j2-m3)/2),kind=wp)*coeffCG/sqrt(real(j3+1,kind=wp))
 return
 
 end function W3J
-!=!=
+
 function WCG(a,al,b,bt,c,gm)
 ! Calculates a Clebsch-Gordan Coefficient. Argument a, al, b, bt, c, gm are Integer,
 ! double their actual value.
@@ -684,7 +684,7 @@ WCG = u*dlt(a,b,c)*sqrt(fct((a+al)/2)*fct((a-al)/2)*fct((b+bt)/2)*fct((b-bt)/2)*
 return
 
 end function WCG
-!=!=
+
 function dlt(a,b,c)
 ! calculates the delta(a,b,c) function using the formula 8.2.1. from:
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
@@ -721,7 +721,7 @@ dlt = sqrt(fct((a+b-c)/2)*fct((a-b+c)/2)*fct((-a+b+c)/2)/fct((a+b+c)/2+1))
 return
 
 end function dlt
-!=!=
+
 function check_triangle(a,b,c)
 !  checks If the values a,b,c comply with the triangle rule
 
@@ -747,7 +747,7 @@ if ((a+b >= c) .and. (b+c >= a) .and. (c+a >= b)) check_triangle = .true.
 return
 
 end function check_triangle
-!=!=
+
 function WignerD(J,M1,M2,al,bt,gm)
 ! the function Returns the Wigner-D function specifying the rotation
 ! of the |J,M1,M2> around three  angles(alpha,beta,gamma).
@@ -786,7 +786,7 @@ WignerD = m1_fact*m2_fact*wig_fac
 return
 
 end function WignerD
-!=!=
+
 function wigner_d(J,M1,M2,bt)
 ! This is the implementation of the formula 4.3.1 (2) from
 !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
@@ -817,7 +817,7 @@ wigner_d = wigner_d*real((-1)**((J-M2)/2),kind=wp)*sqrt(fct((J+M1)/2)*fct((J-M1)
 return
 
 end function wigner_d
-!=!=
+
 function RedME(La,Sa,LaP,SaP,L,S)
 ! function evaluates the reduced matrix elements of the ground atomic J multipet
 !
@@ -865,7 +865,7 @@ RedME = temp*factor
 return
 
 end function RedME
-!=!=
+
 function jot1(t,L,ML,S,MS,La,Sa,LaP,SaP)
 ! function evaluates the J1 exchange matrix element ( formula S.19)
 !
@@ -905,7 +905,7 @@ jot1 = t*txt*sqrt(real((Ja+1)*(L+s+1),kind=wp))*W9J(Ja,La,Sa,Ja,La,Sa,L+s,L,2)*W
 return
 
 end function jot1
-!=!=
+
 function jot0(t,L,ML,La,Sa,LaP,SaP)
 ! function evaluates the J1 exchange matrix element ( formula S.19)
 !
@@ -945,7 +945,7 @@ jot0 = -t*txt*sqrt(real((Ja+1)*(L+1),kind=wp))*W9Jl*WCG(Ja,Ja,L,0,Ja,Ja)*RedME(L
 return
 
 end function jot0
-!=!=
+
 subroutine verify_CG(N)
 
 use Constants, only: Zero, One, Two, Half

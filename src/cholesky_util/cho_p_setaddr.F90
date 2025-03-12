@@ -11,8 +11,7 @@
 
 subroutine Cho_P_SetAddr()
 !
-! Purpose: set initial disk adresses for local as well as global
-!          reduced sets.
+! Purpose: set initial disk addresses for local as well as global reduced sets.
 
 use Cholesky, only: Cho_Real_Par, InfRed, InfRed_G, InfVec, InfVec_G, LuPri, MaxRed, MaxVec, nSym, XnPass
 use Definitions, only: iwp

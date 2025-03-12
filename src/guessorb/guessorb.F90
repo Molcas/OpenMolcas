@@ -33,14 +33,8 @@ use GuessOrb_Global, only: nSym
 use Definitions, only: iwp
 
 implicit none
-!----------------------------------------------------------------------*
-! Dummy arguments                                                      *
-!----------------------------------------------------------------------*
 integer(kind=iwp), intent(out) :: iReturn
 logical(kind=iwp), intent(in) :: StandAlone
-!----------------------------------------------------------------------*
-! Local variables.                                                     *
-!----------------------------------------------------------------------*
 integer(kind=iwp) :: iRC, iUHF
 
 !----------------------------------------------------------------------*
@@ -57,9 +51,9 @@ call FckByInt(iRC,StandAlone)
 !if (iRC /= 0) then
 if (.false.) then
   if (nSym == 1) then
-    call Fmod1n(StandAlone)
+    call Fmod1n()
   else
-    call Fmod1s(StandAlone)
+    call Fmod1s()
   end if
 end if
 call cls_gsswfn()
@@ -67,20 +61,15 @@ call cls_gsswfn()
 ! Produce MOLDEN input                                                 *
 !----------------------------------------------------------------------*
 iUHF = 0
-if (iRC == 0) then
-  call Molden_Interface(iUHF,'GSSORB','MD_GSS')
-  !call grid_driver(-1,'SEWARD','GSSORB',iRc)
-end if
+if (iRC == 0) call Molden_Interface(iUHF,'GSSORB','MD_GSS')
+!if (iRC == 0) call grid_driver(-1,'SEWARD','GSSORB',iRc)
 !----------------------------------------------------------------------*
 ! Epilogue                                                             *
 !----------------------------------------------------------------------*
-if (StandAlone) then
-  call FastIO('STATUS')
-end if
+if (StandAlone) call FastIO('STATUS')
 iReturn = 0
 !----------------------------------------------------------------------*
 ! Done                                                                 *
 !----------------------------------------------------------------------*
-return
 
 end subroutine guessorb

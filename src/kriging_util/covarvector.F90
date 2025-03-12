@@ -133,7 +133,6 @@ subroutine defdlrl()
   use Constants, only: Zero
   use Definitions, only: iwp
 
-  implicit none
   integer(kind=iwp) :: i, j
 
   dl(:) = Zero

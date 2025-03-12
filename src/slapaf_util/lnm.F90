@@ -209,7 +209,7 @@ else   ! Use the Hessian Model Function
       ! Form H - H|i><i| - |i><i|H
 
       do i=1,nRP
-        scrt1((i-1)*nRP+1:i*nRP) = scrt1((i-1)*nRP+1:i*nRP)-HTanVec(i)*TanVec(:)-TanVec(i)*HTanVec(:)
+        scrt1((i-1)*nRP+1:i*nRP) = scrt1((i-1)*nRP+1:i*nRP)-HTanVec(i)*TanVec(1:nRP)-TanVec(i)*HTanVec(1:nRP)
       end do
     end if
 

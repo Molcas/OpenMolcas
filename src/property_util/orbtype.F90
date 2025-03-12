@@ -40,17 +40,10 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Z, opt
-integer(kind=iwp), intent(out) :: List(4)
-integer(kind=iwp) :: DeepCore(4), Core(4), SoftCore(4), DeepValence(4), Valence(4), ExtraValence(4), i
+integer(kind=iwp), intent(out) :: List(0:3)
+integer(kind=iwp) :: DeepCore(0:3), Core(0:3), SoftCore(0:3), DeepValence(0:3), Valence(0:3), ExtraValence(0:3)
+integer(kind=iwp), parameter :: s = 0, p = 1, d = 2, f = 3
 
-!----------------------------------------------------------------------*
-! Is this a legal element?                                             *
-!----------------------------------------------------------------------*
-!NIKO if ((Z < 1) .or. (Z > 112)) then
-if ((Z < 0) .or. (Z > 112)) then
-  write(u6,*) 'orbtype: do only know elements 1-112'
-  call Abend()
-end if
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
 !----------------------------------------------------------------------*
@@ -61,206 +54,163 @@ DeepValence(:) = 0
 Valence(:) = 0
 ExtraValence(:) = 0
 List(:) = 0
+
 !----------------------------------------------------------------------*
 ! How many shells are there for this atom                              *
 !----------------------------------------------------------------------*
-
-! Dummy
-if (Z == 0) then
-  Valence(1) = 0 ! this is a redundant operation.
-! H-He
-else if (Z <= 2) then
-  Valence(1) = 1
-! Li-Be
-else if (Z <= 4) then
-  Core(1) = 1
-  Valence(1) = 1
-  ExtraValence(2) = 1
-! B-Ne
-else if (Z <= 10) then
-  Core(1) = 1
-  Valence(1) = 1
-  Valence(2) = 1
-! Na-Mg
-else if (Z <= 12) then
-  DeepCore(1) = 1
-  SoftCore(1) = 1
-  SoftCore(2) = 1
-  Valence(1) = 1
-  ExtraValence(2) = 1
-! Al-Ar
-else if (Z <= 18) then
-  DeepCore(1) = 1
-  Core(1) = 1
-  Core(2) = 1
-  Valence(1) = 1
-  Valence(2) = 1
-! K-Ca
-else if (Z <= 20) then
-  DeepCore(1) = 2
-  DeepCore(2) = 1
-  SoftCore(1) = 1
-  SoftCore(2) = 1
-  Valence(1) = 1
-  ExtraValence(2) = 1
-! Sc-Zn
-else if (Z <= 30) then
-  DeepCore(1) = 2
-  DeepCore(2) = 1
-  Core(1) = 1
-  Core(2) = 1
-  Valence(1) = 1
-  Valence(3) = 1
-  ExtraValence(2) = 1
-! Ga-Kr
-else if (Z <= 36) then
-  DeepCore(1) = 2
-  DeepCore(2) = 1
-  Core(1) = 1
-  Core(2) = 1
-  Core(3) = 1
-  Valence(1) = 1
-  Valence(2) = 1
-! Rb-Sr
-else if (Z <= 38) then
-  DeepCore(1) = 3
-  DeepCore(2) = 2
-  DeepCore(3) = 1
-  SoftCore(1) = 1
-  SoftCore(2) = 1
-  Valence(1) = 1
-  ExtraValence(2) = 1
-! Y-Cd
-else if (Z <= 48) then
-  DeepCore(1) = 3
-  DeepCore(2) = 2
-  DeepCore(3) = 1
-  Core(1) = 1
-  Core(2) = 1
-  Valence(1) = 1
-  Valence(3) = 1
-  ExtraValence(2) = 1
-! In-Xe
-else if (Z <= 54) then
-  DeepCore(1) = 3
-  DeepCore(2) = 2
-  DeepCore(3) = 1
-  Core(1) = 1
-  Core(2) = 1
-  Core(3) = 1
-  Valence(1) = 1
-  Valence(2) = 1
-! Cs-Ba
-else if (Z <= 56) then
-  DeepCore(1) = 4
-  DeepCore(2) = 3
-  DeepCore(3) = 2
-  SoftCore(1) = 1
-  SoftCore(2) = 1
-  Valence(1) = 1
-  ExtraValence(1) = 1
-! La-Yb
-else if (Z <= 70) then
-  DeepCore(1) = 4
-  DeepCore(2) = 3
-  DeepCore(3) = 2
-  Core(1) = 1
-  Core(2) = 1
-  Valence(1) = 1
-  Valence(4) = 1
-  ExtraValence(2) = 1
-! Lu-Hg
-else if (Z <= 80) then
-  DeepCore(1) = 4
-  DeepCore(2) = 3
-  DeepCore(3) = 2
-  Core(1) = 1
-  Core(2) = 1
-  SoftCore(4) = 1
-  Valence(1) = 1
-  Valence(3) = 1
-  ExtraValence(2) = 1
-! Tl-Rn
-else if (Z <= 86) then
-  DeepCore(1) = 4
-  DeepCore(2) = 3
-  DeepCore(3) = 2
-  Core(1) = 1
-  Core(2) = 1
-  Core(4) = 1
-  SoftCore(3) = 1
-  Valence(1) = 1
-  Valence(2) = 1
-! Fr-Ra
-else if (Z <= 88) then
-  DeepCore(1) = 5
-  DeepCore(2) = 4
-  DeepCore(3) = 3
-  DeepCore(4) = 1
-  SoftCore(1) = 1
-  SoftCore(2) = 1
-  Valence(1) = 1
-  ExtraValence(2) = 1
-! Ac-No
-else if (Z <= 102) then
-  DeepCore(1) = 5
-  DeepCore(2) = 4
-  DeepCore(3) = 3
-  DeepCore(4) = 1
-  Core(1) = 1
-  Core(2) = 1
-  Valence(1) = 1
-  Valence(4) = 1
-  ExtraValence(2) = 1
-! Lr-Cn
-else if (Z <= 112) then
-  DeepCore(1) = 5
-  DeepCore(2) = 4
-  DeepCore(3) = 3
-  DeepCore(4) = 1
-  Core(1) = 1
-  Core(2) = 1
-  SoftCore(4) = 1
-  Valence(1) = 1
-  Valence(3) = 1
-  ExtraValence(2) = 1
-else
-  write(u6,*) 'orbtype: element',Z,' not yet implemented'
-  call Abend()
-end if
+select case (Z)
+  case (0) ! Dummy
+  case (1:2) ! H-He
+    Valence(s) = 1
+  case (3:4) ! Li-Be
+    Core(s) = 1
+    Valence(s) = 1
+    ExtraValence(p) = 1
+  case (5:10) ! B-Ne
+    Core(s) = 1
+    Valence(s) = 1
+    Valence(p) = 1
+  case (11:12) ! Na-Mg
+    DeepCore(s) = 1
+    SoftCore(s) = 1
+    SoftCore(p) = 1
+    Valence(s) = 1
+    ExtraValence(p) = 1
+  case (13:18) ! Al-Ar
+    DeepCore(s) = 1
+    Core(s) = 1
+    Core(p) = 1
+    Valence(s) = 1
+    Valence(p) = 1
+  case (19:20) ! K-Ca
+    DeepCore(s) = 2
+    DeepCore(p) = 1
+    SoftCore(s) = 1
+    SoftCore(p) = 1
+    Valence(s) = 1
+    ExtraValence(p) = 1
+  case (21:30) ! Sc-Zn
+    DeepCore(s) = 2
+    DeepCore(p) = 1
+    Core(s) = 1
+    Core(p) = 1
+    Valence(s) = 1
+    Valence(d) = 1
+    ExtraValence(p) = 1
+  case (31:36) ! Ga-Kr
+    DeepCore(s) = 2
+    DeepCore(p) = 1
+    Core(s) = 1
+    Core(p) = 1
+    Core(d) = 1
+    Valence(s) = 1
+    Valence(p) = 1
+  case (37:38) ! Rb-Sr
+    DeepCore(s) = 3
+    DeepCore(p) = 2
+    DeepCore(d) = 1
+    SoftCore(s) = 1
+    SoftCore(p) = 1
+    Valence(s) = 1
+    ExtraValence(p) = 1
+  case (39:48) ! Y-Cd
+    DeepCore(s) = 3
+    DeepCore(p) = 2
+    DeepCore(d) = 1
+    Core(s) = 1
+    Core(p) = 1
+    Valence(s) = 1
+    Valence(d) = 1
+    ExtraValence(p) = 1
+  case (49:54) ! In-Xe
+    DeepCore(s) = 3
+    DeepCore(p) = 2
+    DeepCore(d) = 1
+    Core(s) = 1
+    Core(p) = 1
+    Core(d) = 1
+    Valence(s) = 1
+    Valence(p) = 1
+  case (55:56) ! Cs-Ba
+    DeepCore(s) = 4
+    DeepCore(p) = 3
+    DeepCore(d) = 2
+    SoftCore(s) = 1
+    SoftCore(p) = 1
+    Valence(s) = 1
+    ExtraValence(p) = 1
+  case (57:70) ! La-Yb
+    DeepCore(s) = 4
+    DeepCore(p) = 3
+    DeepCore(d) = 2
+    Core(s) = 1
+    Core(p) = 1
+    Valence(s) = 1
+    Valence(f) = 1
+    ExtraValence(p) = 1
+  case (71:80) ! Lu-Hg
+    DeepCore(s) = 4
+    DeepCore(p) = 3
+    DeepCore(d) = 2
+    Core(s) = 1
+    Core(p) = 1
+    SoftCore(f) = 1
+    Valence(s) = 1
+    Valence(d) = 1
+    ExtraValence(p) = 1
+  case (81:86) ! Tl-Rn
+    DeepCore(s) = 4
+    DeepCore(p) = 3
+    DeepCore(d) = 2
+    Core(s) = 1
+    Core(p) = 1
+    Core(f) = 1
+    SoftCore(d) = 1
+    Valence(s) = 1
+    Valence(p) = 1
+  case (87:88) ! Fr-Ra
+    DeepCore(s) = 5
+    DeepCore(p) = 4
+    DeepCore(d) = 3
+    DeepCore(f) = 1
+    SoftCore(s) = 1
+    SoftCore(p) = 1
+    Valence(s) = 1
+    ExtraValence(p) = 1
+  case (89:102) ! Ac-No
+    DeepCore(s) = 5
+    DeepCore(p) = 4
+    DeepCore(d) = 3
+    DeepCore(f) = 1
+    Core(s) = 1
+    Core(p) = 1
+    Valence(s) = 1
+    Valence(f) = 1
+    ExtraValence(p) = 1
+  case (103:112) ! Lr-Cn
+    DeepCore(s) = 5
+    DeepCore(p) = 4
+    DeepCore(d) = 3
+    DeepCore(f) = 1
+    Core(s) = 1
+    Core(p) = 1
+    SoftCore(f) = 1
+    Valence(s) = 1
+    Valence(d) = 1
+    ExtraValence(p) = 1
+  case default
+    write(u6,*) 'orbtype: element ',Z,' not yet implemented'
+    call Abend()
+end select
 !----------------------------------------------------------------------*
 ! Fill up the list to be returned                                      *
 !----------------------------------------------------------------------*
-if (btest(opt,0)) then
-  do i=1,4
-    List(i) = List(i)+DeepCore(i)
-  end do
-end if
-if (btest(opt,1)) then
-  do i=1,4
-    List(i) = List(i)+Core(i)
-  end do
-end if
-if (btest(opt,2)) then
-  do i=1,4
-    List(i) = List(i)+SoftCore(i)
-  end do
-end if
-if (btest(opt,3)) then
-  do i=1,4
-    List(i) = List(i)+DeepValence(i)
-  end do
-end if
-if (btest(opt,4)) then
-  do i=1,4
-    List(i) = List(i)+Valence(i)
-  end do
-end if
-if (btest(opt,5)) then
-  do i=1,4
-    List(i) = List(i)+ExtraValence(i)
-  end do
-end if
+if (btest(opt,0)) List(:) = List(:)+DeepCore(:)
+if (btest(opt,1)) List(:) = List(:)+Core(:)
+if (btest(opt,2)) List(:) = List(:)+SoftCore(:)
+if (btest(opt,3)) List(:) = List(:)+DeepValence(:)
+if (btest(opt,4)) List(:) = List(:)+Valence(:)
+if (btest(opt,5)) List(:) = List(:)+ExtraValence(:)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

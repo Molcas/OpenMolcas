@@ -34,7 +34,7 @@ logical(kind=iwp), intent(in) :: lOPTO
 integer(kind=iwp) :: iCnt, iCnttp, iPrint, iRout, kSh, kShEnd, kShStr, lSh, mdc, nBasisk, nExpk
 character(len=4) :: DBas
 character :: ChCa, ChCo, ChSph
-logical(kind=iwp) :: Output, type(0:7)
+logical(kind=iwp) :: Output, typ
 
 !                                                                      *
 !***********************************************************************
@@ -131,12 +131,12 @@ do iCnttp=1,nCnttp
   end if
   kShStr = dbsc(iCnttp)%iVal
   kShEnd = dbsc(iCnttp)%iVal+dbsc(iCnttp)%nVal-1
-  type(0) = .false.
+  typ = .false.
   do kSh=kShStr,kShEnd
     nExpk = Shells(kSh)%nExp
-    type(0) = type(0) .or. (nExpk*Shells(kSh)%nBasis /= 0)
+    typ = typ .or. (nExpk*Shells(kSh)%nBasis /= 0)
   end do
-  if (output .and. type(0) .and. (.not. lOPTO)) then
+  if (output .and. typ .and. (.not. lOPTO)) then
     write(u6,'(6X,A)') 'Shell  nPrim  nBasis  Cartesian Spherical Contaminant'
   end if
   do kSh=kShStr,kShEnd
@@ -164,29 +164,30 @@ do iCnttp=1,nCnttp
     write(u6,*)
     write(u6,'(6X,A)') 'Pseudo Potential specification:'
     write(u6,'(6X,A)') '======================================='
-    type(0) = .false.
+    typ = .false.
     do kSh=kShStr,kShEnd
       nExpk = Shells(kSh)%nExp/3
-      type(0) = type(0) .or. (nExpk /= 0)
+      typ = typ .or. (nExpk /= 0)
     end do
-    if (type(0)) then
+    if (typ) then
+      write(u6,*)
+      write(u6,'(6X,A,I3)') 'Number of Core Electrons: ',dbsc(iCnttp)%cPP
       write(u6,*)
       write(u6,'(6X,A)') 'Potential  nTerms    '
     end if
-  end if
-  lSh = 0
-  do kSh=kShStr,kShEnd
-    nExpk = Shells(kSh)%nExp/3
-    !write(u6,*) 'kSh,lSh=',kSh,lSh
-    if (output .and. (nExpk /= 0) .and. (.not. lOPTO)) then
+    lSh = 0
+    do kSh=kShStr,kShEnd
+      nExpk = Shells(kSh)%nExp/3
+      !write(u6,*) 'kSh,lSh=',kSh,lSh
+      if (nExpk == 0) cycle
       if (lSh == 0) then
         write(u6,'(9X,A,6X,I2)') '  H',nExpk
       else
         write(u6,'(9X,A,6X,I2)') AngTp(lSh-1)//'-H',nExpk
       end if
-    end if
-    lSh = lSh+1
-  end do
+      lSh = lSh+1
+    end do
+  end if
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -206,13 +207,13 @@ do iCnttp=1,nCnttp
       write(u6,*)
       write(u6,'(6X,A,I5)') ' Number of M2 terms:',dbsc(iCnttp)%nM2
     end if
-    type(0) = .false.
+    typ = .false.
     do kSh=kShStr,kShEnd
       nExpk = Shells(kSh)%nExp
       nBasisk = Shells(kSh)%nBasis
-      type(0) = type(0) .or. (nExpk*nBasisk /= 0)
+      typ = typ .or. (nExpk*nBasisk /= 0)
     end do
-    if (type(0)) then
+    if (typ) then
       write(u6,*)
       write(u6,'(6X,A)') 'Projection basis set '
       write(u6,'(6X,A)') 'Shell  nPrim  nBasis '
@@ -229,12 +230,12 @@ do iCnttp=1,nCnttp
   kShStr = dbsc(iCnttp)%iSRO
   kShEnd = kShStr+dbsc(iCnttp)%nSRO-1
   if (output .and. dbsc(iCnttp)%ECP .and. (.not. lOPTO)) then
-    type(0) = .false.
+    typ = .false.
     do kSh=kShStr,kShEnd
       nExpk = Shells(kSh)%nExp
-      type(0) = type(0) .or. (nExpk /= 0)
+      typ = typ .or. (nExpk /= 0)
     end do
-    if (type(0)) then
+    if (typ) then
       if (dbsc(iCnttp)%nOpt /= 0) then
         write(u6,*)
         write(u6,'(6X,A)') 'Spectral Resolvent Operators :'
@@ -281,12 +282,12 @@ do iCnttp=1,nCnttp
   kShStr = dbsc(iCnttp)%iSOC
   kShEnd = kShStr+dbsc(iCnttp)%nSOC-1
   if (output .and. dbsc(iCnttp)%ECP .and. (.not. lOPTO)) then
-    type(0) = .false.
+    typ = .false.
     do kSh=kShStr,kShEnd
       nExpk = Shells(kSh)%nExp
-      type(0) = type(0) .or. (nExpk /= 0)
+      typ = typ .or. (nExpk /= 0)
     end do
-    if (type(0)) then
+    if (typ) then
       if (dbsc(iCnttp)%nOpt /= 0) then
         write(u6,*)
         write(u6,'(6X,A)') 'Auxiliary core basis'

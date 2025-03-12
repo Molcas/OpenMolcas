@@ -249,8 +249,8 @@ if (lGrad) then
     end if
   end if
 
-  call mma_allocate(DeDe,0,label='DeDe',safe='*') ! Dummy allocation
-  call mma_allocate(DeDe2,0,label='DeDe2',safe='*') ! Dummy allocation
+  call mma_allocate(DeDe,[-1,-1],label='DeDe',safe='*') ! Dummy allocation
+  call mma_allocate(DeDe2,[-1,-1],label='DeDe2',safe='*') ! Dummy allocation
 
 end if ! lGrad
 !                                                                      *

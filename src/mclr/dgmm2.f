@@ -22,15 +22,13 @@ C
 C
       IF ( IWAY .EQ. 1 ) THEN
          DO 100 J = 1, NCDIM
-           CALL VVTOV(AIN(1,J),DIAG(1),AOUT(1,J),NRDIM)
+           AOUT(:,J) = DIAG(1:NRDIM)*AIN(:,J)
   100    CONTINUE
       END IF
 C
       IF( IWAY .EQ. 2 ) THEN
         DO 200 J = 1, NCDIM
-          FACTOR = DIAG(J)
-          CALL VECSUM(AOUT(1,J),AOUT(1,J),AIN(1,J),0.0D0,
-     &                FACTOR,NRDIM)
+          AOUT(:,J) = DIAG(J)*AIN(:,J)
   200   CONTINUE
       END IF
 C

@@ -12,7 +12,7 @@
 *           -> No Symmetry
 ********************************************************************************
 
->> EXPORT MOLCAS_TIMELIM=1200
+>> EVAL MOLCAS_TIMELIM=2*$MOLCAS_TIMELIM
 >>COPY cucl4.xyz .
 
  &GATEWAY

@@ -125,7 +125,6 @@ Real*8 :: XISPSM(MXPCSM,MXPICI)=Zero
 !
 !        MAXIT        :        Max iterations (NOT IN USE)
 !        iRestr        :         Not in use
-!       Intimp        :        Import mode for integrals
 !         MxP1        :        Not in use
 !         MxP2        :        Not in use
 !        MxQ        :         Not in use
@@ -153,7 +152,7 @@ Real*8 :: XISPSM(MXPCSM,MXPICI)=Zero
 !        NoPart         :        partitioning of strings in alpha-alpha + beta-beta loops
 !        NOHSOO        :        No spin-other-orbit operator included
 !        IDENMT        :        Calculate one-body density matrix
-Integer MAXIT,IRESTR,INTIMP,MXP1,MXP2,MXQ,INCORE,MXCIV,       &
+Integer MAXIT,IRESTR,MXP1,MXP2,MXQ,INCORE,MXCIV,       &
         ICISTR,NOCSF,IDIAG,NOINT,NOPAIR,IH1SO,IDELMS,         &
         ISOSYM(3),INIDEG,IFINSD,IPREREL,NOMSPA,IPREDZN,       &
         ISUPSP,IREDSTP,IDMPIN,MAXRIT,MAXI,MAXK,NOPART,        &

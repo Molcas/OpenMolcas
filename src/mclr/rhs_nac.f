@@ -71,7 +71,7 @@
         iRC=ipnout(-1)
         icsm=1
         issm=1
-        Call Densi2(2,G1r,G2r,
+        Call Densi2_mclr(2,G1r,G2r,
      &                CIL,CIR,0,0,0,n1dens,n2dens)
       End If
       Call mma_deallocate(CIL)
@@ -255,7 +255,7 @@ C
           ! issm=1
 C
           If (abs(vSLag).gt.1.0d-10) Then
-            Call Densi2(2,G1q,G2q,CIL,CIR,0,0,0,n1dens,n2dens)
+            Call Densi2_mclr(2,G1q,G2q,CIL,CIR,0,0,0,n1dens,n2dens)
             Call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
             Call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
           End If
@@ -264,14 +264,14 @@ C
             iSLag = kR + nRoots*(jR-1)
             vSLag = SLag(iSLag)
             If (abs(vSLag).gt.1.0d-10) Then
-              Call Densi2(2,G1q,G2q,CIR,CIL,0,0,0,n1dens,n2dens)
+              Call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1dens,n2dens)
               Call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
               Call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
             End If
           End If
         End Do
       End Do
-      nConf=ncsf(1) !! nconf is overwritten somewhere in densi2
+      nConf=ncsf(1) !! nconf is overwritten somewhere in densi2_mclr
 C
       End Subroutine PT2_SLag
       End Subroutine RHS_NAC

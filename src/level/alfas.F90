@@ -90,7 +90,7 @@ integer(kind=iwp), intent(out) :: INNR(0:NVIBMX)
 ! NF counts levels found in automatic search option
 integer(kind=iwp) :: I, ICOR, INNER, IPMIN, IPMINN, JROT, KV, LTRY, NBEG, NEND, NF, NPMAX, NPMIN
 real(kind=wp) :: BMAX, DGDV2, EO, ESAV, GAMA, PMAX, VMAX, VME1, VME2, VME3, VMIN, VPMAX(10), VPMIN(10), YPMAX(10), YPMIN(10), ZPEHO
-logical(kind=iwp) :: DoIt
+logical(kind=iwp) :: DoIt, NOMAX
 !integer(kind=iwp) :: NBEGG(0:NVIBMX), NENDD(0:NVIBMX)
 !real(kind=wp) :: RE, YMAX
 
@@ -197,7 +197,11 @@ do I=IPMIN+2,NDP-1
     if (NPMAX == 10) exit
   end if
 end do
-if ((NPMAX == 0) .or. ((NPMAX > 0) .and. (YPMAX(NPMAX) < YPMIN(NPMIN)))) then
+NOMAX = (NPMAX == 0)
+if (NPMAX > 0) then
+  if (YPMAX(NPMAX) < YPMIN(NPMIN)) NOMAX = .true.
+end if
+if (NOMAX) then
   ! If no maxima found or there is no barrier past outermost minimum,
   ! set an energy maximum to be the value at the end of the radial range.
   NPMAX = NPMAX+1

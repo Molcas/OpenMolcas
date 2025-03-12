@@ -20,6 +20,7 @@ subroutine ZHEEVJ3(H,Q,W)
 use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp, u6
 
+implicit none
 integer(kind=iwp), parameter :: N = 3
 real(kind=wp), intent(inout) :: H(N,N)
 real(kind=wp), intent(out) :: Q(N,N), W(N)

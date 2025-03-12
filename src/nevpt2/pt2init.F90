@@ -53,7 +53,7 @@ if ((nSym > 1) .and. do_cholesky) then
   call WarningMessage(1,'Symmetry with Cholesky decomposition is not supported yet!')
   call Quit_OnUserError()
 end if
-write(u6,*) 'Cholesky Decomposition: ',merge('Enabled ','Disabled',do_cholesky)
+write(u6,*) 'Cholesky Decomposition: ',trim(merge('Enabled ','Disabled',do_cholesky))
 
 !> set up AO basis information (needed for post-NEVPT2 information transfer)
 call Get_iArray('nBas',nBas,nSym)

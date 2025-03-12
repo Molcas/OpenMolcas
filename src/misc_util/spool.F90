@@ -48,7 +48,6 @@ subroutine SpoolInp(LuSpool)
   use UnixInfo, only: ProgName
   use Definitions, only: iwp
 
-  implicit none
   integer(kind=iwp), intent(out) :: LuSpool
   integer(kind=iwp) :: iEnd
   logical(kind=iwp) :: Exists

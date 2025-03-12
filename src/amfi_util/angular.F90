@@ -211,13 +211,13 @@ do l1=0,Lhigh   ! improving is probably possible...
 
                 call gencoul(l1,l2,l3,l4,makemean,bonn,breit,sameorb,conSO,conOO,icont4,powexp,coulovlp)
                 ! gen and trans integrals
-                !bs local counter for integral adresses
+                !bs local counter for integral addresses
                 mblock = 0 ! counter of (m,m,m,m)-blocks for (l1,l2,l3,l4)
                 !bs if keep is set to false, the angular integrals are
                 !bs thrown away after each block of l-values
                 !bs which means integrals start at address 0
                 if (.not. keep) iangfirst = 0
-                locstar = iangfirst ! local starting adress counter
+                locstar = iangfirst ! local starting address counter
                 ! col 1 will hold type of integrals (1,2,3)
                 ! col 2 will hold number of block
                 mcombina(:,-l1:l1,-l2:l2,-l3:l3,-l4:l4) = 0
@@ -640,7 +640,7 @@ do l1=0,Lhigh   ! improving is probably possible...
                   write(u6,*) ' check the ipowxyz-array'
                   call Abend()
                 end if
-                !bs start adresses for the next <ll|ll> block of integrals
+                !bs start addresses for the next <ll|ll> block of integrals
                 call mma_deallocate(AngSO)
                 call mma_deallocate(AngOO)
                 call mma_deallocate(CartSO)

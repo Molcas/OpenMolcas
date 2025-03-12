@@ -57,7 +57,7 @@ character(len=80) :: Note
 character(len=60) :: Frmt
 character(len=8) :: Method, RlxLbl, What
 real(kind=wp), allocatable :: CMOn(:), DMat(:,:), E_Or(:,:), Epsn(:), Etan(:), GVFck(:,:), Scrt1(:,:), Scrt2(:,:), Temp(:)
-logical, external :: RF_On, Langevin_On, PCM_On
+logical(kind=iwp), external :: RF_On, Langevin_On, PCM_On
 #ifdef _HDF5_
 #include "Molcas.fh"
 integer(kind=iwp) :: IndTypeT(8,7), nSSh(mxSym), nZero(mxSym)
@@ -281,7 +281,7 @@ end if
 ! original PrFin was splitted to 3 parts to run in UHF mode
 
 nDel(1:nSym) = nBas(1:nSym)-nOrb(1:nSym)
-call PrFin0(Dens(:,1,nDens),Dens(:,2,nDens),nBT,EOrb(:,1),nnB,CMO(:,1),nBO,KntE)
+call PrFin0(Dens(:,1,nDens),Dens(:,nD,nDens),nBT,EOrb(:,1),nnB,CMO(:,1),nBO,KntE)
 
 do iD=1,nD
   call PrFin(OneHam,Ovrlp,Dens(:,iD,nDens),TwoHam(:,iD,nDens),nBT,EOrb(:,iD),OccNo(:,iD),nnB,CMO(:,iD),nBO,Note,iD-1,MssVlc,Darwin)

@@ -44,6 +44,8 @@ interface mma_deallocate
   module procedure :: qcmn_mma_free_1D
 end interface
 
+#include "compiler_features.h"
+
 contains
 
 subroutine qcmaquis_info_init(igroup,nstates,tag)
@@ -53,7 +55,7 @@ subroutine qcmaquis_info_init(igroup,nstates,tag)
   integer(kind=iwp), intent(in) :: igroup, nstates, tag
 # ifdef _GARBLE_
   interface
-    subroutine c_null_alloc(A)
+    subroutine c_null_alloc(A) _BIND_C_
       character(len=*), allocatable :: A(:)
     end subroutine c_null_alloc
   end interface

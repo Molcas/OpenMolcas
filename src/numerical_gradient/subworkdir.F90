@@ -35,8 +35,8 @@ Names(:) = [character(len=len(Names)) :: &
             'CCSDTINP', &
             'CHCCINP', &
             'CHT3INP', &
-            'FFPTINP', &
             'ESPFINP', &
+            'FFPTINP', &
             'FALSEINP', &
             'JOBIPH', &
             'ESPF.SAV', &

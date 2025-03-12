@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2012, Victor P. Vysotskiy                              *
+!               2025, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
 !  GetMem
@@ -54,6 +55,8 @@
 !                                                                      *
 ! History: Victor P. Vysotskiy                                         *
 !    2012: Native Molcas's Memory Allocator; Thread safety             *
+!          Ignacio Fdez. Galvan                                        *
+!    2025: Garble using C pointers                                     *
 !                                                                      *
 !***********************************************************************
 
@@ -157,7 +160,7 @@ Implicit None
       End If
 
       If ( Key.eq.'ALLO' .or. Key.eq.'LENG' .or.                        &
-       Key.eq.'FLUS' .or. Key.eq.'MAX' .or.                                                &
+       Key.eq.'FLUS' .or. Key.eq.'MAX' .or.                             &
        Key.eq.'CHEC' .or. Key.eq.'LIST' .or.                            &
        Key.eq.'RGST') Then
          iPos=iPos+kind2goff(VarTyp)
@@ -194,40 +197,51 @@ Implicit None
 
 #ifdef _GARBLE_
       subroutine garble(ipos,length,vartyp)
-      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_ptr
+      use Definitions, only: RtoB
       implicit none
-!include "SysDef.fh"
-#include "WrkSpc.fh"
       integer :: ipos, length
       character(len=*) :: vartyp
-      real*8, parameter ::    dgarbage(1) = [huge(1.0d0)]
-      integer, parameter ::   igarbage(1) = [huge(1)]
+      integer :: ioff1, ioff2, foff1
+      type(c_ptr) :: cptr
+      integer, pointer :: ibuf(:)
+      integer*1, pointer :: i1buf(:)
+      real*8, pointer :: rbuf(:)
+      real*8, parameter ::    dgarbage = huge(dgarbage)
+      integer, parameter ::   igarbage = huge(igarbage)
       integer*1, parameter :: i1garbage = huge(i1garbage)
+      interface
+        function woff2cptr(etyp,offset)
+          import :: c_ptr
+          type(c_ptr) :: woff2cptr
+          character, intent(in) :: etyp
+          integer, value, intent(in) :: offset
+        end function woff2cptr
+      end interface
+
+      ! Here we overwrite the underlying memory, using C pointers
+      ! Do not try this at home!
 
       select case(vartyp)
       case ('REAL')
-        call dcopy_(length,dgarbage,0,work(ipos),1)
+        cptr = woff2cptr('R',ipos-1)
+        call c_f_pointer(cptr,rbuf,[length])
+        rbuf(1:length) = dgarbage
+        nullify(rbuf)
       case ('INTE')
-        call icopy(length,igarbage,0,iwork(ipos),1)
+        cptr = woff2cptr('I',ipos-1)
+        call c_f_pointer(cptr,ibuf,[length])
+        ibuf(1:length) = igarbage
+        nullify(ibuf)
       case ('CHAR')
-        call garble_char(Work)
+        ioff1 = (ipos-1)/RtoB+1
+        ioff2 = mod(ipos-1,RtoB)+1
+        foff1 = (ipos+length-2)/RtoB+1
+        cptr = woff2cptr('C',ipos-1)
+        call c_f_pointer(cptr,i1buf,[(foff1-ioff1+1)*RtoB])
+        i1buf(ioff2:ioff2+length-1) = i1garbage
+        nullify(i1buf)
       end select
-
-      ! This is to allow type punning without an explicit interface
-      contains
-
-      subroutine garble_char(buf)
-      use Definitions, only: RtoB
-      real*8, target :: buf(*)
-      integer*1, pointer :: ibuf(:)
-      integer :: ioff1, ioff2, foff1
-      ioff1 = (ipos-1)/RtoB+1
-      ioff2 = mod(ipos-1,RtoB)+1
-      foff1 = (ipos+length-2)/RtoB+1
-      call c_f_pointer(c_loc(buf(ioff1)),ibuf,[(foff1-ioff1+1)*RtoB])
-      ibuf(ioff2:ioff2+length-1) = i1garbage
-      nullify(ibuf)
-      end subroutine garble_char
 
       end subroutine
 #endif

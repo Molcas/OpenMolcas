@@ -15,6 +15,7 @@ subroutine ChoRPA_MOTra_ReorderCMO(nSym,nBas,nOrb,CMOinp,CMOout)
 
 #include "intent.fh"
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -27,8 +28,8 @@ ip1 = 1
 ip2 = 1
 do iSym=1,nSym
   l = nBas(iSym)*nOrb(iSym)
-  call dCopy_(l,CMOinp(ip1),1,CMOout(ip2),1)
-  call fZero(CMOout(ip2+l),nBas(iSym)*nBas(iSym)-l)
+  CMOout(ip2:ip2+l-1) = CMOinp(ip1:ip1+l-1)
+  CMOout(ip2+l:ip2+nBas(iSym)*nBas(iSym)-1) = Zero
   ip1 = ip1+l
   ip2 = ip2+nBas(iSym)*nBas(iSym)
 end do

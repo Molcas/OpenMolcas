@@ -21,8 +21,8 @@
 * Find the number of electrons in RAS1 and RAS3 in each subtype
 * and determine if subtype  is active
 *
-* Jeppe Olsen , Spring 1991
-*               IEL123 added Jan 1994
+* Jeppe Olsen, Spring 1991
+*              IEL123 added Jan 1994
 *
       IMPLICIT REAL*8(A-H,O-Z)
       DIMENSION IEL1(*),IEL3(*),IEL123(3,*),IACTIV(*)

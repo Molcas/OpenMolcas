@@ -15,11 +15,11 @@ subroutine cre_gsswfn()
 ! exists, it will be overwritten.
 #ifdef _HDF5_
 use GuessOrb_global, only: nBas, nSym, wfn_energy, wfn_fileid, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
-use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_real, mh5_create_dset_str
+use mh5, only: mh5_create_dset_real, mh5_create_dset_str, mh5_create_file, mh5_init_attr
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nBasTot, nSqrTot, iSym
+integer(kind=iwp) :: nBasTot, nSqrTot
 
 ! create a new wavefunction file!
 wfn_fileid = mh5_create_file('GSSWFN')
@@ -38,12 +38,8 @@ call mh5_init_attr(wfn_energy,'DESCRIPTION','Total energy (sum of orbital energi
 
 call mh5_init_attr(wfn_fileid,'ORBITAL_TYPE','GUESS')
 
-nBasTot = 0
-nSqrTot = 0
-do iSym=1,nSym
-  nSqrTot = nSqrTot+nBas(iSym)*nBas(iSym)
-  nBasTot = nBasTot+nBas(iSym)
-end do
+nBasTot = sum(nBas(1:nSym))
+nSqrTot = sum(nbas(1:nSym)**2)
 
 ! typestring
 wfn_tpidx = mh5_create_dset_str(wfn_fileid,'MO_TYPEINDICES',1,[nBasTot],1)
@@ -64,18 +60,3 @@ call mh5_init_attr(wfn_orbene,'DESCRIPTION', &
 #endif
 
 end subroutine cre_gsswfn
-
-!-----------------------------------------------------------------------
-
-subroutine cls_gsswfn()
-
-#ifdef _HDF5_
-use GuessOrb_global, only: wfn_fileid
-use mh5, only: mh5_close_file
-
-implicit none
-
-call mh5_close_file(wfn_fileid)
-#endif
-
-end subroutine cls_gsswfn

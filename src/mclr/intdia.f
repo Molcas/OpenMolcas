@@ -10,7 +10,6 @@
 ************************************************************************
 
       SUBROUTINE INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
-      use Constants, only: One
       Use Str_Info, only: STR,NELEC,NOCTYP
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: IPRDIA
@@ -19,7 +18,7 @@
       use MCLR_Data, only: ICISTR
       use MCLR_Data, only: NTOOB,NACOB
       use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
-      use csm_data, only: NSMST
+      use input_mclr, only: nIrrep
 *
 * CI diagonal in SD basis for the NCSPC ci spaces defined by
 * ISPC,ISM
@@ -50,7 +49,6 @@
       Integer, Allocatable:: BLTP(:), IOIO(:)
       Integer LUDIA,MXOCOC,IISPC,NOCTPA,NOCTPB,NLOOP,ILOOP,IATP,IBTP,
      &        NAEL,NBEL,MNRS1C,MXRS3C,LLUDIA
-      REAL*8 ONEG
 *
 * ======
 *.Output
@@ -79,7 +77,7 @@
       else
         Call mma_allocate(H1D ,NACOB,Label='H1D')
       end if
-      Call mma_allocate(BLTP,NSMST,Label='BLTP')
+      Call mma_allocate(BLTP,nIrrep,Label='BLTP')
 
 *
 *. Largest NOCTPA*NOCTPB block
@@ -96,8 +94,7 @@
       CALL GTJK_MCLR(JA,KA)
 *
 *. K goes to J - K
-      ONEG = -One
-      CALL VECSUM(KA,KA,JA,ONEG,ONE,NTOOB **2)
+      KA(:) = JA(:)-KA(:)
 *
 *
 *. Loop over internal CI spaces
@@ -118,7 +115,7 @@
         MNRS1C = MNR1IC(ISPC(IISPC))
         MXRS3C = MXR3IC(ISPC(IISPC))
 *
-        CALL ZBLTP(ISMOST(1,ISM(IISPC)),NSMST,IDC,BLTP,idum)
+        CALL ZBLTP(ISMOST(1,ISM(IISPC)),nIrrep,IDC,BLTP,idum)
         CALL IAIBCM_MCLR(MNRS1C,MXRS3C,NOCTPA,NOCTPB,
      &                   Str(IATP)%EL1,Str(IATP)%EL3,
      &                   Str(IBTP)%EL1,Str(IBTP)%EL3,
@@ -130,7 +127,7 @@
           LLUDIA = LUDIA
         END IF
         CALL CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,
-     &              NACOB,DIAG,NSMST,H1D,
+     &              NACOB,DIAG,nIrrep,H1D,
      &              ISMOST(1,ISM(IISPC)),BLTP,
      &              XA,XB,SCR,JA,KA,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,
      &              IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,
@@ -144,7 +141,10 @@
       END IF
   100 CONTINUE
 *. Write end of vector mark
-      IF(LUDIA.GT.0) CALL ITODS([-1],1,0,LUDIA)
+      IF(LUDIA.GT.0) THEN
+        IDUM(1) = -1
+        CALL ITODS(IDUM,1,0,LUDIA)
+      END IF
   200 CONTINUE
 
 *

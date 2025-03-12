@@ -336,7 +336,7 @@
         Call CSF2SD(W(ipCI)%Vec(1+(I-1)*ncsf(iL)),CIL,iL)
         Do J=1,I
         Call CSF2SD(W(ipCI)%Vec(1+(J-1)*ncsf(iR)),CIR,iR)
-         Call Densi2(1,GDArray,rdum,CIL,CIR,0,0,0,n1dens,n2dens)
+         Call Densi2_mclr(1,GDArray,rdum,CIL,CIR,0,0,0,n1dens,n2dens)
          NIJ=I*(I-1)/2+J
          do IOrb=1,nnA
           do JOrb=1,nnA

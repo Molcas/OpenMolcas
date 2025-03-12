@@ -12,7 +12,9 @@
 ! This module contains procedures that need an interface
 module Kriging_Procedures
 
+implicit none
 private
+
 public :: set_l_Array, SetUp_Kriging
 
 contains

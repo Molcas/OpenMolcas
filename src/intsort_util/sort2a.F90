@@ -50,9 +50,9 @@ real(kind=wp) :: PkVBin(lStRec)
 #include "warnings.h"
 
 !----------------------------------------------------------------------*
-!     as the packed integral labels add an extra 1-2 Byte              *
-!     disk space per integral we have to adjust the record             *
-!     length of LuTmp to the different machines.                       *
+! as the packed integral labels add an extra 1-2 Byte                  *
+! disk space per integral we have to adjust the record                 *
+! length of LuTmp to the different machines.                           *
 !----------------------------------------------------------------------*
 
 idiv = ItoB/2
@@ -61,7 +61,7 @@ mStRec = (lStRec/idiv)
 mDaRec = (lDaRec/idiv)
 
 !----------------------------------------------------------------------*
-!     pick up the print level                                          *
+! pick up the print level                                              *
 !----------------------------------------------------------------------*
 
 iRout = 85
@@ -97,7 +97,7 @@ write(u6,*) 'Indexed storage                    :',iI_Storage
 #endif
 
 !----------------------------------------------------------------------*
-!     Start reading packed buffers                                     *
+! Start reading packed buffers                                         *
 !----------------------------------------------------------------------*
 
 iDaTmp = iDIBin(2,iBin)
@@ -169,7 +169,7 @@ do while (iDaTmp >= 0)
   end do
 
   !--------------------------------------------------------------------*
-  !   Get the disk adress of the next record                           *
+  ! Get the disk address of the next record                            *
   !--------------------------------------------------------------------*
 
   iDaTmp = PkIBin(1)

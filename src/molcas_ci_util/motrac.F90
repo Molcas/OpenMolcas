@@ -26,10 +26,12 @@ use general_data, only: NASH, NBAS, NFRO, NISH, NSYM
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
 real(kind=wp), intent(inout) :: F(*)
-real(kind=wp), intent(out) :: X1(*), X2(*)
+real(kind=wp), intent(_OUT_) :: X1(*), X2(*)
 integer(kind=iwp) :: ISTFA, ISTFP, ISYM, LMOP, LMOP1, NA, NB
 
 LMOP = 1

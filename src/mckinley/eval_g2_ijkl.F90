@@ -29,7 +29,7 @@ integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nHess, n_Int, nACO, nBuffer, nD
 real(kind=wp), intent(inout) :: Hess(nHess), iInt(n_Int), Buffer(nBuffer), DTemp(nDens), DInAc(nDens)
 logical(kind=iwp), intent(inout) :: Post_Process
 logical(kind=iwp), intent(in) :: lGrad, lHess, lPick
-integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, iDer, iFnc(4), ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, ipPSO, &
+integer(kind=iwp) :: iAng(4), iBasAO, iBasi, iBasn, iBsInc, iDer, iFnc(4), ipFin, ipMem2, ipMem3, ipMem4, ipMemX, ipMOC, ipPSO, &
                      iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, JndGrd(3,4,0:7), JndHss(4,3,4,3,0:7), kBasAO, kBask, kBasn, &
                      kBsInc, kCmp, lBasAO, lBasl, lBasn, lBsInc, lCmp, Mem1, Mem2, Mem3, Mem4, MemCMO, MemFck, MemFin, MemMax, &
                      MemPrm, MemPSO, MemX, nijkl, nRys, nSO, nTemp
@@ -95,7 +95,8 @@ if (nSO == 0) ldot2 = .false.
 
 iDer = 2
 if (.not. ldot2) iDer = 1
-call MemRg2(iSD4(1,:),nRys,MemPrm,iDer)
+iAng(:) = iSD4(1,:)
+call MemRg2(iAng,nRys,MemPrm,iDer)
 
 !----------------------------------------------------------------------*
 !
@@ -215,7 +216,7 @@ do iBasAO=1,iBasi,iBsInc
         !--------------------------------------------------------------*
 
         if (n8) call PickMO(MOC,MemCMO,nSD,iSD4)
-        if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Work2,Mem2,nQuad,PMax,iSD4)
+        if (ldot2) call PGet0(nijkl,PSO,nSO,iFnc,MemPSO,Temp,nTemp,nQuad,PMax,iSD4)
 
         ! Compute gradients of shell quadruplet
 

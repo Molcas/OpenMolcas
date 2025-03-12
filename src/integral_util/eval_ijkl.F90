@@ -61,8 +61,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: iS, jS, kS, lS, nTInt
 real(kind=wp), intent(inout) :: TInt(nTInt)
-integer(kind=iwp) :: iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, kBasAO, &
-                     kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, Mem1, Mem2, MemMax, MemPrm, n, nAO, nIJKL, nSO
+integer(kind=iwp) :: iAng(4), iBasAO, iBasi, iBasn, iBsInc, ipDum, ipMem1, ipMem2, iSD4(0:nSD,4), jBasAO, jBasj, jBasn, jBsInc, &
+                     kBasAO, kBask, kBasn, kBsInc, lBasAO, lBasl, lBasn, lBsInc, Mem1, Mem2, MemMax, MemPrm, n, nAO, nIJKL, nSO
 real(kind=wp) :: Coor(3,4), Tmax
 logical(kind=iwp) :: NoInts
 real(kind=wp), pointer :: SOInt(:), AOInt(:)
@@ -129,7 +129,7 @@ else
   nSO = 0
 end if
 if ((nIrrep > 1) .and. (nSO == 0)) return
-nAO = iSD4(2,1)*iSD4(2,2)*iSD4(2,3)*iSD4(2,4)
+nAO = product(iSD4(2,:))
 
 call Coor_Setup(iSD4,nSD,Coor)
 call Int_Setup(Coor)
@@ -160,7 +160,8 @@ if (DoFock) call Dens_Infos(SCF)
 !                                                                      *
 ! Compute memory request for the primitives, i.e.
 ! how much memory is needed up to the transfer equation.
-call MemRys(iSD4(1,:),MemPrm)
+iAng(:) = iSD4(1,:)
+call MemRys(iAng,MemPrm)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

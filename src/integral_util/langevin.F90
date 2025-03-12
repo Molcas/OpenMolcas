@@ -202,8 +202,8 @@ do iAv=1,nAv
       write(Lu,11) iele,atrad,xa,ya,za
     end do
     write(Lu,*) nGrid_eff,nAnisopol
-    do i=0,nGrid_eff-1
-      write(Lu,12) (Grid(j,i+1),j=1,3),PolEf(:,i+1),DipEf(i+1),(dField(j,i+1),j=1,3),(pField(j,i),j=1,3)
+    do i=1,nGrid_eff
+      write(Lu,12) (Grid(j,i),j=1,3),PolEf(:,i),DipEf(i),(dField(j,i),j=1,3),(pField(j,i),j=1,3)
     end do
     write(Lu,*) polsi,dipsi,scala,auToK/tK
     write(Lu,*) (cordsi(k,1),k=1,3)

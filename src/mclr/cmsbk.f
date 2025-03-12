@@ -184,7 +184,7 @@
        I=IRlxRoot
        Call CSF2SD(FinCI(1+(I-1)*NCSFs),CIL,state_sym)
        CALL DCopy_(nConfL,CIL,1,CIR,1)
-       Call Densi2(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,
+       Call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,
      &              itri(ntash**2,ntash**2))
        Do iA=1,nnA
          Do jA=1,nnA
@@ -372,7 +372,7 @@
       Call mma_allocate(OCCU,nbas_tot,Label='OCCU')
       Call mma_allocate(NatCMO,ndens2,Label='NatCMO')
 
-      Call NatOrb(D1,CMO,NatCMO,OCCU)
+      Call NatOrb_MCLR(D1,CMO,NatCMO,OCCU)
       Call dmat_MCLR(NatCMO,OCCU,DAO)
       ij=0
       DO iS=1,nSym

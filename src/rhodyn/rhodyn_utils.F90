@@ -217,7 +217,7 @@ subroutine transformZ(a,u,b,order)
 
   complex(kind=wp), intent(in) :: a(:,:), u(:,:)
   complex(kind=wp), intent(out) :: b(:,:)
-  logical(kind=iwp), optional, intent(in) :: order
+  logical(kind=iwp), intent(in), optional :: order
   integer(kind=iwp) :: m, n
   complex(kind=wp), allocatable :: temp(:,:)
   logical(kind=iwp) :: order_
@@ -251,7 +251,7 @@ subroutine transformR(a,u,b,order)
 
   real(kind=wp), intent(in) :: a(:,:), u(:,:)
   real(kind=wp), intent(out) :: b(:,:)
-  logical(kind=iwp), optional, intent(in) :: order
+  logical(kind=iwp), intent(in), optional :: order
   integer(kind=iwp) :: m, n
   real(kind=wp), allocatable :: temp(:,:)
   logical(kind=iwp) :: order_
@@ -323,7 +323,7 @@ subroutine compare_matrices(A,B,n,header,thrs)
   character(len=*), intent(in) :: header
   real(kind=wp), intent(in) :: thrs
   integer(kind=iwp) :: i
-  logical :: AB_equal
+  logical(kind=iwp) :: AB_equal
 
   call dashes()
   write(u6,*) header
@@ -350,7 +350,7 @@ function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
 
   real(kind=wp) :: DCLEBS
   real(kind=wp), intent(in) :: XJ1, XJ2, XJ3, XM1, XM2, XM3
-  integer, parameter :: MAXJ = 10, MAXF = 3*MAXJ+1
+  integer(kind=iwp), parameter :: MAXJ = 10, MAXF = 3*MAXJ+1
   integer(kind=iwp), save :: icall = 0
   real(kind=wp), save :: DFACT(0:MAXF)
   real(kind=wp) :: DF, den, PRE, PRE2, SUMMA, TERM, XJSUM
@@ -734,7 +734,7 @@ end function dlt
 function check_triangle(a,b,c)
   ! boolean function, checks if arguments fulfill triangular rule
 
-  logical :: check_triangle
+  logical(kind=iwp) :: check_triangle
   integer(kind=iwp), intent(in) :: a, b, c
 
   check_triangle = .false.

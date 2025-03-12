@@ -44,8 +44,6 @@ subroutine MIJKL_INTERNAL(BUFIN)
   integer(kind=iwp), pointer :: IBUFIN(:)
   integer(kind=iwp) :: IIN
 
-  call c_f_pointer(c_loc(BUFIN),iBUFIN,[1])
-
   FINI = Zero ! dummy initialize
   NCONF = JSC(4)
   ICHK = 0
@@ -55,6 +53,7 @@ subroutine MIJKL_INTERNAL(BUFIN)
   KKBUF0 = (RTOI*(KBUFF1+2)-2)/(RTOI+1)
   KKBUF1 = RTOI*KKBUF0+KKBUF0+1
   KKBUF2 = KKBUF1+1
+  call c_f_pointer(c_loc(BUFIN),iBUFIN,[KKBUF2])
   IADR = LASTAD(1)
   do
     call iDAFILE(Lu_TiABCI,2,IBUFIN,KKBUF2,IADR)

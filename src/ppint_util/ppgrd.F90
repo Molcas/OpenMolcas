@@ -221,28 +221,28 @@ do iCnttp=1,nCnttp
 
           ! la+1, lb
 
-          call FZero(Array(iplaplb),nlaplb)
+          Array(iplaplb:iplaplb+nlaplb-1) = Zero
           call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+2,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(iplaplb),nlaplb,max(la+2,lb+1), &
                       ccr,zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
 
           ! la-1, lb
 
           if (la > 0) then
-            call FZero(Array(iplamlb),nlamlb)
+            Array(iplamlb:iplamlb+nlamlb-1) = Zero
             call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(iplamlb),nlamlb,max(la,lb+1),ccr, &
                         zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
           end if
 
           ! la, lb+1
 
-          call FZero(Array(iplalbp),nlalbp)
+          Array(iplalbp:iplalbp+nlalbp-1) = Zero
           call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb+2,Array(iplalbp),nlalbp,max(la+1,lb+2), &
                       ccr,zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
 
           ! la, lb-1
 
           if (lb > 0) then
-            call FZero(Array(iplalbm),nlalbm)
+            Array(iplalbm:iplalbm+nlalbm-1) = Zero
             call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb,Array(iplalbm),nlalbm,max(la+1,lb),ccr, &
                         zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
           end if
@@ -256,7 +256,7 @@ do iCnttp=1,nCnttp
       end do   ! iBeta
 
       !AOM<
-      if (abs(Fact-One) > 1.0e-7_wp) call dscal_(nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*mGrad,Fact,rFinal,1)
+      if (abs(Fact-One) > 1.0e-7_wp) rFinal(:,:,:,:,1:mGrad) = Fact*rFinal(:,:,:,:,1:mGrad)
       !AOM>
       if (iPrint >= 99) then
         write(u6,*) ' Result in PPGrd'

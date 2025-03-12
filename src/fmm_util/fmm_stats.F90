@@ -80,7 +80,7 @@ subroutine fmm_init_buffer_stats(mode,W_mode)
 
   implicit none
   character, intent(in)                  :: mode
-  character(len=7), optional, intent(in) :: W_mode
+  character(len=7), intent(in), optional :: W_mode
 
   select case (mode)
     case ('T')
@@ -122,7 +122,7 @@ subroutine fmm_init_matrix_stats(mode,W_mode)
 
   implicit none
   character, intent(in)                  :: mode
-  character(len=7), optional, intent(in) :: W_mode
+  character(len=7), intent(in), optional :: W_mode
 
   select case (mode)
     case ('T')

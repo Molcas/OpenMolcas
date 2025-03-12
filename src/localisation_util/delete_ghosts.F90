@@ -226,14 +226,14 @@ do iSym=1,nSym
       iD(nBmx+n_OK(iSym)) = i
     else
       n_KO = n_KO+1
-      Z(:,n_KO) = LCMO%SB(iSym)%A2(:,iCMO+i-1)
+      Z(:,n_KO) = LCMO%SB(iSym)%A2(1:nBa,iCMO+i-1)
       iD(nBmx+nSmx+n_KO) = i
     end if
   end do
 
   LCMO%SB(iSym)%A2(:,iCMO:iCMO+n_OK(iSym)-1) = X(:,1:n_OK(iSym))
   kCMO = iCMO+n_OK(iSym)
-  LCMO%SB(iSym)%A2(:,kCMO:) = Z(:,1:n_KO)
+  LCMO%SB(iSym)%A2(1:nBa,kCMO:) = Z(:,1:n_KO)
   if (.not. isCASPT2) then
     jZ = 1
     jOff = iOff+nFro(iSym)+nOkk

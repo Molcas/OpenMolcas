@@ -160,7 +160,7 @@ do iComp=1,kComp
   kChO(iComp) = jpar_p1
 end do
 
-!write(u6,*) 'pXpInt'
+!write(u6,*) 'pXInt'
 !do iComp=1,nComp
 !  write(u6,*) lOper(iComp),iChO(iComp)
 !end do

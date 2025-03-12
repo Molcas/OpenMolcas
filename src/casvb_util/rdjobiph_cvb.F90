@@ -40,7 +40,7 @@ logical(kind=iwp), parameter :: debug = .false.
 !w    NTASQR             NTATRI              NTBAS             NTBSQR
 !w    NTBTRI              NTISH             NTISQR             NTITRI
 
-! Read the table of disk adresses:
+! Read the table of disk addresses:
 lujob = 15
 call daname_cvb(lujob,fnjob)
 idisk = 0
