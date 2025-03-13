@@ -31,7 +31,7 @@
 subroutine trg_series(Nv,No,X,G)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none

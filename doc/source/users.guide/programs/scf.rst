@@ -352,6 +352,18 @@ Below is a list of keywords that should cover the needs of most users.
               </HELP>
               </KEYWORD>
 
+:kword:`EXPAnd`
+  Select method for subspace expansion in conjunction with the S-GEK method (see above).
+  Possible values are: ``1``: DIIS, ``2``: BFGS, ``3``: RS-RFO. The default is ``1``.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="EXPAND" KIND="CHOICE" LIST="1: DIIS,2: BFGS,3: RS-RFO" REQUIRE="S-GEK" LEVEL="ADVANCED">
+              %%Keyword: EXPAND <advanced>
+              <HELP>
+              Select method for subspace expansion in conjunction with the S-GEK method.
+              Possible values are: 1: DIIS, 2: BFGS, 3: RS-RFO. The default is 1.
+              </HELP>
+              </KEYWORD>
+
 :kword:`KSDFT`
   Use this keyword to do density functional theory calculations.
   This keyword should be followed by a functional keyword.
@@ -1348,7 +1360,6 @@ electron configuration :math:`\text{1a}_1^2 \text{2a}_1^2 \text{3a}_1^2 \text{1b
 
 
 .. xmldoc:: <KEYWORD MODULE="SCF" NAME="USECONVENTIONAL" KIND="SINGLE" LEVEL="UNDOCUMENTED" />
-
 
 .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FCKAUF" KIND="CHOICE" LIST="True,False" LEVEL="UNDOCUMENTED" />
 

@@ -31,7 +31,7 @@
 subroutine trg_svd(Nv,No,X,G)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none

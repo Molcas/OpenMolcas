@@ -36,7 +36,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: N, no
 real(kind=wp), intent(inout) :: A(N,N)
-integer(kind=iwp) :: i, k, nv
+integer(kind=iwp) :: i, nv
 real(kind=wp), allocatable :: B(:,:), s(:), tmp(:), V(:,:), W(:,:)
 real(kind=wp), parameter :: thrs = sqrt(epsilon(thrs))
 
@@ -57,7 +57,6 @@ if (no*nv < 1) return
 call mma_allocate(B,no,no,label='B')
 B(:,:) = A(1:no,1:no)
 
-k = min(no,nv)
 call mma_allocate(V,no,no,label='V')
 call mma_allocate(W,no,no,label='W')
 call mma_allocate(s,no,label='s')
@@ -83,7 +82,7 @@ call dgemm_('T','N',no,nv,no,One,B,no,A(1,no+1),N,Zero,tmp,no)
 call dgemm_('N','N',nv,nv,no,-One,A(no+1,1),N,tmp,no,One,A(no+1,no+1),N)
 
 ! pick up the virtual-occupied block
-tmp(:) = pack(A(no+1:,1:no),.true.)
+tmp(1:no*nv) = pack(A(no+1:,1:no),.true.)
 
 ! X = A(vo) (V scos(s) W^T)^T
 ! scos(x) = acos(x)/sqrt(1-x^2) ; scos(1) = 1

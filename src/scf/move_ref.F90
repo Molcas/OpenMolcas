@@ -17,7 +17,7 @@ subroutine Move_Ref(New_Ref)
 use LnkLst, only: GetNod, iVPtr, LLDelt, LLdGrd, LLGrad, LLlGrd, LLx, LstPtr, PutVec, SCF_V
 use InfSCF, only: CMO, CMO_Ref, Iter, Iter_Ref, Iter_Start, kOV, mOV, nD, nFro, nOcc, nOFS, nOrb, nSym, TimFld
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -191,7 +191,7 @@ do i=Iter_Start,Iter
   do iD=1,nD
     iSt = iEnd+1
     iEnd = iEnd+kOV(iD)
-    call TrGrad(X(iSt),kOV(iD),G(iSt),nOccmF(:,iD))
+    if (kOV(iD) > 0) call TrGrad(X(iSt),kOV(iD),G(iSt),nOccmF(:,iD))
   end do
 
 # ifdef _DEBUGPRINT_
@@ -222,55 +222,6 @@ CMO_Ref(:,:) = CMO(:,:)
 ! Change the reference iteration
 Iter_Ref = New_Ref
 
-#ifdef _DEBUGPRINT_
-block
-use InfSCF, only: Energy
-real(kind=wp) :: E
-real(kind=wp), allocatable :: nG(:)
-if (.true.) then
-call mma_allocate(nG,mOV,Label='nG')
-do i=Iter_Start,Iter
-  call GetNod(i,LLx,inode)
-  if (inode == 0) then
-    write(u6,*) 'inode == 0'
-    call Abend()
-  end if
-  call iVPtr(X,mOV,inode)
-  write(u6,*) 'Stored energy(i)   i=',i,Energy(i)
-  call num_energy(X,E,.false.)
-  write(u6,*) 'Computed energy(i) i=',i,E
-  if (abs(Energy(i)-E) > 1.0e-8_wp) call Abend()
-
-  if (.true.) then
-    call GetNod(i,LLlGrd,inode)
-    if (inode == 0) then
-      write(u6,*) 'inode == 0'
-      call Abend()
-    end if
-    call iVPtr(G,mOV,inode)
-    call recprt('Stored local grad','(20(F9.5))',G,nOrb(1)-nOcc(1,1),nOcc(1,1))
-    call num_grad(X,nG,.true.)
-    call recprt('Computed local grad','(20(F9.5))',nG,nOrb(1)-nOcc(1,1),nOcc(1,1))
-    if (maxval(abs(G-nG)) > 1.0e-8_wp) call Abend()
-
-    call GetNod(i,LLGrad,inode)
-    if (inode == 0) then
-      write(u6,*) 'inode == 0'
-      call Abend()
-    end if
-    call iVPtr(G,mOV,inode)
-    call recprt('Stored grad','(20(F9.5))',G,nOrb(1)-nOcc(1,1),nOcc(1,1))
-    call num_grad(X,nG,.false.)
-    call recprt('Computed grad','(20(F9.5))',nG,nOrb(1)-nOcc(1,1),nOcc(1,1))
-    write(6,*) maxval(abs(G-nG))
-    !if (maxval(abs(G-nG)) > 1.0e-8_wp) call Abend()
-  end if
-end do
-call mma_deallocate(nG)
-end if
-end block
-#endif
-
 call mma_deallocate(X)
 call mma_deallocate(dX)
 call mma_deallocate(G)
@@ -284,88 +235,5 @@ call Timing(Cpu2,Tim1,Tim2,Tim3)
 TimFld(11) = TimFld(11)+(Cpu2-Cpu1)
 
 return
-
-#ifdef _DEBUGPRINT_
-contains
-
-subroutine num_energy(q,E,p)
-
-real(kind=wp), intent(in) :: q(:)
-real(kind=wp), intent(out) :: E
-logical(kind=iwp), intent(in), optional :: p
-integer(kind=iwp) :: n
-real(kind=wp) :: E1, E2, EV
-logical(kind=iwp) :: FstItr
-real(kind=wp), allocatable :: C(:,:)
-
-call mma_allocate(C,size(CMO,1),size(CMO,2),Label='C')
-C(:,:) = CMO(:,:)
-
-FstItr = .true.
-call RotMOs(q,size(q))
-if (present(p)) then
-  n = nint(sqrt(real(size(CMO,1))))
-  if (p) call recprt('CMO','(20(F9.5))',CMO(:,1),n,n)
-end if
-call SCF_Energy(FstItr,E1,E2,EV)
-E = EV
-
-CMO(:,:) = C(:,:)
-call mma_deallocate(C)
-
-end subroutine num_energy
-
-subroutine num_grad(q,g,atzero)
-
-real(kind=wp), intent(in) :: q(:)
-real(kind=wp), intent(out) :: g(size(q))
-logical(kind=iwp), intent(in), optional :: atzero
-integer(kind=iwp) :: i, n
-real(kind=wp) :: dq(size(q)), E
-real(kind=wp), allocatable :: C(:,:), Cr(:,:)
-real(kind=wp), parameter :: h = 0.1e-4_wp
-
-call mma_allocate(C,size(CMO,1),size(CMO,2),Label='C')
-call mma_allocate(Cr,size(CMO_ref,1),size(CMO_ref,2),Label='Cr')
-C(:,:) = CMO(:,:)
-Cr(:,:) = CMO_ref(:,:)
-
-dq(:) = q(:)
-if (present(atzero)) then
-  if (atzero) then
-    call RotMOs(q,size(q))
-    CMO_ref(:,:) = CMO(:,:)
-    dq(:) = Zero
-  end if
-end if
-
-n = nint(sqrt(real(size(CMO_ref,1))))
-!call recprt('CMO_ref','(20(F9.5))',CMO_ref(:,1),n,n)
-
-do i=1,size(q)
-  dq(i) = q(i)+h
-  if (present(atzero)) then
-    if (atzero) dq(i) = h
-  end if
-  call num_energy(dq,g(i))
-  dq(i) = q(i)-h
-  if (present(atzero)) then
-    if (atzero) dq(i) = -h
-  end if
-  call num_energy(dq,E)
-  g(i) = (g(i)-E)/(Two*h)
-  dq(i) = q(i)
-  if (present(atzero)) then
-    if (atzero) dq(i) = Zero
-  end if
-end do
-
-CMO(:,:) = C(:,:)
-CMO_ref(:,:) = Cr(:,:)
-call mma_deallocate(C)
-call mma_deallocate(Cr)
-
-end subroutine num_grad
-#endif
 
 end subroutine Move_Ref

@@ -1225,7 +1225,7 @@ if (RSRFO .and. RGEK) then
 end if
 if (RGEK) then
   ! Default subspace expansion method
-  if (Expand < 0) Expand = 3 ! RS-RFO
+  if (Expand < 1) Expand = 1 ! DIIS
 end if
 
 call Put_iScalar('SCF mode',nD-1)

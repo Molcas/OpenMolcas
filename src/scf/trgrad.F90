@@ -29,7 +29,6 @@
 subroutine TrGrad(kapOV,nKapOV,Grad,nOcc)
 
 use InfSCF, only: nFro, nOrb, nSym
-use Constants, only: Zero, Pi
 use Definitions, only: wp, iwp
 
 implicit none

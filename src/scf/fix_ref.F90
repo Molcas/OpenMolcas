@@ -15,14 +15,14 @@ subroutine Fix_Ref(Old_Ref)
 ! to make them consistent with a new reference
 
 use LnkLst, only: GetNod, iVPtr, LLDelt, LLdGrd, LLGrad, LLlGrd, LLx, LstPtr, PutVec, SCF_V
-use InfSCF, only: Iter, Iter_Ref, Iter_Start, kOV, mOV, nD, nFro, nOcc, nOFS, nOrb, nSym, TimFld
+use InfSCF, only: Iter, Iter_Start, kOV, mOV, nD, nFro, nOcc, nOFS, nOrb, nSym, TimFld
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: Old_Ref
-integer(kind=iwp) :: i, iD, iEnd, inode, iNRef, iORef, iO, iOff1, iOff2, iSt, iSyBlpt, iSym, nO, nOccmF(8,nD), nOF, nVrt
+integer(kind=iwp) :: i, iD, iEnd, inode, iORef, iO, iOff1, iOff2, iSt, iSyBlpt, iSym, nO, nOccmF(8,nD), nOF, nVrt
 real(kind=wp) :: Cpu1, Cpu2, Tim1, Tim2, Tim3
 logical(kind=iwp) :: NotUnit
 real(kind=wp), allocatable :: dG(:), dX(:), G(:), RedRot(:,:), RoM(:), RotRef(:,:), tmp(:), X(:), XRef(:)
@@ -40,15 +40,12 @@ call mma_allocate(RedRot,nOFS,nD,Label='RedRot')
 call mma_allocate(tmp,mOV,Label='tmp')
 
 iORef = LstPtr(Old_Ref,LLx)   ! Pointer to X_old(i_oldref)
-iNRef = LstPtr(Iter_Ref,LLx)  ! Pointer to X_old(i_newref)
 #ifdef _DEBUGPRINT_
 write(u6,*)
 write(u6,*) 'Iter=',Iter
 write(u6,*) 'Iter_Start=',Iter_Start
-write(u6,*) 'Iter_Ref=',Iter_Ref
 write(u6,*) 'Old_Ref=',Old_Ref
 call NrmClc(SCF_V(iORef)%A,mOV,'Fix_Ref','X(i_oldref)')
-call NrmClc(SCF_V(iNRef)%A,mOV,'Fix_Ref','X(i_newref)')
 write(u6,*)
 #endif
 
