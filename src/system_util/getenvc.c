@@ -65,7 +65,7 @@ void getenvf2c(char *name, INT *ilen, char *value, INT *maxlen, INT *irl) {
     *ptr = 0;
   if ((envvar = getenvc(name0)) != NULL) {
     len = strlen(envvar);
-    if (len >= *maxlen)
+    if (len > *maxlen - 1)
       len = *maxlen - 1;
     memcpy(value, envvar, len);
     value[len] = 0;
