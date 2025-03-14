@@ -12,8 +12,7 @@
 !               Thomas Bondo Pedersen                                  *
 !***********************************************************************
 
-subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFro,nSym,nAtoms,nMxIter,Maximisation,Converged, &
-                      Debug,Silent)
+subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIter,Maximisation,Converged,Debug,Silent)
 ! Author: Y. Carissan [modified by T.B. Pedersen].
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
@@ -22,14 +21,14 @@ use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use Localisation_globals, only: BName, nAtoms
 
 implicit none
 #include "Molcas.fh"
 real(kind=wp), intent(out) :: Functional
 real(kind=wp), intent(inout) :: CMO(*)
 real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
-character(len=LenIn8), intent(in) :: BName(*) ! dimension should be tot. #bf
-integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nAtoms, nMxIter
+integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: iComp, iOpt, irc, iSyLbl, kOffC, lOaux, nBasT, nFroT, nOrb2LocT

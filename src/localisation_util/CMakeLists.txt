@@ -56,6 +56,7 @@ set (sources
      getumat_localisation.F90
      inv_fwt_haar.F90
      irnge.F90
+     localisation_globals.F90
      log2.F90
      makedomaincomplete.F90
      ortho_orb.F90
@@ -80,6 +81,9 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     localisation_globals.F90
+)
+
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
