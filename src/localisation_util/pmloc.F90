@@ -59,11 +59,10 @@ real(kind=wp), intent(in) :: Thr, ThrGrad, ThrRot
 integer(kind=iwp), intent(in) :: MxIter, nSym, nBas(nSym), nOcc(nSym), nFro(nSym)
 logical(kind=iwp), intent(in) :: Silent
 #include "Molcas.fh"
-integer(kind=iwp) :: iSym, nAtoms, nBasT, nOccT
+integer(kind=iwp) :: iSym, nBasT, nOccT
 real(kind=wp) :: Functional, ThrGLoc, ThrLoc, ThrRotLoc
 character(len=80) :: Txt
 logical(kind=iwp) :: Converged, Debug, Maximization
-character(len=LenIn8), allocatable :: myName(:)
 character(len=*), parameter :: SecNam = 'PMLoc'
 
 ! Initialization.
@@ -93,18 +92,6 @@ if (nSym /= 1) then
   return
 end if
 
-! Read number of atoms, atomic labels, and basis functions labels
-! from runfile.
-! ---------------------------------------------------------------
-
-call Get_nAtoms_All(nAtoms)
-if ((nAtoms < 1) .or. (nAtoms > MxAtom)) then
-  write(Txt,'(A,I9)') 'nAtoms =',nAtoms
-  call SysAbendMsg(SecNam,'Atom limit exceeded!',Txt)
-end if
-call mma_allocate(myName,nBasT,label='myName')
-call Get_cArray('Unique Basis Names',myName,LenIn8*nBasT)
-
 ! Localize.
 ! ---------
 
@@ -127,9 +114,7 @@ end if
 Maximization = .true.
 Converged = .false.
 Debug = .false.
-call PipekMezey(Functional,CMO,ThrLoc,ThrRotLoc,ThrGLoc,myName,nBas,nOcc,nFro,nSym,nAtoms,MxIter,Maximization,Converged,Debug, &
-                Silent)
-call mma_deallocate(myName)
+call PipekMezey(Functional,CMO,ThrLoc,ThrRotLoc,ThrGLoc,nBas,nOcc,nFro,nSym,MxIter,Maximization,Converged,Debug,Silent)
 
 ! Check convergence.
 ! ------------------
