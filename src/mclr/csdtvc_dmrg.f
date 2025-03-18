@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Yingjin Ma                                             *
-************************************************************************
-      SUBROUTINE CSDTVC_dmrg(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Yingjin Ma                                             *
+!***********************************************************************
+      SUBROUTINE CSDTVC_dmrg(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,          &
      &                  IREFSM,ICOPY,IPRNT)
-*
-* IWAY = 1 : CSF to DETERMINANT TRANSFORMATION
-* IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
-*
-* ICOPY .NE. 0 : Copy output into input
-*                so input becomes output while
-*                output remains output
-* Modified version for DMRG only -- yma
-*
+!
+! IWAY = 1 : CSF to DETERMINANT TRANSFORMATION
+! IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
+!
+! ICOPY .NE. 0 : Copy output into input
+!                so input becomes output while
+!                output remains output
+! Modified version for DMRG only -- yma
+!
       use Constants, only: Zero, One
       use MCLR_Data, only: NTYP,NCNATS,NCPCNT,NCSASM,NDPCNT,NDTASM
       IMPLICIT None
@@ -29,25 +29,25 @@
       REAL*8 DTOCMT(*)
       INTEGER ICTSDT(*)
       INTEGER IREFSM,ICOPY,IPRNT
-*
+!
       INTEGER IOFFCS,IOFFDT,IOFFCD,NDET,NCSF,ITYP,IDET,ICSF,ICNF
 
       IOFFCS = 0 ! dummy initialize
       IOFFDT = 0 ! dummy initialize
       IOFFCD = 0 ! dummy initialize
-*
+!
 
       NDET = NDTASM(IREFSM)
       NCSF = NCSASM(IREFSM)
-*
+!
       IF(IWAY .EQ. 1 ) THEN
-*
-* ===========================
-*.. CSF to DET transformation
-* ===========================
-*
+!
+! ===========================
+!.. CSF to DET transformation
+! ===========================
+!
         DETVEC(1:NDET) = Zero
-*. Multiply with  expansion matrix
+!. Multiply with  expansion matrix
         DO 100 ITYP = 1,NTYP
           call xflush(6)
           IDET = NDPCNT(ITYP)
@@ -63,28 +63,28 @@
             IOFFCD = IOFFCD + NDPCNT(ITYP-1)*NCPCNT(ITYP-1)
           END IF
           IF( IDET*ICNF*ICSF .GT. 0 ) THEN
-          CALL  DGEMM_('N','N',IDET,ICNF,ICSF,ONE ,
-     &                DTOCMT(IOFFCD),IDET,
-     &                CSFVEC(IOFFCS),ICSF,ZERO,
+          CALL  DGEMM_('N','N',IDET,ICNF,ICSF,ONE ,                     &
+     &                DTOCMT(IOFFCD),IDET,                              &
+     &                CSFVEC(IOFFCS),ICSF,ZERO,                         &
      &                DETVEC(IOFFDT),IDET)
          END IF
   100   CONTINUE
-*. Sign changes
+!. Sign changes
         CSFVEC(1:NDET) = DETVEC(1:NDET)
-*. Change to string ordering
+!. Change to string ordering
         CALL SCAVCS(DETVEC,CSFVEC,ICTSDT,NDET)
         IF(ICOPY.NE.0) CSFVEC(1:NDET) = DETVEC(1:NDET)
       ELSE
-*
-* ====================================
-*  Determinant to csf transformation
-* ====================================
-*
-C. To CSF ordering
+!
+! ====================================
+!  Determinant to csf transformation
+! ====================================
+!
+!. To CSF ordering
 
         CALL GATVCS(CSFVEC,DETVEC,ICTSDT,NDET)
         DETVEC(1:NDET) = CSFVEC(1:NDET)
-C. Multiply with CIND expansion matrix
+!. Multiply with CIND expansion matrix
         DO 200 ITYP = 1,NTYP
           IDET = NDPCNT(ITYP)
           ICSF = NCPCNT(ITYP)
@@ -99,15 +99,15 @@ C. Multiply with CIND expansion matrix
             IOFFCD = IOFFCD + NDPCNT(ITYP-1)*NCPCNT(ITYP-1)
           END IF
           IF( IDET*ICNF*ICSF .GT. 0 ) THEN
-          CALL  DGEMM_('T','N',ICSF,ICNF,IDET,ONE ,
-     &                DTOCMT(IOFFCD),IDET,
-     &                DETVEC(IOFFDT),IDET,ZERO,
+          CALL  DGEMM_('T','N',ICSF,ICNF,IDET,ONE ,                     &
+     &                DTOCMT(IOFFCD),IDET,                              &
+     &                DETVEC(IOFFDT),IDET,ZERO,                         &
      &                CSFVEC(IOFFCS),ICSF)
           END IF
   200   CONTINUE
         IF( ICOPY .NE. 0 ) DETVEC(1:NCSF) = CSFVEC(1:NCSF)
        END IF
 
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(IPRNT)
       END SUBROUTINE CSDTVC_dmrg

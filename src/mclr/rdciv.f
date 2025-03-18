@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine RdCIV()
-************************************************************************
-*                                                                      *
-*     Read the contents of the JOBIPH file.                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Read the contents of the JOBIPH file.                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use negpre, only: ERAS, LuCIV
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: LuJob
-      use input_mclr, only: nSym,lRoots,nCSF,nConf,nRS1,nRS2,nRS3,
+      use input_mclr, only: nSym,lRoots,nCSF,nConf,nRS1,nRS2,nRS3,      &
      &                      State_Sym,iSpin,iTOC,nActEl,nElec3,nHole1
       Implicit None
 #include "rasdim.fh"
@@ -36,9 +36,9 @@
 
       Call DaName(LuCIV,'ROOTS')
       iDisk=0
-*----------------------------------------------------------------------*
-*     Load the CI vector for all roots                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Load the CI vector for all roots                            *
+!----------------------------------------------------------------------*
 
       Call mma_Allocate(OCIvec,nConf,Label='OCIvec')
 
@@ -46,8 +46,8 @@
       idisk1=0
       Do i=1,lroots
        Call dDaFile(LuJob,2,OCIvec,nConf,iDisk)
-       Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,
-     &              nRs1,nRs2,nRs3,
+       Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,                    &
+     &              nRs1,nRs2,nRs3,                                     &
      &              SGS,CIS,EXS,OCIvec,1,State_Sym,State_Sym)
        NCSF(1:nSym)=CIS%NCSF(1:nSym)
        NCONF=CIS%NCSF(State_Sym)
@@ -57,9 +57,9 @@
       End Do
 
       Call mma_deAllocate(OCIvec)
-*----------------------------------------------------------------------*
-*     Load state energy                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Load state energy                                                *
+!----------------------------------------------------------------------*
 
       Call mma_allocate(Tmp,mxRoot*mxIter,Label='Tmp')
       iDisk=iToc(6)
@@ -72,7 +72,7 @@
       End Do
       End Do
       Call mma_deallocate(Tmp)
-*----------------------------------------------------------------------*
-*     exit                                                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     exit                                                             *
+!----------------------------------------------------------------------*
       End Subroutine RdCIV

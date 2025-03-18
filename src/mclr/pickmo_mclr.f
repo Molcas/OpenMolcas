@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Pickmo_MCLR(rmo,rmoaa,idsym)
       use MCLR_Data, only: ipMO, nA
       use input_mclr, only: nSym,nAsh,nOrb,nIsh
@@ -15,7 +15,7 @@
       real*8 rmo(*),rmoaa(*)
       Integer idsym
 
-      Integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA,
+      Integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA,       &
      &        ijAA, klAA, ijkl, ipi
       Integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
@@ -37,12 +37,12 @@
               klAA=iTri(kAA,lAA)
               If (ijAA.ge.klAA) Then
                ijkl=iTri(ijAA,klAA)
-               ipi=ipMO(js,ks,ls)+nIsh(is)+iA-1+
-     &          nOrb(is)*(jA-1)+nOrb(is)*nAsh(js)*
-     6          (kA-1)+nOrb(is)*nAsh(js)*nAsh(ks)*(lA-1)
-*              ipi=ipMO(js,ks,ls)+
-*    &          (nOrb(is)*(jA-1+nAsh(js)*
-*    6          (kA-1+nAsh(ks)*(lA-1))))+nish(is)+iA-1
+               ipi=ipMO(js,ks,ls)+nIsh(is)+iA-1+                        &
+     &          nOrb(is)*(jA-1)+nOrb(is)*nAsh(js)*                      &
+     &          (kA-1)+nOrb(is)*nAsh(js)*nAsh(ks)*(lA-1)
+!              ipi=ipMO(js,ks,ls)+
+!    &          (nOrb(is)*(jA-1+nAsh(js)*
+!    6          (kA-1+nAsh(ks)*(lA-1))))+nish(is)+iA-1
                rmoaa(ijkl)=rmo(ipi)
               End If
              End Do

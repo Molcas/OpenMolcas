@@ -1,34 +1,34 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Init_Data()
-************************************************************************
-*                                                                      *
-*     Initialize variables in common blocks                            *
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
-      use MCLR_Data, only: FnOne,FnJob,FnTwo,FnMol,FnRlx,FnMck,FnTemp,
-     &                             FnHlf2,FNHlf3,       FnPT2,FNTrI1,
-     &                      FNTrI2,FNTRi3,FNTRI4,FNTRI5,FNCSF2SD,
-     &                      FnMOTRA,FnQDAT,LuOne,LuJob,LuTwo,LuMol,
-     &                      LuRlx,LuMck,LuTemp,       LUHlf2,LUHlf3,
-     &                             LuPt2,LUTrI1,LUTrI2,LUTRi3,LUTRI4,
+!***********************************************************************
+!                                                                      *
+!     Initialize variables in common blocks                            *
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
+      use MCLR_Data, only: FnOne,FnJob,FnTwo,FnMol,FnRlx,FnMck,FnTemp,  &
+     &                             FnHlf2,FNHlf3,       FnPT2,FNTrI1,   &
+     &                      FNTrI2,FNTRi3,FNTRI4,FNTRI5,FNCSF2SD,       &
+     &                      FnMOTRA,FnQDAT,LuOne,LuJob,LuTwo,LuMol,     &
+     &                      LuRlx,LuMck,LuTemp,       LUHlf2,LUHlf3,    &
+     &                             LuPt2,LUTrI1,LUTrI2,LUTRi3,LUTRI4,   &
      &                      LUTRI5,LUCSF2SD,LuMOTRA,LuQDAT
       use input_mclr, only: State_Sym,nUserPT,UserP,nsRot,UserT
       Implicit None
       Integer I
-*----------------------------------------------------------------------*
-*     Define files ( file names and unit numbers )                     *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Define files ( file names and unit numbers )                     *
+!----------------------------------------------------------------------*
       FnJob=    'JOBIPH  '
       LuJob   = 10
       FnOne=    'ONEINT  '
@@ -45,14 +45,14 @@
       LuTemp  = 19
       FnCSF2SD= 'REORD   '
       LuCSF2SD= 20
-*
+!
       FnTwo= 'ORDINT  '
       LuTwo = 40
       FnHLF2='TEMP06  '
       LuHLF2= 50
       FnHLF3='TEMP07  '
       LuHLF3= 60
-*
+!
       FNTRI1='TEMP01  '
       LUTRI1= 24
       FNTRI2='TEMP02  '
@@ -63,13 +63,13 @@
       LUTRI4= 27
       FNTRI5='TEMP05  '
       LUTRI5= 28
-*     files used only within the TwoStep Run of MCLR
+!     files used only within the TwoStep Run of MCLR
       FnQDAT='QDAT    ' ! some temporary data is stored here
       LuQDAT= 29
       ! this file is exactly the same as TEMP01, but is not deleted
       FnMOTRA='MOTRA   '
       LuMOTRA=30
-*
+!
       State_Sym=1
       nUserPT=0
       UserP=1.0d0
@@ -77,8 +77,8 @@
         UserT(i)=0.0d0
       EndDo
       nsRot=0
-*
-*----------------------------------------------------------------------*
-*     Normal termination                                               *
-*----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!     Normal termination                                               *
+!----------------------------------------------------------------------*
       End Subroutine Init_Data

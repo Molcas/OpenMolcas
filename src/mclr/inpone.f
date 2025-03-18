@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine InpOne()
       use Arrays, only: CMO, Int1, KAIN1
       use OneDat, only: sOpSiz
@@ -15,7 +15,7 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: nDens2
-      use input_mclr, only: nSym,nAtoms,iSpin,nActEl,nBas,nFro,nIsh,
+      use input_mclr, only: nSym,nAtoms,iSpin,nActEl,nBas,nFro,nIsh,    &
      &                      nOrb,PotNuc
       Implicit None
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
@@ -26,7 +26,7 @@
       Real*8, Allocatable:: HTmp(:), GTmp(:)
       Integer iRC, iOpt, iiSym, iS, Leng, iNuc, iSym, iCharge, ip, ip2
       Real*8 Tot_Nuc_Charge, Tot_El_Charge, Tot_Charge, ExFac
-*
+!
       iRc=-1
       iOpt=ibset(0,sOpSiz)
       ndens2=0
@@ -59,11 +59,11 @@
          Write (6,'(A,A)') 'Label=',Label
          Call Abend()
       End If
-cnf
-*
-*     Modify the one electron Hamiltonian for reaction
-*     field and ESPF calculations
-*
+!nf
+!
+!     Modify the one electron Hamiltonian for reaction
+!     field and ESPF calculations
+!
       Tot_Nuc_Charge=Zero
       Call mma_allocate(Nuc,nAtoms,Label='Nuc')
       Call Get_dArray('Effective nuclear Charge',Nuc,nAtoms)
@@ -73,7 +73,7 @@ cnf
       Call mma_deallocate(Nuc)
       Tot_El_Charge = Zero
       Do iSym = 1, nSym
-         Tot_El_Charge = Tot_El_Charge
+         Tot_El_Charge = Tot_El_Charge                                  &
      &                 - Two*DBLE(nFro(iSym)+nIsh(iSym))
       End Do
       Tot_El_Charge = Tot_El_Charge - DBLE(nActEl)
@@ -85,55 +85,55 @@ cnf
             Write(6,*) 'Sorry, MCLR+RF NYI'
             Call Quit_OnUserError()
          End If
-*
-*------ Scratch for one- and two-electron type contributions
-*------ + variational density-matrix
-*
+!
+!------ Scratch for one- and two-electron type contributions
+!------ + variational density-matrix
+!
          Call mma_allocate(Htmp,leng,Label='Htmp')
          Call mma_allocate(Gtmp,leng,Label='Gtmp')
          Htmp(:)=Zero
          Gtmp(:)=Zero
          Call mma_allocate(D1ao,leng,Label='D1ao')
          Call Get_dArray_chk('D1ao',D1ao,leng)
-*
+!
          NonEq=.False.
          First=.True.
          Dff=.False.
          Do_DFT=.True.
          ExFac=Zero
          Call Get_dScalar('PotNuc',PotNuc)
-         Call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,
-*
-*------ Don't care about the last arguments: no (CAS-)DFT here I guess)
-*
+         Call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,     &
+!
+!------ Don't care about the last arguments: no (CAS-)DFT here I guess)
+!
      &              'SCF',ExFac,iCharge,iSpin,'1234',Do_DFT)
          Call Daxpy_(leng,One,Htmp,1,Temp1,1)
-*
-*------ Hum, where the hell is FI (Fock Inactive) ???
-*
-*        Call Daxpy_(leng,One,Gtmp,1,FI,1)
+!
+!------ Hum, where the hell is FI (Fock Inactive) ???
+!
+!        Call Daxpy_(leng,One,Gtmp,1,FI,1)
          Call mma_deallocate(Gtmp)
          Call mma_deallocate(Htmp)
          Call mma_deallocate(D1ao)
       End If
-cnf
+!nf
       ip=1
       ip2=1
       Do iS=1,nSym
         If (nBas(is).ne.0 .AND. nOrb(iS).ne.0) Then
-           Call Square(Temp1(ip),
-     &                   Temp2,
+           Call Square(Temp1(ip),                                       &
+     &                   Temp2,                                         &
      &                   1,nBas(is),nBas(is))
            ip=ip+nBas(is)*(nBas(iS)+1)/2
-           Call DGEMM_('T','N',
-     &                 nOrb(iS),nBas(iS),nBas(iS),
-     &                 1.0d0,CMO(ip2),nBas(iS),
-     &                 Temp2,nBas(iS),
+           Call DGEMM_('T','N',                                         &
+     &                 nOrb(iS),nBas(iS),nBas(iS),                      &
+     &                 1.0d0,CMO(ip2),nBas(iS),                         &
+     &                 Temp2,nBas(iS),                                  &
      &                 0.0d0,Temp3,nOrb(iS))
-           Call DGEMM_('N','N',
-     &                 nOrb(is),nOrb(iS),nBas(iS),
-     &                 1.0d0,Temp3,nOrb(iS),
-     &                 CMO(ip2),nBas(iS),
+           Call DGEMM_('N','N',                                         &
+     &                 nOrb(is),nOrb(iS),nBas(iS),                      &
+     &                 1.0d0,Temp3,nOrb(iS),                            &
+     &                 CMO(ip2),nBas(iS),                               &
      &                 0.0d0,Int1(ip2),nOrb(iS))
            ip2=ip2+nBas(is)**2
         End If

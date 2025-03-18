@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Jeppe Olsen                                      *
-************************************************************************
-      SUBROUTINE AdToR2_MCLR(RHO2,RHO2T,ITYPE,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Jeppe Olsen                                      *
+!***********************************************************************
+      SUBROUTINE AdToR2_MCLR(RHO2,RHO2T,ITYPE,                          &
      &                  NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
-*
-* Add contributions to two electron density matrix RHO2
-* output density matrix is in the form Rho2(ij,kl),(ij).ge.(kl)
-*
-*
-* Jeppe Olsen, Fall of 96
-*
-*
-* Itype = 1 => alpha-alpha or beta-beta loop
-*              input is in form Rho2t(ik,jl)
-* Itype = 2 => alpha-beta loop
-*              input is in form Rho2t(ij,kl)
-*
+!
+! Add contributions to two electron density matrix RHO2
+! output density matrix is in the form Rho2(ij,kl),(ij).ge.(kl)
+!
+!
+! Jeppe Olsen, Fall of 96
+!
+!
+! Itype = 1 => alpha-alpha or beta-beta loop
+!              input is in form Rho2t(ik,jl)
+! Itype = 2 => alpha-beta loop
+!              input is in form Rho2t(ij,kl)
+!
       IMPLICIT REAL*8(A-H,O-Z)
-*.Input
+!.Input
       DIMENSION RHO2T(*)
-*. Input and output
+!. Input and output
       DIMENSION RHO2(*)
-*
+!
       I       = 0     ! dummy initialize
       J       = 0     ! dummy initialize
       K       = 0     ! dummy initialize
@@ -45,7 +45,7 @@
       LLOFF   = 0     ! dummy initialize
       SIGN    = 0.0D0 ! dummy initialize
       IACTIVE = 0     ! dummy initialize
-*
+!
       NTEST = 000
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Welcome to ADTOR2 '
@@ -58,31 +58,31 @@
           CALL PRSYM(RHO2,NORB**2)
         END IF
         WRITE(6,*) ' RHO2T : '
-*       IF(ITYPE.EQ.1) THEN
-*         IF(IOFF.EQ.KOFF) THEN
-*           NROW = NI*(NI+1)/2
-*         ELSE
-*           NROW = NI*NK
-*         END IF
-*         IF(JOFF.EQ.LOFF) THEN
-*           NCOL = NJ*(NJ+1)/2
-*         ELSE
-*           NCOL = NJ*NL
-*         END IF
-*       ELSE IF (ITYPE.EQ.2) THEN
-*         NROW = NI*NJ
-*         NCOL = NK*NL
-*       END IF
-*       CALL WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
+!       IF(ITYPE.EQ.1) THEN
+!         IF(IOFF.EQ.KOFF) THEN
+!           NROW = NI*(NI+1)/2
+!         ELSE
+!           NROW = NI*NK
+!         END IF
+!         IF(JOFF.EQ.LOFF) THEN
+!           NCOL = NJ*(NJ+1)/2
+!         ELSE
+!           NCOL = NJ*NL
+!         END IF
+!       ELSE IF (ITYPE.EQ.2) THEN
+!         NROW = NI*NJ
+!         NCOL = NK*NL
+!       END IF
+!       CALL WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
       END IF
-*
+!
       IF(ITYPE.EQ.1) THEN
-*
-* =======================================
-*     Alpha-alpha or beta-beta term
-* =======================================
-*
-*. Four permutations
+!
+! =======================================
+!     Alpha-alpha or beta-beta term
+! =======================================
+!
+!. Four permutations
       DO IPERM = 1, 4
         IF(IPERM.EQ.1) THEN
           NII = NI
@@ -141,10 +141,10 @@
             IACTIVE = 0
           END IF
         END IF
-*
-C       IJOFF = (JJOFF-1)*NORB+IIOFF
-C       KLOFF = (LLOFF-1)*NORB+KKOFF
-C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
+!
+!       IJOFF = (JJOFF-1)*NORB+IIOFF
+!       KLOFF = (LLOFF-1)*NORB+KKOFF
+!       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
         IF(IACTIVE.EQ.1) THEN
             DO II = 1, NII
               DO JJ = 1, NJJ
@@ -200,26 +200,26 @@ C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
                         END IF
                       END IF
                       IKJLT = (JLIND-1)*NIK+IKIND
-                      RHO2(IJKL) = RHO2(IJKL)
-     &                           - SIGN*SIGNJL*SIGNIK*
+                      RHO2(IJKL) = RHO2(IJKL)                           &
+     &                           - SIGN*SIGNJL*SIGNIK*                  &
      &                             RHO2T(IKJLT)
-*. The minus : Rho2t comes as <a+i a+k aj al>, but we want
-* <a+ia+k al aj>
+!. The minus : Rho2t comes as <a+i a+k aj al>, but we want
+! <a+ia+k al aj>
                     END IF
                   END DO
                 END DO
               END DO
             END DO
-*. End of active/inactive if
+!. End of active/inactive if
         END IF
-*. End of loop over permutations
+!. End of loop over permutations
       END DO
       ELSE IF(ITYPE.EQ.2) THEN
-*
-* =======================================
-*     Alpha-alpha or beta-beta term
-* =======================================
-*
+!
+! =======================================
+!     Alpha-alpha or beta-beta term
+! =======================================
+!
       DO I = 1, NI
        DO J = 1, NJ
          DO K = 1, NK
@@ -232,14 +232,14 @@ C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
                FACTOR= 1.0D0
              END IF
              IJKL = MAX(IJ,KL)*(MAX(IJ,KL)-1)/2+MIN(IJ,KL)
-             IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI
+             IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI                         &
      &             + (J-1)*NI + I
              RHO2(IJKL) = RHO2(IJKL) + FACTOR*RHO2T(IJKLT)
             END DO
           END DO
         END DO
       END DO
-*
+!
       Else If (itype.eq.3) Then
       DO I = 1, NI
        DO J = 1, NJ
@@ -247,9 +247,9 @@ C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
            DO L = 1, NL
              IJ = (J+JOFF-2)*NORB + I+IOFF - 1
              KL = (L+LOFF-2)*NORB + K+KOFF - 1
-*            IJKL = MAX(IJ,KL)*(MAX(IJ,KL)-1)/2+MIN(IJ,KL)
+!            IJKL = MAX(IJ,KL)*(MAX(IJ,KL)-1)/2+MIN(IJ,KL)
              IJKL=(IJ-1)*NORB**2+KL
-             IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI
+             IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI                         &
      &             + (J-1)*NI + I
              RHO2(IJKL) = RHO2(IJKL) + RHO2T(IJKLT)
             END DO
@@ -258,23 +258,23 @@ C       IF(IACTIVE.EQ.1.AND.IJOFF.GE.KLOFF) THEN
       END DO
 
       END IF
-*
-*     i=1
-*     j=4
-*     k=5
-*     l=6
-*     iA1=itri((i-1)*nOrb+j,(k-1)*nOrb+l)
-*     iA2=itri((j-1)*nOrb+i,(k-1)*nOrb+l)
-*     iA3=itri((i-1)*nOrb+j,(l-1)*nOrb+k)
-*     iA4=itri((j-1)*nOrb+i,(l-1)*nOrb+k)
-*     rfel=RHO2(ia1)+RHO2(ia2)+RHO2(ia3)+RHO2(ia4)
-*     IF(rfel.NE.0.0D0) THEN
-*         Write(*,*) 'STOP'
-*     END IF
-*     IF(NTEST.GE.1000) THEN
-*        WRITE(6,*) ' Updated two-body density matrix '
-*        CALL PRSYM(RHO2,NORB**2)
-*     END IF
-*
+!
+!     i=1
+!     j=4
+!     k=5
+!     l=6
+!     iA1=itri((i-1)*nOrb+j,(k-1)*nOrb+l)
+!     iA2=itri((j-1)*nOrb+i,(k-1)*nOrb+l)
+!     iA3=itri((i-1)*nOrb+j,(l-1)*nOrb+k)
+!     iA4=itri((j-1)*nOrb+i,(l-1)*nOrb+k)
+!     rfel=RHO2(ia1)+RHO2(ia2)+RHO2(ia3)+RHO2(ia4)
+!     IF(rfel.NE.0.0D0) THEN
+!         Write(*,*) 'STOP'
+!     END IF
+!     IF(NTEST.GE.1000) THEN
+!        WRITE(6,*) ' Updated two-body density matrix '
+!        CALL PRSYM(RHO2,NORB**2)
+!     END IF
+!
       RETURN
       END

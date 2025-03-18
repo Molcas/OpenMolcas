@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine DetCtl()
       use Arrays, only: pINT1, pINT2
       use stdalloc, only: mma_allocate
@@ -15,12 +15,12 @@
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
       use MCLR_Data, only: MS2,idc,PSSIGN
       use MCLR_Data, only: FnCSF2SD, LuCSF2SD
-      use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INCORE,
+      use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INCORE,            &
      &                     ICISTR
-      use input_mclr, only: nSym,nIrrep,nsMOB,iSpin,
-     &                      nHole1,nActEl,nElec3,
+      use input_mclr, only: nSym,nIrrep,nsMOB,iSpin,                    &
+     &                      nHole1,nActEl,nElec3,                       &
      &                      nRs1,nRs2,nRs3,State_Sym
-*
+!
       Implicit None
 
       Integer iTmp, nTRas1,nTRas2,nTRas3,iSym,iDum,MNRS10,MXR4TP,MXRS30
@@ -61,21 +61,21 @@
       End Do
       MNRS10 = Max(0,2*ntRas1-nHole1)
       MXRS30 = Max(0,Min(2*ntRas3,nElec3))
-*. Initialize print flags
+!. Initialize print flags
       IPRSTR =  0
       IPRORB =  0
       IPRCIX =  0
-*. From shells to orbitals
+!. From shells to orbitals
       CALL ORBINF_MCLR(nSym,nSym,nRs1,nRs2,nRs3,mxr4tp,IPRORB) ! OK
-*. Number of string types
+!. Number of string types
       CALL STRTYP(ms2,nActEl,MNRS10,MXRS30,IPRSTR)   ! looks allright
-*. Internal string information
+!. Internal string information
       CALL STRINF(IPRSTR)     ! looks allright, no!
-*. Internal subspaces
+!. Internal subspaces
       CALL ICISPC(MNRS10,MXRS30,IPRCIX)    ! looks allright
       CALL ICISPS(IPRCIX)        ! looks allright
-*. CSF information
+!. CSF information
       CALL DANAME(LUCSF2SD,FNCSF2SD)
       CALL CSFINF(State_sym,iSpin,idum,1,IPRCIX,nsym)
-*
+!
       End Subroutine DetCtl

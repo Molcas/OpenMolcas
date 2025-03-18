@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine CI_KAP(ipcid,fock,fockOut,isym)
-*     use ipPage, only: W
+!     use ipPage, only: W
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCI, n2Dens, nDens2, nNA
@@ -114,9 +114,9 @@
         call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
         call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
 
-*       irc=ipin(ipCID)
-*       irc=ipin(ipci)
-*       call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
+!       irc=ipin(ipCID)
+!       irc=ipin(ipci)
+!       call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
         call dcopy_(ndens2,[Zero],0,Fock,1)
         call dcopy_(ndens2,[Zero],0,FockOut,1)
         d0=Zero
@@ -125,10 +125,10 @@
 
       else
 
-*
-*       irc=ipin(ipCID)
-*       irc=ipin(ipci)
-*       call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
+!
+!       irc=ipin(ipCID)
+!       irc=ipin(ipci)
+!       call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
         call dcopy_(ndens2,[Zero],0,Fock,1)
         call dcopy_(ndens2,[Zero],0,FockOut,1)
         d0=Zero
@@ -170,9 +170,9 @@
       Call mma_allocate(Pe,n2dens,Label='Pe')
       Do i=0,nroots-1
        Do j=0,nroots-1
-        r=ddot_(nconf1,ci(1+nconf1*i),1,
+        r=ddot_(nconf1,ci(1+nconf1*i),1,                                &
      &                   cid(1+nconf1*j),1)
-        Call CIDENS2(ci(1+nconf1*i),
+        Call CIDENS2(ci(1+nconf1*i),                                    &
      &               ci(1+nconf1*j),State_sym,State_sym,Pe,De)
        call daxpy_(ntash**2,-r*weight(1+i),De,1,d,1)
        call daxpy_(n2dens,-r*weight(1+i),Pe,1,p,1)

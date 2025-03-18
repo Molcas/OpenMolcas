@@ -1,64 +1,64 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Bernhardsson                                    *
-************************************************************************
-      SubRoutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,nF,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Bernhardsson                                    *
+!***********************************************************************
+      SubRoutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,nF,            &
      &                   iDSym,sign,Fact,jspin)
-*
-************************************************************************
-*
-*     Constructs the one index transformed Fock-matrixes
-*     and (pj|kl).
-*     rKappa : the transformation matrix
-*     iDSym  : Symmetry of transformation
-*     sign   : 1:real -1:complex
-*     jspin  : 0:singlet 1:triplet
-*                                                                      *
-************************************************************************
-*                                                                      *
+!
+!***********************************************************************
+!
+!     Constructs the one index transformed Fock-matrixes
+!     and (pj|kl).
+!     rKappa : the transformation matrix
+!     iDSym  : Symmetry of transformation
+!     sign   : 1:real -1:complex
+!     jspin  : 0:singlet 1:triplet
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       use Arrays, only: CMO, G1t, FAMO, FIMO
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
       use input_mclr, only: nSym,nAsh,nIsh,nBas,iMethod
       Implicit None
-      Real*8 rKappa(nDens2),rMO1(nMBA),rMO2(nMBA),FockI(nDens2),
+      Real*8 rKappa(nDens2),rMO1(nMBA),rMO2(nMBA),FockI(nDens2),        &
      &       FockA(nDens2)
       Integer nF,iDSym,jSpin
       Real*8 sign,Fact
 
       Logical lFI,lFA,lMo
       Real*8 rdum(1)
-      Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),
-     &                      DI(:), DIR(:), FI(:), FI1(:),
+      Real*8, Allocatable:: T1(:), Tmp2(:), T3(:), T4(:), DIL(:),       &
+     &                      DI(:), DIR(:), FI(:), FI1(:),               &
      &                      K1(:), DAL(:), DAR(:), DA(:), FA1(:)
       Integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, ip2, jS
       Real*8 FacR
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
-      SubRoutine Read2_ns(rMO1,rMO2,FockI,FockA,
-     &                  Temp1,nTemp,Temp2,Temp3,Temp4,
-     &                  DI13,DI24,DI,
-     &                  DA13,DA24,DA,
-     &                  rkappa,idsym,
+      SubRoutine Read2_ns(rMO1,rMO2,FockI,FockA,                        &
+     &                  Temp1,nTemp,Temp2,Temp3,Temp4,                  &
+     &                  DI13,DI24,DI,                                   &
+     &                  DA13,DA24,DA,                                   &
+     &                  rkappa,idsym,                                   &
      &                  Signa,Fact,jSpin,lfat,lfit,lMOt,CMO)
       use MCLR_Data, only: nMBA, nDens2, nCMO
       Implicit None
       real*8 rmo1(nMBA),rmo2(nMBA),FockI(nDens2),FockA(nDens2)
       Integer nTemp
-      real*8 Temp1(ntemp),Temp2(nDens2),Temp3(nDens2),Temp4(nDens2),
-     &       DI13(nDens2),DI24(nDens2),DI(nCMO),
-     &       DA13(nDens2),DA24(nDens2),DA(nCMO),
+      real*8 Temp1(ntemp),Temp2(nDens2),Temp3(nDens2),Temp4(nDens2),    &
+     &       DI13(nDens2),DI24(nDens2),DI(nCMO),                        &
+     &       DA13(nDens2),DA24(nDens2),DA(nCMO),                        &
      &       rkappa(nDens2)
       Integer iDSym
       real*8 Signa,Fact
@@ -68,14 +68,14 @@
 
       End SubRoutine Read2_ns
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*
-************************************************************************
-*
+!
+!***********************************************************************
+!
 
       ndens22=ndens2
       iAM=0
@@ -129,7 +129,7 @@
       DAL(:)=Zero
       DAR(:)=Zero
       DA(:) =Zero
-c THIS IS THE ENTIRE DENSITY FOR MULTICONF
+! THIS IS THE ENTIRE DENSITY FOR MULTICONF
       Do iS=1,nSym
          Do iB=1,nIsh(iS)
             ip=ipCM(iS)+(ib-1)*nBas(is)+ib-1
@@ -150,36 +150,36 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
        End Do
       End If
 
-*
-*     Construct {kappa,(ij|kl)} and the fock matrix contribution
-*     from one index tranformation of contracted indexes
-*
-*      If (iDsym.eq.2) Then
-*           Call RecPrt('FI',' ',FI,ndens2,1)
-*           Call RecPrt('DI',' ',DI,ndens2,1)
-*           Stop 10
-*      End If
+!
+!     Construct {kappa,(ij|kl)} and the fock matrix contribution
+!     from one index tranformation of contracted indexes
+!
+!      If (iDsym.eq.2) Then
+!           Call RecPrt('FI',' ',FI,ndens2,1)
+!           Call RecPrt('DI',' ',DI,ndens2,1)
+!           Stop 10
+!      End If
       FacR=Fact
-      Call Read2_ns(rmo1,rmo2,
-     &           FockI,FockA,
-     &           T1,imem,Tmp2,
-     &           T3,T4,
-     &           DIR,DIL,
-     &           DI,
-     &           DAR,DAL,
-     &           DA,
-     &           rkappa,idsym,Sign,Facr,jSpin,
-     &           lFA,lfi,lMo,
+      Call Read2_ns(rmo1,rmo2,                                          &
+     &           FockI,FockA,                                           &
+     &           T1,imem,Tmp2,                                          &
+     &           T3,T4,                                                 &
+     &           DIR,DIL,                                               &
+     &           DI,                                                    &
+     &           DAR,DAL,                                               &
+     &           DA,                                                    &
+     &           rkappa,idsym,Sign,Facr,jSpin,                          &
+     &           lFA,lfi,lMo,                                           &
      &           CMO)
-*      If (iDsym.eq.2) Then
-*           Call RecPrt('FI',' ',FI,ndens2,1)
-*           Call RecPrt('DI',' ',DI,ndens2,1)
-*           Stop 10
-*      End If
+!      If (iDsym.eq.2) Then
+!           Call RecPrt('FI',' ',FI,ndens2,1)
+!           Call RecPrt('DI',' ',DI,ndens2,1)
+!           Stop 10
+!      End If
       Do iS=1,nsym
       js=ieor(idsym-1,is-1)+1
-      If (nbas(is)*nbas(js).ne.0)
-     &Call DGETMO(rkappa(ipmat(is,js)),nbas(is),nbas(is),nbas(js),
+      If (nbas(is)*nbas(js).ne.0)                                       &
+     &Call DGETMO(rkappa(ipmat(is,js)),nbas(is),nbas(is),nbas(js),      &
      &            K1(ipmat(js,is)),nbas(js))
       End Do
       Call DSCAL_(ndens2,-One,K1,1)
@@ -189,46 +189,46 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
          DAR(:)=Zero
          DAL(:)=Zero
       End If
-      Call Read2_ns(rdum,rdum,
-     &           FI1,FA1,
-     &           T1,imem,Tmp2,
-     &           T3,T4,
-     &           DIR,DIL,
-     &           DI,
-     &           DAR,DAL,
-     &           DA,
-     &           K1,idsym,Sign,Facr,jSpin,
-     &           lFA,lfi,.false.,
+      Call Read2_ns(rdum,rdum,                                          &
+     &           FI1,FA1,                                               &
+     &           T1,imem,Tmp2,                                          &
+     &           T3,T4,                                                 &
+     &           DIR,DIL,                                               &
+     &           DI,                                                    &
+     &           DAR,DAL,                                               &
+     &           DA,                                                    &
+     &           K1,idsym,Sign,Facr,jSpin,                              &
+     &           lFA,lfi,.false.,                                       &
      &           CMO)
-*      If (iDsym.eq.2)
-*     &      Call RecPrt('FI1',' ',FI1,ndens2,1)
-*
-*      Calculate contribution from uncontracted indexes.
-*
+!      If (iDsym.eq.2)
+!     &      Call RecPrt('FI1',' ',FI1,ndens2,1)
+!
+!      Calculate contribution from uncontracted indexes.
+!
       Do iS=1,nSym
        jS=iEOr(iS-1,iDSym-1)+1
        If (nBas(iS)*nBas(jS).ne.0) Then
-       Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
-     &            FIMO(ipCM(iS)),nBas(is),
-     &            rkappa(ipMat(iS,jS)),nBas(iS),
+       Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,        &
+     &            FIMO(ipCM(iS)),nBas(is),                              &
+     &            rkappa(ipMat(iS,jS)),nBas(iS),                        &
      &            One,FockI(ipMat(iS,jS)),nBas(iS))
-       Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,
-     &            rkappa(ipMat(iS,jS)),nBas(is),
-     &            FIMO(ipCM(jS)),nBas(jS),
+       Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,             &
+     &            rkappa(ipMat(iS,jS)),nBas(is),                        &
+     &            FIMO(ipCM(jS)),nBas(jS),                              &
      &            One,FockI(ipMat(iS,jS)),nBas(is))
        If (iMethod.eq.2) Then
-         Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,
-     &            FAMO(ipCM(iS)),nBas(is),
-     &            rkappa(ipMat(iS,jS)),nBas(iS),
+         Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,      &
+     &            FAMO(ipCM(iS)),nBas(is),                              &
+     &            rkappa(ipMat(iS,jS)),nBas(iS),                        &
      &            One,FockA(ipMat(iS,jS)),nBas(iS))
-         Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,
-     &            rkappa(ipMat(iS,jS)),nBas(is),
-     &            FAMO(ipCM(jS)),nBas(jS),
+         Call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,           &
+     &            rkappa(ipMat(iS,jS)),nBas(is),                        &
+     &            FAMO(ipCM(jS)),nBas(jS),                              &
      &            One,FockA(ipMat(iS,jS)),nBas(is))
        End If
        End If
       End Do
-*
+!
       Call mma_deallocate(DA)
       Call mma_deallocate(DAR)
       Call mma_deallocate(DAL)
@@ -244,9 +244,9 @@ c THIS IS THE ENTIRE DENSITY FOR MULTICONF
       Call mma_deallocate(Tmp2)
       Call mma_deallocate(T1)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-c Avoid unused argument warnings
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(nF)
       End SubRoutine r2elint_ns

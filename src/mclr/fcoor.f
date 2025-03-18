@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Anders Bernhardsson                              *
+!***********************************************************************
        SubRoutine FCOOR(LUT,COOR)
-********************************************************************
-*                                                                  *
-*      Transforms a symmetry adapted gradient to unsymmetric  form *
-*                                                                  *
-*       Written by Anders Bernhardsson                             *
-*       960427                                                     *
-*                                                                  *
-********************************************************************
+!*******************************************************************
+!                                                                  *
+!      Transforms a symmetry adapted gradient to unsymmetric  form *
+!                                                                  *
+!       Written by Anders Bernhardsson                             *
+!       960427                                                     *
+!                                                                  *
+!*******************************************************************
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep
@@ -27,7 +27,7 @@
       Real*8 A(3),COOR(3,*), B(3)
       Character*(LENIN) Lab
       mdc=0
-*
+!
       Write(LUT,'(A)') '*BEGIN COORDINATES'
       Write(LUT,'(A)') '*LABEL COORDINATES CHARGE '
       Do iCnttp=1,nCnttp
@@ -40,7 +40,7 @@
                ii=nint(dbsc(icnttp)%Charge)
                Lab=dc(mdc)%LblCnt(1:LENIN)
                call setLab(Lab,ico)
-               write (LUT,'(1X,A,1X,3F20.10,1X,I3)')
+               write (LUT,'(1X,A,1X,3F20.10,1X,I3)')                    &
      &                  Lab,B(1:3),ii
              End Do
          End Do

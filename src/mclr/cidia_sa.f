@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Anders Bernhardsson                              *
+!***********************************************************************
       SubRoutine CIDIA_sa(iSym,ralp,S)
       use Str_Info, only: CNSM
       use ipPage, only: W
@@ -19,7 +19,7 @@
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF, ICISTR
       use MCLR_Data, only: NCNATS,NCPCNT,NDPCNT,NTYP
-      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,
+      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,      &
      &                      nRoots,Weight
 
       Implicit None
@@ -27,21 +27,21 @@
       Real*8 ralp(*),S(*)
 
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
-      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI,
+      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI,       &
      &        iPrnt, iP2, J
       Real*8 ECAS, WE
       Integer, External:: ipClose, ipGet, ipIn
 
-*
-*     This is just a interface to hide Jeppe from the rest of the world
-*     we dont want to let world see the work of the danish
-*     (I hope he never reads that)
-*     Anyway concerning the CSF/SD stuff.
-*     If we work with spin dependent perturbations
-*     we never use CSF's (to complicated), instead we use
-*     SD in all parts of the program,
-*     otherwise we will switch to SD representation in this routine
-*
+!
+!     This is just a interface to hide Jeppe from the rest of the world
+!     we dont want to let world see the work of the danish
+!     (I hope he never reads that)
+!     Anyway concerning the CSF/SD stuff.
+!     If we work with spin dependent perturbations
+!     we never use CSF's (to complicated), instead we use
+!     SD in all parts of the program,
+!     otherwise we will switch to SD representation in this routine
+!
 
       NSPC=1
       ISPC(1)=1
@@ -69,17 +69,17 @@
       LSPC(1)=nSD
 
       irc=ipin(ipDSDi)
-      Call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,
+      Call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,              &
      &            rin_ene+potnuc)
 
-      If (Nocsf.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,
-     &                            NCNATS(1,ISYM),NTYP,
-     &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
+      If (Nocsf.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,         &
+     &                            NCNATS(1,ISYM),NTYP,                  &
+     &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,         &
      &                            0,IDUM,IPRNT)
 
       If (nocsf.eq.0) irc=ipClose(ipDSDi)
-*     Calculate explicit part of hamiltonian
-*
+!     Calculate explicit part of hamiltonian
+!
       ipdia=ipdiai
 
       If (FANCY_PRECONDITIONER) Then
@@ -94,7 +94,7 @@
             We=Weight(j)
             ralp(j)=0.0d0
             Do i=1,ncsf(State_SYM)
-               ralp(j)=ralp(j)+1.0d0/(W(ipdiai)%Vec(i)-ECAS)*We*
+               ralp(j)=ralp(j)+1.0d0/(W(ipdiai)%Vec(i)-ECAS)*We*        &
      &                   W(ipCI)%Vec(ip2)**2
                ip2=ip2+1
             End Do

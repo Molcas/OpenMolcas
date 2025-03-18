@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine InpCtl_MCLR(iPL)
-************************************************************************
-*                                                                      *
-*     Read all relevant input data and display them                    *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Read all relevant input data and display them                    *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use Str_Info, only: DTOC
       use negpre, only: nGP
       use ipPage, only: W
@@ -29,9 +29,9 @@
       use MCLR_Data, only: ipCI
       use MCLR_Data, only: SA,ISTATE
       use MCLR_Data, only: LuPT2
-      use input_mclr, only: PT2,iMethod,TimeDep,nCSF,nSym,
-     &                      State_Sym,iMCPD,nDisp,iRoot,iSpin,nActEl,
-     &                      nElec3,nHole1,nRS1,nRS2,nRS3,Page,nRoots,
+      use input_mclr, only: PT2,iMethod,TimeDep,nCSF,nSym,              &
+     &                      State_Sym,iMCPD,nDisp,iRoot,iSpin,nActEl,   &
+     &                      nElec3,nHole1,nRS1,nRS2,nRS3,Page,nRoots,   &
      &                      nConf
       use dmrginfo, only: DoDMRG,DoMCLR,nDets_RGLR
       Implicit None
@@ -49,9 +49,9 @@
       real*8,allocatable::vector_cidmrg(:)
 ! ==========================================================
 
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
         Subroutine RdJobIph_td(CIVec)
         Real*8, Allocatable:: CIVec(:,:)
@@ -60,27 +60,27 @@
         Real*8, Allocatable:: CIVec(:,:)
         End Subroutine RdJobIph
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       !Read in interesting info from RUNFILE and ONEINT
       Call Rd1Int_MCLR()
       Call RdAB()   ! Read in orbitals, perturbation type, etc.
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call Rd2Int(iPL) ! Read in 2el header
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call RdInp_MCLR()  ! Read in input
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Default activate ippage utility
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Default activate ippage utility
+!
       ldisk  =ipopen(0,.True.)
-*
+!
       PT2 = .FALSE.
       Call Get_cArray('Relax Method',Method,8)
       If (Method.eq.'CASPT2  ') Then
@@ -90,8 +90,8 @@
         !! ignored for CASPT2 gradient/NAC.
         Call check_caspt2(1)
       End If
-*
-C     write(6,*) "iMethod:",iMethod,2
+!
+!     write(6,*) "iMethod:",iMethod,2
       If (iMethod.eq.2) Then
          If (TimeDep) Then
             Call RdJobIph_td(CIVec)
@@ -99,15 +99,15 @@ C     write(6,*) "iMethod:",iMethod,2
             Call RdJobIph(CIVec)
          End If
 
-*        Write(6,*) 'Setup of Determinant tables'
+!        Write(6,*) 'Setup of Determinant tables'
          Call DetCtl   ! set up determinant tables
-*....... Read in tables from disk
+!....... Read in tables from disk
          Call InCsfSD(State_sym,State_sym,.true.)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Write(6,*) 'Transformation of CI vector to symmetric '
-*    &             ,'group from GUGA pepresentation'
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Write(6,*) 'Transformation of CI vector to symmetric '
+!    &             ,'group from GUGA pepresentation'
 
          !> scratch  ! yma testing
 !         if(doDMRG.and.doMCLR)then
@@ -129,8 +129,8 @@ C     write(6,*) "iMethod:",iMethod,2
            if(doDMRG.and.doMCLR)then ! yma
            else
              ! transform to sym. group
-             Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,
-     &                    nRs1,nRs2,nRs3,
+             Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,              &
+     &                    nRs1,nRs2,nRs3,                               &
      &                    SGS,CIS,EXS,CITmp,1,State_Sym,State_Sym)
              NCSF(1:nSym)=CIS%NCSF(1:nSym)
              NCONF=CIS%NCSF(State_Sym)
@@ -144,7 +144,7 @@ C     write(6,*) "iMethod:",iMethod,2
 
            if(doDMRG)then !yma
              call mma_allocate(index_SD,ndets_RGLR,label='index_SD')
-             call mma_allocate(vector_cidmrg,ndets_RGLR,
+             call mma_allocate(vector_cidmrg,ndets_RGLR,                &
      &                         label='vector_cidmrg')
              call ci_reconstruct(i,ndets_RGLR,vector_cidmrg,index_SD)
              do ii=1,ndets_RGLR
@@ -152,7 +152,7 @@ C     write(6,*) "iMethod:",iMethod,2
                  vector_cidmrg(ii)=0.0d0
                end if
              end do
-             call CSDTVC_dmrg(CITmp,vector_cidmrg,2,DTOC,
+             call CSDTVC_dmrg(CITmp,vector_cidmrg,2,DTOC,               &
      &                     index_SD,ISSM,1,IPRDIA)
              call mma_deallocate(index_SD)
              call mma_deallocate(vector_cidmrg)
@@ -161,15 +161,15 @@ C     write(6,*) "iMethod:",iMethod,2
            call dcopy_(nconf,CITmp,1,CIVec(:,i),1)
            Call mma_deallocate(CITmp)
         End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          ldisk  =ipopen(nconf,page)
-*
-*        If we are computing Lagrangian multipliers we pick up all CI
-*        vectors. For Hessian calculations we pick up just one vector.
-*
-C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
+!
+!        If we are computing Lagrangian multipliers we pick up all CI
+!        vectors. For Hessian calculations we pick up just one vector.
+!
+!        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
          If (SA.or.iMCPD.or.PT2) Then
             ipcii=ipget(nconf*nroots)
             irc=ipin(ipcii)
@@ -180,37 +180,37 @@ C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
             irc=ipin(ipcii)
             call dcopy_(nConf,CIVec(:,iState),1,W(ipcii)%Vec,1)
             If (iRoot(iState).ne.1) Then
-               Write (6,*) 'McKinley does not support computation of'
+               Write (6,*) 'McKinley does not support computation of'   &
      &                   //' harmonic frequencies of excited states'
                Call Abend()
             End If
          End If
-C        irc=ipin(ipcii)
-C        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
+!        irc=ipin(ipcii)
+!        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
          Call mma_deallocate(CIVec)
-*
-*        At this point we change to ipci being the index of the CI
-*        vector in the ipage utility.
-*
+!
+!        At this point we change to ipci being the index of the CI
+!        vector in the ipage utility.
+!
          ipci=ipcii
          irc=ipout(ipci)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          If (ngp) Call rdciv()
          If (PT2) Then
            LuPT2 = isFreeUnit(LuPT2)
            Call Molcas_Open(LuPT2,'PT2_Lag')
          End If
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call InpOne()         ! read in oneham
       Call PrInp_MCLR(iPL)  ! Print all info
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Then
          Call Unused_integer(irc)

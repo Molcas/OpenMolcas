@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 
 ! *********************************************************************
       subroutine read_dmrg_parameter_for_mclr()
          use input_mclr, only: ERASSCF
-         use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2,DoMCLR,nEle_RGLR,
+         use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2,DoMCLR,nEle_RGLR,    &
      &                       MS2_RGLR,nStates_RGLR
          Implicit None
 
 
         integer ierr,i
-        open(unit=100,file="dmrg_for_mclr.parameters",
+        open(unit=100,file="dmrg_for_mclr.parameters",                  &
      &       status='OLD',action='READ',iostat=ierr)
           if(ierr.ne.0)then
             doDMRG=.false.
@@ -129,7 +129,7 @@
       Subroutine ci_reconstruct(istate,nSDET,vector,indexSD)
 
         use stdalloc, only: mma_allocate, mma_deallocate
-         use dmrginfo, only: LRRAS2,RGRAS2,nEle_RGLR,nDets_RGLR,
+         use dmrginfo, only: LRRAS2,RGRAS2,nEle_RGLR,nDets_RGLR,        &
      &                       MS2_RGLR,nStates_RGLR
         Implicit None
         character(LEN=100),allocatable :: checkpoint(:)! for many states
@@ -269,7 +269,7 @@
           write(6,*)"before get the executable file"
 
           !> get the executable file
-         call systemf("cp /home/eth/yma/Maquis_MPSLR/build/applications/
+         call systemf("cp /home/eth/yma/Maquis_MPSLR/build/applications/&
      &srcas/srcas $PWD",rc)
 
           write(6,*)"before get the executable file"
@@ -293,13 +293,13 @@
             end do
             !> The same style also used in Maquis input
             do i=1,norb
-              if(ele_orb_alpha(i).eq.1.and.ele_orb_beta(i).eq.1)
+              if(ele_orb_alpha(i).eq.1.and.ele_orb_beta(i).eq.1)        &
      &           SD_DMRG(idet)%ele_conf(i)=4
-              if(ele_orb_alpha(i).eq.1.and.ele_orb_beta(i).eq.0)
+              if(ele_orb_alpha(i).eq.1.and.ele_orb_beta(i).eq.0)        &
      &           SD_DMRG(idet)%ele_conf(i)=3
-              if(ele_orb_alpha(i).eq.0.and.ele_orb_beta(i).eq.1)
+              if(ele_orb_alpha(i).eq.0.and.ele_orb_beta(i).eq.1)        &
      &           SD_DMRG(idet)%ele_conf(i)=2
-              if(ele_orb_alpha(i).eq.0.and.ele_orb_beta(i).eq.0)
+              if(ele_orb_alpha(i).eq.0.and.ele_orb_beta(i).eq.0)        &
      &           SD_DMRG(idet)%ele_conf(i)=1
 !             write(6,*)"SD_DMRG(idet)%ele_conf(i)",SD_DMRG(idet)%ele_conf(i)
             end do
@@ -336,10 +336,10 @@
             open(unit=118,file="GET_COEFF_IN_LIST")
               call f_inquire('ELE_CISR_FOR_MCLR', IFFILE)
               if(IFFILE)then
-                tmp_run="./srcas "//trim(checkpoint(i))//
+                tmp_run="./srcas "//trim(checkpoint(i))//               &
      &       " dets.mclr 1.0 1.0 0 ELE_CISR_FOR_MCLR > "//"CIRE.scratch"
               else
-                tmp_run="./srcas "//trim(checkpoint(i))//
+                tmp_run="./srcas "//trim(checkpoint(i))//               &
      &               " dets.mclr 1.0 1.0 0 dets.mclr > "//"CIRE.scratch"
               end if
               write(118,*)trim(tmp_run)
@@ -360,7 +360,7 @@
                 SD_DMRG(idet)%dv(i)=-1.0d0*SD_DMRG(idet)%dv(i)
               else
                 dtmp=sqrt((SD_DMRG(idet)%dv(i)**2)*2.0d0)
-                SD_DMRG(idet)%dv(i)=
+                SD_DMRG(idet)%dv(i)=                                    &
      &         -1.0d0*dsign(dtmp,SD_DMRG(idet)%dv(i))
               end if
 !              write(6,*)"i,idet,dv",i,idet,SD_DMRG(idet)%dv(i)

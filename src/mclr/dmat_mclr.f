@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine Dmat_MCLR(CMO,OCC,D)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Compute the active one-body density                              *
-*                                                                      *
-*     calling arguments:                                               *
-*     CMO     : input, array of real*8                                 *
-*               MO-coefficients                                        *
-*     OCC     : input, array of real*8                                 *
-*               occupation numbers                                     *
-*     D       : output, array of real*8                                *
-*               total one-body density                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher                                                   *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Compute the active one-body density                              *
+!                                                                      *
+!     calling arguments:                                               *
+!     CMO     : input, array of real*8                                 *
+!               MO-coefficients                                        *
+!     OCC     : input, array of real*8                                 *
+!               occupation numbers                                     *
+!     D       : output, array of real*8                                *
+!               total one-body density                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher                                                   *
+!     University of Lund, Sweden, 1996                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use Constants, only: Zero
       use input_mclr, only: nSym,nBas
       Implicit None
@@ -55,8 +55,8 @@
             Do j = 1,i
               Sum = Zero
               Do k = 1,ibas
-                Sum = Sum + OCC(iOff3+k)
-     &                    * CMO(iOff1+(k-1)*iBas+i)
+                Sum = Sum + OCC(iOff3+k)                                &
+     &                    * CMO(iOff1+(k-1)*iBas+i)                     &
      &                    * CMO(iOff1+(k-1)*iBas+j)
               End Do
               D(iOff2+ii+j) = 2.0d0*Sum

@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE GTJK_MCLR(RJ,RK)
       use Arrays, only: Int2
       use MCLR_Data, only: NACOB
-C
-C     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
-C              WITH THE CHARGE DISTRIBUTION JK
-C
+!
+!     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
+!              WITH THE CHARGE DISTRIBUTION JK
+!
       IMPLICIT None
       Real*8 RJ(NACOB,NACOB),RK(NACOB,nACOB)
       Integer NT, NU, NTUK, NTUJ
       Integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-C
-C     FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
-C     THE TWO-ELECTRON INTEGRAL LIST
-C
+!
+!     FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
+!     THE TWO-ELECTRON INTEGRAL LIST
+!
       DO NT=1,NACOB
          DO  NU=1,NT
             NTUK=itri(itri(nt,nt),itri(nu,nu))
@@ -35,5 +35,5 @@ C
             RK(NU,NT)=INT2(NTUJ)
          End Do
       End Do
-C
+!
       END SUBROUTINE GTJK_MCLR

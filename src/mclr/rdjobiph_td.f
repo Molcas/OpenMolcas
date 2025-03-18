@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine RdJobIph_td(CIVec)
-************************************************************************
-*                                                                      *
-*     Read the contents of the JOBIPH file.                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Read the contents of the JOBIPH file.                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Use Arrays, only: CMO, G2t, G2sq, G1t
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA, nA
       use MCLR_Data, only: FnJob, LuJob
-      use input_mclr, only: lRoots,iPT2,nRoots,ntIsh,ntITri,
-     &                      ntAsh,ntATri,ntASqr,ntBas,ntBTri,ntBSqr,
-     &                      nSym,State_Sym,
-     &                      ERASSCF,Headerjp,iRoot,iSpin,iTOC,iTocIph,
-     &                      ntISqr,nCOnf,nActEl,nAsh,nBas,
-     &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,
+      use input_mclr, only: lRoots,iPT2,nRoots,ntIsh,ntITri,            &
+     &                      ntAsh,ntATri,ntASqr,ntBas,ntBTri,ntBSqr,    &
+     &                      nSym,State_Sym,                             &
+     &                      ERASSCF,Headerjp,iRoot,iSpin,iTOC,iTocIph,  &
+     &                      ntISqr,nCOnf,nActEl,nAsh,nBas,              &
+     &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,     &
      &                      nRS2,nRS3,TitleJP,Weight
       Implicit None
       Real*8, Allocatable:: CIVec(:,:)
@@ -40,8 +40,8 @@
       Real*8 rdum(1)
       Character(Len=1), Allocatable:: TempTxt(:)
       Real*8, Allocatable::  Tmp2(:), G2tts(:), G2tta(:)
-      Integer kRoots,iDisk,Length,iSym,      i,    j,         jpCMO,
-     &             Iter,nAct,nAct2,nAct4,iS,jS,kS,lS,nG1,nG2,iB,jB,
+      Integer kRoots,iDisk,Length,iSym,      i,    j,         jpCMO,    &
+     &             Iter,nAct,nAct2,nAct4,iS,jS,kS,lS,nG1,nG2,iB,jB,     &
      &        iDij,kB,lB,iDkl,iIJKL,iDij2,iDkl2,iIJKL2
       Real*8 Temp,PotNuc0,Fact,Factij,Factkl,Fact2
 
@@ -49,34 +49,34 @@
       integer itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
-*----------------------------------------------------------------------*
-*     Save the ROOT input parameter                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Save the ROOT input parameter                                    *
+!----------------------------------------------------------------------*
       kRoots=lRoots
-*----------------------------------------------------------------------*
-*     Read the table of disk addresses                                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read the table of disk addresses                                 *
+!----------------------------------------------------------------------*
       Call DaName(LuJob,FnJob)
       iDisk=0
       Call iDaFile(LuJob,2,iToc,iTOCIPH,iDisk)
-*----------------------------------------------------------------------*
-*     Read the the system description                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read the the system description                                  *
+!----------------------------------------------------------------------*
       Call mma_allocate(TempTxt,LENIN8*MxOrb,Label='TempTxt')
       iDisk=iToc(1)
-      Call WR_RASSCF_Info(LuJob,2,iDisk,
-     &                    nActEl,iSpin,nSym,State_sym,nFro,
-     &                    nIsh,nAsh,nDel,
-     &                    nBas,MxSym,TempTxt,LENIN8*mxorb,
-     &                    nConf,HeaderJP,144,
-     &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,
-     &                    nRoots,iRoot,mxRoot,
-     &                    nRs1,nRs2,nRs3,
+      Call WR_RASSCF_Info(LuJob,2,iDisk,                                &
+     &                    nActEl,iSpin,nSym,State_sym,nFro,             &
+     &                    nIsh,nAsh,nDel,                               &
+     &                    nBas,MxSym,TempTxt,LENIN8*mxorb,              &
+     &                    nConf,HeaderJP,144,                           &
+     &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,            &
+     &                    nRoots,iRoot,mxRoot,                          &
+     &                    nRs1,nRs2,nRs3,                               &
      &                    nHole1,nElec3,iPt2,Weight)
       Call mma_deallocate(TempTxt)
-*----------------------------------------------------------------------*
-*     Overwrite the variable lroots if approriate                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Overwrite the variable lroots if approriate                      *
+!----------------------------------------------------------------------*
       If ( kRoots.ne.-1 ) then
          If ( iPt2.ne.0 ) then
             Write (6,*)
@@ -97,9 +97,9 @@
          Write (6,*) ' nRoots.ne.1'
          Write (6,*)
       End If
-*----------------------------------------------------------------------*
-*     Precompute the total sum of variables and size of matrices       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Precompute the total sum of variables and size of matrices       *
+!----------------------------------------------------------------------*
       ntIsh=0
       ntItri=0
       ntIsqr=0
@@ -126,15 +126,15 @@
          nnA=nnA+nAsh(isym)
          Length=Length+nbas(isym)*norb(isym)
 10    Continue
-*----------------------------------------------------------------------*
-*     Load the orbitals used in the last macro iteration               *
-*----------------------------------------------------------------------*
-*
+!----------------------------------------------------------------------*
+!     Load the orbitals used in the last macro iteration               *
+!----------------------------------------------------------------------*
+!
       Call mma_allocate(CMO,Length,Label='CMO')
       Call Get_dArray_chk('Last orbitals',CMO,Length)
-*     iDisk=iToc(9)
-*     IF(IPT2.EQ.0) iDisk=iToc(2)
-*     Call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
+!     iDisk=iToc(9)
+!     IF(IPT2.EQ.0) iDisk=iToc(2)
+!     Call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
       If ( .false. ) then
          jpCMO=1
          Do 15 iSym=1,nSym
@@ -143,9 +143,9 @@
             jpCMO=jpCMO+nBas(iSym)*nBas(iSym)
 15       Continue
       End If
-*----------------------------------------------------------------------*
-*     Load the CI vector for the root lRoots                           *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Load the CI vector for the root lRoots                           *
+!----------------------------------------------------------------------*
       Call mma_allocate(CIVec,nConf,1,Label='CIVec')
       iDisk=iToc(4)
       Do i=1,lroots-1
@@ -153,9 +153,9 @@
       End Do
       Call dDaFile(LuJob,2,CIVec,nConf,iDisk)
       If (.false.) Call DVcPrt('CI coefficients',' ',CIVec,nConf)
-*----------------------------------------------------------------------*
-*     Load state energy                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Load state energy                                                *
+!----------------------------------------------------------------------*
       Call mma_allocate(Tmp2,mxRoot*mxIter,Label='Tmp2')
       iDisk=iToc(6)
       Call dDaFile(LuJob,2,Tmp2,mxRoot*mxIter,iDisk)
@@ -165,8 +165,8 @@
          If ( Temp.ne.0.0D0 ) ERASSCF(1)=Temp
 20    Continue
       Call mma_deallocate(Tmp2)
-*     If ( debug ) Write(*,*) ' RASSCF energy =',ERASSCF(1)
-*
+!     If ( debug ) Write(*,*) ' RASSCF energy =',ERASSCF(1)
+!
       nAct  = 0
       nAct2 = 0
       nAct4 = 0
@@ -182,17 +182,17 @@
         End Do
        End Do
       End Do
-*-----------------------------------
-* One electron dens - triang stor.
-*-----------------------------------
+!-----------------------------------
+! One electron dens - triang stor.
+!-----------------------------------
       nG1 = nAct*(nAct+1)/2
       Call mma_allocate(G1t,nG1,Label='G1t')
       G1t(:)=0.0d0
-*
-*--------------------------------------------------
-* Triangular part of two electron dens,
-* symmetric part
-*--------------------------------------------------
+!
+!--------------------------------------------------
+! Triangular part of two electron dens,
+! symmetric part
+!--------------------------------------------------
       nG2=nG1*(nG1+1)/2
 
       Call mma_allocate(G2sq,nAct**4,Label='G2sq')
@@ -226,13 +226,13 @@
             End Do
          End Do
       End Do
-*
-*---------------------------------------------------------------
-* Rectangular part of the two el dens,
-* symmetric and asymmetric contributions added
-* ipG2sq = ipG2tts + ipG2tta
-*-----------------------------------------------------------------
-*
+!
+!---------------------------------------------------------------
+! Rectangular part of the two el dens,
+! symmetric and asymmetric contributions added
+! ipG2sq = ipG2tts + ipG2tta
+!-----------------------------------------------------------------
+!
       Do iB=1,nAct
          Do jB=1,nact
             Factij=1.0d0
@@ -251,7 +251,7 @@
                   if(iDij.lt.iDkl .and. iB.eq.jB) fact=2.0d00
                   iijkl=itri(iDij,iDkl)
                   iijkl2=iDij2+nact**2*(iDkl2-1)
-*
+!
                   G2sq(iijkl2)=Fact*(G2tts(iijkl)+G2tta(iijkl)*Fact2)
                End Do
             End Do
@@ -259,7 +259,7 @@
       End Do
       Call mma_deallocate(G2tts)
       Call mma_deallocate(G2tta)
-*----------------------------------------------------------------------*
-*     exit                                                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     exit                                                             *
+!----------------------------------------------------------------------*
       End Subroutine RdJobIph_td

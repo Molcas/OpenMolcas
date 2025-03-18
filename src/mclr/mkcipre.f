@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine mkcipre()
       use Constants, only: One
       use negpre, only: SS, ERAS, P1, P1Inv
@@ -31,7 +31,7 @@
         SS(irec(2*i,2*i-1))=-One
         SS(irec(2*i-1,2*i))=-One
       End Do
-      SS(irec(2*lroots-1,2*lroots-1))=
+      SS(irec(2*lroots-1,2*lroots-1))=                                  &
      &     SS(irec(2*lroots-1,2*lroots-1))+One
       Call MatInvert(SS,2*lroots)
       DO I=1,lroots

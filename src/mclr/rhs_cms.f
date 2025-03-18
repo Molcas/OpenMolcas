@@ -1,43 +1,43 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Aug. 06, 2020, created this file.               *
-* ****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Aug. 06, 2020, created this file.               *
+! ****************************************************************
       subroutine RHS_CMS(Fock,CICSF)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2,nConf1,nNA,nAcPar,nAcPr2
       use input_mclr, only: nRoots,ntBas,ntAsh
       Implicit None
 
-******Input
-******Output
+!*****Input
+!*****Output
       Real*8,DIMENSION(nDens2+6)::Fock
       Real*8,DIMENSION(nconf1*nroots)::CICSF
-******Auxiliary Quantities
+!*****Auxiliary Quantities
       Real*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA)::GDMat
       Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
       INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::IndPUVX
       INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
 
-      Real*8,DIMENSION(:),Allocatable::PUVX,R,H,AXkzx,AXPzx,AXX,
+      Real*8,DIMENSION(:),Allocatable::PUVX,R,H,AXkzx,AXPzx,AXX,        &
      &bk,bP,bX,FMO1t,FMO2t,zX
-******R:     rotation matrix from inter states to final states
-*      Real*8,DIMENSION(:,:),Allocatable::GDMat
-*      INTEGER,DIMENSION(:,:,:,:),Allocatable::IndPUVX,IndTUVX
+!*****R:     rotation matrix from inter states to final states
+!      Real*8,DIMENSION(:,:),Allocatable::GDMat
+!      INTEGER,DIMENSION(:,:,:,:),Allocatable::IndPUVX,IndTUVX
       INTEGER NPUVX,NTri
 
-******MEMORY ALLOCATION
+!*****MEMORY ALLOCATION
       CALL mma_allocate(AXkzx,nDens2)
       CALL mma_allocate(AXPzx,NConf1*nRoots)
       CALL mma_allocate(AXX,((nRoots-1)*nRoots/2)**2)
@@ -47,9 +47,9 @@
       CALL mma_allocate(bP,nConf1*nRoots)
       CALL mma_allocate(bX,(nRoots-1)*nRoots/2)
       CALL mma_allocate(zX,(nRoots-1)*nRoots/2)
-*      CALL mma_allocate(GDMat,(nRoots+1)*nRoots/2,nnA,nnA)
-*      CALL mma_allocate(IndPUVX,ntBas,ntAsh,ntAsh,ntAsh)
-*      CALL mma_allocate(IndTUVX,ntAsh,ntAsh,ntAsh,ntAsh)
+!      CALL mma_allocate(GDMat,(nRoots+1)*nRoots/2,nnA,nnA)
+!      CALL mma_allocate(IndPUVX,ntBas,ntAsh,ntAsh,ntAsh)
+!      CALL mma_allocate(IndTUVX,ntAsh,ntAsh,ntAsh,ntAsh)
       Call Get_PUVXLen(NPUVX)
       CALL mma_allocate(PUVX,NPUVX)
       CALL Get_Ntri(nTri)
@@ -57,14 +57,14 @@
       NACPAR=(nnA+1)*nnA/2
       NAcPr2=(nacpar+1)*nacpar/2
       CALL mma_allocate(FMO2t,nRoots*nacpr2)
-******MAIN COURSE
-******First, read results printed in MCPDFT module
+!*****MAIN COURSE
+!*****First, read results printed in MCPDFT module
       CALL CMSRdMat(H,nRoots,nRoots,'ROT_HAM',7)
       CALL Get_DArray('MS_FINAL_ROT    ',R,nRoots**2)
       Call Read_PUVX(PUVX,NPUVX)
       CALL Get_Two_Ind(IndPUVX,IndTUVX)
       CALL GetPDFTFocks(FMO1t,FMO2t,nTri)
-******Calculate six additional terms in CMS Lagrangian equaiton
+!*****Calculate six additional terms in CMS Lagrangian equaiton
       CALL CMSRHSGDMat(GDMat)
       CALL CalcW(W,GDMAt,PUVX,NPUVX,IndTUVX)
 
@@ -82,7 +82,7 @@
 
       CALL SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
 
-******MEMORY DEALLOCATION
+!*****MEMORY DEALLOCATION
       CALL mma_deallocate(AXkzx)
       CALL mma_deallocate(AXPzx)
       CALL mma_deallocate(AXX)
@@ -96,7 +96,7 @@
       CALL mma_deallocate(FMO2t)
       CALL mma_deallocate(PUVX)
       end subroutine RHS_CMS
-******************************************************
+!*****************************************************
       Subroutine CMSRdMat(Mat,NRow,NCol,FileName,NameLen)
       Implicit None
       INTEGER NRow,NCol,NameLen
@@ -114,12 +114,12 @@
       CLOSE(LU)
 
       END Subroutine CMSRdMat
-******************************************************
+!*****************************************************
 
 
-******************************************************
+!*****************************************************
       Subroutine Get_PUVXLen(NPUVX)
-******Rewritten from mcpdft/alloc.f
+!*****Rewritten from mcpdft/alloc.f
       use input_mclr, only: nSym,nOrb,nAsh
       Implicit None
       INTEGER NPUVX
@@ -147,41 +147,41 @@
       END DO
 
       End Subroutine Get_PUVXLen
-******************************************************
+!*****************************************************
 
-******************************************************
+!*****************************************************
       Subroutine Read_PUVX(PUVX,NPUVX)
       Implicit None
       INTEGER NPUVX
       Real*8,DIMENSION(NPUVX)::PUVX
       CALL Get_Darray('TwoEIntegral    ',PUVX,nPUVX)
       End Subroutine Read_PUVX
-******************************************************
+!*****************************************************
 
       Subroutine Get_Two_Ind(Ind_PUVX,IndTUVX)
-************************************************************************
-*     Readapted from src/fock_util/get_tuvx.f
-*     Return to an index in the PUVX array given
-*     four MO indices.
+!***********************************************************************
+!     Readapted from src/fock_util/get_tuvx.f
+!     Return to an index in the PUVX array given
+!     four MO indices.
       use input_mclr, only: nSym,ntBas,ntAsh,nAsh,nIsh,nOrb
-************************************************************************
+!***********************************************************************
       Implicit None
-******Output
+!*****Output
       INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::Ind_PUVX
       INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
-******Auxiliaries
+!*****Auxiliaries
       Integer,DIMENSION(nSym):: off_Ash,off_PUVX,off_Orb
-      Integer lOrb,kOrb,jOrb,iOrb,iStack,iSym,jSym,jAsh,ijSym,kSym,
-     &        kAsh,lSym,lAsh,klSym,kl_Orb_Pairs,iAsh,iIsh,iPUVX,iV,
-     &        lMax,iX,iU,iP,iT,iO,jO,kO,lO,iIT,iIU,iTU,iIV,iIX,iVX,
+      Integer lOrb,kOrb,jOrb,iOrb,iStack,iSym,jSym,jAsh,ijSym,kSym,     &
+     &        kAsh,lSym,lAsh,klSym,kl_Orb_Pairs,iAsh,iIsh,iPUVX,iV,     &
+     &        lMax,iX,iU,iP,iT,iO,jO,kO,lO,iIT,iIU,iTU,iIV,iIX,iVX,     &
      &        iTemp
 
       Integer i,iTri
       iTri(i) = (i*i-i)/2
 
-*      generate offsets
+!      generate offsets
 
-***** Initialization
+!**** Initialization
       DO lOrb=1, ntAsh
        Do KOrb=1, ntAsh
         do JOrb=1, ntAsh
@@ -230,7 +230,7 @@
         End Do
       End Do
 
-*     select integrals with all 4 indices active
+!     select integrals with all 4 indices active
 
       Do iSym = 1,nSym
         iOrb = nOrb(iSym)
@@ -245,7 +245,7 @@
             lSym = 1 + ieor(ijSym-1,kSym-1)
             lAsh = nAsh(lSym)
 
-            If ( lSym.le.kSym .and.
+            If ( lSym.le.kSym .and.                                     &
      &           iAsh*jAsh*kAsh*lAsh.ne.0 ) then
               Do iV = 1,kAsh
                 lMax = lAsh
@@ -268,7 +268,7 @@
                           iiT = iU + off_Ash(jSym)
                           iiU = iT + off_Ash(iSym)
                         End If
-*
+!
                         iTU = iiU + iTri(iiT)
                         iiV = iV + off_Ash(kSym)
                         iiX = iX + off_Ash(lSym)
@@ -300,10 +300,10 @@
         End Do
       End Do
       End Subroutine Get_Two_Ind
-******************************************************
+!*****************************************************
 
 
-******************************************************
+!*****************************************************
       Subroutine CMSRHSGDMat(GDMat)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -311,20 +311,20 @@
       use MCLR_Data, only: XISPSM
       use input_mclr, only: State_Sym,nRoots,nCSF
       Implicit None
-*      Input
-*      Output
+!      Input
+!      Output
        Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
-*      Auxiliary quantities
+!      Auxiliary quantities
        Real*8,DIMENSION(:),Allocatable::GDArray
        Real*8,DIMENSION(n2dens)::rdum
        INTEGER I,J,IOrb,JOrb,NIJ
-*      I:state index, "excited state" of state J when I .ne. J
-*      IOrb:row index,    orbital index for state I
-*      JOrb:column index, orbital index for state J
+!      I:state index, "excited state" of state J when I .ne. J
+!      IOrb:row index,    orbital index for state I
+!      JOrb:column index, orbital index for state J
        INTEGER nConfL,nConfR,iL,iR
        Real*8,Allocatable::CIL(:),CIR(:)
-*      (D^IJ)_pq = <I|E_pq|J>, setting I>=J
-*       <I|E_pq|J>=<J|E_qp|I>
+!      (D^IJ)_pq = <I|E_pq|J>, setting I>=J
+!       <I|E_pq|J>=<J|E_qp|I>
        Call mma_allocate(GDArray,n1dens)
        iL=state_sym
        iR=state_sym
@@ -350,7 +350,7 @@
        Call mma_deallocate(CIR)
        END Subroutine CMSRHSGDMat
 
-******************************************************
+!*****************************************************
 
       subroutine CalcW(W,GDMat,PUVX,NPUVX,IndTUVX)
       use Constants, only: Zero
@@ -358,14 +358,14 @@
       use input_mclr, only: nRoots,ntAsh
       Implicit None
 
-******Output
+!*****Output
       Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
-******Input
+!*****Input
       Integer NPUVX
       Real*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA)::GDMat
       Real*8,DIMENSION(NPUVX)::PUVX
       INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
-******Auxiliary Quantities
+!*****Auxiliary Quantities
       INTEGER K,L,M,N,IKL,IMN,it,iu,iv,ix
 
       DO K=1,nRoots
@@ -380,7 +380,7 @@
            do iv=1,nnA
             do ix=1,nnA
              IF(IndTUVX(it,iu,iv,ix).ne.0) THEN
-            W(IKL,IMN)=W(IKL,IMN)+GDMat(IKL,it,iu)*GDMat(IMN,iv,ix)*
+            W(IKL,IMN)=W(IKL,IMN)+GDMat(IKL,it,iu)*GDMat(IMN,iv,ix)*    &
      &       PUVX(IndTUVX(it,iu,iv,ix))
              END IF
             end do
@@ -398,12 +398,12 @@
       use Constants, only: Zero,Two,Four
       use input_mclr, only: nRoots
       Implicit None
-******Input
+!*****Input
       Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
-******Output
+!*****Output
       Real*8,DIMENSION(((nRoots-1)*nRoots/2)**2)::AXX
 
-******Auxiliary Quantities
+!*****Auxiliary Quantities
       INTEGER K,L,M,N,IKL,IMN,IKL2,IMN2,IKK,ILL,IMM,INN,IC,nRTri
       Real*8  VKLMN,VLKNM,VKLNM,VLKMN
 
@@ -462,8 +462,8 @@
        END DO
        END DO
       END SUBROUTINE CalcAXX
-******************************************************
-******************************************************
+!*****************************************************
+!*****************************************************
       Subroutine Get_Ntri(nTri)
       use input_mclr, only: nSym,nBas
       Implicit None
@@ -474,9 +474,9 @@
        nTri=nTri+nBas(kSym)*(nBas(kSym)+1)/2
       END DO
       END Subroutine Get_Ntri
-******************************************************
+!*****************************************************
 
-******************************************************
+!*****************************************************
       Subroutine GetPDFTFocks(FMO1t,FMO2t,nTri)
       use MCLR_Data, only: nAcPr2
       use input_mclr, only: nRoots

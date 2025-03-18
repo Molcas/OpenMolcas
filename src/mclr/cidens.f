@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine CIDens(response,iLS,iRS,iL,iR,rP,rD)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -32,38 +32,38 @@
 
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
 
-* LS = CI
-*
-*     Ok, we once more want to hide Jeppe's routines from
-*     the eyes of the world, so everyone believes that I have done
-*     all the work.
-*     If we have spin dependent Hamiltonian we will work with
-*     SD in all parts of the program, no CSF is necessary,
-*     otherwise we will do the optimization in CSF's to increase
-*     convergence.
-*
-*     Input:
-*
-*     response: true if the density should be used for response calculations
-*     iLS: CI Coeff for left state
-*     iRS: CI Coeff for right state
-*     iL : Symmetry of left state
-*     iR : Symmetry of right state
-*
-*               +       +
-*     iS=1 E  =a  a  + a  a
-*           pq  ap aq   Bp Bq
-*
-*                +       +
-*     iS=-1 T  =a  a  - a a
-*            pq  ap aq   Bp Bq
-*
-*     Output:
-*
-*      rP : Two Electron Density
-*      rD : One Electron Density
-*
-*
+! LS = CI
+!
+!     Ok, we once more want to hide Jeppe's routines from
+!     the eyes of the world, so everyone believes that I have done
+!     all the work.
+!     If we have spin dependent Hamiltonian we will work with
+!     SD in all parts of the program, no CSF is necessary,
+!     otherwise we will do the optimization in CSF's to increase
+!     convergence.
+!
+!     Input:
+!
+!     response: true if the density should be used for response calculations
+!     iLS: CI Coeff for left state
+!     iRS: CI Coeff for right state
+!     iL : Symmetry of left state
+!     iR : Symmetry of right state
+!
+!               +       +
+!     iS=1 E  =a  a  + a  a
+!           pq  ap aq   Bp Bq
+!
+!                +       +
+!     iS=-1 T  =a  a  - a a
+!            pq  ap aq   Bp Bq
+!
+!     Output:
+!
+!      rP : Two Electron Density
+!      rD : One Electron Density
+!
+!
 
       If (nconf1.eq.0) return
 
@@ -105,7 +105,7 @@
               ij2=nna*(ja-1)+ia
               kl1=nnA*(ka-1)+la
               kl2=nna*(la-1)+ka
-              rp(itri(ij1,kl1))=
+              rp(itri(ij1,kl1))=                                        &
      &         Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
              End Do
             End Do
@@ -139,7 +139,7 @@
         icsm=iR
         irc=ipin(iLS)
         irc=ipin(iRS)
-        Call Densi2_mclr(2,De,Pe,W(iLS)%Vec,W(iRS)%Vec,0,0,0,n1dens,
+        Call Densi2_mclr(2,De,Pe,W(iLS)%Vec,W(iRS)%Vec,0,0,0,n1dens,    &
      &                   n2dens)
         If (.not.timedep) Then
          If (response) Then
@@ -151,7 +151,7 @@
               ij2=nna*(ja-1)+ia
               kl1=nnA*(ka-1)+la
               kl2=nna*(la-1)+ka
-              rp(itri(ij1,kl1))=
+              rp(itri(ij1,kl1))=                                        &
      &         Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
              End Do
             End Do
@@ -175,7 +175,7 @@
           iSSM=iR
           irc=ipin(iRS)
           irc=ipin(iLS)
-          Call Densi2_mclr(2,De,Pe,W(iRS)%Vec,W(iLS)%Vec,0,0,0,n1dens,
+          Call Densi2_mclr(2,De,Pe,W(iRS)%Vec,W(iLS)%Vec,0,0,0,n1dens,  &
      &                     n2dens)
           call daxpy_(n2Dens,-One,Pe,1,rp,1)
           call daxpy_(n1Dens,-One,De,1,rD,1)

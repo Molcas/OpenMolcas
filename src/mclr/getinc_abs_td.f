@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SUBROUTINE GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,
-     &                  IKSM,JLSM,INTLST,IJKLOF,NSMOB,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SUBROUTINE GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,    &
+     &                  IKSM,JLSM,INTLST,IJKLOF,NSMOB,                  &
      &                  ICTL)
-*
-* Obtain integrals
-* ICOUL = 0 :      XINT(IK,JL) = (IJ!KL) for IXCHNG = 0
-*                              = (IJ!KL)-(IL!KJ) for IXCHNG = 1
-* ICOUL = 1 :      XINT(IJ,KL) = (IJ!KL)
-*
-* Version for integrals stored in INTLST
-*
+!
+! Obtain integrals
+! ICOUL = 0 :      XINT(IK,JL) = (IJ!KL) for IXCHNG = 0
+!                              = (IJ!KL)-(IL!KJ) for IXCHNG = 1
+! ICOUL = 1 :      XINT(IJ,KL) = (IJ!KL)
+!
+! Version for integrals stored in INTLST
+!
       use MCLR_Data, only: NACOB,IBTSOB,NTSOB
       IMPLICIT None
-*
+!
       REAL*8 XINT(*)
       INTEGER ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM
       Real*8 Intlst(*)
@@ -48,9 +48,9 @@
       kOff=IBTSOB(KTP,KSM)
       lOff=IBTSOB(LTP,LSM)
       ntash=nacob
-*
-*     Collect Coulomb terms
-*
+!
+!     Collect Coulomb terms
+!
       IF(ICTL.EQ.1) THEN
       iint=1
       Do lBas=lOff,lOff+lOrb-1
@@ -71,9 +71,9 @@
         End Do
       End Do
       Else If (ICTL.eq.4) Then
-*
-*     Collect Coulomb-Exchange terms
-*
+!
+!     Collect Coulomb-Exchange terms
+!
         iint=1
         Do lBas=lOff,lOff+lOrb-1
           jMin=jOff
@@ -98,7 +98,7 @@
       Else
        Call Abend()
       End If
-*
-c Avoid unused argument warnings
+!
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer_array(IJKLOF)
       End SUBROUTINE GETINC_ABS_td

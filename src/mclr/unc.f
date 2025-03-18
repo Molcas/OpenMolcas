@@ -1,21 +1,21 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Bernhardsson                                    *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Bernhardsson                                    *
+!***********************************************************************
       SubRoutine UnC(ArrayIn,ArrayOut,dsym,Sign)
-*
-*      Uncompresses the PCG vector to a orbital rotation matrix
-*
-*      The redundant rotations are set to zero
-*
+!
+!      Uncompresses the PCG vector to a orbital rotation matrix
+!
+!      The redundant rotations are set to zero
+!
       use Constants, only: Zero, One
       use MCLR_Data, only: nDensC, nDens2, ipMat, nB
       use input_mclr, only: nSym,nIsh,nRS1,nRS2,nRS3,nOrb,TimeDep

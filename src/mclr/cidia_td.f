@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Anders Bernhardsson                              *
+!***********************************************************************
       SubRoutine CIDIA_TD(iSym)
       use Exp, only: nexp, nexp_max
       use Str_Info, only: CNSM
@@ -18,27 +18,27 @@
       use MCLR_Data, only: XISPSM
       use MCLR_Data, only: NOCSF, ICISTR
       use MCLR_Data, only: NCNATS,NCPCNT,NCSASM,NDPCNT,NTYP
-      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,
+      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,      &
      &                      TimeDep
 
       Implicit None
       Integer iSym
 
       Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
-      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI,
+      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI,   &
      &        nP2, nP1, nQ, iC, iPrnt
       Real*8 ECAS
       Integer, External:: ipClose, ipGet, ipIn, ipnOut
-*
-*     This is just a interface to hide Jeppe from the rest of the world
-*     we dont want to let world see the work of the danish
-*     (I hope he never reads that)
-*     Anyway concerning the CSF/SD stuff.
-*     If we work with spin dependent perturbations
-*     we never use CSF's (to complicated), instead we use
-*     SD in all parts of the program,
-*     otherwise we will switch to SD representation in this routine
-*
+!
+!     This is just a interface to hide Jeppe from the rest of the world
+!     we dont want to let world see the work of the danish
+!     (I hope he never reads that)
+!     Anyway concerning the CSF/SD stuff.
+!     If we work with spin dependent perturbations
+!     we never use CSF's (to complicated), instead we use
+!     SD in all parts of the program,
+!     otherwise we will switch to SD representation in this routine
+!
       NSPC=1
       ISPC(1)=1
       iSM(1)=iSym
@@ -67,16 +67,16 @@
       LSPC(1)=nSD
 
       irc=ipin(ipDSDi)
-      Call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,
+      Call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,                     &
      &           IAMCMP,rin_ene+potnuc)
-      If (NOCSF.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,
-     &                            NCNATS(1,ISYM),NTYP,
-     &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,
+      If (NOCSF.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,         &
+     &                            NCNATS(1,ISYM),NTYP,                  &
+     &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,         &
      &                            0,IDUM,IPRNT)
 
       If (nocsf.eq.0) irc=ipClose(ipDSDi)
-*     Calculate explicit part of hamiltonian
-*
+!     Calculate explicit part of hamiltonian
+!
       np2=Min(nd,nexp_max)
       np1=0
       nq=0

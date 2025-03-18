@@ -1,36 +1,36 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Real*8 Function E2(FockI,rMo,loper,idisp)
       use Arrays, only: G1t, G2t
       use MCLR_Data, only: nCMO, nNA, ipCM, nA
       use input_mclr, only: nSym,nAsh,nIsh,nOrb,ntPert
-*
+!
       Implicit None
       Integer lOper, iDisp
       Real*8 FockI(nCMO),rMO(*)
       Logical Go
       Real*8 E22
-      Integer i, j, ij, k, l, ijkl, iS, jS, iA, jA, iAA, iAB, jAA, jAB,
+      Integer i, j, ij, k, l, ijkl, iS, jS, iA, jA, iAA, iAB, jAA, jAB, &
      &        ipF
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement function
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement function
+!
       Integer itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
       E22=0.0d0
       If (loper.eq.0) Then
          Go = iDisp.lt.0
@@ -62,9 +62,9 @@
             End Do
          End Do
       End If
-*
+!
       e2=e22
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End Function E2

@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine RdJobIph(CIVec)
-************************************************************************
-*                                                                      *
-*     Read the contents of the JOBIPH file.                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Read the contents of the JOBIPH file.                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use MckDat, only: sNew
       use Arrays, only: CMO, G2t, G1t
       use gugx, only: SGS, CIS, EXS
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nA, nNA
-      use MCLR_Data, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,
+      use MCLR_Data, only: IRLXROOT,ISTATE,SA,OVERRIDE,ISNAC,NSSA,      &
      &                     NACSTATES
       use MCLR_Data, only: FnJob,FnMck,LuJob,LuMck
-      use input_mclr, only: Debug,lRoots,iPT2,nRoots,ntIsh,ntITri,
-     &                      ntAsh,ntATri,ntASqr,ntBas,ntBTri,ntBSqr,
-     &                      nSym,nCSF,State_Sym,iMCPD,iMSPD,McKinley,
-     &                      ERASSCF,Headerjp,iRoot,iSpin,iTOC,iTocIph,
-     &                      ntISqr,nCOnf,PT2,nActEl,nAsh,nBas,
-     &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,
+      use input_mclr, only: Debug,lRoots,iPT2,nRoots,ntIsh,ntITri,      &
+     &                      ntAsh,ntATri,ntASqr,ntBas,ntBTri,ntBSqr,    &
+     &                      nSym,nCSF,State_Sym,iMCPD,iMSPD,McKinley,   &
+     &                      ERASSCF,Headerjp,iRoot,iSpin,iTOC,iTocIph,  &
+     &                      ntISqr,nCOnf,PT2,nActEl,nAsh,nBas,          &
+     &                      nDel,nElec3,nFro,nHole1,nIsh,nOrb,nRS1,     &
      &                      nRS2,nRS3,TitleJP,Weight
       use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None
@@ -48,46 +48,46 @@
       Real*8 rdum(1)
       Character(Len=1), Allocatable:: TempTxt(:)
       Real*8, Allocatable::  Tmp2(:)
-      Integer kRoots,iDisk,Length,iSym,iMode,i,iGo,j,iRC,iOpt,jpCMO,k,
+      Integer kRoots,iDisk,Length,iSym,iMode,i,iGo,j,iRC,iOpt,jpCMO,k,  &
      &        iNum,Iter,nAct,nAct2,nAct4,iS,jS,kS,lS,nG1,nG2,iDummer
       Real*8 Temp,PotNuc0
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!define _DEBUGPRINT_
       debug=.FALSE.
 #ifdef _DEBUGPRINT_
       debug=.TRUE.
 #endif
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Save the ROOT input parameter                                    *
-*----------------------------------------------------------------------*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Save the ROOT input parameter                                    *
+!----------------------------------------------------------------------*
       kRoots=lRoots
-*----------------------------------------------------------------------*
-*     Read the table of disk addresses                                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read the table of disk addresses                                 *
+!----------------------------------------------------------------------*
       Call DaName(LuJob,FnJob)
       iDisk=0
       Call iDaFile(LuJob,2,iToc,iTOCIPH,iDisk)
-*----------------------------------------------------------------------*
-*     Read the the system description                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read the the system description                                  *
+!----------------------------------------------------------------------*
       Call mma_allocate(TempTxt,LENIN8*MxOrb,Label='TempTxt')
       iDisk=iToc(1)
 
 !      write(*,*)"if dmrg, it should be something else "
-      Call WR_RASSCF_Info(LuJob,2,iDisk,
-     &                    nActEl,iSpin,nSym,State_sym,nFro,
-     &                    nIsh,nAsh,nDel,
-     &                    nBas,MxSym,TempTxt,LENIN8*mxorb,
-     &                    nConf,HeaderJP,144,
-     &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,
-     &                    nRoots,iRoot,mxRoot,
-     &                    nRs1,nRs2,nRs3,
+      Call WR_RASSCF_Info(LuJob,2,iDisk,                                &
+     &                    nActEl,iSpin,nSym,State_sym,nFro,             &
+     &                    nIsh,nAsh,nDel,                               &
+     &                    nBas,MxSym,TempTxt,LENIN8*mxorb,              &
+     &                    nConf,HeaderJP,144,                           &
+     &                    TitleJP,4*18*mxTit,PotNuc0,lRoots,            &
+     &                    nRoots,iRoot,mxRoot,                          &
+     &                    nRs1,nRs2,nRs3,                               &
      &                    nHole1,nElec3,iPt2,Weight)
 
       if(doDMRG)then ! yma
@@ -100,10 +100,10 @@
 !      end do
 
       Call mma_deallocate(TempTxt)
-*----------------------------------------------------------------------*
-*     Overwrite the variable lroots if approriate, i.e if lroot        *
-*     was set by input.                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Overwrite the variable lroots if approriate, i.e if lroot        *
+!     was set by input.                                                *
+!----------------------------------------------------------------------*
       If ( kRoots.ne.-1 ) then
          If ( iPt2.ne.0 ) then
             Write (6,*) 'RdJobiph: kRoots.ne.-1 .and. iPt2.ne.0'
@@ -115,9 +115,9 @@
          lRoots=kRoots
          nRoots=1
       End If
-*----------------------------------------------------------------------*
-*     Precompute the total sum of variables and size of matrices       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Precompute the total sum of variables and size of matrices       *
+!----------------------------------------------------------------------*
       ntIsh=0
       ntItri=0
       ntIsqr=0
@@ -150,8 +150,8 @@
       if(doDMRG)then  ! yma
         imode=-99
         ! generate the Nr. of csfs in each sym
-        Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,
-     &               nRs1,nRs2,nRs3,
+        Call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,                   &
+     &               nRs1,nRs2,nRs3,                                    &
      &               SGS,CIS,EXS,rdum,imode,State_Sym,State_Sym)
         NCSF(1:nSym)=CIS%NCSF(1:nSym)
         NCONF=CIS%NCSF(State_Sym)
@@ -162,16 +162,16 @@
 !        end do
       end if
 
-*
-*----------------------------------------------------------------------*
-*     Load the orbitals used in the last macro iteration               *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Load the orbitals used in the last macro iteration               *
+!----------------------------------------------------------------------*
+!
       Call mma_allocate(CMO,Length,Label='CMO')
       Call Get_dArray_chk('Last orbitals',CMO,Length)
-C
-C     Read state for geo opt
-C
+!
+!     Read state for geo opt
+!
       Call Get_iScalar('Relax CASSCF root',irlxroot)
       Call Get_cArray('Relax Method',Method,8)
       iMCPD=.False.
@@ -183,11 +183,11 @@ C
           if(iroot(i).eq.irlxroot)istate=i
         end do
       end if
-      If (Method.eq.'CASSCFSA'.or.Method.eq.'CASPT2  '.or.
-     *    Method.eq.'RASSCFSA') Then
+      If (Method.eq.'CASSCFSA'.or.Method.eq.'CASPT2  '.or.              &
+     &    Method.eq.'RASSCFSA') Then
          Call Get_iScalar('SA ready',iGo)
          If (iGO.eq.-1) Then
-            Write (6,*) 'MCLR not implemented for SA-CASSCF'//
+            Write (6,*) 'MCLR not implemented for SA-CASSCF'//          &
      &                  ' with non-equivalent weights!'
             Call Abend()
          Else
@@ -213,7 +213,7 @@ C
                If (istate.eq.0) Found=.false.
             End If
             If (.not.Found) Then
-               Call WarningMessage(2,
+               Call WarningMessage(2,                                   &
      &              'Cannot relax a root not included in the SA')
                Call Abend()
             End If
@@ -234,23 +234,23 @@ C
          Call ClsFls_MCLR()
          Call Finish(0)
       End if
-C
-*     iDisk=iToc(9)
-*     IF(IPT2.EQ.0) iDisk=iToc(2)
-*     Call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
+!
+!     iDisk=iToc(9)
+!     IF(IPT2.EQ.0) iDisk=iToc(2)
+!     Call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
       If( .false. ) then
          jpCMO=1
          Do 15 iSym=1,nSym
-            call dcopy_(nbas(isym)*ndel(isym),[0d0],0,
-     *                 CMO(jpCMO+norb(isym)*nbas(isym)),1)
+            call dcopy_(nbas(isym)*ndel(isym),[0d0],0,                  &
+     &                 CMO(jpCMO+norb(isym)*nbas(isym)),1)
             Write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
             Call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
             jpCMO=jpCMO+nBas(iSym)*nBas(iSym)
 15       Continue
       End If
-*----------------------------------------------------------------------*
-*     Load the CI vectors for the SA roots                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Load the CI vectors for the SA roots                             *
+!----------------------------------------------------------------------*
 
 ! If doDMRG, introducing CI coeffieients later :
 !    1) only coefficients of importants DETs using MPS2CI
@@ -288,9 +288,9 @@ C
       End If
 
 !#endif
-*----------------------------------------------------------------------*
-*     Load state energy                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Load state energy                                                *
+!----------------------------------------------------------------------*
       Call mma_allocate(Tmp2,mxRoot*mxIter,Label='Tmp2')
       iDisk=iToc(6)
 #ifdef _DEBUGPRINT_
@@ -308,7 +308,7 @@ C
           ! It should be 0.0d0 in DMRG case
           Temp=Tmp2(iter*mxRoot+j)
           If ( Temp.ne.0.0D0 ) ERASSCF(i)=Temp
-*          If (debug) Write(*,*) ERASSCF(i),i
+!          If (debug) Write(*,*) ERASSCF(i),i
          End Do
       End Do
 
@@ -319,7 +319,7 @@ C
       End If
 #endif
       Call mma_deallocate(Tmp2)
-*
+!
       nAct  = 0    ! 1/2
 
       if(doDMRG)then  ! yma
@@ -359,7 +359,7 @@ C
         call dmrg_spc_change_mclr(LRras2(1:8),nash)
         call dmrg_spc_change_mclr(LRras2(1:8),nrs2)
       end if
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End Subroutine RdJobIph

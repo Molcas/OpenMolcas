@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Aug. 06, 2020, created this file.               *
-* ****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Aug. 06, 2020, created this file.               *
+! ****************************************************************
       subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero
@@ -28,7 +28,7 @@
       Real*8,DIMENSION((nRoots-1)*nRoots/2),Intent(In)::zx
       Real*8,DIMENSION(nDens2), Intent(Out)::AXkzx
 
-******Auxiliary Quantities
+!*****Auxiliary Quantities
       INTEGER,DIMENSION(nSym)::Off_Act,Off_Orb
       Real*8,DIMENSION(:),Allocatable::DKL1,DKL2,AXktmp
       INTEGER K,L,iKL,iKL2,iKK,iLL
@@ -64,9 +64,9 @@
         end do
        end do
        AXktmp(:)=Zero
-       CALL CalcAXk2(AXktmp,DKL1,DKL2,PUVX,
+       CALL CalcAXk2(AXktmp,DKL1,DKL2,PUVX,                             &
      & NPUVX,IndPUVX,Off_Act,Off_Orb)
-       CALL CalcAXk2(AXktmp,DKL2,DKL1,PUVX,
+       CALL CalcAXk2(AXktmp,DKL2,DKL1,PUVX,                             &
      & NPUVX,IndPUVX,Off_Act,Off_Orb)
        CALL Daxpy_(nDens2,zx(IKL2),AXktmp,1,Axkzx,1)
        End Do
@@ -100,7 +100,7 @@
         tempa=0.0d0
         do v=1,ntAsh
          do x=1,ntAsh
-          if(IndPUVX(p,u,v,x).ne.0)
+          if(IndPUVX(p,u,v,x).ne.0)                                     &
      &tempa=tempa+PUVX(IndPUVX(p,u,v,x))*D2((v-1)*nnA+x)
          end do
         end do
@@ -115,13 +115,13 @@
          tempa=0.0d0
          do it=1,nAsh(ISym)
           t=it+Off_Act(ISym)
-          tempa=tempa+(D1((t-1)*nnA+q)+D1((q-1)*nnA+t))
+          tempa=tempa+(D1((t-1)*nnA+q)+D1((q-1)*nnA+t))                 &
      &         *Opu((p-1)*nnA+t)
          end do
-*         write(6,*)'tempa after sum over t',tempa
-         loc1=ipMat(iSym,iSym)+(iq-1)*nOrb(iSym)+ip-1
+!         write(6,*)'tempa after sum over t',tempa
+         loc1=ipMat(iSym,iSym)+(iq-1)*nOrb(iSym)+ip-1                   &
      &   +nOrb(iSym)*NIsh(iSym)
-         loc2=ipMat(iSym,iSym)+(ip-1)*nOrb(iSym)+iq-1
+         loc2=ipMat(iSym,iSym)+(ip-1)*nOrb(iSym)+iq-1                   &
      &   +NIsh(iSym)
          AXK(loc1)=AXK(loc1)+tempa
          AXK(loc2)=AXK(loc2)-tempa
@@ -131,12 +131,12 @@
          tempa=0.0d0
          do it=1,nAsh(ISym)
           t=it+Off_Act(ISym)
-          tempa=tempa+(D1((t-1)*nnA+q)+D1((q-1)*nnA+t))
+          tempa=tempa+(D1((t-1)*nnA+q)+D1((q-1)*nnA+t))                 &
      &         *Opu((p-1)*nnA+t)
          end do
-         loc1=ipMat(iSym,iSym)+(iq-1)*nOrb(iSym)+ip-1
+         loc1=ipMat(iSym,iSym)+(iq-1)*nOrb(iSym)+ip-1                   &
      &   +nOrb(iSym)*NIsh(iSym)
-         loc2=ipMat(iSym,iSym)+(ip-1)*nOrb(iSym)+iq-1
+         loc2=ipMat(iSym,iSym)+(ip-1)*nOrb(iSym)+iq-1                   &
      &   +NIsh(iSym)
          AXK(loc1)=AXK(loc1)+tempa
          AXK(loc2)=AXK(loc2)-tempa

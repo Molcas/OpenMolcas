@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine RdDens(d1,nd1,d2,nd2)
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two
@@ -22,14 +22,14 @@
       Real*8, Allocatable:: G2tt(:), D2t(:), D1t(:)
       Integer jDisk,i,j,iB,jB,iDij,kB,lB,iDkl,iIJKL
       Real*8 W,Fact
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Integer itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       d1(:)=Zero
       Call mma_allocate(G2tt,nd2,Label='G2tt')
       Call mma_allocate(D2t,nd2,Label='D2t')
@@ -54,7 +54,7 @@
       End Do
       Call Put_dArray('D2av',G2tt,nd2)
       Call Put_dArray('D1av',D1,nd1)
-*
+!
       Do iB=1,ntash
        Do jB=1,iB
         iDij=iTri(ib,jB)
@@ -70,7 +70,7 @@
         End Do
        End Do
       End Do
-c
+!
       Call mma_deallocate(G2tt)
       Call mma_deallocate(D2t)
       Call mma_deallocate(D1t)

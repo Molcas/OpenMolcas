@@ -1,55 +1,55 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1990, Jeppe Olsen                                      *
-************************************************************************
-      SUBROUTINE CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,NRCSF,
-     &                  SCR,ICONF,NEL,
-     &                  IREFSM,NAEL,NBEL,NINOB,NACOB,ECORE,
-     &                  IPRODT,DTOC,INTSPC,ICOMBI,PSSIGN,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1990, Jeppe Olsen                                      *
+!***********************************************************************
+      SUBROUTINE CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,NRCSF,  &
+     &                  SCR,ICONF,NEL,                                  &
+     &                  IREFSM,NAEL,NBEL,NINOB,NACOB,ECORE,             &
+     &                  IPRODT,DTOC,INTSPC,ICOMBI,PSSIGN,               &
      &                  NTEST)
-*
-* Calculate  Hamiltonian block defined by configuration
-* lists ILCNF,IRCNF
-* If ISYM.Ne. 0 only the lower half of the matrix is constructed
-*
-* Jeppe Olsen April 1990
-* ========================
-*
-* No modifications
-* ================
-*
+!
+! Calculate  Hamiltonian block defined by configuration
+! lists ILCNF,IRCNF
+! If ISYM.Ne. 0 only the lower half of the matrix is constructed
+!
+! Jeppe Olsen April 1990
+! ========================
+!
+! No modifications
+! ================
+!
       IMPLICIT None
-      INTEGER ISYM,NLCNF,NRCNF,NLCSF,NRCSF,NEL,IREFSM,NAEL,NBEL,NINOB,
+      INTEGER ISYM,NLCNF,NRCNF,NLCSF,NRCSF,NEL,IREFSM,NAEL,NBEL,NINOB,  &
      &        NACOB,INTSPC,ICOMBI,NTEST
       REAL*8 ECORE,PSSIGN
-*. Specific input
+!. Specific input
       INTEGER ILCNF(*),IRCNF(*)
-*. General input
+!. General input
       INTEGER ICONF(*),IPRODT(*)
       REAL*8 DTOC(*)
-*.Output
+!.Output
       REAL*8 HSUB(*)
-*.Scratch
+!.Scratch
       REAL*8 SCR(*)
-*. Length of scratch : 2 * NEL + MXCSFC                   (used in CNHCNM)
-*                    + 6*MXDTFC+MXDTFC**2+MXDTFC+MXCSFC   (used in CNHCN2)
-*                    + MAX(MXDTFC*NEL+2*NEL,4*NORB+2*NEL) (used in DIHDJ,CNFSTR)
-*.Standard common block
-*
+!. Length of scratch : 2 * NEL + MXCSFC                   (used in CNHCNM)
+!                    + 6*MXDTFC+MXDTFC**2+MXDTFC+MXCSFC   (used in CNHCN2)
+!                    + MAX(MXDTFC*NEL+2*NEL,4*NORB+2*NEL) (used in DIHDJ,CNFSTR)
+!.Standard common block
+!
       CALL CNHCNM_INTERNAL(SCR)
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) CALL Unused_integer(NRCSF)
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       CONTAINS
       SUBROUTINE CNHCNM_INTERNAL(SCR)
       USE ISO_C_BINDING
@@ -57,33 +57,33 @@ c Avoid unused argument warnings
       IMPLICIT None
       REAL*8, TARGET :: SCR(*)
       INTEGER, POINTER :: iSCRl(:),iSCRr(:)
-      INTEGER NTERMS,NDIF0,NDIF1,NDIF2,MXCSFC,ITYP,KLFREE,KLCONF,KRCONF,
-     &        KLPHPS,IILB,ICNL,NCSFL,IIRB,MXR,ICNR,NCSFR,MDIF0,MDIF1,
+      INTEGER NTERMS,NDIF0,NDIF1,NDIF2,MXCSFC,ITYP,KLFREE,KLCONF,KRCONF,&
+     &        KLPHPS,IILB,ICNL,NCSFL,IIRB,MXR,ICNR,NCSFR,MDIF0,MDIF1,   &
      &        MDIF2,IIL,IIRMAX,IIR,IIRACT,IILACT,ILRO,ILRI,ILTYP,IRTYP
-*
+!
       NTERMS = 0
       NDIF0 = 0
       NDIF1 = 0
       NDIF2 = 0
-*. Largest configuration block possible
+!. Largest configuration block possible
       MXCSFC = 0
       DO 10 ITYP = 1, NTYP
         MXCSFC = MAX(MXCSFC,NCPCNT(ITYP) )
    10 CONTINUE
-*
-*
+!
+!
       KLFREE = 1
-*
+!
       KLCONF = KLFREE
       KLFREE = KLFREE + NEL
-*
+!
       KRCONF = KLFREE
       KLFREE = KLFREE + NEL
-*
+!
       KLPHPS = KLFREE
       KLFREE = KLFREE + MXCSFC ** 2
-*
-*. LHR
+!
+!. LHR
       IILB = 1
       CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCRl,[1])
       CALL C_F_POINTER(C_LOC(SCR(KRCONF)),iSCRr,[1])
@@ -99,19 +99,19 @@ c Avoid unused argument warnings
         DO 190 ICNR = 1, MXR
           CALL GETCNF(iSCRr,IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL,NTEST)
           NCSFR = NCPCNT(IRTYP)
-          CALL CNHCN2(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),
-     &               SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,
-     &               NINOB,ECORE,
-     &               IPRODT,DTOC,NACOB,ICOMBI,PSSIGN,
+          CALL CNHCN2(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),              &
+     &               SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,                  &
+     &               NINOB,ECORE,                                       &
+     &               IPRODT,DTOC,NACOB,ICOMBI,PSSIGN,                   &
      &               NTERMS,MDIF0,MDIF1,MDIF2,NTEST)
           NDIF0 = NDIF0 + MDIF0
           NDIF1 = NDIF1 + MDIF1
           NDIF2 = NDIF2 + MDIF2
-*
+!
 
-* Copy to HSUB matrix
+! Copy to HSUB matrix
           IF(ISYM.NE.0) THEN
-*. Copy to lower half format
+!. Copy to lower half format
             DO 160 IIL = 1, NCSFL
               IF(IILB.EQ.IIRB) THEN
                 IIRMAX = IIL
@@ -127,7 +127,7 @@ c Avoid unused argument warnings
   150         CONTINUE
   160       CONTINUE
           ELSE
-*. Pack to full format
+!. Pack to full format
             DO 260 IIL = 1, NCSFL
               DO 250 IIR = 1, NCSFR
                 IIRACT = IIRB - 1 + IIR
@@ -143,7 +143,7 @@ c Avoid unused argument warnings
       IILB = IILB + NCSFL
  200  CONTINUE
       NULLIFY(iSCRl,iSCRr)
-*
+!
       END SUBROUTINE CNHCNM_INTERNAL
-*
+!
       END SUBROUTINE CNHCNM

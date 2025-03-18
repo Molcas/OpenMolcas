@@ -1,55 +1,55 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Read22_2(MO1,Fock,Q,FockI,FockA,Temp2,Scr,Temp3)
-********************************************************************
-*                                                                  *
-*   Constructs         everything                                  *
-*                                                                  *
-*                                                                  *
-*                                                                  *
-*   Output:MO     :MO integrals                                    *
-*          Fock   :Fock matrix (one index transformed integrals)   *
-*          MOtilde:MO (one index transformed integrals)            *
-*                                                                  *
-********************************************************************
+!*******************************************************************
+!                                                                  *
+!   Constructs         everything                                  *
+!                                                                  *
+!                                                                  *
+!                                                                  *
+!   Output:MO     :MO integrals                                    *
+!          Fock   :Fock matrix (one index transformed integrals)   *
+!          MOtilde:MO (one index transformed integrals)            *
+!                                                                  *
+!*******************************************************************
       use Arrays, only: W_CMO=>CMO, W_CMO_Inv=>CMO_Inv, Int1, G1t, G2t
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One, Two, Half
       use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nB
       use MCLR_Data, only: LuQDat
-      use input_mclr, only: TwoStep,StepType,nSym,NewCho,iMethod,
-     &                      rIn_Ene,Debug,PotNuc,iAddressQDat,
+      use input_mclr, only: TwoStep,StepType,nSym,NewCho,iMethod,       &
+     &                      rIn_Ene,Debug,PotNuc,iAddressQDat,          &
      &                      LuAChoVec,LuIChoVec,nAsh,nBas,nIsh,nOrb
       Implicit None
-      Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2),
+      Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2), &
      &       Temp2(nDens2),Scr(*),Temp3(ndens2)
 
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
-      Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,
+      Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,&
      &                 FkI, FkA, QVec, CMO, CMO_Inv
-      Integer nm,iS,nAtri,nAS,jS,ijS,kS,lS,ijB1,iB,nNB,jB,ipD,iiB,jjB,
-     &        nNK,kB,kkB,nNL,lB,llB,ip2,ip1,ip,nAct,nA2,nG2,iSym,nAG2,
-     &        jSym,kSym,iOff,iOff2,iKK,iOff3,iK,iLL,iL,iKL,ipGx,kAsh,
+      Integer nm,iS,nAtri,nAS,jS,ijS,kS,lS,ijB1,iB,nNB,jB,ipD,iiB,jjB,  &
+     &        nNK,kB,kkB,nNL,lB,llB,ip2,ip1,ip,nAct,nA2,nG2,iSym,nAG2,  &
+     &        jSym,kSym,iOff,iOff2,iKK,iOff3,iK,iLL,iL,iKL,ipGx,kAsh,   &
      &        lAsh,iAsh,jAsh,iIJ,ipi,ipj,nI,nJ,ipTmp,ijB,iStore
       Real*8 Fact,rEnergy,rCora,rCoreI,rCoreA,rCor,rCore
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Integer i,j,iTri
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       call dcopy_(ndens2,[0.0d0],0,focki,1)
       call dcopy_(ndens2,[0.0d0],0,focka,1)
       If(TwoStep.and.(StepType.eq.'RUN2')) Then
@@ -70,126 +70,126 @@
         goto 101
       End If
 
-*
+!
       nas=0
       Do is=1,nSym
        nAS=nAS+nAsh(is)
       end do
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Select Case (NewCho)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
        Case (.False.)   ! Cho-MO algorithm
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Do iS=1,nSym
          Do jS=1,iS
             ijS=iEOr(iS-1,jS-1)+1
             Do kS=1,nSym
                Do lS=1,ks
-                  If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)
+                  If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)         &
      &                Go To 100
                   If (iEOr(kS-1,lS-1).ne.ijS-1) Goto 100
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
                   ijB1=0
                   Do iB=1,nB(iS)
                      nnB=nB(jS)
                      If (iS.eq.jS) nnB=iB
                      Do jB=1,nnB
-*
-*                       Read a symmetry block
-*
+!
+!                       Read a symmetry block
+!
                         Call COUL(kS,lS,iS,jS,iB,jB,Temp2,Scr)
                         ijB1=ijB1+1
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                       Add to unrotated inactive fock matrix
-*
-*                       Fkl sum(i)     2(ii|kl) -(ki|li)
-*
-*
-*                       Coulomb term: F  =2(ii|kl)
-*                                      kl
-*
-                        If (iS.eq.jS.and.iB.eq.jB .and.
-     &                     (iB.le.nIsh(iS)))
-     &                     Call DaXpY_(nOrb(kS)*nOrb(lS),Two,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                       Add to unrotated inactive fock matrix
+!
+!                       Fkl sum(i)     2(ii|kl) -(ki|li)
+!
+!
+!                       Coulomb term: F  =2(ii|kl)
+!                                      kl
+!
+                        If (iS.eq.jS.and.iB.eq.jB .and.                 &
+     &                     (iB.le.nIsh(iS)))                            &
+     &                     Call DaXpY_(nOrb(kS)*nOrb(lS),Two,           &
      &                                Temp2,1,Focki(ipCM(kS)),1)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                       Add to unrotated active fock matrix
-*
-*                       Coulomb term: F  =2(ij|kl)d   i<j
-*                                      kl          ij
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                       Add to unrotated active fock matrix
+!
+!                       Coulomb term: F  =2(ij|kl)d   i<j
+!                                      kl          ij
+!
                         If (iMethod.eq.2) Then
-*
+!
                            If (iS.eq.jS) Then
-                              If (((iB.gt.nIsh(is)).and.(nAsh(iS).ne.0))
-     &                                .and.
-     &                            ((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0))
+                              If (((iB.gt.nIsh(is)).and.(nAsh(iS).ne.0))&
+     &                                .and.                             &
+     &                            ((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0))&
      &                           ) Then
-                                 ipD=iTri(jB-nIsh(jS)+nA(jS),
+                                 ipD=iTri(jB-nIsh(jS)+nA(jS),           &
      &                               iB-nIsh(is)+nA(iS))
                                  Fact=Two
                                  If (iB.eq.jB) Fact=One
-                                 Call DaXpY_(nOrb(kS)*nOrb(lS),
-     &                                      Fact*G1t(ipD),
+                                 Call DaXpY_(nOrb(kS)*nOrb(lS),         &
+     &                                      Fact*G1t(ipD),              &
      &                                      Temp2,1,FockA(ipCM(kS)),1)
                               End If
                            End If
-*
+!
                         End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
                      End Do  ! jB
                   End Do     ! iB
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
  100              Continue
                End Do          ! lS
             End Do             ! kS
          End Do                ! jS
       End Do                   ! iS
-*                                                                      *
-************************************************************************
-*                                                                      *
-*    Construct Q matrix: Q = sum(jkl)(pj|kl)d
-*                         pi                 ijkl
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!    Construct Q matrix: Q = sum(jkl)(pj|kl)d
+!                         pi                 ijkl
 
       If (iMethod.eq.2) Then
 
          Call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
-*
-*        Sort out MO (ij|kl)
-*
+!
+!        Sort out MO (ij|kl)
+!
          Do iS=1,nSym
             Do jS=1,iS
                Do kS=1,iS
                   lS=iEOR(iEOr(iS-1,jS-1),kS-1)+1
                   If (lS.gt.kS.or.(iS.eq.kS.and.lS.gt.jS)) Goto 123
-*
+!
                   Do iB=1,nAsh(iS)
                      iib=ib+nA(iS)
                      nnb=nAsh(jS)
                      If (iS.eq.jS) nnb=ib
                      Do jB=1,nnB
                         jjb=jb+nA(jS)
-*
-                        Call Coul(kS,lS,iS,jS,iB+nIsh(iS),jB+nIsh(jS),
+!
+                        Call Coul(kS,lS,iS,jS,iB+nIsh(iS),jB+nIsh(jS),  &
      &                            Temp2,Scr)
-*
+!
                         nnK=nAsh(kS)
                         If (iS.eq.kS)  nnK=iB
                         Do kB=1,nnk
@@ -199,25 +199,25 @@
                            If (iib.eq.kkb) nnL=jB
                            Do lB=1,nnL
                               llb=lb+nA(lS)
-*
-                              ip2 = (lB+nIsh(lS)-1)*nBas(kS)
+!
+                              ip2 = (lB+nIsh(lS)-1)*nBas(kS)            &
      &                            + kB+nIsh(kS)
-*
+!
                               ip1=iTri(iTri(iib,jjb),iTri(kkb,llb))
                               MO1(ip1) = Temp2(ip2)
                            End Do
                         End Do
                      End Do
                   End Do
-*
+!
  123              Continue
                End Do
             End Do
          End Do
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Do iS=1,nSym
          kS=iS
          Do js=1,nSym
@@ -226,62 +226,62 @@
             If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)   Cycle
             Do LB=1,nB(LS)
                Do JB=1,nB(JS)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
                   Call EXCH(is,js,ks,ls,jb,lb,Temp2,Scr)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                 Add to unrotated inactive fock matrix
-*
-*                 Exchange term: F  =-(ij|kj)
-*                                 ik
-*
-                  If (jS.eq.lS.and.jB.eq.lB.and.
-     &                (jB.le.nIsh(jS)))
-     &               Call DaXpY_(nOrb(iS)*nOrb(kS),-One,
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                 Add to unrotated inactive fock matrix
+!
+!                 Exchange term: F  =-(ij|kj)
+!                                 ik
+!
+                  If (jS.eq.lS.and.jB.eq.lB.and.                        &
+     &                (jB.le.nIsh(jS)))                                 &
+     &               Call DaXpY_(nOrb(iS)*nOrb(kS),-One,                &
      &                          Temp2,1,Focki(ipCM(iS)),1)
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                 Add to unrotated active fock matrix
-*
-*                 Exchange term: F  =-1/2(ij|kl)d
-*                                 ik             jl
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                 Add to unrotated active fock matrix
+!
+!                 Exchange term: F  =-1/2(ij|kl)d
+!                                 ik             jl
+!
                   If (iMethod.eq.2) Then
                      If (jS.eq.lS) Then
-                        If (((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0)).and.
-     &                      ((lB.gt.nIsh(ls)).and.(nAsh(lS).ne.0))
+                        If (((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0)).and. &
+     &                      ((lB.gt.nIsh(ls)).and.(nAsh(lS).ne.0))      &
      &                     ) Then
-                          ipD=iTri(lB-nIsh(lS)+nA(lS),
+                          ipD=iTri(lB-nIsh(lS)+nA(lS),                  &
      &                             jB-nIsh(js)+nA(jS))
-                          Call DaXpY_(nOrb(iS)*nOrb(kS),-Half*G1t(ipD),
+                          Call DaXpY_(nOrb(iS)*nOrb(kS),-Half*G1t(ipD), &
      &                               Temp2,1,FockA(ipCM(iS)),1)
                         End If
                      End If
                   End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
                End Do
             End Do
          End Do ! jS
       End Do ! iS
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Case (.TRUE.)   ! Cho-Fock Algorithm
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
         Fake_CMO2=.true.
         DoAct=.true.
-*
-**      Construct inactive density matrix
-*
+!
+!*      Construct inactive density matrix
+!
         call dcopy_(nDens2,[0.0d0],0,temp2,1)
         Do is=1,nSym
           Do iB=1,nIsh(is)
@@ -289,28 +289,28 @@
             Temp2(ip)=2.0d0
           End Do
         End Do
-*
-**      Transform to AO basis
-*
+!
+!*      Transform to AO basis
+!
         Do iS=1,nSym
            If (nIsh(iS).ne.0) Then
               jS=iS
-              Call DGEMM_('T','T',nIsh(jS),nOrb(iS),nIsh(iS),
-     &                    1.0d0,Temp2(ipCM(iS)),nOrb(iS),
-     &                    W_CMO(ipCM(is)),nOrb(iS),
+              Call DGEMM_('T','T',nIsh(jS),nOrb(iS),nIsh(iS),           &
+     &                    1.0d0,Temp2(ipCM(iS)),nOrb(iS),               &
+     &                    W_CMO(ipCM(is)),nOrb(iS),                     &
      &                    0.0d0,Temp3(ipMat(jS,iS)),nOrb(jS))
-              Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nIsh(iS),
-     &                    1.0d0,Temp3(ipMat(jS,iS)),nOrb(iS),
-     &                    W_CMO(ipCM(js)),nOrb(jS),
+              Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nIsh(iS),           &
+     &                    1.0d0,Temp3(ipMat(jS,iS)),nOrb(iS),           &
+     &                    W_CMO(ipCM(js)),nOrb(jS),                     &
      &                    0.0d0,Temp2(ipCM(iS)),nOrb(jS))
            EndIf
         End Do
-*
+!
         Call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI')
         call Fold_Mat(nSym,nOrb,Temp2,DLT(1)%A0)
-*
-**      Form active CMO and density
-*
+!
+!*      Form active CMO and density
+!
         nAct=0
         If (iMethod.eq.2) Then
           na2=0
@@ -330,13 +330,13 @@
           Call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
           CVa(2)%A0(:)=0.0D0
           Call Allocate_DT(DA,nAsh,nAsh,nSym)
-*
+!
           ioff=0
           Do iSym=1,nSym
             ioff2 = ioff + nOrb(iSym)*nIsh(iSym)
             do ikk=1,nAsh(iSym)
                ioff3=ioff2+nOrb(iSym)*(ikk-1)
-               CVa(1)%SB(iSym)%A2(ikk,:) =
+               CVa(1)%SB(iSym)%A2(ikk,:) =                              &
      &            W_CMO(ioff3+1:ioff3+nOrb(iSym))
                ik=ikk+nA(iSym)
                Do ill=1,ikk-1
@@ -351,9 +351,9 @@
             ioff=ioff+nOrb(iSym)**2
           End Do
           DA%A0(:) = Half * DA%A0(:)
-*
-**      Expand 2-body density matrix
-*
+!
+!*      Expand 2-body density matrix
+!
           Call mma_allocate(G2x,nG2,Label='G2x')
           ipGx=0
           Do ijS=1,nSym
@@ -384,16 +384,16 @@
           Call Allocate_DT(DA,nAsh,nAsh,nSym)
           Call mma_allocate(G2x,nG2,Label='G2x')
         EndIf
-*
-**      Let's go
-*
+!
+!*      Let's go
+!
         Call Allocate_DT(JA,nBas,nBas,nSym)
         JA%A0(:)=Zero
         Call Allocate_DT(KA,nBas,nBas,nSym)
         KA%A0(:)=Zero
-*
+!
         call dcopy_(nDens2,[0.0d0],0,Q,1)
-*
+!
         Call Allocate_DT(DI,nBas,nBas,nSym,Ref=Temp2)
         Call Allocate_DT(JI(1),nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
         JI(1)%A0(:)=Zero
@@ -408,16 +408,16 @@
         Call Allocate_DT(CMO_Inv,nBas,nBas,nSym,Ref=W_CMO_Inv)
         istore=1 ! Ask to store the half-transformed vectors
 
-        CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
-     &                   MO1,QVec,CVa,CMO,CMO_inv,
-     &                   nIsh,nAsh,doAct,Fake_CMO2,
+        CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,       &
+     &                   MO1,QVec,CVa,CMO,CMO_inv,                      &
+     &                   nIsh,nAsh,doAct,Fake_CMO2,                     &
      &                   LuAChoVec,LuIChoVec,istore)
 
         nAtri=nAct*(nAct+1)/2
         nAtri=nAtri*(nAtri+1)/2
         Call DScal_(nAtri,0.25D0,MO1,1)
         FkI%A0(:) = -Half * FkI%A0(:)
-*
+!
         Call Deallocate_DT(CMO_Inv)
         Call Deallocate_DT(CMO)
         Call Deallocate_DT(QVec)
@@ -433,19 +433,19 @@
         Call Deallocate_DT(CVa(2))
         Call Deallocate_DT(CVa(1))
         Call deallocate_DT(DA)
-*
+!
         Call GADSum(FockI,nDens2)
         Call GADSum(FockA,nDens2)
         Call GADSum(    Q,nDens2)
         Call GADSum(  MO1,nAtri)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End Select
-*                                                                      *
-************************************************************************
-*                                                                      *
-*#define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Do iSym = 1, nSym
         Write (6,*) 'iSym=',iSym
@@ -459,22 +459,22 @@
 #endif
       Call DaXpY_(ndens2,One,Int1,1,FockI,1)
       call dcopy_(ndens2,[0.0d0],0,Fock,1)
-*
+!
       Do iS=1,nSym
          If (nOrb(iS).eq.0) Go To 300
-*
-         If (nIsh(iS).gt.0)
-     &      Call DYaX(nOrb(iS)*nIsh(is),2.0d0,
-     &                FockI(ipCM(iS)),1,
+!
+         If (nIsh(iS).gt.0)                                             &
+     &      Call DYaX(nOrb(iS)*nIsh(is),2.0d0,                          &
+     &                FockI(ipCM(iS)),1,                                &
      &                Fock (ipCM(iS)),1)
          If (iMethod.eq.2) Then
-            If (nIsh(iS).gt.0)
-     &         Call DaXpY_(nOrb(iS)*nIsh(is),2.0d0,
-     &                    FockA(ipCM(iS)),1,
+            If (nIsh(iS).gt.0)                                          &
+     &         Call DaXpY_(nOrb(iS)*nIsh(is),2.0d0,                     &
+     &                    FockA(ipCM(iS)),1,                            &
      &                    Fock (ipCM(iS)),1)
-            If (nAsh(iS).gt.0)
-     &         Call DYaX(nOrb(iS)*nAsh(is),1.0d0,
-     &                   Q(ipMatba(iS,is)),1,
+            If (nAsh(iS).gt.0)                                          &
+     &         Call DYaX(nOrb(iS)*nAsh(is),1.0d0,                       &
+     &                   Q(ipMatba(iS,is)),1,                           &
      &                   Fock(ipCM(iS)+nIsh(is)*nOrb(is)),1)
             Do iAsh=1,nAsh(is)
                ipi=ipCM(iS)+nOrb(is)*(nIsh(is)+iAsh-1)
@@ -483,13 +483,13 @@
                   ni=nA(is)+iAsh
                   nj=nA(is)+jAsh
                   ipD=iTri(ni,nj)
-                  call daxpy_(nOrb(is),G1t(ipD),
-     &                       FockI(ipi),1,
+                  call daxpy_(nOrb(is),G1t(ipD),                        &
+     &                       FockI(ipi),1,                              &
      &                       Fock (ipj),1)
                End Do
             End Do
          End If
-*
+!
  300     Continue
       End Do
  101  Continue
@@ -546,8 +546,8 @@
         Call ddafile(LuQDAT,1,Q    ,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,1,MO1  ,nAtri ,iaddressQDAT)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End SubRoutine Read22_2

@@ -1,54 +1,54 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1997, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1997, Anders Bernhardsson                              *
+!***********************************************************************
       subroutine MCLR(ireturn)
-************************************************************************
-*                                                                      *
-*               #     #  #####     #       ######                      *
-*               ##   ## #     #    #       #     #                     *
-*               # # # # #          #       #     #                     *
-*               #  #  # #          #       ######                      *
-*               #     # #          #       #   #                       *
-*               #     # #     #    #       #    #                      *
-*               #     #  #####     ####### #     #                     *
-*                                                                      *
-*     A linear response function program for general RASSCF states     *
-*                                                                      *
-*      OK right now we can just handle CASSCF, but the only thing      *
-*      we need is yet another stupid PhD student who wants to code     *
-*      the preconditioning elements between active and active orbitals *
-*                                                                      *
-*      The spin correction part of the code is a experimental          *
-*      test platform, it is not finished and is not working,           *
-*      If someone wants to help me finishing it please contact me      *
-*                                                                      *
-*                                                                      *
-*   "Real programmers don't comment their codes.                       *
-*    It was hard to write, and it must be hard to understand..."       *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!               #     #  #####     #       ######                      *
+!               ##   ## #     #    #       #     #                     *
+!               # # # # #          #       #     #                     *
+!               #  #  # #          #       ######                      *
+!               #     # #          #       #   #                       *
+!               #     # #     #    #       #    #                      *
+!               #     #  #####     ####### #     #                     *
+!                                                                      *
+!     A linear response function program for general RASSCF states     *
+!                                                                      *
+!      OK right now we can just handle CASSCF, but the only thing      *
+!      we need is yet another stupid PhD student who wants to code     *
+!      the preconditioning elements between active and active orbitals *
+!                                                                      *
+!      The spin correction part of the code is a experimental          *
+!      test platform, it is not finished and is not working,           *
+!      If someone wants to help me finishing it please contact me      *
+!                                                                      *
+!                                                                      *
+!   "Real programmers don't comment their codes.                       *
+!    It was hard to write, and it must be hard to understand..."       *
+!                                                                      *
+!***********************************************************************
       Use Basis_Info, only: Basis_Info_Free
       Use Center_Info, only: Center_Info_Free
       Use External_Centers, only: External_Centers_Free
       use Symmetry_Info, only: Symmetry_Info_Free
-      use Arrays, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock,
-     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,
-     &                  CMO_Inv, CMO,
-     &                  Int1, pINT1, INT2, pINT2, G2t, G2sq, G1t,
+      use Arrays, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock,       &
+     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m,             &
+     &                  CMO_Inv, CMO,                                   &
+     &                  Int1, pINT1, INT2, pINT2, G2t, G2sq, G1t,       &
      &                  FIMO, F0SQMO
       use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       use negpre, only: SS
       use PDFT_Util, only :Do_Hybrid,WF_Ratio,PDFT_Ratio
-*     Added for CMS NACs
+!     Added for CMS NACs
       use stdalloc, only: mma_allocate, mma_deallocate
       use Definitions, only: iwp, u6, wp
       use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
@@ -58,28 +58,28 @@
       use MCLR_Data, only: LuPT2
       use DetDim, only: MXCNSM
       use dmrginfo, only: DoDMRG,RGRAS2,DoMCLR
-      use input_mclr, only: ntAsh,ntAtri,ntASqr,nSym,iMethod,SpinPol,
-     &                      iMCPD,iMSPD,PT2,TimeDep,TwoStep,StepType,
-     &                      McKinley,RASSI,NewCho,Fail,
-     &                      Double,LuAChoVec,LuChoInt,LuIChoVec,nAsh,
+      use input_mclr, only: ntAsh,ntAtri,ntASqr,nSym,iMethod,SpinPol,   &
+     &                      iMCPD,iMSPD,PT2,TimeDep,TwoStep,StepType,   &
+     &                      McKinley,RASSI,NewCho,Fail,                 &
+     &                      Double,LuAChoVec,LuChoInt,LuIChoVec,nAsh,   &
      &                      nDisp,nRS2
       Implicit None
 #include "warnings.h"
 #include "SysDef.fh"
 
-      Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
+      Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),               &
      &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
 
       Logical Reduce_Prt
       External Reduce_Prt
       Integer get_MBl_wa
       External get_MBl_wa
-*
-*     first a few things for making Markus Happy
+!
+!     first a few things for making Markus Happy
       logical converged(8)
       logical DoCholesky
 
-* Additional things for CMS-NACs Optimization
+! Additional things for CMS-NACs Optimization
       Character(LEN=8) Method
       integer(kind=iwp) :: LuInput, istatus, LuSpool2
       character(len=16) :: StdIn
@@ -94,14 +94,14 @@
       integer(kind=iwp) , External:: ipClose, iPrintLevel
       real(kind=wp):: TCPU1, TCPU2, TCPU3, TWall1, TWall2, TWall3
 
-*   This used to be after the CWTIME() functional call                 *
-************************************************************************
-*                                                                      *
+!   This used to be after the CWTIME() functional call                 *
+!***********************************************************************
+!                                                                      *
       iPL=iPrintLevel(-1)
       If (Reduce_Prt().and.iPL.lt.3) iPL=iPL-1
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 !This is where you should put the information for CMS
       Call Get_cArray('Relax Method',Method,8)
       if(Method.eq.'MSPDFT  ') then
@@ -111,14 +111,14 @@
           call Get_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
 
           if(MECI_via_SLAPAF.eqv..FALSE.) then
-              if ( (cmsNACstates(1).ne.NACstates(1)).or.
+              if ( (cmsNACstates(1).ne.NACstates(1)).or.                &
      &    (cmsNACstates(2).ne.NACstates(2)) ) Then
                     NACstates(1) = cmsNACstates(1)
                     NACstates(2) = cmsNACstates(2)
               end if
           end if
 
-          if ( (cmsNACstates(1).ne.NACstates(1)).or.
+          if ( (cmsNACstates(1).ne.NACstates(1)).or.                    &
      & (cmsNACstates(2).ne.NACstates(2)) ) Then
              if (iPL >= 3) then
                  write(u6,*)
@@ -177,22 +177,22 @@
              call Finish(_RC_INVOKED_OTHER_MODULE_)
            End if
       End if
-*
+!
       !! check the status; if quantities needed for MCLR have not been
       !! computed, call CASPT2
       if (Method.eq.'CASPT2  ') call check_caspt2(0)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Call MCLR_banner()
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Call MCLR_banner()
       Call CWTime(TCpu1,TWall1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       iAllo=0
-c      idp=rtoi
+!      idp=rtoi
       nrec=get_MBl_wa()/rtob
-*
+!
       Call DecideOnCholesky(DoCholesky)
       Call get_iScalar('nSym',nSymX)
 
@@ -201,9 +201,9 @@ c      idp=rtoi
        Call Quit(_RC_INPUT_ERROR_)
       EndIf
 
-*
+!
       Call Init_Data()
-*
+!
       doDMRG = .false.
       doMCLR = .false.
 #ifdef _DMRG_
@@ -218,24 +218,24 @@ c      idp=rtoi
 !       open(unit=117,file="mclr_dets.initial")
 !      end if
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     open files
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     open files
+!
       Call OpnFls_MCLR(iPL)
       Call IpInit()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Read input
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Read input
+!
       Call InpCtl_MCLR(iPL)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Transform integrals and calculate fock matrixes etc.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Transform integrals and calculate fock matrixes etc.
+!
       if(doDMRG)then  ! yma
         call dmrg_spc_change_mclr(RGras2(1:8),nAsh)
         call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
@@ -255,17 +255,17 @@ c      idp=rtoi
       nacpr2=(nacpar+1)*nacpar/2
 
       Call Start_MCLR()
-*
+!
       nisp=max(8,nDisp)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call CWTime(TCpu2,TWall2)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     File pointers
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     File pointers
+!
       Call mma_allocate(ifpK,nisp,Label='ifpK')
       ifpK(:)=-1
       Call mma_allocate(ifpS,nisp,Label='ifpS')
@@ -284,20 +284,20 @@ c      idp=rtoi
       ifpCI(:)=-1
       ifpSC(:)=-1
       ifpRHSCI(:)=-1
-*                                                                      *
-************************************************************************
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Calculate response
-*
-*     Output is stored on disk
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Calculate response
+!
+!     Output is stored on disk
+!
       If (SPINPOL) Then
          Call WfCtl_SP(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
-*     Else if (ELECHESS) Then
-*        Call WfCtl_PCG(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
-*        Call Abend()
+!     Else if (ELECHESS) Then
+!        Call WfCtl_PCG(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI)
+!        Call Abend()
       Else if(iMCPD) Then!pdft
 
         Do_Hybrid=.false.
@@ -309,7 +309,7 @@ c      idp=rtoi
 
         if(iMSPD) then
           if(Do_Hybrid) then
-           CALL WarningMessage(2,
+           CALL WarningMessage(2,                                       &
      &     'Hybrid MS-PDFT gradient not supported yet')
            CALL Quit(_RC_EXIT_EXPECTED_)
           end if
@@ -320,47 +320,47 @@ c      idp=rtoi
       Else if (SA.or.PT2) Then
          Call WfCtl_SA(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
       Else If (TimeDep) Then
-         Call WfCtl_td(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI,
+         Call WfCtl_td(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI,           &
      &                 converged)
       Else
-         Call WfCtl_Hess(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI,
+         Call WfCtl_Hess(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI,         &
      &                   converged)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Contract response to hessian etc
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Contract response to hessian etc
+!
       If(.not.(TwoStep.and.(StepType.eq.'RUN1'))) Then
          If (PT2.or.SA.or.iMCPD) Then
             Call Out_PT2(ifpK,ifpCI)
             If (PT2) Close (LUPT2) !! this file is opend in wfctl_sa
          Else If (TimeDep) Then
-            Call Output_td(ifpK,ifpS,ifpCI,ifpSC,
+            Call Output_td(ifpK,ifpS,ifpCI,ifpSC,                       &
      &                     ifpRHS,ifpRHSCI,converged)
          Else
-            Call Output_mclr(ifpK,ifpS,ifpCI,ifpSC,
+            Call Output_mclr(ifpK,ifpS,ifpCI,ifpSC,                     &
      &                       ifpRHS,ifpRHSCI,converged)
             If (mckinley) Call isoloop(Double)
          End If
-*
+!
          If (RASSI)   Call OutRAS   (ifpK,ifpCI)
-*
+!
          If (TimeDep) Call OutRAS_td(ifpK,ifpCI)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call Basis_Info_Free()
       Call Center_Info_Free()
       Call Symmetry_Info_Free()
       Call External_Centers_Free()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Deallocate memory
-*
-*     Arrays in csf.f
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Deallocate memory
+!
+!     Arrays in csf.f
       If (iMethod.eq.2) Then
          Call mma_deallocate(DTOC)
          Call mma_deallocate(CFTP)
@@ -371,21 +371,21 @@ c      idp=rtoi
         Call mma_deallocate(CNSM(i)%ICTS,safe='*')
       End Do
 
-*     Free arrays allocated by memstr.f
+!     Free arrays allocated by memstr.f
       If (iMethod.eq.2) Call FreeStr()
-*     Arrays in inpone.f
+!     Arrays in inpone.f
       Call mma_deallocate(INT1)
-*     Arrays in detctl.f
+!     Arrays in detctl.f
       If (iMethod.eq.2) Then
          Call mma_deallocate(pINT2)
          Call mma_deallocate(pINT1)
       End if
 
-*     Array in rdab.f
+!     Array in rdab.f
       If (iMethod.eq.1) Then
          Call mma_deallocate(CMO)
       End If
-*     Arrays in rdjobip_td.f and rdjobiph.f
+!     Arrays in rdjobip_td.f and rdjobiph.f
       If (iMethod.eq.2) Then
          Call mma_deallocate(G2t)
          If (Timedep) Call mma_deallocate(G2sq)
@@ -393,7 +393,7 @@ c      idp=rtoi
          Call mma_deallocate(CMO)
       End If
 
-*     Arrays allocated in stpert.f
+!     Arrays allocated in stpert.f
       Call mma_deallocate(Hss)
       If (SPINPOL) Then
          Call mma_deallocate(FAMO_SpinP)
@@ -407,7 +407,7 @@ c      idp=rtoi
          Call mma_deallocate(G1m)
          Call mma_deallocate(SFock)
       End If
-*     Arrays allocated in fckmat.f
+!     Arrays allocated in fckmat.f
       Call mma_deallocate(FAMO)
       Call mma_deallocate(Int2)
       Call mma_deallocate(FIMO)
@@ -420,11 +420,11 @@ c      idp=rtoi
       Call mma_deallocate(ifpS)
       Call mma_deallocate(ifpK)
       Call mma_deallocate(SS,safe='*')
-*
-*     Close files
-*
+!
+!     Close files
+!
       Call ClsFls_MCLR()
-*
+!
       If (NewCho) Then
         Call Cho_X_Final(irc)
         Do i=1,nSym
@@ -437,54 +437,54 @@ c      idp=rtoi
       End If
 
       If(TwoStep.and.(StepType.eq.'RUN1')) irc=ipclose(-1)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (.not.fail) Then
          If (iPL.ge.2) Then
          Write(6,*)
-         Write(6,'(6X,A,A)') 'The response parameters are ',
+         Write(6,'(6X,A,A)') 'The response parameters are ',            &
      &                      'written to the file RESP.'
          End If
          ireturn=_RC_ALL_IS_WELL_
       Else
          ireturn=_RC_NOT_CONVERGED_
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Call CWTime(TCpu3,TWall3)
       If (iPL.ge.3) Then
         Write(6,*)
         Write(6,'(2X,A)') 'Timings'
         Write(6,'(2X,A)') '-------'
         Write(6,*)
-        Write(6,'(2X,A)')
-     &      '- - - - - - - - - - - - - - - - -'//
+        Write(6,'(2X,A)')                                               &
+     &      '- - - - - - - - - - - - - - - - -'//                       &
      &      ' - - - - - - - - - - - - - - - - -'
-        Write(6,'(2X,A,T44,A,A,A)')
+        Write(6,'(2X,A,T44,A,A,A)')                                     &
      &      ' ',' ','    CPU time','     elapsed'
-        Write(6,'(2X,A,T44,A,2F12.2)')
+        Write(6,'(2X,A,T44,A,2F12.2)')                                  &
      &      '1) Initialization',':',TCpu2-TCpu1,TWall2-TWall1
-        Write(6,'(2X,A,T44,A,2F12.2)')
+        Write(6,'(2X,A,T44,A,2F12.2)')                                  &
      &      '2) Response calculation',':',TCpu3-TCpu2,TWall3-TWall2
-        Write(6,'(2X,A)')
-     &      '- - - - - - - - - - - - - - - - -'//
+        Write(6,'(2X,A)')                                               &
+     &      '- - - - - - - - - - - - - - - - -'//                       &
      &      ' - - - - - - - - - - - - - - - - -'
-        Write(6,'(2X,A,T44,A,2F12.2)')
+        Write(6,'(2X,A,T44,A,2F12.2)')                                  &
      &      'Total',':',TCpu3-TCpu1,TWall3-TWall1
-        Write(6,'(2X,A)')
-     &      '- - - - - - - - - - - - - - - - -'//
+        Write(6,'(2X,A)')                                               &
+     &      '- - - - - - - - - - - - - - - - -'//                       &
      &      ' - - - - - - - - - - - - - - - - -'
 
       EndIf
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (iPL.ge.3) Then
           Call FastIO('STATUS')
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End subroutine MCLR

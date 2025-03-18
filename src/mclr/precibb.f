@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Anders Bernhardsson                              *
-************************************************************************
-      SubRoutine Precibb(ib,is,js,nd,rout,nba,no,
-     &                  Temp1,Scr,Temp2,
-     &                  fockii,fockai,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Anders Bernhardsson                              *
+!***********************************************************************
+      SubRoutine Precibb(ib,is,js,nd,rout,nba,no,                       &
+     &                  Temp1,Scr,Temp2,                                &
+     &                  fockii,fockai,                                  &
      &                  focki,focka,sign)
-************************************************************************
-*                                        [2]
-*   Calculates the diagonal submatrix of E    that couple
-*
-*   kappa           with   kappa                for a
-*        kinactive,virtual        kinactive,virtual
-*
-*   single inactive index.
-*   Used for preconditioner.
-*
-*   See Olsen,Yeager, Joergensen:
-*    "Optimization and characterization of an MCSCF state"
-*
-*   Called by prec
-*
-*   ib,is       :       inactive index for the submatrix
-*   js          :       symmetry of virtual,virtual
-*   rOut        :       Submatrix
-*
-************************************************************************
+!***********************************************************************
+!                                        [2]
+!   Calculates the diagonal submatrix of E    that couple
+!
+!   kappa           with   kappa                for a
+!        kinactive,virtual        kinactive,virtual
+!
+!   single inactive index.
+!   Used for preconditioner.
+!
+!   See Olsen,Yeager, Joergensen:
+!    "Optimization and characterization of an MCSCF state"
+!
+!   Called by prec
+!
+!   ib,is       :       inactive index for the submatrix
+!   js          :       symmetry of virtual,virtual
+!   rOut        :       Submatrix
+!
+!***********************************************************************
       use input_mclr, only: nAsh,nIsh,nOrb
       Implicit None
       Integer ib,is,js,nd
@@ -46,21 +46,21 @@
 
       Integer nTri, jVert, i1, ip, kB, lB
       Real*8 ra
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       integer i,j,iTri,iTri1
       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-      iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)
+      iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)                 &
      &          +Max(i,j)-Min(i,j)+1
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nTri=itri(nd,nd)
-*
+!
       jVert=nOrb(js)-nAsh(js)-nIsh(js)
       if (jvert.eq.0) Return
-*
+!
       i1=nD-jVert+1
       ip=itri1(i1,i1)
       ra=4.0d0*sign*(Fockii+Fockai)
@@ -73,14 +73,14 @@
          rOut(i+1)=rout(i+1)-ra
          Do lB=kb,nOrb(JS)-1
             i=i+1
-            rOut(i)=rout(i)+Temp1(kb+1+no*lb)+
-     &              sign*4.0d0*Focki(kb+1,lb+1)+
+            rOut(i)=rout(i)+Temp1(kb+1+no*lb)+                          &
+     &              sign*4.0d0*Focki(kb+1,lb+1)+                        &
      &              sign*4.0d0*Focka(kb+1,lb+1)
          End Do
       End Do
-*                                                                      *
-************************************************************************
-*                                                                      *
-c Avoid unused argument warnings
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(nba)
       End SubRoutine Precibb

@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Prec_td(pre2,DigPrec,isym)
       use Constants, only: Zero, Two
       use Arrays, only: G1t
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: ipCM, ipMat, nA, nDens2
       use input_mclr, only: nSym,nAsh,nIsh,nBas,Omega
-*
-*     pre2      Preconditioner from Prec
-*     DigPrec Output - Diagonal of prec2
-*     isym      Symmetry of PT
-*
+!
+!     pre2      Preconditioner from Prec
+!     DigPrec Output - Diagonal of prec2
+!     isym      Symmetry of PT
+!
       Implicit None
       Real*8 DigPrec(*),pre2(*)
       Integer iSym
@@ -27,36 +27,36 @@
       Logical jump
       Real*8, Allocatable:: Dens(:), PreTd(:), TempTd(:)
       Integer nBasTot,iS,ip3,Inc,iB,jB,ip,iA,jA,ip2,ip1,jS,nD,k,l
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-*---------------------------------------------
-* Construct one el density in MO Dens
-*---------------------------------------------
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!---------------------------------------------
+! Construct one el density in MO Dens
+!---------------------------------------------
+!
       nBasTot = 0
       Do iS=1,nSym
          nBasTot = nBasTot + nBas(iS)*nBas(iS)
       End Do
       Call mma_allocate(Dens,nBasTot,Label='Dens')
       Dens(:)=Zero
-*
+!
       ip3 = 1
       Do iS=1,nSym
           inc = nBas(iS)+1
           call dcopy_(nIsh(iS),[Two],0,Dens(ip3),inc)
           ip3 = ip3 + nBas(iS)*nBas(iS)
       End Do
-*
-* For a CASSCF wavefunc. From Anders subrut r2elint
-* Add the active active dens
-*
+!
+! For a CASSCF wavefunc. From Anders subrut r2elint
+! Add the active active dens
+!
       Do iS=1,nSym
           Do iB=1,nAsh(iS)
               Do jB=1,nAsh(iS)
@@ -68,27 +68,27 @@
               End Do
            End Do
       End Do
-*
-C
-*      Call RECPRT('Dens',' ',Dens,nBasTot,1)
-*      Write(*,*)'Diagnonal elements in D'
-*      Do iS=1,nSym
-*         Do k=0,nBas(iS)-1
-*            Write(*,*) Dens(ipCM(iS) + k*(nBas(iS)+1))
-*         End Do
-*      End Do
-*      Stop
-C
-*
-*-------------------------------------------------------------------
-* Construct the diagonal approximation to the orbital prec, PreTd
-*-------------------------------------------------------------------
-*
+!
+!
+!      Call RECPRT('Dens',' ',Dens,nBasTot,1)
+!      Write(*,*)'Diagnonal elements in D'
+!      Do iS=1,nSym
+!         Do k=0,nBas(iS)-1
+!            Write(*,*) Dens(ipCM(iS) + k*(nBas(iS)+1))
+!         End Do
+!      End Do
+!      Stop
+!
+!
+!-------------------------------------------------------------------
+! Construct the diagonal approximation to the orbital prec, PreTd
+!-------------------------------------------------------------------
+!
       Call mma_allocate(PreTd,nDens2,Label='PreTd')
       PreTd(:)=Zero
       ip1 = 1
       ip2 = 1
-*      ipsave = 0
+!      ipsave = 0
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1
          nD = nBas(jS) - nIsh(jS)
@@ -116,22 +116,22 @@ C
                ip1 = ip1 + nAsh(jS)
             End If
          End Do
-*         Call RECPRT('PreTd',' ',PreTd(1 + ipsave),
-*     &              nBas(jS),nBas(iS))
+!         Call RECPRT('PreTd',' ',PreTd(1 + ipsave),
+!     &              nBas(jS),nBas(iS))
          ip1 = ip1 + (nBas(iS)-nIsh(iS)-nAsh(iS))*nBas(jS)
-*         ipsave = ip1
+!         ipsave = ip1
       End Do
-*      Call RECPRT('PreTd',' ',PreTd,nDens2,1)
-*
-*-----------------------------------------------------------
-* Symmetrize PreTd
-*-----------------------------------------------------------
+!      Call RECPRT('PreTd',' ',PreTd,nDens2,1)
+!
+!-----------------------------------------------------------
+! Symmetrize PreTd
+!-----------------------------------------------------------
       Call mma_allocate(TempTd,nDens2,Label='TempTd')
-*
+!
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1
          TempTd(:)=Zero
-         Call Trans(PreTd(ipMat(jS,iS)),nBas(iS),
+         Call Trans(PreTd(ipMat(jS,iS)),nBas(iS),                       &
      &               nBas(jS),TempTd)
          nD = nBas(iS)*nBas(jS)
          Do i=0, nD-1
@@ -140,14 +140,14 @@ C
                 TempTd(1+i) = PreTd(ipMat(iS,jS)+i)
             End If
          End Do
-         Call Trans(TempTd,nBas(jS),nBas(iS),
+         Call Trans(TempTd,nBas(jS),nBas(iS),                           &
      &              PreTd(ipMat(jS,iS)))
-C
+!
       End Do
-*
-*------------------------------------------------------------------
-* Add the density part PreTd_at = PreTd_at - omega(D_aa - D_tt)
-*------------------------------------------------------------------
+!
+!------------------------------------------------------------------
+! Add the density part PreTd_at = PreTd_at - omega(D_aa - D_tt)
+!------------------------------------------------------------------
       i = 0
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1
@@ -157,24 +157,24 @@ C
          Do k=0, nD-1
             If (l.eq.nBas(jS)) l = 0
             If (k.eq.(j+1)*nBas(jS)) j = j +1
-C
+!
             i=i+1
-            PreTd(i) = PreTd(i) + Two*Omega*
-     &               (  Dens(ipCM(iS) + j*(nBas(iS)+1)) +
+            PreTd(i) = PreTd(i) + Two*Omega*                            &
+     &               (  Dens(ipCM(iS) + j*(nBas(iS)+1)) +               &
      &                  Dens(ipCM(jS) + l*(nBas(jS)+1)) )
-C
+!
             l = l + 1
          End Do
-C
+!
       End Do
-*
-*-----------------------------------------------------------------------------
-* Symmetry transpose PreTd - To get the same order fo sym as in b_x and
-* as required by compress.
-*-----------------------------------------------------------------------------
-*
+!
+!-----------------------------------------------------------------------------
+! Symmetry transpose PreTd - To get the same order fo sym as in b_x and
+! as required by compress.
+!-----------------------------------------------------------------------------
+!
       TempTd(:)=Zero
-*
+!
       Do iS=1,nSym
          jS=iEOr(iS-1,iSym-1)+1
          nD = nBas(iS)*nBas(jS)
@@ -182,11 +182,11 @@ C
             TempTd(ipmat(iS,jS)+k)=PreTd(ipmat(jS,iS)+k)
          End Do
       End Do
-*
+!
       Call Compress(TempTd,DigPrec,isym)
 
       Call mma_deallocate(TempTd)
       Call mma_deallocate(PreTd)
       Call mma_deallocate(Dens)
-*
+!
       End SubRoutine Prec_td

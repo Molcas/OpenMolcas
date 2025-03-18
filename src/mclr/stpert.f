@@ -1,16 +1,16 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine StPert()
       use MckDat, only: sNew
-      Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,
+      Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,                    &
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
@@ -20,7 +20,7 @@
       use MCLR_Data, only: lDisp,SwLbl
       use MCLR_Data, only: MS2
       use MCLR_Data, only: FnMck,LuMck
-      use input_mclr, only: nSym,McKinley,PT2,nDisp,SpinPol,nAsh,nBas,
+      use input_mclr, only: nSym,McKinley,PT2,nDisp,SpinPol,nAsh,nBas,  &
      &                      nIsh,nTPert,State_Sym
       Implicit None
 
@@ -32,14 +32,14 @@
       Integer nHss,iS,iRC,iOpt,nAct,iSym,nG,nG2,iType,nMax,iDummer
       Integer, External:: ipIn
       Real*8 rAlphas
-*
+!
       nHss=0
       Do iS=1,nSym
          nHss=nHss+lDisp(is)*(lDisp(is)+1)/2
       End Do
       Call mma_allocate(Hss,nHss,Label='Hss')
       Hss(:)=Zero
-*
+!
       If (.Not.Mckinley) Then
          irc=-1
          iopt=ibset(0,sNew)
@@ -143,7 +143,7 @@
             Call Abend()
          End If
       End If
-*
+!
       If (SPINPOL) Then
          call coeff(ralphas,rbetaa,rbetas)
          rms=DBLE(ms2)/2.0d0
@@ -164,8 +164,8 @@
          Call mma_allocate(G1m,nG,Label='G1m')
          itype=2
          irc=ipin(ipCI)
-         Call SpinDens(W(ipCI)%Vec,W(ipCI)%Vec,
-     &                 STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,
+         Call SpinDens(W(ipCI)%Vec,W(ipCI)%Vec,                         &
+     &                 STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,              &
      &                 Fm,Fp,G1m,G1p,iType)
 
          Call mma_allocate(Tmp2,ndens2,Label='Tmp2')
@@ -178,5 +178,5 @@
          Call mma_deallocate(Tmp1)
          Call mma_deallocate(Tmp2)
       End If
-*
+!
       End SubRoutine StPert

@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Anders Bernhardsson                              *
+!***********************************************************************
       Subroutine RHS_PT2(rkappa,CLag,SLag)
       use MCLR_Data, only: LuPT2
       use input_mclr, only: nSym,nRoots,nCSF,nOrb
@@ -47,12 +47,12 @@
 
   200 continue
       write(6,*)
-      write(6,'(1x,"The file which has to be written in CASPT2 module ",
-     *            "does not exist in RHS_PT2.")')
-      write(6,'(1x,"For single-point gradient calculation, you need ",
-     *            "GRAD or GRDT keyword in &CASPT2.")')
-      write(6,'(1x,"For geometry optimization, you do not need ",
-     *            "anything, so something is wrong with the code.")')
+      write(6,'(1x,"The file which has to be written in CASPT2 module ",&
+     &            "does not exist in RHS_PT2.")')
+      write(6,'(1x,"For single-point gradient calculation, you need ",  &
+     &            "GRAD or GRDT keyword in &CASPT2.")')
+      write(6,'(1x,"For geometry optimization, you do not need ",       &
+     &            "anything, so something is wrong with the code.")')
       write(6,*)
       call abend()
 

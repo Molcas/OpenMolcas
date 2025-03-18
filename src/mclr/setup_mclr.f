@@ -1,44 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine SetUp_MCLR(DSYM)
       use Arrays, only: pInt1, pInt2
-      use MCLR_Data, only: nNA,n2Dens,nDens,nDensLT,nCMO,nDensC,nDens2,
-     &                     ipMatLT,ipMat,ipMC,ipCM,ipMatBA,ipMO,nA,nB,
+      use MCLR_Data, only: nNA,n2Dens,nDens,nDensLT,nCMO,nDensC,nDens2, &
+     &                     ipMatLT,ipMat,ipMC,ipCM,ipMatBA,ipMO,nA,nB,  &
      &                     n1Dens,nMBA
-      use input_mclr, only: nSym,TimeDep,iMethod,PT2,nAsh,nBas,nDel,
+      use input_mclr, only: nSym,TimeDep,iMethod,PT2,nAsh,nBas,nDel,    &
      &                      nFro,nIsh,nOrb,nRS1,nRS2,nRs3
-*
-*   Setup pointers and size of metrixes (includes in Pointers.fh)
-*
+!
+!   Setup pointers and size of metrixes (includes in Pointers.fh)
+!
       Implicit None
       integer dsym
-* for the integrals needed in sigma gen
+! for the integrals needed in sigma gen
       Integer, External:: iPntSO
-      Integer ip,nn,nBmx,iS,jS,lS,klS,kS,ijS,ipP,iExt0,iExt1,iExt2,
-     &        iExt3,iInt4,iExt4,i1,iInt0,iInt1,iInt2,iInt3,mATAB,iOff,
-     &        iiSym,iOrb,jjSym,jOrb,ijSym,klSym,ijNum,ijOrb,kkSym,kOrb,
+      Integer ip,nn,nBmx,iS,jS,lS,klS,kS,ijS,ipP,iExt0,iExt1,iExt2,     &
+     &        iExt3,iInt4,iExt4,i1,iInt0,iInt1,iInt2,iInt3,mATAB,iOff,  &
+     &        iiSym,iOrb,jjSym,jOrb,ijSym,klSym,ijNum,ijOrb,kkSym,kOrb, &
      &        llSym,lOrb,klNum,klOrb,iPlus
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Statement function
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Statement function
+!
       integer i,j,iTri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       ip=1
       Call ICopy(8**3,[0],0,ipMO,1)
-*
+!
       nn=0
       nbmx=0
       Do iS=1,nsym
@@ -47,9 +47,9 @@
          nn=nn+nAsh(iS)
          nbmx=Max(nbmx,nBas(iS))
       End Do
-*
+!
       Call Set_nbmx(nbmx)
-*
+!
       nna=nn
       n2Dens=itri(nnA**2,nnA**2)
 
@@ -70,7 +70,7 @@
             End Do
          End Do
       End Do
-*
+!
       nmba=ip-1
       nDens=0
       nDensLT=0
@@ -94,10 +94,10 @@
                   iInt4=nOrb(js)-nish(js)-nAsh(js)
                   iExt4=nIsh(is)+nAsh(is)
                   ipMC(jS,iS)=nDensC+1
-                  nDensC=nDensC+iExt0*nIsh(js)+
-     &                          iExt1*nRs1(js)+
-     &                          iExt2*nRs2(js)+
-     &                          iExt3*nRs3(js)+
+                  nDensC=nDensC+iExt0*nIsh(js)+                         &
+     &                          iExt1*nRs1(js)+                         &
+     &                          iExt2*nRs2(js)+                         &
+     &                          iExt3*nRs3(js)+                         &
      &                          iExt4*iInt4
                End If
                If (is.eq.js) Then
@@ -109,9 +109,9 @@
                   iint1=i1+nRs2(is)+nRs3(is)
                   iint2=i1+nRs3(is)
                   iint3=i1
-                  nDensC=nDensC+iint0*nIsh(is)+
-     &                          iint1*nRs1(is)+
-     &                          iint2*nRs2(is)+
+                  nDensC=nDensC+iint0*nIsh(is)+                         &
+     &                          iint1*nRs1(is)+                         &
+     &                          iint2*nRs2(is)+                         &
      &                          iint3*nRs3(is)
                End If
             End If
@@ -119,7 +119,7 @@
          ipCM(jS)=nCMO+1
          nCMO=nCMO+nBas(js)**2
       End Do
-*
+!
       If (TimeDep) nDensC=2*nDensC
       ndens2=0
       matab=1
@@ -134,16 +134,16 @@
          End Do
       End Do
       ndens=ndens2
-*
-*  To begin with we assume that we have permutation symmetry
-*
+!
+!  To begin with we assume that we have permutation symmetry
+!
       if(iMethod.eq.2) then
       iOff=1
       Do iiSym=1,nSym
          iOrb=nRs1(iiSym)+nRs2(iiSym)+nRs3(iiSym)
          Do jjSym=1,iiSym
             jOrb=nRs1(jjSym)+nRs2(jjSym)+nRs3(jjSym)
-*
+!
             If (iEOr(iiSym-1,jjSym-1)+1.eq.Dsym) Then
                pINT1(iiSym)=iOff
                If (iiSym.eq.jjSym) Then
@@ -152,21 +152,21 @@
                   iOff=iOff+iOrb*jOrb
                End If
             End If
-*
+!
          End Do
       End Do
-*
+!
       iOff=1
       Do iiSym=1,nSym
          iOrb=nRs1(iiSym)+nRs2(iiSym)+nRs3(iiSym)
          Do jjSym=1,iiSym
             jOrb=nRs1(jjSym)+nRs2(jjSym)+nRs3(jjSym)
-*
+!
             ijSym=iEOr(iiSym-1,jjSym-1)+1
             klSym=iEOr(ijSym-1,DSym-1)+1
-*
+!
             ijNum= iiSym*(iiSym+1)/2+jjSym
-*
+!
             If (iiSym.eq.jjSym) Then
                ijOrb=iOrb*(iOrb+1)/2
             Else
@@ -174,15 +174,15 @@
             End If
             Do kkSym=1,nsym
                kOrb=nRs1(kkSym)+nRs2(kkSym)+nRs3(kkSym)
-*
+!
                llSym=iEor(klSym-1,kkSym-1)+1
                lOrb=nRs1(llSym)+nRs2(llSym)+nRs3(llSym)
-*
+!
                If (llSym.gt.kkSym) Goto 100
-*
+!
                klNum=kkSym*(kkSym+1)/2+llSym
                If (klNum.gt.ijNum) Goto 100
-*
+!
                If (kkSym.eq.llSym) Then
                   klOrb=kOrb*(kOrb+1)/2
                Else
@@ -194,22 +194,22 @@
                Else
                   iPlus=ijOrb*klOrb
                End If
-*
+!
                If (iPlus.gt.0) pINT2(ip)=iOff
-*
+!
                iOff=iOff+iPlus
-*
+!
  100           Continue
             End Do
          End Do
       End Do
       Endif
-*
+!
 
       Call Get_iArray('nFro',nFro,nSym)
       Do i = 1, nSym
          If (nFro(i).ne.0) Then
-            Call WarningMessage(2,
+            Call WarningMessage(2,                                      &
      &               'MCLR module cannot handle frozen orbitals!')
             Call Abend()
          End If
@@ -219,22 +219,22 @@
       Call Get_iArray('nDel',nDel,nSym)
       Do i = 1, nSym
          If (nDel(i).ne.0) Then
-            Call WarningMessage(2,
+            Call WarningMessage(2,                                      &
      &               'MCLR module cannot handle deleted orbitals!')
             Call Abend()
          End If
       End Do
       Call Put_iArray('nDelPT',nDel,nSym)
 
-*     Call iWrtMa(pINT2,64,8,64,8)
-*
+!     Call iWrtMa(pINT2,64,8,64,8)
+!
       End SubRoutine SetUp_MCLR
 
       Subroutine Set_nbmx(nbmx_)
       Implicit None
       Integer nbmx_
 #include "caspt2.fh"
-*
+!
       nbmx=nbmx_
-*
+!
       End Subroutine Set_nbmx

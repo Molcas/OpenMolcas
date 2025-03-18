@@ -1,42 +1,42 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
        Subroutine RdInp_MCLR()
-************************************************************************
-*                                                                      *
-*     Locate input stream and read commands                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Locate input stream and read commands                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Use Basis_Info, only: Basis_Info_Get
       Use Center_Info, only: Center_Info_Get
       use OneDat, only: sOpSiz
       Use Exp, only: NewPre, nexp_max
       use negpre, only: nGP
       Use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
-      use MCLR_Data, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,
+      use MCLR_Data, only: ISTATE,OVERRIDE,SA,ESTERR,ISNAC,ISMECIMSPD,  &
      &                     FANCY_PRECONDITIONER,NSSA,NACSTATES
       use MCLR_Data, only: DspVec,SwLbl,lDisp
       use MCLR_Data, only: NoFile
-      use input_mclr, only: Debug,lRoots,kPrint,mTit,Omega,
-     &                      TimeDep,Page,
-     &                      iBreak,nIter,RASSI,SpinPol,lSave,
-     &                      lCalc,nDisp,CasInt,NewCho,
-     &                      TwoStep,StepType,Double,Eps,IsPop,
-     &                      nSym,nAtoms,ntPert,nsRot,UserP,
+      use input_mclr, only: Debug,lRoots,kPrint,mTit,Omega,             &
+     &                      TimeDep,Page,                               &
+     &                      iBreak,nIter,RASSI,SpinPol,lSave,           &
+     &                      lCalc,nDisp,CasInt,NewCho,                  &
+     &                      TwoStep,StepType,Double,Eps,IsPop,          &
+     &                      nSym,nAtoms,ntPert,nsRot,UserP,             &
      &                      nUserPT,UserT,TitleIn
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -47,26 +47,26 @@
       Character(LEN=2) Element(MxAtom)
       Logical     Epsilon_Undef
       Integer, Parameter :: nCom=38
-      Character(LEN=4), parameter :: ComTab(nCom)=[
-     &            'TITL','DEBU','ROOT','EXTR','PRCI',
-     &            'PROR','ITER','THRE','END ','TIME',
-     &            'CALC','NOFI','SEWA','NOCO','NOTW',
-     %            'SPIN','PRIN','PCGD','RESI','NOTO',
-     &            'EXPD','NEGP','LOWM','ELHE','SAVE',
-     &            'RASS','DISO','CASI','SALA','NODE',
-     &            'ESTE','MOUT','MASS','NAC ','$$$$',
+      Character(LEN=4), parameter :: ComTab(nCom)=[                     &
+     &            'TITL','DEBU','ROOT','EXTR','PRCI',                   &
+     &            'PROR','ITER','THRE','END ','TIME',                   &
+     &            'CALC','NOFI','SEWA','NOCO','NOTW',                   &
+     &            'SPIN','PRIN','PCGD','RESI','NOTO',                   &
+     &            'EXPD','NEGP','LOWM','ELHE','SAVE',                   &
+     &            'RASS','DISO','CASI','SALA','NODE',                   &
+     &            'ESTE','MOUT','MASS','NAC ','$$$$',                   &
      &            'THER','CHOF','TWOS']
-      Integer iDum(1),I,JCOM,ICOM,ITIT,ISYM,IP,IRC,IOPT,ICOMP,
+      Integer iDum(1),I,JCOM,ICOM,ITIT,ISYM,IP,IRC,IOPT,ICOMP,          &
      &        ISYLBL,IPP,IS,ID,J,IRRFNC,iMass
       real*8, allocatable :: umass(:)
       character(len=3), allocatable :: cmass(:)
-*----------------------------------------------------------------------*
-*     Locate "start of input"                                          *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Locate "start of input"                                          *
+!----------------------------------------------------------------------*
       Call RdNLst(5,'MCLR')
-*----------------------------------------------------------------------*
-*     Define default values                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Define default values                                            *
+!----------------------------------------------------------------------*
       debug=.False.
       Epsilon_Undef=.True.
       Call Basis_Info_Get()
@@ -103,7 +103,7 @@
       isNAC=.false.
       isMECIMSPD=.false.
       NewCho=.false.
-*Cholesky. Cannot modify it in the input (yet?)
+!Cholesky. Cannot modify it in the input (yet?)
       dmpk=1.0d-2
       Nscreen=10
       Deco=.true.
@@ -111,9 +111,9 @@
       Estimate=.false.
       TwoStep=.false.
       StepType='xxxx'
-*----------------------------------------------------------------------*
-*     Read the input stream line by line and identify key command      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read the input stream line by line and identify key command      *
+!----------------------------------------------------------------------*
 100   Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 100
@@ -126,9 +126,9 @@
          Write (6,'(A,A)') 'RdInp: illegal command:',Command
          Call Abend()
       End If
-*----------------------------------------------------------------------*
-*     Branch to the processing of the command sections                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Branch to the processing of the command sections                 *
+!----------------------------------------------------------------------*
 110   Select Case (jCom)
         Case (1)
           Go to 10
@@ -207,7 +207,7 @@
         Case (38)
           Go to 220
       End Select
-*---  TITL ------------------------------------------------------------*
+!---  TITL ------------------------------------------------------------*
 10    Continue
 15    Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
@@ -224,91 +224,91 @@
          Goto 15
       End If
       Goto 100
-*
-*----      ------------------------------------------------------------
+!
+!----      ------------------------------------------------------------
 788   RASSI=.true.
       If (debug) Write(6,*) 'Output for RASSI'
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 789   double=.true.    ! Make double isotope substitutions
       goto 100
-*---- DEBU ------------------------------------------------------------
+!---- DEBU ------------------------------------------------------------
 16    debug=.true.
       Goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 195   Continue
       Write (6,*) 'ELHE is disabled!'
       goto 100
-*---- LOWM ------------------------------------------------------------
+!---- LOWM ------------------------------------------------------------
 194   page=.true.
       If (debug) Write(6,*) 'Page memory'
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 191   newpre=.false.
       If (debug) Write(6,*) 'New conditioner'
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 196   lSAVE=.TRUE.
       If (debug) Write(6,*) 'old integrals, not supported'
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 198   CASINT=.true.
       If (debug) Write(6,*) 'CASPT2 integrals'
       goto 100
-*---- EXPD ------------------------------------------------------------
+!---- EXPD ------------------------------------------------------------
 192   Read(5,*) nexp_max
-      If (debug) Write(6,*) 'Maximum explicit preconditioner',
+      If (debug) Write(6,*) 'Maximum explicit preconditioner',          &
      &           nexp_max
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 179   iBreak=1
       Read(5,*) Eps
       Epsilon_Undef=.False.
       If (debug) Write(6,*) 'Threshold:',Eps
       Goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 180   iBreak=2
       Read(5,*) Eps
       Epsilon_Undef=.False.
       If (debug) Write(6,*) 'Threshold:',Eps
       Goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 178   Read(5,*) kprint
       If (debug) Write(6,*) 'Print level: ',kprint
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 193   NGP=.true.
       If (debug) Write (6,*) 'NGP set to true'
       goto 100
-*---- SALA ------------------------------------------------------------
+!---- SALA ------------------------------------------------------------
 199   SA=.true.
       Read(5,*) istate
       override=.true.
       If (debug) Write(6,*) 'Lagrangian for state: ',istate
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 201   esterr=.true.
       goto 100
-*---- NODE ------------------------------------------------------------
+!---- NODE ------------------------------------------------------------
 200   FANCY_PRECONDITIONER=.false.
       If (debug) Write(6,*) 'Turned of the fancy pcg'
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 177   SPINPOL=.true.
       ispop=1
       If (debug) Write(6,*) 'RHF lagrangian, not supported'
       goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 166   Do i=1,nDisp
        NTPert(i)=iAnd(nTPert(i),247)
       End Do
       Goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 165   Do i=1,nDisp
        NTPert(i)=iAnd(nTPert(i),251)
       End Do
       Goto 100
-*----      ------------------------------------------------------------
+!----      ------------------------------------------------------------
 
  185  Continue
  186  Read(5,'(A)',Err=998,End=999) Line
@@ -329,9 +329,9 @@
          Write (6,'(A,A)') 'Label=',Label
          Call Abend()
       End If
-*
-*---  read number of symm. species ------------------------------------*
-*
+!
+!---  read number of symm. species ------------------------------------*
+!
       ipp=0
       Do is=isym+1,nsym
        ipp=ipp+ldisp(is)
@@ -354,7 +354,7 @@
       If (debug) Write(6,*) 'NOFILE      '
       Goto 100
 
-*---  Process the "root" input card -----------------------------------*
+!---  Process the "root" input card -----------------------------------*
 20    Continue
 25    Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
@@ -362,30 +362,30 @@
       Read(Line,*,Err=998,End=999) lRoots
       If (debug) Write(6,*) 'LROOT'
       Goto 100
-*
-*---  CALC ------------------------------------------------------------*
+!
+!---  CALC ------------------------------------------------------------*
 55    Continue
       Write (6,*) 'CALC is disabled!'
       Goto 100
-*---  Process the "extract" input card --------------------------------*
+!---  Process the "extract" input card --------------------------------*
 30    Write (6,*) 'RdInp: EXTRACT option is redundant and is ignored!'
       Goto 100
-*---  Process the "PrCI" input card -----------------------------------*
+!---  Process the "PrCI" input card -----------------------------------*
 40    Continue
       Write (6,*) 'PRCI is disabled!'
       Goto 100
-*---  Process the "PrOr" input card -----------------------------------*
+!---  Process the "PrOr" input card -----------------------------------*
 50    Continue
       Write (6,*) 'PROR is disabled!'
       Goto 100
-*---  Process the "ITER" input card -----------------------------------*
+!---  Process the "ITER" input card -----------------------------------*
 60     Continue
 65    Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 65
       Read(Line,*,Err=998,End=999) nIter
       Goto 100
-*---  Process the "THRE" input card -----------------------------------*
+!---  Process the "THRE" input card -----------------------------------*
 70    Continue
 75    Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
@@ -393,7 +393,7 @@
       Read(Line,*,Err=998,End=999) Eps
       Epsilon_Undef=.False.
       Goto 100
-*---  Process the "TIME" input card -----------------------------------*
+!---  Process the "TIME" input card -----------------------------------*
 80    Continue
       Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
@@ -402,17 +402,17 @@
       TimeDep=.true.
       nIter=100
       Goto 100
-*---  Process the "MOUT" input card -----------------------------------*
+!---  Process the "MOUT" input card -----------------------------------*
 202   Continue
       Write (6,*) 'MOUT is disabled!'
       Goto 100
-*---  Process the "MASS" input card -----------------------------------*
+!---  Process the "MASS" input card -----------------------------------*
 203   Continue
       iMass = 0
       Call Get_Name_All(Element)
-*
-*     Find out how many different elements are present in the molecule.
-*
+!
+!     Find out how many different elements are present in the molecule.
+!
       Do i = 1, nAtoms
          If (Element(i).ne.'  ') iMass = iMass + 1
          Do j = i+1, nAtoms
@@ -425,31 +425,31 @@
          Read(5,'(A3)')    cmass(i)
          Read(5,'(F15.8)') umass(i)
       End Do
-*
-*     Put the Info on the run file.
+!
+!     Put the Info on the run file.
 
       Call Put_iScalar('iMass',iMass)
       Call Put_cArray('cmass',cmass(1),3*iMass)
       Call Put_dArray('umass',umass,iMass)
       call mma_deallocate(cmass)
       call mma_deallocate(umass)
-*
+!
       Goto 100
-*---  Process the "NAC " input card -----------------------------------*
+!---  Process the "NAC " input card -----------------------------------*
 204   Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
       If ( Line(1:1).eq.' ' .or. Line(1:1).eq.'*' ) Goto 25
       Read(Line,*,Err=998,End=999) NACstates(1),NACstates(2)
       isNAC=.true.
       override=.true.
-      If (debug) Write(6,*) 'Non-adiabatic couplings for states: ',
+      If (debug) Write(6,*) 'Non-adiabatic couplings for states: ',     &
      &           NACstates(1),NACstates(2)
       Goto 100
-*---  Process the "$$$$" input card -----------------------------------*
+!---  Process the "$$$$" input card -----------------------------------*
 205   continue
-*     not used
+!     not used
       Goto 100
-*---  Process the "THERmochemistry input card -------------------------*
+!---  Process the "THERmochemistry input card -------------------------*
 206   Read(5,'(A)',Err=998,End=999) Line
       Line = adjustl(Line)
       If (Line(1:1).eq.'*' ) Goto 206
@@ -472,17 +472,17 @@
       nUserPT=nUserPT+1
       Read(Line,*,Err=998,End=999) UserT(nUserPT)
       Goto 2061
-*---  Process the "NEWCho input card ----------------------------------*
+!---  Process the "NEWCho input card ----------------------------------*
 210   NewCho=.True.
       Goto 100
-*---  Process the "TWOStep" input card --------------------------------*
+!---  Process the "TWOStep" input card --------------------------------*
 220   Read(5,'(A)',Err=998,End=999) Line
       Call UpCase(Line)
       Line = adjustl(Line)
       If (Line(1:1).eq.'*' ) Goto 220
       Read(Line,*,Err=998,End=999) StepType
       If (debug) Write(6,*) 'TWOSTEP kind: '//StepType
-      If((StepType(1:4).ne.'FIRS').and.(StepType(1:4).ne.'SECO').and.
+      If((StepType(1:4).ne.'FIRS').and.(StepType(1:4).ne.'SECO').and.   &
      &   (StepType(1:4).ne.'RUN1').and.(StepType(1:4).ne.'RUN2')) Then
          Call WarningMessage(2,'TWOStep: input error!')
          Call Quit_OnUserError()
@@ -496,9 +496,9 @@
       TwoStep=.true.
       If (debug) Write(6,*) 'TWOSTEP kind: '//StepType
       Goto 100
-*----------------------------------------------------------------------*
-*     "End of input"                                                   *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     "End of input"                                                   *
+!----------------------------------------------------------------------*
 99    Continue
       Do i=1,3
          isym=irrfnc(2**(i-1))+1
@@ -509,7 +509,7 @@
          Do id=nDisp,ndisp-ipp+1,-1
             DspVec(id+1)=dspVec(id)
             ntpert(id+1)=ntpert(id)
-*           lcalc(id+1)=lcalc(id)
+!           lcalc(id+1)=lcalc(id)
             Swlbl(id+1)=Swlbl(id)
          End Do
          id=ndisp-ipp+1
@@ -517,37 +517,37 @@
          ldisp(isym)=ldisp(isym)+1
          ndisp=ndisp+1
          ntpert(id)=2
-*        lcalc(id)=.true.
+!        lcalc(id)=.true.
          write (Swlbl(id),'(a,i2)') 'MLTPL ',1
          iRc=-1
          iOpt=ibset(0,sOpSiz)
          Call iRdOne(iRc,iOpt,swlbl(id),dspvec(id),idum,iSyLbl)
       End Do
-*
+!
       If (Timedep) Then
          Do i=1,ndisp
             ntpert(i) = ior(ntpert(i),32)
          End Do
       End if
-*
+!
       If (Epsilon_Undef) Then
-*        If (SA) Then
-*           Eps=1.0D-6
-*        Else
+!        If (SA) Then
+!           Eps=1.0D-6
+!        Else
             Eps=1.0D-4
 !        This I need to change back
-*        End If
+!        End If
       End If
-*
+!
       If (debug) Write(6,*) 'FINITO'
-*----------------------------------------------------------------------*
-*     Normal termination                                               *
-*----------------------------------------------------------------------*
-*
+!----------------------------------------------------------------------*
+!     Normal termination                                               *
+!----------------------------------------------------------------------*
+!
       Return
-*----------------------------------------------------------------------*
-*     Error Exit                                                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Error Exit                                                       *
+!----------------------------------------------------------------------*
  998  Write (6,*) 'RdInp: Error while reading input'
       Write (6,'(A,A)') 'Last command:',Line
       Call Abend()

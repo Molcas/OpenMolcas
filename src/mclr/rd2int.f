@@ -1,33 +1,33 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Johan Lorentzon                                  *
-*               1993, Jeppe Olsen                                      *
-*               1993, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Johan Lorentzon                                  *
+!               1993, Jeppe Olsen                                      *
+!               1993, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine Rd2Int(iPL)
-************************************************************************
-*                                                                      *
-*     Read header of the two-electron integral file                    *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     J. Lorentzon, J. Olsen and M.P. Fuelscher                        *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Read header of the two-electron integral file                    *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     J. Lorentzon, J. Olsen and M.P. Fuelscher                        *
+!     University of Lund, Sweden, 1993                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use input_mclr, only: nSym,TimeDep,CasInt,nSkip,nBas
       Implicit None
       Integer iPL
@@ -35,9 +35,9 @@
       Integer nSymX,nBasX(mxSym)
       Logical SqSym
       Integer iRC,iSym,ntSkip
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Start                                                            *
+!----------------------------------------------------------------------*
       iRc=-1
       Call GetOrd(iRc,SqSym,nSymX,nBasX,nSkip)
       If ( iRc.ne.0 ) Then
@@ -56,7 +56,7 @@
       Do 10 iSym=1,nSym
          If ( nBas(iSym).ne.nBasX(iSym) ) Then
             Write (6,*) 'Rd2Int: nBas(iSym).ne.nBasX(iSym)'
-            Write (6,*) 'nBas(iSym),nBasX(iSym)=',
+            Write (6,*) 'nBas(iSym),nBasX(iSym)=',                      &
      &                   nBas(iSym),nBasX(iSym)
             Call Abend()
          End If
@@ -75,7 +75,7 @@
       Else
          CASINT=.False.
       End If
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Exit                                                             *
+!----------------------------------------------------------------------*
       End Subroutine Rd2Int

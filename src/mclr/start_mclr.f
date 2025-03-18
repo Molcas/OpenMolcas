@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine Start_MCLR()
-************************************************************************
-*                                                                      *
-*     Precompute whatever can be before starting the response section  *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Precompute whatever can be before starting the response section  *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use Arrays, only: CMO_Inv, CMO
       use transform_procedures, only: SetUp_CASPT2_Tra
       use stdalloc, only: mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2
-      use MCLR_Data, only: LuTri1,LuMotra,FnTri1,FnMotra,FnQDat,LuHlf2,
+      use MCLR_Data, only: LuTri1,LuMotra,FnTri1,FnMotra,FnQDat,LuHlf2, &
      &                      LuHlf3,LuQDat,LuTri2
-      use input_mclr, only: StepType,TwoStep,NewCho,nSym,kPrint,nAsh,
-     &                      nBas,nDel,LuAChoVec,LuChoInt,LuIChoVec,
+      use input_mclr, only: StepType,TwoStep,NewCho,nSym,kPrint,nAsh,   &
+     &                      nBas,nDel,LuAChoVec,LuChoInt,LuIChoVec,     &
      &                      nFro,nIsh,nOrb
       Implicit None
 
@@ -37,30 +37,30 @@
       character(len=8) :: Label
       Character(LEN=5) Fname
       Real*8, Allocatable:: STmat(:), Smat(:)
-      Integer lTriDens,lSqrDens,nOrbBas,iSym,iSymLbl,iOpt,iComp,Index,
+      Integer lTriDens,lSqrDens,nOrbBas,iSym,iSymLbl,iOpt,iComp,Index,  &
      &        iOff,i,j,iOff1,iOff2,iType,iSeed,iRC
       Integer, External:: IsFreeUnit
       Real*8 BufFrac
 
-*----------------------------------------------------------------------*
-*     start                                                            *
-*----------------------------------------------------------------------*
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
+!----------------------------------------------------------------------*
+!     start                                                            *
+!----------------------------------------------------------------------*
+!
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       call setup_MCLR(1)
-*
-      If ((StepType.ne.'RUN2').and.(iAnd(kPrint,4).eq.4))
+!
+      If ((StepType.ne.'RUN2').and.(iAnd(kPrint,4).eq.4))               &
      &    Write(6,'(6X,A)') 'Transformation of integrals'
-*     For the mp2-gradient calculations we want the transformation
-*     routine to produce all integrals of the occupied and virtual
-*     orbitals so we tell it that the whole space is inactive and
-*     that the active is empty
-*
-*-----Use the driver from the CASPT2 code (only none-squared).
-*
-*
+!     For the mp2-gradient calculations we want the transformation
+!     routine to produce all integrals of the occupied and virtual
+!     orbitals so we tell it that the whole space is inactive and
+!     that the active is empty
+!
+!-----Use the driver from the CASPT2 code (only none-squared).
+!
+!
       ! re-direct the transformed integrals to the MOTRA file
       ! which is preserved at the end of the calculation.
       ! LuTri1 is deleted.
@@ -73,9 +73,9 @@
       Call DaName_MF_wa(LuTri1,FnTri1)
 
       If (newCho) Then
-*
-**       Compute inverse CMO
-*
+!
+!*       Compute inverse CMO
+!
         lTriDens=0
         lSqrDens=0
         nOrbBas =0
@@ -86,13 +86,13 @@
         End Do
         Call mma_allocate(STmat,lTriDens,Label='STmat')
         Call mma_allocate(Smat,lSqrDens,Label='Smat')
-*
+!
         iSymlbl=1
         iOpt=ibset(ibset(0,sNoOri),sNoNuc)
         Label='Mltpl  0'
         iComp=1
         Call RdOne(irc,iOpt,Label,iComp,STmat,iSymlbl)
-*
+!
         index = 1
         iOff = 0
         Do iSym = 1, nSym
@@ -108,25 +108,25 @@
            ioff=ioff+nBas(iSym)**2
         End Do
         Call mma_deallocate(STmat)
-*
+!
         Call mma_allocate(CMO_inv,nOrbBas,Label='CMO_Inv')
         iOff1 = 1
         iOff2 = 1
         Do iSym = 1, nSym
-           Call dGemm_('T','N', nOrb(iSym),nBas(iSym),nBas(iSym),
-     &                1.0d0,CMO(iOff2), nBas(iSym),
-     &                      Smat(iOff1), nBas(iSym),
+           Call dGemm_('T','N', nOrb(iSym),nBas(iSym),nBas(iSym),       &
+     &                1.0d0,CMO(iOff2), nBas(iSym),                     &
+     &                      Smat(iOff1), nBas(iSym),                    &
      &                0.0d0,CMO_Inv(iOff2), nOrb(iSym))
-*
+!
            iOff1 =  iOff1 + nBas(iSym)**2
            iOff2 =  iOff2 + nOrb(iSym)*nBas(iSym)
         End Do
-*
+!
         Call mma_deallocate(Smat)
       EndIf
-*
-      Call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,
-     &                      nFro,nDel,CMO,nDens2,
+!
+      Call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,                   &
+     &                      nFro,nDel,CMO,nDens2,                       &
      &                      LuTri1,LuTri2,LuHlf2,LuHlf3)
       iType=3  ! Means that TraCtl is called by MCLR
 
@@ -141,9 +141,9 @@
         ! (LuTRI1=LuMOTRA)
         Call put_temp_data_on_intgrl(LuMOTRA,nSym,nOrb,nIsh,nAsh)
       End If
-*
-*
-*     Init Cholesky informations
+!
+!
+!     Init Cholesky informations
       If (NewCho) Then
          BufFrac=0.3D0
          Call Cho_X_Init(irc,BufFrac)
@@ -167,25 +167,25 @@
          Write(Fname,'(A4)') 'CHTU'
          Call DANAME_MF_WA(LuChoInt(2),Fname)
       EndIf
-*
+!
       Call DaClos(LuTri2)
       Call DaClos(LuHlf2)
       Call DaClos(LuHlf3)
-*
+!
       Call FckMat()
       Call StPert()
-*
-**    With Cholesky there is no other choice than computing some
-**    integrals used for the preconditioner
-*
+!
+!*    With Cholesky there is no other choice than computing some
+!*    integrals used for the preconditioner
+!
       If (NewCho) Call cho_prec_mclr(CMO,nIsh,nASh,LuAChoVec,LuChoInt)
-*
-*----------------------------------------------------------------------*
-*     exit                                                             *
-*----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!     exit                                                             *
+!----------------------------------------------------------------------*
       End Subroutine Start_MCLR
 
-      Subroutine put_temp_data_on_intgrl(LUINTMZ_, NSYMZ_, NORBZ_,
+      Subroutine put_temp_data_on_intgrl(LUINTMZ_, NSYMZ_, NORBZ_,      &
      &                                   NISHZ_, NASHZ_  )
       use Intgrl, only: NSYMZ,IAD2M,LUINTMZ,NORBZ
       Implicit None
@@ -203,7 +203,7 @@
         NORBZ(i) = NORBZ_(i)
       End Do
       Return
-* Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
         Call Unused_integer_array(NISHZ_)
         Call Unused_integer_array(NASHZ_)

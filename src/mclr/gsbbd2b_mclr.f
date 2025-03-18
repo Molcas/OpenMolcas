@@ -1,97 +1,97 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1996, Jeppe Olsen                                      *
-************************************************************************
-      SUBROUTINE GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,
-     &                        JASM,JATP,JBSM,JBTP,NJA,NJB,
-     &                  IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,
-     &                  SB,CB,MXPNGAS,
-     &                  NOBPTS,IOBPTS,MAXK,
-     &                  I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,
-     &                  NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1996, Jeppe Olsen                                      *
+!***********************************************************************
+      SUBROUTINE GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,         &
+     &                        JASM,JATP,JBSM,JBTP,NJA,NJB,              &
+     &                  IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,           &
+     &                  SB,CB,MXPNGAS,                                  &
+     &                  NOBPTS,IOBPTS,MAXK,                             &
+     &                  I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,              &
+     &                  NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,          &
      &                  CJRES,SIRES,NORB,NTESTG,ieaw)
-*
-* alpha-beta contribution to two-particle density matrix
-* from given c-block and s-block.
-*
-* =====
-* Input
-* =====
-*
-* IASM,IATP : Symmetry and type of alpha  strings in sigma
-* IBSM,IBTP : Symmetry and type of beta   strings in sigma
-* JASM,JATP : Symmetry and type of alpha  strings in C
-* JBSM,JBTP : Symmetry and type of beta   strings in C
-* NIA,NIB : Number of alpha-(beta-) strings in sigma
-* NJA,NJB : Number of alpha-(beta-) strings in C
-* IAGRP : String group of alpha strings
-* IBGRP : String group of beta strings
-* IAEL1(3) : Number of electrons in RAS1(3) for alpha strings in sigma
-* IBEL1(3) : Number of electrons in RAS1(3) for beta  strings in sigma
-* JAEL1(3) : Number of electrons in RAS1(3) for alpha strings in C
-* JBEL1(3) : Number of electrons in RAS1(3) for beta  strings in C
-* CB   : Input C block
-* NTSOB  : Number of orbitals per type and symmetry
-* IBTSOB : base for orbitals of given type and symmetry
-* IBORB  : Orbitals of given type and symmetry
-* NSMOB,NSMST,NSMSX : Number of symmetries of orbitals,strings,
-*       single excitations
-* MAXK   : Largest number of inner resolution strings treated at simult.
-*
-*
-* ======
-* Output
-* ======
-* SB : updated sigma block
-*
-* =======
-* Scratch
-* =======
-*
-* I1, XI1S   : at least MXSTSO : Largest number of strings of given
-*              type and symmetry
-* I2, XI2S   : at least MXSTSO : Largest number of strings of given
-*              type and symmetry
-* X : Space for block of two-electron integrals
-*
-* Jeppe Olsen, Fall of 1996
-*
-*
-*
+!
+! alpha-beta contribution to two-particle density matrix
+! from given c-block and s-block.
+!
+! =====
+! Input
+! =====
+!
+! IASM,IATP : Symmetry and type of alpha  strings in sigma
+! IBSM,IBTP : Symmetry and type of beta   strings in sigma
+! JASM,JATP : Symmetry and type of alpha  strings in C
+! JBSM,JBTP : Symmetry and type of beta   strings in C
+! NIA,NIB : Number of alpha-(beta-) strings in sigma
+! NJA,NJB : Number of alpha-(beta-) strings in C
+! IAGRP : String group of alpha strings
+! IBGRP : String group of beta strings
+! IAEL1(3) : Number of electrons in RAS1(3) for alpha strings in sigma
+! IBEL1(3) : Number of electrons in RAS1(3) for beta  strings in sigma
+! JAEL1(3) : Number of electrons in RAS1(3) for alpha strings in C
+! JBEL1(3) : Number of electrons in RAS1(3) for beta  strings in C
+! CB   : Input C block
+! NTSOB  : Number of orbitals per type and symmetry
+! IBTSOB : base for orbitals of given type and symmetry
+! IBORB  : Orbitals of given type and symmetry
+! NSMOB,NSMST,NSMSX : Number of symmetries of orbitals,strings,
+!       single excitations
+! MAXK   : Largest number of inner resolution strings treated at simult.
+!
+!
+! ======
+! Output
+! ======
+! SB : updated sigma block
+!
+! =======
+! Scratch
+! =======
+!
+! I1, XI1S   : at least MXSTSO : Largest number of strings of given
+!              type and symmetry
+! I2, XI2S   : at least MXSTSO : Largest number of strings of given
+!              type and symmetry
+! X : Space for block of two-electron integrals
+!
+! Jeppe Olsen, Fall of 1996
+!
+!
+!
       USE Symmetry_Info, only: Mul
       IMPLICIT REAL*8(A-H,O-Z)
-*. General input
+!. General input
       INTEGER NOBPTS(3,*),IOBPTS(3,*)
-*.Input
+!.Input
       DIMENSION CB(*),SB(*)
-*. Output
+!. Output
       DIMENSION RHO2(*)
-*.Scratch
+!.Scratch
       DIMENSION I1(*),XI1S(*),I2(*),XI2S(*)
       DIMENSION I3(*),XI3S(*),I4(*),XI4S(*)
       DIMENSION X(*)
       DIMENSION CJRES(*),SIRES(*)
       DIMENSION IAOC(*),IBOC(*),JAOC(*),JBOC(*)
-*.Local arrays
+!.Local arrays
       DIMENSION ITP(3 ),JTP(3 ),KTP(3 ),LTP(3 )
-*
+!
       NGAS = 3
-*
-*. Symmetry of allowed excitations
+!
+!. Symmetry of allowed excitations
       IJSM = Mul(IASM,JASM)
       KLSM = Mul(IBSM,JBSM)
       itype=2
       If (ieaw.eq.1) itype=3
       IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
-*.Types of SX that connects the two strings
+!.Types of SX that connects the two strings
       CALL SXTYP_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC)
       CALL SXTYP_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC)
       IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
@@ -106,14 +106,14 @@
           NI = NOBPTS(ITYP,ISM)
           NJ = NOBPTS(JTYP,JSM)
           IF(NI.EQ.0.OR.NJ.EQ.0) GOTO 1940
-*EAW
-*. Find Ka strings that connect with Ja strings for given group of Jorbs
+!EAW
+!. Find Ka strings that connect with Ja strings for given group of Jorbs
            KABOT = 1
-*. Obtain all strings
+!. Obtain all strings
            KATOP = -1
-           CALL ADST(JOFF,NJ,JATP,JASM,IAGRP,KABOT,KATOP,
+           CALL ADST(JOFF,NJ,JATP,JASM,IAGRP,KABOT,KATOP,               &
      &              I1,XI1S,MAXK,NKASTR,KAEND)
-           CALL ADST(IOFF,NI,IATP,IASM,IAGRP,KABOT,KATOP,
+           CALL ADST(IOFF,NI,IATP,IASM,IAGRP,KABOT,KATOP,               &
      &               I3,XI3S,MAXK,NKASTR,KAEND)
           IDOCOMP = 1
           IF(IDOCOMP.EQ.1) THEN
@@ -122,30 +122,30 @@
               NKAEFF = NKASTR
           END IF
 
-*. Loop over batches of KA strings
+!. Loop over batches of KA strings
           NKABTC = NKAEFF/MAXK
           IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
           DO 1801 IKABTC = 1, NKABTC
             KABOT = (IKABTC-1)*MAXK + 1
             KATOP = MIN(KABOT+MAXK-1,NKAEFF)
             LKABTC = KATOP-KABOT+1
-*. Obtain C(ka,J,JB) for Ka in batch
+!. Obtain C(ka,J,JB) for Ka in batch
             DO JJ = 1, NJ
-              CALL GET_CKAJJB(CB,NJ,NJA,CJRES,LKABTC,NJB,
-     &             JJ,I1(KABOT+(JJ-1)*NKASTR),
+              CALL GET_CKAJJB(CB,NJ,NJA,CJRES,LKABTC,NJB,               &
+     &             JJ,I1(KABOT+(JJ-1)*NKASTR),                          &
      &             XI1S(KABOT+(JJ-1)*NKASTR))
             END DO
-*. Obtain S(ka,i,Ib) for Ka in batch
+!. Obtain S(ka,i,Ib) for Ka in batch
             DO II = 1, NI
-              CALL GET_CKAJJB(SB,NI,NIA,SIRES,LKABTC,NIB,
-     &             II,I3(KABOT+(II-1)*NKASTR),
+              CALL GET_CKAJJB(SB,NI,NIA,SIRES,LKABTC,NIB,               &
+     &             II,I3(KABOT+(II-1)*NKASTR),                          &
      &             XI3S(KABOT+(II-1)*NKASTR))
             END DO
-*
+!
             DO 2000 KLTYP = 1, NKLTYP
               KTYP = KTP(KLTYP)
               LTYP = LTP(KLTYP)
-*
+!
               DO 1930 KSM = 1, NSMOB
                 LSM = Mul(KSM,KLSM)
                 IF(LSM.EQ.0) GOTO 1930
@@ -153,49 +153,49 @@
                 LOFF = IOBPTS(LTYP,LSM)
                 NK = NOBPTS(KTYP,KSM)
                 NL = NOBPTS(LTYP,LSM)
-*. If IUSEAB is used, only terms with i.ge.k will be generated so
+!. If IUSEAB is used, only terms with i.ge.k will be generated so
                 IKORD = 0
                 IF(IUSEAB.EQ.1.AND.ISM.GT.KSM) GOTO 1930
-                IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.LT.KTYP)
+                IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.LT.KTYP)         &
      &          GOTO 1930
                 IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.EQ.KTYP) IKORD=1
-*
+!
                 IF(NK.EQ.0.OR.NL.EQ.0) GOTO 1930
-*EAW
-*. Obtain all connections a+l!Kb> = +/-/0!Jb>
-*. NKBSTR must be given as input
-*. obtain cb(KA,KB,jl) =  sum(JA,JB)<KA!a la!JA><KB!a jb !JB>C(JA,JB)
-*
+!EAW
+!. Obtain all connections a+l!Kb> = +/-/0!Jb>
+!. NKBSTR must be given as input
+!. obtain cb(KA,KB,jl) =  sum(JA,JB)<KA!a la!JA><KB!a jb !JB>C(JA,JB)
+!
                KBBOT = 1
-*. Obtain all strings
+!. Obtain all strings
                KBTOP = -1
-               CALL ADST(LOFF,NL,JBTP,JBSM,IBGRP,KBBOT,KBTOP,
+               CALL ADST(LOFF,NL,JBTP,JBSM,IBGRP,KBBOT,KBTOP,           &
      &                      I2,XI2S,MAXK,NKBSTR,KBEND)
-               CALL ADST(KOFF,NK,IBTP,IBSM,IBGRP,KBBOT,KBTOP,
+               CALL ADST(KOFF,NK,IBTP,IBSM,IBGRP,KBBOT,KBTOP,           &
      &                   I4,XI4S,MAXK,NKBSTR,KBEND)
 
-*               IF(NKBSTR.EQ.0) GOTO 1930
+!               IF(NKBSTR.EQ.0) GOTO 1930
                 X(1:NI*NJ*NK*NL) = 0.0D0
-*
-                CALL ABTOR2(SIRES,CJRES,LKABTC,
-     &               NKBSTR,X,NI,NJ,NK,NL,NKBSTR,
+!
+                CALL ABTOR2(SIRES,CJRES,LKABTC,                         &
+     &               NKBSTR,X,NI,NJ,NK,NL,NKBSTR,                       &
      &               I4,XI4S,I2,XI2S,IKORD)
-*. contributions to Rho2(ij,kl) has been obtained, scatter out
-                CALL ADTOR2_MCLR(RHO2,X,itype,
+!. contributions to Rho2(ij,kl) has been obtained, scatter out
+                CALL ADTOR2_MCLR(RHO2,X,itype,                          &
      &                NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 
  1930         CONTINUE
  2000       CONTINUE
  1801     CONTINUE
-*. End of loop over partitioning of alpha strings
+!. End of loop over partitioning of alpha strings
  1940   CONTINUE
  2001 CONTINUE
-*
+!
  9999 CONTINUE
-*
-*
+!
+!
       RETURN
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       IF (.FALSE.) THEN
         CALL Unused_integer(MXPNGAS)
         CALL Unused_integer(NSMST)

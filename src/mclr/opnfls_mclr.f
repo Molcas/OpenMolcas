@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine OpnFls_MCLR(iPL)
-************************************************************************
-*                                                                      *
-*     Open files.                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
-      use MCLR_Data, only: FnPT2,FnMck,FnOne,FnTemp,FnTwo,LuMck,LuTEMP,
+!***********************************************************************
+!                                                                      *
+!     Open files.                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
+      use MCLR_Data, only: FnPT2,FnMck,FnOne,FnTemp,FnTwo,LuMck,LuTEMP, &
      &                      LuTwo
       use input_mclr, only: McKinley, PT2, ChIrr
       Implicit None
       Character(LEN=8) Label
       Logical FoundTwoEls,Direct,DoCholesky
       Integer iPL,iRC,iOpt,iDum
-*---------------------------------------------------------------------*
-*     Start                                                           *
-*---------------------------------------------------------------------*
-*---  open the JOBIPH file -------------------------------------------*
-*     Call DaName(LuJob,FnJob)
+!---------------------------------------------------------------------*
+!     Start                                                           *
+!---------------------------------------------------------------------*
+!---  open the JOBIPH file -------------------------------------------*
+!     Call DaName(LuJob,FnJob)
       Call DaName(LuTemp,FnTemp)
-*---  open the ORDINT file -------------------------------------------*
+!---  open the ORDINT file -------------------------------------------*
       Call f_Inquire(FnTwo,FoundTwoEls)
       Call DecideOnDirect(.True.,FoundTwoEls,Direct,DoCholesky)
       If (Direct) Then
@@ -55,7 +55,7 @@
       Call f_Inquire(FnMCK,McKinley)
       Call f_Inquire(FnPT2,PT2)
       If (McKinley) Then
-*        Write(*,*) 'Calculating response on perturbation from mckinley'
+!        Write(*,*) 'Calculating response on perturbation from mckinley'
          iRc=-1
          iOpt=0
          Call OpnMck(iRc,iOpt,FnMck,LuMck)
@@ -73,20 +73,20 @@
             Write (6,'(A,A)') 'Label=',Label
             Call Abend()
          End If
-*
+!
       Else If (PT2) Then
-C      If (iPL.ge.2)
-C    &     Write(6,*) 'Calculating lagrange multipliers for CASPT2'
-C      Call DaName(LuPT2,FnPT2)
+!      If (iPL.ge.2)
+!    &     Write(6,*) 'Calculating lagrange multipliers for CASPT2'
+!      Call DaName(LuPT2,FnPT2)
       Else
        If (iPL.ge.2) Then
        Write(6,*)'No ',FnPT2,' or ' ,FNMCK, ', I hope that is OK'
-       Write(6,*)'Seward mode is assumed, reading perturbation from ',
+       Write(6,*)'Seward mode is assumed, reading perturbation from ',  &
      &           FnOne
        End If
       End If
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Exit                                                             *
+!----------------------------------------------------------------------*
       Return
       End

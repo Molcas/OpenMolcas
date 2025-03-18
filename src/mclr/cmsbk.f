@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Aug. 06, 2020, created this file.               *
-* ****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Aug. 06, 2020, created this file.               *
+! ****************************************************************
       Subroutine Calcbk(bk,R,nTri,GDMat,zX)
       use stdalloc, only : mma_allocate, mma_deallocate
       use Constants, only: Zero
@@ -21,14 +21,14 @@
       use input_mclr, only: nRoots,ntAsh
       Implicit None
 
-******Output
+!*****Output
       Real*8,DIMENSION(nDens2)::bk
-******Input
+!*****Input
       Real*8,DIMENSION(nRoots**2)::R
       INTEGER nTri
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
       Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
-******Auxiliaries
+!*****Auxiliaries
       Real*8,DIMENSION(:),Allocatable::FOccMO,P2MOt
       INTEGER nP2,nG1
       Integer i, j, itri
@@ -43,24 +43,24 @@
       CALL GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
       CALL GetPDFTFock(bk)
       CALL PutCMSFockOcc(FOccMO,nTri)
-*
+!
       CALL mma_deallocate(FOccMO)
       CALL mma_deallocate(P2MOt)
 
       end subroutine Calcbk
-******************************************************
+!*****************************************************
 
-******************************************************
+!*****************************************************
       Subroutine PutCMSFockOcc(FOccMO,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2, ipMat
       use input_mclr, only: nSym,nBas
       implicit None
-******Output:none
-******Input:
+!*****Output:none
+!*****Input:
       INTEGER nTri
       Real*8,DIMENSION(nDens2)::FOccMO
-******Auxiliaries
+!*****Auxiliaries
       Real*8,DIMENSION(:),Allocatable::F,T,F_n
       INTEGER ijb,iS,iB,jB
       CALL mma_allocate(F,nDens2)
@@ -70,7 +70,7 @@
       CALL FZero(F,nDens2)
       CALL FZero(F_n,nDens2)
       CALL Get_dArray_chk('FockOcc',F,nTri)
-***** WF Part
+!**** WF Part
       CALL DCopy_(nDens2,FOccMO,1,T,1)
       CALL TCMO(T,1,-2)
       ijb=0
@@ -78,7 +78,7 @@
        do ib=1,nbas(is)
         do jb=1,ib-1
          ijb=ijb+1
-         F_n(ijb)=T(ipmat(is,is)+nbas(is)*(JB-1)+IB-1)
+         F_n(ijb)=T(ipmat(is,is)+nbas(is)*(JB-1)+IB-1)                  &
      &                +T(ipmat(is,is)+nbas(is)*(IB-1)+JB-1)
         end do
         ijb=ijb+1
@@ -91,17 +91,17 @@
       CALL mma_deallocate(T)
       CALL mma_deallocate(F_n)
       end subroutine PutCMSFockOcc
-******************************************************
-******************************************************
+!*****************************************************
+!*****************************************************
       Subroutine GetPDFTFock(bk)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nDens2, ipMat
       use input_mclr, only: nSym,nBas
       Implicit None
-******Output
+!*****Output
       Real*8,DIMENSION(nDens2)::bk
-******Input
-******Auxiliaries
+!*****Input
+!*****Auxiliaries
       Real*8,DIMENSION(:),Allocatable::T,FT99,bktmp
       INTEGER IS,JS
       CALL mma_allocate(FT99,nDens2)
@@ -112,9 +112,9 @@
       DO IS=1,nSym
          jS=iEOR(iS-1,0)+1
          If (nBas(is)*nBas(jS).ne.0) then
-           Call DGeSub(T(ipMat(iS,jS)),nBas(iS),'N',
-     &                 T(ipMat(jS,iS)),nBas(jS),'T',
-     &                 bktmp(ipMat(iS,jS)),nBas(iS),
+           Call DGeSub(T(ipMat(iS,jS)),nBas(iS),'N',                    &
+     &                 T(ipMat(jS,iS)),nBas(jS),'T',                    &
+     &                 bktmp(ipMat(iS,jS)),nBas(iS),                    &
      &                 nBas(iS),nBas(jS))
          End If
       END DO
@@ -123,10 +123,10 @@
       CALL mma_deallocate(FT99)
       CALL mma_deallocate(bktmp)
       end subroutine GetPDFTFock
-******************************************************
-******************************************************
+!*****************************************************
+!*****************************************************
       Subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
-******Partially readpated from rhs_sa.f
+!*****Partially readpated from rhs_sa.f
       use stdalloc, only : mma_allocate, mma_deallocate
       use ipPage, only: W
       use Constants, only: One, Two
@@ -136,31 +136,31 @@
       use MCLR_Data, only: XISPSM
       use input_mclr, only: nRoots,ntAsh,iTOC,State_Sym,nCSF
       Implicit None
-******Input
+!*****Input
       Real*8,DIMENSION(nRoots**2)::R
       INTEGER nTri,NG2
-******Output
+!*****Output
       Real*8,DIMENSION(nDens2)::FOccMO
       Real*8,DIMENSION(nDens2)::bk
       Real*8,DIMENSION(nG2)::P2MOt
-******Auxiliaries
+!*****Auxiliaries
       Real*8,DIMENSION(:),Allocatable::FinCI
-*     FinCI: CI Vectors in final CMS state basis
+!     FinCI: CI Vectors in final CMS state basis
       Real*8,DIMENSION(1)::rdum
-      Real*8,DIMENSION(:),Allocatable::Fock,T,G1r,G2r,G2rt,
+      Real*8,DIMENSION(:),Allocatable::Fock,T,G1r,G2r,G2rt,             &
      & CIL,CIR,G1q,G2q,G1qs,G2qs
       Real*8,DIMENSION(:),Allocatable::DMatAO,DIAO,D5,D6
       INTEGER I,J,iTri,K,NCSFs
       Real*8 Fact
       INTEGER iB,jB,kB,lB,iDkl,iRijkl
       Integer nG1, nConfL
-      Integer iA, jA, kA, lA, ij1, kl1, kl2, iDij, iRij, iRkl, iIJKL,
+      Integer iA, jA, kA, lA, ij1, kl1, kl2, iDij, iRij, iRkl, iIJKL,   &
      &        JDisk
-************************************************************************
-*                                                                      *
+!***********************************************************************
+!                                                                      *
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************
        ng1=itri(ntash,ntash)
        ng2=itri(ng1,ng1)
 
@@ -172,9 +172,9 @@
        Call mma_allocate(G1r,ntash**2,Label='G1r')
        Call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
        Call mma_allocate(G2rt,itri(ntash**2,ntash**2),Label='G2rt')
-*******Rotate CI vectors back to those for reference states
+!******Rotate CI vectors back to those for reference states
        NCSFs=NCSF(state_sym)
-       CALL DGEMM_('n','n',NCSFS,nRoots,nRoots,1.0d0,W(ipCI)%Vec,
+       CALL DGEMM_('n','n',NCSFS,nRoots,nRoots,1.0d0,W(ipCI)%Vec,       &
      &             NCSFs,R,nRoots,0.0d0,FinCI,nCSFs)
        nConfL=Max(ncsf(state_sym),nint(xispsm(state_sym,1)))
 
@@ -184,14 +184,14 @@
        I=IRlxRoot
        Call CSF2SD(FinCI(1+(I-1)*NCSFs),CIL,state_sym)
        CALL DCopy_(nConfL,CIL,1,CIR,1)
-       Call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,
+       Call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,              &
      &              itri(ntash**2,ntash**2))
        Do iA=1,nnA
          Do jA=1,nnA
            Do kA=1,nnA
             Do la=1,nnA
              ij1=nnA*(iA-1)+ja
-*             ij2=nna*(ja-1)+ia
+!             ij2=nna*(ja-1)+ia
              kl1=nnA*(ka-1)+la
              kl2=nna*(la-1)+ka
        if(iA.eq.jA.or.kA.eq.la) then
@@ -210,7 +210,7 @@
         G1q(itri(ib,jb))= G1r(ib+(jb-1)*ntash)
         End Do
        End Do
-*******D1MOt: CMS-PDFT 1RDM for computing 1-electron gradient
+!******D1MOt: CMS-PDFT 1RDM for computing 1-electron gradient
        Call Put_DArray('D1MOt           ',G1q,ng1)
        Do iB=1,ntash
         Do jB=1,ntash
@@ -233,16 +233,16 @@
        Call Get_dArray_chk('P2MOt',P2MOt,ng2)
        Call DaXpY_(ng2,1.0d0,G2q,1,P2MOt,1)
 
-*******Done with the info from CMS final state
+!******Done with the info from CMS final state
 
-*******Doing some computation for computing non-active-active 2RDM in
-*******integral_util/prepp.f
+!******Doing some computation for computing non-active-active 2RDM in
+!******integral_util/prepp.f
        Call mma_allocate(D5,nTri)
        Call mma_allocate(D6,nTri)
-*******D5: Used in ptrans_sa when isym==jsym (PDFT parts cancel WF
-*******    parts for intermediate states)
-*******D6: Used in ptrans_sa when isym.ne.jsym (sum of inactive parts of
-*******intermediate-state 1RDMs cancels that of the final state)
+!******D5: Used in ptrans_sa when isym==jsym (PDFT parts cancel WF
+!******    parts for intermediate states)
+!******D6: Used in ptrans_sa when isym.ne.jsym (sum of inactive parts of
+!******intermediate-state 1RDMs cancels that of the final state)
        Call mma_allocate(DMatAO,nTri)
        Call mma_allocate(DIAO,nTri)
        CALL Get_DArray('MSPDFTD5        ',DIAO,nTri)
@@ -257,7 +257,7 @@
        Call mma_deallocate(D6)
        Call mma_deallocate(DMatAO)
        Call mma_deallocate(DIAO)
-*******Beginning of the info for CMS intermediate states
+!******Beginning of the info for CMS intermediate states
 
 
        jdisk=itoc(3)
@@ -318,7 +318,7 @@
        Call mma_deallocate(CIR)
        Call mma_deallocate(FinCI)
        End Subroutine GetWFFock
-******************************************************
+!*****************************************************
       Subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
       use Arrays, only: CMO
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -327,23 +327,23 @@
       use input_mclr, only: nSym,nAsh,nBas,nIsh
       Implicit None
 #include "SysDef.fh"
-******Purpose: calculate the active 1RDM in AO basis given that in MO
-******         basis
-******Input
+!*****Purpose: calculate the active 1RDM in AO basis given that in MO
+!*****         basis
+!*****Input
       INTEGER nDMO,nDAO
       Real*8,DIMENSION(nDMO)::DMO
-******Output
+!*****Output
       Real*8,DIMENSION(nDAO)::DAO
-******Auxiliaries
+!*****Auxiliaries
       Real*8,DIMENSION(:),Allocatable::D1,OCCU,NatCMO
       INTEGER nLCMO,iS,i,j,iAA,jAA,nbas_tot,ij,iA,jA, iTri
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       nLCMO=0
       nbas_tot=0
       DO iS=1,nSym
@@ -353,9 +353,9 @@
 
       Call mma_allocate(D1,nLCMO)
       Call FZero(D1,nLCMO)
-******First, converting DMO into D1
-******similar to computing D_K from G1q, as done in out_pt2.f
-*********************************************************
+!*****First, converting DMO into D1
+!*****similar to computing D_K from G1q, as done in out_pt2.f
+!********************************************************
       DO iS=1,nSym
        Do iA=1,nash(is)
         do jA=1,nash(is)
@@ -368,7 +368,7 @@
        End Do
       END DO
 
-*********************************************************
+!********************************************************
       Call mma_allocate(OCCU,nbas_tot,Label='OCCU')
       Call mma_allocate(NatCMO,ndens2,Label='NatCMO')
 

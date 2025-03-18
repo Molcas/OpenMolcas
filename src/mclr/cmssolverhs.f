@@ -1,50 +1,50 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Aug. 06, 2020, created this file.               *
-* ****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Aug. 06, 2020, created this file.               *
+! ****************************************************************
       Subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
       use MCLR_Data, only: nDens2, nConf1
       use input_mclr, only: nRoots
       Implicit None
-****** Output
+!***** Output
       Real*8,DIMENSION(nDens2+6)::Fock
       Real*8,DIMENSION(nconf1*nroots)::CICSF
-****** Input
+!***** Input
       Real*8,DIMENSION(nDens2)::AXkzx
       Real*8,DIMENSION(NConf1*nRoots)::AXPzx
       Real*8,DIMENSION(nDens2)::bk
       Real*8,DIMENSION(nConf1*nRoots)::bP
-****** Assistants
+!***** Assistants
       INTEGER nRow
 
-*****  Orbital Rotation Part
+!****  Orbital Rotation Part
       nRow=nDens2
       CALL FZero(Fock,nDens2)
       CALL DCopy_(nRow,Axkzx,1,Fock,1)
       CALL DAXPY_(nRow,1.0d0,bk,1,Fock,1)
 
-****** State-CSF Rotation Part
+!***** State-CSF Rotation Part
       nRow=nRoots*nConf1
       CALL FZero(CICSF,nRow)
       CALL DCopy_(nRow,AXPzx,1,CICSF,1)
       CALL DAXPY_(nRow,-1.0d0,bP,1,CICSF,1)
 
       END SUBROUTINE SolveforRHS
-******************************************************
+!*****************************************************
 
-******************************************************
+!*****************************************************
       subroutine SolveforzX(zX,AXX,bX)
       use stdalloc, only : mma_allocate, mma_deallocate
       use cmslag,   only : ResQaaLag2
@@ -52,12 +52,12 @@
       use input_mclr, only: nRoots,Eps
       Implicit None
 #include "warnings.h"
-****** Output
+!***** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
-****** Input
+!***** Input
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
       Real*8,DIMENSION(((nRoots-1)*nRoots/2)**2)::AXX
-****** Assistants
+!***** Assistants
       Real*8,DIMENSION(:),Allocatable::EigVal,bxscr,zXscr,Scr
       INTEGER NDim,nSPair,iPair,nScr,INFO
 
@@ -74,7 +74,7 @@
 
       CALL DSYEV_('V','U',nDim,AXX,nDim,EigVal,Scr,nScr,INFO)
 
-      CALL DGEMM_('n','n',1,nDim,nDim,1.0d0,bx,1,AXX,nDim,
+      CALL DGEMM_('n','n',1,nDim,nDim,1.0d0,bx,1,AXX,nDim,              &
      &                                0.0d0,bxScr,1)
 
 
@@ -86,26 +86,26 @@
        END IF
       END DO
 
-      write(6,'(6X,A37,2X,ES17.9)')
+      write(6,'(6X,A37,2X,ES17.9)')                                     &
      & 'Residual in Qaa Lagrange Multipliers:',SQRT(ResQaaLag2)
       IF(ResQaaLag2.gt.Eps**2) THEN
         write(6,*)
-        write(6,'(6X,A)')
+        write(6,'(6X,A)')                                               &
      &    'ERROR: RESIDUAL(S) FOR INTERMEDIATE STATE TOO BIG!'
         write(6,*)
-        write(6,'(6X,A)')
+        write(6,'(6X,A)')                                               &
      &    'This may come from a linear molecular or a linear'
-        write(6,'(6X,A)')
+        write(6,'(6X,A)')                                               &
      &    'fragment.'
-        write(6,'(6X,A)')
+        write(6,'(6X,A)')                                               &
      &    'CMS-PDFT Lagrange multipliers are not solved.'
-        CALL WarningMessage(2,
+        CALL WarningMessage(2,                                          &
      &    'Residual in Lagrange Multipliers for Qaa Too Big')
         CALL Quit(_RC_EXIT_EXPECTED_)
       END IF
 
-      CALL DGEMM_('n','t',    1,nSPair,nSPair,
-     &            1.0d0,zXScr,1,AXX,nSPair,
+      CALL DGEMM_('n','t',    1,nSPair,nSPair,                          &
+     &            1.0d0,zXScr,1,AXX,nSPair,                             &
      &            0.0d0,zx   ,1)
 
       CALL mma_deallocate(EigVal)
@@ -113,35 +113,35 @@
       CALL mma_deallocate(zXScr )
       CALL mma_deallocate(Scr   )
       END SUBROUTINE SolveforzX
-******************************************************
-******************************************************
+!*****************************************************
+!*****************************************************
       Subroutine GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA, nDens2
       use input_mclr, only: nRoots,ntAsh,ntBas
       Implicit None
-******Input
+!*****Input
       Integer nP2
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
       Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
       Real*8,DIMENSION(nP2)::P2MOt
-******Output
+!*****Output
       Real*8,DIMENSION(nDens2)::FOccMO
-******For Debugging
+!*****For Debugging
       INTEGER NPUVX
       Real*8,DIMENSION(:),Allocatable::PUVX
       INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
       INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::IndPUVX
       Logical debug2
-******Auxiliaries
+!*****Auxiliaries
       Real*8,DIMENSION(:),Allocatable::G1r,G2r,G2q,Fock,T,PQaa
       INTEGER K,L,nG2r,IKL,IKL2,IKK,ILL, nG1, nG2, nG1r
-************************************************************************
-*                                                                      *
+!***********************************************************************
+!                                                                      *
        Integer i,j,itri
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************
       ng1=itri(ntash,ntash)
       ng2=itri(ng1,ng1)
 
@@ -158,7 +158,7 @@
       CALL FZero(G1r,nG1r)
       CALL FZero(G2r,nG2r)
 
-******************
+!*****************
 
       IF(Debug2) THEN
       CALL Get_PUVXLen(NPUVX)
@@ -194,9 +194,9 @@
       CALL mma_deallocate(G2q)
       CALL mma_deallocate(PQaa)
       End Subroutine GetQaaFock
-******************************************************
+!*****************************************************
 
-******************************************************
+!*****************************************************
       Subroutine G2qtoG2r(G2r,G2q,nG2,nG2r)
       use Constants, only: One, Two
       use input_mclr, only: ntAsh
@@ -227,9 +227,9 @@
        End Do
       End Do
       End Subroutine G2qtoG2r
-******************************************************
+!*****************************************************
 
-******************************************************
+!*****************************************************
       Subroutine QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
       use MCLR_Data, only: nNA
       use input_mclr, only: ntAsh
@@ -262,26 +262,26 @@
       write(6,*) 'dQdX in QaaVerif=',dQdX
 
       End Subroutine QaaVerif
-******************************************************
+!*****************************************************
 
-******************************************************
+!*****************************************************
       Subroutine QaaP2MO(G2q,ng2,GDMat,IKL,IKK,ILL)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nNA
       use input_mclr, only: nRoots
       implicit none
-******  Input
+!*****  Input
       INTEGER nG2,IKL,IKK,ILL
       Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
-******  Output
+!*****  Output
       Real*8,DIMENSION(nG2)::G2q
-******  Auxiliaries
+!*****  Auxiliaries
       INTEGER i,j,k,l,ij,kl,ijkl,nD, lMax, itri
       Real*8 Fact
       Real*8,DIMENSION(:),Allocatable::Dsum,Ddif
       iTri(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 
-******* Calculating dQ_aa/dX_KL, original purpose of this subroutine
+!****** Calculating dQ_aa/dX_KL, original purpose of this subroutine
       nD=nnA*(nnA+1)/2
       CALL mma_allocate(Dsum,nD)
       CALL mma_allocate(Ddif,nD)
@@ -307,7 +307,7 @@
                ijkl = ijkl + 1
                fact=0.5d0
                if(k.eq.l) fact=0.25d0
-               G2q(ijkl)=
+               G2q(ijkl)=                                               &
      & fact*(Dsum(ij)*Ddif(kl)+Dsum(kl)*Ddif(ij))*2.0d0
              end do
            end do

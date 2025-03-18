@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,    &
      &                   Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
       use ipPage, only: W
       use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
@@ -28,56 +28,56 @@
        Real*8, Allocatable:: CIDET(:)
        integer nDet, iOp, iS, jS, iRC
        integer, external:: ipIN, ipIN1, ipNOUT
-*
-*      Interface Anders to Jeppe
-*      This interface initiates Jeppes common block
-*      and will make it easier to use Anders modifications
-*      of the CI routines
-*
-*      OK first tell Jeppe where the integrals are.
-*
+!
+!      Interface Anders to Jeppe
+!      This interface initiates Jeppes common block
+!      and will make it easier to use Anders modifications
+!      of the CI routines
+!
+!      OK first tell Jeppe where the integrals are.
+!
        !> yma: notice the nconf1 if DMRG
 
        If (nconf1.eq.0) return
-*
-*      One electron integrals
-*
+!
+!      One electron integrals
+!
        KAIN1=>Int1
-*
-*      Two electron integrals
-*      symmetric in perticle one and two
-*
+!
+!      Two electron integrals
+!      symmetric in perticle one and two
+!
        KINT2=>Int2s
-*
-*      Two electron integrals
-*      anti symmetric in perticle one and two
-*
+!
+!      Two electron integrals
+!      anti symmetric in perticle one and two
+!
        KINT2A=>Int2a
-*
+!
        irefsm=iCSym
-*
-*      Do we have any twoelectron integrals?
-*
+!
+!      Do we have any twoelectron integrals?
+!
        If (Have_2_el) Then
          i12=2
        Else
          i12=1
        End If
-*
-*      Symmetry of Sigma vector
-*
+!
+!      Symmetry of Sigma vector
+!
        iSSM=iSSym
        kic(2)=2
        if (issm.eq.State_sym) kic(2)=1
-*
-*      Symmetry of CI vector
-*
+!
+!      Symmetry of CI vector
+!
        iCSM=iCSym
        kic(1)=2
        if (icsm.eq.State_sym) kic(1)=1
-*
-*      Symmetry properties of operator
-*
+!
+!      Symmetry properties of operator
+!
        ndet=nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
        ndet=Max(ndet,ncsf(icsym),ncsf(issym))
 
@@ -91,12 +91,12 @@
           pInt1(is)=ipMat(is,jS)
          End Do
        End If
-*
-*      Triplet/Singlet operator
-*
+!
+!      Triplet/Singlet operator
+!
        ist=iispin+1
        square=.false.
-*
+!
        If (.not.page) Then
 
        Call mma_allocate(CIDET,nDet,Label='CIDET')
@@ -104,9 +104,9 @@
        irc=ipin(ipCI1)
        irc=ipin(ipci2)
        Do i=0,nroots-1
-          call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,
+          call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,        &
      &                        CIDET,1)
-          Call SigmaVec(CIDET,
+          Call SigmaVec(CIDET,                                          &
      &               W(ipci2)%Vec(1+i*ncsf(issm)),kic)
        End Do
 #else
@@ -125,7 +125,7 @@
         irc=opout(ipci1)
 
        End If
-*
+!
 #ifdef _WARNING_WORKAROUND_
        If (.False.) Call Unused_integer(irc)
 #endif

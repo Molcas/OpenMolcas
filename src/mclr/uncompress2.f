@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1997, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1997, Anders Bernhardsson                              *
+!***********************************************************************
       SubRoutine UnCompress2(ArrayIn,ArrayOut,dsym)
-*
-*************************************************************
-*
-*     Change from vector to kappa   notation
-*                               ip
-*
-*     where i is occupied and p is general
-*
-*     used by the preconditioner.
-*
-*************************************************************
-*
+!
+!************************************************************
+!
+!     Change from vector to kappa   notation
+!                               ip
+!
+!     where i is occupied and p is general
+!
+!     used by the preconditioner.
+!
+!************************************************************
+!
       use Constants, only: Zero, One
       use MCLR_Data, only: nDensC, nDens, ipMat, nB
       use input_mclr, only: nSym,TimeDep,nIsh,nOrb,nRS1,nRS2,nRS3
       Implicit None
       Real*8  ArrayIn(nDensC),ArrayOut(nDens)
       Integer dsym
-      Integer IndexC,jT,i1,j1,iSym,jSym,jBas,iBas,iT,ij,ji,
+      Integer IndexC,jT,i1,j1,iSym,jSym,jBas,iBas,iT,ij,ji,             &
      &        Index1,Index2
       Real*8 Fact
 
@@ -57,8 +57,8 @@
              jT=2
              i1=nRs2(isym)
              j1=nRs2(jsym)
-          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)
-     *                               +nRs3(jsym)) Then
+          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)             &
+     &                               +nRs3(jsym)) Then
              jT=3
              i1=nRs3(isym)
              j1=nRs3(jsym)
@@ -84,8 +84,8 @@
                ij=i1
                ji=0
              end if
-           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)
-     *                                +nRs3(isym)) Then
+           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)            &
+     &                                +nRs3(isym)) Then
              iT=3
              ij=0
              ji=j1
@@ -107,12 +107,12 @@
            Else
             If (iT.gt.jT) Then
              indexC=indexc+1
-             Index1=ipMat(iSym,jSym)+
+             Index1=ipMat(iSym,jSym)+                                   &
      &               (jBas-1)*norb(iSym)+iBas-ij-1
-             Index2=ipMat(jSym,iSym)+
+             Index2=ipMat(jSym,iSym)+                                   &
      &               (iBas-1)*norb(jSym)+jBas-ji-1
              ArrayOut(Index1)=Fact*ArrayIn(indexC)
-             If (iBas.le.nB(isym))
+             If (iBas.le.nB(isym))                                      &
      &        ArrayOut(Index2)=Fact*ArrayIn(indexC)
             End If
            End If

@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-* ****************************************************************
-* history:                                                       *
-* Jie J. Bao, on Aug. 06, 2020, created this file.               *
-* ****************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Jie J. Bao                                       *
+!***********************************************************************
+! ****************************************************************
+! history:                                                       *
+! Jie J. Bao, on Aug. 06, 2020, created this file.               *
+! ****************************************************************
       subroutine CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
       use MCLR_Data, only: nConf1, nAcPr2
@@ -21,15 +21,15 @@
       Implicit None
 
 
-****** Output
+!***** Output
        Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
        Real*8,DIMENSION(nConf1*nRoots)::bP
-****** Input
+!***** Input
        INTEGER nTri
        Real*8,DIMENSION(nRoots*nTri)::FMO1t
        Real*8,DIMENSION(nRoots*nacpr2)::FMO2t
        Real*8,DIMENSION(nRoots**2)::R,H
-****** Auxiliaries
+!***** Auxiliaries
        Real*8,DIMENSION(:),Allocatable::LOK,CSFOK
 
        CALL mma_allocate(CSFOK,nRoots*nConf1)
@@ -40,19 +40,19 @@
        CALL mma_deallocate(CSFOK)
        CALL mma_deallocate(LOK)
        end subroutine CalcbXbP
-******************************************************
+!*****************************************************
 
       Subroutine CalcbX(bX,LOK,R,H)
       use Constants, only: Zero
       use MCLR_Data, only: IRLXROOT
       use input_mclr, only: nRoots
       Implicit None
-****** Output
+!***** Output
       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
-****** Input
+!***** Input
       Real*8,DIMENSION(nRoots**2)::R,H
       Real*8,DIMENSION(nRoots**2)::LOK
-***** Auxiliaries
+!**** Auxiliaries
       INTEGER I,K,L,M,N,IKL,IIM,IIN,IKOL,IIK,IIL,ILOK
       Real*8 TempD
 
@@ -82,23 +82,23 @@
       END DO
       END DO
       END SUBROUTINE CalcbX
-******************************************************
+!*****************************************************
 
 
-******************************************************
+!*****************************************************
       subroutine CalcbP(bP,CSFOK,LOK,R)
       use ipPage, only: W
       use MCLR_Data, only: nConf1, ipCI
       use MCLR_Data, only: IRLXROOT
       use input_mclr, only: nRoots
       Implicit None
-***** Output
+!**** Output
       Real*8,DIMENSION(nConf1*nRoots)::bP
-***** Input
+!**** Input
       Real*8,DIMENSION(nRoots*nConf1)::CSFOK
       Real*8,DIMENSION(nRoots**2)::LOK
       Real*8,DIMENSION(nRoots**2)::R
-***** Kind quantities that help
+!**** Kind quantities that help
       INTEGER I,L,K,iLoc1,iLoc2
       Real*8 tempd
       I=irlxroot
@@ -117,13 +117,13 @@
         iLoc2=(L-1)*nConf1+1
         CALL dAXpY_(nConf1,tempd,W(ipci)%Vec(iLoc2),1,bP(iLoc1),1)
        End Do
-       CALL DScal_(nConf1,2.0d0*R((I-1)*nRoots+K)**2,
+       CALL DScal_(nConf1,2.0d0*R((I-1)*nRoots+K)**2,                   &
      & bP(iLoc1),1)
       END DO
       End Subroutine CalcbP
-******************************************************
+!*****************************************************
 
-******************************************************
+!*****************************************************
       subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -132,25 +132,25 @@
       use input_mclr, only: nRoots,State_Sym,nSym,nBas
       Implicit None
 
-*******Output
+!******Output
       Real*8,DIMENSION(nRoots*nConf1)::CSFOK
       Real*8,DIMENSION(nRoots**2)::LOK
-*******Input
+!******Input
       INTEGER nTri
       Real*8,DIMENSION(nRoots*nTri)::FMO1t
       Real*8,DIMENSION(nRoots*nacpr2)::FMO2t
-*******A little help from
+!******A little help from
       Real*8,DIMENSION(1)::rdum
       Real*8,DIMENSION(:),Allocatable::FMO1
       INTEGER ILoc1,ILoc2,ILoc3,iOff,iS,jS,iB,jB,ji,ij,I,iK
       INTEGER ILoc4,iptmp,nConf3, L
       INTEGER, EXTERNAL:: ipGet
       Real*8, External:: DDot_
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
-       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,&
      &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
        Integer iispin, iCsym, iSSym
        Integer nInt1, nInt2s, nInt2a
@@ -159,9 +159,9 @@
        Logical Have_2_el
        End SubRoutine CISigma_sa
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
 
       nConf3=nint(Max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
@@ -192,18 +192,18 @@
           end do
          END IF
        End do
-*       irc=ipin(ipCI)
-       CALL CISigma_SA(0,State_Sym,State_Sym,FMO1,nDens2,
+!       irc=ipin(ipCI)
+       CALL CISigma_SA(0,State_Sym,State_Sym,FMO1,nDens2,               &
      & FMO2t(iLoc2),NACPR2,rdum,1,ipci,iptmp,.True.)
-       CALL Daxpy_(nConf1,Real(nRoots,8),W(iptmp)%Vec(iLoc3),1,
+       CALL Daxpy_(nConf1,Real(nRoots,8),W(iptmp)%Vec(iLoc3),1,         &
      &                                          CSFOK(iLoc3),1)
 
        Do L=1,nRoots
         ILoc4=(L-1)*NConf1+1
-        LOK((I-1)*nRoots+L)=ddot_(nConf1,CSFOK(iLoc3),1,
+        LOK((I-1)*nRoots+L)=ddot_(nConf1,CSFOK(iLoc3),1,                &
      &                             W(ipCI)%Vec(iLoc4),1)
        End Do
       END DO
       CALL mma_deallocate(FMO1)
       End Subroutine CalcOMat
-******************************************************
+!*****************************************************

@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Jeppe Olsen                                      *
-************************************************************************
-      SUBROUTINE INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB,
-     &                  NSMST,IENSM,IENTA,IENTB,IACOOS,MXLNG,IFINI,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Jeppe Olsen                                      *
+!***********************************************************************
+      SUBROUTINE INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB, &
+     &                  NSMST,IENSM,IENTA,IENTB,IACOOS,MXLNG,IFINI,     &
      &                  NBLOCK,INCFST,IOCOC)
-*
-* Obtain Number of OOS blocks that can be included
-* IN MXLNG word starting from block after ISTSM,ISTTA,ISTTB
-* Activated blocks are given in IACOOS
-* Last activated block is (IENSM,IENTA,IENTB)
-* If all blocks have been accessed IFINI is returned as 1
-* Diagonal blocks are expanded
-*
-* Jeppe Olsen, Winter of 1991
-*
+!
+! Obtain Number of OOS blocks that can be included
+! IN MXLNG word starting from block after ISTSM,ISTTA,ISTTB
+! Activated blocks are given in IACOOS
+! Last activated block is (IENSM,IENTA,IENTB)
+! If all blocks have been accessed IFINI is returned as 1
+! Diagonal blocks are expanded
+!
+! Jeppe Olsen, Winter of 1991
+!
       IMPLICIT REAL*8(A-H,O-Z)
-*.Input
+!.Input
       INTEGER NOOS(NOCTPA,NOCTPB,NSMST)
       INTEGER IOCOC(NOCTPA,NOCTPB)
-C-May 7
+!-May 7
       INTEGER IBLTP(*)
-C-May 7
-*.Output
+!-May 7
+!.Output
       INTEGER IACOOS(NOCTPA,NOCTPB,NSMST)
-*
+!
       NTEST = 00
       IF(NTEST.GE.100) THEN
         WRITE(6,*)
@@ -47,12 +47,12 @@ C-May 7
          CALL IWRTMA(NOOS(1,1,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
         END DO
       END IF
-*
+!
       IPA = 0
       IPB = 0
       IPSM = 0
-*
-*.Initialize
+!
+!.Initialize
       IACOOS(:,:,:) = 0
       ISM = ISTSM
       IA = ISTTA
@@ -65,11 +65,11 @@ C-May 7
       IFINI = 0
       IF(INCFST.EQ.1) GOTO 999
  1000 CONTINUE
-*.Next block
+!.Next block
       IPA = IA
       IPB = IB
       IPSM = ISM
-*
+!
       IF(IB.LT.NOCTPB) THEN
         IB = IB + 1
       ELSE
@@ -86,15 +86,15 @@ C-May 7
         END IF
       END IF
       IF(IFINI.EQ.1) GOTO 1001
-*. Should this block be included
+!. Should this block be included
   999 CONTINUE
       IF(IDC.NE.1.AND.IBLTP(ISM).EQ.0) GOTO 1000
       IF(IDC.NE.1.AND.IBLTP(ISM).EQ.2.AND.IA.LT.IB) GOTO 1000
       IF(IOCOC(IA,IB).EQ.0) GOTO 1000
-C?    write(6,*) ' INCOOS IDC IBLTP ', IDC,IBLTP(ISM)
-*. can this block be included
+!?    write(6,*) ' INCOOS IDC IBLTP ', IDC,IBLTP(ISM)
+!. can this block be included
       LBLOCK = NOOS(IA,IB,ISM)
-C?    write(6,*) ' IA IB ISM LBLOCK ', IA,IB,ISM,LBLOCK
+!?    write(6,*) ' IA IB ISM LBLOCK ', IA,IB,ISM,LBLOCK
       IF(LENGTH+LBLOCK.LE.MXLNG) THEN
         NBLOCK = NBLOCK + 1
         LENGTH = LENGTH + LBLOCK
@@ -111,7 +111,7 @@ C?    write(6,*) ' IA IB ISM LBLOCK ', IA,IB,ISM,LBLOCK
         ISM = IPSM
       END IF
  1001 CONTINUE
-*
+!
       IENSM = ISM
       IENTA = IA
       IENTB = IB
@@ -122,11 +122,11 @@ C?    write(6,*) ' IA IB ISM LBLOCK ', IA,IB,ISM,LBLOCK
         WRITE(6,*) ' Alter RAS space of raise Buffer from ', MXLNG
         CALL SYSABENDMSG('lucia_util/incoos','Internal error',' ')
       END IF
-*
+!
       IF(NTEST.NE.0) THEN
         WRITE(6,*) 'Output from INCOOS '
         WRITE(6,*) '==================='
-        WRITE(6,*)
+        WRITE(6,*)                                                      &
      &  ' Length and number of included blocks ',LENGTH,NBLOCK
       END IF
       IF(NTEST.GE.2) THEN
@@ -136,6 +136,6 @@ C?    write(6,*) ' IA IB ISM LBLOCK ', IA,IB,ISM,LBLOCK
   100   CONTINUE
         IF(IFINI.EQ.1) WRITE(6,*) ' No new blocks '
       END IF
-*
+!
       RETURN
       END

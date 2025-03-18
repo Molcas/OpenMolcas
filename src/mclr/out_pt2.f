@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine Out_Pt2(iKapDisp,iCIDisp)
-********************************************************************
-*                                                                  *
-********************************************************************
+!*******************************************************************
+!                                                                  *
+!*******************************************************************
       use Arrays, only: CMO
       use ipPage, only: W
       use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
       use Constants, only: Zero, One, Two, Half, Quart
-      use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens,
+      use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens,   &
      &                     nA, nDens2, nDensC
-      use MCLR_Data, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,
+      use MCLR_Data, only: ESTERR,ISNAC,ISTATE,IRLXROOT,OVERRIDE,       &
      &                     NACSTATES
       use MCLR_Data, only: LuTEMP, LuJob, LuPT2
-      use input_mclr, only: nDisp,nSym,nRoots,ntAsh,PT2,iRoot,iTOC,
+      use input_mclr, only: nDisp,nSym,nRoots,ntAsh,PT2,iRoot,iTOC,     &
      &                      nAsh,nBas,nCSF,nIsh,State_Sym
       use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
       Implicit None
@@ -35,26 +35,26 @@
       Character(Len=16) mstate
       Real*8 rdum(1)
       Integer idum(7,8)
-      Real*8, Allocatable:: D_K(:), Tmp(:), K1(:), K2(:), DAO(:),
-     &                      D_CI(:), D1(:), P_CI(:), P1(:), Conn(:),
-     &                      OCCU(:), CMON(:), DTmp(:), G1q(:), G1m(:),
+      Real*8, Allocatable:: D_K(:), Tmp(:), K1(:), K2(:), DAO(:),       &
+     &                      D_CI(:), D1(:), P_CI(:), P1(:), Conn(:),    &
+     &                      OCCU(:), CMON(:), DTmp(:), G1q(:), G1m(:),  &
      &                      Temp(:), tTmp(:), DM(:), DMs(:)
-      Integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO,
-     &        iLen, ipCIP, iDisk, iRC, nDim, ij, k, l, ij1, ij2, kl1,
-     &        kl2, i1, j1, ji2, kl, lk2, ijkl, jikl, ijlk, jilk, klRow,
-     &        iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA,
+      Integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO,     &
+     &        iLen, ipCIP, iDisk, iRC, nDim, ij, k, l, ij1, ij2, kl1,   &
+     &        kl2, i1, j1, ji2, kl, lk2, ijkl, jikl, ijlk, jilk, klRow, &
+     &        iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA,  &
      &        jAA, nBuf, LuDens, iOff, iBas, LuTmp
       Integer, External:: IsFreeUnit
       Integer, External:: ipGet, ipIN, ipClose
       Real*8 Val
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Integer i,j,itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
        isym=1
        CI=.true.
        Call Setup_MCLR(iSym)
@@ -71,7 +71,7 @@
        nNAC=(nDLMO+nDLMO**2)/2
        nDLMO=nDLMO*(nDLMO+1)/2
        nPLMO=nDLMO*(nDLMO+1)/2
-*
+!
        Call mma_allocate(K1,  nDens2,Label='K1')
        Call mma_allocate(K2,  nDens2,Label='K2')
        Call mma_allocate(DAO,nDens2,Label='DAO')
@@ -82,17 +82,17 @@
        Call mma_allocate(Conn,nDens2,Label='Conn')
        Call mma_allocate(OCCU,nbas_tot,Label='OCCU')
        Call mma_allocate(CMON,ndens2,Label='CMON')
-*      OBS nBuf might not be def.
+!      OBS nBuf might not be def.
        Call mma_MaxDBLE(nBuf)
        Call mma_allocate(Dtmp,nDens2,Label='DTmp')
 
-*
-*
-*
-* 1)   CI Part
-*
-*      All multipliers are introduced as densities
-*
+!
+!
+!
+! 1)   CI Part
+!
+!      All multipliers are introduced as densities
+!
 
        If (CI) Then
          nconf1=ncsf(State_sym)
@@ -101,11 +101,11 @@
          iDisk=iCIDisp(1)
          irc=ipin(ipCIp)
          Call dDaFile(LuTemp,2,W(ipCIp)%Vec,iLen,iDisk)
-*
-*-------Calculate the densities that correct the nonvariational CI stuff
-*
-         Call CIDens_sa(.true.,ipCIp,ipCI,
-     &                  State_sym,State_sym,
+!
+!-------Calculate the densities that correct the nonvariational CI stuff
+!
+         Call CIDens_sa(.true.,ipCIp,ipCI,                              &
+     &                  State_sym,State_sym,                            &
      &                  P_CI,D_CI) ! \bar{d} and \bar{D}
 
 ! ======================================================================
@@ -116,7 +116,7 @@
            call mma_allocate(tmpDe,ndim,ndim,Label='TmpDe')
            call mma_allocate(tmpP,ndim**2*(ndim**2+1)/2,Label='tmpP')
            call mma_allocate(tmpDeM,ntash,ntash,Label='tmpDeM')
-           call mma_allocate(tmpPM,ntash,ntash,ntash,ntash,
+           call mma_allocate(tmpPM,ntash,ntash,ntash,ntash,             &
      &                       Label='tmpPM')
            tmpDe=0.0d0
            tmpP=0.0d0
@@ -199,16 +199,16 @@
            call mma_deallocate(tmpDeM)
            call mma_deallocate(tmpP)
            call mma_deallocate(tmpPM)
-           call dmrg_dim_change_mclr(RGras2(1:8),
+           call dmrg_dim_change_mclr(RGras2(1:8),                       &
      &                               ntash,0)
          end if
 ! ===================================================================
 
-*
-*-------Some administrative shit
-*
-*       Store densities in triangular form
-*
+!
+!-------Some administrative shit
+!
+!       Store densities in triangular form
+!
          Do i=1,ntAsh
           Do j=1,i
            D1(itri(i,j))=D_CI((i-1)*ntash+j)
@@ -229,7 +229,7 @@
              jikl=itri(ji2,kl2)
              ijlk=itri(ij2,lk2)
              jilk=itri(ji2,lk2)
-             P1(itri(ij,kl))=Quart*(P_CI(ijkl)+P_CI(jikl)+
+             P1(itri(ij,kl))=Quart*(P_CI(ijkl)+P_CI(jikl)+              &
      &                              P_CI(ijlk)+P_CI(jilk))
             End Do
            End Do
@@ -254,65 +254,65 @@
          End Do
 
 
-C         Do i=1,ntAsh
-C         Do j=1,i
-C         ij=itri(i,j)
-C         ij2=i+(j-1)*ntash
-C         ji2=j+(i-1)*ntash
-C         Do k=1,ntAsh
-C         Do l=1,k
-C          kl=itri(k,l)
-C          kl2=k+(l-1)*ntash
-C          ijkl=itri(ij2,kl2)
-C          jikl=itri(ji2,kl2)
-C          fact=Half
-C          if(ij.ge.kl .and. k.eq.l) fact=Quart
-C          if(ij.lt.kl .and. i.eq.j) fact=Quart
-C          P1(itri(ij,kl))=
-C     &        fact*(P_CI(ijkl)+P_CI(jikl))
-C         End Do
-C         End Do
-C         End Do
-C         End Do
-C         If (debug) Call triprt('P1',' ',P1,(ntash**2+ntash)/2)
-c
-c Write the 'bar' densities to disk,  not symmetry blocked.
-c
+!         Do i=1,ntAsh
+!         Do j=1,i
+!         ij=itri(i,j)
+!         ij2=i+(j-1)*ntash
+!         ji2=j+(i-1)*ntash
+!         Do k=1,ntAsh
+!         Do l=1,k
+!          kl=itri(k,l)
+!          kl2=k+(l-1)*ntash
+!          ijkl=itri(ij2,kl2)
+!          jikl=itri(ji2,kl2)
+!          fact=Half
+!          if(ij.ge.kl .and. k.eq.l) fact=Quart
+!          if(ij.lt.kl .and. i.eq.j) fact=Quart
+!          P1(itri(ij,kl))=
+!     &        fact*(P_CI(ijkl)+P_CI(jikl))
+!         End Do
+!         End Do
+!         End Do
+!         End Do
+!         If (debug) Call triprt('P1',' ',P1,(ntash**2+ntash)/2)
+!
+! Write the 'bar' densities to disk,  not symmetry blocked.
+!
 
 !         Call Put_dArray('DLMO',D1,ndim1) ! \bar{D} triangular  ! yma
 !         Call Put_dArray('PLMO',P1,ndim2) ! \bar{d} triangular  ! yma
 
          Call Put_dArray('DLMO',D1,nDLMO) ! \bar{D} triangular
          Call Put_dArray('PLMO',P1,nPLMO) ! \bar{d} triangular
-*
+!
        End If
-*
-*      2) Orbital response
-*         ================
-*
-*       Read in from disk
-*
+!
+!      2) Orbital response
+!         ================
+!
+!       Read in from disk
+!
        iDisk=iKapDisp(1)
        Call dDaFile(LuTemp,2,K1,nDensC,iDisk) ! Read \bar{kappa}
        Call Uncompress(K1,K2,1)
-c
-c If we want to estimate the error
-c
+!
+! If we want to estimate the error
+!
        If (esterr) Then
-*        Do iestate=1,lroots
-*          Call calcerr(K2,iestate)
-*        End do
+!        Do iestate=1,lroots
+!          Call calcerr(K2,iestate)
+!        End do
          Call calcerr(K2,istate)
        End If
-*
-*----- First we fix the renormalization contribution
-*
+!
+!----- First we fix the renormalization contribution
+!
        Call mma_allocate(D_K,nLCMO,Label='D_K')
        Call Get_dArray_chk('FockOcc',D_K,nLCMO)
-*      Calculates the effective Fock matrix
+!      Calculates the effective Fock matrix
        Call Make_Conn(Conn,K2,P_CI,D_CI)   !D_CI not changed
        Call DaxPy_(ndens2,One,D_K,1,Conn,1)
-*      call dcopy_(ndens2,D_K,1,Conn,1)
+!      call dcopy_(ndens2,D_K,1,Conn,1)
        If (PT2) Then
          !! Add the WLag term (will be contracted with overlap
          !! derivative) computed in CASPT2
@@ -322,12 +322,12 @@ c
          End Do
        End If
        Call Put_dArray('FockOcc',Conn,nTot1)
-*
-*      Transposed one index transformation of the density
-*      (only the inactive density to store it separately)
-*
+!
+!      Transposed one index transformation of the density
+!      (only the inactive density to store it separately)
+!
        Call OITD(K2,1,DAO,Dtmp,.False.)
-*
+!
        If (PT2) Then
          !! For gradient calculation. D^var couples with inactive
          !! orbitals only, so D0(1,4) (in integral_util/prepp.f), which
@@ -337,9 +337,9 @@ c
            Do iI = 1, nBasI
              Do iJ = 1, nBasI
                Read(LuPT2,*) Val
-               DAO(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *       = DAO(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *       + Val
+               DAO(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                  &
+     &       = DAO(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                  &
+     &       + Val
              End Do
            End Do
          End Do
@@ -353,45 +353,45 @@ c
            End Do
          End Do
        End If
-*
-*      Transformation to AO basis (covariant)
-*
-c
-c Transforms to AO differently dep on last arg.
-c
+!
+!      Transformation to AO basis (covariant)
+!
+!
+! Transforms to AO differently dep on last arg.
+!
        Call TCMO(DAO,1,-2)
-*
-*      Fold AO density and write to disk
-c Mult all terms that are not diag by 2
-*
+!
+!      Fold AO density and write to disk
+! Mult all terms that are not diag by 2
+!
        Call FOLD2(nsym,nbas,DAO,K1)
-*
+!
        Call Put_dArray('DLAO',K1,ntot1)
-*
-*      Now with active density too, to form the variational density
-*
+!
+!      Now with active density too, to form the variational density
+!
 !      gives \tilde{D}
        Call OITD(K2,1,D_K,Dtmp,.True.)
-*
+!
        Do iS=1,nsym
-c
-c C*\tilde{\kappa} --> ipDAO
-c
-          If (nBas(is).ge.1)
-     &       CALL DGEMM_('N','N',
-     &                   NBAS(is),NBAS(is),NBAS(is),
-     &                   One,CMO(ipCM(is)),NBAS(is),
-     &                   K2(ipmat(is,is)),NBAS(is),
+!
+! C*\tilde{\kappa} --> ipDAO
+!
+          If (nBas(is).ge.1)                                            &
+     &       CALL DGEMM_('N','N',                                       &
+     &                   NBAS(is),NBAS(is),NBAS(is),                    &
+     &                   One,CMO(ipCM(is)),NBAS(is),                    &
+     &                   K2(ipmat(is,is)),NBAS(is),                     &
      &                   Zero,DAO(ipCM(is)),NBAS(is))
        End Do
-*
+!
        Call Put_dArray('LCMO',DAO,nLCMO)
-*
+!
        if(doDMRG)then  ! yma
          call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
          call dmrg_spc_change_mclr(RGras2(1:8),nash)
        end if
-*
+!
        If (isNAC) Then
          ng1=nNAC
          Call mma_allocate(G1q,ng1,Label='G1q')
@@ -408,9 +408,9 @@ c
          ng1=itri(ntash,ntash)
          ng2=itri(ng1,ng1)
          Call mma_allocate(G1q,n1dens,Label='G1q')
-c
-c Read active one el dens for state j from JOBIPH and store in G1q
-c
+!
+! Read active one el dens for state j from JOBIPH and store in G1q
+!
          Call Get_cArray('Relax Method',Method,8)
          if(Method.eq.'MSPDFT  ') then
           Call Get_DArray('D1MOt           ',G1q,ng1)
@@ -427,33 +427,33 @@ c
 
          end if
        EndIf
-*
-*    Construct a variationally stable density matrix. In MO
-c
-c D_eff = D^j + \tilde{D} +\bar{D}
-c D_K = (G1q + inact) + D_K + D_CI
-*
-C
+!
+!    Construct a variationally stable density matrix. In MO
+!
+! D_eff = D^j + \tilde{D} +\bar{D}
+! D_K = (G1q + inact) + D_K + D_CI
+!
+!
        If (isNAC) Then
-*
-** For NAC, first build DAO and then DAO_var
-*
+!
+!* For NAC, first build DAO and then DAO_var
+!
          Do is=1,nSym
-c Note: no inactive part for transition densities
+! Note: no inactive part for transition densities
           Do iA=1,nash(is)
            Do jA=1,nash(is)
             i=iA+nish(is)
             j=jA+nish(is)
             iAA=iA+na(is)
             jAA=jA+na(is)
-            D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))=
-     &       D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))
-     &      +D_CI(iAA+(jAA-1)*ntash)
+            D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))=                       &
+     &       D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))                       &
+     &      +D_CI(iAA+(jAA-1)*ntash)                                    &
      &      +G1q(itri(iAA,jAA))
            End Do
           End Do
          End Do
-C
+!
          If (PT2) Then
            !! PT2 density (in MO)
            Do iSym = 1, nSym
@@ -461,9 +461,9 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *         + Val
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                &
+     &         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                &
+     &         + Val
                End Do
              End Do
            End Do
@@ -473,12 +473,12 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *         + Val*0.25d+00
-                 D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
-     *         = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
-     *         + Val*0.25d+00
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                &
+     &         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                &
+     &         + Val*0.25d+00
+                 D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)                &
+     &         = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)                &
+     &         + Val*0.25d+00
                End Do
              End Do
            End Do
@@ -488,10 +488,10 @@ C
          Call dmat_MCLR(CMON,OCCU,Temp)
          Call Put_dArray('D1aoVar',Temp,nTot1)
          Call mma_deallocate(Temp)
-*
-** Transform the antisymmetric transition density matrix to AO
-**  (there is no guarantee the symmetry will work here)
-*
+!
+!* Transform the antisymmetric transition density matrix to AO
+!*  (there is no guarantee the symmetry will work here)
+!
          iDisk=0
          LuDens=20
          Call DaName(LuDens,'MCLRDENS')
@@ -499,7 +499,7 @@ C
          Call DaClos(LuDens)
          Call mma_allocate(G1m,ndens2,Label='G1m')
          G1m(:)=Zero
-* Reconstruct the square matrix
+! Reconstruct the square matrix
          Do is=1,nSym
           Do iA=1,nash(is)
            i=iA+nish(is)
@@ -507,15 +507,15 @@ C
            Do jA=1,iA-1
             j=jA+nish(is)
             jAA=jA+na(is)
-            G1m(ipmat(is,is)+i-1+(j-1)*nbas(is))=
+            G1m(ipmat(is,is)+i-1+(j-1)*nbas(is))=                       &
      &           G1q(itri(iAA,jAA))
-            G1m(ipmat(is,is)+j-1+(i-1)*nbas(is))=
+            G1m(ipmat(is,is)+j-1+(i-1)*nbas(is))=                       &
      &          -G1q(itri(iAA,jAA))
            End Do
            G1m(ipmat(is,is)+i-1+(i-1)*nbas(is))=Zero
           End Do
          End Do
-*
+!
          If (PT2) Then
            !! PT2C density (in MO) for CSF derivative
            Do iSym = 1, nSym
@@ -523,21 +523,21 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 G1m(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
-     *         = G1m(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI) + Val
+                 G1m(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)                &
+     &         = G1m(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI) + Val
                End Do
              End Do
            End Do
          End If
-* Transform
+! Transform
          Call TCMO(G1m,1,-2)
-* Save the triangular form
+! Save the triangular form
          iOff=0
          Do is=1,nSym
           ibas=nbas(is)
           Do i=1,ibas
            Do j=1,i
-            G1m(iOff+itri(i,j))=
+            G1m(iOff+itri(i,j))=                                        &
      &        G1m(ipmat(is,is)+j-1+(i-1)*nbas(is))
            End Do
           End Do
@@ -545,17 +545,17 @@ C
          End Do
          Call Put_dArray('D1ao-',G1m,nTot1)
          Call mma_deallocate(G1m)
-*
+!
        Else
-*
-** Normal SA gradient (no NAC)
-*
+!
+!* Normal SA gradient (no NAC)
+!
          Do is=1,nSym
           Do i=1,nish(is)
-c
-c The inactive density
-c
-           D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))=
+!
+! The inactive density
+!
+           D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))=                        &
      &     D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))+Two
           End DO
           Do iA=1,nash(is)
@@ -564,17 +564,17 @@ c
             j=jA+nish(is)
             iAA=iA+na(is)
             jAA=jA+na(is)
-c
-c The active density G1q and \bar{D}
-c
-            D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))=
-     &       D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))
-     &      +D_CI(iAA+(jAA-1)*ntash)
+!
+! The active density G1q and \bar{D}
+!
+            D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))=                       &
+     &       D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))                       &
+     &      +D_CI(iAA+(jAA-1)*ntash)                                    &
      &      +G1q(itri(iAA,jAA))
            End Do
           End Do
          End Do
-C
+!
          If (PT2) Then
            !! Add PT2 density (in MO)
            Do iSym = 1, nSym
@@ -582,9 +582,9 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *         + Val
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                &
+     &         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                &
+     &         + Val
                End Do
              End Do
            End Do
@@ -597,21 +597,21 @@ C
              Do iI = 1, nBasI
                Do iJ = 1, nBasI
                  Read(LuPT2,*) Val
-                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
-     *         + Val*0.25d+00
-                 D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
-     *         = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
-     *         + Val*0.25d+00
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                &
+     &         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)                &
+     &         + Val*0.25d+00
+                 D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)                &
+     &         = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)                &
+     &         + Val*0.25d+00
                End Do
              End Do
            End Do
          End If
-c
-c Diagonalize the effective density to be able to use Prpt
-c OCCU eigenvalues of eff dens
-c CMON eigenvectors (new orb coef)
-c
+!
+! Diagonalize the effective density to be able to use Prpt
+! OCCU eigenvalues of eff dens
+! CMON eigenvectors (new orb coef)
+!
          Call NatOrb_MCLR(D_K,CMO,CMON,OCCU)
          Call mma_Allocate(Tmp,nBuf/2,Label='Tmp')
          Call dmat_MCLR(CMON,OCCU,Tmp)
@@ -629,92 +629,92 @@ c
          Note='var'
          LuTmp=50
          LuTmp=IsFreeUnit(LuTmp)
-         Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
+         Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,                  &
      &            rDum,OCCU,rDum,iDum,Note)
          Call Prpt()
-*                                                                      *
-************************************************************************
-*        There should now be dipole moments on the runfile which
-*        corresponds to the gradient of the energy w.r.t. the
-*        electric field. Let's update the list of values stored
-*        on the runfile.
-*
+!                                                                      *
+!***********************************************************************
+!        There should now be dipole moments on the runfile which
+!        corresponds to the gradient of the energy w.r.t. the
+!        electric field. Let's update the list of values stored
+!        on the runfile.
+!
          Is_Roots_Set = .False.
          Call Qpg_iScalar('Number of roots',Is_Roots_Set)
          nRoots = 1
          If (Is_Roots_Set) Then
             Call Get_iScalar('Number of roots',nRoots)
          End If
-*
+!
          If (nRoots.ne.1) Then
-*           Write (*,*) 'iR=',iR
+!           Write (*,*) 'iR=',iR
             Call mma_allocate(DM,3,Label='DM')
             Call mma_allocate(DMs,3*nROOTS,Label='DMs')
             Call Get_dArray('Last Dipole Moments',DMs,3*nRoots)
-*           Call RecPrt('Last Dipole Moments',' ',DMS,3,nRoots)
+!           Call RecPrt('Last Dipole Moments',' ',DMS,3,nRoots)
             Call Get_dArray('Dipole Moment',DM,3)
-*           Call RecPrt('Dipole Moment',' ',DM,1,3)
+!           Call RecPrt('Dipole Moment',' ',DM,1,3)
             Call DCopy_(3,DM,1,DMS(1+(iR-1)*3),1)
-*           Call RecPrt('Last Dipole Moments',' ',DMS,3,nRoots)
+!           Call RecPrt('Last Dipole Moments',' ',DMS,3,nRoots)
             Call Put_dArray('Last Dipole Moments',DMs,3*nRoots)
             Call mma_deallocate(DMs)
             Call mma_deallocate(DM)
          End If
-************************************************************************
-*                                                                      *
+!***********************************************************************
+!                                                                      *
        End If
        Call mma_deallocate(G1q)
-C
-c--------------------------  debug -----
-c
+!
+!--------------------------  debug -----
+!
        if(doDMRG)then ! yma
          call dmrg_dim_change_mclr(LRras2(1:8),ntash,0)
          call dmrg_spc_change_mclr(LRras2(1:8),nash)
        end if
 
-c
-c  Write the effective active one el density to disk in the same format as g1q
-c
-c       Call mma_allocate(Deff_act,ndens2,Label='Deff_act')
-c       call dcopy_(nDens2,D_K,1,Deff_act,1)
-c       Do is=1,nSym
-c        Do i=1,nish(is)
-c
-c Subtract the inactive density
-c
-c         Deff_act(ipmat(is,is)+i-1+(i-1)*nbas(is))=
-c     &   D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))-Two
-c        End Do
-c       End Do
-c
-c      Call Put_DEff(Deff_act,ndens2)
-c
-c       Call mma_deallocate(Deff_act)
-c
-c--------------------------------------------------
-c
-c Diagonalize the effective density to be able to use Prpt
-c OCCU eigenvalues of eff dens
-c CMON eigenvectors (new orb coef)
-c
-c      Call NatOrb_MCLR(D_K,CMO,CMON,OCCU)
-c      Call mma_allocate(Temp,nBuf/2,Label='Temp')
-c      Call dmat_MCLR(CMON,OCCU,Temp)
-c      Call Put_dArray('D1aoVar',Temp,nTot1)
-c      Note='var'
-c      LuTmp=50
-c      LuTmp=IsFreeUnit(LuTmp)
-c      Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
-c    &            Dum,OCCU,Dum,iDum,Note)
-c      Call Prpt()
+!
+!  Write the effective active one el density to disk in the same format as g1q
+!
+!       Call mma_allocate(Deff_act,ndens2,Label='Deff_act')
+!       call dcopy_(nDens2,D_K,1,Deff_act,1)
+!       Do is=1,nSym
+!        Do i=1,nish(is)
+!
+! Subtract the inactive density
+!
+!         Deff_act(ipmat(is,is)+i-1+(i-1)*nbas(is))=
+!     &   D_K(ipmat(is,is)+i-1+(i-1)*nbas(is))-Two
+!        End Do
+!       End Do
+!
+!      Call Put_DEff(Deff_act,ndens2)
+!
+!       Call mma_deallocate(Deff_act)
+!
+!--------------------------------------------------
+!
+! Diagonalize the effective density to be able to use Prpt
+! OCCU eigenvalues of eff dens
+! CMON eigenvectors (new orb coef)
+!
+!      Call NatOrb_MCLR(D_K,CMO,CMON,OCCU)
+!      Call mma_allocate(Temp,nBuf/2,Label='Temp')
+!      Call dmat_MCLR(CMON,OCCU,Temp)
+!      Call Put_dArray('D1aoVar',Temp,nTot1)
+!      Note='var'
+!      LuTmp=50
+!      LuTmp=IsFreeUnit(LuTmp)
+!      Call WrVec('TMPORB',LuTmp,'O',nSym,nBas,nBas,
+!    &            Dum,OCCU,Dum,iDum,Note)
+!      Call Prpt()
 
-c
-c Standard routine, Temp effective dens in AO
-c
-*       Call dmat_MCLR(CMON,OCCU,Temp)
-c
-*       Call Put_dArray('D1aoVar',Temp,nTot1)
-c      Call mma_deallocate(Temp)
+!
+! Standard routine, Temp effective dens in AO
+!
+!       Call dmat_MCLR(CMON,OCCU,Temp)
+!
+!       Call Put_dArray('D1aoVar',Temp,nTot1)
+!      Call mma_deallocate(Temp)
 
        Call Put_iScalar('SA ready',1)
        If (isNAC) Then
@@ -724,7 +724,7 @@ c      Call mma_deallocate(Temp)
        End If
        If (override) mstate(1:1)='+'
        Call Put_cArray('MCLR Root',mstate,16)
-*
+!
        Call mma_deallocate(K1)
        Call mma_deallocate(K2)
        Call mma_deallocate(DAO)
@@ -739,16 +739,16 @@ c      Call mma_deallocate(Temp)
        Call mma_deallocate(D_K)
 
        irc=ipclose(-1)
-*
+!
 #ifdef _WARNING_WORKAROUND_
        If (.False.) Call Unused_integer(irc)
 #endif
        End SubRoutine Out_Pt2
 
-c --------------------------------------------------------------------------
-c
+! --------------------------------------------------------------------------
+!
       Subroutine OITD(rK,isym,D,Dtmp,act)
-*
+!
       use Arrays, only: G1t
       use Constants, only: Zero, One, Two
       use MCLR_Data, only: ipCM, ipMat, nA, nDens2
@@ -761,11 +761,11 @@ c
       integer iS, iB, jB, jS
       integer i, j, itri
       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*
+!
       DTmp(:)=Zero
-*
-*     Note: even with NAC we set the inactive block,
-*     because this is the SA density, not the transition density
+!
+!     Note: even with NAC we set the inactive block,
+!     because this is the SA density, not the transition density
       Do iS=1,nSym
         Do iB=1,nIsh(iS)
           Dtmp(1+(ipCM(iS)+(ib-1)*nOrb(iS)+ib-1)-1) = Two
@@ -775,23 +775,23 @@ c
        Do iS=1,nSym
         Do iB=1,nAsh(iS)
          Do jB=1,nAsh(iS)
-          Dtmp(1+(ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1)-1)=
+          Dtmp(1+(ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1)-1)=  &
      &    G1t((itri((nA(is)+ib),(nA(is)+jb))))
          End Do
         End Do
        End Do
       End If
-*
+!
       Do iS=1,nsym
          jS=ieor(iS-1,isym-1)+1
          If (nOrb(iS)*nOrb(jS).ge.1) Then
-            Call DGEMM_('N','T',nOrb(iS),nOrb(jS),nOrb(iS),One,
-     &                 Dtmp(1+ipCM(iS)-1),nOrb(iS),
-     &                 rK(ipMat(jS,iS)),nOrb(jS),
+            Call DGEMM_('N','T',nOrb(iS),nOrb(jS),nOrb(iS),One,         &
+     &                 Dtmp(1+ipCM(iS)-1),nOrb(iS),                     &
+     &                 rK(ipMat(jS,iS)),nOrb(jS),                       &
      &                 Zero,D(ipMat(iS,jS)),nOrb(iS))
-            Call DGEMM_('T','N',nOrb(iS),nOrb(jS),nOrb(jS),-One,
-     &                 rK(ipMat(jS,iS)),nOrb(jS),
-     &                 Dtmp(1+ipCM(jS)-1),nOrb(jS),
+            Call DGEMM_('T','N',nOrb(iS),nOrb(jS),nOrb(jS),-One,        &
+     &                 rK(ipMat(jS,iS)),nOrb(jS),                       &
+     &                 Dtmp(1+ipCM(jS)-1),nOrb(jS),                     &
      &                 One,D(ipMat(iS,jS)),nOrb(iS))
          End If
       End Do
@@ -810,9 +810,9 @@ c
 
       Call mma_allocate(EVec,ndens2,Label='EVec')
       Call mma_allocate(EVal,ndens2,Label='EVal')
-C
-C         Diagonalize the density matrix and transform orbitals
-C
+!
+!         Diagonalize the density matrix and transform orbitals
+!
       If (iAnd(kprint,8).eq.8) Then
          Write(6,*)
          Write(6,*) '           Effective natural population '
@@ -838,14 +838,14 @@ C
          END DO
          IST=IO+1
          IEND=IO+NBAS(is)
-         If (iAnd(kprint,2).eq.2)
-     &      Write (6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))')
+         If (iAnd(kprint,2).eq.2)                                       &
+     &      Write (6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))')           &
      &             'sym',iS,':',(OCCN(I),I=IST,IEND)
-         If (nBas(is).ge.1)
-     &      CALL DGEMM_('N','N',
-     &                  NBAS(is),NBAS(is),NBAS(is),
-     &                  One,CMOO(ipCM(is)),NBAS(is),
-     &                  EVec,NBAS(is),
+         If (nBas(is).ge.1)                                             &
+     &      CALL DGEMM_('N','N',                                        &
+     &                  NBAS(is),NBAS(is),NBAS(is),                     &
+     &                  One,CMOO(ipCM(is)),NBAS(is),                    &
+     &                  EVec,NBAS(is),                                  &
      &                  Zero,CMON(ipCM(is)),NBAS(is))
          io=io+nbas(is)
       End DO

@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!
       subroutine coeff(ralpha,rbetaa,rbetas)
       use Constants, only: Zero, One, Two, Four, Six, Eight
       use MCLR_Data, only: mS2
@@ -41,7 +41,7 @@
       rcg20=clebsch_gordan_mclr(Two,Zero,spin,rms,spin,rms)
       rcg10=clebsch_gordan_mclr(One,Zero,spin,rms,spin,rms)
       rgamma=sqrt(spin*(spin+One)-rms*(rms-One))
-*
+!
       ralpha=rMS**2
       rBetaa=rMS/sqrt(Eight)*rgamma*rcg11/rcg10
       rbetaS=Zero
@@ -51,5 +51,5 @@
       rBetas=-rMS*rgamma*rcg21/(sqrt(Twentyfour)*rcg20)
 
       End If
-*
+!
       end subroutine coeff

@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine rhs_sa(Fock,SLag)
       use Arrays, only: Int1
       use ipPage, only: W
@@ -16,7 +16,7 @@
       use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
       use MCLR_Data, only: ISTATE
       use MCLR_Data, only: LuJob
-      use input_mclr, only: ntAsh,PT2,nRoots,Debug,nSym,nConf,iRoot,
+      use input_mclr, only: ntAsh,PT2,nRoots,Debug,nSym,nConf,iRoot,    &
      &                      iTOC,nAsh,nBas,nCSF,nIsh,nOrb
       use dmrginfo, only: DoDMRG,RGRAS2
       Implicit None
@@ -25,34 +25,34 @@
 
       real*8 rdum(1)
       Real*8, Allocatable:: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
-      Integer nG1,nG2,iR,jDisk,ii,iB,jB,iDij,iRij,kB,lB,iDkl,iRkl,
+      Integer nG1,nG2,iR,jDisk,ii,iB,jB,iDij,iRij,kB,lB,iDkl,iRkl,      &
      &        iIJKL,iRijkl,jj,iS,iiB,ijB,iIJ
       Real*8 Fact,rEnergy,rCoreI,rCoreA
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
        integer i,j,itri
        itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
        if(doDMRG)then ! yma
          call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
        end if
 
        ng1=itri(ntash,ntash)
        ng2=itri(ng1,ng1)
-*
+!
        Call mma_allocate(T,ndens2,Label='T')
        Call mma_allocate(F,ndens2,Label='F')
        Call mma_allocate(G1q,ng1,Label='G1q')
        Call mma_allocate(G2q,ng2,Label='G2q')
        Call mma_allocate(G1r,ntash**2,Label='G1r')
        Call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
-*
-**     Pick up densities from JobIph file
-*
+!
+!*     Pick up densities from JobIph file
+!
        iR=iroot(istate)
        jdisk=itoc(3)
        Do ii=1,iR-1
@@ -65,15 +65,15 @@
        Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
        Call dDaFile(LUJOB ,2,G2q,Ng2,jDisk)
        Call dDaFile(LUJOB ,0,rdum,Ng2,jDisk)
-*
+!
        !! Add SLag (rotations of states) contributions from the partial
        !! derivative of the CASPT2 energy. G1q and G2q are modified.
        !! The modified density will be used in out_pt2.f and ptrans_sa.f
        If (PT2.and.nRoots.gt.1) Call PT2_SLag()
-*
+!
        Call Put_dArray('P2mo',G2q,ng2)
        Call Put_dArray('D1mo',G1q,ng1)
-*
+!
        Do iB=1,ntash
         Do jB=1,ntash
         G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
@@ -98,15 +98,15 @@
          End Do
         End Do
        End Do
-*
+!
        if(doDMRG)then ! yma
          call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
        end if
 
        Call FockGen(One,G1r,G2r,T,Fock,1)
-*       Do iS=1,nsym
-*        Call RecPrt(' ',' ',fock(ipMat(is,is)),nbas(is),nbas(is))
-*       End Do
+!       Do iS=1,nsym
+!        Call RecPrt(' ',' ',fock(ipMat(is,is)),nbas(is),nbas(is))
+!       End Do
 
       If (.not.debug) Then !yma debug ??
        renergy=Zero
@@ -143,17 +143,17 @@
 !      Do iS=1,nsym
 !       Call RecPrt(' ',' ',fock(ipMat(is,is)),nbas(is),nbas(is))
 !      End Do
-*
+!
        Call mma_deallocate(G1q)
        Call mma_deallocate(G2q)
-*
+!
        Call TCMO(T,1,-2)
        ijb=0
        Do is=1,nsym
         Do ib=1,nbas(is)
          Do jb=1,ib-1
           ijb=ijb+1
-          F(ijb)=T(ipmat(is,is)+nbas(is)*(JB-1)+IB-1)
+          F(ijb)=T(ipmat(is,is)+nbas(is)*(JB-1)+IB-1)                   &
      &          +T(ipmat(is,is)+nbas(is)*(IB-1)+JB-1)
          End Do
          ijb=ijb+1
@@ -163,13 +163,13 @@
        Call Put_dArray('FockOcc',F,nDens2)
 
 !       call recprt('RHS',' ',fock,ndens2,1)
-*
+!
        Call mma_deallocate(G1r)
        Call mma_deallocate(G2r)
        Call mma_deallocate(T)
        Call mma_deallocate(F)
 
-*
+!
       Contains
 
       Subroutine PT2_SLag()
@@ -200,7 +200,7 @@
           iSLag = jR + nRoots*(kR-1)
           vSLag = SLag(iSLag)
           If (abs(vSLag).le.1.0d-10) Cycle
-C
+!
           Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
           ! iRC=opout(ipCI)
           Call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
@@ -214,9 +214,9 @@ C
           Do i=0,ntAsh-1
             Do j=0,i-1
               ij=ij+1
-              G1q(ij)=G1q(ij)+
-     *          (G1r(1+i*ntAsh+j)+
-     *           G1r(1+j*ntAsh+i))*Half*vSLag
+              G1q(ij)=G1q(ij)+                                          &
+     &          (G1r(1+i*ntAsh+j)+                                      &
+     &           G1r(1+j*ntAsh+i))*Half*vSLag
             End Do
             ij=ij+1
             G1q(ij)=G1q(ij) + G1r(1+i*ntAsh+i)*vSLag
@@ -238,21 +238,21 @@ C
                     ijkl=ij*(ij+1)/2+kl
                     ij2=i*ntAsh+j
                     kl2=k*ntAsh+l
-                    G2q(1+ijkl)=G2q(1+ijkl)
-     *                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                    G2q(1+ijkl)=G2q(1+ijkl)                             &
+     &                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                     ij2=Max(j*ntAsh+i,l*ntAsh+k)
                     kl2=Min(j*ntAsh+i,l*ntAsh+k)
-                    G2q(1+ijkl)=G2q(1+ijkl)
+                    G2q(1+ijkl)=G2q(1+ijkl)                             &
      &                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                     If (k.ne.l) Then
                       ij2=i*ntAsh+j
                       kl2=l*ntAsh+k
-                      G2q(1+ijkl)=G2q(1+ijkl)
+                      G2q(1+ijkl)=G2q(1+ijkl)                           &
      &                  + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                       If (ij.ne.kl) Then
                         ij2=Max(j*ntAsh+i,k*ntAsh+l)
                         kl2=Min(j*ntAsh+i,k*ntAsh+l)
-                        G2q(1+ijkl)=G2q(1+ijkl)
+                        G2q(1+ijkl)=G2q(1+ijkl)                         &
      &                    + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                       End If
                     End If
@@ -270,11 +270,11 @@ C
                   ijkl=ij*(ij+1)/2+kl
                   ij2=i*ntAsh+i
                   kl2=k*ntAsh+l
-                  G2q(1+ijkl)=G2q(1+ijkl)
-     *              + factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                  G2q(1+ijkl)=G2q(1+ijkl)                               &
+     &              + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                   If (k.ne.l) Then
                     kl2=l*ntAsh+k
-                    G2q(1+ijkl)=G2q(1+ijkl)
+                    G2q(1+ijkl)=G2q(1+ijkl)                             &
      &                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
                   End If
                 End If
@@ -286,7 +286,7 @@ C
       call mma_deallocate(CIL)
       call mma_deallocate(CIR)
       nConf=ncsf(1)
-C
+!
       End Subroutine PT2_SLag
-C
+!
       End Subroutine rhs_sa

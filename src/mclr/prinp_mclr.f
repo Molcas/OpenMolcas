@@ -1,37 +1,37 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine PrInp_MCLR(iPL)
       use Exp, only: nexp_max
-************************************************************************
-*                                                                      *
-*     Echo input                                                       *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Echo input                                                       *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use MCLR_Data, only: ISTATE,SA,ISNAC,IRLXROOT,NACSTATES,NSSA
       use MCLR_Data, only: ChDisp,DspVec,lDisp,SwLbl
       use MCLR_Data, only: XISPSM
-      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,mTit,nAtoms,PotNuc,
-     &                      iMethod,ntIsh,ntAsh,ntBas,nActEl,
-     &                      nHole1,nElec3,State_Sym,nRoots,iPT2,ESCF,
-     &                      Eps,nIter,NewCho,SpinPol,iMCPD,PT2,
-     &                      TwoStep,StepType,nDisp,Perturbation,AtLbl,
-     &                      ChIrr,Coor,ERASSCF,Header1I,iRoot,iSpin,
-     &                      nCSF,nDel,nFro,nRS1,nRS2,nRS3,nSkip,nTPert,
+      use input_mclr, only: nSym,nAsh,nIsh,nBas,nOrb,mTit,nAtoms,PotNuc,&
+     &                      iMethod,ntIsh,ntAsh,ntBas,nActEl,           &
+     &                      nHole1,nElec3,State_Sym,nRoots,iPT2,ESCF,   &
+     &                      Eps,nIter,NewCho,SpinPol,iMCPD,PT2,         &
+     &                      TwoStep,StepType,nDisp,Perturbation,AtLbl,  &
+     &                      ChIrr,Coor,ERASSCF,Header1I,iRoot,iSpin,    &
+     &                      nCSF,nDel,nFro,nRS1,nRS2,nRS3,nSkip,nTPert, &
      &                      State_Sym,TitleIn,Weight
       Implicit None
       Integer iPL
@@ -41,33 +41,33 @@
       Character(LEN=1) :: XYZ(3)=['X','Y','Z']
       Logical :: RICD=.FALSE.
       Integer lLine,i,Left,nLine,j,iAT,nTSsh,iSym,jDisp,iDisp
-*----------------------------------------------------------------------*
-*     Initialize blank and header lines                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Initialize blank and header lines                                *
+!----------------------------------------------------------------------*
 
       lLine=Len(Line)
       Do i=1,lLine
          BlLine(i:i)=' '
          StLine(i:i)='*'
       End Do
-*     lPaper=132
-*     left=(lPaper-lLine)/2
+!     lPaper=132
+!     left=(lPaper-lLine)/2
       left=5
       Write(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       Call DecideOnCholesky(RICD)
-*----------------------------------------------------------------------*
-*     Print the project title                                          *
-*----------------------------------------------------------------------*
-*     If ( mTit.gt.0 ) then
+!----------------------------------------------------------------------*
+!     Print the project title                                          *
+!----------------------------------------------------------------------*
+!     If ( mTit.gt.0 ) then
          If (iPL.ge.3) Write(6,*)
          nLine=mTit+5
          Do i=1,nLine
             Line=BlLine
             If ( i.eq.1 .or. i.eq.nLine ) Line=StLine
             If ( i.eq.3 ) Line='Project:'
-            If ( i.ge.4 .and. i.le.nLine-2 )
+            If ( i.ge.4 .and. i.le.nLine-2 )                            &
      &         Write(Line,'(18A4)')(TitleIN((i-4)*18+j),j=1,18)
             If (iPL.ge.3) Then
                Call Center_Text(Line)
@@ -75,10 +75,10 @@
             End If
          End Do
          If (iPL.ge.3) Write(6,*)
-*     End If
-*----------------------------------------------------------------------*
-*     Print file identifiers                                           *
-*----------------------------------------------------------------------*
+!     End If
+!----------------------------------------------------------------------*
+!     Print file identifiers                                           *
+!----------------------------------------------------------------------*
       If (iPL.ge.3) Then
          Write(6,*)
          Write(6,Fmt1) 'Header of the ONEINT file:'
@@ -88,9 +88,9 @@
          Write(Line,Fmt1)  Header1I(2)
          Write(6,'(A)') trim(Line)
          Write(6,*)
-*----------------------------------------------------------------------*
-*     Print cartesian coordinates of the system                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print cartesian coordinates of the system                        *
+!----------------------------------------------------------------------*
          Write(6,*)
          Write(6,Fmt1)'Cartesian coordinates:'
          Write(6,Fmt1)'----------------------'
@@ -99,15 +99,15 @@
        Write(6,Fmt1)' No.    Label       X         Y         Z     '
        Write(6,Fmt1)'----------------------------------------------'
          Do 10 iAt=1,nAtoms
-            Write(6,Fmt2//'I3,5X,A6,2X,3F10.5)')
+            Write(6,Fmt2//'I3,5X,A6,2X,3F10.5)')                        &
      &      iAt,AtLbl(iAt),Coor(1,iAt),Coor(2,iAt),Coor(3,iAt)
 10       Continue
        Write(6,Fmt1)'----------------------------------------------'
        Write(6,Fmt2//'A,F20.10)')'Nuclear repulsion energy =',PotNuc
       End If
-*----------------------------------------------------------------------*
-*     Print orbital and wavefunction specifications                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print orbital and wavefunction specifications                    *
+!----------------------------------------------------------------------*
       If (iMethod.eq.2) Then
          ntIsh=0
          ntAsh=0
@@ -117,7 +117,7 @@
             ntIsh=ntIsh+nIsh(iSym)
             ntAsh=ntAsh+nAsh(iSym)
             ntBas=ntBas+nBas(iSym)
-            ntSsh=ntSsh+nBas(iSym)
+            ntSsh=ntSsh+nBas(iSym)                                      &
      &           -nFro(iSym)-nDel(iSym)-nIsh(iSym)-nAsh(iSym)
 20       Continue
          If (iPL.ge.2) Then
@@ -127,87 +127,87 @@
             Call CollapseOutput(1,Line)
             Write(6,Fmt1)              '-----------------------------'
             Write(6,*)
-            Write(6,Fmt2//'A,T47,I6)')
-     &                  'Number of closed shell electrons',
+            Write(6,Fmt2//'A,T47,I6)')                                  &
+     &                  'Number of closed shell electrons',             &
      &                              2*ntIsh
-            Write(6,Fmt2//'A,T47,I6)')
-     &                  'Number of electrons in active shells',
+            Write(6,Fmt2//'A,T47,I6)')                                  &
+     &                  'Number of electrons in active shells',         &
      &                              nActEl
-            Write(6,Fmt2//'A,T47,I6)')
-     &               'Max number of holes in RAS1 space',
+            Write(6,Fmt2//'A,T47,I6)')                                  &
+     &               'Max number of holes in RAS1 space',               &
      &                           nHole1
-            Write(6,Fmt2//'A,T47,I6)')
-     &                  'Max number of electrons in RAS3 space',
+            Write(6,Fmt2//'A,T47,I6)')                                  &
+     &                  'Max number of electrons in RAS3 space',        &
      &                              nElec3
-            Write(6,Fmt2//'A,T47,I6)')
-     &                 'Number of inactive orbitals',
+            Write(6,Fmt2//'A,T47,I6)')                                  &
+     &                 'Number of inactive orbitals',                   &
      &                              ntIsh
-            Write(6,Fmt2//'A,T47,I6)')
-     &                 'Number of active orbitals',
+            Write(6,Fmt2//'A,T47,I6)')                                  &
+     &                 'Number of active orbitals',                     &
      &                              ntAsh
-            Write(6,Fmt2//'A,T47,I6)')
-     &                 'Number of secondary orbitals',
+            Write(6,Fmt2//'A,T47,I6)')                                  &
+     &                 'Number of secondary orbitals',                  &
      &                              ntSsh
-            Write(6,Fmt2//'A,T47,F6.1)')
-     &                'Spin quantum number',
+            Write(6,Fmt2//'A,T47,F6.1)')                                &
+     &                'Spin quantum number',                            &
      &                              (dble(iSpin)-1.)/2.
-            Write(6,Fmt2//'A,T47,I6)')
-     &               'State symmetry',
+            Write(6,Fmt2//'A,T47,I6)')                                  &
+     &               'State symmetry',                                  &
      &                             State_Sym
             Write(6,Fmt2//'A,T47,I6)') 'Number of CI roots',nroots
-            Write(6,Fmt2//'A,(T47,10I6))')
+            Write(6,Fmt2//'A,(T47,10I6))')                              &
      &       'States considered ',(iroot(i),i=1,nroots)
-            Write(6,Fmt2//'A,(T47,10F6.3))') 'Weights ',
+            Write(6,Fmt2//'A,(T47,10F6.3))') 'Weights ',                &
      &           (weight(i),i=1,nroots)
             Write(6,*)
-            Write(6,Fmt2//'A,T47,8I6)')
-     &           'Symmetry species',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &           'Symmetry species',                                    &
      &                            (i,i=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
-     &           'Skipped sym. species',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &           'Skipped sym. species',                                &
      &            (nSkip(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
-     &            'Frozen orbitals',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &            'Frozen orbitals',                                    &
      &            (nFro(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
-     &            'Inactive orbitals',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &            'Inactive orbitals',                                  &
      &                               (nIsh(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
-     &             'Active orbitals',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &             'Active orbitals',                                   &
      &                               (nAsh(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)') 'RAS1 orbitals',
+            Write(6,Fmt2//'A,T47,8I6)') 'RAS1 orbitals',                &
      &                              (nRs1(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)') 'RAS2 orbitals',
+            Write(6,Fmt2//'A,T47,8I6)') 'RAS2 orbitals',                &
      &                              (nRs2(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)') 'RAS3 orbitals',
+            Write(6,Fmt2//'A,T47,8I6)') 'RAS3 orbitals',                &
      &                              (nRs3(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)') 'Deleted orbitals',
+            Write(6,Fmt2//'A,T47,8I6)') 'Deleted orbitals',             &
      &                              (nDel(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
-     &               'Number of basis functions',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &               'Number of basis functions',                       &
      &                              (nBas(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
-     &               'Number of orbitals',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &               'Number of orbitals',                              &
      &                              (nOrb(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,8I6)')
-     &            'Number of configurations',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &            'Number of configurations',                           &
      &                             (ncsf(isym),isym=1,nsym)
 
-            Write(6,Fmt2//'A,T47,8I6)')
-     &            'Number of combinations',
+            Write(6,Fmt2//'A,T47,8I6)')                                 &
+     &            'Number of combinations',                             &
      &                             (nint(xispsm(isym,1)),isym=1,nsym)
-*
+!
             If ( iPt2.eq.0 ) then
-               Write(6,Fmt1)
+               Write(6,Fmt1)                                            &
      &              'Natural orbitals are used in the last CI'
             Else
-               Write(6,Fmt1)
+               Write(6,Fmt1)                                            &
      &          'Pseudo canonical orbitals are used in the last CI'
             End If
-*
-            Write(6,Fmt2//'A,T33,F20.10)')
+!
+            Write(6,Fmt2//'A,T33,F20.10)')                              &
      &           'RASSCF state energy = ', ERASSCF(istate)
-            Write(6,Fmt2//'A,T47,I6)')
+            Write(6,Fmt2//'A,T47,I6)')                                  &
      &          'Size of explicit Hamiltonian in PCG: ',nExp_Max
             Call CollapseOutput(0,'Wave function specifications:')
          End If
@@ -218,33 +218,33 @@
             Write(Line(left-2:),'(A)') 'Wave function specifications:'
             Call CollapseOutput(1,Line)
             Write(6,Fmt1)              '-----------------------------'
-            Write(6,Fmt2//'A,T50,A)')
+            Write(6,Fmt2//'A,T50,A)')                                   &
      &                'Wavefunction type:','SCF'
-            Write(6,Fmt2//'A,T45,I6)')
-     &                'Number of irreducible symmetry groups',
+            Write(6,Fmt2//'A,T45,I6)')                                  &
+     &                'Number of irreducible symmetry groups',          &
      &                         nSym
-            Write(6,Fmt2//'A,T45,8I6)')
-     &                'Number of basis functions',
+            Write(6,Fmt2//'A,T45,8I6)')                                 &
+     &                'Number of basis functions',                      &
      &                         (nBas(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T45,8I6)')
-     &                'Number of occupied orbitals',
+            Write(6,Fmt2//'A,T45,8I6)')                                 &
+     &                'Number of occupied orbitals',                    &
      &                         (nish(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T31,F20.10)')
+            Write(6,Fmt2//'A,T31,F20.10)')                              &
      &             'SCF energy = ',ESCF
             Call CollapseOutput(0,'Wave function specifications:')
          End If
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (iPL.ge.2) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
          Write(6,*)
-         Write(6,Fmt2//'A,T42,ES11.4)')
+         Write(6,Fmt2//'A,T42,ES11.4)')                                 &
      &      'Convergence threshold= ',Eps
-         Write(6,Fmt2//'A,T45,I8)')
+         Write(6,Fmt2//'A,T45,I8)')                                     &
      &      'Max number of iterations in PCG: ',nIter
          If (RICD) Then
             If (NewCho) Then
@@ -253,34 +253,34 @@
                Write(6,Fmt2//'A)') 'Using the Cho-MO Algorithm'
             End If
          End If
-*
+!
       If (SPINPOL) Then
          Write(6,Fmt1) 'Calculating spin polarization'
       Else If (SA.or.iMCPD.or.PT2) Then
          If (PT2) Then
-            Write(6,Fmt2//'A,A)') 'Calculating Lagrangian multipliers',
+            Write(6,Fmt2//'A,A)') 'Calculating Lagrangian multipliers', &
      &                      ' for CASPT2'
          End if
          If (isNAC) Then
-            Write(6,Fmt2//'A,I3,"/",I3)')'Lagrangian multipliers '//
-     &                            'are calculated for states no. ',
+            Write(6,Fmt2//'A,I3,"/",I3)')'Lagrangian multipliers '//    &
+     &                            'are calculated for states no. ',     &
      &                            NACstates(1),NACstates(2)
-            If ((NSSA(1).ne.NACstates(1)).or.
+            If ((NSSA(1).ne.NACstates(1)).or.                           &
      &          (NSSA(2).ne.NACstates(2))) Then
-               Write(6,Fmt2//'39X,A,I3,"/",I3,A)')'(SA roots no. ',
+               Write(6,Fmt2//'39X,A,I3,"/",I3,A)')'(SA roots no. ',     &
      &                               NSSA(1),NSSA(2),')'
             End If
          Else
-            Write(6,Fmt2//'A,I3)')'Lagrangian multipliers are '//
+            Write(6,Fmt2//'A,I3)')'Lagrangian multipliers are '//       &
      &                            'calculated for state no. ',irlxroot
             If (istate.ne.irlxroot) Then
                Write(6,Fmt2//'39X,A,I3,A)')'(SA root no. ',istate,')'
             End If
          End If
          If(TwoStep) Then
-            If(StepType.eq.'RUN1') Write(6,Fmt1)
+            If(StepType.eq.'RUN1') Write(6,Fmt1)                        &
      &                      'TwoStep activated. Run 1 (preparation).'
-            If(StepType.eq.'RUN2') Write(6,Fmt1)
+            If(StepType.eq.'RUN2') Write(6,Fmt1)                        &
      &                      'TwoStep activated. Run 2 (final run).'
          End If
       Else
@@ -291,10 +291,10 @@
             Call CollapseOutput(1,Line)
             Write(6,Fmt1)              '----------------------------'
             Write(6,*)
-            Write(6,Fmt2//'A,T49,8I4)')
-     &             'Number of perturbations in each symmetry',
+            Write(6,Fmt2//'A,T49,8I4)')                                 &
+     &             'Number of perturbations in each symmetry',          &
      &                           (ldisp(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T52,A)') 'Type of perturbation:',
+            Write(6,Fmt2//'A,T52,A)') 'Type of perturbation:',          &
      &                            Perturbation
             Call CollapseOutput(0,'Perturbation specifications:')
             Write(6,*)
@@ -303,22 +303,22 @@
             Call CollapseOutput(1,Line)
             Write(6,Fmt1)              '--------------'
             Write(6,*)
-            Write(6,Fmt1)
+            Write(6,Fmt1)                                               &
      &             '-------------------------------------'
-            Write(6,Fmt1)
+            Write(6,Fmt1)                                               &
      &          ' No.    Symmetry    Center Direction '
-            Write(6,Fmt1)
+            Write(6,Fmt1)                                               &
      &             '-------------------------------------'
             jDisp=0
             Do iSym=1,nSym
                Do iDisp=1,lDisp(iSym)
                   jDisp=jDisp+1
                   If (iand(ntpert(jdisp),16).eq.16) Then
-                     Write(6,Fmt2//'I3,T16,A3,T29,A)')
+                     Write(6,Fmt2//'I3,T16,A3,T29,A)')                  &
      &                  jDisp,chIrr(isym),ChDisp(dspvec(jDisp))
                   Else
-                     Write(6,Fmt2//'I3,T16,A3,T29,A8,A,A)')
-     &                  jDisp,chIrr(isym),swlbl(jDisp),' ',
+                     Write(6,Fmt2//'I3,T16,A3,T29,A8,A,A)')             &
+     &                  jDisp,chIrr(isym),swlbl(jDisp),' ',             &
      &                  XYZ(dspvec(jDisp))
                   End If
                End Do
@@ -328,38 +328,38 @@
          End If
       End If
       Write(6,*)
-*----------------------------------------------------------------------*
-*     Print reference state information                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print reference state information                                *
+!----------------------------------------------------------------------*
       If (.Not. SA) Then
          Write(6,*)
          If (iMethod.eq.2) Then
-             Write(6,Fmt2//'A,I3)')
-     &          'Linear response function is computed '//
+             Write(6,Fmt2//'A,I3)')                                     &
+     &          'Linear response function is computed '//               &
      &                        'for root no. = ',irlxroot
          Else
-            Write(6,Fmt2//'A,I3)')
-     &         'Linear response function is computed '//
+            Write(6,Fmt2//'A,I3)')                                      &
+     &         'Linear response function is computed '//                &
      &                       'for Restricted Hartree-Fock wavefunction'
          End If
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Write(6,*)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       If (isNAC .and. (nSym > 1)) Then
         Call WarningMessage(2,'NAC is not supported with symmetry')
         Call Abend()
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Return
       End

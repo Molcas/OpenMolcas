@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Anders Bernhardsson                                    *
-*               2002, Roland Lindh                                     *
-************************************************************************
-*define _DEBUGPRINT_
-      SubRoutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Anders Bernhardsson                                    *
+!               2002, Roland Lindh                                     *
+!***********************************************************************
+!define _DEBUGPRINT_
+      SubRoutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,       &
      &                      iRHSDisp,iRHSCIDISP,converged)
-************************************************************************
-*                                                                      *
-*                                                                      *
-*     called from: MCLR                                                *
-*                                                                      *
-*                                                                      *
-*----------------------------------------------------------------------*
-*     Parallelization of perturbations, RL 2002.                       *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!                                                                      *
+!     called from: MCLR                                                *
+!                                                                      *
+!                                                                      *
+!----------------------------------------------------------------------*
+!     Parallelization of perturbations, RL 2002.                       *
+!                                                                      *
+!***********************************************************************
       use Exp, only: Exp_Close
       use Arrays, only: CMO, Int2, FIMO
       use ipPage, only: W
@@ -42,12 +42,12 @@
       use MCLR_Data, only: lDisp
       use MCLR_Data, only: LuTemp
       use MCLR_Data, only: XISPSM
-      use input_mclr, only: nDisp,Fail,lSave,nSym,PT2,State_Sym,iMethod,
-     &                      rIn_Ene,PotNuc,iBreak,Eps,nIter,
+      use input_mclr, only: nDisp,Fail,lSave,nSym,PT2,State_Sym,iMethod,&
+     &                      rIn_Ene,PotNuc,iBreak,Eps,nIter,            &
      &                      ERASSCF,kPrint,nCSF,nTPert,TimeDep,nAsh,nRs2
       use dmrginfo, only: DoDMRG,RGRAS2
       Implicit None
-*
+!
 #ifdef _MOLCAS_MPP_
 #  include "global.fh"
 #  include "mafdecls.fh"
@@ -71,26 +71,26 @@
       Character(LEN=72) SLine
       Real*8 res_tmp
       Real*8 rdum(1)
-      Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
-     &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),
-     &                      Sc1(:), Sc2(:), Sc3(:),
+      Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),              &
+     &                      Temp1(:), Temp2(:), Temp3(:), Temp4(:),     &
+     &                      Sc1(:), Sc2(:), Sc3(:),                     &
      &                      Dens(:), Pens(:), rmoaa(:)
       Integer, Allocatable:: List(:,:)
-      Real*8 Tim2,Tim3,Tim4,R1,R2,DeltaC,DeltaK,Delta,Delta0,ReCo,rGrad,
-     &       EC,D_0,rAlphaC,rAlphaK,rAlpha,rEsk,rEsci,rBeta,Res,
+      Real*8 Tim2,Tim3,Tim4,R1,R2,DeltaC,DeltaK,Delta,Delta0,ReCo,rGrad,&
+     &       EC,D_0,rAlphaC,rAlphaK,rAlpha,rEsk,rEsci,rBeta,Res,        &
      &       rCHC
       Real*8, External:: DDot_
-      Integer lPaper,lLine,Left,iDis,iDisp,kkSym,kkkSym,iSym,
-     &        nConf3,iRC,ipS1,ipS2,ipST,ipCIT,ipCID,nPre2,iDEnd,jDisp,
+      Integer lPaper,lLine,Left,iDis,iDisp,kkSym,kkkSym,iSym,           &
+     &        nConf3,iRC,ipS1,ipS2,ipST,ipCIT,ipCID,nPre2,iDEnd,jDisp,  &
      &        iLen,Iter,ipPre2,jSpin,LuWR_Save,iSym_Old,iRank,iD
       Integer, External:: ipClose,ipGet,ipIn,ipIn1,ipOut,ipNOut
       Integer, External:: nPre
       Integer, External:: IsFreeUnit
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
       Interface
-      SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,
+      SubRoutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,    &
      &                   Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
        Integer iispin, iCsym, iSSym
        Integer nInt1, nInt2s, nInt2a
@@ -99,43 +99,43 @@
        Logical Have_2_el
       End SubRoutine CISigma
       End Interface
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!     Start                                                            *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       SLine='Solving CP(CAS)HF equations'
       Call StatusLine('MCLR: ',SLine)
-*
-*----------------------------------------------------------------------*
-*     Initialize blank and header lines                                *
-*----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!     Initialize blank and header lines                                *
+!----------------------------------------------------------------------*
       TIM2=Zero
       TIM3=Zero
       TIM4=Zero
-*
+!
       CLOCK(:)=Zero
       lPaper=132
       lLine =120
       left=(lPaper-lLine)/2
       Write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 
       iDis=0
-*
+!
       fail=.false.
       Converged(:)=.true.
       lprint=.false.
-*     If (lSAVE) CALL DANAME(50,'RESIDUALS')
+!     If (lSAVE) CALL DANAME(50,'RESIDUALS')
       If (lSAVE) Then
          Write (LuWr,*) 'WfCtl: SAVE option not implemented'
          Call Abend()
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Start loop over the symmetry of the perturbations
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Start loop over the symmetry of the perturbations
+!
       If (iAnd(kprint,2).eq.2) lprint=.true.
 #ifdef _DEBUGPRINT_
       lprint=.true.
@@ -143,9 +143,9 @@
       kksym=1
       kkksym=nsym
       If (PT2) kkkSym=1
-*
-*     Set up parallelization over the loop over perturbations
-*
+!
+!     Set up parallelization over the loop over perturbations
+!
       Call mma_allocate(List,2,nDisp,Label='List')
       iDisp=0
       Do iSym=kksym,kkksym
@@ -156,23 +156,23 @@
            List(2,iDisp)=jDisp
         End Do
       End Do
-*
-*     Change output unit
-*
+!
+!     Change output unit
+!
       LuWr_save=LuWr
       If (MyRank.ne.0) Then
          LuWr=55
          LuWr=isFreeUnit(LuWr)
          call molcas_open(luwr,'Temp_OutPut')
       End If
-*
+!
       Call Init_Tsk(id,nDisp)
 #ifdef _MOLCAS_MPP_
-*     iglfail is global "array", a flag used to communicate to all processes
-*     if any of them failed, the communication need not be synchronous,
+!     iglfail is global "array", a flag used to communicate to all processes
+!     if any of them failed, the communication need not be synchronous,
       If (Is_Real_Par()) Then
          If (.Not.GA_Create(MT_DBL,1,1,'GlFail',0,0,iglfail)) Then
-           Call SysAbendMsg ('wfctl_hess',
+           Call SysAbendMsg ('wfctl_hess',                              &
      &                       'failed to create global failed flag',' ')
 
          End If
@@ -180,13 +180,13 @@
          dfail=Zero
       End If
 #endif
-*
+!
       ipdia=0
       ipPre2=0
       iSym_Old=0
  888  If (.Not.Rsv_Tsk(id,iDisp)) Go To 999
 #ifdef _MOLCAS_MPP_
-*       Check if some other process failed
+!       Check if some other process failed
         If (Is_Real_Par()) Then
            Call GA_Get(iglfail,1,1,1,1,dfail,1)
            If (dfail.gt.Zero) Then
@@ -197,60 +197,60 @@
 #endif
         iSym =List(1,iDisp)
         jDisp=List(2,iDisp)
-*
-        Write (SLine,'(A,I3,A)')
-     &        'Solving CP(CAS)HF equations for perturbation ',
+!
+        Write (SLine,'(A,I3,A)')                                        &
+     &        'Solving CP(CAS)HF equations for perturbation ',          &
      &        iDisp,'.'
         Call StatusLine('MCLR: ',SLine)
-*
-C     Do iSym=kksym,kkksym
-*
-*       Execute setup for symmetry block if a new one!
-*
+!
+!     Do iSym=kksym,kkksym
+!
+!       Execute setup for symmetry block if a new one!
+!
         If (iSym.ne.iSym_Old) Then
-*
+!
            If (iSym_Old.ne.0) Then
-*
-*             If a previous symmetry block as processed
-*             free all memory and remove from disk all data
-*             related to this symmetry
-*
+!
+!             If a previous symmetry block as processed
+!             free all memory and remove from disk all data
+!             related to this symmetry
+!
               If (CI) Then
                  irc=ipclose(ipdia)
               Else
                  irc=ipclose(ipPre2)
               End If
-*
+!
               Call Exp_Close()
-*
+!
            End If
            iSym_Old=iSym
-*
+!
         PState_SYM=iEor(State_Sym-1,iSym-1)+1
         nconf1=ncsf(PState_Sym)
         CI=.false.
         If (iMethod.eq.2.and.nconf1.gt.0) CI=.true.
 
         If (CI.and.nconf1.eq.1.and.isym.eq.1) CI=.false.
-*          Initiate CSF <-> SD
-        If (CI) Call InCSFSD(iEor(iSym-1,State_Sym-1)+1,
+!          Initiate CSF <-> SD
+        If (CI) Call InCSFSD(iEor(iSym-1,State_Sym-1)+1,                &
      &                       State_sym,.false.)
-*
-*
-*          Calculate length of the density, Fock and Kappa matrix etc
-*          notice that this matrixes not necessary are symmetric.
-*          Store pointers.
-*
-*          Input:
-*                 iSym : Symmetry of perturbation
-*
-*          Output: Commonblocks (Pointers.fh)
-*
+!
+!
+!          Calculate length of the density, Fock and Kappa matrix etc
+!          notice that this matrixes not necessary are symmetric.
+!          Store pointers.
+!
+!          Input:
+!                 iSym : Symmetry of perturbation
+!
+!          Output: Commonblocks (Pointers.fh)
+!
         PState_SYM=iEor(State_Sym-1,iSym-1)+1
-*       nConf2=nint(xispsm(PState_SYM,1))
-*       nConf2=ndtasm(PState_SYM)
+!       nConf2=nint(xispsm(PState_SYM,1))
+!       nConf2=ndtasm(PState_SYM)
         nconf3=nint(Max(xispsm(PState_SYM,1),xispsm(State_SYM,1)))
-*       nconf3=Max(ndtasm(PState_SYM),ndtasm(State_SYM))
+!       nconf3=Max(ndtasm(PState_SYM),ndtasm(State_SYM))
 
         if(doDMRG)then  ! yma
           call dmrg_spc_change_mclr(RGras2(1:8),nash)
@@ -258,33 +258,33 @@ C     Do iSym=kksym,kkksym
         end if
 
         Call Setup_MCLR(iSym)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*       Determine if we should page CI vectors
-*
-*                                    [2]
-*         Calculate the diagonal of E    and store in core/disc
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!       Determine if we should page CI vectors
+!
+!                                    [2]
+!         Calculate the diagonal of E    and store in core/disc
+!
         If (CI) Then
             Call CIDia(PState_Sym,rCHC)
             irc=ipout(ipdia)
-*
-*       Allocate disk/memory space
-*
-*
-*       This areas should be addressed through ipin
-*       ipout will page them out to disk and free the memory area
-*       if page mode is used
-*
-*       opout will release the memory area without update the disk
-*
+!
+!       Allocate disk/memory space
+!
+!
+!       This areas should be addressed through ipin
+!       ipout will page them out to disk and free the memory area
+!       if page mode is used
+!
+!       opout will release the memory area without update the disk
+!
            ips1 =ipget(nconf3)
            ips2 =ipget(nconf3)
            ipst =ipget(nconf3)
            ipcit=ipget(nconf1)
            ipcid=ipget(nconf1)
-*
+!
         Else
            ips1=0
            ips2=0
@@ -292,7 +292,7 @@ C     Do iSym=kksym,kkksym
            ipcit=0
            ipcid=0
         End If
-*
+!
         npre2=Max(npre(isym),1) ! "Max" just there to make sure that
 !                                 W(ipPre2) is allocated even if
 !                                 npre2(isym) is zero.
@@ -300,19 +300,19 @@ C     Do iSym=kksym,kkksym
         irc=ipin(ipPre2)
         call Prec(W(ipPre2)%Vec,isym)
         irc=ipout(ippre2)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      OK START WORKING, looping over the perturbations of the
-*      current symmetry
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!      OK START WORKING, looping over the perturbations of the
+!      current symmetry
+!
         iDEND=lDisp(iSym)
-*       If (SewLab.eq.'NONE    '.and.(.not.mckinley)) iDEND=1
-*
+!       If (SewLab.eq.'NONE    '.and.(.not.mckinley)) iDEND=1
+!
         End If
-*
-C       Do jDisp=1,iDEnd
-C         iDisp=iDisp+1
+!
+!       Do jDisp=1,iDEnd
+!         iDisp=iDisp+1
           jspin=0
           If (iAnd(nTPert(idisp),1).eq.1) jSpin=1
           If (jspin.eq.0) Then
@@ -320,9 +320,9 @@ C         iDisp=iDisp+1
           Else
               nConf1=nint(xispsm(Pstate_Sym,1))
           End If
-*
-*    Allocate areas for scratch and state variables
-*
+!
+!    Allocate areas for scratch and state variables
+!
           Call mma_allocate(Kappa,nDens2+6,Label='Kappa')
           Call mma_allocate(dKappa,nDens2+6,Label='dKappa')
           Call mma_allocate(Sigma,nDens2+6,Label='Sigma')
@@ -340,7 +340,7 @@ C         iDisp=iDisp+1
           If (CI) Then
              Call mma_allocate(Dens,n1dens,Label='Dens')
              Call mma_allocate(Pens,n2dens,Label='Pens')
-*
+!
              Dens(:)=Zero
              Pens(:)=Zero
           End If
@@ -350,22 +350,22 @@ C         iDisp=iDisp+1
              Call mma_allocate(rmoaa,1,Label='rmoaa')
           End If
           rmoaa(:)=Zero
-*                                                                      *
-************************************************************************
-*                                                                      *
-*         Calculate RHS for the perturbation
-*                                                                      *
-************************************************************************
-*                                                                      *
-*         (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!         Calculate RHS for the perturbation
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!         (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
+!
           ! If (PT2) then
             !  Call RHS_PT2(Temp4,Temp4,Temp4)
           ! Else
-             Call RHS(Sigma,Kappa,Temp1,
-     &                Temp3,Sc2,dKappa,
-     &                Sc3,
-     &                Temp4,ipST,
+             Call RHS(Sigma,Kappa,Temp1,                                &
+     &                Temp3,Sc2,dKappa,                                 &
+     &                Sc3,                                              &
+     &                Temp4,ipST,                                       &
      &                iDisp,iSym-1,CMO,jdisp,jspin,CI)
 #ifdef _DEBUGPRINT_
              Write (LuWr,*) 'After RHS'
@@ -377,17 +377,17 @@ C         iDisp=iDisp+1
 #endif
           ! End If
           irc=opout(ipci)
-*
+!
           Write (LuWr,*) 'Process perturbation number ',iDisp
-          If (lprint) Write(LuWr,*)
+          If (lprint) Write(LuWr,*)                                     &
      &      '       Iteration         Delta     Res(kappa) Res(CI)'
-*                                                                      *
-************************************************************************
-*                                                                      *
-*         Write RHS to disk                                            *
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!         Write RHS to disk                                            *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
           iLen=nDensC
           iRHSDisp(iDisp)=iDis
           Call Compress(Temp4,Sigma,iSym)
@@ -406,9 +406,9 @@ C         iDisp=iDisp+1
              Call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
              Call DSCAL_(nConf1,-One,W(ipST)%Vec,1)
           End If
-*
+!
           Call DSCAL_(nDensC,-One,Sigma,1)
-*
+!
 #ifdef _DEBUGPRINT_
           irc=ipin(ipST)
           Write (LuWr,*) 'ST=',DDot_(nConf1,W(ipST)%Vec,1,W(ipST)%Vec,1)
@@ -416,11 +416,11 @@ C         iDisp=iDisp+1
           Write (LuWr,*) 'Kappa=',DDot_(nDens2,Kappa,1,Kappa,1)
           Write (LuWr,*) 'End RHS!'
 #endif
-*
+!
           iter=1
           irc=ipin(ipPre2)
-          Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,
-     &                  Kappa,nDens2+6,Temp3,nDens2+6,
+          Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,                   &
+     &                  Kappa,nDens2+6,Temp3,nDens2+6,                  &
      &                  isym,iter)
           irc=opout(ippre2)
           r2=ddot_(ndensc,Kappa,1,Kappa,1)
@@ -429,10 +429,10 @@ C         iDisp=iDisp+1
           Write (LuWr,*) 'Kap=',DDot_(nDens2,Kappa,1,Kappa,1)
           Write (LuWr,*) 'End DMinvKap'
 #endif
-          If (r2.gt.r1) Write(LuWr,Fmt2//'A,I3,A)')
+          If (r2.gt.r1) Write(LuWr,Fmt2//'A,I3,A)')                     &
      &         'Warning  perturbation number ',idisp,' might diverge!'
           Call UnCompress(Kappa,dKappa,iSym)
-*
+!
           If (CI) Then
              irc=ipin(ipCId)
              Call DMinvCI(ipST,W(ipCId)%Vec, rCHC,isym)
@@ -460,11 +460,11 @@ C         iDisp=iDisp+1
           Orb=.true.
           TimeDep=.false.
           ReCo=-One
-*                                                                      *
-************************************************************************
-*          I   T   E   R   A   T   I   O   N   S                       *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!          I   T   E   R   A   T   I   O   N   S                       *
+!***********************************************************************
+!                                                                      *
 200       Continue
 
           if(doDMRG)then  ! It can be deleted
@@ -472,46 +472,46 @@ C         iDisp=iDisp+1
             call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
           end if
 
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*       O R B I T A L    P A R T
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!       O R B I T A L    P A R T
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
            If (orb) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                      ~    ~
-*            Construct F,(ij|kl)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                      ~    ~
+!            Construct F,(ij|kl)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
              irc=ipnout(-1)
-             Call RInt_generic(dKappa,rmoaa,rdum,
-     &                         Sc2,Temp3,Temp4,
+             Call RInt_generic(dKappa,rmoaa,rdum,                       &
+     &                         Sc2,Temp3,Temp4,                         &
      &                         Sc3,isym,reco,jspin)
              Clock(iTimeKK)=Clock(iTimeKK)+Tim2
 
-*                                                                      *
-************************************************************************
-*                                                                      *
-*            kappa->CI
-*
-*            H(kappa)|0>
-*
-*                [2]
-*            S1=E   k ( kappa TO CI )
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!            kappa->CI
+!
+!            H(kappa)|0>
+!
+!                [2]
+!            S1=E   k ( kappa TO CI )
+!                                                                      *
+!***********************************************************************
+!                                                                      *
              If (CI) Then
-                Call CISigma(jspin,State_Sym,pstate_sym,
-     &                       Temp4,nDens2,rmoaa,SIZE(rmoaa),rdum,1,
+                Call CISigma(jspin,State_Sym,pstate_sym,                &
+     &                       Temp4,nDens2,rmoaa,SIZE(rmoaa),rdum,1,     &
      &                       ipCI,ipS1,.True.)
                 Clock(iTimeKC)=Clock(iTimeKC)+Tim3
 #ifdef _DEBUGPRINT_
@@ -520,57 +520,57 @@ C         iDisp=iDisp+1
                 Write (LuWr,*) 'CISigma'
                 Call RecPrt('CI ','(3F10.4)',W(ipCI )%Vec,1,nConf1)
                 Call RecPrt('S1 ','(3F10.4)',W(ipS1 )%Vec,1,nConf1)
-                Write (LuWr,*) 'CI=',DDot_(nConf1,W(ipCI)%Vec,1,
+                Write (LuWr,*) 'CI=',DDot_(nConf1,W(ipCI)%Vec,1,        &
      &                                            W(ipCI)%Vec,1)
-                Write (LuWr,*) 'S1=',DDot_(nConf1,W(ipS1)%Vec,1,
+                Write (LuWr,*) 'S1=',DDot_(nConf1,W(ipS1)%Vec,1,        &
      &                                            W(ipS1)%Vec,1)
                 Write (LuWr,*) 'End CISigma'
 #endif
-*
-*               This will give us a better
-*               convergence in the PCG. Notice that
-*
-*               ~Inactive     ~
-*               E        + <0|H|0> = 0
-*
-*               when the wavefunction is converged.
-*
+!
+!               This will give us a better
+!               convergence in the PCG. Notice that
+!
+!               ~Inactive     ~
+!               E        + <0|H|0> = 0
+!
+!               when the wavefunction is converged.
+!
                 irc=ipin(ipS1)
                 If (isym.eq.1) Then
                    irc=ipin(ipCI)
                    rGrad=DDot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
-                   call daxpy_(nConf1,-rgrad,W(ipCI)%Vec,1,
+                   call daxpy_(nConf1,-rgrad,W(ipCI)%Vec,1,             &
      &                                       W(ipS1)%Vec,1)
                 End IF
                 call dscal_(nconf1,Two,W(ipS1)%Vec,1)
-*
+!
                 irc=opout(ipCI)
              End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
            End If
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*       C I    P A R T
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!       C I    P A R T
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
            If (CI) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                  [2]
-*            S2 = E   CID  ( CI TO CI ) = <i|H|d> -E<i|d>
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                  [2]
+!            S2 = E   CID  ( CI TO CI ) = <i|H|d> -E<i|d>
+!                                                                      *
+!***********************************************************************
+!                                                                      *
               irc=ipnout(-1)
-              Call CISigma(0,PState_Sym,Pstate_sym,
-     &                     FIMO,SIZE(FIMO),Int2,SIZE(Int2),rdum,1,ipCId,
+              Call CISigma(0,PState_Sym,Pstate_sym,                     &
+     &                     FIMO,SIZE(FIMO),Int2,SIZE(Int2),rdum,1,ipCId,&
      &                     ipS2,.True.)
               EC=rin_ene+potnuc-ERASSCF(1)
 
@@ -582,16 +582,16 @@ C         iDisp=iDisp+1
               irc=ipout(ipS2)
               irc=opout(ipCId)
               irc=opout(ipCI)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*             CI -> Kappa
-*
-*                  [2]
-*             SC3=E   CID   (SC3=F(<d|E|0>+<0|E|d>)
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!             CI -> Kappa
+!
+!                  [2]
+!             SC3=E   CID   (SC3=F(<d|E|0>+<0|E|d>)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
               Response=.true.
               irc=ipnout(-1)
 #ifdef _DEBUGPRINT_
@@ -600,9 +600,9 @@ C         iDisp=iDisp+1
               Call RecPrt('CI ','(3F10.4)',W(ipCI )%Vec,1,nConf1)
               Call RecPrt('CId','(3F10.4)',W(ipCId)%Vec,1,nConf1)
 #endif
-              Call CIDens(Response,ipCI,ipCId,
-     &                    State_sym,
-     &                    PState_Sym,
+              Call CIDens(Response,ipCI,ipCId,                          &
+     &                    State_sym,                                    &
+     &                    PState_Sym,                                   &
      &                    Pens,Dens)     ! Jeppes
 
 #ifdef _DEBUGPRINT_
@@ -610,45 +610,45 @@ C         iDisp=iDisp+1
               Write (LuWr,*) 'P=',DDot_(n2dens,Pens,1,Pens,1)
               Write (LuWr,*) 'De=',DDot_(n1dens,Dens,1,Dens,1)
 #endif
-*
-*             density for inactive= 2(<d|0>+<0|d>)
-*
+!
+!             density for inactive= 2(<d|0>+<0|d>)
+!
               d_0=Zero
-*
-*             This is just for debugging purpose.
-*             When we use it for actual calculations d_0 == 0
-*
+!
+!             This is just for debugging purpose.
+!             When we use it for actual calculations d_0 == 0
+!
               If (isym.eq.1) Then
                  irc=ipin(ipCI)
                  irc=ipin(ipCid)
                  d_0=ddot_(nconf1,W(ipCid)%Vec,1,W(ipCI)%Vec,1)
               End If
               If (Response) d_0=d_0*Two
-*
+!
 
               Call FockGen(d_0,Dens,Pens,Sc1,Sc3,isym)    ! Made
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
            End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Sc1  kappa-> kappa
-*        Sc3  CI -> kappa
-*        S1   kappa -> CI
-*        S2   CI -> CI
-*        dKap present step
-*        Kap  kappaX
-*        CIT  CIX
-*        CId  present step
-*                                                                      *
-************************************************************************
-*                                                                      *
-*        Add together
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Sc1  kappa-> kappa
+!        Sc3  CI -> kappa
+!        S1   kappa -> CI
+!        S2   CI -> CI
+!        dKap present step
+!        Kap  kappaX
+!        CIT  CIX
+!        CId  present step
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Add together
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
            Write (LuWr,*) 'Add together!'
            Write (LuWr,*) 'dKap=',DDot_(nDens,dKappa,1,dKappa,1)
@@ -656,10 +656,10 @@ C         iDisp=iDisp+1
            If (CI) Then
               Write (LuWr,*) 'Sc3=',DDot_(nDens,Sc3,1,Sc3,1)
               irc=ipin1(ipS2,nconf1)
-              Write(LuWr,*)'S2=',DDot_(nConf1,W(ipS2)%Vec,1,
+              Write(LuWr,*)'S2=',DDot_(nConf1,W(ipS2)%Vec,1,            &
      &                                        W(ipS2)%Vec,1)
               irc=ipin1(ipS1,nconf1)
-              Write(LuWr,*)'S1=',DDot_(nConf1,W(ipS1)%Vec,1,
+              Write(LuWr,*)'S1=',DDot_(nConf1,W(ipS1)%Vec,1,            &
      &                                        W(ipS1)%Vec,1)
            End If
            Write (LuWr,*)
@@ -678,48 +678,48 @@ C         iDisp=iDisp+1
               Call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
               irc=opout(ipS2)
            End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                ######   #####   #####
-*                #     # #     # #     #
-*                #     # #       #
-*                ######  #       #  ####
-*                #       #       #     #
-*                #       #     # #     #
-*                #        #####   #####
-*                                                                      *
-************************************************************************
-*                                                                      *
-*                     delta
-*          rAlpha=------------
-*                 dKappa:dSigma
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                ######   #####   #####
+!                #     # #     # #     #
+!                #     # #       #
+!                ######  #       #  ####
+!                #       #       #     #
+!                #       #     # #     #
+!                #        #####   #####
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!                     delta
+!          rAlpha=------------
+!                 dKappa:dSigma
+!
            rAlphaC=Zero
            rAlphaK=Zero
            irc=ipin(ipS1)
            irc=ipin(ipCId)
            If (orb) rAlphaK=DDot_(nDensC,Temp4,1,Temp2,1)
-           If (CI)  rAlphaC=DDot_(nConf1,W(ipS1)%Vec,1,
+           If (CI)  rAlphaC=DDot_(nConf1,W(ipS1)%Vec,1,                 &
      &                                   W(ipCId)%Vec,1)
            rAlpha=delta/(rAlphaK+rAlphaC)
 #ifdef _DEBUGPRINT_
            Write (LuWr,*) 'At PCG'
-           Write (LuWr,*) 'S1=',
-     &                      DDot_(nConf1,W(ipS1 )%Vec,1,
+           Write (LuWr,*) 'S1=',                                        &
+     &                      DDot_(nConf1,W(ipS1 )%Vec,1,                &
      &                                   W(ipS1 )%Vec,1)
-           Write (LuWr,*) 'CId=',
-     &                      DDot_(nConf1,W(ipCId)%Vec,1,
+           Write (LuWr,*) 'CId=',                                       &
+     &                      DDot_(nConf1,W(ipCId)%Vec,1,                &
      &                                   W(ipCId)%Vec,1)
-           Write (LuWr,*) 'rAlphaK, rAlphaC, rAlpha=',
+           Write (LuWr,*) 'rAlphaK, rAlphaC, rAlpha=',                  &
      &                     rAlphaK, rAlphaC, rAlpha
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*          Kappa=Kappa+rAlpha*dKappa
-*          Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!          Kappa=Kappa+rAlpha*dKappa
+!          Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
+!
            If (orb) Then
              Call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
              Call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
@@ -737,34 +737,34 @@ C         iDisp=iDisp+1
               irc=ipin(ipST)
               resci=sqrt(ddot_(nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
            End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*          Precondition......
-*             -1
-*          S=M  Sigma
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!          Precondition......
+!             -1
+!          S=M  Sigma
+!
           irc=opout(ipCID)
           irc=ipin(ipS2)
           If (CI) Call DMinvCI(ipST,W(ipS2)%Vec,rCHC,isym)
           irc=opout(ipCI)
           irc=opout(ipdia)
-*
+!
           irc=ipin(ipPre2)
-          Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,
+          Call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,                   &
      &                  Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
           irc=opout(ippre2)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*               s:Sigma
-*          Beta=-------
-*                delta
-*
-*          delta=s:sigma
-*
-*          dKappa=s+Beta*dKappa
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!               s:Sigma
+!          Beta=-------
+!                delta
+!
+!          delta=s:sigma
+!
+!          dKappa=s+Beta*dKappa
+!
            If (CI) Then
               irc=ipin(ipS2)
               irc=ipin(ipST)
@@ -773,7 +773,7 @@ C         iDisp=iDisp+1
            Else
               deltaC=Zero
            End If
-*
+!
            deltaK=ddot_(nDensC,Sigma,1,Sc2,1)
            If (.not.CI) Then
               rBeta=deltaK/delta
@@ -793,23 +793,23 @@ C         iDisp=iDisp+1
               irc=ipout(ipCID)
            End If
 #ifdef _DEBUGPRINT_
-           Write (LuWr,*) 'rBeta, DeltaK, DeltaC=',
+           Write (LuWr,*) 'rBeta, DeltaK, DeltaC=',                     &
      &                     rBeta, DeltaK, DeltaC
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*    ######  #    #  #####        #####    ####    ####
-*    #       ##   #  #    #       #    #  #    #  #    #
-*    #####   # #  #  #    #       #    #  #       #
-*    #       #  # #  #    #       #####   #       #  ###
-*    #       #   ##  #    #       #       #    #  #    #
-*    ######  #    #  #####        #        ####    ####
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!    ######  #    #  #####        #####    ####    ####
+!    #       ##   #  #    #       #    #  #    #  #    #
+!    #####   # #  #  #    #       #    #  #       #
+!    #       #  # #  #    #       #####   #       #  ###
+!    #       #   ##  #    #       #       #    #  #    #
+!    ######  #    #  #####        #        ####    ####
+!                                                                      *
+!***********************************************************************
+!                                                                      *
            Call UnCompress(Temp2,dKappa,isym)
-*
+!
            res=Zero ! dummy initialize
            res_tmp=-One
            If (iBreak.eq.1) Then
@@ -831,52 +831,52 @@ C         iDisp=iDisp+1
                 If (res.lt.abs(Eps)) Goto 300
               end if
            Else
-              If (abs(delta).lt.abs(Eps**2*delta0).and.
+              If (abs(delta).lt.abs(Eps**2*delta0).and.                 &
      &            res.lt.abs(Eps))  Goto 300
            End If
            If (iter.ge.niter) goto 210
-           If (lprint)
-     &     Write(LuWr,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)')
-     &            '     ',
+           If (lprint)                                                  &
+     &     Write(LuWr,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)')    &
+     &            '     ',                                              &
      &            iter,'       ',delta/delta0,resk,resci,deltac,deltak
 
            iter=iter+1
 
           Goto 200
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
  210      Continue
-          Write(LuWr,Fmt2//'A,I4,A)')
-     &    'No convergence for perturbation no: ',
+          Write(LuWr,Fmt2//'A,I4,A)')                                   &
+     &    'No convergence for perturbation no: ',                       &
      &                      idisp,'. Increase Iter.'
           converged(isym)=.false.
           fail=.true.
 #ifdef _MOLCAS_MPP_
-*         Set the global flag to signal a process failed
+!         Set the global flag to signal a process failed
           If (Is_Real_Par()) Then
              dfail=One
              Call GA_Acc(iglfail,1,1,1,1,dfail,1,One)
           End If
 #endif
-*
-C         Goto 310
+!
+!         Goto 310
           Go To 999
-*
- 300      Write(LuWr,Fmt2//'A,I4,A,I4,A)')
-     &           'Perturbation no: ',idisp,' converged in ',
+!
+ 300      Write(LuWr,Fmt2//'A,I4,A,I4,A)')                              &
+     &           'Perturbation no: ',idisp,' converged in ',            &
      &             iter-1,' steps.'
           irc=ipnout(-1)
-*310      Continue
-*                                                                      *
-************************************************************************
-*                                                                      *
-*         Write response to disk                                       *
-*                                                                      *
-************************************************************************
-*                                                                      *
-*
-C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
+!310      Continue
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!         Write response to disk                                       *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!
+!         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
           Write(LuWr,*)
           iLen=ndensC
           iKapDisp(iDisp)=iDis
@@ -892,7 +892,7 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
              irc=ipin(ipST)
              Call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
           End If
-*
+!
           If (CI) Then
           End If
 
@@ -921,24 +921,24 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
 
       Call Free_Tsk(id)
       Call mma_deallocate(List)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*      Free all memory and remove from disk all data
-*      related to the last symmetry
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!      Free all memory and remove from disk all data
+!      related to the last symmetry
+!
       If (CI) Then
          irc=ipclose(ipdia)
       Else
          irc=ipclose(ipPre2)
       End If
-*
+!
       Call Exp_Close()
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Flush the output from the other nodes.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Flush the output from the other nodes.
+!
       Do iRank = 1, nProcs-1
          Call GASync()
          If (iRank.eq.MyRank) Then
@@ -954,18 +954,18 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
          Close(LuWr)
          LuWr=LuWr_save
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _DEBUGPRINT_
-      Write(LuWr,*)  '****************************************',
+      Write(LuWr,*)  '****************************************',        &
      &               '****************************************'
       Write(LuWr,*)
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Final synchronization of the fail flag
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Final synchronization of the fail flag
 #ifdef _MOLCAS_MPP_
       If (Is_Real_Par()) Then
          Call GAdGOp_Scal(dfail,'max')
@@ -973,9 +973,9 @@ C         Write(LuWr,Fmt2//'A)')'Writing response to one-file.'
       End If
 #endif
       If (Fail) Call Quit_OnConvError()
-*                                                                      *
-************************************************************************
-*                                                                      *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 #ifdef _WARNING_WORKAROUND_
       If (.False.) Call Unused_integer(irc)
 #endif
