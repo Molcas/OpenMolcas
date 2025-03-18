@@ -10,34 +10,36 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-       Integer Function ipnout(iii)
-       use ipPage
-       use stdalloc, only: mma_deallocate
-!
-!      Object: write all vectors in memory on disk but vector iii
-!
-       Implicit Integer (a-h,o-z)
-!
-       If (iii.gt.Max_CI_Vectors) Then
-          Write (6,*) 'ipout: iii.gt.Max_CI_Vectors'
-          Write (6,*) 'iii,Max_CI_Vectors=',iii,Max_CI_Vectors
-          Call Abend()
-       End If
-!
-       ipnout=0
-       If (.not.DiskBased) Return
-!
-       Do ii=1,Max_CI_Vectors
-!
-          If (Status(ii).eq.In_Memory .and. ii.ne.iii) Then
-             idisk=ida(ii)
-             nn=n(ii)
-             Call dDafile(Lu_ip,Write,W(ii)%Vec,nn,idisk)
-             Status(ii)=On_Disk
-             Call mma_deallocate(W(ii)%Vec)
-          End If
-!
-       End Do
-!
-       Return
-       End
+
+integer function ipnout(iii)
+! Object: write all vectors in memory on disk but vector iii
+
+use ipPage
+use stdalloc, only: mma_deallocate
+
+implicit integer(a-h,o-z)
+
+if (iii > Max_CI_Vectors) then
+  write(6,*) 'ipout: iii > Max_CI_Vectors'
+  write(6,*) 'iii,Max_CI_Vectors=',iii,Max_CI_Vectors
+  call Abend()
+end if
+
+ipnout = 0
+if (.not. DiskBased) return
+
+do ii=1,Max_CI_Vectors
+
+  if ((Status(ii) == In_Memory) .and. (ii /= iii)) then
+    idisk = ida(ii)
+    nn = n(ii)
+    call dDafile(Lu_ip,write,W(ii)%Vec,nn,idisk)
+    Status(ii) = On_Disk
+    call mma_deallocate(W(ii)%Vec)
+  end if
+
+end do
+
+return
+
+end function ipnout

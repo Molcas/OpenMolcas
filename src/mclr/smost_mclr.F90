@@ -10,24 +10,25 @@
 !                                                                      *
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE SMOST_MCLR(NSMST,NSMCI,MXPCSM,ISMOST)
-!
+
+subroutine SMOST_MCLR(NSMST,NSMCI,MXPCSM,ISMOST)
 ! ISMOST(ISYM,ITOTSM) : Symmetry of an internal state if ITOTSM
 !                       if symmetry of 1 string is ISYM, the
 !                       symmetry of the other string is
 !                       ISMOST(ISYM,ITOTSM)
 !
 ! Jeppe Olsen, Spring of 1991
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      DIMENSION ISMOST(MXPCSM,MXPCSM)
-!
-      DO 1000 ITOTSM = 1, NSMCI
-        DO 900 ISTSM  = 1, NSMST
-          JSTSM = 1 + IEOR(ISTSM-1,ITOTSM-1)
-          ISMOST(ISTSM,ITOTSM) = JSTSM
-900     CONTINUE
-1000  CONTINUE
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension ISMOST(MXPCSM,MXPCSM)
+
+do ITOTSM=1,NSMCI
+  do ISTSM=1,NSMST
+    JSTSM = 1+ieor(ISTSM-1,ITOTSM-1)
+    ISMOST(ISTSM,ITOTSM) = JSTSM
+  end do
+end do
+
+return
+
+end subroutine SMOST_MCLR

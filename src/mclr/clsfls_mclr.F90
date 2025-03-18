@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ClsFls_MCLR()
+
+subroutine ClsFls_MCLR()
 !***********************************************************************
 !                                                                      *
 !     Open files.                                                      *
@@ -23,60 +24,63 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      use MCLR_Data, only: SA
-      use MCLR_Data, only: FnMck,LuCSF2SD,LuJob,LuMck,LuQDat,LuTemp,    &
-     &                      LuTri1
-      use input_mclr, only: iMethod,TwoStep,RASSI
-      Implicit None
-      Logical DoCholesky
-      Integer AixRm, iRC,iOpt
-!---------------------------------------------------------------------*
-!     Start                                                           *
-!---------------------------------------------------------------------*
-      If (iMethod.eq.2) Then
-         Call DaClos(LuCSF2sd)
-!------  close the JOBIPH file -------------------------------------------*
-         Call DaClos(LuJob)
-      End If
-      Call DaClos(LuTemp)
+
+use MCLR_Data, only: SA
+use MCLR_Data, only: FnMck, LuCSF2SD, LuJob, LuMck, LuQDat, LuTemp, LuTri1
+use input_mclr, only: iMethod, TwoStep, RASSI
+
+implicit none
+logical DoCholesky
+integer AixRm, iRC, iOpt
+
+!----------------------------------------------------------------------*
+!     Start                                                            *
+!----------------------------------------------------------------------*
+if (iMethod == 2) then
+  call DaClos(LuCSF2sd)
+  !---  close the JOBIPH file -----------------------------------------*
+  call DaClos(LuJob)
+end if
+call DaClos(LuTemp)
 !---  close the ORDINT file -------------------------------------------*
-      Call DecideonCholesky(DoCholesky)
-      If (.NOT.DoCholesky) then
-         iRc=-1
-         Call ClsOrd(iRc)
-         If ( iRc.ne.0 ) Then
-            Write (6,*) 'ClsFls: Error closing ORDINT'
-            Call Abend()
-         End If
-      End If
-      Call DaClos(LuTri1)
-      If(TwoStep) Then
-        Call DaClos(LuQDAT)
-        !Call DaClos(LuMOTRA)
-      End If
-!
-!---  Close the MckInt file or Remove the MCKINT file if SA---------------*
-!     Do not remove file if we are producing data on the MckInt file for
-!     the RASSI module!
-!
-      If (SA.and..Not.RASSI) Then
-!        What the...? No control at all on what file is being removed!
-!        call DaEras(LuMck)
-         call DaClos(LuMck)
-         iRC=AixRM(FnMck)
-      Else
-         iRc=-1
-         iOpt=0
-         Call ClsMck(iRc,iOpt)
-         If ( iRc.ne.0 ) Then
-            Write (6,*) 'ClsFls: Error closing MCKINT'
-            Call Abend()
-         End If
-      End If
-!
-      Call ipTerm()
+call DecideonCholesky(DoCholesky)
+if (.not. DoCholesky) then
+  iRc = -1
+  call ClsOrd(iRc)
+  if (iRc /= 0) then
+    write(6,*) 'ClsFls: Error closing ORDINT'
+    call Abend()
+  end if
+end if
+call DaClos(LuTri1)
+if (TwoStep) then
+  call DaClos(LuQDAT)
+  !call DaClos(LuMOTRA)
+end if
+
+! Close the MckInt file or Remove the MCKINT file if SA----------------*
+! Do not remove file if we are producing data on the MckInt file for
+! the RASSI module!
+
+if (SA .and. (.not. RASSI)) then
+  ! What the...? No control at all on what file is being removed!
+  !call DaEras(LuMck)
+  call DaClos(LuMck)
+  iRC = AixRM(FnMck)
+else
+  iRc = -1
+  iOpt = 0
+  call ClsMck(iRc,iOpt)
+  if (iRc /= 0) then
+    write(6,*) 'ClsFls: Error closing MCKINT'
+    call Abend()
+  end if
+end if
+
+call ipTerm()
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine ClsFls_MCLR

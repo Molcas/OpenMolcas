@@ -14,14 +14,18 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine GetPDFTFocks(FMO1t,FMO2t,nTri)
-      use MCLR_Data, only: nAcPr2
-      use input_mclr, only: nRoots
-      Implicit None
 
-      INTEGER nTri
-      Real*8,DIMENSION(nRoots*nTri)::FMO1t
-      Real*8,DIMENSION(nRoots*NACPR2)::FMO2t
-      CALL Get_DArray('F1_PDFT         ',FMO1t,nRoots*nTri  )
-      CALL Get_DArray('F2_PDFT         ',FMO2t,nRoots*NACPR2)
-      end subroutine GetPDFTFocks
+subroutine GetPDFTFocks(FMO1t,FMO2t,nTri)
+
+use MCLR_Data, only: nAcPr2
+use input_mclr, only: nRoots
+
+implicit none
+integer nTri
+real*8, dimension(nRoots*nTri) :: FMO1t
+real*8, dimension(nRoots*NACPR2) :: FMO2t
+
+call Get_DArray('F1_PDFT',FMO1t,nRoots*nTri)
+call Get_DArray('F2_PDFT',FMO2t,nRoots*NACPR2)
+
+end subroutine GetPDFTFocks

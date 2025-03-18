@@ -8,21 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SA_PREC(S,rdia)
-      use ipPage, only: W
-      use MCLR_Data, only: ipCI
-      use input_mclr, only: nRoots,ERASSCF
-      Implicit None
-      Real*8 S(nroots**2,nroots),rdia(*)
 
-      Integer irc,i
-      Integer, External:: ipIN
+subroutine SA_PREC(S,rdia)
 
-      irc=ipin(ipci)
-      Do i=1,nroots
-         Call SA_PREC2(rdia,S(1,i),W(ipci)%Vec,ERASSCF(i))
-      End Do
+use ipPage, only: W
+use MCLR_Data, only: ipCI
+use input_mclr, only: nRoots, ERASSCF
+
+implicit none
+real*8 S(nroots**2,nroots), rdia(*)
+integer irc, i
+integer, external :: ipIN
+
+irc = ipin(ipci)
+do i=1,nroots
+  call SA_PREC2(rdia,S(1,i),W(ipci)%Vec,ERASSCF(i))
+end do
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      End Subroutine SA_PREC
+
+end subroutine SA_PREC

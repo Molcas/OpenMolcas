@@ -10,81 +10,72 @@
 !                                                                      *
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
-      SUBROUTINE CNDET_MCLR(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,          &
-     &                 IDET,IPRNT)
-!
-! A configuration ICONF in compressed form and a set of
-! prototype determinants ,IPDET, are given .
-!
-! Construct the corresponding determinants in contracted  form .
-!
-! JEPPE OLSEN , NOVEMBER 1988
-!
-      IMPLICIT NONE
-      Integer NEL
-      Integer ICONF(*   )
-!     Integer IPDET(NOP,NDET)
-      Integer IPDET(*       )
-      Integer NORB,NOP,NCL
-      Integer IDET(NEL,*   )
-      Integer IPRNT
 
+subroutine CNDET_MCLR(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,IDET,IPRNT)
+! A configuration ICONF in compressed form and a set of
+! prototype determinants,IPDET, are given.
+!
+! Construct the corresponding determinants in contracted  form.
+!
+! JEPPE OLSEN, NOVEMBER 1988
+
+implicit none
+integer NEL
+integer ICONF(*)
+!integer IPDET(NOP,NDET)
+integer IPDET(*)
+integer NORB, NOP, NCL
+integer IDET(NEL,*)
+integer IPRNT
 ! local variables
-      Integer NTEST,ICL,IBASE,JDET,NDET,IADD,IOP,IADR
-!
-!
-! POSITIVE NUMBER  : ALPHA ORBITAL
-! NEGATIVE NUMBER  : BETA  ORBITAL
-!
-      NTEST = 0
-      NTEST = MAX(IPRNT,NTEST)
-      IF( NTEST .GT.200 ) THEN
-        IF(NCL .NE. 0 ) THEN
-          WRITE(6,*) ' DOUBLE OCCUPIED ORBITALS '
-          CALL IWRTMA(ICONF,1,NCL,1,NCL)
-        END IF
-        IF(NOP .NE. 0 ) THEN
-          WRITE(6,*) ' OPEN ORBITALS '
-          CALL IWRTMA(ICONF(1+NCL),1,NOP,1,NOP)
-        END IF
-      END IF
-!
-!.. 1 DOUBLY OCCUPIED ORBITALS ARE PLACED FIRST
-!
-      DO 100 ICL = 1, NCL
-        IBASE = 2 * (ICL-1)
-        DO 90 JDET = 1, NDET
-          IDET(IBASE+1,JDET) =  ICONF(ICL)
-          IDET(IBASE+2,JDET) = -ICONF(ICL)
-90      CONTINUE
-100   CONTINUE
-!
-!..2  SINGLY OCCUPIED ORBITALS
-!
-      IADD = 2*NCL
-      DO 200 JDET = 1, NDET
-        DO 190 IOP = 1, NOP
-          IADR = (JDET-1)*NOP + IOP
-          IF( IPDET(IADR    ) .EQ. 1 ) IDET(IADD+IOP,JDET) =            &
-     &    ICONF(NCL +IOP)
-          IF( IPDET(IADR    ) .EQ. 0 ) IDET(IADD+IOP,JDET) =            &
-     &    - ICONF(NCL +IOP)
-190     CONTINUE
-200   CONTINUE
-!
-!..3 OUTPUT
-!
-      IF( NTEST.GE.200) THEN
-       WRITE(6,*) ' CONFIGURATION FROM DETCON '
-       CALL IWRTMA(ICONF,1,NORB,1,NORB)
-       WRITE(6,* ) ' PROTO TYPE DETERMINANTS '
-       IF(NOP*NDET .GT. 0)                                              &
-     & CALL IWRTMA(IPDET,NOP,NDET,NOP,NDET)
-       IF(NEL*NDET .GT. 0 )                                             &
-     & WRITE(6,*) ' CORRESPONDING DETERMINANTS '
-       CALL IWRTMA(IDET,NEL,NDET,NEL,NDET)
-      END IF
-!
-!..4  EXIT
-!
-      END SUBROUTINE CNDET_MCLR
+integer NTEST, ICL, IBASE, JDET, NDET, IADD, IOP, IADR
+
+! POSITIVE NUMBER: ALPHA ORBITAL
+! NEGATIVE NUMBER: BETA  ORBITAL
+
+NTEST = 0
+NTEST = max(IPRNT,NTEST)
+if (NTEST > 200) then
+  if (NCL /= 0) then
+    write(6,*) ' DOUBLE OCCUPIED ORBITALS'
+    call IWRTMA(ICONF,1,NCL,1,NCL)
+  end if
+  if (NOP /= 0) then
+    write(6,*) ' OPEN ORBITALS'
+    call IWRTMA(ICONF(1+NCL),1,NOP,1,NOP)
+  end if
+end if
+
+!1  DOUBLY OCCUPIED ORBITALS ARE PLACED FIRST
+
+do ICL=1,NCL
+  IBASE = 2*(ICL-1)
+  do JDET=1,NDET
+    IDET(IBASE+1,JDET) = ICONF(ICL)
+    IDET(IBASE+2,JDET) = -ICONF(ICL)
+  end do
+end do
+
+!2  SINGLY OCCUPIED ORBITALS
+
+IADD = 2*NCL
+do JDET=1,NDET
+  do IOP=1,NOP
+    IADR = (JDET-1)*NOP+IOP
+    if (IPDET(IADR) == 1) IDET(IADD+IOP,JDET) = ICONF(NCL+IOP)
+    if (IPDET(IADR) == 0) IDET(IADD+IOP,JDET) = -ICONF(NCL+IOP)
+  end do
+end do
+
+!3  OUTPUT
+
+if (NTEST >= 200) then
+  write(6,*) ' CONFIGURATION FROM DETCON'
+  call IWRTMA(ICONF,1,NORB,1,NORB)
+  write(6,*) ' PROTO TYPE DETERMINANTS'
+  if (NOP*NDET > 0) call IWRTMA(IPDET,NOP,NDET,NOP,NDET)
+  if (NEL*NDET > 0) write(6,*) ' CORRESPONDING DETERMINANTS'
+  call IWRTMA(IDET,NEL,NDET,NEL,NDET)
+end if
+
+end subroutine CNDET_MCLR

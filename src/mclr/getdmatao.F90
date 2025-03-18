@@ -14,73 +14,74 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
-      use Arrays, only: CMO
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Half
-      use MCLR_Data, only: ipMat, nA, nDens2
-      use input_mclr, only: nSym,nAsh,nBas,nIsh
-      Implicit None
+
+subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
+! Purpose: calculate the active 1RDM in AO basis given that in MO basis
+
+use Arrays, only: CMO
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Half
+use MCLR_Data, only: ipMat, nA, nDens2
+use input_mclr, only: nSym, nAsh, nBas, nIsh
+
+implicit none
 #include "SysDef.fh"
-!*****Purpose: calculate the active 1RDM in AO basis given that in MO
-!*****         basis
-!*****Input
-      INTEGER nDMO,nDAO
-      Real*8,DIMENSION(nDMO)::DMO
-!*****Output
-      Real*8,DIMENSION(nDAO)::DAO
-!*****Auxiliaries
-      Real*8,DIMENSION(:),Allocatable::D1,OCCU,NatCMO
-      INTEGER nLCMO,iS,i,j,iAA,jAA,nbas_tot,ij,iA,jA, iTri
+! Input
+integer nDMO, nDAO
+real*8, dimension(nDMO) :: DMO
+! Output
+real*8, dimension(nDAO) :: DAO
+! Auxiliaries
+real*8, dimension(:), allocatable :: D1, OCCU, NatCMO
+integer nLCMO, iS, i, j, iAA, jAA, nbas_tot, ij, iA, jA, iTri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      nLCMO=0
-      nbas_tot=0
-      DO iS=1,nSym
-       nbas_tot=nbas_tot+nbas(is)
-       nLCMO=nLCMO+nBas(is)**2
-      END DO
+nLCMO = 0
+nbas_tot = 0
+do iS=1,nSym
+  nbas_tot = nbas_tot+nbas(is)
+  nLCMO = nLCMO+nBas(is)**2
+end do
 
-      Call mma_allocate(D1,nLCMO)
-      Call FZero(D1,nLCMO)
-!*****First, converting DMO into D1
-!*****similar to computing D_K from G1q, as done in out_pt2.f
+call mma_allocate(D1,nLCMO)
+call FZero(D1,nLCMO)
+! First, converting DMO into D1
+! similar to computing D_K from G1q, as done in out_pt2.f
 !********************************************************
-      DO iS=1,nSym
-       Do iA=1,nash(is)
-        do jA=1,nash(is)
-         i=iA+nish(is)
-         j=jA+nish(is)
-         iAA=iA+na(is)
-         jAA=jA+na(is)
-         D1(ipmat(is,is)+i-1+(j-1)*nbas(is))=DMO(itri(iAA,jAA))
-        end do
-       End Do
-      END DO
+do iS=1,nSym
+  do iA=1,nash(is)
+    do jA=1,nash(is)
+      i = iA+nish(is)
+      j = jA+nish(is)
+      iAA = iA+na(is)
+      jAA = jA+na(is)
+      D1(ipmat(is,is)+i-1+(j-1)*nbas(is)) = DMO(itri(iAA,jAA))
+    end do
+  end do
+end do
 
 !********************************************************
-      Call mma_allocate(OCCU,nbas_tot,Label='OCCU')
-      Call mma_allocate(NatCMO,ndens2,Label='NatCMO')
+call mma_allocate(OCCU,nbas_tot,Label='OCCU')
+call mma_allocate(NatCMO,ndens2,Label='NatCMO')
 
-      Call NatOrb_MCLR(D1,CMO,NatCMO,OCCU)
-      Call dmat_MCLR(NatCMO,OCCU,DAO)
-      ij=0
-      DO iS=1,nSym
-       Do i=1,nbas(is)
-        do j=1,i-1
-         ij=ij+1
-         DAO(ij)=Half*DAO(ij)
-        end do
-        ij=ij+1
-       End Do
-      END DO
-      Call mma_deallocate(D1)
-      Call mma_deallocate(OCCU)
-      Call mma_deallocate(NatCMO)
+call NatOrb_MCLR(D1,CMO,NatCMO,OCCU)
+call dmat_MCLR(NatCMO,OCCU,DAO)
+ij = 0
+do iS=1,nSym
+  do i=1,nbas(is)
+    do j=1,i-1
+      ij = ij+1
+      DAO(ij) = Half*DAO(ij)
+    end do
+    ij = ij+1
+  end do
+end do
+call mma_deallocate(D1)
+call mma_deallocate(OCCU)
+call mma_deallocate(NatCMO)
 
-      End Subroutine GetDmatAO
+end subroutine GetDmatAO

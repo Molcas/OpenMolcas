@@ -10,20 +10,22 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine CMSRdMat(Mat,NRow,NCol,FileName,NameLen)
-      Implicit None
-      INTEGER NRow,NCol,NameLen
-      Real*8,DIMENSION(NRow*NCol)::Mat
-      CHARACTER(Len=NameLen)::FileName
-      INTEGER I,J,LU
-      Integer, External :: IsFreeUnit
 
-      LU=233
-      LU=IsFreeUnit(LU)
-      CALL Molcas_Open(LU,FileName)
-      DO I=1,NRow
-       read(LU,*)(Mat((I-1)*NCol+J),J=1,NCol)
-      END DO
-      CLOSE(LU)
+subroutine CMSRdMat(Mat,NRow,NCol,FileName,NameLen)
 
-      END Subroutine CMSRdMat
+implicit none
+integer NRow, NCol, NameLen
+real*8, dimension(NRow*NCol) :: Mat
+character(len=NameLen) :: FileName
+integer I, J, LU
+integer, external :: IsFreeUnit
+
+LU = 233
+LU = IsFreeUnit(LU)
+call Molcas_Open(LU,FileName)
+do I=1,NRow
+  read(LU,*) (Mat((I-1)*NCol+J),J=1,NCol)
+end do
+close(LU)
+
+end subroutine CMSRdMat

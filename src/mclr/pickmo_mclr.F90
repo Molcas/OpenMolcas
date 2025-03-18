@@ -8,49 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Pickmo_MCLR(rmo,rmoaa,idsym)
-      use MCLR_Data, only: ipMO, nA
-      use input_mclr, only: nSym,nAsh,nOrb,nIsh
-      Implicit None
-      real*8 rmo(*),rmoaa(*)
-      Integer idsym
 
-      Integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA,       &
-     &        ijAA, klAA, ijkl, ipi
-      Integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+subroutine Pickmo_MCLR(rmo,rmoaa,idsym)
 
-      Do iS=1,nSym
-       Do jS=1,iS
-        Do kS=1,is
-         ls=ieor(iEor(is-1,js-1),iEor(ks-1,idsym-1))+1
-         If (ls.le.ks) Then
-          Do iA=1,nAsh(is)
-           iAA=iA+nA(is)
-           Do jA=1,nAsh(js)
-            jAA=jA+nA(js)
-            ijAA=itri(iAA,jAA)
-            Do kA=1,nAsh(ks)
-             kAA=kA+nA(ks)
-             Do lA=1,nAsh(ls)
-              lAA=lA+nA(ls)
-              klAA=iTri(kAA,lAA)
-              If (ijAA.ge.klAA) Then
-               ijkl=iTri(ijAA,klAA)
-               ipi=ipMO(js,ks,ls)+nIsh(is)+iA-1+                        &
-     &          nOrb(is)*(jA-1)+nOrb(is)*nAsh(js)*                      &
-     &          (kA-1)+nOrb(is)*nAsh(js)*nAsh(ks)*(lA-1)
-!              ipi=ipMO(js,ks,ls)+
-!    &          (nOrb(is)*(jA-1+nAsh(js)*
-!    6          (kA-1+nAsh(ks)*(lA-1))))+nish(is)+iA-1
-               rmoaa(ijkl)=rmo(ipi)
-              End If
-             End Do
-            End Do
-           End Do
-          End Do
-         End If
-        End Do
-       End Do
-      End Do
-      End Subroutine Pickmo_MCLR
+use MCLR_Data, only: ipMO, nA
+use input_mclr, only: nSym, nAsh, nOrb, nIsh
+
+implicit none
+real*8 rmo(*), rmoaa(*)
+integer idsym
+integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA, ijAA, klAA, ijkl, ipi
+integer i, j, itri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+do iS=1,nSym
+  do jS=1,iS
+    do kS=1,is
+      ls = ieor(ieor(is-1,js-1),ieor(ks-1,idsym-1))+1
+      if (ls <= ks) then
+        do iA=1,nAsh(is)
+          iAA = iA+nA(is)
+          do jA=1,nAsh(js)
+            jAA = jA+nA(js)
+            ijAA = itri(iAA,jAA)
+            do kA=1,nAsh(ks)
+              kAA = kA+nA(ks)
+              do lA=1,nAsh(ls)
+                lAA = lA+nA(ls)
+                klAA = iTri(kAA,lAA)
+                if (ijAA >= klAA) then
+                  ijkl = iTri(ijAA,klAA)
+                  ipi = ipMO(js,ks,ls)+nIsh(is)+iA-1+nOrb(is)*(jA-1)+nOrb(is)*nAsh(js)*(kA-1)+nOrb(is)*nAsh(js)*nAsh(ks)*(lA-1)
+                  !ipi = ipMO(js,ks,ls)+(nOrb(is)*(jA-1+nAsh(js)*(kA-1+nAsh(ks)*(lA-1))))+nish(is)+iA-1
+                  rmoaa(ijkl) = rmo(ipi)
+                end if
+              end do
+            end do
+          end do
+        end do
+      end if
+    end do
+  end do
+end do
+
+end subroutine Pickmo_MCLR

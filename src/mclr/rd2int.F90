@@ -12,7 +12,8 @@
 !               1993, Jeppe Olsen                                      *
 !               1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine Rd2Int(iPL)
+
+subroutine Rd2Int(iPL)
 !***********************************************************************
 !                                                                      *
 !     Read header of the two-electron integral file                    *
@@ -28,54 +29,57 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      use input_mclr, only: nSym,TimeDep,CasInt,nSkip,nBas
-      Implicit None
-      Integer iPL
+
+use input_mclr, only: nSym, TimeDep, CasInt, nSkip, nBas
+
+implicit none
+integer iPL
 #include "Molcas.fh"
-      Integer nSymX,nBasX(mxSym)
-      Logical SqSym
-      Integer iRC,iSym,ntSkip
+integer nSymX, nBasX(mxSym)
+logical SqSym
+integer iRC, iSym, ntSkip
+
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-      iRc=-1
-      Call GetOrd(iRc,SqSym,nSymX,nBasX,nSkip)
-      If ( iRc.ne.0 ) Then
-         Write (6,*) 'Rd2Int: Error reading ORDINT'
-         Call Abend()
-      End If
-      If (iPL.ge.2) Then
-      If(SqSym)write(6,*)'OrdInt status: squared'
-      If(.not.SqSym)write(6,*)'OrdInt status: non-squared'
-      End If
-      If ( nSymX.ne.nSym ) Then
-         Write (6,*) 'Rd2Int: nSymX.ne.nSym'
-         Write (6,*) 'nSymX,nSym=',nSymX,nSym
-         Call Abend()
-      End If
-      Do 10 iSym=1,nSym
-         If ( nBas(iSym).ne.nBasX(iSym) ) Then
-            Write (6,*) 'Rd2Int: nBas(iSym).ne.nBasX(iSym)'
-            Write (6,*) 'nBas(iSym),nBasX(iSym)=',                      &
-     &                   nBas(iSym),nBasX(iSym)
-            Call Abend()
-         End If
-10    Continue
-      ntSkip=0
-      Do 20 iSym=1,nSym
-         ntSkip=ntSkip+nSkip(iSym)
-20    Continue
-      If ( ntSkip.ne.0 ) Then
-         Write (6,*) 'Rd2Int: ntSkip.ne.0'
-         Write (6,*) 'ntSkip=',ntSkip
-         Call Abend()
-      End If
-      If (.not.SqSym.and..not.TimeDep) Then
-         CASINT=.true.
-      Else
-         CASINT=.False.
-      End If
+iRc = -1
+call GetOrd(iRc,SqSym,nSymX,nBasX,nSkip)
+if (iRc /= 0) then
+  write(6,*) 'Rd2Int: Error reading ORDINT'
+  call Abend()
+end if
+if (iPL >= 2) then
+  if (SqSym) write(6,*) 'OrdInt status: squared'
+  if (.not. SqSym) write(6,*) 'OrdInt status: non-squared'
+end if
+if (nSymX /= nSym) then
+  write(6,*) 'Rd2Int: nSymX /= nSym'
+  write(6,*) 'nSymX,nSym=',nSymX,nSym
+  call Abend()
+end if
+do iSym=1,nSym
+  if (nBas(iSym) /= nBasX(iSym)) then
+    write(6,*) 'Rd2Int: nBas(iSym) /= nBasX(iSym)'
+    write(6,*) 'nBas(iSym),nBasX(iSym)=',nBas(iSym),nBasX(iSym)
+    call Abend()
+  end if
+end do
+ntSkip = 0
+do iSym=1,nSym
+  ntSkip = ntSkip+nSkip(iSym)
+end do
+if (ntSkip /= 0) then
+  write(6,*) 'Rd2Int: ntSkip /= 0'
+  write(6,*) 'ntSkip=',ntSkip
+  call Abend()
+end if
+if ((.not. SqSym) .and. (.not. TimeDep)) then
+  CASINT = .true.
+else
+  CASINT = .false.
+end if
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      End Subroutine Rd2Int
+
+end subroutine Rd2Int

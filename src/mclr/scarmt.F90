@@ -10,47 +10,47 @@
 !                                                                      *
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE SCARMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,        &
-     &                  ISCA,SSCA)
-!
-! Scatter-add  rows of MATIN to transposed matrix MATUT
 
+subroutine SCARMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,ISCA,SSCA)
+! Scatter-add  rows of MATIN to transposed matrix MATUT
+!
 !  MATUT(J,ISCA(I)) = MATUT(J,ISCA(I)) + SSCA(I)*MATIN(I,J)
-!  ( if INDEX(I).ne.0 )
+!  (if INDEX(I) /= 0)
 !
-! Jeppe Olsen, Getting LUCIA in shape , Feb1994
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      REAL*8 MATIN,MATUT
-!.Input
-      DIMENSION ISCA(*),SSCA(*),MATIN(NROWIN,NCOLIN)
-!.Input and Output
-      DIMENSION MATUT(NCOLUT,NROWUT)
-!.                 (MATUT transposed !)
-!. To get rid of annoying and incorrect compiler warnings
-      ICINOF = 0
-!
-!     LBLK = 100
-      LBLK = 40
-      NBLK = NCOLIN/LBLK
-      IF(LBLK*NBLK.LT.NCOLIN) NBLK = NBLK + 1
-      DO ICINBL = 1, NBLK
-        IF(ICINBL.EQ.1) THEN
-          ICINOF = 1
-        ELSE
-          ICINOF = ICINOF + LBLK
-        END IF
-        ICINEN = MIN(ICINOF+LBLK-1,NCOLIN)
-        DO I = 1, NROWIN
-          IF(ISCA(I).NE.0) THEN
-            S = SSCA(I)
-            IROW = ISCA(I)
-            DO ICOL = ICINOF,ICINEN
-              MATUT(ICOL,IROW) = MATUT(ICOL,IROW)+S*MATIN(I,ICOL)
-            END DO
-          END IF
-        END DO
-      END DO
-!
-      RETURN
-      END
+! Jeppe Olsen, Getting LUCIA in shape, Feb1994
+
+implicit real*8(A-H,O-Z)
+real*8 MATIN, MATUT
+! Input
+dimension ISCA(*), SSCA(*), MATIN(NROWIN,NCOLIN)
+! Input and Output
+dimension MATUT(NCOLUT,NROWUT) ! (MATUT transposed!)
+
+! To get rid of annoying and incorrect compiler warnings
+ICINOF = 0
+
+!LBLK = 100
+LBLK = 40
+NBLK = NCOLIN/LBLK
+if (LBLK*NBLK < NCOLIN) NBLK = NBLK+1
+do ICINBL=1,NBLK
+  if (ICINBL == 1) then
+    ICINOF = 1
+  else
+    ICINOF = ICINOF+LBLK
+  end if
+  ICINEN = min(ICINOF+LBLK-1,NCOLIN)
+  do I=1,NROWIN
+    if (ISCA(I) /= 0) then
+      S = SSCA(I)
+      IROW = ISCA(I)
+      do ICOL=ICINOF,ICINEN
+        MATUT(ICOL,IROW) = MATUT(ICOL,IROW)+S*MATIN(I,ICOL)
+      end do
+    end if
+  end do
+end do
+
+return
+
+end subroutine SCARMT

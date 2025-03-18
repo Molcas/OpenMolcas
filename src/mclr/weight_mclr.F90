@@ -8,33 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE WEIGHT_mclr(Z,NEL,NORB1,NORB2,NORB3,                   &
-     &                  MNRS1,MXRS1,MNRS3,MXRS3, ISCR)
-!
+
+subroutine WEIGHT_mclr(Z,NEL,NORB1,NORB2,NORB3,MNRS1,MXRS1,MNRS3,MXRS3,ISCR)
 ! construct vertex weights
 !
 ! Reverse lexical ordering is used for restricted space
-!
-      IMPLICIT REAL*8 ( A-H,O-Z)
-      INTEGER Z(*), ISCR(*)
-      NTEST=0
-!
-      NORB = NORB1 + NORB2 + NORB3
-!
-      KLFREE = 1
-      KLMAX = KLFREE
-      KLFREE = KLFREE + NORB
-!
-      KLMIN = KLFREE
-      KLFREE = KLFREE + NORB
-!
-      KW = KLFREE
-      KLFREE = KW + (NEL+1)*(NORB+1)
-!.Max and min arrays for strings
-      CALL RSMXMN_MCLR(ISCR(KLMAX),ISCR(KLMIN),NORB1,NORB2,NORB3,       &
-     &            NEL,MNRS1,MXRS1,MNRS3,MXRS3,NTEST)
-!. Arc weights
-      CALL GRAPW(ISCR(KW),Z,ISCR(KLMIN),ISCR(KLMAX),NORB,NEL)
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+integer Z(*), ISCR(*)
+
+NTEST = 0
+
+NORB = NORB1+NORB2+NORB3
+
+KLFREE = 1
+KLMAX = KLFREE
+KLFREE = KLFREE+NORB
+
+KLMIN = KLFREE
+KLFREE = KLFREE+NORB
+
+KW = KLFREE
+KLFREE = KW+(NEL+1)*(NORB+1)
+! Max and min arrays for strings
+call RSMXMN_MCLR(ISCR(KLMAX),ISCR(KLMIN),NORB1,NORB2,NORB3,NEL,MNRS1,MXRS1,MNRS3,MXRS3,NTEST)
+! Arc weights
+call GRAPW(ISCR(KW),Z,ISCR(KLMIN),ISCR(KLMAX),NORB,NEL)
+
+return
+
+end subroutine WEIGHT_mclr

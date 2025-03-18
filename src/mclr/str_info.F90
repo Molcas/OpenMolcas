@@ -10,145 +10,129 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-!        OCSTR        :        Offsets for occupation of strings
-!        STREO        :        reordering array
-!        STSM         :        Symmetry of each string
-!        STCL         :        Class of each string
-!        NSTSO        :        Number of strings per symmetry and occupation
-!        ISTSO        :        Offset of strings per symmetry and occupation
-!        EL1          :        Number of electrons in RAS1 per sub type
-!        EL3          :        Number of electrons in RAS3 per sub type
-!        ACTP         :        is sub-type active
-!        Z            :        Lexical addressing of arrays
-!        EL123        :        -"-    But array
-!        STSTMI       :        Explicit offsets and lengths
-!        STSTMN       :                  "
-!        STSTM        :        ?
-!        NDMAP        :        Down mappings of strings containing the same number of electrons
-!        NUMAP        :          Up mappings of strings containing the same number of electrons
 
+module Str_Info
+!  OCSTR  : Offsets for occupation of strings
+!  STREO  : reordering array
+!  STSM   : Symmetry of each string
+!  STCL   : Class of each string
+!  NSTSO  : Number of strings per symmetry and occupation
+!  ISTSO  : Offset of strings per symmetry and occupation
+!  EL1    : Number of electrons in RAS1 per sub type
+!  EL3    : Number of electrons in RAS3 per sub type
+!  ACTP   : is sub-type active
+!  Z      : Lexical addressing of arrays
+!  EL123  : -"-    But array
+!  STSTMI : Explicit offsets and lengths
+!  STSTMN :           "
+!  STSTM  : ?
+!  NDMAP  : Down mappings of strings containing the same number of electrons
+!  NUMAP  :  Up mappings of strings containing the same number of electrons
 
 ! Not used
-!        COBSM        :        Symmetry of conjugated orbitals
-!        NIFSJ        :
-!        IFSJ         :
-!        IFSJO        :
-!        STSTX        :        Symmetry of excitation connecting strings of given symmetry
+!  COBSM : Symmetry of conjugated orbitals
+!  NIFSJ :
+!  IFSJ  :
+!  IFSJO :
+!  STSTX : Symmetry of excitation connecting strings of given symmetry
 
-Module Str_Info
 use DetDim, only: MXCNSM
 
-Implicit None
-Private
-Public::String_Info, Str, NSTTYP_MAX, ITYP_DUMMY, NSTTYP, NELEC, MNRS1, MXRS1, MNRS3, MXRS3, IZORR, ISTTP, iuniqmp, iuniqtp, &
-        IAZTP,IBZTP,IARTP,IBRTP, NZSTTP,NRSTTP, IATPM1,IATPM2,IBTPM1,IBTPM2, ISTAC, NOCTYP, NSTFTP, INUMAP, INDMAP, MXNSTR,  &
-        DFTP, CFTP, DTOC, Storage, CNSM
+implicit none
+private
+public :: String_Info, Str, NSTTYP_MAX, ITYP_DUMMY, NSTTYP, NELEC, MNRS1, MXRS1, MNRS3, MXRS3, IZORR, ISTTP, iuniqmp, iuniqtp, &
+          IAZTP, IBZTP, IARTP, IBRTP, NZSTTP, NRSTTP, IATPM1, IATPM2, IBTPM1, IBTPM2, ISTAC, NOCTYP, NSTFTP, INUMAP, INDMAP, &
+          MXNSTR, DFTP, CFTP, DTOC, Storage, CNSM
 
+type String_Info
+  sequence
+  integer, pointer :: OCSTR(:) => null()
+  integer, allocatable :: OCSTR_hidden(:)
+  integer, pointer :: STREO(:) => null()
+  integer, allocatable :: STREO_hidden(:)
+  integer, pointer :: STSM(:) => null()
+  integer, allocatable :: STSM_hidden(:)
+  integer, pointer :: STCL(:) => null()
+  integer, allocatable :: STCL_hidden(:)
+  integer, pointer :: NSTSO(:) => null()
+  integer, allocatable :: NSTSO_hidden(:)
+  integer, pointer :: ISTSO(:) => null()
+  integer, allocatable :: ISTSO_hidden(:)
+  integer, pointer :: EL1(:) => null()
+  integer, allocatable :: EL1_hidden(:)
+  integer, pointer :: EL3(:) => null()
+  integer, allocatable :: EL3_hidden(:)
+  integer, pointer :: ACTP(:) => null()
+  integer, allocatable :: ACTP_hidden(:)
+  integer, pointer :: Z(:) => null()
+  integer, allocatable :: Z_hidden(:)
+  integer, pointer :: EL123(:) => null()
+  integer, allocatable :: EL123_hidden(:)
+  integer, allocatable :: STSTMI(:)
+  integer, allocatable :: STSTMN(:)
+  integer, pointer :: STSTM(:,:) => null()
+  integer, allocatable :: STSTM_hidden(:,:)
+  integer, allocatable :: NUMAP(:)
+  integer, allocatable :: NDMAP(:)
+end type String_Info
 
-Type String_Info
-     Sequence
-     Integer, Pointer:: OCSTR(:)=>Null()
-     Integer, Allocatable:: OCSTR_hidden(:)
-     Integer, Pointer:: STREO(:)=>Null()
-     Integer, Allocatable:: STREO_hidden(:)
-     Integer, Pointer:: STSM(:)=>Null()
-     Integer, Allocatable:: STSM_hidden(:)
-     Integer, Pointer:: STCL(:)=>Null()
-     Integer, Allocatable:: STCL_hidden(:)
-     Integer, Pointer:: NSTSO(:)=>Null()
-     Integer, Allocatable:: NSTSO_hidden(:)
-     Integer, Pointer:: ISTSO(:)=>Null()
-     Integer, Allocatable:: ISTSO_hidden(:)
-     Integer, Pointer:: EL1(:)=>Null()
-     Integer, Allocatable:: EL1_hidden(:)
-     Integer, Pointer:: EL3(:)=>Null()
-     Integer, Allocatable:: EL3_hidden(:)
-     Integer, Pointer:: ACTP(:)=>Null()
-     Integer, Allocatable:: ACTP_hidden(:)
-     Integer, Pointer:: Z(:)=>Null()
-     Integer, Allocatable:: Z_hidden(:)
-     Integer, Pointer:: EL123(:)=>Null()
-     Integer, Allocatable:: EL123_hidden(:)
-     Integer, Allocatable:: STSTMI(:)
-     Integer, Allocatable:: STSTMN(:)
-     Integer, Pointer:: STSTM(:,:)=>Null()
-     Integer, Allocatable:: STSTM_hidden(:,:)
-     Integer, Allocatable:: NUMAP(:)
-     Integer, Allocatable:: NDMAP(:)
-End Type String_Info
+type(String_Info), allocatable, target :: Str(:)
+!integer, allocatable :: COBSM(:)
+!integer, allocatable :: NIFSJ(:)
+!integer, allocatable :: IFSJ(:)
+!integer, allocatable :: IFSJO(:)
+!integer, allocatable :: STSTX(:)
 
-Type (String_Info), Allocatable, Target:: Str(:)
-!     Integer, Allocatable:: COBSM(:)
-!     Integer, Allocatable:: NIFSJ(:)
-!     Integer, Allocatable:: IFSJ(:)
-!     Integer, Allocatable:: IFSJO(:)
-!     Integer, Allocatable:: STSTX(:)
-
-!             INITITIALIZED IN STRTYP
-!        NSTTYP       :        Number of string types
-!        MNRS1        :        Min ras1
-!        MXRS1        :        Max ras1
-!        MNRS3        :        Min ras3
-!        MXRS3        :        Max ras3
-!        NELEC        :        Number of electrons
-!        IZORR        :        Zero orde y/n
-!        IAZTP        :        Pointer to alpha types
-!        IBZTP        :        Pointer to beta types
+! INITITIALIZED IN STRTYP
+!  NSTTYP : Number of string types
+!  MNRS1  : Min ras1
+!  MXRS1  : Max ras1
+!  MNRS3  : Min ras3
+!  MXRS3  : Max ras3
+!  NELEC  : Number of electrons
+!  IZORR  : Zero orde y/n
+!  IAZTP  : Pointer to alpha types
+!  IBZTP  : Pointer to beta types
 !
-!not in use (just zero order space)
-!        IARTP        :        Give type nr to certain exc
-!        IBRTP        :        Give type nr to certain exc
+! not in use (just zero order space)
+!  IARTP   : Give type nr to certain exc
+!  IBRTP   : Give type nr to certain exc
 !
-!        NZSTTP       :        Not in use
-!        NRSTTP       :        Not in use
+!  NZSTTP  : Not in use
+!  NRSTTP  : Not in use
 !
-!        ISTTP        :        Space (0=zero order)
-!        iuniqmp      :        Unique types (not necessary here just 0order space)
-Integer, Parameter:: NSTTYP_MAX=6+1   ! "+1" is the dummy layer
-Integer:: ITYP_DUMMY=0
-Integer i
-Integer::     NSTTYP,                                         &
-              NELEC(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-              MNRS1(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-              MXRS1(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-              MNRS3(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-              MXRS3(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-              IZORR(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-              ISTTP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],         &
-              iuniqmp(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],       &
-              iuniqtp(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],       &
-              IAZTP,IBZTP,IARTP(3,10),IBRTP(3,10),            &
-              NZSTTP,NRSTTP,                                  &
-              IATPM1,IATPM2,IBTPM1,IBTPM2
+!  ISTTP   : Space (0=zero order)
+!  iuniqmp : Unique types (not necessary here just 0order space)
+integer, parameter :: NSTTYP_MAX = 6+1   ! "+1" is the dummy layer
+integer :: ITYP_DUMMY = 0
+integer :: NSTTYP, NELEC(NSTTYP_MAX) = 0, MNRS1(NSTTYP_MAX) = 0, MXRS1(NSTTYP_MAX) = 0, MNRS3(NSTTYP_MAX) = 0, &
+           MXRS3(NSTTYP_MAX) = 0, IZORR(NSTTYP_MAX) = 0, ISTTP(NSTTYP_MAX) = 0, iuniqmp(NSTTYP_MAX) = 0, iuniqtp(NSTTYP_MAX) = 0, &
+           IAZTP, IBZTP, IARTP(3,10), IBRTP(3,10), NZSTTP, NRSTTP, IATPM1, IATPM2, IBTPM1, IBTPM2
 
-!        ISTAC                 : Stringtype maping; a(or a+) i -> istac(j,1(2))
-!        NOCTYP                : Number of occupation classes for given type
-!        NSTFTP                : Number of strings of this type
-!        INUMAP                : Mapping of string type to next more general type
-!        INDMAP                : Mapping of string type to next more restricted type
-!        MXNSTR                : Largest number of strings of given sym and type
-!
-Integer:: ISTAC(NSTTYP_MAX,2),                          &
-          NOCTYP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
-          NSTFTP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
-          INUMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
-          INDMAP(NSTTYP_MAX)=[(0,i=1,NSTTYP_MAX)],      &
-          MXNSTR
+!  ISTAC  : Stringtype maping; a(or a+) i -> istac(j,1(2))
+!  NOCTYP : Number of occupation classes for given type
+!  NSTFTP : Number of strings of this type
+!  INUMAP : Mapping of string type to next more general type
+!  INDMAP : Mapping of string type to next more restricted type
+!  MXNSTR : Largest number of strings of given sym and type
 
-!     DFTP          :        OPEN SHELL DETERMINANTS OF PROTO TYPE
-!     CFTP          :        BRANCHING DIAGRAMS FOR PROTO TYPES
-!     DTOC          :        CSF-DET TRANSFORMATION FOR PROTO TYPES
-!     CNSM(:)%ICONF :        NCNSM  CONFIGURATION EXPANSIONS
-!     CNSM(I)%ICTS  :        address of determinant I in STRING ordering for
-!                            determinant I in CSF ordering
-!                            reference symmetry IREFSM.
-Integer, Allocatable:: DFTP(:)
-Integer, Allocatable:: CFTP(:)
-Real*8,  Allocatable:: DTOC(:)
-Type Storage
-  Integer, Allocatable:: ICONF(:)
-  Integer, Allocatable:: ICTS(:)
-End Type Storage
-Type (Storage) :: CNSM(MXCNSM)
+integer :: ISTAC(NSTTYP_MAX,2), NOCTYP(NSTTYP_MAX) = 0, NSTFTP(NSTTYP_MAX) = 0, INUMAP(NSTTYP_MAX) = 0, INDMAP(NSTTYP_MAX) = 0, &
+           MXNSTR
 
-End Module Str_Info
+!  DFTP          : OPEN SHELL DETERMINANTS OF PROTO TYPE
+!  CFTP          : BRANCHING DIAGRAMS FOR PROTO TYPES
+!  DTOC          : CSF-DET TRANSFORMATION FOR PROTO TYPES
+!  CNSM(:)%ICONF : NCNSM  CONFIGURATION EXPANSIONS
+!  CNSM(I)%ICTS  : address of determinant I in STRING ordering for
+!                  determinant I in CSF ordering
+!                  reference symmetry IREFSM.
+integer, allocatable :: DFTP(:)
+integer, allocatable :: CFTP(:)
+real*8, allocatable :: DTOC(:)
+type Storage
+  integer, allocatable :: ICONF(:)
+  integer, allocatable :: ICTS(:)
+end type Storage
+type(Storage) :: CNSM(MXCNSM)
+
+end module Str_Info

@@ -10,32 +10,35 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine Get_PUVXLen(NPUVX)
-!*****Rewritten from mcpdft/alloc.f
-      use input_mclr, only: nSym,nOrb,nAsh
-      Implicit None
-      INTEGER NPUVX
-      INTEGER iSp,iSq,iSr,iSs,nAq,iSpq,iSpqr,nAr,nAs,nOp,nRS
 
-      NPUVX=0
-      DO iSp=1,nSym
-       nOp=NORB(iSp)
-       Do iSq=1,nSym
-        nAq=NASH(iSq)
-        iSpq=IEOR(iSp-1,iSq-1)
-        dO iSr=1,nSym
-         iSpqr=IEOR(iSpq,iSr-1)+1
-         nAr=NASH(iSr)
-         do iSs=1,iSr
-          IF(iSpqr.ne.iSs) GO TO 11
-          nAs=NASH(iSs)
-          nRS=nAr*nAs
-          IF(iSs.eq.iSr) nRS=(nAr+nAr**2)/2
-          NPUVX=NPUVX+nOp*nAq*nRS
-11        CONTINUE
-         end do
-        eND dO
-       End Do
-      END DO
+subroutine Get_PUVXLen(NPUVX)
+! Rewritten from mcpdft/alloc.f
 
-      End Subroutine Get_PUVXLen
+use input_mclr, only: nSym, nOrb, nAsh
+
+implicit none
+integer NPUVX
+integer iSp, iSq, iSr, iSs, nAq, iSpq, iSpqr, nAr, nAs, nOp, nRS
+
+NPUVX = 0
+do iSp=1,nSym
+  nOp = NORB(iSp)
+  do iSq=1,nSym
+    nAq = NASH(iSq)
+    iSpq = ieor(iSp-1,iSq-1)
+    do iSr=1,nSym
+      iSpqr = ieor(iSpq,iSr-1)+1
+      nAr = NASH(iSr)
+      do iSs=1,iSr
+        if (iSpqr /= iSs) GO TO 11
+        nAs = NASH(iSs)
+        nRS = nAr*nAs
+        if (iSs == iSr) nRS = (nAr+nAr**2)/2
+        NPUVX = NPUVX+nOp*nAq*nRS
+11      continue
+      end do
+    end do
+  end do
+end do
+
+end subroutine Get_PUVXLen

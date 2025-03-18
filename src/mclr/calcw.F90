@@ -10,44 +10,43 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
-      subroutine CalcW(W,GDMat,PUVX,NPUVX,IndTUVX)
-      use Constants, only: Zero
-      use MCLR_Data, only: nNA
-      use input_mclr, only: nRoots,ntAsh
-      Implicit None
 
-!*****Output
-      Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
-!*****Input
-      Integer NPUVX
-      Real*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA)::GDMat
-      Real*8,DIMENSION(NPUVX)::PUVX
-      INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
-!*****Auxiliary Quantities
-      INTEGER K,L,M,N,IKL,IMN,it,iu,iv,ix
+subroutine CalcW(W,GDMat,PUVX,NPUVX,IndTUVX)
 
-      DO K=1,nRoots
-       DO L=1,K
-       IKL=(K-1)*K/2+L
-       Do M=1,nRoots
-        Do N=1,M
-         IMN=(M-1)*M/2+N
-         W(IKL,IMN)=Zero
-         do it=1,nnA
+use Constants, only: Zero
+use MCLR_Data, only: nNA
+use input_mclr, only: nRoots, ntAsh
+
+implicit none
+! Output
+real*8, dimension((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2) :: W
+! Input
+integer NPUVX
+real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA) :: GDMat
+real*8, dimension(NPUVX) :: PUVX
+integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
+! Auxiliary Quantities
+integer K, L, M, N, IKL, IMN, it, iu, iv, ix
+
+do K=1,nRoots
+  do L=1,K
+    IKL = (K-1)*K/2+L
+    do M=1,nRoots
+      do N=1,M
+        IMN = (M-1)*M/2+N
+        W(IKL,IMN) = Zero
+        do it=1,nnA
           do iu=1,nnA
-           do iv=1,nnA
-            do ix=1,nnA
-             IF(IndTUVX(it,iu,iv,ix).ne.0) THEN
-            W(IKL,IMN)=W(IKL,IMN)+GDMat(IKL,it,iu)*GDMat(IMN,iv,ix)*    &
-     &       PUVX(IndTUVX(it,iu,iv,ix))
-             END IF
+            do iv=1,nnA
+              do ix=1,nnA
+                if (IndTUVX(it,iu,iv,ix) /= 0) W(IKL,IMN) = W(IKL,IMN)+GDMat(IKL,it,iu)*GDMat(IMN,iv,ix)*PUVX(IndTUVX(it,iu,iv,ix))
+              end do
             end do
-           end do
           end do
-         end do
-        End Do
-       End Do
-       END DO
-      END DO
+        end do
+      end do
+    end do
+  end do
+end do
 
-      End Subroutine CalcW
+end subroutine CalcW

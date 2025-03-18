@@ -10,36 +10,36 @@
 !                                                                      *
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
-      SUBROUTINE MSSTRN_MCLR(INSTRN,UTSTRN,NOPEN)
-!
-! A STRING IS GIVEN IN FORM A SEQUENCE OF ZEROES
-! AND ONE ' S
+
+subroutine MSSTRN_MCLR(INSTRN,UTSTRN,NOPEN)
+! A STRING IS GIVEN IN FORM A SEQUENCE OF ZEROES AND ONES
 !
 ! REINTERPRET THIS AS :
 !
 ! 1 : THE INPUT STRING IS A DETERMINANT AND THE
 !     1'S INDICATE ALPHA ELECTRONS AND THE
-!     0'S INDICATE BETA ELECTRONS .
+!     0'S INDICATE BETA ELECTRONS.
 !     UTSTRN IS THE MS-VALUES ATE EACH VERTEX
 !
 ! 2 : THE INPUT STRING IS A CSF GIVEN IN A
 !     BRANCHING DIAGRAM, WHERE
 !     1'S INDICATE UPWARDS SPIN COUPLING
-!     WHILE THE 0'S INDICATES DOWNWARDS SPIN COUPLING ,
+!     WHILE THE 0'S INDICATES DOWNWARDS SPIN COUPLING,
 !     REEXPRESS THIS AS S VALUES OF ALL COUPLINGS
 !
-! THE TWO PROCEDURES ARE IDENTICAL .
-      use Constants, only: Half
-      IMPLICIT NONE
-      Integer, Intent(In):: NOPEN
-      Integer, Intent(In):: INSTRN(NOPEN)
-      REAL*8, Intent(Out):: UTSTRN(NOPEN)
+! THE TWO PROCEDURES ARE IDENTICAL.
 
-      Integer IOPEN
-!
-      UTSTRN(1) = DBLE(INSTRN(1)) - Half
-      DO IOPEN = 2, NOPEN
-        UTSTRN(IOPEN) = UTSTRN(IOPEN-1) +DBLE(INSTRN(IOPEN))-Half
-      END DO
-!
-      END SUBROUTINE MSSTRN_MCLR
+use Constants, only: Half
+
+implicit none
+integer, intent(In) :: NOPEN
+integer, intent(In) :: INSTRN(NOPEN)
+real*8, intent(Out) :: UTSTRN(NOPEN)
+integer IOPEN
+
+UTSTRN(1) = dble(INSTRN(1))-Half
+do IOPEN=2,NOPEN
+  UTSTRN(IOPEN) = UTSTRN(IOPEN-1)+dble(INSTRN(IOPEN))-Half
+end do
+
+end subroutine MSSTRN_MCLR

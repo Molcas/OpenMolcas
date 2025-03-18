@@ -8,33 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine DMInvKap_sp(rin,rout,isym)
-!
-!     _____     -1
-!     Kappa  = M  Kappa
-!          ip   pq     iq
-!
-!
-!     In: rMFact        Factorized preconditioner (diagonal part
-!                         of the electronic hessian that couple
-!                         rotations with one common index)
-!     In,Out rOut       Orbital rotaotion
-!
-!     iSym              Symmetry of rotation
-!
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use MCLR_Data, only: nDens2
-      Implicit None
-      Integer iSym
-      Real*8 rin(*),rout(*)
 
-      Real*8, Allocatable:: Temp(:)
+subroutine DMInvKap_sp(rin,rout,isym)
+! _____     -1
+! Kappa  = M  Kappa
+!      ip   pq     iq
 !
-      Call mma_allocate(Temp,ndens2,Label='Temp')
-      Call Uncompress(rin,Temp,isym)
+! In: rMFact        Factorized preconditioner (diagonal part
+!                   of the electronic hessian that couple
+!                   rotations with one common index)
+! In,Out rOut       Orbital rotaotion
 !
-      Call Compress(Temp,rout,isym)
-      Call mma_deallocate(Temp)
+! iSym              Symmetry of rotation
 
-! Avoid unused argument warnings
-      end SubRoutine DMInvKap_sp
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: nDens2
+
+implicit none
+integer iSym
+real*8 rin(*), rout(*)
+real*8, allocatable :: Temp(:)
+
+call mma_allocate(Temp,ndens2,Label='Temp')
+call Uncompress(rin,Temp,isym)
+
+call Compress(Temp,rout,isym)
+call mma_deallocate(Temp)
+
+end subroutine DMInvKap_sp

@@ -8,45 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine MMSort2(A,B,P,iel)
-      use MCLR_Data, only: DspVec,lDisp
-      use input_mclr, only: nSym,nTPert
-      Implicit None
-      Real*8 A(*),B(*),P(*)
-      integer iel(3)
 
-      logical geomi,geomj
-      integer ijD,iG,ijG,ijP,iii,iSym,iDisp,jDisp,ijD1
+subroutine MMSort2(A,B,P,iel)
 
-      integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+use MCLR_Data, only: DspVec, lDisp
+use input_mclr, only: nSym, nTPert
 
-      ijD=0
-      iG=0
-      ijG=0
-      ijP=0
-      iii=0
-      Call icopy(3,[0],0,iel,1)
-      Do iSym=1,nsym
-       Do idisp=1,ldisp(isym)
-        geomi=iand(ntpert(idisp+iii),16).eq.16
-        if (.not.geomi) Then
-         iG=iG+1
-         iel(ig)=isym
-         Do jdisp=1,ldisp(isym)
-          geomj=iand(ntpert(jdisp+iii),16).eq.16
-          if (geomj) Then
-           ijg=ijg+1
-           ijd1=ijD+itri(idisp,jdisp)
-           B(ijG)=A(ijD1)
-           Else if (idisp.le.jdisp) Then
-            ijP=itri(dspvec(jdisp+iii),dspvec(idisp+iii))
-            P(ijP)=A(ijD+itri(idisp,jdisp))
-          End If
-         End do
-        End If
-       End do
-       ijD=ijD+ldisp(isym)*(ldisp(isym)+1)/2
-       iii=iii+ldisp(isym)
-      End do
-      end Subroutine MMSort2
+implicit none
+real*8 A(*), B(*), P(*)
+integer iel(3)
+logical geomi, geomj
+integer ijD, iG, ijG, ijP, iii, iSym, iDisp, jDisp, ijD1
+! Statement function
+integer i, j, itri
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+ijD = 0
+iG = 0
+ijG = 0
+ijP = 0
+iii = 0
+call icopy(3,[0],0,iel,1)
+do iSym=1,nsym
+  do idisp=1,ldisp(isym)
+    geomi = iand(ntpert(idisp+iii),16) == 16
+    if (.not. geomi) then
+      iG = iG+1
+      iel(ig) = isym
+      do jdisp=1,ldisp(isym)
+        geomj = iand(ntpert(jdisp+iii),16) == 16
+        if (geomj) then
+          ijg = ijg+1
+          ijd1 = ijD+itri(idisp,jdisp)
+          B(ijG) = A(ijD1)
+        else if (idisp <= jdisp) then
+          ijP = itri(dspvec(jdisp+iii),dspvec(idisp+iii))
+          P(ijP) = A(ijD+itri(idisp,jdisp))
+        end if
+      end do
+    end if
+  end do
+  ijD = ijD+ldisp(isym)*(ldisp(isym)+1)/2
+  iii = iii+ldisp(isym)
+end do
+
+end subroutine MMSort2

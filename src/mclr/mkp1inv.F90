@@ -8,34 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine mkp1inv(rdia)
-      use Constants, only: Zero,One
-      use negpre, only: LuCIV, P1Inv
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use input_mclr, only: lRoots,nConf
-      Implicit None
-      Real*8 rdia(*)
-      Real*8, Allocatable:: TMP1(:), TMP2(:)
-      Integer i,j,itri,iDisk,jDisk
-      Real*8, External:: DDot_
 
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+subroutine mkp1inv(rdia)
 
-      Call mma_allocate(TMP1,nconf,Label='TMP1')
-      Call mma_allocate(TMP2,nconf,Label='TMP2')
+use Constants, only: Zero, One
+use negpre, only: LuCIV, P1Inv
+use stdalloc, only: mma_allocate, mma_deallocate
+use input_mclr, only: lRoots, nConf
 
-      idisk=0
-      Do i=1,lroots
-       jdisk=idisk
-       Call dDaFile(LuCIV,2,Tmp1,nconf,iDisk)
-       Call ExpHinvv(rdia,Tmp1,Tmp1,Zero,One)
-       Do j=i,lroots
-         Call dDafile(luciv,2,Tmp2,nconf,jDisk)
-         p1INV(itri(i,j))=DDOT_(nconf,Tmp2,1,Tmp1,1)
-       End Do
-      End Do
+implicit none
+real*8 rdia(*)
+real*8, allocatable :: TMP1(:), TMP2(:)
+integer i, j, itri, iDisk, jDisk
+real*8, external :: DDot_
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-      Call mma_deallocate(TMP1)
-      Call mma_deallocate(TMP2)
+call mma_allocate(TMP1,nconf,Label='TMP1')
+call mma_allocate(TMP2,nconf,Label='TMP2')
 
-      end Subroutine mkp1inv
+idisk = 0
+do i=1,lroots
+  jdisk = idisk
+  call dDaFile(LuCIV,2,Tmp1,nconf,iDisk)
+  call ExpHinvv(rdia,Tmp1,Tmp1,Zero,One)
+  do j=i,lroots
+    call dDafile(luciv,2,Tmp2,nconf,jDisk)
+    p1INV(itri(i,j)) = DDOT_(nconf,Tmp2,1,Tmp1,1)
+  end do
+end do
+
+call mma_deallocate(TMP1)
+call mma_deallocate(TMP2)
+
+end subroutine mkp1inv

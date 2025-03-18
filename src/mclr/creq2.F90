@@ -10,66 +10,64 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-      SubRoutine creq2(q,G2,idSym,Temp,Scr,n2)
-!
-!     Constructs the Q matrix
-!
-      use Constants, only: Zero
-      use MCLR_Data, only: nDens2, ipMatBA, nA
-      use input_mclr, only: nSym,nAsh,nIsh,nOrb
-      Implicit None
-      Integer idSym,n2
-      Real*8 Q(nDens2),G2(*),Temp(n2),Scr(n2)
-      Integer iS, jS, kS, lS, ijS, ipS, kAsh, lAsh, ikl, iAsh, jAsh,    &
-     &        ipQ, iij, ipG, ipI
+
+subroutine creq2(q,G2,idSym,Temp,Scr,n2)
+! Constructs the Q matrix
+
+use Constants, only: Zero
+use MCLR_Data, only: nDens2, ipMatBA, nA
+use input_mclr, only: nSym, nAsh, nIsh, nOrb
+
+implicit none
+integer idSym, n2
+real*8 Q(nDens2), G2(*), Temp(n2), Scr(n2)
+integer iS, jS, kS, lS, ijS, ipS, kAsh, lAsh, ikl, iAsh, jAsh, ipQ, iij, ipG, ipI
+! Statement function
+integer i, j, itri
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+!  Q = (pj|kl)d
+!   pi         ijkl
+
+Q(:) = Zero
+
+do iS=1,nSym
+  ipS = ieor(is-1,idsym-1)+1
+  if (norb(ips) /= 0) then
+    do jS=1,nsym
+      ijS = ieor(is-1,js-1)+1
+      do kS=1,nSym
+        ls = ieor(ijs-1,ks-1)+1
+
+        do kAsh=1,nAsh(ks)
+          do lAsh=1,nAsh(ls)
+            ikl = itri(lAsh+nA(lS),kAsh+nA(kS))
+
+            call Coul(ipS,jS,kS,lS,nIsh(kS)+kAsh,nIsh(lS)+lAsh,Temp,Scr)
+
+            do iAsh=1,nAsh(is)
+              ipQ = ipMatba(ipS,iS)+nOrb(ipS)*(iAsh-1)
+              do jAsh=1,nAsh(jS)
+                iij = iTri(iAsh+nA(iS),jAsh+nA(jS))
+                ipG = iTri(iij,ikl)
+                ipI = (nIsh(jS)+jAsh-1)*nOrb(ipS)+1
+
+                call daxpy_(nOrb(ipS),G2(ipG),Temp(ipI),1,Q(ipQ),1)
+
+              end do
+            end do
+          end do
+        end do
+
+      end do
+    end do
+  end if
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!      Q = (pj|kl)d
-!       pi         ijkl
-!
-       Q(:)=Zero
-!
-       Do iS=1,nSym
-          ipS=iEOr(is-1,idsym-1)+1
-          If (norb(ips).ne.0) Then
-             Do jS=1,nsym
-                ijS=iEOR(is-1,js-1)+1
-                Do kS=1,nSym
-                   ls=iEOr(ijs-1,ks-1)+1
-!
-                   Do kAsh=1,nAsh(ks)
-                      Do lAsh=1,nAsh(ls)
-                         ikl=itri(lAsh+nA(lS),kAsh+nA(kS))
-!
-                         Call Coul(ipS,jS,kS,lS,                        &
-     &                             nIsh(kS)+kAsh,nIsh(lS)+lAsh,Temp,Scr)
-!
-                         Do iAsh=1,nAsh(is)
-                            ipQ=ipMatba(ipS,iS)+nOrb(ipS)*(iAsh-1)
-                            Do jAsh=1,nAsh(jS)
-                               iij=iTri(iAsh+nA(iS),jAsh+nA(jS))
-                               ipG=iTri(iij,ikl)
-                               ipI = (nIsh(jS)+jAsh-1)*nOrb(ipS) + 1
-!
-                              call daxpy_(nOrb(ipS),G2(ipG),Temp(ipI),1,&
-     &                                   Q(ipQ),1)
-!
-                            End Do
-                         End Do
-                      End Do
-                   End Do
-!
-                End Do
-             End Do
-          End If
-       End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-       End SubRoutine creq2
+
+end subroutine creq2

@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-      SubRoutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin,rie)
+
+subroutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin,rie)
 !                              ~
 !     Constructs  F  = <0|[E  ,H]|0>
 ! added in rinttd ( + <0|[[E  , Kappa],H]|0> )
@@ -23,168 +24,140 @@
 ! Instead of constructing one set of MO integrals/particle we construct
 ! one set of integrals used for constructing Q^A and one for Q^B
 !
-!
 ! Fock is E*d/dx(lambda)
 ! rkappa is d/dx(lambda)
-!
-      use Arrays, only: G2sq, G1t
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One, Two
-      use MCLR_Data, only: nDens2,ipMat,ipMatBA,nA,nMBA
-      use input_mclr, only: iMethod,nSym,nAsh,nBas,nIsh
-      Implicit None
-      Real*8 rkappa(nDens2),rMO(*),Fock(nDens2),FockI(ndens2)
-      Integer iDSym,jSpin
-      Real*8 reco,rie
-      Real*8, Allocatable:: FA(:), MT1(:), MT2(:), QA(:), QB(:)
-      Real*8 Fact,Dij
-      Integer jpCMO,iSym,iS,jS,iAsh,jAsh,ipF,ipFI
-!
-      integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!
-      Call mma_allocate(FA,ndens2,Label='FA')
+
+use Arrays, only: G2sq, G1t
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use MCLR_Data, only: nDens2, ipMat, ipMatBA, nA, nMBA
+use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh
+
+implicit none
+real*8 rkappa(nDens2), rMO(*), Fock(nDens2), FockI(ndens2)
+integer iDSym, jSpin
+real*8 reco, rie
+real*8, allocatable :: FA(:), MT1(:), MT2(:), QA(:), QB(:)
+real*8 Fact, Dij
+integer iS, jS, iAsh, jAsh, ipF, ipFI
+! Statement function
+integer i, j, itri
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+call mma_allocate(FA,ndens2,Label='FA')
 ! Fact controls the sign of H(k)
-      Fact=One
-      Call mma_allocate(MT1,nmba,Label='MT1')
-      Call mma_allocate(MT2,nmba,Label='MT2')
-      MT1(:) = Zero
-      MT2(:) = Zero
+Fact = One
+call mma_allocate(MT1,nmba,Label='MT1')
+call mma_allocate(MT2,nmba,Label='MT2')
+MT1(:) = Zero
+MT2(:) = Zero
 
-      Call R2ElInt_ns(rkappa,MT1,MT2,focki,FA,                          &
-     &             nDens2,idSym,ReCo,Fact,jspin)
-!
-      If (.false.) Then  !If (idsym.eq.2) Then
-      jpCMO=1
-       Do iSym=1,nSym
-            Write(6,'(A,i2.2)') 'Inactive fackmatrix = ',iSym
-            Call RecPrt(' ' ,' ',focki(jpCMO),nBas(iSym),nBas(iSym))
-            jpCMO=jpCMO+nBas(iSym)*nBas(iSym)
-       End do
-       jpCMO=1
-       Do  iSym=1,nSym
-            Write(6,'(A,i2.2)') 'Active fockmatrix     = ',iSym
-            Call RecPrt(' ' ,' ',FA(jpCMO),nBas(iSym),nBas(iSym))
-            jpCMO=jpCMO+nBas(iSym)*nBas(iSym)
-       end do
-      End If
-!
+call R2ElInt_ns(rkappa,MT1,MT2,focki,FA,nDens2,idSym,ReCo,Fact,jspin)
 
-      Fock(:) = Zero
-!
-!     Q  = sum(jkl)=(pj|kl)d(ijkl)
-!      pi
-!
-      If (iMethod.eq.2) Then
-       Call mma_allocate(qA,ndens2,Label='QA')
-       Call mma_allocate(qB,ndens2,Label='QB')
-       Call CreQ_td(QB,MT1,G2sq,idsym)
-       Call CreQ_td(QA,MT2,G2sq,idsym)
-      End If
-!
-!      Call RECPRT('QB',' ',QB,nDens2,1)
-!      Call RECPRT('QA',' ',QA,nDens2,1)
-!
-      Do iS=1,nSym
-       jS=iEOr(iS-1,idsym-1)+1
-!
-!            I    A
-!      F  =2( F  + F  )
-!       pi     pi   pi
-!
-       Call DGEADD2(Two,                                                &
-     &              Focki(ipMat(is,js)),nBas(is),'N',                   &
-     &              Fock(ipMat(is,js)),nBas(is),'N',                    &
-     &              Fock(ipMat(is,js)),nBas(is),                        &
-     &              nbas(is),nish(js))
-       Call DGEADD2(-Two,                                               &
-     &             Focki(ipMat(is,js)),nBas(is),'N',                    &
-     &             Fock(ipMat(is,js)),nBas(is),'N',                     &
-     &             Fock(ipMat(is,js)),nBas(is),                         &
-     &             nish(is),nBas(js))
-       If (iMethod.eq.2) Then
-!
-! 61-121 is all to do with multiconf
-!
-       Call DGEADD2(Two,                                                &
-     &              FA(ipMat(is,js)),nBas(is),'N',                      &
-     &              Fock(ipMat(is,js)),nBas(is),'N',                    &
-     &              Fock(ipMat(is,js)),nBas(is),                        &
-     &              nbas(is),nIsh(js))
-       Call DGEADD2(-Two,                                               &
-     &             FA(ipMat(is,js)),nBas(is),'N',                       &
-     &             Fock(ipMat(is,js)),nBas(is),'N',                     &
-     &             Fock(ipMat(is,js)),nBas(is),                         &
-     &             nish(is),nBas(js))
+!if (idsym == 2) then
+!  jpCMO = 1
+!  do iSym=1,nSym
+!    write(6,'(A,i2.2)') 'Inactive fackmatrix = ',iSym
+!    call RecPrt(' ',' ',focki(jpCMO),nBas(iSym),nBas(iSym))
+!    jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
+!  end do
+!  jpCMO = 1
+!  do iSym=1,nSym
+!    write(6,'(A,i2.2)') 'Active fockmatrix     = ',iSym
+!    call RecPrt(' ',' ',FA(jpCMO),nBas(iSym),nBas(iSym))
+!    jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
+!  end do
+!end if
 
-       Do iAsh=1,nAsh(jS)
-        Do jAsh=1,nAsh(js)
+Fock(:) = Zero
 
-!                I
-!        F  = F - F  D
-!         ap   ap  ap ba
-!
-          Dij=G1t(itri(iash+nA(js),jAsh+nA(js)))
-          ipF= ipMat(is,js)+(Nish(js)+iAsh-1)*nBas(is)
-          ipFI=ipMat(is,js)+(Nish(js)+jAsh-1)*nBas(is)
-!
-!                I
-!        F  = F + F  D
-!         pa   pa  pb ab
-!
-          Call DaXpY_(nBas(is),Dij,                                     &
-     &               focki(ipFI),1,                                     &
-     &               Fock(ipF),1)
-        End Do
-       End Do
-       Do iAsh=1,nAsh(iS)
-        Do jAsh=1,nAsh(is)
-         ipF=ipMat(is,js)+nIsh(is)+jAsh-1
-         ipFI=ipMat(is,js)+nIsh(is)+iAsh-1
-         Dij=G1t(itri(iash+nA(is),jAsh+nA(is)))
+! Q  = sum(jkl)=(pj|kl)d(ijkl)
+!  pi
 
-!
-!                I
-!        F  = F - F  D
-!         pa   pa  pb ab
-!
-          Call DaXpY_(nBas(js),-Dij,                                    &
-     &               focki(ipFI),nbas(is),                              &
-     &               Fock(ipF),nbas(is))
-        End Do
-       End Do
+if (iMethod == 2) then
+  call mma_allocate(qA,ndens2,Label='QA')
+  call mma_allocate(qB,ndens2,Label='QB')
+  call CreQ_td(QB,MT1,G2sq,idsym)
+  call CreQ_td(QA,MT2,G2sq,idsym)
+end if
 
-       Call DGEACC(Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),       &
-     &              QB(ipMatba(is,js)),nBas(is),                        &
-     &              nBas(is),nAsh(js))
-       Call DGESUB(Fock(ipMat(is,js)+nish(is)),nBas(is),'N',            &
-     &              QA(ipMatba(js,is)),nBas(js),'T',                    &
-     &              Fock(ipMat(is,js)+nish(is)),nBas(is),               &
-     &              nash(is),nBas(js))
-      End If
-! Transpose ipsc2
-!     Call mma_allocate(T,nbas(is)*nbas(jS),Label='T')
-!     call dcopy_(nbas(is)*nbas(jS),[0.0d0],0,T,1)
-!     Call DGETMO(Fock(ipmat(is,js)),nbas(is),
-!    &                nbas(is),nbas(js),T,
-!    &                nbas(js))
-!     call dcopy_(nBas(jS)*nBas(iS),T,1,Fock(ipmat(js,is)),1)
-!     Call mma_deallocate(T)
-!
-      End Do
-      If (imethod.eq.2) Then
-         Call mma_deallocate(QA)
-         Call mma_deallocate(QB)
-      End If
-!
-      Call DSCAL_(ndens2,-Two,fock,1)
-      Call AddGrad(rKappa,Fock,idsym,Two*(-fact))
-      Call PickMO_td(MT1,rmo,idsym)
-!
-      Call mma_deallocate(MT2)
-      Call mma_deallocate(MT1)
-      Call mma_deallocate(FA)
-!
+!call RECPRT('QB',' ',QB,nDens2,1)
+!call RECPRT('QA',' ',QA,nDens2,1)
+
+do iS=1,nSym
+  jS = ieor(iS-1,idsym-1)+1
+
+  !         I    A
+  ! F  = 2 ( F  + F  )
+  !  pi       pi   pi
+
+  call DGEADD2(Two,Focki(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nbas(is),nish(js))
+  call DGEADD2(-Two,Focki(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nish(is),nBas(js))
+  if (iMethod == 2) then
+
+    ! 61-121 is all to do with multiconf
+
+    call DGEADD2(Two,FA(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nbas(is),nIsh(js))
+    call DGEADD2(-Two,FA(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nish(is),nBas(js))
+
+    do iAsh=1,nAsh(jS)
+      do jAsh=1,nAsh(js)
+
+        !         I
+        ! F  = F - F  D
+        !  ap   ap  ap ba
+
+        Dij = G1t(itri(iash+nA(js),jAsh+nA(js)))
+        ipF = ipMat(is,js)+(Nish(js)+iAsh-1)*nBas(is)
+        ipFI = ipMat(is,js)+(Nish(js)+jAsh-1)*nBas(is)
+
+        !         I
+        ! F  = F + F  D
+        !  pa   pa  pb ab
+
+        call DaXpY_(nBas(is),Dij,focki(ipFI),1,Fock(ipF),1)
+      end do
+    end do
+    do iAsh=1,nAsh(iS)
+      do jAsh=1,nAsh(is)
+        ipF = ipMat(is,js)+nIsh(is)+jAsh-1
+        ipFI = ipMat(is,js)+nIsh(is)+iAsh-1
+        Dij = G1t(itri(iash+nA(is),jAsh+nA(is)))
+
+        !         I
+        ! F  = F - F  D
+        !  pa   pa  pb ab
+
+        call DaXpY_(nBas(js),-Dij,focki(ipFI),nbas(is),Fock(ipF),nbas(is))
+      end do
+    end do
+
+    call DGEACC(Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),QB(ipMatba(is,js)),nBas(is),nBas(is),nAsh(js))
+    call DGESUB(Fock(ipMat(is,js)+nish(is)),nBas(is),'N',QA(ipMatba(js,is)),nBas(js),'T',Fock(ipMat(is,js)+nish(is)),nBas(is), &
+                nash(is),nBas(js))
+  end if
+  ! Transpose ipsc2
+  !call mma_allocate(T,nbas(is)*nbas(jS),Label='T')
+  !call dcopy_(nbas(is)*nbas(jS),[0.0d0],0,T,1)
+  !call DGETMO(Fock(ipmat(is,js)),nbas(is),nbas(is),nbas(js),T,nbas(js))
+  !call dcopy_(nBas(jS)*nBas(iS),T,1,Fock(ipmat(js,is)),1)
+  !call mma_deallocate(T)
+
+end do
+if (imethod == 2) then
+  call mma_deallocate(QA)
+  call mma_deallocate(QB)
+end if
+
+call DSCAL_(ndens2,-Two,fock,1)
+call AddGrad(rKappa,Fock,idsym,Two*(-fact))
+call PickMO_td(MT1,rmo,idsym)
+
+call mma_deallocate(MT2)
+call mma_deallocate(MT1)
+call mma_deallocate(FA)
+
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_real(rie)
-      end SubRoutine RInt_ns
+if (.false.) call Unused_real(rie)
+
+end subroutine RInt_ns

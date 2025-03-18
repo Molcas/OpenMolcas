@@ -12,37 +12,37 @@
 !***********************************************************************
 ! ****************************************************************
 ! history:                                                       *
-! Based on cmsbk.f from Jie J. Bao &&                            *
+! Based on cmsbk.f from Jie J. Bao                               *
 ! Additional work from  rhs_nac.f                                *
 ! ****************************************************************
-      Subroutine GetPDFTFock_NAC(bk)
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use MCLR_Data, only: nDens2, ipMat
-      use input_mclr, only: nSym,nBas
-      Implicit None
-!*****Output
-      Real*8,DIMENSION(nDens2)::bk
-!*****Input
-!*****Auxiliaries
-      Real*8,DIMENSION(:),Allocatable::T,FT99,bktmp
-      INTEGER IS,JS
-      CALL mma_allocate(FT99,nDens2)
-      CALL mma_allocate(bktmp,nDens2)
-      CALL mma_allocate(T,nDens2)
-      CALL Get_DArray('FxyMS           ',FT99 ,nDens2)
-      CALL dcopy_(nDens2,FT99,1,T,1)
 
-      DO IS=1,nSym
-         jS=iEOR(iS-1,0)+1
-         If (nBas(is)*nBas(jS).ne.0) then
-           Call DGeSub(T(ipMat(iS,jS)),nBas(iS),'N',                    &
-     &                 T(ipMat(jS,iS)),nBas(jS),'T',                    &
-     &                 bktmp(ipMat(iS,jS)),nBas(iS),                    &
-     &                 nBas(iS),nBas(jS))
-         End If
-      END DO
-      CALL daxpy_(nDens2,-2.0d0,bktmp,1,bk,1)
-      CALL mma_deallocate(T)
-      CALL mma_deallocate(FT99)
-      CALL mma_deallocate(bktmp)
-      end subroutine GetPDFTFock_NAC
+subroutine GetPDFTFock_NAC(bk)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: nDens2, ipMat
+use input_mclr, only: nSym, nBas
+
+implicit none
+! Output
+real*8, dimension(nDens2) :: bk
+! Auxiliaries
+real*8, dimension(:), allocatable :: T, FT99, bktmp
+integer IS, JS
+
+call mma_allocate(FT99,nDens2)
+call mma_allocate(bktmp,nDens2)
+call mma_allocate(T,nDens2)
+call Get_DArray('FxyMS',FT99,nDens2)
+call dcopy_(nDens2,FT99,1,T,1)
+
+do IS=1,nSym
+  jS = ieor(iS-1,0)+1
+  if (nBas(is)*nBas(jS) /= 0) &
+    call DGeSub(T(ipMat(iS,jS)),nBas(iS),'N',T(ipMat(jS,iS)),nBas(jS),'T',bktmp(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
+end do
+call daxpy_(nDens2,-2.0d0,bktmp,1,bk,1)
+call mma_deallocate(T)
+call mma_deallocate(FT99)
+call mma_deallocate(bktmp)
+
+end subroutine GetPDFTFock_NAC

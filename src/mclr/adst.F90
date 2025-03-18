@@ -10,17 +10,13 @@
 !                                                                      *
 ! Copyright (C) 1991,1994, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,    &
-     &                NK,IEND)
-      Use Str_Info, only: STR,ISTAC,IUNIQMP,NOCTYP
-      use MCLR_Data, only: NACOB,ISMFTO,NORB1,NORB2,NORB3
-!
-!
+
+subroutine ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,NK,IEND)
 ! Obtain mappings
 ! a+JORB !KSTR> = +/-!ISTR> for orbitals IORB - IORB+NORB-1
 !. All orbitals are assumed to belong to the same TS class
 ! In the form
-! I1(KSTR,JORB) =  ISTR if A+JORB !KSTR> = +/-!ISTR> , ISTR is in
+! I1(KSTR,JORB) =  ISTR if A+JORB !KSTR> = +/-!ISTR>, ISTR is in
 ! ICLS,ISM,IGRP.
 ! (numbering relative to TS start)
 !
@@ -32,51 +28,44 @@
 !
 ! Jeppe Olsen, Winter of 1991
 !              January 1994 : modified to allow for several orbitals
-!
+
+use Str_Info, only: STR, ISTAC, IUNIQMP, NOCTYP
+use MCLR_Data, only: NACOB, ISMFTO, NORB1, NORB2, NORB3
+
+implicit none
+! =====
+! Input
+! =====
+integer IORB, NORB, ICLS, ISM, IGRP, KMIN, KMAX
+integer LI1, NK, IEND
 ! ======
-!. Input
+! Output
 ! ======
-!
-      IMPLICIT NONE
-      INTEGER IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX
-      INTEGER LI1,NK,IEND
-!
-! =======
-!. Output
-! =======
-!
-      INTEGER I1(*)
-      REAL*8 XI1S(*)
-      Integer JGRP,IMPF,LMAP
-!. Type of mapping
-!?     write(6,*) ' ADST: IGRP IORB = ',IGRP, IORB
-!
-      JGRP = IGRP + 1
-      IF(IUNIQMP(JGRP).NE.JGRP) THEN
-        JGRP = -IUNIQMP(JGRP)
-!        write(6,*) ' Unique string group for mappings ',JGRP
-      END IF
-!
-      IF(ISTAC(JGRP,1).NE.0.AND.ISTAC(JGRP,2).NE.0) THEN
-!. Full Map
-        IMPF = 1
-        LMAP = NACOB
-      ELSE
-!. Only creation map
-        IMPF = 0
-        LMAP = -1
-      END IF
-!
-      CALL ADS1(NK,I1,XI1S,LI1,IORB,NORB,                               &
-     &           ICLS,ISM,                                              &
-     &           Str(JGRP)%STSTM(:,1),                                  &
-     &           Str(JGRP)%STSTM(:,2),                                  &
-     &           Str(JGRP)%STSTMN,                                      &
-     &           Str(JGRP)%STSTMI,IMPF,LMAP,Str(IGRP)%EL1,              &
-     &           Str(IGRP)%EL3,Str(IGRP+1)%EL1,                         &
-     &           Str(IGRP+1)%EL3,Str(IGRP)%ISTSO,                       &
-     &           Str(IGRP)%NSTSO,Str(IGRP+1)%ISTSO,                     &
-     &           Str(IGRP+1)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+1),         &
-     &           NORB1,NORB2,NORB3,ISMFTO,NACOB,KMAX,KMIN,IEND)
-!
-      END SUBROUTINE ADST
+integer I1(*)
+real*8 XI1S(*)
+integer JGRP, IMPF, LMAP
+
+! Type of mapping
+!? write(6,*) ' ADST: IGRP IORB = ',IGRP,IORB
+
+JGRP = IGRP+1
+if (IUNIQMP(JGRP) /= JGRP) then
+  JGRP = -IUNIQMP(JGRP)
+  !write(6,*) ' Unique string group for mappings ',JGRP
+end if
+
+if ((ISTAC(JGRP,1) /= 0) .and. (ISTAC(JGRP,2) /= 0)) then
+  ! Full Map
+  IMPF = 1
+  LMAP = NACOB
+else
+  ! Only creation map
+  IMPF = 0
+  LMAP = -1
+end if
+
+call ADS1(NK,I1,XI1S,LI1,IORB,NORB,ICLS,ISM,Str(JGRP)%STSTM(:,1),Str(JGRP)%STSTM(:,2),Str(JGRP)%STSTMN,Str(JGRP)%STSTMI,IMPF, &
+          LMAP,Str(IGRP)%EL1,Str(IGRP)%EL3,Str(IGRP+1)%EL1,Str(IGRP+1)%EL3,Str(IGRP)%ISTSO,Str(IGRP)%NSTSO,Str(IGRP+1)%ISTSO, &
+          Str(IGRP+1)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+1),NORB1,NORB2,NORB3,ISMFTO,NACOB,KMAX,KMIN,IEND)
+
+end subroutine ADST

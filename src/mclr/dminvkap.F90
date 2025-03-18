@@ -8,8 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine DMInvKap(rMFact,rIn,nrIn,rOut,nrOut,rtemp,nrtemp,      &
-     &                    isym,iter)
+
+subroutine DMInvKap(rMFact,rIn,nrIn,rOut,nrOut,rtemp,nrtemp,isym,iter)
 !***********************************************************************
 !                                                                      *
 !     _____     -1                                                     *
@@ -18,142 +18,144 @@
 !                                                                      *
 !                                                                      *
 !     In: rMFact        Factorized preconditioner (diagonal part       *
-!                         of the electronic hessian that couple          *
-!                         rotations with one common index)               *
+!                       of the electronic hessian that couple          *
+!                       rotations with one common index)               *
 !     In,Out rOut       Orbital rotaotion                              *
 !                                                                      *
 !     iSym              Symmetry of rotation                           *
 !                                                                      *
 !***********************************************************************
-      use Spool, only: LuWr
-      use MCLR_Data, only: SA
-      use dmrginfo, only: DoDMRG, LRRAS2,RGRAS2
-      Implicit None
-      Integer nrIn, nrOut, nrTemp, iSym, iter
-      Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)
+
+use Spool, only: LuWr
+use MCLR_Data, only: SA
+use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+
+implicit none
+integer nrIn, nrOut, nrTemp, iSym, iter
+real*8 rOut(nrOut), rMFact(*), rIn(nrIn), rtemp(nrTemp)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call DMInvKap_Internal(rMFact)
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine DMInvKap_Internal(rMFact)
-      Use Iso_C_Binding
-      use MCLR_Data, only: ipMat, nDensC
-      use input_mclr, only: nSym,PT2,nAsh,nIsh,nOrb,nRs1,nRs2,nRs3
-      Implicit None
-      Real*8, Target :: rMFact(*)
-      Integer, Pointer :: iMFact(:)
-      Integer ip1, iS, jS, ii, nd, ip2, iRC
-      Real*8, External:: DDot_
-      ip1=1
-!
-      if(doDMRG)then  ! yma
-        call dmrg_spc_change_mclr(RGras2(1:8),nash)
-        call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+call DMInvKap_Internal(rMFact)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine DMInvKap_Internal(rMFact)
+
+  use iso_c_binding
+  use MCLR_Data, only: ipMat, nDensC
+  use input_mclr, only: nSym, PT2, nAsh, nIsh, nOrb, nRs1, nRs2, nRs3
+
+  implicit none
+  real*8, target :: rMFact(*)
+  integer, pointer :: iMFact(:)
+  integer ip1, iS, jS, ii, nd, ip2, iRC
+  real*8, external :: DDot_
+  ip1 = 1
+
+  if (doDMRG) then  ! yma
+    call dmrg_spc_change_mclr(RGras2(1:8),nash)
+    call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+  end if
+
+  call DCopy_(nDensC,rIn,1,rOut,1)
+  call Uncompress2(rIn,rtemp,isym)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  do jS=1,nSym
+    iS = ieor(js-1,iSym-1)+1
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    !    kappa
+    !         ip
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    do iI=1,nIsh(js)
+      nD = nOrb(is)-nIsh(is)
+      if (nd /= 0) then
+        ip2 = ipMat(is,js)+nOrb(is)*(iI-1)
+        irc = 0
+        call c_f_pointer(c_loc(rMFact(ip1+nd**2)),iMFact,[ND])
+        call dgetrs_('N',ND,1,rMFact(ip1),nd,iMFact,rtemp(ip2),nd,irc)
+        nullify(iMFact)
+        if (irc /= 0) then
+          write(6,*) 'Error in DGETRS called from dminvkap'
+          call Abend()
+        end if
+        ip1 = ip1+nD*(nD+1)
       end if
+    end do
 
-      Call DCopy_(nDensC,rIn,1,rOut,1)
-      Call Uncompress2(rIn,rtemp,isym)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Do jS=1,nSym
-         iS=iEOr(js-1,iSym-1)+1
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        kappa
-!            ip
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         Do iI=1,nIsh(js)
-            nD=nOrb(is)-nIsh(is)
-            If (nd.ne.0) Then
-               ip2=ipMat(is,js)+nOrb(is)*(iI-1)
-               irc=0
-               call c_f_pointer(c_loc(rMFact(ip1+nd**2)),iMFact,[ND])
-               call dgetrs_('N',ND,1,rMFact(ip1),nd,                    &
-     &                       iMFact,rtemp(ip2),nd,irc)
-               nullify(iMFact)
-               If (irc.ne.0) then
-                   Write(6,*) 'Error in DGETRS called from dminvkap'
-                   Call Abend
-               endif
-               ip1=ip1+nD*(nD+1)
-            End If
-         End Do
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!        kappa
-!             ap
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-         Do iI=1,nAsh(js)
-            nD=nOrb(is)-nAsh(is)
-            If (SA.or.PT2) Then
-               If (iI.le.nRs1(jS)) THen
-                 nD=nOrb(is)-nRs1(js)
-               Else If (iI.le.nRs1(jS)+nRs2(jS)) Then
-                 nD=nOrb(is)-nRs2(js)
-               Else If (iI.le.nRs1(jS)+nRs2(jS)+nRs3(jS)) Then
-                 nD=nOrb(is)-nRs3(js)
-               End If
-            End If
-            If (nd.ne.0) Then
-               ip2=ipMat(is,js)+nOrb(is)*(iI-1+nIsh(js))
-               irc=0
-               call c_f_pointer(c_loc(rMFact(ip1+nd**2)),iMFact,[ND])
-               call dgetrs_('N',ND,1,rMFact(ip1),nd,                    &
-     &                      iMFact,rtemp(ip2),nd,irc)
-               nullify(iMFact)
-               If (irc.ne.0) then
-                   Write(6,*) 'Error in DGETRS called from dminvkap'
-                   Call Abend
-               endif
-               ip1=ip1+nD*(nD+1)
-            End If
-         End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End Do
-!                                                                      *
-!***********************************************************************
-!
-      Call Compress2(rtemp,nrtemp,rOut,nrOut,isym)
-
-      if(doDMRG)then
-        call dmrg_spc_change_mclr(LRras2(1:8),nash)
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    !    kappa
+    !         ap
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+    do iI=1,nAsh(js)
+      nD = nOrb(is)-nAsh(is)
+      if (SA .or. PT2) then
+        if (iI <= nRs1(jS)) then
+          nD = nOrb(is)-nRs1(js)
+        else if (iI <= nRs1(jS)+nRs2(jS)) then
+          nD = nOrb(is)-nRs2(js)
+        else if (iI <= nRs1(jS)+nRs2(jS)+nRs3(jS)) then
+          nD = nOrb(is)-nRs3(js)
+        end if
       end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Warn if the trail vector becomes large
-!
-      If ((ddot_(ndensc,rout,1,rout,1).gt.100.D0).and.(iter.eq.1)) Then
-          write(LuWr,*)'****************************************'
-          write(LuWr,*)'*                                      *'
-          write(LuWr,*)'*           WARNING!!                  *'
-          write(LuWr,*)'* Elements in the E^[2] matrix small!! *'
-          write(LuWr,*)'* The calculation might diverge.       *'
-          write(LuWr,*)'*                                      *'
-          write(LuWr,*)'* Check your active space!!!!          *'
-          write(LuWr,*)'*                                      *'
-          write(LuWr,*)'* Make sure degenerate orbitals do not *'
-          write(LuWr,*)'* belong to different spaces.          *'
-          write(LuWr,*)'* Note that no LR code can handle      *'
-          write(LuWr,*)'* 2.0d0 occupancy in active orbitals!! *'
-          write(LuWr,*)'****************************************'
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End Subroutine DMInvKap_Internal
-!
-      end SubRoutine DMInvKap
+      if (nd /= 0) then
+        ip2 = ipMat(is,js)+nOrb(is)*(iI-1+nIsh(js))
+        irc = 0
+        call c_f_pointer(c_loc(rMFact(ip1+nd**2)),iMFact,[ND])
+        call dgetrs_('N',ND,1,rMFact(ip1),nd,iMFact,rtemp(ip2),nd,irc)
+        nullify(iMFact)
+        if (irc /= 0) then
+          write(6,*) 'Error in DGETRS called from dminvkap'
+          call Abend()
+        end if
+        ip1 = ip1+nD*(nD+1)
+      end if
+    end do
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
+  end do
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  call Compress2(rtemp,nrtemp,rOut,nrOut,isym)
+
+  if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Warn if the trial vector becomes large
+
+  if ((ddot_(ndensc,rout,1,rout,1) > 100.d0) .and. (iter == 1)) then
+    write(LuWr,*) '****************************************'
+    write(LuWr,*) '*                                      *'
+    write(LuWr,*) '*           WARNING!!                  *'
+    write(LuWr,*) '* Elements in the E^[2] matrix small!! *'
+    write(LuWr,*) '* The calculation might diverge.       *'
+    write(LuWr,*) '*                                      *'
+    write(LuWr,*) '* Check your active space!!!!          *'
+    write(LuWr,*) '*                                      *'
+    write(LuWr,*) '* Make sure degenerate orbitals do not *'
+    write(LuWr,*) '* belong to different spaces.          *'
+    write(LuWr,*) '* Note that no LR code can handle      *'
+    write(LuWr,*) '* 2.0d0 occupancy in active orbitals!! *'
+    write(LuWr,*) '****************************************'
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end subroutine DMInvKap_Internal
+
+end subroutine DMInvKap

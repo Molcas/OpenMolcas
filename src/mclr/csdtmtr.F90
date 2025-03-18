@@ -10,86 +10,77 @@
 !                                                                      *
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
-      SUBROUTINE CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN,IPRNT)
-!
+
+subroutine CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN,IPRNT)
 ! Construct list of prototype combinations in IDFTP
 ! Construct list of prototype CSF'S, in ICFTP
 ! Construct matrix expanding prototype CSF's in terms of
 ! prototype combinations in DTOC
-!
-!
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use MCLR_Data, only: MULTSP,MS2P,NTYP,MINOP,NCPCNT,NDPCNT
-      IMPLICIT None
-      DIMENSION IDFTP(*),ICFTP(*),DTOC(*)
-      REAL*8 PSSIGN
-      Integer IPRNT
 
-!     local variables
-      Integer, Allocatable:: SCR7(:)
-      Integer MULTS,MS2,IDTBS,ICSBS,ITP,IOPEN,IFLAG,IDFTP,ICFTP,        &
-     &        ICDCBS,NNDET
-      REAL*8 DTOC
-!./SPINFO/
-!
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: MULTSP, MS2P, NTYP, MINOP, NCPCNT, NDPCNT
 
-      MULTS = MULTSP
-      MS2 = MS2P
-!
-!*.. Set up determinants and upper determinants
-!
-      IDTBS = 0 ! dummy initialize
-      ICSBS = 0 ! dummy initialize
-      DO 20 ITP = 1, NTYP
-        IOPEN = MINOP+ITP-1
-        IF( ITP .EQ. 1 ) THEN
-          IDTBS = 1
-          ICSBS = 1
-        ELSE
-          IDTBS = IDTBS + (IOPEN-1)*NDPCNT(ITP-1)
-          ICSBS = ICSBS + (IOPEN-1)*NCPCNT(ITP-1)
-        END IF
-!
-        IF( IOPEN .NE. 0 ) THEN
-          CALL mma_allocate(SCR7,IOPEN+1,Label='SCR7')
-!. Proto type determinants and upper determinants
-          IF( MS2+1 .EQ. MULTS ) THEN
-            IFLAG = 2
-            CALL SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),         &
-     &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
-          ELSE
-            IFLAG = 1
-            CALL SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),         &
-     &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
-            IFLAG = 3
-            CALL SPNCOM_MCLR(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),     &
-     &                  ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
-          END IF
-          CALL mma_deallocate(SCR7)
-        END IF
-   20 CONTINUE
-!. Matrix expressing csf's in terms of combinations
-      ICDCBS =0 ! dummy initialize
-      DO 30 ITP = 1, NTYP
-        IOPEN = MINOP+ITP-1
-        IF( ITP .EQ. 1 ) THEN
-          IDTBS = 1
-          ICSBS = 1
-          ICDCBS =1
-        ELSE
-          IDTBS = IDTBS + (IOPEN-1)*NDPCNT(ITP-1)
-          ICSBS = ICSBS + (IOPEN-1)*NCPCNT(ITP-1)
-          ICDCBS = ICDCBS + NDPCNT(ITP-1)*NCPCNT(ITP-1)
-        END IF
-        IF(NDPCNT(ITP)*NCPCNT(ITP).EQ.0) GOTO 30
-        IF(IOPEN .EQ. 0 ) THEN
-          DTOC(ICDCBS) = 1.0D0
-        ELSE
-          CALL CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),              &
-     &               ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),             &
-     &               PSSIGN,IPRNT)
-        END IF
-   30 CONTINUE
-!
+implicit none
+dimension IDFTP(*), ICFTP(*), DTOC(*)
+real*8 PSSIGN
+integer IPRNT
+! local variables
+integer, allocatable :: SCR7(:)
+integer MULTS, MS2, IDTBS, ICSBS, ITP, IOPEN, IFLAG, IDFTP, ICFTP, ICDCBS, NNDET
+real*8 DTOC
 
-      END SUBROUTINE CSDTMT
+MULTS = MULTSP
+MS2 = MS2P
+
+! Set up determinants and upper determinants
+
+IDTBS = 0 ! dummy initialize
+ICSBS = 0 ! dummy initialize
+do ITP=1,NTYP
+  IOPEN = MINOP+ITP-1
+  if (ITP == 1) then
+    IDTBS = 1
+    ICSBS = 1
+  else
+    IDTBS = IDTBS+(IOPEN-1)*NDPCNT(ITP-1)
+    ICSBS = ICSBS+(IOPEN-1)*NCPCNT(ITP-1)
+  end if
+
+  if (IOPEN /= 0) then
+    call mma_allocate(SCR7,IOPEN+1,Label='SCR7')
+    ! Proto type determinants and upper determinants
+    if (MS2+1 == MULTS) then
+      IFLAG = 2
+      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
+    else
+      IFLAG = 1
+      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
+      IFLAG = 3
+      call SPNCOM_MCLR(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
+    end if
+    call mma_deallocate(SCR7)
+  end if
+end do
+! Matrix expressing csf's in terms of combinations
+ICDCBS = 0 ! dummy initialize
+do ITP=1,NTYP
+  IOPEN = MINOP+ITP-1
+  if (ITP == 1) then
+    IDTBS = 1
+    ICSBS = 1
+    ICDCBS = 1
+  else
+    IDTBS = IDTBS+(IOPEN-1)*NDPCNT(ITP-1)
+    ICSBS = ICSBS+(IOPEN-1)*NCPCNT(ITP-1)
+    ICDCBS = ICDCBS+NDPCNT(ITP-1)*NCPCNT(ITP-1)
+  end if
+  if (NDPCNT(ITP)*NCPCNT(ITP) == 0) goto 30
+  if (IOPEN == 0) then
+    DTOC(ICDCBS) = 1.0d0
+  else
+    call CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),PSSIGN,IPRNT)
+  end if
+30 continue
+end do
+
+end subroutine CSDTMT

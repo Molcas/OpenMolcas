@@ -10,15 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE ICISPC(MNRS10,MXRS30,IPRNT)
-      Use Str_Info, only: IAZTP,IBZTP,NELEC
-      use MCLR_Data, only: NICISP,NELCI,NAELCI,NBELCI,MNR1IC,MNR3IC,    &
-     &                                                  MXR1IC,MXR3IC,  &
-     &                       IACTI,IASTFI,IBSTFI,IRCI
-      use MCLR_Data, only: NORB1,NORB2
-      Implicit None
-      Integer MNRS10,MXRS30,IPRNT
-!
+
+subroutine ICISPC(MNRS10,MXRS30,IPRNT)
 ! Obtain internal CI spaces relevant for MRSDCI
 !       /STRINP/+/LUCINP/ = > /CICISP/
 ! Jeppe Olsen, Dec 1990
@@ -38,12 +31,12 @@
 ! 1 *  Zero order   *           0            *    0     *    0     *
 !*******************************************************************
 ! ====================
-!. Input Module
+!  Input Module
 ! ====================
 !./Str_Info
 !./MCLR_Data
 ! ====================
-!. Output Module
+!  Output Module
 ! ====================
 !module MCLR_Data
 ! NICISP : Number of internal CI spaces constructed
@@ -55,62 +48,64 @@
 ! IZCI   : Internal zero order space
 ! IRCI(IEX,DELTAA+5,DELTAB+5) : Number of zero order space
 ! NELCI : Number of electrons per CI space
-! obtained by (IEX-1) fold internal excitation , with a NAEL + DELTAA
+! obtained by (IEX-1) fold internal excitation, with a NAEL + DELTAA
 ! alpha electrons and  NBEL + DELTAB beta electrons
+
+use Str_Info, only: IAZTP, IBZTP, NELEC
+use MCLR_Data, only: NICISP, NELCI, NAELCI, NBELCI, MNR1IC, MNR3IC, MXR1IC, MXR3IC, IACTI, IASTFI, IBSTFI, IRCI
+use MCLR_Data, only: NORB1, NORB2
+
+implicit none
+integer MNRS10, MXRS30, IPRNT
 ! local variables
-      Integer NTEST,ICI,IEX,IDA,IDB
-!
-!
-      NTEST = 00000
-      NTEST = MAX(NTEST,IPRNT)
-!
-      ICI = 1
-      MNR1IC(ICI) = MNRS10
-      MXR3IC(ICI) = MXRS30
-      IASTFI(ICI) = IAZTP
-      IBSTFI(ICI) = IBZTP
-      NAELCI(ICI) = NELEC(IAZTP)
-      NBELCI(ICI) = NELEC(IBZTP)
-      NELCI(ICI)  = NAELCI(ICI)+NBELCI(ICI)
-      IACTI(1) = 1
-      NICISP = ICI
+integer NTEST, ICI, IEX, IDA, IDB
+
+NTEST = 00000
+NTEST = max(NTEST,IPRNT)
+
+ICI = 1
+MNR1IC(ICI) = MNRS10
+MXR3IC(ICI) = MXRS30
+IASTFI(ICI) = IAZTP
+IBSTFI(ICI) = IBZTP
+NAELCI(ICI) = NELEC(IAZTP)
+NBELCI(ICI) = NELEC(IBZTP)
+NELCI(ICI) = NAELCI(ICI)+NBELCI(ICI)
+IACTI(1) = 1
+NICISP = ICI
 ! EAW Just zero order
-      Call iCopy(3*49,[0],0,irci,1)
+call iCopy(3*49,[0],0,irci,1)
 ! EAW
-!. Number and distribution of electrons in each space
-      DO 100 IEX = 1, 3
-      DO 101 IDA = -4,2
-      DO 102 IDB = -4,2
-        IF(IRCI(IEX,IDA+5,IDB+5).NE.0) THEN
-           ICI = IRCI(IEX,IDA+5,IDB+5)
-           NAELCI(ICI) = NELEC(IASTFI(ICI))
-           NBELCI(ICI) = NELEC(IBSTFI(ICI))
-           NELCI(ICI) = NAELCI(ICI)+NBELCI(ICI)
-        END IF
-102   CONTINUE
-101   CONTINUE
-100   CONTINUE
-!
-!. Default max in RAS1 and min in RAS3
-      DO 150 ICI = 1, NICISP
-        MXR1IC(ICI) = MIN(2*NORB1,NELCI(ICI))
-        MNR3IC(ICI) = MAX(0,NELCI(ICI)-2*(NORB1+NORB2))
-150   CONTINUE
-!
-      IF(NTEST .GE. 1 ) THEN
-        WRITE(6,*) ' Number of internal CI spaces ', NICISP
-        WRITE(6,*)                                                      &
-     &  ' Space a-type b-type nael nbel mnrs1 mxrs1 mnrs3 mxrs3 '
-        WRITE(6,*)                                                      &
-     &  ' ===================================================== '
-         DO 1020 ICI = 1, NICISP
-          IF(IACTI(ICI).EQ.1)                                           &
-     &    WRITE(6,'(I5,2I7,2I5,4I6)')                                   &
-     &    ICI,IASTFI(ICI),IBSTFI(ICI),NAELCI(ICI),NBELCI(ICI),          &
-     &    MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI)
-1020    CONTINUE
-      END IF
-!
-!
-      RETURN
-      END
+! Number and distribution of electrons in each space
+do IEX=1,3
+  do IDA=-4,2
+    do IDB=-4,2
+      if (IRCI(IEX,IDA+5,IDB+5) /= 0) then
+        ICI = IRCI(IEX,IDA+5,IDB+5)
+        NAELCI(ICI) = NELEC(IASTFI(ICI))
+        NBELCI(ICI) = NELEC(IBSTFI(ICI))
+        NELCI(ICI) = NAELCI(ICI)+NBELCI(ICI)
+      end if
+    end do
+  end do
+end do
+
+! Default max in RAS1 and min in RAS3
+do ICI=1,NICISP
+  MXR1IC(ICI) = min(2*NORB1,NELCI(ICI))
+  MNR3IC(ICI) = max(0,NELCI(ICI)-2*(NORB1+NORB2))
+end do
+
+if (NTEST >= 1) then
+  write(6,*) ' Number of internal CI spaces ',NICISP
+  write(6,*) ' Space a-type b-type nael nbel mnrs1 mxrs1 mnrs3 mxrs3'
+  write(6,*) ' ====================================================='
+  do ICI=1,NICISP
+    if (IACTI(ICI) == 1) write(6,'(I5,2I7,2I5,4I6)') ICI,IASTFI(ICI),IBSTFI(ICI),NAELCI(ICI),NBELCI(ICI),MNR1IC(ICI),MXR1IC(ICI), &
+                                                     MNR3IC(ICI),MXR3IC(ICI)
+  end do
+end if
+
+return
+
+end subroutine ICISPC

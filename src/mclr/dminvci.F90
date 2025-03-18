@@ -8,76 +8,79 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine DMinvCI(ipSigma,rout,rC_HE_C,idsym)
-      use Exp, only: NewPre
-      use ipPage, only: W
-      use negpre
-      use Constants, only: Zero, One, Half
-      use MCLR_Data, only: nConf1, ipCI
-      use MCLR_Data, only: ipDia
-      Implicit None
-      Integer ipSIgma, idSym
-      Real*8 rout(*), rC_HE_C
 
-      integer iRC
-      integer, external:: ipin, ipout, opout
-      real*8 rCoeff
-      real*8, external:: DDot_
-!
-!                                    -1           -1
-!                               (H -E) |0><0|(H -E)|Sigma>
-!                  -1             0            0
-!     |rNew>=(H - E) |Sigma> - ----------------------------
-!              0                               -1
-!                                      <0|(H -E) |0>
-!                                           0
-!
-      If (nconf1.gt.1) Then
+subroutine DMinvCI(ipSigma,rout,rC_HE_C,idsym)
 
-         irc=ipin(ipdia)
-         irc=ipin(ipSigma)
-         Call exphinvv(W(ipdia)%Vec,W(ipsigma)%Vec,rout,Zero,One)
-         irc=ipout(ipsigma)
-         irc=opout(ipdia)
-!
-!        OBS <0|(H-E)|Sigma>=0 if idsym=/=1
+use Exp, only: NewPre
+use ipPage, only: W
+use negpre
+use Constants, only: Zero, One, Half
+use MCLR_Data, only: nConf1, ipCI
+use MCLR_Data, only: ipDia
 
-         If (NewPre.and.idsym.eq.1) Then
-!                    -1
-!           rcoeff=<0|(H -E) |Sigma>
-!                       0
-!                 -------------------
-!                            -1
-!                    <0|(H -E) |0>
-!                         0
-!
-            If (.not.ngp) Then
-               irc=ipin(ipCI)
-               rcoeff=ddot_(nconf1,rout,1,W(ipCI)%Vec,1)/rC_HE_C
-!
-!                                     -1
-!              rout=rout-rocoeff*(H -E) |0>
-!                                  0
-               irc=ipin(ipdia)
-               Call exphinvv(W(ipdia)%Vec,W(ipci)%Vec,rOUT,One,-rcoeff)
-               irc=opout(ipCI)
-            Else
-               Call NEGP(ipdia,ipSigma,rout)
-            End If
+implicit none
+integer ipSIgma, idSym
+real*8 rout(*), rC_HE_C
+integer iRC
+integer, external :: ipin, ipout, opout
+real*8 rCoeff
+real*8, external :: DDot_
 
-         End If
+!                                  -1           -1
+!                             (H -E) |0><0|(H -E) |Sigma>
+!                -1             0            0
+! |rNew> = (H - E) |Sigma> - -----------------------------
+!            0                               -1
+!                                    <0|(H -E) |0>
+!                                         0
 
-         Call DSCAL_(nconf1,Half,rout,1)
+if (nconf1 > 1) then
 
-      Else
+  irc = ipin(ipdia)
+  irc = ipin(ipSigma)
+  call exphinvv(W(ipdia)%Vec,W(ipsigma)%Vec,rout,Zero,One)
+  irc = ipout(ipsigma)
+  irc = opout(ipdia)
 
-         irc=ipin(ipsigma)
-         rout(1:nConf1)=W(ipSigma)%Vec(:)
+  ! OBS <0|(H-E)|Sigma>=0 if idsym=/=1
 
-      End if
+  if (NewPre .and. (idsym == 1)) then
+    !                  -1
+    ! rcoeff = <0|(H -E) |Sigma>
+    !               0
+    !         -------------------
+    !                    -1
+    !            <0|(H -E) |0>
+    !                 0
 
-      return
+    if (.not. ngp) then
+      irc = ipin(ipCI)
+      rcoeff = ddot_(nconf1,rout,1,W(ipCI)%Vec,1)/rC_HE_C
+
+      !                          -1
+      ! rout = rout-rocoeff*(H -E) |0>
+      !                       0
+      irc = ipin(ipdia)
+      call exphinvv(W(ipdia)%Vec,W(ipci)%Vec,rOUT,One,-rcoeff)
+      irc = opout(ipCI)
+    else
+      call NEGP(ipdia,ipSigma,rout)
+    end if
+
+  end if
+
+  call DSCAL_(nconf1,Half,rout,1)
+
+else
+
+  irc = ipin(ipsigma)
+  rout(1:nConf1) = W(ipSigma)%Vec(:)
+
+end if
+
+return
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      end SubRoutine DMinvCI
+
+end subroutine DMinvCI

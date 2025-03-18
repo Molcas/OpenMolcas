@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE DEGVEC(VEC,NDIM,NDGVL,IDEG)
-!
+
+subroutine DEGVEC(VEC,NDIM,NDGVL,IDEG)
 ! A vector VEC is given with elements in ascending order
 ! group elements in degenerate pairs
 !
@@ -28,42 +28,44 @@
 ! IDEG(I) : Number of elements in VEC with degenerate value I
 !
 ! Jeppe Olsen, April 1990
-!
-      IMPLICIT REAL*8           ( A-H,O-Z)
-!.Input
-      DIMENSION VEC(*)
-!.Output
-      DIMENSION IDEG(*)
-!.Threshold for defining degenerency
-      THRES = 1.0D-8
-!?      write(6,*) ' Input vector to DEGVEC '
-!?      call wrtmat(VEC,1,NDIM,1,NDIM)
-      XDGVL = VEC(1)
-      NDEG = 1
-      NDGVL = 0
-      DO 100 I = 2, NDIM
-        IF(ABS(VEC(I)-XDGVL).LE.THRES) THEN
-          NDEG = NDEG + 1
-        ELSE
-          NDGVL = NDGVL + 1
-          IDEG(NDGVL) = NDEG
-          XDGVL = VEC(I)
-          NDEG = 1
-        END IF
-  100 CONTINUE
-!. Last group
-      NDGVL = NDGVL + 1
-      IDEG(NDGVL) = NDEG
-!
-      NTEST = 0
-      IF(NTEST .GT. 0 ) THEN
-        WRITE(6,*) ' Output from DEGVEC '
-        WRITE(6,*) ' ================== '
-        WRITE(6,*)
-        WRITE(6,*) ' Number of degenerate values ' ,NDGVL
-        WRITE(6,*) ' Degenerencies of each value '
-        CALL IWRTMA(IDEG,1,NDGVL,1,NDGVL)
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+dimension VEC(*)
+! Output
+dimension IDEG(*)
+
+! Threshold for defining degenerency
+THRES = 1.0D-8
+!? write(6,*) ' Input vector to DEGVEC'
+!? call wrtmat(VEC,1,NDIM,1,NDIM)
+XDGVL = VEC(1)
+NDEG = 1
+NDGVL = 0
+do I=2,NDIM
+  if (abs(VEC(I)-XDGVL) <= THRES) then
+    NDEG = NDEG+1
+  else
+    NDGVL = NDGVL+1
+    IDEG(NDGVL) = NDEG
+    XDGVL = VEC(I)
+    NDEG = 1
+  end if
+end do
+! Last group
+NDGVL = NDGVL+1
+IDEG(NDGVL) = NDEG
+
+NTEST = 0
+if (NTEST > 0) then
+  write(6,*) ' Output from DEGVEC'
+  write(6,*) ' =================='
+  write(6,*)
+  write(6,*) ' Number of degenerate values ',NDGVL
+  write(6,*) ' Degenerencies of each value'
+  call IWRTMA(IDEG,1,NDGVL,1,NDGVL)
+end if
+
+return
+
+end subroutine DEGVEC

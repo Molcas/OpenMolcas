@@ -14,38 +14,42 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      subroutine CalcbP(bP,CSFOK,LOK,R)
-      use ipPage, only: W
-      use MCLR_Data, only: nConf1, ipCI
-      use MCLR_Data, only: IRLXROOT
-      use input_mclr, only: nRoots
-      Implicit None
-!**** Output
-      Real*8,DIMENSION(nConf1*nRoots)::bP
-!**** Input
-      Real*8,DIMENSION(nRoots*nConf1)::CSFOK
-      Real*8,DIMENSION(nRoots**2)::LOK
-      Real*8,DIMENSION(nRoots**2)::R
-!**** Kind quantities that help
-      INTEGER I,L,K,iLoc1,iLoc2
-      Real*8 tempd
-      I=irlxroot
-      DO K=1,nRoots
-       iLoc1=(K-1)*nConf1+1
-       CALL DCopy_(nConf1,CSFOK(iLoc1),1,bP(iLoc1),1)
-       Do L=K,K
-        tempd=-LOK((K-1)*nRoots+L)
-        iLoc2=(L-1)*nConf1+1
-        CALL dAXpY_(nConf1,tempd,W(ipci)%Vec(iLoc2),1,bP(iLoc1),1)
-       End Do
 
-       Do L=1, nRoots
-        IF (L.eq.K) CyCle
-        tempd=-LOK((K-1)*nRoots+L)
-        iLoc2=(L-1)*nConf1+1
-        CALL dAXpY_(nConf1,tempd,W(ipci)%Vec(iLoc2),1,bP(iLoc1),1)
-       End Do
-       CALL DScal_(nConf1,2.0d0*R((I-1)*nRoots+K)**2,                   &
-     & bP(iLoc1),1)
-      END DO
-      End Subroutine CalcbP
+subroutine CalcbP(bP,CSFOK,LOK,R)
+
+use ipPage, only: W
+use MCLR_Data, only: nConf1, ipCI
+use MCLR_Data, only: IRLXROOT
+use input_mclr, only: nRoots
+
+implicit none
+! Output
+real*8, dimension(nConf1*nRoots) :: bP
+! Input
+real*8, dimension(nRoots*nConf1) :: CSFOK
+real*8, dimension(nRoots**2) :: LOK
+real*8, dimension(nRoots**2) :: R
+! Kind quantities that help
+integer I, L, K, iLoc1, iLoc2
+real*8 tempd
+
+I = irlxroot
+do K=1,nRoots
+  iLoc1 = (K-1)*nConf1+1
+  call DCopy_(nConf1,CSFOK(iLoc1),1,bP(iLoc1),1)
+  do L=K,K
+    tempd = -LOK((K-1)*nRoots+L)
+    iLoc2 = (L-1)*nConf1+1
+    call dAXpY_(nConf1,tempd,W(ipci)%Vec(iLoc2),1,bP(iLoc1),1)
+  end do
+
+  do L=1,nRoots
+    if (L == K) cycle
+    tempd = -LOK((K-1)*nRoots+L)
+    iLoc2 = (L-1)*nConf1+1
+    call dAXpY_(nConf1,tempd,W(ipci)%Vec(iLoc2),1,bP(iLoc1),1)
+  end do
+  call DScal_(nConf1,2.0d0*R((I-1)*nRoots+K)**2,bP(iLoc1),1)
+end do
+
+end subroutine CalcbP

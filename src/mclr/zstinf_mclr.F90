@@ -8,17 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ZSTINF_MCLR(IPRNT)
-      use Str_Info, only:NSTTYP,INUMAP,INDMAP,ISTAC,MNRS1,MXRS1,MNRS3,  &
-     &                   MXRS3,NELEC,NOCTYP,NSTFTP
-      use MCLR_Data, only: NORB1,NORB2,NORB3
-      use DetDim, only: MXPSTT
-      Implicit None
-      Integer IPRNT
 
-!     Local variables
-      Integer NTEST,ITYP,IDEL,IEX,NUMST3
-!
+subroutine ZSTINF_MCLR(IPRNT)
 ! Set up common block /STINF/ from information in /STINP/
 !
 !=========
@@ -26,12 +17,12 @@
 !=========
 ! Information in /STINP/ and /ORBINP/
 !
-!======================
-! Output ( in /STINF/ )
-!======================
+!====================
+! Output (in /STINF/)
+!====================
 ! ISTAC (MXPSTT,2) : string type obtained by creating (ISTAC(ITYP,2))
 !                    or annihilating (ISTAC(ITYP,1)) an electron
-!                    from a string of type  ITYP . A zero indicates
+!                    from a string of type  ITYP. A zero indicates
 !                    that this mapping is not included
 !                    Only strings having the same ISTTP index are
 !                    mapped
@@ -47,100 +38,99 @@
 !    !            Double excitations from reference space  !  Down
 ! Up !            single excitation from reference space   !
 !    !            reference space                         \ /
-!
-!
-      NTEST = 0000
-      NTEST = MAX(NTEST,IPRNT)
-! ******************************************************************
-! Mappings between strings with the same type ISTTP index , +/- 1 el
-! ******************************************************************
-      ISTAC(:,:)=0
-      DO 90 ITYP = 1, NSTTYP-1
-        IF(NELEC(ITYP+1).EQ.NELEC(ITYP)-1) THEN
-          ISTAC(ITYP,1) = ITYP+1
-          ISTAC(ITYP+1,2) = ITYP
-        END IF
-90    CONTINUE
-!
-      IF(NTEST .NE. 0 ) THEN
-        WRITE(6,*) ' Type - type mapping array ISTAC '
-        WRITE(6,*) ' =============================== '
-        CALL IWRTMA(ISTAC,NSTTYP,2,MXPSTT,2)
-      END IF
-! **************************************************
-!. Number of occupation classes and strings per type
-! **************************************************
-      DO 200 ITYP = 1,NSTTYP
-        NOCTYP(ITYP) = (MXRS1(ITYP)-MNRS1(ITYP)+1)                      &
-     &               * (MXRS3(ITYP)-MNRS3(ITYP)+1)
-200   CONTINUE
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' Number of occupation classes per type '
-        WRITE(6,*) ' ===================================== '
-        CALL IWRTMA(NOCTYP,1,NSTTYP,1,NSTTYP)
-      END IF
-!
-      DO 300 ITYP = 1, NSTTYP
-        NSTFTP(ITYP) = NUMST3(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),&
-     &                        NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP))
-300   CONTINUE
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' Number of strings per  type '
-        WRITE(6,*) ' =========================== '
-        CALL IWRTMA(NSTFTP,1,NSTTYP,1,NSTTYP)
-      END IF
+
+use Str_Info, only: NSTTYP, INUMAP, INDMAP, ISTAC, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, NSTFTP
+use MCLR_Data, only: NORB1, NORB2, NORB3
+use DetDim, only: MXPSTT
+
+implicit none
+integer IPRNT
+! Local variables
+integer NTEST, ITYP, NUMST3
+
+NTEST = 0000
+NTEST = max(NTEST,IPRNT)
 ! *****************************************************************
-!. Mappings between strings containing the same number of electrons
+! Mappings between strings with the same type ISTTP index, +/- 1 el
 ! *****************************************************************
-      INUMAP(:)=0
-      INDMAP(:)=0
-!. Mapping to and from zero order space
-!     Note: some lines are commented out here since IARTP and IBRTP
-!           have never been defined. (R. Lindh 2006)
-!     INUMAP(IARTP(3,5)) = IAZTP
-!     IF(IARTP(3,4).NE.0)  INUMAP(IARTP(3,4)) = IAZTP+1
-!     IF(IARTP(3,3).NE.0)  INUMAP(IARTP(3,3)) = IAZTP+2
-!
-!     INUMAP(IBRTP(3,5)) = IBZTP
-!     IF(IBRTP(3,4).NE.0)  INUMAP(IBRTP(3,4)) = IBZTP+1
-!     IF(IBRTP(3,3).NE.0)  INUMAP(IBRTP(3,3)) = IBZTP+2
-!
-!     NAEL = NELEC(IAZTP)
-!     INDMAP(IAZTP) = IARTP(3,5)
-!     IF(NAEL.GE.1) INDMAP(IAZTP+1) = IARTP(3,4)
-!     IF(NAEL.GE.2) INDMAP(IAZTP+2) = IARTP(3,3)
-!
-!     NBEL = NELEC(IBZTP)
-!     INDMAP(IBZTP) = IBRTP(3,5)
-!     IF(NBEL.GE.1) INDMAP(IBZTP+1) = IBRTP(3,4)
-!     IF(NBEL.GE.2) INDMAP(IBZTP+2) = IBRTP(3,3)
-!.Number of electrons compared to reference
-      DO 450 IDEL = -4,2
-      DO 430 IEX = 1,2
-! Up mappings
-!       IF(IARTP(IEX,IDEL+5).NE.0) THEN
-!         INUMAP(IARTP(IEX,IDEL+5)) = IARTP(IEX+1,IDEL+5)
-!       END IF
-!       IF(IBRTP(IEX,IDEL+5).NE.0) THEN
-!         INUMAP(IBRTP(IEX,IDEL+5)) = IBRTP(IEX+1,IDEL+5)
-!       END IF
-! Down mappings
-!       IF(IARTP(IEX+1,IDEL+5).NE.0) THEN
-!         INDMAP(IARTP(IEX+1,IDEL+5)) = IARTP(IEX,IDEL+5)
-!       END IF
-!       IF(IBRTP(IEX+1,IDEL+5).NE.0) THEN
-!         INDMAP(IBRTP(IEX+1,IDEL+5)) = IBRTP(IEX,IDEL+5)
-!       END IF
-430   CONTINUE
-450   CONTINUE
-!
-      IF(NTEST .NE. 0 ) THEN
-        WRITE(6,*) ' Up mappings of string types '
-        CALL IWRTMA(INUMAP,1,NSTTYP,1,NSTTYP)
-        WRITE(6,*) ' Down mappings of string types '
-        CALL IWRTMA(INDMAP,1,NSTTYP,1,NSTTYP)
-      END IF
-!
-!
-      RETURN
-      END
+ISTAC(:,:) = 0
+do ITYP=1,NSTTYP-1
+  if (NELEC(ITYP+1) == NELEC(ITYP)-1) then
+    ISTAC(ITYP,1) = ITYP+1
+    ISTAC(ITYP+1,2) = ITYP
+  end if
+end do
+
+if (NTEST /= 0) then
+  write(6,*) ' Type - type mapping array ISTAC'
+  write(6,*) ' ==============================='
+  call IWRTMA(ISTAC,NSTTYP,2,MXPSTT,2)
+end if
+! *************************************************
+! Number of occupation classes and strings per type
+! *************************************************
+do ITYP=1,NSTTYP
+  NOCTYP(ITYP) = (MXRS1(ITYP)-MNRS1(ITYP)+1)*(MXRS3(ITYP)-MNRS3(ITYP)+1)
+end do
+if (NTEST /= 0) then
+  write(6,*) ' Number of occupation classes per type'
+  write(6,*) ' ====================================='
+  call IWRTMA(NOCTYP,1,NSTTYP,1,NSTTYP)
+end if
+
+do ITYP=1,NSTTYP
+  NSTFTP(ITYP) = NUMST3(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP))
+end do
+if (NTEST /= 0) then
+  write(6,*) ' Number of strings per  type'
+  write(6,*) ' ==========================='
+  call IWRTMA(NSTFTP,1,NSTTYP,1,NSTTYP)
+end if
+! ****************************************************************
+! Mappings between strings containing the same number of electrons
+! ****************************************************************
+INUMAP(:) = 0
+INDMAP(:) = 0
+! Mapping to and from zero order space
+! Note: some lines are commented out here since IARTP and IBRTP
+!       have never been defined. (R. Lindh 2006)
+!INUMAP(IARTP(3,5)) = IAZTP
+!if (IARTP(3,4) /= 0) INUMAP(IARTP(3,4)) = IAZTP+1
+!if (IARTP(3,3) /= 0) INUMAP(IARTP(3,3)) = IAZTP+2
+
+!INUMAP(IBRTP(3,5)) = IBZTP
+!if (IBRTP(3,4) /= 0) INUMAP(IBRTP(3,4)) = IBZTP+1
+!if (IBRTP(3,3) /= 0) INUMAP(IBRTP(3,3)) = IBZTP+2
+
+!NAEL = NELEC(IAZTP)
+!INDMAP(IAZTP) = IARTP(3,5)
+!if (NAEL >= 1) INDMAP(IAZTP+1) = IARTP(3,4)
+!if (NAEL >= 2) INDMAP(IAZTP+2) = IARTP(3,3)
+
+!NBEL = NELEC(IBZTP)
+!INDMAP(IBZTP) = IBRTP(3,5)
+!if (NBEL >= 1) INDMAP(IBZTP+1) = IBRTP(3,4)
+!if (NBEL >= 2) INDMAP(IBZTP+2) = IBRTP(3,3)
+
+! Number of electrons compared to reference
+!do IDEL=-4,2
+!  do IEX=1,2
+!    ! Up mappings
+!    if (IARTP(IEX,IDEL+5) /= 0) INUMAP(IARTP(IEX,IDEL+5)) = IARTP(IEX+1,IDEL+5)
+!    if (IBRTP(IEX,IDEL+5) /= 0) INUMAP(IBRTP(IEX,IDEL+5)) = IBRTP(IEX+1,IDEL+5)
+!    ! Down mappings
+!    if (IARTP(IEX+1,IDEL+5) /= 0) INDMAP(IARTP(IEX+1,IDEL+5)) = IARTP(IEX,IDEL+5)
+!    if (IBRTP(IEX+1,IDEL+5) /= 0) INDMAP(IBRTP(IEX+1,IDEL+5)) = IBRTP(IEX,IDEL+5)
+!  end do
+!end do
+
+if (NTEST /= 0) then
+  write(6,*) ' Up mappings of string types'
+  call IWRTMA(INUMAP,1,NSTTYP,1,NSTTYP)
+  write(6,*) ' Down mappings of string types'
+  call IWRTMA(INDMAP,1,NSTTYP,1,NSTTYP)
+end if
+
+return
+
+end subroutine ZSTINF_MCLR

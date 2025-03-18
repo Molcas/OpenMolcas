@@ -10,17 +10,18 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-       Integer Function ipin(ii)
-!
-!      Object: return pointer to vector ii with a length of n(ii) and
-!              make the vector available in memory as W(ii)%Vec
-!
-!
-       use ipPage
-       Implicit Integer (a-h,o-z)
-!
-       nn=n(ii)
-       ipin = ipin1(ii,nn)
-!
-       Return
-       End
+
+integer function ipin(ii)
+! Object: return pointer to vector ii with a length of n(ii) and
+!         make the vector available in memory as W(ii)%Vec
+
+use ipPage
+
+implicit integer(a-h,o-z)
+
+nn = n(ii)
+ipin = ipin1(ii,nn)
+
+return
+
+end function ipin

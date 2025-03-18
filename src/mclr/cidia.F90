@@ -10,120 +10,116 @@
 !                                                                      *
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine CIDIA(iSym,ralp)
-      use Exp, only: nexp, nexp_max
-      use Str_Info, only: CNSM
-      use ipPage, only: W
-      use negpre, only: nGP
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use MCLR_Data, only: ipCI
-      use MCLR_Data, only: ipDia
-      use MCLR_Data, only: XISPSM
-      use MCLR_Data, only: NOCSF, ICISTR
-      use MCLR_Data, only: NCNATS,NCPCNT,NCSASM,NDPCNT,NTYP
-      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,      &
-     &                      TimeDep
-      Implicit None
-      Integer iSym
-      Real*8 ralp
 
-      Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
-      Real*8, Allocatable:: Q(:)
-      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI,   &
-     &        nP2, nP1, nQ, iC, iPrnt
-      Real*8 ECAS
-      Real*8, External:: DDot_
-      Integer, External:: ipClose, ipGet, ipIn, ipnOut
-!
-!     This is just a interface to hide Jeppe from the rest of the world
-!     we dont want to let world see the work of the danish
-!     (I hope he never reads that)
-!     Anyway concerning the CSF/SD stuff.
-!     If we work with spin dependent perturbations
-!     we never use CSF's (to complicated), instead we use
-!     SD in all parts of the program,
-!     otherwise we will switch to SD representation in this routine
-!
-      NSPC=1
-      ISPC(1)=1
-      iSM(1)=iSym
-      IAMCMP=0
-      ICISTR=1
-      i=2
-      If (isym.eq.state_sym) i=1
+subroutine CIDIA(iSym,ralp)
 
-      If (NOCSF.eq.0) Then
-         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-         ipdcsfi=ipget(nsd)
-         irc=ipin(ipdcsfi)
-         ipDSDi=ipGet(nSD)
-      Else
-         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-         ipDSDi=ipGet(nsd)
-         irc=ipin(ipdsdi)
-      End If
+use Exp, only: nexp, nexp_max
+use Str_Info, only: CNSM
+use ipPage, only: W
+use negpre, only: nGP
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: ipCI
+use MCLR_Data, only: ipDia
+use MCLR_Data, only: XISPSM
+use MCLR_Data, only: NOCSF, ICISTR
+use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NTYP
+use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, TimeDep
 
-      If (NOCSF.eq.0) Then
-         nD=NCSASM(ISYM)
-         ipdiai=ipdcsfi
-      Else
-         nD=idint(XISPSM(ISYM,ISPC(1)))
-         ipdiai=ipdsdi
-      End If
+implicit none
+integer iSym
+real*8 ralp
+integer iSM(1), LSPC(1), iSPC(1), IDUM(1)
+real*8, allocatable :: Q(:)
+integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI, nP2, nP1, nQ, iC, iPrnt
+real*8 ECAS
+real*8, external :: DDot_
+integer, external :: ipClose, ipGet, ipIn, ipnOut
 
-      LSPC(1)=nSD
-      irc=ipin(ipDSDi)
-      Call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,                     &
-     &           IAMCMP,rin_ene+potnuc)
-      If (NOCSF.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,         &
-     &                            NCNATS(1,ISYM),NTYP,                  &
-     &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,         &
-     &                            0,IDUM,IPRNT)
+! This is just a interface to hide Jeppe from the rest of the world
+! we dont want to let world see the work of the Danish
+! (I hope he never reads that)
+! Anyway concerning the CSF/SD stuff.
+! If we work with spin dependent perturbations
+! we never use CSF's (to complicated), instead we use
+! SD in all parts of the program,
+! otherwise we will switch to SD representation in this routine
 
-      If (NOCSF.eq.0) irc=ipclose(ipDSDi)
-!
-!     Calculate explicit part of hamiltonian
-!
-      np2=Min(nd,nexp_max)
-      np1=0
-      nq=0
-      If (np2.ne.0) Then
-         irc=ipnout(ipdiai)
-         irc=ipin(ipdiai)
-         call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
-      Else
-         nexp=0
-      End if
+NSPC = 1
+ISPC(1) = 1
+iSM(1) = iSym
+IAMCMP = 0
+ICISTR = 1
+i = 2
+if (isym == state_sym) i = 1
 
+if (NOCSF == 0) then
+  nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
+  ipdcsfi = ipget(nsd)
+  irc = ipin(ipdcsfi)
+  ipDSDi = ipGet(nSD)
+else
+  nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
+  ipDSDi = ipGet(nsd)
+  irc = ipin(ipdsdi)
+end if
 
-      ECAS=ERASSCF(1)
-      irc=ipin(ipdiai)
-      Do iC=1,nD
-         If ((W(ipdiai)%Vec(ic)-ECAS).ne.0.0d0) Then
-            W(ipdiai)%Vec(iC)=1.0d0/(W(ipdiai)%Vec(iC)-ECAS)
-         Else
-            W(ipdiai)%Vec(iC)=1.0d5
-         End If
-      End do
-!                 -1
-!     ralp=<0|(H-E) |0>
-!
-      Call mma_allocate(Q,nD,Label='Q')
-      Q(:)=0.0D0
+if (NOCSF == 0) then
+  nD = NCSASM(ISYM)
+  ipdiai = ipdcsfi
+else
+  nD = idint(XISPSM(ISYM,ISPC(1)))
+  ipdiai = ipdsdi
+end if
 
-      irc=ipin(ipCI)
-      Call ExpHinvv(W(ipdiai)%Vec,W(ipCI)%Vec,Q,0.0d0,1.0d0)
+LSPC(1) = nSD
+irc = ipin(ipDSDi)
+call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
+if (NOCSF /= 1) call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM,IPRNT)
 
-      ralp=DDOT_(nD,W(ipCI)%Vec,1,Q,1)
-      IF (NGP) Then
-         Call MKP1INV(W(ipdiai)%Vec)
-         Call MKCIPRE()
-      End If
-      irc=ipnout(ipdiai)
-      Call mma_deallocate(Q)
+if (NOCSF == 0) irc = ipclose(ipDSDi)
 
-      ipdia=ipdiai
+! Calculate explicit part of hamiltonian
+
+np2 = min(nd,nexp_max)
+np1 = 0
+nq = 0
+if (np2 /= 0) then
+  irc = ipnout(ipdiai)
+  irc = ipin(ipdiai)
+  call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
+else
+  nexp = 0
+end if
+
+ECAS = ERASSCF(1)
+irc = ipin(ipdiai)
+do iC=1,nD
+  if ((W(ipdiai)%Vec(ic)-ECAS) /= 0.0d0) then
+    W(ipdiai)%Vec(iC) = 1.0d0/(W(ipdiai)%Vec(iC)-ECAS)
+  else
+    W(ipdiai)%Vec(iC) = 1.0d5
+  end if
+end do
+!             -1
+! ralp=<0|(H-E) |0>
+
+call mma_allocate(Q,nD,Label='Q')
+Q(:) = 0.0d0
+
+irc = ipin(ipCI)
+call ExpHinvv(W(ipdiai)%Vec,W(ipCI)%Vec,Q,0.0d0,1.0d0)
+
+ralp = DDOT_(nD,W(ipCI)%Vec,1,Q,1)
+if (NGP) then
+  call MKP1INV(W(ipdiai)%Vec)
+  call MKCIPRE()
+end if
+irc = ipnout(ipdiai)
+call mma_deallocate(Q)
+
+ipdia = ipdiai
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      END SubRoutine CIDIA
+
+end subroutine CIDIA

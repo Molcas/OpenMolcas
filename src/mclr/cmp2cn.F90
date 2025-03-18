@@ -8,33 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CMP2CN(ICNL,NCLL,NOPL,ICNR,NCLR,NOPR,ISCR,NORB,NDIFF,  &
-     &                  NTEST)
-!
+
+subroutine CMP2CN(ICNL,NCLL,NOPL,ICNR,NCLR,NOPR,ISCR,NORB,NDIFF,NTEST)
 ! Number of differences in occupation of two configurations
-!
-      DIMENSION ICNL(*),ICNR(*)
-      DIMENSION ISCR(*)
-! Length of Scratch : Number of orbitals
-!
-      ISCR(1:NORB) = 0
-      DO 10 ICL = 1, NCLL
-        ISCR(ICNL(ICL) ) = 2
-   10 CONTINUE
-      DO 20 IOP = 1, NOPL
-        ISCR(ICNL(NCLL+IOP)) = 1
-   20 CONTINUE
-!
-      NDIFF = 0
-      DO 30 ICL = 1, NCLR
-        NDIFF = NDIFF +  2 - ISCR(ICNR(ICL))
-   30 CONTINUE
-      DO 40 IOP = 1, NOPR
-        IF(ISCR(ICNR(NCLR+IOP)).EQ.0) NDIFF = NDIFF + 1
-   40 CONTINUE
-!
-!
-      RETURN
+
+dimension ICNL(*), ICNR(*)
+dimension ISCR(*)
+
+! Length of Scratch: Number of orbitals
+
+ISCR(1:NORB) = 0
+do ICL=1,NCLL
+  ISCR(ICNL(ICL)) = 2
+end do
+do IOP=1,NOPL
+  ISCR(ICNL(NCLL+IOP)) = 1
+end do
+
+NDIFF = 0
+do ICL=1,NCLR
+  NDIFF = NDIFF+2-ISCR(ICNR(ICL))
+end do
+do IOP=1,NOPR
+  if (ISCR(ICNR(NCLR+IOP)) == 0) NDIFF = NDIFF+1
+end do
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(NTEST)
-      END
+if (.false.) call Unused_integer(NTEST)
+
+end subroutine CMP2CN

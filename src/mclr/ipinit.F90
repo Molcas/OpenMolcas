@@ -10,14 +10,15 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-       Subroutine ipinit()
-       use ipPage
-!
-!      Initialization
-!
-       use ipPage
-!
-       DiskBased=.False.
-!
-       Return
-       End
+
+subroutine ipinit()
+
+use ipPage
+
+! Initialization
+
+DiskBased = .false.
+
+return
+
+end subroutine ipinit

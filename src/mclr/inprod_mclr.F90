@@ -8,14 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 FUNCTION INPROD_MCLR(A,B,NDIM)
-!      CALCULATE SCALAR PRODUCT BETWEEN TO VECTORS A,B
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*),B(*)
-      INPROD_MCLR=0.0D0
-      DO 100 I=1,NDIM
-       INPROD_MCLR=INPROD_MCLR+A(I)*B(I)
-  100 CONTINUE
-!
-      RETURN
-      END
+
+real*8 function INPROD_MCLR(A,B,NDIM)
+! CALCULATE SCALAR PRODUCT BETWEEN TO VECTORS A,B
+
+implicit real*8(A-H,O-Z)
+dimension A(*), B(*)
+
+INPROD_MCLR = 0.0d0
+do I=1,NDIM
+  INPROD_MCLR = INPROD_MCLR+A(I)*B(I)
+end do
+
+return
+
+end function INPROD_MCLR

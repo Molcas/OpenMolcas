@@ -10,186 +10,171 @@
 !                                                                      *
 ! Copyright (C) 1989,1993, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,             &
-     &                 NAEL,NBEL,INTSPC,                                &
-     &                 NINOC,ECORE,IPRODT,DTOC,                         &
-     &                 NORB,ICOMBI,PSSIGN,NTERMS,NDIF0,NDIF1,NDIF2,     &
-     &                 NTEST)
-!
+
+subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,NINOC,ECORE,IPRODT,DTOC,NORB,ICOMBI,PSSIGN,NTERMS,NDIF0, &
+                  NDIF1,NDIF2,NTEST)
 ! Obtain Hamilton matrix over CSFs of configurations ICNL,ICNR
 !
 ! Jeppe Olsen, Summer of 89
 !
-!. Modified for LUCIA, September 1993
-!
-      Implicit None
-      Integer ITPL,ITPR,NEL,NAEL,NBEL,INTSPC,NINOC
-      REAL*8 ECORE
-      INTEGER NORB,ICOMBI
-      REAL*8 PSSIGN
-      INTEGER NTERMS,NDIF0,NDIF1,NDIF2,NTEST
-!. Specific input
-      Integer ICNL(*),ICNR(*)
-!. General input
-      Integer IPRODT(*)
-      REAL*8 DTOC(*)
-!. Scratch
-      REAL*8 SCR(*)
-!. Output
-      Real*8 CNHCNM(*)
-!. Interface to LUCIA common blocks in order to access strings
-      INTEGER IDUMMY(1)
-!
-      CALL CNHCN2_INTERNAL(SCR)
-      RETURN
+! Modified for LUCIA, September 1993
+
+implicit none
+integer ITPL, ITPR, NEL, NAEL, NBEL, INTSPC, NINOC
+real*8 ECORE
+integer NORB, ICOMBI
+real*8 PSSIGN
+integer NTERMS, NDIF0, NDIF1, NDIF2, NTEST
+! Specific input
+integer ICNL(*), ICNR(*)
+! General input
+integer IPRODT(*)
+real*8 DTOC(*)
+! Scratch
+real*8 SCR(*)
+! Output
+real*8 CNHCNM(*)
+! Interface to LUCIA common blocks in order to access strings
+integer IDUMMY(1)
+
+call CNHCN2_INTERNAL(SCR)
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(NINOC)
-        CALL Unused_real(ECORE)
-        CALL Unused_integer(NTERMS)
-      END IF
-!
-!     This is to allow type punning without an explicit interface
-      CONTAINS
-      SUBROUTINE CNHCN2_INTERNAL(SCR)
-      USE ISO_C_BINDING
-      use MCLR_Data, only: IASTFI,IBSTFI
-      use Str_Info, only: Str
-      use MCLR_Data, only: MINOP,NCPCNT,NDPCNT
-      Implicit None
-      INTEGER IAGRP,IBGRP,IOPL,IOPR,ICLL,ICLR,NDETL,NDETR,NCSFL,        &
-     &        NCSFR,KLFREE,KLDTLA,KLDTLB,KLISL,KLDTRA,KLDTRB,KLISR,     &
-     &        KLDHD,KLCHD,KLROU,LDIHDJ,LCNFST,NDIFF,ISYM,IPL,JTYP,      &
-     &        JCSF,JDET,IPR,LWORK
-      REAL*8 ECOREP
-      REAL*8, TARGET :: SCR(*)
-      INTEGER, POINTER :: iSCR(:),iSCRa(:),iSCRb(:),iSCRar(:),iSCRbr(:),&
-     &                    iSCRn(:),iSCRnn(:)
-!
-! Length of SCR : 6 * NDET + NDET**2 + NDET*NCSF +
-!                 MAX((NDET*NEL + 2*NEL),4*NORB + 2*NEL)
-! where the last line arises from the local memory in CNFSTR and DIHDJ,
-! respectively
-!
-      IAGRP = IASTFI(INTSPC)
-      IBGRP = IBSTFI(INTSPC)
-!
-!* 1 : Obtain determinants corresponding to configurations
-!
-      IOPL = ITPL - 1 + MINOP
-      IOPR = ITPR - 1 + MINOP
-!
-      ICLL = (NEL-IOPL)/2
-      ICLR = (NEL-IOPR)/2
-!
-      NDETL = NDPCNT(ITPL)
-      NDETR = NDPCNT(ITPR)
-!
-      NCSFL = NCPCNT(ITPL)
-      NCSFR = NCPCNT(ITPR)
-!
-!
-      KLFREE = 1
-! :  6* Ndet for holding string numbers and signs
-      KLDTLA = KLFREE
-      KLFREE = KLFREE + NDETL
-!
-      KLDTLB = KLFREE
-      KLFREE = KLFREE + NDETL
-!
-      KLISL  = KLFREE
-      KLFREE = KLFREE + NDETL
-!
-      KLDTRA = KLFREE
-      KLFREE = KLFREE + NDETR
-!
-      KLDTRB = KLFREE
-      KLFREE = KLFREE + NDETR
-!
-      KLISR  = KLFREE
-      KLFREE = KLFREE + NDETR
-!. : for transforming to CSFs
-      KLDHD = KLFREE
-      KLFREE = KLFREE + NDETL*NDETR
-!
-      KLCHD = KLFREE
-      KLFREE = KLFREE + NCSFL*NDETR
-!. : Scratch space for routines called ( DIHDJ, CNFSTR )
-      KLROU = KLFREE
-      LDIHDJ = 4 * NORB + 2*NEL
-      LCNFST = MAX(NDETL,NDETR)*NEL + 2 * NEL
-      KLFREE = KLROU + MAX(LDIHDJ,LCNFST)
-!
-!. Prescreen for CNFs that do not interact
-!
-      CALL C_F_POINTER(C_LOC(SCR(1)),iSCR,[1])
-      CALL CMP2CN(ICNL,ICLL,IOPL,ICNR,ICLR,IOPR,iSCR,NORB,NDIFF,        &
-     &            NTEST)
-      NULLIFY(iSCR)
-!
-      IF(NDIFF .LE. 2 ) THEN
-!. Strings for determinants of these configurations
-        CALL C_F_POINTER(C_LOC(SCR(KLROU)),iSCR,[1])
-        CALL C_F_POINTER(C_LOC(SCR(KLDTLA)),iSCRa,[1])
-        CALL C_F_POINTER(C_LOC(SCR(KLDTLB)),iSCRb,[1])
-        CALL CNFSTR_MCLR(ICNL,ITPL,iSCRa,iSCRb,                         &
-     &              NORB,NAEL,NBEL,NDETL,IPRODT,IAGRP,IBGRP,            &
-     &              iSCR,SCR(KLISL),NTEST)
-        CALL C_F_POINTER(C_LOC(SCR(KLDTRA)),iSCRar,[1])
-        CALL C_F_POINTER(C_LOC(SCR(KLDTRB)),iSCRbr,[1])
-        CALL CNFSTR_MCLR(ICNR,ITPR,iSCRar,iSCRbr,                       &
-     &              NORB,NAEL,NBEL,NDETR,IPRODT,IAGRP,IBGRP,            &
-     &              iSCR,SCR(KLISR),NTEST)
-!
-!* Hamiltonian matrix over determinants of the configurations
-!
-        isym=0       ! eaw
-        ecorep=0.0d0 ! eaw
-        CALL C_F_POINTER(C_LOC(SCR(KLROU+NEL)),iSCRn,[1])
-        CALL C_F_POINTER(C_LOC(SCR(KLROU+2*NEL)),iSCRnn,[1])
-        CALL DIHDJ2_MCLR(iSCRa,iSCRb,NDETL,                             &
-     &              iSCRar,iSCRbr,NDETR,                                &
-     &              NAEL,NBEL,iSCRnn,LWORK,NORB,                        &
-     &              SCR(KLDHD),ISYM,0,ECOREP,ICOMBI,PSSIGN,             &
-     &              Str(IAGRP)%OCSTR, Str(IBGRP)%OCSTR,                 &
-     &              Str(IAGRP)%OCSTR, Str(IBGRP)%OCSTR,                 &
-     &              0,IDUMMY,IDUMMY,IDUMMY,IDUMMY,iSCR,                 &
-     &              iSCRn,NDIF0,NDIF1,NDIF2,NTEST)
-        NULLIFY(iSCR,iSCRa,iSCRb,iSCRar,iSCRbr,iSCRn,iSCRnn)
-!
-!* Transform matrix to CSF basis
-!
-!* : sign changes
-        CALL DGMM2 (SCR(KLDHD),SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
-        CALL DGMM2 (SCR(KLDHD),SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
-        IPL = 1
-        DO 200 JTYP = 1, ITPL - 1
-          JCSF = NCPCNT(JTYP)
-          JDET = NDPCNT(JTYP)
-          IPL = IPL + JCSF*JDET
-  200   CONTINUE
-        IF(ITPR.EQ. ITPL) THEN
-          IPR = IPL
-        ELSE
-          IPR = 1
-          DO 300 JTYP = 1, ITPR - 1
-          JCSF = NCPCNT(JTYP)
-          JDET = NDPCNT(JTYP)
-          IPR = IPR + JCSF*JDET
-  300     CONTINUE
-        END IF
-!
-        CALL MATML4(SCR(KLCHD),DTOC(IPL),SCR(KLDHD),                    &
-     &              NCSFL,NDETR,NDETL,NCSFL,NDETL,NDETR,1)
-        CALL MATML4(CNHCNM,SCR(KLCHD),DTOC(IPR),                        &
-     &              NCSFL,NCSFR,NCSFL,NDETR,NDETR,NCSFR,0)
-!
-      ELSE IF(NDIFF.GT. 2) THEN
-        CNHCNM(1:NCSFL*NCSFR) = 0.0D0
-      END IF
-!
-!
-      RETURN
-      END SUBROUTINE CNHCN2_INTERNAL
-!
-      END SUBROUTINE CNHCN2
+if (.false.) then
+  call Unused_integer(NINOC)
+  call Unused_real(ECORE)
+  call Unused_integer(NTERMS)
+end if
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine CNHCN2_INTERNAL(SCR)
+
+  use iso_c_binding
+  use MCLR_Data, only: IASTFI, IBSTFI
+  use Str_Info, only: Str
+  use MCLR_Data, only: MINOP, NCPCNT, NDPCNT
+
+  implicit none
+  integer IAGRP, IBGRP, IOPL, IOPR, ICLL, ICLR, NDETL, NDETR, NCSFL, NCSFR, KLFREE, KLDTLA, KLDTLB, KLISL, KLDTRA, KLDTRB, KLISR, &
+          KLDHD, KLCHD, KLROU, LDIHDJ, LCNFST, NDIFF, ISYM, IPL, JTYP, JCSF, JDET, IPR, LWORK
+  real*8 ECOREP
+  real*8, target :: SCR(*)
+  integer, pointer :: iSCR(:), iSCRa(:), iSCRb(:), iSCRar(:), iSCRbr(:), iSCRn(:), iSCRnn(:)
+
+  ! Length of SCR : 6 * NDET + NDET**2 + NDET*NCSF +
+  !                 MAX((NDET*NEL + 2*NEL),4*NORB + 2*NEL)
+  ! where the last line arises from the local memory in CNFSTR and DIHDJ,
+  ! respectively
+
+  IAGRP = IASTFI(INTSPC)
+  IBGRP = IBSTFI(INTSPC)
+
+  ! 1: Obtain determinants corresponding to configurations
+
+  IOPL = ITPL-1+MINOP
+  IOPR = ITPR-1+MINOP
+
+  ICLL = (NEL-IOPL)/2
+  ICLR = (NEL-IOPR)/2
+
+  NDETL = NDPCNT(ITPL)
+  NDETR = NDPCNT(ITPR)
+
+  NCSFL = NCPCNT(ITPL)
+  NCSFR = NCPCNT(ITPR)
+
+  KLFREE = 1
+  ! 6* Ndet for holding string numbers and signs
+  KLDTLA = KLFREE
+  KLFREE = KLFREE+NDETL
+
+  KLDTLB = KLFREE
+  KLFREE = KLFREE+NDETL
+
+  KLISL = KLFREE
+  KLFREE = KLFREE+NDETL
+
+  KLDTRA = KLFREE
+  KLFREE = KLFREE+NDETR
+
+  KLDTRB = KLFREE
+  KLFREE = KLFREE+NDETR
+
+  KLISR = KLFREE
+  KLFREE = KLFREE+NDETR
+  ! for transforming to CSFs
+  KLDHD = KLFREE
+  KLFREE = KLFREE+NDETL*NDETR
+
+  KLCHD = KLFREE
+  KLFREE = KLFREE+NCSFL*NDETR
+  ! Scratch space for routines called (DIHDJ, CNFSTR)
+  KLROU = KLFREE
+  LDIHDJ = 4*NORB+2*NEL
+  LCNFST = max(NDETL,NDETR)*NEL+2*NEL
+  KLFREE = KLROU+max(LDIHDJ,LCNFST)
+
+  ! Prescreen for CNFs that do not interact
+
+  call c_f_pointer(c_loc(SCR(1)),iSCR,[1])
+  call CMP2CN(ICNL,ICLL,IOPL,ICNR,ICLR,IOPR,iSCR,NORB,NDIFF,NTEST)
+  nullify(iSCR)
+
+  if (NDIFF <= 2) then
+    ! Strings for determinants of these configurations
+    call c_f_pointer(c_loc(SCR(KLROU)),iSCR,[1])
+    call c_f_pointer(c_loc(SCR(KLDTLA)),iSCRa,[1])
+    call c_f_pointer(c_loc(SCR(KLDTLB)),iSCRb,[1])
+    call CNFSTR_MCLR(ICNL,ITPL,iSCRa,iSCRb,NORB,NAEL,NBEL,NDETL,IPRODT,IAGRP,IBGRP,iSCR,SCR(KLISL),NTEST)
+    call c_f_pointer(c_loc(SCR(KLDTRA)),iSCRar,[1])
+    call c_f_pointer(c_loc(SCR(KLDTRB)),iSCRbr,[1])
+    call CNFSTR_MCLR(ICNR,ITPR,iSCRar,iSCRbr,NORB,NAEL,NBEL,NDETR,IPRODT,IAGRP,IBGRP,iSCR,SCR(KLISR),NTEST)
+
+    ! Hamiltonian matrix over determinants of the configurations
+
+    isym = 0       ! eaw
+    ecorep = 0.0d0 ! eaw
+    call c_f_pointer(c_loc(SCR(KLROU+NEL)),iSCRn,[1])
+    call c_f_pointer(c_loc(SCR(KLROU+2*NEL)),iSCRnn,[1])
+    call DIHDJ2_MCLR(iSCRa,iSCRb,NDETL,iSCRar,iSCRbr,NDETR,NAEL,NBEL,iSCRnn,LWORK,NORB,SCR(KLDHD),ISYM,0,ECOREP,ICOMBI,PSSIGN, &
+                     Str(IAGRP)%OCSTR,Str(IBGRP)%OCSTR,Str(IAGRP)%OCSTR,Str(IBGRP)%OCSTR,0,IDUMMY,IDUMMY,IDUMMY,IDUMMY,iSCR,iSCRn, &
+                     NDIF0,NDIF1,NDIF2,NTEST)
+    nullify(iSCR,iSCRa,iSCRb,iSCRar,iSCRbr,iSCRn,iSCRnn)
+
+    ! Transform matrix to CSF basis
+
+    ! sign changes
+    call DGMM2(SCR(KLDHD),SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
+    call DGMM2(SCR(KLDHD),SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
+    IPL = 1
+    do JTYP=1,ITPL-1
+      JCSF = NCPCNT(JTYP)
+      JDET = NDPCNT(JTYP)
+      IPL = IPL+JCSF*JDET
+    end do
+    if (ITPR == ITPL) then
+      IPR = IPL
+    else
+      IPR = 1
+      do JTYP=1,ITPR-1
+        JCSF = NCPCNT(JTYP)
+        JDET = NDPCNT(JTYP)
+        IPR = IPR+JCSF*JDET
+      end do
+    end if
+
+    call MATML4(SCR(KLCHD),DTOC(IPL),SCR(KLDHD),NCSFL,NDETR,NDETL,NCSFL,NDETL,NDETR,1)
+    call MATML4(CNHCNM,SCR(KLCHD),DTOC(IPR),NCSFL,NCSFR,NCSFL,NDETR,NDETR,NCSFR,0)
+
+  else if (NDIFF > 2) then
+    CNHCNM(1:NCSFL*NCSFR) = 0.0d0
+  end if
+
+  return
+
+end subroutine CNHCN2_INTERNAL
+
+end subroutine CNHCN2

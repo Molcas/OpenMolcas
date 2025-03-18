@@ -8,26 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      FUNCTION NSTAGTS(IGRP,ITP,ISM)
-      Use Str_Info, only: NOCTYP, STR
-!
+
+function NSTAGTS(IGRP,ITP,ISM)
 ! Number of strings of group IGRP
 !                      type  ITP
 !                      sym   ISM
-!
-      IMPLICIT None
-      INTEGER IGRP,ITP,ISM
 
-      Integer IADDRESS, NSTAGTS, NTEST
+use Str_Info, only: NOCTYP, STR
+
+implicit none
+integer IGRP, ITP, ISM
+integer IADDRESS, NSTAGTS, NTEST
+
 ! element (ITP,ISM) corresponds to address
-      IADDRESS = (ISM-1)*NOCTYP(IGRP)+ ITP
-!
-      NSTAGTS = Str(IGRP)%NSTSO(IADDRESS)
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' Number of strings of group,type,sym',              &
-     &  IGRP,ITP,ISM,' is ', NSTAGTS
-      END IF
-!
-      END FUNCTION NSTAGTS
+IADDRESS = (ISM-1)*NOCTYP(IGRP)+ITP
+
+NSTAGTS = Str(IGRP)%NSTSO(IADDRESS)
+
+NTEST = 0
+if (NTEST /= 0) write(6,*) ' Number of strings of group,type,sym',IGRP,ITP,ISM,' is ',NSTAGTS
+
+end function NSTAGTS

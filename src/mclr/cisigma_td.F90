@@ -8,222 +8,211 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s, &
-     &                      Int2a,nInt2a,ipCI1,ipCI2,NT, Have_2_el )
-      use ipPage, only: W
-      use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
-      use MCLR_Data, only: i12, ist, Square
-      use MCLR_Data, only: iRefSM
-      use MCLR_Data, only: XISPSM
-      use CandS, only: ICSM,ISSM
-      use input_mclr, only: State_Sym,nSym,Page,nCSF,TimeDep,ntAsh,nBas
-      Implicit None
-      Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
-      Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-      Character(LEN=1) NT
-      Logical Have_2_el
-!
+
+subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
+
+use ipPage, only: W
+use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
+use MCLR_Data, only: i12, ist, Square
+use MCLR_Data, only: iRefSM
+use MCLR_Data, only: XISPSM
+use CandS, only: ICSM, ISSM
+use input_mclr, only: State_Sym, nSym, Page, nCSF, TimeDep, ntAsh, nBas
+
+implicit none
+integer iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
+real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+character(len=1) NT
+logical Have_2_el
 ! For the timeindep case ipS1 and ipS2 will be half as long
 ! Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
-!
-!
-       integer kic(2),opout
-       Real*8, Allocatable:: CIDET(:)
-       integer i, j, itri
-       integer nDet, iOp, iS, jS, iRC
-       integer ij, ji, k, l, kl, lk, ijkl, jilk
-       integer, external:: ipIN, ipIN1, ipNOUT
+integer kic(2), opout
+real*8, allocatable :: CIDET(:)
+integer i, j, itri
+integer nDet, iOp, iS, jS, iRC
+integer ij, ji, k, l, kl, lk, ijkl, jilk
+integer, external :: ipIN, ipIN1, ipNOUT
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
+! Interface Anders to Jeppe
+! This interface initiates Jeppes common block
+! and will make it easier to use Anders modifications
+! of the CI routines
 
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!
-!      Interface Anders to Jeppe
-!      This interface initiates Jeppes common block
-!      and will make it easier to use Anders modifications
-!      of the CI routines
-!
-!      OK first tell Jeppe where the integrals are.
-!
-       If (nconf1.eq.0) return
-!
-!      One electron integrals
-!
-       KAIN1=>Int1
-!
-!      Two electron integrals
-!      symmetric in perticle one and two
-!
-!
-       KINT2 => Int2s
-       KINT2a=> Int2a
-!
-!      Two electron integrals
-!      anti symmetric in perticle one and two
-!
-!
-       irefsm=iCSym
-!
-!      Do we have any twoelectron integrals?
-!
-       If (Have_2_el) Then
-         i12=2
-       Else
-         i12=1
-       End If
-!
-!
-!      Symmetry of Sigma vector
-!
-       iSSM=iSSym
-       kic(2)=2
-       if (issm.eq.State_sym) kic(2)=1
-!
-!      Symmetry of CI vector
-!
-       iCSM=iCSym
-       kic(1)=2
-       if (icsm.eq.State_sym) kic(1)=1
-!
-!      Symmetry properties of operator
-!
-       ndet=nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
-       ndet=Max(ndet,ncsf(icsym),ncsf(issym))
-       If (ndet.eq.0) Return
-       iOP=iEOr(iCSM-1,iSSm-1)+1
-       If (iOp.eq.1) Then
-         Call iCopy(nSym,ipCM,1,pInt1,1)
-       Else
-         Do iS=1,nSym
-          jS=iEor(iS-1,iOp-1)+1
-          pInt1(is)=ipMat(is,jS)
-         End Do
-       End If
-!
-!      Triplet/Singlet operator
-!
-       ist=iispin+1
-       square=.false.
+! OK first tell Jeppe where the integrals are.
+
+if (nconf1 == 0) return
+
+! One electron integrals
+
+KAIN1 => Int1
+
+! Two electron integrals
+! symmetric in perticle one and two
+
+KINT2 => Int2s
+KINT2a => Int2a
+
+! Two electron integrals
+! anti symmetric in perticle one and two
+
+irefsm = iCSym
+
+! Do we have any twoelectron integrals?
+
+if (Have_2_el) then
+  i12 = 2
+else
+  i12 = 1
+end if
+
+! Symmetry of Sigma vector
+
+iSSM = iSSym
+kic(2) = 2
+if (issm == State_sym) kic(2) = 1
+
+! Symmetry of CI vector
+
+iCSM = iCSym
+kic(1) = 2
+if (icsm == State_sym) kic(1) = 1
+
+! Symmetry properties of operator
+
+ndet = nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
+ndet = max(ndet,ncsf(icsym),ncsf(issym))
+if (ndet == 0) return
+iOP = ieor(iCSM-1,iSSm-1)+1
+if (iOp == 1) then
+  call iCopy(nSym,ipCM,1,pInt1,1)
+else
+  do iS=1,nSym
+    jS = ieor(iS-1,iOp-1)+1
+    pInt1(is) = ipMat(is,jS)
+  end do
+end if
+
+! Triplet/Singlet operator
+
+ist = iispin+1
+square = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-       If (TIMEDEP) Then
+if (TIMEDEP) then
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  if (NT == 'T') square = .true.  ! The operator is not sym
+
+  if (page) then
+    write(6,*) 'Page not implemented for Time-dependent perturbations'
+    call Abend()
+  end if
+
+  ! CIDET is here because sigmavec will destroy the first input vector.
+  call mma_allocate(CIDET,nDet,Label='CIDET')
+  irc = ipin(ipCI1)
+  call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+
+  irc = ipin(ipci2)
+  call SigmaVec(CIDET,W(ipci2)%Vec,kic)
+
+  if (NT == 'N') then
+    call mma_deallocate(CIDET)
+    return
+  end if
+
+  if (NT == 'S') then
+
+    ! Symmetric operator, no transpose of integrals needed!
+    irc = ipin(ipCI1)
+    call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+nConf1),1,CIDET,1)
+
+    irc = ipin(ipci2)
+    call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
+
+  else  ! NT /= 'S'
+
+    ! The operator is not sym --> transpose integrals! NT /= S
+    irc = ipin(ipCI1)
+    call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+
+    call mma_allocate(TI1,ndens2,Label='TI1')
+    call mma_allocate(TI2,ntash**4,Label='TI2')
+
+    do i=1,ntash
+      do j=1,ntash
+        ij = i+ntash*(j-1)
+        ji = j+ntash*(i-1)
+        do k=1,ntash
+          do l=1,ntash
+            kl = k+ntash*(l-1)
+            lk = l+ntash*(k-1)
+            if (ij >= kl) then
+              ijkl = itri(ij,kl)
+              jilk = itri(ji,lk)
+              TI2(jilk) = int2s(ijkl)
+            end if
+          end do
+        end do
+      end do
+    end do
+
+    do is=1,nSym
+      js = ieor(ieor(icsym-1,issym-1),is-1)+1
+      if (nbas(js)*nbas(is) /= 0) call DGETMO(Int1(ipmat(is,js)),nbas(is),nbas(is),nbas(js),TI1(ipmat(js,is)),nbas(js))
+    end do
+
+    KAIN1 => TI1
+    KINT2 => TI2
+
+    irc = ipin(ipci2)
+    call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
+
+    nullify(KAIN1,KINT2)
+    call mma_deallocate(TI1)
+    call mma_deallocate(TI2)
+
+  end if  ! End the transpose of integrals.
+
+  call mma_deallocate(CIDET)
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+else   ! If not timedep
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+
+  if (.not. page) then
+    call mma_allocate(CIDET,nDet,Label='CIDET')
+    irc = ipin(ipCI1)
+    call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+    irc = ipin(ipci2)
+    call SigmaVec(CIDET,W(ipci2)%Vec,kic)
+    call mma_deallocate(CIDET)
+  else
+    irc = ipnout(ipci2)
+    irc = ipin1(ipCI1,ndet)
+    irc = ipin(ipci2)
+    call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
+    irc = opout(ipci1)
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-          If (NT.eq.'T')  square=.true.  ! The operator is not sym
 
-
-          If (page) Then
-             Write(6,*) 'Page not implemented for Timedependent'        &
-     &              //' perturbations'
-             Call Abend()
-          End If
-
-!         CIDET is here because sigmavec will destroy the first
-!         input vector.
-          Call mma_allocate(CIDET,nDet,Label='CIDET')
-          irc=ipin(ipCI1)
-          call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
-
-          irc=ipin(ipci2)
-          Call SigmaVec(CIDET,W(ipci2)%Vec,kic)
-!
-          If (NT.eq.'N') Then
-             Call mma_deallocate(CIDET)
-             Return
-          End If
-!
-          If (NT.eq.'S') Then
-
-!.......... Symmetric operator, no transpose of integrals needed!
-            irc=ipin(ipCI1)
-            call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+nConf1),1,            &
-     &                  CIDET,1)
-!
-            irc=ipin(ipci2)
-            Call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
-
-          Else  ! NT.ne.'S'
-
-!.......... The operator is not sym --> transpose integrals! NT.ne.S
-            irc=ipin(ipCI1)
-            call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
-
-            Call mma_allocate(TI1,ndens2,Label='TI1')
-            Call mma_allocate(TI2,ntash**4,Label='TI2')
-
-            Do i=1,ntash
-              Do j=1,ntash
-               ij=i+ntash*(j-1)
-               ji=j+ntash*(i-1)
-               Do k=1,ntash
-                Do l=1,ntash
-                 kl=k+ntash*(l-1)
-                 lk=l+ntash*(k-1)
-                 If (ij.ge.kl) Then
-                  ijkl=itri(ij,kl)
-                  jilk=itri(ji,lk)
-                  TI2(jilk)=int2s(ijkl)
-                 End if
-                End Do
-               End Do
-              End Do
-            End Do
-
-            Do is=1,nSym
-             js=ieor(ieor(icsym-1,issym-1),is-1)+1
-             If (nbas(js)*nbas(is).ne.0)                                &
-     &       Call DGETMO(Int1(ipmat(is,js)),nbas(is),                   &
-     &                 nbas(is),nbas(js),TI1(ipmat(js,is)),             &
-     &                 nbas(js))
-            End Do
-
-            KAIN1=>TI1
-            KINT2=>TI2
-
-            irc=ipin(ipci2)
-            Call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
-
-            nullify(KAIN1,KINT2)
-            Call mma_deallocate(TI1)
-            Call mma_deallocate(TI2)
-
-         End If  ! End the transpose of integrals.
-!
-         Call mma_deallocate(CIDET)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-       Else   ! If not timedep
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-
-          If (.not.page) Then
-             Call mma_allocate(CIDET,nDet,Label='CIDET')
-             irc=ipin(ipCI1)
-             call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
-             irc=ipin(ipci2)
-             Call SigmaVec(CIDET,W(ipci2)%Vec,kic)
-             Call mma_deallocate(CIDET)
-          Else
-             irc=ipnout(ipci2)
-             irc=ipin1(ipCI1,ndet)
-             irc=ipin(ipci2)
-             Call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
-             irc=opout(ipci1)
-          End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-       End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
 #ifdef _WARNING_WORKAROUND_
-       If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-       End SubRoutine CISigma_td
+
+end subroutine CISigma_td

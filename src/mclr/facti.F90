@@ -10,18 +10,23 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-      Function Facti(R)
-      integer n,i,j,R
-      Real*8 Facti
-      n=R
-      i=1
-      If (n.eq.0) Then
-        Facti=1.0d0
-        return
-      end if
-      Do j=1,n
-      i=i*j
-      end do
-      Facti=DBLE(i)
-      return
-      end
+
+function Facti(R)
+
+integer n, i, j, R
+real*8 Facti
+
+n = R
+i = 1
+if (n == 0) then
+  Facti = 1.0d0
+  return
+end if
+do j=1,n
+  i = i*j
+end do
+Facti = dble(i)
+
+return
+
+end function Facti

@@ -10,39 +10,39 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-Module Arrays
 
-Implicit None
-Private
-Public :: Hss, FAMO, FIMO, F0SQMO, FAMO_spinp, FAMO_spinm, SFock, G2mp, G2pp, G2mm, Fm, Fp, &
-          G1p, G1m, CMO_Inv, CMO, INT1, pINT1, INT2, pInt2, &
-          G2t, G2sq, G1t,  &
-          KAIN1, KINT2, KINT2A, TI1, TI2
+module Arrays
 
-Real*8, Allocatable:: Hss(:)
-Real*8, Allocatable:: FAMO(:), FIMO(:), FAMO_spinp(:), FAMO_spinm(:), SFock(:)
-Real*8, Allocatable:: Fm(:), Fp(:)
-Real*8, Allocatable:: F0SQMO(:)
-!     Various one- and two-particle densities
-Real*8, Allocatable:: G1t(:)
-Real*8, Allocatable:: G1p(:), G1m(:)
-Real*8, Allocatable:: G2t(:)
-Real*8, Allocatable:: G2sq(:)
-Real*8, Allocatable:: G2mp(:), G2pp(:), G2mm(:)
-!     MO coefficients
-Real*8, Allocatable, target:: CMO(:)
-Real*8, Allocatable:: CMO_Inv(:)
+implicit none
+private
+public :: Hss, FAMO, FIMO, F0SQMO, FAMO_spinp, FAMO_spinm, SFock, G2mp, G2pp, G2mm, Fm, Fp, G1p, G1m, CMO_Inv, CMO, INT1, pINT1, &
+          INT2, pInt2, G2t, G2sq, G1t, KAIN1, KINT2, KINT2A, TI1, TI2
 
-!         INT1        :  1-electron integrals
-!         INT2        :  2-electron integrals
-!         PINT1       :  Offsets to symmetry blocks
-!         PINT2       :  Offsets to symmetry blocks
+real*8, allocatable :: Hss(:)
+real*8, allocatable :: FAMO(:), FIMO(:), FAMO_spinp(:), FAMO_spinm(:), SFock(:)
+real*8, allocatable :: Fm(:), Fp(:)
+real*8, allocatable :: F0SQMO(:)
+! Various one- and two-particle densities
+real*8, allocatable :: G1t(:)
+real*8, allocatable :: G1p(:), G1m(:)
+real*8, allocatable :: G2t(:)
+real*8, allocatable :: G2sq(:)
+real*8, allocatable :: G2mp(:), G2pp(:), G2mm(:)
+! MO coefficients
+real*8, allocatable, target :: CMO(:)
+real*8, allocatable :: CMO_Inv(:)
 
-Real*8,  Target, Allocatable::  INT1(:)
-Integer, Allocatable:: pINT1(:)
-Real*8,  Allocatable::  INT2(:)
-Integer, Allocatable:: pINT2(:)
+!INT1  : 1-electron integrals
+!INT2  : 2-electron integrals
+!PINT1 : Offsets to symmetry blocks
+!PINT2 : Offsets to symmetry blocks
 
-Real*8, Pointer:: KAIN1(:), KINT2(:), KINT2A(:)
-Real*8, Target, Allocatable:: TI1(:), TI2(:)
-End Module Arrays
+real*8, target, allocatable :: INT1(:)
+integer, allocatable :: pINT1(:)
+real*8, allocatable :: INT2(:)
+integer, allocatable :: pINT2(:)
+
+real*8, pointer :: KAIN1(:), KINT2(:), KINT2A(:)
+real*8, target, allocatable :: TI1(:), TI2(:)
+
+end module Arrays

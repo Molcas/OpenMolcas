@@ -10,178 +10,173 @@
 !                                                                      *
 ! Copyright (C) 2023, Yoshio Nishimoto                                 *
 !***********************************************************************
-      subroutine check_caspt2(mode)
+
+subroutine check_caspt2(mode)
+! Check the roots to be considered in CASPT2 gradient
 !
-!     Check the roots to be considered in CASPT2 gradient
+! With mode = 0, this subroutine should first try to decide the root
+! for which CASPT2 density and MCLR are performed. If we do not have
+! CASPT2 density, i.e. iGo /= 3, call CASPT2 using the root
+! specified by ALASKA (or 'Relax CASSCF root'). Othewise (iGo = 3),
+! we are going to perform MCLR next. If ALASKA has not specified
+! roots, perform MCLR for the roots specified by CASPT2 ('Relax
+! original root' for gradients, or that and 'Relax CASSCF root' for
+! NAC). If ALASKA has specified, the roots are obtained from 'MCLR
+! Root', and CASPT2 is then called to compute the density etc.
 !
-!     With mode = 0, this subroutine should first try to decide the root
-!     for which CASPT2 density and MCLR are performed. If we do not have
-!     CASPT2 density, i.e. iGo /= 3, call CASPT2 using the root
-!     specified by ALASKA (or 'Relax CASSCF root'). Othewise (iGo = 3),
-!     we are going to perform MCLR next. If ALASKA has not specified
-!     roots, perform MCLR for the roots specified by CASPT2 ('Relax
-!     original root' for gradients, or that and 'Relax CASSCF root' for
-!     NAC). If ALASKA has specified, the roots are obtained from 'MCLR
-!     Root', and CASPT2 is then called to compute the density etc.
-!
-!     With mode = 1, this subroutine obtains the character in 'MCLR
-!     Root' and determine the roots for NAC calculation.
-!
-      use MCLR_Data, only: IRLXROOT,ISNAC,OVERRIDE,NACSTATES
-      Implicit None
-      Integer Mode
+! With mode = 1, this subroutine obtains the character in 'MCLR Root'
+! and determine the roots for NAC calculation.
+
+use MCLR_Data, only: IRLXROOT, ISNAC, OVERRIDE, NACSTATES
+
+implicit none
+integer Mode
 #include "SysDef.fh"
 #include "warnings.h"
+character(len=72) Line
+character(len=128) :: FileName
+character(len=16) :: StdIn, mstate1
+logical Exists, NeedGrdt
+integer iRlxRootPT2, iGo, iRoot1Req, iRoot2Req, iRoot1Com, iRoot2Com, LuINPUT, LuSpool2, iStatus
+integer, external :: isFreeUnit
+integer, external :: isStructure
 
-      Character(LEN=72) Line
-      character(len=128) :: FileName
-      character(len=16) :: StdIn, mstate1
-      Logical Exists,NeedGrdt
-      Integer iRlxRootPT2, iGo, iRoot1Req, iRoot2Req,                   &
-     &        iRoot1Com, iRoot2Com, LuINPUT, LuSpool2, iStatus
-      Integer, External :: isFreeUnit
-      Integer, External :: isStructure
-!
-      iRlxRoot    = 0
-      iRlxRootPT2 = 0
-      call Get_iScalar('SA ready',iGo)
-      !! Requested root for gradient
-      Call Get_iScalar('Relax CASSCF root',iRlxRoot)
-      if (iGo == 3) then
-        !! iGo=3 means that CASPT2 density has been computed
-        !! Check the root of the density
-        Call Get_iScalar('Relax original root',iRlxRootPT2)
-      end if
-!
-      !! Check this is NAC or not
-      isNAC = .false.
-      call Get_cArray('MCLR Root',mstate1,16)
-      if (index(mstate1,'@') /= 0) then
-        !! Requested root for NAC by ALASKA
-        read(mstate1,'(1X,I7,1X,I7)') NACStates(1),NACStates(2)
-        if (NACStates(1) /= 0) isNAC = .true.
-        if (NACStates(1) == 0) iRlxRoot = NACStates(2)
-      else if ((iGo == 3) .and. (iRlxRoot /= iRlxRootPT2)) then
-        !! This means CASPT2 density has been computed for the states
-        !! specified by the NAC option in &CASPT2 (either specified by
-        !! the original input or the call below).
-        !! In this case, perform MCLR anyway(?)
-        !! The states can be different from those ALASKA requests.
-        !! If different, ALASKA will call MCLR then CASPT2 again with
-        !! the correct states.
-        NACStates(1) = iRlxRoot
-        NACStates(2) = iRlxRootPT2
-        isNAC = .true.
-        override = .true.
-      end if
+iRlxRoot = 0
+iRlxRootPT2 = 0
+call Get_iScalar('SA ready',iGo)
+! Requested root for gradient
+call Get_iScalar('Relax CASSCF root',iRlxRoot)
+! iGo=3 means that CASPT2 density has been computed
+! Check the root of the density
+if (iGo == 3) call Get_iScalar('Relax original root',iRlxRootPT2)
 
-      !! With mode = 1, just set NACStates
-      if (mode == 1) return
+! Check this is NAC or not
+isNAC = .false.
+call Get_cArray('MCLR Root',mstate1,16)
+if (index(mstate1,'@') /= 0) then
+  ! Requested root for NAC by ALASKA
+  read(mstate1,'(1X,I7,1X,I7)') NACStates(1),NACStates(2)
+  if (NACStates(1) /= 0) isNAC = .true.
+  if (NACStates(1) == 0) iRlxRoot = NACStates(2)
+else if ((iGo == 3) .and. (iRlxRoot /= iRlxRootPT2)) then
+  ! This means CASPT2 density has been computed for the states
+  ! specified by the NAC option in &CASPT2 (either specified by
+  ! the original input or the call below).
+  ! In this case, perform MCLR anyway(?)
+  ! The states can be different from those ALASKA requests.
+  ! If different, ALASKA will call MCLR then CASPT2 again with
+  ! the correct states.
+  NACStates(1) = iRlxRoot
+  NACStates(2) = iRlxRootPT2
+  isNAC = .true.
+  override = .true.
+end if
 
-!     write (*,*) "isnac = ", isnac
-!     if (isnac) then
-!       write (*,*) "requested NAC:", nacstates(1),nacstates(2)
-!       write (*,*) "computed  NAC:", irlxroot,irlxrootpt2
-!     else
-!       write (*,*) "requested GRD:", irlxroot
-!       write (*,*) "computed  GRD:", irlxrootpt2
-!     endif
+! With mode = 1, just set NACStates
+if (mode == 1) return
 
-      !! If CASPT2 density has been computed, and the root of
-      !! the density is the desired one in ALASKA, go for MCLR
-      if (isNAC) then
-        iRoot1req = MAX(NACStates(1),NACStates(2))
-        iRoot2req = MIN(NACStates(1),NACStates(2))
-        iRoot1com = MAX(iRlxRoot,iRlxRootPT2)
-        iRoot2com = MIN(iRlxRoot,iRlxRootPT2)
-        if ((iGo /= 0) .and. (iRoot1req == iRoot1com)                   &
-     &                 .and. (iRoot2req == iRoot2com))   return
-      else
-        if ((iGo /= 0) .and. (iRlxRoot  == iRlxRootPT2)) return
-      end if
+!write(6,*) 'isnac = ',isnac
+!if (isnac) then
+!  write(6,*) 'requested NAC:',nacstates(1),nacstates(2)
+!  write(6,*) 'computed  NAC:',irlxroot,irlxrootpt2
+!else
+!  write(6,*) 'requested GRD:',irlxroot
+!  write(6,*) 'computed  GRD:',irlxrootpt2
+!endif
 
-      !! Otherwise, compute CASPT2 density for the state specified
-      !! by ALASKA (iRlxRoot)
+! If CASPT2 density has been computed, and the root of
+! the density is the desired one in ALASKA, go for MCLR
+if (isNAC) then
+  iRoot1req = max(NACStates(1),NACStates(2))
+  iRoot2req = min(NACStates(1),NACStates(2))
+  iRoot1com = max(iRlxRoot,iRlxRootPT2)
+  iRoot2com = min(iRlxRoot,iRlxRootPT2)
+  if ((iGo /= 0) .and. (iRoot1req == iRoot1com) .and. (iRoot2req == iRoot2com)) return
+else
+  if ((iGo /= 0) .and. (iRlxRoot == iRlxRootPT2)) return
+end if
 
-      LuInput = 11
-      LuInput = IsFreeUnit(LuInput)
-      call StdIn_Name(StdIn)
-      call Molcas_open(LuInput,StdIn)
+! Otherwise, compute CASPT2 density for the state specified by ALASKA (iRlxRoot)
 
-      write(LuInput,'(A)') '>ECHO OFF'
-      write(LuInput,'(A)') '>export MCLR_OLD_TRAP=$MOLCAS_TRAP'
-      write(LuInput,'(A)') '>export MOLCAS_TRAP=ON'
+LuInput = 11
+LuInput = IsFreeUnit(LuInput)
+call StdIn_Name(StdIn)
+call Molcas_open(LuInput,StdIn)
 
-      FileName = 'CASPTINP'
-      call f_inquire(Filename,Exists)
+write(LuInput,'(A)') '>ECHO OFF'
+write(LuInput,'(A)') '>export MCLR_OLD_TRAP=$MOLCAS_TRAP'
+write(LuInput,'(A)') '>export MOLCAS_TRAP=ON'
 
-      if (Exists) then
-        LuSpool2 = 77
-        LuSpool2 = IsFreeUnit(LuSpool2)
-        call Molcas_Open(LuSpool2,Filename)
+FileName = 'CASPTINP'
+call f_inquire(Filename,Exists)
 
-        NeedGrdt = (isStructure() /= 1)
-        do
-          read(LuSpool2,'(A)',iostat=istatus) Line
-!         write (*,'(a)') line
-          if (istatus > 0) call Abend()
-          if (istatus < 0) exit
-          write(LuInput,'(A)') Line
-          Call UpCase(Line)
-          if (Line(1:4).eq.'GRDT') NeedGrdt = .false.
-        end do
+if (Exists) then
+  LuSpool2 = 77
+  LuSpool2 = IsFreeUnit(LuSpool2)
+  call Molcas_Open(LuSpool2,Filename)
 
-        if (NeedGrdt) then
-          backspace LuInput
-          write (LuInput,'(A)') 'GRDT'
-        end if
+  NeedGrdt = (isStructure() /= 1)
+  do
+    read(LuSpool2,'(A)',iostat=istatus) Line
+    !write(6,'(a)') line
+    if (istatus > 0) call Abend()
+    if (istatus < 0) exit
+    write(LuInput,'(A)') Line
+    call UpCase(Line)
+    if (Line(1:4) == 'GRDT') NeedGrdt = .false.
+  end do
 
-        close(LuSpool2)
-      else
-        write(6,'(A)') "CASPT2 gradient without &CASPT2?"
-        write(6,'(A)') "this cannot happen, ig"
-        call abend()
-      end if
+  if (NeedGrdt) then
+    backspace LuInput
+    write(LuInput,'(A)') 'GRDT'
+  end if
 
-      FileName = 'MCLRINP'
-      call f_inquire(Filename,Exists)
+  close(LuSpool2)
+else
+  write(6,'(A)') 'CASPT2 gradient without &CASPT2?'
+  write(6,'(A)') 'this cannot happen, ig'
+  call abend()
+end if
 
-      !! NAC states are obtained from "MCLR Roots"
-      if (Exists) then
-        LuSpool2 = 77
-        LuSpool2 = IsFreeUnit(LuSpool2)
-        call Molcas_Open(LuSpool2,Filename)
-        do
-          read(LuSpool2,'(A)',iostat=istatus) Line
-!         write (*,'(a)') line
-          if (istatus > 0) call Abend()
-          if (istatus < 0) exit
-          write(LuInput,'(A)') Line
-        end do
-        close(LuSpool2)
-      else
-        write(LuInput,'(A)') ' &Mclr &End'
-        write(LuInput,'(A)') 'End of Input'
-      end if
+FileName = 'MCLRINP'
+call f_inquire(Filename,Exists)
 
-      write(LuInput,'(A)') '>export MOLCAS_TRAP=$MCLR_OLD_TRAP'
-      write(LuInput,'(A)') '>ECHO ON'
+! NAC states are obtained from "MCLR Roots"
+if (Exists) then
+  LuSpool2 = 77
+  LuSpool2 = IsFreeUnit(LuSpool2)
+  call Molcas_Open(LuSpool2,Filename)
+  do
+    read(LuSpool2,'(A)',iostat=istatus) Line
+    !write(6,'(a)') line
+    if (istatus > 0) call Abend()
+    if (istatus < 0) exit
+    write(LuInput,'(A)') Line
+  end do
+  close(LuSpool2)
+else
+  write(LuInput,'(A)') ' &Mclr &End'
+  write(LuInput,'(A)') 'End of Input'
+end if
 
-!     rewind luinput
-!     write (*,*)
-!     write (*,*) "show luinput"
-!     write (*,*)
-!     do
-!       read(LuInput,'(A)',iostat=istatus) Line
-!       write (*,'(a)') line
-!       if (istatus > 0) call Abend()
-!       if (istatus < 0) exit
-!     end do
+write(LuInput,'(A)') '>export MOLCAS_TRAP=$MCLR_OLD_TRAP'
+write(LuInput,'(A)') '>ECHO ON'
 
-      close(LuInput)
+!rewind(luinput)
+!write(6,*)
+!write(6,*) 'show luinput'
+!write(6,*)
+!do
+!  read(LuInput,'(A)',iostat=istatus) Line
+!  write(6,'(a)') line
+!  if (istatus > 0) call Abend()
+!  if (istatus < 0) exit
+!end do
 
-      call Finish(_RC_INVOKED_OTHER_MODULE_)
+close(LuInput)
 
-      return
+call Finish(_RC_INVOKED_OTHER_MODULE_)
 
-      end subroutine check_caspt2
+return
+
+end subroutine check_caspt2

@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Jonna Stalring                                   *
 !***********************************************************************
-      Subroutine calcerr(kappa,iestate)
-!
+
+subroutine calcerr(kappa,iestate)
 !-------------------------------------------------
 ! Jonna 000411
 !
@@ -21,77 +21,75 @@
 !
 ! which estimates the error in the SA.
 !---------------------------------------------------
-!
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: One, Two
-      use MCLR_Data, only: ipMat, nDens2
-      use MCLR_Data, only: ISTATE
-      use input_mclr, only: nSym,nBas,ntAsh
-      Implicit None
-      Real*8 kappa(*)
-      Integer ieState
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Two
+use MCLR_Data, only: ipMat, nDens2
+use MCLR_Data, only: ISTATE
+use input_mclr, only: nSym, nBas, ntAsh
+
+implicit none
+real*8 kappa(*)
+integer ieState
 #include "SysDef.fh"
-      Real*8, Allocatable:: G1q(:), G1r(:), G2r(:),                     &
-     &                      T(:), Q(:)
-      Integer i, j, itri
-      Integer iS, nG1
-      Real*8 dejdw
-      Real*8, External:: DDot_
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!
-      ng1=itri(ntash,ntash)
-!
-      Call mma_allocate(G1Q,ng1,Label='G1Q')
-      Call mma_allocate(G1R,ntash**2,Label='G1R')
-      Call mma_allocate(G2R,ntash**4,Label='G2R')
-      Call mma_allocate(T,ndens2,Label='T')
-      Call mma_allocate(Q,ndens2,Label='Q')
-!
+real*8, allocatable :: G1q(:), G1r(:), G2r(:), T(:), Q(:)
+integer i, j, itri
+integer iS, nG1
+real*8 dejdw
+real*8, external :: DDot_
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+ng1 = itri(ntash,ntash)
+
+call mma_allocate(G1Q,ng1,Label='G1Q')
+call mma_allocate(G1R,ntash**2,Label='G1R')
+call mma_allocate(G2R,ntash**4,Label='G2R')
+call mma_allocate(T,ndens2,Label='T')
+call mma_allocate(Q,ndens2,Label='Q')
+
 ! Get densities of iestate in triangular and rectangular form.
-!
-      Call rddj(G1R,G1Q,G2R,iestate)
-!
+
+call rddj(G1R,G1Q,G2R,iestate)
+
 ! Get Fock matrix ipT
-!
-      Call FockGen(One,G1R,G2R,T,Q,1)
-!
+
+call FockGen(One,G1R,G2R,T,Q,1)
+
 ! Print energy
-!
-!     Call prnte(G1q,T)
-!
-!     Call Recprt('KAPP',' ',kappa,nDens2,1)
-!     Call Recprt('FOCK',' ',T,nDens2,1)
-!
-      dejdw = 0.0d0
-      Do iS=1,nsym
-         dejdw = dejdw + ddot_(nBas(is)**2,T(ipmat(is,is)),1,           &
-     &                                 kappa(ipmat(is,is)),1)
-      End do
-      dejdw = Two*dejdw
-!     is=1
-!     write(*,*)'T(ipmat(is,is))',T(ipmat(is,is))
-!     write(*,*)'kappa(ipmat(is,is)+1)',kappa(ipmat(is,is)+1)
-!
-!     d E_j / d w_i, without constraint
-!     Write(6,200) iestate,istate,dejdw
-!
-      If (iestate.eq.istate) Then
-!        d E_i / d w_i, with the constraint sum(w_i)=1,
-!        multiplied by 1-w_i... which happens to be equal to
-!        d E_i / d w_i, without constraint
-!        change sign, because this is the *error*
-         Write(6,100) iestate,-dejdw
-      End If
-100   Format(' **********'/'                 ',                         &
-     &       ' Estimated error in the energy of state ',I5,': ',ES12.5/ &
-     &       ' **********')
-!200   Format(' Derivative of the energy of state ',I5,
-!     &       ' with the weight ',I5,': ',ES12.5)
-!
-      Call mma_deallocate(Q)
-      Call mma_deallocate(T)
-      Call mma_deallocate(G2R)
-      Call mma_deallocate(G1R)
-      Call mma_deallocate(G1Q)
-!
-      End Subroutine calcerr
+
+!call prnte(G1q,T)
+
+!call Recprt('KAPP',' ',kappa,nDens2,1)
+!call Recprt('FOCK',' ',T,nDens2,1)
+
+dejdw = 0.0d0
+do iS=1,nsym
+  dejdw = dejdw+ddot_(nBas(is)**2,T(ipmat(is,is)),1,kappa(ipmat(is,is)),1)
+end do
+dejdw = Two*dejdw
+!is = 1
+!write(6,*) 'T(ipmat(is,is))',T(ipmat(is,is))
+!write(6,*) 'kappa(ipmat(is,is)+1)',kappa(ipmat(is,is)+1)
+
+! d E_j / d w_i, without constraint
+!write(6,200) iestate,istate,dejdw
+
+! d E_i / d w_i, with the constraint sum(w_i)=1,
+! multiplied by 1-w_i... which happens to be equal to
+! d E_i / d w_i, without constraint
+! change sign, because this is the *error*
+if (iestate == istate) write(6,100) iestate,-dejdw
+
+call mma_deallocate(Q)
+call mma_deallocate(T)
+call mma_deallocate(G2R)
+call mma_deallocate(G1R)
+call mma_deallocate(G1Q)
+
+return
+
+100 format(' **********'/'                  Estimated error in the energy of state ',I5,': ',ES12.5/' **********')
+!200 format(' Derivative of the energy of state ',I5,' with the weight ',I5,': ',ES12.5)
+
+end subroutine calcerr

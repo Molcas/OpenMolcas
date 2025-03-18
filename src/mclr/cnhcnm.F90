@@ -10,140 +10,133 @@
 !                                                                      *
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,NRCSF,  &
-     &                  SCR,ICONF,NEL,                                  &
-     &                  IREFSM,NAEL,NBEL,NINOB,NACOB,ECORE,             &
-     &                  IPRODT,DTOC,INTSPC,ICOMBI,PSSIGN,               &
-     &                  NTEST)
-!
+
+subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,NRCSF,SCR,ICONF,NEL,IREFSM,NAEL,NBEL,NINOB,NACOB,ECORE,IPRODT,DTOC, &
+                  INTSPC,ICOMBI,PSSIGN,NTEST)
 ! Calculate  Hamiltonian block defined by configuration
 ! lists ILCNF,IRCNF
-! If ISYM.Ne. 0 only the lower half of the matrix is constructed
+! If ISYM /= 0 only the lower half of the matrix is constructed
 !
 ! Jeppe Olsen April 1990
 ! ========================
 !
 ! No modifications
 ! ================
-!
-      IMPLICIT None
-      INTEGER ISYM,NLCNF,NRCNF,NLCSF,NRCSF,NEL,IREFSM,NAEL,NBEL,NINOB,  &
-     &        NACOB,INTSPC,ICOMBI,NTEST
-      REAL*8 ECORE,PSSIGN
-!. Specific input
-      INTEGER ILCNF(*),IRCNF(*)
-!. General input
-      INTEGER ICONF(*),IPRODT(*)
-      REAL*8 DTOC(*)
-!.Output
-      REAL*8 HSUB(*)
-!.Scratch
-      REAL*8 SCR(*)
-!. Length of scratch : 2 * NEL + MXCSFC                   (used in CNHCNM)
-!                    + 6*MXDTFC+MXDTFC**2+MXDTFC+MXCSFC   (used in CNHCN2)
-!                    + MAX(MXDTFC*NEL+2*NEL,4*NORB+2*NEL) (used in DIHDJ,CNFSTR)
-!.Standard common block
-!
-      CALL CNHCNM_INTERNAL(SCR)
-      RETURN
-! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(NRCSF)
-!
-!     This is to allow type punning without an explicit interface
-      CONTAINS
-      SUBROUTINE CNHCNM_INTERNAL(SCR)
-      USE ISO_C_BINDING
-      USE MCLR_Data, only: NTYP,NCPCNT
-      IMPLICIT None
-      REAL*8, TARGET :: SCR(*)
-      INTEGER, POINTER :: iSCRl(:),iSCRr(:)
-      INTEGER NTERMS,NDIF0,NDIF1,NDIF2,MXCSFC,ITYP,KLFREE,KLCONF,KRCONF,&
-     &        KLPHPS,IILB,ICNL,NCSFL,IIRB,MXR,ICNR,NCSFR,MDIF0,MDIF1,   &
-     &        MDIF2,IIL,IIRMAX,IIR,IIRACT,IILACT,ILRO,ILRI,ILTYP,IRTYP
-!
-      NTERMS = 0
-      NDIF0 = 0
-      NDIF1 = 0
-      NDIF2 = 0
-!. Largest configuration block possible
-      MXCSFC = 0
-      DO 10 ITYP = 1, NTYP
-        MXCSFC = MAX(MXCSFC,NCPCNT(ITYP) )
-   10 CONTINUE
-!
-!
-      KLFREE = 1
-!
-      KLCONF = KLFREE
-      KLFREE = KLFREE + NEL
-!
-      KRCONF = KLFREE
-      KLFREE = KLFREE + NEL
-!
-      KLPHPS = KLFREE
-      KLFREE = KLFREE + MXCSFC ** 2
-!
-!. LHR
-      IILB = 1
-      CALL C_F_POINTER(C_LOC(SCR(KLCONF)),iSCRl,[1])
-      CALL C_F_POINTER(C_LOC(SCR(KRCONF)),iSCRr,[1])
-      DO 200 ICNL = 1, NLCNF
-        CALL GETCNF(iSCRl,ILTYP,ILCNF(ICNL),ICONF,IREFSM,NEL,NTEST)
-        NCSFL = NCPCNT(ILTYP)
-        IIRB = 1
-        IF(ISYM.EQ.0) THEN
-          MXR = NRCNF
-        ELSE
-          MXR = ICNL
-        END IF
-        DO 190 ICNR = 1, MXR
-          CALL GETCNF(iSCRr,IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL,NTEST)
-          NCSFR = NCPCNT(IRTYP)
-          CALL CNHCN2(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),              &
-     &               SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,                  &
-     &               NINOB,ECORE,                                       &
-     &               IPRODT,DTOC,NACOB,ICOMBI,PSSIGN,                   &
-     &               NTERMS,MDIF0,MDIF1,MDIF2,NTEST)
-          NDIF0 = NDIF0 + MDIF0
-          NDIF1 = NDIF1 + MDIF1
-          NDIF2 = NDIF2 + MDIF2
-!
 
-! Copy to HSUB matrix
-          IF(ISYM.NE.0) THEN
-!. Copy to lower half format
-            DO 160 IIL = 1, NCSFL
-              IF(IILB.EQ.IIRB) THEN
-                IIRMAX = IIL
-              ELSE
-                IIRMAX = NCSFR
-              END IF
-              DO 150 IIR = 1, IIRMAX
-                IIRACT = IIRB - 1 + IIR
-                IILACT = IILB - 1 + IIL
-                ILRO = IILACT*(IILACT-1)/2 + IIRACT
-                ILRI = (IIR-1)*NCSFL + IIL
-                HSUB(ILRO) = SCR(KLPHPS-1+ILRI)
-  150         CONTINUE
-  160       CONTINUE
-          ELSE
-!. Pack to full format
-            DO 260 IIL = 1, NCSFL
-              DO 250 IIR = 1, NCSFR
-                IIRACT = IIRB - 1 + IIR
-                IILACT = IILB - 1 + IIL
-                ILRO = (IIRACT-1)*NLCSF + IILACT
-                ILRI = (IIR-1)*NCSFL + IIL
-                HSUB(ILRO) = SCR(KLPHPS-1+ILRI)
-  250         CONTINUE
-  260       CONTINUE
-          END IF
-          IIRB = IIRB + NCSFR
-  190   CONTINUE
-      IILB = IILB + NCSFL
- 200  CONTINUE
-      NULLIFY(iSCRl,iSCRr)
-!
-      END SUBROUTINE CNHCNM_INTERNAL
-!
-      END SUBROUTINE CNHCNM
+implicit none
+integer ISYM, NLCNF, NRCNF, NLCSF, NRCSF, NEL, IREFSM, NAEL, NBEL, NINOB, NACOB, INTSPC, ICOMBI, NTEST
+real*8 ECORE, PSSIGN
+! Specific input
+integer ILCNF(*), IRCNF(*)
+! General input
+integer ICONF(*), IPRODT(*)
+real*8 DTOC(*)
+! Output
+real*8 HSUB(*)
+! Scratch
+real*8 SCR(*)
+! Length of scratch: 2 * NEL + MXCSFC                   (used in CNHCNM)
+!                  + 6*MXDTFC+MXDTFC**2+MXDTFC+MXCSFC   (used in CNHCN2)
+!                  + MAX(MXDTFC*NEL+2*NEL,4*NORB+2*NEL) (used in DIHDJ,CNFSTR)
+
+call CNHCNM_INTERNAL(SCR)
+
+return
+! Avoid unused argument warnings
+if (.false.) call Unused_integer(NRCSF)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine CNHCNM_INTERNAL(SCR)
+
+  use iso_c_binding
+  use MCLR_Data, only: NTYP, NCPCNT
+
+  implicit none
+  real*8, target :: SCR(*)
+  integer, pointer :: iSCRl(:), iSCRr(:)
+  integer NTERMS, NDIF0, NDIF1, NDIF2, MXCSFC, ITYP, KLFREE, KLCONF, KRCONF, KLPHPS, IILB, ICNL, NCSFL, IIRB, MXR, ICNR, NCSFR, &
+          MDIF0, MDIF1, MDIF2, IIL, IIRMAX, IIR, IIRACT, IILACT, ILRO, ILRI, ILTYP, IRTYP
+
+  NTERMS = 0
+  NDIF0 = 0
+  NDIF1 = 0
+  NDIF2 = 0
+  ! Largest configuration block possible
+  MXCSFC = 0
+  do ITYP=1,NTYP
+    MXCSFC = max(MXCSFC,NCPCNT(ITYP))
+  end do
+
+  KLFREE = 1
+
+  KLCONF = KLFREE
+  KLFREE = KLFREE+NEL
+
+  KRCONF = KLFREE
+  KLFREE = KLFREE+NEL
+
+  KLPHPS = KLFREE
+  KLFREE = KLFREE+MXCSFC**2
+
+  ! LHR
+  IILB = 1
+  call c_f_pointer(c_loc(SCR(KLCONF)),iSCRl,[1])
+  call c_f_pointer(c_loc(SCR(KRCONF)),iSCRr,[1])
+  do ICNL=1,NLCNF
+    call GETCNF(iSCRl,ILTYP,ILCNF(ICNL),ICONF,IREFSM,NEL,NTEST)
+    NCSFL = NCPCNT(ILTYP)
+    IIRB = 1
+    if (ISYM == 0) then
+      MXR = NRCNF
+    else
+      MXR = ICNL
+    end if
+    do ICNR=1,MXR
+      call GETCNF(iSCRr,IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL,NTEST)
+      NCSFR = NCPCNT(IRTYP)
+      call CNHCN2(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,NINOB,ECORE,IPRODT,DTOC,NACOB,ICOMBI, &
+                  PSSIGN,NTERMS,MDIF0,MDIF1,MDIF2,NTEST)
+      NDIF0 = NDIF0+MDIF0
+      NDIF1 = NDIF1+MDIF1
+      NDIF2 = NDIF2+MDIF2
+
+      ! Copy to HSUB matrix
+      if (ISYM /= 0) then
+        ! Copy to lower half format
+        do IIL=1,NCSFL
+          if (IILB == IIRB) then
+            IIRMAX = IIL
+          else
+            IIRMAX = NCSFR
+          end if
+          do IIR=1,IIRMAX
+            IIRACT = IIRB-1+IIR
+            IILACT = IILB-1+IIL
+            ILRO = IILACT*(IILACT-1)/2+IIRACT
+            ILRI = (IIR-1)*NCSFL+IIL
+            HSUB(ILRO) = SCR(KLPHPS-1+ILRI)
+          end do
+        end do
+      else
+        ! Pack to full format
+        do IIL=1,NCSFL
+          do IIR=1,NCSFR
+            IIRACT = IIRB-1+IIR
+            IILACT = IILB-1+IIL
+            ILRO = (IIRACT-1)*NLCSF+IILACT
+            ILRI = (IIR-1)*NCSFL+IIL
+            HSUB(ILRO) = SCR(KLPHPS-1+ILRI)
+          end do
+        end do
+      end if
+      IIRB = IIRB+NCSFR
+    end do
+    IILB = IILB+NCSFL
+  end do
+  nullify(iSCRl,iSCRr)
+
+end subroutine CNHCNM_INTERNAL
+
+end subroutine CNHCNM

@@ -8,121 +8,92 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine TCMO(A,isym,ictl)
-      use Arrays, only: CMO
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use MCLR_Data, only: ipCM, ipMat, nDens2
-      use input_mclr, only: nSym,nBas,nOrb
-      Implicit None
-      Real*8 A(*)
-      Integer iSym, iCtl
 
-      Integer ip(8), iip(8)
-      Real*8, Allocatable:: Temp(:)
-      Real*8, Allocatable:: CMOInv(:)
-      Integer, Allocatable :: iCMOInv(:)
-      Integer iRC, nCMOInv, niCMOInv, iS, jS
+subroutine TCMO(A,isym,ictl)
 
-      Call mma_allocate(Temp,nDens2,Label='Temp')
-      Call ReLoad(A,isym,norb,nbas)
+use Arrays, only: CMO
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: ipCM, ipMat, nDens2
+use input_mclr, only: nSym, nBas, nOrb
+
+implicit none
+real*8 A(*)
+integer iSym, iCtl
+integer ip(8), iip(8)
+real*8, allocatable :: Temp(:)
+real*8, allocatable :: CMOInv(:)
+integer, allocatable :: iCMOInv(:)
+integer iRC, nCMOInv, niCMOInv, iS, jS
+
+call mma_allocate(Temp,nDens2,Label='Temp')
+call ReLoad(A,isym,norb,nbas)
 
 ! irc used in call later must not be uninitialized
 ! since then MKL library gets upset...
-      irc=0
+irc = 0
 
-      If (ictl.eq.-1) Then
+if (ictl == -1) then
 
-       nCMOInv=0
-       niCMOInv=0
-       ip(:)=0
-       iip(:)=0
-       Do iS=1,nSym
-          If (nbas(is)==0) Cycle
-          ip(iS)=1+nCMOInv
-          iip(iS)=1+nICMOInv
-          nCMOInv=nCMOInv + nBas(is)**2
-          niCMOInv=niCMOInv + nBas(is)
-       End Do
-       Call mma_allocate(CMOInv,nCMOInv,Label='CMOINV')
-       Call mma_allocate(iCMOInv,niCMOInv,Label='iCMOINV')
+  nCMOInv = 0
+  niCMOInv = 0
+  ip(:) = 0
+  iip(:) = 0
+  do iS=1,nSym
+    if (nbas(is) == 0) cycle
+    ip(iS) = 1+nCMOInv
+    iip(iS) = 1+nICMOInv
+    nCMOInv = nCMOInv+nBas(is)**2
+    niCMOInv = niCMOInv+nBas(is)
+  end do
+  call mma_allocate(CMOInv,nCMOInv,Label='CMOINV')
+  call mma_allocate(iCMOInv,niCMOInv,Label='iCMOINV')
 
-       Do iS=1,nSym
-        If (nbas(is)==0) Cycle
-        call dcopy_(nbas(is)**2,CMO(ipcm(is)),1,                        &
-     &                          CMOINV(ip(is)),1)
-        call dgetrf_(nBas(is),nBas(is),CMOINV(ip(is)),                  &
-     &              nBas(is),iCMOINV(iip(is)),irc)
-        If (irc.ne.0)                                                   &
-     &         Call SysAbendMsg('tcmo','DGETRF returns non zero', ' ')
-       End Do
+  do iS=1,nSym
+    if (nbas(is) == 0) cycle
+    call dcopy_(nbas(is)**2,CMO(ipcm(is)),1,CMOINV(ip(is)),1)
+    call dgetrf_(nBas(is),nBas(is),CMOINV(ip(is)),nBas(is),iCMOINV(iip(is)),irc)
+    if (irc /= 0) call SysAbendMsg('tcmo','DGETRF returns non zero',' ')
+  end do
 
-       Do iS=1,nSym
-         js=ieor(is-1,isym-1)+1
-         If (nbas(is)*nbas(js)==0) Cycle
-         call dgetrs_('T',nbas(is),nbas(js),                            &
-     &                CMOINV(ip(is)),nBas(is),                          &
-     &                iCMOINV(iip(is)),                                 &
-     &                A(ipMat(is,js)),nBas(is),irc)
-         if (irc.ne.0)                                                  &
-     &         Call SysAbendMsg('tcmo','DGETRS returns non zero', ' ')
-         Call DGETMO(A(ipMat(is,js)),nBas(is),                          &
-     &                    nbas(is),nbas(js),                            &
-     &                    Temp,nbas(js))
-         call dgetrs_('T',nbas(js),nbas(is),                            &
-     &                CMOINV(ip(js)),nBas(js),                          &
-     &                iCMOINV(iip(js)),                                 &
-     &                Temp,nBas(js),irc)
-         if (irc.ne.0)                                                  &
-     &         Call SysAbendMsg('tcmo','DGETRS returns non zero', ' ')
-         Call DGETMO(Temp,nBas(js),                                     &
-     &              nbas(js),nbas(is),                                  &
-     &              A(ipMat(is,js)),nbas(is))
-       End Do
+  do iS=1,nSym
+    js = ieor(is-1,isym-1)+1
+    if (nbas(is)*nbas(js) == 0) cycle
+    call dgetrs_('T',nbas(is),nbas(js),CMOINV(ip(is)),nBas(is),iCMOINV(iip(is)),A(ipMat(is,js)),nBas(is),irc)
+    if (irc /= 0) call SysAbendMsg('tcmo','DGETRS returns non zero',' ')
+    call DGETMO(A(ipMat(is,js)),nBas(is),nbas(is),nbas(js),Temp,nbas(js))
+    call dgetrs_('T',nbas(js),nbas(is),CMOINV(ip(js)),nBas(js),iCMOINV(iip(js)),Temp,nBas(js),irc)
+    if (irc /= 0) call SysAbendMsg('tcmo','DGETRS returns non zero',' ')
+    call DGETMO(Temp,nBas(js),nbas(js),nbas(is),A(ipMat(is,js)),nbas(is))
+  end do
 
-       Call mma_deallocate(CMOInv)
-       Call mma_deallocate(iCMOInv)
+  call mma_deallocate(CMOInv)
+  call mma_deallocate(iCMOInv)
 
-      Else If (ictl.eq.1) Then
+else if (ictl == 1) then
 
-       Do iS=1,nSym
-        js=ieor(is-1,isym-1)+1
-        If (nBas(is)*nBas(js)==0) Cycle
-           Call DGEMM_('T','N',                                         &
-     &                 nOrb(iS),nBas(jS),nBas(iS),                      &
-     &                 1.0d0,CMO(ipCM(iS)),nBas(is),                    &
-     &                 A(ipmat(is,js)),nBas(iS),                        &
-     &                 0.0d0,Temp,nOrb(iS))
-           Call DGEMM_('N','N',                                         &
-     &                 nOrb(is),nOrb(jS),nBas(jS),                      &
-     &                 1.0d0,Temp,nOrb(iS),                             &
-     &                 CMO(ipCM(jS)),nBas(jS),                          &
-     &                 0.0d0,A(ipMat(iS,jS)),nOrb(iS))
-       End Do
+  do iS=1,nSym
+    js = ieor(is-1,isym-1)+1
+    if (nBas(is)*nBas(js) == 0) cycle
+    call DGEMM_('T','N',nOrb(iS),nBas(jS),nBas(iS),1.0d0,CMO(ipCM(iS)),nBas(is),A(ipmat(is,js)),nBas(iS),0.0d0,Temp,nOrb(iS))
+    call DGEMM_('N','N',nOrb(is),nOrb(jS),nBas(jS),1.0d0,Temp,nOrb(iS),CMO(ipCM(jS)),nBas(jS),0.0d0,A(ipMat(iS,jS)),nOrb(iS))
+  end do
 
-      Else if (ictl.eq.-2) Then
+else if (ictl == -2) then
 
-       Do iS=1,nSym
-        js=ieor(is-1,isym-1)+1
-        If (nBas(is)*nBas(js)==0) Cycle
-           Call DGEMM_('N','N',                                         &
-     &                 nBas(iS),nOrb(jS),nOrb(iS),                      &
-     &                 1.0d0,CMO(ipCM(iS)),nBas(is),                    &
-     &                 A(ipmat(is,js)),nOrb(iS),                        &
-     &                 0.0d0,Temp,nBas(iS))
-           Call DGEMM_('N','T',                                         &
-     &                 nBas(is),nBas(jS),nOrb(jS),                      &
-     &                 1.0d0,Temp,nBas(iS),                             &
-     &                 CMO(ipCM(jS)),nBas(jS),                          &
-     &                 0.0d0,A(ipMat(iS,jS)),nBas(iS))
-       End Do
+  do iS=1,nSym
+    js = ieor(is-1,isym-1)+1
+    if (nBas(is)*nBas(js) == 0) cycle
+    call DGEMM_('N','N',nBas(iS),nOrb(jS),nOrb(iS),1.0d0,CMO(ipCM(iS)),nBas(is),A(ipmat(is,js)),nOrb(iS),0.0d0,Temp,nBas(iS))
+    call DGEMM_('N','T',nBas(is),nBas(jS),nOrb(jS),1.0d0,Temp,nBas(iS),CMO(ipCM(jS)),nBas(jS),0.0d0,A(ipMat(iS,jS)),nBas(iS))
+  end do
 
-      Else
+else
 
-        Write(6,*) 'Oink'
-        Call SysHalt('tcmo')
+  write(6,*) 'Oink'
+  call SysHalt('tcmo')
 
-      End If
+end if
 
-      Call mma_deallocate(Temp)
+call mma_deallocate(Temp)
 
-      End Subroutine TCMO
+end subroutine TCMO

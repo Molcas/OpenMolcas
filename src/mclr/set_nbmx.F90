@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Set_nbmx(nbmx_)
-      Implicit None
-      Integer nbmx_
+
+subroutine Set_nbmx(nbmx_)
+
+implicit none
+integer nbmx_
+
 #include "caspt2.fh"
-!
-      nbmx=nbmx_
-!
-      End Subroutine Set_nbmx
+
+nbmx = nbmx_
+
+end subroutine Set_nbmx

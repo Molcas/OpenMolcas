@@ -9,40 +9,38 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-      SUBROUTINE DGMM2 (AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
-!
+subroutine DGMM2(AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
 ! PRODUCT OF DIAGONAL MATRIX AND MATRIX :
 !
-!     IWAY = 1 : AOUT(I,J) = DIAG(I)*AIN(I,J)
-!     IWAY = 2 : AOUT(I,J) = DIAG(J)*AIN(I,J)
-!
-      IMPLICIT REAL*8          (A-H,O-Z)
-      DIMENSION AIN(NRDIM,NCDIM),DIAG(*)
-      DIMENSION AOUT(NRDIM,NCDIM)
-!
-      IF ( IWAY .EQ. 1 ) THEN
-         DO 100 J = 1, NCDIM
-           AOUT(:,J) = DIAG(1:NRDIM)*AIN(:,J)
-  100    CONTINUE
-      END IF
-!
-      IF( IWAY .EQ. 2 ) THEN
-        DO 200 J = 1, NCDIM
-          AOUT(:,J) = DIAG(J)*AIN(:,J)
-  200   CONTINUE
-      END IF
-!
-      NTEST = 00
-      IF( NTEST .NE. 0 ) THEN
-        WRITE(6,*) ' AIN DIAG AOUT  FROM DGMTMT '
-        CALL WRTMAT(AIN ,NRDIM,NCDIM,NRDIM,NCDIM)
-        IF(IWAY.EQ.1) THEN
-        CALL WRTMAT(DIAG,1   ,NRDIM,1,NRDIM)
-        ELSE
-        CALL WRTMAT(DIAG,1   ,NCDIM,1,NCDIM)
-        END IF
-        CALL WRTMAT(AOUT,NRDIM,NCDIM,NRDIM,NCDIM)
-      END IF
-!
-      RETURN
-      END
+!   IWAY = 1 : AOUT(I,J) = DIAG(I)*AIN(I,J)
+!   IWAY = 2 : AOUT(I,J) = DIAG(J)*AIN(I,J)
+
+implicit real*8(A-H,O-Z)
+dimension AIN(NRDIM,NCDIM), DIAG(*)
+dimension AOUT(NRDIM,NCDIM)
+
+if (IWAY == 1) then
+  do J=1,NCDIM
+    AOUT(:,J) = DIAG(1:NRDIM)*AIN(:,J)
+  end do
+else if (IWAY == 2) then
+  do J=1,NCDIM
+    AOUT(:,J) = DIAG(J)*AIN(:,J)
+  end do
+end if
+
+NTEST = 00
+if (NTEST /= 0) then
+  write(6,*) ' AIN DIAG AOUT  FROM DGMTMT'
+  call WRTMAT(AIN,NRDIM,NCDIM,NRDIM,NCDIM)
+  if (IWAY == 1) then
+    call WRTMAT(DIAG,1,NRDIM,1,NRDIM)
+  else
+    call WRTMAT(DIAG,1,NCDIM,1,NCDIM)
+  end if
+  call WRTMAT(AOUT,NRDIM,NCDIM,NRDIM,NCDIM)
+end if
+
+return
+
+end subroutine DGMM2

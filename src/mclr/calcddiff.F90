@@ -14,21 +14,22 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      SUBROUTINE CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
-      Implicit None
-      INTEGER nnA,nRoots,M,K
-      REAL*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA)::GDMat
-      REAL*8,DIMENSION(nnA**2)::Ddiff
 
-      INTEGER it,iu,iMM,iKK
+subroutine CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
 
-      iMM=(M+1)*M/2
-      iKK=(K+1)*K/2
+implicit none
+integer nnA, nRoots, M, K
+real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA) :: GDMat
+real*8, dimension(nnA**2) :: Ddiff
+integer it, iu, iMM, iKK
 
-      DO it=1,nnA
-       Do iu=1,nnA
-        Ddiff((it-1)*nnA+iu)=GDMat(iMM,it,iu)-GDMat(iKK,it,iu)
-       End Do
-      END DO
+iMM = (M+1)*M/2
+iKK = (K+1)*K/2
 
-      END SUBROUTINE CalcDdiff
+do it=1,nnA
+  do iu=1,nnA
+    Ddiff((it-1)*nnA+iu) = GDMat(iMM,it,iu)-GDMat(iKK,it,iu)
+  end do
+end do
+
+end subroutine CalcDdiff

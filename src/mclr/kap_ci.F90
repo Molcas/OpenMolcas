@@ -8,64 +8,63 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Kap_CI(h1,nh1,h2,nh2,ipS1)
-      use ipPage, only: W
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Two
-      use MCLR_Data, only: nConf1, ipCI
-      use input_mclr, only: nRoots,nCSF,State_Sym
-      Implicit None
-      Integer nh1, nh2, ipS1
-      Real*8 h1(nh1), h2(nh2)
 
-      Real*8, Allocatable :: R(:,:)
-      Real*8 rDum(1)
-      Integer iRC, i, j
-      Integer, External:: ipIN
-      Real*8, External:: DDot_
+subroutine Kap_CI(h1,nh1,h2,nh2,ipS1)
+
+use ipPage, only: W
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two
+use MCLR_Data, only: nConf1, ipCI
+use input_mclr, only: nRoots, nCSF, State_Sym
+
+implicit none
+integer nh1, nh2, ipS1
+real*8 h1(nh1), h2(nh2)
+real*8, allocatable :: R(:,:)
+real*8 rDum(1)
+integer iRC, i, j
+integer, external :: ipIN
+real*8, external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-       Interface
-       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,&
-     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
-       Integer iispin, iCsym, iSSym
-       Integer nInt1, nInt2s, nInt2a
-       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-       Integer ipCI1, ipCI2
-       Logical Have_2_el
-       End SubRoutine CISigma_sa
-       End Interface
+interface
+  subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
+    integer iispin, iCsym, iSSym
+    integer nInt1, nInt2s, nInt2a
+    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+    integer ipCI1, ipCI2
+    logical Have_2_el
+  end subroutine CISigma_sa
+end interface
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,  &
-     &                ipS1,.True.)
+call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,ipS1,.true.)
 
-      irc=ipin(ipS1)
-      irc=ipin(ipCI)
+irc = ipin(ipS1)
+irc = ipin(ipCI)
 
-      Call DSCAL_(nroots*ncsf(STATE_SYM),Two,W(ipS1)%Vec,1)
-      Call mma_allocate(R,[0,nroots-1],[0,nroots-1],label='R')
+call DSCAL_(nroots*ncsf(STATE_SYM),Two,W(ipS1)%Vec,1)
+call mma_allocate(R,[0,nroots-1],[0,nroots-1],label='R')
 
-      Do i=0,nroots-1
-       Do j=0,nroots-1
-        R(i,j)=ddot_(nconf1,W(ipS1)%Vec(1+nconf1*i),1,                  &
-     &                     W(ipCI)%Vec(1+nconf1*j),1)
-       End Do
-      End Do
+do i=0,nroots-1
+  do j=0,nroots-1
+    R(i,j) = ddot_(nconf1,W(ipS1)%Vec(1+nconf1*i),1,W(ipCI)%Vec(1+nconf1*j),1)
+  end do
+end do
 
-      Do i=0,nroots-1
-       Do j=0,nroots-1
-       call daxpy_(nconf1,-R(i,j),                                      &
-     &                   W(ipCI)%Vec(1+i*nconf1),1,                     &
-     &                   W(ipS1)%Vec(1+j*nconf1),1)
-       End Do
-      End Do
+do i=0,nroots-1
+  do j=0,nroots-1
+    call daxpy_(nconf1,-R(i,j),W(ipCI)%Vec(1+i*nconf1),1,W(ipS1)%Vec(1+j*nconf1),1)
+  end do
+end do
 
-      Call mma_deallocate(R)
+call mma_deallocate(R)
 
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      End Subroutine Kap_CI
+
+end subroutine Kap_CI

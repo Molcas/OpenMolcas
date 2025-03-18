@@ -14,29 +14,31 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      subroutine CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use MCLR_Data, only: nConf1, nAcPr2
-      use input_mclr, only: nRoots
-      Implicit None
 
+subroutine CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
 
-!***** Output
-       Real*8,DIMENSION((nRoots-1)*nRoots/2)::bX
-       Real*8,DIMENSION(nConf1*nRoots)::bP
-!***** Input
-       INTEGER nTri
-       Real*8,DIMENSION(nRoots*nTri)::FMO1t
-       Real*8,DIMENSION(nRoots*nacpr2)::FMO2t
-       Real*8,DIMENSION(nRoots**2)::R,H
-!***** Auxiliaries
-       Real*8,DIMENSION(:),Allocatable::LOK,CSFOK
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: nConf1, nAcPr2
+use input_mclr, only: nRoots
 
-       CALL mma_allocate(CSFOK,nRoots*nConf1)
-       CALL mma_allocate(LOK,nRoots**2)
-       CALL CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
-       CALL CalcbP(bP,CSFOK,LOK,R)
-       CALL CalcbX(bX,LOK,R,H)
-       CALL mma_deallocate(CSFOK)
-       CALL mma_deallocate(LOK)
-       end subroutine CalcbXbP
+implicit none
+! Output
+real*8, dimension((nRoots-1)*nRoots/2) :: bX
+real*8, dimension(nConf1*nRoots) :: bP
+! Input
+integer nTri
+real*8, dimension(nRoots*nTri) :: FMO1t
+real*8, dimension(nRoots*nacpr2) :: FMO2t
+real*8, dimension(nRoots**2) :: R, H
+! Auxiliaries
+real*8, dimension(:), allocatable :: LOK, CSFOK
+
+call mma_allocate(CSFOK,nRoots*nConf1)
+call mma_allocate(LOK,nRoots**2)
+call CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
+call CalcbP(bP,CSFOK,LOK,R)
+call CalcbX(bX,LOK,R,H)
+call mma_deallocate(CSFOK)
+call mma_deallocate(LOK)
+
+end subroutine CalcbXbP

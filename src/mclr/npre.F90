@@ -8,23 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer FUNCTION nPre(kS)
-      use input_mclr, only: nSym,nIsh,nOrb,nRS1,nRS2,nRS3
-      Implicit None
-      Integer kS
-      Integer iOut,iS,jS,nRest
 
-      iOut=0
-      Do is=1,nSym
-       jS=iEOR(iS-1,kS-1)+1
-       nRest=nOrb(js)-nIsh(js)
-       iOut=iOut+nIsh(is)*nRest*(nRest+1)
-       nRest=nOrb(js)-nRs1(js)
-       iOut=iOut+nRs1(is)*nRest*(nRest+1)
-       nRest=nOrb(js)-nRs2(js)
-       iOut=iOut+nRs2(is)*nRest*(nRest+1)
-       nRest=nOrb(js)-nRs3(js)
-       iOut=iOut+nRs3(is)*nRest*(nRest+1)
-      End Do
-      nPre=iOut
-      End FUNCTION nPre
+integer function nPre(kS)
+
+use input_mclr, only: nSym, nIsh, nOrb, nRS1, nRS2, nRS3
+
+implicit none
+integer kS
+integer iOut, iS, jS, nRest
+
+iOut = 0
+do is=1,nSym
+  jS = ieor(iS-1,kS-1)+1
+  nRest = nOrb(js)-nIsh(js)
+  iOut = iOut+nIsh(is)*nRest*(nRest+1)
+  nRest = nOrb(js)-nRs1(js)
+  iOut = iOut+nRs1(is)*nRest*(nRest+1)
+  nRest = nOrb(js)-nRs2(js)
+  iOut = iOut+nRs2(is)*nRest*(nRest+1)
+  nRest = nOrb(js)-nRs3(js)
+  iOut = iOut+nRs3(is)*nRest*(nRest+1)
+end do
+nPre = iOut
+
+end function nPre

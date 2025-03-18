@@ -8,12 +8,9 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ADS1(NK,I1,XI1S,LI1,IORB,LORB,                         &
-     &                ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMAP,         &
-     &                IEL1,IEL3,                                        &
-     &                I1EL1,I1EL3,ISSO,NSSO,I1SSO,N1SSO,NOCTP,N1OCTP,   &
-     &                NORB1,NORB2,NORB3,ORBSM,NORB,KMAX,KMIN,IEND)
-!
+
+subroutine ADS1(NK,I1,XI1S,LI1,IORB,LORB,ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMAP,IEL1,IEL3,I1EL1,I1EL3,ISSO,NSSO,I1SSO,N1SSO, &
+                NOCTP,N1OCTP,NORB1,NORB2,NORB3,ORBSM,NORB,KMAX,KMIN,IEND)
 ! Obtain I1(KSTR) = +/- A+ IORB !KSTR>
 !
 ! KSTR is restricted to strings with relative numbers in the
@@ -50,136 +47,134 @@
 ! XI1S(KSTR,JORB) : above +/-
 !          : eq. 0    a + JORB !KSTR> = 0
 ! Offset is KMIN
-!
-      USE Symmetry_Info, only: Mul
-      IMPLICIT REAL*8(A-H,O-Z)
-!.Input
-      INTEGER IEL1(*),IEL3(*),I1EL1(*),I1EL3(*)
-      INTEGER ISSO(NOCTP,*),NSSO(NOCTP,*)
-      INTEGER I1SSO(N1OCTP,*),N1SSO(N1OCTP,*)
-      INTEGER ORBSM(*)
-!     INTEGER IMAPO(NORB,*),IMAPS(NORB,*)
-      INTEGER IMAPO(*),IMAPS(*)
-      INTEGER IMPL(*),IMPO(*)
-!.Output
-      INTEGER I1(*)
-      DIMENSION XI1S(*)
-!
-      LDIM = 0 ! dummy initialize
-      NTEST = 000
-      IF(NTEST.NE.0) THEN
-       WRITE(6,*) ' ============== '
-       WRITE(6,*) ' ADSTS speaking '
-       WRITE(6,*) ' ============== '
-       WRITE(6,*) ' IORB,ISM,ICLS',IORB,ISM,ICLS
-       WRITE(6,*) ' IMPF, LMAP ', IMPF, LMAP
-       WRITE(6,*) ' N1SSO : '
-       CALL IWRTMA(N1SSO,N1OCTP,8,N1OCTP,8)
-      END IF
-      NK = KMAX - KMIN + 1
-!. Type of kstrings
-      IF(IORB.LE.NORB1) THEN
-        KEL1 = IEL1(ICLS) - 1
-        KEL3 = IEL3(ICLS)
-      ELSE IF(IORB.LE.NORB1+NORB2) THEN
-        KEL1 = IEL1(ICLS)
-        KEL3 = IEL3(ICLS)
-      ELSE
-        KEL1 = IEL1(ICLS)
-        KEL3 = IEL3(ICLS) - 1
-      END IF
-      KTYPE = 0
-!      write(6,*) ' N1OCTP ', N1OCTP
-      DO 10 KKTYPE = 1, N1OCTP
-       IF(I1EL1(KKTYPE).EQ.KEL1.AND.                                    &
-     &    I1EL3(KKTYPE).EQ.KEL3) KTYPE = KKTYPE
-   10 CONTINUE
-!      write(6,*) ' kel1 kel3 ktype ',KEL1,KEL3,KTYPE
-      IF(KTYPE.EQ.0) THEN
-        NK = 0
-        IEND = 1
-        GOTO 101
-      END IF
-!. Symmetry of K strings
-      KSM = Mul(ORBSM(IORB),ISM)
-      IF(KSM.EQ.0) THEN
-        NK = 0
-        IEND = 1
-        GOTO 101
-      END IF
-      KOFF = I1SSO(KTYPE,KSM)
-!?    WRITE(6,*) ' KTYPE KSM ', KTYPE,KSM
-      IF(KMAX.EQ.-1) THEN
-        KEND = N1SSO(KTYPE,KSM)
-      ELSE
-        KEND = MIN(N1SSO(KTYPE,KSM),KMAX)
-      END IF
-      IF(KEND.LT.N1SSO(KTYPE,KSM)) THEN
-        IEND = 0
-      ELSE
-        IEND = 1
-      END IF
-      NK = KEND-KMIN+1
-      IF(KMAX.EQ.-1) THEN
-       LDIM = NK
-      ELSE
-       LDIM = LI1
-      END IF
-!?    IF(KMAX.EQ.-1) WRITE(6,*) ' KMAX = -1, LDIM=',LDIM
-      IOFF = ISSO(ICLS,ISM)
-      KSUB = KOFF+KMIN-2
-      DO 110 IIORB = IORB,IORB+LORB-1
-      IORBR = IIORB-IORB+1
-      DO 100 KSTR = KOFF+KMIN-1 , KOFF+KEND-1
-!        write(6,*) ' KSTR = ',KSTR
-        KREL = KSTR - KSUB
-!
-        ISTR = 0
-        IF(IMPF.EQ.1) THEN
-          IF(IMAPO((KSTR-1)*LMAP+IIORB).EQ.IIORB)                       &
-     &    ISTR = IMAPS((KSTR-1)*LMAP+IIORB)
-        ELSE
-!          write(6,*) ' IMPL = ',IMPL(KSTR)
-!          write(6,*) ' IMPO = ',IMPO(KSTR)
-          DO IIIORB = 1, IMPL(KSTR)
-           IF(IMAPO(IMPO(KSTR)-1+IIIORB).EQ.IIORB)                      &
-     &     ISTR = IMAPS(IMPO(KSTR)-1+IIIORB)
-          END DO
-        END IF
-        IF(ISTR.GT.0 ) THEN
-          I1(KREL+(IORBR-1)*LDIM) = ISTR - IOFF + 1
-          XI1S(KREL+(IORBR-1)*LDIM) = 1.0D0
-        ELSE IF (ISTR.LT.0 ) THEN
-          I1(KREL+(IORBR-1)*LDIM) = -ISTR - IOFF + 1
-          XI1S(KREL+(IORBR-1)*LDIM) = -1.0D0
-        ELSE  IF( ISTR.EQ.0) THEN
-          I1(KREL+(IORBR-1)*LDIM) = 0
-          XI1S(KREL+(IORBR-1)*LDIM) = 0.0D0
-        END IF
-  100 CONTINUE
-  110 CONTINUE
-  101 CONTINUE
-!
-      IF(NTEST.GT.0) THEN
-        WRITE(6,*) ' Output from ASTR '
-        WRITE(6,*) ' ================ '
-        WRITE(6,*) ' Number of K strings accessed ', NK
-        IF(NK.NE.0) THEN
-          DO 200 IIORB = IORB,IORB+LORB-1
-            IIORBR = IIORB-IORB+1
-            WRITE(6,*) ' Info for orbital ', IIORB
-            WRITE(6,*) ' Excited strings and sign '
-            CALL IWRTMA(I1  (1+(IIORBR-1)*LDIM),1,NK,1,NK)
-            CALL WRTMAT(XI1S(1+(IIORBR-1)*LDIM),1,NK,1,NK)
-  200     CONTINUE
-        END IF
-      END IF
-!
-      RETURN
+
+use Symmetry_Info, only: Mul
+implicit real*8(A-H,O-Z)
+! Input
+integer IEL1(*), IEL3(*), I1EL1(*), I1EL3(*)
+integer ISSO(NOCTP,*), NSSO(NOCTP,*)
+integer I1SSO(N1OCTP,*), N1SSO(N1OCTP,*)
+integer ORBSM(*)
+!integer IMAPO(NORB,*), IMAPS(NORB,*)
+integer IMAPO(*), IMAPS(*)
+integer IMPL(*), IMPO(*)
+! Output
+integer I1(*)
+dimension XI1S(*)
+
+LDIM = 0 ! dummy initialize
+NTEST = 000
+if (NTEST /= 0) then
+  write(6,*) ' =============='
+  write(6,*) ' ADSTS speaking'
+  write(6,*) ' =============='
+  write(6,*) ' IORB,ISM,ICLS',IORB,ISM,ICLS
+  write(6,*) ' IMPF, LMAP ',IMPF,LMAP
+  write(6,*) ' N1SSO :'
+  call IWRTMA(N1SSO,N1OCTP,8,N1OCTP,8)
+end if
+NK = KMAX-KMIN+1
+! Type of kstrings
+if (IORB <= NORB1) then
+  KEL1 = IEL1(ICLS)-1
+  KEL3 = IEL3(ICLS)
+else if (IORB <= NORB1+NORB2) then
+  KEL1 = IEL1(ICLS)
+  KEL3 = IEL3(ICLS)
+else
+  KEL1 = IEL1(ICLS)
+  KEL3 = IEL3(ICLS)-1
+end if
+KTYPE = 0
+!write(6,*) ' N1OCTP ',N1OCTP
+do KKTYPE=1,N1OCTP
+  if ((I1EL1(KKTYPE) == KEL1) .and. (I1EL3(KKTYPE) == KEL3)) KTYPE = KKTYPE
+end do
+!write(6,*) ' kel1 kel3 ktype ',KEL1,KEL3,KTYPE
+if (KTYPE == 0) then
+  NK = 0
+  IEND = 1
+  goto 101
+end if
+! Symmetry of K strings
+KSM = Mul(ORBSM(IORB),ISM)
+if (KSM == 0) then
+  NK = 0
+  IEND = 1
+  goto 101
+end if
+KOFF = I1SSO(KTYPE,KSM)
+!? write(6,*) ' KTYPE KSM ',KTYPE,KSM
+if (KMAX == -1) then
+  KEND = N1SSO(KTYPE,KSM)
+else
+  KEND = min(N1SSO(KTYPE,KSM),KMAX)
+end if
+if (KEND < N1SSO(KTYPE,KSM)) then
+  IEND = 0
+else
+  IEND = 1
+end if
+NK = KEND-KMIN+1
+if (KMAX == -1) then
+  LDIM = NK
+else
+  LDIM = LI1
+end if
+!? if (KMAX == -1) write(6,*) ' KMAX = -1, LDIM=',LDIM
+IOFF = ISSO(ICLS,ISM)
+KSUB = KOFF+KMIN-2
+do IIORB=IORB,IORB+LORB-1
+  IORBR = IIORB-IORB+1
+  do KSTR=KOFF+KMIN-1,KOFF+KEND-1
+    !write(6,*) ' KSTR = ',KSTR
+    KREL = KSTR-KSUB
+
+    ISTR = 0
+    if (IMPF == 1) then
+      if (IMAPO((KSTR-1)*LMAP+IIORB) == IIORB) ISTR = IMAPS((KSTR-1)*LMAP+IIORB)
+    else
+      !write(6,*) ' IMPL = ',IMPL(KSTR)
+      !write(6,*) ' IMPO = ',IMPO(KSTR)
+      do IIIORB=1,IMPL(KSTR)
+        if (IMAPO(IMPO(KSTR)-1+IIIORB) == IIORB) ISTR = IMAPS(IMPO(KSTR)-1+IIIORB)
+      end do
+    end if
+    if (ISTR > 0) then
+      I1(KREL+(IORBR-1)*LDIM) = ISTR-IOFF+1
+      XI1S(KREL+(IORBR-1)*LDIM) = 1.0d0
+    else if (ISTR < 0) then
+      I1(KREL+(IORBR-1)*LDIM) = -ISTR-IOFF+1
+      XI1S(KREL+(IORBR-1)*LDIM) = -1.0d0
+    else if (ISTR == 0) then
+      I1(KREL+(IORBR-1)*LDIM) = 0
+      XI1S(KREL+(IORBR-1)*LDIM) = 0.0d0
+    end if
+  end do
+end do
+101 continue
+
+if (NTEST > 0) then
+  write(6,*) ' Output from ASTR'
+  write(6,*) ' ================'
+  write(6,*) ' Number of K strings accessed ',NK
+  if (NK /= 0) then
+    do IIORB=IORB,IORB+LORB-1
+      IIORBR = IIORB-IORB+1
+      write(6,*) ' Info for orbital ',IIORB
+      write(6,*) ' Excited strings and sign'
+      call IWRTMA(I1(1+(IIORBR-1)*LDIM),1,NK,1,NK)
+      call WRTMAT(XI1S(1+(IIORBR-1)*LDIM),1,NK,1,NK)
+    end do
+  end if
+end if
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer_array(NSSO)
-        CALL Unused_integer(NORB3)
-        CALL Unused_integer(NORB)
-      END IF
-      END
+if (.false.) then
+  call Unused_integer_array(NSSO)
+  call Unused_integer(NORB3)
+  call Unused_integer(NORB)
+end if
+
+end subroutine ADS1

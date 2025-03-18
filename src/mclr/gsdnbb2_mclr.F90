@@ -10,20 +10,12 @@
 !                                                                      *
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE GSDNBB2_MCLR(I12,RHO1,RHO2,                            &
-     &                  IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,        &
-     &                  NGAS,IAOC,IBOC,JAOC,JBOC,                       &
-     &                  NAEL,NBEL,                                      &
-     &                  IJAGRP,IJBGRP,                                  &
-     &                  SB,CB,C2,                                       &
-     &                  MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,                &
-     &                  SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,      &
-     &                  X,NSMOB,NSMST,NSMSX,NSMDX,                      &
-     &                  NIA,NIB,NJA,NJB,MXPOBS,IPRNT,NACOB,RHO1S,       &
-     &                  ieaw,n1,n2)
-!
-! Contributions to density matrix from sigma block (iasm iatp, ibsm ibtp ) and
-! C block (jasm jatp , jbsm, jbtp)
+
+subroutine GSDNBB2_MCLR(I12,RHO1,RHO2,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL,IJAGRP,IJBGRP,SB, &
+                        CB,C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX, &
+                        NIA,NIB,NJA,NJB,MXPOBS,IPRNT,NACOB,RHO1S,ieaw,n1,n2)
+! Contributions to density matrix from sigma block (iasm iatp, ibsm ibtp) and
+! C block (jasm jatp, jbsm, jbtp)
 !
 ! =====
 ! Input
@@ -71,126 +63,94 @@
 ! XINT : Scratch space for integrals.
 !
 ! Jeppe Olsen, Winter of 1991
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!. Input
-      DIMENSION CB(*),SB(*)
-!. Output
-      DIMENSION RHO1(n1,*),RHO2(n2,*)
-!. Scratch
-      DIMENSION SSCR(*),CSCR(*)
-      DIMENSION  I1(*),XI1S(*),I2(*),XI2S(*),I3(*),XI3S(*),I4(*),XI4S(*)
-      DIMENSION C2(*),RHO1S(*),X(*)
-      DIMENSION IAOC(*),IBOC(*),JAOC(*),JBOC(*),NOBPTS(*),IOBPTS(*)
-      DIMENSION ITSOB(1)
-!
-      iUseab=0
-      ii=1
-      If (ieaw.eq.1) ii=2
-      IF(NBEL.GE.1.AND.IATP.EQ.JATP.AND.JASM.EQ.IASM) THEN
-!
-! =============================
-!  beta contribution to RHO1
-! =============================
-!
-        CALL GSBBD1_MCLR(RHO1(1,ii),                                    &
-     &       NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,                      &
-     &       NGAS,IBOC,JBOC,                                            &
-     &       SB,CB,                                                     &
-     &       MXPNGAS,                                                   &
-     &       NOBPTS,IOBPTS,ITSOB,MAXI,MAXK,                             &
-     &       SSCR,CSCR,I1,XI1S,I2,XI2S,X(1),                            &
-     &       NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
-!
-! ================================
-! beta-beta contribution to RHO2
-! ================================
-!
-        ii=1
-        If (ieaw.eq.1) ii=2
-        IF(I12.EQ.2.AND.NBEL.GE.2) THEN
-          CALL GSBBD2A_MCLR(RHO2(1,ii),                                 &
-     &         NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,                    &
-     &         NGAS,IBOC,JBOC,SB,CB,                                    &
-     &         MXPNGAS,                                                 &
-     &         NOBPTS,IOBPTS,MAXI,MAXK,                                 &
-     &         SSCR,CSCR,I1,XI1S,I2,XI2S,X,                             &
-     &         NSMOB,NSMST,NSMSX,MXPOBS)
-!
-        END IF
-      END IF
-!
-      IF(NAEL.GE.1.AND.IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM) THEN
-!
-! =============================
-!  alpha contribution to RHO1
-! =============================
-!
-        ii=1
-        CALL TRPMT3(CB,NJA,NJB,C2)
-        CB(1:NJA*NJB) = C2(1:NJA*NJB)
-        CALL TRPMT3(SB,NIA,NIB,C2)
-        SB(1:NIA*NIB) = C2(1:NIA*NIB)
-        CALL GSBBD1_MCLR(RHO1(1,ii),                                    &
-     &                   NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,          &
-     &                   NGAS,IAOC,JAOC,                                &
-     &                   SB,CB,                                         &
-     &                   MXPNGAS,                                       &
-     &                   NOBPTS,IOBPTS,ITSOB,MAXI,MAXK,                 &
-     &                   SSCR,CSCR,I1,XI1S,I2,XI2S,X(1),                &
-     &                   NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
-!
-! ===================================
-!  alpha-alpha contribution to RHO2
-! ===================================
-!
-        ii=1
-        IF(I12.EQ.2.AND.NAEL.GE.2) THEN
-          CALL GSBBD2A_MCLR(RHO2(1,ii),                                 &
-     &         NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,                    &
-     &         NGAS,IAOC,JAOC,SB,CB,                                    &
-     &         MXPNGAS,                                                 &
-     &         NOBPTS,IOBPTS,MAXI,MAXK,                                 &
-     &         SSCR,CSCR,I1,XI1S,I2,XI2S,X,                             &
-     &         NSMOB,NSMST,NSMSX,MXPOBS)
-        END IF
-        CALL TRPMT3(CB,NJB,NJA,C2)
-        CB(1:NJA*NJB) = C2(1:NJA*NJB)
-        CALL TRNSPS(NIB,NIA,SB,C2)
-        SB(1:NIA*NIB) = C2(1:NIA*NIB)
-      END IF
-!
-! ===================================
+
+implicit real*8(A-H,O-Z)
+! Input
+dimension CB(*), SB(*)
+! Output
+dimension RHO1(n1,*), RHO2(n2,*)
+! Scratch
+dimension SSCR(*), CSCR(*)
+dimension I1(*), XI1S(*), I2(*), XI2S(*), I3(*), XI3S(*), I4(*), XI4S(*)
+dimension C2(*), RHO1S(*), X(*)
+dimension IAOC(*), IBOC(*), JAOC(*), JBOC(*), NOBPTS(*), IOBPTS(*)
+dimension ITSOB(1)
+
+iUseab = 0
+ii = 1
+if (ieaw == 1) ii = 2
+if ((NBEL >= 1) .and. (IATP == JATP) .and. (JASM == IASM)) then
+
+  ! ===========================
+  !  beta contribution to RHO1
+  ! ===========================
+
+  call GSBBD1_MCLR(RHO1(1,ii),NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,ITSOB,MAXI,MAXK, &
+                   SSCR,CSCR,I1,XI1S,I2,XI2S,X(1),NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
+
+  ! ================================
+  !  beta-beta contribution to RHO2
+  ! ================================
+
+  ii = 1
+  if (ieaw == 1) ii = 2
+  if ((I12 == 2) .and. (NBEL >= 2)) &
+    call GSBBD2A_MCLR(RHO2(1,ii),NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
+                      CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS)
+
+end if
+
+if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
+
+  ! ============================
+  !  alpha contribution to RHO1
+  ! ============================
+
+  ii = 1
+  call TRPMT3(CB,NJA,NJB,C2)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
+  call TRPMT3(SB,NIA,NIB,C2)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
+  call GSBBD1_MCLR(RHO1(1,ii),NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,ITSOB,MAXI,MAXK, &
+                   SSCR,CSCR,I1,XI1S,I2,XI2S,X(1),NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
+
+  ! ==================================
+  !  alpha-alpha contribution to RHO2
+  ! ==================================
+
+  ii = 1
+  if ((I12 == 2) .and. (NAEL >= 2)) &
+    call GSBBD2A_MCLR(RHO2(1,ii),NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
+                      CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS)
+  call TRPMT3(CB,NJB,NJA,C2)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
+  call TRNSPS(NIB,NIA,SB,C2)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
+end if
+
+! =================================
 !  alpha-beta contribution to RHO2
-! ===================================
-!
-      ii=1
-      If (ieaw.eq.1) ii=3
-      IF(I12.EQ.2.AND.NAEL.GE.1.AND.NBEL.GE.1) THEN
-!. Routine uses transposed blocks
-        CALL TRPMT3(CB,NJA,NJB,C2)
-        CB(1:NJA*NJB) = C2(1:NJA*NJB)
-        CALL TRPMT3(SB,NIA,NIB,C2)
-        SB(1:NIA*NIB) = C2(1:NIA*NIB)
-        CALL GSBBD2B_MCLR(RHO2(1,ii),                                   &
-     &                    IASM,IATP,IBSM,IBTP,NIA,NIB,                  &
-     &                    JASM,JATP,JBSM,JBTP,NJA,NJB,                  &
-     &                    IJAGRP,IJBGRP,NGAS,                           &
-     &                    IAOC(1),IBOC(1),JAOC(1),JBOC(1),              &
-     &                    SB,CB,MXPNGAS,                                &
-     &                    NOBPTS,IOBPTS,MAXK,                           &
-     &                    I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,            &
-     &                    NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,        &
-     &                    SSCR,CSCR,NACOB,NTEST,ieaw)
-        CALL TRPMT3(CB,NJB,NJA,C2)
-        CB(1:NJA*NJB) = C2(1:NJA*NJB)
-        CALL TRNSPS(NIB,NIA,SB,C2)
-        SB(1:NIA*NIB) = C2(1:NIA*NIB)
-      END IF
-!
-      RETURN
+! =================================
+
+ii = 1
+if (ieaw == 1) ii = 3
+if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
+  ! Routine uses transposed blocks
+  call TRPMT3(CB,NJA,NJB,C2)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
+  call TRPMT3(SB,NIA,NIB,C2)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
+  call GSBBD2B_MCLR(RHO2(1,ii),IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB, &
+                    CB,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,SSCR, &
+                    CSCR,NACOB,NTEST,ieaw)
+  call TRPMT3(CB,NJB,NJA,C2)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
+  call TRNSPS(NIB,NIA,SB,C2)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
+end if
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        Call Unused_integer(IPRNT)
-      END IF
-      END
+if (.false.) call Unused_integer(IPRNT)
+
+end subroutine GSDNBB2_MCLR

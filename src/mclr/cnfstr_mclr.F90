@@ -10,86 +10,77 @@
 !                                                                      *
 ! Copyright (C) 1989,1991,1993, Jeppe Olsen                            *
 !***********************************************************************
-      SUBROUTINE CNFSTR_MCLR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,     &
-     &                  IDET,IPRODT,IAGRP,IBGRP,ISCR,SIGN,NTEST)
-!
+
+subroutine CNFSTR_MCLR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,IAGRP,IBGRP,ISCR,SIGN,NTEST)
 ! An orbital configuration ICONF is given,
-! Obtain the corresponding alpha strings,IASTR
-!        the corresponding beta  strings,IBSTR
-!        the corresponding sign array   ,ISIGN
+! Obtain the corresponding alpha strings, IASTR
+!        the corresponding beta  strings, IBSTR
+!        the corresponding sign array,    ISIGN
 !
 ! Jeppe Olsen, Summer of 89
 !
 ! Ninob added, October 1991
 !
 ! Modified September 1993 for LUCIA
-!
-      use MCLR_Data, only: MINOP, NDPCNT
-      IMPLICIT NONE
-!. Specific input
-      INTEGER ICONF(*)
-      INTEGER ITYP,NORB,NAEL,NBEL,IDET
-      Integer NTEST
-!. General input
-      INTEGER IPRODT(*)
-      Integer IAGRP,IBGRP
-!
-!. Scratch : required length : IDET * ( NAEL + NBEL ) + 2(NAEL+NBEL)
-! ( this includes NAEL+NBEL words needed in DETSTR )
-      INTEGER ISCR(*)
-!. Output
-      INTEGER IASTR(*),IBSTR(*)
-      REAL*8 SIGN(*)
-!
-!
-!     Local Variables
-      INTEGER NEL,IOPEN,ICLOS,KLFREE,KLDETS,KLIA,KLIB,KLDET,IP,JTYP,    &
-     &        JDET,ISIGN
-      INTEGER, EXTERNAL:: ISTRN_MCLR
-!
-      NEL = NAEL + NBEL
-      IOPEN = ITYP-1+MINOP
-      ICLOS = (NAEL + NBEL - IOPEN) / 2
-!
-!* Spin orbital occupations of determinants of configuration
-!
-      KLFREE = 1
-!
-      KLDETS = KLFREE
-      KLFREE = KLDETS + IDET*(NAEL+NBEL)
-!
-      KLIA = KLFREE
-      KLFREE = KLFREE + NAEL
-!
-      KLIB = KLFREE
-      KLFREE = KLFREE + NBEL
-!
-      KLDET  = KLFREE
-      KLFREE = KLFREE + NAEL + NBEL
-!
+
+use MCLR_Data, only: MINOP, NDPCNT
+
+implicit none
+! Specific input
+integer ICONF(*)
+integer ITYP, NORB, NAEL, NBEL, IDET
+integer NTEST
+! General input
+integer IPRODT(*)
+integer IAGRP, IBGRP
+! Scratch : required length : IDET * (NAEL+NBEL) + 2(NAEL+NBEL)
+! (this includes NAEL+NBEL words needed in DETSTR)
+integer ISCR(*)
+! Output
+integer IASTR(*), IBSTR(*)
+real*8 sign(*)
+! Local Variables
+integer NEL, IOPEN, ICLOS, KLFREE, KLDETS, KLIA, KLIB, KLDET, IP, JTYP, JDET, ISIGN
+integer, external :: ISTRN_MCLR
+
+NEL = NAEL+NBEL
+IOPEN = ITYP-1+MINOP
+ICLOS = (NAEL+NBEL-IOPEN)/2
+
+! Spin orbital occupations of determinants of configuration
+
+KLFREE = 1
+
+KLDETS = KLFREE
+KLFREE = KLDETS+IDET*(NAEL+NBEL)
+
+KLIA = KLFREE
+KLFREE = KLFREE+NAEL
+
+KLIB = KLFREE
+KLFREE = KLFREE+NBEL
+
+KLDET = KLFREE
+KLFREE = KLFREE+NAEL+NBEL
 
 ! Pointer for determinants of prototype ITYP
 
-      IP = 1
-      DO 10 JTYP = 1, ITYP - 1
-        IP = IP + NDPCNT(JTYP)*(JTYP-1+MINOP)
-   10 CONTINUE
-!. Expand into determinants
-!
-      CALL CNDET_MCLR(ICONF,IPRODT(IP),IDET,NAEL+NBEL,NORB,             &
-     &           IOPEN,ICLOS,ISCR(KLDETS),NTEST)
-!
-!* Separate determinants into strings and determine sign change
-!
-      DO 100 JDET = 1, IDET
-        CALL DETSTR_MCLR(ISCR(KLDETS+(JDET-1)*NEL),                     &
-     &              ISCR(KLIA),ISCR(KLIB),                              &
-     &              NEL,NAEL,NBEL,                                      &
-     &              NORB,ISIGN,ISCR(KLDET),NTEST)
-!. Actual numbers of alpha and beta string
-        IASTR(JDET) = ISTRN_MCLR(ISCR(KLIA),IAGRP)
-        IBSTR(JDET) = ISTRN_MCLR(ISCR(KLIB),IBGRP)
-        SIGN(JDET) = DBLE(ISIGN)
-  100 CONTINUE
-!
-      END SUBROUTINE CNFSTR_MCLR
+IP = 1
+do JTYP=1,ITYP-1
+  IP = IP+NDPCNT(JTYP)*(JTYP-1+MINOP)
+end do
+! Expand into determinants
+
+call CNDET_MCLR(ICONF,IPRODT(IP),IDET,NAEL+NBEL,NORB,IOPEN,ICLOS,ISCR(KLDETS),NTEST)
+
+! Separate determinants into strings and determine sign change
+
+do JDET=1,IDET
+  call DETSTR_MCLR(ISCR(KLDETS+(JDET-1)*NEL),ISCR(KLIA),ISCR(KLIB),NEL,NAEL,NBEL,NORB,ISIGN,ISCR(KLDET),NTEST)
+  ! Actual numbers of alpha and beta string
+  IASTR(JDET) = ISTRN_MCLR(ISCR(KLIA),IAGRP)
+  IBSTR(JDET) = ISTRN_MCLR(ISCR(KLIB),IBGRP)
+  sign(JDET) = dble(ISIGN)
+end do
+
+end subroutine CNFSTR_MCLR

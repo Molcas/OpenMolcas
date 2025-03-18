@@ -10,14 +10,11 @@
 !                                                                      *
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS, &
-     &                  NRSOBS,NR4OBS,NOCOBS,NTOOBS,                    &
-     &                  IREOST,IREOTS,ISFTO,ITFSO,IPRNT,IBSO,           &
-     &                  NTSOB,IBTSOB,ITSOB,NOBPTS,IOBPTS,MXPR4T,        &
-     &                  ISMFSO,ITPFTO,NOBPT)
-!
+
+subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,NOCOBS,NTOOBS,IREOST,IREOTS,ISFTO,ITFSO,IPRNT,IBSO, &
+                  NTSOB,IBTSOB,ITSOB,NOBPTS,IOBPTS,MXPR4T,ISMFSO,ITPFTO,NOBPT)
 ! Obtain Reordering arrays for orbitals
-! ( See note below for assumed ordering )
+! (See note below for assumed ordering)
 !
 ! =====
 ! Input
@@ -27,7 +24,7 @@
 !  NR4TP  : Number of RAS4 types
 !  NDEOBS : Number of deleted orbitals per symmetry
 !  NINOBS : Number of inactive  orbitals per symmetry
-!  NR0OBS : Number of RAS 0 (core ) orbitals per symmetry
+!  NR0OBS : Number of RAS 0 (core) orbitals per symmetry
 !  NACOBS : Number of Active orbitals per symmetry
 !  NRSOBS : Number of orbitals per symmetry in RAS1,RAS2,RAS3
 !  NR4OBS : Number of RAS 4 orbitals per symmetry and type
@@ -40,8 +37,8 @@
 !  IREOST : Reordering array symmetry => type
 !  IREOTS : Reordering array type     => symmetry
 !  ISFTO  : Symmetry array for type ordered orbitals
-!  ITFSO  : Type array for symmetry ordered orbitals( not activated )
-!  IBSO   : First orbital of given symmetry ( symmetry ordered )
+!  ITFSO  : Type array for symmetry ordered orbitals (not activated)
+!  IBSO   : First orbital of given symmetry (symmetry ordered)
 !  NTSOB  : Number of active orbitals of give RAS type and SYM
 !  IBTSOB : Off set for active orbitals of given RAS type and SYM
 !  ITSOB  : Orbitals of given RAS type and sym
@@ -52,22 +49,22 @@
 !
 ! ISMFSO  : Symmetry of orbitals, symmetry ordereing
 ! ITPFTO  : Type of orbital, type ordering
-! Jeppe Olsen, Winter 1991
 !
-      IMPLICIT REAL*8(A-H,O-Z)
-!. Input
-      DIMENSION NDEOBS(*),NINOBS(*),NR0OBS(*),NACOBS(*),                &
-     &          NRSOBS(MXPOBS,3),NR4OBS(MXPOBS,*),NOCOBS(*),NTOOBS(*)
-!. Output
-      DIMENSION IREOST(*),IREOTS(*),ISFTO(*),ITFSO(*),IBSO(*)
-      DIMENSION ISMFSO(*),ITPFTO(*)
-      DIMENSION NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
-      DIMENSION NOBPTS(6+MXPR4T,*),IOBPTS(6+MXPR4T,*)
-      DIMENSION NOBPT(6+MXPR4T)
+! Jeppe Olsen, Winter 1991
 
-! ==========================
+implicit real*8(A-H,O-Z)
+! Input
+dimension NDEOBS(*), NINOBS(*), NR0OBS(*), NACOBS(*), NRSOBS(MXPOBS,3), NR4OBS(MXPOBS,*), NOCOBS(*), NTOOBS(*)
+! Output
+dimension IREOST(*), IREOTS(*), ISFTO(*), ITFSO(*), IBSO(*)
+dimension ISMFSO(*), ITPFTO(*)
+dimension NTSOB(3,*), IBTSOB(3,*), ITSOB(*)
+dimension NOBPTS(6+MXPR4T,*), IOBPTS(6+MXPR4T,*)
+dimension NOBPT(6+MXPR4T)
+
+! =========================
 ! Note on order of orbitals
-! ==========================
+! =========================
 !
 ! The orbitals are supposed to be imported ordered symmetry-type
 ! ordered as
@@ -91,277 +88,275 @@
 !  Secondary
 !  Inactive
 !  Deleted orbitals
-!
-!
+
 ! Active orbitals
-!
-      IAC = 0
-      IBSM  =0 ! dummy intitialize
-      NPREVS=0 ! dummy initialize
-      IORB  =0 ! dummy initialize
-      DO 11 IRS = 1, 3
-      DO 10 ISM = 1,NSMOB
-        IF(ISM.EQ.1) THEN
-          IBSM = 1
-        ELSE
-          IBSM = IBSM + NTOOBS(ISM-1)
-        END IF
-        IF(IRS.EQ.1) THEN
-          NPREVS = NINOBS(ISM)+NR0OBS(ISM)
-          IORB = NRSOBS(ISM,1)
-        ELSE IF(IRS.EQ.2) THEN
-          NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NRSOBS(ISM,1)
-          IORB = NRSOBS(ISM,2)
-        ELSE IF(IRS.EQ.3) THEN
-          NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NRSOBS(ISM,1)+NRSOBS(ISM,2)
-          IORB = NRSOBS(ISM,3)
-        END IF
-        DO 9 IIAC = 1, IORB
-!. Type ordered index
-          IAC = IAC + 1
-!. Symmetry ordered index
-          IACS = IBSM + NPREVS - 1 + IIAC
-          ISFTO(IAC) = ISM
-!         ISMFSO(IACS) = ISM
-          ITPFTO(IAC) = IRS
-!         ITFSO(IACS) = IRS
-          IREOST(IACS) = IAC
-          IREOTS(IAC) = IACS
 
-    9   CONTINUE
-   10 CONTINUE
-   11 CONTINUE
-      NACOB = IAC
-!?    write(6,*) ' IAC ',IAC
-!
-!. RAS 0 orbitals
-!
-      IR0 = NACOB
-      DO 20 ISM = 1,NSMOB
-        IF(ISM.EQ.1) THEN
-          IBSM = 1
-        ELSE
-          IBSM = IBSM + NTOOBS(ISM-1)
-        END IF
-        NPREVS = NINOBS(ISM)
-        DO 19 IIR0 = 1, NR0OBS(ISM)
-!. Type ordered index
-          IR0 = IR0 + 1
-!. Symmetry ordered index
-          IR0S = IBSM + NPREVS - 1 + IIR0
-          ISFTO(IR0) = ISM
-!         ITFSO(IR0S) = 4
-          IREOST(IR0S) = IR0
-          IREOTS(IR0) = IR0S
-   19   CONTINUE
-   20 CONTINUE
-      NR0OB = IR0 - NACOB
-!?    write(6,*) ' IR0 ',IR0
-!
-!. RAS 4 orbitals
-!
-      IR4 = NACOB+NR0OB
-      DO 30 ISM = 1,NSMOB
-        IF(ISM.EQ.1) THEN
-          IBSM = 1
-        ELSE
-          IBSM = IBSM + NTOOBS(ISM-1)
-        END IF
-        NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NACOBS(ISM)
-        DO 29 ITP = 1, NR4TP
-        DO 28 IIR4 = 1, NR4OBS(ISM,ITP)
-!. Type ordered index
-          IR4 = IR4 + 1
-!. Symmetry ordered index
-          IR4S = IBSM + NPREVS - 1 + IIR4
-          ISFTO(IR4) = ISM
-!         ITFSO(IR4S) = 5
-          IREOST(IR4S) = IR4
-          IREOTS(IR4) = IR4S
-   28   CONTINUE
-   29   CONTINUE
-   30 CONTINUE
-      NR4OB = IR4 - NACOB - NR0OB
-!?    write(6,*) ' IR4 ',IR4
-!
-!. Inactive orbitals
-!
-      IIN = NACOB+NR0OB+NR4OB
-      DO 40 ISM = 1,NSMOB
-        IF(ISM.EQ.1) THEN
-          IBSM = 1
-        ELSE
-          IBSM = IBSM + NTOOBS(ISM-1)
-        END IF
-        NPREVS = 0
-        DO 39 IIIN = 1, NINOBS(ISM)
-!. Type ordered index
-          IIN = IIN + 1
-!. Symmetry ordered index
-          IINS = IBSM + NPREVS - 1 + IIIN
-          ISFTO(IIN) = ISM
-!         ITFSO(IINS) = 6
-          IREOST(IINS) = IIN
-          IREOTS(IIN) = IINS
-   39   CONTINUE
-   40 CONTINUE
-      NINOB = IIN - NACOB - NR0OB - NR4OB
-!?    write(6,*) ' IIN   ',IIN
-!
-!. Deleted orbitals
-!
-      IDE = NACOB+NR0OB+NR4OB+NINOB
-      DO 50 ISM = 1,NSMOB
-        IF(ISM.EQ.1) THEN
-          IBSM = 1
-        ELSE
-          IBSM = IBSM + NTOOBS(ISM-1)
-        END IF
-        IR4 = 0
-        DO 45 ITP = 1, NR4TP
-          IR4 = IR4 + NR4OBS(ISM,ITP)
-   45   CONTINUE
+IAC = 0
+IBSM = 0   ! dummy intitialize
+NPREVS = 0 ! dummy initialize
+IORB = 0   ! dummy initialize
+do IRS=1,3
+  do ISM=1,NSMOB
+    if (ISM == 1) then
+      IBSM = 1
+    else
+      IBSM = IBSM+NTOOBS(ISM-1)
+    end if
+    if (IRS == 1) then
+      NPREVS = NINOBS(ISM)+NR0OBS(ISM)
+      IORB = NRSOBS(ISM,1)
+    else if (IRS == 2) then
+      NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NRSOBS(ISM,1)
+      IORB = NRSOBS(ISM,2)
+    else if (IRS == 3) then
+      NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NRSOBS(ISM,1)+NRSOBS(ISM,2)
+      IORB = NRSOBS(ISM,3)
+    end if
+    do IIAC=1,IORB
+      ! Type ordered index
+      IAC = IAC+1
+      ! Symmetry ordered index
+      IACS = IBSM+NPREVS-1+IIAC
+      ISFTO(IAC) = ISM
+      !ISMFSO(IACS) = ISM
+      ITPFTO(IAC) = IRS
+      !ITFSO(IACS) = IRS
+      IREOST(IACS) = IAC
+      IREOTS(IAC) = IACS
 
-        NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NACOBS(ISM)+IR4
-        DO 49 IIDE = 1, NDEOBS(ISM)
-!. Type ordered index
-          IDE = IDE + 1
-!. Symmetry ordered index
-          IDES = IBSM + NPREVS - 1 + IIDE
-          ISFTO(IDE) = ISM
-!         ITFSO(IDES) = 7
-          IREOST(IDES) = IDE
-          IREOTS(IDE) = IDES
-   49   CONTINUE
-   50 CONTINUE
-      NTOOB = IDE
-!?    write(6,*) ' IDE ', IDE
-!
-      IOFF = 1
-      DO 100 ISM = 1, NSMOB
-       IBSO(ISM) = IOFF
-       IOFF = IOFF + NTOOBS(ISM)
-  100 CONTINUE
-!
+    end do
+  end do
+end do
+NACOB = IAC
+!write(6,*) ' IAC ',IAC
+
+! RAS 0 orbitals
+
+IR0 = NACOB
+do ISM=1,NSMOB
+  if (ISM == 1) then
+    IBSM = 1
+  else
+    IBSM = IBSM+NTOOBS(ISM-1)
+  end if
+  NPREVS = NINOBS(ISM)
+  do IIR0=1,NR0OBS(ISM)
+    ! Type ordered index
+    IR0 = IR0+1
+    ! Symmetry ordered index
+    IR0S = IBSM+NPREVS-1+IIR0
+    ISFTO(IR0) = ISM
+    !ITFSO(IR0S) = 4
+    IREOST(IR0S) = IR0
+    IREOTS(IR0) = IR0S
+  end do
+end do
+NR0OB = IR0-NACOB
+!write(6,*) ' IR0 ',IR0
+
+! RAS 4 orbitals
+
+IR4 = NACOB+NR0OB
+do ISM=1,NSMOB
+  if (ISM == 1) then
+    IBSM = 1
+  else
+    IBSM = IBSM+NTOOBS(ISM-1)
+  end if
+  NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NACOBS(ISM)
+  do ITP=1,NR4TP
+    do IIR4=1,NR4OBS(ISM,ITP)
+      ! Type ordered index
+      IR4 = IR4+1
+      ! Symmetry ordered index
+      IR4S = IBSM+NPREVS-1+IIR4
+      ISFTO(IR4) = ISM
+      !ITFSO(IR4S) = 5
+      IREOST(IR4S) = IR4
+      IREOTS(IR4) = IR4S
+    end do
+  end do
+end do
+NR4OB = IR4-NACOB-NR0OB
+!write(6,*) ' IR4 ',IR4
+
+! Inactive orbitals
+
+IIN = NACOB+NR0OB+NR4OB
+do ISM=1,NSMOB
+  if (ISM == 1) then
+    IBSM = 1
+  else
+    IBSM = IBSM+NTOOBS(ISM-1)
+  end if
+  NPREVS = 0
+  do IIIN=1,NINOBS(ISM)
+    ! Type ordered index
+    IIN = IIN+1
+    ! Symmetry ordered index
+    IINS = IBSM+NPREVS-1+IIIN
+    ISFTO(IIN) = ISM
+    !ITFSO(IINS) = 6
+    IREOST(IINS) = IIN
+    IREOTS(IIN) = IINS
+  end do
+end do
+NINOB = IIN-NACOB-NR0OB-NR4OB
+!write(6,*) ' IIN ',IIN
+
+! Deleted orbitals
+
+IDE = NACOB+NR0OB+NR4OB+NINOB
+do ISM=1,NSMOB
+  if (ISM == 1) then
+    IBSM = 1
+  else
+    IBSM = IBSM+NTOOBS(ISM-1)
+  end if
+  IR4 = 0
+  do ITP=1,NR4TP
+    IR4 = IR4+NR4OBS(ISM,ITP)
+  end do
+
+  NPREVS = NINOBS(ISM)+NR0OBS(ISM)+NACOBS(ISM)+IR4
+  do IIDE=1,NDEOBS(ISM)
+    ! Type ordered index
+    IDE = IDE+1
+    ! Symmetry ordered index
+    IDES = IBSM+NPREVS-1+IIDE
+    ISFTO(IDE) = ISM
+    !ITFSO(IDES) = 7
+    IREOST(IDES) = IDE
+    IREOTS(IDE) = IDES
+  end do
+end do
+NTOOB = IDE
+!write(6,*) ' IDE ',IDE
+
+IOFF = 1
+do ISM=1,NSMOB
+  IBSO(ISM) = IOFF
+  IOFF = IOFF+NTOOBS(ISM)
+end do
+
 ! ==================
 ! NTSOB,IBTSOB,ITSOB
 ! ==================
-!
-      IOFF = 1
-      DO 300 I123 = 1, 3
-        DO 200 ISM = 1, NSMOB
-          NTSOB(I123,ISM) = NRSOBS(ISM,I123)
-          IBTSOB(I123,ISM) = IOFF
-          ITSOB(IOFF:IOFF+NRSOBS(ISM,I123)-1) =                         &
-     &      [(i,i=IOFF,IOFF+NRSOBS(ISM,I123)-1)]
-          IOFF = IOFF + NRSOBS(ISM,I123)
-  200   CONTINUE
-  300 CONTINUE
-!
-! =====================
-! NOBPTS NOBPT IOBPTS
-! =====================
-!
-!. Loop over types in input order
-      Call iCopy(NR4TP+6,[0],0,NOBPT,1)
-      LORB  = 0 ! dummy initialize
-      IOTYPE= 0 ! dummy initialize
-      DO 2000 ISMOB = 1, NSMOB
-        LSMOB = 0
-        DO 1000 ITYPE = 1, NR4TP + 6
-          IF(ITYPE.EQ.1) THEN
-!.Inactive ( frozen in normal notation )
-            LORB = NINOBS(ISMOB)
-            IOTYPE = 5+NR4TP
-          ELSE IF(ITYPE.EQ.2) THEN
-!.RAS0 ( inactive in normal notation
-            LORB = NR0OBS(ISMOB)
-            IOTYPE = 4
-          ELSE IF (ITYPE.EQ.3) THEN
-!.RAS1
-            LORB = NRSOBS(ISMOB,1)
-            IOTYPE = 1
-          ELSE IF (ITYPE.EQ.4) THEN
-!.RAS2
-            LORB = NRSOBS(ISMOB,2)
-            IOTYPE = 2
-          ELSE IF (ITYPE.EQ.5) THEN
-!.RAS3
-            LORB = NRSOBS(ISMOB,3)
-            IOTYPE = 3
-          ELSE IF (ITYPE.GE.6.AND.ITYPE.LE.6+NR4TP-1) THEN
-!.RAS4
-            LORB = NR4OBS(ISMOB,ITYPE-5)
-            IOTYPE = ITYPE -1
-          ELSE IF (ITYPE.EQ.6+NR4TP) THEN
-!. deleted orbitals
-            LORB = NDEOBS(ISMOB)
-            IOTYPE = ITYPE
-          END IF
-          IOBPTS(IOTYPE,ISMOB) = LSMOB+1
-          NOBPTS(IOTYPE,ISMOB) = LORB
-          NOBPT(IOTYPE) = NOBPT(IOTYPE)+LORB
-          LSMOB = LSMOB + LORB
- 1000   CONTINUE
- 2000 CONTINUE
-!
-! =======
-! ISMFSO
-! =======
-!
-      IORB = 0
-      DO ISM = 1, NSMOB
-        DO IOB = 1, NTOOBS(ISM)
-          IORB = IORB + 1
-          ISMFSO(IORB) = ISM
-        END DO
-      END DO
-!
-      NTEST = 0
-      NTEST = MAX(IPRNT,NTEST)
-      IF( NTEST .NE. 0 ) THEN
-        WRITE(6,*) ' ==================='
-        WRITE(6,*) ' Output from ORBORD '
-        WRITE(6,*) ' ==================='
-        WRITE(6,*) ' Symmetry of orbitals , type ordered '
-        CALL IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-        WRITE(6,*) ' Symmetry => type reordering array '
-        CALL IWRTMA(IREOST,1,NTOOB,1,NTOOB)
-        WRITE(6,*) ' Type => symmetry reordering array '
-        CALL IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
-        WRITE(6,*) ' IBSO array '
-        CALL IWRTMA(IBSO,1,NSMOB,1,NSMOB)
-!
-        WRITE(6,*) ' NTSOB array : '
-        CALL IWRTMA(NTSOB,3,NSMOB,3,NSMOB)
-        WRITE(6,*) ' IBTSOB array '
-        CALL IWRTMA(IBTSOB,3,NSMOB,3,NSMOB)
-        WRITE(6,*) ' ITSOB '
-        CALL IWRTMA(ITSOB,1,NACOB,1,NACOB)
-!
-        WRITE(6,*) ' NOBPTS '
-        CALL IWRTMA(NOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
-        WRITE(6,*) ' NOBPT '
-        CALL IWRTMA(NOBPTS,6+NR4TP,1,6+MXPR4T,1)
-        WRITE(6,*) ' IOBPTS '
-        CALL IWRTMA(IOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
-!
-        WRITE(6,*) ' ISFTO array : '
-        CALL IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-!       WRITE(6,*) ' ITFSO array : '
-!       CALL IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
-!
-        WRITE(6,*) ' ISMFSO array : '
-        CALL IWRTMA(ISMFSO,1,NTOOB,1,NTOOB)
-        WRITE(6,*) ' ITPFTO array : '
-        CALL IWRTMA(ITPFTO,1,NTOOB,1,NTOOB)
-      END IF
-!
 
-      RETURN
+IOFF = 1
+do I123=1,3
+  do ISM=1,NSMOB
+    NTSOB(I123,ISM) = NRSOBS(ISM,I123)
+    IBTSOB(I123,ISM) = IOFF
+    ITSOB(IOFF:IOFF+NRSOBS(ISM,I123)-1) = [(i,i=IOFF,IOFF+NRSOBS(ISM,I123)-1)]
+    IOFF = IOFF+NRSOBS(ISM,I123)
+  end do
+end do
+
+! ===================
+! NOBPTS NOBPT IOBPTS
+! ===================
+
+! Loop over types in input order
+call iCopy(NR4TP+6,[0],0,NOBPT,1)
+LORB = 0   ! dummy initialize
+IOTYPE = 0 ! dummy initialize
+do ISMOB=1,NSMOB
+  LSMOB = 0
+  do ITYPE=1,NR4TP+6
+    if (ITYPE == 1) then
+      ! Inactive (frozen in normal notation)
+      LORB = NINOBS(ISMOB)
+      IOTYPE = 5+NR4TP
+    else if (ITYPE == 2) then
+      ! RAS0 (inactive in normal notation)
+      LORB = NR0OBS(ISMOB)
+      IOTYPE = 4
+    else if (ITYPE == 3) then
+      ! RAS1
+      LORB = NRSOBS(ISMOB,1)
+      IOTYPE = 1
+    else if (ITYPE == 4) then
+      ! RAS2
+      LORB = NRSOBS(ISMOB,2)
+      IOTYPE = 2
+    else if (ITYPE == 5) then
+      ! RAS3
+      LORB = NRSOBS(ISMOB,3)
+      IOTYPE = 3
+    else if ((ITYPE >= 6) .and. (ITYPE <= 6+NR4TP-1)) then
+      ! RAS4
+      LORB = NR4OBS(ISMOB,ITYPE-5)
+      IOTYPE = ITYPE-1
+    else if (ITYPE == 6+NR4TP) then
+      ! deleted orbitals
+      LORB = NDEOBS(ISMOB)
+      IOTYPE = ITYPE
+    end if
+    IOBPTS(IOTYPE,ISMOB) = LSMOB+1
+    NOBPTS(IOTYPE,ISMOB) = LORB
+    NOBPT(IOTYPE) = NOBPT(IOTYPE)+LORB
+    LSMOB = LSMOB+LORB
+  end do
+end do
+
+! ======
+! ISMFSO
+! ======
+
+IORB = 0
+do ISM=1,NSMOB
+  do IOB=1,NTOOBS(ISM)
+    IORB = IORB+1
+    ISMFSO(IORB) = ISM
+  end do
+end do
+
+NTEST = 0
+NTEST = max(IPRNT,NTEST)
+if (NTEST /= 0) then
+  write(6,*) ' =================='
+  write(6,*) ' Output from ORBORD'
+  write(6,*) ' =================='
+  write(6,*) ' Symmetry of orbitals, type ordered'
+  call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
+  write(6,*) ' Symmetry => type reordering array'
+  call IWRTMA(IREOST,1,NTOOB,1,NTOOB)
+  write(6,*) ' Type => symmetry reordering array'
+  call IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
+  write(6,*) ' IBSO array'
+  call IWRTMA(IBSO,1,NSMOB,1,NSMOB)
+
+  write(6,*) ' NTSOB array :'
+  call IWRTMA(NTSOB,3,NSMOB,3,NSMOB)
+  write(6,*) ' IBTSOB array'
+  call IWRTMA(IBTSOB,3,NSMOB,3,NSMOB)
+  write(6,*) ' ITSOB'
+  call IWRTMA(ITSOB,1,NACOB,1,NACOB)
+
+  write(6,*) ' NOBPTS'
+  call IWRTMA(NOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
+  write(6,*) ' NOBPT'
+  call IWRTMA(NOBPTS,6+NR4TP,1,6+MXPR4T,1)
+  write(6,*) ' IOBPTS'
+  call IWRTMA(IOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
+
+  write(6,*) ' ISFTO array :'
+  call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
+  !write(6,*) ' ITFSO array :'
+  !call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
+
+  write(6,*) ' ISMFSO array :'
+  call IWRTMA(ISMFSO,1,NTOOB,1,NTOOB)
+  write(6,*) ' ITPFTO array :'
+  call IWRTMA(ITPFTO,1,NTOOB,1,NTOOB)
+end if
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) Then
-         CALL Unused_integer_array(NOCOBS)
-         CALL Unused_integer_array(ITFSO)
-      END IF
-      END
+if (.false.) then
+  call Unused_integer_array(NOCOBS)
+  call Unused_integer_array(ITFSO)
+end if
+
+end subroutine ORBORD

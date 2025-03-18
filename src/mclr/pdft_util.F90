@@ -10,7 +10,10 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-Module     PDFT_UTIL
-Logical Do_Hybrid
-Real*8  WF_Ratio, PDFT_Ratio
-End Module PDFT_UTIL
+
+module PDFT_UTIL
+
+logical Do_Hybrid
+real*8 WF_Ratio, PDFT_Ratio
+
+end module PDFT_UTIL

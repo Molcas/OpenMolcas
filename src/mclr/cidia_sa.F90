@@ -10,99 +10,92 @@
 !                                                                      *
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine CIDIA_sa(iSym,ralp,S)
-      use Str_Info, only: CNSM
-      use ipPage, only: W
-      use MCLR_Data, only: ipCI
-      use MCLR_Data, only: ipDia
-      use MCLR_Data, only: FANCY_PRECONDITIONER
-      use MCLR_Data, only: XISPSM
-      use MCLR_Data, only: NOCSF, ICISTR
-      use MCLR_Data, only: NCNATS,NCPCNT,NDPCNT,NTYP
-      use input_mclr, only: State_Sym,rIn_Ene,PotNuc,ERASSCF,nCSF,      &
-     &                      nRoots,Weight
 
-      Implicit None
-      Integer iSym
-      Real*8 ralp(*),S(*)
+subroutine CIDIA_sa(iSym,ralp,S)
 
-      Integer iSM(1),LSPC(1),iSPC(1),IDUM(1)
-      Integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI,       &
-     &        iPrnt, iP2, J
-      Real*8 ECAS, WE
-      Integer, External:: ipClose, ipGet, ipIn
+use Str_Info, only: CNSM
+use ipPage, only: W
+use MCLR_Data, only: ipCI
+use MCLR_Data, only: ipDia
+use MCLR_Data, only: FANCY_PRECONDITIONER
+use MCLR_Data, only: XISPSM
+use MCLR_Data, only: NOCSF, ICISTR
+use MCLR_Data, only: NCNATS, NCPCNT, NDPCNT, NTYP
+use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, nRoots, Weight
 
-!
-!     This is just a interface to hide Jeppe from the rest of the world
-!     we dont want to let world see the work of the danish
-!     (I hope he never reads that)
-!     Anyway concerning the CSF/SD stuff.
-!     If we work with spin dependent perturbations
-!     we never use CSF's (to complicated), instead we use
-!     SD in all parts of the program,
-!     otherwise we will switch to SD representation in this routine
-!
+implicit none
+integer iSym
+real*8 ralp(*), S(*)
+integer iSM(1), LSPC(1), iSPC(1), IDUM(1)
+integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI, iPrnt, iP2, J
+real*8 ECAS, WE
+integer, external :: ipClose, ipGet, ipIn
 
-      NSPC=1
-      ISPC(1)=1
-      iSM(1)=iSym
-      IAMCMP=0
-      ICISTR=1
-      i=2
-      If (isym.eq.state_sym) i=1
-      If (NOCSF.eq.0) Then
-         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-         ipdcsfi=ipget(nsd)
-         irc=ipin(ipdcsfi)
-         ipDSDi=ipGet(nSD)
-      Else
-         nsd=max(ncsf(isym),nint(XISPSM(ISYM,1)))
-         ipDSDi=ipGet(nsd)
-         irc=ipin(ipdsdi)
-      End If
+! This is just a interface to hide Jeppe from the rest of the world
+! we dont want to let world see the work of the Danish
+! (I hope he never reads that)
+! Anyway concerning the CSF/SD stuff.
+! If we work with spin dependent perturbations
+! we never use CSF's (to complicated), instead we use
+! SD in all parts of the program,
+! otherwise we will switch to SD representation in this routine
 
-      If (nocsf.eq.0) Then
-         ipdiai=ipdcsfi
-      Else
-         ipdiai=ipdsdi
-      End If
-      LSPC(1)=nSD
+NSPC = 1
+ISPC(1) = 1
+iSM(1) = iSym
+IAMCMP = 0
+ICISTR = 1
+i = 2
+if (isym == state_sym) i = 1
+if (NOCSF == 0) then
+  nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
+  ipdcsfi = ipget(nsd)
+  irc = ipin(ipdcsfi)
+  ipDSDi = ipGet(nSD)
+else
+  nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
+  ipDSDi = ipGet(nsd)
+  irc = ipin(ipdsdi)
+end if
 
-      irc=ipin(ipDSDi)
-      Call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,              &
-     &            rin_ene+potnuc)
+if (nocsf == 0) then
+  ipdiai = ipdcsfi
+else
+  ipdiai = ipdsdi
+end if
+LSPC(1) = nSD
 
-      If (Nocsf.ne.1) Call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,         &
-     &                            NCNATS(1,ISYM),NTYP,                  &
-     &                            CNSM(i)%ICTS,NDPCNT,NCPCNT,0,         &
-     &                            0,IDUM,IPRNT)
+irc = ipin(ipDSDi)
+call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
 
-      If (nocsf.eq.0) irc=ipClose(ipDSDi)
-!     Calculate explicit part of hamiltonian
-!
-      ipdia=ipdiai
+if (Nocsf /= 1) call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM,IPRNT)
 
-      If (FANCY_PRECONDITIONER) Then
-         irc=ipin(ipdia)
-         Call SA_PREC(S,W(ipdia)%Vec)
-      Else
-         irc=ipin(ipdiai)
-         irc=ipin(ipCI)
-         ip2=1
-         Do j=1,nroots
-            ECAS=ERASSCF(j)
-            We=Weight(j)
-            ralp(j)=0.0d0
-            Do i=1,ncsf(State_SYM)
-               ralp(j)=ralp(j)+1.0d0/(W(ipdiai)%Vec(i)-ECAS)*We*        &
-     &                   W(ipCI)%Vec(ip2)**2
-               ip2=ip2+1
-            End Do
-         End Do
-      End If
+if (nocsf == 0) irc = ipClose(ipDSDi)
+! Calculate explicit part of hamiltonian
 
-      RETURN
+ipdia = ipdiai
+
+if (FANCY_PRECONDITIONER) then
+  irc = ipin(ipdia)
+  call SA_PREC(S,W(ipdia)%Vec)
+else
+  irc = ipin(ipdiai)
+  irc = ipin(ipCI)
+  ip2 = 1
+  do j=1,nroots
+    ECAS = ERASSCF(j)
+    We = Weight(j)
+    ralp(j) = 0.0d0
+    do i=1,ncsf(State_SYM)
+      ralp(j) = ralp(j)+1.0d0/(W(ipdiai)%Vec(i)-ECAS)*We*W(ipCI)%Vec(ip2)**2
+      ip2 = ip2+1
+    end do
+  end do
+end if
+
+return
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      END
+
+end subroutine CIDIA_sa

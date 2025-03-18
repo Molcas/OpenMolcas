@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine Precabb_2(ib,is,js,nd,nba,no,rout,Temp1,ntemp,         &
-     &                   Scr,Temp2,fockti,                              &
-     &                   focki,focka,fock,sign)
+
+subroutine Precabb_2(ib,is,js,nd,nba,no,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,focka,fock,sign)
 !***********************************************************************
 !                                        [2]
 !   Calculates the diagonal submatrix of E    that couple
@@ -33,99 +32,96 @@
 !   rOut        :       Submatrix
 !
 !***********************************************************************
-      use Arrays, only: G1t, G2t
-      use MCLR_Data, only: nA, nB
-      use input_mclr, only: nSym,nAsh,nIsh,nOrb
-      Implicit None
-      Integer ib,is,js,nd,nba,no
-      Real*8 rout(*)
-      Integer nTemp
-      Real*8 Temp1(nTemp),Temp2(nO,nO), Scr(nTemp)
-      Real*8 Fockti
-      Real*8 Focki(no,no),Focka(no,no),                                 &
-     &       Fock(no,no)
-      Real*8 Sign
-!                                                                      *
-      Integer nTri,iib,jVert,i2,ip,kS,kBB,ipT,kkB,kkC,ijkl,lB,jB,ii,ij, &
-     &        kCC
-      Real*8 rf,rDens1,rDens2,Rho
-!***********************************************************************
-!                                                                      *
-      Integer i,j,iTri,iTri1
-      iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-      iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)                 &
-     &          +Max(i,j)-Min(i,j)+1
+
+use Arrays, only: G1t, G2t
+use MCLR_Data, only: nA, nB
+use input_mclr, only: nSym, nAsh, nIsh, nOrb
+
+implicit none
+integer ib, is, js, nd, nba, no
+real*8 rout(*)
+integer nTemp
+real*8 Temp1(nTemp), Temp2(nO,nO), Scr(nTemp)
+real*8 Fockti
+real*8 Focki(no,no), Focka(no,no), Fock(no,no)
+real*8 Sign
+integer nTri, iib, jVert, i2, ip, kS, kBB, ipT, kkB, kkC, ijkl, lB, jB, ii, ij, kCC
+real*8 rf, rDens1, rDens2, Rho
+! Statement functions
+integer i, j, iTri, iTri1
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nTri=itri(nd,nd)
-!
-      iib=ib+nA(is)
-      jVert=nOrb(js)-nAsh(js)-nIsh(js)
-      If (jvert.eq.0) Return
-!
-      i2=nD-jVert+1
-      ip=iTri1(i2,i2)
-      rF=sign*Fockti
-      call dcopy_(nBa**2,[0.0d0],0,Temp2,1)
-!
-      Do kS=1,nSym
-        If (nOrb(js)*nash(ks).gt.0) Then
+nTri = itri(nd,nd)
 
-        Do kBB=nish(ks)+1,nB(kS)
-         Do kCC=nish(ks)+1,kBB
-              Call COUL(jS,jS,kS,kS,kbb,kcc,Temp1,Scr)
-              ipT=1
+iib = ib+nA(is)
+jVert = nOrb(js)-nAsh(js)-nIsh(js)
+if (jvert == 0) return
 
-         If (kBB.gt.nish(ks).and.kCC.gt.nish(ks)) Then
-           kkB=kBB+nA(ks)-nish(ks)
-           kkC=kCC+nA(ks)-Nish(ks)
-           rDens1=sign*2.0d0*G2t(                                       &
-     &            itri(itri(iib,iib),itri(kkb,kkc)))
-!
-           If (kbb.ne.kcc) rdens1=rdens1*2.0d0
+i2 = nD-jVert+1
+ip = iTri1(i2,i2)
+rF = sign*Fockti
+call dcopy_(nBa**2,[0.0d0],0,Temp2,1)
 
-           Call DaxPy_(nO**2,rdens1,Temp1,1,Temp2,1)
+do kS=1,nSym
+  if (nOrb(js)*nash(ks) > 0) then
 
-         End If
-        End Do
-       End Do
-       End If
-      End Do
-!
-      Do Ks=1,nsym
-       ijkl=nOrb(js)*nash(ks)
-       If (ijkl.ne.0) Then
-!
+    do kBB=nish(ks)+1,nB(kS)
+      do kCC=nish(ks)+1,kBB
+        call COUL(jS,jS,kS,kS,kbb,kcc,Temp1,Scr)
+        ipT = 1
 
-        Do LB=nish(ks)+1,nB(KS)
-         kkc=nA(ks)+lb-nish(ks)
-         Do JB=nish(ks)+1,nB(KS)
-          kkb=nA(ks)+jb-nish(ks)
-          Call EXCH(js,ks,js,ks,jb,lb,Temp1,Scr)
-          ipT=1
-          If (LB.gt.nISH(ks).and.jb.gt.nish(ks)) Then
-           rDens2=sign*4.0d0*G2t(                                       &
-     &         itri(itri(iib,kkc),itri(kkb,iib)))
-           Call DaXpY_(nO**2,rDens2,Temp1(ipT),1,Temp2,1)
-          End If
-         End Do
-        End Do
-       End If
-      End Do
+        if ((kBB > nish(ks)) .and. (kCC > nish(ks))) then
+          kkB = kBB+nA(ks)-nish(ks)
+          kkC = kCC+nA(ks)-Nish(ks)
+          rDens1 = sign*2.0d0*G2t(itri(itri(iib,iib),itri(kkb,kkc)))
 
-      rho=sign*2.0d0*G1t(itri(iib,iib))
-      Do iI=nAsh(js)+nIsh(js)+1,nOrb(js)
-       rOut(ip)=rout(ip)-2.0d0*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
-       ip=ip+1
-       Do iJ=iI+1,NOrb(js)
-        rOut(ip)=Rho*FockI(iI,iJ)+Temp2(ii,ij)
-        ip=ip+1
-       End Do
-      End Do
+          if (kbb /= kcc) rdens1 = rdens1*2.0d0
+
+          call DaxPy_(nO**2,rdens1,Temp1,1,Temp2,1)
+
+        end if
+      end do
+    end do
+  end if
+end do
+
+do Ks=1,nsym
+  ijkl = nOrb(js)*nash(ks)
+  if (ijkl /= 0) then
+
+    do LB=nish(ks)+1,nB(KS)
+      kkc = nA(ks)+lb-nish(ks)
+      do JB=nish(ks)+1,nB(KS)
+        kkb = nA(ks)+jb-nish(ks)
+        call EXCH(js,ks,js,ks,jb,lb,Temp1,Scr)
+        ipT = 1
+        if ((LB > nISH(ks)) .and. (jb > nish(ks))) then
+          rDens2 = sign*4.0d0*G2t(itri(itri(iib,kkc),itri(kkb,iib)))
+          call DaXpY_(nO**2,rDens2,Temp1(ipT),1,Temp2,1)
+        end if
+      end do
+    end do
+  end if
+end do
+
+rho = sign*2.0d0*G1t(itri(iib,iib))
+do iI=nAsh(js)+nIsh(js)+1,nOrb(js)
+  rOut(ip) = rout(ip)-2.0d0*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
+  ip = ip+1
+  do iJ=iI+1,NOrb(js)
+    rOut(ip) = Rho*FockI(iI,iJ)+Temp2(ii,ij)
+    ip = ip+1
+  end do
+end do
+
 ! Avoid unused argument warnings
-      If (.False.) Then
-       Call Unused_real_array(focka)
-       Call Unused_real_array(fock)
-      End If
-      end SubRoutine Precabb_2
+if (.false.) then
+  call Unused_real_array(focka)
+  call Unused_real_array(fock)
+end if
+
+end subroutine Precabb_2

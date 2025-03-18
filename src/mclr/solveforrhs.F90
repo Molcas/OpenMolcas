@@ -14,31 +14,34 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
-      use MCLR_Data, only: nDens2, nConf1
-      use input_mclr, only: nRoots
-      Implicit None
-!***** Output
-      Real*8,DIMENSION(nDens2+6)::Fock
-      Real*8,DIMENSION(nconf1*nroots)::CICSF
-!***** Input
-      Real*8,DIMENSION(nDens2)::AXkzx
-      Real*8,DIMENSION(NConf1*nRoots)::AXPzx
-      Real*8,DIMENSION(nDens2)::bk
-      Real*8,DIMENSION(nConf1*nRoots)::bP
-!***** Assistants
-      INTEGER nRow
 
-!****  Orbital Rotation Part
-      nRow=nDens2
-      CALL FZero(Fock,nDens2)
-      CALL DCopy_(nRow,Axkzx,1,Fock,1)
-      CALL DAXPY_(nRow,1.0d0,bk,1,Fock,1)
+subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
 
-!***** State-CSF Rotation Part
-      nRow=nRoots*nConf1
-      CALL FZero(CICSF,nRow)
-      CALL DCopy_(nRow,AXPzx,1,CICSF,1)
-      CALL DAXPY_(nRow,-1.0d0,bP,1,CICSF,1)
+use MCLR_Data, only: nDens2, nConf1
+use input_mclr, only: nRoots
 
-      END SUBROUTINE SolveforRHS
+implicit none
+! Output
+real*8, dimension(nDens2+6) :: Fock
+real*8, dimension(nconf1*nroots) :: CICSF
+! Input
+real*8, dimension(nDens2) :: AXkzx
+real*8, dimension(NConf1*nRoots) :: AXPzx
+real*8, dimension(nDens2) :: bk
+real*8, dimension(nConf1*nRoots) :: bP
+! Assistants
+integer nRow
+
+! Orbital Rotation Part
+nRow = nDens2
+call FZero(Fock,nDens2)
+call DCopy_(nRow,Axkzx,1,Fock,1)
+call DAXPY_(nRow,1.0d0,bk,1,Fock,1)
+
+! State-CSF Rotation Part
+nRow = nRoots*nConf1
+call FZero(CICSF,nRow)
+call DCopy_(nRow,AXPzx,1,CICSF,1)
+call DAXPY_(nRow,-1.0d0,bP,1,CICSF,1)
+
+end subroutine SolveforRHS

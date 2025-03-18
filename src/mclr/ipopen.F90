@@ -10,56 +10,58 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-       Logical Function ipopen(nconf,page)
-       use ipPage
-       use stdalloc, only: mma_maxDBLE
-!
-!      Initiate the whole lot.
-!
-       Implicit Real*8(a-h,o-z)
-       Logical page
-!
-!      Ask how much memory is available
-!
-       Call mma_maxDBLE(nMax)
-       nmax=nmax/2
-!
-       If (Page) Then
-!
-!         Initiate for disk based storage.
-!
-          If (.Not.DiskBased) Then
-             Lu_ip=21
-             Lu_ip=IsFreeUnit(Lu_ip)
-             Call Daname(Lu_ip,'TEMPCIV')
-             DiskBased=.True.
-          End If
-!
-!         n  : Length of CI-vector
-!         ida: disk address
-!
-               n(0:Max_CI_Vectors)=0
-             ida(0:Max_CI_Vectors)=-1
-          Status(0:Max_CI_Vectors)=Null_Vector
-!
-!         iDisk_Addr_End: next free disk address
-!         n_CI_Vectors : number of CI-vectors
-!
-          iDisk_Addr_End=0
-          n_CI_Vectors=0
-!
-       Else
 
-          If (DiskBased) Then
-             Call ipTerm()
-             DiskBased=.False.
-          End If
+logical function ipopen(nconf,page)
+! Initiate the whole lot.
 
-       End If
-!
-       ipopen=DiskBased
-!
-       Return
+use ipPage
+use stdalloc, only: mma_maxDBLE
+
+implicit real*8(a-h,o-z)
+logical page
+
+! Ask how much memory is available
+
+call mma_maxDBLE(nMax)
+nmax = nmax/2
+
+if (Page) then
+
+  ! Initiate for disk based storage.
+
+  if (.not. DiskBased) then
+    Lu_ip = 21
+    Lu_ip = IsFreeUnit(Lu_ip)
+    call Daname(Lu_ip,'TEMPCIV')
+    DiskBased = .true.
+  end if
+
+  ! n  : Length of CI-vector
+  ! ida: disk address
+
+  n(0:Max_CI_Vectors) = 0
+  ida(0:Max_CI_Vectors) = -1
+  Status(0:Max_CI_Vectors) = Null_Vector
+
+  ! iDisk_Addr_End: next free disk address
+  ! n_CI_Vectors : number of CI-vectors
+
+  iDisk_Addr_End = 0
+  n_CI_Vectors = 0
+
+else
+
+  if (DiskBased) then
+    call ipTerm()
+    DiskBased = .false.
+  end if
+
+end if
+
+ipopen = DiskBased
+
+return
 ! Avoid unused argument warnings
-       If (.False.) Call Unused_integer(nconf)
-       End
+if (.false.) call Unused_integer(nconf)
+
+end function ipopen

@@ -8,44 +8,44 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Ci_Ci(ipcid,ips2)
-      use ipPage, only: W
-      use Arrays, only: FIMO, INT2
-      use input_mclr, only: nRoots,rIn_Ene,PotNuc,ERASSCF,NCSF,Weight,  &
-     &                      State_Sym
-      Implicit None
-      Integer ipCID, ipS2
-      Integer irc, i
-      Integer, External:: ipIn
-      Real*8 rDum(1), EC
+
+subroutine Ci_Ci(ipcid,ips2)
+
+use ipPage, only: W
+use Arrays, only: FIMO, INT2
+use input_mclr, only: nRoots, rIn_Ene, PotNuc, ERASSCF, NCSF, Weight, State_Sym
+
+implicit none
+integer ipCID, ipS2
+integer irc, i
+integer, external :: ipIn
+real*8 rDum(1), EC
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-       Interface
-       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,&
-     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
-       Integer iispin, iCsym, iSSym
-       Integer nInt1, nInt2s, nInt2a
-       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-       Integer ipCI1, ipCI2
-       Logical Have_2_el
-       End SubRoutine CISigma_sa
-       End Interface
+interface
+  subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
+    integer iispin, iCsym, iSSym
+    integer nInt1, nInt2s, nInt2a
+    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+    integer ipCI1, ipCI2
+    logical Have_2_el
+  end subroutine CISigma_sa
+end interface
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call CISigma_sa(0,state_sym,state_sym,FIMO,SIZE(FIMO),            &
-     &                Int2,SIZE(Int2),rDum,1,ipCId,ips2,.True.)
-      irc=ipin(ipCId)
-      irc=ipin(ipS2)
-      Do i=0,nroots-1
-         EC=(rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
-         Call Daxpy_(ncsf(State_Sym),EC,                                &
-     &               W(ipCId)%Vec(1+i*ncsf(state_sym)),1,               &
-     &               W(ipS2)%Vec(1+i*ncsf(state_sym)),1)
-      End Do
-      Call DSCAL_(nroots*ncsf(state_SYM),2.0d0,W(ipS2)%Vec,1)
+
+call CISigma_sa(0,state_sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rDum,1,ipCId,ips2,.true.)
+irc = ipin(ipCId)
+irc = ipin(ipS2)
+do i=0,nroots-1
+  EC = (rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
+  call Daxpy_(ncsf(State_Sym),EC,W(ipCId)%Vec(1+i*ncsf(state_sym)),1,W(ipS2)%Vec(1+i*ncsf(state_sym)),1)
+end do
+call DSCAL_(nroots*ncsf(state_SYM),2.0d0,W(ipS2)%Vec,1)
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      End Subroutine Ci_Ci
+
+end subroutine Ci_Ci

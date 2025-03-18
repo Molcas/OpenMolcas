@@ -8,60 +8,56 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine NatOrb_MCLR(Dens,CMOO,CMON,OCCN)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One
-      use MCLR_Data, only: ipCM, ipMat, nDens2
-      use input_mclr, only: nSym,nBas,kPrint
-      Implicit None
-      Real*8 Dens(*),CMOO(*),CMON(*),OCCN(*)
 
-      Real*8, Allocatable:: EVal(:), EVec(:)
-      Integer iO, iS, ij, i, j, ii, iSt, iEnd
+subroutine NatOrb_MCLR(Dens,CMOO,CMON,OCCN)
 
-      Call mma_allocate(EVec,ndens2,Label='EVec')
-      Call mma_allocate(EVal,ndens2,Label='EVal')
-!
-!         Diagonalize the density matrix and transform orbitals
-!
-      If (iAnd(kprint,8).eq.8) Then
-         Write(6,*)
-         Write(6,*) '           Effective natural population '
-         Write(6,*) '           ============================ '
-         Write(6,*)
-      End If
-      io=0
-      Do is=1,nsym
-         ij=0
-         Do i=0,nbas(is)-1
-            Do j=0,i
-               ij=ij+1
-               Eval(ij)=Dens(ipMat(is,is)+i+j*nbas(is))
-            End DO
-         End DO
-         EVec(:)=Zero
-         Call dCopy_(nBas(is),[One],0,EVec,nbas(is)+1)
-         CALL JACOB(EVal,EVec,nbas(is),nbas(is))
-         ii=0
-         DO i=1,nbas(is)
-            ii=ii+i
-            OCCN(io+i)=Eval(ii)
-         END DO
-         IST=IO+1
-         IEND=IO+NBAS(is)
-         If (iAnd(kprint,2).eq.2)                                       &
-     &      Write (6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))')           &
-     &             'sym',iS,':',(OCCN(I),I=IST,IEND)
-         If (nBas(is).ge.1)                                             &
-     &      CALL DGEMM_('N','N',                                        &
-     &                  NBAS(is),NBAS(is),NBAS(is),                     &
-     &                  One,CMOO(ipCM(is)),NBAS(is),                    &
-     &                  EVec,NBAS(is),                                  &
-     &                  Zero,CMON(ipCM(is)),NBAS(is))
-         io=io+nbas(is)
-      End DO
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use MCLR_Data, only: ipCM, ipMat, nDens2
+use input_mclr, only: nSym, nBas, kPrint
 
-      Call mma_deallocate(EVec)
-      Call mma_deallocate(Eval)
+implicit none
+real*8 Dens(*), CMOO(*), CMON(*), OCCN(*)
+real*8, allocatable :: EVal(:), EVec(:)
+integer iO, iS, ij, i, j, ii, iSt, iEnd
 
-      End Subroutine NatOrb_MCLR
+call mma_allocate(EVec,ndens2,Label='EVec')
+call mma_allocate(EVal,ndens2,Label='EVal')
+
+! Diagonalize the density matrix and transform orbitals
+
+if (iand(kprint,8) == 8) then
+  write(6,*)
+  write(6,*) '           Effective natural population'
+  write(6,*) '           ============================'
+  write(6,*)
+end if
+io = 0
+do is=1,nsym
+  ij = 0
+  do i=0,nbas(is)-1
+    do j=0,i
+      ij = ij+1
+      Eval(ij) = Dens(ipMat(is,is)+i+j*nbas(is))
+    end do
+  end do
+  EVec(:) = Zero
+  call dCopy_(nBas(is),[One],0,EVec,nbas(is)+1)
+  call JACOB(EVal,EVec,nbas(is),nbas(is))
+  ii = 0
+  do i=1,nbas(is)
+    ii = ii+i
+    OCCN(io+i) = Eval(ii)
+  end do
+  IST = IO+1
+  IEND = IO+NBAS(is)
+  if (iand(kprint,2) == 2) write(6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))') 'sym',iS,':',(OCCN(I),I=IST,IEND)
+  if (nBas(is) >= 1) &
+    call DGEMM_('N','N',NBAS(is),NBAS(is),NBAS(is),One,CMOO(ipCM(is)),NBAS(is),EVec,NBAS(is),Zero,CMON(ipCM(is)),NBAS(is))
+  io = io+nbas(is)
+end do
+
+call mma_deallocate(EVec)
+call mma_deallocate(Eval)
+
+end subroutine NatOrb_MCLR

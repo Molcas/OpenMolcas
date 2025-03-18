@@ -8,117 +8,114 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SCDTC2_MCLR(RASVEC,ISMOST,ICBLTP,NSMST,NOCTPA,NOCTPB,  &
-     &                  NSASO,NSBSO,IOCOC,IDC,IWAY,IMMLST,IPRNT)
-!
+
+subroutine SCDTC2_MCLR(RASVEC,ISMOST,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCOC,IDC,IWAY,IMMLST,IPRNT)
 ! Scale elements of a RAS vector to transfer between
 ! combinations and packed determinants
 ! IWAY = 1 : dets to combs
 ! IWAY = 2 : combs to dets
 ! Combination storage mode is defined BY IDC
 !
-! General symmetry version , Feb 1991
-!
-      IMPLICIT real*8(A-H,O-Z)
-      DIMENSION RASVEC(*),NSASO(NOCTPA,*),NSBSO(NOCTPB,*)
-      DIMENSION IOCOC(NOCTPA,NOCTPB)
-      DIMENSION ISMOST(*),ICBLTP(*),IMMLST(*)
-!
+! General symmetry version, Feb 1991
 
-      NTEST = 0000
-      NTEST = MAX(NTEST,IPRNT)
-      IF( NTEST .GT. 10 ) THEN
-        WRITE(6,*) ' Information from SCDTC2 '
-        WRITE(6,*) ' ======================= '
-        WRITE(6,*) ' Input vector '
-        CALL WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,                    &
-     &              NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
-      END IF
-!
-      SQ2 = SQRT(2.0D0)
-      SQ2I = 1.0D0/SQ2
-!
-      IBASE = 1
-      DO 200 IASM = 1, NSMST
-!
-        IBSM = ISMOST(IASM)
-        IF(IBSM.EQ.0.OR.ICBLTP(IASM).EQ.0) GOTO 200
-        DO  100 IATP = 1, NOCTPA
-          IF(ICBLTP(IASM).EQ.2) THEN
-            IBTPMX = IATP
-          ELSE
-            IBTPMX = NOCTPB
-          END IF
-          NIA   = NSASO(IATP,IASM)
-          DO 50 IBTP = 1,IBTPMX
-            IF(IOCOC(IATP,IBTP).EQ.0) GOTO   50
-!. Number of elements in this block
-          call xflush(6)
-            NIB = NSBSO(IBTP,IBSM)
-            IF(ICBLTP(IASM).EQ.2.AND.IATP.EQ.IBTP) THEN
-                NELMNT =  NIA*(NIA+1)/2
-            ELSE
-                NELMNT =  NIA*NIB
-            END IF
+implicit real*8(A-H,O-Z)
+dimension RASVEC(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
+dimension IOCOC(NOCTPA,NOCTPB)
+dimension ISMOST(*), ICBLTP(*), IMMLST(*)
 
-          IF(IDC.EQ.2) THEN
-            IF(IWAY.EQ.1) THEN
-              FACTOR = SQ2
-            ELSE
-              FACTOR = SQ2I
-            END IF
-            CALL DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
-            IF(IASM.EQ.IBSM.AND.IATP.EQ.IBTP) THEN
-              FACTOR = 1.0D0/FACTOR
-              CALL SCLDIA(RASVEC(IBASE),FACTOR,NIA,1)
-            END IF
-          ELSE IF(IDC.EQ.3.AND.IMMLST(IASM).NE.IASM) THEN
-            IF(IWAY.EQ.1) THEN
-              FACTOR = SQ2
-            ELSE
-              FACTOR = SQ2I
-            END IF
-            CALL DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
-!Ml Ms combinations
-          call xflush(6)
-          ELSE IF(IDC.EQ.4) THEN
-            IF(IWAY.EQ.1) THEN
-              IF(IASM.EQ.IBSM) THEN
-                FACTOR = SQ2
-              ELSE
-                FACTOR = 2.0D0
-              END IF
-            ELSE IF(IWAY.EQ.2) THEN
-              IF(IASM.EQ.IBSM) THEN
-                FACTOR = SQ2I
-              ELSE
-                FACTOR = 0.5D0
-              END IF
-            END IF
-            CALL DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
-            IF(IATP.EQ.IBTP) THEN
-              IF(IWAY.EQ.1) THEN
-                FACTOR = SQ2I
-              ELSE IF(IWAY.EQ.2) THEN
-                FACTOR = SQ2
-              END IF
-              CALL SCLDIA(RASVEC(IBASE),FACTOR,NIA,1)
-            END IF
-          END IF
-!
-          IBASE = IBASE + NELMNT
-  50      CONTINUE
- 100    CONTINUE
- 200  CONTINUE
+NTEST = 0000
+NTEST = max(NTEST,IPRNT)
+if (NTEST > 10) then
+  write(6,*) ' Information from SCDTC2'
+  write(6,*) ' ======================='
+  write(6,*) ' Input vector'
+  call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+end if
 
-!
-      IF( NTEST .GT. 10 ) THEN
-        WRITE(6,*) ' Scaled vector '
+SQ2 = sqrt(2.0d0)
+SQ2I = 1.0d0/SQ2
+
+IBASE = 1
+do IASM=1,NSMST
+
+  IBSM = ISMOST(IASM)
+  if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) goto 200
+  do IATP=1,NOCTPA
+    if (ICBLTP(IASM) == 2) then
+      IBTPMX = IATP
+    else
+      IBTPMX = NOCTPB
+    end if
+    NIA = NSASO(IATP,IASM)
+    do IBTP=1,IBTPMX
+      if (IOCOC(IATP,IBTP) == 0) goto 50
+      ! Number of elements in this block
+      call xflush(6)
+      NIB = NSBSO(IBTP,IBSM)
+      if ((ICBLTP(IASM) == 2) .and. (IATP == IBTP)) then
+        NELMNT = NIA*(NIA+1)/2
+      else
+        NELMNT = NIA*NIB
+      end if
+
+      if (IDC == 2) then
+        if (IWAY == 1) then
+          FACTOR = SQ2
+        else
+          FACTOR = SQ2I
+        end if
+        call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
+        if ((IASM == IBSM) .and. (IATP == IBTP)) then
+          FACTOR = 1.0d0/FACTOR
+          call SCLDIA(RASVEC(IBASE),FACTOR,NIA,1)
+        end if
+      else if ((IDC == 3) .and. (IMMLST(IASM) /= IASM)) then
+        if (IWAY == 1) then
+          FACTOR = SQ2
+        else
+          FACTOR = SQ2I
+        end if
+        call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
+        !Ml Ms combinations
         call xflush(6)
-        CALL WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,                    &
-     &              NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
-      END IF
-!
-      RETURN
-      END
+      else if (IDC == 4) then
+        if (IWAY == 1) then
+          if (IASM == IBSM) then
+            FACTOR = SQ2
+          else
+            FACTOR = 2.0d0
+          end if
+        else if (IWAY == 2) then
+          if (IASM == IBSM) then
+            FACTOR = SQ2I
+          else
+            FACTOR = 0.5d0
+          end if
+        end if
+        call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
+        if (IATP == IBTP) then
+          if (IWAY == 1) then
+            FACTOR = SQ2I
+          else if (IWAY == 2) then
+            FACTOR = SQ2
+          end if
+          call SCLDIA(RASVEC(IBASE),FACTOR,NIA,1)
+        end if
+      end if
 
+      IBASE = IBASE+NELMNT
+50    continue
+    end do
+  end do
+200 continue
+end do
+
+if (NTEST > 10) then
+  write(6,*) ' Scaled vector'
+  call xflush(6)
+  call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+end if
+
+return
+
+end subroutine SCDTC2_MCLR

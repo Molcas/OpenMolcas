@@ -8,72 +8,73 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine DMinvCI_sa(ipSigma,rout,S)
-      use ipPage, only: W
-      use negpre
-      use MCLR_Data, only: nConf1, ipCI
-      use MCLR_Data, only: ipDia
-      use input_mclr, only: nRoots,ERASSCF,nCSF,State_Sym
-      Implicit None
-      Integer ipSigma
-      Real*8 rout(*), S(nroots,nroots,nroots)
+
+subroutine DMinvCI_sa(ipSigma,rout,S)
+
+use ipPage, only: W
+use negpre
+use MCLR_Data, only: nConf1, ipCI
+use MCLR_Data, only: ipDia
+use input_mclr, only: nRoots, ERASSCF, nCSF, State_Sym
+
+implicit none
+integer ipSigma
+real*8 rout(*), S(nroots,nroots,nroots)
 #include "rasdim.fh"
-      Real*8 rcoeff(mxroot),alpha(mxRoot)
-      Integer, External:: ipIn
-      Real*8, External:: DDot_
-      Integer irc, i, j, k, iR, jR
-      Real*8 E
-!
-!                                    -1           -1
-!                               (H -E) |0><0|(H -E)|Sigma>
-!                  -1             0            0
-!     |rNew>=(H - E) |Sigma> - ----------------------------
-!              0                               -1
-!                                      <0|(H -E) |0>
-!                                           0
-!
-      If (nconf1.gt.1) Then
-       irc=ipin(ipdia)
-       irc=ipin(ipsigma)
-       k=0
-       Do i=1,nroots
-          E=ERASSCF(i)
-          Do j=1,ncsf(state_SYM)
-           k=k+1
-           rout(k)=W(ipSigma)%Vec(k)/(W(ipdia)%Vec(j)-E)
-          End Do
-       End Do
-       Do iR=1,nroots
+real*8 rcoeff(mxroot), alpha(mxRoot)
+integer, external :: ipIn
+real*8, external :: DDot_
+integer irc, i, j, k, iR, jR
+real*8 E
 
-!       We=weight(iR)
-        E=ERASSCF(iR)
-        irc=ipin(ipCI)
-        Do jR=1,nroots
-         rcoeff(jR)=ddot_(nconf1,rout(1+(iR-1)*ncsf(State_Sym)),1,      &
-     &             W(ipCI)%Vec(1+(jR-1)*ncsf(State_Sym)),1)
-        End Do
+!                                  -1           -1
+!                             (H -E) |0><0|(H -E) |Sigma>
+!                -1             0            0
+! |rNew> = (H - E) |Sigma> - -----------------------------
+!            0                               -1
+!                                    <0|(H -E) |0>
+!                                         0
 
-        Do i=1,nroots
-         alpha(i)=0.0d0
-         Do j=1,nroots
-          alpha(i)=alpha(i)+S(i,j,iR)*rcoeff(j)
-         End Do
-        End Do
+if (nconf1 > 1) then
+  irc = ipin(ipdia)
+  irc = ipin(ipsigma)
+  k = 0
+  do i=1,nroots
+    E = ERASSCF(i)
+    do j=1,ncsf(state_SYM)
+      k = k+1
+      rout(k) = W(ipSigma)%Vec(k)/(W(ipdia)%Vec(j)-E)
+    end do
+  end do
+  do iR=1,nroots
 
-        Do i=1,nroots
-         Do j=1,ncsf(State_Sym)
-          rout(j+(iR-1)*ncsf(State_Sym))=                               &
-     &    rout(j+(iR-1)*ncsf(State_Sym))-                               &
-     &    W(ipCI)%Vec(j+(i-1)*ncsf(State_Sym))*alpha(i)                 &
-     &    /(W(ipdia)%Vec(j)-E)
-         End Do
-        End Do
+    !We = weight(iR)
+    E = ERASSCF(iR)
+    irc = ipin(ipCI)
+    do jR=1,nroots
+      rcoeff(jR) = ddot_(nconf1,rout(1+(iR-1)*ncsf(State_Sym)),1,W(ipCI)%Vec(1+(jR-1)*ncsf(State_Sym)),1)
+    end do
 
-       End Do
-      Else
-       call dcopy_(nconf1*nroots,[0.0d0],0,rout,1)
-      End If
+    do i=1,nroots
+      alpha(i) = 0.0d0
+      do j=1,nroots
+        alpha(i) = alpha(i)+S(i,j,iR)*rcoeff(j)
+      end do
+    end do
+
+    do i=1,nroots
+      do j=1,ncsf(State_Sym)
+        rout(j+(iR-1)*ncsf(State_Sym)) = rout(j+(iR-1)*ncsf(State_Sym))- &
+                                         W(ipCI)%Vec(j+(i-1)*ncsf(State_Sym))*alpha(i)/(W(ipdia)%Vec(j)-E)
+      end do
+    end do
+
+  end do
+else
+  call dcopy_(nconf1*nroots,[0.0d0],0,rout,1)
+end if
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      end SubRoutine DMinvCI_sa
+
+end subroutine DMinvCI_sa

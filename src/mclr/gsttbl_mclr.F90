@@ -8,138 +8,135 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,           &
-     &                  NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICOOSC,IDC,    &
-     &                  PLSIGN,LUC,SCR)
-!
-! obtain  determinant block (iatp iasm, ibtp ibsm )
+
+subroutine GSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,PSSIGN,ICOOSC,IDC,PLSIGN,LUC,SCR)
+! obtain  determinant block (iatp iasm, ibtp ibsm)
 ! from vector packed in combination format according to IDC
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION C(*),CTT(*),NSASO(NOCTPA,*),NSBSO(NOCTPB,*)
-      DIMENSION IOCOC(NOCTPA,NOCTPB),ICOOSC(NOCTPA,NOCTPB,*)
-      DIMENSION SCR(*)
-      DIMENSION ISGVST(IBSM)
-      DIMENSION IDUM(1)
-!
-      PSIGN=0.0D0 ! dummy initialize
-!
+
+implicit real*8(A-H,O-Z)
+dimension C(*), CTT(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
+dimension IOCOC(NOCTPA,NOCTPB), ICOOSC(NOCTPA,NOCTPB,*)
+dimension SCR(*)
+dimension ISGVST(IBSM)
+dimension IDUM(1)
+
+PSIGN = 0.0d0 ! dummy initialize
+
 ! =================
 ! Read in from disc
 ! =================
-      IF(LUC.NE.0) THEN
-        CALL IFRMDS(IDUM,1,-1,LUC)
-        LBL=IDUM(1)
-        CALL FRMDSC_MCLR(SCR,LBL,-1,LUC,IMZERO)
+if (LUC /= 0) then
+  call IFRMDS(IDUM,1,-1,LUC)
+  LBL = IDUM(1)
+  call FRMDSC_MCLR(SCR,LBL,-1,LUC,IMZERO)
+  NAST = NSASO(IATP,IASM)
+  NBST = NSBSO(IBTP,IBSM)
+  if (LBL /= 0) call SDCMRF_MCLR(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB)
+  ! ISGVST and PLSIGN missing to make it work for IDC = 3,4
+else
+  ! ===============
+  ! Pack out from C
+  ! ===============
+  ! Permutation sign
+  if (IDC == 2) then
+    PSIGN = PSSIGN
+  else if (IDC == 3) then
+    PSIGN = PLSIGN
+  else
+    PSIGN = 0.0d0
+  end if
+  PLSSGN = PLSIGN*PSSIGN
+  ! check for different packing possibilities and unpack
+  if ((IASM > IBSM) .or. (IDC == 1) .or. ((IDC == 3) .and. (IASM >= IBSM))) then
+    !************
+    ! IASM > IBSM
+    !************
+    if (IDC < 4) then
+      ! Simple copy
+      IBASE = ICOOSC(IATP,IBTP,IASM)
+      NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
+      call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
+    else if (IDC == 4) then
+      ! MLMS packed
+      if (IATP > IBTP) then
+        IBASE = ICOOSC(IATP,IBTP,IASM)
+        NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
+        call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
+      else if (IATP == IBTP) then
+        IBASE = ICOOSC(IATP,IATP,IASM)
         NAST = NSASO(IATP,IASM)
-        NBST = NSBSO(IBTP,IBSM)
-        IF(LBL.NE.0)                                                    &
-     &  CALL SDCMRF_MCLR(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,       &
-     &              IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB)
-!. ISGVST and PLSIGN missing to make it work for IDC = 3,4
-      ELSE
-! =================
-! Pack out from C
-! =================
-! Permutation sign
-      IF(IDC.EQ.2) THEN
-        PSIGN = PSSIGN
-      ELSE IF(IDC .EQ. 3 ) THEN
-        PSIGN = PLSIGN
-      ELSE
-         PSIGN=0.0D0
-      END IF
-      PLSSGN = PLSIGN * PSSIGN
-! check for different packing possibilities and unpack
-      IF(IASM.GT.IBSM.OR.IDC.EQ.1                                       &
-     &   .OR.(IDC.EQ.3.AND.IASM.GE.IBSM))THEN
-!*************
-!* IASM > IBSM
-!*************
-        IF ( IDC.LT.4 ) THEN
-!. Simple copy
-          IBASE = ICOOSC(IATP,IBTP,IASM)
-          NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
-          CALL DCOPY_(NELMNT,C(IBASE),1,CTT,1)
-        ELSE IF( IDC.EQ.4 ) THEN
-!. MLMS packed
-          IF(IATP.GT.IBTP) THEN
-            IBASE = ICOOSC(IATP,IBTP,IASM)
-            NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
-            CALL DCOPY_(NELMNT,C(IBASE),1,CTT,1)
-          ELSE IF(IATP.EQ.IBTP) THEN
-            IBASE = ICOOSC(IATP,IATP,IASM)
-            NAST = NSASO(IATP,IASM)
-            CALL TRIPK2(CTT,C(IBASE),2,NAST,NAST,PLSIGN*PSSIGN)
-          ELSE IF( IATP.LT.IBTP) THEN
-            IBASE = ICOOSC(IBTP,IATP,IASM)
-            NROW  = NSASO(IBTP,IASM)
-            NCOL  = NSBSO(IATP,IBSM)
-            CALL TRNSPS(NROW,NCOL,C(IBASE),CTT)
-            NELMNT = NROW*NCOL
-            CALL DSCAL_(NELMNT,PLSIGN*PSSIGN,CTT,1)
-          END IF
-        END IF
-      ELSE IF( IASM.EQ.IBSM) THEN
-!*************
-!* IASM = IBSM
-!*************
-        IF(IATP.GT.IBTP.OR.IDC.EQ.3) THEN
-!.. simple copying
-          IBASE = ICOOSC(IATP,IBTP,IASM)
-          NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
-          CALL DCOPY_(NELMNT,C(IBASE),1,CTT,1)
-        ELSE IF( IATP.EQ.IBTP) THEN
-!.. expand triangular packed matrix
-          IBASE = ICOOSC(IATP,IBTP,IASM)
-          NAST = NSASO(IATP,IASM)
-          CALL TRIPK2(CTT,C(IBASE),2,NAST,NAST,PSSIGN)
-        ELSE IF( IATP .LT. IBTP) THEN
-!.. transpose ibtp iasm iatp ibsm block
-          IBASE = ICOOSC(IBTP,IATP,IASM)
-          NRI = NSASO(IBTP,IASM)
-          NCI = NSBSO(IATP,IASM)
-          CALL TRNSPS(NRI,NCI,C(IBASE),CTT)
-          IF(PSSIGN.EQ.-1.0D0) CALL DSCAL_(NRI*NCI,-1.0d0,CTT,1)
-        END IF
-      ELSE IF( IASM .LT. IBSM ) THEN
-!*************
-!* IASM < IBSM
-!*************
-!.. transpose ibtp ibsm iatp iasm block
-        IF(IDC.LT.4) THEN
-          IBASE = ICOOSC(IBTP,IATP,IBSM)
-          NRI = NSASO(IBTP,IBSM)
-          NCI = NSBSO(IATP,IASM)
-          IF( IDC.EQ.2) THEN
-            CALL TRNSPS(NRI,NCI,C(IBASE),CTT)
-          ELSE IF( IDC.EQ.3) THEN
-            CALL DCOPY_(NRI*NCI,C(IBASE),1,CTT,1)
-          END IF
-          IF(PSIGN.EQ.-1.0D0) CALL DSCAL_(NRI*NCI,-1.0D0,CTT,1)
-        ELSE IF ( IDC .EQ. 4 ) THEN
-          IF(IBTP.GT.IATP) THEN
-            IBASE = ICOOSC(IBTP,IATP,IBSM)
-            NRI = NSASO(IBTP,IBSM)
-            NCI = NSBSO(IATP,IASM)
-            CALL TRNSPS(NRI,NCI,C(IBASE),CTT)
-            IF(PSSIGN.EQ.-1.0D0) CALL DSCAL_(NRI*NCI,-1.0D0,CTT,1)
-          ELSE IF (IBTP.EQ.IATP) THEN
-            IBASE = ICOOSC(IBTP,IATP,IBSM)
-            NRI   = NSASO(IATP,IBSM)
-            NCI   = NSBSO(IATP,IASM)
-            CALL TRIPK2(CTT,C(IBASE),2,NRI,NCI,PLSSGN)
-            IF(PLSIGN.EQ.-1.0D0) CALL DSCAL_(NRI*NCI,-1.0D0,CTT,1)
-          ELSE IF( IBTP.LT.IATP) THEN
-            IBASE = ICOOSC(IATP,IBTP,IBSM)
-            NELMNT = NSASO(IATP,IBSM)*NSBSO(IBTP,IASM)
-            CALL DCOPY_(NELMNT,C(IBASE),1,CTT,1)
-            IF(PLSIGN.EQ.-1.0D0) CALL DSCAL_(NELMNT,-1.0D0,CTT,1)
-          END IF
-        END IF
-      END IF
-      END IF
-      RETURN
+        call TRIPK2(CTT,C(IBASE),2,NAST,NAST,PLSIGN*PSSIGN)
+      else if (IATP < IBTP) then
+        IBASE = ICOOSC(IBTP,IATP,IASM)
+        NROW = NSASO(IBTP,IASM)
+        NCOL = NSBSO(IATP,IBSM)
+        call TRNSPS(NROW,NCOL,C(IBASE),CTT)
+        NELMNT = NROW*NCOL
+        call DSCAL_(NELMNT,PLSIGN*PSSIGN,CTT,1)
+      end if
+    end if
+  else if (IASM == IBSM) then
+    !************
+    ! IASM = IBSM
+    !************
+    if ((IATP > IBTP) .or. (IDC == 3)) then
+      ! simple copying
+      IBASE = ICOOSC(IATP,IBTP,IASM)
+      NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
+      call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
+    else if (IATP == IBTP) then
+      ! expand triangular packed matrix
+      IBASE = ICOOSC(IATP,IBTP,IASM)
+      NAST = NSASO(IATP,IASM)
+      call TRIPK2(CTT,C(IBASE),2,NAST,NAST,PSSIGN)
+    else if (IATP < IBTP) then
+      ! transpose ibtp iasm iatp ibsm block
+      IBASE = ICOOSC(IBTP,IATP,IASM)
+      NRI = NSASO(IBTP,IASM)
+      NCI = NSBSO(IATP,IASM)
+      call TRNSPS(NRI,NCI,C(IBASE),CTT)
+      if (PSSIGN == -1.0d0) call DSCAL_(NRI*NCI,-1.0d0,CTT,1)
+    end if
+  else if (IASM < IBSM) then
+    !************
+    ! IASM < IBSM
+    !************
+    ! transpose ibtp ibsm iatp iasm block
+    if (IDC < 4) then
+      IBASE = ICOOSC(IBTP,IATP,IBSM)
+      NRI = NSASO(IBTP,IBSM)
+      NCI = NSBSO(IATP,IASM)
+      if (IDC == 2) then
+        call TRNSPS(NRI,NCI,C(IBASE),CTT)
+      else if (IDC == 3) then
+        call DCOPY_(NRI*NCI,C(IBASE),1,CTT,1)
+      end if
+      if (PSIGN == -1.0d0) call DSCAL_(NRI*NCI,-1.0d0,CTT,1)
+    else if (IDC == 4) then
+      if (IBTP > IATP) then
+        IBASE = ICOOSC(IBTP,IATP,IBSM)
+        NRI = NSASO(IBTP,IBSM)
+        NCI = NSBSO(IATP,IASM)
+        call TRNSPS(NRI,NCI,C(IBASE),CTT)
+        if (PSSIGN == -1.0d0) call DSCAL_(NRI*NCI,-1.0d0,CTT,1)
+      else if (IBTP == IATP) then
+        IBASE = ICOOSC(IBTP,IATP,IBSM)
+        NRI = NSASO(IATP,IBSM)
+        NCI = NSBSO(IATP,IASM)
+        call TRIPK2(CTT,C(IBASE),2,NRI,NCI,PLSSGN)
+        if (PLSIGN == -1.0d0) call DSCAL_(NRI*NCI,-1.0d0,CTT,1)
+      else if (IBTP < IATP) then
+        IBASE = ICOOSC(IATP,IBTP,IBSM)
+        NELMNT = NSASO(IATP,IBSM)*NSBSO(IBTP,IASM)
+        call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
+        if (PLSIGN == -1.0d0) call DSCAL_(NELMNT,-1.0d0,CTT,1)
+      end if
+    end if
+  end if
+end if
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer_array(IOCOC)
-      END
+if (.false.) call Unused_integer_array(IOCOC)
+
+end subroutine GSTTBL_MCLR

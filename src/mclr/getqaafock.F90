@@ -14,82 +14,86 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use MCLR_Data, only: nNA, nDens2
-      use input_mclr, only: nRoots,ntAsh,ntBas
-      Implicit None
-!*****Input
-      Integer nP2
-      Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
-      Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
-      Real*8,DIMENSION(nP2)::P2MOt
-!*****Output
-      Real*8,DIMENSION(nDens2)::FOccMO
-!*****For Debugging
-      INTEGER NPUVX
-      Real*8,DIMENSION(:),Allocatable::PUVX
-      INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
-      INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh)::IndPUVX
-      Logical debug2
-!*****Auxiliaries
-      Real*8,DIMENSION(:),Allocatable::G1r,G2r,G2q,Fock,T,PQaa
-      INTEGER K,L,nG2r,IKL,IKL2,IKK,ILL, nG1, nG2, nG1r
-!***********************************************************************
-!                                                                      *
-       Integer i,j,itri
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!                                                                      *
-!***********************************************************************
-      ng1=itri(ntash,ntash)
-      ng2=itri(ng1,ng1)
 
-      nG1r=ntash**2
-      nG2r=(nG1r+1)*nG1r/2
-      CALL mma_allocate(Fock,nDens2)
-      CALL mma_allocate(T,nDens2)
-      CALL mma_allocate(G1r,nG1r)
-      CALL mma_allocate(G2r,nG2r)
-      CALL mma_allocate(G2q,ng2)
-      CALL mma_allocate(PQaa,ng2)
-      Debug2=.false.
-      CALL FZero(PQaa,nP2)
-      CALL FZero(G1r,nG1r)
-      CALL FZero(G2r,nG2r)
+subroutine GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: nNA, nDens2
+use input_mclr, only: nRoots, ntAsh, ntBas
+
+implicit none
+! Input
+integer nP2
+real*8, dimension((nRoots-1)*nRoots/2) :: zX
+real*8, dimension(nRoots*(nRoots+1)/2,nnA,nnA) :: GDMat
+real*8, dimension(nP2) :: P2MOt
+! Output
+real*8, dimension(nDens2) :: FOccMO
+! For Debugging
+integer NPUVX
+real*8, dimension(:), allocatable :: PUVX
+integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
+integer, dimension(ntBas,ntAsh,ntAsh,ntAsh) :: IndPUVX
+logical debug2
+! Auxiliaries
+real*8, dimension(:), allocatable :: G1r, G2r, G2q, Fock, T, PQaa
+integer K, L, nG2r, IKL, IKL2, IKK, ILL, nG1, nG2, nG1r
+! Statement function
+integer i, j, itri
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+ng1 = itri(ntash,ntash)
+ng2 = itri(ng1,ng1)
+
+nG1r = ntash**2
+nG2r = (nG1r+1)*nG1r/2
+call mma_allocate(Fock,nDens2)
+call mma_allocate(T,nDens2)
+call mma_allocate(G1r,nG1r)
+call mma_allocate(G2r,nG2r)
+call mma_allocate(G2q,ng2)
+call mma_allocate(PQaa,ng2)
+Debug2 = .false.
+call FZero(PQaa,nP2)
+call FZero(G1r,nG1r)
+call FZero(G2r,nG2r)
 
 !*****************
 
-      IF(Debug2) THEN
-      CALL Get_PUVXLen(NPUVX)
-      CALL mma_allocate(PUVX,NPUVX)
-      CALL Get_Two_Ind(IndPUVX,IndTUVX)
-      END IF
+if (Debug2) then
+  call Get_PUVXLen(NPUVX)
+  call mma_allocate(PUVX,NPUVX)
+  call Get_Two_Ind(IndPUVX,IndTUVX)
+end if
 
-      DO K=1,nRoots
-       IKK=(K+1)*K/2
-       Do L=1,K-1
-        ILL=(L+1)*L/2
-        IKL=(K-1)*K/2+L
-        IKL2=(K-1)*(K-2)/2+L
-        CALL QaaP2MO(G2q,ng2,GDMat,IKL,IKK,ILL)
-        IF(Debug2) CALL QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
-        CALL G2qtoG2r(G2r,G2q,nG2,nG2r)
-        Call daxpy_(ng2,zX(IKL2),G2q,1,PQaa,1)
-       End Do
-      END DO
+do K=1,nRoots
+  IKK = (K+1)*K/2
+  do L=1,K-1
+    ILL = (L+1)*L/2
+    IKL = (K-1)*K/2+L
+    IKL2 = (K-1)*(K-2)/2+L
+    call QaaP2MO(G2q,ng2,GDMat,IKL,IKK,ILL)
+    if (Debug2) call QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
+    call G2qtoG2r(G2r,G2q,nG2,nG2r)
+    call daxpy_(ng2,zX(IKL2),G2q,1,PQaa,1)
+  end do
+end do
 
+call Daxpy_(nG2,1.0d0,PQaa,1,P2MOt,1)
+call Put_dArray('P2MOt',P2MOt,nG2)
 
-      CALL Daxpy_(nG2,1.0d0,PQaa,1,P2MOt,1)
-      CALL Put_dArray('P2MOt',P2MOt,nG2)
+call G2qtoG2r(G2r,PQaa,nG2,nG2r)
+call FockGen(0.0d0,G1r,G2r,T,Fock,1)
+call DAxPy_(nDens2,1.0d0,T,1,FOccMO,1)
+if (Debug2) call mma_deallocate(PUVX)
+call mma_deallocate(Fock)
+call mma_deallocate(T)
+call mma_deallocate(G1r)
+call mma_deallocate(G2r)
+call mma_deallocate(G2q)
+call mma_deallocate(PQaa)
 
-      CALL G2qtoG2r(G2r,PQaa,nG2,nG2r)
-      CALL FockGen(0.0d0,G1r,G2r,T,Fock,1)
-      Call DAxPy_(nDens2,1.0d0,T,1,FOccMO,1)
-      IF(Debug2) Call mma_deallocate(PUVX)
-      CALL mma_deallocate(Fock)
-      CALL mma_deallocate(T)
-      CALL mma_deallocate(G1r)
-      CALL mma_deallocate(G2r)
-      CALL mma_deallocate(G2q)
-      CALL mma_deallocate(PQaa)
-      End Subroutine GetQaaFock
+end subroutine GetQaaFock

@@ -8,29 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      INTEGER FUNCTION ISYMCN_MCLR(ICL,IOP,NCL,NOPEN)
-!
+
+integer function ISYMCN_MCLR(ICL,IOP,NCL,NOPEN)
 ! Master routine for symmetry of configuration
 ! with NCL doubly occupied orbitals and NOPEN singly occupied shells
-!
-      use MCLR_Data, only: ISMFTO
-      IMPLICIT None
-      INTEGER ICL(*),IOP(*)
-      INTEGER NCL,NOPEN
 
-      INTEGER IEL,IVV,JVV,KVV
-!
-      ISYMCN_MCLR = 1
-      DO IEL = 1, NOPEN
-        IVV=ISYMCN_MCLR-1
-        JVV=ISMFTO(IOP(IEL))-1
-        KVV = IEOR(IVV,JVV)
-        ISYMCN_MCLR = KVV+1
-      END DO
-!
+use MCLR_Data, only: ISMFTO
+
+implicit none
+integer ICL(*), IOP(*)
+integer NCL, NOPEN
+integer IEL, IVV, JVV, KVV
+
+ISYMCN_MCLR = 1
+do IEL=1,NOPEN
+  IVV = ISYMCN_MCLR-1
+  JVV = ISMFTO(IOP(IEL))-1
+  KVV = ieor(IVV,JVV)
+  ISYMCN_MCLR = KVV+1
+end do
+
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-         CALL Unused_integer_array(ICL)
-         CALL Unused_integer(NCL)
-      END IF
-      END FUNCTION ISYMCN_MCLR
+if (.false.) then
+  call Unused_integer_array(ICL)
+  call Unused_integer(NCL)
+end if
+
+end function ISYMCN_MCLR

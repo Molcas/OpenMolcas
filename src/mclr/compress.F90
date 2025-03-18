@@ -10,71 +10,70 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-      SubRoutine Compress(ArrayIn,ArrayOut,dsym)
-!
-!      Compresses the orbital rotation matrix to
-!      the vector that is used in the PCG routines
-!      the indexes are ordered to fit the preconditioner
-!
-!      The redundant rotations are set to zero
-!
-      use Constants, only: Zero
-      use MCLR_Data, only: nDens, nDensC, ipMat
-      use input_mclr, only: nSym,nRs1,nRs2,nRs3,nOrb,nIsh,TimeDep
-      Implicit None
-      Integer dsym
-      Real*8  ArrayIn(nDens),ArrayOut(nDensC)
-      Integer indexC, isym, jsym, iBas, jBas, jT, iT, index1
 
-      indexC=0
-      ArrayOut(:)=Zero
-      Do iSym=1,nSym
-       Do jSym=1,nSym
-        If (iEOr(iSym-1,jSym-1)+1.eq.abs(dSym)) Then
-         Do jBas=1,nOrb(jSym)
-          If (jBas.le.nIsh(jsym)) Then
-             jT=0
-          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)) Then
-             jT=1
-          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)) Then
-             jT=2
-          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)             &
-     &                               +nRs3(jsym)) Then
-             jT=3
-          Else
-             jT=4
-          End If
-          Do iBas=1,nOrb(iSym)
-           If (iBas.le.nIsh(isym)) Then
-             iT=0
-           Else If (iBas.le.nIsh(isym)+nRs1(isym)) Then
-             iT=1
-           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)) Then
-             iT=2
-           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)            &
-     &                                +nRs3(isym)) Then
-             iT=3
-           Else
-             iT=4
-           End If
-           If (TimeDep) Then
-            If (iT.ne.jT) Then !
-             indexC=indexc+1 !
-             Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1 !
-             ArrayOut(IndexC)=ArrayIn(index1) !
-            End If !
-           Else
-            If (iT.gt.jT) Then
-             indexC=indexc+1
-             Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
-             ArrayOut(IndexC)=ArrayIn(index1)
-            End If
-           End If
-          End Do
-         End Do
-        End If
-       End Do
-      End Do
-      If (indexc.ne.ndensc) Call SysAbendMsg('compress',                &
-     & 'indexc.ne.ndensc',' ')
-      End SubRoutine Compress
+subroutine Compress(ArrayIn,ArrayOut,dsym)
+! Compresses the orbital rotation matrix to
+! the vector that is used in the PCG routines
+! the indexes are ordered to fit the preconditioner
+!
+! The redundant rotations are set to zero
+
+use Constants, only: Zero
+use MCLR_Data, only: nDens, nDensC, ipMat
+use input_mclr, only: nSym, nRs1, nRs2, nRs3, nOrb, nIsh, TimeDep
+
+implicit none
+integer dsym
+real*8 ArrayIn(nDens), ArrayOut(nDensC)
+integer indexC, isym, jsym, iBas, jBas, jT, iT, index1
+
+indexC = 0
+ArrayOut(:) = Zero
+do iSym=1,nSym
+  do jSym=1,nSym
+    if (ieor(iSym-1,jSym-1)+1 == abs(dSym)) then
+      do jBas=1,nOrb(jSym)
+        if (jBas <= nIsh(jsym)) then
+          jT = 0
+        else if (jBas <= nIsh(jsym)+nRs1(jsym)) then
+          jT = 1
+        else if (jBas <= nIsh(jsym)+nRs1(jsym)+nRs2(jsym)) then
+          jT = 2
+        else if (jBas <= nIsh(jsym)+nRs1(jsym)+nRs2(jsym)+nRs3(jsym)) then
+          jT = 3
+        else
+          jT = 4
+        end if
+        do iBas=1,nOrb(iSym)
+          if (iBas <= nIsh(isym)) then
+            iT = 0
+          else if (iBas <= nIsh(isym)+nRs1(isym)) then
+            iT = 1
+          else if (iBas <= nIsh(isym)+nRs1(isym)+nRs2(isym)) then
+            iT = 2
+          else if (iBas <= nIsh(isym)+nRs1(isym)+nRs2(isym)+nRs3(isym)) then
+            iT = 3
+          else
+            iT = 4
+          end if
+          if (TimeDep) then
+            if (iT /= jT) then !
+              indexC = indexc+1 !
+              Index1 = ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1 !
+              ArrayOut(IndexC) = ArrayIn(index1) !
+            end if !
+          else
+            if (iT > jT) then
+              indexC = indexc+1
+              Index1 = ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
+              ArrayOut(IndexC) = ArrayIn(index1)
+            end if
+          end if
+        end do
+      end do
+    end if
+  end do
+end do
+if (indexc /= ndensc) call SysAbendMsg('compress','indexc /= ndensc',' ')
+
+end subroutine Compress

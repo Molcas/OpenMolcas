@@ -8,22 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SigmaVec(C,HC,kic)
-      Use Str_Info, only: STR,CNSM,DTOC,ITYP_Dummy,nElec,NOCTYP
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero
-      use MCLR_Data, only: i12, ist
-      use MCLR_Data, only: IPRCIX,IPRDIA
-      use MCLR_Data, only: IDC, PSSIGN
-      use MCLR_Data, only: MXSB,MXSOOB,IASTFI,IBSTFI,ISMOST,MNR1IC,     &
-     &                       MXR3IC,XISPSM
-      use MCLR_Data, only: NOCSF,MAXI,MAXK,ICISTR,NOPART,IDIAG
-      use MCLR_Data, only: IBTSOB,ITSOB,NACOB,NORB1,NORB2,NORB3,        &
-     &                       NTSOB
-      use DetDim, only: MXINKA
-      use CandS, only: ICSM,ISSM,ICSPC,ISSPC
-      use input_mclr, only: nIrrep,nsMOB,TimeDep
-!
+
+subroutine SigmaVec(C,HC,kic)
 ! Outer routine for sigma vector generation
 ! RAS space
 ! This is a driver routine change in some rows just so it s
@@ -31,335 +17,287 @@
 ! the name on it but if you look in Jeppes mv7old(relaci) you
 ! will find a subroutine that looks very much like this
 ! This routine is just a setup routine for memory etc
-!
-      IMPLICIT None
-      Real*8 C(*),HC(*)
-      Integer kic(2)
-!
-! =====
-!.Input
-! =====
-!
-      Integer sxstsm(1)
-      Integer idummy(1)
-      Integer, Allocatable:: SVST(:),                                   &
-     &                       SIOIO(:), CIOIO(:),                        &
-     &                       SBLTP(:), CBLTP(:),                        &
-     &                       I1(:), I2(:), I3(:), I4(:),                &
-     &                       OOS(:,:)
-      Real*8, Allocatable:: SB(:), CB(:), INSCR(:),                     &
-     &                      XI1S(:), XI2S(:), XI3S(:), XI4S(:)
-      Real*8, Target, Allocatable:: C2(:), CJRES(:), SIRES(:)
-      Real*8, Pointer:: pC2(:), pCJRES(:), pSIRES(:)
-      Integer LUC,LUHC,NSDET,IATP,IBTP,JATP,JBTP,NOCTPA,NOCTPB,         &
-     &        NAEL,NBEL,MAXA0,MAXB0,MAXA,MAXA1,MAXB,MAXB1,MXSTBL,       &
-     &        MXTSOB,MAXIJ,LSCR1,INTSCR,MAXPK,IATP1,IBTP1,IATP2,        &
-     &        IBTP2,MAXIK,LSCR2,LSCR3,MOCAA,MAXE,MAXEL3,MXSXST,         &
-     &        MXSXBL,LSCR12,NOOS,IICOPY,IDOH2,LLUC,LLUHC,IINSTR,        &
-     &        IMNMX,MXCIJA,MXCIJAB,MXCIJB,MXCJ,MXIJST,MXIJSTF,          &
-     &        MXSTBL0
 
-      LUC=0
-      LUHC=0
-      IDUMMY(1) = 0
-      NSDET = NINT(XISPSM(ISSM,ISSPC))
-!
-!. The story of MV7 : I started out from nothing, absolutely zero,
-!
-      call dcopy_(NSDET,[Zero],0,HC,1)
-!
+use Str_Info, only: STR, CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use MCLR_Data, only: i12, ist
+use MCLR_Data, only: IPRCIX, IPRDIA
+use MCLR_Data, only: IDC, PSSIGN
+use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC, XISPSM
+use MCLR_Data, only: NOCSF, MAXI, MAXK, ICISTR, NOPART, IDIAG
+use MCLR_Data, only: IBTSOB, ITSOB, NACOB, NORB1, NORB2, NORB3, NTSOB
+use DetDim, only: MXINKA
+use CandS, only: ICSM, ISSM, ICSPC, ISSPC
+use input_mclr, only: nIrrep, nsMOB, TimeDep
+
+implicit none
+real*8 C(*), HC(*)
+integer kic(2)
+! =====
+! Input
+! =====
+integer sxstsm(1)
+integer idummy(1)
+integer, allocatable :: SVST(:), SIOIO(:), CIOIO(:), SBLTP(:), CBLTP(:), I1(:), I2(:), I3(:), I4(:), OOS(:,:)
+real*8, allocatable :: SB(:), CB(:), INSCR(:), XI1S(:), XI2S(:), XI3S(:), XI4S(:)
+real*8, target, allocatable :: C2(:), CJRES(:), SIRES(:)
+real*8, pointer :: pC2(:), pCJRES(:), pSIRES(:)
+integer LUC, LUHC, NSDET, IATP, IBTP, JATP, JBTP, NOCTPA, NOCTPB, NAEL, NBEL, MAXA0, MAXB0, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, &
+        MXTSOB, MAXIJ, LSCR1, INTSCR, MAXPK, IATP1, IBTP1, IATP2, IBTP2, MAXIK, LSCR2, LSCR3, MOCAA, MAXE, MAXEL3, MXSXST, MXSXBL, &
+        LSCR12, NOOS, IICOPY, IDOH2, LLUC, LLUHC, IINSTR, IMNMX, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, MXIJSTF, MXSTBL0
+
+LUC = 0
+LUHC = 0
+IDUMMY(1) = 0
+NSDET = nint(XISPSM(ISSM,ISSPC))
+
+! The story of MV7 : I started out from nothing, absolutely zero,
+
+call dcopy_(NSDET,[Zero],0,HC,1)
+
 ! Info for this internal space
-!
-      IATP = IASTFI(ISSPC)
-      IBTP = IBSTFI(ISSPC)
-      JATP = IASTFI(ICSPC)
-      JBTP = IBSTFI(ICSPC)
-      IF(IATP.NE.JATP.OR.IBTP.NE.JBTP) THEN
-        WRITE(6,*) ' My world is falling apart'
-        WRITE(6,*) ' C and sigma belongs to different types of strings'
-        WRITE(6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
-        Call Abend
-      END IF
-      NOCTPA = NOCTYP(IATP)
-      NOCTPB = NOCTYP(IBTP)
-      NAEL = NELEC(IATP)
-      NBEL = NELEC(IBTP)
 
-!. Largest block of strings in zero order space
-      MAXA0 = IMNMX(Str(IATP)%NSTSO,nIrrep*NOCTYP(IATP),2)
-      MAXB0 = IMNMX(Str(IBTP)%NSTSO,nIrrep*NOCTYP(IBTP),2)
-      MXSTBL0 = MAX(MAXA0,MAXB0)
-!. Largest number of strings of given symmetry and type
-      MAXA = 0
-      IF(NAEL.GE.1) THEN
-        MAXA1 = IMNMX(Str(IATP+1)%NSTSO,nIrrep*NOCTYP(IATP+1),2)
-        MAXA = MAX(MAXA,MAXA1)
-      END IF
-      IF(NAEL.GE.2) THEN
-        MAXA1 = IMNMX(Str(IATP+2)%NSTSO,nIrrep*NOCTYP(IATP+2),2)
-        MAXA = MAX(MAXA,MAXA1)
-      END IF
-      MAXB = 0
-      IF(NBEL.GE.1) THEN
-        MAXB1 = IMNMX(Str(IBTP+1)%NSTSO,nIrrep*NOCTYP(IBTP+1),2)
-        MAXB = MAX(MAXB,MAXB1)
-      END IF
-      IF(NBEL.GE.2) THEN
-        MAXB1 = IMNMX(Str(IBTP+2)%NSTSO,nIrrep*NOCTYP(IBTP+2),2)
-        MAXB = MAX(MAXB,MAXB1)
-      END IF
-      MXSTBL = MAX(MAXA,MAXB)
-      IF(IPRCIX.GE.2 ) WRITE(6,*)                                       &
-     &' Largest block of strings with given symmetry and type',MXSTBL
-      MAXI = MIN( MXINKA,MXSTBL)
-      MAXK = MIN( MXINKA,MXSTBL)
-!Largest active orbital block belonging to given type and symmetry
-      MXTSOB = IMNMX(NTSOB,3*NSMOB,2)
-      MAXIJ = MXTSOB ** 2
-!.Local scratch arrays for blocks of C and sigma
-      LSCR1 = 0
-      IF(ICISTR.LE.2) THEN
-        LSCR1 = MXSB
-      ELSE IF(ICISTR.EQ.3) THEN
-        LSCR1 = MXSOOB
-      END IF
-      IF(ICISTR.EQ.1) THEN
-        Call mma_allocate(CB,LSCR1,Label='CB')
-        Call mma_allocate(SB,LSCR1,Label='SB')
-      END IF
-!.SCRATCH space for integrals
+IATP = IASTFI(ISSPC)
+IBTP = IBSTFI(ISSPC)
+JATP = IASTFI(ICSPC)
+JBTP = IBSTFI(ICSPC)
+if ((IATP /= JATP) .or. (IBTP /= JBTP)) then
+  write(6,*) ' My world is falling apart'
+  write(6,*) ' C and sigma belongs to different types of strings'
+  write(6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
+  call Abend()
+end if
+NOCTPA = NOCTYP(IATP)
+NOCTPB = NOCTYP(IBTP)
+NAEL = NELEC(IATP)
+NBEL = NELEC(IBTP)
+
+! Largest block of strings in zero order space
+MAXA0 = IMNMX(Str(IATP)%NSTSO,nIrrep*NOCTYP(IATP),2)
+MAXB0 = IMNMX(Str(IBTP)%NSTSO,nIrrep*NOCTYP(IBTP),2)
+MXSTBL0 = max(MAXA0,MAXB0)
+! Largest number of strings of given symmetry and type
+MAXA = 0
+if (NAEL >= 1) then
+  MAXA1 = IMNMX(Str(IATP+1)%NSTSO,nIrrep*NOCTYP(IATP+1),2)
+  MAXA = max(MAXA,MAXA1)
+end if
+if (NAEL >= 2) then
+  MAXA1 = IMNMX(Str(IATP+2)%NSTSO,nIrrep*NOCTYP(IATP+2),2)
+  MAXA = max(MAXA,MAXA1)
+end if
+MAXB = 0
+if (NBEL >= 1) then
+  MAXB1 = IMNMX(Str(IBTP+1)%NSTSO,nIrrep*NOCTYP(IBTP+1),2)
+  MAXB = max(MAXB,MAXB1)
+end if
+if (NBEL >= 2) then
+  MAXB1 = IMNMX(Str(IBTP+2)%NSTSO,nIrrep*NOCTYP(IBTP+2),2)
+  MAXB = max(MAXB,MAXB1)
+end if
+MXSTBL = max(MAXA,MAXB)
+if (IPRCIX >= 2) write(6,*) ' Largest block of strings with given symmetry and type',MXSTBL
+MAXI = min(MXINKA,MXSTBL)
+MAXK = min(MXINKA,MXSTBL)
+! Largest active orbital block belonging to given type and symmetry
+MXTSOB = IMNMX(NTSOB,3*NSMOB,2)
+MAXIJ = MXTSOB**2
+! Local scratch arrays for blocks of C and sigma
+LSCR1 = 0
+if (ICISTR <= 2) then
+  LSCR1 = MXSB
+else if (ICISTR == 3) then
+  LSCR1 = MXSOOB
+end if
+if (ICISTR == 1) then
+  call mma_allocate(CB,LSCR1,Label='CB')
+  call mma_allocate(SB,LSCR1,Label='SB')
+end if
+! SCRATCH space for integrals
 ! A 4 index integral block with four indices belonging OS class
-      INTSCR = MXTSOB ** 4
+INTSCR = MXTSOB**4
 
-      Call mma_allocate(INSCR,INTSCR,Label='INSCR')
-!. Arrays giving allowed type combinations
+call mma_allocate(INSCR,INTSCR,Label='INSCR')
+! Arrays giving allowed type combinations
 
-      Call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
-      Call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
-!
-!      SIOIO,CIOIO [NOCTPA x NOCTPB]
-!      Allowed combinations of alpha and beta strings
-!      Sigma and CI vector respectively
-!
-!      (RAS1 & RAS3 constrains)
-!
-      CALL IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,       &
-     &            Str(IATP)%EL1,Str(IATP)%EL3,                          &
-     &            Str(IBTP)%EL1,Str(IBTP)%EL3,                          &
-     &            SIOIO,IPRCIX)
-!
-      CALL IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,       &
-     &            Str(IATP)%EL1,Str(IATP)%EL3,                          &
-     &            Str(IBTP)%EL1,Str(IBTP)%EL3,                          &
-     &            CIOIO,IPRCIX)
-!
-!
-!. Arrays giving block type
-      Call mma_allocate(SBLTP,nIrrep,Label='SBLTP')
-      Call mma_allocate(CBLTP,nIrrep,Label='CBLTP')
-!. Arrays for additional symmetry operation
-!
-      Call mma_allocate(SVST,nIrrep,Label='SVST')
-!
-!.scratch space for projected matrices and a CI block
-!
-!. Scratch space for CJKAIB resolution matrices
-!. Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
-      IF(NOPART.EQ.0) THEN
-         MAXPK = MAXK
-       ELSE
-         MAXPK = 0
-      END IF
-!
+call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
+call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
+
+! SIOIO,CIOIO [NOCTPA x NOCTPB]
+! Allowed combinations of alpha and beta strings
+! Sigma and CI vector respectively
+
+! (RAS1 & RAS3 constrains)
+
+call IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,SIOIO,IPRCIX)
+
+call IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,CIOIO,IPRCIX)
+
+! Arrays giving block type
+call mma_allocate(SBLTP,nIrrep,Label='SBLTP')
+call mma_allocate(CBLTP,nIrrep,Label='CBLTP')
+! Arrays for additional symmetry operation
+
+call mma_allocate(SVST,nIrrep,Label='SVST')
+
+! scratch space for projected matrices and a CI block
+
+! Scratch space for CJKAIB resolution matrices
+! Size of C(Ka,Jb,j),C(Ka,KB,ij)  resolution matrices
+if (NOPART == 0) then
+  MAXPK = MAXK
+else
+  MAXPK = 0
+end if
+
 ! Get memory requirements
-!
-!     MXCJ:MXCIJA:MXCIJB:MXCIJAB:MXSXBL:MXIJST:MXIJSTF
-!
-      IATP1=MIN(IATP+1,ITYP_DUMMY)
-      IBTP1=MIN(IbTP+1,ITYP_DUMMY)
-      IATP2=MIN(IATP+2,ITYP_DUMMY)
-      IBTP2=MIN(IbTP+2,ITYP_DUMMY)
-      CALL MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nIrrep,                 &
-     &            Str(IATP)%NSTSO,Str(IBTP)%NSTSO,                      &
-     &            IATP+1,Str(IATP1)%NSTSO,NOCTYP(IATP1),                &
-     &            Str(IBTP1)%NSTSO,NOCTYP(IBTP1),                       &
-     &            NSMOB,3,3,NTSOB,IPRCIX,MAXpK,                         &
-     &            Str(IATP2)%NSTSO,NOCTYP(IATP2),                       &
-     &            Str(IBTP2)%NSTSO,NOCTYP(IBTP2),                       &
-     &            Str(IATP)%EL123,Str(IBTP)%EL123,                      &
-     &            MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,             &
-     &            MXIJSTF)
-!
-!
-!.vectors able to hold strings of given sym and type
-      MAXIK = MAX(MAXI,MAXK)
-!. I1 and Xi1s must also be able to hold largest st block
+
+! MXCJ:MXCIJA:MXCIJB:MXCIJAB:MXSXBL:MXIJST:MXIJSTF
+
+IATP1 = min(IATP+1,ITYP_DUMMY)
+IBTP1 = min(IbTP+1,ITYP_DUMMY)
+IATP2 = min(IATP+2,ITYP_DUMMY)
+IBTP2 = min(IbTP+2,ITYP_DUMMY)
+call MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nIrrep,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,IATP+1,Str(IATP1)%NSTSO,NOCTYP(IATP1), &
+            Str(IBTP1)%NSTSO,NOCTYP(IBTP1),NSMOB,3,3,NTSOB,IPRCIX,MAXpK,Str(IATP2)%NSTSO,NOCTYP(IATP2),Str(IBTP2)%NSTSO, &
+            NOCTYP(IBTP2),Str(IATP)%EL123,Str(IBTP)%EL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
+
+!xvectors able to hold strings of given sym and type
+MAXIK = max(MAXI,MAXK)
+! I1 and Xi1s must also be able to hold largest st block
 ! and (i,j,kstring) array
 
-      LSCR3 = MAX(MXIJST,MAXIK*MXTSOB,MXSTBL0)
+LSCR3 = max(MXIJST,MAXIK*MXTSOB,MXSTBL0)
 
-      Call mma_allocate(I1,LSCR3,Label='I1')
-      Call mma_allocate(I2,LSCR3,Label='I2')
-      Call mma_allocate(I3,MAXIK*MXTSOB,Label='I3')
-      Call mma_allocate(I4,MAXIK*MXTSOB,Label='I4')
-      Call mma_allocate(XI1S,LSCR3,Label='XI1S')
-      Call mma_allocate(XI2S,LSCR3,Label='XI2S')
-      Call mma_allocate(XI3S,MAXIK*MXTSOB,Label='XI3S')
-      Call mma_allocate(XI4S,MAXIK*MXTSOB,Label='XI4S')
-      LSCR2 = MAX(MXCJ,MXCIJA,MXCIJB,MXCIJAB)
-!
-!. Merethe Interface
-      MOCAA = 0
-      IF(MOCAA.NE.0) THEN
-!. These blocks will also be used for single excitations so,
-!. To be removed   Largest block of SX excitations
-        MAXE = MAX(NAEL,NBEL)
-        MAXEl3 = MIN(MAXE,MXTSOB)
-        MXSXST = (MXTSOB+1)*MAXEL3
-        MXSXBL = MXSXST*MXSTBL0
-        IF(IPRCIX.GE.2)                                                 &
-     &  WRITE(6,*) ' MXSXST,MXSXBL = ', MXSXST,MXSXBL
-        LSCR2 = MAX(4*MXSXBL,LSCR2)
-      END IF
-!
-      LSCR12 = MAX(LSCR1,2*LSCR2)
-!
-      IF(IDIAG .EQ. 2 ) THEN
-!. PICO diagonalizer uses block KVEC3, use this as scratch block
-        Write (6,*) 'Unchartered territory!'
-        Call Abend()
-!       pC2 => VEC3 ! this is not clear yet.
-        IF ( 2 * LSCR2 .GT. LSCR1 ) THEN
-           Call mma_allocate(CJRES,LSCR2,Label='CJRES')
-           pCJRES => CJRES
-           Call mma_allocate(SIRES,LSCR2,Label='SIRES')
-           pSIRES => SIRES
-        ELSE
-!          pCJRES => VEC3                ! dito
-!          pSIRES => VEC3(1+LSCR2:)     ! dito
-        END IF
-      ELSE
-        Call mma_allocate(C2,LSCR12,Label='C2')
-        pC2 => C2
-        pCJRES => C2
-        pSIRES => C2(1+LSCR2:)
-      END IF
-!
-!     Symmetry handling symmetry allowed/forbidden
-!
-!     Out KSBLTP [nIrrep]
-!
-      CALL ZBLTP(ISMOST(1,ISSM),nIrrep,IDC,SBLTP,SVST)
-      CALL ZBLTP(ISMOST(1,ICSM),nIrrep,IDC,CBLTP,SVST)
-!.10 OOS arrays
-      nOOS = NOCTPA*NOCTPB*nIrrep
-      Call mma_allocate(OOS,nOOS,10,Label='OOS')
-!
-      iiCOPY=1
-      IF(NOCSF.EQ.0) THEN
+call mma_allocate(I1,LSCR3,Label='I1')
+call mma_allocate(I2,LSCR3,Label='I2')
+call mma_allocate(I3,MAXIK*MXTSOB,Label='I3')
+call mma_allocate(I4,MAXIK*MXTSOB,Label='I4')
+call mma_allocate(XI1S,LSCR3,Label='XI1S')
+call mma_allocate(XI2S,LSCR3,Label='XI2S')
+call mma_allocate(XI3S,MAXIK*MXTSOB,Label='XI3S')
+call mma_allocate(XI4S,MAXIK*MXTSOB,Label='XI4S')
+LSCR2 = max(MXCJ,MXCIJA,MXCIJB,MXCIJAB)
+
+! Merethe Interface
+MOCAA = 0
+if (MOCAA /= 0) then
+  ! These blocks will also be used for single excitations so,
+  ! To be removed   Largest block of SX excitations
+  MAXE = max(NAEL,NBEL)
+  MAXEl3 = min(MAXE,MXTSOB)
+  MXSXST = (MXTSOB+1)*MAXEL3
+  MXSXBL = MXSXST*MXSTBL0
+  if (IPRCIX >= 2) write(6,*) ' MXSXST,MXSXBL = ',MXSXST,MXSXBL
+  LSCR2 = max(4*MXSXBL,LSCR2)
+end if
+
+LSCR12 = max(LSCR1,2*LSCR2)
+
+if (IDIAG == 2) then
+  ! PICO diagonalizer uses block KVEC3, use this as scratch block
+  write(6,*) 'Unchartered territory!'
+  call Abend()
+  !pC2 => VEC3 ! this is not clear yet.
+  if (2*LSCR2 > LSCR1) then
+    call mma_allocate(CJRES,LSCR2,Label='CJRES')
+    pCJRES => CJRES
+    call mma_allocate(SIRES,LSCR2,Label='SIRES')
+    pSIRES => SIRES
+  !else
+  !  pCJRES => VEC3            ! ditto
+  !  pSIRES => VEC3(1+LSCR2:)  ! ditto
+  end if
+else
+  call mma_allocate(C2,LSCR12,Label='C2')
+  pC2 => C2
+  pCJRES => C2
+  pSIRES => C2(1+LSCR2:)
+end if
+
+! Symmetry handling symmetry allowed/forbidden
+
+! Out KSBLTP [nIrrep]
+
+call ZBLTP(ISMOST(1,ISSM),nIrrep,IDC,SBLTP,SVST)
+call ZBLTP(ISMOST(1,ICSM),nIrrep,IDC,CBLTP,SVST)
+! 10 OOS arrays
+nOOS = NOCTPA*NOCTPB*nIrrep
+call mma_allocate(OOS,nOOS,10,Label='OOS')
+
+iiCOPY = 1
 ! Transform C vector from CSF to SD basis
-        CALL CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,                 &
-     &                   icsm,iiCOPY,IPRDIA)
-      END IF
-!
-      IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
+if (NOCSF == 0) call CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY,IPRDIA)
 
-!. Transform from combination scaling to determinant scaling
-        CALL SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,nIrrep,                 &
-     &                   NOCTPA,NOCTPB,Str(IATP)%NSTSO,                 &
-     &                   Str(IBTP)%NSTSO,CIOIO,IDC,                     &
-     &                   2,IDUMMY,IPRDIA)
-      END IF
+! Transform from combination scaling to determinant scaling
+if ((IDC /= 1) .and. (ICISTR == 1)) &
+  call SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,2,IDUMMY,IPRDIA)
 
-!
-!     Goto 987
-      IF(I12.EQ.2) THEN
-        IDOH2 = 1
-      ELSE
-        IDOH2 = 0
-      END IF
-!
-      IF(ICISTR.EQ.1) THEN
-       LLUC = 0
-       LLUHC = 0
-      ELSE
-       LLUC = LUC
-       LLUHC = LUHC
-      END IF
-      call dcopy_(NSDET,[ZERO],0,HC,1)
-!
-      IF(ICISTR.EQ.1) THEN
-      CALL RASSG4(C,HC,CB,SB,pC2,                                       &
-     &            CIOIO,SIOIO,ISMOST(1,ICSM),                           &
-     &            ISMOST(1,ISSM),CBLTP,SBLTP,                           &
-     &            NORB1,NORB2,NORB3,NACOB,                              &
-     &            Str(IATP)%NSTSO,Str(IATP)%ISTSO,                      &
-     &            Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,                      &
-     &            NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB,                    &
-     &            nIrrep,NSMOB,nIrrep,nIrrep,NTSOB,IBTSOB,ITSOB,        &
-     &            MAXIJ,MAXK,MAXI,ICISTR,IINSTR,INTSCR,LSCR1,           &
-     &            LSCR1,                                                &
-     &            INSCR,pCJRES,pSIRES,                                  &
-     &            SXSTSM,                                               &
-     &            Str(IATP)%EL1,Str(IATP)%EL3,                          &
-     &            Str(IBTP)%EL1,Str(IBTP)%EL3,IDC,                      &
-     &            OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4),               &
-     &            OOS(:,5), OOS(:,6), OOS(:,7), OOS(:,8),               &
-     &            OOS(:,9), OOS(:,10),                                  &
-     &            I1,XI1S,I2,XI2S,                                      &
-     &            I3,XI3S,I4,XI4S,                                      &
-     &            IDOH2,                                                &
-     &            SVST,PSSIGN,IPRDIA,LLUC,LLUHC,IST,                    &
-     &            pCJRES,pSIRES,NOPARt,TimeDep)
+!goto 987
+if (I12 == 2) then
+  IDOH2 = 1
+else
+  IDOH2 = 0
+end if
 
-      Else
-       Call SysHalt('sigmavec')
-!
-!      IF WE USE DISK REPLACE THE FIRST VARIABLES LIKE THIS
-!      CALL RASSG4(C,HC,C,HC!,
-!
-      End If
-!
-      IF(IDC.NE.1.AND.ICISTR.EQ.1) THEN
-!. Transform from combination scaling to determinant scaling
+if (ICISTR == 1) then
+  LLUC = 0
+  LLUHC = 0
+else
+  LLUC = LUC
+  LLUHC = LUHC
+end if
+call dcopy_(NSDET,[ZERO],0,HC,1)
 
-        CALL SCDTC2_MCLR(HC,ISMOST(1,ISSM),SBLTP,nIrrep,                &
-     &              NOCTPA,NOCTPB,Str(IATP)%NSTSO,                      &
-     &              Str(IBTP)%NSTSO,CIOIO,IDC,                          &
-     &              1,IDUMMY,IPRDIA)
-      END IF
+if (ICISTR == 1) then
+  call RASSG4(C,HC,CB,SB,pC2,CIOIO,SIOIO,ISMOST(1,ICSM),ISMOST(1,ISSM),CBLTP,SBLTP,NORB1,NORB2,NORB3,NACOB,Str(IATP)%NSTSO, &
+              Str(IATP)%ISTSO,Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB,nIrrep,NSMOB,nIrrep,nIrrep,NTSOB, &
+              IBTSOB,ITSOB,MAXIJ,MAXK,MAXI,ICISTR,IINSTR,INTSCR,LSCR1,LSCR1,INSCR,pCJRES,pSIRES,SXSTSM,Str(IATP)%EL1, &
+              Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7), &
+              OOS(:,8),OOS(:,9),OOS(:,10),I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,SVST,PSSIGN,IPRDIA,LLUC,LLUHC,IST,pCJRES,pSIRES, &
+              NOPARt,TimeDep)
 
-!
-      IF(NOCSF.EQ.0) THEN
+else
+  call SysHalt('sigmavec')
+
+  ! IF WE USE DISK REPLACE THE FIRST VARIABLES LIKE THIS
+  ! CALL RASSG4(C,HC,C,HC!,
+
+end if
+
+! Transform from combination scaling to determinant scaling
+if ((IDC /= 1) .and. (ICISTR == 1)) &
+  call SCDTC2_MCLR(HC,ISMOST(1,ISSM),SBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY,IPRDIA)
+
 ! Transform HC vector from SD to CSF basis
-        CALL CSDTVC_MCLR(C,HC,2,DTOC,CNSM(kic(2))%ICTS,ISSM,1,IPRDIA)
-      END IF
+if (NOCSF == 0) call CSDTVC_MCLR(C,HC,2,DTOC,CNSM(kic(2))%ICTS,ISSM,1,IPRDIA)
 
-!. Eliminate local memory
+! Eliminate local memory
 
-      Call mma_deallocate(INSCR)
-      Call mma_deallocate(SIOIO)
-      Call mma_deallocate(CIOIO)
-      Call mma_deallocate(SBLTP)
-      Call mma_deallocate(CBLTP)
+call mma_deallocate(INSCR)
+call mma_deallocate(SIOIO)
+call mma_deallocate(CIOIO)
+call mma_deallocate(SBLTP)
+call mma_deallocate(CBLTP)
 
-      Call mma_deallocate(I4)
-      Call mma_deallocate(I3)
-      Call mma_deallocate(I2)
-      Call mma_deallocate(I1)
-      Call mma_deallocate(XI4S)
-      Call mma_deallocate(XI3S)
-      Call mma_deallocate(XI2S)
-      Call mma_deallocate(XI1S)
-      Call mma_deallocate(OOS)
-      IF (ICISTR.EQ.1) THEN
-        Call mma_deallocate(CB)
-        Call mma_deallocate(SB)
-      End If
-      Call mma_deallocate(SVST)
-      nullify(pC2,pCJRES,pCJRES,pSIRES)
-      Call mma_deallocate(C2,safe='*')
-      Call mma_deallocate(CJRES,safe='*')
-      Call mma_deallocate(SIRES,safe='*')
-!
-      END SUBROUTINE SigmaVec
+call mma_deallocate(I4)
+call mma_deallocate(I3)
+call mma_deallocate(I2)
+call mma_deallocate(I1)
+call mma_deallocate(XI4S)
+call mma_deallocate(XI3S)
+call mma_deallocate(XI2S)
+call mma_deallocate(XI1S)
+call mma_deallocate(OOS)
+if (ICISTR == 1) then
+  call mma_deallocate(CB)
+  call mma_deallocate(SB)
+end if
+call mma_deallocate(SVST)
+nullify(pC2,pCJRES,pCJRES,pSIRES)
+call mma_deallocate(C2,safe='*')
+call mma_deallocate(CJRES,safe='*')
+call mma_deallocate(SIRES,safe='*')
+
+end subroutine SigmaVec

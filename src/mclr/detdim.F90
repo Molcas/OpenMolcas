@@ -8,33 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-Module DetDim
+
+module DetDim
 ! This is used for the MCLR code
 ! contains all PARAMETERS defining LUCIA
-INTEGER, PARAMETER ::MXPIRR = 20
-INTEGER, PARAMETER ::MXPOBS = 20
-INTEGER, PARAMETER ::MXPR4T = 10
-INTEGER, PARAMETER ::MXINKA = 200   ! Resolution of identity
-INTEGER, PARAMETER ::MXPORB = 500   ! Maximum number of orbitals
-INTEGER, PARAMETER ::MXPXOT = 9
-INTEGER, PARAMETER ::MXPXST = 100
-INTEGER, PARAMETER ::MXPSHL = 100
-INTEGER, PARAMETER ::MXPL = 20
-INTEGER, PARAMETER ::MXPXT = 25
-INTEGER, PARAMETER ::MXPICI = 30
-INTEGER, PARAMETER ::MXPSTT = 2500
-INTEGER, PARAMETER ::MXPCSM = 20
-INTEGER, PARAMETER ::MXPCTP = 30
-INTEGER, PARAMETER ::MXCNSM = 8
-!
-INTEGER, PARAMETER ::MXPWRD = 2000000
-INTEGER, PARAMETER ::MXNMS = 5
-INTEGER, PARAMETER ::MTYP = 30
 
-!. Note : MXPNGAS = MXPR4T+6 !!
-!. Required in order to handle GAS and RAS within /LUCINP/
-INTEGER, PARAMETER ::MXPNGAS = 3
-INTEGER, PARAMETER::MXPNSMST = 8
-!. Largest allowed division of space for perturbation operator
-INTEGER, PARAMETER ::MXPPTSPC=20
-End Module DetDim
+integer, parameter :: MXPIRR = 20
+integer, parameter :: MXPOBS = 20
+integer, parameter :: MXPR4T = 10
+integer, parameter :: MXINKA = 200   ! Resolution of identity
+integer, parameter :: MXPORB = 500   ! Maximum number of orbitals
+integer, parameter :: MXPXOT = 9
+integer, parameter :: MXPXST = 100
+integer, parameter :: MXPSHL = 100
+integer, parameter :: MXPL = 20
+integer, parameter :: MXPXT = 25
+integer, parameter :: MXPICI = 30
+integer, parameter :: MXPSTT = 2500
+integer, parameter :: MXPCSM = 20
+integer, parameter :: MXPCTP = 30
+integer, parameter :: MXCNSM = 8
+integer, parameter :: MXPWRD = 2000000
+integer, parameter :: MXNMS = 5
+integer, parameter :: MTYP = 30
+
+! Note : MXPNGAS = MXPR4T+6 !!
+! Required in order to handle GAS and RAS within /LUCINP/
+integer, parameter :: MXPNGAS = 3
+integer, parameter :: MXPNSMST = 8
+! Largest allowed division of space for perturbation operator
+integer, parameter :: MXPPTSPC = 20
+
+end module DetDim

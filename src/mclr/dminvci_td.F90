@@ -8,62 +8,63 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine DMinvCI_td(rin,rout,rome,idsym)
-      use ipPage, only: W
-      use Constants, only: Zero, Half
-      use MCLR_Data, only: nConf1, ipCI
-      use MCLR_Data, only: ipDia
-      Implicit None
-      Integer idSym
-      Real*8 rout(*),rin(*), rome
 
-      Integer iRC, i
-      Integer, external:: ipIn
-      Real*8 r1, r2
-      real*8, external:: DDot_
+subroutine DMinvCI_td(rin,rout,rome,idsym)
 
-!                                    -1           -1
-!                               (H -E) |0><0|(H -E)|Sigma>
-!                  -1             0            0
-!     |rNew>=(H - E) |Sigma> - ----------------------------
-!              0                               -1
-!                                      <0|(H -E) |0>
-!                                           0
-!
-      if (nconf1.gt.1) then
-         irc=ipin(ipdia)
-         Do i=1,nconf1
-            rout(i)=rin(i)/(W(ipdia)%Vec(i)+rome)
-         End Do
-!
-!        To asure orthogonal response if response is in same symmetry as
-!        wavefunction
-!
-         If (idsym.eq.1) Then
-            irc=ipin(ipCI)
-            r1=ddot_(nconf1,W(ipCI)%Vec,1,rout,1)
+use ipPage, only: W
+use Constants, only: Zero, Half
+use MCLR_Data, only: nConf1, ipCI
+use MCLR_Data, only: ipDia
 
-            r2=Zero
-            irc=ipin(ipDia)
-            Do i=1,nconf1
-               r2=r2+W(ipCI)%Vec(i)**2/(W(ipDia)%Vec(i)+rome)
-            End Do
+implicit none
+integer idSym
+real*8 rout(*), rin(*), rome
+integer iRC, i
+integer, external :: ipIn
+real*8 r1, r2
+real*8, external :: DDot_
 
-            Do i=1,nconf1
-               rout(i)=rout(i)-r1/r2*W(ipCI)%Vec(i)/                    &
-     &               (W(ipDia)%Vec(i)+rome)
-            end do
-         end if
+!                                  -1           -1
+!                             (H -E) |0><0|(H -E) |Sigma>
+!                -1             0            0
+! |rNew> = (H - E) |Sigma> - -----------------------------
+!            0                               -1
+!                                    <0|(H -E) |0>
+!                                         0
 
-      else
+if (nconf1 > 1) then
+  irc = ipin(ipdia)
+  do i=1,nconf1
+    rout(i) = rin(i)/(W(ipdia)%Vec(i)+rome)
+  end do
 
-        rout(1:nConf1) = rin(1:nConf1)
+  ! To ensure orthogonal response if response is in same symmetry as wavefunction
 
-      end if
+  if (idsym == 1) then
+    irc = ipin(ipCI)
+    r1 = ddot_(nconf1,W(ipCI)%Vec,1,rout,1)
 
-      rout(1:nConf1) = Half * rout(1:nConf1)
+    r2 = Zero
+    irc = ipin(ipDia)
+    do i=1,nconf1
+      r2 = r2+W(ipCI)%Vec(i)**2/(W(ipDia)%Vec(i)+rome)
+    end do
+
+    do i=1,nconf1
+      rout(i) = rout(i)-r1/r2*W(ipCI)%Vec(i)/(W(ipDia)%Vec(i)+rome)
+    end do
+  end if
+
+else
+
+  rout(1:nConf1) = rin(1:nConf1)
+
+end if
+
+rout(1:nConf1) = Half*rout(1:nConf1)
 
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      End SubRoutine DMinvCI_td
+
+end subroutine DMinvCI_td

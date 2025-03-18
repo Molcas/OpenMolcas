@@ -10,16 +10,21 @@
 !                                                                      *
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
-      Subroutine SetLab(label,j)
-      Implicit Real*8 (a-h,o-z)
-      Character*(*) Label
-      Logical no
-      no=.true.
-      do i=1,LEN(label)
-      If (no.and.label(i:i).eq.' ') then
-      Write(Label(i:i),'(I1)') j
-      no=.false.
-      end if
-      end do
-      Return
-      end
+
+subroutine SetLab(label,j)
+
+implicit real*8(a-h,o-z)
+character*(*) Label
+logical no
+
+no = .true.
+do i=1,len(label)
+  if (no .and. (label(i:i) == ' ')) then
+    write(Label(i:i),'(I1)') j
+    no = .false.
+  end if
+end do
+
+return
+
+end subroutine SetLab

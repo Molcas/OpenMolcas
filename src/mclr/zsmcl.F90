@@ -8,20 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ZSMCL(NSMST,NOCTP,NSSO,ISTSM,ISTCL)
-!
+
+subroutine ZSMCL(NSMST,NOCTP,NSSO,ISTSM,ISTCL)
 ! set symmetry and class arrays for strings
-!
-      INTEGER ISTSM(*),ISTCL(*),NSSO(NOCTP,NSMST)
-!
-      IOFF = 1
-      DO 100 ISM = 1, NSMST
-      DO 101 ICL = 1, NOCTP
-        ISTSM(IOFF:IOFF+NSSO(ICL,ISM)-1) = ISM
-        ISTCL(IOFF:IOFF+NSSO(ICL,ISM)-1) = ICL
-        IOFF = IOFF + NSSO(ICL,ISM)
-  101 CONTINUE
-  100 CONTINUE
-!
-      RETURN
-      END
+
+integer ISTSM(*), ISTCL(*), NSSO(NOCTP,NSMST)
+
+IOFF = 1
+do ISM=1,NSMST
+  do ICL=1,NOCTP
+    ISTSM(IOFF:IOFF+NSSO(ICL,ISM)-1) = ISM
+    ISTCL(IOFF:IOFF+NSSO(ICL,ISM)-1) = ICL
+    IOFF = IOFF+NSSO(ICL,ISM)
+  end do
+end do
+
+return
+
+end subroutine ZSMCL

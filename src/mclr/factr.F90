@@ -10,18 +10,23 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-      Function Fact(R)
-      Real*8 R,Fact
-      integer n,i,j
-      n=nint(R)
-      i=1
-      If (n.eq.0) Then
-        Fact=1.0d0
-        return
-      end if
-      Do j=1,n
-      i=i*j
-      end do
-      Fact=DBLE(i)
-      return
-      end
+
+function Fact(R)
+
+real*8 R, Fact
+integer n, i, j
+
+n = nint(R)
+i = 1
+if (n == 0) then
+  Fact = 1.0d0
+  return
+end if
+do j=1,n
+  i = i*j
+end do
+Fact = dble(i)
+
+return
+
+end function Fact

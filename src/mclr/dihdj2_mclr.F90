@@ -10,433 +10,419 @@
 !                                                                      *
 ! Copyright (C) 1989,1993, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE DIHDJ2_MCLR(IASTR,IBSTR,NIDET,                         &
-     &                 JASTR,JBSTR,NJDET,                               &
-     &                 NAEL,NBEL,                                       &
-     & jWORK,LWORK,NORB,HAMIL,ISYM,NINOB,ECORE,ICOMBI,PSIGN,            &
-     & IASTRM,IBSTRM,JASTRM,JBSTRM,                                     &
-     & IGENSG,IASGN,IBSGN,JASGN,JBSGN,LIA,LIB,NDIF0,NDIF1,NDIF2,        &
-     & IPRT)
-!
+
+subroutine DIHDJ2_MCLR(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,jWORK,LWORK,NORB,HAMIL,ISYM,NINOB,ECORE,ICOMBI,PSIGN,IASTRM, &
+                       IBSTRM,JASTRM,JBSTRM,IGENSG,IASGN,IBSGN,JASGN,JBSGN,LIA,LIB,NDIF0,NDIF1,NDIF2,IPRT)
 ! A set of left hand side determinants defined by string numbers
 ! IASTR and IBSTR and a set of right hand side determinants
 ! defined by JASTR and JBSTR are given.
 !
 ! Obtain Hamiltonian matrix  < IA IB ! H ! JA JB >
 !
-! If Icombi .NE. 0 Spin combinations are assumed  for alpha and
+! If Icombi /= 0 Spin combinations are assumed  for alpha and
 ! beta strings with different orbital configurations
-!   1/SQRT(2) * ( !I1A I2B! + PSIGN * !I2A I1B! )
+!   1/SQRT(2) * (!I1A I2B! + PSIGN * !I2A I1B!)
 !
-! If ISYM .EQ. 0 FULL Hamiltonian is constructed
-! If ISYM .NE. 0 LOWER half of hamiltonian is constructed
+! If ISYM == 0 FULL Hamiltonian is constructed
+! If ISYM /= 0 LOWER half of hamiltonian is constructed
 !
 ! JEPPE OLSEN JANUARY 1989
 !
-!. Modifed to work with string numbers instead of strings
-!. March 93
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION IASTR(*),IBSTR(*)
-      DIMENSION JASTR(*),JBSTR(*)
-      DIMENSION IASTRM(NAEL,*),IBSTRM(NBEL,*)
-      DIMENSION JASTRM(NAEL,*),JBSTRM(NBEL,*)
-      DIMENSION IASGN(*),IBSGN(*),JASGN(*),JBSGN(*)
-!
-      DIMENSION jWORK(*), HAMIL(*)
-      DIMENSION LIA(NAEL),LIB(NBEL)
-!
-!
-!. Scratch space : 4 vectors of length NORB
-      KLFREE = 1
-      KLIAE  = KLFREE
-      KLFREE = KLIAE + NORB
-      KLIBE  = KLFREE
-      KLFREE = KLIBE + NORB
-!
-      KLJAE = KLFREE
-      KLFREE = KLJAE + NORB
-      KLJBE = KLFREE
-      KLFREE = KLJBE + NORB
-!
-      IF( ISYM .EQ. 0 ) THEN
-        LHAMIL = NIDET*NJDET
-      ELSE
-        LHAMIL = NIDET*(NIDET+1) / 2
-      END IF
-      HAMIL(1:LHAMIL) = 0.0D0
-!
-      NTERMS= 0
-      NDIF0 = 0
-      NDIF1 = 0
-      NDIF2 = 0
-!
-!. Loop over J determinants
-!
-      JAEQJB = -1    ! dummy initialize
-      CONST  = 0.0D0 ! dummy initialize
-      IEL1   = -1    ! dummy initialize
-      JEL1   = -1    ! dummy initialize
-      SIGNA  = 0.0D0 ! dummy initialize
-      SIGNB  = 0.0D0 ! dummy initialize
-      IPERM  = 0     ! dummy initialize
-      JPERM  = 0     ! dummy initialize
-      SIGN   = 0.0D0 ! dummy initialize
-      XVAL   = 0.0D0 ! dummy initialize
-      DO 1000 JDET = 1,NJDET
-! Expand JDET
-        JASTAC =JASTR(JDET)
-        JBSTAC =JBSTR(JDET)
-!
-        IF(IGENSG .GT. 0 ) THEN
-         JXSGN = JASGN(JASTAC)*JBSGN(JBSTAC)
-        ELSE
-         JXSGN = 1
-        END IF
-!
-        jWORK(KLJAE:KLJAE+NORB-1) = 0
-        jWORK(KLJBE:KLJBE+NORB-1) = 0
-        DO 40 IAEL = 1, NAEL
-          jWORK(KLJAE-1+JASTRM(IAEL,JASTAC) ) = 1
-   40   CONTINUE
-!
-        DO 50 IBEL = 1, NBEL
-          jWORK(KLJBE-1+JBSTRM(IBEL,JBSTAC) ) = 1
-   50   CONTINUE
-!
-        IF( ICOMBI .NE. 0 ) THEN
-          IF(JASTAC .EQ. JBSTAC) THEN
-             JAEQJB = 1
-          ELSE
-             JAEQJB = 0
-          END IF
-        END IF
-!
-!
-!
-        IF( ISYM .EQ. 0 ) THEN
-          MINI = 1
-        ELSE
-          MINI = JDET
-        END IF
-!
-! Loop over I determinants
-!
-        DO 900 IDET = MINI, NIDET
-          IASTAC = IASTR(IDET)
-          IBSTAC = IBSTR(IDET)
-!
-          IF(IGENSG .GT. 0 ) THEN
-           IXSGN = IASGN(IASTAC)*IBSGN(IBSTAC)
-          ELSE
-           IXSGN = 1
-          END IF
-!
-          IF(IASTAC.EQ.IBSTAC) THEN
-            IAEQIB = 1
-          ELSE
-            IAEQIB = 0
-          END IF
+! Modifed to work with string numbers instead of strings
+! March 93
 
-!
-          IF(ICOMBI.EQ.1 .AND. IAEQIB+JAEQJB.EQ.0 ) THEN
-              NLOOP = 2
-          ELSE
-              NLOOP = 1
-          END IF
-          DO 899 ILOOP = 1, NLOOP
-           NTERMS = NTERMS + 1
-! For second part of spin combinations strings should be swopped
-           IF(ILOOP.EQ.1) THEN
-             LIA(:) = IASTRM(:,IASTAC)
-             LIB(:) = IBSTRM(:,IBSTAC)
-           ELSE IF (ILOOP.EQ.2) THEN
-             LIB(1:NAEL) = IASTRM(:,IBSTAC)
-             LIA(1:NBEL) = IBSTRM(:,IASTAC)
-           END IF
-!
-! ==============================
-!. Number of orbital differences
-! ==============================
-!
-           NACM = 0
-           DO 61 IAEL = 1, NAEL
-             NACM = NACM + jWORK(KLJAE-1+LIA(IAEL))
-   61      CONTINUE
-           NBCM = 0
-           DO 62 IBEL = 1, NBEL
-             NBCM = NBCM + jWORK(KLJBE-1+LIB(IBEL))
-   62      CONTINUE
-           NADIF = NAEL-NACM
-           NBDIF = NBEL-NBCM
-!
-           IF(NADIF+NBDIF .GT. 2 ) GOTO 898
-!. Factor for combinations
-           IF( ICOMBI .EQ. 0 ) THEN
-             CONST = 1.0D0
-           ELSE
-             IF((JAEQJB +IAEQIB) .EQ.2 ) THEN
-               CONST = 1.0D0
-             ELSE IF( (JAEQJB+IAEQIB) .EQ. 1 ) THEN
-               CONST = 1.0D0/SQRT(2.0D0)*(1.0D0+PSIGN)
-              ELSE IF( (JAEQJB+IAEQIB) .EQ. 0 ) THEN
-               IF( ILOOP .EQ. 1)  THEN
-                 CONST = 1.0D0
-               ELSE
-                 CONST = PSIGN
-               END IF
-             END IF
-           END IF
-!. External sign factor
-           IF(IXSGN*JXSGN .EQ. -1 ) CONST = - CONST
-!
-! ==================================================
-!.. Find differing orbitals and sign for permutation
-! ==================================================
-!
-! Expand idet
-           jWORK(KLIAE:KLIAE+NORB-1) = 0
-           jWORK(KLIBE:KLIBE+NORB-1) = 0
-!
-           DO 42 IAEL = 1, NAEL
-             jWORK(KLIAE-1+LIA(IAEL)) = 1
-   42      CONTINUE
-!
-           DO 52 IBEL = 1, NBEL
-             jWORK(KLIBE-1+LIB(IBEL) ) = 1
-   52      CONTINUE
-!
-!. One pair of differing alpha electrons
-!
-           IF(NADIF .EQ. 1 ) THEN
-             DO 120 IAEL = 1,NAEL
-               IF(jWORK(KLJAE-1+LIA(IAEL)).EQ.0) THEN
-                 IA = LIA(IAEL)
-                 IEL1 = IAEL
-                 GOTO 121
-               END IF
-  120        CONTINUE
-  121        CONTINUE
-!
-             DO 130 JAEL = 1,NAEL
-               IF(jWORK(KLIAE-1+JASTRM(JAEL,JASTAC)).EQ.0) THEN
-                 JA = JASTRM(JAEL,JASTAC)
-                 JEL1 = JAEL
-                 GOTO 131
-                END IF
-  130        CONTINUE
-  131        CONTINUE
-             SIGNA = DBLE((-1)**(JEL1+IEL1))
-           END IF
-!
-!. One pair of differing beta electrons
-!
-           IF(NBDIF .EQ. 1 ) THEN
-             DO 220 IBEL = 1,NBEL
-               IF(jWORK(KLJBE-1+LIB(IBEL) ).EQ.0) THEN
-                 IB = LIB(IBEL)
-                 IEL1 = IBEL
-                 GOTO 221
-                END IF
-  220        CONTINUE
-  221        CONTINUE
-             DO 230 JBEL = 1,NBEL
-               IF(jWORK(KLIBE-1+JBSTRM(JBEL,JBSTAC)).EQ.0) THEN
-                 JB = JBSTRM(JBEL,JBSTAC)
-                 JEL1 = JBEL
-                 GOTO 231
-                END IF
-  230        CONTINUE
-  231        CONTINUE
-             SIGNB = DBLE((-1)**(JEL1+IEL1))
-           END IF
-!
-!. Two pairs of differing alpha electrons
-!
-           IF(NADIF .EQ. 2 ) THEN
-             IDIFF = 0
-             DO 320 IAEL = 1,NAEL
-               IF(jWORK(KLJAE-1+LIA(IAEL)          ).EQ.0) THEN
-                 IF( IDIFF .EQ. 0 ) THEN
-                   IDIFF = 1
-                   I1 = LIA(IAEL)
-                   IPERM = IAEL
-                 ELSE
-                   I2 = LIA(IAEL)
-                   IPERM = IAEL + IPERM
-                   GOTO 321
-                 END IF
-               END IF
-  320        CONTINUE
-  321        CONTINUE
-!
-             JDIFF = 0
-             DO 330 JAEL = 1,NAEL
-               IF(jWORK(KLIAE-1+JASTRM(JAEL,JASTAC)).EQ.0) THEN
-                 IF( JDIFF .EQ. 0 ) THEN
-                   JDIFF = 1
-                   J1 = JASTRM(JAEL,JASTAC)
-                   JPERM = JAEL
-                 ELSE
-                   J2 = JASTRM(JAEL,JASTAC)
-                   JPERM = JAEL + JPERM
-                   GOTO 331
-                 END IF
-               END IF
-  330        CONTINUE
-  331        CONTINUE
-             SIGN = DBLE((-1)**(IPERM+JPERM))
-           END IF
-!
-!. Two pairs of differing beta electrons
-!
-           IF(NBDIF .EQ. 2 ) THEN
-             IDIFF = 0
-             DO 420 IBEL = 1,NBEL
-               IF(jWORK(KLJBE-1+LIB(IBEL)          ).EQ.0) THEN
-                 IF( IDIFF .EQ. 0 ) THEN
-                   IDIFF = 1
-                   I1 = LIB(IBEL)
-                   IPERM = IBEL
-                 ELSE
-                   I2 = LIB(IBEL)
-                   IPERM = IBEL + IPERM
-                   GOTO 421
-                  END IF
-               END IF
-  420        CONTINUE
-  421        CONTINUE
-!
-             JDIFF = 0
-             DO 430 JBEL = 1,NBEL
-               IF(jWORK(KLIBE-1+JBSTRM(JBEL,JBSTAC)).EQ.0) THEN
-                 IF( JDIFF .EQ. 0 ) THEN
-                   JDIFF = 1
-                   J1 = JBSTRM(JBEL,JBSTAC)
-                   JPERM = JBEL
-                 ELSE
-                   J2 = JBSTRM(JBEL,JBSTAC)
-                   JPERM = JBEL + JPERM
-                   GOTO 431
-                 END IF
-               END IF
-  430        CONTINUE
-  431        CONTINUE
-             SIGN = DBLE((-1)**(IPERM+JPERM))
-           END IF
-!
-! =======================
-! Value of matrix element
-! =======================
-!
-        IF( NADIF .EQ. 2 .OR. NBDIF .EQ. 2 ) THEN
-! 2 differences in alpha or beta strings
-          NDIF2 = NDIF2 + 1
-! SIGN * (I1 J1 ! I2 J2 ) - ( I1 J2 ! I2 J1 )
-          XVAL = SIGN*( GTIJKL_MCLR(I1,J1,I2,J2)-                       &
-     &                  GTIJKL_MCLR(I1,J2,I2,J1) )
-        ELSE IF( NADIF .EQ. 1 .AND. NBDIF .EQ. 1 ) THEN
-!. 1 difference in alpha strings and one difference in beta string
-          NDIF2 = NDIF2 + 1
-! SIGN * (IA JA ! IB JB )
-          XVAL = SIGNA*SIGNB* GTIJKL_MCLR(IA,JA,IB,JB)
-! 1 differences in alpha or beta strings
-        ELSE IF( NADIF .EQ. 1 .AND. NBDIF .EQ. 0 .OR.                   &
-     &           NADIF .EQ. 0 .AND. NBDIF .EQ. 1 )THEN
-          NDIF1 = NDIF1 + 1
-! SIGN *
-!(  H(I1 J1 ) +
-!  (SUM OVER ORBITALS OF BOTH      SPIN TYPES  ( I1 J1 ! JORB JORB )
-! -(SUM OVER ORBITALS OF DIFFERING SPIN TYPE   ( I1 JORB ! JORB J1 ) )
-          IF( NADIF .EQ. 1 ) THEN
-            I1 = IA
-            J1 = JA
-            SIGN = SIGNA
-          ELSE
-            I1 = IB
-            J1 = JB
-            SIGN = SIGNB
-          END IF
-!
-          XVAL = GETH1I_MCLR(I1,J1)
-          DO 520 JAEL = 1, NAEL
+implicit real*8(A-H,O-Z)
+dimension IASTR(*), IBSTR(*)
+dimension JASTR(*), JBSTR(*)
+dimension IASTRM(NAEL,*), IBSTRM(NBEL,*)
+dimension JASTRM(NAEL,*), JBSTRM(NBEL,*)
+dimension IASGN(*), IBSGN(*), JASGN(*), JBSGN(*)
+dimension jWORK(*), HAMIL(*)
+dimension LIA(NAEL), LIB(NBEL)
+
+! Scratch space: 4 vectors of length NORB
+KLFREE = 1
+KLIAE = KLFREE
+KLFREE = KLIAE+NORB
+KLIBE = KLFREE
+KLFREE = KLIBE+NORB
+
+KLJAE = KLFREE
+KLFREE = KLJAE+NORB
+KLJBE = KLFREE
+KLFREE = KLJBE+NORB
+
+if (ISYM == 0) then
+  LHAMIL = NIDET*NJDET
+else
+  LHAMIL = NIDET*(NIDET+1)/2
+end if
+HAMIL(1:LHAMIL) = 0.0d0
+
+NTERMS = 0
+NDIF0 = 0
+NDIF1 = 0
+NDIF2 = 0
+
+! Loop over J determinants
+
+! dummy initialize
+JAEQJB = -1
+CONST = 0.0d0
+IEL1 = -1
+JEL1 = -1
+SIGNA = 0.0d0
+SIGNB = 0.0d0
+IPERM = 0
+JPERM = 0
+SIGN = 0.0d0
+XVAL = 0.0d0
+do JDET=1,NJDET
+  ! Expand JDET
+  JASTAC = JASTR(JDET)
+  JBSTAC = JBSTR(JDET)
+
+  if (IGENSG > 0) then
+    JXSGN = JASGN(JASTAC)*JBSGN(JBSTAC)
+  else
+    JXSGN = 1
+  end if
+
+  jWORK(KLJAE:KLJAE+NORB-1) = 0
+  jWORK(KLJBE:KLJBE+NORB-1) = 0
+  do IAEL=1,NAEL
+    jWORK(KLJAE-1+JASTRM(IAEL,JASTAC)) = 1
+  end do
+
+  do IBEL=1,NBEL
+    jWORK(KLJBE-1+JBSTRM(IBEL,JBSTAC)) = 1
+  end do
+
+  if (ICOMBI /= 0) then
+    if (JASTAC == JBSTAC) then
+      JAEQJB = 1
+    else
+      JAEQJB = 0
+    end if
+  end if
+
+  if (ISYM == 0) then
+    MINI = 1
+  else
+    MINI = JDET
+  end if
+
+  ! Loop over I determinants
+
+  do IDET=MINI,NIDET
+    IASTAC = IASTR(IDET)
+    IBSTAC = IBSTR(IDET)
+
+    if (IGENSG > 0) then
+      IXSGN = IASGN(IASTAC)*IBSGN(IBSTAC)
+    else
+      IXSGN = 1
+    end if
+
+    if (IASTAC == IBSTAC) then
+      IAEQIB = 1
+    else
+      IAEQIB = 0
+    end if
+
+    if ((ICOMBI == 1) .and. (IAEQIB+JAEQJB == 0)) then
+      NLOOP = 2
+    else
+      NLOOP = 1
+    end if
+    do ILOOP=1,NLOOP
+      NTERMS = NTERMS+1
+      ! For second part of spin combinations strings should be swopped
+      if (ILOOP == 1) then
+        LIA(:) = IASTRM(:,IASTAC)
+        LIB(:) = IBSTRM(:,IBSTAC)
+      else if (ILOOP == 2) then
+        LIB(1:NAEL) = IASTRM(:,IBSTAC)
+        LIA(1:NBEL) = IBSTRM(:,IASTAC)
+      end if
+
+      ! =============================
+      ! Number of orbital differences
+      ! =============================
+
+      NACM = 0
+      do IAEL=1,NAEL
+        NACM = NACM+jWORK(KLJAE-1+LIA(IAEL))
+      end do
+      NBCM = 0
+      do IBEL=1,NBEL
+        NBCM = NBCM+jWORK(KLJBE-1+LIB(IBEL))
+      end do
+      NADIF = NAEL-NACM
+      NBDIF = NBEL-NBCM
+
+      if (NADIF+NBDIF > 2) goto 898
+      ! Factor for combinations
+      if (ICOMBI == 0) then
+        CONST = 1.0d0
+      else
+        if ((JAEQJB+IAEQIB) == 2) then
+          CONST = 1.0d0
+        else if ((JAEQJB+IAEQIB) == 1) then
+          CONST = 1.0d0/sqrt(2.0d0)*(1.0d0+PSIGN)
+        else if ((JAEQJB+IAEQIB) == 0) then
+          if (ILOOP == 1) then
+            CONST = 1.0d0
+          else
+            CONST = PSIGN
+          end if
+        end if
+      end if
+      ! External sign factor
+      if (IXSGN*JXSGN == -1) CONST = -CONST
+
+      ! ================================================
+      ! Find differing orbitals and sign for permutation
+      ! ================================================
+
+      ! Expand idet
+      jWORK(KLIAE:KLIAE+NORB-1) = 0
+      jWORK(KLIBE:KLIBE+NORB-1) = 0
+
+      do IAEL=1,NAEL
+        jWORK(KLIAE-1+LIA(IAEL)) = 1
+      end do
+
+      do IBEL=1,NBEL
+        jWORK(KLIBE-1+LIB(IBEL)) = 1
+      end do
+
+      ! One pair of differing alpha electrons
+
+      if (NADIF == 1) then
+        do IAEL=1,NAEL
+          if (jWORK(KLJAE-1+LIA(IAEL)) == 0) then
+            IA = LIA(IAEL)
+            IEL1 = IAEL
+            goto 121
+          end if
+        end do
+121     continue
+
+        do JAEL=1,NAEL
+          if (jWORK(KLIAE-1+JASTRM(JAEL,JASTAC)) == 0) then
+            JA = JASTRM(JAEL,JASTAC)
+            JEL1 = JAEL
+            goto 131
+          end if
+        end do
+131     continue
+        SIGNA = dble((-1)**(JEL1+IEL1))
+      end if
+
+      ! One pair of differing beta electrons
+
+      if (NBDIF == 1) then
+        do IBEL=1,NBEL
+          if (jWORK(KLJBE-1+LIB(IBEL)) == 0) then
+            IB = LIB(IBEL)
+            IEL1 = IBEL
+            goto 221
+          end if
+        end do
+221     continue
+        do JBEL=1,NBEL
+          if (jWORK(KLIBE-1+JBSTRM(JBEL,JBSTAC)) == 0) then
+            JB = JBSTRM(JBEL,JBSTAC)
+            JEL1 = JBEL
+            goto 231
+          end if
+        end do
+231     continue
+        SIGNB = dble((-1)**(JEL1+IEL1))
+      end if
+
+      ! Two pairs of differing alpha electrons
+
+      if (NADIF == 2) then
+        IDIFF = 0
+        do IAEL=1,NAEL
+          if (jWORK(KLJAE-1+LIA(IAEL)) == 0) then
+            if (IDIFF == 0) then
+              IDIFF = 1
+              I1 = LIA(IAEL)
+              IPERM = IAEL
+            else
+              I2 = LIA(IAEL)
+              IPERM = IAEL+IPERM
+              goto 321
+            end if
+          end if
+        end do
+321     continue
+
+        JDIFF = 0
+        do JAEL=1,NAEL
+          if (jWORK(KLIAE-1+JASTRM(JAEL,JASTAC)) == 0) then
+            if (JDIFF == 0) then
+              JDIFF = 1
+              J1 = JASTRM(JAEL,JASTAC)
+              JPERM = JAEL
+            else
+              J2 = JASTRM(JAEL,JASTAC)
+              JPERM = JAEL+JPERM
+              goto 331
+            end if
+          end if
+        end do
+331     continue
+        SIGN = dble((-1)**(IPERM+JPERM))
+      end if
+
+      ! Two pairs of differing beta electrons
+
+      if (NBDIF == 2) then
+        IDIFF = 0
+        do IBEL=1,NBEL
+          if (jWORK(KLJBE-1+LIB(IBEL)) == 0) then
+            if (IDIFF == 0) then
+              IDIFF = 1
+              I1 = LIB(IBEL)
+              IPERM = IBEL
+            else
+              I2 = LIB(IBEL)
+              IPERM = IBEL+IPERM
+              goto 421
+            end if
+          end if
+        end do
+421     continue
+
+        JDIFF = 0
+        do JBEL=1,NBEL
+          if (jWORK(KLIBE-1+JBSTRM(JBEL,JBSTAC)) == 0) then
+            if (JDIFF == 0) then
+              JDIFF = 1
+              J1 = JBSTRM(JBEL,JBSTAC)
+              JPERM = JBEL
+            else
+              J2 = JBSTRM(JBEL,JBSTAC)
+              JPERM = JBEL+JPERM
+              goto 431
+            end if
+          end if
+        end do
+431     continue
+        SIGN = dble((-1)**(IPERM+JPERM))
+      end if
+
+      ! =======================
+      ! Value of matrix element
+      ! =======================
+
+      if ((NADIF == 2) .or. (NBDIF == 2)) then
+        ! 2 differences in alpha or beta strings
+        NDIF2 = NDIF2+1
+        ! SIGN * (I1 J1 ! I2 J2) - (I1 J2 ! I2 J1)
+        XVAL = SIGN*(GTIJKL_MCLR(I1,J1,I2,J2)-GTIJKL_MCLR(I1,J2,I2,J1))
+      else if ((NADIF == 1) .and. (NBDIF == 1)) then
+        ! 1 difference in alpha strings and one difference in beta string
+        NDIF2 = NDIF2+1
+        ! SIGN * (IA JA ! IB JB)
+        XVAL = SIGNA*SIGNB*GTIJKL_MCLR(IA,JA,IB,JB)
+        ! 1 differences in alpha or beta strings
+      else if ((NADIF == 1) .and. (NBDIF == 0) .or. (NADIF == 0) .and. (NBDIF == 1)) then
+        NDIF1 = NDIF1+1
+        ! SIGN *(H(I1 J1) +
+        !  (SUM OVER ORBITALS OF BOTH      SPIN TYPES  (I1 J1 ! JORB JORB)
+        ! -(SUM OVER ORBITALS OF DIFFERING SPIN TYPE   (I1 JORB ! JORB J1)
+        if (NADIF == 1) then
+          I1 = IA
+          J1 = JA
+          SIGN = SIGNA
+        else
+          I1 = IB
+          J1 = JB
+          SIGN = SIGNB
+        end if
+
+        XVAL = GETH1I_MCLR(I1,J1)
+        do JAEL=1,NAEL
+          JORB = JASTRM(JAEL,JASTAC)
+          XVAL = XVAL+GTIJKL_MCLR(I1,J1,JORB,JORB)
+        end do
+        do JBEL=1,NBEL
+          JORB = JBSTRM(JBEL,JBSTAC)
+          XVAL = XVAL+GTIJKL_MCLR(I1,J1,JORB,JORB)
+        end do
+        if (NADIF == 1) then
+          do JAEL=1,NAEL
             JORB = JASTRM(JAEL,JASTAC)
-            XVAL = XVAL + GTIJKL_MCLR(I1,J1,JORB,JORB)
-  520     CONTINUE
-          DO 521 JBEL = 1, NBEL
+            XVAL = XVAL-GTIJKL_MCLR(I1,JORB,JORB,J1)
+          end do
+        else
+          do JBEL=1,NBEL
             JORB = JBSTRM(JBEL,JBSTAC)
-            XVAL = XVAL + GTIJKL_MCLR(I1,J1,JORB,JORB)
-  521     CONTINUE
-          IF( NADIF .EQ. 1 ) THEN
-            DO 522 JAEL = 1, NAEL
-              JORB = JASTRM(JAEL,JASTAC)
-              XVAL = XVAL - GTIJKL_MCLR(I1,JORB,JORB,J1)
-  522       CONTINUE
-          ELSE
-            DO 523 JBEL = 1, NBEL
-              JORB = JBSTRM(JBEL,JBSTAC)
-              XVAL = XVAL - GTIJKL_MCLR(I1,JORB,JORB,J1)
-  523       CONTINUE
-          END IF
-          XVAL = XVAL * SIGN
-        ELSE IF( NADIF .EQ. 0 .AND. NBDIF .EQ. 0 ) THEN
-!. Diagonal elements
-          NDIF0 = NDIF0 + 1
-          XVAL = ECORE
-          DO 650 IAB = 1, 2
-            IF(IAB .EQ. 1 ) THEN
-              NIABEL = NAEL
-            ELSE
-              NIABEL = NBEL
-            END IF
-            DO 640 JAB = 1, 2
-              IF(JAB .EQ. 1 ) THEN
-                NJABEL = NAEL
-              ELSE
-                NJABEL = NBEL
-              END IF
-              DO 630 IEL = 1, NIABEL
-                IF( IAB .EQ. 1 ) THEN
-                  IORB = LIA(IEL)
-                ELSE
-                  IORB = LIB(IEL)
-                END IF
-                IF(IAB .EQ. JAB ) XVAL = XVAL + GETH1I_MCLR(IORB,IORB)
-                DO 620 JEL = 1, NJABEL
-                  IF( JAB .EQ. 1 ) THEN
-                    JORB = LIA(JEL)
-                  ELSE
-                    JORB = LIB(JEL)
-                  END IF
-                  XVAL = XVAL + 0.5D0*GTIJKL_MCLR(IORB,IORB,JORB,JORB)
-!. test
+            XVAL = XVAL-GTIJKL_MCLR(I1,JORB,JORB,J1)
+          end do
+        end if
+        XVAL = XVAL*SIGN
+      else if ((NADIF == 0) .and. (NBDIF == 0)) then
+        ! Diagonal elements
+        NDIF0 = NDIF0+1
+        XVAL = ECORE
+        do IAB=1,2
+          if (IAB == 1) then
+            NIABEL = NAEL
+          else
+            NIABEL = NBEL
+          end if
+          do JAB=1,2
+            if (JAB == 1) then
+              NJABEL = NAEL
+            else
+              NJABEL = NBEL
+            end if
+            do IEL=1,NIABEL
+              if (IAB == 1) then
+                IORB = LIA(IEL)
+              else
+                IORB = LIB(IEL)
+              end if
+              if (IAB == JAB) XVAL = XVAL+GETH1I_MCLR(IORB,IORB)
+              do JEL=1,NJABEL
+                if (JAB == 1) then
+                  JORB = LIA(JEL)
+                else
+                  JORB = LIB(JEL)
+                end if
+                XVAL = XVAL+0.5d0*GTIJKL_MCLR(IORB,IORB,JORB,JORB)
+                ! test
 
-                  IF( IAB .EQ. JAB )                                    &
-     &            XVAL = XVAL - 0.5D0*GTIJKL_MCLR(IORB,JORB,JORB,IORB)
-!. test
-  620           CONTINUE
-  630         CONTINUE
-  640       CONTINUE
-  650     CONTINUE
-        END IF
+                if (IAB == JAB) XVAL = XVAL-0.5d0*GTIJKL_MCLR(IORB,JORB,JORB,IORB)
+                ! test
+              end do
+            end do
+          end do
+        end do
+      end if
 
-        IF( ISYM .EQ. 0 ) THEN
-          HAMIL((JDET-1)*NIDET+IDET) =                                  &
-     &    HAMIL((JDET-1)*NIDET+IDET) + CONST * XVAL
-        ELSE
-          HAMIL((IDET-1)*IDET/2 + JDET ) =                              &
-     &    HAMIL((IDET-1)*IDET/2 + JDET ) + CONST * XVAL
-        END IF
-  898 CONTINUE
-  899 CONTINUE
-  900 CONTINUE
- 1000 CONTINUE
+      if (ISYM == 0) then
+        HAMIL((JDET-1)*NIDET+IDET) = HAMIL((JDET-1)*NIDET+IDET)+CONST*XVAL
+      else
+        HAMIL((IDET-1)*IDET/2+JDET) = HAMIL((IDET-1)*IDET/2+JDET)+CONST*XVAL
+      end if
+898   continue
+    end do
+  end do
+end do
 
-      RETURN
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(LWORK)
-        CALL Unused_integer(NINOB)
-        CALL Unused_integer(IPRT)
-      END IF
-      END
+if (.false.) then
+  call Unused_integer(LWORK)
+  call Unused_integer(NINOB)
+  call Unused_integer(IPRT)
+end if
+
+end subroutine DIHDJ2_MCLR

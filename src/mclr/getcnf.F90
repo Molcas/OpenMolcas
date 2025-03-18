@@ -10,46 +10,46 @@
 !                                                                      *
 ! Copyright (C) 1989, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE GETCNF(KCNF,KTYP,K,ICONF,IREFSM,NEL,NTEST)
-!
-! Obtain configuration number K .
+
+subroutine GETCNF(KCNF,KTYP,K,ICONF,IREFSM,NEL,NTEST)
+! Obtain configuration number K.
 ! Occupation in KCNF
 ! Type in KTYP
 !
 ! Jeppe Olsen, summer of 89
-!
-      use MCLR_Data, only: NTYP,MINOP,NCNATS
-      IMPLICIT NONE
-!. General input
-      INTEGER KCNF(*)
-      INTEGER K,IREFSM,NEL,NTEST
-!. Output
-      INTEGER ICONF(*)
-      INTEGER KTYP
-!
-      INTEGER ICNFB1,ICNFB2,JTYP,JOP,JCL,JOCC,NJCNF,KREL,KADD
-!
-      ICNFB1 = 1
-      ICNFB2 = 1
-      KTYP   = 0
-      DO 100 JTYP = 1, NTYP
-        JOP = JTYP - 1 + MINOP
-        JCL = (NEL-JOP)/2
-        JOCC = JOP + JCL
-!
-        NJCNF = NCNATS(JTYP,IREFSM)
-        IF(K.GE.ICNFB1.AND.K.LE.ICNFB1+NJCNF-1) THEN
-          KREL = K - ICNFB1 + 1
-          KADD = (KREL-1)*JOCC
-          KTYP = JTYP
-          KCNF(1:JOCC) = ICONF(ICNFB2+KADD:ICNFB2+KADD+JOCC-1)
-        END IF
-!
-        ICNFB1 = ICNFB1 + NJCNF
-        ICNFB2 = ICNFB2 + NJCNF*JOCC
-  100 CONTINUE
-!
-!
+
+use MCLR_Data, only: NTYP, MINOP, NCNATS
+
+implicit none
+! General input
+integer KCNF(*)
+integer K, IREFSM, NEL, NTEST
+! Output
+integer ICONF(*)
+integer KTYP
+integer ICNFB1, ICNFB2, JTYP, JOP, JCL, JOCC, NJCNF, KREL, KADD
+
+ICNFB1 = 1
+ICNFB2 = 1
+KTYP = 0
+do JTYP=1,NTYP
+  JOP = JTYP-1+MINOP
+  JCL = (NEL-JOP)/2
+  JOCC = JOP+JCL
+
+  NJCNF = NCNATS(JTYP,IREFSM)
+  if ((K >= ICNFB1) .and. (K <= ICNFB1+NJCNF-1)) then
+    KREL = K-ICNFB1+1
+    KADD = (KREL-1)*JOCC
+    KTYP = JTYP
+    KCNF(1:JOCC) = ICONF(ICNFB2+KADD:ICNFB2+KADD+JOCC-1)
+  end if
+
+  ICNFB1 = ICNFB1+NJCNF
+  ICNFB2 = ICNFB2+NJCNF*JOCC
+end do
+
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(NTEST)
-      END SUBROUTINE GETCNF
+if (.false.) call Unused_integer(NTEST)
+
+end subroutine GETCNF

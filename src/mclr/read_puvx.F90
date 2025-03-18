@@ -10,9 +10,13 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine Read_PUVX(PUVX,NPUVX)
-      Implicit None
-      INTEGER NPUVX
-      Real*8,DIMENSION(NPUVX)::PUVX
-      CALL Get_Darray('TwoEIntegral    ',PUVX,nPUVX)
-      End Subroutine Read_PUVX
+
+subroutine Read_PUVX(PUVX,NPUVX)
+
+implicit none
+integer NPUVX
+real*8, dimension(NPUVX) :: PUVX
+
+call Get_Darray('TwoEIntegral',PUVX,nPUVX)
+
+end subroutine Read_PUVX

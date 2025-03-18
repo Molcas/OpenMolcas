@@ -8,28 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Subroutine Thermo_Vib(nFreq,Freq,T,nTR,iter)
-       Use Constants, only: auTokcalmol, auTokJ, cal_to_j, kBoltzmann,  &
-     &                      rNAVO
-       Implicit Real*8 (a-h,o-z)
-       Real*8 Freq(nFreq), T
-       Integer first
-!
-       First=1
-       Zero=0.0D00
-       One=1.0D00
-       Two=2.0D00
-!      r_k = 1.38065800D-23
-!      r_J2au=2.29371049D+17 ! Convert joules to atomic units
-       r_J2au=1.0D-3 / auTokJ
-!      Bolzmann's constant in a.u./ K
-       rk = kBoltzmann * r_J2au
-!      Write (*,*) 'Bolzmann''s constant=',rK
-       if(T.eq.Zero) then
-          beta = 1.0D99
-        else
-          beta = One / (rk*T)
-        endif
+
+subroutine Thermo_Vib(nFreq,Freq,T,nTR,iter)
+
+use Constants, only: auTokcalmol, auTokJ, cal_to_j, kBoltzmann, rNAVO
+
+implicit real*8(a-h,o-z)
+real*8 Freq(nFreq), T
+integer first
+
+First = 1
+Zero = 0.0d00
+One = 1.0d00
+Two = 2.0d00
+!r_k = 1.38065800D-23
+!r_J2au = 2.29371049D+17 ! Convert joules to atomic units
+r_J2au = 1.0D-3/auTokJ
+! Bolzmann's constant in a.u./ K
+rk = kBoltzmann*r_J2au
+!write(6,*) "Bolzmann's constant=",rK
+if (T == Zero) then
+  beta = 1.0d99
+else
+  beta = One/(rk*T)
+end if
 !***********************************************************************
 !                                                                      *
 !      The Canonical partition function Q for indistinguishable        *
@@ -98,81 +100,77 @@
 !      H-H(0)=U-U(0)+NkT                                               *
 !                                                                      *
 !***********************************************************************
+
+write(6,*)
+write(6,*)
+write(6,'(A,F6.2,A)') ' Temperature = ',T,' kelvin'
+write(6,'(A)') ' ---------------------------'
+write(6,*)
+
+! Iterate over vibrations, and compute the molecular
+! partition functions of the vibrations
+
+q_vib_Tot = One
+ZPVE = Zero
+U_vib_Tot = Zero
+do i=1,nFreq
+  eta = Freq(i)
+  if (iter == first) write(6,*) ' Vibrational temperature =',eta/rk
+  if (eta > Zero) then
+    ZPVE = ZPVE+eta/Two
+    if (T == Zero) then
+      q_vib = Zero
+      U_vib = (eta/Two)
+    else
+      ! Eq. (6-20)
+      q_vib = exp(-eta*beta/Two)/(One-exp(-eta*beta))
+      U_vib = (eta/Two)+(eta/(exp(eta*beta)-One))
+    end if
+    q_vib_Tot = q_vib_Tot*q_vib
+    U_vib_Tot = U_vib_Tot+U_vib
+  end if
+end do
+
+! Add translational and rotational energy, kT*nTR/2,
+! the classiscal limit is used.
 !
-       Write (6,*)
-       Write (6,*)
-       Write (6,'(A,F6.2,A)') ' Temperature = ',T,' kelvin'
-       Write (6,'(A)') ' ---------------------------'
-       Write (6,*)
+! U-U(0)=-(d lnQ/d beta)_V, U(0)=0
 !
-!------Iterate over vibrations, and compute the molecular
-!      partition functions of the vibrations
+! lnQ = N lnq - lnN!
 !
-       q_vib_Tot = One
-       ZPVE  = Zero
-       U_vib_Tot    = Zero
-       Do i = 1, nFreq
-          eta = Freq(i)
-          If (iter.eq.first) Then
-          Write (6,*) ' Vibrational temperature =',eta/rk
-          End if
-          If (eta.gt.Zero) Then
-             ZPVE  = ZPVE  + eta/Two
-             If (T.eq.Zero) Then
-                q_vib = Zero
-                U_vib = (eta/Two)
-             Else
-!               Eq. (6-20)
-                q_vib = exp(-eta*beta/Two) / (One - exp(-eta*beta))
-                U_vib = (eta/Two) + (eta / (exp(eta*beta)-One))
-             End If
-             q_vib_Tot = q_vib_Tot * q_vib
-             U_vib_Tot = U_vib_Tot + U_vib
-          End If
-       End Do
-!
-!----- Add translational and rotational energy, kT*nTR/2,
-!      the classiscal limit is used.
-!
-!      U-U(0)=-(d lnQ/d beta)_V, U(0)=0
-!
-!      lnQ = N lnq - lnN!
-!
-!      U-U(0)=-N(d lnq/d beta)_V
-!
-!      r_J2kcalmol=1.43932522D+20 ! conversion J to kcal/mol
-       r_J2kcalmol= rNAVO / (1.0D3 * cal_to_J)
-       U_TR=DBLE(nTR)*(kBoltzmann*T*r_J2kcalmol/Two)
-!
-!
-!----- G-G(0)=-kT lnQ + kTV(d lnQ /dV)_T, G(0)=0
-!
-       If (T.eq.Zero) Then
-          DeltaG = Zero
-       Else
-          DeltaG = -log(q_vib_Tot) * rk * T
-       End If
-!
-!      auTokcalmol = 6.27509541D+2 ! Conversion au to kcal/mol
-       DeltaG = DeltaG * auTokcalmol
-!
-       DeltaU = U_vib_Tot     * auTokcalmol
-       ZPVE   = ZPVE   * auTokcalmol
-       Write (6,'(A,F6.2,A)') '         DeltaG =',DeltaG,' kcal/mol'
-       Write (6,'(A,F6.2,A)') '           ZPVE =',  ZPVE,' kcal/mol'
-       Write (6,'(A,F6.2,A)') '      TotDeltaU =',DeltaU,' kcal/mol'
-       Write (6,'(A,F6.2,A)') ' TotDeltaU-ZPVE =',DeltaU-ZPVE,          &
-     &  ' kcal/mol'
-!
-       If (T.gt.Zero) Then
-          DeltaS = 1.0d+3 * (DeltaU - DeltaG)/T
-       Else
-          DeltaS = Zero
-       End If
-       Write (6,'(A,F8.4,A)') '      Entropy S =',DeltaS,' cal/(mol*K)'
-       Write (6,'(A,F8.4,A)') '         U(T&R) =',U_TR,' kcal/mol'
-       Write (6,'(A,F8.4,A)') '       Tot(temp)=',U_TR+DeltaU-ZPVE,     &
-     &                         ' kcal/mol'
-!
-       Return
-       End
+! U-U(0)=-N(d lnq/d beta)_V
+
+!r_J2kcalmol = 1.43932522D+20 ! conversion J to kcal/mol
+r_J2kcalmol = rNAVO/(1.0d3*cal_to_J)
+U_TR = dble(nTR)*(kBoltzmann*T*r_J2kcalmol/Two)
+
+! G-G(0)=-kT lnQ + kTV(d lnQ /dV)_T, G(0)=0
+
+if (T == Zero) then
+  DeltaG = Zero
+else
+  DeltaG = -log(q_vib_Tot)*rk*T
+end if
+
+!auTokcalmol = 6.27509541D+2 ! Conversion au to kcal/mol
+DeltaG = DeltaG*auTokcalmol
+
+DeltaU = U_vib_Tot*auTokcalmol
+ZPVE = ZPVE*auTokcalmol
+write(6,'(A,F6.2,A)') '         DeltaG =',DeltaG,' kcal/mol'
+write(6,'(A,F6.2,A)') '           ZPVE =',ZPVE,' kcal/mol'
+write(6,'(A,F6.2,A)') '      TotDeltaU =',DeltaU,' kcal/mol'
+write(6,'(A,F6.2,A)') ' TotDeltaU-ZPVE =',DeltaU-ZPVE,' kcal/mol'
+
+if (T > Zero) then
+  DeltaS = 1.0d+3*(DeltaU-DeltaG)/T
+else
+  DeltaS = Zero
+end if
+write(6,'(A,F8.4,A)') '      Entropy S =',DeltaS,' cal/(mol*K)'
+write(6,'(A,F8.4,A)') '         U(T&R) =',U_TR,' kcal/mol'
+write(6,'(A,F8.4,A)') '       Tot(temp)=',U_TR+DeltaU-ZPVE,' kcal/mol'
+
+return
+
+end subroutine Thermo_Vib

@@ -10,45 +10,36 @@
 !                                                                      *
 ! Copyright (C) 1991, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine Add2(rMat,fact)
-!
-!     Purpose:
-!             Adds the contribution from the gradient to
-!              [2]
-!             E   Kappa. This is done to insure us about
-!             a beautifull convergence of the PCG,
-!             which is just the case if E is symmetric.
-!
-      use Arrays, only: SFock
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Four
-      use MCLR_data, only: ipCM, ipMat
-      use input_mclr, only: nSym,nBas,nOrb
-      Implicit None
-      Real*8 rMat(*)
-      Real*8 fact
-      Integer iS
 
-      Real*8, Allocatable:: Temp(:)
+subroutine Add2(rMat,fact)
+! Purpose:
+!   Adds the contribution from the gradient to
+!    [2]
+!   E   Kappa. This is done to insure us about
+!   a beautifull convergence of the PCG,
+!   which is just the case if E is symmetric.
 
-      Do iS=1,nSym
-        If (nOrb(is)*nOrb(is)==0) Cycle
-        Call mma_allocate(Temp,nBas(is)**2,Label='Temp')
-!
-!    T=Brillouin matrix
-!
+use Arrays, only: SFock
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Four
+use MCLR_data, only: ipCM, ipMat
+use input_mclr, only: nSym, nBas, nOrb
 
-        Call DGeSub(SFock(ipCM(is)),nOrb(is),'N',                       &
-     &              SFock(ipCM(is)),nOrb(is),'T',                       &
-     &              Temp,nOrb(is),                                      &
-     &              nOrb(is),nOrb(is))
-!
-!               t           t
-!   +1/2 { Kappa T - T kappa  }
-!
-!
-        Call DaXpY_(nOrb(is)**2,-Four*Fact,Temp,1,                      &
-     &              rMat(ipMat(is,is)),1)
-        Call mma_deallocate(Temp)
-      End Do
-      End SubRoutine Add2
+implicit none
+real*8 rMat(*)
+real*8 fact
+integer iS
+real*8, allocatable :: Temp(:)
+
+do iS=1,nSym
+  if (nOrb(is)*nOrb(is) == 0) cycle
+  call mma_allocate(Temp,nBas(is)**2,Label='Temp')
+  ! T=Brillouin matrix
+  call DGeSub(SFock(ipCM(is)),nOrb(is),'N',SFock(ipCM(is)),nOrb(is),'T',Temp,nOrb(is),nOrb(is),nOrb(is))
+  !             t           t
+  ! +1/2 { Kappa T - T kappa  }
+  call DaXpY_(nOrb(is)**2,-Four*Fact,Temp,1,rMat(ipMat(is,is)),1)
+  call mma_deallocate(Temp)
+end do
+
+end subroutine Add2

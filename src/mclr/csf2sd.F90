@@ -10,41 +10,40 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-      Subroutine CSF2SD(CSF,SD,is)
-!
-!  Transforms a CSF vector to slater determinants
-!
-      use ipPage, only: Diskbased
-      Use Str_Info, only: DTOC, CNSM
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero
-      use MCLR_Data, only: NDTASM
-      use input_mclr, only: nConf,State_Sym,nCSF
-      implicit None
-      Real*8 CSF(*),SD(*)
-      Integer is
-!
-      Real*8, Allocatable:: CTM(:)
-      Integer iiCOPY,iprdia,iSym,i
-!
 
-      iiCOPY=0
-      iprdia=0
-      nConf=Max(ncsf(is),ndtasm(iS))
-      isym=iEor(is-1,State_Sym-1)+1
-      i=2
-      If (isym.eq.1) i=1
+subroutine CSF2SD(CSF,SD,is)
+! Transforms a CSF vector to slater determinants
 
-      If (diskbased) Then
-         CALL CSDTVC_MCLR(CSF,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY,IPRDIA)
-      Else
-         Call mma_allocate(CTM,nConf,Label='CTM')
-         CTM(:)=Zero
-         CTM(1:ncsf(is))=CSF(1:ncsf(is))
+use ipPage, only: Diskbased
+use Str_Info, only: DTOC, CNSM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use MCLR_Data, only: NDTASM
+use input_mclr, only: nConf, State_Sym, nCSF
 
-         CALL CSDTVC_MCLR(CTM,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY,IPRDIA)
+implicit none
+real*8 CSF(*), SD(*)
+integer is
+real*8, allocatable :: CTM(:)
+integer iiCOPY, iprdia, iSym, i
 
-         Call mma_deallocate(CTM)
-      End If
-!
-      End Subroutine CSF2SD
+iiCOPY = 0
+iprdia = 0
+nConf = max(ncsf(is),ndtasm(iS))
+isym = ieor(is-1,State_Sym-1)+1
+i = 2
+if (isym == 1) i = 1
+
+if (diskbased) then
+  call CSDTVC_MCLR(CSF,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY,IPRDIA)
+else
+  call mma_allocate(CTM,nConf,Label='CTM')
+  CTM(:) = Zero
+  CTM(1:ncsf(is)) = CSF(1:ncsf(is))
+
+  call CSDTVC_MCLR(CTM,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY,IPRDIA)
+
+  call mma_deallocate(CTM)
+end if
+
+end subroutine CSF2SD

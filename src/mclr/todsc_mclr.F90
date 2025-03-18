@@ -8,62 +8,66 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE TODSC_MCLR(A,NDIM,MBLOCK,IFIL)
+
+subroutine TODSC_MCLR(A,NDIM,MBLOCK,IFIL)
 ! TRANSFER ARRAY DOUBLE PRECISION  A(LENGTH NDIM) TO DISCFIL IFIL IN
 ! RECORDS WITH LENGTH NBLOCK.
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(1)
-      INTEGER START,STOP,IDUM(1)
-!
-!?    write(6,*) ' entering TODSC '
-      IPACK = 1
-      IF(IPACK.NE.0) THEN
-!. Check norm of A before writing
-        XNORM = ddot_(nDim,A,1,A,1)
-        IF(XNORM.EQ.0.0D0) THEN
-          IMZERO = 1
-        ELSE
-          IMZERO = 0
-        END IF
-!?      WRITE(6,*) ' I am going to call ITODS'
-        MMBLOCK = MBLOCK
-        IF(MMBLOCK.GT.1) MMBLOCK = 1
-        IDUM(1) = IMZERO
-        CALL ITODS(IDUM,1,MMBLOCK,IFIL)
-!?      WRITE(6,*) ' back from ITODS '
-        IF(IMZERO.EQ.1) GOTO 1001
-      END IF
-!
-      ICRAY = 1
-      IF( MBLOCK .GE.0 .OR.ICRAY .EQ. 1 ) THEN
-!
-      NBLOCK = MBLOCK
-      IF ( MBLOCK .LE. 0 ) NBLOCK = NDIM
-      STOP=0
-      NBACK=NDIM
-! LOOP OVER RECORDS
-  100 CONTINUE
-       IF(NBACK.LE.NBLOCK) THEN
-         NTRANS=NBACK
-         NLABEL=-NTRANS
-       ELSE
-         NTRANS=NBLOCK
-         NLABEL=NTRANS
-       END IF
-       START=STOP+1
-       STOP=START+NBLOCK-1
-       NBACK=NBACK-NTRANS
-       WRITE(IFIL) (A(I),I=START,STOP),NLABEL
-      IF(NBACK.NE.0) GOTO 100
-      END IF
-!
-      IF( ICRAY.EQ.0.AND.MBLOCK.LT.0.AND.NDIM.GT.0) THEN
-!      CALL SQFILE(IFIL,1,A,2*NDIM)
-       Call SysHalt('todsc')
-      END IF
-!
- 1001 CONTINUE
-!
-!?    write(6,*) ' leaving TODSC '
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension A(1)
+integer START, stop, IDUM(1)
+
+!write(6,*) ' entering TODSC'
+IPACK = 1
+if (IPACK /= 0) then
+  ! Check norm of A before writing
+  XNORM = ddot_(nDim,A,1,A,1)
+  if (XNORM == 0.0d0) then
+    IMZERO = 1
+  else
+    IMZERO = 0
+  end if
+  !write(6,*) ' I am going to call ITODS'
+  MMBLOCK = MBLOCK
+  if (MMBLOCK > 1) MMBLOCK = 1
+  IDUM(1) = IMZERO
+  call ITODS(IDUM,1,MMBLOCK,IFIL)
+  !write(6,*) ' back from ITODS'
+  if (IMZERO == 1) goto 1001
+end if
+
+ICRAY = 1
+if ((MBLOCK >= 0) .or. (ICRAY == 1)) then
+
+  NBLOCK = MBLOCK
+  if (MBLOCK <= 0) NBLOCK = NDIM
+  stop = 0
+  NBACK = NDIM
+  ! LOOP OVER RECORDS
+100 continue
+  if (NBACK <= NBLOCK) then
+    NTRANS = NBACK
+    NLABEL = -NTRANS
+  else
+    NTRANS = NBLOCK
+    NLABEL = NTRANS
+  end if
+  START = stop+1
+  stop = START+NBLOCK-1
+  NBACK = NBACK-NTRANS
+  write(IFIL) (A(I),I=START,stop),NLABEL
+  if (NBACK /= 0) goto 100
+end if
+
+if ((ICRAY == 0) .and. (MBLOCK < 0) .and. (NDIM > 0)) then
+  !call SQFILE(IFIL,1,A,2*NDIM)
+  call SysHalt('todsc')
+end if
+
+1001 continue
+
+!write(6,*) ' leaving TODSC'
+
+return
+
+end subroutine TODSC_MCLR

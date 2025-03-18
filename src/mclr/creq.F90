@@ -10,54 +10,51 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-      SubRoutine creq(q,rint,G2,idsym)
-!
-!     Constructs the Q matrix
-!
-      use Constants, only: Zero
-      use MCLR_Data, only: nDens2, ipMatBA, ipMO, nA
-      use input_mclr, only: nSym,nAsh,nOrb
-      Implicit None
-      Integer idSym
-      Real*8 Q(nDens2),rint(*),G2(*)
 
-      integer iS, jS, kS, lS, ijS, iAsh, jAsh, kAsh, lAsh, iij, ikl,    &
-     &        ipS, ipQ, ipG, ipi
-      integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+subroutine creq(q,rint,G2,idsym)
+! Constructs the Q matrix
 
-!
-!      Q = (pj|kl)d
-!       pi         ijkl
-!
-       Q(:)=Zero
-       Do iS=1,nSym
-        ipS=iEOr(is-1,idsym-1)+1
-         if (norb(ips).ne.0) Then
+use Constants, only: Zero
+use MCLR_Data, only: nDens2, ipMatBA, ipMO, nA
+use input_mclr, only: nSym, nAsh, nOrb
 
-        Do jS=1,nsym
-         ijS=iEOR(is-1,js-1)+1
-         Do kS=1,nSym
-          ls=iEOr(ijs-1,ks-1)+1
-          Do iAsh=1,nAsh(is)
-           Do jAsh=1,nAsh(js)
-            iij=itri(iAsh+nA(is),jAsh+nA(jS))
-            Do kAsh=1,nAsh(ks)
-             Do lAsh=1,nAsh(ls)
-              ikl=itri(lAsh+nA(lS),kAsh+nA(kS))
-              ipQ=ipMatba(ips,is)+norb(ips)*(iAsh-1)
-              ipG=itri(iij,ikl)
-              ipi=ipMO(js,ks,ls)+                                       &
-     &         (norb(ips)*(jAsh-1+nAsh(js)*                             &
-     &          (kAsh-1+nAsh(ks)*(lAsh-1))))
-             call daxpy_(norb(ips),G2(ipG),rint(ipI),1,                 &
-     &                  Q(ipQ),1)
-             End Do
-            End Do
-           End Do
-          End Do
-         End Do
-        End Do
-        end if
-       End Do
-       end SubRoutine creq
+implicit none
+integer idSym
+real*8 Q(nDens2), rint(*), G2(*)
+integer iS, jS, kS, lS, ijS, iAsh, jAsh, kAsh, lAsh, iij, ikl, ipS, ipQ, ipG, ipi
+integer i, j, itri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+! Q = (pj|kl)d
+!  pi         ijkl
+
+Q(:) = Zero
+do iS=1,nSym
+  ipS = ieor(is-1,idsym-1)+1
+  if (norb(ips) /= 0) then
+
+    do jS=1,nsym
+      ijS = ieor(is-1,js-1)+1
+      do kS=1,nSym
+        ls = ieor(ijs-1,ks-1)+1
+        do iAsh=1,nAsh(is)
+          do jAsh=1,nAsh(js)
+            iij = itri(iAsh+nA(is),jAsh+nA(jS))
+            do kAsh=1,nAsh(ks)
+              do lAsh=1,nAsh(ls)
+                ikl = itri(lAsh+nA(lS),kAsh+nA(kS))
+                ipQ = ipMatba(ips,is)+norb(ips)*(iAsh-1)
+                ipG = itri(iij,ikl)
+                ipi = ipMO(js,ks,ls)+(norb(ips)*(jAsh-1+nAsh(js)*(kAsh-1+nAsh(ks)*(lAsh-1))))
+                call daxpy_(norb(ips),G2(ipG),rint(ipI),1,Q(ipQ),1)
+              end do
+            end do
+          end do
+        end do
+      end do
+    end do
+  end if
+end do
+
+end subroutine creq

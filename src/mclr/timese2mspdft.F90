@@ -10,94 +10,83 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,   &
-     & ipCiOut)
-      use ipPage, only: w
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: One
-      use MCLR_Data, only: nConf1,n2Dens,nDens,nDens2
-      use input_mclr, only: nRoots,nAsh,nRS2,Weight
-      use dmrginfo, only: DoDMRG,LRRAS2,RGRAS2
-      Implicit None
-      Real*8 Kap(*)
-      Integer ipCId,isym,jspin,ipS2,ipCiOut
-      Real*8 ReCo
-      Real*8 KapOut(*)
 
-      Integer opOut
-      Real*8 rdum(1)
-      Real*8, Allocatable:: Temp3(:), Temp4(:),                         &
-     &                      Sc1(:), Sc2(:), Sc3(:), RMOAA(:),MSHam(:)
-      INTEGER kRoot,lRoot
-      Real*8 ECOff
-      Integer iRC
-      Integer, External:: ipIN
-!
-      Call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
-      Call mma_allocate(Sc1,nDens2,Label='Sc1')
-      Call mma_allocate(Sc2,nDens2,Label='Sc2')
-      Call mma_allocate(Sc3,nDens2,Label='Sc3')
-      Call mma_allocate(Temp3,nDens2,Label='Temp3')
-      Call mma_allocate(Temp4,nDens2,Label='Temp4')
-!
-      if(doDMRG)then ! yma
-        call dmrg_spc_change_mclr(RGras2(1:8),nash)
-        call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
-      end if
-      Call Uncompress(Kap,Sc1,isym)
+subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
+
+use ipPage, only: w
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use MCLR_Data, only: nConf1, n2Dens, nDens, nDens2
+use input_mclr, only: nRoots, nAsh, nRS2, Weight
+use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+
+implicit none
+real*8 Kap(*)
+integer ipCId, isym, jspin, ipS2, ipCiOut
+real*8 ReCo
+real*8 KapOut(*)
+integer opOut
+real*8 rdum(1)
+real*8, allocatable :: Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), RMOAA(:), MSHam(:)
+integer kRoot, lRoot
+real*8 ECOff
+integer iRC
+integer, external :: ipIN
+
+call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
+call mma_allocate(Sc1,nDens2,Label='Sc1')
+call mma_allocate(Sc2,nDens2,Label='Sc2')
+call mma_allocate(Sc3,nDens2,Label='Sc3')
+call mma_allocate(Temp3,nDens2,Label='Temp3')
+call mma_allocate(Temp4,nDens2,Label='Temp4')
+
+if (doDMRG) then ! yma
+  call dmrg_spc_change_mclr(RGras2(1:8),nash)
+  call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+end if
+call Uncompress(Kap,Sc1,isym)
 
 ! Integral derivative !yma
-      Call RInt_generic(SC1,rmoaa,rdum,                                 &
-     &                 Sc2,                                             &
-     &                 Temp3,Temp4,Sc3,                                 &
-     &                 isym,reco,jspin)
+call RInt_generic(SC1,rmoaa,rdum,Sc2,Temp3,Temp4,Sc3,isym,reco,jspin)
 
-      Call Kap_CI(Temp4,nDens2,rmoaa,n2Dens,ipCIOUT)
-      Call Ci_Ci(ipcid,ipS2)
-      Call CI_KAP(ipCid,Sc1,Sc3,isym)
+call Kap_CI(Temp4,nDens2,rmoaa,n2Dens,ipCIOUT)
+call Ci_Ci(ipcid,ipS2)
+call CI_KAP(ipCid,Sc1,Sc3,isym)
 
-      Call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
-!
-      Call Compress(Sc1,KapOut,isym)   ! ds
-!     Call RecPrt('Ex',' ',KapOut,ndensC,1)
-!
-      irc=ipin(ipS2)
-      irc=ipin(ipCIOUT)
-      Call DaXpY_(nConf1*nroots,One,                                    &
-     &               W(ipS2)%Vec,1,                                     &
-     &               W(ipCIOUT)%Vec,1)
-      irc=opOut(ipCId)
+call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
 
+call Compress(Sc1,KapOut,isym)   ! ds
+!call RecPrt('Ex',' ',KapOut,ndensC,1)
 
-!*****Adding Hkl contribution
-      Call mma_allocate(MSHam,nRoots**2)
-      CALL CMSRdMat(MSHam,nRoots,nRoots,'ROT_HAM',7)
-      DO kRoot=1,nRoots
-       Do lRoot=1,nRoots
-        IF (kRoot.eq.lRoot) Cycle
-        ECOff=-MSHam(nRoots*(kRoot-1)+lRoot)*Weight(1)*2.0d0
-        Call DaXpY_(nConf1,ECOff,                                       &
-     &              W(ipCId)%Vec((lRoot-1)*nConf1+1),1,                 &
-     &            W(ipCIOut)%Vec((kRoot-1)*nConf1+1),1)
-       End Do
-      END DO
-      Call mma_deallocate(MSHam)
-!*****End of adding Hkl contribution
+irc = ipin(ipS2)
+irc = ipin(ipCIOUT)
+call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCIOUT)%Vec,1)
+irc = opOut(ipCId)
 
+! Adding Hkl contribution
+call mma_allocate(MSHam,nRoots**2)
+call CMSRdMat(MSHam,nRoots,nRoots,'ROT_HAM',7)
+do kRoot=1,nRoots
+  do lRoot=1,nRoots
+    if (kRoot == lRoot) cycle
+    ECOff = -MSHam(nRoots*(kRoot-1)+lRoot)*Weight(1)*2.0d0
+    call DaXpY_(nConf1,ECOff,W(ipCId)%Vec((lRoot-1)*nConf1+1),1,W(ipCIOut)%Vec((kRoot-1)*nConf1+1),1)
+  end do
+end do
+call mma_deallocate(MSHam)
+! End of adding Hkl contribution
 
-!
-      Call mma_deallocate(Temp4)
-      Call mma_deallocate(Temp3)
-      Call mma_deallocate(Sc3)
-      Call mma_deallocate(Sc2)
-      Call mma_deallocate(Sc1)
-      Call mma_deallocate(rmoaa)
+call mma_deallocate(Temp4)
+call mma_deallocate(Temp3)
+call mma_deallocate(Sc3)
+call mma_deallocate(Sc2)
+call mma_deallocate(Sc1)
+call mma_deallocate(rmoaa)
 
-      if(doDMRG)then  ! yma
-        call dmrg_spc_change_mclr(LRras2(1:8),nash)
-      end if
-!
+if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)  ! yma
+
 #ifdef _WARNING_WORKAROUND_
-      If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-      End Subroutine TimesE2MSPDFT
+
+end subroutine TimesE2MSPDFT

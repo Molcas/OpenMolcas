@@ -10,9 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine Preciba(iB,iS,jS,nd,rOut,nba,                          &
-     &                   focki,focka,fock,sign,                         &
-     &                   A_J,A_K,Scr,nScr)
+
+subroutine Preciba(iB,iS,jS,nd,rOut,nba,focki,focka,fock,sign,A_J,A_K,Scr,nScr)
 !***********************************************************************
 !                                          [2]                         *
 !     Calculates the diagonal submatrix of E    that couple            *
@@ -33,71 +32,64 @@
 !     rOut        :       Submatrix                                    *
 !                                                                      *
 !***********************************************************************
-      use Arrays, only: G1t
-      use MCLR_Data, only: nA
-      use input_mclr, only: nAsh,nIsh,nBas,nOrb
-      Implicit None
-      Integer iB,iS,jS,nd
-      Real*8 rOut(*)
-      Integer nba
-      Real*8  Fock(nba,nba),Focki(nba,nba),FockA(nba,nba)
-      Real*8 Sign
-      Integer nScr
-      Real*8 A_J(nScr), A_K(nScr), Scr(nScr)
 
-      Integer nTri,jVert,nO,jA,ip,jB,jBB,iVB
-      Real*8 rDens
+use Arrays, only: G1t
+use MCLR_Data, only: nA
+use input_mclr, only: nAsh, nIsh, nBas, nOrb
+
+implicit none
+integer iB, iS, jS, nd
+real*8 rOut(*)
+integer nba
+real*8 Fock(nba,nba), Focki(nba,nba), FockA(nba,nba)
+real*8 Sign
+integer nScr
+real*8 A_J(nScr), A_K(nScr), Scr(nScr)
+integer nTri, jVert, nO, jA, ip, jB, jBB, iVB
+real*8 rDens
+! Statement functions
+integer i, j, iTri, iTri1
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-       integer i,j,iTri,iTri1
-       iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-       iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)                &
-     &           +Max(i,j)-Min(i,j)+1
+nTri = itri(nd,nd)
+jVert = nOrb(jS)-nAsh(jS)-nIsh(jS)
+nO = nAsh(jS)+nIsh(jS)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      nTri=itri(nd,nd)
-      jVert=nOrb(jS)-nAsh(jS)-nIsh(jS)
-      nO=nAsh(jS)+nIsh(jS)
+! Get block J^(iB,iB)
+call Coul(jS,jS,iS,iS,iB,iB,A_J,Scr)
+! Get block K^(iB,iB)
+call Exch(jS,iS,jS,iS,iB,iB,A_K,Scr)
+
+do jA=1,nAsh(jS)
+  ip = itri1(ja,nd-jVert+1)
+  do jB=1,nAsh(jS)
+    jBB = jB+nIsh(jS)
+    ! Get D_(ja,jb)
+    rDens = -sign*G1t((iTri(jA+nA(jS),jB+nA(jS))))
+    if (jA == jB) rDens = rdens+sign*2.0d0
+
+    ivB = (jBB-1)*nBas(jS)+nO+1
+    call DaXpY_(jVert,6.0d0*rDens,A_K(ivB),1,rOut(ip),1) ! ????
+    call DaXpY_(jVert,-2.0d0*rDens,A_J(ivB),1,rOut(ip),1)
+  end do
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Get block J^(iB,iB)
-      Call Coul(jS,jS,iS,iS,iB,iB,A_J,Scr)
-!     Get block K^(iB,iB)
-      Call Exch(jS,iS,jS,iS,iB,iB,A_K,Scr)
-!
-      Do jA=1,nAsh(jS)
-         ip=itri1(ja,nd-jVert+1)
-         Do jB=1,nAsh(jS)
-            jBB=jB+nIsh(jS)
-!           Get D_(ja,jb)
-            rDens=-sign*G1t((iTri(jA+nA(jS),jB+nA(jS))))
-            If (jA.eq.jB) rDens=rdens+sign*2.0d0
-!
-            ivB=(jBB-1)*nBas(jS) + nO + 1
-            Call DaXpY_(jVert,6.0d0*rDens,                              &
-     &                 A_K(ivB),1,                                      &
-     &                 rOut(ip),1) ! ????
-            Call DaXpY_(jVert,-2.0d0*rDens,                             &
-     &                 A_J(ivB),1,                                      &
-     &                 rOut(ip),1)
-         End Do
-      End Do
+do jA=1,nAsh(js)
+  ip = iTri1(ja,nAsh(js)+1)
+  call DaXpY_(jVert,sign*4.0d0,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
+  call DaXpY_(jVert,sign*4.0d0,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
+  call DaXpY_(jVert,-sign,Fock(nO+1,ja+nIsh(js)),1,rout(ip),1)
+end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Do jA=1,nAsh(js)
-         ip=iTri1(ja,nAsh(js)+1)
-         Call DaXpY_(jVert,sign*4.0d0,Focki(nO+1,ja+nIsh(js)),1,        &
-     &               rout(ip),1)
-         Call DaXpY_(jVert,sign*4.0d0,FockA(nO+1,ja+nIsh(js)),1,        &
-     &               rout(ip),1)
-         Call DaXpY_(jVert,-sign,     Fock (nO+1,ja+nIsh(js)),1,        &
-     &               rout(ip),1)
-      End Do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End SubRoutine Preciba
+
+end subroutine Preciba

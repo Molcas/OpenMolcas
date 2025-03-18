@@ -10,14 +10,24 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-Subroutine MCLR_banner()
-Write (6,'(25X,A)')
-Write (6,'(25X,A)')"         ____     __       ____       "
-Write (6,'(25X,A)')" /'\_/`\/\  _`\  /\ \     /\  _`\     "
-Write (6,'(25X,A)')"/\      \ \ \/\_\\ \ \    \ \ \L\ \   "
-Write (6,'(25X,A)')"\ \ \__\ \ \ \/_/_\ \ \  __\ \ ,  /   "
-Write (6,'(25X,A)')" \ \ \_/\ \ \ \L\ \\ \ \L\ \\ \ \\ \  "
-Write (6,'(25X,A)')"  \ \_\\ \_\ \____/ \ \____/ \ \_\ \_\"
-Write (6,'(25X,A)')"   \/_/ \/_/\/___/   \/___/   \/_/\/ /"
-Write (6,'(25X,A)')
-End Subroutine MCLR_banner
+
+subroutine MCLR_banner()
+
+use Definitions, only: u6
+
+implicit none
+
+! figlet -f larry3d.flf MCLR
+write(u6,100) "        ____     __       ____"
+write(u6,100) " /'\_/`\/\  _`\  /\ \     /\  _`\"
+write(u6,100) "/\      \ \ \/\_\\ \ \    \ \ \L\ \"
+write(u6,100) "\ \ \__\ \ \ \/_/_\ \ \  __\ \ ,  /"
+write(u6,100) " \ \ \_/\ \ \ \L\ \\ \ \L\ \\ \ \\ \"
+write(u6,100) "  \ \_\\ \_\ \____/ \ \____/ \ \_\ \_\"
+write(u6,100) "   \/_/ \/_/\/___/   \/___/   \/_/\/ /"
+write(u6,100) ""
+write(u6,100) ""
+
+100 format(16x,a)
+
+end subroutine MCLR_banner

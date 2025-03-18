@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
-      SUBROUTINE ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISIGN,IPRNT)
-!
+
+subroutine ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISIGN,IPRNT)
 ! ORDER A STRING OF INTEGERS TO ASCENDING ORDER
 !
 ! IINST : INPUT STRING IS IINST
@@ -21,74 +21,77 @@
 !                                - 1 : ODD  PERMUTATION
 !
 ! THIS CODE CONTAINS THE OLD ORDER CODE OF JOE GOLAB
-! ( HE IS HEREBY AKNOWLEDGED , AND I AM EXCUSED )
+! (HE IS HEREBY AKNOWLEDGED, AND I AM EXCUSED)
 !
 ! IMPLEMENTED MORE TRANSPARENT BUBBLE SORTING INSTEAD
 !               JR NOV 2006
-!
-      IMPLICIT None
-      Integer NELMNT
-      Integer IINST(NELMNT),IOUTST(NELMNT)
-      Integer ISIGN,IPRNT
 
-      Integer iTemp, iPass, I
+implicit none
+integer NELMNT
+integer IINST(NELMNT), IOUTST(NELMNT)
+integer ISIGN, IPRNT
 
-      IF(NELMNT.EQ.0) RETURN
+integer iTemp, iPass, I
 
-      ISIGN=1
-      iTEMP=0
+if (NELMNT == 0) return
 
-10       iPass=0
-       DO I=1,NELMNT-1
-       IF(IINST(I).GT.IINST(I+1)) THEN
-         iTEMP=IINST(I)
-         IINST(I)=IINST(I+1)
-         IINST(I+1)=iTEMP
-         ISIGN=-1*ISIGN
-         iPass=1
-         ENDIF
-       ENDDO
-       IF(IPASS.NE.0) GOTO 10
+ISIGN = 1
+iTEMP = 0
 
+10 continue
+iPass = 0
+do I=1,NELMNT-1
+  if (IINST(I) > IINST(I+1)) then
+    iTEMP = IINST(I)
+    IINST(I) = IINST(I+1)
+    IINST(I+1) = iTEMP
+    ISIGN = -1*ISIGN
+    iPass = 1
+  end if
+end do
+if (IPASS /= 0) goto 10
 
-              DO I=1,NELMNT
-              IOUTST(I)=IINST(I)
-        ENDDO
+do I=1,NELMNT
+  IOUTST(I) = IINST(I)
+end do
+
+!NTEST = 0
+!NTEST = MAX(NTEST,IPRNT)
+
+!call iCOPY(NELMNT,IINST,1,IOUTST,1)
+!ISIGN = 1
+
+!JOE = 1
+!10 continue
+!I = JOE
+!20 continue
+!if (I == NELMNT) goto 50
+!if (IOUTST(I) <= IOUTST(I+1)) goto 40
+!JOE = I+1
+!30 continue
+!iSWAP = IOUTST(I)
+!ISIGN = -ISIGN
+!IOUTST(I) = IOUTST(I+1)
+!IOUTST(I+1) = iSWAP
+!if (I == 1) goto 10
+!I = I-1
+!if (IOUTST(I) > IOUTST(I+1)) goto 30
+!goto 10
+!40 continue
+!I = I+1
+!goto 20
 !
-!      NTEST = 0
-!      NTEST = MAX(NTEST,IPRNT)
+! END ORDER
 !
-!      CALL iCOPY(NELMNT,IINST,1,IOUTST,1)
-!      ISIGN = 1
-!
-!
-!        JOE = 1
-!10      I = JOE
-!20      CONTINUE
-!        IF(I.EQ.NELMNT) GO TO 50
-!        IF(IOUTST(I).LE.IOUTST(I+1)) GO TO 40
-!        JOE = I + 1
-!30      iSWAP = IOUTST(I)
-!        ISIGN = - ISIGN
-!        IOUTST(I) = IOUTST(I+1)
-!        IOUTST(I+1) = iSWAP
-!       IF(I.EQ.1) GO TO 10
-!        I = I - 1
-!        IF(IOUTST(I).GT.IOUTST(I+1)) GO TO 30
-!        GO TO 10
-!40      I = I + 1
-!      GO TO 20
-!
-!     END ORDER
-!
-!50    CONTINUE
-!      IF( NTEST .GE.200) THEN
-!        WRITE(6,*)  ' INPUT STRING ORDERED STRING ISIGN ',NELMNT
-!        CALL IWRTMA(IINST,1,NELMNT,1,NELMNT)
-!        CALL IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
-!        WRITE(6,*) ' ISIGN : ', ISIGN
-!      END IF
-!
+!50 continue
+!if (NTEST >= 200) then
+!  write(6,*) ' INPUT STRING ORDERED STRING ISIGN ',NELMNT
+!  call IWRTMA(IINST,1,NELMNT,1,NELMNT)
+!  call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
+!  write(6,*) ' ISIGN : ',ISIGN
+!end if
+
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(IPRNT)
-      END SUBROUTINE ORDSTR_MCLR
+if (.false.) call Unused_integer(IPRNT)
+
+end subroutine ORDSTR_MCLR

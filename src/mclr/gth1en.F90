@@ -8,18 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 FUNCTION GTH1EN(IORB,ITP,ISM,JORB,JTP,JSM)
-      use Arrays, only: KAIN1, pInt1
-      use MCLR_Data, only: IBsO,IBTSOB,IREOTS
-!
+
+real*8 function GTH1EN(IORB,ITP,ISM,JORB,JTP,JSM)
 ! One-electron integral for active
 ! orbitals (IORB,ITP,ISM),(JORB,JTP,JSM)
-!
-      IMPLICIT None
-      Integer IORB,ITP,ISM,JORB,JTP,JSM
-      Real*8, External:: GTH1ES_MCLR
 
-      GTH1EN = GTH1ES_MCLR(IREOTS(1),pInt1,KAIN1,IBSO,                  &
-     &                     IBTSOB,IORB,ITP,ISM,JORB,JTP,JSM)
+use Arrays, only: KAIN1, pInt1
+use MCLR_Data, only: IBsO, IBTSOB, IREOTS
 
-      END FUNCTION GTH1EN
+implicit none
+integer IORB, ITP, ISM, JORB, JTP, JSM
+real*8, external :: GTH1ES_MCLR
+
+GTH1EN = GTH1ES_MCLR(IREOTS(1),pInt1,KAIN1,IBSO,IBTSOB,IORB,ITP,ISM,JORB,JTP,JSM)
+
+end function GTH1EN

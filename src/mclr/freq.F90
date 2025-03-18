@@ -8,99 +8,93 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine FREQ(nX,H,nDeg,nrvec,Tmp3,EVec,EVal,RedM,iNeg)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      Use Constants, only: Zero, One, auTocm, uToau
-      Implicit Real*8 (a-h,o-z)
-      Real*8 H(*), Tmp3(nX,nX),                                         &
-     &       EVec(2*nX,nX),                                             &
-     &       EVal(2*nX),                                                &
-     &       RedM(nX)
 
-      Integer nrvec(*),ndeg(*)
-      Logical Found
-      Real*8, Allocatable :: Mass(:)
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+subroutine FREQ(nX,H,nDeg,nrvec,Tmp3,EVec,EVal,RedM,iNeg)
 
-!
-!----- read masses from runfile
-!
-      Call Qpg_dArray('Isotopes',Found,nIsot)
-      If (.Not.Found) Then
-        Write(6,*) 'No masses found on RunFile'
-        Call AbEnd()
-      End If
-      Call mma_allocate(Mass,nIsot)
-      Call Get_dArray('Isotopes',Mass,nIsot)
-!
-!----- form the Mass Weighted Cartesian force constant matrix.
-!
-      iprint=0
-      Do i = 1, nX
-         rm=Mass(nrvec(i))
-         If (rm.eq.Zero) rm=1.0d7
-         Do j=1,nX
-            Tmp3(i,j) = sqrt(DBLE(nDeg(i)*nDeg(j)))*                    &
-     &                  H(itri(i,j))/rm
-       End Do
-      End Do
-!
-!-----Compute eigenvectors and eigenfunctions
-!
-      iOpt=1
-      If ( nX.gt.0 ) then
-        Call Not_DGeEv(iOpt,Tmp3,nX,                                    &
-     &             EVal,EVec,nX,                                        &
-     &             nX)
-      End If
-!
-!-----Compute the harmonic frequencies
-!
-      iNeg=0
-      Do 649 iHarm = 1, 2*nX, 2
-         jHarm = (iHarm+1)/2
-         temp = EVal(iHarm)
-         If (temp.ge.Zero) Then
-            EVal(jHarm) = Sqrt(temp)*autocm
-         Else
-            iNeg=iNeg+1
-            EVal(jHarm) = -Sqrt(Abs(temp))*autocm
-         End If
- 649  Continue
-      If (iPrint.ge.99) Call RecPrt('Converted EVal',' ',EVal,1,nX)
-      If (iPrint.ge.99) Call RecPrt('Normalized EVec',' ',              &
-     &                               EVec,nX*2,nX)
-!
-!-----Normalize
-!
-      Do iHarm = 1, nX
-        r2=Zero
-        Do i=1,nx
-            rm=Mass(nrvec(i))/UTOAU
-            r2=r2+Evec(2*(i-1)+1,iHarm)*Evec(2*(i-1)+1,iHarm)*rm
-        End Do
-        RedM(iHarm)=r2
-        r2=One/Sqrt(r2)
-        Call DScal_(nX,r2,EVec(1,iHarm),2)
-      End Do
-!
-!-----Order, from low to high.
-!
-      Do iHarm = 1, nX-1
-         Do jHarm = iHarm+1, nX
-            If (EVal(jHarm).lt.EVal(iHarm)) Then
-               rlow=EVal(iHarm)
-               EVal(iHarm)=EVal(jHarm)
-               EVal(jHarm)=rLow
-               rlow=RedM(iHarm)
-               RedM(iHarm)=RedM(jHarm)
-               RedM(jHarm)=rLow
-               Call DSwap_(nX,EVec(1,iHarm),2,EVec(1,jHarm),2)
-            End If
-         End Do
-      End Do
-!
-      Call mma_deallocate(Mass)
-!
-      Return
-      End
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, auTocm, uToau
+
+implicit real*8(a-h,o-z)
+real*8 H(*), Tmp3(nX,nX), EVec(2*nX,nX), EVal(2*nX), RedM(nX)
+integer nrvec(*), ndeg(*)
+logical Found
+real*8, allocatable :: Mass(:)
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+! read masses from runfile
+
+call Qpg_dArray('Isotopes',Found,nIsot)
+if (.not. Found) then
+  write(6,*) 'No masses found on RunFile'
+  call AbEnd()
+end if
+call mma_allocate(Mass,nIsot)
+call Get_dArray('Isotopes',Mass,nIsot)
+
+! form the Mass Weighted Cartesian force constant matrix.
+
+iprint = 0
+do i=1,nX
+  rm = Mass(nrvec(i))
+  if (rm == Zero) rm = 1.0d7
+  do j=1,nX
+    Tmp3(i,j) = sqrt(dble(nDeg(i)*nDeg(j)))*H(itri(i,j))/rm
+  end do
+end do
+
+! Compute eigenvectors and eigenfunctions
+
+iOpt = 1
+if (nX > 0) call Not_DGeEv(iOpt,Tmp3,nX,EVal,EVec,nX,nX)
+
+! Compute the harmonic frequencies
+
+iNeg = 0
+do iHarm=1,2*nX,2
+  jHarm = (iHarm+1)/2
+  temp = EVal(iHarm)
+  if (temp >= Zero) then
+    EVal(jHarm) = sqrt(temp)*autocm
+  else
+    iNeg = iNeg+1
+    EVal(jHarm) = -sqrt(abs(temp))*autocm
+  end if
+end do
+if (iPrint >= 99) call RecPrt('Converted EVal',' ',EVal,1,nX)
+if (iPrint >= 99) call RecPrt('Normalized EVec',' ',EVec,nX*2,nX)
+
+! Normalize
+
+do iHarm=1,nX
+  r2 = Zero
+  do i=1,nx
+    rm = Mass(nrvec(i))/UTOAU
+    r2 = r2+Evec(2*(i-1)+1,iHarm)*Evec(2*(i-1)+1,iHarm)*rm
+  end do
+  RedM(iHarm) = r2
+  r2 = One/sqrt(r2)
+  call DScal_(nX,r2,EVec(1,iHarm),2)
+end do
+
+! Order, from low to high.
+
+do iHarm=1,nX-1
+  do jHarm=iHarm+1,nX
+    if (EVal(jHarm) < EVal(iHarm)) then
+      rlow = EVal(iHarm)
+      EVal(iHarm) = EVal(jHarm)
+      EVal(jHarm) = rLow
+      rlow = RedM(iHarm)
+      RedM(iHarm) = RedM(jHarm)
+      RedM(jHarm) = rLow
+      call DSwap_(nX,EVec(1,iHarm),2,EVec(1,jHarm),2)
+    end if
+  end do
+end do
+
+call mma_deallocate(Mass)
+
+return
+
+end subroutine FREQ

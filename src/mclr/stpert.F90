@@ -8,175 +8,173 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine StPert()
-      use MckDat, only: sNew
-      Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,                    &
-     &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
-      use ipPage, only: W
-      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-      use Constants, only: Zero
-      use MCLR_Data, only: ipCI,nDens2
-      use MCLR_Data, only: RMS, rBetaA, rBetaS
-      use MCLR_Data, only: lDisp,SwLbl
-      use MCLR_Data, only: MS2
-      use MCLR_Data, only: FnMck,LuMck
-      use input_mclr, only: nSym,McKinley,PT2,nDisp,SpinPol,nAsh,nBas,  &
-     &                      nIsh,nTPert,State_Sym
-      Implicit None
 
-      Character(LEN=16) Label
-      Character(LEN=8)  MckLbl
-      Character(LEN=288) Header
-      Integer idum(1)
-      Real*8, Allocatable:: Tmp1(:), Tmp2(:)
-      Integer nHss,iS,iRC,iOpt,nAct,iSym,nG,nG2,iType,nMax,iDummer
-      Integer, External:: ipIn
-      Real*8 rAlphas
-!
-      nHss=0
-      Do iS=1,nSym
-         nHss=nHss+lDisp(is)*(lDisp(is)+1)/2
-      End Do
-      Call mma_allocate(Hss,nHss,Label='Hss')
-      Hss(:)=Zero
-!
-      If (.Not.Mckinley) Then
-         irc=-1
-         iopt=ibset(0,sNew)
-         Call OPNMCK(irc,iopt,FNMCK,LUMCK)
-         If (irc.ne.0) Then
-            Write (6,*) 'StPert: Error opening MCKINT'
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         LABEL='SEWARD'
-         If (PT2) LABEL='PT2LAG'
-         MckLbl='PERT    '
-         Call cWrMck(iRC,iOpt,MckLbl,1,LABEL,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='NDISP   '
-         idum(1) = ndisp
-         Call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='TDISP   '
-         Call WrMck(iRC,iOpt,MckLbl,1,ntpert,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='Title'
-         Call cWrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='nSym'
-         idum(1) = nSym
-         Call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='nBas'
-         Call WrMck(iRC,iOpt,MckLbl,1,nBas,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='ldisp'
-         Call WrMck(iRC,iOpt,MckLbl,1,ldisp,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='chdisp'
-         Call cWrMck(iRC,iOpt,MckLbl,1,swlbl(1),iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='NISH'
-         Call WrMck(iRC,iOpt,MckLbl,1,nish,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-         irc=-1
-         iopt=0
-         MckLbl='NASH'
-         Call WrMck(iRC,iOpt,MckLbl,1,nash,iDummer)
-         If (irc.ne.0) Then
-             Write (6,*) 'StPert: Error writing to MCKINT'
-             Write (6,'(A,A)') 'MckLbl=',MckLbl
-            Call Abend()
-         End If
-      End If
-!
-      If (SPINPOL) Then
-         call coeff(ralphas,rbetaa,rbetas)
-         rms=DBLE(ms2)/2.0d0
-         nAct  = 0
-         Do iSym = 1, nSym
-            nAct = nAct + nAsh(iSym)
-         End Do
-         nG=nAct**2
-         nG2=nAct**4
-         Call mma_allocate(famo_spinp,ndens2,Label='famo_spinp')
-         Call mma_allocate(famo_spinm,ndens2,Label='famo_spinm')
-         Call mma_allocate(G2mp,nG2,Label='G2mp')
-         Call mma_allocate(G2pp,nG2,Label='G2pp')
-         Call mma_allocate(G2mm,nG2,Label='G2mm')
-         Call mma_allocate(Fm,nG2,Label='Fm')
-         Call mma_allocate(Fp,nG2,Label='Fp')
-         Call mma_allocate(G1p,nG,Label='G1p')
-         Call mma_allocate(G1m,nG,Label='G1m')
-         itype=2
-         irc=ipin(ipCI)
-         Call SpinDens(W(ipCI)%Vec,W(ipCI)%Vec,                         &
-     &                 STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,              &
-     &                 Fm,Fp,G1m,G1p,iType)
+subroutine StPert()
 
-         Call mma_allocate(Tmp2,ndens2,Label='Tmp2')
-         Call mma_MaxDBLE(nMax)
-         Call mma_allocate(Tmp1,nMax/2,Label='Tmp1')
+use MckDat, only: sNew
+use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
+use ipPage, only: W
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use Constants, only: Zero
+use MCLR_Data, only: ipCI, nDens2
+use MCLR_Data, only: RMS, rBetaA, rBetaS
+use MCLR_Data, only: lDisp, SwLbl
+use MCLR_Data, only: MS2
+use MCLR_Data, only: FnMck, LuMck
+use input_mclr, only: nSym, McKinley, PT2, nDisp, SpinPol, nAsh, nBas, nIsh, nTPert, State_Sym
 
-         Call Ex_spin(G1p,FAMO_Spinp,Tmp1,nMax/2,Tmp2)
-         Call Ex_spin(G1m,FAMO_Spinm,Tmp1,nMax/2,Tmp2)
+implicit none
+character(len=16) Label
+character(len=8) MckLbl
+character(len=288) Header
+integer idum(1)
+real*8, allocatable :: Tmp1(:), Tmp2(:)
+integer nHss, iS, iRC, iOpt, nAct, iSym, nG, nG2, iType, nMax, iDummer
+integer, external :: ipIn
+real*8 rAlphas
 
-         Call mma_deallocate(Tmp1)
-         Call mma_deallocate(Tmp2)
-      End If
-!
-      End SubRoutine StPert
+nHss = 0
+do iS=1,nSym
+  nHss = nHss+lDisp(is)*(lDisp(is)+1)/2
+end do
+call mma_allocate(Hss,nHss,Label='Hss')
+Hss(:) = Zero
+
+if (.not. Mckinley) then
+  irc = -1
+  iopt = ibset(0,sNew)
+  call OPNMCK(irc,iopt,FNMCK,LUMCK)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error opening MCKINT'
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  LABEL = 'SEWARD'
+  if (PT2) LABEL = 'PT2LAG'
+  MckLbl = 'PERT'
+  call cWrMck(iRC,iOpt,MckLbl,1,LABEL,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'NDISP'
+  idum(1) = ndisp
+  call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'TDISP'
+  call WrMck(iRC,iOpt,MckLbl,1,ntpert,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'Title'
+  call cWrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'nSym'
+  idum(1) = nSym
+  call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'nBas'
+  call WrMck(iRC,iOpt,MckLbl,1,nBas,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'ldisp'
+  call WrMck(iRC,iOpt,MckLbl,1,ldisp,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'chdisp'
+  call cWrMck(iRC,iOpt,MckLbl,1,swlbl(1),iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'NISH'
+  call WrMck(iRC,iOpt,MckLbl,1,nish,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+  irc = -1
+  iopt = 0
+  MckLbl = 'NASH'
+  call WrMck(iRC,iOpt,MckLbl,1,nash,iDummer)
+  if (irc /= 0) then
+    write(6,*) 'StPert: Error writing to MCKINT'
+    write(6,'(A,A)') 'MckLbl=',MckLbl
+    call Abend()
+  end if
+end if
+
+if (SPINPOL) then
+  call coeff(ralphas,rbetaa,rbetas)
+  rms = dble(ms2)/2.0d0
+  nAct = 0
+  do iSym=1,nSym
+    nAct = nAct+nAsh(iSym)
+  end do
+  nG = nAct**2
+  nG2 = nAct**4
+  call mma_allocate(famo_spinp,ndens2,Label='famo_spinp')
+  call mma_allocate(famo_spinm,ndens2,Label='famo_spinm')
+  call mma_allocate(G2mp,nG2,Label='G2mp')
+  call mma_allocate(G2pp,nG2,Label='G2pp')
+  call mma_allocate(G2mm,nG2,Label='G2mm')
+  call mma_allocate(Fm,nG2,Label='Fm')
+  call mma_allocate(Fp,nG2,Label='Fp')
+  call mma_allocate(G1p,nG,Label='G1p')
+  call mma_allocate(G1m,nG,Label='G1m')
+  itype = 2
+  irc = ipin(ipCI)
+  call SpinDens(W(ipCI)%Vec,W(ipCI)%Vec,STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,iType)
+
+  call mma_allocate(Tmp2,ndens2,Label='Tmp2')
+  call mma_MaxDBLE(nMax)
+  call mma_allocate(Tmp1,nMax/2,Label='Tmp1')
+
+  call Ex_spin(G1p,FAMO_Spinp,Tmp1,nMax/2,Tmp2)
+  call Ex_spin(G1m,FAMO_Spinm,Tmp1,nMax/2,Tmp2)
+
+  call mma_deallocate(Tmp1)
+  call mma_deallocate(Tmp2)
+end if
+
+end subroutine StPert

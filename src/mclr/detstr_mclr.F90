@@ -10,71 +10,65 @@
 !                                                                      *
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
-      SUBROUTINE DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,NORB,       &
-     &                       ISIGN,IWORK,IPRNT)
 
-!
+subroutine DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,NORB,ISIGN,IWORK,IPRNT)
 ! A DETERMINANT,IDET,IS GIVEN AS A SET OF OCCUPIED SPIN ORBITALS,
 ! POSITIVE NUMBER INDICATES ALPHA ORBITAL AND NEGATIVE NUMBER
-! INDICATES BETA ORBITAL .
+! INDICATES BETA ORBITAL.
 !
-! FIND CORRESPONDING ALPHA STRING AND BETA STRING ,
+! FIND CORRESPONDING ALPHA STRING AND BETA STRING,
 ! AND DETERMINE SIGN NEEDED TO CHANGE DETERMINANT
 ! INTO PRODUCT OF ORDERED ALPHA STRING AND
 ! BETA STRING
 !
 ! JEPPE OLSEN NOVEMBER 1988
-!
-      IMPLICIT NONE
 
-      Integer NEL,NAEL,NBEL
-      Integer IDET(NEL)
-      Integer IASTR(NAEL),IBSTR(NBEL)
-      Integer NORB,ISIGN
-      Integer IWORK(*)
-      Integer IPRNT
-!
-      INTEGER NTEST,IBEL,ITMP
-!
-!
-      NTEST = 000
-      NTEST = MAX(NTEST,IPRNT)
-!
+implicit none
+integer NEL, NAEL, NBEL
+integer IDET(NEL)
+integer IASTR(NAEL), IBSTR(NBEL)
+integer NORB, ISIGN
+integer IWORK(*)
+integer IPRNT
+integer NTEST, IBEL, ITMP
+
+NTEST = 000
+NTEST = max(NTEST,IPRNT)
+
 ! FIRST REORDER SPIN ORBITALS IN ASCENDING SEQUENCE
 ! THIS WILL AUTOMATICALLY SPLIT ALPHA AND BETASTRING
-!
-      CALL ORDSTR_MCLR(IDET,IWORK,NEL,ISIGN,IPRNT)
-!
+
+call ORDSTR_MCLR(IDET,IWORK,NEL,ISIGN,IPRNT)
+
 ! ALPHA STRING IS LAST NAEL ORBITALS
-      CALL iCOPY(NAEL,IWORK(NBEL+1),1,IASTR,1)
-!
+call iCOPY(NAEL,IWORK(NBEL+1),1,IASTR,1)
+
 ! BETA  STRING MUST BE COMPLETELY TURNED AROUND
-      DO 10 IBEL = 1, NBEL
-        IBSTR(IBEL) = -IWORK(NBEL+1-IBEL)
-10    CONTINUE
+do IBEL=1,NBEL
+  IBSTR(IBEL) = -IWORK(NBEL+1-IBEL)
+end do
 ! SIGN CHANGE FOR SWITCH OF BETA ORBITALS
-      iTmp= NBEL*(NBEL+1)/2
-      ISIGN = ISIGN * (-1) ** iTmp
-!
-      IF( NTEST.GE.200) THEN
-        WRITE(6,*) ' INPUT DETERMINANT '
-        CALL IWRTMA(IDET,1,NEL,1,NEL)
-        WRITE(6,*) ' CORRESPONDING ALPHA STRING '
-        CALL IWRTMA(IASTR,1,NAEL,1,NAEL)
-        WRITE(6,*) ' CORRESPONDING BETA STRING '
-        CALL IWRTMA(IBSTR,1,NBEL,1,NBEL)
-        WRITE(6,*) ' ISIGN FOR SWITCH ', ISIGN
-      END IF
+iTmp = NBEL*(NBEL+1)/2
+ISIGN = ISIGN*(-1)**iTmp
 
-!      if(doDMRG.and.doMCLR)then ! yma
-!        DO I=1,NEL
-!          Write(117,1110,advance='no') IDET(I)
-!        end do
-!        Write(117,"(A,1X,I2)",advance='no')" SIGN",ISIGN
-!1110  FORMAT(1X,I5)
-!      end if
+if (NTEST >= 200) then
+  write(6,*) ' INPUT DETERMINANT'
+  call IWRTMA(IDET,1,NEL,1,NEL)
+  write(6,*) ' CORRESPONDING ALPHA STRING'
+  call IWRTMA(IASTR,1,NAEL,1,NAEL)
+  write(6,*) ' CORRESPONDING BETA STRING'
+  call IWRTMA(IBSTR,1,NBEL,1,NBEL)
+  write(6,*) ' ISIGN FOR SWITCH ',ISIGN
+end if
 
-!
+!if (doDMRG .and. doMCLR) then ! yma
+!  do I=1,NEL
+!    write(117,'(1X,I5)',advance='no') IDET(I)
+!  end do
+!  write(117,'(A,1X,I2)',advance='no') ' SIGN',ISIGN
+!end if
+
 ! Avoid unused argument warnings
-      IF (.FALSE.) CALL Unused_integer(NORB)
-      END SUBROUTINE DETSTR_MCLR
+if (.false.) call Unused_integer(NORB)
+
+end subroutine DETSTR_MCLR

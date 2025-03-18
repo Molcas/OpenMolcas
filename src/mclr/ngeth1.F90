@@ -8,34 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE NGETH1(H,ISM,ITP,JSM,JTP)
-!
+
+subroutine NGETH1(H,ISM,ITP,JSM,JTP)
 ! One-electron integrals over orbitals belonging to
 ! given OS class
-!
-      use MCLR_Data, only: NTSOB
-      IMPLICIT NONE
-!.Output
-      REAL*8 H(*)
-      INTEGER ISM,ITP,JSM,JTP
 
-      INTEGER NI,NJ,IJ,I,J,NTEST
-      REAL*8, External:: GTH1EN
-!
-      NI = NTSOB(ITP,ISM)
-      NJ = NTSOB(JTP,JSM)
-      IJ = 0
-      DO 100 J = 1, NJ
-        DO 50 I = 1, NI
-          IJ = IJ+1
-          H(IJ) = GTH1EN(I,ITP,ISM,J,JTP,JSM)
-   50   CONTINUE
-  100 CONTINUE
-!
-      NTEST = 0
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
-        CALL WRTMAT(H,NI,NJ,NI,NJ)
-      END IF
-!
-      END SUBROUTINE NGETH1
+use MCLR_Data, only: NTSOB
+
+implicit none
+!.Output
+real*8 H(*)
+integer ISM, ITP, JSM, JTP
+integer NI, NJ, IJ, I, J, NTEST
+real*8, external :: GTH1EN
+
+NI = NTSOB(ITP,ISM)
+NJ = NTSOB(JTP,JSM)
+IJ = 0
+do J=1,NJ
+  do I=1,NI
+    IJ = IJ+1
+    H(IJ) = GTH1EN(I,ITP,ISM,J,JTP,JSM)
+  end do
+end do
+
+NTEST = 0
+if (NTEST /= 0) then
+  write(6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
+  call WRTMAT(H,NI,NJ,NI,NJ)
+end if
+
+end subroutine NGETH1

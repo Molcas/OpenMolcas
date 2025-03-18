@@ -8,97 +8,95 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,    &
-     &                  IKSM,JLSM,INTLST,IJKLOF,NSMOB,                  &
-     &                  ICTL)
-!
+
+subroutine GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,INTLST,IJKLOF,NSMOB,ICTL)
 ! Obtain integrals
 ! ICOUL = 0 :      XINT(IK,JL) = (IJ!KL) for IXCHNG = 0
 !                              = (IJ!KL)-(IL!KJ) for IXCHNG = 1
 ! ICOUL = 1 :      XINT(IJ,KL) = (IJ!KL)
 !
 ! Version for integrals stored in INTLST
-!
-      use MCLR_Data, only: NACOB,IBTSOB,NTSOB
-      IMPLICIT None
-!
-      REAL*8 XINT(*)
-      INTEGER ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM
-      Real*8 Intlst(*)
-      INTEGER NSMOB
-      INTEGER IJKLof(NsmOB,NsmOb,NsmOB)
-      INTEGER ICTL
 
-!     Local variables
-      Integer iOrb,jOrb,kOrb,lOrb
-      Integer iOff,jOff,kOff,lOff
-      Integer iBas,jBas,kBas,lBas
-      Integer iInt
-      Integer NTASH,JMIN,IMIN,IJ,KL,IJKL,IL,JK,ILJK
+use MCLR_Data, only: NACOB, IBTSOB, NTSOB
 
-      integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+implicit none
+real*8 XINT(*)
+integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM
+real*8 Intlst(*)
+integer NSMOB
+integer IJKLof(NsmOB,NsmOb,NsmOB)
+integer ICTL
+! Local variables
+integer iOrb, jOrb, kOrb, lOrb
+integer iOff, jOff, kOff, lOff
+integer iBas, jBas, kBas, lBas
+integer iInt
+integer NTASH, JMIN, IMIN, IJ, KL, IJKL, IL, JK, ILJK
+! Statement function
+integer i, j, itri
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-      iOrb=NTSOB(ITP,ISM)
-      jOrb=NTSOB(JTP,JSM)
-      kOrb=NTSOB(KTP,KSM)
-      lOrb=NTSOB(LTP,LSM)
-      iOff=IBTSOB(ITP,ISM)
-      jOff=IBTSOB(JTP,JSM)
-      kOff=IBTSOB(KTP,KSM)
-      lOff=IBTSOB(LTP,LSM)
-      ntash=nacob
-!
-!     Collect Coulomb terms
-!
-      IF(ICTL.EQ.1) THEN
-      iint=1
-      Do lBas=lOff,lOff+lOrb-1
-        jMin=jOff
-        If ( JLSM.ne.0 ) jMin=lBas
-        Do jBas=jMin,jOff+jOrb-1
-          Do kBas=kOff,kOff+kOrb-1
-            iMin=iOff
-            If(IKSM.ne.0) iMin = kBas
-            Do iBas=iMin,iOff+iOrb-1
-              ij = jbas+ntash*(ibas-1)
-              kl = lbas+ntash*(kbas-1)
-              ijkl=itri(ij,kl)
-              Xint(iInt) = Intlst(ijkl)
-              iInt=iInt+1
-            End Do
-          End Do
-        End Do
-      End Do
-      Else If (ICTL.eq.4) Then
-!
-!     Collect Coulomb-Exchange terms
-!
-        iint=1
-        Do lBas=lOff,lOff+lOrb-1
-          jMin=jOff
-          If ( JLSM.ne.0 ) jMin=lBas
-          Do jBas=jMin,jOff+jOrb-1
-            Do kBas=kOff,kOff+kOrb-1
-              iMin=iOff
-              If(IKSM.ne.0) iMin = kBas
-              Do iBas=iMin,iOff+iOrb-1
-                 il = ibas+ntash*(lbas-1)
-                 jk = kbas+ntash*(jbas-1)
-                 iljk=itri(il,jk)
-                 ij = ibas+ntash*(jbas-1)
-                 kl = kbas+ntash*(lbas-1)
-                 ijkl=itri(ij,kl)
-                 XInt(iInt)=Intlst(ijkl)-Intlst(iljk)
-                 iInt=iInt+1
-              End Do
-            End Do
-          End Do
-        End Do
-      Else
-       Call Abend()
-      End If
-!
+iOrb = NTSOB(ITP,ISM)
+jOrb = NTSOB(JTP,JSM)
+kOrb = NTSOB(KTP,KSM)
+lOrb = NTSOB(LTP,LSM)
+iOff = IBTSOB(ITP,ISM)
+jOff = IBTSOB(JTP,JSM)
+kOff = IBTSOB(KTP,KSM)
+lOff = IBTSOB(LTP,LSM)
+ntash = nacob
+
+! Collect Coulomb terms
+
+if (ICTL == 1) then
+  iint = 1
+  do lBas=lOff,lOff+lOrb-1
+    jMin = jOff
+    if (JLSM /= 0) jMin = lBas
+    do jBas=jMin,jOff+jOrb-1
+      do kBas=kOff,kOff+kOrb-1
+        iMin = iOff
+        if (IKSM /= 0) iMin = kBas
+        do iBas=iMin,iOff+iOrb-1
+          ij = jbas+ntash*(ibas-1)
+          kl = lbas+ntash*(kbas-1)
+          ijkl = itri(ij,kl)
+          Xint(iInt) = Intlst(ijkl)
+          iInt = iInt+1
+        end do
+      end do
+    end do
+  end do
+else if (ICTL == 4) then
+
+  ! Collect Coulomb-Exchange terms
+
+  iint = 1
+  do lBas=lOff,lOff+lOrb-1
+    jMin = jOff
+    if (JLSM /= 0) jMin = lBas
+    do jBas=jMin,jOff+jOrb-1
+      do kBas=kOff,kOff+kOrb-1
+        iMin = iOff
+        if (IKSM /= 0) iMin = kBas
+        do iBas=iMin,iOff+iOrb-1
+          il = ibas+ntash*(lbas-1)
+          jk = kbas+ntash*(jbas-1)
+          iljk = itri(il,jk)
+          ij = ibas+ntash*(jbas-1)
+          kl = kbas+ntash*(lbas-1)
+          ijkl = itri(ij,kl)
+          XInt(iInt) = Intlst(ijkl)-Intlst(iljk)
+          iInt = iInt+1
+        end do
+      end do
+    end do
+  end do
+else
+  call Abend()
+end if
+
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer_array(IJKLOF)
-      End SUBROUTINE GETINC_ABS_td
+if (.false.) call Unused_integer_array(IJKLOF)
+
+end subroutine GETINC_ABS_td

@@ -14,46 +14,48 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      SUBROUTINE CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
-      use MCLR_Data, only: nNA, nDens2, ipMat
-      use input_mclr, only: nSym,nAsh,nBas,nIsh
-      Implicit None
-!*****Input
-      INTEGER NPUVX
-      Real*8 Coeff
-      REAL*8,DIMENSION(nnA**2)::D
-      REAL*8,DIMENSION(NPUVX) ::PUVX
-      INTEGER,DIMENSION(nnA,nnA,nnA,nnA)::IndTUVX
-      INTEGER,DIMENSION(nSym)::  Off_Ash
-!*****Output
-      REAL*8,DIMENSION(nDens2)::Wop
-!*****Auxiliaries
-      INTEGER jSym,it,iu,t,u,v,x,pt,qu,iLoc1,iLoc2,jAsh
-      REAL*8 tempd1
 
-      DO jSym=1,nSym
-       jAsh=nAsh(jSym)
-       IF(jAsh.eq.0) Cycle
-       Do iu=1,jAsh
-        u=iu+off_Ash(jSym)
-        qu=iu+nIsh(jSym)
-        iLoc1=(qu-1)*nBas(jSym)+ipMat(jSym,jSym)-1
-       Do it=1,jAsh
-        t=it+off_Ash(jSym)
-        pt=it+nIsh(jSym)
-        tempd1=0.0d0
-        do v=1,nnA
-         iLoc2=(v-1)*nnA
+subroutine CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
+
+use MCLR_Data, only: nNA, nDens2, ipMat
+use input_mclr, only: nSym, nAsh, nBas, nIsh
+
+implicit none
+! Input
+integer NPUVX
+real*8 Coeff
+real*8, dimension(nnA**2) :: D
+real*8, dimension(NPUVX) :: PUVX
+integer, dimension(nnA,nnA,nnA,nnA) :: IndTUVX
+integer, dimension(nSym) :: Off_Ash
+! Output
+real*8, dimension(nDens2) :: Wop
+! Auxiliaries
+integer jSym, it, iu, t, u, v, x, pt, qu, iLoc1, iLoc2, jAsh
+real*8 tempd1
+
+do jSym=1,nSym
+  jAsh = nAsh(jSym)
+  if (jAsh == 0) cycle
+  do iu=1,jAsh
+    u = iu+off_Ash(jSym)
+    qu = iu+nIsh(jSym)
+    iLoc1 = (qu-1)*nBas(jSym)+ipMat(jSym,jSym)-1
+    do it=1,jAsh
+      t = it+off_Ash(jSym)
+      pt = it+nIsh(jSym)
+      tempd1 = 0.0d0
+      do v=1,nnA
+        iLoc2 = (v-1)*nnA
         do x=1,nnA
-         IF(IndTUVX(t,u,v,x).ne.0)                                      &
-     &    tempd1=tempd1+D(iLoc2+x)*PUVX(IndTUVX(t,u,v,x))
+          if (IndTUVX(t,u,v,x) /= 0) tempd1 = tempd1+D(iLoc2+x)*PUVX(IndTUVX(t,u,v,x))
         end do
-        end do
-        Wop(iLoc1+pt)=tempd1
-       End Do
-       End Do
-      END DO
+      end do
+      Wop(iLoc1+pt) = tempd1
+    end do
+  end do
+end do
 
-      CALL DScal_(nDens2,Coeff,Wop,1)
+call DScal_(nDens2,Coeff,Wop,1)
 
-      END SUBROUTINE CalcWop
+end subroutine CalcWop

@@ -10,214 +10,196 @@
 !                                                                      *
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,           &
-     &                  NI,NJ,NK,NL,MAXK,                               &
-     &                  KBIB,XKBIB,KBJB,XKBJB,IKORD,                    &
-     &                  IXBOFF,JXBOFF,SXCR,IROUTE,NTEST )
-!
-!
+
+subroutine SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,IXBOFF,JXBOFF,SXCR,IROUTE,NTEST)
 ! Calculate S(Ka,Ib,i) = S(Ka,Ib,i)
 !          +SUM(j,k,l,Kb) <Ib!a+ kb!Kb><Kb!a lb !Jb>*(ij!kl)*C(Ka,Jb,j)
 !
-!
-!
 ! Jeppe Olsen, Spring of 94
-!
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: One
-      IMPLICIT None
-!
-!. Input
-      INTEGER NKA,NIB,NJB,NKB
-      INTEGER NI,NJ,NK,NL,MAXK
-      REAL*8 CKJJ(NKA*NJ,*)
-!. Note if Iroute = 2 the form is C(j,Ka,Jb)
-      REAL*8 XIJKL(*)
-      INTEGER KBIB(MAXK,*)
-      REAL*8  XKBIB(MAXK,*)
-      INTEGER KBJB(MAXK,*)
-      REAL*8  XKBJB(MAXK,*)
-      INTEGER IKORD,IXBOFF,JXBOFF
-      REAL*8 SXCR
-      INTEGER IROUTE,NTEST
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+
+implicit none
+! Input
+integer NKA, NIB, NJB, NKB
+integer NI, NJ, NK, NL, MAXK
+real*8 CKJJ(NKA*NJ,*)
+! Note if Iroute = 2 the form is C(j,Ka,Jb)
+real*8 XIJKL(*)
+integer KBIB(MAXK,*)
+real*8 XKBIB(MAXK,*)
+integer KBJB(MAXK,*)
+real*8 XKBJB(MAXK,*)
+integer IKORD, IXBOFF, JXBOFF
+real*8 SXCR
+integer IROUTE, NTEST
 !. Input and output
-      REAL*8 SKII(NKA*NI,*)
+real*8 SKII(NKA*NI,*)
+! Note if Iroute = 2 the form is S(i,Ka,Ib)
+! Scratch
+integer, parameter :: MXTSOB = 35
+integer IBOFF(MXTSOB*MXTSOB), JBOFF(MXTSOB*MXTSOB)
+real*8, allocatable :: KSKICK(:)
+integer MAXORB, LENGTH, KB, LL, KK, L, K, IB, JB, INTOF, IKEFF, IMIN, I, IOFF, LEFF, JLIK0, J, JL, JL0
+real*8 SGNL, FACTOR, SGNK
 
-!. Note if Iroute = 2 the form is S(i,Ka,Ib)
-!. Scratch
-      INTEGER, PARAMETER :: MXTSOB=35
-      INTEGER IBOFF(MXTSOB*MXTSOB),JBOFF(MXTSOB*MXTSOB)
-      Real*8, Allocatable:: KSKICK(:)
-      INTEGER MAXORB,LENGTH,KB,LL,KK,L,K,IB,JB,INTOF,IKEFF,IMIN,I,IOFF, &
-     &        LEFF,JLIK0,J,JL,JL0
-      REAL*8 SGNL,FACTOR,SGNK
-!
-      MAXORB = MAX(NI,NJ,NK,NL)
-      LENGTH = MAXORB*MAXORB*MAXORB*MAXORB
-      Call mma_allocate(KSKICK,LENGTH,Label='KSKICK')
-!
-      IF(NI.GT.MXTSOB.OR.NJ.GT.MXTSOB.OR.NK.GT.MXTSOB                   &
-     &   .OR.NL.GT.MXTSOB) THEN
-         WRITE(6,*) ' SKICKJ_MCLR : Too many orbs : NI > MXTSOB '
-         WRITE(6,*) ' NI, MXTSOB ',MAX(NI,NJ,NK,NL),MXTSOB
-         Write (6,*) ' Redim MXTSOB in SKICKJ_MCLR'
-         Call Abend()
-      END IF
-!
-      IF(IROUTE.EQ.3) THEN
-! S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
-        DO KB = 1, NKB
-!. Number of nonvanishing connections from KB
-         LL = 0
-         KK = 0
-         DO L = 1, NL
-           IF(KBJB(KB,L).NE.0) LL = LL + 1
-         END DO
-         DO K = 1, NK
-           IF(KBIB(KB,K).NE.0) KK = KK + 1
-         END DO
-!
-         IF(KK.NE.0.AND.LL.NE.0) THEN
-           DO K = 1, NK
-             IB = KBIB(KB,K)
-             IF(IB.NE.0) THEN
-               SGNK = XKBIB(KB,K)
-               DO L = 1, NL
-                 JB = KBJB(KB,L)
-                 IF(JB.NE.0) THEN
-                   SGNL = XKBJB(KB,L)
-                   FACTOR = SGNK*SGNL
-!. We have now a IB and Jb string, let's do it
-!                  ISOFF = (IB-1)*NI*NKA + 1
-!                  ICOFF = (JB-1)*NJ*NKA + 1
-                   INTOF = ((L-1)*NK + K - 1 )*NI*NJ + 1
-!
-                   CALL  DGEMM_('N','N',NKA,NI,NJ,                      &
-     &                         FACTOR ,CKJJ(1,jB),max(1,NKA),           &
-     &                                 XIJKL(INTOF),max(1,NJ),          &
-     &                         ONE,SKII(1,iB),max(1,NKA))
-!
-                 END IF
-               END DO
-             END IF
-           END DO
-         END IF
-       END DO
-!. (end over loop over Kb strings )
-      ELSE IF(IROUTE.EQ.2) THEN
-! S(I,Ka,Ib) = S(I,Ka,Ib) + sum(j) (ij!kl) C(j,Ka,Jb)
-        DO KB = 1, NKB
-!. Number of nonvanishing connections from KB
-         LL = 0
-         KK = 0
-         DO L = 1, NL
-           IF(KBJB(KB,L).NE.0) LL = LL + 1
-         END DO
-         DO K = 1, NK
-           IF(KBIB(KB,K).NE.0) KK = KK + 1
-         END DO
-!
-         IF(KK.NE.0.AND.LL.NE.0) THEN
-           DO K = 1, NK
-             IB = KBIB(KB,K)
-             IF(IB.NE.0) THEN
-               SGNK = XKBIB(KB,K)
-               DO L = 1, NL
-                 JB = KBJB(KB,L)
-                 IF(JB.NE.0) THEN
-                   SGNL = XKBJB(KB,L)
-                   FACTOR = SGNK*SGNL
-!. We have now a IB and Jb string, let's do it
-!                  ISOFF = (IB-1)*NI*NKA + 1
-!                  ICOFF = (JB-1)*NJ*NKA + 1
-                   INTOF = ((L-1)*NK + K - 1 )*NI*NJ + 1
-!
-                   CALL  DGEMM_('N','N',NI,NKA,NJ,FACTOR ,              &
-     &                         XIJKL(INTOF),max(1,NI),                  &
-     &                         CKJJ(1,JB),max(1,NJ),                    &
-     &                         ONE,SKII(1,IB),max(1,NI))
-                 END IF
-               END DO
-             END IF
-           END DO
-         END IF
-       END DO
-!. (end over loop over Kb strings )
-!
+MAXORB = max(NI,NJ,NK,NL)
+LENGTH = MAXORB*MAXORB*MAXORB*MAXORB
+call mma_allocate(KSKICK,LENGTH,Label='KSKICK')
 
-      ELSE IF (IROUTE.EQ.1) THEN
+if ((NI > MXTSOB) .or. (NJ > MXTSOB) .or. (NK > MXTSOB) .or. (NL > MXTSOB)) then
+  write(6,*) ' SKICKJ_MCLR : Too many orbs : NI > MXTSOB'
+  write(6,*) ' NI, MXTSOB ',max(NI,NJ,NK,NL),MXTSOB
+  write(6,*) ' Redim MXTSOB in SKICKJ_MCLR'
+  call Abend()
+end if
 
+if (IROUTE == 3) then
+  ! S(Ka,i,Ib) = S(Ka,i,Ib) + sum(j) (ji!kl) C(Ka,j,Jb)
+  do KB=1,NKB
+    ! Number of nonvanishing connections from KB
+    LL = 0
+    KK = 0
+    do L=1,NL
+      if (KBJB(KB,L) /= 0) LL = LL+1
+    end do
+    do K=1,NK
+      if (KBIB(KB,K) /= 0) KK = KK+1
+    end do
 
-
-      DO 1000 KB = 1, NKB
-!. Number of nonvanishing a+lb !Kb>
-        LL = 0
-        DO L = 1, NL
-          IF(KBJB(KB,L).NE.0) LL = LL + 1
-        END DO
-!
-        IKEFF = 0
-        DO 900 K = 1, NK
-          IB = KBIB(KB,K)
-          IF(IB.EQ.0) GOTO 900
+    if ((KK /= 0) .and. (LL /= 0)) then
+      do K=1,NK
+        IB = KBIB(KB,K)
+        if (IB /= 0) then
           SGNK = XKBIB(KB,K)
-!
-          IF(IKORD.EQ.0) THEN
-             IMIN = 1
-          ELSE
-             IMIN = K
-          END IF
-!
-          DO 700 I = IMIN, NI
-            IKEFF = IKEFF + 1
-            IOFF = (IKEFF-1)*NJ*LL
-!. Offset for S(1,IB,i)
-            IBOFF(IKEFF)  = (I-1)*NIB+IB
-            LEFF = 0
-            DO 800 L = 1, NL
-              JB = KBJB(KB,L)
-              IF(JB.EQ.0) GOTO 800
-              LEFF = LEFF + 1
+          do L=1,NL
+            JB = KBJB(KB,L)
+            if (JB /= 0) then
               SGNL = XKBJB(KB,L)
-              IF(IKORD.EQ.1.AND.I.EQ.K)THEN
-                 FACTOR = 0.5D0*SGNK*SGNL
-              ELSE
-                 FACTOR =       SGNK*SGNL
-              END IF
-              JL0 = (LEFF-1)*NJ
-              JLIK0 = (K-1)*NJ*NL*NI                                    &
-     &              + (I-1)*NJ*NL                                       &
-     &              + (L-1)*NJ
+              FACTOR = SGNK*SGNL
+              ! We have now a IB and Jb string, let's do it
+              !ISOFF = (IB-1)*NI*NKA+1
+              !ICOFF = (JB-1)*NJ*NKA+1
+              INTOF = ((L-1)*NK+K-1)*NI*NJ+1
 
-              DO 600 J = 1, NJ
-                JL = JL0 + J
-!. Offsets for C(1,JB,j)
-                JBOFF(JL) = (J-1)*NJB + JB
-!. integral * signs in SCR(jl,ik)
-!. Integrals are stored as (j l i k )
-                KSKICK(IOFF+JL) = FACTOR*XIJKL(JLIK0+J)
-  600         CONTINUE
+              call DGEMM_('N','N',NKA,NI,NJ,FACTOR,CKJJ(1,jB),max(1,NKA),XIJKL(INTOF),max(1,NJ),ONE,SKII(1,iB),max(1,NKA))
 
-  800       CONTINUE
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+  ! (end over loop over Kb strings)
+else if (IROUTE == 2) then
+  ! S(I,Ka,Ib) = S(I,Ka,Ib) + sum(j) (ij!kl) C(j,Ka,Jb)
+  do KB=1,NKB
+    ! Number of nonvanishing connections from KB
+    LL = 0
+    KK = 0
+    do L=1,NL
+      if (KBJB(KB,L) /= 0) LL = LL+1
+    end do
+    do K=1,NK
+      if (KBIB(KB,K) /= 0) KK = KK+1
+    end do
 
-  700     CONTINUE
+    if ((KK /= 0) .and. (LL /= 0)) then
+      do K=1,NK
+        IB = KBIB(KB,K)
+        if (IB /= 0) then
+          SGNK = XKBIB(KB,K)
+          do L=1,NL
+            JB = KBJB(KB,L)
+            if (JB /= 0) then
+              SGNL = XKBJB(KB,L)
+              FACTOR = SGNK*SGNL
+              ! We have now a IB and Jb string, let's do it
+              !ISOFF = (IB-1)*NI*NKA+1
+              !ICOFF = (JB-1)*NJ*NKA+1
+              INTOF = ((L-1)*NK+K-1)*NI*NJ+1
 
-  900   CONTINUE
-!
-        CALL GSAXPY(SKII,CKJJ,KSKICK,IKEFF,NJ*LL,NKA,IBOFF,JBOFF)
+              call DGEMM_('N','N',NI,NKA,NJ,FACTOR,XIJKL(INTOF),max(1,NI),CKJJ(1,JB),max(1,NJ),ONE,SKII(1,IB),max(1,NI))
+            end if
+          end do
+        end if
+      end do
+    end if
+  end do
+  ! (end over loop over Kb strings)
 
- 1000 CONTINUE
-      END IF
-!. End of IROUTE branching
-!
-      Call mma_deallocate(KSKICK)
+else if (IROUTE == 1) then
+
+  do KB=1,NKB
+    ! Number of nonvanishing a+lb !Kb>
+    LL = 0
+    do L=1,NL
+      if (KBJB(KB,L) /= 0) LL = LL+1
+    end do
+
+    IKEFF = 0
+    do K=1,NK
+      IB = KBIB(KB,K)
+      if (IB == 0) goto 900
+      SGNK = XKBIB(KB,K)
+
+      if (IKORD == 0) then
+        IMIN = 1
+      else
+        IMIN = K
+      end if
+
+      do I=IMIN,NI
+        IKEFF = IKEFF+1
+        IOFF = (IKEFF-1)*NJ*LL
+        ! Offset for S(1,IB,i)
+        IBOFF(IKEFF) = (I-1)*NIB+IB
+        LEFF = 0
+        do L=1,NL
+          JB = KBJB(KB,L)
+          if (JB == 0) goto 800
+          LEFF = LEFF+1
+          SGNL = XKBJB(KB,L)
+          if ((IKORD == 1) .and. (I == K)) then
+            FACTOR = 0.5d0*SGNK*SGNL
+          else
+            FACTOR = SGNK*SGNL
+          end if
+          JL0 = (LEFF-1)*NJ
+          JLIK0 = (K-1)*NJ*NL*NI+(I-1)*NJ*NL+(L-1)*NJ
+
+          do J=1,NJ
+            JL = JL0+J
+            ! Offsets for C(1,JB,j)
+            JBOFF(JL) = (J-1)*NJB+JB
+            ! integral * signs in SCR(jl,ik)
+            ! Integrals are stored as (j l i k)
+            KSKICK(IOFF+JL) = FACTOR*XIJKL(JLIK0+J)
+          end do
+
+800       continue
+        end do
+
+      end do
+
+900   continue
+    end do
+
+    call GSAXPY(SKII,CKJJ,KSKICK,IKEFF,NJ*LL,NKA,IBOFF,JBOFF)
+
+  end do
+end if
+! End of IROUTE branching
+
+call mma_deallocate(KSKICK)
 
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(IXBOFF)
-        CALL Unused_integer(JXBOFF)
-        CALL Unused_real(SXCR)
-        CALL Unused_integer(NTEST)
-      END IF
+if (.false.) then
+  call Unused_integer(IXBOFF)
+  call Unused_integer(JXBOFF)
+  call Unused_real(SXCR)
+  call Unused_integer(NTEST)
+end if
 
-      END SUBROUTINE SKICKJ_MCLR
+end subroutine SKICKJ_MCLR

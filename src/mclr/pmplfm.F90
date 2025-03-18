@@ -8,23 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE PMPLFM(AP,B,NDIM)
-!
+
+subroutine PMPLFM(AP,B,NDIM)
 ! Add lower half of a full matrix to a matrix packed
-! in lower triangular form ( packed matrix stored columnwise )
-!
-      IMPLICIT REAL*8           ( A-H,O-Z)
-      DIMENSION AP(*),B(*)
-!
-      IBSP = 1
-      IBSF = 1
-      DO 100 ICOL = 1, NDIM
-        NELMNT = NDIM - ICOL + 1
-        AP(IBSP:IBSP+NELMNT-1) = AP(IBSP:IBSP+NELMNT-1)+                &
-     &                           B(IBSF:IBSF+NELMNT-1)
-        IBSP = IBSP + NELMNT
-        IBSF = IBSF + NDIM
-  100 CONTINUE
-!
-      RETURN
-      END
+! in lower triangular form (packed matrix stored columnwise)
+
+implicit real*8(A-H,O-Z)
+dimension AP(*), B(*)
+
+IBSP = 1
+IBSF = 1
+do ICOL=1,NDIM
+  NELMNT = NDIM-ICOL+1
+  AP(IBSP:IBSP+NELMNT-1) = AP(IBSP:IBSP+NELMNT-1)+B(IBSF:IBSF+NELMNT-1)
+  IBSP = IBSP+NELMNT
+  IBSF = IBSF+NDIM
+end do
+
+return
+
+end subroutine PMPLFM

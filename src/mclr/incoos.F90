@@ -10,10 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB, &
-     &                  NSMST,IENSM,IENTA,IENTB,IACOOS,MXLNG,IFINI,     &
-     &                  NBLOCK,INCFST,IOCOC)
-!
+
+subroutine INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB,NSMST,IENSM,IENTA,IENTB,IACOOS,MXLNG,IFINI,NBLOCK,INCFST,IOCOC)
 ! Obtain Number of OOS blocks that can be included
 ! IN MXLNG word starting from block after ISTSM,ISTTA,ISTTB
 ! Activated blocks are given in IACOOS
@@ -22,120 +20,120 @@
 ! Diagonal blocks are expanded
 !
 ! Jeppe Olsen, Winter of 1991
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-!.Input
-      INTEGER NOOS(NOCTPA,NOCTPB,NSMST)
-      INTEGER IOCOC(NOCTPA,NOCTPB)
-!-May 7
-      INTEGER IBLTP(*)
-!-May 7
-!.Output
-      INTEGER IACOOS(NOCTPA,NOCTPB,NSMST)
-!
-      NTEST = 00
-      IF(NTEST.GE.100) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' =================='
-        WRITE(6,*) ' INCOOS in action  '
-        WRITE(6,*) ' =================='
-        WRITE(6,*)
-        WRITE(6,*) ' NOOS(NOCTPA,NOCTPB,NSMST) array (input) '
-        WRITE(6,*)
-        DO ISMST = 1, NSMST
-         WRITE(6,*) ' ISMST = ', ISMST
-         CALL IWRTMA(NOOS(1,1,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-        END DO
-      END IF
-!
-      IPA = 0
-      IPB = 0
-      IPSM = 0
-!
-!.Initialize
-      IACOOS(:,:,:) = 0
-      ISM = ISTSM
-      IA = ISTTA
-      IB = ISTTB
-      LENGTH = 0
-      NBLOCK = 0
-      IENSM = ISTSM
-      IENTA = ISTTA
-      IENTB = ISTTB
-      IFINI = 0
-      IF(INCFST.EQ.1) GOTO 999
- 1000 CONTINUE
-!.Next block
-      IPA = IA
-      IPB = IB
-      IPSM = ISM
-!
-      IF(IB.LT.NOCTPB) THEN
-        IB = IB + 1
-      ELSE
-        IB = 1
-        IF(IA.LT.NOCTPA) THEN
-          IA = IA+ 1
-        ELSE
-          IA = 1
-          IF(ISM.LT.NSMST) THEN
-            ISM = ISM + 1
-          ELSE
-            IFINI = 1
-          END IF
-        END IF
-      END IF
-      IF(IFINI.EQ.1) GOTO 1001
-!. Should this block be included
-  999 CONTINUE
-      IF(IDC.NE.1.AND.IBLTP(ISM).EQ.0) GOTO 1000
-      IF(IDC.NE.1.AND.IBLTP(ISM).EQ.2.AND.IA.LT.IB) GOTO 1000
-      IF(IOCOC(IA,IB).EQ.0) GOTO 1000
-!?    write(6,*) ' INCOOS IDC IBLTP ', IDC,IBLTP(ISM)
-!. can this block be included
-      LBLOCK = NOOS(IA,IB,ISM)
-!?    write(6,*) ' IA IB ISM LBLOCK ', IA,IB,ISM,LBLOCK
-      IF(LENGTH+LBLOCK.LE.MXLNG) THEN
-        NBLOCK = NBLOCK + 1
-        LENGTH = LENGTH + LBLOCK
-        IACOOS(IA,IB,ISM) = 1
-        IF(NBLOCK.EQ.1) THEN
-          ISTTA = IA
-          ISTTB = IB
-          ISTSM = ISM
-         END IF
-        GOTO 1000
-      ELSE
-        IA = IPA
-        IB = IPB
-        ISM = IPSM
-      END IF
- 1001 CONTINUE
-!
-      IENSM = ISM
-      IENTA = IA
-      IENTB = IB
-      IF(IFINI.EQ.0.AND.NBLOCK.EQ.0) THEN
-        WRITE(6,*) ' Not enough scratch space to include a single Block'
-        WRITE(6,*) ' Since I cannot proceed I will stop '
-        WRITE(6,*) ' Insufficient buffer detected in INCOOS '
-        WRITE(6,*) ' Alter RAS space of raise Buffer from ', MXLNG
-        CALL SYSABENDMSG('lucia_util/incoos','Internal error',' ')
-      END IF
-!
-      IF(NTEST.NE.0) THEN
-        WRITE(6,*) 'Output from INCOOS '
-        WRITE(6,*) '==================='
-        WRITE(6,*)                                                      &
-     &  ' Length and number of included blocks ',LENGTH,NBLOCK
-      END IF
-      IF(NTEST.GE.2) THEN
-        DO 100 ISM = ISTSM,IENSM
-          WRITE(6,*) ' Active blocks of symmetry ',ISM
-          CALL IWRTMA(IACOOS(1,1,ISM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  100   CONTINUE
-        IF(IFINI.EQ.1) WRITE(6,*) ' No new blocks '
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+! Input
+integer NOOS(NOCTPA,NOCTPB,NSMST)
+integer IOCOC(NOCTPA,NOCTPB)
+! May 7
+integer IBLTP(*)
+! May 7
+! Output
+integer IACOOS(NOCTPA,NOCTPB,NSMST)
+
+NTEST = 00
+if (NTEST >= 100) then
+  write(6,*)
+  write(6,*) ' ================'
+  write(6,*) ' INCOOS in action'
+  write(6,*) ' ================'
+  write(6,*)
+  write(6,*) ' NOOS(NOCTPA,NOCTPB,NSMST) array (input)'
+  write(6,*)
+  do ISMST=1,NSMST
+    write(6,*) ' ISMST = ',ISMST
+    call IWRTMA(NOOS(1,1,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+  end do
+end if
+
+IPA = 0
+IPB = 0
+IPSM = 0
+
+! Initialize
+IACOOS(:,:,:) = 0
+ISM = ISTSM
+IA = ISTTA
+IB = ISTTB
+LENGTH = 0
+NBLOCK = 0
+IENSM = ISTSM
+IENTA = ISTTA
+IENTB = ISTTB
+IFINI = 0
+if (INCFST == 1) goto 999
+1000 continue
+! Next block
+IPA = IA
+IPB = IB
+IPSM = ISM
+
+if (IB < NOCTPB) then
+  IB = IB+1
+else
+  IB = 1
+  if (IA < NOCTPA) then
+    IA = IA+1
+  else
+    IA = 1
+    if (ISM < NSMST) then
+      ISM = ISM+1
+    else
+      IFINI = 1
+    end if
+  end if
+end if
+if (IFINI == 1) goto 1001
+! Should this block be included
+999 continue
+if ((IDC /= 1) .and. (IBLTP(ISM) == 0)) goto 1000
+if ((IDC /= 1) .and. (IBLTP(ISM) == 2) .and. (IA < IB)) goto 1000
+if (IOCOC(IA,IB) == 0) goto 1000
+!write(6,*) ' INCOOS IDC IBLTP ',IDC,IBLTP(ISM)
+! can this block be included
+LBLOCK = NOOS(IA,IB,ISM)
+!write(6,*) ' IA IB ISM LBLOCK ',IA,IB,ISM,LBLOCK
+if (LENGTH+LBLOCK <= MXLNG) then
+  NBLOCK = NBLOCK+1
+  LENGTH = LENGTH+LBLOCK
+  IACOOS(IA,IB,ISM) = 1
+  if (NBLOCK == 1) then
+    ISTTA = IA
+    ISTTB = IB
+    ISTSM = ISM
+  end if
+  goto 1000
+else
+  IA = IPA
+  IB = IPB
+  ISM = IPSM
+end if
+1001 continue
+
+IENSM = ISM
+IENTA = IA
+IENTB = IB
+if ((IFINI == 0) .and. (NBLOCK == 0)) then
+  write(6,*) ' Not enough scratch space to include a single Block'
+  write(6,*) ' Since I cannot proceed I will stop'
+  write(6,*) ' Insufficient buffer detected in INCOOS'
+  write(6,*) ' Alter RAS space of raise Buffer from ',MXLNG
+  call SYSABENDMSG('lucia_util/incoos','Internal error',' ')
+end if
+
+if (NTEST /= 0) then
+  write(6,*) 'Output from INCOOS'
+  write(6,*) '=================='
+  write(6,*) ' Length and number of included blocks ',LENGTH,NBLOCK
+end if
+if (NTEST >= 2) then
+  do ISM=ISTSM,IENSM
+    write(6,*) ' Active blocks of symmetry ',ISM
+    call IWRTMA(IACOOS(1,1,ISM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+  end do
+  if (IFINI == 1) write(6,*) ' No new blocks'
+end if
+
+return
+
+end subroutine INCOOS

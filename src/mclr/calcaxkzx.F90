@@ -14,65 +14,65 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero
-      use MCLR_Data, only: nNA, nDens2
-      use input_mclr, only: nRoots,ntBas,ntAsh,nSym,nAsh,nOrb
-      Implicit None
 
-      Integer NPUVX
-      Real*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA),Intent(In)::GDMat
-      Real*8,DIMENSION(NPUVX),Intent(In)::PUVX
-      INTEGER,DIMENSION(ntBas,ntAsh,ntAsh,ntAsh),Intent(In)::IndPUVX
-      Real*8,DIMENSION((nRoots-1)*nRoots/2),Intent(In)::zx
-      Real*8,DIMENSION(nDens2), Intent(Out)::AXkzx
+subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
 
-!*****Auxiliary Quantities
-      INTEGER,DIMENSION(nSym)::Off_Act,Off_Orb
-      Real*8,DIMENSION(:),Allocatable::DKL1,DKL2,AXktmp
-      INTEGER K,L,iKL,iKL2,iKK,iLL
-      INTEGER p,q,nTOrb, iSym, i, j, iTri
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use MCLR_Data, only: nNA, nDens2
+use input_mclr, only: nRoots, ntBas, ntAsh, nSym, nAsh, nOrb
 
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+implicit none
+integer NPUVX
+real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA), intent(In) :: GDMat
+real*8, dimension(NPUVX), intent(In) :: PUVX
+integer, dimension(ntBas,ntAsh,ntAsh,ntAsh), intent(In) :: IndPUVX
+real*8, dimension((nRoots-1)*nRoots/2), intent(In) :: zx
+real*8, dimension(nDens2), intent(Out) :: AXkzx
+! Auxiliary Quantities
+integer, dimension(nSym) :: Off_Act, Off_Orb
+real*8, dimension(:), allocatable :: DKL1, DKL2, AXktmp
+integer K, L, iKL, iKL2, iKK, iLL
+integer p, q, nTOrb, iSym, i, j, iTri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-      Off_Act(1)=0
-      Off_Orb(1)=0
-      ntOrb=nOrb(1)
-      DO ISym=2,nSym
-       Off_Act(ISym)=Off_Act(ISym-1)+nAsh(iSym-1)
-       Off_Orb(ISym)=Off_Orb(ISym-1)+nOrb(iSym-1)
-       ntOrb=ntOrb+nOrb(ISym)
-      END DO
+Off_Act(1) = 0
+Off_Orb(1) = 0
+ntOrb = nOrb(1)
+do ISym=2,nSym
+  Off_Act(ISym) = Off_Act(ISym-1)+nAsh(iSym-1)
+  Off_Orb(ISym) = Off_Orb(ISym-1)+nOrb(iSym-1)
+  ntOrb = ntOrb+nOrb(ISym)
+end do
 
-      AXkzx(:)=Zero
+AXkzx(:) = Zero
 
-      CALL mma_allocate(DKL1,ntAsh**2)
-      CALL mma_allocate(DKL2,ntAsh**2)
-      CALL mma_allocate(AXktmp,nDens2)
+call mma_allocate(DKL1,ntAsh**2)
+call mma_allocate(DKL2,ntAsh**2)
+call mma_allocate(AXktmp,nDens2)
 
-      DO K=2,nRoots
-       Do L=1,K-1
-       iKL=itri(K,L)
-       iKK=itri(K,K)
-       iLL=itri(L,L)
-       iKL2=(K-1)*(K-2)/2+L
-       do p=1,ntash
-        do q=1,ntash
-         DKL1((p-1)*ntash+q)=GDMat(IKL,p,q)+GDMat(IKL,q,p)
-         DKL2((p-1)*ntash+q)=GDMat(IKK,p,q)-GDMat(ILL,p,q)
-        end do
-       end do
-       AXktmp(:)=Zero
-       CALL CalcAXk2(AXktmp,DKL1,DKL2,PUVX,                             &
-     & NPUVX,IndPUVX,Off_Act,Off_Orb)
-       CALL CalcAXk2(AXktmp,DKL2,DKL1,PUVX,                             &
-     & NPUVX,IndPUVX,Off_Act,Off_Orb)
-       CALL Daxpy_(nDens2,zx(IKL2),AXktmp,1,Axkzx,1)
-       End Do
-      END DO
+do K=2,nRoots
+  do L=1,K-1
+    iKL = itri(K,L)
+    iKK = itri(K,K)
+    iLL = itri(L,L)
+    iKL2 = (K-1)*(K-2)/2+L
+    do p=1,ntash
+      do q=1,ntash
+        DKL1((p-1)*ntash+q) = GDMat(IKL,p,q)+GDMat(IKL,q,p)
+        DKL2((p-1)*ntash+q) = GDMat(IKK,p,q)-GDMat(ILL,p,q)
+      end do
+    end do
+    AXktmp(:) = Zero
+    call CalcAXk2(AXktmp,DKL1,DKL2,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
+    call CalcAXk2(AXktmp,DKL2,DKL1,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
+    call Daxpy_(nDens2,zx(IKL2),AXktmp,1,Axkzx,1)
+  end do
+end do
 
-      CALL mma_deallocate(DKL1)
-      CALL mma_deallocate(DKL2)
-      CALL mma_deallocate(Axktmp)
-      END SUBROUTINE CalcAXkzx
+call mma_deallocate(DKL1)
+call mma_deallocate(DKL2)
+call mma_deallocate(Axktmp)
+
+end subroutine CalcAXkzx

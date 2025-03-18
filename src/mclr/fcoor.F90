@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
-       SubRoutine FCOOR(LUT,COOR)
+
+subroutine FCOOR(LUT,COOR)
 !*******************************************************************
 !                                                                  *
 !      Transforms a symmetry adapted gradient to unsymmetric  form *
@@ -19,32 +20,36 @@
 !       960427                                                     *
 !                                                                  *
 !*******************************************************************
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep
-      Implicit Real*8(a-h,o-z)
+
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep
+
+implicit real*8(a-h,o-z)
 #include "Molcas.fh"
-      Real*8 A(3),COOR(3,*), B(3)
-      Character*(LENIN) Lab
-      mdc=0
-!
-      Write(LUT,'(A)') '*BEGIN COORDINATES'
-      Write(LUT,'(A)') '*LABEL COORDINATES CHARGE '
-      Do iCnttp=1,nCnttp
-         Do iCnt=1,dbsc(iCnttp)%nCntr
-            mdc=mdc+1
-            call dcopy_(3,Coor(1,mdc),1,A,1)
-            Do iCo=0,nIrrep/dc(mdc)%nStab-1
-               kop=dc(mdc)%iCoSet(iCo,0)
-               Call OA(kOp,A,B)
-               ii=nint(dbsc(icnttp)%Charge)
-               Lab=dc(mdc)%LblCnt(1:LENIN)
-               call setLab(Lab,ico)
-               write (LUT,'(1X,A,1X,3F20.10,1X,I3)')                    &
-     &                  Lab,B(1:3),ii
-             End Do
-         End Do
-      End Do
-      Write(LUT,'(A)') '*END COORDINATES'
-      Return
-      End
+real*8 A(3), COOR(3,*), B(3)
+character*(LENIN) Lab
+
+mdc = 0
+
+write(LUT,'(A)') '*BEGIN COORDINATES'
+write(LUT,'(A)') '*LABEL COORDINATES CHARGE'
+do iCnttp=1,nCnttp
+  do iCnt=1,dbsc(iCnttp)%nCntr
+    mdc = mdc+1
+    call dcopy_(3,Coor(1,mdc),1,A,1)
+    do iCo=0,nIrrep/dc(mdc)%nStab-1
+      kop = dc(mdc)%iCoSet(iCo,0)
+      call OA(kOp,A,B)
+      ii = nint(dbsc(icnttp)%Charge)
+      Lab = dc(mdc)%LblCnt(1:LENIN)
+      call setLab(Lab,ico)
+      write(LUT,'(1X,A,1X,3F20.10,1X,I3)') Lab,B(1:3),ii
+    end do
+  end do
+end do
+write(LUT,'(A)') '*END COORDINATES'
+
+return
+
+end subroutine FCOOR

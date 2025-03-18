@@ -10,20 +10,12 @@
 !                                                                      *
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,  &
-     &                  IAEL1,IAEL3,IBEL1,IBEL3,                        &
-     &                  JAEL1,JAEL3,JBEL1,JBEL3,                        &
-     &                  NAEL,NBEL,                                      &
-     &                  IJAGRP,IJBGRP,                                  &
-     &                  SB,CB,IDOH2,                                    &
-     &                  NTSOB,IBTSOB,ITSOB,MAXI,MAXK,                   &
-     &                  SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,      &
-     &                  XINT,C2,NSMOB,NSMST,NSMSX,NSMDX,                &
-     &                  NIA,NIB,NJA,NJB,MXPOBS,IPRNT,IST,               &
-     &                  CJRES,SIRES,NOPART,TimeDep)
-!
-! Contributions to sigma block (iasm iatp, ibsm ibtp ) from
-! C block (jasm jatp , jbsm, jbtp)
+
+subroutine RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL1,IBEL3,JAEL1,JAEL3,JBEL1,JBEL3,NAEL,NBEL,IJAGRP, &
+                        IJBGRP,SB,CB,IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSMOB, &
+                        NSMST,NSMSX,NSMDX,NIA,NIB,NJA,NJB,MXPOBS,IPRNT,IST,CJRES,SIRES,NOPART,TimeDep)
+! Contributions to sigma block (iasm iatp, ibsm ibtp) from
+! C block (jasm jatp, jbsm, jbtp)
 !
 ! =====
 ! Input
@@ -72,173 +64,131 @@
 ! XINT : Scratch space for integrals.
 !
 ! Jeppe Olsen, Winter of 1991
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      Logical TimeDep
-!. Output
-      DIMENSION CB(*),SB(*)
-!. Scratch
-      DIMENSION SSCR(*),CSCR(*)
-      INTEGER I1(MAXK,*),I2(MAXK,*),                                    &
-     &        I3(MAXK,*),I4(MAXK,*)
-      REAL*8  XI1S(MAXK,*),XI2S(MAXK,*),                                &
-     &        XI3S(MAXK,*),XI4S(MAXK,*)
-      DIMENSION C2(*),CJRES(*),SIRES(*),XINT(*)
-      DIMENSION NTSOB(*),IBTSOB(*),ITSOB(*)
-!
-      NTEST = 00000
-      NTEST = MAX(NTEST,IPRNT)
 
-!
-!
-! =============================
+implicit real*8(A-H,O-Z)
+logical TimeDep
+! Output
+dimension CB(*), SB(*)
+! Scratch
+dimension SSCR(*), CSCR(*)
+integer I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), I4(MAXK,*)
+real*8 XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), XI4S(MAXK,*)
+dimension C2(*), CJRES(*), SIRES(*), XINT(*)
+dimension NTSOB(*), IBTSOB(*), ITSOB(*)
+
+NTEST = 00000
+NTEST = max(NTEST,IPRNT)
+
+! ============================
 ! Sigma beta beta contribution
-! =============================
-!
-! Sigma aa(IA,IB) = sum(i.gt.k,j.gt.l)<IB!Eb(ij)Eb(kl)!JB>
+! ============================
+
+! Sigma aa(IA,IB) = sum(i > k,j > l)<IB!Eb(ij)Eb(kl)!JB>
 !                 * ((ij!kl)-(il!kj)) C(IA,JB)
 !                 + sum(ij) <IB!Eb(ij)!JB> H(ij) C(IA,JB)
-!
-!      Write(*,*)'I am in rssbcbn'
-      IF(IATP.EQ.JATP.AND.JASM.EQ.IASM) THEN
-!
-!         One electron part
-!
-         IF(IST.EQ.1) THEN
-           SIGN = 1.0D0
-         ELSE
-           SIGN = -1.0D0
-         END IF
-         IF(NBEL.GE.1) THEN
-            CALL RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,            &
-     &         IBEL1,IBEL3,JBEL1,JBEL3,                                 &
-     &         SB,CB,                                                   &
-     &         NTSOB,IBTSOB,ITSOB,MAXI,MAXK,                            &
-     &         SSCR,CSCR,I1,XI1S,XINT,                                  &
-     &         NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
-         END IF
 
-!
-!         Two electron part
-!
-         IF(IDOH2.NE.0.AND.NBEL.GE.2) THEN
-!         Write(*,*)'Timedep in rssbcbn',TimeDep
-            CALL RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,            &
-     &                IBEL1,IBEL3,JBEL1,JBEL3,                          &
-     &                SB,CB,                                            &
-     &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,                     &
-     &                SSCR,CSCR,I1,XI1S,XINT,                           &
-     &                NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,              &
-     &                NOPART,TimeDep,ieaw)
-         END IF
-      END IF
+!write(6,*) 'I am in rssbcbn'
+if ((IATP == JATP) .and. (JASM == IASM)) then
 
-!
-!====================================*
+  ! One electron part
+
+  if (IST == 1) then
+    SIGN = 1.0d0
+  else
+    SIGN = -1.0d0
+  end if
+  if (NBEL >= 1) &
+    call RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                     XINT,NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
+
+  ! Two electron part
+
+  if ((IDOH2 /= 0) .and. (NBEL >= 2)) then
+    !write(6,*) 'Timedep in rssbcbn',TimeDep
+    call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                     XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,NOPART,TimeDep,ieaw)
+  end if
+end if
+
+!====================================
 ! Mixed alpha-beta double excitations
-!====================================*
-!
-      IF(IDOH2.NE.0.AND.NAEL.GE.1.AND.NBEL.GE.1) THEN
-!
-          ieaw=0
-          if (ist.eq.2) ieaw=1
-          CALL TRNSPS(NJA,NJB,CB,C2)
-          CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-          CALL TRNSPS(NIA,NIB,SB,C2)
-          CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-          IIITRNS = 1
-          IF(IIITRNS.EQ.1.AND.NIB.GT.NIA.AND.NJB.GT.NJA) THEN
-             JJJTRNS = 1
-          ELSE
-             JJJTRNS = 0
-          END IF
-          IF(JJJTRNS.EQ.1.AND.IST.EQ.2) THEN
-            IFACTOR = -1
-          ELSE
-            IFACTOR = 1
-          END IF
-          IF (JJJTRNS.EQ.0) THEN
-            CALL RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,              &
-     &                JASM,JATP,JBSM,JBTP,NJA,NJB,                      &
-     &                IJAGRP,IJBGRP,                                    &
-     &                IAEL1,IAEL3,JAEL1,JAEL3,                          &
-     &                IBEL1,IBEL3,JBEL1,JBEL3,                          &
-     &                SB,CB,                                            &
-     &                NTSOB,IBTSOB,ITSOB,MAXK,                          &
-     &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,        &
-     &                XINT,                                             &
-     &                NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,0,1,               &
-     &                CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,TimeDep)
-          ELSE IF ( JJJTRNS.EQ.1) THEN
-            CALL TRNSPS(NIB,NIA,SB,C2)
-            CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-            CALL TRNSPS(NJB,NJA,CB,C2)
-            CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-!
-            CALL RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,              &
-     &                JbSM,JbTP,JaSM,JaTP,NJb,NJa,                      &
-     &                IJbGRP,IJaGRP,                                    &
-     &                IbEL1,IbEL3,JbEL1,JbEL3,                          &
-     &                IaEL1,IaEL3,JaEL1,JaEL3,                          &
-     &                SB,CB,                                            &
-     &                NTSOB,IBTSOB,ITSOB,MAXK,                          &
-     &                SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,        &
-     &                XINT,                                             &
-     &                NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,0,1,               &
-     &                CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,TimeDep)
-            CALL TRNSPS(NIA,NIB,SB,C2)
-            CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-            CALL TRNSPS(NJA,NJB,CB,C2)
-            CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-          END IF
-!.        Restore order !
-          CALL TRNSPS(NJB,NJA,CB,C2)
-          CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-          CALL TRNSPS(NIB,NIA,SB,C2)
-          CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-      END IF
+!====================================
 
-!
-! =============================
+if ((IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
+
+  ieaw = 0
+  if (ist == 2) ieaw = 1
+  call TRNSPS(NJA,NJB,CB,C2)
+  call DCOPY_(NJA*NJB,C2,1,CB,1)
+  call TRNSPS(NIA,NIB,SB,C2)
+  call DCOPY_(NIA*NIB,C2,1,SB,1)
+  IIITRNS = 1
+  if ((IIITRNS == 1) .and. (NIB > NIA) .and. (NJB > NJA)) then
+    JJJTRNS = 1
+  else
+    JJJTRNS = 0
+  end if
+  if ((JJJTRNS == 1) .and. (IST == 2)) then
+    IFACTOR = -1
+  else
+    IFACTOR = 1
+  end if
+  if (JJJTRNS == 0) then
+    call RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,IAEL1,IAEL3,JAEL1,JAEL3,IBEL1,IBEL3, &
+                      JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX, &
+                      NSMDX,MXPOBS,0,1,CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,TimeDep)
+  else if (JJJTRNS == 1) then
+    call TRNSPS(NIB,NIA,SB,C2)
+    call DCOPY_(NIA*NIB,C2,1,SB,1)
+    call TRNSPS(NJB,NJA,CB,C2)
+    call DCOPY_(NJA*NJB,C2,1,CB,1)
+
+    call RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,JbSM,JbTP,JaSM,JaTP,NJb,NJa,IJbGRP,IJaGRP,IbEL1,IbEL3,JbEL1,JbEL3,IaEL1,IaEL3, &
+                      JaEL1,JaEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX, &
+                      NSMDX,MXPOBS,0,1,CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,TimeDep)
+    call TRNSPS(NIA,NIB,SB,C2)
+    call DCOPY_(NIA*NIB,C2,1,SB,1)
+    call TRNSPS(NJA,NJB,CB,C2)
+    call DCOPY_(NJA*NJB,C2,1,CB,1)
+  end if
+  ! Restore order!
+  call TRNSPS(NJB,NJA,CB,C2)
+  call DCOPY_(NJA*NJB,C2,1,CB,1)
+  call TRNSPS(NIB,NIA,SB,C2)
+  call DCOPY_(NIA*NIB,C2,1,SB,1)
+end if
+
+! ========================
 ! Sigma alpha contribution
-! =============================
-!
-!. Transpose for alpha excitations
-!
-      IF(NAEL.GE.1.AND.IBTP.EQ.JBTP.AND.IBSM.EQ.JBSM) THEN
-           CALL TRNSPS(NJA,NJB,CB,C2)
-           CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-           CALL TRNSPS(NIA,NIB,SB,C2)
-           CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-!
-! alpha single excitation
-!
-           SIGN = 1.0D0
-           CALL RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,             &
-     &                IAEL1,IAEL3,JAEL1,JAEL3,                          &
-     &                SB,CB,                                            &
-     &                NTSOB,IBTSOB,ITSOB,MAXI,MAXK,                     &
-     &                SSCR,CSCR,I1,XI1S,XINT,                           &
-     &                NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
-!
-! alpha double excitation
-!
+! ========================
 
-           IF(NAEL.GE.2.AND.IDOH2.NE.0) CALL                            &
-     &       RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,                &
-     &           IAEL1,IAEL3,JAEL1,JAEL3,                               &
-     &           SB,CB,                                                 &
-     &           NTSOB,IBTSOB,ITSOB,MAXI,MAXK,                          &
-     &           SSCR,CSCR,I1,XI1S,XINT,                                &
-     &           NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,                   &
-     &           NOPART,TimeDep,ieaw)
+! Transpose for alpha excitations
 
-! Restore order !
-           CALL TRNSPS(NIB,NIA,SB,C2)
-           CALL DCOPY_(NIA*NIB,C2,1,SB,1)
-           CALL TRNSPS(NJB,NJA,CB,C2)
-           CALL DCOPY_(NJA*NJB,C2,1,CB,1)
-      END IF
-!
-      RETURN
-      END
+if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
+  call TRNSPS(NJA,NJB,CB,C2)
+  call DCOPY_(NJA*NJB,C2,1,CB,1)
+  call TRNSPS(NIA,NIB,SB,C2)
+  call DCOPY_(NIA*NIB,C2,1,SB,1)
+
+  ! alpha single excitation
+
+  SIGN = 1.0d0
+  call RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                   XINT,NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
+
+  ! alpha double excitation
+
+  if ((NAEL >= 2) .and. (IDOH2 /= 0)) &
+    call RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                     XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,NOPART,TimeDep,ieaw)
+
+  ! Restore order!
+  call TRNSPS(NIB,NIA,SB,C2)
+  call DCOPY_(NIA*NIB,C2,1,SB,1)
+  call TRNSPS(NJB,NJA,CB,C2)
+  call DCOPY_(NJA*NJB,C2,1,CB,1)
+end if
+
+return
+
+end subroutine RSSBCBN_MCLR

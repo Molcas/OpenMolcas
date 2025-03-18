@@ -10,49 +10,47 @@
 !                                                                      *
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
-      FUNCTION NCASTR_MCLR(IAC,NSTTPI,NTPSTI,ICLSI,NOBATP,NOBTP,IELPTP)
+
+function NCASTR_MCLR(IAC,NSTTPI,NTPSTI,ICLSI,NOBATP,NOBTP,IELPTP)
+! Number of allowed annihilation/creations from a given group of strings
 !
-! Number of allowed annihilation/creations from a given group
-! of stings
-!
-!     Jeppe Olsen, June 1994
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      INTEGER  NSTTPI(NTPSTI)
-      INTEGER  NOBATP(NOBTP)
-      INTEGEr IELPTP(NOBTP,*)
-!
-      LCA = 0
-!      write(6,*) ' NCASTR: IELPTP array'
-!      write(6,*) ' ===================='
-!      write(6,*) ' Number of occupation types ', NTPSTI
-!      call iwrtma(IELPTP,NOBTP,NTPSTI,NOBTP,NTPSTI)
-!      write(6,*) ' NOBTP NTPSTI ',NOBTP,NTPSTI
-!      write(6,*) ' Number of strings per type:'
-!      write(6,*) (NSTTPI(I),I=1,NTPSTI)
-      DO IOBTP = 1, NOBTP
-        DO ISTTP = 1, NTPSTI
-!. Type of resulting string
-          CALL NEWTYP_MCLR(ICLSI,ISTTP,[IAC],[IOBTP],1,ICLSO,ITPO)
-!?        WRITE(6,*) ' IOBTP ISTTP => ITPO, ICLSO '
-!?        WRITE(6,*)   IOBTP,ISTTP,ITPO,ICLSO
-!          write(6,*) ' IELPTP = ',IELPTP(IOBTP,ISTTP)
-!          write(6,*) ' NOBATP = ',NOBATP(IOBTP)
-          IF(IAC.EQ.1) THEN
-            NENTRY = IELPTP(IOBTP,ISTTP)
-          ELSE
-            NENTRY = NOBATP(IOBTP)-IELPTP(IOBTP,ISTTP)
-          END IF
-!          write(6,*) ' NENTRY = ',NENTRY
-          IF(ITPO.GT.0) THEN
-            LCA = LCA + NENTRY*NSTTPI(ISTTP)
-          END IF
-!
-        END DO
-      END DO
-!
-!     WRITE(6,*) ' Number of generated strings ', LCA
-      NCASTR_MCLR = LCA
-!
-      RETURN
-      END
+! Jeppe Olsen, June 1994
+
+implicit real*8(A-H,O-Z)
+integer NSTTPI(NTPSTI)
+integer NOBATP(NOBTP)
+integer IELPTP(NOBTP,*)
+
+LCA = 0
+!write(6,*) ' NCASTR: IELPTP array'
+!write(6,*) ' ===================='
+!write(6,*) ' Number of occupation types ',NTPSTI
+!call iwrtma(IELPTP,NOBTP,NTPSTI,NOBTP,NTPSTI)
+!write(6,*) ' NOBTP NTPSTI ',NOBTP,NTPSTI
+!write(6,*) ' Number of strings per type:'
+!write(6,*) (NSTTPI(I),I=1,NTPSTI)
+do IOBTP=1,NOBTP
+  do ISTTP=1,NTPSTI
+    ! Type of resulting string
+    call NEWTYP_MCLR(ICLSI,ISTTP,[IAC],[IOBTP],1,ICLSO,ITPO)
+    !write(6,*) ' IOBTP ISTTP => ITPO, ICLSO'
+    !write(6,*) IOBTP,ISTTP,ITPO,ICLSO
+    !write(6,*) ' IELPTP = ',IELPTP(IOBTP,ISTTP)
+    !write(6,*) ' NOBATP = ',NOBATP(IOBTP)
+    if (IAC == 1) then
+      NENTRY = IELPTP(IOBTP,ISTTP)
+    else
+      NENTRY = NOBATP(IOBTP)-IELPTP(IOBTP,ISTTP)
+    end if
+    !write(6,*) ' NENTRY = ',NENTRY
+    if (ITPO > 0) LCA = LCA+NENTRY*NSTTPI(ISTTP)
+
+  end do
+end do
+
+!write(6,*) ' Number of generated strings ',LCA
+NCASTR_MCLR = LCA
+
+return
+
+end function NCASTR_MCLR

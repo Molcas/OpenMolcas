@@ -8,66 +8,60 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE WRTRS2_MCLR(VECTOR,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,  &
-     &                  NSASO,NSBSO,NSMST)
-!
-! Write RAS vector . Storage form is defined by ICBLTP
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!
-      DIMENSION VECTOR(*)
-      DIMENSION IOCOC(NOCTPA,NOCTPB)
-      DIMENSION NSASO(NOCTPA,*),NSBSO(NOCTPB,*)
-      DIMENSION ICBLTP(*),ISMOST(*)
-!
-!
-      IBASE = 1
-      DO 1000 IASM = 1, NSMST
-        IBSM = ISMOST(IASM)
-        IF(IBSM.EQ.0.OR.ICBLTP(IASM).EQ.0) GOTO 1000
-!
-        DO 900 IATP = 1, NOCTPA
-          IF(ICBLTP(IASM).EQ.2) THEN
-            IBTPMX = IATP
-          ELSE
-            IBTPMX = NOCTPB
-          END IF
-          NAST = NSASO(IATP,IASM)
-!
-          DO 800 IBTP = 1 , IBTPMX
-            IF(IOCOC(IATP,IBTP) .EQ. 0 ) GOTO 800
-            NBST = NSBSO(IBTP,IBSM)
-            IF(ICBLTP(IASM).EQ.2.AND.IATP.EQ.IBTP ) THEN
-! Diagonal block
-              NELMNT = NAST*(NAST+1)/2
-              IF(NELMNT.NE.0) THEN
-                WRITE(6,'(A,3I3)')                                      &
-     &          '  Iasm iatp ibtp : ', IASM,IATP,IBTP
-                WRITE(6,'(A)')                                          &
-     &          '  ============================'
-!                do i=1,NAST*(NAST+1)/2  !yma
-!                  if(dabs(VECTOR(IBASE+i-1)).lt.1e-16)then
-!                    VECTOR(IBASE+i-1)=0.0d0
-!                  end if
-!                  write(*,*)"vector",i,VECTOR(IBASE+i-1)
-!                end do
-                CALL PRSM2(VECTOR(IBASE),NAST)
-                IBASE = IBASE + NELMNT
-              END IF
-            ELSE
-              NELMNT = NAST*NBST
-              IF(NELMNT.NE.0) THEN
-                WRITE(6,'(A,3I3)')                                      &
-     &          '  Iasm iatp ibtp : ', IASM,IATP,IBTP
-                WRITE(6,'(A)')                                          &
-     &          '  ============================'
-                CALL WRTMAT(VECTOR(IBASE),NAST,NBST,NAST,NBST)
-                IBASE = IBASE + NELMNT
-              END IF
-            END IF
-  800     CONTINUE
-  900   CONTINUE
- 1000 CONTINUE
-!
-      RETURN
-      END
+
+subroutine WRTRS2_MCLR(VECTOR,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+! Write RAS vector. Storage form is defined by ICBLTP
+
+implicit real*8(A-H,O-Z)
+dimension VECTOR(*)
+dimension IOCOC(NOCTPA,NOCTPB)
+dimension NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
+dimension ICBLTP(*), ISMOST(*)
+
+IBASE = 1
+do IASM=1,NSMST
+  IBSM = ISMOST(IASM)
+  if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) goto 1000
+
+  do IATP=1,NOCTPA
+    if (ICBLTP(IASM) == 2) then
+      IBTPMX = IATP
+    else
+      IBTPMX = NOCTPB
+    end if
+    NAST = NSASO(IATP,IASM)
+
+    do IBTP=1,IBTPMX
+      if (IOCOC(IATP,IBTP) == 0) goto 800
+      NBST = NSBSO(IBTP,IBSM)
+      if ((ICBLTP(IASM) == 2) .and. (IATP == IBTP)) then
+        ! Diagonal block
+        NELMNT = NAST*(NAST+1)/2
+        if (NELMNT /= 0) then
+          write(6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
+          write(6,'(A)') '  ============================'
+          !do i=1,NAST*(NAST+1)/2  !yma
+          !  if (abs(VECTOR(IBASE+i-1)) < 1e-16) VECTOR(IBASE+i-1) = 0.0d0
+          !  write(6,*) 'vector',i,VECTOR(IBASE+i-1)
+          !end do
+          call PRSM2(VECTOR(IBASE),NAST)
+          IBASE = IBASE+NELMNT
+        end if
+      else
+        NELMNT = NAST*NBST
+        if (NELMNT /= 0) then
+          write(6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
+          write(6,'(A)') '  ============================'
+          call WRTMAT(VECTOR(IBASE),NAST,NBST,NAST,NBST)
+          IBASE = IBASE+NELMNT
+        end if
+      end if
+800   continue
+    end do
+  end do
+1000 continue
+end do
+
+return
+
+end subroutine WRTRS2_MCLR

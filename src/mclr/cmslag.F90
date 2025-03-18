@@ -10,6 +10,9 @@
 !                                                                      *
 ! Copyright (C) 2022, Jie J. Bao                                       *
 !***********************************************************************
-Module CMSLag
-Real*8 ResQaaLag2
-End Module CMSLag
+
+module CMSLag
+
+real*8 ResQaaLag2
+
+end module CMSLag

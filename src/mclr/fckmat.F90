@@ -8,65 +8,69 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine FckMat()
+
+subroutine FckMat()
 !***********************************************************
 !                                                          *
 !   Driver for calculation of optimized fock matrix.       *
 !                                                          *
 !***********************************************************
-      use Arrays, only: FAMO, FIMO, F0SQMO, INT2
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero
-      use MCLR_Data, only: nDens2
-      use MCLR_Data, only: nrec
-      use input_mclr, only: nSym,nAsh,nIsh,nBas,iMethod
-      implicit none
 
-      Real*8, Allocatable:: Q(:), Tmp2(:,:), T3(:)
-      Integer nm, nmm, nmmm, iS, nAtri
+use Arrays, only: FAMO, FIMO, F0SQMO, INT2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use MCLR_Data, only: nDens2
+use MCLR_Data, only: nrec
+use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
+
+implicit none
+real*8, allocatable :: Q(:), Tmp2(:,:), T3(:)
+integer nm, nmm, nmmm, iS, nAtri
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!...  Read density matrix
-!
-      nm=0
-      nmm=0
-      nmmm=0
-      Do iS=1,nSym
-         nm=nAsh(is)+nm
-         nMM=Max(nMM,nAsh(is)+nIsh(iS))
-         nMMM=Max(nmmM,nBas(is))
-      End Do
-      nAtri=nm*(nm+1)/2
-      nAtri=nAtri*(nAtri+1)/2
-      nmmm=((nmmm-1)/nRec+1)*nRec
-      nmm=nmm*nMMM
-      nmm=nmm**2
-      Call mma_allocate(F0SQMO,ndens2,Label='F0SQMO')
-      Call mma_allocate(FIMO,ndens2,Label='FIMO')
-      If (iMethod.eq.2) Then
-         Call mma_allocate(Int2,nAtri,Label='Int2')
-      Else
-         Call mma_allocate(Int2,1,Label='Int2')
-      End If
-      Int2(:)=Zero
-      Call mma_allocate(FAMO,nDens2,Label='FAMO')
-      Call mma_allocate(Q,nDens2,Label='Q')
-      Call mma_allocate(Tmp2,ndens2,2,Label='Tmp2')
-      Call mma_allocate(T3,ndens2,Label='T3')
+! Read density matrix
+
+nm = 0
+nmm = 0
+nmmm = 0
+do iS=1,nSym
+  nm = nAsh(is)+nm
+  nMM = max(nMM,nAsh(is)+nIsh(iS))
+  nMMM = max(nmmM,nBas(is))
+end do
+nAtri = nm*(nm+1)/2
+nAtri = nAtri*(nAtri+1)/2
+nmmm = ((nmmm-1)/nRec+1)*nRec
+nmm = nmm*nMMM
+nmm = nmm**2
+call mma_allocate(F0SQMO,ndens2,Label='F0SQMO')
+call mma_allocate(FIMO,ndens2,Label='FIMO')
+if (iMethod == 2) then
+  call mma_allocate(Int2,nAtri,Label='Int2')
+else
+  call mma_allocate(Int2,1,Label='Int2')
+end if
+Int2(:) = Zero
+call mma_allocate(FAMO,nDens2,Label='FAMO')
+call mma_allocate(Q,nDens2,Label='Q')
+call mma_allocate(Tmp2,ndens2,2,Label='Tmp2')
+call mma_allocate(T3,ndens2,Label='T3')
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!     Calculate two-electron contribution
-!
-      Call Read22_2(Int2,F0SQMO,Q,FIMO,FAMO,Tmp2(:,1),Tmp2(:,2),T3)
+! Calculate two-electron contribution
+
+call Read22_2(Int2,F0SQMO,Q,FIMO,FAMO,Tmp2(:,1),Tmp2(:,2),T3)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Call mma_deallocate(T3)
-      Call mma_deallocate(Tmp2)
-      Call mma_deallocate(Q)
+call mma_deallocate(T3)
+call mma_deallocate(Tmp2)
+call mma_deallocate(Q)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      End SubRoutine FckMat
+
+end subroutine FckMat

@@ -8,546 +8,491 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Read22_2(MO1,Fock,Q,FockI,FockA,Temp2,Scr,Temp3)
-!*******************************************************************
-!                                                                  *
-!   Constructs         everything                                  *
-!                                                                  *
-!                                                                  *
-!                                                                  *
-!   Output:MO     :MO integrals                                    *
-!          Fock   :Fock matrix (one index transformed integrals)   *
-!          MOtilde:MO (one index transformed integrals)            *
-!                                                                  *
-!*******************************************************************
-      use Arrays, only: W_CMO=>CMO, W_CMO_Inv=>CMO_Inv, Int1, G1t, G2t
-      use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One, Two, Half
-      use MCLR_Data, only: nDens2,ipCM,ipMat,ipMatBA,nA,nB
-      use MCLR_Data, only: LuQDat
-      use input_mclr, only: TwoStep,StepType,nSym,NewCho,iMethod,       &
-     &                      rIn_Ene,Debug,PotNuc,iAddressQDat,          &
-     &                      LuAChoVec,LuIChoVec,nAsh,nBas,nIsh,nOrb
-      Implicit None
-      Real*8 MO1(*),Fock(nDens2),Q(nDens2),FockI(nDens2),FockA(nDens2), &
-     &       Temp2(nDens2),Scr(*),Temp3(ndens2)
 
-      Logical Fake_CMO2,DoAct
-      Real*8, Allocatable:: G2x(:)
-      Type (DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA,&
-     &                 FkI, FkA, QVec, CMO, CMO_Inv
-      Integer nm,iS,nAtri,nAS,jS,ijS,kS,lS,ijB1,iB,nNB,jB,ipD,iiB,jjB,  &
-     &        nNK,kB,kkB,nNL,lB,llB,ip2,ip1,ip,nAct,nA2,nG2,iSym,nAG2,  &
-     &        jSym,kSym,iOff,iOff2,iKK,iOff3,iK,iLL,iL,iKL,ipGx,kAsh,   &
-     &        lAsh,iAsh,jAsh,iIJ,ipi,ipj,nI,nJ,ipTmp,ijB,iStore
-      Real*8 Fact,rEnergy,rCora,rCoreI,rCoreA,rCor,rCore
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Integer i,j,iTri
-      iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      call dcopy_(ndens2,[0.0d0],0,focki,1)
-      call dcopy_(ndens2,[0.0d0],0,focka,1)
-      If(TwoStep.and.(StepType.eq.'RUN2')) Then
-        nm=0
-        Do iS=1,nSym
-           nm=nAsh(is)+nm
-        End Do
-        nAtri=nm*(nm+1)/2
-        nAtri=nAtri*(nAtri+1)/2
-        Call dcopy_(ndens2,[0.0d0],0,fock,1)
-        Call dcopy_(ndens2,[0.0d0],0,   Q,1)
-        Call dcopy_(nAtri ,[0.0d0],0, MO1,1)
-        Call ddafile(LuQDAT,2,FockA,nDens2,iaddressQDAT)
-        Call ddafile(LuQDAT,2,FockI,nDens2,iaddressQDAT)
-        Call ddafile(LuQDAT,2,Fock ,nDens2,iaddressQDAT)
-        Call ddafile(LuQDAT,2,Q    ,nDens2,iaddressQDAT)
-        Call ddafile(LuQDAT,2,MO1  ,nAtri ,iaddressQDAT)
-        goto 101
-      End If
-
-!
-      nas=0
-      Do is=1,nSym
-       nAS=nAS+nAsh(is)
-      end do
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Select Case (NewCho)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-       Case (.False.)   ! Cho-MO algorithm
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Do iS=1,nSym
-         Do jS=1,iS
-            ijS=iEOr(iS-1,jS-1)+1
-            Do kS=1,nSym
-               Do lS=1,ks
-                  If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)         &
-     &                Go To 100
-                  If (iEOr(kS-1,lS-1).ne.ijS-1) Goto 100
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-                  ijB1=0
-                  Do iB=1,nB(iS)
-                     nnB=nB(jS)
-                     If (iS.eq.jS) nnB=iB
-                     Do jB=1,nnB
-!
-!                       Read a symmetry block
-!
-                        Call COUL(kS,lS,iS,jS,iB,jB,Temp2,Scr)
-                        ijB1=ijB1+1
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!                       Add to unrotated inactive fock matrix
-!
-!                       Fkl sum(i)     2(ii|kl) -(ki|li)
-!
-!
-!                       Coulomb term: F  =2(ii|kl)
-!                                      kl
-!
-                        If (iS.eq.jS.and.iB.eq.jB .and.                 &
-     &                     (iB.le.nIsh(iS)))                            &
-     &                     Call DaXpY_(nOrb(kS)*nOrb(lS),Two,           &
-     &                                Temp2,1,Focki(ipCM(kS)),1)
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!                       Add to unrotated active fock matrix
-!
-!                       Coulomb term: F  =2(ij|kl)d   i<j
-!                                      kl          ij
-!
-                        If (iMethod.eq.2) Then
-!
-                           If (iS.eq.jS) Then
-                              If (((iB.gt.nIsh(is)).and.(nAsh(iS).ne.0))&
-     &                                .and.                             &
-     &                            ((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0))&
-     &                           ) Then
-                                 ipD=iTri(jB-nIsh(jS)+nA(jS),           &
-     &                               iB-nIsh(is)+nA(iS))
-                                 Fact=Two
-                                 If (iB.eq.jB) Fact=One
-                                 Call DaXpY_(nOrb(kS)*nOrb(lS),         &
-     &                                      Fact*G1t(ipD),              &
-     &                                      Temp2,1,FockA(ipCM(kS)),1)
-                              End If
-                           End If
-!
-                        End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-                     End Do  ! jB
-                  End Do     ! iB
-!                                                                      *
-!***********************************************************************
-!                                                                      *
- 100              Continue
-               End Do          ! lS
-            End Do             ! kS
-         End Do                ! jS
-      End Do                   ! iS
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!    Construct Q matrix: Q = sum(jkl)(pj|kl)d
-!                         pi                 ijkl
-
-      If (iMethod.eq.2) Then
-
-         Call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
-!
-!        Sort out MO (ij|kl)
-!
-         Do iS=1,nSym
-            Do jS=1,iS
-               Do kS=1,iS
-                  lS=iEOR(iEOr(iS-1,jS-1),kS-1)+1
-                  If (lS.gt.kS.or.(iS.eq.kS.and.lS.gt.jS)) Goto 123
-!
-                  Do iB=1,nAsh(iS)
-                     iib=ib+nA(iS)
-                     nnb=nAsh(jS)
-                     If (iS.eq.jS) nnb=ib
-                     Do jB=1,nnB
-                        jjb=jb+nA(jS)
-!
-                        Call Coul(kS,lS,iS,jS,iB+nIsh(iS),jB+nIsh(jS),  &
-     &                            Temp2,Scr)
-!
-                        nnK=nAsh(kS)
-                        If (iS.eq.kS)  nnK=iB
-                        Do kB=1,nnk
-                           kkb=kb+nA(kS)
-                           nnL=nAsh(lS)
-                           If (kS.eq.lS)  nnL=kB
-                           If (iib.eq.kkb) nnL=jB
-                           Do lB=1,nnL
-                              llb=lb+nA(lS)
-!
-                              ip2 = (lB+nIsh(lS)-1)*nBas(kS)            &
-     &                            + kB+nIsh(kS)
-!
-                              ip1=iTri(iTri(iib,jjb),iTri(kkb,llb))
-                              MO1(ip1) = Temp2(ip2)
-                           End Do
-                        End Do
-                     End Do
-                  End Do
-!
- 123              Continue
-               End Do
-            End Do
-         End Do
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Do iS=1,nSym
-         kS=iS
-         Do js=1,nSym
-            lS=jS
-            If (iEor(iEor(is-1,js-1),iEor(ks-1,ls-1)).ne.0) Cycle
-            If (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS).eq.0)   Cycle
-            Do LB=1,nB(LS)
-               Do JB=1,nB(JS)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-                  Call EXCH(is,js,ks,ls,jb,lb,Temp2,Scr)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!                 Add to unrotated inactive fock matrix
-!
-!                 Exchange term: F  =-(ij|kj)
-!                                 ik
-!
-                  If (jS.eq.lS.and.jB.eq.lB.and.                        &
-     &                (jB.le.nIsh(jS)))                                 &
-     &               Call DaXpY_(nOrb(iS)*nOrb(kS),-One,                &
-     &                          Temp2,1,Focki(ipCM(iS)),1)
-
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!                 Add to unrotated active fock matrix
-!
-!                 Exchange term: F  =-1/2(ij|kl)d
-!                                 ik             jl
-!
-                  If (iMethod.eq.2) Then
-                     If (jS.eq.lS) Then
-                        If (((jB.gt.nIsh(js)).and.(nAsh(jS).ne.0)).and. &
-     &                      ((lB.gt.nIsh(ls)).and.(nAsh(lS).ne.0))      &
-     &                     ) Then
-                          ipD=iTri(lB-nIsh(lS)+nA(lS),                  &
-     &                             jB-nIsh(js)+nA(jS))
-                          Call DaXpY_(nOrb(iS)*nOrb(kS),-Half*G1t(ipD), &
-     &                               Temp2,1,FockA(ipCM(iS)),1)
-                        End If
-                     End If
-                  End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-               End Do
-            End Do
-         End Do ! jS
-      End Do ! iS
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      Case (.TRUE.)   ! Cho-Fock Algorithm
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-        Fake_CMO2=.true.
-        DoAct=.true.
-!
-!*      Construct inactive density matrix
-!
-        call dcopy_(nDens2,[0.0d0],0,temp2,1)
-        Do is=1,nSym
-          Do iB=1,nIsh(is)
-            ip=ipCM(iS)+(ib-1)*nOrb(is)+ib-1
-            Temp2(ip)=2.0d0
-          End Do
-        End Do
-!
-!*      Transform to AO basis
-!
-        Do iS=1,nSym
-           If (nIsh(iS).ne.0) Then
-              jS=iS
-              Call DGEMM_('T','T',nIsh(jS),nOrb(iS),nIsh(iS),           &
-     &                    1.0d0,Temp2(ipCM(iS)),nOrb(iS),               &
-     &                    W_CMO(ipCM(is)),nOrb(iS),                     &
-     &                    0.0d0,Temp3(ipMat(jS,iS)),nOrb(jS))
-              Call DGEMM_('T','T',nOrb(jS),nOrb(jS),nIsh(iS),           &
-     &                    1.0d0,Temp3(ipMat(jS,iS)),nOrb(iS),           &
-     &                    W_CMO(ipCM(js)),nOrb(jS),                     &
-     &                    0.0d0,Temp2(ipCM(iS)),nOrb(jS))
-           EndIf
-        End Do
-!
-        Call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI')
-        call Fold_Mat(nSym,nOrb,Temp2,DLT(1)%A0)
-!
-!*      Form active CMO and density
-!
-        nAct=0
-        If (iMethod.eq.2) Then
-          na2=0
-          nG2=0
-          Do iSym=1,nSym
-            na2=na2+nAsh(iSym)**2
-            nAct=nAct+nAsh(iSym)
-            nAG2=0
-            Do jSym=1,nSym
-              kSym=iEOr(jsym-1,isym-1)+1
-              nAG2=nAg2+nAsh(jSym)*nAsh(kSym)
-            End Do
-            nG2=nG2+nAG2**2
-          End Do
-          Call Allocate_DT(CVa(1),nAsh,nOrb,nSym)
-          CVa(1)%A0(:)=0.0D0
-          Call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
-          CVa(2)%A0(:)=0.0D0
-          Call Allocate_DT(DA,nAsh,nAsh,nSym)
-!
-          ioff=0
-          Do iSym=1,nSym
-            ioff2 = ioff + nOrb(iSym)*nIsh(iSym)
-            do ikk=1,nAsh(iSym)
-               ioff3=ioff2+nOrb(iSym)*(ikk-1)
-               CVa(1)%SB(iSym)%A2(ikk,:) =                              &
-     &            W_CMO(ioff3+1:ioff3+nOrb(iSym))
-               ik=ikk+nA(iSym)
-               Do ill=1,ikk-1
-                 il=ill+nA(iSym)
-                 ikl=ik*(ik-1)/2+il
-                 DA%SB(iSym)%A2(ill,ikk)=G1t(ikl)
-                 DA%SB(iSym)%A2(ikk,ill)=G1t(ikl)
-               End Do
-               ikl=ik*(ik-1)/2+ik
-               DA%SB(iSym)%A2(ikk,ikk)=G1t(ikl)
-            End Do
-            ioff=ioff+nOrb(iSym)**2
-          End Do
-          DA%A0(:) = Half * DA%A0(:)
-!
-!*      Expand 2-body density matrix
-!
-          Call mma_allocate(G2x,nG2,Label='G2x')
-          ipGx=0
-          Do ijS=1,nSym
-            Do iS=1,nSym
-              jS=iEOR(is-1,ijS-1)+1
-              Do kS=1,nSym
-                lS=iEOR(kS-1,ijS-1)+1
-                Do kAsh=1,nAsh(ks)
-                  Do lAsh=1,nAsh(ls)
-                    ikl=itri(lAsh+nA(lS),kAsh+nA(kS))
-                    Do iAsh=1,nAsh(is)
-                      Do jAsh=1,nAsh(js)
-                        iij =itri(iAsh+nA(is),jAsh+nA(jS))
-                        ipGx=ipGx+1
-                        G2x(ipGx)=G2t(itri(iij,ikl))
-                      End Do
-                    End Do
-                  End Do
-                End Do
-              End Do
-            End Do
-          End Do
-        Else
-          na2=1
-          nG2=1
-          Call Allocate_DT(CVa(1),[1],[1],1) ! dummy allocation
-          Call Allocate_DT(CVa(2),[1],[1],1)
-          Call Allocate_DT(DA,nAsh,nAsh,nSym)
-          Call mma_allocate(G2x,nG2,Label='G2x')
-        EndIf
-!
-!*      Let's go
-!
-        Call Allocate_DT(JA,nBas,nBas,nSym)
-        JA%A0(:)=Zero
-        Call Allocate_DT(KA,nBas,nBas,nSym)
-        KA%A0(:)=Zero
-!
-        call dcopy_(nDens2,[0.0d0],0,Q,1)
-!
-        Call Allocate_DT(DI,nBas,nBas,nSym,Ref=Temp2)
-        Call Allocate_DT(JI(1),nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
-        JI(1)%A0(:)=Zero
-        Call Allocate_DT(KI,nBas,nBas,nSym,Ref=Scr)
-        KI%A0(:)=Zero
-        Call Allocate_DT(FkI,nBas,nBas,nSym,Ref=FockI)
-        FkI%A0(:)=Zero
-        Call Allocate_DT(FkA,nBas,nBas,nSym,Ref=FockA)
-        FkA%A0(:)=Zero
-        Call Allocate_DT(QVec,nBas,nAsh,nSym,Ref=Q)
-        Call Allocate_DT(CMO,nBas,nBas,nSym,Ref=W_CMO)
-        Call Allocate_DT(CMO_Inv,nBas,nBas,nSym,Ref=W_CMO_Inv)
-        istore=1 ! Ask to store the half-transformed vectors
-
-        CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,       &
-     &                   MO1,QVec,CVa,CMO,CMO_inv,                      &
-     &                   nIsh,nAsh,doAct,Fake_CMO2,                     &
-     &                   LuAChoVec,LuIChoVec,istore)
-
-        nAtri=nAct*(nAct+1)/2
-        nAtri=nAtri*(nAtri+1)/2
-        Call DScal_(nAtri,0.25D0,MO1,1)
-        FkI%A0(:) = -Half * FkI%A0(:)
-!
-        Call Deallocate_DT(CMO_Inv)
-        Call Deallocate_DT(CMO)
-        Call Deallocate_DT(QVec)
-        Call Deallocate_DT(FkA)
-        Call Deallocate_DT(FkI)
-        Call Deallocate_DT(KI)
-        Call Deallocate_DT(JI(1))
-        Call Deallocate_DT(DI)
-        Call Deallocate_DT(JA)
-        Call Deallocate_DT(KA)
-        Call deallocate_DT(DLT(1))
-        Call mma_deallocate(G2x)
-        Call Deallocate_DT(CVa(2))
-        Call Deallocate_DT(CVa(1))
-        Call deallocate_DT(DA)
-!
-        Call GADSum(FockI,nDens2)
-        Call GADSum(FockA,nDens2)
-        Call GADSum(    Q,nDens2)
-        Call GADSum(  MO1,nAtri)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      End Select
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 !#define _DEBUGPRINT_
-#ifdef _DEBUGPRINT_
-      Do iSym = 1, nSym
-        Write (6,*) 'iSym=',iSym
-        Call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
-        Call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
-        Call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
-      End Do
-      nAtri=nas*(nas+1)/2
-      nAtri=nAtri*(nAtri+1)/2
-      Call RecPrt('MO1',' ',MO1,1,nAtri)
-#endif
-      Call DaXpY_(ndens2,One,Int1,1,FockI,1)
-      call dcopy_(ndens2,[0.0d0],0,Fock,1)
-!
-      Do iS=1,nSym
-         If (nOrb(iS).eq.0) Go To 300
-!
-         If (nIsh(iS).gt.0)                                             &
-     &      Call DYaX(nOrb(iS)*nIsh(is),2.0d0,                          &
-     &                FockI(ipCM(iS)),1,                                &
-     &                Fock (ipCM(iS)),1)
-         If (iMethod.eq.2) Then
-            If (nIsh(iS).gt.0)                                          &
-     &         Call DaXpY_(nOrb(iS)*nIsh(is),2.0d0,                     &
-     &                    FockA(ipCM(iS)),1,                            &
-     &                    Fock (ipCM(iS)),1)
-            If (nAsh(iS).gt.0)                                          &
-     &         Call DYaX(nOrb(iS)*nAsh(is),1.0d0,                       &
-     &                   Q(ipMatba(iS,is)),1,                           &
-     &                   Fock(ipCM(iS)+nIsh(is)*nOrb(is)),1)
-            Do iAsh=1,nAsh(is)
-               ipi=ipCM(iS)+nOrb(is)*(nIsh(is)+iAsh-1)
-               Do jAsh=1,nAsh(is)
-                  ipj=ipCM(iS)+nOrb(is)*(nIsh(is)+jAsh-1)
-                  ni=nA(is)+iAsh
-                  nj=nA(is)+jAsh
-                  ipD=iTri(ni,nj)
-                  call daxpy_(nOrb(is),G1t(ipD),                        &
-     &                       FockI(ipi),1,                              &
-     &                       Fock (ipj),1)
-               End Do
-            End Do
-         End If
-!
- 300     Continue
-      End Do
- 101  Continue
-      renergy=0.0d0
-      rcora=0.0d0
-      Do iS=1,nSym
-      Do iB=1,nAsh(is)+nIsh(is)
-      rEnergy=rEnergy+Fock(ipCM(is)+nOrb(iS)*(ib-1)+ib-1)
-      End Do
-      End Do
-      rcorei=0.0d0
-      rcorea=0.0d0
-      rcor=0.0d0
-      Do iS=1,nSym
-       iptmp=ipCM(iS)
-       Do iB=1,nIsh(is)
-       rcorei=rcorei+2.0d0*Int1(iptmp)
-       rcor=rcor+2.0d0*Focki(iptmp)
-       iptmp=iptmp+nOrb(iS)+1
-       End Do
+subroutine Read22_2(MO1,Fock,Q,FockI,FockA,Temp2,Scr,Temp3)
+!***********************************************************************
+!                                                                      *
+!   Constructs         everything                                      *
+!                                                                      *
+!   Output:MO     :MO integrals                                        *
+!          Fock   :Fock matrix (one index transformed integrals)       *
+!          MOtilde:MO (one index transformed integrals)                *
+!                                                                      *
+!***********************************************************************
 
-       Do iB=1,nAsh(iS)
-        Do jB=1,nAsh(iS)
-         iiB=nA(iS)+ib
-         ijB=nA(iS)+jb
-         iij=iTri(iib,ijb)
-         iiB=nIsh(iS)+ib
-         ijB=nIsh(iS)+jb
-         rcorea=rcorea+G1t(iij)*Int1(ipCM(is)-1+nOrb(is)*(iib-1)+ijB)
+use Arrays, only: W_CMO => CMO, W_CMO_Inv => CMO_Inv, Int1, G1t, G2t
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nB
+use MCLR_Data, only: LuQDat
+use input_mclr, only: TwoStep, StepType, nSym, NewCho, iMethod, rIn_Ene, Debug, PotNuc, iAddressQDat, LuAChoVec, LuIChoVec, nAsh, &
+                      nBas, nIsh, nOrb
 
-         rcora=rcora+G1t(iij)*Focki(ipCM(is)+nOrb(is)*(iib-1)+ijB-1)
-        End Do
-       End Do
-      End Do
-      rin_ene=0.5d0*(rcor+rcorei)
-      rcore=rCorei+rcoreA
-      If (debug) Then
-         Write(6,*) 'Checking energy',0.5d0*renergy+potnuc+Half*rcore
-         Write(6,*) 'Checking energy',0.5d0*renergy,potnuc,Half*rcore
-         write(6,*)
-      End if
+implicit none
+real*8 MO1(*), Fock(nDens2), Q(nDens2), FockI(nDens2), FockA(nDens2), Temp2(nDens2), Scr(*), Temp3(ndens2)
+logical Fake_CMO2, DoAct
+real*8, allocatable :: G2x(:)
+type(DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA, FkI, FkA, QVec, CMO, CMO_Inv
+integer nm, iS, nAtri, nAS, jS, ijS, kS, lS, ijB1, iB, nNB, jB, ipD, iiB, jjB, nNK, kB, kkB, nNL, lB, llB, ip2, ip1, ip, nAct, &
+        nA2, nG2, iSym, nAG2, jSym, kSym, iOff, iOff2, iKK, iOff3, iK, iLL, iL, iKL, ipGx, kAsh, lAsh, iAsh, jAsh, iIJ, ipi, ipj, &
+        nI, nJ, ipTmp, ijB, iStore
+real*8 Fact, rEnergy, rCora, rCoreI, rCoreA, rCor, rCore
+! Statement function
+integer i, j, iTri
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-      If(TwoStep.and.(StepType.eq.'RUN1')) Then
-        iaddressQDAT=0
-        nm=0
-        Do iS=1,nSym
-           nm=nAsh(is)+nm
-        End Do
-        nAtri=nm*(nm+1)/2
-        nAtri=nAtri*(nAtri+1)/2
-        Call ddafile(LuQDAT,1,FockA,nDens2,iaddressQDAT)
-        Call ddafile(LuQDAT,1,FockI,nDens2,iaddressQDAT)
-        Call ddafile(LuQDAT,1,Fock ,nDens2,iaddressQDAT)
-        Call ddafile(LuQDAT,1,Q    ,nDens2,iaddressQDAT)
-        Call ddafile(LuQDAT,1,MO1  ,nAtri ,iaddressQDAT)
-      End If
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End SubRoutine Read22_2
+call dcopy_(ndens2,[0.0d0],0,focki,1)
+call dcopy_(ndens2,[0.0d0],0,focka,1)
+if (TwoStep .and. (StepType == 'RUN2')) then
+  nm = 0
+  do iS=1,nSym
+    nm = nAsh(is)+nm
+  end do
+  nAtri = nm*(nm+1)/2
+  nAtri = nAtri*(nAtri+1)/2
+  call dcopy_(ndens2,[0.0d0],0,fock,1)
+  call dcopy_(ndens2,[0.0d0],0,Q,1)
+  call dcopy_(nAtri,[0.0d0],0,MO1,1)
+  call ddafile(LuQDAT,2,FockA,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,2,FockI,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,2,Fock,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,2,Q,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,2,MO1,nAtri,iaddressQDAT)
+  goto 101
+end if
+
+nas = 0
+do is=1,nSym
+  nAS = nAS+nAsh(is)
+end do
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+if (.not. NewCho) then  ! Cho-MO algorithm
+
+  do iS=1,nSym
+    do jS=1,iS
+      ijS = ieor(iS-1,jS-1)+1
+      do kS=1,nSym
+        do lS=1,ks
+          if (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS) == 0) Go To 100
+          if (ieor(kS-1,lS-1) /= ijS-1) goto 100
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          ijB1 = 0
+          do iB=1,nB(iS)
+            nnB = nB(jS)
+            if (iS == jS) nnB = iB
+            do jB=1,nnB
+
+              ! Read a symmetry block
+
+              call COUL(kS,lS,iS,jS,iB,jB,Temp2,Scr)
+              ijB1 = ijB1+1
+              !                                                        *
+              !*********************************************************
+              !                                                        *
+              ! Add to unrotated inactive fock matrix
+              !
+              ! Fkl sum(i)     2(ii|kl) -(ki|li)
+              !
+              ! Coulomb term: F  =2(ii|kl)
+              !                kl
+
+              if ((iS == jS) .and. (iB == jB) .and. (iB <= nIsh(iS))) call DaXpY_(nOrb(kS)*nOrb(lS),Two,Temp2,1,Focki(ipCM(kS)),1)
+
+              !                                                        *
+              !*********************************************************
+              !                                                        *
+              ! Add to unrotated active fock matrix
+              !
+              ! Coulomb term: F  =2(ij|kl)d   i<j
+              !                kl          ij
+
+              if (iMethod == 2) then
+
+                if (iS == jS) then
+                  if (((iB > nIsh(is)) .and. (nAsh(iS) /= 0)) .and. ((jB > nIsh(js)) .and. (nAsh(jS) /= 0))) then
+                    ipD = iTri(jB-nIsh(jS)+nA(jS),iB-nIsh(is)+nA(iS))
+                    Fact = Two
+                    if (iB == jB) Fact = One
+                    call DaXpY_(nOrb(kS)*nOrb(lS),Fact*G1t(ipD),Temp2,1,FockA(ipCM(kS)),1)
+                  end if
+                end if
+
+              end if
+              !                                                        *
+              !*********************************************************
+              !                                                        *
+            end do  ! jB
+          end do    ! iB
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+100       continue
+        end do      ! lS
+      end do        ! kS
+    end do          ! jS
+  end do            ! iS
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Construct Q matrix: Q = sum(jkl)(pj|kl)d
+  !                      pi                 ijkl
+
+  if (iMethod == 2) then
+
+    call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
+
+    ! Sort out MO (ij|kl)
+
+    do iS=1,nSym
+      do jS=1,iS
+        do kS=1,iS
+          lS = ieor(ieor(iS-1,jS-1),kS-1)+1
+          if ((lS > kS) .or. ((iS == kS) .and. (lS > jS))) goto 123
+
+          do iB=1,nAsh(iS)
+            iib = ib+nA(iS)
+            nnb = nAsh(jS)
+            if (iS == jS) nnb = ib
+            do jB=1,nnB
+              jjb = jb+nA(jS)
+
+              call Coul(kS,lS,iS,jS,iB+nIsh(iS),jB+nIsh(jS),Temp2,Scr)
+
+              nnK = nAsh(kS)
+              if (iS == kS) nnK = iB
+              do kB=1,nnk
+                kkb = kb+nA(kS)
+                nnL = nAsh(lS)
+                if (kS == lS) nnL = kB
+                if (iib == kkb) nnL = jB
+                do lB=1,nnL
+                  llb = lb+nA(lS)
+
+                  ip2 = (lB+nIsh(lS)-1)*nBas(kS)+kB+nIsh(kS)
+
+                  ip1 = iTri(iTri(iib,jjb),iTri(kkb,llb))
+                  MO1(ip1) = Temp2(ip2)
+                end do
+              end do
+            end do
+          end do
+
+123       continue
+        end do
+      end do
+    end do
+  end if
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  do iS=1,nSym
+    kS = iS
+    do js=1,nSym
+      lS = jS
+      if (ieor(ieor(is-1,js-1),ieor(ks-1,ls-1)) /= 0) cycle
+      if (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS) == 0) cycle
+      do LB=1,nB(LS)
+        do JB=1,nB(JS)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          call EXCH(is,js,ks,ls,jb,lb,Temp2,Scr)
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          ! Add to unrotated inactive fock matrix
+          !
+          ! Exchange term: F  =-(ij|kj)
+          !                 ik
+
+          if ((jS == lS) .and. (jB == lB) .and. (jB <= nIsh(jS))) call DaXpY_(nOrb(iS)*nOrb(kS),-One,Temp2,1,Focki(ipCM(iS)),1)
+
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+          ! Add to unrotated active fock matrix
+          !
+          ! Exchange term: F  =-1/2(ij|kl)d
+          !                 ik             jl
+
+          if (iMethod == 2) then
+            if (jS == lS) then
+              if (((jB > nIsh(js)) .and. (nAsh(jS) /= 0)) .and. ((lB > nIsh(ls)) .and. (nAsh(lS) /= 0))) then
+                ipD = iTri(lB-nIsh(lS)+nA(lS),jB-nIsh(js)+nA(jS))
+                call DaXpY_(nOrb(iS)*nOrb(kS),-Half*G1t(ipD),Temp2,1,FockA(ipCM(iS)),1)
+              end if
+            end if
+          end if
+          !                                                            *
+          !*************************************************************
+          !                                                            *
+        end do
+      end do
+    end do ! jS
+  end do ! iS
+
+else  ! Cho-Fock Algorithm
+
+  Fake_CMO2 = .true.
+  DoAct = .true.
+
+  ! Construct inactive density matrix
+
+  call dcopy_(nDens2,[0.0d0],0,temp2,1)
+  do is=1,nSym
+    do iB=1,nIsh(is)
+      ip = ipCM(iS)+(ib-1)*nOrb(is)+ib-1
+      Temp2(ip) = 2.0d0
+    end do
+  end do
+
+  ! Transform to AO basis
+
+  do iS=1,nSym
+    if (nIsh(iS) /= 0) then
+      jS = iS
+      call DGEMM_('T','T',nIsh(jS),nOrb(iS),nIsh(iS),1.0d0,Temp2(ipCM(iS)),nOrb(iS),W_CMO(ipCM(is)),nOrb(iS),0.0d0, &
+                  Temp3(ipMat(jS,iS)),nOrb(jS))
+      call DGEMM_('T','T',nOrb(jS),nOrb(jS),nIsh(iS),1.0d0,Temp3(ipMat(jS,iS)),nOrb(iS),W_CMO(ipCM(js)),nOrb(jS),0.0d0, &
+                  Temp2(ipCM(iS)),nOrb(jS))
+    end if
+  end do
+
+  call Allocate_DT(DLT(1),nBas,nBas,nSym,aCase='TRI')
+  call Fold_Mat(nSym,nOrb,Temp2,DLT(1)%A0)
+
+  ! Form active CMO and density
+
+  nAct = 0
+  if (iMethod == 2) then
+    na2 = 0
+    nG2 = 0
+    do iSym=1,nSym
+      na2 = na2+nAsh(iSym)**2
+      nAct = nAct+nAsh(iSym)
+      nAG2 = 0
+      do jSym=1,nSym
+        kSym = ieor(jsym-1,isym-1)+1
+        nAG2 = nAg2+nAsh(jSym)*nAsh(kSym)
+      end do
+      nG2 = nG2+nAG2**2
+    end do
+    call Allocate_DT(CVa(1),nAsh,nOrb,nSym)
+    CVa(1)%A0(:) = 0.0d0
+    call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
+    CVa(2)%A0(:) = 0.0d0
+    call Allocate_DT(DA,nAsh,nAsh,nSym)
+
+    ioff = 0
+    do iSym=1,nSym
+      ioff2 = ioff+nOrb(iSym)*nIsh(iSym)
+      do ikk=1,nAsh(iSym)
+        ioff3 = ioff2+nOrb(iSym)*(ikk-1)
+        CVa(1)%SB(iSym)%A2(ikk,:) = W_CMO(ioff3+1:ioff3+nOrb(iSym))
+        ik = ikk+nA(iSym)
+        do ill=1,ikk-1
+          il = ill+nA(iSym)
+          ikl = ik*(ik-1)/2+il
+          DA%SB(iSym)%A2(ill,ikk) = G1t(ikl)
+          DA%SB(iSym)%A2(ikk,ill) = G1t(ikl)
+        end do
+        ikl = ik*(ik-1)/2+ik
+        DA%SB(iSym)%A2(ikk,ikk) = G1t(ikl)
+      end do
+      ioff = ioff+nOrb(iSym)**2
+    end do
+    DA%A0(:) = Half*DA%A0(:)
+
+    ! Expand 2-body density matrix
+
+    call mma_allocate(G2x,nG2,Label='G2x')
+    ipGx = 0
+    do ijS=1,nSym
+      do iS=1,nSym
+        jS = ieor(is-1,ijS-1)+1
+        do kS=1,nSym
+          lS = ieor(kS-1,ijS-1)+1
+          do kAsh=1,nAsh(ks)
+            do lAsh=1,nAsh(ls)
+              ikl = itri(lAsh+nA(lS),kAsh+nA(kS))
+              do iAsh=1,nAsh(is)
+                do jAsh=1,nAsh(js)
+                  iij = itri(iAsh+nA(is),jAsh+nA(jS))
+                  ipGx = ipGx+1
+                  G2x(ipGx) = G2t(itri(iij,ikl))
+                end do
+              end do
+            end do
+          end do
+        end do
+      end do
+    end do
+  else
+    na2 = 1
+    nG2 = 1
+    call Allocate_DT(CVa(1),[1],[1],1) ! dummy allocation
+    call Allocate_DT(CVa(2),[1],[1],1)
+    call Allocate_DT(DA,nAsh,nAsh,nSym)
+    call mma_allocate(G2x,nG2,Label='G2x')
+  end if
+
+  ! Let's go
+
+  call Allocate_DT(JA,nBas,nBas,nSym)
+  JA%A0(:) = Zero
+  call Allocate_DT(KA,nBas,nBas,nSym)
+  KA%A0(:) = Zero
+
+  call dcopy_(nDens2,[0.0d0],0,Q,1)
+
+  call Allocate_DT(DI,nBas,nBas,nSym,Ref=Temp2)
+  call Allocate_DT(JI(1),nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
+  JI(1)%A0(:) = Zero
+  call Allocate_DT(KI,nBas,nBas,nSym,Ref=Scr)
+  KI%A0(:) = Zero
+  call Allocate_DT(FkI,nBas,nBas,nSym,Ref=FockI)
+  FkI%A0(:) = Zero
+  call Allocate_DT(FkA,nBas,nBas,nSym,Ref=FockA)
+  FkA%A0(:) = Zero
+  call Allocate_DT(QVec,nBas,nAsh,nSym,Ref=Q)
+  call Allocate_DT(CMO,nBas,nBas,nSym,Ref=W_CMO)
+  call Allocate_DT(CMO_Inv,nBas,nBas,nSym,Ref=W_CMO_Inv)
+  istore = 1 ! Ask to store the half-transformed vectors
+
+  call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,MO1,QVec,CVa,CMO,CMO_inv,nIsh,nAsh,doAct,Fake_CMO2,LuAChoVec,LuIChoVec, &
+                   istore)
+
+  nAtri = nAct*(nAct+1)/2
+  nAtri = nAtri*(nAtri+1)/2
+  call DScal_(nAtri,0.25d0,MO1,1)
+  FkI%A0(:) = -Half*FkI%A0(:)
+
+  call Deallocate_DT(CMO_Inv)
+  call Deallocate_DT(CMO)
+  call Deallocate_DT(QVec)
+  call Deallocate_DT(FkA)
+  call Deallocate_DT(FkI)
+  call Deallocate_DT(KI)
+  call Deallocate_DT(JI(1))
+  call Deallocate_DT(DI)
+  call Deallocate_DT(JA)
+  call Deallocate_DT(KA)
+  call deallocate_DT(DLT(1))
+  call mma_deallocate(G2x)
+  call Deallocate_DT(CVa(2))
+  call Deallocate_DT(CVa(1))
+  call deallocate_DT(DA)
+
+  call GADSum(FockI,nDens2)
+  call GADSum(FockA,nDens2)
+  call GADSum(Q,nDens2)
+  call GADSum(MO1,nAtri)
+
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+#ifdef _DEBUGPRINT_
+do iSym=1,nSym
+  write(6,*) 'iSym=',iSym
+  call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+  call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
+  call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
+end do
+nAtri = nas*(nas+1)/2
+nAtri = nAtri*(nAtri+1)/2
+call RecPrt('MO1',' ',MO1,1,nAtri)
+#endif
+call DaXpY_(ndens2,One,Int1,1,FockI,1)
+call dcopy_(ndens2,[0.0d0],0,Fock,1)
+
+do iS=1,nSym
+  if (nOrb(iS) == 0) Go To 300
+
+  if (nIsh(iS) > 0) call DYaX(nOrb(iS)*nIsh(is),2.0d0,FockI(ipCM(iS)),1,Fock(ipCM(iS)),1)
+  if (iMethod == 2) then
+    if (nIsh(iS) > 0) call DaXpY_(nOrb(iS)*nIsh(is),2.0d0,FockA(ipCM(iS)),1,Fock(ipCM(iS)),1)
+    if (nAsh(iS) > 0) call DYaX(nOrb(iS)*nAsh(is),1.0d0,Q(ipMatba(iS,is)),1,Fock(ipCM(iS)+nIsh(is)*nOrb(is)),1)
+    do iAsh=1,nAsh(is)
+      ipi = ipCM(iS)+nOrb(is)*(nIsh(is)+iAsh-1)
+      do jAsh=1,nAsh(is)
+        ipj = ipCM(iS)+nOrb(is)*(nIsh(is)+jAsh-1)
+        ni = nA(is)+iAsh
+        nj = nA(is)+jAsh
+        ipD = iTri(ni,nj)
+        call daxpy_(nOrb(is),G1t(ipD),FockI(ipi),1,Fock(ipj),1)
+      end do
+    end do
+  end if
+
+300 continue
+end do
+101 continue
+renergy = 0.0d0
+rcora = 0.0d0
+do iS=1,nSym
+  do iB=1,nAsh(is)+nIsh(is)
+    rEnergy = rEnergy+Fock(ipCM(is)+nOrb(iS)*(ib-1)+ib-1)
+  end do
+end do
+rcorei = 0.0d0
+rcorea = 0.0d0
+rcor = 0.0d0
+do iS=1,nSym
+  iptmp = ipCM(iS)
+  do iB=1,nIsh(is)
+    rcorei = rcorei+2.0d0*Int1(iptmp)
+    rcor = rcor+2.0d0*Focki(iptmp)
+    iptmp = iptmp+nOrb(iS)+1
+  end do
+
+  do iB=1,nAsh(iS)
+    do jB=1,nAsh(iS)
+      iiB = nA(iS)+ib
+      ijB = nA(iS)+jb
+      iij = iTri(iib,ijb)
+      iiB = nIsh(iS)+ib
+      ijB = nIsh(iS)+jb
+      rcorea = rcorea+G1t(iij)*Int1(ipCM(is)-1+nOrb(is)*(iib-1)+ijB)
+
+      rcora = rcora+G1t(iij)*Focki(ipCM(is)+nOrb(is)*(iib-1)+ijB-1)
+    end do
+  end do
+end do
+rin_ene = 0.5d0*(rcor+rcorei)
+rcore = rCorei+rcoreA
+if (debug) then
+  write(6,*) 'Checking energy',0.5d0*renergy+potnuc+Half*rcore
+  write(6,*) 'Checking energy',0.5d0*renergy,potnuc,Half*rcore
+  write(6,*)
+end if
+
+if (TwoStep .and. (StepType == 'RUN1')) then
+  iaddressQDAT = 0
+  nm = 0
+  do iS=1,nSym
+    nm = nAsh(is)+nm
+  end do
+  nAtri = nm*(nm+1)/2
+  nAtri = nAtri*(nAtri+1)/2
+  call ddafile(LuQDAT,1,FockA,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,1,FockI,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,1,Fock,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,1,Q,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,1,MO1,nAtri,iaddressQDAT)
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+return
+
+end subroutine Read22_2

@@ -14,196 +14,196 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
-!*****Partially readpated from rhs_sa.f
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use ipPage, only: W
-      use Constants, only: One, Two
-      use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
-      use MCLR_Data, only: IRLXROOT
-      use MCLR_Data, only: LuJob
-      use MCLR_Data, only: XISPSM
-      use input_mclr, only: nRoots,ntAsh,iTOC,State_Sym,nCSF
-      Implicit None
-!*****Input
-      Real*8,DIMENSION(nRoots**2)::R
-      INTEGER nTri,NG2
-!*****Output
-      Real*8,DIMENSION(nDens2)::FOccMO
-      Real*8,DIMENSION(nDens2)::bk
-      Real*8,DIMENSION(nG2)::P2MOt
-!*****Auxiliaries
-      Real*8,DIMENSION(:),Allocatable::FinCI
-!     FinCI: CI Vectors in final CMS state basis
-      Real*8,DIMENSION(1)::rdum
-      Real*8,DIMENSION(:),Allocatable::Fock,T,G1r,G2r,G2rt,             &
-     & CIL,CIR,G1q,G2q,G1qs,G2qs
-      Real*8,DIMENSION(:),Allocatable::DMatAO,DIAO,D5,D6
-      INTEGER I,J,iTri,K,NCSFs
-      Real*8 Fact
-      INTEGER iB,jB,kB,lB,iDkl,iRijkl
-      Integer nG1, nConfL
-      Integer iA, jA, kA, lA, ij1, kl1, kl2, iDij, iRij, iRkl, iIJKL,   &
-     &        JDisk
+
+subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
+! Partially readpated from rhs_sa.f
+
+use stdalloc, only: mma_allocate, mma_deallocate
+use ipPage, only: W
+use Constants, only: One, Two
+use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
+use MCLR_Data, only: IRLXROOT
+use MCLR_Data, only: LuJob
+use MCLR_Data, only: XISPSM
+use input_mclr, only: nRoots, ntAsh, iTOC, State_Sym, nCSF
+
+implicit none
+! Input
+real*8, dimension(nRoots**2) :: R
+integer nTri, NG2
+! Output
+real*8, dimension(nDens2) :: FOccMO
+real*8, dimension(nDens2) :: bk
+real*8, dimension(nG2) :: P2MOt
+! Auxiliaries
+real*8, dimension(:), allocatable :: FinCI
+! FinCI: CI Vectors in final CMS state basis
+real*8, dimension(1) :: rdum
+real*8, dimension(:), allocatable :: Fock, T, G1r, G2r, G2rt, CIL, CIR, G1q, G2q, G1qs, G2qs
+real*8, dimension(:), allocatable :: DMatAO, DIAO, D5, D6
+integer I, J, iTri, K, NCSFs
+real*8 Fact
+integer iB, jB, kB, lB, iDkl, iRijkl
+integer nG1, nConfL
+integer iA, jA, kA, lA, ij1, kl1, kl2, iDij, iRij, iRkl, iIJKL, JDisk
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+!                                                                      *
 !***********************************************************************
 !                                                                      *
-       itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!                                                                      *
-!***********************************************************************
-       ng1=itri(ntash,ntash)
-       ng2=itri(ng1,ng1)
+ng1 = itri(ntash,ntash)
+ng2 = itri(ng1,ng1)
 
-       Call mma_allocate(FinCI,nconf1*nroots,Label='FinCI')
-       Call mma_allocate(Fock,ndens2,Label='Fock')
-       Call mma_allocate(T,ndens2,Label='T')
-       Call mma_allocate(G1q,ng1,Label='G1q')
-       Call mma_allocate(G2q,ng2,Label='G2q')
-       Call mma_allocate(G1r,ntash**2,Label='G1r')
-       Call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
-       Call mma_allocate(G2rt,itri(ntash**2,ntash**2),Label='G2rt')
-!******Rotate CI vectors back to those for reference states
-       NCSFs=NCSF(state_sym)
-       CALL DGEMM_('n','n',NCSFS,nRoots,nRoots,1.0d0,W(ipCI)%Vec,       &
-     &             NCSFs,R,nRoots,0.0d0,FinCI,nCSFs)
-       nConfL=Max(ncsf(state_sym),nint(xispsm(state_sym,1)))
+call mma_allocate(FinCI,nconf1*nroots,Label='FinCI')
+call mma_allocate(Fock,ndens2,Label='Fock')
+call mma_allocate(T,ndens2,Label='T')
+call mma_allocate(G1q,ng1,Label='G1q')
+call mma_allocate(G2q,ng2,Label='G2q')
+call mma_allocate(G1r,ntash**2,Label='G1r')
+call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
+call mma_allocate(G2rt,itri(ntash**2,ntash**2),Label='G2rt')
+! Rotate CI vectors back to those for reference states
+NCSFs = NCSF(state_sym)
+call DGEMM_('n','n',NCSFS,nRoots,nRoots,1.0d0,W(ipCI)%Vec,NCSFs,R,nRoots,0.0d0,FinCI,nCSFs)
+nConfL = max(ncsf(state_sym),nint(xispsm(state_sym,1)))
 
-       Call mma_allocate(CIL,nConfL)
-       Call mma_allocate(CIR,nConfL)
+call mma_allocate(CIL,nConfL)
+call mma_allocate(CIR,nConfL)
 
-       I=IRlxRoot
-       Call CSF2SD(FinCI(1+(I-1)*NCSFs),CIL,state_sym)
-       CALL DCopy_(nConfL,CIL,1,CIR,1)
-       Call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,              &
-     &              itri(ntash**2,ntash**2))
-       Do iA=1,nnA
-         Do jA=1,nnA
-           Do kA=1,nnA
-            Do la=1,nnA
-             ij1=nnA*(iA-1)+ja
-!             ij2=nna*(ja-1)+ia
-             kl1=nnA*(ka-1)+la
-             kl2=nna*(la-1)+ka
-       if(iA.eq.jA.or.kA.eq.la) then
-      G2r(itri(ij1,kl1))=G2rt(itri(ij1,kl1))
-       else
-      G2r(itri(ij1,kl1))=(G2rt(itri(ij1,kl1))+G2rt(itri(ij1,kl2)))/2.0d0
-       end if
-            End Do
-           End Do
-         End Do
-       End Do
-       Call FockGen(1.0d0,G1r,G2r,FOccMO,bk,1)
+I = IRlxRoot
+call CSF2SD(FinCI(1+(I-1)*NCSFs),CIL,state_sym)
+call DCopy_(nConfL,CIL,1,CIR,1)
+call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,itri(ntash**2,ntash**2))
+do iA=1,nnA
+  do jA=1,nnA
+    do kA=1,nnA
+      do la=1,nnA
+        ij1 = nnA*(iA-1)+ja
+        !ij2 = nna*(ja-1)+ia
+        kl1 = nnA*(ka-1)+la
+        kl2 = nna*(la-1)+ka
+        if ((iA == jA) .or. (kA == la)) then
+          G2r(itri(ij1,kl1)) = G2rt(itri(ij1,kl1))
+        else
+          G2r(itri(ij1,kl1)) = (G2rt(itri(ij1,kl1))+G2rt(itri(ij1,kl2)))/2.0d0
+        end if
+      end do
+    end do
+  end do
+end do
+call FockGen(1.0d0,G1r,G2r,FOccMO,bk,1)
 
-       Do iB=1,ntash
-        Do jB=1,iB
-        G1q(itri(ib,jb))= G1r(ib+(jb-1)*ntash)
-        End Do
-       End Do
-!******D1MOt: CMS-PDFT 1RDM for computing 1-electron gradient
-       Call Put_DArray('D1MOt           ',G1q,ng1)
-       Do iB=1,ntash
-        Do jB=1,ntash
-         iDij=iTri(ib,jB)
-         iRij=jb+(ib-1)*ntash
-         Do kB=1,ntash
-          Do lB=1,ntash
-           iDkl=iTri(kB,lB)
-           iRkl=lb+(kb-1)*ntash
-           fact=One
-           if(iDij.ge.iDkl .and. kB.eq.lB) fact=0.5d0
-           if(iDij.lt.iDkl .and. iB.eq.jB) fact=0.5d0
-           iijkl=itri(iDij,iDkl)
-           iRijkl=itri(iRij,iRkl)
-           G2q(iijkl)=Fact*G2r(iRijkl)
-          End Do
-         End Do
-        End Do
-       End Do
-       Call Get_dArray_chk('P2MOt',P2MOt,ng2)
-       Call DaXpY_(ng2,1.0d0,G2q,1,P2MOt,1)
+do iB=1,ntash
+  do jB=1,iB
+    G1q(itri(ib,jb)) = G1r(ib+(jb-1)*ntash)
+  end do
+end do
+! D1MOt: CMS-PDFT 1RDM for computing 1-electron gradient
+call Put_DArray('D1MOt',G1q,ng1)
+do iB=1,ntash
+  do jB=1,ntash
+    iDij = iTri(ib,jB)
+    iRij = jb+(ib-1)*ntash
+    do kB=1,ntash
+      do lB=1,ntash
+        iDkl = iTri(kB,lB)
+        iRkl = lb+(kb-1)*ntash
+        fact = One
+        if ((iDij >= iDkl) .and. (kB == lB)) fact = 0.5d0
+        if ((iDij < iDkl) .and. (iB == jB)) fact = 0.5d0
+        iijkl = itri(iDij,iDkl)
+        iRijkl = itri(iRij,iRkl)
+        G2q(iijkl) = Fact*G2r(iRijkl)
+      end do
+    end do
+  end do
+end do
+call Get_dArray_chk('P2MOt',P2MOt,ng2)
+call DaXpY_(ng2,1.0d0,G2q,1,P2MOt,1)
 
-!******Done with the info from CMS final state
+! Done with the info from CMS final state
 
-!******Doing some computation for computing non-active-active 2RDM in
-!******integral_util/prepp.f
-       Call mma_allocate(D5,nTri)
-       Call mma_allocate(D6,nTri)
-!******D5: Used in ptrans_sa when isym==jsym (PDFT parts cancel WF
-!******    parts for intermediate states)
-!******D6: Used in ptrans_sa when isym.ne.jsym (sum of inactive parts of
-!******intermediate-state 1RDMs cancels that of the final state)
-       Call mma_allocate(DMatAO,nTri)
-       Call mma_allocate(DIAO,nTri)
-       CALL Get_DArray('MSPDFTD5        ',DIAO,nTri)
-       CALL Get_DArray('MSPDFTD6        ',D6,nTri)
-       CALL GetDMatAO(G1q,DMatAO,ng1,nTri)
-       CALL DaXpY_(nTri,1.0d0,DMatAO,1,D6,1)
-       CALL DCopy_(nTri,DMatAO,1,D5,1)
-       Call DaXpY_(nTri,0.5d0,DIAO,1,D5,1)
-       CALL Put_DArray('MSPDFTD5        ',D5,nTri)
-       CALL Put_DArray('MSPDFTD6        ',D6,nTri)
-       Call mma_deallocate(D5)
-       Call mma_deallocate(D6)
-       Call mma_deallocate(DMatAO)
-       Call mma_deallocate(DIAO)
-!******Beginning of the info for CMS intermediate states
+! Doing some computation for computing non-active-active 2RDM in
+! integral_util/prepp.f
+call mma_allocate(D5,nTri)
+call mma_allocate(D6,nTri)
+! D5: Used in ptrans_sa when isym == jsym (PDFT parts cancel WF
+!     parts for intermediate states)
+! D6: Used in ptrans_sa when isym /= jsym (sum of inactive parts of
+! intermediate-state 1RDMs cancels that of the final state)
+call mma_allocate(DMatAO,nTri)
+call mma_allocate(DIAO,nTri)
+call Get_DArray('MSPDFTD5',DIAO,nTri)
+call Get_DArray('MSPDFTD6',D6,nTri)
+call GetDMatAO(G1q,DMatAO,ng1,nTri)
+call DaXpY_(nTri,1.0d0,DMatAO,1,D6,1)
+call DCopy_(nTri,DMatAO,1,D5,1)
+call DaXpY_(nTri,0.5d0,DIAO,1,D5,1)
+call Put_DArray('MSPDFTD5',D5,nTri)
+call Put_DArray('MSPDFTD6',D6,nTri)
+call mma_deallocate(D5)
+call mma_deallocate(D6)
+call mma_deallocate(DMatAO)
+call mma_deallocate(DIAO)
+! Beginning of the info for CMS intermediate states
 
+jdisk = itoc(3)
+call mma_allocate(G1qs,ng1*nRoots)
+call mma_allocate(G2qs,ng2*nRoots)
+do K=1,nRoots
+  call dDaFile(LUJOB,2,G1q,ng1,jDisk)
+  call dDaFile(LUJOB,0,rdum,ng1,jDisk)
+  call dDaFile(LUJOB,2,G2q,Ng2,jDisk)
+  call dDaFile(LUJOB,0,rdum,Ng2,jDisk)
+  call dcopy_(ng1,G1q,1,G1qs((K-1)*ng1+1),1)
+  call dcopy_(ng2,G2q,1,G2qs((K-1)*ng2+1),1)
+  call mma_allocate(DMatAO,ntri)
+  call GetDMatAO(G1q,DMatAO,ng1,nTri)
+  call mma_deallocate(DMatAO)
+  do iB=1,ntash
+    do jB=1,ntash
+      G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
+    end do
+  end do
 
-       jdisk=itoc(3)
-       Call mma_allocate(G1qs,ng1*nRoots)
-       Call mma_allocate(G2qs,ng2*nRoots)
-       DO K=1,nRoots
-        Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
-        Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
-        Call dDaFile(LUJOB ,2,G2q,Ng2,jDisk)
-        Call dDaFile(LUJOB ,0,rdum,Ng2,jDisk)
-        Call dcopy_(ng1,G1q,1,G1qs((K-1)*ng1+1),1)
-        Call dcopy_(ng2,G2q,1,G2qs((K-1)*ng2+1),1)
-        Call mma_allocate(DMatAO,ntri)
-        CALL GetDMatAO(G1q,DMatAO,ng1,nTri)
-        Call mma_deallocate(DMatAO)
-        Do iB=1,ntash
-         Do jB=1,ntash
-         G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
-         End Do
-        End Do
+  do iB=1,ntash
+    do jB=1,ntash
+      iDij = iTri(ib,jB)
+      iRij = jb+(ib-1)*ntash
+      do kB=1,ntash
+        do lB=1,ntash
+          iDkl = iTri(kB,lB)
+          iRkl = lb+(kb-1)*ntash
+          fact = One
+          if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
+          if ((iDij < iDkl) .and. (iB == jB)) fact = Two
+          iijkl = itri(iDij,iDkl)
+          iRijkl = itri(iRij,iRkl)
+          G2r(iRijkl) = Fact*G2q(iijkl)
+        end do
+      end do
+    end do
+  end do
 
-        Do iB=1,ntash
-         Do jB=1,ntash
-          iDij=iTri(ib,jB)
-          iRij=jb+(ib-1)*ntash
-          Do kB=1,ntash
-           Do lB=1,ntash
-            iDkl=iTri(kB,lB)
-            iRkl=lb+(kb-1)*ntash
-            fact=One
-            if(iDij.ge.iDkl .and. kB.eq.lB) fact=Two
-            if(iDij.lt.iDkl .and. iB.eq.jB) fact=Two
-            iijkl=itri(iDij,iDkl)
-            iRijkl=itri(iRij,iRkl)
-            G2r(iRijkl)=Fact*G2q(iijkl)
-           End Do
-          End Do
-         End Do
-        End Do
+  call FockGen(1.0d0,G1r,G2r,T,Fock,1)
+  call Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,Fock,1,bk,1)
+  call Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,T,1,FOccMO,1)
+  call DaXpY_(ng2,-R((I-1)*nRoots+K)**2,G2q,1,P2MOt,1)
+end do
+call Put_DArray('D1INTER',G1qs,ng1*nRoots)
+call Put_DArray('P2INTER',G2qs,ng2*nRoots)
+call mma_deallocate(G1qs)
+call mma_deallocate(G2qs)
+call mma_deallocate(Fock)
+call mma_deallocate(T)
+call mma_deallocate(G1r)
+call mma_deallocate(G2r)
+call mma_deallocate(G2rt)
+call mma_deallocate(G1q)
+call mma_deallocate(G2q)
+call mma_deallocate(CIL)
+call mma_deallocate(CIR)
+call mma_deallocate(FinCI)
 
-        Call FockGen(1.0d0,G1r,G2r,T,Fock,1)
-        CALL Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,Fock,1,bk,1)
-        CALL Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,T,1,FOccMO,1)
-        Call DaXpY_(ng2,-R((I-1)*nRoots+K)**2,G2q,1,P2MOt,1)
-       END DO
-       Call Put_DArray('D1INTER         ',G1qs,ng1*nRoots)
-       Call Put_DArray('P2INTER         ',G2qs,ng2*nRoots)
-       Call mma_deallocate(G1qs)
-       Call mma_deallocate(G2qs)
-       Call mma_deallocate(Fock)
-       Call mma_deallocate(T)
-       Call mma_deallocate(G1r)
-       Call mma_deallocate(G2r)
-       Call mma_deallocate(G2rt)
-       Call mma_deallocate(G1q)
-       Call mma_deallocate(G2q)
-       Call mma_deallocate(CIL)
-       Call mma_deallocate(CIR)
-       Call mma_deallocate(FinCI)
-       End Subroutine GetWFFock
+end subroutine GetWFFock

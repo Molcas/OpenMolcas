@@ -8,118 +8,116 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s, &
-     &                      Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
-      use ipPage, only: W
-      use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use MCLR_Data, only: nConf1, ipCM, ipMat
-      use MCLR_Data, only: i12, iST, Square
-      use MCLR_Data, only: iRefSM
-      use MCLR_Data, only: XISPSM
-      use CandS, only: ICSM,ISSM
-      use input_mclr, only: State_Sym,nSym,Page,nCSF,nRoots,Weight
-      Implicit None
-      Integer iiSpin, iCSym, iSSym, nInt1,nInt2s,nInt2a,ipCI1,ipCI2
-      Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-      Logical Have_2_el
-!
-       integer kic(2),opout
-       Real*8, Allocatable:: CIDET(:)
-       integer nDet, iOp, iS, jS, iRC, i
-       integer, external:: ipIN, ipIN1, ipNOUT
 
-!
-!      Interface Anders to Jeppe
-!      This interface initiates Jeppes common block
-!      and will make it easier to use Anders modifications
-!      of the CI routines
-!
-!      OK first tell Jeppe where the integrals are.
+subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
 
-       !> yma: notice the nconf1 if DMRG
-!
-       If (nconf1.eq.0) return
-!
-!      One electron integrals
-!
-       KAIN1=>Int1
-!
-!      Two electron integrals
-!      symmetric in perticle one and two
-!
-       KINT2=>Int2s
-!
-!      Two electron integrals
-!      anti symmetric in perticle one and two
-!
-       KINT2A=>Int2a
-!
-       irefsm=iCSym
-!
-!      Do we have any twoelectron integrals?
-!
-       If (Have_2_el) Then
-         i12=2
-       Else
-         i12=1
-       End If
-!
-!      Symmetry of Sigma vector
-!
-       iSSM=iSSym
-       kic(2)=2
-       if (issm.eq.State_sym) kic(2)=1
-!
-!      Symmetry of CI vector
-!
-       iCSM=iCSym
-       kic(1)=2
-       if (icsm.eq.State_sym) kic(1)=1
-!
-!      Symmetry properties of operator
-!
-       ndet=nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
-       ndet=Max(ndet,ncsf(icsym),ncsf(issym))
+use ipPage, only: W
+use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: nConf1, ipCM, ipMat
+use MCLR_Data, only: i12, iST, Square
+use MCLR_Data, only: iRefSM
+use MCLR_Data, only: XISPSM
+use CandS, only: ICSM, ISSM
+use input_mclr, only: State_Sym, nSym, Page, nCSF, nRoots, Weight
 
-       If (ndet.eq.0) Return
-       iOP=iEOr(iCSM-1,iSSm-1)+1
-       If (iOp.eq.1) Then
-         Call iCopy(nSym,ipCM,1,pInt1,1)
-       Else
-         Do iS=1,nSym
-          jS=iEor(iS-1,iOp-1)+1
-          pInt1(is)=ipMat(is,jS)
-         End Do
-       End If
-!
-!      Triplet/Singlet operator
-!
-       ist=iispin+1
-       square=.false.
-!
-       If (.not.page) Then
-          Call mma_allocate(CIDET,nDet,Label='CIDET')
-          irc=ipin(ipCI1)
-          irc=ipin(ipci2)
-          Do i=0,nroots-1
-             call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,     &
-     &                   CIDET,1)
-             Call SigmaVec(CIDET,W(ipci2)%Vec(1+i*ncsf(issm)),          &
-     &                     kic)
-             Call DSCAL_(nCSF(iCSM),weight(i+1),                        &
-     &                   W(ipci2)%Vec(1+i*ncsf(issm)),1)
-          End Do
-          Call mma_deallocate(CIDET)
-       Else
-          irc=ipnout(ipci2)
-          irc=ipin1(ipCI1,ndet)
-          irc=ipin(ipci2)
-          Call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
-          irc=opout(ipci1)
-       End If
-!
+implicit none
+integer iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
+real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+logical Have_2_el
+integer kic(2), opout
+real*8, allocatable :: CIDET(:)
+integer nDet, iOp, iS, jS, iRC, i
+integer, external :: ipIN, ipIN1, ipNOUT
+
+! Interface Anders to Jeppe
+! This interface initiates Jeppes common block
+! and will make it easier to use Anders modifications
+! of the CI routines
+
+! OK first tell Jeppe where the integrals are.
+
+! yma: notice the nconf1 if DMRG
+
+if (nconf1 == 0) return
+
+! One electron integrals
+
+KAIN1 => Int1
+
+! Two electron integrals
+! symmetric in perticle one and two
+
+KINT2 => Int2s
+
+! Two electron integrals
+! anti symmetric in perticle one and two
+
+KINT2A => Int2a
+
+irefsm = iCSym
+
+! Do we have any twoelectron integrals?
+
+if (Have_2_el) then
+  i12 = 2
+else
+  i12 = 1
+end if
+
+! Symmetry of Sigma vector
+
+iSSM = iSSym
+kic(2) = 2
+if (issm == State_sym) kic(2) = 1
+
+! Symmetry of CI vector
+
+iCSM = iCSym
+kic(1) = 2
+if (icsm == State_sym) kic(1) = 1
+
+! Symmetry properties of operator
+
+ndet = nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
+ndet = max(ndet,ncsf(icsym),ncsf(issym))
+
+if (ndet == 0) return
+iOP = ieor(iCSM-1,iSSm-1)+1
+if (iOp == 1) then
+  call iCopy(nSym,ipCM,1,pInt1,1)
+else
+  do iS=1,nSym
+    jS = ieor(iS-1,iOp-1)+1
+    pInt1(is) = ipMat(is,jS)
+  end do
+end if
+
+! Triplet/Singlet operator
+
+ist = iispin+1
+square = .false.
+
+if (.not. page) then
+  call mma_allocate(CIDET,nDet,Label='CIDET')
+  irc = ipin(ipCI1)
+  irc = ipin(ipci2)
+  do i=0,nroots-1
+    call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,CIDET,1)
+    call SigmaVec(CIDET,W(ipci2)%Vec(1+i*ncsf(issm)),kic)
+    call DSCAL_(nCSF(iCSM),weight(i+1),W(ipci2)%Vec(1+i*ncsf(issm)),1)
+  end do
+  call mma_deallocate(CIDET)
+else
+  irc = ipnout(ipci2)
+  irc = ipin1(ipCI1,ndet)
+  irc = ipin(ipci2)
+  call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
+  irc = opout(ipci1)
+end if
+
 #ifdef _WARNING_WORKAROUND_
-       If (.False.) Call Unused_integer(irc)
+if (.false.) call Unused_integer(irc)
 #endif
-       End SubRoutine CISigma_sa
+
+end subroutine CISigma_sa

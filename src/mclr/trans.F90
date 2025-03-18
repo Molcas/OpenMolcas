@@ -8,16 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Trans(A,n,m,B)
-!
-      Implicit Real*8 (a-h,o-z)
-      Real*8 A(n,m), B(m,n)
-!
-      Do i=1, m
-         Do j=1, n
-            B(i,j) = A(j,i)
-         End Do
-      End Do
-!
-      Return
-      End
+
+subroutine Trans(A,n,m,B)
+
+implicit real*8(a-h,o-z)
+real*8 A(n,m), B(m,n)
+
+do i=1,m
+  do j=1,n
+    B(i,j) = A(j,i)
+  end do
+end do
+
+return
+
+end subroutine Trans

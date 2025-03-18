@@ -8,10 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE ANNSTR(STRING,NSTINI,NSTINO,NEL,NORB,                  &
-     &                  Z,NEWORD,LROW,LSGSTR,ISGSTI,ISGSTO,TI,TTO,      &
-     &                  I1TYP,IPRNT)
-!
+
+subroutine ANNSTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LROW,LSGSTR,ISGSTI,ISGSTO,TI,TTO,I1TYP,IPRNT)
 ! A set of strings containing NEL electrons are given
 ! set up all possible ways of annihilating an electron from
 ! this set of string
@@ -40,95 +38,92 @@
 ! Output :
 !=========
 !TI      : Array giving minus orbital annihilated
-!          TI(I,ISTRIN).LT.0 : Orbital TI(I,ISTRIN) can be
+!          TI(I,ISTRIN) < 0 : Orbital TI(I,ISTRIN) can be
 !          annihilated from string ISTRIN
 !TTO     : Resulting NEL - 1 strings
 !          if the resulting string has carries a negative sign
 !          then the string number is shifted with a NSTINO
-!          TTO(I,ISTRIN) = .LE.0 indicates that orbital I cannot be
+!          TTO(I,ISTRIN) = <= 0 indicates that orbital I cannot be
 !                             added to istrin
-!          TTO(I,ISTRIN) = LSTRIN.NE.0 indicates that I added to
-!                          ISTRIN  gives LSTRIN . If LSTRIN is
+!          TTO(I,ISTRIN) = LSTRIN /= 0 indicates that I added to
+!                          ISTRIN  gives LSTRIN. If LSTRIN is
 !                          nehative
-!                          A+(I)!ISTRIN>=-!-LSTRIN> .
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER  STRING,TI,TTO,STRIN2,Z
-!.Input
-      DIMENSION STRING(NEL,NSTINI),NEWORD(NSTINO),Z(NORB,NEL-1)
-      DIMENSION ISGSTI(NSTINI),ISGSTO(NSTINO)
-!.Output
-      DIMENSION TI(LROW,NSTINI),TTO(LROW,NSTINI)
-!.Scratch
-      DIMENSION STRIN2(500)
-!
-      NTEST0 =   0
-      NTEST = MAX(NTEST0,IPRNT)
-      IF( NTEST .GE.  20 ) THEN
-        WRITE(6,*)  ' =============== '
-        WRITE(6,*)  ' ANNSTR speaking '
-        WRITE(6,*)  ' =============== '
-      END IF
-      LUOUT = 6
-!. Expanded or truncated form
-      IF(LROW.EQ.NEL.AND.NEL.NE.NORB)THEN
-        IEXPN = 0
-      ELSE
-        IEXPN = 1
-      END IF
-!. Loop over input strings
-      DO 1000 ISTRIN = 1,NSTINI
-!. loop over electrons to be removed
-        DO 100 IEL = 1,NEL
-          IF(IEXPN.EQ.0) THEN
-            IPLACE = IEL
-          ELSE
-            IPLACE = STRING(IEL,ISTRIN)
-          END IF
-          DO 30 I = 1, IEL-1
-          STRIN2(I) = STRING(I,ISTRIN)
-   30     CONTINUE
-          DO 40 I = IEL+1,NEL
-          STRIN2(I-1) = STRING(I,ISTRIN)
-   40     CONTINUE
-!. Is new string allowed ?
-          ITYPE = IOCTP2_MCLR(STRIN2,NEL-1,I1TYP)
-          IF(ITYPE.NE.0) THEN
-!                    ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
-            JSTRIN = ISTRNM(STRIN2,NORB,NEL-1,Z,NEWORD,1)
-            TTO(IPLACE,ISTRIN) = JSTRIN
-            TI(IPLACE,ISTRIN) = - STRING(IEL,ISTRIN)
-            IIISGN = (-1)**(IEL-1)
-            IF(LSGSTR.GT.0)                                             &
-     &      IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
-            IF(IIISGN .EQ. -1 ) TTO(IPLACE,ISTRIN) = -TTO(IPLACE,ISTRIN)
-          END IF
-  100   CONTINUE
- 1000 CONTINUE
-!
-      IF ( NTEST .GE. 20) THEN
-        MAXPR = 60
-        NPR = MIN(NSTINI,MAXPR)
-        WRITE(LUOUT,*) ' Output from ANNSTR : '
-        WRITE(LUOUT,*) '==================='
-         IF(IEXPN.EQ.0) THEN
-           WRITE(LUOUT,*) ' Strings with an electron removed '
-         ELSE
-           WRITE(LUOUT,*) ' Combined N+1/N-1 string array '
-         END IF
-         DO 1235 ISTRIN = 1, NPR
-            WRITE(6,'(2X,A,I4,A,/,(10I5))')                             &
-     &      'String..',ISTRIN,' New strings.. ',                        &
-     &      (TTO(I,ISTRIN),I = 1,LROW)
- 1235    CONTINUE
-!
-         WRITE(6,*) ' orbitals removed '
-         DO 1236 ISTRIN = 1, NPR
-            WRITE(6,'(2X,A,I4,A,/,(10I5))')                             &
-     &      'String..',ISTRIN,' orbitals annihilated.. ',               &
-     &      (TI(I,ISTRIN),I = 1,LROW)
- 1236    CONTINUE
+!                          A+(I)!ISTRIN>=-!-LSTRIN>.
 
-      END IF
-!
-      RETURN
-      END
+implicit real*8(A-H,O-Z)
+integer STRING, TI, TTO, STRIN2, Z
+! Input
+dimension STRING(NEL,NSTINI), NEWORD(NSTINO), Z(NORB,NEL-1)
+dimension ISGSTI(NSTINI), ISGSTO(NSTINO)
+! Output
+dimension TI(LROW,NSTINI), TTO(LROW,NSTINI)
+! Scratch
+dimension STRIN2(500)
+
+NTEST0 = 0
+NTEST = max(NTEST0,IPRNT)
+if (NTEST >= 20) then
+  write(6,*) ' ==============='
+  write(6,*) ' ANNSTR speaking'
+  write(6,*) ' ==============='
+end if
+LUOUT = 6
+! Expanded or truncated form
+if ((LROW == NEL) .and. (NEL /= NORB)) then
+  IEXPN = 0
+else
+  IEXPN = 1
+end if
+! Loop over input strings
+do ISTRIN=1,NSTINI
+  ! loop over electrons to be removed
+  do IEL=1,NEL
+    if (IEXPN == 0) then
+      IPLACE = IEL
+    else
+      IPLACE = STRING(IEL,ISTRIN)
+    end if
+    do I=1,IEL-1
+      STRIN2(I) = STRING(I,ISTRIN)
+    end do
+    do I=IEL+1,NEL
+      STRIN2(I-1) = STRING(I,ISTRIN)
+    end do
+    ! Is new string allowed ?
+    ITYPE = IOCTP2_MCLR(STRIN2,NEL-1,I1TYP)
+    if (ITYPE /= 0) then
+      !        ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
+      JSTRIN = ISTRNM(STRIN2,NORB,NEL-1,Z,NEWORD,1)
+      TTO(IPLACE,ISTRIN) = JSTRIN
+      TI(IPLACE,ISTRIN) = -STRING(IEL,ISTRIN)
+      IIISGN = (-1)**(IEL-1)
+      if (LSGSTR > 0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+      if (IIISGN == -1) TTO(IPLACE,ISTRIN) = -TTO(IPLACE,ISTRIN)
+    end if
+  end do
+end do
+
+if (NTEST >= 20) then
+  MAXPR = 60
+  NPR = min(NSTINI,MAXPR)
+  write(LUOUT,*) ' Output from ANNSTR :'
+  write(LUOUT,*) '==================='
+  if (IEXPN == 0) then
+    write(LUOUT,*) ' Strings with an electron removed'
+  else
+    write(LUOUT,*) ' Combined N+1/N-1 string array'
+  end if
+  do ISTRIN=1,NPR
+    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,LROW)
+  end do
+
+  write(6,*) ' orbitals removed'
+  do ISTRIN=1,NPR
+    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals annihilated.. ',(TI(I,ISTRIN),I=1,LROW)
+  end do
+
+end if
+
+return
+
+end subroutine ANNSTR

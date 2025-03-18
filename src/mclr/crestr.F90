@@ -8,17 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CRESTR(STRING,NSTINI,NSTINO,NEL,NORB,                  &
-     &                  Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI,TTO,           &
-     &                  ISTMPL,ISTMPO,LROW,I1TYP,IPRNT)
-!
+
+subroutine CRESTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI,TTO,ISTMPL,ISTMPO,LROW,I1TYP,IPRNT)
 ! A set of strings containing NEL electrons are given
 ! set up all possible ways of adding an electron to this set of strings
 !
 !========
 ! Input :
 !========
-!
 !
 ! STRING : Input strings containing NEL electrons
 ! NSTINI : Number of input  strings
@@ -28,7 +25,7 @@
 ! Z      : Lexical ordering matrix for output strings containing
 !          NEL + 1 electrons
 ! NEWORD : Reordering array for N+1 strings
-! LSGSTR : .NE.0 => Include sign arrays ISGSTI,ISGSTO of strings
+! LSGSTR : /= 0 => Include sign arrays ISGSTI,ISGSTO of strings
 ! ISGSTI : Sign array for NEL   strings
 ! ISGSTO : Sign array for NEL+1 strings
 !
@@ -38,161 +35,152 @@
 ! Output :
 !=========
 !
-!TI      : TI(I,ISTRIN) .gt. 0 indicates that orbital I can be added
-!          to string ISTRIN .
+!TI      : TI(I,ISTRIN) > 0 indicates that orbital I can be added
+!          to string ISTRIN.
 !TTO     : Resulting NEL + 1 strings
 !          if the resulting string has carries a negative sign
 !          then the string number is negative
-!          TTO(I,ISTRIN) = LSTRIN.NE.0 indicates that I added to
-!                          ISTRIN  gives LSTRIN . If LSTRIN is
+!          TTO(I,ISTRIN) = LSTRIN /= 0 indicates that I added to
+!                          ISTRIN  gives LSTRIN. If LSTRIN is
 !                          gt. NSTINO then
-!                          A+(I)!ISTRIN>=-!LSTRIN-NSTINO> .
-!. If lrow .le. 0 TI and TTO are constructed in sparse form using
-!. ISTMPO and ISTMPL as pointers
+!                          A+(I)!ISTRIN>=-!LSTRIN-NSTINO>.
+! If lrow <= 0 TI and TTO are constructed in sparse form using
+! ISTMPO and ISTMPL as pointers
 ! ISTST
-      IMPLICIT REAL*8           (A-H,O-Z)
-      INTEGER  STRING,TI,TTO,STRIN2,Z
-!.Input
-      DIMENSION STRING(NEL,NSTINI),NEWORD(NSTINO),Z(NORB,NEL+1)
-      DIMENSION ISGSTI(NSTINI),ISGSTO(NSTINO)
-!.Output
-!     DIMENSION TI(NORB,NSTINI),TTO(NORB,NSTINI)
-      DIMENSION TI(*), TTO(*)
-      DIMENSION ISTMPO(*),ISTMPL(*)
-!.Scratch
-      DIMENSION STRIN2(500)
-!
-! LCR NOT DECLARED !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!  I SET I TO ZERO
-      LCR=0
-      NTEST0 =  000
-      NTEST = MAX(IPRNT,NTEST0)
-      IF( NTEST .GE. 20 ) THEN
-        WRITE(6,*)  ' =============== '
-        WRITE(6,*)  ' CRESTR speaking '
-        WRITE(6,*)  ' =============== '
-      END IF
-      LUOUT = 6
-!
-      IOFF=0     ! dummy initialize
-      IPLACE=-1  ! dummy initialize
-      DO ISTRIN = 1,NSTINI
-!. Offset for current creations from this string
-       IF(ISTRIN.EQ.1) THEN
-         IOFF = 1
-       ELSE
-         IF(LROW.GT.0) THEN
-            IOFF = (ISTRIN-1)*LROW + 1
-         ELSE
-            IOFF = IOFF + LCR
-         END IF
-       END IF
-       LCR = 0
-        DO IORB = 1, NORB
 
-           IF(NEL.EQ.0) THEN
-             IPLACE = 1
+implicit real*8(A-H,O-Z)
+integer STRING, TI, TTO, STRIN2, Z
+! Input
+dimension STRING(NEL,NSTINI), NEWORD(NSTINO), Z(NORB,NEL+1)
+dimension ISGSTI(NSTINI), ISGSTO(NSTINO)
+! Output
+!dimension TI(NORB,NSTINI), TTO(NORB,NSTINI)
+dimension TI(*), TTO(*)
+dimension ISTMPO(*), ISTMPL(*)
+! Scratch
+dimension STRIN2(500)
 
-           ELSE IF ( NEL .NE. 0 ) THEN
+! LCR NOT DECLARED !!!!!!
+!  I SET IT TO ZERO
+LCR = 0
+NTEST0 = 000
+NTEST = max(IPRNT,NTEST0)
+if (NTEST >= 20) then
+  write(6,*) ' ==============='
+  write(6,*) ' CRESTR speaking'
+  write(6,*) ' ==============='
+end if
+LUOUT = 6
 
-            DO IEL = 1, NEL
-              IF(IEL.EQ.1.AND.STRING(1,ISTRIN).GT.IORB) THEN
-                IPLACE = 1
-                EXIT
-              ELSE IF( (IEL.EQ.NEL.AND.IORB.GT.STRING(IEL,ISTRIN)) .OR. &
-     &                 (IEL.LT.NEL.AND.IORB.GT.STRING(IEL,ISTRIN).AND.  &
-     &                  IORB.LT.STRING(MIN(NEL,IEL+1),ISTRIN)) ) THEN
-                IPLACE = IEL+1
-                EXIT
-              ELSE IF(STRING(IEL,ISTRIN).EQ.IORB) THEN
-                IPLACE = 0
-                EXIT
-              END IF
-            END DO
+IOFF = 0     ! dummy initialize
+IPLACE = -1  ! dummy initialize
+do ISTRIN=1,NSTINI
+  ! Offset for current creations from this string
+  if (ISTRIN == 1) then
+    IOFF = 1
+  else
+    if (LROW > 0) then
+      IOFF = (ISTRIN-1)*LROW+1
+    else
+      IOFF = IOFF+LCR
+    end if
+  end if
+  LCR = 0
+  do IORB=1,NORB
 
-           END IF
+    if (NEL == 0) then
+      IPLACE = 1
 
-          IF (IPLACE==0) CYCLE
+    else if (NEL /= 0) then
 
-!. Generate next string
-          DO  I = 1, IPLACE-1
-            STRIN2(I) = STRING(I,ISTRIN)
-          END DO
-          STRIN2(IPLACE) = IORB
-          DO I = IPLACE,NEL
-             STRIN2(I+1) = STRING(I,ISTRIN)
-          END DO
-!. Is new string allowed ?
-          ITYPE = IOCTP2_MCLR(STRIN2,NEL+1,I1TYP)
-          IF(ITYPE.NE.0) THEN
-            JSTRIN = ISTRNM(STRIN2,NORB,NEL+1,Z,NEWORD,1)
-!. Save it !
-            IF(LROW.GT.0) THEN
-              LCR = IORB
-            ELSE
-              LCR = LCR + 1
-            END IF
+      do IEL=1,NEL
+        if ((IEL == 1) .and. (STRING(1,ISTRIN) > IORB)) then
+          IPLACE = 1
+          exit
+        else if (((IEL == NEL) .and. (IORB > STRING(IEL,ISTRIN))) .or. &
+                 ((IEL < NEL) .and. (IORB > STRING(IEL,ISTRIN)) .and. (IORB < STRING(min(NEL,IEL+1),ISTRIN)))) then
+          IPLACE = IEL+1
+          exit
+        else if (STRING(IEL,ISTRIN) == IORB) then
+          IPLACE = 0
+          exit
+        end if
+      end do
 
-            TTO(IOFF-1+LCR ) = JSTRIN
-            IIISGN = (-1)**(IPLACE-1)
-            IF(LSGSTR.NE.0)                                             &
-     &      IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
-            IF(IIISGN .EQ. -1 ) TTO(IOFF-1+LCR ) = - TTO(IOFF-1+LCR )
-            TI(IOFF-1+LCR ) = IORB
+    end if
 
-!           TTO(IORB,ISTRIN) = JSTRIN
-!           IIISGN = (-1)**(IPLACE-1)
-!           IF(LSGSTR.NE.0)
-!    &      IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
-!           IF(IIISGN .EQ. -1 ) TTO(IORB,ISTRIN) = - TTO(IORB,ISTRIN)
-!           TI(IORB,ISTRIN) = IORB
-          END IF
-        END DO
-!
-        IF(LROW.LT.0) THEN
-          ISTMPO(ISTRIN) = IOFF
-          ISTMPL(ISTRIN) = LCR
-!          write(6,*) ' ISTRIN ISTMPO ISTMPL '
-!          write(6,*) ISTRIN, ISTMPO(ISTRIN), ISTMPL(ISTRIN)
-        END IF
-      END DO
-!
-      IF ( NTEST .GE. 20) THEN
-        MAXPR = 60
-        NPR = MIN(NSTINI,MAXPR)
-        WRITE(LUOUT,*) ' Output from CRESTR : '
-        WRITE(LUOUT,*) '==================='
-!
-        IF(LROW.GT.0) THEN
-          WRITE(6,*) ' Full map '
-          WRITE(6,*)
-          WRITE(LUOUT,*) ' Strings with an electron added  '
-          DO ISTRIN = 1, NPR
-             WRITE(6,'(2X,A,I4,A,/,(10I5))')                            &
-     &       'String..',ISTRIN,' New strings.. ',                       &
-     &       (TTO((ISTRIN-1)*LROW+I),I = 1,NORB)
-          END DO
-          DO ISTRIN = 1, NPR
-             WRITE(6,'(2X,A,I4,A,/,(10I5))')                            &
-     &       'String..',ISTRIN,' orbitals added or removed ' ,          &
-     &       (TI((ISTRIN-1)*LROW+I),I = 1,NORB)
-          END DO
-        ELSE
-          WRITE(6,*) ' Compact map '
-          WRITE(6,*)
-          WRITE(LUOUT,*) ' Strings with an electron added  '
-          DO ISTRIN = 1, NPR
-             WRITE(6,'(2X,A,I4,A,/,(10I5))')                            &
-     &       'String..',ISTRIN,' New strings.. ',                       &
-     &       (TTO(ISTMPO(ISTRIN)-1+I),I = 1,ISTMPL(ISTRIN))
-          END DO
-          DO ISTRIN = 1, NPR
-             WRITE(6,'(2X,A,I4,A,/,(10I5))')                            &
-     &       'String..',ISTRIN,' orbitals added or removed ' ,          &
-     &       (TI(ISTMPO(ISTRIN)-1+I),I = 1,ISTMPL(ISTRIN))
-          END DO
-        END IF
-      END IF
-!
-      RETURN
-      END
+    if (IPLACE == 0) cycle
+
+    ! Generate next string
+    do I=1,IPLACE-1
+      STRIN2(I) = STRING(I,ISTRIN)
+    end do
+    STRIN2(IPLACE) = IORB
+    do I=IPLACE,NEL
+      STRIN2(I+1) = STRING(I,ISTRIN)
+    end do
+    ! Is new string allowed?
+    ITYPE = IOCTP2_MCLR(STRIN2,NEL+1,I1TYP)
+    if (ITYPE /= 0) then
+      JSTRIN = ISTRNM(STRIN2,NORB,NEL+1,Z,NEWORD,1)
+      ! Save it!
+      if (LROW > 0) then
+        LCR = IORB
+      else
+        LCR = LCR+1
+      end if
+
+      TTO(IOFF-1+LCR) = JSTRIN
+      IIISGN = (-1)**(IPLACE-1)
+      if (LSGSTR /= 0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+      if (IIISGN == -1) TTO(IOFF-1+LCR) = -TTO(IOFF-1+LCR)
+      TI(IOFF-1+LCR) = IORB
+
+      !TTO(IORB,ISTRIN) = JSTRIN
+      !IIISGN = (-1)**(IPLACE-1)
+      !if (LSGSTR /= 0) IIISGN = IIISGN*ISGSTO(JSTRIN)*ISGSTI(ISTRIN)
+      !if (IIISGN == -1) TTO(IORB,ISTRIN) = -TTO(IORB,ISTRIN)
+      !TI(IORB,ISTRIN) = IORB
+    end if
+  end do
+
+  if (LROW < 0) then
+    ISTMPO(ISTRIN) = IOFF
+    ISTMPL(ISTRIN) = LCR
+    !write(6,*) ' ISTRIN ISTMPO ISTMPL'
+    !write(6,*) ISTRIN,ISTMPO(ISTRIN),ISTMPL(ISTRIN)
+  end if
+end do
+
+if (NTEST >= 20) then
+  MAXPR = 60
+  NPR = min(NSTINI,MAXPR)
+  write(LUOUT,*) ' Output from CRESTR :'
+  write(LUOUT,*) '==================='
+
+  if (LROW > 0) then
+    write(6,*) ' Full map'
+    write(6,*)
+    write(LUOUT,*) ' Strings with an electron added'
+    do ISTRIN=1,NPR
+      write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO((ISTRIN-1)*LROW+I),I=1,NORB)
+    end do
+    do ISTRIN=1,NPR
+      write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI((ISTRIN-1)*LROW+I),I=1,NORB)
+    end do
+  else
+    write(6,*) ' Compact map'
+    write(6,*)
+    write(LUOUT,*) ' Strings with an electron added'
+    do ISTRIN=1,NPR
+      write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
+    end do
+    do ISTRIN=1,NPR
+      write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
+    end do
+  end if
+end if
+
+return
+
+end subroutine CRESTR

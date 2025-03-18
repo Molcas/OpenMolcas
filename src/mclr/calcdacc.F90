@@ -14,36 +14,39 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine CalcDacc(Dacc,GDMat,M,nnA,nRoots,zx)
-      use Constants, only: Zero
-      Implicit None
-      INTEGER nnA,nRoots,M
-      REAL*8,DIMENSION((nRoots+1)*nRoots/2,nnA,nnA)::GDMat
-      REAL*8,DIMENSION(nnA**2)::Dacc
-      REAL*8,DIMENSION((nRoots-1)*nRoots/2)::zx
 
-      INTEGER it,iu,K,IKM,IKM2,iLoc1,iLoc2
-      REAL*8 Fact
+subroutine CalcDacc(Dacc,GDMat,M,nnA,nRoots,zx)
 
-      Dacc(:)=Zero
+use Constants, only: Zero
 
-      DO K=1,nRoots
-       IF(K.eq.M) Cycle
-       IF(M.gt.K) THEN
-        IKM =(M-1)*M/2+K
-        IKM2=(M-1)*(M-2)/2+K
-       ELSE
-        IKM =(K-1)*K/2+M
-        iKM2=(K-1)*(K-2)/2+M
-       END IF
-       Fact=4.0d0*zx(IKM2)
-       IF(K.gt.M) Fact=-Fact
-       Do it=1,nnA
-        iLoc1=(it-1)*nnA
-        do iu=1,nnA
-         iLoc2=iLoc1+iu
-         Dacc(iLoc2)=Dacc(iLoc2)+GDMat(IKM,it,iu)*Fact
-        end do
-       End Do
-      END DO
-      END SUBROUTINE CalcDacc
+implicit none
+integer nnA, nRoots, M
+real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA) :: GDMat
+real*8, dimension(nnA**2) :: Dacc
+real*8, dimension((nRoots-1)*nRoots/2) :: zx
+integer it, iu, K, IKM, IKM2, iLoc1, iLoc2
+real*8 Fact
+
+Dacc(:) = Zero
+
+do K=1,nRoots
+  if (K == M) cycle
+  if (M > K) then
+    IKM = (M-1)*M/2+K
+    IKM2 = (M-1)*(M-2)/2+K
+  else
+    IKM = (K-1)*K/2+M
+    iKM2 = (K-1)*(K-2)/2+M
+  end if
+  Fact = 4.0d0*zx(IKM2)
+  if (K > M) Fact = -Fact
+  do it=1,nnA
+    iLoc1 = (it-1)*nnA
+    do iu=1,nnA
+      iLoc2 = iLoc1+iu
+      Dacc(iLoc2) = Dacc(iLoc2)+GDMat(IKM,it,iu)*Fact
+    end do
+  end do
+end do
+
+end subroutine CalcDacc

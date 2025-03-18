@@ -10,151 +10,150 @@
 !                                                                      *
 ! Copyright (C) 1997, Anders Bernhardsson                              *
 !***********************************************************************
-      Subroutine Niclas(H,coor,LUT)
-      use Basis_Info
-      use Center_Info
-      use Symmetry_Info, only: nIrrep, iChTbl
-      use stdalloc, only: mma_allocate, mma_deallocate
-! eaw 970909
-      Implicit Real*8(a-h,o-z)
-#include "SysDef.fh"
-      Real*8 H(*)
-      Character*40 Label
-      Integer nDeg(200),ldisp(0:7)
-      Integer inddsp(100,0:7)
-      Logical, External :: TF
-      Real*8 Coor(*)
-      Real*8 Dummy(1)
-      Real*8, Allocatable:: Htmp(:), Tmp(:)
-!
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-      irec(i,j)=nd*(j-1)+i-1
-!
-      idsp=0
-      Call iCOPY(nirrep,[0],0,ldisp,1)
-      Do iIrrep=0,nIrrep-1
-      mdc=0
-       Do iCnttp = 1, nCnttp
-        nCnti = dbsc(iCnttp)%nCntr
-        Do iCnt = 1, nCnti
-         mdc=mdc+1
-         IndDsp(mdc,iIrrep)=idsp
-         Do iCar = 0, 2
-          iComp = 2**iCar
-          If (TF(mdc,iIrrep,iComp)) Then
-             idsp=idsp+1
-             ldisp(iirrep)=ldisp(iirrep)+1
-             ndeg(idsp)=nIrrep/dc(mdc)%nStab
-          End If
-         End Do
-        End Do
-       End Do
-      End Do
-!
-!***********************************************************************
-!
-!    Steady
-!
-!    Make the symmetrized Hessian correct for degenerated geometries
-!
-!***********************************************************************
-!
-      nd=0
-      Do i=0,nIrrep-1
-       nD=ldisp(i)+nd
-      End Do
-      Call mma_allocate(TMP,nd**2,Label='Tmp')
-      Call mma_allocate(HTMP,nd**2,Label='Htmp')
-      Htmp(:)=0.0d0
-      ii=0
-      iii=0
-      Do iS=1,Nirrep
-       Do i = 1, ldisp(iS-1)
-        Do j=1,i
-            Tmp(itri(iii+i,iii+j)) =                                    &
-     &                 sqrt(DBLE(nDeg(i+iii)*nDeg(j+iii)))*             &
-     &                  H(ii+itri(i,j))
-!          Write(*,*) H(ii+itri(i,j)),Tmo(itri(iii+i,iii+j))
-        End Do
-       End Do
-       ii=ii+ldisp(is-1)*(ldisp(is-1)+1)/2
-       iii=iii+ldisp(is-1)
-      End Do
-!
-!*******************************************************************************
-!
-!   Go
-!
-!*******************************************************************************
-!
-      Call FCOOR(LUT,Coor)
-      mdc=0
-      iPERT=0
-      Do iCnttp = 1, nCnttp
-       nCnti = dbsc(iCnttp)%nCntr
-       Do iCnt = 1, nCnti
-        mdc=mdc+1
-!
-        nCenti=nIrrep/dc(mdc)%nStab
-!
-      ndc=0
-      jPERT=0
-      Do jCnttp = 1, nCnttp
-       nCntj = dbsc(jCnttp)%nCntr
-       Do jCnt = 1, nCntj
-        ndc=ndc+1
 
-        nCentj=nIrrep/dc(ndc)%nStab
-        Do iIrrep=0,nIrrep-1
-         iDsp = IndDsp(mdc,iIrrep)
-         Do iCar = 0, 2
-          iComp = 2**iCar
-          If (TF(mdc,iIrrep,iComp)) Then
-            idsp=idsp+1
-            jDsp = IndDsp(ndc,iIrrep)
-            Do jCar = 0, 2
-             jComp = 2**jCar
-             If (TF(ndc,iIrrep,jComp)) Then
-              jdsp=jdsp+1
-              HE=Tmp(itri(idsp,jdsp))
-              Do iCo=0,Ncenti-1
-               Do jCo=0,Ncentj-1
-                i=iPert+ico*3+icar+1
-                j=jPert+jco*3+jcar+1
-                kop_m=dc(mdc)%iCoSet(iCo,0)
-                nop_m=nropr(kop_m)
-                kop_n=dc(ndc)%iCoSet(jCo,0)
-                nop_n=nropr(kop_n)
-                riPh=DBLE(iPrmt(nop_m,icomp)*iChTbl(iIrrep,nop_m))      &
-     &           /sqrt(DBLE(nCENTI))
-                rjPh=DBLE(iPrmt(nop_n,jcomp)*ichtbl(iirrep,nop_n))      &
-     &          /sqrt(DBLE(nCENTJ))
-                Htmp(1+irec(i,j))=Htmp(1+irec(i,j))+riph*rjph*HE
-               End Do ! jco
-              End Do ! ico
-            End If
-          End Do ! jcar
-            End If
-          End do ! icar
-         End Do ! irrep
-        jPert=jpert+ncentj*3
-       End Do ! jcnt
-      End Do ! jcnttp
-        iPert=ipert+ncenti*3
-       End Do ! icnt
-      End Do ! icnttp
+subroutine Niclas(H,coor,LUT)
+
+use Basis_Info
+use Center_Info
+use Symmetry_Info, only: nIrrep, iChTbl
+use stdalloc, only: mma_allocate, mma_deallocate
+
+implicit real*8(a-h,o-z)
+#include "SysDef.fh"
+real*8 H(*)
+character*40 Label
+integer nDeg(200), ldisp(0:7)
+integer inddsp(100,0:7)
+logical, external :: TF
+real*8 Coor(*)
+real*8 Dummy(1)
+real*8, allocatable :: Htmp(:), Tmp(:)
+! Statement functions
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+irec(i,j) = nd*(j-1)+i-1
+
+idsp = 0
+call iCOPY(nirrep,[0],0,ldisp,1)
+do iIrrep=0,nIrrep-1
+  mdc = 0
+  do iCnttp=1,nCnttp
+    nCnti = dbsc(iCnttp)%nCntr
+    do iCnt=1,nCnti
+      mdc = mdc+1
+      IndDsp(mdc,iIrrep) = idsp
+      do iCar=0,2
+        iComp = 2**iCar
+        if (TF(mdc,iIrrep,iComp)) then
+          idsp = idsp+1
+          ldisp(iirrep) = ldisp(iirrep)+1
+          ndeg(idsp) = nIrrep/dc(mdc)%nStab
+        end if
+      end do
+    end do
+  end do
+end do
+
+!***********************************************************************
 !
-      Label='Unsymmetrized Hessian'
-      WRITE(LUT,'(A)') Label
-      Write(LUT,'(A)') '*BEGIN HESSIAN'
-      Write(LUT,'(A,I5)') '*Number of pert. ',nd
-      Call WRH(LUT,1,[nd],[nd],Htmp,Dummy,0,Label)
-      Write(LUT,'(A)') '*END HESSIAN'
+! Steady
 !
-      Call Put_dArray('FC-Matrix',Htmp,nd**2)
+! Make the symmetrized Hessian correct for degenerated geometries
 !
-      Call mma_deallocate(HTMP)
-      Call mma_deallocate(TMP)
+!***********************************************************************
+
+nD = 0
+do i=0,nIrrep-1
+  nD = ldisp(i)+nd
+end do
+call mma_allocate(TMP,nd**2,Label='Tmp')
+call mma_allocate(HTMP,nd**2,Label='Htmp')
+Htmp(:) = 0.0d0
+ii = 0
+iii = 0
+do iS=1,Nirrep
+  do i=1,ldisp(iS-1)
+    do j=1,i
+      Tmp(itri(iii+i,iii+j)) = sqrt(dble(nDeg(i+iii)*nDeg(j+iii)))*H(ii+itri(i,j))
+      !write(6,*) H(ii+itri(i,j)),Tmo(itri(iii+i,iii+j))
+    end do
+  end do
+  ii = ii+ldisp(is-1)*(ldisp(is-1)+1)/2
+  iii = iii+ldisp(is-1)
+end do
+
+!***********************************************************************
 !
-      Return
-      End
+! Go
+!
+!***********************************************************************
+
+call FCOOR(LUT,Coor)
+mdc = 0
+iPERT = 0
+do iCnttp=1,nCnttp
+  nCnti = dbsc(iCnttp)%nCntr
+  do iCnt=1,nCnti
+    mdc = mdc+1
+
+    nCenti = nIrrep/dc(mdc)%nStab
+
+    ndc = 0
+    jPERT = 0
+    do jCnttp=1,nCnttp
+      nCntj = dbsc(jCnttp)%nCntr
+      do jCnt=1,nCntj
+        ndc = ndc+1
+
+        nCentj = nIrrep/dc(ndc)%nStab
+        do iIrrep=0,nIrrep-1
+          iDsp = IndDsp(mdc,iIrrep)
+          do iCar=0,2
+            iComp = 2**iCar
+            if (TF(mdc,iIrrep,iComp)) then
+              idsp = idsp+1
+              jDsp = IndDsp(ndc,iIrrep)
+              do jCar=0,2
+                jComp = 2**jCar
+                if (TF(ndc,iIrrep,jComp)) then
+                  jdsp = jdsp+1
+                  HE = Tmp(itri(idsp,jdsp))
+                  do iCo=0,Ncenti-1
+                    do jCo=0,Ncentj-1
+                      i = iPert+ico*3+icar+1
+                      j = jPert+jco*3+jcar+1
+                      kop_m = dc(mdc)%iCoSet(iCo,0)
+                      nop_m = nropr(kop_m)
+                      kop_n = dc(ndc)%iCoSet(jCo,0)
+                      nop_n = nropr(kop_n)
+                      riPh = dble(iPrmt(nop_m,icomp)*iChTbl(iIrrep,nop_m))/sqrt(dble(nCENTI))
+                      rjPh = dble(iPrmt(nop_n,jcomp)*ichtbl(iirrep,nop_n))/sqrt(dble(nCENTJ))
+                      Htmp(1+irec(i,j)) = Htmp(1+irec(i,j))+riph*rjph*HE
+                    end do ! jco
+                  end do ! ico
+                end if
+              end do ! jcar
+            end if
+          end do ! icar
+        end do ! irrep
+        jPert = jpert+ncentj*3
+      end do ! jcnt
+    end do ! jcnttp
+    iPert = ipert+ncenti*3
+  end do ! icnt
+end do ! icnttp
+
+Label = 'Unsymmetrized Hessian'
+write(LUT,'(A)') Label
+write(LUT,'(A)') '*BEGIN HESSIAN'
+write(LUT,'(A,I5)') '*Number of pert. ',nd
+call WRH(LUT,1,[nd],[nd],Htmp,Dummy,0,Label)
+write(LUT,'(A)') '*END HESSIAN'
+
+call Put_dArray('FC-Matrix',Htmp,nd**2)
+
+call mma_deallocate(HTMP)
+call mma_deallocate(TMP)
+
+return
+
+end subroutine Niclas

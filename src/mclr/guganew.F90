@@ -8,106 +8,100 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 !#define _DEBUGPRINT_
-      Subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,               &
-     &                   nRs1,nRs2,nRs3,SGS,CIS,EXS,CIL,imode,ksym,     &
-     &                   State_Sym)
-!
-      use Str_Info, only: CFTP, CNSM
-      use gugx, only: SGStruct, CIStruct, EXStruct
-      use MkGUGA_mod, only: MKGUGA
+subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIL,imode,ksym,State_Sym)
+
+use Str_Info, only: CFTP, CNSM
+use gugx, only: SGStruct, CIStruct, EXStruct
+use MkGUGA_mod, only: MKGUGA
 #ifdef _DEBUGPRINT_
-      use definitions, only: u6
+use definitions, only: u6
 #endif
-      Implicit None
-      Integer nSym,iSpin,nActEl,nHole1,nElec3
-      Integer nRs1(nSym), nRs2(nSym), nRs3(nSym)
-      Type(SGStruct) SGS
-      Type(CIStruct) CIS
-      Type(EXStruct) EXS
-      Real*8 CIL(*)
-      Integer imode, ksym, State_Sym
-!
+
+implicit none
+integer nSym, iSpin, nActEl, nHole1, nElec3
+integer nRs1(nSym), nRs2(nSym), nRs3(nSym)
+type(SGStruct) SGS
+type(CIStruct) CIS
+type(EXStruct) EXS
+real*8 CIL(*)
+integer imode, ksym, State_Sym
 #ifdef _DEBUGPRINT_
-      Real*8 :: PRWTHR=0.05d0
+real*8 :: PRWTHR = 0.05d0
 #endif
-      Integer nRas1T, nRas2T, nRas3T, iss, iS
-      Integer NCONF
-!
-      nRas1T=Sum(nRs1(1:nSym))
-      nRas2T=Sum(nRs2(1:nSym))
-      nRas3T=Sum(nRs3(1:nSym))
+integer nRas1T, nRas2T, nRas3T, iss, iS
+integer NCONF
 
-      Associate ( LM1RAS=>SGS%LM1RAS, LM3RAS=>SGS%LM3RAS,               &
-     &            LV1RAS=>SGS%LV1RAS, LV3RAS=>SGS%LV3RAS,               &
-     &            IFRAS=>SGS%IFRAS)
+nRas1T = sum(nRs1(1:nSym))
+nRas2T = sum(nRs2(1:nSym))
+nRas3T = sum(nRs3(1:nSym))
 
-      SGS%nSym=nSym
-      SGS%iSpin=iSpin
-      SGS%nActEl=nActEl
-!
-!     COMPUTE RAS RESTRICTIONS ON VERTICES:
-!
-      LV1RAS=NRAS1T
-      LV3RAS=nRas1T+NRAS2T
-      LM1RAS=2*nRas1T-NHOLE1
-      LM3RAS=NACTEL-nElec3
+associate(LM1RAS => SGS%LM1RAS,LM3RAS => SGS%LM3RAS,LV1RAS => SGS%LV1RAS,LV3RAS => SGS%LV3RAS,IFRAS => SGS%IFRAS)
 
-!     SET IFRAS FLAG
-!     IFRAS = 0 : THIS IS A CAS CALCULATION
-!     IFRAS = 1 : THIS IS A RAS CALCULATION
-!
-      IF ((NRAS1T+NRAS3T)/=0) Then
-         IFRAS=1
-      Else
-         IFRAS=0
-      End If
-      DO IS=1,NSYM
-        IF (IFRAS.NE.0.AND.nRs2(IS).NE.0)IFRAS=IFRAS+1
-      END DO
+  SGS%nSym = nSym
+  SGS%iSpin = iSpin
+  SGS%nActEl = nActEl
 
-      Call mkGUGA(SGS,CIS)
+  ! COMPUTE RAS RESTRICTIONS ON VERTICES:
 
-!     PURPOSE: FREE THE GUGA TABLES
-!     FORM VARIOUS OFFSET TABLES:
-!     NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
-!           TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
-!
-      CALL MKCOT(SGS,CIS)
-!
-!     CONSTRUCT THE CASE LIST
-!
-      Call MKCLIST(SGS,CIS)
-!
-!     SET UP ENUMERATION TABLES
-!
-      Call MKSGNUM(kSYM,SGS,CIS,EXS)
+  LV1RAS = NRAS1T
+  LV3RAS = nRas1T+NRAS2T
+  LM1RAS = 2*nRas1T-NHOLE1
+  LM3RAS = NACTEL-nElec3
 
-      nConf = CIS%nCSF(kSym)
+  ! SET IFRAS FLAG
+  ! IFRAS = 0 : THIS IS A CAS CALCULATION
+  ! IFRAS = 1 : THIS IS A RAS CALCULATION
 
-      iss=1
-      if (ksym.ne.state_sym) iss=2
-!
-#ifdef _DEBUGPRINT_
-      WRITE(u6,101)
-101   FORMAT(/,6X,100('-'),/,                                           &
-     &      6X,29X,'Wave function printout: Split Graph format',/,      &
-     &      6X, 8X,'in parenthesis: midvertex, upper-walk symmetry',    &
-     &             ' upper- and lower-walk serial numbers',/,           &
-     &         6X,100('-'),/)
-      WRITE(u6,102) PRWTHR
-102   FORMAT(6X,'printout of CI-coefficients larger than',F6.2)
-      Call SGPRWF(SGS,CIS,ksym,PRWTHR,SGS%iSpin,CIL,nConf,.False.,-99)
-      WRITE(u6,103)
-103   FORMAT(/,6X,100('-'),/)
-#endif
-!
-      Call REORD(SGS,CIS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,kSym,CIL)
+  if ((NRAS1T+NRAS3T) /= 0) then
+    IFRAS = 1
+  else
+    IFRAS = 0
+  end if
+  do IS=1,NSYM
+    if ((IFRAS /= 0) .and. (nRs2(IS) /= 0)) IFRAS = IFRAS+1
+  end do
 
-#ifdef _DEBUGPRINT_
-      Call SGPRWF(SGS,CIS,ksym,PRWTHR,SGS%iSpin,CIL,nConf,.False.,-99)
-#endif
-!
-      End Associate
+  call mkGUGA(SGS,CIS)
 
-      End Subroutine GugaNew
+  ! PURPOSE: FREE THE GUGA TABLES
+  ! FORM VARIOUS OFFSET TABLES:
+  ! NOTE: NIPWLK AND DOWNWLK ARE THE NUMER OF INTEGER WORDS USED
+  !       TO STORE THE UPPER AND LOWER WALKS IN PACKED FORM.
+
+  call MKCOT(SGS,CIS)
+
+  ! CONSTRUCT THE CASE LIST
+
+  call MKCLIST(SGS,CIS)
+
+  ! SET UP ENUMERATION TABLES
+
+  call MKSGNUM(kSYM,SGS,CIS,EXS)
+
+  nConf = CIS%nCSF(kSym)
+
+  iss = 1
+  if (ksym /= state_sym) iss = 2
+
+# ifdef _DEBUGPRINT_
+  write(u6,101)
+  write(u6,102) PRWTHR
+  call SGPRWF(SGS,CIS,ksym,PRWTHR,SGS%iSpin,CIL,nConf,.false.,-99)
+  write(u6,103)
+101 format(/,6X,100('-'),/,6X,29X,'Wave function printout: Split Graph format',/, &
+           6X,8X,'in parenthesis: midvertex, upper-walk symmetry upper- and lower-walk serial numbers',/,6X,100('-'),/)
+102 format(6X,'printout of CI-coefficients larger than',F6.2)
+103 format(/,6X,100('-'),/)
+# endif
+
+  call REORD(SGS,CIS,EXS,NCONF,iMode,CNSM(iss)%ICONF,CFTP,kSym,CIL)
+
+# ifdef _DEBUGPRINT_
+  call SGPRWF(SGS,CIS,ksym,PRWTHR,SGS%iSpin,CIL,nConf,.false.,-99)
+# endif
+
+end associate
+
+end subroutine GugaNew

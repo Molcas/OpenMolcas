@@ -10,72 +10,74 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-      SubRoutine UnC(ArrayIn,ArrayOut,dsym,Sign)
-!
-!      Uncompresses the PCG vector to a orbital rotation matrix
-!
-!      The redundant rotations are set to zero
-!
-      use Constants, only: Zero, One
-      use MCLR_Data, only: nDensC, nDens2, ipMat, nB
-      use input_mclr, only: nSym,nIsh,nRS1,nRS2,nRS3,nOrb,TimeDep
-      Implicit None
-      Real*8  ArrayIn(nDensC),ArrayOut(nDens2)
-      Integer dsym
-      Real*8 sign
-      Integer IndexC, iSym, jSym, jBas, jT, iBas, iT, Index1, Index2
-      Real*8 Fact
 
-      indexC=0
-      Fact=One
-      If (dsym.lt.0) Fact=-Fact
-      dsym=abs(dsym)
-      ArrayOut(:)=Zero
-      Do iSym=1,nSym
-       Do jSym=1,nSym
-        If (iEOr(iSym-1,jSym-1)+1.eq.dSym) Then
-         Do jBas=1,nB(jSym)
-          If (jBas.le.nIsh(jsym)) Then
-             jT=0
-          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)) Then
-             jT=1
-          Else If (jBas.le.nIsh(jsym)+nRs2(jsym)) Then
-             jT=2
-          Else If (jBas.le.nIsh(jsym)+nRs3(jsym)) Then
-             jT=3
-          Else
-             jT=4
-          End If
-          Do iBas=1,nOrb(iSym)
-           If (iBas.le.nIsh(isym)) Then
-             iT=0
-           Else If (iBas.le.nIsh(isym)+nRs1(isym)) Then
-             iT=1
-           Else If (iBas.le.nIsh(isym)+nRs2(isym)) Then
-             iT=2
-           Else If (iBas.le.nIsh(isym)+nRs3(isym)) Then
-             iT=3
-           Else
-             iT=4
-           End If
-           If (Timedep) Then
-            If (iT.ne.jT) Then
-             indexC=indexc+1
-             Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
-             ArrayOut(Index1)=Fact*ArrayIn(indexC)
-            End If
-           Else
-            If (iT.gt.jT) Then
-             indexC=indexc+1
-             Index1=ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
-             Index2=ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
-             ArrayOut(Index1)=Fact*ArrayIn(indexC)
-             ArrayOut(Index2)=Sign*Fact*ArrayIn(indexC)
-            End If
-           End If
-          End Do
-         End Do
-        End If
-       End Do
-      End Do
-      End SubRoutine UnC
+subroutine UnC(ArrayIn,ArrayOut,dsym,Sign)
+! Uncompresses the PCG vector to a orbital rotation matrix
+!
+! The redundant rotations are set to zero
+
+use Constants, only: Zero, One
+use MCLR_Data, only: nDensC, nDens2, ipMat, nB
+use input_mclr, only: nSym, nIsh, nRS1, nRS2, nRS3, nOrb, TimeDep
+
+implicit none
+real*8 ArrayIn(nDensC), ArrayOut(nDens2)
+integer dsym
+real*8 sign
+integer IndexC, iSym, jSym, jBas, jT, iBas, iT, Index1, Index2
+real*8 Fact
+
+indexC = 0
+Fact = One
+if (dsym < 0) Fact = -Fact
+dsym = abs(dsym)
+ArrayOut(:) = Zero
+do iSym=1,nSym
+  do jSym=1,nSym
+    if (ieor(iSym-1,jSym-1)+1 == dSym) then
+      do jBas=1,nB(jSym)
+        if (jBas <= nIsh(jsym)) then
+          jT = 0
+        else if (jBas <= nIsh(jsym)+nRs1(jsym)) then
+          jT = 1
+        else if (jBas <= nIsh(jsym)+nRs2(jsym)) then
+          jT = 2
+        else if (jBas <= nIsh(jsym)+nRs3(jsym)) then
+          jT = 3
+        else
+          jT = 4
+        end if
+        do iBas=1,nOrb(iSym)
+          if (iBas <= nIsh(isym)) then
+            iT = 0
+          else if (iBas <= nIsh(isym)+nRs1(isym)) then
+            iT = 1
+          else if (iBas <= nIsh(isym)+nRs2(isym)) then
+            iT = 2
+          else if (iBas <= nIsh(isym)+nRs3(isym)) then
+            iT = 3
+          else
+            iT = 4
+          end if
+          if (Timedep) then
+            if (iT /= jT) then
+              indexC = indexc+1
+              Index1 = ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
+              ArrayOut(Index1) = Fact*ArrayIn(indexC)
+            end if
+          else
+            if (iT > jT) then
+              indexC = indexc+1
+              Index1 = ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
+              Index2 = ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
+              ArrayOut(Index1) = Fact*ArrayIn(indexC)
+              ArrayOut(Index2) = Sign*Fact*ArrayIn(indexC)
+            end if
+          end if
+        end do
+      end do
+    end if
+  end do
+end do
+
+end subroutine UnC

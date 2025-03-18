@@ -14,35 +14,38 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
-      use MCLR_Data, only: nNA
-      use input_mclr, only: ntAsh
-      Implicit None
-      INTEGER nG2,nPUVX
-      Real*8,DIMENSION(nG2)::G2q
-      Real*8,DIMENSION(NPUVX)::PUVX
-      INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
-      INTEGER I,J,K,L,IJKL,lMax
-      Real*8 dQdX
 
-      ijkl=0
-      dQdX=0.0d0
-      do i=1,nna
-        do j=1,i
-          do k=1,i
-            if(i.eq.k) then
-              lmax = j
-            else
-              lmax = k
-            end if
-            do l=1,lmax
-              ijkl = ijkl + 1
-              dQdX=dQdX+G2q(ijkl)*PUVX(IndTUVX(I,J,K,L))
-            end do
-          end do
-        end do
+subroutine QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
+
+use MCLR_Data, only: nNA
+use input_mclr, only: ntAsh
+
+implicit none
+integer nG2, nPUVX
+real*8, dimension(nG2) :: G2q
+real*8, dimension(NPUVX) :: PUVX
+integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
+integer I, J, K, L, IJKL, lMax
+real*8 dQdX
+
+ijkl = 0
+dQdX = 0.0d0
+do i=1,nna
+  do j=1,i
+    do k=1,i
+      if (i == k) then
+        lmax = j
+      else
+        lmax = k
+      end if
+      do l=1,lmax
+        ijkl = ijkl+1
+        dQdX = dQdX+G2q(ijkl)*PUVX(IndTUVX(I,J,K,L))
       end do
+    end do
+  end do
+end do
 
-      write(6,*) 'dQdX in QaaVerif=',dQdX
+write(6,*) 'dQdX in QaaVerif=',dQdX
 
-      End Subroutine QaaVerif
+end subroutine QaaVerif

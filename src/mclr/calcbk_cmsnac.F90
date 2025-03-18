@@ -15,36 +15,39 @@
 ! Based on cmsbk.f from Jie J. Bao &&                            *
 ! Additional work from  rhs_nac.f                                *
 ! ****************************************************************
-      Subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
-      use stdalloc, only : mma_allocate, mma_deallocate
-      use MCLR_Data, only: nDens2, nNA
-      use input_mclr, only: nRoots,ntAsh
-      Implicit None
 
-!*****Output
-      Real*8,DIMENSION(nDens2)::bk
-!*****Input
-      Real*8,DIMENSION(nRoots**2)::R
-      INTEGER nTri
-      Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
-      Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
-!*****Auxiliaries
-      Real*8,DIMENSION(:),Allocatable::FOccMO,P2MOt
-      INTEGER nP2,nG1
-      Integer i, j, iTri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
 
-      ng1=itri(ntash,ntash)
-      nP2=itri(ng1,ng1)
-      CALL mma_allocate(FOccMO,nDens2)
-      CALL mma_allocate(P2MOt,nP2)
-      CALL FZero(bk,nDens2)
-      CALL GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,nP2)
-      CALL GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
-      CALL GetPDFTFock_NAC(bk)
-      CALL PutCMSFockOcc(FOccMO,nTri)
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: nDens2, nNA
+use input_mclr, only: nRoots, ntAsh
 
-      CALL mma_deallocate(FOccMO)
-      CALL mma_deallocate(P2MOt)
+implicit none
+! Output
+real*8, dimension(nDens2) :: bk
+! Input
+real*8, dimension(nRoots**2) :: R
+integer nTri
+real*8, dimension((nRoots-1)*nRoots/2) :: zX
+real*8, dimension(nRoots*(nRoots+1)/2,nnA,nnA) :: GDMat
+! Auxiliaries
+real*8, dimension(:), allocatable :: FOccMO, P2MOt
+integer nP2, nG1
+integer i, j, iTri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-      end subroutine Calcbk_CMSNAC
+ng1 = itri(ntash,ntash)
+nP2 = itri(ng1,ng1)
+call mma_allocate(FOccMO,nDens2)
+call mma_allocate(P2MOt,nP2)
+call FZero(bk,nDens2)
+call GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,nP2)
+call GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
+call GetPDFTFock_NAC(bk)
+call PutCMSFockOcc(FOccMO,nTri)
+
+call mma_deallocate(FOccMO)
+call mma_deallocate(P2MOt)
+
+end subroutine Calcbk_CMSNAC

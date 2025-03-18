@@ -10,71 +10,74 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
-      subroutine CalcAXX(AXX,W)
-      use Constants, only: Zero,Two,Four
-      use input_mclr, only: nRoots
-      Implicit None
-!*****Input
-      Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::W
-!*****Output
-      Real*8,DIMENSION(((nRoots-1)*nRoots/2)**2)::AXX
 
-!*****Auxiliary Quantities
-      INTEGER K,L,M,N,IKL,IMN,IKL2,IMN2,IKK,ILL,IMM,INN,IC,nRTri
-      Real*8  VKLMN,VLKNM,VKLNM,VLKMN
+subroutine CalcAXX(AXX,W)
 
-      nRTri=(nRoots-1)*nRoots/2
-      DO K=1,nRoots
-      DO L=1,K-1
-       IKL=(K-1)*K/2+L
-       IKK=(K+1)*K/2
-       ILL=(L+1)*L/2
-       IKL2=(K-2)*(K-1)/2+L
-        Do M=1,nRoots
-        Do N=1,M-1
-         IMN=(M-1)*M/2+N
-         IMM=(M+1)*M/2
-         INN=(N+1)*N/2
-         IMN2=(M-2)*(M-1)/2+N
-         VKLMN=Zero
-         VLKNM=Zero
-         VLKMN=Zero
-         VKLNM=Zero
-         IF(L.eq.M) THEN
-          If(N.lt.K) Then
-           IC=(K-1)*K/2+N
-          Else
-           IC=(N-1)*N/2+K
-          End If
-          VKLMN=W(IC,IKK)+W(IC,INN)-Two*W(IC,ILL)-Four*W(IKL,IMN)
-         END IF
-         IF(K.eq.N) THEN
-          If(M.lt.L) Then
-           IC=(L-1)*L/2+M
-          Else
-           IC=(M-1)*M/2+L
-          End If
-          VLKNM=W(IC,ILL)+W(IC,IMM)-Two*W(IC,IKK)-Four*W(IKL,IMN)
-         END IF
-         IF(K.eq.M) THEN
-          If(N.lt.L) Then
-           IC=(L-1)*L/2+N
-          Else
-           IC=(N-1)*N/2+L
-          End If
-          VLKMN=W(IC,ILL)+W(IC,INN)-Two*W(IC,IKK)-Four*W(IKL,IMN)
-         END IF
-         IF(L.eq.N) THEN
-          If(M.lt.K) Then
-           IC=(K-1)*K/2+M
-          Else
-           IC=(M-1)*M/2+K
-          End If
-          VKLNM=W(IC,IKK)+W(IC,IMM)-Two*W(IC,ILL)-Four*W(IKL,IMN)
-         END IF
-         AXX((IKL2-1)*nRTri+IMN2)=VKLMN+VLKNM-VKLNM-VLKMN
-        End Do
-        End Do
-       END DO
-       END DO
-      END SUBROUTINE CalcAXX
+use Constants, only: Zero, Two, Four
+use input_mclr, only: nRoots
+
+implicit none
+! Input
+real*8, dimension((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2) :: W
+! Output
+real*8, dimension(((nRoots-1)*nRoots/2)**2) :: AXX
+! Auxiliary Quantities
+integer K, L, M, N, IKL, IMN, IKL2, IMN2, IKK, ILL, IMM, INN, IC, nRTri
+real*8 VKLMN, VLKNM, VKLNM, VLKMN
+
+nRTri = (nRoots-1)*nRoots/2
+do K=1,nRoots
+  do L=1,K-1
+    IKL = (K-1)*K/2+L
+    IKK = (K+1)*K/2
+    ILL = (L+1)*L/2
+    IKL2 = (K-2)*(K-1)/2+L
+    do M=1,nRoots
+      do N=1,M-1
+        IMN = (M-1)*M/2+N
+        IMM = (M+1)*M/2
+        INN = (N+1)*N/2
+        IMN2 = (M-2)*(M-1)/2+N
+        VKLMN = Zero
+        VLKNM = Zero
+        VLKMN = Zero
+        VKLNM = Zero
+        if (L == M) then
+          if (N < K) then
+            IC = (K-1)*K/2+N
+          else
+            IC = (N-1)*N/2+K
+          end if
+          VKLMN = W(IC,IKK)+W(IC,INN)-Two*W(IC,ILL)-Four*W(IKL,IMN)
+        end if
+        if (K == N) then
+          if (M < L) then
+            IC = (L-1)*L/2+M
+          else
+            IC = (M-1)*M/2+L
+          end if
+          VLKNM = W(IC,ILL)+W(IC,IMM)-Two*W(IC,IKK)-Four*W(IKL,IMN)
+        end if
+        if (K == M) then
+          if (N < L) then
+            IC = (L-1)*L/2+N
+          else
+            IC = (N-1)*N/2+L
+          end if
+          VLKMN = W(IC,ILL)+W(IC,INN)-Two*W(IC,IKK)-Four*W(IKL,IMN)
+        end if
+        if (L == N) then
+          if (M < K) then
+            IC = (K-1)*K/2+M
+          else
+            IC = (M-1)*M/2+K
+          end if
+          VKLNM = W(IC,IKK)+W(IC,IMM)-Two*W(IC,ILL)-Four*W(IKL,IMN)
+        end if
+        AXX((IKL2-1)*nRTri+IMN2) = VKLMN+VLKNM-VKLNM-VLKMN
+      end do
+    end do
+  end do
+end do
+
+end subroutine CalcAXX

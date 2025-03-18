@@ -8,15 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE IAIBCM_MCLR(MNRS1,MXRS3,NOCTPA,NOCTPB,NEL1A,NEL3A,     &
-     &                  NEL1B,NEL3B,IOCOC,IPRNT)
-!
+
+subroutine IAIBCM_MCLR(MNRS1,MXRS3,NOCTPA,NOCTPB,NEL1A,NEL3A,NEL1B,NEL3B,IOCOC,IPRNT)
 ! RAS allowed combinations of alpha and beta types
 !
-      Implicit integer (a-z)
-!
 ! =====
-!.Input
+! Input
 ! =====
 !
 ! NOCTPA : Number of alpha types
@@ -28,41 +25,38 @@
 ! NEL3B  : Number of electrons in RAS 3 for each beta type
 !
 ! ======
-!.Output
+! Output
 ! ======
 ! IOCOC(IATP,IBTP)  = 1 =>      allowed combination
 ! IOCOC(IATP,IBTP)  = 0 => not allowed combination
-!
-!.Input
-      INTEGER NEL1A(*),NEL3A(*),NEL1B(*),NEL3B(*)
-!.Output
-      INTEGER IOCOC(NOCTPA,NOCTPB)
-!
-!
-      NTEST = 0000
-      NTEST = MAX(NTEST,IPRNT)
-!
-      Call iCopy(nOctPA*nOctPB,[0],0,iococ,1)
-      DO 100 IATP = 1,NOCTPA
-         IAEL1 = NEL1A(IATP)
-         IAEL3 = NEL3A(IATP)
-         DO 90 IBTP = 1,NOCTPB
-            IBEL1 = NEL1B(IBTP)
-            IBEL3 = NEL3B(IBTP)
-            IF( (IAEL1+IBEL1).GE.MNRS1 .AND.                            &
-     &          (IAEL3+IBEL3).LE.MXRS3       )                          &
-     &          IOCOC(IATP,IBTP) = 1
-90       CONTINUE
-100   CONTINUE
-!
-      IF ( NTEST .GE. 10 ) THEN
-        WRITE(6,*)
-        WRITE(6,*) ' Matrix giving allowed combinations of types '
-        WRITE(6,*)
-        CALL IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-      END IF
 
-!
-!
-      RETURN
-      END
+implicit integer(a-z)
+! Input
+integer NEL1A(*), NEL3A(*), NEL1B(*), NEL3B(*)
+! Output
+integer IOCOC(NOCTPA,NOCTPB)
+
+NTEST = 0000
+NTEST = max(NTEST,IPRNT)
+
+call iCopy(nOctPA*nOctPB,[0],0,iococ,1)
+do IATP=1,NOCTPA
+  IAEL1 = NEL1A(IATP)
+  IAEL3 = NEL3A(IATP)
+  do IBTP=1,NOCTPB
+    IBEL1 = NEL1B(IBTP)
+    IBEL3 = NEL3B(IBTP)
+    if ((IAEL1+IBEL1 >= MNRS1) .and. (IAEL3+IBEL3 <= MXRS3)) IOCOC(IATP,IBTP) = 1
+  end do
+end do
+
+if (NTEST >= 10) then
+  write(6,*)
+  write(6,*) ' Matrix giving allowed combinations of types'
+  write(6,*)
+  call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+end if
+
+return
+
+end subroutine IAIBCM_MCLR

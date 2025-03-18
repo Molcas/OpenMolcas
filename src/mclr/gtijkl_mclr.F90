@@ -8,31 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      REAL*8 FUNCTION GTIJKL_MCLR(I,J,K,L)
-      use Arrays, only: Int2
-      use MCLR_Data, only: IREOTS
-!
-! Obtain  integral (I J ! K L )
+
+real*8 function GTIJKL_MCLR(I,J,K,L)
+! Obtain  integral (I J ! K L)
 ! where I,J,K and l refers to active orbitals in type ordering
-!
-      IMPLICIT None
-      Integer, Intent(In):: I, J, K, L
-      Integer iAbs, jAbs, kAbs, lAbs, ij, kl
-      Integer itri
 
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+use Arrays, only: Int2
+use MCLR_Data, only: IREOTS
 
-      IABS = IREOTS(I)
-!
-      JABS = IREOTS(J)
-!
-      KABS = IREOTS(K)
-!
-      LABS = IREOTS(L)
-!
-      IJ=itri(iABS,JABS)
-      KL=itri(kABS,lABS)
+implicit none
+integer, intent(In) :: I, J, K, L
+integer iAbs, jAbs, kAbs, lAbs, ij, kl
+integer itri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-      GTIJKL_MCLR = INT2(itri(IJ,KL))
-!
-      END FUNCTION GTIJKL_MCLR
+IABS = IREOTS(I)
+
+JABS = IREOTS(J)
+
+KABS = IREOTS(K)
+
+LABS = IREOTS(L)
+
+IJ = itri(iABS,JABS)
+KL = itri(kABS,lABS)
+
+GTIJKL_MCLR = INT2(itri(IJ,KL))
+
+end function GTIJKL_MCLR

@@ -8,27 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine DMInvKap_td(DigPrec,rIn,rout)
-!
-!     Prec  Diagonal Preconditioner from Prec_td
-!     rIn   nDensC long orb RHS
-!     rout  Trail vector rout = T^-1B^x
-!
-      use MCLR_Data, only: nDensC
-      Implicit None
-      Real*8 rOut(*),rin(*),DigPrec(*)
 
-      Integer k
-!
-!-------------------------------------------------------------------------
+subroutine DMInvKap_td(DigPrec,rIn,rout)
+! Prec  Diagonal Preconditioner from Prec_td
+! rIn   nDensC long orb RHS
+! rout  Trail vector rout = T^-1B^x
+
+use MCLR_Data, only: nDensC
+
+implicit none
+real*8 rOut(*), rin(*), DigPrec(*)
+integer k
+
+!-----------------------------------------------------------------------
 ! Multiply the 1/precond in vector form, rTemp, with RHS in vector form, rIn
-! ---> New trail vector.
-!-------------------------------------------------------------------------
-!
-!
-      Do k=1, nDensC
-         Rout(k) = rIn(k)/DigPrec(k)
-      End Do
-!
-!
-      End SubRoutine DMInvKap_td
+! ---> New trial vector.
+!-----------------------------------------------------------------------
+
+do k=1,nDensC
+  Rout(k) = rIn(k)/DigPrec(k)
+end do
+
+end subroutine DMInvKap_td

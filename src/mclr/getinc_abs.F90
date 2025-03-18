@@ -8,102 +8,91 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,       &
-     &                  IXCHNG,IKSM,JLSM,INTLST,IJKLOF,NSMOB,           &
-     &                  ICOUL )
-!
+
+subroutine GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,INTLST,IJKLOF,NSMOB,ICOUL)
 ! Obtain integrals
 ! ICOUL = 0 :      XINT(IK,JL) = (IJ!KL) for IXCHNG = 0
 !                              = (IJ!KL)-(IL!KJ) for IXCHNG = 1
 ! ICOUL = 1 :      XINT(IJ,KL) = (IJ!KL)
 !
 ! Version for integrals stored in INTLST
-!
-      use MCLR_Data, only: NACOB,IBTSOB,NTSOB
-      IMPLICIT None
-!
-      REAL*8 XINT(*)
-      INTEGER ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM
-      Real*8 Intlst(*)
-      INTEGER NSMOB
-      INTEGER IJKLof(NsmOB,NsmOb,NsmOB)
-      INTEGER ICOUL
 
-!     Local variables
-      Integer iOrb,jOrb,kOrb,lOrb
-      Integer iOff,jOff,kOff,lOff
-      Integer iBas,jBas,kBas,lBas
-      Integer iInt,jInt
+use MCLR_Data, only: NACOB, IBTSOB, NTSOB
 
-      iOrb=NTSOB(ITP,ISM)
-      jOrb=NTSOB(JTP,JSM)
-      kOrb=NTSOB(KTP,KSM)
-      lOrb=NTSOB(LTP,LSM)
-      iOff=IBTSOB(ITP,ISM)
-      jOff=IBTSOB(JTP,JSM)
-      kOff=IBTSOB(KTP,KSM)
-      lOff=IBTSOB(LTP,LSM)
-!
-!     Collect Coulomb terms
-!
-      IF(ICOUL.EQ.0) THEN
-      iint=1
-      Do lBas=lOff,lOff+lOrb-1
-        Do jBas=jOff,jOff+jOrb-1
-          Do kBas=kOff,kOff+kOrb-1
-            Do iBas=iOff,iOff+iOrb-1
-              jINT = (lBas-1)*nACOB**3                                  &
-     &              +(kBas-1)*nACOB**2                                  &
-     &              +(jBas-1)*nACOB                                     &
-     &              + iBas
-              Xint(iInt) = Intlst(jint)
-              iInt=iInt+1
-            End Do
-          End Do
-        End Do
-      End Do
-!
-!     Collect Exchange terms
-!
-      If ( IXCHNG.ne.0 ) Then
-        iint=1
-        Do lBas=lOff,lOff+lOrb-1
-          Do jBas=joff,jOff+jOrb-1
-            Do kBas=kOff,kOff+kOrb-1
-              Do iBas=ioff,iOff+iOrb-1
-              jINT = (jBas-1)*nACOB**3                                  &
-     &              +(kBas-1)*nACOB**2                                  &
-     &              +(lBas-1)*nACOB                                     &
-     &              + iBas
-                XInt(iInt)=XInt(iInt)-Intlst(jint)
-                iInt=iInt+1
-              End Do
-            End Do
-          End Do
-        End Do
-      End If
-      ELSE IF(ICOUL.NE.0) THEN
-        iint=0
-        Do lBas=lOff,lOff+lOrb-1
-          Do kBas=kOff,kOff+kOrb-1
-           Do jBas=joff,jOff+jOrb-1
-            Do iBas=ioff,iOff+iOrb-1
-              JINT = (LBAS-1)*nACOB**3                                  &
-     &              + (KBAS-1)*nACOB**2                                 &
-     &              + (JBAS-1)*nACOB                                    &
-     &              +  IBAS
-              Xint(iInt) = Intlst(jint)
-              iInt=iint+1
-            End Do
-          End Do
-        End Do
-      End Do
-      END IF
-!
+implicit none
+real*8 XINT(*)
+integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM
+real*8 Intlst(*)
+integer NSMOB
+integer IJKLof(NsmOB,NsmOb,NsmOB)
+integer ICOUL
+! Local variables
+integer iOrb, jOrb, kOrb, lOrb
+integer iOff, jOff, kOff, lOff
+integer iBas, jBas, kBas, lBas
+integer iInt, jInt
+
+iOrb = NTSOB(ITP,ISM)
+jOrb = NTSOB(JTP,JSM)
+kOrb = NTSOB(KTP,KSM)
+lOrb = NTSOB(LTP,LSM)
+iOff = IBTSOB(ITP,ISM)
+jOff = IBTSOB(JTP,JSM)
+kOff = IBTSOB(KTP,KSM)
+lOff = IBTSOB(LTP,LSM)
+
+! Collect Coulomb terms
+
+if (ICOUL == 0) then
+  iint = 1
+  do lBas=lOff,lOff+lOrb-1
+    do jBas=jOff,jOff+jOrb-1
+      do kBas=kOff,kOff+kOrb-1
+        do iBas=iOff,iOff+iOrb-1
+          jINT = (lBas-1)*nACOB**3+(kBas-1)*nACOB**2+(jBas-1)*nACOB+iBas
+          Xint(iInt) = Intlst(jint)
+          iInt = iInt+1
+        end do
+      end do
+    end do
+  end do
+
+  ! Collect Exchange terms
+
+  if (IXCHNG /= 0) then
+    iint = 1
+    do lBas=lOff,lOff+lOrb-1
+      do jBas=joff,jOff+jOrb-1
+        do kBas=kOff,kOff+kOrb-1
+          do iBas=ioff,iOff+iOrb-1
+            jINT = (jBas-1)*nACOB**3+(kBas-1)*nACOB**2+(lBas-1)*nACOB+iBas
+            XInt(iInt) = XInt(iInt)-Intlst(jint)
+            iInt = iInt+1
+          end do
+        end do
+      end do
+    end do
+  end if
+else if (ICOUL /= 0) then
+  iint = 0
+  do lBas=lOff,lOff+lOrb-1
+    do kBas=kOff,kOff+kOrb-1
+      do jBas=joff,jOff+jOrb-1
+        do iBas=ioff,iOff+iOrb-1
+          JINT = (LBAS-1)*nACOB**3+(KBAS-1)*nACOB**2+(JBAS-1)*nACOB+IBAS
+          Xint(iInt) = Intlst(jint)
+          iInt = iint+1
+        end do
+      end do
+    end do
+  end do
+end if
+
 ! Avoid unused argument warnings
-      If (.False.) Then
-        Call Unused_integer(IKSM)
-        Call Unused_integer(JLSM)
-        Call Unused_integer_array(IJKLOF)
-      End If
-      End SUBROUTINE GETINC_ABS
+if (.false.) then
+  call Unused_integer(IKSM)
+  call Unused_integer(JLSM)
+  call Unused_integer_array(IJKLOF)
+end if
+
+end subroutine GETINC_ABS

@@ -10,51 +10,50 @@
 !                                                                      *
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE GATRMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,        &
-     &                  ISCA,SSCA)
-!
+
+subroutine GATRMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,ISCA,SSCA)
 ! Gather rows of transposed matrix MATIN  to  MATUT
 !
-! MATUT(I,J) = SSCA(I)*MATIN(J,ISCA(I)),(ISCA(I) .ne. 0 )
+! MATUT(I,J) = SSCA(I)*MATIN(J,ISCA(I)),(ISCA(I) /= 0)
 !
-!
-! Jeppe Olsen, Getting LUCIA in shape , Feb1994
-!
-      IMPLICIT REAL*8(A-H,O-Z)
-      REAL*8 MATIN,MATUT
-!.Input
-      DIMENSION ISCA(*),SSCA(*),MATIN(NCOLIN,NROWIN)
-!. ( MATIN Transposed )
-!.Output
-      DIMENSION MATUT(NROWUT,NCOLUT)
-!
-!. To get rid of annoying and incorrect compiler warnings
-      ICOFF = 0
-!     LBLK = 100
-      LBLK = 40
-      NBLK = NCOLUT/LBLK
-      IF(LBLK*NBLK.LT.NCOLUT) NBLK = NBLK + 1
-      DO ICBL = 1, NBLK
-        IF(ICBL.EQ.1) THEN
-          ICOFF = 1
-        ELSE
-          ICOFF = ICOFF + LBLK
-        END IF
-        ICEND = MIN(ICOFF+LBLK-1,NCOLUT)
-        DO I = 1, NROWUT
-          IF(ISCA(I).NE.0) THEN
-            S = SSCA(I)
-            IROW = ISCA(I)
-            DO J = ICOFF,ICEND
-              MATUT(I,J) = S*MATIN(J,IROW)
-            END DO
-          ELSE IF (ISCA(I).EQ.0) THEN
-            DO J = ICOFF,ICEND
-              MATUT(I,J) = 0.0D0
-            END DO
-          END IF
-        END DO
-      END DO
-!
-      RETURN
-      END
+! Jeppe Olsen, Getting LUCIA in shape, Feb1994
+
+implicit real*8(A-H,O-Z)
+real*8 MATIN, MATUT
+! Input
+dimension ISCA(*), SSCA(*), MATIN(NCOLIN,NROWIN)
+! (MATIN Transposed)
+! Output
+dimension MATUT(NROWUT,NCOLUT)
+
+! To get rid of annoying and incorrect compiler warnings
+ICOFF = 0
+!LBLK = 100
+LBLK = 40
+NBLK = NCOLUT/LBLK
+if (LBLK*NBLK < NCOLUT) NBLK = NBLK+1
+do ICBL=1,NBLK
+  if (ICBL == 1) then
+    ICOFF = 1
+  else
+    ICOFF = ICOFF+LBLK
+  end if
+  ICEND = min(ICOFF+LBLK-1,NCOLUT)
+  do I=1,NROWUT
+    if (ISCA(I) /= 0) then
+      S = SSCA(I)
+      IROW = ISCA(I)
+      do J=ICOFF,ICEND
+        MATUT(I,J) = S*MATIN(J,IROW)
+      end do
+    else if (ISCA(I) == 0) then
+      do J=ICOFF,ICEND
+        MATUT(I,J) = 0.0d0
+      end do
+    end if
+  end do
+end do
+
+return
+
+end subroutine GATRMT

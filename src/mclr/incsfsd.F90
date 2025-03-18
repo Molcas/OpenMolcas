@@ -8,59 +8,62 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine InCSFSD(iState,State_sym,GUGA)
-      use Str_Info, only: CNSM
-      use stdalloc, only: mma_allocate
-      use MCLR_Data, only: iALLO,i1,iAnders,lConf,llDet
-      use MCLR_Data, only: LuCSF2SD
-      Implicit None
-      Integer iState, State_sym
-      Logical GUGA
-      Integer idum(1)
-      Integer iSym,iAdr,i,iad
-!
 
-!     Place pointer
-!
-      iSym=iEor(State_Sym-1,iState-1)+1
-!
-      If (isym.eq.1.and.i1.eq.1) Return
-      If (isym.eq.iAnders) Return
-!
-      iAdr=2
-      If (iSym.eq.1) iAdr=1
-      iad=0
-      Do i=1,iState-1
-         Call iDafile(LUCSF2SD,0,idum,lldet,iad)
-         Call iDafile(LUCSF2SD,0,idum,lconf,iad)
-      End Do
-!
-      If (iSym.ne.1) Then
-         If (iAnders.eq.-9)  Then
-             Call mma_allocate(CNSM(2)%icts,lldet,Label='ICTS')
-             Call mma_allocate(CNSM(2)%iconf,lConf,Label='ICONF')
-             iAllo=1
-         End If
-         iAnders=isym
-      End If
-      If (iSym.eq.1) Then
-          If (i1.eq.-9) Then
-           Call mma_allocate(CNSM(1)%icts,lldet,Label='ICTS')
-           Call mma_allocate(CNSM(1)%iconf,lConf,Label='ICONF')
-           i1=1
-          End If
-      End If
+subroutine InCSFSD(iState,State_sym,GUGA)
 
-!      open(unit=1422,file="det.index") ! yma
-!      do i=1,lldet
-!        write(1422,*)CNSM(iAdr)%icts(i)
-!      end do
-!      close(1422)
+use Str_Info, only: CNSM
+use stdalloc, only: mma_allocate
+use MCLR_Data, only: iALLO, i1, iAnders, lConf, llDet
+use MCLR_Data, only: LuCSF2SD
+
+implicit none
+integer iState, State_sym
+logical GUGA
+integer idum(1)
+integer iSym, iAdr, i, iad
+
+! Place pointer
+
+iSym = ieor(State_Sym-1,iState-1)+1
+
+if ((isym == 1) .and. (i1 == 1)) return
+if (isym == iAnders) return
+
+iAdr = 2
+if (iSym == 1) iAdr = 1
+iad = 0
+do i=1,iState-1
+  call iDafile(LUCSF2SD,0,idum,lldet,iad)
+  call iDafile(LUCSF2SD,0,idum,lconf,iad)
+end do
+
+if (iSym /= 1) then
+  if (iAnders == -9) then
+    call mma_allocate(CNSM(2)%icts,lldet,Label='ICTS')
+    call mma_allocate(CNSM(2)%iconf,lConf,Label='ICONF')
+    iAllo = 1
+  end if
+  iAnders = isym
+end if
+if (iSym == 1) then
+  if (i1 == -9) then
+    call mma_allocate(CNSM(1)%icts,lldet,Label='ICTS')
+    call mma_allocate(CNSM(1)%iconf,lConf,Label='ICONF')
+    i1 = 1
+  end if
+end if
+
+!open(unit=1422,file='det.index') ! yma
+!do i=1,lldet
+!  write(1422,*)CNSM(iAdr)%icts(i)
+!end do
+!close(1422)
 
 ! calculated from zoo.f, the GUGA number for determinent
-      Call iDafile(LUCSF2SD,2,CNSM(iAdr)%icts,lldet,iad)
-      Call iDafile(LUCSF2SD,2,CNSM(iAdr)%iconf,lconf,iad)
+call iDafile(LUCSF2SD,2,CNSM(iAdr)%icts,lldet,iad)
+call iDafile(LUCSF2SD,2,CNSM(iAdr)%iconf,lconf,iad)
 
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_logical(GUGA)
-      End Subroutine InCSFSD
+if (.false.) call Unused_logical(GUGA)
+
+end subroutine InCSFSD

@@ -10,13 +10,9 @@
 !                                                                      *
 ! Copyright (C) 1991,1994, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE CIDIA4(NAEL,IASTR,NBEL,IBSTR,                          &
-     &                  NORB,DIAG,NSMST,H,                              &
-     &                  ISMOST,IBLTP,XA,XB,SCR,RJ,RK,                   &
-     &                  NSSOA,NSSOB,IOCOC,NOCTPA,NOCTPB,                &
-     &                  ISSOA,ISSOB,LUDIA,ECORE,                        &
-     &                  PLSIGN,PSSIGN,IPRNT,NTOOB,ICISTR)
-!
+
+subroutine CIDIA4(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,ISMOST,IBLTP,XA,XB,SCR,RJ,RK,NSSOA,NSSOB,IOCOC,NOCTPA,NOCTPB,ISSOA, &
+                  ISSOB,LUDIA,ECORE,PLSIGN,PSSIGN,IPRNT,NTOOB,ICISTR)
 ! Calculate determinant diagonal
 ! Turbo-ras version
 !
@@ -26,32 +22,29 @@
 !
 ! Jeppe Olsen, Winter of 1991
 ! K => J - K moved outside, April 1994
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!.General input
-      DIMENSION NSSOA(NOCTPA,*),NSSOB(NOCTPB,* )
-      DIMENSION ISSOA(NOCTPA,*),ISSOB(NOCTPB,*)
-      DIMENSION IASTR(NAEL,*),IBSTR(NBEL,*)
-      DIMENSION H(NORB)
-!. Specific input
-      DIMENSION IOCOC(NOCTPA,NOCTPB)
-      DIMENSION ISMOST(*),IBLTP(*)
-!. Scratch
-      DIMENSION RJ(NTOOB,NTOOB),RK(NTOOB,NTOOB)
-      DIMENSION XA(NORB),XB(NORB),SCR(2*NORB)
-!. Output
-      DIMENSION DIAG(*)
-!
-      DIMENSION IDUM(1)
-!
-      IF(PSSIGN.EQ.-1.0D0) THEN
-         XADD = 1000000.0d0
-      ELSE
-         XADD = 0.0D0
-      END IF
-!
-!
-!
+
+implicit real*8(A-H,O-Z)
+! General input
+dimension NSSOA(NOCTPA,*), NSSOB(NOCTPB,*)
+dimension ISSOA(NOCTPA,*), ISSOB(NOCTPB,*)
+dimension IASTR(NAEL,*), IBSTR(NBEL,*)
+dimension H(NORB)
+! Specific input
+dimension IOCOC(NOCTPA,NOCTPB)
+dimension ISMOST(*), IBLTP(*)
+! Scratch
+dimension RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
+dimension XA(NORB), XB(NORB), SCR(2*NORB)
+! Output
+dimension DIAG(*)
+dimension IDUM(1)
+
+if (PSSIGN == -1.0d0) then
+  XADD = 1000000.0d0
+else
+  XADD = 0.0d0
+end if
+
 !*3 Diagonal elements according to Handys formulae
 !   (corrected for error)
 !
@@ -59,99 +52,102 @@
 !              + 0.5 * ( J(I,J)-K(I,J) ) * NIA*NJA
 !              + 0.5 * ( J(I,J)-K(I,J) ) * NIB*NJB
 !              +         J(I,J) * NIA*NJB
-!
-!. K goes to J - K
-!
-      IDET = 0
-      ITDET = 0
-      IF(LUDIA.NE.0) REWIND LUDIA
-      DO 1000 IASM = 1, NSMST
-        IBSM = ISMOST(IASM)
-        IF(IBSM.EQ.0.OR.IBLTP(IASM).EQ.0) GOTO 1000
-        IF(IBLTP(IASM).EQ.2) THEN
-          IREST1 = 1
-        ELSE
-          IREST1 = 0
-        END IF
-!
-        DO 999  IATP = 1,NOCTPA
-          IF(IREST1.EQ.1) THEN
-            MXBTP = IATP
-          ELSE
-            MXBTP = NOCTPB
-          END IF
-          DO 900 IBTP = 1,MXBTP
-          IF(IOCOC(IATP,IBTP) .EQ. 0 ) GOTO 900
-          IBSTRT = ISSOB(IBTP,IBSM)
-          IBSTOP = IBSTRT + NSSOB(IBTP,IBSM)-1
-          DO 899 IB = IBSTRT,IBSTOP
-            IBREL = IB - IBSTRT + 1
-!
-!. Terms depending only on IB
-!
-            XB(:) = 0.0D0
-            HB = 0.0D0
-            RJBB = 0.0D0
-!
-            DO 990 IEL = 1, NBEL
-              IBEL = IBSTR(IEL,IB)
-              HB = HB + H(IBEL )
-!
-              DO 980 JEL = 1, NBEL
-                RJBB = RJBB + RK(IBSTR(JEL,IB),IBEL )
-  980         CONTINUE
-!
-              DO 970 IORB = 1, NORB
-                XB(IORB) = XB(IORB) + RJ(IORB,IBEL)
-  970         CONTINUE
-  990       CONTINUE
-            EB = HB + 0.5D0*RJBB + ECORE
-!
-            IF(IREST1.EQ.1.AND.IATP.EQ.IBTP) THEN
-              IASTRT = ISSOA(IATP,IASM) - 1 + IBREL
-            ELSE
-              IASTRT = ISSOA(IATP,IASM)
-            END IF
-            IASTOP = ISSOA(IATP,IASM) + NSSOA(IATP,IASM) - 1
-            DO 800 IA = IASTRT,IASTOP
-              IDET = IDET + 1
-              ITDET = ITDET + 1
-              X1 = EB
-              X2 = 0.0D0
-              DO 890 IEL = 1, NAEL
-                IAEL = IASTR(IEL,IA)
-                X1 = X1 + ( H(IAEL )+XB(IAEL) )
-                DO 880 JEL = 1, NAEL
-                 X2 = X2 + RK(IASTR(JEL,IA),IAEL )
-  880           CONTINUE
-  890         CONTINUE
-              DIAG(IDET) = X1 + 0.5D0*X2
-              IF(IB.EQ.IA) DIAG(IDET) = DIAG(IDET) + XADD
-  800       CONTINUE
-  899     CONTINUE
-!. Yet a RAS block of the diagonal has been constructed
-          IF(ICISTR.GE.2) THEN
-            IDUM(1) = IDET
-            CALL ITODS(IDUM,1,-1,LUDIA)
-            CALL TODSC_MCLR(DIAG,IDET,-1,LUDIA)
-            IDET = 0
-          END IF
-  900   CONTINUE
-  999   CONTINUE
-!
- 1000 CONTINUE
-!
-      IF ( ICISTR.GE.2 ) THEN
-        IDUM(1) = -1
-        CALL ITODS(IDUM,1,-1,LUDIA)
-      END IF
-!
-      RETURN
+
+! K goes to J - K
+
+IDET = 0
+ITDET = 0
+if (LUDIA /= 0) rewind LUDIA
+do IASM=1,NSMST
+  IBSM = ISMOST(IASM)
+  if ((IBSM == 0) .or. (IBLTP(IASM) == 0)) goto 1000
+  if (IBLTP(IASM) == 2) then
+    IREST1 = 1
+  else
+    IREST1 = 0
+  end if
+
+  do IATP=1,NOCTPA
+    if (IREST1 == 1) then
+      MXBTP = IATP
+    else
+      MXBTP = NOCTPB
+    end if
+    do IBTP=1,MXBTP
+      if (IOCOC(IATP,IBTP) == 0) goto 900
+      IBSTRT = ISSOB(IBTP,IBSM)
+      IBSTOP = IBSTRT+NSSOB(IBTP,IBSM)-1
+      do IB=IBSTRT,IBSTOP
+        IBREL = IB-IBSTRT+1
+
+        ! Terms depending only on IB
+
+        XB(:) = 0.0d0
+        HB = 0.0d0
+        RJBB = 0.0d0
+
+        do IEL=1,NBEL
+          IBEL = IBSTR(IEL,IB)
+          HB = HB+H(IBEL)
+
+          do JEL=1,NBEL
+            RJBB = RJBB+RK(IBSTR(JEL,IB),IBEL)
+          end do
+
+          do IORB=1,NORB
+            XB(IORB) = XB(IORB)+RJ(IORB,IBEL)
+          end do
+        end do
+        EB = HB+0.5d0*RJBB+ECORE
+
+        if ((IREST1 == 1) .and. (IATP == IBTP)) then
+          IASTRT = ISSOA(IATP,IASM)-1+IBREL
+        else
+          IASTRT = ISSOA(IATP,IASM)
+        end if
+        IASTOP = ISSOA(IATP,IASM)+NSSOA(IATP,IASM)-1
+        do IA=IASTRT,IASTOP
+          IDET = IDET+1
+          ITDET = ITDET+1
+          X1 = EB
+          X2 = 0.0d0
+          do IEL=1,NAEL
+            IAEL = IASTR(IEL,IA)
+            X1 = X1+(H(IAEL)+XB(IAEL))
+            do JEL=1,NAEL
+              X2 = X2+RK(IASTR(JEL,IA),IAEL)
+            end do
+          end do
+          DIAG(IDET) = X1+0.5d0*X2
+          if (IB == IA) DIAG(IDET) = DIAG(IDET)+XADD
+        end do
+      end do
+      ! Yet a RAS block of the diagonal has been constructed
+      if (ICISTR >= 2) then
+        IDUM(1) = IDET
+        call ITODS(IDUM,1,-1,LUDIA)
+        call TODSC_MCLR(DIAG,IDET,-1,LUDIA)
+        IDET = 0
+      end if
+900   continue
+    end do
+  end do
+
+1000 continue
+end do
+
+if (ICISTR >= 2) then
+  IDUM(1) = -1
+  call ITODS(IDUM,1,-1,LUDIA)
+end if
+
+return
 ! Avoid unused argument lines
-      IF (.FALSE.) THEN
-        CALL Unused_real_array(XA)
-        CALL Unused_real_array(SCR)
-        CALL Unused_real(PLSIGN)
-        CALL Unused_integer(IPRNT)
-      END IF
-      END
+if (.false.) then
+  call Unused_real_array(XA)
+  call Unused_real_array(SCR)
+  call Unused_real(PLSIGN)
+  call Unused_integer(IPRNT)
+end if
+
+end subroutine CIDIA4

@@ -8,156 +8,129 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE STRINF(IPRNT)
-      Use Str_Info, only: STR,NSTTYP,ISTAC,IUNIQMP,IUNIQTP,MNRS1,MNRS3, &
-     &                    MXRS1,MXRS3,NELEC,NOCTYP,NSTFTP
-      use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
-      use MCLR_Data, only: NACOB,NORB1,NORB2,NORB3
-      use input_mclr, only: nIrrep
 
-!
+subroutine STRINF(IPRNT)
 ! Strings for internal space.
 ! Information is stored in
 ! Largest allowed length is MSTINF
 !
-!.Input
+! Input
 ! /LUCINP/,/ORBINP/,/CSM/
-!.Output
+! Output
 ! /STRINP/,/STINF/,/STRBAS/ and string information in STIN
-!
-      IMPLICIT None
-      Integer IPRNT
-!.Input
-!     (and /LUCINP/ not occuring here )
-!
+
+use Str_Info, only: STR, NSTTYP, ISTAC, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
+use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
+use input_mclr, only: nIrrep
+
+implicit none
+integer IPRNT
 ! ======
 ! Output
 ! ======
-!
-      Integer ISGSTI(1),ISGSTO(1)
-      Integer, Allocatable:: KFREEL(:)
-      Integer NTEST,ITYP,JTYP,LROW,IMAX
-      NTEST = 0
-      NTEST = MAX(NTEST,IPRNT)
-!
-!
-!*.2 : Number of classes per string type and mappings between
-!*.    string types (/STINF/)
-!
-      CALL ZSTINF_MCLR(IPRNT)
-!
-!
-!*.3 : Static memory for string information
-!
-      CALL MEMSTR()
-!
-!*.4 :Reverse lexical adresing schemes for each type of string
-!
-!.First free address
-      Call mma_MaxINT(imax)
-      CALL mma_allocate(KFREEL,imax,Label='KFREEL')
-      DO 20 ITYP = 1, NSTTYP
-        IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        CALL WEIGHT_mclr(Str(ITYP)%Z,NELEC(ITYP),NORB1,NORB2,NORB3,     &
-     &                   MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),           &
-     &                   MXRS3(ITYP),KFREEL )
-        END IF
-   20 CONTINUE
-!
-!*.5 : Number of electrons in RAS1 and RAS3 per string sub type
-!
-      DO 25 ITYP = 1, NSTTYP
-        IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        CALL IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),     &
-     &             NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,              &
-     &             Str(ITYP)%EL3,Str(ITYP)%EL123,                       &
-     &             Str(ITYP)%ACTP)
-        END IF
-   25 CONTINUE
-!
-!*.6 : Number of strings per type and symmetry for a given string type
-!
-      DO 30 ITYP = 1, NSTTYP
-        IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        CALL NSTRSO_MCLR(NELEC(ITYP),NORB1,NORB2,NORB3,                 &
-     &                   MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),           &
-     &                   MXRS3(ITYP),KFREEL,NACOB,Str(ITYP)%NSTSO,      &
-     &                   NOCTYP(ITYP),nIrrep,ITYP,IPRNT)
-!. Corresponding offset array
-        CALL ZBASE(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,                     &
-     &             nIrrep*NOCTYP(ITYP) )
-!. Symmetry and class index for each string
-         CALL ZSMCL(nIrrep,NOCTYP(ITYP),Str(ITYP)%NSTSO,                &
-     &              Str(ITYP)%STSM,Str(ITYP)%STCL )
-        END IF
-   30 CONTINUE
-!
-!*.7 Construct strings, ordered according to symmetry and class
-!
-      DO 40 ITYP = 1, NSTTYP
-        IF(IUNIQTP(ITYP).EQ.ITYP) THEN
-        CALL GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),           &
-     &                   MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,       &
-     &                   NOCTYP(ITYP),nIrrep,Str(ITYP)%Z,KFREEL,        &
-     &                   Str(ITYP)%STREO,Str(ITYP)%OCSTR,               &
-     &                   KFREEL(1+NOCTYP(ITYP)*nIrrep),ITYP,IPRNT)
-        END IF
-   40 CONTINUE
-!
-!
-!*.8 Internal annihilation arrays between types of strings
-!
-      DO 50 ITYP = 1, NSTTYP
-        IF(IUNIQMP(ITYP).EQ.ITYP) THEN
-        IF(ISTAC(ITYP,1).NE.0) THEN
-          JTYP = ISTAC(ITYP,1)
-          IF(IPRNT.GE.2) THEN
-          WRITE(6,*) ' Annihilator arrays between types ',ITYP,JTYP
-          WRITE(6,*) ' ==========================================='
-          END IF
-          IF(ISTAC(ITYP,2).EQ.0) THEN
-            LROW = NELEC(ITYP)
-          ELSE
-            LROW = NACOB
-          END IF
-          Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,1)=0
-          Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,2)=0
-          CALL ANNSTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),        &
-     &                NELEC(ITYP),NACOB,Str(JTYP)%Z,                    &
-     &                Str(JTYP)%STREO,LROW,0,ISGSTI,ISGSTO,             &
-     &                Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),        &
-     &                JTYP,IPRNT)
-        END IF
-        END IF
-   50 CONTINUE
-!
-!* 6 : Creation arrays
-!
-      DO 60 ITYP = 1, NSTTYP
-        IF(IUNIQMP(ITYP).EQ.ITYP) THEN
-        IF(ISTAC(ITYP,2).NE.0) THEN
-!. Type of creation map
-          IF (ISTAC(ITYP,1).EQ.0) THEN
-!. Only creation map, compact scheme with offsets
-            LROW = -1
-          ELSE IF (ISTAC(ITYP,1).NE.0) THEN
-!. Both annihilation and creation, use full form
-            LROW = NACOB
-          END IF
-          JTYP = ISTAC(ITYP,2)
-          IF(IPRNT.GE.2) THEN
-          WRITE(6,*) ' Creator  arrays between types ',ITYP,JTYP
-          WRITE(6,*) ' ==========================================='
-          END IF
-          CALL CRESTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),        &
-     &                NELEC(ITYP),NACOB,Str(JTYP)%Z,                    &
-     &                Str(JTYP)%STREO,0,ISGSTI,ISGSTO,                  &
-     &                Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),        &
-     &                Str(ITYP)%STSTMN,Str(ITYP)%STSTMI,                &
-     &                LROW,JTYP,IPRNT)
-        END IF
-        END IF
-   60 CONTINUE
-      CALL mma_deallocate(KFREEL)
-      RETURN
-      END
+integer ISGSTI(1), ISGSTO(1)
+integer, allocatable :: KFREEL(:)
+integer NTEST, ITYP, JTYP, LROW, IMAX
+
+NTEST = 0
+NTEST = max(NTEST,IPRNT)
+
+! 2 : Number of classes per string type and mappings between string types (/STINF/)
+
+call ZSTINF_MCLR(IPRNT)
+
+! 3 : Static memory for string information
+
+call MEMSTR()
+
+! 4 :Reverse lexical adresing schemes for each type of string
+
+! First free address
+call mma_MaxINT(imax)
+call mma_allocate(KFREEL,imax,Label='KFREEL')
+do ITYP=1,NSTTYP
+  if (IUNIQTP(ITYP) == ITYP) &
+    call WEIGHT_mclr(Str(ITYP)%Z,NELEC(ITYP),NORB1,NORB2,NORB3,MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),KFREEL)
+end do
+
+! 5 : Number of electrons in RAS1 and RAS3 per string sub type
+
+do ITYP=1,NSTTYP
+  if (IUNIQTP(ITYP) == ITYP) &
+    call IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,Str(ITYP)%EL3, &
+               Str(ITYP)%EL123,Str(ITYP)%ACTP)
+end do
+
+! 6 : Number of strings per type and symmetry for a given string type
+
+do ITYP=1,NSTTYP
+  if (IUNIQTP(ITYP) == ITYP) then
+    call NSTRSO_MCLR(NELEC(ITYP),NORB1,NORB2,NORB3,MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),KFREEL,NACOB,Str(ITYP)%NSTSO, &
+                     NOCTYP(ITYP),nIrrep,ITYP,IPRNT)
+    ! Corresponding offset array
+    call ZBASE(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,nIrrep*NOCTYP(ITYP))
+    ! Symmetry and class index for each string
+    call ZSMCL(nIrrep,NOCTYP(ITYP),Str(ITYP)%NSTSO,Str(ITYP)%STSM,Str(ITYP)%STCL)
+  end if
+end do
+
+! 7 Construct strings, ordered according to symmetry and class
+
+do ITYP=1,NSTTYP
+  if (IUNIQTP(ITYP) == ITYP) &
+    call GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,NOCTYP(ITYP),nIrrep,Str(ITYP)%Z, &
+                     KFREEL,Str(ITYP)%STREO,Str(ITYP)%OCSTR,KFREEL(1+NOCTYP(ITYP)*nIrrep),ITYP,IPRNT)
+end do
+
+! 8 Internal annihilation arrays between types of strings
+
+do ITYP=1,NSTTYP
+  if (IUNIQMP(ITYP) == ITYP) then
+    if (ISTAC(ITYP,1) /= 0) then
+      JTYP = ISTAC(ITYP,1)
+      if (IPRNT >= 2) then
+        write(6,*) ' Annihilator arrays between types ',ITYP,JTYP
+        write(6,*) ' ==========================================='
+      end if
+      if (ISTAC(ITYP,2) == 0) then
+        LROW = NELEC(ITYP)
+      else
+        LROW = NACOB
+      end if
+      Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,1) = 0
+      Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,2) = 0
+      call ANNSTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),NELEC(ITYP),NACOB,Str(JTYP)%Z,Str(JTYP)%STREO,LROW,0,ISGSTI,ISGSTO, &
+                  Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),JTYP,IPRNT)
+    end if
+  end if
+end do
+
+! 6 : Creation arrays
+
+do ITYP=1,NSTTYP
+  if (IUNIQMP(ITYP) == ITYP) then
+    if (ISTAC(ITYP,2) /= 0) then
+      ! Type of creation map
+      if (ISTAC(ITYP,1) == 0) then
+        ! Only creation map, compact scheme with offsets
+        LROW = -1
+      else if (ISTAC(ITYP,1) /= 0) then
+        ! Both annihilation and creation, use full form
+        LROW = NACOB
+      end if
+      JTYP = ISTAC(ITYP,2)
+      if (IPRNT >= 2) then
+        write(6,*) ' Creator  arrays between types ',ITYP,JTYP
+        write(6,*) ' ==========================================='
+      end if
+      call CRESTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),NELEC(ITYP),NACOB,Str(JTYP)%Z,Str(JTYP)%STREO,0,ISGSTI,ISGSTO, &
+                  Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),Str(ITYP)%STSTMN,Str(ITYP)%STSTMI,LROW,JTYP,IPRNT)
+    end if
+  end if
+end do
+call mma_deallocate(KFREEL)
+
+return
+
+end subroutine STRINF

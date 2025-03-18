@@ -10,50 +10,48 @@
 !                                                                      *
 ! Copyright (C) 1998, Anders Bernhardsson                              *
 !***********************************************************************
-      Subroutine RHS_PT2(rkappa,CLag,SLag)
-      use MCLR_Data, only: LuPT2
-      use input_mclr, only: nSym,nRoots,nCSF,nOrb
-      Implicit None
-      Real*8 rKappa(*),CLag(*),SLag(*)
 
+subroutine RHS_PT2(rkappa,CLag,SLag)
 ! The RHS array for CASPT2 has been already calculated in the
 ! CASPT2 module, so here we only need to read it from file
 
-      Integer nOLag, nCLag, i, nSLag
-      Real*8 Tmp
+use MCLR_Data, only: LuPT2
+use input_mclr, only: nSym, nRoots, nCSF, nOrb
 
-!     Read in a and b part of effective gradient from CASPT2
+implicit none
+real*8 rKappa(*), CLag(*), SLag(*)
+integer nOLag, nCLag, i, nSLag
+real*8 Tmp
 
-      nOLag = 0
-      nCLag = 0
-      DO i = 1, nSym
-        nOLag = nOLag + nOrb(i)*nOrb(i)
-        nCLag = nCLag + nRoots*nCSF(i)
-      END DO
-      nSLag = nRoots*nRoots
+! Read in a and b part of effective gradient from CASPT2
 
-      Do i = 1, nCLag
-        Read (LUPT2,*,END=200) CLag(i)
-      End Do
-      Do i = 1, nOLag
-        Read (LUPT2,*,END=200) tmp ! rKappa(i)
-        rKappa(i) = rKappa(i) + tmp
-      End Do
-      Do i = 1, nSLag
-        Read (LUPT2,*,END=200) SLag(i)
-      End Do
+nOLag = 0
+nCLag = 0
+do i=1,nSym
+  nOLag = nOLag+nOrb(i)*nOrb(i)
+  nCLag = nCLag+nRoots*nCSF(i)
+end do
+nSLag = nRoots*nRoots
 
-      return
+do i=1,nCLag
+  read(LUPT2,*,end=200) CLag(i)
+end do
+do i=1,nOLag
+  read(LUPT2,*,end=200) tmp ! rKappa(i)
+  rKappa(i) = rKappa(i)+tmp
+end do
+do i=1,nSLag
+  read(LUPT2,*,end=200) SLag(i)
+end do
 
-  200 continue
-      write(6,*)
-      write(6,'(1x,"The file which has to be written in CASPT2 module ",&
-     &            "does not exist in RHS_PT2.")')
-      write(6,'(1x,"For single-point gradient calculation, you need ",  &
-     &            "GRAD or GRDT keyword in &CASPT2.")')
-      write(6,'(1x,"For geometry optimization, you do not need ",       &
-     &            "anything, so something is wrong with the code.")')
-      write(6,*)
-      call abend()
+return
 
-      End Subroutine RHS_PT2
+200 continue
+write(6,*)
+write(6,'(1x,A)') 'The file which has to be written in CASPT2 module does not exist in RHS_PT2.'
+write(6,'(1x,A)') 'For single-point gradient calculation, you need GRAD or GRDT keyword in &CASPT2.'
+write(6,'(1x,A)') 'For geometry optimization, you do not need anything, so something is wrong with the code.'
+write(6,*)
+call abend()
+
+end subroutine RHS_PT2

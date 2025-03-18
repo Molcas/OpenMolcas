@@ -10,76 +10,72 @@
 !                                                                      *
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
-      SubRoutine Precibb_td(ib,is,js,nd,rout,nba,                       &
-     &                  Temp1,Scr,Temp2,                                &
-     &                  fockii,fockai,                                  &
-     &                  focki,focka,sign)
-!***********************************************************************
-!                                        [2]
-!   Calculates the diagonal submatrix of E    that couple
-!
-!   kappa           with   kappa                for a
-!        kinactive,virtual        kinactive,virtual
-!
-!   single inactive index.
-!   Used for preconditioner.
-!
-!   See Olsen,Yeager, Joergensen:
-!    "Optimization and characterization of an MCSCF state"
-!
-!   Called by prec
-!
-!   ib,is       :       inactive index for the submatrix
-!   js          :       symmetry of virtual,virtual
-!   rOut        :       Submatrix
-!
-!***********************************************************************
-      use input_mclr, only: nAsh,nIsh,nBas
-      Implicit None
-      Integer ib,is,js,nd
-      Real*8 rout(*)
-      Integer nba
-      Real*8 Temp1(nBa,nBa)
-      Real*8 Temp2(*), Scr(*)
-      Real*8 fockii,fockai
-      Real*8 Focki(nBa,nBa),Focka(nBa,nBa)
-      Real*8 sign
 
-      Integer nTri,jVert,i1,ip,kB,lB
-      Real*8 ra
-!                                                                      *
+subroutine Precibb_td(ib,is,js,nd,rout,nba,Temp1,Scr,Temp2,fockii,fockai,focki,focka,sign)
 !***********************************************************************
-!                                                                      *
-      integer i,j,itri,itri1
-      iTri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-      iTri1(i,j)=nTri-itri(nd-Min(i,j)+1,nd-Min(i,j)+1)                 &
-     &          +Max(i,j)-Min(i,j)+1
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      nTri=itri(nd,nd)
+!                                       [2]
+! Calculates the diagonal submatrix of E    that couple
 !
-      jVert=nBas(js)-nAsh(js)-nIsh(js)
-      if (jvert.eq.0) Return
+! kappa           with   kappa                for a
+!      kinactive,virtual        kinactive,virtual
 !
-      i1=nD-jVert+1
-      ip=itri1(i1,i1)
-      ra=4.0d0*sign*(Fockii+Fockai)
-      Call COUL(jS,jS,iS,iS,iB,iB,Temp2,Scr)
-      Call Dyax(nba**2,-sign*4.0d0,Temp2,1,Temp1,1)
-      Call EXCH(js,is,js,is,ib,ib,Temp2,Scr)
-      Call DaXpY_(nBa**2,sign*12.0d0,Temp2,1,Temp1,1)
-      i=ip-1
-      Do kB=nIsh(jS)+nAsh(jS)+1,nBas(jS)
-         rOut(i+1)=rout(i+1)-ra
-         Do lB=kb,nBAS(JS)
-            i=i+1
-            rOut(i)=rout(i)+Temp1(kb,lb)+                               &
-     &              sign*4.0d0*Focki(kb,lb)+                            &
-     &              sign*4.0d0*Focka(kb,lb)
-          End Do
-      End Do
+! single inactive index.
+! Used for preconditioner.
+!
+! See Olsen,Yeager, Joergensen:
+!  "Optimization and characterization of an MCSCF state"
+!
+! Called by prec
+!
+! ib,is       :       inactive index for the submatrix
+! js          :       symmetry of virtual,virtual
+! rOut        :       Submatrix
+!
+!***********************************************************************
+
+use input_mclr, only: nAsh, nIsh, nBas
+
+implicit none
+integer ib, is, js, nd
+real*8 rout(*)
+integer nba
+real*8 Temp1(nBa,nBa)
+real*8 Temp2(*), Scr(*)
+real*8 fockii, fockai
+real*8 Focki(nBa,nBa), Focka(nBa,nBa)
+real*8 sign
+integer nTri, jVert, i1, ip, kB, lB
+real*8 ra
+! Statement functions
+integer i, j, itri, itri1
+iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      End SubRoutine Precibb_td
+nTri = itri(nd,nd)
+
+jVert = nBas(js)-nAsh(js)-nIsh(js)
+if (jvert == 0) return
+
+i1 = nD-jVert+1
+ip = itri1(i1,i1)
+ra = 4.0d0*sign*(Fockii+Fockai)
+call COUL(jS,jS,iS,iS,iB,iB,Temp2,Scr)
+call Dyax(nba**2,-sign*4.0d0,Temp2,1,Temp1,1)
+call EXCH(js,is,js,is,ib,ib,Temp2,Scr)
+call DaXpY_(nBa**2,sign*12.0d0,Temp2,1,Temp1,1)
+i = ip-1
+do kB=nIsh(jS)+nAsh(jS)+1,nBas(jS)
+  rOut(i+1) = rout(i+1)-ra
+  do lB=kb,nBAS(JS)
+    i = i+1
+    rOut(i) = rout(i)+Temp1(kb,lb)+sign*4.0d0*Focki(kb,lb)+sign*4.0d0*Focka(kb,lb)
+  end do
+end do
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+
+end subroutine Precibb_td

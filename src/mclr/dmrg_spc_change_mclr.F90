@@ -8,14 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine dmrg_spc_change_mclr(orbspc,lrspc)
-       Implicit None
 
-       integer::orbspc(8)
-       integer::lrspc(8)
+subroutine dmrg_spc_change_mclr(orbspc,lrspc)
 
-       lrspc=0
+implicit none
+integer :: orbspc(8)
+integer :: lrspc(8)
 
-       lrspc=orbspc
+lrspc = 0
 
-      End Subroutine dmrg_spc_change_mclr
+lrspc = orbspc
+
+end subroutine dmrg_spc_change_mclr

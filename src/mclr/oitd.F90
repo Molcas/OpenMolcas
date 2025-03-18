@@ -8,52 +8,50 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine OITD(rK,isym,D,Dtmp,act)
-!
-      use Arrays, only: G1t
-      use Constants, only: Zero, One, Two
-      use MCLR_Data, only: ipCM, ipMat, nA, nDens2
-      use input_mclr, only: nSym,nAsh,nIsh,nOrb
-      Implicit None
-      Integer iSym
-      Real*8 rK(*),D(*),Dtmp(nDens2)
 
-      Logical act
-      integer iS, iB, jB, jS
-      integer i, j, itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!
-      DTmp(:)=Zero
-!
-!     Note: even with NAC we set the inactive block,
-!     because this is the SA density, not the transition density
-      Do iS=1,nSym
-        Do iB=1,nIsh(iS)
-          Dtmp(1+(ipCM(iS)+(ib-1)*nOrb(iS)+ib-1)-1) = Two
-        End Do
-      End Do
-      If (act) Then
-       Do iS=1,nSym
-        Do iB=1,nAsh(iS)
-         Do jB=1,nAsh(iS)
-          Dtmp(1+(ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1)-1)=  &
-     &    G1t((itri((nA(is)+ib),(nA(is)+jb))))
-         End Do
-        End Do
-       End Do
-      End If
-!
-      Do iS=1,nsym
-         jS=ieor(iS-1,isym-1)+1
-         If (nOrb(iS)*nOrb(jS).ge.1) Then
-            Call DGEMM_('N','T',nOrb(iS),nOrb(jS),nOrb(iS),One,         &
-     &                 Dtmp(1+ipCM(iS)-1),nOrb(iS),                     &
-     &                 rK(ipMat(jS,iS)),nOrb(jS),                       &
-     &                 Zero,D(ipMat(iS,jS)),nOrb(iS))
-            Call DGEMM_('T','N',nOrb(iS),nOrb(jS),nOrb(jS),-One,        &
-     &                 rK(ipMat(jS,iS)),nOrb(jS),                       &
-     &                 Dtmp(1+ipCM(jS)-1),nOrb(jS),                     &
-     &                 One,D(ipMat(iS,jS)),nOrb(iS))
-         End If
-      End Do
-      End Subroutine OITD
+subroutine OITD(rK,isym,D,Dtmp,act)
+
+use Arrays, only: G1t
+use Constants, only: Zero, One, Two
+use MCLR_Data, only: ipCM, ipMat, nA, nDens2
+use input_mclr, only: nSym, nAsh, nIsh, nOrb
+
+implicit none
+integer iSym
+real*8 rK(*), D(*), Dtmp(nDens2)
+logical act
+integer iS, iB, jB, jS
+integer i, j, itri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+DTmp(:) = Zero
+
+! Note: even with NAC we set the inactive block,
+! because this is the SA density, not the transition density
+do iS=1,nSym
+  do iB=1,nIsh(iS)
+    Dtmp(1+(ipCM(iS)+(ib-1)*nOrb(iS)+ib-1)-1) = Two
+  end do
+end do
+if (act) then
+  do iS=1,nSym
+    do iB=1,nAsh(iS)
+      do jB=1,nAsh(iS)
+        Dtmp(1+(ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1)-1) = G1t((itri((nA(is)+ib),(nA(is)+jb))))
+      end do
+    end do
+  end do
+end if
+
+do iS=1,nsym
+  jS = ieor(iS-1,isym-1)+1
+  if (nOrb(iS)*nOrb(jS) >= 1) then
+    call DGEMM_('N','T',nOrb(iS),nOrb(jS),nOrb(iS),One,Dtmp(1+ipCM(iS)-1),nOrb(iS),rK(ipMat(jS,iS)),nOrb(jS),Zero,D(ipMat(iS,jS)), &
+                nOrb(iS))
+    call DGEMM_('T','N',nOrb(iS),nOrb(jS),nOrb(jS),-One,rK(ipMat(jS,iS)),nOrb(jS),Dtmp(1+ipCM(jS)-1),nOrb(jS),One,D(ipMat(iS,jS)), &
+                nOrb(iS))
+  end if
+end do
+
+end subroutine OITD

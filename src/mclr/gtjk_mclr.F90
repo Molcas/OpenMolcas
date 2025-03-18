@@ -8,32 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GTJK_MCLR(RJ,RK)
-      use Arrays, only: Int2
-      use MCLR_Data, only: NACOB
-!
-!     PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
-!              WITH THE CHARGE DISTRIBUTION JK
-!
-      IMPLICIT None
-      Real*8 RJ(NACOB,NACOB),RK(NACOB,nACOB)
-      Integer NT, NU, NTUK, NTUJ
-      Integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!
-!     FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
-!     THE TWO-ELECTRON INTEGRAL LIST
-!
-      DO NT=1,NACOB
-         DO  NU=1,NT
-            NTUK=itri(itri(nt,nt),itri(nu,nu))
-            RJ(NT,NU)=INT2(NTUK)
-            RJ(NU,NT)=INT2(NTUK)
 
-            NTUJ=itri(itri(nt,nu),itri(nu,nt))
-            RK(NT,NU)=INT2(NTUJ)
-            RK(NU,NT)=INT2(NTUJ)
-         End Do
-      End Do
-!
-      END SUBROUTINE GTJK_MCLR
+subroutine GTJK_MCLR(RJ,RK)
+! PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
+!          WITH THE CHARGE DISTRIBUTION JK
+
+use Arrays, only: Int2
+use MCLR_Data, only: NACOB
+
+implicit none
+real*8 RJ(NACOB,NACOB), RK(NACOB,nACOB)
+integer NT, NU, NTUK, NTUJ
+integer i, j, itri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+! FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
+! THE TWO-ELECTRON INTEGRAL LIST
+
+do NT=1,NACOB
+  do NU=1,NT
+    NTUK = itri(itri(nt,nt),itri(nu,nu))
+    RJ(NT,NU) = INT2(NTUK)
+    RJ(NU,NT) = INT2(NTUK)
+
+    NTUJ = itri(itri(nt,nu),itri(nu,nt))
+    RK(NT,NU) = INT2(NTUJ)
+    RK(NU,NT) = INT2(NTUJ)
+  end do
+end do
+
+end subroutine GTJK_MCLR

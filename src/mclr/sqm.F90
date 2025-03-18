@@ -8,16 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine SqM(a,b,n)
-      integer n,i,j,ij
-      Real*8 a(*),b(n,n)
-      ij=0
-      Do i=1,n
-       Do j=i,n
-        ij=ij+1
-        B(i,j)=A(ij)
-        B(j,i)=A(ij)
-       End Do
-      End Do
-      Return
-      End
+
+subroutine SqM(a,b,n)
+
+integer n, i, j, ij
+real*8 a(*), b(n,n)
+
+ij = 0
+do i=1,n
+  do j=i,n
+    ij = ij+1
+    B(i,j) = A(ij)
+    B(j,i) = A(ij)
+  end do
+end do
+
+return
+
+end subroutine SqM

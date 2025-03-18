@@ -14,8 +14,9 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
-!**************************************************************************
+
+subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
+!***********************************************************************
 !  Some notes from the author:
 !
 !  Sum_KL{z_KL * (d^2)Q/(dX_KL)(dP_MLam)}_tuvx =
@@ -43,7 +44,7 @@
 !   if M < K, Wop_tu = -2 * Sum_vx z_KM * Ddiff^KM_vx * g_tuvx
 !
 !  Then call CISigma, and save the results to the array WSLam
-!  (wo...si...le...? an example of a bad variable name)
+!  (wo...si... <= ...? an example of a bad variable name)
 !  daxpy WSLam((K-1)*nConf1+1) to AXPzx((M-1)*nConf1+1)
 !
 !  End looping over K
@@ -103,164 +104,148 @@
 !  reason to keep both algorithms.
 !
 !  End of the "essay".
-!
 !***********************************************************************
-      use ipPage, only: W
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
-      use MCLR_Data, only: XISPSM
-      use input_mclr, only: State_Sym,nSym,nRoots,ntAsh,nAsh
-      Implicit None
 
-!*****Input
-      Real*8,DIMENSION((nRoots-1)*nRoots/2)::zX
-      Real*8,DIMENSION(nRoots*(nRoots+1)/2,nnA,nnA)::GDMat
-      Integer NPUVX
-      Real*8,DIMENSION(NPUVX)::PUVX
-      INTEGER,DIMENSION(ntAsh,ntAsh,ntAsh,ntAsh)::IndTUVX
-      Real*8,DIMENSION((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2)::DDg
-!*****Output
-      Real*8,DIMENSION(NConf1*nRoots)::AXPzx
-!*****Auxiliaries
-      Real*8,DIMENSION(:),Allocatable::Wop,Ddiff,D_acc
-      INTEGER K,L,M
-      INTEGER jSym
-      INTEGER iKK,iLL,iKL,iKL2,iKM2,iLM,iKM
-      Integer,DIMENSION(nSym):: off_Ash
-      Real*8 coeff1,coeff2,Coeff,dRoots
-      Integer tempi1,ipwslam,nconf3
-      Real*8,DIMENSION(1)::tempda
-      Real*8, External:: DDot_
-      Integer, External:: ipGet
+use ipPage, only: W
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
+use MCLR_Data, only: XISPSM
+use input_mclr, only: State_Sym, nSym, nRoots, ntAsh, nAsh
 
-      INTEGER I
-      Real*8,DIMENSION(:),Allocatable:: ovrlp
+implicit none
+! Input
+real*8, dimension((nRoots-1)*nRoots/2) :: zX
+real*8, dimension(nRoots*(nRoots+1)/2,nnA,nnA) :: GDMat
+integer NPUVX
+real*8, dimension(NPUVX) :: PUVX
+integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
+real*8, dimension((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2) :: DDg
+! Output
+real*8, dimension(NConf1*nRoots) :: AXPzx
+! Auxiliaries
+real*8, dimension(:), allocatable :: Wop, Ddiff, D_acc
+integer K, L, M
+integer jSym
+integer iKK, iLL, iKL, iKL2, iKM2, iLM, iKM
+integer, dimension(nSym) :: off_Ash
+real*8 coeff1, coeff2, Coeff, dRoots
+integer tempi1, ipwslam, nconf3
+real*8, dimension(1) :: tempda
+real*8, external :: DDot_
+integer, external :: ipGet
+integer I
+real*8, dimension(:), allocatable :: ovrlp
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-       SubRoutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,&
-     &                       Int2a,nInt2a,ipCI1,ipCI2, Have_2_el)
-       Integer iispin, iCsym, iSSym
-       Integer nInt1, nInt2s, nInt2a
-       Real*8, Target:: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-       Integer ipCI1, ipCI2
-       Logical Have_2_el
-       End SubRoutine CISigma_sa
-      End Interface
+interface
+  subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
+    integer iispin, iCsym, iSSym
+    integer nInt1, nInt2s, nInt2a
+    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+    integer ipCI1, ipCI2
+    logical Have_2_el
+  end subroutine CISigma_sa
+end interface
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 
+call FZero(AXPzx,nConf1*nRoots)
+! Converting nRoots to double prec type
+dRoots = real(nRoots,8)
+! Symmetry offset
+tempi1 = 0
+do jSym=1,nSym
+  off_Ash(jSym) = tempi1
+  tempi1 = tempi1+nAsh(jSym)
+end do
 
-      CALL FZero(AXPzx,nConf1*nRoots)
-!*****Covnerting nRoots to double prec type
-      dRoots=Real(nRoots,8)
-!*****Symmetry off-set
-      tempi1=0
-      DO jSym=1, nSym
-       off_Ash(jSym)=tempi1
-       tempi1=tempi1+nAsh(jSym)
-      END DO
+! Memory allocation
+nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
+ipwslam = ipGet(nConf3*nRoots)
 
-!*****memory allocation
-      nConf3=nint(Max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
-      ipwslam=ipGet(nConf3*nRoots)
+call mma_allocate(Wop,nDens2)
+call mma_allocate(Ddiff,nnA**2)
+call mma_allocate(D_acc,nnA**2)
 
-      CALL mma_allocate(Wop,nDens2)
-      CALL mma_allocate(Ddiff,nnA**2)
-      CALL mma_allocate(D_acc,nnA**2)
+call FZero(Wop,nDens2)
+! only a subset, and the same one, of Wop is overwritten
+! so it is ok to fzero it here only once
 
-      CALL FZero(Wop,nDens2)
-!     only a subset, and the same one, of Wop is overwritten
-!     so it is ok to fzero it here only once
+! Starting the procedure in the "essay"
+! looping over M
 
-!**** Starting the procedure in the "essay"
-!***  looping over M
+do M=1,nRoots
+  ! Computing (1)
+  do K=1,nRoots
+    if (K == M) cycle
+    if (M > K) then
+      iKM2 = (M-2)*(M-1)/2+K
+    else
+      iKM2 = (K-2)*(K-1)/2+M
+    end if
+    call CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
+    Coeff = 2.0d0*zx(IKM2)
+    if (K > M) Coeff = -Coeff
+    call CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
+    call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
+    !irc=ipin(ipwslam)
+    call dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+  end do
+  ! Computing (2)
+  call FZero(D_acc,nnA**2)
+  call CalcDacc(D_acc,GDMat,M,nnA,nRoots,zx)
+  call CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,1.0d0,off_Ash)
+  call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
+  call dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((M-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+  ! Computing (3)
+  do K=2,nRoots
+    IKK = (K+1)*K/2
+    if (K < M) IKM = (M-1)*M/2+K
+    if (K >= M) IKM = (K-1)*K/2+M
+    do L=1,K-1
+      ILL = (L+1)*L/2
+      IKL = (K-1)*K/2+L
+      IKL2 = (K-1)*(K-2)/2+L
+      if (L < M) ILM = (M-1)*M/2+L
+      if (L >= M) ILM = (L-1)*L/2+M
+      Coeff1 = zx(IKL2)*(2.0d0*(DDg(IKM,ILL)-DDg(IKM,IKK))+4.0d0*DDg(IKL,ILM))
+      Coeff2 = zx(IKL2)*(2.0d0*(DDg(ILM,ILL)-DDg(ILM,IKK))-4.0d0*DDg(IKL,IKM))
 
+      call DAXpY_(nConf1,Coeff1,W(ipCI)%Vec((L-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+      call DAXpY_(nConf1,Coeff2,W(ipCI)%Vec((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+    end do
+  end do
+end do
 
-      DO M=1,nRoots
-!***  Computing (1)
-       Do K=1,nRoots
-        IF(K.eq.M) Cycle
-        IF(M.gt.K) THEN
-         iKM2=(M-2)*(M-1)/2+K
-        ELSE
-         iKM2=(K-2)*(K-1)/2+M
-        END IF
-        CALL CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
-        Coeff=2.0d0*zx(IKM2)
-        IF(K.gt.M) Coeff=-Coeff
-        CALL CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
-        CALL CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,      &
-     &  tempda,1,ipci,ipwslam,.false.)
-!        irc=ipin(ipwslam)
-        CALL dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((K-1)*nConf1+1),1,     &
-     &  AXPzx((M-1)*nConf1+1),1)
-       End Do
-!***  Computing (2)
-       CALL FZero(D_acc,nnA**2)
-       CALL CalcDacc(D_acc,GDMat,M,nnA,nRoots,zx)
-       CALL CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,1.0d0,off_Ash)
-       CALL CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,       &
-     & tempda,1,ipci,ipwslam,.false.)
-       CALL dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((M-1)*nConf1+1),1,      &
-     & AXPzx((M-1)*nConf1+1),1)
-!***  Computing (3)
-       Do K=2,nRoots
-        IKK=(K+1)*K/2
-        IF(K.lt.M) IKM=(M-1)*M/2+K
-        IF(K.ge.M) IKM=(K-1)*K/2+M
-        do L=1,K-1
-         ILL=(L+1)*L/2
-         IKL=(K-1)*K/2+L
-         IKL2=(K-1)*(K-2)/2+L
-         IF(L.lt.M) ILM=(M-1)*M/2+L
-         IF(L.ge.M) ILM=(L-1)*L/2+M
-         Coeff1=zx(IKL2)*                                               &
-     &   (2.0d0*(DDg(IKM,ILL)-DDg(IKM,IKK))+4.0d0*DDg(IKL,ILM))
-         Coeff2=zx(IKL2)*                                               &
-     &   (2.0d0*(DDg(ILM,ILL)-DDg(ILM,IKK))-4.0d0*DDg(IKL,IKM))
+! Memory deallocation
+call mma_deallocate(Wop)
+call mma_deallocate(Ddiff)
+call mma_deallocate(D_acc)
 
-         CALL DAXpY_(nConf1,Coeff1,W(ipCI)%Vec((L-1)*nConf1+1),1,       &
-     &                                  AXPzx((M-1)*nConf1+1),1)
-         CALL DAXpY_(nConf1,Coeff2,W(ipCI)%Vec((K-1)*nConf1+1),1,       &
-     &                                  AXPzx((M-1)*nConf1+1),1)
-        end do
-       End Do
-      END DO
+! Now making AXPzx orthogonal to intermediate states
+! This part is not mentioned in the equation above because
+! the method is straightforward.
 
-!**** memory deallocation
-      CALL mma_deallocate(Wop)
-      CALL mma_deallocate(Ddiff)
-      CALL mma_deallocate(D_acc)
+! AXPzx_orthonal = AXPzx * (1- Sum_I |I><I|)
 
-!**** Now making AXPzx orthogonal to intermediate states
-!**** This part is not mentioned in the equation above because
-!**** the method is straightforward.
+call mma_allocate(ovrlp,nRoots**2)
 
-!**** AXPzx_orthonal = AXPzx * (1- Sum_I |I><I|)
+do M=1,nRoots
+  do I=1,nRoots
+    ovrlp((M-1)*nRoots+I) = ddot_(nConf1,W(ipCI)%Vec((I-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+  end do
+end do
 
-      CALL mma_allocate(ovrlp,nRoots**2)
+do M=1,nRoots
+  do I=1,nRoots
+    call daxpy_(nConf1,-ovrlp((M-1)*nRoots+I),W(ipCI)%Vec((I-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+  end do
+end do
 
-      DO M=1,nRoots
-       Do I=1,nRoots
-        ovrlp((M-1)*nRoots+I)=                                          &
-     & ddot_(nConf1,W(ipCI)%Vec((I-1)*nConf1+1),1,                      &
-     &                   AXPzx((M-1)*nConf1+1),1)
-       End Do
-      END DO
+call DScal_(nRoots*nConf1,-1.0d0,AXPzx,1)
 
-      DO M=1,nRoots
-       Do I=1,nRoots
-        CALL daxpy_(nConf1,-ovrlp((M-1)*nRoots+I),                      &
-     &                W(ipCI)%Vec((I-1)*nConf1+1),1,                    &
-     &                     AXPzx((M-1)*nConf1+1),1)
-       End Do
-      END DO
+call mma_deallocate(ovrlp)
 
-      CALL DScal_(nRoots*nConf1,-1.0d0,AXPzx,1)
-
-      CALL mma_deallocate(ovrlp)
-
-      END SUBROUTINE CalcAXPzx
+end subroutine CalcAXPzx

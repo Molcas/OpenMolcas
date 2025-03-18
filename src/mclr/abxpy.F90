@@ -8,52 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine ABXpY(Array1,Array2,idsym)
-      use MCLR_Data, only: ipMO, NA
-      use input_mclr, only: nSym,nAsh,nIsh,nOrb
-      Implicit None
-      Integer idsym
-      Real*8 Array1(*),Array2(*)
 
-      Integer i, j, itri
-      Integer iS, jS, kS, lS, ijS
-      Integer iA, jA, kA, lA
-      Integer iAsh, jAsh, kAsh, lAsh
-      Integer iiA, ij, kl, ijkl, ip1
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
+subroutine ABXpY(Array1,Array2,idsym)
 
-      Do iS=1,nSym
-       Do iA=1,Nash(is)
-        iAsh=nA(is)+iA
-        iiA=nIsh(is)+iA
-        Do jS=1,nSym
-         ijs=iEOR(is-1,js-1)+1
-         Do jA=1,Nash(js)
-          jAsh=nA(js)+jA
-          ij=itri(iash,jash)
-          If (iAsh.ge.jash) Then
-          Do kS=1,nSym
-           Do kA=1,Nash(ks)
-            kAsh=nA(ks)+kA
-             ls=ieor(iEOR(kS-1,ijs-1),idsym-1)+1
-             Do lA=1,Nash(ls)
-              lAsh=nA(ls)+lA
-              If (kAsh.ge.lash) Then
-              kl=itri(kAsh,lash)
-              If (ij.ge.kl) Then
-              ijkl=itri(ij,kl)
-              ip1=ipMO(js,ks,ls)+                                       &
-     &             nOrb(is)*nAsh(js)*((lA-1)*nAsh(kS)+kA-1)+            &
-     &             nOrb(is)*(ja-1)+iia-1
-              Array2(ijkl)=array1(ip1)+array2(ijkl)
-              End If
-              End If
-            End Do
-           End Do
-          End Do
-          End If
-         End Do
-        End Do
-       End Do
-      End Do
-      End SubRoutine ABXpY
+use MCLR_Data, only: ipMO, NA
+use input_mclr, only: nSym, nAsh, nIsh, nOrb
+
+implicit none
+integer idsym
+real*8 Array1(*), Array2(*)
+integer i, j, itri
+integer iS, jS, kS, lS, ijS
+integer iA, jA, kA, lA
+integer iAsh, jAsh, kAsh, lAsh
+integer iiA, ij, kl, ijkl, ip1
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+do iS=1,nSym
+  do iA=1,Nash(is)
+    iAsh = nA(is)+iA
+    iiA = nIsh(is)+iA
+    do jS=1,nSym
+      ijs = ieor(is-1,js-1)+1
+      do jA=1,Nash(js)
+        jAsh = nA(js)+jA
+        ij = itri(iash,jash)
+        if (iAsh >= jash) then
+          do kS=1,nSym
+            do kA=1,Nash(ks)
+              kAsh = nA(ks)+kA
+              ls = ieor(ieor(kS-1,ijs-1),idsym-1)+1
+              do lA=1,Nash(ls)
+                lAsh = nA(ls)+lA
+                if (kAsh >= lash) then
+                  kl = itri(kAsh,lash)
+                  if (ij >= kl) then
+                    ijkl = itri(ij,kl)
+                    ip1 = ipMO(js,ks,ls)+nOrb(is)*nAsh(js)*((lA-1)*nAsh(kS)+kA-1)+nOrb(is)*(ja-1)+iia-1
+                    Array2(ijkl) = array1(ip1)+array2(ijkl)
+                  end if
+                end if
+              end do
+            end do
+          end do
+        end if
+      end do
+    end do
+  end do
+end do
+
+end subroutine ABXpY

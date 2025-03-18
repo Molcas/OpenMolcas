@@ -10,15 +10,10 @@
 !                                                                      *
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
-      SUBROUTINE GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,         &
-     &                        JASM,JATP,JBSM,JBTP,NJA,NJB,              &
-     &                  IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,           &
-     &                  SB,CB,MXPNGAS,                                  &
-     &                  NOBPTS,IOBPTS,MAXK,                             &
-     &                  I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,              &
-     &                  NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,          &
-     &                  CJRES,SIRES,NORB,NTESTG,ieaw)
-!
+
+subroutine GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB, &
+                        MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,CJRES, &
+                        SIRES,NORB,NTESTG,ieaw)
 ! alpha-beta contribution to two-particle density matrix
 ! from given c-block and s-block.
 !
@@ -46,7 +41,6 @@
 !       single excitations
 ! MAXK   : Largest number of inner resolution strings treated at simult.
 !
-!
 ! ======
 ! Output
 ! ======
@@ -63,145 +57,134 @@
 ! X : Space for block of two-electron integrals
 !
 ! Jeppe Olsen, Fall of 1996
-!
-!
-!
-      USE Symmetry_Info, only: Mul
-      IMPLICIT REAL*8(A-H,O-Z)
-!. General input
-      INTEGER NOBPTS(3,*),IOBPTS(3,*)
-!.Input
-      DIMENSION CB(*),SB(*)
-!. Output
-      DIMENSION RHO2(*)
-!.Scratch
-      DIMENSION I1(*),XI1S(*),I2(*),XI2S(*)
-      DIMENSION I3(*),XI3S(*),I4(*),XI4S(*)
-      DIMENSION X(*)
-      DIMENSION CJRES(*),SIRES(*)
-      DIMENSION IAOC(*),IBOC(*),JAOC(*),JBOC(*)
-!.Local arrays
-      DIMENSION ITP(3 ),JTP(3 ),KTP(3 ),LTP(3 )
-!
-      NGAS = 3
-!
-!. Symmetry of allowed excitations
-      IJSM = Mul(IASM,JASM)
-      KLSM = Mul(IBSM,JBSM)
-      itype=2
-      If (ieaw.eq.1) itype=3
-      IF(IJSM.EQ.0.OR.KLSM.EQ.0) GOTO 9999
-!.Types of SX that connects the two strings
-      CALL SXTYP_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC)
-      CALL SXTYP_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC)
-      IF(NIJTYP.EQ.0.OR.NKLTYP.EQ.0) GOTO 9999
-      DO 2001 IJTYP = 1, NIJTYP
-        ITYP = ITP(IJTYP)
-        JTYP = JTP(IJTYP)
-        DO 1940 ISM = 1, NSMOB
-          JSM = Mul(ISM,IJSM)
-          IF(JSM.EQ.0) GOTO 1940
-          IOFF = IOBPTS(ITYP,ISM)
-          JOFF = IOBPTS(JTYP,JSM)
-          NI = NOBPTS(ITYP,ISM)
-          NJ = NOBPTS(JTYP,JSM)
-          IF(NI.EQ.0.OR.NJ.EQ.0) GOTO 1940
-!EAW
-!. Find Ka strings that connect with Ja strings for given group of Jorbs
-           KABOT = 1
-!. Obtain all strings
-           KATOP = -1
-           CALL ADST(JOFF,NJ,JATP,JASM,IAGRP,KABOT,KATOP,               &
-     &              I1,XI1S,MAXK,NKASTR,KAEND)
-           CALL ADST(IOFF,NI,IATP,IASM,IAGRP,KABOT,KATOP,               &
-     &               I3,XI3S,MAXK,NKASTR,KAEND)
-          IDOCOMP = 1
-          IF(IDOCOMP.EQ.1) THEN
-              CALL COMPRS2LST(I1,XI1S,NJ,I3,XI3S,NI,NKASTR,NKAEFF)
-          ELSE
-              NKAEFF = NKASTR
-          END IF
 
-!. Loop over batches of KA strings
-          NKABTC = NKAEFF/MAXK
-          IF(NKABTC*MAXK.LT.NKAEFF) NKABTC = NKABTC + 1
-          DO 1801 IKABTC = 1, NKABTC
-            KABOT = (IKABTC-1)*MAXK + 1
-            KATOP = MIN(KABOT+MAXK-1,NKAEFF)
-            LKABTC = KATOP-KABOT+1
-!. Obtain C(ka,J,JB) for Ka in batch
-            DO JJ = 1, NJ
-              CALL GET_CKAJJB(CB,NJ,NJA,CJRES,LKABTC,NJB,               &
-     &             JJ,I1(KABOT+(JJ-1)*NKASTR),                          &
-     &             XI1S(KABOT+(JJ-1)*NKASTR))
-            END DO
-!. Obtain S(ka,i,Ib) for Ka in batch
-            DO II = 1, NI
-              CALL GET_CKAJJB(SB,NI,NIA,SIRES,LKABTC,NIB,               &
-     &             II,I3(KABOT+(II-1)*NKASTR),                          &
-     &             XI3S(KABOT+(II-1)*NKASTR))
-            END DO
-!
-            DO 2000 KLTYP = 1, NKLTYP
-              KTYP = KTP(KLTYP)
-              LTYP = LTP(KLTYP)
-!
-              DO 1930 KSM = 1, NSMOB
-                LSM = Mul(KSM,KLSM)
-                IF(LSM.EQ.0) GOTO 1930
-                KOFF = IOBPTS(KTYP,KSM)
-                LOFF = IOBPTS(LTYP,LSM)
-                NK = NOBPTS(KTYP,KSM)
-                NL = NOBPTS(LTYP,LSM)
-!. If IUSEAB is used, only terms with i.ge.k will be generated so
-                IKORD = 0
-                IF(IUSEAB.EQ.1.AND.ISM.GT.KSM) GOTO 1930
-                IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.LT.KTYP)         &
-     &          GOTO 1930
-                IF(IUSEAB.EQ.1.AND.ISM.EQ.KSM.AND.ITYP.EQ.KTYP) IKORD=1
-!
-                IF(NK.EQ.0.OR.NL.EQ.0) GOTO 1930
-!EAW
-!. Obtain all connections a+l!Kb> = +/-/0!Jb>
-!. NKBSTR must be given as input
-!. obtain cb(KA,KB,jl) =  sum(JA,JB)<KA!a la!JA><KB!a jb !JB>C(JA,JB)
-!
-               KBBOT = 1
-!. Obtain all strings
-               KBTOP = -1
-               CALL ADST(LOFF,NL,JBTP,JBSM,IBGRP,KBBOT,KBTOP,           &
-     &                      I2,XI2S,MAXK,NKBSTR,KBEND)
-               CALL ADST(KOFF,NK,IBTP,IBSM,IBGRP,KBBOT,KBTOP,           &
-     &                   I4,XI4S,MAXK,NKBSTR,KBEND)
+use Symmetry_Info, only: Mul
 
-!               IF(NKBSTR.EQ.0) GOTO 1930
-                X(1:NI*NJ*NK*NL) = 0.0D0
-!
-                CALL ABTOR2(SIRES,CJRES,LKABTC,                         &
-     &               NKBSTR,X,NI,NJ,NK,NL,NKBSTR,                       &
-     &               I4,XI4S,I2,XI2S,IKORD)
-!. contributions to Rho2(ij,kl) has been obtained, scatter out
-                CALL ADTOR2_MCLR(RHO2,X,itype,                          &
-     &                NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
+implicit real*8(A-H,O-Z)
+! General input
+integer NOBPTS(3,*), IOBPTS(3,*)
+! Input
+dimension CB(*), SB(*)
+! Output
+dimension RHO2(*)
+! Scratch
+dimension I1(*), XI1S(*), I2(*), XI2S(*)
+dimension I3(*), XI3S(*), I4(*), XI4S(*)
+dimension X(*)
+dimension CJRES(*), SIRES(*)
+dimension IAOC(*), IBOC(*), JAOC(*), JBOC(*)
+! Local arrays
+dimension ITP(3), JTP(3), KTP(3), LTP(3)
 
- 1930         CONTINUE
- 2000       CONTINUE
- 1801     CONTINUE
-!. End of loop over partitioning of alpha strings
- 1940   CONTINUE
- 2001 CONTINUE
-!
- 9999 CONTINUE
-!
-!
-      RETURN
+NGAS = 3
+
+! Symmetry of allowed excitations
+IJSM = Mul(IASM,JASM)
+KLSM = Mul(IBSM,JBSM)
+itype = 2
+if (ieaw == 1) itype = 3
+if ((IJSM == 0) .or. (KLSM == 0)) goto 9999
+! Types of SX that connects the two strings
+call SXTYP_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC)
+call SXTYP_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC)
+if ((NIJTYP == 0) .or. (NKLTYP == 0)) goto 9999
+do IJTYP=1,NIJTYP
+  ITYP = ITP(IJTYP)
+  JTYP = JTP(IJTYP)
+  do ISM=1,NSMOB
+    JSM = Mul(ISM,IJSM)
+    if (JSM == 0) goto 1940
+    IOFF = IOBPTS(ITYP,ISM)
+    JOFF = IOBPTS(JTYP,JSM)
+    NI = NOBPTS(ITYP,ISM)
+    NJ = NOBPTS(JTYP,JSM)
+    if ((NI == 0) .or. (NJ == 0)) goto 1940
+    !EAW
+    ! Find Ka strings that connect with Ja strings for given group of Jorbs
+    KABOT = 1
+    ! Obtain all strings
+    KATOP = -1
+    call ADST(JOFF,NJ,JATP,JASM,IAGRP,KABOT,KATOP,I1,XI1S,MAXK,NKASTR,KAEND)
+    call ADST(IOFF,NI,IATP,IASM,IAGRP,KABOT,KATOP,I3,XI3S,MAXK,NKASTR,KAEND)
+    IDOCOMP = 1
+    if (IDOCOMP == 1) then
+      call COMPRS2LST(I1,XI1S,NJ,I3,XI3S,NI,NKASTR,NKAEFF)
+    else
+      NKAEFF = NKASTR
+    end if
+
+    ! Loop over batches of KA strings
+    NKABTC = NKAEFF/MAXK
+    if (NKABTC*MAXK < NKAEFF) NKABTC = NKABTC+1
+    do IKABTC=1,NKABTC
+      KABOT = (IKABTC-1)*MAXK+1
+      KATOP = min(KABOT+MAXK-1,NKAEFF)
+      LKABTC = KATOP-KABOT+1
+      ! Obtain C(ka,J,JB) for Ka in batch
+      do JJ=1,NJ
+        call GET_CKAJJB(CB,NJ,NJA,CJRES,LKABTC,NJB,JJ,I1(KABOT+(JJ-1)*NKASTR),XI1S(KABOT+(JJ-1)*NKASTR))
+      end do
+      ! Obtain S(ka,i,Ib) for Ka in batch
+      do II=1,NI
+        call GET_CKAJJB(SB,NI,NIA,SIRES,LKABTC,NIB,II,I3(KABOT+(II-1)*NKASTR),XI3S(KABOT+(II-1)*NKASTR))
+      end do
+
+      do KLTYP=1,NKLTYP
+        KTYP = KTP(KLTYP)
+        LTYP = LTP(KLTYP)
+
+        do KSM=1,NSMOB
+          LSM = Mul(KSM,KLSM)
+          if (LSM == 0) goto 1930
+          KOFF = IOBPTS(KTYP,KSM)
+          LOFF = IOBPTS(LTYP,LSM)
+          NK = NOBPTS(KTYP,KSM)
+          NL = NOBPTS(LTYP,LSM)
+          ! If IUSEAB is used, only terms with i >= k will be generated so
+          IKORD = 0
+          if ((IUSEAB == 1) .and. (ISM > KSM)) goto 1930
+          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP < KTYP)) goto 1930
+          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP == KTYP)) IKORD = 1
+
+          if ((NK == 0) .or. (NL == 0)) goto 1930
+          !EAW
+          ! Obtain all connections a+l!Kb> = +/-/0!Jb>
+          ! NKBSTR must be given as input
+          ! obtain cb(KA,KB,jl) =  sum(JA,JB)<KA!a la!JA><KB!a jb !JB>C(JA,JB)
+
+          KBBOT = 1
+          ! Obtain all strings
+          KBTOP = -1
+          call ADST(LOFF,NL,JBTP,JBSM,IBGRP,KBBOT,KBTOP,I2,XI2S,MAXK,NKBSTR,KBEND)
+          call ADST(KOFF,NK,IBTP,IBSM,IBGRP,KBBOT,KBTOP,I4,XI4S,MAXK,NKBSTR,KBEND)
+
+          !if (NKBSTR == 0) goto 1930
+          X(1:NI*NJ*NK*NL) = 0.0d0
+
+          call ABTOR2(SIRES,CJRES,LKABTC,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
+          ! contributions to Rho2(ij,kl) has been obtained, scatter out
+          call ADTOR2_MCLR(RHO2,X,itype,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
+
+1930      continue
+        end do
+      end do
+    end do
+    ! End of loop over partitioning of alpha strings
+1940 continue
+  end do
+end do
+
+9999 continue
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(MXPNGAS)
-        CALL Unused_integer(NSMST)
-        CALL Unused_integer(NSMSX)
-        CALL Unused_integer(NSMDX)
-        CALL Unused_integer(MXPOBS)
-        CALL Unused_integer(NTESTG)
-      END IF
-      END
+if (.false.) then
+  call Unused_integer(MXPNGAS)
+  call Unused_integer(NSMST)
+  call Unused_integer(NSMSX)
+  call Unused_integer(NSMDX)
+  call Unused_integer(MXPOBS)
+  call Unused_integer(NTESTG)
+end if
+
+end subroutine GSBBD2B_MCLR

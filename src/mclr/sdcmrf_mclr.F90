@@ -8,9 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE SDCMRF_MCLR(CSD,CCM,IWAY,IATP,IBTP,IASM,IBSM,NA,NB,    &
-     &                  IDC,PS,PL,ISGVST,LDET,LCOMB)
-!
+
+subroutine SDCMRF_MCLR(CSD,CCM,IWAY,IATP,IBTP,IASM,IBSM,NA,NB,IDC,PS,PL,ISGVST,LDET,LCOMB)
 ! Change a block of coefficients bwtween combination format and
 ! Slater determinant format
 !
@@ -28,72 +27,70 @@
 ! PS   : Spin combination sign
 ! PL   : Ml   combination sign
 ! ISGVST : Ml reflection of strings
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION CSD(*),CCM(*),ISGVST(*)
-!
-      SQRT2  = SQRT(2.0D0)
-      SQRT2I = 1.0D0/SQRT2
-!
-!. Is combination array packed ?
-!
-      IPACK = 0
-      FACTOR = 1.0D0
-!
-      IF((IDC.EQ.2.OR.IDC.EQ.4).AND.IASM.EQ.IBSM) THEN
-         SIGN = PS
-         FACTOR = SQRT2
-         IF(IATP.EQ.IBTP) IPACK = 1
-      ELSE IF( IDC.EQ.4.AND.IASM.EQ.ISGVST(IBSM)) THEN
-        IF(IATP.EQ.IBTP) IPACK = 1
-        SIGN = PS*PL
-        FACTOR = 2.0D0
-      END IF
-!
-      LDET = NA * NB
-      IF( IPACK.EQ.0) THEN
-        LCOMB = LDET
-      ELSE
-        LCOMB = NA*(NA+1)/2
-      END IF
-      IF(IDC.EQ.4.AND.IPACK.EQ.0) FACTOR = SQRT2
-      IF(IWAY.EQ.2) FACTOR = 1.0D0/FACTOR
-!
-!. SD => combination transformation
-!
-      IF(IWAY .EQ. 1 ) THEN
-        IF(IPACK.EQ.1) THEN
-!. Pack to triangular form
-          CALL TRIPK2(CSD,CCM,1,NA,NA,SIGN)
-!              TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
-        ELSE
-          CALL DCOPY_(NA*NB,CSD,1,CCM,1)
-        END IF
-!. Scale
-        IF(FACTOR.NE.1.0D0) THEN
-          CALL DSCAL_(LCOMB,FACTOR,CCM,1)
-          IF(IPACK.EQ.1 ) THEN
-            CALL SCLDIA(CCM,SQRT2I,NA,1)
-          END IF
-        END IF
-      END IF
-!
-!. Combination => SD transformation
-!
-      IF(IWAY.EQ.2) THEN
-        IF(IPACK.EQ.1) THEN
-!. Unpack from triangular form
-          CALL TRIPK2(CSD,CCM,2,NA,NA,SIGN)
-        ELSE
-           CALL DCOPY_(NA*NB,CCM,1,CSD,1)
-        END IF
-!. Scale
-        IF(FACTOR.NE.1.0D0) THEN
-          CALL DSCAL_(LDET,FACTOR,CSD,1)
-          IF(IPACK.EQ.1) THEN
-             CALL SCLDIA(CSD,SQRT2,NA,0)
-          END IF
-        END IF
-      END IF
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension CSD(*), CCM(*), ISGVST(*)
+
+SQRT2 = sqrt(2.0d0)
+SQRT2I = 1.0d0/SQRT2
+
+! Is combination array packed ?
+
+IPACK = 0
+FACTOR = 1.0d0
+
+if (((IDC == 2) .or. (IDC == 4)) .and. (IASM == IBSM)) then
+  SIGN = PS
+  FACTOR = SQRT2
+  if (IATP == IBTP) IPACK = 1
+else if ((IDC == 4) .and. (IASM == ISGVST(IBSM))) then
+  if (IATP == IBTP) IPACK = 1
+  SIGN = PS*PL
+  FACTOR = 2.0d0
+end if
+
+LDET = NA*NB
+if (IPACK == 0) then
+  LCOMB = LDET
+else
+  LCOMB = NA*(NA+1)/2
+end if
+if ((IDC == 4) .and. (IPACK == 0)) FACTOR = SQRT2
+if (IWAY == 2) FACTOR = 1.0d0/FACTOR
+
+! SD => combination transformation
+
+if (IWAY == 1) then
+  if (IPACK == 1) then
+    ! Pack to triangular form
+    call TRIPK2(CSD,CCM,1,NA,NA,SIGN)
+    !    TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
+  else
+    call DCOPY_(NA*NB,CSD,1,CCM,1)
+  end if
+  ! Scale
+  if (FACTOR /= 1.0d0) then
+    call DSCAL_(LCOMB,FACTOR,CCM,1)
+    if (IPACK == 1) call SCLDIA(CCM,SQRT2I,NA,1)
+  end if
+end if
+
+! Combination => SD transformation
+
+if (IWAY == 2) then
+  if (IPACK == 1) then
+    ! Unpack from triangular form
+    call TRIPK2(CSD,CCM,2,NA,NA,SIGN)
+  else
+    call DCOPY_(NA*NB,CCM,1,CSD,1)
+  end if
+  ! Scale
+  if (FACTOR /= 1.0d0) then
+    call DSCAL_(LDET,FACTOR,CSD,1)
+    if (IPACK == 1) call SCLDIA(CSD,SQRT2,NA,0)
+  end if
+end if
+
+return
+
+end subroutine SDCMRF_MCLR

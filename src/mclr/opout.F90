@@ -10,30 +10,31 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-       Integer Function opout(ii)
-!
-!      opout will release the memory area of vector ii without updating
-!      the disk
-!
-       use ipPage
-       use stdalloc, only: mma_deallocate
-       Implicit Integer (a-h,o-z)
-!
-       If (ii.gt.Max_CI_Vectors) Then
-          Write (6,*) 'opout: ii.gt.Max_CI_Vectors'
-          Write (6,*) 'ii,Max_CI_Vectors=',ii,Max_CI_Vectors
-          Call Abend()
-       End If
-!
-       opout=0
-       If (.not.diskbased) Return
-!
-       If (Status(ii).eq.In_Memory .and. ii.gt.0) Then
-          Status(ii)=On_Disk
-          Call mma_deallocate(W(ii)%Vec)
-       Else
-          opout=-1
-       End If
-!
-       Return
-       End
+
+integer function opout(ii)
+! opout will release the memory area of vector ii without updating the disk
+
+use ipPage
+use stdalloc, only: mma_deallocate
+
+implicit integer(a-h,o-z)
+
+if (ii > Max_CI_Vectors) then
+  write(6,*) 'opout: ii > Max_CI_Vectors'
+  write(6,*) 'ii,Max_CI_Vectors=',ii,Max_CI_Vectors
+  call Abend()
+end if
+
+opout = 0
+if (.not. diskbased) return
+
+if ((Status(ii) == In_Memory) .and. (ii > 0)) then
+  Status(ii) = On_Disk
+  call mma_deallocate(W(ii)%Vec)
+else
+  opout = -1
+end if
+
+return
+
+end function opout

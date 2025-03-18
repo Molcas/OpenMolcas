@@ -10,19 +10,12 @@
 !                                                                      *
 ! Copyright (C) 1991,1995, Jeppe Olsen                                 *
 !***********************************************************************
-      SUBROUTINE GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,   &
-     &                  NROW,NGAS,ISEL,ICEL,                            &
-     &                  SB,CB,                                          &
-     &                  MXPNGAS,                                        &
-     &                  NOBPTS,IOBPTS,ITSOB,MAXI,MAXK,                  &
-     &                  SSCR,CSCR,I1,XI1S,I2,XI2S,H,                    &
-     &                  NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
-!
 
-
+subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,ITSOB,MAXI,MAXK, &
+                       SSCR,CSCR,I1,XI1S,I2,XI2S,H,NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
 ! Contributions to one electron density matrix from column excitations
 !
-! GAS version, August 95 , Jeppe Olsen
+! GAS version, August 95, Jeppe Olsen
 !
 ! =====
 ! Input
@@ -37,7 +30,7 @@
 ! ISEL : Number of electrons per AS for S block
 ! ICEL : Number of electrons per AS for C block
 ! CB   : Input C block
-! MXPNGAS : Max number of AS spaces ( program parameter )
+! MXPNGAS : Max number of AS spaces (program parameter)
 ! NOBPTS  : Number of orbitals per type and symmetry
 ! IOBPTS : base for orbitals of given type and symmetry
 ! IBORB  : Orbitals of given type and symmetry
@@ -64,128 +57,119 @@
 ! RHO1S : Space for one electron density
 !
 ! Jeppe Olsen, Winter of 1991
-! Updated for GAS , August '95
-!
-      USE Symmetry_Info, only: Mul
-      IMPLICIT REAL*8(A-H,O-Z)
-!. General input
-      INTEGER NOBPTS(3,*), IOBPTS(3,*), ITSOB(*)
-!     INTEGER NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
-!.Input
-      INTEGER ISEL(NGAS),ICEL(NGAS)
-      DIMENSION CB(*),SB(*)
-!.Output
-      DIMENSION RHO1(*)
-!.Scatch
-      DIMENSION SSCR(*),CSCR(*),RHO1S(*)
-      DIMENSION I1(*),XI1S(*)
-      DIMENSION I2(*),XI2S(*)
-!
-!.Local arrays
-      DIMENSION ITP(3*3),JTP(3*3)
-!
-! Type of single excitations that connects the two column strings
-      CALL SXTYP_GAS(NSXTP,ITP,JTP,3,ISEL,ICEL)
-!.Symmetry of single excitation that connects IBSM and JBSM
-      IJSM = Mul(ISCSM,ICCSM)
-      IF(IJSM.EQ.0) GOTO 1001
-      DO 900 IJTP=  1, NSXTP
-        ITYP = ITP(IJTP)
-        JTYP = JTP(IJTP)
-        DO 800 ISM = 1, NSMOB
-!. new i and j so new intermediate strings
-          JSM = Mul(ISM,IJSM)
-          IF(JSM.EQ.0) GOTO 800
-          NIORB = NOBPTS(ITYP,ISM)
-          NJORB = NOBPTS(JTYP,JSM)
-          IBIORB = IOBPTS(ITYP,ISM)
-          IBJORB = IOBPTS(JTYP,JSM)
-          IF(NIORB.EQ.0.OR.NJORB.EQ.0) GOTO 800
-!
-!OLD. Loop over partitionings of the row strings
-          NIPART = NROW/MAXI
-          IF(NIPART*MAXI.NE.NROW) NIPART = NIPART + 1
-!. Loop over partitionings of N-1 strings
-            KBOT = 1-MAXK
-            KTOP = 0
-  700       CONTINUE
-              KBOT = KBOT + MAXK
-              KTOP = KTOP + MAXK
-!EAWBEGIN970207
-!             -1 -> MAXK
-!             KTOP -> -1
-!             KTOP=-1
-!. Single excitation information independent of I strings
-!
-!.set up I1(K) =  XI1S(K) a JORB !J STRING >
-              CALL ADST(IBJORB,NJORB,ICCTP,ICCSM,IGRP,KBOT,KTOP,        &
-     &             I1,XI1S,MAXK,NKBTC,KEND)
-!.set up I2(K) =  XI1S(K) a JORB !J STRING >
-              CALL ADST(IBIORB,NIORB,ISCTP,ISCSM,IGRP,KBOT,KTOP,        &
-     &             I2,XI2S,MAXK,NKBTC,KEND)
-!EAWEND
-!. Appropriate place to start partitioning over I strings
-!. Loop over partitionings of the row strings
-          DO 701 IPART = 1, NIPART
-            IBOT = (IPART-1)*MAXI+1
-            ITOP = MIN(IBOT+MAXI-1,NROW)
-            NIBTC = ITOP - IBOT + 1
+! Updated for GAS, August '95
 
-! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
-!.Gather  C Block
-              DO JJORB = 1,NJORB
-                ICGOFF = 1 + (JJORB-1)*NKBTC*NIBTC
-                CALL MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,             &
-     &                     NKBTC,I1(1+(JJORB-1)*MAXK),                  &
-     &                         XI1S(1+(JJORB-1)*MAXK)     )
-              END DO
-!
-!
-! Obtain SSCR(I,K,IORB) = SUM(I)<K!A IORB!J>S(I,J)
-              DO IIORB = 1,NIORB
-!.Gather S Block
-                ISGOFF = 1 + (IIORB-1)*NKBTC*NIBTC
-                CALL MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,             &
-     &                     NKBTC,I2(1+(IIORB-1)*MAXK),                  &
-     &                     XI2S(1+(IIORB-1)*MAXK) )
-              END DO
-              NKI = NKBTC*NIBTC
-              If (NKI*NIORB*NJORB.ne.0)  Then
-              CALL DGEMM_('T','N',NIORB,NJORB,NKI,1.0D0,SSCR,NKI,CSCR,  &
-     &                    NKI,0.0D0,RHO1S,NIORB)
-              Else
-               call dcopy_(NIORB*NJORB,[0.0d0],0,RHO1S,1)
-              End IF
-!. Scatter out to complete matrix
-              DO 610 JJORB = 1, NJORB
-                JORB = IBJORB-1+JJORB
-                DO 605 IIORB = 1, NIORB
-                  IORB = IBIORB-1+IIORB
-                  RHO1((JORB-1)*NACOB+IORB) =                           &
-     &            RHO1((JORB-1)*NACOB+IORB) +                           &
-     &            RHO1S((JJORB-1)*NIORB+IIORB)
- 605            CONTINUE
- 610         CONTINUE
-!
-!
-  701     CONTINUE
-!. /\ end of this I partitioning
-!.end of this K partitioning
-            IF(KEND.EQ.0) GOTO 700
-!. End of loop over I partitioninigs
-  800   CONTINUE
-!.(end of loop over symmetries)
-  900 CONTINUE
- 1001 CONTINUE
-!
-      RETURN
+use Symmetry_Info, only: Mul
+
+implicit real*8(A-H,O-Z)
+! General input
+integer NOBPTS(3,*), IOBPTS(3,*), ITSOB(*)
+!integer NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
+! Input
+integer ISEL(NGAS), ICEL(NGAS)
+dimension CB(*), SB(*)
+! Output
+dimension RHO1(*)
+! Scatch
+dimension SSCR(*), CSCR(*), RHO1S(*)
+dimension I1(*), XI1S(*)
+dimension I2(*), XI2S(*)
+! Local arrays
+dimension ITP(3*3), JTP(3*3)
+
+! Type of single excitations that connects the two column strings
+call SXTYP_GAS(NSXTP,ITP,JTP,3,ISEL,ICEL)
+! Symmetry of single excitation that connects IBSM and JBSM
+IJSM = Mul(ISCSM,ICCSM)
+if (IJSM == 0) goto 1001
+do IJTP=1,NSXTP
+  ITYP = ITP(IJTP)
+  JTYP = JTP(IJTP)
+  do ISM=1,NSMOB
+    ! new i and j so new intermediate strings
+    JSM = Mul(ISM,IJSM)
+    if (JSM == 0) goto 800
+    NIORB = NOBPTS(ITYP,ISM)
+    NJORB = NOBPTS(JTYP,JSM)
+    IBIORB = IOBPTS(ITYP,ISM)
+    IBJORB = IOBPTS(JTYP,JSM)
+    if ((NIORB == 0) .or. (NJORB == 0)) goto 800
+
+    !OLD Loop over partitionings of the row strings
+    NIPART = NROW/MAXI
+    if (NIPART*MAXI /= NROW) NIPART = NIPART+1
+    ! Loop over partitionings of N-1 strings
+    KBOT = 1-MAXK
+    KTOP = 0
+700 continue
+    KBOT = KBOT+MAXK
+    KTOP = KTOP+MAXK
+    !EAWBEGIN970207
+    !     -1 -> MAXK
+    !     KTOP -> -1
+    !     KTOP=-1
+    ! Single excitation information independent of I strings
+
+    ! set up I1(K) =  XI1S(K) a JORB !J STRING >
+    call ADST(IBJORB,NJORB,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND)
+    ! set up I2(K) =  XI1S(K) a JORB !J STRING >
+    call ADST(IBIORB,NIORB,ISCTP,ISCSM,IGRP,KBOT,KTOP,I2,XI2S,MAXK,NKBTC,KEND)
+    !EAWEND
+    ! Appropriate place to start partitioning over I strings
+    ! Loop over partitionings of the row strings
+    do IPART=1,NIPART
+      IBOT = (IPART-1)*MAXI+1
+      ITOP = min(IBOT+MAXI-1,NROW)
+      NIBTC = ITOP-IBOT+1
+
+      ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
+      ! Gather  C Block
+      do JJORB=1,NJORB
+        ICGOFF = 1+(JJORB-1)*NKBTC*NIBTC
+        call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,NKBTC,I1(1+(JJORB-1)*MAXK),XI1S(1+(JJORB-1)*MAXK))
+      end do
+
+      ! Obtain SSCR(I,K,IORB) = SUM(I)<K!A IORB!J>S(I,J)
+      do IIORB=1,NIORB
+        ! Gather S Block
+        ISGOFF = 1+(IIORB-1)*NKBTC*NIBTC
+        call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,NKBTC,I2(1+(IIORB-1)*MAXK),XI2S(1+(IIORB-1)*MAXK))
+      end do
+      NKI = NKBTC*NIBTC
+      if (NKI*NIORB*NJORB /= 0) then
+        call DGEMM_('T','N',NIORB,NJORB,NKI,1.0d0,SSCR,NKI,CSCR,NKI,0.0d0,RHO1S,NIORB)
+      else
+        call dcopy_(NIORB*NJORB,[0.0d0],0,RHO1S,1)
+      end if
+      ! Scatter out to complete matrix
+      do JJORB=1,NJORB
+        JORB = IBJORB-1+JJORB
+        do IIORB=1,NIORB
+          IORB = IBIORB-1+IIORB
+          RHO1((JORB-1)*NACOB+IORB) = RHO1((JORB-1)*NACOB+IORB)+RHO1S((JJORB-1)*NIORB+IIORB)
+        end do
+      end do
+
+    end do
+    ! /\ end of this I partitioning
+    ! end of this K partitioning
+    if (KEND == 0) goto 700
+    ! End of loop over I partitioninigs
+800 continue
+  end do
+  ! (end of loop over symmetries)
+end do
+1001 continue
+
+return
 ! Avoid unused argument warnings
-      IF (.FALSE.) THEN
-        CALL Unused_integer(MXPNGAS)
-        CALL Unused_integer_array(ITSOB)
-        CALL Unused_real(H)
-        CALL Unused_integer(NSMST)
-        CALL Unused_integer(NSMSX)
-        CALL Unused_integer(MXPOBS)
-      END IF
-      END
+if (.false.) then
+  call Unused_integer(MXPNGAS)
+  call Unused_integer_array(ITSOB)
+  call Unused_real(H)
+  call Unused_integer(NSMST)
+  call Unused_integer(NSMSX)
+  call Unused_integer(MXPOBS)
+end if
+
+end subroutine GSBBD1_MCLR

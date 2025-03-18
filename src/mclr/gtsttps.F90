@@ -8,41 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE GTSTTPS(IEL1,IEL3,NEL1,NEL3,NTYP,ITYP,IWAY)
-!
+
+subroutine GTSTTPS(IEL1,IEL3,NEL1,NEL3,NTYP,ITYP,IWAY)
 ! ITYP : type of strings with IEL1,IEL3 electrons
 !
 ! IWAY = 1 : IEL1, IEL3 known, find ITYP
 ! IWAY = 2 : ITYP known, find IEL1, IEL3
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!
-      DIMENSION NEL1(*),NEL3(*)
-!
-      IF(IWAY.EQ.1) THEN
-        ITYP = -1
-        DO 10 IITYP = 1, NTYP
-          IF(IEL1.EQ.NEL1(IITYP).AND.IEL3.EQ.NEL3(IITYP))               &
-     &    ITYP = IITYP
-   10   CONTINUE
-!
-!       IF(ITYP .EQ. -1 ) THEN
-!         WRITE(6,*) ' Error in GSTTPS '
-!         WRITE(6,*) ' Error : Type could not be identified'
-!         WRITE(6,*) ' Error : IEL1 IEL3 : , IEL1,IEL3 '
-!         WRITE(6,*) ' I am going to STOP '
-!         STOP'GSTTPS'
-!       END IF
-      ELSE IF (IWAY .EQ. 2 ) THEN
-        IEL1 = NEL1(ITYP)
-        IEL3 = NEL3(ITYP)
-      END IF
-!
-      NTEST = 0
-      IF(NTEST.GE.100) THEN
-        WRITE(6,'(A,5I4)') ' GSTTPS : IWAY IEL1 IEL3 ITYP ',            &
-     &  IWAY,IEL1,IEL3,ITYP
-      END IF
-!
-      RETURN
-      END
+
+implicit real*8(A-H,O-Z)
+dimension NEL1(*), NEL3(*)
+
+if (IWAY == 1) then
+  ITYP = -1
+  do IITYP=1,NTYP
+    if ((IEL1 == NEL1(IITYP)) .and. (IEL3 == NEL3(IITYP))) ITYP = IITYP
+  end do
+
+  !if (ITYP == -1) then
+  !  write(6,*) ' Error in GSTTPS'
+  !  write(6,*) ' Error : Type could not be identified'
+  !  write(6,*) ' Error : IEL1 IEL3 : ',IEL1,IEL3
+  !  write(6,*) ' I am going to STOP'
+  !  stop 'GSTTPS'
+  !endif
+else if (IWAY == 2) then
+  IEL1 = NEL1(ITYP)
+  IEL3 = NEL3(ITYP)
+end if
+
+NTEST = 0
+if (NTEST >= 100) write(6,'(A,5I4)') ' GSTTPS : IWAY IEL1 IEL3 ITYP ',IWAY,IEL1,IEL3,ITYP
+
+return
+
+end subroutine GTSTTPS

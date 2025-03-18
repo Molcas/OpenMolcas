@@ -14,33 +14,39 @@
 ! history:                                                       *
 ! Jie J. Bao, on Aug. 06, 2020, created this file.               *
 ! ****************************************************************
-      Subroutine G2qtoG2r(G2r,G2q,nG2,nG2r)
-      use Constants, only: One, Two
-      use input_mclr, only: ntAsh
-      Implicit None
-      INTEGER nG2,nG2r
-      Real*8,DIMENSION(nG2 )::G2q
-      Real*8,DIMENSION(nG2r)::G2r
-      INTEGER iB,jB,kB,lB,iDij,iRij,iDkl,iRkl,iijkl,iRijkl
-      Real*8 Fact
-      Integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-      Do iB=1,ntash
-       Do jB=1,ntash
-        iDij=iTri(ib,jB)
-        iRij=jb+(ib-1)*ntash
-        Do kB=1,ntash
-         Do lB=1,ntash
-          iDkl=iTri(kB,lB)
-          iRkl=lb+(kb-1)*ntash
-          fact=One
-          if(iDij.ge.iDkl .and. kB.eq.lB) fact=Two
-          if(iDij.lt.iDkl .and. iB.eq.jB) fact=Two
-          iijkl=itri(iDij,iDkl)
-          iRijkl=itri(iRij,iRkl)
-          G2r(iRijkl)=Fact*G2q(iijkl)
-         End Do
-        End Do
-       End Do
-      End Do
-      End Subroutine G2qtoG2r
+
+subroutine G2qtoG2r(G2r,G2q,nG2,nG2r)
+
+use Constants, only: One, Two
+use input_mclr, only: ntAsh
+
+implicit none
+integer nG2, nG2r
+real*8, dimension(nG2) :: G2q
+real*8, dimension(nG2r) :: G2r
+integer iB, jB, kB, lB, iDij, iRij, iDkl, iRkl, iijkl, iRijkl
+real*8 Fact
+integer i, j, itri
+! Statement function
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
+do iB=1,ntash
+  do jB=1,ntash
+    iDij = iTri(ib,jB)
+    iRij = jb+(ib-1)*ntash
+    do kB=1,ntash
+      do lB=1,ntash
+        iDkl = iTri(kB,lB)
+        iRkl = lb+(kb-1)*ntash
+        fact = One
+        if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
+        if ((iDij < iDkl) .and. (iB == jB)) fact = Two
+        iijkl = itri(iDij,iDkl)
+        iRijkl = itri(iRij,iRkl)
+        G2r(iRijkl) = Fact*G2q(iijkl)
+      end do
+    end do
+  end do
+end do
+
+end subroutine G2qtoG2r

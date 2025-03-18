@@ -8,185 +8,173 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine Prec_td(pre2,DigPrec,isym)
-      use Constants, only: Zero, Two
-      use Arrays, only: G1t
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use MCLR_Data, only: ipCM, ipMat, nA, nDens2
-      use input_mclr, only: nSym,nAsh,nIsh,nBas,Omega
-!
-!     pre2      Preconditioner from Prec
-!     DigPrec Output - Diagonal of prec2
-!     isym      Symmetry of PT
-!
-      Implicit None
-      Real*8 DigPrec(*),pre2(*)
-      Integer iSym
 
-      Real*8 nonzero
-      Logical jump
-      Real*8, Allocatable:: Dens(:), PreTd(:), TempTd(:)
-      Integer nBasTot,iS,ip3,Inc,iB,jB,ip,iA,jA,ip2,ip1,jS,nD,k,l
+subroutine Prec_td(pre2,DigPrec,isym)
+! pre2      Preconditioner from Prec
+! DigPrec Output - Diagonal of prec2
+! isym      Symmetry of PT
+
+use Constants, only: Zero, Two
+use Arrays, only: G1t
+use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: ipCM, ipMat, nA, nDens2
+use input_mclr, only: nSym, nAsh, nIsh, nBas, Omega
+
+implicit none
+real*8 DigPrec(*), pre2(*)
+integer iSym
+real*8 nonzero
+logical jump
+real*8, allocatable :: Dens(:), PreTd(:), TempTd(:)
+integer nBasTot, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, ip1, jS, nD, k, l
+! Statement function
+integer i, j, itri
+itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      integer i,j,itri
-      itri(i,j)=Max(i,j)*(Max(i,j)-1)/2+Min(i,j)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
+
 !---------------------------------------------
 ! Construct one el density in MO Dens
 !---------------------------------------------
-!
-      nBasTot = 0
-      Do iS=1,nSym
-         nBasTot = nBasTot + nBas(iS)*nBas(iS)
-      End Do
-      Call mma_allocate(Dens,nBasTot,Label='Dens')
-      Dens(:)=Zero
-!
-      ip3 = 1
-      Do iS=1,nSym
-          inc = nBas(iS)+1
-          call dcopy_(nIsh(iS),[Two],0,Dens(ip3),inc)
-          ip3 = ip3 + nBas(iS)*nBas(iS)
-      End Do
-!
+
+nBasTot = 0
+do iS=1,nSym
+  nBasTot = nBasTot+nBas(iS)*nBas(iS)
+end do
+call mma_allocate(Dens,nBasTot,Label='Dens')
+Dens(:) = Zero
+
+ip3 = 1
+do iS=1,nSym
+  inc = nBas(iS)+1
+  call dcopy_(nIsh(iS),[Two],0,Dens(ip3),inc)
+  ip3 = ip3+nBas(iS)*nBas(iS)
+end do
+
 ! For a CASSCF wavefunc. From Anders subrut r2elint
 ! Add the active active dens
-!
-      Do iS=1,nSym
-          Do iB=1,nAsh(iS)
-              Do jB=1,nAsh(iS)
-                   ip=ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nBas(is)-1
-                   iA=nA(is)+ib
-                   jA=nA(is)+jb
-                   ip2=itri(iA,jA)
-                   Dens(ip)=G1t(ip2)
-              End Do
-           End Do
-      End Do
-!
-!
-!      Call RECPRT('Dens',' ',Dens,nBasTot,1)
-!      Write(*,*)'Diagnonal elements in D'
-!      Do iS=1,nSym
-!         Do k=0,nBas(iS)-1
-!            Write(*,*) Dens(ipCM(iS) + k*(nBas(iS)+1))
-!         End Do
-!      End Do
-!      Stop
-!
-!
+
+do iS=1,nSym
+  do iB=1,nAsh(iS)
+    do jB=1,nAsh(iS)
+      ip = ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nBas(is)-1
+      iA = nA(is)+ib
+      jA = nA(is)+jb
+      ip2 = itri(iA,jA)
+      Dens(ip) = G1t(ip2)
+    end do
+  end do
+end do
+
+!call RECPRT('Dens',' ',Dens,nBasTot,1)
+!write(6,*) 'Diagnonal elements in D'
+!do iS=1,nSym
+!  do k=0,nBas(iS)-1
+!    write(6,*) Dens(ipCM(iS)+k*(nBas(iS)+1))
+!  end do
+!end do
+!stop
+
 !-------------------------------------------------------------------
 ! Construct the diagonal approximation to the orbital prec, PreTd
 !-------------------------------------------------------------------
-!
-      Call mma_allocate(PreTd,nDens2,Label='PreTd')
-      PreTd(:)=Zero
-      ip1 = 1
-      ip2 = 1
-!      ipsave = 0
-      Do iS=1,nSym
-         jS=iEOr(iS-1,iSym-1)+1
-         nD = nBas(jS) - nIsh(jS)
-         Do k=1,nIsh(iS)
-            ip1 = ip1 + nIsh(jS)
-            Do l=1, nD
-               PreTd(ip1) = Pre2(ip2)
-               ip1 = ip1 + 1
-               ip2 = ip2 + 1
-            End Do
-         End Do
-         nD = nBas(jS) - nAsh(jS)
-         Do k=1,nAsh(iS)
-            jump = .true.
-            Do l=1, nD
-               If (l.gt.nIsh(jS).and.jump) Then
-                   ip1 = ip1 + nAsh(jS)
-                   jump = .false.
-               End If
-               PreTd(ip1) = Pre2(ip2)
-               ip1 = ip1 + 1
-               ip2 = ip2 + 1
-            End Do
-            If ((nBas(jS) - nAsh(jS) - nIsh(jS)).eq.0) Then
-               ip1 = ip1 + nAsh(jS)
-            End If
-         End Do
-!         Call RECPRT('PreTd',' ',PreTd(1 + ipsave),
-!     &              nBas(jS),nBas(iS))
-         ip1 = ip1 + (nBas(iS)-nIsh(iS)-nAsh(iS))*nBas(jS)
-!         ipsave = ip1
-      End Do
-!      Call RECPRT('PreTd',' ',PreTd,nDens2,1)
-!
-!-----------------------------------------------------------
+
+call mma_allocate(PreTd,nDens2,Label='PreTd')
+PreTd(:) = Zero
+ip1 = 1
+ip2 = 1
+!ipsave = 0
+do iS=1,nSym
+  jS = ieor(iS-1,iSym-1)+1
+  nD = nBas(jS)-nIsh(jS)
+  do k=1,nIsh(iS)
+    ip1 = ip1+nIsh(jS)
+    do l=1,nD
+      PreTd(ip1) = Pre2(ip2)
+      ip1 = ip1+1
+      ip2 = ip2+1
+    end do
+  end do
+  nD = nBas(jS)-nAsh(jS)
+  do k=1,nAsh(iS)
+    jump = .true.
+    do l=1,nD
+      if ((l > nIsh(jS)) .and. jump) then
+        ip1 = ip1+nAsh(jS)
+        jump = .false.
+      end if
+      PreTd(ip1) = Pre2(ip2)
+      ip1 = ip1+1
+      ip2 = ip2+1
+    end do
+    if ((nBas(jS)-nAsh(jS)-nIsh(jS)) == 0) ip1 = ip1+nAsh(jS)
+  end do
+  !call RECPRT('PreTd',' ',PreTd(1+ipsave),nBas(jS),nBas(iS))
+  ip1 = ip1+(nBas(iS)-nIsh(iS)-nAsh(iS))*nBas(jS)
+  !ipsave = ip1
+end do
+!call RECPRT('PreTd',' ',PreTd,nDens2,1)
+
+!----------------------
 ! Symmetrize PreTd
-!-----------------------------------------------------------
-      Call mma_allocate(TempTd,nDens2,Label='TempTd')
-!
-      Do iS=1,nSym
-         jS=iEOr(iS-1,iSym-1)+1
-         TempTd(:)=Zero
-         Call Trans(PreTd(ipMat(jS,iS)),nBas(iS),                       &
-     &               nBas(jS),TempTd)
-         nD = nBas(iS)*nBas(jS)
-         Do i=0, nD-1
-            nonzero = PreTd(ipMat(iS,jS) +i)
-            If (nonzero.ne.Zero) Then
-                TempTd(1+i) = PreTd(ipMat(iS,jS)+i)
-            End If
-         End Do
-         Call Trans(TempTd,nBas(jS),nBas(iS),                           &
-     &              PreTd(ipMat(jS,iS)))
-!
-      End Do
-!
+!----------------------
+call mma_allocate(TempTd,nDens2,Label='TempTd')
+
+do iS=1,nSym
+  jS = ieor(iS-1,iSym-1)+1
+  TempTd(:) = Zero
+  call Trans(PreTd(ipMat(jS,iS)),nBas(iS),nBas(jS),TempTd)
+  nD = nBas(iS)*nBas(jS)
+  do i=0,nD-1
+    nonzero = PreTd(ipMat(iS,jS)+i)
+    if (nonzero /= Zero) TempTd(1+i) = PreTd(ipMat(iS,jS)+i)
+  end do
+  call Trans(TempTd,nBas(jS),nBas(iS),PreTd(ipMat(jS,iS)))
+
+end do
+
 !------------------------------------------------------------------
 ! Add the density part PreTd_at = PreTd_at - omega(D_aa - D_tt)
 !------------------------------------------------------------------
-      i = 0
-      Do iS=1,nSym
-         jS=iEOr(iS-1,iSym-1)+1
-         nD = nBas(iS)*nBas(jS)
-         j = 0
-         l = 0
-         Do k=0, nD-1
-            If (l.eq.nBas(jS)) l = 0
-            If (k.eq.(j+1)*nBas(jS)) j = j +1
-!
-            i=i+1
-            PreTd(i) = PreTd(i) + Two*Omega*                            &
-     &               (  Dens(ipCM(iS) + j*(nBas(iS)+1)) +               &
-     &                  Dens(ipCM(jS) + l*(nBas(jS)+1)) )
-!
-            l = l + 1
-         End Do
-!
-      End Do
-!
-!-----------------------------------------------------------------------------
+i = 0
+do iS=1,nSym
+  jS = ieor(iS-1,iSym-1)+1
+  nD = nBas(iS)*nBas(jS)
+  j = 0
+  l = 0
+  do k=0,nD-1
+    if (l == nBas(jS)) l = 0
+    if (k == (j+1)*nBas(jS)) j = j+1
+
+    i = i+1
+    PreTd(i) = PreTd(i)+Two*Omega*(Dens(ipCM(iS)+j*(nBas(iS)+1))+Dens(ipCM(jS)+l*(nBas(jS)+1)))
+
+    l = l+1
+  end do
+
+end do
+
+!-----------------------------------------------------------------------
 ! Symmetry transpose PreTd - To get the same order fo sym as in b_x and
 ! as required by compress.
-!-----------------------------------------------------------------------------
-!
-      TempTd(:)=Zero
-!
-      Do iS=1,nSym
-         jS=iEOr(iS-1,iSym-1)+1
-         nD = nBas(iS)*nBas(jS)
-         Do k=0, nD-1
-            TempTd(ipmat(iS,jS)+k)=PreTd(ipmat(jS,iS)+k)
-         End Do
-      End Do
-!
-      Call Compress(TempTd,DigPrec,isym)
+!-----------------------------------------------------------------------
 
-      Call mma_deallocate(TempTd)
-      Call mma_deallocate(PreTd)
-      Call mma_deallocate(Dens)
-!
-      End SubRoutine Prec_td
+TempTd(:) = Zero
+
+do iS=1,nSym
+  jS = ieor(iS-1,iSym-1)+1
+  nD = nBas(iS)*nBas(jS)
+  do k=0,nD-1
+    TempTd(ipmat(iS,jS)+k) = PreTd(ipmat(jS,iS)+k)
+  end do
+end do
+
+call Compress(TempTd,DigPrec,isym)
+
+call mma_deallocate(TempTd)
+call mma_deallocate(PreTd)
+call mma_deallocate(Dens)
+
+end subroutine Prec_td

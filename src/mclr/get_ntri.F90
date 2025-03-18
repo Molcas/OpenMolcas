@@ -10,13 +10,17 @@
 !                                                                      *
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
-      Subroutine Get_Ntri(nTri)
-      use input_mclr, only: nSym,nBas
-      Implicit None
 
-      INTEGER nTri,kSym
-      nTri=0
-      DO kSym=1,nSym
-       nTri=nTri+nBas(kSym)*(nBas(kSym)+1)/2
-      END DO
-      END Subroutine Get_Ntri
+subroutine Get_Ntri(nTri)
+
+use input_mclr, only: nSym, nBas
+
+implicit none
+integer nTri, kSym
+
+nTri = 0
+do kSym=1,nSym
+  nTri = nTri+nBas(kSym)*(nBas(kSym)+1)/2
+end do
+
+end subroutine Get_Ntri

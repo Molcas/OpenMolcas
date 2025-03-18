@@ -10,14 +10,14 @@
 !                                                                      *
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
-       Subroutine ipterm()
-       use ipPage
-!
-!      Termination
-!
-       use ipPage
-!
-       If (DiskBased) Call DaClos(Lu_ip)
-!
-       Return
-       End
+
+subroutine ipterm()
+! Termination
+
+use ipPage
+
+if (DiskBased) call DaClos(Lu_ip)
+
+return
+
+end subroutine ipterm

@@ -8,85 +8,84 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine OpnFls_MCLR(iPL)
+
+subroutine OpnFls_MCLR(iPL)
 !***********************************************************************
 !                                                                      *
 !     Open files.                                                      *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
-!                                                                      *
-!----------------------------------------------------------------------*
-!                                                                      *
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      use MCLR_Data, only: FnPT2,FnMck,FnOne,FnTemp,FnTwo,LuMck,LuTEMP, &
-     &                      LuTwo
-      use input_mclr, only: McKinley, PT2, ChIrr
-      Implicit None
-      Character(LEN=8) Label
-      Logical FoundTwoEls,Direct,DoCholesky
-      Integer iPL,iRC,iOpt,iDum
-!---------------------------------------------------------------------*
-!     Start                                                           *
-!---------------------------------------------------------------------*
-!---  open the JOBIPH file -------------------------------------------*
-!     Call DaName(LuJob,FnJob)
-      Call DaName(LuTemp,FnTemp)
-!---  open the ORDINT file -------------------------------------------*
-      Call f_Inquire(FnTwo,FoundTwoEls)
-      Call DecideOnDirect(.True.,FoundTwoEls,Direct,DoCholesky)
-      If (Direct) Then
-         Write (6,*) 'OpnFls: No direct option in MCLR'
-         Call Abend()
-      Else
-         If (.NOT.DoCholesky) Then
-            If (iPL.ge.2) Write(6,*) 'Ordinary integral handling'
-            iRc=-1
-            iOpt=0
-            Call OpnOrd(iRc,iOpt,FnTwo,LuTwo)
-            If ( iRc.ne.0 ) Then
-               Write (6,*) 'OpnFls: Error opening ORDINT'
-               Call Abend()
-            End If
-         End If
-      End If
-      Call f_Inquire(FnMCK,McKinley)
-      Call f_Inquire(FnPT2,PT2)
-      If (McKinley) Then
-!        Write(*,*) 'Calculating response on perturbation from mckinley'
-         iRc=-1
-         iOpt=0
-         Call OpnMck(iRc,iOpt,FnMck,LuMck)
-         If ( iRc.ne.0 ) Then
-            Write (6,*) 'OpnFls: Error opening MCKINT'
-            Call Abend()
-         End If
-         iRc=-1
-         idum=0
-         iOpt=0
-         Label='SYMOP'
-         call cRdMck(irc,iopt,Label,idum,chirr(1),idum)
-         If ( iRc.ne.0 ) Then
-            Write (6,*) 'OpnFls: Error reading MCKINT'
-            Write (6,'(A,A)') 'Label=',Label
-            Call Abend()
-         End If
-!
-      Else If (PT2) Then
-!      If (iPL.ge.2)
-!    &     Write(6,*) 'Calculating lagrange multipliers for CASPT2'
-!      Call DaName(LuPT2,FnPT2)
-      Else
-       If (iPL.ge.2) Then
-       Write(6,*)'No ',FnPT2,' or ' ,FNMCK, ', I hope that is OK'
-       Write(6,*)'Seward mode is assumed, reading perturbation from ',  &
-     &           FnOne
-       End If
-      End If
+
+use MCLR_Data, only: FnPT2, FnMck, FnOne, FnTemp, FnTwo, LuMck, LuTEMP, LuTwo
+use input_mclr, only: McKinley, PT2, ChIrr
+
+implicit none
+character(len=8) Label
+logical FoundTwoEls, Direct, DoCholesky
+integer iPL, iRC, iOpt, iDum
+
+!----------------------------------------------------------------------*
+!     Start                                                            *
+!----------------------------------------------------------------------*
+!---  open the JOBIPH file --------------------------------------------*
+!call DaName(LuJob,FnJob)
+call DaName(LuTemp,FnTemp)
+!---  open the ORDINT file --------------------------------------------*
+call f_Inquire(FnTwo,FoundTwoEls)
+call DecideOnDirect(.true.,FoundTwoEls,Direct,DoCholesky)
+if (Direct) then
+  write(6,*) 'OpnFls: No direct option in MCLR'
+  call Abend()
+else
+  if (.not. DoCholesky) then
+    if (iPL >= 2) write(6,*) 'Ordinary integral handling'
+    iRc = -1
+    iOpt = 0
+    call OpnOrd(iRc,iOpt,FnTwo,LuTwo)
+    if (iRc /= 0) then
+      write(6,*) 'OpnFls: Error opening ORDINT'
+      call Abend()
+    end if
+  end if
+end if
+call f_Inquire(FnMCK,McKinley)
+call f_Inquire(FnPT2,PT2)
+if (McKinley) then
+  !write(6,*) 'Calculating response on perturbation from mckinley'
+  iRc = -1
+  iOpt = 0
+  call OpnMck(iRc,iOpt,FnMck,LuMck)
+  if (iRc /= 0) then
+    write(6,*) 'OpnFls: Error opening MCKINT'
+    call Abend()
+  end if
+  iRc = -1
+  idum = 0
+  iOpt = 0
+  Label = 'SYMOP'
+  call cRdMck(irc,iopt,Label,idum,chirr(1),idum)
+  if (iRc /= 0) then
+    write(6,*) 'OpnFls: Error reading MCKINT'
+    write(6,'(A,A)') 'Label=',Label
+    call Abend()
+  end if
+
+else if (PT2) then
+  !if (iPL >= 2) write(6,*) 'Calculating lagrange multipliers for CASPT2'
+  !call DaName(LuPT2,FnPT2)
+else
+  if (iPL >= 2) then
+    write(6,*) 'No ',FnPT2,' or ',FNMCK,', I hope that is OK'
+    write(6,*) 'Seward mode is assumed, reading perturbation from ',FnOne
+  end if
+end if
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine OpnFls_MCLR

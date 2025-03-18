@@ -10,19 +10,26 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-Module Exp
-      Implicit None
-      Logical :: NewPre=.True.
-      Integer ipvt,iphx,iplst
-      Integer :: nexp=0, nexp_max=100
-      Real*8, Allocatable:: H0S(:)
-      Integer, Allocatable:: H0F(:), SBIDT(:)
 
-      Contains
-      Subroutine Exp_Close()
-      use stdalloc, only: mma_deallocate
-      Call mma_deallocate(H0S,safe='*')
-      Call mma_deallocate(H0F,safe='*')
-      Call mma_deallocate(SBIDT,safe='*')
-      End Subroutine Exp_Close
-End Module Exp
+module Exp
+
+implicit none
+logical :: NewPre = .true.
+integer ipvt, iphx, iplst
+integer :: nexp = 0, nexp_max = 100
+real*8, allocatable :: H0S(:)
+integer, allocatable :: H0F(:), SBIDT(:)
+
+contains
+
+subroutine Exp_Close()
+
+  use stdalloc, only: mma_deallocate
+
+  call mma_deallocate(H0S,safe='*')
+  call mma_deallocate(H0F,safe='*')
+  call mma_deallocate(SBIDT,safe='*')
+
+end subroutine Exp_Close
+
+end module Exp
