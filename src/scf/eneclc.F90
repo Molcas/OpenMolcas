@@ -72,7 +72,7 @@ if (nD == 1) then
 else
   nElec = sum(nOcc(1:nSym,1:2))
 end if
-En2V = 0
+En2V = Zero
 if ((nElec > 1) .or. (KSDFT /= 'SCF')) then
   En2V = DDot_(nBT,TwoHam(1,1,iPsLst),1,Dens(1,1,iPsLst),1)
   if (nD == 2) En2V_ab = DDot_(nBT,TwoHam(1,2,iPsLst),1,Dens(1,2,iPsLst),1)

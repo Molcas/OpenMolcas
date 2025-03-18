@@ -175,4 +175,5 @@ call mma_deallocate(h_xyz)
 
 return
 
+#undef _DEBUGPRINT_
 end subroutine Hidden

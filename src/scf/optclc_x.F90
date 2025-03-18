@@ -91,4 +91,5 @@ call mma_deallocate(Aux)
 
 return
 
+#undef _DEBUGPRINT_
 end subroutine OptClc_X

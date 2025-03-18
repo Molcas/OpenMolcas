@@ -58,21 +58,21 @@ real(kind=wp), parameter :: Thr = 1.0e-16_wp
 if (y2 > Val) then
   y2 = y3
 
-  ! In the first iteration, simply try with alpha+1
   if (x2 == Zero) then
+    ! In the first iteration, simply try with alpha+1
     new = x1+One
     x2 = new
 
+  else if (y3 < Val) then
     ! If the step is below the threshold, a bracketing pair has been found.
     ! Suggest an intermediate point (with secant method, or midpoint)
-  else if (y3 < Val) then
     new = x1+(Val-y1)/(y2-y1)*(x2-x1)
     if ((new <= x1) .or. (new >= x2)) new = Half*(x1+x2)
 
+  else
     ! If it is not there yet, extrapolate using a straight line (times an
     ! arbitrary factor of 1.5, to overcome systematic undershooting), and
     ! update the other end point
-  else
     if (y1-y2 > Thr) then
       ! Don't get too ambitious -- thus the min function.
       delta = min(x2,(Val-y2)*(x1-x2)/(y1-y2))

@@ -12,13 +12,9 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
-! This subroutine should be in a module, to avoid explicit interfaces
-#ifndef _IN_MODULE_
-#error "This file must be compiled inside a module"
-#endif
-
 subroutine vOO2OV(v1,nOO,v2,mOV,nD,kOV)
 
+use Interfaces_SCF, only: vOO2OV_inner
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 

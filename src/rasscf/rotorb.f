@@ -255,7 +255,7 @@ C                CYCLE
                END IF
              ELSE IF(ICORE.EQ.1) THEN
                IF(ICOREGAS(ISPACE,JSPACE).GT.0) THEN
-                 write(6,*) ' dampning'
+                 write(6,*) ' damping'
              write(6,*)'ICOREGAS(ISPACE,JSPACE)',ICOREGAS(ISPACE,JSPACE)
              write(6,*) 'fac',COREGAS(ICOREGAS(ISPACE,JSPACE))
                  X(IJ) = X(IJ)*COREGAS(ICOREGAS(ISPACE,JSPACE))
@@ -277,7 +277,7 @@ c
 c
 c      Now form the unitary matrix exp(X)
 c
-        CALL exp_Schur(no,x,thm)
+        CALL exp_eig(no,x,thm)
         thmax=max(thmax,thm)
 c
 c      Check for largest non diagonal element

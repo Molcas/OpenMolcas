@@ -460,7 +460,7 @@ if (iStatPRN > 0) then
   write(u6,Frmt) '   Part of the program                              CPU    fraction'
   write(u6,Frmt) '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
   do iFld=1,nFldP
-    if ((iFld == 11) .or. (iFld == 12)) cycle
+    if ((iFld == 3) .or. (iFld == 4)) cycle
     write(u6,'(2x,A45,2f10.2)') NamFld(iFld),TimFld(iFld),TimFld(iFld)/TotCpu
   end do
   write(u6,*)

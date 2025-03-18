@@ -50,7 +50,7 @@ else
   V(1:nOTSD,1:nD) => Vxc(:,:,jDT)
 end if
 #ifdef _DEBUGPRINT_
-write(u6,*) 'EGrad: input arrays'
+write(u6,*) 'Mk_FockMO: input arrays'
 write(u6,*) '==================================================='
 call NrmClc(O,nOTSD,'EGrad','O')
 call NrmClc(T,nOTSD*nD,'EGrad','T')

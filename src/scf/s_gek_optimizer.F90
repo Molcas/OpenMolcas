@@ -12,9 +12,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-!#define _FULL_SPACE_ ! Debugging
-#define _HYBRID3_
-subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
+!#define _FULL_SPACE_
+subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,SOrange)
 !***********************************************************************
 !                                                                      *
 !     Object: subspace gradient-enhanced kriging optimization.         *
@@ -24,55 +23,34 @@ subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !             May '22, November-December '22                           *
 !***********************************************************************
 
-use InfSCF, only: Energy, HDiag, iter, iterso
+use InfSCF, only: Energy, HDiag, iter, IterGEK, Loosen, TimFld
 use LnkLst, only: Init_LLs, LLGrad, LLx, LstPtr, SCF_V
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
-#ifdef _FULL_SPACE_
+#ifndef _FULL_SPACE_
 use Constants, only: One
 #endif
+use Definitions, only: wp, iwp, u6
 
 implicit none
-
-!===========================================================================================================================
-interface
-    subroutine GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy, H_diis, dqdq, Step_Trunc, UpMeth)
-        use Definitions, only: wp, iwp
-
-        integer(kind=iwp), intent(in) :: nDiis, mDiis, Max_Iter
-        real(kind=wp), intent(inout) :: q_diis(mDiis,nDiis+Max_Iter),g_diis(mDiis,nDiis+Max_Iter), dq_diis(mDiis), &
-                                        Energy(nDiis+Max_Iter),dqdq
-        real(kind=wp), intent(inout) :: H_diis(mDiis,mDiis)
-        character(len=6), intent(inout) :: UpMeth
-        character, intent(inout) :: Step_Trunc
-
-    end subroutine GEK_Optimizer
-end interface
-!===========================================================================================================================
-
-!just used in inner subroutine, but outer uses it as input
-character(len=6), intent(inout) :: UpMeth
-character, intent(inout) :: Step_Trunc
-
-!used in outer and inner subroutine
-real(kind=wp), intent(out) :: dqdq
-integer(kind=iwp) :: i, j, k, l, mDIIS, nDIIS
-real(kind=wp), allocatable :: dq_diis(:), g_diis(:,:), H_Diis(:,:), q_diis(:,:)
-integer(kind=iwp), parameter :: Max_Iter = 50
-real(kind=wp), external :: DDot_
-
-!only in outer subroutine
 integer(kind=iwp), intent(in) :: mOV
 real(kind=wp), intent(inout) :: dq(mOV)
+real(kind=wp), intent(out) :: dqdq
+character(len=6), intent(inout) :: UpMeth
+character, intent(inout) :: Step_Trunc
+logical(kind=iwp), intent(in) :: SOrange
+integer(kind=iwp) :: i, iFirst, ipg, ipq, j, k, l, mDIIS, nDIIS, nExplicit
+real(kind=wp) :: Cpu1, Cpu2, gg, Tim1, Tim2, Tim3
+real(kind=wp), allocatable :: D(:,:), dq_diis(:), e_diis(:,:), g(:,:), g_diis(:,:), H_Diis(:,:), q(:,:), q_diis(:,:), w(:,:)
+integer(kind=iwp), parameter :: Max_Iter = 50, nWindow = 20
+real(kind=wp), parameter :: Beta_Disp_Min = 5.0e-3_wp, Beta_Disp_Seed = 0.05_wp, StepMax_Seed = 0.1_wp, Thr_RS = 1.0e-7_wp, &
+                            ThrGrd = 1.0e-7_wp
+#ifndef _FULL_SPACE_
+real(kind=wp), allocatable :: aux_a(:), aux_b(:)
+#endif
+real(kind=wp), external :: DDot_
 
-integer(kind=iwp) :: iFirst, ipg, ipq, nExplicit
-real(kind=wp) :: gg
-real(kind=wp), allocatable :: g(:,:), q(:,:), Aux_a(:), Aux_b(:), e_diis(:,:)
-integer(kind=iwp), parameter :: nWindow = 8
-!
-!===========================================================================================================================
-!
+call Timing(Cpu1,Tim1,Tim2,Tim3)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Enter S-GEK Optimizer'
@@ -82,13 +60,19 @@ if (.not. Init_LLs) then
   call Abend()
 end if
 
-call mma_allocate(q,mOV,iterso,Label='q')
-call mma_allocate(g,mOV,iterso,Label='g')
+! define first iteration considered in the subspace
+! the last nDIIS iterations, of which the first is iFirst
+nDIIS = min(IterGEK,nWindow)
+iFirst = Iter-nDIIS+1
+!if (nDIIS == 1) then
+!# ifdef _DEBUGPRINT_
+!  write(u6,*) 'Exit S-GEK Optimizer'
+!# endif
+!  return
+!end if
 
-!define first iteration considered in the subspace
-iFirst = iter-min(iterso,nWindow)+1
-!the last nDIIS iterations, of which the first is iFirst
-nDIIS = iter-iFirst+1
+call mma_allocate(q,mOV,nDIIS,Label='q')
+call mma_allocate(g,mOV,nDIIS,Label='g')
 
 if (nDIIS == 1) then
 # ifdef _DEBUGPRINT_
@@ -99,7 +83,7 @@ if (nDIIS == 1) then
   return
 end if
 
-!Pick up coordinates and gradients in full space
+! Pick up coordinates and gradients in full space
 j = 0
 do i=iFirst,iter
   j = i-iFirst+1
@@ -118,16 +102,14 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nWindow=',nWindow
 write(u6,*) 'nDIIS=',nDIIS
-write(u6,*) 'IterSO=',IterSO
+write(u6,*) 'IterGEK=',IterGEK
 call RecPrt('q',' ',q,mOV,nDIIS)
 call RecPrt('g',' ',g,mOV,nDIIS)
 call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
 
-!
-!===========================================================================================================================
-!
-!  Select the subspace
+!=======================================================================
+! Select the subspace
 
 #ifdef _FULL_SPACE_
 
@@ -139,7 +121,7 @@ do k=1,nExplicit
   e_diis(k,k) = One
 end do
 
-#elif defined (_HYBRID3_)
+#else
 
 !nExplicit = 2 * (nDIIS - 1) + mOV + 2
 nExplicit = 2*(nDIIS-1)+2
@@ -198,16 +180,18 @@ do l=1,2
     end if
   end do
 end do
-mDIIS = j !normally mDIIS=2nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2nDIIS).
-          ! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
+! normally mDIIS=2*nDIIS, but it can happen that not all unit vectors are linear independent (mDIIS<=2*nDIIS).
+! mDIIS is then the number of linear independent e_diis column vectors that span the subspace
+mDIIS = j
+
 #ifdef _DEBUGPRINT_
 write(u6,*) '      mOV:',mOV
 write(u6,*) 'nExplicit:',nExplicit
-write(u6,*) 'IterSO   :',IterSO
+write(u6,*) 'IterGEK   :',IterGEK
 write(u6,*) '    nDIIS:',nDIIS
 write(u6,*) '    mDIIS:',mDIIS
 
-write(u6,*) 'Check the ortonormality'
+write(u6,*) 'Check the orthonormality'
 do i=1,mDIIS
   do j=1,i
     write(u6,*) i,j,DDot_(mOV,e_diis(:,i),1,e_diis(:,j),1)
@@ -217,18 +201,14 @@ end do
 if (allocated(e_diis)) call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
 #endif
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Computed the projected displacement coordinates. Note that the displacements are relative to the last coordinate, q(:,nDIIS). !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Compute the projected displacement coordinates. Note that the displacements are relative to the last coordinate, q(:,nDIIS). !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 call mma_allocate(q_diis,mDIIS,nDIIS+Max_Iter,Label='q_diis')
 q_diis(:,:) = Zero
 do i=1,nDIIS
   do k=1,mDIIS
-    gg = Zero
-    do l=1,mOV
-      gg = gg+(q(l,i)-q(l,nDIIS))*e_diis(l,k)
-    end do
-    q_diis(k,i) = gg
+    q_diis(k,i) = sum((q(:,i)-q(:,nDIIS))*e_diis(:,k))
   end do
 end do
 
@@ -239,11 +219,7 @@ call mma_allocate(g_diis,mDIIS,nDIIS+Max_Iter,Label='g_diis')
 g_diis(:,:) = Zero
 do i=1,nDIIS
   do k=1,mDIIS
-    gg = Zero
-    do l=1,mOV
-      gg = gg+g(l,i)*e_diis(l,k)
-    end do
-    g_diis(k,i) = gg
+    g_diis(k,i) = sum(g(:,i)*e_diis(:,k))
   end do
 end do
 
@@ -256,32 +232,57 @@ call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
+!call mma_allocate(HDiag_diis,mDIIS,Label='HDiag_diis')
 
 do i=1,mDiis
   do j=1,mDiis
-    gg = Zero
-    do l=1,mOV
-      gg = gg+e_diis(l,i)*HDiag(l)*e_diis(l,j)
-    end do
-    H_diis(i,j) = gg
+    H_diis(i,j) = sum(e_diis(:,i)*HDiag(:)*e_diis(:,j))
   end do
 end do
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Undershoot avoidance: Scale along dq !
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+if (Loosen%Factor /= One) then
+  ! Components of dq in the subspace
+  call mma_allocate(w,mDIIS,mDIIS,Label='w')
+  gg = sqrt(DDot_(mOV,dq,1,dq,1))
+  do i=1,mDIIS
+    w(i,1) = DDot_(mOV,dq,1,e_diis(:,i),1)/gg
+  end do
+  ! D = I + (f-1) * w w^T
+  ! H' = D^T H D
+  call mma_allocate(D,mDIIS,mDIIS,Label='D')
+  do i=1,mDIIS
+    D(:,i) = (One/Loosen%Factor-One)*w(i,1)*w(:,1)
+    D(i,i) = D(i,i)+One
+  end do
+  call dgemm_('N','N',mDIIS,mDIIS,mDIIS,One,H_diis,mDIIS,D,mDIIS,Zero,w,mDIIS)
+  call dgemm_('N','N',mDIIS,mDIIS,mDIIS,One,D,mDIIS,w,mDIIS,Zero,H_diis,mDIIS)
+  call mma_deallocate(D)
+  call mma_deallocate(w)
+end if
+
+!do i=1,mDiis
+!  HDiag_Diis(i) = H_Diis(i,i)
+!end do
 #ifdef _DEBUGPRINT_
 call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
 
-call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
-dq_diis(:)=Zero
-!
-!===========================================================================================================================
-!
-!   Start the optimization
 
-Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis(:,:),g_diis(:,:),dq_diis(:),Energy(iFirst:), H_diis(:,:), dqdq, &
-                   Step_Trunc, UpMeth)
-!
-!===========================================================================================================================
-!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
+dq_diis(:) = Zero
+
+!=======================================================================
+! Start the optimization
+
+Call GEK_Optimizer(mDiis,nDiis,Max_Iter,q_diis,g_diis,dq_diis,Energy(iFirst:),H_diis,dqdq,Step_Trunc,UpMeth,SORange)
+
+!=======================================================================
 
 ! Compute the displacement in the full space.
 dq(:) = Zero
@@ -312,5 +313,7 @@ call mma_deallocate(q)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'Exit S-GEK Optimizer'
 #endif
+call Timing(Cpu2,Tim1,Tim2,Tim3)
+TimFld(12) = TimFld(12)+(Cpu2-Cpu1)
 
 end subroutine S_GEK_Optimizer

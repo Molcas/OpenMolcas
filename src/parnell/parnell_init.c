@@ -43,7 +43,8 @@ parnell_status_t parnell_init(void) {
   /* set MyWorkDir and switch to it */
   if (MyWorkDir[0] == 0) {
     if (MyRank == 0) {
-      memcpy(MyWorkDir, WorkDir, FILENAME_MAX);
+      memcpy(MyWorkDir, WorkDir, FILENAME_MAX - 1);
+      MyWorkDir[FILENAME_MAX - 1] = '\0';
     } else {
       snprintf(tmpWorkDir, FILENAME_MAX + 7, "%s/tmp_%d", WorkDir, MyRank);
       memcpy(MyWorkDir, tmpWorkDir, FILENAME_MAX - 1);
