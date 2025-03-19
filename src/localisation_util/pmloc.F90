@@ -48,7 +48,6 @@
 
 subroutine PMLoc(irc,CMO,Thr,ThrGrad,ThrRot,MxIter,nBas,nOcc,nFro,nSym,Silent)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -61,7 +60,6 @@ logical(kind=iwp), intent(in) :: Silent
 #include "Molcas.fh"
 integer(kind=iwp) :: iSym, nBasT, nOccT
 real(kind=wp) :: Functional, ThrGLoc, ThrLoc, ThrRotLoc
-character(len=80) :: Txt
 logical(kind=iwp) :: Converged, Debug, Maximization
 character(len=*), parameter :: SecNam = 'PMLoc'
 
