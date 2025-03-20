@@ -55,7 +55,7 @@
      &  qcmaquis_interface_deinit, qcmaquis_param,
      &  TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM, dmrg_energy
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
-      use rasscf_lucia, only: RF1, RF2
+      use lucia_data, only: RF1, RF2
       use rasscf_global, only: DoNEVPT2Prep, DoDelChk
       use rasscf_global, only: Twordm_qcm, DoMCPDFTDMRG
 #endif
@@ -82,8 +82,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset
       use csfbas, only: CONF
-      use glbbas, only: CFTP
-      use rasscf_lucia, only: DStmp, Dtmp
+      use lucia_data, only: CFTP, DStmp, Dtmp
       use raswfn, only: wfn_iter, wfn_energy, wfn_transdens,
      &                  wfn_transsdens
       use rasscf_global, only: lRoots

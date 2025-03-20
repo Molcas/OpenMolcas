@@ -19,6 +19,7 @@ subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
 ! IREFSM:  REFERENCE SYMMETRY
 ! CSFDIA:  DIAGONAL OF CI MATRIX IN CSF BASIS
 
+use lucia_data, only: ECORE_HEX
 use csfbas, only: CTS
 use Lucia_Interface, only: Lucia_Util
 use output_ras, only: IPRLOC
@@ -31,9 +32,8 @@ implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
 integer(kind=iwp) :: IPRINT, IPRL, IPRLEV
-real(kind=wp) :: dum1, dum2, dum3, eCore_Hex
+real(kind=wp) :: dum1, dum2, dum3
 real(kind=wp), allocatable :: DDIA(:)
-real(kind=wp), external :: Get_eCore
 #include "timers.fh"
 
 call Timing(Tissot_1,dum1,dum2,dum3)
@@ -51,8 +51,7 @@ call get_diag(DDIA,ndet)
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
 call CSDIAG_CI_UTIL(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,CTS,NDTFTP,NCSFTP,IPRINT)
-eCore_Hex = Get_eCore()
-CSFDIA(:) = CSFDIA(:)+eCore_Hex
+CSFDIA(:) = CSFDIA(:)+ECORE_HEX
 
 ! DEALLOCATE LOCAL MEMORY
 

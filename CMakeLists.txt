@@ -2483,12 +2483,12 @@ set (last_energy_deplibs
   chcc
   cht3
   false
+  ffpt
   mbpt2
   mcpdft
   motra
   rasscf
   scf
-  ffpt
   seward
 )
 set (loprop_deplibs
@@ -2506,13 +2506,13 @@ set (numerical_gradient_deplibs
   chcc
   cht3
   false
+  ffpt
   mbpt2
   mcpdft
   motra
   rasscf
   scf
   seward
-  ffpt
 )
 set (seward_deplibs
   guessorb

@@ -189,6 +189,7 @@
        call dcopy_(ndens2,[0.0d0],0,Temp3,1)
        Do iS=1,nSym
         js=iEOR(is-1,loper)+1
+        if (nOrb(js) < 1) cycle
         Do j=1,nAsh(is)+nish(is)
          Do i=1,nAsh(is)+nIsh(is)
           If (i.eq.j.and.i.le.nish(is).and.j.le.nish(is))
@@ -245,6 +246,7 @@ c Avoid unused argument warnings
 
       Do iS=1,nsym
        js=ieor(is-1,idsym-1) +1
+       if (min(nbas1(is),nbas2(is)) < 1) cycle
        Do j=0,Min(nbas2(js),nbas1(js))-1
         call dcopy_(Min(nbas1(is),nbas2(is)),
      &             A(ipMat(is,js)+j*nbas1(is)),1,

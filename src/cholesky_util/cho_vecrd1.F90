@@ -93,7 +93,7 @@ if (CHO_ADRVEC == 1) then  ! WA addressing
     call DDAFILE(LUCHO(ISYM),IOPT,SCR,LTOT,IADR)
   end if
 
-else if (CHO_ADRVEC == 2) then ! DA adressing
+else if (CHO_ADRVEC == 2) then ! DA addressing
 
   ! Read as many vectors as can be read, one at a time.
   ! ---------------------------------------------------

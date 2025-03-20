@@ -223,4 +223,5 @@ end if
 !----------------------------------------------------------------------*
 return
 
+#undef _DEBUGPRINT_
 end subroutine TraClc_i

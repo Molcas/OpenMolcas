@@ -65,8 +65,8 @@ private
 !     isSym   : location of number of irred. representations           *
 !     isBas   : first location of basis function counters              *
 !     isSkip  : first location of the skip flags                       *
-!     isDAdr  : first location of disk adresses for each sym. batch    *
-!     isMxDa  : highest disk adress written                            *
+!     isDAdr  : first location of disk addresses for each sym. batch   *
+!     isMxDa  : highest disk address written                           *
 !     isPkTh  : location of threshold for packing                      *
 !     isPkCt  : location of cutof for packing (unused)                 *
 !     isPkSc  : location of scaling constant for packing (unused)      *

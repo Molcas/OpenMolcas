@@ -30,8 +30,8 @@
 * If KMAX = -1, all strings are included
 * If all K strings have been searched IEND is set to 1
 *
-* Jeppe Olsen , Winter of 1991
-*               January 1994 : modified to allow for several orbitals
+* Jeppe Olsen, Winter of 1991
+*              January 1994 : modified to allow for several orbitals
 *
 * ======
 *. Input

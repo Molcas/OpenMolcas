@@ -117,7 +117,7 @@
       Call Read2_2(rmo1,rmo2,
      &           FI,FA2,
      &           T1,imem,Tmp2,
-     &           T3,T4,
+     &           T3,T4,nDens22,
      &           DIR,DIL,
      &           DI,
      &           DAR,DAL,

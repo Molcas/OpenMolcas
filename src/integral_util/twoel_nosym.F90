@@ -48,10 +48,11 @@ use Definitions, only: wp, iwp, u6, RtoB, RtoI
 
 implicit none
 #include "twoel_interface.fh"
-integer(kind=iwp) :: i_Int, iAO(4), iAOst(4), iBasi, iCmp(4), iEta, ijS, ik2, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, iPer, iS, &
-                     iShell(4), iShll(4), ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, jBasj, jk2, jPrInc, jS, kabcd, kBask, kInts, klS, &
-                     kS, la, lb, lBasl, lc, ld, lPrInc, lS, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, mWork2, mZeta, &
-                     nab, nabcd, nAlpha, nBeta, nByte, ncd, nDCRR, nDCRS, nDelta, nEta, nEta_Tot, nGamma, nInts, nZeta, nZeta_Tot
+integer(kind=iwp) :: i_Int, iAng(4), iAO(4), iAOst(4), iBasi, iCmp(4), iEta, ijS, ik2, IncEta, IncZet, iOpt, ipAOInt, ipAOInt_, &
+                     iPer, iS, iShell(4), iShll(4), ISMAng, iW3, iW4, iW4_, iWR(2), iZeta, jBasj, jk2, jPrInc, jS, kabcd, kBask, &
+                     kInts, klS, kS, la, lb, lBasl, lc, ld, lPrInc, lS, mabcd, mabMax, mabMin, mcdMax, mcdMin, mEta, mInts, &
+                     mWork2, mZeta, nab, nabcd, nAlpha, nBeta, nByte, ncd, nDCRR, nDCRS, nDelta, nEta, nEta_Tot, nGamma, nInts, &
+                     nZeta, nZeta_Tot
 real(kind=wp) :: CoorAC(3,2), q4, QInd(2), RST_Triplet, vij, vijkl, vik, vil, vjk, vjl, vkl
 logical(kind=iwp) :: ABeqCD, AeqB, AeqC, All_Spherical, Batch_On_Disk, CeqD, Do_TnsCtl, DoAOBatch, DoCoul, DoExch, NoPInts, Pij, &
                      Pijkl, Pik, Pjl, Pkl, Prescreen_On_Int_Only, Scrij, Scrik, Scril, Scrjk, Scrjl, Scrkl, Shijij
@@ -71,6 +72,7 @@ Shijij = ((iSD4(11,1) == iSD4(11,3)) .and. (iSD4(11,2) == iSD4(11,4)))
 
 iShell(:) = iSD4(11,:)
 iShll(:) = iSD4(0,:)
+iAng(:) = iSD4(1,:)
 iAO(:) = iSD4(7,:)
 iAOst(:) = iSD4(8,:)
 
@@ -104,12 +106,12 @@ if (DoFock) then
   Djl(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
 else
   ! Dummy association
-  Dij(1:1,1:1) => DeDe(-1:-1)
-  Dkl(1:1,1:1) => DeDe(-1:-1)
-  Dik(1:1,1:1) => DeDe(-1:-1)
-  Dil(1:1,1:1) => DeDe(-1:-1)
-  Djk(1:1,1:1) => DeDe(-1:-1)
-  Djl(1:1,1:1) => DeDe(-1:-1)
+  Dij(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dkl(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dik(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dil(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Djk(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Djl(1:1,1:1) => DeDe(lbound(DeDe,1):)
 end if
 
 All_Spherical = (Shells(iShll(1))%Prjct .and. Shells(iShll(2))%Prjct .and. Shells(iShll(3))%Prjct .and. Shells(iShll(4))%Prjct)
@@ -123,10 +125,10 @@ jBasj = iSD4(19,2)
 kBask = iSD4(19,3)
 lBasl = iSD4(19,4)
 
-Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
-Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
-Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
-Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(:,iAOst(1)+1:)
+Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(:,iAOst(2)+1:)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(:,iAOst(3)+1:)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(:,iAOst(4)+1:)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Coeff1',' ',Coeff1,nAlpha,iBasi)
@@ -138,10 +140,10 @@ call RecPrt('Coeff4',' ',Coeff4,nDelta,lBasl)
 RST_triplet = One
 QInd(2) = RST_triplet
 
-la = iSD4(1,1)
-lb = iSD4(1,2)
-lc = iSD4(1,3)
-ld = iSD4(1,4)
+la = iAng(1)
+lb = iAng(2)
+lc = iAng(3)
+ld = iAng(4)
 iSmAng = la+lb+lc+ld
 
 ! switch (to generate better start orbitals...)
@@ -258,12 +260,12 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
   ! be accumulated on. In that case we will use A and C of
   ! the order as defined by the basis functions types.
 
-  if (iSD4(1,1) >= iSD4(1,2)) then
+  if (la >= lb) then
     CoorAC(:,1) = Coor(:,1)
   else
     CoorAC(:,1) = Coor(:,2)
   end if
-  if (iSD4(1,3) >= iSD4(1,4)) then
+  if (lc >= ld) then
     CoorAC(:,2) = Coor(:,3)
   else
     CoorAC(:,2) = Coor(:,4)
@@ -306,7 +308,7 @@ if ((.not. Batch_On_Disk) .or. W2Disc) then
       if (all(Coeff4(:,:) == Zero)) cycle
 
       call DrvRys(iZeta,iEta,nZeta,nEta,mZeta,mEta,nZeta_Tot,nEta_Tot,k2data1(1),k2data2(1),nAlpha,nBeta,nGamma,nDelta,1,1,1,1,1, &
-                  1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iSD4(1,:),Coor,CoorAC,mabMin,mabMax,mcdMin, &
+                  1,ThrInt,CutInt,vij,vkl,vik,vil,vjk,vjl,Prescreen_On_Int_Only,NoInts,iAng,Coor,CoorAC,mabMin,mabMax,mcdMin, &
                   mcdMax,nijkl/nComp,nabcd,mabcd,Wrk,ipAOInt_,iW4_,nWork2,mWork2,k2Data1(1)%HrrMtrx(:,1),k2Data2(1)%HrrMtrx(:,1), &
                   la,lb,lc,ld,iCmp,iShll,NoPInts,Dij(:,1),mDij,Dkl(:,1),mDkl,Do_TnsCtl,kabcd,Coeff1,iBasi,Coeff2,jBasj,Coeff3, &
                   kBask,Coeff4,lBasl)

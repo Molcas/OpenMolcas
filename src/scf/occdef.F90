@@ -156,7 +156,7 @@ if (allocated(OccSet_m)) then
         ! if the orbital is muonic.
 
         tmp = Zero
-        tmp = sum(real(iFerm(jEOr+1:jEOr+nB-1),kind=wp)*abs(pCMO(1:nB,iOrb)))
+        tmp = sum(real(iFerm(jEOr+1:jEOr+nB),kind=wp)*abs(pCMO(1:nB,iOrb)))
         Muon_i = 0                  ! electronic
         if (tmp /= Zero) Muon_i = 1 ! muonic
 
@@ -357,4 +357,5 @@ subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,Label)
 end subroutine DebugCMO
 #endif
 
+#undef _DEBUGPRINT_
 end subroutine OccDef

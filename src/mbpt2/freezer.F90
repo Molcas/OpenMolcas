@@ -58,7 +58,7 @@ iCount = 1
 do iSym=1,nSym
   kAll = iCount+nFro(iSym)
   kOcc = iOcc(iSym)+1
-  call dCopy_(nOcc(iSym),EAll(kAll),1,EOcc(kOcc),1)
+  EOcc(kOcc:kOcc+nOcc(iSym)-1) = EAll(kAll:kAll+nOcc(iSym)-1)
   iCount = iCount+nBas(iSym)
 end do
 

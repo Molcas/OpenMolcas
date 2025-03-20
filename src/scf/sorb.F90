@@ -115,15 +115,14 @@ do
       ! Reset to to start from the current MO set
       call Init_SCF()
       InVec = 5
-      !IFG: I presume the arguments after LuOut in these two calls are correct,
-      !     they were missing!
       if (nD == 1) then
         FName = 'SCFORB'
-        call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
       else
         FName = 'UHFORB'
-        call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
       end if
+      !IFG: I presume the arguments after LuOut in this call is correct,
+      !     they were missing!
+      call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -172,7 +171,7 @@ do
     case (9)
 
       StVec = 'Detected guessorb starting orbitals'
-      !One_Grid = .true.
+      One_Grid = .true.
       call start0x(CMO,nBB,nD,EOrb,nnB)
       !                                                                *
       !*****************************************************************

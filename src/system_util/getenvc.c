@@ -57,7 +57,7 @@ void getenvf2c(char *name, INT *ilen, char *value, INT *maxlen, INT *irl) {
 
   if (!name0)
     return;
-  strncpy(name0, name, *ilen);
+  memcpy(name0, name, *ilen);
   name0[*ilen] = 0;
 
   ptr = strchr(name0, ' ');
@@ -65,9 +65,9 @@ void getenvf2c(char *name, INT *ilen, char *value, INT *maxlen, INT *irl) {
     *ptr = 0;
   if ((envvar = getenvc(name0)) != NULL) {
     len = strlen(envvar);
-    if (len >= *maxlen)
+    if (len > *maxlen - 1)
       len = *maxlen - 1;
-    strncpy(value, envvar, *maxlen - 1);
+    memcpy(value, envvar, len);
     value[len] = 0;
     free(envvar);
   }
@@ -122,7 +122,7 @@ char *getenvc(const char *name) {
   value = (char *)malloc((i + 1) * sizeof(char));
   if (value == NULL)
     return NULL;
-  strncpy(value, ptr, i);
+  memcpy(value, ptr, i);
   value[i] = 0;
   return value;
 }

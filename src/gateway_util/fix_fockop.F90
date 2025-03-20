@@ -11,6 +11,7 @@
 ! Copyright (C) 2017,2020, Roland Lindh                                *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine Fix_FockOp(LuRd)
 !***********************************************************************
 !                                                                      *
@@ -47,16 +48,16 @@ integer(kind=iwp), intent(in) :: LuRd
 #ifdef _DEBUGPRINT_
 #include "print.fh"
 #endif
-integer(kind=iwp) :: BasisTypes(4), i, iAng, iAngMax_Proj, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, &
-                     ijC, ijTri, Indx, iShll, iShll_a, iShll_Proj_r, iShll_r, iTo, jB, jBF, jShll, kEval, Last, List(0:iTabMx), &
-                     List_Add(0:iTabMx), List_AE(0:iTabMx), lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, naa, nBF, nCntrc_a, &
-                     nCntrc_Proj, nCntrc_r, nCntrc_t, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, nSBB, nSCC, nScr1, &
-                     nScr2, nScr3, nSRR
+integer(kind=iwp) :: BasisTypes(4), i, iAng, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, ijC, ijTri, &
+                     Indx, iShll, iShll_a, iShll_r, iTo, jB, jBF, jShll, kEval, Last, lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, naa, &
+                     nBF, nCntrc_a, nCntrc_r, nCntrc_t, nCore, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, nSBB, nSCC, &
+                     nScr1, nScr2, nScr3, nSRR
 real(kind=wp) :: A(3), C_ik, C_jk, Charge_Actual, Charge_Effective, Check, D, e, e12i, qTest, Test_Charge, Tmp, xFactor, xMass
 logical(kind=iwp) :: Do_Cycle, lPP, Try_Again
 character(len=256) :: Basis_lib, Fname
 character(len=180) :: Ref(2)
 character(len=80) :: Bsl_, BSLbl
+integer(kind=iwp), allocatable :: List(:), List_Add(:), List_AE(:)
 real(kind=wp), allocatable :: C(:,:), E_R(:), EVal(:), EVec(:,:), FockOp_t(:,:), FPrim(:,:), Hm1(:,:), KnE(:), NAE(:), Ovr(:,:), &
                               Ovrlp(:), S12i(:,:), S_AA(:), S_AR(:), SAA(:), SAR(:), Scr1(:), Scr2(:), Scr3(:), Temp(:,:), &
                               Tmp1(:), Tmp2(:), Tmp3(:)
@@ -93,6 +94,9 @@ iComp = 1
 
 nPrp = max(4,S%nMltpl)
 
+call mma_allocate(List,[0,iTabMx],Label='List')
+call mma_allocate(List_AE,[0,iTabMx],Label='List_AE')
+call mma_allocate(List_Add,[0,iTabMx],Label='List_Add')
 List(:) = 0
 List_AE(:) = 0
 BasisTypes(:) = 0
@@ -120,9 +124,7 @@ do iCnttp=1,mCnttp
     end do
   end if
 
-  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. (dbsc(iCnttp)%nFragType > 0) .or. dbsc(iCnttp)%FOp) then
-    cycle
-  end if
+  if (dbsc(iCnttp)%Aux .or. dbsc(iCnttp)%Frag .or. (dbsc(iCnttp)%nFragType > 0) .or. dbsc(iCnttp)%FOp) cycle
 
   ! Special treatment for muonic basis sets
 
@@ -171,8 +173,8 @@ do iCnttp=1,mCnttp
 
       call mma_Allocate(KnE,NSAA,Label='KnE')
       call One_Int(KnEPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,KnE,nSAA,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
-                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
-                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iCnttp)
+                   nCntrc_a,Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
+                   Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
 #     ifdef _DEBUGPRINT_
       call DScal_(nCntrc_a**2*iCmp_a**2,xFactor,KnE,1)
@@ -193,8 +195,8 @@ do iCnttp=1,mCnttp
       call mma_allocate(Scr3,nScr3,Label='Scr3')
 
       call One_Int(NAPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,NAE,nSBB,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
-                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
-                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iCnttp)
+                   nCntrc_a,Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
+                   Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
 #     ifdef _DEBUGPRINT_
       call RecPrt('Nuclear-attraction Integrals',' ',NAE,nCntrc_a**2,iCmp_a**2)
@@ -225,8 +227,8 @@ do iCnttp=1,mCnttp
       call mma_allocate(Scr3,nScr3,Label='Scr3')
 
       call One_Int(MltPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,Ovrlp,nSCC,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
-                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
-                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iCnttp)
+                   nCntrc_a,Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
+                   Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
 #     ifdef _DEBUGPRINT_
       call RecPrt('Overlap Integrals',' ',Ovrlp,nCntrc_a**2,iCmp_a**2)
@@ -467,47 +469,47 @@ do iCnttp=1,mCnttp
       !                                                                *
       !*****************************************************************
       !                                                                *
+      nCore = 0
       if (dbsc(iCnttp)%ECP) then
-#       ifdef _DEBUGPRINT_
-        if (lPP) then
-          write(u6,*) 'Reference is ECP (Pseudo Potential)'
-        else
-          write(u6,*) 'Reference is ECP (Huzinaga type)'
-        end if
-        call RecPrt('Reference Exponents',' ',Shells(iShll_r)%Exp,1,nPrim_r)
-        call RecPrt('Reference Coefficients',' ',Shells(iShll_r)%Cff_c(1,1,1),nPrim_r,nCntrc_r)
-        call RecPrt('Reference Fock operator',' ',Shells(iShll_r)%FockOp,nCntrc_r,nCntrc_r)
-#       endif
         call OrbType(dbsc(nCnttp)%AtmNr,List_AE,31)
-        call ECP_Shells(dbsc(iCnttp)%AtmNr,List)
         if (lPP .or. (dbsc(iCnttp)%nM1 == 0)) then
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'Actual is ECP (Pseudo Potential)'
+#         endif
 
-          ! Pseud potential case
+          ! Pseudo potential case
 
-          nRemove = List_AE(iAng)-List(iAng)
+          nCore = dbsc(iCnttp)%cPP
 
         else
+#         ifdef _DEBUGPRINT_
+          write(u6,*) 'Actual is ECP (Huzinaga type)'
+#         endif
 
-          ! Huzinaga type, remove according to the number of projected shells.
+          ! IFG (I don't think this has any reliability)
+          !! Huzinaga type, remove according to the number of projected shells.
+          !
+          !!iAngMax_Proj = dbsc(iCnttp)%nPrj
+          !!if (iAng <= iAngMax_Proj) then
+          !!  iShll_Proj_r = dbsc(iCnttp)%iPrj+iAng
+          !!  nCntrc_Proj = Shells(iShll_Proj_r)%nBasis
+          !!  nRemove = nCntrc_Proj
+          !!else
+          !!  nRemove = 0
+          !!end if
+          !
+          !! If too many try the default
+          !
+          !if (nRemove > nCntrc_r) nRemove = List_AE(iAng)-List(iAng)
 
-          iAngMax_Proj = dbsc(iCnttp)%nPrj
-          if (iAng <= iAngMax_Proj) then
-            iShll_Proj_r = dbsc(iCnttp)%iPrj+iAng
-            nCntrc_Proj = Shells(iShll_Proj_r)%nBasis
-            nRemove = nCntrc_Proj
-          else
-            nRemove = 0
-          end if
-
-          ! If too many try the default
-
-          if (nRemove > nCntrc_r) then
-            nRemove = List_AE(iAng)-List(iAng)
-          end if
+          nCore = dbsc(iCnttp)%AtmNr-int(dbsc(iCnttp)%Charge)
 
         end if ! lPP
+        call ECP_Shells(dbsc(iCnttp)%AtmNr,nCore,List)
+        nRemove = List_AE(iAng)-List(iAng)
 #       ifdef _DEBUGPRINT_
         write(u6,*) 'nRemove=',nRemove
+        write(u6,*) 'nCore=',nCore
         write(u6,*) 'List_Add(iAng)=',List_Add(iAng)
 #       endif
         nRemove = nRemove-List_Add(iAng)
@@ -535,9 +537,9 @@ do iCnttp=1,mCnttp
 
 #     ifdef _DEBUGPRINT_
       call RecPrt('Actual Exponents',' ',Shells(iShll_a)%Exp,1,nPrim_a)
-      call RecPrt('Actual Coefficients',' ',Shells(iShll_a)%Cff_c(1,1,1),nPrim_a,nCntrc_a)
+      call RecPrt('Actual Coefficients',' ',Shells(iShll_a)%Cff_c(:,:,1),nPrim_a,nCntrc_a)
       call RecPrt('Reference Exponents',' ',Shells(iShll_r)%Exp,1,nPrim_r)
-      call RecPrt('Reference Coefficients',' ',Shells(iShll_r)%Cff_c(1,nRemove+1,1),nPrim_r,nCntrc_r)
+      call RecPrt('Reference Coefficients',' ',Shells(iShll_r)%Cff_c(:,nRemove+1:,1),nPrim_r,nCntrc_r)
       if (allocated(FockOp_t)) then
         call RecPrt('Reference Fock operator',' ',FockOp_t,nCntrc_r,nCntrc_r)
       else
@@ -575,8 +577,8 @@ do iCnttp=1,mCnttp
       call mma_allocate(Scr3,nScr3,Label='Scr3')
 
       call One_Int(MltPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,Scr2,nScr2,naa,SAA,nSAA,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
-                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
-                   Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iCnttp)
+                   nCntrc_a,Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iShll_a,nPrim_a,Shells(iShll_a)%Exp,nCntrc_a, &
+                   Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
       !                                                                *
       !*****************************************************************
@@ -592,8 +594,8 @@ do iCnttp=1,mCnttp
       call mma_allocate(Scr3,nScr3,Label='Scr3')
 
       call One_Int(MltPrm,Scr3,nScr3,A,iAng,iComp,nOrdOp,Scr1,nScr1,SCr2,nScr2,naa,SAR,nSAR,iShll_a,nPrim_a,Shells(iShll_a)%Exp, &
-                   nCntrc_a,Shells(iShll_a)%Cff_c(1,1,1),iCmp_a,iShll_r,nPrim_r,Shells(iShll_r)%Exp,nCntrc_r, &
-                   Shells(iShll_r)%Cff_c(1,1+nRemove,1),iCmp_a,iCnttp)
+                   nCntrc_a,Shells(iShll_a)%Cff_c(:,:,1),iCmp_a,iShll_r,nPrim_r,Shells(iShll_r)%Exp,nCntrc_r, &
+                   Shells(iShll_r)%Cff_c(:,1+nRemove:,1),iCmp_a,iCnttp)
       call mma_deallocate(Scr3)
 
       nSRR = nCntrc_r**2*naa
@@ -724,6 +726,20 @@ do iCnttp=1,mCnttp
       !*****************************************************************
       !                                                                *
     end do  ! iAng
+    ! Account for higher angular momentum in core
+    if (nCore > 0) then
+      call OrbType(dbsc(nCnttp)%AtmNr,List_AE,31)
+      call ECP_Shells(dbsc(iCnttp)%AtmNr,nCore,List)
+      do iAng=dbsc(iCnttp)%nVal,iTabMx
+        nRemove = List_AE(iAng)-List(iAng)
+        if ((iAng == 3) .and. (nRemove == 1) .and. (dbsc(iCnttp)%AtmNr >= 57) .and. (dbsc(iCnttp)%AtmNr <= 70)) then
+          ! lanthanides with f shell in core
+          if (nRemove == 1) Test_Charge = Test_Charge+real(dbsc(iCnttp)%AtmNr-56)
+        else
+          Test_Charge = Test_Charge+real(2*(2*iAng+1)*nRemove,kind=wp)
+        end if
+      end do
+    end if
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -789,6 +805,7 @@ do iCnttp=1,mCnttp
     else
       write(u6,*) 'GuessOrb option turned off!'
       dbsc(iCnttp)%FOp = .false.
+      exit
     end if
     Do_Cycle = .false.
   end do
@@ -823,6 +840,9 @@ do iCnttp=1,nCnttp
   Do_FckInt = Do_FckInt .and. dbsc(iCnttp)%FOp ! To be activated!
 
 end do
+call mma_deallocate(List)
+call mma_deallocate(List_AE)
+call mma_deallocate(List_Add)
 call mma_deallocate(STDINP)
 !                                                                      *
 !***********************************************************************

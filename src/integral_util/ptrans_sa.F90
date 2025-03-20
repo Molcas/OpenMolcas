@@ -44,8 +44,8 @@ integer(kind=iwp) :: i, iEnd, ijSym, Ind, indi(4), iOCMOI, iOCMOJ, iOCMOK, iOCMO
                      iods, iOff1, iOff2, ioIT, ioPam1, ioPam2, ioPam3, ioPam4, ip, ipq, ipr, ips, ipSO, iq, ir, irq, irs, is, &
                      iScr, isq, isSDM, iSta, iSym, it, itEnd, itSta, itu, ituvx, iu, iuEnd, iuSta, iv, iVEnd, ivSta, ivx, ix, &
                      ixEnd, ixSta, j, jEnd, jklOf1, jklOff, jSta, jSym, k, kEnd, klOf1, klOff, klSym, kSta, kSym, l, lEnd, lOf1, &
-                     lOff, lSta, lSym, nbi, nbj, nbk, nbl, nCopy, ni, nijkl, nj, njkl, nk, nkl, nKLT, nl, nLTU, nnPam1, nnPam2, &
-                     nnPam3, nnPam4, nSkip1, nSkip2, nt, nTUV, nu, nv, nx, nxv, nxvu, nxvut
+                     lOff, lSta, lSym, mDens, nbi, nbj, nbk, nbl, nCopy, ni, nijkl, nj, njkl, nk, nkl, nKLT, nl, nLTU, nnPam1, &
+                     nnPam2, nnPam3, nnPam4, nSkip1, nSkip2, nt, nTUV, nu, nv, nx, nxv, nxvu, nxvut
 real(kind=wp) :: Fact
 
 ! Offsets into the ipam array:
@@ -64,6 +64,7 @@ lend = 0
 ixend = 0
 iocmol = 0
 ioDs = 0
+mDens = size(D0,2)
 do lsym=0,mirrep-1
   nl = npam(4,lsym)
   lsta = lend+1
@@ -376,45 +377,47 @@ do lsym=0,mirrep-1
                   if (isym == lsym) then
                     ips = iTri(ip,is)
                     irq = iTri(ir,iq)
-                    PSOPam(ipso) = PSOPam(ipso)-Quart*D0(ioDs+ips,1)*D0(ioDr+irq,2)-Quart*D0(ioDs+ips,2)*D0(ioDr+irq,1)- &
-                                   Quart*D0(ioDs+ips,3)*D0(ioDr+irq,4)-Quart*D0(ioDs+ips,4)*D0(ioDr+irq,3)- &
-                                   Quart*D0(ioDs+ips,1)*D0(ioDr+irq,6)-Quart*D0(ioDs+ips,6)*D0(ioDr+irq,1)
+                    PSOPam(ipso) = PSOPam(ipso)-Quart*(D0(ioDs+ips,1)*D0(ioDr+irq,2)+D0(ioDs+ips,2)*D0(ioDr+irq,1)+ &
+                                                       D0(ioDs+ips,3)*D0(ioDr+irq,4)+D0(ioDs+ips,4)*D0(ioDr+irq,3))
+                    if (mDens > 4) &
+                      PSOPam(ipso) = PSOPam(ipso)-Quart*(D0(ioDs+ips,1)*D0(ioDr+irq,6)+D0(ioDs+ips,6)*D0(ioDr+irq,1))
                     !ANDREW - uncomment
                     !-Quart*D0(ioDs+ips,1)*D0(ioDr+irq,5)-Quart*D0(ioDs+ips,5)*D0(ioDr+irq,1)
                     !END ANDREW
                     if (nSSDM /= 0) then
                       ! The last four lines subtract unnecessary contributions
                       do iSSDM=1,nSSDM
-                        PSOPam(ipso) = PSOPam(ipso)-Quart*SSDM(ioDs+ips,1,iSSDM)*SSDM(ioDr+irq,2,iSSDM)- &
-                                       Quart*SSDM(ioDs+ips,2,iSSDM)*SSDM(ioDr+irq,1,iSSDM)
+                        PSOPam(ipso) = PSOPam(ipso)-Quart*(SSDM(ioDs+ips,1,iSSDM)*SSDM(ioDr+irq,2,iSSDM)+ &
+                                                           SSDM(ioDs+ips,2,iSSDM)*SSDM(ioDr+irq,1,iSSDM))
                       end do
-                      end if
+                    end if
                   end if
                   if (isym == ksym) then
                     ipr = iTri(ip,ir)
                     isq = iTri(is,iq)
-                    PSOPam(ipso) = PSOPam(ipso)-Quart*D0(ioDr+ipr,1)*D0(ioDs+isq,2)-Quart*D0(ioDr+ipr,2)*D0(ioDs+isq,1)- &
-                                   Quart*D0(ioDr+ipr,3)*D0(ioDs+isq,4)-Quart*D0(ioDr+ipr,4)*D0(ioDs+isq,3)- &
-                                   Quart*D0(ioDr+ipr,1)*D0(ioDs+isq,6)-Quart*D0(ioDr+ipr,6)*D0(ioDs+isq,1)
+                    PSOPam(ipso) = PSOPam(ipso)-Quart*(D0(ioDr+ipr,1)*D0(ioDs+isq,2)+D0(ioDr+ipr,2)*D0(ioDs+isq,1)+ &
+                                                       D0(ioDr+ipr,3)*D0(ioDs+isq,4)+D0(ioDr+ipr,4)*D0(ioDs+isq,3))
+                    if (mDens > 4) &
+                      PSOPam(ipso) = PSOPam(ipso)-Quart*(D0(ioDr+ipr,1)*D0(ioDs+isq,6)+D0(ioDr+ipr,6)*D0(ioDs+isq,1))
                     !ANDREW - uncomment
                     !-Quart*D0(ioDr+ipr,1)*D0(ioDs+isq,5)-Quart*D0(ioDr+ipr,5)*D0(ioDs+isq,1)
                     !END ANDREW
                     if (nSSDM /= 0) then
                       do iSSDM=1,nSSDM
-                        PSOPam(ipso) = PSOPam(ipso)-Quart*SSDM(ioDr+ipr,1,iSSDM)*SSDM(ioDs+isq,2,iSSDM)- &
-                                       Quart*SSDM(ioDr+ipr,2,iSSDM)*SSDM(ioDs+isq,1,iSSDM)
+                        PSOPam(ipso) = PSOPam(ipso)-(SSDM(ioDr+ipr,1,iSSDM)*SSDM(ioDs+isq,2,iSSDM)+ &
+                                                     SSDM(ioDr+ipr,2,iSSDM)*SSDM(ioDs+isq,1,iSSDM))
                       end do
                     end if
                   end if
                   if (isym == jsym) then
-                    PSOPam(ipso) = PSOPam(ipso)+D0(ioDq+ipq,1)*D0(ioDs+irs,2)+D0(ioDq+ipq,2)*D0(ioDs+irs,1)+ &
-                                   D0(ioDq+ipq,3)*D0(ioDs+irs,4)+D0(ioDq+ipq,4)*D0(ioDs+irs,3)+D0(ioDq+ipq,1)*D0(ioDs+irs,5)+ &
-                                   D0(ioDq+ipq,5)*D0(ioDs+irs,1)
+                    PSOPam(ipso) = PSOPam(ipso)+(D0(ioDq+ipq,1)*D0(ioDs+irs,2)+D0(ioDq+ipq,2)*D0(ioDs+irs,1)+ &
+                                                 D0(ioDq+ipq,3)*D0(ioDs+irs,4)+D0(ioDq+ipq,4)*D0(ioDs+irs,3))
+                    if (mDens > 4) &
+                      PSOPam(ipso) = PSOPam(ipso)+D0(ioDq+ipq,1)*D0(ioDs+irs,5)+D0(ioDq+ipq,5)*D0(ioDs+irs,1)
                     if (nSSDM /= 0) then
-                      issdm = 1
                       do iSSDM=1,nSSDM
-                        PSOPam(ipso) = PSOPam(ipso)+SSDM(ioDq+ipq,1,iSSDM)*SSDM(ioDs+irs,2,iSSDM)+ &
-                                       SSDM(ioDq+ipq,2,iSSDM)*SSDM(ioDs+irs,1,iSSDM)
+                        PSOPam(ipso) = PSOPam(ipso)+(SSDM(ioDq+ipq,1,iSSDM)*SSDM(ioDs+irs,2,iSSDM)+ &
+                                                     SSDM(ioDq+ipq,2,iSSDM)*SSDM(ioDs+irs,1,iSSDM))
                       end do
                     end if
                   end if

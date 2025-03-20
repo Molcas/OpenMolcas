@@ -8,7 +8,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2021,2024, Ignacio Fdez. Galván                        *
+# Copyright (C) 2021,2024,2025, Ignacio Fdez. Galván                   *
 #***********************************************************************
 
 import sys
@@ -19,7 +19,7 @@ import numpy as np
 from fractions import Fraction
 import h5py
 
-version = '2.1.1'
+version = '2.1.2'
 
 ################################################################################
 # FUNCTIONS
@@ -558,7 +558,7 @@ parser.add_argument('-d', '--desymmetrize', help='desymmetrize data', action='st
 parser.add_argument('-a', '--all', help='copy all unhandled datasets and attributes to output file (some items may be wrong!)', action='store_true')
 parser.add_argument('-f', '--transfer', help='transfer (project) orbitals from input file onto output file\n'
                                              'transf_spec: "all", "occupied", "active", or comma-separated list of input orbital indices)\n'
-                                             'incompatible with other options', metavar='transf_spec')
+                                             'incompatible with previous options', metavar='transf_spec')
 parser.add_argument('-s', '--select', help='specify which output orbitals to replace with --transfer ("help" for format)', metavar='select_spec')
 parser.add_argument('--threshold', help=argparse.SUPPRESS or 'overlap threshold for orbital projection (default: 0.5)', type=float, default=0.5, metavar='T')
 

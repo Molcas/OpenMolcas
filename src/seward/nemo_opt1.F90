@@ -175,7 +175,7 @@ do iComp=1,nComp
 end do
 
 call mma_allocate(P_Matrix,nLength_Tot,label='P_Matrix')
-call FZero(P_Matrix,nLength_Tot)
+P_Matrix(:) = Zero
 
 do iComp=1,nComp
   iCmp = iComp

@@ -3115,10 +3115,6 @@ if (lRP .and. RPset) call processRP(KeepGroup,SymThr)
 
 lAMFI = lAMFI .and. (.not. NoAMFI)
 
-! Disable the RI flag if only one-electron integrals are requested
-
-Do_RI = (.not. Onenly) .and. Do_RI
-
 iPrint = nPrint(iRout)
 
 S%Mx_Shll = iShll+1
@@ -3877,7 +3873,7 @@ subroutine ProcessBasis()
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ! Automatic onset of muonic charge if the basis type is muonic.
+  ! Automatic set of muonic mass if the basis type is muonic.
   ! This will also automatically activate finite nuclear mass correction.
 
   KWord = ''

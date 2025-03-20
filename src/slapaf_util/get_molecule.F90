@@ -83,7 +83,7 @@ call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nsAtom)
 ! Check if method is translational or rotational variant.
 
 iPL = iPrintLevel(-1)
-if ((VarT .or. VarR) .and. (iPL > 0) .and. (.NOT.Reduce_Prt())) then
+if ((VarT .or. VarR) .and. (iPL > 0) .and. (.not. Reduce_Prt())) then
   write(u6,*)
   if (VarT) write(u6,*) '    Gradient is translational variant!'
   if (VarR) write(u6,*) '    Gradient is rotational variant!'

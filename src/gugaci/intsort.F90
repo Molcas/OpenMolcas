@@ -302,7 +302,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(inout) :: ii
 integer(kind=iwp) :: ia, iaend, iasta, ib, ibend, ibsta, ic, icend, icsta, id, idend, idsta, isma, ja, jb, lra, lrb, lrc, lrd, &
-                     lsma, lsmb, lsmc, lsmcd, lsmd, lsmtmp(8), na
+                     lsma, lsmb, lsmc, lsmcd, lsmd, lsmtmp, na
 real(kind=wp), external :: vfutei
 
 ! _002_aa_

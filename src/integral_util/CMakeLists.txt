@@ -184,7 +184,6 @@ set (sources
      modgauss.F90
      molcas_electron_density_field_fn.F90
      mpmc.F90
-     mspdft_grad.F90
      mydgemm.F90
      n2tri.F90
      nac.F90

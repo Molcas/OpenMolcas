@@ -15,22 +15,26 @@
 !               2017, Roland Lindh                                     *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine DmpLLs(iDskPt)
 
-use LnkLst, only: DmpLst, Init_LLs, LLDelt, LLdGrd, LLGrad, LLx, LLy
-use SCFFiles, only: LuDel, LuDgd, LuGrd, Lux, Luy
+use LnkLst, only: DmpLst, Init_LLs, LLDelt, LLdGrd, LLGrad, LLlGrd, LLx, LLy
+use SCFFiles, only: LuDel, LuDgd, LuGrd, LulGd, Lux, Luy
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) :: iDskPt(5)
+integer(kind=iwp), intent(out) :: iDskPt(6)
 
 if (Init_LLs) then
-  !call StatLLs()
+# ifdef _DEBUGPRINT_
+  call StatLLs()
+# endif
   call DmpLst(LLGrad,LuGrd,iDskPt(1))
-  call DmpLst(LLDgrd,LuDGd,iDskPt(2))
-  call DmpLst(LLDelt,LuDel,iDskPt(3))
-  call DmpLst(LLy,Lux,iDskPt(4))
-  call DmpLst(LLx,Luy,iDskPt(5))
+  call DmpLst(LLlGrd,LulGd,iDskPt(2))
+  call DmpLst(LLDgrd,LuDGd,iDskPt(3))
+  call DmpLst(LLDelt,LuDel,iDskPt(4))
+  call DmpLst(LLy,Lux,iDskPt(5))
+  call DmpLst(LLx,Luy,iDskPt(6))
 else
   write(u6,*) '****** W A R N I N G ! ******'
   write(u6,*) ' Linked list already killed!'

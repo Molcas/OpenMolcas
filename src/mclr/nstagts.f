@@ -18,11 +18,11 @@
       IMPLICIT None
       INTEGER IGRP,ITP,ISM
 
-      Integer IADRESS, NSTAGTS, NTEST
-* element (ITP,ISM) corresponds to adress
-      IADRESS = (ISM-1)*NOCTYP(IGRP)+ ITP
+      Integer IADDRESS, NSTAGTS, NTEST
+* element (ITP,ISM) corresponds to address
+      IADDRESS = (ISM-1)*NOCTYP(IGRP)+ ITP
 *
-      NSTAGTS = Str(IGRP)%NSTSO(IADRESS)
+      NSTAGTS = Str(IGRP)%NSTSO(IADDRESS)
 *
       NTEST = 0
       IF(NTEST.NE.0) THEN

@@ -16,7 +16,7 @@
      &                    NSTFTP,NSTTYP,IUNIQTP
       use stdalloc, only: mma_allocate
       use MCLR_Data, only: NACOB,NOBPT,NORB1,NORB2,NORB3
-      use csm_data, only: NSMST
+      use input_mclr, only: nIrrep
 *
 *
 * Construct pointers for saving information about strings and
@@ -33,9 +33,9 @@
 *=========
 * Pointers stored in common block /STRBAS/
 *
-* Jeppe Olsen , Winter of 1990
+* Jeppe Olsen, Winter of 1990
 *
-* Last Revision , Dec 24 1990 , Almaden
+* Last Revision, Dec 24 1990 , Almaden
 *
 * Updated with iuniqtp, dec 11, 1994
       IMPLICIT None
@@ -89,11 +89,11 @@
 *. Number of strings per symmetry and occupation
       DO ITYP = 1, NSTTYP
         IF (IUNIQTP(ITYP).EQ.ITYP) THEN
-           Call mma_allocate(Str(ITYP)%NSTSO_Hidden,NOCTYP(ITYP)*NSMST,
+           Call mma_allocate(Str(ITYP)%NSTSO_Hidden,NOCTYP(ITYP)*nIrrep,
      &                       Label='NSTSO')
            Str(ITYP)%NSTSO => Str(ITYP)%NSTSO_Hidden
 *. Offset of strings per symmetry and occupation
-           Call mma_allocate(Str(ITYP)%ISTSO_Hidden,NOCTYP(ITYP)*NSMST,
+           Call mma_allocate(Str(ITYP)%ISTSO_Hidden,NOCTYP(ITYP)*nIrrep,
      &                       Label='ISTSO')
            Str(ITYP)%ISTSO => Str(ITYP)%ISTSO_Hidden
 *. Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
@@ -110,7 +110,7 @@ CMS: New array introduced according to Jeppes new strinfo representation
            Call mma_allocate(Str(ITYP)%EL123_Hidden,3*NOCTYP(ITYP),
      &                       Label='EL123')
            Str(ITYP)%EL123=> Str(ITYP)%EL123_Hidden
-**. Lexical adressing of arrays: NB! Not allocated here in Jeppes new version!
+**. Lexical addressing of arrays: NB! Not allocated here in Jeppes new version!
            Call mma_allocate(Str(ITYP)%Z_Hidden,NACOB*NELEC(ITYP),
      &                       Label='Z')
            Str(ITYP)%Z=> Str(ITYP)%Z_Hidden
@@ -225,11 +225,11 @@ CMS: New else block
 *. Symmetry of conjugated orbitals and orbital excitations
 *     COBSM,NIFSJ,IFSJ,IFSJO
 !     Call mma_allocate(COBSM,NACOB,Label='COBSM')
-!     Call mma_allocate(NIFSJ,NACOB*NSMSX,Label='NIFSJ')
+!     Call mma_allocate(NIFSJ,NACOB*nIrrep,Label='NIFSJ')
 !     Call mma_allocate(IFSJ,NACOB**2,Label='IFSJ')
-!     Call mma_allocate(IFSJO,NACOB*NSMSX,Label='IFSJO')
+!     Call mma_allocate(IFSJO,NACOB*nIrrep,Label='IFSJO')
 *. Symmetry of excitation connecting  strings of given symmetry
-!     Call mma_allocate(STSTX,NSMST*NSMST,Label='STSTX')
+!     Call mma_allocate(STSTX,nIrrep*nIrrep,Label='STSTX')
 *
 **. Up and down mappings of strings containing the same number of electrons
 *

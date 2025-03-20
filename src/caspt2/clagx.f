@@ -185,6 +185,7 @@ C
       real(kind=wp),allocatable :: VEC1(:),VEC2(:),VEC3(:),VEC4(:),
      *                             VEC5(:)
 #endif
+      integer :: nAS
 
       Do iCase = 1, 13
 C       cycle

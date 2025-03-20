@@ -143,7 +143,7 @@ do iT=1,nT
   end if
 
   ! move WM energies to WZ:
-  WZ(:) = WM(:)
+  WZ(:) = WM(1:N)
   ! /// calculation of matrix elements of spin momentum in the basis of Zeeman states
   WM(N+1:) = W(N+1:)
 

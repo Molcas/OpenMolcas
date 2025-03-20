@@ -27,7 +27,7 @@
 * NDGVL : Number of degenerate values
 * IDEG(I) : Number of elements in VEC with degenerate value I
 *
-* Jeppe Olsen , April 1990
+* Jeppe Olsen, April 1990
 *
       IMPLICIT REAL*8           ( A-H,O-Z)
 *.Input

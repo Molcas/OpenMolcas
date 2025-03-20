@@ -86,8 +86,6 @@ C
       !! Allocate lagrangian terms
       ! CLag and SLag should allocate for nRoots and not nState,
       ! but for the time being we only support the case nState=nRoots
-      nOLag = 0
-      nCLag = 0
       nCLag = nconf*nState
       nOLag = NBSQT
       nSLag = nState*nState
@@ -204,7 +202,7 @@ C
      *                           do_nac,do_csf,iRoot1,iRoot2,LUGRAD,
      *                           LUSTD,TraFro,
      *                           CLag,CLagFull,OLag,OLagFull,SLag,WLag,
-     *                           nCLag,nOLag,nSLag,nWLag,
+     *                           nOLag,nWLag,
      *                           DPT2_tot,DPT2C_tot,DPT2_AO_tot,
      *                           DPT2C_AO_tot,DPT2Canti_tot,
      *                           FIMO_all,FIFA_all,FIFASA_all,OMGDER,
@@ -378,9 +376,11 @@ C
       DEB = .false.
       !! configuration Lagrangian (read in RHS_PT2)
       If (DEB) call RecPrt('CLagFull','',CLagFull,nConf,nState)
-      Do i = 1, nCLag
-        Write (LuPT2,*) CLagFull(i,1)
-      End Do
+      Do j = 1, nState
+        Do i = 1, nConf
+          Write (LuPT2,*) CLagFull(i,j)
+        End Do
+      End do
 
       !! orbital Lagrangian (read in RHS_PT2)
 #ifdef _MOLCAS_MPP_
@@ -396,8 +396,10 @@ C
 
       !! state Lagrangian (read in RHS_PT2)
       If (DEB) call RecPrt('SLag', '', SLag, nState, nState)
-      Do i = 1, nSLag
-        Write (LuPT2,*) SLag(i,1)
+      Do j = 1, nState
+        Do i = 1, nState
+          Write (LuPT2,*) SLag(i,j)
+        End Do
       End Do
 
       !! renormalization contributions (read in OUT_PT2)

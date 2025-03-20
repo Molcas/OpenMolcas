@@ -32,7 +32,7 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !***********************************************************************
 
 use csfbas, only: CONF, NAEL, NBEL
-use GLBBAS, only: DFTP, DTOC, CFTP
+use lucia_data, only: DFTP, DTOC, CFTP, IREOTS
 use splitcas_data, only: EnInSplit, EnerSplit, FordSplit, gapSpli, iDimBlockA, iDimBlockACNF, iterSplit, lRootSplit, MxIterSplit, &
                          NumSplit, percSpli, PerSplit, ThrSplit
 use rasscf_global, only: EMY, ENER, ExFac, IADR15, ICICH, iCIOnly, ICIRST, ITER, ITERCI, iTOC, n_Keep, NAC
@@ -53,7 +53,7 @@ real(kind=wp) :: C_ABlockDim_Sel1, C_ABlockDim_sel2, condition, CSplitTot1, CSpl
                  W_ABlockDim_sel1, W_ABlockDim_sel2, WSplitTot1, WSplitTot2
 character(len=80) :: String
 logical(kind=iwp) :: DBG, Exists
-integer(kind=iwp), allocatable :: IPCNF(:), IPCNFtot(:), IPCSFtot(:), IREOTS(:), iSel(:), vkcnf(:)
+integer(kind=iwp), allocatable :: IPCNF(:), IPCNFtot(:), IPCSFtot(:), iSel(:), vkcnf(:)
 real(kind=wp), allocatable :: AABlock(:), CIVEC(:), DHAM(:), Diag(:), DiagCNF(:), HONE(:,:), Scr(:), SplitE(:), SplitV(:,:), &
                               Tmp1(:), Tmp2(:), TotSplitV(:)
 real(kind=wp), external :: ddot_
@@ -132,8 +132,6 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_allocate(HONE,NAC,NAC,label='HONE')
     ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
     call SQUARE(LW1,HONE,NAC,1,NAC)
-    call mma_allocate(IREOTS,NAC,label='IREOTS')
-    call GET_IREOTS(IREOTS,NAC)
     !call mma_allocate(IPCNF,NCNASM(STSYM),label='IPCNF')
 
     call cwtime(C_ABlockDim_sel1,W_ABlockDim_sel1)
@@ -367,7 +365,6 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_deallocate(SplitE)
     call mma_deallocate(SplitV)
     call mma_deallocate(HONE)
-    call mma_deallocate(IREOTS)
     call mma_deallocate(IPCNF)
     !call mma_deallocate(iSel)
 
@@ -386,10 +383,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call SQUARE(LW1,HONE,NAC,1,NAC)
 
     ! Calculate the AA Block of the Hamiltonian Matrix
-    call mma_allocate(IREOTS,NAC,label='IREOTS')
     call mma_maxDBLE(MXXWS)
     call mma_allocate(Scr,MXXWS,label='EXHSCR')
-    call GET_IREOTS(IREOTS,NAC)
     call PHPCSF(AABlock,iSel,IPCNF,MXSpli,DTOC,DFTP,CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL, &
                 NBEL,iDimBlockA,iDimBlockACNF,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
     call mma_deallocate(Scr)
@@ -456,7 +451,6 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     !*******************************************************************
     call mma_deallocate(HONE)
     call mma_deallocate(IPCNF)
-    call mma_deallocate(IREOTS)
     call mma_deallocate(iSel)
     call mma_deallocate(AABlock)
     call mma_deallocate(DHAM)

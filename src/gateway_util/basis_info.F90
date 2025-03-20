@@ -88,7 +88,7 @@ type Distinct_Basis_set_centers
   integer(kind=iwp) :: iSRO = 0, nSRO = 0
   integer(kind=iwp) :: iSOC = 0, nSOC = 0
   integer(kind=iwp) :: kDel(0:iTabMx)
-  integer(kind=iwp) :: iPP = 0, nPP = 0
+  integer(kind=iwp) :: iPP = 0, nPP = 0, cPP = 0
   integer(kind=iwp) :: nShells = 0
   integer(kind=iwp) :: AtmNr = 0
   real(kind=wp) :: Charge = Zero
@@ -117,7 +117,7 @@ end type Distinct_Basis_set_centers
 ! nBasis : number of contracted radial functions of the ith shell
 ! Cff_c  : Contraction coefficients in processed and raw input form
 ! Cff_p  : Contraction coefficient in the case of no contraction, processed and raw
-! Cff    : copy of Cff_c or Cff_p
+! pCff   : copy of Cff_c or Cff_p
 ! Transf : Cartesian transformed to real sphericals.
 ! Projct : real sphericals without contaminations (3s, 4d, etc.)
 ! Bk     : ECP proj shift parameters for ith shell, the number of parameters is given by nBasis
@@ -165,7 +165,7 @@ integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_T
 
 integer(kind=iwp) :: icent(MxAO), iCnttp_Dummy = 0, lant(MxAO), lmag(MxAO), lnang(MxAO), Max_Shells = 0, mFields = 11, MolWgh = 2, &
                      nAngr(MxAO), nBas(0:7) = 0, nBas_Aux(0:7) = 0, nBas_Frag(0:7) = 0, nBasisr(MxAO), nCnttp = 0, &
-                     nFields = 33+(1+iTabMx), nFrag_LineWords = 0, nPrimr(MxAO), nrBas(8), nrSym, Nuclear_Model = Point_Charge
+                     nFields = 34+(1+iTabMx), nFrag_LineWords = 0, nPrimr(MxAO), nrBas(8), nrSym, Nuclear_Model = Point_Charge
 real(kind=wp) :: ExpB, r0, rCof(MxrCof), rExp(MxPrim)
 logical(kind=iwp) :: DoEMPC, Initiated = .false., Seward_Activated = .false.
 real(kind=wp), allocatable :: PAMexp(:,:)
@@ -350,20 +350,21 @@ subroutine Basis_Info_Dmp()
     iDmp(24,i) = dbsc(i)%nSOC
     iDmp(25,i) = dbsc(i)%iPP
     iDmp(26,i) = dbsc(i)%nPP
-    iDmp(27,i) = dbsc(i)%nShells
-    iDmp(28,i) = dbsc(i)%AtmNr
-    iDmp(29,i) = 0
-    if (dbsc(i)%NoPair) iDmp(29,i) = 1
+    iDmp(27,i) = dbsc(i)%cPP
+    iDmp(28,i) = dbsc(i)%nShells
+    iDmp(29,i) = dbsc(i)%AtmNr
     iDmp(30,i) = 0
-    if (dbsc(i)%SODk) iDmp(30,i) = 1
+    if (dbsc(i)%NoPair) iDmp(30,i) = 1
     iDmp(31,i) = 0
-    if (dbsc(i)%pChrg) iDmp(31,i) = 1
+    if (dbsc(i)%SODk) iDmp(31,i) = 1
     iDmp(32,i) = 0
-    if (dbsc(i)%Fixed) iDmp(32,i) = 1
+    if (dbsc(i)%pChrg) iDmp(32,i) = 1
     iDmp(33,i) = 0
-    if (dbsc(i)%lPAM2) iDmp(33,i) = 1
+    if (dbsc(i)%Fixed) iDmp(33,i) = 1
+    iDmp(34,i) = 0
+    if (dbsc(i)%lPAM2) iDmp(34,i) = 1
     do j=0,iTabMx
-      iDmp(34+j,i) = dbsc(i)%kDel(j)
+      iDmp(35+j,i) = dbsc(i)%kDel(j)
     end do
     if ((.not. dbsc(i)%Aux) .or. (i == iCnttp_Dummy)) then
       nAtoms = nAtoms+dbsc(i)%nCntr
@@ -644,15 +645,16 @@ subroutine Basis_Info_Get()
     dbsc(i)%nSOC = iDmp(24,i)
     dbsc(i)%iPP = iDmp(25,i)
     dbsc(i)%nPP = iDmp(26,i)
-    dbsc(i)%nShells = iDmp(27,i)
-    dbsc(i)%AtmNr = iDmp(28,i)
-    dbsc(i)%NoPair = iDmp(29,i) == 1
-    dbsc(i)%SODK = iDmp(30,i) == 1
-    dbsc(i)%pChrg = iDmp(31,i) == 1
-    dbsc(i)%Fixed = iDmp(32,i) == 1
-    dbsc(i)%lPAM2 = iDmp(33,i) == 1
+    dbsc(i)%cPP = iDmp(27,i)
+    dbsc(i)%nShells = iDmp(28,i)
+    dbsc(i)%AtmNr = iDmp(29,i)
+    dbsc(i)%NoPair = iDmp(30,i) == 1
+    dbsc(i)%SODK = iDmp(31,i) == 1
+    dbsc(i)%pChrg = iDmp(32,i) == 1
+    dbsc(i)%Fixed = iDmp(33,i) == 1
+    dbsc(i)%lPAM2 = iDmp(34,i) == 1
     do j=0,iTabMx
-      dbsc(i)%kDel(j) = iDmp(34+j,i)
+      dbsc(i)%kDel(j) = iDmp(35+j,i)
     end do
     nFragCoor = max(0,dbsc(i)%nFragCoor)
     nAux = nAux+2*dbsc(i)%nM1+2*dbsc(i)%nM2+nFrag_LineWords*dbsc(i)%nFragType+5*nFragCoor+dbsc(i)%nFragEner+ &
@@ -851,7 +853,7 @@ subroutine Basis_Info_Get()
         call DCopy_(2*nExp*nBasis,rDmp(nAux2+1,1),1,Shells(i)%Cff_c,1)
         nAux2 = nAux2+2*nExp*nBasis
 
-        call mma_allocate(Shells(i)%pCff,nExp,nBasis,Label='Cff',safe='*')
+        call mma_allocate(Shells(i)%pCff,nExp,nBasis,Label='pCff',safe='*')
         Shells(i)%pCff(:,:) = Shells(i)%Cff_c(:,:,1)
       end if
     end do

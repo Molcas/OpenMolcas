@@ -30,9 +30,9 @@
 * Number of K strings checked is returned in NK
 * Only Kstrings with relative numbers from KMIN to KMAX are included
 *
-* If IEND .ne. 0 last string has been checked
+* If IEND /= 0 last string has been checked
 *
-* Jeppe Olsen , Winter of 1991
+* Jeppe Olsen, Winter of 1991
 *
 * ======
 *. Input

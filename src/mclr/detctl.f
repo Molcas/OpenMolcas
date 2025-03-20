@@ -15,9 +15,9 @@
       use MCLR_Data, only: IPRSTR,IPRORB,IPRCIX
       use MCLR_Data, only: MS2,idc,PSSIGN
       use MCLR_Data, only: FnCSF2SD, LuCSF2SD
-      use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INTIMP,INCORE,
+      use MCLR_Data, only: NOCSF,IDENMT,NOPART,IDIAG,INCORE,
      &                     ICISTR
-      use input_mclr, only: nSym,PntGrp,nIrrep,nsMOB,iSpin,
+      use input_mclr, only: nSym,nIrrep,nsMOB,iSpin,
      &                      nHole1,nActEl,nElec3,
      &                      nRs1,nRs2,nRs3,State_Sym
 *
@@ -30,7 +30,6 @@
       Call mma_Allocate(pINT2,nSym**3,Label='pInt2')
       pInt2(:)=0
 
-      Pntgrp=1
       NOCSF  = 0
       idenmt=0
       nopart=0
@@ -38,7 +37,6 @@
       nsmob=nSym
       mxr4tp=0
       idiag=1
-      intimp=5
       incore=1
       icistr=1
       ist=1
@@ -71,8 +69,6 @@
       CALL ORBINF_MCLR(nSym,nSym,nRs1,nRs2,nRs3,mxr4tp,IPRORB) ! OK
 *. Number of string types
       CALL STRTYP(ms2,nActEl,MNRS10,MXRS30,IPRSTR)   ! looks allright
-*. Symmetry information
-      CALL SYMINF_MCLR(nSym,IPRORB) ! looks allright
 *. Internal string information
       CALL STRINF(IPRSTR)     ! looks allright, no!
 *. Internal subspaces

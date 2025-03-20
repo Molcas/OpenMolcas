@@ -122,7 +122,7 @@
      &         FockI,FockA,
      &         T1,imem,
      &         Tmp2,
-     &         T3,T4,
+     &         T3,T4,nDens22,
      &         DIR,DIL,
      &         DI,
      &         DAR,DAL,

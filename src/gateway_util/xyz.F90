@@ -75,7 +75,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
 
   integer(kind=iwp), intent(in) :: Lu
   real(kind=wp), allocatable, intent(in) :: Rot(:,:,:), Trans(:,:)
-  logical(kind=iwp), optional, intent(in) :: Replace
+  logical(kind=iwp), intent(in), optional :: Replace
   integer(kind=iwp) :: i, Idx, Error, Lxyz, NumAt
   real(kind=wp) :: Factor, Mat(3,5)
   logical(kind=iwp) :: Found, Rep

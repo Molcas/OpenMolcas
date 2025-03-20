@@ -66,7 +66,7 @@ void datimxc(char *TimeStamp) {
     x = (time_t)t.tv_sec;
     ptr = ctime(&x);
     if (ptr != NULL) {
-      strncpy(TimeStamp, ptr, CTIME_RES_LENGTH);
+      memcpy(TimeStamp, ptr, CTIME_RES_LENGTH);
       TimeStamp[CTIME_RES_LENGTH + 1] = 0;
     }
   }

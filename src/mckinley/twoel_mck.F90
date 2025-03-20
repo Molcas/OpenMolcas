@@ -203,24 +203,44 @@ jk2 = IndK2(3,klS)
 k2data1(1:nDCR1) => k2Data(1:nDCR1,ik2)
 k2data2(1:nDCR2) => k2Data(1:nDCR2,jk2)
 
-Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(1:nAlpha*iBasi,iAOst(1)+1)
-Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(1:nBeta*jBasj,iAOst(2)+1)
-Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(1:nGamma*kBask,iAOst(3)+1)
-Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(1:nDelta*lBasl,iAOst(4)+1)
+Coeff1(1:nAlpha,1:iBasi) => Shells(iShll(1))%pCff(:,iAOst(1)+1:)
+Coeff2(1:nBeta,1:jBasj) => Shells(iShll(2))%pCff(:,iAOst(2)+1:)
+Coeff3(1:nGamma,1:kBask) => Shells(iShll(3))%pCff(:,iAOst(3)+1:)
+Coeff4(1:nDelta,1:lBasl) => Shells(iShll(4))%pCff(:,iAOst(4)+1:)
 
-Dij1(1:mDij,1:mDCRij) => DeDe(ipDDij:ipDDij+mDij*mDCRij-1)
-Dkl1(1:mDkl,1:mDCRkl) => DeDe(ipDDkl:ipDDkl+mDkl*mDCRkl-1)
-Dik1(1:mDik,1:mDCRik) => DeDe(ipDDik:ipDDik+mDik*mDCRik-1)
-Dil1(1:mDil,1:mDCRil) => DeDe(ipDDil:ipDDil+mDil*mDCRil-1)
-Djk1(1:mDjk,1:mDCRjk) => DeDe(ipDDjk:ipDDjk+mDjk*mDCRjk-1)
-Djl1(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
+if (lbound(DeDe,1) >= 1) then
+  Dij1(1:mDij,1:mDCRij) => DeDe(ipDDij:ipDDij+mDij*mDCRij-1)
+  Dkl1(1:mDkl,1:mDCRkl) => DeDe(ipDDkl:ipDDkl+mDkl*mDCRkl-1)
+  Dik1(1:mDik,1:mDCRik) => DeDe(ipDDik:ipDDik+mDik*mDCRik-1)
+  Dil1(1:mDil,1:mDCRil) => DeDe(ipDDil:ipDDil+mDil*mDCRil-1)
+  Djk1(1:mDjk,1:mDCRjk) => DeDe(ipDDjk:ipDDjk+mDjk*mDCRjk-1)
+  Djl1(1:mDjl,1:mDCRjl) => DeDe(ipDDjl:ipDDjl+mDjl*mDCRjl-1)
+else
+  ! dummy associations
+  Dij1(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dkl1(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dik1(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Dil1(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Djk1(1:1,1:1) => DeDe(lbound(DeDe,1):)
+  Djl1(1:1,1:1) => DeDe(lbound(DeDe,1):)
+end if
 
-Dij2(1:mDij,1:mDCRij) => DeDe2(ipDDij2:ipDDij2+mDij*mDCRij-1)
-Dkl2(1:mDkl,1:mDCRkl) => DeDe2(ipDDkl2:ipDDkl2+mDkl*mDCRkl-1)
-Dik2(1:mDik,1:mDCRik) => DeDe2(ipDDik2:ipDDik2+mDik*mDCRik-1)
-Dil2(1:mDil,1:mDCRil) => DeDe2(ipDDil2:ipDDil2+mDil*mDCRil-1)
-Djk2(1:mDjk,1:mDCRjk) => DeDe2(ipDDjk2:ipDDjk2+mDjk*mDCRjk-1)
-Djl2(1:mDjl,1:mDCRjl) => DeDe2(ipDDjl2:ipDDjl2+mDjl*mDCRjl-1)
+if (lbound(DeDe2,1) >= 1) then
+  Dij2(1:mDij,1:mDCRij) => DeDe2(ipDDij2:ipDDij2+mDij*mDCRij-1)
+  Dkl2(1:mDkl,1:mDCRkl) => DeDe2(ipDDkl2:ipDDkl2+mDkl*mDCRkl-1)
+  Dik2(1:mDik,1:mDCRik) => DeDe2(ipDDik2:ipDDik2+mDik*mDCRik-1)
+  Dil2(1:mDil,1:mDCRil) => DeDe2(ipDDil2:ipDDil2+mDil*mDCRil-1)
+  Djk2(1:mDjk,1:mDCRjk) => DeDe2(ipDDjk2:ipDDjk2+mDjk*mDCRjk-1)
+  Djl2(1:mDjl,1:mDCRjl) => DeDe2(ipDDjl2:ipDDjl2+mDjl*mDCRjl-1)
+else
+  ! dummy associations
+  Dij2(1:1,1:1) => DeDe2(lbound(DeDe2,1):)
+  Dkl2(1:1,1:1) => DeDe2(lbound(DeDe2,1):)
+  Dik2(1:1,1:1) => DeDe2(lbound(DeDe2,1):)
+  Dil2(1:1,1:1) => DeDe2(lbound(DeDe2,1):)
+  Djk2(1:1,1:1) => DeDe2(lbound(DeDe2,1):)
+  Djl2(1:1,1:1) => DeDe2(lbound(DeDe2,1):)
+end if
 
 !                                                                      *
 !***********************************************************************

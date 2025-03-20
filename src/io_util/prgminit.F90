@@ -18,6 +18,8 @@ use Definitions, only: iwp
 #ifndef _HAVE_EXTRA_
 use Prgm, only: prgminitc
 #endif
+
+implicit none
 character(len=*), intent(in) :: modname
 integer(kind=iwp) :: l
 

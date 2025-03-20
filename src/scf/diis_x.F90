@@ -184,8 +184,7 @@ do
     write(u6,*) Energy(Ind(i)),E_Min_g
     write(u6,*)
 
-#   endif
-    ! Rest the depth of the DIIS and the BFGS update.
+    ! Reset the depth of the DIIS and the BFGS update.
     if (Case3) then
       write(u6,*) 'DIIS_X: Resetting kOptim!'
       write(u6,*) '        Caused by inconsistent B matrix values.'
@@ -196,13 +195,16 @@ do
       write(u6,*) 'DIIS_X: Resetting kOptim!'
       write(u6,*) '        Caused by energies and gradients which are inconsistent with a convex energy functional.'
     end if
+#   endif
     if (Case1) then
       ! The BFGS update is probably to blame. Reset the update depth.
       Iter_Start = Iter
       IterSO = 1
     else
       !if (Case2) then
+#     ifdef _DEBUGPRINT_
       write(u6,*) 'kOptim=',kOptim,'-> kOptim=',1
+#     endif
       kOptim = 1
       Iter_Start = Iter
       IterSO = 1
@@ -219,8 +221,10 @@ do
   else
     do i=1,kOptim-1
       if (delta*sqrt(Bij(i,i)) > sqrt(Bij(kOptim,kOptim))) then
+#       ifdef _DEBUGPRINT_
         write(u6,*) 'DIIS_X: Reduction of the subspace dimension due to numerical imbalance of the values in the B-Matrix'
         write(u6,*) 'kOptim=',kOptim,'-> kOptim=',kOptim-1
+#       endif
         kOptim = kOptim-1
         Iter_Start = Iter_Start+1
         IterSO = IterSO-1

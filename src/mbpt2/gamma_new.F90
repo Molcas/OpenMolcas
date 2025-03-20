@@ -223,7 +223,7 @@ do iBlock=1,nBlocks
   nJ2 = nOcc(iSym_D)
   nB2 = nExt(iSym_C)
 
-  ! Initialize adress for storing Bins on disk.
+  ! Initialize address for storing Bins on disk.
   iAdrBin = 1
   ! Setup the number of bins needed.
   if (Triangular) then
@@ -232,7 +232,7 @@ do iBlock=1,nBlocks
     nBins = nBas(iSym_C)*nBas(iSym_D)
   end if
 
-  ! Initialize the bins to have length 0 and adress -1 to
+  ! Initialize the bins to have length 0 and address -1 to
   ! next element
   Bin(1,0,1:nBins) = Zero
   Bin(2,0,1:nBins) = -One
@@ -368,7 +368,7 @@ do iBlock=1,nBlocks
         end if
 
         ! Place the result in a bin. A bin has fixed Lambda and Kappa and
-        ! includes Ti,a,lam,kap as well as i,a-adress
+        ! includes Ti,a,lam,kap as well as i,a-address
         iIA = iA-1+(iI-1)*nA
         do iKap=1,nBas(iSym_C)
           nLam = nBas(iSym_D)

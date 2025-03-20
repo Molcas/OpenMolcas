@@ -208,7 +208,7 @@ C
           ! iRC=ipnout(-1)
           ! icsm=1
           ! issm=1
-          Call Densi2(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)
+          Call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)
           !! For RDM1
           ij=0
           Do i=0,ntAsh-1
