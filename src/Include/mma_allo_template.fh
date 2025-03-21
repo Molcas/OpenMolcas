@@ -60,6 +60,8 @@
       subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,label,safe)
 #elif _DIMENSIONS_==5
       subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,label,safe)
+#elif _DIMENSIONS_==6
+      subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,label,safe)
 #elif _DIMENSIONS_==7
       subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label,safe)
 #endif
@@ -85,6 +87,9 @@
 #elif _DIMENSIONS_==5
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:)
         integer, intent(in) :: n1,n2,n3,n4,n5
+#elif _DIMENSIONS_==6
+        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:)
+        integer, intent(in) :: n1,n2,n3,n4,n5,n6
 #elif _DIMENSIONS_==7
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:,:)
         integer, intent(in) :: n1,n2,n3,n4,n5,n6,n7
@@ -113,6 +118,8 @@
         ntot = n1*n2*n3*n4
 #elif _DIMENSIONS_==5
         ntot = n1*n2*n3*n4*n5
+#elif _DIMENSIONS_==6
+        ntot = n1*n2*n3*n4*n5*n6
 #elif _DIMENSIONS_==7
         ntot = n1*n2*n3*n4*n5*n6*n7
 #endif
@@ -138,6 +145,8 @@
           allocate(buffer(n1,n2,n3,n4))
 #elif _DIMENSIONS_==5
           allocate(buffer(n1,n2,n3,n4,n5))
+#elif _DIMENSIONS_==6
+          allocate(buffer(n1,n2,n3,n4,n5,n6))
 #elif _DIMENSIONS_==7
           allocate(buffer(n1,n2,n3,n4,n5,n6,n7))
 #endif
@@ -154,6 +163,8 @@
             loffset = cptr2loff(buffer(1,1,1,1))
 #elif _DIMENSIONS_==5
             loffset = cptr2loff(buffer(1,1,1,1,1))
+#elif _DIMENSIONS_==6
+            loffset = cptr2loff(buffer(1,1,1,1,1,1))
 #elif _DIMENSIONS_==7
             loffset = cptr2loff(buffer(1,1,1,1,1,1,1))
 #endif
@@ -182,6 +193,8 @@
       subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,label,safe)
 #elif _DIMENSIONS_==5
       subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,label,safe)
+#elif _DIMENSIONS_==6
+      subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,label,safe)
 #elif _DIMENSIONS_==7
       subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,l7,label,     &
      &                           safe)
@@ -205,6 +218,9 @@
 #elif _DIMENSIONS_==5
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:)
         integer, intent(in) :: l1(2),l2(2),l3(2),l4(2),l5(2)
+#elif _DIMENSIONS_==6
+        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:)
+        integer, intent(in) :: l1(2),l2(2),l3(2),l4(2),l5(2),l6(2)
 #elif _DIMENSIONS_==7
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:,:)
         integer, intent(in) :: l1(2),l2(2),l3(2),l4(2),l5(2),l6(2),l7(2)
@@ -233,6 +249,9 @@
 #elif _DIMENSIONS_==5
         ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
      &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1)
+#elif _DIMENSIONS_==6
+        ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
+     &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1) * (l6(2)-l6(1)+1)
 #elif _DIMENSIONS_==7
         ntot = (l1(2)-l1(1)+1) * (l2(2)-l2(1)+1) * (l3(2)-l3(1)+1) *    &
      &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1) * (l6(2)-l6(1)+1) *    &
@@ -254,6 +273,9 @@
 #elif _DIMENSIONS_==5
           allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
      &                    l4(1):l4(2),l5(1):l5(2)))
+#elif _DIMENSIONS_==6
+          allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
+     &                    l4(1):l4(2),l5(1):l5(2),l6(1):l6(2)))
 #elif _DIMENSIONS_==7
           allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),          &
      &                    l4(1):l4(2),l5(1):l5(2),l6(1):l6(2),          &
@@ -270,6 +292,8 @@
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1)))
 #elif _DIMENSIONS_==5
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
+#elif _DIMENSIONS_==6
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),l6(1)))
 #elif _DIMENSIONS_==7
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),   &
      &                                 l6(1),l7(1)))
@@ -306,6 +330,8 @@
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:)
 #elif _DIMENSIONS_==5
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:)
+#elif _DIMENSIONS_==6
+        _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:)
 #elif _DIMENSIONS_==7
         _TYPE_, _MMA_ATTR_, intent(inout) :: buffer(:,:,:,:,:,:,:)
 #endif
@@ -346,6 +372,13 @@
      &                                 lbound(buffer,3),                &
      &                                 lbound(buffer,4),                &
      &                                 lbound(buffer,5)))
+#elif _DIMENSIONS_==6
+            loffset = cptr2loff(buffer(lbound(buffer,1),                &
+     &                                 lbound(buffer,2),                &
+     &                                 lbound(buffer,3),                &
+     &                                 lbound(buffer,4),                &
+     &                                 lbound(buffer,5),                &
+     &                                 lbound(buffer,6)))
 #elif _DIMENSIONS_==7
             loffset = cptr2loff(buffer(lbound(buffer,1),                &
      &                                 lbound(buffer,2),                &
