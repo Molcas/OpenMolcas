@@ -47,6 +47,10 @@ do iD=1,nD
   iOff2 = 1
   do iSym=1,nSym
 
+    if (iSym > 1) then
+      iOff1 = iOff1+nOrb(iSym-1)
+      iOff2 = iOff2+nBas(iSym-1)*nOrb(iSym-1)
+    end if
     nOcc = 0
     if (nOrb(iSym) == 0) cycle
 

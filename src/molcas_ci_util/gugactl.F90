@@ -58,12 +58,12 @@ SGS%LM3RAS = NACTEL-nElec3
 
 if (NRAS1T+NRAS3T /= 0) then
   SGS%IFRAS = 1
+  do IS=1,NSYM
+    if (nRs1(IS)+nRs2(IS)+nRs3(IS) /= 0) SGS%IFRAS = SGS%IFRAS+1
+  end do
 else
   SGS%IFRAS = 0
 end if
-do IS=1,NSYM
-  if ((SGS%IFRAS /= 0) .and. (nRs2(IS) /= 0)) SGS%IFRAS = SGS%IFRAS+1
-end do
 
 ! INITIALIZE GUGA TABLES:
 
