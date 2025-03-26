@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CMP2CN(ICNL,NCLL,NOPL,ICNR,NCLR,NOPR,ISCR,NORB,NDIFF,NTEST)
+subroutine CMP2CN(ICNL,NCLL,NOPL,ICNR,NCLR,NOPR,ISCR,NORB,NDIFF)
 ! Number of differences in occupation of two configurations
 
 dimension ICNL(*), ICNR(*)
@@ -34,7 +34,5 @@ do IOP=1,NOPR
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NTEST)
 
 end subroutine CMP2CN

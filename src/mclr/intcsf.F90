@@ -11,7 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,NCNSM,ICNSTR,PSSIGN,IPRNT,lconf,lldet)
+!#define _DEBUGPRINT_
+subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,NCNSM,ICNSTR,PSSIGN,lconf,lldet)
 ! Initializing routine for CSF-DET expansions of internal space
 !
 ! Set up common block /CSFDIM/
@@ -41,14 +42,14 @@ use DetDim, only: MXPCTP, MXPCSM, MXCNSM
 implicit none
 integer NACTOB, NACTEL, MULTP, MS2, NORB1, NORB2, NORB3, NEL1MN, NEL3MX, LLCSF, NCNSM, ICNSTR
 real*8 PSSIGN
-integer IPRNT, lconf, lldet
+integer lconf, lldet
 ! local variables
 integer, allocatable :: IICL(:), IIOP(:), IIOC(:)
-integer NTEST, IMSCMB, MULTS, NEL, IEL1, IEL2, IEL3, IOP1, IOP2, IOP3, IOP, ITP, IOPEN, IAEL, IBEL, ITYPE, LIDT, LICS, LDTOC, &
-        MXPTBL, MXDT, LCSFDT, LCNFOR, LDET, ILCNF, ISYM, ILLCNF, LLCONF, ITYP, ICL, ICNSM, IBION, IWEYLF
-
-NTEST = 000
-NTEST = max(NTEST,IPRNT)
+integer IMSCMB, MULTS, NEL, IEL1, IEL2, IEL3, IOP1, IOP2, IOP3, IOP, ITP, IOPEN, IAEL, IBEL, LIDT, LICS, LDTOC, MXPTBL, MXDT, &
+        LCSFDT, LCNFOR, LDET, ILCNF, ISYM, ILLCNF, LLCONF, ITYP, ICL, ICNSM, IBION, IWEYLF
+#ifdef _DEBUGPRINT_
+integer ITYPE
+#endif
 
 if (PSSIGN /= 0.0d0) then
   IMSCMB = 1
@@ -91,7 +92,9 @@ if (NTYP > MXPCTP) then
   call Abend()
 end if
 
-if (NTEST >= 5) write(6,*) ' MINOP MAXOP NTYP ',MINOP,MAXOP,NTYP
+#ifdef _DEBUGPRINT_
+write(6,*) ' MINOP MAXOP NTYP ',MINOP,MAXOP,NTYP
+#endif
 ! ===============================================
 ! Number of sd's and csf's per configuration type
 ! ===============================================
@@ -112,21 +115,21 @@ do ITP=1,NTYP
     NCPCNT(ITP) = 0
   end if
 end do
-if (NTEST >= 2) then
-  write(6,'(/A)') ' Information about prototype configurations'
-  write(6,'(A)') ' =========================================='
-  write(6,'(/A)')
-  if (IMSCMB == 0) then
-    write(6,'(/A)') ' Combinations = Slater determinants'
-  else
-    write(6,'(/A)') ' Combinations = Spin combinations'
-  end if
-  write(6,'(/A)') '  Open orbitals   Combinations    CSFs'
-  do IOPEN=MINOP,MAXOP,2
-    ITYPE = IOPEN-MINOP+1
-    write(6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NDPCNT(ITYPE),NCPCNT(ITYPE)
-  end do
+#ifdef _DEBUGPRINT_
+write(6,'(/A)') ' Information about prototype configurations'
+write(6,'(A)') ' =========================================='
+write(6,'(/A)')
+if (IMSCMB == 0) then
+  write(6,'(/A)') ' Combinations = Slater determinants'
+else
+  write(6,'(/A)') ' Combinations = Spin combinations'
 end if
+write(6,'(/A)') '  Open orbitals   Combinations    CSFs'
+do IOPEN=MINOP,MAXOP,2
+  ITYPE = IOPEN-MINOP+1
+  write(6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NDPCNT(ITYPE),NCPCNT(ITYPE)
+end do
+#endif
 ! ==============================================
 ! Number of Combinations and CSF's per  symmetry
 ! ==============================================
@@ -135,7 +138,7 @@ call mma_allocate(IIOP,NACTOB,Label='IIOP')
 call mma_allocate(IIOC,NORB1+NORB2+NORB3,Label='IIOC')
 
 call CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCTP,MXPCSM,NCNATS,NCNASM,NDTASM,NCSASM,NDPCNT,NCPCNT,IICL,IIOP, &
-            IIOC,IPRNT)
+            IIOC)
 
 call mma_deallocate(IIOC)
 call mma_deallocate(IIOP)
@@ -190,12 +193,12 @@ end do
 
 ! notice the ILCNF number ! yma
 
-if (NTEST >= 5) then
-  write(6,'(/A,I8)') '  Memory for holding largest list of configurations ',LCONF
-  write(6,'(/A,I8)') '  Size of largest CI expansion (combinations) ',LDET
-  write(6,'(/A,I8)') '  Size of largest CI expansion (confs) ',ILCNF
-end if
+#ifdef _DEBUGPRINT_
+write(6,'(/A,I8)') '  Memory for holding largest list of configurations ',LCONF
+write(6,'(/A,I8)') '  Size of largest CI expansion (combinations) ',LDET
+write(6,'(/A,I8)') '  Size of largest CI expansion (confs) ',ILCNF
 call xflush(6) !yma
+#endif
 
 ! permanent memory for csf proto type arrays
 

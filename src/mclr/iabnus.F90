@@ -12,7 +12,7 @@
 !***********************************************************************
 
 integer function IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,ISSOA,NSSOA,IBSTR,NBEL,IBORD,ITPFSB,ISMFSB,NOCTPB,ZB,ISSOB,NSSOB, &
-                        IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC,IPRNT)
+                        IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC)
 ! A determinant is given by strings IASTR,IBSTR.
 ! Find number of this determinant
 !
@@ -35,24 +35,24 @@ integer IOOS(NOCTPA,NOCTPB,*)
 integer NORB, IGENSG
 integer ISGNA(*), ISGNB(*)
 real*8 PSSIGN
-integer IPSFAC, IPRNT
+integer IPSFAC
 ! Local variables
-integer NTEST, IANUM, IBNUM, ISGNAB, IASYM, IBSYM, IATP, IBTP, IAREL, IBREL, ISTRNM
+integer IANUM, IBNUM, ISGNAB, IASYM, IBSYM, IATP, IBTP, IAREL, IBREL, ISTRNM
 
-NTEST = 000
-NTEST = max(NTEST,IPRNT)
-if (NTEST > 300) then
-  write(6,*) ' >>> IABNUS SPEAKING <<<'
-  write(6,*) ' NOCTPA,NOCTPB ',NOCTPA,NOCTPB
-  write(6,*) ' ALPHA AND BETA STRING'
-  call IWRTMA(IASTR,1,NAEL,1,NAEL)
-  call IWRTMA(IBSTR,1,NBEL,1,NBEL)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' >>> IABNUS SPEAKING <<<'
+write(6,*) ' NOCTPA,NOCTPB ',NOCTPA,NOCTPB
+write(6,*) ' ALPHA AND BETA STRING'
+call IWRTMA(IASTR,1,NAEL,1,NAEL)
+call IWRTMA(IBSTR,1,NBEL,1,NBEL)
+#endif
 ! Number of alpha- and beta-string
 !       ISTRNM(IOCC,NORB,NEL,Z,NEWORD,IREORD)
 IANUM = ISTRNM(IASTR,NORB,NAEL,ZA,IAORD,1)
 IBNUM = ISTRNM(IBSTR,NORB,NBEL,ZB,IBORD,1)
-if (NTEST >= 10) write(6,*) ' IANUM AND IBNUM ',IANUM,IBNUM
+#ifdef _DEBUGPRINT_
+write(6,*) ' IANUM AND IBNUM ',IANUM,IBNUM
+#endif
 
 if (IGENSG /= 0) then
   ISGNAB = ISGNA(IANUM)*ISGNB(IBNUM)
@@ -62,13 +62,19 @@ end if
 ! Symmetries and types
 IASYM = ISMFSA(IANUM)
 IBSYM = ISMFSB(IBNUM)
-!if (NTEST >= 10) write(6,*) ' IASYM IBSYM ',IASYM,IBSYM
+!#ifdef _DEBUGPRINT_
+!write(6,*) ' IASYM IBSYM ',IASYM,IBSYM
+!#endif
 IATP = ITPFSA(IANUM)
 IBTP = ITPFSB(IBNUM)
-!if (NTEST >= 10) write(6,*) ' IATP,IBTP ',IATP,IBTP
+!#ifdef _DEBUGPRINT_
+!write(6,*) ' IATP,IBTP ',IATP,IBTP
+!#endif
 IAREL = IANUM-ISSOA(IATP,IASYM)+1
 IBREL = IBNUM-ISSOB(IBTP,IBSYM)+1
-!if (NTEST >= 10) write(6,*) ' IAREL IBREL ',IAREL,IBREL
+!#ifdef _DEBUGPRINT_
+!write(6,*) ' IAREL IBREL ',IAREL,IBREL
+!#endif
 
 if (PSSIGN == 0.0d0) then
   ! Normal determinant ordering
@@ -100,13 +106,15 @@ end if
 
 !OLD
 !OLD IABNUS = IOOS(IATP,IBTP,IASYM)+(IBREL-1)*NSSOA(IATP,IASYM)+IAREL-1
-!if (NTEST > 10) write(6,*) ' IOOS NSSOA ',IOOS(IATP,IBTP,IASYM),NSSOA(IATP,IASYM)
+!#ifdef _DEBUGPRINT_
+!write(6,*) ' IOOS NSSOA ',IOOS(IATP,IBTP,IASYM),NSSOA(IATP,IASYM)
+!#endif
 
-if (NTEST >= 200) then
-  write(6,*) ' ALPHA AND BETA STRING'
-  call IWRTMA(IASTR,1,NAEL,1,NAEL)
-  call IWRTMA(IBSTR,1,NBEL,1,NBEL)
-  write(6,*) ' Corresponding determinant number ',IABNUS
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' ALPHA AND BETA STRING'
+call IWRTMA(IASTR,1,NAEL,1,NAEL)
+call IWRTMA(IBSTR,1,NBEL,1,NBEL)
+write(6,*) ' Corresponding determinant number ',IABNUS
+#endif
 
 end function IABNUS

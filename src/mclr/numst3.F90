@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function NUMST3(NEL,NORB1,NEL1MN,NEL1MX,NORB2,NORB3,NEL3MN,NEL3MX)
 ! Number of strings with NEL electrons that fulfill
 !
 ! Between NEL1MN AND NEL1MX electrons in the first NORB1 orbitals
 ! Between NEL3MN AND NEL3MX electrons in the last  NORB3 orbitals
 
-NTEST = 0
 NSTRIN = 0
 
 do IEL1=NEL1MN,min(NEL1MX,NORB1,NEL)
@@ -30,7 +30,9 @@ do IEL1=NEL1MN,min(NEL1MX,NORB1,NEL)
 end do
 NUMST3 = NSTRIN
 
-if (NTEST >= 1) write(6,'(/A,I6)') '  Number of strings generated ... ',NSTRIN
+#ifdef _DEBUGPRINT_
+write(6,'(/A,I6)') '  Number of strings generated ... ',NSTRIN
+#endif
 
 return
 

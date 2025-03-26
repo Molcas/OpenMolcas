@@ -11,6 +11,7 @@
 ! Copyright (C) 1993, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NEWTYP_MCLR(INCLS,INTP,IACOP,ITPOP,NOP,OUTCLS,OUTTP)
 ! an input string of given group and occupation type are given
 ! apply an string of elementary operators to this group and
@@ -71,8 +72,9 @@ OUTCLS = INCLS-IDELTA
 ! out type
 call GTSTTP(OUTCLS,IEL1,IEL3,OUTTP,1)
 
-NTEST = 0
-if (NTEST /= 0) write(6,*) ' NEWTYP, OUTCLS, OUTTP ',OUTCLS,OUTTP
+#ifdef _DEBUGPRINT_
+write(6,*) ' NEWTYP, OUTCLS, OUTTP ',OUTCLS,OUTTP
+#endif
 
 return
 

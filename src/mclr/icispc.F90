@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ICISPC(MNRS10,MXRS30,IPRNT)
+!#define_DEBUGPRINT_
+subroutine ICISPC(MNRS10,MXRS30)
 ! Obtain internal CI spaces relevant for MRSDCI
 !       /STRINP/+/LUCINP/ = > /CICISP/
 ! Jeppe Olsen, Dec 1990
@@ -56,12 +57,9 @@ use MCLR_Data, only: NICISP, NELCI, NAELCI, NBELCI, MNR1IC, MNR3IC, MXR1IC, MXR3
 use MCLR_Data, only: NORB1, NORB2
 
 implicit none
-integer MNRS10, MXRS30, IPRNT
+integer MNRS10, MXRS30
 ! local variables
-integer NTEST, ICI, IEX, IDA, IDB
-
-NTEST = 00000
-NTEST = max(NTEST,IPRNT)
+integer ICI, IEX, IDA, IDB
 
 ICI = 1
 MNR1IC(ICI) = MNRS10
@@ -96,15 +94,15 @@ do ICI=1,NICISP
   MNR3IC(ICI) = max(0,NELCI(ICI)-2*(NORB1+NORB2))
 end do
 
-if (NTEST >= 1) then
-  write(6,*) ' Number of internal CI spaces ',NICISP
-  write(6,*) ' Space a-type b-type nael nbel mnrs1 mxrs1 mnrs3 mxrs3'
-  write(6,*) ' ====================================================='
-  do ICI=1,NICISP
-    if (IACTI(ICI) == 1) write(6,'(I5,2I7,2I5,4I6)') ICI,IASTFI(ICI),IBSTFI(ICI),NAELCI(ICI),NBELCI(ICI),MNR1IC(ICI),MXR1IC(ICI), &
-                                                     MNR3IC(ICI),MXR3IC(ICI)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Number of internal CI spaces ',NICISP
+write(6,*) ' Space a-type b-type nael nbel mnrs1 mxrs1 mnrs3 mxrs3'
+write(6,*) ' ====================================================='
+do ICI=1,NICISP
+  if (IACTI(ICI) == 1) &
+    write(6,'(I5,2I7,2I5,4I6)') ICI,IASTFI(ICI),IBSTFI(ICI),NAELCI(ICI),NBELCI(ICI),MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI)
+end do
+#endif
 
 return
 

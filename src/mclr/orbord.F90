@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,NOCOBS,NTOOBS,IREOST,IREOTS,ISFTO,ITFSO,IPRNT,IBSO, &
-                  NTSOB,IBTSOB,ITSOB,NOBPTS,IOBPTS,MXPR4T,ISMFSO,ITPFTO,NOBPT)
+subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,NOCOBS,NTOOBS,IREOST,IREOTS,ISFTO,ITFSO,IBSO,NTSOB, &
+                  IBTSOB,ITSOB,NOBPTS,IOBPTS,MXPR4T,ISMFSO,ITPFTO,NOBPT)
 ! Obtain Reordering arrays for orbitals
 ! (See note below for assumed ordering)
 !
@@ -20,7 +20,7 @@ subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,N
 ! Input
 ! =====
 !  NSMOB  : Number of orbital symmetries
-!  MXPOBS : MAx number of orbital symmetries
+!  MXPOBS : Max number of orbital symmetries
 !  NR4TP  : Number of RAS4 types
 !  NDEOBS : Number of deleted orbitals per symmetry
 !  NINOBS : Number of inactive  orbitals per symmetry
@@ -230,7 +230,6 @@ do ISM=1,NSMOB
     IREOTS(IDE) = IDES
   end do
 end do
-NTOOB = IDE
 !write(6,*) ' IDE ',IDE
 
 IOFF = 1
@@ -312,45 +311,44 @@ do ISM=1,NSMOB
   end do
 end do
 
-NTEST = 0
-NTEST = max(IPRNT,NTEST)
-if (NTEST /= 0) then
-  write(6,*) ' =================='
-  write(6,*) ' Output from ORBORD'
-  write(6,*) ' =================='
-  write(6,*) ' Symmetry of orbitals, type ordered'
-  call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-  write(6,*) ' Symmetry => type reordering array'
-  call IWRTMA(IREOST,1,NTOOB,1,NTOOB)
-  write(6,*) ' Type => symmetry reordering array'
-  call IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
-  write(6,*) ' IBSO array'
-  call IWRTMA(IBSO,1,NSMOB,1,NSMOB)
+#ifdef _DEBUGPRINT_
+NTOOB = IDE
+write(6,*) ' =================='
+write(6,*) ' Output from ORBORD'
+write(6,*) ' =================='
+write(6,*) ' Symmetry of orbitals, type ordered'
+call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
+write(6,*) ' Symmetry => type reordering array'
+call IWRTMA(IREOST,1,NTOOB,1,NTOOB)
+write(6,*) ' Type => symmetry reordering array'
+call IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
+write(6,*) ' IBSO array'
+call IWRTMA(IBSO,1,NSMOB,1,NSMOB)
 
-  write(6,*) ' NTSOB array :'
-  call IWRTMA(NTSOB,3,NSMOB,3,NSMOB)
-  write(6,*) ' IBTSOB array'
-  call IWRTMA(IBTSOB,3,NSMOB,3,NSMOB)
-  write(6,*) ' ITSOB'
-  call IWRTMA(ITSOB,1,NACOB,1,NACOB)
+write(6,*) ' NTSOB array :'
+call IWRTMA(NTSOB,3,NSMOB,3,NSMOB)
+write(6,*) ' IBTSOB array'
+call IWRTMA(IBTSOB,3,NSMOB,3,NSMOB)
+write(6,*) ' ITSOB'
+call IWRTMA(ITSOB,1,NACOB,1,NACOB)
 
-  write(6,*) ' NOBPTS'
-  call IWRTMA(NOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
-  write(6,*) ' NOBPT'
-  call IWRTMA(NOBPTS,6+NR4TP,1,6+MXPR4T,1)
-  write(6,*) ' IOBPTS'
-  call IWRTMA(IOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
+write(6,*) ' NOBPTS'
+call IWRTMA(NOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
+write(6,*) ' NOBPT'
+call IWRTMA(NOBPTS,6+NR4TP,1,6+MXPR4T,1)
+write(6,*) ' IOBPTS'
+call IWRTMA(IOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
 
-  write(6,*) ' ISFTO array :'
-  call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-  !write(6,*) ' ITFSO array :'
-  !call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
+write(6,*) ' ISFTO array :'
+call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
+!write(6,*) ' ITFSO array :'
+!call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
 
-  write(6,*) ' ISMFSO array :'
-  call IWRTMA(ISMFSO,1,NTOOB,1,NTOOB)
-  write(6,*) ' ITPFTO array :'
-  call IWRTMA(ITPFTO,1,NTOOB,1,NTOOB)
-end if
+write(6,*) ' ISMFSO array :'
+call IWRTMA(ISMFSO,1,NTOOB,1,NTOOB)
+write(6,*) ' ITPFTO array :'
+call IWRTMA(ITPFTO,1,NTOOB,1,NTOOB)
+#endif
 
 return
 ! Avoid unused argument warnings

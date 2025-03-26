@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,JOBSM,JOBTP,JOBOFF,NJOB,IJORD,NKDIM,ICLS,ISM,I2MAPO,I2MAPS,I2MPF,L2MP,I2MPO, &
                   I2MPL,I1MAPO,I1MAPS,I1MPF,L1MP,I1MPO,I1MPL,IEL1,IEL3,I2EL1,I2EL3,ISSO,NSSO,I2SSO,N2SSO,NOCTP,N2OCTP,NORB1,NORB2, &
                   NORB3,NORB,KMAX,KMIN,IEND)
@@ -66,17 +67,15 @@ integer I1(NKDIM,*)
 dimension XI1S(NKDIM,*)
 
 NIJ = 0 ! dummy initialize
-iprstr = 0
-NTEST = IPRSTR !100
-if (NTEST > 0) then
-  write(6,*) ' ================'
-  write(6,*) ' Info from ADADS1'
-  write(6,*) ' ================'
-  write(6,*) ' Iobsm Iobtp Ioboff, Niob',IOBSM,IOBTP,IOBOFF,NIOB
-  write(6,*) ' Jobsm Jobtp Joboff, NJob',JOBSM,JOBTP,JOBOFF,NJOB
-  write(6,*) ' icls ism',ICLS,ISM
-  write(6,*) ' I1MPF, I2MPF ',I1MPF,I2MPF
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' ================'
+write(6,*) ' Info from ADADS1'
+write(6,*) ' ================'
+write(6,*) ' Iobsm Iobtp Ioboff, Niob',IOBSM,IOBTP,IOBOFF,NIOB
+write(6,*) ' Jobsm Jobtp Joboff, NJob',JOBSM,JOBTP,JOBOFF,NJOB
+write(6,*) ' icls ism',ICLS,ISM
+write(6,*) ' I1MPF, I2MPF ',I1MPF,I2MPF
+#endif
 
 NK = KMAX-KMIN+1
 ! Type of kstrings
@@ -222,18 +221,18 @@ do J=1,NJOB
 end do
 101 continue
 
-if (NTEST > 0) then
-  write(6,*) ' Output from ADADS1'
-  write(6,*) ' =================='
-  write(6,*) ' Number of K strings accessed ',NK
-  if (NK /= 0) then
-    do IJ=1,NIJ
-      write(6,*) ' Excited strings and sign for ij = ',IJ
-      call IWRTMA(I1(1,IJ),1,NK,1,NK)
-      call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Output from ADADS1'
+write(6,*) ' =================='
+write(6,*) ' Number of K strings accessed ',NK
+if (NK /= 0) then
+  do IJ=1,NIJ
+    write(6,*) ' Excited strings and sign for ij = ',IJ
+    call IWRTMA(I1(1,IJ),1,NK,1,NK)
+    call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
+  end do
 end if
+#endif
 
 return
 ! Avoid unused argument warnings

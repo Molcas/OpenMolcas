@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine CIDIA4(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,ISMOST,IBLTP,XA,XB,SCR,RJ,RK,NSSOA,NSSOB,IOCOC,NOCTPA,NOCTPB,ISSOA, &
-                  ISSOB,LUDIA,ECORE,PLSIGN,PSSIGN,IPRNT,NTOOB,ICISTR)
+                  ISSOB,LUDIA,ECORE,PLSIGN,PSSIGN,NTOOB,ICISTR)
 ! Calculate determinant diagonal
 ! Turbo-ras version
 !
@@ -147,7 +147,6 @@ if (.false.) then
   call Unused_real_array(XA)
   call Unused_real_array(SCR)
   call Unused_real(PLSIGN)
-  call Unused_integer(IPRNT)
 end if
 
 end subroutine CIDIA4

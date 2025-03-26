@@ -11,8 +11,9 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCNT,MXPCSM,NCNATS,NCNASM,NDTASM,NCSASM,NDPCNT,NCPCNT,IICL, &
-                  IIOP,IIOC,IPRNT)
+                  IIOP,IIOC)
 ! Number of configurations per per configuration type and symmetry
 !
 ! Jeppe Olsen
@@ -27,15 +28,15 @@ integer NCNATS(MXPCNT,*), NCNASM(*), NDTASM(*), NCSASM(*)
 integer NDPCNT(*), NCPCNT(*)
 ! Scratch
 integer IICL(*), IIOP(*), IIOC(NORB1+NORB2+NORB3)
-integer IPRNT
 ! Local variables
 logical Test
-integer NTEST, ILOOP, ILOOP2, NCNF, NORBT, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, MINCL1, NOP, ITYPE, NCL, ICL, &
-        IFRSTC, IORB, IPLACE, IPRORB, NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, &
-        KORB, ISYM, I, NTYP, ICSM, ISYMCN_MCLR
+integer ILOOP, ILOOP2, NCNF, NORBT, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, MINCL1, NOP, ITYPE, NCL, ICL, IFRSTC, &
+        IORB, IPLACE, IPRORB, NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, &
+        ISYM, NTYP, ISYMCN_MCLR
+#ifdef _DEBUGPRINT_
+integer I, ICSM
+#endif
 
-NTEST = 0000
-NTEST = max(NTEST,IPRNT)
 ILOOP = 0
 ILOOP2 = 0
 NCNF = 0
@@ -58,11 +59,15 @@ IORB3L = IORB3F+NORB3-1
 NORB = NORB1+NORB2+NORB3
 ! Min number of doubly occupied orbitals in RAS 1
 MINCL1 = max(0,NEL1MN-NORB1)
-if (NTEST >= 1) write(6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
+#ifdef _DEBUGPRINT_
+write(6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
+#endif
 do NOP=MINOP,MAXOP,2
   ITYPE = NOP-MINOP+1
   NCL = (NACTEL-NOP)/2
-  if (NTEST >= 10) write(6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
+# ifdef _DEBUGPRINT_
+  write(6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
+# endif
   ! first combination of double occupied orbitals
   call iCOPY(NORB,[0],0,IIOC,1)
   do ICL=1,NCL
@@ -107,10 +112,10 @@ do NOP=MINOP,MAXOP,2
 !OLD end if
 801 continue
   IFRSTC = 0
-  if (NTEST >= 1500) then
-    write(6,*) ' Next inactive configuration'
-    call IWRTMA(IICL,1,NCL,1,NCL)
-  end if
+# ifdef _DEBUGPRINT_
+  write(6,*) ' Next inactive configuration'
+  call IWRTMA(IICL,1,NCL,1,NCL)
+# endif
   ! CHECK RAS1 and RAS 3
   IEL1C = 0
   IEL3C = 0
@@ -205,10 +210,10 @@ do NOP=MINOP,MAXOP,2
 701 continue
   IFRSTO = 0
 
-  if (NTEST >= 1500) then
-    write(6,*) ' Next active configuration'
-    call IWRTMA(IIOP,1,NOP,1,NOP)
-  end if
+# ifdef _DEBUGPRINT_
+  write(6,*) ' Next active configuration'
+  call IWRTMA(IIOP,1,NOP,1,NOP)
+# endif
   ! RAS CONSTRAINTS
   IEL1 = IEL1C
   IEL3 = IEL3C
@@ -257,18 +262,21 @@ do NOP=MINOP,MAXOP,2
   ! Spatial symmetry
   ISYM = ISYMCN_MCLR(IICL,IIOP,NCL,NOP)
 
-  if (NTEST >= 2000) write(6,*) ' ISYM : ',ISYM
-  if (NTEST >= 1500) write(6,1120) (IIOC(I),I=1,NORB)
-1120 format('0  configuration included ',15I3,('                         ',15I3))
+# ifdef _DEBUGPRINT_
+  write(6,*) ' ISYM : ',ISYM
+  write(6,1120) (IIOC(I),I=1,NORB)
+# endif
   NCNF = NCNF+1
 
   NCNASM(ISYM) = NCNASM(ISYM)+1
-  if (NTEST >= 1500) write(6,1311) NCNF,(IIOC(I),I=1,NORB)
-1311 format('  configuration ',I3,20I2,/,(1X,18X,20I2))
+# ifdef _DEBUGPRINT_
+  write(6,1311) NCNF,(IIOC(I),I=1,NORB)
+# endif
 
   NCNATS(ITYPE,ISYM) = NCNATS(ITYPE,ISYM)+1
-  if (NTEST >= 2000) write(6,3111) NCNF,ITYPE
-3111 format('0  CONFIGURATION..',I3,' IS TYPE..',I3)
+# ifdef _DEBUGPRINT_
+  write(6,3111) NCNF,ITYPE
+# endif
 
 ! LOOP OVER CONFIGURATIONS, end
 
@@ -287,7 +295,9 @@ do NOP=MINOP,MAXOP,2
 end do
 5001 continue
 
-if (NTEST >= 2) write(6,'(A,I8)') '  Total number of configurations generated ',NCNF
+#ifdef _DEBUGPRINT_
+write(6,'(A,I8)') '  Total number of configurations generated ',NCNF
+#endif
 ! ==============================
 ! Total number of CSF's and SD's
 ! ==============================
@@ -299,16 +309,21 @@ do ISYM=1,MXPCSM
   end do
 end do
 
-if (NTEST >= 2) then
-  write(6,*)
-  ICSM = 0
-  write(6,'(/A)') ' Information about actual configurations'
-  write(6,'(A)') ' ========================================'
-  write(6,'(/A)') '    Symmetry     Configurations     CSFs     Combinations'
-  write(6,'(A)') '  =============  ============== ============ ============'
-  do ICSM=1,MXPCSM
-    if (NCNASM(ICSM) /= 0) write(6,'(4X,I3,4X,6X,I8,6X,I8,6X,I9)') ICSM,NCNASM(ICSM),NCSASM(ICSM),NDTASM(ICSM)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(6,*)
+write(6,'(/A)') ' Information about actual configurations'
+write(6,'(A)') ' ========================================'
+write(6,'(/A)') '    Symmetry     Configurations     CSFs     Combinations'
+write(6,'(A)') '  =============  ============== ============ ============'
+do ICSM=1,MXPCSM
+  if (NCNASM(ICSM) /= 0) write(6,'(4X,I3,4X,6X,I8,6X,I8,6X,I9)') ICSM,NCNASM(ICSM),NCSASM(ICSM),NDTASM(ICSM)
+end do
+
+return
+
+1120 format('0  configuration included ',15I3,('                         ',15I3))
+1311 format('  configuration ',I3,20I2,/,(1X,18X,20I2))
+3111 format('0  CONFIGURATION..',I3,' IS TYPE..',I3)
+#endif
 
 end subroutine CISIZE

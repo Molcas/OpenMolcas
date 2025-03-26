@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine DGMM2(AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
 ! PRODUCT OF DIAGONAL MATRIX AND MATRIX :
 !
@@ -29,17 +30,16 @@ else if (IWAY == 2) then
   end do
 end if
 
-NTEST = 00
-if (NTEST /= 0) then
-  write(6,*) ' AIN DIAG AOUT  FROM DGMTMT'
-  call WRTMAT(AIN,NRDIM,NCDIM,NRDIM,NCDIM)
-  if (IWAY == 1) then
-    call WRTMAT(DIAG,1,NRDIM,1,NRDIM)
-  else
-    call WRTMAT(DIAG,1,NCDIM,1,NCDIM)
-  end if
-  call WRTMAT(AOUT,NRDIM,NCDIM,NRDIM,NCDIM)
+#ifdef _DEBUGPRINT_
+write(6,*) ' AIN DIAG AOUT  FROM DGMTMT'
+call WRTMAT(AIN,NRDIM,NCDIM,NRDIM,NCDIM)
+if (IWAY == 1) then
+  call WRTMAT(DIAG,1,NRDIM,1,NRDIM)
+else
+  call WRTMAT(DIAG,1,NCDIM,1,NCDIM)
 end if
+call WRTMAT(AOUT,NRDIM,NCDIM,NRDIM,NCDIM)
+#endif
 
 return
 

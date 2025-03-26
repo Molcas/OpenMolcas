@@ -13,36 +13,34 @@
 
 subroutine RSSBCBN_td(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL1,IBEL3,JAEL1,JAEL3,JBEL1,JBEL3,NAEL,NBEL,IJAGRP, &
                       IJBGRP,SB,CB,IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSMOB, &
-                      NSMST,NSMSX,NSMDX,NIA,NIB,NJA,NJB,MXPOBS,IPRNT,IST,CJRES,SIRES,NOPART,TimeDep)
+                      NSMST,NSMSX,NSMDX,NIA,NIB,NJA,NJB,MXPOBS,IST,CJRES,SIRES,NOPART,TimeDep)
 ! Contributions to sigma block (iasm iatp, ibsm ibtp) from
 ! C block (jasm jatp, jbsm, jbtp)
 !
 ! =====
 ! Input
 ! =====
-!
-! IASM,IATP : Symmetry and type of alpha strings in sigma
-! IBSM,IBTP : Symmetry and type of beta  strings in sigma
-! JASM,JATP : Symmetry and type of alpha strings in C
-! JBSM,JBTP : Symmetry and type of beta  strings in C
+! IASM,IATP   : Symmetry and type of alpha strings in sigma
+! IBSM,IBTP   : Symmetry and type of beta  strings in sigma
+! JASM,JATP   : Symmetry and type of alpha strings in C
+! JBSM,JBTP   : Symmetry and type of beta  strings in C
 ! IAEL1,IAEL3 : Number of elecs in RAS1(RAS3) for alpha strings in sigma
 ! IBEL1,IBEL3 : Number of elecs in RAS1(RAS3) for  beta strings in sigma
 ! JAEL1,JAEL3 : Number of elecs in RAS1(RAS3) for alpha strings in C
 ! JBEL1,JBEL3 : Number of elecs in RAS1(RAS3) for  beta strings in C
-! NAEL : Number of alpha electrons
-! NBEL : Number of  beta electrons
-! IJAGRP    : IA and JA belongs to this group of strings
-! IJBGRP    : IB and JB belongs to this group of strings
-! CB : Input c block
-! IDOH2 : = 0 => no two electron operator
-! IDOH2 : = 1 =>    two electron operator
-! NTSOB  : Number of orbitals per type and symmetry
-! IBTSOB : base for orbitals of given type and symmetry
-! IBORB  : Orbitals of given type and symmetry
-! MAXI   : Largest Number of "spectator strings" treated simultaneously
-! MAXK   : Largest number of inner resolution strings treated at simult.
-!
-! IST, IDOH2 : See RASSG3 input description
+! NAEL        : Number of alpha electrons
+! NBEL        : Number of  beta electrons
+! IJAGRP      : IA and JA belongs to this group of strings
+! IJBGRP      : IB and JB belongs to this group of strings
+! CB          : Input c block
+! IDOH2       : = 0 => no two electron operator
+! IDOH2       : = 1 =>    two electron operator
+! NTSOB       : Number of orbitals per type and symmetry
+! IBTSOB      : base for orbitals of given type and symmetry
+! IBORB       : Orbitals of given type and symmetry
+! MAXI        : Largest Number of "spectator strings" treated simultaneously
+! MAXK        : Largest number of inner resolution strings treated at simult.
+! IST, IDOH2  : See RASSG3 input description
 !
 ! ======
 ! Output
@@ -59,9 +57,8 @@ subroutine RSSBCBN_td(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL1,
 !              type and symmetry
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
 !              type and symmetry
-! C2 : Must hold largest STT block of sigma or C
-!
-! XINT : Scratch space for integrals.
+! C2         : Must hold largest STT block of sigma or C
+! XINT       : Scratch space for integrals.
 !
 ! Jeppe Olsen, Winter of 1991
 
@@ -75,8 +72,6 @@ dimension I1(MAXK,*), XI1S(MAXK,*), I2(MAXK,*), XI2S(MAXK,*), I3(MAXK,*), XI3S(M
 dimension C2(*), CJRES(*), SIRES(*), XINT(*)
 dimension NTSOB(*), IBTSOB(*), ITSOB(*)
 
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
 icheck = 3
 
 ieaw = 0
@@ -144,7 +139,7 @@ if ((iand(icheck,2) == 2) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)
   if (JJJTRNS == 0) then
     call RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,IAEL1,IAEL3,JAEL1,JAEL3,IBEL1,IBEL3, &
                       JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX, &
-                      NSMDX,MXPOBS,0,1,CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,TimeDep)
+                      NSMDX,MXPOBS,0,1,CJRES,SIRES,C2,IFACTOR,ieaw,TimeDep)
 
     !call RECPRT('SSCR after RSBB2BN_MCLR',' ',SSCR,5,1)
 
@@ -156,7 +151,7 @@ if ((iand(icheck,2) == 2) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)
 
     call RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,JbSM,JbTP,JaSM,JaTP,NJb,NJa,IJbGRP,IJaGRP,IbEL1,IbEL3,JbEL1,JbEL3,IaEL1,IaEL3, &
                       JaEL1,JaEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX, &
-                      NSMDX,MXPOBS,0,1,CJRES,SIRES,C2,NTEST,IFACTOR,ieaw,TimeDep)
+                      NSMDX,MXPOBS,0,1,CJRES,SIRES,C2,IFACTOR,ieaw,TimeDep)
 
     !call RECPRT('SSCR after RSBB2BN_MCLR',' ',SSCR,5,1)
 

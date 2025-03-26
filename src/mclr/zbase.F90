@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ZBASE(NVEC,IVEC,NCLASS)
 ! Some class division exists with NVEC(ICLASS) members in
 ! class ICLASS.
@@ -27,13 +28,12 @@ do ICLASS=1,NCLASS
   end if
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(6,'(A)') '  ZBASE : NVEC and IVEC'
-  write(6,'(A)') '  ====================='
-  call IWRTMA(NVEC,1,NCLASS,1,NCLASS)
-  call IWRTMA(IVEC,1,NCLASS,1,NCLASS)
-end if
+#ifdef _DEBUGPRINT_
+write(6,'(A)') '  ZBASE : NVEC and IVEC'
+write(6,'(A)') '  ====================='
+call IWRTMA(NVEC,1,NCLASS,1,NCLASS)
+call IWRTMA(IVEC,1,NCLASS,1,NCLASS)
+#endif
 
 return
 

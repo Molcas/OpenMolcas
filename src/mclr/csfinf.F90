@@ -11,7 +11,7 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CsfInf(lSym,iSpin,MS,iSPC,iPrnt,nsym)
+subroutine CsfInf(lSym,iSpin,MS,iSPC,nsym)
 
 use Str_Info, only: STR, CNSM, CFTP, DFTP, DTOC, NELEC, NOCTYP
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -25,7 +25,7 @@ use CandS, only: ICSM, ISSM, ICSPC, ISSPC
 use input_mclr, only: nIrrep
 
 implicit none
-integer lSym, iSpin, MS, iSPC, iPrnt, nsym
+integer lSym, iSpin, MS, iSPC, nsym
 integer idum(1)
 integer, allocatable :: SIOIO(:), SBLTP(:), IOOS1(:), NOOS1(:)
 integer NEL, IATP, IBTP, NOCTPA, NOCTPB, MNELR1, MXELR3, NOOS, IA, ISYM, NCOMB, LLCSF
@@ -49,16 +49,16 @@ MXELR3 = MXR3IC(ISPC)
 iRefSm = lsym
 ! Obtain OOS pointer array
 call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
-call IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,SIOIO,IPRNT)
+call IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,SIOIO)
 call mma_allocate(SBLTP,nIrrep,Label='SBLTP')
 NOOS = NOCTPA*NOCTPB*nIrrep
 call mma_allocate(IOOS1,NOOS,Label='IOOS1')
 call mma_allocate(NOOS1,NOOS,Label='NOOS1')
-call INTCSF(NACOB,NEL,iSpin,MS2,NORB1,NORB2,NORB3,MNELR1,MXELR3,LLCSF,1,0,PSSIGN,IPRNT,lconf,lldet)
+call INTCSF(NACOB,NEL,iSpin,MS2,NORB1,NORB2,NORB3,MNELR1,MXELR3,LLCSF,1,0,PSSIGN,lconf,lldet)
 
 ! Calculate CG COEFFICENTS ETC
 
-call CSDTMT(DFTP,CFTP,DTOC,PSSIGN,IPRNT)
+call CSDTMT(DFTP,CFTP,DTOC,PSSIGN)
 
 ! Calculate the reordering vector and write it to disk
 
@@ -68,9 +68,9 @@ do iSym=1,nSym
   call ZBLTP(ISMOST(1,ISYM),nIrrep,IDC,SBLTP,idum)
   call ZOOS(ISMOST(1,ISYM),SBLTP,nIrrep,SIOIO,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NOCTPA,NOCTPB,idc,IOOS1,NOOS1,NCOMB,0)
   !EAW call CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,iSym,NACOB,DFTP,NCNATS(1,ISYM),NEL,0,0,IDUM,IDUM,IASTFI(ISPC),IBSTFI(ISPC),IOOS1, &
-  !                NORB1,NORB2,NORB3,MNELR1,MXELR3,NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),MINOP,MAXOP,IPRNT)
+  !                NORB1,NORB2,NORB3,MNELR1,MXELR3,NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),MINOP,MAXOP)
   call CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,iSym,NACOB,DFTP,NCNATS(1,ISYM),NEL,0,0,IDUM,IDUM,IASTFI(ISPC),IBSTFI(ISPC),IOOS1,NORB1, &
-              NORB2,NORB3,MNELR1,MXELR3,NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),MINOP,MAXOP,PSSIGN,IPRNT)
+              NORB2,NORB3,MNELR1,MXELR3,NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),MINOP,MAXOP,PSSIGN)
 
   call iDAFILE(LUCSF2SD,1,CNSM(1)%ICTS,lldet,iA)
   call iDAFILE(LUCSF2SD,1,CNSM(1)%ICONF,lconf,iA)

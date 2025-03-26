@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,ECORE,NINOB,NACTOB,SCR,ISCR,NCONF,NEL,NAEL,NBEL, &
-                 IPWAY,NP1CSF,NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPQCSF,NPQCNF,DIAG,DIAGCN,NTEST,INTSPC,ICOMBI,PSSIGN)
+                 IPWAY,NP1CSF,NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPQCSF,NPQCNF,DIAG,DIAGCN,INTSPC,ICOMBI,PSSIGN)
 ! Obtain H0 subspace defined by the three parameters
 ! MXP1DM,MXP2DM,MXQDM and obtain
 ! explicit representation of hamilton matrix in subspace
@@ -100,7 +100,7 @@ integer MXP1DM, MXP2DM, MXQDM, IREFSM
 real*8 ECORE
 integer NINOB, NACTOB, NCONF, NEL, NAEL, NBEL, IPWAY
 real*8 DIAG(*)
-integer NTEST, INTSPC, ICOMBI
+integer INTSPC, ICOMBI
 real*8 PSSIGN
 ! Scratch space
 real*8 SCR(*), DIAGCN(*)
@@ -263,7 +263,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
       if (abs(DIAVAL-XMIN) <= 1.0D-10) then
         NPQCNF = NPQCNF-1
         call c_f_pointer(c_loc(SCR(KLCONF)),iPTR,[1])
-        call GETCNF(iPTR,ITYP,IPQCNF(IICNF),ICONF,IREFSM,NEL,NTEST)
+        call GETCNF_MCLR(iPTR,ITYP,IPQCNF(IICNF),ICONF,IREFSM,NEL)
         nullify(iPTR)
         NPQCSF = NPQCSF-NCPCNT(ITYP)
         goto 600
@@ -294,7 +294,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
       do IDGCNF=1,IDGVL
         ICNF = ICNF+1
         call c_f_pointer(c_loc(SCR(KLCONF)),iPTR,[1])
-        call GETCNF(iPTR,ITYP,IPQCNF(ICNF),ICONF,IREFSM,NEL,NTEST)
+        call GETCNF_MCLR(iPTR,ITYP,IPQCNF(ICNF),ICONF,IREFSM,NEL)
         nullify(iPTR)
         IDGCSF = IDGCSF+NCPCNT(ITYP)
       end do
@@ -344,12 +344,12 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
 
   !call c_f_pointer(c_loc(DIAGCN(1)),iPTR,[1])
   call CNHCNM(H0(KLPHP),1,IPQCNF,NPCNF,IPQCNF,NPCNF,NPCSF,NPCSF,DIAGCN,ICONF,NEL,IREFSM,NAEL,NBEL,NINOB,NACTOB,ECORE,IPRODT,DTOC, &
-              INTSPC,ICOMBI,PSSIGN,NTEST)
+              INTSPC,ICOMBI,PSSIGN)
 
   ! PHQ matrix
 
   call CNHCNM(H0(KLPHQ),0,IPQCNF,NP1CNF,IPQCNF(1+NPCNF),NQCNF,NP1CSF,NQCSF,DIAGCN,ICONF,NEL,IREFSM,NAEL,NBEL,NINOB,NACTOB,ECORE, &
-              IPRODT,DTOC,INTSPC,ICOMBI,PSSIGN,NTEST)
+              IPRODT,DTOC,INTSPC,ICOMBI,PSSIGN)
   !nullify(iPTR)
 
   return

@@ -13,7 +13,7 @@
 
 subroutine GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB, &
                         MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,CJRES, &
-                        SIRES,NORB,NTESTG,ieaw)
+                        SIRES,NORB,ieaw)
 ! alpha-beta contribution to two-particle density matrix
 ! from given c-block and s-block.
 !
@@ -184,7 +184,6 @@ if (.false.) then
   call Unused_integer(NSMSX)
   call Unused_integer(NSMDX)
   call Unused_integer(MXPOBS)
-  call Unused_integer(NTESTG)
 end if
 
 end subroutine GSBBD2B_MCLR

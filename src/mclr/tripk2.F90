@@ -9,8 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
-! REFORMATING BETWEEN LOWER TRIANGULAR PACKING
+! REFORMATTING BETWEEN LOWER TRIANGULAR PACKING
 ! AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
 !
 ! IWAY = 1 : FULL TO PACKED
@@ -42,12 +43,11 @@ else if (IWAY == 2) then
   end do
 end if
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(6,*) ' AUTPAK AND APAK FROM TRIPK2'
-  call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
-  call PRSM2(APAK,NDIM)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' AUTPAK AND APAK FROM TRIPK2'
+call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
+call PRSM2(APAK,NDIM)
+#endif
 
 return
 

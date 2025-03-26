@@ -14,7 +14,6 @@ subroutine DetCtl()
 use Arrays, only: pINT1, pINT2
 use stdalloc, only: mma_allocate
 use MCLR_Data, only: iST, i12
-use MCLR_Data, only: IPRSTR, IPRORB, IPRCIX
 use MCLR_Data, only: MS2, idc, PSSIGN
 use MCLR_Data, only: FnCSF2SD, LuCSF2SD
 use MCLR_Data, only: NOCSF, IDENMT, NOPART, IDIAG, INCORE, ICISTR
@@ -58,21 +57,17 @@ do iSym=1,nSym
 end do
 MNRS10 = max(0,2*ntRas1-nHole1)
 MXRS30 = max(0,min(2*ntRas3,nElec3))
-! Initialize print flags
-IPRSTR = 0
-IPRORB = 0
-IPRCIX = 0
 ! From shells to orbitals
-call ORBINF_MCLR(nSym,nSym,nRs1,nRs2,nRs3,mxr4tp,IPRORB) ! OK
+call ORBINF_MCLR(nSym,nSym,nRs1,nRs2,nRs3,mxr4tp) ! OK
 ! Number of string types
-call STRTYP(ms2,nActEl,MNRS10,MXRS30,IPRSTR)  ! looks alright
+call STRTYP(ms2,nActEl,MNRS10,MXRS30)  ! looks alright
 ! Internal string information
-call STRINF(IPRSTR)  ! looks alright, no!
+call STRINF()  ! looks alright, no!
 ! Internal subspaces
-call ICISPC(MNRS10,MXRS30,IPRCIX)  ! looks alright
-call ICISPS(IPRCIX)  ! looks alright
+call ICISPC(MNRS10,MXRS30)  ! looks alright
+call ICISPS()  ! looks alright
 ! CSF information
 call DANAME(LUCSF2SD,FNCSF2SD)
-call CSFINF(State_sym,iSpin,idum,1,IPRCIX,nsym)
+call CSFINF(State_sym,iSpin,idum,1,nsym)
 
 end subroutine DetCtl

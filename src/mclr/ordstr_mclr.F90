@@ -11,7 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISIGN,IPRNT)
+!#define _DEBUGPRINT_
+subroutine ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISIGN)
 ! ORDER A STRING OF INTEGERS TO ASCENDING ORDER
 !
 ! IINST : INPUT STRING IS IINST
@@ -29,7 +30,7 @@ subroutine ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISIGN,IPRNT)
 implicit none
 integer NELMNT
 integer IINST(NELMNT), IOUTST(NELMNT)
-integer ISIGN, IPRNT
+integer ISIGN
 
 integer iTemp, iPass, I
 
@@ -54,9 +55,6 @@ if (IPASS /= 0) goto 10
 do I=1,NELMNT
   IOUTST(I) = IINST(I)
 end do
-
-!NTEST = 0
-!NTEST = MAX(NTEST,IPRNT)
 
 !call iCOPY(NELMNT,IINST,1,IOUTST,1)
 !ISIGN = 1
@@ -84,14 +82,11 @@ end do
 ! END ORDER
 !
 !50 continue
-!if (NTEST >= 200) then
-!  write(6,*) ' INPUT STRING ORDERED STRING ISIGN ',NELMNT
-!  call IWRTMA(IINST,1,NELMNT,1,NELMNT)
-!  call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
-!  write(6,*) ' ISIGN : ',ISIGN
-!end if
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(IPRNT)
+!#ifdef _DEBUGPRINT_
+!write(6,*) ' INPUT STRING ORDERED STRING ISIGN ',NELMNT
+!call IWRTMA(IINST,1,NELMNT,1,NELMNT)
+!call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
+!write(6,*) ' ISIGN : ',ISIGN
+!#endif
 
 end subroutine ORDSTR_MCLR

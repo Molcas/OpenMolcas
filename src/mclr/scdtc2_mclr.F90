@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SCDTC2_MCLR(RASVEC,ISMOST,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCOC,IDC,IWAY,IMMLST,IPRNT)
+!#define _DEBUGPRINT_
+subroutine SCDTC2_MCLR(RASVEC,ISMOST,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCOC,IDC,IWAY,IMMLST)
 ! Scale elements of a RAS vector to transfer between
 ! combinations and packed determinants
 ! IWAY = 1 : dets to combs
@@ -23,14 +24,12 @@ dimension RASVEC(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
 dimension IOCOC(NOCTPA,NOCTPB)
 dimension ISMOST(*), ICBLTP(*), IMMLST(*)
 
-NTEST = 0000
-NTEST = max(NTEST,IPRNT)
-if (NTEST > 10) then
-  write(6,*) ' Information from SCDTC2'
-  write(6,*) ' ======================='
-  write(6,*) ' Input vector'
-  call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Information from SCDTC2'
+write(6,*) ' ======================='
+write(6,*) ' Input vector'
+call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+#endif
 
 SQ2 = sqrt(2.0d0)
 SQ2I = 1.0d0/SQ2
@@ -110,11 +109,11 @@ do IASM=1,NSMST
 200 continue
 end do
 
-if (NTEST > 10) then
-  write(6,*) ' Scaled vector'
-  call xflush(6)
-  call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Scaled vector'
+call xflush(6)
+call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+#endif
 
 return
 

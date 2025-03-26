@@ -11,7 +11,7 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GENSTR_MCLR(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,NOCTYP,NSMST,Z,LSTASO,IREORD,STRING,IOC,IOTYP,IPRNT)
+subroutine GENSTR_MCLR(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,NOCTYP,NSMST,Z,LSTASO,IREORD,STRING,IOC,IOTYP)
 ! Generate strings consisting of  NEL electrons fulfilling
 !   1 : Between NELMN1 AND NELMX1 electrons in the first NORB1 orbitals
 !   2 : Between NELMN3 AND NELMX3 electrons in the last  NORB3 orbitals
@@ -31,7 +31,7 @@ use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
 
 implicit none
 integer NEL, NELMN1, NELMX1, NELMN3, NELMX3, NOCTYP, NSMST
-integer IOTYP, IPRNT
+integer IOTYP
 ! Input
 integer ISTASO(NOCTYP,NSMST)
 integer Z(NACOB,NEL)
@@ -40,11 +40,11 @@ integer STRING(NEL,*), IREORD(*)
 ! Scratch arrays
 integer IOC(*), LSTASO(NOCTYP,NSMST)
 ! Local variables
-integer NTEST0, NTEST, NSTRIN, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, NONEW1, &
-        NONEW2, NONEW3, ISYM, ITYP, LEXCI, LACTU, NPR, ISTRIN, LSTRIN, KSTRIN, IEL, IOCTP2_MCLR, ISTRNM, ISYMST_MCLR, i
-
-NTEST0 = 0
-NTEST = max(NTEST0,IPRNT)
+integer NSTRIN, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, NONEW1, NONEW2, NONEW3, &
+        ISYM, ITYP, LEXCI, LACTU, IOCTP2_MCLR, ISTRNM, ISYMST_MCLR, i
+#ifdef _DEBUGPRINT_
+integer IEL, ISTRIN, LSTRIN, KSTRIN
+#endif
 
 call iCopy(NOCTYP*NSMST,[0],0,LSTASO,1)
 NSTRIN = 0
@@ -73,10 +73,10 @@ do IEL1=NELMX1,NELMN1,-1
         if (NONEW1 == 1) goto 1003
       end if
     end if
-    if (NTEST >= 500) then
-      write(6,*) ' RAS 1 string'
-      call IWRTMA(IOC,1,IEL1,1,IEL1)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(6,*) ' RAS 1 string'
+    call IWRTMA(IOC,1,IEL1,1,IEL1)
+#   endif
     IFRST2 = 1
     IFRST3 = 1
     ! Loop over RAS 2 occupancies
@@ -93,10 +93,10 @@ do IEL1=NELMX1,NELMN1,-1
         end if
       end if
     end if
-    if (NTEST >= 500) then
-      write(6,*) ' RAS 1 2 string'
-      call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(6,*) ' RAS 1 2 string'
+    call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
+#   endif
     IFRST3 = 1
     ! Loop over RAS 3 occupancies
 903 continue
@@ -113,10 +113,10 @@ do IEL1=NELMX1,NELMN1,-1
         end if
       end if
     end if
-    if (NTEST >= 500) then
-      write(6,*) ' RAS 1 2 3 string'
-      call IWRTMA(IOC,1,NEL,1,NEL)
-    end if
+#   ifdef _DEBUGPRINT_
+    write(6,*) ' RAS 1 2 3 string'
+    call IWRTMA(IOC,1,NEL,1,NEL)
+#   endif
     ! Next string has been constructed, Enlist it!
     NSTRIN = NSTRIN+1
     ! Symmetry
@@ -140,32 +140,27 @@ do IEL1=NELMX1,NELMN1,-1
 1001 continue
 end do
 
-if (NTEST >= 1) write(6,*) ' Number of strings generated ',NSTRIN
-if (NTEST >= 10) then
-  if (NTEST >= 100) then
-    NPR = NSTRIN
-  else
-    NPR = min(NSTRIN,50)
-  end if
-  write(6,*) ' Strings generated'
-  write(6,*) ' =================='
-  ISTRIN = 0
-  do ISYM=1,NSMST
-    do ITYP=1,NOCTYP
-      LSTRIN = min(LSTASO(ITYP,ISYM),NPR-ISTRIN)
-      if (LSTRIN > 0) then
-        write(6,*) ' Strings of type and symmetry ',ITYP,ISYM
-        do KSTRIN=1,LSTRIN
-          ISTRIN = ISTRIN+1
-          write(6,'(2X,I4,8X,(10I5))') ISTRIN,(STRING(IEL,ISTRIN),IEL=1,NEL)
-        end do
-      end if
-    end do
+#ifdef _DEBUGPRINT_
+write(6,*) ' Number of strings generated ',NSTRIN
+write(6,*) ' Strings generated'
+write(6,*) ' =================='
+ISTRIN = 0
+do ISYM=1,NSMST
+  do ITYP=1,NOCTYP
+    LSTRIN = min(LSTASO(ITYP,ISYM),NSTRIN-ISTRIN)
+    if (LSTRIN > 0) then
+      write(6,*) ' Strings of type and symmetry ',ITYP,ISYM
+      do KSTRIN=1,LSTRIN
+        ISTRIN = ISTRIN+1
+        write(6,'(2X,I4,8X,(10I5))') ISTRIN,(STRING(IEL,ISTRIN),IEL=1,NEL)
+      end do
+    end if
   end do
+end do
 
-  write(6,*) ' Array giving actual place from lexical place'
-  write(6,*) ' ============================================'
-  call IWRTMA(IREORD,1,NPR,1,NPR)
-end if
+write(6,*) ' Array giving actual place from lexical place'
+write(6,*) ' ============================================'
+call IWRTMA(IREORD,1,NSTRIN,1,NSTRIN)
+#endif
 
 end subroutine GENSTR_MCLR

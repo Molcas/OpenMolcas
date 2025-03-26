@@ -11,7 +11,8 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ORBINF_MCLR(NIRREP,NSMOB,NRAS1,NRAS2,NRAS3,MXR4tp,IPRNT)
+!#define _DEBUGPRINT_
+subroutine ORBINF_MCLR(NIRREP,NSMOB,NRAS1,NRAS2,NRAS3,MXR4tp)
 ! Obtain information about orbitals from shell information
 !
 ! =====
@@ -30,14 +31,15 @@ use MCLR_Data, only: NORB1, NORB2, NORB3, NORB4, NINOB, NDEOB, NACOB, NOCOB, NTO
 use DetDim, only: MXPIRR, MXPOBS, MXPR4T
 
 implicit none
-integer NIRREP, NSMOB, MXR4tp, IPRNT
+integer NIRREP, NSMOB, MXR4tp
 integer NRAS1(NIRREP), NRAS2(NIRREP), NRAS3(NIRREP)
 ! Local variables
 integer ITFSO(1)
-integer NTEST, IPIRR, IRREP, ISM, IISM, IPR4T, ISMOB, I
+integer IPIRR, IRREP, ISM, IISM, IPR4T, ISMOB
+#ifdef _DEBUGPRINT_
+integer I
+#endif
 
-NTEST = 0000
-NTEST = max(NTEST,IPRNT)
 !***********************************************
 !                                              *
 ! Part 1 : From shell format to orbital format *
@@ -106,33 +108,33 @@ do ISMOB=1,NSMOB
   NTOOBS(ISMOB) = NACOBS(ISMOB)
 end do
 
-if (NTEST > 0) then
-  write(6,*)
-  write(6,*) ' ORBINF_MCLR speaking'
-  write(6,*) ' ===================='
-  write(6,*) ' Number of orbitals per symmetry + total'
-  write(6,'(1X,A,10I4,8X,I3)') '     Ras1             ',(NRSOBS(I,1),I=1,NSMOB),NORB1
-  write(6,'(1X,A,10I4,8X,I3)') '     Ras2             ',(NRSOBS(I,2),I=1,NSMOB),NORB2
-  write(6,'(1X,A,10I4,8X,I3)') '     Ras3             ',(NRSOBS(I,3),I=1,NSMOB),NORB3
-  write(6,'(1X,A,10I4,8X,I3)') '     Active           ',(NACOBS(I),I=1,NSMOB),NACOB
-  write(6,'(1X,A,10I4,8X,I3)') '     Total            ',(NTOOBS(I),I=1,NSMOB),NTOOB
-end if
+#ifdef _DEBUGPRINT_
+write(6,*)
+write(6,*) ' ORBINF_MCLR speaking'
+write(6,*) ' ===================='
+write(6,*) ' Number of orbitals per symmetry + total'
+write(6,'(1X,A,10I4,8X,I3)') '     Ras1             ',(NRSOBS(I,1),I=1,NSMOB),NORB1
+write(6,'(1X,A,10I4,8X,I3)') '     Ras2             ',(NRSOBS(I,2),I=1,NSMOB),NORB2
+write(6,'(1X,A,10I4,8X,I3)') '     Ras3             ',(NRSOBS(I,3),I=1,NSMOB),NORB3
+write(6,'(1X,A,10I4,8X,I3)') '     Active           ',(NACOBS(I),I=1,NSMOB),NACOB
+write(6,'(1X,A,10I4,8X,I3)') '     Total            ',(NTOOBS(I),I=1,NSMOB),NTOOB
+#endif
 ! Offsets for orbitals of given symmetry
 ITOOBS(1) = 1
 do ISMOB=2,NSMOB
   ITOOBS(ISMOB) = ITOOBS(ISMOB-1)+NTOOBS(ISMOB-1)
 end do
 
-if (NTEST > 0) then
-  write(6,*) ' Offsets for orbital of given symmetry'
-  call IWRTMA(ITOOBS,1,NSMOB,1,NSMOB)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Offsets for orbital of given symmetry'
+call IWRTMA(ITOOBS,1,NSMOB,1,NSMOB)
+#endif
 !*******************************************
 !                                          *
 ! Part 2 : Reordering arrays for orbitals  *
 !                                          *
 !*******************************************
-call ORBORD(NSMOB,MXPOBS,MXR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,NOCOBS,NTOOBS,IREOST,IREOTS,ISMFTO,ITFSO,IPRNT,IBSO, &
-            NTSOB,IBTSOB,ITSOB,NOBPTS,IOBPTS,MXPR4T,ISMFSO,ITPFTO,NOBPT)
+call ORBORD(NSMOB,MXPOBS,MXR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,NOCOBS,NTOOBS,IREOST,IREOTS,ISMFTO,ITFSO,IBSO,NTSOB, &
+            IBTSOB,ITSOB,NOBPTS,IOBPTS,MXPR4T,ISMFSO,ITPFTO,NOBPT)
 
 end subroutine ORBINF_MCLR

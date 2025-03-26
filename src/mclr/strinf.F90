@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine STRINF(IPRNT)
+!#define _DEBUGPRINT_
+subroutine STRINF()
 ! Strings for internal space.
 ! Information is stored in
 ! Largest allowed length is MSTINF
@@ -25,20 +26,16 @@ use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
 use input_mclr, only: nIrrep
 
 implicit none
-integer IPRNT
 ! ======
 ! Output
 ! ======
 integer ISGSTI(1), ISGSTO(1)
 integer, allocatable :: KFREEL(:)
-integer NTEST, ITYP, JTYP, LROW, IMAX
-
-NTEST = 0
-NTEST = max(NTEST,IPRNT)
+integer ITYP, JTYP, LROW, IMAX
 
 ! 2 : Number of classes per string type and mappings between string types (/STINF/)
 
-call ZSTINF_MCLR(IPRNT)
+call ZSTINF_MCLR()
 
 ! 3 : Static memory for string information
 
@@ -67,7 +64,7 @@ end do
 do ITYP=1,NSTTYP
   if (IUNIQTP(ITYP) == ITYP) then
     call NSTRSO_MCLR(NELEC(ITYP),NORB1,NORB2,NORB3,MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),KFREEL,NACOB,Str(ITYP)%NSTSO, &
-                     NOCTYP(ITYP),nIrrep,ITYP,IPRNT)
+                     NOCTYP(ITYP),nIrrep,ITYP)
     ! Corresponding offset array
     call ZBASE(Str(ITYP)%NSTSO,Str(ITYP)%ISTSO,nIrrep*NOCTYP(ITYP))
     ! Symmetry and class index for each string
@@ -80,7 +77,7 @@ end do
 do ITYP=1,NSTTYP
   if (IUNIQTP(ITYP) == ITYP) &
     call GENSTR_MCLR(NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%ISTSO,NOCTYP(ITYP),nIrrep,Str(ITYP)%Z, &
-                     KFREEL,Str(ITYP)%STREO,Str(ITYP)%OCSTR,KFREEL(1+NOCTYP(ITYP)*nIrrep),ITYP,IPRNT)
+                     KFREEL,Str(ITYP)%STREO,Str(ITYP)%OCSTR,KFREEL(1+NOCTYP(ITYP)*nIrrep),ITYP)
 end do
 
 ! 8 Internal annihilation arrays between types of strings
@@ -89,10 +86,10 @@ do ITYP=1,NSTTYP
   if (IUNIQMP(ITYP) == ITYP) then
     if (ISTAC(ITYP,1) /= 0) then
       JTYP = ISTAC(ITYP,1)
-      if (IPRNT >= 2) then
-        write(6,*) ' Annihilator arrays between types ',ITYP,JTYP
-        write(6,*) ' ==========================================='
-      end if
+#     ifdef _DEBUGPRINT_
+      write(6,*) ' Annihilator arrays between types ',ITYP,JTYP
+      write(6,*) ' ==========================================='
+#     endif
       if (ISTAC(ITYP,2) == 0) then
         LROW = NELEC(ITYP)
       else
@@ -101,7 +98,7 @@ do ITYP=1,NSTTYP
       Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,1) = 0
       Str(ITYP)%STSTM(1:NSTFTP(ITYP)*LROW,2) = 0
       call ANNSTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),NELEC(ITYP),NACOB,Str(JTYP)%Z,Str(JTYP)%STREO,LROW,0,ISGSTI,ISGSTO, &
-                  Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),JTYP,IPRNT)
+                  Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),JTYP)
     end if
   end if
 end do
@@ -120,12 +117,12 @@ do ITYP=1,NSTTYP
         LROW = NACOB
       end if
       JTYP = ISTAC(ITYP,2)
-      if (IPRNT >= 2) then
-        write(6,*) ' Creator  arrays between types ',ITYP,JTYP
-        write(6,*) ' ==========================================='
-      end if
+#     ifdef _DEBUGPRINT_
+      write(6,*) ' Creator  arrays between types ',ITYP,JTYP
+      write(6,*) ' ==========================================='
+#     endif
       call CRESTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),NELEC(ITYP),NACOB,Str(JTYP)%Z,Str(JTYP)%STREO,0,ISGSTI,ISGSTO, &
-                  Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),Str(ITYP)%STSTMN,Str(ITYP)%STSTMI,LROW,JTYP,IPRNT)
+                  Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),Str(ITYP)%STSTMN,Str(ITYP)%STSTMI,LROW,JTYP)
     end if
   end if
 end do

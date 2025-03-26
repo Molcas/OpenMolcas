@@ -11,7 +11,7 @@
 ! Copyright (C) 1989,1991,1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CNFSTR_MCLR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,IAGRP,IBGRP,ISCR,SIGN,NTEST)
+subroutine CNFSTR_MCLR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,IAGRP,IBGRP,ISCR,SIGN)
 ! An orbital configuration ICONF is given,
 ! Obtain the corresponding alpha strings, IASTR
 !        the corresponding beta  strings, IBSTR
@@ -29,7 +29,6 @@ implicit none
 ! Specific input
 integer ICONF(*)
 integer ITYP, NORB, NAEL, NBEL, IDET
-integer NTEST
 ! General input
 integer IPRODT(*)
 integer IAGRP, IBGRP
@@ -71,12 +70,12 @@ do JTYP=1,ITYP-1
 end do
 ! Expand into determinants
 
-call CNDET_MCLR(ICONF,IPRODT(IP),IDET,NAEL+NBEL,NORB,IOPEN,ICLOS,ISCR(KLDETS),NTEST)
+call CNDET_MCLR(ICONF,IPRODT(IP),IDET,NAEL+NBEL,NORB,IOPEN,ICLOS,ISCR(KLDETS))
 
 ! Separate determinants into strings and determine sign change
 
 do JDET=1,IDET
-  call DETSTR_MCLR(ISCR(KLDETS+(JDET-1)*NEL),ISCR(KLIA),ISCR(KLIB),NEL,NAEL,NBEL,NORB,ISIGN,ISCR(KLDET),NTEST)
+  call DETSTR_MCLR(ISCR(KLDETS+(JDET-1)*NEL),ISCR(KLIA),ISCR(KLIB),NEL,NAEL,NBEL,NORB,ISIGN,ISCR(KLDET))
   ! Actual numbers of alpha and beta string
   IASTR(JDET) = ISTRN_MCLR(ISCR(KLIA),IAGRP)
   IBSTR(JDET) = ISTRN_MCLR(ISCR(KLIB),IBGRP)

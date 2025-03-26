@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine DXTYP(NDXTP,ITYP,JTYP,KTYP,LTYP,LEL1,LEL3,REL1,REL3)
 ! Obtain types of I,J,K,l so
 ! <L!a+I a+K a L a J!R> is nonvanishing
@@ -88,15 +89,14 @@ do ITP=1,3
   end do
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(6,'(A,4I4)') ' Double excitations connecting LEL1,LEL3,LEL1,LEL3 ',LEL1,LEL3,REL1,REL3
-  write(6,*) '  ITYP KTYP LTYP JTYP'
-  write(6,*) '  ===================='
-  do IDX=1,NDXTP
-    write(6,'(1X,5I5)') ITYP(IDX),KTYP(IDX),LTYP(IDX),JTYP(IDX)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(6,'(A,4I4)') ' Double excitations connecting LEL1,LEL3,LEL1,LEL3 ',LEL1,LEL3,REL1,REL3
+write(6,*) '  ITYP KTYP LTYP JTYP'
+write(6,*) '  ===================='
+do IDX=1,NDXTP
+  write(6,'(1X,5I5)') ITYP(IDX),KTYP(IDX),LTYP(IDX),JTYP(IDX)
+end do
+#endif
 
 return
 

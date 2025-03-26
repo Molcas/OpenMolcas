@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,NINOC,ECORE,IPRODT,DTOC,NORB,ICOMBI,PSSIGN,NTERMS,NDIF0, &
-                  NDIF1,NDIF2,NTEST)
+                  NDIF1,NDIF2)
 ! Obtain Hamilton matrix over CSFs of configurations ICNL,ICNR
 !
 ! Jeppe Olsen, Summer of 89
@@ -24,7 +24,7 @@ integer ITPL, ITPR, NEL, NAEL, NBEL, INTSPC, NINOC
 real*8 ECORE
 integer NORB, ICOMBI
 real*8 PSSIGN
-integer NTERMS, NDIF0, NDIF1, NDIF2, NTEST
+integer NTERMS, NDIF0, NDIF1, NDIF2
 ! Specific input
 integer ICNL(*), ICNR(*)
 ! General input
@@ -120,7 +120,7 @@ subroutine CNHCN2_INTERNAL(SCR)
   ! Prescreen for CNFs that do not interact
 
   call c_f_pointer(c_loc(SCR(1)),iSCR,[1])
-  call CMP2CN(ICNL,ICLL,IOPL,ICNR,ICLR,IOPR,iSCR,NORB,NDIFF,NTEST)
+  call CMP2CN(ICNL,ICLL,IOPL,ICNR,ICLR,IOPR,iSCR,NORB,NDIFF)
   nullify(iSCR)
 
   if (NDIFF <= 2) then
@@ -128,10 +128,10 @@ subroutine CNHCN2_INTERNAL(SCR)
     call c_f_pointer(c_loc(SCR(KLROU)),iSCR,[1])
     call c_f_pointer(c_loc(SCR(KLDTLA)),iSCRa,[1])
     call c_f_pointer(c_loc(SCR(KLDTLB)),iSCRb,[1])
-    call CNFSTR_MCLR(ICNL,ITPL,iSCRa,iSCRb,NORB,NAEL,NBEL,NDETL,IPRODT,IAGRP,IBGRP,iSCR,SCR(KLISL),NTEST)
+    call CNFSTR_MCLR(ICNL,ITPL,iSCRa,iSCRb,NORB,NAEL,NBEL,NDETL,IPRODT,IAGRP,IBGRP,iSCR,SCR(KLISL))
     call c_f_pointer(c_loc(SCR(KLDTRA)),iSCRar,[1])
     call c_f_pointer(c_loc(SCR(KLDTRB)),iSCRbr,[1])
-    call CNFSTR_MCLR(ICNR,ITPR,iSCRar,iSCRbr,NORB,NAEL,NBEL,NDETR,IPRODT,IAGRP,IBGRP,iSCR,SCR(KLISR),NTEST)
+    call CNFSTR_MCLR(ICNR,ITPR,iSCRar,iSCRbr,NORB,NAEL,NBEL,NDETR,IPRODT,IAGRP,IBGRP,iSCR,SCR(KLISR))
 
     ! Hamiltonian matrix over determinants of the configurations
 
@@ -141,7 +141,7 @@ subroutine CNHCN2_INTERNAL(SCR)
     call c_f_pointer(c_loc(SCR(KLROU+2*NEL)),iSCRnn,[1])
     call DIHDJ2_MCLR(iSCRa,iSCRb,NDETL,iSCRar,iSCRbr,NDETR,NAEL,NBEL,iSCRnn,LWORK,NORB,SCR(KLDHD),ISYM,0,ECOREP,ICOMBI,PSSIGN, &
                      Str(IAGRP)%OCSTR,Str(IBGRP)%OCSTR,Str(IAGRP)%OCSTR,Str(IBGRP)%OCSTR,0,IDUMMY,IDUMMY,IDUMMY,IDUMMY,iSCR,iSCRn, &
-                     NDIF0,NDIF1,NDIF2,NTEST)
+                     NDIF0,NDIF1,NDIF2)
     nullify(iSCR,iSCRa,iSCRb,iSCRar,iSCRbr,iSCRn,iSCRnn)
 
     ! Transform matrix to CSF basis

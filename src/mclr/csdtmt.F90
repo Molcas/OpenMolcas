@@ -11,7 +11,7 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN,IPRNT)
+subroutine CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN)
 ! Construct list of prototype combinations in IDFTP
 ! Construct list of prototype CSF'S, in ICFTP
 ! Construct matrix expanding prototype CSF's in terms of
@@ -23,7 +23,6 @@ use MCLR_Data, only: MULTSP, MS2P, NTYP, MINOP, NCPCNT, NDPCNT
 implicit none
 dimension IDFTP(*), ICFTP(*), DTOC(*)
 real*8 PSSIGN
-integer IPRNT
 ! local variables
 integer, allocatable :: SCR7(:)
 integer MULTS, MS2, IDTBS, ICSBS, ITP, IOPEN, IFLAG, IDFTP, ICFTP, ICDCBS, NNDET
@@ -51,12 +50,12 @@ do ITP=1,NTYP
     ! Proto type determinants and upper determinants
     if (MS2+1 == MULTS) then
       IFLAG = 2
-      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
+      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN)
     else
       IFLAG = 1
-      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
+      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN)
       IFLAG = 3
-      call SPNCOM_MCLR(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN,IPRNT)
+      call SPNCOM_MCLR(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN)
     end if
     call mma_deallocate(SCR7)
   end if
@@ -78,7 +77,7 @@ do ITP=1,NTYP
   if (IOPEN == 0) then
     DTOC(ICDCBS) = 1.0d0
   else
-    call CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),PSSIGN,IPRNT)
+    call CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),PSSIGN)
   end if
 30 continue
 end do

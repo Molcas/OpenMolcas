@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NGETH1(H,ISM,ITP,JSM,JTP)
 ! One-electron integrals over orbitals belonging to
 ! given OS class
@@ -19,7 +20,7 @@ implicit none
 !.Output
 real*8 H(*)
 integer ISM, ITP, JSM, JTP
-integer NI, NJ, IJ, I, J, NTEST
+integer NI, NJ, IJ, I, J
 real*8, external :: GTH1EN
 
 NI = NTSOB(ITP,ISM)
@@ -32,10 +33,9 @@ do J=1,NJ
   end do
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
-  call WRTMAT(H,NI,NJ,NI,NJ)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
+call WRTMAT(H,NI,NJ,NI,NJ)
+#endif
 
 end subroutine NGETH1

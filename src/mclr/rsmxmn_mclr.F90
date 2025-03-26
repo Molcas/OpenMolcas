@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RSMXMN_MCLR(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MIN1,MAX1,MIN3,MAX3,IPRNT)
+subroutine RSMXMN_MCLR(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MIN1,MAX1,MIN3,MAX3)
 ! Construct accumulated MAX and MIN arrays for a RAS set of strings
 
 implicit real*8(A-H,O-Z)
@@ -43,7 +43,5 @@ do IORB=1,NORB
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(IPRNT)
 
 end subroutine RSMXMN_MCLR

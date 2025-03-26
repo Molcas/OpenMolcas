@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NUMST4_MCLR(NEL,NORB1,NEL1MN,NEL1MX,NORB2,NORB3,NEL3MN,NEL3MX,NSTTP)
 ! Number of strings per type for class of strings with
 !
@@ -17,14 +18,13 @@ subroutine NUMST4_MCLR(NEL,NORB1,NEL1MN,NEL1MX,NORB2,NORB3,NEL3MN,NEL3MX,NSTTP)
 
 integer NSTTP(*)
 
-NTEST = 0
 NSTRIN = 0
 
-if (NTEST >= 10) then
-  write(6,*) ' NUMST4'
-  write(6,*) ' NEL NEL1MN NEL1MX NEL3MN NEL3MX'
-  write(6,*) NEL,NEL1MN,NEL1MX,NEL3MN,NEL3MX
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' NUMST4'
+write(6,*) ' NEL NEL1MN NEL1MX NEL3MN NEL3MX'
+write(6,*) NEL,NEL1MN,NEL1MX,NEL3MN,NEL3MX
+#endif
 
 ITPMAX = 0
 do IEL1=NEL1MN,min(NEL1MX,NORB1,NEL)
@@ -41,13 +41,13 @@ do IEL1=NEL1MN,min(NEL1MX,NORB1,NEL)
   end do
 end do
 
-if (NTEST >= 1) then
-  write(6,'(/A,I6)') '  Number of strings generated ... ',NSTRIN
-  write(6,*)
-  write(6,*) ' Largest type number ',ITPMAX
-  write(6,*) ' Number of strings per type'
-  call IWRTMA(NSTTP,1,ITPMAX,1,ITPMAX)
-end if
+#ifdef _DEBUGPRINT_
+write(6,'(/A,I6)') '  Number of strings generated ... ',NSTRIN
+write(6,*)
+write(6,*) ' Largest type number ',ITPMAX
+write(6,*) ' Number of strings per type'
+call IWRTMA(NSTTP,1,ITPMAX,1,ITPMAX)
+#endif
 
 return
 

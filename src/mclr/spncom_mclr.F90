@@ -11,7 +11,7 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine SPNCOM_MCLR(iwork,NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN,IPRCSF)
+subroutine SPNCOM_MCLR(iwork,NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN)
 ! Combinations of nopen unpaired electrons.Required
 ! spin projection MS2/2.
 ! JO 21-7-84
@@ -31,7 +31,7 @@ integer IWORK(*)
 integer NOPEN, MS2, NDET
 integer IABDET(NOPEN,*), IABUPP(NOPEN,*)
 real*8 PSSIGN
-integer IFLAG, IPRCSF
+integer IFLAG
 ! local variables
 integer ADD
 integer NUPPER, MX, I, J, NALPHA, MS2L, lUPPER, IEL
@@ -94,8 +94,5 @@ do I=1,MX
 end do
 
 !XMSD2 = DBLE(MS2)/2
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(IPRCSF)
 
 end subroutine SPNCOM_MCLR

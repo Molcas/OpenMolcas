@@ -37,7 +37,7 @@ integer iPL
 logical ldisk, ipopen
 character(len=8) Method
 real*8, allocatable :: CIVec(:,:), CITmp(:)
-integer i, ii, ipCII, iRC, iprDia, iSSM
+integer i, ii, ipCII, iRC, iSSM
 integer, external :: ipGet, ipIn, ipOut
 integer, external :: IsFreeUnit
 integer, allocatable :: index_SD(:) ! not final version
@@ -139,7 +139,7 @@ if (iMethod == 2) then
       do ii=1,ndets_RGLR
         if (abs(vector_cidmrg(ii)) < 0.0d0) vector_cidmrg(ii) = 0.0d0
       end do
-      call CSDTVC_dmrg(CITmp,vector_cidmrg,2,DTOC,index_SD,ISSM,1,IPRDIA)
+      call CSDTVC_dmrg(CITmp,vector_cidmrg,2,DTOC,index_SD,ISSM,1)
       call mma_deallocate(index_SD)
       call mma_deallocate(vector_cidmrg)
     end if

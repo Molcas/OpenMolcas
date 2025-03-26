@@ -135,7 +135,7 @@ do iSym=kksym,kkksym
 
   if (CI) then
 
-    ! CIDia calculates the <i|H|i> elements (diagonal)? From the CI-CI part of E?
+    ! CIDia_td calculates the <i|H|i> elements (diagonal)? From the CI-CI part of E?
 
     call CIDia_td(PState_Sym)
     irc = ipout(ipdia)
@@ -273,7 +273,7 @@ do iSym=kksym,kkksym
     ! dkap=Kap in matrix form
     call UnCompress(Kappa,dKappa,iSym)
 
-    ! DMinvCI is related to cidia and inverts the precond CI-CI
+    ! DMinvCI_td is related to cidia_td and inverts the precond CI-CI
     ! part of E
     ! Has to be modified: <i|H|i> --> <i|H|i>+w
 

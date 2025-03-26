@@ -11,7 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISGNB,ICNSTR,IAGRP,IBGRP,IOOS,PSSIGN,IPRNT)
+!#define _DEBUGPRINT_
+subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISGNB,ICNSTR,IAGRP,IBGRP,IOOS,PSSIGN)
 ! Obtain pointer abs(ICTSDT(I)) giving address of determinant I in
 ! STRING ordering for determinant I in CSF ordering.
 ! Going between the two formats can involve a sign change. this is
@@ -40,16 +41,13 @@ integer ISGNA(*), ISGNB(*)
 integer ICNSTR, IAGRP, IBGRP
 integer IOOS(*)
 real*8 PSSIGN
-integer IPRNT
 ! IWORK should at least be of length (MXDT+2)*NEL,
 ! where MXDT is the largest number of prototype determinants occuring
 ! in a single block.
 integer, allocatable :: LDTBL(:), LIA(:), LIB(:), SCR23(:)
-integer NTEST, MXDT, ITYP, ICNF, JDTABS, IPSFAC, ISGNAB, ICNBS0, IPBAS, IJKL_NUM, IDET, IOPEN, ICL, IOCC, IC, ICNBS, JDET, ISIGN, &
-        IABNUM
+integer MXDT, ITYP, ICNF, JDTABS, IPSFAC, ISGNAB, ICNBS0, IPBAS, IJKL_NUM, IDET, IOPEN, ICL, IOCC, IC, ICNBS, JDET, ISIGN, IABNUM
 
 NEL = NAEL+NBEL
-NTEST = 0000
 
 ! Local memory
 
@@ -93,16 +91,18 @@ do ITYP=1,NTYP
     ICNF = ICNF+1
     ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
     ! Check orbital occupancy with additional constraints
-    if (NTEST >= 10) write(6,*) ' IC ICNF ICNBS',IC,ICNF,ICNBS
-    call CNDET(ICONF(ICNBS),IPRODT(IPBAS),IDET,NEL,IOCC,IOPEN,ICL,LDTBL,IPRNT)
+#   ifdef _DEBUGPRINT_
+    write(6,*) ' IC ICNF ICNBS',IC,ICNF,ICNBS
+#   endif
+    call CNDET_MCLR(ICONF(ICNBS),IPRODT(IPBAS),IDET,NEL,IOCC,IOPEN,ICL,LDTBL)
     ! Separate determinants into strings and determine string number.
     do JDET=1,IDET
       !write(117,'(1X,I8,1X,A,1X)',advance='no') ITYP,'ITYP'  ! yma
       JDTABS = JDTABS+1
-      call DETSTR_MCLR(LDTBL(1+(JDET-1)*NEL),LIA,LIB,NEL,NAEL,NBEL,NORB,ISIGN,SCR23,IPRNT)
+      call DETSTR_MCLR(LDTBL(1+(JDET-1)*NEL),LIA,LIB,NEL,NAEL,NBEL,NORB,ISIGN,SCR23)
       ijkl_num = ijkl_num+1
       ! Find number (and sign)of this determinant in string ordering
-      ICTSDT(JDTABS) = IABNUM(LIA,LIB,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN,IPRNT)
+      ICTSDT(JDTABS) = IABNUM(LIA,LIB,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN)
       if (dble(ISIGN*ISGNAB*IPSFAC) == -1.0d0) ICTSDT(JDTABS) = -ICTSDT(JDTABS)
     end do
   end do

@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MXRESC(IAB,IACLS,IBCLS,NOCTPA,NOCTPB,NSMST,NSSOA,NSSOB,KCLS,KSSOA,KOCTPA,KSSOB,KOCTPB,NSMOB,MXPTOB,NTPOB,NTSOB,NTESTG, &
-                  MXPKA,K2SSOA,K2OCTPA,K2SSOB,K2OCTPB,NAEL123,NBEL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
+subroutine MXRESC(IAB,IACLS,IBCLS,NOCTPA,NOCTPB,NSMST,NSSOA,NSSOB,KCLS,KSSOA,KOCTPA,KSSOB,KOCTPB,NSMOB,MXPTOB,NTPOB,NTSOB,MXPKA, &
+                  K2SSOA,K2OCTPA,K2SSOB,K2OCTPB,NAEL123,NBEL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
 ! Find largest dimension of matrix C(Ka,Ib,J)
 ! Find largest dimension of matrix C(ij,Ka,Ib)
 ! Find largest dimension of matrix C(ij,Ia,Kb)
@@ -31,7 +31,7 @@ subroutine MXRESC(IAB,IACLS,IBCLS,NOCTPA,NOCTPB,NSMST,NSSOA,NSSOB,KCLS,KSSOA,KOC
 !    koctps,koctpb
 !    nsmob
 !    mxtpob,ntpob,ntsob
-!    ntestg,mxpka
+!    mxpka
 !    k2ssoa,k2ssob
 !    k2octpb
 !    nael123,nbel123
@@ -334,9 +334,6 @@ MXIJSTF = max(MXIJSTAF,MXIJSTBF)
 
 return
 ! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(KCLS)
-  call Unused_integer(NTESTG)
-end if
+if (.false.) call Unused_integer(KCLS)
 
 end subroutine MXRESC

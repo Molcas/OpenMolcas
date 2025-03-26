@@ -11,7 +11,7 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,IXBOFF,JXBOFF,SXCR,IROUTE,NTEST)
+subroutine SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,IXBOFF,JXBOFF,SXCR,IROUTE)
 ! Calculate S(Ka,Ib,i) = S(Ka,Ib,i)
 !          +SUM(j,k,l,Kb) <Ib!a+ kb!Kb><Kb!a lb !Jb>*(ij!kl)*C(Ka,Jb,j)
 !
@@ -33,7 +33,7 @@ integer KBJB(MAXK,*)
 real*8 XKBJB(MAXK,*)
 integer IKORD, IXBOFF, JXBOFF
 real*8 SXCR
-integer IROUTE, NTEST
+integer IROUTE
 !. Input and output
 real*8 SKII(NKA*NI,*)
 ! Note if Iroute = 2 the form is S(i,Ka,Ib)
@@ -199,7 +199,6 @@ if (.false.) then
   call Unused_integer(IXBOFF)
   call Unused_integer(JXBOFF)
   call Unused_real(SXCR)
-  call Unused_integer(NTEST)
 end if
 
 end subroutine SKICKJ_MCLR

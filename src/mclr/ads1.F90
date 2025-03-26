@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ADS1(NK,I1,XI1S,LI1,IORB,LORB,ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMAP,IEL1,IEL3,I1EL1,I1EL3,ISSO,NSSO,I1SSO,N1SSO, &
                 NOCTP,N1OCTP,NORB1,NORB2,NORB3,ORBSM,NORB,KMAX,KMIN,IEND)
 ! Obtain I1(KSTR) = +/- A+ IORB !KSTR>
@@ -63,16 +64,15 @@ integer I1(*)
 dimension XI1S(*)
 
 LDIM = 0 ! dummy initialize
-NTEST = 000
-if (NTEST /= 0) then
-  write(6,*) ' =============='
-  write(6,*) ' ADSTS speaking'
-  write(6,*) ' =============='
-  write(6,*) ' IORB,ISM,ICLS',IORB,ISM,ICLS
-  write(6,*) ' IMPF, LMAP ',IMPF,LMAP
-  write(6,*) ' N1SSO :'
-  call IWRTMA(N1SSO,N1OCTP,8,N1OCTP,8)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' =============='
+write(6,*) ' ADSTS speaking'
+write(6,*) ' =============='
+write(6,*) ' IORB,ISM,ICLS',IORB,ISM,ICLS
+write(6,*) ' IMPF, LMAP ',IMPF,LMAP
+write(6,*) ' N1SSO :'
+call IWRTMA(N1SSO,N1OCTP,8,N1OCTP,8)
+#endif
 NK = KMAX-KMIN+1
 ! Type of kstrings
 if (IORB <= NORB1) then
@@ -154,20 +154,20 @@ do IIORB=IORB,IORB+LORB-1
 end do
 101 continue
 
-if (NTEST > 0) then
-  write(6,*) ' Output from ASTR'
-  write(6,*) ' ================'
-  write(6,*) ' Number of K strings accessed ',NK
-  if (NK /= 0) then
-    do IIORB=IORB,IORB+LORB-1
-      IIORBR = IIORB-IORB+1
-      write(6,*) ' Info for orbital ',IIORB
-      write(6,*) ' Excited strings and sign'
-      call IWRTMA(I1(1+(IIORBR-1)*LDIM),1,NK,1,NK)
-      call WRTMAT(XI1S(1+(IIORBR-1)*LDIM),1,NK,1,NK)
-    end do
-  end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Output from ASTR'
+write(6,*) ' ================'
+write(6,*) ' Number of K strings accessed ',NK
+if (NK /= 0) then
+  do IIORB=IORB,IORB+LORB-1
+    IIORBR = IIORB-IORB+1
+    write(6,*) ' Info for orbital ',IIORB
+    write(6,*) ' Excited strings and sign'
+    call IWRTMA(I1(1+(IIORBR-1)*LDIM),1,NK,1,NK)
+    call WRTMAT(XI1S(1+(IIORBR-1)*LDIM),1,NK,1,NK)
+  end do
 end if
+#endif
 
 return
 ! Avoid unused argument warnings

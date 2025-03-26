@@ -11,7 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine ICISPS(IPRNT)
+!#define _DEBUGPRINT_
+subroutine ICISPS()
 ! Number of dets and combinations
 ! per symmetry for each type of internal space
 !
@@ -31,9 +32,8 @@ use Constants, only: Zero
 use input_mclr, only: nIrrep
 
 implicit none
-integer IPRNT
 ! local variables
-integer MXCEXP, ICI, ISYM, IATP, IBTP, IIDC, NTEST, MX, MXS, MXSOO, NCOMB
+integer MXCEXP, ICI, ISYM, IATP, IBTP, IIDC, MXS, MXSOO, NCOMB
 real*8 XNCOMB
 integer, allocatable :: LBLTP(:), LCVST(:)
 
@@ -80,26 +80,19 @@ end do
 call mma_deallocate(LCVST)
 call mma_deallocate(LBLTP)
 
-NTEST = 0000
-NTEST = max(NTEST,IPRNT)
-if (ntest /= 0) then
-  write(6,*) ' Number of internal combinations per symmetry'
-  write(6,*) ' ==========================================='
-  if (NTEST == 0) then
-    MX = 1
-  else
-    MX = NICISP
-  end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Number of internal combinations per symmetry'
+write(6,*) ' ==========================================='
 
-  do ICI=1,MX
-    if (IACTI(ICI) == 1) then
-      write(6,*) ' Internal CI space ',ICI
-      call WRTMAT(XISPSM(1,ICI),1,nIrrep,1,nIrrep)
-    end if
-  end do
-  write(6,*) ' Largest CI space                 ',MXCEXP
-  write(6,*) ' Largest symmetry block           ',MXSB
-  write(6,*) ' Largest Symmetry-type-type block ',MXSOOB
-end if
+do ICI=1,NICISP
+  if (IACTI(ICI) == 1) then
+    write(6,*) ' Internal CI space ',ICI
+    call WRTMAT(XISPSM(1,ICI),1,nIrrep,1,nIrrep)
+  end if
+end do
+write(6,*) ' Largest CI space                 ',MXCEXP
+write(6,*) ' Largest symmetry block           ',MXSB
+write(6,*) ' Largest Symmetry-type-type block ',MXSOOB
+#endif
 
 end subroutine ICISPS

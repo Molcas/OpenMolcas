@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSTART(AREF,EREF,CI,ICI)
+subroutine CSTART_MRCI(AREF,EREF,CI,ICI)
 
 use mrci_global, only: ESHIFT, GFAC, IAD25S, ICPF, IDFREE, IDISKC, IDISKD, IDISKS, IREFX, IREST, IROOT, Lu_25, LUEIG, LUREST, &
                        MBUF, MXVEC, NCONF, NNEW, NREF, NRROOT, NSTOT, NVTOT, POTNUC
@@ -127,4 +127,4 @@ NSTOT = 0
 
 return
 
-end subroutine CSTART
+end subroutine CSTART_MRCI

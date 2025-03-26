@@ -42,9 +42,6 @@ integer i1, iAnders, lconf, lldet, iAllo
 ! Stuff from incdia.fh
 integer ipdia
 
-! Print flags from MCLR_Data.fh
-integer IPRSTR, IPRCIX, IPRORB, IPRDIA, IPRXT, IPRANA
-
 ! Stuff from sa.fh
 logical Fancy_Preconditioner, SA, esterr, isNAC, override
 logical isMECIMSPD

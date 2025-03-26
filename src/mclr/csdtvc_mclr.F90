@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSDTVC_MCLR(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY,IPRNT)
+subroutine CSDTVC_MCLR(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY)
 ! IWAY = 1 : CSF to DETERMINANT TRANSFORMATION
 ! IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
 !
@@ -25,7 +25,7 @@ real*8 CSFVEC(*), DETVEC(*)
 integer IWAY
 real*8 DTOCMT(*)
 integer ICTSDT(*)
-integer IREFSM, ICOPY, IPRNT
+integer IREFSM, ICOPY
 integer IOFFCS, IOFFDT, IOFFCD, NDET, NCSF, ITYP, IDET, ICSF, ICNF
 
 IOFFCS = 0 ! dummy initialize
@@ -92,8 +92,5 @@ else
   end do
   if (ICOPY /= 0) DETVEC(1:NCSF) = CSFVEC(1:NCSF)
 end if
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(IPRNT)
 
 end subroutine CSDTVC_MCLR

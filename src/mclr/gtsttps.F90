@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GTSTTPS(IEL1,IEL3,NEL1,NEL3,NTYP,ITYP,IWAY)
 ! ITYP : type of strings with IEL1,IEL3 electrons
 !
@@ -36,8 +37,9 @@ else if (IWAY == 2) then
   IEL3 = NEL3(ITYP)
 end if
 
-NTEST = 0
-if (NTEST >= 100) write(6,'(A,5I4)') ' GSTTPS : IWAY IEL1 IEL3 ITYP ',IWAY,IEL1,IEL3,ITYP
+#ifdef _DEBUGPRINT_
+write(6,'(A,5I4)') ' GSTTPS : IWAY IEL1 IEL3 ITYP ',IWAY,IEL1,IEL3,ITYP
+#endif
 
 return
 

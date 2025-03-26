@@ -11,6 +11,7 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB,NSMST,IENSM,IENTA,IENTB,IACOOS,MXLNG,IFINI,NBLOCK,INCFST,IOCOC)
 ! Obtain Number of OOS blocks that can be included
 ! IN MXLNG word starting from block after ISTSM,ISTTA,ISTTB
@@ -31,20 +32,19 @@ integer IBLTP(*)
 ! Output
 integer IACOOS(NOCTPA,NOCTPB,NSMST)
 
-NTEST = 00
-if (NTEST >= 100) then
-  write(6,*)
-  write(6,*) ' ================'
-  write(6,*) ' INCOOS in action'
-  write(6,*) ' ================'
-  write(6,*)
-  write(6,*) ' NOOS(NOCTPA,NOCTPB,NSMST) array (input)'
-  write(6,*)
-  do ISMST=1,NSMST
-    write(6,*) ' ISMST = ',ISMST
-    call IWRTMA(NOOS(1,1,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(6,*)
+write(6,*) ' ================'
+write(6,*) ' INCOOS in action'
+write(6,*) ' ================'
+write(6,*)
+write(6,*) ' NOOS(NOCTPA,NOCTPB,NSMST) array (input)'
+write(6,*)
+do ISMST=1,NSMST
+  write(6,*) ' ISMST = ',ISMST
+  call IWRTMA(NOOS(1,1,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+end do
+#endif
 
 IPA = 0
 IPB = 0
@@ -121,18 +121,16 @@ if ((IFINI == 0) .and. (NBLOCK == 0)) then
   call SYSABENDMSG('lucia_util/incoos','Internal error',' ')
 end if
 
-if (NTEST /= 0) then
-  write(6,*) 'Output from INCOOS'
-  write(6,*) '=================='
-  write(6,*) ' Length and number of included blocks ',LENGTH,NBLOCK
-end if
-if (NTEST >= 2) then
-  do ISM=ISTSM,IENSM
-    write(6,*) ' Active blocks of symmetry ',ISM
-    call IWRTMA(IACOOS(1,1,ISM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  end do
-  if (IFINI == 1) write(6,*) ' No new blocks'
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) 'Output from INCOOS'
+write(6,*) '=================='
+write(6,*) ' Length and number of included blocks ',LENGTH,NBLOCK
+do ISM=ISTSM,IENSM
+  write(6,*) ' Active blocks of symmetry ',ISM
+  call IWRTMA(IACOOS(1,1,ISM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+end do
+if (IFINI == 1) write(6,*) ' No new blocks'
+#endif
 
 return
 

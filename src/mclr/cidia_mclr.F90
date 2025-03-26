@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine CIDIA(iSym,ralp)
+subroutine CIDIA_MCLR(iSym,ralp)
 
 use Exp, only: nexp, nexp_max
 use Str_Info, only: CNSM
@@ -30,7 +30,7 @@ integer iSym
 real*8 ralp
 integer iSM(1), LSPC(1), iSPC(1), IDUM(1)
 real*8, allocatable :: Q(:)
-integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI, nP2, nP1, nQ, iC, iPrnt
+integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI, nP2, nP1, nQ, iC
 real*8 ECAS
 real*8, external :: DDot_
 integer, external :: ipClose, ipGet, ipIn, ipnOut
@@ -74,7 +74,7 @@ end if
 LSPC(1) = nSD
 irc = ipin(ipDSDi)
 call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
-if (NOCSF /= 1) call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM,IPRNT)
+if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM)
 
 if (NOCSF == 0) irc = ipclose(ipDSDi)
 
@@ -122,4 +122,4 @@ ipdia = ipdiai
 if (.false.) call Unused_integer(irc)
 #endif
 
-end subroutine CIDIA
+end subroutine CIDIA_MCLR

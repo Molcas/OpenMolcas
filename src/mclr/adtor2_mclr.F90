@@ -11,6 +11,7 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine AdToR2_MCLR(RHO2,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 ! Add contributions to two electron density matrix RHO2
 ! output density matrix is in the form Rho2(ij,kl),(ij) >= (kl)
@@ -44,35 +45,32 @@ LLOFF = 0
 SIGN = 0.0d0
 IACTIVE = 0
 
-NTEST = 000
-if (NTEST >= 100) then
-  write(6,*) ' Welcome to ADTOR2'
-  write(6,*) ' ================='
-  write(6,*) ' NI NJ NK NL = ',NI,NJ,NK,NL
-  write(6,*) ' IOFF JOFF KOFF LOFF =',IOFF,JOFF,KOFF,LOFF
-  write(6,*) ' ITYPE = ',ITYPE
-  if (NTEST >= 1000) then
-    write(6,*) ' Initial two body density matrix'
-    call PRSYM(RHO2,NORB**2)
-  end if
-  write(6,*) ' RHO2T :'
-  !if (ITYPE == 1) then
-  !  if (IOFF == KOFF) then
-  !    NROW = NI*(NI+1)/2
-  !  else
-  !    NROW = NI*NK
-  !  end if
-  !  if (JOFF == LOFF) then
-  !    NCOL = NJ*(NJ+1)/2
-  !  else
-  !    NCOL = NJ*NL
-  !  end if
-  !else if (ITYPE == 2) then
-  !  NROW = NI*NJ
-  !  NCOL = NK*NL
-  !end if
-  !call WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Welcome to ADTOR2'
+write(6,*) ' ================='
+write(6,*) ' NI NJ NK NL = ',NI,NJ,NK,NL
+write(6,*) ' IOFF JOFF KOFF LOFF =',IOFF,JOFF,KOFF,LOFF
+write(6,*) ' ITYPE = ',ITYPE
+write(6,*) ' Initial two body density matrix'
+call PRSYM(RHO2,NORB**2)
+!write(6,*) ' RHO2T :'
+!if (ITYPE == 1) then
+!  if (IOFF == KOFF) then
+!    NROW = NI*(NI+1)/2
+!  else
+!    NROW = NI*NK
+!  end if
+!  if (JOFF == LOFF) then
+!    NCOL = NJ*(NJ+1)/2
+!  else
+!    NCOL = NJ*NL
+!  end if
+!else if (ITYPE == 2) then
+!  NROW = NI*NJ
+!  NCOL = NK*NL
+!end if
+!call WRTMAT(RHO2T,NROW,NCOL,NROW,NCOL)
+#endif
 
 if (ITYPE == 1) then
 
@@ -263,10 +261,10 @@ end if
 !iA4 = itri((j-1)*nOrb+i,(l-1)*nOrb+k)
 !rfel = RHO2(ia1)+RHO2(ia2)+RHO2(ia3)+RHO2(ia4)
 !if (rfel /= 0.0D0) write(6,*) 'STOP'
-!if (NTEST >= 1000) then
-!  write(6,*) ' Updated two-body density matrix'
-!  call PRSYM(RHO2,NORB**2)
-!end if
+!#ifdef _DEBUGPRINT_
+!write(6,*) ' Updated two-body density matrix'
+!call PRSYM(RHO2,NORB**2)
+!#endif
 
 return
 

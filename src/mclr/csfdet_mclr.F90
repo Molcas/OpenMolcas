@@ -11,7 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CSFDET_MCLR(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN,IPRCSF)
+!#define _DEBUGPRINT_
+subroutine CSFDET_MCLR(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN)
 ! Expand csf's in terms of combinations with
 ! the use of the Graebenstetter method (I.J.Q.C.10,P142(1976))
 !
@@ -41,14 +42,11 @@ integer NOPEN, NDET, NCSF
 integer IDET(NOPEN,NDET), ICSF(NOPEN,NCSF)
 real*8 CDC(NDET,NCSF)
 real*8 PSSIGN
-integer IPRCSF
 ! Local variables
 real*8, allocatable :: LMDET(:), lSCSF(:)
-integer NTEST, JDET, JDADD, IOPEN, JCSF
+integer JDET, JDADD, IOPEN, JCSF
 real*8 CMBFAC, COEF, SIGN
 
-NTEST = 0000
-NTEST = max(IPRCSF,NTEST)
 if (PSSIGN == 0.0d0) then
   CMBFAC = 1.0d0
 else
@@ -63,7 +61,9 @@ do JDET=1,NDET
 end do
 
 do JCSF=1,NCSF
-  if (NTEST >= 105) write(6,*) ' ....Output for CSF ',JCSF
+# ifdef _DEBUGPRINT_
+  write(6,*) ' ....Output for CSF ',JCSF
+# endif
 
   ! OBTAIN INTERMEDIATE COUPLINGS FOR CSF
   call MSSTRN_MCLR(ICSF(1,JCSF),LSCSF,NOPEN)
@@ -97,11 +97,11 @@ end do
 call mma_deallocate(LSCSF)
 call mma_deallocate(LMDET)
 
-if (NTEST >= 5) then
-  write(6,*)
-  write(6,'(A,2I2)') '  The CDC array for  NOPEN ',NOPEN
-  write(6,*)
-  call WRTMAT(CDC,NDET,NCSF,NDET,NCSF)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*)
+write(6,'(A,2I2)') '  The CDC array for  NOPEN ',NOPEN
+write(6,*)
+call WRTMAT(CDC,NDET,NCSF,NDET,NCSF)
+#endif
 
 end subroutine CSFDET_MCLR

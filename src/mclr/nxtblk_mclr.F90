@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NXTBLK_MCLR(IATP,IBTP,IASM,NOCTPA,NOCTPB,NSMST,IBLTP,IDC,NONEW,IOCOC)
 ! Obtain allowed block following IATP IBTP IASM
 
@@ -49,8 +50,9 @@ IATP = IA
 IBTP = IB
 IASM = ISM
 
-NTEST = 0
-if (NTEST /= 0) write(6,'(A,4I4)') ' NXTBLK : ISM IA IB NONEW ',IASM,IA,IB,NONEW
+#ifdef _DEBUGPRINT_
+write(6,'(A,4I4)') ' NXTBLK : ISM IA IB NONEW ',IASM,IA,IB,NONEW
+#endif
 
 return
 

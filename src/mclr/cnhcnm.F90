@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,NRCSF,SCR,ICONF,NEL,IREFSM,NAEL,NBEL,NINOB,NACOB,ECORE,IPRODT,DTOC, &
-                  INTSPC,ICOMBI,PSSIGN,NTEST)
+                  INTSPC,ICOMBI,PSSIGN)
 ! Calculate  Hamiltonian block defined by configuration
 ! lists ILCNF,IRCNF
 ! If ISYM /= 0 only the lower half of the matrix is constructed
@@ -24,7 +24,7 @@ subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,NRCSF,SCR,ICONF,NEL,IR
 ! ================
 
 implicit none
-integer ISYM, NLCNF, NRCNF, NLCSF, NRCSF, NEL, IREFSM, NAEL, NBEL, NINOB, NACOB, INTSPC, ICOMBI, NTEST
+integer ISYM, NLCNF, NRCNF, NLCSF, NRCSF, NEL, IREFSM, NAEL, NBEL, NINOB, NACOB, INTSPC, ICOMBI
 real*8 ECORE, PSSIGN
 ! Specific input
 integer ILCNF(*), IRCNF(*)
@@ -85,7 +85,7 @@ subroutine CNHCNM_INTERNAL(SCR)
   call c_f_pointer(c_loc(SCR(KLCONF)),iSCRl,[1])
   call c_f_pointer(c_loc(SCR(KRCONF)),iSCRr,[1])
   do ICNL=1,NLCNF
-    call GETCNF(iSCRl,ILTYP,ILCNF(ICNL),ICONF,IREFSM,NEL,NTEST)
+    call GETCNF_MCLR(iSCRl,ILTYP,ILCNF(ICNL),ICONF,IREFSM,NEL)
     NCSFL = NCPCNT(ILTYP)
     IIRB = 1
     if (ISYM == 0) then
@@ -94,10 +94,10 @@ subroutine CNHCNM_INTERNAL(SCR)
       MXR = ICNL
     end if
     do ICNR=1,MXR
-      call GETCNF(iSCRr,IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL,NTEST)
+      call GETCNF_MCLR(iSCRr,IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL)
       NCSFR = NCPCNT(IRTYP)
       call CNHCN2(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,NINOB,ECORE,IPRODT,DTOC,NACOB,ICOMBI, &
-                  PSSIGN,NTERMS,MDIF0,MDIF1,MDIF2,NTEST)
+                  PSSIGN,NTERMS,MDIF0,MDIF1,MDIF2)
       NDIF0 = NDIF0+MDIF0
       NDIF1 = NDIF1+MDIF1
       NDIF2 = NDIF2+MDIF2

@@ -252,7 +252,7 @@ if (iSym /= iSym_Old) then
   !       Calculate the diagonal of E    and store in core/disc
 
   if (CI) then
-    call CIDia(PState_Sym,rCHC)
+    call CIDia_MCLR(PState_Sym,rCHC)
     irc = ipout(ipdia)
 
     ! Allocate disk/memory space

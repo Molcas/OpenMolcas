@@ -9,20 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,ICTL,ieaw)
 ! Outer routine for accessing integral block
 
 use Arrays, only: pInt2, KINT2, KINT2a
 use MCLR_Data, only: Square
+#ifdef _DEBUGPRINT_
 use MCLR_Data, only: NOBPTS
+#endif
 use input_mclr, only: nsMOB
 
 implicit none
 real*8 XINT(*)
 integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM, ICTL, ieaw
-integer nTest, iXChng, iCoul, nI, nK, nIK, nJ, nL, nJL, nIJ, nKL
-
-NTEST = 0
+integer iXChng, iCoul
+#ifdef _DEBUGPRINT_
+integer nI, nK, nIK, nJ, nL, nJL, nIJ, nKL
+#endif
 
 !write(6,*) 'square in getint_td',square
 if (.not. square) then
@@ -42,35 +46,34 @@ else
 
 end if
 
-if (NTEST /= 0) then
-  NI = NOBPTS(ITP,ISM)
-  NK = NOBPTS(KTP,KSM)
-  if (IKSM == 0) then
-    NIK = NI*NK
-  else
-    NIK = NI*(NI+1)/2
-  end if
-  NJ = NOBPTS(JTP,JSM)
-  NL = NOBPTS(LTP,LSM)
-  if (JLSM == 0) then
-    NJL = NJ*NL
-  else
-    NJL = NJ*(NJ+1)/2
-  end if
-  if (ICOUL == 0) then
-    write(6,*) ' 2 electron integral block for TS blocks'
-    write(6,*) ' Ixchng :',IXCHNG
-    write(6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
-    call WRTMAT(XINT,NIK,NJL,NIK,NJL)
-  else
-    write(6,*) ' Integrals in Coulomb form'
-    write(6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
-    NIJ = NI*NJ
-    NKL = NK*NL
-    call WRTMAT(XINT,NIJ,NKL,NIJ,NKL)
-  end if
-
+#ifdef _DEBUGPRINT_
+NI = NOBPTS(ITP,ISM)
+NK = NOBPTS(KTP,KSM)
+if (IKSM == 0) then
+  NIK = NI*NK
+else
+  NIK = NI*(NI+1)/2
 end if
+NJ = NOBPTS(JTP,JSM)
+NL = NOBPTS(LTP,LSM)
+if (JLSM == 0) then
+  NJL = NJ*NL
+else
+  NJL = NJ*(NJ+1)/2
+end if
+if (ICOUL == 0) then
+  write(6,*) ' 2 electron integral block for TS blocks'
+  write(6,*) ' Ixchng :',IXCHNG
+  write(6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
+  call WRTMAT(XINT,NIK,NJL,NIK,NJL)
+else
+  write(6,*) ' Integrals in Coulomb form'
+  write(6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
+  NIJ = NI*NJ
+  NKL = NK*NL
+  call WRTMAT(XINT,NIJ,NKL,NIJ,NKL)
+end if
+#endif
 
 !stop ' Jeppe forced me to stop in GETINT'
 

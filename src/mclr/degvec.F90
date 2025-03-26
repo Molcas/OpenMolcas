@@ -11,6 +11,7 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine DEGVEC(VEC,NDIM,NDGVL,IDEG)
 ! A vector VEC is given with elements in ascending order
 ! group elements in degenerate pairs
@@ -56,15 +57,14 @@ end do
 NDGVL = NDGVL+1
 IDEG(NDGVL) = NDEG
 
-NTEST = 0
-if (NTEST > 0) then
-  write(6,*) ' Output from DEGVEC'
-  write(6,*) ' =================='
-  write(6,*)
-  write(6,*) ' Number of degenerate values ',NDGVL
-  write(6,*) ' Degenerencies of each value'
-  call IWRTMA(IDEG,1,NDGVL,1,NDGVL)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Output from DEGVEC'
+write(6,*) ' =================='
+write(6,*)
+write(6,*) ' Number of degenerate values ',NDGVL
+write(6,*) ' Degenerencies of each value'
+call IWRTMA(IDEG,1,NDGVL,1,NDGVL)
+#endif
 
 return
 

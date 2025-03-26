@@ -11,6 +11,7 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine NRASDT(MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,NSMST,NOCTPA,NOCTPB,IEL1A,IEL1B,NSSOA,NSSOB,IEL3A,IEL3B,NCOMB,XNCOMB,MXSB,MXSOOB, &
                   IBLTP)
 ! Number of combimations with symmetry ITOTSM and
@@ -37,7 +38,7 @@ real*8 XNCOMB
 integer MXSB, MXSOOB
 integer IBLTP(*)
 ! local variables
-integer IASM, LSB, IBSM, ISYM, IATP, MXBTP, IBTP, IEL1, IEL3, LTTSBL, LTTSUP, NTEST
+integer IASM, LSB, IBSM, ISYM, IATP, MXBTP, IBTP, IEL1, IEL3, LTTSBL, LTTSUP
 
 MXSB = 0
 MXSOOB = 0
@@ -87,7 +88,8 @@ do IASM=1,NSMST
 300 continue
 end do
 
-NTEST = 0
-if (NTEST /= 0) write(6,*) ' NCOMB and XNCOMB ',NCOMB,XNCOMB
+#ifdef _DEBUGPRINT_
+write(6,*) ' NCOMB and XNCOMB ',NCOMB,XNCOMB
+#endif
 
 end subroutine NRASDT

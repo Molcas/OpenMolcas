@@ -11,7 +11,7 @@
 ! Copyright (C) 2002, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GETCNF_LUCIA(KCNF,KTYP,K,ICONF,IREFSM,NEL)
+subroutine GETCNF(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 ! Obtain configuration number K .
 ! Occupation in KCNF in form of old RASSCF ( doubly occ orbs first)
 ! Type in KTYP
@@ -79,4 +79,4 @@ end if
 
 return
 
-end subroutine GETCNF_LUCIA
+end subroutine GETCNF

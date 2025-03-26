@@ -13,7 +13,7 @@
 
 subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,IAEL1,IAEL3,JAEL1,JAEL3,IBEL1,IBEL3, &
                         JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST, &
-                        NSMSX,NSMDX,MXPOBS,IUSEAB,ICJKAIB,CJRES,SIRES,S2,NTEST,ISIGN,ieaw,TimeDep)
+                        NSMSX,NSMDX,MXPOBS,IUSEAB,ICJKAIB,CJRES,SIRES,S2,ISIGN,ieaw,TimeDep)
 ! Combined alpha-beta double excitation
 ! contribution from given C block to given S block
 ! If IUSAB only half the terms are constructed
@@ -266,7 +266,7 @@ do IJTYP=1,NIJTYP
           if (ISIGN == -1) call DSCAL_(NI*NJ*NK*NL,ONEM,XINT,1)
           IFIRST = 0
         end if
-        call SKICKJ_MCLR(SIRES,CJRES,NKABTC,NIB,NJB,NKBBTC,XINT,NI,NJ,NK,NL,MAXK,I4,XI4S,I2,XI2S,IKORD,IDUM,iXDUM,XDUM,IROUTE,NTEST)
+        call SKICKJ_MCLR(SIRES,CJRES,NKABTC,NIB,NJB,NKBBTC,XINT,NI,NJ,NK,NL,MAXK,I4,XI4S,I2,XI2S,IKORD,IDUM,iXDUM,XDUM,IROUTE)
 
         if (KBEND == 0) goto 1800
         ! End of loop over partitioning of beta strings

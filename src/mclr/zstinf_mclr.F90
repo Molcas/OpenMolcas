@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ZSTINF_MCLR(IPRNT)
+!#define _DEBUGPRINT_
+subroutine ZSTINF_MCLR()
 ! Set up common block /STINF/ from information in /STINP/
 !
 !=========
@@ -41,15 +42,14 @@ subroutine ZSTINF_MCLR(IPRNT)
 
 use Str_Info, only: NSTTYP, INUMAP, INDMAP, ISTAC, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, NSTFTP
 use MCLR_Data, only: NORB1, NORB2, NORB3
+#ifdef _DEBUGPRINT_
 use DetDim, only: MXPSTT
+#endif
 
 implicit none
-integer IPRNT
 ! Local variables
-integer NTEST, ITYP, NUMST3
+integer ITYP, NUMST3
 
-NTEST = 0000
-NTEST = max(NTEST,IPRNT)
 ! *****************************************************************
 ! Mappings between strings with the same type ISTTP index, +/- 1 el
 ! *****************************************************************
@@ -61,31 +61,31 @@ do ITYP=1,NSTTYP-1
   end if
 end do
 
-if (NTEST /= 0) then
-  write(6,*) ' Type - type mapping array ISTAC'
-  write(6,*) ' ==============================='
-  call IWRTMA(ISTAC,NSTTYP,2,MXPSTT,2)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Type - type mapping array ISTAC'
+write(6,*) ' ==============================='
+call IWRTMA(ISTAC,NSTTYP,2,MXPSTT,2)
+#endif
 ! *************************************************
 ! Number of occupation classes and strings per type
 ! *************************************************
 do ITYP=1,NSTTYP
   NOCTYP(ITYP) = (MXRS1(ITYP)-MNRS1(ITYP)+1)*(MXRS3(ITYP)-MNRS3(ITYP)+1)
 end do
-if (NTEST /= 0) then
-  write(6,*) ' Number of occupation classes per type'
-  write(6,*) ' ====================================='
-  call IWRTMA(NOCTYP,1,NSTTYP,1,NSTTYP)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Number of occupation classes per type'
+write(6,*) ' ====================================='
+call IWRTMA(NOCTYP,1,NSTTYP,1,NSTTYP)
+#endif
 
 do ITYP=1,NSTTYP
   NSTFTP(ITYP) = NUMST3(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP))
 end do
-if (NTEST /= 0) then
-  write(6,*) ' Number of strings per  type'
-  write(6,*) ' ==========================='
-  call IWRTMA(NSTFTP,1,NSTTYP,1,NSTTYP)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Number of strings per  type'
+write(6,*) ' ==========================='
+call IWRTMA(NSTFTP,1,NSTTYP,1,NSTTYP)
+#endif
 ! ****************************************************************
 ! Mappings between strings containing the same number of electrons
 ! ****************************************************************
@@ -124,12 +124,12 @@ INDMAP(:) = 0
 !  end do
 !end do
 
-if (NTEST /= 0) then
-  write(6,*) ' Up mappings of string types'
-  call IWRTMA(INUMAP,1,NSTTYP,1,NSTTYP)
-  write(6,*) ' Down mappings of string types'
-  call IWRTMA(INDMAP,1,NSTTYP,1,NSTTYP)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' Up mappings of string types'
+call IWRTMA(INUMAP,1,NSTTYP,1,NSTTYP)
+write(6,*) ' Down mappings of string types'
+call IWRTMA(INDMAP,1,NSTTYP,1,NSTTYP)
+#endif
 
 return
 

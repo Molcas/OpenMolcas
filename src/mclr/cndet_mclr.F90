@@ -11,7 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CNDET_MCLR(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,IDET,IPRNT)
+!#define _DEBUGPRINT_
+subroutine CNDET_MCLR(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,IDET)
 ! A configuration ICONF in compressed form and a set of
 ! prototype determinants,IPDET, are given.
 !
@@ -26,25 +27,27 @@ integer ICONF(*)
 integer IPDET(*)
 integer NORB, NOP, NCL
 integer IDET(NEL,*)
-integer IPRNT
 ! local variables
-integer NTEST, ICL, IBASE, JDET, NDET, IADD, IOP, IADR
+integer ICL, IBASE, JDET, NDET, IADD, IOP, IADR
+
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(NORB)
+#endif
 
 ! POSITIVE NUMBER: ALPHA ORBITAL
 ! NEGATIVE NUMBER: BETA  ORBITAL
 
-NTEST = 0
-NTEST = max(IPRNT,NTEST)
-if (NTEST > 200) then
-  if (NCL /= 0) then
-    write(6,*) ' DOUBLE OCCUPIED ORBITALS'
-    call IWRTMA(ICONF,1,NCL,1,NCL)
-  end if
-  if (NOP /= 0) then
-    write(6,*) ' OPEN ORBITALS'
-    call IWRTMA(ICONF(1+NCL),1,NOP,1,NOP)
-  end if
+#ifdef _DEBUGPRINT_
+if (NCL /= 0) then
+  write(6,*) ' DOUBLE OCCUPIED ORBITALS'
+  call IWRTMA(ICONF,1,NCL,1,NCL)
 end if
+if (NOP /= 0) then
+  write(6,*) ' OPEN ORBITALS'
+  call IWRTMA(ICONF(1+NCL),1,NOP,1,NOP)
+end if
+#endif
 
 !1  DOUBLY OCCUPIED ORBITALS ARE PLACED FIRST
 
@@ -69,13 +72,13 @@ end do
 
 !3  OUTPUT
 
-if (NTEST >= 200) then
-  write(6,*) ' CONFIGURATION FROM DETCON'
-  call IWRTMA(ICONF,1,NORB,1,NORB)
-  write(6,*) ' PROTO TYPE DETERMINANTS'
-  if (NOP*NDET > 0) call IWRTMA(IPDET,NOP,NDET,NOP,NDET)
-  if (NEL*NDET > 0) write(6,*) ' CORRESPONDING DETERMINANTS'
-  call IWRTMA(IDET,NEL,NDET,NEL,NDET)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*) ' CONFIGURATION FROM DETCON'
+call IWRTMA(ICONF,1,NORB,1,NORB)
+write(6,*) ' PROTO TYPE DETERMINANTS'
+if (NOP*NDET > 0) call IWRTMA(IPDET,NOP,NDET,NOP,NDET)
+if (NEL*NDET > 0) write(6,*) ' CORRESPONDING DETERMINANTS'
+call IWRTMA(IDET,NEL,NDET,NEL,NDET)
+#endif
 
 end subroutine CNDET_MCLR

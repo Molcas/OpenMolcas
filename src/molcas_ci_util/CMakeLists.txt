@@ -15,7 +15,7 @@ set (sources
      caspt2_global.F90
      check_invec.F90
      chksplit.F90
-     cidia_ci_util.F90
+     cidia.F90
      ciovlp.F90
      ciselect.F90
      cisx.F90
@@ -25,11 +25,11 @@ set (sources
      cndet.F90
      cnfstr.F90
      cnhcn.F90
-     csdiag_ci_util.F90
+     csdiag.F90
      csdtvc.F90
      csfbas.F90
      csfcount.F90
-     cstart_ci_util.F90
+     cstart.F90
      cxinit.F90
      davctl.F90
      davctl_mod.F90
@@ -57,7 +57,7 @@ set (sources
      get_d1a_rasscf.F90
      get_d1i_rasscf.F90
      get_umn.F90
-     getcnf_lucia.F90
+     getcnf.F90
      geth2a.F90
      getstepvector.F90
      gugactl.F90

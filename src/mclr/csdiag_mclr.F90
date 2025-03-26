@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSDIAG(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP,IFLAG,NCNFCN,ICNFOK,IPRNT)
+subroutine CSDIAG_MCLR(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP,IFLAG,NCNFCN,ICNFOK)
 ! obtain average CI diagonal elements and store in
 ! CSFDIA as CSF diagonal
 
@@ -44,7 +44,6 @@ if (.false.) then
   call Unused_integer(IFLAG)
   call Unused_integer(NCNFCN)
   call Unused_integer_array(ICNFOK)
-  call Unused_integer(IPRNT)
 end if
 
-end subroutine CSDIAG
+end subroutine CSDIAG_MCLR

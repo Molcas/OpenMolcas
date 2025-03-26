@@ -11,7 +11,7 @@
 ! Copyright (C) 1989, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GETCNF(KCNF,KTYP,K,ICONF,IREFSM,NEL,NTEST)
+subroutine GETCNF_MCLR(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 ! Obtain configuration number K.
 ! Occupation in KCNF
 ! Type in KTYP
@@ -23,7 +23,7 @@ use MCLR_Data, only: NTYP, MINOP, NCNATS
 implicit none
 ! General input
 integer KCNF(*)
-integer K, IREFSM, NEL, NTEST
+integer K, IREFSM, NEL
 ! Output
 integer ICONF(*)
 integer KTYP
@@ -49,7 +49,4 @@ do JTYP=1,NTYP
   ICNFB2 = ICNFB2+NJCNF*JOCC
 end do
 
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NTEST)
-
-end subroutine GETCNF
+end subroutine GETCNF_MCLR

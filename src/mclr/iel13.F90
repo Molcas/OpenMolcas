@@ -11,6 +11,7 @@
 ! Copyright (C) 1991,1994, Jeppe Olsen                                 *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine IEL13(MNRS1,MXRS1,MNRS3,MXRS3,NELEC,NOCTYP,IEL1,IEL3,IEL123,IACTIV)
 ! A type of strings contains NEL electrons and
 !
@@ -43,19 +44,18 @@ do KEL3=MNRS3,MXRS3
   end do
 end do
 
-NTEST = 00
-if (NTEST /= 0) then
-  write(6,*) ' =============='
-  write(6,*) ' IEL13 speaking'
-  write(6,*) ' =============='
-  write(6,'(A,4I3)') ' IEL1 IEL3 IACTIV for MNRS1 MXRS1 MNRS3 MXRS3 ',MNRS1,MXRS1,MNRS3,MXRS3
-  do ITYP=1,NOCTYP
-    write(6,'(3I3)') IEL1(ITYP),IEL3(ITYP),IACTIV(ITYP)
-  end do
+#ifdef _DEBUGPRINT_
+write(6,*) ' =============='
+write(6,*) ' IEL13 speaking'
+write(6,*) ' =============='
+write(6,'(A,4I3)') ' IEL1 IEL3 IACTIV for MNRS1 MXRS1 MNRS3 MXRS3 ',MNRS1,MXRS1,MNRS3,MXRS3
+do ITYP=1,NOCTYP
+  write(6,'(3I3)') IEL1(ITYP),IEL3(ITYP),IACTIV(ITYP)
+end do
 
-  write(6,*) ' IEL123 matrix'
-  call IWRTMA(IEL123,3,NOCTYP,3,NOCTYP)
-end if
+write(6,*) ' IEL123 matrix'
+call IWRTMA(IEL123,3,NOCTYP,3,NOCTYP)
+#endif
 
 return
 

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSDIAG_CI_UTIL(NCSF,NDET,CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP,IPRINT)
+subroutine CSDIAG(NCSF,NDET,CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP,IPRINT)
 ! PURPOSE: OBTAIN AVERAGE CI DIAGONAL ELEMENTS AND STORE IN CSFDIA
 !
 ! CALLING PARAMETERS.
@@ -64,4 +64,4 @@ end if
 
 return
 
-end subroutine CSDIAG_CI_UTIL
+end subroutine CSDIAG

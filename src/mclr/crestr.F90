@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CRESTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI,TTO,ISTMPL,ISTMPO,LROW,I1TYP,IPRNT)
+!#define _DEBUGPRINT_
+subroutine CRESTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI,TTO,ISTMPL,ISTMPO,LROW,I1TYP)
 ! A set of strings containing NEL electrons are given
 ! set up all possible ways of adding an electron to this set of strings
 !
@@ -63,14 +64,11 @@ dimension STRIN2(500)
 ! LCR NOT DECLARED !!!!!!
 !  I SET IT TO ZERO
 LCR = 0
-NTEST0 = 000
-NTEST = max(IPRNT,NTEST0)
-if (NTEST >= 20) then
-  write(6,*) ' ==============='
-  write(6,*) ' CRESTR speaking'
-  write(6,*) ' ==============='
-end if
-LUOUT = 6
+#ifdef _DEBUGPRINT_
+write(6,*) ' ==============='
+write(6,*) ' CRESTR speaking'
+write(6,*) ' ==============='
+#endif
 
 IOFF = 0     ! dummy initialize
 IPLACE = -1  ! dummy initialize
@@ -152,34 +150,34 @@ do ISTRIN=1,NSTINI
   end if
 end do
 
-if (NTEST >= 20) then
-  MAXPR = 60
-  NPR = min(NSTINI,MAXPR)
-  write(LUOUT,*) ' Output from CRESTR :'
-  write(LUOUT,*) '==================='
+#ifdef _DEBUGPRINT_
+MAXPR = 60
+NPR = min(NSTINI,MAXPR)
+write(6,*) ' Output from CRESTR :'
+write(6,*) '==================='
 
-  if (LROW > 0) then
-    write(6,*) ' Full map'
-    write(6,*)
-    write(LUOUT,*) ' Strings with an electron added'
-    do ISTRIN=1,NPR
-      write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO((ISTRIN-1)*LROW+I),I=1,NORB)
-    end do
-    do ISTRIN=1,NPR
-      write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI((ISTRIN-1)*LROW+I),I=1,NORB)
-    end do
-  else
-    write(6,*) ' Compact map'
-    write(6,*)
-    write(LUOUT,*) ' Strings with an electron added'
-    do ISTRIN=1,NPR
-      write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
-    end do
-    do ISTRIN=1,NPR
-      write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
-    end do
-  end if
+if (LROW > 0) then
+  write(6,*) ' Full map'
+  write(6,*)
+  write(6,*) ' Strings with an electron added'
+  do ISTRIN=1,NPR
+    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO((ISTRIN-1)*LROW+I),I=1,NORB)
+  end do
+  do ISTRIN=1,NPR
+    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI((ISTRIN-1)*LROW+I),I=1,NORB)
+  end do
+else
+  write(6,*) ' Compact map'
+  write(6,*)
+  write(6,*) ' Strings with an electron added'
+  do ISTRIN=1,NPR
+    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
+  end do
+  do ISTRIN=1,NPR
+    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
+  end do
 end if
+#endif
 
 return
 

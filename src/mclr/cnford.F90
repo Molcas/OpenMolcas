@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine CNFORD(ICTSDT,ICONF,IREFSM,NORB,IPRODT,NCNFTP,NEL,ICNSTR,IGENSG,ISGNA,ISGNB,IAGRP,IBGRP,IOOS,NORB1,NORB2,NORB3,NEL1MN, &
-                  NEL3MX,NAEL,NBEL,MINOP,MAXOP,PSSIGN,IPRNT)
+                  NEL3MX,NAEL,NBEL,MINOP,MAXOP,PSSIGN)
 ! Generate configurations in ICONF
 !
 ! Generate determinants in configuration order and obtain
@@ -43,7 +43,6 @@ integer :: IAGRP, IBGRP
 integer, intent(In) :: IOOS(*)
 integer :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NAEL, NBEL, MINOP, MAXOP
 real*8 :: PSSIGN
-integer :: IPRNT
 ! Scratch
 integer, allocatable :: KL1(:), KL2(:), KL3(:)
 
@@ -60,7 +59,7 @@ integer, allocatable :: KL1(:), KL2(:), KL3(:)
 call mma_allocate(KL1,NORB1+NORB2+NORB3,Label='KL1')
 call mma_allocate(KL2,NORB1+NORB2+NORB3,Label='KL2')
 call mma_allocate(KL3,NORB1+NORB2+NORB3,Label='KL3')
-call CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,NCNFTP,KL1,KL2,KL3,IPRNT)
+call CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,NCNFTP,KL1,KL2,KL3)
 call mma_deallocate(KL3)
 call mma_deallocate(KL2)
 call mma_deallocate(KL1)
@@ -71,6 +70,6 @@ call mma_deallocate(KL1)
 ! string form and ordering.
 ! ========================================================
 
-call CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISGNB,ICNSTR,IAGRP,IBGRP,IOOS,PSSIGN,IPRNT)
+call CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISGNB,ICNSTR,IAGRP,IBGRP,IOOS,PSSIGN)
 
 end subroutine CNFORD

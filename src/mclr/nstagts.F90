@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 function NSTAGTS(IGRP,ITP,ISM)
 ! Number of strings of group IGRP
 !                      type  ITP
@@ -18,14 +19,15 @@ use Str_Info, only: NOCTYP, STR
 
 implicit none
 integer IGRP, ITP, ISM
-integer IADDRESS, NSTAGTS, NTEST
+integer IADDRESS, NSTAGTS
 
 ! element (ITP,ISM) corresponds to address
 IADDRESS = (ISM-1)*NOCTYP(IGRP)+ITP
 
 NSTAGTS = Str(IGRP)%NSTSO(IADDRESS)
 
-NTEST = 0
-if (NTEST /= 0) write(6,*) ' Number of strings of group,type,sym',IGRP,ITP,ISM,' is ',NSTAGTS
+#ifdef _DEBUGPRINT_
+write(6,*) ' Number of strings of group,type,sym',IGRP,ITP,ISM,' is ',NSTAGTS
+#endif
 
 end function NSTAGTS

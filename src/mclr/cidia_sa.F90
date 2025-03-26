@@ -27,7 +27,7 @@ implicit none
 integer iSym
 real*8 ralp(*), S(*)
 integer iSM(1), LSPC(1), iSPC(1), IDUM(1)
-integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI, iPrnt, iP2, J
+integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI, iP2, J
 real*8 ECAS, WE
 integer, external :: ipClose, ipGet, ipIn
 
@@ -68,7 +68,7 @@ LSPC(1) = nSD
 irc = ipin(ipDSDi)
 call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
 
-if (Nocsf /= 1) call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM,IPRNT)
+if (Nocsf /= 1) call CSDIAG_MCLR(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM)
 
 if (nocsf == 0) irc = ipClose(ipDSDi)
 ! Calculate explicit part of hamiltonian

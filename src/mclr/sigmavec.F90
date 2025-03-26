@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine SigmaVec(C,HC,kic)
 ! Outer routine for sigma vector generation
 ! RAS space
@@ -22,7 +23,6 @@ use Str_Info, only: STR, CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use MCLR_Data, only: i12, ist
-use MCLR_Data, only: IPRCIX, IPRDIA
 use MCLR_Data, only: IDC, PSSIGN
 use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC, XISPSM
 use MCLR_Data, only: NOCSF, MAXI, MAXK, ICISTR, NOPART, IDIAG
@@ -97,7 +97,9 @@ if (NBEL >= 2) then
   MAXB = max(MAXB,MAXB1)
 end if
 MXSTBL = max(MAXA,MAXB)
-if (IPRCIX >= 2) write(6,*) ' Largest block of strings with given symmetry and type',MXSTBL
+#ifdef _DEBUGPRINT_
+write(6,*) ' Largest block of strings with given symmetry and type',MXSTBL
+#endif
 MAXI = min(MXINKA,MXSTBL)
 MAXK = min(MXINKA,MXSTBL)
 ! Largest active orbital block belonging to given type and symmetry
@@ -130,9 +132,9 @@ call mma_allocate(CIOIO,NOCTPA*NOCTPB,Label='CIOIO')
 
 ! (RAS1 & RAS3 constrains)
 
-call IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,SIOIO,IPRCIX)
+call IAIBCM_MCLR(MNR1IC(ISSPC),MXR3IC(ISSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,SIOIO)
 
-call IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,CIOIO,IPRCIX)
+call IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,CIOIO)
 
 ! Arrays giving block type
 call mma_allocate(SBLTP,nIrrep,Label='SBLTP')
@@ -160,8 +162,8 @@ IBTP1 = min(IbTP+1,ITYP_DUMMY)
 IATP2 = min(IATP+2,ITYP_DUMMY)
 IBTP2 = min(IbTP+2,ITYP_DUMMY)
 call MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nIrrep,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,IATP+1,Str(IATP1)%NSTSO,NOCTYP(IATP1), &
-            Str(IBTP1)%NSTSO,NOCTYP(IBTP1),NSMOB,3,3,NTSOB,IPRCIX,MAXpK,Str(IATP2)%NSTSO,NOCTYP(IATP2),Str(IBTP2)%NSTSO, &
-            NOCTYP(IBTP2),Str(IATP)%EL123,Str(IBTP)%EL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
+            Str(IBTP1)%NSTSO,NOCTYP(IBTP1),NSMOB,3,3,NTSOB,MAXpK,Str(IATP2)%NSTSO,NOCTYP(IATP2),Str(IBTP2)%NSTSO,NOCTYP(IBTP2), &
+            Str(IATP)%EL123,Str(IBTP)%EL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
 
 !xvectors able to hold strings of given sym and type
 MAXIK = max(MAXI,MAXK)
@@ -189,7 +191,9 @@ if (MOCAA /= 0) then
   MAXEl3 = min(MAXE,MXTSOB)
   MXSXST = (MXTSOB+1)*MAXEL3
   MXSXBL = MXSXST*MXSTBL0
-  if (IPRCIX >= 2) write(6,*) ' MXSXST,MXSXBL = ',MXSXST,MXSXBL
+# ifdef _DEBUGPRINT_
+  write(6,*) ' MXSXST,MXSXBL = ',MXSXST,MXSXBL
+# endif
   LSCR2 = max(4*MXSXBL,LSCR2)
 end if
 
@@ -228,11 +232,11 @@ call mma_allocate(OOS,nOOS,10,Label='OOS')
 
 iiCOPY = 1
 ! Transform C vector from CSF to SD basis
-if (NOCSF == 0) call CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY,IPRDIA)
+if (NOCSF == 0) call CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY)
 
 ! Transform from combination scaling to determinant scaling
 if ((IDC /= 1) .and. (ICISTR == 1)) &
-  call SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,2,IDUMMY,IPRDIA)
+  call SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,2,IDUMMY)
 
 !goto 987
 if (I12 == 2) then
@@ -255,8 +259,8 @@ if (ICISTR == 1) then
               Str(IATP)%ISTSO,Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB,nIrrep,NSMOB,nIrrep,nIrrep,NTSOB, &
               IBTSOB,ITSOB,MAXIJ,MAXK,MAXI,ICISTR,IINSTR,INTSCR,LSCR1,LSCR1,INSCR,pCJRES,pSIRES,SXSTSM,Str(IATP)%EL1, &
               Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7), &
-              OOS(:,8),OOS(:,9),OOS(:,10),I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,SVST,PSSIGN,IPRDIA,LLUC,LLUHC,IST,pCJRES,pSIRES, &
-              NOPARt,TimeDep)
+              OOS(:,8),OOS(:,9),OOS(:,10),I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,SVST,PSSIGN,LLUC,LLUHC,IST,pCJRES,pSIRES,NOPARt, &
+              TimeDep)
 
 else
   call SysHalt('sigmavec')
@@ -268,10 +272,10 @@ end if
 
 ! Transform from combination scaling to determinant scaling
 if ((IDC /= 1) .and. (ICISTR == 1)) &
-  call SCDTC2_MCLR(HC,ISMOST(1,ISSM),SBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY,IPRDIA)
+  call SCDTC2_MCLR(HC,ISMOST(1,ISSM),SBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY)
 
 ! Transform HC vector from SD to CSF basis
-if (NOCSF == 0) call CSDTVC_MCLR(C,HC,2,DTOC,CNSM(kic(2))%ICTS,ISSM,1,IPRDIA)
+if (NOCSF == 0) call CSDTVC_MCLR(C,HC,2,DTOC,CNSM(kic(2))%ICTS,ISSM,1)
 
 ! Eliminate local memory
 

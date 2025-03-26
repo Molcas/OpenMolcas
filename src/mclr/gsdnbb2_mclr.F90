@@ -13,7 +13,7 @@
 
 subroutine GSDNBB2_MCLR(I12,RHO1,RHO2,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL,IJAGRP,IJBGRP,SB, &
                         CB,C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX, &
-                        NIA,NIB,NJA,NJB,MXPOBS,IPRNT,NACOB,RHO1S,ieaw,n1,n2)
+                        NIA,NIB,NJA,NJB,MXPOBS,NACOB,RHO1S,ieaw,n1,n2)
 ! Contributions to density matrix from sigma block (iasm iatp, ibsm ibtp) and
 ! C block (jasm jatp, jbsm, jbtp)
 !
@@ -25,22 +25,22 @@ subroutine GSDNBB2_MCLR(I12,RHO1,RHO2,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NG
 ! IBSM,IBTP : Symmetry and type of beta  strings in sigma
 ! JASM,JATP : Symmetry and type of alpha strings in C
 ! JBSM,JBTP : Symmetry and type of beta  strings in C
-! NGAS : Number of As'es
-! IAOC : Occpation of each AS for alpha strings in L
-! IBOC : Occpation of each AS for beta  strings in L
-! JAOC : Occpation of each AS for alpha strings in R
-! JBOC : Occpation of each AS for beta  strings in R
-! NAEL : Number of alpha electrons
-! NBEL : Number of  beta electrons
+! NGAS      : Number of As'es
+! IAOC      : Occpation of each AS for alpha strings in L
+! IBOC      : Occpation of each AS for beta  strings in L
+! JAOC      : Occpation of each AS for alpha strings in R
+! JBOC      : Occpation of each AS for beta  strings in R
+! NAEL      : Number of alpha electrons
+! NBEL      : Number of  beta electrons
 ! IJAGRP    : IA and JA belongs to this group of strings
 ! IJBGRP    : IB and JB belongs to this group of strings
-! CB : Input c block
-! MXPNGAS : Largest number of As'es allowed by program
-! NOBPTS  : Number of orbitals per type and symmetry
-! IOBPTS : base for orbitals of given type and symmetry
-! IBORB  : Orbitals of given type and symmetry
-! MAXI   : Largest Number of "spectator strings" treated simultaneously
-! MAXK   : Largest number of inner resolution strings treated at simult.
+! CB        : Input c block
+! MXPNGAS   : Largest number of As'es allowed by program
+! NOBPTS    : Number of orbitals per type and symmetry
+! IOBPTS    : base for orbitals of given type and symmetry
+! IBORB     : Orbitals of given type and symmetry
+! MAXI      : Largest Number of "spectator strings" treated simultaneously
+! MAXK      : Largest number of inner resolution strings treated at simult.
 !
 ! ieaw=0 Singlet
 ! ieaw=1 Triplet
@@ -58,9 +58,8 @@ subroutine GSDNBB2_MCLR(I12,RHO1,RHO2,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NG
 !              type and symmetry
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
 !              type and symmetry
-! C2 : Must hold largest STT block of sigma or C
-!
-! XINT : Scratch space for integrals.
+! C2         : Must hold largest STT block of sigma or C
+! XINT       : Scratch space for integrals.
 !
 ! Jeppe Olsen, Winter of 1991
 
@@ -142,7 +141,7 @@ if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   SB(1:NIA*NIB) = C2(1:NIA*NIB)
   call GSBBD2B_MCLR(RHO2(1,ii),IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB, &
                     CB,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,SSCR, &
-                    CSCR,NACOB,NTEST,ieaw)
+                    CSCR,NACOB,ieaw)
   call TRPMT3(CB,NJB,NJA,C2)
   CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRNSPS(NIB,NIA,SB,C2)
@@ -150,7 +149,5 @@ if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(IPRNT)
 
 end subroutine GSDNBB2_MCLR

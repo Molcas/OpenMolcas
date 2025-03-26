@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine CStart_CI_Util(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
+subroutine CStart(C,h0,TUVX,iSel,ExplE,ExplV,nMaxSel,iFinal)
 !***********************************************************************
 !                                                                      *
 !     Find initial CI-vectors                                          *
@@ -255,4 +255,4 @@ end if
 
 return
 
-end subroutine CStart_CI_Util
+end subroutine CStart

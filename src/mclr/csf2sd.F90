@@ -25,23 +25,22 @@ implicit none
 real*8 CSF(*), SD(*)
 integer is
 real*8, allocatable :: CTM(:)
-integer iiCOPY, iprdia, iSym, i
+integer iiCOPY, iSym, i
 
 iiCOPY = 0
-iprdia = 0
 nConf = max(ncsf(is),ndtasm(iS))
 isym = ieor(is-1,State_Sym-1)+1
 i = 2
 if (isym == 1) i = 1
 
 if (diskbased) then
-  call CSDTVC_MCLR(CSF,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY,IPRDIA)
+  call CSDTVC_MCLR(CSF,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY)
 else
   call mma_allocate(CTM,nConf,Label='CTM')
   CTM(:) = Zero
   CTM(1:ncsf(is)) = CSF(1:ncsf(is))
 
-  call CSDTVC_MCLR(CTM,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY,IPRDIA)
+  call CSDTVC_MCLR(CTM,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY)
 
   call mma_deallocate(CTM)
 end if

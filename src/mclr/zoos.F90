@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine ZOOS(ISMOST,IBLTP,MAXSYM,IOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,IOOS,NOOS,NCOMB,IXPND)
 ! Generate offsets for CI vector for RAS CI expansion of given symmetry
 ! Combination type is defined by IDC
@@ -85,29 +86,28 @@ do IASYM=1,MAXSYM
 100 continue
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(6,*)
-  write(6,*) ' =============='
-  write(6,*) ' ZOOS reporting'
-  write(6,*) ' =============='
-  write(6,*)
-  write(6,*) ' NSSOA, NSSOB (input)'
-  call IWRTMA(NSSOA,MAXSYM,NOCTPA,MAXSYM,NOCTPA)
-  call IWRTMA(NSSOB,MAXSYM,NOCTPB,MAXSYM,NOCTPB)
-  write(6,*)
-  write(6,*) ' Number of combinations obtained ',NCOMB
-  write(6,*) ' Offsets for combination OOS blocks'
-  do IASYM=1,MAXSYM
-    write(6,'(A,I2)') '  Symmetry ',IASYM
-    call IWRTMA(IOOS(1,1,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  end do
-  write(6,*) ' Number of  combinations per OOS blocks'
-  do IASYM=1,MAXSYM
-    write(6,'(A,I2)') '  Symmetry ',IASYM
-    call IWRTMA(NOOS(1,1,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-  end do
-end if
+#ifdef _DEBUGPRINT_
+write(6,*)
+write(6,*) ' =============='
+write(6,*) ' ZOOS reporting'
+write(6,*) ' =============='
+write(6,*)
+write(6,*) ' NSSOA, NSSOB (input)'
+call IWRTMA(NSSOA,MAXSYM,NOCTPA,MAXSYM,NOCTPA)
+call IWRTMA(NSSOB,MAXSYM,NOCTPB,MAXSYM,NOCTPB)
+write(6,*)
+write(6,*) ' Number of combinations obtained ',NCOMB
+write(6,*) ' Offsets for combination OOS blocks'
+do IASYM=1,MAXSYM
+  write(6,'(A,I2)') '  Symmetry ',IASYM
+  call IWRTMA(IOOS(1,1,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+end do
+write(6,*) ' Number of  combinations per OOS blocks'
+do IASYM=1,MAXSYM
+  write(6,'(A,I2)') '  Symmetry ',IASYM
+  call IWRTMA(NOOS(1,1,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+end do
+#endif
 
 return
 

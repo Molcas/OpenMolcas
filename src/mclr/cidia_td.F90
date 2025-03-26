@@ -25,7 +25,7 @@ use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, TimeDep
 implicit none
 integer iSym
 integer iSM(1), LSPC(1), iSPC(1), IDUM(1)
-integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI, nP2, nP1, nQ, iC, iPrnt
+integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, nD, ipDIAI, nP2, nP1, nQ, iC
 real*8 ECAS
 integer, external :: ipClose, ipGet, ipIn, ipnOut
 
@@ -67,7 +67,7 @@ LSPC(1) = nSD
 
 irc = ipin(ipDSDi)
 call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
-if (NOCSF /= 1) call CSDIAG(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM,IPRNT)
+if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM)
 
 if (nocsf == 0) irc = ipClose(ipDSDi)
 ! Calculate explicit part of hamiltonian

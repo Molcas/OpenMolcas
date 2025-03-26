@@ -11,6 +11,7 @@
 ! Copyright (C) 1996, Jeppe Olsen                                      *
 !***********************************************************************
 
+!#define _DEBUGPRINT_
 subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
                         CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS)
 ! Contributions to two-electron density matrix from column excitations
@@ -73,7 +74,6 @@ dimension I1(MAXK,*), XI1S(MAXK,*), I2(MAXK,*), XI2S(MAXK,*)
 dimension ITP(3*3), JTP(3*3), KTP(3*3), LTP(3*3)
 
 ! Type of single excitations that connects the two column strings
-NTEST = 0
 call DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,3,ISEL,ICEL)
 ! Symmetry of Double excitation that connects IBSM and JBSM
 IDXSM = Mul(ISCSM,ICCSM)
@@ -115,7 +115,9 @@ do IDXTP=1,NDXTP
         ! Loop over batches of I strings
         NPART = NROW/MAXI
         if (NPART*MAXI /= NROW) NPART = NPART+1
-        if (NTEST >= 2000) write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
+#       ifdef _DEBUGPRINT_
+        write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
+#       endif
         do IPART=1,NPART
           IBOT = 1+(IPART-1)*MAXI
           ITOP = min(IBOT+MAXI-1,NROW)

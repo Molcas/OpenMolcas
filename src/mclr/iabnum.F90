@@ -11,7 +11,7 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-integer function IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN,IPRNT)
+integer function IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN)
 ! Encapsulation routine for IABNUS
 
 use Str_info, only: STR, nElec, NoCTyp
@@ -24,11 +24,10 @@ integer ISGNAB
 integer IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
 integer NORB, IPSFAC
 real*8 PSSIGN
-integer IPRNT
 integer, external :: IABNUS
 
 IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,Str(IAGRP)%STCL,Str(IAGRP)%STSM,NOCTYP(IAGRP),Str(IAGRP)%Z,Str(IAGRP)%ISTSO, &
                 Str(IAGRP)%NSTSO,IBSTR,NELEC(IBGRP),Str(IBGRP)%STREO,Str(IBGRP)%STCL,Str(IBGRP)%STSM,NOCTYP(IBGRP),Str(IBGRP)%Z, &
-                Str(IBGRP)%ISTSO,Str(IBGRP)%NSTSO,IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC,IPRNT)
+                Str(IBGRP)%ISTSO,Str(IBGRP)%NSTSO,IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC)
 
 end function IABNUM

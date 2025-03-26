@@ -87,7 +87,7 @@ call Setup_MCLR(1)
 ! Calculate the diagonal of E    and store in core/disc
 
 if (imethod > 0) then
-  if (nconf1 > 1) call CIDia(State_Sym,rCHC)
+  if (nconf1 > 1) call CIDia_MCLR(State_Sym,rCHC)
   irc = ipout(ipdia)
 
   ! Allocate disk/memory space

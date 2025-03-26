@@ -11,7 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,NCNFTP,IIOC,IIOP,IICL,IPRNT)
+!#define _DEBUGPRINT_
+subroutine CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,NCNFTP,IIOC,IIOP,IICL)
 ! Generate array,ICONF,giving occupation of each configuration
 ! for CI space of reference symmetry IREFSM.
 !
@@ -32,16 +33,18 @@ integer, intent(Out) :: ICONF(*)
 integer, intent(In) :: NCNFTP(*)
 ! Scratch
 integer IIOC(*), IICL(*), IIOP(*)
-integer IPRNT
 ! local variables
 logical Test
-integer NTEST, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, JCONF, ICFREE, MINCL1, NOP, ITYPE, NCL, ICL, IFRSTC, IORB, &
-        IPLACE, IPRORB, NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, ISYM, &
-        I, IBAS, IOPEN, IOC, LICONF, ISYMCN_MCLR
+integer IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, JCONF, ICFREE, MINCL1, NOP, NCL, ICL, IFRSTC, IORB, IPLACE, IPRORB, &
+        NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, ISYM, ISYMCN_MCLR
+#ifdef _DEBUGPRINT_
+integer I, IBAS, IOC, IOPEN, ITYPE, LICONF
+#endif
 
-NTEST = 0000
-
-NTEST = max(NTEST,IPRNT)
+#ifndef _DEBUGPRINT_
+#include "macros.fh"
+unused_var(NCNFTP(1))
+#endif
 
 IORB1F = 1
 IORB1L = IORB1F+NORB1-1
@@ -60,11 +63,15 @@ JCONF = 0
 ICFREE = 1
 ! Min number of doubly occupied orbitals in RAS 1
 MINCL1 = max(0,NEL1MN-NORB1)
-if (NTEST >= 1) write(6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
+#ifdef _DEBUGPRINT_
+write(6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
+#endif
 do NOP=MINOP,MAXOP,2
-  ITYPE = NOP-MINOP+1
   NCL = (NEL-NOP)/2
-  if (NTEST >= 10) write(6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
+# ifdef _DEBUGPRINT_
+  ITYPE = NOP-MINOP+1
+  write(6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
+# endif
 
   ! first combination of double occupied orbitals
   call iCOPY(NORB,[0],0,IIOC,1)
@@ -146,10 +153,10 @@ do NOP=MINOP,MAXOP,2
     if (IORB /= 1) goto 12
   end if
   ! End while
-  if (NTEST >= 1500) then
-    write(6,*) ' Next inactive configuration'
-    call IWRTMA(IICL,1,NCL,1,NCL)
-  end if
+#ifdef _DEBUGPRINT_
+  write(6,*) ' Next inactive configuration'
+  call IWRTMA(IICL,1,NCL,1,NCL)
+# endif
 
   ! first active configuration
   IORB = 0
@@ -209,10 +216,10 @@ do NOP=MINOP,MAXOP,2
 701 continue
   IFRSTO = 0
 
-  if (NTEST >= 1500) then
-    write(6,*) ' Next active configuration'
-    call IWRTMA(IIOP,1,NOP,1,NOP)
-  end if
+# ifdef _DEBUGPRINT_
+  write(6,*) ' Next active configuration'
+  call IWRTMA(IIOP,1,NOP,1,NOP)
+# endif
   ! RAS  CONSTRAINTS
   IEL1 = IEL1C
   IEL3 = IEL3C
@@ -263,7 +270,9 @@ do NOP=MINOP,MAXOP,2
   ! Spatial symmetry
   ISYM = ISYMCN_MCLR(IICL,IIOP,NCL,NOP)
   if (ISYM == IREFSM) then
-    if (NTEST >= 100) write(6,1120) (IIOC(I),I=1,NORB)
+#   ifdef _DEBUGPRINT_
+    write(6,1120) (IIOC(I),I=1,NORB)
+#   endif
     JCONF = JCONF+1
 
     do ICL=1,NCL
@@ -285,25 +294,26 @@ do NOP=MINOP,MAXOP,2
 end do
 5001 continue
 
-if (NTEST >= 100) then
-  write(6,'(/A,I3)') '  Configurations of symmetry ',IREFSM
-  write(6,*) ' ================================='
-  IBAS = 0
-  do IOPEN=MINOP,MAXOP
-    ITYPE = IOPEN-MINOP+1
-    ICL = (NEL-IOPEN)/2
-    IOC = IOPEN+ICL
-    LICONF = NCNFTP(ITYPE)
-    write(6,'(/A,2I3)') '  Type with number of closed and open orbitals ',ICL,IOPEN
-    write(6,'(A,I7)') '  Number of configurations of this type',LICONF
-    do JCONF=1,LICONF
-      write(6,'(3X,20I3)') (ICONF(IBAS+IORB),IORB=1,IOC)
-      IBAS = IBAS+IOC
-    end do
+#ifdef _DEBUGPRINT_
+write(6,'(/A,I3)') '  Configurations of symmetry ',IREFSM
+write(6,*) ' ================================='
+IBAS = 0
+do IOPEN=MINOP,MAXOP
+  ITYPE = IOPEN-MINOP+1
+  ICL = (NEL-IOPEN)/2
+  IOC = IOPEN+ICL
+  LICONF = NCNFTP(ITYPE)
+  write(6,'(/A,2I3)') '  Type with number of closed and open orbitals ',ICL,IOPEN
+  write(6,'(A,I7)') '  Number of configurations of this type',LICONF
+  do JCONF=1,LICONF
+    write(6,'(3X,20I3)') (ICONF(IBAS+IORB),IORB=1,IOC)
+    IBAS = IBAS+IOC
   end do
-end if
+end do
 
 return
+
 1120 format('0  configuration included ',15I3)
+#endif
 
 end subroutine CONFG2

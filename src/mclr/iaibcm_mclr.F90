@@ -9,7 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine IAIBCM_MCLR(MNRS1,MXRS3,NOCTPA,NOCTPB,NEL1A,NEL3A,NEL1B,NEL3B,IOCOC,IPRNT)
+!#define _DEBUGPRINT_
+subroutine IAIBCM_MCLR(MNRS1,MXRS3,NOCTPA,NOCTPB,NEL1A,NEL3A,NEL1B,NEL3B,IOCOC)
 ! RAS allowed combinations of alpha and beta types
 !
 ! =====
@@ -36,9 +37,6 @@ integer NEL1A(*), NEL3A(*), NEL1B(*), NEL3B(*)
 ! Output
 integer IOCOC(NOCTPA,NOCTPB)
 
-NTEST = 0000
-NTEST = max(NTEST,IPRNT)
-
 call iCopy(nOctPA*nOctPB,[0],0,iococ,1)
 do IATP=1,NOCTPA
   IAEL1 = NEL1A(IATP)
@@ -50,12 +48,12 @@ do IATP=1,NOCTPA
   end do
 end do
 
-if (NTEST >= 10) then
-  write(6,*)
-  write(6,*) ' Matrix giving allowed combinations of types'
-  write(6,*)
-  call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
-end if
+#ifdef _DEBUGPRINT_
+write(6,*)
+write(6,*) ' Matrix giving allowed combinations of types'
+write(6,*)
+call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+#endif
 
 return
 

@@ -11,7 +11,7 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine NSTRSO_MCLR(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NORB,NSTASO,NOCTYP,NSMST,IOTYP,IPRNT)
+subroutine NSTRSO_MCLR(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NORB,NSTASO,NOCTYP,NSMST,IOTYP)
 ! Number of strings per type and symmetry
 !
 ! Jeppe Olsen Winter of 1990
@@ -99,9 +99,6 @@ end do
 
 return
 ! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NORB)
-  call Unused_integer(IPRNT)
-end if
+if (.false.) call Unused_integer(NORB)
 
 end subroutine NSTRSO_MCLR

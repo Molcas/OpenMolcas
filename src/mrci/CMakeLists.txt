@@ -24,7 +24,7 @@ set (sources
      count_mrci.F90
      cscale.F90
      csftra.F90
-     cstart.F90
+     cstart_mrci.F90
      dcorr.F90
      densct.F90
      diagc.F90

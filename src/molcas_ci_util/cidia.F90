@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
+subroutine CIDIA(NCONF,IREFSM,CSFDIA,LUDAVID)
 ! PURPOSE: - COMPUTE DIAGONAL ELEMENTS OF THE CI-MATRIX
 !            THE DETERMINANT BASIS
 !          - TRANSLATE FORM DET => CSF BASIS
@@ -50,7 +50,7 @@ call get_diag(DDIA,ndet)
 
 IPRINT = 0
 if (IPRLEV == INSANE) IPRINT = 40
-call CSDIAG_CI_UTIL(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,CTS,NDTFTP,NCSFTP,IPRINT)
+call CSDIAG(NCONF,ndet,CSFDIA,DDIA,NCNFTP(1,IREFSM),NTYP,CTS,NDTFTP,NCSFTP,IPRINT)
 CSFDIA(:) = CSFDIA(:)+ECORE_HEX
 
 ! DEALLOCATE LOCAL MEMORY
@@ -75,4 +75,4 @@ Tissot_3 = Tissot_3+Tissot_2
 
 return
 
-end subroutine CIDIA_CI_UTIL
+end subroutine CIDIA
