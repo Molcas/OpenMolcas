@@ -125,15 +125,16 @@ do ITYP=1,NSTTYP
         if ((IANEQ == 1) .and. (ICREQ == 1)) then
           IMNEW = 0
           IUNIQMP(ITYP) = -JJTYP
-          goto 1211
+          exit
         end if
 
       end if
     end do
     ! Normal exit from DO loop only if no identical map was found
-    IMNEW = 1
-    IUNIQMP(ITYP) = ITYP
-1211 continue
+    if (JJTYP == ITYP) then
+      IMNEW = 1
+      IUNIQMP(ITYP) = ITYP
+    end if
   end if
   if (IMNEW == 1) call mma_deallocate(Str(ITYP)%STSTM_Hidden)
   nullify(Str(ITYP)%STSTM)

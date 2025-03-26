@@ -42,7 +42,7 @@ integer iPL
 logical CI
 character(len=8) Fmt2
 integer opOut
-logical lPrint
+logical lPrint, cnvrgd
 real*8 rchc(mxroot)
 real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Fancy(:)
 integer LURot, IsFreeUnit, JRoot
@@ -143,289 +143,291 @@ if (TwoStep .and. (StepType == 'RUN2')) then
 else
   call Prec(W(ipPre2)%Vec,isym)
   irc = ipOut(ippre2)
-  if (TwoStep .and. (StepType == 'RUN1')) then
-    ! save the computed data in "Prec" to LuQDAT and skip the
-    ! following part of this function
-    irc = ipIn(ipPre2)
-    call ddafile(LuQDAT,1,W(ipPre2)%Vec,npre2,iaddressQDAT)
-    Go To 193
-  end if
 end if
+if (TwoStep .and. (StepType == 'RUN1')) then
+  ! save the computed data in "Prec" to LuQDAT and skip the
+  ! following part of this function
+  irc = ipIn(ipPre2)
+  call ddafile(LuQDAT,1,W(ipPre2)%Vec,npre2,iaddressQDAT)
+else
 
-! OK START WORKING
-!
-!idisp = 1
-jspin = 0
-
-! Allocate areas for scratch and state variables
-
-call mma_allocate(Kappa,nDens2+6,Label='Kappa')
-call mma_allocate(dKappa,nDens2+6,Label='dKappa')
-call mma_allocate(Sigma,nDens2+6,Label='Sigma')
-call mma_allocate(Temp3,nDens2+6,Label='Temp3')
-call mma_allocate(Temp4,nDens2+6,Label='Temp4')
-call mma_allocate(Sc1,nDens2+6,Label='Sc1')
-call mma_allocate(Sc2,nDens2+6,Label='Sc2')
-
-do iDisp=1,nDisp
-  Kappa(1:nDens2) = Zero
-  dKappa(1:nDens2) = Zero
-  Sigma(1:nDens2) = Zero
-
-  !---------------------------------------------------------------------
+  ! OK START WORKING
   !
-  ! Calculate RHS for the perturbation
-  !
-  !---------------------------------------------------------------------
+  !idisp = 1
+  jspin = 0
 
-  ! (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
+  ! Allocate areas for scratch and state variables
 
-  if (debug) then
+  call mma_allocate(Kappa,nDens2+6,Label='Kappa')
+  call mma_allocate(dKappa,nDens2+6,Label='dKappa')
+  call mma_allocate(Sigma,nDens2+6,Label='Sigma')
+  call mma_allocate(Temp3,nDens2+6,Label='Temp3')
+  call mma_allocate(Temp4,nDens2+6,Label='Temp4')
+  call mma_allocate(Sc1,nDens2+6,Label='Sc1')
+  call mma_allocate(Sc2,nDens2+6,Label='Sc2')
+
+  cnvrgd = .true.
+  do iDisp=1,nDisp
+    Kappa(1:nDens2) = Zero
+    dKappa(1:nDens2) = Zero
+    Sigma(1:nDens2) = Zero
+
+    !-------------------------------------------------------------------
+    !
+    ! Calculate RHS for the perturbation
+    !
+    !-------------------------------------------------------------------
+
+    ! (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
+
+    if (debug) then
+      if (isNAC) then
+        write(6,*) 'States: ',NACstates(1),NACstates(2)
+      else
+        write(6,*) 'State: ',irlxroot
+      end if
+    end if
+    !                                                                  *
+    !*******************************************************************
+    !                                                                  *
     if (isNAC) then
-      write(6,*) 'States: ',NACstates(1),NACstates(2)
-    else
-      write(6,*) 'State: ',irlxroot
-    end if
-  end if
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  if (isNAC) then
-    LURot = 233
-    LURot = IsFreeUnit(LURot)
-    call Molcas_Open(LURot,'ROT_VEC')
-    do JRoot=1,nRoots
+      LURot = 233
+      LURot = IsFreeUnit(LURot)
+      call Molcas_Open(LURot,'ROT_VEC')
+      do JRoot=1,nRoots
+        read(LURot,*) VecName
+      end do
       read(LURot,*) VecName
-    end do
-    read(LURot,*) VecName
-    close(LURot)
-    if (VecName == 'CMS-PDFT') then
-      call RHS_CMS_NAC(Temp4,W(ipST)%Vec)
-      call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+      close(LURot)
+      if (VecName == 'CMS-PDFT') then
+        call RHS_CMS_NAC(Temp4,W(ipST)%Vec)
+        call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+      else
+        write(6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
+        write(6,'(6X,A)') '       Other Than CMS-PDFT'
+        call xQuit(96)
+      end if
     else
-      write(6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
-      write(6,'(6X,A)') '       Other Than CMS-PDFT'
-      call xQuit(96)
-    end if
-  else
-    LURot = 233
-    LURot = IsFreeUnit(LURot)
-    call Molcas_Open(LURot,'ROT_VEC')
-    do JRoot=1,nRoots
+      LURot = 233
+      LURot = IsFreeUnit(LURot)
+      call Molcas_Open(LURot,'ROT_VEC')
+      do JRoot=1,nRoots
+        read(LURot,*) VecName
+      end do
       read(LURot,*) VecName
-    end do
-    read(LURot,*) VecName
-    close(LURot)
-    if (VecName == 'CMS-PDFT') then
-      call RHS_CMS(Temp4,W(ipST)%Vec)
-      call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
-    else
-      write(6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
-      write(6,'(6X,A)') '       Other Than CMS-PDFT'
-      call xQuit(96)
+      close(LURot)
+      if (VecName == 'CMS-PDFT') then
+        call RHS_CMS(Temp4,W(ipST)%Vec)
+        call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+      else
+        write(6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
+        write(6,'(6X,A)') '       Other Than CMS-PDFT'
+        call xQuit(96)
+      end if
     end if
-  end if
 
-  irc = opOut(ipci)
+    irc = opOut(ipci)
 
-  if (lprint) write(6,*) '       Iteration       Delta           Res(kappa)       Res(CI)          DeltaK           DeltaC'
-  iLen = nDensC
-  iRHSDisp(iDisp) = iDis
-  call Compress(Temp4,Sigma,iSym)
-  r1 = ddot_(nDensc,Sigma,1,Sigma,1)
-  if (debug) write(6,*) 'Hi how about r1',r1
-  call dDaFile(LuTemp,1,Sigma,iLen,iDis)
+    if (lprint) write(6,*) '       Iteration       Delta           Res(kappa)       Res(CI)          DeltaK           DeltaC'
+    iLen = nDensC
+    iRHSDisp(iDisp) = iDis
+    call Compress(Temp4,Sigma,iSym)
+    r1 = ddot_(nDensc,Sigma,1,Sigma,1)
+    if (debug) write(6,*) 'Hi how about r1',r1
+    call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
-  irc = ipIn(ipCIT)
-  !irc = ipIn(ipST)
-  irc = ipIn(ipCID)
-  call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
-  ! already initialized in rhs_mspdft
-  !call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%Vec,1)
-  !call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
-  !call dcopy_(nConf1*nroots,W(ipST)%Vec,1,W(ipCID)%Vec,1)
-  irc = ipOut(ipCIT)
-  call DSCAL_(nDensC,-One,Sigma,1)
-
-  irc = ipIn(ipPre2)
-  call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Kappa,nDens2+6,Temp3,nDens2+6,isym,iter)
-
-  irc = opOut(ippre2)
-  r2 = ddot_(ndensc,Kappa,1,Kappa,1)
-  if (debug) write(6,*) 'In that case I think that r2 should be:',r2
-  if (r2 > r1) write(6,*) 'Warning perturbation number ',idisp,' might diverge'
-
-  call dcopy_(ndensC,Kappa,1,dKappa,1)
-
-  ! In MS-PDFT deltaC is no longer zero initially
-  !deltaC = Zero
-  ! Use following two lines instead
-  call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
-  call dcopy_(nConf1*nroots,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
-  deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-  irc = ipOut(ipcid)
-  deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
-  Kappa(1:nDens) = Zero
-  delta = deltac+deltaK
-  delta0 = delta
-  iter = 1
-  if (delta == Zero) goto 300
-  !---------------------------------------------------------------------
-
-200 continue
-  call TimesE2MSPDFT(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
-
-  !---------------------------------------------------------------------
-  !
-  !            delta
-  ! rAlpha=------------
-  !        dKappa:dSigma
-  !
-  !---------------------------------------------------------------------
-
-  rAlphaK = Zero
-  rAlphaK = ddot_(nDensC,Temp4,1,dKappa,1)
-  rAlphaC = Zero
-  irc = ipIn(ipS1)
-  irc = ipIn(ipCId)
-  rAlphaC = ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
-  rAlpha = delta/(rAlphaK+rAlphaC)
-
-!-------------------------------------------------------------------*
-
-  ! Kappa=Kappa+rAlpha*dKappa
-  call DaxPy_(nDensC,ralpha,dKappa,1,Kappa,1)
-  ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-  call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
-  resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
-  resci = Zero
-  irc = ipIn(ipCIT)
-  call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
-  irc = ipOut(ipcit)
-  ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
-  irc = ipIn(ipS1)
-  irc = ipIn(ipST)
-  call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
-  irc = opOut(ipS1)
-  irc = ipIn(ipST)
-  resci = sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
-
-  !--------------------------------------------------------------------*
-
-  ! Precondition......
-  !    -1
-  ! S=M  Sigma
-
-  irc = opOut(ipcid)
-
-  irc = ipIn(ipS2)
-  call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
-  irc = opOut(ipci)
-  irc = opOut(ipdia)
-
-  irc = ipIn(ipPre2)
-  call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
-  irc = opOut(ippre2)
-
-  !--------------------------------------------------------------------*
-  !      s:Sigma (k+1)     s:Sigma (k+1)
-  ! Beta=-------        =  -------------
-  !       delta  (k)        s:Sigma (k)
-  !
-  ! delta=s:sigma
-  !
-  ! dKappa=s+Beta*dKappa
-
-  deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-  irc = ipOut(ipST)
-
-  deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
-  if (.not. CI) then
-    rBeta = deltaK/delta
-    delta = deltaK
-    call DScal_(nDensC,rBeta,dKappa,1)
-    call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
-  else
-    rbeta = (deltac+deltaK)/delta
-    delta = deltac+deltaK
+    irc = ipIn(ipCIT)
+    !irc = ipIn(ipST)
     irc = ipIn(ipCID)
-    call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
-    call DScal_(nDensC,rBeta,dKappa,1)
-    call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
-    call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
-    irc = opOut(ipS2)
-    irc = ipOut(ipCID)
-  end if
+    call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
+    ! already initialized in rhs_mspdft
+    !call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%Vec,1)
+    !call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
+    !call dcopy_(nConf1*nroots,W(ipST)%Vec,1,W(ipCID)%Vec,1)
+    irc = ipOut(ipCIT)
+    call DSCAL_(nDensC,-One,Sigma,1)
 
-  !  ######  #    #  #####        #####    ####    ####
-  !  #       ##   #  #    #       #    #  #    #  #    #
-  !  #####   # #  #  #    #       #    #  #       #
-  !  #       #  # #  #    #       #####   #       #  ###
-  !  #       #   ##  #    #       #       #    #  #    #
-  !  ######  #    #  #####        #        ####    ####
-  !
-  !--------------------------------------------------------------------*
+    irc = ipIn(ipPre2)
+    call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Kappa,nDens2+6,Temp3,nDens2+6,isym,iter)
 
-  res = Zero ! dummy initialize
-  if (iBreak == 1) then
-    if (abs(delta) < abs(Eps**2*delta0)) goto 300
-  else if (iBreak == 2) then
-    res = sqrt(resk**2+resci**2+ResQaaLag2)
-    if (doDMRG) res = sqrt(resk**2)
-    if (res < abs(Eps)) goto 300
-  else
-    if ((abs(delta) < abs(Eps**2*delta0)) .and. (res < abs(Eps))) goto 300
-  end if
-  if (iter >= niter) goto 210
-  if (lprint) write(6,Fmt2//'I7,4X,ES17.9,ES17.9,ES17.9,ES17.9,ES17.9)') iter,delta/delta0,resk,resci,deltac,deltak
-  iter = iter+1
+    irc = opOut(ippre2)
+    r2 = ddot_(ndensc,Kappa,1,Kappa,1)
+    if (debug) write(6,*) 'In that case I think that r2 should be:',r2
+    if (r2 > r1) write(6,*) 'Warning perturbation number ',idisp,' might diverge'
 
-  goto 200
+    call dcopy_(ndensC,Kappa,1,dKappa,1)
 
-  !*********************************************************************
+    ! In MS-PDFT deltaC is no longer zero initially
+    !deltaC = Zero
+    ! Use following two lines instead
+    call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+    call dcopy_(nConf1*nroots,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+    deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+    irc = ipOut(ipcid)
+    deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
+    Kappa(1:nDens) = Zero
+    delta = deltac+deltaK
+    delta0 = delta
+    iter = 1
+    !-------------------------------------------------------------------
 
-210 continue
-  write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
-  converged(isym) = .false.
-  fail = .true.
-  goto 310
-300 continue
-  if (iPL >= 2) write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
-  irc = ipnout(-1)
+    do
+      if (delta == Zero) exit
+      call TimesE2MSPDFT(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
 
-310 continue
-  if (iPL >= 2) write(6,*)
-  iLen = ndensC
-  iKapDisp(iDisp) = iDis
-  call dDaFile(LuTemp,1,Kappa,iLen,iDis)
-  iSigDisp(iDisp) = iDis
-  call dDaFile(LuTemp,1,Sigma,iLen,iDis)
-  ilen = nconf1*nroots
-  iCIDisp(iDisp) = iDis
+      !-----------------------------------------------------------------
+      !
+      !            delta
+      ! rAlpha=------------
+      !        dKappa:dSigma
+      !
+      !-----------------------------------------------------------------
 
-  irc = ipin(ipCIT)
-  call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
+      rAlphaK = Zero
+      rAlphaK = ddot_(nDensC,Temp4,1,dKappa,1)
+      rAlphaC = Zero
+      irc = ipIn(ipS1)
+      irc = ipIn(ipCId)
+      rAlphaC = ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
+      rAlpha = delta/(rAlphaK+rAlphaC)
 
-  ! MGD This last call seems unused, so I comment it
+      !----------------------------------------------------------------*
 
-  !call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp4,ipS2)
-  iCISigDisp(iDisp) = iDis
-  irc = ipin(ipST)
-  call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
-end do ! iDisp
+      ! Kappa=Kappa+rAlpha*dKappa
+      call DaxPy_(nDensC,ralpha,dKappa,1,Kappa,1)
+      ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
+      call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+      resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
+      resci = Zero
+      irc = ipIn(ipCIT)
+      call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+      irc = ipOut(ipcit)
+      ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
+      irc = ipIn(ipS1)
+      irc = ipIn(ipST)
+      call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
+      irc = opOut(ipS1)
+      irc = ipIn(ipST)
+      resci = sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
 
-call mma_deallocate(Temp4)
-call mma_deallocate(Temp3)
-call mma_deallocate(Sigma)
-call mma_deallocate(dKappa)
-call mma_deallocate(Kappa)
-call mma_deallocate(Sc2)
-call mma_deallocate(Sc1)
+      !----------------------------------------------------------------*
+
+      ! Precondition......
+      !    -1
+      ! S=M  Sigma
+
+      irc = opOut(ipcid)
+
+      irc = ipIn(ipS2)
+      call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+      irc = opOut(ipci)
+      irc = opOut(ipdia)
+
+      irc = ipIn(ipPre2)
+      call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
+      irc = opOut(ippre2)
+
+      !----------------------------------------------------------------*
+      !      s:Sigma (k+1)     s:Sigma (k+1)
+      ! Beta=-------        =  -------------
+      !       delta  (k)        s:Sigma (k)
+      !
+      ! delta=s:sigma
+      !
+      ! dKappa=s+Beta*dKappa
+
+      deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+      irc = ipOut(ipST)
+
+      deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
+      if (.not. CI) then
+        rBeta = deltaK/delta
+        delta = deltaK
+        call DScal_(nDensC,rBeta,dKappa,1)
+        call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
+      else
+        rbeta = (deltac+deltaK)/delta
+        delta = deltac+deltaK
+        irc = ipIn(ipCID)
+        call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
+        call DScal_(nDensC,rBeta,dKappa,1)
+        call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+        call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
+        irc = opOut(ipS2)
+        irc = ipOut(ipCID)
+      end if
+
+      !  ######  #    #  #####        #####    ####    ####
+      !  #       ##   #  #    #       #    #  #    #  #    #
+      !  #####   # #  #  #    #       #    #  #       #
+      !  #       #  # #  #    #       #####   #       #  ###
+      !  #       #   ##  #    #       #       #    #  #    #
+      !  ######  #    #  #####        #        ####    ####
+      !
+      !----------------------------------------------------------------*
+
+      res = Zero ! dummy initialize
+      if (iBreak == 1) then
+        if (abs(delta) < abs(Eps**2*delta0)) exit
+      else if (iBreak == 2) then
+        res = sqrt(resk**2+resci**2+ResQaaLag2)
+        if (doDMRG) res = sqrt(resk**2)
+        if (res < abs(Eps)) exit
+      else
+        if ((abs(delta) < abs(Eps**2*delta0)) .and. (res < abs(Eps))) exit
+      end if
+      if (iter >= niter) then
+        cnvrgd = .false.
+        exit
+      end if
+      if (lprint) write(6,Fmt2//'I7,4X,ES17.9,ES17.9,ES17.9,ES17.9,ES17.9)') iter,delta/delta0,resk,resci,deltac,deltak
+      iter = iter+1
+
+    end do
+
+    !*******************************************************************
+
+    if (.not. cnvrgd) then
+      write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
+      converged(isym) = .false.
+      fail = .true.
+    else
+      if (iPL >= 2) write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+      irc = ipnout(-1)
+    end if
+
+    if (iPL >= 2) write(6,*)
+    iLen = ndensC
+    iKapDisp(iDisp) = iDis
+    call dDaFile(LuTemp,1,Kappa,iLen,iDis)
+    iSigDisp(iDisp) = iDis
+    call dDaFile(LuTemp,1,Sigma,iLen,iDis)
+    ilen = nconf1*nroots
+    iCIDisp(iDisp) = iDis
+
+    irc = ipin(ipCIT)
+    call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
+
+    ! MGD This last call seems unused, so I comment it
+
+    !call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp4,ipS2)
+    iCISigDisp(iDisp) = iDis
+    irc = ipin(ipST)
+    call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
+  end do ! iDisp
+
+  call mma_deallocate(Temp4)
+  call mma_deallocate(Temp3)
+  call mma_deallocate(Sigma)
+  call mma_deallocate(dKappa)
+  call mma_deallocate(Kappa)
+  call mma_deallocate(Sc2)
+  call mma_deallocate(Sc1)
+end if
 
 ! Free all memory and remove from disk all data
 ! related to this symmetry
 
-193 continue
 call mma_deallocate(Fancy)
 
 irc = ipclose(ipdia)

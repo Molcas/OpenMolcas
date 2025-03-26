@@ -22,6 +22,7 @@ implicit none
 real*8 rKappa(*), CLag(*), SLag(*)
 integer nOLag, nCLag, i, nSLag
 real*8 Tmp
+integer istatus
 
 ! Read in a and b part of effective gradient from CASPT2
 
@@ -34,24 +35,32 @@ end do
 nSLag = nRoots*nRoots
 
 do i=1,nCLag
-  read(LUPT2,*,end=200) CLag(i)
+  read(LUPT2,*,iostat=istatus) CLag(i)
+  if (istatus < 0) call Error()
 end do
 do i=1,nOLag
-  read(LUPT2,*,end=200) tmp ! rKappa(i)
+  read(LUPT2,*,iostat=istatus) tmp ! rKappa(i)
+  if (istatus < 0) call Error()
   rKappa(i) = rKappa(i)+tmp
 end do
 do i=1,nSLag
-  read(LUPT2,*,end=200) SLag(i)
+  read(LUPT2,*,iostat=istatus) SLag(i)
+  if (istatus < 0) call Error()
 end do
 
 return
 
-200 continue
-write(6,*)
-write(6,'(1x,A)') 'The file which has to be written in CASPT2 module does not exist in RHS_PT2.'
-write(6,'(1x,A)') 'For single-point gradient calculation, you need GRAD or GRDT keyword in &CASPT2.'
-write(6,'(1x,A)') 'For geometry optimization, you do not need anything, so something is wrong with the code.'
-write(6,*)
-call abend()
+contains
+
+subroutine Error()
+
+  write(6,*)
+  write(6,'(1x,A)') 'The file which has to be written in CASPT2 module does not exist in RHS_PT2.'
+  write(6,'(1x,A)') 'For single-point gradient calculation, you need GRAD or GRDT keyword in &CASPT2.'
+  write(6,'(1x,A)') 'For geometry optimization, you do not need anything, so something is wrong with the code.'
+  write(6,*)
+  call abend()
+
+end subroutine Error
 
 end subroutine RHS_PT2

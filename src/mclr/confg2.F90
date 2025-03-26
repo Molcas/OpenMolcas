@@ -34,7 +34,7 @@ integer, intent(In) :: NCNFTP(*)
 ! Scratch
 integer IIOC(*), IICL(*), IIOP(*)
 ! local variables
-logical Test
+logical Loop700, Loop800, Skip700, Skip800, Test
 integer IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, JCONF, ICFREE, MINCL1, NOP, NCL, ICL, IFRSTC, IORB, IPLACE, IPRORB, &
         NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, ISYM, ISYMCN_MCLR
 #ifdef _DEBUGPRINT_
@@ -66,7 +66,7 @@ MINCL1 = max(0,NEL1MN-NORB1)
 #ifdef _DEBUGPRINT_
 write(6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
 #endif
-do NOP=MINOP,MAXOP,2
+outer: do NOP=MINOP,MAXOP,2
   NCL = (NEL-NOP)/2
 # ifdef _DEBUGPRINT_
   ITYPE = NOP-MINOP+1
@@ -80,219 +80,241 @@ do NOP=MINOP,MAXOP,2
     IIOC(ICL) = 2
   end do
   IFRSTC = 1
+
   ! Loop over double occupied orbital configurations
-2000 continue
+  inner: do
 
-  ! next double occupied configuration
-  if ((IFRSTC == 1) .or. (NCL == 0)) goto 801
-
-  do IORB=1,NORB
-    if (IIOC(IORB) == 1) IIOC(IORB) = 0
-  end do
-
-  IPLACE = 0
-800 IPLACE = IPLACE+1
-
-  IPRORB = IICL(IPLACE)
-  IIOC(IPRORB) = 0
-  NEWORB = IPRORB+1
-  if (((IPLACE < NCL) .and. (NEWORB < IICL(IPLACE+1))) .or. (IPLACE == NCL) .and. (NEWORB <= NORB)) then
-
-    IICL(IPLACE) = NEWORB
-    IIOC(NEWORB) = 2
-  else if (.not. ((IPLACE == NCL) .and. (NEWORB >= NORB))) then
-
-    if (IPLACE == 1) then
-      IICL(1) = 1
-      IIOC(1) = 2
+    ! next double occupied configuration
+    if ((IFRSTC == 1) .or. (NCL == 0)) then
+      Skip800 = .true.
     else
-      IICL(IPLACE) = IICL(IPLACE-1)+1
-      IIOC(IICL(IPLACE)) = 2
-    end if
-    goto 800
-  else
-    ! No more inactive configurations
-    goto 2001
-  end if
-801 continue
-  IFRSTC = 0
-  ! CHECK RAS1 and RAS 3
-  IEL1C = 0
-  IEL3C = 0
-  ICL1 = 0
-  do ICL=1,NCL
-    IORB = IICL(ICL)
-    if ((IORB1F <= IORB) .and. (IORB <= IORB1L)) then
-      IEL1C = IEL1C+2
-      ICL1 = ICL1+1
-    else if ((IORB3F <= IORB) .and. (IORB <= IORB3L)) then
-      IEL3C = IEL3C+2
-    end if
-  end do
-  IIICHK = 1
-  if ((ICL1 < MINCL1) .and. (IIICHK == 1)) then
-    ! Next higher combination with a higher number of inactive orbitals
-    do ICL=1,ICL1+1
-      IIOC(IICL(ICL)) = 0
-      IICL(ICL) = ICL
-      IIOC(ICL) = 2
-    end do
-    IPLACE = ICL1+1
-    if (IPLACE >= NCL) goto 2001
-    goto 800
-  end if
-  if (IEL3C > NEL3MX) goto 2000
-  ! Highest orbital not occupied
-  MXMPTY = NORB
-  IORB = NORB+1
-  ! begin while
-12 continue
-  IORB = IORB-1
-  if (IIOC(IORB) == 2) then
-    MXMPTY = IORB-1
-    if (IORB /= 1) goto 12
-  end if
-  ! End while
-#ifdef _DEBUGPRINT_
-  write(6,*) ' Next inactive configuration'
-  call IWRTMA(IICL,1,NCL,1,NCL)
-# endif
-
-  ! first active configuration
-  IORB = 0
-  IOP = 0
-  do IORB=1,NORB
-    if (IIOC(IORB) == 0) then
-      IOP = IOP+1
-      if (IOP > NOP) goto 31
-      IIOC(IORB) = 1
-      IIOP(IOP) = IORB
-    end if
-  end do
-31 continue
-  IFRSTO = 1
-
-  ! Next open shell configuration
-1000 continue
-  if ((IFRSTO == 1) .or. (NOP == 0)) goto 701
-  IPLACE = 0
-700 continue
-  IPLACE = IPLACE+1
-  IPRORB = IIOP(IPLACE)
-  NEWORB = IPRORB+1
-  IIOC(IPRORB) = 0
-
-! PAM 2013: Searching for next orbital with IIOC=0:
-690 continue
-  Test = NEWORB <= MXMPTY
-  if (Test) Test = IIOC(NEWORB) /= 0
-  if (Test) then
-    NEWORB = NEWORB+1
-    goto 690
-  end if
-
-  Test = IPLACE < NOP
-  if (Test) Test = NEWORB < IIOP(IPLACE+1)
-  if (Test .or. (IPLACE == NOP) .and. (NEWORB <= MXMPTY)) then
-    IIOP(IPLACE) = NEWORB
-    IIOC(NEWORB) = 1
-  else if (IPLACE /= NOP) then
-    if (IPLACE == 1) then
-      NEWORB = 1-1
-    else
-      NEWORB = IIOP(IPLACE-1)
-    end if
-671 continue
-    NEWORB = NEWORB+1
-    if ((IIOC(NEWORB) /= 0) .and. (NEWORB < MXMPTY)) goto 671
-    IIOP(IPLACE) = NEWORB
-    IIOC(NEWORB) = 1
-    goto 700
-  else
-    ! No more active configurations, so
-    if (NCL /= 0) goto 2000
-    if (NCL == 0) goto 5001
-  end if
-701 continue
-  IFRSTO = 0
-
-# ifdef _DEBUGPRINT_
-  write(6,*) ' Next active configuration'
-  call IWRTMA(IIOP,1,NOP,1,NOP)
-# endif
-  ! RAS  CONSTRAINTS
-  IEL1 = IEL1C
-  IEL3 = IEL3C
-  ! CHECK RAS1 and RAS3
-  do IOP=1,NOP
-    IORB = IIOP(IOP)
-    if ((IORB1F <= IORB) .and. (IORB <= IORB1L)) then
-      IEL1 = IEL1+1
-    else if ((IORB3F <= IORB) .and. (IORB <= IORB3L)) then
-      IEL3 = IEL3+1
-    end if
-  end do
-  ! Faster routine for RAS 3, added august 1990
-  IR3CHK = 1
-  if ((IEL3 > NEL3MX) .and. (IR3CHK == 1)) then
-    ! Number of electrons in substring
-    IFSTR3 = 0
-    do IOP=1,NOP
-      if (IIOP(IOP) >= IORB3F) then
-        IFSTR3 = IOP
-        goto 5608
-      end if
-    end do
-5608 continue
-    if (IFSTR3 /= NOP) then
-
-      ! Lowest possible string with NOP electrons
-      do K=1,IFSTR3
-        IIOC(IIOP(K)) = 0
+      do IORB=1,NORB
+        if (IIOC(IORB) == 1) IIOC(IORB) = 0
       end do
 
-      KEL = 0
-      KORB = 0
-5630  continue
-      KORB = KORB+1
-      if (IIOC(KORB) /= 2) then
-        KEL = KEL+1
-        IIOC(KORB) = 1
-        IIOP(KEL) = KORB
-      end if
-      if (KEL /= IFSTR3) goto 5630
-      IPLACE = IFSTR3
-      goto 700
+      IPLACE = 0
+      Skip800 = .false.
     end if
-  end if
-  if ((IEL1 < NEL1MN) .or. (IEL3 > NEL3MX)) goto 999
+    Loop800 = .true.
+    do while (Loop800)
+      Loop800 = .false.
+      if (Skip800) then
+        Skip800 = .false.
+      else
+        IPLACE = IPLACE+1
 
-  ! Spatial symmetry
-  ISYM = ISYMCN_MCLR(IICL,IIOP,NCL,NOP)
-  if (ISYM == IREFSM) then
+        IPRORB = IICL(IPLACE)
+        IIOC(IPRORB) = 0
+        NEWORB = IPRORB+1
+        if (((IPLACE < NCL) .and. (NEWORB < IICL(IPLACE+1))) .or. (IPLACE == NCL) .and. (NEWORB <= NORB)) then
+
+          IICL(IPLACE) = NEWORB
+          IIOC(NEWORB) = 2
+        else if (.not. ((IPLACE == NCL) .and. (NEWORB >= NORB))) then
+
+          if (IPLACE == 1) then
+            IICL(1) = 1
+            IIOC(1) = 2
+          else
+            IICL(IPLACE) = IICL(IPLACE-1)+1
+            IIOC(IICL(IPLACE)) = 2
+          end if
+          Loop800 = .true.
+          cycle
+        else
+          ! No more inactive configurations
+          exit inner
+        end if
+      end if
+      IFRSTC = 0
+      ! CHECK RAS1 and RAS 3
+      IEL1C = 0
+      IEL3C = 0
+      ICL1 = 0
+      do ICL=1,NCL
+        IORB = IICL(ICL)
+        if ((IORB1F <= IORB) .and. (IORB <= IORB1L)) then
+          IEL1C = IEL1C+2
+          ICL1 = ICL1+1
+        else if ((IORB3F <= IORB) .and. (IORB <= IORB3L)) then
+          IEL3C = IEL3C+2
+        end if
+      end do
+      IIICHK = 1
+      if ((ICL1 < MINCL1) .and. (IIICHK == 1)) then
+        ! Next higher combination with a higher number of inactive orbitals
+        do ICL=1,ICL1+1
+          IIOC(IICL(ICL)) = 0
+          IICL(ICL) = ICL
+          IIOC(ICL) = 2
+        end do
+        IPLACE = ICL1+1
+        if (IPLACE >= NCL) exit inner
+        Loop800 = .true.
+      end if
+    end do
+    if (IEL3C > NEL3MX) cycle inner
+    ! Highest orbital not occupied
+    MXMPTY = NORB
+    IORB = NORB+1
+    do
+      IORB = IORB-1
+      if (IIOC(IORB) == 2) then
+        MXMPTY = IORB-1
+        if (IORB == 1) exit
+      else
+        exit
+      end if
+    end do
 #   ifdef _DEBUGPRINT_
-    write(6,1120) (IIOC(I),I=1,NORB)
+    write(6,*) ' Next inactive configuration'
+    call IWRTMA(IICL,1,NCL,1,NCL)
 #   endif
-    JCONF = JCONF+1
 
-    do ICL=1,NCL
-      ICONF(ICFREE-1+ICL) = IICL(ICL)
+    ! first active configuration
+    IORB = 0
+    IOP = 0
+    do IORB=1,NORB
+      if (IIOC(IORB) == 0) then
+        IOP = IOP+1
+        if (IOP > NOP) exit
+        IIOC(IORB) = 1
+        IIOP(IOP) = IORB
+      end if
     end do
-    do IOP=1,NOP
-      ICONF(ICFREE-1+NCL+IOP) = IIOP(IOP)
+    IFRSTO = 1
+
+    ! Next open shell configuration
+    do
+      if ((IFRSTO == 1) .or. (NOP == 0)) then
+        Skip700 = .true.
+      else
+        IPLACE = 0
+        Skip700 = .false.
+      end if
+      Loop700 = .true.
+      do while (Loop700)
+        Loop700 = .false.
+        if (Skip700) then
+          Skip700 = .false.
+        else
+          IPLACE = IPLACE+1
+          IPRORB = IIOP(IPLACE)
+          NEWORB = IPRORB+1
+          IIOC(IPRORB) = 0
+
+          ! PAM 2013: Searching for next orbital with IIOC=0:
+          do
+            Test = NEWORB <= MXMPTY
+            if (Test) Test = IIOC(NEWORB) /= 0
+            if (.not. Test) exit
+            NEWORB = NEWORB+1
+          end do
+
+          Test = IPLACE < NOP
+          if (Test) Test = NEWORB < IIOP(IPLACE+1)
+          if (Test .or. (IPLACE == NOP) .and. (NEWORB <= MXMPTY)) then
+            IIOP(IPLACE) = NEWORB
+            IIOC(NEWORB) = 1
+          else if (IPLACE /= NOP) then
+            if (IPLACE == 1) then
+              NEWORB = 1-1
+            else
+              NEWORB = IIOP(IPLACE-1)
+            end if
+            do
+              NEWORB = NEWORB+1
+              if ((IIOC(NEWORB) == 0) .or. (NEWORB >= MXMPTY)) exit
+            end do
+            IIOP(IPLACE) = NEWORB
+            IIOC(NEWORB) = 1
+            Loop700 = .true.
+            cycle
+          else
+            ! No more active configurations, so
+            if (NCL /= 0) cycle inner
+            if (NCL == 0) exit outer
+          end if
+        end if
+        IFRSTO = 0
+
+#       ifdef _DEBUGPRINT_
+        write(6,*) ' Next active configuration'
+        call IWRTMA(IIOP,1,NOP,1,NOP)
+#       endif
+        ! RAS  CONSTRAINTS
+        IEL1 = IEL1C
+        IEL3 = IEL3C
+        ! CHECK RAS1 and RAS3
+        do IOP=1,NOP
+          IORB = IIOP(IOP)
+          if ((IORB1F <= IORB) .and. (IORB <= IORB1L)) then
+            IEL1 = IEL1+1
+          else if ((IORB3F <= IORB) .and. (IORB <= IORB3L)) then
+            IEL3 = IEL3+1
+          end if
+        end do
+        ! Faster routine for RAS 3, added august 1990
+        IR3CHK = 1
+        if ((IEL3 > NEL3MX) .and. (IR3CHK == 1)) then
+          ! Number of electrons in substring
+          IFSTR3 = 0
+          do IOP=1,NOP
+            if (IIOP(IOP) >= IORB3F) then
+              IFSTR3 = IOP
+              exit
+            end if
+          end do
+          if (IFSTR3 /= NOP) then
+
+            ! Lowest possible string with NOP electrons
+            do K=1,IFSTR3
+              IIOC(IIOP(K)) = 0
+            end do
+
+            KEL = 0
+            KORB = 0
+            do
+              KORB = KORB+1
+              if (IIOC(KORB) /= 2) then
+                KEL = KEL+1
+                IIOC(KORB) = 1
+                IIOP(KEL) = KORB
+              end if
+              if (KEL == IFSTR3) exit
+            end do
+            IPLACE = IFSTR3
+            Loop700 = .true.
+          end if
+        end if
+      end do
+      if ((IEL1 >= NEL1MN) .and. (IEL3 <= NEL3MX)) then
+
+        ! Spatial symmetry
+        ISYM = ISYMCN_MCLR(IICL,IIOP,NCL,NOP)
+        if (ISYM == IREFSM) then
+#         ifdef _DEBUGPRINT_
+          write(6,1120) (IIOC(I),I=1,NORB)
+#         endif
+          JCONF = JCONF+1
+
+          do ICL=1,NCL
+            ICONF(ICFREE-1+ICL) = IICL(ICL)
+          end do
+          do IOP=1,NOP
+            ICONF(ICFREE-1+NCL+IOP) = IIOP(IOP)
+          end do
+          ICFREE = ICFREE+NOP+NCL
+        end if
+      end if
+
+      ! LOOP OVER active configurations end
+
+      if ((NOP == 0) .and. (NCL == 0)) exit outer
+      if (NOP == 0) exit
     end do
-    ICFREE = ICFREE+NOP+NCL
-  end if
-
-  ! LOOP OVER active configurations end
-
-999 continue
-  if ((NOP == 0) .and. (NCL == 0)) goto 5001
-  if (NOP == 0) goto 2000
-  goto 1000
-2001 continue
-end do
-5001 continue
+  end do inner
+end do outer
 
 #ifdef _DEBUGPRINT_
 write(6,'(/A,I3)') '  Configurations of symmetry ',IREFSM

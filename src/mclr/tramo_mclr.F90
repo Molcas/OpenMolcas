@@ -383,191 +383,75 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
     write(6,*) 'Buffer(ipB-1)=',Buffer(ipB-1)
     call Abend()
   end if
-  if (nAP+nAQ == 0) goto 987
-  !*********************************************************************
-  !
-  !     second transformation
-  !     =====================
-  !
-  !    The integrals are transformed and written to disk
-  !    this is done so that the integrals are written to
-  !    disk in batches of nB*nB*nA integrals. This is the
-  !    Least number of integrals that have to match in buffer
-  !    because we want to write the integrals sorted onto disk
-  !
-  !*********************************************************************
 
-  ipX = ip4
-  ipY = ipX+nBR*NAS*nBP*nAQ+1   ! (Ij|kL)
-  ipz = ipy+1
-  if (isp /= isq) ipZ = ipY+nBR*NAS*nBQ*nAP+1
-  if (ipz > memx) then
-    write(6,*) 'TraMO_MCLR: ipz > memx'
-    write(6,*) 'ipz,memx=',ipz,memx
-    call Abend()
-  end if
-  Buffer(ipX-1) = -99999.0d0
-  Buffer(ipY-1) = -99999.0d0
-  Buffer(ipZ-1) = -99999.0d0
+  if (nAP+nAQ /= 0) then
+    !*******************************************************************
+    !
+    !     second transformation
+    !     =====================
+    !
+    !    The integrals are transformed and written to disk
+    !    this is done so that the integrals are written to
+    !    disk in batches of nB*nB*nA integrals. This is the
+    !    Least number of integrals that have to match in buffer
+    !    because we want to write the integrals sorted onto disk
+    !
+    !*******************************************************************
 
-  IAD2 = 0
-  IAD3 = 0
-  IVX = 0
-  do NS=1,nAS
-    nr2 = (NS-1)*NBR*NBP*NAQ
-    nr3 = (NS-1)*nBR*NBQ*NAP
-    if (.not. NoFile) then
-      do NR=1,nBR
-        IPQST = 1+NBPQ*IVX
-        IVX = IVX+1
-        IBUF = IVX
-
-        !***************************************************************
-        !
-        !      Read one buffer of integrals back into core if INCORE=1
-        !
-        !***************************************************************
-
-        if (INCORE == 1) then
-          ipq = 0
-          ip2 = 1
-          ip5 = ip2+((nBPQ-1)/iMax+1)*iMax
-          ipX = ip5+iMax+1
-          ipY = ipX+nBP*nAQ*nBR*NAS+1
-          ipZ = ipY+1
-          if (isp /= isq) ipZ = ipX+nAQ*NBP*nBR*NAS+1
-          Buffer(ipX-1) = -99999.0d0
-          Buffer(ipY-1) = -99999.0d0
-          Buffer(ipZ-1) = -99999.0d0
-          ipq = 1
-112       continue
-          IAD2 = IDAHLF2(IBUF)
-          LPKREC = IRLHLF2(IBUF)
-          call c_f_pointer(c_loc(Buffer(ip5)),iBuffer,[LPKREC])
-          call iDAFILE(LUHLF2,2,iBuffer,LPKREC,IAD2)
-          nullify(iBuffer)
-          call UPKR8(0,iMax,NBYTES,Buffer(ip5),Buffer(ip2+IPQ-1))
-          IPQ = IPQ+iMax
-          iBuf = iBuf+nAS*nBR
-          if (IPQ <= NBPQ) GO TO 112
-          IPQST = 1
-        end if
-
-        !***************************************************************
-        !                                                              *
-        ! Transform (ij|kL) -> (Ij|kL) & (iJ|kL)                       *
-        !                                                              *
-        !***************************************************************
-
-        if (ISP == ISQ) then
-          if (NAQ /= 0) then
-            call SQUARE(Buffer(ip2+IPQST-1),X1,1,NBP,NBQ)
-            call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,X1,NBQ,CMQ,NBQ,0.0d0,X2,NBP)
-          end if
-        else
-          if (NAQ /= 0) call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,Buffer(ip2+IPQST-1),NBQ,CMQ,NBQ,0.0d0,X2,NBP)
-          if (NAP /= 0) call DGEMM_('N','N',NBQ,NAP,NBP,1.0d0,Buffer(ip2+IPQST-1),NBQ,CMP,NBP,0.0d0,X3,NBQ)
-        end if
-
-        !***************************************************************
-        !
-        !      Move integrals to output buffer
-        !
-        !***************************************************************
-
-        do i=0,nAQ-1
-          call dcopy_(nBP,X2(i*nBP+1),1,Buffer(ipX+nr2+i*nBR*nBP),1)
-        end do
-        nr2 = nr2+nBP
-
-        if (isp /= isq) then
-          do i=0,nAP-1
-            call dcopy_(nBQ,X3(i*nBQ+1),1,Buffer(ipY+nr3+i*nBR*nBQ),1)
-          end do
-          nr3 = nr3+nBQ
-        end if
-
-      end do
-
-      !*****************************************************************
-      !
-      !       Empty last buffers
-      !
-      !*****************************************************************
-
-    end if ! nofile
-  end do
-  if (nAQ /= 0) then
-    !call GADSum(Buffer(ipX),nAQ*NAS*NBR*NBP)
-    call dDafile(LUTRI2,ione,Buffer(ipX),nAQ*NAS*NBR*NBP,iAD24)
-  end if
-  if (iSP /= iSQ .and. nAP /= 0) then
-    !call GADSum(Buffer(ipY),NAP*NAS*NBR*NBQ)
-    call dDafile(LUTRI3,ione,Buffer(ipY),NAP*NAS*NBR*NBQ,iAD14)
-  end if
-
-  !*********************************************************************
-
-  if (buffer(ipX-1) /= -99999.0d0) then
-    write(6,*) 'TraMO_MCLR: buffer(ipX-1) /= -99999.0d0'
-    write(6,*) 'buffer(ipX-1)=',buffer(ipX-1)
-    call Abend()
-  end if
-  if (buffer(ipY-1) /= -99999.0d0) then
-    write(6,*) 'TraMO_MCLR: buffer(ipY-1) /= -99999.0d0'
-    write(6,*) 'buffer(ipY-1)=',buffer(ipY-1)
-    call Abend()
-  end if
-  if (buffer(ipZ-1) /= -99999.0d0) then
-    write(6,*) 'TraMO_MCLR: buffer(ipZ-1) /= -99999.0d0'
-    write(6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
-    call Abend()
-  end if
-  if (iSS /= iSR) then
     ipX = ip4
+    ipY = ipX+nBR*NAS*nBP*nAQ+1   ! (Ij|kL)
+    ipz = ipy+1
+    if (isp /= isq) ipZ = ipY+nBR*NAS*nBQ*nAP+1
+    if (ipz > memx) then
+      write(6,*) 'TraMO_MCLR: ipz > memx'
+      write(6,*) 'ipz,memx=',ipz,memx
+      call Abend()
+    end if
     Buffer(ipX-1) = -99999.0d0
-    ipY = ipX+nAR*NBS*nBP*nAQ+1   ! (Ij|kL)
     Buffer(ipY-1) = -99999.0d0
-    ipZ = ipy+1
-    if (isp /= isq) ipZ = ipY+nAR*NBS*nBQ*nAP+1
     Buffer(ipZ-1) = -99999.0d0
+
+    IAD2 = 0
+    IAD3 = 0
     IVX = 0
-    do NR=1,nAR
-      nr2 = NBP*NBS*(nR-1)*NAQ
-      nr3 = NBQ*NBS*(nR-1)*NAP
+    do NS=1,nAS
+      nr2 = (NS-1)*NBR*NBP*NAQ
+      nr3 = (NS-1)*nBR*NBQ*NAP
       if (.not. NoFile) then
-        do NS=1,nBS
+        do NR=1,nBR
           IPQST = 1+NBPQ*IVX
           IVX = IVX+1
           IBUF = IVX
 
           !*************************************************************
           !
-          !   Read one buffer of integrals back into core if INCORE=1
+          !    Read one buffer of integrals back into core if INCORE=1
           !
           !*************************************************************
 
           if (INCORE == 1) then
+            ipq = 0
             ip2 = 1
-            ip3 = ip2
-            ip5 = ip3+((nBPQ-1)/iMax+1)*iMax
+            ip5 = ip2+((nBPQ-1)/iMax+1)*iMax
             ipX = ip5+iMax+1
-            ipY = ipX+nBP*nAQ*nAR*NBS+1
-            ipZ = ipY+nBQ*nAP*NAR*NBS+1
+            ipY = ipX+nBP*nAQ*nBR*NAS+1
+            ipZ = ipY+1
+            if (isp /= isq) ipZ = ipX+nAQ*NBP*nBR*NAS+1
             Buffer(ipX-1) = -99999.0d0
             Buffer(ipY-1) = -99999.0d0
             Buffer(ipZ-1) = -99999.0d0
-            IPQ = 1
-212         continue
-            IAD3 = IDAHLF3(IBUF)
-            LPKREC = IRLHLF3(IBUF)
-            call c_f_pointer(c_loc(Buffer(ip5)),iBuffer,[LPKREC])
-            call iDAFILE(LUHLF3,2,iBuffer,LPKREC,IAD3)
-            nullify(iBuffer)
-            call UPKR8(0,iMax,NBYTES,Buffer(ip5),Buffer(ip3+IPQ-1))
-            IPQ = IPQ+iMax
-            iBuf = iBuf+nAR*nBS
-            if (IPQ <= NBPQ) GO TO 212
+            ipq = 1
+            do
+              IAD2 = IDAHLF2(IBUF)
+              LPKREC = IRLHLF2(IBUF)
+              call c_f_pointer(c_loc(Buffer(ip5)),iBuffer,[LPKREC])
+              call iDAFILE(LUHLF2,2,iBuffer,LPKREC,IAD2)
+              nullify(iBuffer)
+              call UPKR8(0,iMax,NBYTES,Buffer(ip5),Buffer(ip2+IPQ-1))
+              IPQ = IPQ+iMax
+              iBuf = iBuf+nAS*nBR
+              if (IPQ > NBPQ) exit
+            end do
             IPQST = 1
           end if
 
@@ -578,16 +462,13 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
           !*************************************************************
 
           if (ISP == ISQ) then
-            if (nBQ*nAP /= 0) then
-
-              call SQUARE(Buffer(ip3+IPQST-1),X1,1,NBQ,NBQ)
+            if (NAQ /= 0) then
+              call SQUARE(Buffer(ip2+IPQST-1),X1,1,NBP,NBQ)
               call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,X1,NBQ,CMQ,NBQ,0.0d0,X2,NBP)
-              !call xxDGEMUL(X1,NBQ,'N',CMP,NBP,'N',X3,NBQ,NBQ,NBP,NAP)
-              !call RecPrt('PqRs',' ',X3,nBQ,nAP)
             end if
           else
-            if (nBP*nAQ /= 0) call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,Buffer(ip3+IPQST-1),NBQ,CMQ,NBQ,0.0d0,X2,NBP)
-            if (nBQ*nAP /= 0) call DGEMM_('N','N',NBQ,NAP,NBP,1.0d0,Buffer(ip3+IPQST-1),NBQ,CMP,NBP,0.0d0,X3,NBQ)
+            if (NAQ /= 0) call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,Buffer(ip2+IPQST-1),NBQ,CMQ,NBQ,0.0d0,X2,NBP)
+            if (NAP /= 0) call DGEMM_('N','N',NBQ,NAP,NBP,1.0d0,Buffer(ip2+IPQST-1),NBQ,CMP,NBP,0.0d0,X3,NBQ)
           end if
 
           !*************************************************************
@@ -597,52 +478,174 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
           !*************************************************************
 
           do i=0,nAQ-1
-            call dcopy_(nBP,X2(i*nBP+1),1,Buffer(ipX+i*nBS*nBP+nr2),1)
+            call dcopy_(nBP,X2(i*nBP+1),1,Buffer(ipX+nr2+i*nBR*nBP),1)
           end do
           nr2 = nr2+nBP
-          if (iSP /= iSQ) then
+
+          if (isp /= isq) then
             do i=0,nAP-1
-              call dcopy_(nBQ,X3(i*nBQ+1),1,Buffer(ipY+i*NBS*nBQ+nR3),1)
+              call dcopy_(nBQ,X3(i*nBQ+1),1,Buffer(ipY+nr3+i*nBR*nBQ),1)
             end do
             nr3 = nr3+nBQ
           end if
 
         end do
-        if (buffer(ipX-1) /= -99999.0d0) then
-          write(6,*) 'TraMO_MCLR: buffer(ipX-1) /= -99999.0d0'
-          write(6,*) 'buffer(ipX-1)=',buffer(ipX-1)
-          call Abend()
-        end if
-        if (buffer(ipY-1) /= -99999.0d0) then
-          write(6,*) 'TraMO_MCLR: buffer(ipY-1) /= -99999.0d0'
-          write(6,*) 'buffer(ipY-1)=',buffer(ipY-1)
-          call Abend()
-        end if
-        if (buffer(ipZ-1) /= -99999.0d0) then
-          write(6,*) 'TraMO_MCLR: buffer(ipZ-1) /= -99999.0d0'
-          write(6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
-          call Abend()
-        end if
 
         !***************************************************************
         !
-        !      Write buffer to disk (iJ|Kl) & (Ij|Kl)
+        !       Empty last buffers
         !
         !***************************************************************
 
       end if ! nofile
     end do
     if (nAQ /= 0) then
-      !call GADSum(Buffer(ipX),nAR*nAQ*nBS*nBP)
-      call dDaFile(LuTri4,ione,Buffer(ipX),nAR*nAQ*nBS*nBP,iad23)
+      !call GADSum(Buffer(ipX),nAQ*NAS*NBR*NBP)
+      call dDafile(LUTRI2,ione,Buffer(ipX),nAQ*NAS*NBR*NBP,iAD24)
     end if
-    if (iSP /= iSQ .and. nap /= 0) then
-      !call GADSum(Buffer(ipY),nAR*nAP*nBS*nBQ)
-      call dDaFile(LuTri5,ione,Buffer(ipY),nAR*nAP*nBS*nBQ,iad13)
+    if (iSP /= iSQ .and. nAP /= 0) then
+      !call GADSum(Buffer(ipY),NAP*NAS*NBR*NBQ)
+      call dDafile(LUTRI3,ione,Buffer(ipY),NAP*NAS*NBR*NBQ,iAD14)
+    end if
+
+    !*******************************************************************
+
+    if (buffer(ipX-1) /= -99999.0d0) then
+      write(6,*) 'TraMO_MCLR: buffer(ipX-1) /= -99999.0d0'
+      write(6,*) 'buffer(ipX-1)=',buffer(ipX-1)
+      call Abend()
+    end if
+    if (buffer(ipY-1) /= -99999.0d0) then
+      write(6,*) 'TraMO_MCLR: buffer(ipY-1) /= -99999.0d0'
+      write(6,*) 'buffer(ipY-1)=',buffer(ipY-1)
+      call Abend()
+    end if
+    if (buffer(ipZ-1) /= -99999.0d0) then
+      write(6,*) 'TraMO_MCLR: buffer(ipZ-1) /= -99999.0d0'
+      write(6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
+      call Abend()
+    end if
+    if (iSS /= iSR) then
+      ipX = ip4
+      Buffer(ipX-1) = -99999.0d0
+      ipY = ipX+nAR*NBS*nBP*nAQ+1   ! (Ij|kL)
+      Buffer(ipY-1) = -99999.0d0
+      ipZ = ipy+1
+      if (isp /= isq) ipZ = ipY+nAR*NBS*nBQ*nAP+1
+      Buffer(ipZ-1) = -99999.0d0
+      IVX = 0
+      do NR=1,nAR
+        nr2 = NBP*NBS*(nR-1)*NAQ
+        nr3 = NBQ*NBS*(nR-1)*NAP
+        if (.not. NoFile) then
+          do NS=1,nBS
+            IPQST = 1+NBPQ*IVX
+            IVX = IVX+1
+            IBUF = IVX
+
+            !***********************************************************
+            !
+            !   Read one buffer of integrals back into core if INCORE=1
+            !
+            !***********************************************************
+
+            if (INCORE == 1) then
+              ip2 = 1
+              ip3 = ip2
+              ip5 = ip3+((nBPQ-1)/iMax+1)*iMax
+              ipX = ip5+iMax+1
+              ipY = ipX+nBP*nAQ*nAR*NBS+1
+              ipZ = ipY+nBQ*nAP*NAR*NBS+1
+              Buffer(ipX-1) = -99999.0d0
+              Buffer(ipY-1) = -99999.0d0
+              Buffer(ipZ-1) = -99999.0d0
+              IPQ = 1
+              do
+                IAD3 = IDAHLF3(IBUF)
+                LPKREC = IRLHLF3(IBUF)
+                call c_f_pointer(c_loc(Buffer(ip5)),iBuffer,[LPKREC])
+                call iDAFILE(LUHLF3,2,iBuffer,LPKREC,IAD3)
+                nullify(iBuffer)
+                call UPKR8(0,iMax,NBYTES,Buffer(ip5),Buffer(ip3+IPQ-1))
+                IPQ = IPQ+iMax
+                iBuf = iBuf+nAR*nBS
+                if (IPQ > NBPQ) exit
+              end do
+              IPQST = 1
+            end if
+
+            !***********************************************************
+            !                                                          *
+            ! Transform (ij|kL) -> (Ij|kL) & (iJ|kL)                   *
+            !                                                          *
+            !***********************************************************
+
+            if (ISP == ISQ) then
+              if (nBQ*nAP /= 0) then
+
+                call SQUARE(Buffer(ip3+IPQST-1),X1,1,NBQ,NBQ)
+                call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,X1,NBQ,CMQ,NBQ,0.0d0,X2,NBP)
+                !call xxDGEMUL(X1,NBQ,'N',CMP,NBP,'N',X3,NBQ,NBQ,NBP,NAP)
+                !call RecPrt('PqRs',' ',X3,nBQ,nAP)
+              end if
+            else
+              if (nBP*nAQ /= 0) call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,Buffer(ip3+IPQST-1),NBQ,CMQ,NBQ,0.0d0,X2,NBP)
+              if (nBQ*nAP /= 0) call DGEMM_('N','N',NBQ,NAP,NBP,1.0d0,Buffer(ip3+IPQST-1),NBQ,CMP,NBP,0.0d0,X3,NBQ)
+            end if
+
+            !***********************************************************
+            !
+            !      Move integrals to output buffer
+            !
+            !***********************************************************
+
+            do i=0,nAQ-1
+              call dcopy_(nBP,X2(i*nBP+1),1,Buffer(ipX+i*nBS*nBP+nr2),1)
+            end do
+            nr2 = nr2+nBP
+            if (iSP /= iSQ) then
+              do i=0,nAP-1
+                call dcopy_(nBQ,X3(i*nBQ+1),1,Buffer(ipY+i*NBS*nBQ+nR3),1)
+              end do
+              nr3 = nr3+nBQ
+            end if
+
+          end do
+          if (buffer(ipX-1) /= -99999.0d0) then
+            write(6,*) 'TraMO_MCLR: buffer(ipX-1) /= -99999.0d0'
+            write(6,*) 'buffer(ipX-1)=',buffer(ipX-1)
+            call Abend()
+          end if
+          if (buffer(ipY-1) /= -99999.0d0) then
+            write(6,*) 'TraMO_MCLR: buffer(ipY-1) /= -99999.0d0'
+            write(6,*) 'buffer(ipY-1)=',buffer(ipY-1)
+            call Abend()
+          end if
+          if (buffer(ipZ-1) /= -99999.0d0) then
+            write(6,*) 'TraMO_MCLR: buffer(ipZ-1) /= -99999.0d0'
+            write(6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
+            call Abend()
+          end if
+
+          !*************************************************************
+          !
+          !      Write buffer to disk (iJ|Kl) & (Ij|Kl)
+          !
+          !*************************************************************
+
+        end if ! nofile
+      end do
+      if (nAQ /= 0) then
+        !call GADSum(Buffer(ipX),nAR*nAQ*nBS*nBP)
+        call dDaFile(LuTri4,ione,Buffer(ipX),nAR*nAQ*nBS*nBP,iad23)
+      end if
+      if (iSP /= iSQ .and. nap /= 0) then
+        !call GADSum(Buffer(ipY),nAR*nAP*nBS*nBQ)
+        call dDaFile(LuTri5,ione,Buffer(ipY),nAR*nAP*nBS*nBQ,iad13)
+      end if
     end if
   end if
 
-987 continue
   if (INCORE == 1) then
     call DACLOS(LUHLF2)
     call DACLOS(LUHLF3)

@@ -33,7 +33,7 @@ if (IPACK /= 0) then
   IDUM(1) = IMZERO
   call ITODS(IDUM,1,MMBLOCK,IFIL)
   !write(6,*) ' back from ITODS'
-  if (IMZERO == 1) goto 1001
+  if (IMZERO == 1) return
 end if
 
 ICRAY = 1
@@ -44,27 +44,26 @@ if ((MBLOCK >= 0) .or. (ICRAY == 1)) then
   stop = 0
   NBACK = NDIM
   ! LOOP OVER RECORDS
-100 continue
-  if (NBACK <= NBLOCK) then
-    NTRANS = NBACK
-    NLABEL = -NTRANS
-  else
-    NTRANS = NBLOCK
-    NLABEL = NTRANS
-  end if
-  START = stop+1
-  stop = START+NBLOCK-1
-  NBACK = NBACK-NTRANS
-  write(IFIL) (A(I),I=START,stop),NLABEL
-  if (NBACK /= 0) goto 100
+  do
+    if (NBACK <= NBLOCK) then
+      NTRANS = NBACK
+      NLABEL = -NTRANS
+    else
+      NTRANS = NBLOCK
+      NLABEL = NTRANS
+    end if
+    START = stop+1
+    stop = START+NBLOCK-1
+    NBACK = NBACK-NTRANS
+    write(IFIL) (A(I),I=START,stop),NLABEL
+    if (NBACK == 0) exit
+  end do
 end if
 
 if ((ICRAY == 0) .and. (MBLOCK < 0) .and. (NDIM > 0)) then
   !call SQFILE(IFIL,1,A,2*NDIM)
   call SysHalt('todsc')
 end if
-
-1001 continue
 
 !write(6,*) ' leaving TODSC'
 

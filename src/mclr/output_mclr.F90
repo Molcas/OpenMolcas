@@ -236,7 +236,7 @@ do iSym=1,nSym
       else
         nConf1 = nint(xispsm(Pstate_Sym,1))
       end if
-      if (.not. lCalc(kDisp+ksym)) goto 120
+      if (.not. lCalc(kDisp+ksym)) cycle
 
       !write(6,*) 'kDisp+kSym',kDisp+kSym
       !write(6,*) 'iKapDisp(kdisp+ksym)',iKapDisp(kdisp+ksym)
@@ -334,7 +334,6 @@ do iSym=1,nSym
 
       Rhss(Index) = Rhss(Index)+rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3
 
-120   continue
     end do
 
     !*******************************************************************

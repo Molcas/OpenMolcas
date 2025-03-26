@@ -76,7 +76,7 @@ do ksym=1,nsym
         if (iJK == 2) factor2 = 2.0d0 ! exchange
         do lsym=1,nsym
           nl = nBas(lsym)
-          if (nl <= 0) Go to 20
+          if (nl <= 0) cycle
           call DDAFILE(LuChoInt(2),2,A_J,nl**2,iAdr)
 
           if (lsym == js) then
@@ -147,7 +147,6 @@ do ksym=1,nsym
               if ((iJK == 2) .and. (jCC > jDD)) call DaXpY_(ni,rDensabb,A_J((nO+ii-1)*nl+no+ii),nl,rout(ip),1)
             end do
           end if
-20        continue
 
         end do
       end do

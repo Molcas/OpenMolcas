@@ -42,7 +42,7 @@ integer iPL
 logical CI
 character(len=8) Fmt2
 integer opOut
-logical lPrint
+logical lPrint, cnvrgd
 real*8 rchc(mxroot)
 real*8 rDum(1)
 external IsFreeUnit
@@ -200,7 +200,6 @@ do iDisp=1,nDisp
   !  call RHS_NAC(Temp4)
   !else
   !  call RHS_SA(Temp4)
-  !  goto 538
   !end if
 
   !AMS _____________________________________________________
@@ -510,7 +509,6 @@ do iDisp=1,nDisp
   !write(6,*) 'deltac and deltak',deltac,deltak
   delta0 = delta
   iter = 1
-  if (delta == Zero) goto 300
   ! Naming System:
   ! Kappa: accumulates Lagrange multiplier orbital parts (dKappa * ralpha)
   ! dKappa: orbital input of Hessian matrix-vector;
@@ -523,138 +521,142 @@ do iDisp=1,nDisp
 
   !---------------------------------------------------------------------
 
-200 continue
+  cnvrgd = .true.
+  do
+    if (delta == Zero) exit
 
-  call TimesE2_(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
+    call TimesE2_(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
 
-  !---------------------------------------------------------------------
-  !
-  !            delta
-  ! rAlpha=------------
-  !        dKappa:dSigma
-  !
-  !---------------------------------------------------------------------
+    !-------------------------------------------------------------------
+    !
+    !            delta
+    ! rAlpha=------------
+    !        dKappa:dSigma
+    !
+    !-------------------------------------------------------------------
 
-  rAlphaK = Zero
-  rAlphaK = ddot_(nDensC,Temp4,1,dKappa,1)
-  rAlphaC = Zero
-  irc = ipIn(ipS1)
-  irc = ipIn(ipCId)
-  rAlphaC = ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
+    rAlphaK = Zero
+    rAlphaK = ddot_(nDensC,Temp4,1,dKappa,1)
+    rAlphaC = Zero
+    irc = ipIn(ipS1)
+    irc = ipIn(ipCId)
+    rAlphaC = ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
 
-  rAlpha = delta/(rAlphaK+rAlphaC)
+    rAlpha = delta/(rAlphaK+rAlphaC)
 
-  !--------------------------------------------------------------------*
+    !------------------------------------------------------------------*
 
-  ! Kappa=Kappa+rAlpha*dKappa
-  call DaxPy_(nDensC,ralpha,dKappa,1,Kappa,1)
-  ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-  call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
-  resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
+    ! Kappa=Kappa+rAlpha*dKappa
+    call DaxPy_(nDensC,ralpha,dKappa,1,Kappa,1)
+    ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
+    call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+    resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
 
-  resci = Zero
-  irc = ipIn(ipCIT)
-  call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
-  irc = ipOut(ipCIT)
-  ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
-  irc = ipIn(ipS1)
-  irc = ipIn(ipST)
-  call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
-  irc = opOut(ipS1)
-  resci = sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
+    resci = Zero
+    irc = ipIn(ipCIT)
+    call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+    irc = ipOut(ipCIT)
+    ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
+    irc = ipIn(ipS1)
+    irc = ipIn(ipST)
+    call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
+    irc = opOut(ipS1)
+    resci = sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
 
-  !--------------------------------------------------------------------*
-  ! Precondition......
-  !    -1
-  ! S=M  Sigma
+    !------------------------------------------------------------------*
+    ! Precondition......
+    !    -1
+    ! S=M  Sigma
 
-  irc = opOut(ipcid)
+    irc = opOut(ipcid)
 
-  irc = ipIn(ipS2)
-  call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
-
-  irc = opOut(ipci)
-  irc = opOut(ipdia)
-
-  irc = ipIn(ipPre2)
-  call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
-  irc = opOut(ippre2)
-
-  !--------------------------------------------------------------------*
-  !      s:Sigma (k+1)     s:Sigma (k+1)
-  ! Beta=-------        =  -------------
-  !       delta  (k)        s:Sigma (k)
-  !
-  ! delta=s:sigma
-  !
-  ! dKappa=s+Beta*dKappa
-
-  irc = ipIn(ipST)
-  irc = ipIn(ipS2)
-  deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-
-  irc = ipOut(ipST)
-
-  deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
-  if (.not. CI) then
-    rBeta = deltaK/delta
-    delta = deltaK
-    call DScal_(nDensC,rBeta,dKappa,1)
-    call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
-  else
-    rbeta = (deltac+deltaK)/delta
-    delta = deltac+deltaK
-
-    irc = ipIn(ipCID)
-    call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
-    call DScal_(nDensC,rBeta,dKappa,1)
     irc = ipIn(ipS2)
-    call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
-    call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
-    irc = opOut(ipS2)
-    irc = ipOut(ipCID)
-  end if
+    call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
 
-  !  ######  #    #  #####        #####    ####    ####
-  !  #       ##   #  #    #       #    #  #    #  #    #
-  !  #####   # #  #  #    #       #    #  #       #
-  !  #       #  # #  #    #       #####   #       #  ###
-  !  #       #   ##  #    #       #       #    #  #    #
-  !  ######  #    #  #####        #        ####    ####
-  !
-  !--------------------------------------------------------------------*
+    irc = opOut(ipci)
+    irc = opOut(ipdia)
 
-  res = Zero ! dummy initialize
-  if (iBreak == 1) then
-    if (abs(delta) < abs(Eps**2*delta0)) goto 300
-  else if (iBreak == 2) then
-    res = sqrt(resk**2+resci**2)
-    if (doDMRG) res = sqrt(resk**2)
-    if (res < abs(Eps)) goto 300
-  else
-    if ((abs(delta) < abs(Eps**2*delta0)) .and. (res < abs(Eps))) goto 300
-  end if
-  if (iter >= niter) goto 210
-  if (lprint) write(6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
-  iter = iter+1
+    irc = ipIn(ipPre2)
+    call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
+    irc = opOut(ippre2)
 
-  goto 200
+    !------------------------------------------------------------------*
+    !      s:Sigma (k+1)     s:Sigma (k+1)
+    ! Beta=-------        =  -------------
+    !       delta  (k)        s:Sigma (k)
+    !
+    ! delta=s:sigma
+    !
+    ! dKappa=s+Beta*dKappa
+
+    irc = ipIn(ipST)
+    irc = ipIn(ipS2)
+    deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+
+    irc = ipOut(ipST)
+
+    deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
+    if (.not. CI) then
+      rBeta = deltaK/delta
+      delta = deltaK
+      call DScal_(nDensC,rBeta,dKappa,1)
+      call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
+    else
+      rbeta = (deltac+deltaK)/delta
+      delta = deltac+deltaK
+
+      irc = ipIn(ipCID)
+      call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
+      call DScal_(nDensC,rBeta,dKappa,1)
+      irc = ipIn(ipS2)
+      call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+      call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
+      irc = opOut(ipS2)
+      irc = ipOut(ipCID)
+    end if
+
+    !  ######  #    #  #####        #####    ####    ####
+    !  #       ##   #  #    #       #    #  #    #  #    #
+    !  #####   # #  #  #    #       #    #  #       #
+    !  #       #  # #  #    #       #####   #       #  ###
+    !  #       #   ##  #    #       #       #    #  #    #
+    !  ######  #    #  #####        #        ####    ####
+    !
+    !------------------------------------------------------------------*
+
+    res = Zero ! dummy initialize
+    if (iBreak == 1) then
+      if (abs(delta) < abs(Eps**2*delta0)) exit
+    else if (iBreak == 2) then
+      res = sqrt(resk**2+resci**2)
+      if (doDMRG) res = sqrt(resk**2)
+      if (res < abs(Eps)) exit
+    else
+      if ((abs(delta) < abs(Eps**2*delta0)) .and. (res < abs(Eps))) exit
+    end if
+    if (iter >= niter) then
+      cnvrgd = .false.
+      exit
+    end if
+    if (lprint) write(6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
+    iter = iter+1
+
+  end do
 
   !*********************************************************************
 
-210 continue
-  write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
-  converged(isym) = .false.
-  fail = .true.
-  goto 310
-300 continue
-  if (iPL >= 2) then
-    write(6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
-    write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+  if (.not. cnvrgd) then
+    write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
+    converged(isym) = .false.
+    fail = .true.
+  else
+    if (iPL >= 2) then
+      write(6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
+      write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+    end if
+    irc = ipnout(-1)
   end if
-  irc = ipnout(-1)
 
-310 continue
   if (iPL >= 2) write(6,*)
   if (debug) then
     write(6,*) 'outputs'

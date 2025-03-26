@@ -90,11 +90,11 @@ do iSP=1,NSYM
 
         NORBP = NAP*NAQ+NAR*NAS+NAP*NAR+NAP*NAS+NAQ*NAR+NAQ*NAS
         NBPQRS = NBP*NBQ*NBR*NBS
-        if (NSPQRS /= 1) goto 101
+        if (NSPQRS /= 1) cycle
         IBATCH = IBATCH+1
-        if (NORBP == 0) goto 101
-        if (NBPQRS == 0) goto 101
-        if (NAR+NAS == 0) goto 101
+        if (NORBP == 0) cycle
+        if (NBPQRS == 0) cycle
+        if (NAR+NAS == 0) cycle
 
         ! Set up dynamic memory
 
@@ -130,8 +130,6 @@ do iSP=1,NSYM
                         iAD23,iAD24,iAD34,TocC(1,iSPQ,iSRS),Hlf1(:,1),Hlf1(:,2),Hlf1(:,3),Hlf1(:,4),LIOTAB)
 
         ! End of loop over quadruples of symmetries
-
-101     continue
       end do
     end do
   end do

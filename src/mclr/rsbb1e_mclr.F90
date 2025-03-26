@@ -76,17 +76,17 @@ call SXTYP(NSXTP,ITP,JTP,ISEL1,ISEL3,ICEL1,ICEL3)
 ! Symmetry of single excitation that connects IBSM and JBSM
 
 IJSM = Mul(ISCSM,ICCSM)
-if (IJSM == 0) goto 1001
+if (IJSM == 0) return
 
 do IJTP=1,NSXTP
   ITYP = ITP(IJTP)
   JTYP = JTP(IJTP)
   do ISM=1,NSMOB
     JSM = Mul(ISM,IJSM)
-    if (JSM == 0) goto 800
+    if (JSM == 0) cycle
     NIORB = NTSOB(ITYP,ISM)
     NJORB = NTSOB(JTYP,JSM)
-    if ((NIORB == 0) .or. (NJORB == 0)) goto 800
+    if ((NIORB == 0) .or. (NJORB == 0)) cycle
     ! Loop over partitionings of the row strings
     NIPART = NROW/MAXI
     if (NIPART*MAXI /= NROW) NIPART = NIPART+1
@@ -97,56 +97,55 @@ do IJTP=1,NSXTP
       ! Loop over partitionings of N-1 strings
       KBOT = 1-MAXK
       KTOP = 0
-700   continue
-      KBOT = KBOT+MAXK
-      KTOP = KTOP+MAXK
-      JBORB = IBTSOB(JTYP,JSM)
-      NJORB = NTSOB(JTYP,JSM)
-      ! Obtain CSCR(JORB,I,K) = SUM(J)<K!A JORB!J>C(I,J)
-      ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
-      do JJORB=1,NJORB
-        !if (JJORB == 1) then
-        !  JOFF = 1
-        !else
-        !  JOFF = IOFF+NK
-        !  ! Note : NK is not not known until first call to ADST
-        !end if
-        JORB = ITSOB(JBORB-1+JJORB)
-        ! set up I1(K) =  XI1S(K) a JORB !J STRING >
-        call ADST(JORB,1,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND)
-        ! Gather  C Block
-        ! First index : JORB, second index : JaKb
-        ICGOFF = 1+(JJORB-1)*NKBTC*NIBTC
-        call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,NKBTC,I1,XI1S)
-      end do
-      ! Obtain one electron integrals (JSM,JTP,ISM,ITP)
-      call NGETH1(SSCR,ISM,ITYP,JSM,JTYP)
-      call TRNSPS(NIORB,NJORB,SSCR,H)
+      do
+        KBOT = KBOT+MAXK
+        KTOP = KTOP+MAXK
+        JBORB = IBTSOB(JTYP,JSM)
+        NJORB = NTSOB(JTYP,JSM)
+        ! Obtain CSCR(JORB,I,K) = SUM(J)<K!A JORB!J>C(I,J)
+        ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
+        do JJORB=1,NJORB
+          !if (JJORB == 1) then
+          !  JOFF = 1
+          !else
+          !  JOFF = IOFF+NK
+          !  ! Note : NK is not not known until first call to ADST
+          !end if
+          JORB = ITSOB(JBORB-1+JJORB)
+          ! set up I1(K) =  XI1S(K) a JORB !J STRING >
+          call ADST(JORB,1,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND)
+          ! Gather  C Block
+          ! First index : JORB, second index : JaKb
+          ICGOFF = 1+(JJORB-1)*NKBTC*NIBTC
+          call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,NKBTC,I1,XI1S)
+        end do
+        ! Obtain one electron integrals (JSM,JTP,ISM,ITP)
+        call NGETH1(SSCR,ISM,ITYP,JSM,JTYP)
+        call TRNSPS(NIORB,NJORB,SSCR,H)
 
-      !Sscr(I,K,i) = CSCR(I,K,j)*h(j,i)
-      NIK = NIBTC*NKBTC
+        !Sscr(I,K,i) = CSCR(I,K,j)*h(j,i)
+        NIK = NIBTC*NKBTC
 
-      call DGEMM_('N','N',NIK,NIORB,NJORB,ONE,CSCR,max(NIK,1),H,max(1,NJORB),ZERO,SSCR,max(1,NIK))
-      !S(I,a+K) = S(I,a+K)+sgn*Sscr(I,K,i)
-      IBORB = IBTSOB(ITYP,ISM)
-      do IIORB=1,NIORB
-        IORB = ITSOB(IBORB-1+IIORB)
-        ! set up I1(IORB,K) = a IORB !I STRING >
-        call ADST(IORB,1,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,1,NKBTC,KEND)
-        ! Well, someplace the minus must come in
-        if (SIGN == -1.0d0) call DSCAL_(NKBTC,ONEM,XI1S,1)
-        ISBOFF = 1+(IIORB-1)*NKBTC*NIBTC
-        call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1,XI1S)
+        call DGEMM_('N','N',NIK,NIORB,NJORB,ONE,CSCR,max(NIK,1),H,max(1,NJORB),ZERO,SSCR,max(1,NIK))
+        !S(I,a+K) = S(I,a+K)+sgn*Sscr(I,K,i)
+        IBORB = IBTSOB(ITYP,ISM)
+        do IIORB=1,NIORB
+          IORB = ITSOB(IBORB-1+IIORB)
+          ! set up I1(IORB,K) = a IORB !I STRING >
+          call ADST(IORB,1,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,1,NKBTC,KEND)
+          ! Well, someplace the minus must come in
+          if (SIGN == -1.0d0) call DSCAL_(NKBTC,ONEM,XI1S,1)
+          ISBOFF = 1+(IIORB-1)*NKBTC*NIBTC
+          call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1,XI1S)
+        end do
+        ! end of this K partitioning
+        if (KEND /= 0) exit
       end do
-      ! end of this K partitioning
-      if (KEND == 0) goto 700
     end do
     ! End of loop over I partitioninigs
-800 continue
   end do
   ! (end of loop over symmetries)
 end do
-1001 continue
 
 return
 ! Avoid unused argument warnings

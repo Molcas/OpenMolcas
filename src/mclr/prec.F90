@@ -90,84 +90,84 @@ subroutine Prec_internal(rpre)
     call mma_MaxDBLE(nTemp)
     nTemp = min(nmm,nTemp/2)
     call mma_allocate(Temp1,nTemp,2,Label='Temp1')
-    if (nd == 0) goto 100
-    do iB=1,nIsh(iS)
-      call dcopy_(nD**2,[0.0d0],0,Temp3,1)
-      ibb = nOrb(is)*(ib-1)+ib-2
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-      if (NewCho) then  ! Cho-Fock
+    if (nd /= 0) then
+      do iB=1,nIsh(iS)
+        call dcopy_(nD**2,[0.0d0],0,Temp3,1)
+        ibb = nOrb(is)*(ib-1)+ib-2
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        if (NewCho) then  ! Cho-Fock
 
-        call preci_cho(ib,is,jS,nD,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
-                       FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2,iAdr) ! OK
+          call preci_cho(ib,is,jS,nD,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2,iAdr) ! OK
 
-      else  ! Cho-MO
+        else  ! Cho-MO
 
-        if (iMethod == 2) then
+          if (iMethod == 2) then
+            !                                                          *
+            !***********************************************************
+            !                                                          *
+            ! G
+            !  iaib
+
+            if (nash(js) > 0) &
+              call Preciaa(ib,is,js,nd,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
+                           FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+            !                                                          *
+            !***********************************************************
+            !                                                          *
+            ! G
+            !  ipia
+
+            if ((nOrb(js)-nish(js)-nash(js))*nash(js) > 0) &
+              call Preciba(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+
+          end if
           !                                                            *
           !*************************************************************
           !                                                            *
           ! G
-          !  iaib
+          !  ipiq
 
-          if (nash(js) > 0) &
-            call Preciaa(ib,is,js,nd,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
-                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
-          !                                                            *
-          !*************************************************************
-          !                                                            *
-          ! G
-          !  ipia
-
-          if ((nOrb(js)-nish(js)-nash(js))*nash(js) > 0) &
-            call Preciba(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+          if ((nOrb(js)-nish(js)-nash(js)) > 0) &
+            call Precibb(ib,is,js,nd,Temp3,nbas(js),norb(js),Temp1(:,1),Temp1(:,2),Temp2,FiMo(1+ipCM(is)+ibb), &
+                         FAMO(1+ipcm(is)+ibb),FiMo(ipCM(js)),FAMO(ipcm(js)),sign)  ! OK
 
         end if
         !                                                              *
         !***************************************************************
         !                                                              *
-        ! G
-        !  ipiq
+        ! Factorize G:
+        !
+        !     T
+        ! G=LL
+        !
+        !write(6,*) 'Preconditioner i =',iB
+        !do i=1,min(nd,10)
+        !  write(6,'(10F12.8)') (Temp3(1+(j-1)*(2*nd-j+2)/2+i-j),j=1,i)
+        !end do
 
-        if ((nOrb(js)-nish(js)-nash(js)) > 0) &
-          call Precibb(ib,is,js,nd,Temp3,nbas(js),norb(js),Temp1(:,1),Temp1(:,2),Temp2,FiMo(1+ipCM(is)+ibb),FAMO(1+ipcm(is)+ibb), &
-                       FiMo(ipCM(js)),FAMO(ipcm(js)),sign)  ! OK
+        call SQM(Temp3,rpre(ip),nd)
 
-      end if
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-      ! Factorize G:
-      !
-      !     T
-      ! G=LL
-      !
-      !write(6,*) 'Preconditioner i =',iB
-      !do i=1,min(nd,10)
-      !  write(6,'(10F12.8)') (Temp3(1+(j-1)*(2*nd-j+2)/2+i-j),j=1,i)
-      !end do
+        !write(6,*) ' ====== rpre ======'
+        !do i=1,nd*nd
+        !  write(6,*) i,'rpre',rpre(ip+i-1)
+        !end do
 
-      call SQM(Temp3,rpre(ip),nd)
+        irc = 0
+        call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
+        call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+        nullify(ipre)
+        if (irc /= 0) then
+          write(6,*) 'Error in DGETRF called from prec'
+          call Abend()
+        end if
+        ip = ip+nD*(nd+1)
 
-      !write(6,*) ' ====== rpre ======'
-      !do i=1,nd*nd
-      !  write(6,*) i,'rpre',rpre(ip+i-1)
-      !end do
+      end do
 
-      irc = 0
-      call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
-      call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
-      nullify(ipre)
-      if (irc /= 0) then
-        write(6,*) 'Error in DGETRF called from prec'
-        call Abend()
-      end if
-      ip = ip+nD*(nd+1)
-
-    end do
-
-100 continue
+    end if
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -179,55 +179,55 @@ subroutine Prec_internal(rpre)
       if (ir == 1) nD = nOrb(js)-nRs1(js)
       if (ir == 2) nD = nOrb(js)-nRs2(js)
       if (ir == 3) nD = nOrb(js)-nRs3(js)
-      if (nd == 0) goto 110
-      call dcopy_(nD**2,[0.0d0],0,Temp3,1)
+      if (nd /= 0) then
+        call dcopy_(nD**2,[0.0d0],0,Temp3,1)
 
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-      if (NewCho) then
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+        if (NewCho) then
 
-        !  New Cholesky code
+          !  New Cholesky code
 
-        call Preca_cho(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                       FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JA,KA,Scr,n2,iAdr2)
+          call Preca_cho(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JA,KA,Scr,n2,iAdr2)
 
-      else
+        else
 
-        if (nish(js) > 0) &
-          call Precaii(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                       FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
-        !call Precaai(ib,nd,ir,rpre(ip))
-        !call Precaaa(ib,nd,ir,rpre(ip))
-        if (nish(js)*nOrb(js) > 0) &
-          call Precabi(ib,is,js,ir,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0SQMO(ipCM(js)),sign,JA,KA,Temp1(:,2),n2)!+/-?
-        !call Precaba(ib,nd,ir,rpre(ip))
-        if (nOrb(js) > 0) &
-          call Precabb_2(ib,is,js,nd,nbas(js),nOrb(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb), &
-                         FiMo(ipCM(js)),FAMO(ipcm(js)),F0SQMO(ipCM(js)),sign)
+          if (nish(js) > 0) &
+            call Precaii(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+          !call Precaai(ib,nd,ir,rpre(ip))
+          !call Precaaa(ib,nd,ir,rpre(ip))
+          if (nish(js)*nOrb(js) > 0) &
+            call Precabi(ib,is,js,ir,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0SQMO(ipCM(js)),sign,JA,KA,Temp1(:,2),n2)!+/-?
+          !call Precaba(ib,nd,ir,rpre(ip))
+          if (nOrb(js) > 0) &
+            call Precabb_2(ib,is,js,nd,nbas(js),nOrb(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb), &
+                           FiMo(ipCM(js)),FAMO(ipcm(js)),F0SQMO(ipCM(js)),sign)
 
-        ! symmetry not yet
-        ! Eq. (C.12e)
-        if ((nRs1(iS) /= 0) .or. (nRs3(iS) /= 0)) &
-          call Precaaa(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(ipCM(js)),F0SqMO(ipCM(js)),sign,Scr,n2,ActInt) ! OK
+          ! symmetry not yet
+          ! Eq. (C.12e)
+          if ((nRs1(iS) /= 0) .or. (nRs3(iS) /= 0)) &
+            call Precaaa(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(ipCM(js)),F0SqMO(ipCM(js)),sign,Scr,n2,ActInt) ! OK
 
+        end if
+        !                                                              *
+        !***************************************************************
+        !                                                              *
+
+        call SQM(Temp3,rpre(ip),nD)
+        irc = 0
+        call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
+        call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+        nullify(ipre)
+        if (irc /= 0) then
+          write(6,*) 'Error in DGETRF called from prec'
+          call Abend()
+        end if
+        ip = ip+nD*(nd+1)
       end if
-      !                                                                *
-      !*****************************************************************
-      !                                                                *
-
-      call SQM(Temp3,rpre(ip),nD)
-      irc = 0
-      call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
-      call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
-      nullify(ipre)
-      if (irc /= 0) then
-        write(6,*) 'Error in DGETRF called from prec'
-        call Abend()
-      end if
-      ip = ip+nD*(nd+1)
     end do
-110 continue
     call mma_deallocate(Temp1)
     call mma_deallocate(Temp2)
     call mma_deallocate(Temp3)

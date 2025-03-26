@@ -43,7 +43,7 @@ integer, parameter :: iTimeKC = 3
 integer, parameter :: iTimeCK = 4
 character(len=8) Fmt2
 integer pstate_sym, opout
-logical lPrint
+logical lPrint, cnvrgd
 real*8 Clock(4)
 real*8 rDum(1)
 real*8, allocatable :: DigPrec(:), Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), &
@@ -191,7 +191,7 @@ do iSym=kksym,kkksym
     end if
     if (.not. lCalc(iDisp)) then
       converged(isym) = .false.
-      goto 110
+      cycle
     end if
 
     ! Allocate areas for scratch and state variables
@@ -292,8 +292,6 @@ do iSym=kksym,kkksym
     Kappa(1:nDens) = Zero
     delta = deltac+deltaK
 
-    if (delta == 0.0d0) goto 300
-
     delta0 = delta
     Orb = .true.
     ReCo = -1.0d0
@@ -304,351 +302,356 @@ do iSym=kksym,kkksym
     !          I   T   E   R   A   T   I   O   N   S          *
     !**********************************************************
 
-200 continue
+    cnvrgd = .true.
+    do
+      if (delta == 0.0d0) exit
 
-    !*******************************************************************
-    !
-    !       O R B I T A L    P A R T of the trial vector
-    !
-    !*******************************************************************
-
-    if (orb) then
-
-      !-----------------------------------------------------------------
+      !*****************************************************************
       !
-      !           ~    ~
-      ! Construct F,(ij|kl)
+      !       O R B I T A L    P A R T of the trial vector
       !
-      !-----------------------------------------------------------------
+      !*****************************************************************
+
+      if (orb) then
+
+        !---------------------------------------------------------------
+        !
+        !           ~    ~
+        ! Construct F,(ij|kl)
+        !
+        !---------------------------------------------------------------
+        !
+        ! j2 specifies which part of E I want to look at
+        ! j2=0 --> K-K, j2=-1 --> CI-CI, These are antisym within themself
+        ! j2>0 --> CI-K and K-CI, These parts are antisym between eachother
+
+        irc = ipnout(-1)
+        call RInt_ns(dKappa,rmoaa,Sc2,Temp4,isym,reco,jspin,rInEne)
+
+        call RInt_td(Sc2,dKappa,isym)
+
+        Clock(iTimeKK) = Clock(iTimeKK)+Tim2
+
+        !---------------------------------------------------------------
+        !
+        ! kappa->CI
+        !
+        ! H(kappa)|0>
+        !
+        !     [2]
+        ! S1=E   k (kappa TO CI) <i|H|0>-<i|0>*Energy
+        !
+        !---------------------------------------------------------------
+
+        ! This cisigma call gives <j|H(k)|0> and <j|H(k)t|0>
+
+        if (CI) then
+          ! Adjusted to timedep
+          call CISigma_td(jspin,State_Sym,pstate_sym,Temp4,nDens2,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,'T',.true.)
+          Clock(iTimeKC) = Clock(iTimeKC)+Tim3
+
+          ! This will give us a better
+          ! convergence in the PCG. Notice that
+          !
+          ! ~Inactive     ~
+          ! E        + <0|H|0> = 0
+          !
+          ! when the wavefunction is converged.
+
+          ! These terms are to be able to handle less converged CASSCF wave func
+
+          irc = ipin(ipS1)
+          if (isym == 1) then
+            irc = ipin(ipCI)
+            rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
+            call daxpy_(nConf1,-rGrad,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
+            rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec(1+nconf1),1)
+            call daxpy_(nConf1,-rGrad,W(ipCI)%Vec,1,W(ipS1)%Vec(1+nconf1),1)
+          end if
+          call dscal_(nconf1,-1.0d0,W(ipS1)%Vec,1)
+          call dscal_(2*nconf1,2.0d0,W(ipS1)%Vec,1)
+
+          irc = opout(ipCI)
+          !*************************************************************
+
+        end if  ! If ci
+
+      end if
       !
-      ! j2 specifies which part of E I want to look at
-      ! j2=0 --> K-K, j2=-1 --> CI-CI, These are antisym within themself
-      ! j2>0 --> CI-K and K-CI, These parts are antisym between eachother
-
-      irc = ipnout(-1)
-      call RInt_ns(dKappa,rmoaa,Sc2,Temp4,isym,reco,jspin,rInEne)
-
-      call RInt_td(Sc2,dKappa,isym)
-
-      Clock(iTimeKK) = Clock(iTimeKK)+Tim2
-
-      !-----------------------------------------------------------------
+      !*****************************************************************
       !
-      ! kappa->CI
+      !    C I    P A R T of the trial vector
       !
-      ! H(kappa)|0>
+      !*****************************************************************
       !
-      !     [2]
-      ! S1=E   k (kappa TO CI) <i|H|0>-<i|0>*Energy
-      !
-      !-----------------------------------------------------------------
-
-      ! This cisigma call gives <j|H(k)|0> and <j|H(k)t|0>
-
       if (CI) then
-        ! Adjusted to timedep
-        call CISigma_td(jspin,State_Sym,pstate_sym,Temp4,nDens2,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,'T',.true.)
-        Clock(iTimeKC) = Clock(iTimeKC)+Tim3
 
-        ! This will give us a better
-        ! convergence in the PCG. Notice that
+        !***************************************************************
         !
-        ! ~Inactive     ~
-        ! E        + <0|H|0> = 0
+        !       [2]
+        ! S2 = E   CID  (CI TO CI) = <i|H|d> -E<i|d>
         !
-        ! when the wavefunction is converged.
-
-        ! These terms are to be able to handle less converged CASSCF wave func
-
-        irc = ipin(ipS1)
-        if (isym == 1) then
-          irc = ipin(ipCI)
-          rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
-          call daxpy_(nConf1,-rGrad,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
-          rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec(1+nconf1),1)
-          call daxpy_(nConf1,-rGrad,W(ipCI)%Vec,1,W(ipS1)%Vec(1+nconf1),1)
-        end if
-        call dscal_(nconf1,-1.0d0,W(ipS1)%Vec,1)
-        call dscal_(2*nconf1,2.0d0,W(ipS1)%Vec,1)
-
-        irc = opout(ipCI)
         !***************************************************************
 
-      end if  ! If ci
+        irc = ipnout(-1)
+        if (CI) call CISigma_td(0,PState_Sym,Pstate_sym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,'S',.true.)
 
-    end if
-    !
-    !*******************************************************************
-    !
-    !    C I    P A R T of the trial vector
-    !
-    !*******************************************************************
-    !
-    if (CI) then
+        ! I want the RASSCF energy of the ACTIVE electrons !!!!
+        ! EC=-E[act]           E[RASSCF]=E[inact]+E[act]+E[nuc]
 
-      !*****************************************************************
-      !
-      !       [2]
-      ! S2 = E   CID  (CI TO CI) = <i|H|d> -E<i|d>
-      !
-      !*****************************************************************
+        EC = rin_ene+potnuc-ERASSCF(1)
 
-      irc = ipnout(-1)
-      if (CI) call CISigma_td(0,PState_Sym,Pstate_sym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,'S',.true.)
+        irc = ipin(ipCId)
+        irc = ipin(ipS2)
+        call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
+        call DaXpY_(nConf1,EC,W(ipCId)%Vec(1+nConf1),1,W(ipS2)%Vec(1+nConf1),1)
+        call dscal_(2*nConf1,2.0d0,W(ipS2)%Vec,1)
 
-      ! I want the RASSCF energy of the ACTIVE electrons !!!!
-      ! EC=-E[act]           E[RASSCF]=E[inact]+E[act]+E[nuc]
+        ! Add the wS contribution
+        ! The (-) sign in both daxpys assumes that the two parts of ipcid are def with diff sign.
+        ! This is not true for the debug option!! ipcid = 1 regardless of part which part
+        ! The S-contribution will make E-wS loose its symmetry because E is sym and S
+        ! is antisym.
 
-      EC = rin_ene+potnuc-ERASSCF(1)
+        call DaXpY_(nConf1,-2.0d0*omega,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
+        call DaXpY_(nConf1,2.0d0*omega,W(ipCId)%Vec(1+nConf1),1,W(ipS2)%Vec(1+nConf1),1)
+        Clock(iTimeCC) = Clock(iTimeCC)+Tim4
 
-      irc = ipin(ipCId)
-      irc = ipin(ipS2)
-      call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
-      call DaXpY_(nConf1,EC,W(ipCId)%Vec(1+nConf1),1,W(ipS2)%Vec(1+nConf1),1)
-      call dscal_(2*nConf1,2.0d0,W(ipS2)%Vec,1)
+        irc = ipout(ips2)
+        irc = opout(ipcid)
+        irc = opout(ipci)
 
-      ! Add the wS contribution
-      ! The (-) sign in both daxpys assumes that the two parts of ipcid are def with diff sign.
-      ! This is not true for the debug option!! ipcid = 1 regardless of part which part
-      ! The S-contribution will make E-wS loose its symmetry because E is sym and S
-      ! is antisym.
+        !---------------------------------------------------------------
+        !
+        ! CI -> Kappa
+        !
+        !      [2]
+        ! SC3=E   CID   (SC3=F(<d|E|0>+<0|E|d>)
+        !
+        !---------------------------------------------------------------
 
-      call DaXpY_(nConf1,-2.0d0*omega,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
-      call DaXpY_(nConf1,2.0d0*omega,W(ipCId)%Vec(1+nConf1),1,W(ipS2)%Vec(1+nConf1),1)
-      Clock(iTimeCC) = Clock(iTimeCC)+Tim4
+        irc = ipnout(-1)
 
-      irc = ipout(ips2)
-      irc = opout(ipcid)
-      irc = opout(ipci)
+        call CIDens_TD(ipCid,PState_Sym,Pens,Dens)     ! Jeppes
 
-      !-----------------------------------------------------------------
-      !
-      ! CI -> Kappa
-      !
-      !      [2]
-      ! SC3=E   CID   (SC3=F(<d|E|0>+<0|E|d>)
-      !
-      !-----------------------------------------------------------------
+        ! density for inactive= 2(<d|0>+<0|d>)
 
-      irc = ipnout(-1)
+        d_0 = 0.0d0
 
-      call CIDens_TD(ipCid,PState_Sym,Pens,Dens)     ! Jeppes
+        ! This is just for debugging purpose.
+        ! When we use it for actual calculations d_0 == 0
 
-      ! density for inactive= 2(<d|0>+<0|d>)
+        ! This if statement is just for better convergence! Grad term
+        ! Leave this for later!
 
-      d_0 = 0.0d0
+        if (isym == 1) then
+          irc = ipin(ipCid)
+          irc = ipin(ipci)
+          d_1 = ddot_(nconf1,W(ipCid)%Vec,1,W(ipci)%Vec,1)
+          d_2 = ddot_(nconf1,W(ipCid)%Vec(1+nConf1),1,W(ipci)%Vec,1)
+          d_0 = d_1+d_2
+        end if
 
-      ! This is just for debugging purpose.
-      ! When we use it for actual calculations d_0 == 0
+        ! Fockgen gives the Fock matrix, MO integrals and one index transformed
+        ! MO integrals
 
-      ! This if statement is just for better convergence! Grad term
-      ! Leave this for later!
+        call Fockgen_td(d_0,Dens,Pens,Sc3,isym)
 
-      if (isym == 1) then
-        irc = ipin(ipCid)
-        irc = ipin(ipci)
-        d_1 = ddot_(nconf1,W(ipCid)%Vec,1,W(ipci)%Vec,1)
-        d_2 = ddot_(nconf1,W(ipCid)%Vec(1+nConf1),1,W(ipci)%Vec,1)
-        d_0 = d_1+d_2
+        !---------------------------------------------------------------
+
       end if
 
-      ! Fockgen gives the Fock matrix, MO integrals and one index transformed
-      ! MO integrals
+      !*****************************************************************
+      !
+      ! Sc1  kappa-> kappa
+      ! Sc3  CI -> kappa
+      ! S1   kappa -> CI
+      ! S2   CI -> CI
+      ! dKap present step
+      ! Kap  kappaX
+      ! CIT  CIX
+      ! CId  present step
+      !*****************************************************************
+      !
+      ! Add together
+      !
+      !*****************************************************************
 
-      call Fockgen_td(d_0,Dens,Pens,Sc3,isym)
+      irc = ipnout(-1)
+      if (CI) then   ! if (.false.) then
+        call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
+      else
+        call dcopy_(nDens,Sc2,1,Sc1,1)
+      end if
+      call Compress(Sc1,Temp4,isym)   ! ds
+      call Compress(dKappa,Temp2,isym) ! DX
+
+      ! S1 + S2 --> S1
+
+      if (CI) then  !If (.false.) then
+        irc = ipin1(ipS1,2*nconf1)
+        irc = ipin1(ipS2,2*nconf1)
+        call DaXpY_(2*nConf1,1.0d0,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
+        irc = opout(ips2)
+      end if
 
       !-----------------------------------------------------------------
+      !
+      !            ######   #####   #####
+      !            #     # #     # #     #
+      !            #     # #       #
+      !            ######  #       #  ####
+      !            #       #       #     #
+      !            #       #     # #     #
+      !            #        #####   #####
+      !
+      !-----------------------------------------------------------------
+      !*****************************************************************
+      !
+      !            delta
+      ! rAlpha=------------
+      !        dKappa:dSigma
+      !
+      !-----------------------------------------------------------------
+      rAlphaC = 0.0d0
+      rAlphaK = 0.0d0
+      if (orb) rAlphaK = 0.5d0*ddot_(nDensC,Temp4,1,Temp2,1)
+      if (CI) then
+        irc = ipin(ipS1)
+        irc = ipin(ipCId)
+        rAlphaC = 0.5d0*ddot_(2*nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
+      end if
+      rAlpha = delta/(rAlphaK+ralphaC)
 
-    end if
+      !----------------------------------------------------------------*
+
+      ! Kappa=Kappa+rAlpha*dKappa
+      ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
+
+      if (orb) then
+        call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
+        call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+        resk = sqrt(0.5d0*ddot_(nDensC,Sigma,1,Sigma,1))
+      end if
+      resci = 0.0d0
+
+      if (CI) then
+        irc = ipin(ipCId)
+        irc = ipin(ipCIT)
+        call DaXpY_(2*nConf1,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+        irc = ipout(ipcit)
+        irc = ipin1(ipST,2*nconf1)
+        irc = ipin(ipS1)
+        call DaXpY_(2*nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
+        irc = opout(ipS1)
+        resci = sqrt(0.5d0*ddot_(2*nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
+      end if
+
+      !----------------------------------------------------------------*
+      ! Precondition......
+      !    -1
+      ! S=M  Sigma
+
+      irc = opout(ipcid)
+      if (CI) then
+        irc = ipin(ipST)
+        irc = ipin(ipS2)
+        call DMinvCI_td(W(ipST)%Vec,W(ipS2)%Vec,-omega,isym)
+        call DMinvCI_td(W(ipST)%Vec(1+nConf1),W(ipS2)%Vec(1+nconf1),omega,isym)
+
+      end if
+      irc = opout(ipci)
+      irc = opout(ipdia)
+
+      call DMInvKap_td(DigPrec,Sigma,Sc2)
+
+      irc = opout(ippre2)
+
+      !----------------------------------------------------------------*
+      !      s:Sigma
+      ! Beta=-------
+      !       delta
+      !
+      ! delta=s:sigma
+      !
+      ! dKappa=s+Beta*dKappa
+
+      if (CI) then
+        irc = ipin(ipST)
+        irc = ipin(ipS2)
+        deltaC = 0.50d0*ddot_(2*nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+        irc = ipout(ipST)
+      else
+        deltaC = 0.0d0
+      end if
+
+      deltaK = 0.50d0*ddot_(nDensC,Sigma,1,Sc2,1)
+      if (.not. CI) then
+        rBeta = deltaK/delta
+        delta = deltaK
+        call DScal_(nDensC,rBeta,Temp2,1)
+        call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
+      else
+        rbeta = (deltac+deltaK)/delta
+        delta = deltac+deltaK
+        irc = ipin(ipCID)
+        call DScal_(2*nConf1,rBeta,W(ipCID)%Vec,1)
+        call DScal_(nDensC,rBeta,Temp2,1)
+        irc = ipin(ipS2)
+        call DaXpY_(2*nConf1,1.0d0,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+        call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
+        irc = opout(ipS2)
+        irc = ipout(ipCID)
+      end if
+
+      !    ######  #    #  #####        #####    ####    ####
+      !    #       ##   #  #    #       #    #  #    #  #    #
+      !    #####   # #  #  #    #       #    #  #       #
+      !    #       #  # #  #    #       #####   #       #  ###
+      !    #       #   ##  #    #       #       #    #  #    #
+      !    ######  #    #  #####        #        ####    ####
+      !
+      !----------------------------------------------------------------*
+
+      call UnCompress(Temp2,dKappa,isym)
+
+      ! iBreak is defined via include!
+
+      res = 0.0d0 ! dummy initialize
+      if (iBreak == 1) then
+        ! This is the actual breaking!
+        if (abs(delta) < abs(Eps**2*delta0)) exit
+      else if (ibreak == 2) then
+        res = sqrt(resk**2+resci**2)
+        if (res < abs(Eps)) exit
+      else
+        if ((abs(delta) < abs(Eps**2*delta0)) .and. (res < abs(Eps))) exit
+      end if
+
+      ! This breaks the PCG iterations
+
+      if (iter >= niter) then
+        cnvrgd = .false.
+        exit
+      end if
+      if (lprint) &
+        write(6,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)') '     ',iter,'       ',delta/delta0,resk,resci,deltac,deltak
+
+      iter = iter+1
+
+    end do
 
     !*******************************************************************
-    !
-    ! Sc1  kappa-> kappa
-    ! Sc3  CI -> kappa
-    ! S1   kappa -> CI
-    ! S2   CI -> CI
-    ! dKap present step
-    ! Kap  kappaX
-    ! CIT  CIX
-    ! CId  present step
-    !*******************************************************************
-    !
-    ! Add together
-    !
-    !*******************************************************************
 
-    irc = ipnout(-1)
-    if (CI) then   ! if (.false.) then
-      call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
+    if (.not. cnvrgd) then
+      write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
+      converged(isym) = .false.
+      fail = .true.
     else
-      call dcopy_(nDens,Sc2,1,Sc1,1)
+      write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+      irc = ipnout(-1)
+      !stop 10
     end if
-    call Compress(Sc1,Temp4,isym)   ! ds
-    call Compress(dKappa,Temp2,isym) ! DX
-
-    ! S1 + S2 --> S1
-
-    if (CI) then  !If (.false.) then
-      irc = ipin1(ipS1,2*nconf1)
-      irc = ipin1(ipS2,2*nconf1)
-      call DaXpY_(2*nConf1,1.0d0,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
-      irc = opout(ips2)
-    end if
-
-    !-------------------------------------------------------------------
-    !
-    !            ######   #####   #####
-    !            #     # #     # #     #
-    !            #     # #       #
-    !            ######  #       #  ####
-    !            #       #       #     #
-    !            #       #     # #     #
-    !            #        #####   #####
-    !
-    !-------------------------------------------------------------------
-    !*******************************************************************
-    !
-    !            delta
-    ! rAlpha=------------
-    !        dKappa:dSigma
-    !
-    !-------------------------------------------------------------------
-    rAlphaC = 0.0d0
-    rAlphaK = 0.0d0
-    if (orb) rAlphaK = 0.5d0*ddot_(nDensC,Temp4,1,Temp2,1)
-    if (CI) then
-      irc = ipin(ipS1)
-      irc = ipin(ipCId)
-      rAlphaC = 0.5d0*ddot_(2*nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
-    end if
-    rAlpha = delta/(rAlphaK+ralphaC)
-
-    !------------------------------------------------------------------*
-
-    ! Kappa=Kappa+rAlpha*dKappa
-    ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-
-    if (orb) then
-      call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
-      call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
-      resk = sqrt(0.5d0*ddot_(nDensC,Sigma,1,Sigma,1))
-    end if
-    resci = 0.0d0
-
-    if (CI) then
-      irc = ipin(ipCId)
-      irc = ipin(ipCIT)
-      call DaXpY_(2*nConf1,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
-      irc = ipout(ipcit)
-      irc = ipin1(ipST,2*nconf1)
-      irc = ipin(ipS1)
-      call DaXpY_(2*nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
-      irc = opout(ipS1)
-      resci = sqrt(0.5d0*ddot_(2*nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
-    end if
-
-    !------------------------------------------------------------------*
-    ! Precondition......
-    !    -1
-    ! S=M  Sigma
-
-    irc = opout(ipcid)
-    if (CI) then
-      irc = ipin(ipST)
-      irc = ipin(ipS2)
-      call DMinvCI_td(W(ipST)%Vec,W(ipS2)%Vec,-omega,isym)
-      call DMinvCI_td(W(ipST)%Vec(1+nConf1),W(ipS2)%Vec(1+nconf1),omega,isym)
-
-    end if
-    irc = opout(ipci)
-    irc = opout(ipdia)
-
-    call DMInvKap_td(DigPrec,Sigma,Sc2)
-
-    irc = opout(ippre2)
-
-    !------------------------------------------------------------------*
-    !      s:Sigma
-    ! Beta=-------
-    !       delta
-    !
-    ! delta=s:sigma
-    !
-    ! dKappa=s+Beta*dKappa
-
-    if (CI) then
-      irc = ipin(ipST)
-      irc = ipin(ipS2)
-      deltaC = 0.50d0*ddot_(2*nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-      irc = ipout(ipST)
-    else
-      deltaC = 0.0d0
-    end if
-
-    deltaK = 0.50d0*ddot_(nDensC,Sigma,1,Sc2,1)
-    if (.not. CI) then
-      rBeta = deltaK/delta
-      delta = deltaK
-      call DScal_(nDensC,rBeta,Temp2,1)
-      call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
-    else
-      rbeta = (deltac+deltaK)/delta
-      delta = deltac+deltaK
-      irc = ipin(ipCID)
-      call DScal_(2*nConf1,rBeta,W(ipCID)%Vec,1)
-      call DScal_(nDensC,rBeta,Temp2,1)
-      irc = ipin(ipS2)
-      call DaXpY_(2*nConf1,1.0d0,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
-      call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
-      irc = opout(ipS2)
-      irc = ipout(ipCID)
-    end if
-
-    !    ######  #    #  #####        #####    ####    ####
-    !    #       ##   #  #    #       #    #  #    #  #    #
-    !    #####   # #  #  #    #       #    #  #       #
-    !    #       #  # #  #    #       #####   #       #  ###
-    !    #       #   ##  #    #       #       #    #  #    #
-    !    ######  #    #  #####        #        ####    ####
-    !
-    !
-    !------------------------------------------------------------------*
-
-    call UnCompress(Temp2,dKappa,isym)
-
-    ! iBreak is defined via include!
-
-    res = 0.0d0 ! dummy initialize
-    if (iBreak == 1) then
-      ! This is the actual breaking!
-      if (abs(delta) < abs(Eps**2*delta0)) goto 300
-    else if (ibreak == 2) then
-      res = sqrt(resk**2+resci**2)
-      if (res < abs(Eps)) goto 300
-    else
-      if ((abs(delta) < abs(Eps**2*delta0)) .and. (res < abs(Eps))) goto 300
-    end if
-
-    ! This breaks the PCG iterations by going to 210
-
-    if (iter >= niter) goto 210
-    if (lprint) write(6,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)') '     ',iter,'       ',delta/delta0,resk,resci,deltac,deltak
-
-    iter = iter+1
-
-    goto 200
-
-    !***********************************************************************
-
-210 continue
-    write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
-    converged(isym) = .false.
-    fail = .true.
-    goto 310
-300 write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
-    irc = ipnout(-1)
-    !stop 10
-310 continue
     call mma_allocate(TempTD,nDens2,Label='TempTD')
     call Uncompress(Kappa,TempTD,isym)
     call mma_deallocate(TempTD)
@@ -684,7 +687,6 @@ do iSym=kksym,kkksym
       call mma_deallocate(Pens)
       call mma_deallocate(Dens)
     end if
-110 continue
   end do
 
   ! Free all memory and remove from disk all data

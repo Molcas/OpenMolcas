@@ -30,12 +30,11 @@ do iSp=1,nSym
       iSpqr = ieor(iSpq,iSr-1)+1
       nAr = NASH(iSr)
       do iSs=1,iSr
-        if (iSpqr /= iSs) GO TO 11
+        if (iSpqr /= iSs) exit
         nAs = NASH(iSs)
         nRS = nAr*nAs
         if (iSs == iSr) nRS = (nAr+nAr**2)/2
         NPUVX = NPUVX+nOp*nAq*nRS
-11      continue
       end do
     end do
   end do

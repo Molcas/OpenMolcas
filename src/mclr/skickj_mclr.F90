@@ -34,7 +34,7 @@ real*8 XKBJB(MAXK,*)
 integer IKORD, IXBOFF, JXBOFF
 real*8 SXCR
 integer IROUTE
-!. Input and output
+! Input and output
 real*8 SKII(NKA*NI,*)
 ! Note if Iroute = 2 the form is S(i,Ka,Ib)
 ! Scratch
@@ -141,7 +141,7 @@ else if (IROUTE == 1) then
     IKEFF = 0
     do K=1,NK
       IB = KBIB(KB,K)
-      if (IB == 0) goto 900
+      if (IB == 0) cycle
       SGNK = XKBIB(KB,K)
 
       if (IKORD == 0) then
@@ -158,7 +158,7 @@ else if (IROUTE == 1) then
         LEFF = 0
         do L=1,NL
           JB = KBJB(KB,L)
-          if (JB == 0) goto 800
+          if (JB == 0) cycle
           LEFF = LEFF+1
           SGNL = XKBJB(KB,L)
           if ((IKORD == 1) .and. (I == K)) then
@@ -178,12 +178,10 @@ else if (IROUTE == 1) then
             KSKICK(IOFF+JL) = FACTOR*XIJKL(JLIK0+J)
           end do
 
-800       continue
         end do
 
       end do
 
-900   continue
     end do
 
     call GSAXPY(SKII,CKJJ,KSKICK,IKEFF,NJ*LL,NKA,IBOFF,JBOFF)

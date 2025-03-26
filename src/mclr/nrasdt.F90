@@ -45,7 +45,7 @@ MXSOOB = 0
 NCOMB = 0
 XNCOMB = 0.0d0
 do IASM=1,NSMST
-  if (IBLTP(IASM) == 0) goto 300
+  if (IBLTP(IASM) == 0) cycle
   IBSM = Mul(IASM,ITOTSM)
   LSB = 0
   if (IBSM /= 0) then
@@ -85,7 +85,6 @@ do IASM=1,NSMST
     end do
     MXSB = max(MXSB,LSB)
   end if
-300 continue
 end do
 
 #ifdef _DEBUGPRINT_

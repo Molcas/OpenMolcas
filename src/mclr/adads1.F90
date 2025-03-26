@@ -65,6 +65,7 @@ integer I1mpo(*), i1mpl(*)
 !.Output
 integer I1(NKDIM,*)
 dimension XI1S(NKDIM,*)
+logical Skip
 
 NIJ = 0 ! dummy initialize
 #ifdef _DEBUGPRINT_
@@ -99,127 +100,129 @@ else
   KEL1 = KEL1
   KEL3 = KEL3-1
 end if
-!? write(6,*) ' icls ',icls
-!? write(6,*) ' iel1 iel3 ',iel1(icls),iel3(icls)
-!? write(6,*) ' kel1 kel3 ',kel1,kel3
+!write(6,*) ' icls ',icls
+!write(6,*) ' iel1 iel3 ',iel1(icls),iel3(icls)
+!write(6,*) ' kel1 kel3 ',kel1,kel3
 KTYPE = 0
 do KKTYPE=1,N2OCTP
   if ((I2EL1(KKTYPE) == KEL1) .and. (I2EL3(KKTYPE) == KEL3)) KTYPE = KKTYPE
 end do
-!? write(6,*) ' ktype ',ktype
+!write(6,*) ' ktype ',ktype
+Skip = .false.
 if (KTYPE == 0) then
   NK = 0
   IEND = 1
-  goto 101
-end if
-! Symmetry of K strings
-JKSM = Mul(IOBSM,ISM)
-if (JKSM == 0) then
-  IKSM = Mul(JOBSM,ISM)
-  if (IKSM == 0) then
+  Skip = .true.
+else
+  ! Symmetry of K strings
+  KSM = 0
+  JKSM = Mul(IOBSM,ISM)
+  if (JKSM == 0) then
+    IKSM = Mul(JOBSM,ISM)
+    if (IKSM == 0) then
+      NK = 0
+      IEND = 1
+      Skip = .true.
+    else
+      KSM = Mul(IOBSM,IKSM)
+    end if
+  else
+    KSM = Mul(JOBSM,JKSM)
+  end if
+  !write(6,*) ' JOBSM,KSM,JKSM ',JOBSM,KSM,JKSM
+  if (KSM == 0) then
     NK = 0
     IEND = 1
-    goto 101
-  else
-    KSM = Mul(IOBSM,IKSM)
+    Skip = .true.
   end if
-else
-  KSM = Mul(JOBSM,JKSM)
 end if
-!? write(6,*) ' JOBSM,KSM,JKSM ',JOBSM,KSM,JKSM
-if (KSM == 0) then
-  NK = 0
-  IEND = 1
-  goto 101
-end if
-KOFF = I2SSO(KTYPE,KSM)
-KEND = min(KMAX,N2SSO(KTYPE,KSM))
-if (KEND == N2SSO(KTYPE,KSM)) then
-  IEND = 1
-else
-  IEND = 0
-end if
-NK = KEND-KMIN+1
-IOFF = ISSO(ICLS,ISM)
-! Loop over iorb,jorb
-if (IJORD == 0) then
-  NIJ = NIOB*NJOB
-else
-  NIJ = NIOB*(NIOB+1)/2
-end if
-if (NKDim > 0) then
-  do IJ=1,NIJ
-    call ICopy(NKDIM,[0],0,I1(1,IJ),1)
-    call dcopy_(NKDIM,[0.0d0],0,XI1S(1,IJ),1)
-  end do
-end if
+if (.not. Skip) then
+  KOFF = I2SSO(KTYPE,KSM)
+  KEND = min(KMAX,N2SSO(KTYPE,KSM))
+  if (KEND == N2SSO(KTYPE,KSM)) then
+    IEND = 1
+  else
+    IEND = 0
+  end if
+  NK = KEND-KMIN+1
+  IOFF = ISSO(ICLS,ISM)
+  ! Loop over iorb,jorb
+  if (IJORD == 0) then
+    NIJ = NIOB*NJOB
+  else
+    NIJ = NIOB*(NIOB+1)/2
+  end if
+  if (NKDim > 0) then
+    do IJ=1,NIJ
+      call ICopy(NKDIM,[0],0,I1(1,IJ),1)
+      call dcopy_(NKDIM,[0.0d0],0,XI1S(1,IJ),1)
+    end do
+  end if
 
-do J=1,NJOB
-  if (IJORD == 1) then
-    IMIN = J
-  else
-    IMIN = 1
-  end if
-  !do I=IMIN,NIOB
-  !  IJ = IJ+1
-  !  do IJ=1,NIJ
-  !    call NXTIJ(I,J,NIOB,NJOB,IJORD,NONEW)
-  !    IORB = IOBOFF-1+I
-  JORB = JOBOFF-1+J
-  if (IJORD == 1) then
-    IJOFF = (J-1)*NIOB-(J-1)*(J-2)/2+1-imin+1
-  else
-    IJOFF = (J-1)*NIOB+1
-  end if
-  do KSTR=KOFF+KMIN-1,KOFF+KEND-1
-    ! N-2 => N-1
-    JKSTR = 0
-    if (I2MPF == 1) then
-      if (I2MAPO((KSTR-1)*L2MP+JORB) == JORB) JKSTR = I2MAPS((KSTR-1)*L2MP+JORB)
-    else if (I2MPF == 0) then
-      IFST = max(1,JORB+I2MPL(KSTR)-NORB)
-      do JJORB=IFST,min(JORb,I2MPL(KSTR))
-        if (I2MAPO(I2MPO(KSTR)-1+JJORB) == JORB) JKSTR = I2MAPS(I2MPO(KSTR)-1+JJORB)
-      end do
-    end if
-    if (JKSTR == 0) goto 100
-    if (JKSTR > 0) then
-      SIGN = 1.0d0
+  do J=1,NJOB
+    if (IJORD == 1) then
+      IMIN = J
     else
-      JKSTR = -JKSTR
-      SIGN = -1.0d0
+      IMIN = 1
     end if
-    ! N-1 => N
-    do i=imin,niob
-      ij = ijoff+i-1
-      iorb = ioboff-1+i
-      ISTR = 0
-      if (I1MPF == 1) then
-        if (I1MAPO((JKSTR-1)*L1MP+IORB) == IORB) ISTR = I1MAPS((JKSTR-1)*L1MP+IORB)
-      else if (I1MPF == 0) then
-        IFST = max(1,IORB+NORB-I1MPL(JKSTR))
-        do IIORB=IFST,min(IORB,I1MPL(JKSTR))
-          if (I1MAPO(I1MPO(JKSTR)-1+IIORB) == IORB) ISTR = I1MAPS(I1MPO(JKSTR)-1+IIORB)
+    !do I=IMIN,NIOB
+    !  IJ = IJ+1
+    !  do IJ=1,NIJ
+    !    call NXTIJ(I,J,NIOB,NJOB,IJORD,NONEW)
+    !    IORB = IOBOFF-1+I
+    JORB = JOBOFF-1+J
+    if (IJORD == 1) then
+      IJOFF = (J-1)*NIOB-(J-1)*(J-2)/2+1-imin+1
+    else
+      IJOFF = (J-1)*NIOB+1
+    end if
+    do KSTR=KOFF+KMIN-1,KOFF+KEND-1
+      ! N-2 => N-1
+      JKSTR = 0
+      if (I2MPF == 1) then
+        if (I2MAPO((KSTR-1)*L2MP+JORB) == JORB) JKSTR = I2MAPS((KSTR-1)*L2MP+JORB)
+      else if (I2MPF == 0) then
+        IFST = max(1,JORB+I2MPL(KSTR)-NORB)
+        do JJORB=IFST,min(JORb,I2MPL(KSTR))
+          if (I2MAPO(I2MPO(KSTR)-1+JJORB) == JORB) JKSTR = I2MAPS(I2MPO(KSTR)-1+JJORB)
         end do
       end if
-      if (ISTR == 0) goto 99
-      ! Synthesis
-      if (ISTR > 0) then
-        I1(KSTR-KOFF-KMIN+2,IJ) = ISTR-IOFF+1
-        XI1S(KSTR-KOFF-KMIN+2,IJ) = SIGN
+      if (JKSTR == 0) cycle
+      if (JKSTR > 0) then
+        SIGN = 1.0d0
       else
-        I1(KSTR-KOFF-KMIN+2,IJ) = -ISTR-IOFF+1
-        XI1S(KSTR-KOFF-KMIN+2,IJ) = -SIGN
+        JKSTR = -JKSTR
+        SIGN = -1.0d0
       end if
-99    continue
+      ! N-1 => N
+      do i=imin,niob
+        ij = ijoff+i-1
+        iorb = ioboff-1+i
+        ISTR = 0
+        if (I1MPF == 1) then
+          if (I1MAPO((JKSTR-1)*L1MP+IORB) == IORB) ISTR = I1MAPS((JKSTR-1)*L1MP+IORB)
+        else if (I1MPF == 0) then
+          IFST = max(1,IORB+NORB-I1MPL(JKSTR))
+          do IIORB=IFST,min(IORB,I1MPL(JKSTR))
+            if (I1MAPO(I1MPO(JKSTR)-1+IIORB) == IORB) ISTR = I1MAPS(I1MPO(JKSTR)-1+IIORB)
+          end do
+        end if
+        if (ISTR == 0) cycle
+        ! Synthesis
+        if (ISTR > 0) then
+          I1(KSTR-KOFF-KMIN+2,IJ) = ISTR-IOFF+1
+          XI1S(KSTR-KOFF-KMIN+2,IJ) = SIGN
+        else
+          I1(KSTR-KOFF-KMIN+2,IJ) = -ISTR-IOFF+1
+          XI1S(KSTR-KOFF-KMIN+2,IJ) = -SIGN
+        end if
+      end do
+
     end do
 
-100 continue
+    !end do
   end do
-
-  !end do
-end do
-101 continue
+end if
 
 #ifdef _DEBUGPRINT_
 write(6,*) ' Output from ADADS1'

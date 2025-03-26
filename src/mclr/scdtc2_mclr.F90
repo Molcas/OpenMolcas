@@ -38,7 +38,7 @@ IBASE = 1
 do IASM=1,NSMST
 
   IBSM = ISMOST(IASM)
-  if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) goto 200
+  if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) cycle
   do IATP=1,NOCTPA
     if (ICBLTP(IASM) == 2) then
       IBTPMX = IATP
@@ -47,7 +47,7 @@ do IASM=1,NSMST
     end if
     NIA = NSASO(IATP,IASM)
     do IBTP=1,IBTPMX
-      if (IOCOC(IATP,IBTP) == 0) goto 50
+      if (IOCOC(IATP,IBTP) == 0) cycle
       ! Number of elements in this block
       call xflush(6)
       NIB = NSBSO(IBTP,IBSM)
@@ -103,10 +103,8 @@ do IASM=1,NSMST
       end if
 
       IBASE = IBASE+NELMNT
-50    continue
     end do
   end do
-200 continue
 end do
 
 #ifdef _DEBUGPRINT_

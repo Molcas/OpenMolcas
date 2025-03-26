@@ -131,7 +131,7 @@ do iSym=1,nSym
     end if
     nCI = nconf1
     if (Timedep) nCI = nCI*2
-    if (.not. lCalc(iDisp)) goto 110
+    if (.not. lCalc(iDisp)) cycle
 
     iDisk = iKapDisp(iDisp)
     Len = nDensC
@@ -179,7 +179,7 @@ do iSym=1,nSym
       end if
       nCI = nconf1
       if (Timedep) nCI = nCI*2
-      if (.not. lCalc(kDisp+ksym)) goto 120
+      if (.not. lCalc(kDisp+ksym)) cycle
       iDisk = iKapDisp(kDisp+kSym)
       Len = nDensC
       call dDaFile(LuTemp,2,Kap2,Len,iDisk)
@@ -248,12 +248,10 @@ do iSym=1,nSym
 
       RHss(Index) = RHss(Index)+0.5d0*(rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3)
 
-120   continue
     end do
 
     !*******************************************************************
 
-110 continue
   end do
   kSym = kSym+lDisp(iSym)
   mSym = mSym+lDisp(iSym)*(lDisp(iSym)+1)/2

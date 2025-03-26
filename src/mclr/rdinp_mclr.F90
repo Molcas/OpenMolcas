@@ -40,13 +40,13 @@ character(len=72) Line
 character(len=4) Command
 character(len=8) Label, SewLab
 character(len=2) Element(MxAtom)
-logical Epsilon_Undef
+logical Epsilon_Undef, Skip
 integer, parameter :: nCom = 38
-character(len=4), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','EXTR','PRCI','PROR','ITER','THRE','END ','TIME', &
-                                               'CALC','NOFI','SEWA','NOCO','NOTW','SPIN','PRIN','PCGD','RESI','NOTO', &
-                                               'EXPD','NEGP','LOWM','ELHE','SAVE','RASS','DISO','CASI','SALA','NODE', &
-                                               'ESTE','MOUT','MASS','NAC ','$$$$','THER','CHOF','TWOS']
-integer iDum(1), I, JCOM, ICOM, ITIT, ISYM, IP, IRC, IOPT, ICOMP, ISYLBL, IPP, IS, ID, J, IRRFNC, iMass
+character(len=4), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','    ','    ','ITER','THRE','END ','TIME', &
+                                               '    ','NOFI','SEWA','NOCO','NOTW','SPIN','PRIN','PCGD','RESI','NOTO', &
+                                               'EXPD','NEGP','LOWM','    ','SAVE','RASS','DISO','CASI','SALA','NODE', &
+                                               'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS']
+integer iDum(1), I, JCOM, ICOM, ITIT, ISYM, IP, IRC, IOPT, ICOMP, ISYLBL, IPP, IS, ID, J, IRRFNC, iMass, istatus
 real*8, allocatable :: umass(:)
 character(len=3), allocatable :: cmass(:)
 
@@ -104,387 +104,360 @@ StepType = 'xxxx'
 !----------------------------------------------------------------------*
 !     Read the input stream line by line and identify key command      *
 !----------------------------------------------------------------------*
-100 continue
-read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if ((Line(1:1) == ' ') .or. (Line(1:1) == '*')) goto 100
-call StdFmt(Line,Command)
-jCom = 0
-do iCom=1,nCom
-  if (Command == ComTab(iCom)) jCom = iCom
-end do
-if (jCom == 0) then
-  write(6,'(A,A)') 'RdInp: illegal command:',Command
-  call Abend()
-end if
-!----------------------------------------------------------------------*
-!     Branch to the processing of the command sections                 *
-!----------------------------------------------------------------------*
-110 continue
-select case (jCom)
-  case (1)
-    Go to 10
-  case (2)
-    Go to 16
-  case (3)
-    Go to 20
-  case (4)
-    Go to 30
-  case (5)
-    Go to 40
-  case (6)
-    Go to 50
-  case (7)
-    Go to 60
-  case (8)
-    Go to 70
-  case (9)
-    Go to 99
-  case (10)
-    Go to 80
-  case (11)
-    Go to 55
-  case (12)
-    Go to 175
-  case (13)
-    Go to 185
-  case (14)
-    Go to 165
-  case (15)
-    Go to 166
-  case (16)
-    Go to 177
-  case (17)
-    Go to 178
-  case (18)
-    Go to 179
-  case (19)
-    Go to 180
-  case (20)
-    Go to 191
-  case (21)
-    Go to 192
-  case (22)
-    Go to 193
-  case (23)
-    Go to 194
-  case (24)
-    Go to 195
-  case (25)
-    Go to 196
-  case (26)
-    Go to 788
-  case (27)
-    Go to 789
-  case (28)
-    Go to 198
-  case (29)
-    Go to 199
-  case (30)
-    Go to 200
-  case (31)
-    Go to 201
-  case (32)
-    Go to 202
-  case (33)
-    Go to 203
-  case (34)
-    Go to 204
-  case (35)
-    Go to 205
-  case (36)
-    Go to 206
-  case (37)
-    Go to 210
-  case (38)
-    Go to 220
-end select
-!---  TITL ------------------------------------------------------------*
-10 continue
-15 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if (Line(1:1) == '*') goto 15
-call StdFmt(Line,Command)
-jCom = 0
-do iCom=1,nCom
-  if (Command == ComTab(iCom)) jCom = iCom
-end do
-if (jCom /= 0) goto 110
-mTit = mTit+1
-if (mTit <= mxTit) then
-  read(Line,'(18A4)') (TitleIN(iTit),iTit=(mTit-1)*18+1,mTit*18)
-  goto 15
-end if
-goto 100
-
-!----      ------------------------------------------------------------*
-788 RASSI = .true.
-if (debug) write(6,*) 'Output for RASSI'
-goto 100
-!----      ------------------------------------------------------------*
-789 double = .true.    ! Make double isotope substitutions
-goto 100
-!---- DEBU ------------------------------------------------------------*
-16 debug = .true.
-goto 100
-!----      ------------------------------------------------------------*
-195 continue
-write(6,*) 'ELHE is disabled!'
-goto 100
-!---- LOWM ------------------------------------------------------------*
-194 page = .true.
-if (debug) write(6,*) 'Page memory'
-goto 100
-!----      ------------------------------------------------------------*
-191 newpre = .false.
-if (debug) write(6,*) 'New conditioner'
-goto 100
-!----      ------------------------------------------------------------*
-196 lSAVE = .true.
-if (debug) write(6,*) 'old integrals, not supported'
-goto 100
-!----      ------------------------------------------------------------*
-198 CASINT = .true.
-if (debug) write(6,*) 'CASPT2 integrals'
-goto 100
-!---- EXPD ------------------------------------------------------------*
-192 read(5,*) nexp_max
-if (debug) write(6,*) 'Maximum explicit preconditioner',nexp_max
-goto 100
-!----      ------------------------------------------------------------*
-179 iBreak = 1
-read(5,*) Eps
-Epsilon_Undef = .false.
-if (debug) write(6,*) 'Threshold:',Eps
-goto 100
-!----      ------------------------------------------------------------*
-180 iBreak = 2
-read(5,*) Eps
-Epsilon_Undef = .false.
-if (debug) write(6,*) 'Threshold:',Eps
-goto 100
-!----      ------------------------------------------------------------*
-178 read(5,*) kprint
-if (debug) write(6,*) 'Print level: ',kprint
-goto 100
-!----      ------------------------------------------------------------*
-193 NGP = .true.
-if (debug) write(6,*) 'NGP set to true'
-goto 100
-!---- SALA ------------------------------------------------------------*
-199 SA = .true.
-read(5,*) istate
-override = .true.
-if (debug) write(6,*) 'Lagrangian for state: ',istate
-goto 100
-!----      ------------------------------------------------------------*
-201 esterr = .true.
-goto 100
-!---- NODE ------------------------------------------------------------*
-200 FANCY_PRECONDITIONER = .false.
-if (debug) write(6,*) 'Turned of the fancy pcg'
-goto 100
-!----      ------------------------------------------------------------*
-177 SPINPOL = .true.
-ispop = 1
-if (debug) write(6,*) 'RHF lagrangian, not supported'
-goto 100
-!----      ------------------------------------------------------------*
-166 do i=1,nDisp
-  NTPert(i) = iand(nTPert(i),247)
-end do
-goto 100
-!----      ------------------------------------------------------------*
-165 do i=1,nDisp
-  NTPert(i) = iand(nTPert(i),251)
-end do
-goto 100
-!----      ------------------------------------------------------------*
-
-185 continue
-186 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-call StdFmt(Line,Command)
-if ((Command(1:1) == ' ') .or. (Line(1:1) == '*')) goto 186
-if (debug) write(6,*) 'SEWARD INPUT'
-if ((Command(1:4) == 'END ') .or. (Command(1:4) == 'ENDS')) goto 100
-read(Line,'(A8,I2,I2)',Err=998,end=999) SewLab,isym,ip
-iRc = -1
-iOpt = ibset(0,sOpSiz)
-iComp = ip
-iSyLbl = 2**isym
-Label = SewLab
-call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
-if (iRc /= 0) then
-  write(6,*) 'RdInp: Error reading ONEINT'
-  write(6,'(A,A)') 'Label=',Label
-  call Abend()
-end if
-
-!---  read number of symm. species ------------------------------------*
-
-ipp = 0
-do is=isym+1,nsym
-  ipp = ipp+ldisp(is)
-end do
-do id=nDisp,ndisp-ipp+1,-1
-  DspVec(id+1) = dspVec(id)
-  ntpert(id+1) = ntpert(id)
-  lcalc(id+1) = lcalc(id)
-end do
-id = ndisp-ipp+1
-DspVec(id) = ip
-ldisp(isym) = ldisp(isym)+1
-ndisp = ndisp+1
-ntpert(id) = 2
-lcalc(id) = .true.
-SwLbl(id) = SewLab
-goto 185
-
-175 Nofile = .true.
-if (debug) write(6,*) 'NOFILE'
-goto 100
-
-!---  Process the "root" input card -----------------------------------*
-20 continue
-25 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if ((Line(1:1) == ' ') .or. (Line(1:1) == '*')) goto 25
-read(Line,*,Err=998,end=999) lRoots
-if (debug) write(6,*) 'LROOT'
-goto 100
-
-!---  CALC ------------------------------------------------------------*
-55 continue
-write(6,*) 'CALC is disabled!'
-goto 100
-!---  Process the "extract" input card --------------------------------*
-30 write(6,*) 'RdInp: EXTRACT option is redundant and is ignored!'
-goto 100
-!---  Process the "PrCI" input card -----------------------------------*
-40 continue
-write(6,*) 'PRCI is disabled!'
-goto 100
-!---  Process the "PrOr" input card -----------------------------------*
-50 continue
-write(6,*) 'PROR is disabled!'
-goto 100
-!---  Process the "ITER" input card -----------------------------------*
-60 continue
-65 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if ((Line(1:1) == ' ') .or. (Line(1:1) == '*')) goto 65
-read(Line,*,Err=998,end=999) nIter
-goto 100
-!---  Process the "THRE" input card -----------------------------------*
-70 continue
-75 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if ((Line(1:1) == ' ') .or. (Line(1:1) == '*')) goto 75
-read(Line,*,Err=998,end=999) Eps
-Epsilon_Undef = .false.
-goto 100
-!---  Process the "TIME" input card -----------------------------------*
-80 continue
-read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if ((Line(1:1) == ' ') .or. (Line(1:1) == '*')) goto 80
-read(Line,*,Err=998,end=999) Omega
-TimeDep = .true.
-nIter = 100
-goto 100
-!---  Process the "MOUT" input card -----------------------------------*
-202 continue
-write(6,*) 'MOUT is disabled!'
-goto 100
-!---  Process the "MASS" input card -----------------------------------*
-203 continue
-iMass = 0
-call Get_Name_All(Element)
-
-! Find out how many different elements are present in the molecule.
-
-do i=1,nAtoms
-  if (Element(i) /= '  ') iMass = iMass+1
-  do j=i+1,nAtoms
-    if (Element(j) == Element(i)) Element(j) = '  '
-  end do
-end do
-call mma_allocate(cmass,iMass,label='cmass')
-call mma_allocate(umass,iMass,label='umass')
-do i=1,iMass
-  read(5,'(A3)') cmass(i)
-  read(5,'(F15.8)') umass(i)
-end do
-
-! Put the Info on the run file.
-
-call Put_iScalar('iMass',iMass)
-call Put_cArray('cmass',cmass(1),3*iMass)
-call Put_dArray('umass',umass,iMass)
-call mma_deallocate(cmass)
-call mma_deallocate(umass)
-
-goto 100
-!---  Process the "NAC " input card -----------------------------------*
-204 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if ((Line(1:1) == ' ') .or. (Line(1:1) == '*')) goto 25
-read(Line,*,Err=998,end=999) NACstates(1),NACstates(2)
-isNAC = .true.
-override = .true.
-if (debug) write(6,*) 'Non-adiabatic couplings for states: ',NACstates(1),NACstates(2)
-goto 100
-!---  Process the "$$$$" input card -----------------------------------*
-205 continue
-! not used
-goto 100
-!---  Process the "THERmochemistry input card -------------------------*
-206 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if (Line(1:1) == '*') goto 206
-read(Line,*,Err=998,end=999) nsRot
-2060 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if (Line(1:1) == '*') goto 2060
-read(Line,*,Err=998,end=999) UserP
-2061 read(5,'(A)',Err=998,end=999) Line
-Line = adjustl(Line)
-if (Line(1:1) == '*') goto 2061
-call UpCase(Line)
-if (Line(1:4) == 'END ') then
-  if (nUserPT == 0) then
-    nUserPT = 1
-    UserT(1) = 298.15d0
+Skip = .false.
+outer: do
+  if (Skip) then
+    Skip = .false.
+  else
+    read(5,'(A)',iostat=istatus) Line
+    if (istatus /= 0) call Error(istatus)
+    Line = adjustl(Line)
+    if ((Line(1:1) == ' ') .or. (Line(1:1) == '*')) cycle
+    call StdFmt(Line,Command)
+    jCom = 0
+    do iCom=1,nCom
+      if (Command == ComTab(iCom)) jCom = iCom
+    end do
   end if
-  goto 100
-end if
-nUserPT = nUserPT+1
-read(Line,*,Err=998,end=999) UserT(nUserPT)
-goto 2061
-!---  Process the "NEWCho input card ----------------------------------*
-210 NewCho = .true.
-goto 100
-!---  Process the "TWOStep" input card --------------------------------*
-220 read(5,'(A)',Err=998,end=999) Line
-call UpCase(Line)
-Line = adjustl(Line)
-if (Line(1:1) == '*') goto 220
-read(Line,*,Err=998,end=999) StepType
-if (debug) write(6,*) 'TWOSTEP kind: '//StepType
-if ((StepType(1:4) /= 'FIRS') .and. (StepType(1:4) /= 'SECO') .and. (StepType(1:4) /= 'RUN1') .and. (StepType(1:4) /= 'RUN2')) then
-  call WarningMessage(2,'TWOStep: input error!')
-  call Quit_OnUserError()
-end if
-if (StepType(1:4) == 'FIRS') StepType(1:4) = 'RUN1'
-if (StepType(1:4) == 'SECO') StepType(1:4) = 'RUN2'
-TwoStep = .true.
-if (debug) write(6,*) 'TWOSTEP kind: '//StepType
-goto 100
+  if (jCom == 0) then
+    write(6,'(A,A)') 'RdInp: illegal command:',Command
+    call Abend()
+  end if
+  !--------------------------------------------------------------------*
+  !     Branch to the processing of the command sections               *
+  !--------------------------------------------------------------------*
+  select case (jCom)
+    case (1)
+      !---- TITL ------------------------------------------------------*
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if (Line(1:1) == '*') cycle
+        call StdFmt(Line,Command)
+        jCom = 0
+        do iCom=1,nCom
+          if (Command == ComTab(iCom)) jCom = iCom
+        end do
+        if (jCom /= 0) then
+          Skip = .true.
+          exit
+        end if
+        mTit = mTit+1
+        if (mTit > mxTit) exit
+        read(Line,'(18A4)') (TitleIN(iTit),iTit=(mTit-1)*18+1,mTit*18)
+      end do
+
+    case (2)
+      !---- DEBU ------------------------------------------------------*
+      debug = .true.
+
+    case (3)
+      !---- ROOT ------------------------------------------------------*
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) lRoots
+      if (istatus /= 0) call Error(istatus)
+      if (debug) write(6,*) 'LROOT'
+
+    case (7)
+      !---- ITER ------------------------------------------------------*
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) nIter
+      if (istatus /= 0) call Error(istatus)
+
+    case (8)
+      !---- THRE ------------------------------------------------------*
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) Eps
+      if (istatus /= 0) call Error(istatus)
+      Epsilon_Undef = .false.
+
+    case (9)
+      !---- END  ------------------------------------------------------*
+      exit outer
+
+    case (10)
+      !---- TIME ------------------------------------------------------*
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) Omega
+      if (istatus /= 0) call Error(istatus)
+      TimeDep = .true.
+      nIter = 100
+
+    case (12)
+      !---- NOFI ------------------------------------------------------*
+      Nofile = .true.
+      if (debug) write(6,*) 'NOFILE'
+
+    case (13)
+      !---- SEWA ------------------------------------------------------*
+      do
+        do
+          read(5,'(A)',iostat=istatus) Line
+          if (istatus /= 0) call Error(istatus)
+          Line = adjustl(Line)
+          call StdFmt(Line,Command)
+          if ((Command(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
+        end do
+        if (debug) write(6,*) 'SEWARD INPUT'
+        if ((Command(1:4) == 'END ') .or. (Command(1:4) == 'ENDS')) exit
+        read(Line,'(A8,I2,I2)',iostat=istatus) SewLab,isym,ip
+        if (istatus /= 0) call Error(istatus)
+        iRc = -1
+        iOpt = ibset(0,sOpSiz)
+        iComp = ip
+        iSyLbl = 2**isym
+        Label = SewLab
+        call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
+        if (iRc /= 0) then
+          write(6,*) 'RdInp: Error reading ONEINT'
+          write(6,'(A,A)') 'Label=',Label
+          call Abend()
+        end if
+
+        !---- read number of symm. species ----------------------------*
+
+        ipp = 0
+        do is=isym+1,nsym
+          ipp = ipp+ldisp(is)
+        end do
+        do id=nDisp,ndisp-ipp+1,-1
+          DspVec(id+1) = dspVec(id)
+          ntpert(id+1) = ntpert(id)
+          lcalc(id+1) = lcalc(id)
+        end do
+        id = ndisp-ipp+1
+        DspVec(id) = ip
+        ldisp(isym) = ldisp(isym)+1
+        ndisp = ndisp+1
+        ntpert(id) = 2
+        lcalc(id) = .true.
+        SwLbl(id) = SewLab
+      end do
+
+    case (14)
+      !---- NOCO ------------------------------------------------------*
+      do i=1,nDisp
+        NTPert(i) = iand(nTPert(i),251)
+      end do
+
+    case (15)
+      !---- NOTW ------------------------------------------------------*
+      do i=1,nDisp
+        NTPert(i) = iand(nTPert(i),247)
+      end do
+
+    case (16)
+      !---- SPIN ------------------------------------------------------*
+      SPINPOL = .true.
+      ispop = 1
+      if (debug) write(6,*) 'RHF lagrangian, not supported'
+
+    case (17)
+      !---- PRIN ------------------------------------------------------*
+      read(5,*) kprint
+      if (debug) write(6,*) 'Print level: ',kprint
+
+    case (18,19)
+      !---- PCGD, RESI ------------------------------------------------*
+      if (jCom == 18) then
+        iBreak = 1
+      else if (jCom == 19) then
+        iBreak = 2
+      end if
+      read(5,*) Eps
+      Epsilon_Undef = .false.
+      if (debug) write(6,*) 'Threshold:',Eps
+
+    case (20)
+      !---- NOTO ------------------------------------------------------*
+      newpre = .false.
+      if (debug) write(6,*) 'New conditioner'
+
+    case (21)
+      !---- EXPD ------------------------------------------------------*
+      read(5,*) nexp_max
+      if (debug) write(6,*) 'Maximum explicit preconditioner',nexp_max
+
+    case (22)
+      !---- NEGP ------------------------------------------------------*
+      NGP = .true.
+      if (debug) write(6,*) 'NGP set to true'
+
+    case (23)
+      !---- LOWM ------------------------------------------------------*
+      page = .true.
+      if (debug) write(6,*) 'Page memory'
+
+    case (25)
+      !---- SAVE ------------------------------------------------------*
+      lSAVE = .true.
+      if (debug) write(6,*) 'old integrals, not supported'
+
+    case (26)
+      !---- RASS ------------------------------------------------------*
+      RASSI = .true.
+      if (debug) write(6,*) 'Output for RASSI'
+
+    case (27)
+      !---- DISO ------------------------------------------------------*
+      double = .true.    ! Make double isotope substitutions
+
+    case (28)
+      !---- CASI ------------------------------------------------------*
+      CASINT = .true.
+      if (debug) write(6,*) 'CASPT2 integrals'
+
+    case (29)
+      !---- SALA ------------------------------------------------------*
+      SA = .true.
+      read(5,*) istate
+      override = .true.
+      if (debug) write(6,*) 'Lagrangian for state: ',istate
+
+    case (30)
+      !---- NODE ------------------------------------------------------*
+      FANCY_PRECONDITIONER = .false.
+      if (debug) write(6,*) 'Turned of the fancy pcg'
+
+    case (31)
+      !---- ESTE ------------------------------------------------------*
+      esterr = .true.
+
+    case (33)
+      !---- MASS ------------------------------------------------------*
+      iMass = 0
+      call Get_Name_All(Element)
+
+      ! Find out how many different elements are present in the molecule.
+
+      do i=1,nAtoms
+        if (Element(i) /= '  ') iMass = iMass+1
+        do j=i+1,nAtoms
+          if (Element(j) == Element(i)) Element(j) = '  '
+        end do
+      end do
+      call mma_allocate(cmass,iMass,label='cmass')
+      call mma_allocate(umass,iMass,label='umass')
+      do i=1,iMass
+        read(5,'(A3)') cmass(i)
+        read(5,'(F15.8)') umass(i)
+      end do
+
+      ! Put the Info on the run file.
+
+      call Put_iScalar('iMass',iMass)
+      call Put_cArray('cmass',cmass(1),3*iMass)
+      call Put_dArray('umass',umass,iMass)
+      call mma_deallocate(cmass)
+      call mma_deallocate(umass)
+
+    case (34)
+      !---- NAC  ------------------------------------------------------*
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
+      end do
+      read(Line,*,iostat=istatus) NACstates(1),NACstates(2)
+      if (istatus /= 0) call Error(istatus)
+      isNAC = .true.
+      override = .true.
+      if (debug) write(6,*) 'Non-adiabatic couplings for states: ',NACstates(1),NACstates(2)
+
+    case (36)
+      !---- THER ------------------------------------------------------*
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) nsRot
+      if (istatus /= 0) call Error(istatus)
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) UserP
+      if (istatus /= 0) call Error(istatus)
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        Line = adjustl(Line)
+        if (Line(1:1) == '*') cycle
+        call UpCase(Line)
+        if (Line(1:4) == 'END ') then
+          if (nUserPT == 0) then
+            nUserPT = 1
+            UserT(1) = 298.15d0
+          end if
+          exit
+        end if
+        nUserPT = nUserPT+1
+        read(Line,*,iostat=istatus) UserT(nUserPT)
+        if (istatus /= 0) call Error(istatus)
+      end do
+
+    case (37)
+      !---- CHOF ------------------------------------------------------*
+      NewCho = .true.
+
+    case (38)
+      !---- TWOS ------------------------------------------------------*
+      do
+        read(5,'(A)',iostat=istatus) Line
+        if (istatus /= 0) call Error(istatus)
+        call UpCase(Line)
+        Line = adjustl(Line)
+        if (Line(1:1) /= '*') exit
+      end do
+      read(Line,*,iostat=istatus) StepType
+      if (istatus /= 0) call Error(istatus)
+      if (debug) write(6,*) 'TWOSTEP kind: '//StepType
+      if ((StepType(1:4) /= 'FIRS') .and. (StepType(1:4) /= 'SECO') .and. (StepType(1:4) /= 'RUN1') .and. &
+          (StepType(1:4) /= 'RUN2')) then
+        call WarningMessage(2,'TWOStep: input error!')
+        call Quit_OnUserError()
+      end if
+      if (StepType(1:4) == 'FIRS') StepType(1:4) = 'RUN1'
+      if (StepType(1:4) == 'SECO') StepType(1:4) = 'RUN2'
+      TwoStep = .true.
+      if (debug) write(6,*) 'TWOSTEP kind: '//StepType
+
+    case default
+      jCom = 0
+      Skip = .true.
+
+  end select
+end do outer
+
 !----------------------------------------------------------------------*
 !     "End of input"                                                   *
 !----------------------------------------------------------------------*
-99 continue
 do i=1,3
   isym = irrfnc(2**(i-1))+1
   ipp = 0
@@ -529,15 +502,23 @@ if (debug) write(6,*) 'FINITO'
 !     Normal termination                                               *
 !----------------------------------------------------------------------*
 
-return
+contains
+
 !----------------------------------------------------------------------*
 !     Error Exit                                                       *
 !----------------------------------------------------------------------*
-998 write(6,*) 'RdInp: Error while reading input'
-write(6,'(A,A)') 'Last command:',Line
-call Abend()
-999 write(6,*) 'RdInp: Premature end of input file'
-write(6,'(A,A)') 'Last command:',Line
-call Abend()
+subroutine Error(rc)
+
+  integer, intent(in) :: rc
+
+  if (rc > 0) then
+    write(6,*) 'RdInp: Error while reading input'
+  else
+    write(6,*) 'RdInp: Premature end of input file'
+  end if
+  write(6,'(A,A)') 'Last command:',Line
+  call Abend()
+
+end subroutine Error
 
 end subroutine RdInp_MCLR

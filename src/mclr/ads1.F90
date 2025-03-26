@@ -62,6 +62,7 @@ integer IMPL(*), IMPO(*)
 ! Output
 integer I1(*)
 dimension XI1S(*)
+logical Skip
 
 LDIM = 0 ! dummy initialize
 #ifdef _DEBUGPRINT_
@@ -91,68 +92,71 @@ do KKTYPE=1,N1OCTP
   if ((I1EL1(KKTYPE) == KEL1) .and. (I1EL3(KKTYPE) == KEL3)) KTYPE = KKTYPE
 end do
 !write(6,*) ' kel1 kel3 ktype ',KEL1,KEL3,KTYPE
+Skip = .false.
 if (KTYPE == 0) then
   NK = 0
   IEND = 1
-  goto 101
-end if
-! Symmetry of K strings
-KSM = Mul(ORBSM(IORB),ISM)
-if (KSM == 0) then
-  NK = 0
-  IEND = 1
-  goto 101
-end if
-KOFF = I1SSO(KTYPE,KSM)
-!? write(6,*) ' KTYPE KSM ',KTYPE,KSM
-if (KMAX == -1) then
-  KEND = N1SSO(KTYPE,KSM)
+  Skip = .true.
 else
-  KEND = min(N1SSO(KTYPE,KSM),KMAX)
+  ! Symmetry of K strings
+  KSM = Mul(ORBSM(IORB),ISM)
+  if (KSM == 0) then
+    NK = 0
+    IEND = 1
+    Skip = .true.
+  end if
 end if
-if (KEND < N1SSO(KTYPE,KSM)) then
-  IEND = 0
-else
-  IEND = 1
-end if
-NK = KEND-KMIN+1
-if (KMAX == -1) then
-  LDIM = NK
-else
-  LDIM = LI1
-end if
-!? if (KMAX == -1) write(6,*) ' KMAX = -1, LDIM=',LDIM
-IOFF = ISSO(ICLS,ISM)
-KSUB = KOFF+KMIN-2
-do IIORB=IORB,IORB+LORB-1
-  IORBR = IIORB-IORB+1
-  do KSTR=KOFF+KMIN-1,KOFF+KEND-1
-    !write(6,*) ' KSTR = ',KSTR
-    KREL = KSTR-KSUB
+if (.not. Skip) then
+  KOFF = I1SSO(KTYPE,KSM)
+  !? write(6,*) ' KTYPE KSM ',KTYPE,KSM
+  if (KMAX == -1) then
+    KEND = N1SSO(KTYPE,KSM)
+  else
+    KEND = min(N1SSO(KTYPE,KSM),KMAX)
+  end if
+  if (KEND < N1SSO(KTYPE,KSM)) then
+    IEND = 0
+  else
+    IEND = 1
+  end if
+  NK = KEND-KMIN+1
+  if (KMAX == -1) then
+    LDIM = NK
+  else
+    LDIM = LI1
+  end if
+  !? if (KMAX == -1) write(6,*) ' KMAX = -1, LDIM=',LDIM
+  IOFF = ISSO(ICLS,ISM)
+  KSUB = KOFF+KMIN-2
+  do IIORB=IORB,IORB+LORB-1
+    IORBR = IIORB-IORB+1
+    do KSTR=KOFF+KMIN-1,KOFF+KEND-1
+      !write(6,*) ' KSTR = ',KSTR
+      KREL = KSTR-KSUB
 
-    ISTR = 0
-    if (IMPF == 1) then
-      if (IMAPO((KSTR-1)*LMAP+IIORB) == IIORB) ISTR = IMAPS((KSTR-1)*LMAP+IIORB)
-    else
-      !write(6,*) ' IMPL = ',IMPL(KSTR)
-      !write(6,*) ' IMPO = ',IMPO(KSTR)
-      do IIIORB=1,IMPL(KSTR)
-        if (IMAPO(IMPO(KSTR)-1+IIIORB) == IIORB) ISTR = IMAPS(IMPO(KSTR)-1+IIIORB)
-      end do
-    end if
-    if (ISTR > 0) then
-      I1(KREL+(IORBR-1)*LDIM) = ISTR-IOFF+1
-      XI1S(KREL+(IORBR-1)*LDIM) = 1.0d0
-    else if (ISTR < 0) then
-      I1(KREL+(IORBR-1)*LDIM) = -ISTR-IOFF+1
-      XI1S(KREL+(IORBR-1)*LDIM) = -1.0d0
-    else if (ISTR == 0) then
-      I1(KREL+(IORBR-1)*LDIM) = 0
-      XI1S(KREL+(IORBR-1)*LDIM) = 0.0d0
-    end if
+      ISTR = 0
+      if (IMPF == 1) then
+        if (IMAPO((KSTR-1)*LMAP+IIORB) == IIORB) ISTR = IMAPS((KSTR-1)*LMAP+IIORB)
+      else
+        !write(6,*) ' IMPL = ',IMPL(KSTR)
+        !write(6,*) ' IMPO = ',IMPO(KSTR)
+        do IIIORB=1,IMPL(KSTR)
+          if (IMAPO(IMPO(KSTR)-1+IIIORB) == IIORB) ISTR = IMAPS(IMPO(KSTR)-1+IIIORB)
+        end do
+      end if
+      if (ISTR > 0) then
+        I1(KREL+(IORBR-1)*LDIM) = ISTR-IOFF+1
+        XI1S(KREL+(IORBR-1)*LDIM) = 1.0d0
+      else if (ISTR < 0) then
+        I1(KREL+(IORBR-1)*LDIM) = -ISTR-IOFF+1
+        XI1S(KREL+(IORBR-1)*LDIM) = -1.0d0
+      else if (ISTR == 0) then
+        I1(KREL+(IORBR-1)*LDIM) = 0
+        XI1S(KREL+(IORBR-1)*LDIM) = 0.0d0
+      end if
+    end do
   end do
-end do
-101 continue
+end if
 
 #ifdef _DEBUGPRINT_
 write(6,*) ' Output from ASTR'

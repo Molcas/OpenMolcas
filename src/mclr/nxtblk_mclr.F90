@@ -22,29 +22,35 @@ ISM = IASM
 IA = IATP
 IB = IBTP
 NONEW = 0
-! Next block
-1000 continue
-if (IB < NOCTPB) then
-  IB = IB+1
-else
-  IB = 1
-  if (IA < NOCTPA) then
-    IA = IA+1
+do
+  ! Next block
+  if (IB < NOCTPB) then
+    IB = IB+1
   else
-    IA = 1
-    if (ISM < NSMST) then
-      ISM = ISM+1
+    IB = 1
+    if (IA < NOCTPA) then
+      IA = IA+1
     else
-      NONEW = 1
+      IA = 1
+      if (ISM < NSMST) then
+        ISM = ISM+1
+      else
+        NONEW = 1
+      end if
     end if
   end if
-end if
-if (NONEW == 1) goto 1001
-! Should this block be included
-if ((IDC /= 1) .and. (IBLTP(ISM) == 0)) goto 1000
-if ((IDC /= 1) .and. (IBLTP(ISM) == 2) .and. (IA < IB)) goto 1000
-if (IOCOC(IA,IB) == 0) goto 1000
-1001 continue
+  if (NONEW == 1) exit
+  ! Should this block be included
+  if ((IDC /= 1) .and. (IBLTP(ISM) == 0)) then
+    !continue
+  else if ((IDC /= 1) .and. (IBLTP(ISM) == 2) .and. (IA < IB)) then
+    !continue
+  else if (IOCOC(IA,IB) == 0) then
+    !continue
+  else
+    exit
+  end if
+end do
 
 IATP = IA
 IBTP = IB

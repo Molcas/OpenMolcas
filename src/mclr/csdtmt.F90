@@ -73,13 +73,12 @@ do ITP=1,NTYP
     ICSBS = ICSBS+(IOPEN-1)*NCPCNT(ITP-1)
     ICDCBS = ICDCBS+NDPCNT(ITP-1)*NCPCNT(ITP-1)
   end if
-  if (NDPCNT(ITP)*NCPCNT(ITP) == 0) goto 30
+  if (NDPCNT(ITP)*NCPCNT(ITP) == 0) cycle
   if (IOPEN == 0) then
     DTOC(ICDCBS) = 1.0d0
   else
     call CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),PSSIGN)
   end if
-30 continue
 end do
 
 end subroutine CSDTMT

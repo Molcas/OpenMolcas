@@ -31,6 +31,7 @@ integer IBLTP(*)
 ! May 7
 ! Output
 integer IACOOS(NOCTPA,NOCTPB,NSMST)
+logical Skip
 
 #ifdef _DEBUGPRINT_
 write(6,*)
@@ -61,39 +62,51 @@ IENSM = ISTSM
 IENTA = ISTTA
 IENTB = ISTTB
 IFINI = 0
-if (INCFST == 1) goto 999
-1000 continue
-! Next block
-IPA = IA
-IPB = IB
-IPSM = ISM
-
-if (IB < NOCTPB) then
-  IB = IB+1
+if (INCFST == 1) then
+  Skip = .true.
 else
-  IB = 1
-  if (IA < NOCTPA) then
-    IA = IA+1
-  else
-    IA = 1
-    if (ISM < NSMST) then
-      ISM = ISM+1
-    else
-      IFINI = 1
-    end if
-  end if
+  Skip = .false.
 end if
-if (IFINI == 1) goto 1001
-! Should this block be included
-999 continue
-if ((IDC /= 1) .and. (IBLTP(ISM) == 0)) goto 1000
-if ((IDC /= 1) .and. (IBLTP(ISM) == 2) .and. (IA < IB)) goto 1000
-if (IOCOC(IA,IB) == 0) goto 1000
-!write(6,*) ' INCOOS IDC IBLTP ',IDC,IBLTP(ISM)
-! can this block be included
-LBLOCK = NOOS(IA,IB,ISM)
-!write(6,*) ' IA IB ISM LBLOCK ',IA,IB,ISM,LBLOCK
-if (LENGTH+LBLOCK <= MXLNG) then
+do
+  if (Skip) then
+    Skip = .false.
+  else
+    ! Next block
+    IPA = IA
+    IPB = IB
+    IPSM = ISM
+
+    if (IB < NOCTPB) then
+      IB = IB+1
+    else
+      IB = 1
+      if (IA < NOCTPA) then
+        IA = IA+1
+      else
+        IA = 1
+        if (ISM < NSMST) then
+          ISM = ISM+1
+        else
+          IFINI = 1
+        end if
+      end if
+    end if
+    if (IFINI == 1) exit
+  end if
+  ! Should this block be included
+  if ((IDC /= 1) .and. (IBLTP(ISM) == 0)) cycle
+  if ((IDC /= 1) .and. (IBLTP(ISM) == 2) .and. (IA < IB)) cycle
+  if (IOCOC(IA,IB) == 0) cycle
+  !write(6,*) ' INCOOS IDC IBLTP ',IDC,IBLTP(ISM)
+  ! can this block be included
+  LBLOCK = NOOS(IA,IB,ISM)
+  !write(6,*) ' IA IB ISM LBLOCK ',IA,IB,ISM,LBLOCK
+  if (LENGTH+LBLOCK > MXLNG) then
+    IA = IPA
+    IB = IPB
+    ISM = IPSM
+    exit
+  end if
   NBLOCK = NBLOCK+1
   LENGTH = LENGTH+LBLOCK
   IACOOS(IA,IB,ISM) = 1
@@ -102,13 +115,7 @@ if (LENGTH+LBLOCK <= MXLNG) then
     ISTTB = IB
     ISTSM = ISM
   end if
-  goto 1000
-else
-  IA = IPA
-  IB = IPB
-  ISM = IPSM
-end if
-1001 continue
+end do
 
 IENSM = ISM
 IENTA = IA

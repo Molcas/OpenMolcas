@@ -52,8 +52,8 @@ do ITP=1,3
       IK1 = I1
       IK3 = I3+1
     end if
-    if (LEL1-IK1 < 0) goto 300
-    if (LEL3-IK3 < 0) goto 300
+    if (LEL1-IK1 < 0) cycle
+    if (LEL3-IK3 < 0) cycle
     do LTP=1,3
       if (LTP == 1) then
         IKL1 = IK1-1
@@ -85,7 +85,6 @@ do ITP=1,3
         end if
       end do
     end do
-300 continue
   end do
 end do
 

@@ -148,7 +148,7 @@ end do
 
 rFock = sign*(Fockii+FockAi)
 !MGD tmp
-!goto 10
+!if (.false.) then
 do jA=1,nAsh(jS)
 
   ! iaa
@@ -182,7 +182,7 @@ do kB=nIsh(jS)+nAsh(jS),nOrb(jS)-1
     rOut(i) = rout(i)+sign*4.0d0*Focki(kb+1,lb+1)+sign*4.0d0*Focka(kb+1,lb+1)
   end do
 end do
-!10 continue
+!end if
 
 ! Avoid unused argument warnings
 if (.false.) then

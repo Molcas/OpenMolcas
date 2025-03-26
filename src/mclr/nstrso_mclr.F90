@@ -28,74 +28,75 @@ IORB2L = IORB2F+NORB2-1
 IORB3F = IORB2L+1
 IORB3L = IORB3F+NORB3-1
 ! Loop over possible partitionings between RAS1,RAS2,RAS3
-do IEL1=NELMX1,NELMN1,-1
-  do IEL3=NELMN3,NELMX3,1
-    if (IEL1 > NORB1) goto 1001
-    if (IEL3 > NORB3) goto 1003
+outer: do IEL1=NELMX1,NELMN1,-1
+  inner: do IEL3=NELMN3,NELMX3,1
+    if (IEL1 > NORB1) cycle outer
+    if (IEL3 > NORB3) cycle inner
     IEL2 = NEL-IEL1-IEL3
-    if ((IEL2 < 0) .or. (IEL2 > NORB2)) goto 1003
+    if ((IEL2 < 0) .or. (IEL2 > NORB2)) cycle inner
     IFRST1 = 1
     ! Loop over RAS 1 occupancies
-901 continue
-    if (IEL1 /= 0) then
-      if (IFRST1 == 1) then
-        IOC(1:IEL1) = [(i,i=1,IEL1)]
-        IFRST1 = 0
-      else
-        call NXTORD(IOC,IEL1,IORB1F,IORB1L,NONEW1)
-        if (NONEW1 == 1) goto 1003
-      end if
-    end if
-    IFRST2 = 1
-    IFRST3 = 1
-    ! Loop over RAS 2 occupancies
-902 continue
-    if (IEL2 /= 0) then
-      if (IFRST2 == 1) then
-        IOC(IEL1+1:IEL1+IEL2) = [(i,i=IORB2F,IORB2F+IEL2-1)]
-        IFRST2 = 0
-      else
-        call NXTORD(IOC(IEL1+1),IEL2,IORB2F,IORB2L,NONEW2)
-        if (NONEW2 == 1) then
-          if (IEL1 /= 0) goto 901
-          if (IEL1 == 0) goto 1003
+    RAS1occ: do
+      if (IEL1 /= 0) then
+        if (IFRST1 == 1) then
+          IOC(1:IEL1) = [(i,i=1,IEL1)]
+          IFRST1 = 0
+        else
+          call NXTORD(IOC,IEL1,IORB1F,IORB1L,NONEW1)
+          if (NONEW1 == 1) cycle inner
         end if
       end if
-    end if
-    IFRST3 = 1
-    ! Loop over RAS 3 occupancies
-903 continue
-    if (IEL3 /= 0) then
-      if (IFRST3 == 1) then
-        IOC(IEL1+IEL2+1:IEL1+IEL2+IEL3) = [(i,i=IORB3F,IORB3F+IEL3-1)]
-        IFRST3 = 0
-      else
-        call NXTORD(IOC(IEL1+IEL2+1),IEL3,IORB3F,IORB3L,NONEW3)
-        if (NONEW3 == 1) then
-          if (IEL2 /= 0) goto 902
-          if (IEL1 /= 0) goto 901
-          goto 1003
+      IFRST2 = 1
+      IFRST3 = 1
+      ! Loop over RAS 2 occupancies
+      RAS2occ: do
+        if (IEL2 /= 0) then
+          if (IFRST2 == 1) then
+            IOC(IEL1+1:IEL1+IEL2) = [(i,i=IORB2F,IORB2F+IEL2-1)]
+            IFRST2 = 0
+          else
+            call NXTORD(IOC(IEL1+1),IEL2,IORB2F,IORB2L,NONEW2)
+            if (NONEW2 == 1) then
+              if (IEL1 /= 0) cycle RAS1occ
+              if (IEL1 == 0) cycle inner
+            end if
+          end if
         end if
-      end if
-    end if
-    ! Next string has been constructed, Enlist it!
-    NSTRIN = NSTRIN+1
-    ! Symmetry of string
-    ISYM = ISYMST_MCLR(IOC,NEL)
-    !      ISYMST_MCLR(STRING,NEL)
-    ! occupation type of string
-    ITYP = IOCTP2_MCLR(IOC,NEL,IOTYP)
-    !      IOCTP2_MCLR(STRING,NEL)
+        IFRST3 = 1
+        ! Loop over RAS 3 occupancies
+        RAS3occ: do
+          if (IEL3 /= 0) then
+            if (IFRST3 == 1) then
+              IOC(IEL1+IEL2+1:IEL1+IEL2+IEL3) = [(i,i=IORB3F,IORB3F+IEL3-1)]
+              IFRST3 = 0
+            else
+              call NXTORD(IOC(IEL1+IEL2+1),IEL3,IORB3F,IORB3L,NONEW3)
+              if (NONEW3 == 1) then
+                if (IEL2 /= 0) cycle RAS2occ
+                if (IEL1 /= 0) cycle RAS1occ
+                cycle inner
+              end if
+            end if
+          end if
+          ! Next string has been constructed, Enlist it!
+          NSTRIN = NSTRIN+1
+          ! Symmetry of string
+          ISYM = ISYMST_MCLR(IOC,NEL)
+          !      ISYMST_MCLR(STRING,NEL)
+          ! occupation type of string
+          ITYP = IOCTP2_MCLR(IOC,NEL,IOTYP)
+          !      IOCTP2_MCLR(STRING,NEL)
 
-    NSTASO(ITYP,ISYM) = NSTASO(ITYP,ISYM)+1
+          NSTASO(ITYP,ISYM) = NSTASO(ITYP,ISYM)+1
 
-    if (IEL3 /= 0) goto 903
-    if ((IEL3 == 0) .and. (IEL2 /= 0)) goto 902
-    if ((IEL3 == 0) .and. (IEL2 == 0) .and. (IEL1 /= 0)) goto 901
-1003 continue
-  end do
-1001 continue
-end do
+          if (IEL3 == 0) exit RAS3occ
+        end do RAS3occ
+        if ((IEL3 /= 0) .or. (IEL2 == 0)) exit RAS2occ
+      end do RAS2occ
+      if ((IEL3 /= 0) .or. (IEL2 /= 0) .or. (IEL1 == 0)) exit RAS1occ
+    end do RAS1occ
+  end do inner
+end do outer
 
 return
 ! Avoid unused argument warnings

@@ -165,10 +165,10 @@ if (iMethod == 2) then
         llSym = ieor(klSym-1,kkSym-1)+1
         lOrb = nRs1(llSym)+nRs2(llSym)+nRs3(llSym)
 
-        if (llSym > kkSym) goto 100
+        if (llSym > kkSym) cycle
 
         klNum = kkSym*(kkSym+1)/2+llSym
-        if (klNum > ijNum) goto 100
+        if (klNum > ijNum) cycle
 
         if (kkSym == llSym) then
           klOrb = kOrb*(kOrb+1)/2
@@ -186,7 +186,6 @@ if (iMethod == 2) then
 
         iOff = iOff+iPlus
 
-100     continue
       end do
     end do
   end do

@@ -81,19 +81,19 @@ dimension ITP(3*3), JTP(3*3)
 call SXTYP_GAS(NSXTP,ITP,JTP,3,ISEL,ICEL)
 ! Symmetry of single excitation that connects IBSM and JBSM
 IJSM = Mul(ISCSM,ICCSM)
-if (IJSM == 0) goto 1001
+if (IJSM == 0) return
 do IJTP=1,NSXTP
   ITYP = ITP(IJTP)
   JTYP = JTP(IJTP)
   do ISM=1,NSMOB
     ! new i and j so new intermediate strings
     JSM = Mul(ISM,IJSM)
-    if (JSM == 0) goto 800
+    if (JSM == 0) cycle
     NIORB = NOBPTS(ITYP,ISM)
     NJORB = NOBPTS(JTYP,JSM)
     IBIORB = IOBPTS(ITYP,ISM)
     IBJORB = IOBPTS(JTYP,JSM)
-    if ((NIORB == 0) .or. (NJORB == 0)) goto 800
+    if ((NIORB == 0) .or. (NJORB == 0)) cycle
 
     !OLD Loop over partitionings of the row strings
     NIPART = NROW/MAXI
@@ -101,65 +101,64 @@ do IJTP=1,NSXTP
     ! Loop over partitionings of N-1 strings
     KBOT = 1-MAXK
     KTOP = 0
-700 continue
-    KBOT = KBOT+MAXK
-    KTOP = KTOP+MAXK
-    !EAWBEGIN970207
-    !     -1 -> MAXK
-    !     KTOP -> -1
-    !     KTOP=-1
-    ! Single excitation information independent of I strings
+    do
+      KBOT = KBOT+MAXK
+      KTOP = KTOP+MAXK
+      !EAWBEGIN970207
+      !     -1 -> MAXK
+      !     KTOP -> -1
+      !     KTOP=-1
+      ! Single excitation information independent of I strings
 
-    ! set up I1(K) =  XI1S(K) a JORB !J STRING >
-    call ADST(IBJORB,NJORB,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND)
-    ! set up I2(K) =  XI1S(K) a JORB !J STRING >
-    call ADST(IBIORB,NIORB,ISCTP,ISCSM,IGRP,KBOT,KTOP,I2,XI2S,MAXK,NKBTC,KEND)
-    !EAWEND
-    ! Appropriate place to start partitioning over I strings
-    ! Loop over partitionings of the row strings
-    do IPART=1,NIPART
-      IBOT = (IPART-1)*MAXI+1
-      ITOP = min(IBOT+MAXI-1,NROW)
-      NIBTC = ITOP-IBOT+1
+      ! set up I1(K) =  XI1S(K) a JORB !J STRING >
+      call ADST(IBJORB,NJORB,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,MAXK,NKBTC,KEND)
+      ! set up I2(K) =  XI1S(K) a JORB !J STRING >
+      call ADST(IBIORB,NIORB,ISCTP,ISCSM,IGRP,KBOT,KTOP,I2,XI2S,MAXK,NKBTC,KEND)
+      !EAWEND
+      ! Appropriate place to start partitioning over I strings
+      ! Loop over partitionings of the row strings
+      do IPART=1,NIPART
+        IBOT = (IPART-1)*MAXI+1
+        ITOP = min(IBOT+MAXI-1,NROW)
+        NIBTC = ITOP-IBOT+1
 
-      ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
-      ! Gather  C Block
-      do JJORB=1,NJORB
-        ICGOFF = 1+(JJORB-1)*NKBTC*NIBTC
-        call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,NKBTC,I1(1+(JJORB-1)*MAXK),XI1S(1+(JJORB-1)*MAXK))
-      end do
-
-      ! Obtain SSCR(I,K,IORB) = SUM(I)<K!A IORB!J>S(I,J)
-      do IIORB=1,NIORB
-        ! Gather S Block
-        ISGOFF = 1+(IIORB-1)*NKBTC*NIBTC
-        call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,NKBTC,I2(1+(IIORB-1)*MAXK),XI2S(1+(IIORB-1)*MAXK))
-      end do
-      NKI = NKBTC*NIBTC
-      if (NKI*NIORB*NJORB /= 0) then
-        call DGEMM_('T','N',NIORB,NJORB,NKI,1.0d0,SSCR,NKI,CSCR,NKI,0.0d0,RHO1S,NIORB)
-      else
-        call dcopy_(NIORB*NJORB,[0.0d0],0,RHO1S,1)
-      end if
-      ! Scatter out to complete matrix
-      do JJORB=1,NJORB
-        JORB = IBJORB-1+JJORB
-        do IIORB=1,NIORB
-          IORB = IBIORB-1+IIORB
-          RHO1((JORB-1)*NACOB+IORB) = RHO1((JORB-1)*NACOB+IORB)+RHO1S((JJORB-1)*NIORB+IIORB)
+        ! Obtain CSCR(I,K,JORB) = SUM(J)<K!A JORB!J>C(I,J)
+        ! Gather  C Block
+        do JJORB=1,NJORB
+          ICGOFF = 1+(JJORB-1)*NKBTC*NIBTC
+          call MATCG(CB,CSCR(ICGOFF),NROW,NIBTC,IBOT,NKBTC,I1(1+(JJORB-1)*MAXK),XI1S(1+(JJORB-1)*MAXK))
         end do
-      end do
 
+        ! Obtain SSCR(I,K,IORB) = SUM(I)<K!A IORB!J>S(I,J)
+        do IIORB=1,NIORB
+          ! Gather S Block
+          ISGOFF = 1+(IIORB-1)*NKBTC*NIBTC
+          call MATCG(SB,SSCR(ISGOFF),NROW,NIBTC,IBOT,NKBTC,I2(1+(IIORB-1)*MAXK),XI2S(1+(IIORB-1)*MAXK))
+        end do
+        NKI = NKBTC*NIBTC
+        if (NKI*NIORB*NJORB /= 0) then
+          call DGEMM_('T','N',NIORB,NJORB,NKI,1.0d0,SSCR,NKI,CSCR,NKI,0.0d0,RHO1S,NIORB)
+        else
+          call dcopy_(NIORB*NJORB,[0.0d0],0,RHO1S,1)
+        end if
+        ! Scatter out to complete matrix
+        do JJORB=1,NJORB
+          JORB = IBJORB-1+JJORB
+          do IIORB=1,NIORB
+            IORB = IBIORB-1+IIORB
+            RHO1((JORB-1)*NACOB+IORB) = RHO1((JORB-1)*NACOB+IORB)+RHO1S((JJORB-1)*NIORB+IIORB)
+          end do
+        end do
+
+      end do
+      ! /\ end of this I partitioning
+      ! end of this K partitioning
+      if (KEND /= 0) exit
     end do
-    ! /\ end of this I partitioning
-    ! end of this K partitioning
-    if (KEND == 0) goto 700
     ! End of loop over I partitioninigs
-800 continue
   end do
   ! (end of loop over symmetries)
 end do
-1001 continue
 
 return
 ! Avoid unused argument warnings

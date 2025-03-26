@@ -72,13 +72,12 @@ MAXOP = 0
 do IEL1=NEL1MN,2*NORB1
   do IEL3=0,NEL3MX
     IEL2 = NACTEL-IEL1-IEL3
-    if (IEL2 < 0) goto 4
+    if (IEL2 < 0) cycle
     IOP1 = min(NORB1,2*NORB1-IEL1,IEL1)
     IOP2 = min(NORB2,2*NORB2-IEL2,IEL2)
     IOP3 = min(NORB3,2*NORB3-IEL3,IEL3)
     IOP = IOP1+IOP2+IOP3
     MAXOP = max(MAXOP,IOP)
-4   continue
   end do
 end do
 !write(6,*) ' MAXOP with RAS constraints :',MAXOP

@@ -150,7 +150,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
     ! Just use the first CSFs as subspace
 
     ICNF = 0
-    do ITYP=1,NTYP
+    outer: do ITYP=1,NTYP
       NJCNF = NCNATS(ITYP,IREFSM)
       NIRREP = NCPCNT(ITYP)
       do IICNF=1,NJCNF
@@ -183,11 +183,10 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
             IPQCSF(NPQCSF) = NPQCSF
           end do
         else
-          goto 101
+          exit outer
         end if
       end do
-    end do
-101 continue
+    end do outer
 
   else if (IPWAY == 2) then
     ! Obtain lowest CSFs
@@ -218,58 +217,58 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
     ! loop over lowest configurations
 
     IFINIT = 0
-400 continue
 
-    XMIN = XMAX+1.0d0
-    IMIN = 0
+    do
+      XMIN = XMAX+1.0d0
+      IMIN = 0
 
-    IICNF = 1
-    ICSFOF = 1
-    do ITYP=1,NTYP
-      NIRREP = NCPCNT(ITYP)
-      do ICNF=1,NCNATS(ITYP,IREFSM)
-        if (DIAGCN(IICNF) < XMIN) then
-          XMIN = DIAGCN(IICNF)
-          IMIN = IICNF
-          ICSFMN = ICSFOF
-          NCSFMN = NIRREP
-        end if
+      IICNF = 1
+      ICSFOF = 1
+      do ITYP=1,NTYP
+        NIRREP = NCPCNT(ITYP)
+        do ICNF=1,NCNATS(ITYP,IREFSM)
+          if (DIAGCN(IICNF) < XMIN) then
+            XMIN = DIAGCN(IICNF)
+            IMIN = IICNF
+            ICSFMN = ICSFOF
+            NCSFMN = NIRREP
+          end if
 
-        IICNF = IICNF+1
-        ICSFOF = ICSFOF+NIRREP
+          IICNF = IICNF+1
+          ICSFOF = ICSFOF+NIRREP
+        end do
       end do
-    end do
 
-    ! Next lowest element has been found
+      ! Next lowest element has been found
 
-    if (NPQCSF+NCSFMN <= MXPQDM) then
-      ! 1  add new configuration
-      NPQCNF = NPQCNF+1
-      IPQCNF(NPQCNF) = IMIN
-      SCR(KLDIPQ-1+NPQCNF) = XMIN
-      IPQCSF(NPQCSF+1:NPQCSF+NCSFMN) = [(i,i=ICSFMN,ICSFMN+NCSFMN-1)]
-      NPQCSF = NPQCSF+NCSFMN
+      if (NPQCSF+NCSFMN <= MXPQDM) then
+        ! 1  add new configuration
+        NPQCNF = NPQCNF+1
+        IPQCNF(NPQCNF) = IMIN
+        SCR(KLDIPQ-1+NPQCNF) = XMIN
+        IPQCSF(NPQCSF+1:NPQCSF+NCSFMN) = [(i,i=ICSFMN,ICSFMN+NCSFMN-1)]
+        NPQCSF = NPQCSF+NCSFMN
 
-      ! Mask
-      DIAGCN(IMIN) = XMAX+1.0d0
-    else
-      IFINIT = 1
-      ! 2  No space for this configuration, remove previous
-      !    configurations with the same diagonal value
-      IICNF = NPQCNF+1
-600   continue
-      IICNF = IICNF-1
-      DIAVAL = DIAGCN(IPQCNF(IICNF))
-      if (abs(DIAVAL-XMIN) <= 1.0D-10) then
-        NPQCNF = NPQCNF-1
-        call c_f_pointer(c_loc(SCR(KLCONF)),iPTR,[1])
-        call GETCNF_MCLR(iPTR,ITYP,IPQCNF(IICNF),ICONF,IREFSM,NEL)
-        nullify(iPTR)
-        NPQCSF = NPQCSF-NCPCNT(ITYP)
-        goto 600
+        ! Mask
+        DIAGCN(IMIN) = XMAX+1.0d0
+      else
+        IFINIT = 1
+        ! 2  No space for this configuration, remove previous
+        !    configurations with the same diagonal value
+        IICNF = NPQCNF+1
+        do
+          IICNF = IICNF-1
+          DIAVAL = DIAGCN(IPQCNF(IICNF))
+          if (abs(DIAVAL-XMIN) > 1.0D-10) exit
+          NPQCNF = NPQCNF-1
+          call c_f_pointer(c_loc(SCR(KLCONF)),iPTR,[1])
+          call GETCNF_MCLR(iPTR,ITYP,IPQCNF(IICNF),ICONF,IREFSM,NEL)
+          nullify(iPTR)
+          NPQCSF = NPQCSF-NCPCNT(ITYP)
+        end do
       end if
-    end if
-    if ((IFINIT == 0) .and. (NPQCNF < NCONF)) goto 400
+      if ((IFINIT /= 0) .or. (NPQCNF >= NCONF)) exit
+    end do
     ! NPQCSF has now been collected, obtain P1,P2 and Q space
     ! so that degenerate configurations are not  in
     ! different  subspaces
@@ -312,10 +311,9 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
         NQCNF = NQCNF+IDGVL
       else
         ! No space for configuration so
-        goto 801
+        exit
       end if
     end do
-801 continue
 
     NPCSF = NP1CSF+NP2CSF
     NPCNF = NP1CNF+NP2CNF

@@ -67,7 +67,7 @@ MaxVecPerBatch = Cho_LK_MaxVecPerBatch()
 do jSym=1,nSym
   NumCV = NumCho(jSym)
   call GAIGOP_SCAL(NumCV,'max')
-  if (NumCV < 1) goto 1000
+  if (NumCV < 1) cycle
 
   iLoc = 3 ! use scratch location in reduced index arrays
 
@@ -88,7 +88,7 @@ do jSym=1,nSym
 
   do JRED=JRED1,JRED2
     call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
-    if (nVrs == 0) goto 999
+    if (nVrs == 0) cycle
     if (nVrs < 0) then
       write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!',nVrs
       call Abend()
@@ -269,9 +269,7 @@ do jSym=1,nSym
     end if
     call mma_deallocate(Lrs)
     call mma_deallocate(LF)
-999 continue
   end do  ! loop over red sets
-1000 continue
 end do    ! loop over JSYM
 !***********************************************************************
 !                                                                      *

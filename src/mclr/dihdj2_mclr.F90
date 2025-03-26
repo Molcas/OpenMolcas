@@ -161,7 +161,7 @@ do JDET=1,NJDET
       NADIF = NAEL-NACM
       NBDIF = NBEL-NBCM
 
-      if (NADIF+NBDIF > 2) goto 898
+      if (NADIF+NBDIF > 2) cycle
       ! Factor for combinations
       if (ICOMBI == 0) then
         CONST = 1.0d0
@@ -204,19 +204,17 @@ do JDET=1,NJDET
           if (jWORK(KLJAE-1+LIA(IAEL)) == 0) then
             IA = LIA(IAEL)
             IEL1 = IAEL
-            goto 121
+            exit
           end if
         end do
-121     continue
 
         do JAEL=1,NAEL
           if (jWORK(KLIAE-1+JASTRM(JAEL,JASTAC)) == 0) then
             JA = JASTRM(JAEL,JASTAC)
             JEL1 = JAEL
-            goto 131
+            exit
           end if
         end do
-131     continue
         SIGNA = dble((-1)**(JEL1+IEL1))
       end if
 
@@ -227,18 +225,16 @@ do JDET=1,NJDET
           if (jWORK(KLJBE-1+LIB(IBEL)) == 0) then
             IB = LIB(IBEL)
             IEL1 = IBEL
-            goto 221
+            exit
           end if
         end do
-221     continue
         do JBEL=1,NBEL
           if (jWORK(KLIBE-1+JBSTRM(JBEL,JBSTAC)) == 0) then
             JB = JBSTRM(JBEL,JBSTAC)
             JEL1 = JBEL
-            goto 231
+            exit
           end if
         end do
-231     continue
         SIGNB = dble((-1)**(JEL1+IEL1))
       end if
 
@@ -255,11 +251,10 @@ do JDET=1,NJDET
             else
               I2 = LIA(IAEL)
               IPERM = IAEL+IPERM
-              goto 321
+              exit
             end if
           end if
         end do
-321     continue
 
         JDIFF = 0
         do JAEL=1,NAEL
@@ -271,11 +266,10 @@ do JDET=1,NJDET
             else
               J2 = JASTRM(JAEL,JASTAC)
               JPERM = JAEL+JPERM
-              goto 331
+              exit
             end if
           end if
         end do
-331     continue
         SIGN = dble((-1)**(IPERM+JPERM))
       end if
 
@@ -292,11 +286,10 @@ do JDET=1,NJDET
             else
               I2 = LIB(IBEL)
               IPERM = IBEL+IPERM
-              goto 421
+              exit
             end if
           end if
         end do
-421     continue
 
         JDIFF = 0
         do JBEL=1,NBEL
@@ -308,11 +301,10 @@ do JDET=1,NJDET
             else
               J2 = JBSTRM(JBEL,JBSTAC)
               JPERM = JBEL+JPERM
-              goto 431
+              exit
             end if
           end if
         end do
-431     continue
         SIGN = dble((-1)**(IPERM+JPERM))
       end if
 
@@ -412,7 +404,6 @@ do JDET=1,NJDET
       else
         HAMIL((IDET-1)*IDET/2+JDET) = HAMIL((IDET-1)*IDET/2+JDET)+CONST*XVAL
       end if
-898   continue
     end do
   end do
 end do

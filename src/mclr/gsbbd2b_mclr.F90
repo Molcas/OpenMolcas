@@ -83,22 +83,22 @@ IJSM = Mul(IASM,JASM)
 KLSM = Mul(IBSM,JBSM)
 itype = 2
 if (ieaw == 1) itype = 3
-if ((IJSM == 0) .or. (KLSM == 0)) goto 9999
+if ((IJSM == 0) .or. (KLSM == 0)) return
 ! Types of SX that connects the two strings
 call SXTYP_GAS(NKLTYP,KTP,LTP,NGAS,IBOC,JBOC)
 call SXTYP_GAS(NIJTYP,ITP,JTP,NGAS,IAOC,JAOC)
-if ((NIJTYP == 0) .or. (NKLTYP == 0)) goto 9999
+if ((NIJTYP == 0) .or. (NKLTYP == 0)) return
 do IJTYP=1,NIJTYP
   ITYP = ITP(IJTYP)
   JTYP = JTP(IJTYP)
   do ISM=1,NSMOB
     JSM = Mul(ISM,IJSM)
-    if (JSM == 0) goto 1940
+    if (JSM == 0) cycle
     IOFF = IOBPTS(ITYP,ISM)
     JOFF = IOBPTS(JTYP,JSM)
     NI = NOBPTS(ITYP,ISM)
     NJ = NOBPTS(JTYP,JSM)
-    if ((NI == 0) .or. (NJ == 0)) goto 1940
+    if ((NI == 0) .or. (NJ == 0)) cycle
     !EAW
     ! Find Ka strings that connect with Ja strings for given group of Jorbs
     KABOT = 1
@@ -135,18 +135,18 @@ do IJTYP=1,NIJTYP
 
         do KSM=1,NSMOB
           LSM = Mul(KSM,KLSM)
-          if (LSM == 0) goto 1930
+          if (LSM == 0) cycle
           KOFF = IOBPTS(KTYP,KSM)
           LOFF = IOBPTS(LTYP,LSM)
           NK = NOBPTS(KTYP,KSM)
           NL = NOBPTS(LTYP,LSM)
           ! If IUSEAB is used, only terms with i >= k will be generated so
           IKORD = 0
-          if ((IUSEAB == 1) .and. (ISM > KSM)) goto 1930
-          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP < KTYP)) goto 1930
+          if ((IUSEAB == 1) .and. (ISM > KSM)) cycle
+          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP < KTYP)) cycle
           if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP == KTYP)) IKORD = 1
 
-          if ((NK == 0) .or. (NL == 0)) goto 1930
+          if ((NK == 0) .or. (NL == 0)) cycle
           !EAW
           ! Obtain all connections a+l!Kb> = +/-/0!Jb>
           ! NKBSTR must be given as input
@@ -158,23 +158,19 @@ do IJTYP=1,NIJTYP
           call ADST(LOFF,NL,JBTP,JBSM,IBGRP,KBBOT,KBTOP,I2,XI2S,MAXK,NKBSTR,KBEND)
           call ADST(KOFF,NK,IBTP,IBSM,IBGRP,KBBOT,KBTOP,I4,XI4S,MAXK,NKBSTR,KBEND)
 
-          !if (NKBSTR == 0) goto 1930
+          !if (NKBSTR == 0) cycle
           X(1:NI*NJ*NK*NL) = 0.0d0
 
           call ABTOR2(SIRES,CJRES,LKABTC,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
           ! contributions to Rho2(ij,kl) has been obtained, scatter out
           call ADTOR2_MCLR(RHO2,X,itype,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 
-1930      continue
         end do
       end do
     end do
     ! End of loop over partitioning of alpha strings
-1940 continue
   end do
 end do
-
-9999 continue
 
 return
 ! Avoid unused argument warnings

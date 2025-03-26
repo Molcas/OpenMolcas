@@ -60,7 +60,7 @@ ITDET = 0
 if (LUDIA /= 0) rewind LUDIA
 do IASM=1,NSMST
   IBSM = ISMOST(IASM)
-  if ((IBSM == 0) .or. (IBLTP(IASM) == 0)) goto 1000
+  if ((IBSM == 0) .or. (IBLTP(IASM) == 0)) cycle
   if (IBLTP(IASM) == 2) then
     IREST1 = 1
   else
@@ -74,7 +74,7 @@ do IASM=1,NSMST
       MXBTP = NOCTPB
     end if
     do IBTP=1,MXBTP
-      if (IOCOC(IATP,IBTP) == 0) goto 900
+      if (IOCOC(IATP,IBTP) == 0) cycle
       IBSTRT = ISSOB(IBTP,IBSM)
       IBSTOP = IBSTRT+NSSOB(IBTP,IBSM)-1
       do IB=IBSTRT,IBSTOP
@@ -129,11 +129,9 @@ do IASM=1,NSMST
         call TODSC_MCLR(DIAG,IDET,-1,LUDIA)
         IDET = 0
       end if
-900   continue
     end do
   end do
 
-1000 continue
 end do
 
 if (ICISTR >= 2) then

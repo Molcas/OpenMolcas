@@ -109,148 +109,150 @@ ISENTA = 1
 ISENTB = 1
 IFRSTS = 1
 ! Loop over batches over L blocks
-10001 continue
-! Next batch of L blocks
-ISSTSM = ISENSM
-ISSTTA = ISENTA
-ISSTTB = ISENTB
-call INCOOS(IDC,ISBLTP,NSOOSE,NOCTPA,NOCTPB,ISSTSM,ISSTTA,ISSTTB,NSMST,ISENSM,ISENTA,ISENTB,IASOOS,LS,ISFINI,NSBLK,IFRSTS,ISOCOC)
-if ((NSBLK == 0) .and. (ISFINI /= 0)) goto 10002
-IFRSTS = 0
-! Obtain L blocks
-IS1SM = ISSTSM
-IS1TA = ISSTTA
-IS1TB = ISSTTB
-ISOFF = 1
-do ISBLK=1,NSBLK
-  ISBSM = ISSMOS(IS1SM)
-# ifdef _DEBUGPRINT_
-  write(6,*) ' ISBLK ISOFF ',ISBLK,ISOFF
-# endif
-  if (ISOCOC(IS1TA,IS1TB) == 1) &
-    call GSTTBL_MCLR(L,SB(ISOFF),IS1TA,IS1SM,IS1TB,ISBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PLL,LUL,C2)
-  ISOFF = ISOFF+NSOOSE(IS1TA,IS1TB,IS1SM)
-  if (ISBLK /= NSBLK) call NXTBLK_MCLR(IS1TA,IS1TB,IS1SM,NOCTPA,NOCTPB,NSMST,ISBLTP,IDC,NONEWS,ISOCOC)
-end do
-! Initialize loop over blocks over L vector
-ICENSM = 1
-ICENTA = 1
-ICENTB = 1
-! Loop over blocks of R vector
-IFRSTC = 1
-9001 continue
-#ifdef _DEBUGPRINT_
-write(6,*) ' >>> next batch of R blocks'
-#endif
-ICSTSM = ICENSM
-ICSTTA = ICENTA
-ICSTTB = ICENTB
+outer: do
+  ! Next batch of L blocks
+  ISSTSM = ISENSM
+  ISSTTA = ISENTA
+  ISSTTB = ISENTB
+  call INCOOS(IDC,ISBLTP,NSOOSE,NOCTPA,NOCTPB,ISSTSM,ISSTTA,ISSTTB,NSMST,ISENSM,ISENTA,ISENTB,IASOOS,LS,ISFINI,NSBLK,IFRSTS,ISOCOC)
+  if ((NSBLK == 0) .and. (ISFINI /= 0)) exit outer
+  IFRSTS = 0
+  ! Obtain L blocks
+  IS1SM = ISSTSM
+  IS1TA = ISSTTA
+  IS1TB = ISSTTB
+  ISOFF = 1
+  do ISBLK=1,NSBLK
+    ISBSM = ISSMOS(IS1SM)
+#   ifdef _DEBUGPRINT_
+    write(6,*) ' ISBLK ISOFF ',ISBLK,ISOFF
+#   endif
+    if (ISOCOC(IS1TA,IS1TB) == 1) &
+      call GSTTBL_MCLR(L,SB(ISOFF),IS1TA,IS1SM,IS1TB,ISBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PLL,LUL,C2)
+    ISOFF = ISOFF+NSOOSE(IS1TA,IS1TB,IS1SM)
+    if (ISBLK /= NSBLK) call NXTBLK_MCLR(IS1TA,IS1TB,IS1SM,NOCTPA,NOCTPB,NSMST,ISBLTP,IDC,NONEWS,ISOCOC)
+  end do
+  ! Initialize loop over blocks over L vector
+  ICENSM = 1
+  ICENTA = 1
+  ICENTB = 1
+  ! Loop over blocks of R vector
+  IFRSTC = 1
+  do
+#   ifdef _DEBUGPRINT_
+    write(6,*) ' >>> next batch of R blocks'
+#   endif
+    ICSTSM = ICENSM
+    ICSTTA = ICENTA
+    ICSTTB = ICENTB
 
-call INCOOS(IDC,ICBLTP,NCOOSE,NOCTPA,NOCTPB,ICSTSM,ICSTTA,ICSTTB,NSMST,ICENSM,ICENTA,ICENTB,IACOOS,LC,IFINIC,NCBLK,IFRSTC,ICOCOC)
-! If no more R blocks goto next batch of L blocks
-if ((NCBLK == 0) .and. (IFINIC /= 0)) goto 10001
-IFRSTC = 0
-! Read L blocks into core
-IC1SM = ICSTSM
-IC1TA = ICSTTA
-IC1TB = ICSTTB
-ICOFF = 1
-do ICBLK=1,NCBLK
-  ICBSM = ICSMOS(IC1SM)
-  if (ICOCOC(IC1TA,IC1TB) == 1) &
-    call GSTTBL_MCLR(R,CB(ICOFF),IC1TA,IC1SM,IC1TB,ICBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PLR,LUR,C2)
-  ICOFF = ICOFF+NCOOSE(IC1TA,IC1TB,IC1SM)
-  if (ICBLK /= NCBLK) call NXTBLK_MCLR(IC1TA,IC1TB,IC1SM,NOCTPA,NOCTPB,NSMST,ICBLTP,IDC,NONEWC,ICOCOC)
-end do
-! Loop over L and R blocks in core and obtain  contribution from
-! given L and R blocks
-ISOFF = 1
-IASM = ISSTSM
-IATP = ISSTTA
-IBTP = ISSTTB
-do ISBLK=1,NSBLK
-  IBSM = ISSMOS(IASM)
-  NIA = NSSOA(IASM,IATP)
-  NIB = NSSOB(IBSM,IBTP)
-  ! Possible permutations of L blocks
-  call PRMBLK(IDC,ISTRFL,IASM,IBSM,IATP,IBTP,PSL,PLR,LATP,LBTP,LASM,LBSM,LSGN,LTRP,NLPERM)
-  do ILPERM=1,NLPERM
-    IIASM = LASM(ILPERM)
-    IIBSM = LBSM(ILPERM)
-    IIATP = LATP(ILPERM)
-    IIBTP = LBTP(ILPERM)
-    NIIA = NSSOA(IIASM,IIATP)
-    NIIB = NSSOB(IIBSM,IIBTP)
-
-    if (LTRP(ILPERM) == 1) then
-      LROW = NSSOA(LASM(ILPERM-1),LATP(ILPERM-1))
-      LCOL = NSSOB(LBSM(ILPERM-1),LBTP(ILPERM-1))
-      call TRPMT3(SB(ISOFF),LROW,LCOL,C2)
-      SB(ISOFF:ISOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
-    end if
-    if (LSGN(ILPERM) == -1) SB(ISOFF:ISOFF+NIA*NIB-1) = -SB(ISOFF:ISOFF+NIA*NIB-1)
-
-    JASM = ICSTSM
-    JATP = ICSTTA
-    JBTP = ICSTTB
+    call INCOOS(IDC,ICBLTP,NCOOSE,NOCTPA,NOCTPB,ICSTSM,ICSTTA,ICSTTB,NSMST,ICENSM,ICENTA,ICENTB,IACOOS,LC,IFINIC,NCBLK,IFRSTC, &
+                ICOCOC)
+    ! If no more R blocks go to next batch of L blocks
+    if ((NCBLK == 0) .and. (IFINIC /= 0)) cycle outer
+    IFRSTC = 0
+    ! Read L blocks into core
+    IC1SM = ICSTSM
+    IC1TA = ICSTTA
+    IC1TB = ICSTTB
     ICOFF = 1
     do ICBLK=1,NCBLK
-      JBSM = ICSMOS(JASM)
-      NJA = NSSOA(JASM,JATP)
-      NJB = NSSOB(JBSM,JBTP)
-      XNORM2 = INPROD_MCLR(CB(ICOFF),CB(ICOFF),NJA*NJB)
-      if ((NIA*NIB*NJA*NJB /= 0) .and. (ISOCOC(IATP,IBTP) == 1) .and. (ICOCOC(JATP,JBTP) == 1) .and. (XNORM2 /= 0.0d0)) then
-        ! Possible permutations of this block
-        call PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PSR,PLR,RATP,RBTP,RASM,RBSM,RSGN,RTRP,NRPERM)
-        do IRPERM=1,NRPERM
-          if (RTRP(IRPERM) == 1) then
-            LROW = NSSOA(RASM(IRPERM-1),RATP(IRPERM-1))
-            LCOL = NSSOB(RBSM(IRPERM-1),RBTP(IRPERM-1))
-            call TRPMT3(CB(ICOFF),LROW,LCOL,C2)
-            CB(ICOFF:ICOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
-          end if
-          if (RSGN(IRPERM) == -1) CB(ICOFF:ICOFF+NJA*NJB-1) = -CB(ICOFF:ICOFF+NJA*NJB-1)
-          JJASM = RASM(IRPERM)
-          JJBSM = RBSM(IRPERM)
-          JJATP = RATP(IRPERM)
-          JJBTP = RBTP(IRPERM)
-          NJJA = NSSOA(JJASM,JJATP)
-          NJJB = NSSOB(JJBSM,JJBTP)
-          call GSDNBB2_MCLR(I12,RHO1,RHO2,IIASM,IIATP,IIBSM,IIBTP,JJASM,JJATP,JJBSM,JJBTP,NGAS,NELFSPGPA(1,IOCTPA-1+IIATP), &
-                            NELFSPGPB(1,IOCTPB-1+IIBTP),NELFSPGPA(1,IOCTPA-1+JJATP),NELFSPGPB(1,IOCTPB-1+JJBTP),NAEL,NBEL,IAGRP, &
-                            IBGRP,SB(ISOFF),CB(ICOFF),C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4, &
-                            XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,NIIA,NIIB,NJJA,NJJB,MXPOBS,NACOB,RHO1S,ieaw,n1,n2)
-        end do
-        ! Transpose or scale R block to restore order ??
-        if (RTRP(NRPERM+1) == 1) then
-          call TRPMT3(CB(ICOFF),NJB,NJA,C2)
-          CB(ICOFF:ICOFF+NJA*NJB-1) = C2(1:NJA*NJB)
-        end if
-        if (RSGN(NRPERM+1) == -1) CB(ICOFF:ICOFF+NJA*NJB-1) = -CB(ICOFF:ICOFF+NJA*NJB-1)
-
-      end if
-      ICOFF = ICOFF+NCOOSE(JATP,JBTP,JASM)
-      ! Next C block
-      if (ICBLK /= NCBLK) call NXTBLK_MCLR(JATP,JBTP,JASM,NOCTPA,NOCTPB,NSMST,ICBLTP,IDC,NONEWC,ICOCOC)
+      ICBSM = ICSMOS(IC1SM)
+      if (ICOCOC(IC1TA,IC1TB) == 1) &
+        call GSTTBL_MCLR(R,CB(ICOFF),IC1TA,IC1SM,IC1TB,ICBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PLR,LUR,C2)
+      ICOFF = ICOFF+NCOOSE(IC1TA,IC1TB,IC1SM)
+      if (ICBLK /= NCBLK) call NXTBLK_MCLR(IC1TA,IC1TB,IC1SM,NOCTPA,NOCTPB,NSMST,ICBLTP,IDC,NONEWC,ICOCOC)
     end do
-    ! End of loop over R blocks in Batch
+    ! Loop over L and R blocks in core and obtain  contribution from
+    ! given L and R blocks
+    ISOFF = 1
+    IASM = ISSTSM
+    IATP = ISSTTA
+    IBTP = ISSTTB
+    do ISBLK=1,NSBLK
+      IBSM = ISSMOS(IASM)
+      NIA = NSSOA(IASM,IATP)
+      NIB = NSSOB(IBSM,IBTP)
+      ! Possible permutations of L blocks
+      call PRMBLK(IDC,ISTRFL,IASM,IBSM,IATP,IBTP,PSL,PLR,LATP,LBTP,LASM,LBSM,LSGN,LTRP,NLPERM)
+      do ILPERM=1,NLPERM
+        IIASM = LASM(ILPERM)
+        IIBSM = LBSM(ILPERM)
+        IIATP = LATP(ILPERM)
+        IIBTP = LBTP(ILPERM)
+        NIIA = NSSOA(IIASM,IIATP)
+        NIIB = NSSOB(IIBSM,IIBTP)
+
+        if (LTRP(ILPERM) == 1) then
+          LROW = NSSOA(LASM(ILPERM-1),LATP(ILPERM-1))
+          LCOL = NSSOB(LBSM(ILPERM-1),LBTP(ILPERM-1))
+          call TRPMT3(SB(ISOFF),LROW,LCOL,C2)
+          SB(ISOFF:ISOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
+        end if
+        if (LSGN(ILPERM) == -1) SB(ISOFF:ISOFF+NIA*NIB-1) = -SB(ISOFF:ISOFF+NIA*NIB-1)
+
+        JASM = ICSTSM
+        JATP = ICSTTA
+        JBTP = ICSTTB
+        ICOFF = 1
+        do ICBLK=1,NCBLK
+          JBSM = ICSMOS(JASM)
+          NJA = NSSOA(JASM,JATP)
+          NJB = NSSOB(JBSM,JBTP)
+          XNORM2 = INPROD_MCLR(CB(ICOFF),CB(ICOFF),NJA*NJB)
+          if ((NIA*NIB*NJA*NJB /= 0) .and. (ISOCOC(IATP,IBTP) == 1) .and. (ICOCOC(JATP,JBTP) == 1) .and. (XNORM2 /= 0.0d0)) then
+            ! Possible permutations of this block
+            call PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PSR,PLR,RATP,RBTP,RASM,RBSM,RSGN,RTRP,NRPERM)
+            do IRPERM=1,NRPERM
+              if (RTRP(IRPERM) == 1) then
+                LROW = NSSOA(RASM(IRPERM-1),RATP(IRPERM-1))
+                LCOL = NSSOB(RBSM(IRPERM-1),RBTP(IRPERM-1))
+                call TRPMT3(CB(ICOFF),LROW,LCOL,C2)
+                CB(ICOFF:ICOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
+              end if
+              if (RSGN(IRPERM) == -1) CB(ICOFF:ICOFF+NJA*NJB-1) = -CB(ICOFF:ICOFF+NJA*NJB-1)
+              JJASM = RASM(IRPERM)
+              JJBSM = RBSM(IRPERM)
+              JJATP = RATP(IRPERM)
+              JJBTP = RBTP(IRPERM)
+              NJJA = NSSOA(JJASM,JJATP)
+              NJJB = NSSOB(JJBSM,JJBTP)
+              call GSDNBB2_MCLR(I12,RHO1,RHO2,IIASM,IIATP,IIBSM,IIBTP,JJASM,JJATP,JJBSM,JJBTP,NGAS,NELFSPGPA(1,IOCTPA-1+IIATP), &
+                                NELFSPGPB(1,IOCTPB-1+IIBTP),NELFSPGPA(1,IOCTPA-1+JJATP),NELFSPGPB(1,IOCTPB-1+JJBTP),NAEL,NBEL, &
+                                IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3, &
+                                XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,NIIA,NIIB,NJJA,NJJB,MXPOBS,NACOB,RHO1S,ieaw,n1,n2)
+            end do
+            ! Transpose or scale R block to restore order ??
+            if (RTRP(NRPERM+1) == 1) then
+              call TRPMT3(CB(ICOFF),NJB,NJA,C2)
+              CB(ICOFF:ICOFF+NJA*NJB-1) = C2(1:NJA*NJB)
+            end if
+            if (RSGN(NRPERM+1) == -1) CB(ICOFF:ICOFF+NJA*NJB-1) = -CB(ICOFF:ICOFF+NJA*NJB-1)
+
+          end if
+          ICOFF = ICOFF+NCOOSE(JATP,JBTP,JASM)
+          ! Next C block
+          if (ICBLK /= NCBLK) call NXTBLK_MCLR(JATP,JBTP,JASM,NOCTPA,NOCTPB,NSMST,ICBLTP,IDC,NONEWC,ICOCOC)
+        end do
+        ! End of loop over R blocks in Batch
+      end do
+      ! Transpose or scale L block to restore order ??
+      if (LTRP(NLPERM+1) == 1) then
+        call TRPMT3(SB(ISOFF),NIB,NIA,C2)
+        SB(ISOFF:ISOFF+NIA*NIB-1) = C2(1:NIA*NIB)
+      end if
+      if (LSGN(NLPERM+1) == -1) SB(ISOFF:ISOFF+NIA*NIB-1) = -SB(ISOFF:ISOFF+NIA*NIB-1)
+      ! Next L block
+      ISOFF = ISOFF+NSOOSE(IATP,IBTP,IASM)
+      if (ISBLK /= NSBLK) call NXTBLK_MCLR(IATP,IBTP,IASM,NOCTPA,NOCTPB,NSMST,ISBLTP,IDC,NONEWS,ISOCOC)
+    end do
+    ! End of loop over L blocks in batch
+    ! End of loop over batches of R blocks
+    if (IFINIC /= 0) exit
   end do
-  ! Transpose or scale L block to restore order ??
-  if (LTRP(NLPERM+1) == 1) then
-    call TRPMT3(SB(ISOFF),NIB,NIA,C2)
-    SB(ISOFF:ISOFF+NIA*NIB-1) = C2(1:NIA*NIB)
-  end if
-  if (LSGN(NLPERM+1) == -1) SB(ISOFF:ISOFF+NIA*NIB-1) = -SB(ISOFF:ISOFF+NIA*NIB-1)
-  ! Next L block
-  ISOFF = ISOFF+NSOOSE(IATP,IBTP,IASM)
-  if (ISBLK /= NSBLK) call NXTBLK_MCLR(IATP,IBTP,IASM,NOCTPA,NOCTPB,NSMST,ISBLTP,IDC,NONEWS,ISOCOC)
-end do
-! End of loop over L blocks in batch
-! End of loop over batches of R blocks
-if (IFINIC == 0) goto 9001
-if (ISFINI == 0) goto 10001
+  if (ISFINI /= 0) exit outer
+end do outer
 ! End of loop over batches of L blocks
-10002 continue
 
 return
 ! Avoid unused argument warnings

@@ -90,66 +90,66 @@ subroutine Prec_dig_internal(rpre)
     call mma_MaxDBLE(nTemp)
     nTemp = min(nmm,nTemp/2)
     call mma_allocate(Temp1,nTemp,2,Label='Temp1')
-    if (nD == 0) goto 100
 
-    do iB=1,nIsh(iS)
-      Temp3(1:nD**2) = 0.0d0
-      ibb = nBas(is)*(ib-1)+ib-2
+    if (nD /= 0) then
+      do iB=1,nIsh(iS)
+        Temp3(1:nD**2) = 0.0d0
+        ibb = nBas(is)*(ib-1)+ib-2
 
-      if (iMethod == 2) then
+        if (iMethod == 2) then
 
-        ! G
-        !  iaib
+          ! G
+          !  iaib
 
-        if (nash(js) > 0) &
-          call Preciaa(ib,is,js,nd,Temp3,nbas(is),nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
-                       FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
+          if (nash(js) > 0) &
+            call Preciaa(ib,is,js,nd,Temp3,nbas(is),nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
 
-        ! G
-        !  ipia
+          ! G
+          !  ipia
 
-        if ((nbas(js)-nish(js)-nash(js))*nash(js) > 0) &
-          call Preciba(ib,is,js,nd,Temp3,nbas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
-      end if
-
-      ! G
-      !  ipiq
-
-      if ((nbas(js)-nish(js)-nash(js)) > 0) &
-        call Precibb_td(ib,is,js,nd,Temp3,nBas(js),Temp1(:,1),Temp1(:,2),Temp2,FiMo(1+ipCM(is)+ibb),FAMO(1+ipcm(is)+ibb), &
-                        FiMo(ipCM(js)),FAMO(ipcm(js)),sign)  ! OK
-
-      ! Factorize G:
-      !
-      !     T
-      ! G=LL
-
-      if (.not. timedep) then
-        call SQM(Temp3,rpre(ip),nd)
-#       ifdef RS6K
-        call DGEF(rPre(ip),nD,nD,rpre(ip+nD**2))
-#       else
-        irc = 0
-        call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
-        call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
-        nullify(ipre)
-        if (irc /= 0) then
-          write(6,*) 'Error in DGETRF called from prec_dig'
-          call Abend()
+          if ((nbas(js)-nish(js)-nash(js))*nash(js) > 0) &
+            call Preciba(ib,is,js,nd,Temp3,nbas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
         end if
-#       endif
-      else
-        call SQM(Temp3,Temp4,nD)
-        call SortOutDiagonal(Temp4,rpre(ip),nd)
-      end if
-      if (TimeDep) then
-        ip = ip+nD
-      else
-        ip = ip+nD*(nd+1)
-      end if
 
-    end do   ! iB, inactive
-100 continue
+        ! G
+        !  ipiq
+
+        if ((nbas(js)-nish(js)-nash(js)) > 0) &
+          call Precibb_td(ib,is,js,nd,Temp3,nBas(js),Temp1(:,1),Temp1(:,2),Temp2,FiMo(1+ipCM(is)+ibb),FAMO(1+ipcm(is)+ibb), &
+                          FiMo(ipCM(js)),FAMO(ipcm(js)),sign)  ! OK
+
+        ! Factorize G:
+        !
+        !     T
+        ! G=LL
+
+        if (.not. timedep) then
+          call SQM(Temp3,rpre(ip),nd)
+#         ifdef RS6K
+          call DGEF(rPre(ip),nD,nD,rpre(ip+nD**2))
+#         else
+          irc = 0
+          call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
+          call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+          nullify(ipre)
+          if (irc /= 0) then
+            write(6,*) 'Error in DGETRF called from prec_dig'
+            call Abend()
+          end if
+#         endif
+        else
+          call SQM(Temp3,Temp4,nD)
+          call SortOutDiagonal(Temp4,rpre(ip),nd)
+        end if
+        if (TimeDep) then
+          ip = ip+nD
+        else
+          ip = ip+nD*(nd+1)
+        end if
+
+      end do   ! iB, inactive
+    end if
 
     Temp4(1:ni) = 0.0d0
     do iB=1,nAsh(iS)
@@ -160,46 +160,46 @@ subroutine Prec_dig_internal(rpre)
       if (ir == 1) nD = nBas(js)-nRs1(js)
       if (ir == 2) nD = nBas(js)-nRs2(js)
       if (ir == 3) nD = nBas(js)-nRs3(js)
-      if (nd == 0) goto 110
-      Temp3(1:nD**2) = 0.0d0
-      if (nish(js) > 0) &
-        call Precaii(ib,is,js,nd,ir,Temp3,nbas(is),nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                     FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
-      !call Precaai(ib,nd,ir,rpre(ip))
-      !call Precaaa(ib,nd,ir,rpre(ip))
-      if (nish(js)*nBas(js) > 0) &
-        call Precabi(ib,is,js,ir,nd,Temp3,nBas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0SQMO(ipCM(js)),sign,JInt,KInt,Scr,n2) !+/-?
+      if (nD /= 0) then
+        Temp3(1:nD**2) = 0.0d0
+        if (nish(js) > 0) &
+          call Precaii(ib,is,js,nd,ir,Temp3,nbas(is),nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
+                       FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
+        !call Precaai(ib,nd,ir,rpre(ip))
+        !call Precaaa(ib,nd,ir,rpre(ip))
+        if (nish(js)*nBas(js) > 0) &
+          call Precabi(ib,is,js,ir,nd,Temp3,nBas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0SQMO(ipCM(js)),sign,JInt,KInt,Scr,n2) !+/-?
 
-      !call Precaba(ib,nd,ir,rpre(ip))
-      if (nBas(js) > 0) &
-        call Precabb(ib,is,js,nd,nbas(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)), &
-                     FAMO(ipcm(js)),F0SQMO(ipCM(js)),sign)
-      if (.not. timedep) then
-        call SQM(Temp3,rpre(ip),nD)
-#       ifdef RS6K
-        call DGEF(rPre(ip),nD,nd,rpre(ip+nd**2))
-#       else
-        irc = 0
-        call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
-        call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
-        nullify(ipre)
-        if (irc /= 0) then
-          write(6,*) 'Error in DGETRF called from prec_dig'
-          call Abend()
+        !call Precaba(ib,nd,ir,rpre(ip))
+        if (nBas(js) > 0) &
+          call Precabb(ib,is,js,nd,nbas(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)), &
+                       FAMO(ipcm(js)),F0SQMO(ipCM(js)),sign)
+        if (.not. timedep) then
+          call SQM(Temp3,rpre(ip),nD)
+#         ifdef RS6K
+          call DGEF(rPre(ip),nD,nd,rpre(ip+nd**2))
+#         else
+          irc = 0
+          call c_f_pointer(c_loc(rpre(ip+nd**2)),ipre,[nd])
+          call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
+          nullify(ipre)
+          if (irc /= 0) then
+            write(6,*) 'Error in DGETRF called from prec_dig'
+            call Abend()
+          end if
+#         endif
+        else
+          ! From Triang mat
+          call SQM(Temp3,Temp4,nD)
+          call SortOutDiagonal(Temp4,rpre(ip),nd)
         end if
-#       endif
-      else
-        ! From Triang mat
-        call SQM(Temp3,Temp4,nD)
-        call SortOutDiagonal(Temp4,rpre(ip),nd)
-      end if
-      if (timedep) then
-        ip = ip+nd
-      else
-        ip = ip+nD*(nd+1)
+        if (timedep) then
+          ip = ip+nd
+        else
+          ip = ip+nD*(nd+1)
+        end if
       end if
     end do ! iB
-110 continue
     call mma_deallocate(Temp1)
     call mma_deallocate(Temp2)
     call mma_deallocate(Temp3)

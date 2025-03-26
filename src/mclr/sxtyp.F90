@@ -39,8 +39,8 @@ do I123=1,3
     I1 = 0
     I3 = 1
   end if
-  if (LEL1-I1 < 0) goto 100
-  if (LEL3-I3 < 0) goto 100
+  if (LEL1-I1 < 0) cycle
+  if (LEL3-I3 < 0) cycle
   do J123=1,3
     if (J123 == 1) then
       IJ1 = I1-1
@@ -58,7 +58,6 @@ do I123=1,3
       JTP(NSXTP) = J123
     end if
   end do
-100 continue
 end do
 
 #ifdef _DEBUGPRINT_

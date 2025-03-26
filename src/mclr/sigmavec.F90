@@ -238,7 +238,6 @@ if (NOCSF == 0) call CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY)
 if ((IDC /= 1) .and. (ICISTR == 1)) &
   call SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,2,IDUMMY)
 
-!goto 987
 if (I12 == 2) then
   IDOH2 = 1
 else

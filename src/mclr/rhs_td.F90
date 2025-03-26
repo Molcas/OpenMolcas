@@ -89,7 +89,13 @@ if (iand(ntpert(idisp),2**3) == 8) then
   iOp = 2**loper
   Label = 'OVRGRD'
   call dRdMCK(iRC,iOpt,Label,DspVec(iDisp),Temp7,iop)
-  if (iRc /= 0) goto 992
+  if (iRc /= 0) then
+    write(6,*)
+    write(6,*) ' *** Error in subroutine RHS_TD ***'
+    write(6,*) ' Error when reading OVRGRD from MCKINT'
+    write(6,*)
+    return
+  end if
   ip = 1
   do iS=1,nSym
     do jS=1,is
@@ -230,10 +236,5 @@ if (.false.) then
   call Unused_real_array(CMO)
   call Unused_integer(jspin)
 end if
-
-992 write(6,*)
-write(6,*) ' *** Error in subroutine RHS_TD ***'
-write(6,*) ' Error when reading OVRGRD from MCKINT'
-write(6,*)
 
 end subroutine RHS_td

@@ -73,7 +73,7 @@ dimension ITP(36), JTP(36), KTP(36), LTP(36)
 ONEM = -1.0d0
 ZERO = 0.0d0
 IDXSM = Mul(ISCSM,ICCSM)
-if (IDXSM == 0) goto 2001
+if (IDXSM == 0) return
 call DXTYP(NDXTYP,ITP,JTP,KTP,LTP,ISEL1,ISEL3,ICEL1,ICEL3)
 do IDXTYP=1,NDXTYP
   ITYP = ITP(IDXTYP)
@@ -83,15 +83,15 @@ do IDXTYP=1,NDXTYP
   ! Type of intermediate strings
   call NEWTYP_MCLR(IGRP,ICCTP,[1],[JTYP],1,K1GRP,K1TP)
   call NEWTYP_MCLR(K1GRP,K1TP,[1],[LTYP],1,K2GRP,K2TP)
-  if (K2TP <= 0) goto 2000
+  if (K2TP <= 0) cycle
   ! Symmetry of allowed Double excitation,loop over excitations
   do IKSM=1,NSMSX
     JLSM = Mul(IKSM,IDXSM)
-    if (JLSM == 0) goto 1950
+    if (JLSM == 0) cycle
     do ISM=1,NSMOB
       ! Works only for D2h
       KSM = Mul(ISM,IKSM)
-      if (KSM == 0) goto 1940
+      if (KSM == 0) cycle
       ! sym of intermediate strings
 
       K1SM = Mul(ISM,ISCSM)
@@ -108,7 +108,7 @@ do IDXTYP=1,NDXTYP
       KOFF = IBTSOB(KTYP,KSM)
       NI = NTSOB(ITYP,ISM)
       NK = NTSOB(KTYP,KSM)
-      if (KOFF > IOFF) goto 1940
+      if (KOFF > IOFF) cycle
       if ((ISM == KSM) .and. (ITYP == KTYP)) then
         IKPSM = 1
         NIK = NI*(NI+1)/2
@@ -119,10 +119,10 @@ do IDXTYP=1,NDXTYP
       if (NOPART == 1) SSCR(1:NKSTREF*NROW*NIK) = Zero
       do JSM=1,NSMOB
         LSM = Mul(JSM,JLSM)
-        if (LSM == 0) goto 1930
+        if (LSM == 0) cycle
         JOFF = IBTSOB(JTYP,JSM)
         LOFF = IBTSOB(LTYP,LSM)
-        if (LOFF > JOFF) goto 1930
+        if (LOFF > JOFF) cycle
         NJ = NTSOB(JTYP,JSM)
         NL = NTSOB(LTYP,LSM)
         if ((JSM == LSM) .and. (JTYP == LTYP)) then
@@ -132,7 +132,7 @@ do IDXTYP=1,NDXTYP
           JLPSM = 0
           NJL = NJ*NL
         end if
-        if ((NI == 0) .or. (NJ == 0) .or. (NK == 0) .or. (NL == 0)) goto 1930
+        if ((NI == 0) .or. (NJ == 0) .or. (NK == 0) .or. (NL == 0)) cycle
         IFIRST = 1
         ! Loop over batches of I strings
         if (NOPART == 0) then
@@ -141,7 +141,7 @@ do IDXTYP=1,NDXTYP
         else
           NPART = 1
         end if
-        do IPART=1,NPART
+        outer: do IPART=1,NPART
           IBOT = 1+(IPART-1)*MAXI
           if (NOPART == 0) then
             ITOP = min(IBOT+MAXI-1,NROW)
@@ -154,75 +154,75 @@ do IDXTYP=1,NDXTYP
 
           KBOT = 1-MAXK
           KTOP = 0
-1800      continue
-          if (NOPART == 0) then
-            KBOT = KBOT+MAXK
-            KTOP = KTOP+MAXK
-          else
-            KBOT = 1
-            KTOP = NKSTREF
-          end if
-
-          ! obtain cb(KB,IA,jl) = sum(JB)<KB!a lb a jb !IB>C(IA,JB)
-
-          ! Generate arrays a+ja+l |kstr> for kstr in current interval
-          call ADADST(JTYP,JSM,JOFF,NJ,LTYP,LSM,LOFF,NL,JLPSM,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,NKBTC,NKSTREF,KEND)
-          if (NKBTC == 0) goto 1930
-          J = 0
-          L = 1
-          do IJL=1,NJL
-            call NXTIJ(J,L,NJ,NL,JLPSM,NONEW)
-            ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
-            JLOFF = (IJL-1)*NKBTC*NIBTC+1
-            JLOFF2 = (IJL-1)*NKSTREF+1
-            call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(JLOFF2),XI1S(JLOFF2))
-          end do
-          !=============================================
-          ! SSCR(I,K,ik) = CSR(I,K,jl)*((ij!kl)-(il!jk))
-          !==============================================
-          ! Obtain two electron integrals (ij!kl)-(il!kj)
-          if (IFIRST == 1) then
-            IXCHNG = 1
-            !write(6,*) 'TimeDep in rsbb2a_mclr is:',TimeDep
-            if (TimeDep) then
-              call GETINT_td(XINT,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IKPSM,JLPSM,4,ieaw)
+          do
+            if (NOPART == 0) then
+              KBOT = KBOT+MAXK
+              KTOP = KTOP+MAXK
             else
-              !write(6,*) 'I call getint not getint_td'
-              call GETINT_MCLR(XINT,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKPSM,JLPSM,0,0)
+              KBOT = 1
+              KTOP = NKSTREF
             end if
-          end if
-          IFIRST = 0
-          ! and now, to the work
-          LIKB = NIBTC*NKBTC
-          if (NOPART == 1) then
-            FACTORC = 1.0d0
-          else
-            FACTORC = 0.0d0
-          end if
-          FACTORAB = 1.0d0
-          call DGEMM_('N','T',LIKB,NIK,NJL,FACTORAB,CSCR,LIKB,XINT,NIK,FACTORC,SSCR,LIKB)
-          ! ============================
-          ! Loop over ik and scatter out
-          ! ============================
 
-          ! Generate arrays a+i a+k !kstr>
-          if (NOPART == 0) then
-            call ADADST(ITYP,ISM,IOFF,NI,KTYP,KSM,KOFF,NK,IKPSM,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,NKBTC,NKSTREF,KEND)
-            I = 0
-            K = 1
-            do IK=1,NIK
-              call NXTIJ(I,K,NI,NK,IKPSM,NONEW)
-              ISBOFF = 1+(IK-1)*NIBTC*NKBTC
-              IKOFF = (IK-1)*NKSTREF+1
-              if (SIGN == -1.0d0) call DSCAL_(NKSTREf,ONEM,XI1S(IKOFF),1)
-              call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(IKOFF),XI1S(IKOFF))
+            ! obtain cb(KB,IA,jl) = sum(JB)<KB!a lb a jb !IB>C(IA,JB)
+
+            ! Generate arrays a+ja+l |kstr> for kstr in current interval
+            call ADADST(JTYP,JSM,JOFF,NJ,LTYP,LSM,LOFF,NL,JLPSM,ICCTP,ICCSM,IGRP,KBOT,KTOP,I1,XI1S,NKBTC,NKSTREF,KEND)
+            if (NKBTC == 0) exit outer
+            J = 0
+            L = 1
+            do IJL=1,NJL
+              call NXTIJ(J,L,NJ,NL,JLPSM,NONEW)
+              ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
+              JLOFF = (IJL-1)*NKBTC*NIBTC+1
+              JLOFF2 = (IJL-1)*NKSTREF+1
+              call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(JLOFF2),XI1S(JLOFF2))
             end do
-          end if
+            !=============================================
+            ! SSCR(I,K,ik) = CSR(I,K,jl)*((ij!kl)-(il!jk))
+            !==============================================
+            ! Obtain two electron integrals (ij!kl)-(il!kj)
+            if (IFIRST == 1) then
+              IXCHNG = 1
+              !write(6,*) 'TimeDep in rsbb2a_mclr is:',TimeDep
+              if (TimeDep) then
+                call GETINT_td(XINT,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IKPSM,JLPSM,4,ieaw)
+              else
+                !write(6,*) 'I call getint not getint_td'
+                call GETINT_MCLR(XINT,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKPSM,JLPSM,0,0)
+              end if
+            end if
+            IFIRST = 0
+            ! and now, to the work
+            LIKB = NIBTC*NKBTC
+            if (NOPART == 1) then
+              FACTORC = 1.0d0
+            else
+              FACTORC = 0.0d0
+            end if
+            FACTORAB = 1.0d0
+            call DGEMM_('N','T',LIKB,NIK,NJL,FACTORAB,CSCR,LIKB,XINT,NIK,FACTORC,SSCR,LIKB)
+            ! ============================
+            ! Loop over ik and scatter out
+            ! ============================
 
-          if ((KEND == 0) .and. (NOPART == 0)) goto 1800
+            ! Generate arrays a+i a+k !kstr>
+            if (NOPART == 0) then
+              call ADADST(ITYP,ISM,IOFF,NI,KTYP,KSM,KOFF,NK,IKPSM,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,NKBTC,NKSTREF,KEND)
+              I = 0
+              K = 1
+              do IK=1,NIK
+                call NXTIJ(I,K,NI,NK,IKPSM,NONEW)
+                ISBOFF = 1+(IK-1)*NIBTC*NKBTC
+                IKOFF = (IK-1)*NKSTREF+1
+                if (SIGN == -1.0d0) call DSCAL_(NKSTREf,ONEM,XI1S(IKOFF),1)
+                call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(IKOFF),XI1S(IKOFF))
+              end do
+            end if
+
+            if ((KEND /= 0) .or. (NOPART /= 0)) exit
+          end do
           ! End of loop over partitionings of resolution strings
-        end do
-1930    continue
+        end do outer
       end do
       ! End of loop over JSM
       if (NOPART == 1) then
@@ -240,14 +240,9 @@ do IDXTYP=1,NDXTYP
         end do
       end if
 
-1940  continue
     end do
-1950 continue
   end do
-2000 continue
 end do
-
-2001 continue
 
 return
 ! Avoid unused argument warnings

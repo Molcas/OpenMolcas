@@ -56,9 +56,9 @@ NCOMB = 0
 do IASYM=1,MAXSYM
 
   IBSYM = ISMOST(IASYM)
-  if (IBSYM == 0) goto 100
+  if (IBSYM == 0) cycle
   ! Allowed combination symmetry block?
-  if ((IDC /= 1) .and. (IBLTP(IASYM) == 0)) goto 100
+  if ((IDC /= 1) .and. (IBLTP(IASYM) == 0)) cycle
   ! Allowed occupation combinations
   do IAOCC=1,NOCTPA
     if (IBLTP(IASYM) == 1) then
@@ -83,7 +83,6 @@ do IASYM=1,MAXSYM
       !write(6,*) ' NOOS(IA,IB,ISM) ',NOOS(IAOCC,IBOCC,IASYM)
     end do
   end do
-100 continue
 end do
 
 #ifdef _DEBUGPRINT_

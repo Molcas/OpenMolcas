@@ -23,7 +23,7 @@ if (IPACK /= 0) then
   IMZERO = IDUM(1)
   if (IMZERO == 1) then
     ARRAY(1:NDIM) = 0.0d0
-    goto 1001
+    return
   end if
 end if
 
@@ -34,24 +34,22 @@ if ((MBLOCK >= 0) .or. (ICRAY == 1)) then
   if (MBLOCK <= 0) NBLOCK = NDIM
   IREST = NDIM
   IBASE = 0
-100 continue
-  if (IREST > NBLOCK) then
-    read(IFILE) (ARRAY(IBASE+I),I=1,NBLOCK)
-    IBASE = IBASE+NBLOCK
-    IREST = IREST-NBLOCK
-  else
-    read(IFILE) (ARRAY(IBASE+I),I=1,IREST)
-    IREST = 0
-  end if
-  if (IREST > 0) goto 100
+  do while (IREST > 0)
+    if (IREST > NBLOCK) then
+      read(IFILE) (ARRAY(IBASE+I),I=1,NBLOCK)
+      IBASE = IBASE+NBLOCK
+      IREST = IREST-NBLOCK
+    else
+      read(IFILE) (ARRAY(IBASE+I),I=1,IREST)
+      IREST = 0
+    end if
+  end do
 end if
 
 if ((MBLOCK < 0) .and. (NDIM > 0) .and. (ICRAY == 0)) then
   !call SQFILE(IFILE,2,ARRAY,2*NDIM)
   call SysHalt('frmdsc')
 end if
-
-1001 continue
 
 return
 

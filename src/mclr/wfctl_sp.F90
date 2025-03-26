@@ -37,7 +37,7 @@ integer iCIDisp(nDisp), iCIsigDisp(nDisp)
 integer iRHSDisp(nDisp), iRHSCIDisp(nDisp)
 character(len=8) Fmt2
 integer opout
-logical lPrint
+logical lPrint, cnvrgd
 real*8 rdum(1)
 real*8 d_0
 real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), Dens(:), &
@@ -186,7 +186,6 @@ end if
 deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
 Kappa(1:nDens) = Zero
 delta = deltac+deltaK
-!if (delta == 0.0d0) goto 300
 delta0 = delta
 iter = 1
 !-----------------------------------------------------------------------
@@ -195,233 +194,238 @@ iter = 1
 !          I   T   E   R   A   T   I   O   N   S          *
 !**********************************************************
 
-200 continue
-read(5,*) i1,j1
-if (i1 > 0) then
-  dKappa(1:nDens2) = Zero
-  dKappa(i1) = One
-else
-  irc = ipin(ipCID)
-  W(ipCID)%Vec(1:nConf1) = Zero
-  W(ipCID)%Vec(i1) = One
-  irc = ipout(ipcid)
-end if
-!************************************************************
+cnvrgd = .true.
+do
+  !if (delta == 0.0d0) exit
+  read(5,*) i1,j1
+  if (i1 > 0) then
+    dKappa(1:nDens2) = Zero
+    dKappa(i1) = One
+  else
+    irc = ipin(ipCID)
+    W(ipCID)%Vec(1:nConf1) = Zero
+    W(ipCID)%Vec(i1) = One
+    irc = ipout(ipcid)
+  end if
+  !************************************************************
 
-call RInt_SP(dKappa,rmoaa,rmoaa2,Temp4,Sc2)
+  call RInt_SP(dKappa,rmoaa,rmoaa2,Temp4,Sc2)
 
-if ((i1 > 0) .and. (j1 > 0)) write(6,*) 'Kap_sig',Sc2(j1)
-if (nconf1 > 1) then
-  irc = opout(-1)
-  call CISigma(1,State_Sym,state_sym,Temp4,nDens2,rmoaa,size(rmoaa),rmoaa2,size(rmoaa2),ipCI,ipS1,.true.)
-  irc = opout(-1)
-  irc = ipin(ipCI)
-  irc = ipin(ipS1)
-  rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
-  call daxpy_(nConf1,-rgrad,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
-  call dscal_(nconf1,-rms*sqrt(1.5d0)*Two,W(ipS1)%Vec,1)
-
-  if ((i1 > 0) .and. (j1 < 0)) write(6,*) 'CI_sig',W(ipS1)%Vec(j1)
-
-  irc = opout(-1)
+  if ((i1 > 0) .and. (j1 > 0)) write(6,*) 'Kap_sig',Sc2(j1)
   if (nconf1 > 1) then
-    call CISigma(0,State_Sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,.true.)
     irc = opout(-1)
-    EC = rin_ene+potnuc-ERASSCF(1)
-
-    irc = ipin(ipCId)
-    irc = ipin(ipS2)
-    call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
-    call DSCAL_(nConf1,2.0d0,W(ipS2)%Vec,1)
-    if ((i1 < 0) .and. (j1 < 0)) write(6,*) 'CI_sig',W(ipS2)%Vec(j1)
-
+    call CISigma(1,State_Sym,state_sym,Temp4,nDens2,rmoaa,size(rmoaa),rmoaa2,size(rmoaa2),ipCI,ipS1,.true.)
+    irc = opout(-1)
     irc = ipin(ipCI)
-    irc = ipin(ipCid)
-    call SpinDens(W(ipCI)%Vec,W(ipCid)%Vec,State_Sym,State_sym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
+    irc = ipin(ipS1)
+    rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
+    call daxpy_(nConf1,-rgrad,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
+    call dscal_(nconf1,-rms*sqrt(1.5d0)*Two,W(ipS1)%Vec,1)
 
-    d_0 = ddot_(nconf1,W(ipCid)%Vec,1,W(ipci)%Vec,1)
-    call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
-    call DSCAL_(ndens2,-rms*sqrt(1.5d0),Sc1,1)
+    if ((i1 > 0) .and. (j1 < 0)) write(6,*) 'CI_sig',W(ipS1)%Vec(j1)
 
-    call Compress(Sc1,Sc3,1)
-    if ((i1 < 0) .and. (j1 > 0)) write(6,*) 'CI_sig',Sc3(j1)
-    goto 200
+    irc = opout(-1)
+    if (nconf1 > 1) then
+      call CISigma(0,State_Sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,.true.)
+      irc = opout(-1)
+      EC = rin_ene+potnuc-ERASSCF(1)
+
+      irc = ipin(ipCId)
+      irc = ipin(ipS2)
+      call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
+      call DSCAL_(nConf1,2.0d0,W(ipS2)%Vec,1)
+      if ((i1 < 0) .and. (j1 < 0)) write(6,*) 'CI_sig',W(ipS2)%Vec(j1)
+
+      irc = ipin(ipCI)
+      irc = ipin(ipCid)
+      call SpinDens(W(ipCI)%Vec,W(ipCid)%Vec,State_Sym,State_sym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
+
+      d_0 = ddot_(nconf1,W(ipCid)%Vec,1,W(ipci)%Vec,1)
+      call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
+      call DSCAL_(ndens2,-rms*sqrt(1.5d0),Sc1,1)
+
+      call Compress(Sc1,Sc3,1)
+      if ((i1 < 0) .and. (j1 > 0)) write(6,*) 'CI_sig',Sc3(j1)
+      cycle
+    end if
+
   end if
 
-end if
+  !*********************************************************************
+  !
+  ! Sc1  kappa-> kappa
+  ! Sc3  CI -> kappa
+  ! S1   kappa -> CI
+  ! S2   CI -> CI
+  ! dKap present step
+  ! Kap  kappaX
+  ! CIT  CIX
+  ! CId  present step
+  !
+  ! Add together
+  !
+  !*********************************************************************
 
-!***********************************************************************
-!
-! Sc1  kappa-> kappa
-! Sc3  CI -> kappa
-! S1   kappa -> CI
-! S2   CI -> CI
-! dKap present step
-! Kap  kappaX
-! CIT  CIX
-! CId  present step
-!
-! Add together
-!
-!***********************************************************************
+  if (nconf1 > 1) then
+    call DZaXpY(nDens,One,Sc2,1,Sc3,1,Temp4,1)
+  else
+    call dcopy_(nDens,Sc2,1,Temp4,1)
+  end if
+  call dcopy_(nDens,dKappa,1,Temp2,1)
+  if (nconf1 > 1) then
+    irc = ipin1(ipS1,nconf1)
+    irc = ipin1(ipS2,nconf1)
+    call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
+  else
+    irc = ipin1(ipS1,nconf1)
+    W(ipS1)%Vec(1:nconf1) = Zero
+  end if
 
-if (nconf1 > 1) then
-  call DZaXpY(nDens,One,Sc2,1,Sc3,1,Temp4,1)
-else
-  call dcopy_(nDens,Sc2,1,Temp4,1)
-end if
-call dcopy_(nDens,dKappa,1,Temp2,1)
-if (nconf1 > 1) then
-  irc = ipin1(ipS1,nconf1)
-  irc = ipin1(ipS2,nconf1)
-  call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
-else
-  irc = ipin1(ipS1,nconf1)
-  W(ipS1)%Vec(1:nconf1) = Zero
-end if
+  !---------------------------------------------------------------------
+  !
+  !                ######   #####   #####
+  !                #     # #     # #     #
+  !                #     # #       #
+  !                ######  #       #  ####
+  !                #       #       #     #
+  !                #       #     # #     #
+  !                #        #####   #####
+  !
+  !---------------------------------------------------------------------
+  !*********************************************************************
+  !
+  !
+  !            delta
+  ! rAlpha=------------
+  !        dKappa:dSigma
+  !
+  !---------------------------------------------------------------------
+  rAlphaC = Zero
+  rAlphaK = Zero
+  rAlphaK = ddot_(nDensC,Temp4,1,Temp2,1)
+  if (nconf1 /= 0) then
+    irc = ipin(ipS1)
+    irc = ipin(ipCId)
+    rAlphaC = ddot_(nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
+  end if
+  rAlpha = delta/(rAlphaK+ralphaC)
 
-!-----------------------------------------------------------------------
-!
-!                ######   #####   #####
-!                #     # #     # #     #
-!                #     # #       #
-!                ######  #       #  ####
-!                #       #       #     #
-!                #       #     # #     #
-!                #        #####   #####
-!
-!-----------------------------------------------------------------------
-!***********************************************************************
-!
-!
-!            delta
-! rAlpha=------------
-!        dKappa:dSigma
-!
-!-----------------------------------------------------------------------
-rAlphaC = Zero
-rAlphaK = Zero
-rAlphaK = ddot_(nDensC,Temp4,1,Temp2,1)
-if (nconf1 /= 0) then
-  irc = ipin(ipS1)
-  irc = ipin(ipCId)
-  rAlphaC = ddot_(nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
-end if
-rAlpha = delta/(rAlphaK+ralphaC)
+  !--------------------------------------------------------------------*
 
-!----------------------------------------------------------------------*
+  ! Kappa=Kappa+rAlpha*dKappa
+  ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
 
-! Kappa=Kappa+rAlpha*dKappa
-! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
+  call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
+  call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+  resk = sqrt(ddot_(nDensC,Temp4,1,Temp4,1))
+  resci = Zero
+  if (nconf1 /= 0) then
+    irc = ipin(ipCId)
+    irc = ipin(ipCIT)
+    call DaXpY_(nConf1,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+    irc = ipout(ipcit)
+    irc = ipin1(ipST,nconf1)
+    irc = ipin(ipS1)
+    call DaXpY_(nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
+    irc = opout(ipS1)
+    irc = ipin(ipST)
+    resci = sqrt(ddot_(nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
+  end if
 
-call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
-call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
-resk = sqrt(ddot_(nDensC,Temp4,1,Temp4,1))
-resci = Zero
-if (nconf1 /= 0) then
-  irc = ipin(ipCId)
-  irc = ipin(ipCIT)
-  call DaXpY_(nConf1,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
-  irc = ipout(ipcit)
-  irc = ipin1(ipST,nconf1)
-  irc = ipin(ipS1)
-  call DaXpY_(nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
-  irc = opout(ipS1)
-  irc = ipin(ipST)
-  resci = sqrt(ddot_(nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
-end if
+  ! Precondition......
+  !    -1
+  ! S=M  Sigma
 
-! Precondition......
-!    -1
-! S=M  Sigma
-
-irc = opout(ipcid)
-irc = ipin(ipS2)
-if (nconf1 > 1) then
-  call DMinvCI(ipST,W(ipS2)%Vec,rCHC,1)
-else
-  irc = ipin(ipST)
-  call dcopy_(nconf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-end if
-
-irc = opout(ipci)
-irc = opout(ipdia)
-
-call DMInvKap_sp(Sigma,Sc2,1)
-
-!----------------------------------------------------------------------*
-!      s:Sigma
-! Beta=-------
-!       delta
-!
-! delta=s:sigma
-!
-! dKappa=s+Beta*dKappa
-
-if ((iMethod == 2) .and. (nconf1 /= 0)) then
-  irc = ipin(ipST)
+  irc = opout(ipcid)
   irc = ipin(ipS2)
-  deltaC = ddot_(nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-  irc = ipout(ipST)
-else
-  deltaC = Zero
-end if
+  if (nconf1 > 1) then
+    call DMinvCI(ipST,W(ipS2)%Vec,rCHC,1)
+  else
+    irc = ipin(ipST)
+    call dcopy_(nconf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+  end if
 
-deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
-if (imethod /= 2) then
-  rBeta = deltaK/delta
-  delta = deltaK
-  call DScal_(nDensC,rBeta,Temp2,1)
-  call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
-else
-  rbeta = (deltac+deltaK)/delta
-  delta = deltac+deltaK
-  irc = ipin(ipCID)
-  call DScal_(nConf1,rBeta,W(ipCID)%Vec,1)
-  call DScal_(nDensC,rBeta,Temp2,1)
-  irc = ipin(ipS2)
-  call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
-  call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
-  irc = opout(ipS2)
-  irc = ipout(ipCID)
-end if
+  irc = opout(ipci)
+  irc = opout(ipdia)
 
-!    ######  #    #  #####        #####    ####    ####
-!    #       ##   #  #    #       #    #  #    #  #    #
-!    #####   # #  #  #    #       #    #  #       #
-!    #       #  # #  #    #       #####   #       #  ###
-!    #       #   ##  #    #       #       #    #  #    #
-!    ######  #    #  #####        #        ####    ####
-!
-!----------------------------------------------------------------------*
+  call DMInvKap_sp(Sigma,Sc2,1)
 
-call dcopy_(ndensc,Temp2,1,dKappa,1)
+  !--------------------------------------------------------------------*
+  !      s:Sigma
+  ! Beta=-------
+  !       delta
+  !
+  ! delta=s:sigma
+  !
+  ! dKappa=s+Beta*dKappa
 
-res = Zero ! dummy initialize
-if (iBreak == 1) then
-  if (abs(delta) < abs(Eps**2*delta0)) goto 300
-else if (ibreak == 2) then
-  res = sqrt(resk**2+resci**2)
-  if (res < abs(Eps)) goto 300
-else
-  if ((abs(delta) < abs(Eps**2*delta0)) .and. (res < abs(Eps))) goto 300
-end if
-if (iter >= niter) goto 210
-if (lprint) write(6,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)') '     ',iter,'       ',delta/delta0,resk,resci,deltac,deltak
+  if ((iMethod == 2) .and. (nconf1 /= 0)) then
+    irc = ipin(ipST)
+    irc = ipin(ipS2)
+    deltaC = ddot_(nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+    irc = ipout(ipST)
+  else
+    deltaC = Zero
+  end if
 
-iter = iter+1
+  deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
+  if (imethod /= 2) then
+    rBeta = deltaK/delta
+    delta = deltaK
+    call DScal_(nDensC,rBeta,Temp2,1)
+    call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
+  else
+    rbeta = (deltac+deltaK)/delta
+    delta = deltac+deltaK
+    irc = ipin(ipCID)
+    call DScal_(nConf1,rBeta,W(ipCID)%Vec,1)
+    call DScal_(nDensC,rBeta,Temp2,1)
+    irc = ipin(ipS2)
+    call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+    call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
+    irc = opout(ipS2)
+    irc = ipout(ipCID)
+  end if
 
-goto 200
+  !    ######  #    #  #####        #####    ####    ####
+  !    #       ##   #  #    #       #    #  #    #  #    #
+  !    #####   # #  #  #    #       #    #  #       #
+  !    #       #  # #  #    #       #####   #       #  ###
+  !    #       #   ##  #    #       #       #    #  #    #
+  !    ######  #    #  #####        #        ####    ####
+  !
+  !--------------------------------------------------------------------*
+
+  call dcopy_(ndensc,Temp2,1,dKappa,1)
+
+  res = Zero ! dummy initialize
+  if (iBreak == 1) then
+    if (abs(delta) < abs(Eps**2*delta0)) exit
+  else if (ibreak == 2) then
+    res = sqrt(resk**2+resci**2)
+    if (res < abs(Eps)) exit
+  else
+    if ((abs(delta) < abs(Eps**2*delta0)) .and. (res < abs(Eps))) exit
+  end if
+  if (iter >= niter) then
+    cnvrgd = .false.
+    exit
+  end if
+  if (lprint) write(6,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)') '     ',iter,'       ',delta/delta0,resk,resci,deltac,deltak
+
+  iter = iter+1
+
+end do
 
 !***********************************************************************
 
-210 continue
-write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
-fail = .true.
-goto 310
-300 write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
-irc = ipnout(-1)
-310 continue
+if (.not. cnvrgd) then
+  write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
+  fail = .true.
+else
+  write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+  irc = ipnout(-1)
+end if
 write(6,*)
 iLen = ndensC
 iKapDisp(iDisp) = iDis
