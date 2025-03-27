@@ -28,7 +28,7 @@ use Symmetry_Info, only: nIrrep
 implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 real*8 A(3), COOR(3,*), B(3)
-character*(LENIN) Lab
+character*(LenIn) Lab
 
 mdc = 0
 
@@ -42,7 +42,7 @@ do iCnttp=1,nCnttp
       kop = dc(mdc)%iCoSet(iCo,0)
       call OA(kOp,A,B)
       ii = nint(dbsc(icnttp)%Charge)
-      Lab = dc(mdc)%LblCnt(1:LENIN)
+      Lab = dc(mdc)%LblCnt(1:LenIn)
       call setLab(Lab,ico)
       write(LUT,'(1X,A,1X,3F20.10,1X,I3)') Lab,B(1:3),ii
     end do

@@ -17,9 +17,9 @@
 
 subroutine CalcbX_CMSNAC(bX,LOK,R,H,E_Final)
 
-use Constants, only: Zero
 use MCLR_Data, only: ISMECIMSPD, NACSTATES
 use input_mclr, only: nRoots
+use Constants, only: Zero, Two
 
 implicit none
 ! Output
@@ -48,7 +48,7 @@ do K=2,nRoots
     IKOL = (L-1)*nRoots+K
     ILOK = (K-1)*nRoots+L
     ! Diagonal elements of R_JK * H_KL * R_IK
-    bX(IKL) = 2.0d0*(R(IJK)*R(IIK)*LOK(ILOK)-R(IJL)*R(IIL)*LOK(IKOL))
+    bX(IKL) = Two*(R(IJK)*R(IIK)*LOK(ILOK)-R(IJL)*R(IIL)*LOK(IKOL))
     ! Additional NAC term (Requires only one line)
     ! R_JK * <K|L> * R_IL =
     ! R_JL * R_IK - R_JK * R_IL
@@ -59,7 +59,7 @@ do K=2,nRoots
       IJM = IJK-K+M
       do N=1,nRoots
         if (M == N) cycle
-        TempD = 0.0d0
+        TempD = Zero
         IIN = IIK-K+N
         if (M == K) TempD = TempD+H((L-1)*nRoots+N)
         if (N == K) TempD = TempD+H((M-1)*nRoots+L)

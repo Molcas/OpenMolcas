@@ -24,6 +24,10 @@ subroutine IEL13(MNRS1,MXRS1,MNRS3,MXRS3,NELEC,NOCTYP,IEL1,IEL3,IEL123,IACTIV)
 ! Jeppe Olsen, Spring 1991
 !              IEL123 added Jan 1994
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 dimension IEL1(*), IEL3(*), IEL123(3,*), IACTIV(*)
 
@@ -45,15 +49,15 @@ do KEL3=MNRS3,MXRS3
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' =============='
-write(6,*) ' IEL13 speaking'
-write(6,*) ' =============='
-write(6,'(A,4I3)') ' IEL1 IEL3 IACTIV for MNRS1 MXRS1 MNRS3 MXRS3 ',MNRS1,MXRS1,MNRS3,MXRS3
+write(u6,*) ' =============='
+write(u6,*) ' IEL13 speaking'
+write(u6,*) ' =============='
+write(u6,'(A,4I3)') ' IEL1 IEL3 IACTIV for MNRS1 MXRS1 MNRS3 MXRS3 ',MNRS1,MXRS1,MNRS3,MXRS3
 do ITYP=1,NOCTYP
-  write(6,'(3I3)') IEL1(ITYP),IEL3(ITYP),IACTIV(ITYP)
+  write(u6,'(3I3)') IEL1(ITYP),IEL3(ITYP),IACTIV(ITYP)
 end do
 
-write(6,*) ' IEL123 matrix'
+write(u6,*) ' IEL123 matrix'
 call IWRTMA(IEL123,3,NOCTYP,3,NOCTYP)
 #endif
 

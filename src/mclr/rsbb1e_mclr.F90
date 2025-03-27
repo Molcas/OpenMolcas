@@ -53,6 +53,7 @@ subroutine RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 ! Jeppe Olsen, Winter of 1991
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
 
 implicit real*8(A-H,O-Z)
 integer NTSOB(3,*), IBTSOB(3,*), ITSOB(*)
@@ -64,10 +65,6 @@ dimension SB(*)
 dimension SSCR(*), CSCR(*), I1(*), XI1S(*), H(*)
 ! Local arrays
 dimension ITP(3), JTP(3)
-
-ZERO = 0.0d0
-ONE = 1.0d0
-ONEM = -1.0d0
 
 ! Type of single excitations that connects the two column strings
 
@@ -126,7 +123,7 @@ do IJTP=1,NSXTP
         !Sscr(I,K,i) = CSCR(I,K,j)*h(j,i)
         NIK = NIBTC*NKBTC
 
-        call DGEMM_('N','N',NIK,NIORB,NJORB,ONE,CSCR,max(NIK,1),H,max(1,NJORB),ZERO,SSCR,max(1,NIK))
+        call DGEMM_('N','N',NIK,NIORB,NJORB,One,CSCR,max(NIK,1),H,max(1,NJORB),Zero,SSCR,max(1,NIK))
         !S(I,a+K) = S(I,a+K)+sgn*Sscr(I,K,i)
         IBORB = IBTSOB(ITYP,ISM)
         do IIORB=1,NIORB
@@ -134,7 +131,7 @@ do IJTP=1,NSXTP
           ! set up I1(IORB,K) = a IORB !I STRING >
           call ADST(IORB,1,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,1,NKBTC,KEND)
           ! Well, someplace the minus must come in
-          if (SIGN == -1.0d0) call DSCAL_(NKBTC,ONEM,XI1S,1)
+          if (SIGN == -One) call DSCAL_(NKBTC,-One,XI1S,1)
           ISBOFF = 1+(IIORB-1)*NKBTC*NIBTC
           call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1,XI1S)
         end do

@@ -18,13 +18,14 @@ integer function ipin1(ii,nn)
 use ipPage
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: u6
 
 implicit integer(a-h,o-z)
 real*8, allocatable :: Tmp(:)
 
 if (ii > Max_CI_Vectors) then
-  write(6,*) 'ipin1: ii > Max_CI_Vectors'
-  write(6,*) 'ii,Max_CI_Vectors=',ii,Max_CI_Vectors
+  write(u6,*) 'ipin1: ii > Max_CI_Vectors'
+  write(u6,*) 'ii,Max_CI_Vectors=',ii,Max_CI_Vectors
   call Abend()
 end if
 
@@ -72,10 +73,10 @@ else if (Status(ii) == Null_Vector) then
 else
 
   ip1 = -1
-  write(6,*)
-  write(6,*) 'ipIn1: illegal Status(ii)'
-  write(6,*) 'ii=',ii
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'ipIn1: illegal Status(ii)'
+  write(u6,*) 'ii=',ii
+  write(u6,*)
   call Abend()
 
 end if

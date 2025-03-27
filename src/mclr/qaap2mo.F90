@@ -17,9 +17,10 @@
 
 subroutine QaaP2MO(G2q,ng2,GDMat,IKL,IKK,ILL)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nNA
 use input_mclr, only: nRoots
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two, Half, Quart
 
 implicit none
 ! Input
@@ -58,9 +59,9 @@ do i=1,nna
       do l=1,lmax
         kl = iTri(k,l)
         ijkl = ijkl+1
-        fact = 0.5d0
-        if (k == l) fact = 0.25d0
-        G2q(ijkl) = fact*(Dsum(ij)*Ddif(kl)+Dsum(kl)*Ddif(ij))*2.0d0
+        fact = Half
+        if (k == l) fact = Quart
+        G2q(ijkl) = fact*(Dsum(ij)*Ddif(kl)+Dsum(kl)*Ddif(ij))*Two
       end do
     end do
   end do

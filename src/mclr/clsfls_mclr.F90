@@ -28,6 +28,7 @@ subroutine ClsFls_MCLR()
 use MCLR_Data, only: SA
 use MCLR_Data, only: FnMck, LuCSF2SD, LuJob, LuMck, LuQDat, LuTemp, LuTri1
 use input_mclr, only: iMethod, TwoStep, RASSI
+use Definitions, only: u6
 
 implicit none
 logical DoCholesky
@@ -48,7 +49,7 @@ if (.not. DoCholesky) then
   iRc = -1
   call ClsOrd(iRc)
   if (iRc /= 0) then
-    write(6,*) 'ClsFls: Error closing ORDINT'
+    write(u6,*) 'ClsFls: Error closing ORDINT'
     call Abend()
   end if
 end if
@@ -72,7 +73,7 @@ else
   iOpt = 0
   call ClsMck(iRc,iOpt)
   if (iRc /= 0) then
-    write(6,*) 'ClsFls: Error closing MCKINT'
+    write(u6,*) 'ClsFls: Error closing MCKINT'
     call Abend()
   end if
 end if

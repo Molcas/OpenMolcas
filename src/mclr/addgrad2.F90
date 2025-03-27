@@ -20,9 +20,10 @@ subroutine AddGrad2(rMat,fact)
 !   which is just the case if E is symmetric.
 
 use Arrays, only: F0SQMO
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: ipCM, ipMat
 use input_mclr, only: nSym, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two
 
 implicit none
 real*8 fact
@@ -37,7 +38,7 @@ do iS=1,nSym
   call DGeSub(F0SQMO(ipCM(is)),nOrb(is),'N',F0SQMO(ipCM(is)),nOrb(is),'T',Temp,nOrb(is),nOrb(is),nOrb(is))
   !             t           t
   ! +1/2 { Kappa T - T kappa  }
-  call DaXpY_(nOrb(is)**2,-2.0d0*Fact,Temp,1,rMat(ipMat(is,is)),1)
+  call DaXpY_(nOrb(is)**2,-Two*Fact,Temp,1,rMat(ipMat(is,is)),1)
   call mma_deallocate(Temp)
 end do
 

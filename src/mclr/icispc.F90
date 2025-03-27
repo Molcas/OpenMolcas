@@ -55,6 +55,9 @@ subroutine ICISPC(MNRS10,MXRS30)
 use Str_Info, only: IAZTP, IBZTP, NELEC
 use MCLR_Data, only: NICISP, NELCI, NAELCI, NBELCI, MNR1IC, MNR3IC, MXR1IC, MXR3IC, IACTI, IASTFI, IBSTFI, IRCI
 use MCLR_Data, only: NORB1, NORB2
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer MNRS10, MXRS30
@@ -95,12 +98,12 @@ do ICI=1,NICISP
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Number of internal CI spaces ',NICISP
-write(6,*) ' Space a-type b-type nael nbel mnrs1 mxrs1 mnrs3 mxrs3'
-write(6,*) ' ====================================================='
+write(u6,*) ' Number of internal CI spaces ',NICISP
+write(u6,*) ' Space a-type b-type nael nbel mnrs1 mxrs1 mnrs3 mxrs3'
+write(u6,*) ' ====================================================='
 do ICI=1,NICISP
   if (IACTI(ICI) == 1) &
-    write(6,'(I5,2I7,2I5,4I6)') ICI,IASTFI(ICI),IBSTFI(ICI),NAELCI(ICI),NBELCI(ICI),MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI)
+    write(u6,'(I5,2I7,2I5,4I6)') ICI,IASTFI(ICI),IBSTFI(ICI),NAELCI(ICI),NBELCI(ICI),MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI)
 end do
 #endif
 

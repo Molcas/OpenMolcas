@@ -17,9 +17,10 @@
 
 subroutine GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nNA, nDens2
 use input_mclr, only: nRoots, ntAsh, ntBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 
 implicit none
 ! Input
@@ -82,12 +83,12 @@ do K=1,nRoots
   end do
 end do
 
-call Daxpy_(nG2,1.0d0,PQaa,1,P2MOt,1)
+call Daxpy_(nG2,One,PQaa,1,P2MOt,1)
 call Put_dArray('P2MOt',P2MOt,nG2)
 
 call G2qtoG2r(G2r,PQaa,nG2,nG2r)
-call FockGen(0.0d0,G1r,G2r,T,Fock,1)
-call DAxPy_(nDens2,1.0d0,T,1,FOccMO,1)
+call FockGen(Zero,G1r,G2r,T,Fock,1)
+call DAxPy_(nDens2,One,T,1,FOccMO,1)
 if (Debug2) call mma_deallocate(PUVX)
 call mma_deallocate(Fock)
 call mma_deallocate(T)

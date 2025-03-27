@@ -12,10 +12,13 @@
 integer function iBion(M,N)
 ! Compute binomial coefficients recursively
 
+use Constants, only: One
+use Definitions, only: wp, u6
+
 real*8 Temp1, Temp2, Temp3, Temp4
 
 if ((N < 0) .or. (M < N)) then
-  write(6,*) 'Wrong params is iBion',M,N
+  write(u6,*) 'Wrong params is iBion',M,N
   call Abend()
 end if
 if ((N == 0) .or. (M == 0)) then
@@ -30,10 +33,10 @@ else if (N == 2) then
 end if
 K1 = max((M-N),N)
 K2 = min((M-N),N)
-Temp1 = 1.0d0
+Temp1 = One
 do K=1,K2
-  Temp2 = dble(K1+K)
-  Temp3 = dble(K)
+  Temp2 = real(K1+K,kind=wp)
+  Temp3 = real(K,kind=wp)
   Temp4 = Temp2/Temp3
   Temp1 = Temp1*Temp4
 end do

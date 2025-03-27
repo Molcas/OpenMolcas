@@ -15,6 +15,9 @@ subroutine NGETH1(H,ISM,ITP,JSM,JTP)
 ! given OS class
 
 use MCLR_Data, only: NTSOB
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 !.Output
@@ -34,7 +37,7 @@ do J=1,NJ
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
+write(u6,*) ' H1 for itp ism jtp jsm ',ITP,ISM,JTP,JSM
 call WRTMAT(H,NI,NJ,NI,NJ)
 #endif
 

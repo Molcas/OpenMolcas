@@ -58,6 +58,10 @@ subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 ! Jeppe Olsen, Fall of 96
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -116,7 +120,7 @@ do IDXTP=1,NDXTP
         NPART = NROW/MAXI
         if (NPART*MAXI /= NROW) NPART = NPART+1
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
+        write(u6,*) ' NROW, MAXI NPART ',NROW,MAXI,NPART
 #       endif
         do IPART=1,NPART
           IBOT = 1+(IPART-1)*MAXI
@@ -168,7 +172,7 @@ do IDXTP=1,NDXTP
               JLOFF = (JLBOFF-1+IJLE-1)*NKBTC*NIBTC+1
               if ((JLSM == 1) .and. (J == L)) then
                 ! a+j a+j gives trivially zero
-                CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = 0.0d0
+                CSCR(JLOFF:JLOFF+NKBTC*NIBTC-1) = Zero
               else
                 !EAW BEGIN 970407
                 !call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
@@ -216,7 +220,7 @@ do IDXTP=1,NDXTP
               IKOFF = (IKBOFF-1+IIKE-1)*NKBTC*NIBTC+1
               if ((IKSM == 1) .and. (I == K)) then
                 ! a+j a+j gives trivially zero
-                SSCR(IKOFF:IKOFF+NKBTC*NIBTC-1) = 0.0d0
+                SSCR(IKOFF:IKOFF+NKBTC*NIBTC-1) = Zero
               else
                 !EAW-BEGIN 970407
                 !call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1IK),XI1S(1,I1IK))
@@ -241,13 +245,12 @@ do IDXTP=1,NDXTP
             LDUMMY = NKBTC*NIBTC
 
             if (IFIRST == 1) then
-              FACTOR = 0.0d0
+              FACTOR = Zero
             else
-              FACTOR = 1.0d0
+              FACTOR = One
             end if
             LDUMMY = NKBTC*NIBTC
-            ONEM = -1.0d0
-            call DGEMM_('T','N',NIK,NJL,LDUMMY,ONEM,SSCR,max(1,LDUMMY),CSCR,max(1,LDUMMY),FACTOR,X,max(1,NIK))
+            call DGEMM_('T','N',NIK,NJL,LDUMMY,-One,SSCR,max(1,LDUMMY),CSCR,max(1,LDUMMY),FACTOR,X,max(1,NIK))
             IFIRST = 0
 
             if (KEND /= 0) exit

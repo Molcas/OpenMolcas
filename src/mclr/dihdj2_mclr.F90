@@ -31,6 +31,8 @@ subroutine DIHDJ2_MCLR(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,jWORK,LWORK
 ! Modifed to work with string numbers instead of strings
 ! March 93
 
+use Constants, only: Zero, One, Half
+
 implicit real*8(A-H,O-Z)
 dimension IASTR(*), IBSTR(*)
 dimension JASTR(*), JBSTR(*)
@@ -57,7 +59,7 @@ if (ISYM == 0) then
 else
   LHAMIL = NIDET*(NIDET+1)/2
 end if
-HAMIL(1:LHAMIL) = 0.0d0
+HAMIL(1:LHAMIL) = Zero
 
 NTERMS = 0
 NDIF0 = 0
@@ -68,15 +70,15 @@ NDIF2 = 0
 
 ! dummy initialize
 JAEQJB = -1
-CONST = 0.0d0
+CONST = Zero
 IEL1 = -1
 JEL1 = -1
-SIGNA = 0.0d0
-SIGNB = 0.0d0
+SIGNA = Zero
+SIGNB = Zero
 IPERM = 0
 JPERM = 0
-SIGN = 0.0d0
-XVAL = 0.0d0
+SIGN = Zero
+XVAL = Zero
 do JDET=1,NJDET
   ! Expand JDET
   JASTAC = JASTR(JDET)
@@ -164,15 +166,15 @@ do JDET=1,NJDET
       if (NADIF+NBDIF > 2) cycle
       ! Factor for combinations
       if (ICOMBI == 0) then
-        CONST = 1.0d0
+        CONST = One
       else
         if ((JAEQJB+IAEQIB) == 2) then
-          CONST = 1.0d0
+          CONST = One
         else if ((JAEQJB+IAEQIB) == 1) then
-          CONST = 1.0d0/sqrt(2.0d0)*(1.0d0+PSIGN)
+          CONST = sqrt(Half)*(One+PSIGN)
         else if ((JAEQJB+IAEQIB) == 0) then
           if (ILOOP == 1) then
-            CONST = 1.0d0
+            CONST = One
           else
             CONST = PSIGN
           end if
@@ -215,7 +217,7 @@ do JDET=1,NJDET
             exit
           end if
         end do
-        SIGNA = dble((-1)**(JEL1+IEL1))
+        SIGNA = (-One)**(JEL1+IEL1)
       end if
 
       ! One pair of differing beta electrons
@@ -235,7 +237,7 @@ do JDET=1,NJDET
             exit
           end if
         end do
-        SIGNB = dble((-1)**(JEL1+IEL1))
+        SIGNB = (-One)**(JEL1+IEL1)
       end if
 
       ! Two pairs of differing alpha electrons
@@ -270,7 +272,7 @@ do JDET=1,NJDET
             end if
           end if
         end do
-        SIGN = dble((-1)**(IPERM+JPERM))
+        SIGN = (-One)**(IPERM+JPERM)
       end if
 
       ! Two pairs of differing beta electrons
@@ -305,7 +307,7 @@ do JDET=1,NJDET
             end if
           end if
         end do
-        SIGN = dble((-1)**(IPERM+JPERM))
+        SIGN = (-One)**(IPERM+JPERM)
       end if
 
       ! =======================
@@ -388,10 +390,10 @@ do JDET=1,NJDET
                 else
                   JORB = LIB(JEL)
                 end if
-                XVAL = XVAL+0.5d0*GTIJKL_MCLR(IORB,IORB,JORB,JORB)
+                XVAL = XVAL+Half*GTIJKL_MCLR(IORB,IORB,JORB,JORB)
                 ! test
 
-                if (IAB == JAB) XVAL = XVAL-0.5d0*GTIJKL_MCLR(IORB,JORB,JORB,IORB)
+                if (IAB == JAB) XVAL = XVAL-Half*GTIJKL_MCLR(IORB,JORB,JORB,IORB)
                 ! test
               end do
             end do

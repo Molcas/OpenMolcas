@@ -19,14 +19,14 @@
 subroutine GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,NG2)
 ! Partially readpated from rhs_sa.f
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use ipPage, only: W
-use Constants, only: Zero, One, Two, Half, Quart
 use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
 use MCLR_Data, only: NACSTATES
 use MCLR_Data, only: LuJob
 use MCLR_Data, only: XISPSM
 use input_mclr, only: nRoots, ntAsh, State_Sym, iTOC, nCSF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Quart
 
 implicit none
 ! Input
@@ -68,7 +68,7 @@ call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
 call mma_allocate(G2rt,itri(ntash**2,ntash**2),Label='G2rt')
 ! Rotate CI vectors back to those for reference states
 NCSFs = NCSF(state_sym)
-call DGEMM_('n','n',NCSFS,nRoots,nRoots,1.0d0,W(ipCI)%Vec,NCSFs,R,nRoots,0.0d0,FinCI,nCSFs)
+call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%Vec,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
 nConfL = max(ncsf(state_sym),nint(xispsm(state_sym,1)))
 nConfR = max(ncsf(state_sym),nint(xispsm(state_sym,1)))
 
@@ -176,7 +176,7 @@ do iB=1,ntAsh
   end do
 end do
 
-call FockGen(0.0d0,G1r,G2r,FOccMO,bk,1)
+call FockGen(Zero,G1r,G2r,FOccMO,bk,1)
 
 ! D1MOt: CMS-PDFT 1RDM for computing 1-electron gradient
 call Put_DArray('D1MOt',G1q,ng1)
@@ -196,8 +196,8 @@ do iB=1,ntash
         iDkl = iTri(kB,lB)
         iRkl = lb+(kb-1)*ntash
         fact = One
-        if ((iDij >= iDkl) .and. (kB == lB)) fact = 0.5d0
-        if ((iDij < iDkl) .and. (iB == jB)) fact = 0.5d0
+        if ((iDij >= iDkl) .and. (kB == lB)) fact = Half
+        if ((iDij < iDkl) .and. (iB == jB)) fact = Half
         iijkl = itri(iDij,iDkl)
         iRijkl = itri(iRij,iRkl)
         G2q(iijkl) = Fact*G2r(iRijkl)
@@ -207,7 +207,7 @@ do iB=1,ntash
 end do
 
 call Get_dArray_chk('P2MOt',P2MOt,ng2)
-call DaXpY_(ng2,1.0d0,G2q,1,P2MOt,1)
+call DaXpY_(ng2,One,G2q,1,P2MOt,1)
 
 ! Done with the info from CMS final state
 
@@ -222,7 +222,7 @@ call mma_allocate(D6,nTri)
 call mma_allocate(DMatAO,nTri)
 call Get_DArray('MSPDFTD6',D6,nTri)
 call GetDMatAO(G1q,DMatAO,ng1,nTri)
-call DaXpY_(nTri,1.0d0,DMatAO,1,D6,1)
+call DaXpY_(nTri,One,DMatAO,1,D6,1)
 call DCopy_(nTri,DMatAO,1,D5,1)
 call Put_DArray('MSPDFTD5',D5,nTri)
 call Put_DArray('MSPDFTD6',D6,nTri)
@@ -269,7 +269,7 @@ do K=1,nRoots
     end do
   end do
 
-  call FockGen(0.0d0,G1r,G2r,T,Fock,1)
+  call FockGen(Zero,G1r,G2r,T,Fock,1)
   call Daxpy_(nDens2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),Fock,1,bk,1)
   call Daxpy_(nDens2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),T,1,FOccMO,1)
   call DaXpY_(ng2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),G2q,1,P2MOt,1)

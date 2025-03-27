@@ -16,7 +16,7 @@ use Str_Info, only: CFTP, CNSM
 use gugx, only: SGStruct, CIStruct, EXStruct
 use MkGUGA_mod, only: MKGUGA
 #ifdef _DEBUGPRINT_
-use definitions, only: u6
+use definitions, only: wp, u6
 #endif
 
 implicit none
@@ -28,7 +28,7 @@ type(EXStruct) EXS
 real*8 CIL(*)
 integer imode, ksym, State_Sym
 #ifdef _DEBUGPRINT_
-real*8 :: PRWTHR = 0.05d0
+real*8, parameter :: PRWTHR = 0.05_wp
 #endif
 integer nRas1T, nRas2T, nRas3T, iss, iS
 integer NCONF

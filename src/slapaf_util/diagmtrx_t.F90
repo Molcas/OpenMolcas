@@ -16,7 +16,7 @@ subroutine DiagMtrx_T(H,nH,iNeg)
 
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none

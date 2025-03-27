@@ -25,6 +25,7 @@ subroutine Compress2(ArrayIn,nIn,ArrayOut,nOut,dsym)
 
 use MCLR_Data, only: ipMat, nB, nDens
 use input_mclr, only: nSym, nIsh, nRs1, nRs2, nRs3, nOrb, TimeDep
+use Constants, only: Zero, One
 
 implicit none
 integer nIn, nOut, dsym
@@ -38,10 +39,10 @@ real*8 Fact
 indexC = 0
 jT = -1
 i1 = 0
-Fact = 1.0d0
+Fact = One
 if (dsym < 0) Fact = -Fact
 dsym = abs(dsym)
-call dcopy_(nDens,[0.0d0],0,ArrayOut,1)
+call dcopy_(nDens,[Zero],0,ArrayOut,1)
 
 do iSym=1,nSym
   jSym = ieor(iSym-1,dSym-1)+1

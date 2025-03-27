@@ -29,6 +29,9 @@ use MCLR_Data, only: NORB1, NORB2, NORB3, NORB4, NINOB, NDEOB, NACOB, NOCOB, NTO
                      IOSPIR, IREOST, IREOTS, ISMFSO, ISMFTO, ITPFTO, ITSOB, NACOBS, NDEOBS, NINOBS, NOBPT, NOBPTS, NOCOBS, NOSPIR, &
                      NR0OBS, NR4OBS, NTOOBS, NTSOB
 use DetDim, only: MXPIRR, MXPOBS, MXPR4T
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer NIRREP, NSMOB, MXR4tp
@@ -109,15 +112,15 @@ do ISMOB=1,NSMOB
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' ORBINF_MCLR speaking'
-write(6,*) ' ===================='
-write(6,*) ' Number of orbitals per symmetry + total'
-write(6,'(1X,A,10I4,8X,I3)') '     Ras1             ',(NRSOBS(I,1),I=1,NSMOB),NORB1
-write(6,'(1X,A,10I4,8X,I3)') '     Ras2             ',(NRSOBS(I,2),I=1,NSMOB),NORB2
-write(6,'(1X,A,10I4,8X,I3)') '     Ras3             ',(NRSOBS(I,3),I=1,NSMOB),NORB3
-write(6,'(1X,A,10I4,8X,I3)') '     Active           ',(NACOBS(I),I=1,NSMOB),NACOB
-write(6,'(1X,A,10I4,8X,I3)') '     Total            ',(NTOOBS(I),I=1,NSMOB),NTOOB
+write(u6,*)
+write(u6,*) ' ORBINF_MCLR speaking'
+write(u6,*) ' ===================='
+write(u6,*) ' Number of orbitals per symmetry + total'
+write(u6,'(1X,A,10I4,8X,I3)') '     Ras1             ',(NRSOBS(I,1),I=1,NSMOB),NORB1
+write(u6,'(1X,A,10I4,8X,I3)') '     Ras2             ',(NRSOBS(I,2),I=1,NSMOB),NORB2
+write(u6,'(1X,A,10I4,8X,I3)') '     Ras3             ',(NRSOBS(I,3),I=1,NSMOB),NORB3
+write(u6,'(1X,A,10I4,8X,I3)') '     Active           ',(NACOBS(I),I=1,NSMOB),NACOB
+write(u6,'(1X,A,10I4,8X,I3)') '     Total            ',(NTOOBS(I),I=1,NSMOB),NTOOB
 #endif
 ! Offsets for orbitals of given symmetry
 ITOOBS(1) = 1
@@ -126,7 +129,7 @@ do ISMOB=2,NSMOB
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Offsets for orbital of given symmetry'
+write(u6,*) ' Offsets for orbital of given symmetry'
 call IWRTMA(ITOOBS,1,NSMOB,1,NSMOB)
 #endif
 !*******************************************

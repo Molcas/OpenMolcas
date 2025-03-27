@@ -30,12 +30,7 @@ use Para_Info, only: myRank, nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
 use Spool, only: LuWr
-#ifdef _DEBUGPRINT_
-use MCLR_Data, only: nCMO
-#endif
 use MCLR_Data, only: nConf1, nDens2, nDensC, ipCI, n1Dens, n2Dens, nDens
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: lDisp
@@ -44,6 +39,12 @@ use MCLR_Data, only: XISPSM
 use input_mclr, only: nDisp, Fail, lSave, nSym, PT2, State_Sym, iMethod, rIn_Ene, PotNuc, iBreak, Eps, nIter, ERASSCF, kPrint, &
                       nCSF, nTPert, TimeDep, nAsh, nRs2
 use dmrginfo, only: DoDMRG, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use MCLR_Data, only: nCMO
+#endif
 
 implicit none
 #ifdef _MOLCAS_MPP_
@@ -425,7 +426,7 @@ do
   Kappa(1:nDens) = Zero
   delta = deltac+deltaK
 # ifdef _DEBUGPRINT_
-  if (abs(DeltaC) < 1.0D-12) DeltaC = Zero
+  if (abs(DeltaC) < 1.0e-12_wp) DeltaC = Zero
   write(LuWr,*) 'DeltaK, DeltaC, Delta=',DeltaK,DeltaC,Delta
 # endif
 
@@ -775,12 +776,12 @@ do
     else if (ibreak == 2) then
       res = sqrt(resk**2+resci**2)
       if (doDMRG) then ! yma
-        !write(6,*) 'resk**2, resci**2 ',resk**2,resci**2
+        !write(u6,*) 'resk**2, resci**2 ',resk**2,resci**2
         res = sqrt(resk**2+resci**2)
         ! And a bit loose in DMRG case
         if (res < abs(Eps)) exit
         if (sqrt(resk**2) < abs(Eps)) then
-          if (abs(res_tmp-sqrt(resci**2)) < 1.0e-06) exit
+          if (abs(res_tmp-sqrt(resci**2)) < 1.0e-6_wp) exit
         end if
         res_tmp = sqrt(resci**2)
       else
@@ -916,7 +917,7 @@ write(LuWr,*)
 #ifdef _MOLCAS_MPP_
 if (Is_Real_Par()) then
   call GAdGOp_Scal(dfail,'max')
-  Fail = Fail .or. (dfail > 0.0d0)
+  Fail = Fail .or. (dfail > Zero)
 end if
 #endif
 if (Fail) call Quit_OnConvError()

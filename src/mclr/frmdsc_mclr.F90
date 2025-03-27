@@ -12,6 +12,8 @@
 subroutine FRMDSC_MCLR(ARRAY,NDIM,MBLOCK,IFILE,IMZERO)
 ! TRANSFER ARRAY FROM DISC FILE IFILE
 
+use Constants, only: Zero
+
 implicit real*8(A-H,O-Z)
 dimension ARRAY(*)
 dimension IDUM(1)
@@ -22,7 +24,7 @@ if (IPACK /= 0) then
   call IFRMDS(IDUM,1,MBLOCK,IFILE)
   IMZERO = IDUM(1)
   if (IMZERO == 1) then
-    ARRAY(1:NDIM) = 0.0d0
+    ARRAY(1:NDIM) = Zero
     return
   end if
 end if

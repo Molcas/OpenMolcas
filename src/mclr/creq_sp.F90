@@ -26,7 +26,7 @@ real*8 rd
 ! Q = (pj|kl)d
 !  pi         ijkl
 
-!call dcopy_(ndens2,[0.0d0],0,Q,1)
+!call dcopy_(ndens2,[Zero],0,Q,1)
 do iS=1,nSym
   ipS = ieor(is-1,idsym-1)+1
   if (norb(ips) /= 0) then

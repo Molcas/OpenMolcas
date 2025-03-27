@@ -25,9 +25,10 @@ subroutine FockGen_sp(d_0,rDens1,rdens2,Fock,fockout,idsym)
 !***********************************************************************
 
 use Arrays, only: FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nNA, ipCM, ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nIsh, nBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
 
 implicit none
 real*8 d_0
@@ -44,7 +45,7 @@ real*8 rd
 !  Coulomb term: F  = 2(pk|ji)d
 !                 kp           ij
 
-call dcopy_(nDens2,[0.0d0],0,Fock,1)
+call dcopy_(nDens2,[Zero],0,Fock,1)
 
 n1 = 0
 do iS=1,nSym
@@ -113,7 +114,7 @@ do iS=1,nSym
   if (nbas(is)*nBas(js) /= 0) &
     call DGESUB(Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(js,is)),nBas(js),'T',FockOut(ipMat(is,js)),nBas(is),nBas(is),nBas(js))
 end do
-call DScal_(ndens2,2.0d0,FockOut,1)
+call DScal_(ndens2,Two,FockOut,1)
 if (idsym == 1) call Add2(Fockout,d_0)
 !                                                                      *
 !***********************************************************************

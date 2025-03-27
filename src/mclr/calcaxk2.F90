@@ -17,9 +17,10 @@
 
 subroutine CalcAXk2(AXk,D1,D2,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens2, nNA, ipMat
 use input_mclr, only: ntBas, ntAsh, nSym, nAsh, nOrb, nIsh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 integer NPUVX
@@ -35,7 +36,7 @@ real*8 tempa
 call mma_allocate(Opu,ntBas*ntAsh)
 do p=1,ntBas
   do u=1,ntAsh
-    tempa = 0.0d0
+    tempa = Zero
     do v=1,ntAsh
       do x=1,ntAsh
         if (IndPUVX(p,u,v,x) /= 0) tempa = tempa+PUVX(IndPUVX(p,u,v,x))*D2((v-1)*nnA+x)
@@ -49,12 +50,12 @@ do iSym=1,nSym
     q = iq+Off_Act(ISym)
     do ip=1,nIsh(iSym)  ! p is inactive
       p = ip+Off_Orb(ISym)
-      tempa = 0.0d0
+      tempa = Zero
       do it=1,nAsh(ISym)
         t = it+Off_Act(ISym)
         tempa = tempa+(D1((t-1)*nnA+q)+D1((q-1)*nnA+t))*Opu((p-1)*nnA+t)
       end do
-      !write(6,*) 'tempa after sum over t',tempa
+      !write(u6,*) 'tempa after sum over t',tempa
       loc1 = ipMat(iSym,iSym)+(iq-1)*nOrb(iSym)+ip-1+nOrb(iSym)*NIsh(iSym)
       loc2 = ipMat(iSym,iSym)+(ip-1)*nOrb(iSym)+iq-1+NIsh(iSym)
       AXK(loc1) = AXK(loc1)+tempa
@@ -62,7 +63,7 @@ do iSym=1,nSym
     end do
     do ip=nIsh(iSym)+nAsh(iSym)+1,nOrb(iSym)  ! p is virtual
       p = ip+Off_Orb(ISym)
-      tempa = 0.0d0
+      tempa = Zero
       do it=1,nAsh(ISym)
         t = it+Off_Act(ISym)
         tempa = tempa+(D1((t-1)*nnA+q)+D1((q-1)*nnA+t))*Opu((p-1)*nnA+t)

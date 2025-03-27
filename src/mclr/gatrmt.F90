@@ -18,6 +18,8 @@ subroutine GATRMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,ISCA,SSCA)
 !
 ! Jeppe Olsen, Getting LUCIA in shape, Feb1994
 
+use Constants, only: Zero
+
 implicit real*8(A-H,O-Z)
 real*8 MATIN, MATUT
 ! Input
@@ -48,7 +50,7 @@ do ICBL=1,NBLK
       end do
     else if (ISCA(I) == 0) then
       do J=ICOFF,ICEND
-        MATUT(I,J) = 0.0d0
+        MATUT(I,J) = Zero
       end do
     end if
   end do

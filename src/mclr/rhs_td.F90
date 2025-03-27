@@ -34,11 +34,12 @@ subroutine RHS_td(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,temp7,rKappa,ipst,iDisp,lO
 
 use ipPage, only: W
 use Arrays, only: G2sq, G1t
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
 use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
 use MCLR_Data, only: DspVec
 use input_mclr, only: Debug, nSym, iMethod, State_Sym, nAsh, nBas, nIsh, nTPert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: u6
 
 implicit none
 real*8 Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp5(nDens), Temp6(nDens), temp7(ndens), rKappa(nDens)
@@ -90,10 +91,10 @@ if (iand(ntpert(idisp),2**3) == 8) then
   Label = 'OVRGRD'
   call dRdMCK(iRC,iOpt,Label,DspVec(iDisp),Temp7,iop)
   if (iRc /= 0) then
-    write(6,*)
-    write(6,*) ' *** Error in subroutine RHS_TD ***'
-    write(6,*) ' Error when reading OVRGRD from MCKINT'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' *** Error in subroutine RHS_TD ***'
+    write(u6,*) ' Error when reading OVRGRD from MCKINT'
+    write(u6,*)
     return
   end if
   ip = 1
@@ -155,7 +156,7 @@ if (iand(ntpert(idisp),2**3) == 8) then
 
     ! IFG: this was outside "if (imethod == 2)",
     !      probably a bug? ipmot & ipmot2 would be uninitialized
-    call r2ElInt(Temp1,MOT,MOT2,Temp4,Temp5,ndens2,iDSym,One,-0.5d0,0)
+    call r2ElInt(Temp1,MOT,MOT2,Temp4,Temp5,ndens2,iDSym,One,-Half,0)
     call DaXpY_(nmba,One,MOT2,1,MOT,1)
     call mma_deallocate(MOT2)
   end if

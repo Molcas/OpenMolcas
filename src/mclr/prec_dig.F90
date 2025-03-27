@@ -31,8 +31,14 @@ subroutine Prec_dig(rpre,idsym)
 !     and is not coded yet (ugly bastard) (970109, AB)                 *
 !***********************************************************************
 
+use iso_c_binding
 use MCLR_Data, only: nrec
+use MCLR_Data, only: ipCM
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nRS1, nRS2, nRS3, iMethod, TimeDep
+use Arrays, only: FAMO, FIMO, F0SQMO
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 real*8 rpre(*)
@@ -50,11 +56,6 @@ call Prec_dig_internal(rpre)
 contains
 
 subroutine Prec_dig_internal(rpre)
-
-  use iso_c_binding
-  use Arrays, only: FAMO, FIMO, F0SQMO
-  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-  use MCLR_Data, only: ipCM
 
   implicit none
   real*8, target :: rpre(*)
@@ -78,7 +79,7 @@ subroutine Prec_dig_internal(rpre)
   call mma_allocate(Scr,n2,Label='Scr')
 
   ip = 1
-  sign = 1.0d0
+  sign = One
   do iS=1,nSym
     jS = ieor(is-1,iDSym-1)+1
     nD = nBas(js)-nIsh(jS)
@@ -86,14 +87,14 @@ subroutine Prec_dig_internal(rpre)
     call mma_allocate(Temp2,ni,Label='Temp2')
     call mma_allocate(Temp3,ni,Label='Temp3')
     call mma_allocate(Temp4,ni,Label='Temp4')
-    Temp4(:) = 0.0d0
+    Temp4(:) = Zero
     call mma_MaxDBLE(nTemp)
     nTemp = min(nmm,nTemp/2)
     call mma_allocate(Temp1,nTemp,2,Label='Temp1')
 
     if (nD /= 0) then
       do iB=1,nIsh(iS)
-        Temp3(1:nD**2) = 0.0d0
+        Temp3(1:nD**2) = Zero
         ibb = nBas(is)*(ib-1)+ib-2
 
         if (iMethod == 2) then
@@ -134,7 +135,7 @@ subroutine Prec_dig_internal(rpre)
           call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
           nullify(ipre)
           if (irc /= 0) then
-            write(6,*) 'Error in DGETRF called from prec_dig'
+            write(u6,*) 'Error in DGETRF called from prec_dig'
             call Abend()
           end if
 #         endif
@@ -151,7 +152,7 @@ subroutine Prec_dig_internal(rpre)
       end do   ! iB, inactive
     end if
 
-    Temp4(1:ni) = 0.0d0
+    Temp4(1:ni) = Zero
     do iB=1,nAsh(iS)
       ibb = nBas(is)*(nish(is)+ib-1)+nish(is)+ib-2
       if (ib <= nRs1(iS)+nRs2(is)+nRs3(is)) iR = 3
@@ -161,7 +162,7 @@ subroutine Prec_dig_internal(rpre)
       if (ir == 2) nD = nBas(js)-nRs2(js)
       if (ir == 3) nD = nBas(js)-nRs3(js)
       if (nD /= 0) then
-        Temp3(1:nD**2) = 0.0d0
+        Temp3(1:nD**2) = Zero
         if (nish(js) > 0) &
           call Precaii(ib,is,js,nd,ir,Temp3,nbas(is),nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
                        FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
@@ -184,7 +185,7 @@ subroutine Prec_dig_internal(rpre)
           call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
           nullify(ipre)
           if (irc /= 0) then
-            write(6,*) 'Error in DGETRF called from prec_dig'
+            write(u6,*) 'Error in DGETRF called from prec_dig'
             call Abend()
           end if
 #         endif

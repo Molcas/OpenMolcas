@@ -49,6 +49,10 @@ subroutine CRESTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI
 ! ISTMPO and ISTMPL as pointers
 ! ISTST
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 integer STRING, TI, TTO, STRIN2, Z
 ! Input
@@ -65,9 +69,9 @@ dimension STRIN2(500)
 !  I SET IT TO ZERO
 LCR = 0
 #ifdef _DEBUGPRINT_
-write(6,*) ' ==============='
-write(6,*) ' CRESTR speaking'
-write(6,*) ' ==============='
+write(u6,*) ' ==============='
+write(u6,*) ' CRESTR speaking'
+write(u6,*) ' ==============='
 #endif
 
 IOFF = 0     ! dummy initialize
@@ -145,36 +149,36 @@ do ISTRIN=1,NSTINI
   if (LROW < 0) then
     ISTMPO(ISTRIN) = IOFF
     ISTMPL(ISTRIN) = LCR
-    !write(6,*) ' ISTRIN ISTMPO ISTMPL'
-    !write(6,*) ISTRIN,ISTMPO(ISTRIN),ISTMPL(ISTRIN)
+    !write(u6,*) ' ISTRIN ISTMPO ISTMPL'
+    !write(u6,*) ISTRIN,ISTMPO(ISTRIN),ISTMPL(ISTRIN)
   end if
 end do
 
 #ifdef _DEBUGPRINT_
 MAXPR = 60
 NPR = min(NSTINI,MAXPR)
-write(6,*) ' Output from CRESTR :'
-write(6,*) '==================='
+write(u6,*) ' Output from CRESTR :'
+write(u6,*) '==================='
 
 if (LROW > 0) then
-  write(6,*) ' Full map'
-  write(6,*)
-  write(6,*) ' Strings with an electron added'
+  write(u6,*) ' Full map'
+  write(u6,*)
+  write(u6,*) ' Strings with an electron added'
   do ISTRIN=1,NPR
-    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO((ISTRIN-1)*LROW+I),I=1,NORB)
+    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO((ISTRIN-1)*LROW+I),I=1,NORB)
   end do
   do ISTRIN=1,NPR
-    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI((ISTRIN-1)*LROW+I),I=1,NORB)
+    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI((ISTRIN-1)*LROW+I),I=1,NORB)
   end do
 else
-  write(6,*) ' Compact map'
-  write(6,*)
-  write(6,*) ' Strings with an electron added'
+  write(u6,*) ' Compact map'
+  write(u6,*)
+  write(u6,*) ' Strings with an electron added'
   do ISTRIN=1,NPR
-    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
+    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
   end do
   do ISTRIN=1,NPR
-    write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
+    write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals added or removed ',(TI(ISTMPO(ISTRIN)-1+I),I=1,ISTMPL(ISTRIN))
   end do
 end if
 #endif

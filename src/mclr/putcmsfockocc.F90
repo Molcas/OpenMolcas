@@ -17,9 +17,10 @@
 
 subroutine PutCMSFockOcc(FOccMO,nTri)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens2, ipMat
 use input_mclr, only: nSym, nBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 
 implicit none
 ! Input:
@@ -50,7 +51,7 @@ do iS=1,nSym
     F_n(ijb) = T(ipmat(is,is)+nbas(is)*(iB-1)+IB-1)
   end do
 end do
-call Daxpy_(nDens2,1.0d0,F_n,1,F,1)
+call Daxpy_(nDens2,One,F_n,1,F,1)
 call Put_dArray('FockOcc',F,nDens2)
 call mma_deallocate(F)
 call mma_deallocate(T)

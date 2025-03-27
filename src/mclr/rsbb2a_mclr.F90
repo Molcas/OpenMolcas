@@ -53,6 +53,7 @@ subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 ! Jeppe Olsen, Winter of 1991
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
 
 implicit real*8(A-H,O-Z)
 logical TimeDep
@@ -69,9 +70,7 @@ dimension ITP(36), JTP(36), KTP(36), LTP(36)
 
 ! Types of DX that connects the two strings
 
-!write(6,*) 'ieaw in rsbb2a_mclr',ieaw
-ONEM = -1.0d0
-ZERO = 0.0d0
+!write(u6,*) 'ieaw in rsbb2a_mclr',ieaw
 IDXSM = Mul(ISCSM,ICCSM)
 if (IDXSM == 0) return
 call DXTYP(NDXTYP,ITP,JTP,KTP,LTP,ISEL1,ISEL3,ICEL1,ICEL3)
@@ -183,11 +182,11 @@ do IDXTYP=1,NDXTYP
             ! Obtain two electron integrals (ij!kl)-(il!kj)
             if (IFIRST == 1) then
               IXCHNG = 1
-              !write(6,*) 'TimeDep in rsbb2a_mclr is:',TimeDep
+              !write(u6,*) 'TimeDep in rsbb2a_mclr is:',TimeDep
               if (TimeDep) then
                 call GETINT_td(XINT,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IKPSM,JLPSM,4,ieaw)
               else
-                !write(6,*) 'I call getint not getint_td'
+                !write(u6,*) 'I call getint not getint_td'
                 call GETINT_MCLR(XINT,ITYP,ISM,JTYP,JSM,KTYP,KSM,LTYP,LSM,IXCHNG,IKPSM,JLPSM,0,0)
               end if
             end if
@@ -195,11 +194,11 @@ do IDXTYP=1,NDXTYP
             ! and now, to the work
             LIKB = NIBTC*NKBTC
             if (NOPART == 1) then
-              FACTORC = 1.0d0
+              FACTORC = One
             else
-              FACTORC = 0.0d0
+              FACTORC = Zero
             end if
-            FACTORAB = 1.0d0
+            FACTORAB = One
             call DGEMM_('N','T',LIKB,NIK,NJL,FACTORAB,CSCR,LIKB,XINT,NIK,FACTORC,SSCR,LIKB)
             ! ============================
             ! Loop over ik and scatter out
@@ -214,7 +213,7 @@ do IDXTYP=1,NDXTYP
                 call NXTIJ(I,K,NI,NK,IKPSM,NONEW)
                 ISBOFF = 1+(IK-1)*NIBTC*NKBTC
                 IKOFF = (IK-1)*NKSTREF+1
-                if (SIGN == -1.0d0) call DSCAL_(NKSTREf,ONEM,XI1S(IKOFF),1)
+                if (SIGN == -One) call DSCAL_(NKSTREf,-One,XI1S(IKOFF),1)
                 call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(IKOFF),XI1S(IKOFF))
               end do
             end if
@@ -235,7 +234,7 @@ do IDXTYP=1,NDXTYP
           ISBOFF = 1+(IK-1)*NIBTC*NKBTC
           IKOFF = (IK-1)*NKSTREF+1
           ! Well, someplace the minus must come in
-          if (SIGN == -1.0d0) call DSCAL_(NKSTREf,ONEM,XI1S(IKOFF),1)
+          if (SIGN == -One) call DSCAL_(NKSTREf,-One,XI1S(IKOFF),1)
           call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(IKOFF),XI1S(IKOFF))
         end do
       end if

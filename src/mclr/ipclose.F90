@@ -17,12 +17,13 @@ integer function ipclose(ia)
 
 use ipPage
 use stdalloc, only: mma_deallocate
+use Definitions, only: u6
 
 real*8 rdum(1)
 
 if (ia > Max_CI_Vectors) then
-  write(6,*) 'ipclose: ia > Max_CI_Vectors'
-  write(6,*) 'ia,Max_CI_Vectors=',ia,Max_CI_Vectors
+  write(u6,*) 'ipclose: ia > Max_CI_Vectors'
+  write(u6,*) 'ia,Max_CI_Vectors=',ia,Max_CI_Vectors
   call Abend()
 end if
 

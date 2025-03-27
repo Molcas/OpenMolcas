@@ -30,6 +30,11 @@ subroutine TRAMO_MCLR(LBUF,X1,n1,X2,n2,X3,n3,X4,n4,Buffer,MEMX,NBP,NBQ,NBR,NBS,i
 !                                                                      *
 !***********************************************************************
 
+use iso_c_binding
+use MCLR_Data, only: FnHlf2, FnHlf3, LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, LuTri4, LuTri5, NoFile
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
+
 implicit none
 integer LBUF, n1, n2, n3, n4, MEMX, NBP, NBQ, NBR, NBS, iSP, iSQ, iSR, iSS, nAP, nAQ, nAR, nAS
 real*8 X1(n1), X2(n2), X3(n3), X4(n4), Buffer(MemX), CMP(nBP,nAP), CMQ(nBQ,nAQ), CMR(nBR,nAR), CMS(nBS,nAS)
@@ -48,9 +53,6 @@ if (.false.) call Unused_integer_array(len)
 contains
 
 subroutine TRAMO_MCLR_INTERNAL(Buffer)
-
-  use iso_c_binding
-  use MCLR_Data, only: FnHlf2, FnHlf3, LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, LuTri4, LuTri5, NoFile
 
   implicit none
   real*8, target :: Buffer(*)
@@ -145,8 +147,8 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
     iMax = (MemXXX-iMax)/nBuf
     iMax = (MemXXX-iMax)/nBuf
     if (iMax < 1) then
-      write(6,*) 'TraMO_MCLR: iMax < 1'
-      write(6,*) 'iMax=',iMax
+      write(u6,*) 'TraMO_MCLR: iMax < 1'
+      write(u6,*) 'iMax=',iMax
       call Abend()
     end if
     call DAName(LUHLF2,FNHLF2)
@@ -164,15 +166,15 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
   ip2 = 1                   ! (ij|kL)
   ip3 = ip2+iMax*nBR*nAS+1  ! (ij|Kl)
-  Buffer(ip3-1) = -99999.0d0
+  Buffer(ip3-1) = -99999.0_wp
   if (iss /= isr) then
     ip4 = ip3+iMax*nBS*nAR+1  ! (ij|KL)
   else
     ip4 = ip3+1
   end if
-  Buffer(ip4-1) = -99999.0d0
+  Buffer(ip4-1) = -99999.0_wp
   ipB = ip4+nBPQ*nARS+1   ! Read from ORDINT
-  Buffer(ipB-1) = -99999.0d0
+  Buffer(ipB-1) = -99999.0_wp
 
   !*********************************************************************
   !
@@ -206,7 +208,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
           call RDORD(IRC,IOPT,ISP,ISQ,ISR,ISS,Buffer(ipB),LBUF,NPQ)
           call GADSum(Buffer(ipB),LBuf)
           if (irc /= 0) then
-            write(6,*) 'TraMO_MCLR: error reading ORDINT!'
+            write(u6,*) 'TraMO_MCLR: error reading ORDINT!'
             call Abend()
           end if
           IOPT = 2
@@ -225,9 +227,9 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
         if ((nAS*nAR /= 0) .or. (nAS*(nAP+nAQ) /= 0)) then
           if (iSR == iSS) then
             call SQUARE(Buffer(ipB+IRSST-1),X1,1,NBS,NBS)
-            call DGEMM_('T','N',NBR,NAS,NBS,1.0d0,X1,NBS,CMS,NBS,0.0d0,X2,NBR)
+            call DGEMM_('T','N',NBR,NAS,NBS,One,X1,NBS,CMS,NBS,Zero,X2,NBR)
           else
-            call DGEMM_('T','N',NBR,NAS,NBS,1.0d0,Buffer(ipB+IRSST-1),NBS,CMS,NBS,0.0d0,X2,NBR)
+            call DGEMM_('T','N',NBR,NAS,NBS,One,Buffer(ipB+IRSST-1),NBS,CMS,NBS,Zero,X2,NBR)
           end if
         end if
 
@@ -245,8 +247,8 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
             do i=1,nAS*nBR
               iBuf2 = iBuf2+1
               if (iBuf2 > LIOTAB) then
-                write(6,*) 'TraMO_MCLR: iBuf2 > LIOTAB'
-                write(6,*) 'iBuf2,LIOTAB=',iBuf2,LIOTAB
+                write(u6,*) 'TraMO_MCLR: iBuf2 > LIOTAB'
+                write(u6,*) 'iBuf2,LIOTAB=',iBuf2,LIOTAB
                 call Abend()
               end if
               call PKR8(0,iMax,NBYTES,Buffer(ip2+ist2-1),Buffer(ip2+ist2-1))
@@ -268,7 +270,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
         !***************************************************************
 
         if (ISR /= ISS) then
-          call DGEMM_('N','N',NBS,NAR,NBR,1.0d0,Buffer(ipB+IRSST-1),NBS,CMR,NBR,0.0d0,X3,NBS)
+          call DGEMM_('N','N',NBS,NAR,NBR,One,Buffer(ipB+IRSST-1),NBS,CMR,NBR,Zero,X3,NBS)
 
           !*************************************************************
           if ((nAP+nAQ)*nAR /= 0) then
@@ -278,8 +280,8 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
               do I=1,nAR*nBS
                 IBUF3 = IBUF3+1
                 if (IBUF3 > LIOTAB) then
-                  write(6,*) 'TraMO_MCLR: iBuf3 > LIOTAB'
-                  write(6,*) 'iBuf3,LIOTAB=',iBuf3,LIOTAB
+                  write(u6,*) 'TraMO_MCLR: iBuf3 > LIOTAB'
+                  write(u6,*) 'iBuf3,LIOTAB=',iBuf3,LIOTAB
                   call Abend()
                 end if
                 call PKR8(0,IMAX,NBYTES,Buffer(ip3+IST3-1),Buffer(ip3+IST3-1))
@@ -306,9 +308,9 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
         if (NAR*NAS /= 0) then
           if (ISR == ISS) then
-            call DGEMM_Tri('T','N',NAR,NAR,NBR,1.0d0,X2,NBR,CMR,NBR,0.0d0,X4,NAR)
+            call DGEMM_Tri('T','N',NAR,NAR,NBR,One,X2,NBR,CMR,NBR,Zero,X4,NAR)
           else
-            call DGEMM_('T','N',NAS,NAR,NBR,1.0d0,X2,NBR,CMR,NBR,0.0d0,X4,NAS)
+            call DGEMM_('T','N',NAS,NAR,NBR,One,X2,NBR,CMR,NBR,Zero,X4,NAS)
           end if
         end if
 
@@ -332,8 +334,8 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
       do I=1,nBR*nAS
         IBUF2 = IBUF2+1
         if (IBUF2 > LIOTAB) then
-          write(6,*) 'TraMO_MCLR: iBuf2 > LIOTAB'
-          write(6,*) 'iBuf2,LIOTAB=',iBuf2,LIOTAB
+          write(u6,*) 'TraMO_MCLR: iBuf2 > LIOTAB'
+          write(u6,*) 'iBuf2,LIOTAB=',iBuf2,LIOTAB
           call Abend()
         end if
         call PKR8(0,iMax,NBYTES,Buffer(ip2+IST-1),Buffer(ip2+IST-1))
@@ -350,8 +352,8 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
         do I=1,nBS*nAR
           IBUF3 = IBUF3+1
           if (IBUF3 > LIOTAB) then
-            write(6,*) 'TraMO_MCLR: iBuf3 > LIOTAB'
-            write(6,*) 'iBuf3,LIOTAB=',iBuf3,LIOTAB
+            write(u6,*) 'TraMO_MCLR: iBuf3 > LIOTAB'
+            write(u6,*) 'iBuf3,LIOTAB=',iBuf3,LIOTAB
             call Abend()
           end if
           call PKR8(0,iMax,NBYTES,Buffer(ip3+IST-1),Buffer(ip3+IST-1))
@@ -368,19 +370,19 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
   end if ! nofile
   if (NOFILE) ipqut4 = NBPQ
   if (nars /= 0) call dDafile(LUTRI1,iOne,Buffer(ip4),nARS*NBPQ,iAD34)
-  if (Buffer(ip3-1) /= -99999.0d0) then
-    write(6,*) 'TraMO_MCLR: Buffer(ip3-1) /= -99999.0d0'
-    write(6,*) 'Buffer(ip3-1)=',Buffer(ip3-1)
+  if (Buffer(ip3-1) /= -99999.0_wp) then
+    write(u6,*) 'TraMO_MCLR: Buffer(ip3-1) /= -99999.0'
+    write(u6,*) 'Buffer(ip3-1)=',Buffer(ip3-1)
     call Abend()
   end if
-  if (Buffer(ip4-1) /= -99999.0d0) then
-    write(6,*) 'TraMO_MCLR: Buffer(ip4-1) /= -99999.0d0'
-    write(6,*) 'Buffer(ip4-1)=',Buffer(ip4-1)
+  if (Buffer(ip4-1) /= -99999.0_wp) then
+    write(u6,*) 'TraMO_MCLR: Buffer(ip4-1) /= -99999.0'
+    write(u6,*) 'Buffer(ip4-1)=',Buffer(ip4-1)
     call Abend()
   end if
-  if (Buffer(ipB-1) /= -99999.0d0) then
-    write(6,*) 'TraMO_MCLR: Buffer(ipB-1) /= -99999.0d0'
-    write(6,*) 'Buffer(ipB-1)=',Buffer(ipB-1)
+  if (Buffer(ipB-1) /= -99999.0_wp) then
+    write(u6,*) 'TraMO_MCLR: Buffer(ipB-1) /= -99999.0'
+    write(u6,*) 'Buffer(ipB-1)=',Buffer(ipB-1)
     call Abend()
   end if
 
@@ -403,13 +405,13 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
     ipz = ipy+1
     if (isp /= isq) ipZ = ipY+nBR*NAS*nBQ*nAP+1
     if (ipz > memx) then
-      write(6,*) 'TraMO_MCLR: ipz > memx'
-      write(6,*) 'ipz,memx=',ipz,memx
+      write(u6,*) 'TraMO_MCLR: ipz > memx'
+      write(u6,*) 'ipz,memx=',ipz,memx
       call Abend()
     end if
-    Buffer(ipX-1) = -99999.0d0
-    Buffer(ipY-1) = -99999.0d0
-    Buffer(ipZ-1) = -99999.0d0
+    Buffer(ipX-1) = -99999.0_wp
+    Buffer(ipY-1) = -99999.0_wp
+    Buffer(ipZ-1) = -99999.0_wp
 
     IAD2 = 0
     IAD3 = 0
@@ -437,9 +439,9 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
             ipY = ipX+nBP*nAQ*nBR*NAS+1
             ipZ = ipY+1
             if (isp /= isq) ipZ = ipX+nAQ*NBP*nBR*NAS+1
-            Buffer(ipX-1) = -99999.0d0
-            Buffer(ipY-1) = -99999.0d0
-            Buffer(ipZ-1) = -99999.0d0
+            Buffer(ipX-1) = -99999.0_wp
+            Buffer(ipY-1) = -99999.0_wp
+            Buffer(ipZ-1) = -99999.0_wp
             ipq = 1
             do
               IAD2 = IDAHLF2(IBUF)
@@ -464,11 +466,11 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
           if (ISP == ISQ) then
             if (NAQ /= 0) then
               call SQUARE(Buffer(ip2+IPQST-1),X1,1,NBP,NBQ)
-              call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,X1,NBQ,CMQ,NBQ,0.0d0,X2,NBP)
+              call DGEMM_('T','N',NBP,NAQ,NBQ,One,X1,NBQ,CMQ,NBQ,Zero,X2,NBP)
             end if
           else
-            if (NAQ /= 0) call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,Buffer(ip2+IPQST-1),NBQ,CMQ,NBQ,0.0d0,X2,NBP)
-            if (NAP /= 0) call DGEMM_('N','N',NBQ,NAP,NBP,1.0d0,Buffer(ip2+IPQST-1),NBQ,CMP,NBP,0.0d0,X3,NBQ)
+            if (NAQ /= 0) call DGEMM_('T','N',NBP,NAQ,NBQ,One,Buffer(ip2+IPQST-1),NBQ,CMQ,NBQ,Zero,X2,NBP)
+            if (NAP /= 0) call DGEMM_('N','N',NBQ,NAP,NBP,One,Buffer(ip2+IPQST-1),NBQ,CMP,NBP,Zero,X3,NBQ)
           end if
 
           !*************************************************************
@@ -510,29 +512,29 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
     !*******************************************************************
 
-    if (buffer(ipX-1) /= -99999.0d0) then
-      write(6,*) 'TraMO_MCLR: buffer(ipX-1) /= -99999.0d0'
-      write(6,*) 'buffer(ipX-1)=',buffer(ipX-1)
+    if (buffer(ipX-1) /= -99999.0_wp) then
+      write(u6,*) 'TraMO_MCLR: buffer(ipX-1) /= -99999.0'
+      write(u6,*) 'buffer(ipX-1)=',buffer(ipX-1)
       call Abend()
     end if
-    if (buffer(ipY-1) /= -99999.0d0) then
-      write(6,*) 'TraMO_MCLR: buffer(ipY-1) /= -99999.0d0'
-      write(6,*) 'buffer(ipY-1)=',buffer(ipY-1)
+    if (buffer(ipY-1) /= -99999.0_wp) then
+      write(u6,*) 'TraMO_MCLR: buffer(ipY-1) /= -99999.0'
+      write(u6,*) 'buffer(ipY-1)=',buffer(ipY-1)
       call Abend()
     end if
-    if (buffer(ipZ-1) /= -99999.0d0) then
-      write(6,*) 'TraMO_MCLR: buffer(ipZ-1) /= -99999.0d0'
-      write(6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
+    if (buffer(ipZ-1) /= -99999.0_wp) then
+      write(u6,*) 'TraMO_MCLR: buffer(ipZ-1) /= -99999.0'
+      write(u6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
       call Abend()
     end if
     if (iSS /= iSR) then
       ipX = ip4
-      Buffer(ipX-1) = -99999.0d0
+      Buffer(ipX-1) = -99999.0_wp
       ipY = ipX+nAR*NBS*nBP*nAQ+1   ! (Ij|kL)
-      Buffer(ipY-1) = -99999.0d0
+      Buffer(ipY-1) = -99999.0_wp
       ipZ = ipy+1
       if (isp /= isq) ipZ = ipY+nAR*NBS*nBQ*nAP+1
-      Buffer(ipZ-1) = -99999.0d0
+      Buffer(ipZ-1) = -99999.0_wp
       IVX = 0
       do NR=1,nAR
         nr2 = NBP*NBS*(nR-1)*NAQ
@@ -556,9 +558,9 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
               ipX = ip5+iMax+1
               ipY = ipX+nBP*nAQ*nAR*NBS+1
               ipZ = ipY+nBQ*nAP*NAR*NBS+1
-              Buffer(ipX-1) = -99999.0d0
-              Buffer(ipY-1) = -99999.0d0
-              Buffer(ipZ-1) = -99999.0d0
+              Buffer(ipX-1) = -99999.0_wp
+              Buffer(ipY-1) = -99999.0_wp
+              Buffer(ipZ-1) = -99999.0_wp
               IPQ = 1
               do
                 IAD3 = IDAHLF3(IBUF)
@@ -584,13 +586,13 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
               if (nBQ*nAP /= 0) then
 
                 call SQUARE(Buffer(ip3+IPQST-1),X1,1,NBQ,NBQ)
-                call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,X1,NBQ,CMQ,NBQ,0.0d0,X2,NBP)
+                call DGEMM_('T','N',NBP,NAQ,NBQ,One,X1,NBQ,CMQ,NBQ,Zero,X2,NBP)
                 !call xxDGEMUL(X1,NBQ,'N',CMP,NBP,'N',X3,NBQ,NBQ,NBP,NAP)
                 !call RecPrt('PqRs',' ',X3,nBQ,nAP)
               end if
             else
-              if (nBP*nAQ /= 0) call DGEMM_('T','N',NBP,NAQ,NBQ,1.0d0,Buffer(ip3+IPQST-1),NBQ,CMQ,NBQ,0.0d0,X2,NBP)
-              if (nBQ*nAP /= 0) call DGEMM_('N','N',NBQ,NAP,NBP,1.0d0,Buffer(ip3+IPQST-1),NBQ,CMP,NBP,0.0d0,X3,NBQ)
+              if (nBP*nAQ /= 0) call DGEMM_('T','N',NBP,NAQ,NBQ,One,Buffer(ip3+IPQST-1),NBQ,CMQ,NBQ,Zero,X2,NBP)
+              if (nBQ*nAP /= 0) call DGEMM_('N','N',NBQ,NAP,NBP,One,Buffer(ip3+IPQST-1),NBQ,CMP,NBP,Zero,X3,NBQ)
             end if
 
             !***********************************************************
@@ -611,19 +613,19 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
             end if
 
           end do
-          if (buffer(ipX-1) /= -99999.0d0) then
-            write(6,*) 'TraMO_MCLR: buffer(ipX-1) /= -99999.0d0'
-            write(6,*) 'buffer(ipX-1)=',buffer(ipX-1)
+          if (buffer(ipX-1) /= -99999.0_wp) then
+            write(u6,*) 'TraMO_MCLR: buffer(ipX-1) /= -99999.0'
+            write(u6,*) 'buffer(ipX-1)=',buffer(ipX-1)
             call Abend()
           end if
-          if (buffer(ipY-1) /= -99999.0d0) then
-            write(6,*) 'TraMO_MCLR: buffer(ipY-1) /= -99999.0d0'
-            write(6,*) 'buffer(ipY-1)=',buffer(ipY-1)
+          if (buffer(ipY-1) /= -99999.0_wp) then
+            write(u6,*) 'TraMO_MCLR: buffer(ipY-1) /= -99999.0'
+            write(u6,*) 'buffer(ipY-1)=',buffer(ipY-1)
             call Abend()
           end if
-          if (buffer(ipZ-1) /= -99999.0d0) then
-            write(6,*) 'TraMO_MCLR: buffer(ipZ-1) /= -99999.0d0'
-            write(6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
+          if (buffer(ipZ-1) /= -99999.0_wp) then
+            write(u6,*) 'TraMO_MCLR: buffer(ipZ-1) /= -99999.0'
+            write(u6,*) 'buffer(ipZ-1)=',buffer(ipZ-1)
             call Abend()
           end if
 

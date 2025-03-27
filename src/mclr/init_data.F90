@@ -22,6 +22,7 @@ use MCLR_Data, only: FnOne, FnJob, FnTwo, FnMol, FnRlx, FnMck, FnTemp, FnHlf2, F
                      FNTRI5, FNCSF2SD, FnMOTRA, FnQDAT, LuOne, LuJob, LuTwo, LuMol, LuRlx, LuMck, LuTemp, LUHlf2, LUHlf3, LuPt2, &
                      LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LUCSF2SD, LuMOTRA, LuQDAT
 use input_mclr, only: State_Sym, nUserPT, UserP, nsRot, UserT
+use Constants, only: Zero, One
 
 implicit none
 integer I
@@ -72,9 +73,9 @@ LuMOTRA = 30
 
 State_Sym = 1
 nUserPT = 0
-UserP = 1.0d0
+UserP = One
 do i=1,64
-  UserT(i) = 0.0d0
+  UserT(i) = Zero
 end do
 nsRot = 0
 

@@ -31,6 +31,10 @@ subroutine IAIBCM_MCLR(MNRS1,MXRS3,NOCTPA,NOCTPB,NEL1A,NEL3A,NEL1B,NEL3B,IOCOC)
 ! IOCOC(IATP,IBTP)  = 1 =>      allowed combination
 ! IOCOC(IATP,IBTP)  = 0 => not allowed combination
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit integer(a-z)
 ! Input
 integer NEL1A(*), NEL3A(*), NEL1B(*), NEL3B(*)
@@ -49,9 +53,9 @@ do IATP=1,NOCTPA
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' Matrix giving allowed combinations of types'
-write(6,*)
+write(u6,*)
+write(u6,*) ' Matrix giving allowed combinations of types'
+write(u6,*)
 call IWRTMA(IOCOC,NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 #endif
 

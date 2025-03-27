@@ -16,9 +16,11 @@ subroutine oit_sp(rkappa,sigma,i1,r3,p11,r4,p12,D,FA,rm1,rm2,focki)
 ! Constructs  F  = <0|[Q  ,H]|0>
 !              pq       pq
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDensC, nDens2, nNA, ipMat, nA, nDens, nMBA
 use input_mclr, only: nSym, nAsh, nBas, nIsh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp
 
 implicit none
 integer i1
@@ -33,25 +35,25 @@ irec(i,j) = i+nna*(j-1)
 isym = 1
 ! sign1  Kappa**t=Sign1*Kappa
 ! sign2  <0|[Qip,H]|0>=Aip+sign2*Api
-r1 = dble(i1)
-Fact = -1.0d0 ! bullshit
-reco = -1.0d0 !(k*a+reco*a*k)
+r1 = real(i1,kind=wp)
+Fact = -One ! bullshit
+reco = -One !(k*a+reco*a*k)
 jspin = 1 ! triplet
 call mma_allocate(K,ndens2,Label='K')
 call mma_allocate(FAtemp,ndens2,Label='FAtemp')
 call mma_allocate(Fock,ndens2,Label='Fock')
 call mma_allocate(Q,ndens2,Label='Q')
 call mma_allocate(Q1,ndens2,Label='Q1')
-call dcopy_(nmba,[0.0d0],0,rm1,1)
-call dcopy_(nmba,[0.0d0],0,rm2,1)
-call dcopy_(ndens2,[0.0d0],0,Focki,1)
-Q(:) = 0.0d0
-Q1(:) = 0.0d0
+call dcopy_(nmba,[Zero],0,rm1,1)
+call dcopy_(nmba,[Zero],0,rm2,1)
+call dcopy_(ndens2,[Zero],0,Focki,1)
+Q(:) = Zero
+Q1(:) = Zero
 call Unc(rkappa,K,isym,r1)
 
 call R2ElInt_SP(K,rm1,rm2,FockI,FAtemp,nDens2,iSym,ReCo,Fact,jspin,D,FA)
 
-call dcopy_(ndens2,[0.0d0],0,Fock,1)
+call dcopy_(ndens2,[Zero],0,Fock,1)
 
 ! Q  = sum(jkl)=(pj|kl)d(ijkl)
 !  pi
@@ -72,7 +74,7 @@ do iS=1,nSym
   ! F  =2 F
   !  pi    pi
 
-  call DaXpY_(nIsh(is)*nBas(is),-r1*2.0d0,FAtemp(ipMat(is,is)),1,Fock(ipMat(is,is)),1)
+  call DaXpY_(nIsh(is)*nBas(is),-r1*Two,FAtemp(ipMat(is,is)),1,Fock(ipMat(is,is)),1)
 
   do iAsh=1,nAsh(iS)
     do jAsh=1,nAsh(is)
@@ -95,7 +97,7 @@ do iS=1,nSym
 
   call DaXpY_(nAsh(is)*nBas(is),-r1,Q(nbas(is)*nish(is)+ipMat(is,is)),1,Fock(ipMat(is,is)+nBas(is)*nIsh(is)),1)
   do iA=nish(is),nish(is)+nAsh(is)-1
-    call DaXpY_(nBas(is),-1.0d0,Q(nbas(is)*ia+ipMat(is,is)),1,Fock(ipMat(is,is)+iA),nbas(is))
+    call DaXpY_(nBas(is),-One,Q(nbas(is)*ia+ipMat(is,is)),1,Fock(ipMat(is,is)+iA),nbas(is))
 
   end do
 end do

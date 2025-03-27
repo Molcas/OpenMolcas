@@ -24,6 +24,10 @@ subroutine DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,NORB,ISIGN,IWORK)
 !
 ! JEPPE OLSEN NOVEMBER 1988
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit none
 integer NEL, NAEL, NBEL
 integer IDET(NEL)
@@ -49,13 +53,13 @@ iTmp = NBEL*(NBEL+1)/2
 ISIGN = ISIGN*(-1)**iTmp
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' INPUT DETERMINANT'
+write(u6,*) ' INPUT DETERMINANT'
 call IWRTMA(IDET,1,NEL,1,NEL)
-write(6,*) ' CORRESPONDING ALPHA STRING'
+write(u6,*) ' CORRESPONDING ALPHA STRING'
 call IWRTMA(IASTR,1,NAEL,1,NAEL)
-write(6,*) ' CORRESPONDING BETA STRING'
+write(u6,*) ' CORRESPONDING BETA STRING'
 call IWRTMA(IBSTR,1,NBEL,1,NBEL)
-write(6,*) ' ISIGN FOR SWITCH ',ISIGN
+write(u6,*) ' ISIGN FOR SWITCH ',ISIGN
 #endif
 
 !if (doDMRG .and. doMCLR) then ! yma

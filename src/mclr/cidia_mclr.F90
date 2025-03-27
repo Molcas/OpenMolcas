@@ -17,13 +17,15 @@ use Exp, only: nexp, nexp_max
 use Str_Info, only: CNSM
 use ipPage, only: W
 use negpre, only: nGP
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: ipCI
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: XISPSM
 use MCLR_Data, only: NOCSF, ICISTR
 use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NTYP
 use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, TimeDep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp
 
 implicit none
 integer iSym
@@ -94,20 +96,20 @@ end if
 ECAS = ERASSCF(1)
 irc = ipin(ipdiai)
 do iC=1,nD
-  if ((W(ipdiai)%Vec(ic)-ECAS) /= 0.0d0) then
-    W(ipdiai)%Vec(iC) = 1.0d0/(W(ipdiai)%Vec(iC)-ECAS)
+  if ((W(ipdiai)%Vec(ic)-ECAS) /= Zero) then
+    W(ipdiai)%Vec(iC) = One/(W(ipdiai)%Vec(iC)-ECAS)
   else
-    W(ipdiai)%Vec(iC) = 1.0d5
+    W(ipdiai)%Vec(iC) = 1.0e5_wp
   end if
 end do
 !             -1
 ! ralp=<0|(H-E) |0>
 
 call mma_allocate(Q,nD,Label='Q')
-Q(:) = 0.0d0
+Q(:) = Zero
 
 irc = ipin(ipCI)
-call ExpHinvv(W(ipdiai)%Vec,W(ipCI)%Vec,Q,0.0d0,1.0d0)
+call ExpHinvv(W(ipdiai)%Vec,W(ipCI)%Vec,Q,Zero,One)
 
 ralp = DDOT_(nD,W(ipCI)%Vec,1,Q,1)
 if (NGP) then

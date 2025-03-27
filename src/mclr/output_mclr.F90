@@ -36,12 +36,14 @@ subroutine OutPut_MCLR(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,
 use MckDat, only: sLength
 use Arrays, only: Hss
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, nDensC
 use MCLR_Data, only: nHess, lDisp
 use MCLR_Data, only: LuTEMP
 use MCLR_Data, only: XISPSM
 use input_mclr, only: nDisp, Debug, nSym, State_Sym, iMethod, McKinley, Coor, lCalc, nCSF, nTPert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
 
 implicit none
 integer iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), iRHSCiDisp(nDisp)
@@ -78,7 +80,7 @@ debug = .false.
 nHss = size(Hss)
 nhess = nDisp*(nDisp+1)/2
 call mma_allocate(RHss,nHss,Label='RHss')
-RHss(:) = 0.0d0
+RHss(:) = Zero
 
 !----------------------------------------------------------------------*
 !
@@ -160,9 +162,9 @@ do iSym=1,nSym
       end do
 
       !call Recprt('ORB-RHS',' ',rKap1,nDensC,1)
-      !write(6,*) 'ddot orb-resp',ddot_(ndensC,Kap1,1,Kap1,1)
-      !write(6,*) 'ddot orb-sigma',ddot_(ndensC,SKap,1,SKap,1)
-      !write(6,*) 'ddot orb-rhs',ddot_(ndensC,rKap1,1,rKap1,1)
+      !write(u6,*) 'ddot orb-resp',ddot_(ndensC,Kap1,1,Kap1,1)
+      !write(u6,*) 'ddot orb-sigma',ddot_(ndensC,SKap,1,SKap,1)
+      !write(u6,*) 'ddot orb-rhs',ddot_(ndensC,rKap1,1,rKap1,1)
 
       call GADSum(Kap1,Len)
       call GADSum(SKap,Len)
@@ -185,9 +187,9 @@ do iSym=1,nSym
           W(ipSp)%Vec(i) = -W(ipSp)%Vec(i)-W(iprp1)%Vec(i)
         end do
 
-        !write(6,*) 'ddot ci-resp',ddot_(nConf1,W(ipcip1)%Vec,1,W(ipcip1)%Vec,1)
-        !write(6,*) 'ddot ci-sigma',ddot_(nConf1,W(ipSp)%Vec,1,W(ipSp)%Vec,1)
-        !write(6,*) 'ddot ci-rhs',ddot_(nConf1,W(iprp1)%Vec,1,W(iprp1)%Vec,1)
+        !write(u6,*) 'ddot ci-resp',ddot_(nConf1,W(ipcip1)%Vec,1,W(ipcip1)%Vec,1)
+        !write(u6,*) 'ddot ci-sigma',ddot_(nConf1,W(ipSp)%Vec,1,W(ipSp)%Vec,1)
+        !write(u6,*) 'ddot ci-rhs',ddot_(nConf1,W(iprp1)%Vec,1,W(iprp1)%Vec,1)
 
         call GADSum(W(ipCIp1)%Vec,iLen)
         call GADSum(W(ipSp)%Vec,iLen)
@@ -197,11 +199,11 @@ do iSym=1,nSym
     else
 
       Len = nDensC
-      Kap1(1:Len) = 0.0d0
+      Kap1(1:Len) = Zero
       call GADSum(Kap1,Len)
-      sKap(1:Len) = 0.0d0
+      sKap(1:Len) = Zero
       call GADSum(SKap,Len)
-      rKap1(1:Len) = 0.0d0
+      rKap1(1:Len) = Zero
       call GADSum(rKap1,Len)
 
       if (CI) then
@@ -238,8 +240,8 @@ do iSym=1,nSym
       end if
       if (.not. lCalc(kDisp+ksym)) cycle
 
-      !write(6,*) 'kDisp+kSym',kDisp+kSym
-      !write(6,*) 'iKapDisp(kdisp+ksym)',iKapDisp(kdisp+ksym)
+      !write(u6,*) 'kDisp+kSym',kDisp+kSym
+      !write(u6,*) 'iKapDisp(kdisp+ksym)',iKapDisp(kdisp+ksym)
 
       iDisk = iKapDisp(kDisp+kSym)
       if (iDisk /= -1) then
@@ -268,7 +270,7 @@ do iSym=1,nSym
           call GADSum(W(iprp2)%Vec,iLen)
 
         else
-          rtempc1 = 0.0d0
+          rtempc1 = Zero
         end if
 
       else
@@ -291,24 +293,24 @@ do iSym=1,nSym
           irc = ipin(ipsp)
           rTempc1 = DDot_(nConf1,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
         else
-          rtempc1 = 0.0d0
+          rtempc1 = Zero
         end if
 
       end if
 
       rTempk1 = DDot_(nDensC,Kap2,1,SKap,1)
 
-      Fact = 1.0d0
-      if (kdisp == jdisp) Fact = 2.0d0
+      Fact = One
+      if (kdisp == jdisp) Fact = Two
       rTempk2 = Fact*DDot_(nDensC,Kap1,1,rKap2,1)
       if (kdisp /= jdisp) then
-        rtempk3 = 1.0d0*DDot_(nDensC,rKap1,1,Kap2,1)
+        rtempk3 = DDot_(nDensC,rKap1,1,Kap2,1)
       else
-        rTempk3 = 0.0d0
+        rTempk3 = Zero
       end if
       if (CI) then
-        Fact = 1.0d0
-        if (kdisp == jdisp) Fact = 2.0d0
+        Fact = One
+        if (kdisp == jdisp) Fact = Two
         irc = ipin(ipCip1)
         irc = ipin(iprp2)
         rTempc2 = Fact*DDot_(nConf1,W(ipCip1)%Vec,1,W(iprp2)%Vec,1)
@@ -317,16 +319,16 @@ do iSym=1,nSym
           irc = ipin(ipCIp2)
           rtempc3 = DDot_(nConf1,W(iprp1)%Vec,1,W(ipCIp2)%Vec,1)
         else
-          rTempc3 = 0.0d0
+          rTempc3 = Zero
         end if
       else
-        rtempc2 = 0.0d0
-        rtempc3 = 0.0d0
+        rtempc2 = Zero
+        rtempc3 = Zero
       end if
 
-      !write(6,*) kdisp,jdisp
-      !write(6,*) rTempk1,rtempk2,rtempk3
-      !write(6,*) rtempc1,rtempc2,rtempc3
+      !write(u6,*) kdisp,jdisp
+      !write(u6,*) rTempk1,rtempk2,rtempk3
+      !write(u6,*) rtempc1,rtempc2,rtempc3
 
       Maxi = max(kDisp,jDisp)
       Mini = min(kDisp,jDisp)
@@ -355,7 +357,7 @@ end do
 call mma_allocate(Hess,nHss,Label='Hess')
 call mma_allocate(Hess2,nHss,Label='Hess2')
 call mma_allocate(Temp,nHss,Label='Temp')
-Temp(:) = 0.0d0
+Temp(:) = Zero
 call mma_allocate(ELEC,3*ndisp,Label='ELEC')
 call mma_allocate(EG,3*ndisp,Label='EG')
 call mma_allocate(ELOUT,3*ndisp,Label='ELOUT')
@@ -370,7 +372,7 @@ irc = ipclose(-1)
 ! If a basis set is dependent on perturbation add terms
 ! constructed in mckinley.
 
-call dcopy_(6,[0.0d0],0,pola,1)
+call dcopy_(6,[Zero],0,pola,1)
 idum = 1
 iopt = ibset(0,sLength)
 irc = 3*ndisp
@@ -395,12 +397,12 @@ if (debug) then
   call Recprt('CONN',' ',Elec,3*nDisp,1)
 end if
 
-!write(6,*) 'I am here 1'
+!write(u6,*) 'I am here 1'
 call Recprt('Rhss','(5G20.10)',RHss,nhss,1)
 call Recprt('Hss','(5G20.10)',Hss,nHss,1)
 #endif
 
-call DaXpY_(mSym,1.0d0,RHss,1,Hess2,1)
+call DaXpY_(mSym,One,RHss,1,Hess2,1)
 
 #ifdef _DEBUGPRINT_
 if (debug) then
@@ -432,8 +434,8 @@ if (McKinley) then
   Label = 'StatHess'
   call dRdMck(iRC,iOpt,Label,idum,Temp,idum)
   if (iRC /= 0) then
-    write(6,*) 'OutPut: Error reading MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'OutPut: Error reading MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
 
@@ -447,7 +449,7 @@ if (McKinley) then
     end do
   end if
 # endif
-  call DaXpY_(mSym,1.0d0,Temp,1,Hess,1)
+  call DaXpY_(mSym,One,Temp,1,Hess,1)
 end if
 #ifdef _DEBUGPRINT_
 if (debug) then
@@ -466,8 +468,8 @@ if (McKinley) then
   Label = 'Hess'
   call dWrMck(iRC,iOpt,Label,iDum,Hess,iDum)
   if (iRC /= 0) then
-    write(6,*) 'OutPut: Error writing to MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'OutPut: Error writing to MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   call Put_iScalar('No of Internal coordinates',ldisp2(1))
@@ -486,15 +488,15 @@ if (.true.) then
   Label = 'DegDisp'
   call RdMck(irc,iopt,Label,idum,DegDisp,idum)
   if (iRC /= 0) then
-    write(6,*) 'OutPut: Error reading RELAX'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'OutPut: Error reading RELAX'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
 
   !if (debug) call HssPrt_MCLR(DegDisp,Hess,ldisp2)
   !call Recprt('hess',' ',Hess,nhss,1)
 
-  call daxpy_(3*ndisp,-1.0d0,EG,1,ELEC,1)
+  call daxpy_(3*ndisp,-One,EG,1,ELEC,1)
 # ifdef _DEBUGPRINT_
   if (debug .and. elec_On) call Recprt('ELEC-ST',' ',EG,3*nDisp,1)
   if (debug .and. elec_On) call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
@@ -509,21 +511,21 @@ if (.true.) then
     call FreqAnal(DegDisp,NrDisp,Hess,converged,ELEC,ielec,elout,ldisp2,Lu_10)
     call Niclas(Hess,coor,Lu_10)
   end if
-  write(6,*)
-  write(6,*)
-  write(6,*) '************************************'
-  write(6,*) '*                                  *'
-  write(6,*) '*       Polarizabilities           *'
-  write(6,*) '*                                  *'
-  write(6,*) '************************************'
-  write(6,*)
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
+  write(u6,*) '************************************'
+  write(u6,*) '*                                  *'
+  write(u6,*) '*       Polarizabilities           *'
+  write(u6,*) '*                                  *'
+  write(u6,*) '************************************'
+  write(u6,*)
+  write(u6,*)
   call Add_Info('POLARIZABILITIES',Pola,6,2)
 
   ! Go from energy derivative to polarizability, there is a difference
   ! in the sign in the definition.
 
-  call DScal_(6,-1.0d0,Pola,1)
+  call DScal_(6,-One,Pola,1)
 
   call TriPrt(' ',' ',Pola,3)
   close(Lu_10)

@@ -18,6 +18,7 @@ integer function ipget(nn)
 use ipPage
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: u6
 
 implicit integer(a-h,o-z)
 character*4 Label
@@ -28,8 +29,8 @@ n_CI_Vectors = n_CI_Vectors+1
 ipget = n_CI_Vectors
 
 if (n_CI_Vectors > Max_CI_Vectors) then
-  write(6,*) 'Number of CI vectors higher than Max_CI_Vectors'
-  write(6,*) 'Max_CI_Vectors=',Max_CI_Vectors
+  write(u6,*) 'Number of CI vectors higher than Max_CI_Vectors'
+  write(u6,*) 'Max_CI_Vectors=',Max_CI_Vectors
   call Abend()
 end if
 

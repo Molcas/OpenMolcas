@@ -37,8 +37,8 @@ subroutine Dmat_MCLR(CMO,OCC,D)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: Zero
 use input_mclr, only: nSym, nBas
+use Constants, only: Zero, Two
 
 implicit none
 real*8 CMO(*), OCC(*), D(*)
@@ -58,7 +58,7 @@ do iSym=1,nSym
         do k=1,ibas
           Sum = Sum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
         end do
-        D(iOff2+ii+j) = 2.0d0*Sum
+        D(iOff2+ii+j) = Two*Sum
         if (j == i) D(iOff2+ii+j) = Sum
       end do
     end do

@@ -12,12 +12,13 @@
 subroutine DetCtl()
 
 use Arrays, only: pINT1, pINT2
-use stdalloc, only: mma_allocate
 use MCLR_Data, only: iST, i12
 use MCLR_Data, only: MS2, idc, PSSIGN
 use MCLR_Data, only: FnCSF2SD, LuCSF2SD
 use MCLR_Data, only: NOCSF, IDENMT, NOPART, IDIAG, INCORE, ICISTR
 use input_mclr, only: nSym, nIrrep, nsMOB, iSpin, nHole1, nActEl, nElec3, nRs1, nRs2, nRs3, State_Sym
+use stdalloc, only: mma_allocate
+use Constants, only: Zero, One
 
 integer iTmp, nTRas1, nTRas2, nTRas3, iSym, iDum, MNRS10, MXR4TP, MXRS30
 
@@ -40,10 +41,10 @@ i12 = 2
 MS2 = iSpin-1
 if (ms2 /= 0) then
   idc = 1
-  pssign = 0.0d0
+  pssign = Zero
 else
   itmp = (ispin-1)/2
-  pssign = (-1.0d0)**itmp
+  pssign = (-One)**itmp
   idc = 2
 end if
 

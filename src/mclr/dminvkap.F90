@@ -29,6 +29,7 @@ subroutine DMInvKap(rMFact,rIn,nrIn,rOut,nrOut,rtemp,nrtemp,isym,iter)
 use Spool, only: LuWr
 use MCLR_Data, only: SA
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use Definitions, only: wp, u6
 
 implicit none
 integer nrIn, nrOut, nrTemp, iSym, iter
@@ -84,7 +85,7 @@ subroutine DMInvKap_Internal(rMFact)
         call dgetrs_('N',ND,1,rMFact(ip1),nd,iMFact,rtemp(ip2),nd,irc)
         nullify(iMFact)
         if (irc /= 0) then
-          write(6,*) 'Error in DGETRS called from dminvkap'
+          write(u6,*) 'Error in DGETRS called from dminvkap'
           call Abend()
         end if
         ip1 = ip1+nD*(nD+1)
@@ -117,7 +118,7 @@ subroutine DMInvKap_Internal(rMFact)
         call dgetrs_('N',ND,1,rMFact(ip1),nd,iMFact,rtemp(ip2),nd,irc)
         nullify(iMFact)
         if (irc /= 0) then
-          write(6,*) 'Error in DGETRS called from dminvkap'
+          write(u6,*) 'Error in DGETRS called from dminvkap'
           call Abend()
         end if
         ip1 = ip1+nD*(nD+1)
@@ -138,7 +139,7 @@ subroutine DMInvKap_Internal(rMFact)
   !                                                                    *
   ! Warn if the trial vector becomes large
 
-  if ((ddot_(ndensc,rout,1,rout,1) > 100.d0) .and. (iter == 1)) then
+  if ((ddot_(ndensc,rout,1,rout,1) > 100.0_wp) .and. (iter == 1)) then
     write(LuWr,*) '****************************************'
     write(LuWr,*) '*                                      *'
     write(LuWr,*) '*           WARNING!!                  *'
@@ -150,7 +151,7 @@ subroutine DMInvKap_Internal(rMFact)
     write(LuWr,*) '* Make sure degenerate orbitals do not *'
     write(LuWr,*) '* belong to different spaces.          *'
     write(LuWr,*) '* Note that no LR code can handle      *'
-    write(LuWr,*) '* 2.0d0 occupancy in active orbitals!! *'
+    write(LuWr,*) '* 2.0 occupancy in active orbitals!!   *'
     write(LuWr,*) '****************************************'
   end if
   !                                                                    *

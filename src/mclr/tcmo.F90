@@ -12,9 +12,11 @@
 subroutine TCMO(A,isym,ictl)
 
 use Arrays, only: CMO
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: ipCM, ipMat, nDens2
 use input_mclr, only: nSym, nBas, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 real*8 A(*)
@@ -74,8 +76,8 @@ else if (ictl == 1) then
   do iS=1,nSym
     js = ieor(is-1,isym-1)+1
     if (nBas(is)*nBas(js) == 0) cycle
-    call DGEMM_('T','N',nOrb(iS),nBas(jS),nBas(iS),1.0d0,CMO(ipCM(iS)),nBas(is),A(ipmat(is,js)),nBas(iS),0.0d0,Temp,nOrb(iS))
-    call DGEMM_('N','N',nOrb(is),nOrb(jS),nBas(jS),1.0d0,Temp,nOrb(iS),CMO(ipCM(jS)),nBas(jS),0.0d0,A(ipMat(iS,jS)),nOrb(iS))
+    call DGEMM_('T','N',nOrb(iS),nBas(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(is),A(ipmat(is,js)),nBas(iS),Zero,Temp,nOrb(iS))
+    call DGEMM_('N','N',nOrb(is),nOrb(jS),nBas(jS),One,Temp,nOrb(iS),CMO(ipCM(jS)),nBas(jS),Zero,A(ipMat(iS,jS)),nOrb(iS))
   end do
 
 else if (ictl == -2) then
@@ -83,13 +85,13 @@ else if (ictl == -2) then
   do iS=1,nSym
     js = ieor(is-1,isym-1)+1
     if (nBas(is)*nBas(js) == 0) cycle
-    call DGEMM_('N','N',nBas(iS),nOrb(jS),nOrb(iS),1.0d0,CMO(ipCM(iS)),nBas(is),A(ipmat(is,js)),nOrb(iS),0.0d0,Temp,nBas(iS))
-    call DGEMM_('N','T',nBas(is),nBas(jS),nOrb(jS),1.0d0,Temp,nBas(iS),CMO(ipCM(jS)),nBas(jS),0.0d0,A(ipMat(iS,jS)),nBas(iS))
+    call DGEMM_('N','N',nBas(iS),nOrb(jS),nOrb(iS),One,CMO(ipCM(iS)),nBas(is),A(ipmat(is,js)),nOrb(iS),Zero,Temp,nBas(iS))
+    call DGEMM_('N','T',nBas(is),nBas(jS),nOrb(jS),One,Temp,nBas(iS),CMO(ipCM(jS)),nBas(jS),Zero,A(ipMat(iS,jS)),nBas(iS))
   end do
 
 else
 
-  write(6,*) 'Oink'
+  write(u6,*) 'Oink'
   call SysHalt('tcmo')
 
 end if

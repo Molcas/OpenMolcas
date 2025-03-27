@@ -17,8 +17,9 @@ subroutine CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN)
 ! Construct matrix expanding prototype CSF's in terms of
 ! prototype combinations in DTOC
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: MULTSP, MS2P, NTYP, MINOP, NCPCNT, NDPCNT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
 
 implicit none
 dimension IDFTP(*), ICFTP(*), DTOC(*)
@@ -75,7 +76,7 @@ do ITP=1,NTYP
   end if
   if (NDPCNT(ITP)*NCPCNT(ITP) == 0) cycle
   if (IOPEN == 0) then
-    DTOC(ICDCBS) = 1.0d0
+    DTOC(ICDCBS) = One
   else
     call CSFDET_MCLR(IOPEN,IDFTP(IDTBS),NDPCNT(ITP),ICFTP(ICSBS),NCPCNT(ITP),DTOC(ICDCBS),PSSIGN)
   end if

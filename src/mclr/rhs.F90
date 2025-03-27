@@ -34,11 +34,12 @@ subroutine RHS(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,temp7,rKappa,ipst,iDisp,lOper
 
 use ipPage, only: W
 use Arrays, only: G2t, G1t
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One, Two
 use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
 use MCLR_Data, only: DspVec
 use input_mclr, only: Debug, nSym, iMethod, State_Sym, nAsh, nBas, nIsh, nOrb, nTPert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half, One, Two
+use Definitions, only: u6
 
 implicit none
 real*8 Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp5(nDens), Temp6(nDens), temp7(ndens), rKappa(nDens)
@@ -90,8 +91,8 @@ if (iand(ntpert(idisp),2**3) == 8) then
   Label = 'OVRGRD'
   call dRdMCK(iRC,iOpt,Label,DspVec(iDisp),Temp7,iop)
   if (iRc /= 0) then
-    write(6,*) 'RHS: Error reading MCKINT'
-    write(6,*) 'Label=',Label
+    write(u6,*) 'RHS: Error reading MCKINT'
+    write(u6,*) 'Label=',Label
     call Abend()
   end if
 

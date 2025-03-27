@@ -10,25 +10,25 @@
 !***********************************************************************
 
 subroutine FockGen_td(d_0,rDens1,rdens2,fock,idsym)
-!*******************************************************************
-!                                                                  *
-!   Constructs active fockmatrix and Q matrix                      *
-!                                                                  *
-!   Input: rkappa : Rotation matrix                                *
-!          idsym  : symmetry of perturbation                       *
-!                                                                  *
-!                                                                  *
-!   Output:MO     :MO integrals                                    *
-!          Fock   :Fock matrix (one index transformed integrals)   *
-!          MOtilde:MO (one index transformed integrals)            *
-!                                                                  *
-!*******************************************************************
+!***********************************************************************
+!                                                                      *
+!   Constructs active fockmatrix and Q matrix                          *
+!                                                                      *
+!   Input: rkappa : Rotation matrix                                    *
+!          idsym  : symmetry of perturbation                           *
+!                                                                      *
+!                                                                      *
+!   Output:MO     :MO integrals                                        *
+!          Fock   :Fock matrix (one index transformed integrals)       *
+!          MOtilde:MO (one index transformed integrals)                *
+!                                                                      *
+!***********************************************************************
 
 use Arrays, only: FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: zero, half, two
 use MCLR_Data, only: nDens2, nNA, ipMat, ipCM, nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two, Half
 
 implicit none
 real*8 d_0
@@ -146,7 +146,7 @@ end do
 call CreQADD(Fock,rdens2,idsym,MO,Scr,n2)
 
 call mma_allocate(TQ,ndens2,Label='TQ')
-TQ(:) = 0.0d0
+TQ(:) = Zero
 
 ! QA here
 call CreQADD2(TQ,rdens2,idsym,MO,Scr,n2)
@@ -162,7 +162,7 @@ end do
 
 if (idSym == 1) call AddGrad2(Fock,d_0)
 
-call DScal_(nDens2,2.0d0,Fock,1)
+call DScal_(nDens2,Two,Fock,1)
 
 call mma_deallocate(TQ)
 !                                                                      *

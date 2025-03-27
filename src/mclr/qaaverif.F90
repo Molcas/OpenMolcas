@@ -19,6 +19,8 @@ subroutine QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
 
 use MCLR_Data, only: nNA
 use input_mclr, only: ntAsh
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer nG2, nPUVX
@@ -29,7 +31,7 @@ integer I, J, K, L, IJKL, lMax
 real*8 dQdX
 
 ijkl = 0
-dQdX = 0.0d0
+dQdX = Zero
 do i=1,nna
   do j=1,i
     do k=1,i
@@ -46,6 +48,6 @@ do i=1,nna
   end do
 end do
 
-write(6,*) 'dQdX in QaaVerif=',dQdX
+write(u6,*) 'dQdX in QaaVerif=',dQdX
 
 end subroutine QaaVerif

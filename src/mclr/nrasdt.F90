@@ -27,6 +27,11 @@ subroutine NRASDT(MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,NSMST,NOCTPA,NOCTPB,IEL1A,IEL1B
 ! Updated with IBLTP, Summer of 93
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero, Half
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer MNRS1, MXRS1, MNRS3, MXRS3, ITOTSM, NSMST, NOCTPA, NOCTPB
@@ -43,7 +48,7 @@ integer IASM, LSB, IBSM, ISYM, IATP, MXBTP, IBTP, IEL1, IEL3, LTTSBL, LTTSUP
 MXSB = 0
 MXSOOB = 0
 NCOMB = 0
-XNCOMB = 0.0d0
+XNCOMB = Zero
 do IASM=1,NSMST
   if (IBLTP(IASM) == 0) cycle
   IBSM = Mul(IASM,ITOTSM)
@@ -76,9 +81,9 @@ do IASM=1,NSMST
           LSB = LSB+LTTSUP
           MXSOOB = max(MXSOOB,LTTSUP)
           if ((ISYM == 0) .or. (IATP /= IBTP)) then
-            XNCOMB = XNCOMB+dble(NSSOA(IATP,IASM))*dble(NSSOB(IBTP,IBSM))
+            XNCOMB = XNCOMB+real(NSSOA(IATP,IASM),kind=wp)*real(NSSOB(IBTP,IBSM),kind=wp)
           else
-            XNCOMB = XNCOMB+dble(NSSOA(IATP,IASM))*(dble(NSSOB(IBTP,IBSM))+1.0d0)/2.0d0
+            XNCOMB = XNCOMB+real(NSSOA(IATP,IASM),kind=wp)*real(NSSOB(IBTP,IBSM)+1,kind=wp)*Half
           end if
         end if
       end do
@@ -88,7 +93,7 @@ do IASM=1,NSMST
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' NCOMB and XNCOMB ',NCOMB,XNCOMB
+write(u6,*) ' NCOMB and XNCOMB ',NCOMB,XNCOMB
 #endif
 
 end subroutine NRASDT

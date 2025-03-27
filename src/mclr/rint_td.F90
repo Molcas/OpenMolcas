@@ -31,10 +31,10 @@ subroutine RInt_td(ekappa,mkappa,isym)
 !  wKtD   As above but different order
 
 use Arrays, only: G1t
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Two
 use MCLR_Data, only: nDens2, ipCM, ipMat, nA
 use input_mclr, only: Omega, nSym, nAsh, nBas, nIsh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
 
 implicit none
 real*8 ekappa(ndens2), mkappa(ndens2)
@@ -67,7 +67,7 @@ Dens(:) = Zero
 ip3 = 1
 do iS=1,nSym
   inc = nBas(iS)+1
-  call dcopy_(nIsh(iS),[2.0d0],0,Dens(ip3),inc)
+  call dcopy_(nIsh(iS),[Two],0,Dens(ip3),inc)
   ip3 = ip3+nBas(iS)*nBas(iS)
 end do
 
@@ -118,8 +118,8 @@ do is=1,nsym
     incx = 1
     incy = incx
     length = nbas(is)*nbas(js)
-    call daxpy_(length,1.0d0,wDKt(ipmat(is,js)),incx,ekappa(ipmat(is,js)),incy)
-    call daxpy_(length,-1.0d0,wKtD(ipmat(is,js)),incx,ekappa(ipmat(is,js)),incy)
+    call daxpy_(length,One,wDKt(ipmat(is,js)),incx,ekappa(ipmat(is,js)),incy)
+    call daxpy_(length,-One,wKtD(ipmat(is,js)),incx,ekappa(ipmat(is,js)),incy)
   end if
 end do
 !call RecPrt('wDKt ',' ',wDKt,ndens2,1)

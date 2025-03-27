@@ -41,6 +41,10 @@ subroutine ZOOS(ISMOST,IBLTP,MAXSYM,IOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,IOOS,NOO
 !                ALPHA STRINGS (ROW INDEX)
 !    END OF LOOPS
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 ! Input
 dimension IOCOC(NOCTPA,NOCTPB), ISMOST(*)
 dimension NSSOA(MAXSYM,NOCTPA), NSSOB(MAXSYM,NOCTPB)
@@ -80,30 +84,30 @@ do IASYM=1,MAXSYM
           NOOS(IAOCC,IBOCC,IASYM) = NSSOA(IASYM,IAOCC)*NSSOB(IBSYM,IBOCC)
         end if
       end if
-      !write(6,*) ' NOOS(IA,IB,ISM) ',NOOS(IAOCC,IBOCC,IASYM)
+      !write(u6,*) ' NOOS(IA,IB,ISM) ',NOOS(IAOCC,IBOCC,IASYM)
     end do
   end do
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' =============='
-write(6,*) ' ZOOS reporting'
-write(6,*) ' =============='
-write(6,*)
-write(6,*) ' NSSOA, NSSOB (input)'
+write(u6,*)
+write(u6,*) ' =============='
+write(u6,*) ' ZOOS reporting'
+write(u6,*) ' =============='
+write(u6,*)
+write(u6,*) ' NSSOA, NSSOB (input)'
 call IWRTMA(NSSOA,MAXSYM,NOCTPA,MAXSYM,NOCTPA)
 call IWRTMA(NSSOB,MAXSYM,NOCTPB,MAXSYM,NOCTPB)
-write(6,*)
-write(6,*) ' Number of combinations obtained ',NCOMB
-write(6,*) ' Offsets for combination OOS blocks'
+write(u6,*)
+write(u6,*) ' Number of combinations obtained ',NCOMB
+write(u6,*) ' Offsets for combination OOS blocks'
 do IASYM=1,MAXSYM
-  write(6,'(A,I2)') '  Symmetry ',IASYM
+  write(u6,'(A,I2)') '  Symmetry ',IASYM
   call IWRTMA(IOOS(1,1,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end do
-write(6,*) ' Number of  combinations per OOS blocks'
+write(u6,*) ' Number of  combinations per OOS blocks'
 do IASYM=1,MAXSYM
-  write(6,'(A,I2)') '  Symmetry ',IASYM
+  write(u6,'(A,I2)') '  Symmetry ',IASYM
   call IWRTMA(NOOS(1,1,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end do
 #endif

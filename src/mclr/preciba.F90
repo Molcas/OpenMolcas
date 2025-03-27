@@ -36,6 +36,7 @@ subroutine Preciba(iB,iS,jS,nd,rOut,nba,focki,focka,fock,sign,A_J,A_K,Scr,nScr)
 use Arrays, only: G1t
 use MCLR_Data, only: nA
 use input_mclr, only: nAsh, nIsh, nBas, nOrb
+use Constants, only: Two, Four, Six
 
 implicit none
 integer iB, iS, jS, nd
@@ -72,11 +73,11 @@ do jA=1,nAsh(jS)
     jBB = jB+nIsh(jS)
     ! Get D_(ja,jb)
     rDens = -sign*G1t((iTri(jA+nA(jS),jB+nA(jS))))
-    if (jA == jB) rDens = rdens+sign*2.0d0
+    if (jA == jB) rDens = rdens+sign*Two
 
     ivB = (jBB-1)*nBas(jS)+nO+1
-    call DaXpY_(jVert,6.0d0*rDens,A_K(ivB),1,rOut(ip),1) ! ????
-    call DaXpY_(jVert,-2.0d0*rDens,A_J(ivB),1,rOut(ip),1)
+    call DaXpY_(jVert,Six*rDens,A_K(ivB),1,rOut(ip),1) ! ????
+    call DaXpY_(jVert,-Two*rDens,A_J(ivB),1,rOut(ip),1)
   end do
 end do
 !                                                                      *
@@ -84,8 +85,8 @@ end do
 !                                                                      *
 do jA=1,nAsh(js)
   ip = iTri1(ja,nAsh(js)+1)
-  call DaXpY_(jVert,sign*4.0d0,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
-  call DaXpY_(jVert,sign*4.0d0,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
+  call DaXpY_(jVert,sign*Four,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
+  call DaXpY_(jVert,sign*Four,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
   call DaXpY_(jVert,-sign,Fock(nO+1,ja+nIsh(js)),1,rout(ip),1)
 end do
 !                                                                      *

@@ -12,10 +12,12 @@
 real*8 function INPROD_MCLR(A,B,NDIM)
 ! CALCULATE SCALAR PRODUCT BETWEEN TO VECTORS A,B
 
+use Constants, only: Zero
+
 implicit real*8(A-H,O-Z)
 dimension A(*), B(*)
 
-INPROD_MCLR = 0.0d0
+INPROD_MCLR = Zero
 do I=1,NDIM
   INPROD_MCLR = INPROD_MCLR+A(I)*B(I)
 end do

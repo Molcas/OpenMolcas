@@ -23,6 +23,11 @@ subroutine AdToR2_MCLR(RHO2,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 ! Itype = 2 => alpha-beta loop
 !              input is in form Rho2t(ij,kl)
 
+use Constants, only: Zero, One, Two
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension RHO2T(*)
@@ -42,18 +47,18 @@ IIOFF = 0
 JJOFF = 0
 KKOFF = 0
 LLOFF = 0
-SIGN = 0.0d0
+SIGN = Zero
 IACTIVE = 0
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Welcome to ADTOR2'
-write(6,*) ' ================='
-write(6,*) ' NI NJ NK NL = ',NI,NJ,NK,NL
-write(6,*) ' IOFF JOFF KOFF LOFF =',IOFF,JOFF,KOFF,LOFF
-write(6,*) ' ITYPE = ',ITYPE
-write(6,*) ' Initial two body density matrix'
+write(u6,*) ' Welcome to ADTOR2'
+write(u6,*) ' ================='
+write(u6,*) ' NI NJ NK NL = ',NI,NJ,NK,NL
+write(u6,*) ' IOFF JOFF KOFF LOFF =',IOFF,JOFF,KOFF,LOFF
+write(u6,*) ' ITYPE = ',ITYPE
+write(u6,*) ' Initial two body density matrix'
 call PRSYM(RHO2,NORB**2)
-!write(6,*) ' RHO2T :'
+!write(u6,*) ' RHO2T :'
 !if (ITYPE == 1) then
 !  if (IOFF == KOFF) then
 !    NROW = NI*(NI+1)/2
@@ -89,7 +94,7 @@ if (ITYPE == 1) then
       KKOFF = KOFF
       NLL = NL
       LLOFF = LOFF
-      SIGN = 1.0d0
+      SIGN = One
       IACTIVE = 1
     else if (IPERM == 2) then
       if (IOFF /= KOFF) then
@@ -105,7 +110,7 @@ if (ITYPE == 1) then
       else
         IACTIVE = 0
       end if
-      SIGN = -1.0d0
+      SIGN = -One
     else if (IPERM == 3) then
       if (JOFF /= LOFF) then
         NII = NI
@@ -116,7 +121,7 @@ if (ITYPE == 1) then
         JJOFF = LOFF
         NLL = NJ
         LLOFF = JOFF
-        SIGN = -1.0d0
+        SIGN = -One
         IACTIVE = 1
       else
         IACTIVE = 0
@@ -131,7 +136,7 @@ if (ITYPE == 1) then
         JJOFF = LOFF
         NLL = NJ
         LLOFF = JOFF
-        SIGN = 1.0d0
+        SIGN = One
         IACTIVE = 1
       else
         IACTIVE = 0
@@ -174,25 +179,25 @@ if (ITYPE == 1) then
                 if (IOFF /= KOFF) then
                   IKIND = (K-1)*NI+I
                   NIK = NI*NK
-                  SIGNIK = 1.0d0
+                  SIGNIK = One
                 else
                   IKIND = max(I,K)*(max(I,K)-1)/2+min(I,K)
                   NIK = NI*(NI+1)/2
                   if (I == max(I,K)) then
-                    SIGNIK = 1.0d0
+                    SIGNIK = One
                   else
-                    SIGNIK = -1.0d0
+                    SIGNIK = -One
                   end if
                 end if
                 if (JOFF /= LOFF) then
                   JLIND = (L-1)*NJ+J
-                  SIGNJL = 1.0d0
+                  SIGNJL = One
                 else
                   JLIND = max(J,L)*(max(J,L)-1)/2+min(J,L)
                   if (J == max(J,L)) then
-                    SIGNJL = 1.0d0
+                    SIGNJL = One
                   else
-                    SIGNJL = -1.0d0
+                    SIGNJL = -One
                   end if
                 end if
                 IKJLT = (JLIND-1)*NIK+IKIND
@@ -221,9 +226,9 @@ else if (ITYPE == 2) then
           IJ = (J+JOFF-2)*NORB+I+IOFF-1
           KL = (L+LOFF-2)*NORB+K+KOFF-1
           if (IJ == KL) then
-            FACTOR = 2.0d0
+            FACTOR = Two
           else
-            FACTOR = 1.0d0
+            FACTOR = One
           end if
           IJKL = max(IJ,KL)*(max(IJ,KL)-1)/2+min(IJ,KL)
           IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI+(J-1)*NI+I
@@ -260,9 +265,9 @@ end if
 !iA3 = itri((i-1)*nOrb+j,(l-1)*nOrb+k)
 !iA4 = itri((j-1)*nOrb+i,(l-1)*nOrb+k)
 !rfel = RHO2(ia1)+RHO2(ia2)+RHO2(ia3)+RHO2(ia4)
-!if (rfel /= 0.0D0) write(6,*) 'STOP'
+!if (rfel /= Zero) write(u6,*) 'STOP'
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' Updated two-body density matrix'
+!write(u6,*) ' Updated two-body density matrix'
 !call PRSYM(RHO2,NORB**2)
 !#endif
 

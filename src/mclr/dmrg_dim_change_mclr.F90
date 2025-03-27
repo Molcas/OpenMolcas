@@ -11,20 +11,22 @@
 
 subroutine dmrg_dim_change_mclr(orbspc,ndim,iflag)
 
+use Definitions, only: u6
+
 implicit none
 integer :: orbspc(8)
 integer :: iflag
 integer :: ndim
 integer i, n1, n2
 
-!write(6,*) '==================================================='
-!write(6,*) ' Currently, only valid for no symmetry calculation'
-!write(6,*) '==================================================='
+!write(u6,*) '==================================================='
+!write(u6,*) ' Currently, only valid for no symmetry calculation'
+!write(u6,*) '==================================================='
 
 ! I remember it was already valid for all symmetry.
 !                  -- yma, need check it again 2015.5.14
 
-!write(6,*) 'orbspc',orbspc(1:8)
+!write(u6,*) 'orbspc',orbspc(1:8)
 ndim = 0
 
 n1 = 0
@@ -55,7 +57,7 @@ else if (iflag == 4) then
     ndim = (n2+1)*n2/2
   end do
 else
-  write(6,*) 'unknow iflag'
+  write(u6,*) 'unknow iflag'
   call Quit_OnUserError()
 end if
 

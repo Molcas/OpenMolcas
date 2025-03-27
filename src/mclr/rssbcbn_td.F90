@@ -62,6 +62,8 @@ subroutine RSSBCBN_td(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL1,
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Constants, only: One
+
 implicit real*8(A-H,O-Z)
 logical TimeDep
 ! Output
@@ -90,9 +92,9 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
   !One electron part
 
   if (IST == 1) then
-    SIGN = 1.0d0
+    SIGN = One
   else
-    SIGN = -1.0d0
+    SIGN = -One
   end if
   if (NBEL >= 1) then
     call RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
@@ -104,7 +106,7 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
   ! Two electron part
 
   if ((iand(icheck,1) == 1) .and. (IDOH2 /= 0) .and. (NBEL >= 2)) then
-    !write(6,*) 'Timedep in rssbcbn_td',TimeDep
+    !write(u6,*) 'Timedep in rssbcbn_td',TimeDep
     call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
                      XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,NOPART,TimeDep,ieaw)
 
@@ -120,7 +122,7 @@ if ((iand(icheck,2) == 2) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)
 
   ieaw = 0
   if (ist == 2) ieaw = 1
-  !write(6,*) 'ieaw in rssbcbn_td ',ieaw
+  !write(u6,*) 'ieaw in rssbcbn_td ',ieaw
   call TRNSPS(NJA,NJB,CB,C2)
   call DCOPY_(NJA*NJB,C2,1,CB,1)
   call TRNSPS(NIA,NIB,SB,C2)
@@ -181,7 +183,7 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
 
   ! alpha single excitation
 
-  SIGN = 1.0d0
+  SIGN = One
   call RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
                    XINT,NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
 
@@ -190,7 +192,7 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
   ! alpha double excitation
 
   if ((iand(icheck,1) == 1) .and. (NAEL >= 2) .and. (IDOH2 /= 0)) then
-    !write(6,*) 'Timedep in rssbcbn_td',TimeDep
+    !write(u6,*) 'Timedep in rssbcbn_td',TimeDep
     call RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
                      XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,NOPART,TimeDep,ieaw)
 

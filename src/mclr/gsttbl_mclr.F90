@@ -13,6 +13,8 @@ subroutine GSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO
 ! obtain  determinant block (iatp iasm, ibtp ibsm)
 ! from vector packed in combination format according to IDC
 
+use Constants, only: Zero, One
+
 implicit real*8(A-H,O-Z)
 dimension C(*), CTT(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
 dimension IOCOC(NOCTPA,NOCTPB), ICOOSC(NOCTPA,NOCTPB,*)
@@ -20,7 +22,7 @@ dimension SCR(*)
 dimension ISGVST(IBSM)
 dimension IDUM(1)
 
-PSIGN = 0.0d0 ! dummy initialize
+PSIGN = Zero ! dummy initialize
 
 ! =================
 ! Read in from disc
@@ -43,7 +45,7 @@ else
   else if (IDC == 3) then
     PSIGN = PLSIGN
   else
-    PSIGN = 0.0d0
+    PSIGN = Zero
   end if
   PLSSGN = PLSIGN*PSSIGN
   ! check for different packing possibilities and unpack
@@ -95,7 +97,7 @@ else
       NRI = NSASO(IBTP,IASM)
       NCI = NSBSO(IATP,IASM)
       call TRNSPS(NRI,NCI,C(IBASE),CTT)
-      if (PSSIGN == -1.0d0) call DSCAL_(NRI*NCI,-1.0d0,CTT,1)
+      if (PSSIGN == -One) call DSCAL_(NRI*NCI,-One,CTT,1)
     end if
   else if (IASM < IBSM) then
     !************
@@ -111,25 +113,25 @@ else
       else if (IDC == 3) then
         call DCOPY_(NRI*NCI,C(IBASE),1,CTT,1)
       end if
-      if (PSIGN == -1.0d0) call DSCAL_(NRI*NCI,-1.0d0,CTT,1)
+      if (PSIGN == -One) call DSCAL_(NRI*NCI,-One,CTT,1)
     else if (IDC == 4) then
       if (IBTP > IATP) then
         IBASE = ICOOSC(IBTP,IATP,IBSM)
         NRI = NSASO(IBTP,IBSM)
         NCI = NSBSO(IATP,IASM)
         call TRNSPS(NRI,NCI,C(IBASE),CTT)
-        if (PSSIGN == -1.0d0) call DSCAL_(NRI*NCI,-1.0d0,CTT,1)
+        if (PSSIGN == -One) call DSCAL_(NRI*NCI,-One,CTT,1)
       else if (IBTP == IATP) then
         IBASE = ICOOSC(IBTP,IATP,IBSM)
         NRI = NSASO(IATP,IBSM)
         NCI = NSBSO(IATP,IASM)
         call TRIPK2(CTT,C(IBASE),2,NRI,NCI,PLSSGN)
-        if (PLSIGN == -1.0d0) call DSCAL_(NRI*NCI,-1.0d0,CTT,1)
+        if (PLSIGN == -One) call DSCAL_(NRI*NCI,-One,CTT,1)
       else if (IBTP < IATP) then
         IBASE = ICOOSC(IATP,IBTP,IBSM)
         NELMNT = NSASO(IATP,IBSM)*NSBSO(IBTP,IASM)
         call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
-        if (PLSIGN == -1.0d0) call DSCAL_(NELMNT,-1.0d0,CTT,1)
+        if (PLSIGN == -One) call DSCAL_(NELMNT,-One,CTT,1)
       end if
     end if
   end if

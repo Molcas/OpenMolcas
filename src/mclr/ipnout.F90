@@ -16,12 +16,13 @@ integer function ipnout(iii)
 
 use ipPage
 use stdalloc, only: mma_deallocate
+use Definitions, only: u6
 
 implicit integer(a-h,o-z)
 
 if (iii > Max_CI_Vectors) then
-  write(6,*) 'ipout: iii > Max_CI_Vectors'
-  write(6,*) 'iii,Max_CI_Vectors=',iii,Max_CI_Vectors
+  write(u6,*) 'ipout: iii > Max_CI_Vectors'
+  write(u6,*) 'iii,Max_CI_Vectors=',iii,Max_CI_Vectors
   call Abend()
 end if
 

@@ -26,6 +26,7 @@ subroutine H0MAT_MCLR(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,NOCOB,NPRCIV,NOCSF,IREFSM,I
 use Str_Info, only: CNSM, DFTP, DTOC
 use MCLR_Data, only: NAELCI, NBELCI
 use MCLR_Data, only: NCNASM
+use Constants, only: Zero
 
 implicit none
 ! Offsets for CSF information
@@ -61,7 +62,7 @@ NBEL = NBELCI(INTSPC)
 
 if (IDC == 1) then
   ICOMBI = 0
-  PSIGN = 0.0d0
+  PSIGN = Zero
 else
   PSIGN = PSSIGN
   ICOMBI = 1

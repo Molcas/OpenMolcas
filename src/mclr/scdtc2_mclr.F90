@@ -19,20 +19,23 @@ subroutine SCDTC2_MCLR(RASVEC,ISMOST,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCO
 !
 ! General symmetry version, Feb 1991
 
+use Constants, only: One, Two, Half
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 dimension RASVEC(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
 dimension IOCOC(NOCTPA,NOCTPB)
 dimension ISMOST(*), ICBLTP(*), IMMLST(*)
+real*8, parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Information from SCDTC2'
-write(6,*) ' ======================='
-write(6,*) ' Input vector'
+write(u6,*) ' Information from SCDTC2'
+write(u6,*) ' ======================='
+write(u6,*) ' Input vector'
 call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
 #endif
-
-SQ2 = sqrt(2.0d0)
-SQ2I = 1.0d0/SQ2
 
 IBASE = 1
 do IASM=1,NSMST
@@ -49,7 +52,6 @@ do IASM=1,NSMST
     do IBTP=1,IBTPMX
       if (IOCOC(IATP,IBTP) == 0) cycle
       ! Number of elements in this block
-      call xflush(6)
       NIB = NSBSO(IBTP,IBSM)
       if ((ICBLTP(IASM) == 2) .and. (IATP == IBTP)) then
         NELMNT = NIA*(NIA+1)/2
@@ -65,7 +67,7 @@ do IASM=1,NSMST
         end if
         call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
         if ((IASM == IBSM) .and. (IATP == IBTP)) then
-          FACTOR = 1.0d0/FACTOR
+          FACTOR = One/FACTOR
           call SCLDIA(RASVEC(IBASE),FACTOR,NIA,1)
         end if
       else if ((IDC == 3) .and. (IMMLST(IASM) /= IASM)) then
@@ -76,19 +78,18 @@ do IASM=1,NSMST
         end if
         call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
         !Ml Ms combinations
-        call xflush(6)
       else if (IDC == 4) then
         if (IWAY == 1) then
           if (IASM == IBSM) then
             FACTOR = SQ2
           else
-            FACTOR = 2.0d0
+            FACTOR = Two
           end if
         else if (IWAY == 2) then
           if (IASM == IBSM) then
             FACTOR = SQ2I
           else
-            FACTOR = 0.5d0
+            FACTOR = Half
           end if
         end if
         call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
@@ -108,9 +109,9 @@ do IASM=1,NSMST
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Scaled vector'
-call xflush(6)
+write(u6,*) ' Scaled vector'
 call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+call xflush(u6)
 #endif
 
 return

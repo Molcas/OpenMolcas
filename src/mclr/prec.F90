@@ -31,8 +31,14 @@ subroutine Prec(rpre,idsym)
 !     and is not coded yet (ugly bastard) (970109, AB)
 !***********************************************************************
 
+use iso_c_binding
 use MCLR_Data, only: nrec
+use MCLR_Data, only: ipCM
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, nRS1, nRS2, nRS3, ntAsh, NewCho, iMethod, nOrb
+use Arrays, only: FAMO, FIMO, F0SQMO
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 real*8 rpre(*)
@@ -44,11 +50,6 @@ call Prec_internal(rpre)
 contains
 
 subroutine Prec_internal(rpre)
-
-  use Arrays, only: FAMO, FIMO, F0SQMO
-  use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-  use MCLR_Data, only: ipCM
-  use iso_c_binding
 
   implicit none
   real*8, target :: rpre(*)
@@ -83,16 +84,16 @@ subroutine Prec_internal(rpre)
     jS = ieor(is-1,iDSym-1)+1
     nD = nOrb(js)-nIsh(jS)
     ni = nBas(js)**2
-    sign = 1.0d0
+    sign = One
     call mma_allocate(Temp2,ni,Label='Temp2')
     call mma_allocate(Temp3,ni,Label='Temp3')
-    Temp3(:) = 0.0d0
+    Temp3(:) = Zero
     call mma_MaxDBLE(nTemp)
     nTemp = min(nmm,nTemp/2)
     call mma_allocate(Temp1,nTemp,2,Label='Temp1')
     if (nd /= 0) then
       do iB=1,nIsh(iS)
-        call dcopy_(nD**2,[0.0d0],0,Temp3,1)
+        call dcopy_(nD**2,[Zero],0,Temp3,1)
         ibb = nOrb(is)*(ib-1)+ib-2
         !                                                              *
         !***************************************************************
@@ -143,16 +144,16 @@ subroutine Prec_internal(rpre)
         !     T
         ! G=LL
         !
-        !write(6,*) 'Preconditioner i =',iB
+        !write(u6,*) 'Preconditioner i =',iB
         !do i=1,min(nd,10)
-        !  write(6,'(10F12.8)') (Temp3(1+(j-1)*(2*nd-j+2)/2+i-j),j=1,i)
+        !  write(u6,'(10F12.8)') (Temp3(1+(j-1)*(2*nd-j+2)/2+i-j),j=1,i)
         !end do
 
         call SQM(Temp3,rpre(ip),nd)
 
-        !write(6,*) ' ====== rpre ======'
+        !write(u6,*) ' ====== rpre ======'
         !do i=1,nd*nd
-        !  write(6,*) i,'rpre',rpre(ip+i-1)
+        !  write(u6,*) i,'rpre',rpre(ip+i-1)
         !end do
 
         irc = 0
@@ -160,7 +161,7 @@ subroutine Prec_internal(rpre)
         call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
         nullify(ipre)
         if (irc /= 0) then
-          write(6,*) 'Error in DGETRF called from prec'
+          write(u6,*) 'Error in DGETRF called from prec'
           call Abend()
         end if
         ip = ip+nD*(nd+1)
@@ -180,7 +181,7 @@ subroutine Prec_internal(rpre)
       if (ir == 2) nD = nOrb(js)-nRs2(js)
       if (ir == 3) nD = nOrb(js)-nRs3(js)
       if (nd /= 0) then
-        call dcopy_(nD**2,[0.0d0],0,Temp3,1)
+        call dcopy_(nD**2,[Zero],0,Temp3,1)
 
         !                                                              *
         !***************************************************************
@@ -222,7 +223,7 @@ subroutine Prec_internal(rpre)
         call dgetrf_(nd,nd,rpre(ip),nd,ipre,irc)
         nullify(ipre)
         if (irc /= 0) then
-          write(6,*) 'Error in DGETRF called from prec'
+          write(u6,*) 'Error in DGETRF called from prec'
           call Abend()
         end if
         ip = ip+nD*(nd+1)

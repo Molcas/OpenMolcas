@@ -28,6 +28,7 @@ subroutine check_caspt2(mode)
 ! and determine the roots for NAC calculation.
 
 use MCLR_Data, only: IRLXROOT, ISNAC, OVERRIDE, NACSTATES
+use Definitions, only: u6
 
 implicit none
 integer Mode
@@ -75,13 +76,13 @@ end if
 ! With mode = 1, just set NACStates
 if (mode == 1) return
 
-!write(6,*) 'isnac = ',isnac
+!write(u6,*) 'isnac = ',isnac
 !if (isnac) then
-!  write(6,*) 'requested NAC:',nacstates(1),nacstates(2)
-!  write(6,*) 'computed  NAC:',irlxroot,irlxrootpt2
+!  write(u6,*) 'requested NAC:',nacstates(1),nacstates(2)
+!  write(u6,*) 'computed  NAC:',irlxroot,irlxrootpt2
 !else
-!  write(6,*) 'requested GRD:',irlxroot
-!  write(6,*) 'computed  GRD:',irlxrootpt2
+!  write(u6,*) 'requested GRD:',irlxroot
+!  write(u6,*) 'computed  GRD:',irlxrootpt2
 !endif
 
 ! If CASPT2 density has been computed, and the root of
@@ -118,7 +119,7 @@ if (Exists) then
   NeedGrdt = (isStructure() /= 1)
   do
     read(LuSpool2,'(A)',iostat=istatus) Line
-    !write(6,'(a)') line
+    !write(u6,'(a)') line
     if (istatus > 0) call Abend()
     if (istatus < 0) exit
     write(LuInput,'(A)') Line
@@ -133,8 +134,8 @@ if (Exists) then
 
   close(LuSpool2)
 else
-  write(6,'(A)') 'CASPT2 gradient without &CASPT2?'
-  write(6,'(A)') 'this cannot happen, ig'
+  write(u6,'(A)') 'CASPT2 gradient without &CASPT2?'
+  write(u6,'(A)') 'this cannot happen, ig'
   call abend()
 end if
 
@@ -148,7 +149,7 @@ if (Exists) then
   call Molcas_Open(LuSpool2,Filename)
   do
     read(LuSpool2,'(A)',iostat=istatus) Line
-    !write(6,'(a)') line
+    !write(u6,'(a)') line
     if (istatus > 0) call Abend()
     if (istatus < 0) exit
     write(LuInput,'(A)') Line
@@ -163,12 +164,12 @@ write(LuInput,'(A)') '>export MOLCAS_TRAP=$MCLR_OLD_TRAP'
 write(LuInput,'(A)') '>ECHO ON'
 
 !rewind(luinput)
-!write(6,*)
-!write(6,*) 'show luinput'
-!write(6,*)
+!write(u6,*)
+!write(u6,*) 'show luinput'
+!write(u6,*)
 !do
 !  read(LuInput,'(A)',iostat=istatus) Line
-!  write(6,'(a)') line
+!  write(u6,'(a)') line
 !  if (istatus > 0) call Abend()
 !  if (istatus < 0) exit
 !end do

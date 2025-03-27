@@ -21,6 +21,7 @@ use ipPage, only: W
 use MCLR_Data, only: nConf1, ipCI
 use MCLR_Data, only: IRLXROOT
 use input_mclr, only: nRoots
+use Constants, only: Two
 
 implicit none
 ! Output
@@ -49,7 +50,7 @@ do K=1,nRoots
     iLoc2 = (L-1)*nConf1+1
     call dAXpY_(nConf1,tempd,W(ipci)%Vec(iLoc2),1,bP(iLoc1),1)
   end do
-  call DScal_(nConf1,2.0d0*R((I-1)*nRoots+K)**2,bP(iLoc1),1)
+  call DScal_(nConf1,Two*R((I-1)*nRoots+K)**2,bP(iLoc1),1)
 end do
 
 end subroutine CalcbP

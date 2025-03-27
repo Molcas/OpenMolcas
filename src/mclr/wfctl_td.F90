@@ -21,8 +21,6 @@ subroutine WfCtl_td(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,con
 use Exp, only: Exp_Close
 use Arrays, only: CMO, Int2, FIMO
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use MCLR_Data, only: nConf1, nDens2, nDensC, ipCI, n1Dens, n2Dens, nDens
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: lDisp
@@ -30,6 +28,9 @@ use MCLR_Data, only: LuTemp
 use MCLR_Data, only: XISPSM
 use input_mclr, only: nDisp, Fail, lSave, nSym, PT2, State_Sym, iMethod, Omega, rIn_Ene, PotNuc, iBreak, Eps, nIter, Debug, &
                       ERASSCF, kPrint, lCalc, nCSF, nTPert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: u6
 
 implicit none
 integer iKapDisp(nDisp), isigDisp(nDisp)
@@ -230,29 +231,29 @@ do iSym=kksym,kkksym
 
     call RHS_td(Sigma,Kappa,Temp1,Temp3,Sc2,dKappa,Sc3,Temp4,ipST,iDisp,iSym-1,CMO,jdisp,jspin,CI)
 
-    call dscal_(nDens2,-1.0d0,Temp4,1)
+    call dscal_(nDens2,-One,Temp4,1)
 
     ! Make RHS twice as long and change sign on second part!
 
     if (CI) then
       irc = ipin(ipST)
       call dcopy_(nConf1,W(ipST)%Vec(1),1,W(ipST)%Vec(1+nConf1),1)
-      call dscal_(nConf1,-1.0d0,W(ipST)%Vec(1+nConf1),1)
+      call dscal_(nConf1,-One,W(ipST)%Vec(1+nConf1),1)
     end if
 
     irc = opout(ipci)
 
-    if (lprint) write(6,*) '       Iteration         Delta     Res(kappa) Res(CI)'
+    if (lprint) write(u6,*) '       Iteration         Delta     Res(kappa) Res(CI)'
     iLen = nDensC
     iRHSDisp(iDisp) = iDis
     call Compress(Temp4,Sigma,iSym)
-    r1 = 0.50d0*ddot_(ndensc,Sigma,1,Sigma,1)
+    r1 = Half*ddot_(ndensc,Sigma,1,Sigma,1)
 
     call UnCompress(Sigma,Temp4,iSym)
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
     if (CI) then
       irc = ipin(ipCIT)
-      call dcopy_(2*nConf1,[0.0d0],0,W(ipCIT)%Vec,1)
+      call dcopy_(2*nConf1,[Zero],0,W(ipCIT)%Vec,1)
     end if
     irc = ipout(ipcit)
     if (CI) then
@@ -260,15 +261,15 @@ do iSym=kksym,kkksym
       iRHSCIDisp(iDisp) = iDis
       irc = ipin(ipST)
       call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
-      call DSCAL_(2*nConf1,-1.0d0,W(ipST)%Vec,1)
+      call DSCAL_(2*nConf1,-One,W(ipST)%Vec,1)
     end if
 
     call DMInvKap_td(DigPrec,Sigma,Kappa)
 
     irc = opout(ippre2)
     ! kap:kap
-    r2 = 0.50d0*ddot_(ndensc,Kappa,1,Kappa,1)
-    if (r2 > r1) write(6,*) 'Warning perturbation number ',idisp,' might diverge'
+    r2 = Half*ddot_(ndensc,Kappa,1,Kappa,1)
+    if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     ! dkap=Kap in matrix form
     call UnCompress(Kappa,dKappa,iSym)
@@ -283,18 +284,18 @@ do iSym=kksym,kkksym
       call DMinvCI_td(W(ipST)%Vec,W(ipCid)%Vec,-omega,isym)
       call DMinvCI_td(W(ipST)%Vec(1+nConf1),W(ipCId)%Vec(1+nconf1),omega,isym)
 
-      deltaC = 0.50d0*ddot_(2*nConf1,W(ipST)%Vec,1,W(ipCId)%Vec,1)
+      deltaC = Half*ddot_(2*nConf1,W(ipST)%Vec,1,W(ipCId)%Vec,1)
       irc = ipout(ipcid)
     else
-      deltac = 0.0d0
+      deltac = Zero
     end if
-    deltaK = 0.50d0*ddot_(nDensC,Kappa,1,Sigma,1)
+    deltaK = Half*ddot_(nDensC,Kappa,1,Sigma,1)
     Kappa(1:nDens) = Zero
     delta = deltac+deltaK
 
     delta0 = delta
     Orb = .true.
-    ReCo = -1.0d0
+    ReCo = -One
     iter = 1
     !-------------------------------------------------------------------
 
@@ -304,7 +305,7 @@ do iSym=kksym,kkksym
 
     cnvrgd = .true.
     do
-      if (delta == 0.0d0) exit
+      if (delta == Zero) exit
 
       !*****************************************************************
       !
@@ -368,8 +369,8 @@ do iSym=kksym,kkksym
             rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec(1+nconf1),1)
             call daxpy_(nConf1,-rGrad,W(ipCI)%Vec,1,W(ipS1)%Vec(1+nconf1),1)
           end if
-          call dscal_(nconf1,-1.0d0,W(ipS1)%Vec,1)
-          call dscal_(2*nconf1,2.0d0,W(ipS1)%Vec,1)
+          call dscal_(nconf1,-One,W(ipS1)%Vec,1)
+          call dscal_(2*nconf1,Two,W(ipS1)%Vec,1)
 
           irc = opout(ipCI)
           !*************************************************************
@@ -405,7 +406,7 @@ do iSym=kksym,kkksym
         irc = ipin(ipS2)
         call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
         call DaXpY_(nConf1,EC,W(ipCId)%Vec(1+nConf1),1,W(ipS2)%Vec(1+nConf1),1)
-        call dscal_(2*nConf1,2.0d0,W(ipS2)%Vec,1)
+        call dscal_(2*nConf1,Two,W(ipS2)%Vec,1)
 
         ! Add the wS contribution
         ! The (-) sign in both daxpys assumes that the two parts of ipcid are def with diff sign.
@@ -413,8 +414,8 @@ do iSym=kksym,kkksym
         ! The S-contribution will make E-wS loose its symmetry because E is sym and S
         ! is antisym.
 
-        call DaXpY_(nConf1,-2.0d0*omega,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
-        call DaXpY_(nConf1,2.0d0*omega,W(ipCId)%Vec(1+nConf1),1,W(ipS2)%Vec(1+nConf1),1)
+        call DaXpY_(nConf1,-Two*omega,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
+        call DaXpY_(nConf1,Two*omega,W(ipCId)%Vec(1+nConf1),1,W(ipS2)%Vec(1+nConf1),1)
         Clock(iTimeCC) = Clock(iTimeCC)+Tim4
 
         irc = ipout(ips2)
@@ -436,7 +437,7 @@ do iSym=kksym,kkksym
 
         ! density for inactive= 2(<d|0>+<0|d>)
 
-        d_0 = 0.0d0
+        d_0 = Zero
 
         ! This is just for debugging purpose.
         ! When we use it for actual calculations d_0 == 0
@@ -491,7 +492,7 @@ do iSym=kksym,kkksym
       if (CI) then  !If (.false.) then
         irc = ipin1(ipS1,2*nconf1)
         irc = ipin1(ipS2,2*nconf1)
-        call DaXpY_(2*nConf1,1.0d0,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
+        call DaXpY_(2*nConf1,One,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
         irc = opout(ips2)
       end if
 
@@ -513,13 +514,13 @@ do iSym=kksym,kkksym
       !        dKappa:dSigma
       !
       !-----------------------------------------------------------------
-      rAlphaC = 0.0d0
-      rAlphaK = 0.0d0
-      if (orb) rAlphaK = 0.5d0*ddot_(nDensC,Temp4,1,Temp2,1)
+      rAlphaC = Zero
+      rAlphaK = Zero
+      if (orb) rAlphaK = Half*ddot_(nDensC,Temp4,1,Temp2,1)
       if (CI) then
         irc = ipin(ipS1)
         irc = ipin(ipCId)
-        rAlphaC = 0.5d0*ddot_(2*nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
+        rAlphaC = Half*ddot_(2*nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
       end if
       rAlpha = delta/(rAlphaK+ralphaC)
 
@@ -531,9 +532,9 @@ do iSym=kksym,kkksym
       if (orb) then
         call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
         call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
-        resk = sqrt(0.5d0*ddot_(nDensC,Sigma,1,Sigma,1))
+        resk = sqrt(Half*ddot_(nDensC,Sigma,1,Sigma,1))
       end if
-      resci = 0.0d0
+      resci = Zero
 
       if (CI) then
         irc = ipin(ipCId)
@@ -544,7 +545,7 @@ do iSym=kksym,kkksym
         irc = ipin(ipS1)
         call DaXpY_(2*nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
         irc = opout(ipS1)
-        resci = sqrt(0.5d0*ddot_(2*nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
+        resci = sqrt(Half*ddot_(2*nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
       end if
 
       !----------------------------------------------------------------*
@@ -579,18 +580,18 @@ do iSym=kksym,kkksym
       if (CI) then
         irc = ipin(ipST)
         irc = ipin(ipS2)
-        deltaC = 0.50d0*ddot_(2*nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+        deltaC = Half*ddot_(2*nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
         irc = ipout(ipST)
       else
-        deltaC = 0.0d0
+        deltaC = Zero
       end if
 
-      deltaK = 0.50d0*ddot_(nDensC,Sigma,1,Sc2,1)
+      deltaK = Half*ddot_(nDensC,Sigma,1,Sc2,1)
       if (.not. CI) then
         rBeta = deltaK/delta
         delta = deltaK
         call DScal_(nDensC,rBeta,Temp2,1)
-        call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
+        call DaXpY_(nDensC,One,sc2,1,Temp2,1)
       else
         rbeta = (deltac+deltaK)/delta
         delta = deltac+deltaK
@@ -598,8 +599,8 @@ do iSym=kksym,kkksym
         call DScal_(2*nConf1,rBeta,W(ipCID)%Vec,1)
         call DScal_(nDensC,rBeta,Temp2,1)
         irc = ipin(ipS2)
-        call DaXpY_(2*nConf1,1.0d0,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
-        call DaXpY_(nDensC,1.0d0,sc2,1,Temp2,1)
+        call DaXpY_(2*nConf1,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+        call DaXpY_(nDensC,One,sc2,1,Temp2,1)
         irc = opout(ipS2)
         irc = ipout(ipCID)
       end if
@@ -617,7 +618,7 @@ do iSym=kksym,kkksym
 
       ! iBreak is defined via include!
 
-      res = 0.0d0 ! dummy initialize
+      res = Zero ! dummy initialize
       if (iBreak == 1) then
         ! This is the actual breaking!
         if (abs(delta) < abs(Eps**2*delta0)) exit
@@ -635,7 +636,7 @@ do iSym=kksym,kkksym
         exit
       end if
       if (lprint) &
-        write(6,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)') '     ',iter,'       ',delta/delta0,resk,resci,deltac,deltak
+        write(u6,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)') '     ',iter,'       ',delta/delta0,resk,resci,deltac,deltak
 
       iter = iter+1
 
@@ -644,11 +645,11 @@ do iSym=kksym,kkksym
     !*******************************************************************
 
     if (.not. cnvrgd) then
-      write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
+      write(u6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
       converged(isym) = .false.
       fail = .true.
     else
-      write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+      write(u6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
       irc = ipnout(-1)
       !stop 10
     end if
@@ -656,7 +657,7 @@ do iSym=kksym,kkksym
     call Uncompress(Kappa,TempTD,isym)
     call mma_deallocate(TempTD)
 
-    write(6,*)
+    write(u6,*)
     iLen = ndensC
     iKapDisp(iDisp) = iDis
     call dDaFile(LuTemp,1,Kappa,iLen,iDis)
@@ -703,8 +704,8 @@ do iSym=kksym,kkksym
 
 end do
 if (debug) then
-  write(6,*) '********************************************************************************'
-  write(6,*)
+  write(u6,*) '********************************************************************************'
+  write(u6,*)
 end if
 
 !----------------------------------------------------------------------*

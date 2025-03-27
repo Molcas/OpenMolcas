@@ -15,10 +15,11 @@ subroutine GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,ICTL,ieaw)
 
 use Arrays, only: pInt2, KINT2, KINT2a
 use MCLR_Data, only: Square
+use input_mclr, only: nsMOB
 #ifdef _DEBUGPRINT_
 use MCLR_Data, only: NOBPTS
+use Definitions, only: u6
 #endif
-use input_mclr, only: nsMOB
 
 implicit none
 real*8 XINT(*)
@@ -28,7 +29,7 @@ integer iXChng, iCoul
 integer nI, nK, nIK, nJ, nL, nJL, nIJ, nKL
 #endif
 
-!write(6,*) 'square in getint_td',square
+!write(u6,*) 'square in getint_td',square
 if (.not. square) then
 
   IXCHNG = 0
@@ -62,13 +63,13 @@ else
   NJL = NJ*(NJ+1)/2
 end if
 if (ICOUL == 0) then
-  write(6,*) ' 2 electron integral block for TS blocks'
-  write(6,*) ' Ixchng :',IXCHNG
-  write(6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
+  write(u6,*) ' 2 electron integral block for TS blocks'
+  write(u6,*) ' Ixchng :',IXCHNG
+  write(u6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
   call WRTMAT(XINT,NIK,NJL,NIK,NJL)
 else
-  write(6,*) ' Integrals in Coulomb form'
-  write(6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
+  write(u6,*) ' Integrals in Coulomb form'
+  write(u6,'(1X,4(A,I2,A,I2,A))') '(',ITP,',',ISM,')','(',JTP,',',JSM,')','(',KTP,',',KSM,')','(',LTP,',',LSM,')'
   NIJ = NI*NJ
   NKL = NK*NL
   call WRTMAT(XINT,NIJ,NKL,NIJ,NKL)

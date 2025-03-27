@@ -52,6 +52,10 @@ subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,N
 !
 ! Jeppe Olsen, Winter 1991
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension NDEOBS(*), NINOBS(*), NR0OBS(*), NACOBS(*), NRSOBS(MXPOBS,3), NR4OBS(MXPOBS,*), NOCOBS(*), NTOOBS(*)
@@ -128,7 +132,7 @@ do IRS=1,3
   end do
 end do
 NACOB = IAC
-!write(6,*) ' IAC ',IAC
+!write(u6,*) ' IAC ',IAC
 
 ! RAS 0 orbitals
 
@@ -152,7 +156,7 @@ do ISM=1,NSMOB
   end do
 end do
 NR0OB = IR0-NACOB
-!write(6,*) ' IR0 ',IR0
+!write(u6,*) ' IR0 ',IR0
 
 ! RAS 4 orbitals
 
@@ -178,7 +182,7 @@ do ISM=1,NSMOB
   end do
 end do
 NR4OB = IR4-NACOB-NR0OB
-!write(6,*) ' IR4 ',IR4
+!write(u6,*) ' IR4 ',IR4
 
 ! Inactive orbitals
 
@@ -202,7 +206,7 @@ do ISM=1,NSMOB
   end do
 end do
 NINOB = IIN-NACOB-NR0OB-NR4OB
-!write(6,*) ' IIN ',IIN
+!write(u6,*) ' IIN ',IIN
 
 ! Deleted orbitals
 
@@ -230,7 +234,7 @@ do ISM=1,NSMOB
     IREOTS(IDE) = IDES
   end do
 end do
-!write(6,*) ' IDE ',IDE
+!write(u6,*) ' IDE ',IDE
 
 IOFF = 1
 do ISM=1,NSMOB
@@ -313,40 +317,40 @@ end do
 
 #ifdef _DEBUGPRINT_
 NTOOB = IDE
-write(6,*) ' =================='
-write(6,*) ' Output from ORBORD'
-write(6,*) ' =================='
-write(6,*) ' Symmetry of orbitals, type ordered'
+write(u6,*) ' =================='
+write(u6,*) ' Output from ORBORD'
+write(u6,*) ' =================='
+write(u6,*) ' Symmetry of orbitals, type ordered'
 call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-write(6,*) ' Symmetry => type reordering array'
+write(u6,*) ' Symmetry => type reordering array'
 call IWRTMA(IREOST,1,NTOOB,1,NTOOB)
-write(6,*) ' Type => symmetry reordering array'
+write(u6,*) ' Type => symmetry reordering array'
 call IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
-write(6,*) ' IBSO array'
+write(u6,*) ' IBSO array'
 call IWRTMA(IBSO,1,NSMOB,1,NSMOB)
 
-write(6,*) ' NTSOB array :'
+write(u6,*) ' NTSOB array :'
 call IWRTMA(NTSOB,3,NSMOB,3,NSMOB)
-write(6,*) ' IBTSOB array'
+write(u6,*) ' IBTSOB array'
 call IWRTMA(IBTSOB,3,NSMOB,3,NSMOB)
-write(6,*) ' ITSOB'
+write(u6,*) ' ITSOB'
 call IWRTMA(ITSOB,1,NACOB,1,NACOB)
 
-write(6,*) ' NOBPTS'
+write(u6,*) ' NOBPTS'
 call IWRTMA(NOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
-write(6,*) ' NOBPT'
+write(u6,*) ' NOBPT'
 call IWRTMA(NOBPTS,6+NR4TP,1,6+MXPR4T,1)
-write(6,*) ' IOBPTS'
+write(u6,*) ' IOBPTS'
 call IWRTMA(IOBPTS,6+NR4TP,NSMOB,6+MXPR4T,MXPOBS)
 
-write(6,*) ' ISFTO array :'
+write(u6,*) ' ISFTO array :'
 call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
-!write(6,*) ' ITFSO array :'
+!write(u6,*) ' ITFSO array :'
 !call IWRTMA(ITFSO,1,NTOOB,1,NTOOB)
 
-write(6,*) ' ISMFSO array :'
+write(u6,*) ' ISMFSO array :'
 call IWRTMA(ISMFSO,1,NTOOB,1,NTOOB)
-write(6,*) ' ITPFTO array :'
+write(u6,*) ' ITPFTO array :'
 call IWRTMA(ITPFTO,1,NTOOB,1,NTOOB)
 #endif
 

@@ -13,14 +13,16 @@
 subroutine CIDens_TD(iCI,iS,rP,rD)
 
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
 use MCLR_Data, only: XISPSM
 use MCLR_Data, only: NOCSF
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF, State_Sym
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 #ifdef _DEBUGPRINT_
 use input_mclr, only: ntAsh
+use Definitions, only: u6
 #endif
 
 implicit none
@@ -69,14 +71,14 @@ itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 !  rD : One Electron Density
 
 !irc = ipin(iCI)
-!write(6,*) 'iCI*iCI',ddot_(2*nConf1,W(iCI)%Vec,1,W(iCI)%Vec,1)
+!write(u6,*) 'iCI*iCI',ddot_(2*nConf1,W(iCI)%Vec,1,W(iCI)%Vec,1)
 
 if (nconf1 == 0) return
 
 call mma_allocate(De,2*n1dens,Label='De')
 call mma_allocate(Pe,3*n2dens,Label='Pe')
-call dcopy_(n1dens,[0.0d0],0,rD,1)
-call dcopy_(n2dens,[0.0d0],0,rP,1)
+call dcopy_(n1dens,[Zero],0,rD,1)
+call dcopy_(n2dens,[Zero],0,rP,1)
 
 if (nocsf == 0) then
   nConfL = max(ncsf(iS),nint(xispsm(iS,1)))
@@ -92,8 +94,8 @@ if (nocsf == 0) then
   call CSF2SD(W(iCI)%Vec,CIR,iS)
   call CSF2SD(W(ipCI)%Vec,CIL,State_SYM)
 
-  !write(6,*) 'ipL*ipL',ddot_(nConfL,CIL,1,CIL,1)
-  !write(6,*) 'ipR*ipR',ddot_(nConfR,CIR,1,CIR,1)
+  !write(u6,*) 'ipL*ipL',ddot_(nConfL,CIL,1,CIL,1)
+  !write(u6,*) 'ipR*ipR',ddot_(nConfR,CIR,1,CIR,1)
   !call RecPrt('CIL',' ',CIL,nConfL,1)
   !call RecPrt('CIR',' ',CIR,nConfR,1)
 
@@ -103,17 +105,17 @@ if (nocsf == 0) then
 
   ! <P|E_pq|0> & <P|e_pqrs|0> -> ipDe & ipP
   ! ipL is the bra side vector
-  call dcopy_(n1dens,[0.0d0],0,De,1)
-  call dcopy_(n2dens,[0.0d0],0,Pe,1)
+  call dcopy_(n1dens,[Zero],0,De,1)
+  call dcopy_(n2dens,[Zero],0,Pe,1)
   call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 
-  !write(6,*) 'De*De',ddot_(n1dens,De,1,De,1)
+  !write(u6,*) 'De*De',ddot_(n1dens,De,1,De,1)
   !call RecPrt('De',' ',De,n1dens,1)
 
   call dcopy_(n2dens,Pe,1,rp,1)
   call dcopy_(n1dens,De,1,rD,1)
 
-  !write(6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
+  !write(u6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
   !call RecPrt('rD',' ',rD,n1dens,1)
 
   irc = ipin(iCI)
@@ -121,28 +123,28 @@ if (nocsf == 0) then
   call CSF2SD(W(iCI)%Vec(1+nconf1),CIL,iS)
   call CSF2SD(W(ipci)%Vec,CIR,State_SYM)
 
-  !write(6,*) 'CIL*CIL',ddot_(nConfL,CIL,1,CIL,1)
-  !write(6,*) 'CIR*CIR',ddot_(nConfR,CIR,1,CIR,1)
+  !write(u6,*) 'CIL*CIL',ddot_(nConfL,CIL,1,CIL,1)
+  !write(u6,*) 'CIR*CIR',ddot_(nConfR,CIR,1,CIR,1)
   !call RecPrt('CIL',' ',CIL,nConfL,1)
   !call RecPrt('CIR',' ',CIR,nConfR,1)
 
   irc = ipnout(-1)
   issm = iS
   icsm = STATE_SYM
-  call dcopy_(n1dens,[0.0d0],0,De,1)
-  call dcopy_(n2dens,[0.0d0],0,Pe,1)
+  call dcopy_(n1dens,[Zero],0,De,1)
+  call dcopy_(n2dens,[Zero],0,Pe,1)
   call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 
-  !write(6,*) 'De*De',ddot_(n1dens,De,1,De,1)
+  !write(u6,*) 'De*De',ddot_(n1dens,De,1,De,1)
   !Call RecPrt('De',' ',De,n1dens,1)
 
-  call daxpy_(n2Dens,-1.0d0,Pe,1,rp,1)
-  call daxpy_(n1Dens,-1.0d0,De,1,rD,1)
+  call daxpy_(n2Dens,-One,Pe,1,rp,1)
+  call daxpy_(n1Dens,-One,De,1,rD,1)
 
-  !call dscal_(n2dens,-1.0d0,rP,1)
-  !call dscal_(n1dens,-1.0d0,rD,1)
+  !call dscal_(n2dens,-One,rP,1)
+  !call dscal_(n1dens,-One,rD,1)
 
-  !write(6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
+  !write(u6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
   !call RecPrt('rD',' ',rD,n1dens,1)
 
   call mma_deallocate(CIL)
@@ -154,7 +156,7 @@ if (nocsf == 0) then
       do k=1,ntash
         do l=1,ntash
           ijkl = itri(ntash*(j-1)+i,k+(l-1)*ntash)
-          write(6,'(I1,I1,I1,I1,F12.6)') i,j,k,l,rp(ijkl)
+          write(u6,'(I1,I1,I1,I1,F12.6)') i,j,k,l,rp(ijkl)
         end do
       end do
     end do

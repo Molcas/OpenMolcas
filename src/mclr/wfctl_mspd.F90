@@ -21,8 +21,6 @@ subroutine WfCtl_MSPD(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 use Exp, only: Exp_Close
 use ipPage, only: W
 use cmslag, only: ResQaaLag2
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: ISNAC, OVERRIDE, IRLXROOT, ISMECIMSPD, NACSTATES
@@ -31,6 +29,9 @@ use MCLR_Data, only: XISPSM
 use input_mclr, only: nDisp, Fail, lSave, State_Sym, iMethod, iBreak, Eps, nIter, Debug, kPrint, nCSF, nRoots, TwoStep, StepType, &
                       iAddressQDat, nAsh, nRS2
 use dmrginfo, only: DoDMRG, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer iKapDisp(nDisp), isigDisp(nDisp)
@@ -39,6 +40,7 @@ integer iRHSDisp(nDisp)
 logical converged(8)
 integer iPL
 #include "rasdim.fh"
+#include "warnings.h"
 logical CI
 character(len=8) Fmt2
 integer opOut
@@ -76,9 +78,9 @@ end do
 lprint = .true.
 reco = -One
 Lu_50 = 50
-if (lSAVE) call DANAME(Lu_50,'RESIDUALS')
 if (lSAVE) then
-  write(6,*) 'WfCtl_MSPD: SAVE option not implemented'
+  call DANAME(Lu_50,'RESIDUALS')
+  write(u6,*) 'WfCtl_MSPD: SAVE option not implemented'
   call Abend()
 end if
 if (iand(kprint,2) == 2) lprint = .true.
@@ -182,9 +184,9 @@ else
 
     if (debug) then
       if (isNAC) then
-        write(6,*) 'States: ',NACstates(1),NACstates(2)
+        write(u6,*) 'States: ',NACstates(1),NACstates(2)
       else
-        write(6,*) 'State: ',irlxroot
+        write(u6,*) 'State: ',irlxroot
       end if
     end if
     !                                                                  *
@@ -203,9 +205,9 @@ else
         call RHS_CMS_NAC(Temp4,W(ipST)%Vec)
         call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
       else
-        write(6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
-        write(6,'(6X,A)') '       Other Than CMS-PDFT'
-        call xQuit(96)
+        write(u6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
+        write(u6,'(6X,A)') '       Other Than CMS-PDFT'
+        call xQuit(_RC_INPUT_ERROR_)
       end if
     else
       LURot = 233
@@ -220,20 +222,20 @@ else
         call RHS_CMS(Temp4,W(ipST)%Vec)
         call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
       else
-        write(6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
-        write(6,'(6X,A)') '       Other Than CMS-PDFT'
-        call xQuit(96)
+        write(u6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
+        write(u6,'(6X,A)') '       Other Than CMS-PDFT'
+        call xQuit(_RC_INPUT_ERROR_)
       end if
     end if
 
     irc = opOut(ipci)
 
-    if (lprint) write(6,*) '       Iteration       Delta           Res(kappa)       Res(CI)          DeltaK           DeltaC'
+    if (lprint) write(u6,*) '       Iteration       Delta           Res(kappa)       Res(CI)          DeltaK           DeltaC'
     iLen = nDensC
     iRHSDisp(iDisp) = iDis
     call Compress(Temp4,Sigma,iSym)
     r1 = ddot_(nDensc,Sigma,1,Sigma,1)
-    if (debug) write(6,*) 'Hi how about r1',r1
+    if (debug) write(u6,*) 'Hi how about r1',r1
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
     irc = ipIn(ipCIT)
@@ -252,8 +254,8 @@ else
 
     irc = opOut(ippre2)
     r2 = ddot_(ndensc,Kappa,1,Kappa,1)
-    if (debug) write(6,*) 'In that case I think that r2 should be:',r2
-    if (r2 > r1) write(6,*) 'Warning perturbation number ',idisp,' might diverge'
+    if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
+    if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     call dcopy_(ndensC,Kappa,1,dKappa,1)
 
@@ -380,7 +382,7 @@ else
         cnvrgd = .false.
         exit
       end if
-      if (lprint) write(6,Fmt2//'I7,4X,ES17.9,ES17.9,ES17.9,ES17.9,ES17.9)') iter,delta/delta0,resk,resci,deltac,deltak
+      if (lprint) write(u6,Fmt2//'I7,4X,ES17.9,ES17.9,ES17.9,ES17.9,ES17.9)') iter,delta/delta0,resk,resci,deltac,deltak
       iter = iter+1
 
     end do
@@ -388,15 +390,15 @@ else
     !*******************************************************************
 
     if (.not. cnvrgd) then
-      write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
+      write(u6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
       converged(isym) = .false.
       fail = .true.
     else
-      if (iPL >= 2) write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+      if (iPL >= 2) write(u6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
       irc = ipnout(-1)
     end if
 
-    if (iPL >= 2) write(6,*)
+    if (iPL >= 2) write(u6,*)
     iLen = ndensC
     iKapDisp(iDisp) = iDis
     call dDaFile(LuTemp,1,Kappa,iLen,iDis)
@@ -436,8 +438,8 @@ if (.not. CI) irc = ipclose(ipPre2)
 call Exp_Close()
 
 if (debug) then
-  write(6,*) '********************************************************************************'
-  write(6,*)
+  write(u6,*) '********************************************************************************'
+  write(u6,*)
 end if
 if (doDMRG) then  ! yma
   call dmrg_spc_change_mclr(RGras2(1:8),nash)

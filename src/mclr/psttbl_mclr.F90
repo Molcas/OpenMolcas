@@ -17,6 +17,8 @@ subroutine PSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO
 ! Combination type is defined by IDC
 ! IAC = 2  does not work for LUHC <= 0 !
 
+use Constants, only: One
+
 implicit real*8(A-H,O-Z)
 dimension C(*), CTT(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
 dimension IOCOC(NOCTPA,NOCTPB), ICOOSC(NOCTPA,NOCTPB,*)
@@ -52,7 +54,7 @@ else
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
       if (IAC == 1) then
-        call DaXpY_(NELMNT,1.0d0,CTT,1,C(IBASE),1)
+        call DaXpY_(NELMNT,One,CTT,1,C(IBASE),1)
       else if (IAC == 2) then
         call DCOPY_(NELMNT,CTT,1,C(IBASE),1)
       end if
@@ -61,7 +63,7 @@ else
         IBASE = ICOOSC(IATP,IBTP,IASM)
         NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
         if (IAC == 1) then
-          call DaXpY_(NELMNT,1.0d0,CTT,1,C(IBASE),1)
+          call DaXpY_(NELMNT,One,CTT,1,C(IBASE),1)
         else if (IAC == 2) then
           call DCOPY_(NELMNT,CTT,1,C(IBASE),1)
         end if
@@ -84,7 +86,7 @@ else
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
       if (IAC == 1) then
-        call DaXpY_(NELMNT,1.0d0,CTT,1,C(IBASE),1)
+        call DaXpY_(NELMNT,One,CTT,1,C(IBASE),1)
       else if (IAC == 2) then
         call DCOPY_(NELMNT,CTT,1,C(IBASE),1)
       end if

@@ -20,9 +20,10 @@ subroutine AddGrad(rKappa,rMat,idsym,fact)
 !   which is just the case if E is symmetric.
 
 use Arrays, only: F0SQMO
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: ipCM, ipMat
 use input_mclr, only: nSym, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Half
 
 implicit none
 real*8 rkappa(*), rMat(*), fact
@@ -40,10 +41,10 @@ do iS=1,nSym
   call DGeSub(F0SQMO(ipCM(js)),nOrb(js),'N',F0SQMO(ipCM(js)),nOrb(js),'T',Tempj,nOrb(js),nOrb(js),nOrb(js))
   !             t           t
   ! +1/2 { Kappa T - T kappa  }
-  call DGEMM_('T','N',nOrb(is),nOrb(js),nOrb(js),0.5d0*fact,rkappa(ipMat(js,is)),nOrb(js),Tempj,nOrb(js),1.0d0,rMat(ipMat(is,js)), &
+  call DGEMM_('T','N',nOrb(is),nOrb(js),nOrb(js),Half*fact,rkappa(ipMat(js,is)),nOrb(js),Tempj,nOrb(js),One,rMat(ipMat(is,js)), &
               nOrb(is))
-  call DGEMM_('N','T',nOrb(is),nOrb(js),nOrb(is),-0.5d0*fact,Tempi,nOrb(is),rKappa(ipmat(js,is)),nOrb(js),1.0d0, &
-              rMat(ipMat(is,js)),nOrb(is))
+  call DGEMM_('N','T',nOrb(is),nOrb(js),nOrb(is),-Half*fact,Tempi,nOrb(is),rKappa(ipmat(js,is)),nOrb(js),One,rMat(ipMat(is,js)), &
+              nOrb(is))
   call mma_deallocate(Tempi)
   call mma_deallocate(Tempj)
 end do

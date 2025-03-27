@@ -39,6 +39,7 @@ use Str_Info, only: ISTAC, IAZTP, IATPM1, IATPM2, IBZTP, IBTPM1, IBTPM2, NSTTYP,
 use Str_Info, only: IARTP, IBRTP
 #endif
 use MCLR_Data, only: NORB1, nORB3
+use Definitions, only: u6
 
 implicit none
 integer MS2, NACTEL, MNRS10, MXRS30
@@ -52,8 +53,8 @@ ISTAC(:,:) = 0
 NAEL = (MS2+NACTEL)/2
 NBEL = (NACTEL-MS2)/2
 if (NAEL+NBEL /= NACTEL) then
-  write(6,*) 'STRTYP: NAEL + NBEL /= NACTEL'
-  write(6,*) 'NAEL,NBEL,NACTEL=',NAEL,NBEL,NACTEL
+  write(u6,*) 'STRTYP: NAEL + NBEL /= NACTEL'
+  write(u6,*) 'NAEL,NBEL,NACTEL=',NAEL,NBEL,NACTEL
   !*********************************************************************
   ! The argument iPL was missing so I inserted this piece inside the
   ! stars to calculate it the same way as in the start of mclr.f
@@ -148,23 +149,23 @@ end if
 
 NSTTYP = ITYPE
 if (NSTTYP > NSTTYP_Max) then
-  write(6,*) 'STRTYP: NSTTYP>NSTTYP_Max'
-  write(6,*) 'STRTYP: NSTTYP=',NSTTYP
+  write(u6,*) 'STRTYP: NSTTYP>NSTTYP_Max'
+  write(u6,*) 'STRTYP: NSTTYP=',NSTTYP
   call Abend()
 end if
 #ifdef _DEBUGPRINT_
-write(6,*) ' Information about string types generated'
-write(6,*) ' ========================================'
-write(6,*)
-write(6,'(A,I3)') ' Number of types generated ',NSTTYP
-write(6,*)
-write(6,'(A)') ' ==========================================='
-write(6,'(A)') '  Type  NELEC MNRS1 MXRS1 MNRS3 MXRS3 ISTTP'
-write(6,'(A)') ' ==========================================='
+write(u6,*) ' Information about string types generated'
+write(u6,*) ' ========================================'
+write(u6,*)
+write(u6,'(A,I3)') ' Number of types generated ',NSTTYP
+write(u6,*)
+write(u6,'(A)') ' ==========================================='
+write(u6,'(A)') '  Type  NELEC MNRS1 MXRS1 MNRS3 MXRS3 ISTTP'
+write(u6,'(A)') ' ==========================================='
 do ITYP=1,NSTTYP
-  write(6,'(7I6)') ITYP,NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),ISTTP(ITYP)
+  write(u6,'(7I6)') ITYP,NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),ISTTP(ITYP)
 end do
-write(6,*) ' IARTP IBRTP'
+write(u6,*) ' IARTP IBRTP'
 call IWRTMA(IARTP,3,7,3,10)
 call IWRTMA(IBRTP,3,7,3,10)
 #endif

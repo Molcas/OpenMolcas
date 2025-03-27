@@ -16,6 +16,10 @@ subroutine DXTYP(NDXTP,ITYP,JTYP,KTYP,LTYP,LEL1,LEL3,REL1,REL3)
 ! only combinations with type(I) >= type(K) and type(L) >= type(J)
 ! are included
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 integer REL1, REL3
 integer ITYP(36), JTYP(36), KTYP(36), LTYP(36)
 
@@ -89,11 +93,11 @@ do ITP=1,3
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,'(A,4I4)') ' Double excitations connecting LEL1,LEL3,LEL1,LEL3 ',LEL1,LEL3,REL1,REL3
-write(6,*) '  ITYP KTYP LTYP JTYP'
-write(6,*) '  ===================='
+write(u6,'(A,4I4)') ' Double excitations connecting LEL1,LEL3,LEL1,LEL3 ',LEL1,LEL3,REL1,REL3
+write(u6,*) '  ITYP KTYP LTYP JTYP'
+write(u6,*) '  ===================='
 do IDX=1,NDXTP
-  write(6,'(1X,5I5)') ITYP(IDX),KTYP(IDX),LTYP(IDX),JTYP(IDX)
+  write(u6,'(1X,5I5)') ITYP(IDX),KTYP(IDX),LTYP(IDX),JTYP(IDX)
 end do
 #endif
 

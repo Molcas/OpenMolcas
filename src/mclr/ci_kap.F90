@@ -12,11 +12,12 @@
 subroutine CI_KAP(ipcid,fock,fockOut,isym)
 
 !use ipPage, only: W
-use Constants, only: Zero
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: ipCI, n2Dens, nDens2, nNA
 use input_mclr, only: ntAsh, State_Sym
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp
 
 implicit none
 integer ipCID, iSym
@@ -55,7 +56,7 @@ if (doDMRG) then
   do i=1,ntash
     do j=1,ntash
       ij = ij+1
-      if (abs(De(ij)) < 1.0e-12) De(ij) = Zero
+      if (abs(De(ij)) < 1.0e-12_wp) De(ij) = Zero
       tmpDeM(i,j) = De(ij)
     end do
   end do
@@ -79,7 +80,7 @@ if (doDMRG) then
           ij1 = ntash*(i-1)+j
           kl1 = ntash*(k-1)+l
           if (ij1 >= kl1) then
-            if (abs(Pe(itri(ij1,kl1))) < 1.0e-12) Pe(itri(ij1,kl1)) = Zero
+            if (abs(Pe(itri(ij1,kl1))) < 1.0e-12_wp) Pe(itri(ij1,kl1)) = Zero
             tmpPM(i,j,k,l) = Pe(itri(ij1,kl1))
           end if
         end do

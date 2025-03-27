@@ -19,6 +19,7 @@ subroutine CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
 
 use MCLR_Data, only: nNA, nDens2, ipMat
 use input_mclr, only: nSym, nAsh, nBas, nIsh
+use Constants, only: Zero
 
 implicit none
 ! Input
@@ -44,7 +45,7 @@ do jSym=1,nSym
     do it=1,jAsh
       t = it+off_Ash(jSym)
       pt = it+nIsh(jSym)
-      tempd1 = 0.0d0
+      tempd1 = Zero
       do v=1,nnA
         iLoc2 = (v-1)*nnA
         do x=1,nnA

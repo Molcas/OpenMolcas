@@ -69,10 +69,10 @@ do iS=1,nSym
 end do
 
 !call RECPRT('Dens',' ',Dens,nBasTot,1)
-!write(6,*) 'Diagnonal elements in D'
+!write(u6,*) 'Diagnonal elements in D'
 !do iS=1,nSym
 !  do k=0,nBas(iS)-1
-!    write(6,*) Dens(ipCM(iS)+k*(nBas(iS)+1))
+!    write(u6,*) Dens(ipCM(iS)+k*(nBas(iS)+1))
 !  end do
 !end do
 !stop

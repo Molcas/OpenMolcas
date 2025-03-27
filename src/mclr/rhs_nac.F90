@@ -12,13 +12,14 @@
 subroutine RHS_NAC(Fock,SLag)
 
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half, Quart
 use MCLR_Data, only: ipCI, nConf1, ipMat, n1Dens, n2Dens, nDens2
 use MCLR_Data, only: NSSA
 use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: ntAsh, PT2, State_Sym, nSym, nRoots, nConf, nBas, nCSF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp
 
 implicit none
 real*8 Fock(*)
@@ -230,11 +231,11 @@ subroutine PT2_SLag()
   do jR=1,nRoots
     do kR=1,jR
       vSLag = Zero
-      !write(6,*) 'jr,kr= ',jr,kr
-      !write(6,*) vslag
+      !write(u6,*) 'jr,kr= ',jr,kr
+      !write(u6,*) vslag
       iSLag = jR+nRoots*(kR-1)
       vSLag = SLag(iSLag)
-      !write(6,*) vslag
+      !write(u6,*) vslag
 
       call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
       !iRC = opout(ipCI)
@@ -244,7 +245,7 @@ subroutine PT2_SLag()
       !icsm = 1
       !issm = 1
 
-      if (abs(vSLag) > 1.0d-10) then
+      if (abs(vSLag) > 1.0e-10_wp) then
         call Densi2_mclr(2,G1q,G2q,CIL,CIR,0,0,0,n1dens,n2dens)
         call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
         call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
@@ -253,7 +254,7 @@ subroutine PT2_SLag()
       if (kR /= jR) then
         iSLag = kR+nRoots*(jR-1)
         vSLag = SLag(iSLag)
-        if (abs(vSLag) > 1.0d-10) then
+        if (abs(vSLag) > 1.0e-10_wp) then
           call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1dens,n2dens)
           call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
           call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)

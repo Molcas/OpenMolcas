@@ -51,6 +51,10 @@ subroutine ANNSTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LROW,LSGSTR,ISGSTI,ISGS
 !                          nehative
 !                          A+(I)!ISTRIN>=-!-LSTRIN>.
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 integer STRING, TI, TTO, STRIN2, Z
 ! Input
@@ -62,9 +66,9 @@ dimension TI(LROW,NSTINI), TTO(LROW,NSTINI)
 dimension STRIN2(500)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' ==============='
-write(6,*) ' ANNSTR speaking'
-write(6,*) ' ==============='
+write(u6,*) ' ==============='
+write(u6,*) ' ANNSTR speaking'
+write(u6,*) ' ==============='
 #endif
 ! Expanded or truncated form
 if ((LROW == NEL) .and. (NEL /= NORB)) then
@@ -104,20 +108,20 @@ end do
 #ifdef _DEBUGPRINT_
 MAXPR = 60
 NPR = min(NSTINI,MAXPR)
-write(6,*) ' Output from ANNSTR :'
-write(6,*) '==================='
+write(u6,*) ' Output from ANNSTR :'
+write(u6,*) '==================='
 if (IEXPN == 0) then
-  write(6,*) ' Strings with an electron removed'
+  write(u6,*) ' Strings with an electron removed'
 else
-  write(6,*) ' Combined N+1/N-1 string array'
+  write(u6,*) ' Combined N+1/N-1 string array'
 end if
 do ISTRIN=1,NPR
-  write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,LROW)
+  write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' New strings.. ',(TTO(I,ISTRIN),I=1,LROW)
 end do
 
-write(6,*) ' orbitals removed'
+write(u6,*) ' orbitals removed'
 do ISTRIN=1,NPR
-  write(6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals annihilated.. ',(TI(I,ISTRIN),I=1,LROW)
+  write(u6,'(2X,A,I4,A,/,(10I5))') 'String..',ISTRIN,' orbitals annihilated.. ',(TI(I,ISTRIN),I=1,LROW)
 end do
 #endif
 

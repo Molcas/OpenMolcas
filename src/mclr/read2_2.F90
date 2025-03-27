@@ -48,9 +48,10 @@ subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,nTemp,Temp2,Temp3,Temp4,nDens22,D
 !                                                                  *
 !*******************************************************************
 
-use Constants, only: Zero, Half, One
 use MCLR_Data, only: nMBA, nDens2, nCMO, ipCM, ipMat, ipMO, nB
 use input_mclr, only: nSym, iMethod, nAsh, nIsh, nOrb
+use Constants, only: Zero, Half, One
+use Definitions, only: u6
 
 implicit none
 real*8 rmo1(nMba), rmo2(nmba), FockI(nDens2), FockA(nDens2)
@@ -85,7 +86,7 @@ else if (jspin == 0) then
   Singlet = .true.
 else
   Singlet = .false.
-  write(6,*) 'Error jspin=/=1,0'
+  write(u6,*) 'Error jspin=/=1,0'
   call Abend()
 end if
 !                                                                      *

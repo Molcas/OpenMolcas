@@ -29,8 +29,11 @@ subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISG
 ! by calling CICNCH.ICNFOK(ICNF) is 1 of tests are passed, ICNFOK(ICNF)
 ! is zero if test fails
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: NTYP, NCNATS, NDPCNT, MINOP
+use stdalloc, only: mma_allocate, mma_deallocate
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer ICONF(*), ICTSDT(*)
@@ -92,7 +95,7 @@ do ITYP=1,NTYP
     ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
     ! Check orbital occupancy with additional constraints
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' IC ICNF ICNBS',IC,ICNF,ICNBS
+    write(u6,*) ' IC ICNF ICNBS',IC,ICNF,ICNBS
 #   endif
     call CNDET_MCLR(ICONF(ICNBS),IPRODT(IPBAS),IDET,NEL,IOCC,IOPEN,ICL,LDTBL)
     ! Separate determinants into strings and determine string number.
@@ -103,7 +106,7 @@ do ITYP=1,NTYP
       ijkl_num = ijkl_num+1
       ! Find number (and sign)of this determinant in string ordering
       ICTSDT(JDTABS) = IABNUM(LIA,LIB,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN)
-      if (dble(ISIGN*ISGNAB*IPSFAC) == -1.0d0) ICTSDT(JDTABS) = -ICTSDT(JDTABS)
+      if (ISIGN*ISGNAB*IPSFAC == -1) ICTSDT(JDTABS) = -ICTSDT(JDTABS)
     end do
   end do
 end do

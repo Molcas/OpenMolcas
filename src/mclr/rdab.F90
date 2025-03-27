@@ -12,10 +12,11 @@
 subroutine RdAB()
 
 use Arrays, only: CMO
-use stdalloc, only: mma_allocate
 use MCLR_Data, only: ChDisp, lDisp
 use input_mclr, only: nSym, nIsh, nBas, nOrb, Perturbation, McKinley, iMethod, nIsh, ntITri, ntISqr, ntBSqr, nDisp, PT2, ESCF, &
                       nDel, ntPert, ntIsh
+use stdalloc, only: mma_allocate
+use Definitions, only: u6
 
 implicit none
 character(len=8) Label
@@ -29,8 +30,8 @@ if (MCKINLEY) then
   iOpt = 0
   call RdMck(iRC,iOpt,Label,idum,ntpert,idum)
   if (iRC /= 0) then
-    write(6,*) 'RdAB: Error reading MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'RdAB: Error reading MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   LABEL = 'PERT'
@@ -38,8 +39,8 @@ if (MCKINLEY) then
   iOpt = 0
   call cRdMck(iRC,iOpt,Label,idum,Perturbation,idum)
   if (iRC /= 0) then
-    write(6,*) 'RdAB: Error reading MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'RdAB: Error reading MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
 end if
@@ -74,8 +75,8 @@ if (MCKINLEY) then
   iOpt = 0
   call RdMck(iRc,iOpt,label,idum,ldisp,idum)
   if (iRC /= 0) then
-    write(6,*) 'RdAB: Error reading MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'RdAB: Error reading MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   nDisp = 0
@@ -88,8 +89,8 @@ if (MCKINLEY) then
     iOpt = 0
     call cRdmck(iRc,iOpt,label,idum,ChDisp(1),idum)
     if (iRC /= 0) then
-      write(6,*) 'RdAB: Error reading MCKINT'
-      write(6,'(A,A)') 'Label=',Label
+      write(u6,*) 'RdAB: Error reading MCKINT'
+      write(u6,'(A,A)') 'Label=',Label
       call Abend()
     end if
   end if

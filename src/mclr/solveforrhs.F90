@@ -19,6 +19,7 @@ subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
 
 use MCLR_Data, only: nDens2, nConf1
 use input_mclr, only: nRoots
+use Constants, only: One
 
 implicit none
 ! Output
@@ -36,12 +37,12 @@ integer nRow
 nRow = nDens2
 call FZero(Fock,nDens2)
 call DCopy_(nRow,Axkzx,1,Fock,1)
-call DAXPY_(nRow,1.0d0,bk,1,Fock,1)
+call DAXPY_(nRow,One,bk,1,Fock,1)
 
 ! State-CSF Rotation Part
 nRow = nRoots*nConf1
 call FZero(CICSF,nRow)
 call DCopy_(nRow,AXPzx,1,CICSF,1)
-call DAXPY_(nRow,-1.0d0,bP,1,CICSF,1)
+call DAXPY_(nRow,-One,bP,1,CICSF,1)
 
 end subroutine SolveforRHS

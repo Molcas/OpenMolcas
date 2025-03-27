@@ -14,14 +14,15 @@ subroutine StPert()
 use MckDat, only: sNew
 use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-use Constants, only: Zero
 use MCLR_Data, only: ipCI, nDens2
 use MCLR_Data, only: RMS, rBetaA, rBetaS
 use MCLR_Data, only: lDisp, SwLbl
 use MCLR_Data, only: MS2
 use MCLR_Data, only: FnMck, LuMck
 use input_mclr, only: nSym, McKinley, PT2, nDisp, SpinPol, nAsh, nBas, nIsh, nTPert, State_Sym
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use Constants, only: Zero, Half
+use Definitions, only: wp, u6
 
 implicit none
 character(len=16) Label
@@ -45,7 +46,7 @@ if (.not. Mckinley) then
   iopt = ibset(0,sNew)
   call OPNMCK(irc,iopt,FNMCK,LUMCK)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error opening MCKINT'
+    write(u6,*) 'StPert: Error opening MCKINT'
     call Abend()
   end if
   irc = -1
@@ -55,8 +56,8 @@ if (.not. Mckinley) then
   MckLbl = 'PERT'
   call cWrMck(iRC,iOpt,MckLbl,1,LABEL,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -65,8 +66,8 @@ if (.not. Mckinley) then
   idum(1) = ndisp
   call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -74,8 +75,8 @@ if (.not. Mckinley) then
   MckLbl = 'TDISP'
   call WrMck(iRC,iOpt,MckLbl,1,ntpert,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -83,8 +84,8 @@ if (.not. Mckinley) then
   MckLbl = 'Title'
   call cWrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -93,8 +94,8 @@ if (.not. Mckinley) then
   idum(1) = nSym
   call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -102,8 +103,8 @@ if (.not. Mckinley) then
   MckLbl = 'nBas'
   call WrMck(iRC,iOpt,MckLbl,1,nBas,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -111,8 +112,8 @@ if (.not. Mckinley) then
   MckLbl = 'ldisp'
   call WrMck(iRC,iOpt,MckLbl,1,ldisp,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -120,8 +121,8 @@ if (.not. Mckinley) then
   MckLbl = 'chdisp'
   call cWrMck(iRC,iOpt,MckLbl,1,swlbl(1),iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -129,8 +130,8 @@ if (.not. Mckinley) then
   MckLbl = 'NISH'
   call WrMck(iRC,iOpt,MckLbl,1,nish,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
   irc = -1
@@ -138,15 +139,15 @@ if (.not. Mckinley) then
   MckLbl = 'NASH'
   call WrMck(iRC,iOpt,MckLbl,1,nash,iDummer)
   if (irc /= 0) then
-    write(6,*) 'StPert: Error writing to MCKINT'
-    write(6,'(A,A)') 'MckLbl=',MckLbl
+    write(u6,*) 'StPert: Error writing to MCKINT'
+    write(u6,'(A,A)') 'MckLbl=',MckLbl
     call Abend()
   end if
 end if
 
 if (SPINPOL) then
   call coeff(ralphas,rbetaa,rbetas)
-  rms = dble(ms2)/2.0d0
+  rms = real(ms2,kind=wp)*Half
   nAct = 0
   do iSym=1,nSym
     nAct = nAct+nAsh(iSym)

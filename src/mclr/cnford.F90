@@ -32,15 +32,15 @@ subroutine CNFORD(ICTSDT,ICONF,IREFSM,NORB,IPRODT,NCNFTP,NEL,ICNSTR,IGENSG,ISGNA
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
-integer, intent(Out) :: ICTSDT(*)
-integer, intent(InOut) :: ICONF(*)
+integer, intent(out) :: ICTSDT(*)
+integer, intent(inout) :: ICONF(*)
 integer :: iRefSM, nOrb
-integer, intent(In) :: IPRODT(*)
-integer, intent(In) :: NCNFTP(*)
+integer, intent(in) :: IPRODT(*)
+integer, intent(in) :: NCNFTP(*)
 integer :: NEL, ICNSTR, IGENSG
-integer, intent(In) :: ISGNA(*), ISGNB(*)
+integer, intent(in) :: ISGNA(*), ISGNB(*)
 integer :: IAGRP, IBGRP
-integer, intent(In) :: IOOS(*)
+integer, intent(in) :: IOOS(*)
 integer :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NAEL, NBEL, MINOP, MAXOP
 real*8 :: PSSIGN
 ! Scratch

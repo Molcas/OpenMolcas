@@ -16,6 +16,7 @@ use negpre
 use MCLR_Data, only: nConf1, ipCI
 use MCLR_Data, only: ipDia
 use input_mclr, only: nRoots, ERASSCF, nCSF, State_Sym
+use Constants, only: Zero
 
 implicit none
 integer ipSigma
@@ -56,7 +57,7 @@ if (nconf1 > 1) then
     end do
 
     do i=1,nroots
-      alpha(i) = 0.0d0
+      alpha(i) = Zero
       do j=1,nroots
         alpha(i) = alpha(i)+S(i,j,iR)*rcoeff(j)
       end do
@@ -71,7 +72,7 @@ if (nconf1 > 1) then
 
   end do
 else
-  call dcopy_(nconf1*nroots,[0.0d0],0,rout,1)
+  call dcopy_(nconf1*nroots,[Zero],0,rout,1)
 end if
 #ifdef _WARNING_WORKAROUND_
 if (.false.) call Unused_integer(irc)

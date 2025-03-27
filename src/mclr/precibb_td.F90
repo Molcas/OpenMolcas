@@ -34,6 +34,7 @@ subroutine Precibb_td(ib,is,js,nd,rout,nba,Temp1,Scr,Temp2,fockii,fockai,focki,f
 !***********************************************************************
 
 use input_mclr, only: nAsh, nIsh, nBas
+use Constants, only: Four, Twelve
 
 implicit none
 integer ib, is, js, nd
@@ -61,17 +62,17 @@ if (jvert == 0) return
 
 i1 = nD-jVert+1
 ip = itri1(i1,i1)
-ra = 4.0d0*sign*(Fockii+Fockai)
+ra = Four*sign*(Fockii+Fockai)
 call COUL(jS,jS,iS,iS,iB,iB,Temp2,Scr)
-call Dyax(nba**2,-sign*4.0d0,Temp2,1,Temp1,1)
+call Dyax(nba**2,-sign*Four,Temp2,1,Temp1,1)
 call EXCH(js,is,js,is,ib,ib,Temp2,Scr)
-call DaXpY_(nBa**2,sign*12.0d0,Temp2,1,Temp1,1)
+call DaXpY_(nBa**2,sign*Twelve,Temp2,1,Temp1,1)
 i = ip-1
 do kB=nIsh(jS)+nAsh(jS)+1,nBas(jS)
   rOut(i+1) = rout(i+1)-ra
   do lB=kb,nBAS(JS)
     i = i+1
-    rOut(i) = rout(i)+Temp1(kb,lb)+sign*4.0d0*Focki(kb,lb)+sign*4.0d0*Focka(kb,lb)
+    rOut(i) = rout(i)+Temp1(kb,lb)+sign*Four*Focki(kb,lb)+sign*Four*Focka(kb,lb)
   end do
 end do
 !                                                                      *

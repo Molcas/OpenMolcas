@@ -35,9 +35,11 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,
 !                      in CNSM(:)%ICTS
 
 use Str_Info, only: DFTP, CFTP, DTOC, CNSM
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: MULTSP, MS2P, MINOP, MAXOP, NTYP, NCPCNT, NDPCNT, NCNASM, NCNATS, NCSASM, NDTASM
 use DetDim, only: MXPCTP, MXPCSM, MXCNSM
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer NACTOB, NACTEL, MULTP, MS2, NORB1, NORB2, NORB3, NEL1MN, NEL3MX, LLCSF, NCNSM, ICNSTR
@@ -51,7 +53,7 @@ integer IMSCMB, MULTS, NEL, IEL1, IEL2, IEL3, IOP1, IOP2, IOP3, IOP, ITP, IOPEN,
 integer ITYPE
 #endif
 
-if (PSSIGN /= 0.0d0) then
+if (PSSIGN /= Zero) then
   IMSCMB = 1
 else
   IMSCMB = 0
@@ -80,19 +82,19 @@ do IEL1=NEL1MN,2*NORB1
     MAXOP = max(MAXOP,IOP)
   end do
 end do
-!write(6,*) ' MAXOP with RAS constraints :',MAXOP
+!write(u6,*) ' MAXOP with RAS constraints :',MAXOP
 NTYP = MAXOP-MINOP+1
 
 if (NTYP > MXPCTP) then
-  write(6,*) '  NUMBER OF CONFIGURATION TYPES TO LARGE'
-  write(6,*) '  CHANGE PARAMETER MXPCTP TO AT LEAST ',NTYP
-  write(6,*) '  CURRENT VALUE OF MXPCTP ',MXPCTP
-  write(6,*) ' MTYP IN LUSPIN TO SMALL'
+  write(u6,*) '  NUMBER OF CONFIGURATION TYPES TO LARGE'
+  write(u6,*) '  CHANGE PARAMETER MXPCTP TO AT LEAST ',NTYP
+  write(u6,*) '  CURRENT VALUE OF MXPCTP ',MXPCTP
+  write(u6,*) ' MTYP IN LUSPIN TO SMALL'
   call Abend()
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' MINOP MAXOP NTYP ',MINOP,MAXOP,NTYP
+write(u6,*) ' MINOP MAXOP NTYP ',MINOP,MAXOP,NTYP
 #endif
 ! ===============================================
 ! Number of sd's and csf's per configuration type
@@ -115,18 +117,18 @@ do ITP=1,NTYP
   end if
 end do
 #ifdef _DEBUGPRINT_
-write(6,'(/A)') ' Information about prototype configurations'
-write(6,'(A)') ' =========================================='
-write(6,'(/A)')
+write(u6,'(/A)') ' Information about prototype configurations'
+write(u6,'(A)') ' =========================================='
+write(u6,'(/A)')
 if (IMSCMB == 0) then
-  write(6,'(/A)') ' Combinations = Slater determinants'
+  write(u6,'(/A)') ' Combinations = Slater determinants'
 else
-  write(6,'(/A)') ' Combinations = Spin combinations'
+  write(u6,'(/A)') ' Combinations = Spin combinations'
 end if
-write(6,'(/A)') '  Open orbitals   Combinations    CSFs'
+write(u6,'(/A)') '  Open orbitals   Combinations    CSFs'
 do IOPEN=MINOP,MAXOP,2
   ITYPE = IOPEN-MINOP+1
-  write(6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NDPCNT(ITYPE),NCPCNT(ITYPE)
+  write(u6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NDPCNT(ITYPE),NCPCNT(ITYPE)
 end do
 #endif
 ! ==============================================
@@ -185,7 +187,7 @@ do ISYM=1,MXPCSM
     LLCONF = LLCONF+NCNATS(ITYP,ISYM)*(IOPEN+ICL)
     ILLCNF = ILLCNF+NCNATS(ITYP,ISYM)
   end do
-  !write(6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
+  !write(u6,*) ' MEMORY FOR HOLDING CONFS OF SYM... ',ISYM,LLCONF
   LCONF = max(LCONF,LLCONF)
   ILCNF = max(ILCNF,ILLCNF)
 end do
@@ -193,10 +195,10 @@ end do
 ! notice the ILCNF number ! yma
 
 #ifdef _DEBUGPRINT_
-write(6,'(/A,I8)') '  Memory for holding largest list of configurations ',LCONF
-write(6,'(/A,I8)') '  Size of largest CI expansion (combinations) ',LDET
-write(6,'(/A,I8)') '  Size of largest CI expansion (confs) ',ILCNF
-call xflush(6) !yma
+write(u6,'(/A,I8)') '  Memory for holding largest list of configurations ',LCONF
+write(u6,'(/A,I8)') '  Size of largest CI expansion (combinations) ',LDET
+write(u6,'(/A,I8)') '  Size of largest CI expansion (confs) ',ILCNF
+call xflush(u6) !yma
 #endif
 
 ! permanent memory for csf proto type arrays
@@ -207,8 +209,8 @@ call mma_allocate(DTOC,LDTOC,Label='DTOC')
 
 ! Permanent arrays for reordering and phases
 if (NCNSM > MXCNSM) then
-  write(6,'(A,2I2)') '  TROUBLE IN CSFDIM NCNSM > MXCNSM : NCNSM,MXCNSM',NCNSM,MXCNSM
-  write(6,*) ' CSFDIM : NCNSM  IS GREATER THAN MXCNSM'
+  write(u6,'(A,2I2)') '  TROUBLE IN CSFDIM NCNSM > MXCNSM : NCNSM,MXCNSM',NCNSM,MXCNSM
+  write(u6,*) ' CSFDIM : NCNSM  IS GREATER THAN MXCNSM'
   call Abend()
 end if
 do ICNSM=1,NCNSM

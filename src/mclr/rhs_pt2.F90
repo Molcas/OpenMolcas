@@ -54,11 +54,13 @@ contains
 
 subroutine Error()
 
-  write(6,*)
-  write(6,'(1x,A)') 'The file which has to be written in CASPT2 module does not exist in RHS_PT2.'
-  write(6,'(1x,A)') 'For single-point gradient calculation, you need GRAD or GRDT keyword in &CASPT2.'
-  write(6,'(1x,A)') 'For geometry optimization, you do not need anything, so something is wrong with the code.'
-  write(6,*)
+  use Definitions, only: u6
+
+  write(u6,*)
+  write(u6,'(1x,A)') 'The file which has to be written in CASPT2 module does not exist in RHS_PT2.'
+  write(u6,'(1x,A)') 'For single-point gradient calculation, you need GRAD or GRDT keyword in &CASPT2.'
+  write(u6,'(1x,A)') 'For geometry optimization, you do not need anything, so something is wrong with the code.'
+  write(u6,*)
   call abend()
 
 end subroutine Error

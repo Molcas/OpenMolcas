@@ -19,6 +19,8 @@ subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,NINOC,ECOR
 !
 ! Modified for LUCIA, September 1993
 
+use Constants, only: Zero
+
 implicit none
 integer ITPL, ITPR, NEL, NAEL, NBEL, INTSPC, NINOC
 real*8 ECORE
@@ -135,8 +137,8 @@ subroutine CNHCN2_INTERNAL(SCR)
 
     ! Hamiltonian matrix over determinants of the configurations
 
-    isym = 0       ! eaw
-    ecorep = 0.0d0 ! eaw
+    isym = 0      ! eaw
+    ecorep = Zero ! eaw
     call c_f_pointer(c_loc(SCR(KLROU+NEL)),iSCRn,[1])
     call c_f_pointer(c_loc(SCR(KLROU+2*NEL)),iSCRnn,[1])
     call DIHDJ2_MCLR(iSCRa,iSCRb,NDETL,iSCRar,iSCRbr,NDETR,NAEL,NBEL,iSCRnn,LWORK,NORB,SCR(KLDHD),ISYM,0,ECOREP,ICOMBI,PSSIGN, &
@@ -170,7 +172,7 @@ subroutine CNHCN2_INTERNAL(SCR)
     call MATML4(CNHCNM,SCR(KLCHD),DTOC(IPR),NCSFL,NCSFR,NCSFL,NDETR,NDETR,NCSFR,0)
 
   else if (NDIFF > 2) then
-    CNHCNM(1:NCSFL*NCSFR) = 0.0d0
+    CNHCNM(1:NCSFL*NCSFR) = Zero
   end if
 
   return

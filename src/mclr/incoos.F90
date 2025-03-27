@@ -22,6 +22,8 @@ subroutine INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB,NSMST,IENSM,IEN
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer NOOS(NOCTPA,NOCTPB,NSMST)
@@ -34,15 +36,15 @@ integer IACOOS(NOCTPA,NOCTPB,NSMST)
 logical Skip
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,*) ' ================'
-write(6,*) ' INCOOS in action'
-write(6,*) ' ================'
-write(6,*)
-write(6,*) ' NOOS(NOCTPA,NOCTPB,NSMST) array (input)'
-write(6,*)
+write(u6,*)
+write(u6,*) ' ================'
+write(u6,*) ' INCOOS in action'
+write(u6,*) ' ================'
+write(u6,*)
+write(u6,*) ' NOOS(NOCTPA,NOCTPB,NSMST) array (input)'
+write(u6,*)
 do ISMST=1,NSMST
-  write(6,*) ' ISMST = ',ISMST
+  write(u6,*) ' ISMST = ',ISMST
   call IWRTMA(NOOS(1,1,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end do
 #endif
@@ -97,10 +99,10 @@ do
   if ((IDC /= 1) .and. (IBLTP(ISM) == 0)) cycle
   if ((IDC /= 1) .and. (IBLTP(ISM) == 2) .and. (IA < IB)) cycle
   if (IOCOC(IA,IB) == 0) cycle
-  !write(6,*) ' INCOOS IDC IBLTP ',IDC,IBLTP(ISM)
+  !write(u6,*) ' INCOOS IDC IBLTP ',IDC,IBLTP(ISM)
   ! can this block be included
   LBLOCK = NOOS(IA,IB,ISM)
-  !write(6,*) ' IA IB ISM LBLOCK ',IA,IB,ISM,LBLOCK
+  !write(u6,*) ' IA IB ISM LBLOCK ',IA,IB,ISM,LBLOCK
   if (LENGTH+LBLOCK > MXLNG) then
     IA = IPA
     IB = IPB
@@ -121,22 +123,22 @@ IENSM = ISM
 IENTA = IA
 IENTB = IB
 if ((IFINI == 0) .and. (NBLOCK == 0)) then
-  write(6,*) ' Not enough scratch space to include a single Block'
-  write(6,*) ' Since I cannot proceed I will stop'
-  write(6,*) ' Insufficient buffer detected in INCOOS'
-  write(6,*) ' Alter RAS space of raise Buffer from ',MXLNG
+  write(u6,*) ' Not enough scratch space to include a single Block'
+  write(u6,*) ' Since I cannot proceed I will stop'
+  write(u6,*) ' Insufficient buffer detected in INCOOS'
+  write(u6,*) ' Alter RAS space of raise Buffer from ',MXLNG
   call SYSABENDMSG('lucia_util/incoos','Internal error',' ')
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) 'Output from INCOOS'
-write(6,*) '=================='
-write(6,*) ' Length and number of included blocks ',LENGTH,NBLOCK
+write(u6,*) 'Output from INCOOS'
+write(u6,*) '=================='
+write(u6,*) ' Length and number of included blocks ',LENGTH,NBLOCK
 do ISM=ISTSM,IENSM
-  write(6,*) ' Active blocks of symmetry ',ISM
+  write(u6,*) ' Active blocks of symmetry ',ISM
   call IWRTMA(IACOOS(1,1,ISM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end do
-if (IFINI == 1) write(6,*) ' No new blocks'
+if (IFINI == 1) write(u6,*) ' No new blocks'
 #endif
 
 return

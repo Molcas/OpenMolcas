@@ -88,6 +88,9 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,E
 !  Lucia Version, September 1993
 ! =========================================
 
+use Constants, only: One
+use Definitions, only: wp
+
 implicit none
 ! Output
 real*8 H0(*)
@@ -219,7 +222,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
     IFINIT = 0
 
     do
-      XMIN = XMAX+1.0d0
+      XMIN = XMAX+One
       IMIN = 0
 
       IICNF = 1
@@ -250,7 +253,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
         NPQCSF = NPQCSF+NCSFMN
 
         ! Mask
-        DIAGCN(IMIN) = XMAX+1.0d0
+        DIAGCN(IMIN) = XMAX+One
       else
         IFINIT = 1
         ! 2  No space for this configuration, remove previous
@@ -259,7 +262,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
         do
           IICNF = IICNF-1
           DIAVAL = DIAGCN(IPQCNF(IICNF))
-          if (abs(DIAVAL-XMIN) > 1.0D-10) exit
+          if (abs(DIAVAL-XMIN) > 1.0e-10_wp) exit
           NPQCNF = NPQCNF-1
           call c_f_pointer(c_loc(SCR(KLCONF)),iPTR,[1])
           call GETCNF_MCLR(iPTR,ITYP,IPQCNF(IICNF),ICONF,IREFSM,NEL)

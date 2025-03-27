@@ -59,6 +59,7 @@ subroutine GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA
 ! Jeppe Olsen, Fall of 1996
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -159,7 +160,7 @@ do IJTYP=1,NIJTYP
           call ADST(KOFF,NK,IBTP,IBSM,IBGRP,KBBOT,KBTOP,I4,XI4S,MAXK,NKBSTR,KBEND)
 
           !if (NKBSTR == 0) cycle
-          X(1:NI*NJ*NK*NL) = 0.0d0
+          X(1:NI*NJ*NK*NL) = Zero
 
           call ABTOR2(SIRES,CJRES,LKABTC,NKBSTR,X,NI,NJ,NK,NL,NKBSTR,I4,XI4S,I2,XI2S,IKORD)
           ! contributions to Rho2(ij,kl) has been obtained, scatter out

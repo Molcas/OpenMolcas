@@ -48,8 +48,6 @@ use Str_Info, only: DFTP, CFTP, DTOC, CNSM
 use negpre, only: SS
 use PDFT_Util, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
 ! Added for CMS NACs
-use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: iwp, u6, wp
 use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
 use MCLR_Data, only: nrec
 use MCLR_Data, only: iAllo
@@ -59,6 +57,9 @@ use DetDim, only: MXCNSM
 use dmrginfo, only: DoDMRG, RGRAS2, DoMCLR
 use input_mclr, only: ntAsh, ntAtri, ntASqr, nSym, iMethod, SpinPol, iMCPD, iMSPD, PT2, TimeDep, TwoStep, StepType, McKinley, &
                       RASSI, NewCho, Fail, double, LuAChoVec, LuChoInt, LuIChoVec, nAsh, nDisp, nRS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "warnings.h"
@@ -184,7 +185,7 @@ call DecideOnCholesky(DoCholesky)
 call get_iScalar('nSym',nSymX)
 
 if (DoCholesky .and. (nSymX > 1)) then
-  write(6,*) '** Cholesky or RI/DF not implemented with symmetry **'
+  write(u6,*) '** Cholesky or RI/DF not implemented with symmetry **'
   call Quit(_RC_INPUT_ERROR_)
 end if
 
@@ -197,10 +198,10 @@ doMCLR = .false.
 !call read_dmrg_parameter_for_mclr()
 !if (doDMRG) then
 !  doMCLR = .true.
-!  write(6,*) 'ndets_RGLR : ',ndets_RGLR
-!  write(6,*) 'nstates_RGLR ',nstates_RGLR
-!  write(6,*) 'RGras2 : ',RGras2
-!  write(6,*) 'LRras2 : ',LRras2
+!  write(u6,*) 'ndets_RGLR : ',ndets_RGLR
+!  write(u6,*) 'nstates_RGLR ',nstates_RGLR
+!  write(u6,*) 'RGras2 : ',RGras2
+!  write(u6,*) 'LRras2 : ',LRras2
 !  open(unit=117,file='mclr_dets.initial')
 !end if
 !#endif
@@ -288,7 +289,7 @@ else if (iMCPD) then !pdft
   call qpg_DScalar('R_WF_HMC',Do_Hybrid)
   if (Do_Hybrid) then
     call Get_DScalar('R_WF_HMC',WF_Ratio)
-    PDFT_Ratio = 1.0d0-WF_Ratio
+    PDFT_Ratio = One-WF_Ratio
   end if
 
   if (iMSPD) then
@@ -419,8 +420,8 @@ if (TwoStep .and. (StepType == 'RUN1')) irc = ipclose(-1)
 !                                                                      *
 if (.not. fail) then
   if (iPL >= 2) then
-    write(6,*)
-    write(6,'(6X,A)') 'The response parameters are written to the file RESP.'
+    write(u6,*)
+    write(u6,'(6X,A)') 'The response parameters are written to the file RESP.'
   end if
   ireturn = _RC_ALL_IS_WELL_
 else
@@ -431,17 +432,17 @@ end if
 !                                                                      *
 call CWTime(TCpu3,TWall3)
 if (iPL >= 3) then
-  write(6,*)
-  write(6,'(2X,A)') 'Timings'
-  write(6,'(2X,A)') '-------'
-  write(6,*)
-  write(6,'(2X,A)') '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,'(2X,A,T44,A,A,A)') ' ',' ','    CPU time','     elapsed'
-  write(6,'(2X,A,T44,A,2F12.2)') '1) Initialization',':',TCpu2-TCpu1,TWall2-TWall1
-  write(6,'(2X,A,T44,A,2F12.2)') '2) Response calculation',':',TCpu3-TCpu2,TWall3-TWall2
-  write(6,'(2X,A)') '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,'(2X,A,T44,A,2F12.2)') 'Total',':',TCpu3-TCpu1,TWall3-TWall1
-  write(6,'(2X,A)') '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,'(2X,A)') 'Timings'
+  write(u6,'(2X,A)') '-------'
+  write(u6,*)
+  write(u6,'(2X,A)') '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(2X,A,T44,A,A,A)') ' ',' ','    CPU time','     elapsed'
+  write(u6,'(2X,A,T44,A,2F12.2)') '1) Initialization',':',TCpu2-TCpu1,TWall2-TWall1
+  write(u6,'(2X,A,T44,A,2F12.2)') '2) Response calculation',':',TCpu3-TCpu2,TWall3-TWall2
+  write(u6,'(2X,A)') '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,'(2X,A,T44,A,2F12.2)') 'Total',':',TCpu3-TCpu1,TWall3-TWall1
+  write(u6,'(2X,A)') '- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
 
 end if
 !                                                                      *

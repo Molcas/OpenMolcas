@@ -46,12 +46,12 @@ real*8 XI1S(*)
 integer JGRP, IMPF, LMAP
 
 ! Type of mapping
-!? write(6,*) ' ADST: IGRP IORB = ',IGRP,IORB
+!write(u6,*) ' ADST: IGRP IORB = ',IGRP,IORB
 
 JGRP = IGRP+1
 if (IUNIQMP(JGRP) /= JGRP) then
   JGRP = -IUNIQMP(JGRP)
-  !write(6,*) ' Unique string group for mappings ',JGRP
+  !write(u6,*) ' Unique string group for mappings ',JGRP
 end if
 
 if ((ISTAC(JGRP,1) /= 0) .and. (ISTAC(JGRP,2) /= 0)) then

@@ -21,9 +21,12 @@ subroutine STRINF()
 ! /STRINP/,/STINF/,/STRBAS/ and string information in STIN
 
 use Str_Info, only: STR, NSTTYP, ISTAC, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
 use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
 use input_mclr, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 ! ======
@@ -87,8 +90,8 @@ do ITYP=1,NSTTYP
     if (ISTAC(ITYP,1) /= 0) then
       JTYP = ISTAC(ITYP,1)
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' Annihilator arrays between types ',ITYP,JTYP
-      write(6,*) ' ==========================================='
+      write(u6,*) ' Annihilator arrays between types ',ITYP,JTYP
+      write(u6,*) ' ==========================================='
 #     endif
       if (ISTAC(ITYP,2) == 0) then
         LROW = NELEC(ITYP)
@@ -118,8 +121,8 @@ do ITYP=1,NSTTYP
       end if
       JTYP = ISTAC(ITYP,2)
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' Creator  arrays between types ',ITYP,JTYP
-      write(6,*) ' ==========================================='
+      write(u6,*) ' Creator  arrays between types ',ITYP,JTYP
+      write(u6,*) ' ==========================================='
 #     endif
       call CRESTR(Str(ITYP)%OCSTR,NSTFTP(ITYP),NSTFTP(JTYP),NELEC(ITYP),NACOB,Str(JTYP)%Z,Str(JTYP)%STREO,0,ISGSTI,ISGSTO, &
                   Str(ITYP)%STSTM(:,1),Str(ITYP)%STSTM(:,2),Str(ITYP)%STSTMN,Str(ITYP)%STSTMI,LROW,JTYP)

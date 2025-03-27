@@ -17,6 +17,8 @@ use Basis_Info
 use Center_Info
 use Symmetry_Info, only: nIrrep, iChTbl
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp
 
 implicit real*8(a-h,o-z)
 #include "SysDef.fh"
@@ -67,14 +69,14 @@ do i=0,nIrrep-1
 end do
 call mma_allocate(TMP,nd**2,Label='Tmp')
 call mma_allocate(HTMP,nd**2,Label='Htmp')
-Htmp(:) = 0.0d0
+Htmp(:) = Zero
 ii = 0
 iii = 0
 do iS=1,Nirrep
   do i=1,ldisp(iS-1)
     do j=1,i
-      Tmp(itri(iii+i,iii+j)) = sqrt(dble(nDeg(i+iii)*nDeg(j+iii)))*H(ii+itri(i,j))
-      !write(6,*) H(ii+itri(i,j)),Tmo(itri(iii+i,iii+j))
+      Tmp(itri(iii+i,iii+j)) = sqrt(real(nDeg(i+iii)*nDeg(j+iii),kind=wp))*H(ii+itri(i,j))
+      !write(u6,*) H(ii+itri(i,j)),Tmo(itri(iii+i,iii+j))
     end do
   end do
   ii = ii+ldisp(is-1)*(ldisp(is-1)+1)/2
@@ -125,8 +127,8 @@ do iCnttp=1,nCnttp
                       nop_m = nropr(kop_m)
                       kop_n = dc(ndc)%iCoSet(jCo,0)
                       nop_n = nropr(kop_n)
-                      riPh = dble(iPrmt(nop_m,icomp)*iChTbl(iIrrep,nop_m))/sqrt(dble(nCENTI))
-                      rjPh = dble(iPrmt(nop_n,jcomp)*ichtbl(iirrep,nop_n))/sqrt(dble(nCENTJ))
+                      riPh = real(iPrmt(nop_m,icomp)*iChTbl(iIrrep,nop_m),kind=wp)/sqrt(real(nCENTI,kind=wp))
+                      rjPh = real(iPrmt(nop_n,jcomp)*ichtbl(iirrep,nop_n),kind=wp)/sqrt(real(nCENTJ,kind=wp))
                       Htmp(1+irec(i,j)) = Htmp(1+irec(i,j))+riph*rjph*HE
                     end do ! jco
                   end do ! ico

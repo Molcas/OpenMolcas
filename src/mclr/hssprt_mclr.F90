@@ -11,8 +11,9 @@
 
 subroutine HssPrt_MCLR(ideg,Hess,ldisp)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use input_mclr, only: nIrrep, nSym, ChIrr
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, u6
 
 implicit none
 integer ideg(*)
@@ -31,7 +32,7 @@ iDisp = 0
 do iIrrep=1,nIrrep
   kDisp(iIrrep) = iDisp
   iDisp = iDisp+lDisp(iIrrep)
-  write(6,*) lDisp(iIrrep)
+  write(u6,*) lDisp(iIrrep)
 end do
 
 call mma_allocate(Temp,iDisp**2,Label='Temp')
@@ -44,7 +45,7 @@ do iIrrep=1,nIrrep
       do j=1,i
         ii = ind(i,j)
         jj = iaa+ind(i,j)
-        Temp(ii) = Hess(jj)*sqrt(dble(ideg(i+kdisp(iirrep))*ideg(j+kdisp(iirrep))))
+        Temp(ii) = Hess(jj)*sqrt(real(ideg(i+kdisp(iirrep))*ideg(j+kdisp(iirrep)),kind=wp))
       end do
     end do
     call TriPrt(title,' ',Temp,ldisp(iirrep))

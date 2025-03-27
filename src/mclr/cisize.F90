@@ -20,6 +20,8 @@ subroutine CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCNT,MXPC
 !        August 1990 : Improved handling of large RAS 3 space
 !        Winter 1991 : Modified for LUCIA
 
+use Definitions, only: u6
+
 implicit none
 integer NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NACTEL, MINOP, MAXOP, MXPCNT, MXPCSM
 ! Output
@@ -61,13 +63,13 @@ NORB = NORB1+NORB2+NORB3
 ! Min number of doubly occupied orbitals in RAS 1
 MINCL1 = max(0,NEL1MN-NORB1)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
+write(u6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
 #endif
 outer: do NOP=MINOP,MAXOP,2
   ITYPE = NOP-MINOP+1
   NCL = (NACTEL-NOP)/2
 # ifdef _DEBUGPRINT_
-  write(6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
+  write(u6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
 # endif
   ! first combination of double occupied orbitals
   call iCOPY(NORB,[0],0,IIOC,1)
@@ -121,7 +123,7 @@ outer: do NOP=MINOP,MAXOP,2
       end if
       IFRSTC = 0
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' Next inactive configuration'
+      write(u6,*) ' Next inactive configuration'
       call IWRTMA(IICL,1,NCL,1,NCL)
 #     endif
       ! CHECK RAS1 and RAS 3
@@ -232,7 +234,7 @@ outer: do NOP=MINOP,MAXOP,2
         IFRSTO = 0
 
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' Next active configuration'
+        write(u6,*) ' Next active configuration'
         call IWRTMA(IIOP,1,NOP,1,NOP)
 #       endif
         ! RAS CONSTRAINTS
@@ -285,19 +287,19 @@ outer: do NOP=MINOP,MAXOP,2
         ISYM = ISYMCN_MCLR(IICL,IIOP,NCL,NOP)
 
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' ISYM : ',ISYM
-        write(6,1120) (IIOC(I),I=1,NORB)
+        write(u6,*) ' ISYM : ',ISYM
+        write(u6,1120) (IIOC(I),I=1,NORB)
 #       endif
         NCNF = NCNF+1
 
         NCNASM(ISYM) = NCNASM(ISYM)+1
 #       ifdef _DEBUGPRINT_
-        write(6,1311) NCNF,(IIOC(I),I=1,NORB)
+        write(u6,1311) NCNF,(IIOC(I),I=1,NORB)
 #       endif
 
         NCNATS(ITYPE,ISYM) = NCNATS(ITYPE,ISYM)+1
 #       ifdef _DEBUGPRINT_
-        write(6,3111) NCNF,ITYPE
+        write(u6,3111) NCNF,ITYPE
 #       endif
       end if
 
@@ -306,7 +308,7 @@ outer: do NOP=MINOP,MAXOP,2
       ILOOP = ILOOP+1
       ILOOP2 = ILOOP2+1
       if (ILOOP2 == 10000000) then
-        write(6,*) ' 10 million configurations generated'
+        write(u6,*) ' 10 million configurations generated'
         ILOOP2 = 0
       end if
 
@@ -317,7 +319,7 @@ outer: do NOP=MINOP,MAXOP,2
 end do outer
 
 #ifdef _DEBUGPRINT_
-write(6,'(A,I8)') '  Total number of configurations generated ',NCNF
+write(u6,'(A,I8)') '  Total number of configurations generated ',NCNF
 #endif
 ! ==============================
 ! Total number of CSF's and SD's
@@ -331,13 +333,13 @@ do ISYM=1,MXPCSM
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,'(/A)') ' Information about actual configurations'
-write(6,'(A)') ' ========================================'
-write(6,'(/A)') '    Symmetry     Configurations     CSFs     Combinations'
-write(6,'(A)') '  =============  ============== ============ ============'
+write(u6,*)
+write(u6,'(/A)') ' Information about actual configurations'
+write(u6,'(A)') ' ========================================'
+write(u6,'(/A)') '    Symmetry     Configurations     CSFs     Combinations'
+write(u6,'(A)') '  =============  ============== ============ ============'
 do ICSM=1,MXPCSM
-  if (NCNASM(ICSM) /= 0) write(6,'(4X,I3,4X,6X,I8,6X,I8,6X,I9)') ICSM,NCNASM(ICSM),NCSASM(ICSM),NDTASM(ICSM)
+  if (NCNASM(ICSM) /= 0) write(u6,'(4X,I3,4X,6X,I8,6X,I8,6X,I9)') ICSM,NCNASM(ICSM),NCSASM(ICSM),NDTASM(ICSM)
 end do
 
 return

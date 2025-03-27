@@ -24,6 +24,7 @@ subroutine CNFSTR_MCLR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,IAGRP,I
 ! Modified September 1993 for LUCIA
 
 use MCLR_Data, only: MINOP, NDPCNT
+use Definitions, only: wp
 
 implicit none
 ! Specific input
@@ -79,7 +80,7 @@ do JDET=1,IDET
   ! Actual numbers of alpha and beta string
   IASTR(JDET) = ISTRN_MCLR(ISCR(KLIA),IAGRP)
   IBSTR(JDET) = ISTRN_MCLR(ISCR(KLIB),IBGRP)
-  sign(JDET) = dble(ISIGN)
+  sign(JDET) = real(ISIGN,kind=wp)
 end do
 
 end subroutine CNFSTR_MCLR

@@ -22,6 +22,7 @@ use Cholesky, only: InfVec, nBas, nBasSh, nDimRS, nShell, nSym, NumCho
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
+use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 #include "warnings.h"
@@ -90,13 +91,13 @@ do jSym=1,nSym
     call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
     if (nVrs == 0) cycle
     if (nVrs < 0) then
-      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!',nVrs
+      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!',nVrs
       call Abend()
     end if
     call Cho_X_SetRed(irc,iLoc,JRED)
     ! set index arrays at iLoc
     if (irc /= 0) then
-      write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+      write(u6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
       call Abend()
     end if
     IREDC = JRED
@@ -110,12 +111,12 @@ do jSym=1,nSym
     call mma_MaxDBLE(LWORK)
     nVec = min(LWORK/(nRS+mTvec+1),min(nVrs,MaxVecPerBatch))
     if (nVec < 1) then
-      write(6,*) SECNAM//': Insufficient memory for batch'
-      write(6,*) 'LWORK= ',LWORK
-      write(6,*) 'min. mem. need= ',nRS+mTvec+1
-      write(6,*) 'nRS= ',nRS
-      write(6,*) 'mTvec= ',mTvec
-      write(6,*) 'jsym= ',jsym
+      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) 'LWORK= ',LWORK
+      write(u6,*) 'min. mem. need= ',nRS+mTvec+1
+      write(u6,*) 'nRS= ',nRS
+      write(u6,*) 'mTvec= ',mTvec
+      write(u6,*) 'jsym= ',jsym
       call Quit(_RC_MEMORY_ERROR_)
       nBatch = -9999  ! dummy assignment
     end if
@@ -210,7 +211,7 @@ do jSym=1,nSym
 
           call DGEMV_('T',Nav*Naw,JNUM,One,LF(ipLvtw),Nav*Naw,DA,1,Zero,LF(ipVJ),1)
 
-          call DGEMV_('N',nRS,JNUM,-FactCI,Lrs,nRS,LF(ipVJ),1,1.0d0,Fab,1)
+          call DGEMV_('N',nRS,JNUM,-FactCI,Lrs,nRS,LF(ipVJ),1,One,Fab,1)
 
           !call CWTIME(TCINT2,TWINT2)
           !tact(1) = tact(1)+(TCINT2-TCINT3)
@@ -311,14 +312,12 @@ call Allocate_DT(JA(1),nBas,nBas,nSym,Ref=W_JA)
 do iS=1,nSym
   jS = iS
   if (nBas(iS) /= 0) then
-    call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),1.0d0,FkA%SB(iS)%A2,nBas(iS),CMO%SB(iS)%A2,nBas(iS),0.0d0,JA(1)%SB(iS)%A2, &
-                nBas(jS))
+    call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),One,FkA%SB(iS)%A2,nBas(iS),CMO%SB(iS)%A2,nBas(iS),Zero,JA(1)%SB(iS)%A2,nBas(jS))
     FkA%SB(is)%A2(:,:) = Zero
-    call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),1.0d0,JA(1)%SB(iS)%A2,nBas(iS),CMO%SB(jS)%A2,nBas(jS),0.0d0,FkA%SB(iS)%A2, &
-                nBas(jS))
+    call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),One,JA(1)%SB(iS)%A2,nBas(iS),CMO%SB(jS)%A2,nBas(jS),Zero,FkA%SB(iS)%A2,nBas(jS))
     !ioff = nIsh(iS)+1
     iOff = 1+nIsh(iS)*nBas(iS)
-    call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),1.0d0,CMO%SB(iS)%A2,nBas(jS),Scr%SB(iS)%A2,nBas(jS),0.0d0,FkA%SB(iS)%A1(iOff:), &
+    call DGEMM_('T','N',nBas(jS),nAsh(iS),nBas(jS),One,CMO%SB(iS)%A2,nBas(jS),Scr%SB(iS)%A2,nBas(jS),Zero,FkA%SB(iS)%A1(iOff:), &
                 nBas(jS))
   end if
 end do

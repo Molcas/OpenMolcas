@@ -14,6 +14,8 @@
 subroutine dgeAdd2(r,A,LDA,FORMA,B,LDB,FORMB,C,LDC,M,N)
 ! MATRIX Addition FOR GENERAL MATRICES
 
+use Definitions, only: u6
+
 implicit real*8(A-H,O-Z)
 character*1 FORMA, FORMB
 real*8 A(*), B(*), C(*)
@@ -43,7 +45,7 @@ else if ((FORMA == 'T') .and. (FORMB == 'T')) then
     end do
   end do
 else
-  write(6,*) FORMA,FORMB
+  write(u6,*) FORMA,FORMB
   call Abend()
 end if
 

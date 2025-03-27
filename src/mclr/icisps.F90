@@ -24,12 +24,15 @@ subroutine ICISPS()
 ! Last revision April 1991
 
 use Str_Info, only: STR, NOCTYP
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: IDC
 use MCLR_Data, only: IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC, IACTI, MNR3IC, MXR1IC, NAELCI, NBELCI, XISPSM, MXSB, MXSOOB, NICISP
 use DetDim, only: MXPCSM
-use Constants, only: Zero
 use input_mclr, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 ! local variables
@@ -58,7 +61,7 @@ do ICI=1,NICISP
   do ISYM=1,nIrrep
     IATP = IASTFI(ICI)
     IBTP = IBSTFI(ICI)
-    !MS write(6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
+    !MS write(u6,*) ' NRASDT : ICI IATP IBTP ',ICI,IATP,IBTP
     if (NAELCI(ICI) == NBELCI(ICI)) then
       IIDC = IDC
     else
@@ -81,18 +84,18 @@ call mma_deallocate(LCVST)
 call mma_deallocate(LBLTP)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Number of internal combinations per symmetry'
-write(6,*) ' ==========================================='
+write(u6,*) ' Number of internal combinations per symmetry'
+write(u6,*) ' ==========================================='
 
 do ICI=1,NICISP
   if (IACTI(ICI) == 1) then
-    write(6,*) ' Internal CI space ',ICI
+    write(u6,*) ' Internal CI space ',ICI
     call WRTMAT(XISPSM(1,ICI),1,nIrrep,1,nIrrep)
   end if
 end do
-write(6,*) ' Largest CI space                 ',MXCEXP
-write(6,*) ' Largest symmetry block           ',MXSB
-write(6,*) ' Largest Symmetry-type-type block ',MXSOOB
+write(u6,*) ' Largest CI space                 ',MXCEXP
+write(u6,*) ' Largest symmetry block           ',MXSB
+write(u6,*) ' Largest Symmetry-type-type block ',MXSOOB
 #endif
 
 end subroutine ICISPS

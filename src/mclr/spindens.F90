@@ -36,12 +36,12 @@ subroutine SpinDens(LS,RS,iL,iR,rP1,rp2,rp3,rp4,rp5,rDe1,rde2,itype)
 ! <L||[{Q:S} ,[{Q:S} ,H]]|R>
 !           0       0
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use MCLR_Data, only: nNA, n2Dens, n1Dens
 use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 
 implicit none
 real*8 LS(*), RS(*), rP1(nna,nna,nna,nna), rP2(nna,nna,nna,nna), rP3(nna,nna,nna,nna), rP4(nna,nna,nna,nna), rP5(nna,nna,nna,nna), &
@@ -107,7 +107,7 @@ else if (itype == 2) then
   ! spin adadpted density
 
   call DZAXPY(n1dens,-One,Dens(:,1),1,Dens(:,2),1,rde1,1)
-  call DZAXPY(n1dens,1.0d0,Dens(:,2),1,Dens(:,1),1,rde2,1)
+  call DZAXPY(n1dens,One,Dens(:,2),1,Dens(:,1),1,rde2,1)
 
   do iA=1,nnA
     do jA=1,nnA

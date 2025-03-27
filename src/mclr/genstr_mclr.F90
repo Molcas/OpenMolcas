@@ -28,6 +28,9 @@ subroutine GENSTR_MCLR(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,NOCTYP,NSMST,Z,LST
 !                      order to symmetry and occupation type order.
 
 use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer NEL, NELMN1, NELMX1, NELMN3, NELMX3, NOCTYP, NSMST
@@ -74,7 +77,7 @@ outer: do IEL1=NELMX1,NELMN1,-1
         end if
       end if
 #     ifdef _DEBUGPRINT_
-      write(6,*) ' RAS 1 string'
+      write(u6,*) ' RAS 1 string'
       call IWRTMA(IOC,1,IEL1,1,IEL1)
 #     endif
       IFRST2 = 1
@@ -94,7 +97,7 @@ outer: do IEL1=NELMX1,NELMN1,-1
           end if
         end if
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' RAS 1 2 string'
+        write(u6,*) ' RAS 1 2 string'
         call IWRTMA(IOC,1,IEL1+IEL2,1,IEL1+IEL2)
 #       endif
         IFRST3 = 1
@@ -114,7 +117,7 @@ outer: do IEL1=NELMX1,NELMN1,-1
             end if
           end if
 #         ifdef _DEBUGPRINT_
-          write(6,*) ' RAS 1 2 3 string'
+          write(u6,*) ' RAS 1 2 3 string'
           call IWRTMA(IOC,1,NEL,1,NEL)
 #         endif
           ! Next string has been constructed, Enlist it!
@@ -142,25 +145,25 @@ outer: do IEL1=NELMX1,NELMN1,-1
 end do outer
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Number of strings generated ',NSTRIN
-write(6,*) ' Strings generated'
-write(6,*) ' =================='
+write(u6,*) ' Number of strings generated ',NSTRIN
+write(u6,*) ' Strings generated'
+write(u6,*) ' =================='
 ISTRIN = 0
 do ISYM=1,NSMST
   do ITYP=1,NOCTYP
     LSTRIN = min(LSTASO(ITYP,ISYM),NSTRIN-ISTRIN)
     if (LSTRIN > 0) then
-      write(6,*) ' Strings of type and symmetry ',ITYP,ISYM
+      write(u6,*) ' Strings of type and symmetry ',ITYP,ISYM
       do KSTRIN=1,LSTRIN
         ISTRIN = ISTRIN+1
-        write(6,'(2X,I4,8X,(10I5))') ISTRIN,(STRING(IEL,ISTRIN),IEL=1,NEL)
+        write(u6,'(2X,I4,8X,(10I5))') ISTRIN,(STRING(IEL,ISTRIN),IEL=1,NEL)
       end do
     end if
   end do
 end do
 
-write(6,*) ' Array giving actual place from lexical place'
-write(6,*) ' ============================================'
+write(u6,*) ' Array giving actual place from lexical place'
+write(u6,*) ' ============================================'
 call IWRTMA(IREORD,1,NSTRIN,1,NSTRIN)
 #endif
 

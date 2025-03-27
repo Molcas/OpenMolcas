@@ -23,6 +23,9 @@ subroutine CIDIA4(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,ISMOST,IBLTP,XA,XB,SCR
 ! Jeppe Olsen, Winter of 1991
 ! K => J - K moved outside, April 1994
 
+use Constants, only: Zero, One, Half
+use Definitions, only: wp
+
 implicit real*8(A-H,O-Z)
 ! General input
 dimension NSSOA(NOCTPA,*), NSSOB(NOCTPB,*)
@@ -39,10 +42,10 @@ dimension XA(NORB), XB(NORB), SCR(2*NORB)
 dimension DIAG(*)
 dimension IDUM(1)
 
-if (PSSIGN == -1.0d0) then
-  XADD = 1000000.0d0
+if (PSSIGN == -One) then
+  XADD = 1.0e6_wp
 else
-  XADD = 0.0d0
+  XADD = Zero
 end if
 
 !*3 Diagonal elements according to Handys formulae
@@ -82,9 +85,9 @@ do IASM=1,NSMST
 
         ! Terms depending only on IB
 
-        XB(:) = 0.0d0
-        HB = 0.0d0
-        RJBB = 0.0d0
+        XB(:) = Zero
+        HB = Zero
+        RJBB = Zero
 
         do IEL=1,NBEL
           IBEL = IBSTR(IEL,IB)
@@ -98,7 +101,7 @@ do IASM=1,NSMST
             XB(IORB) = XB(IORB)+RJ(IORB,IBEL)
           end do
         end do
-        EB = HB+0.5d0*RJBB+ECORE
+        EB = HB+Half*RJBB+ECORE
 
         if ((IREST1 == 1) .and. (IATP == IBTP)) then
           IASTRT = ISSOA(IATP,IASM)-1+IBREL
@@ -110,7 +113,7 @@ do IASM=1,NSMST
           IDET = IDET+1
           ITDET = ITDET+1
           X1 = EB
-          X2 = 0.0d0
+          X2 = Zero
           do IEL=1,NAEL
             IAEL = IASTR(IEL,IA)
             X1 = X1+(H(IAEL)+XB(IAEL))
@@ -118,7 +121,7 @@ do IASM=1,NSMST
               X2 = X2+RK(IASTR(JEL,IA),IAEL)
             end do
           end do
-          DIAG(IDET) = X1+0.5d0*X2
+          DIAG(IDET) = X1+Half*X2
           if (IB == IA) DIAG(IDET) = DIAG(IDET)+XADD
         end do
       end do

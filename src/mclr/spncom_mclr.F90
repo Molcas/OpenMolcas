@@ -26,6 +26,8 @@ subroutine SPNCOM_MCLR(iwork,NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN)
 ! we select as the unique determinants those with first electron
 ! having alpha spin
 
+use Constants, only: Zero
+
 implicit none
 integer IWORK(*)
 integer NOPEN, MS2, NDET
@@ -66,7 +68,7 @@ do I=1,MX
     NALPHA = NALPHA+IWORK(J)
   end do
 
-  if ((2*NALPHA-NOPEN == MS2) .and. (.not. ((PSSIGN /= 0.0d0) .and. (IWORK(1) == 0)))) then
+  if ((2*NALPHA-NOPEN == MS2) .and. (.not. ((PSSIGN /= Zero) .and. (IWORK(1) == 0)))) then
     if (IFLAG < 3) then
       NDET = NDET+1
       IABDET(:,NDET) = IWORK(1:NOPEN)
@@ -93,6 +95,6 @@ do I=1,MX
 
 end do
 
-!XMSD2 = DBLE(MS2)/2
+!XMSD2 = real(MS2,kind=wp)*Half
 
 end subroutine SPNCOM_MCLR

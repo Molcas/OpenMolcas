@@ -12,8 +12,9 @@
 subroutine ThermoData(in_Freq,in_nFreq)
 ! Compute thermodynamic data at different temperatures.
 
-use Constants, only: auTocm
 use Temperatures, only: DefTemp
+use Constants, only: auTocm
+use Definitions, only: wp
 
 implicit real*8(a-h,o-z)
 #include "Molcas.fh"
@@ -23,7 +24,7 @@ real*8 in_Freq(in_nFreq), Freq(MxAtom*3-6)
 
 nFreq = 0
 do i=1,in_nFreq
-  if (in_Freq(i) > 20.0d0) then
+  if (in_Freq(i) > 20.0_wp) then
     nFreq = nFreq+1
     Freq(nFreq) = in_Freq(i)
   end if
@@ -35,8 +36,8 @@ nAtom = (nFreq+6)/3
 nTR = 3*nAtom-nFreq ! Number of trans and rot fg
 
 do i=1,nFreq
-  ! Convert frequecnies from cm-1 to hartree
-  !Freq(i) = Freq(i)*4.55633538D-06
+  ! Convert frequencies from cm-1 to hartree
+  !Freq(i) = Freq(i)*4.55633538e-6_wp
   Freq(i) = Freq(i)/auTocm
 end do
 

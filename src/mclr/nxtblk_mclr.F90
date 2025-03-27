@@ -13,6 +13,10 @@
 subroutine NXTBLK_MCLR(IATP,IBTP,IASM,NOCTPA,NOCTPB,NSMST,IBLTP,IDC,NONEW,IOCOC)
 ! Obtain allowed block following IATP IBTP IASM
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 integer IBLTP(*)
 integer IOCOC(NOCTPA,NOCTPB)
@@ -57,7 +61,7 @@ IBTP = IB
 IASM = ISM
 
 #ifdef _DEBUGPRINT_
-write(6,'(A,4I4)') ' NXTBLK : ISM IA IB NONEW ',IASM,IA,IB,NONEW
+write(u6,'(A,4I4)') ' NXTBLK : ISM IA IB NONEW ',IASM,IA,IB,NONEW
 #endif
 
 return

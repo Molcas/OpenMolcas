@@ -17,9 +17,10 @@
 
 subroutine GetPDFTFock(bk)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens2, ipMat
 use input_mclr, only: nSym, nBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two
 
 implicit none
 ! Output
@@ -38,7 +39,7 @@ do IS=1,nSym
   if (nBas(is)*nBas(jS) /= 0) &
     call DGeSub(T(ipMat(iS,jS)),nBas(iS),'N',T(ipMat(jS,iS)),nBas(jS),'T',bktmp(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
 end do
-call daxpy_(nDens2,-2.0d0,bktmp,1,bk,1)
+call daxpy_(nDens2,-Two,bktmp,1,bk,1)
 call mma_deallocate(T)
 call mma_deallocate(FT99)
 call mma_deallocate(bktmp)

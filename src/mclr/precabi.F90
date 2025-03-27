@@ -36,6 +36,7 @@ subroutine Precabi(ib,is,js,ir,nd,rOut,nba,focki,focka,fock,sign,A_J,A_K,Scr,nSc
 use Arrays, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb, nBas
+use Constants, only: Two, Four, Eight
 
 implicit none
 integer ib, is, js, ir, nd
@@ -80,12 +81,12 @@ do kS=1,nSym
       do jB=1,nIsh(jS)
         ip = itri1(jB,nd-jVert+1)
 
-        Fact1 = -2.0d0*G2t(itri(itAA,itri(kAA,lAA)))
-        Fact2 = -4.0d0*G2t(itri(itri(iAA,kAA),itri(iAA,lAA)))
+        Fact1 = -Two*G2t(itri(itAA,itri(kAA,lAA)))
+        Fact2 = -Four*G2t(itri(itri(iAA,kAA),itri(iAA,lAA)))
 
-        if (kaa == iaa) Fact2 = Fact2+8.0d0*G1t(itri(iAA,lAA))
-        if (laa == iaa) Fact1 = Fact1-2.0d0*G1t(itri(iAA,kAA))
-        if (laa == iaa) Fact2 = Fact2-2.0d0*G1t(itri(iAA,kAA))
+        if (kaa == iaa) Fact2 = Fact2+Eight*G1t(itri(iAA,lAA))
+        if (laa == iaa) Fact1 = Fact1-Two*G1t(itri(iAA,kAA))
+        if (laa == iaa) Fact2 = Fact2-Two*G1t(itri(iAA,kAA))
 
         ivj = (jB-1)*nBas(jS)+no+1
         call DaXpY_(jVert,Sign*Fact1,A_J(ivj),1,rout(ip),1) ! ????
@@ -101,9 +102,9 @@ end do
 !                                                                      *
 do jB=1,nIsh(jS)
   ip = itri1(jB,nd-jVert+1)
-  Fact = (2.0d0-2.0d0*G1t(itAA))
+  Fact = (Two-Two*G1t(itAA))
   call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jB),1,rOut(ip),1)
-  Fact = 2.0d0
+  Fact = Two
   call DaxPy_(jVert,Sign*Fact,FockA(nO+1,jB),1,rOut(ip),1)
 end do
 !                                                                      *

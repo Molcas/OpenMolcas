@@ -58,6 +58,11 @@ subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,IC
 ! either fetches/disposes symmetry blocks or
 ! Symmetry-occupation-occupation blocks
 
+use Constants, only: Zero
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 ! General input
 integer ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB)
@@ -89,8 +94,8 @@ dimension RHO1(*), RHO2(*)
 dimension RHO1P(*), XNATO(*)
 dimension ISTRFL(1)
 
-PLL = 0.0d0
-PLR = 0.0d0
+PLL = Zero
+PLR = Zero
 
 ! ================================
 ! 1 : Arrays for accessing L and R
@@ -125,7 +130,7 @@ outer: do
   do ISBLK=1,NSBLK
     ISBSM = ISSMOS(IS1SM)
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' ISBLK ISOFF ',ISBLK,ISOFF
+    write(u6,*) ' ISBLK ISOFF ',ISBLK,ISOFF
 #   endif
     if (ISOCOC(IS1TA,IS1TB) == 1) &
       call GSTTBL_MCLR(L,SB(ISOFF),IS1TA,IS1SM,IS1TB,ISBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PLL,LUL,C2)
@@ -140,7 +145,7 @@ outer: do
   IFRSTC = 1
   do
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' >>> next batch of R blocks'
+    write(u6,*) ' >>> next batch of R blocks'
 #   endif
     ICSTSM = ICENSM
     ICSTTA = ICENTA
@@ -200,7 +205,7 @@ outer: do
           NJA = NSSOA(JASM,JATP)
           NJB = NSSOB(JBSM,JBTP)
           XNORM2 = INPROD_MCLR(CB(ICOFF),CB(ICOFF),NJA*NJB)
-          if ((NIA*NIB*NJA*NJB /= 0) .and. (ISOCOC(IATP,IBTP) == 1) .and. (ICOCOC(JATP,JBTP) == 1) .and. (XNORM2 /= 0.0d0)) then
+          if ((NIA*NIB*NJA*NJB /= 0) .and. (ISOCOC(IATP,IBTP) == 1) .and. (ICOCOC(JATP,JBTP) == 1) .and. (XNORM2 /= Zero)) then
             ! Possible permutations of this block
             call PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PSR,PLR,RATP,RBTP,RASM,RBSM,RSGN,RTRP,NRPERM)
             do IRPERM=1,NRPERM

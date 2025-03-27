@@ -28,6 +28,7 @@ subroutine Preci_cho(iB,iS,jS,nd,rOut,nbai,nbaj,fockii,fockai,fockti,focki,focka
 use Arrays, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
+use Constants, only: One, Two, Three, Four
 
 implicit none
 integer iB, iS, jS, nd
@@ -61,8 +62,8 @@ i1 = nD-jVert+1
 ! Integral contribution
 
 do iJK=1,2 ! 1=coulomb, 2=exchange
-  factor = -1.0d0
-  if (ijK == 2) factor = 3.0d0
+  factor = -One
+  if (ijK == 2) factor = Three
 
   ! Read integrals
 
@@ -84,9 +85,9 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
             jjB = jB+nA(jS)
             i = itri1(jA,jB)
             if (iJK == 1) then
-              rDens1 = 2.0d0*sign*G2t(itri(itri(jjC,jjD),itri(jjB,jjA)))
+              rDens1 = Two*sign*G2t(itri(itri(jjC,jjD),itri(jjB,jjA)))
             else
-              rDens1 = 4.0d0*sign*G2t((itri(itri(jjB,jjD),itri(jjC,jjA))))
+              rDens1 = Four*sign*G2t((itri(itri(jjB,jjD),itri(jjC,jjA))))
             end if
             rout(i) = rout(i)+rDens1*aabb
           end do
@@ -110,7 +111,7 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
             rDens2 = -sign*G1t(itri(jBB,jCC))
             if (jAA == jCC) rDens1 = rdens1+sign
             if (jBB == jCC) rDens2 = rdens2+sign
-            rout(i) = rout(i)+2.0d0*rdens1*factor*BCbb+2.0d0*rdens2*factor*ACbb
+            rout(i) = rout(i)+Two*rdens1*factor*BCbb+Two*rdens2*factor*ACbb
 
           end do
         end do
@@ -122,10 +123,10 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
         ip = itri1(ja,nd-jVert+1)
         do jB=1,nAsh(jS)
           rDens = -sign*G1t(iTri(jA+nA(jS),jB+nA(jS)))
-          if (jA == jB) rDens = rdens+sign*2.0d0
+          if (jA == jB) rDens = rdens+sign*Two
 
           ivB = (jB-1)*nvirt+nAsh(jS)+1
-          call DaXpY_(jVert,2.0d0*factor*rDens,A_J(ivB),1,rOut(ip),1)
+          call DaXpY_(jVert,Two*factor*rDens,A_J(ivB),1,rOut(ip),1)
         end do
       end do
 
@@ -135,7 +136,7 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
       do kB=nAsh(jS),nvirt-1
         nlB = nvirt-kb
         ilB = kB+1+nvirt*kb
-        call daxpy_(nlB,sign*4.0d0*factor,A_J(ilB),nvirt,rout(i),1)
+        call daxpy_(nlB,sign*Four*factor,A_J(ilB),nvirt,rout(i),1)
         i = i+nlB
       end do
     end if
@@ -160,15 +161,15 @@ do jA=1,nAsh(jS)
     jjB = jB+nIsh(js)
     i = itri1(jA,jB)
     rDens = G1t(itri(jbb,jAA))
-    rout(i) = rout(i)+Sign*(2.0d0*rdens*Fockii+2.0d0*(2.0d0*Focki(jjA,jjB)+2.0d0*FockA(jjA,jjB)-Fock(jjB,jjA)))
+    rout(i) = rout(i)+Sign*(Two*rdens*Fockii+Two*(Two*Focki(jjA,jjB)+Two*FockA(jjA,jjB)-Fock(jjB,jjA)))
   end do
-  rout(i) = rout(i)-4.0d0*rFock
+  rout(i) = rout(i)-Four*rFock
 
   ! iba
 
   ip = iTri1(ja,nAsh(js)+1)
-  call DaXpY_(jVert,sign*4.0d0,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
-  call DaXpY_(jVert,sign*4.0d0,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
+  call DaXpY_(jVert,sign*Four,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
+  call DaXpY_(jVert,sign*Four,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
   call DaXpY_(jVert,-sign,Fock(nO+1,ja+nIsh(js)),1,rout(ip),1)
 end do
 
@@ -176,10 +177,10 @@ end do
 
 i = itri1(i1,i1)-1
 do kB=nIsh(jS)+nAsh(jS),nOrb(jS)-1
-  rOut(i+1) = rout(i+1)-4.0d0*rFock
+  rOut(i+1) = rout(i+1)-Four*rFock
   do lB=kb,nOrb(JS)-1
     i = i+1
-    rOut(i) = rout(i)+sign*4.0d0*Focki(kb+1,lb+1)+sign*4.0d0*Focka(kb+1,lb+1)
+    rOut(i) = rout(i)+sign*Four*Focki(kb+1,lb+1)+sign*Four*Focka(kb+1,lb+1)
   end do
 end do
 !end if

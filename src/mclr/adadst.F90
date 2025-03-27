@@ -48,7 +48,7 @@ integer JGRP, I1MPF, L1MP, KGRP, I2MPF, L2MP
 JGRP = IGRP+1
 if (IUNIQMP(JGRP) /= JGRP) then
   JGRP = -IUNIQMP(JGRP)
-  !write(6,*) ' Unique string group for mappings ',JGRP
+  !write(u6,*) ' Unique string group for mappings ',JGRP
 end if
 ! Are the creation arrays full or in compact form
 ! N-1 => N
@@ -63,7 +63,7 @@ end if
 KGRP = IGRP+2
 if (IUNIQMP(KGRP) /= KGRP) then
   KGRP = -IUNIQMP(KGRP)
-  !write(6,*) ' Unique string group for mappings ',KGRP
+  !write(u6,*) ' Unique string group for mappings ',KGRP
 end if
 ! N-2 => N-1
 if ((ISTAC(KGRP,1) /= 0) .and. (ISTAC(KGRP,2) /= 0)) then

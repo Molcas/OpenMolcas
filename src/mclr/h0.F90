@@ -18,12 +18,13 @@ use Exp, only: H0S, H0F, SBIDT
 use negpre, only: nGP
 use iso_c_binding
 use Arrays, only: Int2, FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: iRefSM, IDC, PSSIGN
 use MCLR_Data, only: NAELCI, NBELCI, XISPSM
 use MCLR_Data, only: MXP1, MXP2, MXQ, NOCSF
 use MCLR_Data, only: NACOB, NOCOB
 use MCLR_Data, only: NTYP, NCPCNT, NDPCNT
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: u6
 
 implicit none
 real*8 rdia(*)
@@ -84,7 +85,7 @@ do i=1,nprciv
 end do
 if (NGP) call mkp1(nprciv,SBIDT,H0T,rdia)
 !call Triprt('PRECI',' ',H0T,nprciv)
-!write(6,*) (SBIDT(i),i=1,nprciv)
+!write(u6,*) (SBIDT(i),i=1,nprciv)
 call mma_deallocate(Vec2)
 nullify(iH0Scr)
 call mma_deallocate(H0Scr)
@@ -95,8 +96,8 @@ call mma_deallocate(H0T)
 irc = 0
 call dgetrf_(NPRCIV,NPRCIV,H0S,NPRCIV,H0F,irc)
 if (irc /= 0) then
-  write(6,*) 'Sorry but you have an singular ci matrix'
-  write(6,*) 'Set ExpDimension and restart mclr'
+  write(u6,*) 'Sorry but you have an singular ci matrix'
+  write(u6,*) 'Set ExpDimension and restart mclr'
   call Abend()
 end if
 

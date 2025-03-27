@@ -20,6 +20,10 @@ subroutine CNDET_MCLR(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,IDET)
 !
 ! JEPPE OLSEN, NOVEMBER 1988
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit none
 integer NEL
 integer ICONF(*)
@@ -40,11 +44,11 @@ unused_var(NORB)
 
 #ifdef _DEBUGPRINT_
 if (NCL /= 0) then
-  write(6,*) ' DOUBLE OCCUPIED ORBITALS'
+  write(u6,*) ' DOUBLE OCCUPIED ORBITALS'
   call IWRTMA(ICONF,1,NCL,1,NCL)
 end if
 if (NOP /= 0) then
-  write(6,*) ' OPEN ORBITALS'
+  write(u6,*) ' OPEN ORBITALS'
   call IWRTMA(ICONF(1+NCL),1,NOP,1,NOP)
 end if
 #endif
@@ -73,11 +77,11 @@ end do
 !3  OUTPUT
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' CONFIGURATION FROM DETCON'
+write(u6,*) ' CONFIGURATION FROM DETCON'
 call IWRTMA(ICONF,1,NORB,1,NORB)
-write(6,*) ' PROTO TYPE DETERMINANTS'
+write(u6,*) ' PROTO TYPE DETERMINANTS'
 if (NOP*NDET > 0) call IWRTMA(IPDET,NOP,NDET,NOP,NDET)
-if (NEL*NDET > 0) write(6,*) ' CORRESPONDING DETERMINANTS'
+if (NEL*NDET > 0) write(u6,*) ' CORRESPONDING DETERMINANTS'
 call IWRTMA(IDET,NEL,NDET,NEL,NDET)
 #endif
 

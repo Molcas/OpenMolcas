@@ -11,8 +11,10 @@
 
 subroutine ci_reconstruct(istate,nSDET,vector,indexSD)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use dmrginfo, only: LRRAS2, RGRAS2, nEle_RGLR, nDets_RGLR, MS2_RGLR, nStates_RGLR
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
+use Definitions, only: u6
 
 implicit none
 character(len=100), allocatable :: checkpoint(:)! for many states
@@ -82,7 +84,7 @@ close(lcheckpoint)
 
 ! reconstructing dets for current state
 do i=istate,istate
-  write(6,*) trim(checkpoint(i))
+  write(u6,*) trim(checkpoint(i))
 end do
 
 ! preparing for point group symmetry
@@ -104,13 +106,13 @@ do i=1,8
   if (i /= 1) irrep_pre = irrep_pre+irrep_diff(i-1)
   do j=iorbLR0,iorbLR,1
     pre_ele(j) = irrep_pre
-    write(6,*) 'j,pre_ele(j)',j,pre_ele(j)
+    write(u6,*) 'j,pre_ele(j)',j,pre_ele(j)
   end do
   iorbLR0 = iorbLR+1 ! At least work for C1
 end do
 
-write(6,*) 'pre_ele, ndets_RGLR',pre_ele,ndets_RGLR
-write(6,*) 'nalpha,  nbeta     ',nele_alpha,nele_beta
+write(u6,*) 'pre_ele, ndets_RGLR',pre_ele,ndets_RGLR
+write(u6,*) 'nalpha,  nbeta     ',nele_alpha,nele_beta
 
 ! DETs read from mclr_dets.initial
 open(UNIT=117,file='mclr_dets.initial',status='OLD')
@@ -121,7 +123,7 @@ do idet=1,ndets_RGLR
   call mma_allocate(SD_DMRG(idet)%dv,nstates_RGLR)
   SD_DMRG(idet)%electron = 0
   SD_DMRG(idet)%ele_conf = 0
-  SD_DMRG(idet)%dv = 0.0d0
+  SD_DMRG(idet)%dv = Zero
   read(117,'(1X,I8,6X)',advance='no') SD_DMRG(idet)%ITYPE
   do i=1,neletol
     read(117,'(1X,I5)',advance='no') SD_DMRG(idet)%electron(i)
@@ -131,19 +133,19 @@ do idet=1,ndets_RGLR
 end do
 close(117)
 
-write(6,*) 'before get the executable file'
+write(u6,*) 'before get the executable file'
 
 ! get the executable file
 call systemf('cp /home/eth/yma/Maquis_MPSLR/build/applications/srcas/srcas $PWD',rc)
 
-write(6,*) 'before get the executable file'
+write(u6,*) 'before get the executable file'
 
 call mma_allocate(ele_orb_alpha,norb,label='ele_orb_alpha')
 call mma_allocate(ele_orb_beta,norb,label='ele_orb_beta')
 ! All of the DETs into Maquis format
 open(unit=118,file='dets.mclr')
 do idet=1,ndets_RGLR
-  !write(6,*) 'idet',idet
+  !write(u6,*) 'idet',idet
   ele_orb_alpha = 0
   ele_orb_beta = 0
   do i=1,neletol
@@ -161,11 +163,11 @@ do idet=1,ndets_RGLR
     if ((ele_orb_alpha(i) == 1) .and. (ele_orb_beta(i) == 0)) SD_DMRG(idet)%ele_conf(i) = 3
     if ((ele_orb_alpha(i) == 0) .and. (ele_orb_beta(i) == 1)) SD_DMRG(idet)%ele_conf(i) = 2
     if ((ele_orb_alpha(i) == 0) .and. (ele_orb_beta(i) == 0)) SD_DMRG(idet)%ele_conf(i) = 1
-    !write(6,*) 'SD_DMRG(idet)%ele_conf(i)',SD_DMRG(idet)%ele_conf(i)
+    !write(u6,*) 'SD_DMRG(idet)%ele_conf(i)',SD_DMRG(idet)%ele_conf(i)
   end do
   do i=1,norb
     write(118,'(I1)',advance='no') SD_DMRG(idet)%ele_conf(i)
-    !write(6,*)'SD_DMRG(idet)%ele_conf(',i,')',SD_DMRG(idet)%ele_conf(i)
+    !write(u6,*)'SD_DMRG(idet)%ele_conf(',i,')',SD_DMRG(idet)%ele_conf(i)
   end do
   write(118,*)
 end do
@@ -173,7 +175,7 @@ close(118)
 call mma_deallocate(ele_orb_alpha)
 call mma_deallocate(ele_orb_beta)
 
-write(6,*) 'After write dets.mclr file'
+write(u6,*) 'After write dets.mclr file'
 
 ! Test for part of DETS
 ! The way of "open file" need to be written
@@ -189,7 +191,7 @@ if (ndets_total > 9999) call systemf('head -9999 dets.mclr > ELE_CISR_FOR_MCLR',
 ! Recover the determinants, off-diagional multiply 2
 ! ========= should be improved by Hash etc. ==========
 do i=istate,istate
-  !write(6,*) 'SD_DMRG(idet)%dv(i)',i
+  !write(u6,*) 'SD_DMRG(idet)%dv(i)',i
   open(unit=118,file='GET_COEFF_IN_LIST')
   call f_inquire('ELE_CISR_FOR_MCLR',IFFILE)
   if (IFFILE) then
@@ -206,41 +208,41 @@ do i=istate,istate
   read(118,*) ndets_mclr
   do idet=1,ndets_mclr
     read(118,*) idx_det,SD_DMRG(idx_det)%dv(i)
-    !write(6,*) idx_det,SD_DMRG(idx_det)%dv(i)
+    !write(u6,*) idx_det,SD_DMRG(idx_det)%dv(i)
   end do
   close(118)
   ! off-diagional multiply 2
   do idet=1,ndets_RGLR
     if (SD_DMRG(idet)%ITYPE == 1) then
-      SD_DMRG(idet)%dv(i) = -1.0d0*SD_DMRG(idet)%dv(i)
+      SD_DMRG(idet)%dv(i) = -SD_DMRG(idet)%dv(i)
     else
-      dtmp = sqrt((SD_DMRG(idet)%dv(i)**2)*2.0d0)
-      SD_DMRG(idet)%dv(i) = -1.0d0*dsign(dtmp,SD_DMRG(idet)%dv(i))
+      dtmp = sqrt((SD_DMRG(idet)%dv(i)**2)*Two)
+      SD_DMRG(idet)%dv(i) = -sign(dtmp,SD_DMRG(idet)%dv(i))
     end if
-    !write(6,*) 'i,idet,dv',i,idet,SD_DMRG(idet)%dv(i)
+    !write(u6,*) 'i,idet,dv',i,idet,SD_DMRG(idet)%dv(i)
   end do
 end do
 
-dtmp = 0.0d0
+dtmp = Zero
 indexSD = 0
-vector = 0.0d0
+vector = Zero
 do i=1,ndets_RGLR
   indexSD(i) = i !SD_DMRG(i)%inum*SD_DMRG(i)%isign
   vector(i) = SD_DMRG(i)%dv(istate)
   dtmp = dtmp+vector(i)**2
 end do
 
-write(6,*) 'nele_alpha,nele_beta',nele_alpha,nele_beta
-write(6,*) 'Total CI weight is ',dtmp
-write(6,*) ' ================================================'
-write(6,*) '  IF for frequency, the CI weight must be'
-write(6,*) '      very close to 1 (i.e. 0.9999)'
-write(6,*) ' ------------------------------------------------'
-write(6,*) '  IF gradients in state-averaged case,'
-write(6,*) '      even very few is stil OK (e.g. 0.1)'
-write(6,*) '      however, better around 0.9'
-write(6,*) ' ================================================'
-call xflush(6)
+write(u6,*) 'nele_alpha,nele_beta',nele_alpha,nele_beta
+write(u6,*) 'Total CI weight is ',dtmp
+write(u6,*) ' ================================================'
+write(u6,*) '  IF for frequency, the CI weight must be'
+write(u6,*) '      very close to 1 (i.e. 0.9999)'
+write(u6,*) ' ------------------------------------------------'
+write(u6,*) '  IF gradients in state-averaged case,'
+write(u6,*) '      even very few is stil OK (e.g. 0.1)'
+write(u6,*) '      however, better around 0.9'
+write(u6,*) ' ================================================'
+call xflush(u6)
 
 !stop
 

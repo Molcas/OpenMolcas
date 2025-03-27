@@ -14,6 +14,7 @@ real*8 function E2(FockI,rMo,loper,idisp)
 use Arrays, only: G1t, G2t
 use MCLR_Data, only: nCMO, nNA, ipCM, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb, ntPert
+use Constants, only: Zero, Half
 
 implicit none
 integer lOper, iDisp
@@ -28,7 +29,7 @@ itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-E22 = 0.0d0
+E22 = Zero
 if (loper == 0) then
   Go = (iDisp < 0)
   if (.not. Go) Go = (iand(ntpert(idisp),2**2) == 4)
@@ -39,7 +40,7 @@ if (loper == 0) then
         do k=1,nna
           do l=1,nna
             ijkl = itri(ij,itri(k,l))
-            E22 = E22+0.5d0*G2t(ijkl)*rmo(ijkl)
+            E22 = E22+Half*G2t(ijkl)*rmo(ijkl)
           end do
         end do
       end do

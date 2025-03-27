@@ -36,6 +36,10 @@ subroutine CSFDET_MCLR(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN)
 ! the determinant normalization
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer NOPEN, NDET, NCSF
@@ -47,10 +51,10 @@ real*8, allocatable :: LMDET(:), lSCSF(:)
 integer JDET, JDADD, IOPEN, JCSF
 real*8 CMBFAC, COEF, SIGN
 
-if (PSSIGN == 0.0d0) then
-  CMBFAC = 1.0d0
+if (PSSIGN == Zero) then
+  CMBFAC = One
 else
-  CMBFAC = sqrt(2.0d0)
+  CMBFAC = sqrt(Two)
 end if
 call mma_allocate(LMDET,NDET*NOPEN,Label='LMDET')
 call mma_allocate(LSCSF,NDET*NOPEN,Label='LSCSF')
@@ -62,7 +66,7 @@ end do
 
 do JCSF=1,NCSF
 # ifdef _DEBUGPRINT_
-  write(6,*) ' ....Output for CSF ',JCSF
+  write(u6,*) ' ....Output for CSF ',JCSF
 # endif
 
   ! OBTAIN INTERMEDIATE COUPLINGS FOR CSF
@@ -70,24 +74,24 @@ do JCSF=1,NCSF
 
   do JDET=1,NDET
     ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
-    COEF = 1.0d0
-    SIGN = 1.0d0
+    COEF = One
+    SIGN = One
     JDADD = (JDET-1)*NOPEN
     do IOPEN=1,NOPEN
 
       if ((ICSF(IOPEN,JCSF) == 1) .and. (IDET(IOPEN,JDET) == 1)) then
         ! + + CASE
-        COEF = COEF*(LSCSF(IOPEN)+LMDET(JDADD+IOPEN))/(2.0d0*LSCSF(IOPEN))
+        COEF = COEF*(LSCSF(IOPEN)+LMDET(JDADD+IOPEN))/(Two*LSCSF(IOPEN))
       else if ((ICSF(IOPEN,JCSF) == 1) .and. (IDET(IOPEN,JDET) == 0)) then
         ! + - CASE
-        COEF = COEF*(LSCSF(IOPEN)-LMDET(JDADD+IOPEN))/(2.0d0*LSCSF(IOPEN))
+        COEF = COEF*(LSCSF(IOPEN)-LMDET(JDADD+IOPEN))/(Two*LSCSF(IOPEN))
       else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 1)) then
         ! - + CASE
-        COEF = COEF*(LSCSF(IOPEN)-LMDET(JDADD+IOPEN)+1.0d0)/(2.0d0*LSCSF(IOPEN)+2.0d0)
+        COEF = COEF*(LSCSF(IOPEN)-LMDET(JDADD+IOPEN)+One)/(Two*LSCSF(IOPEN)+Two)
         SIGN = -SIGN
       else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 0)) then
         ! - - CASE
-        COEF = COEF*(LSCSF(IOPEN)+LMDET(JDADD+IOPEN)+1.0d0)/(2.0d0*LSCSF(IOPEN)+2.0d0)
+        COEF = COEF*(LSCSF(IOPEN)+LMDET(JDADD+IOPEN)+One)/(Two*LSCSF(IOPEN)+Two)
       end if
     end do
     CDC(JDET,JCSF) = SIGN*CMBFAC*sqrt(COEF)
@@ -98,9 +102,9 @@ call mma_deallocate(LSCSF)
 call mma_deallocate(LMDET)
 
 #ifdef _DEBUGPRINT_
-write(6,*)
-write(6,'(A,2I2)') '  The CDC array for  NOPEN ',NOPEN
-write(6,*)
+write(u6,*)
+write(u6,'(A,2I2)') '  The CDC array for  NOPEN ',NOPEN
+write(u6,*)
 call WRTMAT(CDC,NDET,NCSF,NDET,NCSF)
 #endif
 

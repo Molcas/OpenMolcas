@@ -21,12 +21,14 @@ subroutine RdJobIph_td(CIVec)
 !***********************************************************************
 
 use Arrays, only: CMO, G2t, G2sq, G1t
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nNA, nA
 use MCLR_Data, only: FnJob, LuJob
 use input_mclr, only: lRoots, iPT2, nRoots, ntIsh, ntITri, ntAsh, ntATri, ntASqr, ntBas, ntBTri, ntBSqr, nSym, State_Sym, ERASSCF, &
                       Headerjp, iRoot, iSpin, iTOC, iTocIph, ntISqr, nCOnf, nActEl, nAsh, nBas, nDel, nElec3, nFro, nHole1, nIsh, &
                       nOrb, nRS1, nRS2, nRS3, TitleJP, Weight
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
 
 implicit none
 real*8, allocatable :: CIVec(:,:)
@@ -66,23 +68,23 @@ call mma_deallocate(TempTxt)
 !----------------------------------------------------------------------*
 if (kRoots /= -1) then
   if (iPt2 /= 0) then
-    write(6,*)
-    write(6,*) ' *** Error in subroutine RDJOBIPH_TD ***'
-    write(6,*) ' Pt2 /= 0'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' *** Error in subroutine RDJOBIPH_TD ***'
+    write(u6,*) ' Pt2 /= 0'
+    write(u6,*)
   else if (kRoots > lRoots) then
-    write(6,*)
-    write(6,*) ' *** Error in subroutine RDJOBIPH_TD ***'
-    write(6,*) ' kRoots > lRoots'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' *** Error in subroutine RDJOBIPH_TD ***'
+    write(u6,*) ' kRoots > lRoots'
+    write(u6,*)
   end if
   lRoots = kRoots
   nRoots = 1
 else if (nRoots /= 1) then
-  write(6,*)
-  write(6,*) ' *** Error in subroutine RDJOBIPH_TD ***'
-  write(6,*) ' nRoots /= 1'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' *** Error in subroutine RDJOBIPH_TD ***'
+  write(u6,*) ' nRoots /= 1'
+  write(u6,*)
 end if
 !----------------------------------------------------------------------*
 !     Precompute the total sum of variables and size of matrices       *
@@ -146,13 +148,13 @@ if (.false.) call DVcPrt('CI coefficients',' ',CIVec,nConf)
 call mma_allocate(Tmp2,mxRoot*mxIter,Label='Tmp2')
 iDisk = iToc(6)
 call dDaFile(LuJob,2,Tmp2,mxRoot*mxIter,iDisk)
-ERASSCF(1) = 0.0d0
+ERASSCF(1) = Zero
 do iter=0,mxIter-1
   Temp = Tmp2(iter*mxRoot+lRoots)
-  if (Temp /= 0.0d0) ERASSCF(1) = Temp
+  if (Temp /= Zero) ERASSCF(1) = Temp
 end do
 call mma_deallocate(Tmp2)
-!if (debug) write(6,*) ' RASSCF energy =',ERASSCF(1)
+!if (debug) write(u6,*) ' RASSCF energy =',ERASSCF(1)
 
 nAct = 0
 nAct2 = 0
@@ -174,7 +176,7 @@ end do
 !----------------------------------
 nG1 = nAct*(nAct+1)/2
 call mma_allocate(G1t,nG1,Label='G1t')
-G1t(:) = 0.0d0
+G1t(:) = Zero
 
 !---------------------------------------
 ! Triangular part of two electron dens,
@@ -204,9 +206,9 @@ do iB=1,nAct
     do kB=1,ib
       do lB=1,kB
         iDkl = iTri(kB,lB)
-        fact = 1.0d00
-        if ((iDij >= iDkl) .and. (kB == lB)) fact = 2.0d00
-        if ((iDij < iDkl) .and. (iB == jB)) fact = 2.0d00
+        fact = One
+        if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
+        if ((iDij < iDkl) .and. (iB == jB)) fact = Two
         iijkl = itri(iDij,iDkl)
         G2t(iijkl) = Fact*G2tts(iijkl)
       end do
@@ -222,20 +224,20 @@ end do
 
 do iB=1,nAct
   do jB=1,nact
-    Factij = 1.0d0
-    if (ib > jb) Factij = -1.0d0
+    Factij = One
+    if (ib > jb) Factij = -One
     iDij = iTri(ib,jB)
     iDij2 = ib+(jb-1)*NACT
     do kB=1,nact
       do lB=1,nact
-        Factkl = 1.0d0
-        if (kb > lb) Factkl = -1.0d0
+        Factkl = One
+        if (kb > lb) Factkl = -One
         iDkl = iTri(kB,lB)
         iDkl2 = kb+(lb-1)*NACT
-        fact = 1.0d00
+        fact = One
         Fact2 = Factij*Factkl
-        if ((iDij >= iDkl) .and. (kB == lB)) fact = 2.0d00
-        if ((iDij < iDkl) .and. (iB == jB)) fact = 2.0d00
+        if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
+        if ((iDij < iDkl) .and. (iB == jB)) fact = Two
         iijkl = itri(iDij,iDkl)
         iijkl2 = iDij2+nact**2*(iDkl2-1)
 

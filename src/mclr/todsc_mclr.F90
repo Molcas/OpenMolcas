@@ -13,26 +13,28 @@ subroutine TODSC_MCLR(A,NDIM,MBLOCK,IFIL)
 ! TRANSFER ARRAY DOUBLE PRECISION  A(LENGTH NDIM) TO DISCFIL IFIL IN
 ! RECORDS WITH LENGTH NBLOCK.
 
+use Constants, only: Zero
+
 implicit real*8(A-H,O-Z)
 dimension A(1)
 integer START, stop, IDUM(1)
 
-!write(6,*) ' entering TODSC'
+!write(u6,*) ' entering TODSC'
 IPACK = 1
 if (IPACK /= 0) then
   ! Check norm of A before writing
   XNORM = ddot_(nDim,A,1,A,1)
-  if (XNORM == 0.0d0) then
+  if (XNORM == Zero) then
     IMZERO = 1
   else
     IMZERO = 0
   end if
-  !write(6,*) ' I am going to call ITODS'
+  !write(u6,*) ' I am going to call ITODS'
   MMBLOCK = MBLOCK
   if (MMBLOCK > 1) MMBLOCK = 1
   IDUM(1) = IMZERO
   call ITODS(IDUM,1,MMBLOCK,IFIL)
-  !write(6,*) ' back from ITODS'
+  !write(u6,*) ' back from ITODS'
   if (IMZERO == 1) return
 end if
 
@@ -65,7 +67,7 @@ if ((ICRAY == 0) .and. (MBLOCK < 0) .and. (NDIM > 0)) then
   call SysHalt('todsc')
 end if
 
-!write(6,*) ' leaving TODSC'
+!write(u6,*) ' leaving TODSC'
 
 return
 

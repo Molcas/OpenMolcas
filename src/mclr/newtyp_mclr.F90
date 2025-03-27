@@ -35,6 +35,10 @@ subroutine NEWTYP_MCLR(INCLS,INTP,IACOP,ITPOP,NOP,OUTCLS,OUTTP)
 ! OUTCLS : group of resulting string
 ! OUTTP  : Type of resulting string
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer ITPOP(*), IACOP(*)
@@ -68,12 +72,12 @@ do IOP=1,NOP
 end do
 ! Out class
 OUTCLS = INCLS-IDELTA
-!write(6,*) ' OUTCLS,IEL1,IEL3 ',OUTCLS,IEL1,IEL3
+!write(u6,*) ' OUTCLS,IEL1,IEL3 ',OUTCLS,IEL1,IEL3
 ! out type
 call GTSTTP(OUTCLS,IEL1,IEL3,OUTTP,1)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' NEWTYP, OUTCLS, OUTTP ',OUTCLS,OUTTP
+write(u6,*) ' NEWTYP, OUTCLS, OUTTP ',OUTCLS,OUTTP
 #endif
 
 return

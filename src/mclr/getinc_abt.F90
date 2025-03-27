@@ -18,6 +18,7 @@ subroutine GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,INTL
 ! Version for integrals stored in INTLST
 
 use MCLR_Data, only: IBTSOB, NTSOB
+use Constants, only: One
 
 implicit none
 real*8 XINT(*)
@@ -60,8 +61,8 @@ if (ICOUL == 0) then
         do iBas=iMin,iOff+iOrb-1
           ij = itri(iBas,jBas)
           kl = itri(kBas,lBas)
-          Sign = 1.0d0
-          if ((ij < kl) .and. (ieaw /= 0)) Sign = -1.0d0
+          Sign = One
+          if ((ij < kl) .and. (ieaw /= 0)) Sign = -One
           ijkl = itri(ij,kl)
           Xint(iInt) = Sign*Intlst(ijkl)
           iInt = iInt+1

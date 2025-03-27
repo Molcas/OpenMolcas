@@ -22,11 +22,12 @@ subroutine calcerr(kappa,iestate)
 ! which estimates the error in the SA.
 !---------------------------------------------------
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One, Two
 use MCLR_Data, only: ipMat, nDens2
 use MCLR_Data, only: ISTATE
 use input_mclr, only: nSym, nBas, ntAsh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
 
 implicit none
 real*8 kappa(*)
@@ -63,23 +64,23 @@ call FockGen(One,G1R,G2R,T,Q,1)
 !call Recprt('KAPP',' ',kappa,nDens2,1)
 !call Recprt('FOCK',' ',T,nDens2,1)
 
-dejdw = 0.0d0
+dejdw = Zero
 do iS=1,nsym
   dejdw = dejdw+ddot_(nBas(is)**2,T(ipmat(is,is)),1,kappa(ipmat(is,is)),1)
 end do
 dejdw = Two*dejdw
 !is = 1
-!write(6,*) 'T(ipmat(is,is))',T(ipmat(is,is))
-!write(6,*) 'kappa(ipmat(is,is)+1)',kappa(ipmat(is,is)+1)
+!write(u6,*) 'T(ipmat(is,is))',T(ipmat(is,is))
+!write(u6,*) 'kappa(ipmat(is,is)+1)',kappa(ipmat(is,is)+1)
 
 ! d E_j / d w_i, without constraint
-!write(6,200) iestate,istate,dejdw
+!write(u6,200) iestate,istate,dejdw
 
 ! d E_i / d w_i, with the constraint sum(w_i)=1,
 ! multiplied by 1-w_i... which happens to be equal to
 ! d E_i / d w_i, without constraint
 ! change sign, because this is the *error*
-if (iestate == istate) write(6,100) iestate,-dejdw
+if (iestate == istate) write(u6,100) iestate,-dejdw
 
 call mma_deallocate(Q)
 call mma_deallocate(T)

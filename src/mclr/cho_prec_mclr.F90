@@ -34,6 +34,7 @@ use Data_structures, only: SBA_Type
 use Data_structures, only: Allocate_DT, Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: One, Zero
+use Definitions, only: u6
 
 implicit real*8(a-h,o-z)
 real*8 CMO(*)
@@ -159,16 +160,16 @@ do jsym=1,nsym
   end if
 
   if (memneeded > lWork) then
-    write(6,*) SECNAM//': Insufficient memory for I/T batch'
-    write(6,*) 'LWORK= ',LWORK
-    write(6,*) 'min. mem. need= ',memneeded
-    write(6,*) 'maxRS+nip/ntp= ',maxRS+max(nip,ntp)
-    write(6,*) 'maxpq        = ',maxpq
+    write(u6,*) SECNAM//': Insufficient memory for I/T batch'
+    write(u6,*) 'LWORK= ',LWORK
+    write(u6,*) 'min. mem. need= ',memneeded
+    write(u6,*) 'maxRS+nip/ntp= ',maxRS+max(nip,ntp)
+    write(u6,*) 'maxpq        = ',maxpq
     if (ntota > 0) then
-      write(6,*) 'maxtpq       = ',maxtpq
-      if (jsym == 1) write(6,*) 'ntota*(maxpq,maxRS) = ',ntota*maxpq,ntota*maxRS
+      write(u6,*) 'maxtpq       = ',maxtpq
+      if (jsym == 1) write(u6,*) 'ntota*(maxpq,maxRS) = ',ntota*maxpq,ntota*maxRS
     else
-      if (jsym == 1) write(6,*) 'npq,maxRS = ',npq,maxRS
+      if (jsym == 1) write(u6,*) 'npq,maxRS = ',npq,maxRS
     end if
     call Quit(_RC_MEMORY_ERROR_)
   end if
@@ -239,7 +240,7 @@ do jsym=1,nsym
       ntp = 0      ! do not allocate those
       labatch = 0
       iptpuq = -1
-      !write(6,*) 'Batching loop i'
+      !write(u6,*) 'Batching loop i'
     else
 
       ! Batching T loop
@@ -283,8 +284,8 @@ do jsym=1,nsym
         if (ntue > 0) call mma_allocate(turs,ntue*maxRS,Label='turs')
       end if
       iptpuq = 1+nab*ntue
-      tupq(:) = 0.0d0
-      if (taskleft) write(6,*) 'Batching loop a'
+      tupq(:) = Zero
+      if (taskleft) write(u6,*) 'Batching loop a'
     end if
 
     ! Transpose CMO
@@ -308,14 +309,14 @@ do jsym=1,nsym
       if (nVrs == 0) cycle  ! no vectors in that (jred,isym)
 
       if (nVrs < 0) then
-        write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+        write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
         call Abend()
       end if
 
       call Cho_X_SetRed(irc,iLoc,JRED)
       ! set index arrays at iLoc
       if (irc /= 0) then
-        write(6,*) SECNAM//' cho_X_setred non-zero return code. rc= ',irc
+        write(u6,*) SECNAM//' cho_X_setred non-zero return code. rc= ',irc
         call Abend()
       end if
 
@@ -333,9 +334,9 @@ do jsym=1,nsym
       call mma_MaxDBLE(LWORKe)
       nVec = min(LWORKE/(nRS+max(nip,ntp)),min(nVrs,MaxVecPerBatch))
       if (nVec < 1) then
-        write(6,*) SECNAM//': Insufficient memory for J batch'
-        write(6,*) 'That should not happen here'
-        write(6,*) 'Contact the developers'
+        write(u6,*) SECNAM//': Insufficient memory for J batch'
+        write(u6,*) 'That should not happen here'
+        write(u6,*) 'Contact the developers'
         call Quit(_RC_MEMORY_ERROR_)
         nBatch = -9999  ! dummy assignment
       end if
@@ -402,8 +403,8 @@ do jsym=1,nsym
           ksym = MulD2h(iSym,jsym)
           do ii=1,nIshe(isym)
 
-            call DGEMM_('N','T',nBas(kSym),nBas(kSym),JNUM,1.0d0,Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym), &
-                        Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym),1.0d0,iiab(ip1:),nBas(kSym))
+            call DGEMM_('N','T',nBas(kSym),nBas(kSym),JNUM,One,Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym), &
+                        Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym),One,iiab(ip1:),nBas(kSym))
             ip1 = ip1+nBas(kSym)**2
           end do
         end do
@@ -428,8 +429,7 @@ do jsym=1,nsym
             do ii=1,nIshe(iSym)
               ipMO = ipMO+ISTSQ(iSym)
               ipMOi = ipMO+(nIshb(isym)+ii-1)*nBas(iSym)
-              call dGeMV_('T',nBas(iSym),JNUM,1.0d0,Lpq(1)%SB(iSym)%A3(:,ii,1),nBas(iSym)*nIshe(iSym),CMO(ipMOi),1,0.0d0, &
-                          pLii(:,ii),1)
+              call dGeMV_('T',nBas(iSym),JNUM,One,Lpq(1)%SB(iSym)%A3(:,ii,1),nBas(iSym)*nIshe(iSym),CMO(ipMOi),1,0.0d0,pLii(:,ii),1)
             end do
             nullify(pLii)
           end do
@@ -443,7 +443,7 @@ do jsym=1,nsym
           ! (i i | p q) = sum_J Lii^J  Lpq^J
 
           pLii(1:JNUM,1:ntotie) => Lii(1:JNUM*ntotie)
-          call DGEMM_('N','N',nRS,ntotie,JNUM,1.0d0,Lrs,nRS,pLii,JNUM,1.0d0,piirs,nRS)
+          call DGEMM_('N','N',nRS,ntotie,JNUM,One,Lrs,nRS,pLii,JNUM,One,piirs,nRS)
           nullify(pLii)
 
           call CWTIME(TCR2,TWR2)
@@ -489,8 +489,7 @@ do jsym=1,nsym
 
                 ipInt = iptpuq+ioff+itu*nBas(i)**2
 
-                call DGER_(nBas(i),nBas(i),1.0d0,Lpq(1)%SB(i)%A2(itt:,j),nAsh(i),Lpq(1)%SB(i)%A2(iuu:,j),nAsh(i),tupq(ipInt), &
-                          nBas(i))
+                call DGER_(nBas(i),nBas(i),One,Lpq(1)%SB(i)%A2(itt:,j),nAsh(i),Lpq(1)%SB(i)%A2(iuu:,j),nAsh(i),tupq(ipInt),nBas(i))
 
               end do
             end do
@@ -516,7 +515,7 @@ do jsym=1,nsym
 
               ipMO = 1+ioff+nBas(i)*(nIsh(i)+nAshb(i))
               do k=0,nAshe(i)-1
-                call dGeMV_('N',nAshb(i)+k+1,nBas(i),1.0d0,Lpq(1)%SB(i)%A3(:,1,j),nAsh(i),CMO(ipMO+k*nBas(i)),1,0.0d0,Lij(ipLtu),1)
+                call dGeMV_('N',nAshb(i)+k+1,nBas(i),One,Lpq(1)%SB(i)%A3(:,1,j),nAsh(i),CMO(ipMO+k*nBas(i)),1,Zero,Lij(ipLtu),1)
                 ipLtu = ipLtu+(nAshb(i)+k+1)
               end do
             end do
@@ -538,7 +537,7 @@ do jsym=1,nsym
 
             pLij(1:na2,1:JNUM) => Lij(iS:iE)
 
-            call DGEMM_('N','T',nRS,na2,JNUM,1.0d0,Lrs,nRS,pLij,na2,1.0d0,turs(ipInt),nRS)
+            call DGEMM_('N','T',nRS,na2,JNUM,One,Lrs,nRS,pLij,na2,One,turs(ipInt),nRS)
             ipInt = ipInt+nRS*na2
             nullify(pLij)
           end do
@@ -609,9 +608,9 @@ do jsym=1,nsym
             do j=1,nvirt2
               ipMOj = ipMO2+(j-1)*nBas(kSym2)
               ipIntj = 1+(j-1)*nBas(kSym2)
-              call DSPMV_('U',nBas(kSym2),1.0d0,iiab(ip2),CMO(ipMOj),1,0.0d0,Integral(ipIntj),1)
+              call DSPMV_('U',nBas(kSym2),One,iiab(ip2),CMO(ipMOj),1,Zero,Integral(ipIntj),1)
             end do
-            call DGEMM_('T','N',nvirt2,nvirt2,nBas(kSym2),1.0d0,Integral,nBas(kSym2),CMO(ipMO2),nBas(kSym2),0.0d0,iiab(ip2),nvirt2)
+            call DGEMM_('T','N',nvirt2,nvirt2,nBas(kSym2),One,Integral,nBas(kSym2),CMO(ipMO2),nBas(kSym2),Zero,iiab(ip2),nvirt2)
 
             call GADSum(iiab(ip2),nvirt2**2)
             call DDAFILE(LuChoInt(1),1,iiab(ip2),nvirt2**2,iAdr)
@@ -627,8 +626,8 @@ do jsym=1,nsym
 
         ! MO transform (i p | i q)
 
-        call DGEMM_('N','N',nBas(kSym),nvirt,nBas(kSym),1.0d0,iiab(ip1:),nBas(kSym),CMO(ipMO),nBas(kSym),0.0d0,Integral,nBas(kSym))
-        call DGEMM_('T','N',nvirt,nvirt,nBas(kSym),1.0d0,Integral,nBas(kSym),CMO(ipMO),nBas(kSym),0.0d0,iiab(ip1:),nvirt)
+        call DGEMM_('N','N',nBas(kSym),nvirt,nBas(kSym),One,iiab(ip1:),nBas(kSym),CMO(ipMO),nBas(kSym),Zero,Integral,nBas(kSym))
+        call DGEMM_('T','N',nvirt,nvirt,nBas(kSym),One,Integral,nBas(kSym),CMO(ipMO),nBas(kSym),Zero,iiab(ip1:),nvirt)
 
         do i=1,ksym-1
           iAdr = iAdr+(nBas(i)-nIsh(i))**2
@@ -668,10 +667,10 @@ do jsym=1,nsym
             do j=1,nBas(ksym2)
               ipMOj = ipMO2+(j-1)*nBas(kSym2)
               ipIntj = 1+(j-1)*nBas(kSym2)
-              call DSPMV_('U',nBas(kSym2),1.0d0,tupq(ip2),CMO(ipMOj),1,0.0d0,Integral(ipIntj),1)
+              call DSPMV_('U',nBas(kSym2),One,tupq(ip2),CMO(ipMOj),1,Zero,Integral(ipIntj),1)
             end do
             if (nBas(ksym2) > 0) then
-              call DGEMM_('T','N',nBas(ksym2),nBas(kSym2),nBas(kSym2),1.0d0,Integral,nBas(kSym2),CMO(ipMO2),nBas(kSym2),0.0d0, &
+              call DGEMM_('T','N',nBas(ksym2),nBas(kSym2),nBas(kSym2),One,Integral,nBas(kSym2),CMO(ipMO2),nBas(kSym2),Zero, &
                           tupq(ip2),nBas(kSym2))
               call GADSum(tupq(ip2),nBas(kSym2)**2)
               call DDAFILE(LuChoInt(2),1,tupq(ip2),nBas(kSym2)**2,iAdrtu)
@@ -686,10 +685,8 @@ do jsym=1,nsym
 
         ! MO transform (t p | u q)
 
-        call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),1.0d0,tupq(ip3),nBas(iSym),CMO(ipMO),nBas(iSym),0.0d0,Integral, &
-                    nBas(iSym))
-        call DGEMM_('T','N',nBas(iSym),nBas(iSym),nBas(iSym),1.0d0,Integral,nBas(iSym),CMO(ipMO),nBas(iSym),0.0d0,tupq(ip3), &
-                    nBas(iSym))
+        call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,tupq(ip3),nBas(iSym),CMO(ipMO),nBas(iSym),Zero,Integral,nBas(iSym))
+        call DGEMM_('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,Integral,nBas(iSym),CMO(ipMO),nBas(iSym),Zero,tupq(ip3),nBas(iSym))
         do i=1,isym-1
           iAdrtu = iAdrtu+nBas(i)**2
         end do
@@ -728,25 +725,25 @@ TOTWALL = TWstart2-TWstart1
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky MCLR timing from '//SECNAM
-  write(6,CFmt) '----------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'Integral construction           CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky MCLR timing from '//SECNAM
+  write(u6,CFmt) '----------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'Integral construction           CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') 'TRANSFORMATION                            ',ttran(1),ttran(2)
-  write(6,'(2x,A26,2f10.2)') '(IA|IB) FORMATION                         ',tform(1),tform(2)
-  write(6,'(2x,A26,2f10.2)') '(II|AB) FORMATION                         ',tform2(1),tform2(2)
-  write(6,'(2x,A26,2f10.2)') '(TP|UQ) FORMATION                         ',tforma(1),tforma(2)
-  write(6,'(2x,A26,2f10.2)') '(TU|PQ) FORMATION                         ',tforma2(1),tforma2(2)
-  write(6,'(2x,A26,2f10.2)') 'MO TRANSFORMATION                         ',tMO(1),tMO(2)
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'READ VECTORS                              ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') 'TRANSFORMATION                            ',ttran(1),ttran(2)
+  write(u6,'(2x,A26,2f10.2)') '(IA|IB) FORMATION                         ',tform(1),tform(2)
+  write(u6,'(2x,A26,2f10.2)') '(II|AB) FORMATION                         ',tform2(1),tform2(2)
+  write(u6,'(2x,A26,2f10.2)') '(TP|UQ) FORMATION                         ',tforma(1),tforma(2)
+  write(u6,'(2x,A26,2f10.2)') '(TU|PQ) FORMATION                         ',tforma2(1),tforma2(2)
+  write(u6,'(2x,A26,2f10.2)') 'MO TRANSFORMATION                         ',tMO(1),tMO(2)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 

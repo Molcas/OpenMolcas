@@ -50,7 +50,7 @@ do i=1,lroots
     call daxpy_(nd2,w,D2t,1,G2tt,1)
     call daxpy_(nd1,w,D1t,1,D1,1)
   end if
-  !write(6,*) i,w,'LUJOB',LUJOB
+  !write(u6,*) i,w,'LUJOB',LUJOB
   !call Triprt('D',' ',D1,ntash)
 end do
 call Put_dArray('D2av',G2tt,nd2)

@@ -17,9 +17,9 @@
 
 subroutine CalcbX(bX,LOK,R,H)
 
-use Constants, only: Zero
 use MCLR_Data, only: IRLXROOT
 use input_mclr, only: nRoots
+use Constants, only: Zero, Two
 
 implicit none
 ! Output
@@ -44,7 +44,7 @@ do K=2,nRoots
     do M=2,nRoots
       IIM = IIK-K+M
       do N=1,M-1
-        TempD = 0.0d0
+        TempD = Zero
         IIN = IIK-K+N
         if (M == K) TempD = TempD+H((L-1)*nRoots+N)
         if (N == K) TempD = TempD+H((M-1)*nRoots+L)
@@ -53,7 +53,7 @@ do K=2,nRoots
         bX(IKL) = bX(IKL)+TempD*R(IIM)*R(IIN)
       end do
     end do
-    bX(IKL) = bX(IKL)*2.0d0
+    bX(IKL) = bX(IKL)*Two
   end do
 end do
 

@@ -16,6 +16,10 @@ function NUMST3(NEL,NORB1,NEL1MN,NEL1MX,NORB2,NORB3,NEL3MN,NEL3MX)
 ! Between NEL1MN AND NEL1MX electrons in the first NORB1 orbitals
 ! Between NEL3MN AND NEL3MX electrons in the last  NORB3 orbitals
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 NSTRIN = 0
 
 do IEL1=NEL1MN,min(NEL1MX,NORB1,NEL)
@@ -31,7 +35,7 @@ end do
 NUMST3 = NSTRIN
 
 #ifdef _DEBUGPRINT_
-write(6,'(/A,I6)') '  Number of strings generated ... ',NSTRIN
+write(u6,'(/A,I6)') '  Number of strings generated ... ',NSTRIN
 #endif
 
 return

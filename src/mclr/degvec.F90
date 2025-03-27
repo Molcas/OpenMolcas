@@ -30,15 +30,20 @@ subroutine DEGVEC(VEC,NDIM,NDGVL,IDEG)
 !
 ! Jeppe Olsen, April 1990
 
+use Definitions, only: wp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 ! Input
 dimension VEC(*)
 ! Output
 dimension IDEG(*)
-
 ! Threshold for defining degenerency
-THRES = 1.0D-8
-!? write(6,*) ' Input vector to DEGVEC'
+real*8, parameter :: THRES = 1.0e-8_wp
+
+!? write(u6,*) ' Input vector to DEGVEC'
 !? call wrtmat(VEC,1,NDIM,1,NDIM)
 XDGVL = VEC(1)
 NDEG = 1
@@ -58,11 +63,11 @@ NDGVL = NDGVL+1
 IDEG(NDGVL) = NDEG
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Output from DEGVEC'
-write(6,*) ' =================='
-write(6,*)
-write(6,*) ' Number of degenerate values ',NDGVL
-write(6,*) ' Degenerencies of each value'
+write(u6,*) ' Output from DEGVEC'
+write(u6,*) ' =================='
+write(u6,*)
+write(u6,*) ' Number of degenerate values ',NDGVL
+write(u6,*) ' Degenerencies of each value'
 call IWRTMA(IDEG,1,NDGVL,1,NDGVL)
 #endif
 

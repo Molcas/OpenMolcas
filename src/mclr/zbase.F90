@@ -17,6 +17,10 @@ subroutine ZBASE(NVEC,IVEC,NCLASS)
 ! Construct array IVEC(ICLASS) giving first element of
 ! class ICLASS in full addressing
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 dimension NVEC(*), IVEC(*)
 
@@ -29,8 +33,8 @@ do ICLASS=1,NCLASS
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,'(A)') '  ZBASE : NVEC and IVEC'
-write(6,'(A)') '  ====================='
+write(u6,'(A)') '  ZBASE : NVEC and IVEC'
+write(u6,'(A)') '  ====================='
 call IWRTMA(NVEC,1,NCLASS,1,NCLASS)
 call IWRTMA(IVEC,1,NCLASS,1,NCLASS)
 #endif

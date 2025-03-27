@@ -19,13 +19,14 @@ subroutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,idsym,reco,jspin)
 
 use Arrays, only: W_CMO_Inv => CMO_Inv, W_CMO => CMO, G1t, G2t, FAMO, FIMO
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nMBA
 #ifdef _DEBUGPRINT_
 use Spool, only: LuWr
 #endif
 use input_mclr, only: NewCho, iMethod, nSym, IsPop, LuAChoVec, LuIChoVec, nAsh, nBas, nIsh, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
 
 implicit none
 real*8 rkappa(nDens2), rMOs(*), rmoa(*), Fock(nDens2), Q(ndens2), FockI(ndens2), FockA(nDens2)
@@ -54,7 +55,7 @@ write(LuWr,*) 'Focka=',DDot_(nDens2,Focka,1,Focka,1)
 #endif
 
 Fact = -One
-call dcopy_(ndens2,[0.0d0],0,Fock,1)
+call dcopy_(ndens2,[Zero],0,Fock,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -112,7 +113,7 @@ else  ! Cho-Fock
   DLT(1)%A0(:) = Zero
 
   if (idSym /= 1) then
-    write(6,*) 'idSym/=1, idSym=',idsym
+    write(u6,*) 'idSym/=1, idSym=',idsym
     call Abend()
   end if
 
@@ -179,7 +180,7 @@ else  ! Cho-Fock
         end do
       end do
       !MGD to check
-      call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),1.0d0,rkappa(ioff5),nOrb(iS),W_CMO(1+ioff),nOrb(iS),0.0d0,CVa(2)%SB(iS)%A2, &
+      call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),One,rkappa(ioff5),nOrb(iS),W_CMO(1+ioff),nOrb(iS),Zero,CVa(2)%SB(iS)%A2, &
                   nAsh(iS))
       ioff = ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
       ioff4 = ioff4+nOrb(iS)**2
@@ -213,7 +214,7 @@ else  ! Cho-Fock
 
   ! Allocate temp arrays and zero Fock matrices
 
-  call dcopy_(nATri,[0.0d0],0,rMOs,1)
+  call dcopy_(nATri,[Zero],0,rMOs,1)
 # ifdef _DEBUGPRINT_
   call RecPrt('DLT',' ',DLT(1)%A0,1,size(DLT(1)%A0))
   call RecPrt('DI ',' ',DI%A0,1,size(DI%A0))
@@ -260,7 +261,7 @@ else  ! Cho-Fock
 # ifdef _DEBUGPRINT_
   nas = 0
   do iSym=1,nSym
-    write(6,*) 'iSym=',iSym
+    write(u6,*) 'iSym=',iSym
     !call RecPrt('FIMO ',' ',FIMO(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     !call RecPrt('FAMO ',' ',FAMO(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
@@ -311,7 +312,7 @@ else  ! Cho-Fock
 # ifdef _DEBUGPRINT_
   nas = 0
   do iSym=1,nSym
-    write(6,*) 'iSym=',iSym
+    write(u6,*) 'iSym=',iSym
     call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
@@ -336,8 +337,8 @@ do iS=1,nSym
   !  pi       pi   pi
 
   if (nIsh(iS)*nOrb(jS) > 0) then
-    call DaXpY_(nIsh(iS)*nOrb(jS),2.0d0,Focki(ipMat(js,is)),1,Fock(ipMat(js,is)),1)
-    if (iMethod == 2) call DaXpY_(nIsh(iS)*nOrb(jS),2.0d0,Focka(ipMat(js,is)),1,Fock(ipMat(js,is)),1)
+    call DaXpY_(nIsh(iS)*nOrb(jS),Two,Focki(ipMat(js,is)),1,Fock(ipMat(js,is)),1)
+    if (iMethod == 2) call DaXpY_(nIsh(iS)*nOrb(jS),Two,Focka(ipMat(js,is)),1,Fock(ipMat(js,is)),1)
   end if
 
   if (nOrb(iS) > 0) then
@@ -366,7 +367,7 @@ do iS=1,nSym
   ! F  = F  + Q
   !  pa   pa   pa
 
-  if (nAsh(iS)*nOrb(jS) > 0) call DaXpY_(nAsh(is)*nOrb(js),1.0d0,Q(ipMatba(js,is)),1,Fock(ipMat(js,is)+nOrb(js)*nIsh(is)),1)
+  if (nAsh(iS)*nOrb(jS) > 0) call DaXpY_(nAsh(is)*nOrb(js),One,Q(ipMatba(js,is)),1,Fock(ipMat(js,is)+nOrb(js)*nIsh(is)),1)
 
   ! F  = F  - Q
   !  ap   ap   ap
@@ -376,7 +377,7 @@ end do
 write(LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
 #endif
 
-call DYAX(ndens2,2.0d0,Fock,1,Focka,1)
+call DYAX(ndens2,Two,Fock,1,Focka,1)
 do iS=1,nSym
   js = ieor(is-1,idsym-1)+1
   if (nOrb(is)*nOrb(js) /= 0) &
@@ -386,14 +387,14 @@ end do
 write(LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
 #endif
 
-call AddGrad(rKappa,Fock,idsym,2.0d0*fact)
+call AddGrad(rKappa,Fock,idsym,Two*fact)
 if (.not. newCho) then
   call mma_allocate(MT3,nmba,Label='MT3')
-  call DZAXPY(nmba,1.0d0,MT1,1,MT2,1,MT3,1)
+  call DZAXPY(nmba,One,MT1,1,MT2,1,MT3,1)
   call PickMO_MCLR(MT3,rmos,idsym)
 
   if (ispop /= 0) then
-    call DZAXPY(nmba,-1.0d0,MT1,1,MT2,1,MT3,1)
+    call DZAXPY(nmba,-One,MT1,1,MT2,1,MT3,1)
     call PickMO_MCLR(MT3,rmoa,idsym)
   end if
   call mma_deallocate(MT3)

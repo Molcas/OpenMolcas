@@ -36,6 +36,7 @@ subroutine Precabb(ib,is,js,nd,nba,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,focka
 use Arrays, only: G1t, G2t
 use MCLR_Data, only: nA, nB
 use input_mclr, only: nSym, nAsh, nIsh, nBas
+use Constants, only: Zero, Two, Four
 
 implicit none
 integer ib, is, js, nd, nba
@@ -65,7 +66,7 @@ if (jvert == 0) return
 i2 = nD-jVert+1
 ip = iTri1(i2,i2)
 rF = sign*Fockti
-call dcopy_(nBa**2,[0.0d0],0,Temp2,1)
+call dcopy_(nBa**2,[Zero],0,Temp2,1)
 
 do kS=1,nSym
   if (nBas(js)*nash(ks) > 0) then
@@ -75,9 +76,9 @@ do kS=1,nSym
         if ((kBB > nish(ks)) .and. (kCC > nish(ks))) then
           kkB = kBB+nA(ks)-nish(ks)
           kkC = kCC+nA(ks)-Nish(ks)
-          rDens1 = sign*2.0d0*G2t(itri(itri(iib,iib),itri(kkb,kkc)))
+          rDens1 = sign*Two*G2t(itri(itri(iib,iib),itri(kkb,kkc)))
 
-          if (kbb /= kcc) rdens1 = rdens1*2.0d0
+          if (kbb /= kcc) rdens1 = rdens1*Two
           call DaxPy_(nBa**2,rdens1,Temp1,1,Temp2,1)
         end if
       end do
@@ -96,7 +97,7 @@ do kS=1,nsym
         kkb = nA(kS)+jB-nIsh(kS)
         call EXCH(js,ks,js,ks,jb,lb,Temp1,Scr)
         if ((lB > nIsh(kS)) .and. (jB > nIsh(kS))) then
-          rDens2 = sign*4.0d0*G2t(itri(itri(iib,kkc),itri(kkb,iib)))
+          rDens2 = sign*Four*G2t(itri(itri(iib,kkc),itri(kkb,iib)))
           call DaXpY_(nBa**2,rDens2,Temp1,1,Temp2,1)
         end if
       end do
@@ -104,9 +105,9 @@ do kS=1,nsym
   end if
 end do
 
-rho = sign*2.0d0*G1t(itri(iib,iib))
+rho = sign*Two*G1t(itri(iib,iib))
 do iI=nAsh(js)+nIsh(js)+1,nBas(js)
-  rOut(ip) = rout(ip)-2.0d0*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
+  rOut(ip) = rout(ip)-Two*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
   ip = ip+1
   do iJ=iI+1,Nbas(js)
     rOut(ip) = Rho*FockI(iI,iJ)+Temp2(ii,ij)

@@ -25,12 +25,16 @@ subroutine CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,N
 ! ICONF is written so closed orbitals are given first and then single
 ! occupied orbitals
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit none
 integer NORB1, NORB2, NORB3, NEL1MN, NEL3MX, MINOP, MAXOP, IREFSM, NEL
 ! Output
-integer, intent(Out) :: ICONF(*)
+integer, intent(out) :: ICONF(*)
 ! Input
-integer, intent(In) :: NCNFTP(*)
+integer, intent(in) :: NCNFTP(*)
 ! Scratch
 integer IIOC(*), IICL(*), IIOP(*)
 ! local variables
@@ -64,13 +68,13 @@ ICFREE = 1
 ! Min number of doubly occupied orbitals in RAS 1
 MINCL1 = max(0,NEL1MN-NORB1)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
+write(u6,*) ' Min number of doubly occupied orbitals in RAS 1',MINCL1
 #endif
 outer: do NOP=MINOP,MAXOP,2
   NCL = (NEL-NOP)/2
 # ifdef _DEBUGPRINT_
   ITYPE = NOP-MINOP+1
-  write(6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
+  write(u6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
 # endif
 
   ! first combination of double occupied orbitals
@@ -167,7 +171,7 @@ outer: do NOP=MINOP,MAXOP,2
       end if
     end do
 #   ifdef _DEBUGPRINT_
-    write(6,*) ' Next inactive configuration'
+    write(u6,*) ' Next inactive configuration'
     call IWRTMA(IICL,1,NCL,1,NCL)
 #   endif
 
@@ -239,7 +243,7 @@ outer: do NOP=MINOP,MAXOP,2
         IFRSTO = 0
 
 #       ifdef _DEBUGPRINT_
-        write(6,*) ' Next active configuration'
+        write(u6,*) ' Next active configuration'
         call IWRTMA(IIOP,1,NOP,1,NOP)
 #       endif
         ! RAS  CONSTRAINTS
@@ -294,7 +298,7 @@ outer: do NOP=MINOP,MAXOP,2
         ISYM = ISYMCN_MCLR(IICL,IIOP,NCL,NOP)
         if (ISYM == IREFSM) then
 #         ifdef _DEBUGPRINT_
-          write(6,1120) (IIOC(I),I=1,NORB)
+          write(u6,1120) (IIOC(I),I=1,NORB)
 #         endif
           JCONF = JCONF+1
 
@@ -317,18 +321,18 @@ outer: do NOP=MINOP,MAXOP,2
 end do outer
 
 #ifdef _DEBUGPRINT_
-write(6,'(/A,I3)') '  Configurations of symmetry ',IREFSM
-write(6,*) ' ================================='
+write(u6,'(/A,I3)') '  Configurations of symmetry ',IREFSM
+write(u6,*) ' ================================='
 IBAS = 0
 do IOPEN=MINOP,MAXOP
   ITYPE = IOPEN-MINOP+1
   ICL = (NEL-IOPEN)/2
   IOC = IOPEN+ICL
   LICONF = NCNFTP(ITYPE)
-  write(6,'(/A,2I3)') '  Type with number of closed and open orbitals ',ICL,IOPEN
-  write(6,'(A,I7)') '  Number of configurations of this type',LICONF
+  write(u6,'(/A,2I3)') '  Type with number of closed and open orbitals ',ICL,IOPEN
+  write(u6,'(A,I7)') '  Number of configurations of this type',LICONF
   do JCONF=1,LICONF
-    write(6,'(3X,20I3)') (ICONF(IBAS+IORB),IORB=1,IOC)
+    write(u6,'(3X,20I3)') (ICONF(IBAS+IORB),IORB=1,IOC)
     IBAS = IBAS+IOC
   end do
 end do

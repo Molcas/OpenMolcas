@@ -11,8 +11,9 @@
 
 subroutine SA_PREC2(rdia,S,CI,ENE)
 
-use Constants, only: Zero
 use input_mclr, only: nRoots, nCSF, State_Sym
+use Constants, only: Zero
+use Definitions, only: wp
 
 implicit none
 real*8 rdia(*), S(nroots,nroots), CI(*)
@@ -25,7 +26,7 @@ do i=0,nroots-1
     S(i+1,j+1) = Zero
     do k=1,ncsf(State_Sym)
       dnum = rdia(k)-Ene
-      dnum = sign(max(abs(dnum),1.0d-16),dnum)
+      dnum = sign(max(abs(dnum),1.0e-16_wp),dnum)
       S(i+1,j+1) = S(i+1,j+1)+CI(i*ncsf(State_Sym)+k)*CI(j*ncsf(State_Sym)+k)/dnum
     end do
   end do

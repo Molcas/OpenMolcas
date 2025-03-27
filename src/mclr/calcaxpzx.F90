@@ -107,10 +107,11 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !***********************************************************************
 
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
 use MCLR_Data, only: XISPSM
 use input_mclr, only: State_Sym, nSym, nRoots, ntAsh, nAsh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Two, Four
 
 implicit none
 ! Input
@@ -186,7 +187,7 @@ do M=1,nRoots
       iKM2 = (K-2)*(K-1)/2+M
     end if
     call CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
-    Coeff = 2.0d0*zx(IKM2)
+    Coeff = Two*zx(IKM2)
     if (K > M) Coeff = -Coeff
     call CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
     call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
@@ -196,7 +197,7 @@ do M=1,nRoots
   ! Computing (2)
   call FZero(D_acc,nnA**2)
   call CalcDacc(D_acc,GDMat,M,nnA,nRoots,zx)
-  call CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,1.0d0,off_Ash)
+  call CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,One,off_Ash)
   call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
   call dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((M-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
   ! Computing (3)
@@ -210,8 +211,8 @@ do M=1,nRoots
       IKL2 = (K-1)*(K-2)/2+L
       if (L < M) ILM = (M-1)*M/2+L
       if (L >= M) ILM = (L-1)*L/2+M
-      Coeff1 = zx(IKL2)*(2.0d0*(DDg(IKM,ILL)-DDg(IKM,IKK))+4.0d0*DDg(IKL,ILM))
-      Coeff2 = zx(IKL2)*(2.0d0*(DDg(ILM,ILL)-DDg(ILM,IKK))-4.0d0*DDg(IKL,IKM))
+      Coeff1 = zx(IKL2)*(Two*(DDg(IKM,ILL)-DDg(IKM,IKK))+Four*DDg(IKL,ILM))
+      Coeff2 = zx(IKL2)*(Two*(DDg(ILM,ILL)-DDg(ILM,IKK))-Four*DDg(IKL,IKM))
 
       call DAXpY_(nConf1,Coeff1,W(ipCI)%Vec((L-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
       call DAXpY_(nConf1,Coeff2,W(ipCI)%Vec((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
@@ -244,7 +245,7 @@ do M=1,nRoots
   end do
 end do
 
-call DScal_(nRoots*nConf1,-1.0d0,AXPzx,1)
+call DScal_(nRoots*nConf1,-One,AXPzx,1)
 
 call mma_deallocate(ovrlp)
 

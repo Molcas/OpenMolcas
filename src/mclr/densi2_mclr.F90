@@ -25,8 +25,6 @@ subroutine DENSI2_MCLR(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
 ! ijkl = ij*(ij-1)/2+kl, ij >= kl
 
 use Str_Info, only: STR, MXNSTR, IATPM1, IATPM2, IBTPM1, IBTPM2, ITYP_DUMMY, NELEC, NOCTYP
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
 use MCLR_Data, only: IDC, PSSIGN
 use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC
 use MCLR_Data, only: MAXI, MAXK, ICISTR
@@ -34,6 +32,9 @@ use MCLR_Data, only: NACOB, IBTSOB, NOBPTS, NTSOB
 use DetDim, only: MXPOBS, MXINKA, MXPNGAS
 use CandS, only: ICSM, ISSM, ISSPC, ICSPC
 use input_mclr, only: nIrrep, nsMOB
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer I12
@@ -71,9 +72,9 @@ IBTP = IBSTFI(ISSPC)
 JATP = IASTFI(ICSPC)
 JBTP = IBSTFI(ICSPC)
 if ((IATP /= JATP) .or. (IBTP /= JBTP)) then
-  write(6,*) ' My world is falling apart'
-  write(6,*) ' C and sigma belongs to different types of strings'
-  write(6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
+  write(u6,*) ' My world is falling apart'
+  write(u6,*) ' C and sigma belongs to different types of strings'
+  write(u6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
   call Abend()
 end if
 NOCTPA = NOCTYP(IATP)

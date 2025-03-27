@@ -62,6 +62,8 @@ subroutine RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Constants, only: One
+
 implicit real*8(A-H,O-Z)
 logical TimeDep
 ! Output
@@ -81,15 +83,15 @@ dimension NTSOB(*), IBTSOB(*), ITSOB(*)
 !                 * ((ij!kl)-(il!kj)) C(IA,JB)
 !                 + sum(ij) <IB!Eb(ij)!JB> H(ij) C(IA,JB)
 
-!write(6,*) 'I am in rssbcbn'
+!write(u6,*) 'I am in rssbcbn'
 if ((IATP == JATP) .and. (JASM == IASM)) then
 
   ! One electron part
 
   if (IST == 1) then
-    SIGN = 1.0d0
+    SIGN = One
   else
-    SIGN = -1.0d0
+    SIGN = -One
   end if
   if (NBEL >= 1) &
     call RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
@@ -98,7 +100,7 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
   ! Two electron part
 
   if ((IDOH2 /= 0) .and. (NBEL >= 2)) then
-    !write(6,*) 'Timedep in rssbcbn',TimeDep
+    !write(u6,*) 'Timedep in rssbcbn',TimeDep
     call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
                      XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,NOPART,TimeDep,ieaw)
   end if
@@ -166,7 +168,7 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
 
   ! alpha single excitation
 
-  SIGN = 1.0d0
+  SIGN = One
   call RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
                    XINT,NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
 

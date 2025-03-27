@@ -22,6 +22,11 @@ integer function IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,ISSOA,NSSOA,IBS
 !
 ! Jeppe Olsen
 
+use Constants, only: Zero
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit none
 integer NAEL
 integer IASTR(NAEL), IAORD(*), ITPFSA(*), ISMFSA(*)
@@ -40,9 +45,9 @@ integer IPSFAC
 integer IANUM, IBNUM, ISGNAB, IASYM, IBSYM, IATP, IBTP, IAREL, IBREL, ISTRNM
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' >>> IABNUS SPEAKING <<<'
-write(6,*) ' NOCTPA,NOCTPB ',NOCTPA,NOCTPB
-write(6,*) ' ALPHA AND BETA STRING'
+write(u6,*) ' >>> IABNUS SPEAKING <<<'
+write(u6,*) ' NOCTPA,NOCTPB ',NOCTPA,NOCTPB
+write(u6,*) ' ALPHA AND BETA STRING'
 call IWRTMA(IASTR,1,NAEL,1,NAEL)
 call IWRTMA(IBSTR,1,NBEL,1,NBEL)
 #endif
@@ -51,7 +56,7 @@ call IWRTMA(IBSTR,1,NBEL,1,NBEL)
 IANUM = ISTRNM(IASTR,NORB,NAEL,ZA,IAORD,1)
 IBNUM = ISTRNM(IBSTR,NORB,NBEL,ZB,IBORD,1)
 #ifdef _DEBUGPRINT_
-write(6,*) ' IANUM AND IBNUM ',IANUM,IBNUM
+write(u6,*) ' IANUM AND IBNUM ',IANUM,IBNUM
 #endif
 
 if (IGENSG /= 0) then
@@ -63,24 +68,24 @@ end if
 IASYM = ISMFSA(IANUM)
 IBSYM = ISMFSB(IBNUM)
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' IASYM IBSYM ',IASYM,IBSYM
+!write(u6,*) ' IASYM IBSYM ',IASYM,IBSYM
 !#endif
 IATP = ITPFSA(IANUM)
 IBTP = ITPFSB(IBNUM)
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' IATP,IBTP ',IATP,IBTP
+!write(u6,*) ' IATP,IBTP ',IATP,IBTP
 !#endif
 IAREL = IANUM-ISSOA(IATP,IASYM)+1
 IBREL = IBNUM-ISSOB(IBTP,IBSYM)+1
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' IAREL IBREL ',IAREL,IBREL
+!write(u6,*) ' IAREL IBREL ',IAREL,IBREL
 !#endif
 
-if (PSSIGN == 0.0d0) then
+if (PSSIGN == Zero) then
   ! Normal determinant ordering
   IABNUS = IOOS(IATP,IBTP,IASYM)+(IBREL-1)*NSSOA(IATP,IASYM)+IAREL-1
   IPSFAC = 1
-else if (PSSIGN /= 0.0d0) then
+else if (PSSIGN /= Zero) then
   ! Ensure mapping to proper determinant in combination
   if (IANUM >= IBNUM) then
     ! No need for switching around so
@@ -107,14 +112,14 @@ end if
 !OLD
 !OLD IABNUS = IOOS(IATP,IBTP,IASYM)+(IBREL-1)*NSSOA(IATP,IASYM)+IAREL-1
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' IOOS NSSOA ',IOOS(IATP,IBTP,IASYM),NSSOA(IATP,IASYM)
+!write(u6,*) ' IOOS NSSOA ',IOOS(IATP,IBTP,IASYM),NSSOA(IATP,IASYM)
 !#endif
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' ALPHA AND BETA STRING'
+write(u6,*) ' ALPHA AND BETA STRING'
 call IWRTMA(IASTR,1,NAEL,1,NAEL)
 call IWRTMA(IBSTR,1,NBEL,1,NBEL)
-write(6,*) ' Corresponding determinant number ',IABNUS
+write(u6,*) ' Corresponding determinant number ',IABNUS
 #endif
 
 end function IABNUS

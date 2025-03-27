@@ -57,13 +57,13 @@ call R2ElInt_ns(rkappa,MT1,MT2,focki,FA,nDens2,idSym,ReCo,Fact,jspin)
 !if (idsym == 2) then
 !  jpCMO = 1
 !  do iSym=1,nSym
-!    write(6,'(A,i2.2)') 'Inactive fackmatrix = ',iSym
+!    write(u6,'(A,i2.2)') 'Inactive fackmatrix = ',iSym
 !    call RecPrt(' ',' ',focki(jpCMO),nBas(iSym),nBas(iSym))
 !    jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
 !  end do
 !  jpCMO = 1
 !  do iSym=1,nSym
-!    write(6,'(A,i2.2)') 'Active fockmatrix     = ',iSym
+!    write(u6,'(A,i2.2)') 'Active fockmatrix     = ',iSym
 !    call RecPrt(' ',' ',FA(jpCMO),nBas(iSym),nBas(iSym))
 !    jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
 !  end do
@@ -138,7 +138,7 @@ do iS=1,nSym
   end if
   ! Transpose ipsc2
   !call mma_allocate(T,nbas(is)*nbas(jS),Label='T')
-  !call dcopy_(nbas(is)*nbas(jS),[0.0d0],0,T,1)
+  !call dcopy_(nbas(is)*nbas(jS),[Zero],0,T,1)
   !call DGETMO(Fock(ipmat(is,js)),nbas(is),nbas(is),nbas(js),T,nbas(js))
   !call dcopy_(nBas(jS)*nBas(iS),T,1,Fock(ipmat(js,is)),1)
   !call mma_deallocate(T)

@@ -44,6 +44,7 @@ use Str_Info, only: NSTTYP, INUMAP, INDMAP, ISTAC, MNRS1, MXRS1, MNRS3, MXRS3, N
 use MCLR_Data, only: NORB1, NORB2, NORB3
 #ifdef _DEBUGPRINT_
 use DetDim, only: MXPSTT
+use Definitions, only: u6
 #endif
 
 implicit none
@@ -62,8 +63,8 @@ do ITYP=1,NSTTYP-1
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Type - type mapping array ISTAC'
-write(6,*) ' ==============================='
+write(u6,*) ' Type - type mapping array ISTAC'
+write(u6,*) ' ==============================='
 call IWRTMA(ISTAC,NSTTYP,2,MXPSTT,2)
 #endif
 ! *************************************************
@@ -73,8 +74,8 @@ do ITYP=1,NSTTYP
   NOCTYP(ITYP) = (MXRS1(ITYP)-MNRS1(ITYP)+1)*(MXRS3(ITYP)-MNRS3(ITYP)+1)
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) ' Number of occupation classes per type'
-write(6,*) ' ====================================='
+write(u6,*) ' Number of occupation classes per type'
+write(u6,*) ' ====================================='
 call IWRTMA(NOCTYP,1,NSTTYP,1,NSTTYP)
 #endif
 
@@ -82,8 +83,8 @@ do ITYP=1,NSTTYP
   NSTFTP(ITYP) = NUMST3(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP))
 end do
 #ifdef _DEBUGPRINT_
-write(6,*) ' Number of strings per  type'
-write(6,*) ' ==========================='
+write(u6,*) ' Number of strings per  type'
+write(u6,*) ' ==========================='
 call IWRTMA(NSTFTP,1,NSTTYP,1,NSTTYP)
 #endif
 ! ****************************************************************
@@ -125,9 +126,9 @@ INDMAP(:) = 0
 !end do
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Up mappings of string types'
+write(u6,*) ' Up mappings of string types'
 call IWRTMA(INUMAP,1,NSTTYP,1,NSTTYP)
-write(6,*) ' Down mappings of string types'
+write(u6,*) ' Down mappings of string types'
 call IWRTMA(INDMAP,1,NSTTYP,1,NSTTYP)
 #endif
 

@@ -21,6 +21,10 @@ subroutine TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 !             SIGN * APAK TRANSPOSED IS STORED IN UPPPER PART
 ! NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 dimension AUTPAK(MATDIM,MATDIM), APAK(*)
 
@@ -44,7 +48,7 @@ else if (IWAY == 2) then
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' AUTPAK AND APAK FROM TRIPK2'
+write(u6,*) ' AUTPAK AND APAK FROM TRIPK2'
 call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
 call PRSM2(APAK,NDIM)
 #endif

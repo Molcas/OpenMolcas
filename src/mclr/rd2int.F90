@@ -31,6 +31,7 @@ subroutine Rd2Int(iPL)
 !***********************************************************************
 
 use input_mclr, only: nSym, TimeDep, CasInt, nSkip, nBas
+use Definitions, only: u6
 
 implicit none
 integer iPL
@@ -45,22 +46,22 @@ integer iRC, iSym, ntSkip
 iRc = -1
 call GetOrd(iRc,SqSym,nSymX,nBasX,nSkip)
 if (iRc /= 0) then
-  write(6,*) 'Rd2Int: Error reading ORDINT'
+  write(u6,*) 'Rd2Int: Error reading ORDINT'
   call Abend()
 end if
 if (iPL >= 2) then
-  if (SqSym) write(6,*) 'OrdInt status: squared'
-  if (.not. SqSym) write(6,*) 'OrdInt status: non-squared'
+  if (SqSym) write(u6,*) 'OrdInt status: squared'
+  if (.not. SqSym) write(u6,*) 'OrdInt status: non-squared'
 end if
 if (nSymX /= nSym) then
-  write(6,*) 'Rd2Int: nSymX /= nSym'
-  write(6,*) 'nSymX,nSym=',nSymX,nSym
+  write(u6,*) 'Rd2Int: nSymX /= nSym'
+  write(u6,*) 'nSymX,nSym=',nSymX,nSym
   call Abend()
 end if
 do iSym=1,nSym
   if (nBas(iSym) /= nBasX(iSym)) then
-    write(6,*) 'Rd2Int: nBas(iSym) /= nBasX(iSym)'
-    write(6,*) 'nBas(iSym),nBasX(iSym)=',nBas(iSym),nBasX(iSym)
+    write(u6,*) 'Rd2Int: nBas(iSym) /= nBasX(iSym)'
+    write(u6,*) 'nBas(iSym),nBasX(iSym)=',nBas(iSym),nBasX(iSym)
     call Abend()
   end if
 end do
@@ -69,8 +70,8 @@ do iSym=1,nSym
   ntSkip = ntSkip+nSkip(iSym)
 end do
 if (ntSkip /= 0) then
-  write(6,*) 'Rd2Int: ntSkip /= 0'
-  write(6,*) 'ntSkip=',ntSkip
+  write(u6,*) 'Rd2Int: ntSkip /= 0'
+  write(u6,*) 'ntSkip=',ntSkip
   call Abend()
 end if
 if ((.not. SqSym) .and. (.not. TimeDep)) then

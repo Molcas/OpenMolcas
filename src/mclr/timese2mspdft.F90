@@ -14,11 +14,11 @@
 subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: w
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use MCLR_Data, only: nConf1, n2Dens, nDens, nDens2
 use input_mclr, only: nRoots, nAsh, nRS2, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Two
 
 implicit none
 real*8 Kap(*)
@@ -69,7 +69,7 @@ call CMSRdMat(MSHam,nRoots,nRoots,'ROT_HAM',7)
 do kRoot=1,nRoots
   do lRoot=1,nRoots
     if (kRoot == lRoot) cycle
-    ECOff = -MSHam(nRoots*(kRoot-1)+lRoot)*Weight(1)*2.0d0
+    ECOff = -MSHam(nRoots*(kRoot-1)+lRoot)*Weight(1)*Two
     call DaXpY_(nConf1,ECOff,W(ipCId)%Vec((lRoot-1)*nConf1+1),1,W(ipCIOut)%Vec((kRoot-1)*nConf1+1),1)
   end do
 end do

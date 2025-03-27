@@ -13,6 +13,9 @@ subroutine CSDIAG_MCLR(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP,IFLAG,NCNF
 ! obtain average CI diagonal elements and store in
 ! CSFDIA as CSF diagonal
 
+use Constants, only: Zero
+use Definitions, only: wp
+
 implicit real*8(A-H,O-Z)
 dimension CSFDIA(*), DETDIA(*)
 dimension NCNFTP(NTYP), NDTFTP(NTYP), NCSFTP(NTYP)
@@ -27,11 +30,11 @@ do ITYP=1,NTYP
   ICNF = NCNFTP(ITYP)
   do JCNF=1,ICNF
     JCNABS = JCNABS+1
-    EAVER = 0.0d0
+    EAVER = Zero
     do JDET=1,IDET
       EAVER = EAVER+DETDIA(abs(ICTSDT(IDTOFF-1+JDET)))
     end do
-    if (IDET /= 0) EAVER = EAVER/dble(IDET)
+    if (IDET /= 0) EAVER = EAVER/real(IDET,kind=wp)
     CSFDIA(ICSOFF:ICSOFF+ICSF-1) = EAVER
     ICSOFF = ICSOFF+ICSF
     IDTOFF = IDTOFF+IDET

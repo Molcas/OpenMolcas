@@ -13,13 +13,14 @@ subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ip
 
 use ipPage, only: W
 use Arrays, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
 use MCLR_Data, only: i12, ist, Square
 use MCLR_Data, only: iRefSM
 use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: State_Sym, nSym, Page, nCSF, TimeDep, ntAsh, nBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: u6
 
 implicit none
 integer iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
@@ -110,7 +111,7 @@ if (TIMEDEP) then
   if (NT == 'T') square = .true.  ! The operator is not sym
 
   if (page) then
-    write(6,*) 'Page not implemented for Time-dependent perturbations'
+    write(u6,*) 'Page not implemented for Time-dependent perturbations'
     call Abend()
   end if
 

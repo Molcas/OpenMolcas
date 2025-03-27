@@ -17,6 +17,7 @@ integer function IOCTP2_MCLR(STRING,NEL,ITYP)
 
 use Str_Info
 use MCLR_Data, only: NORB1, NORB2
+use Definitions, only: u6
 
 implicit none
 ! Specific input
@@ -27,8 +28,8 @@ integer iPL, iEL1, iEL3, iEl, iTyp2
 integer, external :: iPrintLevel
 
 if (ITYP <= 0) then
-  write(6,*) 'IOCTP2: ITYP <= 0'
-  write(6,*) 'ITYP=',ITYP
+  write(u6,*) 'IOCTP2: ITYP <= 0'
+  write(u6,*) 'ITYP=',ITYP
   !                                                                    *
   !*********************************************************************
   !                                                                    *

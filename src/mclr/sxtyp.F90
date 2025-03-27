@@ -17,6 +17,10 @@ subroutine SXTYP(NSXTP,ITP,JTP,LEL1,LEL3,REL1,REL3)
 ! L is defined by LEL1,LEL3
 ! R is defined by REL1,REL3
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 integer REL1, REL3
 integer ITP(3), JTP(3)
 
@@ -61,12 +65,12 @@ do I123=1,3
 end do
 
 #ifdef _DEBUGPRINT_
-write(6,'(A,4I4)') ' SX  connecting LEL1,LEL3,REL1,REL3 ',LEL1,LEL3,REL1,REL3
-write(6,*) ' Number of connections obtained ',NSXTP
-write(6,*) ' ITYPE JTYPE'
-write(6,*) ' ==========='
+write(u6,'(A,4I4)') ' SX  connecting LEL1,LEL3,REL1,REL3 ',LEL1,LEL3,REL1,REL3
+write(u6,*) ' Number of connections obtained ',NSXTP
+write(u6,*) ' ITYPE JTYPE'
+write(u6,*) ' ==========='
 do I=1,NSXTP
-  write(6,'(2I5)') ITP(I),JTP(I)
+  write(u6,'(2I5)') ITP(I),JTP(I)
 end do
 #endif
 

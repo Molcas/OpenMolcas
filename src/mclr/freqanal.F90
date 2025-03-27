@@ -11,9 +11,11 @@
 
 subroutine Freqanal(nDeg,nrvec,H,converged,ELEC,iel,elout,ldisp,Lu_10)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use input_mclr, only: nSym, nDisp, nUserPT, nSRot, UserP, ChIrr, UserT
 use temperatures, only: DefTemp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Five
+use Definitions, only: wp, u6
 
 implicit none
 integer nDeg(*), nrvec(*)
@@ -40,17 +42,17 @@ ipNx = 1
 nModes = 0
 lModes = 0
 
-write(6,*)
-write(6,*) '     ************************************'
-write(6,*) '     *                                  *'
-write(6,*) '     * Harmonic frequencies in cm-1     *'
-write(6,*) '     * Intensities in km/mole           *'
-write(6,*) '     *                                  *'
-write(6,*) '     * No correction due to curvilinear *'
-write(6,*) '     * representations has been done    *'
-write(6,*) '     *                                  *'
-write(6,*) '     ************************************'
-write(6,*)
+write(u6,*)
+write(u6,*) '     ************************************'
+write(u6,*) '     *                                  *'
+write(u6,*) '     * Harmonic frequencies in cm-1     *'
+write(u6,*) '     * Intensities in km/mole           *'
+write(u6,*) '     *                                  *'
+write(u6,*) '     * No correction due to curvilinear *'
+write(u6,*) '     * representations has been done    *'
+write(u6,*) '     *                                  *'
+write(u6,*) '     ************************************'
+write(u6,*)
 i1 = 1
 i3 = 1
 j = 0
@@ -71,10 +73,10 @@ Do_Molden = .true.
 do iSym=1,nSym
   nX = ldisp(isym)
   if (nX /= 0) then
-    write(6,*)
-    write(6,*) '   Symmetry ',chirr(isym)
-    write(6,*) '  =============='
-    write(6,*)
+    write(u6,*)
+    write(u6,*) '   Symmetry ',chirr(isym)
+    write(u6,*) '  =============='
+    write(u6,*)
 
     if (converged(isym)) then
       call mma_allocate(EVal2,2*nX,Label='EVal2')
@@ -94,9 +96,9 @@ do iSym=1,nSym
           ll = ll+1
           do k=1,nx
             j = j+1
-            tmp = 0.0d0
+            tmp = Zero
             do it=0,nx-1
-              Fact = sqrt(dble(nDeg(i1+it)))
+              Fact = sqrt(real(nDeg(i1+it),kind=wp))
               tmp = tmp+EVec(1+(k-1)*nx+it)*elec(ii+it)*Fact
             end do
             elout(j) = tmp
@@ -115,13 +117,13 @@ do iSym=1,nSym
 
         ! Transform from mass-weighted cartesian to cartesian for Molden.
 
-        rNorm = 0.0d0
+        rNorm = Zero
         do jX=0,nX-1
-          Fact = sqrt(dble(nDeg(jX+1)))
+          Fact = sqrt(real(nDeg(jX+1),kind=wp))
           NMod(ipNx+jX) = NMod(ipNx+jX)/Fact
-          rNorm = rNorm+dble(nDeg(jX+1))*NMod(ipNx+jX)**2
+          rNorm = rNorm+real(nDeg(jX+1),kind=wp)*NMod(ipNx+jX)**2
         end do
-        call DScal_(nX,1.0d0/sqrt(rNorm),NMod(ipNx),1)
+        call DScal_(nX,One/sqrt(rNorm),NMod(ipNx),1)
 
         ipNx = ipNx+nX
         lModes = lModes+nX
@@ -130,14 +132,14 @@ do iSym=1,nSym
       call dcopy_(nX**2,NMod(jpNx),1,EVec,1)
       call GF_Print(EVal(i1),EVec,elout(kk),ll,nX,nX,iCtl,Intens(i1),RedMas,Lu_10,i1-1)
     else
-      write(6,*)
-      write(6,*) '     NOT CONVERGED'
-      write(6,*)
+      write(u6,*)
+      write(u6,*) '     NOT CONVERGED'
+      write(u6,*)
       do i=1,3
         if (iel(i) == isym) then
           j = j+1
           ii = ii+nx
-          elout(j) = -99999999d0
+          elout(j) = -99999999.0_wp
         end if
       end do
       Do_Molden = .false.
@@ -162,13 +164,13 @@ call dcopy_(nEig,Eval,1,Temp,1)
 ! For verification purpose we skip frequencies close to zero.
 
 do i=1,nEig
-  if (abs(Temp(i)) < 5.0d0) Temp(i) = 0.0d0
+  if (abs(Temp(i)) < Five) Temp(i) = Zero
 end do
 call Add_Info('Harm_Freq',Temp,nEig,1)
 call mma_deallocate(Temp)
 !
 do i=1,nEig
-  if (abs(Intens(i)) < 1.0d0) Intens(i) = 0.0d0
+  if (abs(Intens(i)) < One) Intens(i) = Zero
 end do
 call Add_Info('IR_Intensities',Intens,nEig,1)
 !                                                                      *
@@ -179,7 +181,7 @@ write(Lu_10,'(A)') '*END NORMAL MODES'
 ! Calculate thermodynamic properties----------
 
 if ((nUserPT == 0) .and. (nsRot == 0)) then
-  UserP = 1.0d0
+  UserP = One
   nUserPT = size(DefTemp)
   do i=1,nUserPT
     UserT(i) = DefTemp(i)

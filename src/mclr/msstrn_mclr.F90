@@ -30,16 +30,17 @@ subroutine MSSTRN_MCLR(INSTRN,UTSTRN,NOPEN)
 ! THE TWO PROCEDURES ARE IDENTICAL.
 
 use Constants, only: Half
+use Definitions, only: wp
 
 implicit none
-integer, intent(In) :: NOPEN
-integer, intent(In) :: INSTRN(NOPEN)
-real*8, intent(Out) :: UTSTRN(NOPEN)
+integer, intent(in) :: NOPEN
+integer, intent(in) :: INSTRN(NOPEN)
+real*8, intent(out) :: UTSTRN(NOPEN)
 integer IOPEN
 
-UTSTRN(1) = dble(INSTRN(1))-Half
+UTSTRN(1) = real(INSTRN(1),kind=wp)-Half
 do IOPEN=2,NOPEN
-  UTSTRN(IOPEN) = UTSTRN(IOPEN-1)+dble(INSTRN(IOPEN))-Half
+  UTSTRN(IOPEN) = UTSTRN(IOPEN-1)+real(INSTRN(IOPEN),kind=wp)-Half
 end do
 
 end subroutine MSSTRN_MCLR

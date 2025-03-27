@@ -22,6 +22,7 @@ subroutine OpnFls_MCLR(iPL)
 
 use MCLR_Data, only: FnPT2, FnMck, FnOne, FnTemp, FnTwo, LuMck, LuTEMP, LuTwo
 use input_mclr, only: McKinley, PT2, ChIrr
+use Definitions, only: u6
 
 implicit none
 character(len=8) Label
@@ -38,16 +39,16 @@ call DaName(LuTemp,FnTemp)
 call f_Inquire(FnTwo,FoundTwoEls)
 call DecideOnDirect(.true.,FoundTwoEls,Direct,DoCholesky)
 if (Direct) then
-  write(6,*) 'OpnFls: No direct option in MCLR'
+  write(u6,*) 'OpnFls: No direct option in MCLR'
   call Abend()
 else
   if (.not. DoCholesky) then
-    if (iPL >= 2) write(6,*) 'Ordinary integral handling'
+    if (iPL >= 2) write(u6,*) 'Ordinary integral handling'
     iRc = -1
     iOpt = 0
     call OpnOrd(iRc,iOpt,FnTwo,LuTwo)
     if (iRc /= 0) then
-      write(6,*) 'OpnFls: Error opening ORDINT'
+      write(u6,*) 'OpnFls: Error opening ORDINT'
       call Abend()
     end if
   end if
@@ -55,12 +56,12 @@ end if
 call f_Inquire(FnMCK,McKinley)
 call f_Inquire(FnPT2,PT2)
 if (McKinley) then
-  !write(6,*) 'Calculating response on perturbation from mckinley'
+  !write(u6,*) 'Calculating response on perturbation from mckinley'
   iRc = -1
   iOpt = 0
   call OpnMck(iRc,iOpt,FnMck,LuMck)
   if (iRc /= 0) then
-    write(6,*) 'OpnFls: Error opening MCKINT'
+    write(u6,*) 'OpnFls: Error opening MCKINT'
     call Abend()
   end if
   iRc = -1
@@ -69,18 +70,18 @@ if (McKinley) then
   Label = 'SYMOP'
   call cRdMck(irc,iopt,Label,idum,chirr(1),idum)
   if (iRc /= 0) then
-    write(6,*) 'OpnFls: Error reading MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'OpnFls: Error reading MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
 
 else if (PT2) then
-  !if (iPL >= 2) write(6,*) 'Calculating lagrange multipliers for CASPT2'
+  !if (iPL >= 2) write(u6,*) 'Calculating lagrange multipliers for CASPT2'
   !call DaName(LuPT2,FnPT2)
 else
   if (iPL >= 2) then
-    write(6,*) 'No ',FnPT2,' or ',FNMCK,', I hope that is OK'
-    write(6,*) 'Seward mode is assumed, reading perturbation from ',FnOne
+    write(u6,*) 'No ',FnPT2,' or ',FNMCK,', I hope that is OK'
+    write(u6,*) 'Seward mode is assumed, reading perturbation from ',FnOne
   end if
 end if
 !----------------------------------------------------------------------*

@@ -50,6 +50,10 @@ subroutine ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,JOBSM,JOBTP,JOBOFF,NJOB,IJO
 ! IEND : = 1 => end of N-2 strings has     been encountered
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit real*8(A-H,O-Z)
 !.Input
@@ -69,13 +73,13 @@ logical Skip
 
 NIJ = 0 ! dummy initialize
 #ifdef _DEBUGPRINT_
-write(6,*) ' ================'
-write(6,*) ' Info from ADADS1'
-write(6,*) ' ================'
-write(6,*) ' Iobsm Iobtp Ioboff, Niob',IOBSM,IOBTP,IOBOFF,NIOB
-write(6,*) ' Jobsm Jobtp Joboff, NJob',JOBSM,JOBTP,JOBOFF,NJOB
-write(6,*) ' icls ism',ICLS,ISM
-write(6,*) ' I1MPF, I2MPF ',I1MPF,I2MPF
+write(u6,*) ' ================'
+write(u6,*) ' Info from ADADS1'
+write(u6,*) ' ================'
+write(u6,*) ' Iobsm Iobtp Ioboff, Niob',IOBSM,IOBTP,IOBOFF,NIOB
+write(u6,*) ' Jobsm Jobtp Joboff, NJob',JOBSM,JOBTP,JOBOFF,NJOB
+write(u6,*) ' icls ism',ICLS,ISM
+write(u6,*) ' I1MPF, I2MPF ',I1MPF,I2MPF
 #endif
 
 NK = KMAX-KMIN+1
@@ -100,14 +104,14 @@ else
   KEL1 = KEL1
   KEL3 = KEL3-1
 end if
-!write(6,*) ' icls ',icls
-!write(6,*) ' iel1 iel3 ',iel1(icls),iel3(icls)
-!write(6,*) ' kel1 kel3 ',kel1,kel3
+!write(u6,*) ' icls ',icls
+!write(u6,*) ' iel1 iel3 ',iel1(icls),iel3(icls)
+!write(u6,*) ' kel1 kel3 ',kel1,kel3
 KTYPE = 0
 do KKTYPE=1,N2OCTP
   if ((I2EL1(KKTYPE) == KEL1) .and. (I2EL3(KKTYPE) == KEL3)) KTYPE = KKTYPE
 end do
-!write(6,*) ' ktype ',ktype
+!write(u6,*) ' ktype ',ktype
 Skip = .false.
 if (KTYPE == 0) then
   NK = 0
@@ -129,7 +133,7 @@ else
   else
     KSM = Mul(JOBSM,JKSM)
   end if
-  !write(6,*) ' JOBSM,KSM,JKSM ',JOBSM,KSM,JKSM
+  !write(u6,*) ' JOBSM,KSM,JKSM ',JOBSM,KSM,JKSM
   if (KSM == 0) then
     NK = 0
     IEND = 1
@@ -155,7 +159,7 @@ if (.not. Skip) then
   if (NKDim > 0) then
     do IJ=1,NIJ
       call ICopy(NKDIM,[0],0,I1(1,IJ),1)
-      call dcopy_(NKDIM,[0.0d0],0,XI1S(1,IJ),1)
+      call dcopy_(NKDIM,[Zero],0,XI1S(1,IJ),1)
     end do
   end if
 
@@ -189,10 +193,10 @@ if (.not. Skip) then
       end if
       if (JKSTR == 0) cycle
       if (JKSTR > 0) then
-        SIGN = 1.0d0
+        SIGN = One
       else
         JKSTR = -JKSTR
-        SIGN = -1.0d0
+        SIGN = -One
       end if
       ! N-1 => N
       do i=imin,niob
@@ -225,12 +229,12 @@ if (.not. Skip) then
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Output from ADADS1'
-write(6,*) ' =================='
-write(6,*) ' Number of K strings accessed ',NK
+write(u6,*) ' Output from ADADS1'
+write(u6,*) ' =================='
+write(u6,*) ' Number of K strings accessed ',NK
 if (NK /= 0) then
   do IJ=1,NIJ
-    write(6,*) ' Excited strings and sign for ij = ',IJ
+    write(u6,*) ' Excited strings and sign for ij = ',IJ
     call IWRTMA(I1(1,IJ),1,NK,1,NK)
     call WRTMAT(XI1S(1,IJ),1,NK,1,NK)
   end do

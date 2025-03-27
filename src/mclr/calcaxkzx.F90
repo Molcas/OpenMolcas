@@ -24,11 +24,11 @@ use input_mclr, only: nRoots, ntBas, ntAsh, nSym, nAsh, nOrb
 
 implicit none
 integer NPUVX
-real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA), intent(In) :: GDMat
-real*8, dimension(NPUVX), intent(In) :: PUVX
-integer, dimension(ntBas,ntAsh,ntAsh,ntAsh), intent(In) :: IndPUVX
-real*8, dimension((nRoots-1)*nRoots/2), intent(In) :: zx
-real*8, dimension(nDens2), intent(Out) :: AXkzx
+real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA), intent(in) :: GDMat
+real*8, dimension(NPUVX), intent(in) :: PUVX
+integer, dimension(ntBas,ntAsh,ntAsh,ntAsh), intent(in) :: IndPUVX
+real*8, dimension((nRoots-1)*nRoots/2), intent(in) :: zx
+real*8, dimension(nDens2), intent(out) :: AXkzx
 ! Auxiliary Quantities
 integer, dimension(nSym) :: Off_Act, Off_Orb
 real*8, dimension(:), allocatable :: DKL1, DKL2, AXktmp

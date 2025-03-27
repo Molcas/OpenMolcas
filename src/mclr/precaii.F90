@@ -39,6 +39,7 @@ subroutine Precaii(iB,is,js,nd,ir,rOut,nbai,nbaj,fockii,fockai,fockti,focki,fock
 use Arrays, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
+use Constants, only: Two, Four, Seven
 
 implicit none
 integer iB, is, js, nd, ir
@@ -96,8 +97,8 @@ do jA=1,nIsh(jS)
           cdij = A_J(icd)
           cidj = A_K(icd)
           ! is the coefficient opposite?
-          rout(i) = rout(i)+2.0d0*(rDens2*cidj+2.0d0*rDens1*cdij)
-          !rout(i) = rout(i)+2.0d0*(rDens1*cdij+2.0d0*rDens2*cidj)
+          rout(i) = rout(i)+Two*(rDens2*cidj+Two*rDens1*cdij)
+          !rout(i) = rout(i)+Two*(rDens1*cdij+Two*rDens2*cidj)
         end do
       end do
     end do
@@ -114,7 +115,7 @@ do iC=1,nAsh(is)
 
   rDens = sign*(-G1t(itri(iCC,iBB)))
   if (iCC == iBB) rdens = rdens+sign
-  rDens = 2.0d0*rDens
+  rDens = Two*rDens
 
   call Coul(jS,jS,iS,iS,iiB,iiC,A_J,Scr)
   call Exch(jS,iS,jS,iS,iiB,iiC,A_K,Scr)
@@ -135,7 +136,7 @@ do iC=1,nAsh(is)
 
       bcij = A_J(ibc)
 
-      rout(i) = rout(i)+rdens*(7.0d0*cibj-sign*bicj-sign*2.0d0*bcij)
+      rout(i) = rout(i)+rdens*(Seven*cibj-sign*bicj-sign*Two*bcij)
 
     end do
   end do
@@ -144,8 +145,8 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-rFock = sign*2.0d0*Fockii+sign*2.0d0*Fockai-sign*Fockti
-rdens = sign*2.0d0*G1t(itri(ibb,ibb))
+rFock = sign*Two*Fockii+sign*Two*Fockai-sign*Fockti
+rdens = sign*Two*G1t(itri(ibb,ibb))
 i = 0 ! dummy initialize
 
 do jA=1,nIsh(jS)
@@ -153,9 +154,9 @@ do jA=1,nIsh(jS)
 
     i = itri1(ja,jb)
 
-    rout(i) = rout(i)-sign*4.0d0*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
+    rout(i) = rout(i)-sign*Four*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
   end do
-  rout(i) = rout(i)+2.0d0*rfock
+  rout(i) = rout(i)+Two*rfock
 end do
 !                                                                      *
 !***********************************************************************

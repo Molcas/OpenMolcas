@@ -17,9 +17,10 @@ subroutine rddj(G1r,G1Q,G2r,iestate)
 ! Reads the one and two electron densities for estate
 ! and returns them in rectangular and single triangular storage
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: LuJob
 use input_mclr, only: ntAsh, iTOC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One, Two
 
 implicit none
 real*8 G1r(*), G1Q(*), G2r(*)
@@ -63,9 +64,9 @@ do iB=1,ntash
       do lB=1,ntash
         iDkl = iTri(kB,lB)
         iRkl = lb+(kb-1)*ntash
-        fact = 1.0d00
-        if ((iDij >= iDkl) .and. (kB == lB)) fact = 2.0d00
-        if ((iDij < iDkl) .and. (iB == jB)) fact = 2.0d00
+        fact = One
+        if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
+        if ((iDij < iDkl) .and. (iB == jB)) fact = Two
         iijkl = itri(iDij,iDkl)
         iRijkl = itri(iRij,iRkl)
         G2R(iRijkl) = Fact*G2Q(iijkl)

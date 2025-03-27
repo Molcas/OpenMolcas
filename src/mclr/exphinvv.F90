@@ -22,8 +22,10 @@ subroutine ExpHinvv(rdia,v,u,alpha,beta)
 !                          0  0
 
 use Exp, only: H0S, H0F, SBIDT, nExp
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 real*8 alpha, beta
@@ -44,17 +46,17 @@ if (nExp /= 0) then
   irc = 0
   call dgetrs_('N',NEXP,1,H0S,nexp,H0F,Tmp1,nexp,irc)
   if (irc /= 0) then
-    write(6,*) 'Error in DGETRS called from exphinvv'
+    write(u6,*) 'Error in DGETRS called from exphinvv'
     call Abend()
   end if
 
-  if ((alpha == 0.0d0) .and. (beta == 1.0d0)) then
+  if ((alpha == Zero) .and. (beta == One)) then
     call DVEM(nConf1,v,1,rdia,1,u,1)
-  else if (alpha == 0.0d0) then
+  else if (alpha == Zero) then
     do i=1,nConf1
       u(i) = beta*rDia(i)*v(i)
     end do
-  else if (alpha == 1.0d0) then
+  else if (alpha == One) then
     do i=1,nConf1
       u(i) = u(i)+beta*rDia(i)*v(i)
     end do
@@ -72,13 +74,13 @@ if (nExp /= 0) then
   call mma_deallocate(Tmp4)
 
 else
-  if ((alpha == 0.0d0) .and. (beta == 1.0d0)) then
+  if ((alpha == Zero) .and. (beta == One)) then
     call DVEM(nConf1,v,1,rdia,1,u,1)
-  else if (alpha == 0.0d0) then
+  else if (alpha == Zero) then
     do i=1,nConf1
       u(i) = beta*rDia(i)*v(i)
     end do
-  else if (alpha == 1.0d0) then
+  else if (alpha == One) then
     do i=1,nConf1
       u(i) = u(i)+beta*rDia(i)*v(i)
     end do

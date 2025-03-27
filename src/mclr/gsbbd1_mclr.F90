@@ -60,6 +60,7 @@ subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,IC
 ! Updated for GAS, August '95
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -137,9 +138,9 @@ do IJTP=1,NSXTP
         end do
         NKI = NKBTC*NIBTC
         if (NKI*NIORB*NJORB /= 0) then
-          call DGEMM_('T','N',NIORB,NJORB,NKI,1.0d0,SSCR,NKI,CSCR,NKI,0.0d0,RHO1S,NIORB)
+          call DGEMM_('T','N',NIORB,NJORB,NKI,One,SSCR,NKI,CSCR,NKI,Zero,RHO1S,NIORB)
         else
-          call dcopy_(NIORB*NJORB,[0.0d0],0,RHO1S,1)
+          call dcopy_(NIORB*NJORB,[Zero],0,RHO1S,1)
         end if
         ! Scatter out to complete matrix
         do JJORB=1,NJORB

@@ -28,12 +28,14 @@ subroutine OutRAS_td(iKapDisp,iCiDisp)
 
 use MckDat, only: sLength
 use gugx, only: SGS, CIS, EXS
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, nDensC, nDens2
 use MCLR_Data, only: DspVec, lDisp
 use MCLR_Data, only: LuTEMP
 use input_mclr, only: nDisp, nSym, State_Sym, iMethod, nCSF, nConf, iMethod, iSpin, kPrint, nActEl, nElec3, nHole1, nRS1, nRS2, &
                       nRS3, TimeDep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: u6
 
 implicit none
 integer iKapDisp(nDisp), iCiDisp(nDisp)
@@ -49,9 +51,9 @@ integer iDisp, iSym, nConfm, jDisp, kDisp, iDisk, Len, iLen, iDIs, iRC, iOpt, iS
 !
 !----------------------------------------------------------------------*
 
-write(6,*)
-write(6,*) '      Writing response to disk in Split guga GUGA format'
-write(6,*)
+write(u6,*)
+write(u6,*) '      Writing response to disk in Split guga GUGA format'
+write(u6,*)
 idisp = 0
 do iSym=1,nSym
   call Setup_MCLR(iSym)
@@ -107,14 +109,14 @@ do iSym=1,nSym
     isyml = 2**(isym-1)
     ipert = kdisp
 
-    if (iand(kprint,8) == 8) write(6,*) 'Perturbation ',ipert
+    if (iand(kprint,8) == 8) write(u6,*) 'Perturbation ',ipert
 
     if (Timedep .and. CI) then
       call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1(:,2),0,pstate_sym,State_Sym)
       NCSF(1:nSym) = CIS%NCSF(1:nSym)
       NCONF = CIS%NCSF(pstate_Sym)
       call mkGuga_Free(SGS,CIS,EXS)
-      call DSCAL_(nconf1,-1.0d0,CIp1(:,2),1)
+      call DSCAL_(nconf1,-One,CIp1(:,2),1)
     end if
 
     if (CI) then
@@ -129,7 +131,7 @@ do iSym=1,nSym
         call dWrMCk(iRC,iOpt,Label,ipert,CIp1,isyml)
       end if
     else
-      if ((imethod == 2) .and. (.not. CI) .and. (nconf1 == 1)) CIp1(1,1) = 0.0d0
+      if ((imethod == 2) .and. (.not. CI) .and. (nconf1 == 1)) CIp1(1,1) = Zero
       call dWrMCk(iRC,iOpt,Label,ipert,CIp1,isyml)
       if (irc /= 0) call Abend()
     end if

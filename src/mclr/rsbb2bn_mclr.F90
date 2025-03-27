@@ -70,6 +70,7 @@ subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,
 ! February 1994 : Fetching and adding to transposed blocks
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -90,8 +91,6 @@ dimension S2(*)
 ! Local arrays
 dimension ITP(3), JTP(3), KTP(3), LTP(3)
 
-ZERO = 0.0d0
-ONEM = -1.0d0
 !IUSEAB = 0
 !ICJKAIB = 1
 IROUTE = 1
@@ -184,7 +183,7 @@ do IJTYP=1,NIJTYP
           call DCOPY_(NJ*LCJ,SIRES,1,CJRES,1)
         end if
 
-        call DCOPY_(NIB*NKABTC*NI,[ZERO],0,SIRES,1)
+        call DCOPY_(NIB*NKABTC*NI,[Zero],0,SIRES,1)
 
       end if
 
@@ -242,7 +241,7 @@ do IJTYP=1,NIJTYP
               IXCHNG = 0
               if (IROUTE == 1) then
                 ! Integrals stored as (j l i k)
-                !write(6,*) 'Timedep in rsbb2bn_mclr;',TimeDep
+                !write(u6,*) 'Timedep in rsbb2bn_mclr;',TimeDep
                 if (TimeDep) then
                   call GETINT_td(XINT,JTYP,JSM,ITYP,ISM,LTYP,LSM,KTYP,KSM,0,0,iroute,ieaw)
                 else
@@ -263,7 +262,7 @@ do IJTYP=1,NIJTYP
                   call GETINT_MCLR(XINT,JTYP,JSM,ITYP,ISM,KTYP,KSM,LTYP,LSM,IXCHNG,0,0,1,ieaw)
                 end if
               end if
-              if (ISIGN == -1) call DSCAL_(NI*NJ*NK*NL,ONEM,XINT,1)
+              if (ISIGN == -1) call DSCAL_(NI*NJ*NK*NL,-One,XINT,1)
               IFIRST = 0
             end if
             call SKICKJ_MCLR(SIRES,CJRES,NKABTC,NIB,NJB,NKBBTC,XINT,NI,NJ,NK,NL,MAXK,I4,XI4S,I2,XI2S,IKORD,IDUM,iXDUM,XDUM,IROUTE)

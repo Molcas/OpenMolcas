@@ -24,7 +24,6 @@ subroutine RdJobIph(CIVec)
 use MckDat, only: sNew
 use Arrays, only: CMO, G2t, G1t
 use gugx, only: SGS, CIS, EXS
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nA, nNA
 use MCLR_Data, only: IRLXROOT, ISTATE, SA, OVERRIDE, ISNAC, NSSA, NACSTATES
 use MCLR_Data, only: FnJob, FnMck, LuJob, LuMck
@@ -32,6 +31,9 @@ use input_mclr, only: Debug, lRoots, iPT2, nRoots, ntIsh, ntITri, ntAsh, ntATri,
                       State_Sym, iMCPD, iMSPD, McKinley, ERASSCF, Headerjp, iRoot, iSpin, iTOC, iTocIph, ntISqr, nCOnf, PT2, &
                       nActEl, nAsh, nBas, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRS1, nRS2, nRS3, TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 real*8, allocatable :: CIVec(:,:)
@@ -74,7 +76,7 @@ call iDaFile(LuJob,2,iToc,iTOCIPH,iDisk)
 call mma_allocate(TempTxt,LenIn8*MxOrb,Label='TempTxt')
 iDisk = iToc(1)
 
-!write(6,*) 'if dmrg, it should be something else'
+!write(u6,*) 'if dmrg, it should be something else'
 call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,State_sym,nFro,nIsh,nAsh,nDel,nBas,MxSym,TempTxt,LenIn8*mxorb,nConf,HeaderJP, &
                     144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
 
@@ -83,8 +85,8 @@ if (doDMRG) then ! yma
   call dmrg_spc_change_mclr(LRras2(1:8),nrs2)
 end if
 !do i=1,8
-!  write(6,*) i,'-irrep',nIsh(i),nAsh(i),nRs1(i),nRs2(i),nRs3(i)
-!  call xflush(6)
+!  write(u6,*) i,'-irrep',nIsh(i),nAsh(i),nRs1(i),nRs2(i),nRs3(i)
+!  call xflush(u6)
 !end do
 
 call mma_deallocate(TempTxt)
@@ -94,10 +96,10 @@ call mma_deallocate(TempTxt)
 !----------------------------------------------------------------------*
 if (kRoots /= -1) then
   if (iPt2 /= 0) then
-    write(6,*) 'RdJobiph: kRoots /= -1 .and. iPt2 /= 0'
+    write(u6,*) 'RdJobiph: kRoots /= -1 .and. iPt2 /= 0'
     call Abend()
   else if (kRoots > lRoots) then
-    write(6,*) 'RdJobiph: kRoots /= -1 .and. kRoots > lRoots'
+    write(u6,*) 'RdJobiph: kRoots /= -1 .and. kRoots > lRoots'
     call Abend()
   end if
   lRoots = kRoots
@@ -143,7 +145,7 @@ if (doDMRG) then  ! yma
   call mkGuga_Free(SGS,CIS,EXS)
 
   !do isym=1,8
-  !  write(6,*) 'isym_ncsf in rdjobiph ',ncsf(isym)
+  !  write(u6,*) 'isym_ncsf in rdjobiph ',ncsf(isym)
   !end do
 end if
 
@@ -170,7 +172,7 @@ end if
 if ((Method == 'CASSCFSA') .or. (Method == 'CASPT2') .or. (Method == 'RASSCFSA')) then
   call Get_iScalar('SA ready',iGo)
   if (iGO == -1) then
-    write(6,*) 'MCLR not implemented for SA-CASSCF with non-equivalent weights!'
+    write(u6,*) 'MCLR not implemented for SA-CASSCF with non-equivalent weights!'
     call Abend()
   else
     if (iGo /= 2) SA = .true.
@@ -200,13 +202,13 @@ if ((Method == 'CASSCFSA') .or. (Method == 'CASPT2') .or. (Method == 'RASSCFSA')
     end if
   end if
 else if ((irlxroot == 1) .and. (.not. (McKinley .or. PT2 .or. iMCPD))) then
-  write(6,*)
-  write(6,*) 'W A R N I N G !'
-  write(6,*)
-  write(6,*) 'Redundant rlxroot input in RASSCF!'
-  write(6,*) 'I''ll sign off here without a clean termination!'
-  write(6,*) 'However, I have to fix the epilogue file.'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'W A R N I N G !'
+  write(u6,*)
+  write(u6,*) 'Redundant rlxroot input in RASSCF!'
+  write(u6,*) 'I''ll sign off here without a clean termination!'
+  write(u6,*) 'However, I have to fix the epilogue file.'
+  write(u6,*)
   irc = -1
   iopt = ibset(0,sNew)
   call OPNMCK(irc,iopt,FNMCK,LUMCK)
@@ -222,7 +224,7 @@ end if
 if (.false.) then
   jpCMO = 1
   do iSym=1,nSym
-    call dcopy_(nbas(isym)*ndel(isym),[0d0],0,CMO(jpCMO+norb(isym)*nbas(isym)),1)
+    call dcopy_(nbas(isym)*ndel(isym),[Zero],0,CMO(jpCMO+norb(isym)*nbas(isym)),1)
     write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
     call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
     jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
@@ -251,19 +253,19 @@ else
 !#ifdef _DEBUGPRINT_       ! yma umcomment
   do i=1,nroots            !yma
     inum = 0
-    dv_ci2 = 0.0d0
+    dv_ci2 = Zero
     do j=1,nconf
       !yma CI-threshold
-      if (abs(CIVec(j,i)) < 0.0d0) then
+      if (abs(CIVec(j,i)) < Zero) then
         inum = inum+1
-        CIVec(j,i) = 0.0d0
+        CIVec(j,i) = Zero
       else
         dv_ci2 = dv_ci2+CIVec(j,i)**2
       end if
     end do
     !call DVcPrt('CI coefficients',' ',CIVec(:,i),nConf)!yma
-    !write(6,*) 'dismissed dets num', inum
-    !write(6,*) 'absolutely CI^2',dv_ci2
+    !write(u6,*) 'dismissed dets num', inum
+    !write(u6,*) 'absolutely CI^2',dv_ci2
   end do
 !#endif
 end if
@@ -275,9 +277,9 @@ call mma_allocate(Tmp2,mxRoot*mxIter,Label='Tmp2')
 iDisk = iToc(6)
 #ifdef _DEBUGPRINT_
 if (debug) then
-  write(6,*) 'NROOTS: ',nroots
-  write(6,*) 'iROOTS: ',(iroot(i),i=1,nroots)
-  write(6,*) 'lROOTS: ',lroots
+  write(u6,*) 'NROOTS: ',nroots
+  write(u6,*) 'iROOTS: ',(iroot(i),i=1,nroots)
+  write(u6,*) 'lROOTS: ',lroots
 end if
 #endif
 call dDaFile(LuJob,2,Tmp2,mxRoot*mxIter,iDisk)
@@ -285,17 +287,17 @@ call dDaFile(LuJob,2,Tmp2,mxRoot*mxIter,iDisk)
 do iter=0,mxIter-1
   do i=1,nroots
     j = iroot(i)
-    ! It should be 0.0d0 in DMRG case
+    ! It should be 0.0 in DMRG case
     Temp = Tmp2(iter*mxRoot+j)
-    if (Temp /= 0.0d0) ERASSCF(i) = Temp
-    !if (debug) write(6,*) ERASSCF(i),i
+    if (Temp /= Zero) ERASSCF(i) = Temp
+    !if (debug) write(u6,*) ERASSCF(i),i
   end do
 end do
 
 #ifdef _DEBUGPRINT_
 if (debug) then
-  write(6,*) (Tmp2(i),i=1,lroots)
-  write(6,*) 'RASSCF energies=',(ERASSCF(i),i=1,nroots)
+  write(u6,*) (Tmp2(i),i=1,lroots)
+  write(u6,*) 'RASSCF energies=',(ERASSCF(i),i=1,nroots)
 end if
 #endif
 call mma_deallocate(Tmp2)

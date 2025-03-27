@@ -23,12 +23,13 @@ subroutine Read22_2(MO1,Fock,Q,FockI,FockA,Temp2,Scr,Temp3)
 
 use Arrays, only: W_CMO => CMO, W_CMO_Inv => CMO_Inv, Int1, G1t, G2t
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nB
 use MCLR_Data, only: LuQDat
 use input_mclr, only: TwoStep, StepType, nSym, NewCho, iMethod, rIn_Ene, Debug, PotNuc, iAddressQDat, LuAChoVec, LuIChoVec, nAsh, &
                       nBas, nIsh, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: u6
 
 implicit none
 real*8 MO1(*), Fock(nDens2), Q(nDens2), FockI(nDens2), FockA(nDens2), Temp2(nDens2), Scr(*), Temp3(ndens2)
@@ -410,15 +411,15 @@ else
   call RecPrt('MO1',' ',MO1,1,nAtri)
 # endif
   call DaXpY_(ndens2,One,Int1,1,FockI,1)
-  call dcopy_(ndens2,[0.0d0],0,Fock,1)
+  call dcopy_(ndens2,[Zero],0,Fock,1)
 
   do iS=1,nSym
     if (nOrb(iS) == 0) cycle
 
-    if (nIsh(iS) > 0) call DYaX(nOrb(iS)*nIsh(is),2.0d0,FockI(ipCM(iS)),1,Fock(ipCM(iS)),1)
+    if (nIsh(iS) > 0) call DYaX(nOrb(iS)*nIsh(is),Two,FockI(ipCM(iS)),1,Fock(ipCM(iS)),1)
     if (iMethod == 2) then
-      if (nIsh(iS) > 0) call DaXpY_(nOrb(iS)*nIsh(is),2.0d0,FockA(ipCM(iS)),1,Fock(ipCM(iS)),1)
-      if (nAsh(iS) > 0) call DYaX(nOrb(iS)*nAsh(is),1.0d0,Q(ipMatba(iS,is)),1,Fock(ipCM(iS)+nIsh(is)*nOrb(is)),1)
+      if (nIsh(iS) > 0) call DaXpY_(nOrb(iS)*nIsh(is),Two,FockA(ipCM(iS)),1,Fock(ipCM(iS)),1)
+      if (nAsh(iS) > 0) call DYaX(nOrb(iS)*nAsh(is),One,Q(ipMatba(iS,is)),1,Fock(ipCM(iS)+nIsh(is)*nOrb(is)),1)
       do iAsh=1,nAsh(is)
         ipi = ipCM(iS)+nOrb(is)*(nIsh(is)+iAsh-1)
         do jAsh=1,nAsh(is)
@@ -434,21 +435,21 @@ else
   end do
 
 end if
-renergy = 0.0d0
-rcora = 0.0d0
+renergy = Zero
+rcora = Zero
 do iS=1,nSym
   do iB=1,nAsh(is)+nIsh(is)
     rEnergy = rEnergy+Fock(ipCM(is)+nOrb(iS)*(ib-1)+ib-1)
   end do
 end do
-rcorei = 0.0d0
-rcorea = 0.0d0
-rcor = 0.0d0
+rcorei = Zero
+rcorea = Zero
+rcor = Zero
 do iS=1,nSym
   iptmp = ipCM(iS)
   do iB=1,nIsh(is)
-    rcorei = rcorei+2.0d0*Int1(iptmp)
-    rcor = rcor+2.0d0*Focki(iptmp)
+    rcorei = rcorei+Two*Int1(iptmp)
+    rcor = rcor+Two*Focki(iptmp)
     iptmp = iptmp+nOrb(iS)+1
   end do
 
@@ -465,12 +466,12 @@ do iS=1,nSym
     end do
   end do
 end do
-rin_ene = 0.5d0*(rcor+rcorei)
+rin_ene = Half*(rcor+rcorei)
 rcore = rCorei+rcoreA
 if (debug) then
-  write(6,*) 'Checking energy',0.5d0*renergy+potnuc+Half*rcore
-  write(6,*) 'Checking energy',0.5d0*renergy,potnuc,Half*rcore
-  write(6,*)
+  write(u6,*) 'Checking energy',Half*renergy+potnuc+Half*rcore
+  write(u6,*) 'Checking energy',Half*renergy,potnuc,Half*rcore
+  write(u6,*)
 end if
 
 if (TwoStep .and. (StepType == 'RUN1')) then

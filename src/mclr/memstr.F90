@@ -127,7 +127,7 @@ end do
 
 ! Mappings between different string types
 do ITYP=1,NSTTYP
-  !write(6,*) nelec(ityp),nstrin
+  !write(u6,*) nelec(ityp),nstrin
   NSTRIN = NSTFTP(ITYP)
 
   if ((ISTAC(ITYP,2) /= 0) .and. (ISTAC(ITYP,1) /= 0)) then

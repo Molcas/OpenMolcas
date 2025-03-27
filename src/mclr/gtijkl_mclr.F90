@@ -17,7 +17,7 @@ use Arrays, only: Int2
 use MCLR_Data, only: IREOTS
 
 implicit none
-integer, intent(In) :: I, J, K, L
+integer, intent(in) :: I, J, K, L
 integer iAbs, jAbs, kAbs, lAbs, ij, kl
 integer itri
 ! Statement function

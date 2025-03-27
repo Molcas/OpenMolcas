@@ -23,10 +23,12 @@ subroutine Start_MCLR()
 use OneDat, only: sNoNuc, sNoOri
 use Arrays, only: CMO_Inv, CMO
 use transform_procedures, only: SetUp_CASPT2_Tra
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens2
 use MCLR_Data, only: LuTri1, LuMotra, FnTri1, FnMotra, FnQDat, LuHlf2, LuHlf3, LuQDat, LuTri2
 use input_mclr, only: StepType, TwoStep, NewCho, nSym, kPrint, nAsh, nBas, nDel, LuAChoVec, LuChoInt, LuIChoVec, nFro, nIsh, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, u6
 
 implicit none
 #include "warnings.h"
@@ -46,7 +48,7 @@ real*8 BufFrac
 !                                                                      *
 call setup_MCLR(1)
 
-if ((StepType /= 'RUN2') .and. (iand(kPrint,4) == 4)) write(6,'(6X,A)') 'Transformation of integrals'
+if ((StepType /= 'RUN2') .and. (iand(kPrint,4) == 4)) write(u6,'(6X,A)') 'Transformation of integrals'
 ! For the mp2-gradient calculations we want the transformation
 ! routine to produce all integrals of the occupied and virtual
 ! orbitals so we tell it that the whole space is inactive and
@@ -106,7 +108,7 @@ if (newCho) then
   iOff1 = 1
   iOff2 = 1
   do iSym=1,nSym
-    call dGemm_('T','N',nOrb(iSym),nBas(iSym),nBas(iSym),1.0d0,CMO(iOff2),nBas(iSym),Smat(iOff1),nBas(iSym),0.0d0,CMO_Inv(iOff2), &
+    call dGemm_('T','N',nOrb(iSym),nBas(iSym),nBas(iSym),One,CMO(iOff2),nBas(iSym),Smat(iOff1),nBas(iSym),Zero,CMO_Inv(iOff2), &
                 nOrb(iSym))
 
     iOff1 = iOff1+nBas(iSym)**2
@@ -129,7 +131,7 @@ if (TwoStep .and. (StepType == 'RUN2')) call put_temp_data_on_intgrl(LuMOTRA,nSy
 
 ! Init Cholesky informations
 if (NewCho) then
-  BufFrac = 0.3d0
+  BufFrac = 0.3_wp
   call Cho_X_Init(irc,BufFrac)
   iSeed = 10
   do i=1,nsym

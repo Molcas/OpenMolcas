@@ -28,6 +28,8 @@ subroutine Preca_cho(iB,is,js,nd,ir,rOut,nbai,nbaj,fockii,fockai,fockti,focki,fo
 use Arrays, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
+use Constants, only: One, Two, Four, Eight
+use Definitions, only: wp
 
 implicit none
 integer iB, is, js, nd, ir
@@ -70,10 +72,10 @@ do ksym=1,nsym
     do iu=1,iv
       jDD = iu+nA(kSym)
       do iJK=1,2 ! 1=coulomb, 2=exchange
-        factor = 2.0d0
-        factor2 = 1.0d0
-        if (iJK == 2) factor = 1.0d0 ! exchange
-        if (iJK == 2) factor2 = 2.0d0 ! exchange
+        factor = Two
+        factor2 = One
+        if (iJK == 2) factor = One  ! exchange
+        if (iJK == 2) factor2 = Two ! exchange
         do lsym=1,nsym
           nl = nBas(lsym)
           if (nl <= 0) cycle
@@ -81,9 +83,9 @@ do ksym=1,nsym
 
           if (lsym == js) then
             if (iJK == 1) then
-              rDens2 = 2.0d0*sign*G2t(itri(itri(jCC,jDD),itri(iBB,iBB)))
+              rDens2 = Two*sign*G2t(itri(itri(jCC,jDD),itri(iBB,iBB)))
             else
-              rDens2 = 2.0d0*sign*G2t(itri(itri(iBB,jDD),itri(jCC,iBB)))
+              rDens2 = Two*sign*G2t(itri(itri(iBB,jDD),itri(jCC,iBB)))
             end if
 
             rDensaii = factor*rDens2
@@ -95,31 +97,31 @@ do ksym=1,nsym
             rDensabiu = 0
 
             if (iBB == jDD) then
-              rDens1 = -2.0d0*G1t(itri(jCC,iBB))
-              if (jCC == iBB) rdensaii = rdensaii-2.0d0*factor
+              rDens1 = -Two*G1t(itri(jCC,iBB))
+              if (jCC == iBB) rdensaii = rdensaii-Two*factor
               rDensaiil = rDensaiil-factor*rDens1
               rDensabil = rDensabil+sign*rDens1
             else if ((iBB == jCC) .and. (iJK == 2)) then
-              rDens1 = -2.0d0*G1t(itri(jDD,iBB))
+              rDens1 = -Two*G1t(itri(jDD,iBB))
               rDensaiiu = rDensaiiu-factor*rDens1
               rDensabiu = rDensabiu+sign*rDens1
             end if
             if ((iBB == jCC) .and. (iJK == 2)) then
-              rDensaiil = rDensaiil-factor*14.0d0*sign*G1t(itri(jDD,iBB))
-              rDensabil = rDensabil+8.0d0*sign*G1t(itri(jDD,iBB))
-              if (jDD == iBB) rdensaii = rdensaii+factor*14.0d0*sign
+              rDensaiil = rDensaiil-factor*14.0_wp*sign*G1t(itri(jDD,iBB))
+              rDensabil = rDensabil+Eight*sign*G1t(itri(jDD,iBB))
+              if (jDD == iBB) rdensaii = rdensaii+factor*14.0_wp*sign
             else if ((iBB == jDD) .and. (iJK == 2)) then
-              rDensaiiu = rDensaiiu-factor*14.0d0*sign*G1t(itri(jCC,iBB))
-              rDensabiu = rDensabiu+8.0d0*sign*G1t(itri(jCC,iBB))
+              rDensaiiu = rDensaiiu-factor*14.0_wp*sign*G1t(itri(jCC,iBB))
+              rDensabiu = rDensabiu+Eight*sign*G1t(itri(jCC,iBB))
             end if
             rDensaiiu = rDensaiiu+rDensaii
             rDensaii = rDensaiil+rDensaii
             rDensabiu = rDensabiu+rDensabi
             rDensabi = rDensabil+rDensabi
             if ((iJK == 1) .and. (jCC > jDD)) then
-              rDensaii = rDensaii*2.0d0
-              rDensabi = rDensabi*2.0d0
-              rDensabb = rDensabb*2.0d0
+              rDensaii = rDensaii*Two
+              rDensabi = rDensabi*Two
+              rDensabb = rDensabb*Two
             end if
 
             do ii=1,nIsh(js)
@@ -158,24 +160,24 @@ end do
 !                                                                      *
 ! Fock matrix contribution
 
-rFock = sign*2.0d0*Fockii+sign*2.0d0*Fockai-sign*Fockti
-rdens = sign*2.0d0*G1t(itri(ibb,ibb))
+rFock = sign*Two*Fockii+sign*Two*Fockai-sign*Fockti
+rdens = sign*Two*G1t(itri(ibb,ibb))
 
 ! aii
 
 do jA=1,nIsh(jS)
   do jB=1,jA
     i = itri1(ja,jb)
-    rout(i) = rout(i)-sign*4.0d0*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
+    rout(i) = rout(i)-sign*Four*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
   end do
-  rout(i) = rout(i)+2.0d0*rfock
+  rout(i) = rout(i)+Two*rfock
 
   ! abi
 
   ip = itri1(jA,nd-jVert+1)
-  Fact = (2.0d0-2.0d0*G1t(itAA))
+  Fact = (Two-Two*G1t(itAA))
   call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jA),1,rOut(ip),1)
-  Fact = 2.0d0
+  Fact = Two
   call DaxPy_(jVert,Sign*Fact,FockA(nO+1,jA),1,rOut(ip),1)
 end do
 
@@ -184,7 +186,7 @@ end do
 ip = iTri1(i2,i2)
 rF = sign*Fockti
 do iI=nAsh(js)+nIsh(js)+1,nBas(js)
-  rOut(ip) = rout(ip)-2.0d0*rF+rDens*FockI(iI,ii)
+  rOut(ip) = rout(ip)-Two*rF+rDens*FockI(iI,ii)
   ip = ip+1
   do iJ=iI+1,Nbas(js)
     rOut(ip) = rout(ip)+rDens*FockI(iI,iJ)

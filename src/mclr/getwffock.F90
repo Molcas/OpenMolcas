@@ -18,14 +18,14 @@
 subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
 ! Partially readpated from rhs_sa.f
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use ipPage, only: W
-use Constants, only: One, Two
 use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
 use MCLR_Data, only: IRLXROOT
 use MCLR_Data, only: LuJob
 use MCLR_Data, only: XISPSM
 use input_mclr, only: nRoots, ntAsh, iTOC, State_Sym, nCSF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
 
 implicit none
 ! Input
@@ -65,7 +65,7 @@ call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
 call mma_allocate(G2rt,itri(ntash**2,ntash**2),Label='G2rt')
 ! Rotate CI vectors back to those for reference states
 NCSFs = NCSF(state_sym)
-call DGEMM_('n','n',NCSFS,nRoots,nRoots,1.0d0,W(ipCI)%Vec,NCSFs,R,nRoots,0.0d0,FinCI,nCSFs)
+call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%Vec,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
 nConfL = max(ncsf(state_sym),nint(xispsm(state_sym,1)))
 
 call mma_allocate(CIL,nConfL)
@@ -86,13 +86,13 @@ do iA=1,nnA
         if ((iA == jA) .or. (kA == la)) then
           G2r(itri(ij1,kl1)) = G2rt(itri(ij1,kl1))
         else
-          G2r(itri(ij1,kl1)) = (G2rt(itri(ij1,kl1))+G2rt(itri(ij1,kl2)))/2.0d0
+          G2r(itri(ij1,kl1)) = (G2rt(itri(ij1,kl1))+G2rt(itri(ij1,kl2)))*Half
         end if
       end do
     end do
   end do
 end do
-call FockGen(1.0d0,G1r,G2r,FOccMO,bk,1)
+call FockGen(One,G1r,G2r,FOccMO,bk,1)
 
 do iB=1,ntash
   do jB=1,iB
@@ -110,8 +110,8 @@ do iB=1,ntash
         iDkl = iTri(kB,lB)
         iRkl = lb+(kb-1)*ntash
         fact = One
-        if ((iDij >= iDkl) .and. (kB == lB)) fact = 0.5d0
-        if ((iDij < iDkl) .and. (iB == jB)) fact = 0.5d0
+        if ((iDij >= iDkl) .and. (kB == lB)) fact = Half
+        if ((iDij < iDkl) .and. (iB == jB)) fact = Half
         iijkl = itri(iDij,iDkl)
         iRijkl = itri(iRij,iRkl)
         G2q(iijkl) = Fact*G2r(iRijkl)
@@ -120,7 +120,7 @@ do iB=1,ntash
   end do
 end do
 call Get_dArray_chk('P2MOt',P2MOt,ng2)
-call DaXpY_(ng2,1.0d0,G2q,1,P2MOt,1)
+call DaXpY_(ng2,One,G2q,1,P2MOt,1)
 
 ! Done with the info from CMS final state
 
@@ -137,9 +137,9 @@ call mma_allocate(DIAO,nTri)
 call Get_DArray('MSPDFTD5',DIAO,nTri)
 call Get_DArray('MSPDFTD6',D6,nTri)
 call GetDMatAO(G1q,DMatAO,ng1,nTri)
-call DaXpY_(nTri,1.0d0,DMatAO,1,D6,1)
+call DaXpY_(nTri,One,DMatAO,1,D6,1)
 call DCopy_(nTri,DMatAO,1,D5,1)
-call DaXpY_(nTri,0.5d0,DIAO,1,D5,1)
+call DaXpY_(nTri,Half,DIAO,1,D5,1)
 call Put_DArray('MSPDFTD5',D5,nTri)
 call Put_DArray('MSPDFTD6',D6,nTri)
 call mma_deallocate(D5)
@@ -186,7 +186,7 @@ do K=1,nRoots
     end do
   end do
 
-  call FockGen(1.0d0,G1r,G2r,T,Fock,1)
+  call FockGen(One,G1r,G2r,T,Fock,1)
   call Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,Fock,1,bk,1)
   call Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,T,1,FOccMO,1)
   call DaXpY_(ng2,-R((I-1)*nRoots+K)**2,G2q,1,P2MOt,1)

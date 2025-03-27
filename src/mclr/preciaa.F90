@@ -37,6 +37,7 @@ subroutine Preciaa(iB,iS,jS,nd,rOut,nbai,nbaj,fockii,fockai,fockti,focki,focka,f
 use Arrays, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
+use Constants, only: Two, Three, Four
 
 implicit none
 integer iB, iS, jS, nd
@@ -89,7 +90,7 @@ do kS=1,nSym
           rDens1 = sign*G2t(itri(itri(jjC,jjD),itri(jjB,jjA)))
           rDens2 = sign*G2t(itri(itri(jjB,jjD),itri(jjC,jjA)))
 
-          rout(i) = rout(i)+2.0d0*rDens1*aabb+4.0d0*rDens2*abab
+          rout(i) = rout(i)+Two*rDens1*aabb+Four*rDens2*abab
 
         end do
       end do
@@ -128,7 +129,7 @@ do jA=1,nAsh(jS)
       if (jAA == jCC) rDens1 = rdens1+sign
       if (jBB == jCC) rDens2 = rdens2+sign
 
-      rout(i) = rout(i)+2.0d0*rdens1*(3.0d0*BbCb-BCbb)+2.0d0*rdens2*(3.0d0*AbCb-ACbb)
+      rout(i) = rout(i)+Two*rdens1*(Three*BbCb-BCbb)+Two*rdens2*(Three*AbCb-ACbb)
 
     end do
   end do
@@ -146,9 +147,9 @@ do jA=1,nAsh(jS)
     jjB = jB+nIsh(js)
     i = itri1(jA,jB)
     rDens = G1t(itri(jbb,jAA))
-    rout(i) = rout(i)+Sign*(2.0d0*rdens*Fockii+2.0d0*(2.0d0*Focki(jjA,jjB)+2.0d0*FockA(jjA,jjB)-Fock(jjB,jjA)))
+    rout(i) = rout(i)+Sign*(Two*rdens*Fockii+Two*(Two*Focki(jjA,jjB)+Two*FockA(jjA,jjB)-Fock(jjB,jjA)))
   end do
-  rout(i) = rout(i)-4.0d0*rFock
+  rout(i) = rout(i)-Four*rFock
 end do
 !                                                                      *
 !***********************************************************************

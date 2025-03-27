@@ -24,13 +24,15 @@ use Str_Info, only: DTOC
 use negpre, only: nGP
 use ipPage, only: W
 use gugx, only: SGS, CIS, EXS
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: ipCI
 use MCLR_Data, only: SA, ISTATE
 use MCLR_Data, only: LuPT2
 use input_mclr, only: PT2, iMethod, TimeDep, nCSF, nSym, State_Sym, iMCPD, nDisp, iRoot, iSpin, nActEl, nElec3, nHole1, nRS1, &
                       nRS2, nRS3, Page, nRoots, nConf
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer iPL
@@ -85,7 +87,7 @@ if (Method == 'CASPT2') then
   call check_caspt2(1)
 end if
 
-!write(6,*) 'iMethod:',iMethod,2
+!write(u6,*) 'iMethod:',iMethod,2
 if (iMethod == 2) then
   if (TimeDep) then
     call RdJobIph_td(CIVec)
@@ -93,14 +95,14 @@ if (iMethod == 2) then
     call RdJobIph(CIVec)
   end if
 
-  !write(6,*) 'Setup of Determinant tables'
+  !write(u6,*) 'Setup of Determinant tables'
   call DetCtl()   ! set up determinant tables
   ! Read in tables from disk
   call InCsfSD(State_sym,State_sym,.true.)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  !write(6,*) 'Transformation of CI vector to symmetric group from GUGA pepresentation'
+  !write(u6,*) 'Transformation of CI vector to symmetric group from GUGA pepresentation'
 
   ! scratch  ! yma testing
   !if (doDMRG .and. doMCLR) then
@@ -130,14 +132,14 @@ if (iMethod == 2) then
 
     ! Here should be the position for introducing the CI(SR) coefficients
     !iSSM = 1     ! yma
-    !write(6,*) 'Set ISSM == 1 ',ISSM
+    !write(u6,*) 'Set ISSM == 1 ',ISSM
 
     if (doDMRG) then !yma
       call mma_allocate(index_SD,ndets_RGLR,label='index_SD')
       call mma_allocate(vector_cidmrg,ndets_RGLR,label='vector_cidmrg')
       call ci_reconstruct(i,ndets_RGLR,vector_cidmrg,index_SD)
       do ii=1,ndets_RGLR
-        if (abs(vector_cidmrg(ii)) < 0.0d0) vector_cidmrg(ii) = 0.0d0
+        if (abs(vector_cidmrg(ii)) < Zero) vector_cidmrg(ii) = Zero
       end do
       call CSDTVC_dmrg(CITmp,vector_cidmrg,2,DTOC,index_SD,ISSM,1)
       call mma_deallocate(index_SD)
@@ -155,7 +157,7 @@ if (iMethod == 2) then
   ! If we are computing Lagrangian multipliers we pick up all CI
   ! vectors. For Hessian calculations we pick up just one vector.
 
-  !write(6,*) 'iState,SA,nroots=',iState,SA,nroots
+  !write(u6,*) 'iState,SA,nroots=',iState,SA,nroots
   if (SA .or. iMCPD .or. PT2) then
     ipcii = ipget(nconf*nroots)
     irc = ipin(ipcii)
@@ -166,7 +168,7 @@ if (iMethod == 2) then
     irc = ipin(ipcii)
     call dcopy_(nConf,CIVec(:,iState),1,W(ipcii)%Vec,1)
     if (iRoot(iState) /= 1) then
-      write(6,*) 'McKinley does not support computation of harmonic frequencies of excited states'
+      write(u6,*) 'McKinley does not support computation of harmonic frequencies of excited states'
       call Abend()
     end if
   end if

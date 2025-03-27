@@ -14,10 +14,11 @@ subroutine InpOne()
 use Arrays, only: CMO, Int1, KAIN1
 use OneDat, only: sOpSiz
 use rctfld_module, only: lRF
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
 use MCLR_Data, only: nDens2
 use input_mclr, only: nSym, nAtoms, iSpin, nActEl, nBas, nFro, nIsh, nOrb, PotNuc
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, u6
 
 implicit none
 logical Do_ESPF, First, Dff, Do_DFT, NonEq
@@ -41,8 +42,8 @@ iComp = 1
 call iRdOne(iRc,iOpt,Label,iComp,idum,iisym)
 leng = idum(1)
 if (iRC /= 0) then
-  write(6,*) 'InpOne: Error reading ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'InpOne: Error reading ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 iisym = 2**0
@@ -57,8 +58,8 @@ call mma_allocate(Temp3,ndens2,Label='Temp3')
 
 call RdOne(iRc,iOpt,Label,iComp,Temp1,iisym)
 if (iRC /= 0) then
-  write(6,*) 'InpOne: Error reading ONEINT'
-  write(6,'(A,A)') 'Label=',Label
+  write(u6,*) 'InpOne: Error reading ONEINT'
+  write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 !nf
@@ -75,15 +76,15 @@ end do
 call mma_deallocate(Nuc)
 Tot_El_Charge = Zero
 do iSym=1,nSym
-  Tot_El_Charge = Tot_El_Charge-Two*dble(nFro(iSym)+nIsh(iSym))
+  Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
 end do
-Tot_El_Charge = Tot_El_Charge-dble(nActEl)
+Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
 Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 iCharge = int(Tot_Charge)
 call DecideOnESPF(Do_ESPF)
 if (Do_ESPF .or. lRF) then
   if (lRF) then
-    write(6,*) 'Sorry, MCLR+RF NYI'
+    write(u6,*) 'Sorry, MCLR+RF NYI'
     call Quit_OnUserError()
   end if
 
@@ -123,8 +124,8 @@ do iS=1,nSym
   if ((nBas(is) /= 0) .and. (nOrb(iS) /= 0)) then
     call Square(Temp1(ip),Temp2,1,nBas(is),nBas(is))
     ip = ip+nBas(is)*(nBas(iS)+1)/2
-    call DGEMM_('T','N',nOrb(iS),nBas(iS),nBas(iS),1.0d0,CMO(ip2),nBas(iS),Temp2,nBas(iS),0.0d0,Temp3,nOrb(iS))
-    call DGEMM_('N','N',nOrb(is),nOrb(iS),nBas(iS),1.0d0,Temp3,nOrb(iS),CMO(ip2),nBas(iS),0.0d0,Int1(ip2),nOrb(iS))
+    call DGEMM_('T','N',nOrb(iS),nBas(iS),nBas(iS),One,CMO(ip2),nBas(iS),Temp2,nBas(iS),Zero,Temp3,nOrb(iS))
+    call DGEMM_('N','N',nOrb(is),nOrb(iS),nBas(iS),One,Temp3,nOrb(iS),CMO(ip2),nBas(iS),Zero,Int1(ip2),nOrb(iS))
     ip2 = ip2+nBas(is)**2
   end if
 end do

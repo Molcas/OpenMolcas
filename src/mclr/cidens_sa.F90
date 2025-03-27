@@ -12,12 +12,13 @@
 subroutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
 
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
 use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nRoots, nCSF, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 logical RSP
@@ -75,8 +76,8 @@ end if
 
 call mma_allocate(De,n1dens,Label='De')
 call mma_allocate(Pe,n2dens,Label='Pe')
-call dcopy_(n1dens,[0.0d0],0,rD,1)
-call dcopy_(n2dens,[0.0d0],0,rP,1)
+call dcopy_(n1dens,[Zero],0,rD,1)
+call dcopy_(n2dens,[Zero],0,rP,1)
 
 nConfL = max(ncsf(il),nint(xispsm(il,1)))
 nConfR = max(ncsf(iR),nint(xispsm(iR,1)))

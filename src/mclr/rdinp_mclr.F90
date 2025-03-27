@@ -33,6 +33,8 @@ use input_mclr, only: Debug, lRoots, kPrint, mTit, Omega, TimeDep, Page, iBreak,
                       CasInt, NewCho, TwoStep, StepType, double, Eps, IsPop, nSym, nAtoms, ntPert, nsRot, UserP, nUserPT, UserT, &
                       TitleIn
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, u5, u6
 
 implicit none
 #include "rasdim.fh"
@@ -53,7 +55,7 @@ character(len=3), allocatable :: cmass(:)
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
 !----------------------------------------------------------------------*
-call RdNLst(5,'MCLR')
+call RdNLst(u5,'MCLR')
 !----------------------------------------------------------------------*
 !     Define default values                                            *
 !----------------------------------------------------------------------*
@@ -64,13 +66,13 @@ call Center_Info_Get()
 call Get_info_Static()
 istate = 1     ! State for which the Lagrangian is calc.
 override = .false.
-if (debug) write(6,*) 'Got Basis_Info and Center_Info'
+if (debug) write(u6,*) 'Got Basis_Info and Center_Info'
 lRoots = -1
 kprint = 0
 ngp = .false.
 NoFile = .false.
 mTit = 0
-Omega = 0.0d0
+Omega = Zero
 TimeDep = .false.
 Page = .false.
 ibreak = 2
@@ -94,7 +96,7 @@ isNAC = .false.
 isMECIMSPD = .false.
 NewCho = .false.
 ! Cholesky. Cannot modify it in the input (yet?)
-dmpk = 1.0d-2
+dmpk = 1.0e-2_wp
 Nscreen = 10
 Deco = .true.
 Update = .true.
@@ -109,7 +111,7 @@ outer: do
   if (Skip) then
     Skip = .false.
   else
-    read(5,'(A)',iostat=istatus) Line
+    read(u5,'(A)',iostat=istatus) Line
     if (istatus /= 0) call Error(istatus)
     Line = adjustl(Line)
     if ((Line(1:1) == ' ') .or. (Line(1:1) == '*')) cycle
@@ -120,7 +122,7 @@ outer: do
     end do
   end if
   if (jCom == 0) then
-    write(6,'(A,A)') 'RdInp: illegal command:',Command
+    write(u6,'(A,A)') 'RdInp: illegal command:',Command
     call Abend()
   end if
   !--------------------------------------------------------------------*
@@ -130,7 +132,7 @@ outer: do
     case (1)
       !---- TITL ------------------------------------------------------*
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if (Line(1:1) == '*') cycle
@@ -155,19 +157,19 @@ outer: do
     case (3)
       !---- ROOT ------------------------------------------------------*
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
       end do
       read(Line,*,iostat=istatus) lRoots
       if (istatus /= 0) call Error(istatus)
-      if (debug) write(6,*) 'LROOT'
+      if (debug) write(u6,*) 'LROOT'
 
     case (7)
       !---- ITER ------------------------------------------------------*
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
@@ -178,7 +180,7 @@ outer: do
     case (8)
       !---- THRE ------------------------------------------------------*
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
@@ -194,7 +196,7 @@ outer: do
     case (10)
       !---- TIME ------------------------------------------------------*
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
@@ -207,19 +209,19 @@ outer: do
     case (12)
       !---- NOFI ------------------------------------------------------*
       Nofile = .true.
-      if (debug) write(6,*) 'NOFILE'
+      if (debug) write(u6,*) 'NOFILE'
 
     case (13)
       !---- SEWA ------------------------------------------------------*
       do
         do
-          read(5,'(A)',iostat=istatus) Line
+          read(u5,'(A)',iostat=istatus) Line
           if (istatus /= 0) call Error(istatus)
           Line = adjustl(Line)
           call StdFmt(Line,Command)
           if ((Command(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
         end do
-        if (debug) write(6,*) 'SEWARD INPUT'
+        if (debug) write(u6,*) 'SEWARD INPUT'
         if ((Command(1:4) == 'END ') .or. (Command(1:4) == 'ENDS')) exit
         read(Line,'(A8,I2,I2)',iostat=istatus) SewLab,isym,ip
         if (istatus /= 0) call Error(istatus)
@@ -230,8 +232,8 @@ outer: do
         Label = SewLab
         call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
         if (iRc /= 0) then
-          write(6,*) 'RdInp: Error reading ONEINT'
-          write(6,'(A,A)') 'Label=',Label
+          write(u6,*) 'RdInp: Error reading ONEINT'
+          write(u6,'(A,A)') 'Label=',Label
           call Abend()
         end if
 
@@ -271,12 +273,12 @@ outer: do
       !---- SPIN ------------------------------------------------------*
       SPINPOL = .true.
       ispop = 1
-      if (debug) write(6,*) 'RHF lagrangian, not supported'
+      if (debug) write(u6,*) 'RHF lagrangian, not supported'
 
     case (17)
       !---- PRIN ------------------------------------------------------*
-      read(5,*) kprint
-      if (debug) write(6,*) 'Print level: ',kprint
+      read(u5,*) kprint
+      if (debug) write(u6,*) 'Print level: ',kprint
 
     case (18,19)
       !---- PCGD, RESI ------------------------------------------------*
@@ -285,39 +287,39 @@ outer: do
       else if (jCom == 19) then
         iBreak = 2
       end if
-      read(5,*) Eps
+      read(u5,*) Eps
       Epsilon_Undef = .false.
-      if (debug) write(6,*) 'Threshold:',Eps
+      if (debug) write(u6,*) 'Threshold:',Eps
 
     case (20)
       !---- NOTO ------------------------------------------------------*
       newpre = .false.
-      if (debug) write(6,*) 'New conditioner'
+      if (debug) write(u6,*) 'New conditioner'
 
     case (21)
       !---- EXPD ------------------------------------------------------*
-      read(5,*) nexp_max
-      if (debug) write(6,*) 'Maximum explicit preconditioner',nexp_max
+      read(u5,*) nexp_max
+      if (debug) write(u6,*) 'Maximum explicit preconditioner',nexp_max
 
     case (22)
       !---- NEGP ------------------------------------------------------*
       NGP = .true.
-      if (debug) write(6,*) 'NGP set to true'
+      if (debug) write(u6,*) 'NGP set to true'
 
     case (23)
       !---- LOWM ------------------------------------------------------*
       page = .true.
-      if (debug) write(6,*) 'Page memory'
+      if (debug) write(u6,*) 'Page memory'
 
     case (25)
       !---- SAVE ------------------------------------------------------*
       lSAVE = .true.
-      if (debug) write(6,*) 'old integrals, not supported'
+      if (debug) write(u6,*) 'old integrals, not supported'
 
     case (26)
       !---- RASS ------------------------------------------------------*
       RASSI = .true.
-      if (debug) write(6,*) 'Output for RASSI'
+      if (debug) write(u6,*) 'Output for RASSI'
 
     case (27)
       !---- DISO ------------------------------------------------------*
@@ -326,19 +328,19 @@ outer: do
     case (28)
       !---- CASI ------------------------------------------------------*
       CASINT = .true.
-      if (debug) write(6,*) 'CASPT2 integrals'
+      if (debug) write(u6,*) 'CASPT2 integrals'
 
     case (29)
       !---- SALA ------------------------------------------------------*
       SA = .true.
-      read(5,*) istate
+      read(u5,*) istate
       override = .true.
-      if (debug) write(6,*) 'Lagrangian for state: ',istate
+      if (debug) write(u6,*) 'Lagrangian for state: ',istate
 
     case (30)
       !---- NODE ------------------------------------------------------*
       FANCY_PRECONDITIONER = .false.
-      if (debug) write(6,*) 'Turned of the fancy pcg'
+      if (debug) write(u6,*) 'Turned of the fancy pcg'
 
     case (31)
       !---- ESTE ------------------------------------------------------*
@@ -360,8 +362,8 @@ outer: do
       call mma_allocate(cmass,iMass,label='cmass')
       call mma_allocate(umass,iMass,label='umass')
       do i=1,iMass
-        read(5,'(A3)') cmass(i)
-        read(5,'(F15.8)') umass(i)
+        read(u5,'(A3)') cmass(i)
+        read(u5,'(F15.8)') umass(i)
       end do
 
       ! Put the Info on the run file.
@@ -375,7 +377,7 @@ outer: do
     case (34)
       !---- NAC  ------------------------------------------------------*
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if ((Line(1:1) /= ' ') .and. (Line(1:1) /= '*')) exit
@@ -384,12 +386,12 @@ outer: do
       if (istatus /= 0) call Error(istatus)
       isNAC = .true.
       override = .true.
-      if (debug) write(6,*) 'Non-adiabatic couplings for states: ',NACstates(1),NACstates(2)
+      if (debug) write(u6,*) 'Non-adiabatic couplings for states: ',NACstates(1),NACstates(2)
 
     case (36)
       !---- THER ------------------------------------------------------*
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if (Line(1:1) /= '*') exit
@@ -397,7 +399,7 @@ outer: do
       read(Line,*,iostat=istatus) nsRot
       if (istatus /= 0) call Error(istatus)
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if (Line(1:1) /= '*') exit
@@ -405,7 +407,7 @@ outer: do
       read(Line,*,iostat=istatus) UserP
       if (istatus /= 0) call Error(istatus)
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         Line = adjustl(Line)
         if (Line(1:1) == '*') cycle
@@ -413,7 +415,7 @@ outer: do
         if (Line(1:4) == 'END ') then
           if (nUserPT == 0) then
             nUserPT = 1
-            UserT(1) = 298.15d0
+            UserT(1) = 298.15_wp
           end if
           exit
         end if
@@ -429,7 +431,7 @@ outer: do
     case (38)
       !---- TWOS ------------------------------------------------------*
       do
-        read(5,'(A)',iostat=istatus) Line
+        read(u5,'(A)',iostat=istatus) Line
         if (istatus /= 0) call Error(istatus)
         call UpCase(Line)
         Line = adjustl(Line)
@@ -437,7 +439,7 @@ outer: do
       end do
       read(Line,*,iostat=istatus) StepType
       if (istatus /= 0) call Error(istatus)
-      if (debug) write(6,*) 'TWOSTEP kind: '//StepType
+      if (debug) write(u6,*) 'TWOSTEP kind: '//StepType
       if ((StepType(1:4) /= 'FIRS') .and. (StepType(1:4) /= 'SECO') .and. (StepType(1:4) /= 'RUN1') .and. &
           (StepType(1:4) /= 'RUN2')) then
         call WarningMessage(2,'TWOStep: input error!')
@@ -446,7 +448,7 @@ outer: do
       if (StepType(1:4) == 'FIRS') StepType(1:4) = 'RUN1'
       if (StepType(1:4) == 'SECO') StepType(1:4) = 'RUN2'
       TwoStep = .true.
-      if (debug) write(6,*) 'TWOSTEP kind: '//StepType
+      if (debug) write(u6,*) 'TWOSTEP kind: '//StepType
 
     case default
       jCom = 0
@@ -490,14 +492,14 @@ end if
 
 if (Epsilon_Undef) then
   !if (SA) then
-  !  Eps = 1.0D-6
+  !  Eps = 1.0e-6_wp
   !else
-  Eps = 1.0D-4
+  Eps = 1.0e-4_wp
   ! This I need to change back
   !end if
 end if
 
-if (debug) write(6,*) 'FINITO'
+if (debug) write(u6,*) 'FINITO'
 !----------------------------------------------------------------------*
 !     Normal termination                                               *
 !----------------------------------------------------------------------*
@@ -512,11 +514,11 @@ subroutine Error(rc)
   integer, intent(in) :: rc
 
   if (rc > 0) then
-    write(6,*) 'RdInp: Error while reading input'
+    write(u6,*) 'RdInp: Error while reading input'
   else
-    write(6,*) 'RdInp: Premature end of input file'
+    write(u6,*) 'RdInp: Premature end of input file'
   end if
-  write(6,'(A,A)') 'Last command:',Line
+  write(u6,'(A,A)') 'Last command:',Line
   call Abend()
 
 end subroutine Error

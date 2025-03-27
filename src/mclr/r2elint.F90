@@ -24,10 +24,10 @@ subroutine r2elint(rKappa,rMO1,rmo2,FockI,FockA,nF,iDSym,sign,Fact,jspin)
 !***********************************************************************
 
 use Arrays, only: CMO, G1t, FAMO, FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
 use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, iMethod, CasInt
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
 
 implicit none
 real*8 rKappa(nDens2), rMO1(nMba), rmo2(*), FockI(nDens2), FockA(nDens2)
@@ -124,7 +124,7 @@ do iS=1,nSym
   jS = ieor(iS-1,iDSym-1)+1
   if (nOrb(iS)*nOrb(jS) /= 0) then
     if (.not. CASINT) &
-      call DGEMM_('T','N',nOrb(iS),nOrb(jS),nBas(iS),1.0d0,CMO(ipCM(iS)),nBas(iS),FI(ipMat(iS,jS)),nBas(iS),Zero, &
+      call DGEMM_('T','N',nOrb(iS),nOrb(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),FI(ipMat(iS,jS)),nBas(iS),Zero, &
                   FockI(ipMat(iS,jS)),nOrb(iS))
     call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,FIMO(ipCM(iS)),nOrb(is),rkappa(ipMat(iS,jS)),nOrb(iS),One, &
                 FockI(ipMat(iS,jS)),nOrb(iS))
@@ -132,7 +132,7 @@ do iS=1,nSym
                 FockI(ipMat(iS,jS)),nOrb(is))
     if (iMethod == 2) then
       if (.not. CASINT) &
-        call DGEMM_('T','N',nOrb(iS),nOrb(jS),nBas(iS),1.0d0,CMO(ipCM(iS)),nBas(iS),FA(ipMat(iS,jS)),nBas(iS),Zero, &
+        call DGEMM_('T','N',nOrb(iS),nOrb(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),FA(ipMat(iS,jS)),nBas(iS),Zero, &
                     FockA(ipMat(iS,jS)),nOrb(iS))
       call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Sign*Facr,FAMO(ipCM(iS)),nOrb(is),rkappa(ipMat(iS,jS)),nOrb(iS),One, &
                   FockA(ipMat(iS,jS)),nOrb(iS))

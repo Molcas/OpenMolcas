@@ -20,8 +20,6 @@ subroutine SigmaVec(C,HC,kic)
 ! This routine is just a setup routine for memory etc
 
 use Str_Info, only: STR, CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
 use MCLR_Data, only: i12, ist
 use MCLR_Data, only: IDC, PSSIGN
 use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC, XISPSM
@@ -30,6 +28,9 @@ use MCLR_Data, only: IBTSOB, ITSOB, NACOB, NORB1, NORB2, NORB3, NTSOB
 use DetDim, only: MXINKA
 use CandS, only: ICSM, ISSM, ICSPC, ISSPC
 use input_mclr, only: nIrrep, nsMOB, TimeDep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 real*8 C(*), HC(*)
@@ -63,9 +64,9 @@ IBTP = IBSTFI(ISSPC)
 JATP = IASTFI(ICSPC)
 JBTP = IBSTFI(ICSPC)
 if ((IATP /= JATP) .or. (IBTP /= JBTP)) then
-  write(6,*) ' My world is falling apart'
-  write(6,*) ' C and sigma belongs to different types of strings'
-  write(6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
+  write(u6,*) ' My world is falling apart'
+  write(u6,*) ' C and sigma belongs to different types of strings'
+  write(u6,*) ' IATP IBTP JATP JBTP ',IATP,IBTP,JATP,JBTP
   call Abend()
 end if
 NOCTPA = NOCTYP(IATP)
@@ -98,7 +99,7 @@ if (NBEL >= 2) then
 end if
 MXSTBL = max(MAXA,MAXB)
 #ifdef _DEBUGPRINT_
-write(6,*) ' Largest block of strings with given symmetry and type',MXSTBL
+write(u6,*) ' Largest block of strings with given symmetry and type',MXSTBL
 #endif
 MAXI = min(MXINKA,MXSTBL)
 MAXK = min(MXINKA,MXSTBL)
@@ -192,7 +193,7 @@ if (MOCAA /= 0) then
   MXSXST = (MXTSOB+1)*MAXEL3
   MXSXBL = MXSXST*MXSTBL0
 # ifdef _DEBUGPRINT_
-  write(6,*) ' MXSXST,MXSXBL = ',MXSXST,MXSXBL
+  write(u6,*) ' MXSXST,MXSXBL = ',MXSXST,MXSXBL
 # endif
   LSCR2 = max(4*MXSXBL,LSCR2)
 end if
@@ -201,7 +202,7 @@ LSCR12 = max(LSCR1,2*LSCR2)
 
 if (IDIAG == 2) then
   ! PICO diagonalizer uses block KVEC3, use this as scratch block
-  write(6,*) 'Unchartered territory!'
+  write(u6,*) 'Unchartered territory!'
   call Abend()
   !pC2 => VEC3 ! this is not clear yet.
   if (2*LSCR2 > LSCR1) then

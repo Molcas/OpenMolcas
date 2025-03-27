@@ -11,24 +11,22 @@
 
 subroutine Thermo_Vib(nFreq,Freq,T,nTR,iter)
 
-use Constants, only: auTokcalmol, auTokJ, cal_to_j, kBoltzmann, rNAVO
+use Constants, only: Zero, One, Half, auTokcalmol, auTokJ, cal_to_j, kBoltzmann, rNAVO
+use Definitions, only: wp, u6
 
 implicit real*8(a-h,o-z)
 real*8 Freq(nFreq), T
 integer first
 
 First = 1
-Zero = 0.0d00
-One = 1.0d00
-Two = 2.0d00
-!r_k = 1.38065800D-23
-!r_J2au = 2.29371049D+17 ! Convert joules to atomic units
-r_J2au = 1.0D-3/auTokJ
+!r_k = 1.38065800e-23_wp
+!r_J2au = 2.29371049e17_wp ! Convert joules to atomic units
+r_J2au = 1.0e-3_wp/auTokJ
 ! Bolzmann's constant in a.u./ K
 rk = kBoltzmann*r_J2au
-!write(6,*) "Bolzmann's constant=",rK
+!write(u6,*) "Bolzmann's constant=",rK
 if (T == Zero) then
-  beta = 1.0d99
+  beta = 1.0e99_wp
 else
   beta = One/(rk*T)
 end if
@@ -101,11 +99,11 @@ end if
 !                                                                      *
 !***********************************************************************
 
-write(6,*)
-write(6,*)
-write(6,'(A,F6.2,A)') ' Temperature = ',T,' kelvin'
-write(6,'(A)') ' ---------------------------'
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,'(A,F6.2,A)') ' Temperature = ',T,' kelvin'
+write(u6,'(A)') ' ---------------------------'
+write(u6,*)
 
 ! Iterate over vibrations, and compute the molecular
 ! partition functions of the vibrations
@@ -115,16 +113,16 @@ ZPVE = Zero
 U_vib_Tot = Zero
 do i=1,nFreq
   eta = Freq(i)
-  if (iter == first) write(6,*) ' Vibrational temperature =',eta/rk
+  if (iter == first) write(u6,*) ' Vibrational temperature =',eta/rk
   if (eta > Zero) then
-    ZPVE = ZPVE+eta/Two
+    ZPVE = ZPVE+eta*Half
     if (T == Zero) then
       q_vib = Zero
-      U_vib = (eta/Two)
+      U_vib = eta*Half
     else
       ! Eq. (6-20)
-      q_vib = exp(-eta*beta/Two)/(One-exp(-eta*beta))
-      U_vib = (eta/Two)+(eta/(exp(eta*beta)-One))
+      q_vib = exp(-eta*beta*Half)/(One-exp(-eta*beta))
+      U_vib = (eta*Half)+(eta/(exp(eta*beta)-One))
     end if
     q_vib_Tot = q_vib_Tot*q_vib
     U_vib_Tot = U_vib_Tot+U_vib
@@ -140,9 +138,9 @@ end do
 !
 ! U-U(0)=-N(d lnq/d beta)_V
 
-!r_J2kcalmol = 1.43932522D+20 ! conversion J to kcal/mol
-r_J2kcalmol = rNAVO/(1.0d3*cal_to_J)
-U_TR = dble(nTR)*(kBoltzmann*T*r_J2kcalmol/Two)
+!r_J2kcalmol = 1.43932522e20_wp ! conversion J to kcal/mol
+r_J2kcalmol = rNAVO/(1.0e3_wp*cal_to_J)
+U_TR = real(nTR,kind=wp)*(kBoltzmann*T*r_J2kcalmol*Half)
 
 ! G-G(0)=-kT lnQ + kTV(d lnQ /dV)_T, G(0)=0
 
@@ -152,24 +150,24 @@ else
   DeltaG = -log(q_vib_Tot)*rk*T
 end if
 
-!auTokcalmol = 6.27509541D+2 ! Conversion au to kcal/mol
+!auTokcalmol = 6.27509541e2_wp ! Conversion au to kcal/mol
 DeltaG = DeltaG*auTokcalmol
 
 DeltaU = U_vib_Tot*auTokcalmol
 ZPVE = ZPVE*auTokcalmol
-write(6,'(A,F6.2,A)') '         DeltaG =',DeltaG,' kcal/mol'
-write(6,'(A,F6.2,A)') '           ZPVE =',ZPVE,' kcal/mol'
-write(6,'(A,F6.2,A)') '      TotDeltaU =',DeltaU,' kcal/mol'
-write(6,'(A,F6.2,A)') ' TotDeltaU-ZPVE =',DeltaU-ZPVE,' kcal/mol'
+write(u6,'(A,F6.2,A)') '         DeltaG =',DeltaG,' kcal/mol'
+write(u6,'(A,F6.2,A)') '           ZPVE =',ZPVE,' kcal/mol'
+write(u6,'(A,F6.2,A)') '      TotDeltaU =',DeltaU,' kcal/mol'
+write(u6,'(A,F6.2,A)') ' TotDeltaU-ZPVE =',DeltaU-ZPVE,' kcal/mol'
 
 if (T > Zero) then
-  DeltaS = 1.0d+3*(DeltaU-DeltaG)/T
+  DeltaS = 1.0e3_wp*(DeltaU-DeltaG)/T
 else
   DeltaS = Zero
 end if
-write(6,'(A,F8.4,A)') '      Entropy S =',DeltaS,' cal/(mol*K)'
-write(6,'(A,F8.4,A)') '         U(T&R) =',U_TR,' kcal/mol'
-write(6,'(A,F8.4,A)') '       Tot(temp)=',U_TR+DeltaU-ZPVE,' kcal/mol'
+write(u6,'(A,F8.4,A)') '      Entropy S =',DeltaS,' cal/(mol*K)'
+write(u6,'(A,F8.4,A)') '         U(T&R) =',U_TR,' kcal/mol'
+write(u6,'(A,F8.4,A)') '       Tot(temp)=',U_TR+DeltaU-ZPVE,' kcal/mol'
 
 return
 

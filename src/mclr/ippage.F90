@@ -16,8 +16,8 @@ integer, parameter :: On_Disk = 0, In_Memory = 1, Null_Vector = 2
 integer, parameter :: dWrite = 0, write = 1, read = 2
 
 ! ip_Mem : memory pointer
-! n  : Length of CI-vector
-! ida: disk address
+! n      : Length of CI-vector
+! ida    : disk address
 
 integer :: n(0:Max_CI_Vectors)
 integer :: ida(0:Max_CI_Vectors)

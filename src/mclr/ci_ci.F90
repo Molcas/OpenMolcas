@@ -14,6 +14,7 @@ subroutine Ci_Ci(ipcid,ips2)
 use ipPage, only: W
 use Arrays, only: FIMO, INT2
 use input_mclr, only: nRoots, rIn_Ene, PotNuc, ERASSCF, NCSF, Weight, State_Sym
+use Constants, only: Two
 
 implicit none
 integer ipCID, ipS2
@@ -43,7 +44,7 @@ do i=0,nroots-1
   EC = (rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
   call Daxpy_(ncsf(State_Sym),EC,W(ipCId)%Vec(1+i*ncsf(state_sym)),1,W(ipS2)%Vec(1+i*ncsf(state_sym)),1)
 end do
-call DSCAL_(nroots*ncsf(state_SYM),2.0d0,W(ipS2)%Vec,1)
+call DSCAL_(nroots*ncsf(state_SYM),Two,W(ipS2)%Vec,1)
 #ifdef _WARNING_WORKAROUND_
 if (.false.) call Unused_integer(irc)
 #endif

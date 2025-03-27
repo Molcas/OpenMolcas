@@ -16,6 +16,9 @@ function NSTAGTS(IGRP,ITP,ISM)
 !                      sym   ISM
 
 use Str_Info, only: NOCTYP, STR
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer IGRP, ITP, ISM
@@ -27,7 +30,7 @@ IADDRESS = (ISM-1)*NOCTYP(IGRP)+ITP
 NSTAGTS = Str(IGRP)%NSTSO(IADDRESS)
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Number of strings of group,type,sym',IGRP,ITP,ISM,' is ',NSTAGTS
+write(u6,*) ' Number of strings of group,type,sym',IGRP,ITP,ISM,' is ',NSTAGTS
 #endif
 
 end function NSTAGTS

@@ -16,6 +16,10 @@ subroutine DGMM2(AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
 !   IWAY = 1 : AOUT(I,J) = DIAG(I)*AIN(I,J)
 !   IWAY = 2 : AOUT(I,J) = DIAG(J)*AIN(I,J)
 
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 dimension AIN(NRDIM,NCDIM), DIAG(*)
 dimension AOUT(NRDIM,NCDIM)
@@ -31,7 +35,7 @@ else if (IWAY == 2) then
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' AIN DIAG AOUT  FROM DGMTMT'
+write(u6,*) ' AIN DIAG AOUT  FROM DGMTMT'
 call WRTMAT(AIN,NRDIM,NCDIM,NRDIM,NCDIM)
 if (IWAY == 1) then
   call WRTMAT(DIAG,1,NRDIM,1,NRDIM)

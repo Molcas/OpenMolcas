@@ -30,12 +30,13 @@ subroutine REORD(SGS,CIS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
 !          IMODE=0 : FROM SYMMETRIC GROUP TO SPLIT GRAPH UGA ORDER
 !          IMODE=1 : FROM SPLIT GRAPH UGA TO SYMMETRIC GROUP ORDER
 
+use MCLR_data, only: minop, NCSFTP => NCPCNT, NCNFTP => NCNATS, NTYP
+use gugx, only: SGStruct, CIStruct, EXStruct
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
-use MCLR_data, only: minop, NCSFTP => NCPCNT, NCNFTP => NCNATS, NTYP
-use stdalloc, only: mma_allocate, mma_deallocate
-use gugx, only: SGStruct, CIStruct, EXStruct
 
 implicit none
 type(SGStruct) SGS
@@ -96,7 +97,7 @@ associate(nLev => SGS%nLev,IDRT => SGS%DRT,IDOWN => SGS%Down,IDAW => SGS%DAW,IUP
         ! GET PHASE PHASE FACTOR
         IP = IPHASE(NLEV,NVERT,IDRT,IUP,IWALK)
         ! NOW REORDER THIS ELEMENT OF THE CI-VECTOR
-        PHASE = dble(IP)
+        PHASE = real(IP,kind=wp)
         select case (iMode)
           case (0)
             CINEW(ISG) = CIOLD(ICSFJP)*PHASE

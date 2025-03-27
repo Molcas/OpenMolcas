@@ -18,7 +18,8 @@ subroutine SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKB
 ! Jeppe Olsen, Spring of 94
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: One, Half
+use Definitions, only: u6
 
 implicit none
 ! Input
@@ -49,9 +50,9 @@ LENGTH = MAXORB*MAXORB*MAXORB*MAXORB
 call mma_allocate(KSKICK,LENGTH,Label='KSKICK')
 
 if ((NI > MXTSOB) .or. (NJ > MXTSOB) .or. (NK > MXTSOB) .or. (NL > MXTSOB)) then
-  write(6,*) ' SKICKJ_MCLR : Too many orbs : NI > MXTSOB'
-  write(6,*) ' NI, MXTSOB ',max(NI,NJ,NK,NL),MXTSOB
-  write(6,*) ' Redim MXTSOB in SKICKJ_MCLR'
+  write(u6,*) ' SKICKJ_MCLR : Too many orbs : NI > MXTSOB'
+  write(u6,*) ' NI, MXTSOB ',max(NI,NJ,NK,NL),MXTSOB
+  write(u6,*) ' Redim MXTSOB in SKICKJ_MCLR'
   call Abend()
 end if
 
@@ -162,7 +163,7 @@ else if (IROUTE == 1) then
           LEFF = LEFF+1
           SGNL = XKBJB(KB,L)
           if ((IKORD == 1) .and. (I == K)) then
-            FACTOR = 0.5d0*SGNK*SGNL
+            FACTOR = Half*SGNK*SGNL
           else
             FACTOR = SGNK*SGNL
           end if

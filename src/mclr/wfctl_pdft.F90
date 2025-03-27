@@ -21,8 +21,6 @@ subroutine WfCtl_pdft(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 use Exp, only: Exp_Close
 use ipPage, only: W
 use PDFT_Util, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI, nAcPar, nNA, nAcPr2, ipMat
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: ISNAC, IRLXROOT, NACSTATES
@@ -31,6 +29,9 @@ use MCLR_Data, only: XISPSM
 use input_mclr, only: nDisp, Fail, lSave, nSym, State_Sym, iMethod, iBreak, Eps, nIter, Weight, Debug, ERASSCF, kPrint, nCSF, &
                       nRoots, ntAsh, nAsh, nBas, nRs2
 use dmrginfo, only: DoDMRG, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
 
 implicit none
 integer iKapDisp(nDisp), isigDisp(nDisp)
@@ -96,7 +97,7 @@ reco = -One
 Lu_50 = 50
 if (lSAVE) call DANAME(Lu_50,'RESIDUALS')
 if (lSAVE) then
-  write(6,*) 'WfCtl_SA: SAVE option not implemented'
+  write(u6,*) 'WfCtl_SA: SAVE option not implemented'
   call Abend()
 end if
 if (iand(kprint,2) == 2) lprint = .true.
@@ -187,9 +188,9 @@ do iDisp=1,nDisp
 
   if (debug) then
     if (isNAC) then
-      write(6,*) 'States: ',NACstates(1),NACstates(2)
+      write(u6,*) 'States: ',NACstates(1),NACstates(2)
     else
-      write(6,*) 'State: ',irlxroot
+      write(u6,*) 'State: ',irlxroot
     end if
   end if
   !                                                                    *
@@ -266,15 +267,15 @@ do iDisp=1,nDisp
     end if
   end do
 
-  call DSCAL_(nconf1*nroots,-2.0d0,W(ipST)%Vec,1)
+  call DSCAL_(nconf1*nroots,-Two,W(ipST)%Vec,1)
 
   ! scaling the CI resp. for PDFT part in HMC-PDFT
   if (Do_Hybrid) call DScal_(nconf1*nroots,PDFT_Ratio,W(ipST)%Vec,1)
 
   if (debug) then
-    write(6,*) 'RHS CI part:'
+    write(u6,*) 'RHS CI part:'
     do iS=1,nconf1*nroots
-      write(6,*) W(ipST)%Vec(iS)
+      write(u6,*) W(ipST)%Vec(iS)
     end do
   end if
 
@@ -314,9 +315,9 @@ do iDisp=1,nDisp
   end if
 
   if (debug) then
-    write(6,*) 'RHS orb part:'
+    write(u6,*) 'RHS orb part:'
     do iS=1,nDens2
-      write(6,*) Temp4(iS)
+      write(u6,*) Temp4(iS)
     end do
   end if
 
@@ -378,14 +379,14 @@ do iDisp=1,nDisp
 
   irc = opOut(ipci)
 
-  if (lprint) write(6,*) '       Iteration       Delta       Res(kappa)  Res(CI)     DeltaK      DeltaC'
+  if (lprint) write(u6,*) '       Iteration       Delta       Res(kappa)  Res(CI)     DeltaK      DeltaC'
   iLen = nDensC
   iRHSDisp(iDisp) = iDis
   do iS=1,nDens2
   end do
   call Compress(Temp4,Sigma,iSym)
   r1 = ddot_(nDensc,Sigma,1,Sigma,1)
-  if (debug) write(6,*) 'Hi how about r1',r1
+  if (debug) write(u6,*) 'Hi how about r1',r1
   call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
   irc = ipIn(ipCIT)
@@ -427,10 +428,12 @@ do iDisp=1,nDisp
       lmroots_new(i) = Zero
     else
       diff = (ERASSCF(i)-ERASSCF(irlxroot))
-      if (debug) write(6,*) 'diff',diff
       wscale = (One/(Two*diff))*(One/weight(i))
-      if (debug) write(6,*) 'wscale',wscale
-      if (debug) write(6,*) 'weight',weight(i)
+      if (debug) then
+        write(u6,*) 'diff',diff
+        write(u6,*) 'wscale',wscale
+        write(u6,*) 'weight',weight(i)
+      end if
       lmroots_new(i) = wscale*lmroots(i)
     end if
   end do
@@ -445,7 +448,7 @@ do iDisp=1,nDisp
   call DgeMV_('T',nconf1,nroots,One,W(ipCI)%Vec,nconf1,W(ipST)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
 
   if (debug) then
-    write(6,*) 'lmroots_ipst this should be 1lmroots'
+    write(u6,*) 'lmroots_ipst this should be 1lmroots'
     call recprt('lmroots',' ',lmroots,1,nroots)
   end if
 
@@ -453,7 +456,7 @@ do iDisp=1,nDisp
   call DgeMV_('T',nconf1,nroots,One,W(ipCI)%Vec,nconf1,W(ipS1)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
 
   if (debug) then
-    write(6,*) 'lmroots_ips1 this should be -lmroots'
+    write(u6,*) 'lmroots_ips1 this should be -lmroots'
     call recprt('lmroots',' ',lmroots,1,nroots)
   end if
   ! Initializing some of the elements of the PCG
@@ -466,7 +469,7 @@ do iDisp=1,nDisp
   call DaxPy_(nDensC,-One,kap_new_temp,1,Sigma,1)
   irc = ipIn(ipCId)
   irc = ipIn(ipCIT)
-  call DaXpY_(nConf1*nroots,1.0d0,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+  call DaXpY_(nConf1*nroots,One,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
 
   call dcopy_(nconf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
 
@@ -477,7 +480,7 @@ do iDisp=1,nDisp
   call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,dKappa,nDens2+6,Sc1,nDens2+6,iSym,iter)
   irc = opOut(ippre2)
   r2 = ddot_(ndensc,dKappa,1,dKappa,1)
-  if (r2 > r1) write(6,*) 'Warning perturbation number ',idisp,' might diverge'
+  if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
   call mma_deallocate(kap_new)
   call mma_deallocate(kap_new_temp)
@@ -489,7 +492,7 @@ do iDisp=1,nDisp
   call DgeMV_('T',nconf1,nroots,One,W(ipci)%Vec,nconf1,W(ipST)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
 
   if (debug) then
-    write(6,*) 'lmroots_ipst this should be zero'
+    write(u6,*) 'lmroots_ipst this should be zero'
     call recprt('lmroots',' ',lmroots,1,nroots)
   end if
   call mma_deallocate(lmroots)
@@ -499,14 +502,14 @@ do iDisp=1,nDisp
     deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
     irc = ipout(ipcid)
   else
-    deltaC = 0.0d0
+    deltaC = Zero
   end if
   !AMS_______________________________________________
 
   irc = ipOut(ipcid)
   deltaK = ddot_(nDensC,dKappa,1,Sigma,1)
   delta = deltac+deltaK
-  !write(6,*) 'deltac and deltak',deltac,deltak
+  !write(u6,*) 'deltac and deltak',deltac,deltak
   delta0 = delta
   iter = 1
   ! Naming System:
@@ -638,7 +641,7 @@ do iDisp=1,nDisp
       cnvrgd = .false.
       exit
     end if
-    if (lprint) write(6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
+    if (lprint) write(u6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
     iter = iter+1
 
   end do
@@ -646,29 +649,29 @@ do iDisp=1,nDisp
   !*********************************************************************
 
   if (.not. cnvrgd) then
-    write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
+    write(u6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
     converged(isym) = .false.
     fail = .true.
   else
     if (iPL >= 2) then
-      write(6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
-      write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+      write(u6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
+      write(u6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
     end if
     irc = ipnout(-1)
   end if
 
-  if (iPL >= 2) write(6,*)
+  if (iPL >= 2) write(u6,*)
   if (debug) then
-    write(6,*) 'outputs'
-    write(6,*) 'kappa'
+    write(u6,*) 'outputs'
+    write(u6,*) 'kappa'
     do i=1,ndens2
-      write(6,*) Kappa(i)
+      write(u6,*) Kappa(i)
     end do
     irc = ipin(ipCIT)
-    !call dcopy_(nconf1*nroots,0.0d0,0,W(ipCIT)%Vec,1)
-    write(6,*) 'cit'
+    !call dcopy_(nconf1*nroots,Zero,0,W(ipCIT)%Vec,1)
+    write(u6,*) 'cit'
     do i=1,nconf1*nroots
-      write(6,*) W(ipCIT)%Vec(i)
+      write(u6,*) W(ipCIT)%Vec(i)
     end do
   end if
 
@@ -709,8 +712,8 @@ if (.not. CI) irc = ipclose(ipPre2)
 call Exp_Close()
 
 if (debug) then
-  write(6,*) '********************************************************************************'
-  write(6,*)
+  write(u6,*) '********************************************************************************'
+  write(u6,*)
 end if
 if (doDMRG) then  ! yma
   call dmrg_spc_change_mclr(RGras2(1:8),nash)

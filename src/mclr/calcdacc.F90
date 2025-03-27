@@ -17,7 +17,7 @@
 
 subroutine CalcDacc(Dacc,GDMat,M,nnA,nRoots,zx)
 
-use Constants, only: Zero
+use Constants, only: Zero, Four
 
 implicit none
 integer nnA, nRoots, M
@@ -38,7 +38,7 @@ do K=1,nRoots
     IKM = (K-1)*K/2+M
     iKM2 = (K-1)*(K-2)/2+M
   end if
-  Fact = 4.0d0*zx(IKM2)
+  Fact = Four*zx(IKM2)
   if (K > M) Fact = -Fact
   do it=1,nnA
     iLoc1 = (it-1)*nnA

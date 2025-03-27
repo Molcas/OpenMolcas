@@ -39,6 +39,7 @@ subroutine Precaaa(iC,is,js,nd,ir,rOut,nbai,nbaj,focki,fock,sign,Scr,nScr,ActInt
 use Arrays, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: ntAsh, nSym, nAsh, nIsh, nRS1, nRS2, nRS3
+use Constants, only: Zero, One, Two, Four
 
 implicit none
 integer iC, iS, jS, nD, iR
@@ -68,8 +69,8 @@ iAA = iCC
 
 i = itri(iAA,iCC)
 ! Construct for all active orbitals first
-call DCopy_(ntAsh*(ntAsh+1)/2,[0.0d+00],0,Scr,1)
-Scr(i) = 1.0d+00
+call DCopy_(ntAsh*(ntAsh+1)/2,[Zero],0,Scr,1)
+Scr(i) = One
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -98,7 +99,7 @@ do jB=1,nAsh(jS) !! index B
           rDaecf = G2t(itri(itri(iAA,jEE),itri(iCC,jFF)))
           rDaedf = G2t(itri(itri(iAA,jEE),itri(jDD,jFF)))
           rDbecf = G2t(itri(itri(jBB,jEE),itri(iCC,jFF)))
-          Scr(i) = Scr(i)+4.0d+00*(aecf*rDbedf+bedf*rDaecf-becf*rDaedf-aedf*rDbecf)*sign
+          Scr(i) = Scr(i)+Four*(aecf*rDbedf+bedf*rDaecf-becf*rDaedf-aedf*rDbecf)*sign
 
           ! second term
           acef = ActInt(iAA,iCC,jEE,jFF)
@@ -109,7 +110,7 @@ do jB=1,nAsh(jS) !! index B
           rDacef = G2t(itri(itri(iAA,iCC),itri(jEE,jFF)))
           rDadef = G2t(itri(itri(iAA,jDD),itri(jEE,jFF)))
           rDbcef = G2t(itri(itri(jBB,iCC),itri(jEE,jFF)))
-          Scr(i) = Scr(i)+2.0d+00*(acef*rDbdef+bdef*rDacef-bcef*rDadef-adef*rDbcef)*sign
+          Scr(i) = Scr(i)+Two*(acef*rDbdef+bdef*rDacef-bcef*rDadef-adef*rDbcef)*sign
         end do
       end do
     end do
@@ -138,13 +139,13 @@ do jB=1,nAsh(jS)
     rDbc = G1t(itri(jBB,iCC))
 
     ! third term
-    Scr(i) = Scr(i)+sign*2.0d+00*(rDbd*Focki(iA+nIsh(iS),iC+nIsh(iS))+rDac*Focki(jB+nIsh(jS),jD+nIsh(jS))- &
-                                  rDad*Focki(jB+nIsh(jS),iC+nIsh(iS))-rDbc*Focki(iA+nIsh(iS),jD+nIsh(jS)))
+    Scr(i) = Scr(i)+sign*Two*(rDbd*Focki(iA+nIsh(iS),iC+nIsh(iS))+rDac*Focki(jB+nIsh(jS),jD+nIsh(jS))- &
+                              rDad*Focki(jB+nIsh(jS),iC+nIsh(iS))-rDbc*Focki(iA+nIsh(iS),jD+nIsh(jS)))
     ! fourth term
-    if (iA == jD) Scr(i) = Scr(i)+sign*2.0d+00*Fock(iC+nIsh(iS),jB+nIsh(jS))
-    if (jB == iC) Scr(i) = Scr(i)+sign*2.0d+00*Fock(jD+nIsh(jS),iA+nIsh(iS))
-    if (jB == jD) Scr(i) = Scr(i)-sign*2.0d+00*Fock(iC+nIsh(iS),iA+nIsh(iS))
-    if (iA == iC) Scr(i) = Scr(i)-sign*2.0d+00*Fock(jD+nIsh(jS),jB+nIsh(jS))
+    if (iA == jD) Scr(i) = Scr(i)+sign*Two*Fock(iC+nIsh(iS),jB+nIsh(jS))
+    if (jB == iC) Scr(i) = Scr(i)+sign*Two*Fock(jD+nIsh(jS),iA+nIsh(iS))
+    if (jB == jD) Scr(i) = Scr(i)-sign*Two*Fock(iC+nIsh(iS),iA+nIsh(iS))
+    if (iA == iC) Scr(i) = Scr(i)-sign*Two*Fock(jD+nIsh(jS),jB+nIsh(jS))
   end do
 end do
 !                                                                      *
@@ -163,7 +164,7 @@ end do
 !  end do
 !end do
 !call sqprt(a_j,5)
-!write(6,*) 'ir = ',ir
+!write(u6,*) 'ir = ',ir
 if (iR == 1) then
   do jB=nRs1(jS)+1,nAsh(jS)
     jBB = jB+nA(jS)

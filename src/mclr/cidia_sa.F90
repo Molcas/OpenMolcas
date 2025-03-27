@@ -22,6 +22,7 @@ use MCLR_Data, only: XISPSM
 use MCLR_Data, only: NOCSF, ICISTR
 use MCLR_Data, only: NCNATS, NCPCNT, NDPCNT, NTYP
 use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, nRoots, Weight
+use Constants, only: Zero, One
 
 implicit none
 integer iSym
@@ -85,9 +86,9 @@ else
   do j=1,nroots
     ECAS = ERASSCF(j)
     We = Weight(j)
-    ralp(j) = 0.0d0
+    ralp(j) = Zero
     do i=1,ncsf(State_SYM)
-      ralp(j) = ralp(j)+1.0d0/(W(ipdiai)%Vec(i)-ECAS)*We*W(ipCI)%Vec(ip2)**2
+      ralp(j) = ralp(j)+One/(W(ipdiai)%Vec(i)-ECAS)*We*W(ipCI)%Vec(ip2)**2
       ip2 = ip2+1
     end do
   end do

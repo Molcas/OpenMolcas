@@ -26,12 +26,14 @@ subroutine OutRAS(iKapDisp,iCiDisp)
 
 use MckDat, only: sLength
 use gugx, only: SGS, CIS, EXS
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, nDensC, nDens2
 use MCLR_Data, only: DspVec, lDisp
 use MCLR_Data, only: LuTEMP
 use input_mclr, only: nDisp, nSym, State_Sym, iMethod, nCSF, nConf, iMethod, iSpin, kPrint, nActEl, nElec3, nHole1, nRS1, nRS2, &
                       nRS3, nTPert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: u6
 
 implicit none
 integer iKapDisp(nDisp), iCiDisp(nDisp)
@@ -47,9 +49,9 @@ integer iDisp, iSym, nConfm, jDisp, kDisp, iDisk, Len, iLen, iDIs, iRC, iOpt, iS
 !
 !----------------------------------------------------------------------*
 
-write(6,*)
-write(6,*) '      Writing response to disk in Split guga GUGA format'
-write(6,*)
+write(u6,*)
+write(u6,*) '      Writing response to disk in Split guga GUGA format'
+write(u6,*)
 
 idisp = 0
 do iSym=1,nSym
@@ -104,7 +106,7 @@ do iSym=1,nSym
       iopt = ibset(0,sLength)
       isyml = 2**(isym-1)
       ipert = kdisp
-      write(6,'(A,I5," jDisp: ",I5," and iSym:",I5)') 'Writing KAPPA and CI in mclr for iDisp:',iDisp,jDisp,iSym
+      write(u6,'(A,I5," jDisp: ",I5," and iSym:",I5)') 'Writing KAPPA and CI in mclr for iDisp:',iDisp,jDisp,iSym
       call dWrMCk(iRC,iOpt,Label,ipert,Kap3,isyml)
       if (irc /= 0) call SysAbendMsg('outras','Error in wrmck','label=KAPPA')
       irc = nconfM
@@ -113,7 +115,7 @@ do iSym=1,nSym
       isyml = 2**(isym-1)
       ipert = kdisp
 
-      if (iand(kprint,8) == 8) write(6,*) 'Perturbation ',ipert
+      if (iand(kprint,8) == 8) write(u6,*) 'Perturbation ',ipert
       if (CI) then
         call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1,0,pstate_sym,State_Sym)
         NCSF(1:nSym) = CIS%NCSF(1:nSym)
@@ -121,7 +123,7 @@ do iSym=1,nSym
         call mkGuga_Free(SGS,CIS,EXS)
       end if
 
-      if ((imethod == 2) .and. (.not. CI) .and. (nconfM == 1)) CIp1(1) = 0.0d0
+      if ((imethod == 2) .and. (.not. CI) .and. (nconfM == 1)) CIp1(1) = Zero
       call dWrMCk(iRC,iOpt,Label,ipert,CIp1,isyml)
       if (irc /= 0) call SysAbendMsg('outras','Error in wrmck',' ')
     end if

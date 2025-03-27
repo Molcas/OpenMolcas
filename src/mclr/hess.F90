@@ -16,10 +16,11 @@ subroutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,Temp4,idsym,jdisp,idisp)
 ! derivative of the connection.
 
 use Arrays, only: Hss, CMO, F0SQMO
-use Constants, only: Zero
 use MCLR_Data, only: nDens2, ipCM, ipMat
 use MCLR_Data, only: DspVec, lDisp
 use input_mclr, only: nSym, nBas, nOrb, nTPert
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: u6
 
 implicit none
 real*8 Temp1(nDens2), Temp2(nDens2), Temp3(nDens2), FockC(nDens2), FockX(nDens2), rcon(nDens2), temp4(*)
@@ -34,14 +35,14 @@ if (iand(ntpert(idisp),2**3) == 8) then
   do iS=1,nSym
     js = ieor(is-1,idSym-1)+1
     nnj = nOrb(js)!nash(js)+nash(js)
-    if (nOrb(is)*nOrb(js) /= 0) call DGEMM_('N','N',nOrb(is),nnj,nnj,1.0d0,rCon(ipMat(is,js)),nOrb(is),F0SQMO(ipCM(jS)),nOrb(js), &
-                                            0.0d0,Temp3(ipMat(is,js)),nOrb(is))
+    if (nOrb(is)*nOrb(js) /= 0) call DGEMM_('N','N',nOrb(is),nnj,nnj,One,rCon(ipMat(is,js)),nOrb(is),F0SQMO(ipCM(jS)),nOrb(js), &
+                                            Zero,Temp3(ipMat(is,js)),nOrb(is))
 
   end do
   !Temp3(:) = -Half*Temp3(:)+Half*FockC(:)+FockX(:)
-  call DScal_(ndens2,-0.5d0,Temp3,1)
-  call DaXpY_(nDens2,0.5d0,FockC,1,Temp3,1)
-  call DaXpY_(nDens2,1.0d0,FockX,1,Temp3,1)
+  call DScal_(ndens2,-Half,Temp3,1)
+  call DaXpY_(nDens2,Half,FockC,1,Temp3,1)
+  call DaXpY_(nDens2,One,FockX,1,Temp3,1)
 else
   Temp3(:) = FockX(:)
 end if
@@ -70,8 +71,8 @@ do kDisp=1,ldisp(idsym)
   iOp = 2**idSym
   call dRdMck(iRC,iOpt,Label,DspVec(mDisp),Temp1,iop)
   if (iRc /= 0) then
-    write(6,*) 'Hess: Error reading MCKINT'
-    write(6,'(A,A)') 'Label=',Label
+    write(u6,*) 'Hess: Error reading MCKINT'
+    write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
   ip = 1
@@ -87,23 +88,23 @@ do kDisp=1,ldisp(idsym)
             ip = ip+nBas(is)*nBas(js)
           end if
           if (nBas(is)*nBas(js) /= 0) then
-            call DGEMM_('T','N',nOrb(iS),nBAs(jS),nBas(iS),1.0d0,CMO(ipCM(iS)),nBas(iS),Temp2(ipMat(iS,jS)),nBas(iS),0.0d0,Temp4, &
+            call DGEMM_('T','N',nOrb(iS),nBAs(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),Temp2(ipMat(iS,jS)),nBas(iS),Zero,Temp4, &
                         nOrb(is))
-            call dcopy_(nBas(is)*nBas(js),[0.0d0],0,temp2(ipMat(is,js)),1)
-            call DGEMM_('N','N',nOrb(iS),nOrb(jS),nBas(jS),1.0d0,Temp4,nOrb(iS),CMO(ipCM(jS)),nBas(jS),0.0d0,Temp2(ipMat(iS,jS)), &
+            call dcopy_(nBas(is)*nBas(js),[Zero],0,temp2(ipMat(is,js)),1)
+            call DGEMM_('N','N',nOrb(iS),nOrb(jS),nBas(jS),One,Temp4,nOrb(iS),CMO(ipCM(jS)),nBas(jS),Zero,Temp2(ipMat(iS,jS)), &
                         nOrb(iS))
             if (is /= js) then
-              call dcopy_(nBas(is)*nBas(js),[0.0d0],0,temp2(ipMat(js,is)),1)
-              call DGEMM_('T','T',nOrb(js),nOrb(iS),nBas(js),1.0d0,CMO(ipCM(js)),nBas(js),Temp4,nOrb(is),0.0d0, &
-                          Temp2(ipMat(js,is)),nOrb(js))
+              call dcopy_(nBas(is)*nBas(js),[Zero],0,temp2(ipMat(js,is)),1)
+              call DGEMM_('T','T',nOrb(js),nOrb(iS),nBas(js),One,CMO(ipCM(js)),nBas(js),Temp4,nOrb(is),Zero,Temp2(ipMat(js,is)), &
+                          nOrb(js))
             end if
           end if
         end if
       end if
     end do
   end do
-  Fact = 1.0d0
-  if (kDisp == jDisp) Fact = 2.0d0
+  Fact = One
+  if (kDisp == jDisp) Fact = Two
   Indx = nIn+max(kDisp,jDisp)*(max(kDisp,jDisp)-1)/2+min(kDisp,jDisp)
   Hss(Indx) = Hss(Indx)-fact*ddot_(nDens2,Temp2,1,Temp3,1)
 end do

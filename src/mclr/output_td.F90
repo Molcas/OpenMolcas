@@ -35,12 +35,14 @@ subroutine OutPut_td(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,co
 use MckDat, only: sLength
 use Arrays, only: Hss
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, nDensC
 use MCLR_Data, only: nHess, lDisp
 use MCLR_Data, only: LuTEMP
 use MCLR_Data, only: XISPSM
 use input_mclr, only: nDisp, Debug, nSym, State_Sym, iMethod, McKinley, Coor, lCalc, nCSF, nTPert, TimeDep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: u6
 
 implicit none
 integer iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), iRHSCiDisp(nDisp)
@@ -68,7 +70,7 @@ debug = .false.
 nHss = size(Hss)
 nhess = nDisp*(nDisp+1)/2
 call mma_allocate(RHss,nHss,Label='RHss')
-RHss(:) = 0.0d0
+RHss(:) = Zero
 
 !----------------------------------------------------------------------*
 !
@@ -186,7 +188,7 @@ do iSym=1,nSym
 
       !call Recprt('kap2',' ',kap2,nDensC,1)
       !call Recprt('Skap',' ',Skap,nDensC,1)
-      rTempk1 = -1.0d0*DDot_(nDensC,Kap2,1,SKap,1)
+      rTempk1 = -DDot_(nDensC,Kap2,1,SKap,1)
 
       if (CI) then
         ilen = nCI
@@ -197,7 +199,7 @@ do iSym=1,nSym
         irc = ipin(ipsp)
         rTempc1 = DDot_(nCI,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
       else
-        rtempc1 = 0.0d0
+        rtempc1 = Zero
       end if
 
       iDisk = iRHSDisp(kDisp+kSym)
@@ -210,19 +212,19 @@ do iSym=1,nSym
         call dDaFile(LuTemp,2,W(iprp2)%Vec,iLen,iDis)
       end if
 
-      Fact = 1.0d0
-      if (kdisp == jdisp) Fact = 2.0d0
+      Fact = One
+      if (kdisp == jdisp) Fact = Two
       !call Recprt('kap1',' ',kap1,nDensC,1)
       !call Recprt('rkap2',' ',rkap2,nDensC,1)
-      rTempk2 = -1.0d0*Fact*DDot_(nDensC,Kap1,1,rKap2,1)
+      rTempk2 = -Fact*DDot_(nDensC,Kap1,1,rKap2,1)
       if (kdisp /= jdisp) then
-        rtempk3 = -1.0d0*DDot_(nDensC,rKap1,1,Kap2,1)
+        rtempk3 = -DDot_(nDensC,rKap1,1,Kap2,1)
       else
-        rTempk3 = 0.0d0
+        rTempk3 = Zero
       end if
       if (CI) then
-        Fact = 1.0d0
-        if (kdisp == jdisp) Fact = 2.0d0
+        Fact = One
+        if (kdisp == jdisp) Fact = Two
         irc = ipin(ipCip1)
         irc = ipin(iprp2)
         rTempc2 = Fact*DDot_(nCI,W(ipCip1)%Vec,1,W(iprp2)%Vec,1)
@@ -231,22 +233,22 @@ do iSym=1,nSym
           irc = ipin(ipCIp2)
           rtempc3 = DDot_(nCI,W(iprp1)%Vec,1,W(ipCIp2)%Vec,1)
         else
-          rTempc3 = 0.0d0
+          rTempc3 = Zero
         end if
       else
-        rtempc2 = 0.0d0
-        rtempc3 = 0.0d0
+        rtempc2 = Zero
+        rtempc3 = Zero
       end if
 
-      !write(6,*) kdisp,jdisp
-      !write(6,*) 'rtempk',rTempk1,rtempk2,rtempk3
-      !write(6,*) 'rtempc',rtempc1,rtempc2,rtempc3
+      !write(u6,*) kdisp,jdisp
+      !write(u6,*) 'rtempk',rTempk1,rtempk2,rtempk3
+      !write(u6,*) 'rtempc',rtempc1,rtempc2,rtempc3
 
       Maxi = max(kDisp,jDisp)
       Mini = min(kDisp,jDisp)
       index = mSym+Maxi*(Maxi-1)/2+Mini
 
-      RHss(Index) = RHss(Index)+0.5d0*(rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3)
+      RHss(Index) = RHss(Index)+Half*(rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3)
 
     end do
 
@@ -284,7 +286,7 @@ if (iMethod == 2) irc = ipclose(-1)
 ! If a basis set is dependent on perturbation add terms
 ! constructed in mckinley.
 
-call dcopy_(6,[0.0d0],0,pola,1)
+call dcopy_(6,[Zero],0,pola,1)
 elec_On = .false.
 if (Mckinley) then
   idum = 1
@@ -313,7 +315,7 @@ end if
 !call recprt('rhss',' ',RHss,nHss,1)
 !call recprt('hess',' ',Hess,nHss,1)
 
-call DaXpY_(mSym,1.0d0,RHss,1,Hess2,1)
+call DaXpY_(mSym,One,RHss,1,Hess2,1)
 
 if (debug) then
   call MMSORT2(RHSS,ELEC,pola,ielec)
@@ -340,10 +342,10 @@ if (McKinley) then
   Label = 'StatHess'
   call dRdMck(iRC,iOpt,Label,idum,Temp,idum)
   if (iRC /= 0) then
-    write(6,*)
-    write(6,*) ' *** Error in subroutine OUTPUT_TD ***'
-    write(6,*) ' Reading from MCKINT file failed'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' *** Error in subroutine OUTPUT_TD ***'
+    write(u6,*) ' Reading from MCKINT file failed'
+    write(u6,*)
   end if
 
   if (debug) then
@@ -354,7 +356,7 @@ if (McKinley) then
       ip = ip+ldisp2(isym)*(1+ldisp2(isym))/2
     end do
   end if
-  call DaXpY_(mSym,1.0d0,Temp,1,Hess,1)
+  call DaXpY_(mSym,One,Temp,1,Hess,1)
 end if
 if (debug) then
   ip = 1
@@ -371,10 +373,10 @@ if (McKinley) then
   Label = 'Hess'
   call dWrMck(iRC,iOpt,Label,iDum,Hess,iDum)
   if (iRC /= 0) then
-    write(6,*)
-    write(6,*) ' *** Error in subroutine OUTPUT_TD ***'
-    write(6,*) ' Writing',Label,' to MCKINT file failed'
-    write(6,*)
+    write(u6,*)
+    write(u6,*) ' *** Error in subroutine OUTPUT_TD ***'
+    write(u6,*) ' Writing',Label,' to MCKINT file failed'
+    write(u6,*)
   end if
 
   call Put_iScalar('No of Internal coordinates',ldisp2(1))
@@ -392,13 +394,13 @@ call mma_allocate(DegDisp,ndisp,Label='DegDisp')
 Label = 'DegDisp'
 call RdMck(irc,iopt,Label,idum,DegDisp,idum)
 if (iRC /= 0) then
-  write(6,*)
-  write(6,*) ' *** Error in subroutine OUTPUT_TD ***'
-  write(6,*) 'Reading ',Label,' from MCKINT file failed'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' *** Error in subroutine OUTPUT_TD ***'
+  write(u6,*) 'Reading ',Label,' from MCKINT file failed'
+  write(u6,*)
 end if
 if (debug) call HssPrt_MCLR(DegDisp,Hess,ldisp2)
-call daxpy_(3*ndisp,-1.0d0,EG,1,ELEC,1)
+call daxpy_(3*ndisp,-One,EG,1,ELEC,1)
 if (debug .and. elec_On) call Recprt('ELEC-ST',' ',EG,3*nDisp,1)
 if (debug .and. elec_On) call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
 
@@ -411,22 +413,22 @@ if (Mckinley) then
   call FreqAnal(DegDisp,NrDisp,Hess,converged,ELEC,ielec,ELOUT,ldisp2,Lu_10)
   call Niclas(Hess,coor,Lu_10)
 end if
-write(6,*)
-write(6,*)
-write(6,*) '************************************'
-write(6,*) '*                                  *'
-write(6,*) '*       Time Dependent             *'
-write(6,*) '*       Polarizabilities           *'
-write(6,*) '*                                  *'
-write(6,*) '************************************'
-write(6,*)
-write(6,*)
+write(u6,*)
+write(u6,*)
+write(u6,*) '************************************'
+write(u6,*) '*                                  *'
+write(u6,*) '*       Time Dependent             *'
+write(u6,*) '*       Polarizabilities           *'
+write(u6,*) '*                                  *'
+write(u6,*) '************************************'
+write(u6,*)
+write(u6,*)
 call Add_Info('TimeDep_Pol',Pola,6,2)
 
 ! Go from energy derivative to polarizability, there is a difference
 ! in the sign in the definition.
 
-call DScal_(6,-1.0d0,Pola,1)
+call DScal_(6,-One,Pola,1)
 
 call TriPrt(' ',' ',Pola,3)
 close(Lu_10)

@@ -50,6 +50,11 @@ subroutine ADS1(NK,I1,XI1S,LI1,IORB,LORB,ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMA
 ! Offset is KMIN
 
 use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
+
 implicit real*8(A-H,O-Z)
 ! Input
 integer IEL1(*), IEL3(*), I1EL1(*), I1EL3(*)
@@ -66,12 +71,12 @@ logical Skip
 
 LDIM = 0 ! dummy initialize
 #ifdef _DEBUGPRINT_
-write(6,*) ' =============='
-write(6,*) ' ADSTS speaking'
-write(6,*) ' =============='
-write(6,*) ' IORB,ISM,ICLS',IORB,ISM,ICLS
-write(6,*) ' IMPF, LMAP ',IMPF,LMAP
-write(6,*) ' N1SSO :'
+write(u6,*) ' =============='
+write(u6,*) ' ADSTS speaking'
+write(u6,*) ' =============='
+write(u6,*) ' IORB,ISM,ICLS',IORB,ISM,ICLS
+write(u6,*) ' IMPF, LMAP ',IMPF,LMAP
+write(u6,*) ' N1SSO :'
 call IWRTMA(N1SSO,N1OCTP,8,N1OCTP,8)
 #endif
 NK = KMAX-KMIN+1
@@ -87,11 +92,11 @@ else
   KEL3 = IEL3(ICLS)-1
 end if
 KTYPE = 0
-!write(6,*) ' N1OCTP ',N1OCTP
+!write(u6,*) ' N1OCTP ',N1OCTP
 do KKTYPE=1,N1OCTP
   if ((I1EL1(KKTYPE) == KEL1) .and. (I1EL3(KKTYPE) == KEL3)) KTYPE = KKTYPE
 end do
-!write(6,*) ' kel1 kel3 ktype ',KEL1,KEL3,KTYPE
+!write(u6,*) ' kel1 kel3 ktype ',KEL1,KEL3,KTYPE
 Skip = .false.
 if (KTYPE == 0) then
   NK = 0
@@ -108,7 +113,7 @@ else
 end if
 if (.not. Skip) then
   KOFF = I1SSO(KTYPE,KSM)
-  !? write(6,*) ' KTYPE KSM ',KTYPE,KSM
+  !write(u6,*) ' KTYPE KSM ',KTYPE,KSM
   if (KMAX == -1) then
     KEND = N1SSO(KTYPE,KSM)
   else
@@ -125,48 +130,48 @@ if (.not. Skip) then
   else
     LDIM = LI1
   end if
-  !? if (KMAX == -1) write(6,*) ' KMAX = -1, LDIM=',LDIM
+  !if (KMAX == -1) write(u6,*) ' KMAX = -1, LDIM=',LDIM
   IOFF = ISSO(ICLS,ISM)
   KSUB = KOFF+KMIN-2
   do IIORB=IORB,IORB+LORB-1
     IORBR = IIORB-IORB+1
     do KSTR=KOFF+KMIN-1,KOFF+KEND-1
-      !write(6,*) ' KSTR = ',KSTR
+      !write(u6,*) ' KSTR = ',KSTR
       KREL = KSTR-KSUB
 
       ISTR = 0
       if (IMPF == 1) then
         if (IMAPO((KSTR-1)*LMAP+IIORB) == IIORB) ISTR = IMAPS((KSTR-1)*LMAP+IIORB)
       else
-        !write(6,*) ' IMPL = ',IMPL(KSTR)
-        !write(6,*) ' IMPO = ',IMPO(KSTR)
+        !write(u6,*) ' IMPL = ',IMPL(KSTR)
+        !write(u6,*) ' IMPO = ',IMPO(KSTR)
         do IIIORB=1,IMPL(KSTR)
           if (IMAPO(IMPO(KSTR)-1+IIIORB) == IIORB) ISTR = IMAPS(IMPO(KSTR)-1+IIIORB)
         end do
       end if
       if (ISTR > 0) then
         I1(KREL+(IORBR-1)*LDIM) = ISTR-IOFF+1
-        XI1S(KREL+(IORBR-1)*LDIM) = 1.0d0
+        XI1S(KREL+(IORBR-1)*LDIM) = One
       else if (ISTR < 0) then
         I1(KREL+(IORBR-1)*LDIM) = -ISTR-IOFF+1
-        XI1S(KREL+(IORBR-1)*LDIM) = -1.0d0
+        XI1S(KREL+(IORBR-1)*LDIM) = -One
       else if (ISTR == 0) then
         I1(KREL+(IORBR-1)*LDIM) = 0
-        XI1S(KREL+(IORBR-1)*LDIM) = 0.0d0
+        XI1S(KREL+(IORBR-1)*LDIM) = Zero
       end if
     end do
   end do
 end if
 
 #ifdef _DEBUGPRINT_
-write(6,*) ' Output from ASTR'
-write(6,*) ' ================'
-write(6,*) ' Number of K strings accessed ',NK
+write(u6,*) ' Output from ASTR'
+write(u6,*) ' ================'
+write(u6,*) ' Number of K strings accessed ',NK
 if (NK /= 0) then
   do IIORB=IORB,IORB+LORB-1
     IIORBR = IIORB-IORB+1
-    write(6,*) ' Info for orbital ',IIORB
-    write(6,*) ' Excited strings and sign'
+    write(u6,*) ' Info for orbital ',IIORB
+    write(u6,*) ' Excited strings and sign'
     call IWRTMA(I1(1+(IIORBR-1)*LDIM),1,NK,1,NK)
     call WRTMAT(XI1S(1+(IIORBR-1)*LDIM),1,NK,1,NK)
   end do

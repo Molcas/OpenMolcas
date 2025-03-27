@@ -76,8 +76,8 @@ subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NORB1,N
 ! A triplet one electron operator is defined as E(aa)-E(bb)
 ! A triplet two-electron operator is defined as (E(aa)+E(bb))(E(aa)-E(bb))
 
-use Constants, only: Zero
 use DetDim, only: MXPORB, MXPOBS
+use Constants, only: Zero, One
 
 implicit none
 ! General input
@@ -209,7 +209,6 @@ outer: do
     IATP = ISSTTA
     IBTP = ISSTTB
     do ISBLK=1,NSBLK
-      call xflush(6)
       IBSM = ISSMOS(IASM)
       NIA = NSSOA(IATP,IASM)
       NIB = NSSOB(IBTP,IBSM)
@@ -219,16 +218,15 @@ outer: do
         JBTP = ICSTTB
         ICOFF = 1
         do ICBLK=1,NCBLK
-          call xflush(6)
           JBSM = ICSMOS(JASM)
           NJA = NSSOA(JATP,JASM)
           NJB = NSSOB(JBTP,JBSM)
           XNORM2 = DDot_(NJA*NJB,CB(ICOFF),1,CB(ICOFF),1)
           if ((NIA /= 0) .and. (NIB /= 0) .and. (NJA /= 0) .and. (NJB /= 0) .and. (ISOCOC(IATP,IBTP) == 1) .and. &
-              (ICOCOC(JATP,JBTP) == 1) .and. (XNORM2 /= 0.0d0)) then
+              (ICOCOC(JATP,JBTP) == 1) .and. (XNORM2 /= Zero)) then
             ! Other symmetry blocks that can be obtained from this block
-            !write(6,*) 'Other symmetry blocks that can be obtained'
-            !call xflush(6)
+            !write(u6,*) 'Other symmetry blocks that can be obtained'
+            !call xflush(u6)
 
             call PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PS,PL,LATP,LBTP,LASM,LBSM,LSGN,LTRP,NPERM)
             do IPERM=1,NPERM
@@ -244,22 +242,22 @@ outer: do
                 call TRNSPS(LROW,LCOL,CB(ICOFF),C2)
                 call dcopy_(LROW*LCOL,C2,1,CB(iCOFF),1)
               end if
-              if (LSGN(IPERM) == -1) call DSCAL_(LROW*LCOL,-1.0d0,CB(ICOFF),1)
+              if (LSGN(IPERM) == -1) call DSCAL_(LROW*LCOL,-One,CB(ICOFF),1)
 
               ! Generation of contribution to sigma block
               ! from given CI block
 
-              !write(6,*) 'TimeDep in rassg4',TimeDep
-              !call xflush(6)
+              !write(u6,*) 'TimeDep in rassg4',TimeDep
+              !call xflush(u6)
               if (TimeDep) then
-                !write(6,*) 'I call rssbcbn_td'
+                !write(u6,*) 'I call rssbcbn_td'
                 call RSSBCBN_td(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,IAEL1(IATP),IAEL3(IATP),IBEL1(IBTP),IBEL3(IBTP), &
                                 IAEL1(LLATP),IAEL3(LLATP),IBEL1(LLBTP),IBEL3(LLBTP),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF), &
                                 IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSMOB,NSMST, &
                                 NSMSX,NSMDX,NIA,NIB,NLLA,NLLB,MXPOBS,IST,CJRES,SIRES,NOPART,TimeDep)
 
                 !call RECPRT('SSCR in rassg4',' ',SSCR,5,1) !yma
-                !call xflush(6)
+                !call xflush(u6)
               else
                 call RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,IAEL1(IATP),IAEL3(IATP),IBEL1(IBTP),IBEL3(IBTP), &
                                   IAEL1(LLATP),IAEL3(LLATP),IBEL1(LLBTP),IBEL3(LLBTP),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF), &
@@ -273,7 +271,7 @@ outer: do
               call TRNSPS(NJB,NJA,CB(ICOFF),C2)
               call dcopy_(NJA*NJB,C2,1,CB(ICOFF),1)
             end if
-            if (LSGN(NPERM+1) == -1) call DSCAL_(NJA*NJB,-1.0d0,CB(ICOFF),1)
+            if (LSGN(NPERM+1) == -1) call DSCAL_(NJA*NJB,-One,CB(ICOFF),1)
 
           end if
           ICOFF = ICOFF+NCOOSE(JATP,JBTP,JASM)

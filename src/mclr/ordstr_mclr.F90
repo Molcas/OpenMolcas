@@ -84,10 +84,10 @@ end do
 ! END ORDER
 !
 !#ifdef _DEBUGPRINT_
-!write(6,*) ' INPUT STRING ORDERED STRING ISIGN ',NELMNT
+!write(u6,*) ' INPUT STRING ORDERED STRING ISIGN ',NELMNT
 !call IWRTMA(IINST,1,NELMNT,1,NELMNT)
 !call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
-!write(6,*) ' ISIGN : ',ISIGN
+!write(u6,*) ' ISIGN : ',ISIGN
 !#endif
 
 end subroutine ORDSTR_MCLR

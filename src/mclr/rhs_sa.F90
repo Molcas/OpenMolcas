@@ -13,13 +13,14 @@ subroutine rhs_sa(Fock,SLag)
 
 use Arrays, only: Int1
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half, Quart
 use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
 use MCLR_Data, only: ISTATE
 use MCLR_Data, only: LuJob
 use input_mclr, only: ntAsh, PT2, nRoots, Debug, nSym, nConf, iRoot, iTOC, nAsh, nBas, nCSF, nIsh, nOrb
 use dmrginfo, only: DoDMRG, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp
 
 implicit none
 real*8 Fock(*)
@@ -130,10 +131,10 @@ if (.not. debug) then !yma debug ??
     end do
   end do
   !rcore = rCorei+rcoreA
-  !write(6,*) 'In rhs_sa'
-  !write(6,*) 'Checking energy',0.5d0*renergy+potnuc+Half*rcore !yma
-  !write(6,*) 'Checking energy',0.5d0*renergy,potnuc,rcore      !yma
-  !write(6,*)
+  !write(u6,*) 'In rhs_sa'
+  !write(u6,*) 'Checking energy',Half*renergy+potnuc+Half*rcore !yma
+  !write(u6,*) 'Checking energy',Half*renergy,potnuc,rcore      !yma
+  !write(u6,*)
 end if
 !do iS=1,nsym
 !  call RecPrt(' ',' ',fock(ipMat(is,is)),nbas(is),nbas(is))
@@ -193,7 +194,7 @@ subroutine PT2_SLag()
     do kR=1,jR ! jR-1
       iSLag = jR+nRoots*(kR-1)
       vSLag = SLag(iSLag)
-      if (abs(vSLag) <= 1.0d-10) cycle
+      if (abs(vSLag) <= 1.0e-10_wp) cycle
 
       call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
       !iRC = opout(ipCI)

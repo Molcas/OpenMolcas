@@ -22,9 +22,10 @@ subroutine RdCIV()
 
 use negpre, only: ERAS, LuCIV
 use gugx, only: SGS, CIS, EXS
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: LuJob
 use input_mclr, only: nSym, lRoots, nCSF, nConf, nRS1, nRS2, nRS3, State_Sym, iSpin, iTOC, nActEl, nElec3, nHole1
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 #include "rasdim.fh"
@@ -61,10 +62,10 @@ call mma_allocate(Tmp,mxRoot*mxIter,Label='Tmp')
 iDisk = iToc(6)
 call dDaFile(LuJob,2,Tmp,mxRoot*mxIter,iDisk)
 do i=0,lroots-1
-  ERAS(i+1) = 0.0d0
+  ERAS(i+1) = Zero
   do iter=1,mxIter
     Temp = Tmp(iter*mxRoot+i)
-    if (Temp /= 0.0d0) ERAS(i+1) = Temp
+    if (Temp /= Zero) ERAS(i+1) = Temp
   end do
 end do
 call mma_deallocate(Tmp)

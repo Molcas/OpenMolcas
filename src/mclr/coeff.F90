@@ -11,9 +11,10 @@
 
 subroutine coeff(ralpha,rbetaa,rbetas)
 
-use Constants, only: Zero, One, Two, Four, Six, Eight
 use MCLR_Data, only: mS2
 use input_mclr, only: iSpin
+use Constants, only: Zero, One, Two, Four, Six, Eight, Half
+use Definitions, only: wp, u6
 
 implicit none
 real*8 ralpha, rbetaa, rbetas
@@ -21,19 +22,19 @@ real*8, parameter :: twentyfour = Four*Six
 real*8 Spin, RMS, rcg21, rcg11, rcg20, rcg10, rgamma
 real*8, external :: clebsch_gordan_mclr
 
-Spin = dble(ispin-1)/Two
-rms = dble(ms2)/Two
+Spin = real(ispin-1,kind=wp)*Half
+rms = real(ms2,kind=wp)*Half
 
-if ((rms == 0.0d0) .or. (rms /= spin)) then
-  write(6,*)
-  write(6,*) '====='
-  write(6,*)
-  write(6,*) 'Sorry, I am just able to calculate the'
-  write(6,*) 'Spin polariztion for high spin states'
-  write(6,*) 'Welcome back after you have recalculated'
-  write(6,*) 'your wave function'
-  write(6,*)
-  write(6,*)
+if ((rms == Zero) .or. (rms /= spin)) then
+  write(u6,*)
+  write(u6,*) '====='
+  write(u6,*)
+  write(u6,*) 'Sorry, I am just able to calculate the'
+  write(u6,*) 'Spin polariztion for high spin states'
+  write(u6,*) 'Welcome back after you have recalculated'
+  write(u6,*) 'your wave function'
+  write(u6,*)
+  write(u6,*)
   call Quit_OnUserError()
 end if
 

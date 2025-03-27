@@ -13,19 +13,22 @@
 
 function Fact(R)
 
+use Constants, only: One
+use Definitions, only: wp
+
 real*8 R, Fact
 integer n, i, j
 
 n = nint(R)
 i = 1
 if (n == 0) then
-  Fact = 1.0d0
+  Fact = One
   return
 end if
 do j=1,n
   i = i*j
 end do
-Fact = dble(i)
+Fact = real(i,kind=wp)
 
 return
 

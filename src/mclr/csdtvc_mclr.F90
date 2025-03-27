@@ -44,7 +44,6 @@ if (IWAY == 1) then
   DETVEC(1:NDET) = Zero
   ! Multiply with  expansion matrix
   do ITYP=1,NTYP
-    call xflush(6)
     IDET = NDPCNT(ITYP)
     ICSF = NCPCNT(ITYP)
     ICNF = NCNATS(ITYP,IREFSM)

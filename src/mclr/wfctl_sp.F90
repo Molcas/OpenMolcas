@@ -21,8 +21,6 @@ subroutine WfCtl_sp(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP)
 use Exp, only: Exp_Close
 use Arrays, only: SFock, G1m, G2mp, Int2, FIMO
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
 use MCLR_Data, only: nConf1, nDens2, nNA, nDensC, nDens, ipCI, n1Dens
 use MCLR_Data, only: RMS, rAlpha
 use MCLR_Data, only: ipDia
@@ -30,6 +28,9 @@ use MCLR_Data, only: LuTemp
 use MCLR_Data, only: XISPSM
 use MCLR_Data, only: MS2P
 use input_mclr, only: nDisp, Fail, State_Sym, iMethod, rIn_Ene, PotNuc, iBreak, Eps, nIter, Debug, ERASSCF, kPrint, nCSF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, OneHalf
+use Definitions, only: u5, u6
 
 implicit none
 integer iKapDisp(nDisp), isigDisp(nDisp)
@@ -144,11 +145,11 @@ call FockGen_sp(Zero,G1m,G2mp,SFock,Temp4,1)
 irc = ipin(ipST)
 call dcopy_(nconf1,[Zero],0,W(ipST)%Vec,1)
 
-if (lprint) write(6,*) '       Iteration         Delta     Res(kappa) Res(CI)'
+if (lprint) write(u6,*) '       Iteration         Delta     Res(kappa) Res(CI)'
 iLen = nDensC
 iRHSDisp(iDisp) = iDis
 call Compress(Temp4,Sigma,1)
-call DSCAL_(ndensc,-sqrt(1.5d0)*dble(ms2p),Sigma,1)
+call DSCAL_(ndensc,-sqrt(OneHalf)*dble(ms2p),Sigma,1)
 call UnCompress(Sigma,Temp4,1)
 call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 if (iMethod == 2) then
@@ -196,8 +197,8 @@ iter = 1
 
 cnvrgd = .true.
 do
-  !if (delta == 0.0d0) exit
-  read(5,*) i1,j1
+  !if (delta == Zero) exit
+  read(u5,*) i1,j1
   if (i1 > 0) then
     dKappa(1:nDens2) = Zero
     dKappa(i1) = One
@@ -211,7 +212,7 @@ do
 
   call RInt_SP(dKappa,rmoaa,rmoaa2,Temp4,Sc2)
 
-  if ((i1 > 0) .and. (j1 > 0)) write(6,*) 'Kap_sig',Sc2(j1)
+  if ((i1 > 0) .and. (j1 > 0)) write(u6,*) 'Kap_sig',Sc2(j1)
   if (nconf1 > 1) then
     irc = opout(-1)
     call CISigma(1,State_Sym,state_sym,Temp4,nDens2,rmoaa,size(rmoaa),rmoaa2,size(rmoaa2),ipCI,ipS1,.true.)
@@ -220,9 +221,9 @@ do
     irc = ipin(ipS1)
     rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
     call daxpy_(nConf1,-rgrad,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
-    call dscal_(nconf1,-rms*sqrt(1.5d0)*Two,W(ipS1)%Vec,1)
+    call dscal_(nconf1,-rms*sqrt(OneHalf)*Two,W(ipS1)%Vec,1)
 
-    if ((i1 > 0) .and. (j1 < 0)) write(6,*) 'CI_sig',W(ipS1)%Vec(j1)
+    if ((i1 > 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS1)%Vec(j1)
 
     irc = opout(-1)
     if (nconf1 > 1) then
@@ -233,8 +234,8 @@ do
       irc = ipin(ipCId)
       irc = ipin(ipS2)
       call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
-      call DSCAL_(nConf1,2.0d0,W(ipS2)%Vec,1)
-      if ((i1 < 0) .and. (j1 < 0)) write(6,*) 'CI_sig',W(ipS2)%Vec(j1)
+      call DSCAL_(nConf1,Two,W(ipS2)%Vec,1)
+      if ((i1 < 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS2)%Vec(j1)
 
       irc = ipin(ipCI)
       irc = ipin(ipCid)
@@ -242,10 +243,10 @@ do
 
       d_0 = ddot_(nconf1,W(ipCid)%Vec,1,W(ipci)%Vec,1)
       call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
-      call DSCAL_(ndens2,-rms*sqrt(1.5d0),Sc1,1)
+      call DSCAL_(ndens2,-rms*sqrt(OneHalf),Sc1,1)
 
       call Compress(Sc1,Sc3,1)
-      if ((i1 < 0) .and. (j1 > 0)) write(6,*) 'CI_sig',Sc3(j1)
+      if ((i1 < 0) .and. (j1 > 0)) write(u6,*) 'CI_sig',Sc3(j1)
       cycle
     end if
 
@@ -411,7 +412,7 @@ do
     cnvrgd = .false.
     exit
   end if
-  if (lprint) write(6,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)') '     ',iter,'       ',delta/delta0,resk,resci,deltac,deltak
+  if (lprint) write(u6,Fmt2//'A,i2,A,F12.7,F12.7,F12.7,F12.7,F12.7)') '     ',iter,'       ',delta/delta0,resk,resci,deltac,deltak
 
   iter = iter+1
 
@@ -420,13 +421,13 @@ end do
 !***********************************************************************
 
 if (.not. cnvrgd) then
-  write(6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
+  write(u6,Fmt2//'A,I4,A)') 'No convergence for perturbation no: ',idisp,'. Increase Iter.'
   fail = .true.
 else
-  write(6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
+  write(u6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
   irc = ipnout(-1)
 end if
-write(6,*)
+write(u6,*)
 iLen = ndensC
 iKapDisp(iDisp) = iDis
 call dDaFile(LuTemp,1,Kappa,iLen,iDis)
@@ -467,8 +468,8 @@ if (imethod == 2) irc = ipclose(ipci)
 call Exp_Close()
 
 if (debug) then
-  write(6,*) '********************************************************************************'
-  write(6,*)
+  write(u6,*) '********************************************************************************'
+  write(u6,*)
 end if
 
 !----------------------------------------------------------------------*

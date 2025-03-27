@@ -15,6 +15,8 @@ use Arrays, only: G1t, CMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
 use MCLR_Data, only: DspVec, SWLbl
 use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh, nOrb, nTPert
+use Constants, only: Zero, One, Two
+use Definitions, only: u6
 
 implicit none
 real*8 FockI(nDens2), Temp2(ndens2), Temp3(nDens2), Temp4(ndens2), Temp1(nDens2), Fock(nDens2), rMO(*)
@@ -53,8 +55,8 @@ if (iand(ntpert(idisp),2**2) == 4) then   ! 2 el contribution
       iopt = 0
       call dRdMck(iRC,iOpt,Label,jDisp,Fock,iop)
       if (iRc /= 0) then
-        write(6,*) 'IntX: Error reading MCKINT'
-        write(6,'(A,A)') 'Label=',Label
+        write(u6,*) 'IntX: Error reading MCKINT'
+        write(u6,'(A,A)') 'Label=',Label
         call Abend()
       end if
       call ReLoad(Fock,loper+1,nbas,norb)
@@ -65,8 +67,8 @@ if (iand(ntpert(idisp),2**2) == 4) then   ! 2 el contribution
       iopt = 0
       call dRdMck(iRC,iOpt,Label,jDisp,Focki,iop)
       if (iRc /= 0) then
-        write(6,*) 'IntX: Error reading MCKINT'
-        write(6,'(A,A)') 'Label=',Label
+        write(u6,*) 'IntX: Error reading MCKINT'
+        write(u6,'(A,A)') 'Label=',Label
         call Abend()
       end if
       call ReLoad(Focki,loper+1,nbas,norb)
@@ -77,8 +79,8 @@ if (iand(ntpert(idisp),2**2) == 4) then   ! 2 el contribution
       iopt = 0
       call dRdMck(iRC,iOpt,Label,jDisp,rMO,iop)
       if (iRc /= 0) then
-        write(6,*) 'IntX: Error reading MCKINT'
-        write(6,'(A,A)') 'Label=',Label
+        write(u6,*) 'IntX: Error reading MCKINT'
+        write(u6,'(A,A)') 'Label=',Label
         call Abend()
       end if
     else
@@ -95,14 +97,14 @@ if (iand(ntpert(idisp),2**2) == 4) then   ! 2 el contribution
       iopt = 0
       call dRdMck(iRC,iOpt,Label,jDisp,Focki,iop)
       if (iRc /= 0) then
-        write(6,*) 'IntX: Error reading MCKINT'
-        write(6,'(A,A)') 'Label=',Label
+        write(u6,*) 'IntX: Error reading MCKINT'
+        write(u6,'(A,A)') 'Label=',Label
         call Abend()
       end if
-      call dcopy_(ndens2,[0.0d0],0,fock,1)
+      call dcopy_(ndens2,[Zero],0,fock,1)
       do iS=1,nSym
         js = ieor(is-1,loper)+1
-        call Dyax(nOrb(is)*nIsh(js),2.0d0,Focki(ipMat(is,js)),1,Fock(ipMat(is,js)),1)
+        call Dyax(nOrb(is)*nIsh(js),Two,Focki(ipMat(is,js)),1,Fock(ipMat(is,js)),1)
       end do
     end if
   end if
@@ -123,8 +125,8 @@ if (iand(nTPert(iDisp),2**1) == 2) then ! 1 el contribution
     iopt = 0
     call dRdMck(iRC,iOpt,Label,jDisp,Temp1,iop)
     if (iRc /= 0) then
-      write(6,*) 'IntX: Error reading MCKINT'
-      write(6,'(A,A)') 'Label=',Label
+      write(u6,*) 'IntX: Error reading MCKINT'
+      write(u6,'(A,A)') 'Label=',Label
       call Abend()
     end if
   else                                         ! or seward
@@ -133,15 +135,15 @@ if (iand(nTPert(iDisp),2**1) == 2) then ! 1 el contribution
     irc = -1
     call RdOne(irc,iopt,Label,jDisp,temp1,iop)
     if (iRc /= 0) then
-      write(6,*) 'IntX: Error reading MCKINT'
-      write(6,'(A,A)') 'Label=',Label
+      write(u6,*) 'IntX: Error reading MCKINT'
+      write(u6,'(A,A)') 'Label=',Label
       call Abend()
     end if
-    call DSCAL_(ndens2,1.0d0,Temp1,1)
+    call DSCAL_(ndens2,One,Temp1,1)
   end if
 end if
 
-call dcopy_(nDens,[0.0d0],0,Temp2,1)
+call dcopy_(nDens,[Zero],0,Temp2,1)
 do iS=1,nSym
   do jS=1,is
     if (nBas(is)*nBas(js) /= 0) then
@@ -151,12 +153,11 @@ do iS=1,nSym
         else
           call dcopy_(nBas(iS)*nBas(jS),temp1(ipMatLT(iS,Js)),1,Temp4,1)
         end if
-        call DGEMM_('T','N',nOrb(iS),nBas(jS),nBAs(iS),1.0d0,CMO(ipCM(iS)),nBas(is),Temp4,nBas(iS),0.0d0,Temp3,nOrb(iS))
-        call DGEMM_('N','N',nOrb(is),nB(jS),nBas(jS),1.0d0,Temp3,nOrb(iS),CMO(ipCM(jS)),nBas(jS),0.0d0,Temp2(ipMat(iS,jS)),nOrb(iS))
+        call DGEMM_('T','N',nOrb(iS),nBas(jS),nBAs(iS),One,CMO(ipCM(iS)),nBas(is),Temp4,nBas(iS),Zero,Temp3,nOrb(iS))
+        call DGEMM_('N','N',nOrb(is),nB(jS),nBas(jS),One,Temp3,nOrb(iS),CMO(ipCM(jS)),nBas(jS),Zero,Temp2(ipMat(iS,jS)),nOrb(iS))
         if (is /= js) then
-          call DGEMM_('T','T',nOrb(jS),nOrb(iS),nBAs(jS),1.0d0,CMO(ipCM(jS)),nBas(js),Temp4,nBas(iS),0.0d0,Temp3,nOrb(jS))
-          call DGEMM_('N','N',nOrb(js),nB(iS),nBas(iS),1.0d0,Temp3,nOrb(jS),CMO(ipCM(iS)),nBas(iS),0.0d0,Temp2(ipMat(jS,iS)), &
-                      nOrb(jS))
+          call DGEMM_('T','T',nOrb(jS),nOrb(iS),nBAs(jS),One,CMO(ipCM(jS)),nBas(js),Temp4,nBas(iS),Zero,Temp3,nOrb(jS))
+          call DGEMM_('N','N',nOrb(js),nB(iS),nBas(iS),One,Temp3,nOrb(jS),CMO(ipCM(iS)),nBas(iS),Zero,Temp2(ipMat(jS,iS)),nOrb(jS))
         end if
 
       end if
@@ -164,20 +165,20 @@ do iS=1,nSym
   end do
 end do
 
-call dcopy_(ndens2,[0.0d0],0,Temp3,1)
+call dcopy_(ndens2,[Zero],0,Temp3,1)
 do iS=1,nSym
   js = ieor(is-1,loper)+1
   if (nOrb(js) < 1) cycle
   do j=1,nAsh(is)+nish(is)
     do i=1,nAsh(is)+nIsh(is)
       if ((i == j) .and. (i <= nish(is)) .and. (j <= nish(is))) then
-        rde = 2.0d0
+        rde = Two
       else if ((i > nish(is)) .and. (j > nish(is))) then
         rde = G1t(itri(i-nish(is)+nA(is),j-nIsh(is)+nA(is)))
       else
-        rde = 0.0d0
+        rde = Zero
       end if
-      if (rde /= 0.0d0) call DaXpY_(nOrb(js),rDe,Temp2(ipMat(js,is)+(j-1)*nOrb(js)),1,Temp3(ipMat(js,is)+(i-1)*nOrb(js)),1)
+      if (rde /= Zero) call DaXpY_(nOrb(js),rDe,Temp2(ipMat(js,is)+(j-1)*nOrb(js)),1,Temp3(ipMat(js,is)+(i-1)*nOrb(js)),1)
     end do
   end do
 end do
@@ -190,8 +191,8 @@ end do
 !----------------------------------------------------------------------*
 
 if (iand(ntpert(idisp),2**2) == 4) then
-  call daxpy_(nDens2,1.0d0,Temp2,1,Focki,1)
-  call daxpy_(nDens2,1.0d0,Temp3,1,Fock,1)
+  call daxpy_(nDens2,One,Temp2,1,Focki,1)
+  call daxpy_(nDens2,One,Temp3,1,Fock,1)
 else
   call dcopy_(ndens2,Temp2,1,FockI,1)
   call dcopy_(ndens2,Temp3,1,Fock,1)

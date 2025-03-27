@@ -13,13 +13,14 @@ subroutine Out_Pt2(iKapDisp,iCIDisp)
 
 use Arrays, only: CMO
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
-use Constants, only: Zero, One, Two, Half, Quart
 use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens, nA, nDens2, nDensC
 use MCLR_Data, only: ESTERR, ISNAC, ISTATE, IRLXROOT, OVERRIDE, NACSTATES
 use MCLR_Data, only: LuTEMP, LuJob, LuPT2
 use input_mclr, only: nDisp, nSym, nRoots, ntAsh, PT2, iRoot, iTOC, nAsh, nBas, nCSF, nIsh, State_Sym
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp
 
 implicit none
 #include "SysDef.fh"
@@ -103,16 +104,16 @@ if (CI) then
     call mma_allocate(tmpP,ndim**2*(ndim**2+1)/2,Label='tmpP')
     call mma_allocate(tmpDeM,ntash,ntash,Label='tmpDeM')
     call mma_allocate(tmpPM,ntash,ntash,ntash,ntash,Label='tmpPM')
-    tmpDe = 0.0d0
-    tmpP = 0.0d0
-    tmpDeM = 0.0d0
-    tmpPM = 0.0d0
+    tmpDe = Zero
+    tmpP = Zero
+    tmpDeM = Zero
+    tmpPM = Zero
 
     ij = 0
     do i=1,ntash
       do j=1,ntash
         ij = ij+1
-        if (abs(D_CI(ij)) < 1.0e-12) D_CI(ij) = 0.0d0
+        if (abs(D_CI(ij)) < 1.0e-12_wp) D_CI(ij) = Zero
         tmpDeM(i,j) = D_CI(ij)
       end do
     end do
@@ -122,7 +123,7 @@ if (CI) then
       do j=1,ndim
         ij = ij+1
         if ((i > ntash) .or. (j > ntash)) then
-          tmpDe(i,j) = 0.0d0
+          tmpDe(i,j) = Zero
         else
           tmpDe(i,j) = tmpDeM(i,j)
         end if
@@ -138,7 +139,7 @@ if (CI) then
             kl1 = ntash*(k-1)+l
             kl2 = ntash*(l-1)+k
             if (ij1 >= kl1) then
-              if (abs(P_CI(itri(ij1,kl1))) < 1.0e-12) P_CI(itri(ij1,kl1)) = 0.0d0
+              if (abs(P_CI(itri(ij1,kl1))) < 1.0e-12_wp) P_CI(itri(ij1,kl1)) = Zero
               tmpPM(i,j,k,l) = P_CI(itri(ij1,kl1))
             end if
           end do
@@ -156,7 +157,7 @@ if (CI) then
             kl2 = ndim*(l-1)+k
             if (ij1 >= kl1) then
               if ((i > ntash) .or. (j > ntash) .or. (k > ntash) .or. (l > ntash)) then
-                tmpP(itri(ij1,kl1)) = 0.0d0
+                tmpP(itri(ij1,kl1)) = Zero
               else
                 tmpP(itri(ij1,kl1)) = tmpPM(i,j,k,l)
               end if
@@ -435,8 +436,8 @@ if (isNAC) then
       do iI=1,nBasI
         do iJ=1,nBasI
           read(LuPT2,*) Val
-          D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI) = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)+Val*0.25d+00
-          D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI) = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)+Val*0.25d+00
+          D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI) = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)+Val*Quart
+          D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI) = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)+Val*Quart
         end do
       end do
     end do
@@ -545,8 +546,8 @@ else
       do iI=1,nBasI
         do iJ=1,nBasI
           read(LuPT2,*) Val
-          D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI) = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)+Val*0.25d+00
-          D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI) = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)+Val*0.25d+00
+          D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI) = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)+Val*Quart
+          D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI) = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)+Val*Quart
         end do
       end do
     end do
@@ -566,7 +567,7 @@ else
   call mma_allocate(tTmp,nNac,Label='tTmp')
   call get_dArray_chk('D1mo',TEMP,nNac)
   call get_dArray_chk('DLMO',tTmp,nNac)
-  call DaxPy_(nNac,1.0d0,tTmp,1,TEMP,1)
+  call DaxPy_(nNac,One,tTmp,1,TEMP,1)
   call mma_deallocate(TEMP)
   call mma_deallocate(tTmp)
 
@@ -588,7 +589,7 @@ else
   if (Is_Roots_Set) call Get_iScalar('Number of roots',nRoots)
 
   if (nRoots /= 1) then
-    !write(6,*) 'iR=',iR
+    !write(u6,*) 'iR=',iR
     call mma_allocate(DM,3,Label='DM')
     call mma_allocate(DMs,3*nROOTS,Label='DMs')
     call Get_dArray('Last Dipole Moments',DMs,3*nRoots)

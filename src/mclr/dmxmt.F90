@@ -11,6 +11,8 @@
 
 subroutine DMXMT(A,LDA,NTA,B,LDB,NTB,C,NRC,NSUM,NCC)
 
+use Constants, only: Zero
+
 implicit none
 integer IROW, ICOL, LDA, LDB, NRC, NSUM, NCC, IND, ISUM
 character NTA, NTB
@@ -20,7 +22,7 @@ IND = 0
 if ((NTA == 'N') .and. (NTB == 'N')) then
   do ICol=1,NRC
     do IRow=icol,nrc
-      SUM = 0.0d0
+      SUM = Zero
       do ISUM=1,NSUM
         SUM = SUM+A(IROW,ISUM)*B(ISUM,iCOL)
       end do
@@ -31,7 +33,7 @@ if ((NTA == 'N') .and. (NTB == 'N')) then
 !else if ((NTA == 'T') .and. (NTB == 'N')) then
 !  do IROW=1,NRC
 !    do ICOL=0,IROW
-!      SUM = 0.0D0
+!      SUM = Zero
 !      do ISUM=0,NSUM-1
 !        SUM = SUM+A(ISUM,IROW)*B(ISUM,iCOL)
 !      end do
@@ -42,7 +44,7 @@ if ((NTA == 'N') .and. (NTB == 'N')) then
 !else if ((NTA == 'N') .and. (NTB == 'T')) then
 !  do IROW=1,NRC
 !    do ICOL=0,IROW
-!      SUM = 0.0D0
+!      SUM = Zero
 !      do ISUM=0,NSUM-1
 !        SUM = SUM+A(IROW,ISUM)*B(ICOL,iSUM)
 !      end do
@@ -53,7 +55,7 @@ if ((NTA == 'N') .and. (NTB == 'N')) then
 !else if ((NTA == 'T') .and. (NTB == 'T')) then
 !  do IROW=1,NRC
 !    do ICOL=0,IROW
-!      SUM = 0.0D0
+!      SUM = Zero
 !      do ISUM=0,NSUM-1
 !        SUM = SUM+A(ISUM,IROW)*B(ICOL,iSUM)
 !      end do
