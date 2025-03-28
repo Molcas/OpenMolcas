@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine InCSFSD(iState,State_sym,GUGA)
+subroutine InCSFSD(iState,State_sym)
 
 use Str_Info, only: CNSM
 use stdalloc, only: mma_allocate
@@ -18,7 +18,6 @@ use MCLR_Data, only: LuCSF2SD
 
 implicit none
 integer iState, State_sym
-logical GUGA
 integer idum(1)
 integer iSym, iAdr, i, iad
 
@@ -62,8 +61,5 @@ end if
 ! calculated from zoo.f, the GUGA number for determinent
 call iDafile(LUCSF2SD,2,CNSM(iAdr)%icts,lldet,iad)
 call iDafile(LUCSF2SD,2,CNSM(iAdr)%iconf,lconf,iad)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_logical(GUGA)
 
 end subroutine InCSFSD

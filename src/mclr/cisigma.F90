@@ -25,10 +25,9 @@ implicit none
 integer iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
 real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
 logical Have_2_el
-integer kic(2), opout
+integer kic(2)
 real*8, allocatable :: CIDET(:)
-integer nDet, iOp, iS, jS, iRC
-integer, external :: ipIN, ipIN1, ipNOUT
+integer nDet, iOp, iS, jS
 
 ! Interface Anders to Jeppe
 ! This interface initiates Jeppes common block
@@ -102,8 +101,8 @@ if (.not. page) then
 
   call mma_allocate(CIDET,nDet,Label='CIDET')
 # ifdef _MS_
-  irc = ipin(ipCI1)
-  irc = ipin(ipci2)
+  call ipin(ipCI1)
+  call ipin(ipci2)
   do i=0,nroots-1
     call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,CIDET,1)
     call SigmaVec(CIDET,W(ipci2)%Vec(1+i*ncsf(issm)),kic)
@@ -116,17 +115,13 @@ if (.not. page) then
 # endif
   call mma_deallocate(CIDET)
 else
-  irc = ipnout(ipci2)
+  call ipnout(ipci2)
 
-  irc = ipin1(ipCI1,ndet)
-  irc = ipin(ipci2)
+  call ipin1(ipCI1,ndet)
+  call ipin(ipci2)
   call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
-  irc = opout(ipci1)
+  call opout(ipci1)
 
 end if
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine CISigma

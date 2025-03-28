@@ -23,9 +23,8 @@ integer ipSigma
 real*8 rout(*), S(nroots,nroots,nroots)
 #include "rasdim.fh"
 real*8 rcoeff(mxroot), alpha(mxRoot)
-integer, external :: ipIn
 real*8, external :: DDot_
-integer irc, i, j, k, iR, jR
+integer i, j, k, iR, jR
 real*8 E
 
 !                                  -1           -1
@@ -37,8 +36,8 @@ real*8 E
 !                                         0
 
 if (nconf1 > 1) then
-  irc = ipin(ipdia)
-  irc = ipin(ipsigma)
+  call ipin(ipdia)
+  call ipin(ipsigma)
   k = 0
   do i=1,nroots
     E = ERASSCF(i)
@@ -51,7 +50,7 @@ if (nconf1 > 1) then
 
     !We = weight(iR)
     E = ERASSCF(iR)
-    irc = ipin(ipCI)
+    call ipin(ipCI)
     do jR=1,nroots
       rcoeff(jR) = ddot_(nconf1,rout(1+(iR-1)*ncsf(State_Sym)),1,W(ipCI)%Vec(1+(jR-1)*ncsf(State_Sym)),1)
     end do
@@ -74,8 +73,5 @@ if (nconf1 > 1) then
 else
   call dcopy_(nconf1*nroots,[Zero],0,rout,1)
 end if
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine DMinvCI_sa

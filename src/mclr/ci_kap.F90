@@ -24,15 +24,14 @@ integer ipCID, iSym
 real*8 Fock(*), FockOut(*)
 real*8, allocatable :: De(:), Pe(:)
 integer i, j, itri
-integer irc, nDim, ij, k, l, ij1, kl1
-integer, external :: ipnout
+integer nDim, ij, k, l, ij1, kl1
 real*8 D0
 ! Added for DMRG calculation
 real*8, allocatable :: tmpDe(:,:), tmpP(:), tmpDeM(:,:), tmpPM(:,:,:,:)
 ! Statement function
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-irc = ipnout(-1)
+call ipnout(-1)
 call mma_allocate(De,ntash**2,Label='De')
 call mma_allocate(Pe,n2dens,Label='Pe')
 
@@ -110,8 +109,8 @@ if (doDMRG) then
   call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
   call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
 
-  !irc = ipin(ipCID)
-  !irc = ipin(ipci)
+  !call ipin(ipCID)
+  !call ipin(ipci)
   !call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
   call dcopy_(ndens2,[Zero],0,Fock,1)
   call dcopy_(ndens2,[Zero],0,FockOut,1)
@@ -121,8 +120,8 @@ if (doDMRG) then
 
 else
 
-  !irc = ipin(ipCID)
-  !irc = ipin(ipci)
+  !call ipin(ipCID)
+  !call ipin(ipci)
   !call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
   call dcopy_(ndens2,[Zero],0,Fock,1)
   call dcopy_(ndens2,[Zero],0,FockOut,1)
@@ -142,9 +141,5 @@ if (doDMRG) then  !yma
   call mma_deallocate(tmpPM)
 end if
 ! ======================================================================
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine CI_KAP

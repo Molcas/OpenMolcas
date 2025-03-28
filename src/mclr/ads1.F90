@@ -10,8 +10,8 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine ADS1(NK,I1,XI1S,LI1,IORB,LORB,ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMAP,IEL1,IEL3,I1EL1,I1EL3,ISSO,NSSO,I1SSO,N1SSO, &
-                NOCTP,N1OCTP,NORB1,NORB2,NORB3,ORBSM,NORB,KMAX,KMIN,IEND)
+subroutine ADS1(NK,I1,XI1S,LI1,IORB,LORB,ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMAP,IEL1,IEL3,I1EL1,I1EL3,ISSO,I1SSO,N1SSO,NOCTP, &
+                N1OCTP,NORB1,NORB2,ORBSM,KMAX,KMIN,IEND)
 ! Obtain I1(KSTR) = +/- A+ IORB !KSTR>
 !
 ! KSTR is restricted to strings with relative numbers in the
@@ -27,14 +27,12 @@ subroutine ADS1(NK,I1,XI1S,LI1,IORB,LORB,ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMA
 ! IEL1(3) : Number of electrons in RAS1(3) for I strings
 ! I1EL1(3) : Number of electrons in RAS1(3) for K strings
 ! ISSO : TS symmetry offset for I strings
-! NSSO : Number of TS strings for I strings
 ! I1SSO : TS symmetry offset for K strings
 ! N1SSO : Number of TS strings for K strings
 ! NOCTP : Number of occupation types for I strings
 ! N1OCTP : Number of occupation types for K strings
 ! NORB1(2,3) : Number of RAS1(2,3) orbitals
 ! IORBSM : Orbital symmety array
-! NORB : Number of active  orbitals
 ! KMAX : Largest allowed relative number for K strings
 !        If Kmax is set to -1 all strings are searched
 ! KMIN : Smallest allowed relative number for K strings
@@ -58,10 +56,9 @@ use Definitions, only: u6
 implicit real*8(A-H,O-Z)
 ! Input
 integer IEL1(*), IEL3(*), I1EL1(*), I1EL3(*)
-integer ISSO(NOCTP,*), NSSO(NOCTP,*)
+integer ISSO(NOCTP,*)
 integer I1SSO(N1OCTP,*), N1SSO(N1OCTP,*)
 integer ORBSM(*)
-!integer IMAPO(NORB,*), IMAPS(NORB,*)
 integer IMAPO(*), IMAPS(*)
 integer IMPL(*), IMPO(*)
 ! Output
@@ -177,13 +174,5 @@ if (NK /= 0) then
   end do
 end if
 #endif
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(NSSO)
-  call Unused_integer(NORB3)
-  call Unused_integer(NORB)
-end if
 
 end subroutine ADS1

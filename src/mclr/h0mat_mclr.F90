@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine H0MAT_MCLR(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,NOCOB,NPRCIV,NOCSF,IREFSM,IDC,PSSIGN,ECORE,VEC1,VEC2,H0SCR,iH0SCR,ieaw)
+subroutine H0MAT_MCLR(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,NOCOB,NPRCIV,IREFSM,IDC,PSSIGN,VEC1,VEC2,H0SCR,iH0SCR,ieaw)
 ! Obtain preconditioner space corresponding to internal space INTSPC
 ! Obtain Hamiltonian matrices corresponding to this subspace
 !
@@ -33,13 +33,13 @@ implicit none
 real*8 H0(*)
 integer ISBDET(*)
 integer ISBCNF(*)
-integer MXP1, MXP2, MXQ, NOCOB, NPRCIV, NOCSF, IREFSM, IDC
-real*8 PSSIGN, ECORE
+integer MXP1, MXP2, MXQ, NOCOB, NPRCIV, IREFSM, IDC
+real*8 PSSIGN
 real*8 vec1(*), vec2(*), h0scr(*)
 integer ih0scr(*)
 integer ieaw
 !integer, allocatable :: IOCOC(:)
-integer intspc, NAEL, NBEL, ICOMBI, IPWAY, NINOB, NP1CNF, NP1CSF, NP2CNF, NP2CSF, NPCNF, NQCNF, NQCSF
+integer intspc, NAEL, NBEL, ICOMBI, IPWAY, NP1CNF, NP1CSF, NP2CNF, NP2CSF, NPCNF, NQCNF, NQCSF
 real*8 PSIGN
 
 ! Info on actual internal subspace
@@ -78,15 +78,13 @@ end if
 !  call H0SD(LUHDIA,LBLK,VEC1,IWAY,NSBDET,NAEL,NBEL,ISMOST(1,IREFSM),IOCOC,IHAMSM,H0,NOCOB,0,ECORE,ICOMBI,PSIGN,NPRCIV,SBEVC, &
 !            SBEVL,1,NCIVAR,ISBDET,ISBIA,ISBIB,MXP1,MXP2,MXQ,MP1CSF,MP2CSF,MQCSF,Str(IATP)%OCSTR, Str(IBTP)%OCSTR,ISTSGN,IDUMMY, &
 !            IDUMMY,INTSPC)
-!else if (NOCSF == 0) then
+!else
 !  CSF basis,PQ preconditioner
 IPWAY = 2
-call H0CSF(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,DTOC,DFTP,CNSM(ieaw)%ICONF,IREFSM,ECORE,NINOB,NOCOB,H0SCR,iH0SCR,NCNASM(IREFSM), &
-           NAEL+NBEL,NAEL,NBEL,IPWAY,NP1CSF,NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPRCIV,NPCNF,VEC1,VEC2,INTSPC,ICOMBI,PSIGN)
+call H0CSF(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,DTOC,DFTP,CNSM(ieaw)%ICONF,IREFSM,NOCOB,H0SCR,iH0SCR,NCNASM(IREFSM),NAEL+NBEL,NAEL,NBEL, &
+           IPWAY,NP1CSF,NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPRCIV,NPCNF,VEC1,VEC2,INTSPC,ICOMBI,PSIGN)
 !end if
 
 !call mma_deallocate(IOCOC)
-
-if (.false.) call Unused_integer(NOCSF)
 
 end subroutine H0MAT_MCLR

@@ -60,7 +60,7 @@ subroutine Prec_dig_internal(rpre)
   implicit none
   real*8, target :: rpre(*)
   integer, pointer :: ipre(:)
-  integer nmm, nmmm, iS, n2, ip, jS, nD, ni, nTemp, iB, iBB, iRC, iR
+  integer nmm, nmmm, iS, n2, ip, jS, nD, ni, nTemp, iB, iBB, iRC
   real*8 Sign
 
   nmm = 0
@@ -103,8 +103,8 @@ subroutine Prec_dig_internal(rpre)
           !  iaib
 
           if (nash(js) > 0) &
-            call Preciaa(ib,is,js,nd,Temp3,nbas(is),nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
-                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
+            call Preciaa(ib,is,js,nd,Temp3,nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),FIMO(ipCM(js)),FAMO(ipCM(js)), &
+                         F0sqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
 
           ! G
           !  ipia
@@ -155,26 +155,26 @@ subroutine Prec_dig_internal(rpre)
     Temp4(1:ni) = Zero
     do iB=1,nAsh(iS)
       ibb = nBas(is)*(nish(is)+ib-1)+nish(is)+ib-2
-      if (ib <= nRs1(iS)+nRs2(is)+nRs3(is)) iR = 3
-      if (ib <= nRs1(iS)+nRs2(is)) iR = 2
-      if (ib <= nRs1(iS)) iR = 1
-      if (ir == 1) nD = nBas(js)-nRs1(js)
-      if (ir == 2) nD = nBas(js)-nRs2(js)
-      if (ir == 3) nD = nBas(js)-nRs3(js)
+      if (ib <= nRS1(iS)) then
+        nD = nBas(js)-nRs1(js)
+      else if (ib <= nRs1(iS)+nRs2(iS)) then
+        nD = nBas(js)-nRs2(js)
+      else
+        nD = nBas(js)-nRs3(js)
+      end if
       if (nD /= 0) then
         Temp3(1:nD**2) = Zero
         if (nish(js) > 0) &
-          call Precaii(ib,is,js,nd,ir,Temp3,nbas(is),nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                       FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
+          call Precaii(ib,is,js,nd,Temp3,nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb),FIMO(ipCM(js)), &
+                       FAMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
         !call Precaai(ib,nd,ir,rpre(ip))
         !call Precaaa(ib,nd,ir,rpre(ip))
         if (nish(js)*nBas(js) > 0) &
-          call Precabi(ib,is,js,ir,nd,Temp3,nBas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0SQMO(ipCM(js)),sign,JInt,KInt,Scr,n2) !+/-?
+          call Precabi(ib,is,js,nd,Temp3,nBas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JInt,KInt,Scr,n2) !+/-?
 
         !call Precaba(ib,nd,ir,rpre(ip))
         if (nBas(js) > 0) &
-          call Precabb(ib,is,js,nd,nbas(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)), &
-                       FAMO(ipcm(js)),F0SQMO(ipCM(js)),sign)
+          call Precabb(ib,is,js,nd,nbas(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)),sign)
         if (.not. timedep) then
           call SQM(Temp3,rpre(ip),nD)
 #         ifdef RS6K

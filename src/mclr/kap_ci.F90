@@ -22,8 +22,7 @@ integer nh1, nh2, ipS1
 real*8 h1(nh1), h2(nh2)
 real*8, allocatable :: R(:,:)
 real*8 rDum(1)
-integer iRC, i, j
-integer, external :: ipIN
+integer i, j
 real*8, external :: DDot_
 !                                                                      *
 !***********************************************************************
@@ -43,8 +42,8 @@ end interface
 !                                                                      *
 call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,ipS1,.true.)
 
-irc = ipin(ipS1)
-irc = ipin(ipCI)
+call ipin(ipS1)
+call ipin(ipCI)
 
 call DSCAL_(nroots*ncsf(STATE_SYM),Two,W(ipS1)%Vec,1)
 call mma_allocate(R,[0,nroots-1],[0,nroots-1],label='R')
@@ -62,9 +61,5 @@ do i=0,nroots-1
 end do
 
 call mma_deallocate(R)
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine Kap_CI

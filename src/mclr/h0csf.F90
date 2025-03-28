@@ -11,8 +11,8 @@
 ! Copyright (C) 1993, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,ECORE,NINOB,NACTOB,SCR,ISCR,NCONF,NEL,NAEL,NBEL, &
-                 IPWAY,NP1CSF,NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPQCSF,NPQCNF,DIAG,DIAGCN,INTSPC,ICOMBI,PSSIGN)
+subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,NACTOB,SCR,ISCR,NCONF,NEL,NAEL,NBEL,IPWAY,NP1CSF, &
+                 NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPQCSF,NPQCNF,DIAG,DIAGCN,INTSPC,ICOMBI,PSSIGN)
 ! Obtain H0 subspace defined by the three parameters
 ! MXP1DM,MXP2DM,MXQDM and obtain
 ! explicit representation of hamilton matrix in subspace
@@ -60,8 +60,6 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,E
 !   IPRODT : Prototype determinants (input)
 !   ICONF : List of configurations  (input)
 !   IREFSM : symmetry of considered CI space (input)
-!   ECORE : Core energy (input)
-!   NINOB : Number of inactive orbitals(input)
 !   NACTOB : Number of active orbitals (input)
 !   SCR    : Scratch array of length ????
 !   NCONF : Number of configurations of symmetry IREFSM
@@ -100,8 +98,7 @@ integer NP1CSF, NP1CNF, NP2CSF, NP2CNF, NQCSF, NQCNF, NPQCSF, NPQCNF
 real*8 DTOC(*)
 integer IPRODT(*), ICONF(*)
 integer MXP1DM, MXP2DM, MXQDM, IREFSM
-real*8 ECORE
-integer NINOB, NACTOB, NCONF, NEL, NAEL, NBEL, IPWAY
+integer NACTOB, NCONF, NEL, NAEL, NBEL, IPWAY
 real*8 DIAG(*)
 integer INTSPC, ICOMBI
 real*8 PSSIGN
@@ -344,13 +341,12 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
   ! PHP matrix
 
   !call c_f_pointer(c_loc(DIAGCN(1)),iPTR,[1])
-  call CNHCNM(H0(KLPHP),1,IPQCNF,NPCNF,IPQCNF,NPCNF,NPCSF,NPCSF,DIAGCN,ICONF,NEL,IREFSM,NAEL,NBEL,NINOB,NACTOB,ECORE,IPRODT,DTOC, &
-              INTSPC,ICOMBI,PSSIGN)
+  call CNHCNM(H0(KLPHP),1,IPQCNF,NPCNF,IPQCNF,NPCNF,NPCSF,DIAGCN,ICONF,NEL,IREFSM,NAEL,NBEL,NACTOB,IPRODT,DTOC,INTSPC,ICOMBI,PSSIGN)
 
   ! PHQ matrix
 
-  call CNHCNM(H0(KLPHQ),0,IPQCNF,NP1CNF,IPQCNF(1+NPCNF),NQCNF,NP1CSF,NQCSF,DIAGCN,ICONF,NEL,IREFSM,NAEL,NBEL,NINOB,NACTOB,ECORE, &
-              IPRODT,DTOC,INTSPC,ICOMBI,PSSIGN)
+  call CNHCNM(H0(KLPHQ),0,IPQCNF,NP1CNF,IPQCNF(1+NPCNF),NQCNF,NP1CSF,DIAGCN,ICONF,NEL,IREFSM,NAEL,NBEL,NACTOB,IPRODT,DTOC,INTSPC, &
+              ICOMBI,PSSIGN)
   !nullify(iPTR)
 
   return

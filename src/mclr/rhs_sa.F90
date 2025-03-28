@@ -172,7 +172,6 @@ subroutine PT2_SLag()
   use MCLR_Data, only: XISPSM
 
   implicit none
-  !integer opout
   real*8, allocatable :: CIL(:), CIR(:)
   integer :: i, j
   integer :: nConfL, nConfR, jR, kR, iSLag, ij, k, l, kl, ijkl, ij2, kl2
@@ -197,10 +196,10 @@ subroutine PT2_SLag()
       if (abs(vSLag) <= 1.0e-10_wp) cycle
 
       call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
-      !iRC = opout(ipCI)
+      !call opout(ipCI)
       call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
-      !iRC = opout(ipCI)
-      !iRC = ipnout(-1)
+      !call opout(ipCI)
+      !call ipnout(-1)
       !icsm = 1
       !issm = 1
       call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)

@@ -12,25 +12,25 @@
 !***********************************************************************
 
 subroutine OutPut_td(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,converged)
-!*******************************************************************
-!                                                                  *
-! Contracts the response coefficient to the hessian                *
-!                                                                  *
-! Input                                                            *
-!       iKapDisp : Disk locations of solutions to respons equation *
-!       iSigDisp : Disk locations of RHS                           *
-!       iCIDisp  : Disk locations of CI Soulutions to response     *
-!       iCISigDisp : Disk locations of RHS                         *
-!       nHess    : Length of hessian                               *
-!                                                                  *
-! Output to disk                                                   *
-!                                                                  *
-!       RespHess : Hessian etc                                     *
-!       Hess     : Hessian etc                                     *
-!                                                                  *
-! Author: Anders Bernhardsson, 1996                                *
-!         Theoretical Chemistry, University of Lund                *
-!*******************************************************************
+!***********************************************************************
+!                                                                      *
+! Contracts the response coefficient to the hessian                    *
+!                                                                      *
+! Input                                                                *
+!       iKapDisp : Disk locations of solutions to respons equation     *
+!       iSigDisp : Disk locations of RHS                               *
+!       iCIDisp  : Disk locations of CI Soulutions to response         *
+!       iCISigDisp : Disk locations of RHS                             *
+!       nHess    : Length of hessian                                   *
+!                                                                      *
+! Output to disk                                                       *
+!                                                                      *
+!       RespHess : Hessian etc                                         *
+!       Hess     : Hessian etc                                         *
+!                                                                      *
+! Author: Anders Bernhardsson, 1996                                    *
+!         Theoretical Chemistry, University of Lund                    *
+!***********************************************************************
 
 use MckDat, only: sLength
 use Arrays, only: Hss
@@ -60,7 +60,7 @@ integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1
         iRC, kDisp, kSpin, MaxI, MinI, Index, iOpt, Lu_10, nCI, ip
 real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
 real*8, external :: DDot_
-integer, external :: ipGet, ipIn, ipClose
+integer, external :: ipGet
 integer, external :: IsFreeUnit
 
 !                                                                      *
@@ -149,16 +149,16 @@ do iSym=1,nSym
     if (CI) then
       ilen = nCI
       idis = iCIDisp(iDisp)
-      irc = ipin(ipCIp1)
+      call ipin(ipCIp1)
       call dDaFile(LuTemp,2,W(ipCIp1)%Vec,iLen,iDis)
       idis = iCISigDisp(idisp)
-      irc = ipin(ipSp)
+      call ipin(ipSp)
       call dDaFile(LuTemp,2,W(ipSp)%Vec,iLen,iDis)
       idis = iRHSCIDisp(idisp)
-      irc = ipin(iprp1)
+      call ipin(iprp1)
       call dDaFile(LuTemp,2,W(iprp1)%Vec,iLen,iDis)
-      irc = ipin(ipsp)
-      irc = ipin(iprp1)
+      call ipin(ipsp)
+      call ipin(iprp1)
       do i=1,nCI
         W(ipsp)%Vec(i) = -W(ipsp)%Vec(i)-W(iprp1)%Vec(i)
       end do
@@ -193,10 +193,10 @@ do iSym=1,nSym
       if (CI) then
         ilen = nCI
         idis = iCIDisp(kDisp+ksym)
-        irc = ipin(ipCIp2)
+        call ipin(ipCIp2)
         call dDaFile(LuTemp,2,W(ipCIp2)%Vec,iLen,iDis)
 
-        irc = ipin(ipsp)
+        call ipin(ipsp)
         rTempc1 = DDot_(nCI,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
       else
         rtempc1 = Zero
@@ -208,7 +208,7 @@ do iSym=1,nSym
       if (CI) then
         ilen = nCI
         idis = iRHSCIDisp(kdisp+ksym)
-        irc = ipin(iprp2)
+        call ipin(iprp2)
         call dDaFile(LuTemp,2,W(iprp2)%Vec,iLen,iDis)
       end if
 
@@ -225,12 +225,12 @@ do iSym=1,nSym
       if (CI) then
         Fact = One
         if (kdisp == jdisp) Fact = Two
-        irc = ipin(ipCip1)
-        irc = ipin(iprp2)
+        call ipin(ipCip1)
+        call ipin(iprp2)
         rTempc2 = Fact*DDot_(nCI,W(ipCip1)%Vec,1,W(iprp2)%Vec,1)
         if (kdisp /= jdisp) then
-          irc = ipin(iprp1)
-          irc = ipin(ipCIp2)
+          call ipin(iprp1)
+          call ipin(ipCIp2)
           rtempc3 = DDot_(nCI,W(iprp1)%Vec,1,W(ipCIp2)%Vec,1)
         else
           rTempc3 = Zero
@@ -265,7 +265,7 @@ do iSym=1,nSym
   call mma_deallocate(sKap)
   call mma_deallocate(Kap2)
   call mma_deallocate(Kap1)
-  if (CI) irc = ipclose(ipcip1)
+  if (CI) call ipclose(ipcip1)
 end do
 
 call mma_allocate(Hess,nHss,Label='Hess')
@@ -275,7 +275,7 @@ call mma_allocate(ELEC,3*ndisp,Label='ELEC')
 call mma_allocate(EG,3*ndisp,Label='EG')
 call mma_allocate(ELOUT,3*ndisp,Label='ELOUT')
 
-if (iMethod == 2) irc = ipclose(-1)
+if (iMethod == 2) call ipclose(-1)
 
 !----------------------------------------------------------------------*
 !

@@ -66,7 +66,7 @@ if (.not. NewCho) then  ! Cho-MO
   MT1(:) = Zero
   MT2(:) = Zero
 
-  call R2ElInt(rkappa,MT1,MT2,focki,focka,nDens2,idSym,ReCo,Fact,jspin)
+  call R2ElInt(rkappa,MT1,MT2,focki,focka,idSym,ReCo,Fact,jspin)
 # ifdef _DEBUGPRINT_
   write(LuWr,*) 'MT1=',DDot_(nmba,MT1,1,MT1,1)
   write(LuWr,*) 'MT2=',DDot_(nmba,MT2,1,MT2,1)

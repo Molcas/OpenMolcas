@@ -31,7 +31,6 @@ character(len=288) Header
 integer idum(1)
 real*8, allocatable :: Tmp1(:), Tmp2(:)
 integer nHss, iS, iRC, iOpt, nAct, iSym, nG, nG2, iType, nMax, iDummer
-integer, external :: ipIn
 real*8 rAlphas
 
 nHss = 0
@@ -164,7 +163,7 @@ if (SPINPOL) then
   call mma_allocate(G1p,nG,Label='G1p')
   call mma_allocate(G1m,nG,Label='G1m')
   itype = 2
-  irc = ipin(ipCI)
+  call ipin(ipCI)
   call SpinDens(W(ipCI)%Vec,W(ipCI)%Vec,STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,iType)
 
   call mma_allocate(Tmp2,ndens2,Label='Tmp2')

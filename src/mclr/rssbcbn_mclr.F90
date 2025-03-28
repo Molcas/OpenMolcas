@@ -13,7 +13,7 @@
 
 subroutine RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL1,IBEL3,JAEL1,JAEL3,JBEL1,JBEL3,NAEL,NBEL,IJAGRP, &
                         IJBGRP,SB,CB,IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSMOB, &
-                        NSMST,NSMSX,NSMDX,NIA,NIB,NJA,NJB,MXPOBS,IST,CJRES,SIRES,NOPART,TimeDep)
+                        NSMSX,NIA,NIB,NJA,NJB,IST,CJRES,SIRES,NOPART,TimeDep)
 ! Contributions to sigma block (iasm iatp, ibsm ibtp) from
 ! C block (jasm jatp, jbsm, jbtp)
 !
@@ -50,9 +50,8 @@ subroutine RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL
 ! =======
 ! Scratch
 ! =======
-! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-!              largest number of orbital pairs of given symmetries and
-!              types.
+! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the largest
+!              number of orbital pairs of given symmetries and types.
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
 !              type and symmetry
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
@@ -95,14 +94,14 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
   end if
   if (NBEL >= 1) &
     call RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
+                     XINT,NSMOB,SIGN)
 
   ! Two electron part
 
   if ((IDOH2 /= 0) .and. (NBEL >= 2)) then
     !write(u6,*) 'Timedep in rssbcbn',TimeDep
-    call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,NOPART,TimeDep,ieaw)
+    call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                     XINT,NSMOB,NSMSX,SIGN,NOPART,TimeDep,ieaw)
   end if
 end if
 
@@ -131,8 +130,8 @@ if ((IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   end if
   if (JJJTRNS == 0) then
     call RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,IAEL1,IAEL3,JAEL1,JAEL3,IBEL1,IBEL3, &
-                      JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX, &
-                      NSMDX,MXPOBS,0,1,CJRES,SIRES,C2,IFACTOR,ieaw,TimeDep)
+                      JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,0,1,CJRES,SIRES,IFACTOR,ieaw, &
+                      TimeDep)
   else if (JJJTRNS == 1) then
     call TRNSPS(NIB,NIA,SB,C2)
     call DCOPY_(NIA*NIB,C2,1,SB,1)
@@ -140,8 +139,8 @@ if ((IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
     call DCOPY_(NJA*NJB,C2,1,CB,1)
 
     call RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,JbSM,JbTP,JaSM,JaTP,NJb,NJa,IJbGRP,IJaGRP,IbEL1,IbEL3,JbEL1,JbEL3,IaEL1,IaEL3, &
-                      JaEL1,JaEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST,NSMSX, &
-                      NSMDX,MXPOBS,0,1,CJRES,SIRES,C2,IFACTOR,ieaw,TimeDep)
+                      JaEL1,JaEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,0,1,CJRES,SIRES,IFACTOR,ieaw, &
+                      TimeDep)
     call TRNSPS(NIA,NIB,SB,C2)
     call DCOPY_(NIA*NIB,C2,1,SB,1)
     call TRNSPS(NJA,NJB,CB,C2)
@@ -170,13 +169,13 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
 
   SIGN = One
   call RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                   XINT,NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
+                   XINT,NSMOB,SIGN)
 
   ! alpha double excitation
 
   if ((NAEL >= 2) .and. (IDOH2 /= 0)) &
-    call RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,NOPART,TimeDep,ieaw)
+    call RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                     XINT,NSMOB,NSMSX,SIGN,NOPART,TimeDep,ieaw)
 
   ! Restore order!
   call TRNSPS(NIB,NIA,SB,C2)

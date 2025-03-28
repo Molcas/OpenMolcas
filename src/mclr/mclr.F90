@@ -83,7 +83,7 @@ integer(kind=iwp), external :: isFreeUnit
 logical :: CalcNAC_Opt = .false., MECI_via_SLAPAF = .false.
 integer(kind=iwp) :: iPL, nSymX, iSym, nISP, I, iRC, iReturn
 integer(kind=iwp) :: CMSNACStates(2)
-integer(kind=iwp), external :: ipClose, iPrintLevel
+integer(kind=iwp), external :: iPrintLevel
 real(kind=wp) :: TCPU1, TCPU2, TCPU3, TWall1, TWall2, TWall3
 
 ! This used to be after the CWTIME() functional call
@@ -414,7 +414,7 @@ if (NewCho) then
   call mma_deallocate(CMO_Inv)
 end if
 
-if (TwoStep .and. (StepType == 'RUN1')) irc = ipclose(-1)
+if (TwoStep .and. (StepType == 'RUN1')) call ipclose(-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

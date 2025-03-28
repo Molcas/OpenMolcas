@@ -20,7 +20,7 @@ subroutine INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
 
 use Str_Info, only: STR, NELEC, NOCTYP
 use stdalloc, only: mma_allocate, mma_deallocate
-use MCLR_Data, only: iDC, PLSIGN, PSSIGN
+use MCLR_Data, only: iDC, PSSIGN
 use MCLR_Data, only: IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC
 use MCLR_Data, only: ICISTR
 use MCLR_Data, only: NTOOB, NACOB
@@ -109,9 +109,8 @@ do ILOOP=1,NLOOP
     else
       LLUDIA = LUDIA
     end if
-    call CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,NACOB,DIAG,nIrrep,H1D,ISMOST(1,ISM(IISPC)),BLTP,XA,XB,SCR,JA,KA, &
-                Str(IATP)%NSTSO,Str(IBTP)%NSTSO,IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,Str(IBTP)%ISTSO,LLUDIA,ECORE,PLSIGN,PSSIGN, &
-                NTOOB,ICISTR)
+    call CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,NACOB,DIAG,nIrrep,H1D,ISMOST(1,ISM(IISPC)),BLTP,XB,JA,KA, &
+                Str(IATP)%NSTSO,Str(IBTP)%NSTSO,IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,Str(IBTP)%ISTSO,LLUDIA,ECORE,PSSIGN,NTOOB,ICISTR)
 
     if ((ICISTR <= 1) .and. (LUDIA > 0)) then
       ! Each CI space is written in one record

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,INTLST,IJKLOF,NSMOB,ICOUL)
+subroutine GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,INTLST,ICOUL)
 ! Obtain integrals
 ! ICOUL = 0 :      XINT(IK,JL) = (IJ!KL) for IXCHNG = 0
 !                              = (IJ!KL)-(IL!KJ) for IXCHNG = 1
@@ -21,10 +21,8 @@ use MCLR_Data, only: NACOB, IBTSOB, NTSOB
 
 implicit none
 real*8 XINT(*)
-integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM
+integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG
 real*8 Intlst(*)
-integer NSMOB
-integer IJKLof(NsmOB,NsmOb,NsmOB)
 integer ICOUL
 ! Local variables
 integer iOrb, jOrb, kOrb, lOrb
@@ -86,13 +84,6 @@ else if (ICOUL /= 0) then
       end do
     end do
   end do
-end if
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(IKSM)
-  call Unused_integer(JLSM)
-  call Unused_integer_array(IJKLOF)
 end if
 
 end subroutine GETINC_ABS

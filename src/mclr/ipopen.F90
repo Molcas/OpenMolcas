@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-logical function ipopen(nconf,page)
+subroutine ipopen(page)
 ! Initiate the whole lot.
 
 use ipPage
@@ -58,10 +58,4 @@ else
 
 end if
 
-ipopen = DiskBased
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nconf)
-
-end function ipopen
+end subroutine ipopen

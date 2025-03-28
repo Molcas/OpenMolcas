@@ -11,7 +11,7 @@
 ! Copyright (C) 2014, Mickael G. Delcey                                *
 !***********************************************************************
 
-subroutine Preca_cho(iB,is,js,nd,ir,rOut,nbai,nbaj,fockii,fockai,fockti,focki,focka,fock,sign,A_J,A_K,Scr,nScr,iAdr)
+subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign,A_J,nScr,iAdr)
 !***********************************************************************
 !                                                                      *
 !     This routine replaces precaii, precabi and precabb               *
@@ -32,14 +32,14 @@ use Constants, only: One, Two, Four, Eight
 use Definitions, only: wp
 
 implicit none
-integer iB, is, js, nd, ir
+integer iB, is, js, nd
 real*8 rout(nd*(nd+1)/2)
-integer nbai, nbaj
+integer nbaj
 real*8 fockii, fockai, fockti
-real*8 Fock(nbaj,nbaj), FockA(nBaj,nBaj), Focki(nbaj,nbaj)
+real*8 FockA(nBaj,nBaj), Focki(nbaj,nbaj)
 real*8 Sign
 integer nScr
-real*8 A_J(nScr), A_K(nScr), Scr(nScr)
+real*8 A_J(nScr)
 integer nTri, nO, iBB, jVert, itAA, i2, iAdr, kSym, iV, jCC, iU, jDD, ijk, lSym, nL, ii, nI, ip, jA, jB, ij
 real*8 Factor, Factor2, rDens2, rDensaii, rDensabi, rDensabb, rf, rDens, rDensaiil, rDensaiiu, rDensabil, rDensabiu, rFock, &
        rDens1, Fact
@@ -193,14 +193,5 @@ do iI=nAsh(js)+nIsh(js)+1,nBas(js)
     ip = ip+1
   end do
 end do
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(ir)
-  call Unused_integer(nbai)
-  call Unused_real_array(fock)
-  call Unused_real_array(A_K)
-  call Unused_real_array(Scr)
-end if
 
 end subroutine Preca_cho

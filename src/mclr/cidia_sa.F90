@@ -27,10 +27,10 @@ use Constants, only: Zero, One
 implicit none
 integer iSym
 real*8 ralp(*), S(*)
-integer iSM(1), LSPC(1), iSPC(1), IDUM(1)
-integer nSpc, iAMCmp, i, nSD, iPDCSFI, iRC, iPDSDI, ipDIAI, iP2, J
+integer iSM(1), LSPC(1), iSPC(1)
+integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, ipDIAI, iP2, J
 real*8 ECAS, WE
-integer, external :: ipClose, ipGet, ipIn
+integer, external :: ipGet
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we dont want to let world see the work of the Danish
@@ -51,12 +51,12 @@ if (isym == state_sym) i = 1
 if (NOCSF == 0) then
   nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
   ipdcsfi = ipget(nsd)
-  irc = ipin(ipdcsfi)
+  call ipin(ipdcsfi)
   ipDSDi = ipGet(nSD)
 else
   nsd = max(ncsf(isym),nint(XISPSM(ISYM,1)))
   ipDSDi = ipGet(nsd)
-  irc = ipin(ipdsdi)
+  call ipin(ipdsdi)
 end if
 
 if (nocsf == 0) then
@@ -66,22 +66,22 @@ else
 end if
 LSPC(1) = nSD
 
-irc = ipin(ipDSDi)
+call ipin(ipDSDi)
 call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
 
-if (Nocsf /= 1) call CSDIAG_MCLR(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT,0,0,IDUM)
+if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT)
 
-if (nocsf == 0) irc = ipClose(ipDSDi)
+if (nocsf == 0) call ipClose(ipDSDi)
 ! Calculate explicit part of hamiltonian
 
 ipdia = ipdiai
 
 if (FANCY_PRECONDITIONER) then
-  irc = ipin(ipdia)
+  call ipin(ipdia)
   call SA_PREC(S,W(ipdia)%Vec)
 else
-  irc = ipin(ipdiai)
-  irc = ipin(ipCI)
+  call ipin(ipdiai)
+  call ipin(ipCI)
   ip2 = 1
   do j=1,nroots
     ECAS = ERASSCF(j)
@@ -93,10 +93,5 @@ else
     end do
   end do
 end if
-
-return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine CIDIA_sa

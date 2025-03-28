@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine r2elint(rKappa,rMO1,rmo2,FockI,FockA,nF,iDSym,sign,Fact,jspin)
+subroutine r2elint(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin)
 !***********************************************************************
 !
 ! Constructs the one index transformed Fock-matrixes
@@ -31,7 +31,7 @@ use Constants, only: Zero, One, Two
 
 implicit none
 real*8 rKappa(nDens2), rMO1(nMba), rmo2(*), FockI(nDens2), FockA(nDens2)
-integer nF, iDSym, jSpin
+integer iDSym, jSpin
 real*8 sign, Fact
 logical lFI, lFA, lMo
 real*8, allocatable :: T1(:), Tmp2(:), T3(:), T4(:), DIL(:), DI(:), DIR(:), FI(:), DAL(:), DAR(:), DA(:), FA(:)
@@ -113,7 +113,7 @@ end if
 ! from one index tranformation of contracted indexes
 
 FacR = Fact
-call Read2_2(rmo1,rmo2,FockI,FockA,T1,imem,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo,CMO)
+call Read2_2(rmo1,rmo2,FockI,FockA,T1,imem,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo)
 
 !call recprt('1 FockI','',FockI,nDens2,1)
 !call recprt('1 FockA','',FockA,nDens2,1)
@@ -157,8 +157,5 @@ call mma_deallocate(T4)
 call mma_deallocate(T3)
 call mma_deallocate(Tmp2)
 call mma_deallocate(T1)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nF)
 
 end subroutine r2elint

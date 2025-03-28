@@ -127,7 +127,7 @@ do iSP=1,NSYM
         call TRAMO_MCLR(INTBUF,Buffer(LW1:LW1+NW1-1),NW1,Buffer(LW2:LW2+NW2-1),NW2,Buffer(LW3:LW3+NW3-1),NW3, &
                         Buffer(LW4:LW4+NW4-1),NW4,Buffer(LW5:LW5+NW5-1),NW5,nBP,nBQ,nBR,nBS,iSP,iSQ,iSR,iSS,nAP,nAQ,nAR,nAS, &
                         CMO(ipCM(iSP)+nBP*nDP),CMO(ipCM(iSQ)+nBQ*nDQ),CMO(ipCM(iSR)+nBR*nDR),CMO(ipCM(iSS)+nBS*nDS),iAD13,iAD14, &
-                        iAD23,iAD24,iAD34,TocC(1,iSPQ,iSRS),Hlf1(:,1),Hlf1(:,2),Hlf1(:,3),Hlf1(:,4),LIOTAB)
+                        iAD23,iAD24,iAD34,Hlf1(:,1),Hlf1(:,2),Hlf1(:,3),Hlf1(:,4),LIOTAB)
 
         ! End of loop over quadruples of symmetries
       end do

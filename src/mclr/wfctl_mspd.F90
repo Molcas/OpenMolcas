@@ -43,7 +43,6 @@ integer iPL
 #include "warnings.h"
 logical CI
 character(len=8) Fmt2
-integer opOut
 logical lPrint, cnvrgd
 real*8 rchc(mxroot)
 real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Fancy(:)
@@ -52,9 +51,8 @@ external IsFreeUnit
 character(len=16) :: VecName
 real*8 R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, rBeta, Res
 real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, iRC, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, &
-        jSpin, i
-integer, external :: ipClose, ipGet, ipIn, ipOut, ipNOut
+integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin, i
+integer, external :: ipGet
 integer, external :: nPre
 
 !----------------------------------------------------------------------*
@@ -91,7 +89,7 @@ CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(ieor(iSym-1,State_Sym-1)+1,State_sym,.false.)
+call InCSFSD(ieor(iSym-1,State_Sym-1)+1,State_sym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
@@ -120,7 +118,7 @@ if (isNAC) override = .true.
 call mma_allocate(FANCY,nroots**3,Label='FANCY')
 call CIDia_SA(State_Sym,rCHC,Fancy)
 
-irc = ipOut(ipdia)
+call ipOut(ipdia)
 
 ! Allocate disk/memory space
 
@@ -138,18 +136,18 @@ ipCId = ipGet(nconf1*nroots)
 
 npre2 = npre(isym)
 ipPre2 = ipGet(npre2)
-irc = ipIn(ipPre2)
+call ipIn(ipPre2)
 if (TwoStep .and. (StepType == 'RUN2')) then
   ! fetch data from LuQDAT and skip the call to "Prec"
   call ddafile(LuQDAT,2,W(ipPre2)%Vec,npre2,iaddressQDAT)
 else
   call Prec(W(ipPre2)%Vec,isym)
-  irc = ipOut(ippre2)
+  call ipOut(ippre2)
 end if
 if (TwoStep .and. (StepType == 'RUN1')) then
   ! save the computed data in "Prec" to LuQDAT and skip the
   ! following part of this function
-  irc = ipIn(ipPre2)
+  call ipIn(ipPre2)
   call ddafile(LuQDAT,1,W(ipPre2)%Vec,npre2,iaddressQDAT)
 else
 
@@ -228,7 +226,7 @@ else
       end if
     end if
 
-    irc = opOut(ipci)
+    call opOut(ipci)
 
     if (lprint) write(u6,*) '       Iteration       Delta           Res(kappa)       Res(CI)          DeltaK           DeltaC'
     iLen = nDensC
@@ -238,21 +236,21 @@ else
     if (debug) write(u6,*) 'Hi how about r1',r1
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
-    irc = ipIn(ipCIT)
-    !irc = ipIn(ipST)
-    irc = ipIn(ipCID)
+    call ipIn(ipCIT)
+    !call ipIn(ipST)
+    call ipIn(ipCID)
     call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
     ! already initialized in rhs_mspdft
     !call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%Vec,1)
     !call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
     !call dcopy_(nConf1*nroots,W(ipST)%Vec,1,W(ipCID)%Vec,1)
-    irc = ipOut(ipCIT)
+    call ipOut(ipCIT)
     call DSCAL_(nDensC,-One,Sigma,1)
 
-    irc = ipIn(ipPre2)
+    call ipIn(ipPre2)
     call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Kappa,nDens2+6,Temp3,nDens2+6,isym,iter)
 
-    irc = opOut(ippre2)
+    call opOut(ippre2)
     r2 = ddot_(ndensc,Kappa,1,Kappa,1)
     if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
     if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
@@ -265,7 +263,7 @@ else
     call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
     call dcopy_(nConf1*nroots,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
     deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-    irc = ipOut(ipcid)
+    call ipOut(ipcid)
     deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
     Kappa(1:nDens) = Zero
     delta = deltac+deltaK
@@ -288,8 +286,8 @@ else
       rAlphaK = Zero
       rAlphaK = ddot_(nDensC,Temp4,1,dKappa,1)
       rAlphaC = Zero
-      irc = ipIn(ipS1)
-      irc = ipIn(ipCId)
+      call ipIn(ipS1)
+      call ipIn(ipCId)
       rAlphaC = ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
       rAlpha = delta/(rAlphaK+rAlphaC)
 
@@ -301,15 +299,15 @@ else
       call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
       resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
       resci = Zero
-      irc = ipIn(ipCIT)
+      call ipIn(ipCIT)
       call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
-      irc = ipOut(ipcit)
+      call ipOut(ipcit)
       ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
-      irc = ipIn(ipS1)
-      irc = ipIn(ipST)
+      call ipIn(ipS1)
+      call ipIn(ipST)
       call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
-      irc = opOut(ipS1)
-      irc = ipIn(ipST)
+      call opOut(ipS1)
+      call ipIn(ipST)
       resci = sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
 
       !----------------------------------------------------------------*
@@ -318,16 +316,16 @@ else
       !    -1
       ! S=M  Sigma
 
-      irc = opOut(ipcid)
+      call opOut(ipcid)
 
-      irc = ipIn(ipS2)
+      call ipIn(ipS2)
       call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
-      irc = opOut(ipci)
-      irc = opOut(ipdia)
+      call opOut(ipci)
+      call opOut(ipdia)
 
-      irc = ipIn(ipPre2)
+      call ipIn(ipPre2)
       call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
-      irc = opOut(ippre2)
+      call opOut(ippre2)
 
       !----------------------------------------------------------------*
       !      s:Sigma (k+1)     s:Sigma (k+1)
@@ -339,7 +337,7 @@ else
       ! dKappa=s+Beta*dKappa
 
       deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-      irc = ipOut(ipST)
+      call ipOut(ipST)
 
       deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
       if (.not. CI) then
@@ -350,13 +348,13 @@ else
       else
         rbeta = (deltac+deltaK)/delta
         delta = deltac+deltaK
-        irc = ipIn(ipCID)
+        call ipIn(ipCID)
         call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
         call DScal_(nDensC,rBeta,dKappa,1)
         call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
         call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
-        irc = opOut(ipS2)
-        irc = ipOut(ipCID)
+        call opOut(ipS2)
+        call ipOut(ipCID)
       end if
 
       !  ######  #    #  #####        #####    ####    ####
@@ -395,7 +393,7 @@ else
       fail = .true.
     else
       if (iPL >= 2) write(u6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
-      irc = ipnout(-1)
+      call ipnout(-1)
     end if
 
     if (iPL >= 2) write(u6,*)
@@ -407,14 +405,14 @@ else
     ilen = nconf1*nroots
     iCIDisp(iDisp) = iDis
 
-    irc = ipin(ipCIT)
+    call ipin(ipCIT)
     call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
 
     ! MGD This last call seems unused, so I comment it
 
     !call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp4,ipS2)
     iCISigDisp(iDisp) = iDis
-    irc = ipin(ipST)
+    call ipin(ipST)
     call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
   end do ! iDisp
 
@@ -432,8 +430,8 @@ end if
 
 call mma_deallocate(Fancy)
 
-irc = ipclose(ipdia)
-if (.not. CI) irc = ipclose(ipPre2)
+call ipclose(ipdia)
+if (.not. CI) call ipclose(ipPre2)
 
 call Exp_Close()
 
@@ -449,9 +447,5 @@ end if
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine WfCtl_MSPD

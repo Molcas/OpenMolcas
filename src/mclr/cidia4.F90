@@ -11,8 +11,8 @@
 ! Copyright (C) 1991,1994, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine CIDIA4(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,ISMOST,IBLTP,XA,XB,SCR,RJ,RK,NSSOA,NSSOB,IOCOC,NOCTPA,NOCTPB,ISSOA, &
-                  ISSOB,LUDIA,ECORE,PLSIGN,PSSIGN,NTOOB,ICISTR)
+subroutine CIDIA4(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,ISMOST,IBLTP,XB,RJ,RK,NSSOA,NSSOB,IOCOC,NOCTPA,NOCTPB,ISSOA,ISSOB,LUDIA, &
+                  ECORE,PSSIGN,NTOOB,ICISTR)
 ! Calculate determinant diagonal
 ! Turbo-ras version
 !
@@ -37,7 +37,7 @@ dimension IOCOC(NOCTPA,NOCTPB)
 dimension ISMOST(*), IBLTP(*)
 ! Scratch
 dimension RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-dimension XA(NORB), XB(NORB), SCR(2*NORB)
+dimension XB(NORB)
 ! Output
 dimension DIAG(*)
 dimension IDUM(1)
@@ -140,14 +140,6 @@ end do
 if (ICISTR >= 2) then
   IDUM(1) = -1
   call ITODS(IDUM,1,-1,LUDIA)
-end if
-
-return
-! Avoid unused argument lines
-if (.false.) then
-  call Unused_real_array(XA)
-  call Unused_real_array(SCR)
-  call Unused_real(PLSIGN)
 end if
 
 end subroutine CIDIA4

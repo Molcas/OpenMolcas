@@ -191,7 +191,7 @@ do M=1,nRoots
     if (K > M) Coeff = -Coeff
     call CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
     call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
-    !irc=ipin(ipwslam)
+    !call ipin(ipwslam)
     call dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
   end do
   ! Computing (2)

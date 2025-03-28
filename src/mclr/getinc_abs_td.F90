@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,INTLST,IJKLOF,NSMOB,ICTL)
+subroutine GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,INTLST,ICTL)
 ! Obtain integrals
 ! ICOUL = 0 :      XINT(IK,JL) = (IJ!KL) for IXCHNG = 0
 !                              = (IJ!KL)-(IL!KJ) for IXCHNG = 1
@@ -23,8 +23,6 @@ implicit none
 real*8 XINT(*)
 integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM
 real*8 Intlst(*)
-integer NSMOB
-integer IJKLof(NsmOB,NsmOb,NsmOB)
 integer ICTL
 ! Local variables
 integer iOrb, jOrb, kOrb, lOrb
@@ -95,8 +93,5 @@ else if (ICTL == 4) then
 else
   call Abend()
 end if
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(IJKLOF)
 
 end subroutine GETINC_ABS_td

@@ -13,7 +13,7 @@
 
 !#define _DEBUGPRINT_
 subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
-                        CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS)
+                        CSCR,I1,XI1S,X,NSMOB)
 ! Contributions to two-electron density matrix from column excitations
 !
 ! GAS version, '96, Jeppe Olsen
@@ -21,24 +21,23 @@ subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 ! =====
 ! Input
 ! =====
-! RHO2  : two body density matrix to be updated
-! NACOB : Number of active orbitals
+! RHO2        : two body density matrix to be updated
+! NACOB       : Number of active orbitals
 ! ISCSM,ISCTP : Symmetry and type of sigma columns
 ! ICCSM,ICCTP : Symmetry and type of C     columns
-! IGRP : String group of columns
-! NROW : Number of rows in S and C block
-! NGAS : Number of active spaces
-! ISEL : Number of electrons per AS for S block
-! ICEL : Number of electrons per AS for C block
-! CB   : Input C block
-! MXPNGAS : Max number of AS spaces (program parameter)
-! NOBPTS  : Number of orbitals per type and symmetry
-! IOBPTS : base for orbitals of given type and symmetry
-! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
-!       single excitations, double excitations
-! MAXI   : Largest Number of "spectator strings" treated simultaneously
-! MAXK   : Largest number of inner resolution strings treated at simult.
+! IGRP        : String group of columns
+! NROW        : Number of rows in S and C block
+! NGAS        : Number of active spaces
+! ISEL        : Number of electrons per AS for S block
+! ICEL        : Number of electrons per AS for C block
+! CB          : Input C block
+! MXPNGAS     : Max number of AS spaces (program parameter)
+! NOBPTS      : Number of orbitals per type and symmetry
+! IOBPTS      : base for orbitals of given type and symmetry
+! IBORB       : Orbitals of given type and symmetry
+! NSMOB,NSMDX : Number of symmetries of orbitals, double excitations
+! MAXI        : Largest Number of "spectator strings" treated simultaneously
+! MAXK        : Largest number of inner resolution strings treated at simult.
 !
 ! ======
 ! Output
@@ -48,12 +47,9 @@ subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 ! =======
 ! Scratch
 ! =======
-!
-! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-!              largest number of orbital pairs of given symmetries and
-!              types.
-! I1, XI1S, I2,XI2S : For holding creations/annihilations
-!              type and symmetry
+! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the largest
+!              number of orbital pairs of given symmetries and types.
+! I1, XI1S   : For holding creations/annihilations type and symmetry
 !
 ! Jeppe Olsen, Fall of 96
 
@@ -73,7 +69,7 @@ dimension CB(*), SB(*)
 dimension RHO2(*), X(*)
 ! Scatch
 dimension SSCR(*), CSCR(*)
-dimension I1(MAXK,*), XI1S(MAXK,*), I2(MAXK,*), XI2S(MAXK,*)
+dimension I1(MAXK,*), XI1S(MAXK,*)
 ! Local arrays
 dimension ITP(3*3), JTP(3*3), KTP(3*3), LTP(3*3)
 
@@ -268,15 +264,5 @@ do IDXTP=1,NDXTP
     end do
   end do
 end do
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(I2)
-  call Unused_real_array(XI2S)
-  call Unused_integer(NSMST)
-  call Unused_integer(NSMSX)
-  call Unused_integer(MXPOBS)
-end if
 
 end subroutine GSBBD2A_MCLR

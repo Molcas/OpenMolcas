@@ -34,7 +34,8 @@ integer IICL(*), IIOP(*), IIOC(NORB1+NORB2+NORB3)
 logical Test
 integer ILOOP, ILOOP2, NCNF, NORBT, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, MINCL1, NOP, ITYPE, NCL, ICL, IFRSTC, &
         IORB, IPLACE, IPRORB, NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, &
-        ISYM, NTYP, ISYMCN_MCLR
+        ISYM, NTYP
+integer, external :: ISYMCN_MCLR
 #ifdef _DEBUGPRINT_
 integer I, ICSM
 #endif
@@ -284,7 +285,7 @@ outer: do NOP=MINOP,MAXOP,2
       end do
       if ((IEL1 >= NEL1MN) .and. (IEL3 <= NEL3MX)) then
         ! Spatial symmetry
-        ISYM = ISYMCN_MCLR(IICL,IIOP,NCL,NOP)
+        ISYM = ISYMCN_MCLR(IIOP,NOP)
 
 #       ifdef _DEBUGPRINT_
         write(u6,*) ' ISYM : ',ISYM

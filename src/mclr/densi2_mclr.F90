@@ -29,7 +29,7 @@ use MCLR_Data, only: IDC, PSSIGN
 use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC
 use MCLR_Data, only: MAXI, MAXK, ICISTR
 use MCLR_Data, only: NACOB, IBTSOB, NOBPTS, NTSOB
-use DetDim, only: MXPOBS, MXINKA, MXPNGAS
+use DetDim, only: MXINKA, MXPNGAS
 use CandS, only: ICSM, ISSM, ISSPC, ICSPC
 use input_mclr, only: nIrrep, nsMOB
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -49,7 +49,7 @@ integer LUL, LUR, ieaw, n1, n2
 ! Definition of L and R is picked up from CANDS
 ! with L being S and  R being C
 ! Before I forget it:
-integer iSXSTSM(1), IDUMMY(1)
+integer IDUMMY(1)
 integer, allocatable :: SIOIO(:), CIOIO(:), SBLTP(:), CBLTP(:)
 integer, allocatable :: IX(:,:), OOS(:,:)
 real*8, allocatable :: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
@@ -153,7 +153,7 @@ call IAIBCM_MCLR(MNR1IC(ICSPC),MXR3IC(ICSPC),NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IAT
 
 IATP2 = min(IATP+2,ITYP_Dummy)
 IBTP2 = min(IBTP+2,ITYP_Dummy)
-call MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nIrrep,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,IATP+1,Str(IATP+1)%NSTSO,NOCTYP(IATP+1), &
+call MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nIrrep,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,Str(IATP+1)%NSTSO,NOCTYP(IATP+1), &
             Str(IBTP+1)%NSTSO,NOCTYP(IBTP+1),NSMOB,3,3,NTSOB,MAXK,Str(IATP2)%NSTSO,NOCTYP(IATP2),Str(IBTP2)%NSTSO,NOCTYP(IBTP2), &
             Str(IATP)%EL123,Str(IBTP)%EL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
 
@@ -196,18 +196,16 @@ end if
 
 if (ICISTR == 1) then
   call GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,CIOIO,SIOIO,ISMOST(1,ICSM),ISMOST(1,ISSM),CBLTP,SBLTP,NACOB,Str(IATP)%NSTSO, &
-                   Str(IATP)%ISTSO,Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,nIrrep,NSMOB, &
-                   nIrrep,nIrrep,MXPNGAS,NTSOB,IBTSOB,MAXK,MAXI,LSCR1,LSCR1,C2(LSCR2+1:LSCR12),C2(1:LSCR2),iSXSTSM,NGAS, &
-                   Str(IATP)%EL123,Str(IBTP)%EL123,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7),OOS(:,8), &
-                   OOS(:,9),OOS(:,10),IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),IX(:,3),XIXS(:,3),IX(:,4),XIXS(:,4),INSCR,MXPOBS,RHO1S, &
-                   LUL,LUR,PSSIGN,PSSIGN,RHO1P,XNATO,ieaw,n1,n2)
+                   Str(IBTP)%NSTSO,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,nIrrep,NSMOB,MXPNGAS,NTSOB,IBTSOB,MAXK,MAXI, &
+                   LSCR1,LSCR1,C2(LSCR2+1:LSCR12),C2(1:LSCR2),NGAS,Str(IATP)%EL123,Str(IBTP)%EL123,IDC,OOS(:,1),OOS(:,2),OOS(:,3), &
+                   OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7),OOS(:,8),OOS(:,9),OOS(:,10),IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),IX(:,3), &
+                   XIXS(:,3),IX(:,4),XIXS(:,4),INSCR,RHO1S,LUL,LUR,PSSIGN,PSSIGN,ieaw,n1,n2)
 else if (ICISTR >= 2) then
   call GASDN2_MCLR(I12,RHO1,RHO2,R,L,R,L,C2,CIOIO,SIOIO,ISMOST(1,ICSM),ISMOST(1,ISSM),CBLTP,SBLTP,NACOB,Str(IATP)%NSTSO, &
-                   Str(IATP)%ISTSO,Str(IBTP)%NSTSO,Str(IBTP)%ISTSO,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,nIrrep,NSMOB, &
-                   nIrrep,nIrrep,MXPNGAS,NTSOB,IBTSOB,MAXK,MAXI,LSCR1,LSCR1,C2(LSCR2+1:LSCR12),C2(1:LSCR2),iSXSTSM,NGAS, &
-                   Str(IATP)%EL123,Str(IBTP)%EL123,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7),OOS(:,8), &
-                   OOS(:,9),OOS(:,10),IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),IX(:,3),XIXS(:,3),IX(:,4),XIXS(:,4),INSCR,MXPOBS,RHO1S, &
-                   LUL,LUR,PSSIGN,PSSIGN,RHO1P,XNATO,ieaw,n1,n2)
+                   Str(IBTP)%NSTSO,NAEL,IATP,NBEL,IBTP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,nIrrep,NSMOB,MXPNGAS,NTSOB,IBTSOB,MAXK,MAXI, &
+                   LSCR1,LSCR1,C2(LSCR2+1:LSCR12),C2(1:LSCR2),NGAS,Str(IATP)%EL123,Str(IBTP)%EL123,IDC,OOS(:,1),OOS(:,2),OOS(:,3), &
+                   OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7),OOS(:,8),OOS(:,9),OOS(:,10),IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),IX(:,3), &
+                   XIXS(:,3),IX(:,4),XIXS(:,4),INSCR,RHO1S,LUL,LUR,PSSIGN,PSSIGN,ieaw,n1,n2)
 end if
 
 if ((IDC /= 1) .and. (ICISTR == 1)) then

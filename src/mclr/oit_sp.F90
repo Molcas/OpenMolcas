@@ -51,7 +51,7 @@ Q(:) = Zero
 Q1(:) = Zero
 call Unc(rkappa,K,isym,r1)
 
-call R2ElInt_SP(K,rm1,rm2,FockI,FAtemp,nDens2,iSym,ReCo,Fact,jspin,D,FA)
+call R2ElInt_SP(K,rm1,rm2,FockI,FAtemp,iSym,ReCo,Fact,jspin,D,FA)
 
 call dcopy_(ndens2,[Zero],0,Fock,1)
 

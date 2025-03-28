@@ -25,12 +25,10 @@ implicit none
 logical Response
 integer iLS, iRS, iL, iR
 real*8 rP(*), rD(*)
-integer opout
 real*8, allocatable :: De(:), Pe(:), CIL(:), CIR(:)
 integer i, j, itri
-integer nDim, nConfL, nConfR, iRC
+integer nDim, nConfL, nConfR
 integer IA, JA, KA, LA, ij1, ij2, kl1, kl2
-integer, external :: ipIn, ipIn1, ipnOut
 ! Statement function
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
@@ -83,14 +81,14 @@ if (nocsf == 0) then
   nConfL = max(ncsf(il),nint(xispsm(il,1)))
   nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
   call mma_allocate(CIL,nConfL,Label='CIL')
-  irc = ipin1(iLS,nconfL)
+  call ipin1(iLS,nconfL)
   call CSF2SD(W(iLS)%Vec,CIL,iL)
-  irc = opout(iLs)
+  call opout(iLs)
   call mma_allocate(CIR,nConfR,Label='CIR')
-  irc = ipin1(iRS,nconfR)
+  call ipin1(iRS,nconfR)
   call CSF2SD(W(iRS)%Vec,CIR,iR)
-  irc = opout(irs)
-  irc = ipnout(-1)
+  call opout(irs)
+  call ipnout(-1)
   icsm = iR
   issm = iL
   call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
@@ -136,8 +134,8 @@ if (nocsf == 0) then
 else
   issm = iL
   icsm = iR
-  irc = ipin(iLS)
-  irc = ipin(iRS)
+  call ipin(iLS)
+  call ipin(iRS)
   call Densi2_mclr(2,De,Pe,W(iLS)%Vec,W(iRS)%Vec,0,0,0,n1dens,n2dens)
   if (.not. timedep) then
     if (response) then
@@ -170,8 +168,8 @@ else
     call dcopy_(n1dens,De,1,rD,1)
     iCSM = iL
     iSSM = iR
-    irc = ipin(iRS)
-    irc = ipin(iLS)
+    call ipin(iRS)
+    call ipin(iLS)
     call Densi2_mclr(2,De,Pe,W(iRS)%Vec,W(iLS)%Vec,0,0,0,n1dens,n2dens)
     call daxpy_(n2Dens,-One,Pe,1,rp,1)
     call daxpy_(n1Dens,-One,De,1,rD,1)
@@ -186,9 +184,5 @@ if (doDMRG) then  ! yma
   n1dens = ndim**2
   n2dens = n1dens*(n1dens+1)/2
 end if
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine CIDens

@@ -29,12 +29,11 @@ character(len=1) NT
 logical Have_2_el
 ! For the timeindep case ipS1 and ipS2 will be half as long
 ! Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
-integer kic(2), opout
+integer kic(2)
 real*8, allocatable :: CIDET(:)
 integer i, j, itri
-integer nDet, iOp, iS, jS, iRC
+integer nDet, iOp, iS, jS
 integer ij, ji, k, l, kl, lk, ijkl, jilk
-integer, external :: ipIN, ipIN1, ipNOUT
 ! Statement function
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
@@ -117,10 +116,10 @@ if (TIMEDEP) then
 
   ! CIDET is here because sigmavec will destroy the first input vector.
   call mma_allocate(CIDET,nDet,Label='CIDET')
-  irc = ipin(ipCI1)
+  call ipin(ipCI1)
   call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
 
-  irc = ipin(ipci2)
+  call ipin(ipci2)
   call SigmaVec(CIDET,W(ipci2)%Vec,kic)
 
   if (NT == 'N') then
@@ -131,16 +130,16 @@ if (TIMEDEP) then
   if (NT == 'S') then
 
     ! Symmetric operator, no transpose of integrals needed!
-    irc = ipin(ipCI1)
+    call ipin(ipCI1)
     call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+nConf1),1,CIDET,1)
 
-    irc = ipin(ipci2)
+    call ipin(ipci2)
     call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
 
   else  ! NT /= 'S'
 
     ! The operator is not sym --> transpose integrals! NT /= S
-    irc = ipin(ipCI1)
+    call ipin(ipCI1)
     call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
 
     call mma_allocate(TI1,ndens2,Label='TI1')
@@ -172,7 +171,7 @@ if (TIMEDEP) then
     KAIN1 => TI1
     KINT2 => TI2
 
-    irc = ipin(ipci2)
+    call ipin(ipci2)
     call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
 
     nullify(KAIN1,KINT2)
@@ -192,17 +191,17 @@ else   ! If not timedep
 
   if (.not. page) then
     call mma_allocate(CIDET,nDet,Label='CIDET')
-    irc = ipin(ipCI1)
+    call ipin(ipCI1)
     call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
-    irc = ipin(ipci2)
+    call ipin(ipci2)
     call SigmaVec(CIDET,W(ipci2)%Vec,kic)
     call mma_deallocate(CIDET)
   else
-    irc = ipnout(ipci2)
-    irc = ipin1(ipCI1,ndet)
-    irc = ipin(ipci2)
+    call ipnout(ipci2)
+    call ipin1(ipCI1,ndet)
+    call ipin(ipci2)
     call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
-    irc = opout(ipci1)
+    call opout(ipci1)
   end if
   !                                                                    *
   !*********************************************************************
@@ -211,9 +210,5 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine CISigma_td

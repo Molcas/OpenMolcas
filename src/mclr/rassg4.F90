@@ -12,10 +12,10 @@
 !               1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NORB1,NORB2,NORB3,NACOB,NSSOA,ISSOA,NSSOB,ISSOB,NAEL, &
-                  IAGRP,NBEL,IBGRP,NOCTPA,NOCTPB,NSMST,NSMOB,NSMSX,NSMDX,NTSOB,IBTSOB,ITSOB,MAXIJ,MAXK,MAXI,ICSMOD,IINMOD,LI,LC, &
-                  LS,XINT,CSCR,SSCR,SXSTSM,IAEL1,IAEL3,IBEL1,IBEL3,IDC,ISOOSC,NSOOSC,ISOOSE,NSOOSE,ICOOSC,NCOOSC,ICOOSE,NCOOSE, &
-                  IASOOS,IACOOS,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,ISTRFL,PS,LUC,LUHC,IST,CJRES,SIRES,NOPARt,TimeDep)
+subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,NOCTPA,NOCTPB,NSMST, &
+                  NSMOB,NSMSX,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LC,LS,XINT,CSCR,SSCR,IAEL1,IAEL3,IBEL1,IBEL3,IDC,ISOOSC,NSOOSC,ISOOSE, &
+                  NSOOSE,ICOOSC,NCOOSC,ICOOSE,NCOOSE,IASOOS,IACOOS,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,ISTRFL,PS,LUC,LUHC,IST, &
+                  CJRES,SIRES,NOPARt,TimeDep)
 ! LOOP OVER SIGMA AND C VECTOR
 !
 ! Jeppe Olsen, Winter of 1991
@@ -32,32 +32,20 @@ subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NORB1,N
 ! ICBLTP : Block types for C
 ! ISBLTP : Block types for S
 !
-! NORB1(2,3) : Number of orbitals in RAS1(2,3)
-! NACOB : Number of active orbitals
 ! H     : Active one-body Hamiltonian with core contributions
 ! C     : CI vector
 ! CB    : Array able to hold largest STT block of C
 ! NSSOA : Number of strings per type and symmetry for alpha strings
-! ISSOA : Offset for strings if given type and symmetry, alpha strings
 ! NAEL  : Number of active alpha electrons
 ! NSSOB : Number of strings per type and symmetry for beta strings
-! ISSOB : Offset for strings if given type and symmetry, beta strings
 ! NBEL  : Number of active beta electrons
 ! NTSOB : Number of orbitals per type and symmetry
 ! ITSOB : Orbitals of given type and symmetry
 ! IBTSOB: Offset for ITSOB
 !
-! MAXIJ : Largest allowed number of orbital pairs treated simultaneously
 ! MAXK  : Largest number of N-2,N-1 strings treated simultaneously
 ! MAXI  : Max number of N strings treated simultaneously
 !
-! ICSMOD : 1 => Single symmetry blocks of C and S are treated
-!               simultaneously
-! ICSMOD : 2 => Single symmetry-occ-occ blocks of C and S are treated
-!               simultaneously
-! IINMOD :
-!
-! LI : Length of scratch array for integrals
 ! LC : Length of scratch array for C
 ! LS : Length of scratch array for S
 ! XINT : Scratch array for integrals
@@ -76,22 +64,20 @@ subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NORB1,N
 ! A triplet one electron operator is defined as E(aa)-E(bb)
 ! A triplet two-electron operator is defined as (E(aa)+E(bb))(E(aa)-E(bb))
 
-use DetDim, only: MXPORB, MXPOBS
+use DetDim, only: MXPORB
 use Constants, only: Zero, One
 
 implicit none
 ! General input
 integer NAEL, IAGRP, NBEL, IBGRP, NOCTPA, NOCTPB
-integer NSMST, NSMOB, NSMSX, NSMDX
-integer MAXIJ, MAXK, MAXI, ICSMOD, IINMOD, LI, LC, LS
+integer NSMST, NSMOB, NSMSX
+integer MAXK, MAXI, LC, LS
 integer ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB)
 integer ICSMOS(NSMST), ISSMOS(NSMST)
 integer ICBLTP(NSMST), ISBLTP(NSMST)
-integer NORB1, NORB2, NORB3, NACOB
-integer NSSOA(NOCTPA,nsmst), ISSOA(NOCTPA,nsmst)
-integer NSSOB(NOCTPB,nsmst), ISSOB(NOCTPB,nsmst)
+integer NSSOA(NOCTPA,nsmst)
+integer NSSOB(NOCTPB,nsmst)
 integer NTSOB(3,NSMOB), IBTSOB(3,NSMOB), ITSOB(mxporb)
-integer SXSTSM(NSMSX,NSMST)
 integer IAEL1(*), IAEL3(*)
 integer IBEL1(*), IBEL3(*)
 integer IDC
@@ -194,7 +180,7 @@ outer: do
       ! C CI vector in
       ! CB Block of CI vector out
       if (ICOCOC(IC1TA,IC1TB) == 1) &
-        call GSTTBL_MCLR(C,CB(ICOFF),IC1TA,IC1SM,IC1TB,ICBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,PL,LUC,C2)
+        call GSTTBL_MCLR(C,CB(ICOFF),IC1TA,IC1SM,IC1TB,ICBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ICOOSC,IDC,PL,LUC,C2)
 
       ICOFF = ICOFF+NCOOSE(IC1TA,IC1TB,IC1SM)
       if (ICBLK /= NCBLK) call NXTBLK_MCLR(IC1TA,IC1TB,IC1SM,NOCTPA,NOCTPB,NSMST,ICBLTP,IDC,NONEWC,ICOCOC)
@@ -253,8 +239,8 @@ outer: do
                 !write(u6,*) 'I call rssbcbn_td'
                 call RSSBCBN_td(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,IAEL1(IATP),IAEL3(IATP),IBEL1(IBTP),IBEL3(IBTP), &
                                 IAEL1(LLATP),IAEL3(LLATP),IBEL1(LLBTP),IBEL3(LLBTP),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF), &
-                                IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSMOB,NSMST, &
-                                NSMSX,NSMDX,NIA,NIB,NLLA,NLLB,MXPOBS,IST,CJRES,SIRES,NOPART,TimeDep)
+                                IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSMOB,NSMSX, &
+                                NIA,NIB,NLLA,NLLB,IST,CJRES,SIRES,NOPART,TimeDep)
 
                 !call RECPRT('SSCR in rassg4',' ',SSCR,5,1) !yma
                 !call xflush(u6)
@@ -262,7 +248,7 @@ outer: do
                 call RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,LLASM,LLATP,LLBSM,LLBTP,IAEL1(IATP),IAEL3(IATP),IBEL1(IBTP),IBEL3(IBTP), &
                                   IAEL1(LLATP),IAEL3(LLATP),IBEL1(LLBTP),IBEL3(LLBTP),NAEL,NBEL,IAGRP,IBGRP,SB(ISOFF),CB(ICOFF), &
                                   IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSMOB, &
-                                  NSMST,NSMSX,NSMDX,NIA,NIB,NLLA,NLLB,MXPOBS,IST,CJRES,SIRES,NOPART,TimeDep)
+                                  NSMSX,NIA,NIB,NLLA,NLLB,IST,CJRES,SIRES,NOPART,TimeDep)
               end if
 
             end do
@@ -301,7 +287,7 @@ outer: do
   do ISBLK=1,NSBLK
     I1BSM = ISSMOS(I1ASM)
     if (ISOCOC(I1TA,I1TB) == 1) &
-      call PSTTBL_MCLR(S,SB(IOFF),I1TA,I1ASM,I1TB,I1BSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ISOOSC,2,IDC,LUHC,C2)
+      call PSTTBL_MCLR(S,SB(IOFF),I1TA,I1ASM,I1TB,I1BSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ISOOSC,2,IDC,LUHC,C2)
     IOFF = IOFF+NSOOSE(I1TA,I1TB,I1ASM)
     if (ISBLK /= NSBLK) call NXTBLK_MCLR(I1TA,I1TB,I1ASM,NOCTPA,NOCTPB,NSMST,ISBLTP,IDC,NONEWS,ISOCOC)
   end do
@@ -312,21 +298,6 @@ end do outer
 if (LUHC > 0) then
   DUM(1) = -1
   call ITODS(DUM,1,LBLK,LUHC)
-end if
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NORB1)
-  call Unused_integer(NORB2)
-  call Unused_integer(NORB3)
-  call Unused_integer(NACOB)
-  call Unused_integer_array(ISSOA)
-  call Unused_integer_array(ISSOB)
-  call Unused_integer(MAXIJ)
-  call Unused_integer(ICSMOD)
-  call Unused_integer(IINMOD)
-  call Unused_integer(LI)
-  call Unused_integer_array(SXSTSM)
 end if
 
 end subroutine RASSG4

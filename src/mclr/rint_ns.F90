@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin,rie)
+subroutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin)
 !                              ~
 !     Constructs  F  = <0|[E  ,H]|0>
 ! added in rinttd ( + <0|[[E  , Kappa],H]|0> )
@@ -36,7 +36,7 @@ use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh
 implicit none
 real*8 rkappa(nDens2), rMO(*), Fock(nDens2), FockI(ndens2)
 integer iDSym, jSpin
-real*8 reco, rie
+real*8 reco
 real*8, allocatable :: FA(:), MT1(:), MT2(:), QA(:), QB(:)
 real*8 Fact, Dij
 integer iS, jS, iAsh, jAsh, ipF, ipFI
@@ -52,7 +52,7 @@ call mma_allocate(MT2,nmba,Label='MT2')
 MT1(:) = Zero
 MT2(:) = Zero
 
-call R2ElInt_ns(rkappa,MT1,MT2,focki,FA,nDens2,idSym,ReCo,Fact,jspin)
+call R2ElInt_ns(rkappa,MT1,MT2,focki,FA,idSym,ReCo,Fact,jspin)
 
 !if (idsym == 2) then
 !  jpCMO = 1
@@ -156,8 +156,5 @@ call PickMO_td(MT1,rmo,idsym)
 call mma_deallocate(MT2)
 call mma_deallocate(MT1)
 call mma_deallocate(FA)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_real(rie)
 
 end subroutine RInt_ns

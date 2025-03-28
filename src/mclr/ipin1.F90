@@ -11,9 +11,9 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-integer function ipin1(ii,nn)
-! Object: return pointer to vector ii with a length of nn and
-!         make the vector available in memory as W(ii)%Vec
+subroutine ipin1(ii,nn)
+! Object: retrieve vector ii with a length of nn and
+!         make it available in memory as W(ii)%Vec
 
 use ipPage
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -47,8 +47,6 @@ if (Status(ii) == In_Memory) then
     n(ii) = nn
   end if
 
-  ip1 = ii
-
 else if (Status(ii) == On_Disk) then
 
   ! ii is on disk
@@ -64,15 +62,8 @@ else if (Status(ii) == On_Disk) then
   call dDafile(Lu_ip,read,W(ii)%Vec,nnn,idisk)
   Status(ii) = In_Memory
 
-  ip1 = ii
+else if (Status(ii) /= Null_Vector) then
 
-else if (Status(ii) == Null_Vector) then
-
-  ip1 = -1
-
-else
-
-  ip1 = -1
   write(u6,*)
   write(u6,*) 'ipIn1: illegal Status(ii)'
   write(u6,*) 'ii=',ii
@@ -81,8 +72,4 @@ else
 
 end if
 
-ipin1 = ip1
-
-return
-
-end function ipin1
+end subroutine ipin1

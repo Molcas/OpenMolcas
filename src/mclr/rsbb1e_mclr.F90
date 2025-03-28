@@ -12,27 +12,25 @@
 !***********************************************************************
 
 subroutine RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1, &
-                       XI1S,H,NSMOB,NSMST,NSMSX,MXPOBS,SIGN)
+                       XI1S,H,NSMOB,SIGN)
 ! One electron excitations on column strings
 !
 ! =====
 ! Input
 ! =====
-!
 ! ISCSM,ISCTP : Symmetry and type of sigma columns
 ! ICCSM,ICCTP : Symmetry and type of C     columns
-! IGRP : String group of columns
-! NROW : Number of rows in S and C block
-! ISEL1(3) : Number of electrons in RAS1(3) for S block
-! ICEL1(3) : Number of electrons in RAS1(3) for C block
-! CB   : Input C block
-! NTSOB  : Number of orbitals per type and symmetry
-! IBTSOB : base for orbitals of given type and symmetry
-! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
-!       single excitations, double excitations
-! MAXI   : Largest Number of "spectator strings" treated simultaneously
-! MAXK   : Largest number of inner resolution strings treated at simult.
+! IGRP        : String group of columns
+! NROW        : Number of rows in S and C block
+! ISEL1(3)    : Number of electrons in RAS1(3) for S block
+! ICEL1(3)    : Number of electrons in RAS1(3) for C block
+! CB          : Input C block
+! NTSOB       : Number of orbitals per type and symmetry
+! IBTSOB      : base for orbitals of given type and symmetry
+! IBORB       : Orbitals of given type and symmetry
+! NSMOB,NSMDX : Number of symmetries of orbitals, double excitations
+! MAXI        : Largest Number of "spectator strings" treated simultaneously
+! MAXK        : Largest number of inner resolution strings treated at simult.
 !
 ! ======
 ! Output
@@ -42,13 +40,11 @@ subroutine RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 ! =======
 ! Scratch
 ! =======
-!
-! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-!              largest number of orbital pairs of given symmetries and
-!              types.
+! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the largest
+!              number of orbital pairs of given symmetries and types.
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
 !              type and symmetry
-! H : Space for one electron integrals
+! H          : Space for one electron integrals
 !
 ! Jeppe Olsen, Winter of 1991
 
@@ -143,13 +139,5 @@ do IJTP=1,NSXTP
   end do
   ! (end of loop over symmetries)
 end do
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NSMST)
-  call Unused_integer(NSMSX)
-  call Unused_integer(MXPOBS)
-end if
 
 end subroutine RSBB1E_MCLR

@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precabi(ib,is,js,ir,nd,rOut,nba,focki,focka,fock,sign,A_J,A_K,Scr,nScr)
+subroutine Precabi(ib,is,js,nd,rOut,nba,focki,focka,sign,A_J,A_K,Scr,nScr)
 !***********************************************************************
 !                                          [2]                         *
 !     Calculates the diagonal submatrix of E    that couple            *
@@ -39,10 +39,10 @@ use input_mclr, only: nSym, nAsh, nIsh, nOrb, nBas
 use Constants, only: Two, Four, Eight
 
 implicit none
-integer ib, is, js, ir, nd
+integer ib, is, js, nd
 real*8 rOut(*)
 integer nba
-real*8 Fock(nba,nba), Focki(nba,nba), FockA(nba,nba)
+real*8 Focki(nba,nba), FockA(nba,nba)
 real*8 Sign
 integer nScr
 real*8 A_J(nScr), A_K(nScr), Scr(nScr)
@@ -110,10 +110,5 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(ir)
-  call Unused_real_array(fock)
-end if
 
 end subroutine Precabi

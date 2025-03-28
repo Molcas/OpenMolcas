@@ -11,11 +11,11 @@
 ! Copyright (C) 2014, Mickael G. Delcey                                *
 !***********************************************************************
 
-subroutine Preci_cho(iB,iS,jS,nd,rOut,nbai,nbaj,fockii,fockai,fockti,focki,focka,fock,sign,A_J,A_K,Scr,nScr,iAdr)
+subroutine Preci_cho(jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,sign,A_J,nScr,iAdr)
 !***********************************************************************
 !                                                                      *
 !     This routine remplaces preciaa, preciba and precibb              *
-!     in case the new Cholesky alrgorithm is used,                     *
+!     in case the new Cholesky algorithm is used,                      *
 !     that is if only (ii|ab) and (ia|ib) integrals were computed      *
 !                                                                      *
 !     The code should be slightly more efficient as the integrals      *
@@ -31,14 +31,14 @@ use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
 use Constants, only: One, Two, Three, Four
 
 implicit none
-integer iB, iS, jS, nd
+integer jS, nd
 real*8 rout(*)
-integer nbai, nbaj
-real*8 fockii, fockai, fockti
+integer nbaj
+real*8 fockii, fockai
 real*8 focki(nbaj,nbaj), fock(nbaj,nbaj), focka(nbaj,nbaj)
 real*8 sign
 integer nScr
-real*8 A_J(nScr), A_K(nScr), Scr(nScr)
+real*8 A_J(nScr)
 integer iAdr
 integer nTri, nO, jVert, nVirt, i1, ijk, iSym, nVirt2, jC, jjC, jD, jjD, ip1, jA, jjA, jB, jBB, jAA, iBC, iAC, ip, iVB, kB, nlB, &
         ilB, lB, jjB, jCC
@@ -184,15 +184,5 @@ do kB=nIsh(jS)+nAsh(jS),nOrb(jS)-1
   end do
 end do
 !end if
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iB)
-  call Unused_integer(iS)
-  call Unused_integer(nbai)
-  call Unused_real(fockti)
-  call Unused_real_array(A_K)
-  call Unused_real_array(Scr)
-end if
 
 end subroutine Preci_cho

@@ -24,12 +24,10 @@ implicit none
 logical RSP
 integer iLS, iRS, iL, iR
 real*8 rP(*), rD(*)
-integer opout
 real*8, allocatable :: De(:), Pe(:), CIL(:), CIR(:)
 integer i, j, iTri
-integer nDim, nConfL, nConfR, iRC
+integer nDim, nConfL, nConfR
 integer IA, JA, KA, LA, ij1, ij2, kl1, kl2
-integer, external :: ipIn, ipnOut
 ! Statement function
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
@@ -86,13 +84,13 @@ call mma_allocate(CIL,nConfL,Label='CIL')
 call mma_allocate(CIR,nConfR,Label='CIR')
 
 do i=0,nroots-1
-  irc = ipin(iLS)
-  irc = ipin(iRS)
+  call ipin(iLS)
+  call ipin(iRS)
   call CSF2SD(W(iLS)%Vec(1+i*ncsf(il)),CIL,iL)
-  irc = opout(iLS)
+  call opout(iLS)
   call CSF2SD(W(iRS)%Vec(1+i*ncsf(ir)),CIR,iR)
-  irc = opout(iRS)
-  irc = ipnout(-1)
+  call opout(iRS)
+  call ipnout(-1)
   icsm = iR
   issm = iL
   call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
@@ -135,9 +133,5 @@ if (doDMRG) then
   n1dens = ndim**2
   n2dens = n1dens*(n1dens+1)/2
 end if
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine CIDens_sa

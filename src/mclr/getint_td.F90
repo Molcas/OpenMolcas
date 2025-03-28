@@ -13,9 +13,8 @@
 subroutine GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,ICTL,ieaw)
 ! Outer routine for accessing integral block
 
-use Arrays, only: pInt2, KINT2, KINT2a
+use Arrays, only: KINT2, KINT2a
 use MCLR_Data, only: Square
-use input_mclr, only: nsMOB
 #ifdef _DEBUGPRINT_
 use MCLR_Data, only: NOBPTS
 use Definitions, only: u6
@@ -38,12 +37,12 @@ if (.not. square) then
   if (ictl == 3) ICOUL = 1
   if (ictl == 4) IXCHNG = 1
   if (ieaw /= 0) then
-    call GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2a,pINT2,NSMOB,ICOUL,ieaw)
+    call GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2a,ICOUL,ieaw)
   else
-    call GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2,pINT2,NSMOB,ICOUL,ieaw)
+    call GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2,ICOUL,ieaw)
   end if
 else
-  call GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,KINT2,pINT2,NSMOB,ICTL)
+  call GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,KINT2,ICTL)
 
 end if
 

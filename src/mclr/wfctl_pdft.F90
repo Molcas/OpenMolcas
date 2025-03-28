@@ -42,7 +42,6 @@ integer iPL
 #include "rasdim.fh"
 logical CI
 character(len=8) Fmt2
-integer opOut
 logical lPrint, cnvrgd
 real*8 rchc(mxroot)
 real*8 rDum(1)
@@ -54,9 +53,9 @@ real*8, allocatable :: lmroots(:), lmroots_new(:), Kap_New(:), Kap_New_Temp(:)
 real*8, allocatable :: WFOrb(:), P2WF(:), P2PDFT(:)
 real*8 R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, rBeta, Res, TRoot, rE, Diff, WScale
 real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, iRC, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, &
-        jSpin, i, nTri, nOrbAct, kSym, iOff, iS, jS, j, ji, ij, nG1, nG2
-integer, external :: ipClose, ipGet, ipIn, ipOut, ipNOut
+integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin, &
+        i, nTri, nOrbAct, kSym, iOff, iS, jS, j, ji, ij, nG1, nG2
+integer, external :: ipGet
 integer, external :: nPre
 !                                                                      *
 !***********************************************************************
@@ -108,7 +107,7 @@ CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(ieor(iSym-1,State_Sym-1)+1,State_sym,.false.)
+call InCSFSD(ieor(iSym-1,State_Sym-1)+1,State_sym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
@@ -133,7 +132,7 @@ call mma_allocate(Fancy,nRoots**3,Label='Fancy')
 ! What should rCHC be?  is it computed with E(mcscf) or E(pdft)?
 !____________________
 call CIDia_SA(State_Sym,rCHC,Fancy)
-irc = ipOut(ipdia)
+call ipOut(ipdia)
 
 ! Allocate disk/memory space
 
@@ -152,9 +151,9 @@ ipCID = ipGet(nconf1*nroots)
 npre2 = npre(isym)
 ipPre2 = ipGet(npre2)
 
-irc = ipIn(ipPre2)
+call ipIn(ipPre2)
 call Prec(W(ipPre2)%Vec,isym)
-irc = ipOut(ippre2)
+call ipOut(ippre2)
 
 ! OK START WORKING
 
@@ -254,8 +253,8 @@ do iDisp=1,nDisp
   call mma_deallocate(FMO2t)
 
   troot = (irlxroot-1)
-  irc = ipin(ipST)
-  irc = ipin(ipCI)
+  call ipin(ipST)
+  call ipin(ipCI)
   do i=0,nroots-1
     if (i == troot) then
       call Dscal_(nconf1,(1/weight(i+1)),W(ipST)%Vec(1+i*nconf1),1)
@@ -377,7 +376,7 @@ do iDisp=1,nDisp
   ! preconditioner inverse?
   !___________________________________________________________
 
-  irc = opOut(ipci)
+  call opOut(ipci)
 
   if (lprint) write(u6,*) '       Iteration       Delta       Res(kappa)  Res(CI)     DeltaK      DeltaC'
   iLen = nDensC
@@ -389,22 +388,22 @@ do iDisp=1,nDisp
   if (debug) write(u6,*) 'Hi how about r1',r1
   call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
-  irc = ipIn(ipCIT)
+  call ipIn(ipCIT)
   call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
-  irc = ipIn(ipCID)
+  call ipIn(ipCID)
   call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
-  irc = ipOut(ipCIT)
+  call ipOut(ipCIT)
   call DSCAL_(nDensC,-One,Sigma,1)
 
   deltaC = Zero
   !AMS _________________________________________________________
   ! I need to read in the CI portion of the RHS here.
   if (CI) then
-    irc = ipIn(ipS2)
+    call ipIn(ipS2)
     call DMinvCI_sa(ipST,W(ipS2)%Vec,Fancy)
   end if
-  irc = ipin(ipST)
-  irc = ipin(ipCId)
+  call ipin(ipST)
+  call ipin(ipCId)
   call dcopy_(nconf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
   !*******************
   !TRS
@@ -416,7 +415,7 @@ do iDisp=1,nDisp
   Kap_New(:) = Zero
   Kap_New_Temp(:) = Zero
 
-  irc = ipin(ipCI)
+  call ipin(ipCI)
   call DgeMV_('T',nconf1,nroots,One,W(ipCI)%Vec,nconf1,W(ipCId)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
   ! SA-SA rotations w/in SA space in eigen state basis
   if (debug) call recprt('lmroots',' ',lmroots,1,nroots)
@@ -452,7 +451,7 @@ do iDisp=1,nDisp
     call recprt('lmroots',' ',lmroots,1,nroots)
   end if
 
-  irc = ipin(ipS1)
+  call ipin(ipS1)
   call DgeMV_('T',nconf1,nroots,One,W(ipCI)%Vec,nconf1,W(ipS1)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
 
   if (debug) then
@@ -461,24 +460,24 @@ do iDisp=1,nDisp
   end if
   ! Initializing some of the elements of the PCG
   ! Modifying the response
-  irc = ipIn(ipS1)
-  irc = ipIn(ipST)
+  call ipIn(ipS1)
+  call ipIn(ipST)
   call DaXpY_(nConf1*nroots,-One,W(ipS1)%Vec,1,W(ipST)%Vec,1)
 
   ! Kap part put into  sigma
   call DaxPy_(nDensC,-One,kap_new_temp,1,Sigma,1)
-  irc = ipIn(ipCId)
-  irc = ipIn(ipCIT)
+  call ipIn(ipCId)
+  call ipIn(ipCIT)
   call DaXpY_(nConf1*nroots,One,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
 
   call dcopy_(nconf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
 
-  irc = opOut(ipci)
-  irc = opOut(ipdia)
+  call opOut(ipci)
+  call opOut(ipdia)
 
-  irc = ipIn(ipPre2)
+  call ipIn(ipPre2)
   call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,dKappa,nDens2+6,Sc1,nDens2+6,iSym,iter)
-  irc = opOut(ippre2)
+  call opOut(ippre2)
   r2 = ddot_(ndensc,dKappa,1,dKappa,1)
   if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
@@ -487,8 +486,8 @@ do iDisp=1,nDisp
   call mma_deallocate(lmroots_new)
   !TRS
   !*********************
-  irc = ipin(ipCI)
-  irc = ipin(ipST)
+  call ipin(ipCI)
+  call ipin(ipST)
   call DgeMV_('T',nconf1,nroots,One,W(ipci)%Vec,nconf1,W(ipST)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
 
   if (debug) then
@@ -498,15 +497,15 @@ do iDisp=1,nDisp
   call mma_deallocate(lmroots)
 
   if (CI) then
-    irc = ipin(ipCId)
+    call ipin(ipCId)
     deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
-    irc = ipout(ipcid)
+    call ipout(ipcid)
   else
     deltaC = Zero
   end if
   !AMS_______________________________________________
 
-  irc = ipOut(ipcid)
+  call ipOut(ipcid)
   deltaK = ddot_(nDensC,dKappa,1,Sigma,1)
   delta = deltac+deltaK
   !write(u6,*) 'deltac and deltak',deltac,deltak
@@ -541,8 +540,8 @@ do iDisp=1,nDisp
     rAlphaK = Zero
     rAlphaK = ddot_(nDensC,Temp4,1,dKappa,1)
     rAlphaC = Zero
-    irc = ipIn(ipS1)
-    irc = ipIn(ipCId)
+    call ipIn(ipS1)
+    call ipIn(ipCId)
     rAlphaC = ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
 
     rAlpha = delta/(rAlphaK+rAlphaC)
@@ -556,14 +555,14 @@ do iDisp=1,nDisp
     resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
 
     resci = Zero
-    irc = ipIn(ipCIT)
+    call ipIn(ipCIT)
     call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
-    irc = ipOut(ipCIT)
+    call ipOut(ipCIT)
     ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
-    irc = ipIn(ipS1)
-    irc = ipIn(ipST)
+    call ipIn(ipS1)
+    call ipIn(ipST)
     call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
-    irc = opOut(ipS1)
+    call opOut(ipS1)
     resci = sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
 
     !------------------------------------------------------------------*
@@ -571,17 +570,17 @@ do iDisp=1,nDisp
     !    -1
     ! S=M  Sigma
 
-    irc = opOut(ipcid)
+    call opOut(ipcid)
 
-    irc = ipIn(ipS2)
+    call ipIn(ipS2)
     call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
 
-    irc = opOut(ipci)
-    irc = opOut(ipdia)
+    call opOut(ipci)
+    call opOut(ipdia)
 
-    irc = ipIn(ipPre2)
+    call ipIn(ipPre2)
     call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
-    irc = opOut(ippre2)
+    call opOut(ippre2)
 
     !------------------------------------------------------------------*
     !      s:Sigma (k+1)     s:Sigma (k+1)
@@ -592,11 +591,11 @@ do iDisp=1,nDisp
     !
     ! dKappa=s+Beta*dKappa
 
-    irc = ipIn(ipST)
-    irc = ipIn(ipS2)
+    call ipIn(ipST)
+    call ipIn(ipS2)
     deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
 
-    irc = ipOut(ipST)
+    call ipOut(ipST)
 
     deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
     if (.not. CI) then
@@ -608,14 +607,14 @@ do iDisp=1,nDisp
       rbeta = (deltac+deltaK)/delta
       delta = deltac+deltaK
 
-      irc = ipIn(ipCID)
+      call ipIn(ipCID)
       call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
       call DScal_(nDensC,rBeta,dKappa,1)
-      irc = ipIn(ipS2)
+      call ipIn(ipS2)
       call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
       call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
-      irc = opOut(ipS2)
-      irc = ipOut(ipCID)
+      call opOut(ipS2)
+      call ipOut(ipCID)
     end if
 
     !  ######  #    #  #####        #####    ####    ####
@@ -657,7 +656,7 @@ do iDisp=1,nDisp
       write(u6,Fmt2//'I7,7X,F12.7,F12.7,F12.7,F12.7,F12.7)') iter,delta/delta0,resk,resci,deltac,deltak
       write(u6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
     end if
-    irc = ipnout(-1)
+    call ipnout(-1)
   end if
 
   if (iPL >= 2) write(u6,*)
@@ -667,7 +666,7 @@ do iDisp=1,nDisp
     do i=1,ndens2
       write(u6,*) Kappa(i)
     end do
-    irc = ipin(ipCIT)
+    call ipin(ipCIT)
     !call dcopy_(nconf1*nroots,Zero,0,W(ipCIT)%Vec,1)
     write(u6,*) 'cit'
     do i=1,nconf1*nroots
@@ -684,14 +683,14 @@ do iDisp=1,nDisp
   ilen = nconf1*nroots
   iCIDisp(iDisp) = iDis
 
-  irc = ipin(ipCIT)
+  call ipin(ipCIT)
   call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
 
   !MGD This last call seems unused, so I comment it
 
   !call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp4,ipS2)
   iCISigDisp(iDisp) = iDis
-  irc = ipin(ipST)
+  call ipin(ipST)
   call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
 end do
 
@@ -706,8 +705,8 @@ call mma_deallocate(Fancy)
 ! Free all memory and remove from disk all data
 ! related to this symmetry
 
-irc = ipclose(ipdia)
-if (.not. CI) irc = ipclose(ipPre2)
+call ipclose(ipdia)
+if (.not. CI) call ipclose(ipPre2)
 
 call Exp_Close()
 
@@ -723,9 +722,5 @@ end if
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine WfCtl_pdft

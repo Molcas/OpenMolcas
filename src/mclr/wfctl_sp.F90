@@ -37,16 +37,15 @@ integer iKapDisp(nDisp), isigDisp(nDisp)
 integer iCIDisp(nDisp), iCIsigDisp(nDisp)
 integer iRHSDisp(nDisp), iRHSCIDisp(nDisp)
 character(len=8) Fmt2
-integer opout
 logical lPrint, cnvrgd
 real*8 rdum(1)
 real*8 d_0
 real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), Dens(:), &
                        Pens(:), rmoaa(:), rmoaa2(:), Pre2(:)
-integer lPaper, lLine, Left, iDis, nConf3, iRC, ipS1, ipS2, ipST, ipCIT, ipCID, iDisp, iLen, Iter, i1, j1
+integer lPaper, lLine, Left, iDis, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, iDisp, iLen, Iter, i1, j1
 real*8 DeltaC, DeltaK, Delta, Delta0, rGrad, Ec, rAlphaC, rAlphaK, ResK, ResCI, rBeta, Res, rCHC
 real*8, external :: DDot_
-integer, external :: ipClose, ipGet, ipIn, ipIn1, ipNOut, ipOut
+integer, external :: ipGet
 !----------------------------------------------------------------------*
 interface
   subroutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
@@ -78,7 +77,7 @@ lprint = .false.
 nconf1 = 0
 
 if (iand(kprint,2) == 2) lprint = .true.
-if (iMethod == 2) call InCSFSD(State_Sym,State_sym,.false.)
+if (iMethod == 2) call InCSFSD(State_Sym,State_sym)
 
 nconf1 = ncsf(State_Sym)
 nconf3 = nint(xispsm(State_SYM,1))
@@ -89,7 +88,7 @@ call Setup_MCLR(1)
 
 if (imethod > 0) then
   if (nconf1 > 1) call CIDia_MCLR(State_Sym,rCHC)
-  irc = ipout(ipdia)
+  call ipout(ipdia)
 
   ! Allocate disk/memory space
 
@@ -142,7 +141,7 @@ end if
 
 !call Pre_SP(Pre2,1)
 call FockGen_sp(Zero,G1m,G2mp,SFock,Temp4,1)
-irc = ipin(ipST)
+call ipin(ipST)
 call dcopy_(nconf1,[Zero],0,W(ipST)%Vec,1)
 
 if (lprint) write(u6,*) '       Iteration         Delta     Res(kappa) Res(CI)'
@@ -153,11 +152,11 @@ call DSCAL_(ndensc,-sqrt(OneHalf)*dble(ms2p),Sigma,1)
 call UnCompress(Sigma,Temp4,1)
 call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 if (iMethod == 2) then
-  irc = ipin(ipCIT)
+  call ipin(ipCIT)
   call dcopy_(nConf1,[Zero],0,W(ipCIT)%Vec,1)
 end if
-irc = ipout(ipcit)
-irc = ipin(ipST)
+call ipout(ipcit)
+call ipin(ipST)
 if (iMethod == 2) then
   ilen = nconf1
   iRHSCIDisp(iDisp) = iDis
@@ -168,19 +167,19 @@ call DSCAL_(nDensC,-One,Sigma,1)
 
 call DMInvKap_sp(Sigma,dKappa,1)
 
-irc = ipin(ipCId)
+call ipin(ipCId)
 if (nconf1 > 1) then
   call DMinvCI(ipST,W(ipCId)%Vec,rCHC,1)
 else
-  irc = ipin(ipST)
+  call ipin(ipST)
   call dcopy_(nconf1,W(ipST)%Vec,1,W(ipCid)%Vec,1)
 end if
 
 if ((iMethod == 2) .and. (nconf1 /= 0)) then
-  irc = ipin(ipST)
-  irc = ipin(ipCId)
+  call ipin(ipST)
+  call ipin(ipCId)
   deltaC = ddot_(nConf1,W(ipST)%Vec,1,W(ipCId)%Vec,1)
-  irc = ipout(ipcid)
+  call ipout(ipcid)
 else
   deltac = Zero
 end if
@@ -203,10 +202,10 @@ do
     dKappa(1:nDens2) = Zero
     dKappa(i1) = One
   else
-    irc = ipin(ipCID)
+    call ipin(ipCID)
     W(ipCID)%Vec(1:nConf1) = Zero
     W(ipCID)%Vec(i1) = One
-    irc = ipout(ipcid)
+    call ipout(ipcid)
   end if
   !************************************************************
 
@@ -214,31 +213,31 @@ do
 
   if ((i1 > 0) .and. (j1 > 0)) write(u6,*) 'Kap_sig',Sc2(j1)
   if (nconf1 > 1) then
-    irc = opout(-1)
+    call opout(-1)
     call CISigma(1,State_Sym,state_sym,Temp4,nDens2,rmoaa,size(rmoaa),rmoaa2,size(rmoaa2),ipCI,ipS1,.true.)
-    irc = opout(-1)
-    irc = ipin(ipCI)
-    irc = ipin(ipS1)
+    call opout(-1)
+    call ipin(ipCI)
+    call ipin(ipS1)
     rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
     call daxpy_(nConf1,-rgrad,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
     call dscal_(nconf1,-rms*sqrt(OneHalf)*Two,W(ipS1)%Vec,1)
 
     if ((i1 > 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS1)%Vec(j1)
 
-    irc = opout(-1)
+    call opout(-1)
     if (nconf1 > 1) then
       call CISigma(0,State_Sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,.true.)
-      irc = opout(-1)
+      call opout(-1)
       EC = rin_ene+potnuc-ERASSCF(1)
 
-      irc = ipin(ipCId)
-      irc = ipin(ipS2)
+      call ipin(ipCId)
+      call ipin(ipS2)
       call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
       call DSCAL_(nConf1,Two,W(ipS2)%Vec,1)
       if ((i1 < 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS2)%Vec(j1)
 
-      irc = ipin(ipCI)
-      irc = ipin(ipCid)
+      call ipin(ipCI)
+      call ipin(ipCid)
       call SpinDens(W(ipCI)%Vec,W(ipCid)%Vec,State_Sym,State_sym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
 
       d_0 = ddot_(nconf1,W(ipCid)%Vec,1,W(ipci)%Vec,1)
@@ -274,11 +273,11 @@ do
   end if
   call dcopy_(nDens,dKappa,1,Temp2,1)
   if (nconf1 > 1) then
-    irc = ipin1(ipS1,nconf1)
-    irc = ipin1(ipS2,nconf1)
+    call ipin1(ipS1,nconf1)
+    call ipin1(ipS2,nconf1)
     call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
   else
-    irc = ipin1(ipS1,nconf1)
+    call ipin1(ipS1,nconf1)
     W(ipS1)%Vec(1:nconf1) = Zero
   end if
 
@@ -305,8 +304,8 @@ do
   rAlphaK = Zero
   rAlphaK = ddot_(nDensC,Temp4,1,Temp2,1)
   if (nconf1 /= 0) then
-    irc = ipin(ipS1)
-    irc = ipin(ipCId)
+    call ipin(ipS1)
+    call ipin(ipCId)
     rAlphaC = ddot_(nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
   end if
   rAlpha = delta/(rAlphaK+ralphaC)
@@ -321,15 +320,15 @@ do
   resk = sqrt(ddot_(nDensC,Temp4,1,Temp4,1))
   resci = Zero
   if (nconf1 /= 0) then
-    irc = ipin(ipCId)
-    irc = ipin(ipCIT)
+    call ipin(ipCId)
+    call ipin(ipCIT)
     call DaXpY_(nConf1,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
-    irc = ipout(ipcit)
-    irc = ipin1(ipST,nconf1)
-    irc = ipin(ipS1)
+    call ipout(ipcit)
+    call ipin1(ipST,nconf1)
+    call ipin(ipS1)
     call DaXpY_(nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
-    irc = opout(ipS1)
-    irc = ipin(ipST)
+    call opout(ipS1)
+    call ipin(ipST)
     resci = sqrt(ddot_(nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
   end if
 
@@ -337,17 +336,17 @@ do
   !    -1
   ! S=M  Sigma
 
-  irc = opout(ipcid)
-  irc = ipin(ipS2)
+  call opout(ipcid)
+  call ipin(ipS2)
   if (nconf1 > 1) then
     call DMinvCI(ipST,W(ipS2)%Vec,rCHC,1)
   else
-    irc = ipin(ipST)
+    call ipin(ipST)
     call dcopy_(nconf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
   end if
 
-  irc = opout(ipci)
-  irc = opout(ipdia)
+  call opout(ipci)
+  call opout(ipdia)
 
   call DMInvKap_sp(Sigma,Sc2,1)
 
@@ -361,10 +360,10 @@ do
   ! dKappa=s+Beta*dKappa
 
   if ((iMethod == 2) .and. (nconf1 /= 0)) then
-    irc = ipin(ipST)
-    irc = ipin(ipS2)
+    call ipin(ipST)
+    call ipin(ipS2)
     deltaC = ddot_(nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
-    irc = ipout(ipST)
+    call ipout(ipST)
   else
     deltaC = Zero
   end if
@@ -378,14 +377,14 @@ do
   else
     rbeta = (deltac+deltaK)/delta
     delta = deltac+deltaK
-    irc = ipin(ipCID)
+    call ipin(ipCID)
     call DScal_(nConf1,rBeta,W(ipCID)%Vec,1)
     call DScal_(nDensC,rBeta,Temp2,1)
-    irc = ipin(ipS2)
+    call ipin(ipS2)
     call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
     call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
-    irc = opout(ipS2)
-    irc = ipout(ipCID)
+    call opout(ipS2)
+    call ipout(ipCID)
   end if
 
   !    ######  #    #  #####        #####    ####    ####
@@ -425,7 +424,7 @@ if (.not. cnvrgd) then
   fail = .true.
 else
   write(u6,Fmt2//'A,I4,A,I4,A)') 'Perturbation no: ',idisp,' converged in ',iter-1,' steps.'
-  irc = ipnout(-1)
+  call ipnout(-1)
 end if
 write(u6,*)
 iLen = ndensC
@@ -436,10 +435,10 @@ call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 if (iMethod == 2) then
   ilen = nconf1
   iCIDisp(iDisp) = iDis
-  irc = ipin(ipCIT)
+  call ipin(ipCIT)
   call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
   iCISigDisp(iDisp) = iDis
-  irc = ipin(ipST)
+  call ipin(ipST)
   call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
 end if
 
@@ -463,7 +462,7 @@ end if
 ! Free all memory and remove from disk all data
 ! related to this symmetry
 
-if (imethod == 2) irc = ipclose(ipci)
+if (imethod == 2) call ipclose(ipci)
 
 call Exp_Close()
 
@@ -475,9 +474,5 @@ end if
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine WfCtl_sp

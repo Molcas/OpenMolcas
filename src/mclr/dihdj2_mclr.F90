@@ -11,8 +11,8 @@
 ! Copyright (C) 1989,1993, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine DIHDJ2_MCLR(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,jWORK,LWORK,NORB,HAMIL,ISYM,NINOB,ECORE,ICOMBI,PSIGN,IASTRM, &
-                       IBSTRM,JASTRM,JBSTRM,IGENSG,IASGN,IBSGN,JASGN,JBSGN,LIA,LIB,NDIF0,NDIF1,NDIF2)
+subroutine DIHDJ2_MCLR(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,jWORK,NORB,HAMIL,ISYM,ECORE,ICOMBI,PSIGN,IASTRM,IBSTRM, &
+                       JASTRM,JBSTRM,IGENSG,IASGN,IBSGN,JASGN,JBSGN,LIA,LIB,NDIF0,NDIF1,NDIF2)
 ! A set of left hand side determinants defined by string numbers
 ! IASTR and IBSTR and a set of right hand side determinants
 ! defined by JASTR and JBSTR are given.
@@ -409,12 +409,5 @@ do JDET=1,NJDET
     end do
   end do
 end do
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(LWORK)
-  call Unused_integer(NINOB)
-end if
 
 end subroutine DIHDJ2_MCLR

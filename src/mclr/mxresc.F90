@@ -9,8 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MXRESC(IAB,IACLS,IBCLS,NOCTPA,NOCTPB,NSMST,NSSOA,NSSOB,KCLS,KSSOA,KOCTPA,KSSOB,KOCTPB,NSMOB,MXPTOB,NTPOB,NTSOB,MXPKA, &
-                  K2SSOA,K2OCTPA,K2SSOB,K2OCTPB,NAEL123,NBEL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
+subroutine MXRESC(IAB,IACLS,IBCLS,NOCTPA,NOCTPB,NSMST,NSSOA,NSSOB,KSSOA,KOCTPA,KSSOB,KOCTPB,NSMOB,MXPTOB,NTPOB,NTSOB,MXPKA,K2SSOA, &
+                  K2OCTPA,K2SSOB,K2OCTPB,NAEL123,NBEL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
 ! Find largest dimension of matrix C(Ka,Ib,J)
 ! Find largest dimension of matrix C(ij,Ka,Ib)
 ! Find largest dimension of matrix C(ij,Ia,Kb)
@@ -18,8 +18,6 @@ subroutine MXRESC(IAB,IACLS,IBCLS,NOCTPA,NOCTPB,NSMST,NSSOA,NSSOB,KCLS,KSSOA,KOC
 ! Find largest dimension of a+ia+j!k> MXIJST, MXIJSTF
 !
 ! Largest block of single excitations MXSXBL
-!
-! To mess it up for the enemy: kcls
 !
 ! Input:
 !    iab
@@ -331,9 +329,5 @@ end do
 
 MXIJST = max(MXIJSTA,MXIJSTB)
 MXIJSTF = max(MXIJSTAF,MXIJSTBF)
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(KCLS)
 
 end subroutine MXRESC

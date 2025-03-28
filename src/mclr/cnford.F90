@@ -11,8 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CNFORD(ICTSDT,ICONF,IREFSM,NORB,IPRODT,NCNFTP,NEL,ICNSTR,IGENSG,ISGNA,ISGNB,IAGRP,IBGRP,IOOS,NORB1,NORB2,NORB3,NEL1MN, &
-                  NEL3MX,NAEL,NBEL,MINOP,MAXOP,PSSIGN)
+subroutine CNFORD(ICTSDT,ICONF,IREFSM,NORB,IPRODT,NCNFTP,NEL,IGENSG,ISGNA,ISGNB,IAGRP,IBGRP,IOOS,NORB1,NORB2,NORB3,NEL1MN,NEL3MX, &
+                  NAEL,NBEL,MINOP,MAXOP,PSSIGN)
 ! Generate configurations in ICONF
 !
 ! Generate determinants in configuration order and obtain
@@ -37,7 +37,7 @@ integer, intent(inout) :: ICONF(*)
 integer :: iRefSM, nOrb
 integer, intent(in) :: IPRODT(*)
 integer, intent(in) :: NCNFTP(*)
-integer :: NEL, ICNSTR, IGENSG
+integer :: NEL, IGENSG
 integer, intent(in) :: ISGNA(*), ISGNB(*)
 integer :: IAGRP, IBGRP
 integer, intent(in) :: IOOS(*)
@@ -70,6 +70,6 @@ call mma_deallocate(KL1)
 ! string form and ordering.
 ! ========================================================
 
-call CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISGNB,ICNSTR,IAGRP,IBGRP,IOOS,PSSIGN)
+call CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISGNB,IAGRP,IBGRP,IOOS,PSSIGN)
 
 end subroutine CNFORD

@@ -12,8 +12,8 @@
 !***********************************************************************
 
 subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,IAEL1,IAEL3,JAEL1,JAEL3,IBEL1,IBEL3, &
-                        JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,NSMST, &
-                        NSMSX,NSMDX,MXPOBS,IUSEAB,ICJKAIB,CJRES,SIRES,S2,ISIGN,ieaw,TimeDep)
+                        JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB, &
+                        IUSEAB,ICJKAIB,CJRES,SIRES,ISIGN,ieaw,TimeDep)
 ! Combined alpha-beta double excitation
 ! contribution from given C block to given S block
 ! If IUSAB only half the terms are constructed
@@ -37,8 +37,7 @@ subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,
 ! NTSOB     : Number of orbitals per type and symmetry
 ! IBTSOB    : base for orbitals of given type and symmetry
 ! IBORB     : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX : Number of symmetries of orbitals,strings,
-!       single excitations
+! NSMOB     : Number of symmetries of orbitals
 ! MAXK      : Largest number of inner resolution strings treated at simult.
 !
 ! ICJKAIB =1 =>  construct C(Ka,Jb,j) and S(Ka,Ib,i) as intermediate
@@ -52,10 +51,6 @@ subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,
 ! =======
 ! Scratch
 ! =======
-!
-! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-!              largest number of orbital pairs of given symmetries and
-!              types.
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
 !              type and symmetry
 ! I2, XI2S   : at least MXSTSO : Largest number of strings of given
@@ -75,19 +70,18 @@ use Constants, only: Zero, One
 implicit real*8(A-H,O-Z)
 ! General input
 logical TimeDep
-integer NTSOB(3,*), IBTSOB(3,*), ITSOB(*)
+integer NTSOB(3,*), IBTSOB(3,*)
 ! Input
 dimension CB(*)
 ! Output
 dimension SB(*)
 ! Scratch
-dimension SSCR(*), CSCR(*), I1(MAXK,*), XI1S(MAXK,*)
+dimension I1(MAXK,*), XI1S(MAXK,*)
 dimension I2(MAXK,*), XI2S(MAXK,*)
 dimension I3(MAXK,*), XI3S(MAXK,*)
 dimension I4(MAXK,*), XI4S(MAXK,*)
 dimension XINT(*)
 dimension CJRES(*), SIRES(*)
-dimension S2(*)
 ! Local arrays
 dimension ITP(3), JTP(3), KTP(3), LTP(3)
 
@@ -265,7 +259,7 @@ do IJTYP=1,NIJTYP
               if (ISIGN == -1) call DSCAL_(NI*NJ*NK*NL,-One,XINT,1)
               IFIRST = 0
             end if
-            call SKICKJ_MCLR(SIRES,CJRES,NKABTC,NIB,NJB,NKBBTC,XINT,NI,NJ,NK,NL,MAXK,I4,XI4S,I2,XI2S,IKORD,IDUM,iXDUM,XDUM,IROUTE)
+            call SKICKJ_MCLR(SIRES,CJRES,NKABTC,NIB,NJB,NKBBTC,XINT,NI,NJ,NK,NL,MAXK,I4,XI4S,I2,XI2S,IKORD,IROUTE)
 
             if (KBEND /= 0) exit
           end do
@@ -301,18 +295,5 @@ do IJTYP=1,NIJTYP
     ! End of loop over partitioning of alpha strings
   end do
 end do
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(ITSOB)
-  call Unused_real_array(SSCR)
-  call Unused_real_array(CSCR)
-  call Unused_integer(NSMST)
-  call Unused_integer(NSMSX)
-  call Unused_integer(NSMDX)
-  call Unused_integer(MXPOBS)
-  call Unused_real_array(S2)
-end if
 
 end subroutine RSBB2BN_MCLR

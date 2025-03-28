@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,nTemp,Temp2,Temp3,Temp4,nDens22,DI13,DI24,DI,DA13,DA24,DA,rkappa,idsym,Signa,Fact, &
-                   jSpin,lfat,lfit,lMOt,CMO)
+                   jSpin,lfat,lfit,lMOt)
 !*******************************************************************
 !                                        ~     ~                   *
 !   Monster routine for construction of Fock, MO                   *
@@ -62,7 +62,6 @@ integer iDSym
 real*8 Signa, Fact
 integer jSpin
 logical lFAt, lFIT, lmot
-real*8 CMO(nCMO)
 logical singlet
 integer iS, jS, ijS, kS, lS, iB, nNB, jB, ipD, ipF, iiB, jjB, ipS, ipi, ip1, ip2, ip3, ip4, lB, ijA, ilA, ipA
 real*8 Sign
@@ -527,8 +526,5 @@ do iS=1,nSym
     end if
   end do
 end do
-
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(CMO)
 
 end subroutine Read2_2

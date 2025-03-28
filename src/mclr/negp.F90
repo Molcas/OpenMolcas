@@ -20,29 +20,28 @@ use input_mclr, only: lRoots, nConf
 implicit none
 integer ipdia, ipSigma
 real*8 rout(*)
-integer opout, irc, iDisk, i
-integer, external :: ipIn, ipOut
+integer iDisk, i
 real*8, external :: DDot_
 real*8, allocatable :: Tmp(:), Tmp2(:,:), Tmp3(:,:)
 
 idisk = 0
-irc = opout(ipdia)
+call opout(ipdia)
 
 call mma_allocate(Tmp,nConf,Label='Tmp')
 call mma_allocate(Tmp2,2,lRoots,Label='Tmp2')
 call mma_allocate(Tmp3,2,lRoots,Label='Tmp3')
 
-irc = ipin(ipSigma)
+call ipin(ipSigma)
 do i=1,lroots
   call dDAFILE(luciv,2,Tmp,nconf,idisk)
   Tmp2(1,i) = DDOT_(nconf,rout,1,Tmp,1)
   Tmp2(2,i) = DDOT_(nconf,W(ipSigma)%Vec,1,Tmp,1)
 end do
-irc = ipout(ipsigma)
+call ipout(ipsigma)
 call dGeMV_('N',2*lroots,2*lroots,One,SS,2*lroots,Tmp2,1,Zero,Tmp3,1)
 
 idisk = 0
-irc = ipin(ipdia)
+call ipin(ipdia)
 do i=1,lroots
   call dDAFILE(luciv,2,Tmp,nconf,idisk)
   call Exphinvv(W(ipdia)%Vec,Tmp,rout,One,Tmp3(1,i))
@@ -52,9 +51,5 @@ end do
 call mma_deallocate(Tmp)
 call mma_deallocate(Tmp2)
 call mma_deallocate(Tmp3)
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine negp

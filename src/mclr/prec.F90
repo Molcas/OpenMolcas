@@ -100,8 +100,8 @@ subroutine Prec_internal(rpre)
         !                                                              *
         if (NewCho) then  ! Cho-Fock
 
-          call preci_cho(ib,is,jS,nD,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
-                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2,iAdr) ! OK
+          call preci_cho(jS,nD,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),FIMO(ipCM(js)),FAMO(ipCM(js)), &
+                         F0sqMO(ipCM(js)),sign,JA,n2,iAdr) ! OK
 
         else  ! Cho-MO
 
@@ -113,8 +113,8 @@ subroutine Prec_internal(rpre)
             !  iaib
 
             if (nash(js) > 0) &
-              call Preciaa(ib,is,js,nd,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0sqMO(1+ipCM(is)+ibb), &
-                           FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+              call Preciaa(ib,is,js,nd,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),FIMO(ipCM(js)),FAMO(ipCM(js)), &
+                           F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
             !                                                          *
             !***********************************************************
             !                                                          *
@@ -132,8 +132,8 @@ subroutine Prec_internal(rpre)
           !  ipiq
 
           if ((nOrb(js)-nish(js)-nash(js)) > 0) &
-            call Precibb(ib,is,js,nd,Temp3,nbas(js),norb(js),Temp1(:,1),Temp1(:,2),Temp2,FiMo(1+ipCM(is)+ibb), &
-                         FAMO(1+ipcm(is)+ibb),FiMo(ipCM(js)),FAMO(ipcm(js)),sign)  ! OK
+            call Precibb(ib,is,js,nd,Temp3,norb(js),Temp1(:,1),Temp1(:,2),Temp2,FiMo(1+ipCM(is)+ibb),FAMO(1+ipcm(is)+ibb), &
+                         FiMo(ipCM(js)),FAMO(ipcm(js)),sign)  ! OK
 
         end if
         !                                                              *
@@ -190,27 +190,27 @@ subroutine Prec_internal(rpre)
 
           !  New Cholesky code
 
-          call Preca_cho(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JA,KA,Scr,n2,iAdr2)
+          call Preca_cho(ib,is,js,nd,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JA,n2,iAdr2)
 
         else
 
           if (nish(js) > 0) &
-            call Precaii(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                         FIMO(ipCM(js)),FAMO(ipCM(js)),F0SqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+            call Precaii(ib,is,js,nd,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
           !call Precaai(ib,nd,ir,rpre(ip))
           !call Precaaa(ib,nd,ir,rpre(ip))
           if (nish(js)*nOrb(js) > 0) &
-            call Precabi(ib,is,js,ir,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0SQMO(ipCM(js)),sign,JA,KA,Temp1(:,2),n2)!+/-?
+            call Precabi(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JA,KA,Temp1(:,2),n2)!+/-?
           !call Precaba(ib,nd,ir,rpre(ip))
           if (nOrb(js) > 0) &
             call Precabb_2(ib,is,js,nd,nbas(js),nOrb(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb), &
-                           FiMo(ipCM(js)),FAMO(ipcm(js)),F0SQMO(ipCM(js)),sign)
+                           FiMo(ipCM(js)),sign)
 
           ! symmetry not yet
           ! Eq. (C.12e)
           if ((nRs1(iS) /= 0) .or. (nRs3(iS) /= 0)) &
-            call Precaaa(ib,is,js,nd,ir,Temp3,nOrb(is),nOrb(js),FIMO(ipCM(js)),F0SqMO(ipCM(js)),sign,Scr,n2,ActInt) ! OK
+            call Precaaa(ib,is,js,nd,ir,Temp3,nOrb(js),FIMO(ipCM(js)),F0SqMO(ipCM(js)),sign,Scr,n2,ActInt) ! OK
 
         end if
         !                                                              *

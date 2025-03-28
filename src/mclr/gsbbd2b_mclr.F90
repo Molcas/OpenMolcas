@@ -12,34 +12,31 @@
 !***********************************************************************
 
 subroutine GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB, &
-                        MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,CJRES, &
-                        SIRES,NORB,ieaw)
+                        NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,IUSEAB,CJRES,SIRES,NORB,ieaw)
 ! alpha-beta contribution to two-particle density matrix
 ! from given c-block and s-block.
 !
 ! =====
 ! Input
 ! =====
-!
 ! IASM,IATP : Symmetry and type of alpha  strings in sigma
 ! IBSM,IBTP : Symmetry and type of beta   strings in sigma
 ! JASM,JATP : Symmetry and type of alpha  strings in C
 ! JBSM,JBTP : Symmetry and type of beta   strings in C
-! NIA,NIB : Number of alpha-(beta-) strings in sigma
-! NJA,NJB : Number of alpha-(beta-) strings in C
-! IAGRP : String group of alpha strings
-! IBGRP : String group of beta strings
-! IAEL1(3) : Number of electrons in RAS1(3) for alpha strings in sigma
-! IBEL1(3) : Number of electrons in RAS1(3) for beta  strings in sigma
-! JAEL1(3) : Number of electrons in RAS1(3) for alpha strings in C
-! JBEL1(3) : Number of electrons in RAS1(3) for beta  strings in C
-! CB   : Input C block
-! NTSOB  : Number of orbitals per type and symmetry
-! IBTSOB : base for orbitals of given type and symmetry
-! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX : Number of symmetries of orbitals,strings,
-!       single excitations
-! MAXK   : Largest number of inner resolution strings treated at simult.
+! NIA,NIB   : Number of alpha-(beta-) strings in sigma
+! NJA,NJB   : Number of alpha-(beta-) strings in C
+! IAGRP     : String group of alpha strings
+! IBGRP     : String group of beta strings
+! IAEL1(3)  : Number of electrons in RAS1(3) for alpha strings in sigma
+! IBEL1(3)  : Number of electrons in RAS1(3) for beta  strings in sigma
+! JAEL1(3)  : Number of electrons in RAS1(3) for alpha strings in C
+! JBEL1(3)  : Number of electrons in RAS1(3) for beta  strings in C
+! CB        : Input C block
+! NTSOB     : Number of orbitals per type and symmetry
+! IBTSOB    : base for orbitals of given type and symmetry
+! IBORB     : Orbitals of given type and symmetry
+! NSMOB     : Number of symmetries of orbitals
+! MAXK      : Largest number of inner resolution strings treated at simult.
 !
 ! ======
 ! Output
@@ -49,12 +46,11 @@ subroutine GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA
 ! =======
 ! Scratch
 ! =======
-!
-! I1, XI1S   : at least MXSTSO : Largest number of strings of given
-!              type and symmetry
-! I2, XI2S   : at least MXSTSO : Largest number of strings of given
-!              type and symmetry
-! X : Space for block of two-electron integrals
+! I1, XI1S : at least MXSTSO : Largest number of strings of given
+!            type and symmetry
+! I2, XI2S : at least MXSTSO : Largest number of strings of given
+!            type and symmetry
+! X        : Space for block of two-electron integrals
 !
 ! Jeppe Olsen, Fall of 1996
 
@@ -172,15 +168,5 @@ do IJTYP=1,NIJTYP
     ! End of loop over partitioning of alpha strings
   end do
 end do
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(MXPNGAS)
-  call Unused_integer(NSMST)
-  call Unused_integer(NSMSX)
-  call Unused_integer(NSMDX)
-  call Unused_integer(MXPOBS)
-end if
 
 end subroutine GSBBD2B_MCLR

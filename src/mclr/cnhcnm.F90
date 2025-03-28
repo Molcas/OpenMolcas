@@ -11,8 +11,7 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,NRCSF,SCR,ICONF,NEL,IREFSM,NAEL,NBEL,NINOB,NACOB,ECORE,IPRODT,DTOC, &
-                  INTSPC,ICOMBI,PSSIGN)
+subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,SCR,ICONF,NEL,IREFSM,NAEL,NBEL,NACOB,IPRODT,DTOC,INTSPC,ICOMBI,PSSIGN)
 ! Calculate  Hamiltonian block defined by configuration
 ! lists ILCNF,IRCNF
 ! If ISYM /= 0 only the lower half of the matrix is constructed
@@ -24,8 +23,8 @@ subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,NRCSF,SCR,ICONF,NEL,IR
 ! ================
 
 implicit none
-integer ISYM, NLCNF, NRCNF, NLCSF, NRCSF, NEL, IREFSM, NAEL, NBEL, NINOB, NACOB, INTSPC, ICOMBI
-real*8 ECORE, PSSIGN
+integer ISYM, NLCNF, NRCNF, NLCSF, NEL, IREFSM, NAEL, NBEL, NACOB, INTSPC, ICOMBI
+real*8 PSSIGN
 ! Specific input
 integer ILCNF(*), IRCNF(*)
 ! General input
@@ -42,8 +41,6 @@ real*8 SCR(*)
 call CNHCNM_INTERNAL(SCR)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NRCSF)
 
 ! This is to allow type punning without an explicit interface
 contains
@@ -56,10 +53,9 @@ subroutine CNHCNM_INTERNAL(SCR)
   implicit none
   real*8, target :: SCR(*)
   integer, pointer :: iSCRl(:), iSCRr(:)
-  integer NTERMS, NDIF0, NDIF1, NDIF2, MXCSFC, ITYP, KLFREE, KLCONF, KRCONF, KLPHPS, IILB, ICNL, NCSFL, IIRB, MXR, ICNR, NCSFR, &
-          MDIF0, MDIF1, MDIF2, IIL, IIRMAX, IIR, IIRACT, IILACT, ILRO, ILRI, ILTYP, IRTYP
+  integer NDIF0, NDIF1, NDIF2, MXCSFC, ITYP, KLFREE, KLCONF, KRCONF, KLPHPS, IILB, ICNL, NCSFL, IIRB, MXR, ICNR, NCSFR, MDIF0, &
+          MDIF1, MDIF2, IIL, IIRMAX, IIR, IIRACT, IILACT, ILRO, ILRI, ILTYP, IRTYP
 
-  NTERMS = 0
   NDIF0 = 0
   NDIF1 = 0
   NDIF2 = 0
@@ -96,8 +92,8 @@ subroutine CNHCNM_INTERNAL(SCR)
     do ICNR=1,MXR
       call GETCNF_MCLR(iSCRr,IRTYP,IRCNF(ICNR),ICONF,IREFSM,NEL)
       NCSFR = NCPCNT(IRTYP)
-      call CNHCN2(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,NINOB,ECORE,IPRODT,DTOC,NACOB,ICOMBI, &
-                  PSSIGN,NTERMS,MDIF0,MDIF1,MDIF2)
+      call CNHCN2(iSCRl,ILTYP,iSCRr,IRTYP,SCR(KLPHPS),SCR(KLFREE),NEL,NAEL,NBEL,INTSPC,IPRODT,DTOC,NACOB,ICOMBI,PSSIGN,MDIF0, &
+                  MDIF1,MDIF2)
       NDIF0 = NDIF0+MDIF0
       NDIF1 = NDIF1+MDIF1
       NDIF2 = NDIF2+MDIF2

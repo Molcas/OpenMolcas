@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Preciaa(iB,iS,jS,nd,rOut,nbai,nbaj,fockii,fockai,fockti,focki,focka,fock,sign,A_J,A_K,Scr,nScr)
+subroutine Preciaa(iB,iS,jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,sign,A_J,A_K,Scr,nScr)
 !***********************************************************************
 !     Change Fock(i) ne Fock(j)
 !                                           [2]
@@ -42,8 +42,8 @@ use Constants, only: Two, Three, Four
 implicit none
 integer iB, iS, jS, nd
 real*8 rout(*)
-integer nbai, nbaj
-real*8 fockii, fockai, fockti
+integer nbaj
+real*8 fockii, fockai
 real*8 focki(nbaj,nbaj), fock(nbaj,nbaj), focka(nbaj,nbaj)
 real*8 sign
 integer nScr
@@ -154,10 +154,5 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nbai)
-  call Unused_real(fockti)
-end if
 
 end subroutine Preciaa

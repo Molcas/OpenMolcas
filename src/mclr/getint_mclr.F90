@@ -13,9 +13,8 @@
 subroutine GETINT_MCLR(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICOUL,ieaw)
 ! Outer routine for accessing integral block
 
-use Arrays, only: pInt2, KINT2, KINT2A
+use Arrays, only: KINT2, KINT2A
 use MCLR_Data, only: Square
-use input_mclr, only: nsMOB
 #ifdef _DEBUGPRINT_
 use MCLR_Data, only: NOBPTS
 use Definitions, only: u6
@@ -30,12 +29,12 @@ integer nI, nK, nIK, nJ, nL, nJL, nIJ, nKL
 
 if (.not. square) then
   if (ieaw /= 0) then
-    call GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2a,pINT2,NSMOB,ICOUL,ieaw)
+    call GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2a,ICOUL,ieaw)
   else
-    call GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2,pINT2,NSMOB,ICOUL,ieaw)
+    call GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2,ICOUL,ieaw)
   end if
 else
-  call GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,KINT2,pINT2,NSMOB,ICOUL)
+  call GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,KINT2,ICOUL)
 end if
 
 #ifdef _DEBUGPRINT_

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CSDIAG_MCLR(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP,IFLAG,NCNFCN,ICNFOK)
+subroutine CSDIAG_MCLR(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP)
 ! obtain average CI diagonal elements and store in
 ! CSFDIA as CSF diagonal
 
@@ -19,7 +19,7 @@ use Definitions, only: wp
 implicit real*8(A-H,O-Z)
 dimension CSFDIA(*), DETDIA(*)
 dimension NCNFTP(NTYP), NDTFTP(NTYP), NCSFTP(NTYP)
-dimension ICTSDT(*), ICNFOK(*)
+dimension ICTSDT(*)
 
 ICSOFF = 1
 IDTOFF = 1
@@ -40,13 +40,5 @@ do ITYP=1,NTYP
     IDTOFF = IDTOFF+IDET
   end do
 end do
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(IFLAG)
-  call Unused_integer(NCNFCN)
-  call Unused_integer_array(ICNFOK)
-end if
 
 end subroutine CSDIAG_MCLR

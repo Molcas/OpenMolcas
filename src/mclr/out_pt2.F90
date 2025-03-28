@@ -35,11 +35,11 @@ real*8 rdum(1)
 integer idum(7,8)
 real*8, allocatable :: D_K(:), Tmp(:), K1(:), K2(:), DAO(:), D_CI(:), D1(:), P_CI(:), P1(:), Conn(:), OCCU(:), CMON(:), DTmp(:), &
                        G1q(:), G1m(:), Temp(:), tTmp(:), DM(:), DMs(:)
-integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO, iLen, ipCIP, iDisk, iRC, nDim, ij, k, l, ij1, ij2, kl1, kl2, i1, j1, &
-        ji2, kl, lk2, ijkl, jikl, ijlk, jilk, klRow, iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA, jAA, nBuf, LuDens, &
-        iOff, iBas, LuTmp
+integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO, iLen, ipCIP, iDisk, nDim, ij, k, l, ij1, ij2, kl1, kl2, i1, j1, ji2, &
+        kl, lk2, ijkl, jikl, ijlk, jilk, klRow, iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA, jAA, nBuf, LuDens, iOff, &
+        iBas, LuTmp
 integer, external :: IsFreeUnit
-integer, external :: ipGet, ipIN, ipClose
+integer, external :: ipGet
 real*8 Val
 ! Statement function
 integer i, j, itri
@@ -88,7 +88,7 @@ if (CI) then
   ilen = nconf1*nroots ! nroot = # of roots in SA
   ipcip = ipget(nconf1*nroots)
   iDisk = iCIDisp(1)
-  irc = ipin(ipCIp)
+  call ipin(ipCIp)
   call dDaFile(LuTemp,2,W(ipCIp)%Vec,iLen,iDisk)
 
   ! Calculate the densities that correct the nonvariational CI stuff
@@ -675,10 +675,6 @@ call mma_deallocate(CMON)
 call mma_deallocate(Dtmp)
 call mma_deallocate(D_K)
 
-irc = ipclose(-1)
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
+call ipclose(-1)
 
 end subroutine Out_Pt2

@@ -26,9 +26,8 @@ real*8 Fock(*)
 real*8, optional :: SLag(*)
 integer ng1, ng2, i, j, k, l, ij, kl, ijkl, ij2, kl2, ijkl2
 integer iTri
-integer ipIn, opOut, ipnOut, nConfL, nConfR, iRC, LuDens
+integer nConfL, nConfR, iRC, LuDens
 real*8 factor
-external ipIn, opOut, ipnOut
 integer iSLag !,jR,kR
 real*8, allocatable :: G1q(:), G1m(:), G1r(:), G2q(:), G2r(:), CIL(:), CIR(:), T(:), F(:)
 ! Statement function
@@ -63,12 +62,12 @@ call mma_allocate(CIR,nConfR,Label='CIR')
 if (PT2) then
   call PT2_SLag()
 else
-  irc = ipIn(ipCI)
+  call ipIn(ipCI)
   call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,State_sym)
-  iRC = opout(ipCI)
+  call opout(ipCI)
   call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,State_sym)
-  iRC = opout(ipCI)
-  iRC = ipnout(-1)
+  call opout(ipCI)
+  call ipnout(-1)
   icsm = 1
   issm = 1
   call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)
@@ -223,7 +222,6 @@ subroutine PT2_SLag()
   ! but slightly modified
 
   implicit none
-  !integer opout
   integer jR, kR
   real*8 vSLag
 
@@ -238,10 +236,10 @@ subroutine PT2_SLag()
       !write(u6,*) vslag
 
       call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
-      !iRC = opout(ipCI)
+      !call opout(ipCI)
       call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
-      !iRC = opout(ipCI)
-      !iRC = ipnout(-1)
+      !call opout(ipCI)
+      !call ipnout(-1)
       !icsm = 1
       !issm = 1
 

@@ -11,7 +11,7 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-subroutine CsfInf(lSym,iSpin,MS,iSPC,nsym)
+subroutine CsfInf(lSym,iSpin,iSPC,nsym)
 
 use Str_Info, only: STR, CNSM, CFTP, DFTP, DTOC, NELEC, NOCTYP
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -25,7 +25,7 @@ use CandS, only: ICSM, ISSM, ICSPC, ISSPC
 use input_mclr, only: nIrrep
 
 implicit none
-integer lSym, iSpin, MS, iSPC, nsym
+integer lSym, iSpin, iSPC, nsym
 integer idum(1)
 integer, allocatable :: SIOIO(:), SBLTP(:), IOOS1(:), NOOS1(:)
 integer NEL, IATP, IBTP, NOCTPA, NOCTPB, MNELR1, MXELR3, NOOS, IA, ISYM, NCOMB, LLCSF
@@ -54,7 +54,7 @@ call mma_allocate(SBLTP,nIrrep,Label='SBLTP')
 NOOS = NOCTPA*NOCTPB*nIrrep
 call mma_allocate(IOOS1,NOOS,Label='IOOS1')
 call mma_allocate(NOOS1,NOOS,Label='NOOS1')
-call INTCSF(NACOB,NEL,iSpin,MS2,NORB1,NORB2,NORB3,MNELR1,MXELR3,LLCSF,1,0,PSSIGN,lconf,lldet)
+call INTCSF(NACOB,NEL,iSpin,MS2,NORB1,NORB2,NORB3,MNELR1,MXELR3,LLCSF,1,PSSIGN,lconf,lldet)
 
 ! Calculate CG COEFFICENTS ETC
 
@@ -67,9 +67,9 @@ do iSym=1,nSym
   !OOS arrayy
   call ZBLTP(ISMOST(1,ISYM),nIrrep,IDC,SBLTP,idum)
   call ZOOS(ISMOST(1,ISYM),SBLTP,nIrrep,SIOIO,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NOCTPA,NOCTPB,idc,IOOS1,NOOS1,NCOMB,0)
-  !EAW call CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,iSym,NACOB,DFTP,NCNATS(1,ISYM),NEL,0,0,IDUM,IDUM,IASTFI(ISPC),IBSTFI(ISPC),IOOS1, &
+  !EAW call CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,iSym,NACOB,DFTP,NCNATS(1,ISYM),NEL,0,IDUM,IDUM,IASTFI(ISPC),IBSTFI(ISPC),IOOS1, &
   !                NORB1,NORB2,NORB3,MNELR1,MXELR3,NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),MINOP,MAXOP)
-  call CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,iSym,NACOB,DFTP,NCNATS(1,ISYM),NEL,0,0,IDUM,IDUM,IASTFI(ISPC),IBSTFI(ISPC),IOOS1,NORB1, &
+  call CNFORD(CNSM(1)%ICTS,CNSM(1)%ICONF,iSym,NACOB,DFTP,NCNATS(1,ISYM),NEL,0,IDUM,IDUM,IASTFI(ISPC),IBSTFI(ISPC),IOOS1,NORB1, &
               NORB2,NORB3,MNELR1,MXELR3,NELEC(IASTFI(ISPC)),NELEC(IBSTFI(ISPC)),MINOP,MAXOP,PSSIGN)
 
   call iDAFILE(LUCSF2SD,1,CNSM(1)%ICTS,lldet,iA)
@@ -82,8 +82,5 @@ call mma_deallocate(IOOS1)
 call mma_deallocate(NOOS1)
 call mma_deallocate(SBLTP)
 call mma_deallocate(SIOIO)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(MS)
 
 end subroutine CsfInf

@@ -20,7 +20,7 @@ use iso_c_binding
 use Arrays, only: Int2, FIMO
 use MCLR_Data, only: iRefSM, IDC, PSSIGN
 use MCLR_Data, only: NAELCI, NBELCI, XISPSM
-use MCLR_Data, only: MXP1, MXP2, MXQ, NOCSF
+use MCLR_Data, only: MXP1, MXP2, MXQ
 use MCLR_Data, only: NACOB, NOCOB
 use MCLR_Data, only: NTYP, NCPCNT, NDPCNT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -32,7 +32,7 @@ integer MP1, MP2, MQ, iSym, nprciv
 logical TimeDep
 integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, iTyp, nActEl, lH0SCR, ieaw, i, iRC, lVec2
 real*8, external :: E2, E2_TD
-real*8 ECOREP, ENA
+real*8 ENA
 real*8, allocatable :: H0T(:), Vec2(:)
 real*8, allocatable, target :: H0Scr(:)
 integer, pointer :: iH0Scr(:)
@@ -78,7 +78,7 @@ call mma_allocate(H0SCR,LH0SCR,Label='H0Scr')
 call c_f_pointer(c_loc(H0SCR),iH0Scr,[LH0SCR])
 call mma_allocate(VEC2,lvec2,Label='Vec2')
 
-call H0MAT_MCLR(H0T,SBIDT,SBCNF,MXP1,MXP2,MXQ,NACOB,NPRCIV,NOCSF,ISYM,IDC,PSSIGN,ECOREP,rDIA,Vec2,H0Scr,iH0Scr,ieaw)
+call H0MAT_MCLR(H0T,SBIDT,SBCNF,MXP1,MXP2,MXQ,NACOB,NPRCIV,ISYM,IDC,PSSIGN,rDIA,Vec2,H0Scr,iH0Scr,ieaw)
 
 do i=1,nprciv
   H0T(i*(i+1)/2) = H0T(i*(i+1)/2)-ENA

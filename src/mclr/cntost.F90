@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISGNB,ICNSTR,IAGRP,IBGRP,IOOS,PSSIGN)
+subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISGNB,IAGRP,IBGRP,IOOS,PSSIGN)
 ! Obtain pointer abs(ICTSDT(I)) giving address of determinant I in
 ! STRING ordering for determinant I in CSF ordering.
 ! Going between the two formats can involve a sign change. this is
@@ -23,11 +23,6 @@ subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISG
 ! January 1991  : IGENSG,ISGNA,ISGNB added
 ! April   1991  : LUCIA version
 ! September 1993 > Sign and address stored together
-!
-! ICNSTR /= 0 indicates that additional constraints on configurations
-! should be checked  (IS = 0)
-! by calling CICNCH.ICNFOK(ICNF) is 1 of tests are passed, ICNFOK(ICNF)
-! is zero if test fails
 
 use MCLR_Data, only: NTYP, NCNATS, NDPCNT, MINOP
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -41,7 +36,7 @@ integer NAEL, NBEL
 integer IPRODT(*)
 integer IREFSM, NORB, NEL, IGENSG
 integer ISGNA(*), ISGNB(*)
-integer ICNSTR, IAGRP, IBGRP
+integer IAGRP, IBGRP
 integer IOOS(*)
 real*8 PSSIGN
 ! IWORK should at least be of length (MXDT+2)*NEL,
@@ -102,7 +97,7 @@ do ITYP=1,NTYP
     do JDET=1,IDET
       !write(117,'(1X,I8,1X,A,1X)',advance='no') ITYP,'ITYP'  ! yma
       JDTABS = JDTABS+1
-      call DETSTR_MCLR(LDTBL(1+(JDET-1)*NEL),LIA,LIB,NEL,NAEL,NBEL,NORB,ISIGN,SCR23)
+      call DETSTR_MCLR(LDTBL(1+(JDET-1)*NEL),LIA,LIB,NEL,NAEL,NBEL,ISIGN,SCR23)
       ijkl_num = ijkl_num+1
       ! Find number (and sign)of this determinant in string ordering
       ICTSDT(JDTABS) = IABNUM(LIA,LIB,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN)
@@ -114,8 +109,5 @@ call mma_deallocate(SCR23)
 call mma_deallocate(LIB)
 call mma_deallocate(LIA)
 call mma_deallocate(LDTBL)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ICNSTR)
 
 end subroutine CNTOST

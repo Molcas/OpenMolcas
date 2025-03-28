@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-integer function ipnout(iii)
+subroutine ipnout(iii)
 ! Object: write all vectors in memory on disk but vector iii
 
 use ipPage
@@ -26,7 +26,6 @@ if (iii > Max_CI_Vectors) then
   call Abend()
 end if
 
-ipnout = 0
 if (.not. DiskBased) return
 
 do ii=1,Max_CI_Vectors
@@ -41,6 +40,4 @@ do ii=1,Max_CI_Vectors
 
 end do
 
-return
-
-end function ipnout
+end subroutine ipnout

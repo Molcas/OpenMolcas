@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-integer function ipout(ii)
+subroutine ipout(ii)
 ! ipout will page out vector ii to disk and free the memory area
 
 use ipPage
@@ -19,8 +19,7 @@ use stdalloc, only: mma_deallocate
 
 implicit integer(a-h,o-z)
 
-ipout = 0
-if (.not. diskbased) return
+if (.not. DiskBased) return
 
 if ((Status(ii) == In_Memory) .and. (ii > 0)) then
   idisk = ida(ii)
@@ -28,10 +27,6 @@ if ((Status(ii) == In_Memory) .and. (ii > 0)) then
   call dDafile(Lu_ip,write,W(ii)%Vec,nn,idisk)
   Status(ii) = On_Disk
   call mma_deallocate(W(ii)%Vec)
-else
-  ipout = -1
 end if
 
-return
-
-end function ipout
+end subroutine ipout

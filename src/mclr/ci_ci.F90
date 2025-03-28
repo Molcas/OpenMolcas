@@ -18,8 +18,7 @@ use Constants, only: Two
 
 implicit none
 integer ipCID, ipS2
-integer irc, i
-integer, external :: ipIn
+integer i
 real*8 rDum(1), EC
 !                                                                      *
 !***********************************************************************
@@ -38,15 +37,12 @@ end interface
 !                                                                      *
 
 call CISigma_sa(0,state_sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rDum,1,ipCId,ips2,.true.)
-irc = ipin(ipCId)
-irc = ipin(ipS2)
+call ipin(ipCId)
+call ipin(ipS2)
 do i=0,nroots-1
   EC = (rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
   call Daxpy_(ncsf(State_Sym),EC,W(ipCId)%Vec(1+i*ncsf(state_sym)),1,W(ipS2)%Vec(1+i*ncsf(state_sym)),1)
 end do
 call DSCAL_(nroots*ncsf(state_SYM),Two,W(ipS2)%Vec,1)
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine Ci_Ci

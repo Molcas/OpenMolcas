@@ -17,15 +17,11 @@ use input_mclr, only: nRoots, ERASSCF
 
 implicit none
 real*8 S(nroots**2,nroots), rdia(*)
-integer irc, i
-integer, external :: ipIN
+integer i
 
-irc = ipin(ipci)
+call ipin(ipci)
 do i=1,nroots
   call SA_PREC2(rdia,S(1,i),W(ipci)%Vec,ERASSCF(i))
 end do
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine SA_PREC

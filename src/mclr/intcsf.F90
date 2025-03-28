@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,NCNSM,ICNSTR,PSSIGN,lconf,lldet)
+subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,NCNSM,PSSIGN,lconf,lldet)
 ! Initializing routine for CSF-DET expansions of internal space
 !
 ! Set up common block /CSFDIM/
@@ -26,8 +26,7 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,
 !   DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
 !   CFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
 !   DTOC  : CSF-DET TRANSFORMATION FOR PROTO TYPES
-!   CNSM(I)%ICONF : SPACE FOR STORING  NCNSM
-!              CONFIGURATION EXPANSIONS
+!   CNSM(I)%ICONF : SPACE FOR STORING NCNSM CONFIGURATION EXPANSIONS
 !
 ! If PSSIGN /= 0, spin combinations are used !!
 !
@@ -42,7 +41,7 @@ use Constants, only: Zero
 use Definitions, only: u6
 
 implicit none
-integer NACTOB, NACTEL, MULTP, MS2, NORB1, NORB2, NORB3, NEL1MN, NEL3MX, LLCSF, NCNSM, ICNSTR
+integer NACTOB, NACTEL, MULTP, MS2, NORB1, NORB2, NORB3, NEL1MN, NEL3MX, LLCSF, NCNSM
 real*8 PSSIGN
 integer lconf, lldet
 ! local variables
@@ -219,8 +218,5 @@ do ICNSM=1,NCNSM
 end do
 
 lldet = ldet
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ICNSTR)
 
 end subroutine INTCSF

@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,NORB,ISIGN,IWORK)
+subroutine DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,ISIGN,IWORK)
 ! A DETERMINANT,IDET,IS GIVEN AS A SET OF OCCUPIED SPIN ORBITALS,
 ! POSITIVE NUMBER INDICATES ALPHA ORBITAL AND NEGATIVE NUMBER
 ! INDICATES BETA ORBITAL.
@@ -32,7 +32,7 @@ implicit none
 integer NEL, NAEL, NBEL
 integer IDET(NEL)
 integer IASTR(NAEL), IBSTR(NBEL)
-integer NORB, ISIGN
+integer ISIGN
 integer IWORK(*)
 integer IBEL, ITMP
 
@@ -68,8 +68,5 @@ write(u6,*) ' ISIGN FOR SWITCH ',ISIGN
 !  end do
 !  write(117,'(A,1X,I2)',advance='no') ' SIGN',ISIGN
 !end if
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NORB)
 
 end subroutine DETSTR_MCLR

@@ -12,15 +12,14 @@
 !***********************************************************************
 
 subroutine GSDNBB2_MCLR(I12,RHO1,RHO2,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NGAS,IAOC,IBOC,JAOC,JBOC,NAEL,NBEL,IJAGRP,IJBGRP,SB, &
-                        CB,C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX, &
-                        NIA,NIB,NJA,NJB,MXPOBS,NACOB,RHO1S,ieaw,n1,n2)
+                        CB,C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NIA,NIB,NJA,NJB, &
+                        NACOB,RHO1S,ieaw,n1,n2)
 ! Contributions to density matrix from sigma block (iasm iatp, ibsm ibtp) and
 ! C block (jasm jatp, jbsm, jbtp)
 !
 ! =====
 ! Input
 ! =====
-!
 ! IASM,IATP : Symmetry and type of alpha strings in sigma
 ! IBSM,IBTP : Symmetry and type of beta  strings in sigma
 ! JASM,JATP : Symmetry and type of alpha strings in C
@@ -44,16 +43,17 @@ subroutine GSDNBB2_MCLR(I12,RHO1,RHO2,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NG
 !
 ! ieaw=0 Singlet
 ! ieaw=1 Triplet
+
 ! ======
 ! Output
 ! ======
 ! Rho1, RHo2 : Updated density blocks
+
 ! =======
 ! Scratch
 ! =======
-! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-!              largest number of orbital pairs of given symmetries and
-!              types.
+! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the largest
+!              number of orbital pairs of given symmetries and types.
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
 !              type and symmetry
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
@@ -73,7 +73,6 @@ dimension SSCR(*), CSCR(*)
 dimension I1(*), XI1S(*), I2(*), XI2S(*), I3(*), XI3S(*), I4(*), XI4S(*)
 dimension C2(*), RHO1S(*), X(*)
 dimension IAOC(*), IBOC(*), JAOC(*), JBOC(*), NOBPTS(*), IOBPTS(*)
-dimension ITSOB(1)
 
 iUseab = 0
 ii = 1
@@ -84,8 +83,8 @@ if ((NBEL >= 1) .and. (IATP == JATP) .and. (JASM == IASM)) then
   !  beta contribution to RHO1
   ! ===========================
 
-  call GSBBD1_MCLR(RHO1(1,ii),NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,ITSOB,MAXI,MAXK, &
-                   SSCR,CSCR,I1,XI1S,I2,XI2S,X(1),NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
+  call GSBBD1_MCLR(RHO1(:,ii),NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                   I2,XI2S,NSMOB,RHO1S)
 
   ! ================================
   !  beta-beta contribution to RHO2
@@ -94,8 +93,8 @@ if ((NBEL >= 1) .and. (IATP == JATP) .and. (JASM == IASM)) then
   ii = 1
   if (ieaw == 1) ii = 2
   if ((I12 == 2) .and. (NBEL >= 2)) &
-    call GSBBD2A_MCLR(RHO2(1,ii),NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
-                      CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS)
+    call GSBBD2A_MCLR(RHO2(:,ii),NACOB,IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,NGAS,IBOC,JBOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
+                      CSCR,I1,XI1S,X,NSMOB)
 
 end if
 
@@ -110,8 +109,8 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
   CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRPMT3(SB,NIA,NIB,C2)
   SB(1:NIA*NIB) = C2(1:NIA*NIB)
-  call GSBBD1_MCLR(RHO1(1,ii),NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,ITSOB,MAXI,MAXK, &
-                   SSCR,CSCR,I1,XI1S,I2,XI2S,X(1),NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
+  call GSBBD1_MCLR(RHO1(:,ii),NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
+                   I2,XI2S,NSMOB,RHO1S)
 
   ! ==================================
   !  alpha-alpha contribution to RHO2
@@ -119,8 +118,8 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
 
   ii = 1
   if ((I12 == 2) .and. (NAEL >= 2)) &
-    call GSBBD2A_MCLR(RHO2(1,ii),NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
-                      CSCR,I1,XI1S,I2,XI2S,X,NSMOB,NSMST,NSMSX,MXPOBS)
+    call GSBBD2A_MCLR(RHO2(:,ii),NACOB,IASM,IATP,JASM,JATP,IJAGRP,NIB,NGAS,IAOC,JAOC,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
+                      CSCR,I1,XI1S,X,NSMOB)
   call TRPMT3(CB,NJB,NJA,C2)
   CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRNSPS(NIB,NIA,SB,C2)
@@ -139,9 +138,8 @@ if ((I12 == 2) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRPMT3(SB,NIA,NIB,C2)
   SB(1:NIA*NIB) = C2(1:NIA*NIB)
-  call GSBBD2B_MCLR(RHO2(1,ii),IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB, &
-                    CB,MXPNGAS,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,IUSEAB,SSCR, &
-                    CSCR,NACOB,ieaw)
+  call GSBBD2B_MCLR(RHO2(:,ii),IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB, &
+                    CB,NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,IUSEAB,SSCR,CSCR,NACOB,ieaw)
   call TRPMT3(CB,NJB,NJA,C2)
   CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRNSPS(NIB,NIA,SB,C2)

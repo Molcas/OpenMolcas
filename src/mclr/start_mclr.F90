@@ -127,7 +127,7 @@ if ((.not. newCho) .and. (StepType /= 'RUN2')) call TraCtl_Drv(iType,.true.,1)
 ! (from a previous MCLR run)
 ! and make it available to the module intgrl
 ! (LuTRI1=LuMOTRA)
-if (TwoStep .and. (StepType == 'RUN2')) call put_temp_data_on_intgrl(LuMOTRA,nSym,nOrb,nIsh,nAsh)
+if (TwoStep .and. (StepType == 'RUN2')) call put_temp_data_on_intgrl(LuMOTRA,nSym,nOrb)
 
 ! Init Cholesky informations
 if (NewCho) then

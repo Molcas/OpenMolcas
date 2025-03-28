@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1, &
-                       XI1S,XINT,NSMOB,NSMST,NSMSX,NSMDX,MXPOBS,SIGN,NOPART,TimeDep,ieaw)
+subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1, &
+                       XI1S,XINT,NSMOB,NSMSX,SIGN,NOPART,TimeDep,ieaw)
 ! two electron excitations on column strings
 !
 ! =====
@@ -21,18 +21,17 @@ subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 !
 ! ISCSM,ISCTP : Symmetry and type of sigma columns
 ! ICCSM,ICCTP : Symmetry and type of C     columns
-! IGRP : String group of columns
-! NROW : Number of rows in S and C block
-! ISEL1(3) : Number of electrons in RAS1(3) for S block
-! ICEL1(3) : Number of electrons in RAS1(3) for C block
-! CB   : Input C block
-! NTSOB  : Number of orbitals per type and symmetry
-! IBTSOB : base for orbitals of given type and symmetry
-! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
-!       single excitations, double excitations
-! MAXI   : Largest Number of "spectator strings" treated simultaneously
-! MAXK   : Largest number of inner resolution strings treated at simult.
+! IGRP        : String group of columns
+! NROW        : Number of rows in S and C block
+! ISEL1(3)    : Number of electrons in RAS1(3) for S block
+! ICEL1(3)    : Number of electrons in RAS1(3) for C block
+! CB          : Input C block
+! NTSOB       : Number of orbitals per type and symmetry
+! IBTSOB      : base for orbitals of given type and symmetry
+! IBORB       : Orbitals of given type and symmetry
+! NSMOB,NSMSX : Number of symmetries of orbitals, single excitations
+! MAXI        : Largest Number of "spectator strings" treated simultaneously
+! MAXK        : Largest number of inner resolution strings treated at simult.
 !
 ! ======
 ! Output
@@ -42,13 +41,11 @@ subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 ! =======
 ! Scratch
 ! =======
-!
-! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-!              largest number of orbital pairs of given symmetries and
-!              types.
+! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the largest
+!              number of orbital pairs of given symmetries and types.
 ! I1, XI1S   : at least MXSTSO : Largest number of strings of given
 !              type and symmetry
-! XINT : Space for two electron integrals
+! XINT       : Space for two electron integrals
 !
 ! Jeppe Olsen, Winter of 1991
 
@@ -58,7 +55,7 @@ use Constants, only: Zero, One
 implicit real*8(A-H,O-Z)
 logical TimeDep
 ! General input
-integer NTSOB(3,*), IBTSOB(3,*), ITSOB(*)
+integer NTSOB(3,*), IBTSOB(3,*)
 ! Input
 dimension CB(*)
 ! Output
@@ -242,14 +239,5 @@ do IDXTYP=1,NDXTYP
     end do
   end do
 end do
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(ITSOB)
-  call Unused_integer(NSMST)
-  call Unused_integer(NSMDX)
-  call Unused_integer(MXPOBS)
-end if
 
 end subroutine RSBB2A_MCLR

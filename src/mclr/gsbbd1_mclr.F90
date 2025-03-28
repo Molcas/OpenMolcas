@@ -11,8 +11,8 @@
 ! Copyright (C) 1991,1995, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,ITSOB,MAXI,MAXK, &
-                       SSCR,CSCR,I1,XI1S,I2,XI2S,H,NSMOB,NSMST,NSMSX,MXPOBS,RHO1S)
+subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NOBPTS,IOBPTS,MAXI,MAXK, &
+                       SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,RHO1S)
 ! Contributions to one electron density matrix from column excitations
 !
 ! GAS version, August 95, Jeppe Olsen
@@ -20,24 +20,22 @@ subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,IC
 ! =====
 ! Input
 ! =====
-! RHO1  : One body density matrix to be updated
-! NACOB : Number of active orbitals
+! RHO1        : One body density matrix to be updated
+! NACOB       : Number of active orbitals
 ! ISCSM,ISCTP : Symmetry and type of sigma columns
 ! ICCSM,ICCTP : Symmetry and type of C     columns
-! IGRP : String group of columns
-! NROW : Number of rows in S and C block
-! NGAS : Number of active spaces
-! ISEL : Number of electrons per AS for S block
-! ICEL : Number of electrons per AS for C block
-! CB   : Input C block
-! MXPNGAS : Max number of AS spaces (program parameter)
-! NOBPTS  : Number of orbitals per type and symmetry
-! IOBPTS : base for orbitals of given type and symmetry
-! IBORB  : Orbitals of given type and symmetry
-! NSMOB,NSMST,NSMSX,NSMDX : Number of symmetries of orbitals,strings,
-!       single excitations, double excitations
-! MAXI   : Largest Number of "spectator strings" treated simultaneously
-! MAXK   : Largest number of inner resolution strings treated at simult.
+! IGRP        : String group of columns
+! NROW        : Number of rows in S and C block
+! NGAS        : Number of active spaces
+! ISEL        : Number of electrons per AS for S block
+! ICEL        : Number of electrons per AS for C block
+! CB          : Input C block
+! NOBPTS      : Number of orbitals per type and symmetry
+! IOBPTS      : base for orbitals of given type and symmetry
+! IBORB       : Orbitals of given type and symmetry
+! NSMOB,NSMDX : Number of symmetries of orbitals, double excitations
+! MAXI        : Largest Number of "spectator strings" treated simultaneously
+! MAXK        : Largest number of inner resolution strings treated at simult.
 !
 ! ======
 ! Output
@@ -47,14 +45,12 @@ subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,IC
 ! =======
 ! Scratch
 ! =======
-!
-! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the
-!              largest number of orbital pairs of given symmetries and
-!              types.
+! SSCR, CSCR : at least MAXIJ*MAXI*MAXK, where MAXIJ is the largest
+!              number of orbital pairs of given symmetries and types.
 ! I1, XI1S   : MAXK*Max number of orbitals of given type and symmetry
 ! I2, XI2S   : MAXK*Max number of orbitals of given type and symmetry
 !              type and symmetry
-! RHO1S : Space for one electron density
+! RHO1S      : Space for one electron density
 !
 ! Jeppe Olsen, Winter of 1991
 ! Updated for GAS, August '95
@@ -64,8 +60,8 @@ use Constants, only: Zero, One
 
 implicit real*8(A-H,O-Z)
 ! General input
-integer NOBPTS(3,*), IOBPTS(3,*), ITSOB(*)
-!integer NTSOB(3,*),IBTSOB(3,*),ITSOB(*)
+integer NOBPTS(3,*), IOBPTS(3,*)
+!integer NTSOB(3,*),IBTSOB(3,*)
 ! Input
 integer ISEL(NGAS), ICEL(NGAS)
 dimension CB(*), SB(*)
@@ -162,14 +158,5 @@ do IJTP=1,NSXTP
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(MXPNGAS)
-  call Unused_integer_array(ITSOB)
-  call Unused_real(H)
-  call Unused_integer(NSMST)
-  call Unused_integer(NSMSX)
-  call Unused_integer(MXPOBS)
-end if
 
 end subroutine GSBBD1_MCLR

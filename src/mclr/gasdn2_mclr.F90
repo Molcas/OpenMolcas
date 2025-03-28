@@ -12,10 +12,10 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NACOB,NSSOA,ISSOA,NSSOB,ISSOB,NAEL, &
-                       IAGRP,NBEL,IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,NSMSX,NSMDX,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,LC,LS, &
-                       CSCR,SSCR,SXSTSM,NGAS,NELFSPGPA,NELFSPGPB,IDC,ISOOSC,NSOOSC,ISOOSE,NSOOSE,ICOOSC,NCOOSC,ICOOSE,NCOOSE, &
-                       IASOOS,IACOOS,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,MXPOBS,RHO1S,LUL,LUR,PSL,PSR,RHO1P,XNATO,ieaw,n1,n2)
+subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NACOB,NSSOA,NSSOB,NAEL,IAGRP,NBEL, &
+                       IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,LC,LS,CSCR,SSCR,NGAS, &
+                       NELFSPGPA,NELFSPGPB,IDC,ISOOSC,NSOOSC,ISOOSE,NSOOSE,ICOOSC,NCOOSC,ICOOSE,NCOOSE,IASOOS,IACOOS,I1,XI1S,I2, &
+                       XI2S,I3,XI3S,I4,XI4S,X,RHO1S,LUL,LUR,PSL,PSR,ieaw,n1,n2)
 ! Jeppe Olsen, Winter of 1991
 ! GAS modifications, August 1995
 !
@@ -37,10 +37,8 @@ subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,IC
 !
 ! NACOB : Number of active orbitals
 ! NSSOA : Number of strings per type and symmetry for alpha strings
-! ISSOA : Offset for strings if given type and symmetry, alpha strings
 ! NAEL  : Number of active alpha electrons
 ! NSSOB : Number of strings per type and symmetry for beta strings
-! ISSOB : Offset for strings if given type and symmetry, beta strings
 ! NBEL  : Number of active beta electrons
 !
 ! MAXIJ : Largest allowed number of orbital pairs treated simultaneously
@@ -68,9 +66,8 @@ implicit real*8(A-H,O-Z)
 integer ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB)
 integer ICSMOS(NSMST), ISSMOS(NSMST)
 integer ICBLTP(*), ISBLTP(*)
-integer NSSOA(NSMST,NOCTPA), ISSOA(NSMST,NOCTPA)
-integer NSSOB(NSMST,NOCTPB), ISSOB(NSMST,NOCTPB)
-integer SXSTSM(NSMSX,NSMST)
+integer NSSOA(NSMST,NOCTPA)
+integer NSSOB(NSMST,NOCTPB)
 integer NELFSPGPA(3,*)
 integer NELFSPGPB(3,*)
 ! Scratch
@@ -91,7 +88,6 @@ real*8 INPROD_MCLR, L
 dimension L(*), R(*)
 ! Output
 dimension RHO1(*), RHO2(*)
-dimension RHO1P(*), XNATO(*)
 dimension ISTRFL(1)
 
 PLL = Zero
@@ -133,7 +129,7 @@ outer: do
     write(u6,*) ' ISBLK ISOFF ',ISBLK,ISOFF
 #   endif
     if (ISOCOC(IS1TA,IS1TB) == 1) &
-      call GSTTBL_MCLR(L,SB(ISOFF),IS1TA,IS1SM,IS1TB,ISBSM,ISOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PLL,LUL,C2)
+      call GSTTBL_MCLR(L,SB(ISOFF),IS1TA,IS1SM,IS1TB,ISBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSL,ISOOSC,IDC,PLL,LUL,C2)
     ISOFF = ISOFF+NSOOSE(IS1TA,IS1TB,IS1SM)
     if (ISBLK /= NSBLK) call NXTBLK_MCLR(IS1TA,IS1TB,IS1SM,NOCTPA,NOCTPB,NSMST,ISBLTP,IDC,NONEWS,ISOCOC)
   end do
@@ -164,7 +160,7 @@ outer: do
     do ICBLK=1,NCBLK
       ICBSM = ICSMOS(IC1SM)
       if (ICOCOC(IC1TA,IC1TB) == 1) &
-        call GSTTBL_MCLR(R,CB(ICOFF),IC1TA,IC1SM,IC1TB,ICBSM,ICOCOC,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PLR,LUR,C2)
+        call GSTTBL_MCLR(R,CB(ICOFF),IC1TA,IC1SM,IC1TB,ICBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PLR,LUR,C2)
       ICOFF = ICOFF+NCOOSE(IC1TA,IC1TB,IC1SM)
       if (ICBLK /= NCBLK) call NXTBLK_MCLR(IC1TA,IC1TB,IC1SM,NOCTPA,NOCTPB,NSMST,ICBLTP,IDC,NONEWC,ICOCOC)
     end do
@@ -225,7 +221,7 @@ outer: do
               call GSDNBB2_MCLR(I12,RHO1,RHO2,IIASM,IIATP,IIBSM,IIBTP,JJASM,JJATP,JJBSM,JJBTP,NGAS,NELFSPGPA(1,IOCTPA-1+IIATP), &
                                 NELFSPGPB(1,IOCTPB-1+IIBTP),NELFSPGPA(1,IOCTPA-1+JJATP),NELFSPGPB(1,IOCTPB-1+JJBTP),NAEL,NBEL, &
                                 IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3, &
-                                XI3S,I4,XI4S,X,NSMOB,NSMST,NSMSX,NSMDX,NIIA,NIIB,NJJA,NJJB,MXPOBS,NACOB,RHO1S,ieaw,n1,n2)
+                                XI3S,I4,XI4S,X,NSMOB,NIIA,NIIB,NJJA,NJJB,NACOB,RHO1S,ieaw,n1,n2)
             end do
             ! Transpose or scale R block to restore order ??
             if (RTRP(NRPERM+1) == 1) then
@@ -258,15 +254,5 @@ outer: do
   if (ISFINI /= 0) exit outer
 end do outer
 ! End of loop over batches of L blocks
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(ISSOA)
-  call Unused_integer_array(ISSOB)
-  call Unused_integer_array(SXSTSM)
-  call Unused_real_array(RHO1P)
-  call Unused_real_array(XNATO)
-end if
 
 end subroutine GASDN2_MCLR

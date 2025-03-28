@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precaaa(iC,is,js,nd,ir,rOut,nbai,nbaj,focki,fock,sign,Scr,nScr,ActInt)
+subroutine Precaaa(iC,is,js,nd,ir,rOut,nbaj,focki,fock,sign,Scr,nScr,ActInt)
 !***********************************************************************
 !                                                                      *
 !                                        [2]                           *
@@ -44,7 +44,7 @@ use Constants, only: Zero, One, Two, Four
 implicit none
 integer iC, iS, jS, nD, iR
 real*8 rout(nd*(nd+1)/2)
-integer nbai, nbaj
+integer nbaj
 real*8 Fock(nbaj,nbaj), Focki(nbaj,nbaj)
 real*8 Sign
 integer nScr
@@ -207,11 +207,5 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(nbai)
-  call Unused_real_array(fock)
-end if
 
 end subroutine Precaaa

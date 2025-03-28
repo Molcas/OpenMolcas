@@ -25,13 +25,10 @@ real*8 Kap(*)
 integer ipCId, isym, jspin, ipS2, ipCiOut
 real*8 ReCo
 real*8 KapOut(*)
-integer opOut
 real*8 rdum(1)
 real*8, allocatable :: Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), RMOAA(:), MSHam(:)
 integer kRoot, lRoot
 real*8 ECOff
-integer iRC
-integer, external :: ipIN
 
 call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
 call mma_allocate(Sc1,nDens2,Label='Sc1')
@@ -58,10 +55,10 @@ call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
 call Compress(Sc1,KapOut,isym)   ! ds
 !call RecPrt('Ex',' ',KapOut,ndensC,1)
 
-irc = ipin(ipS2)
-irc = ipin(ipCIOUT)
+call ipin(ipS2)
+call ipin(ipCIOUT)
 call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCIOUT)%Vec,1)
-irc = opOut(ipCId)
+call opOut(ipCId)
 
 ! Adding Hkl contribution
 call mma_allocate(MSHam,nRoots**2)
@@ -84,9 +81,5 @@ call mma_deallocate(Sc1)
 call mma_deallocate(rmoaa)
 
 if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)  ! yma
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine TimesE2MSPDFT

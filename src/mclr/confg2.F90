@@ -40,7 +40,8 @@ integer IIOC(*), IICL(*), IIOP(*)
 ! local variables
 logical Loop700, Loop800, Skip700, Skip800, Test
 integer IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, JCONF, ICFREE, MINCL1, NOP, NCL, ICL, IFRSTC, IORB, IPLACE, IPRORB, &
-        NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, ISYM, ISYMCN_MCLR
+        NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, ISYM
+integer, external :: ISYMCN_MCLR
 #ifdef _DEBUGPRINT_
 integer I, IBAS, IOC, IOPEN, ITYPE, LICONF
 #endif
@@ -295,7 +296,7 @@ outer: do NOP=MINOP,MAXOP,2
       if ((IEL1 >= NEL1MN) .and. (IEL3 <= NEL3MX)) then
 
         ! Spatial symmetry
-        ISYM = ISYMCN_MCLR(IICL,IIOP,NCL,NOP)
+        ISYM = ISYMCN_MCLR(IIOP,NOP)
         if (ISYM == IREFSM) then
 #         ifdef _DEBUGPRINT_
           write(u6,1120) (IIOC(I),I=1,NORB)

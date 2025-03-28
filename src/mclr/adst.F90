@@ -30,7 +30,7 @@ subroutine ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,NK,IEND)
 !              January 1994 : modified to allow for several orbitals
 
 use Str_Info, only: STR, ISTAC, IUNIQMP, NOCTYP
-use MCLR_Data, only: NACOB, ISMFTO, NORB1, NORB2, NORB3
+use MCLR_Data, only: NACOB, ISMFTO, NORB1, NORB2
 
 implicit none
 ! =====
@@ -65,7 +65,7 @@ else
 end if
 
 call ADS1(NK,I1,XI1S,LI1,IORB,NORB,ICLS,ISM,Str(JGRP)%STSTM(:,1),Str(JGRP)%STSTM(:,2),Str(JGRP)%STSTMN,Str(JGRP)%STSTMI,IMPF, &
-          LMAP,Str(IGRP)%EL1,Str(IGRP)%EL3,Str(IGRP+1)%EL1,Str(IGRP+1)%EL3,Str(IGRP)%ISTSO,Str(IGRP)%NSTSO,Str(IGRP+1)%ISTSO, &
-          Str(IGRP+1)%NSTSO,NOCTYP(IGRP),NOCTYP(IGRP+1),NORB1,NORB2,NORB3,ISMFTO,NACOB,KMAX,KMIN,IEND)
+          LMAP,Str(IGRP)%EL1,Str(IGRP)%EL3,Str(IGRP+1)%EL1,Str(IGRP+1)%EL3,Str(IGRP)%ISTSO,Str(IGRP+1)%ISTSO,Str(IGRP+1)%NSTSO, &
+          NOCTYP(IGRP),NOCTYP(IGRP+1),NORB1,NORB2,ISMFTO,KMAX,KMIN,IEND)
 
 end subroutine ADST

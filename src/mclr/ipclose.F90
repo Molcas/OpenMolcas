@@ -11,9 +11,8 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-integer function ipclose(ia)
-! Object: release all vectors above and including the vector
-!         indexed ia.
+subroutine ipclose(ia)
+! Object: release all vectors above and including the vector indexed ia.
 
 use ipPage
 use stdalloc, only: mma_deallocate
@@ -60,8 +59,5 @@ if (diskbased .and. (ia < 0)) then
   call DACLOS(Lu_ip)
   DiskBased = .false.
 end if
-ipclose = 0
 
-return
-
-end function ipclose
+end subroutine ipclose

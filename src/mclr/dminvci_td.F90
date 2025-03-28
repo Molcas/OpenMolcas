@@ -19,8 +19,7 @@ use MCLR_Data, only: ipDia
 implicit none
 integer idSym
 real*8 rout(*), rin(*), rome
-integer iRC, i
-integer, external :: ipIn
+integer i
 real*8 r1, r2
 real*8, external :: DDot_
 
@@ -33,7 +32,7 @@ real*8, external :: DDot_
 !                                         0
 
 if (nconf1 > 1) then
-  irc = ipin(ipdia)
+  call ipin(ipdia)
   do i=1,nconf1
     rout(i) = rin(i)/(W(ipdia)%Vec(i)+rome)
   end do
@@ -41,11 +40,11 @@ if (nconf1 > 1) then
   ! To ensure orthogonal response if response is in same symmetry as wavefunction
 
   if (idsym == 1) then
-    irc = ipin(ipCI)
+    call ipin(ipCI)
     r1 = ddot_(nconf1,W(ipCI)%Vec,1,rout,1)
 
     r2 = Zero
-    irc = ipin(ipDia)
+    call ipin(ipDia)
     do i=1,nconf1
       r2 = r2+W(ipCI)%Vec(i)**2/(W(ipDia)%Vec(i)+rome)
     end do
@@ -62,9 +61,5 @@ else
 end if
 
 rout(1:nConf1) = Half*rout(1:nConf1)
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine DMinvCI_td

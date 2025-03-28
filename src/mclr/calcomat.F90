@@ -82,7 +82,7 @@ do i=1,nRoots
       end do
     end if
   end do
-  !irc = ipin(ipCI)
+  !call ipin(ipCI)
   call CISigma_SA(0,State_Sym,State_Sym,FMO1,nDens2,FMO2t(iLoc2),NACPR2,rdum,1,ipci,iptmp,.true.)
   call Daxpy_(nConf1,real(nRoots,8),W(iptmp)%Vec(iLoc3),1,CSFOK(iLoc3),1)
 

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine PSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,PSIGN,ICOOSC,IAC,IDC,LUHC,SCR)
+subroutine PSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSIGN,ICOOSC,IAC,IDC,LUHC,SCR)
 ! add(IAC = 1) or copy (IAC =2) determinant block (iatp iasm, ibtp ibsm
 ! to vector packed in combination format
 ! iatp,iasm, ibtp,ibsm is assumed to be allowed combination block
@@ -21,7 +21,7 @@ use Constants, only: One
 
 implicit real*8(A-H,O-Z)
 dimension C(*), CTT(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
-dimension IOCOC(NOCTPA,NOCTPB), ICOOSC(NOCTPA,NOCTPB,*)
+dimension ICOOSC(NOCTPA,NOCTPB,*)
 dimension SCR(*)
 dimension ISGVST(IBSM)
 dimension IDUM(1)
@@ -102,9 +102,5 @@ else
     end if
   end if
 end if
-
-return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(IOCOC)
 
 end subroutine PSTTBL_MCLR

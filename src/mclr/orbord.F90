@@ -11,8 +11,8 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,NOCOBS,NTOOBS,IREOST,IREOTS,ISFTO,ITFSO,IBSO,NTSOB, &
-                  IBTSOB,ITSOB,NOBPTS,IOBPTS,MXPR4T,ISMFSO,ITPFTO,NOBPT)
+subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,NTOOBS,IREOST,IREOTS,ISFTO,IBSO,NTSOB,IBTSOB,ITSOB, &
+                  NOBPTS,IOBPTS,MXPR4T,ISMFSO,ITPFTO,NOBPT)
 ! Obtain Reordering arrays for orbitals
 ! (See note below for assumed ordering)
 !
@@ -28,7 +28,6 @@ subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,N
 !  NACOBS : Number of Active orbitals per symmetry
 !  NRSOBS : Number of orbitals per symmetry in RAS1,RAS2,RAS3
 !  NR4OBS : Number of RAS 4 orbitals per symmetry and type
-!  NOCOBS : Number of occupied orbitals per symmetry
 !  NTOOBS : Number of orbitals per symmetry,all types
 !
 ! ======
@@ -37,7 +36,6 @@ subroutine ORBORD(NSMOB,MXPOBS,NR4TP,NDEOBS,NINOBS,NR0OBS,NACOBS,NRSOBS,NR4OBS,N
 !  IREOST : Reordering array symmetry => type
 !  IREOTS : Reordering array type     => symmetry
 !  ISFTO  : Symmetry array for type ordered orbitals
-!  ITFSO  : Type array for symmetry ordered orbitals (not activated)
 !  IBSO   : First orbital of given symmetry (symmetry ordered)
 !  NTSOB  : Number of active orbitals of give RAS type and SYM
 !  IBTSOB : Off set for active orbitals of given RAS type and SYM
@@ -58,9 +56,9 @@ use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Input
-dimension NDEOBS(*), NINOBS(*), NR0OBS(*), NACOBS(*), NRSOBS(MXPOBS,3), NR4OBS(MXPOBS,*), NOCOBS(*), NTOOBS(*)
+dimension NDEOBS(*), NINOBS(*), NR0OBS(*), NACOBS(*), NRSOBS(MXPOBS,3), NR4OBS(MXPOBS,*), NTOOBS(*)
 ! Output
-dimension IREOST(*), IREOTS(*), ISFTO(*), ITFSO(*), IBSO(*)
+dimension IREOST(*), IREOTS(*), ISFTO(*), IBSO(*)
 dimension ISMFSO(*), ITPFTO(*)
 dimension NTSOB(3,*), IBTSOB(3,*), ITSOB(*)
 dimension NOBPTS(6+MXPR4T,*), IOBPTS(6+MXPR4T,*)
@@ -353,12 +351,5 @@ call IWRTMA(ISMFSO,1,NTOOB,1,NTOOB)
 write(u6,*) ' ITPFTO array :'
 call IWRTMA(ITPFTO,1,NTOOB,1,NTOOB)
 #endif
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(NOCOBS)
-  call Unused_integer_array(ITFSO)
-end if
 
 end subroutine ORBORD

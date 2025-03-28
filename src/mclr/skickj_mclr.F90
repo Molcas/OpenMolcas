@@ -11,7 +11,7 @@
 ! Copyright (C) 1994, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,IXBOFF,JXBOFF,SXCR,IROUTE)
+subroutine SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKBIB,KBJB,XKBJB,IKORD,IROUTE)
 ! Calculate S(Ka,Ib,i) = S(Ka,Ib,i)
 !          +SUM(j,k,l,Kb) <Ib!a+ kb!Kb><Kb!a lb !Jb>*(ij!kl)*C(Ka,Jb,j)
 !
@@ -32,8 +32,7 @@ integer KBIB(MAXK,*)
 real*8 XKBIB(MAXK,*)
 integer KBJB(MAXK,*)
 real*8 XKBJB(MAXK,*)
-integer IKORD, IXBOFF, JXBOFF
-real*8 SXCR
+integer IKORD
 integer IROUTE
 ! Input and output
 real*8 SKII(NKA*NI,*)
@@ -192,12 +191,5 @@ end if
 ! End of IROUTE branching
 
 call mma_deallocate(KSKICK)
-
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(IXBOFF)
-  call Unused_integer(JXBOFF)
-  call Unused_real(SXCR)
-end if
 
 end subroutine SKICKJ_MCLR

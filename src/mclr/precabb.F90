@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precabb(ib,is,js,nd,nba,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,focka,fock,sign)
+subroutine Precabb(ib,is,js,nd,nba,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,sign)
 !***********************************************************************
 !                                        [2]
 !   Calculates the diagonal submatrix of E    that couple
@@ -45,7 +45,7 @@ integer nTemp
 real*8 Temp1(nTemp), Scr(nTemp)
 real*8 Temp2(nBa,nBa)
 real*8 Fockti
-real*8 Focki(nBa,nBa), Focka(nBa,nBa), Fock(nBa,nBa)
+real*8 Focki(nBa,nBa)
 real*8 Sign
 integer nTri, iib, jVert, i2, ip, kS, kBB, kkB, kkC, lB, jB, ii, ij, kCC
 real*8 rf, rDens1, rDens2, Rho
@@ -117,10 +117,5 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(focka)
-  call Unused_real_array(fock)
-end if
 
 end subroutine Precabb

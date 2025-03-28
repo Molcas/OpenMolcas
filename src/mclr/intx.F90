@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp,r)
+subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp)
 
 use Arrays, only: G1t, CMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
@@ -21,7 +21,6 @@ use Definitions, only: u6
 implicit none
 real*8 FockI(nDens2), Temp2(ndens2), Temp3(nDens2), Temp4(ndens2), Temp1(nDens2), Fock(nDens2), rMO(*)
 integer lOper, iDisp
-real*8 r
 character(len=8) Label
 integer jDisp, iOp, iRC, iOpt, iS, jS
 real*8 rde
@@ -197,8 +196,5 @@ else
   call dcopy_(ndens2,Temp2,1,FockI,1)
   call dcopy_(ndens2,Temp3,1,Fock,1)
 end if
-
-! Avoid unused argument warnings
-if (.false.) call Unused_real(r)
 
 end subroutine INTX

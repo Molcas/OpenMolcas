@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,nF,iDSym,sign,Fact,jspin,D,FA)
+subroutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin,D,FA)
 !***********************************************************************
 !
 ! Constructs the one index transformed Fock-matrixes
@@ -31,7 +31,7 @@ use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
 
 implicit none
 real*8 rKappa(nDens2), rMO1(nMba), rmo2(*), FockI(nDens2), FockA(nDens2)
-integer nF, iDSym, jSpin
+integer iDSym, jSpin
 real*8 sign, Fact
 real*8 D(*), FA(*)
 logical lFI, lFA, lMo
@@ -109,7 +109,7 @@ end if
 ! from one index tranformation of contracted indexes
 
 FacR = Fact
-call Read2_2(rmo1,rmo2,FI,FA2,T1,imem,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo,CMO)
+call Read2_2(rmo1,rmo2,FI,FA2,T1,imem,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo)
 
 ! Calculate contribution from uncontracted indexes.
 
@@ -148,7 +148,5 @@ call mma_deallocate(T1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nF)
 
 end subroutine r2elint_sp

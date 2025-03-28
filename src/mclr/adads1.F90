@@ -11,8 +11,8 @@
 
 !#define _DEBUGPRINT_
 subroutine ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,JOBSM,JOBTP,JOBOFF,NJOB,IJORD,NKDIM,ICLS,ISM,I2MAPO,I2MAPS,I2MPF,L2MP,I2MPO, &
-                  I2MPL,I1MAPO,I1MAPS,I1MPF,L1MP,I1MPO,I1MPL,IEL1,IEL3,I2EL1,I2EL3,ISSO,NSSO,I2SSO,N2SSO,NOCTP,N2OCTP,NORB1,NORB2, &
-                  NORB3,NORB,KMAX,KMIN,IEND)
+                  I2MPL,I1MAPO,I1MAPS,I1MPF,L1MP,I1MPO,I1MPL,IEL1,IEL3,I2EL1,I2EL3,ISSO,I2SSO,N2SSO,NOCTP,N2OCTP,NORB,KMAX,KMIN, &
+                  IEND)
 ! Obtain I1(KSTR) = +/- A+ IORB !KSTR>
 !
 ! KSTR is restricted to strings with relative numbers in the
@@ -26,12 +26,10 @@ subroutine ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,JOBSM,JOBTP,JOBOFF,NJOB,IJO
 ! IEL1(3) : Number of electrons in RAS1(3) for I strings
 ! I2EL1(3) : Number of electrons in RAS1(3) for K strings
 ! ISSO : TS symmetry offset for I strings
-! NSSO : Number of TS strings for I strings
 ! I2SSO : TS symmetry offset for K strings
 ! N2SSO : Number of TS strings for K strings
 ! NOCTP : Number of occupation types for I strings
 ! N2OCTP : Number of occupation types for K strings
-! NORB1(2,3) : Number of RAS1(2,3) orbitals
 ! IORBSM : Orbital symmety array
 ! NORB : Number of active  orbitals
 ! KMAX : Largest allowed relative number for K strings
@@ -58,7 +56,7 @@ use Definitions, only: u6
 implicit real*8(A-H,O-Z)
 !.Input
 integer IEL1(*), IEL3(*), I2EL1(*), I2EL3(*)
-integer ISSO(NOCTP,*), NSSO(NOCTP,*)
+integer ISSO(NOCTP,*)
 integer I2SSO(N2OCTP,*), N2SSO(N2OCTP,*)
 integer I2MAPO(*), I2MAPS(*)
 integer I1MAPO(*), I1MAPS(*)
@@ -240,14 +238,5 @@ if (NK /= 0) then
   end do
 end if
 #endif
-
-return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer_array(NSSO)
-  call Unused_integer(NORB1)
-  call Unused_integer(NORB2)
-  call Unused_integer(NORB3)
-end if
 
 end subroutine ADADS1

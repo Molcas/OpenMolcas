@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,nF,iDSym,sign,Fact,jspin)
+subroutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin)
 !***********************************************************************
 !
 ! Constructs the one index transformed Fock-matrixes
@@ -23,7 +23,7 @@ subroutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,nF,iDSym,sign,Fact,jspin)
 !
 !***********************************************************************
 
-use Arrays, only: CMO, G1t, FAMO, FIMO
+use Arrays, only: G1t, FAMO, FIMO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
@@ -31,7 +31,7 @@ use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
 
 implicit none
 real*8 rKappa(nDens2), rMO1(nMBA), rMO2(nMBA), FockI(nDens2), FockA(nDens2)
-integer nF, iDSym, jSpin
+integer iDSym, jSpin
 real*8 sign, Fact
 logical lFI, lFA, lMo
 real*8 rdum(1)
@@ -43,7 +43,7 @@ real*8 FacR
 !                                                                      *
 interface
   subroutine Read2_ns(rMO1,rMO2,FockI,FockA,Temp1,nTemp,Temp2,Temp3,Temp4,DI13,DI24,DI,DA13,DA24,DA,rkappa,idsym,Signa,Fact,jSpin, &
-                      lfat,lfit,lMOt,CMO)
+                      lfat,lfit,lMOt)
     use MCLR_Data, only: nMBA, nDens2, nCMO
     implicit none
     real*8 rmo1(nMBA), rmo2(nMBA), FockI(nDens2), FockA(nDens2)
@@ -54,7 +54,6 @@ interface
     real*8 Signa, Fact
     integer jSpin
     logical lFAt, lFIT, lmot
-    real*8 CMO(nCMO)
   end subroutine Read2_ns
 end interface
 ! Statement function
@@ -147,7 +146,7 @@ end if
 !  stop 10
 !end if
 FacR = Fact
-call Read2_ns(rmo1,rmo2,FockI,FockA,T1,imem,Tmp2,T3,T4,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo,CMO)
+call Read2_ns(rmo1,rmo2,FockI,FockA,T1,imem,Tmp2,T3,T4,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo)
 !if (iDsym == 2) then
 !  call RecPrt('FI',' ',FI,ndens2,1)
 !  call RecPrt('DI',' ',DI,ndens2,1)
@@ -164,7 +163,7 @@ if (imethod == 2) then
   DAR(:) = Zero
   DAL(:) = Zero
 end if
-call Read2_ns(rdum,rdum,FI1,FA1,T1,imem,Tmp2,T3,T4,DIR,DIL,DI,DAR,DAL,DA,K1,idsym,Sign,Facr,jSpin,lFA,lfi,.false.,CMO)
+call Read2_ns(rdum,rdum,FI1,FA1,T1,imem,Tmp2,T3,T4,DIR,DIL,DI,DAR,DAL,DA,K1,idsym,Sign,Facr,jSpin,lFA,lfi,.false.)
 !if (iDsym == 2) call RecPrt('FI1',' ',FI1,ndens2,1)
 
 ! Calculate contribution from uncontracted indexes.
@@ -203,7 +202,5 @@ call mma_deallocate(T1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nF)
 
 end subroutine r2elint_ns

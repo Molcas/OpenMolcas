@@ -20,7 +20,7 @@ use input_mclr, only: nSym, nIrrep, nsMOB, iSpin, nHole1, nActEl, nElec3, nRs1, 
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 
-integer iTmp, nTRas1, nTRas2, nTRas3, iSym, iDum, MNRS10, MXR4TP, MXRS30
+integer iTmp, nTRas1, nTRas2, nTRas3, iSym, MNRS10, MXR4TP, MXRS30
 
 call mma_Allocate(pINT1,nSym,Label='pInt1')
 pInt1(:) = 0
@@ -69,6 +69,6 @@ call ICISPC(MNRS10,MXRS30)  ! looks alright
 call ICISPS()  ! looks alright
 ! CSF information
 call DANAME(LUCSF2SD,FNCSF2SD)
-call CSFINF(State_sym,iSpin,idum,1,nsym)
+call CSFINF(State_sym,iSpin,1,nsym)
 
 end subroutine DetCtl

@@ -11,8 +11,7 @@
 ! Copyright (C) 1989,1993, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,NINOC,ECORE,IPRODT,DTOC,NORB,ICOMBI,PSSIGN,NTERMS,NDIF0, &
-                  NDIF1,NDIF2)
+subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,IPRODT,DTOC,NORB,ICOMBI,PSSIGN,NDIF0,NDIF1,NDIF2)
 ! Obtain Hamilton matrix over CSFs of configurations ICNL,ICNR
 !
 ! Jeppe Olsen, Summer of 89
@@ -22,11 +21,10 @@ subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,NINOC,ECOR
 use Constants, only: Zero
 
 implicit none
-integer ITPL, ITPR, NEL, NAEL, NBEL, INTSPC, NINOC
-real*8 ECORE
+integer ITPL, ITPR, NEL, NAEL, NBEL, INTSPC
 integer NORB, ICOMBI
 real*8 PSSIGN
-integer NTERMS, NDIF0, NDIF1, NDIF2
+integer NDIF0, NDIF1, NDIF2
 ! Specific input
 integer ICNL(*), ICNR(*)
 ! General input
@@ -42,12 +40,6 @@ integer IDUMMY(1)
 call CNHCN2_INTERNAL(SCR)
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NINOC)
-  call Unused_real(ECORE)
-  call Unused_integer(NTERMS)
-end if
 
 ! This is to allow type punning without an explicit interface
 contains
@@ -61,7 +53,7 @@ subroutine CNHCN2_INTERNAL(SCR)
 
   implicit none
   integer IAGRP, IBGRP, IOPL, IOPR, ICLL, ICLR, NDETL, NDETR, NCSFL, NCSFR, KLFREE, KLDTLA, KLDTLB, KLISL, KLDTRA, KLDTRB, KLISR, &
-          KLDHD, KLCHD, KLROU, LDIHDJ, LCNFST, NDIFF, ISYM, IPL, JTYP, JCSF, JDET, IPR, LWORK
+          KLDHD, KLCHD, KLROU, LDIHDJ, LCNFST, NDIFF, ISYM, IPL, JTYP, JCSF, JDET, IPR
   real*8 ECOREP
   real*8, target :: SCR(*)
   integer, pointer :: iSCR(:), iSCRa(:), iSCRb(:), iSCRar(:), iSCRbr(:), iSCRn(:), iSCRnn(:)
@@ -141,7 +133,7 @@ subroutine CNHCN2_INTERNAL(SCR)
     ecorep = Zero ! eaw
     call c_f_pointer(c_loc(SCR(KLROU+NEL)),iSCRn,[1])
     call c_f_pointer(c_loc(SCR(KLROU+2*NEL)),iSCRnn,[1])
-    call DIHDJ2_MCLR(iSCRa,iSCRb,NDETL,iSCRar,iSCRbr,NDETR,NAEL,NBEL,iSCRnn,LWORK,NORB,SCR(KLDHD),ISYM,0,ECOREP,ICOMBI,PSSIGN, &
+    call DIHDJ2_MCLR(iSCRa,iSCRb,NDETL,iSCRar,iSCRbr,NDETR,NAEL,NBEL,iSCRnn,NORB,SCR(KLDHD),ISYM,ECOREP,ICOMBI,PSSIGN, &
                      Str(IAGRP)%OCSTR,Str(IBGRP)%OCSTR,Str(IAGRP)%OCSTR,Str(IBGRP)%OCSTR,0,IDUMMY,IDUMMY,IDUMMY,IDUMMY,iSCR,iSCRn, &
                      NDIF0,NDIF1,NDIF2)
     nullify(iSCR,iSCRa,iSCRb,iSCRar,iSCRbr,iSCRn,iSCRnn)

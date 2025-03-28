@@ -29,8 +29,7 @@ implicit none
 integer iCI, iS
 real*8 rP(*), rD(*)
 real*8, allocatable :: De(:), Pe(:), CIL(:), CIR(:)
-integer nConfL, nConfR, nC, iRC
-integer, external :: ipIn, ipnOut
+integer nConfL, nConfR, nC
 #ifdef _DEBUGPRINT_
 integer i, j, k, l, itri, ijkl
 ! Statement function
@@ -70,7 +69,7 @@ itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 !  rP : Two Electron Density
 !  rD : One Electron Density
 
-!irc = ipin(iCI)
+!call ipin(iCI)
 !write(u6,*) 'iCI*iCI',ddot_(2*nConf1,W(iCI)%Vec,1,W(iCI)%Vec,1)
 
 if (nconf1 == 0) return
@@ -89,8 +88,8 @@ if (nocsf == 0) then
 
   ! iCI is as long as ipcid for the timedep case!
 
-  irc = ipin(iCI)
-  irc = ipin(ipCI)
+  call ipin(iCI)
+  call ipin(ipCI)
   call CSF2SD(W(iCI)%Vec,CIR,iS)
   call CSF2SD(W(ipCI)%Vec,CIL,State_SYM)
 
@@ -99,7 +98,7 @@ if (nocsf == 0) then
   !call RecPrt('CIL',' ',CIL,nConfL,1)
   !call RecPrt('CIR',' ',CIR,nConfR,1)
 
-  irc = ipnout(-1)
+  call ipnout(-1)
   icsm = iS
   issm = STATE_SYM
 
@@ -118,8 +117,8 @@ if (nocsf == 0) then
   !write(u6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
   !call RecPrt('rD',' ',rD,n1dens,1)
 
-  irc = ipin(iCI)
-  irc = ipin(ipCI)
+  call ipin(iCI)
+  call ipin(ipCI)
   call CSF2SD(W(iCI)%Vec(1+nconf1),CIL,iS)
   call CSF2SD(W(ipci)%Vec,CIR,State_SYM)
 
@@ -128,7 +127,7 @@ if (nocsf == 0) then
   !call RecPrt('CIL',' ',CIL,nConfL,1)
   !call RecPrt('CIR',' ',CIR,nConfR,1)
 
-  irc = ipnout(-1)
+  call ipnout(-1)
   issm = iS
   icsm = STATE_SYM
   call dcopy_(n1dens,[Zero],0,De,1)
@@ -166,10 +165,5 @@ end if
 
 call mma_deallocate(Pe)
 call mma_deallocate(De)
-
-return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine CIDens_TD

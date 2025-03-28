@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precaii(iB,is,js,nd,ir,rOut,nbai,nbaj,fockii,fockai,fockti,focki,focka,fock,sign,A_J,A_K,Scr,nScr)
+subroutine Precaii(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign,A_J,A_K,Scr,nScr)
 !***********************************************************************
 !                                                                      *
 !                                        [2]                           *
@@ -42,11 +42,11 @@ use input_mclr, only: nSym, nAsh, nIsh, nBas
 use Constants, only: Two, Four, Seven
 
 implicit none
-integer iB, is, js, nd, ir
+integer iB, is, js, nd
 real*8 rout(nd*(nd+1)/2)
-integer nbai, nbaj
+integer nbaj
 real*8 fockii, fockai, fockti
-real*8 Fock(nbaj,nbaj), FockA(nBaj,nBaj), Focki(nbaj,nbaj)
+real*8 FockA(nBaj,nBaj), Focki(nbaj,nbaj)
 integer nScr
 real*8 A_J(nScr), A_K(nScr), Scr(nScr)
 real*8 sign
@@ -161,11 +161,5 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(ir)
-  call Unused_integer(nbai)
-  call Unused_real_array(fock)
-end if
 
 end subroutine Precaii

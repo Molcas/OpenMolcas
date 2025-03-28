@@ -21,8 +21,6 @@ use MCLR_Data, only: ipDia
 implicit none
 integer ipSIgma, idSym
 real*8 rout(*), rC_HE_C
-integer iRC
-integer, external :: ipin, ipout, opout
 real*8 rCoeff
 real*8, external :: DDot_
 
@@ -36,11 +34,11 @@ real*8, external :: DDot_
 
 if (nconf1 > 1) then
 
-  irc = ipin(ipdia)
-  irc = ipin(ipSigma)
+  call ipin(ipdia)
+  call ipin(ipSigma)
   call exphinvv(W(ipdia)%Vec,W(ipsigma)%Vec,rout,Zero,One)
-  irc = ipout(ipsigma)
-  irc = opout(ipdia)
+  call ipout(ipsigma)
+  call opout(ipdia)
 
   ! OBS <0|(H-E)|Sigma>=0 if idsym=/=1
 
@@ -54,15 +52,15 @@ if (nconf1 > 1) then
     !                 0
 
     if (.not. ngp) then
-      irc = ipin(ipCI)
+      call ipin(ipCI)
       rcoeff = ddot_(nconf1,rout,1,W(ipCI)%Vec,1)/rC_HE_C
 
       !                          -1
       ! rout = rout-rocoeff*(H -E) |0>
       !                       0
-      irc = ipin(ipdia)
+      call ipin(ipdia)
       call exphinvv(W(ipdia)%Vec,W(ipci)%Vec,rOUT,One,-rcoeff)
-      irc = opout(ipCI)
+      call opout(ipCI)
     else
       call NEGP(ipdia,ipSigma,rout)
     end if
@@ -73,14 +71,9 @@ if (nconf1 > 1) then
 
 else
 
-  irc = ipin(ipsigma)
+  call ipin(ipsigma)
   rout(1:nConf1) = W(ipSigma)%Vec(:)
 
 end if
-
-return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call Unused_integer(irc)
-#endif
 
 end subroutine DMinvCI

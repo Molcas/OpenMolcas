@@ -13,7 +13,7 @@
 !***********************************************************************
 
 subroutine TRAMO_MCLR(LBUF,X1,n1,X2,n2,X3,n3,X4,n4,Buffer,MEMX,NBP,NBQ,NBR,NBS,iSP,iSQ,iSR,iSS,nAP,nAQ,nAR,nAS,CMP,CMQ,CMR,CMS, &
-                      iAD13,iAD14,iAD23,iAD24,iAD34,len,IDAHLF2,IRLHLF2,IDAHLF3,IRLHLF3,LIOTAB)
+                      iAD13,iAD14,iAD23,iAD24,iAD34,IDAHLF2,IRLHLF2,IDAHLF3,IRLHLF3,LIOTAB)
 !***********************************************************************
 !                                                                      *
 !     Purpose: two-electron transformation routine.                    *
@@ -39,15 +39,11 @@ implicit none
 integer LBUF, n1, n2, n3, n4, MEMX, NBP, NBQ, NBR, NBS, iSP, iSQ, iSR, iSS, nAP, nAQ, nAR, nAS
 real*8 X1(n1), X2(n2), X3(n3), X4(n4), Buffer(MemX), CMP(nBP,nAP), CMQ(nBQ,nAQ), CMR(nBR,nAR), CMS(nBS,nAS)
 integer iAD13, iAD14, iAD23, iAD24, iAD34
-integer len(5)
 integer LIOTAB
 integer IDAHLF2(LIOTAB), IRLHLF2(LIOTAB), IDAHLF3(LIOTAB), IRLHLF3(LIOTAB)
 #include "SysDef.fh"
 
 call TRAMO_MCLR_INTERNAL(Buffer)
-
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(len)
 
 ! This is to allow type punning without an explicit interface
 contains

@@ -36,11 +36,10 @@ use Definitions, only: u6
 
 implicit none
 integer iPL
-logical ldisk, ipopen
 character(len=8) Method
 real*8, allocatable :: CIVec(:,:), CITmp(:)
-integer i, ii, ipCII, iRC, iSSM
-integer, external :: ipGet, ipIn, ipOut
+integer i, ii, ipCII, iSSM
+integer, external :: ipGet
 integer, external :: IsFreeUnit
 integer, allocatable :: index_SD(:) ! not final version
 real*8, allocatable :: vector_cidmrg(:)
@@ -75,7 +74,7 @@ call RdInp_MCLR()  ! Read in input
 !                                                                      *
 ! Default activate ippage utility
 
-ldisk = ipopen(0,.true.)
+call ipopen(.true.)
 
 PT2 = .false.
 call Get_cArray('Relax Method',Method,8)
@@ -98,7 +97,7 @@ if (iMethod == 2) then
   !write(u6,*) 'Setup of Determinant tables'
   call DetCtl()   ! set up determinant tables
   ! Read in tables from disk
-  call InCsfSD(State_sym,State_sym,.true.)
+  call InCsfSD(State_sym,State_sym)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -152,7 +151,7 @@ if (iMethod == 2) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  ldisk = ipopen(nconf,page)
+  call ipopen(page)
 
   ! If we are computing Lagrangian multipliers we pick up all CI
   ! vectors. For Hessian calculations we pick up just one vector.
@@ -160,19 +159,19 @@ if (iMethod == 2) then
   !write(u6,*) 'iState,SA,nroots=',iState,SA,nroots
   if (SA .or. iMCPD .or. PT2) then
     ipcii = ipget(nconf*nroots)
-    irc = ipin(ipcii)
+    call ipin(ipcii)
     call dcopy_(nconf*nroots,CIVec,1,W(ipcii)%Vec,1)
     nDisp = 1
   else
     ipcii = ipget(nconf)
-    irc = ipin(ipcii)
+    call ipin(ipcii)
     call dcopy_(nConf,CIVec(:,iState),1,W(ipcii)%Vec,1)
     if (iRoot(iState) /= 1) then
       write(u6,*) 'McKinley does not support computation of harmonic frequencies of excited states'
       call Abend()
     end if
   end if
-  !irc = ipin(ipcii)
+  !call ipin(ipcii)
   !call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
   call mma_deallocate(CIVec)
 
@@ -180,7 +179,7 @@ if (iMethod == 2) then
   ! vector in the ipage utility.
 
   ipci = ipcii
-  irc = ipout(ipci)
+  call ipout(ipci)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -198,11 +197,5 @@ call PrInp_MCLR(iPL)  ! Print all info
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-#ifdef _WARNING_WORKAROUND_
-if (.false.) then
-  call Unused_integer(irc)
-  call Unused_logical(ldisk)
-end if
-#endif
 
 end subroutine InpCtl_MCLR

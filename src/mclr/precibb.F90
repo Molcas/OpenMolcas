@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precibb(ib,is,js,nd,rout,nba,no,Temp1,Scr,Temp2,fockii,fockai,focki,focka,sign)
+subroutine Precibb(ib,is,js,nd,rout,no,Temp1,Scr,Temp2,fockii,fockai,focki,focka,sign)
 !***********************************************************************
 !                                       [2]
 ! Calculates the diagonal submatrix of E    that couple
@@ -39,7 +39,7 @@ use Constants, only: Four, Twelve
 implicit none
 integer ib, is, js, nd
 real*8 rout(*)
-integer nba, no
+integer no
 real*8 Temp2(*), Temp1(*), Scr(*)
 real*8 fockii, fockai
 real*8 Focki(no,no), Focka(no,no)
@@ -77,7 +77,5 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nba)
 
 end subroutine Precibb

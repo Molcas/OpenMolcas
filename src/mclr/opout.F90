@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-integer function opout(ii)
+subroutine opout(ii)
 ! opout will release the memory area of vector ii without updating the disk
 
 use ipPage
@@ -26,16 +26,13 @@ if (ii > Max_CI_Vectors) then
   call Abend()
 end if
 
-opout = 0
 if (.not. diskbased) return
 
 if ((Status(ii) == In_Memory) .and. (ii > 0)) then
   Status(ii) = On_Disk
   call mma_deallocate(W(ii)%Vec)
-else
-  opout = -1
 end if
 
 return
 
-end function opout
+end subroutine opout
