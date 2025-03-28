@@ -16,7 +16,7 @@ subroutine CIDIA_MCLR(iSym,ralp)
 use Exp, only: nexp, nexp_max
 use Str_Info, only: CNSM
 use ipPage, only: W
-use negpre, only: nGP
+use MCLR_Data, only: nGP
 use MCLR_Data, only: ipCI
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: XISPSM

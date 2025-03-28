@@ -19,7 +19,7 @@ subroutine AddGrad(rKappa,rMat,idsym,fact)
 !   a beautifull convergence of the PCG,
 !   which is just the case if E is symmetric.
 
-use Arrays, only: F0SQMO
+use MCLR_Data, only: F0SQMO
 use MCLR_Data, only: ipCM, ipMat
 use input_mclr, only: nSym, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate

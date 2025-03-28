@@ -14,11 +14,11 @@ subroutine Prec_td(pre2,DigPrec,isym)
 ! DigPrec Output - Diagonal of prec2
 ! isym      Symmetry of PT
 
-use Constants, only: Zero, Two
-use Arrays, only: G1t
-use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: G1t
 use MCLR_Data, only: ipCM, ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nIsh, nBas, Omega
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
 
 implicit none
 real*8 DigPrec(*), pre2(*)

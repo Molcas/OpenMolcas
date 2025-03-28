@@ -12,7 +12,7 @@
 real*8 function GETH1I_MCLR(I,J)
 ! Obtain one -electron integral H(IORB,JOB)
 
-use Arrays, only: FIMO
+use MCLR_Data, only: FIMO
 use MCLR_Data, only: ipCM
 use MCLR_Data, only: IBSO, IREOTS, ISMFTO
 use input_mclr, only: nIsh, nOrb

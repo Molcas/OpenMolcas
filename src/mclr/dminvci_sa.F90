@@ -12,7 +12,7 @@
 subroutine DMinvCI_sa(ipSigma,rout,S)
 
 use ipPage, only: W
-use negpre
+use MCLR_Data, only:
 use MCLR_Data, only: nConf1, ipCI
 use MCLR_Data, only: ipDia
 use input_mclr, only: nRoots, ERASSCF, nCSF, State_Sym

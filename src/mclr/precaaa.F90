@@ -36,7 +36,7 @@ subroutine Precaaa(iC,is,js,nd,ir,rOut,nbaj,focki,fock,sign,Scr,nScr,ActInt)
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: G1t, G2t
+use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: ntAsh, nSym, nAsh, nIsh, nRS1, nRS2, nRS3
 use Constants, only: Zero, One, Two, Four

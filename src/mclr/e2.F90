@@ -11,7 +11,7 @@
 
 real*8 function E2(FockI,rMo,loper,idisp)
 
-use Arrays, only: G1t, G2t
+use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nCMO, nNA, ipCM, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb, ntPert
 use Constants, only: Zero, Half

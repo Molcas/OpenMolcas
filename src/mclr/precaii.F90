@@ -36,7 +36,7 @@ subroutine Precaii(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign,A
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: G1t, G2t
+use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
 use Constants, only: Two, Four, Seven

@@ -33,7 +33,7 @@ subroutine Precabi(ib,is,js,nd,rOut,nba,focki,focka,sign,A_J,A_K,Scr,nScr)
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: G1t, G2t
+use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb, nBas
 use Constants, only: Two, Four, Eight

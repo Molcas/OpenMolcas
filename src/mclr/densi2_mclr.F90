@@ -29,7 +29,7 @@ use MCLR_Data, only: IDC, PSSIGN
 use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC
 use MCLR_Data, only: MAXI, MAXK, ICISTR
 use MCLR_Data, only: NACOB, IBTSOB, NOBPTS, NTSOB
-use DetDim, only: MXINKA, MXPNGAS
+use MCLR_Data, only: MXINKA, MXPNGAS
 use CandS, only: ICSM, ISSM, ISSPC, ICSPC
 use input_mclr, only: nIrrep, nsMOB
 use stdalloc, only: mma_allocate, mma_deallocate

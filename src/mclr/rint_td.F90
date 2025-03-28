@@ -30,7 +30,7 @@ subroutine RInt_td(ekappa,mkappa,isym)
 !  wDKt   Omega*(density matrix)*(kappa transposed)
 !  wKtD   As above but different order
 
-use Arrays, only: G1t
+use MCLR_Data, only: G1t
 use MCLR_Data, only: nDens2, ipCM, ipMat, nA
 use input_mclr, only: Omega, nSym, nAsh, nBas, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate

@@ -25,7 +25,7 @@ use MCLR_Data, only: IDC, PSSIGN
 use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC, XISPSM
 use MCLR_Data, only: NOCSF, MAXI, MAXK, ICISTR, NOPART, IDIAG
 use MCLR_Data, only: IBTSOB, ITSOB, NTSOB
-use DetDim, only: MXINKA
+use MCLR_Data, only: MXINKA
 use CandS, only: ICSM, ISSM, ICSPC, ISSPC
 use input_mclr, only: nIrrep, nsMOB, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate

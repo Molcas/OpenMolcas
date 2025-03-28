@@ -33,7 +33,7 @@ subroutine Preciba(iB,iS,jS,nd,rOut,nba,focki,focka,fock,sign,A_J,A_K,Scr,nScr)
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: G1t
+use MCLR_Data, only: G1t
 use MCLR_Data, only: nA
 use input_mclr, only: nAsh, nIsh, nBas, nOrb
 use Constants, only: Two, Four, Six

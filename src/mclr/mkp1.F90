@@ -11,10 +11,10 @@
 
 subroutine mkp1(nEX,lst,rMat,rdiag)
 
-use Constants, only: Zero
-use negpre, only: LuCIV, P1
-use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: LuCIV, P1
 use input_mclr, only: lRoots, nConf, ERASSCF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 integer nEX

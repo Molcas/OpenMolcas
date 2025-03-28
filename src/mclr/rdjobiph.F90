@@ -28,8 +28,8 @@ subroutine RdJobIph(CIVec)
 !***********************************************************************
 
 use MckDat, only: sNew
-use Arrays, only: CMO, G2t, G1t
 use gugx, only: SGS, CIS, EXS
+use MCLR_Data, only: CMO, G2t, G1t
 use MCLR_Data, only: nA, nNA
 use MCLR_Data, only: IRLXROOT, ISTATE, SA, OVERRIDE, ISNAC, NSSA, NACSTATES
 use MCLR_Data, only: FnJob, FnMck, LuJob, LuMck

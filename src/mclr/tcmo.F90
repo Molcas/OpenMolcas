@@ -11,7 +11,7 @@
 
 subroutine TCMO(A,isym,ictl)
 
-use Arrays, only: CMO
+use MCLR_Data, only: CMO
 use MCLR_Data, only: ipCM, ipMat, nDens2
 use input_mclr, only: nSym, nBas, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate

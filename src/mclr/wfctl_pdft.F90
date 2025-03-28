@@ -20,7 +20,7 @@ subroutine WfCtl_pdft(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 
 use Exp, only: Exp_Close
 use ipPage, only: W
-use PDFT_Util, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
+use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI, nAcPar, nNA, nAcPr2, ipMat
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: ISNAC, IRLXROOT, NACSTATES

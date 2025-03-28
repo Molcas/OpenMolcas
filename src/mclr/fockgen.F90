@@ -24,13 +24,13 @@ subroutine FockGen(d_0,rDens1,rdens2,Fock,FockOut,idSym)
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: CMO, FIMO
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Two
+use MCLR_Data, only: CMO, FIMO
 use MCLR_Data, only: nDens2, nNA, ipCM, ipMat, nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas, NewCho, LuAChoVec, nOrb
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Two
 
 implicit none
 real*8 d_0

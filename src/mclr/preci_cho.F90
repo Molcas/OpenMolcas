@@ -25,7 +25,7 @@ subroutine Preci_cho(jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,sign,A_J,nSc
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: G1t, G2t
+use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
 use Constants, only: One, Two, Three, Four

@@ -12,10 +12,10 @@
 subroutine negp(ipdia,ipSigma,rout)
 
 use ipPage, only: W
-use negpre, only: SS, LuCIV
+use MCLR_Data, only: SS, LuCIV
+use input_mclr, only: lRoots, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use input_mclr, only: lRoots, nConf
 
 implicit none
 integer ipdia, ipSigma

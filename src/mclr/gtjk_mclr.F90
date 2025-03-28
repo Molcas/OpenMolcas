@@ -13,7 +13,7 @@ subroutine GTJK_MCLR(RJ,RK)
 ! PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 !          WITH THE CHARGE DISTRIBUTION JK
 
-use Arrays, only: Int2
+use MCLR_Data, only: Int2
 use MCLR_Data, only: NACOB
 
 implicit none

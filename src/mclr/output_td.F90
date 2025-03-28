@@ -33,8 +33,8 @@ subroutine OutPut_td(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,co
 !***********************************************************************
 
 use MckDat, only: sLength
-use Arrays, only: Hss
 use ipPage, only: W
+use MCLR_Data, only: Hss
 use MCLR_Data, only: nConf1, nDensC
 use MCLR_Data, only: nHess, lDisp
 use MCLR_Data, only: LuTEMP

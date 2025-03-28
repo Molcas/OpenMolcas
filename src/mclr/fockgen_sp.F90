@@ -24,7 +24,7 @@ subroutine FockGen_sp(d_0,rDens1,rdens2,Fock,fockout,idsym)
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: FIMO
+use MCLR_Data, only: FIMO
 use MCLR_Data, only: nNA, ipCM, ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nIsh, nBas
 use stdalloc, only: mma_allocate, mma_deallocate

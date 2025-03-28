@@ -11,7 +11,7 @@
 
 subroutine DetCtl()
 
-use Arrays, only: pINT1, pINT2
+use MCLR_Data, only: pINT1, pINT2
 use MCLR_Data, only: iST, i12
 use MCLR_Data, only: MS2, idc, PSSIGN
 use MCLR_Data, only: FnCSF2SD, LuCSF2SD

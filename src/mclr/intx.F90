@@ -11,7 +11,7 @@
 
 subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp)
 
-use Arrays, only: G1t, CMO
+use MCLR_Data, only: G1t, CMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
 use MCLR_Data, only: DspVec, SWLbl
 use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh, nOrb, nTPert

@@ -13,7 +13,7 @@ real*8 function GTIJKL_MCLR(I,J,K,L)
 ! Obtain  integral (I J ! K L)
 ! where I,J,K and l refers to active orbitals in type ordering
 
-use Arrays, only: Int2
+use MCLR_Data, only: Int2
 use MCLR_Data, only: IREOTS
 
 implicit none

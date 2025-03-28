@@ -33,7 +33,7 @@ subroutine RHS_td(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,rKappa,ipst,iDisp,lOper,CM
 !***********************************************************************
 
 use ipPage, only: W
-use Arrays, only: G2sq, G1t
+use MCLR_Data, only: G2sq, G1t
 use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
 use MCLR_Data, only: DspVec
 use MCLR_procedures, only: CISigma_td

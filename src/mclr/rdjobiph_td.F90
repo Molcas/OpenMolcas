@@ -26,7 +26,7 @@ subroutine RdJobIph_td(CIVec)
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: CMO, G2t, G2sq, G1t
+use MCLR_Data, only: CMO, G2t, G2sq, G1t
 use MCLR_Data, only: nNA, nA
 use MCLR_Data, only: FnJob, LuJob
 use input_mclr, only: lRoots, iPT2, nRoots, ntIsh, ntITri, ntAsh, ntATri, ntASqr, ntBas, ntBTri, ntBSqr, nSym, State_Sym, ERASSCF, &

@@ -19,11 +19,11 @@ subroutine Add2(rMat,fact)
 !   a beautifull convergence of the PCG,
 !   which is just the case if E is symmetric.
 
-use Arrays, only: SFock
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Four
+use MCLR_Data, only: SFock
 use MCLR_data, only: ipCM, ipMat
 use input_mclr, only: nSym, nBas, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Four
 
 implicit none
 real*8 rMat(*)

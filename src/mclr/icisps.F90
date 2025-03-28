@@ -26,7 +26,7 @@ subroutine ICISPS()
 use Str_Info, only: STR, NOCTYP
 use MCLR_Data, only: IDC
 use MCLR_Data, only: IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC, IACTI, MNR3IC, MXR1IC, NAELCI, NBELCI, XISPSM, MXSB, MXSOOB, NICISP
-use DetDim, only: MXPCSM
+use MCLR_Data, only: MXPCSM
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero

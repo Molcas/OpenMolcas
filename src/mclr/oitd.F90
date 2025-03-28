@@ -11,10 +11,10 @@
 
 subroutine OITD(rK,isym,D,Dtmp,act)
 
-use Arrays, only: G1t
-use Constants, only: Zero, One, Two
+use MCLR_Data, only: G1t
 use MCLR_Data, only: ipCM, ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
+use Constants, only: Zero, One, Two
 
 implicit none
 integer iSym

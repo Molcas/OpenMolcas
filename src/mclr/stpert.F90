@@ -12,8 +12,8 @@
 subroutine StPert()
 
 use MckDat, only: sNew
-use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
 use ipPage, only: W
+use MCLR_Data, only: Hss, FAMO_SpinP, FAMO_SpinM, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
 use MCLR_Data, only: ipCI, nDens2
 use MCLR_Data, only: RMS, rBetaA, rBetaS
 use MCLR_Data, only: lDisp, SwLbl

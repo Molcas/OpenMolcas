@@ -11,7 +11,7 @@
 
 subroutine GT1DIA_MCLR(H1DIA)
 
-use Arrays, only: FIMO
+use MCLR_Data, only: FIMO
 use MCLR_Data, only: ipCM
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 

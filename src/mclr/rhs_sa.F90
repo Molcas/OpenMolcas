@@ -11,8 +11,8 @@
 
 subroutine rhs_sa(Fock,SLag)
 
-use Arrays, only: Int1
 use ipPage, only: W
+use MCLR_Data, only: Int1
 use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
 use MCLR_Data, only: ISTATE
 use MCLR_Data, only: LuJob

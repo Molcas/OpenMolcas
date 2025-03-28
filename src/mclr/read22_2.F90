@@ -21,8 +21,8 @@ subroutine Read22_2(MO1,Fock,Q,FockI,FockA,Temp2,Scr,Temp3)
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: W_CMO => CMO, W_CMO_Inv => CMO_Inv, Int1, G1t, G2t
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use MCLR_Data, only: W_CMO => CMO, W_CMO_Inv => CMO_Inv, Int1, G1t, G2t
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nB
 use MCLR_Data, only: LuQDat
 use input_mclr, only: TwoStep, StepType, nSym, NewCho, iMethod, rIn_Ene, Debug, PotNuc, iAddressQDat, LuAChoVec, LuIChoVec, nAsh, &

@@ -33,7 +33,7 @@ subroutine Precabb(ib,is,js,nd,nba,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,sign)
 !
 !***********************************************************************
 
-use Arrays, only: G1t, G2t
+use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA, nB
 use input_mclr, only: nSym, nAsh, nIsh, nBas
 use Constants, only: Zero, Two, Four

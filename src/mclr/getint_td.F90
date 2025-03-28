@@ -13,7 +13,7 @@
 subroutine GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,ICTL,ieaw)
 ! Outer routine for accessing integral block
 
-use Arrays, only: KINT2, KINT2a
+use MCLR_Data, only: KINT2, KINT2a
 use MCLR_Data, only: Square
 #ifdef _DEBUGPRINT_
 use MCLR_Data, only: NOBPTS

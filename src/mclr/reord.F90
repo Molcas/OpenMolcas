@@ -56,68 +56,64 @@ integer I
 
 call mma_allocate(CINEW,NCONF,Label='CINEW')
 
-associate(nLev => SGS%nLev,IDRT => SGS%DRT,IDOWN => SGS%Down,IDAW => SGS%DAW,IUP => SGS%Up,IRAW => SGS%RAW,IUSGN => EXS%USGN, &
-          ILSGN => EXS%LSGN,nVert => SGS%nVert,MidLev => SGS%MidLev,MVSta => SGS%MVSta,nMidV => CIS%nMidV,MXUP => SGS%MxUp, &
-          MXDWN => SGS%MxDwn,nEl => SGS%nActEl,NORB => SGS%nLev)
+! LOOP OVER CONFIGURATIONS TYPES
 
-  ! LOOP OVER CONFIGURATIONS TYPES
+ICSFJP = 0
+ICNBS0 = 0 ! dummy initialize
+IPBAS = 0 ! dummy initialize
+do ITYP=1,NTYP
+  IOPEN = ITYP+MINOP-1 ! MINOP IS NOT INITIALIZED TEOEAW
+  ICL = (SGS%nActEl-IOPEN)/2
+  ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
+  if (ITYP == 1) then
+    ICNBS0 = 1
+  else
+    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,kSym)*(SGS%nActEl+IOPEN-1)/2
+  end if
+  ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
+  if (ITYP == 1) then
+    IPBAS = 1
+  else
+    IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
+  end if
 
-  ICSFJP = 0
-  ICNBS0 = 0 ! dummy initialize
-  IPBAS = 0 ! dummy initialize
-  do ITYP=1,NTYP
-    IOPEN = ITYP+MINOP-1 ! MINOP IS NOT INITIALIZED TEOEAW
-    ICL = (NEL-IOPEN)/2
-    ! BASE ADDRESS FOR CONFIGURATION OF THIS TYPE
-    if (ITYP == 1) then
-      ICNBS0 = 1
-    else
-      ICNBS0 = ICNBS0+NCNFTP(ITYP-1,kSym)*(NEL+IOPEN-1)/2
-    end if
-    ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
-    if (ITYP == 1) then
-      IPBAS = 1
-    else
-      IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
-    end if
+  ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
+  ! SPIN COUPLINGS
 
-    ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
-    ! SPIN COUPLINGS
-
-    do IC=1,NCNFTP(ITYP,kSym)
-      ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
-      do IICSF=1,NCSFTP(ITYP)
-        ICSFJP = ICSFJP+1
-        ICSBAS = IPBAS+(IICSF-1)*IOPEN
-        ! COMPUTE STEP VECTOR
-        call STEPVEC(ICONF(ICNBS),ICONF(ICNBS+ICL),ICL,IOPEN,ISPIN(ICSBAS),NORB,IWALK)
-        ! GET SPLIT GRAPH ORDERING NUMBER
-        ! FUNCTION ISGNUM
-        ISG = ISGNUM(NLEV,NVERT,MIDLEV,MVSta,NMIDV,MXUP,MXDWN,IDOWN,IUP,IDAW,IRAW,IUSGN,ILSGN,IWALK)
-        ! GET PHASE PHASE FACTOR
-        IP = IPHASE(NLEV,NVERT,IDRT,IUP,IWALK)
-        ! NOW REORDER THIS ELEMENT OF THE CI-VECTOR
-        PHASE = real(IP,kind=wp)
-        select case (iMode)
-          case (0)
-            CINEW(ISG) = CIOLD(ICSFJP)*PHASE
-          case (1)
-            CINEW(ICSFJP) = CIOLD(ISG)*PHASE
-        end select
-      end do
+  do IC=1,NCNFTP(ITYP,kSym)
+    ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
+    do IICSF=1,NCSFTP(ITYP)
+      ICSFJP = ICSFJP+1
+      ICSBAS = IPBAS+(IICSF-1)*IOPEN
+      ! COMPUTE STEP VECTOR
+      call STEPVEC(ICONF(ICNBS),ICONF(ICNBS+ICL),ICL,IOPEN,ISPIN(ICSBAS),SGS%nLev,IWALK)
+      ! GET SPLIT GRAPH ORDERING NUMBER
+      ! FUNCTION ISGNUM
+      ISG = ISGNUM(SGS%nLev,SGS%nVert,SGS%MidLev,SGS%MVSta,CIS%nMidV,SGS%MxUp,SGS%MxDwn,SGS%Down,SGS%Up,SGS%DAW,SGS%RAW,EXS%USGN, &
+                   EXS%LSGN,IWALK)
+      ! GET PHASE PHASE FACTOR
+      IP = IPHASE(SGS%nLev,SGS%nVert,SGS%DRT,SGS%Up,IWALK)
+      ! NOW REORDER THIS ELEMENT OF THE CI-VECTOR
+      PHASE = real(IP,kind=wp)
+      select case (iMode)
+        case (0)
+          CINEW(ISG) = CIOLD(ICSFJP)*PHASE
+        case (1)
+          CINEW(ICSFJP) = CIOLD(ISG)*PHASE
+      end select
     end do
   end do
+end do
 
-# ifdef _DEBUGPRINT_
-  write(u6,*)
-  write(u6,*) ' OLD CI-VECTORS IN SUBROUTINE REORD'
-  write(u6,'(10F12.8)') (CIOLD(I),I=1,NCONF)
-  write(u6,*) ' NEW CI-VECTORS IN SUBROUTINE REORD'
-  write(u6,'(10F12.8)') (CINEW(I),I=1,NCONF)
-  write(u6,*)
-# endif
+#ifdef _DEBUGPRINT_
+write(u6,*)
+write(u6,*) ' OLD CI-VECTORS IN SUBROUTINE REORD'
+write(u6,'(10F12.8)') (CIOLD(I),I=1,NCONF)
+write(u6,*) ' NEW CI-VECTORS IN SUBROUTINE REORD'
+write(u6,'(10F12.8)') (CINEW(I),I=1,NCONF)
+write(u6,*)
+#endif
 
-end associate
 CIOLD(:) = CINEW(:)
 call mma_deallocate(CINEW)
 

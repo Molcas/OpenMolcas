@@ -17,8 +17,8 @@ subroutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,idsym,reco,jspin)
 ! Constructs  F  = <0|[E  ,H]|0> (+ <0|[[E  , Kappa],H]|0>)
 !              pq       pq                pq
 
-use Arrays, only: W_CMO_Inv => CMO_Inv, W_CMO => CMO, G1t, G2t, FAMO, FIMO
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use MCLR_Data, only: W_CMO_Inv => CMO_Inv, W_CMO => CMO, G1t, G2t, FAMO, FIMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nMBA
 #ifdef _DEBUGPRINT_
 use Spool, only: LuWr

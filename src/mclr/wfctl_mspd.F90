@@ -20,7 +20,7 @@ subroutine WfCtl_MSPD(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 
 use Exp, only: Exp_Close
 use ipPage, only: W
-use cmslag, only: ResQaaLag2
+use MCLR_Data, only: ResQaaLag2
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: ISNAC, OVERRIDE, IRLXROOT, ISMECIMSPD, NACSTATES

@@ -24,7 +24,7 @@ subroutine FockGen_td(d_0,rDens1,rdens2,fock,idsym)
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: FIMO
+use MCLR_Data, only: FIMO
 use MCLR_Data, only: nDens2, nNA, ipMat, ipCM, nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
 use stdalloc, only: mma_allocate, mma_deallocate

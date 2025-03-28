@@ -11,10 +11,10 @@
 
 subroutine mkp1inv(rdia)
 
-use Constants, only: Zero, One
-use negpre, only: LuCIV, P1Inv
-use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: LuCIV, P1Inv
 use input_mclr, only: lRoots, nConf
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 
 implicit none
 real*8 rdia(*)

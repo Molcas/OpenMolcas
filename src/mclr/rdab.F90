@@ -11,7 +11,7 @@
 
 subroutine RdAB()
 
-use Arrays, only: CMO
+use MCLR_Data, only: CMO
 use MCLR_Data, only: ChDisp, lDisp
 use input_mclr, only: nSym, nIsh, nBas, nOrb, Perturbation, McKinley, iMethod, nIsh, ntITri, ntISqr, ntBSqr, nDisp, PT2, ESCF, &
                       nDel, ntPert, ntIsh

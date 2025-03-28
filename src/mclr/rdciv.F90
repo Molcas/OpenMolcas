@@ -20,8 +20,8 @@ subroutine RdCIV()
 !                                                                      *
 !***********************************************************************
 
-use negpre, only: ERAS, LuCIV
 use gugx, only: SGS, CIS, EXS
+use MCLR_Data, only: ERAS, LuCIV
 use MCLR_Data, only: LuJob
 use input_mclr, only: nSym, lRoots, nCSF, nConf, nRS1, nRS2, nRS3, State_Sym, iSpin, iTOC, nActEl, nElec3, nHole1
 use stdalloc, only: mma_allocate, mma_deallocate

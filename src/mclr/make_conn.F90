@@ -11,11 +11,11 @@
 
 subroutine Make_Conn(F,Kappa,P,D)
 
-use Constants, only: Zero, Half, One
-use Arrays, only: F0SQMO
-use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: F0SQMO
 use MCLR_Data, only: ipMat, n2Dens, nDens2
 use input_mclr, only: nSym, nBas
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Half, One
 
 implicit none
 real*8 P(*), D(*), F(*), Kappa(*)

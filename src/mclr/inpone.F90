@@ -11,9 +11,9 @@
 
 subroutine InpOne()
 
-use Arrays, only: CMO, Int1, KAIN1
 use OneDat, only: sOpSiz
 use rctfld_module, only: lRF
+use MCLR_Data, only: CMO, Int1, KAIN1
 use MCLR_Data, only: nDens2
 use input_mclr, only: nSym, nAtoms, iSpin, nActEl, nBas, nFro, nIsh, nOrb, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate

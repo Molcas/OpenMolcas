@@ -25,7 +25,7 @@ subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign
 !                                                                      *
 !***********************************************************************
 
-use Arrays, only: G1t, G2t
+use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
 use Constants, only: One, Two, Four, Eight

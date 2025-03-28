@@ -36,7 +36,7 @@ module Str_Info
 !  IFSJO :
 !  STSTX : Symmetry of excitation connecting strings of given symmetry
 
-use DetDim, only: MXCNSM
+use MCLR_Data, only: MXCNSM
 
 implicit none
 private

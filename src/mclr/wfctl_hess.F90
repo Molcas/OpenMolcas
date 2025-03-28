@@ -24,13 +24,13 @@ subroutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,c
 !***********************************************************************
 
 use Exp, only: Exp_Close
-use Arrays, only: CMO, Int2, FIMO
 use ipPage, only: W
 use Para_Info, only: myRank, nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use Spool, only: LuWr
+use MCLR_Data, only: CMO, Int2, FIMO
 use MCLR_Data, only: nConf1, nDens2, nDensC, ipCI, n1Dens, n2Dens, nDens
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: lDisp

@@ -11,10 +11,10 @@
 
 subroutine mkcipre()
 
-use Constants, only: One
-use negpre, only: SS, ERAS, P1, P1Inv
-use stdalloc, only: mma_allocate
+use MCLR_Data, only: SS, ERAS, P1, P1Inv
 use input_mclr, only: lRoots, ERASSCF
+use stdalloc, only: mma_allocate
+use Constants, only: One
 
 implicit none
 integer i, j, itri, iRec

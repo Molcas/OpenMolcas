@@ -11,8 +11,8 @@
 
 subroutine Out_Pt2(iKapDisp,iCIDisp)
 
-use Arrays, only: CMO
 use ipPage, only: W
+use MCLR_Data, only: CMO
 use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens, nA, nDens2, nDensC
 use MCLR_Data, only: ESTERR, ISNAC, ISTATE, IRLXROOT, OVERRIDE, NACSTATES
 use MCLR_Data, only: LuTEMP, LuJob, LuPT2

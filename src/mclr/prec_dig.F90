@@ -34,8 +34,8 @@ subroutine Prec_dig(rpre,idsym)
 use iso_c_binding
 use MCLR_Data, only: nrec
 use MCLR_Data, only: ipCM
+use MCLR_Data, only: FAMO, FIMO, F0SQMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nRS1, nRS2, nRS3, iMethod, TimeDep
-use Arrays, only: FAMO, FIMO, F0SQMO
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: u6

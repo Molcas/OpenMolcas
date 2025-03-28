@@ -34,7 +34,7 @@ subroutine Preciaa(iB,iS,jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,sign,A_J
 !
 !***********************************************************************
 
-use Arrays, only: G1t, G2t
+use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
 use Constants, only: Two, Three, Four

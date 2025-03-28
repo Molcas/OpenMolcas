@@ -43,7 +43,7 @@ subroutine ZSTINF_MCLR()
 use Str_Info, only: NSTTYP, INUMAP, INDMAP, ISTAC, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, NSTFTP
 use MCLR_Data, only: NORB1, NORB2, NORB3
 #ifdef _DEBUGPRINT_
-use DetDim, only: MXPSTT
+use MCLR_Data, only: MXPSTT
 use Definitions, only: u6
 #endif
 

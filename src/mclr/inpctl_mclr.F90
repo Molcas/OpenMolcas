@@ -21,9 +21,9 @@ subroutine InpCtl_MCLR(iPL)
 !***********************************************************************
 
 use Str_Info, only: DTOC
-use negpre, only: nGP
 use ipPage, only: W
 use gugx, only: SGS, CIS, EXS
+use MCLR_Data, only: nGP
 use MCLR_Data, only: ipCI
 use MCLR_Data, only: SA, ISTATE
 use MCLR_Data, only: LuPT2

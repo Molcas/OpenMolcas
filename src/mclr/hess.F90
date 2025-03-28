@@ -15,7 +15,7 @@ subroutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,Temp4,idsym,jdisp,idisp)
 ! Constructs the connection parts that is dependend on the first
 ! derivative of the connection.
 
-use Arrays, only: Hss, CMO, F0SQMO
+use MCLR_Data, only: Hss, CMO, F0SQMO
 use MCLR_Data, only: nDens2, ipCM, ipMat
 use MCLR_Data, only: DspVec, lDisp
 use input_mclr, only: nSym, nBas, nOrb, nTPert

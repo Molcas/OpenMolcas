@@ -17,7 +17,7 @@
 
 subroutine SolveforzX(zX,AXX,bX)
 
-use cmslag, only: ResQaaLag2
+use MCLR_Data, only: ResQaaLag2
 use input_mclr, only: nRoots, Eps
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Pi

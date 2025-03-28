@@ -12,7 +12,7 @@
 subroutine Ci_Ci(ipcid,ips2)
 
 use ipPage, only: W
-use Arrays, only: FIMO, INT2
+use MCLR_Data, only: FIMO, INT2
 use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: nRoots, rIn_Ene, PotNuc, ERASSCF, NCSF, Weight, State_Sym
 use Constants, only: Two

@@ -42,18 +42,17 @@ use Basis_Info, only: Basis_Info_Free
 use Center_Info, only: Center_Info_Free
 use External_Centers, only: External_Centers_Free
 use Symmetry_Info, only: Symmetry_Info_Free
-use Arrays, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m, CMO_Inv, CMO, Int1, pINT1, INT2, &
-                  pINT2, G2t, G2sq, G1t, FIMO, F0SQMO
 use Str_Info, only: DFTP, CFTP, DTOC, CNSM
-use negpre, only: SS
-use PDFT_Util, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
-! Added for CMS NACs
+use MCLR_Data, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m, CMO_Inv, CMO, Int1, pINT1, &
+                     INT2, pINT2, G2t, G2sq, G1t, FIMO, F0SQMO
+use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
 use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
 use MCLR_Data, only: nrec
 use MCLR_Data, only: iAllo
 use MCLR_Data, only: SA, NACSTATES
 use MCLR_Data, only: LuPT2
-use DetDim, only: MXCNSM
+use MCLR_Data, only: SS
+use MCLR_Data, only: MXCNSM
 use dmrginfo, only: DoDMRG, RGRAS2, DoMCLR
 use input_mclr, only: ntAsh, ntAtri, ntASqr, nSym, iMethod, SpinPol, iMCPD, iMSPD, PT2, TimeDep, TwoStep, StepType, McKinley, &
                       RASSI, NewCho, Fail, double, LuAChoVec, LuChoInt, LuIChoVec, nAsh, nDisp, nRS2

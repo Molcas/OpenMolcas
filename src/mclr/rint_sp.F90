@@ -16,11 +16,11 @@ subroutine RInt_SP(rkappa,rmos,rmoa,Focki,Sigma)
 ! Constructs  F  = <0|[Q  ,H]|0>
 !              pq       pq
 
-use Arrays, only: FAMO_SpinP, FAMO_SpinM, SFock, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half
+use MCLR_Data, only: FAMO_SpinP, FAMO_SpinM, SFock, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
 use MCLR_Data, only: nDensC, nDens2, nMBA
 use MCLR_Data, only: rBetaS, rBetaA
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Half
 
 implicit none
 real*8 rkappa(nDensC), rMOs(*), rmoa(*), Focki(ndens2), Sigma(nDensC)

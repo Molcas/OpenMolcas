@@ -23,7 +23,7 @@ subroutine r2elint(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin)
 !
 !***********************************************************************
 
-use Arrays, only: CMO, G1t, FAMO, FIMO
+use MCLR_Data, only: CMO, G1t, FAMO, FIMO
 use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, iMethod, CasInt
 use stdalloc, only: mma_allocate, mma_deallocate

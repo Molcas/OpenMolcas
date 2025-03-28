@@ -14,10 +14,10 @@
 subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
 ! frontend to jeppes explicit routines
 
-use Exp, only: H0S, H0F, SBIDT
-use negpre, only: nGP
 use iso_c_binding
-use Arrays, only: Int2, FIMO
+use Exp, only: H0S, H0F, SBIDT
+use MCLR_Data, only: Int2, FIMO
+use MCLR_Data, only: nGP
 use MCLR_Data, only: iRefSM, IDC, PSSIGN
 use MCLR_Data, only: NAELCI, NBELCI, XISPSM
 use MCLR_Data, only: MXP1, MXP2, MXQ

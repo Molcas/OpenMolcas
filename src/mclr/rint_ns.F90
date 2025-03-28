@@ -27,11 +27,11 @@ subroutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin)
 ! Fock is E*d/dx(lambda)
 ! rkappa is d/dx(lambda)
 
-use Arrays, only: G2sq, G1t
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use MCLR_Data, only: G2sq, G1t
 use MCLR_Data, only: nDens2, ipMat, ipMatBA, nA, nMBA
 use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
 
 implicit none
 real*8 rkappa(nDens2), rMO(*), Fock(nDens2), FockI(ndens2)

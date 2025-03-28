@@ -18,14 +18,14 @@
 subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
 
 use ipPage, only: W
-use Arrays, only: KAIN1, KINT2, KINT2A, pInt1
-use stdalloc, only: mma_allocate, mma_deallocate
+use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
 use MCLR_Data, only: nConf1, ipCM, ipMat
 use MCLR_Data, only: i12, iST, Square
 use MCLR_Data, only: iRefSM
 use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: State_Sym, nSym, Page, nCSF, nRoots, Weight
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 integer iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2

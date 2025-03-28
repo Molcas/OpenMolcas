@@ -16,12 +16,12 @@ subroutine FckMat()
 !                                                          *
 !***********************************************************
 
-use Arrays, only: FAMO, FIMO, F0SQMO, INT2
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use MCLR_Data, only: FAMO, FIMO, F0SQMO, INT2
 use MCLR_Data, only: nDens2
 use MCLR_Data, only: nrec
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 real*8, allocatable :: Q(:), Tmp2(:,:), T3(:)

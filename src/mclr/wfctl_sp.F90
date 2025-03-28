@@ -19,8 +19,8 @@ subroutine WfCtl_sp(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP)
 !***********************************************************************
 
 use Exp, only: Exp_Close
-use Arrays, only: SFock, G1m, G2mp, Int2, FIMO
 use ipPage, only: W
+use MCLR_Data, only: SFock, G1m, G2mp, Int2, FIMO
 use MCLR_Data, only: nConf1, nDens2, nNA, nDensC, nDens, ipCI, n1Dens
 use MCLR_Data, only: RMS, rAlpha
 use MCLR_Data, only: ipDia

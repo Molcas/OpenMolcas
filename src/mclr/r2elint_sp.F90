@@ -23,11 +23,11 @@ subroutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin,D,FA)
 !
 !***********************************************************************
 
-use Arrays, only: CMO, FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use MCLR_Data, only: CMO, FIMO
 use MCLR_Data, only: nDens2, nMBA, nNA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
 
 implicit none
 real*8 rKappa(nDens2), rMO1(nMba), rmo2(*), FockI(nDens2), FockA(nDens2)

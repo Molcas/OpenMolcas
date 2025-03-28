@@ -17,12 +17,12 @@ subroutine TRCTL_MCLR()
 !          The transformation routine TRAMO is called for each
 !          symmetry block of integrals.
 
-use Arrays, only: CMO
-use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use MCLR_Data, only: CMO
 use MCLR_Data, only: ipCM
 use MCLR_Data, only: FnHlf2, FnHlf3, FnTri1, FnTri2, FnTri3, FnTri4, FnTri5
 use MCLR_Data, only: LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, LuTri4, LuTri5
 use input_mclr, only: nSym, nAsh, nBas, nFro, nIsh
+use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 
 implicit none
 integer, parameter :: LIOTAB = 512*512

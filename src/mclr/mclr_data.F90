@@ -12,10 +12,20 @@
 module MCLR_Data
 
 use Constants, only: Zero
-use detdim
 
-private MXPIRR, MXPOBS, MXPR4T, MXINKA, MXPORB, MXPXOT, MXPXST, MXPSHL, MXPL, MXPXT, MXPICI, MXPSTT, MXPCSM, MXPCTP, MXCNSM, &
-        MXPWRD, MXNMS, MTYP, MXPNGAS, MXPNSMST, MXPPTSPC, Zero
+integer, parameter :: MXPIRR = 20
+integer, parameter :: MXPOBS = 20
+integer, parameter :: MXPR4T = 10
+integer, parameter :: MXINKA = 200   ! Resolution of identity
+integer, parameter :: MXPORB = 500   ! Maximum number of orbitals
+integer, parameter :: MXPICI = 30
+integer, parameter :: MXPSTT = 2500
+integer, parameter :: MXPCSM = 20
+integer, parameter :: MXPCTP = 30
+integer, parameter :: MXCNSM = 8
+! Note : MXPNGAS = MXPR4T+6 !!
+! Required in order to handle GAS and RAS within /LUCINP/
+integer, parameter :: MXPNGAS = 3
 
 ! Stuff from Pointers.fh
 integer ipMat(8,8), ipMatLT(8,8), ipCM(8), ipMC(8,8), ipmatba(8,8), ipMO(8,8,8), iADMO(8,8,8)
@@ -200,5 +210,50 @@ integer NINOB, NACOB, NDEOB, NOCOB, NTOOB, NORB0, NORB1, NORB2, NORB3, NORB4, NO
 
 integer MULTSP, MS2P, MINOP, MAXOP, NTYP, NDPCNT(MXPCTP), NCPCNT(MXPCTP), NCNATS(MXPCTP,MXPCSM), NDTASM(MXPCSM), NCSASM(MXPCSM), &
         NCNASM(MXPCSM)
+
+! Stuff from CMSLag
+real*8 ResQaaLag2
+
+! Stuff from negpre
+integer, parameter :: MXSTATE = 10
+integer :: luciv = 31
+real*8 ERAS(MXSTATE)
+real*8 P1(MXSTATE*(MXSTATE+1)/2)
+real*8 P1INV(MXSTATE*(MXSTATE+1)/2)
+logical ngp
+real*8, allocatable :: SS(:)
+
+! Stuff from PDFT_UTIL
+logical Do_Hybrid
+real*8 WF_Ratio, PDFT_Ratio
+
+! Stuff from Arrays
+
+real*8, allocatable :: Hss(:)
+real*8, allocatable :: FAMO(:), FIMO(:), FAMO_spinp(:), FAMO_spinm(:), SFock(:)
+real*8, allocatable :: Fm(:), Fp(:)
+real*8, allocatable :: F0SQMO(:)
+! Various one- and two-particle densities
+real*8, allocatable :: G1t(:)
+real*8, allocatable :: G1p(:), G1m(:)
+real*8, allocatable :: G2t(:)
+real*8, allocatable :: G2sq(:)
+real*8, allocatable :: G2mp(:), G2pp(:), G2mm(:)
+! MO coefficients
+real*8, allocatable, target :: CMO(:)
+real*8, allocatable :: CMO_Inv(:)
+
+!INT1  : 1-electron integrals
+!INT2  : 2-electron integrals
+!PINT1 : Offsets to symmetry blocks
+!PINT2 : Offsets to symmetry blocks
+
+real*8, target, allocatable :: INT1(:)
+integer, allocatable :: pINT1(:)
+real*8, allocatable :: INT2(:)
+integer, allocatable :: pINT2(:)
+
+real*8, pointer :: KAIN1(:), KINT2(:), KINT2A(:)
+real*8, target, allocatable :: TI1(:), TI2(:)
 
 end module MCLR_Data

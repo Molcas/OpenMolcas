@@ -12,7 +12,7 @@
 subroutine SetUp_MCLR(DSYM)
 ! Setup pointers and size of matrices (includes in Pointers.fh)
 
-use Arrays, only: pInt1, pInt2
+use MCLR_Data, only: pInt1, pInt2
 use MCLR_Data, only: nNA, n2Dens, nDens, nDensLT, nCMO, nDensC, nDens2, ipMatLT, ipMat, ipMC, ipCM, ipMatBA, ipMO, nA, nB, n1Dens, &
                      nMBA
 use input_mclr, only: nSym, TimeDep, iMethod, PT2, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3
