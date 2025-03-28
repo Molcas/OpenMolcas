@@ -51,16 +51,6 @@ integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST,
         i, iR
 integer, external :: ipGet
 integer, external :: nPre
-interface
-  subroutine RHS_NAC(Fock,SLag_pt2)
-    real*8 Fock(*)
-    real*8, optional :: SLag_pt2(*)
-  end subroutine
-  subroutine rhs_sa(Fock,SLag_pt2)
-    real*8 Fock(*)
-    real*8, optional :: SLag_pt2(*)
-  end subroutine
-end interface
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

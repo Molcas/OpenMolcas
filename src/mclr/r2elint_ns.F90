@@ -24,10 +24,10 @@ subroutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin)
 !***********************************************************************
 
 use Arrays, only: G1t, FAMO, FIMO
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
 use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
 
 implicit none
 real*8 rKappa(nDens2), rMO1(nMBA), rMO2(nMBA), FockI(nDens2), FockA(nDens2)
@@ -38,24 +38,6 @@ real*8 rdum(1)
 real*8, allocatable :: T1(:), Tmp2(:), T3(:), T4(:), DIL(:), DI(:), DIR(:), FI(:), FI1(:), K1(:), DAL(:), DAR(:), DA(:), FA1(:)
 integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, ip2, jS
 real*8 FacR
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine Read2_ns(rMO1,rMO2,FockI,FockA,Temp1,nTemp,Temp2,Temp3,Temp4,DI13,DI24,DI,DA13,DA24,DA,rkappa,idsym,Signa,Fact,jSpin, &
-                      lfat,lfit,lMOt)
-    use MCLR_Data, only: nMBA, nDens2, nCMO
-    implicit none
-    real*8 rmo1(nMBA), rmo2(nMBA), FockI(nDens2), FockA(nDens2)
-    integer nTemp
-    real*8 Temp1(ntemp), Temp2(nDens2), Temp3(nDens2), Temp4(nDens2), DI13(nDens2), DI24(nDens2), DI(nCMO), DA13(nDens2), &
-           DA24(nDens2), DA(nCMO), rkappa(nDens2)
-    integer iDSym
-    real*8 Signa, Fact
-    integer jSpin
-    logical lFAt, lFIT, lmot
-  end subroutine Read2_ns
-end interface
 ! Statement function
 integer i, j, itri
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)

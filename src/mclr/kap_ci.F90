@@ -15,6 +15,7 @@ use ipPage, only: W
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 use MCLR_Data, only: nConf1, ipCI
+use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: nRoots, nCSF, State_Sym
 
 implicit none
@@ -24,22 +25,7 @@ real*8, allocatable :: R(:,:)
 real*8 rDum(1)
 integer i, j
 real*8, external :: DDot_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
-    integer iispin, iCsym, iSSym
-    integer nInt1, nInt2s, nInt2a
-    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-    integer ipCI1, ipCI2
-    logical Have_2_el
-  end subroutine CISigma_sa
-end interface
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,ipS1,.true.)
 
 call ipin(ipS1)

@@ -26,6 +26,7 @@ use MCLR_Data, only: ipDia
 use MCLR_Data, only: lDisp
 use MCLR_Data, only: LuTemp
 use MCLR_Data, only: XISPSM
+use MCLR_procedures, only: CISigma_td
 use input_mclr, only: nDisp, Fail, lSave, nSym, PT2, State_Sym, iMethod, Omega, rIn_Ene, PotNuc, iBreak, Eps, nIter, Debug, &
                       ERASSCF, kPrint, lCalc, nCSF, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -56,19 +57,6 @@ integer lPaper, lLine, Left, iDis, Lu_50, iDisp, kkSym, kkkSym, iSym, nConf3, ip
         iLen, Iter, ipPre2, jSpin
 integer, external :: ipGet
 integer, external :: nPre
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
-    integer iispin, iCsym, iSSym
-    integer nInt1, nInt2s, nInt2a
-    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-    integer ipCI1, ipCI2
-    character(len=1) NT
-    logical Have_2_el
-  end subroutine CISigma_td
-end interface
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -344,7 +332,7 @@ do iSym=kksym,kkksym
         !
         !---------------------------------------------------------------
 
-        ! This cisigma call gives <j|H(k)|0> and <j|H(k)t|0>
+        ! This cisigma_td call gives <j|H(k)|0> and <j|H(k)t|0>
 
         if (CI) then
           ! Adjusted to timedep

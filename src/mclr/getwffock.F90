@@ -16,7 +16,7 @@
 ! ****************************************************************
 
 subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
-! Partially readpated from rhs_sa.f
+! Partially readapted from rhs_sa
 
 use ipPage, only: W
 use MCLR_Data, only: nDens2, nConf1, ipCI, nNA

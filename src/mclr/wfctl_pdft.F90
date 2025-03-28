@@ -26,6 +26,7 @@ use MCLR_Data, only: ipDia
 use MCLR_Data, only: ISNAC, IRLXROOT, NACSTATES
 use MCLR_Data, only: LuTemp
 use MCLR_Data, only: XISPSM
+use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: nDisp, Fail, lSave, nSym, State_Sym, iMethod, iBreak, Eps, nIter, Weight, Debug, ERASSCF, kPrint, nCSF, &
                       nRoots, ntAsh, nAsh, nBas, nRs2
 use dmrginfo, only: DoDMRG, RGRAS2
@@ -57,22 +58,6 @@ integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST,
         i, nTri, nOrbAct, kSym, iOff, iS, jS, j, ji, ij, nG1, nG2
 integer, external :: ipGet
 integer, external :: nPre
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
-    integer iispin, iCsym, iSSym
-    integer nInt1, nInt2s, nInt2a
-    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-    integer ipCI1, ipCI2
-    logical Have_2_el
-  end subroutine CISigma_sa
-  subroutine rhs_sa(Fock,SLag_pt2)
-    real*8 Fock(*)
-    real*8, optional :: SLag_pt2(*)
-  end subroutine
-end interface
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -197,9 +182,9 @@ do iDisp=1,nDisp
   !                                                                    *
   !AMS - I Think I can skip all of this RHS stuff - I'll read it in below.
   !if (isNAC) then
-  !  call RHS_NAC(Temp4)
+  !  call RHS_NAC(Temp4,rDum)
   !else
-  !  call RHS_SA(Temp4)
+  !  call RHS_SA(Temp4,rDum)
   !end if
 
   !AMS _____________________________________________________
@@ -308,7 +293,7 @@ do iDisp=1,nDisp
     call Get_dArray_chk('FockOcc',FOTr,nTri)
     ! note that the Fock matrix will be overwritten with the wf one
     ! ini rhs_sa
-    call rhs_sa(WForb)
+    call rhs_sa(WForb,rDum)
     call dAXpY_(nDens2,WF_Ratio,WForb,1,Temp4,1)
     call mma_deallocate(WForb)
   end if

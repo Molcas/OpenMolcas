@@ -43,7 +43,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !   if M > K, Wop_tu =  2 * Sum_vx z_MK * Ddiff^KM_vx * g_tuvx
 !   if M < K, Wop_tu = -2 * Sum_vx z_KM * Ddiff^KM_vx * g_tuvx
 !
-!  Then call CISigma, and save the results to the array WSLam
+!  Then call CISigma_sa, and save the results to the array WSLam
 !  (wo...si... <= ...? an example of a bad variable name)
 !  daxpy WSLam((K-1)*nConf1+1) to AXPzx((M-1)*nConf1+1)
 !
@@ -65,7 +65,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !  Now my Wop_tu is computed as
 !  Wop_tu = sum_vx D_acc_vx * g_tuvx
 !
-!  Then call CISigma, and daxpy WSLam((M-1)*nConf1+1) to
+!  Then call CISigma_sa, and daxpy WSLam((M-1)*nConf1+1) to
 !  AXPzx((M-1)*nConf1+1)
 !
 !  Computing (3)
@@ -88,18 +88,18 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !
 !  In computing part (1), note that z_MK applies to cases when K < M,
 !  and z_KM applies to cases when K > M. Computing this term requires
-!  calling CISigma for each K != M. After the loop over M is done, there
+!  calling CISigma_sa for each K != M. After the loop over M is done, there
 !  will be N*(N-1) times when it is called, where N is the number of
 !  states.
 !
 !  The rules for z_MK or z_KM are the same for part (2) as for part
-!  (1). For each M, CISigma iscalled only once, so CISigma is called
+!  (1). For each M, CISigma_sa is called only once, so CISigma_sa is called
 !  only N times for computing part (2).
 !
-!  In total CISigma will be called N^2 times, but the memory needed to
+!  In total CISigma_sa will be called N^2 times, but the memory needed to
 !  compute AXPzx is a real*8 array sized nRoots*nConf1.
 !
-!  In CalcAXPzx1, CISigma is called N*(N-1)/2 times, but array is sized
+!  In CalcAXPzx1, CISigma_sa is called N*(N-1)/2 times, but array is sized
 !  N*(N-1)/2*nRoots*nConf1 (note that N = nRoots).  Maybe this is a good
 !  reason to keep both algorithms.
 !
@@ -109,6 +109,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 use ipPage, only: W
 use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
 use MCLR_Data, only: XISPSM
+use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: State_Sym, nSym, nRoots, ntAsh, nAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two, Four
@@ -136,21 +137,6 @@ real*8, external :: DDot_
 integer, external :: ipGet
 integer I
 real*8, dimension(:), allocatable :: ovrlp
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
-    integer iispin, iCsym, iSSym
-    integer nInt1, nInt2s, nInt2a
-    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-    integer ipCI1, ipCI2
-    logical Have_2_el
-  end subroutine CISigma_sa
-end interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
 call FZero(AXPzx,nConf1*nRoots)
 ! Converting nRoots to double prec type

@@ -36,6 +36,7 @@ use ipPage, only: W
 use Arrays, only: G2t, G1t
 use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
 use MCLR_Data, only: DspVec
+use MCLR_procedures, only: CISigma
 use input_mclr, only: Debug, nSym, iMethod, State_Sym, nAsh, nBas, nIsh, nOrb, nTPert
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Two
@@ -53,18 +54,6 @@ real*8 rDum(1)
 real*8, allocatable :: MOX(:), MOT(:), FIX(:), MOT2(:)
 integer iRC, iDSym, iOpt, iOp, ip, iS, jS, iAsh, jAsh
 real*8 Dij, Ena
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
-    integer iispin, iCsym, iSSym
-    integer nInt1, nInt2s, nInt2a
-    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-    integer ipCI1, ipCI2
-    logical Have_2_el
-  end subroutine CISigma
-end interface
 ! Statement function
 integer i, j, iTri
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)

@@ -13,7 +13,7 @@
 ! ****************************************************************
 ! history:                                                       *
 ! Based on cmsbk.f from Jie J. Bao &&                            *
-! Additional work from  rhs_nac.f                                *
+! Additional work from  rhs_nac                                  *
 ! ****************************************************************
 
 subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)

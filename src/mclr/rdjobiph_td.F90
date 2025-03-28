@@ -9,6 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+!#error "This file must be compiled inside a module"
+!#endif
+#else
+
 subroutine RdJobIph_td(CIVec)
 !***********************************************************************
 !                                                                      *
@@ -34,12 +40,11 @@ implicit none
 real*8, allocatable :: CIVec(:,:)
 #include "rasdim.fh"
 #include "SysDef.fh"
-character(len=72) Line
 real*8 rdum(1)
 character(len=1), allocatable :: TempTxt(:)
 real*8, allocatable :: Tmp2(:), G2tts(:), G2tta(:)
-integer kRoots, iDisk, Length, iSym, i, j, jpCMO, Iter, nAct, nAct2, nAct4, iS, jS, kS, lS, nG1, nG2, iB, jB, iDij, kB, lB, iDkl, &
-        iIJKL, iDij2, iDkl2, iIJKL2
+integer kRoots, iDisk, Length, iSym, i, j, Iter, nAct, nAct2, nAct4, iS, jS, kS, lS, nG1, nG2, iB, jB, iDij, kB, lB, iDkl, iIJKL, &
+        iDij2, iDkl2, iIJKL2
 real*8 Temp, PotNuc0, Fact, Factij, Factkl, Fact2
 ! Statement function
 integer itri
@@ -124,14 +129,12 @@ call Get_dArray_chk('Last orbitals',CMO,Length)
 !iDisk = iToc(9)
 !if (IPT2 == 0) iDisk = iToc(2)
 !call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
-if (.false.) then
-  jpCMO = 1
-  do iSym=1,nSym
-    write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
-    call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
-    jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
-  end do
-end if
+!jpCMO = 1
+!do iSym=1,nSym
+!  write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
+!  call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
+!  jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
+!end do
 !----------------------------------------------------------------------*
 !     Load the CI vector for the root lRoots                           *
 !----------------------------------------------------------------------*
@@ -253,3 +256,4 @@ call mma_deallocate(G2tta)
 !----------------------------------------------------------------------*
 
 end subroutine RdJobIph_td
+#endif

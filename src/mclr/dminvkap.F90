@@ -26,8 +26,11 @@ subroutine DMInvKap(rMFact,rIn,nrIn,rOut,nrOut,rtemp,nrtemp,isym,iter)
 !                                                                      *
 !***********************************************************************
 
+use iso_c_binding
 use Spool, only: LuWr
 use MCLR_Data, only: SA
+use MCLR_Data, only: ipMat, nDensC
+use input_mclr, only: nSym, PT2, nAsh, nIsh, nOrb, nRs1, nRs2, nRs3
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Definitions, only: wp, u6
 
@@ -45,15 +48,11 @@ contains
 
 subroutine DMInvKap_Internal(rMFact)
 
-  use iso_c_binding
-  use MCLR_Data, only: ipMat, nDensC
-  use input_mclr, only: nSym, PT2, nAsh, nIsh, nOrb, nRs1, nRs2, nRs3
-
-  implicit none
   real*8, target :: rMFact(*)
   integer, pointer :: iMFact(:)
   integer ip1, iS, jS, ii, nd, ip2, iRC
   real*8, external :: DDot_
+
   ip1 = 1
 
   if (doDMRG) then  ! yma

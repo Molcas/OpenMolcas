@@ -50,7 +50,6 @@ contains
 
 subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
-  implicit none
   real*8, target :: Buffer(*)
   integer, pointer :: iBuffer(:)
   integer iOne, MemXX, NBPQ, NBRS, NARS, IBUF2, IBUF3, IAD2, IAD3, IPQUT2, IPQUT3, IPQUT4, IMAX, INCORE, NBUF, I1, I2, NOUT, &

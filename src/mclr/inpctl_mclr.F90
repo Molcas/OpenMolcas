@@ -27,6 +27,7 @@ use gugx, only: SGS, CIS, EXS
 use MCLR_Data, only: ipCI
 use MCLR_Data, only: SA, ISTATE
 use MCLR_Data, only: LuPT2
+use MCLR_procedures, only: RdJobIph, RdJobIph_td
 use input_mclr, only: PT2, iMethod, TimeDep, nCSF, nSym, State_Sym, iMCPD, nDisp, iRoot, iSpin, nActEl, nElec3, nHole1, nRS1, &
                       nRS2, nRS3, Page, nRoots, nConf
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
@@ -43,17 +44,6 @@ integer, external :: ipGet
 integer, external :: IsFreeUnit
 integer, allocatable :: index_SD(:) ! not final version
 real*8, allocatable :: vector_cidmrg(:)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine RdJobIph_td(CIVec)
-    real*8, allocatable :: CIVec(:,:)
-  end subroutine RdJobIph_td
-  subroutine RdJobIph(CIVec)
-    real*8, allocatable :: CIVec(:,:)
-  end subroutine RdJobIph
-end interface
 
 !                                                                      *
 !***********************************************************************

@@ -57,7 +57,6 @@ contains
 
 subroutine Prec_dig_internal(rpre)
 
-  implicit none
   real*8, target :: rpre(*)
   integer, pointer :: ipre(:)
   integer nmm, nmmm, iS, n2, ip, jS, nD, ni, nTemp, iB, iBB, iRC
@@ -221,7 +220,6 @@ subroutine SortOutDiagonal(Matrix,diagonal,nb)
 
   ! Copy the diagonal elements from Matrix to the vector Diagonal
 
-  implicit none
   integer nb
   real*8 Matrix(*), diagonal(nb)
   integer ipM, i

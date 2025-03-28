@@ -37,13 +37,6 @@ real*8 Fock(nDens2), rdens2(*), rDens1(nna,nna)
 real*8, allocatable :: MO(:), Scr(:), TQ(:)
 integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA, ip1, ip2, ip3
 real*8 rd, rd1, rd2
-interface
-  subroutine AddGrad2(rMat,fact)
-    implicit none
-    real*8 fact
-    real*8 rMat(*)
-  end subroutine AddGrad2
-end interface
 
 !                                                                      *
 !***********************************************************************

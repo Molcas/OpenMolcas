@@ -13,11 +13,11 @@
 ! ****************************************************************
 ! history:                                                       *
 ! Based on cmsbk.f from Jie J. Bao                               *
-! Additional work from  rhs_nac.f                                *
+! Additional work from  rhs_nac                                  *
 ! ****************************************************************
 
 subroutine GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,NG2)
-! Partially readpated from rhs_sa.f
+! Partially readapted from rhs_sa
 
 use ipPage, only: W
 use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
@@ -81,7 +81,7 @@ call CSF2SD(FinCI(1+(J-1)*NCSFs),CIL,state_sym)
 call CSF2SD(FinCI(1+(I-1)*NCSFs),CIR,state_sym)
 call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,itri(ntash**2,ntash**2))
 
-! Copied from rhs_nac.f
+! Copied from rhs_nac
 ij = 0
 do iB=0,nnA-1
   do jB=0,iB-1

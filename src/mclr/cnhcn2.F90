@@ -18,6 +18,10 @@ subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,IPRODT,DTO
 !
 ! Modified for LUCIA, September 1993
 
+use iso_c_binding
+use MCLR_Data, only: IASTFI, IBSTFI
+use MCLR_Data, only: MINOP, NCPCNT, NDPCNT
+use Str_Info, only: Str
 use Constants, only: Zero
 
 implicit none
@@ -46,12 +50,6 @@ contains
 
 subroutine CNHCN2_INTERNAL(SCR)
 
-  use iso_c_binding
-  use MCLR_Data, only: IASTFI, IBSTFI
-  use Str_Info, only: Str
-  use MCLR_Data, only: MINOP, NCPCNT, NDPCNT
-
-  implicit none
   integer IAGRP, IBGRP, IOPL, IOPR, ICLL, ICLR, NDETL, NDETR, NCSFL, NCSFR, KLFREE, KLDTLA, KLDTLB, KLISL, KLDTRA, KLDTRB, KLISR, &
           KLDHD, KLCHD, KLROU, LDIHDJ, LCNFST, NDIFF, ISYM, IPL, JTYP, JCSF, JDET, IPR
   real*8 ECOREP

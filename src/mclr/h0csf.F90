@@ -86,6 +86,8 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,N
 !  Lucia Version, September 1993
 ! =========================================
 
+use iso_c_binding
+use MCLR_Data, only: NTYP, NCNATS, NCPCNT
 use Constants, only: One
 use Definitions, only: wp
 
@@ -115,9 +117,6 @@ call H0CSF_INTERNAL(SCR,DIAGCN)
 contains
 
 subroutine H0CSF_INTERNAL(SCR,DIAGCN)
-
-  use iso_c_binding
-  use MCLR_Data, only: NTYP, NCNATS, NCPCNT
 
   real*8, target :: SCR(*), DIAGCN(*)
   integer, pointer :: iPTR(:)

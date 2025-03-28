@@ -24,7 +24,7 @@ use Definitions, only: wp
 
 implicit none
 real*8 Fock(*)
-real*8, optional :: SLag(*)
+real*8 :: SLag(*)
 real*8 rdum(1)
 real*8, allocatable :: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
 integer nG1, nG2, iR, jDisk, ii, iB, jB, iDij, iRij, kB, lB, iDkl, iRkl, iIJKL, iRijkl, jj, iS, iiB, ijB, iIJ
@@ -171,7 +171,6 @@ subroutine PT2_SLag()
   use MCLR_Data, only: ipCI, n1Dens, n2Dens
   use MCLR_Data, only: XISPSM
 
-  implicit none
   real*8, allocatable :: CIL(:), CIR(:)
   integer :: i, j
   integer :: nConfL, nConfR, jR, kR, iSLag, ij, k, l, kl, ijkl, ij2, kl2

@@ -23,7 +23,7 @@ use Definitions, only: wp
 
 implicit none
 real*8 Fock(*)
-real*8, optional :: SLag(*)
+real*8 :: SLag(*)
 integer ng1, ng2, i, j, k, l, ij, kl, ijkl, ij2, kl2, ijkl2
 integer iTri
 integer nConfL, nConfR, iRC, LuDens
@@ -218,10 +218,9 @@ contains
 
 subroutine PT2_SLag()
 
-  ! Almost the same to the subroutine in rhs_sa.f,
+  ! Almost the same to the subroutine in rhs_sa,
   ! but slightly modified
 
-  implicit none
   integer jR, kR
   real*8 vSLag
 

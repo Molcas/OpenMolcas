@@ -51,7 +51,6 @@ contains
 
 subroutine Prec_internal(rpre)
 
-  implicit none
   real*8, target :: rpre(*)
   integer, pointer :: ipre(:)
   real*8, allocatable :: JA(:), KA(:), Scr(:), ActInt(:), Temp1(:,:), Temp2(:), Temp3(:)

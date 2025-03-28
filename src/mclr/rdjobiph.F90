@@ -9,6 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+!#error "This file must be compiled inside a module"
+!#endif
+#else
+
 !#define _DEBUGPRINT_
 subroutine RdJobIph(CIVec)
 !***********************************************************************
@@ -39,15 +45,14 @@ implicit none
 real*8, allocatable :: CIVec(:,:)
 #include "rasdim.fh"
 #include "SysDef.fh"
-character(len=72) Line
 character(len=8) Method
 real*8 dv_ci2  ! yma added
 logical Found
 real*8 rdum(1)
 character(len=1), allocatable :: TempTxt(:)
 real*8, allocatable :: Tmp2(:)
-integer kRoots, iDisk, Length, iSym, iMode, i, iGo, j, iRC, iOpt, jpCMO, k, iNum, Iter, nAct, nAct2, nAct4, iS, jS, kS, lS, nG1, &
-        nG2, iDummer
+integer kRoots, iDisk, Length, iSym, iMode, i, iGo, j, iRC, iOpt, k, iNum, Iter, nAct, nAct2, nAct4, iS, jS, kS, lS, nG1, nG2, &
+        iDummer
 real*8 Temp, PotNuc0
 
 !                                                                      *
@@ -221,15 +226,13 @@ end if
 !iDisk = iToc(9)
 !if (IPT2 == 0) iDisk = iToc(2)
 !call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
-if (.false.) then
-  jpCMO = 1
-  do iSym=1,nSym
-    call dcopy_(nbas(isym)*ndel(isym),[Zero],0,CMO(jpCMO+norb(isym)*nbas(isym)),1)
-    write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
-    call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
-    jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
-  end do
-end if
+!jpCMO = 1
+!do iSym=1,nSym
+!  call dcopy_(nbas(isym)*ndel(isym),[Zero],0,CMO(jpCMO+norb(isym)*nbas(isym)),1)
+!  write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
+!  call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
+!  jpCMO = jpCMO+nBas(iSym)*nBas(iSym)
+!end do
 !----------------------------------------------------------------------*
 !     Load the CI vectors for the SA roots                             *
 !----------------------------------------------------------------------*
@@ -346,3 +349,4 @@ end if
 !                                                                      *
 
 end subroutine RdJobIph
+#endif

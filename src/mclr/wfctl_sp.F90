@@ -27,6 +27,7 @@ use MCLR_Data, only: ipDia
 use MCLR_Data, only: LuTemp
 use MCLR_Data, only: XISPSM
 use MCLR_Data, only: MS2P
+use MCLR_procedures, only: CISigma
 use input_mclr, only: nDisp, Fail, State_Sym, iMethod, rIn_Ene, PotNuc, iBreak, Eps, nIter, Debug, ERASSCF, kPrint, nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
@@ -46,21 +47,6 @@ integer lPaper, lLine, Left, iDis, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, iDisp
 real*8 DeltaC, DeltaK, Delta, Delta0, rGrad, Ec, rAlphaC, rAlphaK, ResK, ResCI, rBeta, Res, rCHC
 real*8, external :: DDot_
 integer, external :: ipGet
-!----------------------------------------------------------------------*
-interface
-  subroutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
-    integer iispin, iCsym, iSSym
-    integer nInt1, nInt2s, nInt2a
-    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-    integer ipCI1, ipCI2
-    logical Have_2_el
-  end subroutine CISigma
-  subroutine FockGen_sp(d_0,rDens1,rdens2,Fock,fockout,idsym)
-    real*8 d_0
-    real*8 rDens1(*), rdens2(*), Fock(*), fockout(*)
-    integer idsym
-  end subroutine FockGen_sp
-end interface
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

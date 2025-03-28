@@ -22,6 +22,9 @@ subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,SCR,ICONF,NEL,IREFSM,N
 ! No modifications
 ! ================
 
+use iso_c_binding
+use MCLR_Data, only: NTYP, NCPCNT
+
 implicit none
 integer ISYM, NLCNF, NRCNF, NLCSF, NEL, IREFSM, NAEL, NBEL, NACOB, INTSPC, ICOMBI
 real*8 PSSIGN
@@ -47,10 +50,6 @@ contains
 
 subroutine CNHCNM_INTERNAL(SCR)
 
-  use iso_c_binding
-  use MCLR_Data, only: NTYP, NCPCNT
-
-  implicit none
   real*8, target :: SCR(*)
   integer, pointer :: iSCRl(:), iSCRr(:)
   integer NDIF0, NDIF1, NDIF2, MXCSFC, ITYP, KLFREE, KLCONF, KRCONF, KLPHPS, IILB, ICNL, NCSFL, IIRB, MXR, ICNR, NCSFR, MDIF0, &

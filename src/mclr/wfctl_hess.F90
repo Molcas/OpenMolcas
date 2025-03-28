@@ -36,6 +36,7 @@ use MCLR_Data, only: ipDia
 use MCLR_Data, only: lDisp
 use MCLR_Data, only: LuTemp
 use MCLR_Data, only: XISPSM
+use MCLR_procedures, only: CISigma
 use input_mclr, only: nDisp, Fail, lSave, nSym, PT2, State_Sym, iMethod, rIn_Ene, PotNuc, iBreak, Eps, nIter, ERASSCF, kPrint, &
                       nCSF, nTPert, TimeDep, nAsh, nRs2
 use dmrginfo, only: DoDMRG, RGRAS2
@@ -81,18 +82,6 @@ integer lPaper, lLine, Left, iDis, iDisp, kkSym, kkkSym, iSym, nConf3, ipS1, ipS
 integer, external :: ipGet
 integer, external :: nPre
 integer, external :: IsFreeUnit
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
-    integer iispin, iCsym, iSSym
-    integer nInt1, nInt2s, nInt2a
-    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-    integer ipCI1, ipCI2
-    logical Have_2_el
-  end subroutine CISigma
-end interface
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

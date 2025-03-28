@@ -21,6 +21,7 @@ use ipPage, only: W
 use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, nAcPr2, ipCI, ipMat, nDens2
 use MCLR_Data, only: XISPSM
+use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: nRoots, State_Sym, nSym, nBas
 
 implicit none
@@ -38,21 +39,6 @@ integer ILoc1, ILoc2, ILoc3, iOff, iS, jS, iB, jB, ji, ij, I, iK
 integer ILoc4, iptmp, nConf3, L
 integer, external :: ipGet
 real*8, external :: DDot_
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
-    integer iispin, iCsym, iSSym
-    integer nInt1, nInt2s, nInt2a
-    real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-    integer ipCI1, ipCI2
-    logical Have_2_el
-  end subroutine CISigma_sa
-end interface
-!                                                                      *
-!***********************************************************************
-!                                                                      *
 
 nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
 iptmp = ipGet(nconf3*nRoots)

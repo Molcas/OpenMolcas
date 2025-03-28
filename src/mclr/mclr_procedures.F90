@@ -9,26 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Ci_Ci(ipcid,ips2)
-
-use ipPage, only: W
-use Arrays, only: FIMO, INT2
-use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nRoots, rIn_Ene, PotNuc, ERASSCF, NCSF, Weight, State_Sym
-use Constants, only: Two
+! This module contains procedures that need an interface
+module MCLR_procedures
 
 implicit none
-integer ipCID, ipS2
-integer i
-real*8 rDum(1), EC
+private
 
-call CISigma_sa(0,state_sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rDum,1,ipCId,ips2,.true.)
-call ipin(ipCId)
-call ipin(ipS2)
-do i=0,nroots-1
-  EC = (rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
-  call Daxpy_(ncsf(State_Sym),EC,W(ipCId)%Vec(1+i*ncsf(state_sym)),1,W(ipS2)%Vec(1+i*ncsf(state_sym)),1)
-end do
-call DSCAL_(nroots*ncsf(state_SYM),Two,W(ipS2)%Vec,1)
+public :: CISigma, CISigma_sa, CISigma_td, RdJobIph, RdJobIph_td
 
-end subroutine Ci_Ci
+contains
+
+#define _IN_MODULE_
+#include "cisigma.F90"
+#include "cisigma_sa.F90"
+#include "cisigma_td.F90"
+#include "rdjobiph.F90"
+#include "rdjobiph_td.F90"
+
+end module MCLR_procedures

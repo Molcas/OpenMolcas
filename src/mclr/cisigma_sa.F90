@@ -9,6 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! This subroutine should be in a module, to avoid explicit interfaces
+#ifndef _IN_MODULE_
+!#error "This file must be compiled inside a module"
+!#endif
+#else
+
 subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
 
 use ipPage, only: W
@@ -116,3 +122,4 @@ else
 end if
 
 end subroutine CISigma_sa
+#endif
