@@ -13,24 +13,29 @@
 
 subroutine Niclas(H,coor,LUT)
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "SysDef.fh"
 real*8 H(*)
+real*8 Coor(*)
+integer LUT
 character*40 Label
+integer iCar, iCnt, iCnttp, iCo, iComp, idsp, ii, iii, iIrrep, iPERT, iS, jCar, jCnt, jCnttp, jCo, jComp, jDsp, jPERT, kop_m, &
+        kop_n, mdc, nCenti, nCentj, nCnti, nCntj, nd, ndc, nop_m, nop_n
 integer nDeg(200), ldisp(0:7)
 integer inddsp(100,0:7)
+integer, external :: iPrmt, nropr
 logical, external :: TF
-real*8 Coor(*)
-real*8 Dummy(1)
+real*8 Dummy(1), HE, riPh, rjPh
 real*8, allocatable :: Htmp(:), Tmp(:)
 ! Statement functions
+integer i, j, itri, irec
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 irec(i,j) = nd*(j-1)+i-1
 

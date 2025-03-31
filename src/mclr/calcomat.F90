@@ -17,7 +17,7 @@
 
 subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
 
-use ipPage, only: W
+use ipPage, only: ipget, W
 use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nConf1, nAcPr2, ipCI, ipMat, nDens2
 use MCLR_Data, only: XISPSM
@@ -37,13 +37,12 @@ real*8, dimension(1) :: rdum
 real*8, dimension(:), allocatable :: FMO1
 integer ILoc1, ILoc2, ILoc3, iOff, iS, jS, iB, jB, ji, ij, I, iK
 integer ILoc4, iptmp, nConf3, L
-integer, external :: ipGet
 real*8, external :: DDot_
 
 nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
 iptmp = ipGet(nconf3*nRoots)
 call FZero(CSFOK,nRoots*nConf1)
-call FZero(W(iptmp)%Vec,nRoots*nConf3)
+call FZero(W(iptmp)%A,nRoots*nConf3)
 call mma_allocate(FMO1,nDens2)
 
 do i=1,nRoots
@@ -70,11 +69,11 @@ do i=1,nRoots
   end do
   !call ipin(ipCI)
   call CISigma_SA(0,State_Sym,State_Sym,FMO1,nDens2,FMO2t(iLoc2),NACPR2,rdum,1,ipci,iptmp,.true.)
-  call Daxpy_(nConf1,real(nRoots,8),W(iptmp)%Vec(iLoc3),1,CSFOK(iLoc3),1)
+  call Daxpy_(nConf1,real(nRoots,8),W(iptmp)%A(iLoc3),1,CSFOK(iLoc3),1)
 
   do L=1,nRoots
     ILoc4 = (L-1)*NConf1+1
-    LOK((I-1)*nRoots+L) = ddot_(nConf1,CSFOK(iLoc3),1,W(ipCI)%Vec(iLoc4),1)
+    LOK((I-1)*nRoots+L) = ddot_(nConf1,CSFOK(iLoc3),1,W(ipCI)%A(iLoc4),1)
   end do
 end do
 call mma_deallocate(FMO1)

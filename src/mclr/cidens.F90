@@ -11,7 +11,7 @@
 
 subroutine CIDens(response,iLS,iRS,iL,iR,rP,rD)
 
-use ipPage, only: W
+use ipPage, only: ipin, ipin1, ipnout, opout, W
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
@@ -82,11 +82,11 @@ if (nocsf == 0) then
   nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
   call mma_allocate(CIL,nConfL,Label='CIL')
   call ipin1(iLS,nconfL)
-  call CSF2SD(W(iLS)%Vec,CIL,iL)
+  call CSF2SD(W(iLS)%A,CIL,iL)
   call opout(iLs)
   call mma_allocate(CIR,nConfR,Label='CIR')
   call ipin1(iRS,nconfR)
-  call CSF2SD(W(iRS)%Vec,CIR,iR)
+  call CSF2SD(W(iRS)%A,CIR,iR)
   call opout(irs)
   call ipnout(-1)
   icsm = iR
@@ -136,7 +136,7 @@ else
   icsm = iR
   call ipin(iLS)
   call ipin(iRS)
-  call Densi2_mclr(2,De,Pe,W(iLS)%Vec,W(iRS)%Vec,0,0,0,n1dens,n2dens)
+  call Densi2_mclr(2,De,Pe,W(iLS)%A,W(iRS)%A,0,0,0,n1dens,n2dens)
   if (.not. timedep) then
     if (response) then
       do iA=1,nnA
@@ -170,7 +170,7 @@ else
     iSSM = iR
     call ipin(iRS)
     call ipin(iLS)
-    call Densi2_mclr(2,De,Pe,W(iRS)%Vec,W(iLS)%Vec,0,0,0,n1dens,n2dens)
+    call Densi2_mclr(2,De,Pe,W(iRS)%A,W(iLS)%A,0,0,0,n1dens,n2dens)
     call daxpy_(n2Dens,-One,Pe,1,rp,1)
     call daxpy_(n1Dens,-One,De,1,rD,1)
   end if

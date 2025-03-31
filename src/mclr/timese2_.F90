@@ -14,10 +14,10 @@
 
 subroutine TimesE2_(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
-use ipPage, only: W
+use ipPage, only: ipin, opout, W
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
-use MCLR_Data
+use MCLR_Data, only: n2Dens, nConf1, nDens, nDens2
 use input_mclr, only: nRoots, nAsh, nRs2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 
@@ -55,7 +55,7 @@ call Compress(Sc1,KapOut,isym)   ! ds
 
 call ipin(ipS2)
 call ipin(ipCIOUT)
-call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCIOUT)%Vec,1)
+call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCIOUT)%A,1)
 call opOut(ipCId)
 
 call mma_deallocate(Temp4)

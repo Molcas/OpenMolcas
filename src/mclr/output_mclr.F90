@@ -34,7 +34,7 @@ subroutine OutPut_MCLR(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,
 !***********************************************************************
 
 use MckDat, only: sLength
-use ipPage, only: W
+use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: Hss
 use MCLR_Data, only: nConf1, nDensC
 use MCLR_Data, only: nHess, lDisp
@@ -65,7 +65,6 @@ integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1
         iRC, kDisp, kSpin, MaxI, MinI, Index, iOpt, Lu_10
 real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
 real*8, external :: DDot_
-integer, external :: ipGet
 integer, external :: IsFreeUnit
 
 !                                                                      *
@@ -174,26 +173,26 @@ do iSym=1,nSym
         ilen = nconf1
         idis = iCIDisp(iDisp)
         call ipin(ipCIp1)
-        call dDaFile(LuTemp,2,W(ipCIp1)%Vec,iLen,iDis)
+        call dDaFile(LuTemp,2,W(ipCIp1)%A,iLen,iDis)
         idis = iCISigDisp(idisp)
         call ipin(ipSp)
-        call dDaFile(LuTemp,2,W(ipSp)%Vec,iLen,iDis)
+        call dDaFile(LuTemp,2,W(ipSp)%A,iLen,iDis)
         idis = iRHSCIDisp(idisp)
         call ipin(iprp1)
-        call dDaFile(LuTemp,2,W(iprp1)%Vec,iLen,iDis)
+        call dDaFile(LuTemp,2,W(iprp1)%A,iLen,iDis)
         call ipin(ipSp)
         call ipin(iprp1)
         do i=1,nConf1
-          W(ipSp)%Vec(i) = -W(ipSp)%Vec(i)-W(iprp1)%Vec(i)
+          W(ipSp)%A(i) = -W(ipSp)%A(i)-W(iprp1)%A(i)
         end do
 
-        !write(u6,*) 'ddot ci-resp',ddot_(nConf1,W(ipcip1)%Vec,1,W(ipcip1)%Vec,1)
-        !write(u6,*) 'ddot ci-sigma',ddot_(nConf1,W(ipSp)%Vec,1,W(ipSp)%Vec,1)
-        !write(u6,*) 'ddot ci-rhs',ddot_(nConf1,W(iprp1)%Vec,1,W(iprp1)%Vec,1)
+        !write(u6,*) 'ddot ci-resp',ddot_(nConf1,W(ipcip1)%A,1,W(ipcip1)%A,1)
+        !write(u6,*) 'ddot ci-sigma',ddot_(nConf1,W(ipSp)%A,1,W(ipSp)%A,1)
+        !write(u6,*) 'ddot ci-rhs',ddot_(nConf1,W(iprp1)%A,1,W(iprp1)%A,1)
 
-        call GADSum(W(ipCIp1)%Vec,iLen)
-        call GADSum(W(ipSp)%Vec,iLen)
-        call GADSum(W(ipRp1)%Vec,iLen)
+        call GADSum(W(ipCIp1)%A,iLen)
+        call GADSum(W(ipSp)%A,iLen)
+        call GADSum(W(ipRp1)%A,iLen)
       end if
 
     else
@@ -210,14 +209,14 @@ do iSym=1,nSym
 
         ilen = nconf1
         call ipin(ipCIp1)
-        call FZero(W(ipCIp1)%Vec,iLen)
-        call GADSum(W(ipCIp1)%Vec,iLen)
+        call FZero(W(ipCIp1)%A,iLen)
+        call GADSum(W(ipCIp1)%A,iLen)
         call ipin(ipSp)
-        call FZero(W(ipSp)%Vec,iLen)
-        call GADSum(W(ipSp)%Vec,iLen)
+        call FZero(W(ipSp)%A,iLen)
+        call GADSum(W(ipSp)%A,iLen)
         call ipin(ipRp1)
-        call FZero(W(ipRp1)%Vec,iLen)
-        call GADSum(W(ipRp1)%Vec,iLen)
+        call FZero(W(ipRp1)%A,iLen)
+        call GADSum(W(ipRp1)%A,iLen)
 
       end if
 
@@ -258,16 +257,16 @@ do iSym=1,nSym
           ilen = nconf1
           idis = iCIDisp(kDisp+ksym)
           call ipin(ipCIp2)
-          call dDaFile(LuTemp,2,W(ipCIp2)%Vec,iLen,iDis)
+          call dDaFile(LuTemp,2,W(ipCIp2)%A,iLen,iDis)
           idis = iRHSCIDisp(kdisp+ksym)
           call ipin(iprp2)
-          call dDaFile(LuTemp,2,W(iprp2)%Vec,iLen,iDis)
+          call dDaFile(LuTemp,2,W(iprp2)%A,iLen,iDis)
           call ipin(ipsp)
-          rTempc1 = DDot_(nConf1,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
+          rTempc1 = DDot_(nConf1,W(ipCIp2)%A,1,W(ipsp)%A,1)
 
           call GASync() ! <----------------- NOTE!
-          call GADSum(W(ipCIp2)%Vec,iLen)
-          call GADSum(W(iprp2)%Vec,iLen)
+          call GADSum(W(ipCIp2)%A,iLen)
+          call GADSum(W(iprp2)%A,iLen)
 
         else
           rtempc1 = Zero
@@ -285,13 +284,13 @@ do iSym=1,nSym
           ilen = nconf1
           call GASync()   ! <----------------- NOTE!
           call ipin(ipCIp2)
-          call FZero(W(ipCIp2)%Vec,iLen)
-          call GADSum(W(ipCIp2)%Vec,iLen)
+          call FZero(W(ipCIp2)%A,iLen)
+          call GADSum(W(ipCIp2)%A,iLen)
           call ipin(iprp2)
-          call FZero(W(iprp2)%Vec,iLen)
-          call GADSum(W(iprp2)%Vec,iLen)
+          call FZero(W(iprp2)%A,iLen)
+          call GADSum(W(iprp2)%A,iLen)
           call ipin(ipsp)
-          rTempc1 = DDot_(nConf1,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
+          rTempc1 = DDot_(nConf1,W(ipCIp2)%A,1,W(ipsp)%A,1)
         else
           rtempc1 = Zero
         end if
@@ -313,11 +312,11 @@ do iSym=1,nSym
         if (kdisp == jdisp) Fact = Two
         call ipin(ipCip1)
         call ipin(iprp2)
-        rTempc2 = Fact*DDot_(nConf1,W(ipCip1)%Vec,1,W(iprp2)%Vec,1)
+        rTempc2 = Fact*DDot_(nConf1,W(ipCip1)%A,1,W(iprp2)%A,1)
         if (kdisp /= jdisp) then
           call ipin(iprp1)
           call ipin(ipCIp2)
-          rtempc3 = DDot_(nConf1,W(iprp1)%Vec,1,W(ipCIp2)%Vec,1)
+          rtempc3 = DDot_(nConf1,W(iprp1)%A,1,W(ipCIp2)%A,1)
         else
           rTempc3 = Zero
         end if

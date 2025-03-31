@@ -21,13 +21,15 @@ subroutine FCOOR(LUT,COOR)
 !                                                                  *
 !*******************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
 
-implicit real*8(a-h,o-z)
+implicit none
 #include "Molcas.fh"
 real*8 A(3), COOR(3,*), B(3)
+integer :: LUT
+integer :: iCnt, iCnttp, iCo, ii, kop, mdc
 character*(LenIn) Lab
 
 mdc = 0

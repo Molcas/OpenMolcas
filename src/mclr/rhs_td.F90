@@ -32,7 +32,7 @@ subroutine RHS_td(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,rKappa,ipst,iDisp,lOper,CM
 !         Theoretical Chemistry, University of Lund                    *
 !***********************************************************************
 
-use ipPage, only: W
+use ipPage, only: ipin, W
 use MCLR_Data, only: G2sq, G1t
 use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
 use MCLR_Data, only: DspVec
@@ -199,9 +199,9 @@ if (CI) then
   if (idsym == 1) then
     EnA = E2_td(Fix,MOX,idsym-1,idisp)
     call ipin(ipCI)
-    call DaXpY_(nConf1,-Ena,W(ipCI)%Vec,1,W(ipST)%Vec,1)
+    call DaXpY_(nConf1,-Ena,W(ipCI)%A,1,W(ipST)%A,1)
   end if
-  call dscal_(nconf1,Two,W(ipST)%Vec,1)
+  call dscal_(nconf1,Two,W(ipST)%A,1)
 end if
 
 call DYAX(ndens2,Two,rkappa,1,Temp1,1)

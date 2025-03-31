@@ -43,6 +43,7 @@ use Center_Info, only: Center_Info_Free
 use External_Centers, only: External_Centers_Free
 use Symmetry_Info, only: Symmetry_Info_Free
 use Str_Info, only: DFTP, CFTP, DTOC, CNSM
+use ipPage, only: ipclose
 use MCLR_Data, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m, CMO_Inv, CMO, Int1, pINT1, &
                      INT2, pINT2, G2t, G2sq, G1t, FIMO, F0SQMO
 use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
@@ -210,7 +211,6 @@ doMCLR = .false.
 ! open files
 
 call OpnFls_MCLR(iPL)
-call IpInit()
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -413,7 +413,7 @@ if (NewCho) then
   call mma_deallocate(CMO_Inv)
 end if
 
-if (TwoStep .and. (StepType == 'RUN1')) call ipclose(-1)
+call ipclose(-1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -11,7 +11,7 @@
 
 subroutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
 
-use ipPage, only: W
+use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
 use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
@@ -86,9 +86,9 @@ call mma_allocate(CIR,nConfR,Label='CIR')
 do i=0,nroots-1
   call ipin(iLS)
   call ipin(iRS)
-  call CSF2SD(W(iLS)%Vec(1+i*ncsf(il)),CIL,iL)
+  call CSF2SD(W(iLS)%A(1+i*ncsf(il)),CIL,iL)
   call opout(iLS)
-  call CSF2SD(W(iRS)%Vec(1+i*ncsf(ir)),CIR,iR)
+  call CSF2SD(W(iRS)%A(1+i*ncsf(ir)),CIR,iR)
   call opout(iRS)
   call ipnout(-1)
   icsm = iR

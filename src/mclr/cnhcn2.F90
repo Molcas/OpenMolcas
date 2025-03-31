@@ -18,7 +18,7 @@ subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,IPRODT,DTO
 !
 ! Modified for LUCIA, September 1993
 
-use iso_c_binding
+use iso_c_binding, only: c_f_pointer, c_loc
 use MCLR_Data, only: IASTFI, IBSTFI
 use MCLR_Data, only: MINOP, NCPCNT, NDPCNT
 use Str_Info, only: Str

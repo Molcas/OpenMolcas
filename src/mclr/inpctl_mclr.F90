@@ -21,7 +21,7 @@ subroutine InpCtl_MCLR(iPL)
 !***********************************************************************
 
 use Str_Info, only: DTOC
-use ipPage, only: W
+use ipPage, only: ipget, ipin, ipout, ipopen, W
 use gugx, only: SGS, CIS, EXS
 use MCLR_Data, only: nGP
 use MCLR_Data, only: ipCI
@@ -40,7 +40,6 @@ integer iPL
 character(len=8) Method
 real*8, allocatable :: CIVec(:,:), CITmp(:)
 integer i, ii, ipCII, iSSM
-integer, external :: ipGet
 integer, external :: IsFreeUnit
 integer, allocatable :: index_SD(:) ! not final version
 real*8, allocatable :: vector_cidmrg(:)
@@ -150,19 +149,19 @@ if (iMethod == 2) then
   if (SA .or. iMCPD .or. PT2) then
     ipcii = ipget(nconf*nroots)
     call ipin(ipcii)
-    call dcopy_(nconf*nroots,CIVec,1,W(ipcii)%Vec,1)
+    call dcopy_(nconf*nroots,CIVec,1,W(ipcii)%A,1)
     nDisp = 1
   else
     ipcii = ipget(nconf)
     call ipin(ipcii)
-    call dcopy_(nConf,CIVec(:,iState),1,W(ipcii)%Vec,1)
+    call dcopy_(nConf,CIVec(:,iState),1,W(ipcii)%A,1)
     if (iRoot(iState) /= 1) then
       write(u6,*) 'McKinley does not support computation of harmonic frequencies of excited states'
       call Abend()
     end if
   end if
   !call ipin(ipcii)
-  !call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
+  !call RecPrt('CI vector',' ',W(ipcii)%A,1,nConf)
   call mma_deallocate(CIVec)
 
   ! At this point we change to ipci being the index of the CI

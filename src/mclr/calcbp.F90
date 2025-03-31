@@ -41,14 +41,14 @@ do K=1,nRoots
   do L=K,K
     tempd = -LOK((K-1)*nRoots+L)
     iLoc2 = (L-1)*nConf1+1
-    call dAXpY_(nConf1,tempd,W(ipci)%Vec(iLoc2),1,bP(iLoc1),1)
+    call dAXpY_(nConf1,tempd,W(ipci)%A(iLoc2),1,bP(iLoc1),1)
   end do
 
   do L=1,nRoots
     if (L == K) cycle
     tempd = -LOK((K-1)*nRoots+L)
     iLoc2 = (L-1)*nConf1+1
-    call dAXpY_(nConf1,tempd,W(ipci)%Vec(iLoc2),1,bP(iLoc1),1)
+    call dAXpY_(nConf1,tempd,W(ipci)%A(iLoc2),1,bP(iLoc1),1)
   end do
   call DScal_(nConf1,Two*R((I-1)*nRoots+K)**2,bP(iLoc1),1)
 end do

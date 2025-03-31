@@ -188,15 +188,15 @@ subroutine PT2_SLag()
   call mma_allocate(CIR,nConfR,Label='CIR')
   !iR = iRLXRoot
   do jR=1,nRoots
-    call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
+    call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
     do kR=1,jR ! jR-1
       iSLag = jR+nRoots*(kR-1)
       vSLag = SLag(iSLag)
       if (abs(vSLag) <= 1.0e-10_wp) cycle
 
-      call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
+      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
       !call opout(ipCI)
-      call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
+      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,1)
       !call opout(ipCI)
       !call ipnout(-1)
       !icsm = 1

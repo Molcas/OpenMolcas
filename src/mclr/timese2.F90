@@ -13,7 +13,7 @@
 
 subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
-use ipPage, only: w
+use ipPage, only: ipin, opout, W
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use MCLR_Data, only: nConf1, n2Dens, nDens, nDens2
@@ -56,13 +56,13 @@ call Compress(Sc1,KapOut,isym)   ! ds
 
 call ipin(ipS2)
 call ipin(ipCIOUT)
-call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCIOUT)%Vec,1)
+call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCIOUT)%A,1)
 call opOut(ipCId)
 ! This is also orthogonalization of the solution vector
 !do iR=1,nroots
 !  do jR=1,nroots
-!    ovl = ddot_(nconf1,W(ipciout)%Vec(iR),1,W(ipci)%Vec(jR),1)
-!    call daxpy_(nconf1,-ovl,W(ipci)%Vec(jR),1,W(ipciout)%Vec(iR),1)
+!    ovl = ddot_(nconf1,W(ipciout)%A(iR),1,W(ipci)%A(jR),1)
+!    call daxpy_(nconf1,-ovl,W(ipci)%A(jR),1,W(ipciout)%A(iR),1)
 !  end do
 !end do
 

@@ -106,7 +106,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !  End of the "essay".
 !***********************************************************************
 
-use ipPage, only: W
+use ipPage, only: ipget, W
 use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
 use MCLR_Data, only: XISPSM
 use MCLR_procedures, only: CISigma_sa
@@ -134,7 +134,6 @@ real*8 coeff1, coeff2, Coeff, dRoots
 integer tempi1, ipwslam, nconf3
 real*8, dimension(1) :: tempda
 real*8, external :: DDot_
-integer, external :: ipGet
 integer I
 real*8, dimension(:), allocatable :: ovrlp
 
@@ -178,14 +177,14 @@ do M=1,nRoots
     call CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
     call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
     !call ipin(ipwslam)
-    call dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+    call dAXpY_(nConf1,dRoots,W(ipwslam)%A((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
   end do
   ! Computing (2)
   call FZero(D_acc,nnA**2)
   call CalcDacc(D_acc,GDMat,M,nnA,nRoots,zx)
   call CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,One,off_Ash)
   call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
-  call dAXpY_(nConf1,dRoots,W(ipwslam)%Vec((M-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+  call dAXpY_(nConf1,dRoots,W(ipwslam)%A((M-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
   ! Computing (3)
   do K=2,nRoots
     IKK = (K+1)*K/2
@@ -200,8 +199,8 @@ do M=1,nRoots
       Coeff1 = zx(IKL2)*(Two*(DDg(IKM,ILL)-DDg(IKM,IKK))+Four*DDg(IKL,ILM))
       Coeff2 = zx(IKL2)*(Two*(DDg(ILM,ILL)-DDg(ILM,IKK))-Four*DDg(IKL,IKM))
 
-      call DAXpY_(nConf1,Coeff1,W(ipCI)%Vec((L-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
-      call DAXpY_(nConf1,Coeff2,W(ipCI)%Vec((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+      call DAXpY_(nConf1,Coeff1,W(ipCI)%A((L-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+      call DAXpY_(nConf1,Coeff2,W(ipCI)%A((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
     end do
   end do
 end do
@@ -221,13 +220,13 @@ call mma_allocate(ovrlp,nRoots**2)
 
 do M=1,nRoots
   do I=1,nRoots
-    ovrlp((M-1)*nRoots+I) = ddot_(nConf1,W(ipCI)%Vec((I-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+    ovrlp((M-1)*nRoots+I) = ddot_(nConf1,W(ipCI)%A((I-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
   end do
 end do
 
 do M=1,nRoots
   do I=1,nRoots
-    call daxpy_(nConf1,-ovrlp((M-1)*nRoots+I),W(ipCI)%Vec((I-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+    call daxpy_(nConf1,-ovrlp((M-1)*nRoots+I),W(ipCI)%A((I-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
   end do
 end do
 

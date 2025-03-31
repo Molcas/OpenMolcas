@@ -13,7 +13,7 @@
 
 subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
-use ipPage, only: w
+use ipPage, only: ipin, opout, W
 use MCLR_Data, only: nConf1, n2Dens, nDens, nDens2
 use input_mclr, only: nRoots, nAsh, nRS2, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
@@ -57,7 +57,7 @@ call Compress(Sc1,KapOut,isym)   ! ds
 
 call ipin(ipS2)
 call ipin(ipCIOUT)
-call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCIOUT)%Vec,1)
+call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCIOUT)%A,1)
 call opOut(ipCId)
 
 ! Adding Hkl contribution
@@ -67,7 +67,7 @@ do kRoot=1,nRoots
   do lRoot=1,nRoots
     if (kRoot == lRoot) cycle
     ECOff = -MSHam(nRoots*(kRoot-1)+lRoot)*Weight(1)*Two
-    call DaXpY_(nConf1,ECOff,W(ipCId)%Vec((lRoot-1)*nConf1+1),1,W(ipCIOut)%Vec((kRoot-1)*nConf1+1),1)
+    call DaXpY_(nConf1,ECOff,W(ipCId)%A((lRoot-1)*nConf1+1),1,W(ipCIOut)%A((kRoot-1)*nConf1+1),1)
   end do
 end do
 call mma_deallocate(MSHam)

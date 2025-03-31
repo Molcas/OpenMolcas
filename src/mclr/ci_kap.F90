@@ -11,7 +11,7 @@
 
 subroutine CI_KAP(ipcid,fock,fockOut,isym)
 
-!use ipPage, only: W
+use ipPage, only: ipnout !, W
 use MCLR_Data, only: ipCI, n2Dens, nDens2, nNA
 use input_mclr, only: ntAsh, State_Sym
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
@@ -111,7 +111,7 @@ if (doDMRG) then
 
   !call ipin(ipCID)
   !call ipin(ipci)
-  !call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
+  !call projecter(W(ipCID)%A,W(ipci)%A,De,Pe)
   call dcopy_(ndens2,[Zero],0,Fock,1)
   call dcopy_(ndens2,[Zero],0,FockOut,1)
   d0 = Zero
@@ -122,7 +122,7 @@ else
 
   !call ipin(ipCID)
   !call ipin(ipci)
-  !call projecter(W(ipCID)%Vec,W(ipci)%Vec,De,Pe)
+  !call projecter(W(ipCID)%A,W(ipci)%A,De,Pe)
   call dcopy_(ndens2,[Zero],0,Fock,1)
   call dcopy_(ndens2,[Zero],0,FockOut,1)
   d0 = Zero

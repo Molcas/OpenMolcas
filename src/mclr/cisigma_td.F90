@@ -17,7 +17,7 @@
 
 subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
 
-use ipPage, only: W
+use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
 use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
 use MCLR_Data, only: i12, ist, Square
@@ -123,10 +123,10 @@ if (TIMEDEP) then
   ! CIDET is here because sigmavec will destroy the first input vector.
   call mma_allocate(CIDET,nDet,Label='CIDET')
   call ipin(ipCI1)
-  call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+  call dcopy_(nCSF(iCSM),W(ipCI1)%A,1,CIDET,1)
 
   call ipin(ipci2)
-  call SigmaVec(CIDET,W(ipci2)%Vec,kic)
+  call SigmaVec(CIDET,W(ipci2)%A,kic)
 
   if (NT == 'N') then
     call mma_deallocate(CIDET)
@@ -137,16 +137,16 @@ if (TIMEDEP) then
 
     ! Symmetric operator, no transpose of integrals needed!
     call ipin(ipCI1)
-    call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+nConf1),1,CIDET,1)
+    call dcopy_(nCSF(iCSM),W(ipCI1)%A(1+nConf1),1,CIDET,1)
 
     call ipin(ipci2)
-    call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
+    call SigmaVec(CIDET,W(ipci2)%A(1+nconf1),kic)
 
   else  ! NT /= 'S'
 
     ! The operator is not sym --> transpose integrals! NT /= S
     call ipin(ipCI1)
-    call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+    call dcopy_(nCSF(iCSM),W(ipCI1)%A,1,CIDET,1)
 
     call mma_allocate(TI1,ndens2,Label='TI1')
     call mma_allocate(TI2,ntash**4,Label='TI2')
@@ -178,7 +178,7 @@ if (TIMEDEP) then
     KINT2 => TI2
 
     call ipin(ipci2)
-    call SigmaVec(CIDET,W(ipci2)%Vec(1+nconf1),kic)
+    call SigmaVec(CIDET,W(ipci2)%A(1+nconf1),kic)
 
     nullify(KAIN1,KINT2)
     call mma_deallocate(TI1)
@@ -198,15 +198,15 @@ else   ! If not timedep
   if (.not. page) then
     call mma_allocate(CIDET,nDet,Label='CIDET')
     call ipin(ipCI1)
-    call dcopy_(nCSF(iCSM),W(ipCI1)%Vec,1,CIDET,1)
+    call dcopy_(nCSF(iCSM),W(ipCI1)%A,1,CIDET,1)
     call ipin(ipci2)
-    call SigmaVec(CIDET,W(ipci2)%Vec,kic)
+    call SigmaVec(CIDET,W(ipci2)%A,kic)
     call mma_deallocate(CIDET)
   else
     call ipnout(ipci2)
     call ipin1(ipCI1,ndet)
     call ipin(ipci2)
-    call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
+    call SigmaVec(W(ipCI1)%A,W(ipci2)%A,kic)
     call opout(ipci1)
   end if
   !                                                                    *

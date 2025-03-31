@@ -11,7 +11,7 @@
 
 subroutine negp(ipdia,ipSigma,rout)
 
-use ipPage, only: W
+use ipPage, only: ipin, ipout, opout, W
 use MCLR_Data, only: SS, LuCIV
 use input_mclr, only: lRoots, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -35,7 +35,7 @@ call ipin(ipSigma)
 do i=1,lroots
   call dDAFILE(luciv,2,Tmp,nconf,idisk)
   Tmp2(1,i) = DDOT_(nconf,rout,1,Tmp,1)
-  Tmp2(2,i) = DDOT_(nconf,W(ipSigma)%Vec,1,Tmp,1)
+  Tmp2(2,i) = DDOT_(nconf,W(ipSigma)%A,1,Tmp,1)
 end do
 call ipout(ipsigma)
 call dGeMV_('N',2*lroots,2*lroots,One,SS,2*lroots,Tmp2,1,Zero,Tmp3,1)
@@ -44,7 +44,7 @@ idisk = 0
 call ipin(ipdia)
 do i=1,lroots
   call dDAFILE(luciv,2,Tmp,nconf,idisk)
-  call Exphinvv(W(ipdia)%Vec,Tmp,rout,One,Tmp3(1,i))
+  call Exphinvv(W(ipdia)%A,Tmp,rout,One,Tmp3(1,i))
   call daxpy_(nConf,Tmp3(2,i),Tmp,1,rout,1)
 end do
 

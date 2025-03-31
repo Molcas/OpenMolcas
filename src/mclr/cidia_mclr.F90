@@ -15,7 +15,7 @@ subroutine CIDIA_MCLR(iSym,ralp)
 
 use Exp, only: nexp, nexp_max
 use Str_Info, only: CNSM
-use ipPage, only: W
+use ipPage, only: ipclose, ipget, ipin, ipnout, W
 use MCLR_Data, only: nGP
 use MCLR_Data, only: ipCI
 use MCLR_Data, only: ipDia
@@ -35,7 +35,6 @@ real*8, allocatable :: Q(:)
 integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, nD, ipDIAI, nP2, nP1, nQ, iC
 real*8 ECAS
 real*8, external :: DDot_
-integer, external :: ipGet
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we dont want to let world see the work of the Danish
@@ -75,8 +74,8 @@ end if
 
 LSPC(1) = nSD
 call ipin(ipDSDi)
-call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
-if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT)
+call IntDia(W(ipDSDi)%A,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
+if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT)
 
 if (NOCSF == 0) call ipclose(ipDSDi)
 
@@ -88,7 +87,7 @@ nq = 0
 if (np2 /= 0) then
   call ipnout(ipdiai)
   call ipin(ipdiai)
-  call h0(W(ipdiai)%Vec,np1,nexp_max,nq,isym,nexp,TimeDep)
+  call h0(W(ipdiai)%A,np1,nexp_max,nq,isym,nexp,TimeDep)
 else
   nexp = 0
 end if
@@ -96,10 +95,10 @@ end if
 ECAS = ERASSCF(1)
 call ipin(ipdiai)
 do iC=1,nD
-  if ((W(ipdiai)%Vec(ic)-ECAS) /= Zero) then
-    W(ipdiai)%Vec(iC) = One/(W(ipdiai)%Vec(iC)-ECAS)
+  if ((W(ipdiai)%A(ic)-ECAS) /= Zero) then
+    W(ipdiai)%A(iC) = One/(W(ipdiai)%A(iC)-ECAS)
   else
-    W(ipdiai)%Vec(iC) = 1.0e5_wp
+    W(ipdiai)%A(iC) = 1.0e5_wp
   end if
 end do
 !             -1
@@ -109,11 +108,11 @@ call mma_allocate(Q,nD,Label='Q')
 Q(:) = Zero
 
 call ipin(ipCI)
-call ExpHinvv(W(ipdiai)%Vec,W(ipCI)%Vec,Q,Zero,One)
+call ExpHinvv(W(ipdiai)%A,W(ipCI)%A,Q,Zero,One)
 
-ralp = DDOT_(nD,W(ipCI)%Vec,1,Q,1)
+ralp = DDOT_(nD,W(ipCI)%A,1,Q,1)
 if (NGP) then
-  call MKP1INV(W(ipdiai)%Vec)
+  call MKP1INV(W(ipdiai)%A)
   call MKCIPRE()
 end if
 call ipnout(ipdiai)

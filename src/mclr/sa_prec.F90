@@ -11,7 +11,7 @@
 
 subroutine SA_PREC(S,rdia)
 
-use ipPage, only: W
+use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI
 use input_mclr, only: nRoots, ERASSCF
 
@@ -21,7 +21,7 @@ integer i
 
 call ipin(ipci)
 do i=1,nroots
-  call SA_PREC2(rdia,S(1,i),W(ipci)%Vec,ERASSCF(i))
+  call SA_PREC2(rdia,S(1,i),W(ipci)%A,ERASSCF(i))
 end do
 
 end subroutine SA_PREC

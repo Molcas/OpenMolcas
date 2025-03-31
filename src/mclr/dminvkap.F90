@@ -26,7 +26,7 @@ subroutine DMInvKap(rMFact,rIn,nrIn,rOut,nrOut,rtemp,nrtemp,isym,iter)
 !                                                                      *
 !***********************************************************************
 
-use iso_c_binding
+use iso_c_binding, only: c_f_pointer, c_loc
 use Spool, only: LuWr
 use MCLR_Data, only: SA
 use MCLR_Data, only: ipMat, nDensC

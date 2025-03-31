@@ -11,7 +11,7 @@
 
 subroutine Ci_Ci(ipcid,ips2)
 
-use ipPage, only: W
+use ipPage, only: ipin, W
 use MCLR_Data, only: FIMO, INT2
 use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: nRoots, rIn_Ene, PotNuc, ERASSCF, NCSF, Weight, State_Sym
@@ -27,8 +27,8 @@ call ipin(ipCId)
 call ipin(ipS2)
 do i=0,nroots-1
   EC = (rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
-  call Daxpy_(ncsf(State_Sym),EC,W(ipCId)%Vec(1+i*ncsf(state_sym)),1,W(ipS2)%Vec(1+i*ncsf(state_sym)),1)
+  call Daxpy_(ncsf(State_Sym),EC,W(ipCId)%A(1+i*ncsf(state_sym)),1,W(ipS2)%A(1+i*ncsf(state_sym)),1)
 end do
-call DSCAL_(nroots*ncsf(state_SYM),Two,W(ipS2)%Vec,1)
+call DSCAL_(nroots*ncsf(state_SYM),Two,W(ipS2)%A,1)
 
 end subroutine Ci_Ci

@@ -33,7 +33,7 @@ subroutine OutPut_td(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,co
 !***********************************************************************
 
 use MckDat, only: sLength
-use ipPage, only: W
+use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: Hss
 use MCLR_Data, only: nConf1, nDensC
 use MCLR_Data, only: nHess, lDisp
@@ -60,7 +60,6 @@ integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1
         iRC, kDisp, kSpin, MaxI, MinI, Index, iOpt, Lu_10, nCI, ip
 real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
 real*8, external :: DDot_
-integer, external :: ipGet
 integer, external :: IsFreeUnit
 
 !                                                                      *
@@ -150,17 +149,17 @@ do iSym=1,nSym
       ilen = nCI
       idis = iCIDisp(iDisp)
       call ipin(ipCIp1)
-      call dDaFile(LuTemp,2,W(ipCIp1)%Vec,iLen,iDis)
+      call dDaFile(LuTemp,2,W(ipCIp1)%A,iLen,iDis)
       idis = iCISigDisp(idisp)
       call ipin(ipSp)
-      call dDaFile(LuTemp,2,W(ipSp)%Vec,iLen,iDis)
+      call dDaFile(LuTemp,2,W(ipSp)%A,iLen,iDis)
       idis = iRHSCIDisp(idisp)
       call ipin(iprp1)
-      call dDaFile(LuTemp,2,W(iprp1)%Vec,iLen,iDis)
+      call dDaFile(LuTemp,2,W(iprp1)%A,iLen,iDis)
       call ipin(ipsp)
       call ipin(iprp1)
       do i=1,nCI
-        W(ipsp)%Vec(i) = -W(ipsp)%Vec(i)-W(iprp1)%Vec(i)
+        W(ipsp)%A(i) = -W(ipsp)%A(i)-W(iprp1)%A(i)
       end do
     end if
 
@@ -194,10 +193,10 @@ do iSym=1,nSym
         ilen = nCI
         idis = iCIDisp(kDisp+ksym)
         call ipin(ipCIp2)
-        call dDaFile(LuTemp,2,W(ipCIp2)%Vec,iLen,iDis)
+        call dDaFile(LuTemp,2,W(ipCIp2)%A,iLen,iDis)
 
         call ipin(ipsp)
-        rTempc1 = DDot_(nCI,W(ipCIp2)%Vec,1,W(ipsp)%Vec,1)
+        rTempc1 = DDot_(nCI,W(ipCIp2)%A,1,W(ipsp)%A,1)
       else
         rtempc1 = Zero
       end if
@@ -209,7 +208,7 @@ do iSym=1,nSym
         ilen = nCI
         idis = iRHSCIDisp(kdisp+ksym)
         call ipin(iprp2)
-        call dDaFile(LuTemp,2,W(iprp2)%Vec,iLen,iDis)
+        call dDaFile(LuTemp,2,W(iprp2)%A,iLen,iDis)
       end if
 
       Fact = One
@@ -227,11 +226,11 @@ do iSym=1,nSym
         if (kdisp == jdisp) Fact = Two
         call ipin(ipCip1)
         call ipin(iprp2)
-        rTempc2 = Fact*DDot_(nCI,W(ipCip1)%Vec,1,W(iprp2)%Vec,1)
+        rTempc2 = Fact*DDot_(nCI,W(ipCip1)%A,1,W(iprp2)%A,1)
         if (kdisp /= jdisp) then
           call ipin(iprp1)
           call ipin(ipCIp2)
-          rtempc3 = DDot_(nCI,W(iprp1)%Vec,1,W(ipCIp2)%Vec,1)
+          rtempc3 = DDot_(nCI,W(iprp1)%A,1,W(ipCIp2)%A,1)
         else
           rTempc3 = Zero
         end if

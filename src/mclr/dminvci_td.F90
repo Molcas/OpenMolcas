@@ -11,7 +11,7 @@
 
 subroutine DMinvCI_td(rin,rout,rome,idsym)
 
-use ipPage, only: W
+use ipPage, only: ipin, W
 use Constants, only: Zero, Half
 use MCLR_Data, only: nConf1, ipCI
 use MCLR_Data, only: ipDia
@@ -34,23 +34,23 @@ real*8, external :: DDot_
 if (nconf1 > 1) then
   call ipin(ipdia)
   do i=1,nconf1
-    rout(i) = rin(i)/(W(ipdia)%Vec(i)+rome)
+    rout(i) = rin(i)/(W(ipdia)%A(i)+rome)
   end do
 
   ! To ensure orthogonal response if response is in same symmetry as wavefunction
 
   if (idsym == 1) then
     call ipin(ipCI)
-    r1 = ddot_(nconf1,W(ipCI)%Vec,1,rout,1)
+    r1 = ddot_(nconf1,W(ipCI)%A,1,rout,1)
 
     r2 = Zero
     call ipin(ipDia)
     do i=1,nconf1
-      r2 = r2+W(ipCI)%Vec(i)**2/(W(ipDia)%Vec(i)+rome)
+      r2 = r2+W(ipCI)%A(i)**2/(W(ipDia)%A(i)+rome)
     end do
 
     do i=1,nconf1
-      rout(i) = rout(i)-r1/r2*W(ipCI)%Vec(i)/(W(ipDia)%Vec(i)+rome)
+      rout(i) = rout(i)-r1/r2*W(ipCI)%A(i)/(W(ipDia)%A(i)+rome)
     end do
   end if
 

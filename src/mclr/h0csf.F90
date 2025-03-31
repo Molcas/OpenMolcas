@@ -86,7 +86,7 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,N
 !  Lucia Version, September 1993
 ! =========================================
 
-use iso_c_binding
+use iso_c_binding, only: c_f_pointer, c_loc
 use MCLR_Data, only: NTYP, NCNATS, NCPCNT
 use Constants, only: One
 use Definitions, only: wp

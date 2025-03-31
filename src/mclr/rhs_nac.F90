@@ -11,7 +11,7 @@
 
 subroutine RHS_NAC(Fock,SLag)
 
-use ipPage, only: W
+use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: ipCI, nConf1, ipMat, n1Dens, n2Dens, nDens2
 use MCLR_Data, only: NSSA
 use MCLR_Data, only: XISPSM
@@ -63,9 +63,9 @@ if (PT2) then
   call PT2_SLag()
 else
   call ipIn(ipCI)
-  call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,State_sym)
+  call CSF2SD(W(ipCI)%A(1+(NSSA(2)-1)*nconf1),CIL,State_sym)
   call opout(ipCI)
-  call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,State_sym)
+  call CSF2SD(W(ipCI)%A(1+(NSSA(1)-1)*nconf1),CIR,State_sym)
   call opout(ipCI)
   call ipnout(-1)
   icsm = 1
@@ -234,9 +234,9 @@ subroutine PT2_SLag()
       vSLag = SLag(iSLag)
       !write(u6,*) vslag
 
-      call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
+      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
       !call opout(ipCI)
-      call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
+      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,1)
       !call opout(ipCI)
       !call ipnout(-1)
       !icsm = 1

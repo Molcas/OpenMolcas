@@ -11,7 +11,7 @@
 
 subroutine Out_Pt2(iKapDisp,iCIDisp)
 
-use ipPage, only: W
+use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO
 use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens, nA, nDens2, nDensC
 use MCLR_Data, only: ESTERR, ISNAC, ISTATE, IRLXROOT, OVERRIDE, NACSTATES
@@ -39,7 +39,6 @@ integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO, iLen, ipCIP, iDisk
         kl, lk2, ijkl, jikl, ijlk, jilk, klRow, iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA, jAA, nBuf, LuDens, iOff, &
         iBas, LuTmp
 integer, external :: IsFreeUnit
-integer, external :: ipGet
 real*8 Val
 ! Statement function
 integer i, j, itri
@@ -89,7 +88,7 @@ if (CI) then
   ipcip = ipget(nconf1*nroots)
   iDisk = iCIDisp(1)
   call ipin(ipCIp)
-  call dDaFile(LuTemp,2,W(ipCIp)%Vec,iLen,iDisk)
+  call dDaFile(LuTemp,2,W(ipCIp)%A,iLen,iDisk)
 
   ! Calculate the densities that correct the nonvariational CI stuff
 

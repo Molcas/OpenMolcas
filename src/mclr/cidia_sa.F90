@@ -14,7 +14,7 @@
 subroutine CIDIA_sa(iSym,ralp,S)
 
 use Str_Info, only: CNSM
-use ipPage, only: W
+use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: ipCI
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: FANCY_PRECONDITIONER
@@ -30,7 +30,6 @@ real*8 ralp(*), S(*)
 integer iSM(1), LSPC(1), iSPC(1)
 integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, ipDIAI, iP2, J
 real*8 ECAS, WE
-integer, external :: ipGet
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we dont want to let world see the work of the Danish
@@ -67,9 +66,9 @@ end if
 LSPC(1) = nSD
 
 call ipin(ipDSDi)
-call IntDia(W(ipDSDi)%Vec,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
+call IntDia(W(ipDSDi)%A,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
 
-if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%Vec,W(ipDSDi)%Vec,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT)
+if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT)
 
 if (nocsf == 0) call ipClose(ipDSDi)
 ! Calculate explicit part of hamiltonian
@@ -78,7 +77,7 @@ ipdia = ipdiai
 
 if (FANCY_PRECONDITIONER) then
   call ipin(ipdia)
-  call SA_PREC(S,W(ipdia)%Vec)
+  call SA_PREC(S,W(ipdia)%A)
 else
   call ipin(ipdiai)
   call ipin(ipCI)
@@ -88,7 +87,7 @@ else
     We = Weight(j)
     ralp(j) = Zero
     do i=1,ncsf(State_SYM)
-      ralp(j) = ralp(j)+One/(W(ipdiai)%Vec(i)-ECAS)*We*W(ipCI)%Vec(ip2)**2
+      ralp(j) = ralp(j)+One/(W(ipdiai)%A(i)-ECAS)*We*W(ipCI)%A(ip2)**2
       ip2 = ip2+1
     end do
   end do

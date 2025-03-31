@@ -22,7 +22,7 @@ subroutine GTSTTP(ICLS,IEL1,IEL3,ITYPE,IWAY)
 !
 ! Jeppe Olsen, Another lonely night in Lund
 
-use Str_Info
+use Str_Info, only: ITYP_Dummy, NOCTYP, Str
 
 implicit none
 integer ICLS, IEL1, IEL3, ITYPE, IWAY

@@ -19,7 +19,7 @@ subroutine WfCtl_pdft(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 !***********************************************************************
 
 use Exp, only: Exp_Close
-use ipPage, only: W
+use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI, nAcPar, nNA, nAcPr2, ipMat
 use MCLR_Data, only: ipDia
@@ -56,7 +56,6 @@ real*8 R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rAlphaC, rAlphaK, rAlpha, rE
 real*8, external :: DDot_
 integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin, &
         i, nTri, nOrbAct, kSym, iOff, iS, jS, j, ji, ij, nG1, nG2
-integer, external :: ipGet
 integer, external :: nPre
 
 !----------------------------------------------------------------------*
@@ -137,7 +136,7 @@ npre2 = npre(isym)
 ipPre2 = ipGet(npre2)
 
 call ipIn(ipPre2)
-call Prec(W(ipPre2)%Vec,isym)
+call Prec(W(ipPre2)%A,isym)
 call ipOut(ippre2)
 
 ! OK START WORKING
@@ -242,24 +241,24 @@ do iDisp=1,nDisp
   call ipin(ipCI)
   do i=0,nroots-1
     if (i == troot) then
-      call Dscal_(nconf1,(1/weight(i+1)),W(ipST)%Vec(1+i*nconf1),1)
-      rE = ddot_(nconf1,W(ipST)%Vec(1+i*nconf1),1,W(ipCI)%Vec(1+i*nconf1),1)
-      call Daxpy_(nconf1,-rE,W(ipCI)%Vec(1+i*nconf1),1,W(ipST)%Vec(1+i*nconf1),1)
+      call Dscal_(nconf1,(1/weight(i+1)),W(ipST)%A(1+i*nconf1),1)
+      rE = ddot_(nconf1,W(ipST)%A(1+i*nconf1),1,W(ipCI)%A(1+i*nconf1),1)
+      call Daxpy_(nconf1,-rE,W(ipCI)%A(1+i*nconf1),1,W(ipST)%A(1+i*nconf1),1)
 
     else
-      call dcopy_(nConf1,[Zero],0,W(ipst)%Vec(1+i*nconf1),1)
+      call dcopy_(nConf1,[Zero],0,W(ipst)%A(1+i*nconf1),1)
     end if
   end do
 
-  call DSCAL_(nconf1*nroots,-Two,W(ipST)%Vec,1)
+  call DSCAL_(nconf1*nroots,-Two,W(ipST)%A,1)
 
   ! scaling the CI resp. for PDFT part in HMC-PDFT
-  if (Do_Hybrid) call DScal_(nconf1*nroots,PDFT_Ratio,W(ipST)%Vec,1)
+  if (Do_Hybrid) call DScal_(nconf1*nroots,PDFT_Ratio,W(ipST)%A,1)
 
   if (debug) then
     write(u6,*) 'RHS CI part:'
     do iS=1,nconf1*nroots
-      write(u6,*) W(ipST)%Vec(iS)
+      write(u6,*) W(ipST)%A(iS)
     end do
   end if
 
@@ -374,9 +373,9 @@ do iDisp=1,nDisp
   call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
   call ipIn(ipCIT)
-  call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
+  call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%A,1)
   call ipIn(ipCID)
-  call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
+  call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%A,1)
   call ipOut(ipCIT)
   call DSCAL_(nDensC,-One,Sigma,1)
 
@@ -385,11 +384,11 @@ do iDisp=1,nDisp
   ! I need to read in the CI portion of the RHS here.
   if (CI) then
     call ipIn(ipS2)
-    call DMinvCI_sa(ipST,W(ipS2)%Vec,Fancy)
+    call DMinvCI_sa(ipST,W(ipS2)%A,Fancy)
   end if
   call ipin(ipST)
   call ipin(ipCId)
-  call dcopy_(nconf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
+  call dcopy_(nconf1*nroots,W(ipST)%A,1,W(ipCId)%A,1)
   !*******************
   !TRS
   call mma_allocate(lmroots,nroots,Label='lmroots')
@@ -401,11 +400,11 @@ do iDisp=1,nDisp
   Kap_New_Temp(:) = Zero
 
   call ipin(ipCI)
-  call DgeMV_('T',nconf1,nroots,One,W(ipCI)%Vec,nconf1,W(ipCId)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
+  call DgeMV_('T',nconf1,nroots,One,W(ipCI)%A,nconf1,W(ipCId)%A(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
   ! SA-SA rotations w/in SA space in eigen state basis
   if (debug) call recprt('lmroots',' ',lmroots,1,nroots)
   ! SA-SA rotations w/in SA space in CSF basis
-  call dgemv_('N',nconf1,nroots,One,W(ipCI)%Vec,nconf1,lmroots,1,Zero,W(ipCId)%Vec(1+(irlxroot-1)*nconf1),1)
+  call dgemv_('N',nconf1,nroots,One,W(ipCI)%A,nconf1,lmroots,1,Zero,W(ipCId)%A(1+(irlxroot-1)*nconf1),1)
   ! SA-SA rotations w/in SA space for new lagrange multipliers
   do i=1,nroots
     if (i == irlxroot) then
@@ -424,12 +423,12 @@ do iDisp=1,nDisp
 
   if (debug) call recprt('lmroots_new',' ',lmroots_new,1,nroots)
   ! SA-SA rotations w/in SA space for new lagrange multipliers in csf basis
-  call dgemv_('N',nconf1,nroots,One,W(ipCI)%Vec,nconf1,lmroots_new,1,Zero,W(ipcid)%Vec(1+(irlxroot-1)*nconf1),1)
+  call dgemv_('N',nconf1,nroots,One,W(ipCI)%A,nconf1,lmroots_new,1,Zero,W(ipcid)%A(1+(irlxroot-1)*nconf1),1)
 
   ! First iter of PCG
   call TimesE2_(kap_new,ipCId,1,reco,jspin,ipS2,kap_new_temp,ipS1)
 
-  call DgeMV_('T',nconf1,nroots,One,W(ipCI)%Vec,nconf1,W(ipST)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
+  call DgeMV_('T',nconf1,nroots,One,W(ipCI)%A,nconf1,W(ipST)%A(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
 
   if (debug) then
     write(u6,*) 'lmroots_ipst this should be 1lmroots'
@@ -437,7 +436,7 @@ do iDisp=1,nDisp
   end if
 
   call ipin(ipS1)
-  call DgeMV_('T',nconf1,nroots,One,W(ipCI)%Vec,nconf1,W(ipS1)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
+  call DgeMV_('T',nconf1,nroots,One,W(ipCI)%A,nconf1,W(ipS1)%A(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
 
   if (debug) then
     write(u6,*) 'lmroots_ips1 this should be -lmroots'
@@ -447,21 +446,21 @@ do iDisp=1,nDisp
   ! Modifying the response
   call ipIn(ipS1)
   call ipIn(ipST)
-  call DaXpY_(nConf1*nroots,-One,W(ipS1)%Vec,1,W(ipST)%Vec,1)
+  call DaXpY_(nConf1*nroots,-One,W(ipS1)%A,1,W(ipST)%A,1)
 
   ! Kap part put into  sigma
   call DaxPy_(nDensC,-One,kap_new_temp,1,Sigma,1)
   call ipIn(ipCId)
   call ipIn(ipCIT)
-  call DaXpY_(nConf1*nroots,One,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+  call DaXpY_(nConf1*nroots,One,W(ipCId)%A,1,W(ipCIT)%A,1)
 
-  call dcopy_(nconf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
+  call dcopy_(nconf1*nroots,W(ipST)%A,1,W(ipCId)%A,1)
 
   call opOut(ipci)
   call opOut(ipdia)
 
   call ipIn(ipPre2)
-  call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,dKappa,nDens2+6,Sc1,nDens2+6,iSym,iter)
+  call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,dKappa,nDens2+6,Sc1,nDens2+6,iSym,iter)
   call opOut(ippre2)
   r2 = ddot_(ndensc,dKappa,1,dKappa,1)
   if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
@@ -473,7 +472,7 @@ do iDisp=1,nDisp
   !*********************
   call ipin(ipCI)
   call ipin(ipST)
-  call DgeMV_('T',nconf1,nroots,One,W(ipci)%Vec,nconf1,W(ipST)%Vec(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
+  call DgeMV_('T',nconf1,nroots,One,W(ipci)%A,nconf1,W(ipST)%A(1+(irlxroot-1)*nconf1),1,Zero,lmroots,1)
 
   if (debug) then
     write(u6,*) 'lmroots_ipst this should be zero'
@@ -483,7 +482,7 @@ do iDisp=1,nDisp
 
   if (CI) then
     call ipin(ipCId)
-    deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipCId)%Vec,1)
+    deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipCId)%A,1)
     call ipout(ipcid)
   else
     deltaC = Zero
@@ -527,7 +526,7 @@ do iDisp=1,nDisp
     rAlphaC = Zero
     call ipIn(ipS1)
     call ipIn(ipCId)
-    rAlphaC = ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
+    rAlphaC = ddot_(nConf1*nroots,W(ipS1)%A,1,W(ipCId)%A,1)
 
     rAlpha = delta/(rAlphaK+rAlphaC)
 
@@ -541,14 +540,14 @@ do iDisp=1,nDisp
 
     resci = Zero
     call ipIn(ipCIT)
-    call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+    call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%A,1,W(ipCIT)%A,1)
     call ipOut(ipCIT)
     ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
     call ipIn(ipS1)
     call ipIn(ipST)
-    call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
+    call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%A,1,W(ipST)%A,1)
     call opOut(ipS1)
-    resci = sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
+    resci = sqrt(ddot_(nconf1*nroots,W(ipST)%A,1,W(ipST)%A,1))
 
     !------------------------------------------------------------------*
     ! Precondition......
@@ -558,13 +557,13 @@ do iDisp=1,nDisp
     call opOut(ipcid)
 
     call ipIn(ipS2)
-    call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+    call DMinvCI_SA(ipST,W(ipS2)%A,Fancy)
 
     call opOut(ipci)
     call opOut(ipdia)
 
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
+    call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
     call opOut(ippre2)
 
     !------------------------------------------------------------------*
@@ -578,7 +577,7 @@ do iDisp=1,nDisp
 
     call ipIn(ipST)
     call ipIn(ipS2)
-    deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+    deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
 
     call ipOut(ipST)
 
@@ -593,10 +592,10 @@ do iDisp=1,nDisp
       delta = deltac+deltaK
 
       call ipIn(ipCID)
-      call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
+      call DScal_(nConf1*nroots,rBeta,W(ipCID)%A,1)
       call DScal_(nDensC,rBeta,dKappa,1)
       call ipIn(ipS2)
-      call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+      call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCID)%A,1)
       call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
       call opOut(ipS2)
       call ipOut(ipCID)
@@ -652,10 +651,10 @@ do iDisp=1,nDisp
       write(u6,*) Kappa(i)
     end do
     call ipin(ipCIT)
-    !call dcopy_(nconf1*nroots,Zero,0,W(ipCIT)%Vec,1)
+    !call dcopy_(nconf1*nroots,Zero,0,W(ipCIT)%A,1)
     write(u6,*) 'cit'
     do i=1,nconf1*nroots
-      write(u6,*) W(ipCIT)%Vec(i)
+      write(u6,*) W(ipCIT)%A(i)
     end do
   end if
 
@@ -669,14 +668,14 @@ do iDisp=1,nDisp
   iCIDisp(iDisp) = iDis
 
   call ipin(ipCIT)
-  call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
+  call dDaFile(LuTemp,1,W(ipCIT)%A,iLen,iDis)
 
   !MGD This last call seems unused, so I comment it
 
   !call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp4,ipS2)
   iCISigDisp(iDisp) = iDis
   call ipin(ipST)
-  call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
+  call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
 end do
 
 call mma_deallocate(Sc2)

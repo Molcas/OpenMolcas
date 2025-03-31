@@ -19,7 +19,7 @@ subroutine WfCtl_sp(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP)
 !***********************************************************************
 
 use Exp, only: Exp_Close
-use ipPage, only: W
+use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: SFock, G1m, G2mp, Int2, FIMO
 use MCLR_Data, only: nConf1, nDens2, nNA, nDensC, nDens, ipCI, n1Dens
 use MCLR_Data, only: RMS, rAlpha
@@ -46,7 +46,6 @@ real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(
 integer lPaper, lLine, Left, iDis, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, iDisp, iLen, Iter, i1, j1
 real*8 DeltaC, DeltaK, Delta, Delta0, rGrad, Ec, rAlphaC, rAlphaK, ResK, ResCI, rBeta, Res, rCHC
 real*8, external :: DDot_
-integer, external :: ipGet
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -128,7 +127,7 @@ end if
 !call Pre_SP(Pre2,1)
 call FockGen_sp(Zero,G1m,G2mp,SFock,Temp4,1)
 call ipin(ipST)
-call dcopy_(nconf1,[Zero],0,W(ipST)%Vec,1)
+call dcopy_(nconf1,[Zero],0,W(ipST)%A,1)
 
 if (lprint) write(u6,*) '       Iteration         Delta     Res(kappa) Res(CI)'
 iLen = nDensC
@@ -139,32 +138,32 @@ call UnCompress(Sigma,Temp4,1)
 call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 if (iMethod == 2) then
   call ipin(ipCIT)
-  call dcopy_(nConf1,[Zero],0,W(ipCIT)%Vec,1)
+  call dcopy_(nConf1,[Zero],0,W(ipCIT)%A,1)
 end if
 call ipout(ipcit)
 call ipin(ipST)
 if (iMethod == 2) then
   ilen = nconf1
   iRHSCIDisp(iDisp) = iDis
-  call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
+  call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
 end if
-call DSCAL_(nConf1,-One,W(ipST)%Vec,1)
+call DSCAL_(nConf1,-One,W(ipST)%A,1)
 call DSCAL_(nDensC,-One,Sigma,1)
 
 call DMInvKap_sp(Sigma,dKappa,1)
 
 call ipin(ipCId)
 if (nconf1 > 1) then
-  call DMinvCI(ipST,W(ipCId)%Vec,rCHC,1)
+  call DMinvCI(ipST,W(ipCId)%A,rCHC,1)
 else
   call ipin(ipST)
-  call dcopy_(nconf1,W(ipST)%Vec,1,W(ipCid)%Vec,1)
+  call dcopy_(nconf1,W(ipST)%A,1,W(ipCid)%A,1)
 end if
 
 if ((iMethod == 2) .and. (nconf1 /= 0)) then
   call ipin(ipST)
   call ipin(ipCId)
-  deltaC = ddot_(nConf1,W(ipST)%Vec,1,W(ipCId)%Vec,1)
+  deltaC = ddot_(nConf1,W(ipST)%A,1,W(ipCId)%A,1)
   call ipout(ipcid)
 else
   deltac = Zero
@@ -189,8 +188,8 @@ do
     dKappa(i1) = One
   else
     call ipin(ipCID)
-    W(ipCID)%Vec(1:nConf1) = Zero
-    W(ipCID)%Vec(i1) = One
+    W(ipCID)%A(1:nConf1) = Zero
+    W(ipCID)%A(i1) = One
     call ipout(ipcid)
   end if
   !************************************************************
@@ -204,11 +203,11 @@ do
     call opout(-1)
     call ipin(ipCI)
     call ipin(ipS1)
-    rGrad = ddot_(nconf1,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
-    call daxpy_(nConf1,-rgrad,W(ipCI)%Vec,1,W(ipS1)%Vec,1)
-    call dscal_(nconf1,-rms*sqrt(OneHalf)*Two,W(ipS1)%Vec,1)
+    rGrad = ddot_(nconf1,W(ipCI)%A,1,W(ipS1)%A,1)
+    call daxpy_(nConf1,-rgrad,W(ipCI)%A,1,W(ipS1)%A,1)
+    call dscal_(nconf1,-rms*sqrt(OneHalf)*Two,W(ipS1)%A,1)
 
-    if ((i1 > 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS1)%Vec(j1)
+    if ((i1 > 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS1)%A(j1)
 
     call opout(-1)
     if (nconf1 > 1) then
@@ -218,15 +217,15 @@ do
 
       call ipin(ipCId)
       call ipin(ipS2)
-      call DaXpY_(nConf1,EC,W(ipCId)%Vec,1,W(ipS2)%Vec,1)
-      call DSCAL_(nConf1,Two,W(ipS2)%Vec,1)
-      if ((i1 < 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS2)%Vec(j1)
+      call DaXpY_(nConf1,EC,W(ipCId)%A,1,W(ipS2)%A,1)
+      call DSCAL_(nConf1,Two,W(ipS2)%A,1)
+      if ((i1 < 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS2)%A(j1)
 
       call ipin(ipCI)
       call ipin(ipCid)
-      call SpinDens(W(ipCI)%Vec,W(ipCid)%Vec,State_Sym,State_sym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
+      call SpinDens(W(ipCI)%A,W(ipCid)%A,State_Sym,State_sym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
 
-      d_0 = ddot_(nconf1,W(ipCid)%Vec,1,W(ipci)%Vec,1)
+      d_0 = ddot_(nconf1,W(ipCid)%A,1,W(ipci)%A,1)
       call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
       call DSCAL_(ndens2,-rms*sqrt(OneHalf),Sc1,1)
 
@@ -261,10 +260,10 @@ do
   if (nconf1 > 1) then
     call ipin1(ipS1,nconf1)
     call ipin1(ipS2,nconf1)
-    call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipS1)%Vec,1)
+    call DaXpY_(nConf1,One,W(ipS2)%A,1,W(ipS1)%A,1)
   else
     call ipin1(ipS1,nconf1)
-    W(ipS1)%Vec(1:nconf1) = Zero
+    W(ipS1)%A(1:nconf1) = Zero
   end if
 
   !---------------------------------------------------------------------
@@ -292,7 +291,7 @@ do
   if (nconf1 /= 0) then
     call ipin(ipS1)
     call ipin(ipCId)
-    rAlphaC = ddot_(nConf1,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
+    rAlphaC = ddot_(nConf1,W(ipS1)%A,1,W(ipCId)%A,1)
   end if
   rAlpha = delta/(rAlphaK+ralphaC)
 
@@ -308,14 +307,14 @@ do
   if (nconf1 /= 0) then
     call ipin(ipCId)
     call ipin(ipCIT)
-    call DaXpY_(nConf1,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+    call DaXpY_(nConf1,ralpha,W(ipCId)%A,1,W(ipCIT)%A,1)
     call ipout(ipcit)
     call ipin1(ipST,nconf1)
     call ipin(ipS1)
-    call DaXpY_(nConf1,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
+    call DaXpY_(nConf1,-ralpha,W(ipS1)%A,1,W(ipST)%A,1)
     call opout(ipS1)
     call ipin(ipST)
-    resci = sqrt(ddot_(nconf1,W(ipST)%Vec,1,W(ipST)%Vec,1))
+    resci = sqrt(ddot_(nconf1,W(ipST)%A,1,W(ipST)%A,1))
   end if
 
   ! Precondition......
@@ -325,10 +324,10 @@ do
   call opout(ipcid)
   call ipin(ipS2)
   if (nconf1 > 1) then
-    call DMinvCI(ipST,W(ipS2)%Vec,rCHC,1)
+    call DMinvCI(ipST,W(ipS2)%A,rCHC,1)
   else
     call ipin(ipST)
-    call dcopy_(nconf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+    call dcopy_(nconf1,W(ipST)%A,1,W(ipS2)%A,1)
   end if
 
   call opout(ipci)
@@ -348,7 +347,7 @@ do
   if ((iMethod == 2) .and. (nconf1 /= 0)) then
     call ipin(ipST)
     call ipin(ipS2)
-    deltaC = ddot_(nConf1,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+    deltaC = ddot_(nConf1,W(ipST)%A,1,W(ipS2)%A,1)
     call ipout(ipST)
   else
     deltaC = Zero
@@ -364,10 +363,10 @@ do
     rbeta = (deltac+deltaK)/delta
     delta = deltac+deltaK
     call ipin(ipCID)
-    call DScal_(nConf1,rBeta,W(ipCID)%Vec,1)
+    call DScal_(nConf1,rBeta,W(ipCID)%A,1)
     call DScal_(nDensC,rBeta,Temp2,1)
     call ipin(ipS2)
-    call DaXpY_(nConf1,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+    call DaXpY_(nConf1,One,W(ipS2)%A,1,W(ipCID)%A,1)
     call DaXpY_(nDensC,One,Sc2,1,Temp2,1)
     call opout(ipS2)
     call ipout(ipCID)
@@ -422,10 +421,10 @@ if (iMethod == 2) then
   ilen = nconf1
   iCIDisp(iDisp) = iDis
   call ipin(ipCIT)
-  call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
+  call dDaFile(LuTemp,1,W(ipCIT)%A,iLen,iDis)
   iCISigDisp(iDisp) = iDis
   call ipin(ipST)
-  call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
+  call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
 end if
 
 call mma_deallocate(Temp4)

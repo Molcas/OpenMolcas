@@ -17,7 +17,7 @@
 
 subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
 
-use ipPage, only: W
+use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
 use MCLR_Data, only: nConf1, ipCM, ipMat
 use MCLR_Data, only: i12, iST, Square
@@ -108,16 +108,16 @@ if (.not. page) then
   call ipin(ipCI1)
   call ipin(ipci2)
   do i=0,nroots-1
-    call dcopy_(nCSF(iCSM),W(ipCI1)%Vec(1+i*ncsf(icsm)),1,CIDET,1)
-    call SigmaVec(CIDET,W(ipci2)%Vec(1+i*ncsf(issm)),kic)
-    call DSCAL_(nCSF(iCSM),weight(i+1),W(ipci2)%Vec(1+i*ncsf(issm)),1)
+    call dcopy_(nCSF(iCSM),W(ipCI1)%A(1+i*ncsf(icsm)),1,CIDET,1)
+    call SigmaVec(CIDET,W(ipci2)%A(1+i*ncsf(issm)),kic)
+    call DSCAL_(nCSF(iCSM),weight(i+1),W(ipci2)%A(1+i*ncsf(issm)),1)
   end do
   call mma_deallocate(CIDET)
 else
   call ipnout(ipci2)
   call ipin1(ipCI1,ndet)
   call ipin(ipci2)
-  call SigmaVec(W(ipCI1)%Vec,W(ipci2)%Vec,kic)
+  call SigmaVec(W(ipCI1)%A,W(ipci2)%A,kic)
   call opout(ipci1)
 end if
 

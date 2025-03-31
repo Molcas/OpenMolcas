@@ -14,7 +14,6 @@
 subroutine CSF2SD(CSF,SD,is)
 ! Transforms a CSF vector to slater determinants
 
-use ipPage, only: Diskbased
 use Str_Info, only: DTOC, CNSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -22,8 +21,8 @@ use MCLR_Data, only: NDTASM
 use input_mclr, only: nConf, State_Sym, nCSF
 
 implicit none
-real*8 CSF(*), SD(*)
 integer is
+real*8 CSF(nCSF(is)), SD(*)
 real*8, allocatable :: CTM(:)
 integer iiCOPY, iSym, i
 
@@ -33,16 +32,12 @@ isym = ieor(is-1,State_Sym-1)+1
 i = 2
 if (isym == 1) i = 1
 
-if (diskbased) then
-  call CSDTVC_MCLR(CSF,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY)
-else
-  call mma_allocate(CTM,nConf,Label='CTM')
-  CTM(:) = Zero
-  CTM(1:ncsf(is)) = CSF(1:ncsf(is))
+call mma_allocate(CTM,nConf,Label='CTM')
+CTM(1:ncsf(is)) = CSF(1:ncsf(is))
+CTM(ncsf(is)+1:) = Zero
 
-  call CSDTVC_MCLR(CTM,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY)
+call CSDTVC_MCLR(CTM,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY)
 
-  call mma_deallocate(CTM)
-end if
+call mma_deallocate(CTM)
 
 end subroutine CSF2SD

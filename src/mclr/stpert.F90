@@ -12,7 +12,7 @@
 subroutine StPert()
 
 use MckDat, only: sNew
-use ipPage, only: W
+use ipPage, only: ipin, W
 use MCLR_Data, only: Hss, FAMO_SpinP, FAMO_SpinM, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
 use MCLR_Data, only: ipCI, nDens2
 use MCLR_Data, only: RMS, rBetaA, rBetaS
@@ -164,7 +164,7 @@ if (SPINPOL) then
   call mma_allocate(G1m,nG,Label='G1m')
   itype = 2
   call ipin(ipCI)
-  call SpinDens(W(ipCI)%Vec,W(ipCI)%Vec,STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,iType)
+  call SpinDens(W(ipCI)%A,W(ipCI)%A,STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,iType)
 
   call mma_allocate(Tmp2,ndens2,Label='Tmp2')
   call mma_MaxDBLE(nMax)

@@ -68,7 +68,7 @@ call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
 call mma_allocate(G2rt,itri(ntash**2,ntash**2),Label='G2rt')
 ! Rotate CI vectors back to those for reference states
 NCSFs = NCSF(state_sym)
-call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%Vec,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
+call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%A,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
 nConfL = max(ncsf(state_sym),nint(xispsm(state_sym,1)))
 nConfR = max(ncsf(state_sym),nint(xispsm(state_sym,1)))
 

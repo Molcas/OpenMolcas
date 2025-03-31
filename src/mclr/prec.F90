@@ -31,7 +31,7 @@ subroutine Prec(rpre,idsym)
 !     and is not coded yet (ugly bastard) (970109, AB)
 !***********************************************************************
 
-use iso_c_binding
+use iso_c_binding, only: c_f_pointer, c_loc
 use MCLR_Data, only: nrec
 use MCLR_Data, only: ipCM
 use MCLR_Data, only: FAMO, FIMO, F0SQMO

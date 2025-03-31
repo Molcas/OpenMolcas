@@ -12,7 +12,7 @@
 subroutine DMinvCI(ipSigma,rout,rC_HE_C,idsym)
 
 use Exp, only: NewPre
-use ipPage, only: W
+use ipPage, only: ipin, ipout, opout, W
 use MCLR_Data, only: ngp
 use Constants, only: Zero, One, Half
 use MCLR_Data, only: nConf1, ipCI
@@ -36,7 +36,7 @@ if (nconf1 > 1) then
 
   call ipin(ipdia)
   call ipin(ipSigma)
-  call exphinvv(W(ipdia)%Vec,W(ipsigma)%Vec,rout,Zero,One)
+  call exphinvv(W(ipdia)%A,W(ipsigma)%A,rout,Zero,One)
   call ipout(ipsigma)
   call opout(ipdia)
 
@@ -53,13 +53,13 @@ if (nconf1 > 1) then
 
     if (.not. ngp) then
       call ipin(ipCI)
-      rcoeff = ddot_(nconf1,rout,1,W(ipCI)%Vec,1)/rC_HE_C
+      rcoeff = ddot_(nconf1,rout,1,W(ipCI)%A,1)/rC_HE_C
 
       !                          -1
       ! rout = rout-rocoeff*(H -E) |0>
       !                       0
       call ipin(ipdia)
-      call exphinvv(W(ipdia)%Vec,W(ipci)%Vec,rOUT,One,-rcoeff)
+      call exphinvv(W(ipdia)%A,W(ipci)%A,rOUT,One,-rcoeff)
       call opout(ipCI)
     else
       call NEGP(ipdia,ipSigma,rout)
@@ -72,7 +72,7 @@ if (nconf1 > 1) then
 else
 
   call ipin(ipsigma)
-  rout(1:nConf1) = W(ipSigma)%Vec(:)
+  rout(1:nConf1) = W(ipSigma)%A(:)
 
 end if
 

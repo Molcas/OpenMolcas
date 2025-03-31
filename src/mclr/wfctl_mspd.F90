@@ -19,7 +19,7 @@ subroutine WfCtl_MSPD(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 !***********************************************************************
 
 use Exp, only: Exp_Close
-use ipPage, only: W
+use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: ResQaaLag2
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI
 use MCLR_Data, only: ipDia
@@ -52,7 +52,6 @@ character(len=16) :: VecName
 real*8 R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, rBeta, Res
 real*8, external :: DDot_
 integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin, i
-integer, external :: ipGet
 integer, external :: nPre
 
 !----------------------------------------------------------------------*
@@ -139,16 +138,16 @@ ipPre2 = ipGet(npre2)
 call ipIn(ipPre2)
 if (TwoStep .and. (StepType == 'RUN2')) then
   ! fetch data from LuQDAT and skip the call to "Prec"
-  call ddafile(LuQDAT,2,W(ipPre2)%Vec,npre2,iaddressQDAT)
+  call ddafile(LuQDAT,2,W(ipPre2)%A,npre2,iaddressQDAT)
 else
-  call Prec(W(ipPre2)%Vec,isym)
+  call Prec(W(ipPre2)%A,isym)
   call ipOut(ippre2)
 end if
 if (TwoStep .and. (StepType == 'RUN1')) then
   ! save the computed data in "Prec" to LuQDAT and skip the
   ! following part of this function
   call ipIn(ipPre2)
-  call ddafile(LuQDAT,1,W(ipPre2)%Vec,npre2,iaddressQDAT)
+  call ddafile(LuQDAT,1,W(ipPre2)%A,npre2,iaddressQDAT)
 else
 
   ! OK START WORKING
@@ -200,8 +199,8 @@ else
       read(LURot,*) VecName
       close(LURot)
       if (VecName == 'CMS-PDFT') then
-        call RHS_CMS_NAC(Temp4,W(ipST)%Vec)
-        call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+        call RHS_CMS_NAC(Temp4,W(ipST)%A)
+        call DMinvCI_SA(ipST,W(ipS2)%A,Fancy)
       else
         write(u6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
         write(u6,'(6X,A)') '       Other Than CMS-PDFT'
@@ -217,8 +216,8 @@ else
       read(LURot,*) VecName
       close(LURot)
       if (VecName == 'CMS-PDFT') then
-        call RHS_CMS(Temp4,W(ipST)%Vec)
-        call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+        call RHS_CMS(Temp4,W(ipST)%A)
+        call DMinvCI_SA(ipST,W(ipS2)%A,Fancy)
       else
         write(u6,'(6X,A)') 'Error: Lagrangian Not Implemented for MS-PDFT'
         write(u6,'(6X,A)') '       Other Than CMS-PDFT'
@@ -239,16 +238,16 @@ else
     call ipIn(ipCIT)
     !call ipIn(ipST)
     call ipIn(ipCID)
-    call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
+    call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%A,1)
     ! already initialized in rhs_mspdft
-    !call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%Vec,1)
-    !call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
-    !call dcopy_(nConf1*nroots,W(ipST)%Vec,1,W(ipCID)%Vec,1)
+    !call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%A,1)
+    !call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%A,1)
+    !call dcopy_(nConf1*nroots,W(ipST)%A,1,W(ipCID)%A,1)
     call ipOut(ipCIT)
     call DSCAL_(nDensC,-One,Sigma,1)
 
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Kappa,nDens2+6,Temp3,nDens2+6,isym,iter)
+    call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Kappa,nDens2+6,Temp3,nDens2+6,isym,iter)
 
     call opOut(ippre2)
     r2 = ddot_(ndensc,Kappa,1,Kappa,1)
@@ -260,9 +259,9 @@ else
     ! In MS-PDFT deltaC is no longer zero initially
     !deltaC = Zero
     ! Use following two lines instead
-    call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
-    call dcopy_(nConf1*nroots,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
-    deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+    call DMinvCI_SA(ipST,W(ipS2)%A,Fancy)
+    call dcopy_(nConf1*nroots,W(ipS2)%A,1,W(ipCID)%A,1)
+    deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
     call ipOut(ipcid)
     deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
     Kappa(1:nDens) = Zero
@@ -288,7 +287,7 @@ else
       rAlphaC = Zero
       call ipIn(ipS1)
       call ipIn(ipCId)
-      rAlphaC = ddot_(nConf1*nroots,W(ipS1)%Vec,1,W(ipCId)%Vec,1)
+      rAlphaC = ddot_(nConf1*nroots,W(ipS1)%A,1,W(ipCId)%A,1)
       rAlpha = delta/(rAlphaK+rAlphaC)
 
       !----------------------------------------------------------------*
@@ -300,15 +299,15 @@ else
       resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
       resci = Zero
       call ipIn(ipCIT)
-      call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%Vec,1,W(ipCIT)%Vec,1)
+      call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%A,1,W(ipCIT)%A,1)
       call ipOut(ipcit)
       ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
       call ipIn(ipS1)
       call ipIn(ipST)
-      call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%Vec,1,W(ipST)%Vec,1)
+      call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%A,1,W(ipST)%A,1)
       call opOut(ipS1)
       call ipIn(ipST)
-      resci = sqrt(ddot_(nconf1*nroots,W(ipST)%Vec,1,W(ipST)%Vec,1))
+      resci = sqrt(ddot_(nconf1*nroots,W(ipST)%A,1,W(ipST)%A,1))
 
       !----------------------------------------------------------------*
 
@@ -319,12 +318,12 @@ else
       call opOut(ipcid)
 
       call ipIn(ipS2)
-      call DMinvCI_SA(ipST,W(ipS2)%Vec,Fancy)
+      call DMinvCI_SA(ipST,W(ipS2)%A,Fancy)
       call opOut(ipci)
       call opOut(ipdia)
 
       call ipIn(ipPre2)
-      call DMInvKap(W(ipPre2)%Vec,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
+      call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
       call opOut(ippre2)
 
       !----------------------------------------------------------------*
@@ -336,7 +335,7 @@ else
       !
       ! dKappa=s+Beta*dKappa
 
-      deltaC = ddot_(nConf1*nroots,W(ipST)%Vec,1,W(ipS2)%Vec,1)
+      deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
       call ipOut(ipST)
 
       deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
@@ -349,9 +348,9 @@ else
         rbeta = (deltac+deltaK)/delta
         delta = deltac+deltaK
         call ipIn(ipCID)
-        call DScal_(nConf1*nroots,rBeta,W(ipCID)%Vec,1)
+        call DScal_(nConf1*nroots,rBeta,W(ipCID)%A,1)
         call DScal_(nDensC,rBeta,dKappa,1)
-        call DaXpY_(nConf1*nroots,One,W(ipS2)%Vec,1,W(ipCID)%Vec,1)
+        call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCID)%A,1)
         call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
         call opOut(ipS2)
         call ipOut(ipCID)
@@ -406,14 +405,14 @@ else
     iCIDisp(iDisp) = iDis
 
     call ipin(ipCIT)
-    call dDaFile(LuTemp,1,W(ipCIT)%Vec,iLen,iDis)
+    call dDaFile(LuTemp,1,W(ipCIT)%A,iLen,iDis)
 
     ! MGD This last call seems unused, so I comment it
 
     !call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp4,ipS2)
     iCISigDisp(iDisp) = iDis
     call ipin(ipST)
-    call dDaFile(LuTemp,1,W(ipST)%Vec,iLen,iDis)
+    call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
   end do ! iDisp
 
   call mma_deallocate(Temp4)

@@ -11,8 +11,7 @@
 
 subroutine DMinvCI_sa(ipSigma,rout,S)
 
-use ipPage, only: W
-use MCLR_Data, only:
+use ipPage, only: ipin, W
 use MCLR_Data, only: nConf1, ipCI
 use MCLR_Data, only: ipDia
 use input_mclr, only: nRoots, ERASSCF, nCSF, State_Sym
@@ -43,7 +42,7 @@ if (nconf1 > 1) then
     E = ERASSCF(i)
     do j=1,ncsf(state_SYM)
       k = k+1
-      rout(k) = W(ipSigma)%Vec(k)/(W(ipdia)%Vec(j)-E)
+      rout(k) = W(ipSigma)%A(k)/(W(ipdia)%A(j)-E)
     end do
   end do
   do iR=1,nroots
@@ -52,7 +51,7 @@ if (nconf1 > 1) then
     E = ERASSCF(iR)
     call ipin(ipCI)
     do jR=1,nroots
-      rcoeff(jR) = ddot_(nconf1,rout(1+(iR-1)*ncsf(State_Sym)),1,W(ipCI)%Vec(1+(jR-1)*ncsf(State_Sym)),1)
+      rcoeff(jR) = ddot_(nconf1,rout(1+(iR-1)*ncsf(State_Sym)),1,W(ipCI)%A(1+(jR-1)*ncsf(State_Sym)),1)
     end do
 
     do i=1,nroots
@@ -65,7 +64,7 @@ if (nconf1 > 1) then
     do i=1,nroots
       do j=1,ncsf(State_Sym)
         rout(j+(iR-1)*ncsf(State_Sym)) = rout(j+(iR-1)*ncsf(State_Sym))- &
-                                         W(ipCI)%Vec(j+(i-1)*ncsf(State_Sym))*alpha(i)/(W(ipdia)%Vec(j)-E)
+                                         W(ipCI)%A(j+(i-1)*ncsf(State_Sym))*alpha(i)/(W(ipdia)%A(j)-E)
       end do
     end do
 

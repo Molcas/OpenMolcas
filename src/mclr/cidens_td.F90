@@ -12,7 +12,7 @@
 !#define _DEBUGPRINT_
 subroutine CIDens_TD(iCI,iS,rP,rD)
 
-use ipPage, only: W
+use ipPage, only: ipin, ipnout, W
 use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
 use MCLR_Data, only: XISPSM
 use MCLR_Data, only: NOCSF
@@ -70,7 +70,7 @@ itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 !  rD : One Electron Density
 
 !call ipin(iCI)
-!write(u6,*) 'iCI*iCI',ddot_(2*nConf1,W(iCI)%Vec,1,W(iCI)%Vec,1)
+!write(u6,*) 'iCI*iCI',ddot_(2*nConf1,W(iCI)%A,1,W(iCI)%A,1)
 
 if (nconf1 == 0) return
 
@@ -90,8 +90,8 @@ if (nocsf == 0) then
 
   call ipin(iCI)
   call ipin(ipCI)
-  call CSF2SD(W(iCI)%Vec,CIR,iS)
-  call CSF2SD(W(ipCI)%Vec,CIL,State_SYM)
+  call CSF2SD(W(iCI)%A,CIR,iS)
+  call CSF2SD(W(ipCI)%A,CIL,State_SYM)
 
   !write(u6,*) 'ipL*ipL',ddot_(nConfL,CIL,1,CIL,1)
   !write(u6,*) 'ipR*ipR',ddot_(nConfR,CIR,1,CIR,1)
@@ -119,8 +119,8 @@ if (nocsf == 0) then
 
   call ipin(iCI)
   call ipin(ipCI)
-  call CSF2SD(W(iCI)%Vec(1+nconf1),CIL,iS)
-  call CSF2SD(W(ipci)%Vec,CIR,State_SYM)
+  call CSF2SD(W(iCI)%A(1+nconf1),CIL,iS)
+  call CSF2SD(W(ipci)%A,CIR,State_SYM)
 
   !write(u6,*) 'CIL*CIL',ddot_(nConfL,CIL,1,CIL,1)
   !write(u6,*) 'CIR*CIR',ddot_(nConfR,CIR,1,CIR,1)

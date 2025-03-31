@@ -43,9 +43,9 @@ nConfL = max(ncsf(iL),nint(xispsm(iL,1)))
 call mma_allocate(CIR,nConfR)
 call mma_allocate(CIL,nConfL)
 do I=1,nRoots
-  call CSF2SD(W(ipCI)%Vec(1+(I-1)*ncsf(iL)),CIL,iL)
+  call CSF2SD(W(ipCI)%A(1+(I-1)*ncsf(iL)),CIL,iL)
   do J=1,I
-    call CSF2SD(W(ipCI)%Vec(1+(J-1)*ncsf(iR)),CIR,iR)
+    call CSF2SD(W(ipCI)%A(1+(J-1)*ncsf(iR)),CIR,iR)
     call Densi2_mclr(1,GDArray,rdum,CIL,CIR,0,0,0,n1dens,n2dens)
     NIJ = I*(I-1)/2+J
     do IOrb=1,nnA

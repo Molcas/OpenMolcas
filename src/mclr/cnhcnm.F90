@@ -22,7 +22,7 @@ subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,SCR,ICONF,NEL,IREFSM,N
 ! No modifications
 ! ================
 
-use iso_c_binding
+use iso_c_binding, only: c_f_pointer, c_loc
 use MCLR_Data, only: NTYP, NCPCNT
 
 implicit none
