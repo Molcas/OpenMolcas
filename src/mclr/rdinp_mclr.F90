@@ -23,8 +23,8 @@ subroutine RdInp_MCLR()
 use Basis_Info, only: Basis_Info_Get
 use Center_Info, only: Center_Info_Get
 use OneDat, only: sOpSiz
-use Exp, only: NewPre, nexp_max
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
+use MCLR_Data, only: NewPre, nexp_max
 use MCLR_Data, only: nGP
 use MCLR_Data, only: ISTATE, OVERRIDE, SA, ESTERR, ISNAC, ISMECIMSPD, FANCY_PRECONDITIONER, NSSA, NACSTATES
 use MCLR_Data, only: DspVec, SwLbl, lDisp

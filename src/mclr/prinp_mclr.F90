@@ -23,7 +23,7 @@ subroutine PrInp_MCLR(iPL)
 !                                                                      *
 !***********************************************************************
 
-use Exp, only: nexp_max
+use MCLR_Data, only: nexp_max
 use MCLR_Data, only: ISTATE, SA, ISNAC, IRLXROOT, NACSTATES, NSSA
 use MCLR_Data, only: ChDisp, DspVec, lDisp, SwLbl
 use MCLR_Data, only: XISPSM

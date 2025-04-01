@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine IEL13(MNRS1,MXRS1,MNRS3,MXRS3,NELEC,NOCTYP,IEL1,IEL3,IEL123,IACTIV)
+subroutine IEL13(MNRS1,MXRS1,MNRS3,MXRS3,NELEC,NOCTYP,IEL1,IEL3,IEL123)
 ! A type of strings contains NEL electrons and
 !
 ! The number of electrons in RAS 1 is between MNRS1 AND MXRS1
@@ -29,9 +29,8 @@ use Definitions, only: u6
 #endif
 
 implicit real*8(A-H,O-Z)
-dimension IEL1(*), IEL3(*), IEL123(3,*), IACTIV(*)
+dimension IEL1(*), IEL3(*), IEL123(3,*)
 
-call iCopy(NOCTYP,[0],0,IACTIV,1)
 call iCopy(NOCTYP,[0],0,IEL1,1)
 call iCopy(NOCTYP,[0],0,IEL3,1)
 do KEL3=MNRS3,MXRS3
@@ -44,7 +43,6 @@ do KEL3=MNRS3,MXRS3
     IEL123(2,ITYP) = NELEC-KEL1-KEL3
     IEL123(3,ITYP) = KEL3
     ! Added End
-    if (KEL1+KEL3 <= NELEC) IACTIV(ITYP) = 1
   end do
 end do
 
@@ -52,9 +50,9 @@ end do
 write(u6,*) ' =============='
 write(u6,*) ' IEL13 speaking'
 write(u6,*) ' =============='
-write(u6,'(A,4I3)') ' IEL1 IEL3 IACTIV for MNRS1 MXRS1 MNRS3 MXRS3 ',MNRS1,MXRS1,MNRS3,MXRS3
+write(u6,'(A,4I3)') ' IEL1 IEL3 for MNRS1 MXRS1 MNRS3 MXRS3 ',MNRS1,MXRS1,MNRS3,MXRS3
 do ITYP=1,NOCTYP
-  write(u6,'(3I3)') IEL1(ITYP),IEL3(ITYP),IACTIV(ITYP)
+  write(u6,'(3I3)') IEL1(ITYP),IEL3(ITYP)
 end do
 
 write(u6,*) ' IEL123 matrix'

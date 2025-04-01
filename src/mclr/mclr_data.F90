@@ -22,7 +22,6 @@ integer, parameter :: MXPICI = 30
 integer, parameter :: MXPSTT = 2500
 integer, parameter :: MXPCSM = 20
 integer, parameter :: MXPCTP = 30
-integer, parameter :: MXCNSM = 8
 ! Note : MXPNGAS = MXPR4T+6 !!
 ! Required in order to handle GAS and RAS within /LUCINP/
 integer, parameter :: MXPNGAS = 3
@@ -255,5 +254,13 @@ integer, allocatable :: pINT2(:)
 
 real*8, pointer :: KAIN1(:), KINT2(:), KINT2A(:)
 real*8, target, allocatable :: TI1(:), TI2(:)
+
+! Stuff from Exp
+
+logical :: NewPre = .true.
+integer ipvt, iphx, iplst
+integer :: nexp = 0, nexp_max = 100
+real*8, allocatable :: H0S(:)
+integer, allocatable :: H0F(:), SBIDT(:)
 
 end module MCLR_Data

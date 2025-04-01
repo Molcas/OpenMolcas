@@ -11,12 +11,12 @@
 
 subroutine DMinvCI(ipSigma,rout,rC_HE_C,idsym)
 
-use Exp, only: NewPre
 use ipPage, only: ipin, ipout, opout, W
+use MCLR_Data, only: NewPre
 use MCLR_Data, only: ngp
-use Constants, only: Zero, One, Half
 use MCLR_Data, only: nConf1, ipCI
 use MCLR_Data, only: ipDia
+use Constants, only: Zero, One, Half
 
 implicit none
 integer ipSIgma, idSym

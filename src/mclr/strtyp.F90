@@ -28,16 +28,8 @@ subroutine STRTYP(MS2,NACTEL,MNRS10,MXRS30)
 !                                          2 => single int exc
 !                                          3 => double int exc
 ! DELTA : number of electrons in string - reference + 5
-! ISTTP = 0 => zero order space
-! ISTTP = 1 => reference space, no internal excitations
-! ISTTP = 2 => reference space, single internal excitations
-! ISTTP = 3 => reference space, single internal excitations
 
-use Str_Info, only: ISTAC, IAZTP, IATPM1, IATPM2, IBZTP, IBTPM1, IBTPM2, NSTTYP, NSTTYP_MAX, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, &
-                    ISTTP, IZORR, IUNIQMP, IUNIQTP
-#ifdef _DEBUGPRINT_
-use Str_Info, only: IARTP, IBRTP
-#endif
+use Str_Info, only: ISTAC, IAZTP, IATPM1, IATPM2, IBZTP, IBTPM1, IBTPM2, NSTTYP, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, IUNIQMP, IUNIQTP
 use MCLR_Data, only: NORB1, nORB3
 use Definitions, only: u6
 
@@ -45,7 +37,7 @@ implicit none
 integer MS2, NACTEL, MNRS10, MXRS30
 ! Local variables
 logical, external :: Reduce_Prt
-integer NAEL, NBEL, IPL, MXRS10, MNRS30, ITYPE, ITYP
+integer NAEL, NBEL, IPL, MXRS10, MNRS30, NSTTYP_Max, ITYPE, ITYP
 integer, external :: iPrintLevel
 
 ISTAC(:,:) = 0
@@ -80,8 +72,6 @@ MXRS1(ITYPE) = min(NAEL,NORB1,MXRS10)
 MNRS3(ITYPE) = max(0,MNRS30-min(NBEL,NORB3))
 MXRS3(ITYPE) = min(NAEL,NORB3,MXRS30)
 
-IZORR(ITYPE) = 1
-ISTTP(ITYPE) = 0
 ! Type : single annihilated alphastrings
 if (NAEL >= 1) then
   ITYPE = ITYPE+1
@@ -90,8 +80,6 @@ if (NAEL >= 1) then
   MXRS1(ITYPE) = min(NAEL-1,MXRS1(1))
   MNRS3(ITYPE) = max(0,MNRS3(1)-1)
   MXRS3(ITYPE) = min(NAEL-1,MXRS3(1))
-  IZORR(ITYPE) = 1
-  ISTTP(ITYPE) = 0
   IATPM1 = ITYPE
 end if
 ! Type : double annihilated alphastrings
@@ -102,8 +90,6 @@ if (NAEL >= 2) then
   MXRS1(ITYPE) = min(NAEL-2,MXRS1(1))
   MNRS3(ITYPE) = max(0,MNRS3(1)-2)
   MXRS3(ITYPE) = min(NAEL-2,MXRS3(1))
-  IZORR(ITYPE) = 1
-  ISTTP(ITYPE) = 0
   IATPM2 = ITYPE
 end if
 ! Type : beta strings
@@ -119,8 +105,6 @@ else
   MXRS1(ITYPE) = min(NBEL,NORB1,MXRS10)
   MNRS3(ITYPE) = max(0,MNRS30-min(NAEL,NORB3))
   MXRS3(ITYPE) = min(NBEL,NORB3,MXRS30)
-  IZORR(ITYPE) = 1
-  ISTTP(ITYPE) = 0
   ! Type : single annihilated betastrings
   if (NBEL >= 1) then
     ITYPE = ITYPE+1
@@ -129,8 +113,6 @@ else
     MXRS1(ITYPE) = min(NBEL-1,MXRS1(IBZTP))
     MNRS3(ITYPE) = max(0,MNRS3(IBZTP)-1)
     MXRS3(ITYPE) = min(NBEL-1,MXRS3(IBZTP))
-    IZORR(ITYPE) = 1
-    ISTTP(ITYPE) = 0
     IBTPM1 = ITYPE
   end if
   ! Type : double annihilated alphastrings
@@ -141,12 +123,11 @@ else
     MXRS1(ITYPE) = min(NBEL-2,MXRS1(IBZTP))
     MNRS3(ITYPE) = max(0,MNRS3(IBZTP)-2)
     MXRS3(ITYPE) = min(NBEL-2,MXRS3(IBZTP))
-    IZORR(ITYPE) = 1
-    ISTTP(ITYPE) = 0
     IBTPM2 = ITYPE
   end if
 end if
 
+NSTTYP_Max = size(NELEC)
 NSTTYP = ITYPE
 if (NSTTYP > NSTTYP_Max) then
   write(u6,*) 'STRTYP: NSTTYP>NSTTYP_Max'
@@ -159,15 +140,12 @@ write(u6,*) ' ========================================'
 write(u6,*)
 write(u6,'(A,I3)') ' Number of types generated ',NSTTYP
 write(u6,*)
-write(u6,'(A)') ' ==========================================='
-write(u6,'(A)') '  Type  NELEC MNRS1 MXRS1 MNRS3 MXRS3 ISTTP'
-write(u6,'(A)') ' ==========================================='
+write(u6,'(A)') ' ====================================='
+write(u6,'(A)') '  Type  NELEC MNRS1 MXRS1 MNRS3 MXRS3'
+write(u6,'(A)') ' ====================================='
 do ITYP=1,NSTTYP
-  write(u6,'(7I6)') ITYP,NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),ISTTP(ITYP)
+  write(u6,'(6I6)') ITYP,NELEC(ITYP),MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP)
 end do
-write(u6,*) ' IARTP IBRTP'
-call IWRTMA(IARTP,3,7,3,10)
-call IWRTMA(IBRTP,3,7,3,10)
 #endif
 
 !EAW

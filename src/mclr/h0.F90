@@ -15,7 +15,7 @@ subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
 ! frontend to jeppes explicit routines
 
 use iso_c_binding, only: c_f_pointer, c_loc
-use Exp, only: H0S, H0F, SBIDT
+use MCLR_Data, only: H0S, H0F, SBIDT
 use MCLR_Data, only: Int2, FIMO
 use MCLR_Data, only: nGP
 use MCLR_Data, only: iRefSM, IDC, PSSIGN

@@ -18,7 +18,6 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 !                                                                      *
 !***********************************************************************
 
-use Exp, only: Exp_Close
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use gugx, only: SGS, CIS, EXS
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI
@@ -423,8 +422,6 @@ call mma_deallocate(Fancy)
 
 call ipclose(ipdia)
 if (.not. CI) call ipclose(ipPre2)
-
-call Exp_Close()
 
 if (debug) then
   write(u6,*) '********************************************************************************'

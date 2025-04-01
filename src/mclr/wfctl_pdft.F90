@@ -18,7 +18,6 @@ subroutine WfCtl_pdft(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 !                                                                      *
 !***********************************************************************
 
-use Exp, only: Exp_Close
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI, nAcPar, nNA, nAcPr2, ipMat
@@ -691,8 +690,6 @@ call mma_deallocate(Fancy)
 
 call ipclose(ipdia)
 if (.not. CI) call ipclose(ipPre2)
-
-call Exp_Close()
 
 if (debug) then
   write(u6,*) '********************************************************************************'

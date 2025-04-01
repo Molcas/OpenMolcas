@@ -32,15 +32,12 @@ subroutine ZSTINF_MCLR()
 !
 ! NSTFTP(ITYP) : Number of strings of this type
 !
-! INUMAP(ITYP) : Mapping of string type to next more general type
-! INDMAP(ITYP) : Mapping of string type to next more restricted type
-!
 !   / \           Zero order space                         !
 !    !            Double excitations from reference space  !  Down
 ! Up !            single excitation from reference space   !
 !    !            reference space                         \ /
 
-use Str_Info, only: NSTTYP, INUMAP, INDMAP, ISTAC, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, NSTFTP
+use Str_Info, only: NSTTYP, ISTAC, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, NSTFTP
 use MCLR_Data, only: NORB1, NORB2, NORB3
 #ifdef _DEBUGPRINT_
 use MCLR_Data, only: MXPSTT
@@ -90,8 +87,8 @@ call IWRTMA(NSTFTP,1,NSTTYP,1,NSTTYP)
 ! ****************************************************************
 ! Mappings between strings containing the same number of electrons
 ! ****************************************************************
-INUMAP(:) = 0
-INDMAP(:) = 0
+!INUMAP(:) = 0
+!INDMAP(:) = 0
 ! Mapping to and from zero order space
 ! Note: some lines are commented out here since IARTP and IBRTP
 !       have never been defined. (R. Lindh 2006)
@@ -125,12 +122,12 @@ INDMAP(:) = 0
 !  end do
 !end do
 
-#ifdef _DEBUGPRINT_
-write(u6,*) ' Up mappings of string types'
-call IWRTMA(INUMAP,1,NSTTYP,1,NSTTYP)
-write(u6,*) ' Down mappings of string types'
-call IWRTMA(INDMAP,1,NSTTYP,1,NSTTYP)
-#endif
+!#ifdef _DEBUGPRINT_
+!write(u6,*) ' Up mappings of string types'
+!call IWRTMA(INUMAP,1,NSTTYP,1,NSTTYP)
+!write(u6,*) ' Down mappings of string types'
+!call IWRTMA(INDMAP,1,NSTTYP,1,NSTTYP)
+!#endif
 
 return
 

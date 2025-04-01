@@ -35,7 +35,7 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,
 
 use Str_Info, only: DFTP, CFTP, DTOC, CNSM
 use MCLR_Data, only: MULTSP, MS2P, MINOP, MAXOP, NTYP, NCPCNT, NDPCNT, NCNASM, NCNATS, NCSASM, NDTASM
-use MCLR_Data, only: MXPCTP, MXPCSM, MXCNSM
+use MCLR_Data, only: MXPCTP, MXPCSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: u6
@@ -47,7 +47,7 @@ integer lconf, lldet
 ! local variables
 integer, allocatable :: IICL(:), IIOP(:), IIOC(:)
 integer IMSCMB, MULTS, NEL, IEL1, IEL2, IEL3, IOP1, IOP2, IOP3, IOP, ITP, IOPEN, IAEL, IBEL, LIDT, LICS, LDTOC, MXPTBL, MXDT, &
-        LCSFDT, LCNFOR, LDET, ILCNF, ISYM, ILLCNF, LLCONF, ITYP, ICL, ICNSM, IBION, IWEYLF
+        LCSFDT, LCNFOR, LDET, ILCNF, ISYM, ILLCNF, LLCONF, ITYP, ICL, ICNSM, IBION, IWEYLF, MXCNSM
 #ifdef _DEBUGPRINT_
 integer ITYPE
 #endif
@@ -207,6 +207,7 @@ call mma_allocate(CFTP,LICS,Label='CFTP')
 call mma_allocate(DTOC,LDTOC,Label='DTOC')
 
 ! Permanent arrays for reordering and phases
+MXCNSM = size(CNSM)
 if (NCNSM > MXCNSM) then
   write(u6,'(A,2I2)') '  TROUBLE IN CSFDIM NCNSM > MXCNSM : NCNSM,MXCNSM',NCNSM,MXCNSM
   write(u6,*) ' CSFDIM : NCNSM  IS GREATER THAN MXCNSM'

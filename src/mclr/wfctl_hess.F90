@@ -23,7 +23,6 @@ subroutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,c
 !                                                                      *
 !***********************************************************************
 
-use Exp, only: Exp_Close
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use Para_Info, only: myRank, nProcs
 #ifdef _MOLCAS_MPP_

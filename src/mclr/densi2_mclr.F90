@@ -24,7 +24,7 @@ subroutine DENSI2_MCLR(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
 ! Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
 ! ijkl = ij*(ij-1)/2+kl, ij >= kl
 
-use Str_Info, only: STR, MXNSTR, IATPM1, IATPM2, IBTPM1, IBTPM2, ITYP_DUMMY, NELEC, NOCTYP
+use Str_Info, only: STR, IATPM1, IATPM2, IBTPM1, IBTPM2, ITYP_DUMMY, NELEC, NOCTYP
 use MCLR_Data, only: IDC, PSSIGN
 use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC
 use MCLR_Data, only: MAXI, MAXK, ICISTR
@@ -55,9 +55,9 @@ integer, allocatable :: IX(:,:), OOS(:,:)
 real*8, allocatable :: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
 real*8, allocatable :: RHO1S(:), RHO1P(:), XNATO(:)
 integer idum(1)
-integer NGAS, IATP, IBTP, JATP, JBTP, NOCTPA, NOCTPB, NAEL, NBEL, IOCTPA, IOCTPB, MXSTBL0, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, &
-        MXTSOB, IOBTP, IOBSM, LSCR1, INTSCR, IATP2, IBTP2, LSCR2, LSCR12, MAXIK, LSCR3, NOOS, IMNMX, MXCIJA, MXCIJAB, MXCIJB, &
-        MXCJ, MXIJST, MXIJSTF, MXSXBL
+integer NGAS, IATP, IBTP, JATP, JBTP, NOCTPA, NOCTPB, NAEL, NBEL, IOCTPA, IOCTPB, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, MXTSOB, IOBTP, &
+        IOBSM, LSCR1, INTSCR, IATP2, IBTP2, LSCR2, LSCR12, MAXIK, LSCR3, NOOS, IMNMX, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, &
+        MXIJSTF, MXSXBL
 
 IDUM = 0
 NGAS = 3
@@ -88,8 +88,6 @@ IOCTPB = 1
 NAEL = NELEC(IATP)
 NBEL = NELEC(IBTP)
 
-! Largest block of strings in zero order space
-MXSTBL0 = MXNSTR
 ! Largest number of strings of given symmetry and type
 MAXA = 0
 if (NAEL >= 1) then
@@ -163,7 +161,7 @@ call mma_allocate(C2,LSCR12,Label='C2')
 
 ! Space for annihilation/creation mappings
 MAXIK = max(MAXI,MAXK)
-LSCR3 = max(MXSTBL*MXTSOB,MXIJST,MAXIK*MXTSOB*MXTSOB,MXSTBL0)
+LSCR3 = max(MXSTBL*MXTSOB,MXIJST,MAXIK*MXTSOB*MXTSOB)
 call mma_allocate(IX,LSCR3,4,Label='IX')
 call mma_allocate(XIXS,LSCR3,4,Label='XIXS')
 ! Arrays giving block type

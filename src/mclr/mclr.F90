@@ -53,7 +53,6 @@ use MCLR_Data, only: iAllo
 use MCLR_Data, only: SA, NACSTATES
 use MCLR_Data, only: LuPT2
 use MCLR_Data, only: SS
-use MCLR_Data, only: MXCNSM
 use dmrginfo, only: DoDMRG, RGRAS2, DoMCLR
 use input_mclr, only: ntAsh, ntAtri, ntASqr, nSym, iMethod, SpinPol, iMCPD, iMSPD, PT2, TimeDep, TwoStep, StepType, McKinley, &
                       RASSI, NewCho, Fail, double, LuAChoVec, LuChoInt, LuIChoVec, nAsh, nDisp, nRS2
@@ -345,7 +344,7 @@ if (iMethod == 2) then
   call mma_deallocate(CFTP)
   call mma_deallocate(DFTP)
 end if
-do i=1,MXCNSM
+do i=1,size(CNSM)
   call mma_deallocate(CNSM(i)%ICONF,safe='*')
   call mma_deallocate(CNSM(i)%ICTS,safe='*')
 end do

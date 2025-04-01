@@ -13,9 +13,9 @@
 
 subroutine CIDIA_TD(iSym)
 
-use Exp, only: nexp, nexp_max
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
+use MCLR_Data, only: nexp, nexp_max
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: XISPSM
 use MCLR_Data, only: NOCSF, ICISTR

@@ -21,7 +21,7 @@ subroutine ExpHinvv(rdia,v,u,alpha,beta)
 ! |u> = alpha|u> + beta  (H -E ) |v>
 !                          0  0
 
-use Exp, only: H0S, H0F, SBIDT, nExp
+use MCLR_Data, only: H0S, H0F, SBIDT, nExp
 use MCLR_Data, only: nConf1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One

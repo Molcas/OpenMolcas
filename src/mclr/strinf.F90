@@ -58,8 +58,7 @@ end do
 
 do ITYP=1,NSTTYP
   if (IUNIQTP(ITYP) == ITYP) &
-    call IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,Str(ITYP)%EL3, &
-               Str(ITYP)%EL123,Str(ITYP)%ACTP)
+    call IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),NELEC(ITYP),NOCTYP(ITYP),Str(ITYP)%EL1,Str(ITYP)%EL3,Str(ITYP)%EL123)
 end do
 
 ! 6 : Number of strings per type and symmetry for a given string type
