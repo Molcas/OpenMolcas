@@ -15,10 +15,21 @@
 !#endif
 #else
 
+#include "compiler_features.h"
+#ifdef _WARNING_WORKAROUND_
+#  ifdef _LIFETIME_BUG_
+#    define _SAVE_TARGET_ , save
+#  else
+#    define _SAVE_TARGET_
+#  endif
+#else
+#  define _SAVE_TARGET_
+#endif
+
 subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
 
 use ipPage, only: ipin, ipin1, ipnout, opout, W
-use MCLR_Data, only: KAIN1, KINT2, KINT2A, TI1, TI2, pInt1
+use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
 use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
 use MCLR_Data, only: i12, ist, Square
 use MCLR_Data, only: iRefSM
@@ -37,6 +48,7 @@ logical Have_2_el
 ! Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
 integer kic(2)
 real*8, allocatable :: CIDET(:)
+real*8, allocatable, target _SAVE_TARGET_ :: TI1(:), TI2(:)
 integer i, j, itri
 integer nDet, iOp, iS, jS
 integer ij, ji, k, l, kl, lk, ijkl, jilk

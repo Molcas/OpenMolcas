@@ -47,13 +47,12 @@ subroutine ICISPC(MNRS10,MXRS30)
 ! MXR3IC : Max number of elecs in RAS 3 space for internal CI space
 ! MNR1IC : Min number of elecs in RAS 1 space for internal CI space
 ! IZCI   : Internal zero order space
-! IRCI(IEX,DELTAA+5,DELTAB+5) : Number of zero order space
 ! NELCI : Number of electrons per CI space
 ! obtained by (IEX-1) fold internal excitation, with a NAEL + DELTAA
 ! alpha electrons and  NBEL + DELTAB beta electrons
 
 use Str_Info, only: IAZTP, IBZTP, NELEC
-use MCLR_Data, only: NICISP, NELCI, NAELCI, NBELCI, MNR1IC, MNR3IC, MXR1IC, MXR3IC, IACTI, IASTFI, IBSTFI, IRCI
+use MCLR_Data, only: NICISP, NELCI, NAELCI, NBELCI, MNR1IC, MNR3IC, MXR1IC, MXR3IC, IACTI, IASTFI, IBSTFI
 use MCLR_Data, only: NORB1, NORB2
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -62,7 +61,7 @@ use Definitions, only: u6
 implicit none
 integer MNRS10, MXRS30
 ! local variables
-integer ICI, IEX, IDA, IDB
+integer ICI
 
 ICI = 1
 MNR1IC(ICI) = MNRS10
@@ -74,22 +73,19 @@ NBELCI(ICI) = NELEC(IBZTP)
 NELCI(ICI) = NAELCI(ICI)+NBELCI(ICI)
 IACTI(1) = 1
 NICISP = ICI
-! EAW Just zero order
-call iCopy(3*49,[0],0,irci,1)
-! EAW
 ! Number and distribution of electrons in each space
-do IEX=1,3
-  do IDA=-4,2
-    do IDB=-4,2
-      if (IRCI(IEX,IDA+5,IDB+5) /= 0) then
-        ICI = IRCI(IEX,IDA+5,IDB+5)
-        NAELCI(ICI) = NELEC(IASTFI(ICI))
-        NBELCI(ICI) = NELEC(IBSTFI(ICI))
-        NELCI(ICI) = NAELCI(ICI)+NBELCI(ICI)
-      end if
-    end do
-  end do
-end do
+!do IEX=1,3
+!  do IDA=-4,2
+!    do IDB=-4,2
+!      if (IRCI(IEX,IDA+5,IDB+5) /= 0) then
+!        ICI = IRCI(IEX,IDA+5,IDB+5)
+!        NAELCI(ICI) = NELEC(IASTFI(ICI))
+!        NBELCI(ICI) = NELEC(IBSTFI(ICI))
+!        NELCI(ICI) = NAELCI(ICI)+NBELCI(ICI)
+!      end if
+!    end do
+!  end do
+!end do
 
 ! Default max in RAS1 and min in RAS3
 do ICI=1,NICISP

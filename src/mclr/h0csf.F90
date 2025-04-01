@@ -324,9 +324,9 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
   ! End if for IWAY = 2
 
   ! This is not beautiful, but necessary
-  MXP1DM = NP1CSF
-  MXP2DM = NP2CSF
-  MXQDM = NQCSF
+  !MXP1DM = NP1CSF
+  !MXP2DM = NP2CSF
+  !MXQDM = NQCSF
 
   ! ============================================================
   ! 2          Construct Hamiltonian matrix in subspace

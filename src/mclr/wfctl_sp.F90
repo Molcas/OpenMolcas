@@ -21,7 +21,7 @@ subroutine WfCtl_sp(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP)
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: SFock, G1m, G2mp, Int2, FIMO
 use MCLR_Data, only: nConf1, nDens2, nNA, nDensC, nDens, ipCI, n1Dens
-use MCLR_Data, only: RMS, rAlpha
+use MCLR_Data, only: RMS
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: LuTemp
 use MCLR_Data, only: XISPSM
@@ -43,7 +43,7 @@ real*8 d_0
 real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), Dens(:), &
                        Pens(:), rmoaa(:), rmoaa2(:), Pre2(:)
 integer lPaper, lLine, Left, iDis, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, iDisp, iLen, Iter, i1, j1
-real*8 DeltaC, DeltaK, Delta, Delta0, rGrad, Ec, rAlphaC, rAlphaK, ResK, ResCI, rBeta, Res, rCHC
+real*8 DeltaC, DeltaK, Delta, Delta0, rGrad, Ec, rAlphaC, rAlphaK, ResK, ResCI, rBeta, Res, rCHC, rAlpha
 real*8, external :: DDot_
 
 !----------------------------------------------------------------------*

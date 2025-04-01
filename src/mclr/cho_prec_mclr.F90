@@ -429,7 +429,7 @@ do jsym=1,nsym
             do ii=1,nIshe(iSym)
               ipMO = ipMO+ISTSQ(iSym)
               ipMOi = ipMO+(nIshb(isym)+ii-1)*nBas(iSym)
-              call dGeMV_('T',nBas(iSym),JNUM,One,Lpq(1)%SB(iSym)%A3(:,ii,1),nBas(iSym)*nIshe(iSym),CMO(ipMOi),1,0.0d0,pLii(:,ii),1)
+              call dGeMV_('T',nBas(iSym),JNUM,One,Lpq(1)%SB(iSym)%A3(:,ii,1),nBas(iSym)*nIshe(iSym),CMO(ipMOi),1,Zero,pLii(:,ii),1)
             end do
             nullify(pLii)
           end do

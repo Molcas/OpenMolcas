@@ -18,9 +18,9 @@ subroutine Init_Data()
 !                                                                      *
 !***********************************************************************
 
-use MCLR_Data, only: FnOne, FnJob, FnTwo, FnMol, FnRlx, FnMck, FnTemp, FnHlf2, FNHlf3, FnPT2, FNTrI1, FNTrI2, FNTRi3, FNTRI4, &
-                     FNTRI5, FNCSF2SD, FnMOTRA, FnQDAT, LuOne, LuJob, LuTwo, LuMol, LuRlx, LuMck, LuTemp, LUHlf2, LUHlf3, LuPt2, &
-                     LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LUCSF2SD, LuMOTRA, LuQDAT
+use MCLR_Data, only: FnJob, FnTwo, FnMck, FnTemp, FnHlf2, FNHlf3, FnPT2, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FNCSF2SD, &
+                     FnMOTRA, FnQDAT, LuJob, LuTwo, LuMck, LuTemp, LUHlf2, LUHlf3, LuPt2, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, &
+                     LUCSF2SD, LuMOTRA, LuQDAT
 use input_mclr, only: State_Sym, nUserPT, UserP, nsRot, UserT
 use Constants, only: Zero, One
 
@@ -32,14 +32,8 @@ integer I
 !----------------------------------------------------------------------*
 FnJob = 'JOBIPH'
 LuJob = 10
-FnOne = 'ONEINT'
-LuOne = 11
-FnMol = 'MOLINT'
-LuMol = 13
 FnMck = 'MCKINT'
 LuMck = 15
-FnRlx = 'RELAX'
-LuRlx = 16
 FnPT2 = '.RLXPT2'
 LuPT2 = 17
 FnTemp = 'RESP'

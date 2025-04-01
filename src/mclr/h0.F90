@@ -20,7 +20,6 @@ use MCLR_Data, only: Int2, FIMO
 use MCLR_Data, only: nGP
 use MCLR_Data, only: iRefSM, IDC, PSSIGN
 use MCLR_Data, only: NAELCI, NBELCI, XISPSM
-use MCLR_Data, only: MXP1, MXP2, MXQ
 use MCLR_Data, only: NACOB, NOCOB
 use MCLR_Data, only: NTYP, NCPCNT, NDPCNT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -38,15 +37,12 @@ real*8, allocatable, target :: H0Scr(:)
 integer, pointer :: iH0Scr(:)
 integer, allocatable :: SBCNF(:)
 
-MXP1 = MP1
-MXP2 = MP2
-MXQ = MQ
 ispc = 1
 NDET = nint(XISPSM(ISYM,ISPC))
 
-NSBDET = MXP1+MXP2+MXQ
-MXP = MXP1+MXP2
-LH0T = MXP*(MXP+1)/2+MXP1*MXQ
+NSBDET = MP1+MP2+MQ
+MXP = MP1+MP2
+LH0T = MXP*(MXP+1)/2+MP1*MQ
 MXCSFC = 0
 MXDTFC = 0
 do ITYP=1,NTYP
@@ -60,7 +56,7 @@ if (TimeDep) then
 else
   EnA = E2(FIMO,Int2,0,-1)
 end if
-LH0SCR = max(6*NSBDET,4*NSBDET+4*NOCOB,MXP1*(MXP1+1)/2+MXP1**2)
+LH0SCR = max(6*NSBDET,4*NSBDET+4*NOCOB,MP1*(MP1+1)/2+MP1**2)
 LVEC2 = 2*NACTEL+MXCSFC**2+6*MXDTFC+2*MXDTFC**2+max(MXDTFC*NACTEL+2*NACTEL,4*NACOB+2*NACTEL)
 LVEC2 = max(lvec2,ndet)
 
@@ -78,7 +74,7 @@ call mma_allocate(H0SCR,LH0SCR,Label='H0Scr')
 call c_f_pointer(c_loc(H0SCR),iH0Scr,[LH0SCR])
 call mma_allocate(VEC2,lvec2,Label='Vec2')
 
-call H0MAT_MCLR(H0T,SBIDT,SBCNF,MXP1,MXP2,MXQ,NACOB,NPRCIV,ISYM,IDC,PSSIGN,rDIA,Vec2,H0Scr,iH0Scr,ieaw)
+call H0MAT_MCLR(H0T,SBIDT,SBCNF,MP1,MP2,MQ,NACOB,NPRCIV,ISYM,IDC,PSSIGN,rDIA,Vec2,H0Scr,iH0Scr,ieaw)
 
 do i=1,nprciv
   H0T(i*(i+1)/2) = H0T(i*(i+1)/2)-ENA

@@ -20,7 +20,7 @@ subroutine OpnFls_MCLR(iPL)
 !                                                                      *
 !***********************************************************************
 
-use MCLR_Data, only: FnPT2, FnMck, FnOne, FnTemp, FnTwo, LuMck, LuTEMP, LuTwo
+use MCLR_Data, only: FnPT2, FnMck, FnTemp, FnTwo, LuMck, LuTEMP, LuTwo
 use input_mclr, only: McKinley, PT2, ChIrr
 use Definitions, only: u6
 
@@ -81,7 +81,7 @@ else if (PT2) then
 else
   if (iPL >= 2) then
     write(u6,*) 'No ',FnPT2,' or ',FNMCK,', I hope that is OK'
-    write(u6,*) 'Seward mode is assumed, reading perturbation from ',FnOne
+    write(u6,*) 'Seward mode is assumed, reading perturbation from ONEINT'
   end if
 end if
 !----------------------------------------------------------------------*

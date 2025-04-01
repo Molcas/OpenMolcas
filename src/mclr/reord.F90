@@ -30,7 +30,7 @@ subroutine REORD(SGS,CIS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
 !          IMODE=0 : FROM SYMMETRIC GROUP TO SPLIT GRAPH UGA ORDER
 !          IMODE=1 : FROM SPLIT GRAPH UGA TO SYMMETRIC GROUP ORDER
 
-use MCLR_data, only: minop, NCSFTP => NCPCNT, NCNFTP => NCNATS, NTYP
+use MCLR_data, only: minop, NCPCNT, NCNATS, NTYP
 use gugx, only: SGStruct, CIStruct, EXStruct
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
@@ -68,21 +68,21 @@ do ITYP=1,NTYP
   if (ITYP == 1) then
     ICNBS0 = 1
   else
-    ICNBS0 = ICNBS0+NCNFTP(ITYP-1,kSym)*(SGS%nActEl+IOPEN-1)/2
+    ICNBS0 = ICNBS0+NCNATS(ITYP-1,kSym)*(SGS%nActEl+IOPEN-1)/2
   end if
   ! BASE ADDRESS FOR PROTOTYPE SPIN COUPLINGS
   if (ITYP == 1) then
     IPBAS = 1
   else
-    IPBAS = IPBAS+NCSFTP(ITYP-1)*(IOPEN-1)
+    IPBAS = IPBAS+NCPCNT(ITYP-1)*(IOPEN-1)
   end if
 
   ! LOOP OVER NUMBER OF CONFIGURATIONS OF TYPE ITYP AND PROTOTYPE
   ! SPIN COUPLINGS
 
-  do IC=1,NCNFTP(ITYP,kSym)
+  do IC=1,NCNATS(ITYP,kSym)
     ICNBS = ICNBS0+(IC-1)*(IOPEN+ICL)
-    do IICSF=1,NCSFTP(ITYP)
+    do IICSF=1,NCPCNT(ITYP)
       ICSFJP = ICSFJP+1
       ICSBAS = IPBAS+(IICSF-1)*IOPEN
       ! COMPUTE STEP VECTOR

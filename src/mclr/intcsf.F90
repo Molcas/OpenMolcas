@@ -35,7 +35,7 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,
 
 use Str_Info, only: DFTP, CFTP, DTOC, CNSM
 use MCLR_Data, only: MULTSP, MS2P, MINOP, MAXOP, NTYP, NCPCNT, NDPCNT, NCNASM, NCNATS, NCSASM, NDTASM
-use MCLR_Data, only: MXPCTP, MXPCSM
+use MCLR_Data, only: MXPCSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: u6
@@ -47,7 +47,7 @@ integer lconf, lldet
 ! local variables
 integer, allocatable :: IICL(:), IIOP(:), IIOC(:)
 integer IMSCMB, MULTS, NEL, IEL1, IEL2, IEL3, IOP1, IOP2, IOP3, IOP, ITP, IOPEN, IAEL, IBEL, LIDT, LICS, LDTOC, MXPTBL, MXDT, &
-        LCSFDT, LCNFOR, LDET, ILCNF, ISYM, ILLCNF, LLCONF, ITYP, ICL, ICNSM, IBION, IWEYLF, MXCNSM
+        LCSFDT, LCNFOR, LDET, ILCNF, ISYM, ILLCNF, LLCONF, ITYP, ICL, ICNSM, IBION, IWEYLF, MXCNSM, MXPCTP
 #ifdef _DEBUGPRINT_
 integer ITYPE
 #endif
@@ -84,6 +84,7 @@ end do
 !write(u6,*) ' MAXOP with RAS constraints :',MAXOP
 NTYP = MAXOP-MINOP+1
 
+MXPCTP = size(NCPCNT)
 if (NTYP > MXPCTP) then
   write(u6,*) '  NUMBER OF CONFIGURATION TYPES TO LARGE'
   write(u6,*) '  CHANGE PARAMETER MXPCTP TO AT LEAST ',NTYP

@@ -40,13 +40,15 @@ subroutine ZSTINF_MCLR()
 use Str_Info, only: NSTTYP, ISTAC, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, NSTFTP
 use MCLR_Data, only: NORB1, NORB2, NORB3
 #ifdef _DEBUGPRINT_
-use MCLR_Data, only: MXPSTT
 use Definitions, only: u6
 #endif
 
 implicit none
 ! Local variables
 integer ITYP, NUMST3
+#ifdef _DEBUGPRINT_
+integer MXPSTT
+#endif
 
 ! *****************************************************************
 ! Mappings between strings with the same type ISTTP index, +/- 1 el
@@ -62,6 +64,7 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Type - type mapping array ISTAC'
 write(u6,*) ' ==============================='
+MXPSTT = size(ISTAC,1)
 call IWRTMA(ISTAC,NSTTYP,2,MXPSTT,2)
 #endif
 ! *************************************************

@@ -15,7 +15,7 @@ use MCLR_Data, only: pINT1, pINT2
 use MCLR_Data, only: iST, i12
 use MCLR_Data, only: MS2, idc, PSSIGN
 use MCLR_Data, only: FnCSF2SD, LuCSF2SD
-use MCLR_Data, only: NOCSF, IDENMT, NOPART, IDIAG, INCORE, ICISTR
+use MCLR_Data, only: NOCSF, NOPART, IDIAG, ICISTR
 use input_mclr, only: nSym, nIrrep, nsMOB, iSpin, nHole1, nActEl, nElec3, nRs1, nRs2, nRs3, State_Sym
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
@@ -28,13 +28,11 @@ call mma_Allocate(pINT2,nSym**3,Label='pInt2')
 pInt2(:) = 0
 
 NOCSF = 0
-idenmt = 0
 nopart = 0
 nIrrep = nSym
 nsmob = nSym
 mxr4tp = 0
 idiag = 1
-incore = 1
 icistr = 1
 ist = 1
 i12 = 2
@@ -59,7 +57,7 @@ end do
 MNRS10 = max(0,2*ntRas1-nHole1)
 MXRS30 = max(0,min(2*ntRas3,nElec3))
 ! From shells to orbitals
-call ORBINF_MCLR(nSym,nSym,nRs1,nRs2,nRs3,mxr4tp) ! OK
+call ORBINF_MCLR(nSym,nRs1,nRs2,nRs3,mxr4tp) ! OK
 ! Number of string types
 call STRTYP(ms2,nActEl,MNRS10,MXRS30)  ! looks alright
 ! Internal string information

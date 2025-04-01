@@ -13,8 +13,7 @@ subroutine SetUp_MCLR(DSYM)
 ! Setup pointers and size of matrices (includes in Pointers.fh)
 
 use MCLR_Data, only: pInt1, pInt2
-use MCLR_Data, only: nNA, n2Dens, nDens, nDensLT, nCMO, nDensC, nDens2, ipMatLT, ipMat, ipMC, ipCM, ipMatBA, ipMO, nA, nB, n1Dens, &
-                     nMBA
+use MCLR_Data, only: nNA, n2Dens, nDens, nCMO, nDensC, nDens2, ipMatLT, ipMat, ipCM, ipMatBA, ipMO, nA, nB, n1Dens, nMBA
 use input_mclr, only: nSym, TimeDep, iMethod, PT2, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3
 
 implicit none
@@ -22,7 +21,7 @@ integer dsym
 ! for the integrals needed in sigma gen
 integer, external :: iPntSO
 integer ip, nn, nBmx, iS, jS, lS, klS, kS, ijS, ipP, iExt0, iExt1, iExt2, iExt3, iInt4, iExt4, i1, iInt0, iInt1, iInt2, iInt3, &
-        mATAB, iOff, iiSym, iOrb, jjSym, jOrb, ijSym, klSym, ijNum, ijOrb, kkSym, kOrb, llSym, lOrb, klNum, klOrb, iPlus
+        mATAB, iOff, iiSym, iOrb, jjSym, jOrb, ijSym, klSym, ijNum, ijOrb, kkSym, kOrb, llSym, lOrb, klNum, klOrb, iPlus, nDensLT
 ! Statement function
 integer i, j, iTri
 itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
@@ -71,7 +70,6 @@ nDensLT = 0
 nCMO = 0
 nDensC = 0
 call iCopy(8**2,[0],0,ipMat,1)
-call iCopy(8**2,[0],0,ipMC,1)
 call iCopy(8**2,[0],0,ipMatLT,1)
 call iCopy(8,[0],0,ipCM,1)
 
@@ -87,14 +85,12 @@ do jS=1,nSym
         iExt3 = nOrb(iS)-nRs3(iS)
         iInt4 = nOrb(js)-nish(js)-nAsh(js)
         iExt4 = nIsh(is)+nAsh(is)
-        ipMC(jS,iS) = nDensC+1
         nDensC = nDensC+iExt0*nIsh(js)+iExt1*nRs1(js)+iExt2*nRs2(js)+iExt3*nRs3(js)+iExt4*iInt4
       end if
       if (is == js) then
         i1 = nOrb(is)-nish(is)-nAsh(is)
         ipMatLT(jS,iS) = nDensLT+1
         nDensLT = nDensLT+nBas(iS)*(nBas(is)+1)/2
-        ipMC(jS,iS) = nDensC+1
         iint0 = nOrb(is)-nIsh(is)
         iint1 = i1+nRs2(is)+nRs3(is)
         iint2 = i1+nRs3(is)

@@ -18,7 +18,7 @@ subroutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,idsym,reco,jspin)
 !              pq       pq                pq
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use MCLR_Data, only: W_CMO_Inv => CMO_Inv, W_CMO => CMO, G1t, G2t, FAMO, FIMO
+use MCLR_Data, only: CMO_Inv, CMO, G1t, G2t, FAMO, FIMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nMBA
 #ifdef _DEBUGPRINT_
 use Spool, only: LuWr
@@ -34,7 +34,7 @@ integer iDSym, jSpin
 real*8 reco
 logical Fake_CMO2, DoAct
 real*8, allocatable :: MT1(:), MT2(:), MT3(:), QTemp(:), Dens2(:), G2x(:)
-type(DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA, FkI, FkA, QVec, CMO, CMO_Inv
+type(DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA, FkI, FkA, QVec, WCMO, WCMO_Inv
 real*8 Fact, Dij
 integer iS, iB, jS, nA2, nAct, nG2, iSym, nAG2, jSym, kSym, nAtri, iOff, iOff2, iOff3, iOff4, iOff5, jB, ip2, ipGx, ijS, kS, lS, &
         kAsh, lAsh, ikl, iAsh, jAsh, iij, iRead, ipF, ipFI
@@ -123,14 +123,14 @@ else  ! Cho-Fock
         if ((ieor(iS-1,jS-1)+1 == idsym) .and. (nOrb(jS) /= 0)) then
           call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),One,rkappa(ipMat(is,js)),nOrb(iS),DI%SB(js)%A2,nOrb(jS),Zero, &
                       Dens2(ipMat(iS,jS)),nOrb(iS))
-          call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),One,Dens2(ipMat(iS,jS)),nOrb(iS),W_CMO(ipCM(is)),nOrb(iS),Zero, &
+          call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),One,Dens2(ipMat(iS,jS)),nOrb(iS),CMO(ipCM(is)),nOrb(iS),Zero, &
                       DLT(1)%SB(iS)%A2,nOrb(jS))
-          call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),One,DLT(1)%SB(iS)%A2,nOrb(iS),W_CMO(ipCM(js)),nOrb(jS),Zero, &
+          call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),One,DLT(1)%SB(iS)%A2,nOrb(iS),CMO(ipCM(js)),nOrb(jS),Zero, &
                       Dens2(ipMat(iS,jS)),nOrb(jS))
 
-          call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),One,DI%SB(js)%A2,nOrb(iS),W_CMO(ipCM(is)),nOrb(iS),Zero,DLT(1)%SB(iS)%A2, &
+          call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),One,DI%SB(js)%A2,nOrb(iS),CMO(ipCM(is)),nOrb(iS),Zero,DLT(1)%SB(iS)%A2, &
                       nOrb(jS))
-          call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),One,DLT(1)%SB(iS)%A2,nOrb(iS),W_CMO(ipCM(js)),nOrb(jS),Zero,DI%SB(js)%A2, &
+          call DGEMM_('T','T',nOrb(jS),nOrb(jS),nOrb(iS),One,DLT(1)%SB(iS)%A2,nOrb(iS),CMO(ipCM(js)),nOrb(jS),Zero,DI%SB(js)%A2, &
                       nOrb(jS))
         end if
       end do
@@ -173,15 +173,14 @@ else  ! Cho-Fock
       ioff5 = ioff4+nOrb(iS)*nIsh(iS)
       do iB=1,nAsh(iS)
         ioff3 = ioff2+nOrb(iS)*(iB-1)
-        CVa(1)%SB(iS)%A2(iB,:) = W_CMO(ioff3+1:ioff3+nOrb(iS))
+        CVa(1)%SB(iS)%A2(iB,:) = CMO(ioff3+1:ioff3+nOrb(iS))
         do jB=1,nAsh(iS)
           ip2 = itri(nA(is)+ib,nA(is)+jb)
           DA%SB(iS)%A2(iB,jB) = G1t(ip2)
         end do
       end do
       !MGD to check
-      call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),One,rkappa(ioff5),nOrb(iS),W_CMO(1+ioff),nOrb(iS),Zero,CVa(2)%SB(iS)%A2, &
-                  nAsh(iS))
+      call DGEMM_('T','T',nAsh(iS),nOrb(iS),nOrb(iS),One,rkappa(ioff5),nOrb(iS),CMO(1+ioff),nOrb(iS),Zero,CVa(2)%SB(iS)%A2,nAsh(iS))
       ioff = ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
       ioff4 = ioff4+nOrb(iS)**2
     end do
@@ -239,15 +238,15 @@ else  ! Cho-Fock
   call Allocate_DT(FkA,nBas,nBas,nSym,Ref=FockA)
   FkA%A0(:) = Zero
   call Allocate_DT(QVec,nBas,nAsh,nSym,Ref=Q)
-  call Allocate_DT(CMO,nBas,nAsh,nSym,Ref=W_CMO)
-  call Allocate_DT(CMO_Inv,nBas,nAsh,nSym,Ref=W_CMO_Inv)
+  call Allocate_DT(WCMO,nBas,nAsh,nSym,Ref=CMO)
+  call Allocate_DT(WCMO_Inv,nBas,nAsh,nSym,Ref=CMO_Inv)
   iread = 2 ! Asks to read the half-transformed Cho vectors
 
-  call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,rMOs,QVec,CVa,CMO,CMO_inv,nIsh,nAsh,DoAct,Fake_CMO2,LuAChoVec, &
+  call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,rMOs,QVec,CVa,WCMO,WCMO_inv,nIsh,nAsh,DoAct,Fake_CMO2,LuAChoVec, &
                    LuIChoVec,iread)
 
-  call Deallocate_DT(CMO_Inv)
-  call Deallocate_DT(CMO)
+  call Deallocate_DT(WCMO_Inv)
+  call Deallocate_DT(WCMO)
   call Deallocate_DT(QVec)
   call Deallocate_DT(FkA)
   call Deallocate_DT(FkI)

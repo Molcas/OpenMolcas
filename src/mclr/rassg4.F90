@@ -64,7 +64,6 @@ subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NSSOA,N
 ! A triplet one electron operator is defined as E(aa)-E(bb)
 ! A triplet two-electron operator is defined as (E(aa)+E(bb))(E(aa)-E(bb))
 
-use MCLR_Data, only: MXPORB
 use Constants, only: Zero, One
 
 implicit none
@@ -77,7 +76,7 @@ integer ICSMOS(NSMST), ISSMOS(NSMST)
 integer ICBLTP(NSMST), ISBLTP(NSMST)
 integer NSSOA(NOCTPA,nsmst)
 integer NSSOB(NOCTPB,nsmst)
-integer NTSOB(3,NSMOB), IBTSOB(3,NSMOB), ITSOB(mxporb)
+integer NTSOB(3,NSMOB), IBTSOB(3,NSMOB), ITSOB(*)
 integer IAEL1(*), IAEL3(*)
 integer IBEL1(*), IBEL3(*)
 integer IDC
