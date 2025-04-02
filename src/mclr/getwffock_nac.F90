@@ -19,6 +19,7 @@
 subroutine GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,NG2)
 ! Partially readapted from rhs_sa
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
 use MCLR_Data, only: NACSTATES
@@ -42,20 +43,18 @@ real*8, dimension(:), allocatable :: FinCI
 real*8, dimension(1) :: rdum
 real*8, dimension(:), allocatable :: Fock, T, G1r, G2r, G2rt, CIL, CIR, G1q, G2q, G1qs, G2qs, G1m
 real*8, dimension(:), allocatable :: DMatAO, D5, D6
-integer I, J, iTri, K, NCSFs
+integer I, J, K, NCSFs
 real*8 Fact
 integer iB, jB, kB, lB, iDkl, iRijkl
 integer IJ, KL, IJKL, IJ2, KL2
 real*8 factor
 integer nG1, nConfL, nConfR, ijkl2, iRC, LuDens, iDij, iRij, iRkl, iIJKL, jDisk
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-ng1 = itri(ntash,ntash)
-ng2 = itri(ng1,ng1)
+ng1 = nTri_Elem(ntash)
+ng2 = nTri_Elem(ng1)
 
 call mma_allocate(FinCI,nconf1*nroots,Label='FinCI')
 call mma_allocate(Fock,ndens2,Label='Fock')
@@ -64,8 +63,8 @@ call mma_allocate(G1q,ng1,Label='G1q')
 call mma_allocate(G1m,ng1,Label='G1m')
 call mma_allocate(G2q,ng2,Label='G2q')
 call mma_allocate(G1r,ntash**2,Label='G1r')
-call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
-call mma_allocate(G2rt,itri(ntash**2,ntash**2),Label='G2rt')
+call mma_allocate(G2r,nTri_Elem(ntash**2),Label='G2r')
+call mma_allocate(G2rt,nTri_Elem(ntash**2),Label='G2rt')
 ! Rotate CI vectors back to those for reference states
 NCSFs = NCSF(state_sym)
 call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%A,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
@@ -79,7 +78,7 @@ I = NACstates(1)
 J = NACstates(2)
 call CSF2SD(FinCI(1+(J-1)*NCSFs),CIL,state_sym)
 call CSF2SD(FinCI(1+(I-1)*NCSFs),CIR,state_sym)
-call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,itri(ntash**2,ntash**2))
+call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,nTri_Elem(ntash**2))
 
 ! Copied from rhs_nac
 ij = 0
@@ -99,58 +98,58 @@ end do
 
 do iB=1,ntash
   do jB=1,ntash
-    G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
+    G1r(ib+(jb-1)*ntash) = G1q(iTri(ib,jb))
   end do
 end do
 
 do iB=1,ntAsh**2
-  jB = itri(iB,iB)
+  jB = nTri_Elem(iB)
   G2rt(jB) = Half*G2rt(jB)
 end do
 do iB=0,ntAsh-1
   do jB=0,iB-1
-    ij = iB*(iB+1)/2+jB
+    ij = nTri_Elem(iB)+jB
     do kB=0,ntAsh-1
       do lB=0,kB
-        kl = kB*(kB+1)/2+lB
+        kl = nTri_Elem(kB)+lB
         if (ij >= kl) then
           factor = Quart
           if (ij == kl) factor = Half
-          ijkl = ij*(ij+1)/2+kl
+          ijkl = nTri_Elem(ij)+kl
           ij2 = iB*ntAsh+jB
           kl2 = kB*ntAsh+lB
-          G2q(1+ijkl) = factor*G2rt(1+ij2*(ij2+1)/2+kl2)
+          G2q(1+ijkl) = factor*G2rt(1+nTri_Elem(ij2)+kl2)
           ij2 = max(jB*ntAsh+iB,lB*ntAsh+kB)
           kl2 = min(jB*ntAsh+iB,lB*ntAsh+kB)
-          G2q(1+ijkl) = G2q(1+ijkl)+factor*G2rt(1+ij2*(ij2+1)/2+kl2)
+          G2q(1+ijkl) = G2q(1+ijkl)+factor*G2rt(1+nTri_Elem(ij2)+kl2)
           if (kB /= lB) then
             ij2 = iB*ntAsh+jB
             kl2 = lB*ntAsh+kB
-            G2q(1+ijkl) = G2q(1+ijkl)+factor*G2rt(1+ij2*(ij2+1)/2+kl2)
+            G2q(1+ijkl) = G2q(1+ijkl)+factor*G2rt(1+nTri_Elem(ij2)+kl2)
             if (ij /= kl) then
               ij2 = max(jB*ntAsh+iB,kB*ntAsh+lB)
               kl2 = min(jB*ntAsh+iB,kB*ntAsh+lB)
-              G2q(1+ijkl) = G2q(1+ijkl)+factor*G2rt(1+ij2*(ij2+1)/2+kl2)
+              G2q(1+ijkl) = G2q(1+ijkl)+factor*G2rt(1+nTri_Elem(ij2)+kl2)
             end if
           end if
         end if
       end do
     end do
   end do
-  ij = iB*(iB+1)/2+iB
+  ij = nTri_Elem(iB)+iB
   do kB=0,ntAsh-1
     do lB=0,kB
-      kl = kB*(kB+1)/2+lB
+      kl = nTri_Elem(kB)+lB
       if (ij >= kl) then
         factor = Half
         if (ij == kl) factor = One
-        ijkl = ij*(ij+1)/2+kl
+        ijkl = nTri_Elem(ij)+kl
         ij2 = iB*ntAsh+iB
         kl2 = kB*ntAsh+lB
-        G2q(1+ijkl) = factor*G2rt(1+ij2*(ij2+1)/2+kl2)
+        G2q(1+ijkl) = factor*G2rt(1+nTri_Elem(ij2)+kl2)
         if (kB /= lB) then
           kl2 = lB*ntAsh+kB
-          G2q(1+ijkl) = G2q(1+ijkl)+factor*G2rt(1+ij2*(ij2+1)/2+kl2)
+          G2q(1+ijkl) = G2q(1+ijkl)+factor*G2rt(1+nTri_Elem(ij2)+kl2)
         end if
       end if
     end do
@@ -198,8 +197,8 @@ do iB=1,ntash
         fact = One
         if ((iDij >= iDkl) .and. (kB == lB)) fact = Half
         if ((iDij < iDkl) .and. (iB == jB)) fact = Half
-        iijkl = itri(iDij,iDkl)
-        iRijkl = itri(iRij,iRkl)
+        iijkl = iTri(iDij,iDkl)
+        iRijkl = iTri(iRij,iRkl)
         G2q(iijkl) = Fact*G2r(iRijkl)
       end do
     end do
@@ -246,7 +245,7 @@ do K=1,nRoots
 
   do iB=1,ntash
     do jB=1,ntash
-      G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
+      G1r(ib+(jb-1)*ntash) = G1q(iTri(ib,jb))
     end do
   end do
 
@@ -261,8 +260,8 @@ do K=1,nRoots
           fact = One
           if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
           if ((iDij < iDkl) .and. (iB == jB)) fact = Two
-          iijkl = itri(iDij,iDkl)
-          iRijkl = itri(iRij,iRkl)
+          iijkl = iTri(iDij,iDkl)
+          iRijkl = iTri(iRij,iRkl)
           G2r(iRijkl) = Fact*G2q(iijkl)
         end do
       end do

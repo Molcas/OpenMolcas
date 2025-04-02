@@ -11,6 +11,7 @@
 
 subroutine Pickmo_MCLR(rmo,rmoaa,idsym)
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: ipMO, nA
 use input_mclr, only: nSym, nAsh, nOrb, nIsh
 
@@ -18,9 +19,6 @@ implicit none
 real*8 rmo(*), rmoaa(*)
 integer idsym
 integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA, ijAA, klAA, ijkl, ipi
-integer i, j, itri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 do iS=1,nSym
   do jS=1,iS
@@ -31,7 +29,7 @@ do iS=1,nSym
           iAA = iA+nA(is)
           do jA=1,nAsh(js)
             jAA = jA+nA(js)
-            ijAA = itri(iAA,jAA)
+            ijAA = iTri(iAA,jAA)
             do kA=1,nAsh(ks)
               kAA = kA+nA(ks)
               do lA=1,nAsh(ls)

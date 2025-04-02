@@ -18,6 +18,7 @@ subroutine CHO_Fock_MCLR(DA,G2,W_JA,W_KA,W_FkA,CVa,W_CMO,nIsh,nAsh,LuAChoVec)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Cholesky, only: InfVec, nBas, nBasSh, nDimRS, nShell, nSym, NumCho
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
@@ -39,7 +40,6 @@ real*8, allocatable :: Fab(:), Lrs(:), LF(:)
 logical add
 ! Statement functions
 MulD2h(i,j) = ieor(i-1,j-1)+1
-iTri(i,j) = max(i,j)*(max(i,j)-3)/2+i+j
 
 call Allocate_DT(JA(1),nBas,nBas,nSym,aCase='TRI',Ref=W_JA)
 call Allocate_DT(KA,nBas,nBas,nSym,Ref=W_KA)

@@ -11,6 +11,7 @@
 
 subroutine OITD(rK,isym,D,Dtmp,act)
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: G1t
 use MCLR_Data, only: ipCM, ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
@@ -21,9 +22,6 @@ integer iSym
 real*8 rK(*), D(*), Dtmp(nDens2)
 logical act
 integer iS, iB, jB, jS
-integer i, j, itri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 DTmp(:) = Zero
 
@@ -38,7 +36,7 @@ if (act) then
   do iS=1,nSym
     do iB=1,nAsh(iS)
       do jB=1,nAsh(iS)
-        Dtmp(1+(ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1)-1) = G1t((itri((nA(is)+ib),(nA(is)+jb))))
+        Dtmp(1+(ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1)-1) = G1t((iTri((nA(is)+ib),(nA(is)+jb))))
       end do
     end do
   end do

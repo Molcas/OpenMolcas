@@ -11,6 +11,7 @@
 
 subroutine dmrg_dim_change_mclr(orbspc,ndim,iflag)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: u6
 
 implicit none
@@ -48,13 +49,13 @@ else if (iflag == 2) then
 else if (iflag == 3) then
   do i=1,1
     n1 = n1+orbspc(i)
-    ndim = (n1+1)*n1/2
+    ndim = nTri_Elem(n1)
   end do
 else if (iflag == 4) then
   do i=1,1
     n1 = n1+orbspc(i)
     n2 = n1*n1
-    ndim = (n2+1)*n2/2
+    ndim = nTri_Elem(n2)
   end do
 else
   write(u6,*) 'unknow iflag'

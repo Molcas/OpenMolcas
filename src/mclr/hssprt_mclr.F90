@@ -11,6 +11,7 @@
 
 subroutine HssPrt_MCLR(ideg,Hess,ldisp)
 
+use Index_Functions, only: iTri, nTri_Elem
 use input_mclr, only: nIrrep, nSym, ChIrr
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, u6
@@ -25,8 +26,7 @@ character Title*39
 real*8, allocatable :: Temp(:)
 integer i, iaa, ii, iIrrep, j, jj
 ! Statement function
-integer idisp, jdisp, Ind
-Ind(idisp,jdisp) = idisp*(idisp-1)/2+jdisp
+integer idisp
 
 iDisp = 0
 do iIrrep=1,nIrrep
@@ -43,13 +43,13 @@ do iIrrep=1,nIrrep
 
     do i=1,lDisp(iirrep)
       do j=1,i
-        ii = ind(i,j)
-        jj = iaa+ind(i,j)
+        ii = iTri(i,j)
+        jj = iaa+iTri(i,j)
         Temp(ii) = Hess(jj)*sqrt(real(ideg(i+kdisp(iirrep))*ideg(j+kdisp(iirrep)),kind=wp))
       end do
     end do
     call TriPrt(title,' ',Temp,ldisp(iirrep))
-    iaa = iaa+ind(ldisp(iirrep),ldisp(iirrep))
+    iaa = iaa+nTri_Elem(ldisp(iirrep))
   end if
 end do
 call mma_deallocate(Temp)

@@ -11,6 +11,7 @@
 
 subroutine FREQ(nX,H,nDeg,nrvec,Tmp3,EVec,EVal,RedM,iNeg)
 
+use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auTocm, uToau
 use Definitions, only: wp, u6
@@ -20,8 +21,6 @@ real*8 H(*), Tmp3(nX,nX), EVec(2*nX,nX), EVal(2*nX), RedM(nX)
 integer nrvec(*), ndeg(*)
 logical Found
 real*8, allocatable :: Mass(:)
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! read masses from runfile
 
@@ -40,7 +39,7 @@ do i=1,nX
   rm = Mass(nrvec(i))
   if (rm == Zero) rm = 1.0e7_wp
   do j=1,nX
-    Tmp3(i,j) = sqrt(real(nDeg(i)*nDeg(j),kind=wp))*H(itri(i,j))/rm
+    Tmp3(i,j) = sqrt(real(nDeg(i)*nDeg(j),kind=wp))*H(iTri(i,j))/rm
   end do
 end do
 

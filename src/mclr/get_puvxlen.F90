@@ -14,6 +14,7 @@
 subroutine Get_PUVXLen(NPUVX)
 ! Rewritten from mcpdft/alloc.f
 
+use Index_Functions, only: nTri_Elem
 use input_mclr, only: nSym, nOrb, nAsh
 
 implicit none
@@ -33,7 +34,7 @@ do iSp=1,nSym
         if (iSpqr /= iSs) exit
         nAs = NASH(iSs)
         nRS = nAr*nAs
-        if (iSs == iSr) nRS = (nAr+nAr**2)/2
+        if (iSs == iSr) nRS = nTri_Elem(nAr)
         NPUVX = NPUVX+nOp*nAq*nRS
       end do
     end do

@@ -21,6 +21,7 @@ use input_mclr, only: nCSF, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 #ifdef _DEBUGPRINT_
+use Index_Functions, only: iTri
 use input_mclr, only: ntAsh
 use Definitions, only: u6
 #endif
@@ -31,9 +32,7 @@ real*8 rP(*), rD(*)
 real*8, allocatable :: De(:), Pe(:), CIL(:), CIR(:)
 integer nConfL, nConfR, nC
 #ifdef _DEBUGPRINT_
-integer i, j, k, l, itri, ijkl
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+integer i, j, k, l, ijkl
 #endif
 
 ! LS = CI
@@ -154,7 +153,7 @@ if (nocsf == 0) then
     do j=1,ntash
       do k=1,ntash
         do l=1,ntash
-          ijkl = itri(ntash*(j-1)+i,k+(l-1)*ntash)
+          ijkl = iTri(ntash*(j-1)+i,k+(l-1)*ntash)
           write(u6,'(I1,I1,I1,I1,F12.6)') i,j,k,l,rp(ijkl)
         end do
       end do

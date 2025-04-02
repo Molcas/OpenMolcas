@@ -18,6 +18,7 @@ subroutine WfCtl_pdft(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI, nAcPar, nNA, nAcPr2, ipMat
@@ -190,14 +191,14 @@ do iDisp=1,nDisp
   nTri = 0
   nOrbAct = 0
   do ksym=1,nsym
-    nTri = nTri+nBas(ksym)*(nBas(ksym)+1)/2
+    nTri = nTri+nTri_Elem(nBas(ksym))
     nOrbAct = nOrbAct+nAsh(ksym)
   end do
-  nacpar = nOrbAct*(nOrbAct+1)/2
+  nacpar = nTri_Elem(nOrbAct)
   call mma_allocate(FMO1t,nTri,Label='FMO1t')
   call mma_allocate(FMO1,nDens2,Label='FMO1')
-  nacpar = (nnA+1)*nnA/2
-  nacpr2 = (nacpar+1)*nacpar/2
+  nacpar = nTri_Elem(nnA)
+  nacpr2 = nTri_Elem(nacpar)
   call mma_allocate(FMO2t,nacpr2,Label='FMO2t')
 
   call get_darray('F1_PDFT',FMO1t,nTri)
@@ -308,8 +309,8 @@ do iDisp=1,nDisp
   ! storage:
 
   if (Do_Hybrid) then
-    ng1 = (ntash+1)*ntash/2
-    ng2 = (ng1+1)*ng1/2
+    ng1 = nTri_Elem(ntash)
+    ng2 = nTri_Elem(ng1)
     call mma_allocate(FOSq,nDens2,Label='FOSq')
     call Get_dArray_chk('FockOcc',FOsq,nDens2)
 

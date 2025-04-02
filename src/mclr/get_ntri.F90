@@ -13,6 +13,7 @@
 
 subroutine Get_Ntri(nTri)
 
+use Index_Functions, only: nTri_Elem
 use input_mclr, only: nSym, nBas
 
 implicit none
@@ -20,7 +21,7 @@ integer nTri, kSym
 
 nTri = 0
 do kSym=1,nSym
-  nTri = nTri+nBas(kSym)*(nBas(kSym)+1)/2
+  nTri = nTri+nTri_Elem(nBas(kSym))
 end do
 
 end subroutine Get_Ntri

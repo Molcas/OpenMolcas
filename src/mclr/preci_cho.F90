@@ -25,6 +25,7 @@ subroutine Preci_cho(jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,sign,A_J,nSc
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
@@ -40,22 +41,18 @@ real*8 sign
 integer nScr
 real*8 A_J(nScr)
 integer iAdr
-integer nTri, nO, jVert, nVirt, i1, ijk, iSym, nVirt2, jC, jjC, jD, jjD, ip1, jA, jjA, jB, jBB, jAA, iBC, iAC, ip, iVB, kB, nlB, &
-        ilB, lB, jjB, jCC
+integer nTri, nO, jVert, nVirt, ijk, iSym, nVirt2, jC, jjC, jD, jjD, ip1, jA, jjA, jB, jBB, jAA, iBC, iAC, ip, iVB, kB, nlB, ilB, &
+        lB, jjB, jCC
 real*8 Factor, AABB, rDens1, BCBB, ACBB, rDens2, rDens, rFock
-! Statement functions
-integer i, j, itri, itri1
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-itri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+integer i
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nTri = itri(nd,nd)
+nTri = nTri_Elem(nd)
 nO = nAsh(jS)+nIsh(jS)
 jVert = nOrb(jS)-nAsh(jS)-nIsh(jS)
 nvirt = nOrb(jS)-nIsh(jS)
-i1 = nD-jVert+1
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -83,11 +80,11 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
           jjA = jA+nA(jS)
           do jB=1,jA
             jjB = jB+nA(jS)
-            i = itri1(jA,jB)
+            i = nTri-iTri(nd-jA+1,nd-jB+1)+1
             if (iJK == 1) then
-              rDens1 = Two*sign*G2t(itri(itri(jjC,jjD),itri(jjB,jjA)))
+              rDens1 = Two*sign*G2t(iTri(iTri(jjC,jjD),iTri(jjB,jjA)))
             else
-              rDens1 = Four*sign*G2t((itri(itri(jjB,jjD),itri(jjC,jjA))))
+              rDens1 = Four*sign*G2t((iTri(iTri(jjB,jjD),iTri(jjC,jjA))))
             end if
             rout(i) = rout(i)+rDens1*aabb
           end do
@@ -100,15 +97,15 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
         jAA = jA+nA(jS)
         do jB=1,jA
           jBB = jB+nA(jS)
-          i = itri1(jA,jB)
+          i = nTri-iTri(nd-jA+1,nd-jB+1)+1
           do jC=1,nAsh(jS)
             jCC = jC+nA(jS)
             iBC = (jC-1)*nvirt+jB
             BCbb = A_J(iBC) ! BbCb if exchange
             iAC = (jC-1)*nvirt+jA
             ACbb = A_J(iAC) ! AbCb if exchange
-            rDens1 = -sign*G1t(itri(jAA,jCC))
-            rDens2 = -sign*G1t(itri(jBB,jCC))
+            rDens1 = -sign*G1t(iTri(jAA,jCC))
+            rDens2 = -sign*G1t(iTri(jBB,jCC))
             if (jAA == jCC) rDens1 = rdens1+sign
             if (jBB == jCC) rDens2 = rdens2+sign
             rout(i) = rout(i)+Two*rdens1*factor*BCbb+Two*rdens2*factor*ACbb
@@ -120,7 +117,7 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
       ! iba
 
       do jA=1,nAsh(jS)
-        ip = itri1(ja,nd-jVert+1)
+        ip = nTri-iTri(nd-ja+1,jVert)+1
         do jB=1,nAsh(jS)
           rDens = -sign*G1t(iTri(jA+nA(jS),jB+nA(jS)))
           if (jA == jB) rDens = rdens+sign*Two
@@ -132,7 +129,7 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
 
       ! ibb
 
-      i = itri1(i1,i1)
+      i = nTri-nTri_Elem(jVert)+1
       do kB=nAsh(jS),nvirt-1
         nlB = nvirt-kb
         ilB = kB+1+nvirt*kb
@@ -159,15 +156,15 @@ do jA=1,nAsh(jS)
   do jB=1,JA
     jBB = jB+nA(jS)
     jjB = jB+nIsh(js)
-    i = itri1(jA,jB)
-    rDens = G1t(itri(jbb,jAA))
+    i = nTri-iTri(nd-jA+1,nd-jB+1)+1
+    rDens = G1t(iTri(jbb,jAA))
     rout(i) = rout(i)+Sign*(Two*rdens*Fockii+Two*(Two*Focki(jjA,jjB)+Two*FockA(jjA,jjB)-Fock(jjB,jjA)))
   end do
   rout(i) = rout(i)-Four*rFock
 
   ! iba
 
-  ip = iTri1(ja,nAsh(js)+1)
+  ip = nTri-iTri(nd-ja+1,nd-nAsh(js))+1
   call DaXpY_(jVert,sign*Four,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
   call DaXpY_(jVert,sign*Four,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
   call DaXpY_(jVert,-sign,Fock(nO+1,ja+nIsh(js)),1,rout(ip),1)
@@ -175,7 +172,7 @@ end do
 
 ! ibb
 
-i = itri1(i1,i1)-1
+i = nTri-nTri_Elem(jVert)
 do kB=nIsh(jS)+nAsh(jS),nOrb(jS)-1
   rOut(i+1) = rout(i+1)-Four*rFock
   do lB=kb,nOrb(JS)-1

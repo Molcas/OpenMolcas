@@ -18,6 +18,7 @@
 subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
 ! Partially readapted from rhs_sa
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
 use MCLR_Data, only: IRLXROOT
@@ -41,19 +42,17 @@ real*8, dimension(:), allocatable :: FinCI
 real*8, dimension(1) :: rdum
 real*8, dimension(:), allocatable :: Fock, T, G1r, G2r, G2rt, CIL, CIR, G1q, G2q, G1qs, G2qs
 real*8, dimension(:), allocatable :: DMatAO, DIAO, D5, D6
-integer I, J, iTri, K, NCSFs
+integer I, K, NCSFs
 real*8 Fact
 integer iB, jB, kB, lB, iDkl, iRijkl
 integer nG1, nConfL
 integer iA, jA, kA, lA, ij1, kl1, kl2, iDij, iRij, iRkl, iIJKL, JDisk
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-ng1 = itri(ntash,ntash)
-ng2 = itri(ng1,ng1)
+ng1 = nTri_Elem(ntash)
+ng2 = nTri_Elem(ng1)
 
 call mma_allocate(FinCI,nconf1*nroots,Label='FinCI')
 call mma_allocate(Fock,ndens2,Label='Fock')
@@ -61,8 +60,8 @@ call mma_allocate(T,ndens2,Label='T')
 call mma_allocate(G1q,ng1,Label='G1q')
 call mma_allocate(G2q,ng2,Label='G2q')
 call mma_allocate(G1r,ntash**2,Label='G1r')
-call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
-call mma_allocate(G2rt,itri(ntash**2,ntash**2),Label='G2rt')
+call mma_allocate(G2r,nTri_Elem(ntash**2),Label='G2r')
+call mma_allocate(G2rt,nTri_Elem(ntash**2),Label='G2rt')
 ! Rotate CI vectors back to those for reference states
 NCSFs = NCSF(state_sym)
 call DGEMM_('n','n',NCSFS,nRoots,nRoots,One,W(ipCI)%A,NCSFs,R,nRoots,Zero,FinCI,nCSFs)
@@ -74,7 +73,7 @@ call mma_allocate(CIR,nConfL)
 I = IRlxRoot
 call CSF2SD(FinCI(1+(I-1)*NCSFs),CIL,state_sym)
 call DCopy_(nConfL,CIL,1,CIR,1)
-call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,itri(ntash**2,ntash**2))
+call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,nTri_Elem(ntash**2))
 do iA=1,nnA
   do jA=1,nnA
     do kA=1,nnA
@@ -84,9 +83,9 @@ do iA=1,nnA
         kl1 = nnA*(ka-1)+la
         kl2 = nna*(la-1)+ka
         if ((iA == jA) .or. (kA == la)) then
-          G2r(itri(ij1,kl1)) = G2rt(itri(ij1,kl1))
+          G2r(iTri(ij1,kl1)) = G2rt(iTri(ij1,kl1))
         else
-          G2r(itri(ij1,kl1)) = (G2rt(itri(ij1,kl1))+G2rt(itri(ij1,kl2)))*Half
+          G2r(iTri(ij1,kl1)) = (G2rt(iTri(ij1,kl1))+G2rt(iTri(ij1,kl2)))*Half
         end if
       end do
     end do
@@ -96,7 +95,7 @@ call FockGen(One,G1r,G2r,FOccMO,bk,1)
 
 do iB=1,ntash
   do jB=1,iB
-    G1q(itri(ib,jb)) = G1r(ib+(jb-1)*ntash)
+    G1q(iTri(ib,jb)) = G1r(ib+(jb-1)*ntash)
   end do
 end do
 ! D1MOt: CMS-PDFT 1RDM for computing 1-electron gradient
@@ -112,8 +111,8 @@ do iB=1,ntash
         fact = One
         if ((iDij >= iDkl) .and. (kB == lB)) fact = Half
         if ((iDij < iDkl) .and. (iB == jB)) fact = Half
-        iijkl = itri(iDij,iDkl)
-        iRijkl = itri(iRij,iRkl)
+        iijkl = iTri(iDij,iDkl)
+        iRijkl = iTri(iRij,iRkl)
         G2q(iijkl) = Fact*G2r(iRijkl)
       end do
     end do
@@ -163,7 +162,7 @@ do K=1,nRoots
   call mma_deallocate(DMatAO)
   do iB=1,ntash
     do jB=1,ntash
-      G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
+      G1r(ib+(jb-1)*ntash) = G1q(iTri(ib,jb))
     end do
   end do
 
@@ -178,8 +177,8 @@ do K=1,nRoots
           fact = One
           if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
           if ((iDij < iDkl) .and. (iB == jB)) fact = Two
-          iijkl = itri(iDij,iDkl)
-          iRijkl = itri(iRij,iRkl)
+          iijkl = iTri(iDij,iDkl)
+          iRijkl = iTri(iRij,iRkl)
           G2r(iRijkl) = Fact*G2q(iijkl)
         end do
       end do

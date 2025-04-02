@@ -23,6 +23,7 @@ subroutine AdToR2_MCLR(RHO2,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 ! Itype = 2 => alpha-beta loop
 !              input is in form Rho2t(ij,kl)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Zero, One, Two
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -61,12 +62,12 @@ call PRSYM(RHO2,NORB**2)
 !write(u6,*) ' RHO2T :'
 !if (ITYPE == 1) then
 !  if (IOFF == KOFF) then
-!    NROW = NI*(NI+1)/2
+!    NROW = nTri_Elem(NI)
 !  else
 !    NROW = NI*NK
 !  end if
 !  if (JOFF == LOFF) then
-!    NCOL = NJ*(NJ+1)/2
+!    NCOL = nTri_Elem(NJ)
 !  else
 !    NCOL = NJ*NL
 !  end if
@@ -154,7 +155,7 @@ if (ITYPE == 1) then
               IJ = (JJ+JJOFF-2)*NORB+II+IIOFF-1
               KL = (LL+LLOFF-2)*NORB+KK+KKOFF-1
               if (IJ >= KL) then
-                IJKL = IJ*(IJ-1)/2+KL
+                IJKL = nTri_Elem(IJ-1)+KL
                 if (IPERM == 1) then
                   I = II
                   K = KK
@@ -181,9 +182,9 @@ if (ITYPE == 1) then
                   NIK = NI*NK
                   SIGNIK = One
                 else
-                  IKIND = max(I,K)*(max(I,K)-1)/2+min(I,K)
-                  NIK = NI*(NI+1)/2
-                  if (I == max(I,K)) then
+                  IKIND = iTri(I,K)
+                  NIK = nTri_Elem(NI)
+                  if (I >= K) then
                     SIGNIK = One
                   else
                     SIGNIK = -One
@@ -193,8 +194,8 @@ if (ITYPE == 1) then
                   JLIND = (L-1)*NJ+J
                   SIGNJL = One
                 else
-                  JLIND = max(J,L)*(max(J,L)-1)/2+min(J,L)
-                  if (J == max(J,L)) then
+                  JLIND = iTri(J,L)
+                  if (J >= L) then
                     SIGNJL = One
                   else
                     SIGNJL = -One
@@ -230,7 +231,7 @@ else if (ITYPE == 2) then
           else
             FACTOR = One
           end if
-          IJKL = max(IJ,KL)*(max(IJ,KL)-1)/2+min(IJ,KL)
+          IJKL = iTri(IJ,KL)
           IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI+(J-1)*NI+I
           RHO2(IJKL) = RHO2(IJKL)+FACTOR*RHO2T(IJKLT)
         end do
@@ -245,7 +246,7 @@ else if (itype == 3) then
         do L=1,NL
           IJ = (J+JOFF-2)*NORB+I+IOFF-1
           KL = (L+LOFF-2)*NORB+K+KOFF-1
-          !IJKL = MAX(IJ,KL)*(MAX(IJ,KL)-1)/2+MIN(IJ,KL)
+          !IJKL = iTri(IJ,KL)
           IJKL = (IJ-1)*NORB**2+KL
           IJKLT = (L-1)*NJ*NK*NI+(K-1)*NJ*NI+(J-1)*NI+I
           RHO2(IJKL) = RHO2(IJKL)+RHO2T(IJKLT)
@@ -260,10 +261,10 @@ end if
 !j = 4
 !k = 5
 !l = 6
-!iA1 = itri((i-1)*nOrb+j,(k-1)*nOrb+l)
-!iA2 = itri((j-1)*nOrb+i,(k-1)*nOrb+l)
-!iA3 = itri((i-1)*nOrb+j,(l-1)*nOrb+k)
-!iA4 = itri((j-1)*nOrb+i,(l-1)*nOrb+k)
+!iA1 = iTri((i-1)*nOrb+j,(k-1)*nOrb+l)
+!iA2 = iTri((j-1)*nOrb+i,(k-1)*nOrb+l)
+!iA3 = iTri((i-1)*nOrb+j,(l-1)*nOrb+k)
+!iA4 = iTri((j-1)*nOrb+i,(l-1)*nOrb+k)
 !rfel = RHO2(ia1)+RHO2(ia2)+RHO2(ia3)+RHO2(ia4)
 !if (rfel /= Zero) write(u6,*) 'STOP'
 !#ifdef _DEBUGPRINT_

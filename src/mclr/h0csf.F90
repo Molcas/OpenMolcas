@@ -87,6 +87,7 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,N
 ! =========================================
 
 use iso_c_binding, only: c_f_pointer, c_loc
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: NTYP, NCNATS, NCPCNT
 use Constants, only: One
 use Definitions, only: wp
@@ -335,7 +336,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
   ! Do not add core energy to subspace Hamiltonian, add to eigenvalues
   ! Pointers in H0
   KLPHP = 1
-  KLPHQ = KLPHP+NPCSF*(NPCSF+1)/2
+  KLPHQ = KLPHP+nTri_Elem(NPCSF)
 
   ! PHP matrix
 

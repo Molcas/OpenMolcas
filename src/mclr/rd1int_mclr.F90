@@ -20,6 +20,7 @@ subroutine Rd1Int_MCLR()
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use input_mclr, only: nSym, nBas, iMethod, nAtoms, ntBas, ntBTri, ntBSqr, AtLbl, ChIrr, Header1I, PotNuc, Coor
 
 implicit none
@@ -74,7 +75,7 @@ ntBtri = 0
 ntBsqr = 0
 do iSym=1,nSym
   ntBas = ntBas+nBas(iSym)
-  ntBtri = ntBtri+nBas(iSym)*(nBas(iSym)+1)/2
+  ntBtri = ntBtri+nTri_Elem(nBas(iSym))
   ntBsqr = ntBsqr+nBas(iSym)*nBas(iSym)
 end do
 !----------------------------------------------------------------------*

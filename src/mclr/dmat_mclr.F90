@@ -37,6 +37,7 @@ subroutine Dmat_MCLR(CMO,OCC,D)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use input_mclr, only: nSym, nBas
 use Constants, only: Zero, Two
 
@@ -52,7 +53,7 @@ do iSym=1,nSym
   iBas = nBas(iSym)
   if (iBas /= 0) then
     do i=1,iBas
-      ii = (i*i-i)/2
+      ii = nTri_Elem(i-1)
       do j=1,i
         Sum = Zero
         do k=1,ibas
@@ -64,7 +65,7 @@ do iSym=1,nSym
     end do
   end if
   iOff1 = iOff1+iBas*iBas
-  iOff2 = iOff2+(iBas*iBas+iBas)/2
+  iOff2 = iOff2+nTri_Elem(iBas)
   iOff3 = iOff3+iBas
 end do
 

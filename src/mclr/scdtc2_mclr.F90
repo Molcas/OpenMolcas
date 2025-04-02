@@ -19,6 +19,7 @@ subroutine SCDTC2_MCLR(RASVEC,ISMOST,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCO
 !
 ! General symmetry version, Feb 1991
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: One, Two, Half
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -54,7 +55,7 @@ do IASM=1,NSMST
       ! Number of elements in this block
       NIB = NSBSO(IBTP,IBSM)
       if ((ICBLTP(IASM) == 2) .and. (IATP == IBTP)) then
-        NELMNT = NIA*(NIA+1)/2
+        NELMNT = nTri_Elem(NIA)
       else
         NELMNT = NIA*NIB
       end if

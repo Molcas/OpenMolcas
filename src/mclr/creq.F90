@@ -14,6 +14,7 @@
 subroutine creq(q,rint,G2,idsym)
 ! Constructs the Q matrix
 
+use Index_Functions, only: iTri
 use Constants, only: Zero
 use MCLR_Data, only: nDens2, ipMatBA, ipMO, nA
 use input_mclr, only: nSym, nAsh, nOrb
@@ -22,9 +23,6 @@ implicit none
 integer idSym
 real*8 Q(nDens2), rint(*), G2(*)
 integer iS, jS, kS, lS, ijS, iAsh, jAsh, kAsh, lAsh, iij, ikl, ipS, ipQ, ipG, ipi
-integer i, j, itri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! Q = (pj|kl)d
 !  pi         ijkl
@@ -40,12 +38,12 @@ do iS=1,nSym
         ls = ieor(ijs-1,ks-1)+1
         do iAsh=1,nAsh(is)
           do jAsh=1,nAsh(js)
-            iij = itri(iAsh+nA(is),jAsh+nA(jS))
+            iij = iTri(iAsh+nA(is),jAsh+nA(jS))
             do kAsh=1,nAsh(ks)
               do lAsh=1,nAsh(ls)
-                ikl = itri(lAsh+nA(lS),kAsh+nA(kS))
+                ikl = iTri(lAsh+nA(lS),kAsh+nA(kS))
                 ipQ = ipMatba(ips,is)+norb(ips)*(iAsh-1)
-                ipG = itri(iij,ikl)
+                ipG = iTri(iij,ikl)
                 ipi = ipMO(js,ks,ls)+(norb(ips)*(jAsh-1+nAsh(js)*(kAsh-1+nAsh(ks)*(lAsh-1))))
                 call daxpy_(norb(ips),G2(ipG),rint(ipI),1,Q(ipQ),1)
               end do

@@ -31,6 +31,7 @@ subroutine DIHDJ2_MCLR(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,jWORK,NORB,
 ! Modifed to work with string numbers instead of strings
 ! March 93
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One, Half
 
 implicit real*8(A-H,O-Z)
@@ -57,7 +58,7 @@ KLFREE = KLJBE+NORB
 if (ISYM == 0) then
   LHAMIL = NIDET*NJDET
 else
-  LHAMIL = NIDET*(NIDET+1)/2
+  LHAMIL = nTri_Elem(NIDET)
 end if
 HAMIL(1:LHAMIL) = Zero
 
@@ -404,7 +405,7 @@ do JDET=1,NJDET
       if (ISYM == 0) then
         HAMIL((JDET-1)*NIDET+IDET) = HAMIL((JDET-1)*NIDET+IDET)+CONST*XVAL
       else
-        HAMIL((IDET-1)*IDET/2+JDET) = HAMIL((IDET-1)*IDET/2+JDET)+CONST*XVAL
+        HAMIL(nTri_Elem(IDET-1)+JDET) = HAMIL(nTri_Elem(IDET-1)+JDET)+CONST*XVAL
       end if
     end do
   end do

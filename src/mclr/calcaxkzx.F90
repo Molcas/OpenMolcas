@@ -17,25 +17,24 @@
 
 subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: nNA, nDens2
 use input_mclr, only: nRoots, ntBas, ntAsh, nSym, nAsh, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 integer NPUVX
-real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA), intent(in) :: GDMat
+real*8, dimension(nTri_Elem(nRoots),nnA,nnA), intent(in) :: GDMat
 real*8, dimension(NPUVX), intent(in) :: PUVX
 integer, dimension(ntBas,ntAsh,ntAsh,ntAsh), intent(in) :: IndPUVX
-real*8, dimension((nRoots-1)*nRoots/2), intent(in) :: zx
+real*8, dimension(nTri_Elem(nRoots-1)), intent(in) :: zx
 real*8, dimension(nDens2), intent(out) :: AXkzx
 ! Auxiliary Quantities
 integer, dimension(nSym) :: Off_Act, Off_Orb
 real*8, dimension(:), allocatable :: DKL1, DKL2, AXktmp
 integer K, L, iKL, iKL2, iKK, iLL
-integer p, q, nTOrb, iSym, i, j, iTri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+integer p, q, nTOrb, iSym
 
 Off_Act(1) = 0
 Off_Orb(1) = 0
@@ -54,10 +53,10 @@ call mma_allocate(AXktmp,nDens2)
 
 do K=2,nRoots
   do L=1,K-1
-    iKL = itri(K,L)
-    iKK = itri(K,K)
-    iLL = itri(L,L)
-    iKL2 = (K-1)*(K-2)/2+L
+    iKL = iTri(K,L)
+    iKK = iTri(K,K)
+    iLL = iTri(L,L)
+    iKL2 = nTri_Elem(K-2)+L
     do p=1,ntash
       do q=1,ntash
         DKL1((p-1)*ntash+q) = GDMat(IKL,p,q)+GDMat(IKL,q,p)

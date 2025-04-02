@@ -11,6 +11,7 @@
 
 subroutine Freqanal(nDeg,nrvec,H,converged,ELEC,iel,elout,ldisp,Lu_10)
 
+use Index_Functions, only: nTri_Elem
 use input_mclr, only: nSym, nDisp, nUserPT, nSRot, UserP, ChIrr, UserT
 use temperatures, only: DefTemp
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -145,7 +146,7 @@ do iSym=1,nSym
       Do_Molden = .false.
     end if
   end if
-  i3 = i3+nx*(nx+1)/2
+  i3 = i3+nTri_Elem(nx)
   i1 = i1+nx
 end do
 nEig = i1-1

@@ -11,6 +11,7 @@
 
 subroutine MMSort2(A,B,P,iel)
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: DspVec, lDisp
 use input_mclr, only: nSym, nTPert
 
@@ -19,9 +20,6 @@ real*8 A(*), B(*), P(*)
 integer iel(3)
 logical geomi, geomj
 integer ijD, iG, ijG, ijP, iii, iSym, iDisp, jDisp, ijD1
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ijD = 0
 iG = 0
@@ -39,16 +37,16 @@ do iSym=1,nsym
         geomj = iand(ntpert(jdisp+iii),16) == 16
         if (geomj) then
           ijg = ijg+1
-          ijd1 = ijD+itri(idisp,jdisp)
+          ijd1 = ijD+iTri(idisp,jdisp)
           B(ijG) = A(ijD1)
         else if (idisp <= jdisp) then
-          ijP = itri(dspvec(jdisp+iii),dspvec(idisp+iii))
-          P(ijP) = A(ijD+itri(idisp,jdisp))
+          ijP = iTri(dspvec(jdisp+iii),dspvec(idisp+iii))
+          P(ijP) = A(ijD+iTri(idisp,jdisp))
         end if
       end do
     end if
   end do
-  ijD = ijD+ldisp(isym)*(ldisp(isym)+1)/2
+  ijD = ijD+nTri_Elem(ldisp(isym))
   iii = iii+ldisp(isym)
 end do
 

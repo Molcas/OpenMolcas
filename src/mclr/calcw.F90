@@ -13,16 +13,17 @@
 
 subroutine CalcW(W,GDMat,PUVX,NPUVX,IndTUVX)
 
-use Constants, only: Zero
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: nNA
 use input_mclr, only: nRoots, ntAsh
+use Constants, only: Zero
 
 implicit none
 ! Output
-real*8, dimension((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2) :: W
+real*8, dimension(nTri_Elem(nRoots),nTri_Elem(nRoots)) :: W
 ! Input
 integer NPUVX
-real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA) :: GDMat
+real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
 real*8, dimension(NPUVX) :: PUVX
 integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
 ! Auxiliary Quantities
@@ -30,10 +31,10 @@ integer K, L, M, N, IKL, IMN, it, iu, iv, ix
 
 do K=1,nRoots
   do L=1,K
-    IKL = (K-1)*K/2+L
+    IKL = iTri(K,L)
     do M=1,nRoots
       do N=1,M
-        IMN = (M-1)*M/2+N
+        IMN = iTri(M,N)
         W(IKL,IMN) = Zero
         do it=1,nnA
           do iu=1,nnA

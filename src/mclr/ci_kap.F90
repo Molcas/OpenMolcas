@@ -11,6 +11,7 @@
 
 subroutine CI_KAP(ipcid,fock,fockOut,isym)
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipnout !, W
 use MCLR_Data, only: ipCI, n2Dens, nDens2, nNA
 use input_mclr, only: ntAsh, State_Sym
@@ -23,13 +24,11 @@ implicit none
 integer ipCID, iSym
 real*8 Fock(*), FockOut(*)
 real*8, allocatable :: De(:), Pe(:)
-integer i, j, itri
+integer i, j
 integer nDim, ij, k, l, ij1, kl1
 real*8 D0
 ! Added for DMRG calculation
 real*8, allocatable :: tmpDe(:,:), tmpP(:), tmpDeM(:,:), tmpPM(:,:,:,:)
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 call ipnout(-1)
 call mma_allocate(De,ntash**2,Label='De')
@@ -43,7 +42,7 @@ if (doDMRG) then
   call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
 
   call mma_allocate(tmpDe,ndim,ndim,Label='tmpDe')
-  call mma_allocate(tmpP,ndim**2*(ndim**2+1)/2,Label='tmpP')
+  call mma_allocate(tmpP,nTri_Elem(ndim**2),Label='tmpP')
   call mma_allocate(tmpDeM,ntash,ntash,Label='tmpDeM')
   call mma_allocate(tmpPM,ntash,ntash,ntash,ntash,Label='tmpPM')
   tmpDe(:,:) = Zero
@@ -79,8 +78,8 @@ if (doDMRG) then
           ij1 = ntash*(i-1)+j
           kl1 = ntash*(k-1)+l
           if (ij1 >= kl1) then
-            if (abs(Pe(itri(ij1,kl1))) < 1.0e-12_wp) Pe(itri(ij1,kl1)) = Zero
-            tmpPM(i,j,k,l) = Pe(itri(ij1,kl1))
+            if (abs(Pe(iTri(ij1,kl1))) < 1.0e-12_wp) Pe(iTri(ij1,kl1)) = Zero
+            tmpPM(i,j,k,l) = Pe(iTri(ij1,kl1))
           end if
         end do
       end do
@@ -95,9 +94,9 @@ if (doDMRG) then
           kl1 = ndim*(k-1)+l
           if (ij1 >= kl1) then
             if ((i > ntash) .or. (j > ntash) .or. (k > ntash) .or. (l > ntash)) then
-              tmpP(itri(ij1,kl1)) = Zero
+              tmpP(iTri(ij1,kl1)) = Zero
             else
-              tmpP(itri(ij1,kl1)) = tmpPM(i,j,k,l)
+              tmpP(iTri(ij1,kl1)) = tmpPM(i,j,k,l)
             end if
           end if
         end do

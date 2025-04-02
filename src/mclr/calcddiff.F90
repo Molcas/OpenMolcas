@@ -17,14 +17,16 @@
 
 subroutine CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
 
+use Index_Functions, only: nTri_Elem
+
 implicit none
 integer nnA, nRoots, M, K
-real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA) :: GDMat
+real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
 real*8, dimension(nnA**2) :: Ddiff
 integer it, iu, iMM, iKK
 
-iMM = (M+1)*M/2
-iKK = (K+1)*K/2
+iMM = nTri_Elem(M)
+iKK = nTri_Elem(K)
 
 do it=1,nnA
   do iu=1,nnA

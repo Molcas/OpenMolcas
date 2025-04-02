@@ -16,6 +16,7 @@ subroutine FckMat()
 !                                                          *
 !***********************************************************
 
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: FAMO, FIMO, F0SQMO, INT2
 use MCLR_Data, only: nDens2
 use MCLR_Data, only: nrec
@@ -40,8 +41,8 @@ do iS=1,nSym
   nMM = max(nMM,nAsh(is)+nIsh(iS))
   nMMM = max(nmmM,nBas(is))
 end do
-nAtri = nm*(nm+1)/2
-nAtri = nAtri*(nAtri+1)/2
+nAtri = nTri_Elem(nm)
+nAtri = nTri_Elem(nAtri)
 nmmm = ((nmmm-1)/nRec+1)*nRec
 nmm = nmm*nMMM
 nmm = nmm**2

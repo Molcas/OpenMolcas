@@ -11,6 +11,7 @@
 
 real*8 function E2(FockI,rMo,loper,idisp)
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nCMO, nNA, ipCM, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb, ntPert
@@ -22,9 +23,6 @@ real*8 FockI(nCMO), rMO(*)
 logical Go
 real*8 E22
 integer i, j, ij, k, l, ijkl, iS, jS, iA, jA, iAA, iAB, jAA, jAB, ipF
-! Statement function
-integer itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -36,10 +34,10 @@ if (loper == 0) then
   if (Go) then
     do i=1,nna
       do j=1,nna
-        ij = itri(i,j)
+        ij = iTri(i,j)
         do k=1,nna
           do l=1,nna
-            ijkl = itri(ij,itri(k,l))
+            ijkl = iTri(ij,iTri(k,l))
             E22 = E22+Half*G2t(ijkl)*rmo(ijkl)
           end do
         end do
@@ -55,7 +53,7 @@ if (loper == 0) then
         jAA = ja+nA(js)
         jAB = jA+nIsh(js)
         ipF = (iab-1)*norb(is)+jab+ipCM(is)-1
-        E22 = E22+Focki(ipf)*G1t(itri(iaa,jaa))
+        E22 = E22+Focki(ipf)*G1t(iTri(iaa,jaa))
       end do
     end do
   end do

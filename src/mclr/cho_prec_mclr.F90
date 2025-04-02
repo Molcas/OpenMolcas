@@ -27,6 +27,7 @@ subroutine CHO_Prec_MCLR(CMO,nIsh,nAsh,LuAChoVec,LuChoInt)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
 use Data_structures, only: DSBA_Type, Allocate_DT
 use Data_structures, only: Deallocate_DT
@@ -485,7 +486,7 @@ do jsym=1,nsym
               do iu=0,nAshb(k)+it
                 iuu = iu+1
 
-                itu = it*(2*nAshb(k)+it+1)/2+iu
+                itu = nTri_Elem(it)+it*nAshb(k)+iu
 
                 ipInt = iptpuq+ioff+itu*nBas(i)**2
 
@@ -494,7 +495,7 @@ do jsym=1,nsym
               end do
             end do
 
-            ioff = ioff+nAshe(k)*(2*nAshb(k)+nAshe(k)+1)/2*nBas(i)**2
+            ioff = ioff+(nTri_Elem(nAshe(k))+nAshe(k)*nAshb(k))*nBas(i)**2
           end do
         end do
         call CWTIME(TCR1,TWR1)
@@ -530,7 +531,7 @@ do jsym=1,nsym
           ipInt = 1
           iE = 0
           do i=1,nsym
-            na2 = nAshe(i)*nAshb(i)+nAshe(i)*(nAshe(i)+1)/2
+            na2 = nAshe(i)*nAshb(i)+nTri_Elem(nAshe(i))
             if (na2 == 0) cycle
             iS = iE+1
             iE = iE+na2*JNUM
@@ -646,7 +647,7 @@ do jsym=1,nsym
       ! compute address
       iAdrtu = 0
       do i=1,ksym-1
-        na2 = nAshe(i)*nAshb(i)+nAshe(i)*(nAshe(i)+1)/2
+        na2 = nAshe(i)*nAshb(i)+nTri_Elem(nAshe(i))
         do j=1,na2
           iAdrtu = iAdrtu+npq
           do k=1,nsym
@@ -656,7 +657,7 @@ do jsym=1,nsym
       end do
 
       ipMO = 1+ISTSQ(iSym)
-      na2 = nAshe(ksym)*nAshb(ksym)+nAshe(ksym)*(nAshe(ksym)+1)/2
+      na2 = nAshe(ksym)*nAshb(ksym)+nTri_Elem(nAshe(ksym))
       do itu=1,na2
         if (jsym == 1) then
           isum2 = isum2+1

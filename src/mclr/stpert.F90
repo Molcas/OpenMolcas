@@ -11,6 +11,7 @@
 
 subroutine StPert()
 
+use Index_Functions, only: nTri_Elem
 use MckDat, only: sNew
 use ipPage, only: ipin, W
 use MCLR_Data, only: Hss, FAMO_SpinP, FAMO_SpinM, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
@@ -35,7 +36,7 @@ real*8 rAlphas
 
 nHss = 0
 do iS=1,nSym
-  nHss = nHss+lDisp(is)*(lDisp(is)+1)/2
+  nHss = nHss+nTri_Elem(lDisp(is))
 end do
 call mma_allocate(Hss,nHss,Label='Hss')
 Hss(:) = Zero

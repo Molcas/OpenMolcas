@@ -17,13 +17,14 @@
 
 subroutine CalcbX(bX,LOK,R,H)
 
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: IRLXROOT
 use input_mclr, only: nRoots
 use Constants, only: Zero, Two
 
 implicit none
 ! Output
-real*8, dimension((nRoots-1)*nRoots/2) :: bX
+real*8, dimension(nTri_Elem(nRoots-1)) :: bX
 ! Input
 real*8, dimension(nRoots**2) :: R, H
 real*8, dimension(nRoots**2) :: LOK
@@ -37,7 +38,7 @@ do K=2,nRoots
   IIK = (I-1)*nRoots+K
   do L=1,K-1
     IIL = IIK-K+L
-    IKL = (K-2)*(K-1)/2+L
+    IKL = nTri_Elem(K-2)+L
     IKOL = (L-1)*nRoots+K
     ILOK = (K-1)*nRoots+L
     bX(IKL) = R(IIK)**2*LOK(ILOK)-R(IIL)**2*LOK(IKOL)

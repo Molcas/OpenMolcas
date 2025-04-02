@@ -30,6 +30,7 @@ subroutine RInt_td(ekappa,mkappa,isym)
 !  wDKt   Omega*(density matrix)*(kappa transposed)
 !  wKtD   As above but different order
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: G1t
 use MCLR_Data, only: nDens2, ipCM, ipMat, nA
 use input_mclr, only: Omega, nSym, nAsh, nBas, nIsh
@@ -41,9 +42,6 @@ real*8 ekappa(ndens2), mkappa(ndens2)
 integer iSym
 real*8, allocatable :: Dens(:), wDKt(:), wKtD(:)
 integer lDens, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, jS, IncX, Incy, Length
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !-----------------------------------------------------------------------
 
@@ -92,7 +90,7 @@ do iS=1,nSym
       ip = ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nBas(is)-1
       iA = nA(is)+ib
       jA = nA(is)+jb
-      ip2 = itri(iA,jA)
+      ip2 = iTri(iA,jA)
       Dens(ip) = G1t(ip2)
     end do
   end do

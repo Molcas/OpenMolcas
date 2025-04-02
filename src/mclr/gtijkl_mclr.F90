@@ -13,15 +13,13 @@ real*8 function GTIJKL_MCLR(I,J,K,L)
 ! Obtain  integral (I J ! K L)
 ! where I,J,K and l refers to active orbitals in type ordering
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: Int2
 use MCLR_Data, only: IREOTS
 
 implicit none
 integer, intent(in) :: I, J, K, L
 integer iAbs, jAbs, kAbs, lAbs, ij, kl
-integer itri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 IABS = IREOTS(I)
 
@@ -31,9 +29,9 @@ KABS = IREOTS(K)
 
 LABS = IREOTS(L)
 
-IJ = itri(iABS,JABS)
-KL = itri(kABS,lABS)
+IJ = iTri(IABS,JABS)
+KL = iTri(KABS,LABS)
 
-GTIJKL_MCLR = INT2(itri(IJ,KL))
+GTIJKL_MCLR = INT2(iTri(IJ,KL))
 
 end function GTIJKL_MCLR

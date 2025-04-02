@@ -22,6 +22,7 @@ subroutine calcerr(kappa,iestate)
 ! which estimates the error in the SA.
 !---------------------------------------------------
 
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: ipMat, nDens2
 use MCLR_Data, only: ISTATE
 use input_mclr, only: nSym, nBas, ntAsh
@@ -34,14 +35,11 @@ real*8 kappa(*)
 integer ieState
 #include "SysDef.fh"
 real*8, allocatable :: G1q(:), G1r(:), G2r(:), T(:), Q(:)
-integer i, j, itri
 integer iS, nG1
 real*8 dejdw
 real*8, external :: DDot_
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-ng1 = itri(ntash,ntash)
+ng1 = nTri_Elem(ntash)
 
 call mma_allocate(G1Q,ng1,Label='G1Q')
 call mma_allocate(G1R,ntash**2,Label='G1R')

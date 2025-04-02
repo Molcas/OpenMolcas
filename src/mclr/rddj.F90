@@ -17,6 +17,7 @@ subroutine rddj(G1r,G1Q,G2r,iestate)
 ! Reads the one and two electron densities for estate
 ! and returns them in rectangular and single triangular storage
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: LuJob
 use input_mclr, only: ntAsh, iTOC
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -28,14 +29,11 @@ integer iestate
 #include "SysDef.fh"
 real*8, allocatable :: G2Q(:)
 real*8 rdum(1)
-integer nG1, nG2, iR, jDisk, i, j, iB, jB, iDij, iRij, kB, lB, iDkl, iRkl, iIJKL, iRijkl
+integer nG1, nG2, iR, jDisk, i, iB, jB, iDij, iRij, kB, lB, iDkl, iRkl, iIJKL, iRijkl
 real*8 Fact
-! Statement function
-integer itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-ng1 = itri(ntash,ntash)
-ng2 = itri(ng1,ng1)
+ng1 = nTri_Elem(ntash)
+ng2 = nTri_Elem(ng1)
 
 call mma_allocate(G2Q,ng2,Label='G2Q')
 
@@ -67,8 +65,8 @@ do iB=1,ntash
         fact = One
         if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
         if ((iDij < iDkl) .and. (iB == jB)) fact = Two
-        iijkl = itri(iDij,iDkl)
-        iRijkl = itri(iRij,iRkl)
+        iijkl = iTri(iDij,iDkl)
+        iRijkl = iTri(iRij,iRkl)
         G2R(iRijkl) = Fact*G2Q(iijkl)
       end do
     end do
@@ -76,7 +74,7 @@ do iB=1,ntash
 end do
 do iB=1,ntash
   do jB=1,ntash
-    G1R(+ib+(jb-1)*ntash) = g1q(+itri(ib,jb))
+    G1R(ib+(jb-1)*ntash) = g1q(iTri(ib,jb))
   end do
 end do
 

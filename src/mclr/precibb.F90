@@ -33,6 +33,7 @@ subroutine Precibb(ib,is,js,nd,rout,no,Temp1,Scr,Temp2,fockii,fockai,focki,focka
 !
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use input_mclr, only: nAsh, nIsh, nOrb
 use Constants, only: Four, Twelve
 
@@ -44,23 +45,17 @@ real*8 Temp2(*), Temp1(*), Scr(*)
 real*8 fockii, fockai
 real*8 Focki(no,no), Focka(no,no)
 real*8 sign
-integer nTri, jVert, i1, ip, kB, lB
+integer jVert, ip, kB, lB
 real*8 ra
-! Statement functions
-integer i, j, iTri, iTri1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+integer i
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nTri = itri(nd,nd)
-
 jVert = nOrb(js)-nAsh(js)-nIsh(js)
 if (jvert == 0) return
 
-i1 = nD-jVert+1
-ip = itri1(i1,i1)
+ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
 ra = Four*sign*(Fockii+Fockai)
 call COUL(jS,jS,iS,is,IB,iB,Temp2,Scr)
 call Dyax(no**2,-sign*Four,Temp2,1,Temp1,1)

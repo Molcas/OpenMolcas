@@ -23,6 +23,7 @@ subroutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin)
 !
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: G1t, FAMO, FIMO
 use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
@@ -39,8 +40,7 @@ real*8, allocatable :: T1(:), Tmp2(:), T3(:), T4(:), DIL(:), DI(:), DIR(:), FI(:
 integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, ip2, jS
 real*8 FacR
 ! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+integer i, j
 
 !                                                                      *
 !***********************************************************************
@@ -112,7 +112,7 @@ if (iMethod == 2) then
         ip = ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nBas(is)-1
         iA = nA(is)+ib
         jA = nA(is)+jb
-        ip2 = itri(iA,jA)
+        ip2 = iTri(iA,jA)
         DA(ip) = G1t(ip2)
       end do
     end do

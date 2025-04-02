@@ -17,6 +17,7 @@ subroutine Get_Two_Ind(Ind_PUVX,IndTUVX)
 ! Return to an index in the PUVX array given
 ! four MO indices.
 
+use Index_Functions, only: nTri_Elem
 use input_mclr, only: nSym, ntBas, ntAsh, nAsh, nIsh, nOrb
 
 implicit none
@@ -27,9 +28,6 @@ integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
 integer, dimension(nSym) :: off_Ash, off_PUVX, off_Orb
 integer lOrb, kOrb, jOrb, iOrb, iStack, iSym, jSym, jAsh, ijSym, kSym, kAsh, lSym, lAsh, klSym, kl_Orb_Pairs, iAsh, iIsh, iPUVX, &
         iV, lMax, iX, iU, iP, iT, iO, jO, kO, lO, iIT, iIU, iTU, iIV, iIX, iVX, iTemp
-! Statement function
-integer i, iTri
-iTri(i) = (i*i-i)/2
 
 ! generate offsets
 
@@ -74,7 +72,7 @@ do iSym=1,nSym
         klSym = 1+ieor(kSym-1,lSym-1)
         if (ijSym == klSym) then
           kl_Orb_pairs = kAsh*lAsh
-          if (kSym == lSym) kl_Orb_pairs = (kAsh*kAsh+kAsh)/2
+          if (kSym == lSym) kl_Orb_pairs = nTri_Elem(kAsh)
           iStack = iStack+iOrb*jAsh*kl_Orb_pairs
         end if
       end do
@@ -120,14 +118,14 @@ do iSym=1,nSym
                     iiU = iT+off_Ash(iSym)
                   end if
 
-                  iTU = iiU+iTri(iiT)
+                  iTU = nTri_Elem(iiT-1)+iiU
                   iiV = iV+off_Ash(kSym)
                   iiX = iX+off_Ash(lSym)
                   if (iiX > iiV) then
                     iiV = iX+off_Ash(lSym)
                     iiX = iV+off_Ash(kSym)
                   end if
-                  iVX = iiX+iTri(iiV)
+                  iVX = nTri_Elem(iiV-1)+iiX
                   if (iVX > iTU) then
                     iTemp = iTU
                     iTU = iVX

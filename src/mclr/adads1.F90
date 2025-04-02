@@ -47,6 +47,7 @@ subroutine ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,JOBSM,JOBTP,JOBOFF,NJOB,IJO
 ! IEND : = 0 => end of N-2 strings has not been encountered
 ! IEND : = 1 => end of N-2 strings has     been encountered
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 #ifdef _DEBUGPRINT_
@@ -152,7 +153,7 @@ if (.not. Skip) then
   if (IJORD == 0) then
     NIJ = NIOB*NJOB
   else
-    NIJ = NIOB*(NIOB+1)/2
+    NIJ = nTri_Elem(NIOB)
   end if
   if (NKDim > 0) then
     do IJ=1,NIJ
@@ -174,7 +175,7 @@ if (.not. Skip) then
     !    IORB = IOBOFF-1+I
     JORB = JOBOFF-1+J
     if (IJORD == 1) then
-      IJOFF = (J-1)*NIOB-(J-1)*(J-2)/2+1-imin+1
+      IJOFF = (J-1)*NIOB-nTri_Elem(J-2)+1-imin+1
     else
       IJOFF = (J-1)*NIOB+1
     end if

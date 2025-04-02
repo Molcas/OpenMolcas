@@ -17,6 +17,7 @@
 
 subroutine G2qtoG2r(G2r,G2q,nG2,nG2r)
 
+use Index_Functions, only: iTri
 use Constants, only: One, Two
 use input_mclr, only: ntAsh
 
@@ -26,9 +27,6 @@ real*8, dimension(nG2) :: G2q
 real*8, dimension(nG2r) :: G2r
 integer iB, jB, kB, lB, iDij, iRij, iDkl, iRkl, iijkl, iRijkl
 real*8 Fact
-integer i, j, itri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 do iB=1,ntash
   do jB=1,ntash
@@ -41,8 +39,8 @@ do iB=1,ntash
         fact = One
         if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
         if ((iDij < iDkl) .and. (iB == jB)) fact = Two
-        iijkl = itri(iDij,iDkl)
-        iRijkl = itri(iRij,iRkl)
+        iijkl = iTri(iDij,iDkl)
+        iRijkl = iTri(iRij,iRkl)
         G2r(iRijkl) = Fact*G2q(iijkl)
       end do
     end do

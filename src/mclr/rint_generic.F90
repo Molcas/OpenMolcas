@@ -17,6 +17,7 @@ subroutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,idsym,reco,jspin)
 ! Constructs  F  = <0|[E  ,H]|0> (+ <0|[[E  , Kappa],H]|0>)
 !              pq       pq                pq
 
+use Index_Functions, only: iTri, nTri_Elem
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO_Inv, CMO, G1t, G2t, FAMO, FIMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nMBA
@@ -42,9 +43,6 @@ integer iS, iB, jS, nA2, nAct, nG2, iSym, nAG2, jSym, kSym, nAtri, iOff, iOff2, 
 integer nas
 real*8, external :: DDot_
 #endif
-! Statement function
-integer i, j, iTri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -159,8 +157,8 @@ else  ! Cho-Fock
       end do
       nG2 = nG2+nAG2**2
     end do
-    nAtri = nact*(nact+1)/2
-    nAtri = nAtri*(nAtri+1)/2
+    nAtri = nTri_Elem(nact)
+    nAtri = nTri_Elem(nAtri)
 
     call Allocate_DT(CVa(1),nAsh,nOrb,nSym)
     call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
@@ -175,7 +173,7 @@ else  ! Cho-Fock
         ioff3 = ioff2+nOrb(iS)*(iB-1)
         CVa(1)%SB(iS)%A2(iB,:) = CMO(ioff3+1:ioff3+nOrb(iS))
         do jB=1,nAsh(iS)
-          ip2 = itri(nA(is)+ib,nA(is)+jb)
+          ip2 = iTri(nA(is)+ib,nA(is)+jb)
           DA%SB(iS)%A2(iB,jB) = G1t(ip2)
         end do
       end do
@@ -196,12 +194,12 @@ else  ! Cho-Fock
           lS = ieor(kS-1,ijS-1)+1
           do kAsh=1,nAsh(ks)
             do lAsh=1,nAsh(ls)
-              ikl = itri(lAsh+nA(lS),kAsh+nA(kS))
+              ikl = iTri(lAsh+nA(lS),kAsh+nA(kS))
               do iAsh=1,nAsh(is)
                 do jAsh=1,nAsh(js)
-                  iij = itri(iAsh+nA(is),jAsh+nA(jS))
+                  iij = iTri(iAsh+nA(is),jAsh+nA(jS))
                   ipGx = ipGx+1
-                  G2x(ipGx) = G2t(itri(iij,ikl))
+                  G2x(ipGx) = G2t(iTri(iij,ikl))
                 end do
               end do
             end do
@@ -268,8 +266,8 @@ else  ! Cho-Fock
     !call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
     nas = nas+nAsh(iSym)
   end do
-  nAtri = nas*(nas+1)/2
-  nAtri = nAtri*(nAtri+1)/2
+  nAtri = nTri_Elem(nas)
+  nAtri = nTri_Elem(nAtri)
   !call RecPrt('MO1',' ',rMOs,1,nAtri)
 # endif
 
@@ -317,8 +315,8 @@ else  ! Cho-Fock
     call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
     nas = nas+nAsh(iSym)
   end do
-  nAtri = nas*(nas+1)/2
-  nAtri = nAtri*(nAtri+1)/2
+  nAtri = nTri_Elem(nas)
+  nAtri = nTri_Elem(nAtri)
   call RecPrt('MO1',' ',rMOs,1,nAtri)
   call abend()
 # endif
@@ -345,7 +343,7 @@ do iS=1,nSym
       do jAsh=1,nAsh(js)
         ipF = ipMat(js,is)+nIsh(js)+jAsh-1
         ipFI = ipMat(is,js)+(nIsh(js)+iAsh-1)*nOrb(is)
-        Dij = G1t(itri(iash+nA(js),jAsh+nA(js)))
+        Dij = G1t(iTri(iash+nA(js),jAsh+nA(js)))
 
         !         I
         ! F  = F - F  D

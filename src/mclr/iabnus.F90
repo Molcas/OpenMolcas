@@ -22,6 +22,7 @@ integer function IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,ISSOA,NSSOA,IBS
 !
 ! Jeppe Olsen
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -91,7 +92,7 @@ else if (PSSIGN /= Zero) then
     ! No need for switching around so
     if ((IASYM == IBSYM) .and. (IATP == IBTP)) then
       ! Lower triangular packed, column wise !
-      IABNUS = IOOS(IATP,IBTP,IASYM)-1+(IBREL-1)*NSSOA(IATP,IASYM)+IAREL-IBREL*(IBREL-1)/2
+      IABNUS = IOOS(IATP,IBTP,IASYM)-1+(IBREL-1)*NSSOA(IATP,IASYM)+IAREL-nTri_Elem(IBREL-1)
     else
       IABNUS = IOOS(IATP,IBTP,IASYM)+(IBREL-1)*NSSOA(IATP,IASYM)+IAREL-1
     end if
@@ -100,7 +101,7 @@ else if (PSSIGN /= Zero) then
     ! Switch alpha and beta string around
     if ((IASYM == IBSYM) .and. (IATP == IBTP)) then
       ! Lower triangular packed, column wise !
-      IABNUS = IOOS(IBTP,IATP,IBSYM)-1+(IAREL-1)*NSSOB(IBTP,IBSYM)+IBREL-IAREL*(IAREL-1)/2
+      IABNUS = IOOS(IBTP,IATP,IBSYM)-1+(IAREL-1)*NSSOB(IBTP,IBSYM)+IBREL-nTri_Elem(IAREL-1)
     else
       IABNUS = IOOS(IBTP,IATP,IBSYM)+(IAREL-1)*NSSOB(IBTP,IBSYM)+IBREL-1
     end if

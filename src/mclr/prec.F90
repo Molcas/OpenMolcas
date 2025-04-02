@@ -145,7 +145,7 @@ subroutine Prec_internal(rpre)
         !
         !write(u6,*) 'Preconditioner i =',iB
         !do i=1,min(nd,10)
-        !  write(u6,'(10F12.8)') (Temp3(1+(j-1)*(2*nd-j+2)/2+i-j),j=1,i)
+        !  write(u6,'(10F12.8)') (Temp3((j-1)*nd+i-nTri_Elem(j-1)),j=1,i)
         !end do
 
         call SQM(Temp3,rpre(ip),nd)

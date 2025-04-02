@@ -15,6 +15,7 @@ subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
 ! frontend to jeppes explicit routines
 
 use iso_c_binding, only: c_f_pointer, c_loc
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: H0S, H0F, SBIDT
 use MCLR_Data, only: Int2, FIMO
 use MCLR_Data, only: nGP
@@ -42,7 +43,7 @@ NDET = nint(XISPSM(ISYM,ISPC))
 
 NSBDET = MP1+MP2+MQ
 MXP = MP1+MP2
-LH0T = MXP*(MXP+1)/2+MP1*MQ
+LH0T = nTri_Elem(MXP)+MP1*MQ
 MXCSFC = 0
 MXDTFC = 0
 do ITYP=1,NTYP
@@ -56,7 +57,7 @@ if (TimeDep) then
 else
   EnA = E2(FIMO,Int2,0,-1)
 end if
-LH0SCR = max(6*NSBDET,4*NSBDET+4*NOCOB,MP1*(MP1+1)/2+MP1**2)
+LH0SCR = max(6*NSBDET,4*NSBDET+4*NOCOB,nTri_Elem(MP1)+MP1**2)
 LVEC2 = 2*NACTEL+MXCSFC**2+6*MXDTFC+2*MXDTFC**2+max(MXDTFC*NACTEL+2*NACTEL,4*NACOB+2*NACTEL)
 LVEC2 = max(lvec2,ndet)
 
@@ -77,7 +78,7 @@ call mma_allocate(VEC2,lvec2,Label='Vec2')
 call H0MAT_MCLR(H0T,SBIDT,SBCNF,MP1,MP2,MQ,NACOB,NPRCIV,ISYM,IDC,PSSIGN,rDIA,Vec2,H0Scr,iH0Scr,ieaw)
 
 do i=1,nprciv
-  H0T(i*(i+1)/2) = H0T(i*(i+1)/2)-ENA
+  H0T(nTri_Elem(i)) = H0T(nTri_Elem(i))-ENA
 end do
 if (NGP) call mkp1(nprciv,SBIDT,H0T,rdia)
 !call Triprt('PRECI',' ',H0T,nprciv)

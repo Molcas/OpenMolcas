@@ -16,6 +16,7 @@ subroutine GETINT_MCLR(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,ICO
 use MCLR_Data, only: KINT2, KINT2A
 use MCLR_Data, only: Square
 #ifdef _DEBUGPRINT_
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: NOBPTS
 use Definitions, only: u6
 #endif
@@ -43,14 +44,14 @@ NK = NOBPTS(KTP,KSM)
 if (IKSM == 0) then
   NIK = NI*NK
 else
-  NIK = NI*(NI+1)/2
+  NIK = nTri_Elem(NI)
 end if
 NJ = NOBPTS(JTP,JSM)
 NL = NOBPTS(LTP,LSM)
 if (JLSM == 0) then
   NJL = NJ*NL
 else
-  NJL = NJ*(NJ+1)/2
+  NJL = nTri_Elem(NJ)
 end if
 if (ICOUL == 0) then
   write(u6,*) ' 2 electron integral block for TS blocks'

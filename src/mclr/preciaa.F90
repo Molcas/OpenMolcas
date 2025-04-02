@@ -34,6 +34,7 @@ subroutine Preciaa(iB,iS,jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,sign,A_J
 !
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
@@ -50,15 +51,12 @@ integer nScr
 real*8 A_J(nScr), A_K(nScr), Scr(nScr)
 integer nTri, kS, jC, jjC, jCC, jD, jjD, jDD, ip1, ip2, jA, jjA, jB, jjB, jAA, jBB, iBC, iAC
 real*8 AABB, ABAB, rDens1, rDens2, BCBB, BBCB, ACBB, ABCB, rFock, rDens
-! Statement functions
-integer i, j, iTri, iTri1
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-itri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+integer i
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nTri = itri(nd,nd)
+nTri = nTri_Elem(nd)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -85,10 +83,10 @@ do kS=1,nSym
         jjA = jA+nA(jS)
         do jB=1,jA
           jjB = jB+nA(jS)
-          i = itri1(jA,jB)
+          i = nTri-iTri(nd-jA+1,nd-jB+1)+1
 
-          rDens1 = sign*G2t(itri(itri(jjC,jjD),itri(jjB,jjA)))
-          rDens2 = sign*G2t(itri(itri(jjB,jjD),itri(jjC,jjA)))
+          rDens1 = sign*G2t(iTri(iTri(jjC,jjD),iTri(jjB,jjA)))
+          rDens2 = sign*G2t(iTri(iTri(jjB,jjD),iTri(jjC,jjA)))
 
           rout(i) = rout(i)+Two*rDens1*aabb+Four*rDens2*abab
 
@@ -112,7 +110,7 @@ do jA=1,nAsh(jS)
   do jB=1,jA
     jBB = jB+nA(jS)
     jjB = jB+nIsh(jS)
-    i = itri1(jA,jB)
+    i = nTri-iTri(nd-jA+1,nd-jB+1)+1
 
     do jC=1,nAsh(jS)
       jCC = jC+nA(jS)
@@ -124,8 +122,8 @@ do jA=1,nAsh(jS)
       ACbb = A_J(iAC)
       AbCb = A_K(iAC)
 
-      rDens1 = -sign*G1t(itri(jAA,jCC))
-      rDens2 = -sign*G1t(itri(jBB,jCC))
+      rDens1 = -sign*G1t(iTri(jAA,jCC))
+      rDens2 = -sign*G1t(iTri(jBB,jCC))
       if (jAA == jCC) rDens1 = rdens1+sign
       if (jBB == jCC) rDens2 = rdens2+sign
 
@@ -145,8 +143,8 @@ do jA=1,nAsh(jS)
   do jB=1,JA
     jBB = jB+nA(jS)
     jjB = jB+nIsh(js)
-    i = itri1(jA,jB)
-    rDens = G1t(itri(jbb,jAA))
+    i = nTri-iTri(nd-jA+1,nd-jB+1)+1
+    rDens = G1t(iTri(jbb,jAA))
     rout(i) = rout(i)+Sign*(Two*rdens*Fockii+Two*(Two*Focki(jjA,jjB)+Two*FockA(jjA,jjB)-Fock(jjB,jjA)))
   end do
   rout(i) = rout(i)-Four*rFock

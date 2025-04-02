@@ -11,21 +11,21 @@
 
 subroutine mkcipre()
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: SS, ERAS, P1, P1Inv
 use input_mclr, only: lRoots, ERASSCF
 use stdalloc, only: mma_allocate
 use Constants, only: One
 
 implicit none
-integer i, j, itri, iRec
+integer i, j, iRec
 ! Statement functions
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 irec(i,j) = i+(j-1)*2*lroots
 
 call mma_allocate(SS,4*lroots**2,Label='SS')
 do I=1,lroots
   do J=1,lroots
-    SS(irec(2*i-1,2*j-1)) = P1(itri(i,j))
+    SS(irec(2*i-1,2*j-1)) = P1(iTri(i,j))
   end do
 end do
 do I=1,lroots
@@ -38,7 +38,7 @@ call MatInvert(SS,2*lroots)
 do I=1,lroots
   do J=1,lroots
     SS(irec(2*i-1,2*j-1)) = SS(irec(2*i-1,2*j-1))+P1INV(itri(i,j))
-    SS(irec(2*i,2*j)) = SS(irec(2*i,2*j))+P1(itri(i,j))
+    SS(irec(2*i,2*j)) = SS(irec(2*i,2*j))+P1(iTri(i,j))
   end do
 end do
 do I=1,lroots

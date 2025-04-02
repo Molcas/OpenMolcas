@@ -24,6 +24,7 @@ subroutine FockGen(d_0,rDens1,rdens2,Fock,FockOut,idSym)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, FIMO
 use MCLR_Data, only: nDens2, nNA, ipCM, ipMat, nA
@@ -41,9 +42,6 @@ type(DSBA_type) :: CVa
 integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA, nG2, iSym, nAG2, jSym, kSym, ipGx, ijS, lS, iAsh, jAsh, kAsh, &
         lAsh, iij, iOff, iOff2, iB, iOff3, ip1, ip2, ikl
 real*8 rd
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -158,14 +156,14 @@ else  ! Cho-Fock
         lS = ieor(kS-1,ijS-1)+1
         do kAsh=1,nAsh(ks)
           do lAsh=1,nAsh(ls)
-            !ikl = itri(lAsh+nA(lS),kAsh+nA(kS))
+            !ikl = iTri(lAsh+nA(lS),kAsh+nA(kS))
             ikl = nna*(lAsh+nA(lS)-1)+kAsh+nA(kS)
             do iAsh=1,nAsh(is)
               do jAsh=1,nAsh(js)
-                !iij = itri(iAsh+nA(is),jAsh+nA(jS))
+                !iij = iTri(iAsh+nA(is),jAsh+nA(jS))
                 iij = nna*(jAsh+nA(jS)-1)+iAsh+nA(iS)
                 ipGx = ipGx+1
-                G2x(ipGx) = rdens2(itri(iij,ikl))
+                G2x(ipGx) = rdens2(iTri(iij,ikl))
               end do
             end do
           end do

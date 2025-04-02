@@ -26,6 +26,7 @@ subroutine NRASDT(MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,NSMST,NOCTPA,NOCTPB,IEL1A,IEL1B
 !
 ! Updated with IBLTP, Summer of 93
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
 use Definitions, only: wp
@@ -75,7 +76,7 @@ do IASM=1,NSMST
           if ((ISYM == 0) .or. (IATP /= IBTP)) then
             LTTSBL = NSSOA(IATP,IASM)*NSSOB(IBTP,IBSM)
           else
-            LTTSBL = NSSOA(IATP,IASM)*(NSSOA(IATP,IASM)+1)/2
+            LTTSBL = nTri_Elem(NSSOA(IATP,IASM))
           end if
           NCOMB = NCOMB+LTTSBL
           LSB = LSB+LTTSUP

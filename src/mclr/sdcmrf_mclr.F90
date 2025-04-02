@@ -28,6 +28,7 @@ subroutine SDCMRF_MCLR(CSD,CCM,IWAY,IATP,IBTP,IASM,IBSM,NA,NB,IDC,PS,PL,ISGVST,L
 ! PL        : Ml   combination sign
 ! ISGVST    : Ml reflection of strings
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Two, One
 
 implicit real*8(A-H,O-Z)
@@ -55,7 +56,7 @@ LDET = NA*NB
 if (IPACK == 0) then
   LCOMB = LDET
 else
-  LCOMB = NA*(NA+1)/2
+  LCOMB = nTri_Elem(NA)
 end if
 if ((IDC == 4) .and. (IPACK == 0)) FACTOR = SQRT2
 if (IWAY == 2) FACTOR = One/FACTOR

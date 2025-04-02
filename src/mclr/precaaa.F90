@@ -36,6 +36,7 @@ subroutine Precaaa(iC,is,js,nd,ir,rOut,nbaj,focki,fock,sign,Scr,nScr,ActInt)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: ntAsh, nSym, nAsh, nIsh, nRS1, nRS2, nRS3
@@ -43,7 +44,7 @@ use Constants, only: Zero, One, Two, Four
 
 implicit none
 integer iC, iS, jS, nD, iR
-real*8 rout(nd*(nd+1)/2)
+real*8 rout(nTri_Elem(nd))
 integer nbaj
 real*8 Fock(nbaj,nbaj), Focki(nbaj,nbaj)
 real*8 Sign
@@ -53,35 +54,32 @@ real*8 ActInt(ntAsh,ntAsh,ntAsh,ntAsh)
 integer nTri, iCC, iA, iAA, jB, jBB, jjB, jD, jDD, jjD, kS, jE, jEE, jF, jFF
 real*8 aecf, bedf, becf, aedf, rdbedf, rdaecf, rdaedf, rdbecf, acef, bdef, bcef, adef, rdbdef, rdacef, rdadef, rdbcef, rdbd, rdad, &
        rdac, rdbc
-! Statement functions
-integer i, j, iTri, iTri1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+integer i, j
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nTri = itri(nd,nd)
+nTri = nTri_Elem(nd)
 iCC = iC+nA(iS)
 !iiC = iC+nIsh(iS)
 iA = iC
 iAA = iCC
 
-i = itri(iAA,iCC)
+i = iTri(iAA,iCC)
 ! Construct for all active orbitals first
-call DCopy_(ntAsh*(ntAsh+1)/2,[Zero],0,Scr,1)
+call DCopy_(nTri_Elem(ntAsh),[Zero],0,Scr,1)
 Scr(i) = One
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 do jB=1,nAsh(jS) !! index B
   jBB = jB+nA(jS)
-  jjB = jB+nIsh(jS)
+  !jjB = nd-(jB+nIsh(jS))+1
   do jD=1,jB    !! index D
     jDD = jD+nA(jS)
-    jjD = jD+nIsh(jS)
-    !i = itri1(jjB,jjD)
-    i = itri(jBB,jDD)
+    !jjD = nd-(jD+nIsh(jS))+1
+    !i = nTri-iTri(jjB,jjD)+1
+    i = iTri(jBB,jDD)
     do kS=1,nSym
       !call Coul(kS,kS,jS,jS,jB,jD,A_J,Scr)
       !call Exch(kS,jS,kS,jS,jB,jD,A_K,Scr)
@@ -95,10 +93,10 @@ do jB=1,nAsh(jS) !! index B
           bedf = ActInt(jBB,jEE,jDD,jFF)
           becf = ActInt(jBB,jEE,iCC,jFF)
           aedf = ActInt(iAA,jEE,jDD,jFF)
-          rDbedf = G2t(itri(itri(jBB,jEE),itri(jDD,jFF)))
-          rDaecf = G2t(itri(itri(iAA,jEE),itri(iCC,jFF)))
-          rDaedf = G2t(itri(itri(iAA,jEE),itri(jDD,jFF)))
-          rDbecf = G2t(itri(itri(jBB,jEE),itri(iCC,jFF)))
+          rDbedf = G2t(iTri(iTri(jBB,jEE),iTri(jDD,jFF)))
+          rDaecf = G2t(iTri(iTri(iAA,jEE),iTri(iCC,jFF)))
+          rDaedf = G2t(iTri(iTri(iAA,jEE),iTri(jDD,jFF)))
+          rDbecf = G2t(iTri(iTri(jBB,jEE),iTri(iCC,jFF)))
           Scr(i) = Scr(i)+Four*(aecf*rDbedf+bedf*rDaecf-becf*rDaedf-aedf*rDbecf)*sign
 
           ! second term
@@ -106,10 +104,10 @@ do jB=1,nAsh(jS) !! index B
           bdef = ActInt(jBB,jDD,jEE,jFF)
           bcef = ActInt(jBB,iCC,jEE,jFF)
           adef = ActInt(iAA,jDD,jEE,jFF)
-          rDbdef = G2t(itri(itri(jBB,jDD),itri(jEE,jFF)))
-          rDacef = G2t(itri(itri(iAA,iCC),itri(jEE,jFF)))
-          rDadef = G2t(itri(itri(iAA,jDD),itri(jEE,jFF)))
-          rDbcef = G2t(itri(itri(jBB,iCC),itri(jEE,jFF)))
+          rDbdef = G2t(iTri(iTri(jBB,jDD),iTri(jEE,jFF)))
+          rDacef = G2t(iTri(iTri(iAA,iCC),iTri(jEE,jFF)))
+          rDadef = G2t(iTri(iTri(iAA,jDD),iTri(jEE,jFF)))
+          rDbcef = G2t(iTri(iTri(jBB,iCC),iTri(jEE,jFF)))
           Scr(i) = Scr(i)+Two*(acef*rDbdef+bdef*rDacef-bcef*rDadef-adef*rDbcef)*sign
         end do
       end do
@@ -125,18 +123,18 @@ i = 0 ! dummy initialize
 ! the remaining third and fourth terms
 do jB=1,nAsh(jS)
   jBB = jB+nA(jS)
-  jjB = jB+nIsh(jS)
+  !jjB = nd-(jB+nIsh(jS))+1
   do jD=1,jB
     jDD = jD+nA(jS)
-    jjD = jD+nIsh(jS)
+    !jjD = nd-(jD+nIsh(jS))+1
 
-    !i = itri1(jjB,jjD)
-    i = itri(jBB,jDD)
+    !i = nTri-iTri(jjB,jjD)+1
+    i = iTri(jBB,jDD)
 
-    rDbd = G1t(itri(jBB,jDD))
-    rDac = G1t(itri(iAA,iCC))
-    rDad = G1t(itri(iAA,jDD))
-    rDbc = G1t(itri(jBB,iCC))
+    rDbd = G1t(iTri(jBB,jDD))
+    rDac = G1t(iTri(iAA,iCC))
+    rDad = G1t(iTri(iAA,jDD))
+    rDbc = G1t(iTri(jBB,iCC))
 
     ! third term
     Scr(i) = Scr(i)+sign*Two*(rDbd*Focki(iA+nIsh(iS),iC+nIsh(iS))+rDac*Focki(jB+nIsh(jS),jD+nIsh(jS))- &
@@ -158,7 +156,7 @@ end do
 !do i=1,5
 !  do j=1,5
 !    nseq = nseq + 1
-!    nseq = itri(i,j)
+!    nseq = iTri(i,j)
 !    a_j(i+5*(j-1)) = scr(nseq)
 !    a_j(j+5*(i-1)) = scr(nseq)
 !  end do
@@ -168,12 +166,12 @@ end do
 if (iR == 1) then
   do jB=nRs1(jS)+1,nAsh(jS)
     jBB = jB+nA(jS)
-    jjB = jB-nRs1(jS)+nIsh(jS)
+    jjB = nd-(jB-nRs1(jS)+nIsh(jS))+1
     do jD=nRs1(jS)+1,jB
       jDD = jD+nA(jS)
-      jjD = jD-nRs1(jS)+nIsh(jS)
-      i = itri(jBB,jDD)
-      j = itri1(jjB,jjD)
+      jjD = nd-(jD-nRs1(jS)+nIsh(jS))+1
+      i = iTri(jBB,jDD)
+      j = nTri-iTri(jjB,jjD)+1
       rOut(j) = rOut(j)+Scr(i)
     end do
   end do
@@ -181,25 +179,25 @@ else if (iR == 2) then
   do jB=1,nRs1(jS)+nRs3(jS)
     jBB = jB+nA(jS)
     if (jB > nRs1(jS)) jBB = jBB+nRs2(jS)
-    jjB = jB+nIsh(jS)
+    jjB = nd-(jB+nIsh(jS))+1
     do jD=1,jB
       jDD = jD+nA(jS)
       if (jD > nRs1(jS)) jDD = jDD+nRs2(jS)
-      jjD = jD+nIsh(jS)
-      i = itri(jBB,jDD)
-      j = itri1(jjB,jjD)
+      jjD = nd-(jD+nIsh(jS))+1
+      i = iTri(jBB,jDD)
+      j = nTri-iTri(jjB,jjD)+1
       rOut(j) = rOut(j)+Scr(i)
     end do
   end do
 else if (iR == 3) then
   do jB=1,nRs1(jS)+nRs2(jS)
     jBB = jB+nA(jS)
-    jjB = jB+nIsh(jS)
+    jjB = nd-(jB+nIsh(jS))+1
     do jD=1,jB
       jDD = jD+nA(jS)
-      jjD = jD+nIsh(jS)
-      i = itri(jBB,jDD)
-      j = itri1(jjB,jjD)
+      jjD = nd-(jD+nIsh(jS))+1
+      i = iTri(jBB,jDD)
+      j = nTri-iTri(jjB,jjD)+1
       rOut(j) = rOut(j)+Scr(i)
     end do
   end do

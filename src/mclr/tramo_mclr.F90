@@ -31,6 +31,7 @@ subroutine TRAMO_MCLR(LBUF,X1,n1,X2,n2,X3,n3,X4,n4,Buffer,MEMX,NBP,NBQ,NBR,NBS,i
 !***********************************************************************
 
 use iso_c_binding, only: c_f_pointer, c_loc
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: FnHlf2, FnHlf3, LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, LuTri4, LuTri5, NoFile
 use Constants, only: Zero, One
 use Definitions, only: wp, u6
@@ -63,9 +64,9 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
   MemXX = MemX-lBuf-1010
   if (ISS == isr) then
-    NBPQ = (NBP+NBP**2)/2
-    NBRS = (NBR+NBR**2)/2
-    NARS = (NAR+NAR**2)/2
+    NBPQ = nTri_Elem(NBP)
+    NBRS = nTri_Elem(NBR)
+    NARS = nTri_Elem(NAR)
   else
     NBPQ = NBP*NBQ
     NBRS = NBR*NBS
@@ -79,7 +80,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
   iPQUT3 = 0    ! Just one should be enough but...
   iPQUT4 = 0    ! ...easy is better than intelligent
   if (iSP == iSQ) then
-    iMax = nBP*(nBP+1)/2
+    iMax = nTri_Elem(nBP)
   else
     iMax = nBP*nBQ  ! Size of buffer
   end if

@@ -13,16 +13,17 @@
 
 subroutine CMSRHSGDMat(GDMat)
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nNA, n2Dens, ipCI, n1Dens
 use MCLR_Data, only: XISPSM
 use input_mclr, only: State_Sym, nRoots, nCSF
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 ! Input
 ! Output
-real*8, dimension(nRoots*(nRoots+1)/2,nnA,nnA) :: GDMat
+real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
 ! Auxiliary quantities
 real*8, dimension(:), allocatable :: GDArray
 real*8, dimension(n2dens) :: rdum
@@ -47,7 +48,7 @@ do I=1,nRoots
   do J=1,I
     call CSF2SD(W(ipCI)%A(1+(J-1)*ncsf(iR)),CIR,iR)
     call Densi2_mclr(1,GDArray,rdum,CIL,CIR,0,0,0,n1dens,n2dens)
-    NIJ = I*(I-1)/2+J
+    NIJ = iTri(I,J)
     do IOrb=1,nnA
       do JOrb=1,nnA
         GDMat(NIJ,IOrb,JOrb) = GDArray((JOrb-1)*nnA+IOrb)

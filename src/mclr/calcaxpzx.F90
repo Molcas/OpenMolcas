@@ -106,6 +106,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !  End of the "essay".
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipget, W
 use MCLR_Data, only: nNA, nConf1, ipCI, nDens2
 use MCLR_Data, only: XISPSM
@@ -116,12 +117,12 @@ use Constants, only: One, Two, Four
 
 implicit none
 ! Input
-real*8, dimension((nRoots-1)*nRoots/2) :: zX
-real*8, dimension(nRoots*(nRoots+1)/2,nnA,nnA) :: GDMat
+real*8, dimension(nTri_Elem(nRoots-1)) :: zX
+real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
 integer NPUVX
 real*8, dimension(NPUVX) :: PUVX
 integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
-real*8, dimension((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2) :: DDg
+real*8, dimension(nTri_Elem(nRoots),nTri_Elem(nRoots)) :: DDg
 ! Output
 real*8, dimension(NConf1*nRoots) :: AXPzx
 ! Auxiliaries
@@ -167,9 +168,9 @@ do M=1,nRoots
   do K=1,nRoots
     if (K == M) cycle
     if (M > K) then
-      iKM2 = (M-2)*(M-1)/2+K
+      iKM2 = nTri_Elem(M-2)+K
     else
-      iKM2 = (K-2)*(K-1)/2+M
+      iKM2 = nTri_Elem(K-2)+M
     end if
     call CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
     Coeff = Two*zx(IKM2)
@@ -187,15 +188,13 @@ do M=1,nRoots
   call dAXpY_(nConf1,dRoots,W(ipwslam)%A((M-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
   ! Computing (3)
   do K=2,nRoots
-    IKK = (K+1)*K/2
-    if (K < M) IKM = (M-1)*M/2+K
-    if (K >= M) IKM = (K-1)*K/2+M
+    IKK = nTri_Elem(K)
+    IKM = iTri(K,M)
     do L=1,K-1
-      ILL = (L+1)*L/2
-      IKL = (K-1)*K/2+L
-      IKL2 = (K-1)*(K-2)/2+L
-      if (L < M) ILM = (M-1)*M/2+L
-      if (L >= M) ILM = (L-1)*L/2+M
+      ILL = nTri_Elem(L)
+      IKL = iTri(K,L)
+      IKL2 = nTri_Elem(K-2)+L
+      ILM = iTri(L,M)
       Coeff1 = zx(IKL2)*(Two*(DDg(IKM,ILL)-DDg(IKM,IKK))+Four*DDg(IKL,ILM))
       Coeff2 = zx(IKL2)*(Two*(DDg(ILM,ILL)-DDg(ILM,IKK))-Four*DDg(IKL,IKM))
 

@@ -36,6 +36,7 @@ subroutine Precaii(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign,A
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
@@ -43,7 +44,7 @@ use Constants, only: Two, Four, Seven
 
 implicit none
 integer iB, is, js, nd
-real*8 rout(nd*(nd+1)/2)
+real*8 rout(nTri_Elem(nd))
 integer nbaj
 real*8 fockii, fockai, fockti
 real*8 FockA(nBaj,nBaj), Focki(nbaj,nbaj)
@@ -52,15 +53,12 @@ real*8 A_J(nScr), A_K(nScr), Scr(nScr)
 real*8 sign
 integer nTri, iBB, iiB, jA, jB, kS, jC, jCC, jjC, jD, jDD, jjD, iCD, iC, iCC, iiC, iCB, iBC
 real*8 rDens1, rDens2, CDij, CiDj, rDens, CiBj, BiCj, BCij, rFock
-! Statement functions
-integer i, j, iTri, iTri1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+integer i
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nTri = itri(nd,nd)
+nTri = nTri_Elem(nd)
 iBB = ib+nA(is)
 iiB = ib+nish(is)
 !                                                                      *
@@ -69,7 +67,7 @@ iiB = ib+nish(is)
 do jA=1,nIsh(jS)
   do jB=1,jA
 
-    i = itri1(ja,jb)
+    i = nTri-iTri(nd-ja+1,nd-jb+1)+1
 
     do kS=1,nSym
 
@@ -85,11 +83,11 @@ do jA=1,nIsh(jS)
 
           ! gamma(cdbb)=gamma(bbcd)
 
-          rDens1 = sign*G2t(itri(itri(jCC,jDD),itri(iBB,iBB)))
+          rDens1 = sign*G2t(iTri(iTri(jCC,jDD),nTri_Elem(iBB)))
 
           ! gamma(bdcb)
 
-          rDens2 = sign*G2t(itri(itri(iBB,jDD),itri(jCC,iBB)))
+          rDens2 = sign*G2t(iTri(iTri(iBB,jDD),iTri(jCC,iBB)))
 
           ! (cd|ij)
 
@@ -113,7 +111,7 @@ do iC=1,nAsh(is)
 
   ! 2*(delta(bc)-D(bc))
 
-  rDens = sign*(-G1t(itri(iCC,iBB)))
+  rDens = sign*(-G1t(iTri(iCC,iBB)))
   if (iCC == iBB) rdens = rdens+sign
   rDens = Two*rDens
 
@@ -122,7 +120,7 @@ do iC=1,nAsh(is)
 
   do jA=1,nIsh(jS)
     do jB=1,jA
-      i = itri1(jA,jB)
+      i = nTri-iTri(nd-jA+1,nd-jB+1)+1
 
       ! (ci|bj)
       ! (bi|cj)
@@ -146,13 +144,13 @@ end do
 !***********************************************************************
 !                                                                      *
 rFock = sign*Two*Fockii+sign*Two*Fockai-sign*Fockti
-rdens = sign*Two*G1t(itri(ibb,ibb))
+rdens = sign*Two*G1t(nTri_Elem(ibb))
 i = 0 ! dummy initialize
 
 do jA=1,nIsh(jS)
   do jB=1,jA
 
-    i = itri1(ja,jb)
+    i = nTri-iTri(nd-ja+1,nd-jb+1)+1
 
     rout(i) = rout(i)-sign*Four*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
   end do

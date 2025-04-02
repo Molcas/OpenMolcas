@@ -14,6 +14,7 @@
 subroutine creqadd(q,G2,idSym,MO,Scr,n2)
 ! Constructs the Q matrix
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: nDens2, nNA, ipMat, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 
@@ -22,9 +23,6 @@ integer idSym, n2
 real*8 Q(nDens2), G2(*), MO(n2), Scr(n2)
 integer iS, jS, kS, lS, ipS, ijS, iAsh, jAsh, kAsh, lAsh, kAA, lAA, iAA, ikl, ipQ, ipM, iij, ipG
 real*8 P_ijkl
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -60,7 +58,7 @@ do iS=1,nSym
               ipM = 1+nIsh(jS)*nOrb(ipS)
               do jAsh=1,nAsh(jS)
                 iij = nna*(jAsh+nA(jS)-1)+iAsh+nA(iS)
-                ipG = itri(iij,ikl)
+                ipG = iTri(iij,ikl)
                 P_ijkl = G2(ipG)
 
                 call DaXpY_(nOrb(ipS),P_ijkl,MO(ipM),1,Q(ipQ),1)

@@ -17,6 +17,7 @@ subroutine GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,INTLST,I
 !
 ! Version for integrals stored in INTLST
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: NACOB, IBTSOB, NTSOB
 
 implicit none
@@ -30,9 +31,6 @@ integer iOff, jOff, kOff, lOff
 integer iBas, jBas, kBas, lBas
 integer iInt
 integer NTASH, JMIN, IMIN, IJ, KL, IJKL, IL, JK, ILJK
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 iOrb = NTSOB(ITP,ISM)
 jOrb = NTSOB(JTP,JSM)
@@ -58,7 +56,7 @@ if (ICTL == 1) then
         do iBas=iMin,iOff+iOrb-1
           ij = jbas+ntash*(ibas-1)
           kl = lbas+ntash*(kbas-1)
-          ijkl = itri(ij,kl)
+          ijkl = iTri(ij,kl)
           Xint(iInt) = Intlst(ijkl)
           iInt = iInt+1
         end do
@@ -80,10 +78,10 @@ else if (ICTL == 4) then
         do iBas=iMin,iOff+iOrb-1
           il = ibas+ntash*(lbas-1)
           jk = kbas+ntash*(jbas-1)
-          iljk = itri(il,jk)
+          iljk = iTri(il,jk)
           ij = ibas+ntash*(jbas-1)
           kl = kbas+ntash*(lbas-1)
-          ijkl = itri(ij,kl)
+          ijkl = iTri(ij,kl)
           XInt(iInt) = Intlst(ijkl)-Intlst(iljk)
           iInt = iInt+1
         end do

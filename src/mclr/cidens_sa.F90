@@ -11,6 +11,7 @@
 
 subroutine CIDens_sa(RSP,iLS,iRS,iL,iR,rP,rD)
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipnout, opout, W
 use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
 use MCLR_Data, only: XISPSM
@@ -25,11 +26,9 @@ logical RSP
 integer iLS, iRS, iL, iR
 real*8 rP(*), rD(*)
 real*8, allocatable :: De(:), Pe(:), CIL(:), CIR(:)
-integer i, j, iTri
+integer i
 integer nDim, nConfL, nConfR
 integer IA, JA, KA, LA, ij1, ij2, kl1, kl2
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! LS = CI
 !
@@ -69,7 +68,7 @@ if (doDMRG) then
   call dmrg_dim_change_mclr(LRras2(1:8),ndim,0)
   call dmrg_dim_change_mclr(LRras2(1:8),nna,0)
   n1dens = ndim**2
-  n2dens = n1dens*(n1dens+1)/2
+  n2dens = nTri_Elem(n1dens)
 end if
 
 call mma_allocate(De,n1dens,Label='De')
@@ -104,7 +103,7 @@ do i=0,nroots-1
             ij2 = nna*(ja-1)+ia
             kl1 = nnA*(ka-1)+la
             kl2 = nna*(la-1)+ka
-            if (ij1 >= kl1) rp(itri(ij1,kl1)) = rp(itri(ij1,kl1))+weight(1+i)*(Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2)))
+            if (ij1 >= kl1) rp(iTri(ij1,kl1)) = rp(iTri(ij1,kl1))+weight(1+i)*(Pe(iTri(ij1,kl1))+Pe(iTri(ij2,kl2)))
           end do
         end do
       end do
@@ -131,7 +130,7 @@ if (doDMRG) then
   call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
   call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
   n1dens = ndim**2
-  n2dens = n1dens*(n1dens+1)/2
+  n2dens = nTri_elem(n1dens)
 end if
 
 end subroutine CIDens_sa

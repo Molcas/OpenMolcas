@@ -17,13 +17,14 @@
 
 subroutine CalcbXbP_CMSNAC(bX,bP,FMO1t,FMO2t,R,H,E_Final,nTri)
 
-use stdalloc, only: mma_allocate, mma_deallocate
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: nCOnf1, nAcPr2
 use input_mclr, only: nRoots
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 ! Output
-real*8, dimension((nRoots-1)*nRoots/2) :: bX
+real*8, dimension(nTri_Elem(nRoots-1)) :: bX
 real*8, dimension(nConf1*nRoots) :: bP
 ! Input
 integer nTri

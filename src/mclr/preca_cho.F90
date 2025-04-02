@@ -25,6 +25,7 @@ subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
@@ -33,30 +34,26 @@ use Definitions, only: wp
 
 implicit none
 integer iB, is, js, nd
-real*8 rout(nd*(nd+1)/2)
+real*8 rout(nTri_Elem(nd))
 integer nbaj
 real*8 fockii, fockai, fockti
 real*8 FockA(nBaj,nBaj), Focki(nbaj,nbaj)
 real*8 Sign
 integer nScr
 real*8 A_J(nScr)
-integer nTri, nO, iBB, jVert, itAA, i2, iAdr, kSym, iV, jCC, iU, jDD, ijk, lSym, nL, ii, nI, ip, jA, jB, ij
+integer nTri, nO, iBB, jVert, itAA, iAdr, kSym, iV, jCC, iU, jDD, ijk, lSym, nL, ii, nI, ip, jA, jB, ij
 real*8 Factor, Factor2, rDens2, rDensaii, rDensabi, rDensabb, rf, rDens, rDensaiil, rDensaiiu, rDensabil, rDensabiu, rFock, &
        rDens1, Fact
-! Statement functions
-integer i, j, iTri, iTri1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
+integer i
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 nO = nAsh(js)+nIsh(js)
-nTri = itri(nd,nd)
+nTri = nTri_Elem(nd)
 iBB = ib+nA(is)
 jVert = nOrb(js)-nIsh(js)-nAsh(js)
-itAA = itri(iBB,iBB)
-i2 = nD-jVert+1
+itAA = nTri_Elem(iBB)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -83,9 +80,9 @@ do ksym=1,nsym
 
           if (lsym == js) then
             if (iJK == 1) then
-              rDens2 = Two*sign*G2t(itri(itri(jCC,jDD),itri(iBB,iBB)))
+              rDens2 = Two*sign*G2t(iTri(iTri(jCC,jDD),nTri_Elem(iBB)))
             else
-              rDens2 = Two*sign*G2t(itri(itri(iBB,jDD),itri(jCC,iBB)))
+              rDens2 = Two*sign*G2t(iTri(iTri(iBB,jDD),iTri(jCC,iBB)))
             end if
 
             rDensaii = factor*rDens2
@@ -97,22 +94,22 @@ do ksym=1,nsym
             rDensabiu = 0
 
             if (iBB == jDD) then
-              rDens1 = -Two*G1t(itri(jCC,iBB))
+              rDens1 = -Two*G1t(iTri(jCC,iBB))
               if (jCC == iBB) rdensaii = rdensaii-Two*factor
               rDensaiil = rDensaiil-factor*rDens1
               rDensabil = rDensabil+sign*rDens1
             else if ((iBB == jCC) .and. (iJK == 2)) then
-              rDens1 = -Two*G1t(itri(jDD,iBB))
+              rDens1 = -Two*G1t(iTri(jDD,iBB))
               rDensaiiu = rDensaiiu-factor*rDens1
               rDensabiu = rDensabiu+sign*rDens1
             end if
             if ((iBB == jCC) .and. (iJK == 2)) then
-              rDensaiil = rDensaiil-factor*14.0_wp*sign*G1t(itri(jDD,iBB))
-              rDensabil = rDensabil+Eight*sign*G1t(itri(jDD,iBB))
+              rDensaiil = rDensaiil-factor*14.0_wp*sign*G1t(iTri(jDD,iBB))
+              rDensabil = rDensabil+Eight*sign*G1t(iTri(jDD,iBB))
               if (jDD == iBB) rdensaii = rdensaii+factor*14.0_wp*sign
             else if ((iBB == jDD) .and. (iJK == 2)) then
-              rDensaiiu = rDensaiiu-factor*14.0_wp*sign*G1t(itri(jCC,iBB))
-              rDensabiu = rDensabiu+Eight*sign*G1t(itri(jCC,iBB))
+              rDensaiiu = rDensaiiu-factor*14.0_wp*sign*G1t(iTri(jCC,iBB))
+              rDensabiu = rDensabiu+Eight*sign*G1t(iTri(jCC,iBB))
             end if
             rDensaiiu = rDensaiiu+rDensaii
             rDensaii = rDensaiil+rDensaii
@@ -129,13 +126,13 @@ do ksym=1,nsym
               ! aii
 
               ni = nIsh(jS)-ii+1
-              ip = iTri1(ii,ii)
+              ip = nTri-nTri_Elem(nd-ii+1)+1
               call DaXpY_(ni,rDensaii,A_J((ii-1)*nl+ii),1,rout(ip),1)
               if ((iJK == 2) .and. (jCC > jDD)) call DaXpY_(ni,rDensaiiu,A_J((ii-1)*nl+ii),nl,rout(ip),1)
 
               ! abi
 
-              ip = itri1(ii,nd-jVert+1)
+              ip = nTri-iTri(nd-ii+1,jVert)+1
               call DaXpY_(jvert,rDensabi,A_J((ii-1)*nl+no+1),1,rout(ip),1)
               if ((iJK == 2) .and. (jCC > jDD)) call DaXpY_(jvert,rDensabiu,A_J(no*nl+ii),nl,rout(ip),1)
             end do
@@ -144,7 +141,7 @@ do ksym=1,nsym
 
             do ii=1,jvert
               ni = jvert-ii+1
-              ip = itri1(nIsh(jS)+ii,nIsh(jS)+ii)
+              ip = nTri-nTri_Elem(nd-(nIsh(jS)+ii)+1)+1
               call DaXpY_(ni,rDensabb,A_J((nO+ii-1)*nl+no+ii),1,rout(ip),1)
               if ((iJK == 2) .and. (jCC > jDD)) call DaXpY_(ni,rDensabb,A_J((nO+ii-1)*nl+no+ii),nl,rout(ip),1)
             end do
@@ -161,20 +158,20 @@ end do
 ! Fock matrix contribution
 
 rFock = sign*Two*Fockii+sign*Two*Fockai-sign*Fockti
-rdens = sign*Two*G1t(itri(ibb,ibb))
+rdens = sign*Two*G1t(nTri_Elem(ibb))
 
 ! aii
 
 do jA=1,nIsh(jS)
   do jB=1,jA
-    i = itri1(ja,jb)
+    i = nTri-iTri(nd-ja+1,nd-jb+1)+1
     rout(i) = rout(i)-sign*Four*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
   end do
   rout(i) = rout(i)+Two*rfock
 
   ! abi
 
-  ip = itri1(jA,nd-jVert+1)
+  ip = nTri-iTri(nd-jA+1,jVert)+1
   Fact = (Two-Two*G1t(itAA))
   call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jA),1,rOut(ip),1)
   Fact = Two
@@ -183,7 +180,7 @@ end do
 
 ! abb
 
-ip = iTri1(i2,i2)
+ip = nTri-nTri_Elem(jVert)+1
 rF = sign*Fockti
 do iI=nAsh(js)+nIsh(js)+1,nBas(js)
   rOut(ip) = rout(ip)-Two*rF+rDens*FockI(iI,ii)

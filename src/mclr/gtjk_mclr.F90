@@ -13,26 +13,24 @@ subroutine GTJK_MCLR(RJ,RK)
 ! PURPOSE: GET ALL INTEGRALS COULOMB AND EXCHANGE INTEGRALS
 !          WITH THE CHARGE DISTRIBUTION JK
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: Int2
 use MCLR_Data, only: NACOB
 
 implicit none
 real*8 RJ(NACOB,NACOB), RK(NACOB,nACOB)
 integer NT, NU, NTUK, NTUJ
-integer i, j, itri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
 ! THE TWO-ELECTRON INTEGRAL LIST
 
 do NT=1,NACOB
   do NU=1,NT
-    NTUK = itri(itri(nt,nt),itri(nu,nu))
+    NTUK = iTri(nTri_Elem(nt),nTri_Elem(nu))
     RJ(NT,NU) = INT2(NTUK)
     RJ(NU,NT) = INT2(NTUK)
 
-    NTUJ = itri(itri(nt,nu),itri(nu,nt))
+    NTUJ = nTri_Elem(iTri(nt,nu))
     RK(NT,NU) = INT2(NTUJ)
     RK(NU,NT) = INT2(NTUJ)
   end do

@@ -14,17 +14,15 @@
 subroutine creq2(q,G2,idSym,Temp,Scr,n2)
 ! Constructs the Q matrix
 
-use Constants, only: Zero
+use Index_Functions, only: iTri
 use MCLR_Data, only: nDens2, ipMatBA, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
+use Constants, only: Zero
 
 implicit none
 integer idSym, n2
 real*8 Q(nDens2), G2(*), Temp(n2), Scr(n2)
 integer iS, jS, kS, lS, ijS, ipS, kAsh, lAsh, ikl, iAsh, jAsh, ipQ, iij, ipG, ipI
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -44,7 +42,7 @@ do iS=1,nSym
 
         do kAsh=1,nAsh(ks)
           do lAsh=1,nAsh(ls)
-            ikl = itri(lAsh+nA(lS),kAsh+nA(kS))
+            ikl = iTri(lAsh+nA(lS),kAsh+nA(kS))
 
             call Coul(ipS,jS,kS,lS,nIsh(kS)+kAsh,nIsh(lS)+lAsh,Temp,Scr)
 

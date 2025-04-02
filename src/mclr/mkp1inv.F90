@@ -11,6 +11,7 @@
 
 subroutine mkp1inv(rdia)
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: LuCIV, P1Inv
 use input_mclr, only: lRoots, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -19,10 +20,8 @@ use Constants, only: Zero, One
 implicit none
 real*8 rdia(*)
 real*8, allocatable :: TMP1(:), TMP2(:)
-integer i, j, itri, iDisk, jDisk
+integer i, j, iDisk, jDisk
 real*8, external :: DDot_
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 call mma_allocate(TMP1,nconf,Label='TMP1')
 call mma_allocate(TMP2,nconf,Label='TMP2')
@@ -34,7 +33,7 @@ do i=1,lroots
   call ExpHinvv(rdia,Tmp1,Tmp1,Zero,One)
   do j=i,lroots
     call dDafile(luciv,2,Tmp2,nconf,jDisk)
-    p1INV(itri(i,j)) = DDOT_(nconf,Tmp2,1,Tmp1,1)
+    p1INV(iTri(i,j)) = DDOT_(nconf,Tmp2,1,Tmp1,1)
   end do
 end do
 

@@ -17,13 +17,14 @@
 
 subroutine CalcbX_CMSNAC(bX,LOK,R,H,E_Final)
 
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: ISMECIMSPD, NACSTATES
 use input_mclr, only: nRoots
 use Constants, only: Zero, Two
 
 implicit none
 ! Output
-real*8, dimension((nRoots-1)*nRoots/2) :: bX
+real*8, dimension(nTri_Elem(nRoots-1)) :: bX
 ! Input
 real*8, dimension(nRoots**2) :: R, H
 real*8, dimension(nRoots) :: E_Final
@@ -44,7 +45,7 @@ do K=2,nRoots
   do L=1,K-1
     IIL = IIK-K+L
     IJL = IJK-K+L
-    IKL = (K-2)*(K-1)/2+L
+    IKL = nTri_Elem(K-2)+L
     IKOL = (L-1)*nRoots+K
     ILOK = (K-1)*nRoots+L
     ! Diagonal elements of R_JK * H_KL * R_IK

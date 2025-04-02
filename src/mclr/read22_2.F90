@@ -21,6 +21,7 @@ subroutine Read22_2(MO1,Fock,Q,FockI,FockA,Temp2,Scr,Temp3)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, CMO_Inv, Int1, G1t, G2t
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nB
@@ -40,9 +41,6 @@ integer nm, iS, nAtri, nAS, jS, ijS, kS, lS, ijB1, iB, nNB, jB, ipD, iiB, jjB, n
         nA2, nG2, iSym, nAG2, jSym, kSym, iOff, iOff2, iKK, iOff3, iK, iLL, iL, iKL, ipGx, kAsh, lAsh, iAsh, jAsh, iIJ, ipi, ipj, &
         nI, nJ, ipTmp, ijB, iStore
 real*8 Fact, rEnergy, rCora, rCoreI, rCoreA, rCor, rCore
-! Statement function
-integer i, j, iTri
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -54,8 +52,8 @@ if (TwoStep .and. (StepType == 'RUN2')) then
   do iS=1,nSym
     nm = nAsh(is)+nm
   end do
-  nAtri = nm*(nm+1)/2
-  nAtri = nAtri*(nAtri+1)/2
+  nAtri = nTri_Elem(nm)
+  nAtri = nTri_Elem(nAtri)
   call dcopy_(ndens2,[Zero],0,fock,1)
   call dcopy_(ndens2,[Zero],0,Q,1)
   call dcopy_(nAtri,[Zero],0,MO1,1)
@@ -299,11 +297,11 @@ else
           ik = ikk+nA(iSym)
           do ill=1,ikk-1
             il = ill+nA(iSym)
-            ikl = ik*(ik-1)/2+il
+            ikl = iTri(ik,il)
             DA%SB(iSym)%A2(ill,ikk) = G1t(ikl)
             DA%SB(iSym)%A2(ikk,ill) = G1t(ikl)
           end do
-          ikl = ik*(ik-1)/2+ik
+          ikl = nTri_Elem(ik)
           DA%SB(iSym)%A2(ikk,ikk) = G1t(ikl)
         end do
         ioff = ioff+nOrb(iSym)**2
@@ -321,12 +319,12 @@ else
             lS = ieor(kS-1,ijS-1)+1
             do kAsh=1,nAsh(ks)
               do lAsh=1,nAsh(ls)
-                ikl = itri(lAsh+nA(lS),kAsh+nA(kS))
+                ikl = iTri(lAsh+nA(lS),kAsh+nA(kS))
                 do iAsh=1,nAsh(is)
                   do jAsh=1,nAsh(js)
-                    iij = itri(iAsh+nA(is),jAsh+nA(jS))
+                    iij = iTri(iAsh+nA(is),jAsh+nA(jS))
                     ipGx = ipGx+1
-                    G2x(ipGx) = G2t(itri(iij,ikl))
+                    G2x(ipGx) = G2t(iTri(iij,ikl))
                   end do
                 end do
               end do
@@ -369,8 +367,8 @@ else
     call CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,MO1,QVec,CVa,WCMO,WCMO_inv,nIsh,nAsh,doAct,Fake_CMO2,LuAChoVec, &
                      LuIChoVec,istore)
 
-    nAtri = nAct*(nAct+1)/2
-    nAtri = nAtri*(nAtri+1)/2
+    nAtri = nTri_Elem(nAct)
+    nAtri = nTri_Elem(nAtri)
     call DScal_(nAtri,Quart,MO1,1)
     FkI%A0(:) = -Half*FkI%A0(:)
 
@@ -406,8 +404,8 @@ else
     call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
   end do
-  nAtri = nas*(nas+1)/2
-  nAtri = nAtri*(nAtri+1)/2
+  nAtri = nTri_Elem(nas)
+  nAtri = nTri_Elem(nAtri)
   call RecPrt('MO1',' ',MO1,1,nAtri)
 # endif
   call DaXpY_(ndens2,One,Int1,1,FockI,1)
@@ -480,8 +478,8 @@ if (TwoStep .and. (StepType == 'RUN1')) then
   do iS=1,nSym
     nm = nAsh(is)+nm
   end do
-  nAtri = nm*(nm+1)/2
-  nAtri = nAtri*(nAtri+1)/2
+  nAtri = nTri_Elem(nm)
+  nAtri = nTri_Elem(nAtri)
   call ddafile(LuQDAT,1,FockA,nDens2,iaddressQDAT)
   call ddafile(LuQDAT,1,FockI,nDens2,iaddressQDAT)
   call ddafile(LuQDAT,1,Fock,nDens2,iaddressQDAT)

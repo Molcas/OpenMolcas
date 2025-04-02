@@ -11,6 +11,7 @@
 
 subroutine rhs_sa(Fock,SLag)
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: Int1
 use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
@@ -29,9 +30,6 @@ real*8 rdum(1)
 real*8, allocatable :: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
 integer nG1, nG2, iR, jDisk, ii, iB, jB, iDij, iRij, kB, lB, iDkl, iRkl, iIJKL, iRijkl, jj, iS, iiB, ijB, iIJ
 real*8 Fact, rEnergy, rCoreI, rCoreA
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -39,15 +37,15 @@ itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 if (doDMRG) call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)  ! yma
 
-ng1 = itri(ntash,ntash)
-ng2 = itri(ng1,ng1)
+ng1 = nTri_Elem(ntash)
+ng2 = nTri_Elem(ng1)
 
 call mma_allocate(T,ndens2,Label='T')
 call mma_allocate(F,ndens2,Label='F')
 call mma_allocate(G1q,ng1,Label='G1q')
 call mma_allocate(G2q,ng2,Label='G2q')
 call mma_allocate(G1r,ntash**2,Label='G1r')
-call mma_allocate(G2r,itri(ntash**2,ntash**2),Label='G2r')
+call mma_allocate(G2r,nTri_Elem(ntash**2),Label='G2r')
 
 ! Pick up densities from JobIph file
 
@@ -74,7 +72,7 @@ call Put_dArray('D1mo',G1q,ng1)
 
 do iB=1,ntash
   do jB=1,ntash
-    G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
+    G1r(ib+(jb-1)*ntash) = G1q(iTri(ib,jb))
   end do
 end do
 
@@ -89,8 +87,8 @@ do iB=1,ntash
         fact = One
         if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
         if ((iDij < iDkl) .and. (iB == jB)) fact = Two
-        iijkl = itri(iDij,iDkl)
-        iRijkl = itri(iRij,iRkl)
+        iijkl = iTri(iDij,iDkl)
+        iRijkl = iTri(iRij,iRkl)
         G2r(iRijkl) = Fact*G2q(iijkl)
       end do
     end do
@@ -214,53 +212,53 @@ subroutine PT2_SLag()
       end do
       ! For RDM2
       do i=1,ntAsh**2
-        j = itri(i,i)
+        j = nTri_Elem(i)
         G2r(j) = Half*G2r(j)
       end do
       do i=0,ntAsh-1
         do j=0,i-1
-          ij = i*(i+1)/2+j
+          ij = nTri_Elem(i)+j
           do k=0,ntAsh-1
             do l=0,k
-              kl = k*(k+1)/2+l
+              kl = nTri_Elem(k)+l
               if (ij >= kl) then
                 factor = Quart*vSLag
                 if (ij == kl) factor = Half*vSLag
-                ijkl = ij*(ij+1)/2+kl
+                ijkl = nTri_Elem(ij)+kl
                 ij2 = i*ntAsh+j
                 kl2 = k*ntAsh+l
-                G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+nTri_Elem(ij2)+kl2)
                 ij2 = max(j*ntAsh+i,l*ntAsh+k)
                 kl2 = min(j*ntAsh+i,l*ntAsh+k)
-                G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+nTri_Elem(ij2)+kl2)
                 if (k /= l) then
                   ij2 = i*ntAsh+j
                   kl2 = l*ntAsh+k
-                  G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                  G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+nTri_Elem(ij2)+kl2)
                   if (ij /= kl) then
                     ij2 = max(j*ntAsh+i,k*ntAsh+l)
                     kl2 = min(j*ntAsh+i,k*ntAsh+l)
-                    G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                    G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+nTri_Elem(ij2)+kl2)
                   end if
                 end if
               end if
             end do
           end do
         end do
-        ij = i*(i+1)/2+i
+        ij = nTri_Elem(i+1)-1
         do k=0,ntAsh-1
           do l=0,k
-            kl = k*(k+1)/2+l
+            kl = nTri_Elem(k)+l
             if (ij >= kl) then
               factor = Half*vSLag
               if (ij == kl) factor = One*vSLag
-              ijkl = ij*(ij+1)/2+kl
+              ijkl = nTri_Elem(ij)+kl
               ij2 = i*ntAsh+i
               kl2 = k*ntAsh+l
-              G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+ij2*(ij2+1)/2+kl2)
+              G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+nTri_Elem(ij2)+kl2)
               if (k /= l) then
                 kl2 = l*ntAsh+k
-                G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                G2q(1+ijkl) = G2q(1+ijkl)+factor*G2r(1+nTri_Elem(ij2)+kl2)
               end if
             end if
           end do

@@ -17,6 +17,7 @@ subroutine TRCTL_MCLR()
 !          The transformation routine TRAMO is called for each
 !          symmetry block of integrals.
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: CMO
 use MCLR_Data, only: ipCM
 use MCLR_Data, only: FnHlf2, FnHlf3, FnTri1, FnTri2, FnTri3, FnTri4, FnTri5
@@ -32,9 +33,6 @@ real*8, allocatable :: Buffer(:)
 integer iAD14, iAd13, iAd23, iAd24, iAd34
 integer MemX, ipB, iBatch, iSP, nBP, nDP, iSQ, nBQ, nAQ, nDQ, nSPQ, iSR, nBR, nAR, nDR, nSPQR, iSS, nBS, nAS, nDS, nSPQRS, nORBP, &
         nBPQRS, IntBuf, ipi, lW1, nW1, lW2, nW2, lW3, nW3, lW4, nW4, lW5, nW5, iSPQ, iSRS, nAP
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************

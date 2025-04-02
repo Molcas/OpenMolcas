@@ -17,6 +17,7 @@
 
 subroutine RHS_CMS_NAC(Fock,CICSF)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens2, nConf1, nNA, nAcPar, nAcPr2
 use input_mclr, only: nRoots, ntAsh, ntBas
@@ -26,8 +27,8 @@ implicit none
 real*8, dimension(nDens2+6) :: Fock
 real*8, dimension(nconf1*nroots) :: CICSF
 ! Auxiliary Quantities
-real*8, dimension((nRoots+1)*nRoots/2,nnA,nnA) :: GDMat
-real*8, dimension((nRoots+1)*nRoots/2,(nRoots+1)*nRoots/2) :: W
+real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
+real*8, dimension(nTri_Elem(nRoots),nTri_Elem(nRoots)) :: W
 integer, dimension(ntBas,ntAsh,ntAsh,ntAsh) :: IndPUVX
 integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
 real*8, dimension(:), allocatable :: PUVX, R, H, E_Final, AXkzx, AXPzx, AXX, bk, bP, bX, FMO1t, FMO2t, zX
@@ -36,20 +37,20 @@ integer NPUVX, NTri
 ! MEMORY ALLOCATION
 call mma_allocate(AXkzx,nDens2)
 call mma_allocate(AXPzx,NConf1*nRoots)
-call mma_allocate(AXX,((nRoots-1)*nRoots/2)**2)
+call mma_allocate(AXX,nTri_Elem(nRoots-1)**2)
 call mma_allocate(R,nRoots**2)
 call mma_allocate(H,nRoots**2)
 call mma_allocate(E_Final,nRoots)
 call mma_allocate(bk,nDens2)
 call mma_allocate(bP,nConf1*nRoots)
-call mma_allocate(bX,(nRoots-1)*nRoots/2)
-call mma_allocate(zX,(nRoots-1)*nRoots/2)
+call mma_allocate(bX,nTri_Elem(nRoots-1))
+call mma_allocate(zX,nTri_Elem(nRoots-1))
 call Get_PUVXLen(NPUVX)
 call mma_allocate(PUVX,NPUVX)
 call Get_Ntri(nTri)
 call mma_allocate(FMO1t,nRoots*nTri)
-NACPAR = (nnA+1)*nnA/2
-NAcPr2 = (nacpar+1)*nacpar/2
+NACPAR = nTri_Elem(nnA)
+NAcPr2 = nTri_Elem(nacpar)
 call mma_allocate(FMO2t,nRoots*nacpr2)
 ! MAIN COURSE
 ! First, read results printed in MCPDFT module

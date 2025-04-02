@@ -49,6 +49,7 @@ subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 !
 ! Jeppe Olsen, Winter of 1991
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 
@@ -107,7 +108,7 @@ do IDXTYP=1,NDXTYP
       if (KOFF > IOFF) cycle
       if ((ISM == KSM) .and. (ITYP == KTYP)) then
         IKPSM = 1
-        NIK = NI*(NI+1)/2
+        NIK = nTri_Elem(NI)
       else
         IKPSM = 0
         NIK = NI*NK
@@ -123,7 +124,7 @@ do IDXTYP=1,NDXTYP
         NL = NTSOB(LTYP,LSM)
         if ((JSM == LSM) .and. (JTYP == LTYP)) then
           JLPSM = 1
-          NJL = NJ*(NJ+1)/2
+          NJL = nTri_Elem(NJ)
         else
           JLPSM = 0
           NJL = NJ*NL

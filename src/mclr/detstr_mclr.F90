@@ -24,6 +24,7 @@ subroutine DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,ISIGN,IWORK)
 !
 ! JEPPE OLSEN NOVEMBER 1988
 
+use Index_Functions, only: nTri_Elem
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -49,7 +50,7 @@ do IBEL=1,NBEL
   IBSTR(IBEL) = -IWORK(NBEL+1-IBEL)
 end do
 ! SIGN CHANGE FOR SWITCH OF BETA ORBITALS
-iTmp = NBEL*(NBEL+1)/2
+iTmp = nTri_Elem(NBEL)
 ISIGN = ISIGN*(-1)**iTmp
 
 #ifdef _DEBUGPRINT_

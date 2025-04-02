@@ -18,6 +18,7 @@
 
 subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
 
+use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens2, nNA
 use input_mclr, only: nRoots, ntAsh
@@ -28,17 +29,14 @@ real*8, dimension(nDens2) :: bk
 ! Input
 real*8, dimension(nRoots**2) :: R
 integer nTri
-real*8, dimension((nRoots-1)*nRoots/2) :: zX
-real*8, dimension(nRoots*(nRoots+1)/2,nnA,nnA) :: GDMat
+real*8, dimension(nTri_Elem(nRoots-1)) :: zX
+real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
 ! Auxiliaries
 real*8, dimension(:), allocatable :: FOccMO, P2MOt
 integer nP2, nG1
-integer i, j, iTri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
-ng1 = itri(ntash,ntash)
-nP2 = itri(ng1,ng1)
+ng1 = iTri(ntash,ntash)
+nP2 = iTri(ng1,ng1)
 call mma_allocate(FOccMO,nDens2)
 call mma_allocate(P2MOt,nP2)
 call FZero(bk,nDens2)

@@ -33,6 +33,7 @@ subroutine Precabi(ib,is,js,nd,rOut,nba,focki,focka,sign,A_J,A_K,Scr,nScr)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb, nBas
@@ -48,22 +49,18 @@ integer nScr
 real*8 A_J(nScr), A_K(nScr), Scr(nScr)
 integer nTri, jVert, nO, iAA, itAA, kS, kA, kAA, kkA, lA, lAA, llA, jB, ip, iVJ
 real*8 Fact, Fact1, Fact2
-! Statement functions
-integer i, j, iTri, iTri1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nTri = itri(nd,nd)
+nTri = nTri_Elem(nd)
 
 jVert = nOrb(js)-nIsh(js)-nAsh(js)
 if (jVert == 0) return
 
 nO = nAsh(js)+nIsh(js)
 iAA = nA(is)+ib
-itAA = itri(iAA,iAA)
+itAA = nTri_Elem(iAA)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -79,14 +76,14 @@ do kS=1,nSym
       call Exch(jS,kS,jS,kS,kkA,llA,A_K,Scr)
 
       do jB=1,nIsh(jS)
-        ip = itri1(jB,nd-jVert+1)
+        ip = nTri-iTri(nd-jB+1,jVert)+1
 
-        Fact1 = -Two*G2t(itri(itAA,itri(kAA,lAA)))
-        Fact2 = -Four*G2t(itri(itri(iAA,kAA),itri(iAA,lAA)))
+        Fact1 = -Two*G2t(iTri(itAA,iTri(kAA,lAA)))
+        Fact2 = -Four*G2t(iTri(iTri(iAA,kAA),iTri(iAA,lAA)))
 
-        if (kaa == iaa) Fact2 = Fact2+Eight*G1t(itri(iAA,lAA))
-        if (laa == iaa) Fact1 = Fact1-Two*G1t(itri(iAA,kAA))
-        if (laa == iaa) Fact2 = Fact2-Two*G1t(itri(iAA,kAA))
+        if (kaa == iaa) Fact2 = Fact2+Eight*G1t(iTri(iAA,lAA))
+        if (laa == iaa) Fact1 = Fact1-Two*G1t(iTri(iAA,kAA))
+        if (laa == iaa) Fact2 = Fact2-Two*G1t(iTri(iAA,kAA))
 
         ivj = (jB-1)*nBas(jS)+no+1
         call DaXpY_(jVert,Sign*Fact1,A_J(ivj),1,rout(ip),1) ! ????
@@ -101,7 +98,7 @@ end do
 !***********************************************************************
 !                                                                      *
 do jB=1,nIsh(jS)
-  ip = itri1(jB,nd-jVert+1)
+  ip = nTri-iTri(nd-jB+1,jVert)+1
   Fact = (Two-Two*G1t(itAA))
   call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jB),1,rOut(ip),1)
   Fact = Two

@@ -17,6 +17,7 @@ subroutine GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,INTL
 !
 ! Version for integrals stored in INTLST
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: IBTSOB, NTSOB
 use Constants, only: One
 
@@ -32,9 +33,6 @@ integer iBas, jBas, kBas, lBas
 integer iInt
 integer IMIN, JMIN, IJ, KL, IJKL, IL, JK
 real*8 SIGN
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 iOrb = NTSOB(ITP,ISM)
 jOrb = NTSOB(JTP,JSM)
@@ -57,11 +55,11 @@ if (ICOUL == 0) then
         iMin = iOff
         if (IKSM /= 0) iMin = kBas
         do iBas=iMin,iOff+iOrb-1
-          ij = itri(iBas,jBas)
-          kl = itri(kBas,lBas)
+          ij = iTri(iBas,jBas)
+          kl = iTri(kBas,lBas)
           Sign = One
           if ((ij < kl) .and. (ieaw /= 0)) Sign = -One
-          ijkl = itri(ij,kl)
+          ijkl = iTri(ij,kl)
           Xint(iInt) = Sign*Intlst(ijkl)
           iInt = iInt+1
         end do
@@ -82,9 +80,9 @@ if (ICOUL == 0) then
           if (IKSM /= 0) iMin = kBas
           do iBas=iMin,iOff+iOrb-1
             !jINT = (jBas-1)*nACOB**3+(kBas-1)*nACOB**2+(lBas-1)*nACOB+iBas
-            il = itri(iBas,lBas)
-            jk = itri(jBas,kBas)
-            ijkl = itri(il,jk)
+            il = iTri(iBas,lBas)
+            jk = iTri(jBas,kBas)
+            ijkl = iTri(il,jk)
             XInt(iInt) = XInt(iInt)-Intlst(ijkl)
             iInt = iInt+1
           end do
@@ -98,9 +96,9 @@ else if (ICOUL /= 0) then
     do kBas=kOff,kOff+kOrb-1
       do jBas=joff,jOff+jOrb-1
         do iBas=ioff,iOff+iOrb-1
-          ij = itri(iBas,jBas)
-          kl = itri(kBas,lBas)
-          ijkl = itri(ij,kl)
+          ij = iTri(iBas,jBas)
+          kl = iTri(kBas,lBas)
+          ijkl = iTri(ij,kl)
           !JINT = (LBAS-1)*nACOB**3+(KBAS-1)*nACOB**2+(JBAS-1)*nACOB+IBAS
           Xint(iInt) = Intlst(ijkl)
           iInt = iint+1

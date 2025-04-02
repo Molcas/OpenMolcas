@@ -38,6 +38,7 @@ subroutine MCLR(ireturn)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: Basis_Info_Free
 use Center_Info, only: Center_Info_Free
 use External_Centers, only: External_Centers_Free
@@ -231,13 +232,13 @@ ntAsqr = 0
 nnA = 0
 do iSym=1,nSym
   ntAsh = ntAsh+nAsh(iSym)
-  ntAtri = ntAtri+nAsh(iSym)*(nAsh(iSym)+1)/2
+  ntAtri = ntAtri+nTri_Elem(nAsh(iSym))
   ntAsqr = ntAsqr+nAsh(iSym)*nAsh(iSym)
   nA(iSym) = nna
   nnA = nnA+nAsh(isym)
 end do
-nacpar = (nnA+1)*nnA/2
-nacpr2 = (nacpar+1)*nacpar/2
+nacpar = nTri_Elem(nnA)
+nacpr2 = nTri_Elem(nacpar)
 
 call Start_MCLR()
 

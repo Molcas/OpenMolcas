@@ -53,6 +53,7 @@ subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 !
 ! Jeppe Olsen, Fall of 96
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 #ifdef _DEBUGPRINT_
@@ -138,7 +139,7 @@ do IDXTP=1,NDXTP
             nkStref = maxk  ! ????????
             JLBOFF = 1
             if ((JSM == LSM) .and. (JTYP == LTYP)) then
-              NJL = NJ*(NJ+1)/2
+              NJL = nTri_Elem(NJ)
               JLSM = 1
             else
               NJL = NJ*NL
@@ -160,7 +161,7 @@ do IDXTP=1,NDXTP
               ! CB(IA,KB,jl) = +/-C(IA,a+la+jIA)
               ! JAN28
               if (JLSM /= 0) then
-                IJLE = J*(J-1)/2+L
+                IJLE = nTri_Elem(J-1)+L
               else
                 IJLE = IJL
               end if
@@ -185,7 +186,7 @@ do IDXTP=1,NDXTP
 
             IKBOFF = 1
             if ((ISM == KSM) .and. (ITYP == KTYP)) then
-              NIK = NI*(NI+1)/2
+              NIK = nTri_Elem(NI)
               IKSM = 1
             else
               NIK = NI*NK
@@ -207,7 +208,7 @@ do IDXTP=1,NDXTP
               !I1IK = (K-1)*NI+I
               ! JAN28
               if (IKSM /= 0) then
-                IIKE = I*(I-1)/2+K
+                IIKE = nTri_Elem(I-1)+K
               else
                 IIKE = IIK
               end if

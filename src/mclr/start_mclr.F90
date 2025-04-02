@@ -20,6 +20,7 @@ subroutine Start_MCLR()
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use transform_procedures, only: SetUp_CASPT2_Tra
 use MCLR_Data, only: CMO_Inv, CMO
@@ -75,7 +76,7 @@ if (newCho) then
   lSqrDens = 0
   nOrbBas = 0
   do iSym=1,nSym
-    lTriDens = lTriDens+nBas(iSym)*(nBas(iSym)+1)/2
+    lTriDens = lTriDens+nTri_Elem(nBas(iSym))
     lSqrDens = lSqrDens+nBas(iSym)**2
     nOrbBas = nOrbBas+nOrb(iSym)*nBas(iSym)
   end do

@@ -11,6 +11,7 @@
 
 subroutine Out_Pt2(iKapDisp,iCIDisp)
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO
 use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens, nA, nDens2, nDensC
@@ -40,9 +41,7 @@ integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO, iLen, ipCIP, iDisk
         iBas, LuTmp
 integer, external :: IsFreeUnit
 real*8 Val
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+integer i, j
 
 !                                                                      *
 !***********************************************************************
@@ -56,13 +55,13 @@ nDLMO = 0
 nLCMO = 0
 do is=1,nsym
   nbas_tot = nbas_tot+nbas(is)
-  ntot1 = ntot1+nbas(is)*(nbas(is)+1)/2
+  ntot1 = ntot1+nTri_Elem(nbas(is))
   nDLMO = nDLMO+nash(is)
   nLCMO = nLCMO+nbas(is)*nbas(is)
 end do
-nNAC = (nDLMO+nDLMO**2)/2
-nDLMO = nDLMO*(nDLMO+1)/2
-nPLMO = nDLMO*(nDLMO+1)/2
+nNAC = nTri_Elem(nDLMO)
+nDLMO = nTri_Elem(nDLMO)
+nPLMO = nTri_Elem(nDLMO)
 
 call mma_allocate(K1,nDens2,Label='K1')
 call mma_allocate(K2,nDens2,Label='K2')
@@ -100,7 +99,7 @@ if (CI) then
     call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
 
     call mma_allocate(tmpDe,ndim,ndim,Label='TmpDe')
-    call mma_allocate(tmpP,ndim**2*(ndim**2+1)/2,Label='tmpP')
+    call mma_allocate(tmpP,nTri_Elem(ndim**2),Label='tmpP')
     call mma_allocate(tmpDeM,ntash,ntash,Label='tmpDeM')
     call mma_allocate(tmpPM,ntash,ntash,ntash,ntash,Label='tmpPM')
     tmpDe = Zero
@@ -138,8 +137,8 @@ if (CI) then
             kl1 = ntash*(k-1)+l
             kl2 = ntash*(l-1)+k
             if (ij1 >= kl1) then
-              if (abs(P_CI(itri(ij1,kl1))) < 1.0e-12_wp) P_CI(itri(ij1,kl1)) = Zero
-              tmpPM(i,j,k,l) = P_CI(itri(ij1,kl1))
+              if (abs(P_CI(itri(ij1,kl1))) < 1.0e-12_wp) P_CI(iTri(ij1,kl1)) = Zero
+              tmpPM(i,j,k,l) = P_CI(iTri(ij1,kl1))
             end if
           end do
         end do
@@ -156,9 +155,9 @@ if (CI) then
             kl2 = ndim*(l-1)+k
             if (ij1 >= kl1) then
               if ((i > ntash) .or. (j > ntash) .or. (k > ntash) .or. (l > ntash)) then
-                tmpP(itri(ij1,kl1)) = Zero
+                tmpP(iTri(ij1,kl1)) = Zero
               else
-                tmpP(itri(ij1,kl1)) = tmpPM(i,j,k,l)
+                tmpP(iTri(ij1,kl1)) = tmpPM(i,j,k,l)
               end if
             end if
           end do
@@ -190,25 +189,25 @@ if (CI) then
 
   do i=1,ntAsh
     do j=1,i
-      D1(itri(i,j)) = D_CI((i-1)*ntash+j)
+      D1(iTri(i,j)) = D_CI((i-1)*ntash+j)
     end do
   end do
 
   do i=1,ntAsh
     do j=1,i
-      ij = itri(i,j)
+      ij = iTri(i,j)
       ij2 = i+(j-1)*ntash
       ji2 = j+(i-1)*ntash
       do k=1,i
         do l=1,k
-          kl = itri(k,l)
+          kl = iTri(k,l)
           kl2 = k+(l-1)*ntash
           lk2 = l+(k-1)*ntash
-          ijkl = itri(ij2,kl2)
-          jikl = itri(ji2,kl2)
-          ijlk = itri(ij2,lk2)
-          jilk = itri(ji2,lk2)
-          P1(itri(ij,kl)) = Quart*(P_CI(ijkl)+P_CI(jikl)+P_CI(ijlk)+P_CI(jilk))
+          ijkl = iTri(ij2,kl2)
+          jikl = iTri(ji2,kl2)
+          ijlk = iTri(ij2,lk2)
+          jilk = iTri(ji2,lk2)
+          P1(iTri(ij,kl)) = Quart*(P_CI(ijkl)+P_CI(jikl)+P_CI(ijlk)+P_CI(jilk))
         end do
       end do
     end do
@@ -216,15 +215,15 @@ if (CI) then
 
   do K=1,NTASH
     do L=1,K
-      KL = K*(K-1)/2+L
-      KLROW = KL*(KL-1)/2
+      KL = iTri(K,L)
+      KLROW = nTri_Elem(KL-1)
       if (L == K) then
         IMAX = K
       else
         IMAX = K-1
       end if
       do I=1,IMAX
-        II = I*(I+1)/2
+        II = nTri_Elem(I)
         IIKL = KLROW+II
         P1(IIKL) = P1(IIKL)*Half
       end do
@@ -233,24 +232,24 @@ if (CI) then
 
   !do i=1,ntAsh
   !  do j=1,i
-  !    ij = itri(i,j)
+  !    ij = iTri(i,j)
   !    ij2 = i+(j-1)*ntash
   !    ji2 = j+(i-1)*ntash
   !    do k=1,ntAsh
   !      do l=1,k
-  !        kl = itri(k,l)
+  !        kl = iTri(k,l)
   !        kl2 = k+(l-1)*ntash
-  !        ijkl = itri(ij2,kl2)
-  !        jikl = itri(ji2,kl2)
+  !        ijkl = iTri(ij2,kl2)
+  !        jikl = iTri(ji2,kl2)
   !        fact = Half
   !        if ((ij >= kl) .and. (k == l)) fact = Quart
   !        if ((ij < kl) .and. (i == j)) fact = Quart
-  !        P1(itri(ij,kl)) = fact*(P_CI(ijkl)+P_CI(jikl))
+  !        P1(iTri(ij,kl)) = fact*(P_CI(ijkl)+P_CI(jikl))
   !      end do
   !    end do
   !  end do
   !end do
-  !if (debug) Call triprt('P1',' ',P1,(ntash**2+ntash)/2)
+  !if (debug) Call triprt('P1',' ',P1,nTri_Elem(ntash))
 
   ! Write the 'bar' densities to disk,  not symmetry blocked.
 
@@ -373,8 +372,8 @@ if (isNAC) then
 else
   iR = iroot(istate)
   jdisk = itoc(3)
-  ng1 = itri(ntash,ntash)
-  ng2 = itri(ng1,ng1)
+  ng1 = nTri_Elem(ntash)
+  ng2 = nTri_Elem(ng1)
   call mma_allocate(G1q,n1dens,Label='G1q')
 
   ! Read active one el dens for state j from JOBIPH and store in G1q
@@ -413,7 +412,7 @@ if (isNAC) then
         j = jA+nish(is)
         iAA = iA+na(is)
         jAA = jA+na(is)
-        D_K(ipmat(is,is)+i-1+(j-1)*nbas(is)) = D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))+D_CI(iAA+(jAA-1)*ntash)+G1q(itri(iAA,jAA))
+        D_K(ipmat(is,is)+i-1+(j-1)*nbas(is)) = D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))+D_CI(iAA+(jAA-1)*ntash)+G1q(iTri(iAA,jAA))
       end do
     end do
   end do
@@ -465,8 +464,8 @@ if (isNAC) then
       do jA=1,iA-1
         j = jA+nish(is)
         jAA = jA+na(is)
-        G1m(ipmat(is,is)+i-1+(j-1)*nbas(is)) = G1q(itri(iAA,jAA))
-        G1m(ipmat(is,is)+j-1+(i-1)*nbas(is)) = -G1q(itri(iAA,jAA))
+        G1m(ipmat(is,is)+i-1+(j-1)*nbas(is)) = G1q(iTri(iAA,jAA))
+        G1m(ipmat(is,is)+j-1+(i-1)*nbas(is)) = -G1q(iTri(iAA,jAA))
       end do
       G1m(ipmat(is,is)+i-1+(i-1)*nbas(is)) = Zero
     end do
@@ -492,10 +491,10 @@ if (isNAC) then
     ibas = nbas(is)
     do i=1,ibas
       do j=1,i
-        G1m(iOff+itri(i,j)) = G1m(ipmat(is,is)+j-1+(i-1)*nbas(is))
+        G1m(iOff+iTri(i,j)) = G1m(ipmat(is,is)+j-1+(i-1)*nbas(is))
       end do
     end do
-    iOff = iOff+(ibas*ibas+ibas)/2
+    iOff = iOff+nTri_Elem(ibas)
   end do
   call Put_dArray('D1ao-',G1m,nTot1)
   call mma_deallocate(G1m)
@@ -520,7 +519,7 @@ else
 
         ! The active density G1q and \bar{D}
 
-        D_K(ipmat(is,is)+i-1+(j-1)*nbas(is)) = D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))+D_CI(iAA+(jAA-1)*ntash)+G1q(itri(iAA,jAA))
+        D_K(ipmat(is,is)+i-1+(j-1)*nbas(is)) = D_K(ipmat(is,is)+i-1+(j-1)*nbas(is))+D_CI(iAA+(jAA-1)*ntash)+G1q(iTri(iAA,jAA))
       end do
     end do
   end do

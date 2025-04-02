@@ -11,6 +11,7 @@
 
 subroutine RdAB()
 
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: CMO
 use MCLR_Data, only: ChDisp, lDisp
 use input_mclr, only: nSym, nIsh, nBas, nOrb, Perturbation, McKinley, iMethod, nIsh, ntITri, ntISqr, ntBSqr, nDisp, PT2, ESCF, &
@@ -59,7 +60,7 @@ if (iMethod == 1) then
   Length = 0
   do iSym=1,nSym
     ntIsh = ntIsh+nIsh(iSym)
-    ntItri = ntItri+nIsh(iSym)*(nIsh(iSym)+1)/2
+    ntItri = ntItri+nTri_Elem(nIsh(iSym))
     ntIsqr = ntIsqr+nIsh(iSym)*nIsh(iSym)
     ntbSQR = ntbsqr+nbas(isym)**2
     norb(isym) = nbas(isym)-ndel(isym)

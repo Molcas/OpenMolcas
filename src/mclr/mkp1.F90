@@ -11,6 +11,7 @@
 
 subroutine mkp1(nEX,lst,rMat,rdiag)
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: LuCIV, P1
 use input_mclr, only: lRoots, nConf, ERASSCF
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -21,10 +22,8 @@ integer nEX
 integer lst(nex)
 real*8 rMat(*), rdiag(*)
 real*8, allocatable :: Tmp1(:), Tmp2(:)
-integer i, j, k, l, itri, idisk, jDisk, kk, ll
+integer i, j, k, l, idisk, jDisk, kk, ll
 real*8 rtmp
-! Statement functions
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 call mma_allocate(TMP1,nconf,Label='Tmp1')
 call mma_allocate(TMP2,nconf,Label='Tmp2')
@@ -40,7 +39,7 @@ do i=1,lroots
       do l=1,nex
         kk = lst(k)
         ll = lst(l)
-        rtmp = rtmp+Tmp1(kk)*Tmp2(ll)*rmat(itri(k,l))
+        rtmp = rtmp+Tmp1(kk)*Tmp2(ll)*rmat(iTri(k,l))
       end do
     end do
     do k=1,nconf
@@ -51,7 +50,7 @@ do i=1,lroots
       kk = lst(k)
       rtmp = rtmp-Tmp1(kk)*Tmp2(kk)*(rdiag(kk+1)-ERASSCF(1))
     end do
-    P1(itri(i,j)) = rtmp
+    P1(iTri(i,j)) = rtmp
   end do
 end do
 

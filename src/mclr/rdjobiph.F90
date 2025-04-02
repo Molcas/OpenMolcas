@@ -27,6 +27,7 @@ subroutine RdJobIph(CIVec)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use MckDat, only: sNew
 use gugx, only: SGS, CIS, EXS
 use MCLR_Data, only: CMO, G2t, G1t
@@ -127,13 +128,13 @@ Length = 0
 do iSym=1,nSym
   norb(isym) = nbas(isym)-ndel(isym)
   ntIsh = ntIsh+nIsh(iSym)
-  ntItri = ntItri+nIsh(iSym)*(nIsh(iSym)+1)/2
+  ntItri = ntItri+nTri_Elem(nIsh(iSym))
   ntIsqr = ntIsqr+nIsh(iSym)*nIsh(iSym)
   ntAsh = ntAsh+nAsh(iSym)
-  ntAtri = ntAtri+nAsh(iSym)*(nAsh(iSym)+1)/2
+  ntAtri = ntAtri+nTri_Elem(nAsh(iSym))
   ntAsqr = ntAsqr+nAsh(iSym)*nAsh(iSym)
   ntBas = ntBas+nBas(iSym)
-  ntBtri = ntBtri+nBas(iSym)*(nBas(iSym)+1)/2
+  ntBtri = ntBtri+nTri_Elem(nBas(iSym))
   ntBsqr = ntBsqr+nBas(iSym)*nBas(iSym)
   nA(iSym) = nna
   nnA = nnA+nAsh(isym)
@@ -328,9 +329,9 @@ do iS=1,nSym
   end do
 end do
 
-nG1 = nAct*(nAct+1)/2
+nG1 = nTri_Elem(nAct)
 call mma_allocate(G1t,nG1,Label='G1t')
-nG2 = nG1*(nG1+1)/2
+nG2 = nTri_Elem(nG1)
 call mma_allocate(G2t,nG2,Label='G2t')
 call RDDENS(G1t,ng1,G2t,ng2)
 

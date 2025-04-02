@@ -33,6 +33,7 @@ subroutine Precabb_2(ib,is,js,nd,nba,no,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,
 !
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA, nB
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
@@ -46,24 +47,17 @@ real*8 Temp1(nTemp), Temp2(nO,nO), Scr(nTemp)
 real*8 Fockti
 real*8 Focki(no,no)
 real*8 Sign
-integer nTri, iib, jVert, i2, ip, kS, kBB, ipT, kkB, kkC, ijkl, lB, jB, ii, ij, kCC
+integer iib, jVert, ip, kS, kBB, ipT, kkB, kkC, ijkl, lB, jB, ii, ij, kCC
 real*8 rf, rDens1, rDens2, Rho
-! Statement functions
-integer i, j, iTri, iTri1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nTri = itri(nd,nd)
-
 iib = ib+nA(is)
 jVert = nOrb(js)-nAsh(js)-nIsh(js)
 if (jvert == 0) return
 
-i2 = nD-jVert+1
-ip = iTri1(i2,i2)
+ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
 rF = sign*Fockti
 call dcopy_(nBa**2,[Zero],0,Temp2,1)
 
@@ -78,7 +72,7 @@ do kS=1,nSym
         if ((kBB > nish(ks)) .and. (kCC > nish(ks))) then
           kkB = kBB+nA(ks)-nish(ks)
           kkC = kCC+nA(ks)-Nish(ks)
-          rDens1 = sign*Two*G2t(itri(itri(iib,iib),itri(kkb,kkc)))
+          rDens1 = sign*Two*G2t(iTri(nTri_Elem(iib),iTri(kkb,kkc)))
 
           if (kbb /= kcc) rdens1 = rdens1*Two
 
@@ -101,7 +95,7 @@ do Ks=1,nsym
         call EXCH(js,ks,js,ks,jb,lb,Temp1,Scr)
         ipT = 1
         if ((LB > nISH(ks)) .and. (jb > nish(ks))) then
-          rDens2 = sign*Four*G2t(itri(itri(iib,kkc),itri(kkb,iib)))
+          rDens2 = sign*Four*G2t(iTri(iTri(iib,kkc),iTri(kkb,iib)))
           call DaXpY_(nO**2,rDens2,Temp1(ipT),1,Temp2,1)
         end if
       end do
@@ -109,7 +103,7 @@ do Ks=1,nsym
   end if
 end do
 
-rho = sign*Two*G1t(itri(iib,iib))
+rho = sign*Two*G1t(nTri_Elem(iib))
 do iI=nAsh(js)+nIsh(js)+1,nOrb(js)
   rOut(ip) = rout(ip)-Two*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
   ip = ip+1

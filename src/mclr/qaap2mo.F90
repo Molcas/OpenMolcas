@@ -17,6 +17,7 @@
 
 subroutine QaaP2MO(G2q,ng2,GDMat,IKL,IKK,ILL)
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: nNA
 use input_mclr, only: nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -25,18 +26,16 @@ use Constants, only: Two, Half, Quart
 implicit none
 ! Input
 integer nG2, IKL, IKK, ILL
-real*8, dimension(nRoots*(nRoots+1)/2,nnA,nnA) :: GDMat
+real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
 ! Output
 real*8, dimension(nG2) :: G2q
 ! Auxiliaries
-integer i, j, k, l, ij, kl, ijkl, nD, lMax, itri
+integer i, j, k, l, ij, kl, ijkl, nD, lMax
 real*8 Fact
 real*8, dimension(:), allocatable :: Dsum, Ddif
-! Statement function
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! Calculating dQ_aa/dX_KL, original purpose of this subroutine
-nD = nnA*(nnA+1)/2
+nD = nTri_Elem(nnA)
 call mma_allocate(Dsum,nD)
 call mma_allocate(Ddif,nD)
 do i=1,nnA

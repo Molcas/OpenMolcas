@@ -12,6 +12,7 @@
 subroutine SetUp_MCLR(DSYM)
 ! Setup pointers and size of matrices (includes in Pointers.fh)
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: pInt1, pInt2
 use MCLR_Data, only: nNA, n2Dens, nDens, nCMO, nDensC, nDens2, ipMatLT, ipMat, ipCM, ipMatBA, ipMO, nA, nB, n1Dens, nMBA
 use input_mclr, only: nSym, TimeDep, iMethod, PT2, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3
@@ -22,9 +23,7 @@ integer dsym
 integer, external :: iPntSO
 integer ip, nn, nBmx, iS, jS, lS, klS, kS, ijS, ipP, iExt0, iExt1, iExt2, iExt3, iInt4, iExt4, i1, iInt0, iInt1, iInt2, iInt3, &
         mATAB, iOff, iiSym, iOrb, jjSym, jOrb, ijSym, klSym, ijNum, ijOrb, kkSym, kOrb, llSym, lOrb, klNum, klOrb, iPlus, nDensLT
-! Statement function
-integer i, j, iTri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+integer i
 
 !                                                                      *
 !***********************************************************************
@@ -44,7 +43,7 @@ end do
 call Set_nbmx(nbmx)
 
 nna = nn
-n2Dens = itri(nnA**2,nnA**2)
+n2Dens = nTri_Elem(nnA**2)
 
 n1Dens = nnA*nnA
 ip = 1
@@ -90,7 +89,7 @@ do jS=1,nSym
       if (is == js) then
         i1 = nOrb(is)-nish(is)-nAsh(is)
         ipMatLT(jS,iS) = nDensLT+1
-        nDensLT = nDensLT+nBas(iS)*(nBas(is)+1)/2
+        nDensLT = nDensLT+nTri_Elem(nBas(iS))
         iint0 = nOrb(is)-nIsh(is)
         iint1 = i1+nRs2(is)+nRs3(is)
         iint2 = i1+nRs3(is)
@@ -130,7 +129,7 @@ if (iMethod == 2) then
       if (ieor(iiSym-1,jjSym-1)+1 == Dsym) then
         pINT1(iiSym) = iOff
         if (iiSym == jjSym) then
-          iOff = iOff+iOrb*(iOrb+1)/2
+          iOff = iOff+nTri_Elem(iOrb)
         else
           iOff = iOff+iOrb*jOrb
         end if
@@ -148,10 +147,10 @@ if (iMethod == 2) then
       ijSym = ieor(iiSym-1,jjSym-1)+1
       klSym = ieor(ijSym-1,DSym-1)+1
 
-      ijNum = iiSym*(iiSym+1)/2+jjSym
+      ijNum = iTri(iiSym,jjSym)
 
       if (iiSym == jjSym) then
-        ijOrb = iOrb*(iOrb+1)/2
+        ijOrb = nTri_Elem(iOrb)
       else
         ijOrb = iOrb*jOrb
       end if
@@ -163,17 +162,17 @@ if (iMethod == 2) then
 
         if (llSym > kkSym) cycle
 
-        klNum = kkSym*(kkSym+1)/2+llSym
+        klNum = iTri(kkSym,llSym)
         if (klNum > ijNum) cycle
 
         if (kkSym == llSym) then
-          klOrb = kOrb*(kOrb+1)/2
+          klOrb = nTri_Elem(kOrb)
         else
           klOrb = kOrb*lOrb
         end if
         ip = iiSym+nSym*((jjSym-1)+nSym*(kkSym-1))
         if (ijNum == klNum) then
-          iPlus = ijOrb*(ijOrb+1)/2
+          iPlus = nTri_Elem(ijOrb)
         else
           iPlus = ijOrb*klOrb
         end if

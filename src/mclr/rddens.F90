@@ -11,6 +11,7 @@
 
 subroutine RdDens(d1,nd1,d2,nd2)
 
+use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use MCLR_Data, only: LuJob
@@ -24,9 +25,6 @@ real*8 rdum(1)
 real*8, allocatable :: G2tt(:), D2t(:), D1t(:)
 integer jDisk, i, j, iB, jB, iDij, kB, lB, iDkl, iIJKL
 real*8 W, Fact
-! Statement function
-integer itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -65,7 +63,7 @@ do iB=1,ntash
         fact = One
         if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
         if ((iDij < iDkl) .and. (iB == jB)) fact = Two
-        iijkl = itri(iDij,iDkl)
+        iijkl = iTri(iDij,iDkl)
         D2(iijkl) = Fact*G2tt(iijkl)
       end do
     end do

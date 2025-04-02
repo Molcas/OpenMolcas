@@ -36,6 +36,7 @@ subroutine SpinDens(LS,RS,iL,iR,rP1,rp2,rp3,rp4,rp5,rDe1,rde2,itype)
 ! <L||[{Q:S} ,[{Q:S} ,H]]|R>
 !           0       0
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: nNA, n2Dens, n1Dens
 use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
@@ -49,9 +50,6 @@ real*8 LS(*), RS(*), rP1(nna,nna,nna,nna), rP2(nna,nna,nna,nna), rP3(nna,nna,nna
 integer iType
 real*8, allocatable :: Dens(:,:), Pens(:), CIL(:), CIR(:)
 integer n2, nConfL, iL, nConfR, iR, iA, jA, kA, lA, ijklAB, jilkAB, ijklBA, jilkBA, ijkl, jilk
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 n2 = 2*n2dens+nnA**4
 call mma_allocate(Dens,n1dens,2,Label='Dens')
@@ -88,8 +86,8 @@ if (itype == 1) then
           jilkab = (ja-1)*nna**3+(ia-1)*nna**2+(la-1)*nna+ka
           ijklba = (ka-1)*nna**3+(la-1)*nna**2+(ia-1)*nna+ja
           jilkba = (la-1)*nna**3+(ka-1)*nna**2+(ja-1)*nna+ia
-          ijkl = itri((ia-1)*nna+ja,(ka-1)*nna+la)
-          jilk = itri((ja-1)*nna+ia,(la-1)*nna+ka)
+          ijkl = iTri((ia-1)*nna+ja,(ka-1)*nna+la)
+          jilk = iTri((ja-1)*nna+ia,(la-1)*nna+ka)
           rP1(ia,ja,ka,la) = Pens(ijkl)-Pens(ijkl+n2dens)+Pens(n2dens*2+ijklab)-Pens(ijklba+2*n2dens)+Pens(jilk)- &
                              Pens(jilk+n2dens)-Pens(n2dens*2+jilkab)+Pens(jilkba+2*n2dens)
         end do
@@ -115,7 +113,7 @@ else if (itype == 2) then
         do lA=1,nnA
           ijklab = (ia-1)*nna**3+(ja-1)*nna**2+(ka-1)*nna+la
           ijklba = (ka-1)*nna**3+(la-1)*nna**2+(ia-1)*nna+ja
-          ijkl = itri((ia-1)*nna+ja,(ka-1)*nna+la)
+          ijkl = iTri((ia-1)*nna+ja,(ka-1)*nna+la)
           rP1(ia,ja,ka,la) = Pens(ijkl)+Pens(n2dens+ijkl)-Pens(ijklab+2*n2dens)-Pens(ijklba+2*n2dens)
         end do
       end do
@@ -127,7 +125,7 @@ else if (itype == 2) then
         do lA=1,nnA
           ijklab = (ia-1)*nna**3+(ja-1)*nna**2+(ka-1)*nna+la
           ijklba = (ka-1)*nna**3+(la-1)*nna**2+(ia-1)*nna+ja
-          ijkl = itri((ia-1)*nna+ja,(ka-1)*nna+la)
+          ijkl = iTri((ia-1)*nna+ja,(ka-1)*nna+la)
           rP2(ia,ja,ka,la) = Pens(ijkl)-Pens(n2dens+ijkl)-Pens(ijklab+2*n2dens)+Pens(ijklba+2*n2dens)
         end do
       end do
@@ -140,7 +138,7 @@ else if (itype == 2) then
         do lA=1,nnA
           ijklab = (ia-1)*nna**3+(ja-1)*nna**2+(ka-1)*nna+la
           ijklba = (ka-1)*nna**3+(la-1)*nna**2+(ia-1)*nna+ja
-          ijkl = itri((ia-1)*nna+ja,(ka-1)*nna+la)
+          ijkl = iTri((ia-1)*nna+ja,(ka-1)*nna+la)
           rP3(ia,ja,ka,la) = Pens(ijkl)+Pens(ijkl+n2dens)+Pens(n2dens*2+ijklab)+Pens(ijklba+2*n2dens)
         end do
       end do
@@ -152,7 +150,7 @@ else if (itype == 2) then
         do lA=1,nnA
           ijklab = (ia-1)*nna**3+(ja-1)*nna**2+(ka-1)*nna+la
           ijklba = (ka-1)*nna**3+(la-1)*nna**2+(ia-1)*nna+ja
-          ijkl = itri((ia-1)*nna+ja,(ka-1)*nna+la)
+          ijkl = iTri((ia-1)*nna+ja,(ka-1)*nna+la)
           rP4(ia,ja,ka,la) = -Pens(n2dens*2+ijklab)+Pens(ijklba+2*n2dens)
         end do
       end do
@@ -164,7 +162,7 @@ else if (itype == 2) then
         do lA=1,nnA
           ijklab = (ia-1)*nna**3+(ja-1)*nna**2+(ka-1)*nna+la
           ijklba = (ka-1)*nna**3+(la-1)*nna**2+(ia-1)*nna+ja
-          ijkl = itri((ia-1)*nna+ja,(ka-1)*nna+la)
+          ijkl = iTri((ia-1)*nna+ja,(ka-1)*nna+la)
           rP5(ia,ja,ka,la) = Pens(n2dens*2+ijklab)+Pens(ijklba+2*n2dens)
         end do
       end do

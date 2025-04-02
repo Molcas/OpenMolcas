@@ -27,6 +27,7 @@ subroutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin)
 ! Fock is E*d/dx(lambda)
 ! rkappa is d/dx(lambda)
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: G2sq, G1t
 use MCLR_Data, only: nDens2, ipMat, ipMatBA, nA, nMBA
 use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh
@@ -40,9 +41,6 @@ real*8 reco
 real*8, allocatable :: FA(:), MT1(:), MT2(:), QA(:), QB(:)
 real*8 Fact, Dij
 integer iS, jS, iAsh, jAsh, ipF, ipFI
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 call mma_allocate(FA,ndens2,Label='FA')
 ! Fact controls the sign of H(k)
@@ -107,7 +105,7 @@ do iS=1,nSym
         ! F  = F - F  D
         !  ap   ap  ap ba
 
-        Dij = G1t(itri(iash+nA(js),jAsh+nA(js)))
+        Dij = G1t(iTri(iash+nA(js),jAsh+nA(js)))
         ipF = ipMat(is,js)+(Nish(js)+iAsh-1)*nBas(is)
         ipFI = ipMat(is,js)+(Nish(js)+jAsh-1)*nBas(is)
 
@@ -122,7 +120,7 @@ do iS=1,nSym
       do jAsh=1,nAsh(is)
         ipF = ipMat(is,js)+nIsh(is)+jAsh-1
         ipFI = ipMat(is,js)+nIsh(is)+iAsh-1
-        Dij = G1t(itri(iash+nA(is),jAsh+nA(is)))
+        Dij = G1t(iTri(iash+nA(is),jAsh+nA(is)))
 
         !         I
         ! F  = F - F  D

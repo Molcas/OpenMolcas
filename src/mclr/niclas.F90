@@ -13,6 +13,7 @@
 
 subroutine Niclas(H,coor,LUT)
 
+use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl
@@ -35,8 +36,7 @@ logical, external :: TF
 real*8 Dummy(1), HE, riPh, rjPh
 real*8, allocatable :: Htmp(:), Tmp(:)
 ! Statement functions
-integer i, j, itri, irec
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+integer i, j, irec
 irec(i,j) = nd*(j-1)+i-1
 
 idsp = 0
@@ -80,11 +80,11 @@ iii = 0
 do iS=1,Nirrep
   do i=1,ldisp(iS-1)
     do j=1,i
-      Tmp(itri(iii+i,iii+j)) = sqrt(real(nDeg(i+iii)*nDeg(j+iii),kind=wp))*H(ii+itri(i,j))
-      !write(u6,*) H(ii+itri(i,j)),Tmo(itri(iii+i,iii+j))
+      Tmp(iTri(iii+i,iii+j)) = sqrt(real(nDeg(i+iii)*nDeg(j+iii),kind=wp))*H(ii+iTri(i,j))
+      !write(u6,*) H(ii+iTri(i,j)),Tmo(iTri(iii+i,iii+j))
     end do
   end do
-  ii = ii+ldisp(is-1)*(ldisp(is-1)+1)/2
+  ii = ii+nTri_Elem(ldisp(is-1))
   iii = iii+ldisp(is-1)
 end do
 
@@ -123,7 +123,7 @@ do iCnttp=1,nCnttp
                 jComp = 2**jCar
                 if (TF(ndc,iIrrep,jComp)) then
                   jdsp = jdsp+1
-                  HE = Tmp(itri(idsp,jdsp))
+                  HE = Tmp(iTri(idsp,jdsp))
                   do iCo=0,Ncenti-1
                     do jCo=0,Ncentj-1
                       i = iPert+ico*3+icar+1

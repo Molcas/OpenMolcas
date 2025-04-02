@@ -11,26 +11,24 @@
 
 subroutine CIDens(response,iLS,iRS,iL,iR,rP,rD)
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipin1, ipnout, opout, W
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
 use MCLR_Data, only: XISPSM
 use MCLR_Data, only: NOCSF
 use CandS, only: ICSM, ISSM
 use input_mclr, only: TimeDep, nCSF
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 
 implicit none
 logical Response
 integer iLS, iRS, iL, iR
 real*8 rP(*), rD(*)
 real*8, allocatable :: De(:), Pe(:), CIL(:), CIR(:)
-integer i, j, itri
 integer nDim, nConfL, nConfR
 integer IA, JA, KA, LA, ij1, ij2, kl1, kl2
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! LS = CI
 !
@@ -69,7 +67,7 @@ if (doDMRG) then  !yma
   call dmrg_dim_change_mclr(LRras2(1:8),ndim,0)
   call dmrg_dim_change_mclr(LRras2(1:8),nna,0)
   n1dens = ndim**2
-  n2dens = n1dens*(n1dens+1)/2
+  n2dens = nTri_Elem(n1dens)
 end if
 
 call mma_allocate(De,n1dens,Label='De')
@@ -103,7 +101,7 @@ if (nocsf == 0) then
               ij2 = nna*(ja-1)+ia
               kl1 = nnA*(ka-1)+la
               kl2 = nna*(la-1)+ka
-              rp(itri(ij1,kl1)) = Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
+              rp(iTri(ij1,kl1)) = Pe(iTri(ij1,kl1))+Pe(iTri(ij2,kl2))
             end do
           end do
         end do
@@ -147,7 +145,7 @@ else
               ij2 = nna*(ja-1)+ia
               kl1 = nnA*(ka-1)+la
               kl2 = nna*(la-1)+ka
-              rp(itri(ij1,kl1)) = Pe(itri(ij1,kl1))+Pe(itri(ij2,kl2))
+              rp(iTri(ij1,kl1)) = Pe(iTri(ij1,kl1))+Pe(iTri(ij2,kl2))
             end do
           end do
         end do
@@ -182,7 +180,7 @@ if (doDMRG) then  ! yma
   call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
   call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
   n1dens = ndim**2
-  n2dens = n1dens*(n1dens+1)/2
+  n2dens = nTri_Elem(n1dens)
 end if
 
 end subroutine CIDens

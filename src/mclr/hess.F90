@@ -15,6 +15,7 @@ subroutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,Temp4,idsym,jdisp,idisp)
 ! Constructs the connection parts that is dependend on the first
 ! derivative of the connection.
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: Hss, CMO, F0SQMO
 use MCLR_Data, only: nDens2, ipCM, ipMat
 use MCLR_Data, only: DspVec, lDisp
@@ -52,14 +53,14 @@ end if
 
 Len = 0
 do iSym=1,nSym
-  Len = Len+lDisp(iSym)*(lDisp(iSym)+1)/2
+  Len = Len+nTri_Elem(lDisp(iSym))
 end do
 
 nIn = 0
 mdisp = 0
 do iS=1,idsym-1
   mdisp = mdisp+ldisp(is)
-  nIn = nIn+lDisp(is)*(lDisp(is)+1)/2
+  nIn = nIn+nTri_Elem(lDisp(is))
 end do
 
 do kDisp=1,ldisp(idsym)
@@ -82,7 +83,7 @@ do kDisp=1,ldisp(idsym)
         if (ieor(iS-1,jS-1) == idsym-1) then
           if (is == js) then
             call Square(Temp1(ip),Temp2(ipMat(iS,jS)),1,nBas(is),nBas(is))
-            ip = ip+nBas(is)*(nBas(iS)+1)/2
+            ip = ip+nTri_Elem(nBas(is))
           else
             if (nBas(is)*nBas(js) /= 0) call dcopy_(nBas(iS)*nBas(jS),Temp1(ip),1,Temp2(ipMat(iS,jS)),1)
             ip = ip+nBas(is)*nBas(js)
@@ -105,7 +106,7 @@ do kDisp=1,ldisp(idsym)
   end do
   Fact = One
   if (kDisp == jDisp) Fact = Two
-  Indx = nIn+max(kDisp,jDisp)*(max(kDisp,jDisp)-1)/2+min(kDisp,jDisp)
+  Indx = nIn+iTri(kDisp,jDisp)
   Hss(Indx) = Hss(Indx)-fact*ddot_(nDens2,Temp2,1,Temp3,1)
 end do
 

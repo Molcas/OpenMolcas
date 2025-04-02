@@ -24,6 +24,7 @@ subroutine DENSI2_MCLR(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
 ! Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
 ! ijkl = ij*(ij-1)/2+kl, ij >= kl
 
+use Index_Functions, only: nTri_Elem
 use Str_Info, only: STR, IATPM1, IATPM2, IBTPM1, IBTPM2, ITYP_DUMMY, NELEC, NOCTYP
 use MCLR_Data, only: IDC, PSSIGN
 use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC
@@ -63,7 +64,7 @@ IDUM = 0
 NGAS = 3
 
 RHO1(1:NACOB**2) = Zero
-RHO2(1:NACOB**2*(NACOB**2+1)/2) = Zero
+RHO2(1:nTri_Elem(NACOB**2)) = Zero
 
 ! Info for this internal space
 
@@ -176,7 +177,7 @@ call mma_allocate(OOS,NOOS,10,Label='OSS')
 ! scratch space containing active one body
 call mma_allocate(RHO1S,NACOB**2,Label='RHO1S')
 ! For natural orbitals
-call mma_allocate(RHO1P,NACOB*(NACOB+1)/2,Label='RHO1P')
+call mma_allocate(RHO1P,nTri_Elem(NACOB),Label='RHO1P')
 call mma_allocate(XNATO,NACOB**2,Label='XNATO')
 ! Natural orbitals in symmetry blocks
 !call mma_allocate(RHO1SM,NACOB ** 2,Label='RHO1SM')

@@ -12,6 +12,7 @@
 subroutine WRTRS2_MCLR(VECTOR,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
 ! Write RAS vector. Storage form is defined by ICBLTP
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
@@ -38,11 +39,11 @@ do IASM=1,NSMST
       NBST = NSBSO(IBTP,IBSM)
       if ((ICBLTP(IASM) == 2) .and. (IATP == IBTP)) then
         ! Diagonal block
-        NELMNT = NAST*(NAST+1)/2
+        NELMNT = nTri_Elem(NAST)
         if (NELMNT /= 0) then
           write(u6,'(A,3I3)') '  Iasm iatp ibtp : ',IASM,IATP,IBTP
           write(u6,'(A)') '  ============================'
-          !do i=1,NAST*(NAST+1)/2  !yma
+          !do i=1,nTri_Elem(NAST)  !yma
           !  if (abs(VECTOR(IBASE+i-1)) < 1.0e-16_wp) VECTOR(IBASE+i-1) = Zero
           !  write(u6,*) 'vector',i,VECTOR(IBASE+i-1)
           !end do

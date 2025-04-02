@@ -28,6 +28,7 @@
 
 subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
 
+use Index_Functions, only: iTri
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
 use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
@@ -49,11 +50,9 @@ logical Have_2_el
 integer kic(2)
 real*8, allocatable :: CIDET(:)
 real*8, allocatable, target _SAVE_TARGET_ :: TI1(:), TI2(:)
-integer i, j, itri
+integer i, j
 integer nDet, iOp, iS, jS
 integer ij, ji, k, l, kl, lk, ijkl, jilk
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 ! Interface Anders to Jeppe
 ! This interface initiates Jeppes common block
@@ -172,8 +171,8 @@ if (TIMEDEP) then
             kl = k+ntash*(l-1)
             lk = l+ntash*(k-1)
             if (ij >= kl) then
-              ijkl = itri(ij,kl)
-              jilk = itri(ji,lk)
+              ijkl = iTri(ij,kl)
+              jilk = iTri(ji,lk)
               TI2(jilk) = int2s(ijkl)
             end if
           end do

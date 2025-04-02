@@ -33,6 +33,7 @@ subroutine Preciba(iB,iS,jS,nd,rOut,nba,focki,focka,fock,sign,A_J,A_K,Scr,nScr)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t
 use MCLR_Data, only: nA
 use input_mclr, only: nAsh, nIsh, nBas, nOrb
@@ -48,15 +49,11 @@ integer nScr
 real*8 A_J(nScr), A_K(nScr), Scr(nScr)
 integer nTri, jVert, nO, jA, ip, jB, jBB, iVB
 real*8 rDens
-! Statement functions
-integer i, j, iTri, iTri1
-iTri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
-iTri1(i,j) = nTri-itri(nd-min(i,j)+1,nd-min(i,j)+1)+max(i,j)-min(i,j)+1
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nTri = itri(nd,nd)
+nTri = nTri_Elem(nd)
 jVert = nOrb(jS)-nAsh(jS)-nIsh(jS)
 nO = nAsh(jS)+nIsh(jS)
 !                                                                      *
@@ -68,7 +65,7 @@ call Coul(jS,jS,iS,iS,iB,iB,A_J,Scr)
 call Exch(jS,iS,jS,iS,iB,iB,A_K,Scr)
 
 do jA=1,nAsh(jS)
-  ip = itri1(ja,nd-jVert+1)
+  ip = nTri-iTri(nd-ja+1,jVert)+1
   do jB=1,nAsh(jS)
     jBB = jB+nIsh(jS)
     ! Get D_(ja,jb)
@@ -84,7 +81,7 @@ end do
 !***********************************************************************
 !                                                                      *
 do jA=1,nAsh(js)
-  ip = iTri1(ja,nAsh(js)+1)
+  ip = nTri-iTri(nd-ja+1,nd-nAsh(js))+1
   call DaXpY_(jVert,sign*Four,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
   call DaXpY_(jVert,sign*Four,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
   call DaXpY_(jVert,-sign,Fock(nO+1,ja+nIsh(js)),1,rout(ip),1)

@@ -33,6 +33,7 @@ subroutine OutPut_MCLR(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,
 !         Theoretical Chemistry, University of Lund                    *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: Hss
@@ -62,7 +63,7 @@ real*8, allocatable :: Kap1(:), Kap2(:), sKap(:), rKap1(:), rKap2(:)
 real*8, allocatable :: Hess(:), Hess2(:), Temp(:), ELEC(:), EG(:), ELOUT(:)
 integer, allocatable :: NrDisp(:), DegDisp(:)
 integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1, ipRP2, jDisp, jSpin, iDisk, Len, i, iLen, iDis, &
-        iRC, kDisp, kSpin, MaxI, MinI, Index, iOpt, Lu_10
+        iRC, kDisp, kSpin, Index, iOpt, Lu_10
 real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
 real*8, external :: DDot_
 integer, external :: IsFreeUnit
@@ -77,7 +78,7 @@ debug = .true.
 debug = .false.
 #endif
 nHss = size(Hss)
-nhess = nDisp*(nDisp+1)/2
+nhess = nTri_Elem(nDisp)
 call mma_allocate(RHss,nHss,Label='RHss')
 RHss(:) = Zero
 
@@ -329,9 +330,7 @@ do iSym=1,nSym
       !write(u6,*) rTempk1,rtempk2,rtempk3
       !write(u6,*) rtempc1,rtempc2,rtempc3
 
-      Maxi = max(kDisp,jDisp)
-      Mini = min(kDisp,jDisp)
-      index = mSym+Maxi*(Maxi-1)/2+Mini
+      index = mSym+iTri(kDisp,jDisp)
 
       Rhss(Index) = Rhss(Index)+rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3
 
@@ -341,7 +340,7 @@ do iSym=1,nSym
 
   end do
   kSym = kSym+lDisp(iSym)
-  mSym = mSym+lDisp(iSym)*(lDisp(iSym)+1)/2
+  mSym = mSym+nTri_Elem(lDisp(iSym))
 
   ! Free areas for scratch and state variables
 
@@ -387,7 +386,7 @@ if (debug) then
   do iSym=1,nSym
     write(label2,'(A,I2)') 'CHessian symmetry',iSym
     if (lDisp(iSym) /= 0) call TriPrt(label2,' ',Hess2(ip),lDisp(iSym))
-    ip = ip+ldisp(isym)*(1+ldisp(isym))/2
+    ip = ip+nTri_Elem(ldisp(isym))
   end do
 end if
 
@@ -419,7 +418,7 @@ if (debug) then
   do iSym=1,nSym
     write(label2,'(A,I2)') 'Hessian symmetry',iSym
     if (lDisp(iSym) /= 0) call TriPrt(label2,' ',Hess2(ip),lDisp(iSym))
-    ip = ip+ldisp(isym)*(1+ldisp(isym))/2
+    ip = ip+nTri_Elem(ldisp(isym))
   end do
 end if
 #endif
@@ -444,7 +443,7 @@ if (McKinley) then
     do iSym=1,nSym
       write(label2,'(a,i2)') 'SHessian symmetry',iSym
       if (lDisp2(iSym) /= 0) call TriPrt(label2,' ',Temp(ip),lDisp2(iSym))
-      ip = ip+ldisp2(isym)*(1+ldisp2(isym))/2
+      ip = ip+nTri_Elem(ldisp2(isym))
     end do
   end if
 # endif
@@ -456,7 +455,7 @@ if (debug) then
   do iSym=1,nSym
     write(label2,'(a,i2)') 'Hessian symmetry',iSym
     if (lDisp2(iSym) /= 0) call TriPrt(label2,' ',Hess(ip),lDisp2(iSym))
-    ip = ip+ldisp2(isym)*(1+ldisp2(isym))/2
+    ip = ip+nTri_Elem(ldisp2(isym))
   end do
 end if
 #endif
@@ -472,7 +471,7 @@ if (McKinley) then
     call Abend()
   end if
   call Put_iScalar('No of Internal coordinates',ldisp2(1))
-  call Put_AnalHess(Hess,ldisp2(1)*(ldisp2(1)+1)/2)
+  call Put_AnalHess(Hess,nTri_Elem(ldisp2(1)))
 end if
 
 if (.true.) then

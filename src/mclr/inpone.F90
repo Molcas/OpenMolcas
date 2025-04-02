@@ -11,6 +11,7 @@
 
 subroutine InpOne()
 
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use rctfld_module, only: lRF
 use MCLR_Data, only: CMO, Int1, KAIN1
@@ -123,7 +124,7 @@ ip2 = 1
 do iS=1,nSym
   if ((nBas(is) /= 0) .and. (nOrb(iS) /= 0)) then
     call Square(Temp1(ip),Temp2,1,nBas(is),nBas(is))
-    ip = ip+nBas(is)*(nBas(iS)+1)/2
+    ip = ip+nTri_Elem(nBas(is))
     call DGEMM_('T','N',nOrb(iS),nBas(iS),nBas(iS),One,CMO(ip2),nBas(iS),Temp2,nBas(iS),Zero,Temp3,nOrb(iS))
     call DGEMM_('N','N',nOrb(is),nOrb(iS),nBas(iS),One,Temp3,nOrb(iS),CMO(ip2),nBas(iS),Zero,Int1(ip2),nOrb(iS))
     ip2 = ip2+nBas(is)**2

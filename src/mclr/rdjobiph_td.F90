@@ -26,6 +26,7 @@ subroutine RdJobIph_td(CIVec)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: CMO, G2t, G2sq, G1t
 use MCLR_Data, only: nNA, nA
 use MCLR_Data, only: FnJob, LuJob
@@ -43,12 +44,9 @@ real*8, allocatable :: CIVec(:,:)
 real*8 rdum(1)
 character(len=1), allocatable :: TempTxt(:)
 real*8, allocatable :: Tmp2(:), G2tts(:), G2tta(:)
-integer kRoots, iDisk, Length, iSym, i, j, Iter, nAct, nAct2, nAct4, iS, jS, kS, lS, nG1, nG2, iB, jB, iDij, kB, lB, iDkl, iIJKL, &
+integer kRoots, iDisk, Length, iSym, i, Iter, nAct, nAct2, nAct4, iS, jS, kS, lS, nG1, nG2, iB, jB, iDij, kB, lB, iDkl, iIJKL, &
         iDij2, iDkl2, iIJKL2
 real*8 Temp, PotNuc0, Fact, Factij, Factkl, Fact2
-! Statement function
-integer itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !----------------------------------------------------------------------*
 !     Save the ROOT input parameter                                    *
@@ -108,13 +106,13 @@ Length = 0
 do iSym=1,nSym
   norb(isym) = nbas(isym)-ndel(isym)
   ntIsh = ntIsh+nIsh(iSym)
-  ntItri = ntItri+nIsh(iSym)*(nIsh(iSym)+1)/2
+  ntItri = ntItri+nTri_Elem(nIsh(iSym))
   ntIsqr = ntIsqr+nIsh(iSym)*nIsh(iSym)
   ntAsh = ntAsh+nAsh(iSym)
-  ntAtri = ntAtri+nAsh(iSym)*(nAsh(iSym)+1)/2
+  ntAtri = ntAtri+nTri_Elem(nAsh(iSym))
   ntAsqr = ntAsqr+nAsh(iSym)*nAsh(iSym)
   ntBas = ntBas+nBas(iSym)
-  ntBtri = ntBtri+nBas(iSym)*(nBas(iSym)+1)/2
+  ntBtri = ntBtri+nTri_Elem(nBas(iSym))
   ntBsqr = ntBsqr+nBas(iSym)*nBas(iSym)
   nA(iSym) = nna
   nnA = nnA+nAsh(isym)
@@ -177,7 +175,7 @@ end do
 !----------------------------------
 ! One electron dens - triang stor.
 !----------------------------------
-nG1 = nAct*(nAct+1)/2
+nG1 = nTri_Elem(nAct)
 call mma_allocate(G1t,nG1,Label='G1t')
 G1t(:) = Zero
 
@@ -185,7 +183,7 @@ G1t(:) = Zero
 ! Triangular part of two electron dens,
 ! symmetric part
 !---------------------------------------
-nG2 = nG1*(nG1+1)/2
+nG2 = nTri_Elem(nG1)
 
 call mma_allocate(G2sq,nAct**4,Label='G2sq')
 call mma_allocate(G2t,nG2,Label='G2t')
@@ -212,7 +210,7 @@ do iB=1,nAct
         fact = One
         if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
         if ((iDij < iDkl) .and. (iB == jB)) fact = Two
-        iijkl = itri(iDij,iDkl)
+        iijkl = iTri(iDij,iDkl)
         G2t(iijkl) = Fact*G2tts(iijkl)
       end do
     end do
@@ -241,7 +239,7 @@ do iB=1,nAct
         Fact2 = Factij*Factkl
         if ((iDij >= iDkl) .and. (kB == lB)) fact = Two
         if ((iDij < iDkl) .and. (iB == jB)) fact = Two
-        iijkl = itri(iDij,iDkl)
+        iijkl = iTri(iDij,iDkl)
         iijkl2 = iDij2+nact**2*(iDkl2-1)
 
         G2sq(iijkl2) = Fact*(G2tts(iijkl)+G2tta(iijkl)*Fact2)

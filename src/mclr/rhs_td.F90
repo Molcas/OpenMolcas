@@ -32,6 +32,7 @@ subroutine RHS_td(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,rKappa,ipst,iDisp,lOper,CM
 !         Theoretical Chemistry, University of Lund                    *
 !***********************************************************************
 
+use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, W
 use MCLR_Data, only: G2sq, G1t
 use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
@@ -53,9 +54,6 @@ real*8 rDum(1)
 real*8, allocatable :: FiX(:), MOX(:), MOT(:), MOT2(:)
 integer iRC, iDSym, iOpt, iOp, ip, iS, jS, iAsh, jAsh
 real*8 Dij, Ena, E2_TD
-! Statement function
-integer i, j, itri
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 !                                                                      *
 !***********************************************************************
@@ -91,7 +89,7 @@ if (iand(ntpert(idisp),2**3) == 8) then
         if (nBas(is)*nBas(js) /= 0) then
           if (is == js) then
             call Square(Temp6(ipMatLT(is,js)),Temp5,1,nBas(is),nBas(is))
-            ip = ip+nBas(is)*(nBas(iS)+1)/2
+            ip = ip+nTri_Elem(nBas(is))
           else
             call dcopy_(nBas(iS)*nBas(jS),Temp6(ipMatLt(is,js)),1,Temp5,1)
           end if
@@ -162,7 +160,7 @@ if (iand(ntpert(idisp),2**3) == 8) then
       call DaXpY_(nIsh(is)*nBas(js),Two,Temp4(ipMat(js,is)),1,Temp6(ipMat(js,is)),1)
       do iAsh=1,nAsh(iS)
         do jAsh=1,nAsh(is)
-          Dij = G1t(itri(iash+nA(is),jAsh+nA(is)))
+          Dij = G1t(iTri(iash+nA(is),jAsh+nA(is)))
 
           ! F~=F~+DFi~
 

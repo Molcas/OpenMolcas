@@ -11,6 +11,7 @@
 
 subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp)
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: G1t, CMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
 use MCLR_Data, only: DspVec, SWLbl
@@ -24,9 +25,7 @@ integer lOper, iDisp
 character(len=8) Label
 integer jDisp, iOp, iRC, iOpt, iS, jS
 real*8 rde
-integer i, j, iTri
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
+integer i, j
 
 !***********************************************************************
 if (nDens2 == 0) return
@@ -173,7 +172,7 @@ do iS=1,nSym
       if ((i == j) .and. (i <= nish(is)) .and. (j <= nish(is))) then
         rde = Two
       else if ((i > nish(is)) .and. (j > nish(is))) then
-        rde = G1t(itri(i-nish(is)+nA(is),j-nIsh(is)+nA(is)))
+        rde = G1t(iTri(i-nIsh(is)+nA(is),j-nIsh(is)+nA(is)))
       else
         rde = Zero
       end if

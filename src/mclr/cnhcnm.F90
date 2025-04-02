@@ -23,6 +23,7 @@ subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,SCR,ICONF,NEL,IREFSM,N
 ! ================
 
 use iso_c_binding, only: c_f_pointer, c_loc
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: NTYP, NCPCNT
 
 implicit none
@@ -109,7 +110,7 @@ subroutine CNHCNM_INTERNAL(SCR)
           do IIR=1,IIRMAX
             IIRACT = IIRB-1+IIR
             IILACT = IILB-1+IIL
-            ILRO = IILACT*(IILACT-1)/2+IIRACT
+            ILRO = nTri_Elem(IILACT-1)+IIRACT
             ILRI = (IIR-1)*NCSFL+IIL
             HSUB(ILRO) = SCR(KLPHPS-1+ILRI)
           end do

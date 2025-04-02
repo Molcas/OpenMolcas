@@ -11,19 +11,17 @@
 
 subroutine ABXpY(Array1,Array2,idsym)
 
+use Index_Functions, only: iTri
 use MCLR_Data, only: ipMO, NA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 
 implicit none
 integer idsym
 real*8 Array1(*), Array2(*)
-integer i, j, itri
 integer iS, jS, kS, lS, ijS
 integer iA, jA, kA, lA
 integer iAsh, jAsh, kAsh, lAsh
 integer iiA, ij, kl, ijkl, ip1
-! Statement function
-itri(i,j) = max(i,j)*(max(i,j)-1)/2+min(i,j)
 
 do iS=1,nSym
   do iA=1,Nash(is)
@@ -33,7 +31,7 @@ do iS=1,nSym
       ijs = ieor(is-1,js-1)+1
       do jA=1,Nash(js)
         jAsh = nA(js)+jA
-        ij = itri(iash,jash)
+        ij = iTri(iash,jash)
         if (iAsh >= jash) then
           do kS=1,nSym
             do kA=1,Nash(ks)
@@ -42,9 +40,9 @@ do iS=1,nSym
               do lA=1,Nash(ls)
                 lAsh = nA(ls)+lA
                 if (kAsh >= lash) then
-                  kl = itri(kAsh,lash)
+                  kl = iTri(kAsh,lash)
                   if (ij >= kl) then
-                    ijkl = itri(ij,kl)
+                    ijkl = iTri(ij,kl)
                     ip1 = ipMO(js,ks,ls)+nOrb(is)*nAsh(js)*((lA-1)*nAsh(kS)+kA-1)+nOrb(is)*(ja-1)+iia-1
                     Array2(ijkl) = array1(ip1)+array2(ijkl)
                   end if
