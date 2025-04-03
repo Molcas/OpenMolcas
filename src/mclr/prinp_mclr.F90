@@ -236,7 +236,7 @@ if (iPL >= 2) then
       do iSym=1,nSym
         do iDisp=1,lDisp(iSym)
           jDisp = jDisp+1
-          if (iand(ntpert(jdisp),16) == 16) then
+          if (btest(ntpert(jdisp),4)) then
             write(u6,Fmt2//'I3,T16,A3,T29,A)') jDisp,chIrr(isym),ChDisp(dspvec(jDisp))
           else
             write(u6,Fmt2//'I3,T16,A3,T29,A8,A,A)') jDisp,chIrr(isym),swlbl(jDisp),' ',XYZ(dspvec(jDisp))

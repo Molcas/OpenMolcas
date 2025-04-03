@@ -11,6 +11,7 @@
 
 integer function nPre(kS)
 
+use Symmetry_Info, only: Mul
 use input_mclr, only: nSym, nIsh, nOrb, nRS1, nRS2, nRS3
 
 implicit none
@@ -19,7 +20,7 @@ integer iOut, iS, jS, nRest
 
 iOut = 0
 do is=1,nSym
-  jS = ieor(iS-1,kS-1)+1
+  jS = Mul(iS,kS)
   nRest = nOrb(js)-nIsh(js)
   iOut = iOut+nIsh(is)*nRest*(nRest+1)
   nRest = nOrb(js)-nRs1(js)

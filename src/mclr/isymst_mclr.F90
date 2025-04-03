@@ -12,20 +12,17 @@
 integer function ISYMST_MCLR(STRING,NEL)
 ! Master routine for symmetry of string
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: ISMFTO
 
 implicit none
 ! Specific input
 integer STRING(*), NEL
-integer ISYM, IEL, JSYM, IVV, KVV
+integer IEL
 
-ISYM = 1
+ISYMST_MCLR = 1
 do IEL=1,NEL
-  JSYM = ISMFTO(STRING(IEL))-1
-  IVV = ISYM-1
-  KVV = ieor(IVV,JSYM)
-  ISYM = KVV+1
+  ISYMST_MCLR = Mul(ISYMST_MCLR,ISMFTO(STRING(IEL)))
 end do
-ISYMST_MCLR = ISYM
 
 end function ISYMST_MCLR

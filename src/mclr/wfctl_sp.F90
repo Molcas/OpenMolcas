@@ -60,7 +60,7 @@ idis = 0
 lprint = .false.
 nconf1 = 0
 
-if (iand(kprint,2) == 2) lprint = .true.
+if (btest(kprint,1)) lprint = .true.
 if (iMethod == 2) call InCSFSD(State_Sym,State_sym)
 
 nconf1 = ncsf(State_Sym)

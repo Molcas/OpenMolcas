@@ -24,6 +24,7 @@ subroutine FockGen_td(d_0,rDens1,rdens2,fock,idsym)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: FIMO
 use MCLR_Data, only: nDens2, nNA, ipMat, ipCM, nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
@@ -54,7 +55,7 @@ call mma_allocate(Scr,n2,Label='Scr')
 do ipS=1,nSym
   do kS=1,nSym
     do iS=1,nSym
-      jS = ieor(ieor(ipS-1,kS-1),iS-1)+1
+      jS = Mul(Mul(ipS,kS),iS)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -63,7 +64,7 @@ do ipS=1,nSym
       !                                                                *
       !*****************************************************************
       !                                                                *
-      if ((ieor(ipS-1,kS-1)+1 == iDsym) .and. (nBas(ipS)*nIsh(kS) > 0)) then
+      if ((Mul(ipS,kS) == iDsym) .and. (nBas(ipS)*nIsh(kS) > 0)) then
         do iA=1,nAsh(iS)
           iAA = iA+nIsh(iS)
           do jA=1,nAsh(jS)
@@ -83,7 +84,7 @@ do ipS=1,nSym
       ! Exchange term   F = -(pk|ji)d     (i>j)  OBS KAN VARA FEL
       !                  pl          kj
 
-      if ((ieor(ips-1,iS-1)+1 == iDsym) .and. (nBas(ipS) > 0)) then
+      if ((Mul(ips,iS) == iDsym) .and. (nBas(ipS) > 0)) then
         do iA=1,nIsh(iS)
           ipF = ipMat(ipS,iS)+nBas(ipS)*(iA-1)
           do jA=1,nAsh(jS)
@@ -120,7 +121,7 @@ end do
 
 do iS=1,nSym
   if (nBas(iS) > 0) then
-    jS = ieor(is-1,iDSym-1)+1
+    jS = Mul(is,iDSym)
     do iA=1,nAsh(is)
       do jA=1,nAsh(js)
         rd2 = rDens1(iA+nA(iS),jA+nA(js))
@@ -148,7 +149,7 @@ call mma_deallocate(Scr)
 call mma_deallocate(MO)
 
 do iS=1,nsym
-  jS = ieor(is-1,idsym-1)+1
+  jS = Mul(is,idsym)
   if (nBas(iS)*nBas(jS) > 0) &
     call DGeSub(Fock(ipMat(is,js)),nbas(is),'N',TQ(ipMat(js,is)),nbas(js),'T',Fock(ipmat(is,js)),nbas(is),nbas(is),nbas(js))
 end do

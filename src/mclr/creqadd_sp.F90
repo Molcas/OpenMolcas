@@ -14,6 +14,7 @@
 subroutine creqadd_sp(q,G2,idsym,Temp,Scr,n2)
 ! Constructs the Q matrix
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nDens2, nNA, ipMat, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 
@@ -30,12 +31,12 @@ real*8 RD
 !  pi         ijkl
 
 do iS=1,nSym
-  ipS = ieor(is-1,idsym-1)+1
+  ipS = Mul(is,idsym)
   if (norb(ips) /= 0) then
     do jS=1,nsym
-      ijS = ieor(is-1,js-1)+1
+      ijS = Mul(is,js)
       do kS=1,nSym
-        ls = ieor(ijs-1,ieor(ks-1,idsym-1))+1
+        ls = Mul(ijs,Mul(ks,idsym))
 
         do kAsh=1,nAsh(ks)
           kAA = kAsh+nIsh(ks)

@@ -12,6 +12,7 @@
 subroutine OITD(rK,isym,D,Dtmp,act)
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t
 use MCLR_Data, only: ipCM, ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
@@ -43,7 +44,7 @@ if (act) then
 end if
 
 do iS=1,nsym
-  jS = ieor(iS-1,isym-1)+1
+  jS = Mul(iS,isym)
   if (nOrb(iS)*nOrb(jS) >= 1) then
     call DGEMM_('N','T',nOrb(iS),nOrb(jS),nOrb(iS),One,Dtmp(1+ipCM(iS)-1),nOrb(iS),rK(ipMat(jS,iS)),nOrb(jS),Zero,D(ipMat(iS,jS)), &
                 nOrb(iS))

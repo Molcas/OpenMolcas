@@ -12,6 +12,7 @@
 subroutine Pickmo_td(rmo,rmoaa,idsym)
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMO, nA
 use input_mclr, only: nSym, nAsh, nIsh, TimeDep, nBas, ntAsh
 
@@ -24,7 +25,7 @@ if (.not. timedep) then
   do iS=1,nSym
     do jS=1,iS
       do kS=1,is
-        ls = ieor(ieor(is-1,js-1),ieor(ks-1,idsym-1))+1
+        ls = Mul(Mul(is,js),Mul(ks,idsym))
         if (ls <= ks) then
           do iA=1,nAsh(is)
             iAA = iA+nA(is)
@@ -54,7 +55,7 @@ else
   do iS=1,nSym
     do jS=1,nsym
       do kS=1,nsym
-        ls = ieor(ieor(is-1,js-1),ieor(ks-1,idsym-1))+1
+        ls = Mul(Mul(is,js),Mul(ks,idsym))
         do iA=1,nAsh(is)
           iAA = iA+nA(is)
           do jA=1,nAsh(js)

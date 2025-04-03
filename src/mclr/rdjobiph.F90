@@ -28,6 +28,7 @@ subroutine RdJobIph(CIVec)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
 use MckDat, only: sNew
 use gugx, only: SGS, CIS, EXS
 use MCLR_Data, only: CMO, G2t, G1t
@@ -323,7 +324,7 @@ end do
 do iS=1,nSym
   do jS=1,nSym
     do kS=1,nSym
-      lS = ieor(ieor(is-1,js-1),ks-1)+1
+      lS = Mul(Mul(is,js),ks)
       nAct4 = nAct4+nAsh(iS)*nAsh(jS)*nAsh(kS)*nAsh(lS)
     end do
   end do

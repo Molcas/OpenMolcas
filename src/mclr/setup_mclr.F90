@@ -13,6 +13,7 @@ subroutine SetUp_MCLR(DSYM)
 ! Setup pointers and size of matrices (includes in Pointers.fh)
 
 use Index_Functions, only: iTri, nTri_Elem
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: pInt1, pInt2
 use MCLR_Data, only: nNA, n2Dens, nDens, nCMO, nDensC, nDens2, ipMatLT, ipMat, ipCM, ipMatBA, ipMO, nA, nB, n1Dens, nMBA
 use input_mclr, only: nSym, TimeDep, iMethod, PT2, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3
@@ -49,12 +50,12 @@ n1Dens = nnA*nnA
 ip = 1
 do kS=1,nSym
   do lS=1,nsym
-    klS = ieor(lS-1,kS-1)+1
+    klS = Mul(lS,kS)
     do jS=1,nSym
       do iS=1,nSym
-        ijS = ieor(iS-1,jS-1)+1
+        ijS = Mul(iS,jS)
         ipp = nOrb(iS)*nAsh(jS)*nAsh(kS)*nAsh(lS)
-        if ((ieor(ijS-1,klS-1)+1 == DSym) .and. (ipp /= 0)) then
+        if ((Mul(ijS,klS) == DSym) .and. (ipp /= 0)) then
           ipMO(kS,lS,jS) = ip
           ip = ip+ipp
         end if
@@ -74,7 +75,7 @@ call iCopy(8,[0],0,ipCM,1)
 
 do jS=1,nSym
   do iS=1,js
-    if (ieor(iS-1,jS-1) == DSym-1) then
+    if (Mul(iS,jS) == DSym) then
       if (is < js) then
         ipMatLT(jS,iS) = ipntso(js-1,is-1,2**(dsym-1),nBas)+1
         nDensLT = nDensLT+nBas(iS)*nBas(jS)
@@ -107,7 +108,7 @@ ndens2 = 0
 matab = 1
 do jS=1,nSym
   do iS=1,nSym
-    if (ieor(iS-1,jS-1) == DSym-1) then
+    if (Mul(iS,jS) == DSym) then
       ipMatba(is,js) = matab
       ipMat(jS,iS) = nDens2+1
       nDens2 = nDens2+nBas(iS)*nBas(jS)
@@ -126,7 +127,7 @@ if (iMethod == 2) then
     do jjSym=1,iiSym
       jOrb = nRs1(jjSym)+nRs2(jjSym)+nRs3(jjSym)
 
-      if (ieor(iiSym-1,jjSym-1)+1 == Dsym) then
+      if (Mul(iiSym,jjSym) == Dsym) then
         pINT1(iiSym) = iOff
         if (iiSym == jjSym) then
           iOff = iOff+nTri_Elem(iOrb)
@@ -144,8 +145,8 @@ if (iMethod == 2) then
     do jjSym=1,iiSym
       jOrb = nRs1(jjSym)+nRs2(jjSym)+nRs3(jjSym)
 
-      ijSym = ieor(iiSym-1,jjSym-1)+1
-      klSym = ieor(ijSym-1,DSym-1)+1
+      ijSym = Mul(iiSym,jjSym)
+      klSym = Mul(ijSym,DSym)
 
       ijNum = iTri(iiSym,jjSym)
 
@@ -157,7 +158,7 @@ if (iMethod == 2) then
       do kkSym=1,nsym
         kOrb = nRs1(kkSym)+nRs2(kkSym)+nRs3(kkSym)
 
-        llSym = ieor(klSym-1,kkSym-1)+1
+        llSym = Mul(klSym,kkSym)
         lOrb = nRs1(llSym)+nRs2(llSym)+nRs3(llSym)
 
         if (llSym > kkSym) cycle

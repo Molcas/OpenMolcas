@@ -19,10 +19,11 @@ subroutine AddGrad_sp(rKappa,rMat,F,idsym,r1,r2)
 !   a beautifull convergence of the PCG,
 !   which is just the case if E is symmetric.
 
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, nDens2
 use input_mclr, only: nSym, nOrb
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 
 implicit none
 real*8 rkappa(*), rMat(*), F(*)
@@ -38,7 +39,7 @@ M(:) = Zero
 call Unc(rkappa,K,idsym,r1)
 
 do iS=1,nSym
-  js = ieor(is-1,idsym-1)+1
+  js = Mul(is,idsym)
   if (nOrb(is)*nOrb(js) == 0) cycle
   call mma_allocate(Tempi,nOrb(is)**2,Label='Tempi')
   call mma_allocate(Tempj,nOrb(js)**2,Label='Tempj')

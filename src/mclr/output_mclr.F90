@@ -34,6 +34,7 @@ subroutine OutPut_MCLR(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
+use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: Hss
@@ -104,7 +105,7 @@ do iSym=1,nSym
   ! Output: Commonblocks (Pointers.fh)
 
   call Setup_MCLR(iSym)
-  PState_SYM = ieor(State_Sym-1,iSym-1)+1
+  PState_SYM = Mul(State_Sym,iSym)
   nconfM = max(ncsf(PState_Sym),nint(xispsm(Pstate_Sym,1)))
   nconf1 = ncsf(PState_Sym)
   CI = .false.
@@ -133,7 +134,7 @@ do iSym=1,nSym
   do jDisp=1,lDisp(iSym)
     iDisp = iDisp+1
     jspin = 0
-    if (iand(nTPert(idisp),1) == 1) jSpin = 1
+    if (btest(nTPert(idisp),0)) jSpin = 1
     if (jspin == 0) then
       nconf1 = ncsf(Pstate_sym)
     else
@@ -232,7 +233,7 @@ do iSym=1,nSym
       !  Resp
 
       kspin = 0
-      if (iand(nTPert(kdisp+ksym),1) == 1) kSpin = 1
+      if (btest(nTPert(kdisp+ksym),0)) kSpin = 1
       if (kspin == 0) then
         nconf1 = ncsf(PState_Sym)
       else

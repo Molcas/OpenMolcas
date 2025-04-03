@@ -27,6 +27,7 @@ subroutine DMInvKap(rMFact,rIn,nrIn,rOut,nrOut,rtemp,nrtemp,isym,iter)
 !***********************************************************************
 
 use iso_c_binding, only: c_f_pointer, c_loc
+use Symmetry_Info, only: Mul
 use Spool, only: LuWr
 use MCLR_Data, only: SA
 use MCLR_Data, only: ipMat, nDensC
@@ -66,7 +67,7 @@ subroutine DMInvKap_Internal(rMFact)
   !*********************************************************************
   !                                                                    *
   do jS=1,nSym
-    iS = ieor(js-1,iSym-1)+1
+    iS = Mul(js,iSym)
     !                                                                  *
     !*******************************************************************
     !                                                                  *

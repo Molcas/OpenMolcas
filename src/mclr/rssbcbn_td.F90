@@ -104,7 +104,7 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
 
   ! Two electron part
 
-  if ((iand(icheck,1) == 1) .and. (IDOH2 /= 0) .and. (NBEL >= 2)) then
+  if (btest(icheck,0) .and. (IDOH2 /= 0) .and. (NBEL >= 2)) then
     !write(u6,*) 'Timedep in rssbcbn_td',TimeDep
     call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
                      XINT,NSMOB,NSMSX,SIGN,NOPART,TimeDep,ieaw)
@@ -117,7 +117,7 @@ end if
 ! Mixed alpha-beta double excitations
 !====================================
 
-if ((iand(icheck,2) == 2) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
+if (btest(icheck,1) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
 
   ieaw = 0
   if (ist == 2) ieaw = 1
@@ -190,7 +190,7 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
 
   ! alpha double excitation
 
-  if ((iand(icheck,1) == 1) .and. (NAEL >= 2) .and. (IDOH2 /= 0)) then
+  if (btest(icheck,0) .and. (NAEL >= 2) .and. (IDOH2 /= 0)) then
     !write(u6,*) 'Timedep in rssbcbn_td',TimeDep
     call RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
                      XINT,NSMOB,NSMSX,SIGN,NOPART,TimeDep,ieaw)

@@ -18,6 +18,7 @@ subroutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,idsym,reco,jspin)
 !              pq       pq                pq
 
 use Index_Functions, only: iTri, nTri_Elem
+use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO_Inv, CMO, G1t, G2t, FAMO, FIMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nMBA
@@ -118,7 +119,7 @@ else  ! Cho-Fock
   do iS=1,nSym
     if (nOrb(iS) /= 0) then
       do jS=1,nSym
-        if ((ieor(iS-1,jS-1)+1 == idsym) .and. (nOrb(jS) /= 0)) then
+        if ((Mul(iS,jS) == idsym) .and. (nOrb(jS) /= 0)) then
           call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(jS),One,rkappa(ipMat(is,js)),nOrb(iS),DI%SB(js)%A2,nOrb(jS),Zero, &
                       Dens2(ipMat(iS,jS)),nOrb(iS))
           call DGEMM_('T','T',nOrb(jS),nOrb(iS),nOrb(iS),One,Dens2(ipMat(iS,jS)),nOrb(iS),CMO(ipCM(is)),nOrb(iS),Zero, &
@@ -152,7 +153,7 @@ else  ! Cho-Fock
       nact = nact+nAsh(iSym)
       nAG2 = 0
       do jSym=1,nSym
-        kSym = ieor(jsym-1,isym-1)+1
+        kSym = Mul(jsym,isym)
         nAG2 = nAg2+nAsh(jSym)*nAsh(kSym)
       end do
       nG2 = nG2+nAG2**2
@@ -189,9 +190,9 @@ else  ! Cho-Fock
     ipGx = 0
     do ijS=1,nSym
       do iS=1,nSym
-        jS = ieor(is-1,ijS-1)+1
+        jS = Mul(is,ijS)
         do kS=1,nSym
-          lS = ieor(kS-1,ijS-1)+1
+          lS = Mul(kS,ijS)
           do kAsh=1,nAsh(ks)
             do lAsh=1,nAsh(ls)
               ikl = iTri(lAsh+nA(lS),kAsh+nA(kS))
@@ -274,7 +275,7 @@ else  ! Cho-Fock
   ! Calculate contribution from uncontracted indexes
 
   do iS=1,nSym
-    jS = ieor(iS-1,iDSym-1)+1
+    jS = Mul(iS,iDSym)
     if (nOrb(iS)*nOrb(jS) /= 0) then
       call DGEMM_('N','N',nOrb(iS),nOrb(jS),nOrb(iS),Reco*Fact,FIMO(ipCM(iS)),nOrb(is),rkappa(ipMat(iS,jS)),nOrb(iS),One, &
                   FockI(ipMat(iS,jS)),nOrb(iS))
@@ -327,7 +328,7 @@ end if
 !                                                                      *
 
 do iS=1,nSym
-  jS = ieor(iS-1,idsym-1)+1
+  jS = Mul(iS,idsym)
 
   !         I    A
   ! F  = 2 ( F  + F  )
@@ -376,7 +377,7 @@ write(LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
 
 call DYAX(ndens2,Two,Fock,1,Focka,1)
 do iS=1,nSym
-  js = ieor(is-1,idsym-1)+1
+  js = Mul(is,idsym)
   if (nOrb(is)*nOrb(js) /= 0) &
     call DGESUB(Focka(ipMat(is,js)),nOrb(is),'N',Focka(ipMat(js,is)),nOrb(js),'T',Fock(ipMat(is,js)),nOrb(is),nOrb(is),nOrb(js))
 end do

@@ -15,6 +15,7 @@ subroutine Prec_td(pre2,DigPrec,isym)
 ! isym      Symmetry of PT
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t
 use MCLR_Data, only: ipCM, ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nIsh, nBas, Omega
@@ -86,7 +87,7 @@ ip1 = 1
 ip2 = 1
 !ipsave = 0
 do iS=1,nSym
-  jS = ieor(iS-1,iSym-1)+1
+  jS = Mul(iS,iSym)
   nD = nBas(jS)-nIsh(jS)
   do k=1,nIsh(iS)
     ip1 = ip1+nIsh(jS)
@@ -122,7 +123,7 @@ end do
 call mma_allocate(TempTd,nDens2,Label='TempTd')
 
 do iS=1,nSym
-  jS = ieor(iS-1,iSym-1)+1
+  jS = Mul(iS,iSym)
   TempTd(:) = Zero
   call Trans(PreTd(ipMat(jS,iS)),nBas(iS),nBas(jS),TempTd)
   nD = nBas(iS)*nBas(jS)
@@ -139,7 +140,7 @@ end do
 !------------------------------------------------------------------
 i = 0
 do iS=1,nSym
-  jS = ieor(iS-1,iSym-1)+1
+  jS = Mul(iS,iSym)
   nD = nBas(iS)*nBas(jS)
   j = 0
   l = 0
@@ -163,7 +164,7 @@ end do
 TempTd(:) = Zero
 
 do iS=1,nSym
-  jS = ieor(iS-1,iSym-1)+1
+  jS = Mul(iS,iSym)
   nD = nBas(iS)*nBas(jS)
   do k=0,nD-1
     TempTd(ipmat(iS,jS)+k) = PreTd(ipmat(jS,iS)+k)

@@ -11,6 +11,7 @@
 
 subroutine TCMO(A,isym,ictl)
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO
 use MCLR_Data, only: ipCM, ipMat, nDens2
 use input_mclr, only: nSym, nBas, nOrb
@@ -58,7 +59,7 @@ if (ictl == -1) then
   end do
 
   do iS=1,nSym
-    js = ieor(is-1,isym-1)+1
+    js = Mul(is,isym)
     if (nbas(is)*nbas(js) == 0) cycle
     call dgetrs_('T',nbas(is),nbas(js),CMOINV(ip(is)),nBas(is),iCMOINV(iip(is)),A(ipMat(is,js)),nBas(is),irc)
     if (irc /= 0) call SysAbendMsg('tcmo','DGETRS returns non zero',' ')
@@ -74,7 +75,7 @@ if (ictl == -1) then
 else if (ictl == 1) then
 
   do iS=1,nSym
-    js = ieor(is-1,isym-1)+1
+    js = Mul(is,isym)
     if (nBas(is)*nBas(js) == 0) cycle
     call DGEMM_('T','N',nOrb(iS),nBas(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(is),A(ipmat(is,js)),nBas(iS),Zero,Temp,nOrb(iS))
     call DGEMM_('N','N',nOrb(is),nOrb(jS),nBas(jS),One,Temp,nOrb(iS),CMO(ipCM(jS)),nBas(jS),Zero,A(ipMat(iS,jS)),nOrb(iS))
@@ -83,7 +84,7 @@ else if (ictl == 1) then
 else if (ictl == -2) then
 
   do iS=1,nSym
-    js = ieor(is-1,isym-1)+1
+    js = Mul(is,isym)
     if (nBas(is)*nBas(js) == 0) cycle
     call DGEMM_('N','N',nBas(iS),nOrb(jS),nOrb(iS),One,CMO(ipCM(iS)),nBas(is),A(ipmat(is,js)),nOrb(iS),Zero,Temp,nBas(iS))
     call DGEMM_('N','T',nBas(is),nBas(jS),nOrb(jS),One,Temp,nBas(iS),CMO(ipCM(jS)),nBas(jS),Zero,A(ipMat(iS,jS)),nBas(iS))

@@ -23,6 +23,7 @@ subroutine Compress2(ArrayIn,nIn,ArrayOut,nOut,dsym)
 !
 !************************************************************
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nB, nDens
 use input_mclr, only: nSym, nIsh, nRs1, nRs2, nRs3, nOrb, TimeDep
 use Constants, only: Zero, One
@@ -45,7 +46,7 @@ dsym = abs(dsym)
 call dcopy_(nDens,[Zero],0,ArrayOut,1)
 
 do iSym=1,nSym
-  jSym = ieor(iSym-1,dSym-1)+1
+  jSym = Mul(iSym,dSym)
 
   do jBas=1,nB(jSym)
 

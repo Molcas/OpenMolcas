@@ -32,6 +32,7 @@ subroutine Prec_dig(rpre,idsym)
 !***********************************************************************
 
 use iso_c_binding, only: c_f_pointer, c_loc
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nrec
 use MCLR_Data, only: ipCM
 use MCLR_Data, only: FAMO, FIMO, F0SQMO
@@ -80,7 +81,7 @@ subroutine Prec_dig_internal(rpre)
   ip = 1
   sign = One
   do iS=1,nSym
-    jS = ieor(is-1,iDSym-1)+1
+    jS = Mul(is,iDSym)
     nD = nBas(js)-nIsh(jS)
     ni = nBas(js)**2
     call mma_allocate(Temp2,ni,Label='Temp2')

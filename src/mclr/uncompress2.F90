@@ -23,9 +23,10 @@ subroutine UnCompress2(ArrayIn,ArrayOut,dsym)
 !
 !************************************************************
 
-use Constants, only: Zero, One
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nDensC, nDens, ipMat, nB
 use input_mclr, only: nSym, TimeDep, nIsh, nOrb, nRS1, nRS2, nRS3
+use Constants, only: Zero, One
 
 implicit none
 real*8 ArrayIn(nDensC), ArrayOut(nDens)
@@ -43,7 +44,7 @@ i1 = 0 ! dummy initialize
 j1 = 0 ! dummy initialize
 do iSym=1,nSym
   do jSym=1,nSym
-    if (ieor(iSym-1,jSym-1)+1 == dSym) then
+    if (Mul(iSym,jSym) == dSym) then
       do jBas=1,nB(jSym)
         if (jBas <= nIsh(jsym)) then
           jT = 0

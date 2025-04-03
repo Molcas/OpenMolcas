@@ -29,12 +29,12 @@ iii = 0
 call icopy(3,[0],0,iel,1)
 do iSym=1,nsym
   do idisp=1,ldisp(isym)
-    geomi = iand(ntpert(idisp+iii),16) == 16
+    geomi = btest(ntpert(idisp+iii),4)
     if (.not. geomi) then
       iG = iG+1
       iel(ig) = isym
       do jdisp=1,ldisp(isym)
-        geomj = iand(ntpert(jdisp+iii),16) == 16
+        geomj = btest(ntpert(jdisp+iii),4)
         if (geomj) then
           ijg = ijg+1
           ijd1 = ijD+iTri(idisp,jdisp)

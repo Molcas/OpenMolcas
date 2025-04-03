@@ -15,6 +15,7 @@ subroutine creq2(q,G2,idSym,Temp,Scr,n2)
 ! Constructs the Q matrix
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nDens2, ipMatBA, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 use Constants, only: Zero
@@ -33,12 +34,12 @@ integer iS, jS, kS, lS, ijS, ipS, kAsh, lAsh, ikl, iAsh, jAsh, ipQ, iij, ipG, ip
 Q(:) = Zero
 
 do iS=1,nSym
-  ipS = ieor(is-1,idsym-1)+1
+  ipS = Mul(is,idsym)
   if (norb(ips) /= 0) then
     do jS=1,nsym
-      ijS = ieor(is-1,js-1)+1
+      ijS = Mul(is,js)
       do kS=1,nSym
-        ls = ieor(ijs-1,ks-1)+1
+        ls = Mul(ijs,ks)
 
         do kAsh=1,nAsh(ks)
           do lAsh=1,nAsh(ls)

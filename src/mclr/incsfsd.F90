@@ -11,10 +11,11 @@
 
 subroutine InCSFSD(iState,State_sym)
 
+use Symmetry_Info, only: Mul
 use Str_Info, only: CNSM
-use stdalloc, only: mma_allocate
 use MCLR_Data, only: iALLO, i1, iAnders, lConf, llDet
 use MCLR_Data, only: LuCSF2SD
+use stdalloc, only: mma_allocate
 
 implicit none
 integer iState, State_sym
@@ -23,7 +24,7 @@ integer iSym, iAdr, i, iad
 
 ! Place pointer
 
-iSym = ieor(State_Sym-1,iState-1)+1
+iSym = Mul(State_Sym,iState)
 
 if ((isym == 1) .and. (i1 == 1)) return
 if (isym == iAnders) return

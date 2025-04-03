@@ -25,6 +25,7 @@ subroutine FockGen(d_0,rDens1,rdens2,Fock,FockOut,idSym)
 !***********************************************************************
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, FIMO
 use MCLR_Data, only: nDens2, nNA, ipCM, ipMat, nA
@@ -67,7 +68,7 @@ if (.not. NewCho) then  ! Cho-MO
   do ipS=1,nSym
     do kS=1,nSym
       do iS=1,nSym
-        jS = ieor(ieor(ipS-1,kS-1),iS-1)+1
+        jS = Mul(Mul(ipS,kS),iS)
         !                                                              *
         !***************************************************************
         !                                                              *
@@ -76,7 +77,7 @@ if (.not. NewCho) then  ! Cho-MO
         !                                                              *
         !***************************************************************
         !                                                              *
-        if ((ieor(ipS-1,kS-1)+1 == iDsym) .and. (nBas(ipS)*nIsh(kS) > 0)) then
+        if ((Mul(ipS,kS) == iDsym) .and. (nBas(ipS)*nIsh(kS) > 0)) then
           do iA=1,nAsh(iS)
             iAA = iA+nIsh(iS)
             do jA=1,nAsh(jS)
@@ -98,7 +99,7 @@ if (.not. NewCho) then  ! Cho-MO
         !                                                              *
         !***************************************************************
         !                                                              *
-        if ((ieor(ipS-1,iS-1)+1 == iDsym) .and. (nBas(ipS) > 0)) then
+        if ((Mul(ipS,iS) == iDsym) .and. (nBas(ipS) > 0)) then
           do iA=1,nIsh(iS)
             ipF = ipMat(ipS,iS)+nBas(ipS)*(iA-1)
             do jA=1,nAsh(jS)
@@ -139,7 +140,7 @@ else  ! Cho-Fock
   do iSym=1,nSym
     nAG2 = 0
     do jSym=1,nSym
-      kSym = ieor(jsym-1,isym-1)+1
+      kSym = Mul(jsym,isym)
       nAG2 = nAg2+nAsh(jSym)*nAsh(kSym)
     end do
     nG2 = nG2+nAG2**2
@@ -151,9 +152,9 @@ else  ! Cho-Fock
   ipGx = 0
   do ijS=1,nSym
     do iS=1,nSym
-      jS = ieor(is-1,ijS-1)+1
+      jS = Mul(is,ijS)
       do kS=1,nSym
-        lS = ieor(kS-1,ijS-1)+1
+        lS = Mul(kS,ijS)
         do kAsh=1,nAsh(ks)
           do lAsh=1,nAsh(ls)
             !ikl = iTri(lAsh+nA(lS),kAsh+nA(kS))
@@ -206,7 +207,7 @@ end if
 
 do iS=1,nSym
   if (nBas(iS) > 0) then
-    jS = ieor(is-1,iDSym-1)+1
+    jS = Mul(is,iDSym)
     do iA=1,nAsh(is)
       do jA=1,nAsh(js)
         rd = rDens1(iA+nA(iS),jA+nA(js))
@@ -224,7 +225,7 @@ if (iDsym == 1) then
   end do
 end if
 do iS=1,nSym
-  jS = ieor(iS-1,idSym-1)+1
+  jS = Mul(iS,idSym)
   if (nBas(is)*nBas(jS) /= 0) &
     call DGeSub(Fock(ipMat(iS,jS)),nBas(iS),'N',Fock(ipMat(jS,iS)),nBas(jS),'T',FockOut(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
 end do

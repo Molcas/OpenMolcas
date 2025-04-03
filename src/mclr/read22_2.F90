@@ -22,6 +22,7 @@ subroutine Read22_2(MO1,Fock,Q,FockI,FockA,Temp2,Scr,Temp3)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
+use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, CMO_Inv, Int1, G1t, G2t
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nB
@@ -75,11 +76,11 @@ else
 
     do iS=1,nSym
       do jS=1,iS
-        ijS = ieor(iS-1,jS-1)+1
+        ijS = Mul(iS,jS)
         do kS=1,nSym
           do lS=1,ks
             if (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS) == 0) cycle
-            if (ieor(kS-1,lS-1) /= ijS-1) cycle
+            if (Mul(kS,lS) /= ijS) cycle
             !                                                          *
             !***********************************************************
             !                                                          *
@@ -152,7 +153,7 @@ else
       do iS=1,nSym
         do jS=1,iS
           do kS=1,iS
-            lS = ieor(ieor(iS-1,jS-1),kS-1)+1
+            lS = Mul(Mul(iS,jS),kS)
             if ((lS > kS) .or. ((iS == kS) .and. (lS > jS))) cycle
 
             do iB=1,nAsh(iS)
@@ -194,7 +195,7 @@ else
       kS = iS
       do js=1,nSym
         lS = jS
-        if (ieor(ieor(is-1,js-1),ieor(ks-1,ls-1)) /= 0) cycle
+        if (Mul(is,js) /= Mul(ks,ls)) cycle
         if (nOrb(iS)*nOrb(jS)*nOrb(ks)*nOrb(lS) == 0) cycle
         do LB=1,nB(LS)
           do JB=1,nB(JS)
@@ -277,7 +278,7 @@ else
         nAct = nAct+nAsh(iSym)
         nAG2 = 0
         do jSym=1,nSym
-          kSym = ieor(jsym-1,isym-1)+1
+          kSym = Mul(jsym,isym)
           nAG2 = nAg2+nAsh(jSym)*nAsh(kSym)
         end do
         nG2 = nG2+nAG2**2
@@ -314,9 +315,9 @@ else
       ipGx = 0
       do ijS=1,nSym
         do iS=1,nSym
-          jS = ieor(is-1,ijS-1)+1
+          jS = Mul(is,ijS)
           do kS=1,nSym
-            lS = ieor(kS-1,ijS-1)+1
+            lS = Mul(kS,ijS)
             do kAsh=1,nAsh(ks)
               do lAsh=1,nAsh(ls)
                 ikl = iTri(lAsh+nA(lS),kAsh+nA(kS))

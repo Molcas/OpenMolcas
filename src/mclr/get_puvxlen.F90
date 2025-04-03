@@ -15,6 +15,7 @@ subroutine Get_PUVXLen(NPUVX)
 ! Rewritten from mcpdft/alloc.f
 
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
 use input_mclr, only: nSym, nOrb, nAsh
 
 implicit none
@@ -26,9 +27,9 @@ do iSp=1,nSym
   nOp = NORB(iSp)
   do iSq=1,nSym
     nAq = NASH(iSq)
-    iSpq = ieor(iSp-1,iSq-1)
+    iSpq = Mul(iSp,iSq)
     do iSr=1,nSym
-      iSpqr = ieor(iSpq,iSr-1)+1
+      iSpqr = Mul(iSpq,iSr)
       nAr = NASH(iSr)
       do iSs=1,iSr
         if (iSpqr /= iSs) exit

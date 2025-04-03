@@ -49,6 +49,7 @@ subroutine Read2_ns(rMO1,rMO2,FockI,FockA,Temp1,nTemp,Temp2,Temp3,Temp4,DI13,DI2
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nMBA, nDens2, nCMO, ipCM, ipMat, ipMO, nB
 use input_mclr, only: nSym, iMethod, nAsh, nIsh, nBas
 use Constants, only: Zero, Half, One
@@ -105,7 +106,7 @@ end if
 do iS=1,nSym
   if (nBas(iS) /= 0) then
     do jS=1,nSym
-      if ((ieor(iS-1,jS-1)+1 == idsym) .and. (nB(jS) /= 0)) then
+      if ((Mul(iS,jS) == idsym) .and. (nB(jS) /= 0)) then
 
         call DGEMM_('N','N',nBas(iS),nB(jS),nB(jS),One,rkappa(ipMat(is,js)),nBas(iS),DI(ipCM(js)),nBas(jS),Zero, &
                     DI24(ipMat(iS,jS)),nBas(iS))
@@ -140,11 +141,11 @@ call DScal_(ndens2,signa,Di24,1)
 !                                                                      *
 do iS=1,nSym
   do jS=1,iS
-    ijS = ieor(iS-1,jS-1)+1
+    ijS = Mul(iS,jS)
     do kS=1,nSym
       do lS=1,ks
         if (nBas(iS)*nBas(js)*nBas(kS)*nBAs(ls) /= 0) then
-          if (ieor(kS-1,lS-1) == ijS-1) then
+          if (Mul(kS,lS) == ijS) then
             do iB=1,nB(iS)
               nnB = nB(jS)
               if (iS == jS) nnB = iB
@@ -162,7 +163,7 @@ do iS=1,nSym
 
                 if (lFAT) then
 
-                  if (ieor(ls-1,is-1)+1 == idsym) then
+                  if (Mul(ls,is) == idsym) then
                     ipD = ipMat(lS,iS)+nBas(lS)*(ib-1)
                     ipF = ipMat(kS,jS)+nBas(kS)*(jB-1)
                     call dGeMV_('T',nBas(lS),nBas(kS),-Fact*Sign*half,Temp2,nBas(lS),DA24(ipD),1,One,FockA(ipF),1)
@@ -172,7 +173,7 @@ do iS=1,nSym
                   ! FqJ=sum(rI)  I  DL
                   !               rq  r
 
-                  if ((kS /= ls) .and. (ieor(kS-1,is-1)+1 == iDSym)) then
+                  if ((kS /= ls) .and. (Mul(kS,is) == iDSym)) then
                     ipD = ipMat(kS,iS)+nBas(kS)*(ib-1)
                     ipF = ipMat(lS,jS)+nBas(lS)*(jB-1)
                     call dGeMV_('N',nBas(lS),nBas(kS),-Fact*Sign*half,Temp2,nBas(lS),DA24(ipD),1,One,FockA(ipF),1)
@@ -183,7 +184,7 @@ do iS=1,nSym
                   !               qr  r
 
                   if ((iS /= jS) .or. (iB /= jb)) then
-                    if (ieor(lS-1,js-1)+1 == iDSym) then
+                    if (Mul(lS,js) == iDSym) then
                       ipD = ipMat(lS,jS)+nBas(lS)*(jb-1)
                       ipF = ipMat(kS,iS)+nBas(kS)*(iB-1)
                       call dGeMV_('T',nBas(lS),nBas(kS),-Fact*Sign*half,Temp2,nBas(lS),DA24(ipD),1,One,FockA(ipF),1)
@@ -193,7 +194,7 @@ do iS=1,nSym
                     ! Fqr=sum(rJ) = I  DL
                     !                rq  r
 
-                    if ((kS /= ls) .and. (ieor(kS-1,js-1)+1 == iDSym)) then
+                    if ((kS /= ls) .and. (Mul(kS,js) == iDSym)) then
                       ipD = ipMat(kS,jS)+nBas(kS)*(jb-1)
                       ipF = ipMat(lS,iS)+nBas(lS)*(iB-1)
                       call dGeMV_('N',nBas(lS),nBas(kS),-Fact*Sign*half,Temp2,nBas(lS),DA24(ipD),1,One,FockA(ipF),1)
@@ -211,7 +212,7 @@ do iS=1,nSym
                   ! Fqj=sum(rI)  I  DL
                   !               qr  r
 
-                  if (ieor(ls-1,is-1)+1 == idsym) then
+                  if (Mul(ls,is) == idsym) then
                     ipD = ipMat(lS,iS)+nBas(lS)*(ib-1)
                     ipF = ipMat(kS,jS)+nBas(kS)*(jB-1)
                     call dGeMV_('T',nBas(lS),nBas(kS),-Fact*Sign*half,Temp2,nBas(lS),DI24(ipD),1,One,FockI(ipF),1)
@@ -221,7 +222,7 @@ do iS=1,nSym
                   ! FqJ=sum(rI)  I  DL
                   !               rq  r
 
-                  if ((kS /= ls) .and. (ieor(kS-1,is-1)+1 == iDSym)) then
+                  if ((kS /= ls) .and. (Mul(kS,is) == iDSym)) then
                     ipD = ipMat(kS,iS)+nBas(kS)*(ib-1)
                     ipF = ipMat(lS,jS)+nBas(lS)*(jB-1)
                     call dGeMV_('N',nBas(lS),nBas(kS),-Fact*Sign*half,Temp2,nBas(lS),DI24(ipD),1,One,FockI(ipF),1)
@@ -232,7 +233,7 @@ do iS=1,nSym
                   !               qr  r
 
                   if ((iS /= jS) .or. (iB /= jb)) then
-                    if (ieor(lS-1,js-1)+1 == iDSym) then
+                    if (Mul(lS,js) == iDSym) then
                       ipD = ipMat(lS,jS)+nBas(lS)*(jb-1)
                       ipF = ipMat(kS,iS)+nBas(kS)*(iB-1)
                       call dGeMV_('T',nBas(lS),nBas(kS),-Fact*Sign*half,Temp2,nBas(lS),DI24(ipD),1,One,FockI(ipF),1)
@@ -242,7 +243,7 @@ do iS=1,nSym
                     ! Fqr=sum(rJ) = I  DL
                     !                rq  r
 
-                    if ((kS /= ls) .and. (ieor(kS-1,js-1)+1 == iDSym)) then
+                    if ((kS /= ls) .and. (Mul(kS,js) == iDSym)) then
                       ipD = ipMat(kS,jS)+nBas(kS)*(jb-1)
                       ipF = ipMat(lS,iS)+nBas(lS)*(iB-1)
                       call dGeMV_('N',nBas(lS),nBas(kS),-Fact*Sign*half,Temp2,nBas(lS),DI24(ipD),1,One,FockI(ipF),1)
@@ -264,7 +265,7 @@ do iS=1,nSym
                   jjb = jb-nIsh(js)
                   call DGETMO(Temp2,nbas(ls),nbas(ls),nBas(kS),Temp4,nbas(ks))
 
-                  ipS = ieor(kS-1,idsym-1)+1
+                  ipS = Mul(kS,idsym)
                   ip1 = ipMO(ls,js,is)+nBas(ips)*nAsh(ls)*((iiB-1)*nAsh(jS)+jjb-1)
                   ip2 = ipMO(ips,js,is)+nBas(ls)*nAsh(ips)*((iiB-1)*nAsh(jS)+jjb-1)
                   ip3 = ipMO(ls,is,js)+nBas(ips)*nAsh(ls)*((jjB-1)*nAsh(iS)+iib-1)
@@ -292,7 +293,7 @@ do iS=1,nSym
                                    nash(ips))
                   end if
                   if (ks /= ls) then
-                    ipS = ieor(lS-1,idsym-1)+1
+                    ipS = Mul(lS,idsym)
                     ip1 = ipMO(ks,js,is)+nBas(ips)*nAsh(ks)*((iiB-1)*nAsh(jS)+jjb-1)
                     ip2 = ipMO(ips,js,is)+nBas(ks)*nAsh(ips)*((iiB-1)*nAsh(jS)+jjb-1)
                     ip3 = ipMO(ks,is,js)+nBas(ips)*nAsh(ks)*((jjB-1)*nAsh(iS)+iib-1)
@@ -323,7 +324,7 @@ do iS=1,nSym
                     end if
                   end if ! kl
 
-                  ipS = ieor(lS-1,idsym-1)+1
+                  ipS = Mul(lS,idsym)
                   ip1 = ipMO(ips,js,is)+nBas(kS)*nAsh(ips)*((iiB-1)*nAsh(jS)+jjb-1)
                   ip2 = ipMO(ks,js,is)+nBas(ipS)*nAsh(ks)*((iiB-1)*nAsh(jS)+jjb-1)
                   ip3 = ipMO(ips,is,js)+nBas(kS)*nAsh(ips)*((jjB-1)*nAsh(iS)+iib-1)
@@ -353,7 +354,7 @@ do iS=1,nSym
                   end if
 
                   if (ks /= ls) then
-                    ipS = ieor(kS-1,idsym-1)+1
+                    ipS = Mul(kS,idsym)
                     ip1 = ipMO(ips,js,is)+nBas(ls)*nAsh(ips)*((iiB-1)*nAsh(jS)+jjb-1)
                     ip2 = ipMO(ls,js,is)+nBas(ips)*nAsh(ls)*((iiB-1)*nAsh(jS)+jjb-1)
                     ip3 = ipMO(ips,is,js)+nBas(ls)*nAsh(ips)*((jjB-1)*nAsh(iS)+iib-1)
@@ -400,11 +401,11 @@ end do
 !                                                                      *
 do iS=1,nSym
   do jS=1,nSym
-    ijS = ieor(iS-1,jS-1)+1
+    ijS = Mul(iS,jS)
     do kS=1,nSym
       do lS=1,nSym
         if (nBas(is)*nBAs(js)*nBas(ks)*nBas(ls) /= 0) then
-          if (ieor(kS-1,lS-1)+1 == ijS) then
+          if (Mul(kS,lS) == ijS) then
             do lB=1,nB(lS)
               do jB=1,nB(jS)
                 call EXCH(is,js,ks,ls,jb,lb,Temp1,Temp2)
@@ -423,7 +424,7 @@ do iS=1,nSym
                   !  pi    pr   r
 
                   if (singlet) then
-                    if (ieor(ks-1,ls-1)+1 == idsym) then
+                    if (Mul(ks,ls) == idsym) then
                       ipD = ipMat(kS,lS)+nBas(kS)*(lb-1)
                       ipF = ipMat(iS,jS)+nBas(iS)*(jB-1)
                       call dGeMV_('N',nBas(iS),nBas(kS),Fact,Temp1,nBas(iS),DI13(ipD),1,One,FockI(ipF),1)
@@ -446,7 +447,7 @@ do iS=1,nSym
                   !             jl   j
                   !            I   DR
                   !             pr   r
-                  if (ieor(ks-1,js-1)+1 == idsym) then
+                  if (Mul(ks,js) == idsym) then
                     ipD = ipMat(kS,jS)+nBas(kS)*(jb-1)
                     ipF = ipMat(iS,lS)+nBas(iS)*(lB-1)
                     call dGeMV_('N',nBas(iS),nBas(kS),-Fact*half,Temp1,nBas(iS),DI13(ipD),1,One,FockI(ipF),1)
@@ -467,7 +468,7 @@ do iS=1,nSym
                     ! F =   I   DR
                     !  pi    pr   r
 
-                    if (ieor(ks-1,ls-1)+1 == idsym) then
+                    if (Mul(ks,ls) == idsym) then
                       ipD = ipMat(kS,lS)+nBas(kS)*(lb-1)
                       ipF = ipMat(iS,jS)+nBas(iS)*(jB-1)
                       call dGeMV_('N',nBas(iS),nBas(kS),Fact,Temp1,nBas(iS),DA13(ipD),1,One,FockA(ipF),1)
@@ -490,7 +491,7 @@ do iS=1,nSym
                   !             jl   j
                   !            I   DR
                   !             pr   r
-                  if (ieor(kS-1,js-1) == idsym-1) then
+                  if (Mul(kS,js) == idsym) then
                     ipD = ipMat(kS,jS)+nBas(kS)*(jb-1)
                     ipF = ipMat(iS,lS)+nBas(iS)*(lB-1)
                     call dGeMV_('N',nBas(iS),nBas(kS),-Fact*half,Temp1,nBas(iS),DA13(ipD),1,One,FockA(ipF),1)
@@ -514,7 +515,7 @@ do iS=1,nSym
                   !  JL                      JL
                   ! I   k    (iJ|kL)      & I   k    (iJLk)
                   !  ir  kr                  ir  kr
-                  ips = ieor(kS-1,iDsym-1)+1
+                  ips = Mul(kS,iDsym)
                   if (nBas(is)*nAsh(ipS) /= 0) &
                     call DGEMM_('N','T',nBas(iS),nAsh(ipS),nBas(kS),One,Temp3,nBas(iS),rKappa(ipMat(ips,ks)+nish(ips)),nBas(ips), &
                                 Zero,Temp4,nBas(iS))

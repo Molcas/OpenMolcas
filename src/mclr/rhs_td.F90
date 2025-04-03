@@ -33,6 +33,7 @@ subroutine RHS_td(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,rKappa,ipst,iDisp,lOper,CM
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
+use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
 use MCLR_Data, only: G2sq, G1t
 use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
@@ -69,7 +70,7 @@ iOp = 2**loper
 ! Read in connection matrix
 ! and transform it to MO basis
 
-if (iand(ntpert(idisp),2**3) == 8) then
+if (btest(ntpert(idisp),3)) then
   iRC = -1
   iOpt = 0
   iOp = 2**loper
@@ -85,7 +86,7 @@ if (iand(ntpert(idisp),2**3) == 8) then
   ip = 1
   do iS=1,nSym
     do jS=1,is
-      if (ieor(iS-1,jS-1) == loper) then
+      if (Mul(iS,jS) == loper+1) then
         if (nBas(is)*nBas(js) /= 0) then
           if (is == js) then
             call Square(Temp6(ipMatLT(is,js)),Temp5,1,nBas(is),nBas(is))
@@ -129,7 +130,7 @@ call IntX(FIX,Temp6,Temp5,Temp4,Temp3,rkappa,MOX,loper,idisp)
 !                                             ~
 ! Area for one index transformed integrals (pj|kl)
 
-if (iand(ntpert(idisp),2**3) == 8) then
+if (btest(ntpert(idisp),3)) then
   if (iMethod == 2) then
     call mma_allocate(MOT,nmba,Label='MOT')
     call mma_allocate(MOT2,nmba,Label='MOT2')
@@ -152,7 +153,7 @@ if (iand(ntpert(idisp),2**3) == 8) then
   if (iMethod == 2) call CreQ_td(Temp5,MOT,G2sq,loper+1)
 
   do iS=1,nSym
-    jS = ieor(iS-1,loper)+1
+    jS = Mul(iS,loper+1)
     ! F~=2*Fi~
     call DaXpY_(nIsh(is)*nBas(js),Two,Temp3(ipMat(js,is)),1,Temp6(ipMat(js,is)),1)
     if (iMethod == 2) then
@@ -179,18 +180,18 @@ end if ! ntpert
 call Hess(Temp6,rkappa,Temp1,Temp3,Temp4,Temp5,Temp2,loper+1,jdisp,idisp)
 
 ! F=F~+Fx
-if (iand(ntpert(idisp),2**3) == 8) call daxpy_(nDens,One,Temp6,1,rKappa,1)
+if (btest(ntpert(idisp),3)) call daxpy_(nDens,One,Temp6,1,rKappa,1)
 
 ! Add connection to 2el MO integrals
 
 ! Adds (pb|cd) to triangular (ab|cd)
-if ((iMethod == 2) .and. (iand(ntpert(idisp),2**2) == 4)) call ABXpY(MOT,MOX,idsym)
+if ((iMethod == 2) .and. btest(ntpert(idisp),2)) call ABXpY(MOT,MOX,idsym)
 
 if (CI) then
-  if (iand(ntPert(idisp),2**3) /= 0) then
-    call CiSigma_td(0,State_Sym,ieor(State_sym-1,idsym-1)+1,Fix,nDens2,MOX,size(MOX),rdum,1,ipCI,ipst,'N',.true.)
+  if (btest(ntPert(idisp),3)) then
+    call CiSigma_td(0,State_Sym,Mul(State_sym,idsym),Fix,nDens2,MOX,size(MOX),rdum,1,ipCI,ipst,'N',.true.)
   else
-    call CiSigma_td(0,State_Sym,ieor(State_sym-1,idsym-1)+1,Fix,nDens2,rdum,1,rdum,1,ipCI,ipst,'N',.false.)
+    call CiSigma_td(0,State_Sym,Mul(State_sym,idsym),Fix,nDens2,rdum,1,rdum,1,ipCI,ipst,'N',.false.)
   end if
 
   call ipin(ipST)
@@ -205,7 +206,7 @@ end if
 call DYAX(ndens2,Two,rkappa,1,Temp1,1)
 
 do iS=1,nSym
-  js = ieor(is-1,loper)+1
+  js = Mul(is,loper+1)
   if (nbas(is)*nBas(js) /= 0) &
     call DGESUB(Temp1(ipMat(is,js)),nBas(is),'N',Temp1(ipMat(js,is)),nBas(js),'T',rKappa(ipMat(is,js)),nBas(is),nBas(is),nBas(js))
 end do

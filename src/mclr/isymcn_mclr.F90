@@ -13,19 +13,17 @@ integer function ISYMCN_MCLR(IOP,NOPEN)
 ! Master routine for symmetry of configuration
 ! with NOPEN singly occupied shells
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: ISMFTO
 
 implicit none
 integer IOP(*)
 integer NOPEN
-integer IEL, IVV, JVV, KVV
+integer IEL
 
 ISYMCN_MCLR = 1
 do IEL=1,NOPEN
-  IVV = ISYMCN_MCLR-1
-  JVV = ISMFTO(IOP(IEL))-1
-  KVV = ieor(IVV,JVV)
-  ISYMCN_MCLR = KVV+1
+  ISYMCN_MCLR = Mul(ISYMCN_MCLR,ISMFTO(IOP(IEL)))
 end do
 
 end function ISYMCN_MCLR

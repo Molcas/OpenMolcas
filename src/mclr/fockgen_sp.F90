@@ -24,6 +24,7 @@ subroutine FockGen_sp(d_0,rDens1,rdens2,Fock,fockout,idsym)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: FIMO
 use MCLR_Data, only: nNA, ipCM, ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nIsh, nBas
@@ -58,12 +59,12 @@ call mma_allocate(Scr,n2,Label='Scr')
 do ips=1,nSym
   do ks=1,nSym
     do is=1,nSym
-      jS = ieor(ieor(ips-1,ks-1),is-1)+1
+      jS = Mul(Mul(ips,ks),is)
 
       ! Exchange term   F = -(pk|ji)d     (i>j)
       !                  pl          kj
 
-      if ((ieor(ips-1,iS-1)+1 == iDsym) .and. (nBas(ipS) > 0)) then
+      if ((Mul(ips,iS) == iDsym) .and. (nBas(ipS) > 0)) then
         do iB=1,nIsh(iS)
           do jA=1,nAsh(jS)
             jAA = jA+nIsh(js)
@@ -90,7 +91,7 @@ end do
 !                                                                      *
 do iS=1,nSym
   if (nBas(iS) > 0) then
-    jS = ieor(is-1,iDSym-1)+1
+    jS = Mul(is,iDSym)
     do iA=1,nAsh(is)
       do jA=1,nAsh(js)
         rd = rDens1(iA+nA(iS)+(jA+nA(js)-1)*nna)
@@ -110,7 +111,7 @@ call mma_deallocate(Scr)
 call mma_deallocate(MO)
 
 do iS=1,nSym
-  js = ieor(is-1,idsym-1)+1
+  js = Mul(is,idsym)
   if (nbas(is)*nBas(js) /= 0) &
     call DGESUB(Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(js,is)),nBas(js),'T',FockOut(ipMat(is,js)),nBas(is),nBas(is),nBas(js))
 end do

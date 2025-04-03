@@ -19,6 +19,7 @@ subroutine WfCtl_pdft(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI, nAcPar, nNA, nAcPr2, ipMat
@@ -83,7 +84,7 @@ if (lSAVE) then
   write(u6,*) 'WfCtl_SA: SAVE option not implemented'
   call Abend()
 end if
-if (iand(kprint,2) == 2) lprint = .true.
+if (btest(kprint,1)) lprint = .true.
 isym = 1
 nconf1 = ncsf(State_Sym)
 
@@ -91,7 +92,7 @@ CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(ieor(iSym-1,State_Sym-1)+1,State_sym)
+call InCSFSD(Mul(iSym,State_Sym),State_sym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.
@@ -273,7 +274,7 @@ do iDisp=1,nDisp
   Temp5(:) = Zero
   call get_dArray('Fock_PDFT',FT99,nDens2)
   do iS=1,nSym
-    jS = ieor(iS-1,0)+1
+    jS = Mul(iS,1)
     if (nBas(is)*nBas(jS) /= 0) &
       call DGeSub(FT99(ipMat(iS,jS)),nBas(iS),'N',FT99(ipMat(jS,iS)),nBas(jS),'T',Temp5(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
   end do

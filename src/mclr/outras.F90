@@ -24,6 +24,7 @@ subroutine OutRAS(iKapDisp,iCiDisp)
 !         Theoretical Chemistry, University of Lund                *
 !*******************************************************************
 
+use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use gugx, only: SGS, CIS, EXS
 use MCLR_Data, only: nConf1, nDensC, nDens2
@@ -56,7 +57,7 @@ write(u6,*)
 idisp = 0
 do iSym=1,nSym
   call Setup_MCLR(iSym)
-  PState_SYM = ieor(State_Sym-1,iSym-1)+1
+  PState_SYM = Mul(State_Sym,iSym)
   nconfM = ncsf(PState_Sym)
   nconf1 = ncsf(PState_Sym)
   CI = .false.
@@ -74,7 +75,7 @@ do iSym=1,nSym
   end if
   do jDisp=1,lDisp(iSym)
     iDisp = iDisp+1
-    if (iand(ntpert(idisp),2**4) == 16) then
+    if (btest(ntpert(idisp),4)) then
       kdisp = DspVec(idisp)
 
       iDisk = iKapDisp(iDisp)
@@ -115,7 +116,7 @@ do iSym=1,nSym
       isyml = 2**(isym-1)
       ipert = kdisp
 
-      if (iand(kprint,8) == 8) write(u6,*) 'Perturbation ',ipert
+      if (btest(kprint,3)) write(u6,*) 'Perturbation ',ipert
       if (CI) then
         call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIp1,0,pstate_sym,State_Sym)
         NCSF(1:nSym) = CIS%NCSF(1:nSym)

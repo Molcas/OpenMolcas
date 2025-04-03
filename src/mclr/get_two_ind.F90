@@ -18,6 +18,7 @@ subroutine Get_Two_Ind(Ind_PUVX,IndTUVX)
 ! four MO indices.
 
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
 use input_mclr, only: nSym, ntBas, ntAsh, nAsh, nIsh, nOrb
 
 implicit none
@@ -64,12 +65,12 @@ do iSym=1,nSym
   iOrb = nOrb(iSym)
   do jSym=1,nSym
     jAsh = nAsh(jSym)
-    ijSym = 1+ieor(iSym-1,jSym-1)
+    ijSym = Mul(iSym,jSym)
     do kSym=1,nSym
       kAsh = nAsh(kSym)
       do lSym=1,kSym
         lAsh = nAsh(lSym)
-        klSym = 1+ieor(kSym-1,lSym-1)
+        klSym = Mul(kSym,lSym)
         if (ijSym == klSym) then
           kl_Orb_pairs = kAsh*lAsh
           if (kSym == lSym) kl_Orb_pairs = nTri_Elem(kAsh)
@@ -89,10 +90,10 @@ do iSym=1,nSym
   iPUVX = off_PUVX(iSym)
   do jSym=1,nSym
     jAsh = nAsh(jSym)
-    ijSym = 1+ieor(iSym-1,jSym-1)
+    ijSym = Mul(iSym,jSym)
     do kSym=1,nSym
       kAsh = nAsh(kSym)
-      lSym = 1+ieor(ijSym-1,kSym-1)
+      lSym = Mul(ijSym,kSym)
       lAsh = nAsh(lSym)
 
       if ((lSym <= kSym) .and. (iAsh*jAsh*kAsh*lAsh /= 0)) then

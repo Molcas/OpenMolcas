@@ -30,7 +30,7 @@ integer i, j, ij, k, l, ijkl, iS, jS, iA, jA, iAA, iAB, jAA, jAB, ipF
 E22 = Zero
 if (loper == 0) then
   Go = (iDisp < 0)
-  if (.not. Go) Go = (iand(ntpert(idisp),2**2) == 4)
+  if (.not. Go) Go = btest(ntpert(idisp),2)
   if (Go) then
     do i=1,nna
       do j=1,nna

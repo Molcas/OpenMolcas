@@ -17,6 +17,7 @@
 
 subroutine GetPDFTFock(bk)
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nDens2, ipMat
 use input_mclr, only: nSym, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -35,7 +36,7 @@ call mma_allocate(T,nDens2)
 call Get_DArray('FxyMS',FT99,nDens2)
 call dcopy_(nDens2,FT99,1,T,1)
 do IS=1,nSym
-  jS = ieor(iS-1,0)+1
+  jS = Mul(iS,1)
   if (nBas(is)*nBas(jS) /= 0) &
     call DGeSub(T(ipMat(iS,jS)),nBas(iS),'N',T(ipMat(jS,iS)),nBas(jS),'T',bktmp(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
 end do

@@ -24,6 +24,7 @@ subroutine r2elint(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin)
 !***********************************************************************
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, G1t, FAMO, FIMO
 use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, iMethod, CasInt
@@ -120,7 +121,7 @@ call Read2_2(rmo1,rmo2,FockI,FockA,T1,imem,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL
 ! Calculate contribution from uncontracted indexes.
 
 do iS=1,nSym
-  jS = ieor(iS-1,iDSym-1)+1
+  jS = Mul(iS,iDSym)
   if (nOrb(iS)*nOrb(jS) /= 0) then
     if (.not. CASINT) &
       call DGEMM_('T','N',nOrb(iS),nOrb(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),FI(ipMat(iS,jS)),nBas(iS),Zero, &

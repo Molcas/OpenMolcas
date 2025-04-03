@@ -12,6 +12,7 @@
 subroutine Pickmo_MCLR(rmo,rmoaa,idsym)
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMO, nA
 use input_mclr, only: nSym, nAsh, nOrb, nIsh
 
@@ -23,7 +24,7 @@ integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA, ijAA, klAA, ijkl, ip
 do iS=1,nSym
   do jS=1,iS
     do kS=1,is
-      ls = ieor(ieor(is-1,js-1),ieor(ks-1,idsym-1))+1
+      ls = Mul(Mul(is,js),Mul(ks,idsym))
       if (ls <= ks) then
         do iA=1,nAsh(is)
           iAA = iA+nA(is)

@@ -12,6 +12,7 @@
 subroutine ABXpY(Array1,Array2,idsym)
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMO, NA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 
@@ -28,7 +29,7 @@ do iS=1,nSym
     iAsh = nA(is)+iA
     iiA = nIsh(is)+iA
     do jS=1,nSym
-      ijs = ieor(is-1,js-1)+1
+      ijs = Mul(is,js)
       do jA=1,Nash(js)
         jAsh = nA(js)+jA
         ij = iTri(iash,jash)
@@ -36,7 +37,7 @@ do iS=1,nSym
           do kS=1,nSym
             do kA=1,Nash(ks)
               kAsh = nA(ks)+kA
-              ls = ieor(ieor(kS-1,ijs-1),idsym-1)+1
+              ls = Mul(Mul(kS,ijs),idsym)
               do lA=1,Nash(ls)
                 lAsh = nA(ls)+lA
                 if (kAsh >= lash) then

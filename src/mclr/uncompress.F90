@@ -16,9 +16,10 @@ subroutine UnCompress(ArrayIn,ArrayOut,idsym)
 !
 ! The redundant rotations are set to zero
 
-use Constants, only: Zero, One
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nDensC, nDens2, ipMat, nB
 use input_mclr, only: nSym, TimeDep, nIsh, nOrb, nRS1, nRS2, nRS3, nBas
+use Constants, only: Zero, One
 
 implicit none
 real*8 ArrayIn(nDensC), ArrayOut(nDens2)
@@ -44,7 +45,7 @@ else
 end if
 do iSym=1,nSym
   do jSym=1,nSym
-    if (ieor(iSym-1,jSym-1)+1 == dSym) then
+    if (Mul(iSym,jSym) == dSym) then
       do jBas=1,Bas(jSym)
         if (jBas <= nIsh(jsym)) then
           jT = 0

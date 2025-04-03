@@ -28,6 +28,7 @@ subroutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin)
 ! rkappa is d/dx(lambda)
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: G2sq, G1t
 use MCLR_Data, only: nDens2, ipMat, ipMatBA, nA, nMBA
 use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh
@@ -83,7 +84,7 @@ end if
 !call RECPRT('QA',' ',QA,nDens2,1)
 
 do iS=1,nSym
-  jS = ieor(iS-1,idsym-1)+1
+  jS = Mul(iS,idsym)
 
   !         I    A
   ! F  = 2 ( F  + F  )

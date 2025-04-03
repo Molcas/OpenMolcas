@@ -16,6 +16,7 @@ subroutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,Temp4,idsym,jdisp,idisp)
 ! derivative of the connection.
 
 use Index_Functions, only: iTri, nTri_Elem
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: Hss, CMO, F0SQMO
 use MCLR_Data, only: nDens2, ipCM, ipMat
 use MCLR_Data, only: DspVec, lDisp
@@ -32,9 +33,9 @@ real*8 Fact
 real*8, external :: DDot_
 
 Temp3(:) = Zero
-if (iand(ntpert(idisp),2**3) == 8) then
+if (btest(ntpert(idisp),3)) then
   do iS=1,nSym
-    js = ieor(is-1,idSym-1)+1
+    js = Mul(is,idSym)
     nnj = nOrb(js)!nash(js)+nash(js)
     if (nOrb(is)*nOrb(js) /= 0) call DGEMM_('N','N',nOrb(is),nnj,nnj,One,rCon(ipMat(is,js)),nOrb(is),F0SQMO(ipCM(jS)),nOrb(js), &
                                             Zero,Temp3(ipMat(is,js)),nOrb(is))
@@ -65,7 +66,7 @@ end do
 
 do kDisp=1,ldisp(idsym)
   mDisp = mdisp+1
-  if (iand(ntpert(mdisp),2**3) == 0) cycle
+  if (.not. btest(ntpert(mdisp),3)) cycle
   iRC = -1
   iOpt = 0
   Label = 'OvrGrd'
@@ -80,7 +81,7 @@ do kDisp=1,ldisp(idsym)
   do iS=1,nSym
     do jS=1,iS
       if (nOrb(is)*nOrb(jS) /= 0) then
-        if (ieor(iS-1,jS-1) == idsym-1) then
+        if (Mul(iS,jS) == idsym) then
           if (is == js) then
             call Square(Temp1(ip),Temp2(ipMat(iS,jS)),1,nBas(is),nBas(is))
             ip = ip+nTri_Elem(nBas(is))

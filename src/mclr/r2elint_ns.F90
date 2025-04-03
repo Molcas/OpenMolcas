@@ -24,6 +24,7 @@ subroutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin)
 !***********************************************************************
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t, FAMO, FIMO
 use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
@@ -134,7 +135,7 @@ call Read2_ns(rmo1,rmo2,FockI,FockA,T1,imem,Tmp2,T3,T4,DIR,DIL,DI,DAR,DAL,DA,rka
 !  stop 10
 !end if
 do iS=1,nsym
-  js = ieor(idsym-1,is-1)+1
+  js = Mul(idsym,is)
   if (nbas(is)*nbas(js) /= 0) call DGETMO(rkappa(ipmat(is,js)),nbas(is),nbas(is),nbas(js),K1(ipmat(js,is)),nbas(js))
 end do
 call DSCAL_(ndens2,-One,K1,1)
@@ -150,7 +151,7 @@ call Read2_ns(rdum,rdum,FI1,FA1,T1,imem,Tmp2,T3,T4,DIR,DIL,DI,DAR,DAL,DA,K1,idsy
 ! Calculate contribution from uncontracted indexes.
 
 do iS=1,nSym
-  jS = ieor(iS-1,iDSym-1)+1
+  jS = Mul(iS,iDSym)
   if (nBas(iS)*nBas(jS) /= 0) then
     call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,FIMO(ipCM(iS)),nBas(is),rkappa(ipMat(iS,jS)),nBas(iS),One, &
                 FockI(ipMat(iS,jS)),nBas(iS))

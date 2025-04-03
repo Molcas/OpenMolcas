@@ -260,13 +260,13 @@ outer: do
     case (14)
       !---- NOCO ------------------------------------------------------*
       do i=1,nDisp
-        NTPert(i) = iand(nTPert(i),251)
+        NTPert(i) = ibclr(nTPert(i),2)
       end do
 
     case (15)
       !---- NOTW ------------------------------------------------------*
       do i=1,nDisp
-        NTPert(i) = iand(nTPert(i),247)
+        NTPert(i) = ibclr(nTPert(i),3)
       end do
 
     case (16)
@@ -486,7 +486,7 @@ end do
 
 if (Timedep) then
   do i=1,ndisp
-    ntpert(i) = ior(ntpert(i),32)
+    ntpert(i) = ibset(ntpert(i),5)
   end do
 end if
 

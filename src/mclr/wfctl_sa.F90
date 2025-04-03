@@ -18,6 +18,7 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use gugx, only: SGS, CIS, EXS
 use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI
@@ -76,7 +77,7 @@ if (lSAVE) then
   write(u6,*) 'WfCtl_SA: SAVE option not implemented'
   call Abend()
 end if
-if (iand(kprint,2) == 2) lprint = .true.
+if (btest(kprint,1)) lprint = .true.
 isym = 1
 nconf1 = ncsf(State_Sym)
 
@@ -84,7 +85,7 @@ CI = .false.
 if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
 ! Initiate CSF <-> SD
-call InCSFSD(ieor(iSym-1,State_Sym-1)+1,State_sym)
+call InCSFSD(Mul(iSym,State_Sym),State_sym)
 
 ! Calculate length of the density, Fock and Kappa matrix etc
 ! notice that this matrices are not necessarily symmetric.

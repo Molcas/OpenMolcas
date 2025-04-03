@@ -29,6 +29,7 @@
 subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,NT,Have_2_el)
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
 use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
@@ -103,12 +104,12 @@ if (icsm == State_sym) kic(1) = 1
 ndet = nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
 ndet = max(ndet,ncsf(icsym),ncsf(issym))
 if (ndet == 0) return
-iOP = ieor(iCSM-1,iSSm-1)+1
+iOP = Mul(iCSM,iSSm)
 if (iOp == 1) then
   call iCopy(nSym,ipCM,1,pInt1,1)
 else
   do iS=1,nSym
-    jS = ieor(iS-1,iOp-1)+1
+    jS = Mul(iS,iOp)
     pInt1(is) = ipMat(is,jS)
   end do
 end if
@@ -181,7 +182,7 @@ if (TIMEDEP) then
     end do
 
     do is=1,nSym
-      js = ieor(ieor(icsym-1,issym-1),is-1)+1
+      js = Mul(Mul(icsym,issym),is)
       if (nbas(js)*nbas(is) /= 0) call DGETMO(Int1(ipmat(is,js)),nbas(is),nbas(is),nbas(js),TI1(ipmat(js,is)),nbas(js))
     end do
 

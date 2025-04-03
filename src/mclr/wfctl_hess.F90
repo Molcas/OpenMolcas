@@ -23,6 +23,7 @@ subroutine WfCtl_Hess(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,c
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use Para_Info, only: myRank, nProcs
 #ifdef _MOLCAS_MPP_
@@ -116,7 +117,7 @@ end if
 !                                                                      *
 ! Start loop over the symmetry of the perturbations
 
-if (iand(kprint,2) == 2) lprint = .true.
+if (btest(kprint,1)) lprint = .true.
 #ifdef _DEBUGPRINT_
 lprint = .true.
 #endif
@@ -203,14 +204,14 @@ do
     end if
     iSym_Old = iSym
 
-    PState_SYM = ieor(State_Sym-1,iSym-1)+1
+    PState_SYM = Mul(State_Sym,iSym)
     nconf1 = ncsf(PState_Sym)
     CI = .false.
     if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
     if (CI .and. (nconf1 == 1) .and. (isym == 1)) CI = .false.
     ! Initiate CSF <-> SD
-    if (CI) call InCSFSD(ieor(iSym-1,State_Sym-1)+1,State_sym)
+    if (CI) call InCSFSD(Mul(iSym,State_Sym),State_sym)
 
     ! Calculate length of the density, Fock and Kappa matrix etc
     ! notice that this matrixes not necessary are symmetric.
@@ -221,7 +222,7 @@ do
     !
     ! Output: Commonblocks (Pointers.fh)
 
-    PState_SYM = ieor(State_Sym-1,iSym-1)+1
+    PState_SYM = Mul(State_Sym,iSym)
     !nConf2 = nint(xispsm(PState_SYM,1))
     !nConf2 = ndtasm(PState_SYM)
     nconf3 = nint(max(xispsm(PState_SYM,1),xispsm(State_SYM,1)))
@@ -289,7 +290,7 @@ do
   !do jDisp=1,iDEnd
   !  iDisp = iDisp+1
   jspin = 0
-  if (iand(nTPert(idisp),1) == 1) jSpin = 1
+  if (btest(nTPert(idisp),0)) jSpin = 1
   if (jspin == 0) then
     nconf1 = ncsf(PState_Sym)
   else

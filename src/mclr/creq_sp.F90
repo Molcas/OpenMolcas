@@ -14,6 +14,7 @@
 subroutine creq_sp(q,rint,G2,idsym)
 ! Constructs the Q matrix
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nDens2, nNA, ipMat, ipMO, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 
@@ -28,13 +29,13 @@ real*8 rd
 
 !call dcopy_(ndens2,[Zero],0,Q,1)
 do iS=1,nSym
-  ipS = ieor(is-1,idsym-1)+1
+  ipS = Mul(is,idsym)
   if (norb(ips) /= 0) then
 
     do jS=1,nsym
-      ijS = ieor(is-1,js-1)+1
+      ijS = Mul(is,js)
       do kS=1,nSym
-        ls = ieor(ijs-1,ks-1)+1
+        ls = Mul(ijs,ks)
         do iAsh=1,nAsh(is)
           do jAsh=1,nAsh(js)
             do kAsh=1,nAsh(ks)

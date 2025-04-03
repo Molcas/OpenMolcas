@@ -62,7 +62,7 @@ itAA = nTri_Elem(iBB)
 ! iAdr=iAdr2 ! do not update iAdr2!
 iAdr = 0
 do ksym=1,nsym
-  !ksym=iEor(jsym,)
+  !ksym = Mul(jsym,)
   !!!!!!!!!!!!!
   do iv=1,nAsh(kSym)
     jCC = iv+nA(kSym)

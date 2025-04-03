@@ -49,7 +49,7 @@ real*8 BufFrac
 !                                                                      *
 call setup_MCLR(1)
 
-if ((StepType /= 'RUN2') .and. (iand(kPrint,4) == 4)) write(u6,'(6X,A)') 'Transformation of integrals'
+if ((StepType /= 'RUN2') .and. btest(kPrint,2)) write(u6,'(6X,A)') 'Transformation of integrals'
 ! For the mp2-gradient calculations we want the transformation
 ! routine to produce all integrals of the occupied and virtual
 ! orbitals so we tell it that the whole space is inactive and

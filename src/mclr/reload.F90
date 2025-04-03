@@ -11,9 +11,10 @@
 
 subroutine ReLoad(A,idsym,NBAS1,NBAS2)
 
-use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nDens2
 use input_mclr, only: nSym
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 real*8 A(*)
@@ -25,7 +26,7 @@ integer iS, jS, j
 call mma_allocate(ATemp,ndens2,Label='ATemp')
 
 do iS=1,nsym
-  js = ieor(is-1,idsym-1)+1
+  js = Mul(is,idsym)
   if (min(nbas1(is),nbas2(is)) < 1) cycle
   do j=0,min(nbas2(js),nbas1(js))-1
     call dcopy_(min(nbas1(is),nbas2(is)),A(ipMat(is,js)+j*nbas1(is)),1,ATemp(ipmat(is,js)+j*nbas2(is)),1)

@@ -48,6 +48,7 @@ subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,nTemp,Temp2,Temp3,Temp4,nDens22,D
 !                                                                  *
 !*******************************************************************
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nMBA, nDens2, nCMO, ipCM, ipMat, ipMO, nB
 use input_mclr, only: nSym, iMethod, nAsh, nIsh, nOrb
 use Constants, only: Zero, Half, One
@@ -101,7 +102,7 @@ end if
 do iS=1,nSym
   if (nOrb(iS) /= 0) then
     do jS=1,nSym
-      if ((ieor(iS-1,jS-1)+1 == idsym) .and. (nB(jS) /= 0)) then
+      if ((Mul(iS,jS) == idsym) .and. (nB(jS) /= 0)) then
 
         call DGEMM_('N','N',nOrb(iS),nB(jS),nOrb(jS),One,rkappa(ipMat(is,js)),nOrb(iS),DI(ipCM(js)),nOrb(jS),Zero, &
                     DI24(ipMat(iS,jS)),nOrb(iS))
@@ -138,12 +139,12 @@ do iS=1,nSym
 
     if (nOrb(iS)*nOrb(jS) /= 0) then
 
-      ijS = ieor(iS-1,jS-1)+1
+      ijS = Mul(iS,jS)
       do kS=1,nSym
         do lS=1,ks
           if (nOrb(kS)*nOrb(lS) /= 0) then
 
-            if (ieor(kS-1,lS-1) == ijS-1) then
+            if (Mul(kS,lS) == ijS) then
               do iB=1,nB(iS)
                 nnB = nB(jS)
                 if (iS == jS) nnB = iB
@@ -162,7 +163,7 @@ do iS=1,nSym
 
                   if (lFAT) then
 
-                    if (ieor(ls-1,is-1)+1 == idsym) then
+                    if (Mul(ls,is) == idsym) then
                       ipD = ipMat(lS,iS)+nOrb(lS)*(ib-1)
                       ipF = ipMat(kS,jS)+nOrb(kS)*(jB-1)
                       call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
@@ -172,7 +173,7 @@ do iS=1,nSym
                     ! FqJ=sum(rI)  I  DL
                     !               rq  r
 
-                    if ((kS /= ls) .and. (ieor(kS-1,is-1)+1 == iDSym)) then
+                    if ((kS /= ls) .and. (Mul(kS,is) == iDSym)) then
                       ipD = ipMat(kS,iS)+nOrb(kS)*(ib-1)
                       ipF = ipMat(lS,jS)+nOrb(lS)*(jB-1)
                       call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
@@ -183,7 +184,7 @@ do iS=1,nSym
                     !               qr  r
 
                     if ((iS /= jS) .or. (iB /= jb)) then
-                      if (ieor(lS-1,js-1)+1 == iDSym) then
+                      if (Mul(lS,js) == iDSym) then
                         ipD = ipMat(lS,jS)+nOrb(lS)*(jb-1)
                         ipF = ipMat(kS,iS)+nOrb(kS)*(iB-1)
                         call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
@@ -193,7 +194,7 @@ do iS=1,nSym
                       ! Fqr=sum(rJ) = I  DL
                       !                rq  r
 
-                      if ((kS /= ls) .and. (ieor(kS-1,js-1)+1 == iDSym)) then
+                      if ((kS /= ls) .and. (Mul(kS,js) == iDSym)) then
                         ipD = ipMat(kS,jS)+nOrb(kS)*(jb-1)
                         ipF = ipMat(lS,iS)+nOrb(lS)*(iB-1)
                         call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
@@ -211,7 +212,7 @@ do iS=1,nSym
                     ! Fqj=sum(rI)  I  DL
                     !               qr  r
 
-                    if (ieor(ls-1,is-1)+1 == idsym) then
+                    if (Mul(ls,is) == idsym) then
                       ipD = ipMat(lS,iS)+nOrb(lS)*(ib-1)
                       ipF = ipMat(kS,jS)+norb(kS)*(jB-1)
                       call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
@@ -221,7 +222,7 @@ do iS=1,nSym
                     ! FqJ=sum(rI)  I  DL
                     !               rq  r
 
-                    if ((kS /= ls) .and. (ieor(kS-1,is-1)+1 == iDSym)) then
+                    if ((kS /= ls) .and. (Mul(kS,is) == iDSym)) then
                       ipD = ipMat(kS,iS)+nOrb(kS)*(ib-1)
                       ipF = ipMat(lS,jS)+norb(lS)*(jB-1)
                       call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
@@ -232,7 +233,7 @@ do iS=1,nSym
                     !               qr  r
 
                     if ((iS /= jS) .or. (iB /= jb)) then
-                      if (ieor(lS-1,js-1)+1 == iDSym) then
+                      if (Mul(lS,js) == iDSym) then
                         ipD = ipMat(lS,jS)+nOrb(lS)*(jb-1)
                         ipF = ipMat(kS,iS)+norb(kS)*(iB-1)
                         call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
@@ -242,7 +243,7 @@ do iS=1,nSym
                       ! Fqr=sum(rJ) = I  DL
                       !                rq  r
 
-                      if ((kS /= ls) .and. (ieor(kS-1,js-1)+1 == iDSym)) then
+                      if ((kS /= ls) .and. (Mul(kS,js) == iDSym)) then
                         ipD = ipMat(kS,jS)+nOrb(kS)*(jb-1)
                         ipF = ipMat(lS,iS)+norb(lS)*(iB-1)
                         call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
@@ -273,7 +274,7 @@ do iS=1,nSym
 
                     call DGETMO(Temp2,nOrb(ls),nOrb(ls),nOrb(kS),Temp4,nOrb(ks))
 
-                    ipS = ieor(kS-1,idsym-1)+1
+                    ipS = Mul(kS,idsym)
                     if (nOrb(ips)*nAsh(lS) > 0) then
                       ipI = norb(ks)*nIsh(ls)+1
                       ip1 = ipMO(ls,js,is)+nOrb(ips)*nAsh(ls)*((iiB-1)*nAsh(jS)+jjb-1)
@@ -292,7 +293,7 @@ do iS=1,nSym
                     end if ! nOrb(ips)*nAsh(lS)
 
                     if (ks /= ls) then
-                      ipS = ieor(lS-1,idsym-1)+1
+                      ipS = Mul(lS,idsym)
                       if (nOrb(ips)*nAsh(ks) > 0) then
                         ip1 = ipMO(ks,js,is)+nOrb(ips)*nAsh(ks)*((iiB-1)*nAsh(jS)+jjb-1)
                         ip4 = ipMO(ks,is,js)+nOrb(ips)*nAsh(ks)*((jjB-1)*nAsh(iS)+iib-1)
@@ -310,7 +311,7 @@ do iS=1,nSym
                       end if !(nOrb(ips)
                     end if ! kl
 
-                    ipS = ieor(lS-1,idsym-1)+1
+                    ipS = Mul(lS,idsym)
                     if (nOrb(ks)*nAsh(ips) > 0) then
                       ip2 = ipMO(ips,js,is)+nOrb(kS)*nAsh(ips)*((iiB-1)*nAsh(jS)+jjb-1)
                       ip3 = ipMO(ips,is,js)+nOrb(kS)*nAsh(ips)*((jjB-1)*nAsh(iS)+iib-1)
@@ -327,7 +328,7 @@ do iS=1,nSym
                     end if ! nOrb(ips)
 
                     if (ks /= ls) then
-                      ipS = ieor(kS-1,idsym-1)+1
+                      ipS = Mul(kS,idsym)
                       if (nOrb(ls)*nAsh(ips) > 0) then
                         ip1 = ipMO(ips,js,is)+nOrb(ls)*nAsh(ips)*((iiB-1)*nAsh(jS)+jjb-1)
                         ip4 = ipMO(ips,is,js)+nOrb(ls)*nAsh(ips)*((jjB-1)*nAsh(iS)+iib-1)
@@ -367,11 +368,11 @@ do iS=1,nSym
 
     if (nOrb(iS)*nOrb(jS) /= 0) then
 
-      ijS = ieor(iS-1,jS-1)+1
+      ijS = Mul(iS,jS)
       do kS=1,nSym
         do lS=1,nSym
 
-          if (ieor(kS-1,lS-1)+1 == ijS) then
+          if (Mul(kS,lS) == ijS) then
             if (nOrb(kS)*nOrb(lS) /= 0) then
 
               do lB=1,nB(lS)
@@ -393,7 +394,7 @@ do iS=1,nSym
                     !  pi    pr   r
 
                     if (singlet) then
-                      if (ieor(ks-1,ls-1)+1 == idsym) then
+                      if (Mul(ks,ls) == idsym) then
                         ipD = ipMat(kS,lS)+nOrb(kS)*(lb-1)
                         ipF = ipMat(iS,jS)+norb(iS)*(jB-1)
                         call dGeMV_('N',nOrb(iS),nOrb(kS),Fact,Temp1,nOrb(iS),DI13(ipD),1,One,FockI(ipF),1)
@@ -416,7 +417,7 @@ do iS=1,nSym
                     !             jl   j
                     !            I   DR
                     !             pr   r
-                    if (ieor(ks-1,js-1)+1 == idsym) then
+                    if (Mul(ks,js) == idsym) then
                       ipD = ipMat(kS,jS)+nOrb(kS)*(jb-1)
                       ipF = ipMat(iS,lS)+nOrb(iS)*(lB-1)
                       call dGeMV_('N',nOrb(iS),nOrb(kS),-Fact*half,Temp1,nOrb(iS),DI13(ipD),1,One,FockI(ipF),1)
@@ -437,7 +438,7 @@ do iS=1,nSym
                       ! F =   I   DR
                       !  pi    pr   r
 
-                      if (ieor(ks-1,ls-1)+1 == idsym) then
+                      if (Mul(ks,ls) == idsym) then
                         ipD = ipMat(kS,lS)+nOrb(kS)*(lb-1)
                         ipF = ipMat(iS,jS)+nOrb(iS)*(jB-1)
                         call dGeMV_('N',nOrb(iS),nOrb(kS),Fact,Temp1,nOrb(iS),DA13(ipD),1,One,FockA(ipF),1)
@@ -460,7 +461,7 @@ do iS=1,nSym
                     !             jl   j
                     !            I   DR
                     !             pr   r
-                    if (ieor(kS-1,js-1) == idsym-1) then
+                    if (Mul(kS,js) == idsym) then
                       ipD = ipMat(kS,jS)+nOrb(kS)*(jb-1)
                       ipF = ipMat(iS,lS)+nOrb(iS)*(lB-1)
                       call dGeMV_('N',nOrb(iS),nOrb(kS),-Fact*half,Temp1,nOrb(iS),DA13(ipD),1,One,FockA(ipF),1)
@@ -486,7 +487,7 @@ do iS=1,nSym
                     !  JL                      JL
                     ! I   k    (iJ|kL)      & I   k    (iJLk)
                     !  ir  kr                  ir  kr
-                    ips = ieor(kS-1,iDsym-1)+1
+                    ips = Mul(kS,iDsym)
                     if (nOrb(iS)*nAsh(ipS) /= 0) &
                       call DGEMM_('N','T',nOrb(iS),nAsh(ipS),nOrb(kS),One,Temp3,nOrb(iS),rKappa(ipMat(ips,ks)+nIsh(ips)), &
                                   nOrb(ips),Zero,Temp4,nOrb(iS))

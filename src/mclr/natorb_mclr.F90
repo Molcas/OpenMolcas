@@ -27,7 +27,7 @@ call mma_allocate(EVal,ndens2,Label='EVal')
 
 ! Diagonalize the density matrix and transform orbitals
 
-if (iand(kprint,8) == 8) then
+if (btest(kprint,3)) then
   write(u6,*)
   write(u6,*) '           Effective natural population'
   write(u6,*) '           ============================'
@@ -52,7 +52,7 @@ do is=1,nsym
   end do
   IST = IO+1
   IEND = IO+NBAS(is)
-  if (iand(kprint,2) == 2) write(u6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))') 'sym',iS,':',(OCCN(I),I=IST,IEND)
+  if (btest(kprint,1)) write(u6,'(6X,A3,I2,A1,10F11.6,/,(12X,10F11.6))') 'sym',iS,':',(OCCN(I),I=IST,IEND)
   if (nBas(is) >= 1) &
     call DGEMM_('N','N',NBAS(is),NBAS(is),NBAS(is),One,CMOO(ipCM(is)),NBAS(is),EVec,NBAS(is),Zero,CMON(ipCM(is)),NBAS(is))
   io = io+nbas(is)

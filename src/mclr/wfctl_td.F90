@@ -18,6 +18,7 @@ subroutine WfCtl_td(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,con
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: CMO, Int2, FIMO
 use MCLR_Data, only: nConf1, nDens2, nDensC, ipCI, n1Dens, n2Dens, nDens
@@ -78,7 +79,7 @@ Converged(:) = .true.
 lprint = .false.
 LU_50 = 50
 if (lSAVE) call DANAME(LU_50,'RESIDUALS')
-if (iand(kprint,2) == 2) lprint = .true.
+if (btest(kprint,1)) lprint = .true.
 iDisp = 0
 kksym = 1
 kkksym = nsym
@@ -87,14 +88,14 @@ if (PT2) kkkSym = 1
 ! Starting loop over all symmetries/PT
 
 do iSym=kksym,kkksym
-  PState_SYM = ieor(State_Sym-1,iSym-1)+1
+  PState_SYM = Mul(State_Sym,iSym)
   nconf1 = ncsf(PState_Sym)
   CI = .false.
   if ((iMethod == 2) .and. (nconf1 > 0)) CI = .true.
 
   if (CI .and. (nconf1 == 1) .and. (isym == 1)) CI = .false.
   ! Initiate CSF <-> SD
-  if (CI) call InCSFSD(ieor(iSym-1,State_Sym-1)+1,State_sym)
+  if (CI) call InCSFSD(Mul(iSym,State_Sym),State_sym)
 
   ! Calculate length of the density, Fock and Kappa matrix etc
   ! notice that this matrixes not necessary are symmetric.
@@ -105,7 +106,7 @@ do iSym=kksym,kkksym
   !
   ! Output: Commonblocks (Pointers.fh)
 
-  PState_SYM = ieor(State_Sym-1,iSym-1)+1
+  PState_SYM = Mul(State_Sym,iSym)
   !nConf2 = nint(xispsm(PState_SYM,1))
   !nConf2 = ndtasm(PState_SYM)
   nconf3 = nint(max(xispsm(PState_SYM,1),xispsm(State_SYM,1)))
@@ -170,7 +171,7 @@ do iSym=kksym,kkksym
   do jDisp=1,iDEnd
     iDisp = iDisp+1
     jspin = 0
-    if (iand(nTPert(idisp),1) == 1) jSpin = 1
+    if (btest(nTPert(idisp),0)) jSpin = 1
     if (jspin == 0) then
       nconf1 = ncsf(PState_Sym)
     else

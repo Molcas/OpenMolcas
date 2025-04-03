@@ -17,6 +17,7 @@
 
 subroutine CISigma(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ipCI1,ipCI2,Have_2_el)
 
+use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
 use MCLR_Data, only: nConf1, ipCM, ipMat
@@ -88,12 +89,12 @@ ndet = nint(max(xispsm(iSSym,1),xispsm(iCSym,1)))
 ndet = max(ndet,ncsf(icsym),ncsf(issym))
 
 if (ndet == 0) return
-iOP = ieor(iCSM-1,iSSm-1)+1
+iOP = Mul(iCSM,iSSm)
 if (iOp == 1) then
   call iCopy(nSym,ipCM,1,pInt1,1)
 else
   do iS=1,nSym
-    jS = ieor(iS-1,iOp-1)+1
+    jS = Mul(iS,iOp)
     pInt1(is) = ipMat(is,jS)
   end do
 end if

@@ -19,6 +19,7 @@ subroutine AddGrad(rKappa,rMat,idsym,fact)
 !   a beautifull convergence of the PCG,
 !   which is just the case if E is symmetric.
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: F0SQMO
 use MCLR_Data, only: ipCM, ipMat
 use input_mclr, only: nSym, nOrb
@@ -32,7 +33,7 @@ integer iS, jS
 real*8, allocatable :: Tempi(:), Tempj(:)
 
 do iS=1,nSym
-  js = ieor(is-1,idsym-1)+1
+  js = Mul(is,idsym)
   if (nOrb(is)*nOrb(js) == 0) cycle
   call mma_allocate(Tempi,nOrb(is)**2,Label='Tempi')
   call mma_allocate(Tempj,nOrb(js)**2,Label='Tempj')

@@ -67,7 +67,7 @@ module MCLR_Data
 !  nAElCI : Number of alpha electrons per CI space *
 !  nBElCI : Number of beta electrons per CI space *
 !  xispsm : Number of det. for each (symmetry,CI space) **
-!  ismost : Symmetry operator ASym=ismost(BSym,iTOTSM) ***(istead of ieor)
+!  ismost : Symmetry operator ASym=ismost(BSym,iTOTSM) ***(instead of ieor)
 !  MXSB   : Largest symmetry block **
 !  MXSOOB : Largest block        **
 

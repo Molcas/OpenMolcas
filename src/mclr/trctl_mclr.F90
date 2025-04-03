@@ -18,6 +18,7 @@ subroutine TRCTL_MCLR()
 !          symmetry block of integrals.
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO
 use MCLR_Data, only: ipCM
 use MCLR_Data, only: FnHlf2, FnHlf3, FnTri1, FnTri2, FnTri3, FnTri4, FnTri5
@@ -72,17 +73,17 @@ do iSP=1,NSYM
     NBQ = NBAS(iSQ)
     NAQ = NASH(iSQ)+nish(isq)
     nDQ = nFro(iSQ)!+nDel(iSQ)
-    NSPQ = ieor(iSP-1,iSQ-1)+1
+    NSPQ = Mul(iSP,iSQ)
     do iSR=1,NSYM
       NBR = NBAS(iSR)
       NAR = NASH(iSR)+nish(isr)
       nDR = nFro(iSR)!+nDel(iSR)
-      NSPQR = ieor(NSPQ-1,iSR-1)+1
+      NSPQR = Mul(NSPQ,iSR)
       do iSS=1,iSR
         NBS = NBAS(iSS)
         NAS = NASH(iSS)+nIsh(iSS)
         nDS = nFro(iSS)!+nDel(iSS)
-        NSPQRS = ieor(NSPQR-1,iSS-1)+1
+        NSPQRS = Mul(NSPQR,iSS)
 
         ! Check the loop conditions and skip transformation step if possible
 

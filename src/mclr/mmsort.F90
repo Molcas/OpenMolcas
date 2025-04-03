@@ -28,13 +28,13 @@ call icopy(nsym,[0],0,ldisp1,1)
 do iSym=1,nsym
   iG = 0
   do idisp=1,ldisp(isym)
-    geomi = iand(ntpert(iii+idisp),16) == 16
+    geomi = btest(ntpert(iii+idisp),4)
     if (geomi) then
       ldisp1(isym) = ldisp1(isym)+1
       iG = iG+1
       jG = 0
       do jdisp=1,idisp
-        geomj = iand(ntpert(jdisp+iii),16) == 16
+        geomj = btest(ntpert(jdisp+iii),4)
         if (geomj) then
           jG = jG+1
           ijg1 = ijG+iTri(ig,jg)

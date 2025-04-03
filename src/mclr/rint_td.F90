@@ -31,6 +31,7 @@ subroutine RInt_td(ekappa,mkappa,isym)
 !  wKtD   As above but different order
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t
 use MCLR_Data, only: nDens2, ipCM, ipMat, nA
 use input_mclr, only: Omega, nSym, nAsh, nBas, nIsh
@@ -101,7 +102,7 @@ end do
 !call RecPrt('dens ',' ',dens,ldens,1)
 !call RecPrt('ekappa ',' ',ekappa,ndens2,1)
 do is=1,nsym
-  js = ieor(is-1,isym-1)+1
+  js = Mul(is,isym)
   ! wDKt
   if ((nBas(iS) > 0) .and. (nBas(jS) > 0)) then
     call DGEMM_('n','n',nbas(is),nbas(js),nbas(is),Two*Omega,Dens(ipCM(is)),nbas(is),mkappa(ipmat(is,js)),nbas(is),Zero, &

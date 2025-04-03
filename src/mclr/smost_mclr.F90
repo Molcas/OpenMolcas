@@ -19,13 +19,14 @@ subroutine SMOST_MCLR(NSMST,NSMCI,MXPCSM,ISMOST)
 !
 ! Jeppe Olsen, Spring of 1991
 
+use Symmetry_Info, only: Mul
+
 implicit real*8(A-H,O-Z)
 dimension ISMOST(MXPCSM,MXPCSM)
 
 do ITOTSM=1,NSMCI
   do ISTSM=1,NSMST
-    JSTSM = 1+ieor(ISTSM-1,ITOTSM-1)
-    ISMOST(ISTSM,ITOTSM) = JSTSM
+    ISMOST(ISTSM,ITOTSM) = Mul(ISTSM,ITOTSM)
   end do
 end do
 

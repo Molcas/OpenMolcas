@@ -23,6 +23,7 @@ subroutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin,D,FA)
 !
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, FIMO
 use MCLR_Data, only: nDens2, nMBA, nNA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
@@ -112,7 +113,7 @@ call Read2_2(rmo1,rmo2,FI,FA2,T1,imem,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,r
 ! Calculate contribution from uncontracted indexes.
 
 do iS=1,nSym
-  jS = ieor(iS-1,iDSym-1)+1
+  jS = Mul(iS,iDSym)
   if (nBas(iS)*nBas(jS) /= 0) then
     call DGEMM_('T','N',nBas(iS),nBas(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),FI(ipMat(iS,jS)),nBas(iS),Zero,FockI(ipMat(iS,jS)), &
                 nBas(iS))

@@ -12,6 +12,7 @@
 subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp)
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t, CMO
 use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
 use MCLR_Data, only: DspVec, SWLbl
@@ -37,8 +38,8 @@ jDisp = DspVec(idisp)
 ! Remember two-electron contributions are saved in MO base
 ! but one electron contributions is saved in AO base.
 
-if (iand(ntpert(idisp),2**2) == 4) then   ! 2 el contribution
-  if (iand(ntpert(idisp),2**4) == 2**4) then  ! from mckinley
+if (btest(ntpert(idisp),2)) then   ! 2 el contribution
+  if (btest(ntpert(idisp),4)) then  ! from mckinley
     if (iMethod == 2) then
 
       !----------------------------------------------------------------*
@@ -101,7 +102,7 @@ if (iand(ntpert(idisp),2**2) == 4) then   ! 2 el contribution
       end if
       call dcopy_(ndens2,[Zero],0,fock,1)
       do iS=1,nSym
-        js = ieor(is-1,loper)+1
+        js = Mul(is,loper+1)
         call Dyax(nOrb(is)*nIsh(js),Two,Focki(ipMat(is,js)),1,Fock(ipMat(is,js)),1)
       end do
     end if
@@ -115,9 +116,9 @@ end if
 !
 !----------------------------------------------------------------------*
 
-if (iand(nTPert(iDisp),2**1) == 2) then ! 1 el contribution
+if (btest(nTPert(iDisp),1)) then ! 1 el contribution
   iop = 2**loper
-  if (iand(ntpert(idisp),2**4) == 2**4) then  ! from mckinley
+  if (btest(ntpert(idisp),4)) then  ! from mckinley
     Label = 'ONEGRD'
     irc = -1
     iopt = 0
@@ -145,7 +146,7 @@ call dcopy_(nDens,[Zero],0,Temp2,1)
 do iS=1,nSym
   do jS=1,is
     if (nBas(is)*nBas(js) /= 0) then
-      if (ieor(iS-1,jS-1) == loper) then
+      if (Mul(iS,jS) == loper+1) then
         if (is == js) then
           call Square(Temp1(ipMatLt(iS,jS)),Temp4,1,nBas(is),nBas(is))
         else
@@ -165,7 +166,7 @@ end do
 
 call dcopy_(ndens2,[Zero],0,Temp3,1)
 do iS=1,nSym
-  js = ieor(is-1,loper)+1
+  js = Mul(is,loper+1)
   if (nOrb(js) < 1) cycle
   do j=1,nAsh(is)+nish(is)
     do i=1,nAsh(is)+nIsh(is)
@@ -188,7 +189,7 @@ end do
 !
 !----------------------------------------------------------------------*
 
-if (iand(ntpert(idisp),2**2) == 4) then
+if (btest(ntpert(idisp),2)) then
   call daxpy_(nDens2,One,Temp2,1,Focki,1)
   call daxpy_(nDens2,One,Temp3,1,Fock,1)
 else

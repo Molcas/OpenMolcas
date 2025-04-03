@@ -14,11 +14,12 @@
 subroutine CSF2SD(CSF,SD,is)
 ! Transforms a CSF vector to slater determinants
 
+use Symmetry_Info, only: Mul
 use Str_Info, only: DTOC, CNSM
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
 use MCLR_Data, only: NDTASM
 use input_mclr, only: nConf, State_Sym, nCSF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 integer is
@@ -28,7 +29,7 @@ integer iiCOPY, iSym, i
 
 iiCOPY = 0
 nConf = max(ncsf(is),ndtasm(iS))
-isym = ieor(is-1,State_Sym-1)+1
+isym = Mul(is,State_Sym)
 i = 2
 if (isym == 1) i = 1
 

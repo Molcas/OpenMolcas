@@ -15,9 +15,10 @@ subroutine creq(q,rint,G2,idsym)
 ! Constructs the Q matrix
 
 use Index_Functions, only: iTri
-use Constants, only: Zero
+use Symmetry_Info, only: Mul
 use MCLR_Data, only: nDens2, ipMatBA, ipMO, nA
 use input_mclr, only: nSym, nAsh, nOrb
+use Constants, only: Zero
 
 implicit none
 integer idSym
@@ -29,13 +30,13 @@ integer iS, jS, kS, lS, ijS, iAsh, jAsh, kAsh, lAsh, iij, ikl, ipS, ipQ, ipG, ip
 
 Q(:) = Zero
 do iS=1,nSym
-  ipS = ieor(is-1,idsym-1)+1
+  ipS = Mul(is,idsym)
   if (norb(ips) /= 0) then
 
     do jS=1,nsym
-      ijS = ieor(is-1,js-1)+1
+      ijS = Mul(is,js)
       do kS=1,nSym
-        ls = ieor(ijs-1,ks-1)+1
+        ls = Mul(ijs,ks)
         do iAsh=1,nAsh(is)
           do jAsh=1,nAsh(js)
             iij = iTri(iAsh+nA(is),jAsh+nA(jS))
