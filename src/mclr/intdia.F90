@@ -21,7 +21,7 @@ subroutine INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
 use Str_Info, only: STR, NELEC, NOCTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: iDC, PSSIGN
-use MCLR_Data, only: IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC
+use MCLR_Data, only: IASTFI, IBSTFI, MNR1IC, MXR3IC
 use MCLR_Data, only: ICISTR
 use MCLR_Data, only: NTOOB, NACOB
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
@@ -101,7 +101,7 @@ do ILOOP=1,NLOOP
     MNRS1C = MNR1IC(ISPC(IISPC))
     MXRS3C = MXR3IC(ISPC(IISPC))
 
-    call ZBLTP(ISMOST(1,ISM(IISPC)),nIrrep,IDC,BLTP,idum)
+    call ZBLTP(ISM(IISPC),nIrrep,IDC,BLTP,idum)
     call IAIBCM_MCLR(MNRS1C,MXRS3C,NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,IOIO)
 
     if (ICISTR <= 1) then
@@ -109,8 +109,8 @@ do ILOOP=1,NLOOP
     else
       LLUDIA = LUDIA
     end if
-    call CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,NACOB,DIAG,nIrrep,H1D,ISMOST(1,ISM(IISPC)),BLTP,XB,JA,KA, &
-                Str(IATP)%NSTSO,Str(IBTP)%NSTSO,IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,Str(IBTP)%ISTSO,LLUDIA,ECORE,PSSIGN,NTOOB,ICISTR)
+    call CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,NACOB,DIAG,nIrrep,H1D,ISM(IISPC),BLTP,XB,JA,KA,Str(IATP)%NSTSO, &
+                Str(IBTP)%NSTSO,IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,Str(IBTP)%ISTSO,LLUDIA,ECORE,PSSIGN,NTOOB,ICISTR)
 
     if ((ICISTR <= 1) .and. (LUDIA > 0)) then
       ! Each CI space is written in one record

@@ -10,12 +10,12 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine ZOOS(ISMOST,IBLTP,MAXSYM,IOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,IOOS,NOOS,NCOMB,IXPND)
+subroutine ZOOS(ISM,IBLTP,MAXSYM,IOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,IOOS,NOOS,NCOMB,IXPND)
 ! Generate offsets for CI vector for RAS CI expansion of given symmetry
 ! Combination type is defined by IDC
 ! Total number of combinations NCOMB is also obtained
 !
-! Symmetry is defined through ISMOST
+! Symmetry is defined through ISM
 !
 ! ICBLTP gives typo of symmetry block :
 ! = 0 : symmetry block is not included
@@ -41,12 +41,13 @@ subroutine ZOOS(ISMOST,IBLTP,MAXSYM,IOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,IOOS,NOO
 !                ALPHA STRINGS (ROW INDEX)
 !    END OF LOOPS
 
+use Symmetry_Info, only: Mul
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 ! Input
-dimension IOCOC(NOCTPA,NOCTPB), ISMOST(*)
+dimension IOCOC(NOCTPA,NOCTPB)
 dimension NSSOA(MAXSYM,NOCTPA), NSSOB(MAXSYM,NOCTPB)
 dimension IBLTP(*)
 ! output
@@ -59,7 +60,7 @@ NOOS(:,:,:) = 0
 NCOMB = 0
 do IASYM=1,MAXSYM
 
-  IBSYM = ISMOST(IASYM)
+  IBSYM = Mul(IASYM,ISM)
   if (IBSYM == 0) cycle
   ! Allowed combination symmetry block?
   if ((IDC /= 1) .and. (IBLTP(IASYM) == 0)) cycle

@@ -33,10 +33,10 @@ subroutine CSFDIM_GAS(IOCCLS,NOCCLS,ISYM)
 
 use Data_Structures, only: Allocate_DT
 use lucia_data, only: CFTP, CONF_OCC, CONF_REO, DFTP, DTOC, I2ELIMINATED_IN_GAS, I_ELIMINATE_GAS, IB_CONF_OCC, IB_CONF_REO, &
-                      IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, IELIMINATED_IN_GAS, IPRCIX, MAXOP, MINOP, MS2, MULTS, MXPCSM, &
-                      MXPORB, N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_PER_SYM, NCONF_TOT, &
-                      NCSF_HEXS, NCSF_PER_SYM, NGAS, NOBPT, NOCOB, NPCMCNF, NPCSCNF, NPDTCNF, NSD_PER_SYM, PSSIGN, REO_PTDT, &
-                      SDREO, SDREO_I, Z_PTDT
+                      IB_SD_FOR_OPEN, IBCONF_ALL_SYM_FOR_OCCLS, IELIMINATED_IN_GAS, IPRCIX, MAXOP, MINOP, MS2, MULTS, MXPORB, &
+                      N_2ELIMINATED_GAS, N_ELIMINATED_GAS, NCONF_ALL_SYM, NCONF_PER_OPEN, NCONF_PER_SYM, NCONF_TOT, NCSF_HEXS, &
+                      NCSF_PER_SYM, NGAS, NOBPT, NOCOB, NPCMCNF, NPCSCNF, NPDTCNF, NSD_PER_SYM, PSSIGN, REO_PTDT, SDREO, SDREO_I, &
+                      Z_PTDT
 use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp, u6
@@ -47,7 +47,7 @@ integer(kind=iwp), intent(in) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM
 integer(kind=iwp) :: HEXS_CNF(MXPORB+1), I, IAEL, IALPHA, IB, IBEL, ICL, IDOREO, IDUM, IDUM_ARR(1), IELIM, IGAS, ILCNF, ILLCNF, &
                      INITIALIZE_CONF_COUNTERS, IOPEN, ITP, ITYP, J, JGAS, JOCCLS, LCONF, LDTOC, LENGTH_LIST, LICS, LIDT, LLCONF, &
                      LPTDT, LZ, maxingas(N_ELIMINATED_GAS), maxingas2(N_2ELIMINATED_GAS), MXDT, MXPTBL, NCMB, &
-                     NCONF_ALL_SYM_FOR_OCCLS(MXPCSM), NCONF_ALL_SYM_PREV, NCONF_OCCLS, NCSF, NELEC, NSD, TMP_CNF(MXPORB+1)
+                     NCONF_OCCLS, NCSF, NELEC, NSD, TMP_CNF(MXPORB+1)
 integer(kind=iwp), external :: IBINOM, IWEYLF
 
 IDUM = 0
@@ -112,19 +112,19 @@ end if
 
 ! Number of Configurations per occupation type
 
-if (NOCCLS > MXPCSM) then
-  write(u6,*) ' A known bug has reoccurred -- It seems that'
-  write(u6,*) ' the named constant MXPCSM must be increased'
-  write(u6,*) ' from its current value MXPCSM=',MXPCSM
-  write(u6,*) ' to AT LEAST NOCCLS=',NOCCLS
-  write(u6,*) ' This parameter is found in the module'
-  write(u6,*) '  <molcas>/src/lucia_util/lucia_data.F90'
-  write(u6,*) ' Change it. Then ''cd'' to molcas root'
-  write(u6,*) ' directory and give command ''make''.'
-  write(u6,*) ' But this may also be a bug. Please tell the'
-  write(u6,*) ' molcas developers!'
-  call Quit(_RC_INTERNAL_ERROR_)
-end if
+!if (NOCCLS > MXPCSM) then
+!  write(u6,*) ' A known bug has reoccurred -- It seems that'
+!  write(u6,*) ' the named constant MXPCSM must be increased'
+!  write(u6,*) ' from its current value MXPCSM=',MXPCSM
+!  write(u6,*) ' to AT LEAST NOCCLS=',NOCCLS
+!  write(u6,*) ' This parameter is found in the module'
+!  write(u6,*) '  <molcas>/src/lucia_util/lucia_data.F90'
+!  write(u6,*) ' Change it. Then ''cd'' to molcas root'
+!  write(u6,*) ' directory and give command ''make''.'
+!  write(u6,*) ' But this may also be a bug. Please tell the'
+!  write(u6,*) ' molcas developers!'
+!  call Quit(_RC_INTERNAL_ERROR_)
+!end if
 !MGD : max occupation in removed GAS spaces
 do i=1,N_ELIMINATED_GAS
   iGAS = IELIMINATED_IN_GAS(i)
@@ -137,6 +137,8 @@ end do
 HEXS_CNF(:) = 0
 NCONF_PER_OPEN(:,ISYM) = 0
 
+call mma_allocate(IBCONF_ALL_SYM_FOR_OCCLS,NOCCLS,Label='IBCONF_ALL_SYM_FOR_OCCLS')
+NCONF_ALL_SYM = 0
 do JOCCLS=1,NOCCLS
   if (JOCCLS == 1) then
     INITIALIZE_CONF_COUNTERS = 1
@@ -144,12 +146,9 @@ do JOCCLS=1,NOCCLS
     INITIALIZE_CONF_COUNTERS = 0
   end if
 
+  IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM+1
+
   IDOREO = 0
-  if (JOCCLS == 1) then
-    NCONF_ALL_SYM_PREV = 0
-  else
-    NCONF_ALL_SYM_PREV = NCONF_ALL_SYM
-  end if
   TMP_CNF(:) = 0
   call GEN_CONF_FOR_OCCLS(IOCCLS(:,JOCCLS),IDUM,INITIALIZE_CONF_COUNTERS,NGAS,ISYM,MINOP,MAXOP,1,NOCOB,NOBPT,TMP_CNF,NCONF_OCCLS, &
                           IB_CONF_REO,IB_CONF_OCC,IDUM_ARR,IDOREO,IDUM_ARR,NCONF_ALL_SYM,idum_arr,nconf_tot)
@@ -177,20 +176,20 @@ do JOCCLS=1,NOCCLS
   !call iwrtma(nconf_per_open,1,4,1,4)
 
   ! NCONF_ALL_SYM is accumulated, so
-  if (JOCCLS == 1) then
-    NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM
-    IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = 1
-  else
-    ! PAM2009: It was discovered that these two arrays could be overrun.
-    ! The arrays are declared in lucia_data, and their dimension
-    ! is MXPCSM, which is set in lucia_data -- both included above.
-    ! So MXPCSM is now increased from 20 to 40 -- if this is not a final
-    ! solution remains to be discovered:
-    NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM-NCONF_ALL_SYM_PREV
-
-    IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS-1)+NCONF_ALL_SYM_FOR_OCCLS(JOCCLS-1)
-
-  end if
+  !if (JOCCLS == 1) then
+  !  NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM
+  !  IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = 1
+  !else
+  !  ! PAM2009: It was discovered that these two arrays could be overrun.
+  !  ! The arrays are declared in lucia_data, and their dimension
+  !  ! is MXPCSM, which is set in lucia_data -- both included above.
+  !  ! So MXPCSM is now increased from 20 to 40 -- if this is not a final
+  !  ! solution remains to be discovered:
+  !  ! IFG 2025: It doesn't make sense for MXPCSM to be larger than 8,
+  !  !           so if this is still a problem, there must be some bug.
+  !  NCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = NCONF_ALL_SYM-NCONF_ALL_SYM_PREV
+  !  IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS) = IBCONF_ALL_SYM_FOR_OCCLS(JOCCLS-1)+NCONF_ALL_SYM_FOR_OCCLS(JOCCLS-1)
+  !end if
 end do
 ! Number of CSF's in expansion
 NCSF = sum(NCONF_PER_OPEN(1:MAXOP+1,ISYM)*NPCSCNF(1:MAXOP+1))

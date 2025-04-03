@@ -12,10 +12,10 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NACOB,NSSOA,NSSOB,NAEL,IAGRP,NBEL, &
-                       IBGRP,IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,LC,LS,CSCR,SSCR,NGAS, &
-                       NELFSPGPA,NELFSPGPB,IDC,ISOOSC,NSOOSC,ISOOSE,NSOOSE,ICOOSC,NCOOSC,ICOOSE,NCOOSE,IASOOS,IACOOS,I1,XI1S,I2, &
-                       XI2S,I3,XI3S,I4,XI4S,X,RHO1S,LUL,LUR,PSL,PSR,ieaw,n1,n2)
+subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSM,ISSM,ICBLTP,ISBLTP,NACOB,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP, &
+                       IOCTPA,IOCTPB,NOCTPA,NOCTPB,NSMST,NSMOB,MXPNGAS,NOBPTS,IOBPTS,MAXK,MAXI,LC,LS,CSCR,SSCR,NGAS,NELFSPGPA, &
+                       NELFSPGPB,IDC,ISOOSC,NSOOSC,ISOOSE,NSOOSE,ICOOSC,NCOOSC,ICOOSE,NCOOSE,IASOOS,IACOOS,I1,XI1S,I2,XI2S,I3, &
+                       XI3S,I4,XI4S,X,RHO1S,LUL,LUR,PSL,PSR,ieaw,n1,n2)
 ! Jeppe Olsen, Winter of 1991
 ! GAS modifications, August 1995
 !
@@ -30,8 +30,8 @@ subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,IC
 !
 ! ICOCOC : Allowed type combinations for C
 ! ISOCOC : Allowed type combinations for S(igma)
-! ICSMOS : Symmetry array for C
-! ISSMOS : Symmetry array for S
+! ICS    : Symmetry for C
+! ISS    : Symmetry for S
 ! ICBLTP : Block types for C
 ! ISBLTP : Block types for S
 !
@@ -56,6 +56,7 @@ subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,IC
 ! either fetches/disposes symmetry blocks or
 ! Symmetry-occupation-occupation blocks
 
+use Symmetry_Info, only: Mul
 use Constants, only: Zero
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -64,7 +65,7 @@ use Definitions, only: u6
 implicit real*8(A-H,O-Z)
 ! General input
 integer ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB)
-integer ICSMOS(NSMST), ISSMOS(NSMST)
+integer ICSM, ISSM
 integer ICBLTP(*), ISBLTP(*)
 integer NSSOA(NSMST,NOCTPA)
 integer NSSOB(NSMST,NOCTPB)
@@ -97,13 +98,13 @@ PLR = Zero
 ! 1 : Arrays for accessing L and R
 ! ================================
 ! L Compact form
-call ZOOS(ISSMOS,ISBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ISOOSC,NSOOSC,NSCMBC,0)
+call ZOOS(ISSM,ISBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ISOOSC,NSOOSC,NSCMBC,0)
 ! L Full determinant form
-call ZOOS(ISSMOS,ISBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,1,ISOOSE,NSOOSE,NSCMBE,1)
+call ZOOS(ISSM,ISBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,1,ISOOSE,NSOOSE,NSCMBE,1)
 ! R compact form
-call ZOOS(ICSMOS,ICBLTP,NSMST,ICOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ICOOSC,NCOOSC,NCCMBC,0)
+call ZOOS(ICSM,ICBLTP,NSMST,ICOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ICOOSC,NCOOSC,NCCMBC,0)
 ! R Full determinant form
-call ZOOS(ICSMOS,ICBLTP,NSMST,ICOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,1,ICOOSE,NCOOSE,NCCMBE,1)
+call ZOOS(ICSM,ICBLTP,NSMST,ICOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,1,ICOOSE,NCOOSE,NCCMBE,1)
 ! Initialize loop over batches of L blocks
 ISENSM = 1
 ISENTA = 1
@@ -124,7 +125,7 @@ outer: do
   IS1TB = ISSTTB
   ISOFF = 1
   do ISBLK=1,NSBLK
-    ISBSM = ISSMOS(IS1SM)
+    ISBSM = Mul(IS1SM,ISSM)
 #   ifdef _DEBUGPRINT_
     write(u6,*) ' ISBLK ISOFF ',ISBLK,ISOFF
 #   endif
@@ -158,7 +159,7 @@ outer: do
     IC1TB = ICSTTB
     ICOFF = 1
     do ICBLK=1,NCBLK
-      ICBSM = ICSMOS(IC1SM)
+      ICBSM = Mul(IC1SM,ICSM)
       if (ICOCOC(IC1TA,IC1TB) == 1) &
         call GSTTBL_MCLR(R,CB(ICOFF),IC1TA,IC1SM,IC1TB,ICBSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PSR,ICOOSC,IDC,PLR,LUR,C2)
       ICOFF = ICOFF+NCOOSE(IC1TA,IC1TB,IC1SM)
@@ -171,7 +172,7 @@ outer: do
     IATP = ISSTTA
     IBTP = ISSTTB
     do ISBLK=1,NSBLK
-      IBSM = ISSMOS(IASM)
+      IBSM = Mul(IASM,ISSM)
       NIA = NSSOA(IASM,IATP)
       NIB = NSSOB(IBSM,IBTP)
       ! Possible permutations of L blocks
@@ -197,7 +198,7 @@ outer: do
         JBTP = ICSTTB
         ICOFF = 1
         do ICBLK=1,NCBLK
-          JBSM = ICSMOS(JASM)
+          JBSM = Mul(JASM,ICSM)
           NJA = NSSOA(JASM,JATP)
           NJB = NSSOB(JBSM,JBTP)
           XNORM2 = INPROD_MCLR(CB(ICOFF),CB(ICOFF),NJA*NJB)

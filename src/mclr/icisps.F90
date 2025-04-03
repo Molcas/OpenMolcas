@@ -25,8 +25,7 @@ subroutine ICISPS()
 
 use Str_Info, only: STR, NOCTYP
 use MCLR_Data, only: IDC
-use MCLR_Data, only: IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC, IACTI, MNR3IC, MXR1IC, NAELCI, NBELCI, XISPSM, MXSB, MXSOOB, NICISP
-use MCLR_Data, only: MXPCSM
+use MCLR_Data, only: IASTFI, IBSTFI, MNR1IC, MXR3IC, IACTI, MNR3IC, MXR1IC, NAELCI, NBELCI, XISPSM, MXSB, MXSOOB, NICISP
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -48,11 +47,6 @@ call mma_allocate(LCVST,nIrrep,Label='LCVST')
 ! Obtain array giving symmetry of sigma v reflection times string symmetry.
 !if ((IDC == 3) .or. (IDC == 4)) call SIGVST(LCVST,nIrrep)
 
-! Array defining symmetry combinations of internal strings
-! Number of internal dets for each symmetry
-!    SMOST(nIrrep,nIrrep,MXPCSM,ISMOST)
-call SMOST_MCLR(nIrrep,nIrrep,MXPCSM,ISMOST)
-
 MXSB = 0
 MXSOOB = 0
 MXCEXP = 0
@@ -68,7 +62,7 @@ do ICI=1,NICISP
       IIDC = 1
     end if
     if (IACTI(ICI) == 1) then
-      call ZBLTP(ISMOST(1,ISYM),nIrrep,IIDC,LBLTP,LCVST)
+      call ZBLTP(ISYM,nIrrep,IIDC,LBLTP,LCVST)
       call NRASDT(MNR1IC(ICI),MXR1IC(ICI),MNR3IC(ICI),MXR3IC(ICI),ISYM,nIrrep,NOCTYP(IATP),NOCTYP(IBTP),Str(IATP)%EL1, &
                   Str(IBTP)%EL1,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,Str(IATP)%EL3,Str(IBTP)%EL3,NCOMB,XNCOMB,MXS,MXSOO,LBLTP)
       XISPSM(ISYM,ICI) = XNCOMB

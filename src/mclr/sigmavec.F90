@@ -22,7 +22,7 @@ subroutine SigmaVec(C,HC,kic)
 use Str_Info, only: STR, CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP
 use MCLR_Data, only: i12, ist
 use MCLR_Data, only: IDC, PSSIGN
-use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, ISMOST, MNR1IC, MXR3IC, XISPSM
+use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, MNR1IC, MXR3IC, XISPSM
 use MCLR_Data, only: NOCSF, MAXI, MAXK, ICISTR, NOPART, IDIAG
 use MCLR_Data, only: IBTSOB, ITSOB, NTSOB
 use MCLR_Data, only: MXINKA
@@ -223,8 +223,8 @@ end if
 
 ! Out KSBLTP [nIrrep]
 
-call ZBLTP(ISMOST(1,ISSM),nIrrep,IDC,SBLTP,SVST)
-call ZBLTP(ISMOST(1,ICSM),nIrrep,IDC,CBLTP,SVST)
+call ZBLTP(ISSM,nIrrep,IDC,SBLTP,SVST)
+call ZBLTP(ICSM,nIrrep,IDC,CBLTP,SVST)
 ! 10 OOS arrays
 nOOS = NOCTPA*NOCTPB*nIrrep
 call mma_allocate(OOS,nOOS,10,Label='OOS')
@@ -235,7 +235,7 @@ if (NOCSF == 0) call CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY)
 
 ! Transform from combination scaling to determinant scaling
 if ((IDC /= 1) .and. (ICISTR == 1)) &
-  call SCDTC2_MCLR(C,ISMOST(1,ICSM),CBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,2,IDUMMY)
+  call SCDTC2_MCLR(C,ICSM,CBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,2,IDUMMY)
 
 if (I12 == 2) then
   IDOH2 = 1
@@ -253,11 +253,10 @@ end if
 call dcopy_(NSDET,[ZERO],0,HC,1)
 
 if (ICISTR == 1) then
-  call RASSG4(C,HC,CB,SB,pC2,CIOIO,SIOIO,ISMOST(1,ICSM),ISMOST(1,ISSM),CBLTP,SBLTP,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NAEL,IATP,NBEL, &
-              IBTP,NOCTPA,NOCTPB,nIrrep,NSMOB,nIrrep,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LSCR1,LSCR1,INSCR,pCJRES,pSIRES,Str(IATP)%EL1, &
-              Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7), &
-              OOS(:,8),OOS(:,9),OOS(:,10),I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,SVST,PSSIGN,LLUC,LLUHC,IST,pCJRES,pSIRES,NOPARt, &
-              TimeDep)
+  call RASSG4(C,HC,CB,SB,pC2,CIOIO,SIOIO,ICSM,ISSM,CBLTP,SBLTP,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB, &
+              nIrrep,NSMOB,nIrrep,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LSCR1,LSCR1,INSCR,pCJRES,pSIRES,Str(IATP)%EL1,Str(IATP)%EL3, &
+              Str(IBTP)%EL1,Str(IBTP)%EL3,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7),OOS(:,8),OOS(:,9), &
+              OOS(:,10),I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,SVST,PSSIGN,LLUC,LLUHC,IST,pCJRES,pSIRES,NOPARt,TimeDep)
 
 else
   call SysHalt('sigmavec')
@@ -269,7 +268,7 @@ end if
 
 ! Transform from combination scaling to determinant scaling
 if ((IDC /= 1) .and. (ICISTR == 1)) &
-  call SCDTC2_MCLR(HC,ISMOST(1,ISSM),SBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY)
+  call SCDTC2_MCLR(HC,ISSM,SBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY)
 
 ! Transform HC vector from SD to CSF basis
 if (NOCSF == 0) call CSDTVC_MCLR(C,HC,2,DTOC,CNSM(kic(2))%ICTS,ISSM,1)

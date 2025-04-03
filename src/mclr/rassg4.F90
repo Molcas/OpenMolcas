@@ -12,10 +12,10 @@
 !               1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,NOCTPA,NOCTPB,NSMST, &
-                  NSMOB,NSMSX,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LC,LS,XINT,CSCR,SSCR,IAEL1,IAEL3,IBEL1,IBEL3,IDC,ISOOSC,NSOOSC,ISOOSE, &
-                  NSOOSE,ICOOSC,NCOOSC,ICOOSE,NCOOSE,IASOOS,IACOOS,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,ISTRFL,PS,LUC,LUHC,IST, &
-                  CJRES,SIRES,NOPARt,TimeDep)
+subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSM,ISSM,ICBLTP,ISBLTP,NSSOA,NSSOB,NAEL,IAGRP,NBEL,IBGRP,NOCTPA,NOCTPB,NSMST,NSMOB, &
+                  NSMSX,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LC,LS,XINT,CSCR,SSCR,IAEL1,IAEL3,IBEL1,IBEL3,IDC,ISOOSC,NSOOSC,ISOOSE,NSOOSE, &
+                  ICOOSC,NCOOSC,ICOOSE,NCOOSE,IASOOS,IACOOS,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,ISTRFL,PS,LUC,LUHC,IST,CJRES, &
+                  SIRES,NOPARt,TimeDep)
 ! LOOP OVER SIGMA AND C VECTOR
 !
 ! Jeppe Olsen, Winter of 1991
@@ -27,8 +27,8 @@ subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NSSOA,N
 !
 ! ICOCOC : Allowed type combinations for C
 ! ISOCOC : Allowed type combinations for S(igma)
-! ICSMOS : Symmetry array for C
-! ISSMOS : Symmetry array for S
+! ICS    : Symmetry for C
+! ISS    : Symmetry for S
 ! ICBLTP : Block types for C
 ! ISBLTP : Block types for S
 !
@@ -64,6 +64,7 @@ subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSMOS,ISSMOS,ICBLTP,ISBLTP,NSSOA,N
 ! A triplet one electron operator is defined as E(aa)-E(bb)
 ! A triplet two-electron operator is defined as (E(aa)+E(bb))(E(aa)-E(bb))
 
+use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 
 implicit none
@@ -72,7 +73,7 @@ integer NAEL, IAGRP, NBEL, IBGRP, NOCTPA, NOCTPB
 integer NSMST, NSMOB, NSMSX
 integer MAXK, MAXI, LC, LS
 integer ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB)
-integer ICSMOS(NSMST), ISSMOS(NSMST)
+integer ICSM, ISSM
 integer ICBLTP(NSMST), ISBLTP(NSMST)
 integer NSSOA(NOCTPA,nsmst)
 integer NSSOB(NOCTPB,nsmst)
@@ -115,13 +116,13 @@ PL = Zero
 !***********************************************************************
 
 ! Sigma, compact form
-call ZOOS(ISSMOS,ISBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ISOOSC,NSOOSC,NSCMBC,0)
+call ZOOS(ISSM,ISBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ISOOSC,NSOOSC,NSCMBC,0)
 ! Sigma with expanded diagonal blocks
-call ZOOS(ISSMOS,ISBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ISOOSE,NSOOSE,NSCMBE,1)
+call ZOOS(ISSM,ISBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ISOOSE,NSOOSE,NSCMBE,1)
 ! C, compact form
-call ZOOS(ICSMOS,ICBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ICOOSC,NCOOSC,NCCMBC,0)
+call ZOOS(ICSM,ICBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,ICOOSC,NCOOSC,NCCMBC,0)
 ! C, Full determinant form
-call ZOOS(ICSMOS,ICBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,1,ICOOSE,NCOOSE,NCCMBE,1)
+call ZOOS(ICSM,ICBLTP,NSMST,ISOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,1,ICOOSE,NCOOSE,NCCMBE,1)
 
 !************************************************************************
 
@@ -175,7 +176,7 @@ outer: do
     IC1TB = ICSTTB ! Type Beta string
     ICOFF = 1
     do ICBLK=1,NCBLK
-      ICBSM = ICSMOS(IC1SM) ! Symmetry Beta string
+      ICBSM = Mul(IC1SM,ICSM) ! Symmetry Beta string
       ! C CI vector in
       ! CB Block of CI vector out
       if (ICOCOC(IC1TA,IC1TB) == 1) &
@@ -194,7 +195,7 @@ outer: do
     IATP = ISSTTA
     IBTP = ISSTTB
     do ISBLK=1,NSBLK
-      IBSM = ISSMOS(IASM)
+      IBSM = Mul(IASM,ISSM)
       NIA = NSSOA(IATP,IASM)
       NIB = NSSOB(IBTP,IBSM)
       if ((NIA /= 0) .and. (NIB /= 0)) then
@@ -203,7 +204,7 @@ outer: do
         JBTP = ICSTTB
         ICOFF = 1
         do ICBLK=1,NCBLK
-          JBSM = ICSMOS(JASM)
+          JBSM = Mul(JASM,ICSM)
           NJA = NSSOA(JATP,JASM)
           NJB = NSSOB(JBTP,JBSM)
           XNORM2 = DDot_(NJA*NJB,CB(ICOFF),1,CB(ICOFF),1)
@@ -284,7 +285,7 @@ outer: do
   I1TB = ISSTTB
   IOFF = 1
   do ISBLK=1,NSBLK
-    I1BSM = ISSMOS(I1ASM)
+    I1BSM = Mul(I1ASM,ISSM)
     if (ISOCOC(I1TA,I1TB) == 1) &
       call PSTTBL_MCLR(S,SB(IOFF),I1TA,I1ASM,I1TB,I1BSM,NOCTPA,NOCTPB,NSSOA,NSSOB,PS,ISOOSC,2,IDC,LUHC,C2)
     IOFF = IOFF+NSOOSE(I1TA,I1TB,I1ASM)

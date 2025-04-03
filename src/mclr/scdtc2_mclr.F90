@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine SCDTC2_MCLR(RASVEC,ISMOST,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCOC,IDC,IWAY,IMMLST)
+subroutine SCDTC2_MCLR(RASVEC,ISM,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCOC,IDC,IWAY,IMMLST)
 ! Scale elements of a RAS vector to transfer between
 ! combinations and packed determinants
 ! IWAY = 1 : dets to combs
@@ -20,6 +20,7 @@ subroutine SCDTC2_MCLR(RASVEC,ISMOST,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCO
 ! General symmetry version, Feb 1991
 
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -28,20 +29,20 @@ use Definitions, only: u6
 implicit real*8(A-H,O-Z)
 dimension RASVEC(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
 dimension IOCOC(NOCTPA,NOCTPB)
-dimension ISMOST(*), ICBLTP(*), IMMLST(*)
+dimension ICBLTP(*), IMMLST(*)
 real*8, parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Information from SCDTC2'
 write(u6,*) ' ======================='
 write(u6,*) ' Input vector'
-call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+call WRTRS2_MCLR(RASVEC,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
 #endif
 
 IBASE = 1
 do IASM=1,NSMST
 
-  IBSM = ISMOST(IASM)
+  IBSM = Mul(IASM,ISM)
   if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) cycle
   do IATP=1,NOCTPA
     if (ICBLTP(IASM) == 2) then
@@ -111,7 +112,7 @@ end do
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Scaled vector'
-call WRTRS2_MCLR(RASVEC,ISMOST,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+call WRTRS2_MCLR(RASVEC,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
 call xflush(u6)
 #endif
 

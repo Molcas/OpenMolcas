@@ -17,11 +17,11 @@ subroutine LCISPC()
 ! per symmetry for each type of internal space
 !
 ! Jeppe Olsen, Winter 1994/1995 (woops!)
-!              MXSOOB_AS added,MXSB removed May 1999
+!              MXSOOB_AS added, MXSB removed May 1999
 !
 ! GAS VERSION
 
-use lucia_data, only: IDC, ISMOST, MXNTTS, MXPCSM, MXSB, MXSOOB, NCMBSPC, NIRREP, NOCTYP, NSTSO, XISPSM
+use lucia_data, only: IDC, MXNTTS, MXSOOB, NCMBSPC, NIRREP, NOCTYP, NSTSO, XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
@@ -29,7 +29,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: IATP, IBTP, ICI, ISYM, LCOL, MXS, MXSOO, MXSOO_AS, NCOMB, NOCTPA, NOCTPB, NTTSBL
+integer(kind=iwp) :: IATP, IBTP, ICI, ISYM, LCOL, MXSOO, MXSOO_AS, NCOMB, NOCTPA, NOCTPB, NTTSBL
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: II
 #endif
@@ -52,11 +52,7 @@ call mma_allocate(NBLKIC,NIRREP,NCMBSPC,Label='NBLKIC')
 ! symmetry.
 !if ((IDC == 3) .or. (IDC == 4)) call SIGVST(CVST,NIRREP)
 
-! Array defining symmetry combinations of internal strings
 ! Number of internal dets for each symmetry
-call SMOST(NIRREP,NIRREP,MXPCSM,ISMOST)
-! MXSB is not calculated anymore, set to 0
-MXSB = 0
 
 MXSOOB = 0
 do ICI=1,NCMBSPC
@@ -64,12 +60,11 @@ do ICI=1,NCMBSPC
   call IAIBCM(ICI,LIOIO)
 
   do ISYM=1,NIRREP
-    call ZBLTP(ISMOST(:,ISYM),NIRREP,IDC,LBLTP,CVST)
-    call NGASDT(ISYM,NIRREP,NOCTPA,NOCTPB,NSTSO(IATP)%A,NSTSO(IBTP)%A,NCOMB,XNCOMB,MXS,MXSOO,LBLTP,NTTSBL,LCOL,LIOIO,MXSOO_AS)
+    call ZBLTP(ISYM,NIRREP,IDC,LBLTP,CVST)
+    call NGASDT(ISYM,NIRREP,NOCTPA,NOCTPB,NSTSO(IATP)%A,NSTSO(IBTP)%A,NCOMB,XNCOMB,MXSOO,LBLTP,NTTSBL,LCOL,LIOIO,MXSOO_AS)
 
     XISPSM(ISYM,ICI) = XNCOMB
     MXSOOB = max(MXSOOB,MXSOO)
-    MXSB = max(MXSB,MXS)
     !MXSOOB_AS = max(MXSOO_AS,MXSOOB_AS)
     NBLKIC(ISYM,ICI) = NTTSBL
     !LCOLIC(ISYM,ICI) = LCOL
