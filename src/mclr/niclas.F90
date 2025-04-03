@@ -34,10 +34,8 @@ integer inddsp(100,0:7)
 integer, external :: iPrmt, nropr
 logical, external :: TF
 real*8 Dummy(1), HE, riPh, rjPh
-real*8, allocatable :: Htmp(:), Tmp(:)
-! Statement functions
-integer i, j, irec
-irec(i,j) = nd*(j-1)+i-1
+real*8, allocatable :: Htmp(:,:), Tmp(:)
+integer i, j
 
 idsp = 0
 call iCOPY(nirrep,[0],0,ldisp,1)
@@ -73,8 +71,8 @@ do i=0,nIrrep-1
   nD = ldisp(i)+nd
 end do
 call mma_allocate(TMP,nd**2,Label='Tmp')
-call mma_allocate(HTMP,nd**2,Label='Htmp')
-Htmp(:) = Zero
+call mma_allocate(HTMP,nd,nd,Label='Htmp')
+Htmp(:,:) = Zero
 ii = 0
 iii = 0
 do iS=1,Nirrep
@@ -134,7 +132,7 @@ do iCnttp=1,nCnttp
                       nop_n = nropr(kop_n)
                       riPh = real(iPrmt(nop_m,icomp)*iChTbl(iIrrep,nop_m),kind=wp)/sqrt(real(nCENTI,kind=wp))
                       rjPh = real(iPrmt(nop_n,jcomp)*ichtbl(iirrep,nop_n),kind=wp)/sqrt(real(nCENTJ,kind=wp))
-                      Htmp(1+irec(i,j)) = Htmp(1+irec(i,j))+riph*rjph*HE
+                      Htmp(i,j) = Htmp(i,j)+riph*rjph*HE
                     end do ! jco
                   end do ! ico
                 end if

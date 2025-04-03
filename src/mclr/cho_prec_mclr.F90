@@ -28,6 +28,7 @@ subroutine CHO_Prec_MCLR(CMO,nIsh,nAsh,LuAChoVec,LuChoInt)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
 use Data_structures, only: DSBA_Type, Allocate_DT
 use Data_structures, only: Deallocate_DT
@@ -59,8 +60,7 @@ type(DSBA_Type) CMOt, Tmp(1)
 type(SBA_Type) Lpq(1)
 real*8, allocatable, target :: Lii(:), Lij(:)
 real*8, pointer :: pLii(:,:), pLij(:,:)
-! Statement function
-MulD2h(i,j) = ieor(i-1,j-1)+1
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -103,7 +103,7 @@ do jsym=1,nsym
   ntoti = 0
   ntota = 0
   do isymb=1,nsym
-    iSyma = MulD2h(iSymb,jsym)
+    iSyma = Mul(iSymb,jsym)
 
     npq = npq+nBas(iSymb)**2
     maxpq = max(npq,nBas(iSymb)**2)
@@ -193,7 +193,7 @@ do jsym=1,nsym
     taskleft = .false.
     Libatch = 0
     do i=1,nsym
-      k = MulD2h(i,jsym)
+      k = Mul(i,jsym)
 
       nab = 0
       nRS = 0
@@ -220,7 +220,7 @@ do jsym=1,nsym
     nip = 0
     ntotie = 0
     do i=1,nsym
-      k = MulD2h(i,jsym)
+      k = Mul(i,jsym)
       nip = nip+nIshe(i)*nBas(k)
       ntotie = ntotie+nIshe(i) ! For Lii^J
     end do
@@ -248,7 +248,7 @@ do jsym=1,nsym
 
       labatch = 0
       do i=1,nsym
-        k = MulD2h(i,jsym)
+        k = Mul(i,jsym)
         nab = 0
         nRS = 0
         if (jsym == 1) then
@@ -272,7 +272,7 @@ do jsym=1,nsym
       ntue = 0
       ntp = 0
       do i=1,nsym
-        k = MulD2h(i,jsym)
+        k = Mul(i,jsym)
         ntotae = ntotae+nAshe(i)
         ntue = ntue+nAshe(i)*nAsh(i)
         ntp = ntp+nAsh(i)*(nBas(k)+nAshe(i))
@@ -401,7 +401,7 @@ do jsym=1,nsym
 
         ip1 = ipiaib
         do isym=1,nsym
-          ksym = MulD2h(iSym,jsym)
+          ksym = Mul(iSym,jsym)
           do ii=1,nIshe(isym)
 
             call DGEMM_('N','T',nBas(kSym),nBas(kSym),JNUM,One,Lpq(1)%SB(kSym)%A3(:,ii,1),nBas(kSym)*nIshe(iSym), &
@@ -465,7 +465,7 @@ do jsym=1,nsym
         call mma_allocate(Lij,ntue*nVec,Label='Lij')
 
         do i=1,nSym
-          k = Muld2h(i,JSYM)
+          k = Mul(i,JSYM)
           lvec = nAsh(k)*nBas(i)*JNUM
           iAdr2 = (JVEC-1)*nAsh(k)*nBas(i)
           call DDAFILE(LuAChoVec(Jsym),2,Lpq(1)%SB(i)%A3,lvec,iAdr2)
@@ -478,7 +478,7 @@ do jsym=1,nsym
 
           ioff = 0
           do i=1,nsym
-            k = Muld2h(i,JSYM)
+            k = Mul(i,JSYM)
 
             do it=0,nAshe(k)-1
               itt = nAshb(k)+it+1
@@ -591,7 +591,7 @@ do jsym=1,nsym
     isum = 0
     isum2 = 0
     do isym=1,nSym
-      ksym = MulD2h(iSym,jsym)
+      ksym = Mul(iSym,jsym)
       nvirt = nBas(kSym)-nIsh(kSym)
       ipMO = 1+ISTSQ(kSym)+nBas(kSym)*nIsh(kSym)
 

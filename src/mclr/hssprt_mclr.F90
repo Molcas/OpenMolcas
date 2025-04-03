@@ -25,7 +25,6 @@ integer kDisp(8)
 character Title*39
 real*8, allocatable :: Temp(:)
 integer i, iaa, ii, iIrrep, j, jj
-! Statement function
 integer idisp
 
 iDisp = 0

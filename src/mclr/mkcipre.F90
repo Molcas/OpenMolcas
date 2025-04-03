@@ -15,38 +15,37 @@ use Index_Functions, only: iTri
 use MCLR_Data, only: SS, ERAS, P1, P1Inv
 use input_mclr, only: lRoots, ERASSCF
 use stdalloc, only: mma_allocate
-use Constants, only: One
+use Constants, only: Zero, One
 
 implicit none
-integer i, j, iRec
-! Statement functions
-irec(i,j) = i+(j-1)*2*lroots
+integer i, j
 
-call mma_allocate(SS,4*lroots**2,Label='SS')
+call mma_allocate(SS,2*lroots,2*lroots,Label='SS')
+SS(:,:) = Zero
 do I=1,lroots
   do J=1,lroots
-    SS(irec(2*i-1,2*j-1)) = P1(iTri(i,j))
+    SS(2*i-1,2*j-1) = P1(iTri(i,j))
   end do
 end do
 do I=1,lroots
-  SS(irec(2*i-1,2*i-1)) = SS(irec(2*i-1,2*i-1))+ERAS(I)-ERASSCF(1)
-  SS(irec(2*i,2*i-1)) = -One
-  SS(irec(2*i-1,2*i)) = -One
+  SS(2*i-1,2*i-1) = SS(2*i-1,2*i-1)+ERAS(I)-ERASSCF(1)
+  SS(2*i,2*i-1) = -One
+  SS(2*i-1,2*i) = -One
 end do
-SS(irec(2*lroots-1,2*lroots-1)) = SS(irec(2*lroots-1,2*lroots-1))+One
+SS(2*lroots-1,2*lroots-1) = SS(2*lroots-1,2*lroots-1)+One
 call MatInvert(SS,2*lroots)
 do I=1,lroots
   do J=1,lroots
-    SS(irec(2*i-1,2*j-1)) = SS(irec(2*i-1,2*j-1))+P1INV(itri(i,j))
-    SS(irec(2*i,2*j)) = SS(irec(2*i,2*j))+P1(iTri(i,j))
+    SS(2*i-1,2*j-1) = SS(2*i-1,2*j-1)+P1INV(itri(i,j))
+    SS(2*i,2*j) = SS(2*i,2*j)+P1(iTri(i,j))
   end do
 end do
 do I=1,lroots
-  SS(irec(2*i,2*i-1)) = SS(irec(2*i,2*i-1))+One
-  SS(irec(2*i-1,2*i)) = SS(irec(2*i-1,2*i))+One
+  SS(2*i,2*i-1) = SS(2*i,2*i-1)+One
+  SS(2*i-1,2*i) = SS(2*i-1,2*i)+One
 end do
 call MatInvert(SS,2*lroots)
 call DSCAL_(4*lroots**2,-One,SS,1)
-SS(irec(2*lroots,2*lroots)) = SS(irec(2*lroots,2*lroots))-One
+SS(2*lroots,2*lroots) = SS(2*lroots,2*lroots)-One
 
 end subroutine mkcipre

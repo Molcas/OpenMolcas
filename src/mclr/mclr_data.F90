@@ -163,7 +163,7 @@ character(len=8) :: FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQD
                     FNTRI5, FnTwo, SwLbl(Mxdccc)
 integer(kind=iwp), allocatable :: H0F(:), pINT1(:), pINT2(:), SBIDT(:)
 real(kind=wp), allocatable :: CMO_Inv(:), F0SQMO(:), FAMO(:), FAMO_spinm(:), FAMO_spinp(:), FIMO(:), Fm(:), Fp(:), G1m(:), G1p(:), &
-                              G1t(:), G2mm(:), G2mp(:), G2pp(:), G2sq(:), G2t(:), H0S(:), Hss(:), INT2(:), SFock(:), SS(:)
+                              G1t(:), G2mm(:), G2mp(:), G2pp(:), G2sq(:), G2t(:), H0S(:), Hss(:), INT2(:), SFock(:), SS(:,:)
 real(kind=wp), allocatable, target :: CMO(:), INT1(:)
 real(kind=wp), pointer :: KAIN1(:), KINT2(:), KINT2A(:)
 

@@ -19,6 +19,7 @@ subroutine CHO_Fock_MCLR(DA,G2,W_JA,W_KA,W_FkA,CVa,W_CMO,nIsh,nAsh,LuAChoVec)
 !***********************************************************************
 
 use Index_Functions, only: iTri
+use Symmetry_Info, only: Mul
 use Cholesky, only: InfVec, nBas, nBasSh, nDimRS, nShell, nSym, NumCho
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
@@ -38,8 +39,6 @@ integer, external :: Cho_LK_MaxVecPerBatch
 integer, allocatable :: kOffSh(:,:)
 real*8, allocatable :: Fab(:), Lrs(:), LF(:)
 logical add
-! Statement functions
-MulD2h(i,j) = ieor(i-1,j-1)+1
 
 call Allocate_DT(JA(1),nBas,nBas,nSym,aCase='TRI',Ref=W_JA)
 call Allocate_DT(KA,nBas,nBas,nSym,Ref=W_KA)
@@ -76,7 +75,7 @@ do jSym=1,nSym
 
   mTvec = 0
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     mTvec = mTvec+nAsh(k)*nBas(l)*3
   end do
 
@@ -159,7 +158,7 @@ do jSym=1,nSym
       lChoa = 0
       do i=1,nSym
 
-        k = Muld2h(i,JSYM)
+        k = Mul(i,JSYM)
 
         ipLpq(k,1) = 1+lChoa   ! Lvb,J
         ipLpq(k,2) = ipLpq(k,1)+nAsh(k)*nBas(i)*JNUM ! Lvi,J i general MO index
@@ -173,7 +172,7 @@ do jSym=1,nSym
 
       ioff = 0
       do i=1,nSym
-        k = Muld2h(i,JSYM)
+        k = Mul(i,JSYM)
         lvec = nAsh(k)*nBas(i)*JNUM
         iAdr = (JVEC-1)*nAsh(k)*nBas(i)+ioff
         call DDAFILE(LuAChoVec(Jsym),2,LF(ipLpq(k,1)),lvec,iAdr)
@@ -187,7 +186,7 @@ do jSym=1,nSym
       !-----------------------------------------------------------------
       do iSymb=1,nSym
 
-        iSymv = MulD2h(JSYM,iSymb)
+        iSymv = Mul(JSYM,iSymb)
         NAv = nAsh(iSymv)
         NAw = nAsh(iSymb)
 

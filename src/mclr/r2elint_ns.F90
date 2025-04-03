@@ -39,7 +39,6 @@ real*8 rdum(1)
 real*8, allocatable :: T1(:), Tmp2(:), T3(:), T4(:), DIL(:), DI(:), DIR(:), FI(:), FI1(:), K1(:), DAL(:), DAR(:), DA(:), FA1(:)
 integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, ip2, jS
 real*8 FacR
-! Statement function
 integer i, j
 
 !                                                                      *

@@ -38,9 +38,7 @@ logical lFI, lFA, lMo
 real*8, allocatable :: T1(:), Tmp2(:), T3(:), T4(:), DIL(:), DI(:), DIR(:), FI(:), FA2(:), DAR(:), DA(:), DAL(:)
 integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, jS
 real*8 FacR
-! Statement function
-integer i, j, irec
-irec(i,j) = i+nna*(j-1)
+integer i, j
 
 ndens22 = ndens2
 iAM = 0
@@ -99,7 +97,7 @@ if (iMethod == 2) then
         ip = ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nBas(is)-1
         iA = nA(is)+ib
         jA = nA(is)+jb
-        DA(ip) = D(irec(iA,jA))
+        DA(ip) = D(iA+(jA-1)*nNA)
       end do
     end do
   end do

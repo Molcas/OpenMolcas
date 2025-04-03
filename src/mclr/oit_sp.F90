@@ -28,9 +28,6 @@ real*8 rkappa(nDensC), sigma(ndensC), FA(ndens2), D(*), p12(*), p11(*), rm1(*), 
 real*8, allocatable :: K(:), FAtemp(:), Fock(:), Q(:), Q1(:)
 integer iSym, jSpin, iS, iAsh, jAsh, ipF1, ipF2, ipFI1, IA
 real*8 R1, Fact, Reco, R3, R4, Dij
-! Statement function
-integer i, j, irec
-irec(i,j) = i+nna*(j-1)
 
 isym = 1
 ! sign1  Kappa**t=Sign1*Kappa
@@ -78,7 +75,7 @@ do iS=1,nSym
 
   do iAsh=1,nAsh(iS)
     do jAsh=1,nAsh(is)
-      Dij = D(irec(iash+nA(is),jAsh+nA(is)))
+      Dij = D(iash+nA(is)+(jAsh+nA(is)-1)*nNA)
       ipF1 = ipMat(is,is)+(Nish(is)+iAsh-1)*nBas(is)
       ipF2 = ipMat(is,is)+Nish(is)+iAsh-1
       ipFI1 = ipMat(is,is)+(Nish(is)+jAsh-1)*nBas(is)
