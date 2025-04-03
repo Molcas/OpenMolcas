@@ -127,14 +127,15 @@ do ksym=1,nsym
 
               ni = nIsh(jS)-ii+1
               ip = nTri-nTri_Elem(nd-ii+1)+1
-              call DaXpY_(ni,rDensaii,A_J((ii-1)*nl+ii),1,rout(ip),1)
-              if ((iJK == 2) .and. (jCC > jDD)) call DaXpY_(ni,rDensaiiu,A_J((ii-1)*nl+ii),nl,rout(ip),1)
+              rout(ip:ip+ni-1) = rout(ip:ip+ni-1)+rDensaii*A_J((ii-1)*nl+ii:(ii-1)*nl+ii+ni-1)
+              if ((iJK == 2) .and. (jCC > jDD)) rout(ip:ip+ni-1) = rout(ip:ip+ni-1)+rDensaiiu*A_J((ii-1)*nl+ii:(ii+ni-1)*nl+ii-1:nl)
 
               ! abi
 
               ip = nTri-iTri(nd-ii+1,jVert)+1
-              call DaXpY_(jvert,rDensabi,A_J((ii-1)*nl+no+1),1,rout(ip),1)
-              if ((iJK == 2) .and. (jCC > jDD)) call DaXpY_(jvert,rDensabiu,A_J(no*nl+ii),nl,rout(ip),1)
+              rout(ip:ip+jvert-1) = rout(ip:ip+jvert-1)+rDensabi*A_J((ii-1)*nl+no+1:(ii-1)*nl+no+jvert)
+              if ((iJK == 2) .and. (jCC > jDD)) &
+                rout(ip:ip+jvert-1) = rout(ip:ip+jvert-1)+rDensabiu*A_J(no*nl+ii:(no+jvert)*nl+ii-1:nl)
             end do
 
             ! abb
@@ -142,8 +143,9 @@ do ksym=1,nsym
             do ii=1,jvert
               ni = jvert-ii+1
               ip = nTri-nTri_Elem(nd-(nIsh(jS)+ii)+1)+1
-              call DaXpY_(ni,rDensabb,A_J((nO+ii-1)*nl+no+ii),1,rout(ip),1)
-              if ((iJK == 2) .and. (jCC > jDD)) call DaXpY_(ni,rDensabb,A_J((nO+ii-1)*nl+no+ii),nl,rout(ip),1)
+              rout(ip:ip+ni-1) = rout(ip:ip+ni-1)+rDensabb*A_J((nO+ii-1)*nl+no+ii:(nO+ii-1)*nl+no+jvert)
+              if ((iJK == 2) .and. (jCC > jDD)) &
+                rout(ip:ip+ni-1) = rout(ip:ip+ni-1)+rDensabb*A_J((no+ii-1)*nl+no+ii:(no+ii+ni-1)*nl+no+ii-1:nl)
             end do
           end if
 
@@ -171,11 +173,9 @@ do jA=1,nIsh(jS)
 
   ! abi
 
-  ip = nTri-iTri(nd-jA+1,jVert)+1
+  ip = nTri-iTri(nd-jA+1,jVert)
   Fact = (Two-Two*G1t(itAA))
-  call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jA),1,rOut(ip),1)
-  Fact = Two
-  call DaxPy_(jVert,Sign*Fact,FockA(nO+1,jA),1,rOut(ip),1)
+  rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+Sign*(Fact*FockI(nO+1:nO+jVert,jA)+Two*FockA(nO+1:nO+jVert,jA))
 end do
 
 ! abb

@@ -25,32 +25,23 @@ use Constants, only: Two
 
 implicit none
 ! Output
-real*8, dimension(nConf1*nRoots) :: bP
+real*8, dimension(nConf1,nRoots) :: bP
 ! Input
-real*8, dimension(nRoots*nConf1) :: CSFOK
-real*8, dimension(nRoots**2) :: LOK
-real*8, dimension(nRoots**2) :: R
+real*8, dimension(nConf1,nRoots) :: CSFOK
+real*8, dimension(nRoots,nRoots) :: LOK
+real*8, dimension(nRoots,nRoots) :: R
 ! Kind quantities that help
-integer I, L, K, iLoc1, iLoc2
-real*8 tempd
+integer I, L, K
 
+bP(:,:) = CSFOK(:,:)
 I = irlxroot
 do K=1,nRoots
-  iLoc1 = (K-1)*nConf1+1
-  call DCopy_(nConf1,CSFOK(iLoc1),1,bP(iLoc1),1)
-  do L=K,K
-    tempd = -LOK((K-1)*nRoots+L)
-    iLoc2 = (L-1)*nConf1+1
-    call dAXpY_(nConf1,tempd,W(ipci)%A(iLoc2),1,bP(iLoc1),1)
+  do L=1,nRoots
+    bP(:,K) = bP(:,K)-LOK(L,K)*W(ipci)%A((L-1)*nConf1+1:L*nConf1)
   end do
 
-  do L=1,nRoots
-    if (L == K) cycle
-    tempd = -LOK((K-1)*nRoots+L)
-    iLoc2 = (L-1)*nConf1+1
-    call dAXpY_(nConf1,tempd,W(ipci)%A(iLoc2),1,bP(iLoc1),1)
-  end do
-  call DScal_(nConf1,Two*R((I-1)*nRoots+K)**2,bP(iLoc1),1)
+  bP(:,K) = Two*R(K,I)**2*bP(:,K)
+
 end do
 
 end subroutine CalcbP

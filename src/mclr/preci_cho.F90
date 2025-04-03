@@ -117,13 +117,13 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
       ! iba
 
       do jA=1,nAsh(jS)
-        ip = nTri-iTri(nd-ja+1,jVert)+1
+        ip = nTri-iTri(nd-ja+1,jVert)
         do jB=1,nAsh(jS)
           rDens = -sign*G1t(iTri(jA+nA(jS),jB+nA(jS)))
           if (jA == jB) rDens = rdens+sign*Two
 
-          ivB = (jB-1)*nvirt+nAsh(jS)+1
-          call DaXpY_(jVert,Two*factor*rDens,A_J(ivB),1,rOut(ip),1)
+          ivB = (jB-1)*nvirt+nAsh(jS)
+          rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+Two*factor*rDens*A_J(ivB+1:ivB+jVert)
         end do
       end do
 
@@ -133,7 +133,7 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
       do kB=nAsh(jS),nvirt-1
         nlB = nvirt-kb
         ilB = kB+1+nvirt*kb
-        call daxpy_(nlB,sign*Four*factor,A_J(ilB),nvirt,rout(i),1)
+        rout(i:i+nlB-1) = rout(i:i+nlB-1)+sign*Four*factor*A_J(ilB:ilB+nlB*nvirt-1:nvirt)
         i = i+nlB
       end do
     end if
@@ -164,10 +164,9 @@ do jA=1,nAsh(jS)
 
   ! iba
 
-  ip = nTri-iTri(nd-ja+1,nd-nAsh(js))+1
-  call DaXpY_(jVert,sign*Four,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
-  call DaXpY_(jVert,sign*Four,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
-  call DaXpY_(jVert,-sign,Fock(nO+1,ja+nIsh(js)),1,rout(ip),1)
+  ip = nTri-iTri(nd-ja+1,nd-nAsh(js))
+  rout(ip+1:ip+jVert) = rout(ip+1:ip+jVert)+sign*(Four*(FockI(nO+1:nO+jVert,ja+nIsh(js))+FockA(nO+1:nO+jVert,ja+nIsh(js)))- &
+                                                  Fock(nO+1:nO+jVert,ja+nIsh(js)))
 end do
 
 ! ibb

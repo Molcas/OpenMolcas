@@ -23,7 +23,7 @@ use MCLR_Data, only: CMO
 use MCLR_Data, only: ipMat, nA, nDens2
 use input_mclr, only: nSym, nAsh, nBas, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Half
+use Constants, only: Zero, Half
 
 implicit none
 #include "SysDef.fh"
@@ -47,7 +47,7 @@ do iS=1,nSym
 end do
 
 call mma_allocate(D1,nLCMO)
-call FZero(D1,nLCMO)
+D1(:) = Zero
 ! First, converting DMO into D1
 ! similar to computing D_K from G1q, as done in out_pt2.f
 !********************************************************

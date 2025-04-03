@@ -67,7 +67,7 @@ do IASM=1,NSMST
         else
           FACTOR = SQ2I
         end if
-        call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
+        RASVEC(IBASE:IBASE+NELMNT-1) = FACTOR*RASVEC(IBASE:IBASE+NELMNT-1)
         if ((IASM == IBSM) .and. (IATP == IBTP)) then
           FACTOR = One/FACTOR
           call SCLDIA(RASVEC(IBASE),FACTOR,NIA,1)
@@ -78,9 +78,9 @@ do IASM=1,NSMST
         else
           FACTOR = SQ2I
         end if
-        call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
-        !Ml Ms combinations
+        RASVEC(IBASE:IBASE+NELMNT-1) = FACTOR*RASVEC(IBASE:IBASE+NELMNT-1)
       else if (IDC == 4) then
+        !Ml Ms combinations
         if (IWAY == 1) then
           if (IASM == IBSM) then
             FACTOR = SQ2
@@ -94,7 +94,7 @@ do IASM=1,NSMST
             FACTOR = Half
           end if
         end if
-        call DSCAL_(NELMNT,FACTOR,RASVEC(IBASE),1)
+        RASVEC(IBASE:IBASE+NELMNT-1) = FACTOR*RASVEC(IBASE:IBASE+NELMNT-1)
         if (IATP == IBTP) then
           if (IWAY == 1) then
             FACTOR = SQ2I

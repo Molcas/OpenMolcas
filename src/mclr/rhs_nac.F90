@@ -93,7 +93,7 @@ end do
 
 ! The anti-symmetric RDM is contructed somewhere in the CASPT2
 ! module. It will be read from disk in out_pt2.f.
-if (PT2) call DCopy_(ng1,[Zero],0,G1m,1)
+if (PT2) G1m(:) = Zero
 
 do i=1,ntAsh**2
   j = nTri_Elem(i)
@@ -242,8 +242,8 @@ subroutine PT2_SLag()
 
       if (abs(vSLag) > 1.0e-10_wp) then
         call Densi2_mclr(2,G1q,G2q,CIL,CIR,0,0,0,n1dens,n2dens)
-        call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
-        call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
+        G1r(:) = G1r(:)+vSLag*G1q(:)
+        G2r(:) = G2r(:)+vSLag*G2q(:)
       end if
 
       if (kR /= jR) then
@@ -251,8 +251,8 @@ subroutine PT2_SLag()
         vSLag = SLag(iSLag)
         if (abs(vSLag) > 1.0e-10_wp) then
           call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1dens,n2dens)
-          call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
-          call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
+          G1r(:) = G1r(:)+vSLag*G1q(:)
+          G2r(:) = G2r(:)+vSLag*G2q(:)
         end if
       end if
     end do

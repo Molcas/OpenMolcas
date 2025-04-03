@@ -72,7 +72,7 @@ c Inactive and active Fock matrices:
 * both FIMO and FAMO refer to the active space part only. FIMO comes
 * from contractions over inactive orbitals, while FAMO from contractions
 * over active orbitals and therefore are summed up together here
-      CALL DZAXPY(notri,1.0D00,FIMO,1,FAMO,1,FIFA,1)
+      FIFA(1:notri) = FIMO(1:notri)+FAMO(1:notri)
 
 c   Orbital energies, EPS, EPSI,EPSA,EPSE:
       IEPS=0

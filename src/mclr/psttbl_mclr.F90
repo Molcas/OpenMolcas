@@ -17,8 +17,6 @@ subroutine PSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSIGN
 ! Combination type is defined by IDC
 ! IAC = 2  does not work for LUHC <= 0 !
 
-use Constants, only: One
-
 implicit real*8(A-H,O-Z)
 dimension C(*), CTT(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
 dimension ICOOSC(NOCTPA,NOCTPB,*)
@@ -54,18 +52,18 @@ else
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
       if (IAC == 1) then
-        call DaXpY_(NELMNT,One,CTT,1,C(IBASE),1)
+        C(IBASE:IBASE+NELMNT-1) = C(IBASE:IBASE+NELMNT-1)+CTT(1:NELMNT)
       else if (IAC == 2) then
-        call DCOPY_(NELMNT,CTT,1,C(IBASE),1)
+        C(IBASE:IBASE+NELMNT-1) = CTT(1:NELMNT)
       end if
     else if (IDC == 4) then
       if (IATP > IBTP) then
         IBASE = ICOOSC(IATP,IBTP,IASM)
         NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
         if (IAC == 1) then
-          call DaXpY_(NELMNT,One,CTT,1,C(IBASE),1)
+          C(IBASE:IBASE+NELMNT-1) = C(IBASE:IBASE+NELMNT-1)+CTT(1:NELMNT)
         else if (IAC == 2) then
-          call DCOPY_(NELMNT,CTT,1,C(IBASE),1)
+          C(IBASE:IBASE+NELMNT-1) = CTT(1:NELMNT)
         end if
       else if (IATP == IBTP) then
         IBASE = ICOOSC(IATP,IBTP,IASM)
@@ -86,9 +84,9 @@ else
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
       if (IAC == 1) then
-        call DaXpY_(NELMNT,One,CTT,1,C(IBASE),1)
+        C(IBASE:IBASE+NELMNT-1) = C(IBASE:IBASE+NELMNT-1)+CTT(1:NELMNT)
       else if (IAC == 2) then
-        call DCOPY_(NELMNT,CTT,1,C(IBASE),1)
+        C(IBASE:IBASE+NELMNT-1) = CTT(1:NELMNT)
       end if
     else if (IATP == IBTP) then
       ! reform to triangular packed matrix

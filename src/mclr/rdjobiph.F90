@@ -230,7 +230,7 @@ end if
 !call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)
 !jpCMO = 1
 !do iSym=1,nSym
-!  call dcopy_(nbas(isym)*ndel(isym),[Zero],0,CMO(jpCMO+norb(isym)*nbas(isym)),1)
+!  CMO(jpCMO+norb(isym)*nbas(isym):jpCMO+(norb(isym)+ndel(isym))*nbas(isym)-1) = Zero
 !  write(Line,'(A,i2.2)') 'MO coefficients, iSym = ',iSym
 !  call RecPrt(Line,' ',CMO(jpCMO),nBas(iSym),nBas(iSym))
 !  jpCMO = jpCMO+nBas(iSym)*nBas(iSym)

@@ -46,8 +46,8 @@ real*8 Fact, rEnergy, rCora, rCoreI, rCoreA, rCor, rCore
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call dcopy_(ndens2,[Zero],0,focki,1)
-call dcopy_(ndens2,[Zero],0,focka,1)
+FockI(:) = Zero
+FockA(:) = Zero
 if (TwoStep .and. (StepType == 'RUN2')) then
   nm = 0
   do iS=1,nSym
@@ -55,9 +55,9 @@ if (TwoStep .and. (StepType == 'RUN2')) then
   end do
   nAtri = nTri_Elem(nm)
   nAtri = nTri_Elem(nAtri)
-  call dcopy_(ndens2,[Zero],0,fock,1)
-  call dcopy_(ndens2,[Zero],0,Q,1)
-  call dcopy_(nAtri,[Zero],0,MO1,1)
+  Fock(:) = Zero
+  Q(:) = Zero
+  MO1(1:nAtri) = Zero
   call ddafile(LuQDAT,2,FockA,nDens2,iaddressQDAT)
   call ddafile(LuQDAT,2,FockI,nDens2,iaddressQDAT)
   call ddafile(LuQDAT,2,Fock,nDens2,iaddressQDAT)
@@ -104,7 +104,9 @@ else
                 ! Coulomb term: F  =2(ii|kl)
                 !                kl
 
-                if ((iS == jS) .and. (iB == jB) .and. (iB <= nIsh(iS))) call DaXpY_(nOrb(kS)*nOrb(lS),Two,Temp2,1,Focki(ipCM(kS)),1)
+                if ((iS == jS) .and. (iB == jB) .and. (iB <= nIsh(iS))) &
+                  Focki(ipCM(kS):ipCM(ks)+nOrb(kS)*nOrb(lS)-1) = Focki(ipCM(kS):ipCM(ks)+nOrb(kS)*nOrb(lS)-1)+ &
+                                                                 Two*Temp2(1:nOrb(kS)*nOrb(lS))
 
                 !                                                      *
                 !*******************************************************
@@ -121,7 +123,8 @@ else
                       ipD = iTri(jB-nIsh(jS)+nA(jS),iB-nIsh(is)+nA(iS))
                       Fact = Two
                       if (iB == jB) Fact = One
-                      call DaXpY_(nOrb(kS)*nOrb(lS),Fact*G1t(ipD),Temp2,1,FockA(ipCM(kS)),1)
+                      FockA(ipCM(kS):ipCM(kS)+nOrb(kS)*nOrb(lS)-1) = FockA(ipCM(kS):ipCM(kS)+nOrb(kS)*nOrb(lS)-1)+ &
+                                                                     Fact*G1t(ipD)*Temp2(1:nOrb(kS)*nOrb(lS))
                     end if
                   end if
 
@@ -211,7 +214,8 @@ else
             ! Exchange term: F  =-(ij|kj)
             !                 ik
 
-            if ((jS == lS) .and. (jB == lB) .and. (jB <= nIsh(jS))) call DaXpY_(nOrb(iS)*nOrb(kS),-One,Temp2,1,Focki(ipCM(iS)),1)
+            if ((jS == lS) .and. (jB == lB) .and. (jB <= nIsh(jS))) &
+              Focki(ipCM(iS):ipCM(iS)+nOrb(iS)*nOrb(kS)-1) = Focki(ipCM(iS):ipCM(iS)+nOrb(iS)*nOrb(kS)-1)-Temp2(1:nOrb(iS)*nOrb(kS))
 
             !                                                          *
             !***********************************************************
@@ -225,7 +229,8 @@ else
               if (jS == lS) then
                 if (((jB > nIsh(js)) .and. (nAsh(jS) /= 0)) .and. ((lB > nIsh(ls)) .and. (nAsh(lS) /= 0))) then
                   ipD = iTri(lB-nIsh(lS)+nA(lS),jB-nIsh(js)+nA(jS))
-                  call DaXpY_(nOrb(iS)*nOrb(kS),-Half*G1t(ipD),Temp2,1,FockA(ipCM(iS)),1)
+                  FockA(ipCM(iS):ipCM(iS)+nOrb(iS)*nOrb(kS)-1) = FockA(ipCM(iS):ipCM(iS)+nOrb(iS)*nOrb(kS)-1)- &
+                                                                 Half*G1t(ipD)*Temp2(1:nOrb(iS)*nOrb(kS))
                 end if
               end if
             end if
@@ -244,7 +249,7 @@ else
 
     ! Construct inactive density matrix
 
-    call dcopy_(nDens2,[Zero],0,temp2,1)
+    Temp2(:) = Zero
     do is=1,nSym
       do iB=1,nIsh(is)
         ip = ipCM(iS)+(ib-1)*nOrb(is)+ib-1
@@ -349,7 +354,7 @@ else
     call Allocate_DT(KA,nBas,nBas,nSym)
     KA%A0(:) = Zero
 
-    call dcopy_(nDens2,[Zero],0,Q,1)
+    Q(:) = Zero
 
     call Allocate_DT(DI,nBas,nBas,nSym,Ref=Temp2)
     call Allocate_DT(JI(1),nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
@@ -370,7 +375,7 @@ else
 
     nAtri = nTri_Elem(nAct)
     nAtri = nTri_Elem(nAtri)
-    call DScal_(nAtri,Quart,MO1,1)
+    MO1(1:nAtri) = Quart*MO1(1:nAtri)
     FkI%A0(:) = -Half*FkI%A0(:)
 
     call Deallocate_DT(WCMO_Inv)
@@ -409,16 +414,18 @@ else
   nAtri = nTri_Elem(nAtri)
   call RecPrt('MO1',' ',MO1,1,nAtri)
 # endif
-  call DaXpY_(ndens2,One,Int1,1,FockI,1)
-  call dcopy_(ndens2,[Zero],0,Fock,1)
+  FockI(:) = FockI(:)+Int1(1:ndens2)
+  Fock(:) = Zero
 
   do iS=1,nSym
     if (nOrb(iS) == 0) cycle
 
-    if (nIsh(iS) > 0) call DYaX(nOrb(iS)*nIsh(is),Two,FockI(ipCM(iS)),1,Fock(ipCM(iS)),1)
+    Fock(ipCM(iS):ipCM(iS)+nOrb(iS)*nIsh(is)-1) = Two*FockI(ipCM(iS):ipCM(iS)+nOrb(iS)*nIsh(is)-1)
     if (iMethod == 2) then
-      if (nIsh(iS) > 0) call DaXpY_(nOrb(iS)*nIsh(is),Two,FockA(ipCM(iS)),1,Fock(ipCM(iS)),1)
-      if (nAsh(iS) > 0) call DYaX(nOrb(iS)*nAsh(is),One,Q(ipMatba(iS,is)),1,Fock(ipCM(iS)+nIsh(is)*nOrb(is)),1)
+      Fock(ipCM(iS):ipCM(iS)+nOrb(iS)*nIsh(is)-1) = Fock(ipCM(iS):ipCM(iS)+nOrb(iS)*nIsh(is)-1)+ &
+                                                    Two*FockA(ipCM(iS):ipCM(iS)+nOrb(iS)*nIsh(is)-1)
+      Fock(ipCM(iS)+nIsh(is)*nOrb(is):ipCM(iS)+(nIsh(is)+nAsh(is))*nOrb(is)-1) = &
+        Q(ipMatba(iS,is):ipMatba(iS,is)+nOrb(iS)*nAsh(is)-1)
       do iAsh=1,nAsh(is)
         ipi = ipCM(iS)+nOrb(is)*(nIsh(is)+iAsh-1)
         do jAsh=1,nAsh(is)
@@ -426,7 +433,7 @@ else
           ni = nA(is)+iAsh
           nj = nA(is)+jAsh
           ipD = iTri(ni,nj)
-          call daxpy_(nOrb(is),G1t(ipD),FockI(ipi),1,Fock(ipj),1)
+          Fock(ipj:ipj+nOrb(is)-1) = Fock(ipj:ipj+nOrb(is)-1)+G1t(ipD)*FockI(ipi:ipi+nOrb(is)-1)
         end do
       end do
     end if

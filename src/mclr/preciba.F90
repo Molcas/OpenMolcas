@@ -65,26 +65,24 @@ call Coul(jS,jS,iS,iS,iB,iB,A_J,Scr)
 call Exch(jS,iS,jS,iS,iB,iB,A_K,Scr)
 
 do jA=1,nAsh(jS)
-  ip = nTri-iTri(nd-ja+1,jVert)+1
+  ip = nTri-iTri(nd-ja+1,jVert)
   do jB=1,nAsh(jS)
     jBB = jB+nIsh(jS)
     ! Get D_(ja,jb)
     rDens = -sign*G1t((iTri(jA+nA(jS),jB+nA(jS))))
     if (jA == jB) rDens = rdens+sign*Two
 
-    ivB = (jBB-1)*nBas(jS)+nO+1
-    call DaXpY_(jVert,Six*rDens,A_K(ivB),1,rOut(ip),1) ! ????
-    call DaXpY_(jVert,-Two*rDens,A_J(ivB),1,rOut(ip),1)
+    ivB = (jBB-1)*nBas(jS)+nO
+    rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+rDens*(Six*A_K(ivB+1:ivB+jVert)-Two*A_J(ivB+1:ivB+jVert))
   end do
 end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 do jA=1,nAsh(js)
-  ip = nTri-iTri(nd-ja+1,nd-nAsh(js))+1
-  call DaXpY_(jVert,sign*Four,Focki(nO+1,ja+nIsh(js)),1,rout(ip),1)
-  call DaXpY_(jVert,sign*Four,FockA(nO+1,ja+nIsh(js)),1,rout(ip),1)
-  call DaXpY_(jVert,-sign,Fock(nO+1,ja+nIsh(js)),1,rout(ip),1)
+  ip = nTri-iTri(nd-ja+1,nd-nAsh(js))
+  rout(ip+1:ip+jVert) = rout(ip+1:ip+jVert)+sign*(Four*(FockI(nO+1:nO+jVert,ja+nIsh(js))+FockA(nO+1:nO+jVert,ja+nIsh(js)))- &
+                                                  Fock(nO+1:nO+jVert,ja+nIsh(js)))
 end do
 !                                                                      *
 !***********************************************************************

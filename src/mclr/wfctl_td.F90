@@ -218,14 +218,13 @@ do iSym=kksym,kkksym
 
     call RHS_td(Sigma,Temp1,Temp3,Sc2,dKappa,Sc3,Temp4,ipST,iDisp,iSym-1,CMO,jdisp,CI)
 
-    call dscal_(nDens2,-One,Temp4,1)
+    Temp4(1:nDens2) = -Temp4(1:nDens2)
 
     ! Make RHS twice as long and change sign on second part!
 
     if (CI) then
       call ipin(ipST)
-      call dcopy_(nConf1,W(ipST)%A(1),1,W(ipST)%A(1+nConf1),1)
-      call dscal_(nConf1,-One,W(ipST)%A(1+nConf1),1)
+      W(ipST)%A(nConf1+1:2*nConf1) = -W(ipST)%A(1:nConf1)
     end if
 
     call opout(ipci)
@@ -240,7 +239,7 @@ do iSym=kksym,kkksym
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
     if (CI) then
       call ipin(ipCIT)
-      call dcopy_(2*nConf1,[Zero],0,W(ipCIT)%A,1)
+      W(ipCIT)%A(1:2*nConf1) = Zero
     end if
     call ipout(ipcit)
     if (CI) then
@@ -248,7 +247,7 @@ do iSym=kksym,kkksym
       iRHSCIDisp(iDisp) = iDis
       call ipin(ipST)
       call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
-      call DSCAL_(2*nConf1,-One,W(ipST)%A,1)
+      W(ipST)%A(1:2*nConf1) = -W(ipST)%A(1:2*nConf1)
     end if
 
     call DMInvKap_td(DigPrec,Sigma,Kappa)
@@ -352,12 +351,12 @@ do iSym=kksym,kkksym
           if (isym == 1) then
             call ipin(ipCI)
             rGrad = ddot_(nconf1,W(ipCI)%A,1,W(ipS1)%A,1)
-            call daxpy_(nConf1,-rGrad,W(ipCI)%A,1,W(ipS1)%A,1)
+            W(ipS1)%A(1:nConf1) = W(ipS1)%A(1:nConf1)-rGrad*W(ipCI)%A(1:nConf1)
             rGrad = ddot_(nconf1,W(ipCI)%A,1,W(ipS1)%A(1+nconf1),1)
-            call daxpy_(nConf1,-rGrad,W(ipCI)%A,1,W(ipS1)%A(1+nconf1),1)
+            W(ipS1)%A(nConf1+1:2*nConf1) = W(ipS1)%A(nConf1+1:2*nConf1)-rGrad*W(ipCI)%A(1:nConf1)
           end if
-          call dscal_(nconf1,-One,W(ipS1)%A,1)
-          call dscal_(2*nconf1,Two,W(ipS1)%A,1)
+          W(ipS1)%A(1:nConf1) = -Two*W(ipS1)%A(1:nConf1)
+          W(ipS1)%A(nConf1+1:2*nConf1) = Two*W(ipS1)%A(nConf1+1:2*nConf1)
 
           call opout(ipCI)
           !*************************************************************
@@ -391,9 +390,7 @@ do iSym=kksym,kkksym
 
         call ipin(ipCId)
         call ipin(ipS2)
-        call DaXpY_(nConf1,EC,W(ipCId)%A,1,W(ipS2)%A,1)
-        call DaXpY_(nConf1,EC,W(ipCId)%A(1+nConf1),1,W(ipS2)%A(1+nConf1),1)
-        call dscal_(2*nConf1,Two,W(ipS2)%A,1)
+        W(ipS2)%A(1:2*nConf1) = Two*(W(ipS2)%A(1:2*nConf1)+EC*W(ipCId)%A(1:2*nConf1))
 
         ! Add the wS contribution
         ! The (-) sign in both daxpys assumes that the two parts of ipcid are def with diff sign.
@@ -401,8 +398,8 @@ do iSym=kksym,kkksym
         ! The S-contribution will make E-wS loose its symmetry because E is sym and S
         ! is antisym.
 
-        call DaXpY_(nConf1,-Two*omega,W(ipCId)%A,1,W(ipS2)%A,1)
-        call DaXpY_(nConf1,Two*omega,W(ipCId)%A(1+nConf1),1,W(ipS2)%A(1+nConf1),1)
+        W(ipS2)%A(1:nConf1) = W(ipS2)%A(1:nConf1)-Two*omega*W(ipCId)%A(1:nConf1)
+        W(ipS2)%A(nConf1+1:2*nConf1) = W(ipS2)%A(nConf1+1:2*nConf1)+Two*omega*W(ipCId)%A(nConf1+1:2*nConf1)
         Clock(iTimeCC) = Clock(iTimeCC)+Tim4
 
         call ipout(ips2)
@@ -467,9 +464,9 @@ do iSym=kksym,kkksym
 
       call ipnout(-1)
       if (CI) then   ! if (.false.) then
-        call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
+        Sc1(1:nDens) = Sc2(1:nDens)+Sc3(1:nDens)
       else
-        call dcopy_(nDens,Sc2,1,Sc1,1)
+        Sc1(1:nDens) = Sc2(1:nDens)
       end if
       call Compress(Sc1,Temp4,isym)   ! ds
       call Compress(dKappa,Temp2,isym) ! DX
@@ -479,7 +476,7 @@ do iSym=kksym,kkksym
       if (CI) then  !If (.false.) then
         call ipin1(ipS1,2*nconf1)
         call ipin1(ipS2,2*nconf1)
-        call DaXpY_(2*nConf1,One,W(ipS2)%A,1,W(ipS1)%A,1)
+        W(ipS1)%A(1:2*nConf1) = W(ipS1)%A(1:2*nConf1)+W(ipS2)%A(1:2*nConf1)
         call opout(ips2)
       end if
 
@@ -517,8 +514,8 @@ do iSym=kksym,kkksym
       ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
 
       if (orb) then
-        call DaxPy_(nDensC,ralpha,Temp2,1,Kappa,1)
-        call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+        Kappa(1:nDensC) = Kappa(1:nDensC)+ralpha*Temp2(1:nDensC)
+        Sigma(1:nDensC) = Sigma(1:nDensC)-ralpha*Temp4(1:nDensC)
         resk = sqrt(Half*ddot_(nDensC,Sigma,1,Sigma,1))
       end if
       resci = Zero
@@ -526,11 +523,11 @@ do iSym=kksym,kkksym
       if (CI) then
         call ipin(ipCId)
         call ipin(ipCIT)
-        call DaXpY_(2*nConf1,ralpha,W(ipCId)%A,1,W(ipCIT)%A,1)
+        W(ipCIT)%A(1:2*nConf1) = W(ipCIT)%A(1:2*nConf1)+ralpha*W(ipCId)%A(1:2*nConf1)
         call ipout(ipcit)
         call ipin1(ipST,2*nconf1)
         call ipin(ipS1)
-        call DaXpY_(2*nConf1,-ralpha,W(ipS1)%A,1,W(ipST)%A,1)
+        W(ipST)%A(1:2*nConf1) = W(ipST)%A(1:2*nConf1)-ralpha*W(ipS1)%A(1:2*nConf1)
         call opout(ipS1)
         resci = sqrt(Half*ddot_(2*nconf1,W(ipST)%A,1,W(ipST)%A,1))
       end if
@@ -577,17 +574,14 @@ do iSym=kksym,kkksym
       if (.not. CI) then
         rBeta = deltaK/delta
         delta = deltaK
-        call DScal_(nDensC,rBeta,Temp2,1)
-        call DaXpY_(nDensC,One,sc2,1,Temp2,1)
+        Temp2(1:nDensC) = rBeta*Temp2(1:nDensC)+Sc2(1:nDensC)
       else
         rbeta = (deltac+deltaK)/delta
         delta = deltac+deltaK
         call ipin(ipCID)
-        call DScal_(2*nConf1,rBeta,W(ipCID)%A,1)
-        call DScal_(nDensC,rBeta,Temp2,1)
         call ipin(ipS2)
-        call DaXpY_(2*nConf1,One,W(ipS2)%A,1,W(ipCID)%A,1)
-        call DaXpY_(nDensC,One,sc2,1,Temp2,1)
+        W(ipCID)%A(1:2*nConf1) = rBeta*W(ipCID)%A(1:2*nConf1)+W(ipS2)%A(1:2*nConf1)
+        Temp2(1:nDensC) = rBeta*Temp2(1:nDensC)+Sc2(1:nDensC)
         call opout(ipS2)
         call ipout(ipCID)
       end if

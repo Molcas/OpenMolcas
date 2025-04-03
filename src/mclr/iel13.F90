@@ -29,10 +29,10 @@ use Definitions, only: u6
 #endif
 
 implicit real*8(A-H,O-Z)
-dimension IEL1(*), IEL3(*), IEL123(3,*)
+dimension IEL1(NOCTYP), IEL3(NOCTYP), IEL123(3,NOCTYP)
 
-call iCopy(NOCTYP,[0],0,IEL1,1)
-call iCopy(NOCTYP,[0],0,IEL3,1)
+IEL1(:) = 0
+IEL3(:) = 0
 do KEL3=MNRS3,MXRS3
   do KEL1=MNRS1,MXRS1
     ITYP = (MXRS1-KEL1)*(MXRS3-MNRS3+1)+KEL3-MNRS3+1

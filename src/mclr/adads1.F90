@@ -156,10 +156,8 @@ if (.not. Skip) then
     NIJ = nTri_Elem(NIOB)
   end if
   if (NKDim > 0) then
-    do IJ=1,NIJ
-      call ICopy(NKDIM,[0],0,I1(1,IJ),1)
-      call dcopy_(NKDIM,[Zero],0,XI1S(1,IJ),1)
-    end do
+    I1(:,1:NIJ) = 0
+    XI1S(:,1:NIJ) = Zero
   end if
 
   do J=1,NJOB

@@ -35,12 +35,12 @@ character(len=16) mstate
 real*8 rdum(1)
 integer idum(7,8)
 real*8, allocatable :: D_K(:), Tmp(:), K1(:), K2(:), DAO(:), D_CI(:), D1(:), P_CI(:), P1(:), Conn(:), OCCU(:), CMON(:), DTmp(:), &
-                       G1q(:), G1m(:), Temp(:), tTmp(:), DM(:), DMs(:)
+                       G1q(:), G1m(:), Temp(:), DMs(:,:)
 integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO, iLen, ipCIP, iDisk, nDim, ij, k, l, ij1, ij2, kl1, kl2, i1, j1, ji2, &
         kl, lk2, ijkl, jikl, ijlk, jilk, klRow, iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA, jAA, nBuf, LuDens, iOff, &
         iBas, LuTmp
 integer, external :: IsFreeUnit
-real*8 Val
+real*8 Val, DM(3)
 integer i, j
 
 !                                                                      *
@@ -285,8 +285,8 @@ call mma_allocate(D_K,nLCMO,Label='D_K')
 call Get_dArray_chk('FockOcc',D_K,nLCMO)
 ! Calculates the effective Fock matrix
 call Make_Conn(Conn,K2,P_CI,D_CI)   !D_CI not changed
-call DaxPy_(ndens2,One,D_K,1,Conn,1)
-!call dcopy_(ndens2,D_K,1,Conn,1)
+Conn(:) = Conn(:)+D_K(1:ndens2)
+!Conn(:) = D_K(1:ndens2)
 if (PT2) then
   ! Add the WLag term (will be contracted with overlap
   ! derivative) computed in CASPT2
@@ -561,13 +561,13 @@ else
   call Put_dArray('D1aoVar',Tmp,nTot1)
   call mma_deallocate(Tmp)
 
-  call mma_allocate(TEMP,nNac,Label='TEMP')
-  call mma_allocate(tTmp,nNac,Label='tTmp')
-  call get_dArray_chk('D1mo',TEMP,nNac)
-  call get_dArray_chk('DLMO',tTmp,nNac)
-  call DaxPy_(nNac,One,tTmp,1,TEMP,1)
-  call mma_deallocate(TEMP)
-  call mma_deallocate(tTmp)
+  !call mma_allocate(TEMP,nNac,Label='TEMP')
+  !call mma_allocate(tTmp,nNac,Label='tTmp')
+  !call get_dArray_chk('D1mo',TEMP,nNac)
+  !call get_dArray_chk('DLMO',tTmp,nNac)
+  !TEMP(:) = TEMP(:)+tTmp(:)
+  !call mma_deallocate(TEMP)
+  !call mma_deallocate(tTmp)
 
   Note = 'var'
   LuTmp = 50
@@ -588,17 +588,15 @@ else
 
   if (nRoots /= 1) then
     !write(u6,*) 'iR=',iR
-    call mma_allocate(DM,3,Label='DM')
-    call mma_allocate(DMs,3*nROOTS,Label='DMs')
+    call mma_allocate(DMs,3,nROOTS,Label='DMs')
     call Get_dArray('Last Dipole Moments',DMs,3*nRoots)
     !call RecPrt('Last Dipole Moments',' ',DMS,3,nRoots)
     call Get_dArray('Dipole Moment',DM,3)
     !call RecPrt('Dipole Moment',' ',DM,1,3)
-    call DCopy_(3,DM,1,DMS(1+(iR-1)*3),1)
-    !call RecPrt('Last Dipole Moments',' ',DMS,3,nRoots)
+    DMs(:,iR) = DM(:)
+    !call RecPrt('Last Dipole Moments',' ',DMs,3,nRoots)
     call Put_dArray('Last Dipole Moments',DMs,3*nRoots)
     call mma_deallocate(DMs)
-    call mma_deallocate(DM)
   end if
   !*********************************************************************
 end if
@@ -614,7 +612,7 @@ end if
 ! Write the effective active one el density to disk in the same format as g1q
 
 !call mma_allocate(Deff_act,ndens2,Label='Deff_act')
-!call dcopy_(nDens2,D_K,1,Deff_act,1)
+!Deff_act(:) = D_K(1:ndens2)
 !do is=1,nSym
 !  do i=1,nish(is)
 !

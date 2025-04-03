@@ -19,9 +19,10 @@
 subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
 
 use Index_Functions, only: iTri, nTri_Elem
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens2, nNA
 use input_mclr, only: nRoots, ntAsh
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 ! Output
@@ -39,7 +40,7 @@ ng1 = iTri(ntash,ntash)
 nP2 = iTri(ng1,ng1)
 call mma_allocate(FOccMO,nDens2)
 call mma_allocate(P2MOt,nP2)
-call FZero(bk,nDens2)
+bk(:) = Zero
 call GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,nP2)
 call GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
 call GetPDFTFock_NAC(bk)

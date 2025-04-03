@@ -73,7 +73,8 @@ do ipS=1,nSym
             call Coul(ipS,kS,iS,jS,iAA,jAA,MO,Scr)
 
             rD = rDens1(iA+nA(iS),jA+nA(jS))*Two
-            call DaXpY_(nBas(ipS)*nIsh(kS),rd,MO,1,Fock(ipMat(ipS,Ks)),1)
+            Fock(ipMat(ipS,Ks):ipMat(ipS,Ks)+nBas(ipS)*nIsh(kS)-1) = Fock(ipMat(ipS,Ks):ipMat(ipS,Ks)+nBas(ipS)*nIsh(kS)-1)+ &
+                                                                     rd*MO(1:nBas(ipS)*nIsh(kS))
 
           end do
         end do
@@ -99,8 +100,9 @@ do ipS=1,nSym
 
               rd1 = rDens1(jA+nA(jS),kA+nA(ks))*Two
               rd2 = rDens1(kA+nA(kS),jA+nA(js))*Two
-              call DaXpY_(nBas(ipS),-rd1*Half,MO(ipM),1,Fock(ipF),1)
-              call DaXpY_(nBas(ipS),rd2*Half,MO(ipM),1,Fock(ipMat(is,ips)+iA-1),nbas(is))
+              Fock(ipF:ipF+nBas(ipS)-1) = Fock(ipF:ipF+nBas(ipS)-1)-rd1*Half*MO(ipM:ipM+nBas(ipS)-1)
+              Fock(ipMat(is,ips)+iA-1:ipMat(is,ips)+iA-1+nBas(ipS)*nBas(iS)-1:nBas(iS)) = &
+                Fock(ipMat(is,ips)+iA-1:ipMat(is,ips)+iA-1+nBas(ipS)*nBas(iS)-1:nBas(iS))+rd2*Half*MO(ipM:ipM+nBas(ipS)-1)
               ipM = ipM+nBas(ipS)
             end do
           end do
@@ -129,8 +131,8 @@ do iS=1,nSym
         ip1 = nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
         ip2 = nBas(iS)*(nIsh(js)+jA-1)+ipmat(is,js)
         ip3 = nIsh(js)+jA-1+ipmat(js,is)
-        call DaxPy_(nBas(iS),Rd1,FIMO(ip1),1,Fock(ip2),1)
-        call DaxPy_(nBAs(iS),-Rd2,FIMO(ip1),1,Fock(ip3),nbas(js))
+        Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)+Rd1*FIMO(ip1:ip1+nBas(iS)-1)
+        Fock(ip3:ip3+nBas(iS)*nBas(jS)-1:nBas(jS)) = Fock(ip3:ip3+nBas(iS)*nBas(jS)-1:nBas(jS))-Rd2*FIMO(ip1:ip1+nBas(iS)-1)
       end do
     end do
   end if
@@ -156,7 +158,7 @@ end do
 
 if (idSym == 1) call AddGrad2(Fock,d_0)
 
-call DScal_(nDens2,Two,Fock,1)
+Fock(1:nDens2) = Two*Fock(1:nDens2)
 
 call mma_deallocate(TQ)
 !                                                                      *

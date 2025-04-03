@@ -136,7 +136,7 @@ do IJTP=1,NSXTP
         if (NKI*NIORB*NJORB /= 0) then
           call DGEMM_('T','N',NIORB,NJORB,NKI,One,SSCR,NKI,CSCR,NKI,Zero,RHO1S,NIORB)
         else
-          call dcopy_(NIORB*NJORB,[Zero],0,RHO1S,1)
+          RHO1S(1:NIORB*NJORB) = Zero
         end if
         ! Scatter out to complete matrix
         do JJORB=1,NJORB

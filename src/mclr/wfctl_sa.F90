@@ -189,7 +189,7 @@ else
     end if
 
     if (PT2) then
-      call DaXpY_(nDens2,One,Kappa,1,Temp4,1)
+      Temp4(1:nDens2) = Temp4(1:nDens2)+Kappa(1:nDens2)
       Kappa(1:nDens2) = Zero
     end if
     call mma_deallocate(SLag)
@@ -205,20 +205,20 @@ else
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
     if (PT2) then
-      call DSCAL_(nConf1*nRoots,-One,W(ipST)%A,1)
+      W(ipST)%A(1:nConf1*nRoots) = -W(ipST)%A(1:nConf1*nRoots)
       if (CI) then
         ! The order of CSF coefficients in CASPT2 and MCLR is somehow
         ! different, so the CI lagrangian computed in CASPT2 must be
         ! reordered so that it can be used here.
         call mma_allocate(wrk,nConf1,Label='wrk')
         do iR=1,nRoots
-          call DCopy_(nConf1,W(ipST)%A(1+nConf1*(iR-1):nConf1*iR),1,wrk,1)
+          wrk(:) = W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR)
           call GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,wrk,1,State_Sym,State_Sym)
           NCSF(1:nSym) = CIS%NCSF(1:nSym)
           NCONF = CIS%NCSF(State_Sym)
           call mkGuga_Free(SGS,CIS,EXS)
 
-          call DCopy_(nConf1,wrk,1,W(ipST)%A(1+nConf1*(iR-1):nConf1*iR),1)
+          W(ipST)%A(nConf1*(iR-1)+1:nConf1*iR) = wrk(:)
         end do
         call mma_deallocate(wrk)
 
@@ -227,18 +227,18 @@ else
         call opOut(ipci)
         call opOut(ipdia)
         ! z0 <= p0
-        call DCopy_(nConf1*nRoots,W(ipS2)%A,1,W(ipCId)%A,1)
+        W(ipCId)%A(1:nConf1*nRoots) = W(ipS2)%A(1:nConf1*nRoots)
       end if
     else
       call ipIn(ipCIT)
       call ipIn(ipST)
       call ipIn(ipCID)
-      call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%A,1)
-      call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%A,1)
-      call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%A,1)
+      W(ipCIT)%A(1:nConf1*nroots) = Zero
+      W(ipST)%A(1:nConf1*nroots) = Zero
+      W(ipCID)%A(1:nConf1*nroots) = Zero
     end if
     call ipOut(ipCIT)
-    call DSCAL_(nDensC,-One,Sigma,1)
+    Sigma(1:nDensC) = -Sigma(1:nDensC)
 
     call ipIn(ipPre2)
     call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Kappa,nDens2+6,Temp3,nDens2+6,isym,iter)
@@ -249,7 +249,7 @@ else
     if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
     if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
-    call dcopy_(ndensC,Kappa,1,dKappa,1)
+    dKappa(1:nDensC) = Kappa(1:nDensC)
 
     deltaC = Zero
     if (PT2) deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
@@ -286,18 +286,18 @@ else
       !----------------------------------------------------------------*
 
       ! Kappa=Kappa+rAlpha*dKappa
-      call DaxPy_(nDensC,ralpha,dKappa,1,Kappa,1)
+      Kappa(1:nDensC) = Kappa(1:nDensC)+ralpha*dKappa(1:nDensC)
       ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-      call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+      Sigma(1:nDensC) = Sigma(1:nDensC)-ralpha*Temp4(1:nDensC)
       resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
       resci = Zero
       call ipIn(ipCIT)
-      call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%A,1,W(ipCIT)%A,1)
+      W(ipCIT)%A(1:nConf1*nroots) = W(ipCIT)%A(1:nConf1*nroots)+ralpha*W(ipCId)%A(1:nConf1*nroots)
       call ipOut(ipcit)
       ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
       call ipIn(ipS1)
       call ipIn(ipST)
-      call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%A,1,W(ipST)%A,1)
+      W(ipST)%A(1:nConf1*nroots) = W(ipST)%A(1:nConf1*nroots)-ralpha*W(ipS1)%A(1:nConf1*nroots)
       call opOut(ipS1)
       call ipIn(ipST)
       resci = sqrt(ddot_(nconf1*nroots,W(ipST)%A,1,W(ipST)%A,1))
@@ -334,16 +334,13 @@ else
       if (.not. CI) then
         rBeta = deltaK/delta
         delta = deltaK
-        call DScal_(nDensC,rBeta,dKappa,1)
-        call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
+        dKappa(1:nDensC) = rBeta*dKappa(1:nDensC)+Sc2(1:nDensC)
       else
         rbeta = (deltac+deltaK)/delta
         delta = deltac+deltaK
         call ipIn(ipCID)
-        call DScal_(nConf1*nroots,rBeta,W(ipCID)%A,1)
-        call DScal_(nDensC,rBeta,dKappa,1)
-        call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCID)%A,1)
-        call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
+        W(ipCID)%A(1:nConf1*nroots) = rBeta*W(ipCID)%A(1:nConf1*nroots)+W(ipS2)%A(1:nConf1*nroots)
+        dKappa(1:nDensC) = rBeta*dKappa(1:nDensC)+Sc2(1:nDensC)
         call opOut(ipS2)
         call ipOut(ipCID)
       end if

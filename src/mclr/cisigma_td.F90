@@ -106,7 +106,7 @@ ndet = max(ndet,ncsf(icsym),ncsf(issym))
 if (ndet == 0) return
 iOP = Mul(iCSM,iSSm)
 if (iOp == 1) then
-  call iCopy(nSym,ipCM,1,pInt1,1)
+  pInt1(1:nSym) = ipCM(1:nSym)
 else
   do iS=1,nSym
     jS = Mul(iS,iOp)
@@ -135,7 +135,7 @@ if (TIMEDEP) then
   ! CIDET is here because sigmavec will destroy the first input vector.
   call mma_allocate(CIDET,nDet,Label='CIDET')
   call ipin(ipCI1)
-  call dcopy_(nCSF(iCSM),W(ipCI1)%A,1,CIDET,1)
+  CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
 
   call ipin(ipci2)
   call SigmaVec(CIDET,W(ipci2)%A,kic)
@@ -149,7 +149,7 @@ if (TIMEDEP) then
 
     ! Symmetric operator, no transpose of integrals needed!
     call ipin(ipCI1)
-    call dcopy_(nCSF(iCSM),W(ipCI1)%A(1+nConf1),1,CIDET,1)
+    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(nConf1+1:nConf1+nCSF(iCSM))
 
     call ipin(ipci2)
     call SigmaVec(CIDET,W(ipci2)%A(1+nconf1),kic)
@@ -158,7 +158,7 @@ if (TIMEDEP) then
 
     ! The operator is not sym --> transpose integrals! NT /= S
     call ipin(ipCI1)
-    call dcopy_(nCSF(iCSM),W(ipCI1)%A,1,CIDET,1)
+    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
 
     call mma_allocate(TI1,ndens2,Label='TI1')
     call mma_allocate(TI2,ntash**4,Label='TI2')
@@ -210,7 +210,7 @@ else   ! If not timedep
   if (.not. page) then
     call mma_allocate(CIDET,nDet,Label='CIDET')
     call ipin(ipCI1)
-    call dcopy_(nCSF(iCSM),W(ipCI1)%A,1,CIDET,1)
+    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
     call ipin(ipci2)
     call SigmaVec(CIDET,W(ipci2)%A,kic)
     call mma_deallocate(CIDET)

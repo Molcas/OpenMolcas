@@ -39,7 +39,7 @@ write(LUT,'(A)') '*LABEL COORDINATES CHARGE'
 do iCnttp=1,nCnttp
   do iCnt=1,dbsc(iCnttp)%nCntr
     mdc = mdc+1
-    call dcopy_(3,Coor(1,mdc),1,A,1)
+    A(:) = Coor(:,mdc)
     do iCo=0,nIrrep/dc(mdc)%nStab-1
       kop = dc(mdc)%iCoSet(iCo,0)
       call OA(kOp,A,B)

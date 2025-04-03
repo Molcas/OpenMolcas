@@ -17,7 +17,6 @@ subroutine TRCTL_MCLR()
 !          The transformation routine TRAMO is called for each
 !          symmetry block of integrals.
 
-use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO
 use MCLR_Data, only: ipCM
@@ -28,12 +27,11 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 
 implicit none
 integer, parameter :: LIOTAB = 512*512
-integer, save :: toca(8,8,8), tocb(36,8), tocc(5,36,8)
 integer, allocatable :: Hlf1(:,:)
 real*8, allocatable :: Buffer(:)
 integer iAD14, iAd13, iAd23, iAd24, iAd34
 integer MemX, ipB, iBatch, iSP, nBP, nDP, iSQ, nBQ, nAQ, nDQ, nSPQ, iSR, nBR, nAR, nDR, nSPQR, iSS, nBS, nAS, nDS, nSPQRS, nORBP, &
-        nBPQRS, IntBuf, ipi, lW1, nW1, lW2, nW2, lW3, nW3, lW4, nW4, lW5, nW5, iSPQ, iSRS, nAP
+        nBPQRS, IntBuf, ipi, lW1, nW1, lW2, nW2, lW3, nW3, lW4, nW4, lW5, nW5, nAP
 
 !                                                                      *
 !***********************************************************************
@@ -44,9 +42,6 @@ call DANAME_wa(LUTRI2,FNTRI2)
 call DANAME_wa(LUTRI3,FNTRI3)
 call DANAME_wa(LUTRI4,FNTRI4)
 call DANAME_wa(LUTRI5,FNTRI5)
-call iCopy(8**3,[-1],0,toca,1)
-call iCopy(8*36,[-1],0,tocb,1)
-call iCopy(8*36,[-1],0,tocc,1)
 IAD14 = 0
 IAD13 = 0
 IAD23 = 0
@@ -113,13 +108,6 @@ do iSP=1,NSYM
         ipi = ipi+nw4
         lw5 = ipi
         NW5 = MEMX-nw1-nw2-nw3-nw4
-        iSPQ = iTri(iSR,iSS)
-        iSRS = max(iSP,iSQ)
-        if (nAR*nAS /= 0) TocB(iSPQ,iSRS) = iAD34
-        if (nAQ*nAS /= 0) TOCA(iSP,iSQ,iSR) = iAD24
-        if ((iSR /= iSS) .and. (nAQ*nAR /= 0)) TOCA(iSP,iSQ,iSS) = iAD23
-        if ((iSP /= iSQ) .and. (nAP*nAS /= 0)) TOCA(iSQ,iSP,iSR) = iAD14
-        if ((iSP /= iSQ) .and. (iSR /= iSS) .and. (nAP*nAR /= 0)) TOCA(iSQ,iSP,iSS) = iAD13
 
         ! transform the symmetry block (ISP,ISQ|ISR,ISS)
 

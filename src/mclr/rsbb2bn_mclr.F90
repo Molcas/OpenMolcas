@@ -65,7 +65,7 @@ subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,
 ! February 1994 : Fetching and adding to transposed blocks
 
 use Symmetry_Info, only: Mul
-use Constants, only: Zero, One
+use Constants, only: Zero
 
 implicit real*8(A-H,O-Z)
 ! General input
@@ -161,7 +161,7 @@ do IJTYP=1,NIJTYP
         if (IROUTE == 2) then
           ! C(Ka,Jb,j) => C(j,Ka,Jb)
           call TRNSPS(LCJ,NJ,CJRES,SIRES)
-          call DCOPY_(NJ*LCJ,SIRES,1,CJRES,1)
+          CJRES(1:NJ*LCJ) = SIRES(1:NJ*LCJ)
         end if
         if (IROUTE == 3) then
           ! C(Ka,Jb,j) => C(Ka,j,JB)
@@ -174,10 +174,10 @@ do IJTYP=1,NIJTYP
               end do
             end do
           end do
-          call DCOPY_(NJ*LCJ,SIRES,1,CJRES,1)
+          CJRES(1:NJ*LCJ) = SIRES(1:NJ*LCJ)
         end if
 
-        call DCOPY_(NIB*NKABTC*NI,[Zero],0,SIRES,1)
+        SIRES(1:NIB*NKABTC*NI) = Zero
 
       end if
 
@@ -256,7 +256,7 @@ do IJTYP=1,NIJTYP
                   call GETINT_MCLR(XINT,JTYP,JSM,ITYP,ISM,KTYP,KSM,LTYP,LSM,IXCHNG,0,0,1,ieaw)
                 end if
               end if
-              if (ISIGN == -1) call DSCAL_(NI*NJ*NK*NL,-One,XINT,1)
+              if (ISIGN == -1) XINT(1:NI*NJ*NK*NL) = -XINT(1:NI*NJ*NK*NL)
               IFIRST = 0
             end if
             call SKICKJ_MCLR(SIRES,CJRES,NKABTC,NIB,NJB,NKBBTC,XINT,NI,NJ,NK,NL,MAXK,I4,XI4S,I2,XI2S,IKORD,IROUTE)
@@ -270,7 +270,7 @@ do IJTYP=1,NIJTYP
       ! Restore order !!
       if (IROUTE == 2) then
         call TRNSPS(NI,NIB*NKABTC,SIRES,CJRES)
-        call DCOPY_(NI*NIB*NKABTC,CJRES,1,SIRES,1)
+        SIRES(1:NI*NIB*NKABTC) = CJRES(1:NI*NIB*NKABTC)
       end if
       if (IROUTE == 3) then
         do JB=1,NIB
@@ -282,7 +282,7 @@ do IJTYP=1,NIJTYP
             end do
           end do
         end do
-        call DCOPY_(NI*NIB*NKABTC,CJRES,1,SIRES,1)
+        SIRES(1:NI*NIB*NKABTC) = CJRES(1:NI*NIB*NKABTC)
       end if
       if (ICJKAIB == 1) then
         do II=1,NI

@@ -38,7 +38,7 @@ call mma_allocate(T4,ndens2,Label='F2')
 ! T1 = Dtilde
 
 call Rint_generic(kappa,T1,dum,T2,T3,T4,F,1,-One,0)
-call DSCAL_(ndens2,Half,f,1)
+F(1:ndens2) = Half*F(1:ndens2)
 
 ! T2 = Fbar The ci part or the active Fock matrix
 
@@ -52,7 +52,7 @@ do iS=1,nsym
                 F(ipMat(is,is)),nBas(is))
   end if
 end do
-call DaxPy_(ndens2,One,F,1,T2,1)
+T2(:) = T2(:)+F(1:ndens2)
 
 call TCMO(T2,1,-2)
 ijB = 1

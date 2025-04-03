@@ -14,11 +14,11 @@
 subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
-use MCLR_Data, only: nConf1, n2Dens, nDens, nDens2
+use MCLR_Data, only: nConf1, n2Dens, nDens2
 use input_mclr, only: nRoots, nAsh, nRS2, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One, Two
+use Constants, only: Two
 
 implicit none
 real*8 Kap(*)
@@ -50,14 +50,14 @@ call Kap_CI(Temp4,nDens2,rmoaa,n2Dens,ipCIOUT)
 call Ci_Ci(ipcid,ipS2)
 call CI_KAP(ipCid,Sc1,Sc3,isym)
 
-call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
+Sc1(:) = Sc2(:)+Sc3(:)
 
 call Compress(Sc1,KapOut,isym)   ! ds
 !call RecPrt('Ex',' ',KapOut,ndensC,1)
 
 call ipin(ipS2)
 call ipin(ipCIOUT)
-call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCIOUT)%A,1)
+W(ipCIOUT)%A(1:nConf1*nroots) = W(ipCIOUT)%A(1:nConf1*nroots)+W(ipS2)%A(1:nConf1*nroots)
 call opOut(ipCId)
 
 ! Adding Hkl contribution
@@ -67,7 +67,8 @@ do kRoot=1,nRoots
   do lRoot=1,nRoots
     if (kRoot == lRoot) cycle
     ECOff = -MSHam(nRoots*(kRoot-1)+lRoot)*Weight(1)*Two
-    call DaXpY_(nConf1,ECOff,W(ipCId)%A((lRoot-1)*nConf1+1),1,W(ipCIOut)%A((kRoot-1)*nConf1+1),1)
+    W(ipCIOut)%A((kRoot-1)*nConf1+1:kRoot*nConf1) = W(ipCIOut)%A((kRoot-1)*nConf1+1:kRoot*nConf1)+ &
+                                                    ECOff*W(ipCId)%A((lRoot-1)*nConf1+1:lRoot*nConf1)
   end do
 end do
 call mma_deallocate(MSHam)

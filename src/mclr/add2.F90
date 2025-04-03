@@ -38,7 +38,7 @@ do iS=1,nSym
   call DGeSub(SFock(ipCM(is)),nOrb(is),'N',SFock(ipCM(is)),nOrb(is),'T',Temp,nOrb(is),nOrb(is),nOrb(is))
   !             t           t
   ! +1/2 { Kappa T - T kappa  }
-  call DaXpY_(nOrb(is)**2,-Four*Fact,Temp,1,rMat(ipMat(is,is)),1)
+  rMat(ipMat(is,is):ipMat(is,is)+nOrb(is)**2-1) = rMat(ipMat(is,is):ipMat(is,is)+nOrb(is)**2-1)-Four*Fact*Temp(1:nOrb(is)**2)
   call mma_deallocate(Temp)
 end do
 

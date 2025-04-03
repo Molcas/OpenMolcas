@@ -114,7 +114,7 @@ do iS=1,nSym
         ! F  = F + F  D
         !  pa   pa  pb ab
 
-        call DaXpY_(nBas(is),Dij,focki(ipFI),1,Fock(ipF),1)
+        Fock(ipF:ipF+nBas(is)-1) = Fock(ipF:ipF+nBas(is)-1)+Dij*FockI(ipFI:ipFI+nBas(is)-1)
       end do
     end do
     do iAsh=1,nAsh(iS)
@@ -127,7 +127,8 @@ do iS=1,nSym
         ! F  = F - F  D
         !  pa   pa  pb ab
 
-        call DaXpY_(nBas(js),-Dij,focki(ipFI),nbas(is),Fock(ipF),nbas(is))
+        Fock(ipF:ipF+nBas(js)*nBas(is)-1:nBas(is)) = Fock(ipF:ipF+nBas(js)*nBas(is)-1:nBas(is))- &
+                                                     Dij*FockI(ipFI:ipFI+nBas(js)*nBas(is)-1:nBas(is))
       end do
     end do
 
@@ -136,10 +137,10 @@ do iS=1,nSym
                 nash(is),nBas(js))
   end if
   ! Transpose ipsc2
-  !call mma_allocate(T,nbas(is)*nbas(jS),Label='T')
-  !call dcopy_(nbas(is)*nbas(jS),[Zero],0,T,1)
+  !call mma_allocate(T,nbas(iS)*nbas(jS),Label='T')
+  !T(:) = Zero
   !call DGETMO(Fock(ipmat(is,js)),nbas(is),nbas(is),nbas(js),T,nbas(js))
-  !call dcopy_(nBas(jS)*nBas(iS),T,1,Fock(ipmat(js,is)),1)
+  !Fock(ipmat(js,is):ipmat(js,is)+nBas(jS)*nBas(iS)-1) = T(:)
   !call mma_deallocate(T)
 
 end do
@@ -148,7 +149,7 @@ if (imethod == 2) then
   call mma_deallocate(QB)
 end if
 
-call DSCAL_(ndens2,-Two,fock,1)
+Fock(:) = -Two*Fock(:)
 call AddGrad(rKappa,Fock,idsym,Two*(-fact))
 call PickMO_td(MT1,rmo,idsym)
 

@@ -57,6 +57,6 @@ do jSym=1,nSym
   end do
 end do
 
-call DScal_(nDens2,Coeff,Wop,1)
+Wop(:) = Coeff*Wop(:)
 
 end subroutine CalcWop

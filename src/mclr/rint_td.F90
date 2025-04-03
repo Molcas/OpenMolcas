@@ -36,13 +36,13 @@ use MCLR_Data, only: G1t
 use MCLR_Data, only: nDens2, ipCM, ipMat, nA
 use input_mclr, only: Omega, nSym, nAsh, nBas, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, Two
 
 implicit none
 real*8 ekappa(ndens2), mkappa(ndens2)
 integer iSym
 real*8, allocatable :: Dens(:), wDKt(:), wKtD(:)
-integer lDens, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, jS, IncX, Incy, Length
+integer lDens, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, jS, iini, ifin
 
 !-----------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ Dens(:) = Zero
 ip3 = 1
 do iS=1,nSym
   inc = nBas(iS)+1
-  call dcopy_(nIsh(iS),[Two],0,Dens(ip3),inc)
+  Dens(ip3:ip3+nIsh(iS)*inc-1:inc) = Two
   ip3 = ip3+nBas(iS)*nBas(iS)
 end do
 
@@ -114,11 +114,9 @@ do is=1,nsym
     !****************************************
     ! Replace ekappa ekappa=ekappa-wDKt+wKtD
     !****************************************
-    incx = 1
-    incy = incx
-    length = nbas(is)*nbas(js)
-    call daxpy_(length,One,wDKt(ipmat(is,js)),incx,ekappa(ipmat(is,js)),incy)
-    call daxpy_(length,-One,wKtD(ipmat(is,js)),incx,ekappa(ipmat(is,js)),incy)
+    iini = ipmat(is,js)
+    ifin = iini+nbas(is)*nbas(js)-1
+    ekappa(iini:ifin) = ekappa(iini:ifin)+wDKt(iini:ifin)-wKtD(iini:ifin)
   end if
 end do
 !call RecPrt('wDKt ',' ',wDKt,ndens2,1)

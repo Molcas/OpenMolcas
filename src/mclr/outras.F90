@@ -92,11 +92,11 @@ do iSym=1,nSym
       else
         call GASync()
         Len = nDensC
-        call FZero(Kap1,Len)
+        Kap1(1:Len) = Zero
         call GADSum(Kap1,Len)
         if (CI) then
           len = nconfM
-          call FZero(CIp1,Len)
+          CIp1(1:Len) = Zero
           call GADSum(CIp1,Len)
         end if
       end if

@@ -54,7 +54,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !  Define a density matrix that accumutates the 4*Sum half in part (2).
 !  Note this density matrix as D_acc
 !
-!  Fzero D_acc
+!  zero out D_acc
 !
 !  Loop over K again.
 !   if M > K, daxpy  4*z_MK D^MK to D_acc.
@@ -113,7 +113,7 @@ use MCLR_Data, only: XISPSM
 use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: State_Sym, nSym, nRoots, ntAsh, nAsh
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One, Two, Four
+use Constants, only: Zero, One, Two, Four
 
 implicit none
 ! Input
@@ -138,7 +138,7 @@ real*8, external :: DDot_
 integer I
 real*8, dimension(:), allocatable :: ovrlp
 
-call FZero(AXPzx,nConf1*nRoots)
+AXPzx(:) = Zero
 ! Converting nRoots to double prec type
 dRoots = real(nRoots,8)
 ! Symmetry offset
@@ -156,9 +156,9 @@ call mma_allocate(Wop,nDens2)
 call mma_allocate(Ddiff,nnA**2)
 call mma_allocate(D_acc,nnA**2)
 
-call FZero(Wop,nDens2)
+Wop(:) = Zero
 ! only a subset, and the same one, of Wop is overwritten
-! so it is ok to fzero it here only once
+! so it is ok to zero it here only once
 
 ! Starting the procedure in the "essay"
 ! looping over M
@@ -178,14 +178,14 @@ do M=1,nRoots
     call CalcWop(Wop,Ddiff,PUVX,NPUVX,IndTUVX,Coeff,off_Ash)
     call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
     !call ipin(ipwslam)
-    call dAXpY_(nConf1,dRoots,W(ipwslam)%A((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+    AXPzx((M-1)*nConf1+1:M*nConf1) = AXPzx((M-1)*nConf1+1:M*nConf1)+dRoots*W(ipwslam)%A((K-1)*nConf1+1:K*nConf1)
   end do
   ! Computing (2)
-  call FZero(D_acc,nnA**2)
+  D_acc(:) = Zero
   call CalcDacc(D_acc,GDMat,M,nnA,nRoots,zx)
   call CalcWop(Wop,D_acc,PUVX,NPUVX,IndTUVX,One,off_Ash)
   call CISigma_SA(0,State_Sym,State_Sym,Wop,nDens2,tempda,1,tempda,1,ipci,ipwslam,.false.)
-  call dAXpY_(nConf1,dRoots,W(ipwslam)%A((M-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+  AXPzx((M-1)*nConf1+1:M*nConf1) = AXPzx((M-1)*nConf1+1:M*nConf1)+dRoots*W(ipwslam)%A((M-1)*nConf1+1:M*nConf1)
   ! Computing (3)
   do K=2,nRoots
     IKK = nTri_Elem(K)
@@ -198,8 +198,8 @@ do M=1,nRoots
       Coeff1 = zx(IKL2)*(Two*(DDg(IKM,ILL)-DDg(IKM,IKK))+Four*DDg(IKL,ILM))
       Coeff2 = zx(IKL2)*(Two*(DDg(ILM,ILL)-DDg(ILM,IKK))-Four*DDg(IKL,IKM))
 
-      call DAXpY_(nConf1,Coeff1,W(ipCI)%A((L-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
-      call DAXpY_(nConf1,Coeff2,W(ipCI)%A((K-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+      AXPzx((M-1)*nConf1+1:M*nConf1) = AXPzx((M-1)*nConf1+1:M*nConf1)+Coeff1*W(ipCI)%A((L-1)*nConf1+1:L*nConf1)+ &
+                                       Coeff2*W(ipCI)%A((K-1)*nConf1+1:K*nConf1)
     end do
   end do
 end do
@@ -225,11 +225,11 @@ end do
 
 do M=1,nRoots
   do I=1,nRoots
-    call daxpy_(nConf1,-ovrlp((M-1)*nRoots+I),W(ipCI)%A((I-1)*nConf1+1),1,AXPzx((M-1)*nConf1+1),1)
+    AXPzx((M-1)*nConf1+1:M*nConf1) = AXPzx((M-1)*nConf1+1:M*nConf1)-ovrlp((M-1)*nRoots+I)*W(ipCI)%A((I-1)*nConf1+1:I*nConf1)
   end do
 end do
 
-call DScal_(nRoots*nConf1,-One,AXPzx,1)
+AXPzx(:) = -AXPzx(:)
 
 call mma_deallocate(ovrlp)
 

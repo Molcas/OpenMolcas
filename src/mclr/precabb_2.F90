@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precabb_2(ib,is,js,nd,nba,no,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,sign)
+subroutine Precabb_2(ib,is,js,nd,no,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,sign)
 !***********************************************************************
 !                                        [2]
 !   Calculates the diagonal submatrix of E    that couple
@@ -40,14 +40,14 @@ use input_mclr, only: nSym, nAsh, nIsh, nOrb
 use Constants, only: Zero, Two, Four
 
 implicit none
-integer ib, is, js, nd, nba, no
+integer ib, is, js, nd, no
 real*8 rout(*)
 integer nTemp
-real*8 Temp1(nTemp), Temp2(nO,nO), Scr(nTemp)
+real*8 Temp1(no,no), Temp2(nO,nO), Scr(nTemp)
 real*8 Fockti
 real*8 Focki(no,no)
 real*8 Sign
-integer iib, jVert, ip, kS, kBB, ipT, kkB, kkC, ijkl, lB, jB, ii, ij, kCC
+integer iib, jVert, ip, kS, kBB, kkB, kkC, ijkl, lB, jB, ii, ij, kCC
 real*8 rf, rDens1, rDens2, Rho
 
 !                                                                      *
@@ -59,7 +59,7 @@ if (jvert == 0) return
 
 ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
 rF = sign*Fockti
-call dcopy_(nBa**2,[Zero],0,Temp2,1)
+Temp2(:,:) = Zero
 
 do kS=1,nSym
   if (nOrb(js)*nash(ks) > 0) then
@@ -67,7 +67,6 @@ do kS=1,nSym
     do kBB=nish(ks)+1,nB(kS)
       do kCC=nish(ks)+1,kBB
         call COUL(jS,jS,kS,kS,kbb,kcc,Temp1,Scr)
-        ipT = 1
 
         if ((kBB > nish(ks)) .and. (kCC > nish(ks))) then
           kkB = kBB+nA(ks)-nish(ks)
@@ -76,7 +75,7 @@ do kS=1,nSym
 
           if (kbb /= kcc) rdens1 = rdens1*Two
 
-          call DaxPy_(nO**2,rdens1,Temp1,1,Temp2,1)
+          Temp2(:,:) = Temp2(:,:)+rdens1*Temp1(:,:)
 
         end if
       end do
@@ -93,10 +92,9 @@ do Ks=1,nsym
       do JB=nish(ks)+1,nB(KS)
         kkb = nA(ks)+jb-nish(ks)
         call EXCH(js,ks,js,ks,jb,lb,Temp1,Scr)
-        ipT = 1
         if ((LB > nISH(ks)) .and. (jb > nish(ks))) then
           rDens2 = sign*Four*G2t(iTri(iTri(iib,kkc),iTri(kkb,iib)))
-          call DaXpY_(nO**2,rDens2,Temp1(ipT),1,Temp2,1)
+          Temp2(:,:) = Temp2(:,:)+rDens2*Temp1(:,:)
         end if
       end do
     end do

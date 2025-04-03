@@ -42,7 +42,7 @@ integer ib, is, js, nd
 real*8 rout(*)
 integer nba
 real*8 Temp1(nBa,nBa)
-real*8 Temp2(*), Scr(*)
+real*8 Temp2(nBa,nBa), Scr(*)
 real*8 fockii, fockai
 real*8 Focki(nBa,nBa), Focka(nBa,nBa)
 real*8 sign
@@ -59,9 +59,9 @@ if (jvert == 0) return
 ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
 ra = Four*sign*(Fockii+Fockai)
 call COUL(jS,jS,iS,iS,iB,iB,Temp2,Scr)
-call Dyax(nba**2,-sign*Four,Temp2,1,Temp1,1)
+Temp1(:,:) = -sign*Four*Temp2(:,:)
 call EXCH(js,is,js,is,ib,ib,Temp2,Scr)
-call DaXpY_(nBa**2,sign*Twelve,Temp2,1,Temp1,1)
+Temp1(:,:) = Temp1(:,:)+sign*Twelve*Temp2(:,:)
 i = ip-1
 do kB=nIsh(jS)+nAsh(jS)+1,nBas(jS)
   rOut(i+1) = rout(i+1)-ra

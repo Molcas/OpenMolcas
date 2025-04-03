@@ -70,7 +70,7 @@ if (nconf1 > 1) then
 
   end do
 else
-  call dcopy_(nconf1*nroots,[Zero],0,rout,1)
+  rout(1:nconf1*nroots) = Zero
 end if
 
 end subroutine DMinvCI_sa

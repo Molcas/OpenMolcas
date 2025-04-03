@@ -40,7 +40,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: G1t, G2t
 use MCLR_Data, only: nA
 use input_mclr, only: ntAsh, nSym, nAsh, nIsh, nRS1, nRS2, nRS3
-use Constants, only: Zero, One, Two, Four
+use Constants, only: One, Two, Four
 
 implicit none
 integer iC, iS, jS, nD, iR
@@ -67,7 +67,7 @@ iAA = iCC
 
 i = iTri(iAA,iCC)
 ! Construct for all active orbitals first
-call DCopy_(nTri_Elem(ntAsh),[Zero],0,Scr,1)
+Scr(1:nTri_Elem(ntAsh)) = 0
 Scr(i) = One
 !                                                                      *
 !***********************************************************************

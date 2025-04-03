@@ -211,7 +211,7 @@ do IDXTYP=1,NDXTYP
                 call NXTIJ(I,K,NI,NK,IKPSM,NONEW)
                 ISBOFF = 1+(IK-1)*NIBTC*NKBTC
                 IKOFF = (IK-1)*NKSTREF+1
-                if (SIGN == -One) call DSCAL_(NKSTREf,-One,XI1S(IKOFF),1)
+                if (SIGN == -One) XI1S(IKOFF:IKOFF+NKSTREF-1) = -XI1S(IKOFF:IKOFF+NKSTREF-1)
                 call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(IKOFF),XI1S(IKOFF))
               end do
             end if
@@ -232,7 +232,7 @@ do IDXTYP=1,NDXTYP
           ISBOFF = 1+(IK-1)*NIBTC*NKBTC
           IKOFF = (IK-1)*NKSTREF+1
           ! Well, someplace the minus must come in
-          if (SIGN == -One) call DSCAL_(NKSTREf,-One,XI1S(IKOFF),1)
+          if (SIGN == -One) XI1S(IKOFF:IKOFF+NKSTREF-1) = -XI1S(IKOFF:IKOFF+NKSTREF-1)
           call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(IKOFF),XI1S(IKOFF))
         end do
       end if

@@ -31,18 +31,18 @@ call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,ipS1,.true.)
 call ipin(ipS1)
 call ipin(ipCI)
 
-call DSCAL_(nroots*ncsf(STATE_SYM),Two,W(ipS1)%A,1)
-call mma_allocate(R,[0,nroots-1],[0,nroots-1],label='R')
+W(ipS1)%A(1:nroots*ncsf(STATE_SYM)) = Two*W(ipS1)%A(1:nroots*ncsf(STATE_SYM))
+call mma_allocate(R,nroots,nroots,label='R')
 
-do i=0,nroots-1
-  do j=0,nroots-1
-    R(i,j) = ddot_(nconf1,W(ipS1)%A(1+nconf1*i),1,W(ipCI)%A(1+nconf1*j),1)
+do i=1,nroots
+  do j=1,nroots
+    R(i,j) = ddot_(nconf1,W(ipS1)%A(1+nconf1*(i-1)),1,W(ipCI)%A(1+nconf1*(j-1)),1)
   end do
 end do
 
-do i=0,nroots-1
-  do j=0,nroots-1
-    call daxpy_(nconf1,-R(i,j),W(ipCI)%A(1+i*nconf1),1,W(ipS1)%A(1+j*nconf1),1)
+do i=1,nroots
+  do j=1,nroots
+    W(ipS1)%A((j-1)*nconf1+1:j*nconf1) = W(ipS1)%A((j-1)*nconf1+1:j*nconf1)-R(i,j)*W(ipCI)%A((i-1)*nconf1+1:i*nconf1)
   end do
 end do
 

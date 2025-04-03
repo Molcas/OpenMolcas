@@ -20,7 +20,7 @@ use CandS, only: ICSM, ISSM
 use input_mclr, only: TimeDep, nCSF
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 
 implicit none
 logical Response
@@ -115,17 +115,17 @@ if (nocsf == 0) then
       end do
 
     else
-      call dcopy_(n2dens,Pe,1,rp,1)
-      call dcopy_(n1dens,De,1,rD,1)
+      rp(1:n2dens) = Pe(:)
+      rD(1:n1dens) = De(:)
     end if
   else
-    call dcopy_(n2dens,Pe,1,rp,1)
-    call dcopy_(n1dens,De,1,rD,1)
+    rp(1:n2dens) = Pe(:)
+    rD(1:n1dens) = De(:)
     iCSM = iL
     iSSM = iR
     call Densi2_mclr(2,De,Pe,CIR,CIL,0,0,0,n1dens,n2dens)
-    call daxpy_(n2Dens,-One,Pe,1,rp,1)
-    call daxpy_(n1Dens,-One,De,1,rD,1)
+    rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
+    rD(1:n1Dens) = rD(1:n1Dens)-De(:)
   end if
   call mma_deallocate(CIL)
   call mma_deallocate(CIR)
@@ -158,19 +158,19 @@ else
         end do
       end do
     else
-      call dcopy_(n2dens,Pe,1,rp,1)
-      call dcopy_(n1dens,De,1,rD,1)
+      rp(1:n2dens) = Pe(:)
+      rD(1:n1dens) = De(:)
     end if
   else
-    call dcopy_(n2dens,Pe,1,rp,1)
-    call dcopy_(n1dens,De,1,rD,1)
+    rp(1:n2dens) = Pe(:)
+    rD(1:n1dens) = De(:)
     iCSM = iL
     iSSM = iR
     call ipin(iRS)
     call ipin(iLS)
     call Densi2_mclr(2,De,Pe,W(iRS)%A,W(iLS)%A,0,0,0,n1dens,n2dens)
-    call daxpy_(n2Dens,-One,Pe,1,rp,1)
-    call daxpy_(n1Dens,-One,De,1,rD,1)
+    rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
+    rD(1:n1Dens) = rD(1:n1Dens)-De(:)
   end if
 end if
 call mma_deallocate(Pe)

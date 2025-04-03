@@ -38,37 +38,37 @@ call mma_allocate(MT3,nmba,Label='MT3')
 call mma_allocate(Scr,ndensc,Label='Scr')
 
 call Oit_sp(rkappa,Scr,-1,-One,G2mp,One,Fm,G1m,FAMO_Spinm,MT1,MT2,Focki)
-!call DYAX(ndensc,rbetaA*Half,SCR,1,sigma,1)
-call DYAX(ndensc,One,SCR,1,sigma,1)
+!sigma(:) = rbetaA*Half*SCR(:)
+sigma(:) = SCR(:)
 call Recprt(' ',' ',SCR,ndensc,1)
 
 ! kappa_S
 
 call Oit_sp(rkappa,Scr,1,-One,G2mp,One,Fm,G1m,FAMO_Spinm,MT1,MT2,Focki)
-!call daxpy_(ndensc,-rbetaA*Half,SCR,1,sigma,1)
-call daxpy_(ndensc,-One,SCR,1,sigma,1)
+!sigma(:) = sigma(:)-rbetaA*Half*SCR(:)
+sigma(:) = sigma(:)-SCR(:)
 call Recprt(' ',' ',SCR,ndensc,1)
 
 ! alpha_S
 
 if (rbetas /= Zero) then
   call Oit_sp(rkappa,Scr,-1,One,G2pp,One,Fp,G1p,FAMO_Spinp,MT1,MT2,Focki)
-  !call daxpy_(ndensc,rbetaS,SCR,1,sigma,1)
-  call daxpy_(ndensc,One,SCR,1,sigma,1)
+  !sigma(:) = sigma(:)+rbetaS*Half*SCR(:)
+  sigma(:) = sigma(:)+SCR(:)
   call Recprt(' ',' ',SCR,ndensc,1)
 end if
 call Oit_sp(rkappa,Scr,-1,One,G2pp,One,G2mm,G1p,Famo_spinp,MT1,MT2,Focki)
-!call daxpy_(ndensc,ralphas,SCR,1,sigma,1)
+!sigma(:) = sigma(:)+ralphas*SCR(:)
 call Recprt(' ',' ',SCR,ndensc,1)
 
 call AddGrad_sp(rKappa,Scr,SFock,1,One,One)
 call Recprt(' ',' ',SCR,ndensc,1)
-call daxpy_(ndensc,rbetaA*Half,SCR,1,sigma,1)
+sigma(:) = sigma(:)+rbetaA*Half*SCR(:)
 
-call DZAXPY(nmba,One,MT1,1,MT2,1,MT3,1)
+MT3(:) = MT1(:)+MT2(:)
 call PickMO_MCLR(MT3,rmos,1)
 
-call DZAXPY(nmba,-One,MT2,1,MT1,1,MT3,1)
+MT3(:) = MT1(:)-MT2(:)
 call PickMO_MCLR(MT3,rmoa,1)
 
 call mma_deallocate(Scr)

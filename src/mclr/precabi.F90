@@ -76,7 +76,7 @@ do kS=1,nSym
       call Exch(jS,kS,jS,kS,kkA,llA,A_K,Scr)
 
       do jB=1,nIsh(jS)
-        ip = nTri-iTri(nd-jB+1,jVert)+1
+        ip = nTri-iTri(nd-jB+1,jVert)
 
         Fact1 = -Two*G2t(iTri(itAA,iTri(kAA,lAA)))
         Fact2 = -Four*G2t(iTri(iTri(iAA,kAA),iTri(iAA,lAA)))
@@ -85,9 +85,8 @@ do kS=1,nSym
         if (laa == iaa) Fact1 = Fact1-Two*G1t(iTri(iAA,kAA))
         if (laa == iaa) Fact2 = Fact2-Two*G1t(iTri(iAA,kAA))
 
-        ivj = (jB-1)*nBas(jS)+no+1
-        call DaXpY_(jVert,Sign*Fact1,A_J(ivj),1,rout(ip),1) ! ????
-        call DaXpY_(jVert,Sign*Fact2,A_K(ivj),1,rout(ip),1)
+        ivj = (jB-1)*nBas(jS)+no
+        rout(ip+1:ip+jVert) = rout(ip+1:ip+jVert)+Sign*(Fact1*A_J(ivj+1:ivj+jVert)+Fact2*A_K(ivj+1:ivj+jVert))
 
       end do
 
@@ -98,11 +97,9 @@ end do
 !***********************************************************************
 !                                                                      *
 do jB=1,nIsh(jS)
-  ip = nTri-iTri(nd-jB+1,jVert)+1
+  ip = nTri-iTri(nd-jB+1,jVert)
   Fact = (Two-Two*G1t(itAA))
-  call DaxPy_(jVert,Sign*Fact,FockI(nO+1,jB),1,rOut(ip),1)
-  Fact = Two
-  call DaxPy_(jVert,Sign*Fact,FockA(nO+1,jB),1,rOut(ip),1)
+  rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+Sign*(Fact*FockI(nO+1:nO+jVert,jB)+Two*FockA(nO+1:nO+jVert,jB))
 end do
 !                                                                      *
 !***********************************************************************

@@ -57,7 +57,7 @@ do I=1,NELMNT
   IOUTST(I) = IINST(I)
 end do
 
-!call iCOPY(NELMNT,IINST,1,IOUTST,1)
+!IOUTST(:) = IINST(:)
 !ISIGN = 1
 
 !JOE = 1

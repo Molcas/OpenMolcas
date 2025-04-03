@@ -22,7 +22,7 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
-use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI, nAcPar, nNA, nAcPr2, ipMat
+use MCLR_Data, only: nConf1, nDens2, nDensC, ipCI, nAcPar, nNA, nAcPr2, ipMat
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: ISNAC, IRLXROOT, NACSTATES
 use MCLR_Data, only: LuTemp
@@ -242,19 +242,19 @@ do iDisp=1,nDisp
   call ipin(ipCI)
   do i=0,nroots-1
     if (i == troot) then
-      call Dscal_(nconf1,(1/weight(i+1)),W(ipST)%A(1+i*nconf1),1)
+      W(ipST)%A(i*nconf1+1:(i+1)*nconf1) = W(ipST)%A(i*nconf1+1:(i+1)*nconf1)/weight(i+1)
       rE = ddot_(nconf1,W(ipST)%A(1+i*nconf1),1,W(ipCI)%A(1+i*nconf1),1)
-      call Daxpy_(nconf1,-rE,W(ipCI)%A(1+i*nconf1),1,W(ipST)%A(1+i*nconf1),1)
+      W(ipST)%A(i*nconf1+1:(i+1)*nconf1) = W(ipST)%A(i*nconf1+1:(i+1)*nconf1)-rE*W(ipCI)%A(i*nconf1+1:(i+1)*nconf1)
 
     else
-      call dcopy_(nConf1,[Zero],0,W(ipst)%A(1+i*nconf1),1)
+      W(ipst)%A(i*nconf1+1:(i+1)*nconf1) = Zero
     end if
   end do
 
-  call DSCAL_(nconf1*nroots,-Two,W(ipST)%A,1)
+  W(ipST)%A(1:nconf1*nroots) = -Two*W(ipST)%A(1:nconf1*nroots)
 
   ! scaling the CI resp. for PDFT part in HMC-PDFT
-  if (Do_Hybrid) call DScal_(nconf1*nroots,PDFT_Ratio,W(ipST)%A,1)
+  if (Do_Hybrid) W(ipST)%A(1:nconf1*nroots) = PDFT_Ratio*W(ipST)%A(1:nconf1*nroots)
 
   if (debug) then
     write(u6,*) 'RHS CI part:'
@@ -278,14 +278,13 @@ do iDisp=1,nDisp
     if (nBas(is)*nBas(jS) /= 0) &
       call DGeSub(FT99(ipMat(iS,jS)),nBas(iS),'N',FT99(ipMat(jS,iS)),nBas(jS),'T',Temp5(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
   end do
-  call dcopy_(nDens2+6,Temp5,1,Temp4,1)
-  call DSCAL_(ndens2+6,-Two,Temp4,1)
+  Temp4(:) = -Two*Temp5(:)
 
   call mma_deallocate(FT99)
   call mma_deallocate(Temp5)
   if (Do_Hybrid) then
     ! scaling the orb resp. for PDFT part in HMC-PDFT
-    call DSCAL_(ndens2,PDFT_Ratio,Temp4,1)
+    Temp4(1:nDens2) = PDFT_Ratio*Temp4(1:nDens2)
     ! calculating the orb resp. for WF part in HMC-PDFT
     call mma_allocate(WForb,nDens2+6,Label='WForb')
     ! saving Fock matrix for PDFT part in HMC-PDFT
@@ -294,7 +293,7 @@ do iDisp=1,nDisp
     ! note that the Fock matrix will be overwritten with the wf one
     ! ini rhs_sa
     call rhs_sa(WForb,rDum)
-    call dAXpY_(nDens2,WF_Ratio,WForb,1,Temp4,1)
+    Temp4(1:nDens2) = Temp4(1:nDens2)+WF_Ratio*WForb(1:nDens2)
     call mma_deallocate(WForb)
   end if
 
@@ -316,21 +315,17 @@ do iDisp=1,nDisp
     call Get_dArray_chk('FockOcc',FOsq,nDens2)
 
     ! scaling fock for wf part
-    call DScal_(nTri,WF_Ratio,FOsq,1)
-
     ! adding fock for pdft part
-    call daxpy_(ntri,pdft_ratio,fotr,1,fosq,1)
+    FOsq(1:nTri) = WF_Ratio*FOsq(1:nTri)+PDFT_Ratio*FOtr(:)
 
     call mma_allocate(P2PDFT,nG2,Label='P2PDFT')
     call mma_allocate(P2WF,nG2,Label='P2WF')
 
     call Get_dArray_chk('P2MOt',P2PDFT,nG2)
-    ! scaling P2 for pdft part'
-    call DScal_(nG2,PDFT_Ratio,P2PDFT,1)
-
     call Get_dArray_chk('P2mo',P2WF,nG2)
+    ! scaling P2 for pdft part'
     ! adding P2 for wf part'
-    call daxpy_(ng2,wf_ratio,P2WF,1,P2PDFT,1)
+    P2PDFT(:) = PDFT_Ratio*P2PDFT(:)+WF_Ratio*P2WF(:)
 
     call Put_dArray('P2MOt',P2PDFT,nG2)
 
@@ -343,14 +338,11 @@ do iDisp=1,nDisp
 
   else
     call mma_allocate(FOSq,nDens2,Label='FOSq')
-    call mma_allocate(FOTr,nTri,Label='FOTr')
     FOSq(:) = Zero
-    call Get_dArray_chk('FockOcc',FOTr,nTri)
-    call dcopy_(nTri,FOtr,1,FOSq,1)
+    call Get_dArray_chk('FockOcc',FOSq,nTri)
     call Put_dArray('FockOcc',FOSq,ndens2)
 
     call mma_deallocate(FOSq)
-    call mma_deallocate(FOTr)
   end if
 
   ! This seems to calculate the RHS, at least for the orbital part.
@@ -374,11 +366,11 @@ do iDisp=1,nDisp
   call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
   call ipIn(ipCIT)
-  call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%A,1)
+  W(ipCIT)%A(1:nConf1*nroots) = Zero
   call ipIn(ipCID)
-  call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%A,1)
+  W(ipCID)%A(1:nConf1*nroots) = Zero
   call ipOut(ipCIT)
-  call DSCAL_(nDensC,-One,Sigma,1)
+  Sigma(1:nDensC) = -Sigma(1:nDensC)
 
   deltaC = Zero
   !AMS _________________________________________________________
@@ -389,13 +381,13 @@ do iDisp=1,nDisp
   end if
   call ipin(ipST)
   call ipin(ipCId)
-  call dcopy_(nconf1*nroots,W(ipST)%A,1,W(ipCId)%A,1)
+  W(ipCId)%A(1:nconf1*nroots) = W(ipST)%A(1:nconf1*nroots)
   !*******************
   !TRS
   call mma_allocate(lmroots,nroots,Label='lmroots')
   call mma_allocate(lmroots_new,nroots,Label='lmroots_new')
   call mma_allocate(kap_new,ndensc,Label='kap_new')
-  call mma_allocate(kap_new_temp,ndens,Label='kap_new_temp')
+  call mma_allocate(kap_new_temp,ndensc,Label='kap_new_temp')
 
   Kap_New(:) = Zero
   Kap_New_Temp(:) = Zero
@@ -447,15 +439,15 @@ do iDisp=1,nDisp
   ! Modifying the response
   call ipIn(ipS1)
   call ipIn(ipST)
-  call DaXpY_(nConf1*nroots,-One,W(ipS1)%A,1,W(ipST)%A,1)
+  W(ipST)%A(1:nConf1*nroots) = W(ipST)%A(1:nConf1*nroots)-W(ipS1)%A(1:nConf1*nroots)
 
   ! Kap part put into  sigma
-  call DaxPy_(nDensC,-One,kap_new_temp,1,Sigma,1)
+  Sigma(1:nDensC) = Sigma(1:nDensC)-kap_new_temp(:)
   call ipIn(ipCId)
   call ipIn(ipCIT)
-  call DaXpY_(nConf1*nroots,One,W(ipCId)%A,1,W(ipCIT)%A,1)
+  W(ipCIT)%A(1:nConf1*nroots) = W(ipCIT)%A(1:nConf1*nroots)+W(ipCId)%A(1:nConf1*nroots)
 
-  call dcopy_(nconf1*nroots,W(ipST)%A,1,W(ipCId)%A,1)
+  W(ipCId)%A(1:nconf1*nroots) = W(ipST)%A(1:nconf1*nroots)
 
   call opOut(ipci)
   call opOut(ipdia)
@@ -534,19 +526,19 @@ do iDisp=1,nDisp
     !------------------------------------------------------------------*
 
     ! Kappa=Kappa+rAlpha*dKappa
-    call DaxPy_(nDensC,ralpha,dKappa,1,Kappa,1)
+    Kappa(1:nDensC) = Kappa(1:nDensC)+ralpha*dKappa(1:nDensC)
     ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-    call DaxPy_(nDensC,-ralpha,Temp4,1,Sigma,1)
+    Sigma(1:nDensC) = Sigma(1:nDensC)-ralpha*Temp4(1:nDensC)
     resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
 
     resci = Zero
     call ipIn(ipCIT)
-    call DaXpY_(nConf1*nroots,ralpha,W(ipCId)%A,1,W(ipCIT)%A,1)
+    W(ipCIT)%A(1:nConf1*nroots) = W(ipCIT)%A(1:nConf1*nroots)+ralpha*W(ipCId)%A(1:nConf1*nroots)
     call ipOut(ipCIT)
     ! ipST =ipST -rAlpha*ipS1         ipST=RHS-A*ipCIT
     call ipIn(ipS1)
     call ipIn(ipST)
-    call DaXpY_(nConf1*nroots,-ralpha,W(ipS1)%A,1,W(ipST)%A,1)
+    W(ipST)%A(1:nConf1*nroots) = W(ipST)%A(1:nConf1*nroots)-ralpha*W(ipS1)%A(1:nConf1*nroots)
     call opOut(ipS1)
     resci = sqrt(ddot_(nconf1*nroots,W(ipST)%A,1,W(ipST)%A,1))
 
@@ -586,18 +578,15 @@ do iDisp=1,nDisp
     if (.not. CI) then
       rBeta = deltaK/delta
       delta = deltaK
-      call DScal_(nDensC,rBeta,dKappa,1)
-      call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
+      dKappa(1:nDensC) = rBeta*dKappa(1:nDensC)+Sc2(1:nDensC)
     else
       rbeta = (deltac+deltaK)/delta
       delta = deltac+deltaK
 
       call ipIn(ipCID)
-      call DScal_(nConf1*nroots,rBeta,W(ipCID)%A,1)
-      call DScal_(nDensC,rBeta,dKappa,1)
       call ipIn(ipS2)
-      call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCID)%A,1)
-      call DaXpY_(nDensC,One,Sc2,1,dKappa,1)
+      W(ipCID)%A(1:nConf1*nroots) = rBeta*W(ipCID)%A(1:nConf1*nroots)+W(ipS2)%A(1:nConf1*nroots)
+      dKappa(1:nDensC) = rBeta*dKappa(1:nDensC)+Sc2(1:nDensC)
       call opOut(ipS2)
       call ipOut(ipCID)
     end if
@@ -652,7 +641,7 @@ do iDisp=1,nDisp
       write(u6,*) Kappa(i)
     end do
     call ipin(ipCIT)
-    !call dcopy_(nconf1*nroots,Zero,0,W(ipCIT)%A,1)
+    !W(ipCIT)%A(1:nconf1*nroots) = Zero
     write(u6,*) 'cit'
     do i=1,nconf1*nroots
       write(u6,*) W(ipCIT)%A(i)

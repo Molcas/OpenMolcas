@@ -14,11 +14,11 @@
 subroutine TimesE2(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
-use MCLR_Data, only: nConf1, n2Dens, nDens, nDens2
+use MCLR_Data, only: nConf1, n2Dens, nDens2
 use input_mclr, only: nRoots, nAsh, nRS2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 
 implicit none
 real*8 Kap(*)
@@ -49,20 +49,20 @@ call Kap_CI(Temp4,nDens2,rmoaa,n2Dens,ipCIOUT)
 call Ci_Ci(ipcid,ipS2)
 call CI_KAP(ipCid,Sc1,Sc3,isym)
 
-call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
+Sc1(:) = Sc2(:)+Sc3(:)
 
 call Compress(Sc1,KapOut,isym)   ! ds
 !call RecPrt('Ex',' ',KapOut,ndensC,1)
 
 call ipin(ipS2)
 call ipin(ipCIOUT)
-call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCIOUT)%A,1)
+W(ipCIOUT)%A(1:nConf1*nroots) = W(ipCIOUT)%A(1:nConf1*nroots)+W(ipS2)%A(1:nConf1*nroots)
 call opOut(ipCId)
 ! This is also orthogonalization of the solution vector
 !do iR=1,nroots
 !  do jR=1,nroots
 !    ovl = ddot_(nconf1,W(ipciout)%A(iR),1,W(ipci)%A(jR),1)
-!    call daxpy_(nconf1,-ovl,W(ipci)%A(jR),1,W(ipciout)%A(iR),1)
+!    W(ipciout)%A(iR:iR+nconf1-1) = W(ipciout)%A(iR:iR+nconf1-1)-ovl*W(ipci)%A(jR:JR+nconf1-1)
 !  end do
 !end do
 

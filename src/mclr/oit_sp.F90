@@ -16,7 +16,7 @@ subroutine oit_sp(rkappa,sigma,i1,r3,p11,r4,p12,D,FA,rm1,rm2,focki)
 ! Constructs  F  = <0|[Q  ,H]|0>
 !              pq       pq
 
-use MCLR_Data, only: nDensC, nDens2, nNA, ipMat, nA, nDens, nMBA
+use MCLR_Data, only: nDensC, nDens2, nNA, ipMat, nA, nMBA
 use input_mclr, only: nSym, nAsh, nBas, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -41,16 +41,16 @@ call mma_allocate(FAtemp,ndens2,Label='FAtemp')
 call mma_allocate(Fock,ndens2,Label='Fock')
 call mma_allocate(Q,ndens2,Label='Q')
 call mma_allocate(Q1,ndens2,Label='Q1')
-call dcopy_(nmba,[Zero],0,rm1,1)
-call dcopy_(nmba,[Zero],0,rm2,1)
-call dcopy_(ndens2,[Zero],0,Focki,1)
+rm1(1:nmba) = Zero
+rm2(1:nmba) = Zero
+Focki(1:ndens2) = Zero
 Q(:) = Zero
 Q1(:) = Zero
 call Unc(rkappa,K,isym,r1)
 
 call R2ElInt_SP(K,rm1,rm2,FockI,FAtemp,iSym,ReCo,Fact,jspin,D,FA)
 
-call dcopy_(ndens2,[Zero],0,Fock,1)
+Fock(:) = Zero
 
 ! Q  = sum(jkl)=(pj|kl)d(ijkl)
 !  pi
@@ -58,12 +58,12 @@ call dcopy_(ndens2,[Zero],0,Fock,1)
 ! <o|E(S)  E- E(S) |o>(pb|cd)
 !        ab cd    ad
 call CreQ_sp(Q,rm1,P11,isym)
-call DSCAL_(ndens,r3,Q,1)
+Q(:) = r3*Q(:)
 
 ! <o|E(S)  E- E(S) |o>(pb|cd)
 !        ab cd   ad
 call CreQ_sp(Q1,rm2,p12,isym)
-call daxpy_(ndens,r4,Q1,1,Q,1)
+Q(:) = Q(:)+r4*Q1(:)
 
 do iS=1,nSym
 
@@ -71,7 +71,8 @@ do iS=1,nSym
   ! F  =2 F
   !  pi    pi
 
-  call DaXpY_(nIsh(is)*nBas(is),-r1*Two,FAtemp(ipMat(is,is)),1,Fock(ipMat(is,is)),1)
+  Fock(ipMat(is,is):ipMat(is,is)+nIsh(is)*nBas(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nIsh(is)*nBas(is)-1)- &
+                                                        r1*Two*FAtemp(ipMat(is,is):ipMat(is,is)+nIsh(is)*nBas(is)-1)
 
   do iAsh=1,nAsh(iS)
     do jAsh=1,nAsh(is)
@@ -84,18 +85,20 @@ do iS=1,nSym
       ! F  = F + F  D
       !  pa   pa  pb ab
 
-      call DaXpY_(nBas(is),-r1*Dij,FockI(ipFI1),1,Fock(ipF1),1)
-      call DaXpY_(nIsh(is),-Dij,FockI(ipFI1),1,Fock(ipF2),nbas(is))
+      Fock(ipF1:ipF1+nBas(is)-1) = Fock(ipF1:ipF1+nBas(is)-1)-r1*Dij*FockI(ipFI1:ipFI1+nBas(is)-1)
+      Fock(ipF2:ipF2+nIsh(is)*nBas(is)-1:nBas(is)) = Fock(ipF2:ipF2+nIsh(is)*nBas(is)-1:nBas(is))-Dij*FockI(ipFI1:ipFI1+nIsh(is)-1)
     end do
   end do
 
   ! F  = F  + Q
   !  pa   pa   pa
 
-  call DaXpY_(nAsh(is)*nBas(is),-r1,Q(nbas(is)*nish(is)+ipMat(is,is)),1,Fock(ipMat(is,is)+nBas(is)*nIsh(is)),1)
-  do iA=nish(is),nish(is)+nAsh(is)-1
-    call DaXpY_(nBas(is),-One,Q(nbas(is)*ia+ipMat(is,is)),1,Fock(ipMat(is,is)+iA),nbas(is))
-
+  ipF1 = ipMat(is,is)+nBas(is)*nIsh(is)
+  ipF2 = ipMat(is,is)+nBas(is)*(nIsh(is)+nAsh(is))-1
+  Fock(ipF1:ipF2) = Fock(ipF1:ipF2)-r1*Q(ipF1:ipF2)
+  do iA=nIsh(is),nIsh(is)+nAsh(is)-1
+    Fock(ipMat(is,is)+iA:ipMat(is,is)+iA+nBas(is)**2-1:nBas(is)) = &
+      Fock(ipMat(is,is)+iA:ipMat(is,is)+iA+nBas(is)**2-1:nBas(is))-Q(ipMat(is,is)+nBas(is)*iA:ipMat(is,is)+nBas(is)*(iA-1)-1)
   end do
 end do
 

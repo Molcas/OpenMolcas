@@ -33,13 +33,13 @@ real*8 Tot_Nuc_Charge, Tot_El_Charge, Tot_Charge, ExFac
 
 iRc = -1
 iOpt = ibset(0,sOpSiz)
-ndens2 = 0
-iisym = 2**0
+nDens2 = 0
 do iS=1,nSym
-  nDens2 = nDens2+Nbas(is)**2
+  nDens2 = nDens2+nBas(iS)**2
 end do
 Label = 'ONEHAM'
 iComp = 1
+iisym = ibset(0,0)
 call iRdOne(iRc,iOpt,Label,iComp,idum,iisym)
 leng = idum(1)
 if (iRC /= 0) then
@@ -47,7 +47,6 @@ if (iRC /= 0) then
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
-iisym = 2**0
 iRc = -1
 iOpt = 0
 call mma_allocate(Int1,ndens2,Label='Int1')
@@ -109,11 +108,11 @@ if (Do_ESPF .or. lRF) then
   ! Don't care about the last arguments: no (CAS-)DFT here I guess)
 
   call DrvXV(Htmp,Gtmp,D1ao,PotNuc,leng,First,Dff,NonEq,lRF,'SCF',ExFac,iCharge,iSpin,'1234',Do_DFT)
-  call Daxpy_(leng,One,Htmp,1,Temp1,1)
+  Temp1(1:leng) = Temp1(1:leng)+Htmp(:)
 
   ! Hum, where the hell is FI (Fock Inactive) ???
 
-  !call Daxpy_(leng,One,Gtmp,1,FI,1)
+  !FI(:) = FI(:)+Gtmp(:)
   call mma_deallocate(Gtmp)
   call mma_deallocate(Htmp)
   call mma_deallocate(D1ao)

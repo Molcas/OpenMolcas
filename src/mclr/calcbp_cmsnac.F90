@@ -21,30 +21,27 @@ use ipPage, only: W
 use MCLR_Data, only: nConf1, ipCI
 use MCLR_Data, only: NACSTATES
 use input_mclr, only: nRoots
+use Constants, only: Two
 
 implicit none
 ! Output
-real*8, dimension(nConf1*nRoots) :: bP
+real*8, dimension(nConf1,nRoots) :: bP
 ! Input
-real*8, dimension(nRoots*nConf1) :: CSFOK
-real*8, dimension(nRoots**2) :: LOK
-real*8, dimension(nRoots**2) :: R
+real*8, dimension(nConf1,nRoots) :: CSFOK
+real*8, dimension(nRoots,nRoots) :: LOK
+real*8, dimension(nRoots,nRoots) :: R
 ! Kind quantities that help
-integer I, J, L, K, iLoc1, iLoc2
-real*8 tempd
+integer I, J, L, K
 
+bP(:,:) = CSFOK(:,:)
 I = NACstates(1)
 J = NACstates(2)
 do K=1,nRoots
-  iLoc1 = (K-1)*nConf1+1
-  call DCopy_(nConf1,CSFOK(iLoc1),1,bP(iLoc1),1)
   do L=1,nRoots
-    tempd = -LOK((K-1)*nRoots+L)
-    iLoc2 = (L-1)*nConf1+1
-    call dAXpY_(nConf1,tempd,W(ipci)%A(iLoc2),1,bP(iLoc1),1)
+    bP(:,K) = bP(:,K)-LOK(L,K)*W(ipci)%A((L-1)*nConf1+1:L*nConf1)
   end do
 
-  call DScal_(nConf1,2*R((J-1)*nRoots+K)*R((I-1)*nRoots+K),bP(iLoc1),1)
+  bP(:,K) = Two*R(K,J)*R(K,I)*bP(:,K)
 
 end do
 

@@ -45,8 +45,8 @@ do i=1,lroots
   call dDaFile(LUJOB,2,D2t,ND2,jDisk)
   call dDaFile(LUJOB,0,rdum,ND2,jDisk)
   if (W /= Zero) then
-    call daxpy_(nd2,w,D2t,1,G2tt,1)
-    call daxpy_(nd1,w,D1t,1,D1,1)
+    G2tt(:) = G2tt(:)+w*D2t(:)
+    D1(:) = D1(:)+w*D1t(:)
   end if
   !write(u6,*) i,w,'LUJOB',LUJOB
   !call Triprt('D',' ',D1,ntash)

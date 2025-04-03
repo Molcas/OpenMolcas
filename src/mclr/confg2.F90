@@ -79,7 +79,7 @@ outer: do NOP=MINOP,MAXOP,2
 # endif
 
   ! first combination of double occupied orbitals
-  call iCOPY(NORB,[0],0,IIOC,1)
+  IIOC(1:NORB) = 0
   do ICL=1,NCL
     IICL(ICL) = ICL
     IIOC(ICL) = 2

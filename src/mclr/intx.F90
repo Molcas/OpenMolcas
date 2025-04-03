@@ -14,7 +14,7 @@ subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t, CMO
-use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB, nDens
+use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB
 use MCLR_Data, only: DspVec, SWLbl
 use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh, nOrb, nTPert
 use Constants, only: Zero, One, Two
@@ -26,7 +26,7 @@ integer lOper, iDisp
 character(len=8) Label
 integer jDisp, iOp, iRC, iOpt, iS, jS
 real*8 rde
-integer i, j
+integer i, j, iOff, jOff
 
 !***********************************************************************
 if (nDens2 == 0) return
@@ -100,10 +100,10 @@ if (btest(ntpert(idisp),2)) then   ! 2 el contribution
         write(u6,'(A,A)') 'Label=',Label
         call Abend()
       end if
-      call dcopy_(ndens2,[Zero],0,fock,1)
+      Fock(:) = Zero
       do iS=1,nSym
         js = Mul(is,loper+1)
-        call Dyax(nOrb(is)*nIsh(js),Two,Focki(ipMat(is,js)),1,Fock(ipMat(is,js)),1)
+        Fock(ipMat(is,js):ipMat(is,js)+nOrb(is)*nIsh(js)-1) = Two*Focki(ipMat(is,js):ipMat(is,js)+nOrb(is)*nIsh(js)-1)
       end do
     end if
   end if
@@ -138,11 +138,11 @@ if (btest(nTPert(iDisp),1)) then ! 1 el contribution
       write(u6,'(A,A)') 'Label=',Label
       call Abend()
     end if
-    call DSCAL_(ndens2,One,Temp1,1)
   end if
 end if
 
-call dcopy_(nDens,[Zero],0,Temp2,1)
+Temp2(:) = Zero
+
 do iS=1,nSym
   do jS=1,is
     if (nBas(is)*nBas(js) /= 0) then
@@ -150,7 +150,7 @@ do iS=1,nSym
         if (is == js) then
           call Square(Temp1(ipMatLt(iS,jS)),Temp4,1,nBas(is),nBas(is))
         else
-          call dcopy_(nBas(iS)*nBas(jS),temp1(ipMatLT(iS,Js)),1,Temp4,1)
+          Temp4(1:nBas(iS)*nBas(jS)) = Temp1(ipMatLT(iS,Js):ipMatLT(iS,Js)+nBas(iS)*nBas(jS)-1)
         end if
         call DGEMM_('T','N',nOrb(iS),nBas(jS),nBAs(iS),One,CMO(ipCM(iS)),nBas(is),Temp4,nBas(iS),Zero,Temp3,nOrb(iS))
         call DGEMM_('N','N',nOrb(is),nB(jS),nBas(jS),One,Temp3,nOrb(iS),CMO(ipCM(jS)),nBas(jS),Zero,Temp2(ipMat(iS,jS)),nOrb(iS))
@@ -164,7 +164,7 @@ do iS=1,nSym
   end do
 end do
 
-call dcopy_(ndens2,[Zero],0,Temp3,1)
+Temp3(:) = Zero
 do iS=1,nSym
   js = Mul(is,loper+1)
   if (nOrb(js) < 1) cycle
@@ -175,9 +175,11 @@ do iS=1,nSym
       else if ((i > nish(is)) .and. (j > nish(is))) then
         rde = G1t(iTri(i-nIsh(is)+nA(is),j-nIsh(is)+nA(is)))
       else
-        rde = Zero
+        cycle
       end if
-      if (rde /= Zero) call DaXpY_(nOrb(js),rDe,Temp2(ipMat(js,is)+(j-1)*nOrb(js)),1,Temp3(ipMat(js,is)+(i-1)*nOrb(js)),1)
+      iOff = ipMat(js,is)+(i-1)*nOrb(js)
+      jOff = ipMat(js,is)+(j-1)*nOrb(js)
+      Temp3(iOff:iOff+nOrb(js)-1) = Temp3(iOff:iOff+nOrb(js)-1)+rDe*Temp2(jOff:jOff+nOrb(js)-1)
     end do
   end do
 end do
@@ -190,11 +192,11 @@ end do
 !----------------------------------------------------------------------*
 
 if (btest(ntpert(idisp),2)) then
-  call daxpy_(nDens2,One,Temp2,1,Focki,1)
-  call daxpy_(nDens2,One,Temp3,1,Fock,1)
+  Focki(:) = Focki(:)+Temp2(:)
+  Fock(:) = Fock(:)+Temp3(:)
 else
-  call dcopy_(ndens2,Temp2,1,FockI,1)
-  call dcopy_(ndens2,Temp3,1,Fock,1)
+  FockI(:) = Temp2(:)
+  Fock(:) = Temp3(:)
 end if
 
 end subroutine INTX

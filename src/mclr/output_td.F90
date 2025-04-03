@@ -285,7 +285,7 @@ if (iMethod == 2) call ipclose(-1)
 ! If a basis set is dependent on perturbation add terms
 ! constructed in mckinley.
 
-call dcopy_(6,[Zero],0,pola,1)
+pola(:) = Zero
 elec_On = .false.
 if (Mckinley) then
   idum = 1
@@ -296,7 +296,7 @@ if (Mckinley) then
   elec_On = .true.
   if (irc /= 0) elec_On = .false.
 end if
-call dcopy_(nHss,Hss,1,Hess2,1)
+Hess2(:) = Hss(:)
 if (debug) then
   ip = 1
   do iSym=1,nSym
@@ -314,7 +314,7 @@ end if
 !call recprt('rhss',' ',RHss,nHss,1)
 !call recprt('hess',' ',Hess,nHss,1)
 
-call DaXpY_(mSym,One,RHss,1,Hess2,1)
+Hess2(1:mSym) = Hess2(1:mSym)+RHss(1:mSym)
 
 if (debug) then
   call MMSORT2(RHSS,ELEC,pola,ielec)
@@ -355,7 +355,7 @@ if (McKinley) then
       ip = ip+nTri_Elem(ldisp2(isym))
     end do
   end if
-  call DaXpY_(mSym,One,Temp,1,Hess,1)
+  Hess(1:mSym) = Hess(1:mSym)-Temp(1:mSym)
 end if
 if (debug) then
   ip = 1
@@ -399,7 +399,7 @@ if (iRC /= 0) then
   write(u6,*)
 end if
 if (debug) call HssPrt_MCLR(DegDisp,Hess,ldisp2)
-call daxpy_(3*ndisp,-One,EG,1,ELEC,1)
+ELEC(:) = ELEC(:)-EG(:)
 if (debug .and. elec_On) call Recprt('ELEC-ST',' ',EG,3*nDisp,1)
 if (debug .and. elec_On) call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
 
@@ -427,7 +427,7 @@ call Add_Info('TimeDep_Pol',Pola,6,2)
 ! Go from energy derivative to polarizability, there is a difference
 ! in the sign in the definition.
 
-call DScal_(6,-One,Pola,1)
+Pola(:) = -Pola(:)
 
 call TriPrt(' ',' ',Pola,3)
 close(Lu_10)

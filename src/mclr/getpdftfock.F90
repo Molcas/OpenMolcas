@@ -27,22 +27,19 @@ implicit none
 ! Output
 real*8, dimension(nDens2) :: bk
 ! Auxiliaries
-real*8, dimension(:), allocatable :: T, FT99, bktmp
+real*8, dimension(:), allocatable :: T, bktmp
 integer IS, JS
 
-call mma_allocate(FT99,nDens2)
 call mma_allocate(bktmp,nDens2)
 call mma_allocate(T,nDens2)
-call Get_DArray('FxyMS',FT99,nDens2)
-call dcopy_(nDens2,FT99,1,T,1)
+call Get_DArray('FxyMS',T,nDens2)
 do IS=1,nSym
   jS = Mul(iS,1)
   if (nBas(is)*nBas(jS) /= 0) &
     call DGeSub(T(ipMat(iS,jS)),nBas(iS),'N',T(ipMat(jS,iS)),nBas(jS),'T',bktmp(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
 end do
-call daxpy_(nDens2,-Two,bktmp,1,bk,1)
+bk(:) = bk(:)-Two*bktmp(:)
 call mma_deallocate(T)
-call mma_deallocate(FT99)
 call mma_deallocate(bktmp)
 
 end subroutine GetPDFTFock

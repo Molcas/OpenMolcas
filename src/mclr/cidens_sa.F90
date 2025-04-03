@@ -73,8 +73,8 @@ end if
 
 call mma_allocate(De,n1dens,Label='De')
 call mma_allocate(Pe,n2dens,Label='Pe')
-call dcopy_(n1dens,[Zero],0,rD,1)
-call dcopy_(n2dens,[Zero],0,rP,1)
+rD(1:n1dens) = Zero
+rP(1:n2dens) = Zero
 
 nConfL = max(ncsf(il),nint(xispsm(il,1)))
 nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
@@ -82,12 +82,12 @@ nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
 call mma_allocate(CIL,nConfL,Label='CIL')
 call mma_allocate(CIR,nConfR,Label='CIR')
 
-do i=0,nroots-1
+do i=1,nroots
   call ipin(iLS)
   call ipin(iRS)
-  call CSF2SD(W(iLS)%A(1+i*ncsf(il)),CIL,iL)
+  call CSF2SD(W(iLS)%A(1+(i-1)*ncsf(il)),CIL,iL)
   call opout(iLS)
-  call CSF2SD(W(iRS)%A(1+i*ncsf(ir)),CIR,iR)
+  call CSF2SD(W(iRS)%A(1+(i-1)*ncsf(ir)),CIR,iR)
   call opout(iRS)
   call ipnout(-1)
   icsm = iR
@@ -103,7 +103,7 @@ do i=0,nroots-1
             ij2 = nna*(ja-1)+ia
             kl1 = nnA*(ka-1)+la
             kl2 = nna*(la-1)+ka
-            if (ij1 >= kl1) rp(iTri(ij1,kl1)) = rp(iTri(ij1,kl1))+weight(1+i)*(Pe(iTri(ij1,kl1))+Pe(iTri(ij2,kl2)))
+            if (ij1 >= kl1) rp(iTri(ij1,kl1)) = rp(iTri(ij1,kl1))+weight(i)*(Pe(iTri(ij1,kl1))+Pe(iTri(ij2,kl2)))
           end do
         end do
       end do
@@ -112,12 +112,12 @@ do i=0,nroots-1
       do jA=1,nnA
         ij1 = nnA*(iA-1)+ja
         ij2 = nna*(ja-1)+ia
-        rD(ij1) = rD(ij1)+weight(1+i)*(De(ij1)+De(ij2))
+        rD(ij1) = rD(ij1)+weight(i)*(De(ij1)+De(ij2))
       end do
     end do
   else
-    call daxpy_(n2dens,weight(i+1),Pe,1,rp,1)
-    call daxpy_(n1dens,Weight(i+1),De,1,rD,1)
+    rp(1:n2dens) = rp(1:n2dens)+weight(i)*Pe(:)
+    rD(1:n1dens) = rD(1:n1dens)+weight(i)*De(:)
   end if
 end do
 

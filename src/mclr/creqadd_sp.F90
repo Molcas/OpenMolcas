@@ -53,7 +53,7 @@ do iS=1,nSym
                 ipM = (jAA-1)*nOrb(ipS)+1
 
                 rd = G2(iAsh+na(is),jAsh+na(js),kAsh+na(ks),lash+na(ls))
-                call daxpy_(nOrb(ipS),rd,Temp(ipM),1,Q(ipQ),1)
+                Q(ipQ:ipQ+nOrb(ipS)-1) = Q(ipQ:ipQ+nOrb(ipS)-1)+rd*Temp(ipM:ipM+nOrb(ipS)-1)
               end do
             end do
           end do

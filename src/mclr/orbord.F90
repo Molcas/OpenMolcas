@@ -239,7 +239,7 @@ end do
 ! ============
 
 ! Loop over types in input order
-call iCopy(NR4TP+6,[0],0,NOBPT,1)
+NOBPT(1:NR4TP+6) = 0
 LORB = 0   ! dummy initialize
 IOTYPE = 0 ! dummy initialize
 do ISMOB=1,NSMOB

@@ -38,7 +38,7 @@ real*8, allocatable :: Htmp(:,:), Tmp(:)
 integer i, j
 
 idsp = 0
-call iCOPY(nirrep,[0],0,ldisp,1)
+ldisp(0:nirrep-1) = 0
 do iIrrep=0,nIrrep-1
   mdc = 0
   do iCnttp=1,nCnttp

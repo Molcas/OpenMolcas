@@ -211,13 +211,13 @@ do iSym=1,nSym
 
         ilen = nconf1
         call ipin(ipCIp1)
-        call FZero(W(ipCIp1)%A,iLen)
+        W(ipCIp1)%A(1:iLen) = Zero
         call GADSum(W(ipCIp1)%A,iLen)
         call ipin(ipSp)
-        call FZero(W(ipSp)%A,iLen)
+        W(ipSp)%A(1:iLen) = Zero
         call GADSum(W(ipSp)%A,iLen)
         call ipin(ipRp1)
-        call FZero(W(ipRp1)%A,iLen)
+        W(ipRp1)%A(1:iLen) = Zero
         call GADSum(W(ipRp1)%A,iLen)
 
       end if
@@ -278,18 +278,18 @@ do iSym=1,nSym
 
         call GASync()
         Len = nDensC
-        call FZero(Kap2,Len)
+        Kap2(1:Len) = Zero
         call GADSum(Kap2,Len)
-        call FZero(rKap2,Len)
+        rKap2(1:Len) = Zero
         call GADSum(rKap2,Len)
         if (CI) then
           ilen = nconf1
           call GASync()   ! <----------------- NOTE!
           call ipin(ipCIp2)
-          call FZero(W(ipCIp2)%A,iLen)
+          W(ipCIp2)%A(1:iLen) = Zero
           call GADSum(W(ipCIp2)%A,iLen)
           call ipin(iprp2)
-          call FZero(W(iprp2)%A,iLen)
+          W(iprp2)%A(1:iLen) = Zero
           call GADSum(W(iprp2)%A,iLen)
           call ipin(ipsp)
           rTempc1 = DDot_(nConf1,W(ipCIp2)%A,1,W(ipsp)%A,1)
@@ -371,14 +371,14 @@ call ipclose(-1)
 ! If a basis set is dependent on perturbation add terms
 ! constructed in mckinley.
 
-call dcopy_(6,[Zero],0,pola,1)
+pola(:) = Zero
 idum = 1
 iopt = ibset(0,sLength)
 irc = 3*ndisp
 Label = 'DOTELGR'
 call drdMCk(irc,iopt,LaBeL,idum,EG,idum)
 call GADsum(Hss,nHss)
-call dcopy_(nHss,Hss,1,Hess2,1)
+Hess2(:) = Hss(:)
 #ifdef _DEBUGPRINT_
 elec_On = .true.
 if (irc /= 0) elec_On = .false.
@@ -401,7 +401,7 @@ call Recprt('Rhss','(5G20.10)',RHss,nhss,1)
 call Recprt('Hss','(5G20.10)',Hss,nHss,1)
 #endif
 
-call DaXpY_(mSym,One,RHss,1,Hess2,1)
+Hess2(1:mSym) = Hess2(1:mSym)+RHss(1:mSym)
 
 #ifdef _DEBUGPRINT_
 if (debug) then
@@ -448,7 +448,7 @@ if (McKinley) then
     end do
   end if
 # endif
-  call DaXpY_(mSym,One,Temp,1,Hess,1)
+  Hess(1:mSym) = Hess(1:mSym)+Temp(1:mSym)
 end if
 #ifdef _DEBUGPRINT_
 if (debug) then
@@ -495,7 +495,7 @@ if (.true.) then
   !if (debug) call HssPrt_MCLR(DegDisp,Hess,ldisp2)
   !call Recprt('hess',' ',Hess,nhss,1)
 
-  call daxpy_(3*ndisp,-One,EG,1,ELEC,1)
+  ELEC(:) = ELEC(:)-EG(:)
 # ifdef _DEBUGPRINT_
   if (debug .and. elec_On) call Recprt('ELEC-ST',' ',EG,3*nDisp,1)
   if (debug .and. elec_On) call Recprt('ELEC-TOT',' ',Elec,3*nDisp,1)
@@ -524,7 +524,7 @@ if (.true.) then
   ! Go from energy derivative to polarizability, there is a difference
   ! in the sign in the definition.
 
-  call DScal_(6,-One,Pola,1)
+  Pola(:) = -Pola(:)
 
   call TriPrt(' ',' ',Pola,3)
   close(Lu_10)

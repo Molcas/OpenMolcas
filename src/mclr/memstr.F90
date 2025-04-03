@@ -118,7 +118,7 @@ do ITYP=1,NSTTYP
   else if ((ISTAC(ITYP,1) == 0) .and. (ISTAC(ITYP,2) /= 0)) then
     !MS: New else block
     ! Only creation allowed, use compact scheme with offsets
-    call ICopy(NOCTYP(ITYP),[0],0,Str(ITYP)%NSTSO,1)
+    Str(ITYP)%NSTSO(:) = 0
     call NUMST4_MCLR(NELEC(ITYP),NORB1,MNRS1(ITYP),MXRS1(ITYP),NORB2,NORB3,MNRS3(ITYP),MXRS3(ITYP),Str(ITYP)%NSTSO)
     LENGTH = NCASTR_MCLR(2,Str(ITYP)%NSTSO,NOCTYP(ITYP),ITYP,NOBPT,3,Str(ITYP)%EL123)
     NSTRIN = NSTFTP(ITYP)

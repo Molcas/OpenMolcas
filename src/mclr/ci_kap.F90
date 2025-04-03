@@ -111,8 +111,8 @@ if (doDMRG) then
   !call ipin(ipCID)
   !call ipin(ipci)
   !call projecter(W(ipCID)%A,W(ipci)%A,De,Pe)
-  call dcopy_(ndens2,[Zero],0,Fock,1)
-  call dcopy_(ndens2,[Zero],0,FockOut,1)
+  Fock(1:ndens2) = Zero
+  FockOut(1:ndens2) = Zero
   d0 = Zero
 
   call FockGen(d0,tmpDe,tmpP,Fock,FockOut,isym) ! yma modified
@@ -122,8 +122,8 @@ else
   !call ipin(ipCID)
   !call ipin(ipci)
   !call projecter(W(ipCID)%A,W(ipci)%A,De,Pe)
-  call dcopy_(ndens2,[Zero],0,Fock,1)
-  call dcopy_(ndens2,[Zero],0,FockOut,1)
+  Fock(1:ndens2) = Zero
+  FockOut(1:ndens2) = Zero
   d0 = Zero
   call FockGen(d0,De,Pe,Fock,FockOut,isym)
 end if

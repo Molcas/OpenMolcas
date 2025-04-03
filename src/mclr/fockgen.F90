@@ -86,7 +86,8 @@ if (.not. NewCho) then  ! Cho-MO
               call Coul(ipS,kS,iS,jS,iAA,jAA,MO,Scr)
 
               rD = rDens1(iA+nA(iS),jA+nA(jS))*Two
-              call DaXpY_(nBas(ipS)*nIsh(kS),rd,MO,1,Fock(ipMat(ipS,Ks)),1)
+              Fock(ipMat(ipS,Ks):ipMat(ipS,Ks)+nBas(ipS)*nIsh(kS)-1) = Fock(ipMat(ipS,Ks):ipMat(ipS,Ks)+nBas(ipS)*nIsh(kS)-1)+ &
+                rd*MO(1:nBas(ipS)*nIsh(kS))
 
             end do
           end do
@@ -111,7 +112,7 @@ if (.not. NewCho) then  ! Cho-MO
               do kA=1,nAsh(kS)
 
                 rd = rDens1(kA+nA(kS),jA+nA(jS))
-                call DaXpY_(nBas(ipS),-rd,MO(ipM),1,Fock(ipF),1)
+                Fock(ipF:ipF+nBas(ipS)-1) = Fock(ipF:ipF+nBas(ipS)-1)-rd*MO(ipM:ipM+nBas(ipS)-1)
                 ipM = ipM+nBas(ipS)
               end do
 
@@ -183,7 +184,7 @@ else  ! Cho-Fock
     ioff2 = ioff+nOrb(iS)*nIsh(iS)
     do iB=1,nAsh(iS)
       ioff3 = ioff2+nOrb(iS)*(iB-1)
-      call dcopy_(nOrb(iS),CMO(1+ioff3:),1,CVa%SB(iS)%A1(iB:),nAsh(iS))
+      CVa%SB(iS)%A1(iB:iB+nOrb(iS)*nAsh(iS)-1:nAsh(iS)) = CMO(ioff3+1:ioff3+nOrb(iS))
     end do
     ioff = ioff+(nIsh(iS)+nAsh(iS))*nOrb(iS)
   end do
@@ -213,7 +214,7 @@ do iS=1,nSym
         rd = rDens1(iA+nA(iS),jA+nA(js))
         ip1 = nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
         ip2 = nBas(iS)*(nIsh(js)+jA-1)+ipmat(is,js)
-        call DaXpY_(nBas(iS),Rd,FIMO(ip1),1,Fock(ip2),1)
+        Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)+Rd*FIMO(ip1:ip1+nBas(iS)-1)
       end do
     end do
   end if
@@ -221,7 +222,8 @@ end do
 
 if (iDsym == 1) then
   do iS=1,nSym
-    if (nBas(iS)*nIsh(iS) > 0) call DaXpY_(nBas(iS)*nIsh(is),Two*d_0,FIMO(ipMat(is,is)),1,Fock(ipMat(is,is)),1)
+    Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1) = Fock(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1)+ &
+                                                          Two*d_0*FIMO(ipMat(is,is):ipMat(is,is)+nBas(iS)*nIsh(is)-1)
   end do
 end if
 do iS=1,nSym
@@ -230,7 +232,7 @@ do iS=1,nSym
     call DGeSub(Fock(ipMat(iS,jS)),nBas(iS),'N',Fock(ipMat(jS,iS)),nBas(jS),'T',FockOut(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
 end do
 
-call DScal_(nDens2,Two,FockOut,1)
+FockOut(1:nDens2) = Two*FockOut(1:nDens2)
 if (idSym == 1) call AddGrad2(FockOut,d_0)
 
 if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)  ! yma

@@ -93,7 +93,7 @@ subroutine Prec_internal(rpre)
     call mma_allocate(Temp1,nTemp,2,Label='Temp1')
     if (nd /= 0) then
       do iB=1,nIsh(iS)
-        call dcopy_(nD**2,[Zero],0,Temp3,1)
+        Temp3(1:nD**2) = Zero
         ibb = nOrb(is)*(ib-1)+ib-2
         !                                                              *
         !***************************************************************
@@ -181,7 +181,7 @@ subroutine Prec_internal(rpre)
       if (ir == 2) nD = nOrb(js)-nRs2(js)
       if (ir == 3) nD = nOrb(js)-nRs3(js)
       if (nd /= 0) then
-        call dcopy_(nD**2,[Zero],0,Temp3,1)
+        Temp3(1:nD**2) = Zero
 
         !                                                              *
         !***************************************************************
@@ -204,8 +204,7 @@ subroutine Prec_internal(rpre)
             call Precabi(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JA,KA,Temp1(:,2),n2)!+/-?
           !call Precaba(ib,nd,ir,rpre(ip))
           if (nOrb(js) > 0) &
-            call Precabb_2(ib,is,js,nd,nbas(js),nOrb(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb), &
-                           FiMo(ipCM(js)),sign)
+            call Precabb_2(ib,is,js,nd,nOrb(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)),sign)
 
           ! symmetry not yet
           ! Eq. (C.12e)

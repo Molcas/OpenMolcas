@@ -91,7 +91,7 @@ ndet = max(ndet,ncsf(icsym),ncsf(issym))
 if (ndet == 0) return
 iOP = Mul(iCSM,iSSm)
 if (iOp == 1) then
-  call iCopy(nSym,ipCM,1,pInt1,1)
+  pInt1(1:nSym) = ipCM(1:nSym)
 else
   do iS=1,nSym
     jS = Mul(iS,iOp)
@@ -110,12 +110,12 @@ if (.not. page) then
 # ifdef _MS_
   call ipin(ipCI1)
   call ipin(ipci2)
-  do i=0,nroots-1
-    call dcopy_(nCSF(iCSM),W(ipCI1)%A(1+i*ncsf(icsm)),1,CIDET,1)
-    call SigmaVec(CIDET,W(ipci2)%A(1+i*ncsf(issm)),kic)
+  do i=1,nroots
+    CIDET(1:nCSF(iCSM)) = W(ipCI1)%A((i-1)*ncsf(icsm)+1:i*ncsf(icsm))
+    call SigmaVec(CIDET,W(ipci2)%A((i-1)*ncsf(issm)+1),kic)
   end do
 # else
-  call dcopy_(nCSF(iCSM),W(ipCI1)%A,1,CIDET,1)
+  CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
 
   call SigmaVec(CIDET,W(ipci2)%A,kic)
 

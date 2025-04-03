@@ -42,8 +42,7 @@ do is=1,nsym
       Eval(ij) = Dens(ipMat(is,is)+i+j*nbas(is))
     end do
   end do
-  EVec(:) = Zero
-  call dCopy_(nBas(is),[One],0,EVec,nbas(is)+1)
+  call unitmat(EVec,nbas(is))
   call JACOB(EVal,EVec,nbas(is),nbas(is))
   ii = 0
   do i=1,nbas(is)

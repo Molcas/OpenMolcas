@@ -66,7 +66,7 @@ do K=2,nRoots
     AXktmp(:) = Zero
     call CalcAXk2(AXktmp,DKL1,DKL2,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
     call CalcAXk2(AXktmp,DKL2,DKL1,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
-    call Daxpy_(nDens2,zx(IKL2),AXktmp,1,Axkzx,1)
+    AXkzx(:) = AXkzx(:)+zx(IKL2)*AXktmp(:)
   end do
 end do
 

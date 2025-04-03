@@ -41,16 +41,16 @@ integer i, j
 
 nBasTot = 0
 do iS=1,nSym
-  nBasTot = nBasTot+nBas(iS)*nBas(iS)
+  nBasTot = nBasTot+nBas(iS)**2
 end do
 call mma_allocate(Dens,nBasTot,Label='Dens')
-Dens(:) = Zero
 
+Dens(:) = Zero
 ip3 = 1
 do iS=1,nSym
   inc = nBas(iS)+1
-  call dcopy_(nIsh(iS),[Two],0,Dens(ip3),inc)
-  ip3 = ip3+nBas(iS)*nBas(iS)
+  Dens(ip3:ip3+nIsh(iS)*inc-1:inc) = Two
+  ip3 = ip3+nBas(iS)**2
 end do
 
 ! For a CASSCF wavefunc. From Anders subrut r2elint

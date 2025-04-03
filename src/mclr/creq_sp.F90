@@ -27,7 +27,7 @@ real*8 rd
 ! Q = (pj|kl)d
 !  pi         ijkl
 
-!call dcopy_(ndens2,[Zero],0,Q,1)
+!Q(:) = Zero
 do iS=1,nSym
   ipS = Mul(is,idsym)
   if (norb(ips) /= 0) then
@@ -43,7 +43,7 @@ do iS=1,nSym
                 ipQ = ipMat(ips,is)+norb(ips)*(nish(is)+iAsh-1)
                 ipi = ipMO(js,ks,ls)+(norb(ips)*(jAsh-1+nAsh(js)*(kAsh-1+nAsh(ks)*(lAsh-1))))
                 rd = G2(na(is)+iash,na(js)+jash,na(ks)+kash,na(ls)+lash)
-                call daxpy_(norb(ips),rd,rint(ipI),1,Q(ipQ),1)
+                Q(ipQ:ipQ+norb(is)-1) = Q(ipQ:ipQ+norb(is)-1)+rd*rint(ipI:ipI+norb(is)-1)
               end do
             end do
           end do

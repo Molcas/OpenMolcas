@@ -42,7 +42,7 @@ use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 
 implicit none
 real*8 LS(*), RS(*), rP1(nna,nna,nna,nna), rP2(nna,nna,nna,nna), rP3(nna,nna,nna,nna), rP4(nna,nna,nna,nna), rP5(nna,nna,nna,nna), &
@@ -104,8 +104,8 @@ else if (itype == 2) then
   ! spindensity
   ! spin adadpted density
 
-  call DZAXPY(n1dens,-One,Dens(:,1),1,Dens(:,2),1,rde1,1)
-  call DZAXPY(n1dens,One,Dens(:,2),1,Dens(:,1),1,rde2,1)
+  rde1(:,:) = reshape(Dens(:,2)-Dens(:,1),[nna,nna])
+  rde2(:,:) = reshape(Dens(:,1)+Dens(:,2),[nna,nna])
 
   do iA=1,nnA
     do jA=1,nnA

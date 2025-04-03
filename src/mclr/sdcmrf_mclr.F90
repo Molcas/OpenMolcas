@@ -69,11 +69,11 @@ if (IWAY == 1) then
     call TRIPK2(CSD,CCM,1,NA,NA,SIGN)
     !    TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
   else
-    call DCOPY_(NA*NB,CSD,1,CCM,1)
+    CCM(1:NA*NB) = CSD(1:NA*NB)
   end if
   ! Scale
   if (FACTOR /= One) then
-    call DSCAL_(LCOMB,FACTOR,CCM,1)
+    CCM(1:LCOMB) = FACTOR*CCM(1:LCOMB)
     if (IPACK == 1) call SCLDIA(CCM,SQRT2I,NA,1)
   end if
 end if
@@ -85,11 +85,11 @@ if (IWAY == 2) then
     ! Unpack from triangular form
     call TRIPK2(CSD,CCM,2,NA,NA,SIGN)
   else
-    call DCOPY_(NA*NB,CCM,1,CSD,1)
+    CSD(1:NA*NB) = CCM(1:NA*NB)
   end if
   ! Scale
   if (FACTOR /= One) then
-    call DSCAL_(LDET,FACTOR,CSD,1)
+    CSD(1:LDET) = FACTOR*CSD(1:LDET)
     if (IPACK == 1) call SCLDIA(CSD,SQRT2,NA,0)
   end if
 end if

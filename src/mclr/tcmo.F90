@@ -53,7 +53,7 @@ if (ictl == -1) then
 
   do iS=1,nSym
     if (nbas(is) == 0) cycle
-    call dcopy_(nbas(is)**2,CMO(ipcm(is)),1,CMOINV(ip(is)),1)
+    CMOINV(ip(is):ip(is)+nbas(is)**2-1) = CMO(ipcm(is):ipcm(is)+nbas(is)**2-1)
     call dgetrf_(nBas(is),nBas(is),CMOINV(ip(is)),nBas(is),iCMOINV(iip(is)),irc)
     if (irc /= 0) call SysAbendMsg('tcmo','DGETRF returns non zero',' ')
   end do

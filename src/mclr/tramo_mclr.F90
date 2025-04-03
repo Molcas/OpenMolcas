@@ -260,7 +260,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
             end do
           end if
 
-          call dcopy_(nAs*nBR,X2,1,Buffer(ip2+iPQUT2-1),iMax)
+          Buffer(ip2+iPQUT2-1:ip2+iPQUT2-1+nAs*nBR*iMax-1:iMax) = X2(1:nAs*nBR)
 
         end if
         !***************************************************************
@@ -292,7 +292,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
             end if
           end if
 
-          call dcopy_(nAR*nBS,X3,1,Buffer(ip3+iPQUT3-1),iMax)
+          Buffer(ip3+iPQUT3-1:ip3+iPQUT3-1+nAR*nBS*iMax:iMax) = X3(1:nAR*nBS)
 
         end if
 
@@ -312,7 +312,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
         !***************************************************************
 
-        if (nARS /= 0) call dcopy_(nARS,X4,1,Buffer(ip4+iPQUT4-1),nBPQ)
+        Buffer(ip4+iPQUT4-1:ip4+iPQUT4-1+nARS*nBPQ-1:nBPQ) = X4(1:nARS)
 
         !***************************************************************
 
@@ -476,13 +476,13 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
           !*************************************************************
 
           do i=0,nAQ-1
-            call dcopy_(nBP,X2(i*nBP+1),1,Buffer(ipX+nr2+i*nBR*nBP),1)
+            Buffer(ipX+nr2+i*nBR*nBP:ipX+nr2+(i*nBR+1)*nBP-1) = X2(i*nBP+1:(i+1)*nBP)
           end do
           nr2 = nr2+nBP
 
           if (isp /= isq) then
             do i=0,nAP-1
-              call dcopy_(nBQ,X3(i*nBQ+1),1,Buffer(ipY+nr3+i*nBR*nBQ),1)
+              Buffer(ipY+nr3+i*nBR*nBQ:ipY+nr3+(i*nBR+1)*nBQ-1) = X3(i*nBQ+1:(i+1)*nBQ)
             end do
             nr3 = nr3+nBQ
           end if
@@ -598,12 +598,12 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
             !***********************************************************
 
             do i=0,nAQ-1
-              call dcopy_(nBP,X2(i*nBP+1),1,Buffer(ipX+i*nBS*nBP+nr2),1)
+              Buffer(ipX+nr2+i*nBS*nBP:ipX+nr2+(i*nBS+1)*nBP-1) = X2(i*nBP+1:(i+1)*nBP)
             end do
             nr2 = nr2+nBP
             if (iSP /= iSQ) then
               do i=0,nAP-1
-                call dcopy_(nBQ,X3(i*nBQ+1),1,Buffer(ipY+i*NBS*nBQ+nR3),1)
+                Buffer(ipY+nr3+i*NBS*nBQ:ipY+nr3+(i*NBS-1)*nBQ-1) = X3(i*nBQ+1:(i+1)*nBQ)
               end do
               nr3 = nr3+nBQ
             end if

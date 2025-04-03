@@ -31,7 +31,7 @@ use Constants, only: Zero, One, Two, Half, Quart
 
 implicit none
 ! Input
-real*8, dimension(nRoots**2) :: R
+real*8, dimension(nRoots,nRoots) :: R
 integer nTri, NG2
 ! Output
 real*8, dimension(nDens2) :: FOccMO
@@ -41,8 +41,9 @@ real*8, dimension(nG2) :: P2MOt
 real*8, dimension(:), allocatable :: FinCI
 ! FinCI: CI Vectors in final CMS state basis
 real*8, dimension(1) :: rdum
-real*8, dimension(:), allocatable :: Fock, T, G1r, G2r, G2rt, CIL, CIR, G1q, G2q, G1qs, G2qs, G1m
-real*8, dimension(:), allocatable :: DMatAO, D5, D6
+real*8, dimension(:), allocatable :: Fock, T, G1r, G2r, G2rt, CIL, CIR, G1q, G2q, G1m
+real*8, dimension(:,:), allocatable :: G1qs, G2qs
+real*8, dimension(:), allocatable :: D5, D6
 integer I, J, K, NCSFs
 real*8 Fact
 integer iB, jB, kB, lB, iDkl, iRijkl
@@ -206,7 +207,7 @@ do iB=1,ntash
 end do
 
 call Get_dArray_chk('P2MOt',P2MOt,ng2)
-call DaXpY_(ng2,One,G2q,1,P2MOt,1)
+P2MOt(:) = P2MOt(:)+G2q(:)
 
 ! Done with the info from CMS final state
 
@@ -218,30 +219,24 @@ call mma_allocate(D6,nTri)
 !     parts for intermediate states)
 ! D6: Used in ptrans_sa when isym /= jsym (sum of inactive parts of
 ! intermediate-state 1RDMs cancels that of the final state)
-call mma_allocate(DMatAO,nTri)
 call Get_DArray('MSPDFTD6',D6,nTri)
-call GetDMatAO(G1q,DMatAO,ng1,nTri)
-call DaXpY_(nTri,One,DMatAO,1,D6,1)
-call DCopy_(nTri,DMatAO,1,D5,1)
+call GetDMatAO(G1q,D5,ng1,nTri)
+D6(:) = D6(:)+D5(:)
 call Put_DArray('MSPDFTD5',D5,nTri)
 call Put_DArray('MSPDFTD6',D6,nTri)
 call mma_deallocate(D5)
 call mma_deallocate(D6)
-call mma_deallocate(DMatAO)
 ! Beginning of the info for CMS intermediate states
 jdisk = itoc(3)
-call mma_allocate(G1qs,ng1*nRoots)
-call mma_allocate(G2qs,ng2*nRoots)
+call mma_allocate(G1qs,ng1,nRoots)
+call mma_allocate(G2qs,ng2,nRoots)
 do K=1,nRoots
   call dDaFile(LUJOB,2,G1q,ng1,jDisk)
   call dDaFile(LUJOB,0,rdum,ng1,jDisk)
   call dDaFile(LUJOB,2,G2q,Ng2,jDisk)
   call dDaFile(LUJOB,0,rdum,Ng2,jDisk)
-  call dcopy_(ng1,G1q,1,G1qs((K-1)*ng1+1),1)
-  call dcopy_(ng2,G2q,1,G2qs((K-1)*ng2+1),1)
-  call mma_allocate(DMatAO,ntri)
-  call GetDMatAO(G1q,DMatAO,ng1,nTri)
-  call mma_deallocate(DMatAO)
+  G1qs(:,K) = G1q(:)
+  G2qs(:,K) = G2q(:)
 
   do iB=1,ntash
     do jB=1,ntash
@@ -269,9 +264,9 @@ do K=1,nRoots
   end do
 
   call FockGen(Zero,G1r,G2r,T,Fock,1)
-  call Daxpy_(nDens2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),Fock,1,bk,1)
-  call Daxpy_(nDens2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),T,1,FOccMO,1)
-  call DaXpY_(ng2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),G2q,1,P2MOt,1)
+  bk(:) = bk(:)-R(K,I)*R(K,J)*Fock(:)
+  FOccMO(:) = FOccMO(:)-R(K,I)*R(K,J)*T(:)
+  P2MOt(:) = P2MOt(:)-R(K,I)*R(K,J)*G2q(:)
 end do
 call Put_DArray('D1INTER',G1qs,ng1*nRoots)
 call Put_DArray('P2INTER',G2qs,ng2*nRoots)

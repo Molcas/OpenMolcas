@@ -105,7 +105,7 @@ if (iMethod == 2) then
       call mma_allocate(CITmp,ndets_RGLR,Label='CITmp')
     else
       call mma_allocate(CITmp,nconf,Label='CITmp')
-      call dcopy_(nconf,CIVec(:,i),1,CITmp,1)
+      CITmp(:) = CIVec(:,i)
     end if
 
     ! If doDMRG
@@ -134,7 +134,7 @@ if (iMethod == 2) then
       call mma_deallocate(vector_cidmrg)
     end if
 
-    call dcopy_(nconf,CITmp,1,CIVec(:,i),1)
+    CIVec(:,i) = CITmp(:)
     call mma_deallocate(CITmp)
   end do
   !                                                                    *
@@ -149,12 +149,12 @@ if (iMethod == 2) then
   if (SA .or. iMCPD .or. PT2) then
     ipcii = ipget(nconf*nroots)
     call ipin(ipcii)
-    call dcopy_(nconf*nroots,CIVec,1,W(ipcii)%A,1)
+    W(ipcii)%A(1:nconf*nroots) = pack(CIVec(:,:),.true.)
     nDisp = 1
   else
     ipcii = ipget(nconf)
     call ipin(ipcii)
-    call dcopy_(nConf,CIVec(:,iState),1,W(ipcii)%A,1)
+    W(ipcii)%A(1:nConf) = CIVec(:,iState)
     if (iRoot(iState) /= 1) then
       write(u6,*) 'McKinley does not support computation of harmonic frequencies of excited states'
       call Abend()

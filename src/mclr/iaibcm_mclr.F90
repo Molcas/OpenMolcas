@@ -41,7 +41,7 @@ integer NEL1A(*), NEL3A(*), NEL1B(*), NEL3B(*)
 ! Output
 integer IOCOC(NOCTPA,NOCTPB)
 
-call iCopy(nOctPA*nOctPB,[0],0,iococ,1)
+IOCOC(:,:) = 0
 do IATP=1,NOCTPA
   IAEL1 = NEL1A(IATP)
   IAEL3 = NEL3A(IATP)

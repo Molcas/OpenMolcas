@@ -21,18 +21,21 @@ real*8 A(*)
 integer idSym
 integer nbas2(nsym), nbas1(nsym)
 real*8, allocatable :: ATemp(:)
-integer iS, jS, j
+integer iS, jS, j, m, n1, n2
 
 call mma_allocate(ATemp,ndens2,Label='ATemp')
 
 do iS=1,nsym
   js = Mul(is,idsym)
-  if (min(nbas1(is),nbas2(is)) < 1) cycle
-  do j=0,min(nbas2(js),nbas1(js))-1
-    call dcopy_(min(nbas1(is),nbas2(is)),A(ipMat(is,js)+j*nbas1(is)),1,ATemp(ipmat(is,js)+j*nbas2(is)),1)
+  m = min(nbas1(is),nbas2(is))
+  if (m < 1) cycle
+  do j=1,min(nbas2(js),nbas1(js))
+    n1 = ipMat(is,js)+(j-1)*nbas1(is)
+    n2 = ipMat(is,js)+(j-1)*nbas2(is)
+    ATemp(n2:n2+m-1) = A(n1:n1+m-1)
   end do
 end do
-call dcopy_(ndens2,ATemp,1,A,1)
+A(1:ndens2) = ATemp(:)
 call mma_deallocate(ATemp)
 
 end subroutine ReLoad

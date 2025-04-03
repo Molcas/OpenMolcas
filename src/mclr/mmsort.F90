@@ -24,7 +24,7 @@ integer ijD, iG, ijG, iii, iSym, iDisp, jDisp, ijD1, jG, ijG1
 ijG = 0
 ijD = 0
 iii = 0
-call icopy(nsym,[0],0,ldisp1,1)
+ldisp1(:) = 0
 do iSym=1,nsym
   iG = 0
   do idisp=1,ldisp(isym)

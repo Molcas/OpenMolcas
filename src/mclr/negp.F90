@@ -45,7 +45,7 @@ call ipin(ipdia)
 do i=1,lroots
   call dDAFILE(luciv,2,Tmp,nconf,idisk)
   call Exphinvv(W(ipdia)%A,Tmp,rout,One,Tmp3(1,i))
-  call daxpy_(nConf,Tmp3(2,i),Tmp,1,rout,1)
+  rout(1:nConf) = rout(1:nConf)+Tmp3(2,i)*Tmp(:)
 end do
 
 call mma_deallocate(Tmp)

@@ -46,7 +46,7 @@ real*8 rd
 !  Coulomb term: F  = 2(pk|ji)d
 !                 kp           ij
 
-call dcopy_(nDens2,[Zero],0,Fock,1)
+Fock(1:nDens2) = Zero
 
 n1 = 0
 do iS=1,nSym
@@ -77,7 +77,7 @@ do ips=1,nSym
               ipM = 1+(kAA-1)*nBas(ipS)
               ipF = ipMat(ipS,iS)+nBas(ipS)*(iB-1)
               rd = rDens1(jA+nA(jS)+(kA+nA(ks)-1)*nna)
-              call DaXpY_(nBas(ipS),-rd,MO(ipM),1,Fock(ipF),1)
+              Fock(ipF:ipF+nBas(ipS)-1) = Fock(ipF:ipF+nBas(ipS)-1)-rd*MO(ipM:ipM+nBas(ipS)-1)
             end do
           end do
         end do
@@ -97,7 +97,7 @@ do iS=1,nSym
         rd = rDens1(iA+nA(iS)+(jA+nA(js)-1)*nna)
         ip1 = nBas(iS)*(nIsh(is)+iA-1)+ipCM(is)
         ip2 = nBas(iS)*(nIsh(js)+jA-1)+ipmat(is,js)
-        call DaxPy_(nBAs(iS),Rd,FIMO(ip1),1,Fock(ip2),1)
+        Fock(ip2:ip2+nBas(iS)-1) = Fock(ip2:ip2+nBas(iS)-1)+Rd*FIMO(ip1:ip1+nBas(iS)-1)
       end do
     end do
   end if
@@ -115,7 +115,7 @@ do iS=1,nSym
   if (nbas(is)*nBas(js) /= 0) &
     call DGESUB(Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(js,is)),nBas(js),'T',FockOut(ipMat(is,js)),nBas(is),nBas(is),nBas(js))
 end do
-call DScal_(ndens2,Two,FockOut,1)
+FockOut(1:ndens2) = Two*FockOut(1:ndens2)
 if (idsym == 1) call Add2(Fockout,d_0)
 !                                                                      *
 !***********************************************************************

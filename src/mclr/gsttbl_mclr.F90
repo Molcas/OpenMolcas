@@ -57,13 +57,13 @@ else
       ! Simple copy
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
-      call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
+      CTT(1:NELMNT) = C(IBASE:IBASE+NELMNT-1)
     else if (IDC == 4) then
       ! MLMS packed
       if (IATP > IBTP) then
         IBASE = ICOOSC(IATP,IBTP,IASM)
         NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
-        call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
+        CTT(1:NELMNT) = C(IBASE:IBASE+NELMNT-1)
       else if (IATP == IBTP) then
         IBASE = ICOOSC(IATP,IATP,IASM)
         NAST = NSASO(IATP,IASM)
@@ -74,7 +74,7 @@ else
         NCOL = NSBSO(IATP,IBSM)
         call TRNSPS(NROW,NCOL,C(IBASE),CTT)
         NELMNT = NROW*NCOL
-        call DSCAL_(NELMNT,PLSIGN*PSSIGN,CTT,1)
+        CTT(1:NELMNT) = PLSIGN*PSSIGN*CTT(1:NELMNT)
       end if
     end if
   else if (IASM == IBSM) then
@@ -85,7 +85,7 @@ else
       ! simple copying
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NELMNT = NSASO(IATP,IASM)*NSBSO(IBTP,IBSM)
-      call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
+      CTT(1:NELMNT) = C(IBASE:IBASE+NELMNT-1)
     else if (IATP == IBTP) then
       ! expand triangular packed matrix
       IBASE = ICOOSC(IATP,IBTP,IASM)
@@ -97,7 +97,7 @@ else
       NRI = NSASO(IBTP,IASM)
       NCI = NSBSO(IATP,IASM)
       call TRNSPS(NRI,NCI,C(IBASE),CTT)
-      if (PSSIGN == -One) call DSCAL_(NRI*NCI,-One,CTT,1)
+      if (PSSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
     end if
   else if (IASM < IBSM) then
     !************
@@ -111,27 +111,30 @@ else
       if (IDC == 2) then
         call TRNSPS(NRI,NCI,C(IBASE),CTT)
       else if (IDC == 3) then
-        call DCOPY_(NRI*NCI,C(IBASE),1,CTT,1)
+        CTT(1:NRI*NCI) = C(IBASE:IBASE+NRI*NCI-1)
       end if
-      if (PSIGN == -One) call DSCAL_(NRI*NCI,-One,CTT,1)
+      if (PSIGN == -One) CTT(1:NRI*NCI) = -CTT(NRI*NCI)
     else if (IDC == 4) then
       if (IBTP > IATP) then
         IBASE = ICOOSC(IBTP,IATP,IBSM)
         NRI = NSASO(IBTP,IBSM)
         NCI = NSBSO(IATP,IASM)
         call TRNSPS(NRI,NCI,C(IBASE),CTT)
-        if (PSSIGN == -One) call DSCAL_(NRI*NCI,-One,CTT,1)
+        if (PSSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
       else if (IBTP == IATP) then
         IBASE = ICOOSC(IBTP,IATP,IBSM)
         NRI = NSASO(IATP,IBSM)
         NCI = NSBSO(IATP,IASM)
         call TRIPK2(CTT,C(IBASE),2,NRI,NCI,PLSSGN)
-        if (PLSIGN == -One) call DSCAL_(NRI*NCI,-One,CTT,1)
+        if (PLSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
       else if (IBTP < IATP) then
         IBASE = ICOOSC(IATP,IBTP,IBSM)
         NELMNT = NSASO(IATP,IBSM)*NSBSO(IBTP,IASM)
-        call DCOPY_(NELMNT,C(IBASE),1,CTT,1)
-        if (PLSIGN == -One) call DSCAL_(NELMNT,-One,CTT,1)
+        if (PLSIGN == -One) then
+          CTT(1:NELMNT) = -C(IBASE:IBASE+NELMNT-1)
+        else
+          CTT(1:NELMNT) = C(IBASE:IBASE+NELMNT-1)
+        end if
       end if
     end if
   end if

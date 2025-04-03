@@ -49,7 +49,7 @@ integer NSTRIN, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, IEL1, IEL2, IEL3
 integer IEL, ISTRIN, LSTRIN, KSTRIN
 #endif
 
-call iCopy(NOCTYP*NSMST,[0],0,LSTASO,1)
+LSTASO(:,:) = 0
 NSTRIN = 0
 IORB1F = 1
 IORB1L = IORB1F+NORB1-1
@@ -132,7 +132,7 @@ outer: do IEL1=NELMX1,NELMN1,-1
             LEXCI = ISTRNM(IOC,NACOB,NEL,Z,IREORD,0)
             LACTU = ISTASO(ITYP,ISYM)-1+LSTASO(ITYP,ISYM)
             IREORD(LEXCI) = LACTU
-            if (NEL /= 0) call iCopy(NEL,IOC,1,STRING(1,LACTU),1)
+            STRING(:,LACTU) = IOC(1:NEL)
           end if
 
           if (IEL3 == 0) exit RAS3occ

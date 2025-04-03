@@ -30,7 +30,7 @@ use Constants, only: Zero, One, Two, Half
 
 implicit none
 ! Input
-real*8, dimension(nRoots**2) :: R
+real*8, dimension(nRoots,nRoots) :: R
 integer nTri, NG2
 ! Output
 real*8, dimension(nDens2) :: FOccMO
@@ -72,7 +72,7 @@ call mma_allocate(CIR,nConfL)
 
 I = IRlxRoot
 call CSF2SD(FinCI(1+(I-1)*NCSFs),CIL,state_sym)
-call DCopy_(nConfL,CIL,1,CIR,1)
+CIR(:) = CIL(:)
 call Densi2_mclr(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,nTri_Elem(ntash**2))
 do iA=1,nnA
   do jA=1,nnA
@@ -119,7 +119,7 @@ do iB=1,ntash
   end do
 end do
 call Get_dArray_chk('P2MOt',P2MOt,ng2)
-call DaXpY_(ng2,One,G2q,1,P2MOt,1)
+P2MOt(:) = P2MOt(:)+G2q(:)
 
 ! Done with the info from CMS final state
 
@@ -136,9 +136,8 @@ call mma_allocate(DIAO,nTri)
 call Get_DArray('MSPDFTD5',DIAO,nTri)
 call Get_DArray('MSPDFTD6',D6,nTri)
 call GetDMatAO(G1q,DMatAO,ng1,nTri)
-call DaXpY_(nTri,One,DMatAO,1,D6,1)
-call DCopy_(nTri,DMatAO,1,D5,1)
-call DaXpY_(nTri,Half,DIAO,1,D5,1)
+D6(:) = D6(:)+DMatAO(:)
+D5(:) = DMatAO(:)+Half*DIAO(:)
 call Put_DArray('MSPDFTD5',D5,nTri)
 call Put_DArray('MSPDFTD6',D6,nTri)
 call mma_deallocate(D5)
@@ -155,8 +154,8 @@ do K=1,nRoots
   call dDaFile(LUJOB,0,rdum,ng1,jDisk)
   call dDaFile(LUJOB,2,G2q,Ng2,jDisk)
   call dDaFile(LUJOB,0,rdum,Ng2,jDisk)
-  call dcopy_(ng1,G1q,1,G1qs((K-1)*ng1+1),1)
-  call dcopy_(ng2,G2q,1,G2qs((K-1)*ng2+1),1)
+  G1qs((K-1)*ng1+1:K*ng1) = G1q(:)
+  G2qs((K-1)*ng2+1:K*ng2) = G2q(:)
   call mma_allocate(DMatAO,ntri)
   call GetDMatAO(G1q,DMatAO,ng1,nTri)
   call mma_deallocate(DMatAO)
@@ -186,9 +185,9 @@ do K=1,nRoots
   end do
 
   call FockGen(One,G1r,G2r,T,Fock,1)
-  call Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,Fock,1,bk,1)
-  call Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,T,1,FOccMO,1)
-  call DaXpY_(ng2,-R((I-1)*nRoots+K)**2,G2q,1,P2MOt,1)
+  bk(:) = bk(:)-R(K,I)**2*Fock(:)
+  FOccMO(:) = FOccMO(:)-R(K,I)**2*T(:)
+  P2MOt(:) = P2MOt(:)-R(K,I)**2*G2q(:)
 end do
 call Put_DArray('D1INTER',G1qs,ng1*nRoots)
 call Put_DArray('P2INTER',G2qs,ng2*nRoots)

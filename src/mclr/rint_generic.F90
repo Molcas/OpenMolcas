@@ -54,7 +54,7 @@ write(LuWr,*) 'Focka=',DDot_(nDens2,Focka,1,Focka,1)
 #endif
 
 Fact = -One
-call dcopy_(ndens2,[Zero],0,Fock,1)
+Fock(:) = Zero
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -84,7 +84,7 @@ if (.not. NewCho) then  ! Cho-MO
     write(LuWr,*) 'Q=',DDot_(nDens2,Q,1,Q,1)
     write(LuWr,*) 'QTemp=',DDot_(nDens2,QTemp,1,QTemp,1)
 #   endif
-    call daxpy_(ndens2,One,QTemp,1,Q,1)
+    Q(:) = Q(:)+QTemp(:)
     call mma_deallocate(QTemp)
   end if
 
@@ -212,7 +212,7 @@ else  ! Cho-Fock
 
   ! Allocate temp arrays and zero Fock matrices
 
-  call dcopy_(nATri,[Zero],0,rMOs,1)
+  rMOs(1:nATri) = Zero
 # ifdef _DEBUGPRINT_
   call RecPrt('DLT',' ',DLT(1)%A0,1,size(DLT(1)%A0))
   call RecPrt('DI ',' ',DI%A0,1,size(DI%A0))
@@ -335,8 +335,10 @@ do iS=1,nSym
   !  pi       pi   pi
 
   if (nIsh(iS)*nOrb(jS) > 0) then
-    call DaXpY_(nIsh(iS)*nOrb(jS),Two,Focki(ipMat(js,is)),1,Fock(ipMat(js,is)),1)
-    if (iMethod == 2) call DaXpY_(nIsh(iS)*nOrb(jS),Two,Focka(ipMat(js,is)),1,Fock(ipMat(js,is)),1)
+    Fock(ipMat(js,is):ipMat(js,is)+nIsh(iS)*nOrb(jS)-1) = Fock(ipMat(js,is):ipMat(js,is)+nIsh(iS)*nOrb(jS)-1)+ &
+                                                          Two*Focki(ipMat(js,is):ipMat(js,is)+nIsh(iS)*nOrb(jS)-1)
+    if (iMethod == 2) Fock(ipMat(js,is):ipMat(js,is)+nIsh(iS)*nOrb(jS)-1) = Fock(ipMat(js,is):ipMat(js,is)+nIsh(iS)*nOrb(jS)-1)+ &
+                                                                            Two*Focka(ipMat(js,is):ipMat(js,is)+nIsh(iS)*nOrb(jS)-1)
   end if
 
   if (nOrb(iS) > 0) then
@@ -357,7 +359,7 @@ do iS=1,nSym
         ! F  = F + F  D
         !  pa   pa  pb ab
 
-        call DaXpY_(nOrb(is),Dij,Focki(ipFI),1,Fock(ipF),1)
+        Fock(ipF:ipF+nOrb(is)-1) = Fock(ipF:ipF+nOrb(is)-1)+Dij*Focki(ipFI:ipFI+nOrb(is)-1)
       end do
     end do
   end if
@@ -365,7 +367,9 @@ do iS=1,nSym
   ! F  = F  + Q
   !  pa   pa   pa
 
-  if (nAsh(iS)*nOrb(jS) > 0) call DaXpY_(nAsh(is)*nOrb(js),One,Q(ipMatba(js,is)),1,Fock(ipMat(js,is)+nOrb(js)*nIsh(is)),1)
+  Fock(ipMat(js,is)+nOrb(js)*nIsh(is):ipMat(js,is)+nOrb(js)*(nIsh(is)+nAsh(is))-1) = &
+    Fock(ipMat(js,is)+nOrb(js)*nIsh(is):ipMat(js,is)+nOrb(js)*(nIsh(is)+nAsh(is))-1)+ &
+    Q(ipMatba(js,is):ipMatba(js,is)+nAsh(is)*nOrb(js)-1)
 
   ! F  = F  - Q
   !  ap   ap   ap
@@ -375,7 +379,7 @@ end do
 write(LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
 #endif
 
-call DYAX(ndens2,Two,Fock,1,Focka,1)
+Focka(:) = Two*Fock(:)
 do iS=1,nSym
   js = Mul(is,idsym)
   if (nOrb(is)*nOrb(js) /= 0) &
@@ -388,11 +392,11 @@ write(LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
 call AddGrad(rKappa,Fock,idsym,Two*fact)
 if (.not. newCho) then
   call mma_allocate(MT3,nmba,Label='MT3')
-  call DZAXPY(nmba,One,MT1,1,MT2,1,MT3,1)
+  MT3(:) = MT1(:)+MT2(:)
   call PickMO_MCLR(MT3,rmos,idsym)
 
   if (ispop /= 0) then
-    call DZAXPY(nmba,-One,MT1,1,MT2,1,MT3,1)
+    MT3(:) = MT2(:)-MT1(:)
     call PickMO_MCLR(MT3,rmoa,idsym)
   end if
   call mma_deallocate(MT3)

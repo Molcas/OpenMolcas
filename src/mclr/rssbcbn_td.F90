@@ -123,9 +123,9 @@ if (btest(icheck,1) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   if (ist == 2) ieaw = 1
   !write(u6,*) 'ieaw in rssbcbn_td ',ieaw
   call TRNSPS(NJA,NJB,CB,C2)
-  call DCOPY_(NJA*NJB,C2,1,CB,1)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRNSPS(NIA,NIB,SB,C2)
-  call DCOPY_(NIA*NIB,C2,1,SB,1)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
   IIITRNS = 1
   if ((IIITRNS == 1) .and. (NIB > NIA) .and. (NJB > NJA)) then
     JJJTRNS = 1
@@ -146,9 +146,9 @@ if (btest(icheck,1) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
 
   else if (JJJTRNS == 1) then
     call TRNSPS(NIB,NIA,SB,C2)
-    call DCOPY_(NIA*NIB,C2,1,SB,1)
+    SB(1:NIA*NIB) = C2(1:NIA*NIB)
     call TRNSPS(NJB,NJA,CB,C2)
-    call DCOPY_(NJA*NJB,C2,1,CB,1)
+    CB(1:NJA*NJB) = C2(1:NJA*NJB)
 
     call RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,JbSM,JbTP,JaSM,JaTP,NJb,NJa,IJbGRP,IJaGRP,IbEL1,IbEL3,JbEL1,JbEL3,IaEL1,IaEL3, &
                       JaEL1,JaEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,0,1,CJRES,SIRES,IFACTOR,ieaw, &
@@ -157,15 +157,15 @@ if (btest(icheck,1) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
     !call RECPRT('SSCR after RSBB2BN_MCLR',' ',SSCR,5,1)
 
     call TRNSPS(NIA,NIB,SB,C2)
-    call DCOPY_(NIA*NIB,C2,1,SB,1)
+    SB(1:NIA*NIB) = C2(1:NIA*NIB)
     call TRNSPS(NJA,NJB,CB,C2)
-    call DCOPY_(NJA*NJB,C2,1,CB,1)
+    CB(1:NJA*NJB) = C2(1:NJA*NJB)
   end if
   ! Restore order!
   call TRNSPS(NJB,NJA,CB,C2)
-  call DCOPY_(NJA*NJB,C2,1,CB,1)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRNSPS(NIB,NIA,SB,C2)
-  call DCOPY_(NIA*NIB,C2,1,SB,1)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
 end if
 
 ! ========================
@@ -176,9 +176,9 @@ end if
 
 if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
   call TRNSPS(NJA,NJB,CB,C2)
-  call DCOPY_(NJA*NJB,C2,1,CB,1)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
   call TRNSPS(NIA,NIB,SB,C2)
-  call DCOPY_(NIA*NIB,C2,1,SB,1)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
 
   ! alpha single excitation
 
@@ -200,9 +200,9 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
   end if
   ! Restore order!
   call TRNSPS(NIB,NIA,SB,C2)
-  call DCOPY_(NIA*NIB,C2,1,SB,1)
+  SB(1:NIA*NIB) = C2(1:NIA*NIB)
   call TRNSPS(NJB,NJA,CB,C2)
-  call DCOPY_(NJA*NJB,C2,1,CB,1)
+  CB(1:NJA*NJB) = C2(1:NJA*NJB)
 end if
 
 return

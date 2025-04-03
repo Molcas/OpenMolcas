@@ -138,7 +138,7 @@ do iS=1,nsym
   js = Mul(idsym,is)
   if (nbas(is)*nbas(js) /= 0) call DGETMO(rkappa(ipmat(is,js)),nbas(is),nbas(is),nbas(js),K1(ipmat(js,is)),nbas(js))
 end do
-call DSCAL_(ndens2,-One,K1,1)
+K1(:) = -K1(:)
 DIR(:) = Zero
 DIL(:) = Zero
 if (imethod == 2) then

@@ -61,7 +61,7 @@ subroutine DMInvKap_Internal(rMFact)
     call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
   end if
 
-  call DCopy_(nDensC,rIn,1,rOut,1)
+  rOut(1:nDensC) = rIn(1:nDensC)
   call Uncompress2(rIn,rtemp,isym)
   !                                                                    *
   !*********************************************************************

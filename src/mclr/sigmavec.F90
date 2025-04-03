@@ -54,7 +54,7 @@ NSDET = nint(XISPSM(ISSM,ISSPC))
 
 ! The story of MV7 : I started out from nothing, absolutely zero,
 
-call dcopy_(NSDET,[Zero],0,HC,1)
+HC(1:NSDET) = Zero
 
 ! Info for this internal space
 
@@ -231,7 +231,10 @@ call mma_allocate(OOS,nOOS,10,Label='OOS')
 
 iiCOPY = 1
 ! Transform C vector from CSF to SD basis
-if (NOCSF == 0) call CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY)
+if (NOCSF == 0) then
+  call CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY)
+  HC(1:NSDET) = Zero
+end if
 
 ! Transform from combination scaling to determinant scaling
 if ((IDC /= 1) .and. (ICISTR == 1)) &
@@ -250,7 +253,6 @@ else
   LLUC = LUC
   LLUHC = LUHC
 end if
-call dcopy_(NSDET,[ZERO],0,HC,1)
 
 if (ICISTR == 1) then
   call RASSG4(C,HC,CB,SB,pC2,CIOIO,SIOIO,ICSM,ISSM,CBLTP,SBLTP,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB, &

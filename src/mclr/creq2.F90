@@ -54,7 +54,7 @@ do iS=1,nSym
                 ipG = iTri(iij,ikl)
                 ipI = (nIsh(jS)+jAsh-1)*nOrb(ipS)+1
 
-                call daxpy_(nOrb(ipS),G2(ipG),Temp(ipI),1,Q(ipQ),1)
+                Q(ipQ:ipQ+nOrb(ipS)-1) = Q(ipQ:ipQ+nOrb(ipS)-1)+G2(ipG)*Temp(ipI:ipI+nOrb(ipS)-1)
 
               end do
             end do

@@ -19,7 +19,7 @@ use MCLR_Data, only: NOCSF
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 #ifdef _DEBUGPRINT_
 use Index_Functions, only: iTri
 use input_mclr, only: ntAsh
@@ -73,10 +73,10 @@ integer i, j, k, l, ijkl
 
 if (nconf1 == 0) return
 
-call mma_allocate(De,2*n1dens,Label='De')
-call mma_allocate(Pe,3*n2dens,Label='Pe')
-call dcopy_(n1dens,[Zero],0,rD,1)
-call dcopy_(n2dens,[Zero],0,rP,1)
+call mma_allocate(De,n1dens,Label='De')
+call mma_allocate(Pe,n2dens,Label='Pe')
+rD(1:n1dens) = Zero
+rP(1:n2dens) = Zero
 
 if (nocsf == 0) then
   nConfL = max(ncsf(iS),nint(xispsm(iS,1)))
@@ -103,15 +103,15 @@ if (nocsf == 0) then
 
   ! <P|E_pq|0> & <P|e_pqrs|0> -> ipDe & ipP
   ! ipL is the bra side vector
-  call dcopy_(n1dens,[Zero],0,De,1)
-  call dcopy_(n2dens,[Zero],0,Pe,1)
+  De(:) = Zero
+  Pe(:) = Zero
   call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 
   !write(u6,*) 'De*De',ddot_(n1dens,De,1,De,1)
   !call RecPrt('De',' ',De,n1dens,1)
 
-  call dcopy_(n2dens,Pe,1,rp,1)
-  call dcopy_(n1dens,De,1,rD,1)
+  rp(1:n2dens) = Pe(:)
+  rD(1:n1dens) = De(:)
 
   !write(u6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
   !call RecPrt('rD',' ',rD,n1dens,1)
@@ -129,18 +129,18 @@ if (nocsf == 0) then
   call ipnout(-1)
   issm = iS
   icsm = STATE_SYM
-  call dcopy_(n1dens,[Zero],0,De,1)
-  call dcopy_(n2dens,[Zero],0,Pe,1)
+  De(:) = Zero
+  Pe(:) = Zero
   call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
 
   !write(u6,*) 'De*De',ddot_(n1dens,De,1,De,1)
   !Call RecPrt('De',' ',De,n1dens,1)
 
-  call daxpy_(n2Dens,-One,Pe,1,rp,1)
-  call daxpy_(n1Dens,-One,De,1,rD,1)
+  rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
+  rD(1:n1Dens) = rD(1:n1Dens)-De(:)
 
-  !call dscal_(n2dens,-One,rP,1)
-  !call dscal_(n1dens,-One,rD,1)
+  !rP(1:n2dens) = -rP(1:n2dens)
+  !rD(1:n1dens) = -rD(1:n1dens)
 
   !write(u6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
   !call RecPrt('rD',' ',rD,n1dens,1)

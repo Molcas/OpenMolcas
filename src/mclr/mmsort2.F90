@@ -26,7 +26,7 @@ iG = 0
 ijG = 0
 ijP = 0
 iii = 0
-call icopy(3,[0],0,iel,1)
+iel(:) = 0
 do iSym=1,nsym
   do idisp=1,ldisp(isym)
     geomi = btest(ntpert(idisp+iii),4)

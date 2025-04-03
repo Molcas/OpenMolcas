@@ -30,7 +30,7 @@ integer i
 !***********************************************************************
 !                                                                      *
 ip = 1
-call ICopy(8**3,[0],0,ipMO,1)
+ipMO(:,:,:) = 0
 
 nn = 0
 nbmx = 0
@@ -69,9 +69,9 @@ nDens = 0
 nDensLT = 0
 nCMO = 0
 nDensC = 0
-call iCopy(8**2,[0],0,ipMat,1)
-call iCopy(8**2,[0],0,ipMatLT,1)
-call iCopy(8,[0],0,ipCM,1)
+ipMat(:,:) = 0
+ipMatLT(:,:) = 0
+ipCM(:) = 0
 
 do jS=1,nSym
   do iS=1,js

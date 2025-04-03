@@ -54,7 +54,7 @@ character(len=8) Label
 real*8 E2
 real*8 rDum(1)
 real*8, allocatable :: MOX(:), MOT(:), FIX(:), MOT2(:)
-integer iRC, iDSym, iOpt, iOp, ip, iS, jS, iAsh, jAsh
+integer iRC, iDSym, iOpt, iOp, ip, iS, jS, iAsh, jAsh, ii, ij
 real*8 Dij, Ena
 
 !                                                                      *
@@ -92,7 +92,7 @@ if (btest(ntpert(idisp),3)) then
             call Square(Temp6(ipMatLT(is,js)),Temp5,1,nBas(is),nBas(is))
             ip = ip+nTri_Elem(nBas(is))
           else
-            call dcopy_(nBas(iS)*nBas(jS),Temp6(ipMatLt(is,js)),1,Temp5,1)
+            Temp5(1:nBas(iS)*nBas(jS)) = Temp6(ipMatLt(is,js):ipMatLt(is,js)+nBas(iS)*nBas(jS)-1)
           end if
           call DGEMM_('T','N',nOrb(iS),nBas(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),Temp5,nBas(iS),Zero,Temp4,nOrb(iS))
           call DGEMM_('N','N',nOrb(is),nOrb(jS),nBAs(jS),One,Temp4,nOrb(iS),CMO(ipCM(jS)),nBas(jS),Zero,Temp1(ipMat(iS,jS)), &
@@ -146,13 +146,13 @@ if (btest(ntpert(idisp),3)) then
 
   call r2ElInt(Temp1,MOT,MOT2,Temp3,Temp4,iDSym,One,-Half,0)
 
-  if (imethod == 2) call DaXpY_(nmba,One,MOT2,1,MOT,1)
+  if (imethod == 2) MOT(:) = MOT(:)+MOT2(:)
   call mma_deallocate(MOT2)
 
   ! ix  ix  ~i
-  call dcopy_(ndens2,[Zero],0,Temp6,1)
+  Temp6(1:ndens2) = Zero
   ! F  =F  + F
-  call DaXpY_(nDens2,One,Temp3,1,FIX,1)
+  FIX(:) = FIX(:)+Temp3(1:nDens2)
 
   if (iMethod == 2) call CreQ(Temp5,MOT,G2t,loper+1)
 
@@ -160,23 +160,28 @@ if (btest(ntpert(idisp),3)) then
     jS = Mul(iS,loper+1)
     if (nOrb(js) < 1) cycle
     ! F~=2*Fi~
-    if (nIsh(is) > 0) call DaXpY_(nIsh(is)*nOrb(js),Two,Temp3(ipMat(js,is)),1,Temp6(ipMat(js,is)),1)
+    Temp6(ipMat(js,is):ipMat(js,is)+nIsh(is)*nOrb(js)-1) = Temp6(ipMat(js,is):ipMat(js,is)+nIsh(is)*nOrb(js)-1)+ &
+                                                           Two*Temp3(ipMat(js,is):ipMat(js,is)+nIsh(is)*nOrb(js)-1)
     if (iMethod == 2) then
       ! F~=F~+2*FA~
-      if (nIsh(is) > 0) call DaXpY_(nIsh(is)*nOrb(js),Two,Temp4(ipMat(js,is)),1,Temp6(ipMat(js,is)),1)
+      Temp6(ipMat(js,is):ipMat(js,is)+nIsh(is)*nOrb(js)-1) = Temp6(ipMat(js,is):ipMat(js,is)+nIsh(is)*nOrb(js)-1)+ &
+                                                             Two*Temp4(ipMat(js,is):ipMat(js,is)+nIsh(is)*nOrb(js)-1)
       if (nAsh(iS) < 1) cycle
       do iAsh=1,nAsh(iS)
+        ii = ipMat(js,is)+nOrb(js)*(nish(is)+iAsh-1)
         do jAsh=1,nAsh(is)
+          ij = ipMat(js,is)+nOrb(js)*(nish(is)+jAsh-1)
           Dij = G1t(iTri(iash+nA(is),jAsh+nA(is)))
 
           ! F~=F~+DFi~
 
-          call DaXpY_(nOrb(jS),Dij,Temp3(ipMat(js,is)+nOrb(js)*(nish(is)+iAsh-1)),1, &
-                      Temp6(ipMat(js,is)+nOrb(js)*(nish(is)+jAsh-1)),1)
+          Temp6(ij:ij+nOrb(jS)-1) = Temp6(ij:ij+nOrb(jS)-1)+Dij*Temp3(ii:ii+nOrb(jS)-1)
         end do
       end do
       ! F~=F~+Q~
-      call DaXpY_(nAsh(is)*nOrb(js),One,Temp5(ipMatba(js,is)),1,Temp6(ipMat(js,is)+nOrb(js)*nIsh(is)),1)
+      Temp6(ipMat(js,is)+nOrb(js)*nIsh(is):ipMat(js,is)+nOrb(js)*(nIsh(is)+nAsh(is))-1) = &
+        Temp6(ipMat(js,is)+nOrb(js)*nIsh(is):ipMat(js,is)+nOrb(js)*(nIsh(is)+nAsh(is))-1)+ &
+        Temp5(ipMatba(js,is):ipMatba(js,is)+nAsh(is)*nOrb(js)-1)
     end if
   end do ! is
 
@@ -187,7 +192,7 @@ end if ! ntpert
 call Hess(Temp6,rkappa,Temp1,Temp3,Temp4,Temp5,Temp2,loper+1,jdisp,idisp)
 
 ! F=F~+Fx
-if (btest(ntpert(idisp),3)) call daxpy_(nDens,One,Temp6,1,rKappa,1)
+if (btest(ntpert(idisp),3)) rKappa(:) = rKappa(:)+Temp6(:)
 
 ! Add connection to 2el MO integrals
 
@@ -202,12 +207,12 @@ if (CI) then
   if (idsym == 1) then
     EnA = E2(Fix,MOX,idsym-1,idisp)
     call ipin(ipCI)
-    call DaXpY_(nConf1,-Ena,W(ipCI)%A,1,W(ipST)%A,1)
+    W(ipST)%A(1:nConf1) = W(ipST)%A(1:nConf1)-Ena*W(ipCI)%A(1:nConf1)
   end if
-  call DSCAL_(nConf1,Two,W(ipST)%A,1)
+  W(ipST)%A(1:nConf1) = Two*W(ipST)%A(1:nConf1)
 end if
 
-call DYAX(ndens2,Two,rkappa,1,Temp1,1)
+Temp1(1:ndens2) = Two*rKappa(1:ndens2)
 
 do iS=1,nSym
   js = Mul(is,loper+1)

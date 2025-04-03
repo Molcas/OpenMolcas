@@ -25,7 +25,7 @@ use Definitions, only: u6
 implicit none
 integer NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NACTEL, MINOP, MAXOP, MXPCNT, MXPCSM
 ! Output
-integer NCNATS(MXPCNT,*), NCNASM(*), NDTASM(*), NCSASM(*)
+integer NCNATS(MXPCNT,MXPCSM), NCNASM(MXPCSM), NDTASM(MXPCSM), NCSASM(MXPCSM)
 ! Input
 integer NDPCNT(*), NCPCNT(*)
 ! Scratch
@@ -46,10 +46,10 @@ ILOOP2 = 0
 NCNF = 0
 NORBT = NORB1+NORB2+NORB3
 
-call iCOPY(MXPCSM*MXPCNT,[0],0,NCNATS,1)
-call iCOPY(MXPCSM,[0],0,NCSASM,1)
-call iCOPY(MXPCSM,[0],0,NDTASM,1)
-call iCOPY(MXPCSM,[0],0,NCNASM,1)
+NCNATS(:,:) = 0
+NCSASM(:) = 0
+NDTASM(:) = 0
+NCNASM(:) = 0
 
 IORB1F = 1
 IORB1L = IORB1F+NORB1-1
@@ -73,7 +73,7 @@ outer: do NOP=MINOP,MAXOP,2
   write(u6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
 # endif
   ! first combination of double occupied orbitals
-  call iCOPY(NORB,[0],0,IIOC,1)
+  IIOC(1:NORB) = 0
   do ICL=1,NCL
     IICL(ICL) = ICL
     IIOC(ICL) = 2

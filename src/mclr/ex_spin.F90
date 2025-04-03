@@ -23,7 +23,7 @@ real*8 rDens
 
 Temp2(:) = Zero
 do jS=1,nSym
-  call FZero(Fock(ipCm(js)),nbas(js)**2)
+  Fock(ipCm(js):ipCm(js)+nbas(js)**2-1) = Zero
   do kS=1,nsym
 
     ! To be debugged!
@@ -37,7 +37,7 @@ do jS=1,nSym
 
           call Exch(jS,kS,jS,kS,lB,jB,Temp2,Temp2)
           rDens = -Half*rD(nna*(jjB-1)+llB)
-          call DaXpY_(nBas(jS)**2,rDens,Temp1,1,Fock(ipCM(jS)),1)
+          Fock(ipCM(jS):ipCM(jS)+nBas(jS)**2-1) = Fock(ipCM(jS):ipCM(jS)+nBas(jS)**2-1)+rDens*Temp1(1:nBas(jS)**2)
 
         end do
       end do

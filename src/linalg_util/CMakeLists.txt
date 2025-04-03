@@ -20,7 +20,6 @@ set (sources
      dndot.F90
      dtrans.F90
      dyax.F90
-     dzaxpy.F90
      eigen_molcas.F90
      exp_eig.F90
      exp_schur.F90

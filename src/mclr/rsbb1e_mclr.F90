@@ -127,7 +127,7 @@ do IJTP=1,NSXTP
           ! set up I1(IORB,K) = a IORB !I STRING >
           call ADST(IORB,1,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,1,NKBTC,KEND)
           ! Well, someplace the minus must come in
-          if (SIGN == -One) call DSCAL_(NKBTC,-One,XI1S,1)
+          if (SIGN == -One) XI1S(1:NKBTC) = -XI1S(1:NKBTC)
           ISBOFF = 1+(IIORB-1)*NKBTC*NIBTC
           call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1,XI1S)
         end do

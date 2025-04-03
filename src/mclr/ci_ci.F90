@@ -19,16 +19,17 @@ use Constants, only: Two
 
 implicit none
 integer ipCID, ipS2
-integer i
+integer i, j
 real*8 rDum(1), EC
 
 call CISigma_sa(0,state_sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rDum,1,ipCId,ips2,.true.)
 call ipin(ipCId)
 call ipin(ipS2)
-do i=0,nroots-1
-  EC = (rin_ene+potnuc-ERASSCF(i+1))*Weight(i+1)
-  call Daxpy_(ncsf(State_Sym),EC,W(ipCId)%A(1+i*ncsf(state_sym)),1,W(ipS2)%A(1+i*ncsf(state_sym)),1)
+do i=1,nroots
+  EC = (rin_ene+potnuc-ERASSCF(i))*Weight(i)
+  j = (i-1)*ncsf(State_Sym)
+  W(ipS2)%A(j+1:j+ncsf(State_Sym)) = W(ipS2)%A(j+1:j+ncsf(State_Sym))+EC*W(ipCId)%A(j+1:j+ncsf(State_Sym))
 end do
-call DSCAL_(nroots*ncsf(state_SYM),Two,W(ipS2)%A,1)
+W(ipS2)%A(1:nroots*ncsf(state_SYM)) = Two*W(ipS2)%A(1:nroots*ncsf(state_SYM))
 
 end subroutine Ci_Ci

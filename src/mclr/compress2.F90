@@ -43,7 +43,7 @@ i1 = 0
 Fact = One
 if (dsym < 0) Fact = -Fact
 dsym = abs(dsym)
-call dcopy_(nDens,[Zero],0,ArrayOut,1)
+ArrayOut(1:nDens) = Zero
 
 do iSym=1,nSym
   jSym = Mul(iSym,dSym)

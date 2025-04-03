@@ -15,11 +15,10 @@
 subroutine TimesE2_(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
-use MCLR_Data, only: n2Dens, nConf1, nDens, nDens2
+use MCLR_Data, only: n2Dens, nConf1, nDens2
 use input_mclr, only: nRoots, nAsh, nRs2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 real*8 Kap(*)
@@ -48,14 +47,14 @@ call Kap_CI(Temp4,nDens2,rmoaa,n2Dens,ipCIOUT)
 call Ci_Ci(ipcid,ipS2)
 call CI_KAP(ipCid,Sc1,Sc3,isym)
 
-call DZaXpY(nDens,One,Sc2,1,Sc3,1,Sc1,1)
+Sc1(:) = Sc2(:)+Sc3(:)
 
 call Compress(Sc1,KapOut,isym)   ! ds
 !call RecPrt('Ex',' ',KapOut,ndensC,1)
 
 call ipin(ipS2)
 call ipin(ipCIOUT)
-call DaXpY_(nConf1*nroots,One,W(ipS2)%A,1,W(ipCIOUT)%A,1)
+W(ipCIOUT)%A(1:nConf1*nroots) = W(ipCIOUT)%A(1:nConf1*nroots)+W(ipS2)%A(1:nConf1*nroots)
 call opOut(ipCId)
 
 call mma_deallocate(Temp4)

@@ -74,7 +74,7 @@ do iHarm=1,nX
   end do
   RedM(iHarm) = r2
   r2 = One/sqrt(r2)
-  call DScal_(nX,r2,EVec(1,iHarm),2)
+  EVec(::2,iHarm) = r2*EVec(::2,iHarm)
 end do
 
 ! Order, from low to high.

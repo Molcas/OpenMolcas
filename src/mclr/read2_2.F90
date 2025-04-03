@@ -64,7 +64,7 @@ real*8 Signa, Fact
 integer jSpin
 logical lFAt, lFIT, lmot
 logical singlet
-integer iS, jS, ijS, kS, lS, iB, nNB, jB, ipD, ipF, iiB, jjB, ipS, ipi, ip1, ip2, ip3, ip4, lB, ijA, ilA, ipA
+integer iS, jS, ijS, kS, lS, iB, n, nNB, jB, ipD, ipF, iiB, jjB, ipS, ipi, ip1, ip2, ip3, ip4, lB, ijA, ilA, ipA
 real*8 Sign
 
 !                                                                      *
@@ -125,8 +125,8 @@ do iS=1,nSym
 end do
 
 sign = One
-if (imethod == 2) call DScal_(ndens2,signa,DA24,1)
-call DScal_(ndens2,signa,Di24,1)
+if (imethod == 2) DA24(:) = signa*DA24(:)
+Di24(:) = signa*Di24(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -275,73 +275,79 @@ do iS=1,nSym
                     call DGETMO(Temp2,nOrb(ls),nOrb(ls),nOrb(kS),Temp4,nOrb(ks))
 
                     ipS = Mul(kS,idsym)
-                    if (nOrb(ips)*nAsh(lS) > 0) then
+                    n = nOrb(ips)*nAsh(lS)
+                    if (n > 0) then
                       ipI = norb(ks)*nIsh(ls)+1
-                      ip1 = ipMO(ls,js,is)+nOrb(ips)*nAsh(ls)*((iiB-1)*nAsh(jS)+jjb-1)
-                      ip4 = ipMO(ls,is,js)+nOrb(ips)*nAsh(ls)*((jjB-1)*nAsh(iS)+iib-1)
+                      ip1 = ipMO(ls,js,is)+n*((iiB-1)*nAsh(jS)+jjb-1)
+                      ip4 = ipMO(ls,is,js)+n*((jjB-1)*nAsh(iS)+iib-1)
                       call DGEMM_('N','N',nOrb(ips),nAsh(ls),nOrb(ks),One,rKappa(ipMat(ips,ks)),nOrb(ipS),Temp4(ipI),nOrb(ks), &
                                   Zero,Temp3,nOrb(ips))
                       !  ~
                       ! (pl|ij)
 
-                      call daxpy_(nOrb(ips)*nash(ls),Fact,Temp3,1,rmo1(ip1),1)
+                      rmo1(ip1:ip1+n-1) = rmo1(ip1:ip1+n-1)+Fact*Temp3(1:n)
 
                       !  ~
                       ! (pl|ji)
 
-                      if ((is /= js) .or. (ib /= jb)) call daxpy_(nOrb(ips)*nash(ls),Fact,temp3,1,rmo1(ip4),1)
+                      if ((is /= js) .or. (ib /= jb)) rmo1(ip4:ip4+n-1) = rmo1(ip4:ip4+n-1)+Fact*temp3(1:n)
                     end if ! nOrb(ips)*nAsh(lS)
 
                     if (ks /= ls) then
                       ipS = Mul(lS,idsym)
-                      if (nOrb(ips)*nAsh(ks) > 0) then
-                        ip1 = ipMO(ks,js,is)+nOrb(ips)*nAsh(ks)*((iiB-1)*nAsh(jS)+jjb-1)
-                        ip4 = ipMO(ks,is,js)+nOrb(ips)*nAsh(ks)*((jjB-1)*nAsh(iS)+iib-1)
+                      n = nOrb(ips)*nAsh(ks)
+                      if (n > 0) then
+                        ip1 = ipMO(ks,js,is)+n*((iiB-1)*nAsh(jS)+jjb-1)
+                        ip4 = ipMO(ks,is,js)+n*((jjB-1)*nAsh(iS)+iib-1)
                         call DGEMM_('N','T',nOrb(ips),nAsh(ks),nOrb(ls),One,rKappa(ipmat(ips,ls)),nOrb(ips),Temp4(nIsh(ks)+1), &
                                     nOrb(ks),Zero,Temp3,nOrb(ips))
                         !  ~
                         ! (pk|ij)
 
-                        call daxpy_(nOrb(ips)*nash(ks),Fact,temp3,1,rmo1(ip1),1)
+                        rmo1(ip1:ip1+n-1) = rmo1(ip1:ip1+n-1)+Fact*temp3(1:n)
 
                         !  ~
                         ! (pk|ji)
 
-                        if ((is /= js) .or. (ib /= jb)) call daxpy_(nOrb(ips)*nash(ks),Fact,temp3,1,rmo1(ip4),1)
+                        if ((is /= js) .or. (ib /= jb)) rmo1(ip4:ip4+n-1) = rmo1(ip4:ip4+n-1)+Fact*temp3(1:n)
                       end if !(nOrb(ips)
                     end if ! kl
 
                     ipS = Mul(lS,idsym)
-                    if (nOrb(ks)*nAsh(ips) > 0) then
-                      ip2 = ipMO(ips,js,is)+nOrb(kS)*nAsh(ips)*((iiB-1)*nAsh(jS)+jjb-1)
-                      ip3 = ipMO(ips,is,js)+nOrb(kS)*nAsh(ips)*((jjB-1)*nAsh(iS)+iib-1)
+                    n = nOrb(ks)*nAsh(ips)
+                    if (n > 0) then
+                      ip2 = ipMO(ips,js,is)+n*((iiB-1)*nAsh(jS)+jjb-1)
+                      ip3 = ipMO(ips,is,js)+n*((jjB-1)*nAsh(iS)+iib-1)
                       call DGEMM_('N','N',nOrb(ks),nAsh(ips),nOrb(ls),One,Temp4,nOrb(kS),rkappa(ipMat(ls,ips)+nOrb(ls)*nIsh(ips)), &
                                   nOrb(ls),Zero,Temp3,nOrb(ks))
                       !   ~
                       ! (pl|ji)
 
-                      call daxpy_(nOrb(ks)*nash(ips),Fact*Signa,temp3,1,rmo1(ip2),1)
+                      rmo1(ip2:ip2+n-1) = rmo1(ip2:ip2+n-1)+Fact*Signa*temp3(1:n)
+
                       !   ~
                       ! (pl|ij)
 
-                      if ((is /= js) .or. (ib /= jb)) call daxpy_(nOrb(ks)*nash(ips),Fact*Signa,temp3,1,rmo1(ip3),1)
+                      if ((is /= js) .or. (ib /= jb)) rmo1(ip3:ip3+n-1) = rmo1(ip3:ip3+n-1)+Fact*Signa*temp3(1:n)
                     end if ! nOrb(ips)
 
                     if (ks /= ls) then
                       ipS = Mul(kS,idsym)
-                      if (nOrb(ls)*nAsh(ips) > 0) then
-                        ip1 = ipMO(ips,js,is)+nOrb(ls)*nAsh(ips)*((iiB-1)*nAsh(jS)+jjb-1)
-                        ip4 = ipMO(ips,is,js)+nOrb(ls)*nAsh(ips)*((jjB-1)*nAsh(iS)+iib-1)
+                      n = nOrb(ls)*nAsh(ips)
+                      if (n > 0) then
+                        ip1 = ipMO(ips,js,is)+n*((iiB-1)*nAsh(jS)+jjb-1)
+                        ip4 = ipMO(ips,is,js)+n*((jjB-1)*nAsh(iS)+iib-1)
                         call DGEMM_('T','N',nOrb(ls),nAsh(ips),nOrb(ks),One,Temp4,nOrb(ks), &
                                     rKappa(ipMat(ks,ips)+nOrb(ks)*nIsh(ips)),nOrb(ks),Zero,Temp3,nOrb(ls))
                         !   ~
                         ! (pk|ij)
 
-                        call daxpy_(nOrb(ls)*nash(ips),Fact*Signa,temp3,1,rmo1(ip1),1)
+                        rmo1(ip1:ip1+n-1) = rmo1(ip1:ip1+n-1)+Fact*Signa*temp3(1:n)
+
                         !   ~
                         ! (pk|ji)
 
-                        if ((is /= js) .or. (ib /= jb)) call daxpy_(nOrb(ls)*nash(ips),Fact*Signa,temp3,1,rmo1(ip4),1)
+                        if ((is /= js) .or. (ib /= jb)) rmo1(ip4:ip4+n-1) = rmo1(ip4:ip4+n-1)+Fact*Signa*temp3(1:n)
                       end if !(nOrb)
                     end if ! (kl)
                     ! ^
@@ -479,7 +485,7 @@ do iS=1,nSym
 
                   if (lmot .and. (nAsh(js)*nAsh(ls) /= 0) .and. ((jb > nish(js)) .and. (lB > nish(ls)))) then
 
-                    call dcopy_(nOrb(iS)*nOrb(kS),Temp1,1,Temp3,1)
+                    Temp3(1:nOrb(iS)*nOrb(kS)) = Temp1(1:nOrb(iS)*nOrb(kS))
 
                     !     ~            ~
                     ! (pj|kl) &   (pj|lk)
@@ -499,7 +505,7 @@ do iS=1,nSym
                     ip2 = ipMO(js,ips,ls)+nOrb(iS)*(ija-1)+nOrb(is)*nAsh(js)*nAsh(ips)*(ilA-1)
                     ip1 = 1
                     do ipa=1,nAsh(ips)
-                      call DaXpY_(nOrb(iS),Fact,Temp4(ip1),1,rMO2(ip2),1)
+                      rMO2(ip2:ip2+nOrb(iS)-1) = rMO2(ip2:ip2+nOrb(iS)-1)+Fact*Temp4(ip1:ip1+nOrb(iS)-1)
                       ip2 = ip2+nOrb(is)*nAsh(js)
                       ip1 = ip1+nOrb(is)
                     end do
@@ -512,7 +518,7 @@ do iS=1,nSym
                     ip3 = ipMO(js,ls,ips)+nOrb(iS)*(ija-1)+nOrb(is)*nAsh(js)*(ilA-1)
                     ip1 = 1
                     do ipa=1,nAsh(ips)
-                      call DaXpY_(nOrb(iS),Fact*signa,Temp4(ip1),1,rMO2(ip3),1)
+                      rMO2(ip3:ip3+nOrb(iS)-1) = rMO2(ip3:ip3+nOrb(iS)-1)+Fact*signa*Temp4(ip1:ip1+nOrb(iS)-1)
                       ip3 = ip3+nOrb(is)*nAsh(js)*nAsh(lS)
                       ip1 = ip1+nOrb(is)
                     end do

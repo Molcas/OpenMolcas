@@ -98,8 +98,8 @@ if (MCKINLEY) then
 end if
 
 if (PT2) then
-  call icopy(nsym,[0],0,ldisp,1)
   ldisp(1) = 1
+  ldisp(2:nsym) = 0
 end if
 
 return

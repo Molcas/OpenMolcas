@@ -130,8 +130,8 @@ do iS=1,nSym
 end do
 
 sign = One
-if (iMethod == 2) call DScal_(ndens2,signa,DA24,1)
-call DScal_(ndens2,signa,Di24,1)
+if (iMethod == 2) DA24(:) = signa*DA24(:)
+Di24(:) = signa*Di24(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -508,7 +508,7 @@ do iS=1,nSym
                 !*******************************************************
                 !                                                      *
                 if (lmot .and. (nAsh(js)*nAsh(ls) /= 0) .and. ((jb > nish(js)) .and. (lB > nish(ls)))) then
-                  call dcopy_(nBas(iS)*nBas(kS),Temp1,1,Temp3,1)
+                  Temp3(1:nBas(iS)*nBas(kS)) = Temp1(1:nBas(iS)*nBas(kS))
                   !     ~            ~
                   ! (pj|kl) &   (pj|lk)
                   !
@@ -529,8 +529,8 @@ do iS=1,nSym
 
                   ip1 = 1
                   do ipa=1,nAsh(ips)
-                    call DaXpY_(nBas(iS),Fact,Temp4(ip1),1,rMO1(ip2),1)
-                    call DaXpY_(nBas(iS),Fact,Temp4(ip1),1,rMO2(ip3),1)
+                    rMO1(ip2:ip2+nBas(iS)-1) = rMO1(ip2:ip2+nBas(iS)-1)+Fact*Temp4(ip1:ip1+nBas(iS)-1)
+                    rMO2(ip3:ip3+nBas(iS)-1) = rMO2(ip3:ip3+nBas(iS)-1)+Fact*Temp4(ip1:ip1+nBas(iS)-1)
                     ip2 = ip2+nBas(is)*nAsh(js)
                     ip3 = ip3+nBas(is)*nAsh(js)*nash(ls)
                     ip1 = ip1+nBas(is)
@@ -545,8 +545,8 @@ do iS=1,nSym
                   ip3 = ipMO(js,ips,ls)+nBas(iS)*(ija-1)+nBas(is)*nAsh(js)*nash(ips)*(ilA-1)
                   ip1 = 1
                   do ipa=1,nAsh(ips)
-                    call DaXpY_(nBas(iS),Fact*signa,Temp4(ip1),1,rMO1(ip2),1)
-                    call DaXpY_(nBas(iS),Fact*signa,Temp4(ip1),1,rMO2(ip3),1)
+                    rMO1(ip2:ip2+nBas(iS)-1) = rMO1(ip2:ip2+nBas(iS)-1)+Fact*signa*Temp4(ip1:ip1+nBas(iS)-1)
+                    rMO2(ip3:ip3+nBas(iS)-1) = rMO2(ip3:ip3+nBas(iS)-1)+Fact*signa*Temp4(ip1:ip1+nBas(iS)-1)
                     ip2 = ip2+nBas(is)*nAsh(js)*nAsh(lS)
                     ip3 = ip3+nBas(is)*nAsh(js)
                     ip1 = ip1+nBas(is)

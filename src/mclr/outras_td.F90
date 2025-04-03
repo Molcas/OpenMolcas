@@ -35,7 +35,7 @@ use MCLR_Data, only: LuTEMP
 use input_mclr, only: nDisp, nSym, State_Sym, iMethod, nCSF, nConf, iMethod, iSpin, kPrint, nActEl, nElec3, nHole1, nRS1, nRS2, &
                       nRS3, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: u6
 
 implicit none
@@ -117,7 +117,7 @@ do iSym=1,nSym
       NCSF(1:nSym) = CIS%NCSF(1:nSym)
       NCONF = CIS%NCSF(pstate_Sym)
       call mkGuga_Free(SGS,CIS,EXS)
-      call DSCAL_(nconf1,-One,CIp1(:,2),1)
+      CIp1(:,2) = -CIp1(:,2)
     end if
 
     if (CI) then

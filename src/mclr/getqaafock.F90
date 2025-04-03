@@ -21,7 +21,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: nNA, nDens2
 use input_mclr, only: nRoots, ntAsh, ntBas
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 
 implicit none
 ! Input
@@ -56,9 +56,9 @@ call mma_allocate(G2r,nG2r)
 call mma_allocate(G2q,ng2)
 call mma_allocate(PQaa,ng2)
 Debug2 = .false.
-call FZero(PQaa,nP2)
-call FZero(G1r,nG1r)
-call FZero(G2r,nG2r)
+PQaa(1:nP2) = Zero
+G1r(:) = Zero
+G2r(:) = Zero
 
 !*****************
 
@@ -77,16 +77,16 @@ do K=1,nRoots
     call QaaP2MO(G2q,ng2,GDMat,IKL,IKK,ILL)
     if (Debug2) call QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
     call G2qtoG2r(G2r,G2q,nG2,nG2r)
-    call daxpy_(ng2,zX(IKL2),G2q,1,PQaa,1)
+    PQaa(:) = PQaa(:)+zX(IKL2)*G2q(:)
   end do
 end do
 
-call Daxpy_(nG2,One,PQaa,1,P2MOt,1)
+P2MOt(1:nG2) = P2MOt(1:nG2)+PQaa(:)
 call Put_dArray('P2MOt',P2MOt,nG2)
 
 call G2qtoG2r(G2r,PQaa,nG2,nG2r)
 call FockGen(Zero,G1r,G2r,T,Fock,1)
-call DAxPy_(nDens2,One,T,1,FOccMO,1)
+FOccMO(:) = FOccMO(:)+T(:)
 if (Debug2) call mma_deallocate(PUVX)
 call mma_deallocate(Fock)
 call mma_deallocate(T)

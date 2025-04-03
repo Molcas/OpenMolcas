@@ -45,7 +45,7 @@ do I=1,lroots
   SS(2*i-1,2*i) = SS(2*i-1,2*i)+One
 end do
 call MatInvert(SS,2*lroots)
-call DSCAL_(4*lroots**2,-One,SS,1)
+SS(:,:) = -SS(:,:)
 SS(2*lroots,2*lroots) = SS(2*lroots,2*lroots)-One
 
 end subroutine mkcipre

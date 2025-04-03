@@ -67,7 +67,7 @@ if (nconf1 > 1) then
 
   end if
 
-  call DSCAL_(nconf1,Half,rout,1)
+  rout(1:nconf1) = Half*rout(1:nconf1)
 
 else
 

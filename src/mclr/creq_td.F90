@@ -42,7 +42,8 @@ do iS=1,nSym
               do lAsh=1,nAsh(ls)
                 ipQ = ipMatba(ips,is)+nBas(ips)*(iAsh-1)
                 ipi = ipMO(js,ks,ls)+(nBas(ips)*(jAsh-1+nAsh(js)*(kAsh-1+nAsh(ks)*(lAsh-1))))
-                call daxpy_(nBas(ips),G2(iAsh+nA(is),jAsh+nA(js),kAsh+nA(ks),lAsh+nA(ls)),rint(ipI),1,Q(ipQ),1)
+                Q(ipQ:ipQ+nBas(ips)-1) = Q(ipQ:ipQ+nBas(ips)-1)+ &
+                  G2(iAsh+nA(is),jAsh+nA(js),kAsh+nA(ks),lAsh+nA(ls))*rint(ipI:ipI+nBas(ips)-1)
               end do
             end do
           end do

@@ -65,7 +65,7 @@ subroutine RASSG4(C,S,CB,SB,C2,ICOCOC,ISOCOC,ICSM,ISSM,ICBLTP,ISBLTP,NSSOA,NSSOB
 ! A triplet two-electron operator is defined as (E(aa)+E(bb))(E(aa)-E(bb))
 
 use Symmetry_Info, only: Mul
-use Constants, only: Zero, One
+use Constants, only: Zero
 
 implicit none
 ! General input
@@ -226,9 +226,9 @@ outer: do
                 LROW = NSSOA(LATP(IPERM-1),LASM(IPERM-1))
                 LCOL = NSSOB(LBTP(IPERM-1),LBSM(IPERM-1))
                 call TRNSPS(LROW,LCOL,CB(ICOFF),C2)
-                call dcopy_(LROW*LCOL,C2,1,CB(iCOFF),1)
+                CB(iCOFF:iCOFF+LROW*LCOL-1) = C2(1:LROW*LCOL)
               end if
-              if (LSGN(IPERM) == -1) call DSCAL_(LROW*LCOL,-One,CB(ICOFF),1)
+              if (LSGN(IPERM) == -1) CB(iCOFF:iCOFF+LROW*LCOL-1) = -CB(iCOFF:iCOFF+LROW*LCOL-1)
 
               ! Generation of contribution to sigma block
               ! from given CI block
@@ -255,9 +255,9 @@ outer: do
             ! Transpose or scale to restore order ??
             if (LTRP(NPERM+1) == 1) then
               call TRNSPS(NJB,NJA,CB(ICOFF),C2)
-              call dcopy_(NJA*NJB,C2,1,CB(ICOFF),1)
+              CB(ICOFF:ICOFF+NJA*NJB-1) = C2(1:NJA*NJB)
             end if
-            if (LSGN(NPERM+1) == -1) call DSCAL_(NJA*NJB,-One,CB(ICOFF),1)
+            if (LSGN(NPERM+1) == -1) CB(ICOFF:ICOFF+NJA*NJB-1) = -CB(ICOFF:ICOFF+NJA*NJB-1)
 
           end if
           ICOFF = ICOFF+NCOOSE(JATP,JBTP,JASM)

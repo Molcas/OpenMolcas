@@ -32,21 +32,16 @@ integer iS, jS, nNJ, Len, iSym, nIn, mDisp, kDisp, iRC, iOpt, iOp, iP, IndX
 real*8 Fact
 real*8, external :: DDot_
 
-Temp3(:) = Zero
+Temp3(:) = FockX(:)
 if (btest(ntpert(idisp),3)) then
   do iS=1,nSym
     js = Mul(is,idSym)
     nnj = nOrb(js)!nash(js)+nash(js)
-    if (nOrb(is)*nOrb(js) /= 0) call DGEMM_('N','N',nOrb(is),nnj,nnj,One,rCon(ipMat(is,js)),nOrb(is),F0SQMO(ipCM(jS)),nOrb(js), &
-                                            Zero,Temp3(ipMat(is,js)),nOrb(is))
+    if (nOrb(is)*nOrb(js) /= 0) call DGEMM_('N','N',nOrb(is),nnj,nnj,-Half,rCon(ipMat(is,js)),nOrb(is),F0SQMO(ipCM(jS)),nOrb(js), &
+                                            One,Temp3(ipMat(is,js)),nOrb(is))
 
   end do
-  !Temp3(:) = -Half*Temp3(:)+Half*FockC(:)+FockX(:)
-  call DScal_(ndens2,-Half,Temp3,1)
-  call DaXpY_(nDens2,Half,FockC,1,Temp3,1)
-  call DaXpY_(nDens2,One,FockX,1,Temp3,1)
-else
-  Temp3(:) = FockX(:)
+  Temp3(:) = Temp3(:)+Half*FockC(:)
 end if
 
 !              xa     ca      xa
@@ -86,17 +81,17 @@ do kDisp=1,ldisp(idsym)
             call Square(Temp1(ip),Temp2(ipMat(iS,jS)),1,nBas(is),nBas(is))
             ip = ip+nTri_Elem(nBas(is))
           else
-            if (nBas(is)*nBas(js) /= 0) call dcopy_(nBas(iS)*nBas(jS),Temp1(ip),1,Temp2(ipMat(iS,jS)),1)
+            if (nBas(is)*nBas(js) /= 0) Temp2(ipMat(iS,jS):ipMat(iS,jS)+nBas(iS)*nBas(jS)-1) = Temp1(ip:ip+nBas(iS)*nBas(jS)-1)
             ip = ip+nBas(is)*nBas(js)
           end if
           if (nBas(is)*nBas(js) /= 0) then
             call DGEMM_('T','N',nOrb(iS),nBAs(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),Temp2(ipMat(iS,jS)),nBas(iS),Zero,Temp4, &
                         nOrb(is))
-            call dcopy_(nBas(is)*nBas(js),[Zero],0,temp2(ipMat(is,js)),1)
+            Temp2(ipMat(is,js):ipMat(is,js)+nBas(is)*nBas(js)-1) = Zero
             call DGEMM_('N','N',nOrb(iS),nOrb(jS),nBas(jS),One,Temp4,nOrb(iS),CMO(ipCM(jS)),nBas(jS),Zero,Temp2(ipMat(iS,jS)), &
                         nOrb(iS))
             if (is /= js) then
-              call dcopy_(nBas(is)*nBas(js),[Zero],0,temp2(ipMat(js,is)),1)
+              Temp2(ipMat(js,is):ipMat(js,is)+nBas(is)*nBas(js)-1) = Zero
               call DGEMM_('T','T',nOrb(js),nOrb(iS),nBas(js),One,CMO(ipCM(js)),nBas(js),Temp4,nOrb(is),Zero,Temp2(ipMat(js,is)), &
                           nOrb(js))
             end if

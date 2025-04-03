@@ -62,7 +62,7 @@ do iS=1,nSym
                 ipG = iTri(iij,ikl)
                 P_ijkl = G2(ipG)
 
-                call DaXpY_(nOrb(ipS),P_ijkl,MO(ipM),1,Q(ipQ),1)
+                Q(ipQ:ipQ+nOrb(ipS)-1) = Q(ipQ:ipQ+nOrb(ipS)-1)+P_ijkl*MO(ipM:ipM+nOrb(ipS)-1)
                 ipM = ipM+nOrb(ipS)
 
               end do

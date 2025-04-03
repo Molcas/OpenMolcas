@@ -111,7 +111,7 @@ do iSym=1,nSym
 
       ! Save normal modes for later generation of Molden input.
 
-      call dcopy_(nX**2,EVec,1,NMod(ipNx),1)
+      NMod(ipNx:ipNx+nX**2-1) = EVec(1:nX**2)
       jpNx = ipNx
 
       do iX=1,nX
@@ -124,13 +124,13 @@ do iSym=1,nSym
           NMod(ipNx+jX) = NMod(ipNx+jX)/Fact
           rNorm = rNorm+real(nDeg(jX+1),kind=wp)*NMod(ipNx+jX)**2
         end do
-        call DScal_(nX,One/sqrt(rNorm),NMod(ipNx),1)
+        NMod(ipNx:ipNx+nX-1) = NMod(ipNx:ipNx+nX-1)/sqrt(rNorm)
 
         ipNx = ipNx+nX
         lModes = lModes+nX
       end do
       nModes = nModes+nX
-      call dcopy_(nX**2,NMod(jpNx),1,EVec,1)
+      EVec(1:nX**2) = NMod(jpNx:jpNx+nX**2-1)
       call GF_Print(EVal(i1),EVec,elout(kk),ll,nX,nX,iCtl,Intens(i1),RedMas,Lu_10,i1-1)
     else
       write(u6,*)
@@ -160,7 +160,7 @@ if (nsym == 1) call Print_Mode_Components(NMod,EVal,nModes,lModes,lDisp)
 !***********************************************************************
 !                                                                      *
 call mma_allocate(Temp,nEig,Label='Temp')
-call dcopy_(nEig,Eval,1,Temp,1)
+Temp(:) = Eval(1:nEig)
 
 ! For verification purpose we skip frequencies close to zero.
 
