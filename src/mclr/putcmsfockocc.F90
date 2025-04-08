@@ -17,7 +17,7 @@
 
 subroutine PutCMSFockOcc(FOccMO,nTri)
 
-use MCLR_Data, only: nDens2, ipMat
+use MCLR_Data, only: nDens, ipMat
 use input_mclr, only: nSym, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -25,13 +25,13 @@ use Constants, only: Zero
 implicit none
 ! Input:
 integer nTri
-real*8, dimension(nDens2) :: FOccMO
+real*8, dimension(nDens) :: FOccMO
 ! Auxiliaries
 real*8, dimension(:), allocatable :: F, T
 integer ijb, iS, iB, jB
 
-call mma_allocate(F,nDens2)
-call mma_allocate(T,nDens2)
+call mma_allocate(F,nDens)
+call mma_allocate(T,nDens)
 
 F(:) = Zero
 call Get_dArray_chk('FockOcc',F,nTri)
@@ -49,7 +49,7 @@ do iS=1,nSym
     F(ijb) = F(ijb)+T(ipmat(is,is)+nbas(is)*(iB-1)+IB-1)
   end do
 end do
-call Put_dArray('FockOcc',F,nDens2)
+call Put_dArray('FockOcc',F,nDens)
 call mma_deallocate(F)
 call mma_deallocate(T)
 

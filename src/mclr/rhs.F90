@@ -36,7 +36,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
 use MCLR_Data, only: G2t, G1t
-use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
+use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nMBA
 use MCLR_Data, only: DspVec
 use MCLR_procedures, only: CISigma
 use input_mclr, only: Debug, nSym, iMethod, State_Sym, nAsh, nBas, nIsh, nOrb, nTPert
@@ -113,13 +113,13 @@ end if
 
 ! Read in derivative of hamiltonian
 
-if ((iMethod == 2) .and. (n2dens /= 0)) then
-  call mma_allocate(MOX,n2dens,Label='MOX')
+if ((iMethod == 2) .and. (n2Dens /= 0)) then
+  call mma_allocate(MOX,n2Dens,Label='MOX')
 else
   call mma_allocate(MOX,1,Label='MOX')
 end if
 MOX(:) = Zero
-call mma_allocate(FiX,nDens2,Label='FIX')
+call mma_allocate(FiX,nDens,Label='FIX')
 
 call IntX(FIX,Temp6,Temp5,Temp4,Temp3,rkappa,MOX,loper,idisp)
 
@@ -150,9 +150,9 @@ if (btest(ntpert(idisp),3)) then
   call mma_deallocate(MOT2)
 
   ! ix  ix  ~i
-  Temp6(1:ndens2) = Zero
+  Temp6(:) = Zero
   ! F  =F  + F
-  FIX(:) = FIX(:)+Temp3(1:nDens2)
+  FIX(:) = FIX(:)+Temp3(:)
 
   if (iMethod == 2) call CreQ(Temp5,MOT,G2t,loper+1)
 
@@ -201,7 +201,7 @@ if ((iMethod == 2) .and. btest(ntpert(idisp),2)) call ABXpY(MOT,MOX,idsym)
 
 if (CI) then
 
-  call CiSigma(0,State_Sym,Mul(State_sym,idsym),FIX,nDens2,MOX,size(MOX),rdum,1,ipCI,ipst,.true.)
+  call CiSigma(0,State_Sym,Mul(State_sym,idsym),FIX,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,.true.)
 
   call ipin(ipst)
   if (idsym == 1) then
@@ -212,7 +212,7 @@ if (CI) then
   W(ipST)%A(1:nConf1) = Two*W(ipST)%A(1:nConf1)
 end if
 
-Temp1(1:ndens2) = Two*rKappa(1:ndens2)
+Temp1(:) = Two*rKappa(:)
 
 do iS=1,nSym
   js = Mul(is,loper+1)

@@ -21,7 +21,7 @@ subroutine WfCtl_td(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,con
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: CMO, Int2, FIMO
-use MCLR_Data, only: nConf1, nDens2, nDensC, ipCI, n1Dens, n2Dens, nDens
+use MCLR_Data, only: nConf1, nDensC, ipCI, n1Dens, n2Dens, nDens
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: lDisp
 use MCLR_Data, only: LuTemp
@@ -184,24 +184,24 @@ do iSym=kksym,kkksym
 
     ! Allocate areas for scratch and state variables
 
-    call mma_allocate(Kappa,nDens2+6,Label='Kappa')
-    call mma_allocate(dKappa,nDens2+6,Label='dKappa')
-    call mma_allocate(Sigma,nDens2+6,Label='Sigma')
-    call mma_allocate(Temp1,nDens2+6,Label='Temp1')
-    call mma_allocate(Temp2,nDens2+6,Label='Temp2')
-    call mma_allocate(Temp3,nDens2+6,Label='Temp3')
-    call mma_allocate(Temp4,nDens2+6,Label='Temp4')
-    call mma_allocate(Sc1,nDens2+6,Label='Sc1')
-    call mma_allocate(Sc2,nDens2+6,Label='Sc2')
-    call mma_allocate(Sc3,nDens2+6,Label='Sc3')
-    Temp1(1:nDens2) = Zero
-    Kappa(1:nDens2) = Zero
-    dKappa(1:nDens2) = Zero
-    Sigma(1:nDens2) = Zero
+    call mma_allocate(Kappa,nDens+6,Label='Kappa')
+    call mma_allocate(dKappa,nDens+6,Label='dKappa')
+    call mma_allocate(Sigma,nDens+6,Label='Sigma')
+    call mma_allocate(Temp1,nDens+6,Label='Temp1')
+    call mma_allocate(Temp2,nDens+6,Label='Temp2')
+    call mma_allocate(Temp3,nDens+6,Label='Temp3')
+    call mma_allocate(Temp4,nDens+6,Label='Temp4')
+    call mma_allocate(Sc1,nDens+6,Label='Sc1')
+    call mma_allocate(Sc2,nDens+6,Label='Sc2')
+    call mma_allocate(Sc3,nDens+6,Label='Sc3')
+    Temp1(1:nDens) = Zero
+    Kappa(1:nDens) = Zero
+    dKappa(1:nDens) = Zero
+    Sigma(1:nDens) = Zero
     if (CI) then
-      call mma_allocate(Dens,n1dens,Label='Dens')
-      call mma_allocate(Pens,n2dens,Label='Pens')
-      call mma_allocate(rmoaa,n2dens,Label='Pens')
+      call mma_allocate(Dens,n1Dens,Label='Dens')
+      call mma_allocate(Pens,n2Dens,Label='Pens')
+      call mma_allocate(rmoaa,n2Dens,Label='Pens')
       Dens(:) = Zero
       Pens(:) = Zero
       rmoaa(:) = Zero
@@ -218,7 +218,7 @@ do iSym=kksym,kkksym
 
     call RHS_td(Sigma,Temp1,Temp3,Sc2,dKappa,Sc3,Temp4,ipST,iDisp,iSym-1,CMO,jdisp,CI)
 
-    Temp4(1:nDens2) = -Temp4(1:nDens2)
+    Temp4(1:nDens) = -Temp4(1:nDens)
 
     ! Make RHS twice as long and change sign on second part!
 
@@ -233,7 +233,7 @@ do iSym=kksym,kkksym
     iLen = nDensC
     iRHSDisp(iDisp) = iDis
     call Compress(Temp4,Sigma,iSym)
-    r1 = Half*ddot_(ndensc,Sigma,1,Sigma,1)
+    r1 = Half*ddot_(nDensC,Sigma,1,Sigma,1)
 
     call UnCompress(Sigma,Temp4,iSym)
     call dDaFile(LuTemp,1,Sigma,iLen,iDis)
@@ -254,7 +254,7 @@ do iSym=kksym,kkksym
 
     call opout(ippre2)
     ! kap:kap
-    r2 = Half*ddot_(ndensc,Kappa,1,Kappa,1)
+    r2 = Half*ddot_(nDensC,Kappa,1,Kappa,1)
     if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
     ! dkap=Kap in matrix form
@@ -334,7 +334,7 @@ do iSym=kksym,kkksym
 
         if (CI) then
           ! Adjusted to timedep
-          call CISigma_td(jspin,State_Sym,pstate_sym,Temp4,nDens2,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,'T',.true.)
+          call CISigma_td(jspin,State_Sym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,'T',.true.)
           Clock(iTimeKC) = Clock(iTimeKC)+Tim3
 
           ! This will give us a better
@@ -634,12 +634,12 @@ do iSym=kksym,kkksym
       call ipnout(-1)
       !stop 10
     end if
-    call mma_allocate(TempTD,nDens2,Label='TempTD')
+    call mma_allocate(TempTD,nDens,Label='TempTD')
     call Uncompress(Kappa,TempTD,isym)
     call mma_deallocate(TempTD)
 
     write(u6,*)
-    iLen = ndensC
+    iLen = nDensC
     iKapDisp(iDisp) = iDis
     call dDaFile(LuTemp,1,Kappa,iLen,iDis)
     iSigDisp(iDisp) = iDis

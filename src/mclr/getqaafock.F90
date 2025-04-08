@@ -18,7 +18,7 @@
 subroutine GetQaaFock(FOccMO,P2MOt,GDMat,zX,nP2)
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: nNA, nDens2
+use MCLR_Data, only: nNA, nDens
 use input_mclr, only: nRoots, ntAsh, ntBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -30,7 +30,7 @@ real*8, dimension(nTri_Elem(nRoots-1)) :: zX
 real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
 real*8, dimension(nP2) :: P2MOt
 ! Output
-real*8, dimension(nDens2) :: FOccMO
+real*8, dimension(nDens) :: FOccMO
 ! For Debugging
 integer NPUVX
 real*8, dimension(:), allocatable :: PUVX
@@ -49,8 +49,8 @@ ng2 = nTri_Elem(ng1)
 
 nG1r = ntash**2
 nG2r = nTri_Elem(nG1r)
-call mma_allocate(Fock,nDens2)
-call mma_allocate(T,nDens2)
+call mma_allocate(Fock,nDens)
+call mma_allocate(T,nDens)
 call mma_allocate(G1r,nG1r)
 call mma_allocate(G2r,nG2r)
 call mma_allocate(G2q,ng2)

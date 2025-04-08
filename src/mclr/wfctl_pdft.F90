@@ -22,7 +22,7 @@ use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
-use MCLR_Data, only: nConf1, nDens2, nDensC, ipCI, nAcPar, nNA, nAcPr2, ipMat
+use MCLR_Data, only: nConf1, nDens, nDensC, ipCI, nAcPar, nNA, nAcPr2, ipMat
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: ISNAC, IRLXROOT, NACSTATES
 use MCLR_Data, only: LuTemp
@@ -147,20 +147,20 @@ jspin = 0
 
 ! Allocate areas for scratch and state variables
 
-call mma_allocate(Kappa,nDens2+6,Label='Kappa')
-call mma_allocate(dKappa,nDens2+6,Label='dKappa')
-call mma_allocate(Sigma,nDens2+6,Label='Sigma')
-call mma_allocate(Temp4,nDens2+6,Label='Temp4')
-call mma_allocate(Sc1,nDens2+6,Label='Sc1')
-call mma_allocate(Sc2,nDens2+6,Label='Sc2')
+call mma_allocate(Kappa,nDens+6,Label='Kappa')
+call mma_allocate(dKappa,nDens+6,Label='dKappa')
+call mma_allocate(Sigma,nDens+6,Label='Sigma')
+call mma_allocate(Temp4,nDens+6,Label='Temp4')
+call mma_allocate(Sc1,nDens+6,Label='Sc1')
+call mma_allocate(Sc2,nDens+6,Label='Sc2')
 
 ! I think the lagrange multiplers are independent of the
 ! displacement, no?
 nDisp = 1
 do iDisp=1,nDisp
-  Kappa(1:nDens2) = Zero
-  dKappa(1:nDens2) = Zero
-  Sigma(1:nDens2) = Zero
+  Kappa(1:nDens) = Zero
+  dKappa(1:nDens) = Zero
+  Sigma(1:nDens) = Zero
 
   !---------------------------------------------------------------------
   !
@@ -197,7 +197,7 @@ do iDisp=1,nDisp
   end do
   nacpar = nTri_Elem(nOrbAct)
   call mma_allocate(FMO1t,nTri,Label='FMO1t')
-  call mma_allocate(FMO1,nDens2,Label='FMO1')
+  call mma_allocate(FMO1,nDens,Label='FMO1')
   nacpar = nTri_Elem(nnA)
   nacpr2 = nTri_Elem(nacpar)
   call mma_allocate(FMO2t,nacpr2,Label='FMO2t')
@@ -234,7 +234,7 @@ do iDisp=1,nDisp
 
   call get_darray('F2_PDFT',FMO2t,nacpr2)
 
-  call CISigma_sa(0,State_sym,State_sym,FMO1,nDens2,FMO2t,size(FMO2t),rdum,1,ipci,ipST,.true.)
+  call CISigma_sa(0,State_sym,State_sym,FMO1,nDens,FMO2t,size(FMO2t),rdum,1,ipci,ipST,.true.)
   call mma_deallocate(FMO2t)
 
   troot = (irlxroot-1)
@@ -268,11 +268,11 @@ do iDisp=1,nDisp
 
   ! Get the fock matrix needed for the determination of the orbital part of the RHS.
 
-  call mma_allocate(FT99,nDens2,Label='FT99')
-  call mma_allocate(Temp5,nDens2+6,Label='Temp5')
+  call mma_allocate(FT99,nDens,Label='FT99')
+  call mma_allocate(Temp5,nDens+6,Label='Temp5')
   FT99(:) = Zero
   Temp5(:) = Zero
-  call get_dArray('Fock_PDFT',FT99,nDens2)
+  call get_dArray('Fock_PDFT',FT99,nDens)
   do iS=1,nSym
     jS = Mul(iS,1)
     if (nBas(is)*nBas(jS) /= 0) &
@@ -284,22 +284,22 @@ do iDisp=1,nDisp
   call mma_deallocate(Temp5)
   if (Do_Hybrid) then
     ! scaling the orb resp. for PDFT part in HMC-PDFT
-    Temp4(1:nDens2) = PDFT_Ratio*Temp4(1:nDens2)
+    Temp4(1:nDens) = PDFT_Ratio*Temp4(1:nDens)
     ! calculating the orb resp. for WF part in HMC-PDFT
-    call mma_allocate(WForb,nDens2+6,Label='WForb')
+    call mma_allocate(WForb,nDens+6,Label='WForb')
     ! saving Fock matrix for PDFT part in HMC-PDFT
     call mma_allocate(FOTr,nTri,Label='FOTr')
     call Get_dArray_chk('FockOcc',FOTr,nTri)
     ! note that the Fock matrix will be overwritten with the wf one
     ! ini rhs_sa
     call rhs_sa(WForb,rDum)
-    Temp4(1:nDens2) = Temp4(1:nDens2)+WF_Ratio*WForb(1:nDens2)
+    Temp4(1:nDens) = Temp4(1:nDens)+WF_Ratio*WForb(1:nDens)
     call mma_deallocate(WForb)
   end if
 
   if (debug) then
     write(u6,*) 'RHS orb part:'
-    do iS=1,nDens2
+    do iS=1,nDens
       write(u6,*) Temp4(iS)
     end do
   end if
@@ -311,8 +311,8 @@ do iDisp=1,nDisp
   if (Do_Hybrid) then
     ng1 = nTri_Elem(ntash)
     ng2 = nTri_Elem(ng1)
-    call mma_allocate(FOSq,nDens2,Label='FOSq')
-    call Get_dArray_chk('FockOcc',FOsq,nDens2)
+    call mma_allocate(FOSq,nDens,Label='FOSq')
+    call Get_dArray_chk('FockOcc',FOsq,nDens)
 
     ! scaling fock for wf part
     ! adding fock for pdft part
@@ -329,7 +329,7 @@ do iDisp=1,nDisp
 
     call Put_dArray('P2MOt',P2PDFT,nG2)
 
-    call Put_dArray('FockOcc',FOSq,ndens2)
+    call Put_dArray('FockOcc',FOSq,nDens)
 
     call mma_deallocate(FOSq)
     call mma_deallocate(FOTr)
@@ -337,10 +337,10 @@ do iDisp=1,nDisp
     call mma_deallocate(P2WF)
 
   else
-    call mma_allocate(FOSq,nDens2,Label='FOSq')
+    call mma_allocate(FOSq,nDens,Label='FOSq')
     FOSq(:) = Zero
     call Get_dArray_chk('FockOcc',FOSq,nTri)
-    call Put_dArray('FockOcc',FOSq,ndens2)
+    call Put_dArray('FockOcc',FOSq,nDens)
 
     call mma_deallocate(FOSq)
   end if
@@ -358,7 +358,7 @@ do iDisp=1,nDisp
   if (lprint) write(u6,*) '       Iteration       Delta       Res(kappa)  Res(CI)     DeltaK      DeltaC'
   iLen = nDensC
   iRHSDisp(iDisp) = iDis
-  do iS=1,nDens2
+  do iS=1,nDens
   end do
   call Compress(Temp4,Sigma,iSym)
   r1 = ddot_(nDensc,Sigma,1,Sigma,1)
@@ -386,8 +386,8 @@ do iDisp=1,nDisp
   !TRS
   call mma_allocate(lmroots,nroots,Label='lmroots')
   call mma_allocate(lmroots_new,nroots,Label='lmroots_new')
-  call mma_allocate(kap_new,ndensc,Label='kap_new')
-  call mma_allocate(kap_new_temp,ndensc,Label='kap_new_temp')
+  call mma_allocate(kap_new,nDensC,Label='kap_new')
+  call mma_allocate(kap_new_temp,nDensC,Label='kap_new_temp')
 
   Kap_New(:) = Zero
   Kap_New_Temp(:) = Zero
@@ -453,9 +453,9 @@ do iDisp=1,nDisp
   call opOut(ipdia)
 
   call ipIn(ipPre2)
-  call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,dKappa,nDens2+6,Sc1,nDens2+6,iSym,iter)
+  call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,dKappa,nDens+6,Sc1,nDens+6,iSym,iter)
   call opOut(ippre2)
-  r2 = ddot_(ndensc,dKappa,1,dKappa,1)
+  r2 = ddot_(nDensC,dKappa,1,dKappa,1)
   if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
   call mma_deallocate(kap_new)
@@ -556,7 +556,7 @@ do iDisp=1,nDisp
     call opOut(ipdia)
 
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
+    call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,Sc2,nDens+6,Sc1,nDens+6,iSym,iter)
     call opOut(ippre2)
 
     !------------------------------------------------------------------*
@@ -637,7 +637,7 @@ do iDisp=1,nDisp
   if (debug) then
     write(u6,*) 'outputs'
     write(u6,*) 'kappa'
-    do i=1,ndens2
+    do i=1,nDens
       write(u6,*) Kappa(i)
     end do
     call ipin(ipCIT)
@@ -648,7 +648,7 @@ do iDisp=1,nDisp
     end do
   end if
 
-  iLen = ndensC
+  iLen = nDensC
 
   iKapDisp(iDisp) = iDis
   call dDaFile(LuTemp,1,Kappa,iLen,iDis)

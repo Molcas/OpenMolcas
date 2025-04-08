@@ -14,14 +14,14 @@ subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t, CMO
-use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatLT, nA, nB
+use MCLR_Data, only: nDens, ipCM, ipMat, ipMatLT, nA, nB
 use MCLR_Data, only: DspVec, SWLbl
 use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh, nOrb, nTPert
 use Constants, only: Zero, One, Two
 use Definitions, only: u6
 
 implicit none
-real*8 FockI(nDens2), Temp2(ndens2), Temp3(nDens2), Temp4(ndens2), Temp1(nDens2), Fock(nDens2), rMO(*)
+real*8 FockI(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp1(nDens), Fock(nDens), rMO(*)
 integer lOper, iDisp
 character(len=8) Label
 integer jDisp, iOp, iRC, iOpt, iS, jS
@@ -29,7 +29,7 @@ real*8 rde
 integer i, j, iOff, jOff
 
 !***********************************************************************
-if (nDens2 == 0) return
+if (nDens == 0) return
 jDisp = DspVec(idisp)
 
 !       x

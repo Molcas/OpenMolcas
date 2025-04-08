@@ -20,7 +20,7 @@ subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
 
 use Index_Functions, only: iTri
 use MCLR_Data, only: CMO
-use MCLR_Data, only: ipMat, nA, nDens2
+use MCLR_Data, only: ipMat, nA, nDens
 use input_mclr, only: nSym, nAsh, nBas, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
@@ -65,7 +65,7 @@ end do
 
 !********************************************************
 call mma_allocate(OCCU,nbas_tot,Label='OCCU')
-call mma_allocate(NatCMO,ndens2,Label='NatCMO')
+call mma_allocate(NatCMO,nDens,Label='NatCMO')
 
 call NatOrb_MCLR(D1,CMO,NatCMO,OCCU)
 call dmat_MCLR(NatCMO,OCCU,DAO)

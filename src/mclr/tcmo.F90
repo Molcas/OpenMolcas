@@ -13,7 +13,7 @@ subroutine TCMO(A,isym,ictl)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO
-use MCLR_Data, only: ipCM, ipMat, nDens2
+use MCLR_Data, only: ipCM, ipMat, nDens
 use input_mclr, only: nSym, nBas, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -28,7 +28,7 @@ real*8, allocatable :: CMOInv(:)
 integer, allocatable :: iCMOInv(:)
 integer iRC, nCMOInv, niCMOInv, iS, jS
 
-call mma_allocate(Temp,nDens2,Label='Temp')
+call mma_allocate(Temp,nDens,Label='Temp')
 call ReLoad(A,isym,norb,nbas)
 
 ! irc used in call later must not be uninitialized

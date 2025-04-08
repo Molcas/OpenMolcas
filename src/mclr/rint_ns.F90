@@ -30,20 +30,20 @@ subroutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: G2sq, G1t
-use MCLR_Data, only: nDens2, ipMat, ipMatBA, nA, nMBA
+use MCLR_Data, only: nDens, ipMat, ipMatBA, nA, nMBA
 use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 
 implicit none
-real*8 rkappa(nDens2), rMO(*), Fock(nDens2), FockI(ndens2)
+real*8 rkappa(nDens), rMO(*), Fock(nDens), FockI(nDens)
 integer iDSym, jSpin
 real*8 reco
 real*8, allocatable :: FA(:), MT1(:), MT2(:), QA(:), QB(:)
 real*8 Fact, Dij
 integer iS, jS, iAsh, jAsh, ipF, ipFI
 
-call mma_allocate(FA,ndens2,Label='FA')
+call mma_allocate(FA,nDens,Label='FA')
 ! Fact controls the sign of H(k)
 Fact = One
 call mma_allocate(MT1,nmba,Label='MT1')
@@ -74,14 +74,14 @@ Fock(:) = Zero
 !  pi
 
 if (iMethod == 2) then
-  call mma_allocate(qA,ndens2,Label='QA')
-  call mma_allocate(qB,ndens2,Label='QB')
+  call mma_allocate(qA,nDens,Label='QA')
+  call mma_allocate(qB,nDens,Label='QB')
   call CreQ_td(QB,MT1,G2sq,idsym)
   call CreQ_td(QA,MT2,G2sq,idsym)
 end if
 
-!call RECPRT('QB',' ',QB,nDens2,1)
-!call RECPRT('QA',' ',QA,nDens2,1)
+!call RECPRT('QB',' ',QB,nDens,1)
+!call RECPRT('QA',' ',QA,nDens,1)
 
 do iS=1,nSym
   jS = Mul(iS,idsym)

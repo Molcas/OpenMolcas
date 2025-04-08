@@ -26,13 +26,13 @@ subroutine r2elint_ns(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t, FAMO, FIMO
-use MCLR_Data, only: nDens2, nMBA, ipCM, ipMat, nA, nCMO
+use MCLR_Data, only: nDens, nMBA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 
 implicit none
-real*8 rKappa(nDens2), rMO1(nMBA), rMO2(nMBA), FockI(nDens2), FockA(nDens2)
+real*8 rKappa(nDens), rMO1(nMBA), rMO2(nMBA), FockI(nDens), FockA(nDens)
 integer iDSym, jSpin
 real*8 sign, Fact
 logical lFI, lFA, lMo
@@ -46,7 +46,7 @@ integer i, j
 !***********************************************************************
 !                                                                      *
 
-ndens22 = ndens2
+nDens22 = nDens
 iAM = 0
 iBM = 0
 do i=1,nSym
@@ -62,12 +62,12 @@ call mma_allocate(T1,imem,Label='T1')
 call mma_allocate(Tmp2,nDens22,Label='Tmp2')
 call mma_allocate(T3,nDens22,Label='T3')
 call mma_allocate(T4,nDens22,Label='T4')
-call mma_allocate(DIL,nDens2,Label='DIL')
+call mma_allocate(DIL,nDens,Label='DIL')
 call mma_allocate(DI,nCMO,Label='DI')
-call mma_allocate(DIR,nDens2,Label='DIR')
-call mma_allocate(FI,ndens2,Label='FI')
-call mma_allocate(FI1,ndens2,Label='FI1')
-call mma_allocate(K1,ndens2,Label='K1')
+call mma_allocate(DIR,nDens,Label='DIR')
+call mma_allocate(FI,nDens,Label='FI')
+call mma_allocate(FI1,nDens,Label='FI1')
+call mma_allocate(K1,nDens,Label='K1')
 
 FockI(:) = Zero
 FockA(:) = Zero
@@ -82,10 +82,10 @@ lFa = .false.
 lMo = .false.
 
 if (iMethod == 2) then
-  call mma_allocate(DAL,nDens2,Label='DAL')
-  call mma_allocate(DAR,nDens2,Label='DAR')
+  call mma_allocate(DAL,nDens,Label='DAL')
+  call mma_allocate(DAR,nDens,Label='DAR')
   call mma_allocate(DA,nCMO,Label='DA')
-  call mma_allocate(FA1,nDens2,Label='FA1')
+  call mma_allocate(FA1,nDens,Label='FA1')
   lFa = .true.
   lMo = .true.
 else
@@ -123,15 +123,15 @@ end if
 ! from one index tranformation of contracted indexes
 
 !if (iDsym == 2) then
-!  call RecPrt('FI',' ',FI,ndens2,1)
-!  call RecPrt('DI',' ',DI,ndens2,1)
+!  call RecPrt('FI',' ',FI,nDens,1)
+!  call RecPrt('DI',' ',DI,nDens,1)
 !  stop 10
 !end if
 FacR = Fact
 call Read2_ns(rmo1,rmo2,FockI,FockA,T1,imem,Tmp2,T3,T4,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo)
 !if (iDsym == 2) then
-!  call RecPrt('FI',' ',FI,ndens2,1)
-!  call RecPrt('DI',' ',DI,ndens2,1)
+!  call RecPrt('FI',' ',FI,nDens,1)
+!  call RecPrt('DI',' ',DI,nDens,1)
 !  stop 10
 !end if
 do iS=1,nsym
@@ -146,7 +146,7 @@ if (imethod == 2) then
   DAL(:) = Zero
 end if
 call Read2_ns(rdum,rdum,FI1,FA1,T1,imem,Tmp2,T3,T4,DIR,DIL,DI,DAR,DAL,DA,K1,idsym,Sign,Facr,jSpin,lFA,lfi,.false.)
-!if (iDsym == 2) call RecPrt('FI1',' ',FI1,ndens2,1)
+!if (iDsym == 2) call RecPrt('FI1',' ',FI1,nDens,1)
 
 ! Calculate contribution from uncontracted indexes.
 

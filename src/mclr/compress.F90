@@ -75,6 +75,6 @@ do iSym=1,nSym
     end if
   end do
 end do
-if (indexc /= ndensc) call SysAbendMsg('compress','indexc /= ndensc',' ')
+if (indexc /= nDensC) call SysAbendMsg('compress','indexc /= nDensC',' ')
 
 end subroutine Compress

@@ -13,7 +13,7 @@ subroutine RHS_NAC(Fock,SLag)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipnout, opout, W
-use MCLR_Data, only: ipCI, nConf1, ipMat, n1Dens, n2Dens, nDens2
+use MCLR_Data, only: ipCI, nConf1, ipMat, n1Dens, n2Dens, nDens
 use MCLR_Data, only: NSSA
 use MCLR_Data, only: XISPSM
 use CandS, only: ICSM, ISSM
@@ -37,16 +37,16 @@ real*8, allocatable :: G1q(:), G1m(:), G1r(:), G2q(:), G2r(:), CIL(:), CIR(:), T
 ng1 = nTri_Elem(ntAsh)
 ng2 = nTri_Elem(ng1)
 if (PT2) then
-  call mma_allocate(G1q,n1dens,Label='G1q')
-  call mma_allocate(G2q,n2dens,Label='G2q')
+  call mma_allocate(G1q,n1Dens,Label='G1q')
+  call mma_allocate(G2q,n2Dens,Label='G2q')
 else
   call mma_allocate(G1q,nG1,Label='G1q')
   call mma_allocate(G2q,nG2,Label='G2q')
 end if
 call mma_allocate(G1m,nG1,Label='G1m')
-call mma_allocate(G1r,n1dens,Label='G1r')
+call mma_allocate(G1r,n1Dens,Label='G1r')
 G1r(:) = Zero
-call mma_allocate(G2r,n2dens,Label='G2r')
+call mma_allocate(G2r,n2Dens,Label='G2r')
 G2r(:) = Zero
 
 ! Calculate one- and two-particle transition matrices
@@ -68,7 +68,7 @@ else
   call ipnout(-1)
   icsm = 1
   issm = 1
-  call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)
+  call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1Dens,n2Dens)
 end if
 call mma_deallocate(CIL)
 call mma_deallocate(CIR)
@@ -187,8 +187,8 @@ do i=1,ntAsh
 end do
 
 ! Note: 1st arg = zero for no inactive density (TDM)
-call mma_allocate(T,nDens2,Label='T')
-call mma_allocate(F,nDens2,Label='F')
+call mma_allocate(T,nDens,Label='T')
+call mma_allocate(F,nDens,Label='F')
 call FockGen(Zero,G1r,G2r,T,Fock,1)
 call TCMO(T,1,-2)
 ij = 0
@@ -202,7 +202,7 @@ do k=1,nSym
     F(ij) = T(ipMat(k,k)+nBas(k)*i+i)
   end do
 end do
-call Put_dArray('FockOcc',F,nDens2)
+call Put_dArray('FockOcc',F,nDens)
 
 call mma_deallocate(T)
 call mma_deallocate(F)
@@ -241,7 +241,7 @@ subroutine PT2_SLag()
       !issm = 1
 
       if (abs(vSLag) > 1.0e-10_wp) then
-        call Densi2_mclr(2,G1q,G2q,CIL,CIR,0,0,0,n1dens,n2dens)
+        call Densi2_mclr(2,G1q,G2q,CIL,CIR,0,0,0,n1Dens,n2Dens)
         G1r(:) = G1r(:)+vSLag*G1q(:)
         G2r(:) = G2r(:)+vSLag*G2q(:)
       end if
@@ -250,7 +250,7 @@ subroutine PT2_SLag()
         iSLag = kR+nRoots*(jR-1)
         vSLag = SLag(iSLag)
         if (abs(vSLag) > 1.0e-10_wp) then
-          call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1dens,n2dens)
+          call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1Dens,n2Dens)
           G1r(:) = G1r(:)+vSLag*G1q(:)
           G2r(:) = G2r(:)+vSLag*G2q(:)
         end if

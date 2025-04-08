@@ -11,7 +11,7 @@
 
 subroutine NatOrb_MCLR(Dens,CMOO,CMON,OCCN)
 
-use MCLR_Data, only: ipCM, ipMat, nDens2
+use MCLR_Data, only: ipCM, ipMat, nDens
 use input_mclr, only: nSym, nBas, kPrint
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -22,8 +22,8 @@ real*8 Dens(*), CMOO(*), CMON(*), OCCN(*)
 real*8, allocatable :: EVal(:), EVec(:)
 integer iO, iS, ij, i, j, ii, iSt, iEnd
 
-call mma_allocate(EVec,ndens2,Label='EVec')
-call mma_allocate(EVal,ndens2,Label='EVal')
+call mma_allocate(EVec,nDens,Label='EVec')
+call mma_allocate(EVal,nDens,Label='EVal')
 
 ! Diagonalize the density matrix and transform orbitals
 

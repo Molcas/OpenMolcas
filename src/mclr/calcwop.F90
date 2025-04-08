@@ -17,7 +17,7 @@
 
 subroutine CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
 
-use MCLR_Data, only: nNA, nDens2, ipMat
+use MCLR_Data, only: nNA, nDens, ipMat
 use input_mclr, only: nSym, nAsh, nBas, nIsh
 use Constants, only: Zero
 
@@ -30,7 +30,7 @@ real*8, dimension(NPUVX) :: PUVX
 integer, dimension(nnA,nnA,nnA,nnA) :: IndTUVX
 integer, dimension(nSym) :: Off_Ash
 ! Output
-real*8, dimension(nDens2) :: Wop
+real*8, dimension(nDens) :: Wop
 ! Auxiliaries
 integer jSym, it, iu, t, u, v, x, pt, qu, iLoc1, iLoc2, jAsh
 real*8 tempd1

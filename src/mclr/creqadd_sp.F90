@@ -15,12 +15,12 @@ subroutine creqadd_sp(q,G2,idsym,Temp,Scr,n2)
 ! Constructs the Q matrix
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDens2, nNA, ipMat, nA
+use MCLR_Data, only: nDens, nNA, ipMat, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 
 implicit none
 integer idSym, n2
-real*8 Q(nDens2), G2(nna,nna,nna,nna), Temp(n2), Scr(n2)
+real*8 Q(nDens), G2(nna,nna,nna,nna), Temp(n2), Scr(n2)
 integer iS, jS, kS, lS, ipS, ijS, iAsh, jAsh, kAsh, lAsh, kAA, lAA, iAA, jAA, ipQ, ipM
 real*8 RD
 

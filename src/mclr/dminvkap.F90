@@ -139,7 +139,7 @@ subroutine DMInvKap_Internal(rMFact)
   !                                                                    *
   ! Warn if the trial vector becomes large
 
-  if ((ddot_(ndensc,rout,1,rout,1) > 100.0_wp) .and. (iter == 1)) then
+  if ((ddot_(nDensC,rout,1,rout,1) > 100.0_wp) .and. (iter == 1)) then
     write(LuWr,*) '****************************************'
     write(LuWr,*) '*                                      *'
     write(LuWr,*) '*           WARNING!!                  *'

@@ -12,12 +12,12 @@
 subroutine Ex_spin(rD,Fock,Temp1,ntemp,Temp2)
 
 use Constants, only: Zero, Half
-use MCLR_Data, only: nDens2, ipCM, nNA
+use MCLR_Data, only: nDens, ipCM, nNA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
 
 implicit none
 integer nTemp
-real*8 rD(*), Fock(*), Temp1(nTemp), Temp2(nDens2)
+real*8 rD(*), Fock(*), Temp1(nTemp), Temp2(nDens)
 integer jS, kS, llB, lB, jjB, jB
 real*8 rDens
 

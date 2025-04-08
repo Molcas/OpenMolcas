@@ -16,13 +16,13 @@ subroutine creq2(q,G2,idSym,Temp,Scr,n2)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDens2, ipMatBA, nA
+use MCLR_Data, only: nDens, ipMatBA, nA
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 use Constants, only: Zero
 
 implicit none
 integer idSym, n2
-real*8 Q(nDens2), G2(*), Temp(n2), Scr(n2)
+real*8 Q(nDens), G2(*), Temp(n2), Scr(n2)
 integer iS, jS, kS, lS, ijS, ipS, kAsh, lAsh, ikl, iAsh, jAsh, ipQ, iij, ipG, ipI
 
 !                                                                      *

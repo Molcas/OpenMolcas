@@ -21,7 +21,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO_Inv, CMO, G1t, G2t, FAMO, FIMO
-use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nMBA
+use MCLR_Data, only: nDens, ipCM, ipMat, ipMatBA, nA, nMBA
 #ifdef _DEBUGPRINT_
 use Spool, only: LuWr
 #endif
@@ -31,7 +31,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: u6
 
 implicit none
-real*8 rkappa(nDens2), rMOs(*), rmoa(*), Fock(nDens2), Q(ndens2), FockI(ndens2), FockA(nDens2)
+real*8 rkappa(nDens), rMOs(*), rmoa(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens)
 integer iDSym, jSpin
 real*8 reco
 logical Fake_CMO2, DoAct
@@ -49,8 +49,8 @@ real*8, external :: DDot_
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-write(LuWr,*) 'Focki=',DDot_(nDens2,Focki,1,Focki,1)
-write(LuWr,*) 'Focka=',DDot_(nDens2,Focka,1,Focka,1)
+write(LuWr,*) 'Focki=',DDot_(nDens,Focki,1,Focki,1)
+write(LuWr,*) 'Focka=',DDot_(nDens,Focka,1,Focka,1)
 #endif
 
 Fact = -One
@@ -77,12 +77,12 @@ if (.not. NewCho) then  ! Cho-MO
   !  pi
 
   if (iMethod == 2) then
-    call mma_allocate(QTemp,ndens2,Label='QTemp')
+    call mma_allocate(QTemp,nDens,Label='QTemp')
     call CreQ(Q,MT1,G2t,idsym)
     call CreQ(QTemp,MT2,G2t,idsym)
 #   ifdef _DEBUGPRINT_
-    write(LuWr,*) 'Q=',DDot_(nDens2,Q,1,Q,1)
-    write(LuWr,*) 'QTemp=',DDot_(nDens2,QTemp,1,QTemp,1)
+    write(LuWr,*) 'Q=',DDot_(nDens,Q,1,Q,1)
+    write(LuWr,*) 'QTemp=',DDot_(nDens,QTemp,1,QTemp,1)
 #   endif
     Q(:) = Q(:)+QTemp(:)
     call mma_deallocate(QTemp)
@@ -106,7 +106,7 @@ else  ! Cho-Fock
 
   ! Form AO 1-index transform inactive density
 
-  call mma_allocate(Dens2,nDens2,Label='Dens2')
+  call mma_allocate(Dens2,nDens,Label='Dens2')
   Dens2(:) = Zero
   call Allocate_DT(DLT(1),nOrb,nOrb,nSym) ! Note SQ format
   DLT(1)%A0(:) = Zero
@@ -254,8 +254,8 @@ else  ! Cho-Fock
   call Deallocate_DT(KI)
   call Deallocate_DT(JI(1))
   call Deallocate_DT(Kappa)
-  call GADSum(FockI,nDens2)
-  call GADSum(FockA,nDens2)
+  call GADSum(FockI,nDens)
+  call GADSum(FockA,nDens)
 # ifdef _DEBUGPRINT_
   nas = 0
   do iSym=1,nSym
@@ -304,7 +304,7 @@ else  ! Cho-Fock
   call deallocate_DT(DLT(1))
   call deallocate_DT(DI)
 
-  call GADSum(Q,nDens2)
+  call GADSum(Q,nDens)
   call GADSum(rMOs,nAtri)
 
 # ifdef _DEBUGPRINT_
@@ -376,7 +376,7 @@ do iS=1,nSym
 
 end do
 #ifdef _DEBUGPRINT_
-write(LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
+write(LuWr,*) 'Fock=',DDot_(nDens,Fock,1,Fock,1)
 #endif
 
 Focka(:) = Two*Fock(:)
@@ -386,7 +386,7 @@ do iS=1,nSym
     call DGESUB(Focka(ipMat(is,js)),nOrb(is),'N',Focka(ipMat(js,is)),nOrb(js),'T',Fock(ipMat(is,js)),nOrb(is),nOrb(is),nOrb(js))
 end do
 #ifdef _DEBUGPRINT_
-write(LuWr,*) 'Fock=',DDot_(nDens2,Fock,1,Fock,1)
+write(LuWr,*) 'Fock=',DDot_(nDens,Fock,1,Fock,1)
 #endif
 
 call AddGrad(rKappa,Fock,idsym,Two*fact)

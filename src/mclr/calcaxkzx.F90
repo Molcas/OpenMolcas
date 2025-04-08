@@ -18,7 +18,7 @@
 subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: nNA, nDens2
+use MCLR_Data, only: nNA, nDens
 use input_mclr, only: nRoots, ntBas, ntAsh, nSym, nAsh, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -29,7 +29,7 @@ real*8, dimension(nTri_Elem(nRoots),nnA,nnA), intent(in) :: GDMat
 real*8, dimension(NPUVX), intent(in) :: PUVX
 integer, dimension(ntBas,ntAsh,ntAsh,ntAsh), intent(in) :: IndPUVX
 real*8, dimension(nTri_Elem(nRoots-1)), intent(in) :: zx
-real*8, dimension(nDens2), intent(out) :: AXkzx
+real*8, dimension(nDens), intent(out) :: AXkzx
 ! Auxiliary Quantities
 integer, dimension(nSym) :: Off_Act, Off_Orb
 real*8, dimension(:), allocatable :: DKL1, DKL2, AXktmp
@@ -49,7 +49,7 @@ AXkzx(:) = Zero
 
 call mma_allocate(DKL1,ntAsh**2)
 call mma_allocate(DKL2,ntAsh**2)
-call mma_allocate(AXktmp,nDens2)
+call mma_allocate(AXktmp,nDens)
 
 do K=2,nRoots
   do L=1,K-1

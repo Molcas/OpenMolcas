@@ -17,7 +17,7 @@ subroutine Prec_td(pre2,DigPrec,isym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t
-use MCLR_Data, only: ipCM, ipMat, nA, nDens2
+use MCLR_Data, only: ipCM, ipMat, nA, nDens
 use input_mclr, only: nSym, nAsh, nIsh, nBas, Omega
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -81,7 +81,7 @@ end do
 ! Construct the diagonal approximation to the orbital prec, PreTd
 !-------------------------------------------------------------------
 
-call mma_allocate(PreTd,nDens2,Label='PreTd')
+call mma_allocate(PreTd,nDens,Label='PreTd')
 PreTd(:) = Zero
 ip1 = 1
 ip2 = 1
@@ -115,12 +115,12 @@ do iS=1,nSym
   ip1 = ip1+(nBas(iS)-nIsh(iS)-nAsh(iS))*nBas(jS)
   !ipsave = ip1
 end do
-!call RECPRT('PreTd',' ',PreTd,nDens2,1)
+!call RECPRT('PreTd',' ',PreTd,nDens,1)
 
 !----------------------
 ! Symmetrize PreTd
 !----------------------
-call mma_allocate(TempTd,nDens2,Label='TempTd')
+call mma_allocate(TempTd,nDens,Label='TempTd')
 
 do iS=1,nSym
   jS = Mul(iS,iSym)

@@ -17,7 +17,7 @@ module MCLR_Data
 ! Required in order to handle GAS and RAS within /LUCINP/
 
 ! Stuff from Pointers.fh
-!  ipCI, ipCM, ipMat, ipmatba, ipMatLT, ipMO, n1dens, n2dens, na, nacpar, nacpr2, nb, nCMO, nconf1, nDens, nDens2, ndensc, nmba, nna
+!  ipCI, ipCM, ipMat, ipmatba, ipMatLT, ipMO, n1Dens, n2Dens, na, nacpar, nacpr2, nb, nCMO, nconf1, nDens, nDensC, nmba, nna
 
 ! Stuff from spin_mclr.fh
 !  rbetaa, rbetas, rms
@@ -149,11 +149,11 @@ integer(kind=iwp) :: dspvec(mxdccc), i1, I12, IACTI(MXPICI), iAllo, iAnders, IAS
                      ipMO(8,8,8), IREFSM, IREOTS(MXPORB), irlxroot, ISMFTO(MXPORB), IST, istate, ITSOB(MXPORB), lconf, lDisp(8), &
                      lldet, luciv, LUCSF2SD, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, &
                      LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, MAXOP, MINOP, MNR1IC(MXPICI), MNR3IC(MXPICI), MS2, MS2P, MULTSP, &
-                     MXR1IC(MXPICI), MXR3IC(MXPICI), MXSB, MXSOOB, n1dens, n2dens, na(8), NACOB, nacpar, nacpr2, NACstates(2), &
+                     MXR1IC(MXPICI), MXR3IC(MXPICI), MXSB, MXSOOB, n1Dens, n2Dens, na(8), NACOB, nacpar, nacpr2, NACstates(2), &
                      NAELCI(MXPICI), nb(8), NBELCI(MXPICI), nCMO, NCNASM(MXPCSM), NCNATS(MXPCTP,MXPCSM), nconf1, NCPCNT(MXPCTP), &
-                     NCSASM(MXPCSM), nDens, nDens2, ndensc, NDPCNT(MXPCTP), NDTASM(MXPCSM), NELCI(MXPICI), nexp = 0, &
-                     nexp_max = 100, nhess, NICISP, nmba, nna, NOBPT(6+MXPR4T), NOBPTS(6+MXPR4T,MXPOBS), NOCOB, NOCSF, NOPART, &
-                     NORB1, NORB2, NORB3, nrec, NSSA(2), NTOOB, NTSOB(3,MXPOBS), NTYP
+                     NCSASM(MXPCSM), nDens, nDensC, NDPCNT(MXPCTP), NDTASM(MXPCSM), NELCI(MXPICI), nexp = 0, nexp_max = 100, &
+                     nhess, NICISP, nmba, nna, NOBPT(6+MXPR4T), NOBPTS(6+MXPR4T,MXPOBS), NOCOB, NOCSF, NOPART, NORB1, NORB2, &
+                     NORB3, nrec, NSSA(2), NTOOB, NTSOB(3,MXPOBS), NTYP
 real(kind=wp) :: rms, ERAS(MXSTATE), P1(MXSTATE*(MXSTATE+1)/2), P1INV(MXSTATE*(MXSTATE+1)/2), PDFT_Ratio, PSSIGN, rbetaa, rbetas, &
                  ResQaaLag2, WF_Ratio, XISPSM(MXPCSM,MXPICI) = Zero
 logical(kind=iwp) :: Do_Hybrid, esterr, Fancy_Preconditioner, isMECIMSPD, isNAC, NewPre = .true., ngp, Nofile, override, SA, square
@@ -172,10 +172,10 @@ public :: ChDisp, CMO, CMO_Inv, Do_Hybrid, dspvec, ERAS, esterr, F0SQMO, FAMO, F
           IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, INT1, INT2, ipCI, ipCM, ipdia, ipMat, ipmatba, ipMatLT, ipMO, IREFSM, IREOTS, &
           irlxroot, isMECIMSPD, ISMFTO, isNAC, IST, istate, ITSOB, KAIN1, KINT2, KINT2A, lconf, lDisp, lldet, luciv, LUCSF2SD, &
           LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, LuTwo, MAXI, MAXK, &
-          MAXOP, MINOP, MNR1IC, MNR3IC, MS2, MS2P, MULTSP, MXINKA, MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, n1dens, n2dens, &
-          na, NACOB, nacpar, nacpr2, NACstates, NAELCI, nb, NBELCI, nCMO, NCNASM, NCNATS, nconf1, NCPCNT, NCSASM, nDens, nDens2, &
-          ndensc, NDPCNT, NDTASM, NELCI, NewPre, nexp, nexp_max, ngp, nhess, NICISP, nmba, nna, NOBPT, NOBPTS, NOCOB, NOCSF, &
-          Nofile, NOPART, NORB1, NORB2, NORB3, nrec, NSSA, NTOOB, NTSOB, NTYP, override, P1, P1INV, PDFT_Ratio, pINT1, pINT2, &
-          PSSIGN, rbetaa, rbetas, ResQaaLag2, rms, SA, SBIDT, SFock, square, SS, SwLbl, WF_Ratio, XISPSM
+          MAXOP, MINOP, MNR1IC, MNR3IC, MS2, MS2P, MULTSP, MXINKA, MXPCSM, MXPNGAS, MXR1IC, MXR3IC, MXSB, MXSOOB, n1Dens, n2Dens, &
+          na, NACOB, nacpar, nacpr2, NACstates, NAELCI, nb, NBELCI, nCMO, NCNASM, NCNATS, nconf1, NCPCNT, NCSASM, nDens, nDensC, &
+          NDPCNT, NDTASM, NELCI, NewPre, nexp, nexp_max, ngp, nhess, NICISP, nmba, nna, NOBPT, NOBPTS, NOCOB, NOCSF, Nofile, &
+          NOPART, NORB1, NORB2, NORB3, nrec, NSSA, NTOOB, NTSOB, NTYP, override, P1, P1INV, PDFT_Ratio, pINT1, pINT2, PSSIGN, &
+          rbetaa, rbetas, ResQaaLag2, rms, SA, SBIDT, SFock, square, SS, SwLbl, WF_Ratio, XISPSM
 
 end module MCLR_Data

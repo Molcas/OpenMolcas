@@ -14,7 +14,7 @@ subroutine rhs_sa(Fock,SLag)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
 use MCLR_Data, only: Int1
-use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens2, nNA
+use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens, nNA
 use MCLR_Data, only: ISTATE
 use MCLR_Data, only: LuJob
 use input_mclr, only: ntAsh, PT2, nRoots, Debug, nSym, nConf, iRoot, iTOC, nAsh, nBas, nCSF, nIsh, nOrb
@@ -40,8 +40,8 @@ if (doDMRG) call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)  ! yma
 ng1 = nTri_Elem(ntash)
 ng2 = nTri_Elem(ng1)
 
-call mma_allocate(T,ndens2,Label='T')
-call mma_allocate(F,ndens2,Label='F')
+call mma_allocate(T,nDens,Label='T')
+call mma_allocate(F,nDens,Label='F')
 call mma_allocate(G1q,ng1,Label='G1q')
 call mma_allocate(G2q,ng2,Label='G2q')
 call mma_allocate(G1r,ntash**2,Label='G1r')
@@ -153,9 +153,9 @@ do is=1,nsym
     F(ijb) = T(ipmat(is,is)+nbas(is)*(iB-1)+IB-1)
   end do
 end do
-call Put_dArray('FockOcc',F,nDens2)
+call Put_dArray('FockOcc',F,nDens)
 
-!call recprt('RHS',' ',fock,ndens2,1)
+!call recprt('RHS',' ',fock,nDens,1)
 
 call mma_deallocate(G1r)
 call mma_deallocate(G2r)
@@ -199,7 +199,7 @@ subroutine PT2_SLag()
       !call ipnout(-1)
       !icsm = 1
       !issm = 1
-      call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)
+      call Densi2_mclr(2,G1r,G2r,CIL,CIR,0,0,0,n1Dens,n2Dens)
       ! For RDM1
       ij = 0
       do i=0,ntAsh-1

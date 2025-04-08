@@ -20,7 +20,7 @@ subroutine WfCtl_sp(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP)
 
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
 use MCLR_Data, only: SFock, G1m, G2mp, Int2, FIMO
-use MCLR_Data, only: nConf1, nDens2, nNA, nDensC, nDens, ipCI, n1Dens
+use MCLR_Data, only: nConf1, nNA, nDensC, nDens, ipCI, n1Dens
 use MCLR_Data, only: RMS
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: LuTemp
@@ -94,24 +94,24 @@ idisp = 1
 
 ! Allocate areas for scratch and state variables
 
-call mma_allocate(Kappa,nDens2+6,Label='Kappa')
-call mma_allocate(SFock,nDens2+6,Label='SFock')
-call mma_allocate(dKappa,nDens2+6,Label='dKappa')
-call mma_allocate(Sigma,nDens2+6,Label='Sigma')
-call mma_allocate(Temp1,nDens2+6,Label='Temp1')
-call mma_allocate(Temp2,nDens2+6,Label='Temp2')
-call mma_allocate(Temp3,nDens2+6,Label='Temp3')
-call mma_allocate(Temp4,nDens2+6,Label='Temp4')
-call mma_allocate(Sc1,nDens2+6,Label='Sc1')
-call mma_allocate(Sc2,nDens2+6,Label='Sc2')
-call mma_allocate(Sc3,nDens2+6,Label='Sc3')
+call mma_allocate(Kappa,nDens+6,Label='Kappa')
+call mma_allocate(SFock,nDens+6,Label='SFock')
+call mma_allocate(dKappa,nDens+6,Label='dKappa')
+call mma_allocate(Sigma,nDens+6,Label='Sigma')
+call mma_allocate(Temp1,nDens+6,Label='Temp1')
+call mma_allocate(Temp2,nDens+6,Label='Temp2')
+call mma_allocate(Temp3,nDens+6,Label='Temp3')
+call mma_allocate(Temp4,nDens+6,Label='Temp4')
+call mma_allocate(Sc1,nDens+6,Label='Sc1')
+call mma_allocate(Sc2,nDens+6,Label='Sc2')
+call mma_allocate(Sc3,nDens+6,Label='Sc3')
 call mma_allocate(Pre2,nDensC,Label='Pre2')
-Temp1(1:nDens2) = Zero
-Kappa(1:nDens2) = Zero
-dKappa(1:nDens2) = Zero
-Sigma(1:nDens2) = Zero
+Temp1(1:nDens) = Zero
+Kappa(1:nDens) = Zero
+dKappa(1:nDens) = Zero
+Sigma(1:nDens) = Zero
 if (iMethod == 2) then
-  call mma_allocate(Dens,n1dens,Label='Dens')
+  call mma_allocate(Dens,n1Dens,Label='Dens')
   call mma_allocate(Pens,nna**4,Label='Pens')
   call mma_allocate(rmoaa,nna**4,Label='rmoaa')
   call mma_allocate(rmoaa2,nna**4,Label='rmoaa2')
@@ -183,7 +183,7 @@ do
   !if (delta == Zero) exit
   read(u5,*) i1,j1
   if (i1 > 0) then
-    dKappa(1:nDens2) = Zero
+    dKappa(1:nDens) = Zero
     dKappa(i1) = One
   else
     call ipin(ipCID)
@@ -198,7 +198,7 @@ do
   if ((i1 > 0) .and. (j1 > 0)) write(u6,*) 'Kap_sig',Sc2(j1)
   if (nconf1 > 1) then
     call opout(-1)
-    call CISigma(1,State_Sym,state_sym,Temp4,nDens2,rmoaa,size(rmoaa),rmoaa2,size(rmoaa2),ipCI,ipS1,.true.)
+    call CISigma(1,State_Sym,state_sym,Temp4,nDens,rmoaa,size(rmoaa),rmoaa2,size(rmoaa2),ipCI,ipS1,.true.)
     call opout(-1)
     call ipin(ipCI)
     call ipin(ipS1)
@@ -224,7 +224,7 @@ do
 
       d_0 = ddot_(nconf1,W(ipCid)%A,1,W(ipci)%A,1)
       call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
-      Sc2(1:nDens2) = -rms*sqrt(OneHalf)*Sc1(1:nDens2)
+      Sc2(1:nDens) = -rms*sqrt(OneHalf)*Sc1(1:nDens)
 
       call Compress(Sc1,Sc3,1)
       if ((i1 < 0) .and. (j1 > 0)) write(u6,*) 'CI_sig',Sc3(j1)
@@ -406,7 +406,7 @@ else
   call ipnout(-1)
 end if
 write(u6,*)
-iLen = ndensC
+iLen = nDensC
 iKapDisp(iDisp) = iDis
 call dDaFile(LuTemp,1,Kappa,iLen,iDis)
 iSigDisp(iDisp) = iDis

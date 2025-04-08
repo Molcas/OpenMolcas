@@ -15,7 +15,7 @@ use Index_Functions, only: nTri_Elem
 use MckDat, only: sNew
 use ipPage, only: ipin, W
 use MCLR_Data, only: Hss, FAMO_SpinP, FAMO_SpinM, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
-use MCLR_Data, only: ipCI, nDens2
+use MCLR_Data, only: ipCI, nDens
 use MCLR_Data, only: RMS, rBetaA, rBetaS
 use MCLR_Data, only: lDisp, SwLbl
 use MCLR_Data, only: MS2
@@ -154,8 +154,8 @@ if (SPINPOL) then
   end do
   nG = nAct**2
   nG2 = nAct**4
-  call mma_allocate(famo_spinp,ndens2,Label='famo_spinp')
-  call mma_allocate(famo_spinm,ndens2,Label='famo_spinm')
+  call mma_allocate(famo_spinp,nDens,Label='famo_spinp')
+  call mma_allocate(famo_spinm,nDens,Label='famo_spinm')
   call mma_allocate(G2mp,nG2,Label='G2mp')
   call mma_allocate(G2pp,nG2,Label='G2pp')
   call mma_allocate(G2mm,nG2,Label='G2mm')
@@ -167,7 +167,7 @@ if (SPINPOL) then
   call ipin(ipCI)
   call SpinDens(W(ipCI)%A,W(ipCI)%A,STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,iType)
 
-  call mma_allocate(Tmp2,ndens2,Label='Tmp2')
+  call mma_allocate(Tmp2,nDens,Label='Tmp2')
   call mma_MaxDBLE(nMax)
   call mma_allocate(Tmp1,nMax/2,Label='Tmp1')
 

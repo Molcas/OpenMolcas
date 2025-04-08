@@ -32,7 +32,7 @@ use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
 use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
-use MCLR_Data, only: nConf1, ipCM, ipMat, nDens2
+use MCLR_Data, only: nConf1, ipCM, ipMat, nDens
 use MCLR_Data, only: i12, ist, Square
 use MCLR_Data, only: iRefSM
 use MCLR_Data, only: XISPSM
@@ -160,7 +160,7 @@ if (TIMEDEP) then
     call ipin(ipCI1)
     CIDET(1:nCSF(iCSM)) = W(ipCI1)%A(1:nCSF(iCSM))
 
-    call mma_allocate(TI1,ndens2,Label='TI1')
+    call mma_allocate(TI1,nDens,Label='TI1')
     call mma_allocate(TI2,ntash**4,Label='TI2')
 
     do i=1,ntash

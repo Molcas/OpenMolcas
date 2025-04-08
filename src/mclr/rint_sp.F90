@@ -17,13 +17,13 @@ subroutine RInt_SP(rkappa,rmos,rmoa,Focki,Sigma)
 !              pq       pq
 
 use MCLR_Data, only: FAMO_SpinP, FAMO_SpinM, SFock, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
-use MCLR_Data, only: nDensC, nDens2, nMBA
+use MCLR_Data, only: nDensC, nDens, nMBA
 use MCLR_Data, only: rBetaS, rBetaA
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 
 implicit none
-real*8 rkappa(nDensC), rMOs(*), rmoa(*), Focki(ndens2), Sigma(nDensC)
+real*8 rkappa(nDensC), rMOs(*), rmoa(*), Focki(nDens), Sigma(nDensC)
 real*8, allocatable :: MT1(:), MT2(:), MT3(:), Scr(:)
 
 ! D,FA used in oit of FA
@@ -35,19 +35,19 @@ real*8, allocatable :: MT1(:), MT2(:), MT3(:), Scr(:)
 call mma_allocate(MT1,nmba,Label='MT1')
 call mma_allocate(MT2,nmba,Label='MT2')
 call mma_allocate(MT3,nmba,Label='MT3')
-call mma_allocate(Scr,ndensc,Label='Scr')
+call mma_allocate(Scr,nDensC,Label='Scr')
 
 call Oit_sp(rkappa,Scr,-1,-One,G2mp,One,Fm,G1m,FAMO_Spinm,MT1,MT2,Focki)
 !sigma(:) = rbetaA*Half*SCR(:)
 sigma(:) = SCR(:)
-call Recprt(' ',' ',SCR,ndensc,1)
+call Recprt(' ',' ',SCR,nDensC,1)
 
 ! kappa_S
 
 call Oit_sp(rkappa,Scr,1,-One,G2mp,One,Fm,G1m,FAMO_Spinm,MT1,MT2,Focki)
 !sigma(:) = sigma(:)-rbetaA*Half*SCR(:)
 sigma(:) = sigma(:)-SCR(:)
-call Recprt(' ',' ',SCR,ndensc,1)
+call Recprt(' ',' ',SCR,nDensC,1)
 
 ! alpha_S
 
@@ -55,14 +55,14 @@ if (rbetas /= Zero) then
   call Oit_sp(rkappa,Scr,-1,One,G2pp,One,Fp,G1p,FAMO_Spinp,MT1,MT2,Focki)
   !sigma(:) = sigma(:)+rbetaS*Half*SCR(:)
   sigma(:) = sigma(:)+SCR(:)
-  call Recprt(' ',' ',SCR,ndensc,1)
+  call Recprt(' ',' ',SCR,nDensC,1)
 end if
 call Oit_sp(rkappa,Scr,-1,One,G2pp,One,G2mm,G1p,Famo_spinp,MT1,MT2,Focki)
 !sigma(:) = sigma(:)+ralphas*SCR(:)
-call Recprt(' ',' ',SCR,ndensc,1)
+call Recprt(' ',' ',SCR,nDensC,1)
 
 call AddGrad_sp(rKappa,Scr,SFock,1,One,One)
-call Recprt(' ',' ',SCR,ndensc,1)
+call Recprt(' ',' ',SCR,nDensC,1)
 sigma(:) = sigma(:)+rbetaA*Half*SCR(:)
 
 MT3(:) = MT1(:)+MT2(:)

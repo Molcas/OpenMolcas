@@ -27,7 +27,7 @@ subroutine OutRAS(iKapDisp,iCiDisp)
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: nConf1, nDensC, nDens2
+use MCLR_Data, only: nConf1, nDensC, nDens
 use MCLR_Data, only: DspVec, lDisp
 use MCLR_Data, only: LuTEMP
 use input_mclr, only: nDisp, nSym, State_Sym, iMethod, nCSF, nConf, iMethod, iSpin, kPrint, nActEl, nElec3, nHole1, nRS1, nRS2, &
@@ -66,9 +66,9 @@ do iSym=1,nSym
 
   ! Allocate areas for scratch and state variables
 
-  call mma_allocate(Kap1,nDens2,Label='Kap1')
-  call mma_allocate(Kap2,nDens2,Label='Kap2')
-  call mma_allocate(Kap3,nDens2,Label='Kap3')
+  call mma_allocate(Kap1,nDens,Label='Kap1')
+  call mma_allocate(Kap2,nDens,Label='Kap2')
+  call mma_allocate(Kap3,nDens,Label='Kap3')
   if (CI) then
     call mma_allocate(CIp1,nconfM,Label='CIp1')
     call InCSFSD(Pstate_sym,State_sym)
@@ -102,7 +102,7 @@ do iSym=1,nSym
       end if
       call GASync()
       call TCMO(Kap3,isym,-1)
-      irc = ndens2
+      irc = nDens
       Label = 'KAPPA'
       iopt = ibset(0,sLength)
       isyml = 2**(isym-1)

@@ -31,7 +31,7 @@ use Para_Info, only: Is_Real_Par
 #endif
 use Spool, only: LuWr
 use MCLR_Data, only: CMO, Int2, FIMO
-use MCLR_Data, only: nConf1, nDens2, nDensC, ipCI, n1Dens, n2Dens, nDens
+use MCLR_Data, only: nConf1, nDensC, ipCI, n1Dens, n2Dens, nDens
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: lDisp
 use MCLR_Data, only: LuTemp
@@ -299,29 +299,29 @@ do
 
   ! Allocate areas for scratch and state variables
 
-  call mma_allocate(Kappa,nDens2+6,Label='Kappa')
-  call mma_allocate(dKappa,nDens2+6,Label='dKappa')
-  call mma_allocate(Sigma,nDens2+6,Label='Sigma')
-  call mma_allocate(Temp1,nDens2+6,Label='Temp1')
-  call mma_allocate(Temp2,nDens2+6,Label='Temp2')
-  call mma_allocate(Temp3,nDens2+6,Label='Temp3')
-  call mma_allocate(Temp4,nDens2+6,Label='Temp4')
-  call mma_allocate(Sc1,nDens2+6,Label='Sc1')
-  call mma_allocate(Sc2,nDens2+6,Label='Sc2')
-  call mma_allocate(Sc3,nDens2+6,Label='Sc3')
-  Temp1(1:nDens2) = Zero
-  Kappa(1:nDens2) = Zero
-  dKappa(1:nDens2) = Zero
-  Sigma(1:nDens2) = Zero
+  call mma_allocate(Kappa,nDens+6,Label='Kappa')
+  call mma_allocate(dKappa,nDens+6,Label='dKappa')
+  call mma_allocate(Sigma,nDens+6,Label='Sigma')
+  call mma_allocate(Temp1,nDens+6,Label='Temp1')
+  call mma_allocate(Temp2,nDens+6,Label='Temp2')
+  call mma_allocate(Temp3,nDens+6,Label='Temp3')
+  call mma_allocate(Temp4,nDens+6,Label='Temp4')
+  call mma_allocate(Sc1,nDens+6,Label='Sc1')
+  call mma_allocate(Sc2,nDens+6,Label='Sc2')
+  call mma_allocate(Sc3,nDens+6,Label='Sc3')
+  Temp1(1:nDens) = Zero
+  Kappa(1:nDens) = Zero
+  dKappa(1:nDens) = Zero
+  Sigma(1:nDens) = Zero
   if (CI) then
-    call mma_allocate(Dens,n1dens,Label='Dens')
-    call mma_allocate(Pens,n2dens,Label='Pens')
+    call mma_allocate(Dens,n1Dens,Label='Dens')
+    call mma_allocate(Pens,n2Dens,Label='Pens')
 
     Dens(:) = Zero
     Pens(:) = Zero
   end if
   if (iMethod == 2) then
-    call mma_allocate(rmoaa,n2dens,Label='rmoaa')
+    call mma_allocate(rmoaa,n2Dens,Label='rmoaa')
   else
     call mma_allocate(rmoaa,1,Label='rmoaa')
   end if
@@ -362,7 +362,7 @@ do
   iLen = nDensC
   iRHSDisp(iDisp) = iDis
   call Compress(Temp4,Sigma,iSym)
-  r1 = ddot_(ndensc,sigma,1,sigma,1)
+  r1 = ddot_(nDensC,sigma,1,sigma,1)
   call UnCompress(Sigma,Temp4,iSym)
   call dDaFile(LuTemp,1,Sigma,iLen,iDis)
   if (CI) then
@@ -384,18 +384,18 @@ do
   call ipin(ipST)
   write(LuWr,*) 'ST=',DDot_(nConf1,W(ipST)%A,1,W(ipST)%A,1)
   write(LuWr,*) 'Sigma=',DDot_(nDensC,Sigma,1,Sigma,1)
-  write(LuWr,*) 'Kappa=',DDot_(nDens2,Kappa,1,Kappa,1)
+  write(LuWr,*) 'Kappa=',DDot_(nDens,Kappa,1,Kappa,1)
   write(LuWr,*) 'End RHS!'
 # endif
 
   iter = 1
   call ipin(ipPre2)
-  call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Kappa,nDens2+6,Temp3,nDens2+6,isym,iter)
+  call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,Kappa,nDens+6,Temp3,nDens+6,isym,iter)
   call opout(ippre2)
-  r2 = ddot_(ndensc,Kappa,1,Kappa,1)
+  r2 = ddot_(nDensC,Kappa,1,Kappa,1)
 # ifdef _DEBUGPRINT_
   write(LuWr,*) 'DMinvKap'
-  write(LuWr,*) 'Kap=',DDot_(nDens2,Kappa,1,Kappa,1)
+  write(LuWr,*) 'Kap=',DDot_(nDens,Kappa,1,Kappa,1)
   write(LuWr,*) 'End DMinvKap'
 # endif
   if (r2 > r1) write(LuWr,Fmt2//'A,I3,A)') 'Warning  perturbation number ',idisp,' might diverge!'
@@ -478,7 +478,7 @@ do
       !*****************************************************************
       !                                                                *
       if (CI) then
-        call CISigma(jspin,State_Sym,pstate_sym,Temp4,nDens2,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,.true.)
+        call CISigma(jspin,State_Sym,pstate_sym,Temp4,nDens,rmoaa,size(rmoaa),rdum,1,ipCI,ipS1,.true.)
         Clock(iTimeKC) = Clock(iTimeKC)+Tim3
 #       ifdef _DEBUGPRINT_
         call ipin(ipCI)
@@ -564,8 +564,8 @@ do
 
 #     ifdef _DEBUGPRINT_
       write(LuWr,*) 'After CIDens'
-      write(LuWr,*) 'P=',DDot_(n2dens,Pens,1,Pens,1)
-      write(LuWr,*) 'De=',DDot_(n1dens,Dens,1,Dens,1)
+      write(LuWr,*) 'P=',DDot_(n2Dens,Pens,1,Pens,1)
+      write(LuWr,*) 'De=',DDot_(n1Dens,Dens,1,Dens,1)
 #     endif
 
       ! density for inactive= 2(<d|0>+<0|d>)
@@ -699,7 +699,7 @@ do
     call opout(ipdia)
 
     call ipin(ipPre2)
-    call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
+    call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,Sc2,nDens+6,Sc1,nDens+6,iSym,iter)
     call opout(ippre2)
     !                                                                  *
     !*******************************************************************
@@ -816,7 +816,7 @@ do
 
   !write(LuWr,Fmt2//'A)') 'Writing response to one-file.'
   write(LuWr,*)
-  iLen = ndensC
+  iLen = nDensC
   iKapDisp(iDisp) = iDis
   call dDaFile(LuTemp,1,Kappa,iLen,iDis)
   iSigDisp(iDisp) = iDis

@@ -19,12 +19,12 @@ subroutine RHS_CMS_NAC(Fock,CICSF)
 
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use MCLR_Data, only: nDens2, nConf1, nNA, nAcPar, nAcPr2
+use MCLR_Data, only: nDens, nConf1, nNA, nAcPar, nAcPr2
 use input_mclr, only: nRoots, ntAsh, ntBas
 
 implicit none
 ! Output
-real*8, dimension(nDens2+6) :: Fock
+real*8, dimension(nDens+6) :: Fock
 real*8, dimension(nconf1*nroots) :: CICSF
 ! Auxiliary Quantities
 real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
@@ -35,13 +35,13 @@ real*8, dimension(:), allocatable :: PUVX, R, H, E_Final, AXkzx, AXPzx, AXX, bk,
 integer NPUVX, NTri
 
 ! MEMORY ALLOCATION
-call mma_allocate(AXkzx,nDens2)
+call mma_allocate(AXkzx,nDens)
 call mma_allocate(AXPzx,NConf1*nRoots)
 call mma_allocate(AXX,nTri_Elem(nRoots-1)**2)
 call mma_allocate(R,nRoots**2)
 call mma_allocate(H,nRoots**2)
 call mma_allocate(E_Final,nRoots)
-call mma_allocate(bk,nDens2)
+call mma_allocate(bk,nDens)
 call mma_allocate(bP,nConf1*nRoots)
 call mma_allocate(bX,nTri_Elem(nRoots-1))
 call mma_allocate(zX,nTri_Elem(nRoots-1))

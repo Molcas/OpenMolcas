@@ -14,13 +14,13 @@ subroutine OITD(rK,isym,D,Dtmp,act)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t
-use MCLR_Data, only: ipCM, ipMat, nA, nDens2
+use MCLR_Data, only: ipCM, ipMat, nA, nDens
 use input_mclr, only: nSym, nAsh, nIsh, nOrb
 use Constants, only: Zero, One, Two
 
 implicit none
 integer iSym
-real*8 rK(*), D(*), Dtmp(nDens2)
+real*8 rK(*), D(*), Dtmp(nDens)
 logical act
 integer iS, iB, jB, jS
 

@@ -13,7 +13,7 @@ subroutine CI_KAP(ipcid,fock,fockOut,isym)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipnout !, W
-use MCLR_Data, only: ipCI, n2Dens, nDens2, nNA
+use MCLR_Data, only: ipCI, n2Dens, nDens, nNA
 use input_mclr, only: ntAsh, State_Sym
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -32,7 +32,7 @@ real*8, allocatable :: tmpDe(:,:), tmpP(:), tmpDeM(:,:), tmpPM(:,:,:,:)
 
 call ipnout(-1)
 call mma_allocate(De,ntash**2,Label='De')
-call mma_allocate(Pe,n2dens,Label='Pe')
+call mma_allocate(Pe,n2Dens,Label='Pe')
 
 call CIDens_SA(.true.,ipCI,ipCid,State_sym,State_Sym,Pe,De)
 
@@ -111,8 +111,8 @@ if (doDMRG) then
   !call ipin(ipCID)
   !call ipin(ipci)
   !call projecter(W(ipCID)%A,W(ipci)%A,De,Pe)
-  Fock(1:ndens2) = Zero
-  FockOut(1:ndens2) = Zero
+  Fock(1:nDens) = Zero
+  FockOut(1:nDens) = Zero
   d0 = Zero
 
   call FockGen(d0,tmpDe,tmpP,Fock,FockOut,isym) ! yma modified
@@ -122,8 +122,8 @@ else
   !call ipin(ipCID)
   !call ipin(ipci)
   !call projecter(W(ipCID)%A,W(ipci)%A,De,Pe)
-  Fock(1:ndens2) = Zero
-  FockOut(1:ndens2) = Zero
+  Fock(1:nDens) = Zero
+  FockOut(1:nDens) = Zero
   d0 = Zero
   call FockGen(d0,De,Pe,Fock,FockOut,isym)
 end if

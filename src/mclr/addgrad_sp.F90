@@ -20,7 +20,7 @@ subroutine AddGrad_sp(rKappa,rMat,F,idsym,r1,r2)
 !   which is just the case if E is symmetric.
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: ipCM, ipMat, nDens2
+use MCLR_Data, only: ipCM, ipMat, nDens
 use input_mclr, only: nSym, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -33,8 +33,8 @@ integer iS, jS
 real*8, allocatable :: Tempi(:), Tempj(:)
 real*8, allocatable :: K(:), M(:)
 
-call mma_allocate(K,ndens2,Label='K')
-call mma_allocate(M,ndens2,Label='M')
+call mma_allocate(K,nDens,Label='K')
+call mma_allocate(M,nDens,Label='M')
 M(:) = Zero
 call Unc(rkappa,K,idsym,r1)
 

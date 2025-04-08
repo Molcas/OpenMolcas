@@ -18,14 +18,14 @@
 subroutine Calcbk(bk,R,nTri,GDMat,zX)
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: nDens2, nNA
+use MCLR_Data, only: nDens, nNA
 use input_mclr, only: nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 
 implicit none
 ! Output
-real*8, dimension(nDens2) :: bk
+real*8, dimension(nDens) :: bk
 ! Input
 real*8, dimension(nRoots**2) :: R
 integer nTri
@@ -37,7 +37,7 @@ integer nP2, nG1
 
 ng1 = iTri(ntash,ntash)
 nP2 = iTri(ng1,ng1)
-call mma_allocate(FOccMO,nDens2)
+call mma_allocate(FOccMO,nDens)
 call mma_allocate(P2MOt,nP2)
 bk(:) = Zero
 call GetWFFock(FOccMO,bk,R,nTri,P2MOt,nP2)

@@ -17,17 +17,17 @@
 
 subroutine SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
 
-use MCLR_Data, only: nDens2, nConf1
+use MCLR_Data, only: nDens, nConf1
 use input_mclr, only: nRoots
 
 implicit none
 ! Output
-real*8, dimension(nDens2) :: Fock
+real*8, dimension(nDens) :: Fock
 real*8, dimension(nConf1*nRoots) :: CICSF
 ! Input
-real*8, dimension(nDens2) :: AXkzx
+real*8, dimension(nDens) :: AXkzx
 real*8, dimension(nConf1*nRoots) :: AXPzx
-real*8, dimension(nDens2) :: bk
+real*8, dimension(nDens) :: bk
 real*8, dimension(nConf1*nRoots) :: bP
 
 ! Orbital Rotation Part

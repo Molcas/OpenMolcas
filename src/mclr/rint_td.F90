@@ -33,13 +33,13 @@ subroutine RInt_td(ekappa,mkappa,isym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: G1t
-use MCLR_Data, only: nDens2, ipCM, ipMat, nA
+use MCLR_Data, only: nDens, ipCM, ipMat, nA
 use input_mclr, only: Omega, nSym, nAsh, nBas, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 
 implicit none
-real*8 ekappa(ndens2), mkappa(ndens2)
+real*8 ekappa(nDens), mkappa(nDens)
 integer iSym
 real*8, allocatable :: Dens(:), wDKt(:), wKtD(:)
 integer lDens, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, jS, iini, ifin
@@ -53,8 +53,8 @@ do iS=1,nSym
   lDens = lDens+nBas(iS)**2
 end do
 call mma_allocate(Dens,lDens,Label='Dens')
-call mma_allocate(wDKt,ndens2,Label='wDKt')
-call mma_allocate(wKtD,ndens2,Label='wKtD')
+call mma_allocate(wDKt,nDens,Label='wDKt')
+call mma_allocate(wKtD,nDens,Label='wKtD')
 
 !******************************
 ! Construct the density matrix
@@ -100,7 +100,7 @@ end do
 ! Multiply D and mkappa wDKt and wKtD
 !*************************************
 !call RecPrt('dens ',' ',dens,ldens,1)
-!call RecPrt('ekappa ',' ',ekappa,ndens2,1)
+!call RecPrt('ekappa ',' ',ekappa,nDens,1)
 do is=1,nsym
   js = Mul(is,isym)
   ! wDKt
@@ -119,9 +119,9 @@ do is=1,nsym
     ekappa(iini:ifin) = ekappa(iini:ifin)+wDKt(iini:ifin)-wKtD(iini:ifin)
   end if
 end do
-!call RecPrt('wDKt ',' ',wDKt,ndens2,1)
-!call RecPrt('wKtD ',' ',wKtD,ndens2,1)
-!call RecPrt('ekappa ',' ',ekappa,ndens2,1)
+!call RecPrt('wDKt ',' ',wDKt,nDens,1)
+!call RecPrt('wKtD ',' ',wKtD,nDens,1)
+!call RecPrt('ekappa ',' ',ekappa,nDens,1)
 
 ! Free memory
 

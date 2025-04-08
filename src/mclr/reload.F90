@@ -12,7 +12,7 @@
 subroutine ReLoad(A,idsym,NBAS1,NBAS2)
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: ipMat, nDens2
+use MCLR_Data, only: ipMat, nDens
 use input_mclr, only: nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -23,7 +23,7 @@ integer nbas2(nsym), nbas1(nsym)
 real*8, allocatable :: ATemp(:)
 integer iS, jS, j, m, n1, n2
 
-call mma_allocate(ATemp,ndens2,Label='ATemp')
+call mma_allocate(ATemp,nDens,Label='ATemp')
 
 do iS=1,nsym
   js = Mul(is,idsym)
@@ -35,7 +35,7 @@ do iS=1,nsym
     ATemp(n2:n2+m-1) = A(n1:n1+m-1)
   end do
 end do
-A(1:ndens2) = ATemp(:)
+A(1:nDens) = ATemp(:)
 call mma_deallocate(ATemp)
 
 end subroutine ReLoad

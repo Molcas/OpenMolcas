@@ -24,7 +24,7 @@ use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use transform_procedures, only: SetUp_CASPT2_Tra
 use MCLR_Data, only: CMO_Inv, CMO
-use MCLR_Data, only: nDens2
+use MCLR_Data, only: nDens
 use MCLR_Data, only: LuTri1, LuMotra, FnTri1, FnMotra, FnQDat, LuHlf2, LuHlf3, LuQDat, LuTri2
 use input_mclr, only: StepType, TwoStep, NewCho, nSym, kPrint, nAsh, nBas, nDel, LuAChoVec, LuChoInt, LuIChoVec, nFro, nIsh, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -119,7 +119,7 @@ if (newCho) then
   call mma_deallocate(Smat)
 end if
 
-call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,nFro,nDel,CMO,nDens2,LuTri1,LuTri2,LuHlf2,LuHlf3)
+call SetUp_CASPT2_Tra(nSym,nBas,nOrb,nIsh,nAsh,nFro,nDel,CMO,nDens,LuTri1,LuTri2,LuHlf2,LuHlf3)
 iType = 3  ! Means that TraCtl is called by MCLR
 
 if ((.not. newCho) .and. (StepType /= 'RUN2')) call TraCtl_Drv(iType,.true.,1)

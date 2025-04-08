@@ -12,7 +12,7 @@
 subroutine Make_Conn(F,Kappa,P,D)
 
 use MCLR_Data, only: F0SQMO
-use MCLR_Data, only: ipMat, n2Dens, nDens2
+use MCLR_Data, only: ipMat, n2Dens, nDens
 use input_mclr, only: nSym, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One
@@ -28,17 +28,17 @@ integer iS, ijB, iB, ipTmp, ipTmp1, ipTmp2, jB
 ! P = \bar{d}
 ! D = \bar{D}
 
-call mma_allocate(T1,n2dens,Label='MO')
-call mma_allocate(T2,ndens2,Label='F1')
-call mma_allocate(T3,ndens2,Label='F3')
-call mma_allocate(T4,ndens2,Label='F2')
+call mma_allocate(T1,n2Dens,Label='MO')
+call mma_allocate(T2,nDens,Label='F1')
+call mma_allocate(T3,nDens,Label='F3')
+call mma_allocate(T4,nDens,Label='F2')
 
 ! OIT of the Fock matrix --> Ftilde the orbital part of the effective Fock
 ! F = Ftilde, the active part.
 ! T1 = Dtilde
 
 call Rint_generic(kappa,T1,dum,T2,T3,T4,F,1,-One,0)
-F(1:ndens2) = Half*F(1:ndens2)
+F(1:nDens) = Half*F(1:nDens)
 
 ! T2 = Fbar The ci part or the active Fock matrix
 
@@ -52,7 +52,7 @@ do iS=1,nsym
                 F(ipMat(is,is)),nBas(is))
   end if
 end do
-T2(:) = T2(:)+F(1:ndens2)
+T2(:) = T2(:)+F(1:nDens)
 
 call TCMO(T2,1,-2)
 ijB = 1

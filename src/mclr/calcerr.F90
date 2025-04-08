@@ -23,7 +23,7 @@ subroutine calcerr(kappa,iestate)
 !---------------------------------------------------
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: ipMat, nDens2
+use MCLR_Data, only: ipMat, nDens
 use MCLR_Data, only: ISTATE
 use input_mclr, only: nSym, nBas, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -44,8 +44,8 @@ ng1 = nTri_Elem(ntash)
 call mma_allocate(G1Q,ng1,Label='G1Q')
 call mma_allocate(G1R,ntash**2,Label='G1R')
 call mma_allocate(G2R,ntash**4,Label='G2R')
-call mma_allocate(T,ndens2,Label='T')
-call mma_allocate(Q,ndens2,Label='Q')
+call mma_allocate(T,nDens,Label='T')
+call mma_allocate(Q,nDens,Label='Q')
 
 ! Get densities of iestate in triangular and rectangular form.
 
@@ -59,8 +59,8 @@ call FockGen(One,G1R,G2R,T,Q,1)
 
 !call prnte(G1q,T)
 
-!call Recprt('KAPP',' ',kappa,nDens2,1)
-!call Recprt('FOCK',' ',T,nDens2,1)
+!call Recprt('KAPP',' ',kappa,nDens,1)
+!call Recprt('FOCK',' ',T,nDens,1)
 
 dejdw = Zero
 do iS=1,nsym

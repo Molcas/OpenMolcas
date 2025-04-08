@@ -15,7 +15,7 @@ subroutine SetUp_MCLR(DSYM)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: pInt1, pInt2
-use MCLR_Data, only: nNA, n2Dens, nDens, nCMO, nDensC, nDens2, ipMatLT, ipMat, ipCM, ipMatBA, ipMO, nA, nB, n1Dens, nMBA
+use MCLR_Data, only: nNA, n2Dens, nDens, nCMO, nDensC, ipMatLT, ipMat, ipCM, ipMatBA, ipMO, nA, nB, n1Dens, nMBA
 use input_mclr, only: nSym, TimeDep, iMethod, PT2, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3
 
 implicit none
@@ -104,19 +104,18 @@ do jS=1,nSym
 end do
 
 if (TimeDep) nDensC = 2*nDensC
-ndens2 = 0
+nDens = 0
 matab = 1
 do jS=1,nSym
   do iS=1,nSym
     if (Mul(iS,jS) == DSym) then
       ipMatba(is,js) = matab
-      ipMat(jS,iS) = nDens2+1
-      nDens2 = nDens2+nBas(iS)*nBas(jS)
+      ipMat(jS,iS) = nDens+1
+      nDens = nDens+nBas(iS)*nBas(jS)
       matab = matab+nash(js)*nOrb(iS)
     end if
   end do
 end do
-ndens = ndens2
 
 ! To begin with we assume that we have permutation symmetry
 

@@ -14,7 +14,7 @@ subroutine Out_Pt2(iKapDisp,iCIDisp)
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
 use MCLR_Data, only: CMO
-use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, N1Dens, nA, nDens2, nDensC
+use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, n1Dens, nA, nDens, nDensC
 use MCLR_Data, only: ESTERR, ISNAC, ISTATE, IRLXROOT, OVERRIDE, NACSTATES
 use MCLR_Data, only: LuTEMP, LuJob, LuPT2
 use input_mclr, only: nDisp, nSym, nRoots, ntAsh, PT2, iRoot, iTOC, nAsh, nBas, nCSF, nIsh, State_Sym
@@ -63,19 +63,19 @@ nNAC = nTri_Elem(nDLMO)
 nDLMO = nTri_Elem(nDLMO)
 nPLMO = nTri_Elem(nDLMO)
 
-call mma_allocate(K1,nDens2,Label='K1')
-call mma_allocate(K2,nDens2,Label='K2')
-call mma_allocate(DAO,nDens2,Label='DAO')
+call mma_allocate(K1,nDens,Label='K1')
+call mma_allocate(K2,nDens,Label='K2')
+call mma_allocate(DAO,nDens,Label='DAO')
 call mma_allocate(D_CI,n1Dens,Label='D_CI')
 call mma_allocate(D1,n1Dens,Label='D1')
 call mma_allocate(P_CI,n2Dens,Label='P_CI')
 call mma_allocate(P1,n2Dens,Label='P1')
-call mma_allocate(Conn,nDens2,Label='Conn')
+call mma_allocate(Conn,nDens,Label='Conn')
 call mma_allocate(OCCU,nbas_tot,Label='OCCU')
-call mma_allocate(CMON,ndens2,Label='CMON')
+call mma_allocate(CMON,nDens,Label='CMON')
 ! OBS nBuf might not be def.
 call mma_MaxDBLE(nBuf)
-call mma_allocate(Dtmp,nDens2,Label='DTmp')
+call mma_allocate(Dtmp,nDens,Label='DTmp')
 
 ! 1)   CI Part
 
@@ -172,7 +172,7 @@ if (CI) then
         D_CI(ij) = tmpDe(i1,j1)
       end do
     end do
-    do i=1,n2dens
+    do i=1,n2Dens
       P_CI(i) = tmpP(i)
     end do
     call mma_deallocate(tmpDe)
@@ -285,8 +285,8 @@ call mma_allocate(D_K,nLCMO,Label='D_K')
 call Get_dArray_chk('FockOcc',D_K,nLCMO)
 ! Calculates the effective Fock matrix
 call Make_Conn(Conn,K2,P_CI,D_CI)   !D_CI not changed
-Conn(:) = Conn(:)+D_K(1:ndens2)
-!Conn(:) = D_K(1:ndens2)
+Conn(:) = Conn(:)+D_K(1:nDens)
+!Conn(:) = D_K(1:nDens)
 if (PT2) then
   ! Add the WLag term (will be contracted with overlap
   ! derivative) computed in CASPT2
@@ -374,7 +374,7 @@ else
   jdisk = itoc(3)
   ng1 = nTri_Elem(ntash)
   ng2 = nTri_Elem(ng1)
-  call mma_allocate(G1q,n1dens,Label='G1q')
+  call mma_allocate(G1q,n1Dens,Label='G1q')
 
   ! Read active one el dens for state j from JOBIPH and store in G1q
 
@@ -454,7 +454,7 @@ if (isNAC) then
   call DaName(LuDens,'MCLRDENS')
   call dDaFile(LuDens,2,G1q,ng1,iDisk)
   call DaClos(LuDens)
-  call mma_allocate(G1m,ndens2,Label='G1m')
+  call mma_allocate(G1m,nDens,Label='G1m')
   G1m(:) = Zero
   ! Reconstruct the square matrix
   do is=1,nSym
@@ -611,8 +611,8 @@ end if
 
 ! Write the effective active one el density to disk in the same format as g1q
 
-!call mma_allocate(Deff_act,ndens2,Label='Deff_act')
-!Deff_act(:) = D_K(1:ndens2)
+!call mma_allocate(Deff_act,nDens,Label='Deff_act')
+!Deff_act(:) = D_K(1:nDens)
 !do is=1,nSym
 !  do i=1,nish(is)
 !
@@ -622,7 +622,7 @@ end if
 !  end do
 !end do
 
-!call Put_DEff(Deff_act,ndens2)
+!call Put_DEff(Deff_act,nDens)
 
 !call mma_deallocate(Deff_act)
 

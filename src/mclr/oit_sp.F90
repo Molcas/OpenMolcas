@@ -16,7 +16,7 @@ subroutine oit_sp(rkappa,sigma,i1,r3,p11,r4,p12,D,FA,rm1,rm2,focki)
 ! Constructs  F  = <0|[Q  ,H]|0>
 !              pq       pq
 
-use MCLR_Data, only: nDensC, nDens2, nNA, ipMat, nA, nMBA
+use MCLR_Data, only: nDensC, nDens, nNA, ipMat, nA, nMBA
 use input_mclr, only: nSym, nAsh, nBas, nIsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -24,7 +24,7 @@ use Definitions, only: wp
 
 implicit none
 integer i1
-real*8 rkappa(nDensC), sigma(ndensC), FA(ndens2), D(*), p12(*), p11(*), rm1(*), rm2(*), Focki(*)
+real*8 rkappa(nDensC), sigma(nDensC), FA(nDens), D(*), p12(*), p11(*), rm1(*), rm2(*), Focki(*)
 real*8, allocatable :: K(:), FAtemp(:), Fock(:), Q(:), Q1(:)
 integer iSym, jSpin, iS, iAsh, jAsh, ipF1, ipF2, ipFI1, IA
 real*8 R1, Fact, Reco, R3, R4, Dij
@@ -36,14 +36,14 @@ r1 = real(i1,kind=wp)
 Fact = -One ! bullshit
 reco = -One !(k*a+reco*a*k)
 jspin = 1 ! triplet
-call mma_allocate(K,ndens2,Label='K')
-call mma_allocate(FAtemp,ndens2,Label='FAtemp')
-call mma_allocate(Fock,ndens2,Label='Fock')
-call mma_allocate(Q,ndens2,Label='Q')
-call mma_allocate(Q1,ndens2,Label='Q1')
+call mma_allocate(K,nDens,Label='K')
+call mma_allocate(FAtemp,nDens,Label='FAtemp')
+call mma_allocate(Fock,nDens,Label='Fock')
+call mma_allocate(Q,nDens,Label='Q')
+call mma_allocate(Q1,nDens,Label='Q1')
 rm1(1:nmba) = Zero
 rm2(1:nmba) = Zero
-Focki(1:ndens2) = Zero
+Focki(1:nDens) = Zero
 Q(:) = Zero
 Q1(:) = Zero
 call Unc(rkappa,K,isym,r1)

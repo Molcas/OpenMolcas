@@ -158,14 +158,14 @@ do iSym=1,nSym
       call dDaFile(LuTemp,2,SKap,Len,iDisk)
       iDisk = iRHSDisp(iDisp)
       call dDaFile(LuTemp,2,rKap1,Len,iDisk)
-      do i=1,ndensC
+      do i=1,nDensC
         SKap(i) = -SKap(i)-rKap1(i)
       end do
 
       !call Recprt('ORB-RHS',' ',rKap1,nDensC,1)
-      !write(u6,*) 'ddot orb-resp',ddot_(ndensC,Kap1,1,Kap1,1)
-      !write(u6,*) 'ddot orb-sigma',ddot_(ndensC,SKap,1,SKap,1)
-      !write(u6,*) 'ddot orb-rhs',ddot_(ndensC,rKap1,1,rKap1,1)
+      !write(u6,*) 'ddot orb-resp',ddot_(nDensC,Kap1,1,Kap1,1)
+      !write(u6,*) 'ddot orb-sigma',ddot_(nDensC,SKap,1,SKap,1)
+      !write(u6,*) 'ddot orb-rhs',ddot_(nDensC,rKap1,1,rKap1,1)
 
       call GADSum(Kap1,Len)
       call GADSum(SKap,Len)

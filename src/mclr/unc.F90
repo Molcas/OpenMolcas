@@ -17,12 +17,12 @@ subroutine UnC(ArrayIn,ArrayOut,dsym,Sign)
 ! The redundant rotations are set to zero
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDensC, nDens2, ipMat, nB
+use MCLR_Data, only: nDensC, nDens, ipMat, nB
 use input_mclr, only: nSym, nIsh, nRS1, nRS2, nRS3, nOrb, TimeDep
 use Constants, only: Zero, One
 
 implicit none
-real*8 ArrayIn(nDensC), ArrayOut(nDens2)
+real*8 ArrayIn(nDensC), ArrayOut(nDens)
 integer dsym
 real*8 sign
 integer IndexC, iSym, jSym, jBas, jT, iBas, iT, Index1, Index2

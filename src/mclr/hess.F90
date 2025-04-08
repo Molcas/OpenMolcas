@@ -18,14 +18,14 @@ subroutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,Temp4,idsym,jdisp,idisp)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: Hss, CMO, F0SQMO
-use MCLR_Data, only: nDens2, ipCM, ipMat
+use MCLR_Data, only: nDens, ipCM, ipMat
 use MCLR_Data, only: DspVec, lDisp
 use input_mclr, only: nSym, nBas, nOrb, nTPert
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: u6
 
 implicit none
-real*8 Temp1(nDens2), Temp2(nDens2), Temp3(nDens2), FockC(nDens2), FockX(nDens2), rcon(nDens2), temp4(*)
+real*8 Temp1(nDens), Temp2(nDens), Temp3(nDens), FockC(nDens), FockX(nDens), rcon(nDens), temp4(*)
 integer idSym, jDisp, iDisp
 character(len=8) Label
 integer iS, jS, nNJ, Len, iSym, nIn, mDisp, kDisp, iRC, iOpt, iOp, iP, IndX
@@ -103,7 +103,7 @@ do kDisp=1,ldisp(idsym)
   Fact = One
   if (kDisp == jDisp) Fact = Two
   Indx = nIn+iTri(kDisp,jDisp)
-  Hss(Indx) = Hss(Indx)-fact*ddot_(nDens2,Temp2,1,Temp3,1)
+  Hss(Indx) = Hss(Indx)-fact*ddot_(nDens,Temp2,1,Temp3,1)
 end do
 
 end subroutine Hess

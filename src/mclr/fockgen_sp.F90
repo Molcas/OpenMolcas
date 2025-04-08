@@ -26,7 +26,7 @@ subroutine FockGen_sp(d_0,rDens1,rdens2,Fock,fockout,idsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: FIMO
-use MCLR_Data, only: nNA, ipCM, ipMat, nA, nDens2
+use MCLR_Data, only: nNA, ipCM, ipMat, nA, nDens
 use input_mclr, only: nSym, nAsh, nIsh, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
@@ -35,7 +35,7 @@ implicit none
 real*8 d_0
 integer idSym
 real*8 Fock(*), fockout(*), rdens2(*), rDens1(*)
-!real*8 Fock(nDens2), fockout(*), rdens2(*), rDens1(nna*nna)
+!real*8 Fock(nDens), fockout(*), rdens2(*), rDens1(nna*nna)
 real*8, allocatable :: MO(:), Scr(:)
 integer n1, iS, n2, ipS, kS, jS, iB, jA, jAA, kA, kAA, ipM, ipF, iA, ip1, ip2
 real*8 rd
@@ -46,7 +46,7 @@ real*8 rd
 !  Coulomb term: F  = 2(pk|ji)d
 !                 kp           ij
 
-Fock(1:nDens2) = Zero
+Fock(1:nDens) = Zero
 
 n1 = 0
 do iS=1,nSym
@@ -115,7 +115,7 @@ do iS=1,nSym
   if (nbas(is)*nBas(js) /= 0) &
     call DGESUB(Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(js,is)),nBas(js),'T',FockOut(ipMat(is,js)),nBas(is),nBas(is),nBas(js))
 end do
-FockOut(1:ndens2) = Two*FockOut(1:ndens2)
+FockOut(1:nDens) = Two*FockOut(1:nDens)
 if (idsym == 1) call Add2(Fockout,d_0)
 !                                                                      *
 !***********************************************************************

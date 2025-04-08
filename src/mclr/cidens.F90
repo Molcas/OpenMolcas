@@ -66,12 +66,12 @@ if (nconf1 == 0) return
 if (doDMRG) then  !yma
   call dmrg_dim_change_mclr(LRras2(1:8),ndim,0)
   call dmrg_dim_change_mclr(LRras2(1:8),nna,0)
-  n1dens = ndim**2
-  n2dens = nTri_Elem(n1dens)
+  n1Dens = ndim**2
+  n2Dens = nTri_Elem(n1Dens)
 end if
 
-call mma_allocate(De,n1dens,Label='De')
-call mma_allocate(Pe,n2dens,Label='Pe')
+call mma_allocate(De,n1Dens,Label='De')
+call mma_allocate(Pe,n2Dens,Label='Pe')
 De(:) = Zero
 Pe(:) = Zero
 
@@ -89,7 +89,7 @@ if (nocsf == 0) then
   call ipnout(-1)
   icsm = iR
   issm = iL
-  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)
 
   if (.not. timedep) then
     if (response) then
@@ -115,15 +115,15 @@ if (nocsf == 0) then
       end do
 
     else
-      rp(1:n2dens) = Pe(:)
-      rD(1:n1dens) = De(:)
+      rp(1:n2Dens) = Pe(:)
+      rD(1:n1Dens) = De(:)
     end if
   else
-    rp(1:n2dens) = Pe(:)
-    rD(1:n1dens) = De(:)
+    rp(1:n2Dens) = Pe(:)
+    rD(1:n1Dens) = De(:)
     iCSM = iL
     iSSM = iR
-    call Densi2_mclr(2,De,Pe,CIR,CIL,0,0,0,n1dens,n2dens)
+    call Densi2_mclr(2,De,Pe,CIR,CIL,0,0,0,n1Dens,n2Dens)
     rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
     rD(1:n1Dens) = rD(1:n1Dens)-De(:)
   end if
@@ -134,7 +134,7 @@ else
   icsm = iR
   call ipin(iLS)
   call ipin(iRS)
-  call Densi2_mclr(2,De,Pe,W(iLS)%A,W(iRS)%A,0,0,0,n1dens,n2dens)
+  call Densi2_mclr(2,De,Pe,W(iLS)%A,W(iRS)%A,0,0,0,n1Dens,n2Dens)
   if (.not. timedep) then
     if (response) then
       do iA=1,nnA
@@ -158,17 +158,17 @@ else
         end do
       end do
     else
-      rp(1:n2dens) = Pe(:)
-      rD(1:n1dens) = De(:)
+      rp(1:n2Dens) = Pe(:)
+      rD(1:n1Dens) = De(:)
     end if
   else
-    rp(1:n2dens) = Pe(:)
-    rD(1:n1dens) = De(:)
+    rp(1:n2Dens) = Pe(:)
+    rD(1:n1Dens) = De(:)
     iCSM = iL
     iSSM = iR
     call ipin(iRS)
     call ipin(iLS)
-    call Densi2_mclr(2,De,Pe,W(iRS)%A,W(iLS)%A,0,0,0,n1dens,n2dens)
+    call Densi2_mclr(2,De,Pe,W(iRS)%A,W(iLS)%A,0,0,0,n1Dens,n2Dens)
     rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
     rD(1:n1Dens) = rD(1:n1Dens)-De(:)
   end if
@@ -179,8 +179,8 @@ call mma_deallocate(De)
 if (doDMRG) then  ! yma
   call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
   call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
-  n1dens = ndim**2
-  n2dens = nTri_Elem(n1dens)
+  n1Dens = ndim**2
+  n2Dens = nTri_Elem(n1dens)
 end if
 
 end subroutine CIDens

@@ -25,7 +25,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, CMO_Inv, Int1, G1t, G2t
-use MCLR_Data, only: nDens2, ipCM, ipMat, ipMatBA, nA, nB
+use MCLR_Data, only: nDens, ipCM, ipMat, ipMatBA, nA, nB
 use MCLR_Data, only: LuQDat
 use input_mclr, only: TwoStep, StepType, nSym, NewCho, iMethod, rIn_Ene, Debug, PotNuc, iAddressQDat, LuAChoVec, LuIChoVec, nAsh, &
                       nBas, nIsh, nOrb
@@ -34,7 +34,7 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: u6
 
 implicit none
-real*8 MO1(*), Fock(nDens2), Q(nDens2), FockI(nDens2), FockA(nDens2), Temp2(nDens2), Scr(*), Temp3(ndens2)
+real*8 MO1(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens), Temp2(nDens), Scr(*), Temp3(nDens)
 logical Fake_CMO2, DoAct
 real*8, allocatable :: G2x(:)
 type(DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA, FkI, FkA, QVec, WCMO, WCMO_Inv
@@ -58,10 +58,10 @@ if (TwoStep .and. (StepType == 'RUN2')) then
   Fock(:) = Zero
   Q(:) = Zero
   MO1(1:nAtri) = Zero
-  call ddafile(LuQDAT,2,FockA,nDens2,iaddressQDAT)
-  call ddafile(LuQDAT,2,FockI,nDens2,iaddressQDAT)
-  call ddafile(LuQDAT,2,Fock,nDens2,iaddressQDAT)
-  call ddafile(LuQDAT,2,Q,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,2,FockA,nDens,iaddressQDAT)
+  call ddafile(LuQDAT,2,FockI,nDens,iaddressQDAT)
+  call ddafile(LuQDAT,2,Fock,nDens,iaddressQDAT)
+  call ddafile(LuQDAT,2,Q,nDens,iaddressQDAT)
   call ddafile(LuQDAT,2,MO1,nAtri,iaddressQDAT)
 else
 
@@ -149,7 +149,7 @@ else
 
     if (iMethod == 2) then
 
-      call CreQ2(Q,G2t,1,Temp2,Scr,nDens2)
+      call CreQ2(Q,G2t,1,Temp2,Scr,nDens)
 
       ! Sort out MO (ij|kl)
 
@@ -394,9 +394,9 @@ else
     call Deallocate_DT(CVa(1))
     call deallocate_DT(DA)
 
-    call GADSum(FockI,nDens2)
-    call GADSum(FockA,nDens2)
-    call GADSum(Q,nDens2)
+    call GADSum(FockI,nDens)
+    call GADSum(FockA,nDens)
+    call GADSum(Q,nDens)
     call GADSum(MO1,nAtri)
 
   end if
@@ -414,7 +414,7 @@ else
   nAtri = nTri_Elem(nAtri)
   call RecPrt('MO1',' ',MO1,1,nAtri)
 # endif
-  FockI(:) = FockI(:)+Int1(1:ndens2)
+  FockI(:) = FockI(:)+Int1(1:nDens)
   Fock(:) = Zero
 
   do iS=1,nSym
@@ -488,10 +488,10 @@ if (TwoStep .and. (StepType == 'RUN1')) then
   end do
   nAtri = nTri_Elem(nm)
   nAtri = nTri_Elem(nAtri)
-  call ddafile(LuQDAT,1,FockA,nDens2,iaddressQDAT)
-  call ddafile(LuQDAT,1,FockI,nDens2,iaddressQDAT)
-  call ddafile(LuQDAT,1,Fock,nDens2,iaddressQDAT)
-  call ddafile(LuQDAT,1,Q,nDens2,iaddressQDAT)
+  call ddafile(LuQDAT,1,FockA,nDens,iaddressQDAT)
+  call ddafile(LuQDAT,1,FockI,nDens,iaddressQDAT)
+  call ddafile(LuQDAT,1,Fock,nDens,iaddressQDAT)
+  call ddafile(LuQDAT,1,Q,nDens,iaddressQDAT)
   call ddafile(LuQDAT,1,MO1,nAtri,iaddressQDAT)
 end if
 !                                                                      *

@@ -20,7 +20,7 @@ subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use MCLR_Data, only: nDens2, nConf1, ipCI, nNA
+use MCLR_Data, only: nDens, nConf1, ipCI, nNA
 use MCLR_Data, only: IRLXROOT
 use MCLR_Data, only: LuJob
 use MCLR_Data, only: XISPSM
@@ -33,8 +33,8 @@ implicit none
 real*8, dimension(nRoots,nRoots) :: R
 integer nTri, NG2
 ! Output
-real*8, dimension(nDens2) :: FOccMO
-real*8, dimension(nDens2) :: bk
+real*8, dimension(nDens) :: FOccMO
+real*8, dimension(nDens) :: bk
 real*8, dimension(nG2) :: P2MOt
 ! Auxiliaries
 real*8, dimension(:), allocatable :: FinCI
@@ -55,8 +55,8 @@ ng1 = nTri_Elem(ntash)
 ng2 = nTri_Elem(ng1)
 
 call mma_allocate(FinCI,nconf1*nroots,Label='FinCI')
-call mma_allocate(Fock,ndens2,Label='Fock')
-call mma_allocate(T,ndens2,Label='T')
+call mma_allocate(Fock,nDens,Label='Fock')
+call mma_allocate(T,nDens,Label='T')
 call mma_allocate(G1q,ng1,Label='G1q')
 call mma_allocate(G2q,ng2,Label='G2q')
 call mma_allocate(G1r,ntash**2,Label='G1r')

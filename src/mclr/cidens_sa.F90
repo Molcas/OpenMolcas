@@ -67,14 +67,14 @@ if (nconf1 == 0) return
 if (doDMRG) then
   call dmrg_dim_change_mclr(LRras2(1:8),ndim,0)
   call dmrg_dim_change_mclr(LRras2(1:8),nna,0)
-  n1dens = ndim**2
-  n2dens = nTri_Elem(n1dens)
+  n1Dens = ndim**2
+  n2Dens = nTri_Elem(n1Dens)
 end if
 
-call mma_allocate(De,n1dens,Label='De')
-call mma_allocate(Pe,n2dens,Label='Pe')
-rD(1:n1dens) = Zero
-rP(1:n2dens) = Zero
+call mma_allocate(De,n1Dens,Label='De')
+call mma_allocate(Pe,n2Dens,Label='Pe')
+rD(1:n1Dens) = Zero
+rP(1:n2Dens) = Zero
 
 nConfL = max(ncsf(il),nint(xispsm(il,1)))
 nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
@@ -92,7 +92,7 @@ do i=1,nroots
   call ipnout(-1)
   icsm = iR
   issm = iL
-  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)
 
   if (RSP) then
     do iA=1,nnA
@@ -116,8 +116,8 @@ do i=1,nroots
       end do
     end do
   else
-    rp(1:n2dens) = rp(1:n2dens)+weight(i)*Pe(:)
-    rD(1:n1dens) = rD(1:n1dens)+weight(i)*De(:)
+    rp(1:n2Dens) = rp(1:n2Dens)+weight(i)*Pe(:)
+    rD(1:n1Dens) = rD(1:n1Dens)+weight(i)*De(:)
   end if
 end do
 
@@ -129,8 +129,8 @@ call mma_deallocate(De)
 if (doDMRG) then
   call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
   call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
-  n1dens = ndim**2
-  n2dens = nTri_elem(n1dens)
+  n1Dens = ndim**2
+  n2Dens = nTri_Elem(n1Dens)
 end if
 
 end subroutine CIDens_sa

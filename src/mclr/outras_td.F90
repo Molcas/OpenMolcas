@@ -29,7 +29,7 @@ subroutine OutRAS_td(iKapDisp,iCiDisp)
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: nConf1, nDensC, nDens2
+use MCLR_Data, only: nConf1, nDensC, nDens
 use MCLR_Data, only: DspVec, lDisp
 use MCLR_Data, only: LuTEMP
 use input_mclr, only: nDisp, nSym, State_Sym, iMethod, nCSF, nConf, iMethod, iSpin, kPrint, nActEl, nElec3, nHole1, nRS1, nRS2, &
@@ -68,9 +68,9 @@ do iSym=1,nSym
 
   ! Allocate areas for scratch and state variables
 
-  call mma_allocate(Kap1,nDens2,Label='Kap1')
-  call mma_allocate(Kap2,nDens2,Label='Kap2')
-  call mma_allocate(Kap3,nDens2,Label='Kap3')
+  call mma_allocate(Kap1,nDens,Label='Kap1')
+  call mma_allocate(Kap2,nDens,Label='Kap2')
+  call mma_allocate(Kap3,nDens,Label='Kap3')
   if (CI) then
     if (TimeDep) then
       call mma_allocate(CIp1,nconf1,2,Label='CIp1')
@@ -88,7 +88,7 @@ do iSym=1,nSym
     ! LuTemp temp file in wfctl where the response is written
     !---------------------------------------------------------
     call dDaFile(LuTemp,2,Kap1,Len,iDisk)
-    !if (ndensc /= 0) call RecPrt('K',' ',Kap1,ndensc,1)
+    !if (nDensC /= 0) call RecPrt('K',' ',Kap1,nDensC,1)
     call Uncompress(Kap1,Kap3,isym)
     if (CI) then
       ilen = nconfM
@@ -97,7 +97,7 @@ do iSym=1,nSym
       !call RecPrt(' ',' ',CIp1,nconfM,1)
     end if
     call TCMO(Kap3,isym,-1)
-    irc = ndens2
+    irc = nDens
     Label = 'KAPPA'
     iopt = ibset(0,sLength)
     isyml = 2**(isym-1)

@@ -36,7 +36,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
 use MCLR_Data, only: G2sq, G1t
-use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nDens2, nMBA
+use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nMBA
 use MCLR_Data, only: DspVec
 use MCLR_procedures, only: CISigma_td
 use input_mclr, only: Debug, nSym, iMethod, State_Sym, nAsh, nBas, nIsh, nTPert
@@ -114,12 +114,12 @@ end if
 ! Read in derivative of hamiltonian
 
 if (iMethod == 2) then
-  call mma_allocate(MOX,n2dens,Label='MOX')
+  call mma_allocate(MOX,n2Dens,Label='MOX')
 else
   call mma_allocate(MOX,1,Label='MOX')  ! Dummy allocation
 end if
 MOX(:) = Zero
-call mma_allocate(FiX,nDens2,Label='FiX')
+call mma_allocate(FiX,nDens,Label='FiX')
 call IntX(FIX,Temp6,Temp5,Temp4,Temp3,rkappa,MOX,loper,idisp)
 
 !----------------------------------------------------------------------*
@@ -146,9 +146,9 @@ if (btest(ntpert(idisp),3)) then
     call mma_deallocate(MOT2)
   end if
   ! ix  ix  ~i
-  Temp6(1:ndens2) = Zero
+  Temp6(:) = Zero
   ! F  =F  + F
-  FIX(:) = FIX(:)+Temp3(1:nDens2)
+  FIX(:) = FIX(:)+Temp3(:)
 
   if (iMethod == 2) call CreQ_td(Temp5,MOT,G2sq,loper+1)
 
@@ -194,9 +194,9 @@ if ((iMethod == 2) .and. btest(ntpert(idisp),2)) call ABXpY(MOT,MOX,idsym)
 
 if (CI) then
   if (btest(ntPert(idisp),3)) then
-    call CiSigma_td(0,State_Sym,Mul(State_sym,idsym),Fix,nDens2,MOX,size(MOX),rdum,1,ipCI,ipst,'N',.true.)
+    call CiSigma_td(0,State_Sym,Mul(State_sym,idsym),Fix,nDens,MOX,size(MOX),rdum,1,ipCI,ipst,'N',.true.)
   else
-    call CiSigma_td(0,State_Sym,Mul(State_sym,idsym),Fix,nDens2,rdum,1,rdum,1,ipCI,ipst,'N',.false.)
+    call CiSigma_td(0,State_Sym,Mul(State_sym,idsym),Fix,nDens,rdum,1,rdum,1,ipCI,ipst,'N',.false.)
   end if
 
   call ipin(ipST)
@@ -208,7 +208,7 @@ if (CI) then
   W(ipST)%A(1:nConf1) = Two*W(ipST)%A(1:nConf1)
 end if
 
-Temp1(1:ndens2) = Two*rKappa(1:ndens2)
+Temp1(:) = Two*rKappa(:)
 
 do iS=1,nSym
   js = Mul(is,loper+1)

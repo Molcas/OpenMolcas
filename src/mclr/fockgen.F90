@@ -28,7 +28,7 @@ use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use MCLR_Data, only: CMO, FIMO
-use MCLR_Data, only: nDens2, nNA, ipCM, ipMat, nA
+use MCLR_Data, only: nDens, nNA, ipCM, ipMat, nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas, NewCho, LuAChoVec, nOrb
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -37,7 +37,7 @@ use Constants, only: Zero, Two
 implicit none
 real*8 d_0
 integer idSym
-real*8 Fock(nDens2), FockOut(*), rDens2(*), rDens1(nna,nna)
+real*8 Fock(nDens), FockOut(*), rDens2(*), rDens1(nna,nna)
 real*8, allocatable :: MO(:), Scr(:), G2x(:), Scr1(:,:)
 type(DSBA_type) :: CVa
 integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA, nG2, iSym, nAG2, jSym, kSym, ipGx, ijS, lS, iAsh, jAsh, kAsh, &
@@ -198,7 +198,7 @@ else  ! Cho-Fock
   call Deallocate_DT(CVa)
   call mma_deallocate(G2x)
 
-  call GADSum(Fock,nDens2)
+  call GADSum(Fock,nDens)
 
 end if
 
@@ -232,7 +232,7 @@ do iS=1,nSym
     call DGeSub(Fock(ipMat(iS,jS)),nBas(iS),'N',Fock(ipMat(jS,iS)),nBas(jS),'T',FockOut(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
 end do
 
-FockOut(1:nDens2) = Two*FockOut(1:nDens2)
+FockOut(1:nDens) = Two*FockOut(1:nDens)
 if (idSym == 1) call AddGrad2(FockOut,d_0)
 
 if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)  ! yma

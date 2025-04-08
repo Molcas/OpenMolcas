@@ -50,16 +50,16 @@ subroutine Read2_ns(rMO1,rMO2,FockI,FockA,Temp1,nTemp,Temp2,Temp3,Temp4,DI13,DI2
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nMBA, nDens2, nCMO, ipCM, ipMat, ipMO, nB
+use MCLR_Data, only: nMBA, nDens, nCMO, ipCM, ipMat, ipMO, nB
 use input_mclr, only: nSym, iMethod, nAsh, nIsh, nBas
 use Constants, only: Zero, Half, One
 use Definitions, only: u6
 
 implicit none
-real*8 rmo1(nMBA), rmo2(nMBA), FockI(nDens2), FockA(nDens2)
+real*8 rmo1(nMBA), rmo2(nMBA), FockI(nDens), FockA(nDens)
 integer nTemp
-real*8 Temp1(ntemp), Temp2(nDens2), Temp3(nDens2), Temp4(nDens2), DI13(nDens2), DI24(nDens2), DI(nCMO), DA13(nDens2), &
-       DA24(nDens2), DA(nCMO), rkappa(nDens2)
+real*8 Temp1(ntemp), Temp2(nDens), Temp3(nDens), Temp4(nDens), DI13(nDens), DI24(nDens), DI(nCMO), DA13(nDens), DA24(nDens), &
+       DA(nCMO), rkappa(nDens)
 integer iDSym
 real*8 Signa, Fact
 integer jSpin

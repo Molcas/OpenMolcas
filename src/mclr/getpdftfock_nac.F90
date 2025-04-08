@@ -19,21 +19,21 @@
 subroutine GetPDFTFock_NAC(bk)
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDens2, ipMat
+use MCLR_Data, only: nDens, ipMat
 use input_mclr, only: nSym, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
 
 implicit none
 ! Output
-real*8, dimension(nDens2) :: bk
+real*8, dimension(nDens) :: bk
 ! Auxiliaries
 real*8, dimension(:), allocatable :: T, bktmp
 integer IS, JS
 
-call mma_allocate(bktmp,nDens2)
-call mma_allocate(T,nDens2)
-call Get_DArray('FxyMS',T,nDens2)
+call mma_allocate(bktmp,nDens)
+call mma_allocate(T,nDens)
+call Get_DArray('FxyMS',T,nDens)
 
 do IS=1,nSym
   jS = Mul(iS,1)

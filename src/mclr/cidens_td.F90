@@ -56,11 +56,11 @@ integer i, j, k, l, ijkl
 !
 !
 !           +       +
-! iS=1 E  =a  a  + a  a     ! Singlett operator
+! iS=1 E  =a  a  + a  a     ! Singlet operator
 !       pq  ap aq   Bp Bq
 !
 !            +       +
-! iS=-1 T  =a  a  - a a     ! Triplett operator
+! iS=-1 T  =a  a  - a a     ! Triplet operator
 !        pq  ap aq   Bp Bq
 !
 ! Output:
@@ -73,10 +73,10 @@ integer i, j, k, l, ijkl
 
 if (nconf1 == 0) return
 
-call mma_allocate(De,n1dens,Label='De')
-call mma_allocate(Pe,n2dens,Label='Pe')
-rD(1:n1dens) = Zero
-rP(1:n2dens) = Zero
+call mma_allocate(De,n1Dens,Label='De')
+call mma_allocate(Pe,n2Dens,Label='Pe')
+rD(1:n1Dens) = Zero
+rP(1:n2Dens) = Zero
 
 if (nocsf == 0) then
   nConfL = max(ncsf(iS),nint(xispsm(iS,1)))
@@ -105,16 +105,16 @@ if (nocsf == 0) then
   ! ipL is the bra side vector
   De(:) = Zero
   Pe(:) = Zero
-  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)
 
-  !write(u6,*) 'De*De',ddot_(n1dens,De,1,De,1)
-  !call RecPrt('De',' ',De,n1dens,1)
+  !write(u6,*) 'De*De',ddot_(n1Dens,De,1,De,1)
+  !call RecPrt('De',' ',De,n1Dens,1)
 
-  rp(1:n2dens) = Pe(:)
-  rD(1:n1dens) = De(:)
+  rp(1:n2Dens) = Pe(:)
+  rD(1:n1Dens) = De(:)
 
-  !write(u6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
-  !call RecPrt('rD',' ',rD,n1dens,1)
+  !write(u6,*) 'rD*rD',ddot_(n1Dens,rD,1,rD,1)
+  !call RecPrt('rD',' ',rD,n1Dens,1)
 
   call ipin(iCI)
   call ipin(ipCI)
@@ -131,19 +131,19 @@ if (nocsf == 0) then
   icsm = STATE_SYM
   De(:) = Zero
   Pe(:) = Zero
-  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1dens,n2dens)
+  call Densi2_mclr(2,De,Pe,CIL,CIR,0,0,0,n1Dens,n2Dens)
 
-  !write(u6,*) 'De*De',ddot_(n1dens,De,1,De,1)
-  !Call RecPrt('De',' ',De,n1dens,1)
+  !write(u6,*) 'De*De',ddot_(n1Dens,De,1,De,1)
+  !Call RecPrt('De',' ',De,n1Dens,1)
 
   rp(1:n2Dens) = rp(1:n2Dens)-Pe(:)
   rD(1:n1Dens) = rD(1:n1Dens)-De(:)
 
-  !rP(1:n2dens) = -rP(1:n2dens)
-  !rD(1:n1dens) = -rD(1:n1dens)
+  !rP(1:n2Dens) = -rP(1:n2Dens)
+  !rD(1:n1Dens) = -rD(1:n1Dens)
 
-  !write(u6,*) 'rD*rD',ddot_(n1dens,rD,1,rD,1)
-  !call RecPrt('rD',' ',rD,n1dens,1)
+  !write(u6,*) 'rD*rD',ddot_(n1Dens,rD,1,rD,1)
+  !call RecPrt('rD',' ',rD,n1Dens,1)
 
   call mma_deallocate(CIL)
   call mma_deallocate(CIR)

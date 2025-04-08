@@ -18,7 +18,7 @@ subroutine FckMat()
 
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: FAMO, FIMO, F0SQMO, INT2
-use MCLR_Data, only: nDens2
+use MCLR_Data, only: nDens
 use MCLR_Data, only: nrec
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -46,18 +46,18 @@ nAtri = nTri_Elem(nAtri)
 nmmm = ((nmmm-1)/nRec+1)*nRec
 nmm = nmm*nMMM
 nmm = nmm**2
-call mma_allocate(F0SQMO,ndens2,Label='F0SQMO')
-call mma_allocate(FIMO,ndens2,Label='FIMO')
+call mma_allocate(F0SQMO,nDens,Label='F0SQMO')
+call mma_allocate(FIMO,nDens,Label='FIMO')
 if (iMethod == 2) then
   call mma_allocate(Int2,nAtri,Label='Int2')
 else
   call mma_allocate(Int2,1,Label='Int2')
 end if
 Int2(:) = Zero
-call mma_allocate(FAMO,nDens2,Label='FAMO')
-call mma_allocate(Q,nDens2,Label='Q')
-call mma_allocate(Tmp2,ndens2,2,Label='Tmp2')
-call mma_allocate(T3,ndens2,Label='T3')
+call mma_allocate(FAMO,nDens,Label='FAMO')
+call mma_allocate(Q,nDens,Label='Q')
+call mma_allocate(Tmp2,nDens,2,Label='Tmp2')
+call mma_allocate(T3,nDens,Label='T3')
 !                                                                      *
 !***********************************************************************
 !                                                                      *

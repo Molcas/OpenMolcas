@@ -143,7 +143,7 @@ do iSym=1,nSym
     call dDaFile(LuTemp,2,SKap,Len,iDisk)
     iDisk = iRHSDisp(iDisp)
     call dDaFile(LuTemp,2,rKap1,Len,iDisk)
-    do i=1,ndensC
+    do i=1,nDensC
       SKap(i) = -SKap(i)-rKap1(i)
     end do
 

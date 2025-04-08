@@ -21,7 +21,7 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
 use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: nConf1, nDens2, nDensC, nDens, ipCI
+use MCLR_Data, only: nConf1, nDensC, nDens, ipCI
 use MCLR_Data, only: ipDia
 use MCLR_Data, only: ISNAC, IRLXROOT, NACSTATES
 use MCLR_Data, only: LuTemp, LuQDat
@@ -147,18 +147,18 @@ else
 
   ! Allocate areas for scratch and state variables
 
-  call mma_allocate(Kappa,nDens2+6,Label='Kappa')
-  call mma_allocate(dKappa,nDens2+6,Label='dKappa')
-  call mma_allocate(Sigma,nDens2+6,Label='Sigma')
-  call mma_allocate(Temp3,nDens2+6,Label='Temp3')
-  call mma_allocate(Temp4,nDens2+6,Label='Temp4')
-  call mma_allocate(Sc1,nDens2+6,Label='Sc1')
-  call mma_allocate(Sc2,nDens2+6,Label='Sc2')
+  call mma_allocate(Kappa,nDens+6,Label='Kappa')
+  call mma_allocate(dKappa,nDens+6,Label='dKappa')
+  call mma_allocate(Sigma,nDens+6,Label='Sigma')
+  call mma_allocate(Temp3,nDens+6,Label='Temp3')
+  call mma_allocate(Temp4,nDens+6,Label='Temp4')
+  call mma_allocate(Sc1,nDens+6,Label='Sc1')
+  call mma_allocate(Sc2,nDens+6,Label='Sc2')
 
   do iDisp=1,nDisp
-    Kappa(1:nDens2) = Zero
-    dKappa(1:nDens2) = Zero
-    Sigma(1:nDens2) = Zero
+    Kappa(1:nDens) = Zero
+    dKappa(1:nDens) = Zero
+    Sigma(1:nDens) = Zero
 
     !-------------------------------------------------------------------
     !
@@ -189,8 +189,8 @@ else
     end if
 
     if (PT2) then
-      Temp4(1:nDens2) = Temp4(1:nDens2)+Kappa(1:nDens2)
-      Kappa(1:nDens2) = Zero
+      Temp4(1:nDens) = Temp4(1:nDens)+Kappa(1:nDens)
+      Kappa(1:nDens) = Zero
     end if
     call mma_deallocate(SLag)
     call opOut(ipci)
@@ -241,10 +241,10 @@ else
     Sigma(1:nDensC) = -Sigma(1:nDensC)
 
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Kappa,nDens2+6,Temp3,nDens2+6,isym,iter)
+    call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,Kappa,nDens+6,Temp3,nDens+6,isym,iter)
 
     call opOut(ippre2)
-    r2 = ddot_(ndensc,Kappa,1,Kappa,1)
+    r2 = ddot_(nDensC,Kappa,1,Kappa,1)
     if (PT2) R2 = R2+DDot_(nConf1*nRoots,W(ipS2)%A,1,W(ipS2)%A,1)
     if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
     if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
@@ -315,7 +315,7 @@ else
       call opOut(ipdia)
 
       call ipIn(ipPre2)
-      call DMInvKap(W(ipPre2)%A,Sigma,nDens2+6,Sc2,nDens2+6,Sc1,nDens2+6,iSym,iter)
+      call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,Sc2,nDens+6,Sc1,nDens+6,iSym,iter)
       call opOut(ippre2)
 
       !----------------------------------------------------------------*
@@ -385,7 +385,7 @@ else
     end if
 
     if (iPL >= 2) write(u6,*)
-    iLen = ndensC
+    iLen = nDensC
     iKapDisp(iDisp) = iDis
     call dDaFile(LuTemp,1,Kappa,iLen,iDis)
     iSigDisp(iDisp) = iDis

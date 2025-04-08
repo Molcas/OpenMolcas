@@ -15,7 +15,7 @@ use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use rctfld_module, only: lRF
 use MCLR_Data, only: CMO, Int1, KAIN1
-use MCLR_Data, only: nDens2
+use MCLR_Data, only: nDens
 use input_mclr, only: nSym, nAtoms, iSpin, nActEl, nBas, nFro, nIsh, nOrb, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
@@ -33,9 +33,9 @@ real*8 Tot_Nuc_Charge, Tot_El_Charge, Tot_Charge, ExFac
 
 iRc = -1
 iOpt = ibset(0,sOpSiz)
-nDens2 = 0
+nDens = 0
 do iS=1,nSym
-  nDens2 = nDens2+nBas(iS)**2
+  nDens = nDens+nBas(iS)**2
 end do
 Label = 'ONEHAM'
 iComp = 1
@@ -49,12 +49,12 @@ if (iRC /= 0) then
 end if
 iRc = -1
 iOpt = 0
-call mma_allocate(Int1,ndens2,Label='Int1')
+call mma_allocate(Int1,nDens,Label='Int1')
 kain1 => Int1
 
 call mma_allocate(Temp1,leng+10,Label='Temp1')
-call mma_allocate(Temp2,ndens2,Label='Temp2')
-call mma_allocate(Temp3,ndens2,Label='Temp3')
+call mma_allocate(Temp2,nDens,Label='Temp2')
+call mma_allocate(Temp3,nDens,Label='Temp3')
 
 call RdOne(iRc,iOpt,Label,iComp,Temp1,iisym)
 if (iRC /= 0) then

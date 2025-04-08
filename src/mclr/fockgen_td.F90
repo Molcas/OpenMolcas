@@ -26,7 +26,7 @@ subroutine FockGen_td(d_0,rDens1,rdens2,fock,idsym)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: FIMO
-use MCLR_Data, only: nDens2, nNA, ipMat, ipCM, nA
+use MCLR_Data, only: nDens, nNA, ipMat, ipCM, nA
 use input_mclr, only: nSym, nAsh, nIsh, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
@@ -34,7 +34,7 @@ use Constants, only: Zero, Two, Half
 implicit none
 real*8 d_0
 integer idSym
-real*8 Fock(nDens2), rdens2(*), rDens1(nna,nna)
+real*8 Fock(nDens), rdens2(*), rDens1(nna,nna)
 real*8, allocatable :: MO(:), Scr(:), TQ(:)
 integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA, ip1, ip2, ip3
 real*8 rd, rd1, rd2
@@ -141,7 +141,7 @@ end do
 
 call CreQADD(Fock,rdens2,idsym,MO,Scr,n2)
 
-call mma_allocate(TQ,ndens2,Label='TQ')
+call mma_allocate(TQ,nDens,Label='TQ')
 TQ(:) = Zero
 
 ! QA here
@@ -158,7 +158,7 @@ end do
 
 if (idSym == 1) call AddGrad2(Fock,d_0)
 
-Fock(1:nDens2) = Two*Fock(1:nDens2)
+Fock(:) = Two*Fock(:)
 
 call mma_deallocate(TQ)
 !                                                                      *

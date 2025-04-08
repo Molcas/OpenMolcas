@@ -25,13 +25,13 @@ subroutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin,D,FA)
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: CMO, FIMO
-use MCLR_Data, only: nDens2, nMBA, nNA, ipCM, ipMat, nA, nCMO
+use MCLR_Data, only: nDens, nMBA, nNA, ipCM, ipMat, nA, nCMO
 use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 
 implicit none
-real*8 rKappa(nDens2), rMO1(nMba), rmo2(*), FockI(nDens2), FockA(nDens2)
+real*8 rKappa(nDens), rMO1(nMba), rmo2(*), FockI(nDens), FockA(nDens)
 integer iDSym, jSpin
 real*8 sign, Fact
 real*8 D(*), FA(*)
@@ -41,7 +41,7 @@ integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, jS
 real*8 FacR
 integer i, j
 
-ndens22 = ndens2
+nDens22 = nDens
 iAM = 0
 iBM = 0
 do i=1,nSym
@@ -56,10 +56,10 @@ call mma_allocate(T1,imem,Label='T1')
 call mma_allocate(Tmp2,nDens22,Label='Tmp2')
 call mma_allocate(T3,nDens22,Label='T3')
 call mma_allocate(T4,nDens22,Label='T4')
-call mma_allocate(DIL,nDens2,Label='DIL')
+call mma_allocate(DIL,nDens,Label='DIL')
 call mma_allocate(DI,nCMO,Label='DI')
-call mma_allocate(DIR,nDens2,Label='DIR')
-call mma_allocate(FI,ndens2,Label='FI')
+call mma_allocate(DIR,nDens,Label='DIR')
+call mma_allocate(FI,nDens,Label='FI')
 
 FockI(:) = Zero
 FockA(:) = Zero
@@ -71,10 +71,10 @@ lFI = .true.
 lFa = .false.
 lMo = .false.
 if (iMethod == 2) then
-  call mma_allocate(DAL,nDens2,Label='DAL')
-  call mma_allocate(DAR,nDens2,Label='DAR')
+  call mma_allocate(DAL,nDens,Label='DAL')
+  call mma_allocate(DAR,nDens,Label='DAR')
   call mma_allocate(DA,nCMO,Label='DA')
-  call mma_allocate(FA2,nDens2,Label='FA2')
+  call mma_allocate(FA2,nDens,Label='FA2')
   lFa = .true.
   lMo = .true.
 else
