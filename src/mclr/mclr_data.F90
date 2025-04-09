@@ -152,7 +152,7 @@ integer(kind=iwp) :: dspvec(mxdccc), i1, I12, IACTI(MXPICI), iAllo, iAnders, IAS
                      MXR1IC(MXPICI), MXR3IC(MXPICI), MXSB, MXSOOB, n1Dens, n2Dens, na(8), NACOB, nacpar, nacpr2, NACstates(2), &
                      NAELCI(MXPICI), nb(8), NBELCI(MXPICI), nCMO, NCNASM(MXPCSM), NCNATS(MXPCTP,MXPCSM), nconf1, NCPCNT(MXPCTP), &
                      NCSASM(MXPCSM), nDens, nDensC, NDPCNT(MXPCTP), NDTASM(MXPCSM), NELCI(MXPICI), nexp = 0, nexp_max = 100, &
-                     nhess, NICISP, nmba, nna, NOBPT(6+MXPR4T), NOBPTS(6+MXPR4T,MXPOBS), NOCOB, NOCSF, NOPART, NORB1, NORB2, &
+                     nhess, NICISP, nmba, nna, NOBPT(MXPR4T+6), NOBPTS(MXPR4T+6,MXPOBS), NOCOB, NOCSF, NOPART, NORB1, NORB2, &
                      NORB3, nrec, NSSA(2), NTOOB, NTSOB(3,MXPOBS), NTYP
 real(kind=wp) :: rms, ERAS(MXSTATE), P1(MXSTATE*(MXSTATE+1)/2), P1INV(MXSTATE*(MXSTATE+1)/2), PDFT_Ratio, PSSIGN, rbetaa, rbetas, &
                  ResQaaLag2, WF_Ratio, XISPSM(MXPCSM,MXPICI) = Zero

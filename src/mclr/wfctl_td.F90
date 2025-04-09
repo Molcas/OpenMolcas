@@ -49,7 +49,7 @@ logical lPrint, cnvrgd
 real*8 Clock(4)
 real*8 rDum(1)
 real*8, allocatable :: DigPrec(:), Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), &
-                       TempTD(:), Dens(:), Pens(:), rmoaa(:)
+                       TempTD(:), Dens(:), Pens(:), rmoaa(:), Sc4(:)
 real*8 Tim2, Tim3, Tim4, R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rGrad, EC, D_0, D_1, D_2, rAlphaC, rAlphaK, rAlpha, rEsk, &
        rEsci, rBeta, Res
 real*8, external :: DDot_
@@ -184,20 +184,21 @@ do iSym=kksym,kkksym
 
     ! Allocate areas for scratch and state variables
 
-    call mma_allocate(Kappa,nDens+6,Label='Kappa')
-    call mma_allocate(dKappa,nDens+6,Label='dKappa')
-    call mma_allocate(Sigma,nDens+6,Label='Sigma')
-    call mma_allocate(Temp1,nDens+6,Label='Temp1')
-    call mma_allocate(Temp2,nDens+6,Label='Temp2')
-    call mma_allocate(Temp3,nDens+6,Label='Temp3')
-    call mma_allocate(Temp4,nDens+6,Label='Temp4')
-    call mma_allocate(Sc1,nDens+6,Label='Sc1')
-    call mma_allocate(Sc2,nDens+6,Label='Sc2')
-    call mma_allocate(Sc3,nDens+6,Label='Sc3')
-    Temp1(1:nDens) = Zero
-    Kappa(1:nDens) = Zero
-    dKappa(1:nDens) = Zero
-    Sigma(1:nDens) = Zero
+    call mma_allocate(Kappa,nDensC,Label='Kappa')
+    call mma_allocate(dKappa,nDens,Label='dKappa')
+    call mma_allocate(Sigma,nDensC,Label='Sigma')
+    call mma_allocate(Temp1,nDens,Label='Temp1')
+    call mma_allocate(Temp2,nDensC,Label='Temp2')
+    call mma_allocate(Temp3,nDens,Label='Temp3')
+    call mma_allocate(Temp4,nDens,Label='Temp4')
+    call mma_allocate(Sc1,nDens,Label='Sc1')
+    call mma_allocate(Sc2,nDens,Label='Sc2')
+    call mma_allocate(Sc3,nDens,Label='Sc3')
+    call mma_allocate(Sc4,nDensC,Label='Sc4')
+    Temp1(:) = Zero
+    Kappa(:) = Zero
+    dKappa(:) = Zero
+    Sc1(:) = Zero
     if (CI) then
       call mma_allocate(Dens,n1Dens,Label='Dens')
       call mma_allocate(Pens,n2Dens,Label='Pens')
@@ -216,9 +217,9 @@ do iSym=kksym,kkksym
 
     ! (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
 
-    call RHS_td(Sigma,Temp1,Temp3,Sc2,dKappa,Sc3,Temp4,ipST,iDisp,iSym-1,CMO,jdisp,CI)
+    call RHS_td(Sc1,Temp1,Temp3,Sc2,dKappa,Sc3,Temp4,ipST,iDisp,iSym-1,CMO,jdisp,CI)
 
-    Temp4(1:nDens) = -Temp4(1:nDens)
+    Temp4(:) = -Temp4(:)
 
     ! Make RHS twice as long and change sign on second part!
 
@@ -257,6 +258,9 @@ do iSym=kksym,kkksym
     r2 = Half*ddot_(nDensC,Kappa,1,Kappa,1)
     if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
+    call mma_deallocate(Temp1)
+    call mma_allocate(Temp1,nDensC,Label='Temp1')
+
     ! dkap=Kap in matrix form
     call UnCompress(Kappa,dKappa,iSym)
 
@@ -276,7 +280,7 @@ do iSym=kksym,kkksym
       deltac = Zero
     end if
     deltaK = Half*ddot_(nDensC,Kappa,1,Sigma,1)
-    Kappa(1:nDens) = Zero
+    Kappa(:) = Zero
     delta = deltac+deltaK
 
     delta0 = delta
@@ -464,11 +468,11 @@ do iSym=kksym,kkksym
 
       call ipnout(-1)
       if (CI) then   ! if (.false.) then
-        Sc1(1:nDens) = Sc2(1:nDens)+Sc3(1:nDens)
+        Sc1(:) = Sc2(:)+Sc3(:)
       else
-        Sc1(1:nDens) = Sc2(1:nDens)
+        Sc1(:) = Sc2(:)
       end if
-      call Compress(Sc1,Temp4,isym)   ! ds
+      call Compress(Sc1,Temp1,isym)   ! ds
       call Compress(dKappa,Temp2,isym) ! DX
 
       ! S1 + S2 --> S1
@@ -500,7 +504,7 @@ do iSym=kksym,kkksym
       !-----------------------------------------------------------------
       rAlphaC = Zero
       rAlphaK = Zero
-      if (orb) rAlphaK = Half*ddot_(nDensC,Temp4,1,Temp2,1)
+      if (orb) rAlphaK = Half*ddot_(nDensC,Temp1,1,Temp2,1)
       if (CI) then
         call ipin(ipS1)
         call ipin(ipCId)
@@ -514,8 +518,8 @@ do iSym=kksym,kkksym
       ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
 
       if (orb) then
-        Kappa(1:nDensC) = Kappa(1:nDensC)+ralpha*Temp2(1:nDensC)
-        Sigma(1:nDensC) = Sigma(1:nDensC)-ralpha*Temp4(1:nDensC)
+        Kappa(:) = Kappa(:)+ralpha*Temp2(:)
+        Sigma(:) = Sigma(:)-ralpha*Temp1(:)
         resk = sqrt(Half*ddot_(nDensC,Sigma,1,Sigma,1))
       end if
       resci = Zero
@@ -548,7 +552,7 @@ do iSym=kksym,kkksym
       call opout(ipci)
       call opout(ipdia)
 
-      call DMInvKap_td(DigPrec,Sigma,Sc2)
+      call DMInvKap_td(DigPrec,Sigma,Sc4)
 
       call opout(ippre2)
 
@@ -570,18 +574,18 @@ do iSym=kksym,kkksym
         deltaC = Zero
       end if
 
-      deltaK = Half*ddot_(nDensC,Sigma,1,Sc2,1)
+      deltaK = Half*ddot_(nDensC,Sigma,1,Sc4,1)
       if (.not. CI) then
         rBeta = deltaK/delta
         delta = deltaK
-        Temp2(1:nDensC) = rBeta*Temp2(1:nDensC)+Sc2(1:nDensC)
+        Temp2(:) = rBeta*Temp2(:)+Sc4(:)
       else
         rbeta = (deltac+deltaK)/delta
         delta = deltac+deltaK
         call ipin(ipCID)
         call ipin(ipS2)
         W(ipCID)%A(1:2*nConf1) = rBeta*W(ipCID)%A(1:2*nConf1)+W(ipS2)%A(1:2*nConf1)
-        Temp2(1:nDensC) = rBeta*Temp2(1:nDensC)+Sc2(1:nDensC)
+        Temp2(:) = rBeta*Temp2(:)+Sc4(:)
         call opout(ipS2)
         call ipout(ipCID)
       end if
@@ -661,6 +665,7 @@ do iSym=kksym,kkksym
     call mma_deallocate(Sigma)
     call mma_deallocate(dKappa)
     call mma_deallocate(Kappa)
+    call mma_deallocate(Sc4)
     call mma_deallocate(Sc3)
     call mma_deallocate(Sc2)
     call mma_deallocate(Sc1)

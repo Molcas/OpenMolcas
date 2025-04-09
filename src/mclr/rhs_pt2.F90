@@ -15,12 +15,12 @@ subroutine RHS_PT2(rkappa,CLag,SLag)
 ! The RHS array for CASPT2 has been already calculated in the
 ! CASPT2 module, so here we only need to read it from file
 
-use MCLR_Data, only: LuPT2
+use MCLR_Data, only: LuPT2, nDens
 use input_mclr, only: nSym, nRoots, nCSF, nOrb
 
 implicit none
-real*8 rKappa(*), CLag(*), SLag(*)
-integer nOLag, nCLag, i, nSLag
+real*8 rKappa(nDens), CLag(*), SLag(nRoots,nRoots)
+integer nOLag, nCLag, i, j
 real*8 Tmp
 integer istatus
 
@@ -32,7 +32,6 @@ do i=1,nSym
   nOLag = nOLag+nOrb(i)*nOrb(i)
   nCLag = nCLag+nRoots*nCSF(i)
 end do
-nSLag = nRoots*nRoots
 
 do i=1,nCLag
   read(LUPT2,*,iostat=istatus) CLag(i)
@@ -43,9 +42,11 @@ do i=1,nOLag
   if (istatus < 0) call Error()
   rKappa(i) = rKappa(i)+tmp
 end do
-do i=1,nSLag
-  read(LUPT2,*,iostat=istatus) SLag(i)
-  if (istatus < 0) call Error()
+do j=1,nRoots
+  do i=1,nRoots
+    read(LUPT2,*,iostat=istatus) SLag(i,j)
+    if (istatus < 0) call Error()
+  end do
 end do
 
 return

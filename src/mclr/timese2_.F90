@@ -15,16 +15,16 @@
 subroutine TimesE2_(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
-use MCLR_Data, only: n2Dens, nConf1, nDens
+use MCLR_Data, only: n2Dens, nConf1, nDens, nDensC
 use input_mclr, only: nRoots, nAsh, nRs2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
-real*8 Kap(*)
+real*8 Kap(nDensC)
 integer ipCId, isym, jspin, ipS2, ipCiOut
 real*8 ReCo
-real*8 KapOut(*)
+real*8 KapOut(nDensC)
 real*8 rdum(1)
 real*8, allocatable :: RMOAA(:), Sc1(:), Sc2(:), Sc3(:), Temp4(:), Temp3(:)
 

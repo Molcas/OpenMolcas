@@ -24,11 +24,10 @@ use Definitions, only: wp
 
 implicit none
 real*8 Fock(*)
-real*8 :: SLag(*)
+real*8 :: SLag(nRoots,nRoots)
 integer ng1, ng2, i, j, k, l, ij, kl, ijkl, ij2, kl2, ijkl2
 integer nConfL, nConfR, iRC, LuDens
 real*8 factor
-integer iSLag !,jR,kR
 real*8, allocatable :: G1q(:), G1m(:), G1r(:), G2q(:), G2r(:), CIL(:), CIR(:), T(:), F(:)
 
 !                                                                      *
@@ -228,8 +227,7 @@ subroutine PT2_SLag()
       vSLag = Zero
       !write(u6,*) 'jr,kr= ',jr,kr
       !write(u6,*) vslag
-      iSLag = jR+nRoots*(kR-1)
-      vSLag = SLag(iSLag)
+      vSLag = SLag(jR,kR)
       !write(u6,*) vslag
 
       call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
@@ -247,8 +245,7 @@ subroutine PT2_SLag()
       end if
 
       if (kR /= jR) then
-        iSLag = kR+nRoots*(jR-1)
-        vSLag = SLag(iSLag)
+        vSLag = SLag(kR,jR)
         if (abs(vSLag) > 1.0e-10_wp) then
           call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1Dens,n2Dens)
           G1r(:) = G1r(:)+vSLag*G1q(:)

@@ -24,7 +24,7 @@ use input_mclr, only: nRoots, ntAsh, ntBas
 
 implicit none
 ! Output
-real*8, dimension(nDens+6) :: Fock
+real*8, dimension(nDens) :: Fock
 real*8, dimension(nconf1*nroots) :: CICSF
 ! Auxiliary Quantities
 real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat

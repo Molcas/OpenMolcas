@@ -14,13 +14,13 @@ subroutine FockGen_sp(d_0,rDens1,rdens2,Fock,fockout,idsym)
 !                                                                      *
 !   Constructs active fockmatrix and Q matrix                          *
 !                                                                      *
-!   Input: rkappa : Rotation matrix                                    *
-!          idsym  : symmetry of perturbation                           *
+!   Input: rkappa  : Rotation matrix                                   *
+!          idsym   : symmetry of perturbation                          *
 !                                                                      *
 !                                                                      *
-!   Output:MO     :MO integrals                                        *
-!          Fock   :Fock matrix (one index transformed integrals)       *
-!          MOtilde:MO (one index transformed integrals)                *
+!   Output:MO      : MO integrals                                      *
+!          Fock    : Fock matrix (one index transformed integrals)     *
+!          MOtilde : MO (one index transformed integrals)              *
 !                                                                      *
 !***********************************************************************
 
@@ -34,7 +34,7 @@ use Constants, only: Zero, Two
 implicit none
 real*8 d_0
 integer idSym
-real*8 Fock(*), fockout(*), rdens2(*), rDens1(*)
+real*8 Fock(nDens), fockout(nDens), rdens2(*), rDens1(*)
 !real*8 Fock(nDens), fockout(*), rdens2(*), rDens1(nna*nna)
 real*8, allocatable :: MO(:), Scr(:)
 integer n1, iS, n2, ipS, kS, jS, iB, jA, jAA, kA, kAA, ipM, ipF, iA, ip1, ip2
@@ -46,7 +46,7 @@ real*8 rd
 !  Coulomb term: F  = 2(pk|ji)d
 !                 kp           ij
 
-Fock(1:nDens) = Zero
+Fock(:) = Zero
 
 n1 = 0
 do iS=1,nSym
@@ -115,7 +115,7 @@ do iS=1,nSym
   if (nbas(is)*nBas(js) /= 0) &
     call DGESUB(Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(js,is)),nBas(js),'T',FockOut(ipMat(is,js)),nBas(is),nBas(is),nBas(js))
 end do
-FockOut(1:nDens) = Two*FockOut(1:nDens)
+FockOut(:) = Two*FockOut(:)
 if (idsym == 1) call Add2(Fockout,d_0)
 !                                                                      *
 !***********************************************************************

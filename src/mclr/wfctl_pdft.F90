@@ -147,20 +147,21 @@ jspin = 0
 
 ! Allocate areas for scratch and state variables
 
-call mma_allocate(Kappa,nDens+6,Label='Kappa')
-call mma_allocate(dKappa,nDens+6,Label='dKappa')
-call mma_allocate(Sigma,nDens+6,Label='Sigma')
-call mma_allocate(Temp4,nDens+6,Label='Temp4')
-call mma_allocate(Sc1,nDens+6,Label='Sc1')
-call mma_allocate(Sc2,nDens+6,Label='Sc2')
+call mma_allocate(Kappa,nDensC,Label='Kappa')
+call mma_allocate(dKappa,nDensC,Label='dKappa')
+call mma_allocate(Sigma,nDensC,Label='Sigma')
+call mma_allocate(Temp4,nDensC,Label='Temp4')
+call mma_allocate(Temp5,nDens,Label='Temp5')
+call mma_allocate(Sc1,nDens,Label='Sc1')
+call mma_allocate(Sc2,nDensC,Label='Sc2')
 
 ! I think the lagrange multiplers are independent of the
 ! displacement, no?
 nDisp = 1
 do iDisp=1,nDisp
-  Kappa(1:nDens) = Zero
-  dKappa(1:nDens) = Zero
-  Sigma(1:nDens) = Zero
+  Kappa(:) = Zero
+  dKappa(:) = Zero
+  Sigma(:) = Zero
 
   !---------------------------------------------------------------------
   !
@@ -182,9 +183,9 @@ do iDisp=1,nDisp
   !                                                                    *
   !AMS - I Think I can skip all of this RHS stuff - I'll read it in below.
   !if (isNAC) then
-  !  call RHS_NAC(Temp4,rDum)
+  !  call RHS_NAC(Temp5,rDum)
   !else
-  !  call RHS_SA(Temp4,rDum)
+  !  call RHS_SA(Temp5,rDum)
   !end if
 
   !AMS _____________________________________________________
@@ -269,7 +270,6 @@ do iDisp=1,nDisp
   ! Get the fock matrix needed for the determination of the orbital part of the RHS.
 
   call mma_allocate(FT99,nDens,Label='FT99')
-  call mma_allocate(Temp5,nDens+6,Label='Temp5')
   FT99(:) = Zero
   Temp5(:) = Zero
   call get_dArray('Fock_PDFT',FT99,nDens)
@@ -278,29 +278,28 @@ do iDisp=1,nDisp
     if (nBas(is)*nBas(jS) /= 0) &
       call DGeSub(FT99(ipMat(iS,jS)),nBas(iS),'N',FT99(ipMat(jS,iS)),nBas(jS),'T',Temp5(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
   end do
-  Temp4(:) = -Two*Temp5(:)
+  Temp5(:) = -Two*Temp5(:)
 
   call mma_deallocate(FT99)
-  call mma_deallocate(Temp5)
   if (Do_Hybrid) then
     ! scaling the orb resp. for PDFT part in HMC-PDFT
-    Temp4(1:nDens) = PDFT_Ratio*Temp4(1:nDens)
+    Temp5(:) = PDFT_Ratio*Temp5(:)
     ! calculating the orb resp. for WF part in HMC-PDFT
-    call mma_allocate(WForb,nDens+6,Label='WForb')
+    call mma_allocate(WForb,nDens,Label='WForb')
     ! saving Fock matrix for PDFT part in HMC-PDFT
     call mma_allocate(FOTr,nTri,Label='FOTr')
     call Get_dArray_chk('FockOcc',FOTr,nTri)
     ! note that the Fock matrix will be overwritten with the wf one
     ! ini rhs_sa
     call rhs_sa(WForb,rDum)
-    Temp4(1:nDens) = Temp4(1:nDens)+WF_Ratio*WForb(1:nDens)
+    Temp5(:) = Temp5(:)+WF_Ratio*WForb(:)
     call mma_deallocate(WForb)
   end if
 
   if (debug) then
     write(u6,*) 'RHS orb part:'
     do iS=1,nDens
-      write(u6,*) Temp4(iS)
+      write(u6,*) Temp5(iS)
     end do
   end if
 
@@ -358,10 +357,8 @@ do iDisp=1,nDisp
   if (lprint) write(u6,*) '       Iteration       Delta       Res(kappa)  Res(CI)     DeltaK      DeltaC'
   iLen = nDensC
   iRHSDisp(iDisp) = iDis
-  do iS=1,nDens
-  end do
-  call Compress(Temp4,Sigma,iSym)
-  r1 = ddot_(nDensc,Sigma,1,Sigma,1)
+  call Compress(Temp5,Sigma,iSym)
+  r1 = ddot_(nDensC,Sigma,1,Sigma,1)
   if (debug) write(u6,*) 'Hi how about r1',r1
   call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 
@@ -370,7 +367,7 @@ do iDisp=1,nDisp
   call ipIn(ipCID)
   W(ipCID)%A(1:nConf1*nroots) = Zero
   call ipOut(ipCIT)
-  Sigma(1:nDensC) = -Sigma(1:nDensC)
+  Sigma(:) = -Sigma(:)
 
   deltaC = Zero
   !AMS _________________________________________________________
@@ -442,7 +439,7 @@ do iDisp=1,nDisp
   W(ipST)%A(1:nConf1*nroots) = W(ipST)%A(1:nConf1*nroots)-W(ipS1)%A(1:nConf1*nroots)
 
   ! Kap part put into  sigma
-  Sigma(1:nDensC) = Sigma(1:nDensC)-kap_new_temp(:)
+  Sigma(:) = Sigma(:)-kap_new_temp(:)
   call ipIn(ipCId)
   call ipIn(ipCIT)
   W(ipCIT)%A(1:nConf1*nroots) = W(ipCIT)%A(1:nConf1*nroots)+W(ipCId)%A(1:nConf1*nroots)
@@ -453,7 +450,7 @@ do iDisp=1,nDisp
   call opOut(ipdia)
 
   call ipIn(ipPre2)
-  call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,dKappa,nDens+6,Sc1,nDens+6,iSym,iter)
+  call DMInvKap(W(ipPre2)%A,Sigma,dKappa,Sc1,iSym,iter)
   call opOut(ippre2)
   r2 = ddot_(nDensC,dKappa,1,dKappa,1)
   if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
@@ -526,9 +523,9 @@ do iDisp=1,nDisp
     !------------------------------------------------------------------*
 
     ! Kappa=Kappa+rAlpha*dKappa
-    Kappa(1:nDensC) = Kappa(1:nDensC)+ralpha*dKappa(1:nDensC)
+    Kappa(:) = Kappa(:)+ralpha*dKappa(:)
     ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-    Sigma(1:nDensC) = Sigma(1:nDensC)-ralpha*Temp4(1:nDensC)
+    Sigma(:) = Sigma(:)-ralpha*Temp4(:)
     resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
 
     resci = Zero
@@ -556,7 +553,7 @@ do iDisp=1,nDisp
     call opOut(ipdia)
 
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,Sc2,nDens+6,Sc1,nDens+6,iSym,iter)
+    call DMInvKap(W(ipPre2)%A,Sigma,Sc2,Sc1,iSym,iter)
     call opOut(ippre2)
 
     !------------------------------------------------------------------*
@@ -578,7 +575,7 @@ do iDisp=1,nDisp
     if (.not. CI) then
       rBeta = deltaK/delta
       delta = deltaK
-      dKappa(1:nDensC) = rBeta*dKappa(1:nDensC)+Sc2(1:nDensC)
+      dKappa(:) = rBeta*dKappa(:)+Sc2(:)
     else
       rbeta = (deltac+deltaK)/delta
       delta = deltac+deltaK
@@ -586,7 +583,7 @@ do iDisp=1,nDisp
       call ipIn(ipCID)
       call ipIn(ipS2)
       W(ipCID)%A(1:nConf1*nroots) = rBeta*W(ipCID)%A(1:nConf1*nroots)+W(ipS2)%A(1:nConf1*nroots)
-      dKappa(1:nDensC) = rBeta*dKappa(1:nDensC)+Sc2(1:nDensC)
+      dKappa(:) = rBeta*dKappa(:)+Sc2(:)
       call opOut(ipS2)
       call ipOut(ipCID)
     end if
@@ -637,7 +634,7 @@ do iDisp=1,nDisp
   if (debug) then
     write(u6,*) 'outputs'
     write(u6,*) 'kappa'
-    do i=1,nDens
+    do i=1,nDensC
       write(u6,*) Kappa(i)
     end do
     call ipin(ipCIT)
@@ -670,6 +667,7 @@ end do
 
 call mma_deallocate(Sc2)
 call mma_deallocate(Sc1)
+call mma_deallocate(Temp5)
 call mma_deallocate(Temp4)
 call mma_deallocate(Sigma)
 call mma_deallocate(dKappa)

@@ -40,8 +40,8 @@ character(len=8) Fmt2
 logical lPrint, cnvrgd
 real*8 rdum(1)
 real*8 d_0
-real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), Dens(:), &
-                       Pens(:), rmoaa(:), rmoaa2(:), Pre2(:)
+real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), Dens(:), Pens(:), &
+                       rmoaa(:), rmoaa2(:), Sc4(:)
 integer lPaper, lLine, Left, iDis, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, iDisp, iLen, Iter, i1, j1
 real*8 DeltaC, DeltaK, Delta, Delta0, rGrad, Ec, rAlphaC, rAlphaK, ResK, ResCI, rBeta, Res, rCHC, rAlpha
 real*8, external :: DDot_
@@ -94,22 +94,20 @@ idisp = 1
 
 ! Allocate areas for scratch and state variables
 
-call mma_allocate(Kappa,nDens+6,Label='Kappa')
-call mma_allocate(SFock,nDens+6,Label='SFock')
-call mma_allocate(dKappa,nDens+6,Label='dKappa')
-call mma_allocate(Sigma,nDens+6,Label='Sigma')
-call mma_allocate(Temp1,nDens+6,Label='Temp1')
-call mma_allocate(Temp2,nDens+6,Label='Temp2')
-call mma_allocate(Temp3,nDens+6,Label='Temp3')
-call mma_allocate(Temp4,nDens+6,Label='Temp4')
-call mma_allocate(Sc1,nDens+6,Label='Sc1')
-call mma_allocate(Sc2,nDens+6,Label='Sc2')
-call mma_allocate(Sc3,nDens+6,Label='Sc3')
-call mma_allocate(Pre2,nDensC,Label='Pre2')
-Temp1(1:nDens) = Zero
-Kappa(1:nDens) = Zero
-dKappa(1:nDens) = Zero
-Sigma(1:nDens) = Zero
+call mma_allocate(Kappa,nDensC,Label='Kappa')
+call mma_allocate(SFock,nDens,Label='SFock')
+call mma_allocate(dKappa,nDensC,Label='dKappa')
+call mma_allocate(Sigma,nDensC,Label='Sigma')
+call mma_allocate(Temp1,nDensC,Label='Temp1')
+call mma_allocate(Temp2,nDensC,Label='Temp2')
+call mma_allocate(Temp4,nDens,Label='Temp4')
+call mma_allocate(Sc1,nDens,Label='Sc1')
+call mma_allocate(Sc2,nDens,Label='Sc2')
+call mma_allocate(Sc3,nDens,Label='Sc3')
+call mma_allocate(Sc4,nDensC,Label='Sc4')
+Kappa(:) = Zero
+dKappa(:) = Zero
+Sigma(:) = Zero
 if (iMethod == 2) then
   call mma_allocate(Dens,n1Dens,Label='Dens')
   call mma_allocate(Pens,nna**4,Label='Pens')
@@ -132,7 +130,7 @@ if (lprint) write(u6,*) '       Iteration         Delta     Res(kappa) Res(CI)'
 iLen = nDensC
 iRHSDisp(iDisp) = iDis
 call Compress(Temp4,Sigma,1)
-Sigma(1:nDensC) = -sqrt(OneHalf)*dble(ms2p)*Sigma(1:nDensC)
+Sigma(:) = -sqrt(OneHalf)*dble(ms2p)*Sigma(:)
 call UnCompress(Sigma,Temp4,1)
 call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 if (iMethod == 2) then
@@ -147,9 +145,9 @@ if (iMethod == 2) then
   call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
 end if
 W(ipST)%A(1:nConf1) = -W(ipST)%A(1:nConf1)
-Sigma(1:nDensC) = -Sigma(nDensC)
+Sigma(:) = -Sigma(:)
 
-call DMInvKap_sp(Sigma,dKappa,1)
+call DMInvKap_sp(Sigma,dKappa)
 
 call ipin(ipCId)
 if (nconf1 > 1) then
@@ -168,7 +166,7 @@ else
   deltac = Zero
 end if
 deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
-Kappa(1:nDens) = Zero
+Kappa(:) = Zero
 delta = deltac+deltaK
 delta0 = delta
 iter = 1
@@ -183,7 +181,7 @@ do
   !if (delta == Zero) exit
   read(u5,*) i1,j1
   if (i1 > 0) then
-    dKappa(1:nDens) = Zero
+    dKappa(:) = Zero
     dKappa(i1) = One
   else
     call ipin(ipCID)
@@ -193,12 +191,12 @@ do
   end if
   !************************************************************
 
-  call RInt_SP(dKappa,rmoaa,rmoaa2,Temp4,Sc2)
+  call RInt_SP(dKappa,rmoaa,rmoaa2,Temp4,Sc4)
 
-  if ((i1 > 0) .and. (j1 > 0)) write(u6,*) 'Kap_sig',Sc2(j1)
+  if ((i1 > 0) .and. (j1 > 0)) write(u6,*) 'Kap_sig',Sc4(j1)
   if (nconf1 > 1) then
     call opout(-1)
-    call CISigma(1,State_Sym,state_sym,Temp4,nDens,rmoaa,size(rmoaa),rmoaa2,size(rmoaa2),ipCI,ipS1,.true.)
+    call CISigma(1,State_Sym,state_sym,Temp4,nDens,rmoaa,nna**4,rmoaa2,nna**4,ipCI,ipS1,.true.)
     call opout(-1)
     call ipin(ipCI)
     call ipin(ipS1)
@@ -208,28 +206,27 @@ do
     if ((i1 > 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS1)%A(j1)
 
     call opout(-1)
-    if (nconf1 > 1) then
-      call CISigma(0,State_Sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,.true.)
-      call opout(-1)
-      EC = rin_ene+potnuc-ERASSCF(1)
 
-      call ipin(ipCId)
-      call ipin(ipS2)
-      W(ipS2)%A(1:nConf1) = Two*(W(ipS2)%A(1:nConf1)+EC*W(ipCId)%A(1:nConf1))
-      if ((i1 < 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS2)%A(j1)
+    call CISigma(0,State_Sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rdum,1,ipCId,ipS2,.true.)
+    call opout(-1)
+    EC = rin_ene+potnuc-ERASSCF(1)
 
-      call ipin(ipCI)
-      call ipin(ipCid)
-      call SpinDens(W(ipCI)%A,W(ipCid)%A,State_Sym,State_sym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
+    call ipin(ipCId)
+    call ipin(ipS2)
+    W(ipS2)%A(1:nConf1) = Two*(W(ipS2)%A(1:nConf1)+EC*W(ipCId)%A(1:nConf1))
+    if ((i1 < 0) .and. (j1 < 0)) write(u6,*) 'CI_sig',W(ipS2)%A(j1)
 
-      d_0 = ddot_(nconf1,W(ipCid)%A,1,W(ipci)%A,1)
-      call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
-      Sc2(1:nDens) = -rms*sqrt(OneHalf)*Sc1(1:nDens)
+    call ipin(ipCI)
+    call ipin(ipCid)
+    call SpinDens(W(ipCI)%A,W(ipCid)%A,State_Sym,State_sym,Pens,rdum,rdum,rdum,rdum,Dens,rdum,1)
 
-      call Compress(Sc1,Sc3,1)
-      if ((i1 < 0) .and. (j1 > 0)) write(u6,*) 'CI_sig',Sc3(j1)
-      cycle
-    end if
+    d_0 = ddot_(nconf1,W(ipCid)%A,1,W(ipci)%A,1)
+    call FockGen_sp(d_0,Dens,Pens,Sc3,Sc1,1)
+    Sc2(:) = -rms*sqrt(OneHalf)*Sc1(:)
+
+    call Compress(Sc1,Sc4,1)
+    if ((i1 < 0) .and. (j1 > 0)) write(u6,*) 'CI_sig',Sc4(j1)
+    cycle
 
   end if
 
@@ -248,12 +245,12 @@ do
   !
   !*********************************************************************
 
-  if (nconf1 > 1) then
-    Temp4(1:nDens) = Sc2(1:nDens)+Sc3(1:nDens)
-  else
-    Temp4(1:nDens) = Sc2(1:nDens)
-  end if
-  Temp2(1:nDens) = dKappa(1:nDens)
+  call Untested('WfCtl_sp')
+  ! IFG: Given the sizes assumed later, I think this assignment is wrong
+  !      and it should used the Compress call instead
+  !Temp4(:) = Sc2(:)
+  call Compress(Sc2,Temp1,1)
+  Temp2(:) = dKappa(:)
   if (nconf1 > 1) then
     call ipin1(ipS1,nconf1)
     call ipin1(ipS2,nconf1)
@@ -283,8 +280,7 @@ do
   !
   !---------------------------------------------------------------------
   rAlphaC = Zero
-  rAlphaK = Zero
-  rAlphaK = ddot_(nDensC,Temp4,1,Temp2,1)
+  rAlphaK = ddot_(nDensC,Temp1,1,Temp2,1)
   if (nconf1 /= 0) then
     call ipin(ipS1)
     call ipin(ipCId)
@@ -297,9 +293,9 @@ do
   ! Kappa=Kappa+rAlpha*dKappa
   ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
 
-  Kappa(1:nDensC) = Kappa(1:nDensC)+ralpha*Temp2(1:nDensC)
-  Sigma(1:nDensC) = Sigma(1:nDensC)-ralpha*Temp4(1:nDensC)
-  resk = sqrt(ddot_(nDensC,Temp4,1,Temp4,1))
+  Kappa(:) = Kappa(:)+ralpha*Temp2(:)
+  Sigma(:) = Sigma(:)-ralpha*Temp1(:)
+  resk = sqrt(ddot_(nDensC,Temp1,1,Temp1,1))
   resci = Zero
   if (nconf1 /= 0) then
     call ipin(ipCId)
@@ -330,7 +326,7 @@ do
   call opout(ipci)
   call opout(ipdia)
 
-  call DMInvKap_sp(Sigma,Sc2,1)
+  call DMInvKap_sp(Sigma,Sc4)
 
   !--------------------------------------------------------------------*
   !      s:Sigma
@@ -350,18 +346,18 @@ do
     deltaC = Zero
   end if
 
-  deltaK = ddot_(nDensC,Sigma,1,Sc2,1)
+  deltaK = ddot_(nDensC,Sigma,1,Sc4,1)
   if (imethod /= 2) then
     rBeta = deltaK/delta
     delta = deltaK
-    Temp2(1:nDensC) = rBeta*Temp2(1:nDensC)+Sc2(1:nDensC)
+    Temp2(:) = rBeta*Temp2(:)+Sc4(:)
   else
     rbeta = (deltac+deltaK)/delta
     delta = deltac+deltaK
     call ipin(ipCID)
     call ipin(ipS2)
     W(ipCID)%A(1:nConf1) = rBeta*W(ipCID)%A(1:nConf1)+W(ipS2)%A(1:nConf1)
-    Temp2(1:nDensC) = rBeta*Temp2(1:nDensC)+Sc2(1:nDensC)
+    Temp2(:) = rBeta*Temp2(:)+Sc4(:)
     call opout(ipS2)
     call ipout(ipCID)
   end if
@@ -375,7 +371,7 @@ do
   !
   !--------------------------------------------------------------------*
 
-  dKappa(1:nDensC) = Temp2(1:nDensC)
+  dKappa(:) = Temp2(:)
 
   res = Zero ! dummy initialize
   if (iBreak == 1) then
@@ -422,12 +418,12 @@ if (iMethod == 2) then
 end if
 
 call mma_deallocate(Temp4)
-call mma_deallocate(Temp3)
 call mma_deallocate(Temp2)
 call mma_deallocate(Temp1)
 call mma_deallocate(dKappa)
 call mma_deallocate(Sigma)
 call mma_deallocate(Kappa)
+call mma_deallocate(Sc4)
 call mma_deallocate(Sc3)
 call mma_deallocate(Sc2)
 call mma_deallocate(Sc1)

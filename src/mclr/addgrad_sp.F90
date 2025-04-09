@@ -26,7 +26,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 
 implicit none
-real*8 rkappa(*), rMat(*), F(*)
+real*8 rkappa(*), rMat(*), F(nDens)
 integer idSym
 real*8 r1, r2
 integer iS, jS

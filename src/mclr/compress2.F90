@@ -11,7 +11,7 @@
 ! Copyright (C) 1997, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Compress2(ArrayIn,nIn,ArrayOut,nOut,dsym)
+subroutine Compress2(ArrayIn,ArrayOut,dsym)
 !************************************************************
 !
 !     Change from kappa   to vector notation
@@ -24,13 +24,13 @@ subroutine Compress2(ArrayIn,nIn,ArrayOut,nOut,dsym)
 !************************************************************
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: ipMat, nB, nDens
+use MCLR_Data, only: ipMat, nB, nDensC, nDens
 use input_mclr, only: nSym, nIsh, nRs1, nRs2, nRs3, nOrb, TimeDep
 use Constants, only: Zero, One
 
 implicit none
-integer nIn, nOut, dsym
-real*8 ArrayIn(nIn), ArrayOut(nOut)
+integer dsym
+real*8 ArrayIn(nDens), ArrayOut(nDensC)
 integer IndexC, jT, i1, iSym, jSym, iBas, jBas, iT, ij, Index1
 real*8 Fact
 !                                                                      *
@@ -43,7 +43,7 @@ i1 = 0
 Fact = One
 if (dsym < 0) Fact = -Fact
 dsym = abs(dsym)
-ArrayOut(1:nDens) = Zero
+ArrayOut(:) = Zero
 
 do iSym=1,nSym
   jSym = Mul(iSym,dSym)

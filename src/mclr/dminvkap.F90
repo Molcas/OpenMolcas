@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DMInvKap(rMFact,rIn,nrIn,rOut,nrOut,rtemp,nrtemp,isym,iter)
+subroutine DMInvKap(rMFact,rIn,rOut,rtemp,isym,iter)
 !***********************************************************************
 !                                                                      *
 !     _____     -1                                                     *
@@ -30,14 +30,14 @@ use iso_c_binding, only: c_f_pointer, c_loc
 use Symmetry_Info, only: Mul
 use Spool, only: LuWr
 use MCLR_Data, only: SA
-use MCLR_Data, only: ipMat, nDensC
+use MCLR_Data, only: ipMat, nDensC, nDens
 use input_mclr, only: nSym, PT2, nAsh, nIsh, nOrb, nRs1, nRs2, nRs3
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Definitions, only: wp, u6
 
 implicit none
-integer nrIn, nrOut, nrTemp, iSym, iter
-real*8 rOut(nrOut), rMFact(*), rIn(nrIn), rtemp(nrTemp)
+integer iSym, iter
+real*8 rOut(nDensC), rMFact(*), rIn(nDensC), rtemp(nDens)
 
 !                                                                      *
 !***********************************************************************
@@ -61,7 +61,6 @@ subroutine DMInvKap_Internal(rMFact)
     call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
   end if
 
-  rOut(1:nDensC) = rIn(1:nDensC)
   call Uncompress2(rIn,rtemp,isym)
   !                                                                    *
   !*********************************************************************
@@ -131,7 +130,7 @@ subroutine DMInvKap_Internal(rMFact)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call Compress2(rtemp,nrtemp,rOut,nrOut,isym)
+  call Compress2(rtemp,rOut,isym)
 
   if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)
   !                                                                    *
@@ -139,7 +138,7 @@ subroutine DMInvKap_Internal(rMFact)
   !                                                                    *
   ! Warn if the trial vector becomes large
 
-  if ((ddot_(nDensC,rout,1,rout,1) > 100.0_wp) .and. (iter == 1)) then
+  if ((ddot_(nDensC,rOut,1,rOut,1) > 100.0_wp) .and. (iter == 1)) then
     write(LuWr,*) '****************************************'
     write(LuWr,*) '*                                      *'
     write(LuWr,*) '*           WARNING!!                  *'

@@ -25,7 +25,7 @@ use Definitions, only: wp
 
 implicit none
 real*8 Fock(*)
-real*8 :: SLag(*)
+real*8 :: SLag(nRoots,nRoots)
 real*8 rdum(1)
 real*8, allocatable :: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
 integer nG1, nG2, iR, jDisk, ii, iB, jB, iDij, iRij, kB, lB, iDkl, iRkl, iIJKL, iRijkl, jj, iS, iiB, ijB, iIJ
@@ -171,7 +171,7 @@ subroutine PT2_SLag()
 
   real*8, allocatable :: CIL(:), CIR(:)
   integer :: i, j
-  integer :: nConfL, nConfR, jR, kR, iSLag, ij, k, l, kl, ijkl, ij2, kl2
+  integer :: nConfL, nConfR, jR, kR, ij, k, l, kl, ijkl, ij2, kl2
   real*8 vSLag, Factor
 
   ! At present, Molcas accepts equally-weighted MCSCF reference,
@@ -188,8 +188,7 @@ subroutine PT2_SLag()
   do jR=1,nRoots
     call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
     do kR=1,jR ! jR-1
-      iSLag = jR+nRoots*(kR-1)
-      vSLag = SLag(iSLag)
+      vSLag = SLag(jR,kR)
       if (abs(vSLag) <= 1.0e-10_wp) cycle
 
       call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)

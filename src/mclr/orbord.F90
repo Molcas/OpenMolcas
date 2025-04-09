@@ -264,11 +264,11 @@ do ISMOB=1,NSMOB
       ! RAS3
       LORB = NRSOBS(ISMOB,3)
       IOTYPE = 3
-    else if ((ITYPE >= 6) .and. (ITYPE <= 6+NR4TP-1)) then
+    else if ((ITYPE >= 6) .and. (ITYPE <= NR4TP+6-1)) then
       ! RAS4
       LORB = 0 ! NR4OBS(ISMOB,ITYPE-5)
       IOTYPE = ITYPE-1
-    else if (ITYPE == 6+NR4TP) then
+    else if (ITYPE == NR4TP+6) then
       ! deleted orbitals
       LORB = 0 ! NDEOBS(ISMOB)
       IOTYPE = ITYPE
@@ -300,9 +300,9 @@ write(u6,*) ' ITSOB'
 call IWRTMA(ITSOB,1,NACOB,1,NACOB)
 
 write(u6,*) ' NOBPTS'
-call IWRTMA(NOBPTS,6+NR4TP,NSMOB,NNOBPT,NSMOB)
+call IWRTMA(NOBPTS,NR4TP+6,NSMOB,NNOBPT,NSMOB)
 write(u6,*) ' NOBPT'
-call IWRTMA(NOBPTS,6+NR4TP,1,NNOBPT,1)
+call IWRTMA(NOBPT,NR4TP+6,1,NNOBPT,1)
 
 write(u6,*) ' ISFTO array :'
 call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)

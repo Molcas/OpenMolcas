@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DMInvKap_sp(rin,rout,isym)
+subroutine DMInvKap_sp(rin,rout)
 ! _____     -1
 ! Kappa  = M  Kappa
 !      ip   pq     iq
@@ -22,17 +22,16 @@ subroutine DMInvKap_sp(rin,rout,isym)
 ! iSym              Symmetry of rotation
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use MCLR_Data, only: nDens
+use MCLR_Data, only: nDens, nDensC
 
 implicit none
-integer iSym
-real*8 rin(*), rout(*)
+real*8 rin(nDensC), rout(nDensC)
 real*8, allocatable :: Temp(:)
 
 call mma_allocate(Temp,nDens,Label='Temp')
-call Uncompress(rin,Temp,isym)
+call Uncompress(rin,Temp,1)
 
-call Compress(Temp,rout,isym)
+call Compress(Temp,rout,1)
 call mma_deallocate(Temp)
 
 end subroutine DMInvKap_sp

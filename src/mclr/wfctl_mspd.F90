@@ -157,19 +157,19 @@ else
 
   ! Allocate areas for scratch and state variables
 
-  call mma_allocate(Kappa,nDens+6,Label='Kappa')
-  call mma_allocate(dKappa,nDens+6,Label='dKappa')
-  call mma_allocate(Sigma,nDens+6,Label='Sigma')
-  call mma_allocate(Temp3,nDens+6,Label='Temp3')
-  call mma_allocate(Temp4,nDens+6,Label='Temp4')
-  call mma_allocate(Sc1,nDens+6,Label='Sc1')
-  call mma_allocate(Sc2,nDens+6,Label='Sc2')
+  call mma_allocate(Kappa,nDensC,Label='Kappa')
+  call mma_allocate(dKappa,nDensC,Label='dKappa')
+  call mma_allocate(Sigma,nDensC,Label='Sigma')
+  call mma_allocate(Temp3,nDensC,Label='Temp3')
+  call mma_allocate(Temp4,nDens,Label='Temp4')
+  call mma_allocate(Sc1,nDens,Label='Sc1')
+  call mma_allocate(Sc2,nDensC,Label='Sc2')
 
   cnvrgd = .true.
   do iDisp=1,nDisp
-    Kappa(1:nDens) = Zero
-    dKappa(1:nDens) = Zero
-    Sigma(1:nDens) = Zero
+    Kappa(:) = Zero
+    dKappa(:) = Zero
+    Sigma(:) = Zero
 
     !-------------------------------------------------------------------
     !
@@ -244,17 +244,17 @@ else
     !W(ipCID)%A(1:nConf1*nroots) = Zero
     !W(ipCID)%A(1:nConf1*nroots) = W(ipST)%A(1:nConf1*nroots)
     call ipOut(ipCIT)
-    Sigma(1:nDensC) = -Sigma(1:nDensC)
+    Sigma(:) = -Sigma(:)
 
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,Kappa,nDens+6,Temp3,nDens+6,isym,iter)
+    call DMInvKap(W(ipPre2)%A,Sigma,Kappa,Temp4,isym,iter)
 
     call opOut(ippre2)
     r2 = ddot_(nDensC,Kappa,1,Kappa,1)
     if (debug) write(u6,*) 'In that case I think that r2 should be:',r2
     if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
 
-    dKappa(1:nDensC) = Kappa(1:nDensC)
+    dKappa(:) = Kappa(:)
 
     ! In MS-PDFT deltaC is no longer zero initially
     !deltaC = Zero
@@ -264,7 +264,7 @@ else
     deltaC = ddot_(nConf1*nroots,W(ipST)%A,1,W(ipS2)%A,1)
     call ipOut(ipcid)
     deltaK = ddot_(nDensC,Kappa,1,Sigma,1)
-    Kappa(1:nDens) = Zero
+    Kappa(:) = Zero
     delta = deltac+deltaK
     delta0 = delta
     iter = 1
@@ -272,7 +272,7 @@ else
 
     do
       if (delta == Zero) exit
-      call TimesE2MSPDFT(dKappa,ipCId,1,reco,jspin,ipS2,Temp4,ipS1)
+      call TimesE2MSPDFT(dKappa,ipCId,1,reco,jspin,ipS2,Temp3,ipS1)
 
       !-----------------------------------------------------------------
       !
@@ -283,7 +283,7 @@ else
       !-----------------------------------------------------------------
 
       rAlphaK = Zero
-      rAlphaK = ddot_(nDensC,Temp4,1,dKappa,1)
+      rAlphaK = ddot_(nDensC,Temp3,1,dKappa,1)
       rAlphaC = Zero
       call ipIn(ipS1)
       call ipIn(ipCId)
@@ -293,9 +293,9 @@ else
       !----------------------------------------------------------------*
 
       ! Kappa=Kappa+rAlpha*dKappa
-      Kappa(1:nDensC) = Kappa(1:nDensC)+ralpha*dKappa(1:nDensC)
+      Kappa(:) = Kappa(:)+ralpha*dKappa(:)
       ! Sigma=Sigma-rAlpha*dSigma       Sigma=RHS-Akappa
-      Sigma(1:nDensC) = Sigma(1:nDensC)-ralpha*Temp4(1:nDensC)
+      Sigma(:) = Sigma(:)-ralpha*Temp3(:)
       resk = sqrt(ddot_(nDensC,Sigma,1,Sigma,1))
       resci = Zero
       call ipIn(ipCIT)
@@ -323,7 +323,7 @@ else
       call opOut(ipdia)
 
       call ipIn(ipPre2)
-      call DMInvKap(W(ipPre2)%A,Sigma,nDens+6,Sc2,nDens+6,Sc1,nDens+6,iSym,iter)
+      call DMInvKap(W(ipPre2)%A,Sigma,Sc2,Sc1,iSym,iter)
       call opOut(ippre2)
 
       !----------------------------------------------------------------*
@@ -342,13 +342,13 @@ else
       if (.not. CI) then
         rBeta = deltaK/delta
         delta = deltaK
-        dKappa(1:nDensC) = rBeta*dKappa(1:nDensC)+Sc2(1:nDensC)
+        dKappa(:) = rBeta*dKappa(:)+Sc2(:)
       else
         rbeta = (deltac+deltaK)/delta
         delta = deltac+deltaK
         call ipIn(ipCID)
         W(ipCID)%A(1:nConf1*nroots) = rBeta*W(ipCID)%A(1:nConf1*nroots)+W(ipS2)%A(1:nConf1*nroots)
-        dKappa(1:nDensC) = rBeta*dKappa(1:nDensC)+Sc2(1:nDensC)
+        dKappa(:) = rBeta*dKappa(:)+Sc2(:)
         call opOut(ipS2)
         call ipOut(ipCID)
       end if
@@ -406,7 +406,7 @@ else
 
     ! MGD This last call seems unused, so I comment it
 
-    !call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp4,ipS2)
+    !call TimesE2(Kappa,ipCIT,1,reco,jspin,ipS2,Temp3,ipS2)
     iCISigDisp(iDisp) = iDis
     call ipin(ipST)
     call dDaFile(LuTemp,1,W(ipST)%A,iLen,iDis)
