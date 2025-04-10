@@ -37,7 +37,7 @@ use Definitions, only: wp, u6
 implicit none
 integer iPL
 character(len=8) Fmt1, Fmt2
-character(len=100) Line, BlLine, StLine
+character(len=100) Line
 character(len=1) :: XYZ(3) = ['X','Y','Z']
 logical :: RICD = .false.
 integer lLine, i, Left, nLine, j, iAT, nTSsh, iSym, jDisp, iDisp
@@ -47,10 +47,6 @@ integer lLine, i, Left, nLine, j, iAT, nTSsh, iSym, jDisp, iDisp
 !----------------------------------------------------------------------*
 
 lLine = len(Line)
-do i=1,lLine
-  BlLine(i:i) = ' '
-  StLine(i:i) = '*'
-end do
 !lPaper = 132
 !left = (lPaper-lLine)/2
 left = 5
@@ -65,8 +61,8 @@ call DecideOnCholesky(RICD)
 if (iPL >= 3) write(u6,*)
 nLine = mTit+5
 do i=1,nLine
-  Line = BlLine
-  if ((i == 1) .or. (i == nLine)) Line = StLine
+  Line = ''
+  if ((i == 1) .or. (i == nLine)) Line = repeat('*',lLine)
   if (i == 3) Line = 'Project:'
   if ((i >= 4) .and. (i <= nLine-2)) write(Line,'(18A4)') (TitleIN((i-4)*18+j),j=1,18)
   if (iPL >= 3) then
@@ -108,16 +104,10 @@ end if
 !     Print orbital and wavefunction specifications                    *
 !----------------------------------------------------------------------*
 if (iMethod == 2) then
-  ntIsh = 0
-  ntAsh = 0
-  ntSsh = 0
-  ntBas = 0
-  do iSym=1,nSym
-    ntIsh = ntIsh+nIsh(iSym)
-    ntAsh = ntAsh+nAsh(iSym)
-    ntBas = ntBas+nBas(iSym)
-    ntSsh = ntSsh+nBas(iSym)-nFro(iSym)-nDel(iSym)-nIsh(iSym)-nAsh(iSym)
-  end do
+  ntIsh = sum(nIsh(1:nSym))
+  ntAsh = sum(nAsh(1:nSym))
+  ntBas = sum(nBas(1:nSym))
+  ntSsh = ntBas-ntIsh-ntAsh-sum(nFro(1:nSym)+nDel(1:nSym))
   if (iPL >= 2) then
     write(u6,*)
     Line = ''

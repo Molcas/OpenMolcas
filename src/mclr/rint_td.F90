@@ -48,10 +48,7 @@ integer lDens, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, jS, iini, ifin
 
 ! Allocate memory
 
-lDens = 0
-do iS=1,nSym
-  lDens = lDens+nBas(iS)**2
-end do
+lDens = sum(nBas(1:nSym)**2)
 call mma_allocate(Dens,lDens,Label='Dens')
 call mma_allocate(wDKt,nDens,Label='wDKt')
 call mma_allocate(wKtD,nDens,Label='wKtD')

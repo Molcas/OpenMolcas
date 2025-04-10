@@ -24,21 +24,13 @@ dimension IACOL(NACOL), IABCOL(NABCOL)
 dimension AB(NROW,*)
 
 IWAY = 2
-!ICRAY = 0
 if (IWAY == 1) then
-  ! Straightforward sequence of SAXPY's
+  ! Straightforward sequence
   do J=1,NABCOL
     do K=1,NACOL
       JACT = IABCOL(J)
       KACT = IACOL(K)
-      FACTOR = B(K,J)
-      !if (ICRAY == 1) then
-      !  call SAXPY(NROW,FACTOR,A(1,KACT),1,AB(1,JACT),1)
-      !else
-      do I=1,NROW
-        AB(I,JACT) = AB(I,JACT)+FACTOR*A(I,KACT)
-      end do
-      !end if
+      AB(:,JACT) = AB(:,JACT)+B(K,J)*A(:,KACT)
     end do
   end do
 
@@ -47,59 +39,39 @@ else if (IWAY == 2) then
   NROL = 5
   NRES = mod(NACOL,NROL)
   ! overhead
-  if (NRES == 1) then
-    do J=1,NABCOL
-      JACT = IABCOL(J)
-      K1ACT = IACOL(1)
-      B1J = B(1,J)
-      !if (ICRAY == 1) then
-      !  call SAXPY(NROW,B1J,A(1,K1ACT),1,AB(1,JACT),1)
-      !else
-      do I=1,NROW
-        AB(I,JACT) = AB(I,JACT)+A(I,K1ACT)*B1J
+  select case (NRES)
+    case (1)
+      do J=1,NABCOL
+        K1ACT = IACOL(1)
+        JACT = IABCOL(J)
+        AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)
       end do
-      !endif
-    end do
-  else if (NRES == 2) then
-    do J=1,NABCOL
-      K1ACT = IACOL(1)
-      K2ACT = IACOL(2)
-      B1J = B(1,J)
-      B2J = B(2,J)
-      JACT = IABCOL(J)
-      do I=1,NROW
-        AB(I,JACT) = AB(I,JACT)+A(I,K1ACT)*B1J+A(I,K2ACT)*B2J
+    case (2)
+      do J=1,NABCOL
+        K1ACT = IACOL(1)
+        K2ACT = IACOL(2)
+        JACT = IABCOL(J)
+        AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)
       end do
-    end do
-  else if (NRES == 3) then
-    do J=1,NABCOL
-      K1ACT = IACOL(1)
-      K2ACT = IACOL(2)
-      K3ACT = IACOL(3)
-      JACT = IABCOL(J)
-      B1J = B(1,J)
-      B2J = B(2,J)
-      B3J = B(3,J)
-      do I=1,NROW
-        AB(I,JACT) = AB(I,JACT)+A(I,K1ACT)*B1J+A(I,K2ACT)*B2J+A(I,K3ACT)*B3J
+    case (3)
+      do J=1,NABCOL
+        K1ACT = IACOL(1)
+        K2ACT = IACOL(2)
+        K3ACT = IACOL(3)
+        JACT = IABCOL(J)
+        AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)+B(3,J)*A(:,K3ACT)
       end do
-    end do
-  else if (NRES == 4) then
-    do J=1,NABCOL
-      K1ACT = IACOL(1)
-      K2ACT = IACOL(2)
-      K3ACT = IACOL(3)
-      K4ACT = IACOL(4)
-      JACT = IABCOL(J)
-      B1J = B(1,J)
-      B2J = B(2,J)
-      B3J = B(3,J)
-      B4J = B(4,J)
-      do I=1,NROW
-        AB(I,JACT) = AB(I,JACT)+A(I,K1ACT)*B1J+A(I,K2ACT)*B2J+A(I,K3ACT)*B3J+A(I,K4ACT)*B4J
+    case (4)
+      do J=1,NABCOL
+        K1ACT = IACOL(1)
+        K2ACT = IACOL(2)
+        K3ACT = IACOL(3)
+        K4ACT = IACOL(4)
+        JACT = IABCOL(J)
+        AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)+B(3,J)*A(:,K3ACT)+B(4,J)*A(:,K4ACT)
       end do
-    end do
-  end if
+    case default
+  end select
   ! (End of Overhead)
   do K=NRES+1,NACOL,NROL
     do J=1,NABCOL
@@ -109,14 +81,7 @@ else if (IWAY == 2) then
       K4ACT = IACOL(K+3)
       K5ACT = IACOL(K+4)
       JACT = IABCOL(J)
-      B1J = B(K,J)
-      B2J = B(K+1,J)
-      B3J = B(K+2,J)
-      B4J = B(K+3,J)
-      B5J = B(K+4,J)
-      do I=1,NROW
-        AB(I,JACT) = AB(I,JACT)+A(I,K1ACT)*B1J+A(I,K2ACT)*B2J+A(I,K3ACT)*B3J+A(I,K4ACT)*B4J+A(I,K5ACT)*B5J
-      end do
+      AB(:,JACT) = AB(:,JACT)+B(K,J)*A(:,K1ACT)+B(K+1,J)*A(:,K2ACT)+B(K+2,J)*A(:,K3ACT)+B(K+3,J)*A(:,K4ACT)+B(K+4,J)*A(:,K5ACT)
     end do
   end do
 end if

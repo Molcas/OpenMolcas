@@ -47,8 +47,7 @@ real*8 rchc(mxroot)
 real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Fancy(:), SLag(:,:), wrk(:)
 real*8 R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, rBeta, Res
 real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin, &
-        i, iR
+integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin, iR
 integer, external :: nPre
 
 !----------------------------------------------------------------------*
@@ -65,9 +64,7 @@ write(Fmt2,'(A,I3.3,A)') '(',left,'X,'
 iDis = 0
 
 fail = .false.
-do i=1,8
-  Converged(i) = .true.
-end do
+Converged(:) = .true.
 !MGD I think this is nice when printed...
 lprint = .true.
 reco = -One

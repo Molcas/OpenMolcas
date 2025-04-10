@@ -63,7 +63,7 @@ real*8, allocatable :: RHss(:)
 real*8, allocatable :: Kap1(:), Kap2(:), sKap(:), rKap1(:), rKap2(:)
 real*8, allocatable :: Hess(:), Hess2(:), Temp(:), ELEC(:), EG(:), ELOUT(:)
 integer, allocatable :: NrDisp(:), DegDisp(:)
-integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1, ipRP2, jDisp, jSpin, iDisk, Len, i, iLen, iDis, &
+integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1, ipRP2, jDisp, jSpin, iDisk, Len, iLen, iDis, &
         iRC, kDisp, kSpin, Index, iOpt, Lu_10
 real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
 real*8, external :: DDot_
@@ -158,9 +158,7 @@ do iSym=1,nSym
       call dDaFile(LuTemp,2,SKap,Len,iDisk)
       iDisk = iRHSDisp(iDisp)
       call dDaFile(LuTemp,2,rKap1,Len,iDisk)
-      do i=1,nDensC
-        SKap(i) = -SKap(i)-rKap1(i)
-      end do
+      SKap(:) = -SKap(:)-rKap1(:)
 
       !call Recprt('ORB-RHS',' ',rKap1,nDensC,1)
       !write(u6,*) 'ddot orb-resp',ddot_(nDensC,Kap1,1,Kap1,1)
@@ -184,9 +182,7 @@ do iSym=1,nSym
         call dDaFile(LuTemp,2,W(iprp1)%A,iLen,iDis)
         call ipin(ipSp)
         call ipin(iprp1)
-        do i=1,nConf1
-          W(ipSp)%A(i) = -W(ipSp)%A(i)-W(iprp1)%A(i)
-        end do
+        W(ipSp)%A(1:nConf1) = -W(ipSp)%A(1:nConf1)-W(iprp1)%A(1:nConf1)
 
         !write(u6,*) 'ddot ci-resp',ddot_(nConf1,W(ipcip1)%A,1,W(ipcip1)%A,1)
         !write(u6,*) 'ddot ci-sigma',ddot_(nConf1,W(ipSp)%A,1,W(ipSp)%A,1)

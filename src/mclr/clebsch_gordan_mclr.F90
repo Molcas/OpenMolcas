@@ -19,13 +19,14 @@ use Definitions, only: wp, u6
 
 implicit real*8(a-z)
 integer z, zmax, zmin
+real*8, external :: Fact
 
 if ((j1 < Zero) .or. (j2 < Zero) .or. (j < Zero)) then
   write(u6,*) 'Error J is lower than 0'
   call Abend()
 end if
-r = abs(Two*j1-aint(Two*j1))+abs(Two*j2-aint(Two*j2))+abs(Two*j-aint(Two*j))+abs(Two*m1-aint(Two*m1))+abs(Two*m2-aint(Two*m2))+ &
-    abs(Two*m-aint(Two*m))
+r = abs(Two*j1-int(Two*j1))+abs(Two*j2-int(Two*j2))+abs(Two*j-int(Two*j))+abs(Two*m1-int(Two*m1))+abs(Two*m2-int(Two*m2))+ &
+    abs(Two*m-int(Two*m))
 if (r > 1.0e-6_wp) then
   write(u6,*) 'CG provided with not half integer'
   call Abend()
@@ -33,8 +34,7 @@ end if
 if (m1+m2 == m) then
   Fct1 = (Two*j+One)*Fact(j1+j2-j)*Fact(j1-j2+j)*Fact(-j1+j2+j)
   Fct2 = Fact(j1+j2+j+One)
-  Fct = sqrt(Fct1/fct2)
-  Fct = Fct*sqrt(Fact(j1+m1)*Fact(j1-m1)*Fact(j2+m2)*Fact(j2-m2)*Fact(j+m)*FacT(j-m))
+  Fct = sqrt(Fct1/fct2)*sqrt(Fact(j1+m1)*Fact(j1-m1)*Fact(j2+m2)*Fact(j2-m2)*Fact(j+m)*Fact(j-m))
   zmax = nint(min(j1+j2-j,j1-m1,j2+m2))
   zmin = -nint(min(j-j2+m1,j-j1-m2))
   sum = Zero
@@ -42,10 +42,10 @@ if (m1+m2 == m) then
   do z=zmin,zmax
     dz = real(z,kind=wp)
     T = (-One)**z
-    N = Facti(z)*FacT(j1+j2-j-dz)*fact(j1-m1-dz)*fact(j2+m2-dz)*fact(j-j2+m1+dz)*fact(j-j1-m2+dz)
+    N = Fact(dz)*Fact(j1+j2-j-dz)*Fact(j1-m1-dz)*Fact(j2+m2-dz)*Fact(j-j2+m1+dz)*Fact(j-j1-m2+dz)
     sum = sum+T/N
   end do
-  Clebsch_Gordan_mclr = sum*fct
+  Clebsch_Gordan_mclr = sum*Fct
 else
   Clebsch_Gordan_mclr = Zero
 end if

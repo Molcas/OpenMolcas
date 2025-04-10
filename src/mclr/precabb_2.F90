@@ -47,7 +47,7 @@ real*8 Temp1(no,no), Temp2(nO,nO), Scr(nTemp)
 real*8 Fockti
 real*8 Focki(no,no)
 real*8 Sign
-integer iib, jVert, ip, kS, kBB, kkB, kkC, ijkl, lB, jB, ii, ij, kCC
+integer iib, jVert, ip, kS, kBB, kkB, kkC, ijkl, lB, jB, ii, kCC
 real*8 rf, rDens1, rDens2, Rho
 
 !                                                                      *
@@ -57,7 +57,6 @@ iib = ib+nA(is)
 jVert = nOrb(js)-nAsh(js)-nIsh(js)
 if (jvert == 0) return
 
-ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
 rF = sign*Fockti
 Temp2(:,:) = Zero
 
@@ -101,14 +100,12 @@ do Ks=1,nsym
   end if
 end do
 
+ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
 rho = sign*Two*G1t(nTri_Elem(iib))
 do iI=nAsh(js)+nIsh(js)+1,nOrb(js)
   rOut(ip) = rout(ip)-Two*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
-  ip = ip+1
-  do iJ=iI+1,NOrb(js)
-    rOut(ip) = Rho*FockI(iI,iJ)+Temp2(ii,ij)
-    ip = ip+1
-  end do
+  rOut(ip+1:ip+nOrb(jS)-iI) = Rho*FockI(iI,iI+1:nOrb(jS))+Temp2(iI,iI+1:nOrb(jS))
+  ip = ip+nOrb(jS)-iI+1
 end do
 
 end subroutine Precabb_2

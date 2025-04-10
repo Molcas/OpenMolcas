@@ -20,7 +20,7 @@ subroutine RHS_CMS(Fock,CICSF)
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens, nConf1, nNA, nAcPar, nAcPr2
-use input_mclr, only: nRoots, ntBas, ntAsh
+use input_mclr, only: nRoots, ntBas, ntAsh, ntBtri
 
 implicit none
 ! Output
@@ -35,7 +35,7 @@ real*8, dimension(:), allocatable :: PUVX, R, H, AXkzx, AXPzx, AXX, bk, bP, bX, 
 !R:     rotation matrix from inter states to final states
 !real*8, dimension(:,:), allocatable :: GDMat
 !integer, dimension(:,:,:,:), allocatable :: IndPUVX, IndTUVX
-integer NPUVX, NTri
+integer NPUVX
 
 ! MEMORY ALLOCATION
 call mma_allocate(AXkzx,nDens)
@@ -52,8 +52,7 @@ call mma_allocate(zX,nTri_Elem(nRoots-1))
 !call mma_allocate(IndTUVX,ntAsh,ntAsh,ntAsh,ntAsh)
 call Get_PUVXLen(NPUVX)
 call mma_allocate(PUVX,NPUVX)
-call Get_Ntri(nTri)
-call mma_allocate(FMO1t,nRoots*nTri)
+call mma_allocate(FMO1t,nRoots*ntBtri)
 NACPAR = nTri_Elem(nnA)
 NAcPr2 = nTri_Elem(nacpar)
 call mma_allocate(FMO2t,nRoots*nacpr2)
@@ -63,14 +62,14 @@ call CMSRdMat(H,nRoots,nRoots,'ROT_HAM',7)
 call Get_DArray('MS_FINAL_ROT',R,nRoots**2)
 call Read_PUVX(PUVX,NPUVX)
 call Get_Two_Ind(IndPUVX,IndTUVX)
-call GetPDFTFocks(FMO1t,FMO2t,nTri)
+call GetPDFTFocks(FMO1t,FMO2t,ntBtri)
 ! Calculate six additional terms in CMS Lagrangian equaiton
 call CMSRHSGDMat(GDMat)
 call CalcW(W,GDMAt,PUVX,NPUVX,IndTUVX)
 
 call CalcAXX(AXX,W)
 
-call CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
+call CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,ntBtri)
 
 call SolveforzX(zX,AXX,bX)
 
@@ -78,7 +77,7 @@ call CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
 
 call CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,W,zx)
 
-call Calcbk(bk,R,nTri,GDMat,zX)
+call Calcbk(bk,R,ntBtri,GDMat,zX)
 
 call SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
 

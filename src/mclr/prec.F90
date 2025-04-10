@@ -58,12 +58,8 @@ subroutine Prec_internal(rpre)
   integer nmm, nmmm, iS, ip, iAdr, iAdr2, jS, nD, ni, nTemp, iB, iBB, iRC, iR, n2
   real*8 Sign
 
-  nmm = 0
-  nmmm = 0
-  do iS=1,nSym
-    nMM = max(nMM,nAsh(is)+nIsh(iS))
-    nMMM = max(nmmM,nBas(is))
-  end do
+  nmm = max(0,maxval(nAsh(1:nSym)+nIsh(1:nSym)))
+  nmmm = max(0,maxval(nBas(1:nSym)))
   n2 = nMMM**2
   nmmm = ((nmmm-1)/nRec+1)*nRec
   nmm = nmm*nMMM

@@ -11,16 +11,14 @@
 
 subroutine SqM(a,b,n)
 
-integer n, i, j, ij
+integer n, i, ij
 real*8 a(*), b(n,n)
 
 ij = 0
 do i=1,n
-  do j=i,n
-    ij = ij+1
-    B(i,j) = A(ij)
-    B(j,i) = A(ij)
-  end do
+  B(i,i:n) = A(ij+1:ij+n-i+1)
+  B(i:n,i) = A(ij+1:ij+n-i+1)
+  ij = ij+n-i+1
 end do
 
 return

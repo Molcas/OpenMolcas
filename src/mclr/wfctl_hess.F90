@@ -77,8 +77,8 @@ integer, allocatable :: List(:,:)
 real*8 Tim2, Tim3, Tim4, R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rGrad, EC, D_0, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, &
        rBeta, Res, rCHC
 real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, iDisp, kkSym, kkkSym, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iDEnd, jDisp, iLen, &
-        Iter, ipPre2, jSpin, LuWR_Save, iSym_Old, iRank, iD, istatus
+integer lPaper, lLine, Left, iDis, iDisp, kkSym, kkkSym, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, jDisp, iLen, Iter, &
+        ipPre2, jSpin, LuWR_Save, iSym_Old, iRank, iD, istatus
 integer, external :: nPre
 integer, external :: IsFreeUnit
 
@@ -130,12 +130,9 @@ if (PT2) kkkSym = 1
 call mma_allocate(List,2,nDisp,Label='List')
 iDisp = 0
 do iSym=kksym,kkksym
-  iDEnd = lDisp(iSym)
-  do jDisp=1,iDEnd
-    iDisp = iDisp+1
-    List(1,iDisp) = iSym
-    List(2,iDisp) = jDisp
-  end do
+  List(1,iDisp+1:iDisp+lDisp(iSym)) = iSym
+  List(2,iDisp+1:iDisp+lDisp(iSym)) = [(jDisp,jDisp=1,lDisp(iSym))]
+  iDisp = iDisp+lDisp(iSym)
 end do
 
 ! Change output unit
@@ -282,7 +279,7 @@ do
     ! OK START WORKING, looping over the perturbations of the
     ! current symmetry
 
-    iDEND = lDisp(iSym)
+    !iDEND = lDisp(iSym)
     !if ((SewLab == 'NONE') .and. (.not. mckinley)) iDEND = 1
 
   end if

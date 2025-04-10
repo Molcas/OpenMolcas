@@ -48,7 +48,7 @@ real*8 Temp2(nBa,nBa)
 real*8 Fockti
 real*8 Focki(nBa,nBa)
 real*8 Sign
-integer iib, jVert, ip, kS, kBB, kkB, kkC, lB, jB, ii, ij, kCC
+integer iib, jVert, ip, kS, kBB, kkB, kkC, lB, jB, ii, kCC
 real*8 rf, rDens, Rho
 
 !                                                                      *
@@ -58,7 +58,6 @@ iib = ib+nA(is)
 jVert = nBas(js)-nAsh(js)-nIsh(js)
 if (jvert == 0) return
 
-ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
 rF = sign*Fockti
 Temp2(:,:) = Zero
 
@@ -99,14 +98,12 @@ do kS=1,nsym
   end if
 end do
 
+ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
 rho = sign*Two*G1t(nTri_Elem(iib))
 do iI=nAsh(js)+nIsh(js)+1,nBas(js)
   rOut(ip) = rout(ip)-Two*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
-  ip = ip+1
-  do iJ=iI+1,Nbas(js)
-    rOut(ip) = Rho*FockI(iI,iJ)+Temp2(ii,ij)
-    ip = ip+1
-  end do
+  rOut(ip+1:ip+nBas(jS)-iI) = Rho*FockI(iI,iI+1:nBas(jS))+Temp2(iI,iI+1:nBas(jS))
+  ip = ip+nBas(jS)-iI+1
 end do
 !                                                                      *
 !***********************************************************************

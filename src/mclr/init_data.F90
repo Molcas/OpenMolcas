@@ -25,7 +25,6 @@ use input_mclr, only: State_Sym, nUserPT, UserP, nsRot, UserT
 use Constants, only: Zero, One
 
 implicit none
-integer I
 
 !----------------------------------------------------------------------*
 !     Define files (file names and unit numbers)                       *
@@ -68,9 +67,7 @@ LuMOTRA = 30
 State_Sym = 1
 nUserPT = 0
 UserP = One
-do i=1,64
-  UserT(i) = Zero
-end do
+UserT(:) = Zero
 nsRot = 0
 
 !----------------------------------------------------------------------*

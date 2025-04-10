@@ -25,8 +25,7 @@ use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, TimeDep
 implicit none
 integer iSym
 integer iSM(1), LSPC(1), iSPC(1)
-integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, nD, ipDIAI, nP2, nP1, nQ, iC
-real*8 ECAS
+integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, nD, ipDIAI, nP2, nP1, nQ
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we dont want to let world see the work of the Danish
@@ -82,11 +81,8 @@ else
   nexp = 0
 end if
 
-ECAS = ERASSCF(1)
 call ipin(ipdiai)
-do iC=1,nD
-  W(ipdiai)%A(iC) = (W(ipdiai)%A(iC)-ECAS)
-end do
+W(ipdiai)%A(1:nD) = W(ipdiai)%A(1:nD)-ERASSCF(1)
 
 ipdia = ipdiai
 

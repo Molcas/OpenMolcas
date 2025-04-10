@@ -43,9 +43,10 @@ jOff = IBTSOB(JTP,JSM)
 kOff = IBTSOB(KTP,KSM)
 lOff = IBTSOB(LTP,LSM)
 
-! Collect Coulomb terms
-
 if (ICOUL == 0) then
+
+  ! Collect Coulomb terms
+
   iint = 1
   do lBas=lOff,lOff+lOrb-1
     jMin = jOff
@@ -79,7 +80,6 @@ if (ICOUL == 0) then
           iMin = iOff
           if (IKSM /= 0) iMin = kBas
           do iBas=iMin,iOff+iOrb-1
-            !jINT = (jBas-1)*nACOB**3+(kBas-1)*nACOB**2+(lBas-1)*nACOB+iBas
             il = iTri(iBas,lBas)
             jk = iTri(jBas,kBas)
             ijkl = iTri(il,jk)
@@ -90,7 +90,7 @@ if (ICOUL == 0) then
       end do
     end do
   end if
-else if (ICOUL /= 0) then
+else
   iint = 1
   do lBas=lOff,lOff+lOrb-1
     do kBas=kOff,kOff+kOrb-1
@@ -99,7 +99,6 @@ else if (ICOUL /= 0) then
           ij = iTri(iBas,jBas)
           kl = iTri(kBas,lBas)
           ijkl = iTri(ij,kl)
-          !JINT = (LBAS-1)*nACOB**3+(KBAS-1)*nACOB**2+(JBAS-1)*nACOB+IBAS
           Xint(iInt) = Intlst(ijkl)
           iInt = iint+1
         end do

@@ -67,15 +67,14 @@ real*8, pointer :: pLii(:,:), pLij(:,:)
 
 timings = .false.
 call CWTIME(TCstart1,TWstart1)
-do i=1,2            ! 1 --> CPU   2 --> Wall
-  tread(i) = Zero   !time read vectors
-  ttran(i) = Zero   !time transform vectors
-  tform(i) = Zero   !time form integrals
-  tform2(i) = Zero  !time form integrals
-  tforma(i) = Zero  !time form integrals
-  tforma2(i) = Zero !time form integrals
-  tMO(i) = Zero     !time for final MO transform
-end do
+! 1 --> CPU   2 --> Wall
+tread(:) = Zero   !time read vectors
+ttran(:) = Zero   !time transform vectors
+tform(:) = Zero   !time form integrals
+tform2(:) = Zero  !time form integrals
+tforma(:) = Zero  !time form integrals
+tforma2(:) = Zero !time form integrals
+tMO(:) = Zero     !time for final MO transform
 MaxVecPerBatch = Cho_LK_MaxVecPerBatch()
 iLoc = 3
 
@@ -122,14 +121,11 @@ do jsym=1,nsym
   call GAIGOP_SCAL(NumCV,'max')
   if (NumCV < 1) cycle
 
-  maxRS = 0
   JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
   JRED2 = InfVec(NumCho(jSym),2,jSym) ! red set of the last vec
   call GAIGOP_SCAL(JRED1,'min')
   call GAIGOP_SCAL(JRED2,'max')
-  do Jred=JRED1,JRED2
-    maxRS = max(maxRS,nDimRS(JSYM,JRED))
-  end do
+  maxRS = max(0,maxval(nDimRS(JSYM,JRED1:JRED2)))
 
   ! Check for maxmem to see if integrals would fit in memory
   ! or if batching is required
@@ -137,10 +133,8 @@ do jsym=1,nsym
   call mma_MaxDBLE(LWORK)
   call GAIGOP_SCAL(LWORK,'min')
 
-  do i=1,nsym
-    nIshb(i) = 0
-    nAshb(i) = 0
-  end do
+  nIshb(1:nSym) = 0
+  nAshb(1:nSym) = 0
 
   ! Loop over i and t batches
   ! each batch will increase the i/o, therefore we preferably want to
@@ -186,10 +180,8 @@ do jsym=1,nsym
   taskleft = .true.
   do while (taskleft)
     lWorke = lWork
-    do i=1,nsym
-      nIshe(i) = 0
-      nAshe(i) = 0
-    end do
+    nIshe(1:nSym) = 0
+    nAshe(1:nSym) = 0
     taskleft = .false.
     Libatch = 0
     do i=1,nsym
@@ -620,9 +612,7 @@ do jsym=1,nsym
             ioff2 = ioff2+nBas(kSym2)**2
           end do
         else
-          do i=1,nsym
-            iAdr = iAdr+(nBas(i)-nIsh(i))**2
-          end do
+          iAdr = iAdr+sum((nBas(1:nSym)-nIsh(1:nSym))**2)
         end if
 
         ! MO transform (i p | i q)
@@ -630,14 +620,10 @@ do jsym=1,nsym
         call DGEMM_('N','N',nBas(kSym),nvirt,nBas(kSym),One,iiab(ip1:),nBas(kSym),CMO(ipMO),nBas(kSym),Zero,Integral,nBas(kSym))
         call DGEMM_('T','N',nvirt,nvirt,nBas(kSym),One,Integral,nBas(kSym),CMO(ipMO),nBas(kSym),Zero,iiab(ip1:),nvirt)
 
-        do i=1,ksym-1
-          iAdr = iAdr+(nBas(i)-nIsh(i))**2
-        end do
+        iAdr = iAdr+sum((nBas(1:kSym-1)-nIsh(1:kSym-1))**2)
         call GADSum(iiab(ip1:),nvirt**2)
         call DDAFILE(LuChoInt(1),1,iiab(ip1:),nvirt**2,iAdr)
-        do i=ksym+1,nsym
-          iAdr = iAdr+(nBas(i)-nIsh(i))**2
-        end do
+        iAdr = iAdr+sum((nBas(kSym+1:nSym)-nIsh(kSym+1:nSym))**2)
 
         ip1 = ip1+nBas(kSym)**2
       end do
@@ -649,10 +635,7 @@ do jsym=1,nsym
       do i=1,ksym-1
         na2 = nAshe(i)*nAshb(i)+nTri_Elem(nAshe(i))
         do j=1,na2
-          iAdrtu = iAdrtu+npq
-          do k=1,nsym
-            iAdrtu = iAdrtu+nBas(k)**2
-          end do
+          iAdrtu = iAdrtu+npq+sum(nBas(1:nSym)**2)
         end do
       end do
 
@@ -688,16 +671,12 @@ do jsym=1,nsym
 
         call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,tupq(ip3),nBas(iSym),CMO(ipMO),nBas(iSym),Zero,Integral,nBas(iSym))
         call DGEMM_('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,Integral,nBas(iSym),CMO(ipMO),nBas(iSym),Zero,tupq(ip3),nBas(iSym))
-        do i=1,isym-1
-          iAdrtu = iAdrtu+nBas(i)**2
-        end do
+        iAdrtu = iAdrtu+sum(nBas(1:iSym-1)**2)
 
         call GADSum(tupq(ip3),nBas(iSym)**2)
         call DDAFILE(LuChoInt(2),1,tupq(ip3),nBas(iSym)**2,iAdrtu)
 
-        do i=isym+1,nsym
-          iAdrtu = iAdrtu+nBas(i)**2
-        end do
+        iAdrtu = iAdrtu+sum(nBas(iSym+1:nSym)**2)
         ip3 = ip3+nBas(iSym)**2
 
       end do
@@ -709,10 +688,8 @@ do jsym=1,nsym
 
     call mma_deallocate(Integral)
 
-    do i=1,nsym
-      nIshb(i) = nIshb(i)+nIshe(i)  ! now those are done!
-      nAshb(i) = nAshb(i)+nAshe(i)  ! now those are done!
-    end do
+    nIshb(1:nSym) = nIshb(1:nSym)+nIshe(1:nSym)  ! now those are done!
+    nAshb(1:nSym) = nAshb(1:nSym)+nAshe(1:nSym)  ! now those are done!
     call Deallocate_DT(CMOt)
     call mma_deallocate(iiab)
     if (ntotae > 0) call mma_deallocate(tupq)

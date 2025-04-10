@@ -22,7 +22,7 @@ integer nEX
 integer lst(nex)
 real*8 rMat(*), rdiag(*)
 real*8, allocatable :: Tmp1(:), Tmp2(:)
-integer i, j, k, l, idisk, jDisk, kk, ll
+integer i, j, k, l, idisk, jDisk, kk
 real*8 rtmp
 
 call mma_allocate(TMP1,nconf,Label='Tmp1')
@@ -37,9 +37,7 @@ do i=1,lroots
     rTmp = Zero
     do k=1,nex
       do l=1,nex
-        kk = lst(k)
-        ll = lst(l)
-        rtmp = rtmp+Tmp1(kk)*Tmp2(ll)*rmat(iTri(k,l))
+        rtmp = rtmp+Tmp1(lst(k))*Tmp2(lst(l))*rmat(iTri(k,l))
       end do
     end do
     do k=1,nconf

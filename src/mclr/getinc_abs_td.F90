@@ -42,9 +42,10 @@ kOff = IBTSOB(KTP,KSM)
 lOff = IBTSOB(LTP,LSM)
 ntash = nacob
 
-! Collect Coulomb terms
-
 if (ICTL == 1) then
+
+  ! Collect Coulomb terms
+
   iint = 1
   do lBas=lOff,lOff+lOrb-1
     jMin = jOff
@@ -63,6 +64,7 @@ if (ICTL == 1) then
       end do
     end do
   end do
+
 else if (ICTL == 4) then
 
   ! Collect Coulomb-Exchange terms
@@ -88,6 +90,7 @@ else if (ICTL == 4) then
       end do
     end do
   end do
+
 else
   call Abend()
 end if

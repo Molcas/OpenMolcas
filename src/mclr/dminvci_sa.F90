@@ -19,12 +19,11 @@ use Constants, only: Zero
 
 implicit none
 integer ipSigma
-real*8 rout(*), S(nroots,nroots,nroots)
+real*8 rout(nCSF(State_Sym),nRoots), S(nroots,nroots,nroots)
 #include "rasdim.fh"
 real*8 rcoeff(mxroot), alpha(mxRoot)
 real*8, external :: DDot_
-integer i, j, k, iR, jR
-real*8 E
+integer k, iR, jR
 
 !                                  -1           -1
 !                             (H -E) |0><0|(H -E) |Sigma>
@@ -38,39 +37,30 @@ if (nconf1 > 1) then
   call ipin(ipdia)
   call ipin(ipsigma)
   k = 0
-  do i=1,nroots
-    E = ERASSCF(i)
-    do j=1,ncsf(state_SYM)
-      k = k+1
-      rout(k) = W(ipSigma)%A(k)/(W(ipdia)%A(j)-E)
-    end do
+  do iR=1,nroots
+    rout(:,iR) = W(ipSigma)%A(k+1:k+nCSF(State_Sym))/(W(ipdia)%A(1:nCSF(State_Sym))-ERASSCF(iR))
+    k = k+nCSF(State_Sym)
   end do
   do iR=1,nroots
 
     !We = weight(iR)
-    E = ERASSCF(iR)
     call ipin(ipCI)
     do jR=1,nroots
-      rcoeff(jR) = ddot_(nconf1,rout(1+(iR-1)*ncsf(State_Sym)),1,W(ipCI)%A(1+(jR-1)*ncsf(State_Sym)),1)
+      rcoeff(jR) = ddot_(nconf1,rout(:,iR),1,W(ipCI)%A(1+(jR-1)*nCSF(State_Sym)),1)
     end do
 
-    do i=1,nroots
-      alpha(i) = Zero
-      do j=1,nroots
-        alpha(i) = alpha(i)+S(i,j,iR)*rcoeff(j)
-      end do
+    do jR=1,nroots
+      alpha(jR) = sum(S(jR,:,iR)*rcoeff(1:nroots))
     end do
 
-    do i=1,nroots
-      do j=1,ncsf(State_Sym)
-        rout(j+(iR-1)*ncsf(State_Sym)) = rout(j+(iR-1)*ncsf(State_Sym))- &
-                                         W(ipCI)%A(j+(i-1)*ncsf(State_Sym))*alpha(i)/(W(ipdia)%A(j)-E)
-      end do
+    do jR=1,nroots
+      rout(:,iR) = rout(:,iR)- &
+                   W(ipCI)%A((jR-1)*nCSF(State_Sym)+1:jR*nCSF(State_Sym))*alpha(jR)/(W(ipdia)%A(1:nCSF(State_Sym))-ERASSCF(iR))
     end do
 
   end do
 else
-  rout(1:nconf1*nroots) = Zero
+  rout(:,:) = Zero
 end if
 
 end subroutine DMinvCI_sa

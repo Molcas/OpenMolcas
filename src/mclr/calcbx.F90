@@ -26,36 +26,30 @@ implicit none
 ! Output
 real*8, dimension(nTri_Elem(nRoots-1)) :: bX
 ! Input
-real*8, dimension(nRoots**2) :: R, H
-real*8, dimension(nRoots**2) :: LOK
+real*8, dimension(nRoots,nRoots) :: R, H
+real*8, dimension(nRoots,nRoots) :: LOK
 ! Auxiliaries
-integer I, K, L, M, N, IKL, IIM, IIN, IKOL, IIK, IIL, ILOK
+integer I, K, L, M, N, IKL
 real*8 TempD
 
 bX(:) = Zero
 I = irlxroot
 do K=2,nRoots
-  IIK = (I-1)*nRoots+K
   do L=1,K-1
-    IIL = IIK-K+L
     IKL = nTri_Elem(K-2)+L
-    IKOL = (L-1)*nRoots+K
-    ILOK = (K-1)*nRoots+L
-    bX(IKL) = R(IIK)**2*LOK(ILOK)-R(IIL)**2*LOK(IKOL)
+    bX(IKL) = R(K,I)**2*LOK(L,K)-R(L,I)**2*LOK(K,L)
     do M=2,nRoots
-      IIM = IIK-K+M
       do N=1,M-1
         TempD = Zero
-        IIN = IIK-K+N
-        if (M == K) TempD = TempD+H((L-1)*nRoots+N)
-        if (N == K) TempD = TempD+H((M-1)*nRoots+L)
-        if (M == L) TempD = TempD-H((K-1)*nRoots+N)
-        if (N == L) TempD = TempD-H((M-1)*nRoots+K)
-        bX(IKL) = bX(IKL)+TempD*R(IIM)*R(IIN)
+        if (M == K) TempD = TempD+H(N,L)
+        if (N == K) TempD = TempD+H(L,M)
+        if (M == L) TempD = TempD-H(N,K)
+        if (N == L) TempD = TempD-H(K,M)
+        bX(IKL) = bX(IKL)+TempD*R(M,I)*R(N,I)
       end do
     end do
-    bX(IKL) = bX(IKL)*Two
   end do
 end do
+bX(:) = Two*bX(:)
 
 end subroutine CalcbX

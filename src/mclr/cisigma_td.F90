@@ -69,17 +69,17 @@ if (nconf1 == 0) return
 KAIN1 => Int1
 
 ! Two electron integrals
-! symmetric in perticle one and two
+! symmetric in particle one and two
 
 KINT2 => Int2s
 KINT2a => Int2a
 
 ! Two electron integrals
-! anti symmetric in perticle one and two
+! anti symmetric in particle one and two
 
 irefsm = iCSym
 
-! Do we have any twoelectron integrals?
+! Do we have any two-electron integrals?
 
 if (Have_2_el) then
   i12 = 2
@@ -109,8 +109,7 @@ if (iOp == 1) then
   pInt1(1:nSym) = ipCM(1:nSym)
 else
   do iS=1,nSym
-    jS = Mul(iS,iOp)
-    pInt1(is) = ipMat(is,jS)
+    pInt1(is) = ipMat(is,Mul(iS,iOp))
   end do
 end if
 

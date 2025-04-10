@@ -51,7 +51,7 @@ contains
 subroutine CNHCN2_INTERNAL(SCR)
 
   integer IAGRP, IBGRP, IOPL, IOPR, ICLL, ICLR, NDETL, NDETR, NCSFL, NCSFR, KLFREE, KLDTLA, KLDTLB, KLISL, KLDTRA, KLDTRB, KLISR, &
-          KLDHD, KLCHD, KLROU, LDIHDJ, LCNFST, NDIFF, ISYM, IPL, JTYP, JCSF, JDET, IPR
+          KLDHD, KLCHD, KLROU, LDIHDJ, LCNFST, NDIFF, ISYM, IPL, IPR
   real*8 ECOREP
   real*8, target :: SCR(*)
   integer, pointer :: iSCR(:), iSCRa(:), iSCRb(:), iSCRar(:), iSCRbr(:), iSCRn(:), iSCRnn(:)
@@ -141,21 +141,11 @@ subroutine CNHCN2_INTERNAL(SCR)
     ! sign changes
     call DGMM2(SCR(KLDHD),SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
     call DGMM2(SCR(KLDHD),SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
-    IPL = 1
-    do JTYP=1,ITPL-1
-      JCSF = NCPCNT(JTYP)
-      JDET = NDPCNT(JTYP)
-      IPL = IPL+JCSF*JDET
-    end do
+    IPL = 1+sum(NCPCNT(1:ITPL-1)*NDPCNT(1:ITPL-1))
     if (ITPR == ITPL) then
       IPR = IPL
     else
-      IPR = 1
-      do JTYP=1,ITPR-1
-        JCSF = NCPCNT(JTYP)
-        JDET = NDPCNT(JTYP)
-        IPR = IPR+JCSF*JDET
-      end do
+      IPR = 1+sum(NCPCNT(1:ITPR-1)*NDPCNT(1:ITPR-1))
     end if
 
     call MATML4(SCR(KLCHD),DTOC(IPL),SCR(KLDHD),NCSFL,NDETR,NDETL,NCSFL,NDETL,NDETR,1)

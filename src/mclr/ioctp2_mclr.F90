@@ -21,8 +21,8 @@ use Definitions, only: u6
 
 implicit none
 ! Specific input
-integer STRING(*)
 integer NEL, ITYP
+integer STRING(NEL)
 logical, external :: Reduce_Prt
 integer iPL, iEL1, iEL3, iEl, iTyp2
 integer, external :: iPrintLevel

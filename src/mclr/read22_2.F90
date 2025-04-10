@@ -38,9 +38,9 @@ real*8 MO1(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens), Temp2(nDens), 
 logical Fake_CMO2, DoAct
 real*8, allocatable :: G2x(:)
 type(DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA, FkI, FkA, QVec, WCMO, WCMO_Inv
-integer nm, iS, nAtri, nAS, jS, ijS, kS, lS, ijB1, iB, nNB, jB, ipD, iiB, jjB, nNK, kB, kkB, nNL, lB, llB, ip2, ip1, ip, nAct, &
-        nA2, nG2, iSym, nAG2, jSym, kSym, iOff, iOff2, iKK, iOff3, iK, iLL, iL, iKL, ipGx, kAsh, lAsh, iAsh, jAsh, iIJ, ipi, ipj, &
-        nI, nJ, ipTmp, ijB, iStore
+integer nm, iS, nAtri, jS, ijS, kS, lS, ijB1, iB, nNB, jB, ipD, iiB, jjB, nNK, kB, kkB, nNL, lB, llB, ip2, ip1, nAct, nA2, nG2, &
+        iSym, nAG2, jSym, iOff, iOff2, iKK, iOff3, iK, iLL, iL, iKL, ipGx, kAsh, lAsh, iAsh, jAsh, iIJ, ipi, ipj, nI, nJ, ipTmp, &
+        ijB, iStore
 real*8 Fact, rEnergy, rCora, rCoreI, rCoreA, rCor, rCore
 
 !                                                                      *
@@ -49,12 +49,8 @@ real*8 Fact, rEnergy, rCora, rCoreI, rCoreA, rCor, rCore
 FockI(:) = Zero
 FockA(:) = Zero
 if (TwoStep .and. (StepType == 'RUN2')) then
-  nm = 0
-  do iS=1,nSym
-    nm = nAsh(is)+nm
-  end do
-  nAtri = nTri_Elem(nm)
-  nAtri = nTri_Elem(nAtri)
+  nm = sum(nAsh(1:nSym))
+  nAtri = nTri_Elem(nTri_Elem(nm))
   Fock(:) = Zero
   Q(:) = Zero
   MO1(1:nAtri) = Zero
@@ -65,10 +61,6 @@ if (TwoStep .and. (StepType == 'RUN2')) then
   call ddafile(LuQDAT,2,MO1,nAtri,iaddressQDAT)
 else
 
-  nas = 0
-  do is=1,nSym
-    nAS = nAS+nAsh(is)
-  end do
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -252,8 +244,7 @@ else
     Temp2(:) = Zero
     do is=1,nSym
       do iB=1,nIsh(is)
-        ip = ipCM(iS)+(ib-1)*nOrb(is)+ib-1
-        Temp2(ip) = Two
+        Temp2(ipCM(iS)+(iB-1)*nOrb(iS)+iB-1) = Two
       end do
     end do
 
@@ -283,8 +274,7 @@ else
         nAct = nAct+nAsh(iSym)
         nAG2 = 0
         do jSym=1,nSym
-          kSym = Mul(jsym,isym)
-          nAG2 = nAg2+nAsh(jSym)*nAsh(kSym)
+          nAG2 = nAg2+nAsh(jSym)*nAsh(Mul(jSym,iSym))
         end do
         nG2 = nG2+nAG2**2
       end do
@@ -410,7 +400,8 @@ else
     call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
   end do
-  nAtri = nTri_Elem(nas)
+  nm = sum(nAsh(1:nSym))
+  nAtri = nTri_Elem(nm)
   nAtri = nTri_Elem(nAtri)
   call RecPrt('MO1',' ',MO1,1,nAtri)
 # endif
@@ -445,7 +436,7 @@ renergy = Zero
 rcora = Zero
 do iS=1,nSym
   do iB=1,nAsh(is)+nIsh(is)
-    rEnergy = rEnergy+Fock(ipCM(is)+nOrb(iS)*(ib-1)+ib-1)
+    rEnergy = rEnergy+Fock(ipCM(is)+nOrb(iS)*(iB-1)+iB-1)
   end do
 end do
 rcorei = Zero
@@ -482,12 +473,8 @@ end if
 
 if (TwoStep .and. (StepType == 'RUN1')) then
   iaddressQDAT = 0
-  nm = 0
-  do iS=1,nSym
-    nm = nAsh(is)+nm
-  end do
-  nAtri = nTri_Elem(nm)
-  nAtri = nTri_Elem(nAtri)
+  nm = sum(nAsh(1:nSym))
+  nAtri = nTri_Elem(nTri_Elem(nm))
   call ddafile(LuQDAT,1,FockA,nDens,iaddressQDAT)
   call ddafile(LuQDAT,1,FockI,nDens,iaddressQDAT)
   call ddafile(LuQDAT,1,Fock,nDens,iaddressQDAT)

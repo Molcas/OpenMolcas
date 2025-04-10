@@ -32,23 +32,22 @@ real*8, dimension(nTri_Elem(nRoots-1)), intent(in) :: zx
 real*8, dimension(nDens), intent(out) :: AXkzx
 ! Auxiliary Quantities
 integer, dimension(nSym) :: Off_Act, Off_Orb
-real*8, dimension(:), allocatable :: DKL1, DKL2, AXktmp
+real*8, dimension(:), allocatable :: AXktmp
+real*8, dimension(:,:), allocatable :: DKL1, DKL2
 integer K, L, iKL, iKL2, iKK, iLL
-integer p, q, nTOrb, iSym
+integer p, iSym
 
 Off_Act(1) = 0
 Off_Orb(1) = 0
-ntOrb = nOrb(1)
 do ISym=2,nSym
   Off_Act(ISym) = Off_Act(ISym-1)+nAsh(iSym-1)
   Off_Orb(ISym) = Off_Orb(ISym-1)+nOrb(iSym-1)
-  ntOrb = ntOrb+nOrb(ISym)
 end do
 
 AXkzx(:) = Zero
 
-call mma_allocate(DKL1,ntAsh**2)
-call mma_allocate(DKL2,ntAsh**2)
+call mma_allocate(DKL1,ntAsh,ntAsh)
+call mma_allocate(DKL2,ntAsh,ntAsh)
 call mma_allocate(AXktmp,nDens)
 
 do K=2,nRoots
@@ -57,11 +56,9 @@ do K=2,nRoots
     iKK = iTri(K,K)
     iLL = iTri(L,L)
     iKL2 = nTri_Elem(K-2)+L
-    do p=1,ntash
-      do q=1,ntash
-        DKL1((p-1)*ntash+q) = GDMat(IKL,p,q)+GDMat(IKL,q,p)
-        DKL2((p-1)*ntash+q) = GDMat(IKK,p,q)-GDMat(ILL,p,q)
-      end do
+    do p=1,ntAsh
+      DKL1(:,p) = GDMat(IKL,p,1:ntAsh)+GDMat(IKL,1:ntAsh,p)
+      DKL2(:,p) = GDMat(IKK,p,1:ntAsh)-GDMat(ILL,p,1:ntAsh)
     end do
     AXktmp(:) = Zero
     call CalcAXk2(AXktmp,DKL1,DKL2,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)

@@ -74,7 +74,7 @@ do iB=1,ntash
 end do
 do iB=1,ntash
   do jB=1,ntash
-    G1R(ib+(jb-1)*ntash) = g1q(iTri(ib,jb))
+    G1R(iB+(jB-1)*ntash) = G1Q(iTri(iB,jB))
   end do
 end do
 

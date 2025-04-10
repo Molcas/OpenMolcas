@@ -50,23 +50,14 @@ MXCJ = 0
 do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
     if (IAB(IATP,IBTP) /= 0) then
-      MXB = 0
-      do ISM=1,NSM
-        MXB = max(MXB,NSSOB(IBTP,ISM))
-      end do
+      MXB = max(0,maxval(NSSOB(IBTP,:)))
       do IOBTP=1,3
         ! type of K string obtained by removing one elec of type IOPBTP from IATP
         call NEWTYP_MCLR(IACLS,IATP,[1],[IOBTP],1,KACLS,KATP)
         if (KATP > 0) then
-          MXKA = 0
-          do KSM=1,NSM
-            MXKA = max(MXKA,KSSOA(KATP,KSM))
-          end do
+          MXKA = max(0,maxval(KSSOA(KATP,:)))
           if ((MXPKA > 0) .and. (MXKA > MXPKA)) MXKA = MXPKA
-          MXSOB = 0
-          do ISMOB=1,NSM
-            MXSOB = max(MXSOB,NTSOB(IOBTP,ISMOB))
-          end do
+          MXSOB = max(0,maxval(NTSOB(IOBTP,:)))
 
           LCJBLK = MXSOB*MXKA*MXB
           MXCJ = max(MXCJ,LCJBLK)
@@ -82,23 +73,14 @@ end do
 do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
     if (IAB(IATP,IBTP) /= 0) then
-      MXA = 0
-      do ISM=1,NSM
-        MXA = max(MXA,NSSOA(IATP,ISM))
-      end do
+      MXA = max(0,maxval(NSSOA(IATP,:)))
       do IOBTP=1,3
         ! type of K string obtained by removing one elec of type IOPBTP from IBTP
         call NEWTYP_MCLR(IBCLS,IBTP,[1],[IOBTP],1,KBCLS,KBTP)
         if (KBTP > 0) then
-          MXKB = 0
-          do KSM=1,NSM
-            MXKB = max(MXKB,KSSOB(KBTP,KSM))
-          end do
+          MXKB = max(0,maxval(KSSOB(KBTP,:)))
           if ((MXPKA > 0) .and. (MXKB > MXPKA)) MXKB = MXPKA
-          MXSOB = 0
-          do ISMOB=1,NSM
-            MXSOB = max(MXSOB,NTSOB(IOBTP,ISMOB))
-          end do
+          MXSOB = max(0,maxval(NTSOB(IOBTP,:)))
 
           LCJBLK = MXSOB*MXKB*MXA
           MXCJ = max(MXCJ,LCJBLK)
@@ -119,33 +101,21 @@ do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
 
     if (IAB(IATP,IBTP) /= 0) then
-      MXIB = 0
-      do ISM=1,NSM
-        MXIB = max(MXIB,NSSOB(IBTP,ISM))
-      end do
+      MXIB = max(0,maxval(NSSOB(IBTP,:)))
       if ((MXIB > MXPKA) .and. (MXPKA > 0)) MXIB = MXPKA
       do IOBTP=1,3
         ! type of K string obtained by removing one elec of type IOPBTP from IATP
         call NEWTYP_MCLR(IACLS,IATP,[1],[IOBTP],1,K1ACLS,K1ATP)
         if (K1ATP > 0) then
-          MXISOB = 0
-          do ISMOB=1,NSM
-            MXISOB = max(MXISOB,NTSOB(IOBTP,ISMOB))
-          end do
+          MXISOB = max(0,maxval(NTSOB(IOBTP,:)))
           do JOBTP=1,3
             ! type of K string obtained by removing one elec of type JOPBTP from K1ATP
             call NEWTYP_MCLR(K1ACLS,K1ATP,[1],[JOBTP],1,KACLS,KATP)
             if (KATP > 0) then
-              MXKA = 0
-              do KSM=1,NSM
-                MXKA = max(MXKA,K2SSOA(KATP,KSM))
-              end do
+              MXKA = max(0,maxval(K2SSOA(KATP,:)))
               MXKAF = MXKA
               if ((MXPKA > 0) .and. (MXKA > MXPKA)) MXKA = MXPKA
-              MXJSOB = 0
-              do JSMOB=1,NSM
-                MXJSOB = max(MXJSOB,NTSOB(JOBTP,JSMOB))
-              end do
+              MXJSOB = max(0,maxval(NTSOB(JOBTP,:)))
 
               MXIJSTA = max(MXIJSTA,MXISOB*MXJSOB*MXKA)
               MXIJSTAF = max(MXIJSTAF,MXISOB*MXJSOB*MXKAF)
@@ -169,33 +139,21 @@ MXIA = 0 ! dummy initialize
 do IATP=1,NOCTPA
   do IBTP=1,NOCTPB
     if (IAB(IATP,IBTP) /= 0) then
-      MXIA = 0
-      do ISM=1,NSM
-        MXIA = max(MXIA,NSSOA(IATP,ISM))
-      end do
+      MXIA = max(0,maxval(NSSOA(IATP,:)))
       if ((MXIA > MXPKA) .and. (MXPKA > 0)) MXIA = MXPKA
       do IOBTP=1,3
         ! type of K string obtained by removing one elec of type IOPBTP from IBTP
         call NEWTYP_MCLR(IBCLS,IBTP,[1],[IOBTP],1,K1BCLS,K1BTP)
         if (K1BTP > 0) then
-          MXISOB = 0
-          do ISMOB=1,NSM
-            MXISOB = max(MXISOB,NTSOB(IOBTP,ISMOB))
-          end do
+          MXISOB = max(0,maxval(NTSOB(IOBTP,:)))
           do JOBTP=1,3
             ! type of K string obtained by removing one elec of type JOPBTP from K1ATP
             call NEWTYP_MCLR(K1BCLS,K1BTP,[1],[JOBTP],1,KBCLS,KBTP)
             if (KBTP > 0) then
-              MXKB = 0
-              do KSM=1,NSM
-                MXKB = max(MXKB,K2SSOB(KBTP,KSM))
-              end do
+              MXKB = max(0,maxval(K2SSOB(KBTP,:)))
               MXKBF = MXKB
               if ((MXPKA > 0) .and. (MXKB > MXPKA)) MXKB = MXPKA
-              MXJSOB = 0
-              do JSMOB=1,NSM
-                MXJSOB = max(MXJSOB,NTSOB(JOBTP,JSMOB))
-              end do
+              MXJSOB = max(0,maxval(NTSOB(JOBTP,:)))
 
               MXIJSTB = max(MXIJSTB,MXISOB*MXJSOB*MXKB)
               MXIJSTBF = max(MXIJSTBF,MXISOB*MXJSOB*MXKBF)
@@ -221,28 +179,16 @@ do IATP=1,NOCTPA
         ! type of Ka string obtained by removing one elec of type IOPBTP from IATP
         call NEWTYP_MCLR(IACLS,IATP,[1],[IOBTP],1,KACLS,KATP)
         if (KATP > 0) then
-          MXKA = 0
-          do KSM=1,NSM
-            MXKA = max(MXKA,KSSOA(KATP,KSM))
-          end do
+          MXKA = max(0,maxval(KSSOA(KATP,:)))
           if ((MXPKA > 0) .and. (MXKA > MXPKA)) MXKA = MXPKA
-          MXISOB = 0
-          do ISMOB=1,NSM
-            MXISOB = max(MXISOB,NTSOB(IOBTP,ISMOB))
-          end do
+          MXISOB = max(0,maxval(NTSOB(IOBTP,:)))
           do JOBTP=1,3
             ! type of K string obtained by removing one elec of type JOPBTP from IBTP
             call NEWTYP_MCLR(IBCLS,IBTP,[1],[JOBTP],1,KBCLS,KBTP)
             if (KBTP > 0) then
-              MXKB = 0
-              do KSM=1,NSM
-                MXKB = max(MXKB,KSSOB(KBTP,KSM))
-              end do
+              MXKB = max(0,maxval(KSSOB(KBTP,:)))
               if ((MXPKA > 0) .and. (MXKB > MXPKA)) MXKB = MXPKA
-              MXJSOB = 0
-              do JSMOB=1,NSM
-                MXJSOB = max(MXJSOB,NTSOB(JOBTP,JSMOB))
-              end do
+              MXJSOB = max(0,maxval(NTSOB(JOBTP,:)))
 
               LBLK = MXISOB*MXJSOB*MXKB*MXKA
               MXCIJAB = max(MXCIJAB,LBLK)
@@ -260,30 +206,21 @@ end do
 MXSXBL = 0
 ! For alpha strings:
 do IATP=1,NOCTPA
-  MXIA = 0
-  do ISM=1,NSM
-    MXIA = max(MXIA,NSSOA(IATP,ISM))
-  end do
+  MXIA = max(0,maxval(NSSOA(IATP,:)))
   ! Orbitals to be removed
   do JOBTP=1,3
     ! Is this removal allowed ??
     call NEWTYP_MCLR(IACLS,IATP,[1],[JOBTP],1,KACLS,KATP)
     if (KATP > 0) then
       ! Number of possible choices of J orbitals
-      MXJOB = 0
-      do JSMOB=1,NSM
-        MXJOB = max(MXJOB,NTSOB(JOBTP,JSMOB))
-      end do
+      MXJOB = max(0,maxval(NTSOB(JOBTP,:)))
       MXJOB = min(MXJOB,NAEL123(JOBTP,IATP))
       ! Then  : add an electron
       do IOBTP=1,3
         ! Allowed ?
         call NEWTYP_MCLR(KACLS,KATP,[2],[IOBTP],1,JACLS,JATP)
         if (JATP > 0) then
-          MXIOB = 0
-          do ISMOB=1,NSM
-            MXIOB = max(MXIOB,NTSOB(IOBTP,ISMOB))
-          end do
+          MXIOB = max(0,maxval(NTSOB(IOBTP,:)))
 
           MXSXBL = max(MXSXBL,MXIOB*MXJOB*MXIA)
         end if
@@ -294,30 +231,21 @@ end do
 
 ! For beta strings:
 do IBTP=1,NOCTPB
-  MXIB = 0
-  do ISM=1,NSM
-    MXIB = max(MXIB,NSSOB(IBTP,ISM))
-  end do
+  MXIB = max(0,maxval(NSSOB(IBTP,:)))
   ! Orbitals to be removed
   do JOBTP=1,3
     ! Is this removal allowed ??
     call NEWTYP_MCLR(IBCLS,IBTP,[1],[JOBTP],1,KBCLS,KBTP)
     if (KBTP > 0) then
       ! Number of possible choices of J orbitals
-      MXJOB = 0
-      do JSMOB=1,NSM
-        MXJOB = max(MXJOB,NTSOB(JOBTP,JSMOB))
-      end do
+      MXJOB = max(0,maxval(NTSOB(JOBTP,:)))
       MXJOB = min(MXJOB,NBEL123(JOBTP,IBTP))
       ! Then  : add an electron
       do IOBTP=1,3
         ! Allowed ?
         call NEWTYP_MCLR(KBCLS,KBTP,[2],[IOBTP],1,JBCLS,JBTP)
         if (JATP > 0) then
-          MXIOB = 0
-          do ISMOB=1,NSM
-            MXIOB = max(MXIOB,NTSOB(IOBTP,ISMOB))
-          end do
+          MXIOB = max(0,maxval(NTSOB(IOBTP,:)))
 
           MXSXBL = max(MXSXBL,MXIOB*MXJOB*MXIA)
         end if

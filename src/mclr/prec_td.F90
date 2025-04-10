@@ -26,7 +26,6 @@ implicit none
 real*8 DigPrec(*), pre2(*)
 integer iSym
 real*8 nonzero
-logical jump
 real*8, allocatable :: Dens(:), PreTd(:), TempTd(:)
 integer nBasTot, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, ip1, jS, nD, k, l
 integer i, j
@@ -39,10 +38,7 @@ integer i, j
 ! Construct one el density in MO Dens
 !---------------------------------------------
 
-nBasTot = 0
-do iS=1,nSym
-  nBasTot = nBasTot+nBas(iS)**2
-end do
+nBasTot = sum(nBas(1:nSym)**2)
 call mma_allocate(Dens,nBasTot,Label='Dens')
 
 Dens(:) = Zero
@@ -91,24 +87,18 @@ do iS=1,nSym
   nD = nBas(jS)-nIsh(jS)
   do k=1,nIsh(iS)
     ip1 = ip1+nIsh(jS)
-    do l=1,nD
-      PreTd(ip1) = Pre2(ip2)
-      ip1 = ip1+1
-      ip2 = ip2+1
-    end do
+    PreTd(ip1:ip1+nD-1) = Pre2(ip2:ip2+nD-1)
+    ip1 = ip1+nD
+    ip2 = ip2+nD
   end do
   nD = nBas(jS)-nAsh(jS)
   do k=1,nAsh(iS)
-    jump = .true.
-    do l=1,nD
-      if ((l > nIsh(jS)) .and. jump) then
-        ip1 = ip1+nAsh(jS)
-        jump = .false.
-      end if
-      PreTd(ip1) = Pre2(ip2)
-      ip1 = ip1+1
-      ip2 = ip2+1
-    end do
+    PreTd(ip1+1:ip1+nIsh(jS)) = Pre2(ip2+1:ip2+nIsh(jS))
+    ip1 = ip1+nIsh(jS)+nAsh(jS)
+    ip2 = ip2+nIsh(jS)
+    PreTd(ip1+1:ip1+nD-nIsh(jS)) = Pre2(ip2+1:ip2+nD-nIsh(jS))
+    ip1 = ip1+nD-nIsh(jS)
+    ip2 = ip2+nD-nIsh(jS)
     if ((nBas(jS)-nAsh(jS)-nIsh(jS)) == 0) ip1 = ip1+nAsh(jS)
   end do
   !call RECPRT('PreTd',' ',PreTd(1+ipsave),nBas(jS),nBas(iS))

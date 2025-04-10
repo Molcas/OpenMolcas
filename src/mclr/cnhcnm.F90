@@ -53,17 +53,14 @@ subroutine CNHCNM_INTERNAL(SCR)
 
   real*8, target :: SCR(*)
   integer, pointer :: iSCRl(:), iSCRr(:)
-  integer NDIF0, NDIF1, NDIF2, MXCSFC, ITYP, KLFREE, KLCONF, KRCONF, KLPHPS, IILB, ICNL, NCSFL, IIRB, MXR, ICNR, NCSFR, MDIF0, &
-          MDIF1, MDIF2, IIL, IIRMAX, IIR, IIRACT, IILACT, ILRO, ILRI, ILTYP, IRTYP
+  integer NDIF0, NDIF1, NDIF2, MXCSFC, KLFREE, KLCONF, KRCONF, KLPHPS, IILB, ICNL, NCSFL, IIRB, MXR, ICNR, NCSFR, MDIF0, MDIF1, &
+          MDIF2, IIL, IIRMAX, IIR, IIRACT, IILACT, ILRO, ILRI, ILTYP, IRTYP
 
   NDIF0 = 0
   NDIF1 = 0
   NDIF2 = 0
   ! Largest configuration block possible
-  MXCSFC = 0
-  do ITYP=1,NTYP
-    MXCSFC = max(MXCSFC,NCPCNT(ITYP))
-  end do
+  MXCSFC = max(0,maxval(NCPCNT(1:NTYP)))
 
   KLFREE = 1
 

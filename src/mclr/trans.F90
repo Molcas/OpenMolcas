@@ -15,9 +15,7 @@ implicit real*8(a-h,o-z)
 real*8 A(n,m), B(m,n)
 
 do i=1,m
-  do j=1,n
-    B(i,j) = A(j,i)
-  end do
+  B(i,:) = A(:,i)
 end do
 
 return

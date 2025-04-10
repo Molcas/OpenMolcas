@@ -22,8 +22,8 @@ implicit none
 integer dsym
 ! for the integrals needed in sigma gen
 integer, external :: iPntSO
-integer ip, nn, nBmx, iS, jS, lS, klS, kS, ijS, ipP, iExt0, iExt1, iExt2, iExt3, iInt4, iExt4, i1, iInt0, iInt1, iInt2, iInt3, &
-        mATAB, iOff, iiSym, iOrb, jjSym, jOrb, ijSym, klSym, ijNum, ijOrb, kkSym, kOrb, llSym, lOrb, klNum, klOrb, iPlus, nDensLT
+integer ip, nBmx, iS, jS, lS, klS, kS, ijS, ipP, iExt0, iExt1, iExt2, iExt3, iInt4, iExt4, i1, iInt0, iInt1, iInt2, iInt3, mATAB, &
+        iOff, iiSym, iOrb, jjSym, jOrb, ijSym, klSym, ijNum, ijOrb, kkSym, kOrb, llSym, lOrb, klNum, klOrb, iPlus, nDensLT
 integer i
 
 !                                                                      *
@@ -32,18 +32,16 @@ integer i
 ip = 1
 ipMO(:,:,:) = 0
 
-nn = 0
-nbmx = 0
-do iS=1,nsym
-  nA(iS) = nn
-  nB(is) = nAsh(is)+nIsh(is)
-  nn = nn+nAsh(iS)
-  nbmx = max(nbmx,nBas(iS))
+nbmx = max(0,maxval(nBas(1:nsym)))
+nB(1:nsym) = nAsh(1:nsym)+nIsh(1:nsym)
+nA(1) = 0
+do iS=2,nsym
+  nA(iS) = nA(iS-1)+nAsh(iS-1)
 end do
 
 call Set_nbmx(nbmx)
 
-nna = nn
+nna = sum(nAsh(1:nsym))
 n2Dens = nTri_Elem(nnA**2)
 
 n1Dens = nnA*nnA

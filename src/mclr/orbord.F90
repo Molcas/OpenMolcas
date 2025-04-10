@@ -214,10 +214,9 @@ end do
 !end do
 !write(u6,*) ' IDE ',IDE
 
-IOFF = 1
-do ISM=1,NSM
-  IBSO(ISM) = IOFF
-  IOFF = IOFF+NTOOBS(ISM)
+IBSO(1) = 1
+do ISM=2,NSM
+  IBSO(ISM) = IBSO(ISM-1)+NTOOBS(ISM-1)
 end do
 
 ! ==================

@@ -30,7 +30,7 @@ implicit none
 real*8 rdia(*)
 integer MP1, MP2, MQ, iSym, nprciv
 logical TimeDep
-integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, iTyp, nActEl, lH0SCR, ieaw, i, iRC, lVec2
+integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, nActEl, lH0SCR, ieaw, i, iRC, lVec2
 real*8, external :: E2, E2_TD
 real*8 ENA
 real*8, allocatable :: H0T(:), Vec2(:)
@@ -44,12 +44,8 @@ NDET = nint(XISPSM(ISYM,ISPC))
 NSBDET = MP1+MP2+MQ
 MXP = MP1+MP2
 LH0T = nTri_Elem(MXP)+MP1*MQ
-MXCSFC = 0
-MXDTFC = 0
-do ITYP=1,NTYP
-  MXCSFC = max(MXCSFC,NCPCNT(ITYP))
-  MXDTFC = max(MXDTFC,NDPCNT(ITYP))
-end do
+MXCSFC = max(0,maxval(NCPCNT(1:NTYP)))
+MXDTFC = max(0,maxval(NDPCNT(1:NTYP)))
 
 nactel = naelci(1)+nbelci(1)
 if (TimeDep) then

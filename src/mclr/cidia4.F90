@@ -98,9 +98,7 @@ do IASM=1,NSM
             RJBB = RJBB+RK(IBSTR(JEL,IB),IBEL)
           end do
 
-          do IORB=1,NORB
-            XB(IORB) = XB(IORB)+RJ(IORB,IBEL)
-          end do
+          XB(:) = XB(:)+RJ(1:NORB,IBEL)
         end do
         EB = HB+Half*RJBB+ECORE
 

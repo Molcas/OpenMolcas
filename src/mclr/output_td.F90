@@ -58,7 +58,7 @@ real*8, allocatable :: RHss(:)
 real*8, allocatable :: Kap1(:), Kap2(:), sKap(:), rKap1(:), rKap2(:)
 real*8, allocatable :: Hess(:), Hess2(:), Temp(:), ELEC(:), EG(:), ELOUT(:)
 integer, allocatable :: NrDisp(:), DegDisp(:)
-integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1, ipRP2, jDisp, jSpin, iDisk, Len, i, iLen, iDis, &
+integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1, ipRP2, jDisp, jSpin, iDisk, Len, iLen, iDis, &
         iRC, kDisp, kSpin, Index, iOpt, Lu_10, nCI, ip
 real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
 real*8, external :: DDot_
@@ -143,9 +143,7 @@ do iSym=1,nSym
     call dDaFile(LuTemp,2,SKap,Len,iDisk)
     iDisk = iRHSDisp(iDisp)
     call dDaFile(LuTemp,2,rKap1,Len,iDisk)
-    do i=1,nDensC
-      SKap(i) = -SKap(i)-rKap1(i)
-    end do
+    SKap(:) = -SKap(:)-rKap1(:)
 
     if (CI) then
       ilen = nCI
@@ -160,9 +158,7 @@ do iSym=1,nSym
       call dDaFile(LuTemp,2,W(iprp1)%A,iLen,iDis)
       call ipin(ipsp)
       call ipin(iprp1)
-      do i=1,nCI
-        W(ipsp)%A(i) = -W(ipsp)%A(i)-W(iprp1)%A(i)
-      end do
+      W(ipsp)%A(1:nCI) = -W(ipsp)%A(1:nCI)-W(iprp1)%A(1:nCI)
     end if
 
     !*******************************************************************

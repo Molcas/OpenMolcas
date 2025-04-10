@@ -40,7 +40,7 @@ use Definitions, only: u6
 implicit none
 integer I12
 ! Output
-real*8 RHO1(*), RHO2(*)
+real*8 RHO1(NACOB,NACOB), RHO2(nTri_Elem(NACOB**2))
 ! Specific input
 real*8 L(*), R(*)
 integer LUL, LUR, ieaw, n1, n2
@@ -56,15 +56,14 @@ integer, allocatable :: IX(:,:), OOS(:,:)
 real*8, allocatable :: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
 real*8, allocatable :: RHO1S(:), RHO1P(:), XNATO(:)
 integer idum(1)
-integer NGAS, IATP, IBTP, JATP, JBTP, NOCTPA, NOCTPB, NAEL, NBEL, IOCTPA, IOCTPB, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, MXTSOB, IOBTP, &
-        IOBSM, LSCR1, INTSCR, IATP2, IBTP2, LSCR2, LSCR12, MAXIK, LSCR3, NOOS, IMNMX, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, &
-        MXIJSTF, MXSXBL
+integer NGAS, IATP, IBTP, JATP, JBTP, NOCTPA, NOCTPB, NAEL, NBEL, IOCTPA, IOCTPB, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, MXTSOB, LSCR1, &
+        INTSCR, IATP2, IBTP2, LSCR2, LSCR12, MAXIK, LSCR3, NOOS, IMNMX, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, MXIJSTF, MXSXBL
 
 IDUM = 0
 NGAS = 3
 
-RHO1(1:NACOB**2) = Zero
-RHO2(1:nTri_Elem(NACOB**2)) = Zero
+RHO1(:,:) = Zero
+RHO2(:) = Zero
 
 ! Info for this internal space
 
@@ -115,12 +114,7 @@ MXSTBL = max(MAXA,MAXB)
 MAXI = min(MXINKA,MXSTBL)
 MAXK = min(MXINKA,MXSTBL)
 ! Largest active orbital block belonging to given type and symmetry
-MXTSOB = 0
-do IOBTP=1,NGAS
-  do IOBSM=1,nIrrep
-    MXTSOB = max(MXTSOB,NOBPTS(IOBTP,IOBSM))
-  end do
-end do
+MXTSOB = max(0,maxval(NOBPTS(1:NGAS,1:nIrrep)))
 ! Local scratch arrays for blocks of C and sigma
 LSCR1 = 0
 if (ICISTR <= 2) then

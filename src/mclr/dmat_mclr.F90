@@ -44,7 +44,7 @@ use Constants, only: Zero, Two
 implicit none
 real*8 CMO(*), OCC(*), D(*)
 integer iOff1, iOff2, iOff3, iSym, iBas, i, ii, j, k
-real*8 Sum
+real*8 rSum
 
 iOff1 = 0
 iOff2 = 0
@@ -55,12 +55,12 @@ do iSym=1,nSym
     do i=1,iBas
       ii = nTri_Elem(i-1)
       do j=1,i
-        Sum = Zero
+        rSum = Zero
         do k=1,ibas
-          Sum = Sum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
+          rSum = rSum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
         end do
-        D(iOff2+ii+j) = Two*Sum
-        if (j == i) D(iOff2+ii+j) = Sum
+        D(iOff2+ii+j) = Two*rSum
+        if (j == i) D(iOff2+ii+j) = rSum
       end do
     end do
   end if

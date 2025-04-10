@@ -18,7 +18,6 @@ implicit none
 integer :: orbspc(8)
 integer :: iflag
 integer :: ndim
-integer i, n1, n2
 
 !write(u6,*) '==================================================='
 !write(u6,*) ' Currently, only valid for no symmetry calculation'
@@ -28,36 +27,19 @@ integer i, n1, n2
 !                  -- yma, need check it again 2015.5.14
 
 !write(u6,*) 'orbspc',orbspc(1:8)
-ndim = 0
-
-n1 = 0
 
 if (iflag == 0) then
-  do i=1,8
-    ndim = ndim+orbspc(i)
-  end do
+  ndim = sum(orbspc(:))
 else if (iflag == 1) then
-  do i=1,1
-    n1 = n1+orbspc(i)
-    ndim = n1*n1
-  end do
+  ndim = orbspc(1)**2
 else if (iflag == 2) then
-  do i=1,1
-    n1 = n1+orbspc(i)
-    ndim = n1**4
-  end do
+  ndim = orbspc(1)**4
 else if (iflag == 3) then
-  do i=1,1
-    n1 = n1+orbspc(i)
-    ndim = nTri_Elem(n1)
-  end do
+  ndim = nTri_Elem(orbspc(1))
 else if (iflag == 4) then
-  do i=1,1
-    n1 = n1+orbspc(i)
-    n2 = n1*n1
-    ndim = nTri_Elem(n2)
-  end do
+  ndim = nTri_Elem(orbspc(1)**2)
 else
+  ndim = 0
   write(u6,*) 'unknow iflag'
   call Quit_OnUserError()
 end if

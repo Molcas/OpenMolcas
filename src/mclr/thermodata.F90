@@ -35,11 +35,9 @@ end do
 nAtom = (nFreq+6)/3
 nTR = 3*nAtom-nFreq ! Number of trans and rot fg
 
-do i=1,nFreq
-  ! Convert frequencies from cm-1 to hartree
-  !Freq(i) = Freq(i)*4.55633538e-6_wp
-  Freq(i) = Freq(i)/auTocm
-end do
+! Convert frequencies from cm-1 to hartree
+!Freq(1:nFreq) = Freq(1:nFreq)*4.55633538e-6_wp
+Freq(1:nFreq) = Freq(1:nFreq)/auTocm
 
 do i=1,size(DefTemp)
   call Thermo_Vib(nFreq,Freq,DefTemp(i),nTR,i)

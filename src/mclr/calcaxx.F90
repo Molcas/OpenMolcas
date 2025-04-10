@@ -21,12 +21,11 @@ implicit none
 ! Input
 real*8, dimension(nTri_Elem(nRoots),nTri_Elem(nRoots)) :: W
 ! Output
-real*8, dimension(nTri_Elem(nRoots-1)**2) :: AXX
+real*8, dimension(nTri_Elem(nRoots-1),nTri_Elem(nRoots-1)) :: AXX
 ! Auxiliary Quantities
-integer K, L, M, N, IKL, IMN, IKL2, IMN2, IKK, ILL, IMM, INN, IC, nRTri
+integer K, L, M, N, IKL, IMN, IKL2, IMN2, IKK, ILL, IMM, INN, IC
 real*8 VKLMN, VLKNM, VKLNM, VLKMN
 
-nRTri = nTri_Elem(nRoots-1)
 do K=1,nRoots
   do L=1,K-1
     IKL = iTri(K,L)
@@ -59,7 +58,7 @@ do K=1,nRoots
           IC = iTri(K,M)
           VKLNM = W(IC,IKK)+W(IC,IMM)-Two*W(IC,ILL)-Four*W(IKL,IMN)
         end if
-        AXX((IKL2-1)*nRTri+IMN2) = VKLMN+VLKNM-VKLNM-VLKMN
+        AXX(IMN2,IKL2) = VKLMN+VLKNM-VKLNM-VLKMN
       end do
     end do
   end do

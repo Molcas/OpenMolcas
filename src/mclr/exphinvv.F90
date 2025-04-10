@@ -29,7 +29,7 @@ use Definitions, only: u6
 
 implicit none
 real*8 alpha, beta
-real*8 v(*), u(*), rdia(*)
+real*8 v(nConf1), u(nConf1), rdia(nConf1)
 real*8, allocatable :: Tmp1(:), Tmp4(:)
 integer i, j, iRC
 
@@ -49,47 +49,25 @@ if (nExp /= 0) then
     write(u6,*) 'Error in DGETRS called from exphinvv'
     call Abend()
   end if
+end if
 
-  if ((alpha == Zero) .and. (beta == One)) then
-    call DVEM(nConf1,v,1,rdia,1,u,1)
-  else if (alpha == Zero) then
-    do i=1,nConf1
-      u(i) = beta*rDia(i)*v(i)
-    end do
-  else if (alpha == One) then
-    do i=1,nConf1
-      u(i) = u(i)+beta*rDia(i)*v(i)
-    end do
-  else
-    do i=1,nConf1
-      u(i) = alpha*u(i)+beta*rDia(i)*v(i)
-    end do
-  end if
+if ((alpha == Zero) .and. (beta == One)) then
+  u(:) = rDia(:)*v(:)
+else if (alpha == Zero) then
+  u(:) = beta*rDia(:)*v(:)
+else if (alpha == One) then
+  u(:) = u(:)+beta*rDia(:)*v(:)
+else
+  u(:) = alpha*u(:)+beta*rDia(:)*v(:)
+end if
 
+if (nExp /= 0) then
   do i=1,nExp
     j = SBIDT(i)
     u(j) = alpha*Tmp4(i)+beta*Tmp1(i)
   end do
   call mma_deallocate(Tmp1)
   call mma_deallocate(Tmp4)
-
-else
-  if ((alpha == Zero) .and. (beta == One)) then
-    call DVEM(nConf1,v,1,rdia,1,u,1)
-  else if (alpha == Zero) then
-    do i=1,nConf1
-      u(i) = beta*rDia(i)*v(i)
-    end do
-  else if (alpha == One) then
-    do i=1,nConf1
-      u(i) = u(i)+beta*rDia(i)*v(i)
-    end do
-  else
-    do i=1,nConf1
-      u(i) = alpha*u(i)+beta*rDia(i)*v(i)
-    end do
-  end if
-
 end if
 
 end subroutine ExpHinvv

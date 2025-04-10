@@ -155,7 +155,7 @@ end do
 !nseq = 0
 !do i=1,5
 !  do j=1,5
-!    nseq = nseq + 1
+!    nseq = nseq+1
 !    nseq = iTri(i,j)
 !    a_j(i+5*(j-1)) = scr(nseq)
 !    a_j(j+5*(i-1)) = scr(nseq)

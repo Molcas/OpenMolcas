@@ -28,7 +28,6 @@ call mma_allocate(ATemp,nDens,Label='ATemp')
 do iS=1,nsym
   js = Mul(is,idsym)
   m = min(nbas1(is),nbas2(is))
-  if (m < 1) cycle
   do j=1,min(nbas2(js),nbas1(js))
     n1 = ipMat(is,js)+(j-1)*nbas1(is)
     n2 = ipMat(is,js)+(j-1)*nbas2(is)

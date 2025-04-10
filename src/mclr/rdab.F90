@@ -21,7 +21,7 @@ use Definitions, only: u6
 
 implicit none
 character(len=8) Label
-integer iRC, iOpt, Length, iSym, iS, iDum
+integer iRC, iOpt, Length, iSym, iDum
 
 Perturbation = 'NONE'
 
@@ -62,7 +62,7 @@ if (iMethod == 1) then
     ntIsh = ntIsh+nIsh(iSym)
     ntItri = ntItri+nTri_Elem(nIsh(iSym))
     ntIsqr = ntIsqr+nIsh(iSym)*nIsh(iSym)
-    ntbSQR = ntbsqr+nbas(isym)**2
+    ntBsqr = ntBsqr+nbas(isym)**2
     norb(isym) = nbas(isym)-ndel(isym)
     Length = Length+nBas(iSym)*nOrb(iSym)
   end do
@@ -80,10 +80,7 @@ if (MCKINLEY) then
     write(u6,'(A,A)') 'Label=',Label
     call Abend()
   end if
-  nDisp = 0
-  do iS=1,nSym
-    nDisp = nDisp+lDisp(iS)
-  end do
+  nDisp = sum(lDisp(1:nSym))
   if (ndisp /= 0) then
     Label = 'Chdisp'
     iRc = -1

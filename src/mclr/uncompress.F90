@@ -26,7 +26,7 @@ real*8 ArrayIn(nDensC), ArrayOut(nDens)
 integer idsym
 integer dsym
 integer Bas(8)
-integer IndexC, i, iSym, jSym, jT, jBas, iBas, iT, Index1, Index2
+integer IndexC, iSym, jSym, jT, jBas, iBas, iT, Index1, Index2
 real*8 Fact
 
 indexC = 0
@@ -35,13 +35,9 @@ if (idsym < 0) Fact = -Fact
 dsym = abs(idsym)
 ArrayOut(:) = Zero
 if (TimeDep) then
-  do i=1,nSym
-    Bas(i) = nBas(i)
-  end do
+  Bas(1:nSym) = nBas(1:nSym)
 else
-  do i=1,nSym
-    Bas(i) = nB(i)
-  end do
+  Bas(1:nSym) = nB(1:nSym)
 end if
 do iSym=1,nSym
   do jSym=1,nSym

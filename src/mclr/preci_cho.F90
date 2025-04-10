@@ -42,7 +42,7 @@ integer nScr
 real*8 A_J(nScr)
 integer iAdr
 integer nTri, nO, jVert, nVirt, ijk, iSym, nVirt2, jC, jjC, jD, jjD, ip1, jA, jjA, jB, jBB, jAA, iBC, iAC, ip, iVB, kB, nlB, ilB, &
-        lB, jjB, jCC
+        jjB, jCC
 real*8 Factor, AABB, rDens1, BCBB, ACBB, rDens2, rDens, rFock
 integer i
 
@@ -174,10 +174,8 @@ end do
 i = nTri-nTri_Elem(jVert)
 do kB=nIsh(jS)+nAsh(jS),nOrb(jS)-1
   rOut(i+1) = rout(i+1)-Four*rFock
-  do lB=kb,nOrb(JS)-1
-    i = i+1
-    rOut(i) = rout(i)+sign*Four*Focki(kb+1,lb+1)+sign*Four*Focka(kb+1,lb+1)
-  end do
+  rOut(i+1:i+nOrb(jS)-kB) = rout(i+1:i+nOrb(jS)-kB)+sign*Four*Focki(kB+1,kB+1:nOrb(jS))+sign*Four*Focka(kB+1,kB+1:nOrb(jS))
+  i = i+nOrb(jS)-kB
 end do
 !end if
 

@@ -63,7 +63,7 @@ dimension ISGSTI(NSTINI), ISGSTO(NSTINO)
 dimension TI(*), TTO(*)
 dimension ISTMPO(*), ISTMPL(*)
 ! Scratch
-dimension STRIN2(500)
+dimension STRIN2(NEL+1)
 
 ! LCR NOT DECLARED !!!!!!
 !  I SET IT TO ZERO
@@ -114,13 +114,9 @@ do ISTRIN=1,NSTINI
     if (IPLACE == 0) cycle
 
     ! Generate next string
-    do I=1,IPLACE-1
-      STRIN2(I) = STRING(I,ISTRIN)
-    end do
+    STRIN2(1:IPLACE-1) = STRING(1:IPLACE-1,ISTRIN)
     STRIN2(IPLACE) = IORB
-    do I=IPLACE,NEL
-      STRIN2(I+1) = STRING(I,ISTRIN)
-    end do
+    STRIN2(IPLACE+1:NEL+1) = STRING(IPLACE:NEL,ISTRIN)
     ! Is new string allowed?
     ITYPE = IOCTP2_MCLR(STRIN2,NEL+1,I1TYP)
     if (ITYPE /= 0) then

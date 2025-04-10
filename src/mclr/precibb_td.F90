@@ -46,7 +46,7 @@ real*8 Temp2(nBa,nBa), Scr(*)
 real*8 fockii, fockai
 real*8 Focki(nBa,nBa), Focka(nBa,nBa)
 real*8 sign
-integer jVert, ip, kB, lB
+integer jVert, ip, kB
 real*8 ra
 integer i
 
@@ -62,13 +62,12 @@ call COUL(jS,jS,iS,iS,iB,iB,Temp2,Scr)
 Temp1(:,:) = -sign*Four*Temp2(:,:)
 call EXCH(js,is,js,is,ib,ib,Temp2,Scr)
 Temp1(:,:) = Temp1(:,:)+sign*Twelve*Temp2(:,:)
-i = ip-1
+i = ip
 do kB=nIsh(jS)+nAsh(jS)+1,nBas(jS)
-  rOut(i+1) = rout(i+1)-ra
-  do lB=kb,nBAS(JS)
-    i = i+1
-    rOut(i) = rout(i)+Temp1(kb,lb)+sign*Four*Focki(kb,lb)+sign*Four*Focka(kb,lb)
-  end do
+  rOut(i) = rout(i)-ra
+  rOut(i:i+nBas(jS)-kB) = rOut(i:i+nBas(jS)-kB)+ &
+                          Temp1(kB,kB:nBas(jS))+sign*Four*Focki(kB,kB:nBas(jS))+sign*Four*Focka(kB,kB:nBas(jS))
+  i = i+nBas(jS)-kB+1
 end do
 !                                                                      *
 !***********************************************************************

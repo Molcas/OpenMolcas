@@ -39,12 +39,8 @@ integer nLCMO, iS, i, j, iAA, jAA, nbas_tot, ij, iA, jA
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nLCMO = 0
-nbas_tot = 0
-do iS=1,nSym
-  nbas_tot = nbas_tot+nbas(is)
-  nLCMO = nLCMO+nBas(is)**2
-end do
+nLCMO = sum(nbas(1:nSym)**2)
+nbas_tot = sum(nbas(1:nSym))
 
 call mma_allocate(D1,nLCMO)
 D1(:) = Zero
@@ -72,11 +68,8 @@ call dmat_MCLR(NatCMO,OCCU,DAO)
 ij = 0
 do iS=1,nSym
   do i=1,nbas(is)
-    do j=1,i-1
-      ij = ij+1
-      DAO(ij) = Half*DAO(ij)
-    end do
-    ij = ij+1
+    DAO(1:i-1) = Half*DAO(1:i-1)
+    ij = ij+i+1
   end do
 end do
 call mma_deallocate(D1)

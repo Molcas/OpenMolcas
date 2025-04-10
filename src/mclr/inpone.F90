@@ -28,15 +28,12 @@ integer iComp, idum(1)
 real*8, allocatable :: D1ao(:), Nuc(:)
 real*8, allocatable :: Temp1(:), Temp2(:), Temp3(:)
 real*8, allocatable :: HTmp(:), GTmp(:)
-integer iRC, iOpt, iiSym, iS, Leng, iNuc, iSym, iCharge, ip, ip2
+integer iRC, iOpt, iiSym, iS, Leng, iCharge, ip, ip2
 real*8 Tot_Nuc_Charge, Tot_El_Charge, Tot_Charge, ExFac
 
 iRc = -1
 iOpt = ibset(0,sOpSiz)
-nDens = 0
-do iS=1,nSym
-  nDens = nDens+nBas(iS)**2
-end do
+nDens = sum(nBas(1:nSym)**2)
 Label = 'ONEHAM'
 iComp = 1
 iisym = ibset(0,0)
@@ -67,18 +64,11 @@ end if
 ! Modify the one electron Hamiltonian for reaction
 ! field and ESPF calculations
 
-Tot_Nuc_Charge = Zero
 call mma_allocate(Nuc,nAtoms,Label='Nuc')
 call Get_dArray('Effective nuclear Charge',Nuc,nAtoms)
-do iNuc=1,nAtoms
-  Tot_Nuc_Charge = Tot_Nuc_Charge+Nuc(iNuc)
-end do
+Tot_Nuc_Charge = sum(Nuc(1:nAtoms))
 call mma_deallocate(Nuc)
-Tot_El_Charge = Zero
-do iSym=1,nSym
-  Tot_El_Charge = Tot_El_Charge-Two*real(nFro(iSym)+nIsh(iSym),kind=wp)
-end do
-Tot_El_Charge = Tot_El_Charge-real(nActEl,kind=wp)
+Tot_El_Charge = -Two*sum(real(nFro(1:nSym)+nIsh(1:nSym),kind=wp))-real(nActEl,kind=wp)
 Tot_Charge = Tot_Nuc_Charge+Tot_El_Charge
 iCharge = int(Tot_Charge)
 call DecideOnESPF(Do_ESPF)

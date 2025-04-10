@@ -162,9 +162,7 @@ do IJTYP=1,NIJTYP
           do J=1,NJ
             IOFFIN = (J-1)*NJB*NKABTC+(JB-1)*NKABTC+1
             IOFFOUT = (JB-1)*NKABTC*NJ+(J-1)*NKABTC+1
-            do KA=1,NKABTC
-              SIRES(IOFFOUT-1+KA) = CJRES(IOFFIN-1+KA)
-            end do
+            SIRES(IOFFOUT:IOFFOUT+NKABTC-1) = CJRES(IOFFIN:IOFFIN+NKABTC-1)
           end do
         end do
         CJRES(1:NJ*LCJ) = SIRES(1:NJ*LCJ)
@@ -264,9 +262,7 @@ do IJTYP=1,NIJTYP
           do J=1,NI
             IOFFIN = (J-1)*NIB*NKABTC+(JB-1)*NKABTC+1
             IOFFOUT = (JB-1)*NKABTC*NI+(J-1)*NKABTC+1
-            do KA=1,NKABTC
-              CJRES(IOFFIN-1+KA) = SIRES(IOFFOUT-1+KA)
-            end do
+            CJRES(IOFFIN:IOFFIN+NKABTC-1) = SIRES(IOFFOUT:IOFFOUT+NKABTC-1)
           end do
         end do
         SIRES(1:NI*NIB*NKABTC) = CJRES(1:NI*NIB*NKABTC)

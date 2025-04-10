@@ -31,7 +31,7 @@ character(len=8) MckLbl
 character(len=288) Header
 integer idum(1)
 real*8, allocatable :: Tmp1(:), Tmp2(:)
-integer nHss, iS, iRC, iOpt, nAct, iSym, nG, nG2, iType, nMax, iDummer
+integer nHss, iS, iRC, iOpt, nAct, nG, nG2, iType, nMax, iDummer
 real*8 rAlphas
 
 nHss = 0
@@ -148,10 +148,7 @@ end if
 if (SPINPOL) then
   call coeff(ralphas,rbetaa,rbetas)
   rms = real(ms2,kind=wp)*Half
-  nAct = 0
-  do iSym=1,nSym
-    nAct = nAct+nAsh(iSym)
-  end do
+  nAct = sum(nAsh(1:nSym))
   nG = nAct**2
   nG2 = nAct**4
   call mma_allocate(famo_spinp,nDens,Label='famo_spinp')

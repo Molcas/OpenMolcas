@@ -63,7 +63,7 @@ dimension ISGSTI(NSTINI), ISGSTO(NSTINO)
 ! Output
 dimension TI(LROW,NSTINI), TTO(LROW,NSTINI)
 ! Scratch
-dimension STRIN2(500)
+dimension STRIN2(NEL-1)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ==============='
@@ -85,12 +85,8 @@ do ISTRIN=1,NSTINI
     else
       IPLACE = STRING(IEL,ISTRIN)
     end if
-    do I=1,IEL-1
-      STRIN2(I) = STRING(I,ISTRIN)
-    end do
-    do I=IEL+1,NEL
-      STRIN2(I-1) = STRING(I,ISTRIN)
-    end do
+    STRIN2(1:IEL-1) = STRING(1:IEL-1,ISTRIN)
+    STRIN2(IEL:NEL-1) = STRING(IEL+1:NEL,ISTRIN)
     ! Is new string allowed ?
     ITYPE = IOCTP2_MCLR(STRIN2,NEL-1,I1TYP)
     if (ITYPE /= 0) then

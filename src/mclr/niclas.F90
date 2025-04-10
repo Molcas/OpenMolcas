@@ -66,10 +66,7 @@ end do
 !
 !***********************************************************************
 
-nD = 0
-do i=0,nIrrep-1
-  nD = ldisp(i)+nd
-end do
+nD = sum(lDisp(0:nIrrep-1))
 call mma_allocate(TMP,nd**2,Label='Tmp')
 call mma_allocate(HTMP,nd,nd,Label='Htmp')
 Htmp(:,:) = Zero

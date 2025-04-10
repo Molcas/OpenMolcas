@@ -41,7 +41,7 @@ integer IIOC(*), IICL(*), IIOP(*)
 logical Loop700, Loop800, Skip700, Skip800, Test
 integer IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, JCONF, ICFREE, MINCL1, NOP, NCL, ICL, IFRSTC, IORB, IPLACE, IPRORB, &
         NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, ISYM
-integer, external :: ISYMCN_MCLR
+integer, external :: ISYMST_MCLR
 #ifdef _DEBUGPRINT_
 integer I, IBAS, IOC, IOPEN, ITYPE, LICONF
 #endif
@@ -79,11 +79,9 @@ outer: do NOP=MINOP,MAXOP,2
 # endif
 
   ! first combination of double occupied orbitals
-  IIOC(1:NORB) = 0
-  do ICL=1,NCL
-    IICL(ICL) = ICL
-    IIOC(ICL) = 2
-  end do
+  IIOC(1:NCL) = 2
+  IIOC(NCL+1:NORB) = 0
+  IICL(1:NCL) = [(ICL,ICL=1,NCL)]
   IFRSTC = 1
 
   ! Loop over double occupied orbital configurations
@@ -296,19 +294,15 @@ outer: do NOP=MINOP,MAXOP,2
       if ((IEL1 >= NEL1MN) .and. (IEL3 <= NEL3MX)) then
 
         ! Spatial symmetry
-        ISYM = ISYMCN_MCLR(IIOP,NOP)
+        ISYM = ISYMST_MCLR(IIOP,NOP)
         if (ISYM == IREFSM) then
 #         ifdef _DEBUGPRINT_
           write(u6,1120) (IIOC(I),I=1,NORB)
 #         endif
           JCONF = JCONF+1
 
-          do ICL=1,NCL
-            ICONF(ICFREE-1+ICL) = IICL(ICL)
-          end do
-          do IOP=1,NOP
-            ICONF(ICFREE-1+NCL+IOP) = IIOP(IOP)
-          end do
+          ICONF(ICFREE:ICFREE+NCL-1) = IICL(1:NCL)
+          ICONF(ICFREE+NCL:ICFREE+NCL+NOP-1) = IIOP(1:NOP)
           ICFREE = ICFREE+NOP+NCL
         end if
       end if

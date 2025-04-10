@@ -50,10 +50,7 @@ NEL = NAEL+NBEL
 ! Local memory
 
 ! Largest number of dets for a given type
-MXDT = 0
-do ITYP=1,NTYP
-  MXDT = max(MXDT,NDPCNT(ITYP))
-end do
+MXDT = max(0,maxval(NDPCNT(1:NTYP)))
 call mma_allocate(LDTBL,MXDT*NEL,Label='LDTBL')
 call mma_allocate(LIA,NAEL,Label='LIA')
 call mma_allocate(LIB,NBEL,Label='LIB')

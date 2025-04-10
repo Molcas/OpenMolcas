@@ -26,12 +26,8 @@ integer istatus
 
 ! Read in a and b part of effective gradient from CASPT2
 
-nOLag = 0
-nCLag = 0
-do i=1,nSym
-  nOLag = nOLag+nOrb(i)*nOrb(i)
-  nCLag = nCLag+nRoots*nCSF(i)
-end do
+nOLag = sum(nOrb(1:nSym)**2)
+nCLag = nRoots*sum(nCSF(1:nSym))
 
 do i=1,nCLag
   read(LUPT2,*,iostat=istatus) CLag(i)

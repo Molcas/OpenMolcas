@@ -25,14 +25,14 @@ implicit none
 ! Input
 integer NPUVX
 real*8 Coeff
-real*8, dimension(nnA**2) :: D
+real*8, dimension(nnA,nnA) :: D
 real*8, dimension(NPUVX) :: PUVX
 integer, dimension(nnA,nnA,nnA,nnA) :: IndTUVX
 integer, dimension(nSym) :: Off_Ash
 ! Output
 real*8, dimension(nDens) :: Wop
 ! Auxiliaries
-integer jSym, it, iu, t, u, v, x, pt, qu, iLoc1, iLoc2, jAsh
+integer jSym, it, iu, t, u, v, x, pt, qu, iLoc1, jAsh
 real*8 tempd1
 
 do jSym=1,nSym
@@ -47,9 +47,8 @@ do jSym=1,nSym
       pt = it+nIsh(jSym)
       tempd1 = Zero
       do v=1,nnA
-        iLoc2 = (v-1)*nnA
         do x=1,nnA
-          if (IndTUVX(t,u,v,x) /= 0) tempd1 = tempd1+D(iLoc2+x)*PUVX(IndTUVX(t,u,v,x))
+          if (IndTUVX(t,u,v,x) /= 0) tempd1 = tempd1+D(x,v)*PUVX(IndTUVX(t,u,v,x))
         end do
       end do
       Wop(iLoc1+pt) = tempd1

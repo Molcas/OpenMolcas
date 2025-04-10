@@ -53,11 +53,8 @@ do while (iPass /= 0)
   end do
 end do
 
-do I=1,NELMNT
-  IOUTST(I) = IINST(I)
-end do
+IOUTST(:) = IINST(:)
 
-!IOUTST(:) = IINST(:)
 !ISIGN = 1
 
 !JOE = 1

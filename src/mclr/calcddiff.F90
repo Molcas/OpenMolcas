@@ -22,16 +22,14 @@ use Index_Functions, only: nTri_Elem
 implicit none
 integer nnA, nRoots, M, K
 real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-real*8, dimension(nnA**2) :: Ddiff
-integer it, iu, iMM, iKK
+real*8, dimension(nnA,nnA) :: Ddiff
+integer it, iMM, iKK
 
 iMM = nTri_Elem(M)
 iKK = nTri_Elem(K)
 
 do it=1,nnA
-  do iu=1,nnA
-    Ddiff((it-1)*nnA+iu) = GDMat(iMM,it,iu)-GDMat(iKK,it,iu)
-  end do
+  Ddiff(:,it) = GDMat(iMM,it,:)-GDMat(iKK,it,:)
 end do
 
 end subroutine CalcDdiff

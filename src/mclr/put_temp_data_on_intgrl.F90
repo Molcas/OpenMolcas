@@ -16,17 +16,14 @@ use Intgrl, only: NSYMZ, IAD2M, LUINTMZ, NORBZ
 implicit none
 integer :: LUINTMZ_, NSYMZ_
 integer :: NORBZ_(8)
-integer :: nLength, iAddress, i
+integer :: iAddress
 
 iAddress = 0
-IAD2M(1:3,1:36*36) = 0
-nLength = 3*36*36
+IAD2M(:,:) = 0
 ! read the address list from the existing file
-call iDaFile(LUINTMZ_,2,IAD2M,nLength,iAddress)
+call iDaFile(LUINTMZ_,2,IAD2M,size(IAD2M),iAddress)
 NSYMZ = NSYMZ_
 LUINTMZ = LUINTMZ_
-do i=1,NSYMZ_
-  NORBZ(i) = NORBZ_(i)
-end do
+NORBZ(1:NSYMZ_) = NORBZ_(1:NSYMZ_)
 
 end subroutine put_temp_data_on_intgrl

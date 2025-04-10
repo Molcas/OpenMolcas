@@ -15,7 +15,7 @@ integer function iBion(M,N)
 use Constants, only: One
 use Definitions, only: wp, u6
 
-real*8 Temp1, Temp2, Temp3, Temp4
+real*8 Temp1
 
 if ((N < 0) .or. (M < N)) then
   write(u6,*) 'Wrong params is iBion',M,N
@@ -35,10 +35,7 @@ K1 = max((M-N),N)
 K2 = min((M-N),N)
 Temp1 = One
 do K=1,K2
-  Temp2 = real(K1+K,kind=wp)
-  Temp3 = real(K,kind=wp)
-  Temp4 = Temp2/Temp3
-  Temp1 = Temp1*Temp4
+  Temp1 = Temp1*real(K1+K,kind=wp)/real(K,kind=wp)
 end do
 iBion = nint(Temp1)
 

@@ -49,10 +49,9 @@ call Allocate_DT(CMO,nBas,nBas,nSym,Ref=W_CMO)
 
 call mma_allocate(kOffSh,nShell,nSym,Label='kOffSh')
 do iSyma=1,nSym
-  LKsh = 0
-  do iaSh=1,nShell ! kOffSh(iSh,iSym)
-    kOffSh(iaSh,iSyma) = LKsh
-    LKsh = LKsh+nBasSh(iSyma,iaSh)
+  kOffSh(1,iSyma) = 0
+  do iaSh=2,nShell ! kOffSh(iSh,iSym)
+    kOffSh(iaSh,iSyma) = kOffSh(iaSh-1,iSyma)+nBasSh(iSyma,iaSh-1)
   end do
 end do
 
@@ -75,8 +74,7 @@ do jSym=1,nSym
 
   mTvec = 0
   do l=1,nSym
-    k = Mul(l,JSYM)
-    mTvec = mTvec+nAsh(k)*nBas(l)*3
+    mTvec = mTvec+nAsh(Mul(l,JSYM))*nBas(l)*3
   end do
 
   JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec

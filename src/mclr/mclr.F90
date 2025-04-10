@@ -226,14 +226,12 @@ if (doDMRG) then  ! yma
   call dmrg_spc_change_mclr(RGras2(1:8),nAsh)
   call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
 end if
-ntAsh = 0
+ntAsh = sum(nAsh(1:nSym))
+ntAsqr = sum(nAsh(1:nSym)**2)
 ntAtri = 0
-ntAsqr = 0
 nnA = 0
 do iSym=1,nSym
-  ntAsh = ntAsh+nAsh(iSym)
   ntAtri = ntAtri+nTri_Elem(nAsh(iSym))
-  ntAsqr = ntAsqr+nAsh(iSym)*nAsh(iSym)
   nA(iSym) = nna
   nnA = nnA+nAsh(isym)
 end do

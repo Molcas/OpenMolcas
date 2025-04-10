@@ -41,7 +41,7 @@ real*8 FockA(nBaj,nBaj), Focki(nbaj,nbaj)
 real*8 Sign
 integer nScr
 real*8 A_J(nScr)
-integer nTri, nO, iBB, jVert, itAA, iAdr, kSym, iV, jCC, iU, jDD, ijk, lSym, nL, ii, nI, ip, jA, jB, ij
+integer nTri, nO, iBB, jVert, itAA, iAdr, kSym, iV, jCC, iU, jDD, ijk, lSym, nL, ii, nI, ip, jA, jB
 real*8 Factor, Factor2, rDens2, rDensaii, rDensabi, rDensabb, rf, rDens, rDensaiil, rDensaiiu, rDensabil, rDensabiu, rFock, &
        rDens1, Fact
 integer i
@@ -185,10 +185,8 @@ rF = sign*Fockti
 do iI=nAsh(js)+nIsh(js)+1,nBas(js)
   rOut(ip) = rout(ip)-Two*rF+rDens*FockI(iI,ii)
   ip = ip+1
-  do iJ=iI+1,Nbas(js)
-    rOut(ip) = rout(ip)+rDens*FockI(iI,iJ)
-    ip = ip+1
-  end do
+  rOut(ip:ip+nBas(jS)-iI-1) = rOut(ip:ip+nBas(jS)-iI-1)+rDens*FockI(iI,iI+1:nBas(js))
+  ip = ip+nBas(js)-iI
 end do
 
 end subroutine Preca_cho

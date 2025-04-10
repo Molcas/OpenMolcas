@@ -88,10 +88,8 @@ NICISP = ICI
 !end do
 
 ! Default max in RAS1 and min in RAS3
-do ICI=1,NICISP
-  MXR1IC(ICI) = min(2*NORB1,NELCI(ICI))
-  MNR3IC(ICI) = max(0,NELCI(ICI)-2*(NORB1+NORB2))
-end do
+MXR1IC(1:NICISP) = min(2*NORB1,NELCI(1:NICISP))
+MNR3IC(1:NICISP) = max(0,NELCI(1:NICISP)-2*(NORB1+NORB2))
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Number of internal CI spaces ',NICISP

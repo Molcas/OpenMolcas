@@ -43,10 +43,7 @@ do ICINBL=1,NBLK
   do I=1,NROWIN
     if (ISCA(I) /= 0) then
       S = SSCA(I)
-      IROW = ISCA(I)
-      do ICOL=ICINOF,ICINEN
-        MATUT(ICOL,IROW) = MATUT(ICOL,IROW)+S*MATIN(I,ICOL)
-      end do
+      MATUT(ICINOF:ICINEN,ISCA(I)) = MATUT(ICINOF:ICINEN,ISCA(I))+S*MATIN(I,ICINOF:ICINEN)
     end if
   end do
 end do

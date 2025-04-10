@@ -85,11 +85,12 @@ dimension RHO1S(*)
 dimension NOBPTS(*), IOBPTS(*)
 integer LASM(4), LBSM(4), LATP(4), LBTP(4), LSGN(5), LTRP(5)
 integer RASM(4), RBSM(4), RATP(4), RBTP(4), RSGN(5), RTRP(5)
-real*8 INPROD_MCLR, L
+real*8 L
 dimension L(*), R(*)
 ! Output
 dimension RHO1(*), RHO2(*)
 dimension ISTRFL(1)
+real*8, external :: dDot_
 
 PLL = Zero
 PLR = Zero
@@ -200,7 +201,7 @@ outer: do
           JBSM = Mul(JASM,ICSM)
           NJA = NSSOA(JASM,JATP)
           NJB = NSSOB(JBSM,JBTP)
-          XNORM2 = INPROD_MCLR(CB(ICOFF),CB(ICOFF),NJA*NJB)
+          XNORM2 = dDot_(NJA*NJB,CB(ICOFF),1,CB(ICOFF),1)
           if ((NIA*NIB*NJA*NJB /= 0) .and. (ISOCOC(IATP,IBTP) == 1) .and. (ICOCOC(JATP,JBTP) == 1) .and. (XNORM2 /= Zero)) then
             ! Possible permutations of this block
             call PRMBLK(IDC,ISTRFL,JASM,JBSM,JATP,JBTP,PSR,PLR,RATP,RBTP,RASM,RBSM,RSGN,RTRP,NRPERM)

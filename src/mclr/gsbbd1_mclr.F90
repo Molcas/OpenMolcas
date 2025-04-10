@@ -141,10 +141,8 @@ do IJTP=1,NSXTP
         ! Scatter out to complete matrix
         do JJORB=1,NJORB
           JORB = IBJORB-1+JJORB
-          do IIORB=1,NIORB
-            IORB = IBIORB-1+IIORB
-            RHO1((JORB-1)*NACOB+IORB) = RHO1((JORB-1)*NACOB+IORB)+RHO1S((JJORB-1)*NIORB+IIORB)
-          end do
+          RHO1((JORB-1)*NACOB+IBIORB:(JORB-1)*NACOB+IBIORB+NIORB-1) = RHO1((JORB-1)*NACOB+IBIORB:(JORB-1)*NACOB+IBIORB+NIORB-1)+ &
+                                                                      RHO1S((JJORB-1)*NIORB+1:JJORB*NIORB)
         end do
 
       end do

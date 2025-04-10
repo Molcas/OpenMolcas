@@ -190,11 +190,10 @@ do iDisp=1,nDisp
 
   !AMS _____________________________________________________
   ! Read in the Fock operator for the calculation of the CI part of the RHS ipF1 and ipF2.
+  nOrbAct = sum(nAsh(1:nSym))
   nTri = 0
-  nOrbAct = 0
   do ksym=1,nsym
     nTri = nTri+nTri_Elem(nBas(ksym))
-    nOrbAct = nOrbAct+nAsh(ksym)
   end do
   nacpar = nTri_Elem(nOrbAct)
   call mma_allocate(FMO1t,nTri,Label='FMO1t')

@@ -35,7 +35,7 @@ logical Test
 integer ILOOP, ILOOP2, NCNF, NORBT, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, MINCL1, NOP, ITYPE, NCL, ICL, IFRSTC, &
         IORB, IPLACE, IPRORB, NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, &
         ISYM, NTYP
-integer, external :: ISYMCN_MCLR
+integer, external :: ISYMST_MCLR
 #ifdef _DEBUGPRINT_
 integer I, ICSM
 #endif
@@ -73,11 +73,9 @@ outer: do NOP=MINOP,MAXOP,2
   write(u6,*) ' NOP NCL ITYPE',NOP,NCL,ITYPE
 # endif
   ! first combination of double occupied orbitals
-  IIOC(1:NORB) = 0
-  do ICL=1,NCL
-    IICL(ICL) = ICL
-    IIOC(ICL) = 2
-  end do
+  IIOC(1:NCL) = 2
+  IIOC(NCL+1:NORB) = 0
+  IICL(1:NCL) = [(ICL,ICL=1,NCL)]
   IFRSTC = 1
 
   ! Loop over double occupied orbital configurations
@@ -285,7 +283,7 @@ outer: do NOP=MINOP,MAXOP,2
       end do
       if ((IEL1 >= NEL1MN) .and. (IEL3 <= NEL3MX)) then
         ! Spatial symmetry
-        ISYM = ISYMCN_MCLR(IIOP,NOP)
+        ISYM = ISYMST_MCLR(IIOP,NOP)
 
 #       ifdef _DEBUGPRINT_
         write(u6,*) ' ISYM : ',ISYM
@@ -326,11 +324,9 @@ write(u6,'(A,I8)') '  Total number of configurations generated ',NCNF
 ! Total number of CSF's and SD's
 ! ==============================
 NTYP = MAXOP-MINOP+1
-do ISYM=1,MXPCSM
-  do ITYPE=1,NTYP
-    NDTASM(ISYM) = NDTASM(ISYM)+NDPCNT(ITYPE)*NCNATS(ITYPE,ISYM)
-    NCSASM(ISYM) = NCSASM(ISYM)+NCPCNT(ITYPE)*NCNATS(ITYPE,ISYM)
-  end do
+do ITYPE=1,NTYP
+  NDTASM(:) = NDTASM(:)+NDPCNT(ITYPE)*NCNATS(ITYPE,:)
+  NCSASM(:) = NCSASM(:)+NCPCNT(ITYPE)*NCNATS(ITYPE,:)
 end do
 
 #ifdef _DEBUGPRINT_

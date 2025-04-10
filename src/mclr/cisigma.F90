@@ -34,7 +34,7 @@ real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
 logical Have_2_el
 integer kic(2)
 real*8, allocatable :: CIDET(:)
-integer nDet, iOp, iS, jS
+integer nDet, iOp, iS
 
 ! Interface Anders to Jeppe
 ! This interface initiates Jeppes common block
@@ -52,18 +52,18 @@ if (nconf1 == 0) return
 KAIN1 => Int1
 
 ! Two electron integrals
-! symmetric in perticle one and two
+! symmetric in particle one and two
 
 KINT2 => Int2s
 
 ! Two electron integrals
-! anti symmetric in perticle one and two
+! anti symmetric in particle one and two
 
 KINT2A => Int2a
 
 irefsm = iCSym
 
-! Do we have any twoelectron integrals?
+! Do we have any two-electron integrals?
 
 if (Have_2_el) then
   i12 = 2
@@ -94,8 +94,7 @@ if (iOp == 1) then
   pInt1(1:nSym) = ipCM(1:nSym)
 else
   do iS=1,nSym
-    jS = Mul(iS,iOp)
-    pInt1(is) = ipMat(is,jS)
+    pInt1(is) = ipMat(is,Mul(iS,iOp))
   end do
 end if
 

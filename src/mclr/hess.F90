@@ -53,9 +53,8 @@ do iSym=1,nSym
 end do
 
 nIn = 0
-mdisp = 0
+mdisp = sum(lDisp(1:idsym-1))
 do iS=1,idsym-1
-  mdisp = mdisp+ldisp(is)
   nIn = nIn+nTri_Elem(lDisp(is))
 end do
 

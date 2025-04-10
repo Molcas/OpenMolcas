@@ -38,10 +38,9 @@ logical Fake_CMO2, DoAct
 real*8, allocatable :: MT1(:), MT2(:), MT3(:), QTemp(:), Dens2(:), G2x(:)
 type(DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA, FkI, FkA, QVec, WCMO, WCMO_Inv
 real*8 Fact, Dij
-integer iS, iB, jS, nA2, nAct, nG2, iSym, nAG2, jSym, kSym, nAtri, iOff, iOff2, iOff3, iOff4, iOff5, jB, ip2, ipGx, ijS, kS, lS, &
-        kAsh, lAsh, ikl, iAsh, jAsh, iij, iRead, ipF, ipFI
+integer iS, iB, jS, nAct, nG2, iSym, nAG2, jSym, nAtri, iOff, iOff2, iOff3, iOff4, iOff5, jB, ip2, ipGx, ijS, kS, lS, kAsh, lAsh, &
+        ikl, iAsh, jAsh, iij, iRead, ipF, ipFI
 #ifdef _DEBUGPRINT_
-integer nas
 real*8, external :: DDot_
 #endif
 
@@ -100,7 +99,7 @@ else  ! Cho-Fock
 
   do iS=1,nsym
     do iB=1,nIsh(iS)
-      DI%SB(iS)%A2(ib,ib) = Two
+      DI%SB(iS)%A2(iB,iB) = Two
     end do
   end do
 
@@ -145,21 +144,16 @@ else  ! Cho-Fock
   ! Form active density and MO coefficients
 
   if (iMethod == 2) then
-    na2 = 0
-    nAct = 0
+    nAct = sum(nAsh(1:nSym))
     nG2 = 0
     do iSym=1,nSym
-      na2 = na2+nAsh(iSym)**2
-      nact = nact+nAsh(iSym)
       nAG2 = 0
       do jSym=1,nSym
-        kSym = Mul(jsym,isym)
-        nAG2 = nAg2+nAsh(jSym)*nAsh(kSym)
+        nAG2 = nAG2+nAsh(jSym)*nAsh(Mul(jSym,iSym))
       end do
       nG2 = nG2+nAG2**2
     end do
-    nAtri = nTri_Elem(nact)
-    nAtri = nTri_Elem(nAtri)
+    nAtri = nTri_Elem(nTri_Elem(nAct))
 
     call Allocate_DT(CVa(1),nAsh,nOrb,nSym)
     call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
@@ -257,7 +251,7 @@ else  ! Cho-Fock
   call GADSum(FockI,nDens)
   call GADSum(FockA,nDens)
 # ifdef _DEBUGPRINT_
-  nas = 0
+  nAct = sum(nAsh(1:nSym))
   do iSym=1,nSym
     write(u6,*) 'iSym=',iSym
     !call RecPrt('FIMO ',' ',FIMO(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
@@ -265,10 +259,8 @@ else  ! Cho-Fock
     call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     !call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
-    nas = nas+nAsh(iSym)
   end do
-  nAtri = nTri_Elem(nas)
-  nAtri = nTri_Elem(nAtri)
+  nAtri = nTri_Elem(nTri_Elem(nAct))
   !call RecPrt('MO1',' ',rMOs,1,nAtri)
 # endif
 
@@ -308,16 +300,12 @@ else  ! Cho-Fock
   call GADSum(rMOs,nAtri)
 
 # ifdef _DEBUGPRINT_
-  nas = 0
   do iSym=1,nSym
     write(u6,*) 'iSym=',iSym
     call RecPrt('FockI',' ',FockI(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     call RecPrt('FockA',' ',FockA(ipCM(iSym)),nOrb(iSym),nIsh(iSym))
     call RecPrt('Q',' ',Q(ipMatba(iSym,iSym)),nOrb(iSym),nAsh(iSym))
-    nas = nas+nAsh(iSym)
   end do
-  nAtri = nTri_Elem(nas)
-  nAtri = nTri_Elem(nAtri)
   call RecPrt('MO1',' ',rMOs,1,nAtri)
   call abend()
 # endif

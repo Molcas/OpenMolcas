@@ -27,36 +27,20 @@ integer, dimension(ntBas,ntAsh,ntAsh,ntAsh) :: Ind_PUVX
 integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
 ! Auxiliaries
 integer, dimension(nSym) :: off_Ash, off_PUVX, off_Orb
-integer lOrb, kOrb, jOrb, iOrb, iStack, iSym, jSym, jAsh, ijSym, kSym, kAsh, lSym, lAsh, klSym, kl_Orb_Pairs, iAsh, iIsh, iPUVX, &
-        iV, lMax, iX, iU, iP, iT, iO, jO, kO, lO, iIT, iIU, iTU, iIV, iIX, iVX, iTemp
+integer iOrb, iStack, iSym, jSym, jAsh, ijSym, kSym, kAsh, lSym, lAsh, klSym, kl_Orb_Pairs, iAsh, iIsh, iPUVX, iV, lMax, iX, iU, &
+        iP, iT, iO, jO, kO, lO, iIT, iIU, iTU, iIV, iIX, iVX, iTemp
 
 ! generate offsets
 
 ! Initialization
-do lOrb=1,ntAsh
-  do KOrb=1,ntAsh
-    do JOrb=1,ntAsh
-      do iOrb=1,ntAsh
-        IndTUVX(iOrb,jOrb,kOrb,lOrb) = 0
-        Ind_PUVX(iOrb,jOrb,kOrb,lOrb) = 0
-      end do
-      do iOrb=ntAsh+1,ntBas
-        Ind_PUVX(iOrb,jOrb,kOrb,lOrb) = 0
-      end do
-    end do
-  end do
-end do
+IndTUVX(:,:,:,:) = 0
+Ind_PUVX(:,:,:,:) = 0
 
-iStack = 0
-do iSym=1,nSym
-  off_Orb(iSym) = iStack
-  iStack = iStack+nOrb(iSym)
-end do
-
-iStack = 0
-do iSym=1,nSym
-  off_Ash(iSym) = iStack
-  iStack = iStack+nAsh(iSym)
+off_Orb(1) = 0
+off_Ash(1) = 0
+do iSym=2,nSym
+  off_Orb(iSym) = off_Orb(iSym-1)+nOrb(iSym-1)
+  off_Ash(iSym) = off_Ash(iSym-1)+nAsh(iSym-1)
 end do
 
 iStack = 0

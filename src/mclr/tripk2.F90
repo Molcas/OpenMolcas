@@ -31,18 +31,14 @@ dimension AUTPAK(MATDIM,MATDIM), APAK(*)
 if (IWAY == 1) then
   IJ = 0
   do J=1,NDIM
-    do I=J,NDIM
-      APAK(IJ+I) = AUTPAK(I,J)
-    end do
+    APAK(IJ+J:IJ+NDIM) = AUTPAK(J:NDIM,J)
     IJ = IJ+NDIM-J
   end do
 else if (IWAY == 2) then
   IJ = 0
   do J=1,NDIM
-    do I=J,NDIM
-      AUTPAK(J,I) = SIGN*APAK(IJ+I)
-      AUTPAK(I,J) = APAK(IJ+I)
-    end do
+    AUTPAK(J,J:NDIM) = SIGN*APAK(IJ+J:IJ+NDIM)
+    AUTPAK(J:NDIM,J) = APAK(IJ+J:IJ+NDIM)
     IJ = IJ+NDIM-J
   end do
 end if

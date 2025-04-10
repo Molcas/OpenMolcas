@@ -159,29 +159,23 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
           NPQCNF = NPQCNF+1
           NP1CNF = NP1CNF+1
           IPQCNF(NPQCNF) = ICNF
-          do IICSF=1,NIRREP
-            NPQCSF = NPQCSF+1
-            NP1CSF = NP1CSF+1
-            IPQCSF(NPQCSF) = NPQCSF
-          end do
+          IPQCSF(NPQCSF+1:NPQCSF+NIRREP) = [(IICSF,IICSF=NPQCSF+1,NPQCSF+NIRREP)]
+          NPQCSF = NPQCSF+NIRREP
+          NP1CSF = NP1CSF+NIRREP
         else if (NP2CSF+NIRREP <= MXP2DM) then
           NPQCNF = NPQCNF+1
           NP2CNF = NP2CNF+1
           IPQCNF(NPQCNF) = ICNF
-          do IICSF=1,NIRREP
-            NPQCSF = NPQCSF+1
-            NP2CSF = NP2CSF+1
-            IPQCSF(NPQCSF) = NPQCSF
-          end do
+          IPQCSF(NPQCSF+1:NPQCSF+NIRREP) = [(IICSF,IICSF=NPQCSF+1,NPQCSF+NIRREP)]
+          NPQCSF = NPQCSF+NIRREP
+          NP2CSF = NP2CSF+NIRREP
         else if (NQCSF+NIRREP <= MXQDM) then
           NPQCNF = NPQCNF+1
           NQCNF = NQCNF+1
           IPQCNF(NPQCNF) = ICNF
-          do IICSF=1,NIRREP
-            NPQCSF = NPQCSF+1
-            NQCSF = NQCSF+1
-            IPQCSF(NPQCSF) = NPQCSF
-          end do
+          IPQCSF(NPQCSF+1:NPQCSF+NIRREP) = [(IICSF,IICSF=NPQCSF+1,NPQCSF+NIRREP)]
+          NPQCSF = NPQCSF+NIRREP
+          NQCSF = NQCSF+NIRREP
         else
           exit outer
         end if

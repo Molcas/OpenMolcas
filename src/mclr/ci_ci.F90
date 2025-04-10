@@ -19,16 +19,16 @@ use Constants, only: Two
 
 implicit none
 integer ipCID, ipS2
-integer i, j
+integer i, n
 real*8 rDum(1), EC
 
 call CISigma_sa(0,state_sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rDum,1,ipCId,ips2,.true.)
 call ipin(ipCId)
 call ipin(ipS2)
+n = ncsf(State_Sym)
 do i=1,nroots
   EC = (rin_ene+potnuc-ERASSCF(i))*Weight(i)
-  j = (i-1)*ncsf(State_Sym)
-  W(ipS2)%A(j+1:j+ncsf(State_Sym)) = W(ipS2)%A(j+1:j+ncsf(State_Sym))+EC*W(ipCId)%A(j+1:j+ncsf(State_Sym))
+  W(ipS2)%A((i-1)*n+1:i*n) = W(ipS2)%A((i-1)*n+1:i*n)+EC*W(ipCId)%A((i-1)*n+1:i*n)
 end do
 W(ipS2)%A(1:nroots*ncsf(state_SYM)) = Two*W(ipS2)%A(1:nroots*ncsf(state_SYM))
 

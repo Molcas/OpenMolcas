@@ -70,9 +70,7 @@ call IWRTMA(ISTAC,NSTTYP,2,MXPSTT,2)
 ! *************************************************
 ! Number of occupation classes and strings per type
 ! *************************************************
-do ITYP=1,NSTTYP
-  NOCTYP(ITYP) = (MXRS1(ITYP)-MNRS1(ITYP)+1)*(MXRS3(ITYP)-MNRS3(ITYP)+1)
-end do
+NOCTYP(1:NSTTYP) = (MXRS1(1:NSTTYP)-MNRS1(1:NSTTYP)+1)*(MXRS3(1:NSTTYP)-MNRS3(1:NSTTYP)+1)
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Number of occupation classes per type'
 write(u6,*) ' ====================================='

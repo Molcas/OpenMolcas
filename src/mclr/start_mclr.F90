@@ -72,13 +72,11 @@ if (newCho) then
 
   ! Compute inverse CMO
 
+  lSqrDens = sum(nBas(1:nSym)**2)
+  nOrbBas = sum(nOrb(1:nSym)*nBas(1:nSym))
   lTriDens = 0
-  lSqrDens = 0
-  nOrbBas = 0
   do iSym=1,nSym
     lTriDens = lTriDens+nTri_Elem(nBas(iSym))
-    lSqrDens = lSqrDens+nBas(iSym)**2
-    nOrbBas = nOrbBas+nOrb(iSym)*nBas(iSym)
   end do
   call mma_allocate(STmat,lTriDens,Label='STmat')
   call mma_allocate(Smat,lSqrDens,Label='Smat')

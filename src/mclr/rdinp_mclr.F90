@@ -48,7 +48,7 @@ character(len=4), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','    
                                                '    ','NOFI','SEWA','NOCO','NOTW','SPIN','PRIN','PCGD','RESI','NOTO', &
                                                'EXPD','NEGP','LOWM','    ','SAVE','RASS','DISO','CASI','SALA','NODE', &
                                                'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS']
-integer iDum(1), I, JCOM, ICOM, ITIT, ISYM, IP, IRC, IOPT, ICOMP, ISYLBL, IPP, IS, ID, J, IRRFNC, iMass, istatus
+integer iDum(1), I, JCOM, ICOM, ITIT, ISYM, IP, IRC, IOPT, ICOMP, ISYLBL, IPP, ID, J, IRRFNC, iMass, istatus
 real*8, allocatable :: umass(:)
 character(len=3), allocatable :: cmass(:)
 
@@ -84,9 +84,7 @@ esterr = .false.
 FANCY_PRECONDITIONER = .true.
 lsave = .false.
 lCalc(:) = .true.
-do i=1,nDisp
-  DspVec(i) = i
-end do
+DspVec(1:nDisp) = [(i,i=1,nDisp)]
 CASINT = .true.
 NACstates(1) = 0
 NACstates(2) = 0
@@ -239,15 +237,10 @@ outer: do
 
         !---- read number of symm. species ----------------------------*
 
-        ipp = 0
-        do is=isym+1,nsym
-          ipp = ipp+ldisp(is)
-        end do
-        do id=nDisp,ndisp-ipp+1,-1
-          DspVec(id+1) = dspVec(id)
-          ntpert(id+1) = ntpert(id)
-          lcalc(id+1) = lcalc(id)
-        end do
+        ipp = sum(lDisp(isym+1:nsym))
+        DspVec(nDisp-ipp+2:nDisp+1) = dspVec(nDisp-ipp+1:nDisp)
+        ntpert(nDisp-ipp+2:nDisp+1) = ntpert(nDisp-ipp+1:nDisp)
+        lcalc(nDisp-ipp+2:nDisp+1) = lcalc(nDisp-ipp+1:nDisp)
         id = ndisp-ipp+1
         DspVec(id) = ip
         ldisp(isym) = ldisp(isym)+1
@@ -462,16 +455,11 @@ end do outer
 !----------------------------------------------------------------------*
 do i=1,3
   isym = irrfnc(2**(i-1))+1
-  ipp = 0
-  do is=isym+1,nsym
-    ipp = ipp+ldisp(is)
-  end do
-  do id=nDisp,ndisp-ipp+1,-1
-    DspVec(id+1) = dspVec(id)
-    ntpert(id+1) = ntpert(id)
-    !lcalc(id+1) = lcalc(id)
-    Swlbl(id+1) = Swlbl(id)
-  end do
+  ipp = sum(lDisp(isym+1:nsym))
+  DspVec(nDisp-ipp+2:nDisp+1) = dspVec(nDisp-ipp+1:nDisp)
+  ntpert(nDisp-ipp+2:nDisp+1) = ntpert(nDisp-ipp+1:nDisp)
+  !lcalc(nDisp-ipp+2:nDisp+1) = lcalc(nDisp-ipp+1:nDisp)
+  Swlbl(nDisp-ipp+2:nDisp+1) = Swlbl(nDisp-ipp+1:nDisp)
   id = ndisp-ipp+1
   DspVec(id) = i
   ldisp(isym) = ldisp(isym)+1

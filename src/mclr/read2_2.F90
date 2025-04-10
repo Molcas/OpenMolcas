@@ -11,7 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,nTemp,Temp2,Temp3,Temp4,nDens22,DI13,DI24,DI,DA13,DA24,DA,rkappa,idsym,Signa,Fact, &
+subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,Temp2,Temp3,Temp4,nDens22,DI13,DI24,DI,DA13,DA24,DA,rkappa,idsym,Signa,Fact, &
                    jSpin,lfat,lfit,lMOt)
 !*******************************************************************
 !                                        ~     ~                   *
@@ -56,9 +56,9 @@ use Definitions, only: u6
 
 implicit none
 real*8 rmo1(nMba), rmo2(nmba), FockI(nDens), FockA(nDens)
-integer nTemp, nDens22
-real*8 Temp1(ntemp), Temp2(nDens22), Temp3(nDens22), Temp4(nDens22), DI13(nDens), DI24(nDens), DI(nCMO), DA13(nDens), DA24(nDens), &
-       DA(nCMO), rkappa(nDens)
+integer nDens22
+real*8 Temp1(nDens22), Temp2(nDens22), Temp3(nDens22), Temp4(nDens22), DI13(nDens), DI24(nDens), DI(nCMO), DA13(nDens), &
+       DA24(nDens), DA(nCMO), rkappa(nDens)
 integer iDSym
 real*8 Signa, Fact
 integer jSpin

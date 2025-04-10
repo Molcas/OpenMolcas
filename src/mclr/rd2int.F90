@@ -65,10 +65,7 @@ do iSym=1,nSym
     call Abend()
   end if
 end do
-ntSkip = 0
-do iSym=1,nSym
-  ntSkip = ntSkip+nSkip(iSym)
-end do
+ntSkip = sum(nSkip(1:nSym))
 if (ntSkip /= 0) then
   write(u6,*) 'Rd2Int: ntSkip /= 0'
   write(u6,*) 'ntSkip=',ntSkip

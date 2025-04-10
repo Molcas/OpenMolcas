@@ -23,29 +23,21 @@ use Constants, only: Zero, Four
 implicit none
 integer nnA, nRoots, M
 real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-real*8, dimension(nnA**2) :: Dacc
+real*8, dimension(nnA,nnA) :: Dacc
 real*8, dimension(nTri_Elem(nRoots-1)) :: zx
-integer it, iu, K, IKM, IKM2, iLoc1, iLoc2
+integer it, K, IKM, IKM2
 real*8 Fact
 
-Dacc(:) = Zero
+Dacc(:,:) = Zero
 
 do K=1,nRoots
   if (K == M) cycle
   IKM = iTri(K,M)
-  if (M > K) then
-    IKM2 = nTri_Elem(M-2)+K
-  else
-    IKM2 = nTri_Elem(K-2)+M
-  end if
+  IKM2 = nTri_Elem(max(K,M)-2)+min(K,M)
   Fact = Four*zx(IKM2)
   if (K > M) Fact = -Fact
   do it=1,nnA
-    iLoc1 = (it-1)*nnA
-    do iu=1,nnA
-      iLoc2 = iLoc1+iu
-      Dacc(iLoc2) = Dacc(iLoc2)+GDMat(IKM,it,iu)*Fact
-    end do
+    Dacc(:,it) = Dacc(:,it)+Fact*GDMat(IKM,it,:)
   end do
 end do
 

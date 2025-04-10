@@ -22,14 +22,13 @@ use MCLR_Data, only: XISPSM
 use MCLR_Data, only: NOCSF, ICISTR
 use MCLR_Data, only: NCNATS, NCPCNT, NDPCNT, NTYP
 use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, nRoots, Weight
-use Constants, only: Zero, One
+use Constants, only: One
 
 implicit none
 integer iSym
 real*8 ralp(*), S(*)
 integer iSM(1), LSPC(1), iSPC(1)
 integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, ipDIAI, iP2, J
-real*8 ECAS, WE
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we dont want to let world see the work of the Danish
@@ -81,15 +80,10 @@ if (FANCY_PRECONDITIONER) then
 else
   call ipin(ipdiai)
   call ipin(ipCI)
-  ip2 = 1
+  ip2 = 0
   do j=1,nroots
-    ECAS = ERASSCF(j)
-    We = Weight(j)
-    ralp(j) = Zero
-    do i=1,ncsf(State_SYM)
-      ralp(j) = ralp(j)+One/(W(ipdiai)%A(i)-ECAS)*We*W(ipCI)%A(ip2)**2
-      ip2 = ip2+1
-    end do
+    ralp(j) = sum(One/(W(ipdiai)%A(1:ncsf(State_Sym))-ERASSCF(j))*Weight(j)*W(ipCI)%A(ip2+1:ip2+ncsf(State_Sym))**2)
+    ip2 = ip2+ncsf(State_Sym)
   end do
 end if
 

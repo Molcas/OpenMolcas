@@ -70,13 +70,11 @@ call Get_cArray('Irreps',ChIrr,24)
 !----------------------------------------------------------------------*
 !     Precompute the total sum of variables and size of matrices       *
 !----------------------------------------------------------------------*
-ntBas = 0
+ntBas = sum(nBas(1:nSym))
+ntBsqr = sum(nBas(1:nSym)**2)
 ntBtri = 0
-ntBsqr = 0
 do iSym=1,nSym
-  ntBas = ntBas+nBas(iSym)
   ntBtri = ntBtri+nTri_Elem(nBas(iSym))
-  ntBsqr = ntBsqr+nBas(iSym)*nBas(iSym)
 end do
 !----------------------------------------------------------------------*
 !     Exit                                                             *

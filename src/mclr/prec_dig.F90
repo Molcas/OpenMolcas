@@ -63,12 +63,8 @@ subroutine Prec_dig_internal(rpre)
   integer nmm, nmmm, iS, n2, ip, jS, nD, ni, nTemp, iB, iBB, iRC
   real*8 Sign
 
-  nmm = 0
-  nmmm = 0
-  do iS=1,nSym
-    nMM = max(nMM,nAsh(is)+nIsh(iS))
-    nMMM = max(nmmM,nBas(is))
-  end do
+  nmm = max(0,maxval(nAsh(1:nSym)+nIsh(1:nSym)))
+  nmmm = max(0,maxval(nBas(1:nSym)))
   n2 = nMMM**2
   nmmm = ((nmmm-1)/nRec+1)*nRec
   nmm = nmm*nMMM
@@ -141,7 +137,7 @@ subroutine Prec_dig_internal(rpre)
 #         endif
         else
           call SQM(Temp3,Temp4,nD)
-          call SortOutDiagonal(Temp4,rpre(ip),nd)
+          rpre(ip:ip+nd-1) = Temp4(1:nd**2:nd+1)
         end if
         if (TimeDep) then
           ip = ip+nD
@@ -192,7 +188,7 @@ subroutine Prec_dig_internal(rpre)
         else
           ! From Triang mat
           call SQM(Temp3,Temp4,nD)
-          call SortOutDiagonal(Temp4,rpre(ip),nd)
+          rpre(ip:ip+nd-1) = Temp4(1:nd**2:nd+1)
         end if
         if (timedep) then
           ip = ip+nd
@@ -216,21 +212,5 @@ subroutine Prec_dig_internal(rpre)
   !*********************************************************************
   !                                                                    *
 end subroutine Prec_dig_internal
-
-subroutine SortOutDiagonal(Matrix,diagonal,nb)
-
-  ! Copy the diagonal elements from Matrix to the vector Diagonal
-
-  integer nb
-  real*8 Matrix(*), diagonal(nb)
-  integer ipM, i
-
-  ipM = 1
-  do i=1,nb
-    Diagonal(i) = Matrix(ipM)
-    ipM = ipM+nb+1
-  end do
-
-end subroutine SortOutDiagonal
 
 end subroutine Prec_dig

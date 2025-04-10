@@ -30,14 +30,14 @@ DTmp(:) = Zero
 ! because this is the SA density, not the transition density
 do iS=1,nSym
   do iB=1,nIsh(iS)
-    Dtmp(1+(ipCM(iS)+(ib-1)*nOrb(iS)+ib-1)-1) = Two
+    Dtmp(1+(ipCM(iS)+(iB-1)*nOrb(iS)+iB-1)-1) = Two
   end do
 end do
 if (act) then
   do iS=1,nSym
     do iB=1,nAsh(iS)
       do jB=1,nAsh(iS)
-        Dtmp(1+(ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nOrb(is)-1)-1) = G1t((iTri((nA(is)+ib),(nA(is)+jb))))
+        Dtmp(1+(ipCM(iS)+iB+nIsh(iS)+(jB+nIsh(iS)-1)*nOrb(iS)-1)-1) = G1t((iTri((nA(iS)+iB),(nA(iS)+jB))))
       end do
     end do
   end do

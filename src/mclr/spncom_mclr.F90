@@ -63,10 +63,7 @@ do I=1,MX
   end do
 
   ! 2 :  CORRECT SPIN PROJECTION ?
-  NALPHA = 0
-  do J=1,NOPEN
-    NALPHA = NALPHA+IWORK(J)
-  end do
+  NALPHA = sum(IWORK(1:NOPEN))
 
   if ((2*NALPHA-NOPEN == MS2) .and. (.not. ((PSSIGN /= Zero) .and. (IWORK(1) == 0)))) then
     if (IFLAG < 3) then

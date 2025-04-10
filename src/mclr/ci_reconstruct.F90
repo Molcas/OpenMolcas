@@ -88,14 +88,9 @@ do i=istate,istate
 end do
 
 ! preparing for point group symmetry
-norb = 0
-norbLR = 0
-irrep_diff = 0
-do j=1,8
-  norb = norb+RGras2(j)
-  norbLR = norbLR+LRras2(j)
-  irrep_diff(j) = RGras2(j)-LRras2(j)
-end do
+norb = sum(RGras2(1:8))
+norbLR = sum(LRras2(1:8))
+irrep_diff(:) = RGras2(1:8)-LRras2(1:8)
 
 call mma_allocate(pre_ele,norbLR,label='pre_ele'); pre_ele = 0
 iorbLR0 = 1

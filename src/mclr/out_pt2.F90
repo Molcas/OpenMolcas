@@ -36,8 +36,8 @@ real*8 rdum(1)
 integer idum(7,8)
 real*8, allocatable :: D_K(:), Tmp(:), K1(:), K2(:), DAO(:), D_CI(:), D1(:), P_CI(:), P1(:), Conn(:), OCCU(:), CMON(:), DTmp(:), &
                        G1q(:), G1m(:), Temp(:), DMs(:,:)
-integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO, iLen, ipCIP, iDisk, nDim, ij, k, l, ij1, ij2, kl1, kl2, i1, j1, ji2, &
-        kl, lk2, ijkl, jikl, ijlk, jilk, klRow, iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA, jAA, nBuf, LuDens, iOff, &
+integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO, iLen, ipCIP, iDisk, nDim, ij, k, l, ij1, ij2, kl1, kl2, ji2, kl, &
+        lk2, ijkl, jikl, ijlk, jilk, klRow, iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA, jAA, nBuf, LuDens, iOff, &
         iBas, LuTmp
 integer, external :: IsFreeUnit
 real*8 Val, DM(3)
@@ -49,15 +49,12 @@ integer i, j
 isym = 1
 CI = .true.
 call Setup_MCLR(iSym)
-nbas_tot = 0
+nbas_tot = sum(nbas(1:nsym))
+nDLMO = sum(nash(1:nsym))
+nLCMO = sum(nbas(1:nsym)**2)
 ntot1 = 0
-nDLMO = 0
-nLCMO = 0
 do is=1,nsym
-  nbas_tot = nbas_tot+nbas(is)
   ntot1 = ntot1+nTri_Elem(nbas(is))
-  nDLMO = nDLMO+nash(is)
-  nLCMO = nLCMO+nbas(is)*nbas(is)
 end do
 nNAC = nTri_Elem(nDLMO)
 nDLMO = nTri_Elem(nDLMO)
@@ -165,16 +162,8 @@ if (CI) then
       end do
     end do
 
-    ij = 0
-    do i1=1,ndim
-      do j1=1,ndim
-        ij = ij+1
-        D_CI(ij) = tmpDe(i1,j1)
-      end do
-    end do
-    do i=1,n2Dens
-      P_CI(i) = tmpP(i)
-    end do
+    D_CI(1:ndim**1) = pack(tmpDe(:,:),.true.)
+    P_CI(1:n2Dens) = tmpP(1:n2Dens)
     call mma_deallocate(tmpDe)
     call mma_deallocate(tmpDeM)
     call mma_deallocate(tmpP)
@@ -316,13 +305,8 @@ if (PT2) then
     end do
   end do
   ! The PT2 density will be used later again.
-  do iSym=1,nSym
-    nBasI = nBas(iSym)
-    do iI=1,nBasI
-      do iJ=1,nBasI
-        backspace LuPT2
-      end do
-    end do
+  do iI=1,sum(nBas(1:nSym)**2)
+    backspace LuPT2
   end do
 end if
 

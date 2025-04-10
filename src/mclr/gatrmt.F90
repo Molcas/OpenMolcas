@@ -45,13 +45,9 @@ do ICBL=1,NBLK
     if (ISCA(I) /= 0) then
       S = SSCA(I)
       IROW = ISCA(I)
-      do J=ICOFF,ICEND
-        MATUT(I,J) = S*MATIN(J,IROW)
-      end do
+      MATUT(I,ICOFF:ICEND) = S*MATIN(ICOFF:ICEND,IROW)
     else if (ISCA(I) == 0) then
-      do J=ICOFF,ICEND
-        MATUT(I,J) = Zero
-      end do
+      MATUT(I,ICOFF:ICEND) = Zero
     end if
   end do
 end do

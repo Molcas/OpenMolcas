@@ -169,7 +169,7 @@ do i=1,nEig
 end do
 call Add_Info('Harm_Freq',Temp,nEig,1)
 call mma_deallocate(Temp)
-!
+
 do i=1,nEig
   if (abs(Intens(i)) < One) Intens(i) = Zero
 end do
@@ -184,9 +184,7 @@ write(Lu_10,'(A)') '*END NORMAL MODES'
 if ((nUserPT == 0) .and. (nsRot == 0)) then
   UserP = One
   nUserPT = size(DefTemp)
-  do i=1,nUserPT
-    UserT(i) = DefTemp(i)
-  end do
+  UserT(1:nUserPT) = DefTemp(1:nUserPT)
   !call ThermoData(EVal,nEig)
 end if
 call Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nEig,.false.)

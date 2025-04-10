@@ -44,10 +44,7 @@ real*8 rd, rd1, rd2
 !                                                                      *
 Fock(:) = Zero
 
-n1 = 0
-do iS=1,nSym
-  n1 = max(n1,nBas(iS))
-end do
+n1 = max(0,maxval(nBas(1:nSym)))
 n2 = n1**2
 call mma_allocate(MO,n2,Label='MO')
 call mma_allocate(Scr,n2,Label='Scr')

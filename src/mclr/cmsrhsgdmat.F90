@@ -25,18 +25,16 @@ implicit none
 ! Output
 real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
 ! Auxiliary quantities
-real*8, dimension(:), allocatable :: GDArray
+real*8, dimension(:,:), allocatable :: GDArray
 real*8, dimension(n2Dens) :: rdum
-integer I, J, IOrb, JOrb, NIJ
+integer I, J, NIJ
 ! I:state index, "excited state" of state J when I /= J
-! IOrb:row index,    orbital index for state I
-! JOrb:column index, orbital index for state J
 integer nConfL, nConfR, iL, iR
 real*8, allocatable :: CIL(:), CIR(:)
 
 ! (D^IJ)_pq = <I|E_pq|J>, setting I>=J
 !  <I|E_pq|J>=<J|E_qp|I>
-call mma_allocate(GDArray,n1Dens)
+call mma_allocate(GDArray,nnA,nnA)
 iL = state_sym
 iR = state_sym
 nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
@@ -49,11 +47,7 @@ do I=1,nRoots
     call CSF2SD(W(ipCI)%A(1+(J-1)*ncsf(iR)),CIR,iR)
     call Densi2_mclr(1,GDArray,rdum,CIL,CIR,0,0,0,n1Dens,n2Dens)
     NIJ = iTri(I,J)
-    do IOrb=1,nnA
-      do JOrb=1,nnA
-        GDMat(NIJ,IOrb,JOrb) = GDArray((JOrb-1)*nnA+IOrb)
-      end do
-    end do
+    GDMat(NIJ,:,:) = GDArray(:,:)
   end do
 end do
 call mma_deallocate(GDArray)

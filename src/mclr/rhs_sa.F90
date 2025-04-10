@@ -72,7 +72,7 @@ call Put_dArray('D1mo',G1q,ng1)
 
 do iB=1,ntash
   do jB=1,ntash
-    G1r(ib+(jb-1)*ntash) = G1q(iTri(ib,jb))
+    G1r(iB+(jB-1)*ntash) = G1q(iTri(iB,jB))
   end do
 end do
 
@@ -114,7 +114,7 @@ if (.not. debug) then !yma debug ??
   rcorea = Zero
   do iS=1,nSym
     do iB=1,nIsh(is)
-      rcorei = rcorei+Two*Int1(ipCM(is)+nOrb(iS)*(ib-1)+ib-1)
+      rcorei = rcorei+Two*Int1(ipCM(iS)+nOrb(iS)*(iB-1)+iB-1)
     end do
 
     do iB=1,nAsh(iS)

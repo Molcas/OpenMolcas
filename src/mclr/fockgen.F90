@@ -40,8 +40,8 @@ integer idSym
 real*8 Fock(nDens), FockOut(*), rDens2(*), rDens1(nna,nna)
 real*8, allocatable :: MO(:), Scr(:), G2x(:), Scr1(:,:)
 type(DSBA_type) :: CVa
-integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA, nG2, iSym, nAG2, jSym, kSym, ipGx, ijS, lS, iAsh, jAsh, kAsh, &
-        lAsh, iij, iOff, iOff2, iB, iOff3, ip1, ip2, ikl
+integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA, nG2, iSym, nAG2, jSym, ipGx, ijS, lS, iAsh, jAsh, kAsh, lAsh, &
+        iij, iOff, iOff2, iB, iOff3, ip1, ip2, ikl
 real*8 rd
 
 !                                                                      *
@@ -49,10 +49,7 @@ real*8 rd
 !                                                                      *
 Fock(:) = Zero
 
-n1 = 0
-do iS=1,nSym
-  n1 = max(n1,nBas(iS))
-end do
+n1 = max(0,maxval(nBas(1:nSym)))
 n2 = n1**2
 
 if (doDMRG) call dmrg_spc_change_mclr(RGras2(1:8),nash)  ! yma
@@ -141,8 +138,7 @@ else  ! Cho-Fock
   do iSym=1,nSym
     nAG2 = 0
     do jSym=1,nSym
-      kSym = Mul(jsym,isym)
-      nAG2 = nAg2+nAsh(jSym)*nAsh(kSym)
+      nAG2 = nAg2+nAsh(jSym)*nAsh(Mul(jSym,iSym))
     end do
     nG2 = nG2+nAG2**2
   end do

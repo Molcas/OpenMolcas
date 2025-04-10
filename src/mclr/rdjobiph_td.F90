@@ -93,31 +93,24 @@ end if
 !----------------------------------------------------------------------*
 !     Precompute the total sum of variables and size of matrices       *
 !----------------------------------------------------------------------*
-ntIsh = 0
+ntIsh = sum(nIsh(1:nSym))
+ntIsqr = sum(nIsh(1:nSym)**2)
+ntAsh = sum(nAsh(1:nSym))
+ntAsqr = sum(nAsh(1:nSym)**2)
+ntBas = sum(nBas(1:nSym))
+ntBsqr = sum(nBas(1:nSym)**2)
+nOrb(1:nSym) = nBas(1:nSym)-nDel(1:nSym)
+Length = sum(nBas(1:nSym)*nOrb(1:nSym))
 ntItri = 0
-ntIsqr = 0
-ntAsh = 0
 ntAtri = 0
-ntAsqr = 0
-ntBas = 0
 ntBtri = 0
-ntBsqr = 0
 nna = 0
-Length = 0
 do iSym=1,nSym
-  norb(isym) = nbas(isym)-ndel(isym)
-  ntIsh = ntIsh+nIsh(iSym)
   ntItri = ntItri+nTri_Elem(nIsh(iSym))
-  ntIsqr = ntIsqr+nIsh(iSym)*nIsh(iSym)
-  ntAsh = ntAsh+nAsh(iSym)
   ntAtri = ntAtri+nTri_Elem(nAsh(iSym))
-  ntAsqr = ntAsqr+nAsh(iSym)*nAsh(iSym)
-  ntBas = ntBas+nBas(iSym)
   ntBtri = ntBtri+nTri_Elem(nBas(iSym))
-  ntBsqr = ntBsqr+nBas(iSym)*nBas(iSym)
   nA(iSym) = nna
   nnA = nnA+nAsh(isym)
-  Length = Length+nbas(isym)*norb(isym)
 end do
 !----------------------------------------------------------------------*
 !     Load the orbitals used in the last macro iteration               *

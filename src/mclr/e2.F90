@@ -21,13 +21,12 @@ implicit none
 integer lOper, iDisp
 real*8 FockI(nCMO), rMO(*)
 logical Go
-real*8 E22
 integer i, j, ij, k, l, ijkl, iS, jS, iA, jA, iAA, iAB, jAA, jAB, ipF
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-E22 = Zero
+E2 = Zero
 if (loper == 0) then
   Go = (iDisp < 0)
   if (.not. Go) Go = btest(ntpert(idisp),2)
@@ -38,7 +37,7 @@ if (loper == 0) then
         do k=1,nna
           do l=1,nna
             ijkl = iTri(ij,iTri(k,l))
-            E22 = E22+Half*G2t(ijkl)*rmo(ijkl)
+            E2 = E2+Half*G2t(ijkl)*rmo(ijkl)
           end do
         end do
       end do
@@ -53,13 +52,12 @@ if (loper == 0) then
         jAA = ja+nA(js)
         jAB = jA+nIsh(js)
         ipF = (iab-1)*norb(is)+jab+ipCM(is)-1
-        E22 = E22+Focki(ipf)*G1t(iTri(iaa,jaa))
+        E2 = E2+Focki(ipf)*G1t(iTri(iaa,jaa))
       end do
     end do
   end do
 end if
 
-e2 = e22
 !                                                                      *
 !***********************************************************************
 !                                                                      *

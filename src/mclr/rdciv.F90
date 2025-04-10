@@ -29,9 +29,8 @@ use Constants, only: Zero
 
 implicit none
 #include "rasdim.fh"
-real*8, allocatable :: OCIvec(:), Tmp(:)
+real*8, allocatable :: OCIvec(:), Tmp(:,:)
 integer iDisk, iDisk1, i, Iter
-real*8 Temp
 
 call DaName(LuCIV,'ROOTS')
 iDisk = 0
@@ -58,14 +57,16 @@ call mma_deAllocate(OCIvec)
 !     Load state energy                                                *
 !----------------------------------------------------------------------*
 
-call mma_allocate(Tmp,mxRoot*mxIter,Label='Tmp')
+call mma_allocate(Tmp,mxRoot,mxIter,Label='Tmp')
 iDisk = iToc(6)
 call dDaFile(LuJob,2,Tmp,mxRoot*mxIter,iDisk)
-do i=0,lroots-1
-  ERAS(i+1) = Zero
-  do iter=1,mxIter
-    Temp = Tmp(iter*mxRoot+i)
-    if (Temp /= Zero) ERAS(i+1) = Temp
+ERAS(1:lroots) = Zero
+do i=1,lroots
+  do iter=mxIter,1,-1
+    if (Tmp(i,iter) /= Zero) then
+      ERAS(i) = Tmp(i,iter)
+      exit
+    end if
   end do
 end do
 call mma_deallocate(Tmp)

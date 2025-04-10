@@ -27,7 +27,7 @@ integer ICOUL
 ! Local variables
 integer iOrb, jOrb, kOrb, lOrb
 integer iOff, jOff, kOff, lOff
-integer iBas, jBas, kBas, lBas
+integer jBas, kBas, lBas
 integer iInt, jInt
 
 iOrb = NTSOB(ITP,ISM)
@@ -42,15 +42,13 @@ lOff = IBTSOB(LTP,LSM)
 ! Collect Coulomb terms
 
 if (ICOUL == 0) then
-  iint = 1
+  iInt = 1
   do lBas=lOff,lOff+lOrb-1
     do jBas=jOff,jOff+jOrb-1
       do kBas=kOff,kOff+kOrb-1
-        do iBas=iOff,iOff+iOrb-1
-          jINT = (lBas-1)*nACOB**3+(kBas-1)*nACOB**2+(jBas-1)*nACOB+iBas
-          Xint(iInt) = Intlst(jint)
-          iInt = iInt+1
-        end do
+        jInt = (lBas-1)*nACOB**3+(kBas-1)*nACOB**2+(jBas-1)*nACOB
+        Xint(iInt+iOff:iInt+iOff+iOrb-1) = Intlst(jInt+iOff:jInt+iOff+iOrb-1)
+        iInt = iInt+iOrb
       end do
     end do
   end do
@@ -58,29 +56,25 @@ if (ICOUL == 0) then
   ! Collect Exchange terms
 
   if (IXCHNG /= 0) then
-    iint = 1
+    iInt = 1
     do lBas=lOff,lOff+lOrb-1
-      do jBas=joff,jOff+jOrb-1
+      do jBas=jOff,jOff+jOrb-1
         do kBas=kOff,kOff+kOrb-1
-          do iBas=ioff,iOff+iOrb-1
-            jINT = (jBas-1)*nACOB**3+(kBas-1)*nACOB**2+(lBas-1)*nACOB+iBas
-            XInt(iInt) = XInt(iInt)-Intlst(jint)
-            iInt = iInt+1
-          end do
+          jInt = (jBas-1)*nACOB**3+(kBas-1)*nACOB**2+(lBas-1)*nACOB
+          XInt(iInt+iOff:iInt+iOff+iOrb-1) = XInt(iInt+iOff:iInt+iOff+iOrb-1)-Intlst(jInt+iOff:jInt+iOff+iOrb-1)
+          iInt = iInt+iOrb
         end do
       end do
     end do
   end if
-else if (ICOUL /= 0) then
-  iint = 0
+else
+  iInt = 0
   do lBas=lOff,lOff+lOrb-1
     do kBas=kOff,kOff+kOrb-1
-      do jBas=joff,jOff+jOrb-1
-        do iBas=ioff,iOff+iOrb-1
-          JINT = (LBAS-1)*nACOB**3+(KBAS-1)*nACOB**2+(JBAS-1)*nACOB+IBAS
-          Xint(iInt) = Intlst(jint)
-          iInt = iint+1
-        end do
+      do jBas=jOff,jOff+jOrb-1
+        jInt = (lBas-1)*nACOB**3+(kBas-1)*nACOB**2+(jBas-1)*nACOB
+        Xint(iInt+iOff:iInt+iOff+iOrb-1) = Intlst(jInt+iOff:jInt+iOff+iOrb-1)
+        iInt = iInt+iOrb
       end do
     end do
   end do

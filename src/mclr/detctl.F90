@@ -20,7 +20,7 @@ use input_mclr, only: nSym, nIrrep, iSpin, nHole1, nActEl, nElec3, nRs1, nRs2, n
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
 
-integer iTmp, nTRas1, nTRas2, nTRas3, iSym, MNRS10, MXR4TP, MXRS30
+integer iTmp, nTRas1, nTRas3, MNRS10, MXR4TP, MXRS30
 
 call mma_Allocate(pINT1,nSym,Label='pInt1')
 pInt1(:) = 0
@@ -45,14 +45,8 @@ else
   idc = 2
 end if
 
-ntRas1 = 0
-ntRas2 = 0
-ntRas3 = 0
-do iSym=1,nSym
-  ntRas1 = ntRas1+nRs1(iSym)
-  ntRas2 = ntRas2+nRs2(iSym)
-  ntRas3 = ntRas3+nRs3(iSym)
-end do
+ntRas1 = sum(nRs1(1:nSym))
+ntRas3 = sum(nRs3(1:nSym))
 MNRS10 = max(0,2*ntRas1-nHole1)
 MXRS30 = max(0,min(2*ntRas3,nElec3))
 ! From shells to orbitals

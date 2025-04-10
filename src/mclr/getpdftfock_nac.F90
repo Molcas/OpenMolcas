@@ -37,7 +37,7 @@ call Get_DArray('FxyMS',T,nDens)
 
 do IS=1,nSym
   jS = Mul(iS,1)
-  if (nBas(is)*nBas(jS) /= 0) &
+  if (nBas(iS)*nBas(jS) /= 0) &
     call DGeSub(T(ipMat(iS,jS)),nBas(iS),'N',T(ipMat(jS,iS)),nBas(jS),'T',bktmp(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
 end do
 bk(:) = bk(:)-Two*bktmp(:)

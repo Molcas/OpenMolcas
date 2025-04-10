@@ -43,10 +43,10 @@ do iS=1,nSym
   do ib=1,nbas(is)
     do jb=1,ib-1
       ijb = ijb+1
-      F(ijb) = F(ijb)+T(ipmat(is,is)+nbas(is)*(JB-1)+IB-1)+T(ipmat(is,is)+nbas(is)*(IB-1)+JB-1)
+      F(ijb) = F(ijb)+T(ipmat(is,is)+nbas(is)*(jb-1)+ib-1)+T(ipmat(is,is)+nbas(is)*(ib-1)+jb-1)
     end do
     ijb = ijb+1
-    F(ijb) = F(ijb)+T(ipmat(is,is)+nbas(is)*(iB-1)+IB-1)
+    F(ijb) = F(ijb)+T(ipmat(is,is)+nbas(is)*(ib-1)+ib-1)
   end do
 end do
 call Put_dArray('FockOcc',F,nDens)

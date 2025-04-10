@@ -26,21 +26,16 @@ use Constants, only: Zero
 
 implicit none
 real*8, allocatable :: Q(:), Tmp2(:,:), T3(:)
-integer nm, nmm, nmmm, iS, nAtri
+integer nm, nmm, nmmm, nAtri
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 ! Read density matrix
 
-nm = 0
-nmm = 0
-nmmm = 0
-do iS=1,nSym
-  nm = nAsh(is)+nm
-  nMM = max(nMM,nAsh(is)+nIsh(iS))
-  nMMM = max(nmmM,nBas(is))
-end do
+nm = sum(nAsh(1:nSym))
+nmm = max(0,maxval(nAsh(1:nSym)+nIsh(1:nSym)))
+nmmm = max(0,maxval(nBas(1:nSym)))
 nAtri = nTri_Elem(nm)
 nAtri = nTri_Elem(nAtri)
 nmmm = ((nmmm-1)/nRec+1)*nRec

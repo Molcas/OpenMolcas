@@ -21,28 +21,20 @@ character*1 FORMA, FORMB
 real*8 A(*), B(*), C(*)
 
 if ((FORMA == 'N') .and. (FORMB == 'N')) then
-  do iRow=0,m-1
-    do iCol=0,n-1
-      c(iRow+iCol*ldc+1) = r*a(iRow+iCol*lda+1)+b(iRow+iCol*ldb+1)
-    end do
+  do iCol=0,n-1
+    c(iCol*ldc+1:iCol*ldc+m) = r*a(iCol*lda+1:iCol*lda+m)+b(iCol*ldb+1:iCol*ldb+m)
   end do
 else if ((FORMA == 'T') .and. (FORMB == 'N')) then
-  do iRow=0,m-1
-    do iCol=0,n-1
-      c(iRow+iCol*ldc+1) = r*a(iCol+iRow*lda+1)+b(iRow+iCol*ldb+1)
-    end do
+  do iCol=0,n-1
+    c(iCol*ldc+1:iCol*ldc+m) = r*a(iCol+1:iCol+m*lda:lda)+b(iCol*ldb+1:iCol*ldb+m)
   end do
 else if ((FORMA == 'N') .and. (FORMB == 'T')) then
-  do iRow=0,m-1
-    do iCol=0,n-1
-      c(iRow+iCol*ldc+1) = r*a(iRow+iCol*lda+1)+b(iCol+iRow*ldb+1)
-    end do
+  do iCol=0,n-1
+    c(iCol*ldc+1:iCol*ldc+m) = r*a(iCol*lda+1:iCol*lda+m)+b(iCol+1:iCol+m*ldb:ldb)
   end do
 else if ((FORMA == 'T') .and. (FORMB == 'T')) then
-  do iRow=0,m-1
-    do iCol=0,n-1
-      c(iRow+iCol*ldc+1) = r*a(iCol+iRow*lda+1)+b(iCol+iRow*ldb+1)
-    end do
+  do iCol=0,n-1
+    c(iCol*ldc+1:iCol*ldc+m) = r*a(iCol+1:iCol+m*lda:lda)+b(iCol+1:iCol+m*ldb:ldb)
   end do
 else
   write(u6,*) FORMA,FORMB

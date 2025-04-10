@@ -37,22 +37,15 @@ real*8 sign, Fact
 real*8 D(*), FA(*)
 logical lFI, lFA, lMo
 real*8, allocatable :: T1(:), Tmp2(:), T3(:), T4(:), DIL(:), DI(:), DIR(:), FI(:), FA2(:), DAR(:), DA(:), DAL(:)
-integer nDens22, iAM, iBM, iMem, iS, iB, ip, jB, iA, jA, jS
+integer nDens22, iS, iB, ip, jB, iA, jA, jS
 real*8 FacR
-integer i, j
+integer i
 
 nDens22 = nDens
-iAM = 0
-iBM = 0
 do i=1,nSym
-  do j=1,nSym
-    nDens22 = max(nDens22,nBas(i)*nBas(j))
-  end do
-  iAM = max(iAM,nAsh(i)+nIsh(i))
-  iBM = max(iBM,nBAs(i))
+  nDens22 = max(nDens22,maxval(nBas(i)*nBas(1:nSym)))
 end do
-imem = nDens22
-call mma_allocate(T1,imem,Label='T1')
+call mma_allocate(T1,nDens22,Label='T1')
 call mma_allocate(Tmp2,nDens22,Label='Tmp2')
 call mma_allocate(T3,nDens22,Label='T3')
 call mma_allocate(T4,nDens22,Label='T4')
@@ -86,7 +79,7 @@ end if
 
 do iS=1,nSym
   do iB=1,nIsh(iS)
-    ip = ipCM(iS)+(ib-1)*nBas(is)+ib-1
+    ip = ipCM(iS)+(iB-1)*nBas(iS)+iB-1
     DI(ip) = Two
   end do
 end do
@@ -95,9 +88,9 @@ if (iMethod == 2) then
   do iS=1,nSym
     do iB=1,nAsh(iS)
       do jB=1,nAsh(iS)
-        ip = ipCM(iS)+ib+nIsh(is)+(jB+nIsh(is)-1)*nBas(is)-1
-        iA = nA(is)+ib
-        jA = nA(is)+jb
+        ip = ipCM(iS)+iB+nIsh(iS)+(jB+nIsh(iS)-1)*nBas(iS)-1
+        iA = nA(iS)+iB
+        jA = nA(iS)+jB
         DA(ip) = D(iA+(jA-1)*nNA)
       end do
     end do
@@ -108,7 +101,7 @@ end if
 ! from one index tranformation of contracted indexes
 
 FacR = Fact
-call Read2_2(rmo1,rmo2,FI,FA2,T1,imem,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo)
+call Read2_2(rmo1,rmo2,FI,FA2,T1,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo)
 
 ! Calculate contribution from uncontracted indexes.
 
