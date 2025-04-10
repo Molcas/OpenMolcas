@@ -11,14 +11,14 @@
 ! Copyright (C) 1991, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine ORBORD(NSMOB,NR4TP,NRSOBS,NTOOBS,IREOTS,ISFTO,IBSO,NTSOB,IBTSOB,ITSOB,NOBPTS,NNOBPT,NOBPT)
+subroutine ORBORD(NSM,NR4TP,NRSOBS,NTOOBS,IREOTS,ISFTO,IBSO,NTSOB,IBTSOB,ITSOB,NOBPTS,NNOBPT,NOBPT)
 ! Obtain Reordering arrays for orbitals
 ! (See note below for assumed ordering)
 !
 ! =====
 ! Input
 ! =====
-!  NSMOB  : Number of orbital symmetries
+!  NSM    : Number of orbital symmetries
 !  NR4TP  : Number of RAS4 types
 !  NRSOBS : Number of orbitals per symmetry in RAS1,RAS2,RAS3
 !  NTOOBS : Number of orbitals per symmetry,all types
@@ -43,7 +43,7 @@ use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Input
-dimension NRSOBS(NSMOB,3), NTOOBS(*)
+dimension NRSOBS(NSM,3), NTOOBS(*)
 ! Output
 dimension IREOTS(*), ISFTO(*), IBSO(*)
 dimension NTSOB(3,*), IBTSOB(3,*), ITSOB(*)
@@ -84,7 +84,7 @@ IAC = 0
 !NPREVS = 0 ! dummy initialize
 !IORB = 0   ! dummy initialize
 do IRS=1,3
-  do ISM=1,NSMOB
+  do ISM=1,NSM
     if (ISM == 1) then
       IBSM = 1
     else
@@ -119,7 +119,7 @@ end do
 ! RAS 0 orbitals
 
 !IR0 = NACOB
-!do ISM=1,NSMOB
+!do ISM=1,NSM
 !  if (ISM == 1) then
 !    IBSM = 1
 !  else
@@ -142,7 +142,7 @@ end do
 ! RAS 4 orbitals
 
 !IR4 = NACOB+NR0OB
-!do ISM=1,NSMOB
+!do ISM=1,NSM
 !  if (ISM == 1) then
 !    IBSM = 1
 !  else
@@ -167,7 +167,7 @@ end do
 ! Inactive orbitals
 
 !IIN = NACOB+NR0OB+NR4OB
-!do ISM=1,NSMOB
+!do ISM=1,NSM
 !  if (ISM == 1) then
 !    IBSM = 1
 !  else
@@ -190,7 +190,7 @@ end do
 ! Deleted orbitals
 
 !IDE = NACOB+NR0OB+NR4OB+NINOB
-!do ISM=1,NSMOB
+!do ISM=1,NSM
 !  if (ISM == 1) then
 !    IBSM = 1
 !  else
@@ -215,7 +215,7 @@ end do
 !write(u6,*) ' IDE ',IDE
 
 IOFF = 1
-do ISM=1,NSMOB
+do ISM=1,NSM
   IBSO(ISM) = IOFF
   IOFF = IOFF+NTOOBS(ISM)
 end do
@@ -226,7 +226,7 @@ end do
 
 IOFF = 1
 do I123=1,3
-  do ISM=1,NSMOB
+  do ISM=1,NSM
     NTSOB(I123,ISM) = NRSOBS(ISM,I123)
     IBTSOB(I123,ISM) = IOFF
     ITSOB(IOFF:IOFF+NRSOBS(ISM,I123)-1) = [(i,i=IOFF,IOFF+NRSOBS(ISM,I123)-1)]
@@ -242,7 +242,7 @@ end do
 NOBPT(1:NR4TP+6) = 0
 LORB = 0   ! dummy initialize
 IOTYPE = 0 ! dummy initialize
-do ISMOB=1,NSMOB
+do ISMOB=1,NSM
   do ITYPE=1,NR4TP+6
     if (ITYPE == 1) then
       ! Inactive (frozen in normal notation)
@@ -290,17 +290,17 @@ call IWRTMA(ISFTO,1,NTOOB,1,NTOOB)
 write(u6,*) ' Type => symmetry reordering array'
 call IWRTMA(IREOTS,1,NTOOB,1,NTOOB)
 write(u6,*) ' IBSO array'
-call IWRTMA(IBSO,1,NSMOB,1,NSMOB)
+call IWRTMA(IBSO,1,NSM,1,NSM)
 
 write(u6,*) ' NTSOB array :'
-call IWRTMA(NTSOB,3,NSMOB,3,NSMOB)
+call IWRTMA(NTSOB,3,NSM,3,NSM)
 write(u6,*) ' IBTSOB array'
-call IWRTMA(IBTSOB,3,NSMOB,3,NSMOB)
+call IWRTMA(IBTSOB,3,NSM,3,NSM)
 write(u6,*) ' ITSOB'
 call IWRTMA(ITSOB,1,NACOB,1,NACOB)
 
 write(u6,*) ' NOBPTS'
-call IWRTMA(NOBPTS,NR4TP+6,NSMOB,NNOBPT,NSMOB)
+call IWRTMA(NOBPTS,NR4TP+6,NSM,NNOBPT,NSM)
 write(u6,*) ' NOBPT'
 call IWRTMA(NOBPT,NR4TP+6,1,NNOBPT,1)
 

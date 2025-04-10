@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,NGAS,IAOC,IBOC,JAOC,JBOC,SB,CB, &
-                        NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSMOB,IUSEAB,CJRES,SIRES,NORB,ieaw)
+                        NOBPTS,IOBPTS,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,X,NSM,IUSEAB,CJRES,SIRES,NORB,ieaw)
 ! alpha-beta contribution to two-particle density matrix
 ! from given c-block and s-block.
 !
@@ -35,7 +35,7 @@ subroutine GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA
 ! NTSOB     : Number of orbitals per type and symmetry
 ! IBTSOB    : base for orbitals of given type and symmetry
 ! IBORB     : Orbitals of given type and symmetry
-! NSMOB     : Number of symmetries of orbitals
+! NSM       : Number of symmetries of orbitals
 ! MAXK      : Largest number of inner resolution strings treated at simult.
 !
 ! ======
@@ -88,7 +88,7 @@ if ((NIJTYP == 0) .or. (NKLTYP == 0)) return
 do IJTYP=1,NIJTYP
   ITYP = ITP(IJTYP)
   JTYP = JTP(IJTYP)
-  do ISM=1,NSMOB
+  do ISM=1,NSM
     JSM = Mul(ISM,IJSM)
     if (JSM == 0) cycle
     IOFF = IOBPTS(ITYP,ISM)
@@ -130,7 +130,7 @@ do IJTYP=1,NIJTYP
         KTYP = KTP(KLTYP)
         LTYP = LTP(KLTYP)
 
-        do KSM=1,NSMOB
+        do KSM=1,NSM
           LSM = Mul(KSM,KLSM)
           if (LSM == 0) cycle
           KOFF = IOBPTS(KTYP,KSM)

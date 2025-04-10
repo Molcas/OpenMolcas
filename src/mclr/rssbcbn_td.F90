@@ -12,8 +12,8 @@
 !***********************************************************************
 
 subroutine RSSBCBN_td(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL1,IBEL3,JAEL1,JAEL3,JBEL1,JBEL3,NAEL,NBEL,IJAGRP, &
-                      IJBGRP,SB,CB,IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSMOB, &
-                      NSMSX,NIA,NIB,NJA,NJB,IST,CJRES,SIRES,NOPART,TimeDep)
+                      IJBGRP,SB,CB,IDOH2,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,C2,NSM,NIA, &
+                      NIB,NJA,NJB,IST,CJRES,SIRES,NOPART,TimeDep)
 ! Contributions to sigma block (iasm iatp, ibsm ibtp) from
 ! C block (jasm jatp, jbsm, jbtp)
 !
@@ -97,7 +97,7 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
   end if
   if (NBEL >= 1) then
     call RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSMOB,SIGN)
+                     XINT,NSM,SIGN)
 
     !call RECPRT('SSCR after RSBB1E_MCLR',' ',SSCR,5,1)
   end if
@@ -107,7 +107,7 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
   if (btest(icheck,0) .and. (IDOH2 /= 0) .and. (NBEL >= 2)) then
     !write(u6,*) 'Timedep in rssbcbn_td',TimeDep
     call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSMOB,NSMSX,SIGN,NOPART,TimeDep,ieaw)
+                     XINT,NSM,SIGN,NOPART,TimeDep,ieaw)
 
     !call RECPRT('SSCR after RSBB2A_MCLR',' ',SSCR,5,1)
   end if
@@ -139,8 +139,7 @@ if (btest(icheck,1) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
   end if
   if (JJJTRNS == 0) then
     call RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IJAGRP,IJBGRP,IAEL1,IAEL3,JAEL1,JAEL3,IBEL1,IBEL3, &
-                      JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,0,1,CJRES,SIRES,IFACTOR,ieaw, &
-                      TimeDep)
+                      JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSM,CJRES,SIRES,IFACTOR,ieaw,TimeDep)
 
     !call RECPRT('SSCR after RSBB2BN_MCLR',' ',SSCR,5,1)
 
@@ -151,8 +150,7 @@ if (btest(icheck,1) .and. (IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
     CB(1:NJA*NJB) = C2(1:NJA*NJB)
 
     call RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,JbSM,JbTP,JaSM,JaTP,NJb,NJa,IJbGRP,IJaGRP,IbEL1,IbEL3,JbEL1,JbEL3,IaEL1,IaEL3, &
-                      JaEL1,JaEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB,0,1,CJRES,SIRES,IFACTOR,ieaw, &
-                      TimeDep)
+                      JaEL1,JaEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSM,CJRES,SIRES,IFACTOR,ieaw,TimeDep)
 
     !call RECPRT('SSCR after RSBB2BN_MCLR',' ',SSCR,5,1)
 
@@ -184,7 +182,7 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
 
   SIGN = One
   call RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                   XINT,NSMOB,SIGN)
+                   XINT,NSM,SIGN)
 
   !call RECPRT('SSCR after RSBB1E_MCLR',' ',SSCR,5,1)
 
@@ -193,7 +191,7 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
   if (btest(icheck,0) .and. (NAEL >= 2) .and. (IDOH2 /= 0)) then
     !write(u6,*) 'Timedep in rssbcbn_td',TimeDep
     call RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSMOB,NSMSX,SIGN,NOPART,TimeDep,ieaw)
+                     XINT,NSM,SIGN,NOPART,TimeDep,ieaw)
 
     !call RECPRT('SSCR after RSBB2A_MCLR',' ',SSCR,5,1)
 

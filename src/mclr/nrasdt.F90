@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine NRASDT(MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,NSMST,NOCTPA,NOCTPB,IEL1A,IEL1B,NSSOA,NSSOB,IEL3A,IEL3B,NCOMB,XNCOMB,MXSB,MXSOOB, &
+subroutine NRASDT(MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,NSM,NOCTPA,NOCTPB,IEL1A,IEL1B,NSSOA,NSSOB,IEL3A,IEL3B,NCOMB,XNCOMB,MXSB,MXSOOB, &
                   IBLTP)
 ! Number of combimations with symmetry ITOTSM and
 !       MNRS1 - MXRS1 elecs in RAS1
@@ -35,7 +35,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer MNRS1, MXRS1, MNRS3, MXRS3, ITOTSM, NSMST, NOCTPA, NOCTPB
+integer MNRS1, MXRS1, MNRS3, MXRS3, ITOTSM, NSM, NOCTPA, NOCTPB
 integer IEL1A(*), IEL1B(*)
 integer NSSOA(NOCTPA,*), NSSOB(NOCTPB,*)
 integer IEL3A(*), IEL3B(*)
@@ -50,7 +50,7 @@ MXSB = 0
 MXSOOB = 0
 NCOMB = 0
 XNCOMB = Zero
-do IASM=1,NSMST
+do IASM=1,NSM
   if (IBLTP(IASM) == 0) cycle
   IBSM = Mul(IASM,ITOTSM)
   LSB = 0

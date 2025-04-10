@@ -11,7 +11,7 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine GENSTR_MCLR(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,NOCTYP,NSMST,Z,LSTASO,IREORD,STRING,IOC,IOTYP)
+subroutine GENSTR_MCLR(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,NOCTYP,NSM,Z,LSTASO,IREORD,STRING,IOC,IOTYP)
 ! Generate strings consisting of  NEL electrons fulfilling
 !   1 : Between NELMN1 AND NELMX1 electrons in the first NORB1 orbitals
 !   2 : Between NELMN3 AND NELMX3 electrons in the last  NORB3 orbitals
@@ -33,15 +33,15 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer NEL, NELMN1, NELMX1, NELMN3, NELMX3, NOCTYP, NSMST
+integer NEL, NELMN1, NELMX1, NELMN3, NELMX3, NOCTYP, NSM
 integer IOTYP
 ! Input
-integer ISTASO(NOCTYP,NSMST)
+integer ISTASO(NOCTYP,NSM)
 integer Z(NACOB,NEL)
 ! Output
 integer STRING(NEL,*), IREORD(*)
 ! Scratch arrays
-integer IOC(*), LSTASO(NOCTYP,NSMST)
+integer IOC(*), LSTASO(NOCTYP,NSM)
 ! Local variables
 integer NSTRIN, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, NONEW1, NONEW2, NONEW3, &
         ISYM, ITYP, LEXCI, LACTU, IOCTP2_MCLR, ISTRNM, ISYMST_MCLR, i
@@ -149,7 +149,7 @@ write(u6,*) ' Number of strings generated ',NSTRIN
 write(u6,*) ' Strings generated'
 write(u6,*) ' =================='
 ISTRIN = 0
-do ISYM=1,NSMST
+do ISYM=1,NSM
   do ITYP=1,NOCTYP
     LSTRIN = min(LSTASO(ITYP,ISYM),NSTRIN-ISTRIN)
     if (LSTRIN > 0) then

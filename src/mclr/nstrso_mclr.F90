@@ -11,13 +11,13 @@
 ! Copyright (C) 1990, Jeppe Olsen                                      *
 !***********************************************************************
 
-subroutine NSTRSO_MCLR(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NSTASO,NOCTYP,NSMST,IOTYP)
+subroutine NSTRSO_MCLR(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NSTASO,NOCTYP,NSM,IOTYP)
 ! Number of strings per type and symmetry
 !
 ! Jeppe Olsen Winter of 1990
 
 implicit real*8(A-H,O-Z)
-dimension IOC(*), NSTASO(NOCTYP,NSMST)
+dimension IOC(*), NSTASO(NOCTYP,NSM)
 
 NSTASO(:,:) = 0
 NSTRIN = 0

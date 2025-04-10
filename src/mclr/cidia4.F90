@@ -11,7 +11,7 @@
 ! Copyright (C) 1991,1994, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine CIDIA4(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSMST,H,ISM,IBLTP,XB,RJ,RK,NSSOA,NSSOB,IOCOC,NOCTPA,NOCTPB,ISSOA,ISSOB,LUDIA, &
+subroutine CIDIA4(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSM,H,ISM,IBLTP,XB,RJ,RK,NSSOA,NSSOB,IOCOC,NOCTPA,NOCTPB,ISSOA,ISSOB,LUDIA, &
                   ECORE,PSSIGN,NTOOB,ICISTR)
 ! Calculate determinant diagonal
 ! Turbo-ras version
@@ -62,7 +62,7 @@ end if
 IDET = 0
 ITDET = 0
 if (LUDIA /= 0) rewind LUDIA
-do IASM=1,NSMST
+do IASM=1,NSM
   IBSM = Mul(IASM,ISM)
   if ((IBSM == 0) .or. (IBLTP(IASM) == 0)) cycle
   if (IBLTP(IASM) == 2) then

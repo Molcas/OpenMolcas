@@ -9,13 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ZSMCL(NSMST,NOCTP,NSSO,ISTSM,ISTCL)
+subroutine ZSMCL(NSM,NOCTP,NSSO,ISTSM,ISTCL)
 ! set symmetry and class arrays for strings
 
-integer ISTSM(*), ISTCL(*), NSSO(NOCTP,NSMST)
+integer ISTSM(*), ISTCL(*), NSSO(NOCTP,NSM)
 
 IOFF = 1
-do ISM=1,NSMST
+do ISM=1,NSM
   do ICL=1,NOCTP
     ISTSM(IOFF:IOFF+NSSO(ICL,ISM)-1) = ISM
     ISTCL(IOFF:IOFF+NSSO(ICL,ISM)-1) = ICL

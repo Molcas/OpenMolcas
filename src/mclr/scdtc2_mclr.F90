@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine SCDTC2_MCLR(RASVEC,ISM,ICBLTP,NSMST,NOCTPA,NOCTPB,NSASO,NSBSO,IOCOC,IDC,IWAY,IMMLST)
+subroutine SCDTC2_MCLR(RASVEC,ISM,ICBLTP,NSM,NOCTPA,NOCTPB,NSASO,NSBSO,IOCOC,IDC,IWAY,IMMLST)
 ! Scale elements of a RAS vector to transfer between
 ! combinations and packed determinants
 ! IWAY = 1 : dets to combs
@@ -36,11 +36,11 @@ real*8, parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)
 write(u6,*) ' Information from SCDTC2'
 write(u6,*) ' ======================='
 write(u6,*) ' Input vector'
-call WRTRS2_MCLR(RASVEC,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+call WRTRS2_MCLR(RASVEC,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSM)
 #endif
 
 IBASE = 1
-do IASM=1,NSMST
+do IASM=1,NSM
 
   IBSM = Mul(IASM,ISM)
   if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) cycle
@@ -112,7 +112,7 @@ end do
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Scaled vector'
-call WRTRS2_MCLR(RASVEC,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+call WRTRS2_MCLR(RASVEC,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSM)
 call xflush(u6)
 #endif
 

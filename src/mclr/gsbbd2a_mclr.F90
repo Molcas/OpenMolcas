@@ -13,7 +13,7 @@
 
 !#define _DEBUGPRINT_
 subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR, &
-                        CSCR,I1,XI1S,X,NSMOB)
+                        CSCR,I1,XI1S,X,NSM)
 ! Contributions to two-electron density matrix from column excitations
 !
 ! GAS version, '96, Jeppe Olsen
@@ -35,7 +35,7 @@ subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 ! NOBPTS      : Number of orbitals per type and symmetry
 ! IOBPTS      : base for orbitals of given type and symmetry
 ! IBORB       : Orbitals of given type and symmetry
-! NSMOB,NSMDX : Number of symmetries of orbitals, double excitations
+! NSM         : Number of symmetries of orbitals
 ! MAXI        : Largest Number of "spectator strings" treated simultaneously
 ! MAXK        : Largest number of inner resolution strings treated at simult.
 !
@@ -84,13 +84,13 @@ do IDXTP=1,NDXTP
   JTYP = JTP(IDXTP)
   KTYP = KTP(IDXTP)
   LTYP = LTP(IDXTP)
-  do IKOBSM=1,NSMOB
+  do IKOBSM=1,NSM
     JLOBSM = Mul(IKOBSM,IDXSM)
     if (JLOBSM == 0) cycle
     ! types + symmetries defined => K strings are defined
     !        KFRST = 1
     ! Loop over of symmetry of i orbitals
-    do ISM=1,NSMOB
+    do ISM=1,NSM
       KSM = Mul(ISM,IKOBSM)
       NI = NOBPTS(ITYP,ISM)
       NK = NOBPTS(KTYP,KSM)
@@ -98,7 +98,7 @@ do IDXTP=1,NDXTP
       KOFF = IOBPTS(KTYP,KSM)
       if ((NI == 0) .or. (NK == 0)) cycle
       ! Loop over batches of j orbitals
-      outer: do JSM=1,NSMOB
+      outer: do JSM=1,NSM
         IFIRST = 1
         LSM = Mul(JSM,JLOBSM)
         NJ = NOBPTS(JTYP,JSM)

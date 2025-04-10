@@ -141,7 +141,7 @@ call mma_allocate(SIOIO,NOCTPA*NOCTPB,Label='SIOIO')
 ! Offsets for alpha and beta supergroups
 IOCTPA = IBSPGPFTP(IATP)
 IOCTPB = IBSPGPFTP(IBTP)
-! sigma needed for MXRESC
+! sigma needed for MXRESCPH
 call IAIBCM(ISSPC,SIOIO)
 call IAIBCM(ICSPC,CIOIO)
 ! Arrays for additional symmetry operation

@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1, &
-                       XI1S,H,NSMOB,SIGN)
+                       XI1S,H,NSM,SIGN)
 ! One electron excitations on column strings
 !
 ! =====
@@ -28,7 +28,7 @@ subroutine RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 ! NTSOB       : Number of orbitals per type and symmetry
 ! IBTSOB      : base for orbitals of given type and symmetry
 ! IBORB       : Orbitals of given type and symmetry
-! NSMOB,NSMDX : Number of symmetries of orbitals, double excitations
+! NSM         : Number of symmetries of orbitals
 ! MAXI        : Largest Number of "spectator strings" treated simultaneously
 ! MAXK        : Largest number of inner resolution strings treated at simult.
 !
@@ -74,7 +74,7 @@ if (IJSM == 0) return
 do IJTP=1,NSXTP
   ITYP = ITP(IJTP)
   JTYP = JTP(IJTP)
-  do ISM=1,NSMOB
+  do ISM=1,NSM
     JSM = Mul(ISM,IJSM)
     if (JSM == 0) cycle
     NIORB = NTSOB(ITYP,ISM)

@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1, &
-                       XI1S,XINT,NSMOB,NSMSX,SIGN,NOPART,TimeDep,ieaw)
+                       XI1S,XINT,NSM,SIGN,NOPART,TimeDep,ieaw)
 ! two electron excitations on column strings
 !
 ! =====
@@ -29,7 +29,7 @@ subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 ! NTSOB       : Number of orbitals per type and symmetry
 ! IBTSOB      : base for orbitals of given type and symmetry
 ! IBORB       : Orbitals of given type and symmetry
-! NSMOB,NSMSX : Number of symmetries of orbitals, single excitations
+! NSM         : Number of symmetries of orbitals, single excitations
 ! MAXI        : Largest Number of "spectator strings" treated simultaneously
 ! MAXK        : Largest number of inner resolution strings treated at simult.
 !
@@ -82,10 +82,10 @@ do IDXTYP=1,NDXTYP
   call NEWTYP_MCLR(K1GRP,K1TP,[1],[LTYP],1,K2GRP,K2TP)
   if (K2TP <= 0) cycle
   ! Symmetry of allowed Double excitation,loop over excitations
-  do IKSM=1,NSMSX
+  do IKSM=1,NSM
     JLSM = Mul(IKSM,IDXSM)
     if (JLSM == 0) cycle
-    do ISM=1,NSMOB
+    do ISM=1,NSM
       ! Works only for D2h
       KSM = Mul(ISM,IKSM)
       if (KSM == 0) cycle
@@ -114,7 +114,7 @@ do IDXTYP=1,NDXTYP
         NIK = NI*NK
       end if
       if (NOPART == 1) SSCR(1:NKSTREF*NROW*NIK) = Zero
-      do JSM=1,NSMOB
+      do JSM=1,NSM
         LSM = Mul(JSM,JLSM)
         if (LSM == 0) cycle
         JOFF = IBTSOB(JTYP,JSM)

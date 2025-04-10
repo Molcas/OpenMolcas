@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NOBPTS,IOBPTS,MAXI,MAXK, &
-                       SSCR,CSCR,I1,XI1S,I2,XI2S,NSMOB,RHO1S)
+                       SSCR,CSCR,I1,XI1S,I2,XI2S,NSM,RHO1S)
 ! Contributions to one electron density matrix from column excitations
 !
 ! GAS version, August 95, Jeppe Olsen
@@ -33,7 +33,7 @@ subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,IC
 ! NOBPTS      : Number of orbitals per type and symmetry
 ! IOBPTS      : base for orbitals of given type and symmetry
 ! IBORB       : Orbitals of given type and symmetry
-! NSMOB,NSMDX : Number of symmetries of orbitals, double excitations
+! NSM         : Number of symmetries of orbitals
 ! MAXI        : Largest Number of "spectator strings" treated simultaneously
 ! MAXK        : Largest number of inner resolution strings treated at simult.
 !
@@ -82,7 +82,7 @@ if (IJSM == 0) return
 do IJTP=1,NSXTP
   ITYP = ITP(IJTP)
   JTYP = JTP(IJTP)
-  do ISM=1,NSMOB
+  do ISM=1,NSM
     ! new i and j so new intermediate strings
     JSM = Mul(ISM,IJSM)
     if (JSM == 0) cycle

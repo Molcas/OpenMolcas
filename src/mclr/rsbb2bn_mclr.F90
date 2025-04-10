@@ -12,8 +12,7 @@
 !***********************************************************************
 
 subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,IAEL1,IAEL3,JAEL1,JAEL3,IBEL1,IBEL3, &
-                        JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSMOB, &
-                        IUSEAB,ICJKAIB,CJRES,SIRES,ISIGN,ieaw,TimeDep)
+                        JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSM,CJRES,SIRES,ISIGN,ieaw,TimeDep)
 ! Combined alpha-beta double excitation
 ! contribution from given C block to given S block
 ! If IUSAB only half the terms are constructed
@@ -37,11 +36,8 @@ subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,
 ! NTSOB     : Number of orbitals per type and symmetry
 ! IBTSOB    : base for orbitals of given type and symmetry
 ! IBORB     : Orbitals of given type and symmetry
-! NSMOB     : Number of symmetries of orbitals
+! NSM       : Number of symmetries of orbitals
 ! MAXK      : Largest number of inner resolution strings treated at simult.
-!
-! ICJKAIB =1 =>  construct C(Ka,Jb,j) and S(Ka,Ib,i) as intermediate
-!                 matrices in order to reduce overhead
 !
 ! ======
 ! Output
@@ -85,8 +81,6 @@ dimension CJRES(*), SIRES(*)
 ! Local arrays
 dimension ITP(3), JTP(3), KTP(3), LTP(3)
 
-!IUSEAB = 0
-!ICJKAIB = 1
 IROUTE = 1
 ! Symmetry of allowed excitations
 IJSM = Mul(IASM,JASM)
@@ -111,7 +105,7 @@ do IJTYP=1,NIJTYP
   if (JTYP == 2) N2IND = N2IND+1
   if (JTYP == 3) N3IND = N3IND+1
 
-  do ISM=1,NSMOB
+  do ISM=1,NSM
     JSM = Mul(ISM,IJSM)
     if (JSM == 0) cycle
     IOFF = IBTSOB(ITYP,ISM)
@@ -130,56 +124,53 @@ do IJTYP=1,NIJTYP
       call ADST(IOFF,NI,IATP,IASM,IAGRP,KABOT,KATOP,I3(1,1),XI3S(1,1),MAXK,NKABTC,KAEND)
       if (NKABTC == 0) exit
       ! Generate - if required C(Ka,Jb,j)
-      if (ICJKAIB /= 0) then
-        IIOFF = 1
-        LCJ = NJB*NKABTC
-        do JJ=1,NJ
-          if (JJ == 1) then
-            IIOFF = 1
-          else
-            IIOFF = IIOFF+LCJ
-          end if
-          call GATRMT(CB,NJA,NJB,CJRES(IIOFF),NKABTC,NJB,I1(1,JJ),XI1S(1,JJ))
-        end do
-
-        ! We have now C gathered in the form C(Ka,Jb,j).
-        ! If Ka is small, say 1, it can be advantageous to switch
-        ! around to C(j,Ka,Jb). This is mediated by the switch IROUTE
-        ! IROUTE = 1 : Normal (i.e. old) route,
-        ! IROUTE = 2 : New route with j first
-        ! IROUTE = 3 : C(Ka,j,Jb)
-
-        if ((NJ >= NKABTC) .and. (NI >= NKABTC)) then
-          IROUTE = 2
+      IIOFF = 1
+      LCJ = NJB*NKABTC
+      do JJ=1,NJ
+        if (JJ == 1) then
+          IIOFF = 1
         else
-          IROUTE = 3
+          IIOFF = IIOFF+LCJ
         end if
-        ! DOES THIS WORK?
-        !9805EAW     IROUTE = 1
-        if (TimeDep) IROUTE = 1
+        call GATRMT(CB,NJA,NJB,CJRES(IIOFF),NKABTC,NJB,I1(1,JJ),XI1S(1,JJ))
+      end do
 
-        if (IROUTE == 2) then
-          ! C(Ka,Jb,j) => C(j,Ka,Jb)
-          call TRNSPS(LCJ,NJ,CJRES,SIRES)
-          CJRES(1:NJ*LCJ) = SIRES(1:NJ*LCJ)
-        end if
-        if (IROUTE == 3) then
-          ! C(Ka,Jb,j) => C(Ka,j,JB)
-          do JB=1,NJB
-            do J=1,NJ
-              IOFFIN = (J-1)*NJB*NKABTC+(JB-1)*NKABTC+1
-              IOFFOUT = (JB-1)*NKABTC*NJ+(J-1)*NKABTC+1
-              do KA=1,NKABTC
-                SIRES(IOFFOUT-1+KA) = CJRES(IOFFIN-1+KA)
-              end do
+      ! We have now C gathered in the form C(Ka,Jb,j).
+      ! If Ka is small, say 1, it can be advantageous to switch
+      ! around to C(j,Ka,Jb). This is mediated by the switch IROUTE
+      ! IROUTE = 1 : Normal (i.e. old) route,
+      ! IROUTE = 2 : New route with j first
+      ! IROUTE = 3 : C(Ka,j,Jb)
+
+      if ((NJ >= NKABTC) .and. (NI >= NKABTC)) then
+        IROUTE = 2
+      else
+        IROUTE = 3
+      end if
+      ! DOES THIS WORK?
+      !9805EAW     IROUTE = 1
+      if (TimeDep) IROUTE = 1
+
+      if (IROUTE == 2) then
+        ! C(Ka,Jb,j) => C(j,Ka,Jb)
+        call TRNSPS(LCJ,NJ,CJRES,SIRES)
+        CJRES(1:NJ*LCJ) = SIRES(1:NJ*LCJ)
+      end if
+      if (IROUTE == 3) then
+        ! C(Ka,Jb,j) => C(Ka,j,JB)
+        do JB=1,NJB
+          do J=1,NJ
+            IOFFIN = (J-1)*NJB*NKABTC+(JB-1)*NKABTC+1
+            IOFFOUT = (JB-1)*NKABTC*NJ+(J-1)*NKABTC+1
+            do KA=1,NKABTC
+              SIRES(IOFFOUT-1+KA) = CJRES(IOFFIN-1+KA)
             end do
           end do
-          CJRES(1:NJ*LCJ) = SIRES(1:NJ*LCJ)
-        end if
-
-        SIRES(1:NIB*NKABTC*NI) = Zero
-
+        end do
+        CJRES(1:NJ*LCJ) = SIRES(1:NJ*LCJ)
       end if
+
+      SIRES(1:NIB*NKABTC*NI) = Zero
 
       do KLTYP=1,NKLTYP
         KTYP = KTP(KLTYP)
@@ -203,7 +194,7 @@ do IJTYP=1,NIJTYP
         if (LTYP == 1) N1IND = N1IND+1
         if (LTYP == 2) N2IND = N2IND+1
         if (LTYP == 3) N3IND = N3IND+1
-        do KSM=1,NSMOB
+        do KSM=1,NSM
           IFIRST = 1
           LSM = Mul(KSM,KLSM)
           if (LSM == 0) cycle
@@ -211,11 +202,7 @@ do IJTYP=1,NIJTYP
           LOFF = IBTSOB(LTYP,LSM)
           NK = NTSOB(KTYP,KSM)
           NL = NTSOB(LTYP,LSM)
-          ! If IUSEAB  is used, only terms with i >= k will be generated so
           IKORD = 0
-          if ((IUSEAB == 1) .and. (ISM > KSM)) cycle
-          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP > KTYP)) cycle
-          if ((IUSEAB == 1) .and. (ISM == KSM) .and. (ITYP == KTYP)) IKORD = 1
 
           if ((NK == 0) .or. (NL == 0)) cycle
           ! Loop over batches of KB strings
@@ -284,12 +271,10 @@ do IJTYP=1,NIJTYP
         end do
         SIRES(1:NI*NIB*NKABTC) = CJRES(1:NI*NIB*NKABTC)
       end if
-      if (ICJKAIB == 1) then
-        do II=1,NI
-          call SCARMT(SIRES((II-1)*NKABTC*NIB+1),NKABTC,NIB,SB,NIA,NIB,I3(1,II),XI3S(1,II))
+      do II=1,NI
+        call SCARMT(SIRES((II-1)*NKABTC*NIB+1),NKABTC,NIB,SB,NIA,NIB,I3(1,II),XI3S(1,II))
 
-        end do
-      end if
+      end do
       if (KAEND /= 0) exit
     end do
     ! End of loop over partitioning of alpha strings

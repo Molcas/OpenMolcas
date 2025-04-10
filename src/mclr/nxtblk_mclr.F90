@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine NXTBLK_MCLR(IATP,IBTP,IASM,NOCTPA,NOCTPB,NSMST,IBLTP,IDC,NONEW,IOCOC)
+subroutine NXTBLK_MCLR(IATP,IBTP,IASM,NOCTPA,NOCTPB,NSM,IBLTP,IDC,NONEW,IOCOC)
 ! Obtain allowed block following IATP IBTP IASM
 
 #ifdef _DEBUGPRINT_
@@ -36,7 +36,7 @@ do
       IA = IA+1
     else
       IA = 1
-      if (ISM < NSMST) then
+      if (ISM < NSM) then
         ISM = ISM+1
       else
         NONEW = 1

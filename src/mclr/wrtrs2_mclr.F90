@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine WRTRS2_MCLR(VECTOR,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSMST)
+subroutine WRTRS2_MCLR(VECTOR,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSM)
 ! Write RAS vector. Storage form is defined by ICBLTP
 
 use Index_Functions, only: nTri_Elem
@@ -23,7 +23,7 @@ dimension NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
 dimension ICBLTP(*)
 
 IBASE = 1
-do IASM=1,NSMST
+do IASM=1,NSM
   IBSM = Mul(IASM,ISM)
   if ((IBSM == 0) .or. (ICBLTP(IASM) == 0)) cycle
 

@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB,NSMST,IENSM,IENTA,IENTB,IACOOS,MXLNG,IFINI,NBLOCK,INCFST,IOCOC)
+subroutine INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB,NSM,IENSM,IENTA,IENTB,IACOOS,MXLNG,IFINI,NBLOCK,INCFST,IOCOC)
 ! Obtain Number of OOS blocks that can be included
 ! IN MXLNG word starting from block after ISTSM,ISTTA,ISTTB
 ! Activated blocks are given in IACOOS
@@ -26,13 +26,13 @@ use Definitions, only: u6
 
 implicit real*8(A-H,O-Z)
 ! Input
-integer NOOS(NOCTPA,NOCTPB,NSMST)
+integer NOOS(NOCTPA,NOCTPB,NSM)
 integer IOCOC(NOCTPA,NOCTPB)
 ! May 7
 integer IBLTP(*)
 ! May 7
 ! Output
-integer IACOOS(NOCTPA,NOCTPB,NSMST)
+integer IACOOS(NOCTPA,NOCTPB,NSM)
 logical Skip
 
 #ifdef _DEBUGPRINT_
@@ -41,9 +41,9 @@ write(u6,*) ' ================'
 write(u6,*) ' INCOOS in action'
 write(u6,*) ' ================'
 write(u6,*)
-write(u6,*) ' NOOS(NOCTPA,NOCTPB,NSMST) array (input)'
+write(u6,*) ' NOOS(NOCTPA,NOCTPB,NSM) array (input)'
 write(u6,*)
-do ISMST=1,NSMST
+do ISMST=1,NSM
   write(u6,*) ' ISMST = ',ISMST
   call IWRTMA(NOOS(1,1,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end do
@@ -86,7 +86,7 @@ do
         IA = IA+1
       else
         IA = 1
-        if (ISM < NSMST) then
+        if (ISM < NSM) then
           ISM = ISM+1
         else
           IFINI = 1

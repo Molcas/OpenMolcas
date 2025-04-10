@@ -27,7 +27,7 @@ use MCLR_Data, only: NOCSF, MAXI, MAXK, ICISTR, NOPART, IDIAG
 use MCLR_Data, only: IBTSOB, ITSOB, NTSOB
 use MCLR_Data, only: MXINKA
 use CandS, only: ICSM, ISSM, ICSPC, ISSPC
-use input_mclr, only: nIrrep, nsMOB, TimeDep
+use input_mclr, only: nIrrep, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: u6
@@ -103,7 +103,7 @@ write(u6,*) ' Largest block of strings with given symmetry and type',MXSTBL
 MAXI = min(MXINKA,MXSTBL)
 MAXK = min(MXINKA,MXSTBL)
 ! Largest active orbital block belonging to given type and symmetry
-MXTSOB = IMNMX(NTSOB,3*NSMOB,2)
+MXTSOB = IMNMX(NTSOB,3*nIrrep,2)
 ! Local scratch arrays for blocks of C and sigma
 LSCR1 = 0
 if (ICISTR <= 2) then
@@ -161,7 +161,7 @@ IBTP1 = min(IbTP+1,ITYP_DUMMY)
 IATP2 = min(IATP+2,ITYP_DUMMY)
 IBTP2 = min(IbTP+2,ITYP_DUMMY)
 call MXRESC(CIOIO,IATP,IBTP,NOCTPA,NOCTPB,nIrrep,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,Str(IATP1)%NSTSO,NOCTYP(IATP1),Str(IBTP1)%NSTSO, &
-            NOCTYP(IBTP1),NSMOB,3,3,NTSOB,MAXpK,Str(IATP2)%NSTSO,NOCTYP(IATP2),Str(IBTP2)%NSTSO,NOCTYP(IBTP2),Str(IATP)%EL123, &
+            NOCTYP(IBTP1),NTSOB,MAXpK,Str(IATP2)%NSTSO,NOCTYP(IATP2),Str(IBTP2)%NSTSO,NOCTYP(IBTP2),Str(IATP)%EL123, &
             Str(IBTP)%EL123,MXCJ,MXCIJA,MXCIJB,MXCIJAB,MXSXBL,MXIJST,MXIJSTF)
 
 !xvectors able to hold strings of given sym and type
@@ -256,9 +256,9 @@ end if
 
 if (ICISTR == 1) then
   call RASSG4(C,HC,CB,SB,pC2,CIOIO,SIOIO,ICSM,ISSM,CBLTP,SBLTP,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,NAEL,IATP,NBEL,IBTP,NOCTPA,NOCTPB, &
-              nIrrep,NSMOB,nIrrep,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LSCR1,LSCR1,INSCR,pCJRES,pSIRES,Str(IATP)%EL1,Str(IATP)%EL3, &
-              Str(IBTP)%EL1,Str(IBTP)%EL3,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7),OOS(:,8),OOS(:,9), &
-              OOS(:,10),I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,SVST,PSSIGN,LLUC,LLUHC,IST,pCJRES,pSIRES,NOPARt,TimeDep)
+              nIrrep,NTSOB,IBTSOB,ITSOB,MAXK,MAXI,LSCR1,LSCR1,INSCR,pCJRES,pSIRES,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1, &
+              Str(IBTP)%EL3,IDC,OOS(:,1),OOS(:,2),OOS(:,3),OOS(:,4),OOS(:,5),OOS(:,6),OOS(:,7),OOS(:,8),OOS(:,9),OOS(:,10),I1, &
+              XI1S,I2,XI2S,I3,XI3S,I4,XI4S,IDOH2,SVST,PSSIGN,LLUC,LLUHC,IST,pCJRES,pSIRES,NOPARt,TimeDep)
 
 else
   call SysHalt('sigmavec')
