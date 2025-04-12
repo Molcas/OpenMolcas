@@ -27,6 +27,8 @@ logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: i, iAtom, j
 real(kind=wp) :: Fun, Rjj
 
+
+
 RMat(:,:) = Zero
 do iAtom=1,nAtoms
   do j=1,nOrb2Loc
@@ -36,6 +38,12 @@ do iAtom=1,nAtoms
     end do
   end do
 end do
+
+if (Debug) then
+    write(u6,*) 'In GetGrad_PM'
+    write(u6,*) '-------------'
+    call RecPrt('RMat',' ',RMat(:,:), nOrb2Loc, nOrb2Loc)
+end if
 
 GradNorm = Zero
 do i=1,nOrb2Loc-1
