@@ -16,7 +16,7 @@ subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
 !
 ! Purpose: compute the gradient of the Pipek-Mezey functional.
 
-use Constants, only: Zero, Two, Four
+use Constants, only: Zero, Four
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -26,8 +26,7 @@ real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc)
 logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: i, iAtom, j
 real(kind=wp) :: Fun, Rjj
-real(kind=wp) :: Grad(nOrb2Loc,nOrb2Loc), newGradNorm
-
+real(kind=wp) :: Grad(nOrb2Loc,nOrb2Loc)
 
 
 !New gradient calculation according to DOI: 10.1002/jcc.23281 equation (15)
