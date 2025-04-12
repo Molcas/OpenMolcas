@@ -51,6 +51,7 @@ end if
 if (.not. Silent) call CWTime(C1,W1)
 nIter = 0
 call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
+!call mma_Allocate(Gradient,nOrb2Loc,nOrb2Loc,Label='Gradient')
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug)
