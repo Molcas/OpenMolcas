@@ -67,6 +67,7 @@ if (Debug) then
     write(u6,*) '-------------'
     call RecPrt('RMat',' ',RMat(:,:), nOrb2Loc, nOrb2Loc)
 
+    Fun=Zero
     do i=1,nOrb2Loc
         Fun = Fun+Rmat(i,i)
     end do
