@@ -24,24 +24,22 @@ subroutine Read22_2(MO1,Fock,Q,FockI,FockA,Temp2,Scr,Temp3)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use MCLR_Data, only: CMO, CMO_Inv, Int1, G1t, G2t
-use MCLR_Data, only: nDens, ipCM, ipMat, ipMatBA, nA, nB
-use MCLR_Data, only: LuQDat
-use input_mclr, only: TwoStep, StepType, nSym, NewCho, iMethod, rIn_Ene, Debug, PotNuc, iAddressQDat, LuAChoVec, LuIChoVec, nAsh, &
-                      nBas, nIsh, nOrb
+use MCLR_Data, only: CMO, CMO_Inv, G1t, G2t, Int1, ipCM, ipMat, ipMatBA, LuQDat, nA, nB, nDens
+use input_mclr, only: Debug, iAddressQDat, iMethod, LuAChoVec, LuIChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym, PotNuc, rIn_Ene, &
+                      StepType, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 MO1(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens), Temp2(nDens), Scr(*), Temp3(nDens)
-logical Fake_CMO2, DoAct
-real*8, allocatable :: G2x(:)
-type(DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA, FkI, FkA, QVec, WCMO, WCMO_Inv
-integer nm, iS, nAtri, jS, ijS, kS, lS, ijB1, iB, nNB, jB, ipD, iiB, jjB, nNK, kB, kkB, nNL, lB, llB, ip2, ip1, nAct, nA2, nG2, &
-        iSym, nAG2, jSym, iOff, iOff2, iKK, iOff3, iK, iLL, iL, iKL, ipGx, kAsh, lAsh, iAsh, jAsh, iIJ, ipi, ipj, nI, nJ, ipTmp, &
-        ijB, iStore
-real*8 Fact, rEnergy, rCora, rCoreI, rCoreA, rCor, rCore
+real(kind=wp) :: MO1(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens), Temp2(nDens), Scr(*), Temp3(nDens)
+integer(kind=iwp) :: iAsh, iB, iiB, iIJ, ijB, ijB1, ijS, iK, iKK, iKL, iL, iLL, iOff, iOff2, iOff3, ip1, ip2, ipD, ipGx, ipi, ipj, &
+                     ipTmp, iS, iStore, iSym, jAsh, jB, jjB, jS, jSym, kAsh, kB, kkB, kS, lAsh, lB, llB, lS, nA2, nAct, nAG2, &
+                     nAtri, nG2, nI, nJ, nm, nNB, nNK, nNL
+real(kind=wp) :: Fact, rCor, rCora, rCore, rCoreA, rCoreI, rEnergy
+logical(kind=iwp) :: DoAct, Fake_CMO2
+type(DSBA_Type) :: CVa(2), DA, DI, DLT(1), FkA, FkI, JA, JI(1), KA, Kappa, KI, QVec, WCMO, WCMO_Inv
+real(kind=wp), allocatable :: G2x(:)
 
 !                                                                      *
 !***********************************************************************

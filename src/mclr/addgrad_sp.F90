@@ -16,22 +16,21 @@ subroutine AddGrad_sp(rKappa,rMat,F,idsym,r1,r2)
 !   Adds the contribution from the gradient to
 !    [2]
 !   E   Kappa. This is done to insure us about
-!   a beautifull convergence of the PCG,
+!   a beautiful convergence of the PCG,
 !   which is just the case if E is symmetric.
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, nDens
-use input_mclr, only: nSym, nOrb
+use input_mclr, only: nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 rkappa(*), rMat(*), F(nDens)
-integer idSym
-real*8 r1, r2
-integer iS, jS
-real*8, allocatable :: Tempi(:), Tempj(:)
-real*8, allocatable :: K(:), M(:)
+real(kind=wp) :: rKappa(*), rMat(*), F(nDens), r1, r2
+integer(kind=iwp) :: idSym
+integer(kind=iwp) :: iS, jS
+real(kind=wp), allocatable :: K(:), M(:), Tempi(:), Tempj(:)
 
 call mma_allocate(K,nDens,Label='K')
 call mma_allocate(M,nDens,Label='M')

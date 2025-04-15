@@ -14,13 +14,12 @@ subroutine WRTRS2_MCLR(VECTOR,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSM)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-dimension VECTOR(*)
-dimension IOCOC(NOCTPA,NOCTPB)
-dimension NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
-dimension ICBLTP(*)
+implicit none
+real(kind=wp) :: VECTOR(*)
+integer(kind=iwp) :: ISM, ICBLTP(*), NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSASO(NOCTPA,*), NSBSO(NOCTPB,*), NSM
+integer(kind=iwp) :: IASM, IATP, IBASE, IBSM, IBTP, IBTPMX, NAST, NBST, NELMNT
 
 IBASE = 1
 do IASM=1,NSM

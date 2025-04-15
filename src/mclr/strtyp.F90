@@ -29,16 +29,15 @@ subroutine STRTYP(MS2,NACTEL,MNRS10,MXRS30)
 !                                          3 => double int exc
 ! DELTA : number of electrons in string - reference + 5
 
-use Str_Info, only: ISTAC, IAZTP, IATPM1, IATPM2, IBZTP, IBTPM1, IBTPM2, NSTTYP, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, IUNIQMP, IUNIQTP
-use MCLR_Data, only: NORB1, nORB3
-use Definitions, only: u6
+use Str_Info, only: IATPM1, IATPM2, IAZTP, IBTPM1, IBTPM2, IBZTP, ISTAC, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NSTTYP
+use MCLR_Data, only: NORB1, NORB3
+use Definitions, only: iwp, u6
 
 implicit none
-integer MS2, NACTEL, MNRS10, MXRS30
-! Local variables
-logical, external :: Reduce_Prt
-integer NAEL, NBEL, IPL, MXRS10, MNRS30, NSTTYP_Max, ITYPE, ITYP
-integer, external :: iPrintLevel
+integer(kind=iwp) :: MS2, NACTEL, MNRS10, MXRS30
+integer(kind=iwp) :: IPL, ITYP, ITYPE, MNRS30, MXRS10, NAEL, NBEL, NSTTYP_Max
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 ISTAC(:,:) = 0
 ! Number of alpha and beta electrons

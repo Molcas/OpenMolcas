@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nPre(kS)
+function nPre(kS)
 
 use Symmetry_Info, only: Mul
-use input_mclr, only: nSym, nIsh, nOrb, nRS1, nRS2, nRS3
+use input_mclr, only: nIsh, nOrb, nRS1, nRS2, nRS3, nSym
+use Definitions, only: iwp
 
 implicit none
-integer kS
-integer iOut, iS, jS, nRest
+integer(kind=iwp) :: nPre
+integer(kind=iwp) :: kS
+integer(kind=iwp) :: iOut, iS, jS, nRest
 
 iOut = 0
 do is=1,nSym

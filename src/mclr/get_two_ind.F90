@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Jie J. Bao                                       *
 !***********************************************************************
 
-subroutine Get_Two_Ind(Ind_PUVX,IndTUVX)
+subroutine Get_Two_Ind(IndPUVX,IndTUVX)
 !***********************************************************************
 ! Readapted from src/fock_util/get_tuvx.f
 ! Return to an index in the PUVX array given
@@ -19,22 +19,20 @@ subroutine Get_Two_Ind(Ind_PUVX,IndTUVX)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use input_mclr, only: nSym, ntBas, ntAsh, nAsh, nIsh, nOrb
+use input_mclr, only: nAsh, nIsh, nOrb, nSym, ntAsh, ntBas
+use Definitions, only: iwp
 
 implicit none
-! Output
-integer, dimension(ntBas,ntAsh,ntAsh,ntAsh) :: Ind_PUVX
-integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
-! Auxiliaries
-integer, dimension(nSym) :: off_Ash, off_PUVX, off_Orb
-integer iOrb, iStack, iSym, jSym, jAsh, ijSym, kSym, kAsh, lSym, lAsh, klSym, kl_Orb_Pairs, iAsh, iIsh, iPUVX, iV, lMax, iX, iU, &
-        iP, iT, iO, jO, kO, lO, iIT, iIU, iTU, iIV, iIX, iVX, iTemp
+integer(kind=iwp) :: IndPUVX(ntBas,ntAsh,ntAsh,ntAsh), IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
+integer(kind=iwp) :: iAsh, iIsh, iIT, iIU, iIV, iIX, ijSym, iO, iOrb, iP, iPUVX, iStack, iSym, iT, iTemp, iTU, iU, iV, iVX, iX, &
+                     jAsh, jO, jSym, kAsh, kl_Orb_Pairs, klSym, kO, kSym, lAsh, lMax, lO, lSym, off_Ash(nSym), off_Orb(nSym), &
+                     off_PUVX(nSym)
 
 ! generate offsets
 
 ! Initialization
 IndTUVX(:,:,:,:) = 0
-Ind_PUVX(:,:,:,:) = 0
+IndPUVX(:,:,:,:) = 0
 
 off_Orb(1) = 0
 off_Ash(1) = 0
@@ -93,8 +91,8 @@ do iSym=1,nSym
                 jo = iU+Off_Ash(Jsym)
                 ko = iV+Off_Ash(ksym)
                 lo = iX+Off_Ash(lsym)
-                Ind_PUVX(io,jo,ko,lo) = iPUVX
-                Ind_PUVX(io,jo,lo,ko) = iPUVX
+                IndPUVX(io,jo,ko,lo) = iPUVX
+                IndPUVX(io,jo,lo,ko) = iPUVX
                 if ((iT > 0) .and. (iT <= iAsh)) then
                   iiT = iT+off_Ash(iSym)
                   iiU = iU+off_Ash(jSym)

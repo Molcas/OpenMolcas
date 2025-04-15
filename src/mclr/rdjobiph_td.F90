@@ -28,26 +28,22 @@ subroutine RdJobIph_td(CIVec)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: CMO, G2t, G2sq, G1t
-use MCLR_Data, only: nNA, nA
-use MCLR_Data, only: FnJob, LuJob
-use input_mclr, only: lRoots, iPT2, nRoots, ntIsh, ntITri, ntAsh, ntATri, ntASqr, ntBas, ntBTri, ntBSqr, nSym, State_Sym, ERASSCF, &
-                      Headerjp, iRoot, iSpin, iTOC, iTocIph, ntISqr, nCOnf, nActEl, nAsh, nBas, nDel, nElec3, nFro, nHole1, nIsh, &
-                      nOrb, nRS1, nRS2, nRS3, TitleJP, Weight
+use MCLR_Data, only: CMO, FnJob, G1t, G2sq, G2t, LuJob, nA, nNA
+use input_mclr, only: ERASSCF, Headerjp, iPT2, iRoot, iSpin, iTOC, iTocIph, lRoots, nActEl, nAsh, nBas, nCOnf, nDel, nElec3, nFro, &
+                      nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, ntATri, ntBas, ntBSqr, ntBTri, ntIsh, &
+                      ntISqr, ntITri, State_Sym, TitleJP, Weight
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8, allocatable :: CIVec(:,:)
+real(kind=wp), allocatable :: CIVec(:,:)
 #include "rasdim.fh"
-#include "SysDef.fh"
-real*8 rdum(1)
-character(len=1), allocatable :: TempTxt(:)
-real*8, allocatable :: Tmp2(:), G2tts(:), G2tta(:)
-integer kRoots, iDisk, Length, iSym, i, Iter, nAct, nAct2, nAct4, iS, jS, kS, lS, nG1, nG2, iB, jB, iDij, kB, lB, iDkl, iIJKL, &
-        iDij2, iDkl2, iIJKL2
-real*8 Temp, PotNuc0, Fact, Factij, Factkl, Fact2
+integer(kind=iwp) :: i, iB, iDij, iDij2, iDisk, iDkl, iDkl2, iIJKL, iIJKL2, iS, iSym, Iter, jB, jS, kB, kRoots, kS, lB, Length, &
+                     lS, nAct, nAct2, nAct4, nG1, nG2
+real(kind=wp) :: Fact, Fact2, Factij, Factkl, PotNuc0, rdum(1), Temp
+real(kind=wp), allocatable :: G2tta(:), G2tts(:), Tmp2(:)
+character, allocatable :: TempTxt(:)
 
 !----------------------------------------------------------------------*
 !     Save the ROOT input parameter                                    *

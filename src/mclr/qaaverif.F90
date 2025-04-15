@@ -20,15 +20,13 @@ subroutine QaaVerif(G2q,ng2,PUVX,NPUVX,IndTUVX)
 use MCLR_Data, only: nNA
 use input_mclr, only: ntAsh
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nG2, nPUVX
-real*8, dimension(nG2) :: G2q
-real*8, dimension(NPUVX) :: PUVX
-integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
-integer I, J, K, L, IJKL, lMax
-real*8 dQdX
+integer(kind=iwp) :: nG2, nPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
+real(kind=wp) :: G2q(nG2), PUVX(NPUVX)
+integer(kind=iwp) :: I, IJKL, J, K, L, lMax
+real(kind=wp) :: dQdX
 
 ijkl = 0
 dQdX = Zero

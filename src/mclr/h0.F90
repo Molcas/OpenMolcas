@@ -12,31 +12,26 @@
 !***********************************************************************
 
 subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
-! frontend to jeppes explicit routines
+! frontend to Jeppe's explicit routines
 
 use iso_c_binding, only: c_f_pointer, c_loc
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: H0S, H0F, SBIDT
-use MCLR_Data, only: Int2, FIMO
-use MCLR_Data, only: nGP
-use MCLR_Data, only: iRefSM, IDC, PSSIGN
-use MCLR_Data, only: NAELCI, NBELCI, XISPSM
-use MCLR_Data, only: NACOB, NOCOB
-use MCLR_Data, only: NTYP, NCPCNT, NDPCNT
+use MCLR_Data, only: FIMO, H0F, H0S, IDC, Int2, iRefSM, NACOB, NAELCI, NBELCI, NCPCNT, NDPCNT, nGP, NOCOB, NTYP, PSSIGN, SBIDT, &
+                     XISPSM
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 rdia(*)
-integer MP1, MP2, MQ, iSym, nprciv
-logical TimeDep
-integer iSpc, nDet, nSBDet, MXP, LH0T, MxCSFC, MxDTFC, nActEl, lH0SCR, ieaw, i, iRC, lVec2
-real*8, external :: E2, E2_TD
-real*8 ENA
-real*8, allocatable :: H0T(:), Vec2(:)
-real*8, allocatable, target :: H0Scr(:)
-integer, pointer :: iH0Scr(:)
-integer, allocatable :: SBCNF(:)
+real(kind=wp) :: rdia(*)
+integer(kind=iwp) :: MP1, MP2, MQ, iSym, nprciv
+logical(kind=iwp) :: TimeDep
+integer(kind=iwp) :: i, ieaw, iRC, iSpc, lH0SCR, LH0T, lVec2, MxCSFC, MxDTFC, MXP, nActEl, nDet, nSBDet
+real(kind=wp) :: ENA
+integer(kind=iwp), pointer :: iH0Scr(:)
+integer(kind=iwp), allocatable :: SBCNF(:)
+real(kind=wp), allocatable :: H0T(:), Vec2(:)
+real(kind=wp), allocatable, target :: H0Scr(:)
+real(kind=wp), external :: E2, E2_TD
 
 ispc = 1
 NDET = nint(XISPSM(ISYM,ISPC))

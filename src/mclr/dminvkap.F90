@@ -29,15 +29,16 @@ subroutine DMInvKap(rMFact,rIn,rOut,rtemp,isym,iter)
 use iso_c_binding, only: c_f_pointer, c_loc
 use Symmetry_Info, only: Mul
 use Spool, only: LuWr
-use MCLR_Data, only: SA
-use MCLR_Data, only: ipMat, nDensC, nDens
-use input_mclr, only: nSym, PT2, nAsh, nIsh, nOrb, nRs1, nRs2, nRs3
+use MCLR_Data, only: ipMat, nDens, nDensC, SA
+use input_mclr, only: nAsh, nIsh, nOrb, nRs1, nRs2, nRs3, nSym, PT2
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iSym, iter
-real*8 rOut(nDensC), rMFact(*), rIn(nDensC), rtemp(nDens)
+real(kind=wp) :: rMFact(*), rIn(nDensC), rOut(nDensC), rtemp(nDens)
+integer(kind=iwp) :: iSym, iter
+integer(kind=iwp) :: ip1, ip2, iRC, iS, nd
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -49,16 +50,15 @@ contains
 
 subroutine DMInvKap_Internal(rMFact)
 
-  real*8, target :: rMFact(*)
-  integer, pointer :: iMFact(:)
-  integer ip1, iS, jS, ii, nd, ip2, iRC
-  real*8, external :: DDot_
+  real(kind=wp), target :: rMFact(*)
+  integer(kind=iwp), pointer :: iMFact(:)
+  integer(kind=iwp) :: ii, jS
 
   ip1 = 1
 
   if (doDMRG) then  ! yma
-    call dmrg_spc_change_mclr(RGras2(1:8),nash)
-    call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+    nash(:) = RGras2(:)
+    nrs2(:) = RGras2(:)
   end if
 
   call Uncompress2(rIn,rtemp,isym)
@@ -132,7 +132,7 @@ subroutine DMInvKap_Internal(rMFact)
   !                                                                    *
   call Compress2(rtemp,rOut,isym)
 
-  if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)
+  if (doDMRG) nash(:) = LRras2(:)
   !                                                                    *
   !*********************************************************************
   !                                                                    *

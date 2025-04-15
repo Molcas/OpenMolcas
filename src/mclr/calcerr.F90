@@ -23,21 +23,19 @@ subroutine calcerr(kappa,iestate)
 !---------------------------------------------------
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: ipMat, nDens
-use MCLR_Data, only: ISTATE
-use input_mclr, only: nSym, nBas, ntAsh
+use MCLR_Data, only: ipMat, ISTATE, nDens
+use input_mclr, only: nBas, ntAsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 kappa(*)
-integer ieState
-#include "SysDef.fh"
-real*8, allocatable :: G1q(:), G1r(:), G2r(:), T(:), Q(:)
-integer iS, nG1
-real*8 dejdw
-real*8, external :: DDot_
+real(kind=wp) :: kappa(*)
+integer(kind=iwp) :: ieState
+integer(kind=iwp) :: iS, nG1
+real(kind=wp) :: dejdw
+real(kind=wp), allocatable :: G1q(:), G1r(:), G2r(:), Q(:), T(:)
+real(kind=wp), external :: DDot_
 
 ng1 = nTri_Elem(ntash)
 

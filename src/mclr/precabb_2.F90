@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precabb_2(ib,is,js,nd,no,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,sign)
+subroutine Precabb_2(ib,is,js,nd,no,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,Sgn)
 !***********************************************************************
 !                                        [2]
 !   Calculates the diagonal submatrix of E    that couple
@@ -34,21 +34,16 @@ subroutine Precabb_2(ib,is,js,nd,no,rout,Temp1,ntemp,Scr,Temp2,fockti,focki,sign
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: G1t, G2t
-use MCLR_Data, only: nA, nB
-use input_mclr, only: nSym, nAsh, nIsh, nOrb
+use MCLR_Data, only: G1t, G2t, nA, nB
+use input_mclr, only: nAsh, nIsh, nOrb, nSym
 use Constants, only: Zero, Two, Four
+use Definitions, only: wp, iwp
 
 implicit none
-integer ib, is, js, nd, no
-real*8 rout(*)
-integer nTemp
-real*8 Temp1(no,no), Temp2(nO,nO), Scr(nTemp)
-real*8 Fockti
-real*8 Focki(no,no)
-real*8 Sign
-integer iib, jVert, ip, kS, kBB, kkB, kkC, ijkl, lB, jB, ii, kCC
-real*8 rf, rDens1, rDens2, Rho
+integer(kind=iwp) :: ib, is, js, nd, no, nTemp
+real(kind=wp) :: rout(*), Temp1(no,no), Scr(nTemp), Temp2(nO,nO), Fockti, Focki(no,no), Sgn
+integer(kind=iwp) :: ii, iib, ijkl, ip, jB, jVert, kBB, kCC, kkB, kkC, kS, lB
+real(kind=wp) :: rDens1, rDens2, rf, Rho
 
 !                                                                      *
 !***********************************************************************
@@ -57,7 +52,7 @@ iib = ib+nA(is)
 jVert = nOrb(js)-nAsh(js)-nIsh(js)
 if (jvert == 0) return
 
-rF = sign*Fockti
+rF = Sgn*Fockti
 Temp2(:,:) = Zero
 
 do kS=1,nSym
@@ -70,7 +65,7 @@ do kS=1,nSym
         if ((kBB > nish(ks)) .and. (kCC > nish(ks))) then
           kkB = kBB+nA(ks)-nish(ks)
           kkC = kCC+nA(ks)-Nish(ks)
-          rDens1 = sign*Two*G2t(iTri(nTri_Elem(iib),iTri(kkb,kkc)))
+          rDens1 = Sgn*Two*G2t(iTri(nTri_Elem(iib),iTri(kkb,kkc)))
 
           if (kbb /= kcc) rdens1 = rdens1*Two
 
@@ -92,7 +87,7 @@ do Ks=1,nsym
         kkb = nA(ks)+jb-nish(ks)
         call EXCH(js,ks,js,ks,jb,lb,Temp1,Scr)
         if ((LB > nISH(ks)) .and. (jb > nish(ks))) then
-          rDens2 = sign*Four*G2t(iTri(iTri(iib,kkc),iTri(kkb,iib)))
+          rDens2 = Sgn*Four*G2t(iTri(iTri(iib,kkc),iTri(kkb,iib)))
           Temp2(:,:) = Temp2(:,:)+rDens2*Temp1(:,:)
         end if
       end do
@@ -101,7 +96,7 @@ do Ks=1,nsym
 end do
 
 ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
-rho = sign*Two*G1t(nTri_Elem(iib))
+rho = Sgn*Two*G1t(nTri_Elem(iib))
 do iI=nAsh(js)+nIsh(js)+1,nOrb(js)
   rOut(ip) = rout(ip)-Two*rF+Rho*FockI(iI,ii)+Temp2(ii,ii)
   rOut(ip+1:ip+nOrb(jS)-iI) = Rho*FockI(iI,iI+1:nOrb(jS))+Temp2(iI,iI+1:nOrb(jS))

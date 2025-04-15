@@ -50,25 +50,21 @@ subroutine ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,JOBSM,JOBTP,JOBOFF,NJOB,IJO
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-!.Input
-integer IEL1(*), IEL3(*), I2EL1(*), I2EL3(*)
-integer ISSO(NOCTP,*)
-integer I2SSO(N2OCTP,*), N2SSO(N2OCTP,*)
-integer I2MAPO(*), I2MAPS(*)
-integer I1MAPO(*), I1MAPS(*)
-integer I2MPL(*), I2MPO(*)
-!eaw
-integer I1mpo(*), i1mpl(*)
-!eaw
-!.Output
-integer I1(NKDIM,*)
-dimension XI1S(NKDIM,*)
-logical Skip
+implicit none
+integer(kind=iwp) :: NK, IOBSM, IOBTP, IOBOFF, NIOB, JOBSM, JOBTP, JOBOFF, NJOB, IJORD, NKDIM, ICLS, ISM, I2MAPO(*),I2MAPS(*), &
+                     I2MPF, L2MP, I2MPO(*), I2MPL(*), I1MAPO(*), I1MAPS(*), I1MPF, L1MP, I1MPO(*), I1MPL(*), IEL1(*), IEL3(*), &
+                     I2EL1(*), I2EL3(*), NOCTP, ISSO(NOCTP,*), N2OCTP, I2SSO(N2OCTP,*), N2SSO(N2OCTP,*), NORB, KMAX, KMIN, IEND
+integer(kind=iwp) :: I1(NKDIM,*)
+real(kind=wp) :: XI1S(NKDIM,*)
+integer(kind=iwp) :: i, IFST, IIORB, ij, IJOFF, IKSM, IMIN, IOFF, iorb, ISTR, J, JJORB, JKSM, JKSTR, JORB, KEL1, KEL3, KEND, &
+                     KKTYPE, KOFF, KSM, KSTR, KTYPE, NIJ
+real(kind=wp) :: SGN
+logical(kind=iwp) :: Skip
 
 NIJ = 0 ! dummy initialize
 #ifdef _DEBUGPRINT_
@@ -190,10 +186,10 @@ if (.not. Skip) then
       end if
       if (JKSTR == 0) cycle
       if (JKSTR > 0) then
-        SIGN = One
+        SGN = One
       else
         JKSTR = -JKSTR
-        SIGN = -One
+        SGN = -One
       end if
       ! N-1 => N
       do i=imin,niob
@@ -212,10 +208,10 @@ if (.not. Skip) then
         ! Synthesis
         if (ISTR > 0) then
           I1(KSTR-KOFF-KMIN+2,IJ) = ISTR-IOFF+1
-          XI1S(KSTR-KOFF-KMIN+2,IJ) = SIGN
+          XI1S(KSTR-KOFF-KMIN+2,IJ) = SGN
         else
           I1(KSTR-KOFF-KMIN+2,IJ) = -ISTR-IOFF+1
-          XI1S(KSTR-KOFF-KMIN+2,IJ) = -SIGN
+          XI1S(KSTR-KOFF-KMIN+2,IJ) = -SGN
         end if
       end do
 

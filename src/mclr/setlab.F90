@@ -13,15 +13,17 @@
 
 subroutine SetLab(label,j)
 
-implicit real*8(a-h,o-z)
-character*(*) Label
-logical no
+use Definitions, only: iwp
 
-no = .true.
+implicit none
+integer(kind=iwp) :: j
+character(len=*) :: Label
+integer(kind=iwp) :: i
+
 do i=1,len(label)
-  if (no .and. (label(i:i) == ' ')) then
+  if (label(i:i) == ' ') then
     write(Label(i:i),'(I1)') j
-    no = .false.
+    exit
   end if
 end do
 

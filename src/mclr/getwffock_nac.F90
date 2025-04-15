@@ -21,35 +21,22 @@ subroutine GetWFFock_NAC(FOccMO,bk,R,nTri,P2MOt,NG2)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use MCLR_Data, only: nDens, nConf1, ipCI, nNA
-use MCLR_Data, only: NACSTATES
-use MCLR_Data, only: LuJob
-use MCLR_Data, only: XISPSM
-use input_mclr, only: nRoots, ntAsh, State_Sym, iTOC, nCSF
+use MCLR_Data, only: ipCI, LuJob, NACSTATES, nConf1, nDens, nNA, XISPSM
+use input_mclr, only: iTOC, nCSF, nRoots, ntAsh, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
+use Definitions, only: wp, iwp
 
 implicit none
-! Input
-real*8, dimension(nRoots,nRoots) :: R
-integer nTri, NG2
-! Output
-real*8, dimension(nDens) :: FOccMO
-real*8, dimension(nDens) :: bk
-real*8, dimension(nG2) :: P2MOt
-! Auxiliaries
-real*8, dimension(:), allocatable :: FinCI
+integer(kind=iwp) :: nTri, NG2
+real(kind=wp) :: FOccMO(nDens), bk(nDens), R(nRoots,nRoots), P2MOt(nG2)
+integer(kind=iwp) :: I, iB, iDij, iDkl, iIJKL, IJ, IJ2, IJKL, ijkl2, iRC, iRij, iRijkl, iRkl, J, jB, jDisk, K, kB, KL, KL2, lB, &
+                     LuDens, nConfL, nConfR, NCSFs, nG1
+real(kind=wp) :: Fact, factor, rdum(1)
+real(kind=wp), allocatable :: CIL(:), CIR(:), D5(:), D6(:), FinCI(:), Fock(:), G1m(:), G1q(:), G1qs(:,:), G1r(:), G2q(:), &
+                              G2qs(:,:), G2r(:), G2rt(:), T(:)
+
 ! FinCI: CI Vectors in final CMS state basis
-real*8, dimension(1) :: rdum
-real*8, dimension(:), allocatable :: Fock, T, G1r, G2r, G2rt, CIL, CIR, G1q, G2q, G1m
-real*8, dimension(:,:), allocatable :: G1qs, G2qs
-real*8, dimension(:), allocatable :: D5, D6
-integer I, J, K, NCSFs
-real*8 Fact
-integer iB, jB, kB, lB, iDkl, iRijkl
-integer IJ, KL, IJKL, IJ2, KL2
-real*8 factor
-integer nG1, nConfL, nConfR, ijkl2, iRC, LuDens, iDij, iRij, iRkl, iIJKL, jDisk
 
 !                                                                      *
 !***********************************************************************

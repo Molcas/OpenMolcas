@@ -14,13 +14,17 @@ subroutine TODSC_MCLR(A,NDIM,MBLOCK,IFIL)
 ! RECORDS WITH LENGTH NBLOCK.
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension A(1)
-integer START, stop, IDUM(1)
+implicit none
+integer(kind=iwp) :: NDIM, MBLOCK, IFIL
+real(kind=wp) :: A(NDIM)
+integer(kind=iwp) :: I, IDUM(1), IMZERO, ISTOP, MMBLOCK, NBACK, NBLOCK, NLABEL, NTRANS, START
+real(kind=wp) :: XNORM
+real(kind=wp), external :: ddot_
+integer(kind=iwp), parameter :: ICRAY = 1, IPACK = 1
 
 !write(u6,*) ' entering TODSC'
-IPACK = 1
 if (IPACK /= 0) then
   ! Check norm of A before writing
   XNORM = ddot_(nDim,A,1,A,1)
@@ -38,12 +42,11 @@ if (IPACK /= 0) then
   if (IMZERO == 1) return
 end if
 
-ICRAY = 1
 if ((MBLOCK >= 0) .or. (ICRAY == 1)) then
 
   NBLOCK = MBLOCK
   if (MBLOCK <= 0) NBLOCK = NDIM
-  stop = 0
+  ISTOP = 0
   NBACK = NDIM
   ! LOOP OVER RECORDS
   do
@@ -54,10 +57,10 @@ if ((MBLOCK >= 0) .or. (ICRAY == 1)) then
       NTRANS = NBLOCK
       NLABEL = NTRANS
     end if
-    START = stop+1
-    stop = START+NBLOCK-1
+    START = ISTOP+1
+    ISTOP = START+NBLOCK-1
     NBACK = NBACK-NTRANS
-    write(IFIL) (A(I),I=START,stop),NLABEL
+    write(IFIL) (A(I),I=START,ISTOP),NLABEL
     if (NBACK == 0) exit
   end do
 end if

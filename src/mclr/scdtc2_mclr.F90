@@ -22,15 +22,18 @@ subroutine SCDTC2_MCLR(RASVEC,ISM,ICBLTP,NSM,NOCTPA,NOCTPB,NSASO,NSBSO,IOCOC,IDC
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-dimension RASVEC(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
-dimension IOCOC(NOCTPA,NOCTPB)
-dimension ICBLTP(*), IMMLST(*)
-real*8, parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)
+implicit none
+real(kind=wp) :: RASVEC(*)
+integer(kind=iwp) :: ISM, ICBLTP(*), NSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), IOCOC(NOCTPA,NOCTPB), IDC, IWAY, &
+                     IMMLST(*)
+integer(kind=iwp) :: IASM, IATP, IBASE, IBSM, IBTP, IBTPMX, NELMNT, NIA, NIB
+real(kind=wp) :: FACTOR
+real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Information from SCDTC2'

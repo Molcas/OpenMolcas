@@ -56,23 +56,20 @@ subroutine GSBBD2A_MCLR(RHO2,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,I
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-! General input
-integer NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*)
-! Input
-integer ISEL(NGAS), ICEL(NGAS)
-dimension CB(*), SB(*)
-! Output
-dimension RHO2(*), X(*)
-! Scatch
-dimension SSCR(*), CSCR(*)
-dimension I1(MAXK,*), XI1S(MAXK,*)
-! Local arrays
-dimension ITP(3*3), JTP(3*3), KTP(3*3), LTP(3*3)
+implicit none
+integer(kind=iwp) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPNGAS, NOBPTS(MXPNGAS,*), &
+                     IOBPTS(MXPNGAS,*), MAXI, MAXK, I1(MAXK,*), NSM
+real(kind=wp) :: RHO2(*), SB(*), CB(*), SSCR(*), CSCR(*), XI1S(MAXK,*), X(*)
+integer(kind=iwp) :: I, IBOT, IDXSM, IDXTP, IFIRST, IIK, IIKE, IJL, IJLE, IKBOFF, IKOBSM, IKOFF, IKSM, IOFF, IPART, ISM, ITOP, &
+                     ITP(3*3), ITYP, J, JLBOFF, JLOBSM, JLOFF, JLSM, JOFF, JSM, JTP(3*3), JTYP, K, KBOT, KEND, KOFF, KSM, KTOP, &
+                     KTP(3*3), KTYP, L, LDUMMY, LOFF, LSM, LTP(3*3), LTYP, NDXTP, NI, NIBTC, NIK, NJ, NJL, NK, NKBTC, nkStref, NL, &
+                     NONEW, NPART
+real(kind=wp) :: FACTOR
 
 ! Type of single excitations that connects the two column strings
 call DXTYP_GAS(NDXTP,ITP,JTP,KTP,LTP,3,ISEL,ICEL)

@@ -12,19 +12,18 @@
 subroutine RdDens(d1,nd1,d2,nd2)
 
 use Index_Functions, only: iTri
+use MCLR_Data, only: LuJob
+use input_mclr, only: iRoot, iTOC, lRoots, nRoots, ntAsh, ntAsh, Weight
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use MCLR_Data, only: LuJob
-use input_mclr, only: lRoots, nRoots, ntAsh, iRoot, iTOC, ntAsh, Weight
+use Definitions, only: wp, iwp
 
 implicit none
-integer nd1, nd2
-real*8 D1(nd1), d2(nd2)
-#include "SysDef.fh"
-real*8 rdum(1)
-real*8, allocatable :: G2tt(:), D2t(:), D1t(:)
-integer jDisk, i, j, iB, jB, iDij, kB, lB, iDkl, iIJKL
-real*8 W, Fact
+integer(kind=iwp) :: nd1, nd2
+real(kind=wp) :: D1(nd1), d2(nd2)
+real(kind=wp) :: Fact, rdum(1), W
+integer(kind=iwp) :: i, iB, iDij, iDkl, iIJKL, j, jB, jDisk, kB, lB
+real(kind=wp), allocatable :: D1t(:), D2t(:), G2tt(:)
 
 !                                                                      *
 !***********************************************************************

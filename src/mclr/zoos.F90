@@ -42,17 +42,15 @@ subroutine ZOOS(ISM,IBLTP,MAXSYM,IOCOC,NSSOA,NSSOB,NOCTPA,NOCTPB,IDC,IOOS,NOOS,N
 !    END OF LOOPS
 
 use Symmetry_Info, only: Mul
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-! Input
-dimension IOCOC(NOCTPA,NOCTPB)
-dimension NSSOA(MAXSYM,NOCTPA), NSSOB(MAXSYM,NOCTPB)
-dimension IBLTP(*)
-! output
-dimension IOOS(NOCTPA,NOCTPB,MAXSYM)
-dimension NOOS(NOCTPA,NOCTPB,MAXSYM)
+implicit none
+integer(kind=iwp) :: ISM, IBLTP(*), MAXSYM, NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSSOA(MAXSYM,NOCTPA), NSSOB(MAXSYM,NOCTPB), IDC, &
+                     IOOS(NOCTPA,NOCTPB,MAXSYM), NOOS(NOCTPA,NOCTPB,MAXSYM), NCOMB, IXPND
+integer(kind=iwp) :: IAOCC, IASYM, IBOCC, IBSYM, IREST1, MXBOCC
 
 IOOS(:,:,:) = 0
 NOOS(:,:,:) = 0

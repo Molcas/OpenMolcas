@@ -9,13 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function GTH1ES_MCLR(IREOTS,IPNT,H,IBSO,IBTSOB,IORB,ITP,ISM,JORB,JTP,JSM)
-! ireots
-! ipnt
-! H
-! ibso
-! ibtsob
-!
+function GTH1ES_MCLR(IORB,ITP,ISM,JORB,JTP,JSM)
 ! This is a fantastic solution of the problem hehehehe!!
 !  EAW
 !
@@ -23,25 +17,22 @@ real*8 function GTH1ES_MCLR(IREOTS,IPNT,H,IBSO,IBTSOB,IORB,ITP,ISM,JORB,JTP,JSM)
 !
 ! correct combination of row and column symmetry is assumed
 
+use MCLR_Data, only: IBsO, IBTSOB, IREOTS, KAIN1, pInt1
 use input_mclr, only: nIsh, nOrb
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IREOTS(*), IPNT(*)
-integer IBSO(*)
-real*8 H(*)
-integer IBTSOB(3,*)
-integer IORB, ITP, ISM, JORB, JTP, JSM
-! Local variables
-integer IABS, IREO, JABS, JREO, I1, J1, IJ
+implicit none
+real(kind=wp) :: GTH1ES_MCLR
+integer(kind=iwp) :: IORB, ITP, ISM, JORB, JTP, JSM
+integer(kind=iwp) :: I1, I_ABS, IJ, IREO, J1, J_ABS, JREO
 
-IABS = IORB+IBTSOB(ITP,ISM)-1
-IREO = IREOTS(IABS)
-JABS = JORB+IBTSOB(JTP,JSM)-1
-JREO = IREOTS(JABS)
+I_ABS = IORB+IBTSOB(ITP,ISM)-1
+IREO = IREOTS(I_ABS)
+J_ABS = JORB+IBTSOB(JTP,JSM)-1
+JREO = IREOTS(J_ABS)
 I1 = IREO-IBSO(ISM)+1+nISH(ISM)
 J1 = JREO-IBSO(JSM)+1+nISH(jSM)
-IJ = IPNT(ISM)-1+(J1-1)*NORB(ISM)+I1
-GTH1ES_MCLR = H(IJ)
+IJ = pInt1(ISM)-1+(J1-1)*NORB(ISM)+I1
+GTH1ES_MCLR = KAIN1(IJ)
 
 end function GTH1ES_MCLR

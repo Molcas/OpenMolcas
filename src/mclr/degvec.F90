@@ -30,18 +30,17 @@ subroutine DEGVEC(VEC,NDIM,NDGVL,IDEG)
 !
 ! Jeppe Olsen, April 1990
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension VEC(*)
-! Output
-dimension IDEG(*)
-! Threshold for defining degenerency
-real*8, parameter :: THRES = 1.0e-8_wp
+implicit none
+real(kind=wp) :: VEC(*)
+integer(kind=iwp) :: NDIM, NDGVL, IDEG(*)
+integer(kind=iwp) :: I, NDEG
+real(kind=wp) :: XDGVL
+real(kind=wp), parameter :: THRES = 1.0e-8_wp
 
 !? write(u6,*) ' Input vector to DEGVEC'
 !? call wrtmat(VEC,1,NDIM,1,NDIM)

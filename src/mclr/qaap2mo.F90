@@ -22,17 +22,14 @@ use MCLR_Data, only: nNA
 use input_mclr, only: nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two, Half, Quart
+use Definitions, only: wp, iwp
 
 implicit none
-! Input
-integer nG2, IKL, IKK, ILL
-real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-! Output
-real*8, dimension(nG2) :: G2q
-! Auxiliaries
-integer i, j, k, l, ij, kl, ijkl, nD, lMax
-real*8 Fact
-real*8, dimension(:), allocatable :: Dsum, Ddif
+integer(kind=iwp) :: nG2, IKL, IKK, ILL
+real(kind=wp) :: G2q(nG2), GDMat(nTri_Elem(nRoots),nnA,nnA)
+integer(kind=iwp) :: i, ij, ijkl, j, k, kl, l, lMax, nD
+real(kind=wp) :: Fact
+real(kind=wp), allocatable :: Ddif(:), Dsum(:)
 
 ! Calculating dQ_aa/dX_KL, original purpose of this subroutine
 nD = nTri_Elem(nnA)

@@ -49,22 +49,19 @@ subroutine ADS1(NK,I1,XI1S,LI1,IORB,LORB,ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMA
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-! Input
-integer IEL1(*), IEL3(*), I1EL1(*), I1EL3(*)
-integer ISSO(NOCTP,*)
-integer I1SSO(N1OCTP,*), N1SSO(N1OCTP,*)
-integer ORBSM(*)
-integer IMAPO(*), IMAPS(*)
-integer IMPL(*), IMPO(*)
-! Output
-integer I1(*)
-dimension XI1S(*)
-logical Skip
+implicit none
+integer(kind=iwp) :: NK, LI1, IORB, LORB, ICLS, ISM, IMAPO(*), IMAPS(*), IMPL(*), IMPO(*), IMPF, LMAP, IEL1(*), IEL3(*), I1EL1(*), &
+                     I1EL3(*), NOCTP, ISSO(NOCTP,*), N1OCTP, I1SSO(N1OCTP,*), N1SSO(N1OCTP,*), NORB1, NORB2, ORBSM(*), KMAX, KMIN, &
+                     IEND
+integer(kind=iwp) :: I1(*)
+real(kind=wp) :: XI1S(*)
+integer(kind=iwp) :: IIIORB, IIORB, IOFF, IORBR, ISTR, KEL1, KEL3, KEND, KKTYPE, KOFF, KREL, KSM, KSTR, KSUB, KTYPE, LDIM
+logical(kind=iwp) :: Skip
 
 LDIM = 0 ! dummy initialize
 #ifdef _DEBUGPRINT_

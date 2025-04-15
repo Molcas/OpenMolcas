@@ -19,14 +19,15 @@ subroutine Compress(ArrayIn,ArrayOut,dsym)
 ! The redundant rotations are set to zero
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDens, nDensC, ipMat
-use input_mclr, only: nSym, nRs1, nRs2, nRs3, nOrb, nIsh, TimeDep
+use MCLR_Data, only: ipMat, nDens, nDensC
+use input_mclr, only: nIsh, nOrb, nRs1, nRs2, nRs3, nSym, TimeDep
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer dsym
-real*8 ArrayIn(nDens), ArrayOut(nDensC)
-integer indexC, isym, jsym, iBas, jBas, jT, iT, index1
+real(kind=wp) :: ArrayIn(nDens), ArrayOut(nDensC)
+integer(kind=iwp) :: dsym
+integer(kind=iwp) :: iBas, index1, indexC, isym, iT, jBas, jsym, jT
 
 indexC = 0
 ArrayOut(:) = Zero

@@ -16,12 +16,13 @@ use MCLR_Data, only: LuCIV, P1Inv
 use input_mclr, only: lRoots, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 rdia(*)
-real*8, allocatable :: TMP1(:), TMP2(:)
-integer i, j, iDisk, jDisk
-real*8, external :: DDot_
+real(kind=wp) :: rdia(*)
+integer(kind=iwp) :: i, iDisk, j, jDisk
+real(kind=wp), allocatable :: TMP1(:), TMP2(:)
+real(kind=wp), external :: DDot_
 
 call mma_allocate(TMP1,nconf,Label='TMP1')
 call mma_allocate(TMP2,nconf,Label='TMP2')

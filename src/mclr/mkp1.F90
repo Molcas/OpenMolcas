@@ -13,17 +13,17 @@ subroutine mkp1(nEX,lst,rMat,rdiag)
 
 use Index_Functions, only: iTri
 use MCLR_Data, only: LuCIV, P1
-use input_mclr, only: lRoots, nConf, ERASSCF
+use input_mclr, only: ERASSCF, lRoots, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer nEX
-integer lst(nex)
-real*8 rMat(*), rdiag(*)
-real*8, allocatable :: Tmp1(:), Tmp2(:)
-integer i, j, k, l, idisk, jDisk, kk
-real*8 rtmp
+integer(kind=iwp) :: nEX, lst(nex)
+real(kind=wp) :: rMat(*), rdiag(*)
+integer(kind=iwp) :: i, idisk, j, jDisk, k, kk, l
+real(kind=wp) :: rtmp
+real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 
 call mma_allocate(TMP1,nconf,Label='Tmp1')
 call mma_allocate(TMP2,nconf,Label='Tmp2')

@@ -22,18 +22,13 @@ subroutine INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB,NSM,IENSM,IENTA
 !
 ! Jeppe Olsen, Winter of 1991
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-! Input
-integer NOOS(NOCTPA,NOCTPB,NSM)
-integer IOCOC(NOCTPA,NOCTPB)
-! May 7
-integer IBLTP(*)
-! May 7
-! Output
-integer IACOOS(NOCTPA,NOCTPB,NSM)
-logical Skip
+implicit none
+integer(kind=iwp) :: IDC, IBLTP(*), NOCTPA, NOCTPB, NSM, NOOS(NOCTPA,NOCTPB,NSM), ISTSM, ISTTA, ISTTB, IENSM, IENTA, IENTB, &
+                     IACOOS(NOCTPA,NOCTPB,NSM), MXLNG, IFINI, NBLOCK, INCFST, IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp) :: IA, IB, IPA, IPB, IPSM, ISM, LBLOCK, LENGTH
+logical(kind=iwp) :: Skip
 
 #ifdef _DEBUGPRINT_
 write(u6,*)

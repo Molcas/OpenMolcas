@@ -25,23 +25,15 @@ subroutine CIDIA4(NAEL,IASTR,NBEL,IBSTR,NORB,DIAG,NSM,H,ISM,IBLTP,XB,RJ,RK,NSSOA
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! General input
-dimension NSSOA(NOCTPA,*), NSSOB(NOCTPB,*)
-dimension ISSOA(NOCTPA,*), ISSOB(NOCTPB,*)
-dimension IASTR(NAEL,*), IBSTR(NBEL,*)
-dimension H(NORB)
-! Specific input
-dimension IOCOC(NOCTPA,NOCTPB)
-dimension IBLTP(*)
-! Scratch
-dimension RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB)
-dimension XB(NORB)
-! Output
-dimension DIAG(*)
-dimension IDUM(1)
+implicit none
+integer(kind=iwp) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSM, ISM, IBLTP(*), NOCTPA, NSSOA(NOCTPA,*), NOCTPB, &
+                     NSSOB(NOCTPB,*), IOCOC(NOCTPA,NOCTPB), ISSOA(NOCTPA,*), ISSOB(NOCTPB,*), LUDIA, NTOOB, ICISTR
+real(kind=wp) :: DIAG(*), H(NORB), XB(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, PSSIGN
+integer(kind=iwp) :: IA, IAEL, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBREL, IBSM, IBSTOP, IBSTRT, IBTP, IDET, IDUM(1), IEL, &
+                     IREST1, ITDET, JEL, MXBTP
+real(kind=wp) :: EB, HB, RJBB, X1, X2, XADD
 
 if (PSSIGN == -One) then
   XADD = 1.0e6_wp

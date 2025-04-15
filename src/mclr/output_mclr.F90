@@ -18,11 +18,11 @@ subroutine OutPut_MCLR(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,
 ! Contracts the response coefficient to the hessian                    *
 !                                                                      *
 ! Input                                                                *
-!       iKapDisp : Disk locations of solutions to respons equation     *
-!       iSigDisp : Disk locations of RHS                               *
-!       iCIDisp  : Disk locations of CI Soulutions to response         *
+!       iKapDisp   : Disk locations of solutions to respons equation   *
+!       iSigDisp   : Disk locations of RHS                             *
+!       iCIDisp    : Disk locations of CI Soulutions to response       *
 !       iCISigDisp : Disk locations of RHS                             *
-!       nHess    : Length of hessian                                   *
+!       nHess      : Length of hessian                                 *
 !                                                                      *
 ! Output to disk                                                       *
 !                                                                      *
@@ -37,37 +37,30 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
-use MCLR_Data, only: Hss
-use MCLR_Data, only: nConf1, nDensC
-use MCLR_Data, only: nHess, lDisp
-use MCLR_Data, only: LuTEMP
-use MCLR_Data, only: XISPSM
-use input_mclr, only: nDisp, Debug, nSym, State_Sym, iMethod, McKinley, Coor, lCalc, nCSF, nTPert
+use MCLR_Data, only: Hss, lDisp, LuTEMP, nConf1, nDensC, nHess, XISPSM
+use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nSym, nTPert, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), iRHSCiDisp(nDisp)
-logical converged(8)
-character(len=8) Label
+integer(kind=iwp) :: iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), iRHSCiDisp(nDisp)
+logical(kind=iwp) :: converged(8)
+integer(kind=iwp) :: iDis, iDisk, iDisp, iDum, ielec(3), iLen, Indx, iOpt, ipCIP1, ipCIP2, ipRP1, ipRP2, ipSP, iRC, iSym, jDisp, &
+                     jSpin, kDisp, kSpin, kSym, ldisp2(8), Length, Lu_10, mSym, nConfm, nHss, Pstate_sym
+logical(kind=iwp) :: CI
+real(kind=wp) :: Fact, Pola(6), rTempC1, rTempC2, rTempC3, rTempK1, rTempK2, rTempK3
+character(len=8) :: Label
 #ifdef _DEBUGPRINT_
-character(len=20) Label2
-logical elec_On
-integer ip
+integer(kind=iwp) :: ip
+logical(kind=iwp) :: elec_On
+character(len=20) :: Label2
 #endif
-integer Pstate_sym, ldisp2(8), ielec(3)
-logical CI
-real*8 Pola(6)
-real*8, allocatable :: RHss(:)
-real*8, allocatable :: Kap1(:), Kap2(:), sKap(:), rKap1(:), rKap2(:)
-real*8, allocatable :: Hess(:), Hess2(:), Temp(:), ELEC(:), EG(:), ELOUT(:)
-integer, allocatable :: NrDisp(:), DegDisp(:)
-integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1, ipRP2, jDisp, jSpin, iDisk, Len, iLen, iDis, &
-        iRC, kDisp, kSpin, Index, iOpt, Lu_10
-real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
-real*8, external :: DDot_
-integer, external :: IsFreeUnit
+integer(kind=iwp), allocatable :: DegDisp(:), NrDisp(:)
+real(kind=wp), allocatable :: EG(:), ELEC(:), ELOUT(:), Hess(:), Hess2(:), Kap1(:), Kap2(:), RHss(:), rKap1(:), rKap2(:), sKap(:), &
+                              Temp(:)
+integer(kind=iwp), external :: IsFreeUnit
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
@@ -152,12 +145,12 @@ do iSym=1,nSym
     ! If disk address =/= -1 arrays on file.
 
     if (iDisk /= -1) then
-      Len = nDensC
-      call dDaFile(LuTemp,2,Kap1,Len,iDisk)
+      Length = nDensC
+      call dDaFile(LuTemp,2,Kap1,Length,iDisk)
       iDisk = iSigDisp(iDisp)
-      call dDaFile(LuTemp,2,SKap,Len,iDisk)
+      call dDaFile(LuTemp,2,SKap,Length,iDisk)
       iDisk = iRHSDisp(iDisp)
-      call dDaFile(LuTemp,2,rKap1,Len,iDisk)
+      call dDaFile(LuTemp,2,rKap1,Length,iDisk)
       SKap(:) = -SKap(:)-rKap1(:)
 
       !call Recprt('ORB-RHS',' ',rKap1,nDensC,1)
@@ -165,9 +158,9 @@ do iSym=1,nSym
       !write(u6,*) 'ddot orb-sigma',ddot_(nDensC,SKap,1,SKap,1)
       !write(u6,*) 'ddot orb-rhs',ddot_(nDensC,rKap1,1,rKap1,1)
 
-      call GADSum(Kap1,Len)
-      call GADSum(SKap,Len)
-      call GADSum(rKap1,Len)
+      call GADSum(Kap1,Length)
+      call GADSum(SKap,Length)
+      call GADSum(rKap1,Length)
 
       if (CI) then
         ilen = nconf1
@@ -195,13 +188,13 @@ do iSym=1,nSym
 
     else
 
-      Len = nDensC
-      Kap1(1:Len) = Zero
-      call GADSum(Kap1,Len)
-      sKap(1:Len) = Zero
-      call GADSum(SKap,Len)
-      rKap1(1:Len) = Zero
-      call GADSum(rKap1,Len)
+      Length = nDensC
+      Kap1(1:Length) = Zero
+      call GADSum(Kap1,Length)
+      sKap(1:Length) = Zero
+      call GADSum(SKap,Length)
+      rKap1(1:Length) = Zero
+      call GADSum(rKap1,Length)
 
       if (CI) then
 
@@ -242,14 +235,14 @@ do iSym=1,nSym
 
       iDisk = iKapDisp(kDisp+kSym)
       if (iDisk /= -1) then
-        Len = nDensC
-        call dDaFile(LuTemp,2,Kap2,Len,iDisk)
+        Length = nDensC
+        call dDaFile(LuTemp,2,Kap2,Length,iDisk)
         iDisk = iRHSDisp(kDisp+kSym)
-        call dDaFile(LuTemp,2,rKap2,Len,iDisk)
+        call dDaFile(LuTemp,2,rKap2,Length,iDisk)
 
         call GASync()
-        call GADSum(Kap2,Len)
-        call GADSum(rKap2,Len)
+        call GADSum(Kap2,Length)
+        call GADSum(rKap2,Length)
 
         if (CI) then
           ilen = nconf1
@@ -273,11 +266,11 @@ do iSym=1,nSym
       else
 
         call GASync()
-        Len = nDensC
-        Kap2(1:Len) = Zero
-        call GADSum(Kap2,Len)
-        rKap2(1:Len) = Zero
-        call GADSum(rKap2,Len)
+        Length = nDensC
+        Kap2(1:Length) = Zero
+        call GADSum(Kap2,Length)
+        rKap2(1:Length) = Zero
+        call GADSum(rKap2,Length)
         if (CI) then
           ilen = nconf1
           call GASync()   ! <----------------- NOTE!
@@ -327,9 +320,9 @@ do iSym=1,nSym
       !write(u6,*) rTempk1,rtempk2,rtempk3
       !write(u6,*) rtempc1,rtempc2,rtempc3
 
-      index = mSym+iTri(kDisp,jDisp)
+      Indx = mSym+iTri(kDisp,jDisp)
 
-      Rhss(Index) = Rhss(Index)+rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3
+      Rhss(Indx) = Rhss(Indx)+rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3
 
     end do
 

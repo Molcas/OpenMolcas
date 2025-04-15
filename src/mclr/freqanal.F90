@@ -12,26 +12,21 @@
 subroutine Freqanal(nDeg,nrvec,H,converged,ELEC,iel,elout,ldisp,Lu_10)
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: nSym, nDisp, nUserPT, nSRot, UserP, ChIrr, UserT
+use input_mclr, only: ChIrr, nDisp, nSRot, nSym, nUserPT, UserP, UserT
 use temperatures, only: DefTemp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nDeg(*), nrvec(*)
-real*8 H(*)
-logical converged(8)
-real*8 elec(*)
-integer iel(3)
-real*8 elout(*)
-integer ldisp(nsym), Lu_10
-! local variables
-logical Do_Molden
-real*8, allocatable :: NMod(:), EVec(:), EVec2(:,:), EVal(:), EVal2(:), Intens(:), RedMas(:), Tmp3(:), Temp(:)
-integer ipNx, nModes, lModes, i1, i3, j, ii, lnm_molpac, iSym, nx, iCtl, ll, kk, i, k, iT, jpNx, ix, jx, nEig, iNeg
-integer, external :: IsFreeUnit
-real*8 Tmp, Fact, rNorm
+integer(kind=iwp) :: nDeg(*), nrvec(*), iel(3), ldisp(nsym), Lu_10
+real(kind=wp) :: H(*), elec(*), elout(*)
+logical(kind=iwp) :: converged(8)
+integer(kind=iwp) :: i, i1, i3, iCtl, ii, iNeg, ipNx, iSym, iT, ix, j, jpNx, jx, k, kk, ll, lModes, lnm_molpac, nEig, nModes, nx
+real(kind=wp) :: Fact, rNorm, Tmp
+logical(kind=iwp) :: Do_Molden
+real(kind=wp), allocatable :: EVal(:), EVal2(:), EVec(:), EVec2(:,:), Intens(:), NMod(:), RedMas(:), Temp(:), Tmp3(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 call mma_allocate(NMod,nDisp**2,Label='NMod')
 call mma_allocate(EVec,nDisp**2,Label='EVec')

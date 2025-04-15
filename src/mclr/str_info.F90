@@ -32,6 +32,7 @@ private
 ! STSTMI : Explicit offsets and lengths
 ! STSTMN :           "
 ! STSTM  : ?
+
 type String_Info
   integer(kind=iwp), pointer :: OCSTR(:) => null(), STREO(:) => null(), STSM(:) => null(), STCL(:) => null(), NSTSO(:) => null(), &
                                 ISTSO(:) => null(), EL1(:) => null(), EL3(:) => null(), Z(:) => null(), EL123(:) => null(), &

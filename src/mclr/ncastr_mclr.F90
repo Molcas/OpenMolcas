@@ -16,10 +16,12 @@ function NCASTR_MCLR(IAC,NSTTPI,NTPSTI,ICLSI,NOBATP,NOBTP,IELPTP)
 !
 ! Jeppe Olsen, June 1994
 
-implicit real*8(A-H,O-Z)
-integer NSTTPI(NTPSTI)
-integer NOBATP(NOBTP)
-integer IELPTP(NOBTP,*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NCASTR_MCLR
+integer(kind=iwp) :: IAC, NTPSTI,  NSTTPI(NTPSTI), ICLSI, NOBTP, NOBATP(NOBTP), IELPTP(NOBTP,*)
+integer(kind=iwp) :: ICLSO, IOBTP, ISTTP, ITPO, LCA, NENTRY
 
 LCA = 0
 !write(u6,*) ' NCASTR: IELPTP array'

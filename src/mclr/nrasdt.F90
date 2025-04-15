@@ -19,7 +19,7 @@ subroutine NRASDT(MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,NSM,NOCTPA,NOCTPB,IEL1A,IEL1B,N
 !       MNRS3 - MXRS3 elecs in RAS3
 !
 ! In view of the limited range of I*4, the number of dets
-! is returned as integer and  real*8
+! is returned as integer and real(kind=wp)
 !
 ! MXSB is largest UNPACKED symmetry block
 ! MXSOOB is largest UNPACKED symmetry-type-type block
@@ -29,22 +29,16 @@ subroutine NRASDT(MNRS1,MXRS1,MNRS3,MXRS3,ITOTSM,NSM,NOCTPA,NOCTPB,IEL1A,IEL1B,N
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Half
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer MNRS1, MXRS1, MNRS3, MXRS3, ITOTSM, NSM, NOCTPA, NOCTPB
-integer IEL1A(*), IEL1B(*)
-integer NSSOA(NOCTPA,*), NSSOB(NOCTPB,*)
-integer IEL3A(*), IEL3B(*)
-integer NCOMB
-real*8 XNCOMB
-integer MXSB, MXSOOB
-integer IBLTP(*)
-! local variables
-integer IASM, LSB, IBSM, ISYM, IATP, MXBTP, IBTP, IEL1, IEL3, LTTSBL, LTTSUP
+integer(kind=iwp) :: MNRS1, MXRS1, MNRS3, MXRS3, ITOTSM, NSM, NOCTPA, NOCTPB, IEL1A(*), IEL1B(*), NSSOA(NOCTPA,*), &
+                     NSSOB(NOCTPB,*), IEL3A(*), IEL3B(*), NCOMB, MXSB, MXSOOB, IBLTP(*)
+real(kind=wp) :: XNCOMB
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IEL1, IEL3, ISYM, LSB, LTTSBL, LTTSUP, MXBTP
 
 MXSB = 0
 MXSOOB = 0

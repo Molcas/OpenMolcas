@@ -14,21 +14,19 @@
 subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
-use MCLR_Data, only: nConf1, n2Dens, nDens
-use input_mclr, only: nRoots, nAsh, nRS2, Weight
+use MCLR_Data, only: n2Dens, nConf1, nDens
+use input_mclr, only: nAsh, nRoots, nRS2, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Kap(*)
-integer ipCId, isym, jspin, ipS2, ipCiOut
-real*8 ReCo
-real*8 KapOut(*)
-real*8 rdum(1)
-real*8, allocatable :: Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), RMOAA(:), MSHam(:)
-integer kRoot, lRoot
-real*8 ECOff
+real(kind=wp) :: Kap(*), ReCo, KapOut(*)
+integer(kind=iwp) :: ipCId, isym, jspin, ipS2, ipCiOut
+integer(kind=iwp) :: kRoot, lRoot
+real(kind=wp) :: ECoff, rdum(1)
+real(kind=wp), allocatable :: Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), RMOAA(:), MSHam(:)
 
 call mma_allocate(RMOAA,n2Dens,Label='RMOAA')
 call mma_allocate(Sc1,nDens,Label='Sc1')
@@ -38,8 +36,8 @@ call mma_allocate(Temp3,nDens,Label='Temp3')
 call mma_allocate(Temp4,nDens,Label='Temp4')
 
 if (doDMRG) then ! yma
-  call dmrg_spc_change_mclr(RGras2(1:8),nash)
-  call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+  nash(:) = RGras2(:)
+  nrs2(:) = RGras2(:)
 end if
 call Uncompress(Kap,Sc1,isym)
 
@@ -81,6 +79,6 @@ call mma_deallocate(Sc2)
 call mma_deallocate(Sc1)
 call mma_deallocate(rmoaa)
 
-if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)  ! yma
+if (doDMRG) nash(:) = LRras2(:)  ! yma
 
 end subroutine TimesE2MSPDFT

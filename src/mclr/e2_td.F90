@@ -9,20 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function E2_td(FockI,rMo,loper,idisp)
+function E2_td(FockI,rMo,loper,idisp)
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: G1t, G2sq
-use MCLR_Data, only: nCMO, nNA, ipCM, nA
-use input_mclr, only: nSym, nAsh, nIsh, nBas, ntPert
+use MCLR_Data, only: G1t, G2sq, ipCM, nA, nCMO, nNA
+use input_mclr, only: nAsh, nBas, nIsh, nSym, ntPert
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer lOper, iDisp
-real*8 FockI(nCMO), rMO(*)
-logical Go
-integer i, j, ij, ij2, k, l, ijkl, kl2, ijkl2
-integer iS, iA, iAA, iAB, jS, jA, JAA, JAB, ipF
+real(kind=wp) :: E2_td
+real(kind=wp) :: FockI(nCMO), rMO(*)
+integer(kind=iwp) :: lOper, iDisp
+integer(kind=iwp) :: i, iA, iAA, iAB, ij, ij2, ijkl, ijkl2, ipF, iS, j, jA, JAA, JAB, jS, k, kl2, l
+logical(kind=iwp) :: Go
 
 !                                                                      *
 !***********************************************************************

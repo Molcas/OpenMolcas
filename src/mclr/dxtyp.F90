@@ -16,12 +16,14 @@ subroutine DXTYP(NDXTP,ITYP,JTYP,KTYP,LTYP,LEL1,LEL3,REL1,REL3)
 ! only combinations with type(I) >= type(K) and type(L) >= type(J)
 ! are included
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-integer REL1, REL3
-integer ITYP(36), JTYP(36), KTYP(36), LTYP(36)
+implicit none
+integer(kind=iwp) :: NDXTP, ITYP(36), JTYP(36), KTYP(36), LTYP(36), LEL1, LEL3, REL1, REL3
+integer(kind=iwp) :: I1, I3, IK1, IK3, IKL1, IKL3, IKLJ1, IKLJ3, ITP, JTP, KTP, LTP
 
 ! To get rid of annoying and incorrect compiler warnings
 I1 = 0

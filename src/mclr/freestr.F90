@@ -15,6 +15,7 @@ use Str_Info, only: ITYP_Dummy, Str, Str_Hidden
 use stdalloc, only: mma_deallocate
 use Definitions, only: iwp
 
+implicit none
 integer(kind=iwp) :: ITYP
 
 do ITYP=1,ITYP_Dummy

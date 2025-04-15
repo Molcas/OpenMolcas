@@ -17,17 +17,16 @@ subroutine UnCompress(ArrayIn,ArrayOut,idsym)
 ! The redundant rotations are set to zero
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDensC, nDens, ipMat, nB
-use input_mclr, only: nSym, TimeDep, nIsh, nOrb, nRS1, nRS2, nRS3, nBas
+use MCLR_Data, only: ipMat, nB, nDens, nDensC
+use input_mclr, only: nBas, nIsh, nOrb, nRS1, nRS2, nRS3, nSym, TimeDep
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 ArrayIn(nDensC), ArrayOut(nDens)
-integer idsym
-integer dsym
-integer Bas(8)
-integer IndexC, iSym, jSym, jT, jBas, iBas, iT, Index1, Index2
-real*8 Fact
+real(kind=wp) :: ArrayIn(nDensC), ArrayOut(nDens)
+integer(kind=iwp) :: idsym
+integer(kind=iwp) :: Bas(8), dsym, iBas, Index1, Index2, IndexC, iSym, iT, jBas, jSym, jT
+real(kind=wp) :: Fact
 
 indexC = 0
 Fact = One

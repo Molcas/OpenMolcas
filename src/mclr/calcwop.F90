@@ -17,23 +17,16 @@
 
 subroutine CalcWop(Wop,D,PUVX,NPUVX,IndTUVX,Coeff,Off_Ash)
 
-use MCLR_Data, only: nNA, nDens, ipMat
-use input_mclr, only: nSym, nAsh, nBas, nIsh
+use MCLR_Data, only: ipMat, nDens, nNA
+use input_mclr, only: nAsh, nBas, nIsh, nSym
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-! Input
-integer NPUVX
-real*8 Coeff
-real*8, dimension(nnA,nnA) :: D
-real*8, dimension(NPUVX) :: PUVX
-integer, dimension(nnA,nnA,nnA,nnA) :: IndTUVX
-integer, dimension(nSym) :: Off_Ash
-! Output
-real*8, dimension(nDens) :: Wop
-! Auxiliaries
-integer jSym, it, iu, t, u, v, x, pt, qu, iLoc1, jAsh
-real*8 tempd1
+integer(kind=iwp) :: NPUVX, IndTUVX(nnA,nnA,nnA,nnA), Off_Ash(nSym)
+real(kind=wp) :: Wop(nDens), D(nnA,nnA), PUVX(NPUVX), Coeff
+integer(kind=iwp) :: iLoc1, it, iu, jAsh, jSym, pt, qu, t, u, v, x
+real(kind=wp) :: tempd1
 
 do jSym=1,nSym
   jAsh = nAsh(jSym)

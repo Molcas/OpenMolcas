@@ -15,26 +15,19 @@ subroutine CIDIA_MCLR(iSym,ralp)
 
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
-use MCLR_Data, only: nexp, nexp_max
-use MCLR_Data, only: nGP
-use MCLR_Data, only: ipCI
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: XISPSM
-use MCLR_Data, only: NOCSF, ICISTR
-use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NTYP
-use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, TimeDep
+use MCLR_Data, only: ICISTR, ipCI, ipDia, NCNATS, NCPCNT, NCSASM, NDPCNT, nexp, nexp_max, nGP, NOCSF, NTYP, XISPSM
+use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, State_Sym, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer iSym
-real*8 ralp
-integer iSM(1), LSPC(1), iSPC(1)
-real*8, allocatable :: Q(:)
-integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, nD, ipDIAI, nP2, nP1, nQ, iC
-real*8 ECAS
-real*8, external :: DDot_
+integer(kind=iwp) :: iSym
+real(kind=wp) :: ralp
+integer(kind=iwp) :: i, iAMCmp, iC, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), LSPC(1), nD, nP1, nP2, nQ, nSD, nSpc
+real(kind=wp) :: ECAS
+real(kind=wp), allocatable :: Q(:)
+real(kind=wp), external :: DDot_
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we dont want to let world see the work of the Danish

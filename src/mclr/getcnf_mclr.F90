@@ -18,16 +18,12 @@ subroutine GETCNF_MCLR(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 !
 ! Jeppe Olsen, summer of 89
 
-use MCLR_Data, only: NTYP, MINOP, NCNATS
+use MCLR_Data, only: MINOP, NCNATS, NTYP
+use Definitions, only: iwp
 
 implicit none
-! General input
-integer KCNF(*)
-integer K, IREFSM, NEL
-! Output
-integer ICONF(*)
-integer KTYP
-integer ICNFB1, ICNFB2, JTYP, JOP, JCL, JOCC, NJCNF, KREL, KADD
+integer(kind=iwp) :: KCNF(*), KTYP, K, ICONF(*), IREFSM, NEL
+integer(kind=iwp) :: ICNFB1, ICNFB2, JCL, JOCC, JOP, JTYP, KADD, KREL, NJCNF
 
 ICNFB1 = 1
 ICNFB2 = 1

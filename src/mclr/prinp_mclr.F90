@@ -23,24 +23,21 @@ subroutine PrInp_MCLR(iPL)
 !                                                                      *
 !***********************************************************************
 
-use MCLR_Data, only: nexp_max
-use MCLR_Data, only: ISTATE, SA, ISNAC, IRLXROOT, NACSTATES, NSSA
-use MCLR_Data, only: ChDisp, DspVec, lDisp, SwLbl
-use MCLR_Data, only: XISPSM
-use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, mTit, nAtoms, PotNuc, iMethod, ntIsh, ntAsh, ntBas, nActEl, nHole1, nElec3, &
-                      State_Sym, nRoots, iPT2, ESCF, Eps, nIter, NewCho, SpinPol, iMCPD, PT2, TwoStep, StepType, nDisp, &
-                      Perturbation, AtLbl, ChIrr, Coor, ERASSCF, Header1I, iRoot, iSpin, nCSF, nDel, nFro, nRS1, nRS2, nRS3, &
-                      nSkip, nTPert, State_Sym, TitleIn, Weight
+use MCLR_Data, only: ChDisp, DspVec, IRLXROOT, ISNAC, ISTATE, lDisp, NACSTATES, nexp_max, NSSA, SA, SwLbl, XISPSM
+use input_mclr, only: AtLbl, ChIrr, Coor, Eps, ERASSCF, ESCF, Header1I, iMCPD, iMethod, iPT2, iRoot, iSpin, mTit, nActEl, nAsh, &
+                      nAtoms, nBas, nCSF, nDel, nDisp, nElec3, NewCho, nFro, nHole1, nIsh, nIter, nOrb, nRoots, nRS1, nRS2, nRS3, &
+                      nSkip, nSym, ntAsh, ntBas, ntIsh, nTPert, Perturbation, PotNuc, PT2, SpinPol, State_Sym, State_Sym, &
+                      StepType, TitleIn, TwoStep, Weight
 use Constants, only: Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iPL
-character(len=8) Fmt1, Fmt2
-character(len=100) Line
-character(len=1) :: XYZ(3) = ['X','Y','Z']
-logical :: RICD = .false.
-integer lLine, i, Left, nLine, j, iAT, nTSsh, iSym, jDisp, iDisp
+integer(kind=iwp) :: iPL
+integer(kind=iwp) :: i, iAT, iDisp, iSym, j, jDisp, Left, lLine, nLine, nTSsh
+logical(kind=iwp) :: RICD
+character(len=100) :: Line
+character(len=8) :: Fmt1, Fmt2
+character, parameter :: XYZ(3) = ['X','Y','Z']
 
 !----------------------------------------------------------------------*
 !     Initialize blank and header lines                                *

@@ -23,22 +23,19 @@ subroutine Start_MCLR()
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sNoNuc, sNoOri
 use transform_procedures, only: SetUp_CASPT2_Tra
-use MCLR_Data, only: CMO_Inv, CMO
-use MCLR_Data, only: nDens
-use MCLR_Data, only: LuTri1, LuMotra, FnTri1, FnMotra, FnQDat, LuHlf2, LuHlf3, LuQDat, LuTri2
-use input_mclr, only: StepType, TwoStep, NewCho, nSym, kPrint, nAsh, nBas, nDel, LuAChoVec, LuChoInt, LuIChoVec, nFro, nIsh, nOrb
+use MCLR_Data, only: CMO, CMO_Inv, FnMotra, FnQDat, FnTri1, LuHlf2, LuHlf3, LuMotra, LuQDat, LuTri1, LuTri2, nDens
+use input_mclr, only: kPrint, LuAChoVec, LuChoInt, LuIChoVec, nAsh, nBas, nDel, NewCho, nFro, nIsh, nOrb, nSym, StepType, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "warnings.h"
+integer(kind=iwp) :: i, iComp, Indx, iOff, iOff1, iOff2, iOpt, iRC, iSeed, iSym, iSymLbl, iType, j, lSqrDens, lTriDens, nOrbBas
+real(kind=wp) :: BufFrac
 character(len=8) :: Label
-character(len=5) Fname
-real*8, allocatable :: STmat(:), Smat(:)
-integer lTriDens, lSqrDens, nOrbBas, iSym, iSymLbl, iOpt, iComp, Index, iOff, i, j, iOff1, iOff2, iType, iSeed, iRC
-integer, external :: IsFreeUnit
-real*8 BufFrac
+character(len=5) :: Fname
+real(kind=wp), allocatable :: Smat(:), STmat(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !----------------------------------------------------------------------*
 !     start                                                            *
@@ -87,17 +84,17 @@ if (newCho) then
   iComp = 1
   call RdOne(irc,iOpt,Label,iComp,STmat,iSymlbl)
 
-  index = 1
+  Indx = 1
   iOff = 0
   do iSym=1,nSym
     do i=1,nBas(iSym)
       do j=1,i-1
-        Smat(j+nBas(iSym)*(i-1)+iOff) = STmat(index)
-        Smat(i+nBas(iSym)*(j-1)+iOff) = STmat(index)
-        index = index+1
+        Smat(j+nBas(iSym)*(i-1)+iOff) = STmat(Indx)
+        Smat(i+nBas(iSym)*(j-1)+iOff) = STmat(Indx)
+        Indx = Indx+1
       end do
-      Smat(i+nBas(iSym)*(i-1)+iOff) = STmat(index)
-      index = index+1
+      Smat(i+nBas(iSym)*(i-1)+iOff) = STmat(Indx)
+      Indx = Indx+1
     end do
     ioff = ioff+nBas(iSym)**2
   end do

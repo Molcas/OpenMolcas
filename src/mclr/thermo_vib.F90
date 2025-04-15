@@ -12,18 +12,20 @@
 subroutine Thermo_Vib(nFreq,Freq,T,nTR,iter)
 
 use Constants, only: Zero, One, Half, auTokcalmol, auTokJ, cal_to_j, kBoltzmann, rNAVO
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 Freq(nFreq), T
-integer first
+implicit none
+integer(kind=iwp) :: nFreq, nTR, iter
+real(kind=wp) :: Freq(nFreq), T
+integer(kind=iwp) :: i
+real(kind=wp) :: beta, DeltaG, DeltaS, DeltaU, eta, q_vib, q_vib_Tot, U_TR, U_vib, U_vib_Tot, ZPVE
+integer(kind=iwp), parameter :: First = 1
+real(kind=wp), parameter :: rk = kBoltzmann*1.0e-3_wp/auTokJ, rk_kcalmol = kBoltzmann*rNAVO/(1.0e3_wp*cal_to_J)
 
-First = 1
 !r_k = 1.38065800e-23_wp
 !r_J2au = 2.29371049e17_wp ! Convert joules to atomic units
-r_J2au = 1.0e-3_wp/auTokJ
 ! Bolzmann's constant in a.u./ K
-rk = kBoltzmann*r_J2au
+!rk = kBoltzmann*r_J2au
 !write(u6,*) "Bolzmann's constant=",rK
 if (T == Zero) then
   beta = 1.0e99_wp
@@ -139,8 +141,7 @@ end do
 ! U-U(0)=-N(d lnq/d beta)_V
 
 !r_J2kcalmol = 1.43932522e20_wp ! conversion J to kcal/mol
-r_J2kcalmol = rNAVO/(1.0e3_wp*cal_to_J)
-U_TR = real(nTR,kind=wp)*(kBoltzmann*T*r_J2kcalmol*Half)
+U_TR = real(nTR,kind=wp)*(T*rk_kcalmol*Half)
 
 ! G-G(0)=-kT lnQ + kTV(d lnQ /dV)_T, G(0)=0
 

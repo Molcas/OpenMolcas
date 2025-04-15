@@ -13,25 +13,23 @@
 subroutine GugaNew(nSym,iSpin,nActEl,nHole1,nElec3,nRs1,nRs2,nRs3,SGS,CIS,EXS,CIL,imode,ksym,State_Sym)
 
 use Str_Info, only: CFTP, CNSM
-use gugx, only: SGStruct, CIStruct, EXStruct
+use gugx, only: CIStruct, EXStruct, SGStruct
 use MkGUGA_mod, only: MKGUGA
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
-use definitions, only: wp, u6
+use Definitions, only: u6
 #endif
 
 implicit none
-integer nSym, iSpin, nActEl, nHole1, nElec3
-integer nRs1(nSym), nRs2(nSym), nRs3(nSym)
-type(SGStruct) SGS
-type(CIStruct) CIS
-type(EXStruct) EXS
-real*8 CIL(*)
-integer imode, ksym, State_Sym
+integer(kind=iwp) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), imode, ksym, State_Sym
+type(SGStruct) :: SGS
+type(CIStruct) :: CIS
+type(EXStruct) :: EXS
+real(kind=wp) :: CIL(*)
+integer(kind=iwp) :: iS, iss, NCONF, nRas1T, nRas2T, nRas3T
 #ifdef _DEBUGPRINT_
-real*8, parameter :: PRWTHR = 0.05_wp
+real(kind=wp), parameter :: PRWTHR = 0.05_wp
 #endif
-integer nRas1T, nRas2T, nRas3T, iss, iS
-integer NCONF
 
 nRas1T = sum(nRs1(1:nSym))
 nRas2T = sum(nRs2(1:nSym))

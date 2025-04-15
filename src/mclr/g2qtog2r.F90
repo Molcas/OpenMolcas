@@ -18,15 +18,15 @@
 subroutine G2qtoG2r(G2r,G2q,nG2,nG2r)
 
 use Index_Functions, only: iTri
-use Constants, only: One, Two
 use input_mclr, only: ntAsh
+use Constants, only: One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer nG2, nG2r
-real*8, dimension(nG2) :: G2q
-real*8, dimension(nG2r) :: G2r
-integer iB, jB, kB, lB, iDij, iRij, iDkl, iRkl, iijkl, iRijkl
-real*8 Fact
+integer(kind=iwp) :: nG2, nG2r
+real(kind=wp) :: G2r(nG2r), G2q(nG2)
+integer(kind=iwp) :: iB, iDij, iDkl, iijkl, iRij, iRijkl, iRkl, jB, kB, lB
+real(kind=wp) :: Fact
 
 do iB=1,ntash
   do jB=1,ntash

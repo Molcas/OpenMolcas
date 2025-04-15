@@ -20,35 +20,27 @@ subroutine WfCtl_SA(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iPL)
 
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
-use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: nConf1, nDensC, nDens, ipCI
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: ISNAC, IRLXROOT, NACSTATES
-use MCLR_Data, only: LuTemp, LuQDat
-use MCLR_Data, only: XISPSM
-use input_mclr, only: nDisp, Fail, lSave, nSym, PT2, State_Sym, iMethod, iBreak, Eps, nIter, iSpin, Debug, kPrint, nCSF, &
-                      iAddressQDat, NROOTS, TWOSTEP, STEPTYPE, nConf, nActEl, nAsh, nElec3, nHole1, nRS1, nRS2, nRS3
+use gugx, only: CIS, EXS, SGS
+use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, XISPSM
+use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, iSpin, kPrint, lSave, nActEl, nAsh, nConf, nCSF, nDisp, &
+                      nElec3, nHole1, nIter, NROOTS, nRS1, nRS2, nRS3, nSym, PT2, State_Sym, STEPTYPE, TWOSTEP
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iKapDisp(nDisp), isigDisp(nDisp)
-integer iCIDisp(nDisp), iCIsigDisp(nDisp)
-integer iRHSDisp(nDisp)
-logical converged(8)
-integer iPL
-#include "rasdim.fh"
-logical CI
-character(len=8) Fmt2
-logical lPrint, cnvrgd
-real*8 rchc(mxroot)
-real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Fancy(:), SLag(:,:), wrk(:)
-real*8 R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, rBeta, Res
-real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin, iR
-integer, external :: nPre
+integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iPL
+logical(kind=iwp) :: converged(8)
+integer(kind=iwp) :: iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, Lu_50, &
+                     nConf3, nPre2
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk
+logical(kind=iwp) :: CI, cnvrgd, lPrint
+character(len=8) :: Fmt2
+real(kind=wp), allocatable :: dKappa(:), Fancy(:), Kappa(:), rCHC(:), Sc1(:), Sc2(:), Sigma(:), SLag(:,:), Temp3(:), Temp4(:), &
+                              wrk(:)
+integer(kind=iwp), external :: nPre
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -102,7 +94,9 @@ call Setup_MCLR(iSym)
 ! Calculate the diagonal of E    and store in core/disc
 
 call mma_allocate(FANCY,nroots**3,Label='FANCY')
+call mma_allocate(rCHC,nRoots,Label='rCHC')
 call CIDia_SA(State_Sym,rCHC,Fancy)
+call mma_deallocate(rCHC)
 
 call ipOut(ipdia)
 
@@ -421,8 +415,8 @@ if (debug) then
   write(u6,*)
 end if
 if (doDMRG) then  ! yma
-  call dmrg_spc_change_mclr(RGras2(1:8),nash)
-  call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+  nash(:) = RGras2(:)
+  nrs2(:) = RGras2(:)
 end if
 
 !----------------------------------------------------------------------*

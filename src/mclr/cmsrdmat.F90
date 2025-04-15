@@ -13,18 +13,19 @@
 
 subroutine CMSRdMat(Mat,NRow,NCol,FileName,NameLen)
 
-implicit none
-integer NRow, NCol, NameLen
-real*8, dimension(NRow*NCol) :: Mat
-character(len=NameLen) :: FileName
-integer I, J, LU
-integer, external :: IsFreeUnit
+use Definitions, only: wp, iwp
 
-LU = 233
-LU = IsFreeUnit(LU)
+implicit none
+integer(kind=iwp) :: NRow, NCol, NameLen
+real(kind=wp) :: Mat(NCol,NRow)
+character(len=NameLen) :: FileName
+integer(kind=iwp) :: I, LU
+integer(kind=iwp), external :: IsFreeUnit
+
+LU = IsFreeUnit(33)
 call Molcas_Open(LU,FileName)
 do I=1,NRow
-  read(LU,*) (Mat((I-1)*NCol+J),J=1,NCol)
+  read(LU,*) Mat(:,I)
 end do
 close(LU)
 

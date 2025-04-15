@@ -23,18 +23,13 @@ use MCLR_Data, only: nDens, nNA
 use input_mclr, only: nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(nDens) :: bk
-! Input
-real*8, dimension(nRoots**2) :: R
-integer nTri
-real*8, dimension(nTri_Elem(nRoots-1)) :: zX
-real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-! Auxiliaries
-real*8, dimension(:), allocatable :: FOccMO, P2MOt
-integer nP2, nG1
+real(kind=wp) :: bk(nDens), R(nRoots,nRoots), GDMat(nTri_Elem(nRoots),nnA,nnA), zX(nTri_Elem(nRoots-1))
+integer(kind=iwp) :: nTri
+integer(kind=iwp) :: nG1, nP2
+real(kind=wp), allocatable :: FOccMO(:), P2MOt(:)
 
 ng1 = iTri(ntash,ntash)
 nP2 = iTri(ng1,ng1)

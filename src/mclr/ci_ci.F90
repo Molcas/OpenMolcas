@@ -12,15 +12,16 @@
 subroutine Ci_Ci(ipcid,ips2)
 
 use ipPage, only: ipin, W
-use MCLR_Data, only: FIMO, INT2
+use MCLR_Data, only: INT2, FIMO
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nRoots, rIn_Ene, PotNuc, ERASSCF, NCSF, Weight, State_Sym
+use input_mclr, only: ERASSCF, NCSF, nRoots, PotNuc, rIn_Ene, State_Sym, Weight
 use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer ipCID, ipS2
-integer i, n
-real*8 rDum(1), EC
+integer(kind=iwp) :: ipCID, ipS2
+integer(kind=iwp) :: i, n
+real(kind=wp) :: EC, rDum(1)
 
 call CISigma_sa(0,state_sym,state_sym,FIMO,size(FIMO),Int2,size(Int2),rDum,1,ipCId,ips2,.true.)
 call ipin(ipCId)

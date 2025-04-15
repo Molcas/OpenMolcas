@@ -15,37 +15,30 @@ subroutine SigmaVec(C,HC,kic)
 ! RAS space
 ! This is a driver routine change in some rows just so it s
 ! should work in my mclr program. Of course I have to change
-! the name on it but if you look in Jeppes mv7old(relaci) you
+! the name on it but if you look in Jeppe's mv7old(relaci) you
 ! will find a subroutine that looks very much like this
 ! This routine is just a setup routine for memory etc
 
-use Str_Info, only: STR, CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP
-use MCLR_Data, only: i12, ist
-use MCLR_Data, only: IDC, PSSIGN
-use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, MNR1IC, MXR3IC, XISPSM
-use MCLR_Data, only: NOCSF, MAXI, MAXK, ICISTR, NOPART, IDIAG
-use MCLR_Data, only: IBTSOB, ITSOB, NTSOB
-use MCLR_Data, only: MXINKA
-use CandS, only: ICSM, ISSM, ICSPC, ISSPC
+use Str_Info, only: CNSM, DTOC, ITYP_Dummy, nElec, NOCTYP, STR
+use MCLR_Data, only: i12, IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, IDIAG, ist, ITSOB, MAXI, MAXK, MNR1IC, MXINKA, MXR3IC, MXSB, &
+                     MXSOOB, NOCSF, NOPART, NTSOB, PSSIGN, XISPSM
+use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use input_mclr, only: nIrrep, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 C(*), HC(*)
-integer kic(2)
-! =====
-! Input
-! =====
-integer idummy(1)
-integer, allocatable :: SVST(:), SIOIO(:), CIOIO(:), SBLTP(:), CBLTP(:), I1(:), I2(:), I3(:), I4(:), OOS(:,:)
-real*8, allocatable :: SB(:), CB(:), INSCR(:), XI1S(:), XI2S(:), XI3S(:), XI4S(:)
-real*8, target, allocatable :: C2(:), CJRES(:), SIRES(:)
-real*8, pointer :: pC2(:), pCJRES(:), pSIRES(:)
-integer LUC, LUHC, NSDET, IATP, IBTP, JATP, JBTP, NOCTPA, NOCTPB, NAEL, NBEL, MAXA0, MAXB0, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, &
-        MXTSOB, LSCR1, INTSCR, MAXPK, IATP1, IBTP1, IATP2, IBTP2, MAXIK, LSCR2, LSCR3, MOCAA, MAXE, MAXEL3, MXSXST, MXSXBL, &
-        LSCR12, NOOS, IICOPY, IDOH2, LLUC, LLUHC, IMNMX, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, MXIJSTF, MXSTBL0
+real(kind=wp) :: C(*), HC(*)
+integer(kind=iwp) :: kic(2)
+integer(kind=iwp) :: IATP, IATP1, IATP2, IBTP, IBTP1, IBTP2, IDOH2, idummy(1), IICOPY, IMNMX, INTSCR, JATP, JBTP, LLUC, LLUHC, &
+                     LSCR1, LSCR12, LSCR2, LSCR3, LUC, LUHC, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXE, MAXEL3, MAXIK, MAXPK, &
+                     MOCAA, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, MXIJSTF, MXSTBL, MXSTBL0, MXSXBL, MXSXST, MXTSOB, NAEL, NBEL, &
+                     NOCTPA, NOCTPB, NOOS, NSDET
+integer(kind=iwp), allocatable :: CBLTP(:), CIOIO(:), I1(:), I2(:), I3(:), I4(:), OOS(:,:), SBLTP(:), SIOIO(:), SVST(:)
+real(kind=wp), allocatable :: CB(:), INSCR(:), SB(:), XI1S(:), XI2S(:), XI3S(:), XI4S(:)
+real(kind=wp), allocatable, target :: C2(:), CJRES(:), SIRES(:)
+real(kind=wp), pointer :: pC2(:), pCJRES(:), pSIRES(:)
 
 LUC = 0
 LUHC = 0

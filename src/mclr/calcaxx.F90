@@ -14,17 +14,14 @@
 subroutine CalcAXX(AXX,W)
 
 use Index_Functions, only: iTri, nTri_Elem
-use Constants, only: Zero, Two, Four
 use input_mclr, only: nRoots
+use Constants, only: Zero, Two, Four
+use Definitions, only: wp, iwp
 
 implicit none
-! Input
-real*8, dimension(nTri_Elem(nRoots),nTri_Elem(nRoots)) :: W
-! Output
-real*8, dimension(nTri_Elem(nRoots-1),nTri_Elem(nRoots-1)) :: AXX
-! Auxiliary Quantities
-integer K, L, M, N, IKL, IMN, IKL2, IMN2, IKK, ILL, IMM, INN, IC
-real*8 VKLMN, VLKNM, VKLNM, VLKMN
+real(kind=wp) :: AXX(nTri_Elem(nRoots-1),nTri_Elem(nRoots-1)), W(nTri_Elem(nRoots),nTri_Elem(nRoots))
+integer(kind=iwp) :: IC, IKK, IKL, IKL2, ILL, IMM, IMN, IMN2, INN, K, L, M, N
+real(kind=wp) :: VKLMN, VKLNM, VLKMN, VLKNM
 
 do K=1,nRoots
   do L=1,K-1

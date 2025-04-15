@@ -22,27 +22,23 @@ subroutine InpCtl_MCLR(iPL)
 
 use Str_Info, only: DTOC
 use ipPage, only: ipget, ipin, ipout, ipopen, W
-use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: nGP
-use MCLR_Data, only: ipCI
-use MCLR_Data, only: SA, ISTATE
-use MCLR_Data, only: LuPT2
+use gugx, only: CIS, EXS, SGS
+use MCLR_Data, only: ipCI, ISTATE, LuPT2, nGP, SA
 use MCLR_procedures, only: RdJobIph, RdJobIph_td
-use input_mclr, only: PT2, iMethod, TimeDep, nCSF, nSym, State_Sym, iMCPD, nDisp, iRoot, iSpin, nActEl, nElec3, nHole1, nRS1, &
-                      nRS2, nRS3, Page, nRoots, nConf
+use input_mclr, only: iMCPD, iMethod, iRoot, iSpin, nActEl, nConf, nCSF, nDisp, nElec3, nHole1, nRoots, nRS1, nRS2, nRS3, nSym, &
+                      Page, PT2, State_Sym, TimeDep
 use dmrginfo, only: DoDMRG, DoMCLR, nDets_RGLR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iPL
-character(len=8) Method
-real*8, allocatable :: CIVec(:,:), CITmp(:)
-integer i, ii, ipCII, iSSM
-integer, external :: IsFreeUnit
-integer, allocatable :: index_SD(:) ! not final version
-real*8, allocatable :: vector_cidmrg(:)
+integer(kind=iwp) :: iPL
+integer(kind=iwp) :: i, ii, ipCII, iSSM
+character(len=8) :: Method
+integer(kind=iwp), allocatable :: index_SD(:) ! not final version
+real(kind=wp), allocatable :: CITmp(:), CIVec(:,:), vector_cidmrg(:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************

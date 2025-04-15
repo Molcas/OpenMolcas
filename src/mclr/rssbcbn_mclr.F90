@@ -62,17 +62,17 @@ subroutine RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL
 ! Jeppe Olsen, Winter of 1991
 
 use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-logical TimeDep
-! Output
-dimension CB(*), SB(*)
-! Scratch
-dimension SSCR(*), CSCR(*)
-integer I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), I4(MAXK,*)
-real*8 XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), XI4S(MAXK,*)
-dimension C2(*), CJRES(*), SIRES(*), XINT(*)
-dimension NTSOB(*), IBTSOB(*), ITSOB(*)
+implicit none
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, IAEL1, IAEL3, IBEL1, IBEL3, JAEL1, JAEL3, JBEL1, JBEL3, NAEL, &
+                     NBEL, IJAGRP, IJBGRP, IDOH2, NTSOB(*), IBTSOB(*), ITSOB(*), MAXI, MAXK, I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), &
+                     I4(MAXK,*), NSM, NIA, NIB, NJA, NJB, IST, NOPART, ieaw
+real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), XI4S(MAXK,*), XINT(*), C2(*), CJRES(*), &
+                 SIRES(*)
+logical(kind=iwp) :: TimeDep
+integer(kind=iwp) :: IFACTOR, IIITRNS, JJJTRNS
+real(kind=wp) :: SGN
 
 ! ============================
 ! Sigma beta beta contribution
@@ -88,20 +88,20 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
   ! One electron part
 
   if (IST == 1) then
-    SIGN = One
+    SGN = One
   else
-    SIGN = -One
+    SGN = -One
   end if
   if (NBEL >= 1) &
     call RSBB1E_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSM,SIGN)
+                     XINT,NSM,SGN)
 
   ! Two electron part
 
   if ((IDOH2 /= 0) .and. (NBEL >= 2)) then
     !write(u6,*) 'Timedep in rssbcbn',TimeDep
-    call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSM,SIGN,NOPART,TimeDep,ieaw)
+    call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT, &
+                     NSM,SGN,NOPART,TimeDep,ieaw)
   end if
 end if
 
@@ -165,15 +165,15 @@ if ((NAEL >= 1) .and. (IBTP == JBTP) .and. (IBSM == JBSM)) then
 
   ! alpha single excitation
 
-  SIGN = One
+  SGN = One
   call RSBB1E_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                   XINT,NSM,SIGN)
+                   XINT,NSM,SGN)
 
   ! alpha double excitation
 
   if ((NAEL >= 2) .and. (IDOH2 /= 0)) &
-    call RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S, &
-                     XINT,NSM,SIGN,NOPART,TimeDep,ieaw)
+    call RSBB2A_MCLR(IASM,IATP,JASM,JATP,IJAGRP,NIB,IAEL1,IAEL3,JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT, &
+                     NSM,SGN,NOPART,TimeDep,ieaw)
 
   ! Restore order!
   call TRNSPS(NIB,NIA,SB,C2)

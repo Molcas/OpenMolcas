@@ -11,7 +11,7 @@
 ! Copyright (C) 2014, Mickael G. Delcey                                *
 !***********************************************************************
 
-subroutine Preci_cho(jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,sign,A_J,nScr,iAdr)
+subroutine Preci_cho(jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,Sgn,A_J,nScr,iAdr)
 !***********************************************************************
 !                                                                      *
 !     This routine remplaces preciaa, preciba and precibb              *
@@ -26,25 +26,17 @@ subroutine Preci_cho(jS,nd,rOut,nbaj,fockii,fockai,focki,focka,fock,sign,A_J,nSc
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: G1t, G2t
-use MCLR_Data, only: nA
-use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
+use MCLR_Data, only: G1t, G2t, nA
+use input_mclr, only: LuChoInt, nAsh, nBas, nIsh, nOrb, nSym
 use Constants, only: One, Two, Three, Four
+use Definitions, only: wp, iwp
 
 implicit none
-integer jS, nd
-real*8 rout(*)
-integer nbaj
-real*8 fockii, fockai
-real*8 focki(nbaj,nbaj), fock(nbaj,nbaj), focka(nbaj,nbaj)
-real*8 sign
-integer nScr
-real*8 A_J(nScr)
-integer iAdr
-integer nTri, nO, jVert, nVirt, ijk, iSym, nVirt2, jC, jjC, jD, jjD, ip1, jA, jjA, jB, jBB, jAA, iBC, iAC, ip, iVB, kB, nlB, ilB, &
-        jjB, jCC
-real*8 Factor, AABB, rDens1, BCBB, ACBB, rDens2, rDens, rFock
-integer i
+integer(kind=iwp) :: jS, nd, nbaj, nScr, iAdr
+real(kind=wp) :: rout(*), fockii, fockai, focki(nbaj,nbaj), focka(nbaj,nbaj), fock(nbaj,nbaj), Sgn, A_J(nScr)
+integer(kind=iwp) :: i, iAC, iBC, ijk, ilB, ip, ip1, iSym, iVB, jA, jAA, jB, jBB, jC, jCC, jD, jjA, jjB, jjC, jjD, jVert, kB, nlB, &
+                     nO, nTri, nVirt, nVirt2
+real(kind=wp) :: AABB, ACBB, BCBB, Factor, rDens, rDens1, rDens2, rFock
 
 !                                                                      *
 !***********************************************************************
@@ -82,9 +74,9 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
             jjB = jB+nA(jS)
             i = nTri-iTri(nd-jA+1,nd-jB+1)+1
             if (iJK == 1) then
-              rDens1 = Two*sign*G2t(iTri(iTri(jjC,jjD),iTri(jjB,jjA)))
+              rDens1 = Two*Sgn*G2t(iTri(iTri(jjC,jjD),iTri(jjB,jjA)))
             else
-              rDens1 = Four*sign*G2t((iTri(iTri(jjB,jjD),iTri(jjC,jjA))))
+              rDens1 = Four*Sgn*G2t((iTri(iTri(jjB,jjD),iTri(jjC,jjA))))
             end if
             rout(i) = rout(i)+rDens1*aabb
           end do
@@ -104,10 +96,10 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
             BCbb = A_J(iBC) ! BbCb if exchange
             iAC = (jC-1)*nvirt+jA
             ACbb = A_J(iAC) ! AbCb if exchange
-            rDens1 = -sign*G1t(iTri(jAA,jCC))
-            rDens2 = -sign*G1t(iTri(jBB,jCC))
-            if (jAA == jCC) rDens1 = rdens1+sign
-            if (jBB == jCC) rDens2 = rdens2+sign
+            rDens1 = -Sgn*G1t(iTri(jAA,jCC))
+            rDens2 = -Sgn*G1t(iTri(jBB,jCC))
+            if (jAA == jCC) rDens1 = rdens1+Sgn
+            if (jBB == jCC) rDens2 = rdens2+Sgn
             rout(i) = rout(i)+Two*rdens1*factor*BCbb+Two*rdens2*factor*ACbb
 
           end do
@@ -119,8 +111,8 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
       do jA=1,nAsh(jS)
         ip = nTri-iTri(nd-ja+1,jVert)
         do jB=1,nAsh(jS)
-          rDens = -sign*G1t(iTri(jA+nA(jS),jB+nA(jS)))
-          if (jA == jB) rDens = rdens+sign*Two
+          rDens = -Sgn*G1t(iTri(jA+nA(jS),jB+nA(jS)))
+          if (jA == jB) rDens = rdens+Sgn*Two
 
           ivB = (jB-1)*nvirt+nAsh(jS)
           rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+Two*factor*rDens*A_J(ivB+1:ivB+jVert)
@@ -133,7 +125,7 @@ do iJK=1,2 ! 1=coulomb, 2=exchange
       do kB=nAsh(jS),nvirt-1
         nlB = nvirt-kb
         ilB = kB+1+nvirt*kb
-        rout(i:i+nlB-1) = rout(i:i+nlB-1)+sign*Four*factor*A_J(ilB:ilB+nlB*nvirt-1:nvirt)
+        rout(i:i+nlB-1) = rout(i:i+nlB-1)+Sgn*Four*factor*A_J(ilB:ilB+nlB*nvirt-1:nvirt)
         i = i+nlB
       end do
     end if
@@ -144,7 +136,7 @@ end do
 !                                                                      *
 ! Fock matrix contribution
 
-rFock = sign*(Fockii+FockAi)
+rFock = Sgn*(Fockii+FockAi)
 !MGD tmp
 !if (.false.) then
 do jA=1,nAsh(jS)
@@ -158,15 +150,15 @@ do jA=1,nAsh(jS)
     jjB = jB+nIsh(js)
     i = nTri-iTri(nd-jA+1,nd-jB+1)+1
     rDens = G1t(iTri(jbb,jAA))
-    rout(i) = rout(i)+Sign*(Two*rdens*Fockii+Two*(Two*Focki(jjA,jjB)+Two*FockA(jjA,jjB)-Fock(jjB,jjA)))
+    rout(i) = rout(i)+Sgn*(Two*rdens*Fockii+Two*(Two*Focki(jjA,jjB)+Two*FockA(jjA,jjB)-Fock(jjB,jjA)))
   end do
   rout(i) = rout(i)-Four*rFock
 
   ! iba
 
   ip = nTri-iTri(nd-ja+1,nd-nAsh(js))
-  rout(ip+1:ip+jVert) = rout(ip+1:ip+jVert)+sign*(Four*(FockI(nO+1:nO+jVert,ja+nIsh(js))+FockA(nO+1:nO+jVert,ja+nIsh(js)))- &
-                                                  Fock(nO+1:nO+jVert,ja+nIsh(js)))
+  rout(ip+1:ip+jVert) = rout(ip+1:ip+jVert)+Sgn*(Four*(FockI(nO+1:nO+jVert,ja+nIsh(js))+FockA(nO+1:nO+jVert,ja+nIsh(js)))- &
+                                                 Fock(nO+1:nO+jVert,ja+nIsh(js)))
 end do
 
 ! ibb
@@ -174,7 +166,7 @@ end do
 i = nTri-nTri_Elem(jVert)
 do kB=nIsh(jS)+nAsh(jS),nOrb(jS)-1
   rOut(i+1) = rout(i+1)-Four*rFock
-  rOut(i+1:i+nOrb(jS)-kB) = rout(i+1:i+nOrb(jS)-kB)+sign*Four*Focki(kB+1,kB+1:nOrb(jS))+sign*Four*Focka(kB+1,kB+1:nOrb(jS))
+  rOut(i+1:i+nOrb(jS)-kB) = rout(i+1:i+nOrb(jS)-kB)+Sgn*Four*(Focki(kB+1,kB+1:nOrb(jS))+Focka(kB+1,kB+1:nOrb(jS)))
   i = i+nOrb(jS)-kB
 end do
 !end if

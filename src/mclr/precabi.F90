@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precabi(ib,is,js,nd,rOut,nba,focki,focka,sign,A_J,A_K,Scr,nScr)
+subroutine Precabi(ib,is,js,nd,rOut,nba,focki,focka,Sgn,A_J,A_K,Scr,nScr)
 !***********************************************************************
 !                                          [2]                         *
 !     Calculates the diagonal submatrix of E    that couple            *
@@ -34,21 +34,16 @@ subroutine Precabi(ib,is,js,nd,rOut,nba,focki,focka,sign,A_J,A_K,Scr,nScr)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: G1t, G2t
-use MCLR_Data, only: nA
-use input_mclr, only: nSym, nAsh, nIsh, nOrb, nBas
+use MCLR_Data, only: G1t, G2t, nA
+use input_mclr, only: nAsh, nBas, nIsh, nOrb, nSym
 use Constants, only: Two, Four, Eight
+use Definitions, only: wp, iwp
 
 implicit none
-integer ib, is, js, nd
-real*8 rOut(*)
-integer nba
-real*8 Focki(nba,nba), FockA(nba,nba)
-real*8 Sign
-integer nScr
-real*8 A_J(nScr), A_K(nScr), Scr(nScr)
-integer nTri, jVert, nO, iAA, itAA, kS, kA, kAA, kkA, lA, lAA, llA, jB, ip, iVJ
-real*8 Fact, Fact1, Fact2
+integer(kind=iwp) :: ib, is, js, nd, nba, nScr
+real(kind=wp) :: rOut(*), Focki(nba,nba), FockA(nba,nba), Sgn, A_J(nScr), A_K(nScr), Scr(nScr)
+integer(kind=iwp) :: iAA, ip, itAA, iVJ, jB, jVert, kA, kAA, kkA, kS, lA, lAA, llA, nO, nTri
+real(kind=wp) :: Fact, Fact1, Fact2
 
 !                                                                      *
 !***********************************************************************
@@ -86,7 +81,7 @@ do kS=1,nSym
         if (laa == iaa) Fact2 = Fact2-Two*G1t(iTri(iAA,kAA))
 
         ivj = (jB-1)*nBas(jS)+no
-        rout(ip+1:ip+jVert) = rout(ip+1:ip+jVert)+Sign*(Fact1*A_J(ivj+1:ivj+jVert)+Fact2*A_K(ivj+1:ivj+jVert))
+        rout(ip+1:ip+jVert) = rout(ip+1:ip+jVert)+Sgn*(Fact1*A_J(ivj+1:ivj+jVert)+Fact2*A_K(ivj+1:ivj+jVert))
 
       end do
 
@@ -99,7 +94,7 @@ end do
 do jB=1,nIsh(jS)
   ip = nTri-iTri(nd-jB+1,jVert)
   Fact = (Two-Two*G1t(itAA))
-  rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+Sign*(Fact*FockI(nO+1:nO+jVert,jB)+Two*FockA(nO+1:nO+jVert,jB))
+  rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+Sgn*(Fact*FockI(nO+1:nO+jVert,jB)+Two*FockA(nO+1:nO+jVert,jB))
 end do
 !                                                                      *
 !***********************************************************************

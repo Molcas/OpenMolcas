@@ -13,13 +13,14 @@
 subroutine NXTBLK_MCLR(IATP,IBTP,IASM,NOCTPA,NOCTPB,NSM,IBLTP,IDC,NONEW,IOCOC)
 ! Obtain allowed block following IATP IBTP IASM
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-integer IBLTP(*)
-integer IOCOC(NOCTPA,NOCTPB)
+implicit none
+integer(kind=iwp) :: IATP, IBTP, IASM, NOCTPA, NOCTPB, NSM, IBLTP(*), IDC, NONEW, IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp) :: IA, IB, ISM
 
 ! Initialize
 ISM = IASM

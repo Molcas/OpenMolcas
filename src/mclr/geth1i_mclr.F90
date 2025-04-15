@@ -9,17 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function GETH1I_MCLR(I,J)
+function GETH1I_MCLR(I,J)
 ! Obtain one -electron integral H(IORB,JOB)
 
-use MCLR_Data, only: FIMO
-use MCLR_Data, only: ipCM
-use MCLR_Data, only: IBSO, IREOTS, ISMFTO
+use MCLR_Data, only: FIMO, IBSO, ipCM, IREOTS, ISMFTO
 use input_mclr, only: nIsh, nOrb
+use Definitions, only: wp, iwp
 
 implicit none
-integer I, J
-integer ISM, JSM, I1, J1, IJ
+real(kind=wp) :: GETH1I_MCLR
+integer(kind=iwp) :: I, J
+integer(kind=iwp) :: I1, IJ, ISM, J1, JSM
 
 ISM = ISMFTO(I)
 JSM = ISMFTO(J)

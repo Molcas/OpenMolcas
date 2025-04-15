@@ -17,12 +17,14 @@ subroutine SXTYP(NSXTP,ITP,JTP,LEL1,LEL3,REL1,REL3)
 ! L is defined by LEL1,LEL3
 ! R is defined by REL1,REL3
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-integer REL1, REL3
-integer ITP(3), JTP(3)
+implicit none
+integer(kind=iwp) :: NSXTP, ITP(3), JTP(3), LEL1, LEL3, REL1, REL3
+integer(kind=iwp) :: I1, I123, I3, IJ1, IJ3, J123
 
 NSXTP = 0
 

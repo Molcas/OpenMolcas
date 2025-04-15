@@ -21,17 +21,12 @@ use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: ISMECIMSPD, NACSTATES
 use input_mclr, only: nRoots
 use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(nTri_Elem(nRoots-1)) :: bX
-! Input
-real*8, dimension(nRoots,nRoots) :: R, H
-real*8, dimension(nRoots) :: E_Final
-real*8, dimension(nRoots,nRoots) :: LOK
-!Auxiliaries
-integer I, J, K, L, M, N, IKL
-real*8 TempD, dE_IJ
+real(kind=wp) :: bX(nTri_Elem(nRoots-1)), LOK(nRoots,nRoots), R(nRoots,nRoots), H(nRoots,nRoots), E_Final(nRoots)
+integer(kind=iwp) :: I, IKL, J, K, L, M, N
+real(kind=wp) :: dE_IJ, TempD
 
 bX(:) = Zero
 I = NACstates(1)

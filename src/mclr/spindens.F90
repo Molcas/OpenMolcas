@@ -37,19 +37,19 @@ subroutine SpinDens(LS,RS,iL,iR,rP1,rp2,rp3,rp4,rp5,rDe1,rde2,itype)
 !           0       0
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: nNA, n2Dens, n1Dens
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: n1Dens, n2Dens, nNA, XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 LS(*), RS(*), rP1(nna,nna,nna,nna), rP2(nna,nna,nna,nna), rP3(nna,nna,nna,nna), rP4(nna,nna,nna,nna), rP5(nna,nna,nna,nna), &
-       rDe1(nna,nna), rde2(nna,nna)
-integer iType
-real*8, allocatable :: Dens(:,:), Pens(:), CIL(:), CIR(:)
-integer n2, nConfL, iL, nConfR, iR, iA, jA, kA, lA, ijklAB, jilkAB, ijklBA, jilkBA, ijkl, jilk
+real(kind=wp) :: LS(*), RS(*), rP1(nna,nna,nna,nna), rP2(nna,nna,nna,nna), rP3(nna,nna,nna,nna), rP4(nna,nna,nna,nna), &
+                 rP5(nna,nna,nna,nna), rDe1(nna,nna), rde2(nna,nna)
+integer(kind=iwp) :: iL, iR, iType
+integer(kind=iwp) :: iA, ijkl, ijklAB, ijklBA, jA, jilk, jilkAB, jilkBA, kA, lA, n2, nConfL, nConfR
+real(kind=wp), allocatable :: CIL(:), CIR(:), Dens(:,:), Pens(:)
 
 n2 = 2*n2Dens+nnA**4
 call mma_allocate(Dens,n1Dens,2,Label='Dens')

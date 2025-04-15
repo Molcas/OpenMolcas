@@ -17,21 +17,18 @@
 
 subroutine CalcAXk2(AXk,D1,D2,PUVX,NPUVX,IndPUVX,Off_Act,Off_Orb)
 
-use MCLR_Data, only: nDens, nNA, ipMat
-use input_mclr, only: ntBas, ntAsh, nSym, nAsh, nOrb, nIsh
+use MCLR_Data, only: ipMat, nDens, nNA
+use input_mclr, only: nAsh, nIsh, nOrb, nSym, ntAsh, ntBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer NPUVX
-real*8, dimension(NPUVX) :: PUVX
-integer, dimension(ntBas,ntAsh,ntAsh,ntAsh) :: IndPUVX
-real*8, dimension(ntAsh**2) :: D1, D2
-integer, dimension(nSym) :: Off_Act, Off_Orb
-real*8, dimension(nDens) :: AXk
-real*8, dimension(:), allocatable :: Opu
-integer p, q, iSym, t, u, v, x, ip, iq, it, loc1, loc2
-real*8 tempa
+integer(kind=iwp) :: NPUVX, IndPUVX(ntBas,ntAsh,ntAsh,ntAsh), Off_Act(nSym), Off_Orb(nSym)
+real(kind=wp) :: AXk(nDens), D1(ntAsh**2), D2(ntAsh**2), PUVX(NPUVX)
+integer(kind=iwp) :: ip, iq, iSym, it, loc1, loc2, p, q, t, u, v, x
+real(kind=wp) :: tempa
+real(kind=wp), allocatable :: Opu(:)
 
 call mma_allocate(Opu,ntBas*ntAsh)
 do p=1,ntBas

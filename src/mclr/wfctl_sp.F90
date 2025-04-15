@@ -19,32 +19,22 @@ subroutine WfCtl_sp(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP)
 !***********************************************************************
 
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
-use MCLR_Data, only: SFock, G1m, G2mp, Int2, FIMO
-use MCLR_Data, only: nConf1, nNA, nDensC, nDens, ipCI, n1Dens
-use MCLR_Data, only: RMS
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: LuTemp
-use MCLR_Data, only: XISPSM
-use MCLR_Data, only: MS2P
+use MCLR_Data, only: FIMO, G1m, G2mp, Int2, ipCI, ipDia, LuTemp, MS2P, n1Dens, nConf1, nDens, nDensC, nNA, RMS, SFock, XISPSM
 use MCLR_procedures, only: CISigma
-use input_mclr, only: nDisp, Fail, State_Sym, iMethod, rIn_Ene, PotNuc, iBreak, Eps, nIter, Debug, ERASSCF, kPrint, nCSF
+use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, nCSF, nDisp, nIter, PotNuc, rIn_Ene, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
-use Definitions, only: u5, u6
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-integer iKapDisp(nDisp), isigDisp(nDisp)
-integer iCIDisp(nDisp), iCIsigDisp(nDisp)
-integer iRHSDisp(nDisp), iRHSCIDisp(nDisp)
-character(len=8) Fmt2
-logical lPrint, cnvrgd
-real*8 rdum(1)
-real*8 d_0
-real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), Dens(:), Pens(:), &
-                       rmoaa(:), rmoaa2(:), Sc4(:)
-integer lPaper, lLine, Left, iDis, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, iDisp, iLen, Iter, i1, j1
-real*8 DeltaC, DeltaK, Delta, Delta0, rGrad, Ec, rAlphaC, rAlphaK, ResK, ResCI, rBeta, Res, rCHC, rAlpha
-real*8, external :: DDot_
+integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iRHSCIDisp(nDisp)
+integer(kind=iwp) :: i1, iDis, iDisp, iLen, ipCID, ipCIT, ipS1, ipS2, ipST, Iter, j1, Left, lLine, lPaper, nConf3
+real(kind=wp) :: d_0, Delta, Delta0, DeltaC, DeltaK, Ec, rAlpha, rAlphaC, rAlphaK, rBeta, rCHC, rdum(1), Res, ResCI, ResK, rGrad
+logical(kind=iwp) :: cnvrgd, lPrint
+character(len=8) :: Fmt2
+real(kind=wp), allocatable :: Dens(:), dKappa(:), Kappa(:), Pens(:), rmoaa(:), rmoaa2(:), Sc1(:), Sc2(:), Sc3(:), Sc4(:), &
+                              Sigma(:), Temp1(:), Temp2(:), Temp4(:)
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

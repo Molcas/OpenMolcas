@@ -29,22 +29,18 @@ subroutine OutRAS_td(iKapDisp,iCiDisp)
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: nConf1, nDensC, nDens
-use MCLR_Data, only: DspVec, lDisp
-use MCLR_Data, only: LuTEMP
-use input_mclr, only: nDisp, nSym, State_Sym, iMethod, nCSF, nConf, iMethod, iSpin, kPrint, nActEl, nElec3, nHole1, nRS1, nRS2, &
-                      nRS3, TimeDep
+use MCLR_Data, only: DspVec, lDisp, LuTEMP, nConf1, nDens, nDensC
+use input_mclr, only: iMethod, iSpin, kPrint, nActEl, nConf, nCSF, nDisp, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iKapDisp(nDisp), iCiDisp(nDisp)
-character(len=8) Label
-integer Pstate_sym
-logical CI
-real*8, allocatable :: Kap1(:), Kap2(:), Kap3(:), CIp1(:,:)
-integer iDisp, iSym, nConfm, jDisp, kDisp, iDisk, Len, iLen, iDIs, iRC, iOpt, iSymL, iPert
+integer(kind=iwp) :: iKapDisp(nDisp), iCiDisp(nDisp)
+integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym
+logical(kind=iwp) :: CI
+character(len=8) :: Label
+real(kind=wp), allocatable :: CIp1(:,:), Kap1(:), Kap2(:), Kap3(:)
 
 !----------------------------------------------------------------------*
 !
@@ -83,11 +79,11 @@ do iSym=1,nSym
     iDisp = iDisp+1
     kdisp = DspVec(idisp)
     iDisk = iKapDisp(iDisp)
-    Len = nDensC
+    Length = nDensC
     !---------------------------------------------------------
     ! LuTemp temp file in wfctl where the response is written
     !---------------------------------------------------------
-    call dDaFile(LuTemp,2,Kap1,Len,iDisk)
+    call dDaFile(LuTemp,2,Kap1,Length,iDisk)
     !if (nDensC /= 0) call RecPrt('K',' ',Kap1,nDensC,1)
     call Uncompress(Kap1,Kap3,isym)
     if (CI) then

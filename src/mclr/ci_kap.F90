@@ -18,17 +18,14 @@ use input_mclr, only: ntAsh, State_Sym
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer ipCID, iSym
-real*8 Fock(*), FockOut(*)
-real*8, allocatable :: De(:), Pe(:)
-integer i, j
-integer nDim, ij, k, l, ij1, kl1
-real*8 D0
-! Added for DMRG calculation
-real*8, allocatable :: tmpDe(:,:), tmpP(:), tmpDeM(:,:), tmpPM(:,:,:,:)
+integer(kind=iwp) :: ipCID, iSym
+real(kind=wp) :: Fock(*), FockOut(*)
+integer(kind=iwp) :: i, ij, ij1, j, k, kl1, l, nDim
+real(kind=wp) :: D0
+real(kind=wp), allocatable :: De(:), Pe(:), tmpDe(:,:), tmpDeM(:,:), tmpP(:), tmpPM(:,:,:,:)
 
 call ipnout(-1)
 call mma_allocate(De,ntash**2,Label='De')
@@ -38,8 +35,8 @@ call CIDens_SA(.true.,ipCI,ipCid,State_sym,State_Sym,Pe,De)
 
 ! ======================================================================
 if (doDMRG) then
-  call dmrg_dim_change_mclr(LRras2(1:8),ntash,0)
-  call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
+  call dmrg_dim_change_mclr(LRras2,ntash,0)
+  call dmrg_dim_change_mclr(RGras2,ndim,0)
 
   call mma_allocate(tmpDe,ndim,ndim,Label='tmpDe')
   call mma_allocate(tmpP,nTri_Elem(ndim**2),Label='tmpP')
@@ -105,8 +102,8 @@ if (doDMRG) then
   end do
 
   ! ====================================================================
-  call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
-  call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
+  call dmrg_dim_change_mclr(RGras2,ntash,0)
+  call dmrg_dim_change_mclr(RGras2,nna,0)
 
   !call ipin(ipCID)
   !call ipin(ipci)
@@ -132,8 +129,8 @@ call mma_deallocate(Pe)
 
 ! ======================================================================
 if (doDMRG) then  !yma
-  call dmrg_dim_change_mclr(LRras2(1:8),nna,0)
-  call dmrg_dim_change_mclr(LRras2(1:8),ntash,0)
+  call dmrg_dim_change_mclr(LRras2,nna,0)
+  call dmrg_dim_change_mclr(LRras2,ntash,0)
   call mma_deallocate(tmpDe)
   call mma_deallocate(tmpDeM)
   call mma_deallocate(tmpP)

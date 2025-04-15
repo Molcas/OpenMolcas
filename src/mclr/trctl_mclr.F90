@@ -18,20 +18,19 @@ subroutine TRCTL_MCLR()
 !          symmetry block of integrals.
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: CMO
-use MCLR_Data, only: ipCM
-use MCLR_Data, only: FnHlf2, FnHlf3, FnTri1, FnTri2, FnTri3, FnTri4, FnTri5
-use MCLR_Data, only: LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, LuTri4, LuTri5
-use input_mclr, only: nSym, nAsh, nBas, nFro, nIsh
+use MCLR_Data, only: CMO, FnHlf2, FnHlf3, FnTri1, FnTri2, FnTri3, FnTri4, FnTri5, ipCM, LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, &
+                     LuTri4, LuTri5
+use input_mclr, only: nAsh, nBas, nFro, nIsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
+use Definitions, only: wp, iwp
 
 implicit none
-integer, parameter :: LIOTAB = 512*512
-integer, allocatable :: Hlf1(:,:)
-real*8, allocatable :: Buffer(:)
-integer iAD14, iAd13, iAd23, iAd24, iAd34
-integer MemX, ipB, iBatch, iSP, nBP, nDP, iSQ, nBQ, nAQ, nDQ, nSPQ, iSR, nBR, nAR, nDR, nSPQR, iSS, nBS, nAS, nDS, nSPQRS, nORBP, &
-        nBPQRS, IntBuf, ipi, lW1, nW1, lW2, nW2, lW3, nW3, lW4, nW4, lW5, nW5, nAP
+integer(kind=iwp) :: iAd13, iAD14, iAd23, iAd24, iAd34, iBatch, IntBuf, ipB, ipi, iSP, iSQ, iSR, iSS, lW1, lW2, lW3, lW4, lW5, &
+                     MemX, nAP, nAQ, nAR, nAS, nBP, nBPQRS, nBQ, nBR, nBS, nDP, nDQ, nDR, nDS, nORBP, nSPQ, nSPQR, nSPQRS, nW1, &
+                     nW2, nW3, nW4, nW5
+integer(kind=iwp), allocatable :: Hlf1(:,:)
+real(kind=wp), allocatable :: Buffer(:)
+integer(kind=iwp), parameter :: LIOTAB = 512*512
 
 !                                                                      *
 !***********************************************************************

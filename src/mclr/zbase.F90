@@ -17,12 +17,14 @@ subroutine ZBASE(NVEC,IVEC,NCLASS)
 ! Construct array IVEC(ICLASS) giving first element of
 ! class ICLASS in full addressing
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-dimension NVEC(*), IVEC(*)
+implicit none
+integer(kind=iwp) :: NCLASS, NVEC(NCLASS), IVEC(NCLASS)
+integer(kind=iwp) :: ICLASS
 
 do ICLASS=1,NCLASS
   if (ICLASS == 1) then

@@ -14,13 +14,15 @@ subroutine FREQ(nX,H,nDeg,nrvec,Tmp3,EVec,EVal,RedM,iNeg)
 use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auTocm, uToau
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 H(*), Tmp3(nX,nX), EVec(2*nX,nX), EVal(2*nX), RedM(nX)
-integer nrvec(*), ndeg(*)
-logical Found
-real*8, allocatable :: Mass(:)
+implicit none
+integer(kind=iwp) :: nX, ndeg(*), nrvec(*), iNeg
+real(kind=wp) :: H(*), Tmp3(nX,nX), EVec(2*nX,nX), EVal(2*nX), RedM(nX)
+integer(kind=iwp) :: i, iHarm, iOpt, iprint, j, jHarm, nIsot
+real(kind=wp) :: r2, rlow, rm, temp
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: Mass(:)
 
 ! read masses from runfile
 

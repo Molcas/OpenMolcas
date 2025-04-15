@@ -33,15 +33,18 @@ subroutine DIHDJ2_MCLR(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,jWORK,NORB,
 
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension IASTR(*), IBSTR(*)
-dimension JASTR(*), JBSTR(*)
-dimension IASTRM(NAEL,*), IBSTRM(NBEL,*)
-dimension JASTRM(NAEL,*), JBSTRM(NBEL,*)
-dimension IASGN(*), IBSGN(*), JASGN(*), JBSGN(*)
-dimension jWORK(*), HAMIL(*)
-dimension LIA(NAEL), LIB(NBEL)
+implicit none
+integer(kind=iwp) :: IASTR(*), IBSTR(*), NIDET, JASTR(*), JBSTR(*), NJDET, NAEL, NBEL, jWORK(*), NORB, ISYM, ICOMBI, &
+                     IASTRM(NAEL,*), IBSTRM(NBEL,*), JASTRM(NAEL,*), JBSTRM(NBEL,*), IGENSG, IASGN(*), IBSGN(*), JASGN(*), &
+                     JBSGN(*), LIA(NAEL), LIB(NBEL), NDIF0, NDIF1, NDIF2
+real(kind=wp) :: HAMIL(*), ECORE, PSIGN
+integer(kind=iwp) :: I1, I2, IA, IAB, IAEL, IAEQIB, IASTAC, IB, IBEL, IBSTAC, IDET, IDIFF, IEL, IEL1, ILOOP, IORB, IPERM, IXSGN, &
+                     J1, J2, JA, JAB, JAEL, JAEQJB, JASTAC, JB, JBEL, JBSTAC, JDET, JDIFF, JEL, JEL1, JORB, JPERM, JXSGN, KLFREE, &
+                     KLIAE, KLIBE, KLJAE, KLJBE, LHAMIL, MINI, NACM, NADIF, NBCM, NBDIF, NIABEL, NJABEL, NLOOP, NTERMS
+real(kind=wp) :: CONST, SGN, SIGNA, SIGNB, XVAL
+real(kind=wp), external :: GETH1I_MCLR, GTIJKL_MCLR
 
 ! Scratch space: 4 vectors of length NORB
 KLFREE = 1
@@ -78,7 +81,7 @@ SIGNA = Zero
 SIGNB = Zero
 IPERM = 0
 JPERM = 0
-SIGN = Zero
+SGN = Zero
 XVAL = Zero
 do JDET=1,NJDET
   ! Expand JDET
@@ -273,7 +276,7 @@ do JDET=1,NJDET
             end if
           end if
         end do
-        SIGN = (-One)**(IPERM+JPERM)
+        SGN = (-One)**(IPERM+JPERM)
       end if
 
       ! Two pairs of differing beta electrons
@@ -308,7 +311,7 @@ do JDET=1,NJDET
             end if
           end if
         end do
-        SIGN = (-One)**(IPERM+JPERM)
+        SGN = (-One)**(IPERM+JPERM)
       end if
 
       ! =======================
@@ -318,27 +321,27 @@ do JDET=1,NJDET
       if ((NADIF == 2) .or. (NBDIF == 2)) then
         ! 2 differences in alpha or beta strings
         NDIF2 = NDIF2+1
-        ! SIGN * (I1 J1 ! I2 J2) - (I1 J2 ! I2 J1)
-        XVAL = SIGN*(GTIJKL_MCLR(I1,J1,I2,J2)-GTIJKL_MCLR(I1,J2,I2,J1))
+        ! SGN * (I1 J1 ! I2 J2) - (I1 J2 ! I2 J1)
+        XVAL = SGN*(GTIJKL_MCLR(I1,J1,I2,J2)-GTIJKL_MCLR(I1,J2,I2,J1))
       else if ((NADIF == 1) .and. (NBDIF == 1)) then
         ! 1 difference in alpha strings and one difference in beta string
         NDIF2 = NDIF2+1
-        ! SIGN * (IA JA ! IB JB)
+        ! SGN * (IA JA ! IB JB)
         XVAL = SIGNA*SIGNB*GTIJKL_MCLR(IA,JA,IB,JB)
         ! 1 differences in alpha or beta strings
       else if ((NADIF == 1) .and. (NBDIF == 0) .or. (NADIF == 0) .and. (NBDIF == 1)) then
         NDIF1 = NDIF1+1
-        ! SIGN *(H(I1 J1) +
+        ! SGN *(H(I1 J1) +
         !  (SUM OVER ORBITALS OF BOTH      SPIN TYPES  (I1 J1 ! JORB JORB)
         ! -(SUM OVER ORBITALS OF DIFFERING SPIN TYPE   (I1 JORB ! JORB J1)
         if (NADIF == 1) then
           I1 = IA
           J1 = JA
-          SIGN = SIGNA
+          SGN = SIGNA
         else
           I1 = IB
           J1 = JB
-          SIGN = SIGNB
+          SGN = SIGNB
         end if
 
         XVAL = GETH1I_MCLR(I1,J1)
@@ -361,7 +364,7 @@ do JDET=1,NJDET
             XVAL = XVAL-GTIJKL_MCLR(I1,JORB,JORB,J1)
           end do
         end if
-        XVAL = XVAL*SIGN
+        XVAL = XVAL*SGN
       else if ((NADIF == 0) .and. (NBDIF == 0)) then
         ! Diagonal elements
         NDIF0 = NDIF0+1

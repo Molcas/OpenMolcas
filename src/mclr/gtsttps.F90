@@ -16,12 +16,14 @@ subroutine GTSTTPS(IEL1,IEL3,NEL1,NEL3,NTYP,ITYP,IWAY)
 ! IWAY = 1 : IEL1, IEL3 known, find ITYP
 ! IWAY = 2 : ITYP known, find IEL1, IEL3
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-dimension NEL1(*), NEL3(*)
+implicit none
+integer(kind=iwp) :: IEL1, IEL3, NEL1(*), NEL3(*), NTYP, ITYP, IWAY
+integer(kind=iwp) :: IITYP
 
 if (IWAY == 1) then
   ITYP = -1

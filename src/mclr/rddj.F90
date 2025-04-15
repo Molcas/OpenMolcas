@@ -19,18 +19,17 @@ subroutine rddj(G1r,G1Q,G2r,iestate)
 
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: LuJob
-use input_mclr, only: ntAsh, iTOC
+use input_mclr, only: iTOC, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 G1r(*), G1Q(*), G2r(*)
-integer iestate
-#include "SysDef.fh"
-real*8, allocatable :: G2Q(:)
-real*8 rdum(1)
-integer nG1, nG2, iR, jDisk, i, iB, jB, iDij, iRij, kB, lB, iDkl, iRkl, iIJKL, iRijkl
-real*8 Fact
+real(kind=wp) :: G1r(*), G1Q(*), G2r(*)
+integer(kind=iwp) :: iestate
+integer(kind=iwp) :: i, iB, iDij, iDkl, iIJKL, iR, iRij, iRijkl, iRkl, jB, jDisk, kB, lB, nG1, nG2
+real(kind=wp) :: Fact, rdum(1)
+real(kind=wp), allocatable :: G2Q(:)
 
 ng1 = nTri_Elem(ntash)
 ng2 = nTri_Elem(ng1)

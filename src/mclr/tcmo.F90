@@ -12,21 +12,18 @@
 subroutine TCMO(A,isym,ictl)
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: CMO
-use MCLR_Data, only: ipCM, ipMat, nDens
-use input_mclr, only: nSym, nBas, nOrb
+use MCLR_Data, only: CMO, ipCM, ipMat, nDens
+use input_mclr, only: nBas, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 A(*)
-integer iSym, iCtl
-integer ip(8), iip(8)
-real*8, allocatable :: Temp(:)
-real*8, allocatable :: CMOInv(:)
-integer, allocatable :: iCMOInv(:)
-integer iRC, nCMOInv, niCMOInv, iS, jS
+real(kind=wp) :: A(*)
+integer(kind=iwp) :: iSym, iCtl
+integer(kind=iwp) :: iip(8), ip(8), iRC, iS, jS, nCMOInv, niCMOInv
+integer(kind=iwp), allocatable :: iCMOInv(:)
+real(kind=wp), allocatable :: CMOInv(:), Temp(:)
 
 call mma_allocate(Temp,nDens,Label='Temp')
 call ReLoad(A,isym,norb,nbas)

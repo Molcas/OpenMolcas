@@ -51,19 +51,16 @@ subroutine ANNSTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LROW,LSGSTR,ISGSTI,ISGS
 !                          nehative
 !                          A+(I)!ISTRIN>=-!-LSTRIN>.
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-integer STRING, TI, TTO, STRIN2, Z
-! Input
-dimension STRING(NEL,NSTINI), NEWORD(NSTINO), Z(NORB,NEL-1)
-dimension ISGSTI(NSTINI), ISGSTO(NSTINO)
-! Output
-dimension TI(LROW,NSTINI), TTO(LROW,NSTINI)
-! Scratch
-dimension STRIN2(NEL-1)
+implicit none
+integer(kind=iwp) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, Z(NORB,NEL-1), NEWORD(NSTINO), LROW, LSGSTR, ISGSTI(NSTINI), &
+                     ISGSTO(NSTINO), TI(LROW,NSTINI), TTO(LROW,NSTINI), I1TYP
+integer(kind=iwp) :: IEL, IEXPN, IIISGN, IPLACE, ISTRIN, ITYPE, JSTRIN, STRIN2(NEL-1)
+integer(kind=iwp), external :: IOCTP2_MCLR, ISTRNM
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' ==============='

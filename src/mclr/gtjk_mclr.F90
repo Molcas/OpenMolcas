@@ -14,12 +14,12 @@ subroutine GTJK_MCLR(RJ,RK)
 !          WITH THE CHARGE DISTRIBUTION JK
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: Int2
-use MCLR_Data, only: NACOB
+use MCLR_Data, only: Int2, NACOB
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 RJ(NACOB,NACOB), RK(NACOB,nACOB)
-integer NT, NU, NTUK, NTUJ
+real(kind=wp) :: RJ(NACOB,NACOB), RK(NACOB,NACOB)
+integer(kind=iwp) :: NT, NTUJ, NTUK, NU
 
 ! FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM
 ! THE TWO-ELECTRON INTEGRAL LIST

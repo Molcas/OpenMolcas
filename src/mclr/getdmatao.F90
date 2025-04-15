@@ -19,22 +19,17 @@ subroutine GetDmatAO(DMO,DAO,nDMO,nDAO)
 ! Purpose: calculate the active 1RDM in AO basis given that in MO basis
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: CMO
-use MCLR_Data, only: ipMat, nA, nDens
-use input_mclr, only: nSym, nAsh, nBas, nIsh
+use MCLR_Data, only: CMO, ipMat, nA, nDens
+use input_mclr, only: nAsh, nBas, nIsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
 
 implicit none
-#include "SysDef.fh"
-! Input
-integer nDMO, nDAO
-real*8, dimension(nDMO) :: DMO
-! Output
-real*8, dimension(nDAO) :: DAO
-! Auxiliaries
-real*8, dimension(:), allocatable :: D1, OCCU, NatCMO
-integer nLCMO, iS, i, j, iAA, jAA, nbas_tot, ij, iA, jA
+integer(kind=iwp) :: nDMO, nDAO
+real(kind=wp) :: DMO(nDMO), DAO(nDAO)
+integer(kind=iwp) :: i, iA, iAA, ij, iS, j, jA, jAA, nbas_tot, nLCMO
+real(kind=wp), allocatable :: D1(:), NatCMO(:), OCCU(:)
 
 !                                                                      *
 !***********************************************************************

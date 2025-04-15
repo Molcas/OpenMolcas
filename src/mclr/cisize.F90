@@ -20,26 +20,19 @@ subroutine CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCNT,MXPC
 !        August 1990 : Improved handling of large RAS 3 space
 !        Winter 1991 : Modified for LUCIA
 
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NACTEL, MINOP, MAXOP, MXPCNT, MXPCSM
-! Output
-integer NCNATS(MXPCNT,MXPCSM), NCNASM(MXPCSM), NDTASM(MXPCSM), NCSASM(MXPCSM)
-! Input
-integer NDPCNT(*), NCPCNT(*)
-! Scratch
-integer IICL(*), IIOP(*), IIOC(NORB1+NORB2+NORB3)
-! Local variables
-logical Test
-integer ILOOP, ILOOP2, NCNF, NORBT, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, MINCL1, NOP, ITYPE, NCL, ICL, IFRSTC, &
-        IORB, IPLACE, IPRORB, NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, &
-        ISYM, NTYP
-integer, external :: ISYMST_MCLR
+integer(kind=iwp) :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NACTEL, MINOP, MAXOP, MXPCNT, MXPCSM, NCNATS(MXPCNT,MXPCSM), &
+                     NCNASM(MXPCSM), NDTASM(MXPCSM), NCSASM(MXPCSM), NDPCNT(*), NCPCNT(*), IICL(*), IIOP(*), IIOC(NORB1+NORB2+NORB3)
+integer(kind=iwp) :: ICL, ICL1, IEL1, IEL1C, IEL3, IEL3C, IFRSTC, IFRSTO, IFSTR3, IIICHK, ILOOP, ILOOP2, IOP, IORB, IORB1F, &
+                     IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, IPLACE, IPRORB, IR3CHK, ISYM, ITYPE, K, KEL, KORB, MINCL1, MXMPTY, &
+                     NCL, NCNF, NEWORB, NOP, NORB, NORBT, NTYP
 #ifdef _DEBUGPRINT_
-integer I, ICSM
+integer(kind=iwp) :: I, ICSM
 #endif
-logical Loop700, Loop800, Skip700, Skip800
+logical(kind=iwp) :: Loop700, Loop800, Skip700, Skip800, Test
+integer(kind=iwp), external :: ISYMST_MCLR
 
 ILOOP = 0
 ILOOP2 = 0

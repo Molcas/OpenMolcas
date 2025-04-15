@@ -29,19 +29,18 @@ subroutine RInt_ns(rkappa,rmo,Fock,Focki,idsym,reco,jspin)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: G2sq, G1t
-use MCLR_Data, only: nDens, ipMat, ipMatBA, nA, nMBA
-use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh
+use MCLR_Data, only: G1t, G2sq, ipMat, ipMatBA, nA, nDens, nMBA
+use input_mclr, only: iMethod, nAsh, nBas, nIsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 rkappa(nDens), rMO(*), Fock(nDens), FockI(nDens)
-integer iDSym, jSpin
-real*8 reco
-real*8, allocatable :: FA(:), MT1(:), MT2(:), QA(:), QB(:)
-real*8 Fact, Dij
-integer iS, jS, iAsh, jAsh, ipF, ipFI
+real(kind=wp) :: rkappa(nDens), rMO(*), Fock(nDens), FockI(nDens), reco
+integer(kind=iwp) :: iDSym, jSpin
+integer(kind=iwp) :: iAsh, ipF, ipFI, iS, jAsh, jS
+real(kind=wp) :: Dij, Fact
+real(kind=wp), allocatable :: FA(:), MT1(:), MT2(:), QA(:), QB(:)
 
 call mma_allocate(FA,nDens,Label='FA')
 ! Fact controls the sign of H(k)

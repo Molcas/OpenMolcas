@@ -13,20 +13,17 @@ subroutine INTX(FockI,Temp1,Temp2,Temp3,Temp4,Fock,rMo,loper,idisp)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: G1t, CMO
-use MCLR_Data, only: nDens, ipCM, ipMat, ipMatLT, nA, nB
-use MCLR_Data, only: DspVec, SWLbl
-use input_mclr, only: iMethod, nSym, nAsh, nBas, nIsh, nOrb, nTPert
+use MCLR_Data, only: CMO, DspVec, G1t, ipCM, ipMat, ipMatLT, nA, nB, nDens, SWLbl
+use input_mclr, only: iMethod, nAsh, nBas, nIsh, nOrb, nSym, nTPert
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 FockI(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp1(nDens), Fock(nDens), rMO(*)
-integer lOper, iDisp
-character(len=8) Label
-integer jDisp, iOp, iRC, iOpt, iS, jS
-real*8 rde
-integer i, j, iOff, jOff
+real(kind=wp) :: FockI(nDens), Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Fock(nDens), rMO(*)
+integer(kind=iwp) :: lOper, iDisp
+integer(kind=iwp) :: i, iOff, iOp, iOpt, iRC, iS, j, jDisp, jOff, jS
+real(kind=wp) :: rde
+character(len=8) :: Label
 
 !***********************************************************************
 if (nDens == 0) return

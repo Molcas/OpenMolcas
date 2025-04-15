@@ -31,32 +31,26 @@ subroutine CISigma_td(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ip
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
-use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
-use MCLR_Data, only: nConf1, ipCM, ipMat, nDens
-use MCLR_Data, only: i12, ist, Square
-use MCLR_Data, only: iRefSM
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, ist, KAIN1, KINT2, KINT2A, nConf1, nDens, pInt1, Square, XISPSM
 use CandS, only: ICSM, ISSM
-use input_mclr, only: State_Sym, nSym, Page, nCSF, TimeDep, ntAsh, nBas
+use input_mclr, only: nBas, nCSF, nSym, ntAsh, Page, State_Sym, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
-real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-character(len=1) NT
-logical Have_2_el
+integer(kind=iwp) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
+real(kind=wp), target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+character :: NT
+logical(kind=iwp) :: Have_2_el
+integer(kind=iwp) :: i, ij, ijkl, iOp, iS, j, ji, jilk, jS, k, kic(2), kl, l, lk, nDet
+real(kind=wp), allocatable :: CIDET(:)
+real(kind=wp), allocatable, target _SAVE_TARGET_ :: TI1(:), TI2(:)
+
 ! For the timeindep case ipS1 and ipS2 will be half as long
 ! Avoid sigmavec calls. 95% of the time in mclr is spent in sigmavec
-integer kic(2)
-real*8, allocatable :: CIDET(:)
-real*8, allocatable, target _SAVE_TARGET_ :: TI1(:), TI2(:)
-integer i, j
-integer nDet, iOp, iS, jS
-integer ij, ji, k, l, kl, lk, ijkl, jilk
 
 ! Interface Anders to Jeppe
-! This interface initiates Jeppes common block
+! This interface initiates Jeppe's common block
 ! and will make it easier to use Anders modifications
 ! of the CI routines
 

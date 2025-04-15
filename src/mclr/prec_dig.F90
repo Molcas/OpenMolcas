@@ -33,19 +33,18 @@ subroutine Prec_dig(rpre,idsym)
 
 use iso_c_binding, only: c_f_pointer, c_loc
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nrec
-use MCLR_Data, only: ipCM
-use MCLR_Data, only: FAMO, FIMO, F0SQMO
-use input_mclr, only: nSym, nAsh, nIsh, nBas, nRS1, nRS2, nRS3, iMethod, TimeDep
+use MCLR_Data, only: F0SQMO, FAMO, FIMO, ipCM, nrec
+use input_mclr, only: iMethod, nAsh, nBas, nIsh, nRS1, nRS2, nRS3, nSym, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 rpre(*)
-integer idsym
-real*8, allocatable :: JInt(:), KInt(:), Scr(:)
-real*8, allocatable :: Temp1(:,:), Temp2(:), Temp3(:), Temp4(:)
+real(kind=wp) :: rpre(*)
+integer(kind=iwp) :: idsym
+integer(kind=iwp) :: iBB, ip, iRC, jS, n2, nD, ni, nmm, nmmm, nTemp
+real(kind=wp) :: Sgn
+real(kind=wp), allocatable :: JInt(:), KInt(:), Scr(:), Temp1(:,:), Temp2(:), Temp3(:), Temp4(:)
 
 !                                                                      *
 !***********************************************************************
@@ -58,10 +57,9 @@ contains
 
 subroutine Prec_dig_internal(rpre)
 
-  real*8, target :: rpre(*)
-  integer, pointer :: ipre(:)
-  integer nmm, nmmm, iS, n2, ip, jS, nD, ni, nTemp, iB, iBB, iRC
-  real*8 Sign
+  real(kind=wp), target :: rpre(*)
+  integer(kind=iwp), pointer :: ipre(:)
+  integer(kind=iwp) :: iB, iS
 
   nmm = max(0,maxval(nAsh(1:nSym)+nIsh(1:nSym)))
   nmmm = max(0,maxval(nBas(1:nSym)))
@@ -75,7 +73,7 @@ subroutine Prec_dig_internal(rpre)
   call mma_allocate(Scr,n2,Label='Scr')
 
   ip = 1
-  sign = One
+  Sgn = One
   do iS=1,nSym
     jS = Mul(is,iDSym)
     nD = nBas(js)-nIsh(jS)
@@ -100,13 +98,13 @@ subroutine Prec_dig_internal(rpre)
 
           if (nash(js) > 0) &
             call Preciaa(ib,is,js,nd,Temp3,nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),FIMO(ipCM(js)),FAMO(ipCM(js)), &
-                         F0sqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
+                         F0sqMO(ipCM(js)),Sgn,JInt,KInt,Scr,n2) ! OK
 
           ! G
           !  ipia
 
           if ((nbas(js)-nish(js)-nash(js))*nash(js) > 0) &
-            call Preciba(ib,is,js,nd,Temp3,nbas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
+            call Preciba(ib,is,js,nd,Temp3,nbas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),Sgn,JInt,KInt,Scr,n2) ! OK
         end if
 
         ! G
@@ -114,7 +112,7 @@ subroutine Prec_dig_internal(rpre)
 
         if ((nbas(js)-nish(js)-nash(js)) > 0) &
           call Precibb_td(ib,is,js,nd,Temp3,nBas(js),Temp1(:,1),Temp1(:,2),Temp2,FiMo(1+ipCM(is)+ibb),FAMO(1+ipcm(is)+ibb), &
-                          FiMo(ipCM(js)),FAMO(ipcm(js)),sign)  ! OK
+                          FiMo(ipCM(js)),FAMO(ipcm(js)),Sgn)  ! OK
 
         ! Factorize G:
         !
@@ -162,15 +160,15 @@ subroutine Prec_dig_internal(rpre)
         Temp3(1:nD**2) = Zero
         if (nish(js) > 0) &
           call Precaii(ib,is,js,nd,Temp3,nbas(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb),FIMO(ipCM(js)), &
-                       FAMO(ipCM(js)),sign,JInt,KInt,Scr,n2) ! OK
+                       FAMO(ipCM(js)),Sgn,JInt,KInt,Scr,n2) ! OK
         !call Precaai(ib,nd,ir,rpre(ip))
         !call Precaaa(ib,nd,ir,rpre(ip))
         if (nish(js)*nBas(js) > 0) &
-          call Precabi(ib,is,js,nd,Temp3,nBas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JInt,KInt,Scr,n2) !+/-?
+          call Precabi(ib,is,js,nd,Temp3,nBas(js),FIMO(ipCM(js)),FAMO(ipCM(js)),Sgn,JInt,KInt,Scr,n2) !+/-?
 
         !call Precaba(ib,nd,ir,rpre(ip))
         if (nBas(js) > 0) &
-          call Precabb(ib,is,js,nd,nbas(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)),sign)
+          call Precabb(ib,is,js,nd,nbas(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)),Sgn)
         if (.not. timedep) then
           call SQM(Temp3,rpre(ip),nD)
 #         ifdef RS6K

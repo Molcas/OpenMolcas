@@ -13,22 +13,18 @@ subroutine RHS_NAC(Fock,SLag)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipnout, opout, W
-use MCLR_Data, only: ipCI, nConf1, ipMat, n1Dens, n2Dens, nDens
-use MCLR_Data, only: NSSA
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: ipCI, ipMat, n1Dens, n2Dens, nConf1, nDens, NSSA, XISPSM
 use CandS, only: ICSM, ISSM
-use input_mclr, only: ntAsh, PT2, State_Sym, nSym, nRoots, nConf, nBas, nCSF
+use input_mclr, only: nBas, nConf, nCSF, nRoots, nSym, ntAsh, PT2, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Fock(*)
-real*8 :: SLag(nRoots,nRoots)
-integer ng1, ng2, i, j, k, l, ij, kl, ijkl, ij2, kl2, ijkl2
-integer nConfL, nConfR, iRC, LuDens
-real*8 factor
-real*8, allocatable :: G1q(:), G1m(:), G1r(:), G2q(:), G2r(:), CIL(:), CIR(:), T(:), F(:)
+real(kind=wp) :: Fock(*), SLag(nRoots,nRoots)
+integer(kind=iwp) :: i, ij, ij2, ijkl, ijkl2, iRC, j, k, kl, kl2, l, LuDens, nConfL, nConfR, ng1, ng2
+real(kind=wp) :: factor
+real(kind=wp), allocatable :: CIL(:), CIR(:), F(:), G1m(:), G1q(:), G1r(:), G2q(:), G2r(:), T(:)
 
 !                                                                      *
 !***********************************************************************
@@ -218,8 +214,8 @@ subroutine PT2_SLag()
   ! Almost the same to the subroutine in rhs_sa,
   ! but slightly modified
 
-  integer jR, kR
-  real*8 vSLag
+  integer(kind=iwp) :: jR, kR
+  real(kind=wp) :: vSLag
 
   !iR = iRLXRoot
   do jR=1,nRoots

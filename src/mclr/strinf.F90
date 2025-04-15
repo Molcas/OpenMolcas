@@ -20,21 +20,18 @@ subroutine STRINF()
 ! Output
 ! /STRINP/,/STINF/,/STRBAS/ and string information in STIN
 
-use Str_Info, only: STR, NSTTYP, ISTAC, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP
+use Str_Info, only: ISTAC, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP, STR
 use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxINT
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-! ======
-! Output
-! ======
-integer ISGSTI(1), ISGSTO(1)
-integer, allocatable :: KFREEL(:)
-integer ITYP, JTYP, LROW, IMAX
+integer(kind=iwp) :: IMAX, ISGSTI(1), ISGSTO(1), ITYP, JTYP, LROW
+integer(kind=iwp), allocatable :: KFREEL(:)
 
 ! 2 : Number of classes per string type and mappings between string types (/STINF/)
 

@@ -30,57 +30,42 @@ use Para_Info, only: myRank, nProcs
 use Para_Info, only: Is_Real_Par
 #endif
 use Spool, only: LuWr
-use MCLR_Data, only: CMO, Int2, FIMO
-use MCLR_Data, only: nConf1, nDensC, ipCI, n1Dens, n2Dens, nDens
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: lDisp
-use MCLR_Data, only: LuTemp
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
 use MCLR_procedures, only: CISigma
-use input_mclr, only: nDisp, Fail, lSave, nSym, PT2, State_Sym, iMethod, rIn_Ene, PotNuc, iBreak, Eps, nIter, ERASSCF, kPrint, &
-                      nCSF, nTPert, TimeDep, nAsh, nRs2
+use input_mclr, only: Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nAsh, nCSF, nDisp, nIter, nRs2, nSym, nTPert, PotNuc, &
+                      PT2, rIn_Ene, State_Sym, TimeDep
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use MCLR_Data, only: nCMO
 #endif
 
 implicit none
+integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iRHSCIDisp(nDisp)
+logical(kind=iwp) :: converged(8)
+integer(kind=iwp) :: iD, iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iRank, istatus, iSym, iSym_Old, Iter, jDisp, &
+                     jSpin, kkkSym, kkSym, Left, lLine, lPaper, LuWR_Save, nConf3, nPre2, pstate_sym
+real(kind=wp) :: Clock(4), D_0, Delta, Delta0, DeltaC, DeltaK, EC, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rCHC, rdum(1), ReCo, &
+                 Res, res_tmp, rEsci, rEsk, rGrad, Tim2, Tim3, Tim4
+logical(kind=iwp) :: CI, cnvrgd, lPrint, Orb, Response
+character(len=132) :: Line
+character(len=72) :: SLine
+character(len=8) :: Fmt2
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
 #include "mafdecls.fh"
-real*8 dfail
-integer iglfail
+integer(kind=iwp) :: iglfail
+real(kind=wp) :: dfail
 #endif
-logical Orb, CI, Response
-integer, parameter :: iTimeCC = 1
-integer, parameter :: iTimeKK = 2
-integer, parameter :: iTimeKC = 3
-integer, parameter :: iTimeCK = 4
-character(len=8) Fmt2
-character(len=132) Line
-integer iKapDisp(nDisp), isigDisp(nDisp)
-integer iRHSDisp(nDisp), iRHSCIDisp(nDisp)
-integer iCIDisp(nDisp), iCIsigDisp(nDisp)
-integer pstate_sym
-logical lPrint, cnvrgd, converged(8)
-logical, external :: Rsv_Tsk
-real*8 Clock(4)
-character(len=72) SLine
-real*8 res_tmp
-real*8 rdum(1)
-real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), Dens(:), &
-                       Pens(:), rmoaa(:), Sc4(:)
-integer, allocatable :: List(:,:)
-real*8 Tim2, Tim3, Tim4, R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rGrad, EC, D_0, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, &
-       rBeta, Res, rCHC
-real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, iDisp, kkSym, kkkSym, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, jDisp, iLen, Iter, &
-        ipPre2, jSpin, LuWR_Save, iSym_Old, iRank, iD, istatus
-integer, external :: nPre
-integer, external :: IsFreeUnit
+integer(kind=iwp), allocatable :: List(:,:)
+real(kind=wp), allocatable :: Dens(:), dKappa(:), Kappa(:), Pens(:), rmoaa(:), Sc1(:), Sc2(:), Sc3(:), Sc4(:), Sigma(:), Temp1(:), &
+                              Temp2(:), Temp3(:), Temp4(:)
+integer(kind=iwp), parameter :: iTimeCC = 1, iTimeKK = 2, iTimeKC = 3, iTimeCK = 4
+integer(kind=iwp), external :: IsFreeUnit, nPre
+real(kind=wp), external :: DDot_
+logical(kind=iwp), external :: Rsv_Tsk
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -226,8 +211,8 @@ do
     !nconf3 = max(ndtasm(PState_SYM),ndtasm(State_SYM))
 
     if (doDMRG) then  ! yma
-      call dmrg_spc_change_mclr(RGras2(1:8),nash)
-      call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+      nash(:) = RGras2(:)
+      nrs2(:) = RGras2(:)
     end if
 
     call Setup_MCLR(iSym)
@@ -438,8 +423,8 @@ do
     if (delta == Zero) exit
 
     if (doDMRG) then  ! It can be deleted
-      call dmrg_spc_change_mclr(RGras2(1:8),nash)
-      call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+      nash(:) = RGras2(:)
+      nrs2(:) = RGras2(:)
     end if
 
     !                                                                  *
@@ -560,7 +545,7 @@ do
       call RecPrt('CI','(3F10.4)',W(ipCI)%A,1,nConf1)
       call RecPrt('CId','(3F10.4)',W(ipCId)%A,1,nConf1)
 #     endif
-      call CIDens(Response,ipCI,ipCId,State_sym,PState_Sym,Pens,Dens)     ! Jeppes
+      call CIDens(Response,ipCI,ipCId,State_sym,PState_Sym,Pens,Dens)     ! Jeppe's
 
 #     ifdef _DEBUGPRINT_
       write(LuWr,*) 'After CIDens'

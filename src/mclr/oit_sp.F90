@@ -16,18 +16,18 @@ subroutine oit_sp(rkappa,sigma,i1,r3,p11,r4,p12,D,FA,rm1,rm2,focki)
 ! Constructs  F  = <0|[Q  ,H]|0>
 !              pq       pq
 
-use MCLR_Data, only: nDensC, nDens, nNA, ipMat, nA, nMBA
-use input_mclr, only: nSym, nAsh, nBas, nIsh
+use MCLR_Data, only: ipMat, nA, nDens, nDensC, nMBA, nNA
+use input_mclr, only: nAsh, nBas, nIsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer i1
-real*8 rkappa(nDensC), sigma(nDensC), FA(nDens), D(*), p12(*), p11(*), rm1(*), rm2(*), Focki(*)
-real*8, allocatable :: K(:), FAtemp(:), Fock(:), Q(:), Q1(:)
-integer iSym, jSpin, iS, iAsh, jAsh, ipF1, ipF2, ipFI1, IA
-real*8 R1, Fact, Reco, R3, R4, Dij
+real(kind=wp) :: rkappa(nDensC), sigma(nDensC), R3, p11(*), R4, p12(*), D(*), FA(nDens), rm1(*), rm2(*), Focki(*)
+integer(kind=iwp) :: i1
+integer(kind=iwp) :: IA, iAsh, ipF1, ipF2, ipFI1, iS, iSym, jAsh, jSpin
+real(kind=wp) :: Dij, Fact, R1, Reco
+real(kind=wp), allocatable :: FAtemp(:), Fock(:), K(:), Q(:), Q1(:)
 
 isym = 1
 ! sign1  Kappa**t=Sign1*Kappa

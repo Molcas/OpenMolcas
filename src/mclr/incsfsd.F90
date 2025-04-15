@@ -13,14 +13,13 @@ subroutine InCSFSD(iState,State_sym)
 
 use Symmetry_Info, only: Mul
 use Str_Info, only: CNSM
-use MCLR_Data, only: iALLO, i1, iAnders, lConf, llDet
-use MCLR_Data, only: LuCSF2SD
+use MCLR_Data, only: i1, iALLO, iAnders, lConf, llDet, LuCSF2SD
 use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-integer iState, State_sym
-integer idum(1)
-integer iSym, iAdr, i, iad
+integer(kind=iwp) :: iState, State_sym
+integer(kind=iwp) :: i, iad, iAdr, idum(1), iSym
 
 ! Place pointer
 

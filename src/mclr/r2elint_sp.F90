@@ -11,35 +11,32 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,iDSym,sign,Fact,jspin,D,FA)
+subroutine r2elint_sp(rKappa,rMO1,rmo2,FockI,FockA,iDSym,Sgn,Fact,jspin,D,FA)
 !***********************************************************************
 !
 ! Constructs the one index transformed Fock-matrixes
 ! and (pj|kl).
 ! rKappa : the transformation matrix
 ! iDSym  : Symmetry of transformation
-! sign   : 1:real -1:complex
+! Sgn    : 1:real -1:complex
 ! jspin  : 0:singlet 1:triplet
 !
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: CMO, FIMO
-use MCLR_Data, only: nDens, nMBA, nNA, ipCM, ipMat, nA, nCMO
-use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
+use MCLR_Data, only: CMO, FIMO, ipCM, ipMat, nA, nCMO, nDens, nMBA, nNA
+use input_mclr, only: iMethod, nAsh, nBas, nIsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 rKappa(nDens), rMO1(nMba), rmo2(*), FockI(nDens), FockA(nDens)
-integer iDSym, jSpin
-real*8 sign, Fact
-real*8 D(*), FA(*)
-logical lFI, lFA, lMo
-real*8, allocatable :: T1(:), Tmp2(:), T3(:), T4(:), DIL(:), DI(:), DIR(:), FI(:), FA2(:), DAR(:), DA(:), DAL(:)
-integer nDens22, iS, iB, ip, jB, iA, jA, jS
-real*8 FacR
-integer i
+real(kind=wp) :: rKappa(nDens), rMO1(nMba), rmo2(*), FockI(nDens), FockA(nDens), Sgn, Fact, D(*), FA(*)
+integer(kind=iwp) :: iDSym, jSpin
+integer(kind=iwp) :: i, iA, iB, ip, iS, jA, jB, jS, nDens22
+real(kind=wp) :: FacR
+logical(kind=iwp) :: lFA, lFI, lMo
+real(kind=wp), allocatable :: DA(:), DAL(:), DAR(:), DI(:), DIL(:), DIR(:), FA2(:), FI(:), T1(:), T3(:), T4(:), Tmp2(:)
 
 nDens22 = nDens
 do i=1,nSym
@@ -101,7 +98,7 @@ end if
 ! from one index tranformation of contracted indexes
 
 FacR = Fact
-call Read2_2(rmo1,rmo2,FI,FA2,T1,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sign,Facr,jSpin,lFA,lfi,lMo)
+call Read2_2(rmo1,rmo2,FI,FA2,T1,Tmp2,T3,T4,nDens22,DIR,DIL,DI,DAR,DAL,DA,rkappa,idsym,Sgn,Facr,jSpin,lFA,lfi,lMo)
 
 ! Calculate contribution from uncontracted indexes.
 
@@ -110,14 +107,14 @@ do iS=1,nSym
   if (nBas(iS)*nBas(jS) /= 0) then
     call DGEMM_('T','N',nBas(iS),nBas(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),FI(ipMat(iS,jS)),nBas(iS),Zero,FockI(ipMat(iS,jS)), &
                 nBas(iS))
-    call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,FIMO(ipCM(iS)),nBas(is),rkappa(ipMat(iS,jS)),nBas(iS),One, &
+    call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sgn*Facr,FIMO(ipCM(iS)),nBas(is),rkappa(ipMat(iS,jS)),nBas(iS),One, &
                 FockI(ipMat(iS,jS)),nBas(iS))
     call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,rkappa(ipMat(iS,jS)),nBas(is),FIMO(ipCM(jS)),nBas(jS),One, &
                 FockI(ipMat(iS,jS)),nBas(is))
     if (iMethod == 2) then
       call DGEMM_('T','N',nBas(iS),nBas(jS),nBas(iS),One,CMO(ipCM(iS)),nBas(iS),FA2(ipMat(iS,jS)),nBas(iS),Zero, &
                   FockA(ipMat(iS,jS)),nBas(iS))
-      call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sign*Facr,FA(ipCM(iS)),nBas(is),rkappa(ipMat(iS,jS)),nBas(iS),One, &
+      call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(iS),Sgn*Facr,FA(ipCM(iS)),nBas(is),rkappa(ipMat(iS,jS)),nBas(iS),One, &
                   FockA(ipMat(iS,jS)),nBas(iS))
       call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),Facr,rkappa(ipMat(iS,jS)),nBas(is),FA(ipCM(jS)),nBas(jS),One, &
                   FockA(ipMat(iS,jS)),nBas(is))

@@ -14,17 +14,16 @@ subroutine SetUp_MCLR(DSYM)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: pInt1, pInt2
-use MCLR_Data, only: nNA, n2Dens, nDens, nCMO, nDensC, ipMatLT, ipMat, ipCM, ipMatBA, ipMO, nA, nB, n1Dens, nMBA
-use input_mclr, only: nSym, TimeDep, iMethod, PT2, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3
+use MCLR_Data, only: ipCM, ipMat, ipMatBA, ipMatLT, ipMO, n1Dens, n2Dens, nA, nB, nCMO, nDens, nDensC, nMBA, nNA, pInt1, pInt2
+use input_mclr, only: iMethod, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, nRs3, nSym, PT2, TimeDep
+use Definitions, only: iwp
 
 implicit none
-integer dsym
-! for the integrals needed in sigma gen
-integer, external :: iPntSO
-integer ip, nBmx, iS, jS, lS, klS, kS, ijS, ipP, iExt0, iExt1, iExt2, iExt3, iInt4, iExt4, i1, iInt0, iInt1, iInt2, iInt3, mATAB, &
-        iOff, iiSym, iOrb, jjSym, jOrb, ijSym, klSym, ijNum, ijOrb, kkSym, kOrb, llSym, lOrb, klNum, klOrb, iPlus, nDensLT
-integer i
+integer(kind=iwp) :: dsym
+integer(kind=iwp) :: i, i1, iExt0, iExt1, iExt2, iExt3, iExt4, iInt0, iInt1, iInt2, iInt3, iInt4, iiSym, ijNum, ijOrb, ijS, ijSym, &
+                     iOff, iOrb, ip, iPlus, ipP, iS, jjSym, jOrb, jS, kkSym, klNum, klOrb, klS, klSym, kOrb, kS, llSym, lOrb, lS, &
+                     mATAB, nBmx, nDensLT
+integer(kind=iwp), external :: iPntSO
 
 !                                                                      *
 !***********************************************************************

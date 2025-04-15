@@ -21,17 +21,15 @@ subroutine ExpHinvv(rdia,v,u,alpha,beta)
 ! |u> = alpha|u> + beta  (H -E ) |v>
 !                          0  0
 
-use MCLR_Data, only: H0S, H0F, SBIDT, nExp
-use MCLR_Data, only: nConf1
+use MCLR_Data, only: H0F, H0S, nConf1, nExp, SBIDT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 alpha, beta
-real*8 v(nConf1), u(nConf1), rdia(nConf1)
-real*8, allocatable :: Tmp1(:), Tmp4(:)
-integer i, j, iRC
+real(kind=wp) :: rdia(nConf1), v(nConf1), u(nConf1), alpha, beta
+integer(kind=iwp) :: i, iRC, j
+real(kind=wp), allocatable :: Tmp1(:), Tmp4(:)
 
 if (nExp /= 0) then
   call mma_allocate(Tmp1,nExp,Label='Tmp1')

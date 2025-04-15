@@ -35,14 +35,14 @@ subroutine NEWTYP_MCLR(INCLS,INTP,IACOP,ITPOP,NOP,OUTCLS,OUTTP)
 ! OUTCLS : group of resulting string
 ! OUTTP  : Type of resulting string
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-! Input
-integer ITPOP(*), IACOP(*)
-integer OUTCLS, OUTTP
+implicit none
+integer(kind=iwp) :: INCLS, INTP, IACOP(*), ITPOP(*), NOP, OUTCLS, OUTTP
+integer(kind=iwp) :: IDELTA, IEL1, IEL3, IOP
 
 ! Number of electrons in RAS1,RAS3
 call GTSTTP(INCLS,IEL1,IEL3,INTP,2)

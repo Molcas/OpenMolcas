@@ -17,12 +17,14 @@ subroutine PSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSIGN
 ! Combination type is defined by IDC
 ! IAC = 2  does not work for LUHC <= 0 !
 
-implicit real*8(A-H,O-Z)
-dimension C(*), CTT(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
-dimension ICOOSC(NOCTPA,NOCTPB,*)
-dimension SCR(*)
-dimension ISGVST(IBSM)
-dimension IDUM(1)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: C(*), CTT(*), PSIGN, SCR(*)
+integer(kind=iwp) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), ICOOSC(NOCTPA,NOCTPB,*), IAC, IDC, &
+                     LUHC
+integer(kind=iwp) :: IBASE, IDUM(1), ISGVST(IBSM), LCOMB, LDET, NAST, NBST, NDIM, NELMNT
+real(kind=wp) :: PLSIGN
 
 ! ======================
 ! Write directly to disc

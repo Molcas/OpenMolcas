@@ -14,22 +14,18 @@ subroutine InpOne()
 use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use rctfld_module, only: lRF
-use MCLR_Data, only: CMO, Int1, KAIN1
-use MCLR_Data, only: nDens
-use input_mclr, only: nSym, nAtoms, iSpin, nActEl, nBas, nFro, nIsh, nOrb, PotNuc
+use MCLR_Data, only: CMO, Int1, KAIN1, nDens
+use input_mclr, only: iSpin, nActEl, nAtoms, nBas, nFro, nIsh, nOrb, nSym, PotNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-logical Do_ESPF, First, Dff, Do_DFT, NonEq
-character(len=8) Label
-integer iComp, idum(1)
-real*8, allocatable :: D1ao(:), Nuc(:)
-real*8, allocatable :: Temp1(:), Temp2(:), Temp3(:)
-real*8, allocatable :: HTmp(:), GTmp(:)
-integer iRC, iOpt, iiSym, iS, Leng, iCharge, ip, ip2
-real*8 Tot_Nuc_Charge, Tot_El_Charge, Tot_Charge, ExFac
+integer(kind=iwp) :: iCharge, iComp, idum(1), iiSym, iOpt, ip, ip2, iRC, iS, Leng
+real(kind=wp) :: ExFac, Tot_Charge, Tot_El_Charge, Tot_Nuc_Charge
+logical(kind=iwp) :: Dff, Do_DFT, Do_ESPF, First, NonEq
+character(len=8) :: Label
+real(kind=wp), allocatable :: D1ao(:), GTmp(:), HTmp(:), Nuc(:), Temp1(:), Temp2(:), Temp3(:)
 
 iRc = -1
 iOpt = ibset(0,sOpSiz)

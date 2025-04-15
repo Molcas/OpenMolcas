@@ -15,9 +15,10 @@ subroutine DMInvKap_td(DigPrec,rIn,rOut)
 ! rout  Trail vector rout = T^-1B^x
 
 use MCLR_Data, only: nDensC
+use Definitions, only: wp
 
 implicit none
-real*8 rOut(nDensC), rIn(nDensC), DigPrec(nDensC)
+real(kind=wp) :: DigPrec(nDensC), rIn(nDensC), rOut(nDensC)
 
 !-----------------------------------------------------------------------
 ! Multiply the 1/precond in vector form, rTemp, with RHS in vector form, rIn

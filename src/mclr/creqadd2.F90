@@ -16,14 +16,15 @@ subroutine creqadd2(q,G2,idSym,MO,Scr,n2)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDens, nNA, ipMat, nA
-use input_mclr, only: nSym, nAsh, nIsh, nOrb
+use MCLR_Data, only: ipMat, nA, nDens, nNA
+use input_mclr, only: nAsh, nIsh, nOrb, nSym
+use Definitions, only: wp, iwp
 
 implicit none
-integer idSym, n2
-real*8 Q(nDens), G2(*), MO(n2), Scr(n2)
-integer iS, jS, kS, lS, ipS, iAsh, jAsh, kAsh, lAsh, ijS, kAA, lAA, iAA, ikl, ipQ, ipM, iij, ipG
-real*8 P_ijkl
+integer(kind=iwp) :: idSym, n2
+real(kind=wp) :: Q(nDens), G2(*), MO(n2), Scr(n2)
+integer(kind=iwp) :: iAA, iAsh, iij, ijS, ikl, ipG, ipM, ipQ, ipS, iS, jAsh, jS, kAA, kAsh, kS, lAA, lAsh, lS
+real(kind=wp) :: P_ijkl
 
 !                                                                      *
 !***********************************************************************

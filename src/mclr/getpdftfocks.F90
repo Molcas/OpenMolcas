@@ -19,13 +19,13 @@ subroutine GetPDFTFocks(FMO1t,FMO2t,nTri)
 
 use MCLR_Data, only: nAcPr2
 use input_mclr, only: nRoots
+use Definitions, only: wp, iwp
 
 implicit none
-integer nTri
-real*8, dimension(nRoots*nTri) :: FMO1t
-real*8, dimension(nRoots*NACPR2) :: FMO2t
+integer(kind=iwp) :: nTri
+real(kind=wp) :: FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots)
 
-call Get_DArray('F1_PDFT',FMO1t,nRoots*nTri)
-call Get_DArray('F2_PDFT',FMO2t,nRoots*NACPR2)
+call Get_DArray('F1_PDFT',FMO1t,nTri*nRoots)
+call Get_DArray('F2_PDFT',FMO2t,nAcPr2*nRoots)
 
 end subroutine GetPDFTFocks

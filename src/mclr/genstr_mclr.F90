@@ -28,25 +28,18 @@ subroutine GENSTR_MCLR(NEL,NELMN1,NELMX1,NELMN3,NELMX3,ISTASO,NOCTYP,NSM,Z,LSTAS
 !                      order to symmetry and occupation type order.
 
 use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer NEL, NELMN1, NELMX1, NELMN3, NELMX3, NOCTYP, NSM
-integer IOTYP
-! Input
-integer ISTASO(NOCTYP,NSM)
-integer Z(NACOB,NEL)
-! Output
-integer STRING(NEL,*), IREORD(*)
-! Scratch arrays
-integer IOC(*), LSTASO(NOCTYP,NSM)
-! Local variables
-integer NSTRIN, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, NONEW1, NONEW2, NONEW3, &
-        ISYM, ITYP, LEXCI, LACTU, IOCTP2_MCLR, ISTRNM, ISYMST_MCLR, i
+integer(kind=iwp) :: NEL, NELMN1, NELMX1, NELMN3, NELMX3, NOCTYP, NSM, ISTASO(NOCTYP,NSM), Z(NACOB,NEL), LSTASO(NOCTYP,NSM), &
+                     IREORD(*), STRING(NEL,*), IOC(*), IOTYP
+integer(kind=iwp) :: i, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IOCTP2_MCLR, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, &
+                     ISTRNM, ISYM, ISYMST_MCLR, ITYP, LACTU, LEXCI, NONEW1, NONEW2, NONEW3, NSTRIN
 #ifdef _DEBUGPRINT_
-integer IEL, ISTRIN, LSTRIN, KSTRIN
+integer(kind=iwp) :: IEL, ISTRIN, KSTRIN, LSTRIN
 #endif
 
 LSTASO(:,:) = 0

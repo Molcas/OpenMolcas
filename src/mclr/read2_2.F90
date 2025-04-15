@@ -36,9 +36,9 @@ subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,Temp2,Temp3,Temp4,nDens22,DI13,DI
 !   exchange part Fock matrix and exchange integrals to construct  *
 !   Coulomb part.                                                  *
 !                                                                  *
-!   Sign  =  1                                                     *
+!   Sgn  =  1                                                      *
 !                                                                  *
-!   Sign  = -1  {I,K}=KI+signIK                                    *
+!   Sgn  = -1  {I,K}=KI+signIK                                     *
 !                                                                  *
 !   jspin =  0  Fock matrixes and MO's needed for singlet          *
 !               perturbations                                      *
@@ -49,29 +49,25 @@ subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,Temp2,Temp3,Temp4,nDens22,DI13,DI
 !*******************************************************************
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nMBA, nDens, nCMO, ipCM, ipMat, ipMO, nB
-use input_mclr, only: nSym, iMethod, nAsh, nIsh, nOrb
+use MCLR_Data, only: ipCM, ipMat, ipMO, nB, nCMO, nDens, nMBA
+use input_mclr, only: iMethod, nAsh, nIsh, nOrb, nSym
 use Constants, only: Zero, Half, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 rmo1(nMba), rmo2(nmba), FockI(nDens), FockA(nDens)
-integer nDens22
-real*8 Temp1(nDens22), Temp2(nDens22), Temp3(nDens22), Temp4(nDens22), DI13(nDens), DI24(nDens), DI(nCMO), DA13(nDens), &
-       DA24(nDens), DA(nCMO), rkappa(nDens)
-integer iDSym
-real*8 Signa, Fact
-integer jSpin
-logical lFAt, lFIT, lmot
-logical singlet
-integer iS, jS, ijS, kS, lS, iB, n, nNB, jB, ipD, ipF, iiB, jjB, ipS, ipi, ip1, ip2, ip3, ip4, lB, ijA, ilA, ipA
-real*8 Sign
+integer(kind=iwp) :: nDens22, iDSym, jSpin
+real(kind=wp) :: rmo1(nMba), rmo2(nmba), FockI(nDens), FockA(nDens), Temp1(nDens22), Temp2(nDens22), Temp3(nDens22), &
+                 Temp4(nDens22), DI13(nDens), DI24(nDens), DI(nCMO), DA13(nDens), DA24(nDens), DA(nCMO), rkappa(nDens), Signa, Fact
+logical(kind=iwp) :: lFAt, lFIT, lmot
+integer(kind=iwp) :: iB, iiB, ijA, ijS, ilA, ip1, ip2, ip3, ip4, ipA, ipD, ipF, ipi, ipS, iS, jB, jjB, jS, kS, lB, lS, n, nNB
+real(kind=wp) :: Sgn
+logical(kind=iwp) :: singlet
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! (mn|pq)=sum(o) T  (on|pq) + sign*T  (mo|pq)+T (mn|oq) +sign*T  (mn|po)
-!                 mo                no         po              qo
+! (mn|pq)=sum(o) T  (on|pq) + sgn*T  (mo|pq)+T (mn|oq) +sgn*T  (mn|po)
+!                 mo               no         po             qo
 !
 !   DL = sum(po) D  T   C     (13)
 !     bj          ij pi  bp
@@ -124,7 +120,7 @@ do iS=1,nSym
   end if
 end do
 
-sign = One
+Sgn = One
 if (imethod == 2) DA24(:) = signa*DA24(:)
 Di24(:) = signa*Di24(:)
 !                                                                      *
@@ -166,7 +162,7 @@ do iS=1,nSym
                     if (Mul(ls,is) == idsym) then
                       ipD = ipMat(lS,iS)+nOrb(lS)*(ib-1)
                       ipF = ipMat(kS,jS)+nOrb(kS)*(jB-1)
-                      call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
+                      call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sgn*Half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
                     end if
 
                     !               IJ  I
@@ -176,7 +172,7 @@ do iS=1,nSym
                     if ((kS /= ls) .and. (Mul(kS,is) == iDSym)) then
                       ipD = ipMat(kS,iS)+nOrb(kS)*(ib-1)
                       ipF = ipMat(lS,jS)+nOrb(lS)*(jB-1)
-                      call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
+                      call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sgn*Half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
                     end if
 
                     !               JI  J
@@ -187,7 +183,7 @@ do iS=1,nSym
                       if (Mul(lS,js) == iDSym) then
                         ipD = ipMat(lS,jS)+nOrb(lS)*(jb-1)
                         ipF = ipMat(kS,iS)+nOrb(kS)*(iB-1)
-                        call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
+                        call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sgn*Half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
                       end if
 
                       !                JI  J
@@ -197,7 +193,7 @@ do iS=1,nSym
                       if ((kS /= ls) .and. (Mul(kS,js) == iDSym)) then
                         ipD = ipMat(kS,jS)+nOrb(kS)*(jb-1)
                         ipF = ipMat(lS,iS)+nOrb(lS)*(iB-1)
-                        call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
+                        call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sgn*Half,Temp2,nOrb(lS),DA24(ipD),1,One,FockA(ipF),1)
                       end if
 
                     end if
@@ -215,7 +211,7 @@ do iS=1,nSym
                     if (Mul(ls,is) == idsym) then
                       ipD = ipMat(lS,iS)+nOrb(lS)*(ib-1)
                       ipF = ipMat(kS,jS)+norb(kS)*(jB-1)
-                      call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
+                      call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sgn*Half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
                     end if
 
                     !               IJ  I
@@ -225,7 +221,7 @@ do iS=1,nSym
                     if ((kS /= ls) .and. (Mul(kS,is) == iDSym)) then
                       ipD = ipMat(kS,iS)+nOrb(kS)*(ib-1)
                       ipF = ipMat(lS,jS)+norb(lS)*(jB-1)
-                      call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
+                      call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sgn*Half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
                     end if
 
                     !               JI  J
@@ -236,7 +232,7 @@ do iS=1,nSym
                       if (Mul(lS,js) == iDSym) then
                         ipD = ipMat(lS,jS)+nOrb(lS)*(jb-1)
                         ipF = ipMat(kS,iS)+norb(kS)*(iB-1)
-                        call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
+                        call dGeMV_('T',nOrb(lS),nOrb(kS),-Fact*Sgn*Half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
                       end if
 
                       !                JI  J
@@ -246,7 +242,7 @@ do iS=1,nSym
                       if ((kS /= ls) .and. (Mul(kS,js) == iDSym)) then
                         ipD = ipMat(kS,jS)+nOrb(kS)*(jb-1)
                         ipF = ipMat(lS,iS)+norb(lS)*(iB-1)
-                        call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sign*half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
+                        call dGeMV_('N',nOrb(lS),nOrb(kS),-Fact*Sgn*Half,Temp2,nOrb(lS),DI24(ipD),1,One,FockI(ipF),1)
                       end if
 
                     end if
@@ -414,7 +410,7 @@ do iS=1,nSym
 
                         ipD = ipMat(kS,lS)+nOrb(kS)*(lb-1)
                         ipF = ipMat(iS,jS)+nOrb(iS)*(jB-1)
-                        call dGeMV_('N',nOrb(iS),nOrb(kS),Fact*Sign,Temp1,nOrb(iS),DI24(ipD),1,One,FockI(ipF),1)
+                        call dGeMV_('N',nOrb(iS),nOrb(kS),Fact*Sgn,Temp1,nOrb(iS),DI24(ipD),1,One,FockI(ipF),1)
                       end if
                     end if
                     !   ~
@@ -426,7 +422,7 @@ do iS=1,nSym
                     if (Mul(ks,js) == idsym) then
                       ipD = ipMat(kS,jS)+nOrb(kS)*(jb-1)
                       ipF = ipMat(iS,lS)+nOrb(iS)*(lB-1)
-                      call dGeMV_('N',nOrb(iS),nOrb(kS),-Fact*half,Temp1,nOrb(iS),DI13(ipD),1,One,FockI(ipF),1)
+                      call dGeMV_('N',nOrb(iS),nOrb(kS),-Fact*Half,Temp1,nOrb(iS),DI13(ipD),1,One,FockI(ipF),1)
 
                     end if
                   end if
@@ -458,7 +454,7 @@ do iS=1,nSym
 
                         ipD = ipMat(kS,lS)+nOrb(kS)*(lb-1)
                         ipF = ipMat(iS,jS)+nOrb(iS)*(jB-1)
-                        call dGeMV_('N',nOrb(iS),nOrb(kS),Fact*Sign,Temp1,nOrb(iS),DA24(ipD),1,One,FockA(ipF),1)
+                        call dGeMV_('N',nOrb(iS),nOrb(kS),Fact*Sgn,Temp1,nOrb(iS),DA24(ipD),1,One,FockA(ipF),1)
                       end if
                     end if
                     !           ~
@@ -470,7 +466,7 @@ do iS=1,nSym
                     if (Mul(kS,js) == idsym) then
                       ipD = ipMat(kS,jS)+nOrb(kS)*(jb-1)
                       ipF = ipMat(iS,lS)+nOrb(iS)*(lB-1)
-                      call dGeMV_('N',nOrb(iS),nOrb(kS),-Fact*half,Temp1,nOrb(iS),DA13(ipD),1,One,FockA(ipF),1)
+                      call dGeMV_('N',nOrb(iS),nOrb(kS),-Fact*Half,Temp1,nOrb(iS),DA13(ipD),1,One,FockA(ipF),1)
 
                     end if
                   end if

@@ -23,21 +23,20 @@ subroutine ICISPS()
 ! Jeppe Olsen, Winter 1991
 ! Last revision April 1991
 
-use Str_Info, only: STR, NOCTYP
-use MCLR_Data, only: IDC
-use MCLR_Data, only: IASTFI, IBSTFI, MNR1IC, MXR3IC, IACTI, MNR3IC, MXR1IC, NAELCI, NBELCI, XISPSM, MXSB, MXSOOB, NICISP
+use Str_Info, only: NOCTYP, STR
+use MCLR_Data, only: IACTI, IASTFI, IBSTFI, IDC, MNR1IC, MNR3IC, MXR1IC, MXR3IC, MXSB, MXSOOB, NAELCI, NBELCI, NICISP, XISPSM
 use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-! local variables
-integer MXCEXP, ICI, ISYM, IATP, IBTP, IIDC, MXS, MXSOO, NCOMB
-real*8 XNCOMB
-integer, allocatable :: LBLTP(:), LCVST(:)
+integer(kind=iwp) :: IATP, IBTP, ICI, IIDC, ISYM, MXCEXP, MXS, MXSOO, NCOMB
+real(kind=wp) :: XNCOMB
+integer(kind=iwp), allocatable :: LBLTP(:), LCVST(:)
 
 ! Local memory
 call mma_allocate(LBLTP,nIrrep,Label='LBLTP')

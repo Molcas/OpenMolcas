@@ -19,14 +19,13 @@ subroutine CalcDacc(Dacc,GDMat,M,nnA,nRoots,zx)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Zero, Four
+use Definitions, only: wp, iwp
 
 implicit none
-integer nnA, nRoots, M
-real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-real*8, dimension(nnA,nnA) :: Dacc
-real*8, dimension(nTri_Elem(nRoots-1)) :: zx
-integer it, K, IKM, IKM2
-real*8 Fact
+integer(kind=iwp) :: M, nnA, nRoots
+real(kind=wp) :: Dacc(nnA,nnA), GDMat(nTri_Elem(nRoots),nnA,nnA), zx(nTri_Elem(nRoots-1))
+integer(kind=iwp) :: IKM, IKM2, it, K
+real(kind=wp) :: Fact
 
 Dacc(:,:) = Zero
 

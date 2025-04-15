@@ -97,7 +97,7 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 !  only N times for computing part (2).
 !
 !  In total CISigma_sa will be called N^2 times, but the memory needed to
-!  compute AXPzx is a real*8 array sized nConf1,nRoots.
+!  compute AXPzx is a real(kind=wp) array sized nConf1,nRoots.
 !
 !  In CalcAXPzx1, CISigma_sa is called N*(N-1)/2 times, but array is sized
 !  N*(N-1)/2*nRoots*nConf1 (note that N = nRoots).  Maybe this is a good
@@ -108,35 +108,21 @@ subroutine CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,DDg,zx)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipget, W
-use MCLR_Data, only: nNA, nConf1, ipCI, nDens
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: ipCI, nConf1, nDens, nNA, XISPSM
 use MCLR_procedures, only: CISigma_sa
 use input_mclr, only: State_Sym, nSym, nRoots, ntAsh, nAsh
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
+use Definitions, only: wp, iwp
 
 implicit none
-! Input
-real*8, dimension(nTri_Elem(nRoots-1)) :: zX
-real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-integer NPUVX
-real*8, dimension(NPUVX) :: PUVX
-integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
-real*8, dimension(nTri_Elem(nRoots),nTri_Elem(nRoots)) :: DDg
-! Output
-real*8, dimension(nConf1,nRoots) :: AXPzx
-! Auxiliaries
-real*8, dimension(:), allocatable :: Wop, Ddiff, D_acc
-integer K, L, M
-integer jSym
-integer iKK, iLL, iKL, iKL2, iKM2, iLM, iKM
-integer, dimension(nSym) :: off_Ash
-real*8 coeff1, coeff2, Coeff, dRoots
-integer ipwslam, nconf3
-real*8, dimension(1) :: tempda
-real*8, external :: DDot_
-integer I
-real*8, dimension(:,:), allocatable :: ovrlp
+integer(kind=iwp) :: NPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
+real(kind=wp) :: AXPzx(nConf1,nRoots), GDMat(nTri_Elem(nRoots),nnA,nnA), PUVX(NPUVX), DDg(nTri_Elem(nRoots),nTri_Elem(nRoots)), &
+                 zX(nTri_Elem(nRoots-1))
+integer(kind=iwp) :: I, iKK, iKL, iKL2, iKM, iKM2, iLL, iLM, ipwslam, jSym, K, L, M, nconf3, off_Ash(nSym)
+real(kind=wp) :: Coeff, coeff1, coeff2, dRoots, tempda(1)
+real(kind=wp), allocatable :: D_acc(:), Ddiff(:), ovrlp(:,:), Wop(:)
+real(kind=wp), external :: DDot_
 
 AXPzx(:,:) = Zero
 ! Converting nRoots to double prec type

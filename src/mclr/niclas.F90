@@ -16,26 +16,22 @@ subroutine Niclas(H,coor,LUT)
 use Index_Functions, only: iTri, nTri_Elem
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
-use Symmetry_Info, only: nIrrep, iChTbl
+use Symmetry_Info, only: iChTbl, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-#include "SysDef.fh"
-real*8 H(*)
-real*8 Coor(*)
-integer LUT
-character*40 Label
-integer iCar, iCnt, iCnttp, iCo, iComp, idsp, ii, iii, iIrrep, iPERT, iS, jCar, jCnt, jCnttp, jCo, jComp, jDsp, jPERT, kop_m, &
-        kop_n, mdc, nCenti, nCentj, nCnti, nCntj, nd, ndc, nop_m, nop_n
-integer nDeg(200), ldisp(0:7)
-integer inddsp(100,0:7)
-integer, external :: iPrmt, nropr
-logical, external :: TF
-real*8 Dummy(1), HE, riPh, rjPh
-real*8, allocatable :: Htmp(:,:), Tmp(:)
-integer i, j
+real(kind=wp) :: H(*), Coor(*)
+integer(kind=iwp) :: LUT
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idsp, ii, iii, iIrrep, inddsp(100,0:7), iPERT, iS, j, jCar, jCnt, jCnttp, &
+                     jCo, jComp, jDsp, jPERT, kop_m, kop_n, ldisp(0:7), mdc, nCenti, nCentj, nCnti, nCntj, nd, ndc, nDeg(200), &
+                     nop_m, nop_n
+real(kind=wp) :: Dummy(1), HE, riPh, rjPh
+character(len=40) :: Label
+real(kind=wp), allocatable :: Htmp(:,:), Tmp(:)
+integer(kind=iwp), external :: iPrmt, nropr
+logical(kind=iwp), external :: TF
 
 idsp = 0
 ldisp(0:nirrep-1) = 0

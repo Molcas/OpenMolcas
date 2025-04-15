@@ -12,19 +12,20 @@
 subroutine Kap_CI(h1,nh1,h2,nh2,ipS1)
 
 use ipPage, only: ipin, W
+use MCLR_Data, only: ipCI, nConf1
+use MCLR_procedures, only: CISigma_sa
+use input_mclr, only: nCSF, nRoots, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
-use MCLR_Data, only: nConf1, ipCI
-use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nRoots, nCSF, State_Sym
+use Definitions, only: wp, iwp
 
 implicit none
-integer nh1, nh2, ipS1
-real*8 h1(nh1), h2(nh2)
-real*8, allocatable :: R(:,:)
-real*8 rDum(1)
-integer i, j
-real*8, external :: DDot_
+integer(kind=iwp) :: nh1, nh2, ipS1
+real(kind=wp) :: h1(nh1), h2(nh2)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: rDum(1)
+real(kind=wp), allocatable :: R(:,:)
+real(kind=wp), external :: DDot_
 
 call CISigma_sa(0,state_sym,state_sym,h1,nh1,h2,nh2,rdum,1,ipCI,ipS1,.true.)
 

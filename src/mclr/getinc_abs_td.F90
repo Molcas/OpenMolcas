@@ -18,19 +18,14 @@ subroutine GETINC_ABS_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,INTLST,I
 ! Version for integrals stored in INTLST
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: NACOB, IBTSOB, NTSOB
+use MCLR_Data, only: IBTSOB, NACOB, NTSOB
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 XINT(*)
-integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM
-real*8 Intlst(*)
-integer ICTL
-! Local variables
-integer iOrb, jOrb, kOrb, lOrb
-integer iOff, jOff, kOff, lOff
-integer iBas, jBas, kBas, lBas
-integer iInt
-integer NTASH, JMIN, IMIN, IJ, KL, IJKL, IL, JK, ILJK
+real(kind=wp) :: XINT(*), Intlst(*)
+integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM, ICTL
+integer(kind=iwp) :: iBas, iInt, IJ, IJKL, IL, ILJK, IMIN, iOff, iOrb, jBas, JK, JMIN, jOff, jOrb, kBas, KL, kOff, kOrb, lBas, &
+                     lOff, lOrb, NTASH
 
 iOrb = NTSOB(ITP,ISM)
 jOrb = NTSOB(JTP,JSM)

@@ -13,12 +13,14 @@ subroutine FRMDSC_MCLR(ARRAY,NDIM,MBLOCK,IFILE,IMZERO)
 ! TRANSFER ARRAY FROM DISC FILE IFILE
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension ARRAY(*)
-dimension IDUM(1)
+implicit none
+real(kind=wp) :: ARRAY(*)
+integer(kind=iwp) :: NDIM, MBLOCK, IFILE, IMZERO
+integer(kind=iwp) :: I, IBASE, IDUM(1), IREST, NBLOCK
+integer(kind=iwp), parameter :: IPACK = 1, ICRAY = 1
 
-IPACK = 1
 if (IPACK /= 0) then
   ! Read if ARRAY is zero
   call IFRMDS(IDUM,1,MBLOCK,IFILE)
@@ -28,8 +30,6 @@ if (IPACK /= 0) then
     return
   end if
 end if
-
-ICRAY = 1
 
 if ((MBLOCK >= 0) .or. (ICRAY == 1)) then
   NBLOCK = MBLOCK

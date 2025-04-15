@@ -25,19 +25,18 @@ subroutine FockGen_td(d_0,rDens1,rdens2,fock,idsym)
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: FIMO
-use MCLR_Data, only: nDens, nNA, ipMat, ipCM, nA
-use input_mclr, only: nSym, nAsh, nIsh, nBas
+use MCLR_Data, only: FIMO, ipCM, ipMat, nA, nDens, nNA
+use input_mclr, only: nAsh, nBas, nIsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 d_0
-integer idSym
-real*8 Fock(nDens), rdens2(*), rDens1(nna,nna)
-real*8, allocatable :: MO(:), Scr(:), TQ(:)
-integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA, ip1, ip2, ip3
-real*8 rd, rd1, rd2
+real(kind=wp) :: d_0, rDens1(nna,nna), rdens2(*), Fock(nDens)
+integer(kind=iwp) :: idSym
+integer(kind=iwp) :: iA, iAA, ip1, ip2, ip3, ipF, ipM, ipS, iS, jA, jAA, jS, kA, kS, n1, n2
+real(kind=wp) :: rd, rd1, rd2
+real(kind=wp), allocatable :: MO(:), Scr(:), TQ(:)
 
 !                                                                      *
 !***********************************************************************

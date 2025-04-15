@@ -21,12 +21,13 @@ subroutine DMInvKap_sp(rin,rout)
 !
 ! iSym              Symmetry of rotation
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use MCLR_Data, only: nDens, nDensC
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
-real*8 rin(nDensC), rout(nDensC)
-real*8, allocatable :: Temp(:)
+real(kind=wp) :: rin(nDensC), rout(nDensC)
+real(kind=wp), allocatable :: Temp(:)
 
 call mma_allocate(Temp,nDens,Label='Temp')
 call Uncompress(rin,Temp,1)

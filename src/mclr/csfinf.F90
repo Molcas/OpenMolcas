@@ -13,22 +13,18 @@
 
 subroutine CsfInf(lSym,iSpin,iSPC,nsym)
 
-use Str_Info, only: STR, CNSM, CFTP, DFTP, DTOC, NELEC, NOCTYP
-use stdalloc, only: mma_allocate, mma_deallocate
-use MCLR_Data, only: i1, iAnders, lConf, llDET
-use MCLR_Data, only: iRefSM, iDC, MS2, PSSIGN
-use MCLR_Data, only: LuCSF2SD
-use MCLR_Data, only: IASTFI, IBSTFI, MNR1IC, MXR3IC, NELCI
-use MCLR_Data, only: NACOB, NORB1, NORB2, NORB3
-use MCLR_Data, only: MAXOP, MINOP, NCNATS
-use CandS, only: ICSM, ISSM, ICSPC, ISSPC
+use Str_Info, only: CFTP, CNSM, DFTP, DTOC, NELEC, NOCTYP, STR
+use MCLR_Data, only: i1, iAnders, IASTFI, IBSTFI, iDC, iRefSM, lConf, llDET, LuCSF2SD, MAXOP, MINOP, MNR1IC, MS2, MXR3IC, NACOB, &
+                     NCNATS, NELCI, NORB1, NORB2, NORB3, PSSIGN
+use CandS, only: ICSM, ICSPC, ISSM, ISSPC
 use input_mclr, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer lSym, iSpin, iSPC, nsym
-integer idum(1)
-integer, allocatable :: SIOIO(:), SBLTP(:), IOOS1(:), NOOS1(:)
-integer NEL, IATP, IBTP, NOCTPA, NOCTPB, MNELR1, MXELR3, NOOS, IA, ISYM, NCOMB, LLCSF
+integer(kind=iwp) :: lSym, iSpin, iSPC, nsym
+integer(kind=iwp) :: IA, IATP, IBTP, idum(1), ISYM, LLCSF, MNELR1, MXELR3, NCOMB, NEL, NOCTPA, NOCTPB, NOOS
+integer(kind=iwp), allocatable :: IOOS1(:), NOOS1(:), SBLTP(:), SIOIO(:)
 
 ! Sorry about this  but this is just to tell the program
 ! that no CSF<->SD coefficents is in core

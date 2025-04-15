@@ -23,9 +23,10 @@ subroutine GTSTTP(ICLS,IEL1,IEL3,ITYPE,IWAY)
 ! Jeppe Olsen, Another lonely night in Lund
 
 use Str_Info, only: ITYP_Dummy, NOCTYP, Str
+use Definitions, only: iwp
 
 implicit none
-integer ICLS, IEL1, IEL3, ITYPE, IWAY
+integer(kind=iwp) :: ICLS, IEL1, IEL3, ITYPE, IWAY
 
 call GTSTTPS(IEL1,IEL3,Str(min(ICLS,ITYP_Dummy))%EL1,Str(min(ICLS,ITYP_Dummy))%EL3,NOCTYP(min(ICLS,ITYP_Dummy)),ITYPE,IWAY)
 

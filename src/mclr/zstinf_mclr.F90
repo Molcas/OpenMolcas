@@ -37,18 +37,15 @@ subroutine ZSTINF_MCLR()
 ! Up !            single excitation from reference space   !
 !    !            reference space                         \ /
 
-use Str_Info, only: NSTTYP, ISTAC, MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, NSTFTP
+use Str_Info, only: ISTAC, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP
 use MCLR_Data, only: NORB1, NORB2, NORB3
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-! Local variables
-integer ITYP, NUMST3
-#ifdef _DEBUGPRINT_
-integer MXPSTT
-#endif
+integer(kind=iwp) :: ITYP, NUMST3
 
 ! *****************************************************************
 ! Mappings between strings with the same type ISTTP index, +/- 1 el
@@ -64,8 +61,7 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Type - type mapping array ISTAC'
 write(u6,*) ' ==============================='
-MXPSTT = size(ISTAC,1)
-call IWRTMA(ISTAC,NSTTYP,2,MXPSTT,2)
+call IWRTMA(ISTAC,NSTTYP,2,size(ISTAC,1),2)
 #endif
 ! *************************************************
 ! Number of occupation classes and strings per type

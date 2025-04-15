@@ -30,15 +30,14 @@ subroutine Rd2Int(iPL)
 !                                                                      *
 !***********************************************************************
 
-use input_mclr, only: nSym, TimeDep, CasInt, nSkip, nBas
-use Definitions, only: u6
+use input_mclr, only: CasInt, nBas, nSkip, nSym, TimeDep
+use Definitions, only: iwp, u6
 
 implicit none
-integer iPL
+integer(kind=iwp) :: iPL
 #include "Molcas.fh"
-integer nSymX, nBasX(mxSym)
-logical SqSym
-integer iRC, iSym, ntSkip
+integer(kind=iwp) :: iRC, iSym, nBasX(mxSym), nSymX, ntSkip
+logical(kind=iwp) :: SqSym
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

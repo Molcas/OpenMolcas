@@ -21,16 +21,12 @@ use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: IRLXROOT
 use input_mclr, only: nRoots
 use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(nTri_Elem(nRoots-1)) :: bX
-! Input
-real*8, dimension(nRoots,nRoots) :: R, H
-real*8, dimension(nRoots,nRoots) :: LOK
-! Auxiliaries
-integer I, K, L, M, N, IKL
-real*8 TempD
+real(kind=wp) :: bX(nTri_Elem(nRoots-1)), LOK(nRoots,nRoots), R(nRoots,nRoots), H(nRoots,nRoots)
+integer(kind=iwp) :: I, IKL, K, L, M, N
+real(kind=wp) :: TempD
 
 bX(:) = Zero
 I = irlxroot

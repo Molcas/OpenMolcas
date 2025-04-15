@@ -29,13 +29,15 @@ subroutine SDCMRF_MCLR(CSD,CCM,IWAY,IATP,IBTP,IASM,IBSM,NA,NB,IDC,PS,PL,ISGVST,L
 ! ISGVST    : Ml reflection of strings
 
 use Index_Functions, only: nTri_Elem
-use Constants, only: Two, One
+use Constants, only: Two, One, Half
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension CSD(*), CCM(*), ISGVST(*)
-
-SQRT2 = sqrt(Two)
-SQRT2I = One/SQRT2
+implicit none
+real(kind=wp) :: CSD(*), CCM(*), PS, PL
+integer(kind=iwp) :: IWAY, IATP, IBTP, IASM, IBSM, NA, NB, IDC, ISGVST(*), LDET, LCOMB
+integer(kind=iwp) :: IPACK
+real(kind=wp) :: FACTOR, SGN
+real(kind=wp), parameter :: SQRT2 = sqrt(Two), SQRT2I = sqrt(Half)
 
 ! Is combination array packed ?
 
@@ -43,12 +45,12 @@ IPACK = 0
 FACTOR = One
 
 if (((IDC == 2) .or. (IDC == 4)) .and. (IASM == IBSM)) then
-  SIGN = PS
+  SGN = PS
   FACTOR = SQRT2
   if (IATP == IBTP) IPACK = 1
 else if ((IDC == 4) .and. (IASM == ISGVST(IBSM))) then
   if (IATP == IBTP) IPACK = 1
-  SIGN = PS*PL
+  SGN = PS*PL
   FACTOR = Two
 end if
 
@@ -66,8 +68,8 @@ if (IWAY == 2) FACTOR = One/FACTOR
 if (IWAY == 1) then
   if (IPACK == 1) then
     ! Pack to triangular form
-    call TRIPK2(CSD,CCM,1,NA,NA,SIGN)
-    !    TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
+    call TRIPK2(CSD,CCM,1,NA,NA,SGN)
+    !    TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SGN)
   else
     CCM(1:NA*NB) = CSD(1:NA*NB)
   end if
@@ -83,7 +85,7 @@ end if
 if (IWAY == 2) then
   if (IPACK == 1) then
     ! Unpack from triangular form
-    call TRIPK2(CSD,CCM,2,NA,NA,SIGN)
+    call TRIPK2(CSD,CCM,2,NA,NA,SGN)
   else
     CSD(1:NA*NB) = CCM(1:NA*NB)
   end if

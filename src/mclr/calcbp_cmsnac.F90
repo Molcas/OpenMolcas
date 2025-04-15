@@ -18,20 +18,14 @@
 subroutine CalcbP_CMSNAC(bP,CSFOK,LOK,R)
 
 use ipPage, only: W
-use MCLR_Data, only: nConf1, ipCI
-use MCLR_Data, only: NACSTATES
+use MCLR_Data, only: ipCI, NACSTATES, nConf1
 use input_mclr, only: nRoots
 use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(nConf1,nRoots) :: bP
-! Input
-real*8, dimension(nConf1,nRoots) :: CSFOK
-real*8, dimension(nRoots,nRoots) :: LOK
-real*8, dimension(nRoots,nRoots) :: R
-! Kind quantities that help
-integer I, J, L, K
+real(kind=wp) :: bP(nConf1,nRoots), CSFOK(nConf1,nRoots), LOK(nRoots,nRoots), R(nRoots,nRoots)
+integer(kind=iwp) :: I, J, K, L
 
 bP(:,:) = CSFOK(:,:)
 I = NACstates(1)

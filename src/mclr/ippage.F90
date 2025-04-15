@@ -21,12 +21,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-! n      : Length of CI-vector
-! ida    : disk address
+! n   : Length of CI-vector
+! ida : disk address
 
-integer(kind=iwp), parameter :: Max_CI_Vectors = 40
-integer(kind=iwp), parameter :: On_Disk = 0, In_Memory = 1, Null_Vector = 2
-integer(kind=iwp), parameter :: dWrite = 0, oWrite = 1, oRead = 2
+integer(kind=iwp), parameter :: Max_CI_Vectors = 40, &
+                                On_Disk = 0, In_Memory = 1, Null_Vector = 2, &
+                                dWrite = 0, oWrite = 1, oRead = 2
 
 integer(kind=iwp) :: ida(0:Max_CI_Vectors), iDisk_Addr_End = 0, Lu_ip, n(0:Max_CI_Vectors), n_CI_Vectors = 0, &
                      vStatus(0:Max_CI_Vectors)

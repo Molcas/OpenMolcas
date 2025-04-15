@@ -12,15 +12,15 @@
 subroutine DMinvCI_td(rin,rout,rome,idsym)
 
 use ipPage, only: ipin, W
-use MCLR_Data, only: nConf1, ipCI
-use MCLR_Data, only: ipDia
+use MCLR_Data, only: ipCI, ipDia, nConf1
 use Constants, only: Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer idSym
-real*8 rout(nConf1), rin(nConf1), rome
-real*8 r1, r2
-real*8, external :: DDot_
+integer(kind=iwp) :: idSym
+real(kind=wp) :: rin(nConf1), rout(nConf1), rome
+real(kind=wp) :: r1, r2
+real(kind=wp), external :: DDot_
 
 !                                  -1           -1
 !                             (H -E) |0><0|(H -E) |Sigma>

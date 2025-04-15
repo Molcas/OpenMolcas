@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,IAGRP,IBGRP,IAEL1,IAEL3,JAEL1,JAEL3,IBEL1,IBEL3, &
-                        JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSM,CJRES,SIRES,ISIGN,ieaw,TimeDep)
+                        JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSM,CJRES,SIRES,ISGN,ieaw,TimeDep)
 ! Combined alpha-beta double excitation
 ! contribution from given C block to given S block
 ! If IUSAB only half the terms are constructed
@@ -62,24 +62,17 @@ subroutine RSBB2BN_MCLR(IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA,NJB,
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! General input
-logical TimeDep
-integer NTSOB(3,*), IBTSOB(3,*)
-! Input
-dimension CB(*)
-! Output
-dimension SB(*)
-! Scratch
-dimension I1(MAXK,*), XI1S(MAXK,*)
-dimension I2(MAXK,*), XI2S(MAXK,*)
-dimension I3(MAXK,*), XI3S(MAXK,*)
-dimension I4(MAXK,*), XI4S(MAXK,*)
-dimension XINT(*)
-dimension CJRES(*), SIRES(*)
-! Local arrays
-dimension ITP(3), JTP(3), KTP(3), LTP(3)
+implicit none
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, IAEL1, IAEL3, JAEL1, JAEL3, &
+                     IBEL1, IBEL3, JBEL1, JBEL3, NTSOB(3,*), IBTSOB(3,*), MAXK, I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), I4(MAXK,*), &
+                     NSM, ISGN, ieaw
+real(kind=wp) :: SB(*), CB(*), XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), XI4S(MAXK,*), XINT(*), CJRES(*), SIRES(*)
+logical(kind=iwp) :: TimeDep
+integer(kind=iwp) :: IFIRST, II, IIOFF, IJSM, IJTYP, IKORD, IOFF, IOFFIN, IOFFOUT, IROUTE, ISM, ITP(3), ITYP, IXCHNG, J, JB, JJ, &
+                     JOFF, JSM, JTP(3), JTYP, KABOT, KAEND, KATOP, KBBOT, KBEND, KBTOP, KLSM, KLTYP, KOFF, KSM, KTP(3), KTYP, LCJ, &
+                     LOFF, LSM, LTP(3), LTYP, N1IND, N2IND, N3IND, NI, NIJTYP, NJ, NK, NKABTC, NKBBTC, NKLTYP, NL
 
 IROUTE = 1
 ! Symmetry of allowed excitations
@@ -241,7 +234,7 @@ do IJTYP=1,NIJTYP
                   call GETINT_MCLR(XINT,JTYP,JSM,ITYP,ISM,KTYP,KSM,LTYP,LSM,IXCHNG,0,0,1,ieaw)
                 end if
               end if
-              if (ISIGN == -1) XINT(1:NI*NJ*NK*NL) = -XINT(1:NI*NJ*NK*NL)
+              if (ISGN == -1) XINT(1:NI*NJ*NK*NL) = -XINT(1:NI*NJ*NK*NL)
               IFIRST = 0
             end if
             call SKICKJ_MCLR(SIRES,CJRES,NKABTC,NIB,NJB,NKBBTC,XINT,NI,NJ,NK,NL,MAXK,I4,XI4S,I2,XI2S,IKORD,IROUTE)

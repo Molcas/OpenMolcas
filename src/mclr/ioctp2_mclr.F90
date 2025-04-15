@@ -9,23 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function IOCTP2_MCLR(STRING,NEL,ITYP)
+function IOCTP2_MCLR(STRING,NEL,ITYP)
 ! Obtain occupation type for STRING.
 ! For forbidden strings a zero is returned
 !
 ! New version allowing general set of strings
 
-use Str_Info, only: MNRS1, MXRS1, MNRS3, MXRS3
+use Str_Info, only: MNRS1, MNRS3, MXRS1, MXRS3
 use MCLR_Data, only: NORB1, NORB2
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-! Specific input
-integer NEL, ITYP
-integer STRING(NEL)
-logical, external :: Reduce_Prt
-integer iPL, iEL1, iEL3, iEl, iTyp2
-integer, external :: iPrintLevel
+integer(kind=iwp) :: IOCTP2_MCLR
+integer(kind=iwp) :: NEL, STRING(NEL), ITYP
+integer(kind=iwp) :: iEl, iEL1, iEL3, iPL, iTyp2
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 if (ITYP <= 0) then
   write(u6,*) 'IOCTP2: ITYP <= 0'

@@ -58,39 +58,28 @@ subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSM,ISSM,ICBLTP
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-! General input
-integer ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB)
-integer ICSM, ISSM
-integer ICBLTP(*), ISBLTP(*)
-integer NSSOA(NSM,NOCTPA)
-integer NSSOB(NSM,NOCTPB)
-integer NELFSPGPA(3,*)
-integer NELFSPGPB(3,*)
-! Scratch
-dimension SB(*), CB(*), C2(*)
-dimension CSCR(*), SSCR(*)
-dimension ISOOSC(NOCTPA,NOCTPB,NSM), NSOOSC(NOCTPA,NOCTPB,NSM)
-dimension ISOOSE(NOCTPA,NOCTPB,NSM), NSOOSE(NOCTPA,NOCTPB,NSM)
-dimension ICOOSC(NOCTPA,NOCTPB,NSM), NCOOSC(NOCTPA,NOCTPB,NSM)
-dimension ICOOSE(NOCTPA,NOCTPB,NSM), NCOOSE(NOCTPA,NOCTPB,NSM)
-dimension IASOOS(NOCTPA,NOCTPB,NSM), IACOOS(NOCTPA,NOCTPB,NSM)
-dimension I1(*), I2(*), XI1S(*), XI2S(*), I3(*), XI3S(*), I4(*), XI4S(*)
-dimension X(*)
-dimension RHO1S(*)
-dimension NOBPTS(*), IOBPTS(*)
-integer LASM(4), LBSM(4), LATP(4), LBTP(4), LSGN(5), LTRP(5)
-integer RASM(4), RBSM(4), RATP(4), RBTP(4), RSGN(5), RTRP(5)
-real*8 L
-dimension L(*), R(*)
-! Output
-dimension RHO1(*), RHO2(*)
-dimension ISTRFL(1)
-real*8, external :: dDot_
+implicit none
+integer(kind=iwp) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), ICSM, ISSM, ICBLTP(*), ISBLTP(*), NACOB, &
+                     NSM, NSSOA(NSM,NOCTPA), NSSOB(NSM,NOCTPB), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, MXPNGAS, NOBPTS(*), &
+                     IOBPTS(*), MAXK, MAXI, LC, LS, NGAS, NELFSPGPA(3,*), NELFSPGPB(3,*), IDC, ISOOSC(NOCTPA,NOCTPB,NSM), &
+                     NSOOSC(NOCTPA,NOCTPB,NSM), ISOOSE(NOCTPA,NOCTPB,NSM), NSOOSE(NOCTPA,NOCTPB,NSM), ICOOSC(NOCTPA,NOCTPB,NSM), &
+                     NCOOSC(NOCTPA,NOCTPB,NSM), ICOOSE(NOCTPA,NOCTPB,NSM), NCOOSE(NOCTPA,NOCTPB,NSM), IASOOS(NOCTPA,NOCTPB,NSM), &
+                     IACOOS(NOCTPA,NOCTPB,NSM), I1(*), I2(*), I3(*), I4(*), LUL, LUR, ieaw, n1, n2
+real(kind=wp) :: RHO1(*), RHO2(*), R(*), L(*), CB(*), SB(*), C2(*), CSCR(*), SSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), &
+                 RHO1S(*), PSL, PSR
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IC1SM, IC1TA, IC1TB, ICBLK, ICBSM, ICENSM, ICENTA, ICENTB, ICOFF, ICSTSM, ICSTTA, &
+                     ICSTTB, IFINIC, IFRSTC, IFRSTS, IIASM, IIATP, IIBSM, IIBTP, ILPERM, IRPERM, IS1SM, IS1TA, IS1TB, ISBLK, &
+                     ISBSM, ISENSM, ISENTA, ISENTB, ISFINI, ISOFF, ISSTSM, ISSTTA, ISSTTB, ISTRFL(1), JASM, JATP, JBSM, JBTP, &
+                     JJASM, JJATP, JJBSM, JJBTP, LASM(4), LATP(4), LBSM(4), LBTP(4), LCOL, LROW, LSGN(5), LTRP(5), NCBLK, NCCMBC, &
+                     NCCMBE, NIA, NIB, NIIA, NIIB, NJA, NJB, NJJA, NJJB, NLPERM, NONEWC, NONEWS, NRPERM, NSBLK, NSCMBC, NSCMBE, &
+                     RASM(4), RATP(4), RBSM(4), RBTP(4), RSGN(5), RTRP(5)
+real(kind=wp) :: PLL, PLR, XNORM2
+real(kind=wp), external :: dDot_
 
 PLL = Zero
 PLR = Zero

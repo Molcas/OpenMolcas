@@ -12,18 +12,17 @@
 subroutine DMinvCI_sa(ipSigma,rout,S)
 
 use ipPage, only: ipin, W
-use MCLR_Data, only: nConf1, ipCI
-use MCLR_Data, only: ipDia
-use input_mclr, only: nRoots, ERASSCF, nCSF, State_Sym
+use MCLR_Data, only: ipCI, ipDia, nConf1
+use input_mclr, only: ERASSCF, nCSF, nRoots, State_Sym
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer ipSigma
-real*8 rout(nCSF(State_Sym),nRoots), S(nroots,nroots,nroots)
-#include "rasdim.fh"
-real*8 rcoeff(mxroot), alpha(mxRoot)
-real*8, external :: DDot_
-integer k, iR, jR
+integer(kind=iwp) :: ipSigma
+real(kind=wp) :: rout(nCSF(State_Sym),nRoots), S(nRoots,nRoots,nRoots)
+integer(kind=iwp) :: iR, jR, k
+real(kind=wp) :: alpha(nRoots), rcoeff(nRoots)
+real(kind=wp), external :: DDot_
 
 !                                  -1           -1
 !                             (H -E) |0><0|(H -E) |Sigma>
@@ -37,23 +36,23 @@ if (nconf1 > 1) then
   call ipin(ipdia)
   call ipin(ipsigma)
   k = 0
-  do iR=1,nroots
+  do iR=1,nRoots
     rout(:,iR) = W(ipSigma)%A(k+1:k+nCSF(State_Sym))/(W(ipdia)%A(1:nCSF(State_Sym))-ERASSCF(iR))
     k = k+nCSF(State_Sym)
   end do
-  do iR=1,nroots
+  do iR=1,nRoots
 
     !We = weight(iR)
     call ipin(ipCI)
-    do jR=1,nroots
+    do jR=1,nRoots
       rcoeff(jR) = ddot_(nconf1,rout(:,iR),1,W(ipCI)%A(1+(jR-1)*nCSF(State_Sym)),1)
     end do
 
-    do jR=1,nroots
-      alpha(jR) = sum(S(jR,:,iR)*rcoeff(1:nroots))
+    do jR=1,nRoots
+      alpha(jR) = sum(S(jR,:,iR)*rcoeff(:))
     end do
 
-    do jR=1,nroots
+    do jR=1,nRoots
       rout(:,iR) = rout(:,iR)- &
                    W(ipCI)%A((jR-1)*nCSF(State_Sym)+1:jR*nCSF(State_Sym))*alpha(jR)/(W(ipdia)%A(1:nCSF(State_Sym))-ERASSCF(iR))
     end do

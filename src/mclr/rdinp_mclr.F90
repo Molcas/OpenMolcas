@@ -24,33 +24,29 @@ use Basis_Info, only: Basis_Info_Get
 use Center_Info, only: Center_Info_Get
 use OneDat, only: sOpSiz
 use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
-use MCLR_Data, only: NewPre, nexp_max
-use MCLR_Data, only: nGP
-use MCLR_Data, only: ISTATE, OVERRIDE, SA, ESTERR, ISNAC, ISMECIMSPD, FANCY_PRECONDITIONER, NSSA, NACSTATES
-use MCLR_Data, only: DspVec, SwLbl, lDisp
-use MCLR_Data, only: NoFile
-use input_mclr, only: Debug, lRoots, kPrint, mTit, Omega, TimeDep, Page, iBreak, nIter, RASSI, SpinPol, lSave, lCalc, nDisp, &
-                      CasInt, NewCho, TwoStep, StepType, double, Eps, IsPop, nSym, nAtoms, ntPert, nsRot, UserP, nUserPT, UserT, &
-                      TitleIn
+use MCLR_Data, only: DspVec, ESTERR, FANCY_PRECONDITIONER, ISMECIMSPD, ISNAC, ISTATE, lDisp, NACSTATES, NewPre, nexp_max, nGP, &
+                     NoFile, NSSA, OVERRIDE, SA, SwLbl
+use input_mclr, only: CasInt, Debug, double, Eps, iBreak, IsPop, kPrint, lCalc, lRoots, lSave, mTit, nAtoms, nDisp, NewCho, nIter, &
+                      nsRot, nSym, ntPert, nUserPT, Omega, Page, RASSI, SpinPol, StepType, TimeDep, TitleIn, TwoStep, UserP, UserT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, u5, u6
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 #include "rasdim.fh"
-character(len=72) Line
-character(len=4) Command
-character(len=8) Label, SewLab
-character(len=2) Element(MxAtom)
-logical Epsilon_Undef, Skip
-integer, parameter :: nCom = 38
-character(len=4), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','    ','    ','ITER','THRE','END ','TIME', &
+integer(kind=iwp) :: I, ICOM, ICOMP, ID, iDum(1), iMass, IOPT, IP, IPP, IRC, IRRFNC, istatus, ISYLBL, ISYM, ITIT, J, JCOM
+logical(kind=iwp) :: Epsilon_Undef, Skip
+character(len=72) :: Line
+character(len=8) :: Label, SewLab
+character(len=4) :: Command
+character(len=2) :: Element(MxAtom)
+real(kind=wp), allocatable :: umass(:)
+character(len=3), allocatable :: cmass(:)
+integer(kind=iwp), parameter :: nCom = 38
+character(len=*), parameter :: ComTab(nCom) = ['TITL','DEBU','ROOT','    ','    ','    ','ITER','THRE','END ','TIME', &
                                                '    ','NOFI','SEWA','NOCO','NOTW','SPIN','PRIN','PCGD','RESI','NOTO', &
                                                'EXPD','NEGP','LOWM','    ','SAVE','RASS','DISO','CASI','SALA','NODE', &
                                                'ESTE','    ','MASS','NAC ','    ','THER','CHOF','TWOS']
-integer iDum(1), I, JCOM, ICOM, ITIT, ISYM, IP, IRC, IOPT, ICOMP, ISYLBL, IPP, ID, J, IRRFNC, iMass, istatus
-real*8, allocatable :: umass(:)
-character(len=3), allocatable :: cmass(:)
 
 !----------------------------------------------------------------------*
 !     Locate "start of input"                                          *
@@ -499,7 +495,7 @@ contains
 !----------------------------------------------------------------------*
 subroutine Error(rc)
 
-  integer, intent(in) :: rc
+  integer(kind=iwp), intent(in) :: rc
 
   if (rc > 0) then
     write(u6,*) 'RdInp: Error while reading input'

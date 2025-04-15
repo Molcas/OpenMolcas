@@ -25,26 +25,21 @@ subroutine CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,N
 ! ICONF is written so closed orbitals are given first and then single
 ! occupied orbitals
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer NORB1, NORB2, NORB3, NEL1MN, NEL3MX, MINOP, MAXOP, IREFSM, NEL
-! Output
-integer, intent(out) :: ICONF(*)
-! Input
-integer, intent(in) :: NCNFTP(*)
-! Scratch
-integer IIOC(*), IICL(*), IIOP(*)
-! local variables
-logical Loop700, Loop800, Skip700, Skip800, Test
-integer IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, NORB, JCONF, ICFREE, MINCL1, NOP, NCL, ICL, IFRSTC, IORB, IPLACE, IPRORB, &
-        NEWORB, IEL1C, IEL3C, ICL1, IIICHK, MXMPTY, IOP, IFRSTO, IEL1, IEL3, IR3CHK, IFSTR3, K, KEL, KORB, ISYM
-integer, external :: ISYMST_MCLR
+integer(kind=iwp) :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, MINOP, MAXOP, IREFSM, NEL, ICONF(*), NCNFTP(*), IIOC(*), IIOP(*), IICL(*)
+integer(kind=iwp) :: ICFREE, ICL, ICL1, IEL1, IEL1C, IEL3, IEL3C, IFRSTC, IFRSTO, IFSTR3, IIICHK, IOP, IORB, IORB1F, IORB1L, &
+                     IORB2F, IORB2L, IORB3F, IORB3L, IPLACE, IPRORB, IR3CHK, ISYM, JCONF, K, KEL, KORB, MINCL1, MXMPTY, NCL, &
+                     NEWORB, NOP, NORB
 #ifdef _DEBUGPRINT_
-integer I, IBAS, IOC, IOPEN, ITYPE, LICONF
+integer(kind=iwp) :: I, IBAS, IOC, IOPEN, ITYPE, LICONF
 #endif
+logical(kind=iwp) :: Loop700, Loop800, Skip700, Skip800, Test
+integer(kind=iwp), external :: ISYMST_MCLR
 
 #ifndef _DEBUGPRINT_
 #include "macros.fh"

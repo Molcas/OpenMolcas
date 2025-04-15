@@ -11,16 +11,14 @@
 
 subroutine DetCtl()
 
-use MCLR_Data, only: pINT1, pINT2
-use MCLR_Data, only: iST, i12
-use MCLR_Data, only: MS2, idc, PSSIGN
-use MCLR_Data, only: FnCSF2SD, LuCSF2SD
-use MCLR_Data, only: NOCSF, NOPART, IDIAG, ICISTR
-use input_mclr, only: nSym, nIrrep, iSpin, nHole1, nActEl, nElec3, nRs1, nRs2, nRs3, State_Sym
+use MCLR_Data, only: FnCSF2SD, i12, ICISTR, idc, IDIAG, iST, LuCSF2SD, MS2, NOCSF, NOPART, pINT1, pINT2, PSSIGN
+use input_mclr, only: iSpin, nActEl, nElec3, nHole1, nIrrep, nRs1, nRs2, nRs3, nSym, State_Sym
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
+use Definitions, only: iwp
 
-integer iTmp, nTRas1, nTRas3, MNRS10, MXR4TP, MXRS30
+implicit none
+integer(kind=iwp) :: iTmp, MNRS10, MXR4TP, MXRS30, nTRas1, nTRas3
 
 call mma_Allocate(pINT1,nSym,Label='pInt1')
 pInt1(:) = 0

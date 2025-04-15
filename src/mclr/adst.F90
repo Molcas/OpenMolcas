@@ -29,21 +29,14 @@ subroutine ADST(IORB,NORB,ICLS,ISM,IGRP,KMIN,KMAX,I1,XI1S,LI1,NK,IEND)
 ! Jeppe Olsen, Winter of 1991
 !              January 1994 : modified to allow for several orbitals
 
-use Str_Info, only: STR, ISTAC, IUNIQMP, NOCTYP
-use MCLR_Data, only: NACOB, ISMFTO, NORB1, NORB2
+use Str_Info, only: ISTAC, IUNIQMP, NOCTYP, STR
+use MCLR_Data, only: ISMFTO, NACOB, NORB1, NORB2
+use Definitions, only: wp, iwp
 
 implicit none
-! =====
-! Input
-! =====
-integer IORB, NORB, ICLS, ISM, IGRP, KMIN, KMAX
-integer LI1, NK, IEND
-! ======
-! Output
-! ======
-integer I1(*)
-real*8 XI1S(*)
-integer JGRP, IMPF, LMAP
+integer(kind=iwp) :: IORB, NORB, ICLS, ISM, IGRP, KMIN, KMAX, I1(*), LI1, NK, IEND
+real(kind=wp) :: XI1S(*)
+integer(kind=iwp) :: IMPF, JGRP, LMAP
 
 ! Type of mapping
 !write(u6,*) ' ADST: IGRP IORB = ',IGRP,IORB

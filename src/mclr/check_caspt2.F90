@@ -27,20 +27,18 @@ subroutine check_caspt2(mode)
 ! With mode = 1, this subroutine obtains the character in 'MCLR Root'
 ! and determine the roots for NAC calculation.
 
-use MCLR_Data, only: IRLXROOT, ISNAC, OVERRIDE, NACSTATES
-use Definitions, only: u6
+use MCLR_Data, only: IRLXROOT, ISNAC, NACSTATES, OVERRIDE
+use Definitions, only: iwp, u6
 
 implicit none
-integer Mode
-#include "SysDef.fh"
+integer(kind=iwp) :: Mode
 #include "warnings.h"
-character(len=72) Line
+integer(kind=iwp) :: iGo, iRlxRootPT2, iRoot1Com, iRoot1Req, iRoot2Com, iRoot2Req, iStatus, LuINPUT, LuSpool2
 character(len=128) :: FileName
-character(len=16) :: StdIn, mstate1
-logical Exists, NeedGrdt
-integer iRlxRootPT2, iGo, iRoot1Req, iRoot2Req, iRoot1Com, iRoot2Com, LuINPUT, LuSpool2, iStatus
-integer, external :: isFreeUnit
-integer, external :: isStructure
+character(len=72) :: Line
+character(len=16) :: mstate1, StdIn
+logical(kind=iwp) :: Exists, NeedGrdt
+integer(kind=iwp), external :: isFreeUnit, isStructure
 
 iRlxRoot = 0
 iRlxRootPT2 = 0

@@ -14,12 +14,13 @@ subroutine CSDIAG_MCLR(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP)
 ! CSFDIA as CSF diagonal
 
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension CSFDIA(*), DETDIA(*)
-dimension NCNFTP(NTYP), NDTFTP(NTYP), NCSFTP(NTYP)
-dimension ICTSDT(*)
+implicit none
+real(kind=wp) :: CSFDIA(*), DETDIA(*)
+integer(kind=iwp) :: NTYP, NCNFTP(NTYP), ICTSDT(*), NDTFTP(NTYP), NCSFTP(NTYP)
+integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNABS, JCNF, JDET
+real(kind=wp) :: EAVER
 
 ICSOFF = 1
 IDTOFF = 1

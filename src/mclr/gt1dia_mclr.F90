@@ -11,13 +11,13 @@
 
 subroutine GT1DIA_MCLR(H1DIA)
 
-use MCLR_Data, only: FIMO
-use MCLR_Data, only: ipCM
-use input_mclr, only: nSym, nAsh, nIsh, nOrb
+use MCLR_Data, only: FIMO, ipCM
+use input_mclr, only: nAsh, nIsh, nOrb, nSym
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 H1DIA(*)
-integer i, iS, ii, iAsh
+real(kind=wp) :: H1DIA(*)
+integer(kind=iwp) :: i, iAsh, ii, iS
 
 i = 1
 do iS=1,nSym

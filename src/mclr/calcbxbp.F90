@@ -18,24 +18,19 @@
 subroutine CalcbXbP(bX,bP,FMO1t,FMO2t,R,H,nTri)
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: nConf1, nAcPr2
+use MCLR_Data, only: nAcPr2, nConf1
 use input_mclr, only: nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(nTri_Elem(nRoots-1)) :: bX
-real*8, dimension(nConf1*nRoots) :: bP
-! Input
-integer nTri
-real*8, dimension(nRoots*nTri) :: FMO1t
-real*8, dimension(nRoots*nacpr2) :: FMO2t
-real*8, dimension(nRoots**2) :: R, H
-! Auxiliaries
-real*8, dimension(:), allocatable :: LOK, CSFOK
+integer(kind=iwp) :: nTri
+real(kind=wp) :: bX(nTri_Elem(nRoots-1)), bP(nRoots,nConf1), FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots), R(nRoots,nRoots), &
+                 H(nRoots,nRoots)
+real(kind=wp), allocatable :: CSFOK(:,:), LOK(:,:)
 
-call mma_allocate(CSFOK,nRoots*nConf1)
-call mma_allocate(LOK,nRoots**2)
+call mma_allocate(CSFOK,nConf1,nRoots)
+call mma_allocate(LOK,nRoots,nRoots)
 call CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
 call CalcbP(bP,CSFOK,LOK,R)
 call CalcbX(bX,LOK,R,H)

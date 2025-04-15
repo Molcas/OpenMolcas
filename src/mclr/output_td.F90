@@ -17,11 +17,11 @@ subroutine OutPut_td(iKapDisp,isigdisp,iCiDisp,iCiSigDisp,iRHSDisp,iRHSCIDisp,co
 ! Contracts the response coefficient to the hessian                    *
 !                                                                      *
 ! Input                                                                *
-!       iKapDisp : Disk locations of solutions to respons equation     *
-!       iSigDisp : Disk locations of RHS                               *
-!       iCIDisp  : Disk locations of CI Soulutions to response         *
+!       iKapDisp   : Disk locations of solutions to respons equation   *
+!       iSigDisp   : Disk locations of RHS                             *
+!       iCIDisp    : Disk locations of CI Soulutions to response       *
 !       iCISigDisp : Disk locations of RHS                             *
-!       nHess    : Length of hessian                                   *
+!       nHess      : Length of hessian                                 *
 !                                                                      *
 ! Output to disk                                                       *
 !                                                                      *
@@ -36,33 +36,26 @@ use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use ipPage, only: ipclose, ipget, ipin, W
-use MCLR_Data, only: Hss
-use MCLR_Data, only: nConf1, nDensC
-use MCLR_Data, only: nHess, lDisp
-use MCLR_Data, only: LuTEMP
-use MCLR_Data, only: XISPSM
-use input_mclr, only: nDisp, Debug, nSym, State_Sym, iMethod, McKinley, Coor, lCalc, nCSF, nTPert, TimeDep
+use MCLR_Data, only: Hss, lDisp, LuTEMP, nConf1, nDensC, nHess, XISPSM
+use input_mclr, only: Coor, Debug, iMethod, lCalc, McKinley, nCSF, nDisp, nSym, nTPert, State_Sym, TimeDep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), iRHSCiDisp(nDisp)
-logical converged(8)
-character(len=8) Label
-character(len=20) Label2
-integer Pstate_sym, ldisp2(8), ielec(3)
-logical elec_On, CI
-real*8 Pola(6)
-real*8, allocatable :: RHss(:)
-real*8, allocatable :: Kap1(:), Kap2(:), sKap(:), rKap1(:), rKap2(:)
-real*8, allocatable :: Hess(:), Hess2(:), Temp(:), ELEC(:), EG(:), ELOUT(:)
-integer, allocatable :: NrDisp(:), DegDisp(:)
-integer nHss, mSym, kSym, iDum, iDisp, iSym, nConfm, ipCIP1, ipCIP2, ipSP, ipRP1, ipRP2, jDisp, jSpin, iDisk, Len, iLen, iDis, &
-        iRC, kDisp, kSpin, Index, iOpt, Lu_10, nCI, ip
-real*8 rTempC1, rTempK1, Fact, rTempK2, rTempK3, rTempC2, rTempC3
-real*8, external :: DDot_
-integer, external :: IsFreeUnit
+integer(kind=iwp) :: iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), iRHSCiDisp(nDisp)
+logical(kind=iwp) :: converged(8)
+integer(kind=iwp) :: iDis, iDisk, iDisp, iDum, ielec(3), iLen, Indx, iOpt, ip, ipCIP1, ipCIP2, ipRP1, ipRP2, ipSP, iRC, iSym, &
+                     jDisp, jSpin, kDisp, kSpin, kSym, ldisp2(8), Length, Lu_10, mSym, nCI, nConfm, nHss, Pstate_sym
+real(kind=wp) :: Fact, Pola(6), rTempC1, rTempC2, rTempC3, rTempK1, rTempK2, rTempK3
+logical(kind=iwp) :: elec_On, CI
+character(len=20) :: Label2
+character(len=8) :: Label
+integer(kind=iwp), allocatable :: NrDisp(:), DegDisp(:)
+real(kind=wp), allocatable :: EG(:), ELEC(:), ELOUT(:), Hess(:), Hess2(:), Kap1(:), Kap2(:), RHss(:), rKap1(:), rKap2(:), sKap(:), &
+                              Temp(:)
+real(kind=wp), external :: DDot_
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -137,12 +130,12 @@ do iSym=1,nSym
     if (.not. lCalc(iDisp)) cycle
 
     iDisk = iKapDisp(iDisp)
-    Len = nDensC
-    call dDaFile(LuTemp,2,Kap1,Len,iDisk)
+    Length = nDensC
+    call dDaFile(LuTemp,2,Kap1,Length,iDisk)
     iDisk = iSigDisp(iDisp)
-    call dDaFile(LuTemp,2,SKap,Len,iDisk)
+    call dDaFile(LuTemp,2,SKap,Length,iDisk)
     iDisk = iRHSDisp(iDisp)
-    call dDaFile(LuTemp,2,rKap1,Len,iDisk)
+    call dDaFile(LuTemp,2,rKap1,Length,iDisk)
     SKap(:) = -SKap(:)-rKap1(:)
 
     if (CI) then
@@ -180,8 +173,8 @@ do iSym=1,nSym
       if (Timedep) nCI = nCI*2
       if (.not. lCalc(kDisp+ksym)) cycle
       iDisk = iKapDisp(kDisp+kSym)
-      Len = nDensC
-      call dDaFile(LuTemp,2,Kap2,Len,iDisk)
+      Length = nDensC
+      call dDaFile(LuTemp,2,Kap2,Length,iDisk)
 
       !call Recprt('kap2',' ',kap2,nDensC,1)
       !call Recprt('Skap',' ',Skap,nDensC,1)
@@ -200,8 +193,8 @@ do iSym=1,nSym
       end if
 
       iDisk = iRHSDisp(kDisp+kSym)
-      Len = nDensC
-      call dDaFile(LuTemp,2,rKap2,Len,iDisk)
+      Length = nDensC
+      call dDaFile(LuTemp,2,rKap2,Length,iDisk)
       if (CI) then
         ilen = nCI
         idis = iRHSCIDisp(kdisp+ksym)
@@ -241,9 +234,9 @@ do iSym=1,nSym
       !write(u6,*) 'rtempk',rTempk1,rtempk2,rtempk3
       !write(u6,*) 'rtempc',rtempc1,rtempc2,rtempc3
 
-      index = mSym+iTri(kDisp,jDisp)
+      Indx = mSym+iTri(kDisp,jDisp)
 
-      RHss(Index) = RHss(Index)+Half*(rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3)
+      RHss(Indx) = RHss(Indx)+Half*(rTempk1+rtempk2+rtempk3+rtempc1+rtempc2+rtempc3)
 
     end do
 

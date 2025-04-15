@@ -16,13 +16,15 @@ subroutine DGMM2(AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
 !   IWAY = 1 : AOUT(I,J) = DIAG(I)*AIN(I,J)
 !   IWAY = 2 : AOUT(I,J) = DIAG(J)*AIN(I,J)
 
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-dimension AIN(NRDIM,NCDIM), DIAG(*)
-dimension AOUT(NRDIM,NCDIM)
+implicit none
+integer(kind=iwp) :: IWAY, NRDIM, NCDIM
+real(kind=wp) :: AOUT(NRDIM,NCDIM), AIN(NRDIM,NCDIM), DIAG(*)
+integer(kind=iwp) :: J
 
 if (IWAY == 1) then
   do J=1,NCDIM

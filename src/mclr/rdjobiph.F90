@@ -30,31 +30,26 @@ subroutine RdJobIph(CIVec)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use MckDat, only: sNew
-use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: CMO, G2t, G1t
-use MCLR_Data, only: nA, nNA
-use MCLR_Data, only: IRLXROOT, ISTATE, SA, OVERRIDE, ISNAC, NSSA, NACSTATES
-use MCLR_Data, only: FnJob, FnMck, LuJob, LuMck
-use input_mclr, only: Debug, lRoots, iPT2, nRoots, ntIsh, ntITri, ntAsh, ntATri, ntASqr, ntBas, ntBTri, ntBSqr, nSym, nCSF, &
-                      State_Sym, iMCPD, iMSPD, McKinley, ERASSCF, Headerjp, iRoot, iSpin, iTOC, iTocIph, ntISqr, nCOnf, PT2, &
-                      nActEl, nAsh, nBas, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRS1, nRS2, nRS3, TitleJP, Weight
+use gugx, only: CIS, EXS, SGS
+use MCLR_Data, only: CMO, FnJob, FnMck, G1t, G2t, IRLXROOT, ISNAC, ISTATE, LuJob, LuMck, nA, NACSTATES, nNA, NSSA, OVERRIDE, SA
+use input_mclr, only: Debug, ERASSCF, Headerjp, iMCPD, iMSPD, iPT2, iRoot, iSpin, iTOC, iTocIph, lRoots, McKinley, nActEl, nAsh, &
+                      nBas, nCOnf, nCSF, nDel, nElec3, nFro, nHole1, nIsh, nOrb, nRoots, nRS1, nRS2, nRS3, nSym, ntAsh, ntASqr, &
+                      ntATri, ntBas, ntBSqr, ntBTri, ntIsh, ntISqr, ntITri, PT2, State_Sym, TitleJP, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8, allocatable :: CIVec(:,:)
+real(kind=wp), allocatable :: CIVec(:,:)
 #include "rasdim.fh"
-#include "SysDef.fh"
-character(len=8) Method
-logical Found
-real*8 rdum(1)
-character(len=1), allocatable :: TempTxt(:)
-real*8, allocatable :: Tmp2(:)
-integer kRoots, iDisk, Length, iSym, iMode, i, iGo, j, iRC, iOpt, k, Iter, nAct, nAct2, nAct4, iS, jS, kS, lS, nG1, nG2, &
-        iDummer
-real*8 Temp, PotNuc0
+integer(kind=iwp) :: i, iDisk, iDummer, iGo, iMode, iOpt, iRC, iS, iSym, Iter, j, jS, k, kRoots, kS, Length, lS, nAct, nAct2, &
+                     nAct4, nG1, nG2
+real(kind=wp) :: PotNuc0, rdum(1), Temp
+logical(kind=iwp) :: Found
+character(len=8) :: Method
+real(kind=wp), allocatable :: Tmp2(:)
+character, allocatable :: TempTxt(:)
 
 !                                                                      *
 !***********************************************************************
@@ -87,8 +82,8 @@ call WR_RASSCF_Info(LuJob,2,iDisk,nActEl,iSpin,nSym,State_sym,nFro,nIsh,nAsh,nDe
                     144,TitleJP,4*18*mxTit,PotNuc0,lRoots,nRoots,iRoot,mxRoot,nRs1,nRs2,nRs3,nHole1,nElec3,iPt2,Weight)
 
 if (doDMRG) then ! yma
-  call dmrg_spc_change_mclr(LRras2(1:8),nash)
-  call dmrg_spc_change_mclr(LRras2(1:8),nrs2)
+  nash(:) = LRras2(:)
+  nrs2(:) = LRras2(:)
 end if
 !do i=1,8
 !  write(u6,*) i,'-irrep',nIsh(i),nAsh(i),nRs1(i),nRs2(i),nRs3(i)
@@ -302,9 +297,9 @@ call mma_deallocate(Tmp2)
 nAct = 0    ! 1/2
 
 if (doDMRG) then  ! yma
-  call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
-  call dmrg_spc_change_mclr(RGras2(1:8),nash)
-  call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+  call dmrg_dim_change_mclr(RGras2,ntash,0)
+  nash(:) = RGras2(:)
+  nrs2(:) = RGras2(:)
 end if
 
 nAct2 = 0
@@ -334,9 +329,9 @@ call Triprt('G2',' ',G2t,ng1)
 #endif
 
 if (doDMRG) then ! yma
-  call dmrg_dim_change_mclr(LRras2(1:8),nact,0)
-  call dmrg_spc_change_mclr(LRras2(1:8),nash)
-  call dmrg_spc_change_mclr(LRras2(1:8),nrs2)
+  call dmrg_dim_change_mclr(LRras2,nact,0)
+  nash(:) = LRras2(:)
+  nrs2(:) = LRras2(:)
 end if
 !                                                                      *
 !***********************************************************************

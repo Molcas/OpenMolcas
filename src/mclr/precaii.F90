@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precaii(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign,A_J,A_K,Scr,nScr)
+subroutine Precaii(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,Sgn,A_J,A_K,Scr,nScr)
 !***********************************************************************
 !                                                                      *
 !                                        [2]                           *
@@ -37,23 +37,17 @@ subroutine Precaii(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign,A
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: G1t, G2t
-use MCLR_Data, only: nA
-use input_mclr, only: nSym, nAsh, nIsh, nBas
+use MCLR_Data, only: G1t, G2t, nA
+use input_mclr, only: nAsh, nBas, nIsh, nSym
 use Constants, only: Two, Four, Seven
+use Definitions, only: wp, iwp
 
 implicit none
-integer iB, is, js, nd
-real*8 rout(nTri_Elem(nd))
-integer nbaj
-real*8 fockii, fockai, fockti
-real*8 FockA(nBaj,nBaj), Focki(nbaj,nbaj)
-integer nScr
-real*8 A_J(nScr), A_K(nScr), Scr(nScr)
-real*8 sign
-integer nTri, iBB, iiB, jA, jB, kS, jC, jCC, jjC, jD, jDD, jjD, iCD, iC, iCC, iiC, iCB, iBC
-real*8 rDens1, rDens2, CDij, CiDj, rDens, CiBj, BiCj, BCij, rFock
-integer i
+integer(kind=iwp) :: iB, is, js, nd, nbaj, nScr
+real(kind=wp) :: rout(nTri_Elem(nd)), fockii, fockai, fockti, Focki(nbaj,nbaj), FockA(nBaj,nBaj), A_J(nScr), A_K(nScr), Scr(nScr), &
+                 Sgn
+integer(kind=iwp) :: i, iBB, iBC, iC, iCB, iCC, iCD, iiB, iiC, jA, jB, jC, jCC, jD, jDD, jjC, jjD, kS, nTri
+real(kind=wp) :: BCij, BiCj, CDij, CiBj, CiDj, rDens, rDens1, rDens2, rFock
 
 !                                                                      *
 !***********************************************************************
@@ -83,11 +77,11 @@ do jA=1,nIsh(jS)
 
           ! gamma(cdbb)=gamma(bbcd)
 
-          rDens1 = sign*G2t(iTri(iTri(jCC,jDD),nTri_Elem(iBB)))
+          rDens1 = Sgn*G2t(iTri(iTri(jCC,jDD),nTri_Elem(iBB)))
 
           ! gamma(bdcb)
 
-          rDens2 = sign*G2t(iTri(iTri(iBB,jDD),iTri(jCC,iBB)))
+          rDens2 = Sgn*G2t(iTri(iTri(iBB,jDD),iTri(jCC,iBB)))
 
           ! (cd|ij)
 
@@ -111,8 +105,8 @@ do iC=1,nAsh(is)
 
   ! 2*(delta(bc)-D(bc))
 
-  rDens = sign*(-G1t(iTri(iCC,iBB)))
-  if (iCC == iBB) rdens = rdens+sign
+  rDens = Sgn*(-G1t(iTri(iCC,iBB)))
+  if (iCC == iBB) rdens = rdens+Sgn
   rDens = Two*rDens
 
   call Coul(jS,jS,iS,iS,iiB,iiC,A_J,Scr)
@@ -134,7 +128,7 @@ do iC=1,nAsh(is)
 
       bcij = A_J(ibc)
 
-      rout(i) = rout(i)+rdens*(Seven*cibj-sign*bicj-sign*Two*bcij)
+      rout(i) = rout(i)+rdens*(Seven*cibj-Sgn*(bicj+Two*bcij))
 
     end do
   end do
@@ -143,8 +137,8 @@ end do
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-rFock = sign*Two*Fockii+sign*Two*Fockai-sign*Fockti
-rdens = sign*Two*G1t(nTri_Elem(ibb))
+rFock = Sgn*(Two*(Fockii+Fockai)-Fockti)
+rdens = Sgn*Two*G1t(nTri_Elem(ibb))
 i = 0 ! dummy initialize
 
 do jA=1,nIsh(jS)
@@ -152,7 +146,7 @@ do jA=1,nIsh(jS)
 
     i = nTri-iTri(nd-ja+1,nd-jb+1)+1
 
-    rout(i) = rout(i)-sign*Four*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
+    rout(i) = rout(i)-Sgn*Four*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
   end do
   rout(i) = rout(i)+Two*rfock
 end do

@@ -14,12 +14,13 @@
 subroutine Precaaa_Pre(ActInt,A_J,Scr)
 
 use MCLR_Data, only: nA
-use input_mclr, only: ntAsh, nSym, nAsh, nIsh, nBas
+use input_mclr, only: nAsh, nBas, nIsh, nSym, ntAsh
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 ActInt(ntAsh,ntAsh,ntAsh,ntAsh), A_J(*), Scr(*)
-integer iSym, iA, iAabs, iAtot, iB, iBabs, iBtot, jSym, iC, iCabs, iCtot, iD, iDabs, iDtot
-real*8 Val
+real(kind=wp) :: ActInt(ntAsh,ntAsh,ntAsh,ntAsh), A_J(*), Scr(*)
+integer(kind=iwp) :: iA, iAabs, iAtot, iB, iBabs, iBtot, iC, iCabs, iCtot, iD, iDabs, iDtot, iSym, jSym
+real(kind=wp) :: Val
 
 do iSym=1,nSym
   do iA=1,nAsh(iSym)

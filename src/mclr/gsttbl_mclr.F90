@@ -14,13 +14,13 @@ subroutine GSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSSIG
 ! from vector packed in combination format according to IDC
 
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-dimension C(*), CTT(*), NSASO(NOCTPA,*), NSBSO(NOCTPB,*)
-dimension ICOOSC(NOCTPA,NOCTPB,*)
-dimension SCR(*)
-dimension ISGVST(IBSM)
-dimension IDUM(1)
+implicit none
+real(kind=wp) :: C(*), CTT(*), PSSIGN, PLSIGN, SCR(*)
+integer(kind=iwp) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), ICOOSC(NOCTPA,NOCTPB,*), IDC, LUC
+integer(kind=iwp) :: IBASE, IDUM(1), IMZERO, ISGVST(IBSM), LBL, LCOMB, LDET, NAST, NBST, NCI, NCOL, NELMNT, NRI, NROW
+real(kind=wp) :: PLSSGN, PSIGN
 
 PSIGN = Zero ! dummy initialize
 

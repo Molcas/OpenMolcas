@@ -13,35 +13,27 @@ subroutine Out_Pt2(iKapDisp,iCIDisp)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipclose, ipget, ipin, W
-use MCLR_Data, only: CMO
-use MCLR_Data, only: nConf1, n2Dens, ipCI, ipCM, ipMat, n1Dens, nA, nDens, nDensC
-use MCLR_Data, only: ESTERR, ISNAC, ISTATE, IRLXROOT, OVERRIDE, NACSTATES
-use MCLR_Data, only: LuTEMP, LuJob, LuPT2
-use input_mclr, only: nDisp, nSym, nRoots, ntAsh, PT2, iRoot, iTOC, nAsh, nBas, nCSF, nIsh, State_Sym
+use MCLR_Data, only: CMO, ESTERR, ipCI, ipCM, ipMat, IRLXROOT, ISNAC, ISTATE, LuJob, LuPT2, LuTEMP, n1Dens, n2Dens, nA, NACSTATES, &
+                     nConf1, nDens, nDensC, OVERRIDE
+use input_mclr, only: iRoot, iTOC, nAsh, nBas, nCSF, nDisp, nIsh, nRoots, nSym, ntAsh, PT2, State_Sym
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half, Quart
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-#include "SysDef.fh"
-integer iKapDisp(nDisp), iCiDisp(nDisp)
-character(len=8) Method
-logical CI, Is_Roots_Set
-character(len=80) Note
-! Added for DMRG calculation
-real*8, allocatable :: tmpDe(:,:), tmpP(:), tmpDeM(:,:), tmpPM(:,:,:,:)
-character(len=16) mstate
-real*8 rdum(1)
-integer idum(7,8)
-real*8, allocatable :: D_K(:), Tmp(:), K1(:), K2(:), DAO(:), D_CI(:), D1(:), P_CI(:), P1(:), Conn(:), OCCU(:), CMON(:), DTmp(:), &
-                       G1q(:), G1m(:), Temp(:), DMs(:,:)
-integer iSym, nBas_Tot, nTot1, nDLMO, nLCMO, iS, nNac, nPLMO, iLen, ipCIP, iDisk, nDim, ij, k, l, ij1, ij2, kl1, kl2, ji2, kl, &
-        lk2, ijkl, jikl, ijlk, jilk, klRow, iMax, ii, iikl, nBasI, nG1, iR, jDisk, nG2, iA, jA, iAA, jAA, nBuf, LuDens, iOff, &
-        iBas, LuTmp
-integer, external :: IsFreeUnit
-real*8 Val, DM(3)
-integer i, j
+integer(kind=iwp) :: iKapDisp(nDisp), iCiDisp(nDisp)
+integer(kind=iwp) :: i, iA, iAA, iBas, iDisk, idum(7,8), ii, iikl, ij, ij1, ij2, ijkl, ijlk, iLen, iMax, iOff, ipCIP, iR, iS, &
+                     iSym, j, jA, jAA, jDisk, ji2, jikl, jilk, k, kl, kl1, kl2, klRow, l, lk2, LuDens, LuTmp, nBas_Tot, nBasI, &
+                     nBuf, nDim, nDLMO, nG1, nG2, nLCMO, nNac, nPLMO, nTot1
+real(kind=wp) :: DM(3), rdum(1), Val
+logical(kind=iwp) :: CI, Is_Roots_Set
+character(len=80) :: Note
+character(len=16) :: mstate
+character(len=8) :: Method
+real(kind=wp), allocatable :: CMON(:), Conn(:), D1(:), D_CI(:), D_K(:), DAO(:), DMs(:,:), DTmp(:), G1m(:), G1q(:), K1(:), K2(:), &
+                              OCCU(:), P1(:), P_CI(:), Temp(:), Tmp(:), tmpDe(:,:), tmpDeM(:,:), tmpP(:), tmpPM(:,:,:,:)
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -92,8 +84,8 @@ if (CI) then
 
   ! ====================================================================
   if (doDMRG) then  ! yma
-    call dmrg_dim_change_mclr(LRras2(1:8),ntash,0)
-    call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
+    call dmrg_dim_change_mclr(LRras2,ntash,0)
+    call dmrg_dim_change_mclr(RGras2,ndim,0)
 
     call mma_allocate(tmpDe,ndim,ndim,Label='TmpDe')
     call mma_allocate(tmpP,nTri_Elem(ndim**2),Label='tmpP')
@@ -168,7 +160,7 @@ if (CI) then
     call mma_deallocate(tmpDeM)
     call mma_deallocate(tmpP)
     call mma_deallocate(tmpPM)
-    call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
+    call dmrg_dim_change_mclr(RGras2,ntash,0)
   end if
   ! ====================================================================
 
@@ -339,8 +331,8 @@ end do
 call Put_dArray('LCMO',DAO,nLCMO)
 
 if (doDMRG) then  ! yma
-  call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
-  call dmrg_spc_change_mclr(RGras2(1:8),nash)
+  call dmrg_dim_change_mclr(RGras2,ntash,0)
+  nash(:) = RGras2(:)
 end if
 
 if (isNAC) then
@@ -589,8 +581,8 @@ call mma_deallocate(G1q)
 !----- debug -----
 
 if (doDMRG) then ! yma
-  call dmrg_dim_change_mclr(LRras2(1:8),ntash,0)
-  call dmrg_spc_change_mclr(LRras2(1:8),nash)
+  call dmrg_dim_change_mclr(LRras2,ntash,0)
+  nash(:) = LRras2(:)
 end if
 
 ! Write the effective active one el density to disk in the same format as g1q

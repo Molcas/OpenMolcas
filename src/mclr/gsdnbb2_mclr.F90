@@ -63,16 +63,14 @@ subroutine GSDNBB2_MCLR(I12,RHO1,RHO2,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NG
 !
 ! Jeppe Olsen, Winter of 1991
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension CB(*), SB(*)
-! Output
-dimension RHO1(n1,*), RHO2(n2,*)
-! Scratch
-dimension SSCR(*), CSCR(*)
-dimension I1(*), XI1S(*), I2(*), XI2S(*), I3(*), XI3S(*), I4(*), XI4S(*)
-dimension C2(*), RHO1S(*), X(*)
-dimension IAOC(*), IBOC(*), JAOC(*), JBOC(*), NOBPTS(*), IOBPTS(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: I12, IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(*), IBOC(*), JAOC(*), JBOC(*), NAEL, NBEL, &
+                     IJAGRP, IJBGRP, MXPNGAS, NOBPTS(*), IOBPTS(*), MAXI, MAXK, I1(*), I2(*), I3(*), I4(*), NSM, NIA, NIB, NJA, &
+                     NJB, NACOB, ieaw, n1, n2
+real(kind=wp) :: RHO1(n1,*), RHO2(n2,*), SB(*), CB(*), C2(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), RHO1S(*)
+integer(kind=iwp) :: ii, iUseab
 
 iUseab = 0
 ii = 1

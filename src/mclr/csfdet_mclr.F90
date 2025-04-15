@@ -37,19 +37,17 @@ subroutine CSFDET_MCLR(NOPEN,IDET,NDET,ICSF,NCSF,CDC,PSSIGN)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer NOPEN, NDET, NCSF
-integer IDET(NOPEN,NDET), ICSF(NOPEN,NCSF)
-real*8 CDC(NDET,NCSF)
-real*8 PSSIGN
-! Local variables
-real*8, allocatable :: LMDET(:), lSCSF(:)
-integer JDET, JDADD, IOPEN, JCSF
-real*8 CMBFAC, COEF, SIGN
+integer(kind=iwp) :: NOPEN, NDET, IDET(NOPEN,NDET), NCSF, ICSF(NOPEN,NCSF)
+real(kind=wp) :: CDC(NDET,NCSF), PSSIGN
+integer(kind=iwp) :: IOPEN, JCSF, JDADD, JDET
+real(kind=wp) :: CMBFAC, COEF, SGN
+real(kind=wp), allocatable :: LMDET(:), lSCSF(:)
 
 if (PSSIGN == Zero) then
   CMBFAC = One
@@ -75,7 +73,7 @@ do JCSF=1,NCSF
   do JDET=1,NDET
     ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
     COEF = One
-    SIGN = One
+    SGN = One
     JDADD = (JDET-1)*NOPEN
     do IOPEN=1,NOPEN
 
@@ -88,13 +86,13 @@ do JCSF=1,NCSF
       else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 1)) then
         ! - + CASE
         COEF = COEF*(LSCSF(IOPEN)-LMDET(JDADD+IOPEN)+One)/(Two*LSCSF(IOPEN)+Two)
-        SIGN = -SIGN
+        SGN = -SGN
       else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 0)) then
         ! - - CASE
         COEF = COEF*(LSCSF(IOPEN)+LMDET(JDADD+IOPEN)+One)/(Two*LSCSF(IOPEN)+Two)
       end if
     end do
-    CDC(JDET,JCSF) = SIGN*CMBFAC*sqrt(COEF)
+    CDC(JDET,JCSF) = SGN*CMBFAC*sqrt(COEF)
   end do
 end do
 

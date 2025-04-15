@@ -25,14 +25,14 @@ subroutine ClsFls_MCLR()
 !                                                                      *
 !***********************************************************************
 
-use MCLR_Data, only: SA
-use MCLR_Data, only: FnMck, LuCSF2SD, LuJob, LuMck, LuQDat, LuTemp, LuTri1
-use input_mclr, only: iMethod, TwoStep, RASSI
-use Definitions, only: u6
+use MCLR_Data, only: FnMck, LuCSF2SD, LuJob, LuMck, LuQDat, LuTemp, LuTri1, SA
+use input_mclr, only: iMethod, RASSI, TwoStep
+use Definitions, only: iwp, u6
 
 implicit none
-logical DoCholesky
-integer AixRm, iRC, iOpt
+integer(kind=iwp) :: iOpt, iRC
+logical(kind=iwp) :: DoCholesky
+integer(kind=iwp), external :: AixRm
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

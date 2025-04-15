@@ -10,7 +10,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
+subroutine TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SGN)
 ! REFORMATTING BETWEEN LOWER TRIANGULAR PACKING
 ! AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
 !
@@ -18,15 +18,18 @@ subroutine TRIPK2(AUTPAK,APAK,IWAY,MATDIM,NDIM,SIGN)
 !            LOWER HALF OF AUTPAK IS STORED IN APAK
 ! IWAY = 2 : PACKED TO FULL FORM
 !            APAK STORED IN LOWER HALF
-!             SIGN * APAK TRANSPOSED IS STORED IN UPPPER PART
+!             SGN * APAK TRANSPOSED IS STORED IN UPPPER PART
 ! NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-dimension AUTPAK(MATDIM,MATDIM), APAK(*)
+implicit none
+integer(kind=iwp) :: IWAY, MATDIM, NDIM
+real(kind=wp) :: AUTPAK(MATDIM,MATDIM), APAK(*), SGN
+integer(kind=iwp) :: IJ, J
 
 if (IWAY == 1) then
   IJ = 0
@@ -37,7 +40,7 @@ if (IWAY == 1) then
 else if (IWAY == 2) then
   IJ = 0
   do J=1,NDIM
-    AUTPAK(J,J:NDIM) = SIGN*APAK(IJ+J:IJ+NDIM)
+    AUTPAK(J,J:NDIM) = SGN*APAK(IJ+J:IJ+NDIM)
     AUTPAK(J:NDIM,J) = APAK(IJ+J:IJ+NDIM)
     IJ = IJ+NDIM-J
   end do

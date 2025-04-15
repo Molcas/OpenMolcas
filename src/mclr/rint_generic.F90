@@ -20,28 +20,26 @@ subroutine RInt_Generic(rkappa,rmos,rmoa,Fock,Q,Focki,Focka,idsym,reco,jspin)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use MCLR_Data, only: CMO_Inv, CMO, G1t, G2t, FAMO, FIMO
-use MCLR_Data, only: nDens, ipCM, ipMat, ipMatBA, nA, nMBA
+use MCLR_Data, only: CMO, CMO_Inv, FAMO, FIMO, G1t, G2t, ipCM, ipMat, ipMatBA, nA, nDens, nMBA
+use input_mclr, only: iMethod, IsPop, LuAChoVec, LuIChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym
 #ifdef _DEBUGPRINT_
 use Spool, only: LuWr
 #endif
-use input_mclr, only: NewCho, iMethod, nSym, IsPop, LuAChoVec, LuIChoVec, nAsh, nBas, nIsh, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 rkappa(nDens), rMOs(*), rmoa(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens)
-integer iDSym, jSpin
-real*8 reco
-logical Fake_CMO2, DoAct
-real*8, allocatable :: MT1(:), MT2(:), MT3(:), QTemp(:), Dens2(:), G2x(:)
-type(DSBA_Type) CVa(2), DLT(1), DI, DA, Kappa, JI(1), KI, JA, KA, FkI, FkA, QVec, WCMO, WCMO_Inv
-real*8 Fact, Dij
-integer iS, iB, jS, nAct, nG2, iSym, nAG2, jSym, nAtri, iOff, iOff2, iOff3, iOff4, iOff5, jB, ip2, ipGx, ijS, kS, lS, kAsh, lAsh, &
-        ikl, iAsh, jAsh, iij, iRead, ipF, ipFI
+real(kind=wp) :: rkappa(nDens), rMOs(*), rmoa(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens), reco
+integer(kind=iwp) :: iDSym, jSpin
+integer(kind=iwp) :: iAsh, iB, iij, ijS, ikl, iOff, iOff2, iOff3, iOff4, iOff5, ip2, ipF, ipFI, ipGx, iRead, iS, iSym, jAsh, jB, &
+                     jS, jSym, kAsh, kS, lAsh, lS, nAct, nAG2, nAtri, nG2
+real(kind=wp) :: Dij, Fact
+logical(kind=iwp) :: DoAct, Fake_CMO2
+type(DSBA_Type) :: CVa(2), DA, DI, DLT(1), FkA, FkI, JA, JI(1), KA, Kappa, KI, QVec, WCMO, WCMO_Inv
+real(kind=wp), allocatable :: Dens2(:), G2x(:), MT1(:), MT2(:), MT3(:), QTemp(:)
 #ifdef _DEBUGPRINT_
-real*8, external :: DDot_
+real(kind=wp), external :: DDot_
 #endif
 
 !                                                                      *

@@ -11,22 +11,22 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine UnC(ArrayIn,ArrayOut,dsym,Sign)
+subroutine UnC(ArrayIn,ArrayOut,dsym,Sgn)
 ! Uncompresses the PCG vector to a orbital rotation matrix
 !
 ! The redundant rotations are set to zero
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDensC, nDens, ipMat, nB
-use input_mclr, only: nSym, nIsh, nRS1, nRS2, nRS3, nOrb, TimeDep
+use MCLR_Data, only: ipMat, nB, nDens, nDensC
+use input_mclr, only: nIsh, nOrb, nRS1, nRS2, nRS3, nSym, TimeDep
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 ArrayIn(nDensC), ArrayOut(nDens)
-integer dsym
-real*8 sign
-integer IndexC, iSym, jSym, jBas, jT, iBas, iT, Index1, Index2
-real*8 Fact
+real(kind=wp) :: ArrayIn(nDensC), ArrayOut(nDens), Sgn
+integer(kind=iwp) :: dsym
+integer(kind=iwp) :: iBas, Index1, Index2, IndexC, iSym, iT, jBas, jSym, jT
+real(kind=wp) :: Fact
 
 indexC = 0
 Fact = One
@@ -72,7 +72,7 @@ do iSym=1,nSym
               Index1 = ipMat(iSym,jSym)+(jBas-1)*nOrb(iSym)+iBas-1
               Index2 = ipMat(jSym,iSym)+(iBas-1)*nOrb(jSym)+jBas-1
               ArrayOut(Index1) = Fact*ArrayIn(indexC)
-              ArrayOut(Index2) = Sign*Fact*ArrayIn(indexC)
+              ArrayOut(Index2) = Sgn*Fact*ArrayIn(indexC)
             end if
           end if
         end do

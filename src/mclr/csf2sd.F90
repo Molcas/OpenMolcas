@@ -15,17 +15,18 @@ subroutine CSF2SD(CSF,SD,is)
 ! Transforms a CSF vector to slater determinants
 
 use Symmetry_Info, only: Mul
-use Str_Info, only: DTOC, CNSM
+use Str_Info, only: CNSM, DTOC
 use MCLR_Data, only: NDTASM
-use input_mclr, only: nConf, State_Sym, nCSF
+use input_mclr, only: nConf, nCSF, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer is
-real*8 CSF(nCSF(is)), SD(*)
-real*8, allocatable :: CTM(:)
-integer iiCOPY, iSym, i
+integer(kind=iwp) :: is
+real(kind=wp) :: CSF(nCSF(is)), SD(*)
+integer(kind=iwp) :: i, iiCOPY, iSym
+real(kind=wp), allocatable :: CTM(:)
 
 iiCOPY = 0
 nConf = max(ncsf(is),ndtasm(iS))

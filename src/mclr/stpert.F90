@@ -14,25 +14,20 @@ subroutine StPert()
 use Index_Functions, only: nTri_Elem
 use MckDat, only: sNew
 use ipPage, only: ipin, W
-use MCLR_Data, only: Hss, FAMO_SpinP, FAMO_SpinM, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
-use MCLR_Data, only: ipCI, nDens
-use MCLR_Data, only: RMS, rBetaA, rBetaS
-use MCLR_Data, only: lDisp, SwLbl
-use MCLR_Data, only: MS2
-use MCLR_Data, only: FnMck, LuMck
-use input_mclr, only: nSym, McKinley, PT2, nDisp, SpinPol, nAsh, nBas, nIsh, nTPert, State_Sym
+use MCLR_Data, only: FAMO_SpinM, FAMO_SpinP, Fm, FnMck, Fp, G1m, G1p, G2mm, G2mp, G2pp, Hss, ipCI, lDisp, LuMck, MS2, nDens, &
+                     rBetaA, rBetaS, RMS, SwLbl
+use input_mclr, only: McKinley, nAsh, nBas, nDisp, nIsh, nSym, nTPert, PT2, SpinPol, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, Half
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=16) Label
-character(len=8) MckLbl
-character(len=288) Header
-integer idum(1)
-real*8, allocatable :: Tmp1(:), Tmp2(:)
-integer nHss, iS, iRC, iOpt, nAct, nG, nG2, iType, nMax, iDummer
-real*8 rAlphas
+integer(kind=iwp) :: idum(1), iDummer, iOpt, iRC, iS, iType, nAct, nG, nG2, nHss, nMax
+real(kind=wp) :: rAlphas
+character(len=288) :: Header
+character(len=16) :: Label
+character(len=8) :: MckLbl
+real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)
 
 nHss = 0
 do iS=1,nSym

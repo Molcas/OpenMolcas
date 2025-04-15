@@ -14,15 +14,13 @@ subroutine ABXpY(Array1,Array2,idsym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMO, NA
-use input_mclr, only: nSym, nAsh, nIsh, nOrb
+use input_mclr, only: nAsh, nIsh, nOrb, nSym
+use Definitions, only: wp, iwp
 
 implicit none
-integer idsym
-real*8 Array1(*), Array2(*)
-integer iS, jS, kS, lS, ijS
-integer iA, jA, kA, lA
-integer iAsh, jAsh, kAsh, lAsh
-integer iiA, ij, kl, ijkl, ip1
+real(kind=wp) :: Array1(*), Array2(*)
+integer(kind=iwp) :: idsym
+integer(kind=iwp) :: iA, iAsh, iiA, ij, ijkl, ijS, ip1, iS, jA, jAsh, jS, kA, kAsh, kl, kS, lA, lAsh, lS
 
 do iS=1,nSym
   do iA=1,Nash(is)
@@ -45,7 +43,7 @@ do iS=1,nSym
                   if (ij >= kl) then
                     ijkl = iTri(ij,kl)
                     ip1 = ipMO(js,ks,ls)+nOrb(is)*nAsh(js)*((lA-1)*nAsh(kS)+kA-1)+nOrb(is)*(ja-1)+iia-1
-                    Array2(ijkl) = array1(ip1)+array2(ijkl)
+                    Array2(ijkl) = Array2(ijkl)+Array1(ip1)
                   end if
                 end if
               end do

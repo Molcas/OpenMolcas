@@ -11,15 +11,14 @@
 
 subroutine SA_PREC2(rdia,S,CI,ENE)
 
-use input_mclr, only: nRoots, nCSF, State_Sym
+use input_mclr, only: nCSF, nRoots, State_Sym
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 rdia(*), S(nroots,nroots), CI(*)
-real*8 ENE
-integer i, j, k
-real*8 dnum
+real(kind=wp) :: rdia(*), S(nroots,nroots), CI(*), ENE
+integer(kind=iwp) :: i, j, k
+real(kind=wp) :: dnum
 
 do i=0,nroots-1
   do j=0,nroots-1

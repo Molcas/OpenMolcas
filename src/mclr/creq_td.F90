@@ -15,14 +15,15 @@ subroutine creq_td(q,rint,G2,idsym)
 ! Constructs the Q matrix
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDens, ipMatBA, ipMO, nA
-use input_mclr, only: nSym, nAsh, ntAsh, nBas
+use MCLR_Data, only: ipMatBA, ipMO, nA, nDens
+use input_mclr, only: nAsh, nBas, nSym, ntAsh
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer idSym
-real*8 Q(nDens), rint(*), G2(ntash,ntash,ntash,ntash)
-integer iS, jS, kS, lS, ipS, ijS, iAsh, jAsh, kAsh, lAsh, ipQ, ipi
+real(kind=wp) :: Q(nDens), rint(*), G2(ntash,ntash,ntash,ntash)
+integer(kind=iwp) :: idSym
+integer(kind=iwp) :: iAsh, ijS, ipi, ipQ, ipS, iS, jAsh, jS, kAsh, kS, lAsh, lS
 
 ! Q = (pj|kl)d
 !  pi         ijkl

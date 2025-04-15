@@ -11,20 +11,18 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-integer function IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN)
+function IABNUM(IASTR,IBSTR,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN)
 ! Encapsulation routine for IABNUS
 
-use Str_info, only: STR, nElec, NoCTyp
+use Str_info, only: nElec, NoCTyp, STR
+use Definitions, only: wp, iwp
 
 implicit none
-integer IASTR(*), IBSTR(*)
-integer IAGRP, IBGRP, IGENSG
-integer ISGNA(*), ISGNB(*)
-integer ISGNAB
-integer IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*)
-integer NORB, IPSFAC
-real*8 PSSIGN
-integer, external :: IABNUS
+integer(kind=iwp) :: IABNUM
+integer(kind=iwp) :: IASTR(*), IBSTR(*), IAGRP, IBGRP, IGENSG, ISGNA(*), ISGNB(*), ISGNAB, IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*), &
+                     NORB, IPSFAC
+real(kind=wp) :: PSSIGN
+integer(kind=iwp), external :: IABNUS
 
 IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,Str(IAGRP)%STCL,Str(IAGRP)%STSM,NOCTYP(IAGRP),Str(IAGRP)%Z,Str(IAGRP)%ISTSO, &
                 Str(IAGRP)%NSTSO,IBSTR,NELEC(IBGRP),Str(IBGRP)%STREO,Str(IBGRP)%STCL,Str(IBGRP)%STSM,NOCTYP(IBGRP),Str(IBGRP)%Z, &

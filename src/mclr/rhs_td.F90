@@ -35,26 +35,21 @@ subroutine RHS_td(Temp1,Temp2,Temp3,Temp4,Temp5,Temp6,rKappa,ipst,iDisp,lOper,CM
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, W
-use MCLR_Data, only: G2sq, G1t
-use MCLR_Data, only: nDens, nCMO, n2Dens, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, nA, nConf1, nMBA
-use MCLR_Data, only: DspVec
+use MCLR_Data, only: DspVec, G1t, G2sq, ipCI, ipCM, ipMat, ipMatBA, ipMatLT, n2Dens, nA, nCMO, nConf1, nDens, nMBA
 use MCLR_procedures, only: CISigma_td
-use input_mclr, only: Debug, nSym, iMethod, State_Sym, nAsh, nBas, nIsh, nTPert
+use input_mclr, only: Debug, iMethod, nAsh, nBas, nIsh, nSym, nTPert, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp5(nDens), Temp6(nDens), rKappa(nDens)
-integer ipst, iDisp, lOper
-real*8 CMO(nCMO)
-integer jdisp
-logical CI
-character(len=8) Label
-real*8 rDum(1)
-real*8, allocatable :: FiX(:), MOX(:), MOT(:), MOT2(:)
-integer iRC, iDSym, iOpt, iOp, ip, iS, jS, iAsh, jAsh, ii, ij
-real*8 Dij, Ena, E2_TD
+real(kind=wp) :: Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp5(nDens), Temp6(nDens), rKappa(nDens), CMO(nCMO)
+integer(kind=iwp) :: ipst, iDisp, lOper, jdisp
+logical(kind=iwp) :: CI
+integer(kind=iwp) :: iAsh, iDSym, ii, ij, iOp, iOpt, ip, iRC, iS, jAsh, jS
+real(kind=wp) :: Dij, E2_TD, Ena, rDum(1)
+character(len=8) :: Label
+real(kind=wp), allocatable :: FiX(:), MOT(:), MOT2(:), MOX(:)
 
 !                                                                      *
 !***********************************************************************

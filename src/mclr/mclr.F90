@@ -43,48 +43,31 @@ use Basis_Info, only: Basis_Info_Free
 use Center_Info, only: Center_Info_Free
 use External_Centers, only: External_Centers_Free
 use Symmetry_Info, only: Symmetry_Info_Free
-use Str_Info, only: DFTP, CFTP, DTOC, CNSM
+use Str_Info, only: CFTP, CNSM, DFTP, DTOC
 use ipPage, only: ipclose
-use MCLR_Data, only: Hss, FAMO, FAMO_SpinP, FAMO_SpinM, SFock, G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m, CMO_Inv, CMO, Int1, pINT1, &
-                     INT2, pINT2, G2t, G2sq, G1t, FIMO, F0SQMO
-use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
-use MCLR_Data, only: nA, nNA, nAcPar, nAcPr2
-use MCLR_Data, only: nrec
-use MCLR_Data, only: iAllo
-use MCLR_Data, only: SA, NACSTATES
-use MCLR_Data, only: LuPT2
-use MCLR_Data, only: SS
-use dmrginfo, only: DoDMRG, RGRAS2, DoMCLR
-use input_mclr, only: ntAsh, ntAtri, ntASqr, nSym, iMethod, SpinPol, iMCPD, iMSPD, PT2, TimeDep, TwoStep, StepType, McKinley, &
-                      RASSI, NewCho, Fail, double, LuAChoVec, LuChoInt, LuIChoVec, nAsh, nDisp, nRS2
+use MCLR_Data, only: CMO, CMO_Inv, Do_Hybrid, F0SQMO, FAMO, FAMO_SpinM, FAMO_SpinP, FIMO, Fm, Fp, G1m, G1p, G1t, G2mm, G2mp, G2pp, &
+                     G2sq, G2t, Hss, iAllo, Int1, INT2, LuPT2, nA, nAcPar, nAcPr2, NACSTATES, nNA, nrec, PDFT_Ratio, pINT1, pINT2, &
+                     SA, SFock, SS, WF_Ratio
+use dmrginfo, only: DoDMRG, DoMCLR, RGRAS2
+use input_mclr, only: double, Fail, iMCPD, iMethod, iMSPD, LuAChoVec, LuChoInt, LuIChoVec, McKinley, nAsh, nDisp, NewCho, nRS2, &
+                      nSym, ntAsh, ntASqr, ntAtri, PT2, RASSI, SpinPol, StepType, TimeDep, TwoStep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
+integer(kind=iwp) :: iReturn
 #include "warnings.h"
-#include "SysDef.fh"
-integer, allocatable :: ifpK(:), ifpS(:), ifpRHS(:), ifpCI(:), ifpSC(:), ifpRHSCI(:)
-logical Reduce_Prt
-external Reduce_Prt
-integer get_MBl_wa
-external get_MBl_wa
-! first a few things for making Markus Happy
-logical converged(8)
-logical DoCholesky
-! Additional things for CMS-NACs Optimization
-character(len=8) Method
-integer(kind=iwp) :: LuInput, istatus, LuSpool2
-character(len=16) :: StdIn
+integer(kind=iwp) :: CMSNACStates(2), I, iPL, iRC, istatus, iSym, LuInput, LuSpool2, nISP, nSymX
+logical(kind=iwp) :: CalcNAC_Opt, converged(8), DoCholesky, Exists, MECI_via_SLAPAF
 character(len=180) :: Line
 character(len=128) :: FileName
-logical(kind=iwp) :: Exists
-integer(kind=iwp), external :: isFreeUnit
-logical :: CalcNAC_Opt = .false., MECI_via_SLAPAF = .false.
-integer(kind=iwp) :: iPL, nSymX, iSym, nISP, I, iRC, iReturn
-integer(kind=iwp) :: CMSNACStates(2)
-integer(kind=iwp), external :: iPrintLevel
+character(len=16) :: StdIn
+character(len=8) :: Method
 real(kind=wp) :: TCPU1, TCPU2, TCPU3, TWall1, TWall2, TWall3
+integer(kind=iwp), allocatable :: ifpCI(:), ifpK(:), ifpRHS(:), ifpRHSCI(:), ifpS(:), ifpSC(:)
+integer(kind=iwp), external :: get_MBl_wa, iPrintLevel, isFreeUnit
+logical(kind=iwp), external :: Reduce_Prt
 
 ! This used to be after the CWTIME() functional call
 !                                                                      *
@@ -179,7 +162,7 @@ call CWTime(TCpu1,TWall1)
 !                                                                      *
 iAllo = 0
 !idp = rtoi
-nrec = get_MBl_wa()/rtob
+nrec = get_MBl_wa()/RtoB
 
 call DecideOnCholesky(DoCholesky)
 call get_iScalar('nSym',nSymX)
@@ -223,8 +206,8 @@ call InpCtl_MCLR(iPL)
 ! Transform integrals and calculate fock matrixes etc.
 
 if (doDMRG) then  ! yma
-  call dmrg_spc_change_mclr(RGras2(1:8),nAsh)
-  call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+  nAsh(:) = RGras2(:)
+  nrs2(:) = RGras2(:)
 end if
 ntAsh = sum(nAsh(1:nSym))
 ntAsqr = sum(nAsh(1:nSym)**2)

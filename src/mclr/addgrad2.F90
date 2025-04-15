@@ -19,17 +19,16 @@ subroutine AddGrad2(rMat,fact)
 !   a beautiful convergence of the PCG,
 !   which is just the case if E is symmetric.
 
-use MCLR_Data, only: F0SQMO
-use MCLR_Data, only: ipCM, ipMat
+use MCLR_Data, only: F0SQMO, ipCM, ipMat
 use input_mclr, only: nSym, nOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 fact
-real*8 rMat(*)
-integer iS
-real*8, allocatable :: Temp(:)
+real(kind=wp) :: rMat(*), fact
+integer(kind=iwp) :: iS
+real(kind=wp), allocatable :: Temp(:)
 
 do iS=1,nSym
   if (nOrb(is)*nOrb(is) == 0) cycle

@@ -16,9 +16,16 @@ function NUMST3(NEL,NORB1,NEL1MN,NEL1MX,NORB2,NORB3,NEL3MN,NEL3MX)
 ! Between NEL1MN AND NEL1MX electrons in the first NORB1 orbitals
 ! Between NEL3MN AND NEL3MX electrons in the last  NORB3 orbitals
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
+
+implicit none
+integer(kind=iwp) :: NUMST3
+integer(kind=iwp) :: NEL, NORB1, NEL1MN, NEL1MX, NORB2, NORB3, NEL3MN, NEL3MX
+integer(kind=iwp) :: IEL1, IEL2, IEL3, IEL3MN, IEL3MX, NSTIN1, NSTINT, NSTRIN
+integer(kind=iwp), external :: IBINOM
 
 NSTRIN = 0
 

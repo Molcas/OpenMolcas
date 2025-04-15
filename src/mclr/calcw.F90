@@ -17,17 +17,12 @@ use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: nNA
 use input_mclr, only: nRoots, ntAsh
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(nTri_Elem(nRoots),nTri_Elem(nRoots)) :: W
-! Input
-integer NPUVX
-real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-real*8, dimension(NPUVX) :: PUVX
-integer, dimension(ntAsh,ntAsh,ntAsh,ntAsh) :: IndTUVX
-! Auxiliary Quantities
-integer K, L, M, N, IKL, IMN, it, iu, iv, ix
+integer(kind=iwp) :: NPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
+real(kind=wp) :: W(nTri_Elem(nRoots),nTri_Elem(nRoots)), GDMat(nTri_Elem(nRoots),nnA,nnA), PUVX(NPUVX)
+integer(kind=iwp) :: IKL, IMN, it, iu, iv, ix, K, L, M, N
 
 do K=1,nRoots
   do L=1,K

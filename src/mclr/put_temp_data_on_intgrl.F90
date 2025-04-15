@@ -11,12 +11,12 @@
 
 subroutine put_temp_data_on_intgrl(LUINTMZ_,NSYMZ_,NORBZ_)
 
-use Intgrl, only: NSYMZ, IAD2M, LUINTMZ, NORBZ
+use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NSYMZ
+use Definitions, only: iwp
 
 implicit none
-integer :: LUINTMZ_, NSYMZ_
-integer :: NORBZ_(8)
-integer :: iAddress
+integer(kind=iwp) :: LUINTMZ_, NSYMZ_, NORBZ_(8)
+integer(kind=iwp) :: iAddress
 
 iAddress = 0
 IAD2M(:,:) = 0

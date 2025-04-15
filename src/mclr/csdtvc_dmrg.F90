@@ -20,16 +20,14 @@ subroutine CSDTVC_dmrg(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY)
 !              output remains output
 ! Modified version for DMRG only -- yma
 
+use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM, NTYP
 use Constants, only: Zero, One
-use MCLR_Data, only: NTYP, NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CSFVEC(*), DETVEC(*)
-integer IWAY
-real*8 DTOCMT(*)
-integer ICTSDT(*)
-integer IREFSM, ICOPY
-integer IOFFCS, IOFFDT, IOFFCD, NDET, NCSF, ITYP, IDET, ICSF, ICNF
+real(kind=wp) :: CSFVEC(*), DETVEC(*), DTOCMT(*)
+integer(kind=iwp) :: IWAY, ICTSDT(*), IREFSM, ICOPY
+integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NDET
 
 IOFFCS = 0 ! dummy initialize
 IOFFDT = 0 ! dummy initialize

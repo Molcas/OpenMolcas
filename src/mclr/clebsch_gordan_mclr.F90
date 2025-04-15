@@ -11,15 +11,18 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-real*8 function Clebsch_Gordan_mclr(j1,m1,j2,m2,j,m)
+function Clebsch_Gordan_mclr(j1,m1,j2,m2,j,m)
 ! Calculates the Clebsch-Gordan coefficients
 
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-z)
-integer z, zmax, zmin
-real*8, external :: Fact
+implicit none
+real(kind=wp) :: Clebsch_Gordan_mclr
+real(kind=wp) :: j1, m1, j2, m2, j, m
+integer(kind=iwp) :: z, zmax, zmin
+real(kind=wp) :: dz, Fct, Fct1, Fct2, N, r, rsum, T
+real(kind=wp), external :: Fact
 
 if ((j1 < Zero) .or. (j2 < Zero) .or. (j < Zero)) then
   write(u6,*) 'Error J is lower than 0'
@@ -37,15 +40,15 @@ if (m1+m2 == m) then
   Fct = sqrt(Fct1/fct2)*sqrt(Fact(j1+m1)*Fact(j1-m1)*Fact(j2+m2)*Fact(j2-m2)*Fact(j+m)*Fact(j-m))
   zmax = nint(min(j1+j2-j,j1-m1,j2+m2))
   zmin = -nint(min(j-j2+m1,j-j1-m2))
-  sum = Zero
+  rsum = Zero
   zmin = max(0,zmin)
   do z=zmin,zmax
     dz = real(z,kind=wp)
     T = (-One)**z
     N = Fact(dz)*Fact(j1+j2-j-dz)*Fact(j1-m1-dz)*Fact(j2+m2-dz)*Fact(j-j2+m1+dz)*Fact(j-j1-m2+dz)
-    sum = sum+T/N
+    rsum = rsum+T/N
   end do
-  Clebsch_Gordan_mclr = sum*Fct
+  Clebsch_Gordan_mclr = rsum*Fct
 else
   Clebsch_Gordan_mclr = Zero
 end if

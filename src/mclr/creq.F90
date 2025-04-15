@@ -16,14 +16,15 @@ subroutine creq(q,rint,G2,idsym)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDens, ipMatBA, ipMO, nA
-use input_mclr, only: nSym, nAsh, nOrb
+use MCLR_Data, only: ipMatBA, ipMO, nA, nDens
+use input_mclr, only: nAsh, nOrb, nSym
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer idSym
-real*8 Q(nDens), rint(*), G2(*)
-integer iS, jS, kS, lS, ijS, iAsh, jAsh, kAsh, lAsh, iij, ikl, ipS, ipQ, ipG, ipi
+real(kind=wp) :: Q(nDens), rint(*), G2(*)
+integer(kind=iwp) :: idSym
+integer(kind=iwp) :: iAsh, iij, ijS, ikl, ipG, ipi, ipQ, ipS, iS, jAsh, jS, kAsh, kS, lAsh, lS
 
 ! Q = (pj|kl)d
 !  pi         ijkl

@@ -14,8 +14,11 @@ subroutine WEIGHT_mclr(Z,NEL,NORB1,NORB2,NORB3,MNRS1,MXRS1,MNRS3,MXRS3,ISCR)
 !
 ! Reverse lexical ordering is used for restricted space
 
-implicit real*8(A-H,O-Z)
-integer Z(*), ISCR(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: Z(*), NEL, NORB1, NORB2, NORB3, MNRS1, MXRS1, MNRS3, MXRS3, ISCR(*)
+integer(kind=iwp) :: KLFREE, KLMAX, KLMIN, KW, NORB
 
 NORB = NORB1+NORB2+NORB3
 

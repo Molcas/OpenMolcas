@@ -11,8 +11,8 @@
 ! Copyright (C) 1984,1989-1993, Jeppe Olsen                            *
 !***********************************************************************
 
-integer function IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,ISSOA,NSSOA,IBSTR,NBEL,IBORD,ITPFSB,ISMFSB,NOCTPB,ZB,ISSOB,NSSOB, &
-                        IOOS,NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC)
+function IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,ISSOA,NSSOA,IBSTR,NBEL,IBORD,ITPFSB,ISMFSB,NOCTPB,ZB,ISSOB,NSSOB,IOOS, &
+                NORB,IGENSG,ISGNA,ISGNB,ISGNAB,PSSIGN,IPSFAC)
 ! A determinant is given by strings IASTR,IBSTR.
 ! Find number of this determinant
 !
@@ -24,26 +24,18 @@ integer function IABNUS(IASTR,NAEL,IAORD,ITPFSA,ISMFSA,NOCTPA,ZA,ISSOA,NSSOA,IBS
 
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer NAEL
-integer IASTR(NAEL), IAORD(*), ITPFSA(*), ISMFSA(*)
-integer NOCTPA
-integer ZA(*), ISSOA(NOCTPA,*), NSSOA(NOCTPA,*)
-integer NBEL
-integer IBSTR(NBEL), IBORD(*), ITPFSB(*), ISMFSB(*)
-integer NOCTPB
-integer ZB(*), ISSOB(NOCTPB,*), NSSOB(NOCTPB,*)
-integer IOOS(NOCTPA,NOCTPB,*)
-integer NORB, IGENSG
-integer ISGNA(*), ISGNB(*)
-real*8 PSSIGN
-integer IPSFAC
-! Local variables
-integer IANUM, IBNUM, ISGNAB, IASYM, IBSYM, IATP, IBTP, IAREL, IBREL, ISTRNM
+integer(kind=iwp) :: IABNUS
+integer(kind=iwp) :: NAEL, IASTR(NAEL), IAORD(*), ITPFSA(*), ISMFSA(*), NOCTPA, ZA(*), ISSOA(NOCTPA,*), NSSOA(NOCTPA,*), NBEL, &
+                     IBSTR(NBEL), IBORD(*), ITPFSB(*), ISMFSB(*), NOCTPB, ZB(*), ISSOB(NOCTPB,*), NSSOB(NOCTPB,*), &
+                     IOOS(NOCTPA,NOCTPB,*), NORB, IGENSG, ISGNA(*), ISGNB(*), IPSFAC
+real(kind=wp) :: PSSIGN
+integer(kind=iwp) :: IANUM, IAREL, IASYM, IATP, IBNUM, IBREL, IBSYM, IBTP, ISGNAB, ISTRNM
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' >>> IABNUS SPEAKING <<<'

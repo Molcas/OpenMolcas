@@ -13,8 +13,12 @@ subroutine PMPLFM(AP,B,NDIM)
 ! Add lower half of a full matrix to a matrix packed
 ! in lower triangular form (packed matrix stored columnwise)
 
-implicit real*8(A-H,O-Z)
-dimension AP(*), B(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: AP(*), B(*)
+integer(kind=iwp) :: NDIM
+integer(kind=iwp) :: IBSF, IBSP, ICOL, NELMNT
 
 IBSP = 1
 IBSF = 1

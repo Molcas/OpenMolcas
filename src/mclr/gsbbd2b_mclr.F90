@@ -56,22 +56,15 @@ subroutine GSBBD2B_MCLR(RHO2,IASM,IATP,IBSM,IBTP,NIA,NIB,JASM,JATP,JBSM,JBTP,NJA
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! General input
-integer NOBPTS(3,*), IOBPTS(3,*)
-! Input
-dimension CB(*), SB(*)
-! Output
-dimension RHO2(*)
-! Scratch
-dimension I1(*), XI1S(*), I2(*), XI2S(*)
-dimension I3(*), XI3S(*), I4(*), XI4S(*)
-dimension X(*)
-dimension CJRES(*), SIRES(*)
-dimension IAOC(*), IBOC(*), JAOC(*), JBOC(*)
-! Local arrays
-dimension ITP(3), JTP(3), KTP(3), LTP(3)
+implicit none
+real(kind=wp) :: RHO2(*), SB(*), CB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), CJRES(*), SIRES(*)
+integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), IBOC(*), &
+                     JAOC(*), JBOC(*), NOBPTS(3,*), IOBPTS(3,*), MAXK, I1(*), I2(*), I3(*), I4(*), NSM, IUSEAB, NORB, ieaw
+integer(kind=iwp) :: IDOCOMP, II, IJSM, IJTYP, IKABTC, IKORD, IOFF, ISM, ITP(3), ITYP, itype, JJ, JOFF, JSM, JTP(3), JTYP, KABOT, &
+                     KAEND, KATOP, KBBOT, KBEND, KBTOP, KLSM, KLTYP, KOFF, KSM, KTP(3), KTYP, LKABTC, LOFF, LSM, LTP(3), LTYP, NI, &
+                     NIJTYP, NJ, NK, NKABTC, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL
 
 NGAS = 3
 

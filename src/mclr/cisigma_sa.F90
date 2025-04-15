@@ -19,25 +19,21 @@ subroutine CISigma_sa(iispin,iCsym,iSSym,Int1,nInt1,Int2s,nInt2s,Int2a,nInt2a,ip
 
 use Symmetry_Info, only: Mul
 use ipPage, only: ipin, ipin1, ipnout, opout, W
-use MCLR_Data, only: KAIN1, KINT2, KINT2A, pInt1
-use MCLR_Data, only: nConf1, ipCM, ipMat
-use MCLR_Data, only: i12, iST, Square
-use MCLR_Data, only: iRefSM
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: i12, ipCM, ipMat, iRefSM, iST, KAIN1, KINT2, KINT2A, nConf1, pInt1, Square, XISPSM
 use CandS, only: ICSM, ISSM
-use input_mclr, only: State_Sym, nSym, Page, nCSF, nRoots, Weight
+use input_mclr, only: nCSF, nRoots, nSym, Page, State_Sym, Weight
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
-real*8, target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-logical Have_2_el
-integer kic(2)
-real*8, allocatable :: CIDET(:)
-integer nDet, iOp, iS, i
+integer(kind=iwp) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
+real(kind=wp), target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+logical(kind=iwp) :: Have_2_el
+integer(kind=iwp) :: nDet, i, iOp, iS, kic(2)
+real(kind=wp), allocatable :: CIDET(:)
 
 ! Interface Anders to Jeppe
-! This interface initiates Jeppes common block
+! This interface initiates Jeppe's common block
 ! and will make it easier to use Anders modifications
 ! of the CI routines
 

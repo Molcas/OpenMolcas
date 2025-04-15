@@ -57,22 +57,14 @@ subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,IC
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-! General input
-integer NOBPTS(3,*), IOBPTS(3,*)
-!integer NTSOB(3,*),IBTSOB(3,*)
-! Input
-integer ISEL(NGAS), ICEL(NGAS)
-dimension CB(*), SB(*)
-! Output
-dimension RHO1(*)
-! Scatch
-dimension SSCR(*), CSCR(*), RHO1S(*)
-dimension I1(*), XI1S(*)
-dimension I2(*), XI2S(*)
-! Local arrays
-dimension ITP(3*3), JTP(3*3)
+implicit none
+real(kind=wp) :: RHO1(*), SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), RHO1S(*)
+integer(kind=iwp) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), NOBPTS(3,*), IOBPTS(3,*), MAXI, &
+                     MAXK, I1(*), I2(*), NSM
+integer(kind=iwp) :: IBIORB, IBJORB, IBOT, ICGOFF, IIORB, IJSM, IJTP, IPART, ISGOFF, ISM, ITOP, ITP(3*3), ITYP, JJORB, JORB, JSM, &
+                     JTP(3*3), JTYP, KBOT, KEND, KTOP, NIBTC, NIORB, NIPART, NJORB, NKBTC, NKI, NSXTP
 
 ! Type of single excitations that connects the two column strings
 call SXTYP_GAS(NSXTP,ITP,JTP,3,ISEL,ICEL)

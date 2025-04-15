@@ -19,7 +19,7 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,N
 !
 ! The H0 space consist of three subspaces
 ! P1,P2 AND Q
-! The H0 matrix can be pictorized as
+! The H0 matrix can be pictured as
 !
 !              P1    P2        Q
 !             ***************************
@@ -88,29 +88,21 @@ subroutine H0CSF(H0,IPQCSF,IPQCNF,MXP1DM,MXP2DM,MXQDM,DTOC,IPRODT,ICONF,IREFSM,N
 
 use iso_c_binding, only: c_f_pointer, c_loc
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: NTYP, NCNATS, NCPCNT
+use MCLR_Data, only: NCNATS, NCPCNT, NTYP
 use Constants, only: One
-use Definitions, only: wp
+use Definitions, only: wp, iwp, RtoI
 
 implicit none
-! Output
-real*8 H0(*)
-integer IPQCSF(*), IPQCNF(*)
-integer NP1CSF, NP1CNF, NP2CSF, NP2CNF, NQCSF, NQCNF, NPQCSF, NPQCNF
-! Input
-real*8 DTOC(*)
-integer IPRODT(*), ICONF(*)
-integer MXP1DM, MXP2DM, MXQDM, IREFSM
-integer NACTOB, NCONF, NEL, NAEL, NBEL, IPWAY
-real*8 DIAG(*)
-integer INTSPC, ICOMBI
-real*8 PSSIGN
-! Scratch space
-real*8 SCR(*), DIAGCN(*)
-integer ISCR(*)
+real(kind=wp) :: H0(*), DTOC(*), SCR(*), DIAG(*), DIAGCN(*), PSSIGN
+integer(kind=iwp) :: IPQCSF(*), IPQCNF(*), MXP1DM, MXP2DM, MXQDM, IPRODT(*), ICONF(*), IREFSM, NACTOB, ISCR(*), NCONF, NEL, NAEL, &
+                     NBEL, IPWAY, NP1CSF, NP1CNF, NP2CSF, NP2CNF, NQCSF, NQCNF, NPQCSF, NPQCNF, INTSPC, ICOMBI
+integer(kind=iwp) :: i, ICSFMN, ICSFOF, IDGCSF, IDGVL, IFINIT, IICSF, IMIN, KLCONF, KLDIPQ, KLFREE, KLFREI, KLIDEG, KLPHP, KLPHQ, &
+                     MXPQDM, NCSFMN, NDGVL, NIRREP, NJCNF, NPCNF, NPCSF
+real(kind=wp) :: DIAVAL, XMAX, XMIN
+real(kind=wp), external :: FNDMNX
+
 ! SCR and ISCR are supposed to refer to the same array
 ! (which is a Fortran violation!)
-#include "SysDef.fh"
 
 call H0CSF_INTERNAL(SCR,DIAGCN)
 
@@ -119,12 +111,10 @@ contains
 
 subroutine H0CSF_INTERNAL(SCR,DIAGCN)
 
-  real*8, target :: SCR(*), DIAGCN(*)
-  integer, pointer :: iPTR(:)
-  integer NPCSF, ICSFMN, MXPQDM, ICNF, ITYP, NJCNF, NIRREP, IICNF, KLFREE, KLDIPQ, KLCONF, IFINIT, IMIN, ICSFOF, NCSFMN, KLFREI, &
-          KLIDEG, IDEG, NDGVL, IDGVL, IDGCSF, IDGCNF, NPCNF, KLPHP, KLPHQ, IICSF, i
-  real*8 XMAX, XMIN, DIAVAL
-  real*8, external :: FNDMNX
+  real(kind=wp), target :: SCR(*), DIAGCN(*)
+  integer(kind=iwp), pointer :: iPTR(:)
+  integer(kind=iwp) :: ICNF, IDEG, IDGCNF, IICNF, ITYP
+
 
   ! 1 : Obtain primary subspace
 
@@ -269,7 +259,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
 
     ! Arrange selected configurations in degenerate pairs
 
-    KLFREI = rtoi*(KLFREE-1)+1
+    KLFREI = RtoI*(KLFREE-1)+1
 
     KLIDEG = KLFREI
     KLFREE = KLFREE+NPQCNF

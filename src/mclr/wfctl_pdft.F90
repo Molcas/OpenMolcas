@@ -21,43 +21,30 @@ subroutine WfCtl_pdft(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
-use MCLR_Data, only: Do_Hybrid, WF_Ratio, PDFT_Ratio
-use MCLR_Data, only: nConf1, nDens, nDensC, ipCI, nAcPar, nNA, nAcPr2, ipMat
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: ISNAC, IRLXROOT, NACSTATES
-use MCLR_Data, only: LuTemp
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: Do_Hybrid, ipCI, ipDia, ipMat, IRLXROOT, ISNAC, LuTemp, nAcPar, nAcPr2, NACSTATES, nConf1, nDens, nDensC, &
+                     nNA, PDFT_Ratio, WF_Ratio, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nDisp, Fail, lSave, nSym, State_Sym, iMethod, iBreak, Eps, nIter, Weight, Debug, ERASSCF, kPrint, nCSF, &
-                      nRoots, ntAsh, nAsh, nBas, nRs2
+use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lSave, nAsh, nBas, nCSF, nDisp, nIter, nRoots, nRs2, &
+                      nSym, ntAsh, State_Sym, Weight
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iKapDisp(nDisp), isigDisp(nDisp)
-integer iCIDisp(nDisp), iCIsigDisp(nDisp)
-integer iRHSDisp(nDisp)
-logical converged(8)
-integer iPL
-#include "rasdim.fh"
-logical CI
-character(len=8) Fmt2
-logical lPrint, cnvrgd
-real*8 rchc(mxroot)
-real*8 rDum(1)
-external IsFreeUnit
-real*8, allocatable :: FOSq(:), FOTr(:)
-real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp4(:), Sc1(:), Sc2(:), Fancy(:), FMO1t(:), FMO1(:), FMO2t(:), FT99(:), &
-                       Temp5(:)
-real*8, allocatable :: lmroots(:), lmroots_new(:), Kap_New(:), Kap_New_Temp(:)
-real*8, allocatable :: WFOrb(:), P2WF(:), P2PDFT(:)
-real*8 R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, rBeta, Res, TRoot, rE, Diff, WScale
-real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin, &
-        i, nTri, nOrbAct, kSym, iOff, iS, jS, j, ji, ij, nG1, nG2
-integer, external :: nPre
+integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iPL
+logical(kind=iwp) :: converged(8)
+integer(kind=iwp) :: i, iDis, iDisp, ij, iLen, iOff, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iS, iSym, Iter, j, ji, jS, jSpin, &
+                     kSym, Left, lLine, lPaper, Lu_50, nConf3, nG1, nG2, nOrbAct, nPre2, nTri
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, Diff, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), rE, ReCo, Res, rEsci, &
+                 rEsk, TRoot, WScale
+logical(kind=iwp) :: CI, cnvrgd, lPrint
+character(len=8) :: Fmt2
+real(kind=wp), allocatable :: dKappa(:), Fancy(:), FMO1(:), FMO1t(:), FMO2t(:), FOSq(:), FOTr(:), FT99(:), Kap_New(:), &
+                              Kap_New_Temp(:), Kappa(:), lmroots(:), lmroots_new(:), P2PDFT(:), P2WF(:), rCHC(:), Sc1(:), Sc2(:), &
+                              Sigma(:), Temp4(:), Temp5(:), WFOrb(:)
+real(kind=wp), external :: DDot_
+integer(kind=iwp), external :: nPre
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -112,11 +99,13 @@ call Setup_MCLR(iSym)
 ! Calculate the diagonal of E    and store in core/disc
 
 call mma_allocate(Fancy,nRoots**3,Label='Fancy')
+call mma_allocate(rCHC,nRoots,Label='rCHC')
 !____________________
 !AMS - what to do here?
 ! What should rCHC be?  is it computed with E(mcscf) or E(pdft)?
 !____________________
 call CIDia_SA(State_Sym,rCHC,Fancy)
+call mma_deallocate(rCHC)
 call ipOut(ipdia)
 
 ! Allocate disk/memory space
@@ -684,8 +673,8 @@ if (debug) then
   write(u6,*)
 end if
 if (doDMRG) then  ! yma
-  call dmrg_spc_change_mclr(RGras2(1:8),nash)
-  call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+  nash(:) = RGras2(:)
+  nrs2(:) = RGras2(:)
 end if
 
 !----------------------------------------------------------------------*

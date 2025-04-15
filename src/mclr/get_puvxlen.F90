@@ -16,11 +16,12 @@ subroutine Get_PUVXLen(NPUVX)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use input_mclr, only: nSym, nOrb, nAsh
+use input_mclr, only: nAsh, nOrb, nSym
+use Definitions, only: iwp
 
 implicit none
-integer NPUVX
-integer iSp, iSq, iSr, iSs, nAq, iSpq, iSpqr, nAr, nAs, nOp, nRS
+integer(kind=iwp) :: NPUVX
+integer(kind=iwp) :: iSp, iSpq, iSpqr, iSq, iSr, iSs, nAq, nAr, nAs, nOp, nRS
 
 NPUVX = 0
 do iSp=1,nSym

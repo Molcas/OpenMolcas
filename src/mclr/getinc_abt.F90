@@ -20,19 +20,13 @@ subroutine GETINC_ABT(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,IKSM,JLSM,INTL
 use Index_Functions, only: iTri
 use MCLR_Data, only: IBTSOB, NTSOB
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 XINT(*)
-integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM
-real*8 Intlst(*)
-integer ICOUL, ieaw
-! Local variables
-integer iOrb, jOrb, kOrb, lOrb
-integer iOff, jOff, kOff, lOff
-integer iBas, jBas, kBas, lBas
-integer iInt
-integer IMIN, JMIN, IJ, KL, IJKL, IL, JK
-real*8 SIGN
+real(kind=wp) :: XINT(*), Intlst(*)
+integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL, ieaw
+integer(kind=iwp) :: iBas, iInt, IJ, IJKL, IL, IMIN, iOff, iOrb, jBas, JK, JMIN, jOff, jOrb, kBas, KL, kOff, kOrb, lBas, lOff, lOrb
+real(kind=wp) :: SGN
 
 iOrb = NTSOB(ITP,ISM)
 jOrb = NTSOB(JTP,JSM)
@@ -58,10 +52,10 @@ if (ICOUL == 0) then
         do iBas=iMin,iOff+iOrb-1
           ij = iTri(iBas,jBas)
           kl = iTri(kBas,lBas)
-          Sign = One
-          if ((ij < kl) .and. (ieaw /= 0)) Sign = -One
+          SGN = One
+          if ((ij < kl) .and. (ieaw /= 0)) SGN = -One
           ijkl = iTri(ij,kl)
-          Xint(iInt) = Sign*Intlst(ijkl)
+          Xint(iInt) = SGN*Intlst(ijkl)
           iInt = iInt+1
         end do
       end do

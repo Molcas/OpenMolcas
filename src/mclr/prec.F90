@@ -33,17 +33,18 @@ subroutine Prec(rpre,idsym)
 
 use iso_c_binding, only: c_f_pointer, c_loc
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nrec
-use MCLR_Data, only: ipCM
-use MCLR_Data, only: FAMO, FIMO, F0SQMO
-use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, nRS1, nRS2, nRS3, ntAsh, NewCho, iMethod, nOrb
+use MCLR_Data, only: F0SQMO, FAMO, FIMO, ipCM, nrec
+use input_mclr, only: iMethod, nAsh, nBas, NewCho, nIsh, nOrb, nOrb, nRS1, nRS2, nRS3, nSym, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 rpre(*)
-integer idsym
+implicit none
+real(kind=wp) :: rpre(*)
+integer(kind=iwp) :: idsym
+integer(kind=iwp) :: iAdr, iAdr2, iBB, ip, iR, iRC, jS, n2, nD, ni, nmm, nmmm, nTemp
+real(kind=wp) :: Sgn
+real(kind=wp), allocatable :: ActInt(:), JA(:), KA(:), Scr(:), Temp1(:,:), Temp2(:), Temp3(:)
 
 call Prec_internal(rpre)
 
@@ -52,11 +53,9 @@ contains
 
 subroutine Prec_internal(rpre)
 
-  real*8, target :: rpre(*)
-  integer, pointer :: ipre(:)
-  real*8, allocatable :: JA(:), KA(:), Scr(:), ActInt(:), Temp1(:,:), Temp2(:), Temp3(:)
-  integer nmm, nmmm, iS, ip, iAdr, iAdr2, jS, nD, ni, nTemp, iB, iBB, iRC, iR, n2
-  real*8 Sign
+  real(kind=wp), target :: rpre(*)
+  integer(kind=iwp), pointer :: ipre(:)
+  integer(kind=iwp) :: iB, iS
 
   nmm = max(0,maxval(nAsh(1:nSym)+nIsh(1:nSym)))
   nmmm = max(0,maxval(nBas(1:nSym)))
@@ -80,7 +79,7 @@ subroutine Prec_internal(rpre)
     jS = Mul(is,iDSym)
     nD = nOrb(js)-nIsh(jS)
     ni = nBas(js)**2
-    sign = One
+    Sgn = One
     call mma_allocate(Temp2,ni,Label='Temp2')
     call mma_allocate(Temp3,ni,Label='Temp3')
     Temp3(:) = Zero
@@ -97,7 +96,7 @@ subroutine Prec_internal(rpre)
         if (NewCho) then  ! Cho-Fock
 
           call preci_cho(jS,nD,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),FIMO(ipCM(js)),FAMO(ipCM(js)), &
-                         F0sqMO(ipCM(js)),sign,JA,n2,iAdr) ! OK
+                         F0sqMO(ipCM(js)),Sgn,JA,n2,iAdr) ! OK
 
         else  ! Cho-MO
 
@@ -110,7 +109,7 @@ subroutine Prec_internal(rpre)
 
             if (nash(js) > 0) &
               call Preciaa(ib,is,js,nd,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),FIMO(ipCM(js)),FAMO(ipCM(js)), &
-                           F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+                           F0sqMO(ipCM(js)),Sgn,JA,KA,Scr,n2) ! OK
             !                                                          *
             !***********************************************************
             !                                                          *
@@ -118,7 +117,7 @@ subroutine Prec_internal(rpre)
             !  ipia
 
             if ((nOrb(js)-nish(js)-nash(js))*nash(js) > 0) &
-              call Preciba(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+              call Preciba(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),F0sqMO(ipCM(js)),Sgn,JA,KA,Scr,n2) ! OK
 
           end if
           !                                                            *
@@ -129,7 +128,7 @@ subroutine Prec_internal(rpre)
 
           if ((nOrb(js)-nish(js)-nash(js)) > 0) &
             call Precibb(ib,is,js,nd,Temp3,norb(js),Temp1(:,1),Temp1(:,2),Temp2,FiMo(1+ipCM(is)+ibb),FAMO(1+ipcm(is)+ibb), &
-                         FiMo(ipCM(js)),FAMO(ipcm(js)),sign)  ! OK
+                         FiMo(ipCM(js)),FAMO(ipcm(js)),Sgn)  ! OK
 
         end if
         !                                                              *
@@ -187,25 +186,25 @@ subroutine Prec_internal(rpre)
           !  New Cholesky code
 
           call Preca_cho(ib,is,js,nd,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                         FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JA,n2,iAdr2)
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),Sgn,JA,n2,iAdr2)
 
         else
 
           if (nish(js) > 0) &
             call Precaii(ib,is,js,nd,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                         FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JA,KA,Scr,n2) ! OK
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),Sgn,JA,KA,Scr,n2) ! OK
           !call Precaai(ib,nd,ir,rpre(ip))
           !call Precaaa(ib,nd,ir,rpre(ip))
           if (nish(js)*nOrb(js) > 0) &
-            call Precabi(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),sign,JA,KA,Temp1(:,2),n2)!+/-?
+            call Precabi(ib,is,js,nd,Temp3,nOrb(js),FIMO(ipCM(js)),FAMO(ipCM(js)),Sgn,JA,KA,Temp1(:,2),n2)!+/-?
           !call Precaba(ib,nd,ir,rpre(ip))
           if (nOrb(js) > 0) &
-            call Precabb_2(ib,is,js,nd,nOrb(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)),sign)
+            call Precabb_2(ib,is,js,nd,nOrb(js),Temp3,Temp1(:,1),ntemp,Temp1(:,2),Temp2,F0SQMO(1+ipCM(is)+ibb),FiMo(ipCM(js)),Sgn)
 
           ! symmetry not yet
           ! Eq. (C.12e)
           if ((nRs1(iS) /= 0) .or. (nRs3(iS) /= 0)) &
-            call Precaaa(ib,is,js,nd,ir,Temp3,nOrb(js),FIMO(ipCM(js)),F0SqMO(ipCM(js)),sign,Scr,n2,ActInt) ! OK
+            call Precaaa(ib,is,js,nd,ir,Temp3,nOrb(js),FIMO(ipCM(js)),F0SqMO(ipCM(js)),Sgn,Scr,n2,ActInt) ! OK
 
         end if
         !                                                              *

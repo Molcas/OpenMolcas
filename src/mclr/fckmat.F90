@@ -17,16 +17,15 @@ subroutine FckMat()
 !***********************************************************
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: FAMO, FIMO, F0SQMO, INT2
-use MCLR_Data, only: nDens
-use MCLR_Data, only: nrec
-use input_mclr, only: nSym, nAsh, nIsh, nBas, iMethod
+use MCLR_Data, only: F0SQMO, FAMO, FIMO, INT2, nDens, nrec
+use input_mclr, only: iMethod, nAsh, nBas, nIsh, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, allocatable :: Q(:), Tmp2(:,:), T3(:)
-integer nm, nmm, nmmm, nAtri
+integer(kind=iwp) :: nAtri, nm, nmm, nmmm
+real(kind=wp), allocatable :: Q(:), T3(:), Tmp2(:,:)
 
 !                                                                      *
 !***********************************************************************

@@ -14,12 +14,13 @@ subroutine MMSort2(A,B,P,iel)
 use Index_Functions, only: iTri, nTri_Elem
 use MCLR_Data, only: DspVec, lDisp
 use input_mclr, only: nSym, nTPert
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 A(*), B(*), P(*)
-integer iel(3)
-logical geomi, geomj
-integer ijD, iG, ijG, ijP, iii, iSym, iDisp, jDisp, ijD1
+real(kind=wp) :: A(*), B(*), P(*)
+integer(kind=iwp) :: iel(3)
+integer(kind=iwp) :: iDisp, iG, iii, ijD, ijD1, ijG, ijP, iSym, jDisp
+logical(kind=iwp) :: geomi, geomj
 
 ijD = 0
 iG = 0

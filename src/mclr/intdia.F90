@@ -18,38 +18,26 @@ subroutine INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
 ! doubling the dimensions. The diagonal is then
 ! constructed and written out twice
 
-use Str_Info, only: STR, NELEC, NOCTYP
-use stdalloc, only: mma_allocate, mma_deallocate
-use MCLR_Data, only: iDC, PSSIGN
-use MCLR_Data, only: IASTFI, IBSTFI, MNR1IC, MXR3IC
-use MCLR_Data, only: ICISTR
-use MCLR_Data, only: NTOOB, NACOB
+use Str_Info, only: NELEC, NOCTYP, STR
+use MCLR_Data, only: IASTFI, IBSTFI, ICISTR, iDC, MNR1IC, MXR3IC, NACOB, NTOOB, PSSIGN
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use input_mclr, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 DIAG(*)
-integer NSPC
-! ==============
-! Specific Input
-! ==============
-integer ISPC(NSPC), LSPC(NSPC), ISM(NSPC)
-integer IAMCMP
-real*8 ECORE
-! ==============
-! General Input
-! ==============
-integer idum(1)
-real*8, allocatable :: JA(:), KA(:), XA(:), XB(:), SCR(:), H1D(:)
-integer, allocatable :: BLTP(:), IOIO(:)
-integer LUDIA, MXOCOC, IISPC, NOCTPA, NOCTPB, NLOOP, ILOOP, IATP, IBTP, NAEL, NBEL, MNRS1C, MXRS3C, LLUDIA
+real(kind=wp) :: DIAG(*), ECORE
+integer(kind=iwp) :: NSPC, ISPC(NSPC), ISM(NSPC), LSPC(NSPC), IAMCMP
+integer(kind=iwp) :: IATP, IBTP, idum(1), IISPC, ILOOP, LLUDIA, LUDIA, MNRS1C, MXOCOC, MXRS3C, NAEL, NBEL, NLOOP, NOCTPA, NOCTPB
+integer(kind=iwp), allocatable :: BLTP(:), IOIO(:)
+real(kind=wp), allocatable :: H1D(:), JA(:), KA(:), SCR(:), XA(:), XB(:)
 
 ! OBS THIS WILL JUST WORK FOR CASSCF/RASSCF RESPONSE
 LUDIA = 0
 
 if (doDMRG) then  ! yma
-  call dmrg_dim_change_mclr(RGras2(1:8),ntoob,0)
-  call dmrg_dim_change_mclr(RGras2(1:8),nacob,0)
+  call dmrg_dim_change_mclr(RGras2,ntoob,0)
+  call dmrg_dim_change_mclr(RGras2,nacob,0)
 end if
 
 ! Local memory
@@ -135,8 +123,8 @@ call mma_deallocate(KA)
 call mma_deallocate(JA)
 
 if (doDMRG) then  ! yma
-  call dmrg_dim_change_mclr(LRras2(1:8),ntoob,0)
-  call dmrg_dim_change_mclr(LRras2(1:8),nacob,0)
+  call dmrg_dim_change_mclr(LRras2,ntoob,0)
+  call dmrg_dim_change_mclr(LRras2,nacob,0)
 end if
 
 end subroutine INTDIA

@@ -16,19 +16,18 @@ subroutine Prec_td(pre2,DigPrec,isym)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: G1t
-use MCLR_Data, only: ipCM, ipMat, nA, nDens
-use input_mclr, only: nSym, nAsh, nIsh, nBas, Omega
+use MCLR_Data, only: G1t, ipCM, ipMat, nA, nDens
+use input_mclr, only: nAsh, nBas, nIsh, nSym, Omega
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 DigPrec(*), pre2(*)
-integer iSym
-real*8 nonzero
-real*8, allocatable :: Dens(:), PreTd(:), TempTd(:)
-integer nBasTot, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, ip1, jS, nD, k, l
-integer i, j
+real(kind=wp) :: pre2(*), DigPrec(*)
+integer(kind=iwp) :: iSym
+integer(kind=iwp) :: i, iA, iB, Inc, ip, ip1, ip2, ip3, iS, j, jA, jB, jS, k, l, nBasTot, nD
+real(kind=wp) :: nonzero
+real(kind=wp), allocatable :: Dens(:), PreTd(:), TempTd(:)
 
 !                                                                      *
 !***********************************************************************
@@ -115,13 +114,13 @@ call mma_allocate(TempTd,nDens,Label='TempTd')
 do iS=1,nSym
   jS = Mul(iS,iSym)
   TempTd(:) = Zero
-  call Trans(PreTd(ipMat(jS,iS)),nBas(iS),nBas(jS),TempTd)
+  call Trnsps(nBas(iS),nBas(jS),PreTd(ipMat(jS,iS)),TempTd)
   nD = nBas(iS)*nBas(jS)
   do i=0,nD-1
     nonzero = PreTd(ipMat(iS,jS)+i)
     if (nonzero /= Zero) TempTd(1+i) = PreTd(ipMat(iS,jS)+i)
   end do
-  call Trans(TempTd,nBas(jS),nBas(iS),PreTd(ipMat(jS,iS)))
+  call Trnsps(nBas(jS),nBas(iS),TempTd,PreTd(ipMat(jS,iS)))
 
 end do
 

@@ -14,12 +14,13 @@ subroutine Pickmo_td(rmo,rmoaa,idsym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMO, nA
-use input_mclr, only: nSym, nAsh, nIsh, TimeDep, nBas, ntAsh
+use input_mclr, only: nAsh, nBas, nIsh, nSym, ntAsh, TimeDep
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 rmo(*), rmoaa(*)
-integer idsym
-integer iS, jS, kS, lS, iA, jA, kA, lA, iAA, jAA, kAA, lAA, ijAA, klAA, ijkl, ipi
+real(kind=wp) :: rmo(*), rmoaa(*)
+integer(kind=iwp) :: idsym
+integer(kind=iwp) :: iA, iAA, ijAA, ijkl, ipi, iS, jA, jAA, jS, kA, kAA, klAA, kS, lA, lAA, lS
 
 if (.not. timedep) then
   do iS=1,nSym

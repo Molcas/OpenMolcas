@@ -15,17 +15,13 @@ subroutine CIDIA_TD(iSym)
 
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, ipnout, W
-use MCLR_Data, only: nexp, nexp_max
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: XISPSM
-use MCLR_Data, only: NOCSF, ICISTR
-use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NTYP
-use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, TimeDep
+use MCLR_Data, only: ICISTR, ipDia, NCNATS, NCPCNT, NCSASM, NDPCNT, nexp, nexp_max, NOCSF, NTYP, XISPSM
+use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, State_Sym, TimeDep
+use Definitions, only: iwp
 
 implicit none
-integer iSym
-integer iSM(1), LSPC(1), iSPC(1)
-integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, nD, ipDIAI, nP2, nP1, nQ
+integer(kind=iwp) :: iSym
+integer(kind=iwp) :: i, iAMCmp, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), LSPC(1), nD, nP1, nP2, nQ, nSD, nSpc
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we dont want to let world see the work of the Danish

@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precibb(ib,is,js,nd,rout,no,Temp1,Scr,Temp2,fockii,fockai,focki,focka,sign)
+subroutine Precibb(ib,is,js,nd,rout,no,Temp1,Scr,Temp2,fockii,fockai,focki,focka,Sgn)
 !***********************************************************************
 !                                       [2]
 ! Calculates the diagonal submatrix of E    that couple
@@ -36,18 +36,13 @@ subroutine Precibb(ib,is,js,nd,rout,no,Temp1,Scr,Temp2,fockii,fockai,focki,focka
 use Index_Functions, only: nTri_Elem
 use input_mclr, only: nAsh, nIsh, nOrb
 use Constants, only: Four, Twelve
+use Definitions, only: wp, iwp
 
 implicit none
-integer ib, is, js, nd
-real*8 rout(*)
-integer no
-real*8 Temp2(no,no), Temp1(no,no), Scr(*)
-real*8 fockii, fockai
-real*8 Focki(no,no), Focka(no,no)
-real*8 sign
-integer jVert, ip, kB
-real*8 ra
-integer i
+integer(kind=iwp) :: ib, is, js, nd, no
+real(kind=wp) :: rout(*), Temp1(no,no), Scr(*), Temp2(no,no), fockii, fockai, Focki(no,no), Focka(no,no), Sgn
+integer(kind=iwp) :: i, ip, jVert, kB
+real(kind=wp) :: ra
 
 !                                                                      *
 !***********************************************************************
@@ -56,16 +51,15 @@ jVert = nOrb(js)-nAsh(js)-nIsh(js)
 if (jvert == 0) return
 
 ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
-ra = Four*sign*(Fockii+Fockai)
+ra = Four*Sgn*(Fockii+Fockai)
 call COUL(jS,jS,iS,is,IB,iB,Temp2,Scr)
-Temp1(:,:) = -sign*Four*Temp2(:,:)
+Temp1(:,:) = -Sgn*Four*Temp2(:,:)
 call EXCH(js,is,js,is,ib,ib,Temp2,Scr)
-Temp1(:,:) = Temp1(:,:)+sign*Twelve*Temp2(:,:)
+Temp1(:,:) = Temp1(:,:)+Sgn*Twelve*Temp2(:,:)
 i = ip
 do kB=nIsh(jS)+nAsh(jS)+1,nOrb(jS)
   rOut(i) = rout(i)-ra
-  rOut(i:i+nOrb(jS)-kB) = rOut(i:i+nOrb(jS)-kB)+ &
-                          Temp1(kB,kB:nOrb(jS))+sign*Four*Focki(kB,kB:nOrb(jS))+sign*Four*Focka(kB,kB:nOrb(jS))
+  rOut(i:i+nOrb(jS)-kB) = rOut(i:i+nOrb(jS)-kB)+Temp1(kB,kB:nOrb(jS))+Sgn*Four*(Focki(kB,kB:nOrb(jS))+Focka(kB,kB:nOrb(jS)))
   i = i+nOrb(jS)-kB+1
 end do
 !                                                                      *

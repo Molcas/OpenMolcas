@@ -15,16 +15,16 @@ subroutine NGETH1(H,ISM,ITP,JSM,JTP)
 ! given OS class
 
 use MCLR_Data, only: NTSOB
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-!.Output
-real*8 H(*)
-integer ISM, ITP, JSM, JTP
-integer NI, NJ, IJ, I, J
-real*8, external :: GTH1EN
+real(kind=wp) :: H(*)
+integer(kind=iwp) :: ISM, ITP, JSM, JTP
+integer(kind=iwp) :: I, IJ, J, NI, NJ
+real(kind=wp), external :: GTH1ES_MCLR
 
 NI = NTSOB(ITP,ISM)
 NJ = NTSOB(JTP,JSM)
@@ -32,7 +32,7 @@ IJ = 0
 do J=1,NJ
   do I=1,NI
     IJ = IJ+1
-    H(IJ) = GTH1EN(I,ITP,ISM,J,JTP,JSM)
+    H(IJ) = GTH1ES_MCLR(I,ITP,ISM,J,JTP,JSM)
   end do
 end do
 

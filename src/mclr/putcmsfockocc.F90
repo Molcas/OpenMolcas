@@ -17,18 +17,17 @@
 
 subroutine PutCMSFockOcc(FOccMO,nTri)
 
-use MCLR_Data, only: nDens, ipMat
-use input_mclr, only: nSym, nBas
+use MCLR_Data, only: ipMat, nDens
+use input_mclr, only: nBas, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-! Input:
-integer nTri
-real*8, dimension(nDens) :: FOccMO
-! Auxiliaries
-real*8, dimension(:), allocatable :: F, T
-integer ijb, iS, iB, jB
+real(kind=wp) :: FOccMO(nDens)
+integer(kind=iwp) :: nTri
+integer(kind=iwp) :: iB, ijb, iS, jB
+real(kind=wp), allocatable :: F(:), T(:)
 
 call mma_allocate(F,nDens)
 call mma_allocate(T,nDens)

@@ -20,42 +20,28 @@ subroutine WfCtl_td(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,iRHSCIDISP,con
 
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipin1, ipnout, ipout, opout, W
-use MCLR_Data, only: CMO, Int2, FIMO
-use MCLR_Data, only: nConf1, nDensC, ipCI, n1Dens, n2Dens, nDens
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: lDisp
-use MCLR_Data, only: LuTemp
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: CMO, FIMO, Int2, ipCI, ipDia, lDisp, LuTemp, n1Dens, n2Dens, nConf1, nDens, nDensC, XISPSM
 use MCLR_procedures, only: CISigma_td
-use input_mclr, only: nDisp, Fail, lSave, nSym, PT2, State_Sym, iMethod, Omega, rIn_Ene, PotNuc, iBreak, Eps, nIter, Debug, &
-                      ERASSCF, kPrint, lCalc, nCSF, nTPert
+use input_mclr, only: Debug, Eps, ERASSCF, Fail, iBreak, iMethod, kPrint, lCalc, lSave, nCSF, nDisp, nIter, nSym, nTPert, Omega, &
+                      PotNuc, PT2, rIn_Ene, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iKapDisp(nDisp), isigDisp(nDisp)
-integer iCIDisp(nDisp), iCIsigDisp(nDisp)
-integer iRHSDisp(nDisp), iRHSCIDisp(nDisp)
-logical converged(8)
-logical Orb, CI
-integer, parameter :: iTimeCC = 1
-integer, parameter :: iTimeKK = 2
-integer, parameter :: iTimeKC = 3
-integer, parameter :: iTimeCK = 4
-character(len=8) Fmt2
-integer pstate_sym
-logical lPrint, cnvrgd
-real*8 Clock(4)
-real*8 rDum(1)
-real*8, allocatable :: DigPrec(:), Kappa(:), dKappa(:), Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), &
-                       TempTD(:), Dens(:), Pens(:), rmoaa(:), Sc4(:)
-real*8 Tim2, Tim3, Tim4, R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rGrad, EC, D_0, D_1, D_2, rAlphaC, rAlphaK, rAlpha, rEsk, &
-       rEsci, rBeta, Res
-real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, Lu_50, iDisp, kkSym, kkkSym, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iDEnd, jDisp, &
-        iLen, Iter, ipPre2, jSpin
-integer, external :: nPre
+integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iRHSCIDisp(nDisp)
+logical(kind=iwp) :: converged(8)
+integer(kind=iwp) :: iDEnd, iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iSym, Iter, jDisp, jSpin, kkkSym, kkSym, &
+                     Left, lLine, lPaper, Lu_50, nConf3, nPre2, pstate_sym
+real(kind=wp) :: Clock(4), D_0, D_1, D_2, Delta, Delta0, DeltaC, DeltaK, EC, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), &
+                 ReCo, Res, rEsci, rEsk, rGrad, Tim2, Tim3, Tim4
+logical(kind=iwp) :: CI, cnvrgd, lPrint, Orb
+character(len=8) :: Fmt2
+real(kind=wp), allocatable :: Dens(:), DigPrec(:), dKappa(:), Kappa(:), Pens(:), rmoaa(:), Sc1(:), Sc2(:), Sc3(:), Sc4(:), &
+                              Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), TempTD(:)
+integer(kind=iwp), parameter :: iTimeCC = 1, iTimeKK = 2, iTimeKC = 3, iTimeCK = 4
+integer(kind=iwp), external :: nPre
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -421,7 +407,7 @@ do iSym=kksym,kkksym
 
         call ipnout(-1)
 
-        call CIDens_TD(ipCid,PState_Sym,Pens,Dens)     ! Jeppes
+        call CIDens_TD(ipCid,PState_Sym,Pens,Dens)     ! Jeppe's
 
         ! density for inactive= 2(<d|0>+<0|d>)
 

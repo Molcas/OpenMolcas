@@ -31,15 +31,16 @@ subroutine MEMSTR()
 !
 ! Updated with iuniqtp, dec 11, 1994
 
-use Str_Info, only: Str, ITYP_DUMMY, NSTTYP, IUNIQMP, ISTAC, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP, IUNIQTP, &
+use Str_Info, only: ISTAC, ITYP_DUMMY, IUNIQMP, IUNIQTP, MNRS1, MNRS3, MXRS1, MXRS3, NELEC, NOCTYP, NSTFTP, NSTTYP, NSTTYP, Str, &
                     Str_Hidden
-use stdalloc, only: mma_allocate
 use MCLR_Data, only: NACOB, NOBPT, NORB1, NORB2, NORB3
 use input_mclr, only: nIrrep
+use stdalloc, only: mma_allocate
+use Definitions, only: iwp
 
 implicit none
-! Local variables
-integer LENGTH, ITYP, NSTRIN, LSTRIN, IITYP, IMNEW, JJTYP, IANEQ, ICREQ, NCASTR_MCLR, NUMST3
+integer(kind=iwp) :: IANEQ, ICREQ, IITYP, IMNEW, ITYP, JJTYP, LENGTH, LSTRIN, NSTRIN, NUMST3
+integer(kind=iwp), external :: NCASTR_MCLR
 
 LENGTH = 100
 ! Start of string information
@@ -76,12 +77,12 @@ do ITYP=1,NSTTYP
     ! Number of electrons in RAS1 and RAS3 per sub type, is sub-type active
     call mma_allocate(Str_Hidden(ITYP)%EL1,NOCTYP(ITYP),Label='EL1')
     call mma_allocate(Str_Hidden(ITYP)%EL3,NOCTYP(ITYP),Label='EL3')
-    !MS: New array introduced according to Jeppes new strinfo representation
+    !MS: New array introduced according to Jeppe's new strinfo representation
     call mma_allocate(Str_Hidden(ITYP)%EL123,3*NOCTYP(ITYP),Label='EL123')
-    ! Lexical addressing of arrays: NB! Not allocated here in Jeppes new version!
+    ! Lexical addressing of arrays: NB! Not allocated here in Jeppe's new version!
     call mma_allocate(Str_Hidden(ITYP)%Z,NACOB*NELEC(ITYP),Label='Z')
 
-    !MS: Introduced according to Jeppes new concept.
+    !MS: Introduced according to Jeppe's new concept.
     !MS: NB! Str(ITYP)%EL123 added to IEL13 parameter list!
     !MS: Be aware that IEL13 is also called in STRINF
     call IEL13(MNRS1(ITYP),MXRS1(ITYP),MNRS3(ITYP),MXRS3(ITYP),NELEC(ITYP),NOCTYP(ITYP),Str_Hidden(ITYP)%EL1,Str_Hidden(ITYP)%EL3, &

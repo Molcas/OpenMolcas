@@ -11,8 +11,10 @@
 
 subroutine Set_nbmx(nbmx_)
 
+use Definitions, only: iwp
+
 implicit none
-integer nbmx_
+integer(kind=iwp) :: nbmx_
 
 #include "caspt2.fh"
 

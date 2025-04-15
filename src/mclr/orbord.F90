@@ -37,18 +37,15 @@ subroutine ORBORD(NSM,NR4TP,NRSOBS,NTOOBS,IREOTS,ISFTO,IBSO,NTSOB,IBTSOB,ITSOB,N
 !
 ! Jeppe Olsen, Winter 1991
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension NRSOBS(NSM,3), NTOOBS(*)
-! Output
-dimension IREOTS(*), ISFTO(*), IBSO(*)
-dimension NTSOB(3,*), IBTSOB(3,*), ITSOB(*)
-dimension NOBPTS(NNOBPT,*)
-dimension NOBPT(NNOBPT)
+implicit none
+integer(kind=iwp) :: NSM, NR4TP, NRSOBS(NSM,3), NTOOBS(*), IREOTS(*), ISFTO(*), IBSO(*), NTSOB(3,*), IBTSOB(3,*), ITSOB(*), &
+                     NNOBPT, NOBPTS(NNOBPT,*), NOBPT(NNOBPT)
+integer(kind=iwp) :: i, I123, IAC, IACS, IBSM, IIAC, IOFF, IORB, IOTYPE, IRS, ISM, ISMOB, ITYPE, LORB, NPREVS
 
 ! =========================
 ! Note on order of orbitals

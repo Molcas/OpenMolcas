@@ -24,26 +24,24 @@ subroutine CNTOST(ICONF,ICTSDT,NAEL,NBEL,IPRODT,IREFSM,NORB,NEL,IGENSG,ISGNA,ISG
 ! April   1991  : LUCIA version
 ! September 1993 > Sign and address stored together
 
-use MCLR_Data, only: NTYP, NCNATS, NDPCNT, MINOP
+use MCLR_Data, only: MINOP, NCNATS, NDPCNT, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer ICONF(*), ICTSDT(*)
-integer NAEL, NBEL
-integer IPRODT(*)
-integer IREFSM, NORB, NEL, IGENSG
-integer ISGNA(*), ISGNB(*)
-integer IAGRP, IBGRP
-integer IOOS(*)
-real*8 PSSIGN
+integer(kind=iwp) :: ICONF(*), ICTSDT(*), NAEL, NBEL, IPRODT(*), IREFSM, NORB, NEL, IGENSG, ISGNA(*), ISGNB(*), IAGRP, IBGRP, &
+                     IOOS(*)
+real(kind=wp) :: PSSIGN
+integer(kind=iwp) :: IABNUM, IC, ICL, ICNBS, ICNBS0, ICNF, IDET, IJKL_NUM, IOCC, IOPEN, IPBAS, IPSFAC, ISGN, ISGNAB, ITYP, JDET, &
+                     JDTABS, MXDT
+integer(kind=iwp), allocatable :: LDTBL(:), LIA(:), LIB(:), SCR23(:)
+
 ! IWORK should at least be of length (MXDT+2)*NEL,
 ! where MXDT is the largest number of prototype determinants occuring
 ! in a single block.
-integer, allocatable :: LDTBL(:), LIA(:), LIB(:), SCR23(:)
-integer MXDT, ITYP, ICNF, JDTABS, IPSFAC, ISGNAB, ICNBS0, IPBAS, IJKL_NUM, IDET, IOPEN, ICL, IOCC, IC, ICNBS, JDET, ISIGN, IABNUM
 
 NEL = NAEL+NBEL
 
@@ -94,11 +92,11 @@ do ITYP=1,NTYP
     do JDET=1,IDET
       !write(117,'(1X,I8,1X,A,1X)',advance='no') ITYP,'ITYP'  ! yma
       JDTABS = JDTABS+1
-      call DETSTR_MCLR(LDTBL(1+(JDET-1)*NEL),LIA,LIB,NEL,NAEL,NBEL,ISIGN,SCR23)
+      call DETSTR_MCLR(LDTBL(1+(JDET-1)*NEL),LIA,LIB,NEL,NAEL,NBEL,ISGN,SCR23)
       ijkl_num = ijkl_num+1
       ! Find number (and sign)of this determinant in string ordering
       ICTSDT(JDTABS) = IABNUM(LIA,LIB,IAGRP,IBGRP,IGENSG,ISGNA,ISGNB,ISGNAB,IOOS,NORB,IPSFAC,PSSIGN)
-      if (ISIGN*ISGNAB*IPSFAC == -1) ICTSDT(JDTABS) = -ICTSDT(JDTABS)
+      if (ISGN*ISGNAB*IPSFAC == -1) ICTSDT(JDTABS) = -ICTSDT(JDTABS)
     end do
   end do
 end do

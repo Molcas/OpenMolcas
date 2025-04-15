@@ -12,17 +12,18 @@
 subroutine negp(ipdia,ipSigma,rout)
 
 use ipPage, only: ipin, ipout, opout, W
-use MCLR_Data, only: SS, LuCIV
+use MCLR_Data, only: LuCIV, SS
 use input_mclr, only: lRoots, nConf
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer ipdia, ipSigma
-real*8 rout(*)
-integer iDisk, i
-real*8, external :: DDot_
-real*8, allocatable :: Tmp(:), Tmp2(:,:), Tmp3(:,:)
+integer(kind=iwp) :: ipdia, ipSigma
+real(kind=wp) :: rout(*)
+integer(kind=iwp) :: i, iDisk
+real(kind=wp), allocatable :: Tmp(:), Tmp2(:,:), Tmp3(:,:)
+real(kind=wp), external :: DDot_
 
 idisk = 0
 call opout(ipdia)

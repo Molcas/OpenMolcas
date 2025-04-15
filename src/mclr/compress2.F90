@@ -24,15 +24,17 @@ subroutine Compress2(ArrayIn,ArrayOut,dsym)
 !************************************************************
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: ipMat, nB, nDensC, nDens
-use input_mclr, only: nSym, nIsh, nRs1, nRs2, nRs3, nOrb, TimeDep
+use MCLR_Data, only: ipMat, nB, nDens, nDensC
+use input_mclr, only: nIsh, nOrb, nRs1, nRs2, nRs3, nSym, TimeDep
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
 implicit none
-integer dsym
-real*8 ArrayIn(nDens), ArrayOut(nDensC)
-integer IndexC, jT, i1, iSym, jSym, iBas, jBas, iT, ij, Index1
-real*8 Fact
+real(kind=wp) :: ArrayIn(nDens), ArrayOut(nDensC)
+integer(kind=iwp) :: dsym
+integer(kind=iwp) :: i1, iBas, ij, Index1, IndexC, iSym, iT, jBas, jSym, jT
+real(kind=wp) :: Fact
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *

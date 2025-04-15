@@ -14,11 +14,13 @@
 subroutine dgeAdd2(r,A,LDA,FORMA,B,LDB,FORMB,C,LDC,M,N)
 ! MATRIX Addition FOR GENERAL MATRICES
 
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-character*1 FORMA, FORMB
-real*8 A(*), B(*), C(*)
+implicit none
+real(kind=wp) :: r, A(*), B(*), C(*)
+integer(kind=iwp) :: LDA, LDB, LDC, M, N
+character :: FORMA, FORMB
+integer(kind=iwp) :: iCol
 
 if ((FORMA == 'N') .and. (FORMB == 'N')) then
   do iCol=0,n-1

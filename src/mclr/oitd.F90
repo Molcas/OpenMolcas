@@ -13,16 +13,16 @@ subroutine OITD(rK,isym,D,Dtmp,act)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: G1t
-use MCLR_Data, only: ipCM, ipMat, nA, nDens
-use input_mclr, only: nSym, nAsh, nIsh, nOrb
+use MCLR_Data, only: G1t, ipCM, ipMat, nA, nDens
+use input_mclr, only: nAsh, nIsh, nOrb, nSym
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 
 implicit none
-integer iSym
-real*8 rK(*), D(*), Dtmp(nDens)
-logical act
-integer iS, iB, jB, jS
+real(kind=wp) :: rK(*), D(*), Dtmp(nDens)
+integer(kind=iwp) :: iSym
+logical(kind=iwp) :: act
+integer(kind=iwp) :: iB, iS, jB, jS
 
 DTmp(:) = Zero
 

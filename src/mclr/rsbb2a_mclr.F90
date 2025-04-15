@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1, &
-                       XI1S,XINT,NSM,SIGN,NOPART,TimeDep,ieaw)
+                       XI1S,XINT,NSM,SGN,NOPART,TimeDep,ieaw)
 ! two electron excitations on column strings
 !
 ! =====
@@ -51,20 +51,20 @@ subroutine RSBB2A_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
+use Str_Info, only: NOCTYP, STR
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-logical TimeDep
-! General input
-integer NTSOB(3,*), IBTSOB(3,*)
-! Input
-dimension CB(*)
-! Output
-dimension SB(*)
-! Scatch
-dimension SSCR(*), CSCR(*), I1(*), XI1S(*), XINT(*)
-! Local arrays
-dimension ITP(36), JTP(36), KTP(36), LTP(36)
+implicit none
+integer(kind=iwp) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, ISEL1, ISEL3, ICEL1, ICEL3, NTSOB(3,*), IBTSOB(3,*), MAXI, MAXK, &
+                     I1(*), NSM, NOPART, ieaw
+real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XINT(*), SGN
+logical(kind=iwp) :: TimeDep
+integer(kind=iwp) :: I, IBOT, IDXSM, IDXTYP, IFIRST, IJL, IK, IKOFF, IKPSM, IKSM, IOFF, IPART, ISBOFF, ISM, ITOP, ITP(36), ITYP, &
+                     IXCHNG, J, JLOFF, JLOFF2, JLPSM, JLSM, JOFF, JSM, JTP(36), JTYP, K, K1GRP, K1SM, K1TP, K2GRP, K2SM, K2TP, &
+                     KBOT, KEND, KOFF, KSM, KTOP, KTP(36), KTYP, L, LIKB, LOFF, LSM, LTP(36), LTYP, NDXTYP, NI, NIBTC, NIK, NJ, &
+                     NJL, NK, NKBTC, NKSTR, NKSTREF, NL, NONEW, NPART
+real(kind=wp) :: FACTORAB, FACTORC
 
 ! Types of DX that connects the two strings
 
@@ -95,7 +95,7 @@ do IDXTYP=1,NDXTYP
       K2SM = Mul(KSM,K1SM)
       ! Intermediate K strings are of type K2TP and Sym K2Sm
 
-      NKSTR = NSTAGTS(K2GRP,K2TP,K2SM)
+      NKSTR = Str(K2GRP)%NSTSO((K2SM-1)*NOCTYP(K2GRP)+K2TP)
       if (NOPART == 0) then
         NKSTREF = min(NKSTR,MAXK)
       else
@@ -211,7 +211,7 @@ do IDXTYP=1,NDXTYP
                 call NXTIJ(I,K,NI,NK,IKPSM,NONEW)
                 ISBOFF = 1+(IK-1)*NIBTC*NKBTC
                 IKOFF = (IK-1)*NKSTREF+1
-                if (SIGN == -One) XI1S(IKOFF:IKOFF+NKSTREF-1) = -XI1S(IKOFF:IKOFF+NKSTREF-1)
+                if (SGN == -One) XI1S(IKOFF:IKOFF+NKSTREF-1) = -XI1S(IKOFF:IKOFF+NKSTREF-1)
                 call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(IKOFF),XI1S(IKOFF))
               end do
             end if
@@ -232,7 +232,7 @@ do IDXTYP=1,NDXTYP
           ISBOFF = 1+(IK-1)*NIBTC*NKBTC
           IKOFF = (IK-1)*NKSTREF+1
           ! Well, someplace the minus must come in
-          if (SIGN == -One) XI1S(IKOFF:IKOFF+NKSTREF-1) = -XI1S(IKOFF:IKOFF+NKSTREF-1)
+          if (SGN == -One) XI1S(IKOFF:IKOFF+NKSTREF-1) = -XI1S(IKOFF:IKOFF+NKSTREF-1)
           call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1(IKOFF),XI1S(IKOFF))
         end do
       end if

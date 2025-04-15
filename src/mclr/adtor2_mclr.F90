@@ -25,15 +25,17 @@ subroutine AdToR2_MCLR(RHO2,RHO2T,ITYPE,NI,IOFF,NJ,JOFF,NK,KOFF,NL,LOFF,NORB)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension RHO2T(*)
-! Input and output
-dimension RHO2(*)
+implicit none
+real(kind=wp) :: RHO2(*), RHO2T(*)
+integer(kind=iwp) :: ITYPE, NI, IOFF, NJ, JOFF, NK, KOFF, NL, LOFF, NORB
+integer(kind=iwp) :: I, IACTIVE, II, IIOFF, IJ, IJKL, IJKLT, IKIND, IKJLT, IPERM, J, JJ, JJOFF, JLIND, K, KK, KKOFF, KL, L, LL, &
+                     LLOFF, NII, NIK, NJJ, NKK, NLL
+real(kind=wp) :: FACTOR, SGN, SIGNIK, SIGNJL
 
 ! dummy initialize
 I = 0
@@ -48,7 +50,7 @@ IIOFF = 0
 JJOFF = 0
 KKOFF = 0
 LLOFF = 0
-SIGN = Zero
+SGN = Zero
 IACTIVE = 0
 
 #ifdef _DEBUGPRINT_
@@ -95,7 +97,7 @@ if (ITYPE == 1) then
       KKOFF = KOFF
       NLL = NL
       LLOFF = LOFF
-      SIGN = One
+      SGN = One
       IACTIVE = 1
     else if (IPERM == 2) then
       if (IOFF /= KOFF) then
@@ -111,7 +113,7 @@ if (ITYPE == 1) then
       else
         IACTIVE = 0
       end if
-      SIGN = -One
+      SGN = -One
     else if (IPERM == 3) then
       if (JOFF /= LOFF) then
         NII = NI
@@ -122,7 +124,7 @@ if (ITYPE == 1) then
         JJOFF = LOFF
         NLL = NJ
         LLOFF = JOFF
-        SIGN = -One
+        SGN = -One
         IACTIVE = 1
       else
         IACTIVE = 0
@@ -137,7 +139,7 @@ if (ITYPE == 1) then
         JJOFF = LOFF
         NLL = NJ
         LLOFF = JOFF
-        SIGN = One
+        SGN = One
         IACTIVE = 1
       else
         IACTIVE = 0
@@ -202,7 +204,7 @@ if (ITYPE == 1) then
                   end if
                 end if
                 IKJLT = (JLIND-1)*NIK+IKIND
-                RHO2(IJKL) = RHO2(IJKL)-SIGN*SIGNJL*SIGNIK*RHO2T(IKJLT)
+                RHO2(IJKL) = RHO2(IJKL)-SGN*SIGNJL*SIGNIK*RHO2T(IKJLT)
                 ! The minus: Rho2t comes as <a+i a+k aj al>, but we want
                 ! <a+ia+k al aj>
               end if

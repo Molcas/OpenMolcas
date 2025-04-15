@@ -49,21 +49,16 @@ subroutine CRESTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LSGSTR,ISGSTI,ISGSTO,TI
 ! ISTMPO and ISTMPL as pointers
 ! ISTST
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-integer STRING, TI, TTO, STRIN2, Z
-! Input
-dimension STRING(NEL,NSTINI), NEWORD(NSTINO), Z(NORB,NEL+1)
-dimension ISGSTI(NSTINI), ISGSTO(NSTINO)
-! Output
-!dimension TI(NORB,NSTINI), TTO(NORB,NSTINI)
-dimension TI(*), TTO(*)
-dimension ISTMPO(*), ISTMPL(*)
-! Scratch
-dimension STRIN2(NEL+1)
+implicit none
+integer(kind=iwp) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, ISGSTI(NSTINI), &
+                     ISGSTO(NSTINO), TI(*), TTO(*), ISTMPL(*), ISTMPO(*), LROW, I1TYP
+integer(kind=iwp) :: IEL, IIISGN, IOFF, IORB, IPLACE, ISTRIN, ITYPE, JSTRIN, LCR, STRIN2(NEL+1)
+integer(kind=iwp), external :: IOCTP2_MCLR, ISTRNM
 
 ! LCR NOT DECLARED !!!!!!
 !  I SET IT TO ZERO

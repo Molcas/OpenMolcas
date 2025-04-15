@@ -15,20 +15,15 @@ subroutine CIDIA_sa(iSym,ralp,S)
 
 use Str_Info, only: CNSM
 use ipPage, only: ipclose, ipget, ipin, W
-use MCLR_Data, only: ipCI
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: FANCY_PRECONDITIONER
-use MCLR_Data, only: XISPSM
-use MCLR_Data, only: NOCSF, ICISTR
-use MCLR_Data, only: NCNATS, NCPCNT, NDPCNT, NTYP
-use input_mclr, only: State_Sym, rIn_Ene, PotNuc, ERASSCF, nCSF, nRoots, Weight
+use MCLR_Data, only: FANCY_PRECONDITIONER, ICISTR, ipCI, ipDia, NCNATS, NCPCNT, NDPCNT, NOCSF, NTYP, XISPSM
+use input_mclr, only: ERASSCF, nCSF, nRoots, PotNuc, rIn_Ene, State_Sym, Weight
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-integer iSym
-real*8 ralp(*), S(*)
-integer iSM(1), LSPC(1), iSPC(1)
-integer nSpc, iAMCmp, i, nSD, iPDCSFI, iPDSDI, ipDIAI, iP2, J
+integer(kind=iwp) :: iSym
+real(kind=wp) :: ralp(nRoots), S(*)
+integer(kind=iwp) :: i, iAMCmp, iP2, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), J, LSPC(1), nSD, nSpc
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we dont want to let world see the work of the Danish

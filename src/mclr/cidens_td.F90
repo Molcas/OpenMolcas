@@ -13,13 +13,12 @@
 subroutine CIDens_TD(iCI,iS,rP,rD)
 
 use ipPage, only: ipin, ipnout, W
-use MCLR_Data, only: nConf1, n1Dens, n2Dens, ipCI
-use MCLR_Data, only: XISPSM
-use MCLR_Data, only: NOCSF
+use MCLR_Data, only: ipCI, n1Dens, n2Dens, nConf1, NOCSF, XISPSM
 use CandS, only: ICSM, ISSM
 use input_mclr, only: nCSF, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Index_Functions, only: iTri
 use input_mclr, only: ntAsh
@@ -27,17 +26,17 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer iCI, iS
-real*8 rP(*), rD(*)
-real*8, allocatable :: De(:), Pe(:), CIL(:), CIR(:)
-integer nConfL, nConfR, nC
+integer(kind=iwp) :: iCI, iS
+real(kind=wp) :: rP(*), rD(*)
+integer(kind=iwp) :: nC, nConfL, nConfR
 #ifdef _DEBUGPRINT_
-integer i, j, k, l, ijkl
+integer(kind=iwp) :: i, ijkl, j, k, l
 #endif
+real(kind=wp), allocatable :: CIL(:), CIR(:), De(:), Pe(:)
 
 ! LS = CI
 !
-! Ok we once more want to hide Jeppes routines from
+! Ok we once more want to hide Jeppe's routines from
 ! the eyes of the world, so everyone belives that I have done
 ! all the work.
 ! If we have spin dependent Hamiltonian we will work with

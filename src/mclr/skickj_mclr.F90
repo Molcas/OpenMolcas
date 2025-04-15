@@ -19,36 +19,27 @@ subroutine SKICKJ_MCLR(SKII,CKJJ,NKA,NIB,NJB,NKB,XIJKL,NI,NJ,NK,NL,MAXK,KBIB,XKB
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-! Input
-integer NKA, NIB, NJB, NKB
-integer NI, NJ, NK, NL, MAXK
-real*8 CKJJ(NKA*NJ,*)
-! Note if Iroute = 2 the form is C(j,Ka,Jb)
-real*8 XIJKL(*)
-integer KBIB(MAXK,*)
-real*8 XKBIB(MAXK,*)
-integer KBJB(MAXK,*)
-real*8 XKBJB(MAXK,*)
-integer IKORD
-integer IROUTE
-! Input and output
-real*8 SKII(NKA*NI,*)
+integer(kind=iwp) :: NKA, NIB, NJB, NKB, NI, NJ, NK, NL, MAXK, KBIB(MAXK,*), KBJB(MAXK,*), IKORD, IROUTE
+real(kind=wp) :: SKII(NKA*NI,*), CKJJ(NKA*NJ,*), XIJKL(*), XKBIB(MAXK,*), XKBJB(MAXK,*)
+integer(kind=iwp) :: I, IB, IKEFF, IMIN, INTOF, IOFF, J, JB, JL, JL0, JLIK0, K, KB, KK, L, LEFF, LENGTH, LL, MAXORB
+real(kind=wp) :: FACTOR, SGNK, SGNL
+integer(kind=iwp), allocatable :: IBOFF(:), JBOFF(:)
+real(kind=wp), allocatable :: KSKICK(:)
+integer(kind=iwp), parameter :: MXTSOB = 35
+
 ! Note if Iroute = 2 the form is S(i,Ka,Ib)
-! Scratch
-integer, parameter :: MXTSOB = 35
-integer IBOFF(MXTSOB*MXTSOB), JBOFF(MXTSOB*MXTSOB)
-real*8, allocatable :: KSKICK(:)
-integer MAXORB, LENGTH, KB, LL, KK, L, K, IB, JB, INTOF, IKEFF, IMIN, I, IOFF, LEFF, JLIK0, J, JL, JL0
-real*8 SGNL, FACTOR, SGNK
+! Note if Iroute = 2 the form is C(j,Ka,Jb)
 
 MAXORB = max(NI,NJ,NK,NL)
 LENGTH = MAXORB*MAXORB*MAXORB*MAXORB
 call mma_allocate(KSKICK,LENGTH,Label='KSKICK')
+call mma_allocate(IBOFF,MXTSOB*MXTSOB,Label='IBOFF')
+call mma_allocate(JBOFF,MXTSOB*MXTSOB,Label='JBOFF')
 
-if ((NI > MXTSOB) .or. (NJ > MXTSOB) .or. (NK > MXTSOB) .or. (NL > MXTSOB)) then
+if (MAXORB > MXTSOB) then
   write(u6,*) ' SKICKJ_MCLR : Too many orbs : NI > MXTSOB'
   write(u6,*) ' NI, MXTSOB ',max(NI,NJ,NK,NL),MXTSOB
   write(u6,*) ' Redim MXTSOB in SKICKJ_MCLR'
@@ -191,5 +182,7 @@ end if
 ! End of IROUTE branching
 
 call mma_deallocate(KSKICK)
+call mma_deallocate(IBOFF)
+call mma_deallocate(JBOFF)
 
 end subroutine SKICKJ_MCLR

@@ -19,21 +19,16 @@ subroutine SolveforzX(zX,AXX,bX)
 
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: ResQaaLag2
-use input_mclr, only: nRoots, Eps
+use input_mclr, only: Eps, nRoots
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Pi
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
+real(kind=wp) :: zX(nTri_Elem(nRoots-1)), AXX(nTri_Elem(nRoots-1),nTri_Elem(nRoots-1)), bX(nTri_Elem(nRoots-1))
 #include "warnings.h"
-! Output
-real*8, dimension(nTri_Elem(nRoots-1)) :: zX
-! Input
-real*8, dimension(nTri_Elem(nRoots-1)) :: bX
-real*8, dimension(nTri_Elem(nRoots-1)**2) :: AXX
-! Assistants
-real*8, dimension(:), allocatable :: EigVal, bxscr, zXscr, Scr
-integer NDim, nSPair, iPair, nScr, INFO
+integer(kind=iwp) :: INFO, iPair, NDim, nScr, nSPair
+real(kind=wp), allocatable :: bxscr(:), EigVal(:), Scr(:), zXscr(:)
 
 NDim = nTri_Elem(nRoots-1)
 nSPair = nDim

@@ -18,11 +18,11 @@ subroutine Dmat_MCLR(CMO,OCC,D)
 !     Compute the active one-body density                              *
 !                                                                      *
 !     calling arguments:                                               *
-!     CMO     : input, array of real*8                                 *
+!     CMO     : input, array of real(kind=wp)                          *
 !               MO-coefficients                                        *
-!     OCC     : input, array of real*8                                 *
+!     OCC     : input, array of real(kind=wp)                          *
 !               occupation numbers                                     *
-!     D       : output, array of real*8                                *
+!     D       : output, array of real(kind=wp)                         *
 !               total one-body density                                 *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -38,13 +38,14 @@ subroutine Dmat_MCLR(CMO,OCC,D)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: nSym, nBas
+use input_mclr, only: nBas, nSym
 use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 CMO(*), OCC(*), D(*)
-integer iOff1, iOff2, iOff3, iSym, iBas, i, ii, j, k
-real*8 rSum
+real(kind=wp) :: CMO(*), OCC(*), D(*)
+integer(kind=iwp) :: i, iBas, ii, iOff1, iOff2, iOff3, iSym, j, k
+real(kind=wp) :: rSum
 
 iOff1 = 0
 iOff2 = 0

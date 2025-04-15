@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precaaa(iC,is,js,nd,ir,rOut,nbaj,focki,fock,sign,Scr,nScr,ActInt)
+subroutine Precaaa(iC,is,js,nd,ir,rOut,nbaj,focki,fock,Sgn,Scr,nScr,ActInt)
 !***********************************************************************
 !                                                                      *
 !                                        [2]                           *
@@ -37,24 +37,17 @@ subroutine Precaaa(iC,is,js,nd,ir,rOut,nbaj,focki,fock,sign,Scr,nScr,ActInt)
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: G1t, G2t
-use MCLR_Data, only: nA
-use input_mclr, only: ntAsh, nSym, nAsh, nIsh, nRS1, nRS2, nRS3
+use MCLR_Data, only: G1t, G2t, nA
+use input_mclr, only: nAsh, nIsh, nRS1, nRS2, nRS3, nSym, ntAsh
 use Constants, only: One, Two, Four
+use Definitions, only: wp, iwp
 
 implicit none
-integer iC, iS, jS, nD, iR
-real*8 rout(nTri_Elem(nd))
-integer nbaj
-real*8 Fock(nbaj,nbaj), Focki(nbaj,nbaj)
-real*8 Sign
-integer nScr
-real*8 Scr(nScr)
-real*8 ActInt(ntAsh,ntAsh,ntAsh,ntAsh)
-integer nTri, iCC, iA, iAA, jB, jBB, jjB, jD, jDD, jjD, kS, jE, jEE, jF, jFF
-real*8 aecf, bedf, becf, aedf, rdbedf, rdaecf, rdaedf, rdbecf, acef, bdef, bcef, adef, rdbdef, rdacef, rdadef, rdbcef, rdbd, rdad, &
-       rdac, rdbc
-integer i, j
+integer(kind=iwp) :: iC, iS, jS, nD, iR, nbaj, nScr
+real(kind=wp) :: rout(nTri_Elem(nd)), Focki(nbaj,nbaj), Fock(nbaj,nbaj), Sgn, Scr(nScr), ActInt(ntAsh,ntAsh,ntAsh,ntAsh)
+integer(kind=iwp) :: i, iA, iAA, iCC, j, jB, jBB, jD, jDD, jE, jEE, jF, jFF, jjB, jjD, kS, nTri
+real(kind=wp) :: acef, adef, aecf, aedf, bcef, bdef, becf, bedf, rdac, rdacef, rdad, rdadef, rdaecf, rdaedf, rdbc, rdbcef, rdbd, &
+                 rdbdef, rdbecf, rdbedf
 
 !                                                                      *
 !***********************************************************************
@@ -97,7 +90,7 @@ do jB=1,nAsh(jS) !! index B
           rDaecf = G2t(iTri(iTri(iAA,jEE),iTri(iCC,jFF)))
           rDaedf = G2t(iTri(iTri(iAA,jEE),iTri(jDD,jFF)))
           rDbecf = G2t(iTri(iTri(jBB,jEE),iTri(iCC,jFF)))
-          Scr(i) = Scr(i)+Four*(aecf*rDbedf+bedf*rDaecf-becf*rDaedf-aedf*rDbecf)*sign
+          Scr(i) = Scr(i)+Four*(aecf*rDbedf+bedf*rDaecf-becf*rDaedf-aedf*rDbecf)*Sgn
 
           ! second term
           acef = ActInt(iAA,iCC,jEE,jFF)
@@ -108,7 +101,7 @@ do jB=1,nAsh(jS) !! index B
           rDacef = G2t(iTri(iTri(iAA,iCC),iTri(jEE,jFF)))
           rDadef = G2t(iTri(iTri(iAA,jDD),iTri(jEE,jFF)))
           rDbcef = G2t(iTri(iTri(jBB,iCC),iTri(jEE,jFF)))
-          Scr(i) = Scr(i)+Two*(acef*rDbdef+bdef*rDacef-bcef*rDadef-adef*rDbcef)*sign
+          Scr(i) = Scr(i)+Two*(acef*rDbdef+bdef*rDacef-bcef*rDadef-adef*rDbcef)*Sgn
         end do
       end do
     end do
@@ -137,13 +130,13 @@ do jB=1,nAsh(jS)
     rDbc = G1t(iTri(jBB,iCC))
 
     ! third term
-    Scr(i) = Scr(i)+sign*Two*(rDbd*Focki(iA+nIsh(iS),iC+nIsh(iS))+rDac*Focki(jB+nIsh(jS),jD+nIsh(jS))- &
-                              rDad*Focki(jB+nIsh(jS),iC+nIsh(iS))-rDbc*Focki(iA+nIsh(iS),jD+nIsh(jS)))
+    Scr(i) = Scr(i)+Sgn*Two*(rDbd*Focki(iA+nIsh(iS),iC+nIsh(iS))+rDac*Focki(jB+nIsh(jS),jD+nIsh(jS))- &
+                             rDad*Focki(jB+nIsh(jS),iC+nIsh(iS))-rDbc*Focki(iA+nIsh(iS),jD+nIsh(jS)))
     ! fourth term
-    if (iA == jD) Scr(i) = Scr(i)+sign*Two*Fock(iC+nIsh(iS),jB+nIsh(jS))
-    if (jB == iC) Scr(i) = Scr(i)+sign*Two*Fock(jD+nIsh(jS),iA+nIsh(iS))
-    if (jB == jD) Scr(i) = Scr(i)-sign*Two*Fock(iC+nIsh(iS),iA+nIsh(iS))
-    if (iA == iC) Scr(i) = Scr(i)-sign*Two*Fock(jD+nIsh(jS),jB+nIsh(jS))
+    if (iA == jD) Scr(i) = Scr(i)+Sgn*Two*Fock(iC+nIsh(iS),jB+nIsh(jS))
+    if (jB == iC) Scr(i) = Scr(i)+Sgn*Two*Fock(jD+nIsh(jS),iA+nIsh(iS))
+    if (jB == jD) Scr(i) = Scr(i)-Sgn*Two*Fock(iC+nIsh(iS),iA+nIsh(iS))
+    if (iA == iC) Scr(i) = Scr(i)-Sgn*Two*Fock(jD+nIsh(jS),jB+nIsh(jS))
   end do
 end do
 !                                                                      *

@@ -24,23 +24,15 @@ subroutine H0MAT_MCLR(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,NOCOB,NPRCIV,IREFSM,IDC,PSS
 ! NPRCIV : Number of parameters in preconditioner space
 
 use Str_Info, only: CNSM, DFTP, DTOC
-use MCLR_Data, only: NAELCI, NBELCI
-use MCLR_Data, only: NCNASM
+use MCLR_Data, only: NAELCI, NBELCI, NCNASM
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-! Offsets for CSF information
-real*8 H0(*)
-integer ISBDET(*)
-integer ISBCNF(*)
-integer MXP1, MXP2, MXQ, NOCOB, NPRCIV, IREFSM, IDC
-real*8 PSSIGN
-real*8 vec1(*), vec2(*), h0scr(*)
-integer ih0scr(*)
-integer ieaw
-!integer, allocatable :: IOCOC(:)
-integer intspc, NAEL, NBEL, ICOMBI, IPWAY, NP1CNF, NP1CSF, NP2CNF, NP2CSF, NPCNF, NQCNF, NQCSF
-real*8 PSIGN
+real(kind=wp) :: H0(*), PSSIGN, vec1(*), vec2(*), h0scr(*)
+integer(kind=iwp) :: ISBDET(*), ISBCNF(*), MXP1, MXP2, MXQ, NOCOB, NPRCIV, IREFSM, IDC, ih0scr(*), ieaw
+integer(kind=iwp) :: ICOMBI, intspc, IPWAY, NAEL, NBEL, NP1CNF, NP1CSF, NP2CNF, NP2CSF, NPCNF, NQCNF, NQCSF
+real(kind=wp) :: PSIGN
 
 ! Info on actual internal subspace
 intspc = 1

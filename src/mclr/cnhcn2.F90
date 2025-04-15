@@ -19,27 +19,17 @@ subroutine CNHCN2(ICNL,ITPL,ICNR,ITPR,CNHCNM,SCR,NEL,NAEL,NBEL,INTSPC,IPRODT,DTO
 ! Modified for LUCIA, September 1993
 
 use iso_c_binding, only: c_f_pointer, c_loc
-use MCLR_Data, only: IASTFI, IBSTFI
-use MCLR_Data, only: MINOP, NCPCNT, NDPCNT
+use MCLR_Data, only: IASTFI, IBSTFI, MINOP, NCPCNT, NDPCNT
 use Str_Info, only: Str
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer ITPL, ITPR, NEL, NAEL, NBEL, INTSPC
-integer NORB, ICOMBI
-real*8 PSSIGN
-integer NDIF0, NDIF1, NDIF2
-! Specific input
-integer ICNL(*), ICNR(*)
-! General input
-integer IPRODT(*)
-real*8 DTOC(*)
-! Scratch
-real*8 SCR(*)
-! Output
-real*8 CNHCNM(*)
-! Interface to LUCIA common blocks in order to access strings
-integer IDUMMY(1)
+integer(kind=iwp) :: ICNL(*), ITPL, ICNR(*), ITPR, NEL, NAEL, NBEL, INTSPC, IPRODT(*), NORB, ICOMBI, NDIF0, NDIF1, NDIF2
+real(kind=wp) :: CNHCNM(*), SCR(*), DTOC(*), PSSIGN
+integer(kind=iwp) :: IAGRP, IBGRP, ICLL, ICLR, IDUMMY(1), IOPL, IOPR, IPL, IPR, ISYM, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, &
+                     KLDTRB, KLFREE, KLISL, KLISR, KLROU, LCNFST, LDIHDJ, NCSFL, NCSFR, NDETL, NDETR, NDIFF
+real(kind=wp) :: ECOREP
 
 call CNHCN2_INTERNAL(SCR)
 
@@ -50,11 +40,8 @@ contains
 
 subroutine CNHCN2_INTERNAL(SCR)
 
-  integer IAGRP, IBGRP, IOPL, IOPR, ICLL, ICLR, NDETL, NDETR, NCSFL, NCSFR, KLFREE, KLDTLA, KLDTLB, KLISL, KLDTRA, KLDTRB, KLISR, &
-          KLDHD, KLCHD, KLROU, LDIHDJ, LCNFST, NDIFF, ISYM, IPL, IPR
-  real*8 ECOREP
-  real*8, target :: SCR(*)
-  integer, pointer :: iSCR(:), iSCRa(:), iSCRb(:), iSCRar(:), iSCRbr(:), iSCRn(:), iSCRnn(:)
+  real(kind=wp), target :: SCR(*)
+  integer(kind=iwp), pointer :: iSCR(:), iSCRa(:), iSCRar(:), iSCRb(:), iSCRbr(:), iSCRn(:), iSCRnn(:)
 
   ! Length of SCR : 6 * NDET + NDET**2 + NDET*NCSF +
   !                 MAX((NDET*NEL + 2*NEL),4*NORB + 2*NEL)

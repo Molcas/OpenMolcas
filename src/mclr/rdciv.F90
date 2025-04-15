@@ -20,17 +20,17 @@ subroutine RdCIV()
 !                                                                      *
 !***********************************************************************
 
-use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: ERAS, LuCIV
-use MCLR_Data, only: LuJob
-use input_mclr, only: nSym, lRoots, nCSF, nConf, nRS1, nRS2, nRS3, State_Sym, iSpin, iTOC, nActEl, nElec3, nHole1
+use gugx, only: CIS, EXS, SGS
+use MCLR_Data, only: ERAS, LuCIV, LuJob
+use input_mclr, only: iSpin, iTOC, lRoots, nActEl, nConf, nCSF, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
 #include "rasdim.fh"
-real*8, allocatable :: OCIvec(:), Tmp(:,:)
-integer iDisk, iDisk1, i, Iter
+integer(kind=iwp) :: i, iDisk, iDisk1, Iter
+real(kind=wp), allocatable :: OCIvec(:), Tmp(:,:)
 
 call DaName(LuCIV,'ROOTS')
 iDisk = 0

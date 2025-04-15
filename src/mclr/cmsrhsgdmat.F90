@@ -15,26 +15,22 @@ subroutine CMSRHSGDMat(GDMat)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use MCLR_Data, only: nNA, n2Dens, ipCI, n1Dens
-use MCLR_Data, only: XISPSM
-use input_mclr, only: State_Sym, nRoots, nCSF
+use MCLR_Data, only: ipCI, n1Dens, n2Dens, nNA, XISPSM
+use input_mclr, only: nCSF, nRoots, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-! Input
-! Output
-real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-! Auxiliary quantities
-real*8, dimension(:,:), allocatable :: GDArray
-real*8, dimension(n2Dens) :: rdum
-integer I, J, NIJ
+real(kind=wp) :: GDMat(nTri_Elem(nRoots),nnA,nnA)
+integer(kind=iwp) :: I, iL, iR, J, nConfL, nConfR, NIJ
+real(kind=wp), allocatable :: CIL(:), CIR(:), GDArray(:,:), rdum(:)
+
 ! I:state index, "excited state" of state J when I /= J
-integer nConfL, nConfR, iL, iR
-real*8, allocatable :: CIL(:), CIR(:)
 
 ! (D^IJ)_pq = <I|E_pq|J>, setting I>=J
 !  <I|E_pq|J>=<J|E_qp|I>
 call mma_allocate(GDArray,nnA,nnA)
+call mma_allocate(rdum,n2Dens)
 iL = state_sym
 iR = state_sym
 nConfR = max(ncsf(iR),nint(xispsm(iR,1)))
@@ -51,6 +47,7 @@ do I=1,nRoots
   end do
 end do
 call mma_deallocate(GDArray)
+call mma_deallocate(rdum)
 call mma_deallocate(CIL)
 call mma_deallocate(CIR)
 

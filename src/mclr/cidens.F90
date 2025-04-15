@@ -13,22 +13,20 @@ subroutine CIDens(response,iLS,iRS,iL,iR,rP,rD)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: ipin, ipin1, ipnout, opout, W
-use MCLR_Data, only: nConf1, n1Dens, n2Dens, nNA
-use MCLR_Data, only: XISPSM
-use MCLR_Data, only: NOCSF
+use MCLR_Data, only: n1Dens, n2Dens, nConf1, nNA, NOCSF, XISPSM
 use CandS, only: ICSM, ISSM
-use input_mclr, only: TimeDep, nCSF
+use input_mclr, only: nCSF, TimeDep
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-logical Response
-integer iLS, iRS, iL, iR
-real*8 rP(*), rD(*)
-real*8, allocatable :: De(:), Pe(:), CIL(:), CIR(:)
-integer nDim, nConfL, nConfR
-integer IA, JA, KA, LA, ij1, ij2, kl1, kl2
+logical(kind=iwp) :: Response
+integer(kind=iwp) :: iLS, iRS, iL, iR
+real(kind=wp) :: rP(*), rD(*)
+integer(kind=iwp) :: IA, ij1, ij2, JA, KA, kl1, kl2, LA, nConfL, nConfR, nDim
+real(kind=wp), allocatable :: CIL(:), CIR(:), De(:), Pe(:)
 
 ! LS = CI
 !
@@ -64,8 +62,8 @@ integer IA, JA, KA, LA, ij1, ij2, kl1, kl2
 if (nconf1 == 0) return
 
 if (doDMRG) then  !yma
-  call dmrg_dim_change_mclr(LRras2(1:8),ndim,0)
-  call dmrg_dim_change_mclr(LRras2(1:8),nna,0)
+  call dmrg_dim_change_mclr(LRras2,ndim,0)
+  call dmrg_dim_change_mclr(LRras2,nna,0)
   n1Dens = ndim**2
   n2Dens = nTri_Elem(n1Dens)
 end if
@@ -177,8 +175,8 @@ call mma_deallocate(Pe)
 call mma_deallocate(De)
 
 if (doDMRG) then  ! yma
-  call dmrg_dim_change_mclr(RGras2(1:8),ndim,0)
-  call dmrg_dim_change_mclr(RGras2(1:8),nna,0)
+  call dmrg_dim_change_mclr(RGras2,ndim,0)
+  call dmrg_dim_change_mclr(RGras2,nna,0)
   n1Dens = ndim**2
   n2Dens = nTri_Elem(n1dens)
 end if

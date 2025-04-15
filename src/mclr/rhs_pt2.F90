@@ -16,13 +16,13 @@ subroutine RHS_PT2(rkappa,CLag,SLag)
 ! CASPT2 module, so here we only need to read it from file
 
 use MCLR_Data, only: LuPT2, nDens
-use input_mclr, only: nSym, nRoots, nCSF, nOrb
+use input_mclr, only: nCSF, nOrb, nRoots, nSym
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 rKappa(nDens), CLag(*), SLag(nRoots,nRoots)
-integer nOLag, nCLag, i, j
-real*8 Tmp
-integer istatus
+real(kind=wp) :: rKappa(nDens), CLag(*), SLag(nRoots,nRoots)
+integer(kind=iwp) :: i, istatus, j, nCLag, nOLag
+real(kind=wp) :: Tmp
 
 ! Read in a and b part of effective gradient from CASPT2
 

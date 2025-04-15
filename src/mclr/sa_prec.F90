@@ -13,11 +13,12 @@ subroutine SA_PREC(S,rdia)
 
 use ipPage, only: ipin, W
 use MCLR_Data, only: ipCI
-use input_mclr, only: nRoots, ERASSCF
+use input_mclr, only: ERASSCF, nRoots
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 S(nroots**2,nroots), rdia(*)
-integer i
+real(kind=wp) :: S(nroots**2,nroots), rdia(*)
+integer(kind=iwp) :: i
 
 call ipin(ipci)
 do i=1,nroots

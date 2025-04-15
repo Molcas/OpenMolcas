@@ -24,12 +24,14 @@ subroutine IEL13(MNRS1,MXRS1,MNRS3,MXRS3,NELEC,NOCTYP,IEL1,IEL3,IEL123)
 ! Jeppe Olsen, Spring 1991
 !              IEL123 added Jan 1994
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit real*8(A-H,O-Z)
-dimension IEL1(NOCTYP), IEL3(NOCTYP), IEL123(3,NOCTYP)
+implicit none
+integer(kind=iwp) :: MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, IEL1(NOCTYP), IEL3(NOCTYP), IEL123(3,NOCTYP)
+integer(kind=iwp) :: ITYP, KEL1, KEL3
 
 IEL1(:) = 0
 IEL3(:) = 0

@@ -9,16 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function ISYMST_MCLR(STRING,NEL)
+function ISYMST_MCLR(STRING,NEL)
 ! Master routine for symmetry of string
 
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ISMFTO
+use Definitions, only: iwp
 
 implicit none
-! Specific input
-integer STRING(*), NEL
-integer IEL
+integer(kind=iwp) :: ISYMST_MCLR
+integer(kind=iwp) :: NEL, STRING(NEL)
+integer(kind=iwp) :: IEL
 
 ISYMST_MCLR = 1
 do IEL=1,NEL

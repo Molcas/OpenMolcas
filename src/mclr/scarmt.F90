@@ -19,12 +19,15 @@ subroutine SCARMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,ISCA,SSCA)
 !
 ! Jeppe Olsen, Getting LUCIA in shape, Feb1994
 
-implicit real*8(A-H,O-Z)
-real*8 MATIN, MATUT
-! Input
-dimension ISCA(*), SSCA(*), MATIN(NROWIN,NCOLIN)
-! Input and Output
-dimension MATUT(NCOLUT,NROWUT) ! (MATUT transposed!)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NROWIN, NCOLIN, NROWUT, NCOLUT, ISCA(*)
+real(kind=wp) :: MATIN(NROWIN,NCOLIN), MATUT(NCOLUT,NROWUT), SSCA(*)
+integer(kind=iwp) :: I, ICINBL, ICINEN, ICINOF, LBLK, NBLK
+real(kind=wp) :: S
+
+! (MATUT transposed!)
 
 ! To get rid of annoying and incorrect compiler warnings
 ICINOF = 0

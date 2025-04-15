@@ -33,24 +33,22 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,
 ! Last modification : Sept 20 : sign and address of dets goes together
 !                      in CNSM(:)%ICTS
 
-use Str_Info, only: DFTP, CFTP, DTOC, CNSM
-use MCLR_Data, only: MULTSP, MS2P, MINOP, MAXOP, NTYP, NCPCNT, NDPCNT, NCNASM, NCNATS, NCSASM, NDTASM
-use MCLR_Data, only: MXPCSM
+use Str_Info, only: CFTP, CNSM, DFTP, DTOC
+use MCLR_Data, only: MAXOP, MINOP, MS2P, MULTSP, MXPCSM, NCNASM, NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NACTOB, NACTEL, MULTP, MS2, NORB1, NORB2, NORB3, NEL1MN, NEL3MX, LLCSF, NCNSM
-real*8 PSSIGN
-integer lconf, lldet
-! local variables
-integer, allocatable :: IICL(:), IIOP(:), IIOC(:)
-integer IMSCMB, MULTS, NEL, IEL1, IEL2, IEL3, IOP1, IOP2, IOP3, IOP, ITP, IOPEN, IAEL, IBEL, LIDT, LICS, LDTOC, MXPTBL, MXDT, &
-        LCSFDT, LCNFOR, LDET, ILCNF, ISYM, ILLCNF, LLCONF, ITYP, ICL, ICNSM, IBION, IWEYLF, MXCNSM, MXPCTP
+integer(kind=iwp) :: NACTOB, NACTEL, MULTP, MS2, NORB1, NORB2, NORB3, NEL1MN, NEL3MX, LLCSF, NCNSM, lconf, lldet
+real(kind=wp) :: PSSIGN
+integer(kind=iwp) :: IAEL, IBEL, ICL, ICNSM, IEL1, IEL2, IEL3, ILCNF, ILLCNF, IMSCMB, IOP, IOP1, IOP2, IOP3, IOPEN, ISYM, ITP, &
+                     ITYP, IWEYLF, LCNFOR, LCSFDT, LDET, LDTOC, LICS, LIDT, LLCONF, MULTS, MXCNSM, MXDT, MXPCTP, MXPTBL, NEL
 #ifdef _DEBUGPRINT_
-integer ITYPE
+integer(kind=iwp) :: ITYPE
 #endif
+integer(kind=iwp), allocatable :: IICL(:), IIOC(:), IIOP(:)
+integer(kind=iwp), external :: IBINOM
 
 if (PSSIGN /= Zero) then
   IMSCMB = 1
@@ -104,7 +102,7 @@ do ITP=1,NTYP
   IAEL = (IOPEN+MS2)/2
   IBEL = (IOPEN-MS2)/2
   if (IAEL+IBEL == IOPEN) then
-    NDPCNT(ITP) = IBION(IOPEN,IAEL)
+    NDPCNT(ITP) = IBINOM(IOPEN,IAEL)
     if ((IMSCMB /= 0) .and. (IOPEN /= 0)) NDPCNT(ITP) = NDPCNT(ITP)/2
     if (IOPEN >= MULTS-1) then
       NCPCNT(ITP) = IWEYLF(IOPEN,MULTS)

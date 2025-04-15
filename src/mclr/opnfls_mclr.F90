@@ -20,14 +20,15 @@ subroutine OpnFls_MCLR(iPL)
 !                                                                      *
 !***********************************************************************
 
-use MCLR_Data, only: FnPT2, FnMck, FnTemp, FnTwo, LuMck, LuTEMP, LuTwo
-use input_mclr, only: McKinley, PT2, ChIrr
-use Definitions, only: u6
+use MCLR_Data, only: FnMck, FnPT2, FnTemp, FnTwo, LuMck, LuTEMP, LuTwo
+use input_mclr, only: ChIrr, McKinley, PT2
+use Definitions, only: iwp, u6
 
 implicit none
-character(len=8) Label
-logical FoundTwoEls, Direct, DoCholesky
-integer iPL, iRC, iOpt, iDum
+integer(kind=iwp) :: iPL
+integer(kind=iwp) :: iRC, iOpt, iDum
+logical(kind=iwp) :: DoCholesky, DoDirect, FoundTwoEls
+character(len=8) :: Label
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -37,8 +38,8 @@ integer iPL, iRC, iOpt, iDum
 call DaName(LuTemp,FnTemp)
 !---  open the ORDINT file --------------------------------------------*
 call f_Inquire(FnTwo,FoundTwoEls)
-call DecideOnDirect(.true.,FoundTwoEls,Direct,DoCholesky)
-if (Direct) then
+call DecideOnDirect(.true.,FoundTwoEls,DoDirect,DoCholesky)
+if (DoDirect) then
   write(u6,*) 'OpnFls: No direct option in MCLR'
   call Abend()
 else

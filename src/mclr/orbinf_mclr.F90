@@ -25,21 +25,20 @@ subroutine ORBINF_MCLR(NIRREP,NRAS1,NRAS2,NRAS3,MXR4tp)
 ! ======
 ! Orbital information in /ORBINP/
 
+use MCLR_Data, only: IBSO, IBTSOB, IREOTS, ISMFTO, ITSOB, NACOB, NOBPT, NOBPTS, NOCOB, NORB1, NORB2, NORB3, NTOOB, NTSOB
 use stdalloc, only: mma_allocate, mma_deallocate
-use MCLR_Data, only: NORB1, NORB2, NORB3, NACOB, NOCOB, NTOOB, IBSO, IBTSOB, IREOTS, ISMFTO, ITSOB, NOBPT, NOBPTS, NTSOB
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer NIRREP, MXR4tp
-integer NRAS1(NIRREP), NRAS2(NIRREP), NRAS3(NIRREP)
-! Local variables
-integer NNOBPT
-integer, allocatable :: NRSOBS(:,:), NTOOBS(:)
+integer(kind=iwp) :: NIRREP, NRAS1(NIRREP), NRAS2(NIRREP), NRAS3(NIRREP), MXR4tp
+integer(kind=iwp) :: NNOBPT
 #ifdef _DEBUGPRINT_
-integer I
+integer(kind=iwp) :: I
 #endif
+integer(kind=iwp), allocatable :: NRSOBS(:,:), NTOOBS(:)
 
 !***********************************************
 !                                              *

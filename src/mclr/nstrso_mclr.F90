@@ -16,8 +16,13 @@ subroutine NSTRSO_MCLR(NEL,NORB1,NORB2,NORB3,NELMN1,NELMX1,NELMN3,NELMX3,IOC,NST
 !
 ! Jeppe Olsen Winter of 1990
 
-implicit real*8(A-H,O-Z)
-dimension IOC(*), NSTASO(NOCTYP,NSM)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NEL, NORB1, NORB2, NORB3, NELMN1, NELMX1, NELMN3, NELMX3, IOC(*), NOCTYP, NSM, NSTASO(NOCTYP,NSM), IOTYP
+integer(kind=iwp) :: i, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, ISYM, ITYP, &
+                     NONEW1, NONEW2, NONEW3, NSTRIN
+integer(kind=iwp), external :: ISYMST_MCLR, IOCTP2_MCLR
 
 NSTASO(:,:) = 0
 NSTRIN = 0

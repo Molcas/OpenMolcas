@@ -12,8 +12,11 @@
 subroutine CMP2CN(ICNL,NCLL,NOPL,ICNR,NCLR,NOPR,ISCR,NORB,NDIFF)
 ! Number of differences in occupation of two configurations
 
-dimension ICNL(*), ICNR(*)
-dimension ISCR(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: ICNL(*), NCLL, NOPL, ICNR(*), NCLR, NOPR, ISCR(*), NORB, NDIFF
+integer(kind=iwp) :: ICL, IOP
 
 ! Length of Scratch: Number of orbitals
 

@@ -12,13 +12,14 @@
 subroutine mkcipre()
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: SS, ERAS, P1, P1Inv
-use input_mclr, only: lRoots, ERASSCF
+use MCLR_Data, only: ERAS, P1, P1Inv, SS
+use input_mclr, only: ERASSCF, lRoots
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One
+use Definitions, only: iwp
 
 implicit none
-integer i, j
+integer(kind=iwp) :: i, j
 
 call mma_allocate(SS,2*lroots,2*lroots,Label='SS')
 SS(:,:) = Zero

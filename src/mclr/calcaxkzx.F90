@@ -18,24 +18,18 @@
 subroutine CalcAXkzx(AXkzx,GDMat,PUVX,NPUVX,IndPUVX,zx)
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: nNA, nDens
-use input_mclr, only: nRoots, ntBas, ntAsh, nSym, nAsh, nOrb
+use MCLR_Data, only: nDens, nNA
+use input_mclr, only: nAsh, nOrb, nRoots, nSym, ntAsh, ntBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer NPUVX
-real*8, dimension(nTri_Elem(nRoots),nnA,nnA), intent(in) :: GDMat
-real*8, dimension(NPUVX), intent(in) :: PUVX
-integer, dimension(ntBas,ntAsh,ntAsh,ntAsh), intent(in) :: IndPUVX
-real*8, dimension(nTri_Elem(nRoots-1)), intent(in) :: zx
-real*8, dimension(nDens), intent(out) :: AXkzx
-! Auxiliary Quantities
-integer, dimension(nSym) :: Off_Act, Off_Orb
-real*8, dimension(:), allocatable :: AXktmp
-real*8, dimension(:,:), allocatable :: DKL1, DKL2
-integer K, L, iKL, iKL2, iKK, iLL
-integer p, iSym
+real(kind=wp), intent(out) :: AXkzx(nDens)
+integer(kind=iwp), intent(in) :: NPUVX, IndPUVX(ntBas,ntAsh,ntAsh,ntAsh)
+real(kind=wp), intent(in) :: GDMat(nTri_Elem(nRoots),nnA,nnA), PUVX(NPUVX), zx(nTri_Elem(nRoots-1))
+integer(kind=iwp) :: iKK, iKL, iKL2, iLL, iSym, K, L, Off_Act(nSym), Off_Orb(nSym), p
+real(kind=wp), allocatable :: AXktmp(:), DKL1(:,:), DKL2(:,:)
 
 Off_Act(1) = 0
 Off_Orb(1) = 0

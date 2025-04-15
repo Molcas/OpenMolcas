@@ -16,14 +16,14 @@ subroutine GSAXPY(AB,A,B,NABCOL,NACOL,NROW,IABCOL,IACOL)
 !
 ! Jeppe Olsen, Spring of 94 Daughter of MSAXPY*
 
-implicit real*8(A-H,O-Z)
-! Input
-dimension A(NROW,*), B(NACOL,NABCOL)
-dimension IACOL(NACOL), IABCOL(NABCOL)
-! Output
-dimension AB(NROW,*)
+use Definitions, only: wp, iwp
 
-IWAY = 2
+implicit none
+integer(kind=iwp) :: NABCOL, NACOL, NROW, IACOL(NACOL), IABCOL(NABCOL)
+real(kind=wp) :: AB(NROW,*), A(NROW,*), B(NACOL,NABCOL)
+integer(kind=iwp) :: J, JACT, K, K1ACT, K2ACT, K3ACT, K4ACT, K5ACT, KACT, NRES, NROL
+integer(kind=iwp), parameter :: IWAY = 2
+
 if (IWAY == 1) then
   ! Straightforward sequence
   do J=1,NABCOL

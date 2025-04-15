@@ -19,14 +19,15 @@ subroutine GATRMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,ISCA,SSCA)
 ! Jeppe Olsen, Getting LUCIA in shape, Feb1994
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-real*8 MATIN, MATUT
-! Input
-dimension ISCA(*), SSCA(*), MATIN(NCOLIN,NROWIN)
+implicit none
+integer(kind=iwp) :: NROWIN, NCOLIN, NROWUT, NCOLUT, ISCA(*)
+real(kind=wp) :: MATIN(NCOLIN,NROWIN), MATUT(NROWUT,NCOLUT), SSCA(*)
+integer(kind=iwp) :: I, ICBL, ICEND, ICOFF, IROW, LBLK, NBLK
+real(kind=wp) :: S
+
 ! (MATIN Transposed)
-! Output
-dimension MATUT(NROWUT,NCOLUT)
 
 ! To get rid of annoying and incorrect compiler warnings
 ICOFF = 0

@@ -12,15 +12,15 @@
 subroutine NatOrb_MCLR(Dens,CMOO,CMON,OCCN)
 
 use MCLR_Data, only: ipCM, ipMat, nDens
-use input_mclr, only: nSym, nBas, kPrint
+use input_mclr, only: kPrint, nBas, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 Dens(*), CMOO(*), CMON(*), OCCN(*)
-real*8, allocatable :: EVal(:), EVec(:)
-integer iO, iS, ij, i, j, ii, iSt, iEnd
+real(kind=wp) :: Dens(*), CMOO(*), CMON(*), OCCN(*)
+integer(kind=iwp) :: i, iEnd, ii, ij, iO, iS, iSt, j
+real(kind=wp), allocatable :: EVal(:), EVec(:)
 
 call mma_allocate(EVec,nDens,Label='EVec')
 call mma_allocate(EVal,nDens,Label='EVal')

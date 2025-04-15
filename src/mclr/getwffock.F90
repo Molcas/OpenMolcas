@@ -20,33 +20,20 @@ subroutine GetWFFock(FOccMO,bk,R,nTri,P2MOt,NG2)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use MCLR_Data, only: nDens, nConf1, ipCI, nNA
-use MCLR_Data, only: IRLXROOT
-use MCLR_Data, only: LuJob
-use MCLR_Data, only: XISPSM
-use input_mclr, only: nRoots, ntAsh, iTOC, State_Sym, nCSF
+use MCLR_Data, only: ipCI, IRLXROOT, LuJob, nConf1, nDens, nNA, XISPSM
+use input_mclr, only: iTOC, nCSF, nRoots, ntAsh, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp
 
 implicit none
-! Input
-real*8, dimension(nRoots,nRoots) :: R
-integer nTri, NG2
-! Output
-real*8, dimension(nDens) :: FOccMO
-real*8, dimension(nDens) :: bk
-real*8, dimension(nG2) :: P2MOt
-! Auxiliaries
-real*8, dimension(:), allocatable :: FinCI
-! FinCI: CI Vectors in final CMS state basis
-real*8, dimension(1) :: rdum
-real*8, dimension(:), allocatable :: Fock, T, G1r, G2r, G2rt, CIL, CIR, G1q, G2q, G1qs, G2qs
-real*8, dimension(:), allocatable :: DMatAO, DIAO, D5, D6
-integer I, K, NCSFs
-real*8 Fact
-integer iB, jB, kB, lB, iDkl, iRijkl
-integer nG1, nConfL
-integer iA, jA, kA, lA, ij1, kl1, kl2, iDij, iRij, iRkl, iIJKL, JDisk
+integer(kind=iwp) :: nTri, NG2
+real(kind=wp) :: FOccMO(nDens), bk(nDens), R(nRoots,nRoots), P2MOt(nG2)
+integer(kind=iwp) :: I, iA, iB, iDij, iDkl, iIJKL, ij1, iRij, iRijkl, iRkl, jA, jB, JDisk, K, kA, kB, kl1, kl2, lA, lB, nConfL, &
+                     NCSFs, nG1
+real(kind=wp) :: Fact, rdum(1)
+real(kind=wp), allocatable :: CIL(:), CIR(:), D5(:), D6(:), DIAO(:), DMatAO(:), FinCI(:), Fock(:), G1q(:), G1qs(:), G1r(:), &
+                              G2q(:), G2qs(:), G2r(:), G2rt(:), T(:)
 
 !                                                                      *
 !***********************************************************************

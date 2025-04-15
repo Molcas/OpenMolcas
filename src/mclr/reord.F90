@@ -30,29 +30,27 @@ subroutine REORD(SGS,CIS,EXS,NCONF,IMODE,ICONF,ISPIN,kSym,CIOLD)
 !          IMODE=0 : FROM SYMMETRIC GROUP TO SPLIT GRAPH UGA ORDER
 !          IMODE=1 : FROM SPLIT GRAPH UGA TO SYMMETRIC GROUP ORDER
 
-use MCLR_data, only: minop, NCPCNT, NCNATS, NTYP
-use gugx, only: SGStruct, CIStruct, EXStruct
+use MCLR_data, only: minop, NCNATS, NCPCNT, NTYP
+use gugx, only: CIStruct, EXStruct, SGStruct
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-type(SGStruct) SGS
-type(CIStruct) CIS
-type(EXStruct) EXS
-integer kSym, nCONF, IMODE
-integer ICONF(*), ISPIN(*)
-real*8 CIOLD(NCONF)
-real*8, allocatable :: CINEW(:)
-integer IWALK(50)
-integer, external :: IPHASE, ISGNUM
-integer :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP
-real*8 PHASE
+type(SGStruct) :: SGS
+type(CIStruct) :: CIS
+type(EXStruct) :: EXS
+integer(kind=iwp) :: nCONF, IMODE, ICONF(*), ISPIN(*), kSym
+real(kind=wp) :: CIOLD(NCONF)
+integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(50)
 #ifdef _DEBUGPRINT_
-integer I
+integer(kind=iwp) :: I
 #endif
+real(kind=wp) :: PHASE
+real(kind=wp), allocatable :: CINEW(:)
+integer(kind=iwp), external :: IPHASE, ISGNUM
 
 call mma_allocate(CINEW,NCONF,Label='CINEW')
 

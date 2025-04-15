@@ -12,12 +12,10 @@
 subroutine dmrg_dim_change_mclr(orbspc,ndim,iflag)
 
 use Index_Functions, only: nTri_Elem
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-integer :: orbspc(8)
-integer :: iflag
-integer :: ndim
+integer(kind=iwp) :: orbspc(8), ndim, iflag
 
 !write(u6,*) '==================================================='
 !write(u6,*) ' Currently, only valid for no symmetry calculation'

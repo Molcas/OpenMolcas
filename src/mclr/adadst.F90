@@ -29,21 +29,15 @@ subroutine ADADST(IOBTP,IOBSM,IOBOFF,NIOB,JOBTP,JOBSM,JOBOFF,NJOB,IJORD,ICLS,ISM
 !
 ! Jeppe Olsen, Winter of 1991
 
-use Str_Info, only: STR, ISTAC, IUNIQMP, NOCTYP
+use Str_Info, only: ISTAC, IUNIQMP, NOCTYP, STR
 use MCLR_Data, only: NACOB
+use Definitions, only: wp, iwp
 
 implicit none
-! =====
-! Input
-! =====
-integer IOBTP, IOBSM, IOBOFF, NIOB, JOBTP, JOBSM, JOBOFF, NJOB, IJORD, ICLS, ISM, IGRP, KMIN, KMAX
-integer NK, NKDIM, IEND
-! ======
-! Output
-! ======
-integer I1(NKDIM,*)
-real*8 XI1S(NKDIM,*)
-integer JGRP, I1MPF, L1MP, KGRP, I2MPF, L2MP
+integer(kind=iwp) :: IOBTP, IOBSM, IOBOFF, NIOB, JOBTP, JOBSM, JOBOFF, NJOB, IJORD, ICLS, ISM, IGRP, KMIN, KMAX, NK, NKDIM, IEND
+integer(kind=iwp) :: I1(NKDIM,*)
+real(kind=wp) :: XI1S(NKDIM,*)
+integer(kind=iwp) :: I1MPF, I2MPF, JGRP, KGRP, L1MP, L2MP
 
 JGRP = IGRP+1
 if (IUNIQMP(JGRP) /= JGRP) then

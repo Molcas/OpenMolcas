@@ -9,28 +9,29 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-real*8 function GTIJKL_MCLR(I,J,K,L)
+function GTIJKL_MCLR(I,J,K,L)
 ! Obtain  integral (I J ! K L)
 ! where I,J,K and l refers to active orbitals in type ordering
 
 use Index_Functions, only: iTri
-use MCLR_Data, only: Int2
-use MCLR_Data, only: IREOTS
+use MCLR_Data, only: Int2, IREOTS
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(in) :: I, J, K, L
-integer iAbs, jAbs, kAbs, lAbs, ij, kl
+real(kind=wp) :: GTIJKL_MCLR
+integer(kind=iwp), intent(in) :: I, J, K, L
+integer(kind=iwp) :: i_Abs, ij, j_Abs, k_Abs, kl, l_Abs
 
-IABS = IREOTS(I)
+I_ABS = IREOTS(I)
 
-JABS = IREOTS(J)
+J_ABS = IREOTS(J)
 
-KABS = IREOTS(K)
+K_ABS = IREOTS(K)
 
-LABS = IREOTS(L)
+L_ABS = IREOTS(L)
 
-IJ = iTri(IABS,JABS)
-KL = iTri(KABS,LABS)
+IJ = iTri(I_ABS,J_ABS)
+KL = iTri(K_ABS,L_ABS)
 
 GTIJKL_MCLR = INT2(iTri(IJ,KL))
 

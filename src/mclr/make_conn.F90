@@ -11,18 +11,17 @@
 
 subroutine Make_Conn(F,Kappa,P,D)
 
-use MCLR_Data, only: F0SQMO
-use MCLR_Data, only: ipMat, n2Dens, nDens
-use input_mclr, only: nSym, nBas
+use MCLR_Data, only: F0SQMO, ipMat, n2Dens, nDens
+use input_mclr, only: nBas, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 P(*), D(*), F(*), Kappa(*)
-real*8 dum(1)
-real*8, allocatable :: T1(:), T2(:), T3(:), T4(:)
-real*8 Fact
-integer iS, ijB, iB, ipTmp, ipTmp1, ipTmp2, jB
+real(kind=wp) :: F(*), Kappa(*), P(*), D(*)
+integer(kind=iwp) :: iB, ijB, ipTmp, ipTmp1, ipTmp2, iS, jB
+real(kind=wp) :: dum(1), Fact
+real(kind=wp), allocatable :: T1(:), T2(:), T3(:), T4(:)
 
 ! kappa=\bar{kappa}
 ! P = \bar{d}

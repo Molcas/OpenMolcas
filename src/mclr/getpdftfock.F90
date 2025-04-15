@@ -18,17 +18,16 @@
 subroutine GetPDFTFock(bk)
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: nDens, ipMat
-use input_mclr, only: nSym, nBas
+use MCLR_Data, only: ipMat, nDens
+use input_mclr, only: nBas, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Two
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(nDens) :: bk
-! Auxiliaries
-real*8, dimension(:), allocatable :: T, bktmp
-integer IS, JS
+real(kind=wp) :: bk(nDens)
+integer(kind=iwp) :: IS, JS
+real(kind=wp), allocatable :: T(:), bktmp(:)
 
 call mma_allocate(bktmp,nDens)
 call mma_allocate(T,nDens)

@@ -11,8 +11,12 @@
 
 subroutine SqM(a,b,n)
 
-integer n, i, ij
-real*8 a(*), b(n,n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n
+real(kind=wp) :: a(*), b(n,n)
+integer(kind=iwp) :: i, ij
 
 ij = 0
 do i=1,n

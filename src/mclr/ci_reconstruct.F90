@@ -11,47 +11,34 @@
 
 subroutine ci_reconstruct(istate,nSDET,vector,indexSD)
 
-use dmrginfo, only: LRRAS2, RGRAS2, nEle_RGLR, nDets_RGLR, MS2_RGLR, nStates_RGLR
+use dmrginfo, only: LRRAS2, MS2_RGLR, nDets_RGLR, nEle_RGLR, nStates_RGLR, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=100), allocatable :: checkpoint(:)! for many states
-integer :: istate, nsdet
-integer i, j, idet, idx_det
-integer norb, norbLR
-integer neletol
-integer nele_mod
-integer nele_alpha, nele_beta
-integer irrep_pre, iorbLR0, iorbLR
-integer irrep_diff(8)
-! need to be rewrittren using mma_allocate and mma_deallocate
-! soon ...
-integer, allocatable :: ele_orb_alpha(:)
-integer, allocatable :: ele_orb_beta(:)
-integer, allocatable :: pre_ele(:)
-integer ndets_mclr
-character(len=200) tmp_run
-real*8 dtmp
-logical IFFILE
-integer rc
-integer :: indexSD(nsdet) ! index
-real*8 :: vector(nsdet)   ! determinants
-integer :: nDets_Total, lcheckpoint
-integer, external :: IsFreeUnit
-type Slater_determinant
-  integer :: itype = 1                ! excitation type
-  integer :: inum = 1                 ! determinant number
-  integer :: isign = 1                ! determinant phase
-  integer, allocatable :: electron(:) ! determinant
-  integer, allocatable :: ele_conf(:) ! electron configuration
-  real*8, allocatable :: dV(:)        ! for many states
-end type Slater_determinant
-type(Slater_determinant), allocatable :: SD_DMRG(:)
+integer(kind=iwp) :: istate, nsdet, indexSD(nsdet) ! index
+real(kind=wp) :: vector(nsdet) ! determinants
+integer(kind=iwp) :: i, idet, idx_det, iorbLR, iorbLR0, irrep_diff(8), irrep_pre, j, lcheckpoint, ndets_mclr, nDets_Total, &
+                     nele_alpha, nele_beta, nele_mod, neletol, norb, norbLR, rc
+real(kind=wp) :: dtmp
+logical(kind=iwp) :: IFFILE
+character(len=200) :: tmp_run
+integer(kind=iwp), allocatable :: ele_conf(:,:), ele_orb_alpha(:), ele_orb_beta(:), electron(:,:), inum(:), isgn(:), itype(:), &
+                                  pre_ele(:)
+real(kind=wp), allocatable :: dV(:,:)
+character(len=100), allocatable :: checkpoint(:) ! for many states
+integer(kind=iwp), external :: IsFreeUnit
+
+! Slater determinant data
+!  itype    : excitation type
+!  inum     : determinant number
+!  isgn     : determinant phase
+!  electron : determinant
+!  ele_conf : electron configuration
+!  dV       : for many states
 
 ! The total electrons
-neletol = 0
 neletol = nele_RGLR
 
 ! Check if there is single electron
@@ -88,9 +75,9 @@ do i=istate,istate
 end do
 
 ! preparing for point group symmetry
-norb = sum(RGras2(1:8))
-norbLR = sum(LRras2(1:8))
-irrep_diff(:) = RGras2(1:8)-LRras2(1:8)
+norb = sum(RGras2(:))
+norbLR = sum(LRras2(:))
+irrep_diff(:) = RGras2(:)-LRras2(:)
 
 call mma_allocate(pre_ele,norbLR,label='pre_ele'); pre_ele = 0
 iorbLR0 = 1
@@ -111,20 +98,25 @@ write(u6,*) 'nalpha,  nbeta     ',nele_alpha,nele_beta
 
 ! DETs read from mclr_dets.initial
 open(UNIT=117,file='mclr_dets.initial',status='OLD')
-allocate(SD_DMRG(ndets_RGLR))
+call mma_allocate(itype,ndets_RGLR,Label='itype')
+call mma_allocate(inum,ndets_RGLR,Label='inum')
+call mma_allocate(isgn,ndets_RGLR,Label='isgn')
+call mma_allocate(electron,neletol,ndets_RGLR,Label='electron')
+call mma_allocate(ele_conf,norb,ndets_RGLR,Label='ele_conf')
+call mma_allocate(dV,nstates_RGLR,ndets_RGLR,Label='dV')
+itype(:) = 1
+inum(:) = 1
+isgn(:) = 1
+electron(:,:) = 0
+ele_conf(:,:) = 0
+dV(:,:) = Zero
 do idet=1,ndets_RGLR
-  call mma_allocate(SD_DMRG(idet)%electron,neletol)
-  call mma_allocate(SD_DMRG(idet)%ele_conf,norb)
-  call mma_allocate(SD_DMRG(idet)%dv,nstates_RGLR)
-  SD_DMRG(idet)%electron = 0
-  SD_DMRG(idet)%ele_conf = 0
-  SD_DMRG(idet)%dv = Zero
-  read(117,'(1X,I8,6X)',advance='no') SD_DMRG(idet)%ITYPE
+  read(117,'(1X,I8,6X)',advance='no') itype(idet)
   do i=1,neletol
-    read(117,'(1X,I5)',advance='no') SD_DMRG(idet)%electron(i)
+    read(117,'(1X,I5)',advance='no') electron(i,idet)
   end do
-  read(117,'(5X,I3)',advance='no') SD_DMRG(idet)%isign
-  read(117,'(11X,I20)') SD_DMRG(idet)%inum
+  read(117,'(5X,I3)',advance='no') isgn(idet)
+  read(117,'(11X,I20)') inum(idet)
 end do
 close(117)
 
@@ -144,25 +136,25 @@ do idet=1,ndets_RGLR
   ele_orb_alpha = 0
   ele_orb_beta = 0
   do i=1,neletol
-    if (SD_DMRG(idet)%electron(i) > 0) then ! With preconditioner
-      j = abs(SD_DMRG(idet)%electron(i))
+    if (electron(i,idet) > 0) then ! With preconditioner
+      j = abs(electron(i,idet))
       ele_orb_alpha(j+pre_ele(j)) = 1
     else
-      j = abs(SD_DMRG(idet)%electron(i))
+      j = abs(electron(i,idet))
       ele_orb_beta(j+pre_ele(j)) = 1
     end if
   end do
   ! The same style also used in Maquis input
   do i=1,norb
-    if ((ele_orb_alpha(i) == 1) .and. (ele_orb_beta(i) == 1)) SD_DMRG(idet)%ele_conf(i) = 4
-    if ((ele_orb_alpha(i) == 1) .and. (ele_orb_beta(i) == 0)) SD_DMRG(idet)%ele_conf(i) = 3
-    if ((ele_orb_alpha(i) == 0) .and. (ele_orb_beta(i) == 1)) SD_DMRG(idet)%ele_conf(i) = 2
-    if ((ele_orb_alpha(i) == 0) .and. (ele_orb_beta(i) == 0)) SD_DMRG(idet)%ele_conf(i) = 1
-    !write(u6,*) 'SD_DMRG(idet)%ele_conf(i)',SD_DMRG(idet)%ele_conf(i)
+    if ((ele_orb_alpha(i) == 1) .and. (ele_orb_beta(i) == 1)) ele_conf(i,idet) = 4
+    if ((ele_orb_alpha(i) == 1) .and. (ele_orb_beta(i) == 0)) ele_conf(i,idet) = 3
+    if ((ele_orb_alpha(i) == 0) .and. (ele_orb_beta(i) == 1)) ele_conf(i,idet) = 2
+    if ((ele_orb_alpha(i) == 0) .and. (ele_orb_beta(i) == 0)) ele_conf(i,idet) = 1
+    !write(u6,*) 'ele_conf(i,idet)',ele_conf(i,idet)
   end do
   do i=1,norb
-    write(118,'(I1)',advance='no') SD_DMRG(idet)%ele_conf(i)
-    !write(u6,*)'SD_DMRG(idet)%ele_conf(',i,')',SD_DMRG(idet)%ele_conf(i)
+    write(118,'(I1)',advance='no') ele_conf(i,idet)
+    !write(u6,*) 'ele_conf(',i,',idet)',ele_conf(i,idet)
   end do
   write(118,*)
 end do
@@ -186,7 +178,7 @@ if (ndets_total > 9999) call systemf('head -9999 dets.mclr > ELE_CISR_FOR_MCLR',
 ! Recover the determinants, off-diagional multiply 2
 ! ========= should be improved by Hash etc. ==========
 do i=istate,istate
-  !write(u6,*) 'SD_DMRG(idet)%dv(i)',i
+  !write(u6,*) 'dV(i,idet)',i
   open(unit=118,file='GET_COEFF_IN_LIST')
   call f_inquire('ELE_CISR_FOR_MCLR',IFFILE)
   if (IFFILE) then
@@ -202,19 +194,19 @@ do i=istate,istate
   open(unit=118,file='det_coeff.tmp')
   read(118,*) ndets_mclr
   do idet=1,ndets_mclr
-    read(118,*) idx_det,SD_DMRG(idx_det)%dv(i)
-    !write(u6,*) idx_det,SD_DMRG(idx_det)%dv(i)
+    read(118,*) idx_det,dV(i,idx_det)
+    !write(u6,*) idx_det,dV(i,idx_det)
   end do
   close(118)
   ! off-diagional multiply 2
   do idet=1,ndets_RGLR
-    if (SD_DMRG(idet)%ITYPE == 1) then
-      SD_DMRG(idet)%dv(i) = -SD_DMRG(idet)%dv(i)
+    if (itype(idet) == 1) then
+      dV(i,idet) = -dV(i,idet)
     else
-      dtmp = sqrt((SD_DMRG(idet)%dv(i)**2)*Two)
-      SD_DMRG(idet)%dv(i) = -sign(dtmp,SD_DMRG(idet)%dv(i))
+      dtmp = sqrt((dV(i,idet)**2)*Two)
+      dV(i,idet) = -sign(dtmp,dV(i,idet))
     end if
-    !write(u6,*) 'i,idet,dv',i,idet,SD_DMRG(idet)%dv(i)
+    !write(u6,*) 'i,idet,dV',i,idet,dV(i,idet)
   end do
 end do
 
@@ -222,8 +214,8 @@ dtmp = Zero
 indexSD = 0
 vector = Zero
 do i=1,ndets_RGLR
-  indexSD(i) = i !SD_DMRG(i)%inum*SD_DMRG(i)%isign
-  vector(i) = SD_DMRG(i)%dv(istate)
+  indexSD(i) = i !inum(i)*isgn(i)
+  vector(i) = dV(istate,i)
   dtmp = dtmp+vector(i)**2
 end do
 
@@ -243,11 +235,11 @@ call xflush(u6)
 
 call mma_deallocate(checkpoint)
 call mma_deallocate(pre_ele)
-do idet=1,size(SD_DMRG)
-  call mma_deallocate(SD_DMRG(idet)%electron)
-  call mma_deallocate(SD_DMRG(idet)%ele_conf)
-  call mma_deallocate(SD_DMRG(idet)%dv)
-end do
-deallocate(SD_DMRG)
+call mma_deallocate(dV)
+call mma_deallocate(ele_conf)
+call mma_deallocate(electron)
+call mma_deallocate(isgn)
+call mma_deallocate(inum)
+call mma_deallocate(itype)
 
 end subroutine ci_reconstruct

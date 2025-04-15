@@ -20,39 +20,28 @@ subroutine WfCtl_MSPD(iKapDisp,iSigDisp,iCIDisp,iCIsigDisp,iRHSDisp,converged,iP
 
 use Symmetry_Info, only: Mul
 use ipPage, only: ipclose, ipget, ipin, ipnout, ipout, opout, W
-use MCLR_Data, only: ResQaaLag2
-use MCLR_Data, only: nConf1, nDens, nDensC, ipCI
-use MCLR_Data, only: ipDia
-use MCLR_Data, only: ISNAC, OVERRIDE, IRLXROOT, ISMECIMSPD, NACSTATES
-use MCLR_Data, only: LuTemp, LuQDat
-use MCLR_Data, only: XISPSM
-use input_mclr, only: nDisp, Fail, lSave, State_Sym, iMethod, iBreak, Eps, nIter, Debug, kPrint, nCSF, nRoots, TwoStep, StepType, &
-                      iAddressQDat, nAsh, nRS2
+use MCLR_Data, only: ipCI, ipDia, IRLXROOT, ISMECIMSPD, ISNAC, LuQDat, LuTemp, NACSTATES, nConf1, nDens, nDensC, OVERRIDE, &
+                     ResQaaLag2, XISPSM
+use input_mclr, only: Debug, Eps, Fail, iAddressQDat, iBreak, iMethod, kPrint, lSave, nAsh, nCSF, nDisp, nIter, nRoots, nRS2, &
+                      State_Sym, StepType, TwoStep
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iKapDisp(nDisp), isigDisp(nDisp)
-integer iCIDisp(nDisp), iCIsigDisp(nDisp)
-integer iRHSDisp(nDisp)
-logical converged(8)
-integer iPL
-#include "rasdim.fh"
+integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iPL
+logical(kind=iwp) :: converged(8)
 #include "warnings.h"
-logical CI
-character(len=8) Fmt2
-logical lPrint, cnvrgd
-real*8 rchc(mxroot)
-real*8, allocatable :: Kappa(:), dKappa(:), Sigma(:), Temp3(:), Temp4(:), Sc1(:), Sc2(:), Fancy(:)
-integer LURot, IsFreeUnit, JRoot
-external IsFreeUnit
+integer(kind=iwp) :: iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iSym, Iter, JRoot, jSpin, Left, lLine, lPaper, &
+                     Lu_50, LURot, nConf3, nPre2
+real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk
+logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=16) :: VecName
-real*8 R1, R2, DeltaC, DeltaK, Delta, Delta0, ReCo, rAlphaC, rAlphaK, rAlpha, rEsk, rEsci, rBeta, Res
-real*8, external :: DDot_
-integer lPaper, lLine, Left, iDis, Lu_50, iDisp, iSym, nConf3, ipS1, ipS2, ipST, ipCIT, ipCID, nPre2, iLen, Iter, ipPre2, jSpin
-integer, external :: nPre
+character(len=8) :: Fmt2
+real(kind=wp), allocatable :: dKappa(:), Fancy(:), Kappa(:), rCHC(:), Sc1(:), Sc2(:), Sigma(:), Temp3(:), Temp4(:)
+integer(kind=iwp), external :: IsFreeUnit, nPre
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -113,7 +102,9 @@ if (isNAC) override = .true.
 ! Calculate the diagonal of E    and store in core/disc
 
 call mma_allocate(FANCY,nroots**3,Label='FANCY')
+call mma_allocate(rCHC,nRoots,Label='rCHC')
 call CIDia_SA(State_Sym,rCHC,Fancy)
+call mma_deallocate(rCHC)
 
 call ipOut(ipdia)
 
@@ -432,8 +423,8 @@ if (debug) then
   write(u6,*)
 end if
 if (doDMRG) then  ! yma
-  call dmrg_spc_change_mclr(RGras2(1:8),nash)
-  call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
+  nash(:) = RGras2(:)
+  nrs2(:) = RGras2(:)
 end if
 
 !----------------------------------------------------------------------*

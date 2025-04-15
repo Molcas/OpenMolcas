@@ -24,13 +24,15 @@ subroutine FCOOR(LUT,COOR)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
+use Definitions, only: wp, iwp
 
 implicit none
-#include "Molcas.fh"
-real*8 A(3), COOR(3,*), B(3)
-integer :: LUT
-integer :: iCnt, iCnttp, iCo, ii, kop, mdc
-character*(LenIn) Lab
+integer(kind=iwp) :: LUT
+real(kind=wp) :: COOR(3,*)
+#include "LenIn.fh"
+integer(kind=iwp) :: iCnt, iCnttp, iCo, ii, kop, mdc
+real(kind=wp) :: A(3), B(3)
+character(len=LenIn) :: Lab
 
 mdc = 0
 

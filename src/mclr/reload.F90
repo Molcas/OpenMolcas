@@ -15,13 +15,13 @@ use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipMat, nDens
 use input_mclr, only: nSym
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 A(*)
-integer idSym
-integer nbas2(nsym), nbas1(nsym)
-real*8, allocatable :: ATemp(:)
-integer iS, jS, j, m, n1, n2
+real(kind=wp) :: A(*)
+integer(kind=iwp) :: idSym, nbas2(nsym), nbas1(nsym)
+integer(kind=iwp) :: iS, j, jS, m, n1, n2
+real(kind=wp), allocatable :: ATemp(:)
 
 call mma_allocate(ATemp,nDens,Label='ATemp')
 

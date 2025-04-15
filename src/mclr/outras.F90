@@ -27,22 +27,18 @@ subroutine OutRAS(iKapDisp,iCiDisp)
 use Symmetry_Info, only: Mul
 use MckDat, only: sLength
 use gugx, only: SGS, CIS, EXS
-use MCLR_Data, only: nConf1, nDensC, nDens
-use MCLR_Data, only: DspVec, lDisp
-use MCLR_Data, only: LuTEMP
-use input_mclr, only: nDisp, nSym, State_Sym, iMethod, nCSF, nConf, iMethod, iSpin, kPrint, nActEl, nElec3, nHole1, nRS1, nRS2, &
-                      nRS3, nTPert
+use MCLR_Data, only: DspVec, lDisp, LuTEMP, nConf1, nDens, nDensC
+use input_mclr, only: iMethod, iSpin, kPrint, nActEl, nConf, nCSF, nDisp, nElec3, nHole1, nRS1, nRS2, nRS3, nSym, nTPert, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer iKapDisp(nDisp), iCiDisp(nDisp)
-character(len=8) Label
-integer Pstate_sym
-logical CI
-real*8, allocatable :: Kap1(:), Kap2(:), Kap3(:), CIp1(:)
-integer iDisp, iSym, nConfm, jDisp, kDisp, iDisk, Len, iLen, iDIs, iRC, iOpt, iSymL, iPert
+integer(kind=iwp) :: iKapDisp(nDisp), iCiDisp(nDisp)
+integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym
+logical(kind=iwp) :: CI
+character(len=8) :: Label
+real(kind=wp), allocatable :: CIp1(:), Kap1(:), Kap2(:), Kap3(:)
 
 !----------------------------------------------------------------------*
 !
@@ -80,8 +76,8 @@ do iSym=1,nSym
 
       iDisk = iKapDisp(iDisp)
       if (iDisk /= -1) then
-        Len = nDensC
-        call dDaFile(LuTemp,2,Kap1,Len,iDisk)
+        Length = nDensC
+        call dDaFile(LuTemp,2,Kap1,Length,iDisk)
         call Uncompress(Kap1,Kap3,isym)
         if (CI) then
           ilen = nconfM
@@ -91,13 +87,13 @@ do iSym=1,nSym
         call GASync()
       else
         call GASync()
-        Len = nDensC
-        Kap1(1:Len) = Zero
-        call GADSum(Kap1,Len)
+        Length = nDensC
+        Kap1(1:Length) = Zero
+        call GADSum(Kap1,Length)
         if (CI) then
-          len = nconfM
-          CIp1(1:Len) = Zero
-          call GADSum(CIp1,Len)
+          Length = nconfM
+          CIp1(1:Length) = Zero
+          call GADSum(CIp1,Length)
         end if
       end if
       call GASync()

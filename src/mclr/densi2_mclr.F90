@@ -23,41 +23,31 @@ subroutine DENSI2_MCLR(I12,RHO1,RHO2,L,R,LUL,LUR,ieaw,n1,n2)
 !
 ! Two-body density is stored as rho2(ijkl)=<l!e(ij)e(kl)-delta(jk)e(il)!r>
 ! ijkl = ij*(ij-1)/2+kl, ij >= kl
-
-use Index_Functions, only: nTri_Elem
-use Str_Info, only: STR, IATPM1, IATPM2, IBTPM1, IBTPM2, ITYP_DUMMY, NELEC, NOCTYP
-use MCLR_Data, only: IDC, PSSIGN
-use MCLR_Data, only: MXSB, MXSOOB, IASTFI, IBSTFI, MNR1IC, MXR3IC
-use MCLR_Data, only: MAXI, MAXK, ICISTR
-use MCLR_Data, only: NACOB, IBTSOB, NOBPTS, NTSOB
-use MCLR_Data, only: MXINKA, MXPNGAS
-use CandS, only: ICSM, ISSM, ISSPC, ICSPC
-use input_mclr, only: nIrrep
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
-use Definitions, only: u6
-
-implicit none
-integer I12
-! Output
-real*8 RHO1(NACOB,NACOB), RHO2(nTri_Elem(NACOB**2))
-! Specific input
-real*8 L(*), R(*)
-integer LUL, LUR, ieaw, n1, n2
+!
 ! =====
 ! Input
 ! =====
 ! Definition of L and R is picked up from CANDS
 ! with L being S and  R being C
-! Before I forget it:
-integer IDUMMY(1)
-integer, allocatable :: SIOIO(:), CIOIO(:), SBLTP(:), CBLTP(:)
-integer, allocatable :: IX(:,:), OOS(:,:)
-real*8, allocatable :: CB(:), SB(:), INSCR(:), C2(:), XIXS(:,:)
-real*8, allocatable :: RHO1S(:), RHO1P(:), XNATO(:)
-integer idum(1)
-integer NGAS, IATP, IBTP, JATP, JBTP, NOCTPA, NOCTPB, NAEL, NBEL, IOCTPA, IOCTPB, MAXA, MAXA1, MAXB, MAXB1, MXSTBL, MXTSOB, LSCR1, &
-        INTSCR, IATP2, IBTP2, LSCR2, LSCR12, MAXIK, LSCR3, NOOS, IMNMX, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, MXIJSTF, MXSXBL
+
+use Index_Functions, only: nTri_Elem
+use Str_Info, only: IATPM1, IATPM2, IBTPM1, IBTPM2, ITYP_DUMMY, NELEC, NOCTYP, STR
+use MCLR_Data, only: IASTFI, IBSTFI, IBTSOB, ICISTR, IDC, MAXI, MAXK, MNR1IC, MXINKA, MXPNGAS, MXR3IC, MXSB, MXSOOB, NACOB, &
+                     NOBPTS, NTSOB, PSSIGN
+use CandS, only: ICSM, ICSPC, ISSM, ISSPC
+use input_mclr, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: I12, LUL, LUR, ieaw, n1, n2
+real(kind=wp) :: RHO1(NACOB,NACOB), RHO2(nTri_Elem(NACOB**2)), L(*), R(*)
+integer(kind=iwp) :: IATP, IATP2, IBTP, IBTP2, idum(1), IDUMMY(1), IMNMX, INTSCR, IOCTPA, IOCTPB, JATP, JBTP, LSCR1, LSCR12, &
+                     LSCR2, LSCR3, MAXA, MAXA1, MAXB, MAXB1, MAXIK, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, MXIJSTF, MXSTBL, &
+                     MXSXBL, MXTSOB, NAEL, NBEL, NGAS, NOCTPA, NOCTPB, NOOS
+integer(kind=iwp), allocatable :: CBLTP(:), CIOIO(:), IX(:,:), OOS(:,:), SBLTP(:), SIOIO(:)
+real(kind=wp), allocatable :: C2(:), CB(:), INSCR(:), RHO1P(:), RHO1S(:), SB(:), XIXS(:,:), XNATO(:)
 
 IDUM = 0
 NGAS = 3

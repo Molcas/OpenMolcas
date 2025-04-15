@@ -17,17 +17,16 @@ subroutine CSDTMT(IDFTP,ICFTP,DTOC,PSSIGN)
 ! Construct matrix expanding prototype CSF's in terms of
 ! prototype combinations in DTOC
 
-use MCLR_Data, only: MULTSP, MS2P, NTYP, MINOP, NCPCNT, NDPCNT
+use MCLR_Data, only: MINOP, MS2P, MULTSP, NCPCNT, NDPCNT, NTYP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
+use Definitions, only: wp, iwp
 
 implicit none
-dimension IDFTP(*), ICFTP(*), DTOC(*)
-real*8 PSSIGN
-! local variables
-integer, allocatable :: SCR7(:)
-integer MULTS, MS2, IDTBS, ICSBS, ITP, IOPEN, IFLAG, IDFTP, ICFTP, ICDCBS, NNDET
-real*8 DTOC
+integer(kind=iwp) :: IDFTP(*), ICFTP(*)
+real(kind=wp) :: DTOC(*), PSSIGN
+integer(kind=iwp) :: ICDCBS, ICSBS, IDTBS, IFLAG, IOPEN, ITP, MS2, MULTS, NNDET
+integer(kind=iwp), allocatable :: SCR7(:)
 
 MULTS = MULTSP
 MS2 = MS2P

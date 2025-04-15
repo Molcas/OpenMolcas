@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3,SB,CB,NTSOB,IBTSOB,ITSOB,MAXI,MAXK,SSCR,CSCR,I1, &
-                       XI1S,H,NSM,SIGN)
+                       XI1S,H,NSM,SGN)
 ! One electron excitations on column strings
 !
 ! =====
@@ -50,17 +50,14 @@ subroutine RSBB1E_MCLR(ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,ISEL1,ISEL3,ICEL1,ICEL3
 
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-integer NTSOB(3,*), IBTSOB(3,*), ITSOB(*)
-! Input
-dimension CB(*)
-! Output
-dimension SB(*)
-! Scatch
-dimension SSCR(*), CSCR(*), I1(*), XI1S(*), H(*)
-! Local arrays
-dimension ITP(3), JTP(3)
+implicit none
+integer(kind=iwp) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, ISEL1, ISEL3, ICEL1, ICEL3, NTSOB(3,*), IBTSOB(3,*), ITSOB(*), MAXI, &
+                     MAXK, I1(*), NSM
+real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), H(*), SGN
+integer(kind=iwp) :: IBORB, IBOT, ICGOFF, IIORB, IJSM, IJTP, IORB, IPART, ISBOFF, ISM, ITOP, ITP(3), ITYP, JBORB, JJORB, JORB, &
+                     JSM, JTP(3), JTYP, KBOT, KEND, KTOP, NIBTC, NIK, NIORB, NIPART, NJORB, NKBTC, NSXTP
 
 ! Type of single excitations that connects the two column strings
 
@@ -127,7 +124,7 @@ do IJTP=1,NSXTP
           ! set up I1(IORB,K) = a IORB !I STRING >
           call ADST(IORB,1,ISCTP,ISCSM,IGRP,KBOT,KTOP,I1,XI1S,1,NKBTC,KEND)
           ! Well, someplace the minus must come in
-          if (SIGN == -One) XI1S(1:NKBTC) = -XI1S(1:NKBTC)
+          if (SGN == -One) XI1S(1:NKBTC) = -XI1S(1:NKBTC)
           ISBOFF = 1+(IIORB-1)*NKBTC*NIBTC
           call MATCAS(SSCR(ISBOFF),SB,NIBTC,NROW,IBOT,NKBTC,I1,XI1S)
         end do

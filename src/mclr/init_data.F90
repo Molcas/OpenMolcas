@@ -18,10 +18,10 @@ subroutine Init_Data()
 !                                                                      *
 !***********************************************************************
 
-use MCLR_Data, only: FnJob, FnTwo, FnMck, FnTemp, FnHlf2, FNHlf3, FnPT2, FNTrI1, FNTrI2, FNTRi3, FNTRI4, FNTRI5, FNCSF2SD, &
-                     FnMOTRA, FnQDAT, LuJob, LuTwo, LuMck, LuTemp, LUHlf2, LUHlf3, LuPt2, LUTrI1, LUTrI2, LUTRi3, LUTRI4, LUTRI5, &
-                     LUCSF2SD, LuMOTRA, LuQDAT
-use input_mclr, only: State_Sym, nUserPT, UserP, nsRot, UserT
+use MCLR_Data, only: FNCSF2SD, FnHlf2, FNHlf3, FnJob, FnMck, FnMOTRA, FnPT2, FnQDAT, FnTemp, FNTrI1, FNTrI2, FNTRi3, FNTRI4, &
+                     FNTRI5, FnTwo, LUCSF2SD, LUHlf2, LUHlf3, LuJob, LuMck, LuMOTRA, LuPt2, LuQDAT, LuTemp, LUTrI1, LUTrI2, &
+                     LUTRi3, LUTRI4, LUTRI5, LuTwo
+use input_mclr, only: nsRot, nUserPT, State_Sym, UserP, UserT
 use Constants, only: Zero, One
 
 implicit none

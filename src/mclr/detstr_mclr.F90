@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,ISIGN,IWORK)
+subroutine DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,ISGN,IWORK)
 ! A DETERMINANT,IDET,IS GIVEN AS A SET OF OCCUPIED SPIN ORBITALS,
 ! POSITIVE NUMBER INDICATES ALPHA ORBITAL AND NEGATIVE NUMBER
 ! INDICATES BETA ORBITAL.
@@ -25,22 +25,19 @@ subroutine DETSTR_MCLR(IDET,IASTR,IBSTR,NEL,NAEL,NBEL,ISIGN,IWORK)
 ! JEPPE OLSEN NOVEMBER 1988
 
 use Index_Functions, only: nTri_Elem
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer NEL, NAEL, NBEL
-integer IDET(NEL)
-integer IASTR(NAEL), IBSTR(NBEL)
-integer ISIGN
-integer IWORK(*)
-integer ITMP
+integer(kind=iwp) :: NEL, IDET(NEL), NAEL, IASTR(NAEL), NBEL, IBSTR(NBEL), ISGN, IWORK(*)
+integer(kind=iwp) :: ITMP
 
 ! FIRST REORDER SPIN ORBITALS IN ASCENDING SEQUENCE
 ! THIS WILL AUTOMATICALLY SPLIT ALPHA AND BETASTRING
 
-call ORDSTR_MCLR(IDET,IWORK,NEL,ISIGN)
+call ORDSTR_MCLR(IDET,IWORK,NEL,ISGN)
 
 ! ALPHA STRING IS LAST NAEL ORBITALS
 IASTR(:) = IWORK(NBEL+1:NBEL+NAEL)
@@ -49,7 +46,7 @@ IASTR(:) = IWORK(NBEL+1:NBEL+NAEL)
 IBSTR(:) = -IWORK(NBEL:1:-1)
 ! SIGN CHANGE FOR SWITCH OF BETA ORBITALS
 iTmp = nTri_Elem(NBEL)
-ISIGN = ISIGN*(-1)**iTmp
+ISGN = ISGN*(-1)**iTmp
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' INPUT DETERMINANT'
@@ -58,14 +55,14 @@ write(u6,*) ' CORRESPONDING ALPHA STRING'
 call IWRTMA(IASTR,1,NAEL,1,NAEL)
 write(u6,*) ' CORRESPONDING BETA STRING'
 call IWRTMA(IBSTR,1,NBEL,1,NBEL)
-write(u6,*) ' ISIGN FOR SWITCH ',ISIGN
+write(u6,*) ' ISGN FOR SWITCH ',ISGN
 #endif
 
 !if (doDMRG .and. doMCLR) then ! yma
 !  do I=1,NEL
 !    write(117,'(1X,I5)',advance='no') IDET(I)
 !  end do
-!  write(117,'(A,1X,I2)',advance='no') ' SIGN',ISIGN
+!  write(117,'(A,1X,I2)',advance='no') ' SIGN',ISGN
 !end if
 
 end subroutine DETSTR_MCLR

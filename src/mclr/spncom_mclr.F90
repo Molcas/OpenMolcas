@@ -27,16 +27,12 @@ subroutine SPNCOM_MCLR(iwork,NOPEN,MS2,NDET,IABDET,IABUPP,IFLAG,PSSIGN)
 ! having alpha spin
 
 use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 implicit none
-integer IWORK(*)
-integer NOPEN, MS2, NDET
-integer IABDET(NOPEN,*), IABUPP(NOPEN,*)
-real*8 PSSIGN
-integer IFLAG
-! local variables
-integer ADD
-integer NUPPER, MX, I, J, NALPHA, MS2L, lUPPER, IEL
+integer(kind=iwp) :: IWORK(*), NOPEN, MS2, NDET, IABDET(NOPEN,*), IABUPP(NOPEN,*), IFLAG
+real(kind=wp) :: PSSIGN
+integer(kind=iwp) :: ADD, I, IEL, J, lUPPER, MS2L, MX, NALPHA, NUPPER
 
 ! LENGTH OF IWORK MUST BE AT LEAST NOPEN
 

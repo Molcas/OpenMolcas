@@ -17,20 +17,18 @@ subroutine Hess(FockC,FockX,rCon,Temp1,Temp2,Temp3,Temp4,idsym,jdisp,idisp)
 
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: Hss, CMO, F0SQMO
-use MCLR_Data, only: nDens, ipCM, ipMat
-use MCLR_Data, only: DspVec, lDisp
-use input_mclr, only: nSym, nBas, nOrb, nTPert
+use MCLR_Data, only: CMO, DspVec, F0SQMO, Hss, ipCM, ipMat, lDisp, nDens
+use input_mclr, only: nBas, nOrb, nSym, nTPert
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-real*8 Temp1(nDens), Temp2(nDens), Temp3(nDens), FockC(nDens), FockX(nDens), rcon(nDens), temp4(*)
-integer idSym, jDisp, iDisp
-character(len=8) Label
-integer iS, jS, nNJ, Len, iSym, nIn, mDisp, kDisp, iRC, iOpt, iOp, iP, IndX
-real*8 Fact
-real*8, external :: DDot_
+real(kind=wp) :: FockC(nDens), FockX(nDens), rcon(nDens), Temp1(nDens), Temp2(nDens), Temp3(nDens), temp4(*)
+integer(kind=iwp) :: idSym, jDisp, iDisp
+integer(kind=iwp) :: IndX, iOp, iOpt, iP, iRC, iS, jS, kDisp, mDisp, nIn, nNJ
+real(kind=wp) :: Fact
+character(len=8) :: Label
+real(kind=wp), external :: DDot_
 
 Temp3(:) = FockX(:)
 if (btest(ntpert(idisp),3)) then
@@ -46,11 +44,6 @@ end if
 
 !              xa     ca      xa
 ! Temp3 = Y = F + 1/2F  -1/2 S  F
-
-Len = 0
-do iSym=1,nSym
-  Len = Len+nTri_Elem(lDisp(iSym))
-end do
 
 nIn = 0
 mdisp = sum(lDisp(1:idsym-1))

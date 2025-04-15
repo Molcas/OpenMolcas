@@ -12,20 +12,16 @@
 subroutine HssPrt_MCLR(ideg,Hess,ldisp)
 
 use Index_Functions, only: iTri, nTri_Elem
-use input_mclr, only: nIrrep, nSym, ChIrr
+use input_mclr, only: ChIrr, nIrrep, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer ideg(*)
-real*8 Hess(*)
-integer ldisp(nsym)
-! local variables
-integer kDisp(8)
-character Title*39
-real*8, allocatable :: Temp(:)
-integer i, iaa, ii, iIrrep, j, jj
-integer idisp
+integer(kind=iwp) :: ideg(*), ldisp(nsym)
+real(kind=wp) :: Hess(*)
+integer(kind=iwp) :: i, iaa, idisp, ii, iIrrep, j, jj, kDisp(8)
+character(len=39) :: Title
+real(kind=wp), allocatable :: Temp(:)
 
 iDisp = 0
 do iIrrep=1,nIrrep

@@ -31,15 +31,14 @@ subroutine IAIBCM_MCLR(MNRS1,MXRS3,NOCTPA,NOCTPB,NEL1A,NEL3A,NEL1B,NEL3B,IOCOC)
 ! IOCOC(IATP,IBTP)  = 1 =>      allowed combination
 ! IOCOC(IATP,IBTP)  = 0 => not allowed combination
 
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit integer(a-z)
-! Input
-integer NEL1A(*), NEL3A(*), NEL1B(*), NEL3B(*)
-! Output
-integer IOCOC(NOCTPA,NOCTPB)
+implicit none
+integer(kind=iwp) :: MNRS1, MXRS3, NOCTPA, NOCTPB, NEL1A(*), NEL3A(*), NEL1B(*), NEL3B(*), IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp) :: IAEL1, IAEL3, IATP, IBEL1, IBEL3, IBTP
 
 IOCOC(:,:) = 0
 do IATP=1,NOCTPA

@@ -30,36 +30,33 @@ subroutine CHO_Prec_MCLR(CMO,nIsh,nAsh,LuAChoVec,LuChoInt)
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Cholesky, only: InfVec, nBas, nDimRS, nSym, NumCho
-use Data_structures, only: DSBA_Type, Allocate_DT
-use Data_structures, only: Deallocate_DT
-use Data_structures, only: SBA_Type
-use Data_structures, only: Allocate_DT, Deallocate_DT
+use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: One, Zero
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-real*8 CMO(*)
+implicit none
+real(kind=wp) :: CMO(*)
+integer(kind=iwp) :: nIsh(8), nAsh(8), LuAChoVec(8), LuChoInt(2)
 #include "warnings.h"
-character(len=13), parameter :: SECNAM = 'CHO_PREC_MCLR'
-integer ISTSQ(8)
-integer LuAChoVec(8), LuChoInt(2)
-integer nAsh(8), nIsh(8), nIshb(8), nIshe(8), nAshb(8), nAshe(8)
-real*8 tread(2), ttran(2), tform(2), tform2(2), tforma(2), tforma2(2), tMO(2)
-logical timings
-character*50 CFmt
-real*8, parameter :: xone = -One
-logical taskleft, add
-logical, parameter :: DoRead = .false.
-integer, external :: Cho_LK_MaxVecPerBatch
-real*8, allocatable :: iiab(:), tupq(:), Lrs(:,:), Integral(:)
-real*8, allocatable, target :: iirs(:), turs(:)
-real*8, pointer :: piirs(:,:), pturs(:,:)
-real*8, target :: Dum(1)
-type(DSBA_Type) CMOt, Tmp(1)
-type(SBA_Type) Lpq(1)
-real*8, allocatable, target :: Lii(:), Lij(:)
-real*8, pointer :: pLii(:,:), pLij(:,:)
+integer(kind=iwp) :: i, iAdr, iAdr2, iAdrtu, iE, ii, iLoc, ioff, ioff2, ioff3, ip1, ip2, ip3, ipiaib, ipInt, ipIntj, ipLtu, ipMO, &
+                     ipMO2, ipMOi, ipMOj, iptpuq, irc, IREDC, iS, ISTSQ(8), isum, isum2, iSwap, ISYM, iSyma, isymb, it, itt, itu, &
+                     iu, iuu, IVEC2, iVrs, j, jBatch, JNUM, JRED, JRED1, JRED2, jsym, JVEC, k, kMOs, ksym, ksym2, labatch, &
+                     Libatch, LREAD, lvec, LWORK, lWorke, maxpq, maxRS, maxtpq, MaxVecPerBatch, memneeded, MUSED, na2, nab, nab2, &
+                     naleft, nAshb(8), nAshe(8), nBatch, nileft, nip, nIshb(8), nIshe(8), nMat, nMOs, npq, nRS, ntota, ntotae, &
+                     ntoti, ntotie, ntp, ntue, NumCV, NUMV, nVec, nvirt, nvirt2, nVrs
+real(kind=wp) :: TCR1, TCR2, TCstart1, TCstart2, tform(2), tform2(2), tforma(2), tforma2(2), tMO(2), TOTCPU, TOTWALL, tread(2), &
+                 ttran(2), TWR1, TWR2, TWstart1, TWstart2
+real(kind=wp), target :: Dum(1)
+logical(kind=iwp) :: add, taskleft, timings
+character(len=50) :: CFmt
+type(DSBA_Type) :: CMOt, Tmp(1)
+type(SBA_Type) :: Lpq(1)
+real(kind=wp), allocatable :: iiab(:), Integral(:), Lrs(:,:), tupq(:)
+real(kind=wp), allocatable, target :: iirs(:), Lii(:), Lij(:), turs(:)
+real(kind=wp), pointer :: piirs(:,:), pLii(:,:), pLij(:,:), pturs(:,:)
+logical(kind=iwp), parameter :: DoRead = .false.
+integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 
 !                                                                      *
 !***********************************************************************
@@ -155,7 +152,7 @@ do jsym=1,nsym
   end if
 
   if (memneeded > lWork) then
-    write(u6,*) SECNAM//': Insufficient memory for I/T batch'
+    write(u6,*) 'CHO_PREC_MCLR: Insufficient memory for I/T batch'
     write(u6,*) 'LWORK= ',LWORK
     write(u6,*) 'min. mem. need= ',memneeded
     write(u6,*) 'maxRS+nip/ntp= ',maxRS+max(nip,ntp)
@@ -302,14 +299,14 @@ do jsym=1,nsym
       if (nVrs == 0) cycle  ! no vectors in that (jred,isym)
 
       if (nVrs < 0) then
-        write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+        write(u6,*) 'CHO_PREC_MCLR: Cho_X_nVecRS returned nVrs<0. STOP!'
         call Abend()
       end if
 
       call Cho_X_SetRed(irc,iLoc,JRED)
       ! set index arrays at iLoc
       if (irc /= 0) then
-        write(u6,*) SECNAM//' cho_X_setred non-zero return code. rc= ',irc
+        write(u6,*) 'CHO_PREC_MCLR: cho_X_setred non-zero return code. rc= ',irc
         call Abend()
       end if
 
@@ -327,7 +324,7 @@ do jsym=1,nsym
       call mma_MaxDBLE(LWORKe)
       nVec = min(LWORKE/(nRS+max(nip,ntp)),min(nVrs,MaxVecPerBatch))
       if (nVec < 1) then
-        write(u6,*) SECNAM//': Insufficient memory for J batch'
+        write(u6,*) 'CHO_PREC_MCLR: Insufficient memory for J batch'
         write(u6,*) 'That should not happen here'
         write(u6,*) 'Contact the developers'
         call Quit(_RC_MEMORY_ERROR_)
@@ -704,7 +701,7 @@ if (timings) then
 
   CFmt = '(2x,A)'
   write(u6,*)
-  write(u6,CFmt) 'Cholesky MCLR timing from '//SECNAM
+  write(u6,CFmt) 'Cholesky MCLR timing from CHO_PREC_MCLR'
   write(u6,CFmt) '----------------------------------------'
   write(u6,*)
   write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'

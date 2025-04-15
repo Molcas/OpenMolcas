@@ -12,11 +12,11 @@
 subroutine read_dmrg_parameter_for_mclr()
 
 use input_mclr, only: ERASSCF
-use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2, DoMCLR, nEle_RGLR, MS2_RGLR, nStates_RGLR
-use Definitions, only: u6
+use dmrginfo, only: DoDMRG, DoMCLR, LRRAS2, MS2_RGLR, nEle_RGLR, nStates_RGLR, RGRAS2
+use Definitions, only: iwp, u6
 
 implicit none
-integer ierr, i
+integer(kind=iwp) :: i, ierr
 
 open(unit=100,file='dmrg_for_mclr.parameters',status='OLD',action='READ',iostat=ierr)
 if (ierr /= 0) then

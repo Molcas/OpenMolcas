@@ -32,17 +32,17 @@ subroutine RInt_td(ekappa,mkappa,isym)
 
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: G1t
-use MCLR_Data, only: nDens, ipCM, ipMat, nA
-use input_mclr, only: Omega, nSym, nAsh, nBas, nIsh
+use MCLR_Data, only: G1t, ipCM, ipMat, nA, nDens
+use input_mclr, only: nAsh, nBas, nIsh, nSym, Omega
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 ekappa(nDens), mkappa(nDens)
-integer iSym
-real*8, allocatable :: Dens(:), wDKt(:), wKtD(:)
-integer lDens, iS, ip3, Inc, iB, jB, ip, iA, jA, ip2, jS, iini, ifin
+real(kind=wp) :: ekappa(nDens), mkappa(nDens)
+integer(kind=iwp) :: iSym
+integer(kind=iwp) :: iA, iB, ifin, iini, Inc, ip, ip2, ip3, iS, jA, jB, jS, lDens
+real(kind=wp), allocatable :: Dens(:), wDKt(:), wKtD(:)
 
 !-----------------------------------------------------------------------
 

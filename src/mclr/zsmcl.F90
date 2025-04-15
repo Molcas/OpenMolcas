@@ -12,7 +12,11 @@
 subroutine ZSMCL(NSM,NOCTP,NSSO,ISTSM,ISTCL)
 ! set symmetry and class arrays for strings
 
-integer ISTSM(*), ISTCL(*), NSSO(NOCTP,NSM)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: NSM, NOCTP, NSSO(NOCTP,NSM), ISTSM(*), ISTCL(*)
+integer(kind=iwp) :: ICL, IOFF, ISM
 
 IOFF = 1
 do ISM=1,NSM

@@ -52,16 +52,15 @@ subroutine ICISPC(MNRS10,MXRS30)
 ! alpha electrons and  NBEL + DELTAB beta electrons
 
 use Str_Info, only: IAZTP, IBZTP, NELEC
-use MCLR_Data, only: NICISP, NELCI, NAELCI, NBELCI, MNR1IC, MNR3IC, MXR1IC, MXR3IC, IACTI, IASTFI, IBSTFI
-use MCLR_Data, only: NORB1, NORB2
+use MCLR_Data, only: IACTI, IASTFI, IBSTFI, MNR1IC, MNR3IC, MXR1IC, MXR3IC, NAELCI, NBELCI, NELCI, NICISP, NORB1, NORB2
+use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
 implicit none
-integer MNRS10, MXRS30
-! local variables
-integer ICI
+integer(kind=iwp) :: MNRS10, MXRS30
+integer(kind=iwp) :: ICI
 
 ICI = 1
 MNR1IC(ICI) = MNRS10

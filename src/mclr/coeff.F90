@@ -13,14 +13,13 @@ subroutine coeff(ralpha,rbetaa,rbetas)
 
 use MCLR_Data, only: mS2
 use input_mclr, only: iSpin
-use Constants, only: Zero, One, Two, Four, Six, Eight, Half
+use Constants, only: Zero, One, Two, Six, Eight, Half
 use Definitions, only: wp, u6
 
 implicit none
-real*8 ralpha, rbetaa, rbetas
-real*8, parameter :: twentyfour = Four*Six
-real*8 Spin, RMS, rcg21, rcg11, rcg20, rcg10, rgamma
-real*8, external :: clebsch_gordan_mclr
+real(kind=wp) :: ralpha, rbetaa, rbetas
+real(kind=wp) :: rcg10, rcg11, rcg20, rcg21, rgamma, RMS, Spin
+real(kind=wp), external :: clebsch_gordan_mclr
 
 Spin = real(ispin-1,kind=wp)*Half
 rms = real(ms2,kind=wp)*Half
@@ -38,7 +37,7 @@ if ((rms == Zero) .or. (rms /= spin)) then
   call Quit_OnUserError()
 end if
 
-rcg21 = clebsch_gordan_mclr(Two,one,spin,rms-one,spin,rms)
+rcg21 = clebsch_gordan_mclr(Two,One,spin,rms-one,spin,rms)
 rcg11 = clebsch_gordan_mclr(One,One,spin,rms-one,spin,rms)
 rcg20 = clebsch_gordan_mclr(Two,Zero,spin,rms,spin,rms)
 rcg10 = clebsch_gordan_mclr(One,Zero,spin,rms,spin,rms)
@@ -50,7 +49,7 @@ rbetaS = Zero
 
 if (abs(Two-spin) <= spin) then
   rAlpha = ralpha-rMS*rgamma*rcg21/(rcg20*sqrt(Six))
-  rBetas = -rMS*rgamma*rcg21/(sqrt(Twentyfour)*rcg20)
+  rBetas = -rMS*rgamma*rcg21/(Two*sqrt(Six)*rcg20)
 end if
 
 end subroutine coeff

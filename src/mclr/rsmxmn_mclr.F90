@@ -9,19 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RSMXMN_MCLR(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MIN1,MAX1,MIN3,MAX3)
+subroutine RSMXMN_MCLR(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MIN_1,MAX_1,MIN_3,MAX_3)
 ! Construct accumulated MAX and MIN arrays for a RAS set of strings
 
-implicit real*8(A-H,O-Z)
-dimension MINEL(*), MAXEL(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: MAXEL(*), MINEL(*), NORB1, NORB2, NORB3, NEL, MIN_1, MAX_1, MIN_3, MAX_3
+integer(kind=iwp) :: IORB, MAX1A, MAX2A, MAX3A, MIN1A, MIN2A, MIN3A, NORB
 
 ! accumulated max and min in each of the three spaces
 ! (required max and min at final orbital in each space)
-MIN1A = MIN1
-MAX1A = MAX1
+MIN1A = MIN_1
+MAX1A = MAX_1
 
-MIN2A = NEL-MAX3
-MAX2A = NEL-MIN3
+MIN2A = NEL-MAX_3
+MAX2A = NEL-MIN_3
 
 MIN3A = NEL
 MAX3A = NEL

@@ -13,29 +13,24 @@ subroutine rhs_sa(Fock,SLag)
 
 use Index_Functions, only: iTri, nTri_Elem
 use ipPage, only: W
-use MCLR_Data, only: Int1
-use MCLR_Data, only: nConf1, ipCM, ipMat, nA, nDens, nNA
-use MCLR_Data, only: ISTATE
-use MCLR_Data, only: LuJob
-use input_mclr, only: ntAsh, PT2, nRoots, Debug, nSym, nConf, iRoot, iTOC, nAsh, nBas, nCSF, nIsh, nOrb
+use MCLR_Data, only: Int1, ipCM, ipMat, ISTATE, LuJob, nA, nConf1, nDens, nNA
+use input_mclr, only: Debug, iRoot, iTOC, nAsh, nBas, nConf, nCSF, nIsh, nOrb, nRoots, nSym, ntAsh, PT2
 use dmrginfo, only: DoDMRG, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 Fock(*)
-real*8 :: SLag(nRoots,nRoots)
-real*8 rdum(1)
-real*8, allocatable :: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
-integer nG1, nG2, iR, jDisk, ii, iB, jB, iDij, iRij, kB, lB, iDkl, iRkl, iIJKL, iRijkl, jj, iS, iiB, ijB, iIJ
-real*8 Fact, rEnergy, rCoreI, rCoreA
+real(kind=wp) :: Fock(*), SLag(nRoots,nRoots)
+integer(kind=iwp) :: iB, iDij, iDkl, ii, iiB, iIJ, iIJKL, ijB, iR, iRij, iRijkl, iRkl, iS, jB, jDisk, jj, kB, lB, nG1, nG2
+real(kind=wp) :: Fact, rCoreA, rCoreI, rdum(1), rEnergy
+real(kind=wp), allocatable :: F(:), G1q(:), G1r(:), G2q(:), G2r(:), T(:)
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 
-if (doDMRG) call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)  ! yma
+if (doDMRG) call dmrg_dim_change_mclr(RGras2,ntash,0)  ! yma
 
 ng1 = nTri_Elem(ntash)
 ng2 = nTri_Elem(ng1)
@@ -95,7 +90,7 @@ do iB=1,ntash
   end do
 end do
 
-if (doDMRG) call dmrg_dim_change_mclr(RGras2(1:8),nna,0)  ! yma
+if (doDMRG) call dmrg_dim_change_mclr(RGras2,nna,0)  ! yma
 
 call FockGen(One,G1r,G2r,T,Fock,1)
 !do iS=1,nsym
@@ -169,10 +164,9 @@ subroutine PT2_SLag()
   use MCLR_Data, only: ipCI, n1Dens, n2Dens
   use MCLR_Data, only: XISPSM
 
-  real*8, allocatable :: CIL(:), CIR(:)
-  integer :: i, j
-  integer :: nConfL, nConfR, jR, kR, ij, k, l, kl, ijkl, ij2, kl2
-  real*8 vSLag, Factor
+  integer(kind=iwp) :: i, ij, ij2, ijkl, j, jR, k, kl, kl2, kR, l, nConfL, nConfR
+  real(kind=wp) :: Factor, vSLag
+  real(kind=wp), allocatable :: CIL(:), CIR(:)
 
   ! At present, Molcas accepts equally-weighted MCSCF reference,
   ! so all SLag values are employed in the following computation.

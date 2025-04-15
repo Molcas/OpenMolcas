@@ -34,15 +34,15 @@ use iso_c_binding, only: c_f_pointer, c_loc
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: FnHlf2, FnHlf3, LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, LuTri4, LuTri5, NoFile
 use Constants, only: Zero, One
-use Definitions, only: wp, u6
+use Definitions, only: wp, iwp, u6, ItoB
 
 implicit none
-integer LBUF, n1, n2, n3, n4, MEMX, NBP, NBQ, NBR, NBS, iSP, iSQ, iSR, iSS, nAP, nAQ, nAR, nAS
-real*8 X1(n1), X2(n2), X3(n3), X4(n4), Buffer(MemX), CMP(nBP,nAP), CMQ(nBQ,nAQ), CMR(nBR,nAR), CMS(nBS,nAS)
-integer iAD13, iAD14, iAD23, iAD24, iAD34
-integer LIOTAB
-integer IDAHLF2(LIOTAB), IRLHLF2(LIOTAB), IDAHLF3(LIOTAB), IRLHLF3(LIOTAB)
-#include "SysDef.fh"
+integer(kind=iwp) :: LBUF, n1, n2, n3, n4, MEMX, NBP, NBQ, NBR, NBS, iSP, iSQ, iSR, iSS, nAP, nAQ, nAR, nAS, iAD13, iAD14, iAD23, &
+                     iAD24, iAD34, LIOTAB, IDAHLF2(LIOTAB), IRLHLF2(LIOTAB), IDAHLF3(LIOTAB), IRLHLF3(LIOTAB)
+real(kind=wp) :: X1(n1), X2(n2), X3(n3), X4(n4), Buffer(MemX), CMP(nBP,nAP), CMQ(nBQ,nAQ), CMR(nBR,nAR), CMS(nBS,nAS)
+integer(kind=iwp) :: I1, I2, IAD2, IAD3, IBUF, IBUF2, IBUF3, IMAX, INCORE, iOne, IOPT, IP2, IP3, IP4, IP5, IPB, IPQ, IPQST, &
+                     IPQUT2, IPQUT3, IPQUT4, IPX, IPY, IPZ, IRC, IRSST, IST, IST2, IST3, IVX, LPKREC, LPQ, MemXX, MEMXXX, NARS, &
+                     NBPQ, NBRS, NBUF, NBYTES, NOUT, NPQ, NQM, NR2, NR3
 
 call TRAMO_MCLR_INTERNAL(Buffer)
 
@@ -51,11 +51,9 @@ contains
 
 subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
-  real*8, target :: Buffer(*)
-  integer, pointer :: iBuffer(:)
-  integer iOne, MemXX, NBPQ, NBRS, NARS, IBUF2, IBUF3, IAD2, IAD3, IPQUT2, IPQUT3, IPQUT4, IMAX, INCORE, NBUF, I1, I2, NOUT, &
-          MEMXXX, IP2, IP3, IP4, IPB, IPQ, LPQ, NPQ, IRSST, IOPT, NP, NQM, NQ, IRC, IST2, I, LPKREC, NBYTES, IST3, IST, IPX, IPY, &
-          IPZ, IVX, NS, NR2, NR3, NR, IPQST, IP5, IBUF
+  real(kind=wp), target :: Buffer(*)
+  integer(kind=iwp), pointer :: iBuffer(:)
+  integer(kind=iwp) :: I, NP, NQ, NR, NS
 
   ione = 1
   if (nofile) ione = 0
@@ -248,7 +246,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
                 call Abend()
               end if
               call PKR8(0,iMax,NBYTES,Buffer(ip2+ist2-1),Buffer(ip2+ist2-1))
-              LPKREC = (NBYTES+itob-1)/itob
+              LPKREC = (NBYTES+ItoB-1)/ItoB
               ! Save the length of this record
               IRLHLF2(iBUF2) = LPKREC
               ! Save the address of this record
@@ -281,7 +279,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
                   call Abend()
                 end if
                 call PKR8(0,IMAX,NBYTES,Buffer(ip3+IST3-1),Buffer(ip3+IST3-1))
-                LPKREC = (NBYTES+itob-1)/itob
+                LPKREC = (NBYTES+ItoB-1)/ItoB
                 IRLHLF3(IBUF3) = LPKREC
                 IDAHLF3(IBUF3) = IAD3
                 call c_f_pointer(c_loc(Buffer(ip3+IST3-1)),iBuffer,[LPKREC])
@@ -335,7 +333,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
           call Abend()
         end if
         call PKR8(0,iMax,NBYTES,Buffer(ip2+IST-1),Buffer(ip2+IST-1))
-        LPKREC = (NBYTES+itob-1)/ItoB
+        LPKREC = (NBYTES+ItoB-1)/ItoB
         IDAHLF2(IBUF2) = IAD2
         IRLHLF2(IBUF2) = LPKREC
         call c_f_pointer(c_loc(Buffer(ip2+IST-1)),iBuffer,[LPKREC])
@@ -353,7 +351,7 @@ subroutine TRAMO_MCLR_INTERNAL(Buffer)
             call Abend()
           end if
           call PKR8(0,iMax,NBYTES,Buffer(ip3+IST-1),Buffer(ip3+IST-1))
-          LPKREC = (NBYTES+itob-1)/itob
+          LPKREC = (NBYTES+ItoB-1)/ItoB
           IDAHLF3(IBUF3) = IAD3
           IRLHLF3(IBUF3) = LPKREC
           call c_f_pointer(c_loc(Buffer(ip3+IST-1)),iBuffer,[LPKREC])

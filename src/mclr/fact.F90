@@ -14,10 +14,12 @@
 function Fact(R)
 
 use Constants, only: One
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
-real*8 R, Fact
-integer n, i, j
+implicit none
+real(kind=wp) :: Fact
+real(kind=wp) :: R
+integer(kind=iwp) :: i, j, n
 
 n = nint(R)
 i = 1

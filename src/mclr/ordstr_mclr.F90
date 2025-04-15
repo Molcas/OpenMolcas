@@ -12,13 +12,13 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISIGN)
+subroutine ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISGN)
 ! ORDER A STRING OF INTEGERS TO ASCENDING ORDER
 !
-! IINST : INPUT STRING IS IINST
+! IINST  : INPUT STRING IS IINST
 ! IOUTST : OUTPUT STRING IS IOUTST
 ! NELMNT : NUMBER OF INTEGERS IN STRING
-! ISIGN :  SIGN OF PERMUTATION : + 1 : EVEN PERMUTATIONN
+! ISGN   : SIGN OF PERMUTATION : + 1 : EVEN PERMUTATIONN
 !                                - 1 : ODD  PERMUTATION
 !
 ! THIS CODE CONTAINS THE OLD ORDER CODE OF JOE GOLAB
@@ -27,16 +27,15 @@ subroutine ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISIGN)
 ! IMPLEMENTED MORE TRANSPARENT BUBBLE SORTING INSTEAD
 !               JR NOV 2006
 
-implicit none
-integer NELMNT
-integer IINST(NELMNT), IOUTST(NELMNT)
-integer ISIGN
+use Definitions, only: iwp
 
-integer iTemp, iPass, I
+implicit none
+integer(kind=iwp) :: NELMNT, IINST(NELMNT), IOUTST(NELMNT), ISGN
+integer(kind=iwp) :: I, iPass, iTemp
 
 if (NELMNT == 0) return
 
-ISIGN = 1
+ISGN = 1
 iTEMP = 0
 
 iPass = 1
@@ -47,7 +46,7 @@ do while (iPass /= 0)
       iTEMP = IINST(I)
       IINST(I) = IINST(I+1)
       IINST(I+1) = iTEMP
-      ISIGN = -1*ISIGN
+      ISGN = -1*ISGN
       iPass = 1
     end if
   end do
@@ -55,7 +54,7 @@ end do
 
 IOUTST(:) = IINST(:)
 
-!ISIGN = 1
+!ISGN = 1
 
 !JOE = 1
 !I = JOE
@@ -65,7 +64,7 @@ IOUTST(:) = IINST(:)
 !    JOE = I+1
 !    do
 !      iSWAP = IOUTST(I)
-!      ISIGN = -ISIGN
+!      ISGN = -ISGN
 !      IOUTST(I) = IOUTST(I+1)
 !      IOUTST(I+1) = iSWAP
 !      if (I == 1) exit
@@ -81,10 +80,10 @@ IOUTST(:) = IINST(:)
 ! END ORDER
 !
 !#ifdef _DEBUGPRINT_
-!write(u6,*) ' INPUT STRING ORDERED STRING ISIGN ',NELMNT
+!write(u6,*) ' INPUT STRING ORDERED STRING ISGN ',NELMNT
 !call IWRTMA(IINST,1,NELMNT,1,NELMNT)
 !call IWRTMA(IOUTST,1,NELMNT,1,NELMNT)
-!write(u6,*) ' ISIGN : ',ISIGN
+!write(u6,*) ' ISGN : ',ISGN
 !#endif
 
 end subroutine ORDSTR_MCLR

@@ -11,7 +11,7 @@
 ! Copyright (C) 1996, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine Precibb_td(ib,is,js,nd,rout,nba,Temp1,Scr,Temp2,fockii,fockai,focki,focka,sign)
+subroutine Precibb_td(ib,is,js,nd,rout,nba,Temp1,Scr,Temp2,fockii,fockai,focki,focka,Sgn)
 !***********************************************************************
 !                                       [2]
 ! Calculates the diagonal submatrix of E    that couple
@@ -34,21 +34,15 @@ subroutine Precibb_td(ib,is,js,nd,rout,nba,Temp1,Scr,Temp2,fockii,fockai,focki,f
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
-use input_mclr, only: nAsh, nIsh, nBas
+use input_mclr, only: nAsh, nBas, nIsh
 use Constants, only: Four, Twelve
+use Definitions, only: wp, iwp
 
 implicit none
-integer ib, is, js, nd
-real*8 rout(*)
-integer nba
-real*8 Temp1(nBa,nBa)
-real*8 Temp2(nBa,nBa), Scr(*)
-real*8 fockii, fockai
-real*8 Focki(nBa,nBa), Focka(nBa,nBa)
-real*8 sign
-integer jVert, ip, kB
-real*8 ra
-integer i
+integer(kind=iwp) :: ib, is, js, nd, nba
+real(kind=wp) :: rout(*), Temp1(nBa,nBa), Scr(*), Temp2(nBa,nBa), fockii, fockai, Focki(nBa,nBa), Focka(nBa,nBa), Sgn
+integer(kind=iwp) :: i, ip, jVert, kB
+real(kind=wp) :: ra
 
 !                                                                      *
 !***********************************************************************
@@ -57,16 +51,15 @@ jVert = nBas(js)-nAsh(js)-nIsh(js)
 if (jvert == 0) return
 
 ip = nTri_Elem(nd)-nTri_Elem(jVert)+1
-ra = Four*sign*(Fockii+Fockai)
+ra = Four*Sgn*(Fockii+Fockai)
 call COUL(jS,jS,iS,iS,iB,iB,Temp2,Scr)
-Temp1(:,:) = -sign*Four*Temp2(:,:)
+Temp1(:,:) = -Sgn*Four*Temp2(:,:)
 call EXCH(js,is,js,is,ib,ib,Temp2,Scr)
-Temp1(:,:) = Temp1(:,:)+sign*Twelve*Temp2(:,:)
+Temp1(:,:) = Temp1(:,:)+Sgn*Twelve*Temp2(:,:)
 i = ip
 do kB=nIsh(jS)+nAsh(jS)+1,nBas(jS)
   rOut(i) = rout(i)-ra
-  rOut(i:i+nBas(jS)-kB) = rOut(i:i+nBas(jS)-kB)+ &
-                          Temp1(kB,kB:nBas(jS))+sign*Four*Focki(kB,kB:nBas(jS))+sign*Four*Focka(kB,kB:nBas(jS))
+  rOut(i:i+nBas(jS)-kB) = rOut(i:i+nBas(jS)-kB)+Temp1(kB,kB:nBas(jS))+Sgn*Four*(Focki(kB,kB:nBas(jS))+Focka(kB,kB:nBas(jS)))
   i = i+nBas(jS)-kB+1
 end do
 !                                                                      *

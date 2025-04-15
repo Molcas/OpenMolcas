@@ -30,21 +30,14 @@ subroutine CNFORD(ICTSDT,ICONF,IREFSM,NORB,IPRODT,NCNFTP,NEL,IGENSG,ISGNA,ISGNB,
 ! IGENSG /= 0 assumes general signs of strings given in ISGNA,ISGNB
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer, intent(out) :: ICTSDT(*)
-integer, intent(inout) :: ICONF(*)
-integer :: iRefSM, nOrb
-integer, intent(in) :: IPRODT(*)
-integer, intent(in) :: NCNFTP(*)
-integer :: NEL, IGENSG
-integer, intent(in) :: ISGNA(*), ISGNB(*)
-integer :: IAGRP, IBGRP
-integer, intent(in) :: IOOS(*)
-integer :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NAEL, NBEL, MINOP, MAXOP
-real*8 :: PSSIGN
+integer(kind=iwp) :: ICTSDT(*), ICONF(*), iRefSM, nOrb, IPRODT(*), NCNFTP(*), NEL, IGENSG, ISGNA(*), ISGNB(*), IAGRP, IBGRP, &
+                     IOOS(*), NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NAEL, NBEL, MINOP, MAXOP
+real(kind=wp) :: PSSIGN
 ! Scratch
-integer, allocatable :: KL1(:), KL2(:), KL3(:)
+integer(kind=iwp), allocatable :: KL1(:), KL2(:), KL3(:)
 
 ! NOTE : NCNFTP IS COLUMN FOR SYMMETRY GIVEN, NOT COMPLETE MATRIX.
 ! Dim of IWORK : MAX(3*NORB,(MXDT+2)*NEL),

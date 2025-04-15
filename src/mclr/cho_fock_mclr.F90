@@ -24,21 +24,23 @@ use Cholesky, only: InfVec, nBas, nBasSh, nDimRS, nShell, nSym, NumCho
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: u6
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+real(kind=wp) :: DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), W_CMO(*)
+type(DSBA_type) :: CVa
+integer(kind=iwp) :: nIsh(8), nAsh(8), LuAChoVec(8)
 #include "warnings.h"
-character(len=13), parameter :: SECNAM = 'CHO_FOCK_MCLR'
-integer ipLpq(8,3)
-integer LuAChoVec(8)
-integer nAsh(8), nIsh(8)
-type(DSBA_type) CVa, JA(1), KA, Fka, CMO, Scr
-real*8 DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), W_CMO(*)
-real*8, parameter :: xone = -One, FactCI = -Two, FactXI = Half
-integer, external :: Cho_LK_MaxVecPerBatch
-integer, allocatable :: kOffSh(:,:)
-real*8, allocatable :: Fab(:), Lrs(:), LF(:)
-logical add
+integer(kind=iwp) :: i, ia, iabg, iAdr, iag, iaSh, ib, iBatch, ibg, ibSh, iLoc, ioff, ioffa, ioffb, ipLpq(8,3), ipLtvb, ipLvb, &
+                     ipLvtw, ipLvw, ipLwb, ipLxy, ipVJ, irc, IREDC, is, iSym, iSyma, iSymb, iSymv, IVEC2, iVrs, JNUM, JRED, JRED1, &
+                     JRED2, jS, jSym, JVC, JVEC, k, l, lChoa, LREAD, lvec, LWORK, MaxVecPerBatch, mTvec, MUSED, NAv, NAw, nBatch, &
+                     nMat, nRS, NumCV, NUMV, nVec, nVrs
+logical(kind=iwp) :: add
+type(DSBA_type) :: JA(1), KA, Fka, CMO, Scr
+integer(kind=iwp), allocatable :: kOffSh(:,:)
+real(kind=wp), allocatable :: Fab(:), LF(:), Lrs(:)
+real(kind=wp), parameter :: FactCI = -Two, FactXI = Half
+integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 
 call Allocate_DT(JA(1),nBas,nBas,nSym,aCase='TRI',Ref=W_JA)
 call Allocate_DT(KA,nBas,nBas,nSym,Ref=W_KA)
@@ -88,13 +90,13 @@ do jSym=1,nSym
     call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
     if (nVrs == 0) cycle
     if (nVrs < 0) then
-      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!',nVrs
+      write(u6,*) 'CHO_FOCK_MCLR: Cho_X_nVecRS returned nVrs<0. STOP!',nVrs
       call Abend()
     end if
     call Cho_X_SetRed(irc,iLoc,JRED)
     ! set index arrays at iLoc
     if (irc /= 0) then
-      write(u6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+      write(u6,*) 'CHO_FOCK_MCLR: cho_X_setred non-zero return code. rc= ',irc
       call Abend()
     end if
     IREDC = JRED
@@ -108,7 +110,7 @@ do jSym=1,nSym
     call mma_MaxDBLE(LWORK)
     nVec = min(LWORK/(nRS+mTvec+1),min(nVrs,MaxVecPerBatch))
     if (nVec < 1) then
-      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) 'CHO_FOCK_MCLR: Insufficient memory for batch'
       write(u6,*) 'LWORK= ',LWORK
       write(u6,*) 'min. mem. need= ',nRS+mTvec+1
       write(u6,*) 'nRS= ',nRS

@@ -11,7 +11,7 @@
 ! Copyright (C) 2014, Mickael G. Delcey                                *
 !***********************************************************************
 
-subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign,A_J,nScr,iAdr)
+subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,Sgn,A_J,nScr,iAdr)
 !***********************************************************************
 !                                                                      *
 !     This routine replaces precaii, precabi and precabb               *
@@ -26,25 +26,17 @@ subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,sign
 !***********************************************************************
 
 use Index_Functions, only: iTri, nTri_Elem
-use MCLR_Data, only: G1t, G2t
-use MCLR_Data, only: nA
-use input_mclr, only: nSym, nAsh, nIsh, nBas, nOrb, LuChoInt
+use MCLR_Data, only: G1t, G2t, nA
+use input_mclr, only: LuChoInt, nAsh, nBas, nIsh, nOrb, nSym
 use Constants, only: One, Two, Four, Eight
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-integer iB, is, js, nd
-real*8 rout(nTri_Elem(nd))
-integer nbaj
-real*8 fockii, fockai, fockti
-real*8 FockA(nBaj,nBaj), Focki(nbaj,nbaj)
-real*8 Sign
-integer nScr
-real*8 A_J(nScr)
-integer nTri, nO, iBB, jVert, itAA, iAdr, kSym, iV, jCC, iU, jDD, ijk, lSym, nL, ii, nI, ip, jA, jB
-real*8 Factor, Factor2, rDens2, rDensaii, rDensabi, rDensabb, rf, rDens, rDensaiil, rDensaiiu, rDensabil, rDensabiu, rFock, &
-       rDens1, Fact
-integer i
+integer(kind=iwp) :: iB, is, js, nd, nbaj, nScr, iAdr
+real(kind=wp) :: rout(nTri_Elem(nd)), fockii, fockai, fockti, Focki(nbaj,nbaj), FockA(nBaj,nBaj), Sgn, A_J(nScr)
+integer(kind=iwp) :: i, iBB, ii, ijk, ip, itAA, iU, iV, jA, jB, jCC, jDD, jVert, kSym, lSym, nI, nL, nO, nTri
+real(kind=wp) :: Fact, Factor, Factor2, rDens, rDens1, rDens2, rDensabb, rDensabi, rDensabil, rDensabiu, rDensaii, rDensaiil, &
+                 rDensaiiu, rf, rFock
 
 !                                                                      *
 !***********************************************************************
@@ -80,9 +72,9 @@ do ksym=1,nsym
 
           if (lsym == js) then
             if (iJK == 1) then
-              rDens2 = Two*sign*G2t(iTri(iTri(jCC,jDD),nTri_Elem(iBB)))
+              rDens2 = Two*Sgn*G2t(iTri(iTri(jCC,jDD),nTri_Elem(iBB)))
             else
-              rDens2 = Two*sign*G2t(iTri(iTri(iBB,jDD),iTri(jCC,iBB)))
+              rDens2 = Two*Sgn*G2t(iTri(iTri(iBB,jDD),iTri(jCC,iBB)))
             end if
 
             rDensaii = factor*rDens2
@@ -97,19 +89,19 @@ do ksym=1,nsym
               rDens1 = -Two*G1t(iTri(jCC,iBB))
               if (jCC == iBB) rdensaii = rdensaii-Two*factor
               rDensaiil = rDensaiil-factor*rDens1
-              rDensabil = rDensabil+sign*rDens1
+              rDensabil = rDensabil+Sgn*rDens1
             else if ((iBB == jCC) .and. (iJK == 2)) then
               rDens1 = -Two*G1t(iTri(jDD,iBB))
               rDensaiiu = rDensaiiu-factor*rDens1
-              rDensabiu = rDensabiu+sign*rDens1
+              rDensabiu = rDensabiu+Sgn*rDens1
             end if
             if ((iBB == jCC) .and. (iJK == 2)) then
-              rDensaiil = rDensaiil-factor*14.0_wp*sign*G1t(iTri(jDD,iBB))
-              rDensabil = rDensabil+Eight*sign*G1t(iTri(jDD,iBB))
-              if (jDD == iBB) rdensaii = rdensaii+factor*14.0_wp*sign
+              rDensaiil = rDensaiil-factor*14.0_wp*Sgn*G1t(iTri(jDD,iBB))
+              rDensabil = rDensabil+Eight*Sgn*G1t(iTri(jDD,iBB))
+              if (jDD == iBB) rdensaii = rdensaii+factor*14.0_wp*Sgn
             else if ((iBB == jDD) .and. (iJK == 2)) then
-              rDensaiiu = rDensaiiu-factor*14.0_wp*sign*G1t(iTri(jCC,iBB))
-              rDensabiu = rDensabiu+Eight*sign*G1t(iTri(jCC,iBB))
+              rDensaiiu = rDensaiiu-factor*14.0_wp*Sgn*G1t(iTri(jCC,iBB))
+              rDensabiu = rDensabiu+Eight*Sgn*G1t(iTri(jCC,iBB))
             end if
             rDensaiiu = rDensaiiu+rDensaii
             rDensaii = rDensaiil+rDensaii
@@ -159,15 +151,15 @@ end do
 !                                                                      *
 ! Fock matrix contribution
 
-rFock = sign*Two*Fockii+sign*Two*Fockai-sign*Fockti
-rdens = sign*Two*G1t(nTri_Elem(ibb))
+rFock = Sgn*(Two*(Fockii+Fockai)-Fockti)
+rdens = Sgn*Two*G1t(nTri_Elem(ibb))
 
 ! aii
 
 do jA=1,nIsh(jS)
   do jB=1,jA
     i = nTri-iTri(nd-ja+1,nd-jb+1)+1
-    rout(i) = rout(i)-sign*Four*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
+    rout(i) = rout(i)-Sgn*Four*(Focka(jA,jB)+Focki(jA,jB))+rdens*Focki(ja,jb)
   end do
   rout(i) = rout(i)+Two*rfock
 
@@ -175,13 +167,13 @@ do jA=1,nIsh(jS)
 
   ip = nTri-iTri(nd-jA+1,jVert)
   Fact = (Two-Two*G1t(itAA))
-  rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+Sign*(Fact*FockI(nO+1:nO+jVert,jA)+Two*FockA(nO+1:nO+jVert,jA))
+  rOut(ip+1:ip+jVert) = rOut(ip+1:ip+jVert)+Sgn*(Fact*FockI(nO+1:nO+jVert,jA)+Two*FockA(nO+1:nO+jVert,jA))
 end do
 
 ! abb
 
 ip = nTri-nTri_Elem(jVert)+1
-rF = sign*Fockti
+rF = Sgn*Fockti
 do iI=nAsh(js)+nIsh(js)+1,nBas(js)
   rOut(ip) = rout(ip)-Two*rF+rDens*FockI(iI,ii)
   ip = ip+1

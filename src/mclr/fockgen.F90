@@ -27,22 +27,21 @@ subroutine FockGen(d_0,rDens1,rdens2,Fock,FockOut,idSym)
 use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use MCLR_Data, only: CMO, FIMO
-use MCLR_Data, only: nDens, nNA, ipCM, ipMat, nA
-use input_mclr, only: nSym, nAsh, nIsh, nBas, NewCho, LuAChoVec, nOrb
+use MCLR_Data, only: CMO, FIMO, ipCM, ipMat, nA, nDens, nNA
+use input_mclr, only: LuAChoVec, nAsh, nBas, NewCho, nIsh, nOrb, nSym
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 d_0
-integer idSym
-real*8 Fock(nDens), FockOut(*), rDens2(*), rDens1(nna,nna)
-real*8, allocatable :: MO(:), Scr(:), G2x(:), Scr1(:,:)
+real(kind=wp) :: d_0, rDens1(nna,nna), rDens2(*), Fock(nDens), FockOut(*)
+integer(kind=iwp) :: idSym
+integer(kind=iwp) :: iA, iAA, iAsh, iB, iij, ijS, ikl, iOff, iOff2, iOff3, ip1, ip2, ipF, ipGx, ipM, ipS, iS, iSym, jA, jAA, jAsh, &
+                     jS, jSym, kA, kAsh, kS, lAsh, lS, n1, n2, nAG2, nG2
+real(kind=wp) :: rd
 type(DSBA_type) :: CVa
-integer n1, iS, n2, ipS, kS, jS, iA, iAA, jA, jAA, ipF, ipM, kA, nG2, iSym, nAG2, jSym, ipGx, ijS, lS, iAsh, jAsh, kAsh, lAsh, &
-        iij, iOff, iOff2, iB, iOff3, ip1, ip2, ikl
-real*8 rd
+real(kind=wp), allocatable :: G2x(:), MO(:), Scr(:), Scr1(:,:)
 
 !                                                                      *
 !***********************************************************************
@@ -52,7 +51,7 @@ Fock(:) = Zero
 n1 = max(0,maxval(nBas(1:nSym)))
 n2 = n1**2
 
-if (doDMRG) call dmrg_spc_change_mclr(RGras2(1:8),nash)  ! yma
+if (doDMRG) nash(:) = RGras2(:)  ! yma
 
 !                                                                      *
 !***********************************************************************
@@ -231,7 +230,7 @@ end do
 FockOut(1:nDens) = Two*FockOut(1:nDens)
 if (idSym == 1) call AddGrad2(FockOut,d_0)
 
-if (doDMRG) call dmrg_spc_change_mclr(LRras2(1:8),nash)  ! yma
+if (doDMRG) nash(:) = LRras2(:)  ! yma
 !                                                                      *
 !***********************************************************************
 !                                                                      *

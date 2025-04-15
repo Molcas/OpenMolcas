@@ -12,17 +12,15 @@
 subroutine DMinvCI(ipSigma,rout,rC_HE_C,idsym)
 
 use ipPage, only: ipin, ipout, opout, W
-use MCLR_Data, only: NewPre
-use MCLR_Data, only: ngp
-use MCLR_Data, only: nConf1, ipCI
-use MCLR_Data, only: ipDia
+use MCLR_Data, only: ipCI, ipDia, nConf1, NewPre, ngp
 use Constants, only: Zero, One, Half
+use Definitions, only: wp, iwp
 
 implicit none
-integer ipSIgma, idSym
-real*8 rout(*), rC_HE_C
-real*8 rCoeff
-real*8, external :: DDot_
+integer(kind=iwp) :: ipSIgma, idSym
+real(kind=wp) :: rout(*), rC_HE_C
+real(kind=wp) :: rCoeff
+real(kind=wp), external :: DDot_
 
 !                                  -1           -1
 !                             (H -E) |0><0|(H -E) |Sigma>

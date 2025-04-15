@@ -11,15 +11,16 @@
 
 subroutine Ex_spin(rD,Fock,Temp1,ntemp,Temp2)
 
+use MCLR_Data, only: ipCM, nDens, nNA
+use input_mclr, only: nAsh, nBas, nIsh, nSym
 use Constants, only: Zero, Half
-use MCLR_Data, only: nDens, ipCM, nNA
-use input_mclr, only: nSym, nAsh, nIsh, nBas
+use Definitions, only: wp, iwp
 
 implicit none
-integer nTemp
-real*8 rD(*), Fock(*), Temp1(nTemp), Temp2(nDens)
-integer jS, kS, llB, lB, jjB, jB
-real*8 rDens
+integer(kind=iwp) :: nTemp
+real(kind=wp) :: rD(*), Fock(*), Temp1(nTemp), Temp2(nDens)
+integer(kind=iwp) :: jB, jjB, jS, kS, lB, llB
+real(kind=wp) :: rDens
 
 Temp2(:) = Zero
 do jS=1,nSym

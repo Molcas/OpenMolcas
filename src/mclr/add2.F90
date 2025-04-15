@@ -16,20 +16,19 @@ subroutine Add2(rMat,fact)
 !   Adds the contribution from the gradient to
 !    [2]
 !   E   Kappa. This is done to insure us about
-!   a beautifull convergence of the PCG,
+!   a beautiful convergence of the PCG,
 !   which is just the case if E is symmetric.
 
-use MCLR_Data, only: SFock
-use MCLR_data, only: ipCM, ipMat
-use input_mclr, only: nSym, nBas, nOrb
+use MCLR_data, only: ipCM, ipMat, SFock
+use input_mclr, only: nBas, nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Four
+use Definitions, only: wp, iwp
 
 implicit none
-real*8 rMat(*)
-real*8 fact
-integer iS
-real*8, allocatable :: Temp(:)
+real(kind=wp) :: rMat(*), fact
+integer(kind=iwp) :: iS
+real(kind=wp), allocatable :: Temp(:)
 
 do iS=1,nSym
   if (nOrb(is)*nOrb(is) == 0) cycle

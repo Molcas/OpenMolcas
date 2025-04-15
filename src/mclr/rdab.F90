@@ -12,16 +12,15 @@
 subroutine RdAB()
 
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: CMO
-use MCLR_Data, only: ChDisp, lDisp
-use input_mclr, only: nSym, nIsh, nBas, nOrb, Perturbation, McKinley, iMethod, nIsh, ntITri, ntISqr, ntBSqr, nDisp, PT2, ESCF, &
-                      nDel, ntPert, ntIsh
+use MCLR_Data, only: ChDisp, CMO, lDisp
+use input_mclr, only: ESCF, iMethod, McKinley, nBas, nDel, nDisp, nIsh, nIsh, nOrb, nSym, ntBSqr, ntIsh, ntISqr, ntITri, ntPert, &
+                      Perturbation, PT2
 use stdalloc, only: mma_allocate
-use Definitions, only: u6
+use Definitions, only: iwp, u6
 
 implicit none
-character(len=8) Label
-integer iRC, iOpt, Length, iSym, iDum
+integer(kind=iwp) :: iDum, iOpt, iRC, iSym, Length
+character(len=8) :: Label
 
 Perturbation = 'NONE'
 

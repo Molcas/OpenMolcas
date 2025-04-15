@@ -24,20 +24,16 @@ subroutine CNHCNM(HSUB,ISYM,ILCNF,NLCNF,IRCNF,NRCNF,NLCSF,SCR,ICONF,NEL,IREFSM,N
 
 use iso_c_binding, only: c_f_pointer, c_loc
 use Index_Functions, only: nTri_Elem
-use MCLR_Data, only: NTYP, NCPCNT
+use MCLR_Data, only: NCPCNT, NTYP
+use Definitions, only: wp, iwp
 
 implicit none
-integer ISYM, NLCNF, NRCNF, NLCSF, NEL, IREFSM, NAEL, NBEL, NACOB, INTSPC, ICOMBI
-real*8 PSSIGN
-! Specific input
-integer ILCNF(*), IRCNF(*)
-! General input
-integer ICONF(*), IPRODT(*)
-real*8 DTOC(*)
-! Output
-real*8 HSUB(*)
-! Scratch
-real*8 SCR(*)
+real(kind=wp) :: HSUB(*), SCR(*), DTOC(*), PSSIGN
+integer(kind=iwp) :: ISYM, ILCNF(*), NLCNF, IRCNF(*), NRCNF, NLCSF, ICONF(*), NEL, IREFSM, NAEL, NBEL, NACOB, IPRODT(*), INTSPC, &
+                     ICOMBI
+integer(kind=iwp) :: IILACT, IILB, IIRACT, IIRB, IIRMAX, ILRI, ILRO, ILTYP, IRTYP, KLCONF, KLFREE, KLPHPS, KRCONF, MDIF0, MDIF1, &
+                     MDIF2, MXCSFC, MXR, NCSFL, NCSFR, NDIF0, NDIF1, NDIF2
+
 ! Length of scratch: 2 * NEL + MXCSFC                   (used in CNHCNM)
 !                  + 6*MXDTFC+MXDTFC**2+MXDTFC+MXCSFC   (used in CNHCN2)
 !                  + MAX(MXDTFC*NEL+2*NEL,4*NORB+2*NEL) (used in DIHDJ,CNFSTR)
@@ -51,10 +47,9 @@ contains
 
 subroutine CNHCNM_INTERNAL(SCR)
 
-  real*8, target :: SCR(*)
-  integer, pointer :: iSCRl(:), iSCRr(:)
-  integer NDIF0, NDIF1, NDIF2, MXCSFC, KLFREE, KLCONF, KRCONF, KLPHPS, IILB, ICNL, NCSFL, IIRB, MXR, ICNR, NCSFR, MDIF0, MDIF1, &
-          MDIF2, IIL, IIRMAX, IIR, IIRACT, IILACT, ILRO, ILRI, ILTYP, IRTYP
+  real(kind=wp), target :: SCR(*)
+  integer(kind=iwp), pointer :: iSCRl(:), iSCRr(:)
+  integer(kind=iwp) :: ICNL, ICNR, IIL, IIR
 
   NDIF0 = 0
   NDIF1 = 0

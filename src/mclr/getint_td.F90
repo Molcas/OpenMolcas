@@ -13,8 +13,8 @@
 subroutine GETINT_td(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IKSM,JLSM,ICTL,ieaw)
 ! Outer routine for accessing integral block
 
-use MCLR_Data, only: KINT2, KINT2a
-use MCLR_Data, only: Square
+use MCLR_Data, only: KINT2, KINT2a, Square
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: NOBPTS
@@ -22,11 +22,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-real*8 XINT(*)
-integer ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM, ICTL, ieaw
-integer iXChng, iCoul
+real(kind=wp) :: XINT(*)
+integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM, ICTL, ieaw
+integer(kind=iwp) :: iXChng, iCoul
 #ifdef _DEBUGPRINT_
-integer nI, nK, nIK, nJ, nL, nJL, nIJ, nKL
+integer(kind=iwp) :: nI, nK, nIK, nJ, nL, nJL, nIJ, nKL
 #endif
 
 !write(u6,*) 'square in getint_td',square

@@ -18,28 +18,20 @@
 subroutine CalcOMat(CSFOK,LOK,FMO1t,FMO2t,nTri)
 
 use ipPage, only: ipget, W
-use MCLR_Data, only: nConf1, nAcPr2, ipCI, ipMat, nDens
-use MCLR_Data, only: XISPSM
+use MCLR_Data, only: ipCI, ipMat, nAcPr2, nConf1, nDens, XISPSM
 use MCLR_procedures, only: CISigma_sa
-use input_mclr, only: nRoots, State_Sym, nSym, nBas
+use input_mclr, only: nBas, nRoots, nSym, State_Sym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
-! Output
-real*8, dimension(nConf1,nRoots) :: CSFOK
-real*8, dimension(nRoots,nRoots) :: LOK
-! Input
-integer nTri
-real*8, dimension(nTri,nRoots) :: FMO1t
-real*8, dimension(nacpr2,nRoots) :: FMO2t
-! A little help from
-real*8, dimension(1) :: rdum
-real*8, dimension(:), allocatable :: FMO1
-integer iOff, iS, jS, iB, jB, ji, ij, I
-integer iptmp, nConf3, L
-real*8, external :: DDot_
+integer(kind=iwp) :: nTri
+real(kind=wp) :: CSFOK(nConf1,nRoots), LOK(nRoots,nRoots), FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots)
+integer(kind=iwp) :: I, iB, ij, iOff, iptmp, iS, jB, ji, jS, L, nConf3
+real(kind=wp) :: rdum(1)
+real(kind=wp), allocatable :: FMO1(:)
+real(kind=wp), external :: DDot_
 
 nConf3 = nint(max(xispsm(State_SYM,1),xispsm(State_SYM,1)))
 iptmp = ipGet(nconf3*nRoots)

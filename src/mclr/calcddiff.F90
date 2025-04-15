@@ -18,12 +18,12 @@
 subroutine CalcDdiff(Ddiff,GDMat,M,K,nnA,nRoots)
 
 use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
 
 implicit none
-integer nnA, nRoots, M, K
-real*8, dimension(nTri_Elem(nRoots),nnA,nnA) :: GDMat
-real*8, dimension(nnA,nnA) :: Ddiff
-integer it, iMM, iKK
+integer(kind=iwp) :: M, K, nnA, nRoots
+real(kind=wp) :: Ddiff(nnA,nnA), GDMat(nTri_Elem(nRoots),nnA,nnA)
+integer(kind=iwp) :: iKK, iMM, it
 
 iMM = nTri_Elem(M)
 iKK = nTri_Elem(K)
