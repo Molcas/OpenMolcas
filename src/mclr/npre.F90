@@ -17,7 +17,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nPre
-integer(kind=iwp) :: kS
+integer(kind=iwp), intent(in) :: kS
 integer(kind=iwp) :: iOut, iS, jS, nRest
 
 iOut = 0

@@ -41,7 +41,7 @@ contains
 ! Initiate the whole lot.
 subroutine ipopen(page)
 
-  logical(kind=iwp) :: page
+  logical(kind=iwp), intent(in) :: page
   integer(kind=iwp), external :: IsFreeUnit
 
   ! Ask how much memory is available
@@ -81,7 +81,7 @@ end subroutine ipopen
 ! Object: release all vectors above and including the vector indexed ia.
 subroutine ipclose(ia)
 
-  integer(kind=iwp) :: ia
+  integer(kind=iwp), intent(in) :: ia
   integer(kind=iwp) :: ii
   real(kind=wp) :: rdum(1)
 
@@ -140,7 +140,7 @@ end subroutine ipterm
 function ipget(nn)
 
   integer(kind=iwp) :: ipget
-  integer(kind=iwp) :: nn
+  integer(kind=iwp), intent(in) :: nn
   character(len=4) :: Label
 
   ! Take the next memory slot.
@@ -194,7 +194,7 @@ end function ipget
 !         make it available in memory as W(ii)%A
 subroutine ipin1(ii,nn)
 
-  integer(kind=iwp) :: ii, nn
+  integer(kind=iwp), intent(in) :: ii, nn
   integer(kind=iwp) :: idisk, nnn
   real(kind=wp), allocatable :: Tmp(:)
 
@@ -253,7 +253,7 @@ end subroutine ipin1
 !         make it available in memory as W(ii)%A
 subroutine ipin(ii)
 
-  integer(kind=iwp) :: ii
+  integer(kind=iwp), intent(in) :: ii
   integer(kind=iwp) :: nn
 
   nn = n(ii)
@@ -264,7 +264,7 @@ end subroutine ipin
 ! ipout will page out vector ii to disk and free the memory area
 subroutine ipout(ii)
 
-  integer(kind=iwp) :: ii
+  integer(kind=iwp), intent(in) :: ii
   integer(kind=iwp) :: idisk, nn
 
   if (DiskBased) then
@@ -285,7 +285,7 @@ end subroutine ipout
 ! Object: write all vectors in memory on disk but vector iii
 subroutine ipnout(iii)
 
-  integer(kind=iwp) :: iii
+  integer(kind=iwp), intent(in) :: iii
   integer(kind=iwp) :: idisk, ii, nn
 
   if (iii > Max_CI_Vectors) then
@@ -316,7 +316,7 @@ end subroutine ipnout
 ! opout will release the memory area of vector ii without updating the disk
 subroutine opout(ii)
 
-  integer(kind=iwp) :: ii
+  integer(kind=iwp), intent(in) :: ii
 
   if (ii > Max_CI_Vectors) then
     write(u6,*) 'opout: ii > Max_CI_Vectors'

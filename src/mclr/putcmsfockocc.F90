@@ -24,8 +24,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: FOccMO(nDens)
-integer(kind=iwp) :: nTri
+real(kind=wp), intent(in) :: FOccMO(nDens)
+integer(kind=iwp), intent(in) :: nTri
 integer(kind=iwp) :: iB, ijb, iS, jB
 real(kind=wp), allocatable :: F(:), T(:)
 

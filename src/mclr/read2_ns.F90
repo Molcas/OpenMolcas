@@ -56,10 +56,12 @@ use Constants, only: Zero, Half, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDens22, iDSym, jSpin
-real(kind=wp) :: rmo1(nMBA), rmo2(nMBA), FockI(nDens), FockA(nDens), Temp1(nDens22), Temp2(nDens), Temp3(nDens), Temp4(nDens), &
-                 DI13(nDens), DI24(nDens), DI(nCMO), DA13(nDens), DA24(nDens), DA(nCMO), rkappa(nDens), Signa, Fact
-logical(kind=iwp) :: lFAt, lFIT, lmot
+real(kind=wp), intent(inout) :: rmo1(nMBA), rmo2(nMBA), FockI(nDens), FockA(nDens)
+integer(kind=iwp), intent(in) :: nDens22, iDSym, jSpin
+real(kind=wp), intent(out) :: Temp1(nDens22), Temp2(nDens), Temp3(nDens), Temp4(nDens), DI13(nDens), DI24(nDens), DA13(nDens), &
+                              DA24(nDens)
+real(kind=wp), intent(in) :: DI(nCMO), DA(nCMO), rkappa(nDens), Signa, Fact
+logical(kind=iwp), intent(in) :: lFAt, lFIT, lmot
 integer(kind=iwp) :: iB, iiB, ijA, ijS, ilA, ip1, ip2, ip3, ip4, ipA, ipD, ipF, ipS, iS, jB, jjB, jS, kS, lB, lS, nNB
 real(kind=wp) :: Sgn
 logical(kind=iwp) :: singlet
@@ -104,7 +106,7 @@ do iS=1,nSym
     do jS=1,nSym
       if ((Mul(iS,jS) == idsym) .and. (nB(jS) /= 0)) then
 
-        call DGEMM_('N','N',nBas(iS),nB(jS),nB(jS),One,rkappa(ipMat(is,js)),nBas(iS),DI(ipCM(js)),nBas(jS),Zero, &
+        call DGEMM_('N','N',nBas(iS),nB(jS),nB(jS),signa,rkappa(ipMat(is,js)),nBas(iS),DI(ipCM(js)),nBas(jS),Zero, &
                     DI24(ipMat(iS,jS)),nBas(iS))
 
         call DGEMM_('T','N',nBas(iS),nB(jS),nB(jS),One,rkappa(ipMat(js,is)),nBas(jS),DI(ipCM(js)),nBas(jS),Zero, &
@@ -112,7 +114,7 @@ do iS=1,nSym
 
         if (iMethod == 2) then
 
-          call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),One,rkappa(ipMat(is,js)),nBas(iS),DA(ipCM(js)),nBas(jS),Zero, &
+          call DGEMM_('N','N',nBas(iS),nBas(jS),nBas(jS),signa,rkappa(ipMat(is,js)),nBas(iS),DA(ipCM(js)),nBas(jS),Zero, &
                       DA24(ipMat(iS,jS)),nBas(iS))
 
           call DGEMM_('T','N',nBas(iS),nBas(jS),nB(jS),One,rKappa(ipMat(js,iS)),nBas(jS),DA(ipCM(js)),nBas(js),Zero, &
@@ -126,8 +128,6 @@ do iS=1,nSym
 end do
 
 Sgn = One
-if (iMethod == 2) DA24(:) = signa*DA24(:)
-Di24(:) = signa*Di24(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -273,20 +273,17 @@ do iS=1,nSym
                   ! (pl|ij)
 
                   if (nBas(ipS)*nAsh(ls) > 0) &
-                    call DGEADD2(Fact,Temp3(nbas(ips)*nish(ls)+1),nbas(ips),'N',rmo1(ip1),nbas(ips),'N',rmo1(ip1),nbas(ips), &
-                                 nbas(ips),nash(ls))
+                    call DGEACC(Fact,Temp3(nbas(ips)*nish(ls)+1),nbas(ips),'N',rmo1(ip1),nbas(ips),nbas(ips),nash(ls))
                   if (nBas(lS)*nAsh(ipS) > 0) &
-                    call DGEADD2(Fact,Temp3(nish(ips)+1),nbas(ips),'T',rmo2(ip2),nbas(ls),'N',rmo2(ip2),nbas(ls),nbas(ls),nash(ips))
+                    call DGEACC(Fact,Temp3(nish(ips)+1),nbas(ips),'T',rmo2(ip2),nbas(ls),nbas(ls),nash(ips))
                   !  ~
                   ! (pl|ji)
 
                   if ((is /= js) .or. (ib /= jb)) then
                     if (nBas(ipS)*nAsh(lS) > 0) &
-                      call Dgeadd2(Fact,Temp3(nbas(ips)*nish(ls)+1),nbas(ips),'N',rmo1(ip3),nbas(ips),'N',rmo1(ip3),nbas(ips), &
-                                   nbas(ips),nash(ls))
+                      call Dgeacc(Fact,Temp3(nbas(ips)*nish(ls)+1),nbas(ips),'N',rmo1(ip3),nbas(ips),nbas(ips),nash(ls))
                     if (nBas(ls)*nAsh(ipS) > 0) &
-                      call Dgeadd2(Fact,Temp3(nish(ips)+1),nbas(ips),'T',rmo2(ip4),nbas(ls),'N',rmo2(ip4),nbas(ls),nbas(ls), &
-                                   nash(ips))
+                      call Dgeacc(Fact,Temp3(nish(ips)+1),nbas(ips),'T',rmo2(ip4),nbas(ls),nbas(ls),nash(ips))
                   end if
                   if (ks /= ls) then
                     ipS = Mul(lS,idsym)
@@ -301,22 +298,18 @@ do iS=1,nSym
                     ! (pk|ij)
 
                     if (nBas(ipS)*nAsh(ks) > 0) &
-                      call Dgeadd2(Fact,Temp3(nbas(ips)*nish(ks)+1),nbas(ips),'N',rmo1(ip1),nbas(ips),'N',rmo1(ip1),nbas(ips), &
-                                   nbas(ips),nash(ks))
+                      call Dgeacc(Fact,Temp3(nbas(ips)*nish(ks)+1),nbas(ips),'N',rmo1(ip1),nbas(ips),nbas(ips),nash(ks))
                     if (nBas(ks)*nAsh(ips) > 0) &
-                      call Dgeadd2(Fact,Temp3(nish(ips)+1),nbas(ips),'T',rmo2(ip2),nbas(ks),'N',rmo2(ip2),nbas(ks),nbas(ks), &
-                                   nash(ips))
+                      call Dgeacc(Fact,Temp3(nish(ips)+1),nbas(ips),'T',rmo2(ip2),nbas(ks),nbas(ks),nash(ips))
 
                     !  ~
                     ! (pk|ji)
 
                     if ((is /= js) .or. (ib /= jb)) then
                       if (nBas(ipS)*nAsh(ks) > 0) &
-                        call DGEADD2(Fact,Temp3(nbas(ips)*nish(ks)+1),nbas(ips),'N',rmo1(ip3),nbas(ips),'N',rmo1(ip3),nbas(ips), &
-                                     nbas(ips),nash(ks))
+                        call DGEACC(Fact,Temp3(nbas(ips)*nish(ks)+1),nbas(ips),'N',rmo1(ip3),nbas(ips),nbas(ips),nash(ks))
                       if (nBas(ks)*nAsh(ips) > 0) &
-                        call DGEADD2(Fact,Temp3(nish(ips)+1),nbas(ips),'T',rmo2(ip4),nbas(ks),'N',rmo2(ip4),nbas(ks),nbas(ks), &
-                                     nash(ips))
+                        call DGEACC(Fact,Temp3(nish(ips)+1),nbas(ips),'T',rmo2(ip4),nbas(ks),nbas(ks),nash(ips))
                     end if
                   end if ! kl
 
@@ -332,21 +325,17 @@ do iS=1,nSym
                   ! (pl|ji)
 
                   if (nBas(ks)*nAsh(ipS) > 0) &
-                    call DGEADD2(Fact*Signa,Temp3(1+nbas(ks)*nish(ips)),nbas(ks),'N',rmo1(ip1),nbas(ks),'N',rmo1(ip1),nbas(ks), &
-                                 nbas(ks),nash(ips))
+                    call DGEACC(Fact*Signa,Temp3(1+nbas(ks)*nish(ips)),nbas(ks),'N',rmo1(ip1),nbas(ks),nbas(ks),nash(ips))
                   if (nBas(ips)*nAsh(ks) > 0) &
-                    call DGEADD2(Fact*Signa,Temp3(nish(ks)+1),nbas(ks),'T',rmo2(ip2),nbas(ips),'N',rmo2(ip2),nbas(ips),nbas(ips), &
-                                 nash(ks))
+                    call DGEACC(Fact*Signa,Temp3(nish(ks)+1),nbas(ks),'T',rmo2(ip2),nbas(ips),nbas(ips),nash(ks))
                   !   ~
                   ! (pl|ij)
 
                   if ((is /= js) .or. (ib /= jb)) then
                     if (nBas(ks)*nAsh(ips) > 0) &
-                      call DGEADD2(Fact*Signa,Temp3(1+nbas(ks)*nish(ips)),nbas(ks),'N',rmo1(ip3),nbas(ks),'N',rmo1(ip3),nbas(ks), &
-                                   nbas(ks),nash(ips))
+                      call DGEACC(Fact*Signa,Temp3(1+nbas(ks)*nish(ips)),nbas(ks),'N',rmo1(ip3),nbas(ks),nbas(ks),nash(ips))
                     if (nBas(ips)*nAsh(ks) > 0) &
-                      call DGEADD2(Fact*Signa,Temp3(nish(ks)+1),nbas(ks),'T',rmo2(ip4),nbas(ips),'N',rmo2(ip4),nbas(ips), &
-                                   nbas(ips),nash(ks))
+                      call DGEACC(Fact*Signa,Temp3(nish(ks)+1),nbas(ks),'T',rmo2(ip4),nbas(ips),nbas(ips),nash(ks))
                   end if
 
                   if (ks /= ls) then
@@ -362,21 +351,17 @@ do iS=1,nSym
                     ! (pk|ij)
 
                     if (nBas(ls)*nAsh(ips) > 0) &
-                      call Dgeadd2(Fact*Signa,Temp3(1+nbas(ls)*nish(ips)),nbas(ls),'N',rmo1(ip1),nbas(ls),'N',rmo1(ip1),nbas(ls), &
-                                   nbas(ls),nash(ips))
+                      call Dgeacc(Fact*Signa,Temp3(1+nbas(ls)*nish(ips)),nbas(ls),'N',rmo1(ip1),nbas(ls),nbas(ls),nash(ips))
                     if (nBas(ips)*nAsh(ls) > 0) &
-                      call Dgeadd2(Fact*Signa,Temp3(1+nish(ls)),nbas(ls),'T',rmo2(ip2),nbas(ips),'N',rmo2(ip2),nbas(ips), &
-                                   nbas(ips),nash(ls))
+                      call Dgeacc(Fact*Signa,Temp3(1+nish(ls)),nbas(ls),'T',rmo2(ip2),nbas(ips),nbas(ips),nash(ls))
                     !   ~
                     ! (pk|ji)
 
                     if ((is /= js) .or. (ib /= jb)) then
                       if (nBas(ls)*nAsh(ips) > 0) &
-                        call DGeAdd2(Fact*Signa,Temp3(1+nbas(ls)*nish(ips)),nbas(ls),'N',rmo1(ip3),nbas(ls),'N',rmo1(ip3), &
-                                     nbas(ls),nbas(ls),nash(ips))
+                        call DGeAcc(Fact*Signa,Temp3(1+nbas(ls)*nish(ips)),nbas(ls),'N',rmo1(ip3),nbas(ls),nbas(ls),nash(ips))
                       if (nBas(ips)*nAsh(ls) > 0) &
-                        call DGeAdd2(Fact*Signa,Temp3(1+nish(ls)),nbas(ls),'T',rmo2(ip4),nbas(ips),'N',rmo2(ip4),nbas(ips), &
-                                     nbas(ips),nash(ls))
+                        call DGeAcc(Fact*Signa,Temp3(1+nish(ls)),nbas(ls),'T',rmo2(ip4),nbas(ips),nbas(ips),nash(ls))
                     end if
                   end if ! (kl)
                   ! ^

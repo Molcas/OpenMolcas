@@ -19,8 +19,12 @@ use MCLR_Data, only: LuPT2, nDens
 use input_mclr, only: nCSF, nOrb, nRoots, nSym
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: rKappa(nDens), CLag(*), SLag(nRoots,nRoots)
+real(kind=wp), intent(inout) :: rKappa(nDens)
+real(kind=wp), intent(_OUT_) :: CLag(*)
+real(kind=wp), intent(out) :: SLag(nRoots,nRoots)
 integer(kind=iwp) :: i, istatus, j, nCLag, nOLag
 real(kind=wp) :: Tmp
 

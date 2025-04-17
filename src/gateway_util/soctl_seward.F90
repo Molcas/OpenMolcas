@@ -111,7 +111,7 @@ List_AE(:) = 0
 
 isymunit = isfreeunit(58)
 call molcas_open(isymunit,'SYMINFO')
-rewind isymunit
+rewind(isymunit)
 write(isymunit,'(A)') 'Symmetry information from seward'
 write(isymunit,'(A)') '#of funct, unique centre, L, M , # of sym.ad.functions , Phases'
 !                                                                      *

@@ -16,9 +16,13 @@ use input_mclr, only: nAsh, nBas, nIsh, nSym
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nTemp
-real(kind=wp) :: rD(*), Fock(*), Temp1(nTemp), Temp2(nDens)
+real(kind=wp), intent(in) :: rD(*)
+real(kind=wp), intent(_OUT_) :: Fock(*)
+integer(kind=iwp), intent(in) :: nTemp
+real(kind=wp), intent(out) :: Temp1(nTemp), Temp2(nDens)
 integer(kind=iwp) :: jB, jjB, jS, kS, lB, llB
 real(kind=wp) :: rDens
 
@@ -36,7 +40,7 @@ do jS=1,nSym
         do jjB=1,nAsh(kS)
           jB = nIsh(kS)+jjB
 
-          call Exch(jS,kS,jS,kS,lB,jB,Temp2,Temp2)
+          call Exch(jS,kS,jS,kS,lB,jB,Temp1,Temp2)
           rDens = -Half*rD(nna*(jjB-1)+llB)
           Fock(ipCM(jS):ipCM(jS)+nBas(jS)**2-1) = Fock(ipCM(jS):ipCM(jS)+nBas(jS)**2-1)+rDens*Temp1(1:nBas(jS)**2)
 

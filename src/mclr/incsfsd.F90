@@ -18,7 +18,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iState, State_sym
+integer(kind=iwp), intent(in) :: iState, State_sym
 integer(kind=iwp) :: i, iad, iAdr, idum(1), iSym
 
 ! Place pointer

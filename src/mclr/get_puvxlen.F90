@@ -20,7 +20,7 @@ use input_mclr, only: nAsh, nOrb, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NPUVX
+integer(kind=iwp), intent(out) :: NPUVX
 integer(kind=iwp) :: iSp, iSpq, iSpqr, iSq, iSr, iSs, nAq, nAr, nAs, nOp, nRS
 
 NPUVX = 0

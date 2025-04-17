@@ -15,7 +15,8 @@ subroutine RSMXMN_MCLR(MAXEL,MINEL,NORB1,NORB2,NORB3,NEL,MIN_1,MAX_1,MIN_3,MAX_3
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: MAXEL(*), MINEL(*), NORB1, NORB2, NORB3, NEL, MIN_1, MAX_1, MIN_3, MAX_3
+integer(kind=iwp), intent(in) :: NORB1, NORB2, NORB3, NEL, MIN_1, MAX_1, MIN_3, MAX_3
+integer(kind=iwp), intent(out) :: MAXEL(NORB1+NORB2+NORB3), MINEL(NORB1+NORB2+NORB3)
 integer(kind=iwp) :: IORB, MAX1A, MAX2A, MAX3A, MIN1A, MIN2A, MIN3A, NORB
 
 ! accumulated max and min in each of the three spaces

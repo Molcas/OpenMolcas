@@ -16,35 +16,35 @@ subroutine ADS1(NK,I1,XI1S,LI1,IORB,LORB,ICLS,ISM,IMAPO,IMAPS,IMPL,IMPO,IMPF,LMA
 !
 ! KSTR is restricted to strings with relative numbers in the
 ! range KMAX to KMIN
+
 ! =====
 ! Input
 ! =====
-! IORB : Firat orbital to be added
-! LORB : Number of orbitals to be added : IORB to IORB-1+LORB
-!        are used. They must all be in the same TS group
-! ICLS,ISM : Class and symmetry of string with added electron
+! IORB        : Firat orbital to be added
+! LORB        : Number of orbitals to be added : IORB to IORB-1+LORB
+!               are used. They must all be in the same TS group
+! ICLS,ISM    : Class and symmetry of string with added electron
 ! IMAPO,IMAPS : map from Kstrings to Istrings
-! IEL1(3) : Number of electrons in RAS1(3) for I strings
-! I1EL1(3) : Number of electrons in RAS1(3) for K strings
-! ISSO : TS symmetry offset for I strings
-! I1SSO : TS symmetry offset for K strings
-! N1SSO : Number of TS strings for K strings
-! NOCTP : Number of occupation types for I strings
-! N1OCTP : Number of occupation types for K strings
-! NORB1(2,3) : Number of RAS1(2,3) orbitals
-! IORBSM : Orbital symmety array
-! KMAX : Largest allowed relative number for K strings
-!        If Kmax is set to -1 all strings are searched
-! KMIN : Smallest allowed relative number for K strings
+! IEL1(3)     : Number of electrons in RAS1(3) for I strings
+! I1EL1(3)    : Number of electrons in RAS1(3) for K strings
+! ISSO        : TS symmetry offset for I strings
+! I1SSO       : TS symmetry offset for K strings
+! N1SSO       : Number of TS strings for K strings
+! NOCTP       : Number of occupation types for I strings
+! N1OCTP      : Number of occupation types for K strings
+! NORB1(2,3)  : Number of RAS1(2,3) orbitals
+! IORBSM      : Orbital symmety array
+! KMAX        : Largest allowed relative number for K strings
+!               If Kmax is set to -1 all strings are searched
+! KMIN        : Smallest allowed relative number for K strings
 !
 ! ======
 ! Output
 ! ======
-!
-! NK      : Number of K strings
-! I1(KSTR,JORB) : ne. 0 => a + JORB !KSTR> = +/-!ISTR>
+! NK              : Number of K strings
+! I1(KSTR,JORB)   : /= 0 => a + JORB !KSTR> = +/-!ISTR>
 ! XI1S(KSTR,JORB) : above +/-
-!          : eq. 0    a + JORB !KSTR> = 0
+!                 : == 0    a + JORB !KSTR> = 0
 ! Offset is KMIN
 
 use Symmetry_Info, only: Mul
@@ -54,12 +54,15 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NK, LI1, IORB, LORB, ICLS, ISM, IMAPO(*), IMAPS(*), IMPL(*), IMPO(*), IMPF, LMAP, IEL1(*), IEL3(*), I1EL1(*), &
-                     I1EL3(*), NOCTP, ISSO(NOCTP,*), N1OCTP, I1SSO(N1OCTP,*), N1SSO(N1OCTP,*), NORB1, NORB2, ORBSM(*), KMAX, KMIN, &
-                     IEND
-integer(kind=iwp) :: I1(*)
-real(kind=wp) :: XI1S(*)
+integer(kind=iwp), intent(out) :: NK, IEND
+integer(kind=iwp), intent(_OUT_) :: I1(*)
+real(kind=wp), intent(_OUT_) :: XI1S(*)
+integer(kind=iwp), intent(in) :: LI1, IORB, LORB, ICLS, ISM, IMAPO(*), IMAPS(*), IMPL(*), IMPO(*), IMPF, LMAP, IEL1(*), IEL3(*), &
+                                 I1EL1(*), I1EL3(*), NOCTP, ISSO(NOCTP,*), N1OCTP, I1SSO(N1OCTP,*), N1SSO(N1OCTP,*), NORB1, NORB2, &
+                                 ORBSM(*), KMAX, KMIN
 integer(kind=iwp) :: IIIORB, IIORB, IOFF, IORBR, ISTR, KEL1, KEL3, KEND, KKTYPE, KOFF, KREL, KSM, KSTR, KSUB, KTYPE, LDIM
 logical(kind=iwp) :: Skip
 

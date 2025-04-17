@@ -22,8 +22,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iSym
-real(kind=wp) :: ralp
+integer(kind=iwp), intent(in) :: iSym
+real(kind=wp), intent(out) :: ralp
 integer(kind=iwp) :: i, iAMCmp, iC, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), LSPC(1), nD, nP1, nP2, nQ, nSD, nSpc
 real(kind=wp) :: ECAS
 real(kind=wp), allocatable :: Q(:)
@@ -61,7 +61,7 @@ if (NOCSF == 0) then
   nD = NCSASM(ISYM)
   ipdiai = ipdcsfi
 else
-  nD = idint(XISPSM(ISYM,ISPC(1)))
+  nD = int(XISPSM(ISYM,ISPC(1)))
   ipdiai = ipdsdi
 end if
 

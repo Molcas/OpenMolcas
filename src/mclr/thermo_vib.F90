@@ -15,8 +15,8 @@ use Constants, only: Zero, One, Half, auTokcalmol, auTokJ, cal_to_j, kBoltzmann,
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nFreq, nTR, iter
-real(kind=wp) :: Freq(nFreq), T
+integer(kind=iwp), intent(in) :: nFreq, nTR, iter
+real(kind=wp), intent(in) :: Freq(nFreq), T
 integer(kind=iwp) :: i
 real(kind=wp) :: beta, DeltaG, DeltaS, DeltaU, eta, q_vib, q_vib_Tot, U_TR, U_vib, U_vib_Tot, ZPVE
 integer(kind=iwp), parameter :: First = 1

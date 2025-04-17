@@ -11,8 +11,7 @@
 ! Copyright (C) Anders Bernhardsson                                    *
 !***********************************************************************
 
-subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,Temp2,Temp3,Temp4,nDens22,DI13,DI24,DI,DA13,DA24,DA,rkappa,idsym,Signa,Fact, &
-                   jSpin,lfat,lfit,lMOt)
+subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,Temp2,Temp3,Temp4,nDens22,DI,DA,rkappa,idsym,Signa,Fact,jSpin,lfat,lfit,lMOt)
 !*******************************************************************
 !                                        ~     ~                   *
 !   Monster routine for construction of Fock, MO                   *
@@ -51,17 +50,20 @@ subroutine Read2_2(rMO1,rMO2,FockI,FockA,Temp1,Temp2,Temp3,Temp4,nDens22,DI13,DI
 use Symmetry_Info, only: Mul
 use MCLR_Data, only: ipCM, ipMat, ipMO, nB, nCMO, nDens, nMBA
 use input_mclr, only: iMethod, nAsh, nIsh, nOrb, nSym
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDens22, iDSym, jSpin
-real(kind=wp) :: rmo1(nMba), rmo2(nmba), FockI(nDens), FockA(nDens), Temp1(nDens22), Temp2(nDens22), Temp3(nDens22), &
-                 Temp4(nDens22), DI13(nDens), DI24(nDens), DI(nCMO), DA13(nDens), DA24(nDens), DA(nCMO), rkappa(nDens), Signa, Fact
-logical(kind=iwp) :: lFAt, lFIT, lmot
+real(kind=wp), intent(inout) :: rmo1(nMba), rmo2(nmba), FockI(nDens), FockA(nDens)
+integer(kind=iwp), intent(in) :: nDens22, iDSym, jSpin
+real(kind=wp), intent(out) :: Temp1(nDens22), Temp2(nDens22), Temp3(nDens22), Temp4(nDens22)
+real(kind=wp), intent(in) :: DI(nCMO), DA(nCMO), rkappa(nDens), Signa, Fact
+logical(kind=iwp), intent(in) :: lFAt, lFIT, lmot
 integer(kind=iwp) :: iB, iiB, ijA, ijS, ilA, ip1, ip2, ip3, ip4, ipA, ipD, ipF, ipi, ipS, iS, jB, jjB, jS, kS, lB, lS, n, nNB
 real(kind=wp) :: Sgn
 logical(kind=iwp) :: singlet
+real(kind=wp), allocatable :: DA13(:), DA24(:), DI13(:), DI24(:)
 
 !                                                                      *
 !***********************************************************************
@@ -95,12 +97,18 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+call mma_allocate(DI13,nDens,Label='DI13')
+call mma_allocate(DI24,nDens,Label='DI24')
+if (iMethod == 2) then
+  call mma_allocate(DA13,nDens,Label='DA13')
+  call mma_allocate(DA24,nDens,Label='DA24')
+end if
 do iS=1,nSym
   if (nOrb(iS) /= 0) then
     do jS=1,nSym
       if ((Mul(iS,jS) == idsym) .and. (nB(jS) /= 0)) then
 
-        call DGEMM_('N','N',nOrb(iS),nB(jS),nOrb(jS),One,rkappa(ipMat(is,js)),nOrb(iS),DI(ipCM(js)),nOrb(jS),Zero, &
+        call DGEMM_('N','N',nOrb(iS),nB(jS),nOrb(jS),signa,rkappa(ipMat(is,js)),nOrb(iS),DI(ipCM(js)),nOrb(jS),Zero, &
                     DI24(ipMat(iS,jS)),nOrb(iS))
 
         call DGEMM_('T','N',nOrb(iS),nB(jS),nOrb(jS),One,rkappa(ipMat(js,is)),nOrb(jS),DI(ipCM(js)),nOrb(jS),Zero, &
@@ -108,7 +116,7 @@ do iS=1,nSym
 
         if (iMethod == 2) then
 
-          call DGEMM_('N','N',nOrb(iS),nB(jS),nOrb(jS),One,rkappa(ipMat(is,js)),nOrb(iS),DA(ipCM(js)),nOrb(jS),Zero, &
+          call DGEMM_('N','N',nOrb(iS),nB(jS),nOrb(jS),signa,rkappa(ipMat(is,js)),nOrb(iS),DA(ipCM(js)),nOrb(jS),Zero, &
                       DA24(ipMat(iS,jS)),nOrb(iS))
 
           call DGEMM_('T','N',nOrb(iS),nB(jS),nOrb(jS),One,rKappa(ipMat(js,iS)),nOrb(jS),DA(ipCM(js)),nOrb(js),Zero, &
@@ -121,8 +129,6 @@ do iS=1,nSym
 end do
 
 Sgn = One
-if (imethod == 2) DA24(:) = signa*DA24(:)
-Di24(:) = signa*Di24(:)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -529,5 +535,12 @@ do iS=1,nSym
     end if
   end do
 end do
+
+call mma_deallocate(DI13)
+call mma_deallocate(DI24)
+if (iMethod == 2) then
+  call mma_deallocate(DA13)
+  call mma_deallocate(DA24)
+end if
 
 end subroutine Read2_2

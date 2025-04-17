@@ -22,8 +22,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Kap(nDensC), ReCo, KapOut(nDensC)
-integer(kind=iwp) :: ipCId, isym, jspin, ipS2, ipCiOut
+real(kind=wp), intent(in) :: Kap(nDensC), ReCo
+integer(kind=iwp), intent(in) :: ipCId, isym, jspin, ipS2, ipCiOut
+real(kind=wp), intent(out) :: KapOut(nDensC)
 real(kind=wp) :: rdum(1)
 real(kind=wp), allocatable :: RMOAA(:), Sc1(:), Sc2(:), Sc3(:), Temp3(:), Temp4(:)
 

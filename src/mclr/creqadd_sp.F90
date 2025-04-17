@@ -20,8 +20,10 @@ use input_mclr, only: nAsh, nIsh, nOrb, nSym
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idSym, n2
-real(kind=wp) :: Q(nDens), G2(nna,nna,nna,nna), Temp(n2), Scr(n2)
+real(kind=wp), intent(inout) :: Q(nDens)
+real(kind=wp), intent(in) :: G2(nna,nna,nna,nna)
+integer(kind=iwp), intent(in) :: idSym, n2
+real(kind=wp), intent(out) :: Temp(n2), Scr(n2)
 integer(kind=iwp) :: iAA, iAsh, ijS, ipM, ipQ, ipS, iS, jAA, jAsh, jS, kAA, kAsh, kS, lAA, lAsh, lS
 real(kind=wp) :: RD
 

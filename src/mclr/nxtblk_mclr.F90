@@ -19,7 +19,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: IATP, IBTP, IASM, NOCTPA, NOCTPB, NSM, IBLTP(*), IDC, NONEW, IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp), intent(inout) :: IATP, IBTP, IASM
+integer(kind=iwp), intent(in) :: NOCTPA, NOCTPB, NSM, IBLTP(*), IDC, IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp), intent(out) :: NONEW
 integer(kind=iwp) :: IA, IB, ISM
 
 ! Initialize

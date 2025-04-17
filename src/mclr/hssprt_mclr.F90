@@ -17,8 +17,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ideg(*), ldisp(nsym)
-real(kind=wp) :: Hess(*)
+integer(kind=iwp), intent(in) :: ideg(*), ldisp(nsym)
+real(kind=wp), intent(in) :: Hess(*)
 integer(kind=iwp) :: i, iaa, idisp, ii, iIrrep, j, jj, kDisp(8)
 character(len=39) :: Title
 real(kind=wp), allocatable :: Temp(:)

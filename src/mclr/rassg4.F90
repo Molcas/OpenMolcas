@@ -68,17 +68,23 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), ICSM, ISSM, NSM, ICBLTP(NSM), ISBLTP(NSM), &
-                     NSSOA(NOCTPA,NSM), NSSOB(NOCTPB,NSM), NAEL, IAGRP, NBEL, IBGRP, NTSOB(3,NSM), IBTSOB(3,NSM), ITSOB(*), MAXK, &
-                     MAXI, LC, LS, IAEL1(*), IAEL3(*), IBEL1(*), IBEL3(*), IDC, ISOOSC(NOCTPA,NOCTPB,NSM), &
-                     NSOOSC(NOCTPA,NOCTPB,NSM), ISOOSE(NOCTPA,NOCTPB,NSM), NSOOSE(NOCTPA,NOCTPB,NSM), ICOOSC(NOCTPA,NOCTPB,NSM), &
-                     NCOOSC(NOCTPA,NOCTPB,NSM), ICOOSE(NOCTPA,NOCTPB,NSM), NCOOSE(NOCTPA,NOCTPB,NSM), IASOOS(NOCTPA,NOCTPB,NSM), &
-                     IACOOS(NOCTPA,NOCTPB,NSM), I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), I4(MAXK,*), IDOH2, ISTRFL(*), LUC, LUHC, IST, &
-                     NOPART
-real(kind=wp) :: C(*), S(*), CB(*), SB(*), C2(*), XINT(*), CSCR(*), SSCR(*), XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), &
-                 XI4S(MAXK,*), PS, CJRES(*), SIRES(*)
-logical(kind=iwp) :: TimeDep
+real(kind=wp), intent(in) :: C(*), PS
+real(kind=wp), intent(inout) :: S(*)
+integer(kind=iwp), intent(in) :: NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), ICSM, ISSM, NSM, ICBLTP(NSM), &
+                                 ISBLTP(NSM), NSSOA(NOCTPA,NSM), NSSOB(NOCTPB,NSM), NAEL, IAGRP, NBEL, IBGRP, NTSOB(3,NSM), &
+                                 IBTSOB(3,NSM), ITSOB(*), MAXK, MAXI, LC, LS, IAEL1(*), IAEL3(*), IBEL1(*), IBEL3(*), IDC, IDOH2, &
+                                 ISTRFL(*), LUC, LUHC, IST, NOPART
+real(kind=wp), intent(_OUT_) :: CB(*), SB(*), C2(*), XINT(*), CSCR(*), SSCR(*), XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), &
+                                XI4S(MAXK,*), CJRES(*), SIRES(*)
+integer(kind=iwp), intent(out) :: ISOOSC(NOCTPA,NOCTPB,NSM), NSOOSC(NOCTPA,NOCTPB,NSM), ISOOSE(NOCTPA,NOCTPB,NSM), &
+                                  NSOOSE(NOCTPA,NOCTPB,NSM), ICOOSC(NOCTPA,NOCTPB,NSM), NCOOSC(NOCTPA,NOCTPB,NSM), &
+                                  ICOOSE(NOCTPA,NOCTPB,NSM), NCOOSE(NOCTPA,NOCTPB,NSM), IASOOS(NOCTPA,NOCTPB,NSM), &
+                                  IACOOS(NOCTPA,NOCTPB,NSM)
+integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), I4(MAXK,*)
+logical(kind=iwp), intent(in) :: TimeDep
 integer(kind=iwp) :: DUM(1), I1ASM, I1BSM, I1TA, I1TB, IASM, IATP, IBSM, IBTP, IC1SM, IC1TA, IC1TB, ICBLK, ICBSM, ICENSM, ICENTA, &
                      ICENTB, ICOFF, ICSTSM, ICSTTA, ICSTTB, IFINIC, IFRSTC, IFRSTS, IOFF, IPERM, IS1SM, IS1TA, IS1TB, ISBLK, &
                      ISENSM, ISENTA, ISENTB, ISFINI, ISOFF, ISSTSM, ISSTTA, ISSTTB, JASM, JATP, JBSM, JBTP, LASM(4), LATP(4), &
@@ -111,7 +117,7 @@ ISENTA = 1
 ISENTB = 1
 IFRSTS = 1
 ! Loop over batches over sigma blocks
-if (LUHC > 0) rewind LUHC
+if (LUHC > 0) rewind(LUHC)
 
 outer: do
   ! Next batch of sigma blocks
@@ -135,7 +141,7 @@ outer: do
   ICENSM = 1
   ICENTA = 1
   ICENTB = 1
-  if (LUC > 0) rewind LUC
+  if (LUC > 0) rewind(LUC)
   ! Loop over blocks of C vector
   IFRSTC = 1
   do

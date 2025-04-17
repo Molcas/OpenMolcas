@@ -22,8 +22,9 @@ use Constants, only: Zero, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: M, nnA, nRoots
-real(kind=wp) :: Dacc(nnA,nnA), GDMat(nTri_Elem(nRoots),nnA,nnA), zx(nTri_Elem(nRoots-1))
+integer(kind=iwp), intent(in) :: M, nnA, nRoots
+real(kind=wp), intent(out) :: Dacc(nnA,nnA)
+real(kind=wp), intent(in) :: GDMat(nTri_Elem(nRoots),nnA,nnA), zx(nTri_Elem(nRoots-1))
 integer(kind=iwp) :: IKM, IKM2, it, K
 real(kind=wp) :: Fact
 

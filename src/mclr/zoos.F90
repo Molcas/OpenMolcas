@@ -48,8 +48,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: ISM, IBLTP(*), MAXSYM, NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSSOA(MAXSYM,NOCTPA), NSSOB(MAXSYM,NOCTPB), IDC, &
-                     IOOS(NOCTPA,NOCTPB,MAXSYM), NOOS(NOCTPA,NOCTPB,MAXSYM), NCOMB, IXPND
+integer(kind=iwp), intent(in) :: ISM, IBLTP(*), MAXSYM, NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSSOA(MAXSYM,NOCTPA), &
+                                 NSSOB(MAXSYM,NOCTPB), IDC, IXPND
+integer(kind=iwp), intent(out) :: IOOS(NOCTPA,NOCTPB,MAXSYM), NOOS(NOCTPA,NOCTPB,MAXSYM), NCOMB
 integer(kind=iwp) :: IAOCC, IASYM, IBOCC, IBSYM, IREST1, MXBOCC
 
 IOOS(:,:,:) = 0
@@ -102,12 +103,12 @@ write(u6,*) ' Number of combinations obtained ',NCOMB
 write(u6,*) ' Offsets for combination OOS blocks'
 do IASYM=1,MAXSYM
   write(u6,'(A,I2)') '  Symmetry ',IASYM
-  call IWRTMA(IOOS(1,1,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+  call IWRTMA(IOOS(:,:,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end do
 write(u6,*) ' Number of  combinations per OOS blocks'
 do IASYM=1,MAXSYM
   write(u6,'(A,I2)') '  Symmetry ',IASYM
-  call IWRTMA(NOOS(1,1,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+  call IWRTMA(NOOS(:,:,IASYM),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end do
 #endif
 

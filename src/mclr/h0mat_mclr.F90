@@ -28,9 +28,14 @@ use MCLR_Data, only: NAELCI, NBELCI, NCNASM
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: H0(*), PSSIGN, vec1(*), vec2(*), h0scr(*)
-integer(kind=iwp) :: ISBDET(*), ISBCNF(*), MXP1, MXP2, MXQ, NOCOB, NPRCIV, IREFSM, IDC, ih0scr(*), ieaw
+real(kind=wp), intent(_OUT_) :: H0(*), vec2(*), h0scr(*)
+integer(kind=iwp), intent(_OUT_) :: ISBDET(*), ISBCNF(*)
+integer(kind=iwp), intent(in) :: MXP1, MXP2, MXQ, NOCOB, IREFSM, IDC, ieaw
+integer(kind=iwp), intent(out) :: NPRCIV, ih0scr(*)
+real(kind=wp), intent(in) :: PSSIGN, vec1(*)
 integer(kind=iwp) :: ICOMBI, intspc, IPWAY, NAEL, NBEL, NP1CNF, NP1CSF, NP2CNF, NP2CSF, NPCNF, NQCNF, NQCSF
 real(kind=wp) :: PSIGN
 

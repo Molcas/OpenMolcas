@@ -37,7 +37,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: MNRS1, MXRS3, NOCTPA, NOCTPB, NEL1A(*), NEL3A(*), NEL1B(*), NEL3B(*), IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp), intent(in) :: MNRS1, MXRS3, NOCTPA, NOCTPB, NEL1A(NOCTPA), NEL3A(NOCTPA), NEL1B(NOCTPB), NEL3B(NOCTPB)
+integer(kind=iwp), intent(out) :: IOCOC(NOCTPA,NOCTPB)
 integer(kind=iwp) :: IAEL1, IAEL3, IATP, IBEL1, IBEL3, IBTP
 
 IOCOC(:,:) = 0

@@ -26,7 +26,8 @@ use Constants, only: Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: rMat(*), fact
+real(kind=wp), intent(inout) :: rMat(*)
+real(kind=wp), intent(in) :: fact
 integer(kind=iwp) :: iS
 real(kind=wp), allocatable :: Temp(:)
 

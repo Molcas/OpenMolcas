@@ -30,8 +30,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ArrayIn(nDens), ArrayOut(nDensC)
-integer(kind=iwp) :: dsym
+real(kind=wp), intent(in) :: ArrayIn(nDens)
+real(kind=wp), intent(out) :: ArrayOut(nDensC)
+integer(kind=iwp), intent(inout) :: dsym
 integer(kind=iwp) :: i1, iBas, ij, Index1, IndexC, iSym, iT, jBas, jSym, jT
 real(kind=wp) :: Fact
 

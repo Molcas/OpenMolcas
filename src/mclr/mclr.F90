@@ -56,7 +56,7 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
-integer(kind=iwp) :: iReturn
+integer(kind=iwp), intent(out) :: iReturn
 #include "warnings.h"
 integer(kind=iwp) :: CMSNACStates(2), I, iPL, iRC, istatus, iSym, LuInput, LuSpool2, nISP, nSymX
 logical(kind=iwp) :: CalcNAC_Opt, converged(8), DoCholesky, Exists, MECI_via_SLAPAF

@@ -21,12 +21,12 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iSym
-real(kind=wp) :: ralp(nRoots), S(*)
+integer(kind=iwp), intent(in) :: iSym
+real(kind=wp), intent(inout) :: ralp(nRoots), S(*)
 integer(kind=iwp) :: i, iAMCmp, iP2, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), J, LSPC(1), nSD, nSpc
 
 ! This is just a interface to hide Jeppe from the rest of the world
-! we dont want to let world see the work of the Danish
+! we don't want to let world see the work of the Danish
 ! (I hope he never reads that)
 ! Anyway concerning the CSF/SD stuff.
 ! If we work with spin dependent perturbations

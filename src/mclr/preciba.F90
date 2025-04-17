@@ -40,8 +40,10 @@ use Constants, only: Two, Four, Six
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iB, iS, jS, nd, nba, nScr
-real(kind=wp) :: rOut(*), Focki(nba,nba), FockA(nba,nba), Fock(nba,nba), Sgn, A_J(nScr), A_K(nScr), Scr(nScr)
+integer(kind=iwp), intent(in) :: iB, iS, jS, nd, nba, nScr
+real(kind=wp), intent(inout) :: rOut(*)
+real(kind=wp), intent(in) :: Focki(nba,nba), FockA(nba,nba), Fock(nba,nba), Sgn
+real(kind=wp), intent(out) :: A_J(nScr), A_K(nScr), Scr(nScr)
 integer(kind=iwp) :: ip, iVB, jA, jB, jBB, jVert, nO, nTri
 real(kind=wp) :: rDens
 

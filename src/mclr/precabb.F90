@@ -40,8 +40,10 @@ use Constants, only: Zero, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ib, is, js, nd, nba, nTemp
-real(kind=wp) :: rout(*), Temp1(nBa,nBa), Scr(nTemp), Temp2(nBa,nBa), Fockti, Focki(nBa,nBa), Sgn
+integer(kind=iwp), intent(in) :: ib, is, js, nd, nba, nTemp
+real(kind=wp), intent(inout) :: rout(*)
+real(kind=wp), intent(out) :: Temp1(nBa,nBa), Scr(nTemp), Temp2(nBa,nBa)
+real(kind=wp), intent(in) :: Fockti, Focki(nBa,nBa), Sgn
 integer(kind=iwp) :: ii, iib, ip, jB, jVert, kBB, kCC, kkB, kkC, kS, lB
 real(kind=wp) :: rf, rDens, Rho
 

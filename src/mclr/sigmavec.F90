@@ -28,9 +28,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), HC(*)
-integer(kind=iwp) :: kic(2)
+real(kind=wp), intent(inout) :: C(*)
+real(kind=wp), intent(_OUT_) :: HC(*)
+integer(kind=iwp), intent(in) :: kic(2)
 integer(kind=iwp) :: IATP, IATP1, IATP2, IBTP, IBTP1, IBTP2, IDOH2, idummy(1), IICOPY, IMNMX, INTSCR, JATP, JBTP, LLUC, LLUHC, &
                      LSCR1, LSCR12, LSCR2, LSCR3, LUC, LUHC, MAXA, MAXA0, MAXA1, MAXB, MAXB0, MAXB1, MAXE, MAXEL3, MAXIK, MAXPK, &
                      MOCAA, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, MXIJSTF, MXSTBL, MXSTBL0, MXSXBL, MXSXST, MXTSOB, NAEL, NBEL, &
@@ -225,7 +228,7 @@ call mma_allocate(OOS,nOOS,10,Label='OOS')
 iiCOPY = 1
 ! Transform C vector from CSF to SD basis
 if (NOCSF == 0) then
-  call CSDTVC_MCLR(C,HC,1,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY)
+  call CSDTVC_MCLR_1(C,HC,DTOC,CNSM(kic(1))%ICTS,icsm,iiCOPY)
   HC(1:NSDET) = Zero
 end if
 
@@ -266,7 +269,7 @@ if ((IDC /= 1) .and. (ICISTR == 1)) &
   call SCDTC2_MCLR(HC,ISSM,SBLTP,nIrrep,NOCTPA,NOCTPB,Str(IATP)%NSTSO,Str(IBTP)%NSTSO,CIOIO,IDC,1,IDUMMY)
 
 ! Transform HC vector from SD to CSF basis
-if (NOCSF == 0) call CSDTVC_MCLR(C,HC,2,DTOC,CNSM(kic(2))%ICTS,ISSM,1)
+if (NOCSF == 0) call CSDTVC_MCLR_2(C,HC,DTOC,CNSM(kic(2))%ICTS,ISSM,1)
 
 ! Eliminate local memory
 

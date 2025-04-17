@@ -17,9 +17,12 @@ use MCLR_Data, only: ipMO, nA
 use input_mclr, only: nAsh, nBas, nIsh, nSym, ntAsh, TimeDep
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: rmo(*), rmoaa(*)
-integer(kind=iwp) :: idsym
+real(kind=wp), intent(in) :: rmo(*)
+real(kind=wp), intent(_OUT_) :: rmoaa(*)
+integer(kind=iwp), intent(in) :: idsym
 integer(kind=iwp) :: iA, iAA, ijAA, ijkl, ipi, iS, jA, jAA, jS, kA, kAA, klAA, kS, lA, lAA, lS
 
 if (.not. timedep) then

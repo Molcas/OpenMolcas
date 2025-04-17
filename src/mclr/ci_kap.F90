@@ -21,8 +21,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ipCID, iSym
-real(kind=wp) :: Fock(*), FockOut(*)
+integer(kind=iwp), intent(in) :: ipCID, iSym
+real(kind=wp), intent(out) :: Fock(nDens), FockOut(nDens)
 integer(kind=iwp) :: i, ij, ij1, j, k, kl1, l, nDim
 real(kind=wp) :: D0
 real(kind=wp), allocatable :: De(:), Pe(:), tmpDe(:,:), tmpDeM(:,:), tmpP(:), tmpPM(:,:,:,:)
@@ -33,6 +33,7 @@ call mma_allocate(Pe,n2Dens,Label='Pe')
 
 call CIDens_SA(.true.,ipCI,ipCid,State_sym,State_Sym,Pe,De)
 
+d0 = Zero
 ! ======================================================================
 if (doDMRG) then
   call dmrg_dim_change_mclr(LRras2,ntash,0)
@@ -108,10 +109,6 @@ if (doDMRG) then
   !call ipin(ipCID)
   !call ipin(ipci)
   !call projecter(W(ipCID)%A,W(ipci)%A,De,Pe)
-  Fock(1:nDens) = Zero
-  FockOut(1:nDens) = Zero
-  d0 = Zero
-
   call FockGen(d0,tmpDe,tmpP,Fock,FockOut,isym) ! yma modified
 
 else
@@ -119,9 +116,6 @@ else
   !call ipin(ipCID)
   !call ipin(ipci)
   !call projecter(W(ipCID)%A,W(ipci)%A,De,Pe)
-  Fock(1:nDens) = Zero
-  FockOut(1:nDens) = Zero
-  d0 = Zero
   call FockGen(d0,De,Pe,Fock,FockOut,isym)
 end if
 call mma_deallocate(De)

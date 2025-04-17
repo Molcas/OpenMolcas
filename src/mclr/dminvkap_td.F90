@@ -10,15 +10,16 @@
 !***********************************************************************
 
 subroutine DMInvKap_td(DigPrec,rIn,rOut)
-! Prec  Diagonal Preconditioner from Prec_td
-! rIn   nDensC long orb RHS
-! rout  Trail vector rout = T^-1B^x
+! DigPrec  Diagonal Preconditioner from Prec_td
+! rIn      nDensC long orb RHS
+! rOut     Trial vector rOut = T^-1B^x
 
 use MCLR_Data, only: nDensC
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: DigPrec(nDensC), rIn(nDensC), rOut(nDensC)
+real(kind=wp), intent(in) :: DigPrec(nDensC), rIn(nDensC)
+real(kind=wp), intent(out) :: rOut(nDensC)
 
 !-----------------------------------------------------------------------
 ! Multiply the 1/precond in vector form, rTemp, with RHS in vector form, rIn

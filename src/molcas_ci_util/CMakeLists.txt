@@ -36,7 +36,7 @@ set (sources
      david5.F90
      dblock.F90
      detstr2.F90
-     dgmm2_molcas.F90
+     dgmm2.F90
      diagord.F90
      dihdj_molcas.F90
      dmatdmat.F90

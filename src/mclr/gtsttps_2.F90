@@ -10,11 +10,10 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine GTSTTPS(IEL1,IEL3,NEL1,NEL3,NTYP,ITYP,IWAY)
+subroutine GTSTTPS_2(IEL1,IEL3,NEL1,NEL3,ITYP)
 ! ITYP : type of strings with IEL1,IEL3 electrons
 !
-! IWAY = 1 : IEL1, IEL3 known, find ITYP
-! IWAY = 2 : ITYP known, find IEL1, IEL3
+! ITYP known, find IEL1, IEL3
 
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
@@ -22,31 +21,14 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: IEL1, IEL3, NEL1(*), NEL3(*), NTYP, ITYP, IWAY
-integer(kind=iwp) :: IITYP
+integer(kind=iwp), intent(out) :: IEL1, IEL3
+integer(kind=iwp), intent(in) :: NEL1(*), NEL3(*), ITYP
 
-if (IWAY == 1) then
-  ITYP = -1
-  do IITYP=1,NTYP
-    if ((IEL1 == NEL1(IITYP)) .and. (IEL3 == NEL3(IITYP))) ITYP = IITYP
-  end do
-
-  !if (ITYP == -1) then
-  !  write(u6,*) ' Error in GSTTPS'
-  !  write(u6,*) ' Error : Type could not be identified'
-  !  write(u6,*) ' Error : IEL1 IEL3 : ',IEL1,IEL3
-  !  write(u6,*) ' I am going to STOP'
-  !  stop 'GSTTPS'
-  !endif
-else if (IWAY == 2) then
-  IEL1 = NEL1(ITYP)
-  IEL3 = NEL3(ITYP)
-end if
+IEL1 = NEL1(ITYP)
+IEL3 = NEL3(ITYP)
 
 #ifdef _DEBUGPRINT_
-write(u6,'(A,5I4)') ' GSTTPS : IWAY IEL1 IEL3 ITYP ',IWAY,IEL1,IEL3,ITYP
+write(u6,'(A,5I4)') ' GTSTTPS : IEL1 IEL3 ITYP ',IEL1,IEL3,ITYP
 #endif
 
-return
-
-end subroutine GTSTTPS
+end subroutine GTSTTPS_2

@@ -24,7 +24,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: bX(nTri_Elem(nRoots-1)), LOK(nRoots,nRoots), R(nRoots,nRoots), H(nRoots,nRoots)
+real(kind=wp), intent(out) :: bX(nTri_Elem(nRoots-1))
+real(kind=wp), intent(in) :: LOK(nRoots,nRoots), R(nRoots,nRoots), H(nRoots,nRoots)
 integer(kind=iwp) :: I, IKL, K, L, M, N
 real(kind=wp) :: TempD
 

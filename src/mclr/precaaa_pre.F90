@@ -17,8 +17,11 @@ use MCLR_Data, only: nA
 use input_mclr, only: nAsh, nBas, nIsh, nSym, ntAsh
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: ActInt(ntAsh,ntAsh,ntAsh,ntAsh), A_J(*), Scr(*)
+real(kind=wp), intent(out) :: ActInt(ntAsh,ntAsh,ntAsh,ntAsh)
+real(kind=wp), intent(_OUT_) :: A_J(*), Scr(*)
 integer(kind=iwp) :: iA, iAabs, iAtot, iB, iBabs, iBtot, iC, iCabs, iCtot, iD, iDabs, iDtot, iSym, jSym
 real(kind=wp) :: Val
 

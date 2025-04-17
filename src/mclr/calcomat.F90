@@ -26,8 +26,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTri
-real(kind=wp) :: CSFOK(nConf1,nRoots), LOK(nRoots,nRoots), FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots)
+real(kind=wp), intent(out) :: CSFOK(nConf1,nRoots), LOK(nRoots,nRoots)
+integer(kind=iwp), intent(in) :: nTri
+real(kind=wp), intent(in) :: FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots)
 integer(kind=iwp) :: I, iB, ij, iOff, iptmp, iS, jB, ji, jS, L, nConf3
 real(kind=wp) :: rdum(1)
 real(kind=wp), allocatable :: FMO1(:)

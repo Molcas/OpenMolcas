@@ -16,8 +16,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ARRAY(*)
-integer(kind=iwp) :: NDIM, MBLOCK, IFILE, IMZERO
+integer(kind=iwp), intent(in) :: NDIM, MBLOCK, IFILE
+real(kind=wp), intent(out) :: ARRAY(NDIM)
+integer(kind=iwp), intent(out) :: IMZERO
 integer(kind=iwp) :: I, IBASE, IDUM(1), IREST, NBLOCK
 integer(kind=iwp), parameter :: IPACK = 1, ICRAY = 1
 
@@ -26,7 +27,7 @@ if (IPACK /= 0) then
   call IFRMDS(IDUM,1,MBLOCK,IFILE)
   IMZERO = IDUM(1)
   if (IMZERO == 1) then
-    ARRAY(1:NDIM) = Zero
+    ARRAY(:) = Zero
     return
   end if
 end if

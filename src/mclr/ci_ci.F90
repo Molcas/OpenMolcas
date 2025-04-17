@@ -19,7 +19,7 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ipCID, ipS2
+integer(kind=iwp), intent(in) :: ipCID, ipS2
 integer(kind=iwp) :: i, n
 real(kind=wp) :: EC, rDum(1)
 

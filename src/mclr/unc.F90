@@ -23,19 +23,20 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ArrayIn(nDensC), ArrayOut(nDens), Sgn
-integer(kind=iwp) :: dsym
-integer(kind=iwp) :: iBas, Index1, Index2, IndexC, iSym, iT, jBas, jSym, jT
+real(kind=wp), intent(in) :: ArrayIn(nDensC), Sgn
+real(kind=wp), intent(out) :: ArrayOut(nDens)
+integer(kind=iwp), intent(in) :: dsym
+integer(kind=iwp) :: iBas, idsym, Index1, Index2, IndexC, iSym, iT, jBas, jSym, jT
 real(kind=wp) :: Fact
 
 indexC = 0
 Fact = One
 if (dsym < 0) Fact = -Fact
-dsym = abs(dsym)
+idsym = abs(dsym)
 ArrayOut(:) = Zero
 do iSym=1,nSym
   do jSym=1,nSym
-    if (Mul(iSym,jSym) == dSym) then
+    if (Mul(iSym,jSym) == idSym) then
       do jBas=1,nB(jSym)
         if (jBas <= nIsh(jsym)) then
           jT = 0

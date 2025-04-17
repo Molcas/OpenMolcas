@@ -39,8 +39,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ekappa(nDens), mkappa(nDens)
-integer(kind=iwp) :: iSym
+real(kind=wp), intent(inout) :: ekappa(nDens)
+real(kind=wp), intent(in) :: mkappa(nDens)
+integer(kind=iwp), intent(in) :: iSym
 integer(kind=iwp) :: iA, iB, ifin, iini, Inc, ip, ip2, ip3, iS, jA, jB, jS, lDens
 real(kind=wp), allocatable :: Dens(:), wDKt(:), wKtD(:)
 

@@ -30,12 +30,14 @@ subroutine ORDSTR_MCLR(IINST,IOUTST,NELMNT,ISGN)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NELMNT, IINST(NELMNT), IOUTST(NELMNT), ISGN
+integer(kind=iwp), intent(in) :: NELMNT
+integer(kind=iwp), intent(inout) :: IINST(NELMNT)
+integer(kind=iwp), intent(out) :: IOUTST(NELMNT), ISGN
 integer(kind=iwp) :: I, iPass, iTemp
 
+ISGN = 1
 if (NELMNT == 0) return
 
-ISGN = 1
 iTEMP = 0
 
 iPass = 1

@@ -16,14 +16,17 @@ subroutine CSDIAG_MCLR(CSFDIA,DETDIA,NCNFTP,NTYP,ICTSDT,NDTFTP,NCSFTP)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CSFDIA(*), DETDIA(*)
-integer(kind=iwp) :: NTYP, NCNFTP(NTYP), ICTSDT(*), NDTFTP(NTYP), NCSFTP(NTYP)
+real(kind=wp), intent(_OUT_) :: CSFDIA(*)
+real(kind=wp), intent(in) :: DETDIA(*)
+integer(kind=iwp), intent(in) :: NTYP, NCNFTP(NTYP), ICTSDT(*), NDTFTP(NTYP), NCSFTP(NTYP)
 integer(kind=iwp) :: ICNF, ICSF, ICSOFF, IDET, IDTOFF, ITYP, JCNABS, JCNF, JDET
 real(kind=wp) :: EAVER
 
-ICSOFF = 1
-IDTOFF = 1
+ICSOFF = 0
+IDTOFF = 0
 JCNABS = 0
 do ITYP=1,NTYP
   IDET = NDTFTP(ITYP)
@@ -33,10 +36,10 @@ do ITYP=1,NTYP
     JCNABS = JCNABS+1
     EAVER = Zero
     do JDET=1,IDET
-      EAVER = EAVER+DETDIA(abs(ICTSDT(IDTOFF-1+JDET)))
+      EAVER = EAVER+DETDIA(abs(ICTSDT(IDTOFF+JDET)))
     end do
     if (IDET /= 0) EAVER = EAVER/real(IDET,kind=wp)
-    CSFDIA(ICSOFF:ICSOFF+ICSF-1) = EAVER
+    CSFDIA(ICSOFF+1:ICSOFF+ICSF) = EAVER
     ICSOFF = ICSOFF+ICSF
     IDTOFF = IDTOFF+IDET
   end do

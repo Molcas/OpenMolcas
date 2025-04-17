@@ -24,9 +24,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTri
-real(kind=wp) :: bX(nTri_Elem(nRoots-1)), bP(nRoots,nConf1), FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots), R(nRoots,nRoots), &
-                 H(nRoots,nRoots)
+real(kind=wp), intent(out) :: bX(nTri_Elem(nRoots-1)), bP(nRoots,nConf1)
+integer(kind=iwp), intent(in) :: nTri
+real(kind=wp), intent(in) :: FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots), R(nRoots,nRoots), H(nRoots,nRoots)
 real(kind=wp), allocatable :: CSFOK(:,:), LOK(:,:)
 
 call mma_allocate(CSFOK,nConf1,nRoots)

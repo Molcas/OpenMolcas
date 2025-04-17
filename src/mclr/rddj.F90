@@ -24,9 +24,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: G1r(*), G1Q(*), G2r(*)
-integer(kind=iwp) :: iestate
+real(kind=wp), intent(_OUT_) :: G1r(*), G1Q(*), G2r(*)
+integer(kind=iwp), intent(in) :: iestate
 integer(kind=iwp) :: i, iB, iDij, iDkl, iIJKL, iR, iRij, iRijkl, iRkl, jB, jDisk, kB, lB, nG1, nG2
 real(kind=wp) :: Fact, rdum(1)
 real(kind=wp), allocatable :: G2Q(:)

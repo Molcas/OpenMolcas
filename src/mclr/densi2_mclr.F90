@@ -41,8 +41,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: I12, LUL, LUR, ieaw, n1, n2
-real(kind=wp) :: RHO1(NACOB,NACOB), RHO2(nTri_Elem(NACOB**2)), L(*), R(*)
+integer(kind=iwp), intent(in) :: I12, LUL, LUR, ieaw, n1, n2
+real(kind=wp), intent(out) :: RHO1(NACOB,NACOB), RHO2(nTri_Elem(NACOB**2))
+real(kind=wp), intent(inout) :: L(*), R(*)
 integer(kind=iwp) :: IATP, IATP2, IBTP, IBTP2, idum(1), IDUMMY(1), IMNMX, INTSCR, IOCTPA, IOCTPB, JATP, JBTP, LSCR1, LSCR12, &
                      LSCR2, LSCR3, MAXA, MAXA1, MAXB, MAXB1, MAXIK, MXCIJA, MXCIJAB, MXCIJB, MXCJ, MXIJST, MXIJSTF, MXSTBL, &
                      MXSXBL, MXTSOB, NAEL, NBEL, NGAS, NOCTPA, NOCTPB, NOOS

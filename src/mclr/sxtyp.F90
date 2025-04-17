@@ -23,7 +23,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: NSXTP, ITP(3), JTP(3), LEL1, LEL3, REL1, REL3
+integer(kind=iwp), intent(out) :: NSXTP, ITP(3), JTP(3)
+integer(kind=iwp), intent(in) :: LEL1, LEL3, REL1, REL3
 integer(kind=iwp) :: I1, I123, I3, IJ1, IJ3, J123
 
 NSXTP = 0

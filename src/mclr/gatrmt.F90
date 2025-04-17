@@ -22,8 +22,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NROWIN, NCOLIN, NROWUT, NCOLUT, ISCA(*)
-real(kind=wp) :: MATIN(NCOLIN,NROWIN), MATUT(NROWUT,NCOLUT), SSCA(*)
+integer(kind=iwp), intent(in) :: NROWIN, NCOLIN, NROWUT, NCOLUT, ISCA(*)
+real(kind=wp), intent(in) :: MATIN(NCOLIN,NROWIN), SSCA(*)
+real(kind=wp), intent(out) :: MATUT(NROWUT,NCOLUT)
 integer(kind=iwp) :: I, ICBL, ICEND, ICOFF, IROW, LBLK, NBLK
 real(kind=wp) :: S
 
@@ -43,12 +44,12 @@ do ICBL=1,NBLK
   end if
   ICEND = min(ICOFF+LBLK-1,NCOLUT)
   do I=1,NROWUT
-    if (ISCA(I) /= 0) then
-      S = SSCA(I)
-      IROW = ISCA(I)
-      MATUT(I,ICOFF:ICEND) = S*MATIN(ICOFF:ICEND,IROW)
-    else if (ISCA(I) == 0) then
+    IROW = ISCA(I)
+    if (IROW == 0) then
       MATUT(I,ICOFF:ICEND) = Zero
+    else
+      S = SSCA(I)
+      MATUT(I,ICOFF:ICEND) = S*MATIN(ICOFF:ICEND,IROW)
     end if
   end do
 end do

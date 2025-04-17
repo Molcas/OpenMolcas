@@ -22,7 +22,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lSym, iSpin, iSPC, nsym
+integer(kind=iwp), intent(in) :: lSym, iSpin, iSPC, nsym
 integer(kind=iwp) :: IA, IATP, IBTP, idum(1), ISYM, LLCSF, MNELR1, MXELR3, NCOMB, NEL, NOCTPA, NOCTPB, NOOS
 integer(kind=iwp), allocatable :: IOOS1(:), NOOS1(:), SBLTP(:), SIOIO(:)
 

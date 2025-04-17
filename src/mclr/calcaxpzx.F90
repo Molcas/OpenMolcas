@@ -116,9 +116,10 @@ use Constants, only: Zero, One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
-real(kind=wp) :: AXPzx(nConf1,nRoots), GDMat(nTri_Elem(nRoots),nnA,nnA), PUVX(NPUVX), DDg(nTri_Elem(nRoots),nTri_Elem(nRoots)), &
-                 zX(nTri_Elem(nRoots-1))
+real(kind=wp), intent(out) :: AXPzx(nConf1,nRoots)
+integer(kind=iwp), intent(in) :: NPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
+real(kind=wp), intent(in) :: GDMat(nTri_Elem(nRoots),nnA,nnA), PUVX(NPUVX), DDg(nTri_Elem(nRoots),nTri_Elem(nRoots)), &
+                             zX(nTri_Elem(nRoots-1))
 integer(kind=iwp) :: I, iKK, iKL, iKL2, iKM, iKM2, iLL, iLM, ipwslam, jSym, K, L, M, nconf3, off_Ash(nSym)
 real(kind=wp) :: Coeff, coeff1, coeff2, dRoots, tempda(1)
 real(kind=wp), allocatable :: D_acc(:), Ddiff(:), ovrlp(:,:), Wop(:)

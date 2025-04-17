@@ -21,9 +21,12 @@ use Index_Functions, only: iTri
 use MCLR_Data, only: IBTSOB, NACOB, NTSOB
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: XINT(*), Intlst(*)
-integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM, ICTL
+real(kind=wp), intent(_OUT_) :: XINT(*)
+integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IKSM, JLSM, ICTL
+real(kind=wp), intent(in) :: Intlst(*)
 integer(kind=iwp) :: iBas, iInt, IJ, IJKL, IL, ILJK, IMIN, iOff, iOrb, jBas, JK, JMIN, jOff, jOrb, kBas, KL, kOff, kOrb, lBas, &
                      lOff, lOrb, NTASH
 

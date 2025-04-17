@@ -21,8 +21,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: M, K, nnA, nRoots
-real(kind=wp) :: Ddiff(nnA,nnA), GDMat(nTri_Elem(nRoots),nnA,nnA)
+integer(kind=iwp), intent(in) :: M, K, nnA, nRoots
+real(kind=wp), intent(out) :: Ddiff(nnA,nnA)
+real(kind=wp), intent(in) :: GDMat(nTri_Elem(nRoots),nnA,nnA)
 integer(kind=iwp) :: iKK, iMM, it
 
 iMM = nTri_Elem(M)

@@ -31,11 +31,12 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp) :: IABNUS
-integer(kind=iwp) :: NAEL, IASTR(NAEL), IAORD(*), ITPFSA(*), ISMFSA(*), NOCTPA, ZA(*), ISSOA(NOCTPA,*), NSSOA(NOCTPA,*), NBEL, &
-                     IBSTR(NBEL), IBORD(*), ITPFSB(*), ISMFSB(*), NOCTPB, ZB(*), ISSOB(NOCTPB,*), NSSOB(NOCTPB,*), &
-                     IOOS(NOCTPA,NOCTPB,*), NORB, IGENSG, ISGNA(*), ISGNB(*), IPSFAC
-real(kind=wp) :: PSSIGN
-integer(kind=iwp) :: IANUM, IAREL, IASYM, IATP, IBNUM, IBREL, IBSYM, IBTP, ISGNAB, ISTRNM
+integer(kind=iwp), intent(in) :: NAEL, IASTR(NAEL), IAORD(*), ITPFSA(*), ISMFSA(*), NOCTPA, ZA(*), ISSOA(NOCTPA,*), &
+                                 NSSOA(NOCTPA,*), NBEL, IBSTR(NBEL), IBORD(*), ITPFSB(*), ISMFSB(*), NOCTPB, ZB(*), &
+                                 ISSOB(NOCTPB,*), NSSOB(NOCTPB,*), IOOS(NOCTPA,NOCTPB,*), NORB, IGENSG, ISGNA(*), ISGNB(*)
+integer(kind=iwp), intent(out) :: ISGNAB, IPSFAC
+real(kind=wp), intent(in) :: PSSIGN
+integer(kind=iwp) :: IANUM, IAREL, IASYM, IATP, IBNUM, IBREL, IBSYM, IBTP, ISTRNM
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' >>> IABNUS SPEAKING <<<'

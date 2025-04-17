@@ -19,7 +19,8 @@ use Constants, only: Zero, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: AXX(nTri_Elem(nRoots-1),nTri_Elem(nRoots-1)), W(nTri_Elem(nRoots),nTri_Elem(nRoots))
+real(kind=wp), intent(out) :: AXX(nTri_Elem(nRoots-1),nTri_Elem(nRoots-1))
+real(kind=wp), intent(in) :: W(nTri_Elem(nRoots),nTri_Elem(nRoots))
 integer(kind=iwp) :: IC, IKK, IKL, IKL2, ILL, IMM, IMN, IMN2, INN, K, L, M, N
 real(kind=wp) :: VKLMN, VKLNM, VLKMN, VLKNM
 

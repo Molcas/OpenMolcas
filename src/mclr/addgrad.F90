@@ -27,8 +27,9 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: rKappa(*), rMat(*), fact
-integer(kind=iwp) :: idsym
+real(kind=wp), intent(in) :: rKappa(*), fact
+real(kind=wp), intent(inout) :: rMat(*)
+integer(kind=iwp), intent(in) :: idsym
 integer(kind=iwp) :: iS, jS
 real(kind=wp), allocatable :: Tempi(:), Tempj(:)
 

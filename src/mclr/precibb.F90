@@ -38,9 +38,14 @@ use input_mclr, only: nAsh, nIsh, nOrb
 use Constants, only: Four, Twelve
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ib, is, js, nd, no
-real(kind=wp) :: rout(*), Temp1(no,no), Scr(*), Temp2(no,no), fockii, fockai, Focki(no,no), Focka(no,no), Sgn
+integer(kind=iwp), intent(in) :: ib, is, js, nd, no
+real(kind=wp), intent(inout) :: rout(*)
+real(kind=wp), intent(out) :: Temp1(no,no), Temp2(no,no)
+real(kind=wp), intent(_OUT_) :: Scr(*)
+real(kind=wp), intent(in) :: fockii, fockai, Focki(no,no), Focka(no,no), Sgn
 integer(kind=iwp) :: i, ip, jVert, kB
 real(kind=wp) :: ra
 

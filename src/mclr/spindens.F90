@@ -45,9 +45,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: LS(*), RS(*), rP1(nna,nna,nna,nna), rP2(nna,nna,nna,nna), rP3(nna,nna,nna,nna), rP4(nna,nna,nna,nna), &
-                 rP5(nna,nna,nna,nna), rDe1(nna,nna), rde2(nna,nna)
-integer(kind=iwp) :: iL, iR, iType
+real(kind=wp), intent(in) :: LS(*), RS(*)
+integer(kind=iwp), intent(in) :: iL, iR, iType
+real(kind=wp), intent(out) :: rP1(nna,nna,nna,nna), rP2(nna,nna,nna,nna), rP3(nna,nna,nna,nna), rP4(nna,nna,nna,nna), &
+                              rP5(nna,nna,nna,nna), rDe1(nna,nna), rde2(nna,nna)
 integer(kind=iwp) :: iA, ijkl, ijklAB, ijklBA, jA, jilk, jilkAB, jilkBA, kA, lA, n2, nConfL, nConfR
 real(kind=wp), allocatable :: CIL(:), CIR(:), Dens(:,:), Pens(:)
 
@@ -102,7 +103,7 @@ else if (itype == 2) then
   ! ++
   ! -+
   ! spindensity
-  ! spin adadpted density
+  ! spin adapted density
 
   rde1(:,:) = reshape(Dens(:,2)-Dens(:,1),[nna,nna])
   rde2(:,:) = reshape(Dens(:,1)+Dens(:,2),[nna,nna])

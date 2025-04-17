@@ -22,8 +22,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: H(*), Coor(*)
-integer(kind=iwp) :: LUT
+real(kind=wp), intent(in) :: H(*), Coor(*)
+integer(kind=iwp), intent(in) :: LUT
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idsp, ii, iii, iIrrep, inddsp(100,0:7), iPERT, iS, j, jCar, jCnt, jCnttp, &
                      jCo, jComp, jDsp, jPERT, kop_m, kop_n, ldisp(0:7), mdc, nCenti, nCentj, nCnti, nCntj, nd, ndc, nDeg(200), &
                      nop_m, nop_n
@@ -43,7 +43,7 @@ do iIrrep=0,nIrrep-1
       mdc = mdc+1
       IndDsp(mdc,iIrrep) = idsp
       do iCar=0,2
-        iComp = 2**iCar
+        iComp = ibset(0,iCar)
         if (TF(mdc,iIrrep,iComp)) then
           idsp = idsp+1
           ldisp(iirrep) = ldisp(iirrep)+1
@@ -106,12 +106,12 @@ do iCnttp=1,nCnttp
         do iIrrep=0,nIrrep-1
           iDsp = IndDsp(mdc,iIrrep)
           do iCar=0,2
-            iComp = 2**iCar
+            iComp = ibset(0,iCar)
             if (TF(mdc,iIrrep,iComp)) then
               idsp = idsp+1
               jDsp = IndDsp(ndc,iIrrep)
               do jCar=0,2
-                jComp = 2**jCar
+                jComp = ibset(0,jCar)
                 if (TF(ndc,iIrrep,jComp)) then
                   jdsp = jdsp+1
                   HE = Tmp(iTri(idsp,jdsp))

@@ -21,8 +21,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: rkappa(nDensC), rMOs(*), rmoa(*), Focki(nDens), Sigma(nDensC)
+real(kind=wp), intent(in) :: rkappa(nDensC)
+real(kind=wp), intent(_OUT_) :: rMOs(*), rmoa(*)
+real(kind=wp), intent(out) :: Focki(nDens), Sigma(nDensC)
 real(kind=wp), allocatable :: MT1(:), MT2(:), MT3(:), Scr(:)
 
 ! D,FA used in oit of FA
@@ -36,10 +40,9 @@ call mma_allocate(MT2,nmba,Label='MT2')
 call mma_allocate(MT3,nmba,Label='MT3')
 call mma_allocate(Scr,nDensC,Label='Scr')
 
-call Oit_sp(rkappa,Scr,-1,-One,G2mp,One,Fm,G1m,FAMO_Spinm,MT1,MT2,Focki)
-!sigma(:) = rbetaA*Half*SCR(:)
-sigma(:) = SCR(:)
-call Recprt(' ',' ',SCR,nDensC,1)
+call Oit_sp(rkappa,sigma,-1,-One,G2mp,One,Fm,G1m,FAMO_Spinm,MT1,MT2,Focki)
+!sigma(:) = rbetaA*Half*sigma(:)
+call Recprt(' ',' ',sigma,nDensC,1)
 
 ! kappa_S
 

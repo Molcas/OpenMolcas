@@ -52,10 +52,15 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, ISEL1, ISEL3, ICEL1, ICEL3, NTSOB(3,*), IBTSOB(3,*), ITSOB(*), MAXI, &
-                     MAXK, I1(*), NSM
-real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), H(*), SGN
+integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, ISEL1, ISEL3, ICEL1, ICEL3, NTSOB(3,*), IBTSOB(3,*), &
+                                 ITSOB(*), MAXI, MAXK, NSM
+real(kind=wp), intent(inout) :: SB(*)
+real(kind=wp), intent(in) :: CB(*), SGN
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(*), H(*)
+integer(kind=iwp), intent(_OUT_) :: I1(*)
 integer(kind=iwp) :: IBORB, IBOT, ICGOFF, IIORB, IJSM, IJTP, IORB, IPART, ISBOFF, ISM, ITOP, ITP(3), ITYP, JBORB, JJORB, JORB, &
                      JSM, JTP(3), JTYP, KBOT, KEND, KTOP, NIBTC, NIK, NIORB, NIPART, NJORB, NKBTC, NSXTP
 

@@ -29,9 +29,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: rkappa(nDens), rMOs(*), rmoa(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens), reco
-integer(kind=iwp) :: iDSym, jSpin
+real(kind=wp), intent(in) :: rkappa(nDens), reco
+real(kind=wp), intent(_OUT_) :: rMOs(*), rmoa(*)
+real(kind=wp), intent(out) :: Fock(nDens)
+real(kind=wp), intent(inout) :: Q(nDens), FockI(nDens), FockA(nDens)
+integer(kind=iwp), intent(in) :: iDSym, jSpin
 integer(kind=iwp) :: iAsh, iB, iij, ijS, ikl, iOff, iOff2, iOff3, iOff4, iOff5, ip2, ipF, ipFI, ipGx, iRead, iS, iSym, jAsh, jB, &
                      jS, jSym, kAsh, kS, lAsh, lS, nAct, nAG2, nAtri, nG2
 real(kind=wp) :: Dij, Fact

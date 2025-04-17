@@ -15,12 +15,11 @@ subroutine CMP2CN(ICNL,NCLL,NOPL,ICNR,NCLR,NOPR,ISCR,NORB,NDIFF)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ICNL(*), NCLL, NOPL, ICNR(*), NCLR, NOPR, ISCR(*), NORB, NDIFF
+integer(kind=iwp), intent(in) :: NCLL, NOPL, ICNL(NCLL+NOPL), NCLR, NOPR, ICNR(NCLR+NOPR), NORB
+integer(kind=iwp), intent(out) :: ISCR(NORB), NDIFF
 integer(kind=iwp) :: ICL, IOP
 
-! Length of Scratch: Number of orbitals
-
-ISCR(1:NORB) = 0
+ISCR(:) = 0
 do ICL=1,NCLL
   ISCR(ICNL(ICL)) = 2
 end do

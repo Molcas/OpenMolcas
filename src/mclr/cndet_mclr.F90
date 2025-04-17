@@ -14,9 +14,9 @@
 !#define _DEBUGPRINT_
 subroutine CNDET_MCLR(ICONF,IPDET,NDET,NEL,NORB,NOP,NCL,IDET)
 ! A configuration ICONF in compressed form and a set of
-! prototype determinants,IPDET, are given.
+! prototype determinants, IPDET, are given.
 !
-! Construct the corresponding determinants in contracted  form.
+! Construct the corresponding determinants in contracted form.
 !
 ! JEPPE OLSEN, NOVEMBER 1988
 
@@ -26,7 +26,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: NORB, ICONF(NORB), NDET, NOP, IPDET(NOP,NDET), NEL, NCL, IDET(NEL,NDET)
+integer(kind=iwp), intent(in) :: NORB, ICONF(NORB), NDET, NOP, IPDET(NOP,NDET), NEL, NCL
+integer(kind=iwp), intent(out) :: IDET(NEL,NDET)
 integer(kind=iwp) :: IADD, IBASE, ICL, IOP, JDET
 
 ! POSITIVE NUMBER: ALPHA ORBITAL

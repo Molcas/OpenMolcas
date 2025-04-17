@@ -16,8 +16,8 @@ subroutine SetLab(label,j)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: j
-character(len=*) :: Label
+integer(kind=iwp), intent(in) :: j
+character(len=*), intent(out) :: Label
 integer(kind=iwp) :: i
 
 do i=1,len(label)

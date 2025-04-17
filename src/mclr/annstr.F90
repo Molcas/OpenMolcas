@@ -31,7 +31,7 @@ subroutine ANNSTR(STRING,NSTINI,NSTINO,NEL,NORB,Z,NEWORD,LROW,LSGSTR,ISGSTI,ISGS
 !                  row  corresponds to place of electron
 !          = NORB: Information is written in expanded form,
 !                  row corresponds to full orbital number
-! LSGSTI : NE.0 => use ISGSTI,ISGSTO to allow for sign of string
+! LSGSTI : /= 0 => use ISGSTI,ISGSTO to allow for sign of string
 ! ISGSTI : Sign array for NEL   strings
 ! ISGSTO : Sign array for NEL-1 strings
 !
@@ -57,8 +57,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, Z(NORB,NEL-1), NEWORD(NSTINO), LROW, LSGSTR, ISGSTI(NSTINI), &
-                     ISGSTO(NSTINO), TI(LROW,NSTINI), TTO(LROW,NSTINI), I1TYP
+integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, Z(NORB,NEL-1), NEWORD(NSTINO), LROW, LSGSTR, &
+                                 ISGSTI(NSTINI), ISGSTO(NSTINO), I1TYP
+integer(kind=iwp), intent(out) :: TI(LROW,NSTINI), TTO(LROW,NSTINI)
 integer(kind=iwp) :: IEL, IEXPN, IIISGN, IPLACE, ISTRIN, ITYPE, JSTRIN, STRIN2(NEL-1)
 integer(kind=iwp), external :: IOCTP2_MCLR, ISTRNM
 

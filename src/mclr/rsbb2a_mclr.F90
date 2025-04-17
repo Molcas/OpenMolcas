@@ -55,11 +55,16 @@ use Str_Info, only: NOCTYP, STR
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, ISEL1, ISEL3, ICEL1, ICEL3, NTSOB(3,*), IBTSOB(3,*), MAXI, MAXK, &
-                     I1(*), NSM, NOPART, ieaw
-real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XINT(*), SGN
-logical(kind=iwp) :: TimeDep
+integer(kind=iwp), intent(in) :: ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, ISEL1, ISEL3, ICEL1, ICEL3, NTSOB(3,*), IBTSOB(3,*), &
+                                 MAXI, MAXK, NSM, NOPART, ieaw
+real(kind=wp), intent(inout) :: SB(*)
+real(kind=wp), intent(in) :: CB(*), SGN
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(*), XINT(*)
+integer(kind=iwp), intent(_OUT_) :: I1(*)
+logical(kind=iwp), intent(in) :: TimeDep
 integer(kind=iwp) :: I, IBOT, IDXSM, IDXTYP, IFIRST, IJL, IK, IKOFF, IKPSM, IKSM, IOFF, IPART, ISBOFF, ISM, ITOP, ITP(36), ITYP, &
                      IXCHNG, J, JLOFF, JLOFF2, JLPSM, JLSM, JOFF, JSM, JTP(36), JTYP, K, K1GRP, K1SM, K1TP, K2GRP, K2SM, K2TP, &
                      KBOT, KEND, KOFF, KSM, KTOP, KTP(36), KTYP, L, LIKB, LOFF, LSM, LTP(36), LTYP, NDXTYP, NI, NIBTC, NIK, NJ, &

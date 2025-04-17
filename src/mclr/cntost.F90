@@ -31,10 +31,13 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICONF(*), ICTSDT(*), NAEL, NBEL, IPRODT(*), IREFSM, NORB, NEL, IGENSG, ISGNA(*), ISGNB(*), IAGRP, IBGRP, &
-                     IOOS(*)
-real(kind=wp) :: PSSIGN
+integer(kind=iwp), intent(in) :: ICONF(*), NAEL, NBEL, IPRODT(*), IREFSM, NORB, IGENSG, ISGNA(*), ISGNB(*), IAGRP, IBGRP, IOOS(*)
+integer(kind=iwp), intent(_OUT_) :: ICTSDT(*)
+integer(kind=iwp), intent(out) :: NEL
+real(kind=wp), intent(in) :: PSSIGN
 integer(kind=iwp) :: IABNUM, IC, ICL, ICNBS, ICNBS0, ICNF, IDET, IJKL_NUM, IOCC, IOPEN, IPBAS, IPSFAC, ISGN, ISGNAB, ITYP, JDET, &
                      JDTABS, MXDT
 integer(kind=iwp), allocatable :: LDTBL(:), LIA(:), LIB(:), SCR23(:)

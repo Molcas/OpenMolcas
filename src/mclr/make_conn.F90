@@ -18,7 +18,8 @@ use Constants, only: Zero, Half, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: F(*), Kappa(*), P(*), D(*)
+real(kind=wp), intent(inout) :: F(*)
+real(kind=wp), intent(in) :: Kappa(*), P(*), D(*)
 integer(kind=iwp) :: iB, ijB, ipTmp, ipTmp1, ipTmp2, iS, jB
 real(kind=wp) :: dum(1), Fact
 real(kind=wp), allocatable :: T1(:), T2(:), T3(:), T4(:)

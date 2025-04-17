@@ -33,7 +33,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iPL
+integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: i, ii, ipCII, iSSM
 character(len=8) :: Method
 integer(kind=iwp), allocatable :: index_SD(:) ! not final version
@@ -125,7 +125,7 @@ if (iMethod == 2) then
       do ii=1,ndets_RGLR
         if (abs(vector_cidmrg(ii)) < Zero) vector_cidmrg(ii) = Zero
       end do
-      call CSDTVC_dmrg(CITmp,vector_cidmrg,2,DTOC,index_SD,ISSM,1)
+      call CSDTVC_dmrg(CITmp,vector_cidmrg,DTOC,index_SD,ISSM,1)
       call mma_deallocate(index_SD)
       call mma_deallocate(vector_cidmrg)
     end if

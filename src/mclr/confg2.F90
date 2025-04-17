@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,NCNFTP,IIOC,IIOP,IICL)
+subroutine CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,NCNFTP)
 ! Generate array,ICONF,giving occupation of each configuration
 ! for CI space of reference symmetry IREFSM.
 !
@@ -20,18 +20,22 @@ subroutine CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,N
 !             August 1990 : Improved handling of large RAS 3 space
 !
 ! Turbo configuration generator
-! Iconf is ordered so all configuratiuns of the same type are
+! Iconf is ordered so all configurations of the same type are
 ! consecutively stored.
 ! ICONF is written so closed orbitals are given first and then single
 ! occupied orbitals
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, MINOP, MAXOP, IREFSM, NEL, ICONF(*), NCNFTP(*), IIOC(*), IIOP(*), IICL(*)
+integer(kind=iwp), intent(in) :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, MINOP, MAXOP, IREFSM, NEL, NCNFTP(*)
+integer(kind=iwp), intent(_OUT_) :: ICONF(*)
 integer(kind=iwp) :: ICFREE, ICL, ICL1, IEL1, IEL1C, IEL3, IEL3C, IFRSTC, IFRSTO, IFSTR3, IIICHK, IOP, IORB, IORB1F, IORB1L, &
                      IORB2F, IORB2L, IORB3F, IORB3L, IPLACE, IPRORB, IR3CHK, ISYM, JCONF, K, KEL, KORB, MINCL1, MXMPTY, NCL, &
                      NEWORB, NOP, NORB
@@ -39,6 +43,7 @@ integer(kind=iwp) :: ICFREE, ICL, ICL1, IEL1, IEL1C, IEL3, IEL3C, IFRSTC, IFRSTO
 integer(kind=iwp) :: I, IBAS, IOC, IOPEN, ITYPE, LICONF
 #endif
 logical(kind=iwp) :: Loop700, Loop800, Skip700, Skip800, Test
+integer(kind=iwp), allocatable :: IICL(:), IIOC(:), IIOP(:)
 integer(kind=iwp), external :: ISYMST_MCLR
 
 #ifndef _DEBUGPRINT_
@@ -56,6 +61,10 @@ IORB3F = IORB2L+1
 IORB3L = IORB3F+NORB3-1
 
 NORB = NORB1+NORB2+NORB3
+
+call mma_allocate(IIOC,NORB,Label='IIOC')
+call mma_allocate(IIOP,NORB,Label='IIOP')
+call mma_allocate(IICL,NORB,Label='IICL')
 
 ! Loop over types of configurations
 
@@ -310,6 +319,10 @@ outer: do NOP=MINOP,MAXOP,2
   end do inner
 end do outer
 
+call mma_deallocate(IIOC)
+call mma_deallocate(IIOP)
+call mma_deallocate(IICL)
+
 #ifdef _DEBUGPRINT_
 write(u6,'(/A,I3)') '  Configurations of symmetry ',IREFSM
 write(u6,*) ' ================================='
@@ -326,8 +339,6 @@ do IOPEN=MINOP,MAXOP
     IBAS = IBAS+IOC
   end do
 end do
-
-return
 
 1120 format('0  configuration included ',15I3)
 #endif

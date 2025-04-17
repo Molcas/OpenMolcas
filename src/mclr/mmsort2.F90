@@ -16,9 +16,12 @@ use MCLR_Data, only: DspVec, lDisp
 use input_mclr, only: nSym, nTPert
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: A(*), B(*), P(*)
-integer(kind=iwp) :: iel(3)
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*), P(*)
+integer(kind=iwp), intent(out) :: iel(3)
 integer(kind=iwp) :: iDisp, iG, iii, ijD, ijD1, ijG, ijP, iSym, jDisp
 logical(kind=iwp) :: geomi, geomj
 

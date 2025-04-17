@@ -18,7 +18,7 @@ use MCLR_Data, only: Int2, NACOB
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: RJ(NACOB,NACOB), RK(NACOB,NACOB)
+real(kind=wp), intent(out) :: RJ(NACOB,NACOB), RK(NACOB,NACOB)
 integer(kind=iwp) :: NT, NTUJ, NTUK, NU
 
 ! FORM THE COULOMB (RJ) AND EXCHANGE (RK) INTEGRAL MATRICES FROM

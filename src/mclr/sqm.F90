@@ -11,11 +11,13 @@
 
 subroutine SqM(a,b,n)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: a(*), b(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: a(nTri_Elem(n))
+real(kind=wp), intent(out) :: b(n,n)
 integer(kind=iwp) :: i, ij
 
 ij = 0

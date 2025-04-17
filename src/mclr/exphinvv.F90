@@ -27,7 +27,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: rdia(nConf1), v(nConf1), u(nConf1), alpha, beta
+real(kind=wp), intent(in) :: rdia(nConf1), v(nConf1), alpha, beta
+real(kind=wp), intent(inout) :: u(nConf1)
 integer(kind=iwp) :: i, iRC, j
 real(kind=wp), allocatable :: Tmp1(:), Tmp4(:)
 

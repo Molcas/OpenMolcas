@@ -10,43 +10,37 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine DGMM2(AOUT,AIN,DIAG,IWAY,NRDIM,NCDIM)
-! PRODUCT OF DIAGONAL MATRIX AND MATRIX :
+subroutine TRIPK2_1(AUTPAK,APAK,MATDIM,NDIM)
+! REFORMATTING BETWEEN LOWER TRIANGULAR PACKING
+! AND FULL MATRIX FORM FOR A SYMMETRIC OR ANTI SYMMETRIC MATRIX
 !
-!   IWAY = 1 : AOUT(I,J) = DIAG(I)*AIN(I,J)
-!   IWAY = 2 : AOUT(I,J) = DIAG(J)*AIN(I,J)
+! FULL TO PACKED
+! LOWER HALF OF AUTPAK IS STORED IN APAK
+! NOTE : COLUMN WISE STORAGE SCHEME IS USED FOR PACKED BLOCKS
 
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
 
-implicit none
-integer(kind=iwp) :: IWAY, NRDIM, NCDIM
-real(kind=wp) :: AOUT(NRDIM,NCDIM), AIN(NRDIM,NCDIM), DIAG(*)
-integer(kind=iwp) :: J
+#include "intent.fh"
 
-if (IWAY == 1) then
-  do J=1,NCDIM
-    AOUT(:,J) = DIAG(1:NRDIM)*AIN(:,J)
-  end do
-else if (IWAY == 2) then
-  do J=1,NCDIM
-    AOUT(:,J) = DIAG(J)*AIN(:,J)
-  end do
-end if
+implicit none
+integer(kind=iwp), intent(in) :: MATDIM, NDIM
+real(kind=wp), intent(in) :: AUTPAK(MATDIM,MATDIM)
+real(kind=wp), intent(_OUT_) :: APAK(*)
+integer(kind=iwp) :: IJ, J
+
+IJ = 0
+do J=1,NDIM
+  APAK(IJ+J:IJ+NDIM) = AUTPAK(J:NDIM,J)
+  IJ = IJ+NDIM-J
+end do
 
 #ifdef _DEBUGPRINT_
-write(u6,*) ' AIN DIAG AOUT  FROM DGMTMT'
-call WRTMAT(AIN,NRDIM,NCDIM,NRDIM,NCDIM)
-if (IWAY == 1) then
-  call WRTMAT(DIAG,1,NRDIM,1,NRDIM)
-else
-  call WRTMAT(DIAG,1,NCDIM,1,NCDIM)
-end if
-call WRTMAT(AOUT,NRDIM,NCDIM,NRDIM,NCDIM)
+write(u6,*) ' AUTPAK AND APAK FROM TRIPK2_1'
+call WRTMAT(AUTPAK,NDIM,MATDIM,NDIM,MATDIM)
+call PRSM2(APAK,NDIM)
 #endif
 
-return
-
-end subroutine DGMM2
+end subroutine TRIPK2_1

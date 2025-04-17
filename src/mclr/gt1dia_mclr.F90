@@ -15,8 +15,10 @@ use MCLR_Data, only: FIMO, ipCM
 use input_mclr, only: nAsh, nIsh, nOrb, nSym
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: H1DIA(*)
+real(kind=wp), intent(_OUT_) :: H1DIA(*)
 integer(kind=iwp) :: i, iAsh, ii, iS
 
 i = 1

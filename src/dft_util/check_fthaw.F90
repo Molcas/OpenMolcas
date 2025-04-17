@@ -64,7 +64,7 @@ else
   DEneA = EneA-Ene(iter0,1)
   DEneB = EneB-Ene(iter0,3)
 
-  rewind Lu
+  rewind(Lu)
   write(Lu,'(I4,2F18.10)') iter,Ene(1,1),Ene(1,3)
   do i=2,iter0
     write(Lu,'(I4,4F18.10)') iter,Ene(i,1),Ene(i,2),Ene(i,3),Ene(i,4)

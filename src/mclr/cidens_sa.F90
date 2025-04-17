@@ -21,10 +21,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-logical(kind=iwp) :: RSP
-integer(kind=iwp) :: iLS, iRS, iL, iR
-real(kind=wp) :: rP(*), rD(*)
+logical(kind=iwp), intent(in) :: RSP
+integer(kind=iwp), intent(in) :: iLS, iRS, iL, iR
+real(kind=wp), intent(_OUT_) :: rP(*), rD(*)
 integer(kind=iwp) :: i, IA, ij1, ij2, JA, KA, kl1, kl2, LA, nConfL, nConfR, nDim
 real(kind=wp), allocatable :: De(:), Pe(:), CIL(:), CIR(:)
 
@@ -45,7 +47,6 @@ real(kind=wp), allocatable :: De(:), Pe(:), CIL(:), CIR(:)
 ! iRS: CI Coeff for right state
 ! iL : Symmetry of left state
 ! iR : Symmetry of right state
-!
 !
 !           +       +
 ! iS=1 E  =a  a  + a  a

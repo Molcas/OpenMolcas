@@ -25,7 +25,7 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: bk(nDens)
+real(kind=wp), intent(inout) :: bk(nDens)
 integer(kind=iwp) :: IS, JS
 real(kind=wp), allocatable :: T(:), bktmp(:)
 

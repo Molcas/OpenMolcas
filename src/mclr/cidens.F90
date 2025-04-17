@@ -21,10 +21,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-logical(kind=iwp) :: Response
-integer(kind=iwp) :: iLS, iRS, iL, iR
-real(kind=wp) :: rP(*), rD(*)
+logical(kind=iwp), intent(in) :: Response
+integer(kind=iwp), intent(in) :: iLS, iRS, iL, iR
+real(kind=wp), intent(_OUT_) :: rP(*), rD(*)
 integer(kind=iwp) :: IA, ij1, ij2, JA, KA, kl1, kl2, LA, nConfL, nConfR, nDim
 real(kind=wp), allocatable :: CIL(:), CIR(:), De(:), Pe(:)
 

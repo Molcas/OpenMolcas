@@ -23,7 +23,7 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp) :: NUMST3
-integer(kind=iwp) :: NEL, NORB1, NEL1MN, NEL1MX, NORB2, NORB3, NEL3MN, NEL3MX
+integer(kind=iwp), intent(in) :: NEL, NORB1, NEL1MN, NEL1MX, NORB2, NORB3, NEL3MN, NEL3MX
 integer(kind=iwp) :: IEL1, IEL2, IEL3, IEL3MN, IEL3MX, NSTIN1, NSTINT, NSTRIN
 integer(kind=iwp), external :: IBINOM
 

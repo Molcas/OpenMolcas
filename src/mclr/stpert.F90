@@ -22,7 +22,7 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: idum(1), iDummer, iOpt, iRC, iS, iType, nAct, nG, nG2, nHss, nMax
+integer(kind=iwp) :: idum(1), iDummer, iOpt, iRC, iS, nAct, nG, nG2, nHss, nMax
 real(kind=wp) :: rAlphas
 character(len=288) :: Header
 character(len=16) :: Label
@@ -155,9 +155,8 @@ if (SPINPOL) then
   call mma_allocate(Fp,nG2,Label='Fp')
   call mma_allocate(G1p,nG,Label='G1p')
   call mma_allocate(G1m,nG,Label='G1m')
-  itype = 2
   call ipin(ipCI)
-  call SpinDens(W(ipCI)%A,W(ipCI)%A,STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,iType)
+  call SpinDens(W(ipCI)%A,W(ipCI)%A,STATE_SYM,STATE_SYM,G2mm,G2mp,G2pp,Fm,Fp,G1m,G1p,2)
 
   call mma_allocate(Tmp2,nDens,Label='Tmp2')
   call mma_MaxDBLE(nMax)

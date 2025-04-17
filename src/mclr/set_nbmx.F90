@@ -14,7 +14,7 @@ subroutine Set_nbmx(nbmx_)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nbmx_
+integer(kind=iwp), intent(in) :: nbmx_
 
 #include "caspt2.fh"
 

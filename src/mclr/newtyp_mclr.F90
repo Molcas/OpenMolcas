@@ -41,11 +41,12 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: INCLS, INTP, IACOP(*), ITPOP(*), NOP, OUTCLS, OUTTP
+integer(kind=iwp), intent(in) :: INCLS, INTP, NOP, IACOP(NOP), ITPOP(NOP)
+integer(kind=iwp), intent(out) :: OUTCLS, OUTTP
 integer(kind=iwp) :: IDELTA, IEL1, IEL3, IOP
 
 ! Number of electrons in RAS1,RAS3
-call GTSTTP(INCLS,IEL1,IEL3,INTP,2)
+call GTSTTP_2(INCLS,IEL1,IEL3,INTP)
 
 IDELTA = 0
 do IOP=1,NOP
@@ -74,7 +75,7 @@ end do
 OUTCLS = INCLS-IDELTA
 !write(u6,*) ' OUTCLS,IEL1,IEL3 ',OUTCLS,IEL1,IEL3
 ! out type
-call GTSTTP(OUTCLS,IEL1,IEL3,OUTTP,1)
+call GTSTTP_1(OUTCLS,IEL1,IEL3,OUTTP)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' NEWTYP, OUTCLS, OUTTP ',OUTCLS,OUTTP

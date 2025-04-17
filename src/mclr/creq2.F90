@@ -22,8 +22,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idSym, n2
-real(kind=wp) :: Q(nDens), G2(*), Temp(n2), Scr(n2)
+integer(kind=iwp), intent(in) :: idSym, n2
+real(kind=wp), intent(out) :: Q(nDens), Temp(n2), Scr(n2)
+real(kind=wp), intent(in) :: G2(*)
 integer(kind=iwp) :: iAsh, iij, ijS, ikl, ipG, ipI, ipQ, ipS, iS, jAsh, jS, kAsh, kS, lAsh, lS
 
 !                                                                      *

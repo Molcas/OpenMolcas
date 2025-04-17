@@ -30,21 +30,22 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IWORK(*), NOPEN, MS2, NDET, IABDET(NOPEN,*), IABUPP(NOPEN,*), IFLAG
+integer(kind=iwp), intent(in) :: NOPEN, MS2, IFLAG
+integer(kind=iwp), intent(out) :: IWORK(NOPEN+1), NDET
+integer(kind=iwp), intent(inout) :: IABDET(NOPEN,*), IABUPP(NOPEN,*)
 real(kind=wp) :: PSSIGN
-integer(kind=iwp) :: ADD, I, IEL, J, lUPPER, MS2L, MX, NALPHA, NUPPER
+integer(kind=iwp) :: ADD, I, IEL, J, lUPPER, MS2L, NALPHA, NUPPER
 
-! LENGTH OF IWORK MUST BE AT LEAST NOPEN
+! LENGTH OF IWORK MUST BE AT LEAST NOPEN+1
 
 NDET = 0
 NUPPER = 0
 
 ! Determinants are considered as binary numbers,1=alpha,0=beta
 
-MX = 2**NOPEN
-IWORK(1:NOPEN+1) = 0
+IWORK(:) = 0
 ! Loop over all possible binary numbers
-do I=1,MX
+do I=1,2**NOPEN
   ! 1 : NEXT BINARY NUMBER
   ADD = 1
   J = 0

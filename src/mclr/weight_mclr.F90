@@ -16,8 +16,11 @@ subroutine WEIGHT_mclr(Z,NEL,NORB1,NORB2,NORB3,MNRS1,MXRS1,MNRS3,MXRS3,ISCR)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: Z(*), NEL, NORB1, NORB2, NORB3, MNRS1, MXRS1, MNRS3, MXRS3, ISCR(*)
+integer(kind=iwp), intent(_OUT_) :: Z(*), ISCR(*)
+integer(kind=iwp), intent(in) :: NEL, NORB1, NORB2, NORB3, MNRS1, MXRS1, MNRS3, MXRS3
 integer(kind=iwp) :: KLFREE, KLMAX, KLMIN, KW, NORB
 
 NORB = NORB1+NORB2+NORB3

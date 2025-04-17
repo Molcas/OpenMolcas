@@ -23,8 +23,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nG2, nPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
-real(kind=wp) :: G2q(nG2), PUVX(NPUVX)
+integer(kind=iwp), intent(in) :: nG2, nPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
+real(kind=wp), intent(in) :: G2q(nG2), PUVX(NPUVX)
 integer(kind=iwp) :: I, IJKL, J, K, L, lMax
 real(kind=wp) :: dQdX
 

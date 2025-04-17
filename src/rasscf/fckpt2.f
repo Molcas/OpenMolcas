@@ -105,11 +105,11 @@
             call mma_allocate(vals, nActOrb * (nActOrb + 1)/2)
             call mma_allocate(fockmat, nActOrb, nActOrb)
             call mma_allocate(vecs, nActOrb, nActOrb)
-            fockmat(:,:) = 0.0_8
-            vecs(:,:) = 0.0_8
+            fockmat(:,:) = 0.0D0
+            vecs(:,:) = 0.0D0
         end if
         indices(:,:) = 0
-        vals(:) = 0.0_8
+        vals(:) = 0.0D0
         nOrbCount = 0  ! keeps track of indices over different irreps
       end if
 #endif
@@ -226,7 +226,7 @@
 20       CONTINUE
          END DO
         ENDIF
-        CALL DGEACC(CMOX,NOT,VEC,NIO,NIO,NIO)
+        CALL DGEACC(1.0D0,VEC,NIO,'N',CMOX,NOT,NIO,NIO)
        ENDIF
 *
 ************************************************************************
@@ -287,7 +287,7 @@
 41         CONTINUE
           END DO
          ENDIF
-         CALL DGEACC(CMOX(1+NOT*NIO+NIO),NOT,VEC,NR1,NR1,NR1)
+         CALL DGEACC(1.0D0,VEC,NR1,'N',CMOX(1+NOT*NIO+NIO),NOT,NR1,NR1)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
          II=0
@@ -315,7 +315,7 @@
            NUT=NU+NIO+NR1
            NTUT=ISTFCK+(NTT**2-NTT)/2+NUT
            ! decoupling test of virtual orbitals
-           ! if (NT > 12 .and. NU < 13) FP(NTUT) = 0.0_8
+           ! if (NT > 12 .and. NU < 13) FP(NTUT) = 0.0D0
            ! write(6,*) "t, u, F(t,u)", NT, NU, FP(NTUT)
 #ifdef _HDF5_
            if (tNonDiagStochPT2) then
@@ -368,8 +368,8 @@
 42         CONTINUE
           END DO
          ENDIF
-         CALL DGEACC(CMOX(1+NOT*(NIO+NR1)+NIO+NR1), NOT,
-     &               VEC,NR2,NR2,NR2)
+         CALL DGEACC(1.0D0,VEC,NR2,'N',
+     &                     CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
 
 
 
@@ -457,8 +457,9 @@
 43         CONTINUE
           END DO
          ENDIF
-         CALL DGEACC(CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2), NOT,
-     &               VEC, NR3, NR3, NR3)
+         CALL DGEACC(1.0D0,VEC,NR3,'N',
+     &                     CMOX(1+NOT*(NIO+NR1+NR2)+NIO+NR1+NR2),NOT,
+     &               NR3,NR3)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
          II=0
@@ -525,7 +526,7 @@
 60       CONTINUE
          END DO
         ENDIF
-        CALL DGEACC(CMOX(1+NOT*NOC+NOC),NOT,VEC,NEO,NEO,NEO)
+        CALL DGEACC(1.0D0,VEC,NEO,'N',CMOX(1+NOT*NOC+NOC),NOT,NEO,NEO)
        ENDIF
 *
 * Transform molecular orbitals

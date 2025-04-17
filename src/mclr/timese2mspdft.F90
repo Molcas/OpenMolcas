@@ -14,7 +14,7 @@
 subroutine TimesE2MSPDFT(Kap,ipCId,isym,reco,jspin,ipS2,KapOut,ipCiOut)
 
 use ipPage, only: ipin, opout, W
-use MCLR_Data, only: n2Dens, nConf1, nDens
+use MCLR_Data, only: n2Dens, nConf1, nDens, nDensC
 use input_mclr, only: nAsh, nRoots, nRS2, Weight
 use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,8 +22,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Kap(*), ReCo, KapOut(*)
-integer(kind=iwp) :: ipCId, isym, jspin, ipS2, ipCiOut
+real(kind=wp), intent(in) :: Kap(nDensC), ReCo
+integer(kind=iwp), intent(in) :: ipCId, isym, jspin, ipS2, ipCiOut
+real(kind=wp), intent(out) :: KapOut(nDensC)
 integer(kind=iwp) :: kRoot, lRoot
 real(kind=wp) :: ECoff, rdum(1)
 real(kind=wp), allocatable :: Temp3(:), Temp4(:), Sc1(:), Sc2(:), Sc3(:), RMOAA(:), MSHam(:)

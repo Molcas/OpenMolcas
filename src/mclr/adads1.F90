@@ -39,10 +39,10 @@ subroutine ADADS1(NK,I1,XI1S,IOBSM,IOBTP,IOBOFF,NIOB,JOBSM,JOBTP,JOBOFF,NJOB,IJO
 ! Output
 ! ======
 !
-! NK      : Number of K strings
-! I1(KSTR) : ne. 0 => a + IORB a+ JORB !KSTR> = +/-!ISTR>
+! NK         : Number of K strings
+! I1(KSTR)   : /= 0 => a + IORB a+ JORB !KSTR> = +/-!ISTR>
 ! XI1S(KSTR) : above +/-
-!          : eq. 0    a + IORB !KSTR> = 0
+!            : == 0    a + IORB !KSTR> = 0
 ! Offset is KMIN
 ! IEND : = 0 => end of N-2 strings has not been encountered
 ! IEND : = 1 => end of N-2 strings has     been encountered
@@ -55,12 +55,16 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NK, IOBSM, IOBTP, IOBOFF, NIOB, JOBSM, JOBTP, JOBOFF, NJOB, IJORD, NKDIM, ICLS, ISM, I2MAPO(*),I2MAPS(*), &
-                     I2MPF, L2MP, I2MPO(*), I2MPL(*), I1MAPO(*), I1MAPS(*), I1MPF, L1MP, I1MPO(*), I1MPL(*), IEL1(*), IEL3(*), &
-                     I2EL1(*), I2EL3(*), NOCTP, ISSO(NOCTP,*), N2OCTP, I2SSO(N2OCTP,*), N2SSO(N2OCTP,*), NORB, KMAX, KMIN, IEND
-integer(kind=iwp) :: I1(NKDIM,*)
-real(kind=wp) :: XI1S(NKDIM,*)
+integer(kind=iwp), intent(out) :: NK, IEND
+integer(kind=iwp), intent(in) :: IOBSM, IOBTP, IOBOFF, NIOB, JOBSM, JOBTP, JOBOFF, NJOB, IJORD, NKDIM, ICLS, ISM, I2MAPO(*), &
+                                 I2MAPS(*), I2MPF, L2MP, I2MPO(*), I2MPL(*), I1MAPO(*), I1MAPS(*), I1MPF, L1MP, I1MPO(*),  &
+                                 I1MPL(*), IEL1(*), IEL3(*), I2EL1(*), I2EL3(*), NOCTP, ISSO(NOCTP,*), N2OCTP, I2SSO(N2OCTP,*),  &
+                                 N2SSO(N2OCTP,*), NORB, KMAX, KMIN
+integer(kind=iwp), intent(_OUT_) :: I1(NKDIM,*)
+real(kind=wp), intent(_OUT_) :: XI1S(NKDIM,*)
 integer(kind=iwp) :: i, IFST, IIORB, ij, IJOFF, IKSM, IMIN, IOFF, iorb, ISTR, J, JJORB, JKSM, JKSTR, JORB, KEL1, KEL3, KEND, &
                      KKTYPE, KOFF, KSM, KSTR, KTYPE, NIJ
 real(kind=wp) :: SGN
@@ -180,7 +184,7 @@ if (.not. Skip) then
         if (I2MAPO((KSTR-1)*L2MP+JORB) == JORB) JKSTR = I2MAPS((KSTR-1)*L2MP+JORB)
       else if (I2MPF == 0) then
         IFST = max(1,JORB+I2MPL(KSTR)-NORB)
-        do JJORB=IFST,min(JORb,I2MPL(KSTR))
+        do JJORB=IFST,min(JORB,I2MPL(KSTR))
           if (I2MAPO(I2MPO(KSTR)-1+JJORB) == JORB) JKSTR = I2MAPS(I2MPO(KSTR)-1+JJORB)
         end do
       end if

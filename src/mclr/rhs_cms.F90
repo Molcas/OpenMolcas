@@ -24,7 +24,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Fock(nDens), CICSF(nconf1*nroots)
+real(kind=wp), intent(out) :: Fock(nDens), CICSF(nconf1*nroots)
 integer(kind=iwp) :: NPUVX
 integer(kind=iwp), allocatable :: IndPUVX(:,:,:,:), IndTUVX(:,:,:,:)
 real(kind=wp), allocatable :: AXkzx(:), AXPzx(:), AXX(:,:), bk(:), bP(:), bX(:), FMO1t(:), FMO2t(:), GDMat(:,:,:), H(:,:), &

@@ -28,9 +28,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-real(kind=wp) :: RASVEC(*)
-integer(kind=iwp) :: ISM, ICBLTP(*), NSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), IOCOC(NOCTPA,NOCTPB), IDC, IWAY, &
-                     IMMLST(*)
+real(kind=wp), intent(inout) :: RASVEC(*)
+integer(kind=iwp), intent(in) :: ISM, ICBLTP(*), NSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), IOCOC(NOCTPA,NOCTPB), IDC, &
+                                 IWAY, IMMLST(*)
 integer(kind=iwp) :: IASM, IATP, IBASE, IBSM, IBTP, IBTPMX, NELMNT, NIA, NIB
 real(kind=wp) :: FACTOR
 real(kind=wp), parameter :: SQ2 = sqrt(Two), SQ2I = sqrt(Half)
@@ -90,7 +90,7 @@ do IASM=1,NSM
           else
             FACTOR = Two
           end if
-        else if (IWAY == 2) then
+        else !if (IWAY == 2) then
           if (IASM == IBSM) then
             FACTOR = SQ2I
           else
@@ -101,7 +101,7 @@ do IASM=1,NSM
         if (IATP == IBTP) then
           if (IWAY == 1) then
             FACTOR = SQ2I
-          else if (IWAY == 2) then
+          else !if (IWAY == 2) then
             FACTOR = SQ2
           end if
           call SCLDIA(RASVEC(IBASE),FACTOR,NIA,1)
@@ -116,7 +116,6 @@ end do
 #ifdef _DEBUGPRINT_
 write(u6,*) ' Scaled vector'
 call WRTRS2_MCLR(RASVEC,ISM,ICBLTP,IOCOC,NOCTPA,NOCTPB,NSASO,NSBSO,NSM)
-call xflush(u6)
 #endif
 
 return

@@ -14,7 +14,7 @@
 subroutine T_TO_NK_VECS(T,KORB,C,LUCIN,LUCOUT,NSSOA,NSSOB,NBLOCK,IBLOCK,NAEL,NBEL,IASTR,IBSTR,IBLTP,NSMST,ICISTR,NORB,IKAOCC,IKBOCC)
 ! Multiply Vector in LUCIN with t **NK_op to yield vector on LUCOUT
 !
-! Both files are initially rewinded
+! Both files are initially rewound
 !
 ! Jeppe Olsen, Feb. 1998
 

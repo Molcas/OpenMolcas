@@ -17,8 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NDIM, MBLOCK, IFIL
-real(kind=wp) :: A(NDIM)
+integer(kind=iwp), intent(in) :: NDIM, MBLOCK, IFIL
+real(kind=wp), intent(in) :: A(NDIM)
 integer(kind=iwp) :: I, IDUM(1), IMZERO, ISTOP, MMBLOCK, NBACK, NBLOCK, NLABEL, NTRANS, START
 real(kind=wp) :: XNORM
 real(kind=wp), external :: ddot_

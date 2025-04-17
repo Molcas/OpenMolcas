@@ -34,7 +34,7 @@ use MCLR_Data, only: NORB1, NORB3
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MS2, NACTEL, MNRS10, MXRS30
+integer(kind=iwp), intent(in) :: MS2, NACTEL, MNRS10, MXRS30
 integer(kind=iwp) :: IPL, ITYP, ITYPE, MNRS30, MXRS10, NAEL, NBEL, NSTTYP_Max
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt

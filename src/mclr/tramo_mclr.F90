@@ -37,9 +37,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6, ItoB
 
 implicit none
-integer(kind=iwp) :: LBUF, n1, n2, n3, n4, MEMX, NBP, NBQ, NBR, NBS, iSP, iSQ, iSR, iSS, nAP, nAQ, nAR, nAS, iAD13, iAD14, iAD23, &
-                     iAD24, iAD34, LIOTAB, IDAHLF2(LIOTAB), IRLHLF2(LIOTAB), IDAHLF3(LIOTAB), IRLHLF3(LIOTAB)
-real(kind=wp) :: X1(n1), X2(n2), X3(n3), X4(n4), Buffer(MemX), CMP(nBP,nAP), CMQ(nBQ,nAQ), CMR(nBR,nAR), CMS(nBS,nAS)
+integer(kind=iwp), intent(in) :: LBUF, n1, n2, n3, n4, MEMX, NBP, NBQ, NBR, NBS, iSP, iSQ, iSR, iSS, nAP, nAQ, nAR, nAS, LIOTAB
+real(kind=wp), intent(out) :: X1(n1), X2(n2), X3(n3), X4(n4), Buffer(MemX)
+real(kind=wp), intent(in) :: CMP(nBP,nAP), CMQ(nBQ,nAQ), CMR(nBR,nAR), CMS(nBS,nAS)
+integer(kind=iwp), intent(inout) :: iAD13, iAD14, iAD23, iAD24, iAD34
+integer(kind=iwp), intent(out) :: IDAHLF2(LIOTAB), IRLHLF2(LIOTAB), IDAHLF3(LIOTAB), IRLHLF3(LIOTAB)
 integer(kind=iwp) :: I1, I2, IAD2, IAD3, IBUF, IBUF2, IBUF3, IMAX, INCORE, iOne, IOPT, IP2, IP3, IP4, IP5, IPB, IPQ, IPQST, &
                      IPQUT2, IPQUT3, IPQUT4, IPX, IPY, IPZ, IRC, IRSST, IST, IST2, IST3, IVX, LPKREC, LPQ, MemXX, MEMXXX, NARS, &
                      NBPQ, NBRS, NBUF, NBYTES, NOUT, NPQ, NQM, NR2, NR3
@@ -51,7 +53,7 @@ contains
 
 subroutine TRAMO_MCLR_INTERNAL(Buffer)
 
-  real(kind=wp), target :: Buffer(*)
+  real(kind=wp), target, intent(out) :: Buffer(MemX)
   integer(kind=iwp), pointer :: iBuffer(:)
   integer(kind=iwp) :: I, NP, NQ, NR, NS
 

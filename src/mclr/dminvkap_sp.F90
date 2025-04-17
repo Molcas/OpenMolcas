@@ -26,7 +26,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: rin(nDensC), rout(nDensC)
+real(kind=wp), intent(in) :: rin(nDensC)
+real(kind=wp), intent(out) :: rout(nDensC)
 real(kind=wp), allocatable :: Temp(:)
 
 call mma_allocate(Temp,nDens,Label='Temp')

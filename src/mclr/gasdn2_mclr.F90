@@ -45,7 +45,6 @@ subroutine GASDN2_MCLR(I12,RHO1,RHO2,R,L,CB,SB,C2,ICOCOC,ISOCOC,ICSM,ISSM,ICBLTP
 ! MAXK  : Largest number of N-2,N-1 strings treated simultaneously
 ! MAXI  : Max number of N strings treated simultaneously
 !
-!
 ! LC : Length of scratch array for C
 ! LS : Length of scratch array for S
 ! RHO1S: Scratch array for one body
@@ -63,15 +62,22 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), ICSM, ISSM, ICBLTP(*), ISBLTP(*), NACOB, &
-                     NSM, NSSOA(NSM,NOCTPA), NSSOB(NSM,NOCTPB), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, IOCTPB, MXPNGAS, NOBPTS(*), &
-                     IOBPTS(*), MAXK, MAXI, LC, LS, NGAS, NELFSPGPA(3,*), NELFSPGPB(3,*), IDC, ISOOSC(NOCTPA,NOCTPB,NSM), &
-                     NSOOSC(NOCTPA,NOCTPB,NSM), ISOOSE(NOCTPA,NOCTPB,NSM), NSOOSE(NOCTPA,NOCTPB,NSM), ICOOSC(NOCTPA,NOCTPB,NSM), &
-                     NCOOSC(NOCTPA,NOCTPB,NSM), ICOOSE(NOCTPA,NOCTPB,NSM), NCOOSE(NOCTPA,NOCTPB,NSM), IASOOS(NOCTPA,NOCTPB,NSM), &
-                     IACOOS(NOCTPA,NOCTPB,NSM), I1(*), I2(*), I3(*), I4(*), LUL, LUR, ieaw, n1, n2
-real(kind=wp) :: RHO1(*), RHO2(*), R(*), L(*), CB(*), SB(*), C2(*), CSCR(*), SSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), &
-                 RHO1S(*), PSL, PSR
+integer(kind=iwp), intent(in) :: I12, NOCTPA, NOCTPB, ICOCOC(NOCTPA,NOCTPB), ISOCOC(NOCTPA,NOCTPB), ICSM, ISSM, ICBLTP(*), &
+                                 ISBLTP(*), NACOB, NSM, NSSOA(NSM,NOCTPA), NSSOB(NSM,NOCTPB), NAEL, IAGRP, NBEL, IBGRP, IOCTPA, &
+                                 IOCTPB, MXPNGAS, NOBPTS(*), IOBPTS(*), MAXK, MAXI, LC, LS, NELFSPGPA(3,*), NELFSPGPB(3,*), IDC, &
+                                 LUL, LUR, ieaw, n1, n2
+real(kind=wp), intent(inout) :: RHO1(*), RHO2(*)
+real(kind=wp), intent(in) :: R(*), L(*), PSL, PSR
+real(kind=wp), intent(out) :: CB(*), SB(*), C2(*), CSCR(*), SSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), RHO1S(*)
+integer(kind=iwp), intent(inout) :: NGAS
+integer(kind=iwp), intent(out) :: ISOOSC(NOCTPA,NOCTPB,NSM), NSOOSC(NOCTPA,NOCTPB,NSM), ISOOSE(NOCTPA,NOCTPB,NSM), &
+                                  NSOOSE(NOCTPA,NOCTPB,NSM), ICOOSC(NOCTPA,NOCTPB,NSM), NCOOSC(NOCTPA,NOCTPB,NSM), &
+                                  ICOOSE(NOCTPA,NOCTPB,NSM), NCOOSE(NOCTPA,NOCTPB,NSM), IASOOS(NOCTPA,NOCTPB,NSM), &
+                                  IACOOS(NOCTPA,NOCTPB,NSM)
+integer(kind=iwp), intent(_OUT_) :: I1(*), I2(*), I3(*), I4(*)
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IC1SM, IC1TA, IC1TB, ICBLK, ICBSM, ICENSM, ICENTA, ICENTB, ICOFF, ICSTSM, ICSTTA, &
                      ICSTTB, IFINIC, IFRSTC, IFRSTS, IIASM, IIATP, IIBSM, IIBTP, ILPERM, IRPERM, IS1SM, IS1TA, IS1TB, ISBLK, &
                      ISBSM, ISENSM, ISENTA, ISENTB, ISFINI, ISOFF, ISSTSM, ISSTTA, ISSTTB, ISTRFL(1), JASM, JATP, JBSM, JBTP, &
@@ -208,8 +214,8 @@ outer: do
               JJBTP = RBTP(IRPERM)
               NJJA = NSSOA(JJASM,JJATP)
               NJJB = NSSOB(JJBSM,JJBTP)
-              call GSDNBB2_MCLR(I12,RHO1,RHO2,IIASM,IIATP,IIBSM,IIBTP,JJASM,JJATP,JJBSM,JJBTP,NGAS,NELFSPGPA(1,IOCTPA-1+IIATP), &
-                                NELFSPGPB(1,IOCTPB-1+IIBTP),NELFSPGPA(1,IOCTPA-1+JJATP),NELFSPGPB(1,IOCTPB-1+JJBTP),NAEL,NBEL, &
+              call GSDNBB2_MCLR(I12,RHO1,RHO2,IIASM,IIATP,IIBSM,IIBTP,JJASM,JJATP,JJBSM,JJBTP,NGAS,NELFSPGPA(:,IOCTPA-1+IIATP), &
+                                NELFSPGPB(:,IOCTPB-1+IIBTP),NELFSPGPA(:,IOCTPA-1+JJATP),NELFSPGPB(:,IOCTPB-1+JJBTP),NAEL,NBEL, &
                                 IAGRP,IBGRP,SB(ISOFF),CB(ICOFF),C2,MXPNGAS,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1,XI1S,I2,XI2S,I3, &
                                 XI3S,I4,XI4S,X,NSM,NIIA,NIIB,NJJA,NJJB,NACOB,RHO1S,ieaw,n1,n2)
             end do

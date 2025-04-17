@@ -22,8 +22,8 @@ use input_mclr, only: nRoots
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTri
-real(kind=wp) :: FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots)
+integer(kind=iwp), intent(in) :: nTri
+real(kind=wp), intent(out) :: FMO1t(nTri,nRoots), FMO2t(nAcPr2,nRoots)
 
 call Get_DArray('F1_PDFT',FMO1t,nTri*nRoots)
 call Get_DArray('F2_PDFT',FMO2t,nAcPr2*nRoots)

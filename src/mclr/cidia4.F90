@@ -27,10 +27,15 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSM, ISM, IBLTP(*), NOCTPA, NSSOA(NOCTPA,*), NOCTPB, &
-                     NSSOB(NOCTPB,*), IOCOC(NOCTPA,NOCTPB), ISSOA(NOCTPA,*), ISSOB(NOCTPB,*), LUDIA, NTOOB, ICISTR
-real(kind=wp) :: DIAG(*), H(NORB), XB(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, PSSIGN
+integer(kind=iwp), intent(in) :: NAEL, IASTR(NAEL,*), NBEL, IBSTR(NBEL,*), NORB, NSM, ISM, IBLTP(*), NOCTPA, NSSOA(NOCTPA,*), &
+                                 NOCTPB, NSSOB(NOCTPB,*), IOCOC(NOCTPA,NOCTPB), ISSOA(NOCTPA,*), ISSOB(NOCTPB,*), LUDIA, NTOOB, &
+                                 ICISTR
+real(kind=wp), intent(_OUT_) :: DIAG(*)
+real(kind=wp), intent(in) :: H(NORB), RJ(NTOOB,NTOOB), RK(NTOOB,NTOOB), ECORE, PSSIGN
+real(kind=wp), intent(out) :: XB(NORB)
 integer(kind=iwp) :: IA, IAEL, IASM, IASTOP, IASTRT, IATP, IB, IBEL, IBREL, IBSM, IBSTOP, IBSTRT, IBTP, IDET, IDUM(1), IEL, &
                      IREST1, ITDET, JEL, MXBTP
 real(kind=wp) :: EB, HB, RJBB, X1, X2, XADD
@@ -53,7 +58,7 @@ end if
 
 IDET = 0
 ITDET = 0
-if (LUDIA /= 0) rewind LUDIA
+if (LUDIA /= 0) rewind(LUDIA)
 do IASM=1,NSM
   IBSM = Mul(IASM,ISM)
   if ((IBSM == 0) .or. (IBLTP(IASM) == 0)) cycle

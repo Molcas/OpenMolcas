@@ -30,8 +30,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iPL
-logical(kind=iwp) :: converged(8)
+integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp)
+logical(kind=iwp), intent(out) :: converged(8)
+integer(kind=iwp), intent(in) :: iPL
 #include "warnings.h"
 integer(kind=iwp) :: iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iSym, Iter, JRoot, jSpin, Left, lLine, lPaper, &
                      Lu_50, LURot, nConf3, nPre2

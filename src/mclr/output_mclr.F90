@@ -44,8 +44,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), iRHSCiDisp(nDisp)
-logical(kind=iwp) :: converged(8)
+integer(kind=iwp), intent(in) :: iKapDisp(nDisp), isigdisp(nDisp), iCiDisp(nDisp), iCiSigDisp(nDisp), iRHSDisp(nDisp), &
+                                 iRHSCiDisp(nDisp)
+logical(kind=iwp), intent(in) :: converged(8)
 integer(kind=iwp) :: iDis, iDisk, iDisp, iDum, ielec(3), iLen, Indx, iOpt, ipCIP1, ipCIP2, ipRP1, ipRP2, ipSP, iRC, iSym, jDisp, &
                      jSpin, kDisp, kSpin, kSym, ldisp2(8), Length, Lu_10, mSym, nConfm, nHss, Pstate_sym
 logical(kind=iwp) :: CI

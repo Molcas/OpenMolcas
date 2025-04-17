@@ -27,10 +27,13 @@ use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: NCPCNT, NTYP
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: HSUB(*), SCR(*), DTOC(*), PSSIGN
-integer(kind=iwp) :: ISYM, ILCNF(*), NLCNF, IRCNF(*), NRCNF, NLCSF, ICONF(*), NEL, IREFSM, NAEL, NBEL, NACOB, IPRODT(*), INTSPC, &
-                     ICOMBI
+real(kind=wp), intent(_OUT_) :: HSUB(*), SCR(*)
+integer(kind=iwp), intent(in) :: ISYM, ILCNF(*), NLCNF, IRCNF(*), NRCNF, NLCSF, ICONF(*), NEL, IREFSM, NAEL, NBEL, NACOB, &
+                                 IPRODT(*), INTSPC, ICOMBI
+real(kind=wp), intent(in) :: DTOC(*), PSSIGN
 integer(kind=iwp) :: IILACT, IILB, IIRACT, IIRB, IIRMAX, ILRI, ILRO, ILTYP, IRTYP, KLCONF, KLFREE, KLPHPS, KRCONF, MDIF0, MDIF1, &
                      MDIF2, MXCSFC, MXR, NCSFL, NCSFR, NDIF0, NDIF1, NDIF2
 
@@ -47,7 +50,7 @@ contains
 
 subroutine CNHCNM_INTERNAL(SCR)
 
-  real(kind=wp), target :: SCR(*)
+  real(kind=wp), target, intent(_OUT_) :: SCR(*)
   integer(kind=iwp), pointer :: iSCRl(:), iSCRr(:)
   integer(kind=iwp) :: ICNL, ICNR, IIL, IIR
 

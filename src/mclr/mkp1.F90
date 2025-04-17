@@ -19,8 +19,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nEX, lst(nex)
-real(kind=wp) :: rMat(*), rdiag(*)
+integer(kind=iwp), intent(in) :: nEX, lst(nex)
+real(kind=wp), intent(in) :: rMat(*), rdiag(*)
 integer(kind=iwp) :: i, idisk, j, jDisk, k, kk, l
 real(kind=wp) :: rtmp
 real(kind=wp), allocatable :: Tmp1(:), Tmp2(:)

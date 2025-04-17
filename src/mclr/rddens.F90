@@ -19,8 +19,8 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nd1, nd2
-real(kind=wp) :: D1(nd1), d2(nd2)
+integer(kind=iwp), intent(in) :: nd1, nd2
+real(kind=wp), intent(out) :: D1(nd1), d2(nd2)
 real(kind=wp) :: Fact, rdum(1), W
 integer(kind=iwp) :: i, iB, iDij, iDkl, iIJKL, j, jB, jDisk, kB, lB
 real(kind=wp), allocatable :: D1t(:), D2t(:), G2tt(:)

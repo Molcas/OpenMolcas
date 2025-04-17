@@ -23,8 +23,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NPUVX, IndTUVX(nnA,nnA,nnA,nnA), Off_Ash(nSym)
-real(kind=wp) :: Wop(nDens), D(nnA,nnA), PUVX(NPUVX), Coeff
+real(kind=wp), intent(inout) :: Wop(nDens)
+integer(kind=iwp), intent(in) :: NPUVX, IndTUVX(nnA,nnA,nnA,nnA), Off_Ash(nSym)
+real(kind=wp), intent(in) :: D(nnA,nnA), PUVX(NPUVX), Coeff
 integer(kind=iwp) :: iLoc1, it, iu, jAsh, jSym, pt, qu, t, u, v, x
 real(kind=wp) :: tempd1
 

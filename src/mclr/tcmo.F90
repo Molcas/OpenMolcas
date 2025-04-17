@@ -19,8 +19,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: A(*)
-integer(kind=iwp) :: iSym, iCtl
+real(kind=wp), intent(inout) :: A(*)
+integer(kind=iwp), intent(in) :: iSym, iCtl
 integer(kind=iwp) :: iip(8), ip(8), iRC, iS, jS, nCMOInv, niCMOInv
 integer(kind=iwp), allocatable :: iCMOInv(:)
 real(kind=wp), allocatable :: CMOInv(:), Temp(:)

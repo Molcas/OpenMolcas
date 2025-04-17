@@ -43,8 +43,9 @@ use MCLR_Data, only: nCMO
 #endif
 
 implicit none
-integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iRHSCIDisp(nDisp)
-logical(kind=iwp) :: converged(8)
+integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), &
+                                  iRHSCIDisp(nDisp)
+logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp) :: iD, iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iRank, istatus, iSym, iSym_Old, Iter, jDisp, &
                      jSpin, kkkSym, kkSym, Left, lLine, lPaper, LuWR_Save, nConf3, nPre2, pstate_sym
 real(kind=wp) :: Clock(4), D_0, Delta, Delta0, DeltaC, DeltaK, EC, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rCHC, rdum(1), ReCo, &

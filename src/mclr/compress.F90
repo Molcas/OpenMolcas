@@ -25,8 +25,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: ArrayIn(nDens), ArrayOut(nDensC)
-integer(kind=iwp) :: dsym
+real(kind=wp), intent(in) :: ArrayIn(nDens)
+real(kind=wp), intent(out) :: ArrayOut(nDensC)
+integer(kind=iwp), intent(in) :: dsym
 integer(kind=iwp) :: iBas, index1, indexC, isym, iT, jBas, jsym, jT
 
 indexC = 0

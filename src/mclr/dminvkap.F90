@@ -20,7 +20,7 @@ subroutine DMInvKap(rMFact,rIn,rOut,rtemp,isym,iter)
 !     In: rMFact        Factorized preconditioner (diagonal part       *
 !                       of the electronic hessian that couple          *
 !                       rotations with one common index)               *
-!     In,Out rOut       Orbital rotaotion                              *
+!     Out: rOut         Orbital rotaotion                              *
 !                                                                      *
 !     iSym              Symmetry of rotation                           *
 !                                                                      *
@@ -35,8 +35,10 @@ use dmrginfo, only: DoDMRG, LRRAS2, RGRAS2
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: rMFact(*), rIn(nDensC), rOut(nDensC), rtemp(nDens)
-integer(kind=iwp) :: iSym, iter
+real(kind=wp), intent(in) :: rMFact(*), rIn(nDensC)
+real(kind=wp), intent(out) :: rOut(nDensC), rtemp(nDens)
+integer(kind=iwp), intent(inout) :: iSym
+integer(kind=iwp), intent(in) :: iter
 integer(kind=iwp) :: ip1, ip2, iRC, iS, nd
 real(kind=wp), external :: DDot_
 
@@ -50,7 +52,7 @@ contains
 
 subroutine DMInvKap_Internal(rMFact)
 
-  real(kind=wp), target :: rMFact(*)
+  real(kind=wp), target, intent(in) :: rMFact(*)
   integer(kind=iwp), pointer :: iMFact(:)
   integer(kind=iwp) :: ii, jS
 

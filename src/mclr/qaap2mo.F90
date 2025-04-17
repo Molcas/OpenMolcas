@@ -25,8 +25,9 @@ use Constants, only: Two, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nG2, IKL, IKK, ILL
-real(kind=wp) :: G2q(nG2), GDMat(nTri_Elem(nRoots),nnA,nnA)
+integer(kind=iwp), intent(in) :: nG2, IKL, IKK, ILL
+real(kind=wp), intent(out) :: G2q(nG2)
+real(kind=wp), intent(in) :: GDMat(nTri_Elem(nRoots),nnA,nnA)
 integer(kind=iwp) :: i, ij, ijkl, j, k, kl, l, lMax, nD
 real(kind=wp) :: Fact
 real(kind=wp), allocatable :: Ddif(:), Dsum(:)

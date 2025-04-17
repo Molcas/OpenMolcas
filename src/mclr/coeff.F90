@@ -17,7 +17,7 @@ use Constants, only: Zero, One, Two, Six, Eight, Half
 use Definitions, only: wp, u6
 
 implicit none
-real(kind=wp) :: ralpha, rbetaa, rbetas
+real(kind=wp), intent(out) :: ralpha, rbetaa, rbetas
 real(kind=wp) :: rcg10, rcg11, rcg20, rcg21, rgamma, RMS, Spin
 real(kind=wp), external :: clebsch_gordan_mclr
 

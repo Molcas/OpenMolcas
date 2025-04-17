@@ -21,8 +21,12 @@ subroutine GETCNF_MCLR(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 use MCLR_Data, only: MINOP, NCNATS, NTYP
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: KCNF(*), KTYP, K, ICONF(*), IREFSM, NEL
+integer(kind=iwp), intent(_OUT_) :: KCNF(*)
+integer(kind=iwp), intent(out) :: KTYP
+integer(kind=iwp), intent(in) :: K, ICONF(*), IREFSM, NEL
 integer(kind=iwp) :: ICNFB1, ICNFB2, JCL, JOCC, JOP, JTYP, KADD, KREL, NJCNF
 
 ICNFB1 = 1

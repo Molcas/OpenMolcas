@@ -26,8 +26,9 @@ use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nDMO, nDAO
-real(kind=wp) :: DMO(nDMO), DAO(nDAO)
+integer(kind=iwp), intent(in) :: nDMO, nDAO
+real(kind=wp), intent(in) :: DMO(nDMO)
+real(kind=wp), intent(out) :: DAO(nDAO)
 integer(kind=iwp) :: i, iA, iAA, ij, iS, j, jA, jAA, nbas_tot, nLCMO
 real(kind=wp), allocatable :: D1(:), NatCMO(:), OCCU(:)
 

@@ -33,9 +33,13 @@ use Definitions, only: iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NEL, NELMN1, NELMX1, NELMN3, NELMX3, NOCTYP, NSM, ISTASO(NOCTYP,NSM), Z(NACOB,NEL), LSTASO(NOCTYP,NSM), &
-                     IREORD(*), STRING(NEL,*), IOC(*), IOTYP
+integer(kind=iwp), intent(in) :: NEL, NELMN1, NELMX1, NELMN3, NELMX3, NOCTYP, NSM, ISTASO(NOCTYP,NSM), Z(NACOB,NEL), IOTYP
+integer(kind=iwp), intent(out) :: LSTASO(NOCTYP,NSM)
+integer(kind=iwp), intent(inout) :: IREORD(*)
+integer(kind=iwp), intent(_OUT_) :: STRING(NEL,*), IOC(*)
 integer(kind=iwp) :: i, IEL1, IEL2, IEL3, IFRST1, IFRST2, IFRST3, IOCTP2_MCLR, IORB1F, IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, &
                      ISTRNM, ISYM, ISYMST_MCLR, ITYP, LACTU, LEXCI, NONEW1, NONEW2, NONEW3, NSTRIN
 #ifdef _DEBUGPRINT_

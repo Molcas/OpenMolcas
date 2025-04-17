@@ -39,9 +39,11 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: rpre(*)
-integer(kind=iwp) :: idsym
+real(kind=wp), intent(_OUT_) :: rpre(*)
+integer(kind=iwp), intent(in) :: idsym
 integer(kind=iwp) :: iBB, ip, iRC, jS, n2, nD, ni, nmm, nmmm, nTemp
 real(kind=wp) :: Sgn
 real(kind=wp), allocatable :: JInt(:), KInt(:), Scr(:), Temp1(:,:), Temp2(:), Temp3(:), Temp4(:)
@@ -57,7 +59,7 @@ contains
 
 subroutine Prec_dig_internal(rpre)
 
-  real(kind=wp), target :: rpre(*)
+  real(kind=wp), target, intent(_OUT_) :: rpre(*)
   integer(kind=iwp), pointer :: ipre(:)
   integer(kind=iwp) :: iB, iS
 

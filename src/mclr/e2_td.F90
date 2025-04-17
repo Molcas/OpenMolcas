@@ -19,8 +19,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: E2_td
-real(kind=wp) :: FockI(nCMO), rMO(*)
-integer(kind=iwp) :: lOper, iDisp
+real(kind=wp), intent(in) :: FockI(nCMO), rMO(*)
+integer(kind=iwp), intent(in) :: lOper, iDisp
 integer(kind=iwp) :: i, iA, iAA, iAB, ij, ij2, ijkl, ijkl2, ipF, iS, j, jA, JAA, JAB, jS, k, kl2, l
 logical(kind=iwp) :: Go
 

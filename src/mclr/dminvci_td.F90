@@ -17,8 +17,9 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: idSym
-real(kind=wp) :: rin(nConf1), rout(nConf1), rome
+real(kind=wp), intent(in) :: rin(nConf1), rome
+real(kind=wp), intent(out) :: rout(nConf1)
+integer(kind=iwp), intent(in) :: idSym
 real(kind=wp) :: r1, r2
 real(kind=wp), external :: DDot_
 

@@ -64,12 +64,16 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, IAEL1, IAEL3, JAEL1, JAEL3, &
-                     IBEL1, IBEL3, JBEL1, JBEL3, NTSOB(3,*), IBTSOB(3,*), MAXK, I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), I4(MAXK,*), &
-                     NSM, ISGN, ieaw
-real(kind=wp) :: SB(*), CB(*), XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), XI4S(MAXK,*), XINT(*), CJRES(*), SIRES(*)
-logical(kind=iwp) :: TimeDep
+integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, IAEL1, IAEL3, &
+                                 JAEL1, JAEL3, IBEL1, IBEL3, JBEL1, JBEL3, NTSOB(3,*), IBTSOB(3,*), MAXK, NSM, ISGN, ieaw
+real(kind=wp), intent(inout) :: SB(*)
+real(kind=wp), intent(in) :: CB(*)
+integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), I4(MAXK,*)
+real(kind=wp), intent(_OUT_) :: XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), XI4S(MAXK,*), XINT(*), CJRES(*), SIRES(*)
+logical(kind=iwp), intent(in) :: TimeDep
 integer(kind=iwp) :: IFIRST, II, IIOFF, IJSM, IJTYP, IKORD, IOFF, IOFFIN, IOFFOUT, IROUTE, ISM, ITP(3), ITYP, IXCHNG, J, JB, JJ, &
                      JOFF, JSM, JTP(3), JTYP, KABOT, KAEND, KATOP, KBBOT, KBEND, KBTOP, KLSM, KLTYP, KOFF, KSM, KTP(3), KTYP, LCJ, &
                      LOFF, LSM, LTP(3), LTYP, N1IND, N2IND, N3IND, NI, NIJTYP, NJ, NK, NKABTC, NKBBTC, NKLTYP, NL
@@ -113,8 +117,8 @@ do IJTYP=1,NIJTYP
       KABOT = KABOT+MAXK
       KATOP = KATOP+MAXK
       ! Find Ka strings that connect with Ja strings for given group of Jorbs
-      call ADST(JOFF,NJ,JATP,JASM,IAGRP,KABOT,KATOP,I1(1,1),XI1S(1,1),MAXK,NKABTC,KAEND)
-      call ADST(IOFF,NI,IATP,IASM,IAGRP,KABOT,KATOP,I3(1,1),XI3S(1,1),MAXK,NKABTC,KAEND)
+      call ADST(JOFF,NJ,JATP,JASM,IAGRP,KABOT,KATOP,I1,XI1S,MAXK,NKABTC,KAEND)
+      call ADST(IOFF,NI,IATP,IASM,IAGRP,KABOT,KATOP,I3,XI3S,MAXK,NKABTC,KAEND)
       if (NKABTC == 0) exit
       ! Generate - if required C(Ka,Jb,j)
       IIOFF = 1
@@ -125,7 +129,7 @@ do IJTYP=1,NIJTYP
         else
           IIOFF = IIOFF+LCJ
         end if
-        call GATRMT(CB,NJA,NJB,CJRES(IIOFF),NKABTC,NJB,I1(1,JJ),XI1S(1,JJ))
+        call GATRMT(CB,NJA,NJB,CJRES(IIOFF),NKABTC,NJB,I1(:,JJ),XI1S(:,JJ))
       end do
 
       ! We have now C gathered in the form C(Ka,Jb,j).
@@ -204,8 +208,8 @@ do IJTYP=1,NIJTYP
             KBTOP = KBTOP+MAXK
             ! obtain cb(KA,KB,jl) =  sum(JA,JB)<KA!a la!JA><KB!a jb !JB>C(JA,JB)
 
-            call ADST(LOFF,NL,JBTP,JBSM,IBGRP,KBBOT,KBTOP,I2(1,1),XI2S(1,1),MAXK,NKBBTC,KBEND)
-            call ADST(KOFF,NK,IBTP,IBSM,IBGRP,KBBOT,KBTOP,I4(1,1),XI4S(1,1),MAXK,NKBBTC,KBEND)
+            call ADST(LOFF,NL,JBTP,JBSM,IBGRP,KBBOT,KBTOP,I2,XI2S,MAXK,NKBBTC,KBEND)
+            call ADST(KOFF,NK,IBTP,IBSM,IBGRP,KBBOT,KBTOP,I4,XI4S,MAXK,NKBBTC,KBEND)
             if (NKBBTC == 0) exit
 
             ! Modern low copy version
@@ -261,7 +265,7 @@ do IJTYP=1,NIJTYP
         SIRES(1:NI*NIB*NKABTC) = CJRES(1:NI*NIB*NKABTC)
       end if
       do II=1,NI
-        call SCARMT(SIRES((II-1)*NKABTC*NIB+1),NKABTC,NIB,SB,NIA,NIB,I3(1,II),XI3S(1,II))
+        call SCARMT(SIRES((II-1)*NKABTC*NIB+1),NKABTC,NIB,SB,NIA,NIB,I3(:,II),XI3S(:,II))
 
       end do
       if (KAEND /= 0) exit

@@ -10,7 +10,7 @@
 !***********************************************************************
 
 function GETH1I_MCLR(I,J)
-! Obtain one -electron integral H(IORB,JOB)
+! Obtain one-electron integral H(IORB,JOB)
 
 use MCLR_Data, only: FIMO, IBSO, ipCM, IREOTS, ISMFTO
 use input_mclr, only: nIsh, nOrb
@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: GETH1I_MCLR
-integer(kind=iwp) :: I, J
+integer(kind=iwp), intent(in) :: I, J
 integer(kind=iwp) :: I1, IJ, ISM, J1, JSM
 
 ISM = ISMFTO(I)

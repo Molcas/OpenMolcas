@@ -22,9 +22,12 @@ use MCLR_Data, only: IBTSOB, NTSOB
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: XINT(*), Intlst(*)
-integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL, ieaw
+real(kind=wp), intent(_OUT_) :: XINT(*)
+integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL, ieaw
+real(kind=wp), intent(in) :: Intlst(*)
 integer(kind=iwp) :: iBas, iInt, IJ, IJKL, IL, IMIN, iOff, iOrb, jBas, JK, JMIN, jOff, jOrb, kBas, KL, kOff, kOrb, lBas, lOff, lOrb
 real(kind=wp) :: SGN
 

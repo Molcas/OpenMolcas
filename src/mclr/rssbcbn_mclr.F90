@@ -64,14 +64,18 @@ subroutine RSSBCBN_MCLR(IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,IAEL1,IAEL3,IBEL
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, IAEL1, IAEL3, IBEL1, IBEL3, JAEL1, JAEL3, JBEL1, JBEL3, NAEL, &
-                     NBEL, IJAGRP, IJBGRP, IDOH2, NTSOB(*), IBTSOB(*), ITSOB(*), MAXI, MAXK, I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), &
-                     I4(MAXK,*), NSM, NIA, NIB, NJA, NJB, IST, NOPART, ieaw
-real(kind=wp) :: SB(*), CB(*), SSCR(*), CSCR(*), XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), XI4S(MAXK,*), XINT(*), C2(*), CJRES(*), &
-                 SIRES(*)
-logical(kind=iwp) :: TimeDep
-integer(kind=iwp) :: IFACTOR, IIITRNS, JJJTRNS
+integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, IAEL1, IAEL3, IBEL1, IBEL3, JAEL1, JAEL3, JBEL1, &
+                                 JBEL3, NAEL, NBEL, IJAGRP, IJBGRP, IDOH2, NTSOB(*), IBTSOB(*), ITSOB(*), MAXI, MAXK, NSM, NIA, &
+                                 NIB, NJA, NJB, IST, NOPART
+real(kind=wp), intent(inout) :: SB(*), CB(*)
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), XI2S(MAXK,*), XI3S(MAXK,*), XI4S(MAXK,*), XINT(*), C2(*), &
+                                CJRES(*), SIRES(*)
+integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*), I2(MAXK,*), I3(MAXK,*), I4(MAXK,*)
+logical(kind=iwp), intent(in) :: TimeDep
+integer(kind=iwp) :: ieaw, IFACTOR, IIITRNS, JJJTRNS
 real(kind=wp) :: SGN
 
 ! ============================
@@ -100,6 +104,7 @@ if ((IATP == JATP) .and. (JASM == IASM)) then
 
   if ((IDOH2 /= 0) .and. (NBEL >= 2)) then
     !write(u6,*) 'Timedep in rssbcbn',TimeDep
+    ieaw = 0
     call RSBB2A_MCLR(IBSM,IBTP,JBSM,JBTP,IJBGRP,NIA,IBEL1,IBEL3,JBEL1,JBEL3,SB,CB,NTSOB,IBTSOB,MAXI,MAXK,SSCR,CSCR,I1,XI1S,XINT, &
                      NSM,SGN,NOPART,TimeDep,ieaw)
   end if
@@ -137,8 +142,8 @@ if ((IDOH2 /= 0) .and. (NAEL >= 1) .and. (NBEL >= 1)) then
     call TRNSPS(NJB,NJA,CB,C2)
     CB(1:NJA*NJB) = C2(1:NJA*NJB)
 
-    call RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,JbSM,JbTP,JaSM,JaTP,NJb,NJa,IJbGRP,IJaGRP,IbEL1,IbEL3,JbEL1,JbEL3,IaEL1,IaEL3, &
-                      JaEL1,JaEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSM,CJRES,SIRES,IFACTOR,ieaw,TimeDep)
+    call RSBB2BN_MCLR(IBSM,IBTP,IASM,IATP,NIB,NIA,JBSM,JBTP,JASM,JATP,NJB,NJA,IJBGRP,IJAGRP,IBEL1,IBEL3,JBEL1,JBEL3,IAEL1,IAEL3, &
+                      JAEL1,JAEL3,SB,CB,NTSOB,IBTSOB,MAXK,I1,XI1S,I2,XI2S,I3,XI3S,I4,XI4S,XINT,NSM,CJRES,SIRES,IFACTOR,ieaw,TimeDep)
     call TRNSPS(NIA,NIB,SB,C2)
     SB(1:NIA*NIB) = C2(1:NIA*NIB)
     call TRNSPS(NJA,NJB,CB,C2)

@@ -16,10 +16,14 @@ subroutine GSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSSIG
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), CTT(*), PSSIGN, PLSIGN, SCR(*)
-integer(kind=iwp) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), ICOOSC(NOCTPA,NOCTPB,*), IDC, LUC
-integer(kind=iwp) :: IBASE, IDUM(1), IMZERO, ISGVST(IBSM), LBL, LCOMB, LDET, NAST, NBST, NCI, NCOL, NELMNT, NRI, NROW
+real(kind=wp), intent(in) :: C(*), PSSIGN, PLSIGN
+real(kind=wp), intent(_OUT_) :: CTT(*), SCR(*)
+integer(kind=iwp), intent(in) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), &
+                                 ICOOSC(NOCTPA,NOCTPB,*), IDC, LUC
+integer(kind=iwp) :: IBASE, IDUM(1), IMZERO, ISGVST, LBL, LCOMB, LDET, NAST, NBST, NCI, NCOL, NELMNT, NRI, NROW
 real(kind=wp) :: PLSSGN, PSIGN
 
 PSIGN = Zero ! dummy initialize
@@ -33,7 +37,8 @@ if (LUC /= 0) then
   call FRMDSC_MCLR(SCR,LBL,-1,LUC,IMZERO)
   NAST = NSASO(IATP,IASM)
   NBST = NSBSO(IBTP,IBSM)
-  if (LBL /= 0) call SDCMRF_MCLR(CTT,SCR,2,IATP,IBTP,IASM,IBSM,NAST,NBST,IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB)
+  ! ISGVST is undefined
+  if (LBL /= 0) call SDCMRF_MCLR_2(CTT,SCR,IATP,IBTP,IASM,IBSM,NAST,NBST,IDC,PSSIGN,PLSIGN,ISGVST,LDET,LCOMB)
   ! ISGVST and PLSIGN missing to make it work for IDC = 3,4
 else
   ! ===============
@@ -67,7 +72,7 @@ else
       else if (IATP == IBTP) then
         IBASE = ICOOSC(IATP,IATP,IASM)
         NAST = NSASO(IATP,IASM)
-        call TRIPK2(CTT,C(IBASE),2,NAST,NAST,PLSIGN*PSSIGN)
+        call TRIPK2_2(CTT,C(IBASE),NAST,NAST,PLSIGN*PSSIGN)
       else if (IATP < IBTP) then
         IBASE = ICOOSC(IBTP,IATP,IASM)
         NROW = NSASO(IBTP,IASM)
@@ -90,7 +95,7 @@ else
       ! expand triangular packed matrix
       IBASE = ICOOSC(IATP,IBTP,IASM)
       NAST = NSASO(IATP,IASM)
-      call TRIPK2(CTT,C(IBASE),2,NAST,NAST,PSSIGN)
+      call TRIPK2_2(CTT,C(IBASE),NAST,NAST,PSSIGN)
     else if (IATP < IBTP) then
       ! transpose ibtp iasm iatp ibsm block
       IBASE = ICOOSC(IBTP,IATP,IASM)
@@ -125,7 +130,7 @@ else
         IBASE = ICOOSC(IBTP,IATP,IBSM)
         NRI = NSASO(IATP,IBSM)
         NCI = NSBSO(IATP,IASM)
-        call TRIPK2(CTT,C(IBASE),2,NRI,NCI,PLSSGN)
+        call TRIPK2_2(CTT,C(IBASE),NRI,NCI,PLSSGN)
         if (PLSIGN == -One) CTT(1:NRI*NCI) = -CTT(1:NRI*NCI)
       else if (IBTP < IATP) then
         IBASE = ICOOSC(IATP,IBTP,IBSM)

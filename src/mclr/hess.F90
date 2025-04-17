@@ -22,9 +22,13 @@ use input_mclr, only: nBas, nOrb, nSym, nTPert
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: FockC(nDens), FockX(nDens), rcon(nDens), Temp1(nDens), Temp2(nDens), Temp3(nDens), temp4(*)
-integer(kind=iwp) :: idSym, jDisp, iDisp
+real(kind=wp), intent(in) :: FockC(nDens), FockX(nDens), rcon(nDens)
+real(kind=wp), intent(out) :: Temp1(nDens), Temp2(nDens), Temp3(nDens)
+real(kind=wp), intent(_OUT_) :: temp4(*)
+integer(kind=iwp), intent(in) :: idSym, jDisp, iDisp
 integer(kind=iwp) :: IndX, iOp, iOpt, iP, iRC, iS, jS, kDisp, mDisp, nIn, nNJ
 real(kind=wp) :: Fact
 character(len=8) :: Label
@@ -57,7 +61,7 @@ do kDisp=1,ldisp(idsym)
   iRC = -1
   iOpt = 0
   Label = 'OvrGrd'
-  iOp = 2**idSym
+  iOp = ibset(0,idSym)
   call dRdMck(iRC,iOpt,Label,DspVec(mDisp),Temp1,iop)
   if (iRc /= 0) then
     write(u6,*) 'Hess: Error reading MCKINT'

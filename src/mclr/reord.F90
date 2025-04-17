@@ -39,11 +39,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-type(SGStruct) :: SGS
-type(CIStruct) :: CIS
-type(EXStruct) :: EXS
-integer(kind=iwp) :: nCONF, IMODE, ICONF(*), ISPIN(*), kSym
-real(kind=wp) :: CIOLD(NCONF)
+type(SGStruct), intent(in) :: SGS
+type(CIStruct), intent(in) :: CIS
+type(EXStruct), intent(in) :: EXS
+integer(kind=iwp), intent(in) :: nCONF, IMODE, ICONF(*), ISPIN(*), kSym
+real(kind=wp), intent(inout) :: CIOLD(NCONF)
 integer(kind=iwp) :: IC, ICL, ICNBS, ICNBS0, ICSBAS, ICSFJP, IICSF, IOPEN, IP, IPBAS, ISG, ITYP, IWALK(50)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I

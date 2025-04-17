@@ -16,9 +16,9 @@ subroutine CMSRdMat(Mat,NRow,NCol,FileName,NameLen)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NRow, NCol, NameLen
-real(kind=wp) :: Mat(NCol,NRow)
-character(len=NameLen) :: FileName
+integer(kind=iwp), intent(in) :: NRow, NCol, NameLen
+real(kind=wp), intent(out) :: Mat(NCol,NRow)
+character(len=NameLen), intent(in) :: FileName
 integer(kind=iwp) :: I, LU
 integer(kind=iwp), external :: IsFreeUnit
 

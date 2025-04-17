@@ -79,7 +79,7 @@ C
           call ddafile(LUAPT2,1,A_PT2,MaxVec_PT2**2,id)
         end if
 
-        ! rewind LuGamma
+        !rewind(LuGamma)
         Call PrgmTranslate('GAMMA',RealName,lRealName)
         LuGAMMA = isFreeUnit(LuGAMMA)
         Call MOLCAS_Open_Ext2(LuGamma,RealName(1:lRealName),

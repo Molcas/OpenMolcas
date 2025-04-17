@@ -25,7 +25,9 @@ use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: zX(nTri_Elem(nRoots-1)), AXX(nTri_Elem(nRoots-1),nTri_Elem(nRoots-1)), bX(nTri_Elem(nRoots-1))
+real(kind=wp), intent(out) :: zX(nTri_Elem(nRoots-1))
+real(kind=wp), intent(inout) :: AXX(nTri_Elem(nRoots-1),nTri_Elem(nRoots-1))
+real(kind=wp), intent(in) :: bX(nTri_Elem(nRoots-1))
 #include "warnings.h"
 integer(kind=iwp) :: INFO, iPair, NDim, nScr, nSPair
 real(kind=wp), allocatable :: bxscr(:), EigVal(:), Scr(:), zXscr(:)

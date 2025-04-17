@@ -18,8 +18,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: A(*)
-integer(kind=iwp) :: idSym, nbas2(nsym), nbas1(nsym)
+real(kind=wp), intent(inout) :: A(*)
+integer(kind=iwp), intent(in) :: idSym, nbas2(nsym), nbas1(nsym)
 integer(kind=iwp) :: iS, j, jS, m, n1, n2
 real(kind=wp), allocatable :: ATemp(:)
 

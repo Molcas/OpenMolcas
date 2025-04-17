@@ -24,8 +24,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NPUVX, IndPUVX(ntBas,ntAsh,ntAsh,ntAsh), Off_Act(nSym), Off_Orb(nSym)
-real(kind=wp) :: AXk(nDens), D1(ntAsh**2), D2(ntAsh**2), PUVX(NPUVX)
+real(kind=wp), intent(inout) :: AXk(nDens)
+integer(kind=iwp), intent(in) :: NPUVX, IndPUVX(ntBas,ntAsh,ntAsh,ntAsh), Off_Act(nSym), Off_Orb(nSym)
+real(kind=wp), intent(in) :: D1(ntAsh**2), D2(ntAsh**2), PUVX(NPUVX)
 integer(kind=iwp) :: ip, iq, iSym, it, loc1, loc2, p, q, t, u, v, x
 real(kind=wp) :: tempa
 real(kind=wp), allocatable :: Opu(:)

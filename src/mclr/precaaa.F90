@@ -43,8 +43,10 @@ use Constants, only: One, Two, Four
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iC, iS, jS, nD, iR, nbaj, nScr
-real(kind=wp) :: rout(nTri_Elem(nd)), Focki(nbaj,nbaj), Fock(nbaj,nbaj), Sgn, Scr(nScr), ActInt(ntAsh,ntAsh,ntAsh,ntAsh)
+integer(kind=iwp), intent(in) :: iC, iS, jS, nD, iR, nbaj, nScr
+real(kind=wp), intent(inout) :: rout(nTri_Elem(nd))
+real(kind=wp), intent(in) :: Focki(nbaj,nbaj), Fock(nbaj,nbaj), Sgn, ActInt(ntAsh,ntAsh,ntAsh,ntAsh)
+real(kind=wp), intent(out) :: Scr(nScr)
 integer(kind=iwp) :: i, iA, iAA, iCC, j, jB, jBB, jD, jDD, jE, jEE, jF, jFF, jjB, jjD, kS, nTri
 real(kind=wp) :: acef, adef, aecf, aedf, bcef, bdef, becf, bedf, rdac, rdacef, rdad, rdadef, rdaecf, rdaedf, rdbc, rdbcef, rdbd, &
                  rdbdef, rdbecf, rdbedf
@@ -156,45 +158,46 @@ end do
 !end do
 !call sqprt(a_j,5)
 !write(u6,*) 'ir = ',ir
-if (iR == 1) then
-  do jB=nRs1(jS)+1,nAsh(jS)
-    jBB = jB+nA(jS)
-    jjB = nd-(jB-nRs1(jS)+nIsh(jS))+1
-    do jD=nRs1(jS)+1,jB
-      jDD = jD+nA(jS)
-      jjD = nd-(jD-nRs1(jS)+nIsh(jS))+1
-      i = iTri(jBB,jDD)
-      j = nTri-iTri(jjB,jjD)+1
-      rOut(j) = rOut(j)+Scr(i)
+select case (iR)
+  case (1)
+    do jB=nRs1(jS)+1,nAsh(jS)
+      jBB = jB+nA(jS)
+      jjB = nd-(jB-nRs1(jS)+nIsh(jS))+1
+      do jD=nRs1(jS)+1,jB
+        jDD = jD+nA(jS)
+        jjD = nd-(jD-nRs1(jS)+nIsh(jS))+1
+        i = iTri(jBB,jDD)
+        j = nTri-iTri(jjB,jjD)+1
+        rOut(j) = rOut(j)+Scr(i)
+      end do
     end do
-  end do
-else if (iR == 2) then
-  do jB=1,nRs1(jS)+nRs3(jS)
-    jBB = jB+nA(jS)
-    if (jB > nRs1(jS)) jBB = jBB+nRs2(jS)
-    jjB = nd-(jB+nIsh(jS))+1
-    do jD=1,jB
-      jDD = jD+nA(jS)
-      if (jD > nRs1(jS)) jDD = jDD+nRs2(jS)
-      jjD = nd-(jD+nIsh(jS))+1
-      i = iTri(jBB,jDD)
-      j = nTri-iTri(jjB,jjD)+1
-      rOut(j) = rOut(j)+Scr(i)
+  case (2)
+    do jB=1,nRs1(jS)+nRs3(jS)
+      jBB = jB+nA(jS)
+      if (jB > nRs1(jS)) jBB = jBB+nRs2(jS)
+      jjB = nd-(jB+nIsh(jS))+1
+      do jD=1,jB
+        jDD = jD+nA(jS)
+        if (jD > nRs1(jS)) jDD = jDD+nRs2(jS)
+        jjD = nd-(jD+nIsh(jS))+1
+        i = iTri(jBB,jDD)
+        j = nTri-iTri(jjB,jjD)+1
+        rOut(j) = rOut(j)+Scr(i)
+      end do
     end do
-  end do
-else if (iR == 3) then
-  do jB=1,nRs1(jS)+nRs2(jS)
-    jBB = jB+nA(jS)
-    jjB = nd-(jB+nIsh(jS))+1
-    do jD=1,jB
-      jDD = jD+nA(jS)
-      jjD = nd-(jD+nIsh(jS))+1
-      i = iTri(jBB,jDD)
-      j = nTri-iTri(jjB,jjD)+1
-      rOut(j) = rOut(j)+Scr(i)
+  case (3)
+    do jB=1,nRs1(jS)+nRs2(jS)
+      jBB = jB+nA(jS)
+      jjB = nd-(jB+nIsh(jS))+1
+      do jD=1,jB
+        jDD = jD+nA(jS)
+        jjD = nd-(jD+nIsh(jS))+1
+        i = iTri(jBB,jDD)
+        j = nTri-iTri(jjB,jjD)+1
+        rOut(j) = rOut(j)+Scr(i)
+      end do
     end do
-  end do
-end if
+end select
 !                                                                      *
 !***********************************************************************
 !                                                                      *

@@ -222,7 +222,7 @@ outer: do
         iRc = -1
         iOpt = ibset(0,sOpSiz)
         iComp = ip
-        iSyLbl = 2**isym
+        iSyLbl = ibset(0,isym)
         Label = SewLab
         call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
         if (iRc /= 0) then
@@ -450,7 +450,7 @@ end do outer
 !     "End of input"                                                   *
 !----------------------------------------------------------------------*
 do i=1,3
-  isym = irrfnc(2**(i-1))+1
+  isym = irrfnc(ibset(0,i-1))+1
   ipp = sum(lDisp(isym+1:nsym))
   DspVec(nDisp-ipp+2:nDisp+1) = dspVec(nDisp-ipp+1:nDisp)
   ntpert(nDisp-ipp+2:nDisp+1) = ntpert(nDisp-ipp+1:nDisp)

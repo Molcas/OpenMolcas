@@ -15,7 +15,7 @@ use Intgrl, only: IAD2M, LUINTMZ, NORBZ, NSYMZ
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LUINTMZ_, NSYMZ_, NORBZ_(8)
+integer(kind=iwp), intent(in) :: LUINTMZ_, NSYMZ_, NORBZ_(8)
 integer(kind=iwp) :: iAddress
 
 iAddress = 0

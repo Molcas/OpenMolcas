@@ -33,9 +33,13 @@ use Str_Info, only: ISTAC, IUNIQMP, NOCTYP, STR
 use MCLR_Data, only: ISMFTO, NACOB, NORB1, NORB2
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IORB, NORB, ICLS, ISM, IGRP, KMIN, KMAX, I1(*), LI1, NK, IEND
-real(kind=wp) :: XI1S(*)
+integer(kind=iwp), intent(in) :: IORB, NORB, ICLS, ISM, IGRP, KMIN, KMAX, LI1
+integer(kind=iwp), intent(_OUT_) :: I1(*)
+real(kind=wp), intent(_OUT_) :: XI1S(*)
+integer(kind=iwp), intent(out) :: NK, IEND
 integer(kind=iwp) :: IMPF, JGRP, LMAP
 
 ! Type of mapping

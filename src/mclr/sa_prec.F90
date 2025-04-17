@@ -17,12 +17,13 @@ use input_mclr, only: ERASSCF, nRoots
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: S(nroots**2,nroots), rdia(*)
+real(kind=wp), intent(out) :: S(nroots,nroots,nroots)
+real(kind=wp), intent(in) :: rdia(*)
 integer(kind=iwp) :: i
 
 call ipin(ipci)
 do i=1,nroots
-  call SA_PREC2(rdia,S(1,i),W(ipci)%A,ERASSCF(i))
+  call SA_PREC2(rdia,S(:,:,i),W(ipci)%A,ERASSCF(i))
 end do
 
 end subroutine SA_PREC

@@ -43,23 +43,24 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: NOPEN, NDET, IDET(NOPEN,NDET), NCSF, ICSF(NOPEN,NCSF)
-real(kind=wp) :: CDC(NDET,NCSF), PSSIGN
-integer(kind=iwp) :: IOPEN, JCSF, JDADD, JDET
+integer(kind=iwp), intent(in) :: NOPEN, NDET, IDET(NOPEN,NDET), NCSF, ICSF(NOPEN,NCSF)
+real(kind=wp), intent(out) :: CDC(NDET,NCSF)
+real(kind=wp), intent(in) :: PSSIGN
+integer(kind=iwp) :: IOPEN, JCSF, JDET
 real(kind=wp) :: CMBFAC, COEF, SGN
-real(kind=wp), allocatable :: LMDET(:), lSCSF(:)
+real(kind=wp), allocatable :: LMDET(:,:), lSCSF(:)
 
 if (PSSIGN == Zero) then
   CMBFAC = One
 else
   CMBFAC = sqrt(Two)
 end if
-call mma_allocate(LMDET,NDET*NOPEN,Label='LMDET')
-call mma_allocate(LSCSF,NDET*NOPEN,Label='LSCSF')
+call mma_allocate(LMDET,NOPEN,NDET,Label='LMDET')
+call mma_allocate(LSCSF,NOPEN,Label='LSCSF')
 
 ! OBTAIN INTERMEDIATE VALUES OF MS FOR ALL DETERMINANTS
 do JDET=1,NDET
-  call MSSTRN_MCLR(IDET(1,JDET),LMDET(1+(JDET-1)*NOPEN),NOPEN)
+  call MSSTRN_MCLR(IDET(:,JDET),LMDET(:,JDET),NOPEN)
 end do
 
 do JCSF=1,NCSF
@@ -74,22 +75,25 @@ do JCSF=1,NCSF
     ! EXPANSION COEFFICIENT OF DETERMINANT JDET FOR CSF JCSF
     COEF = One
     SGN = One
-    JDADD = (JDET-1)*NOPEN
     do IOPEN=1,NOPEN
 
-      if ((ICSF(IOPEN,JCSF) == 1) .and. (IDET(IOPEN,JDET) == 1)) then
-        ! + + CASE
-        COEF = COEF*(LSCSF(IOPEN)+LMDET(JDADD+IOPEN))/(Two*LSCSF(IOPEN))
-      else if ((ICSF(IOPEN,JCSF) == 1) .and. (IDET(IOPEN,JDET) == 0)) then
-        ! + - CASE
-        COEF = COEF*(LSCSF(IOPEN)-LMDET(JDADD+IOPEN))/(Two*LSCSF(IOPEN))
-      else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 1)) then
-        ! - + CASE
-        COEF = COEF*(LSCSF(IOPEN)-LMDET(JDADD+IOPEN)+One)/(Two*LSCSF(IOPEN)+Two)
-        SGN = -SGN
-      else if ((ICSF(IOPEN,JCSF) == 0) .and. (IDET(IOPEN,JDET) == 0)) then
-        ! - - CASE
-        COEF = COEF*(LSCSF(IOPEN)+LMDET(JDADD+IOPEN)+One)/(Two*LSCSF(IOPEN)+Two)
+      if (ICSF(IOPEN,JCSF) == 1) then
+        if (IDET(IOPEN,JDET) == 1) then
+          ! + + CASE
+          COEF = COEF*(LSCSF(IOPEN)+LMDET(IOPEN,JDET))/(Two*LSCSF(IOPEN))
+        else if (IDET(IOPEN,JDET) == 0) then
+          ! + - CASE
+          COEF = COEF*(LSCSF(IOPEN)-LMDET(IOPEN,JDET))/(Two*LSCSF(IOPEN))
+        end if
+      else if (ICSF(IOPEN,JCSF) == 0) then
+        if (IDET(IOPEN,JDET) == 1) then
+          ! - + CASE
+          COEF = COEF*(LSCSF(IOPEN)-LMDET(IOPEN,JDET)+One)/(Two*LSCSF(IOPEN)+Two)
+          SGN = -SGN
+        else if (IDET(IOPEN,JDET) == 0) then
+          ! - - CASE
+          COEF = COEF*(LSCSF(IOPEN)+LMDET(IOPEN,JDET)+One)/(Two*LSCSF(IOPEN)+Two)
+        end if
       end if
     end do
     CDC(JDET,JCSF) = SGN*CMBFAC*sqrt(COEF)

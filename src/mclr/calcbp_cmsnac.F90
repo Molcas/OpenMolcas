@@ -24,7 +24,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: bP(nConf1,nRoots), CSFOK(nConf1,nRoots), LOK(nRoots,nRoots), R(nRoots,nRoots)
+real(kind=wp), intent(out) :: bP(nConf1,nRoots)
+real(kind=wp), intent(in) :: CSFOK(nConf1,nRoots), LOK(nRoots,nRoots), R(nRoots,nRoots)
 integer(kind=iwp) :: I, J, K, L
 
 bP(:,:) = CSFOK(:,:)

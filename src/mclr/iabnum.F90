@@ -19,9 +19,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: IABNUM
-integer(kind=iwp) :: IASTR(*), IBSTR(*), IAGRP, IBGRP, IGENSG, ISGNA(*), ISGNB(*), ISGNAB, IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*), &
-                     NORB, IPSFAC
-real(kind=wp) :: PSSIGN
+integer(kind=iwp), intent(in) :: IASTR(*), IBSTR(*), IAGRP, IBGRP, IGENSG, ISGNA(*), ISGNB(*), &
+                                 IOOS(NOCTYP(IAGRP),NOCTYP(IBGRP),*), NORB
+integer(kind=iwp), intent(out) :: ISGNAB, IPSFAC
+real(kind=wp), intent(in) :: PSSIGN
 integer(kind=iwp), external :: IABNUS
 
 IABNUM = IABNUS(IASTR,NELEC(IAGRP),Str(IAGRP)%STREO,Str(IAGRP)%STCL,Str(IAGRP)%STSM,NOCTYP(IAGRP),Str(IAGRP)%Z,Str(IAGRP)%ISTSO, &

@@ -39,10 +39,12 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: rpre(*)
-integer(kind=iwp) :: idsym
-integer(kind=iwp) :: iAdr, iAdr2, iBB, ip, iR, iRC, jS, n2, nD, ni, nmm, nmmm, nTemp
+real(kind=wp), intent(_OUT_) :: rpre(*)
+integer(kind=iwp), intent(in) :: idsym
+integer(kind=iwp) :: iAdr, iBB, ip, iR, iRC, jS, n2, nD, ni, nmm, nmmm, nTemp
 real(kind=wp) :: Sgn
 real(kind=wp), allocatable :: ActInt(:), JA(:), KA(:), Scr(:), Temp1(:,:), Temp2(:), Temp3(:)
 
@@ -53,7 +55,7 @@ contains
 
 subroutine Prec_internal(rpre)
 
-  real(kind=wp), target :: rpre(*)
+  real(kind=wp), target, intent(_OUT_) :: rpre(*)
   integer(kind=iwp), pointer :: ipre(:)
   integer(kind=iwp) :: iB, iS
 
@@ -74,7 +76,6 @@ subroutine Prec_internal(rpre)
 
   ip = 1
   iAdr = 0
-  iAdr2 = 0
   do iS=1,nSym
     jS = Mul(is,iDSym)
     nD = nOrb(js)-nIsh(jS)
@@ -186,7 +187,7 @@ subroutine Prec_internal(rpre)
           !  New Cholesky code
 
           call Preca_cho(ib,is,js,nd,Temp3,nOrb(js),FIMO(1+ipCM(is)+ibb),FAMO(1+ipCM(is)+ibb),F0SqMO(1+ipCM(is)+ibb), &
-                         FIMO(ipCM(js)),FAMO(ipCM(js)),Sgn,JA,n2,iAdr2)
+                         FIMO(ipCM(js)),FAMO(ipCM(js)),Sgn,JA,n2)
 
         else
 

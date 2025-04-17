@@ -31,8 +31,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-real(kind=wp) :: RHO2(*), RHO2T(*)
-integer(kind=iwp) :: ITYPE, NI, IOFF, NJ, JOFF, NK, KOFF, NL, LOFF, NORB
+real(kind=wp), intent(inout) :: RHO2(*)
+real(kind=wp), intent(in) :: RHO2T(*)
+integer(kind=iwp), intent(in) :: ITYPE, NI, IOFF, NJ, JOFF, NK, KOFF, NL, LOFF, NORB
 integer(kind=iwp) :: I, IACTIVE, II, IIOFF, IJ, IJKL, IJKLT, IKIND, IKJLT, IPERM, J, JJ, JJOFF, JLIND, K, KK, KKOFF, KL, L, LL, &
                      LLOFF, NII, NIK, NJJ, NKK, NLL
 real(kind=wp) :: FACTOR, SGN, SIGNIK, SIGNJL

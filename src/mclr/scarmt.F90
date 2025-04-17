@@ -22,10 +22,10 @@ subroutine SCARMT(MATIN,NROWIN,NCOLIN,MATUT,NROWUT,NCOLUT,ISCA,SSCA)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NROWIN, NCOLIN, NROWUT, NCOLUT, ISCA(*)
-real(kind=wp) :: MATIN(NROWIN,NCOLIN), MATUT(NCOLUT,NROWUT), SSCA(*)
+integer(kind=iwp), intent(in) :: NROWIN, NCOLIN, NROWUT, NCOLUT, ISCA(NROWIN)
+real(kind=wp), intent(in) :: MATIN(NROWIN,NCOLIN), SSCA(NROWIN)
+real(kind=wp), intent(inout) :: MATUT(NCOLUT,NROWUT)
 integer(kind=iwp) :: I, ICINBL, ICINEN, ICINOF, LBLK, NBLK
-real(kind=wp) :: S
 
 ! (MATUT transposed!)
 
@@ -45,8 +45,7 @@ do ICINBL=1,NBLK
   ICINEN = min(ICINOF+LBLK-1,NCOLIN)
   do I=1,NROWIN
     if (ISCA(I) /= 0) then
-      S = SSCA(I)
-      MATUT(ICINOF:ICINEN,ISCA(I)) = MATUT(ICINOF:ICINEN,ISCA(I))+S*MATIN(I,ICINOF:ICINEN)
+      MATUT(ICINOF:ICINEN,ISCA(I)) = MATUT(ICINOF:ICINEN,ISCA(I))+SSCA(I)*MATIN(I,ICINOF:ICINEN)
     end if
   end do
 end do

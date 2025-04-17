@@ -35,9 +35,10 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: MNRS1, MXRS1, MNRS3, MXRS3, ITOTSM, NSM, NOCTPA, NOCTPB, IEL1A(*), IEL1B(*), NSSOA(NOCTPA,*), &
-                     NSSOB(NOCTPB,*), IEL3A(*), IEL3B(*), NCOMB, MXSB, MXSOOB, IBLTP(*)
-real(kind=wp) :: XNCOMB
+integer(kind=iwp), intent(in) :: MNRS1, MXRS1, MNRS3, MXRS3, ITOTSM, NSM, NOCTPA, NOCTPB, IEL1A(*), IEL1B(*), NSSOA(NOCTPA,*), &
+                                 NSSOB(NOCTPB,*), IEL3A(*), IEL3B(*), IBLTP(*)
+integer(kind=iwp), intent(out) :: NCOMB, MXSB, MXSOOB
+real(kind=wp), intent(out) :: XNCOMB
 integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, IEL1, IEL3, ISYM, LSB, LTTSBL, LTTSUP, MXBTP
 
 MXSB = 0

@@ -11,7 +11,7 @@
 ! Copyright (C) 2014, Mickael G. Delcey                                *
 !***********************************************************************
 
-subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,Sgn,A_J,nScr,iAdr)
+subroutine Preca_cho(iB,is,js,nd,rOut,nbaj,fockii,fockai,fockti,focki,focka,Sgn,A_J,nScr)
 !***********************************************************************
 !                                                                      *
 !     This routine replaces precaii, precabi and precabb               *
@@ -32,9 +32,11 @@ use Constants, only: One, Two, Four, Eight
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iB, is, js, nd, nbaj, nScr, iAdr
-real(kind=wp) :: rout(nTri_Elem(nd)), fockii, fockai, fockti, Focki(nbaj,nbaj), FockA(nBaj,nBaj), Sgn, A_J(nScr)
-integer(kind=iwp) :: i, iBB, ii, ijk, ip, itAA, iU, iV, jA, jB, jCC, jDD, jVert, kSym, lSym, nI, nL, nO, nTri
+integer(kind=iwp), intent(in) :: iB, is, js, nd, nbaj, nScr
+real(kind=wp), intent(inout) :: rout(nTri_Elem(nd))
+real(kind=wp), intent(in) :: fockii, fockai, fockti, Focki(nbaj,nbaj), FockA(nBaj,nBaj), Sgn
+real(kind=wp), intent(out) :: A_J(nScr)
+integer(kind=iwp) :: i, iAdr, iBB, ii, ijk, ip, itAA, iU, iV, jA, jB, jCC, jDD, jVert, kSym, lSym, nI, nL, nO, nTri
 real(kind=wp) :: Fact, Factor, Factor2, rDens, rDens1, rDens2, rDensabb, rDensabi, rDensabil, rDensabiu, rDensaii, rDensaiil, &
                  rDensaiiu, rf, rFock
 

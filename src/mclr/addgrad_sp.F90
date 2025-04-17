@@ -20,15 +20,16 @@ subroutine AddGrad_sp(rKappa,rMat,F,idsym,r1,r2)
 !   which is just the case if E is symmetric.
 
 use Symmetry_Info, only: Mul
-use MCLR_Data, only: ipCM, ipMat, nDens
+use MCLR_Data, only: ipCM, ipMat, nDens, nDensC
 use input_mclr, only: nOrb, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: rKappa(*), rMat(*), F(nDens), r1, r2
-integer(kind=iwp) :: idSym
+real(kind=wp), intent(in) :: rKappa(nDensC), F(nDens), r1, r2
+real(kind=wp), intent(out) :: rMat(nDensC)
+integer(kind=iwp), intent(in) :: idSym
 integer(kind=iwp) :: iS, jS
 real(kind=wp), allocatable :: K(:), M(:), Tempi(:), Tempj(:)
 

@@ -20,9 +20,12 @@ subroutine GETINC_ABS(XINT,ITP,ISM,JTP,JSM,KTP,KSM,LTP,LSM,IXCHNG,INTLST,ICOUL)
 use MCLR_Data, only: IBTSOB, NACOB, NTSOB
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: XINT(*), Intlst(*)
-integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, ICOUL
+real(kind=wp), intent(_OUT_) :: XINT(*)
+integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, ICOUL
+real(kind=wp), intent(in) :: Intlst(*)
 integer(kind=iwp) :: iInt, iOff, iOrb, jBas, jInt, jOff, jOrb, kBas, kOff, kOrb, lBas, lOff, lOrb
 
 iOrb = NTSOB(ITP,ISM)

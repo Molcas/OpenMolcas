@@ -16,8 +16,9 @@ subroutine PMPLFM(AP,B,NDIM)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: AP(*), B(*)
-integer(kind=iwp) :: NDIM
+real(kind=wp), intent(inout) :: AP(*)
+real(kind=wp), intent(in) :: B(*)
+integer(kind=iwp), intent(in) :: NDIM
 integer(kind=iwp) :: IBSF, IBSP, ICOL, NELMNT
 
 IBSP = 1

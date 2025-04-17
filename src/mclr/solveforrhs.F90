@@ -22,7 +22,8 @@ use input_mclr, only: nRoots
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: Fock(nDens), CICSF(nConf1*nRoots), AXkzx(nDens), AXPzx(nConf1*nRoots), bk(nDens), bP(nConf1*nRoots)
+real(kind=wp), intent(out) :: Fock(nDens), CICSF(nConf1*nRoots)
+real(kind=wp), intent(in) :: AXkzx(nDens), AXPzx(nConf1*nRoots), bk(nDens), bP(nConf1*nRoots)
 
 ! Orbital Rotation Part
 Fock(:) = Axkzx(:)+bk(:)

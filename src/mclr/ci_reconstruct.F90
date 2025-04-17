@@ -17,8 +17,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: istate, nsdet, indexSD(nsdet) ! index
-real(kind=wp) :: vector(nsdet) ! determinants
+integer(kind=iwp), intent(in) :: istate, nsdet
+real(kind=wp), intent(out) :: vector(nsdet) ! determinants
+integer(kind=iwp), intent(out) :: indexSD(nsdet) ! index
 integer(kind=iwp) :: i, idet, idx_det, iorbLR, iorbLR0, irrep_diff(8), irrep_pre, j, lcheckpoint, ndets_mclr, nDets_Total, &
                      nele_alpha, nele_beta, nele_mod, neletol, norb, norbLR, rc
 real(kind=wp) :: dtmp
@@ -210,14 +211,11 @@ do i=istate,istate
   end do
 end do
 
-dtmp = Zero
-indexSD = 0
-vector = Zero
-do i=1,ndets_RGLR
-  indexSD(i) = i !inum(i)*isgn(i)
-  vector(i) = dV(istate,i)
-  dtmp = dtmp+vector(i)**2
-end do
+indexSD(1:ndets_RGLR) = [(i,i=1,ndets_RGLR)] ! inum(i)*isgn(i)
+indexSD(ndets_RGLR+1:) = 0
+vector(1:ndets_RGLR) = dV(istate,:)
+vector(ndets_RGLR+1:) = Zero
+dtmp = sum(vector(1:ndets_RGLR)**2)
 
 write(u6,*) 'nele_alpha,nele_beta',nele_alpha,nele_beta
 write(u6,*) 'Total CI weight is ',dtmp

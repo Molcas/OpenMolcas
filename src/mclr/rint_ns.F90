@@ -35,9 +35,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: rkappa(nDens), rMO(*), Fock(nDens), FockI(nDens), reco
-integer(kind=iwp) :: iDSym, jSpin
+real(kind=wp), intent(in) :: rkappa(nDens), reco
+real(kind=wp), intent(_OUT_) :: rMO(*)
+real(kind=wp), intent(out) :: Fock(nDens), FockI(nDens)
+integer(kind=iwp), intent(in) :: iDSym, jSpin
 integer(kind=iwp) :: iAsh, ipF, ipFI, iS, jAsh, jS
 real(kind=wp) :: Dij, Fact
 real(kind=wp), allocatable :: FA(:), MT1(:), MT2(:), QA(:), QB(:)
@@ -89,14 +93,16 @@ do iS=1,nSym
   ! F  = 2 ( F  + F  )
   !  pi       pi   pi
 
-  call DGEADD2(Two,Focki(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nbas(is),nish(js))
-  call DGEADD2(-Two,Focki(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nish(is),nBas(js))
+  ! IFG This looks like a no-op. Should the second call be 'T'?
+  call DGEACC(Two,Focki(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nBas(is),nIsh(js))
+  call DGEACC(-Two,Focki(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nIsh(is),nBas(js))
   if (iMethod == 2) then
 
     ! 61-121 is all to do with multiconf
 
-    call DGEADD2(Two,FA(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nbas(is),nIsh(js))
-    call DGEADD2(-Two,FA(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nish(is),nBas(js))
+    ! IFG This looks like a no-op. Should the second call be 'T'?
+    call DGEACC(Two,FA(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nBas(is),nIsh(js))
+    call DGEACC(-Two,FA(ipMat(is,js)),nBas(is),'N',Fock(ipMat(is,js)),nBas(is),nIsh(is),nBas(js))
 
     do iAsh=1,nAsh(jS)
       do jAsh=1,nAsh(js)
@@ -131,7 +137,7 @@ do iS=1,nSym
       end do
     end do
 
-    call DGEACC(Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),QB(ipMatba(is,js)),nBas(is),nBas(is),nAsh(js))
+    call DGEACC(One,QB(ipMatba(is,js)),nBas(is),'N',Fock(ipMat(is,js)+nbas(is)*nish(js)),nBas(is),nBas(is),nAsh(js))
     call DGESUB(Fock(ipMat(is,js)+nish(is)),nBas(is),'N',QA(ipMatba(js,is)),nBas(js),'T',Fock(ipMat(is,js)+nish(is)),nBas(is), &
                 nash(is),nBas(js))
   end if
@@ -149,7 +155,7 @@ if (imethod == 2) then
 end if
 
 Fock(:) = -Two*Fock(:)
-call AddGrad(rKappa,Fock,idsym,Two*(-fact))
+call AddGrad(rKappa,Fock,idsym,-Two*fact)
 call PickMO_td(MT1,rmo,idsym)
 
 call mma_deallocate(MT2)

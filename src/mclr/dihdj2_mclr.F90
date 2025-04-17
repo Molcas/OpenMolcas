@@ -36,27 +36,17 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: IASTR(*), IBSTR(*), NIDET, JASTR(*), JBSTR(*), NJDET, NAEL, NBEL, jWORK(*), NORB, ISYM, ICOMBI, &
-                     IASTRM(NAEL,*), IBSTRM(NBEL,*), JASTRM(NAEL,*), JBSTRM(NBEL,*), IGENSG, IASGN(*), IBSGN(*), JASGN(*), &
-                     JBSGN(*), LIA(NAEL), LIB(NBEL), NDIF0, NDIF1, NDIF2
-real(kind=wp) :: HAMIL(*), ECORE, PSIGN
+integer(kind=iwp), intent(in) :: IASTR(*), IBSTR(*), NIDET, JASTR(*), JBSTR(*), NJDET, NAEL, NBEL, NORB, ISYM, ICOMBI, &
+                                 IASTRM(NAEL,*), IBSTRM(NBEL,*), JASTRM(NAEL,*), JBSTRM(NBEL,*), IGENSG, IASGN(*), IBSGN(*), &
+                                 JASGN(*), JBSGN(*)
+integer(kind=iwp), intent(out) :: jWORK(NORB,4), LIA(NAEL), LIB(NBEL), NDIF0, NDIF1, NDIF2
+real(kind=wp), intent(out) :: HAMIL(*)
+real(kind=wp), intent(in) :: ECORE, PSIGN
 integer(kind=iwp) :: I1, I2, IA, IAB, IAEL, IAEQIB, IASTAC, IB, IBEL, IBSTAC, IDET, IDIFF, IEL, IEL1, ILOOP, IORB, IPERM, IXSGN, &
-                     J1, J2, JA, JAB, JAEL, JAEQJB, JASTAC, JB, JBEL, JBSTAC, JDET, JDIFF, JEL, JEL1, JORB, JPERM, JXSGN, KLFREE, &
-                     KLIAE, KLIBE, KLJAE, KLJBE, LHAMIL, MINI, NACM, NADIF, NBCM, NBDIF, NIABEL, NJABEL, NLOOP, NTERMS
+                     J1, J2, JA, JAB, JAEL, JAEQJB, JASTAC, JB, JBEL, JBSTAC, JDET, JDIFF, JEL, JEL1, JORB, JPERM, JXSGN, LHAMIL, &
+                     MINI, NACM, NADIF, NBCM, NBDIF, NIABEL, NJABEL, NLOOP, NTERMS
 real(kind=wp) :: CONST, SGN, SIGNA, SIGNB, XVAL
 real(kind=wp), external :: GETH1I_MCLR, GTIJKL_MCLR
-
-! Scratch space: 4 vectors of length NORB
-KLFREE = 1
-KLIAE = KLFREE
-KLFREE = KLIAE+NORB
-KLIBE = KLFREE
-KLFREE = KLIBE+NORB
-
-KLJAE = KLFREE
-KLFREE = KLJAE+NORB
-KLJBE = KLFREE
-KLFREE = KLJBE+NORB
 
 if (ISYM == 0) then
   LHAMIL = NIDET*NJDET
@@ -94,14 +84,13 @@ do JDET=1,NJDET
     JXSGN = 1
   end if
 
-  jWORK(KLJAE:KLJAE+NORB-1) = 0
-  jWORK(KLJBE:KLJBE+NORB-1) = 0
+  jWORK(:,3:4) = 0
   do IAEL=1,NAEL
-    jWORK(KLJAE-1+JASTRM(IAEL,JASTAC)) = 1
+    jWORK(JASTRM(IAEL,JASTAC),3) = 1
   end do
 
   do IBEL=1,NBEL
-    jWORK(KLJBE-1+JBSTRM(IBEL,JBSTAC)) = 1
+    jWORK(JBSTRM(IBEL,JBSTAC),4) = 1
   end do
 
   if (ICOMBI /= 0) then
@@ -158,11 +147,11 @@ do JDET=1,NJDET
 
       NACM = 0
       do IAEL=1,NAEL
-        NACM = NACM+jWORK(KLJAE-1+LIA(IAEL))
+        NACM = NACM+jWORK(LIA(IAEL),3)
       end do
       NBCM = 0
       do IBEL=1,NBEL
-        NBCM = NBCM+jWORK(KLJBE-1+LIB(IBEL))
+        NBCM = NBCM+jWORK(LIB(IBEL),4)
       end do
       NADIF = NAEL-NACM
       NBDIF = NBEL-NBCM
@@ -192,22 +181,21 @@ do JDET=1,NJDET
       ! ================================================
 
       ! Expand idet
-      jWORK(KLIAE:KLIAE+NORB-1) = 0
-      jWORK(KLIBE:KLIBE+NORB-1) = 0
+      jWORK(:,1:2) = 0
 
       do IAEL=1,NAEL
-        jWORK(KLIAE-1+LIA(IAEL)) = 1
+        jWORK(LIA(IAEL),1) = 1
       end do
 
       do IBEL=1,NBEL
-        jWORK(KLIBE-1+LIB(IBEL)) = 1
+        jWORK(LIB(IBEL),2) = 1
       end do
 
       ! One pair of differing alpha electrons
 
       if (NADIF == 1) then
         do IAEL=1,NAEL
-          if (jWORK(KLJAE-1+LIA(IAEL)) == 0) then
+          if (jWORK(LIA(IAEL),3) == 0) then
             IA = LIA(IAEL)
             IEL1 = IAEL
             exit
@@ -215,7 +203,7 @@ do JDET=1,NJDET
         end do
 
         do JAEL=1,NAEL
-          if (jWORK(KLIAE-1+JASTRM(JAEL,JASTAC)) == 0) then
+          if (jWORK(JASTRM(JAEL,JASTAC),1) == 0) then
             JA = JASTRM(JAEL,JASTAC)
             JEL1 = JAEL
             exit
@@ -228,14 +216,14 @@ do JDET=1,NJDET
 
       if (NBDIF == 1) then
         do IBEL=1,NBEL
-          if (jWORK(KLJBE-1+LIB(IBEL)) == 0) then
+          if (jWORK(LIB(IBEL),4) == 0) then
             IB = LIB(IBEL)
             IEL1 = IBEL
             exit
           end if
         end do
         do JBEL=1,NBEL
-          if (jWORK(KLIBE-1+JBSTRM(JBEL,JBSTAC)) == 0) then
+          if (jWORK(JBSTRM(JBEL,JBSTAC),2) == 0) then
             JB = JBSTRM(JBEL,JBSTAC)
             JEL1 = JBEL
             exit
@@ -249,7 +237,7 @@ do JDET=1,NJDET
       if (NADIF == 2) then
         IDIFF = 0
         do IAEL=1,NAEL
-          if (jWORK(KLJAE-1+LIA(IAEL)) == 0) then
+          if (jWORK(LIA(IAEL),3) == 0) then
             if (IDIFF == 0) then
               IDIFF = 1
               I1 = LIA(IAEL)
@@ -264,7 +252,7 @@ do JDET=1,NJDET
 
         JDIFF = 0
         do JAEL=1,NAEL
-          if (jWORK(KLIAE-1+JASTRM(JAEL,JASTAC)) == 0) then
+          if (jWORK(JASTRM(JAEL,JASTAC),1) == 0) then
             if (JDIFF == 0) then
               JDIFF = 1
               J1 = JASTRM(JAEL,JASTAC)
@@ -284,7 +272,7 @@ do JDET=1,NJDET
       if (NBDIF == 2) then
         IDIFF = 0
         do IBEL=1,NBEL
-          if (jWORK(KLJBE-1+LIB(IBEL)) == 0) then
+          if (jWORK(LIB(IBEL),4) == 0) then
             if (IDIFF == 0) then
               IDIFF = 1
               I1 = LIB(IBEL)
@@ -299,7 +287,7 @@ do JDET=1,NJDET
 
         JDIFF = 0
         do JBEL=1,NBEL
-          if (jWORK(KLIBE-1+JBSTRM(JBEL,JBSTAC)) == 0) then
+          if (jWORK(JBSTRM(JBEL,JBSTAC),2) == 0) then
             if (JDIFF == 0) then
               JDIFF = 1
               J1 = JBSTRM(JBEL,JBSTAC)

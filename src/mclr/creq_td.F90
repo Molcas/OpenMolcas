@@ -21,8 +21,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Q(nDens), rint(*), G2(ntash,ntash,ntash,ntash)
-integer(kind=iwp) :: idSym
+real(kind=wp), intent(inout) :: Q(nDens)
+real(kind=wp), intent(in) :: rint(*), G2(ntash,ntash,ntash,ntash)
+integer(kind=iwp), intent(in) :: idSym
 integer(kind=iwp) :: iAsh, ijS, ipi, ipQ, ipS, iS, jAsh, jS, kAsh, kS, lAsh, lS
 
 ! Q = (pj|kl)d

@@ -22,7 +22,7 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iKapDisp(nDisp), iCiDisp(nDisp)
+integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
 integer(kind=iwp) :: i, iA, iAA, iBas, iDisk, idum(7,8), ii, iikl, ij, ij1, ij2, ijkl, ijlk, iLen, iMax, iOff, ipCIP, iR, iS, &
                      iSym, j, jA, jAA, jDisk, ji2, jikl, jilk, k, kl, kl1, kl2, klRow, l, lk2, LuDens, LuTmp, nBas_Tot, nBasI, &
                      nBuf, nDim, nDLMO, nG1, nG2, nLCMO, nNac, nPLMO, nTot1

@@ -15,7 +15,7 @@ subroutine CNFSTR_MCLR(ICONF,ITYP,IASTR,IBSTR,NORB,NAEL,NBEL,IDET,IPRODT,IAGRP,I
 ! An orbital configuration ICONF is given,
 ! Obtain the corresponding alpha strings, IASTR
 !        the corresponding beta  strings, IBSTR
-!        the corresponding sign array,    ISIGN
+!        the corresponding sign array,    SIGN
 !
 ! Jeppe Olsen, Summer of 89
 !
@@ -28,8 +28,9 @@ use MCLR_Data, only: MINOP, NACOB, NDPCNT
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ICONF(*), ITYP, IASTR(*), IBSTR(*), NORB, NAEL, NBEL, IDET, IPRODT(*), IAGRP, IBGRP, ISCR(*)
-real(kind=wp) :: SGN(*)
+integer(kind=iwp), intent(in) :: NAEL, NBEL, ICONF(NAEL+NBEL), ITYP, NORB, IDET, IPRODT(*), IAGRP, IBGRP
+integer(kind=iwp), intent(out) :: IASTR(IDET), IBSTR(IDET), ISCR((IDET+2)*(NAEL+NBEL))
+real(kind=wp), intent(out) :: SGN(IDET)
 integer(kind=iwp) :: ICLOS, IOPEN, IP, ISGN, JDET, JTYP, KLDET, KLDETS, KLFREE, KLIA, KLIB, NEL
 integer(kind=iwp), external :: ISTRNM
 

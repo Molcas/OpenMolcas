@@ -43,9 +43,10 @@ use Constants, only: Zero, Half, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp5(nDens), Temp6(nDens), rKappa(nDens), CMO(nCMO)
-integer(kind=iwp) :: ipst, iDisp, lOper, jdisp
-logical(kind=iwp) :: CI
+real(kind=wp), intent(out) :: Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Temp5(nDens), Temp6(nDens), rKappa(nDens)
+integer(kind=iwp), intent(in) :: ipst, iDisp, lOper, jdisp
+real(kind=wp), intent(in) :: CMO(nCMO)
+logical(kind=iwp), intent(in) :: CI
 integer(kind=iwp) :: iAsh, iDSym, ii, ij, iOp, iOpt, ip, iRC, iS, jAsh, jS
 real(kind=wp) :: Dij, E2, Ena, rDum(1)
 character(len=8) :: Label
@@ -58,7 +59,7 @@ debug = .true.
 iRC = -1
 idsym = loper+1
 iOpt = 0
-iOp = 2**loper
+iOp = ibset(0,loper)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -66,9 +67,6 @@ iOp = 2**loper
 ! and transform it to MO basis
 
 if (btest(ntpert(idisp),3)) then
-  iRC = -1
-  iOpt = 0
-  iOp = 2**loper
   Label = 'OVRGRD'
   call dRdMCK(iRC,iOpt,Label,DspVec(iDisp),Temp6,iop)
   if (iRc /= 0) then

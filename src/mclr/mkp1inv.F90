@@ -19,7 +19,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: rdia(*)
+real(kind=wp), intent(in) :: rdia(*)
 integer(kind=iwp) :: i, iDisk, j, jDisk
 real(kind=wp), allocatable :: TMP1(:), TMP2(:)
 real(kind=wp), external :: DDot_

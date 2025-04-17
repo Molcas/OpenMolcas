@@ -32,8 +32,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: d_0, rDens1(*), rdens2(*), Fock(nDens), fockout(nDens)
-integer(kind=iwp) :: idSym
+real(kind=wp), intent(in) :: d_0, rDens1(*), rdens2(*)
+real(kind=wp), intent(out) :: Fock(nDens), fockout(nDens)
+integer(kind=iwp), intent(in) :: idSym
 integer(kind=iwp) :: iA, iB, ip1, ip2, ipF, ipM, ipS, iS, jA, jAA, jS, kA, kAA, kS, n1, n2
 real(kind=wp) :: rd
 real(kind=wp), allocatable :: MO(:), Scr(:)

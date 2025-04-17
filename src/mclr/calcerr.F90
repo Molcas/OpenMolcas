@@ -30,8 +30,8 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: kappa(*)
-integer(kind=iwp) :: ieState
+real(kind=wp), intent(in) :: kappa(nDens)
+integer(kind=iwp), intent(in) :: ieState
 integer(kind=iwp) :: iS, nG1
 real(kind=wp) :: dejdw
 real(kind=wp), allocatable :: G1q(:), G1r(:), G2r(:), Q(:), T(:)

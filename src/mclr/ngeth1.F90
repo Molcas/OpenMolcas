@@ -11,8 +11,7 @@
 
 !#define _DEBUGPRINT_
 subroutine NGETH1(H,ISM,ITP,JSM,JTP)
-! One-electron integrals over orbitals belonging to
-! given OS class
+! One-electron integrals over orbitals belonging to given OS class
 
 use MCLR_Data, only: NTSOB
 use Definitions, only: wp, iwp
@@ -20,9 +19,11 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: H(*)
-integer(kind=iwp) :: ISM, ITP, JSM, JTP
+real(kind=wp), intent(_OUT_) :: H(*)
+integer(kind=iwp), intent(in) :: ISM, ITP, JSM, JTP
 integer(kind=iwp) :: I, IJ, J, NI, NJ
 real(kind=wp), external :: GTH1ES_MCLR
 

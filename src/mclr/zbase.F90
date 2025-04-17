@@ -23,7 +23,8 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: NCLASS, NVEC(NCLASS), IVEC(NCLASS)
+integer(kind=iwp), intent(in) :: NCLASS, NVEC(NCLASS)
+integer(kind=iwp), intent(out) :: IVEC(NCLASS)
 integer(kind=iwp) :: ICLASS
 
 do ICLASS=1,NCLASS

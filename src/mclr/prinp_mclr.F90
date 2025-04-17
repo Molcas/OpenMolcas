@@ -32,7 +32,7 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iPL
+integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: i, iAT, iDisp, iSym, j, jDisp, Left, lLine, nLine, nTSsh
 logical(kind=iwp) :: RICD
 character(len=100) :: Line

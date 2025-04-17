@@ -11,8 +11,8 @@
 ! Copyright (C) 1991,1995, Jeppe Olsen                                 *
 !***********************************************************************
 
-subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NOBPTS,IOBPTS,MAXI,MAXK, &
-                       SSCR,CSCR,I1,XI1S,I2,XI2S,NSM,RHO1S)
+subroutine GSBBD1_MCLR(RHO1,NACOB,ISCSM,ISCTP,ICCSM,ICCTP,IGRP,NROW,NGAS,ISEL,ICEL,SB,CB,NOBPTS,IOBPTS,MAXI,MAXK,SSCR,CSCR,I1, &
+                       XI1S,I2,XI2S,NSM,RHO1S)
 ! Contributions to one electron density matrix from column excitations
 !
 ! GAS version, August 95, Jeppe Olsen
@@ -59,10 +59,15 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: RHO1(*), SB(*), CB(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), RHO1S(*)
-integer(kind=iwp) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), NOBPTS(3,*), IOBPTS(3,*), MAXI, &
-                     MAXK, I1(*), I2(*), NSM
+real(kind=wp), intent(inout) :: RHO1(*)
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), NOBPTS(3,*), &
+                                 IOBPTS(3,*), MAXI, MAXK, NSM
+real(kind=wp), intent(in) :: SB(*), CB(*)
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(*), XI2S(*), RHO1S(*)
+integer(kind=iwp), intent(_OUT_) :: I1(*), I2(*)
 integer(kind=iwp) :: IBIORB, IBJORB, IBOT, ICGOFF, IIORB, IJSM, IJTP, IPART, ISGOFF, ISM, ITOP, ITP(3*3), ITYP, JJORB, JORB, JSM, &
                      JTP(3*3), JTYP, KBOT, KEND, KTOP, NIBTC, NIORB, NIPART, NJORB, NKBTC, NKI, NSXTP
 

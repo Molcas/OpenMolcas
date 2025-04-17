@@ -19,7 +19,7 @@ use input_mclr, only: iMethod, nAsh, nBas, nDel, nFro, nIsh, nOrb, nRS1, nRS2, n
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: dsym
+integer(kind=iwp), intent(in) :: dsym
 integer(kind=iwp) :: i, i1, iExt0, iExt1, iExt2, iExt3, iExt4, iInt0, iInt1, iInt2, iInt3, iInt4, iiSym, ijNum, ijOrb, ijS, ijSym, &
                      iOff, iOrb, ip, iPlus, ipP, iS, jjSym, jOrb, jS, kkSym, klNum, klOrb, klS, klSym, kOrb, kS, llSym, lOrb, lS, &
                      mATAB, nBmx, nDensLT
@@ -74,7 +74,7 @@ do jS=1,nSym
   do iS=1,js
     if (Mul(iS,jS) == DSym) then
       if (is < js) then
-        ipMatLT(jS,iS) = ipntso(js-1,is-1,2**(dsym-1),nBas)+1
+        ipMatLT(jS,iS) = ipntso(js-1,is-1,ibset(0,dsym-1),nBas)+1
         nDensLT = nDensLT+nBas(iS)*nBas(jS)
         iExt0 = nOrb(is)-nIsh(is)
         iExt1 = nOrb(iS)-nRs1(iS)

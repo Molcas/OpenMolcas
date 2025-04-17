@@ -21,9 +21,11 @@ use MCLR_Data, only: NOBPTS
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: XINT(*)
-integer(kind=iwp) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL, ieaw
+real(kind=wp), intent(_OUT_) :: XINT(*)
+integer(kind=iwp), intent(in) :: ITP, ISM, JTP, JSM, KTP, KSM, LTP, LSM, IXCHNG, IKSM, JLSM, ICOUL, ieaw
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nI, nIJ, nIK, nJ, nJL, nK, nKL, nL
 #endif

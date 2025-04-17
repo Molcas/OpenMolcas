@@ -12,32 +12,33 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCNT,MXPCSM,NCNATS,NCNASM,NDTASM,NCSASM,NDPCNT,NCPCNT,IICL, &
-                  IIOP,IIOC)
+subroutine CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCNT,MXPCSM,NCNATS,NCNASM,NDTASM,NCSASM,NDPCNT,NCPCNT)
 ! Number of configurations per per configuration type and symmetry
 !
 ! Jeppe Olsen
 !        August 1990 : Improved handling of large RAS 3 space
 !        Winter 1991 : Modified for LUCIA
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NACTEL, MINOP, MAXOP, MXPCNT, MXPCSM, NCNATS(MXPCNT,MXPCSM), &
-                     NCNASM(MXPCSM), NDTASM(MXPCSM), NCSASM(MXPCSM), NDPCNT(*), NCPCNT(*), IICL(*), IIOP(*), IIOC(NORB1+NORB2+NORB3)
+integer(kind=iwp), intent(in) :: NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NACTEL, MINOP, MAXOP, MXPCNT, MXPCSM, NDPCNT(MAXOP-MINOP+1), &
+                                 NCPCNT(MAXOP-MINOP+1)
+integer(kind=iwp), intent(out) :: NCNATS(MXPCNT,MXPCSM), NCNASM(MXPCSM), NDTASM(MXPCSM), NCSASM(MXPCSM)
 integer(kind=iwp) :: ICL, ICL1, IEL1, IEL1C, IEL3, IEL3C, IFRSTC, IFRSTO, IFSTR3, IIICHK, ILOOP, ILOOP2, IOP, IORB, IORB1F, &
                      IORB1L, IORB2F, IORB2L, IORB3F, IORB3L, IPLACE, IPRORB, IR3CHK, ISYM, ITYPE, K, KEL, KORB, MINCL1, MXMPTY, &
-                     NCL, NCNF, NEWORB, NOP, NORB, NORBT, NTYP
+                     NCL, NCNF, NEWORB, NOP, NORB, NTYP
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I, ICSM
 #endif
 logical(kind=iwp) :: Loop700, Loop800, Skip700, Skip800, Test
+integer(kind=iwp), allocatable :: IICL(:), IIOC(:), IIOP(:)
 integer(kind=iwp), external :: ISYMST_MCLR
 
 ILOOP = 0
 ILOOP2 = 0
 NCNF = 0
-NORBT = NORB1+NORB2+NORB3
 
 NCNATS(:,:) = 0
 NCSASM(:) = 0
@@ -54,6 +55,10 @@ IORB3F = IORB2L+1
 IORB3L = IORB3F+NORB3-1
 
 NORB = NORB1+NORB2+NORB3
+call mma_allocate(IICL,NORB,Label='IICL')
+call mma_allocate(IIOP,NORB,Label='IIOP')
+call mma_allocate(IIOC,NORB,Label='IIOC')
+
 ! Min number of doubly occupied orbitals in RAS 1
 MINCL1 = max(0,NEL1MN-NORB1)
 #ifdef _DEBUGPRINT_
@@ -191,7 +196,7 @@ outer: do NOP=MINOP,MAXOP,2
           NEWORB = IPRORB+1
           IIOC(IPRORB) = 0
           do
-            if ((NEWORB <= MXMPTY) .and. (IIOC(min(NORBT,NEWORB)) /= 0)) then
+            if ((NEWORB <= MXMPTY) .and. (IIOC(min(NORB,NEWORB)) /= 0)) then
               NEWORB = NEWORB+1
               if (NEWORB > MXMPTY) exit
             else
@@ -309,6 +314,10 @@ outer: do NOP=MINOP,MAXOP,2
     end do
   end do inner
 end do outer
+
+call mma_deallocate(IICL)
+call mma_deallocate(IIOP)
+call mma_deallocate(IIOC)
 
 #ifdef _DEBUGPRINT_
 write(u6,'(A,I8)') '  Total number of configurations generated ',NCNF

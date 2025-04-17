@@ -27,7 +27,8 @@ use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u5, u6
 
 implicit none
-integer(kind=iwp) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), iRHSCIDisp(nDisp)
+integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDisp), iCIsigDisp(nDisp), iRHSDisp(nDisp), &
+                                  iRHSCIDisp(nDisp)
 integer(kind=iwp) :: i1, iDis, iDisp, iLen, ipCID, ipCIT, ipS1, ipS2, ipST, Iter, j1, Left, lLine, lPaper, nConf3
 real(kind=wp) :: d_0, Delta, Delta0, DeltaC, DeltaK, Ec, rAlpha, rAlphaC, rAlphaK, rBeta, rCHC, rdum(1), Res, ResCI, ResK, rGrad
 logical(kind=iwp) :: cnvrgd, lPrint
@@ -78,6 +79,11 @@ if (imethod > 0) then
   ipcit = ipget(nconf1)
   ipcid = ipget(nconf1)
 
+else
+  call Untested('WfCtl_sp')
+  ! These are uninitialized!
+  ipst = -1
+  ipcid = -1
 end if
 
 idisp = 1
@@ -237,7 +243,7 @@ do
 
   call Untested('WfCtl_sp')
   ! IFG: Given the sizes assumed later, I think this assignment is wrong
-  !      and it should used the Compress call instead
+  !      and it should use the Compress call instead
   !Temp4(:) = Sc2(:)
   call Compress(Sc2,Temp1,1)
   Temp2(:) = dKappa(:)

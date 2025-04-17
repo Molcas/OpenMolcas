@@ -58,10 +58,16 @@ use Symmetry_Info, only: Mul
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: RHO2(*), SB(*), CB(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), CJRES(*), SIRES(*)
-integer(kind=iwp) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, NGAS, IAOC(*), IBOC(*), &
-                     JAOC(*), JBOC(*), NOBPTS(3,*), IOBPTS(3,*), MAXK, I1(*), I2(*), I3(*), I4(*), NSM, IUSEAB, NORB, ieaw
+real(kind=wp), intent(inout) :: RHO2(*)
+integer(kind=iwp), intent(in) :: IASM, IATP, IBSM, IBTP, NIA, NIB, JASM, JATP, JBSM, JBTP, NJA, NJB, IAGRP, IBGRP, IAOC(*), &
+                                 IBOC(*), JAOC(*), JBOC(*), NOBPTS(3,*), IOBPTS(3,*), MAXK, NSM, IUSEAB, NORB, ieaw
+integer(kind=iwp), intent(out) :: NGAS
+real(kind=wp), intent(in) :: SB(*), CB(*)
+real(kind=wp), intent(_OUT_) :: XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), CJRES(*), SIRES(*)
+integer(kind=iwp), intent(_OUT_) :: I1(*), I2(*), I3(*), I4(*)
 integer(kind=iwp) :: IDOCOMP, II, IJSM, IJTYP, IKABTC, IKORD, IOFF, ISM, ITP(3), ITYP, itype, JJ, JOFF, JSM, JTP(3), JTYP, KABOT, &
                      KAEND, KATOP, KBBOT, KBEND, KBTOP, KLSM, KLTYP, KOFF, KSM, KTP(3), KTYP, LKABTC, LOFF, LSM, LTP(3), LTYP, NI, &
                      NIJTYP, NJ, NK, NKABTC, NKAEFF, NKASTR, NKBSTR, NKLTYP, NL

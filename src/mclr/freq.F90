@@ -17,8 +17,10 @@ use Constants, only: Zero, One, auTocm, uToau
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nX, ndeg(*), nrvec(*), iNeg
-real(kind=wp) :: H(*), Tmp3(nX,nX), EVec(2*nX,nX), EVal(2*nX), RedM(nX)
+integer(kind=iwp), intent(in) :: nX, ndeg(*), nrvec(*)
+real(kind=wp), intent(in) :: H(*)
+real(kind=wp), intent(out) :: Tmp3(nX,nX), EVec(2*nX,nX), EVal(2*nX), RedM(nX)
+integer(kind=iwp), intent(out) :: iNeg
 integer(kind=iwp) :: i, iHarm, iOpt, iprint, j, jHarm, nIsot
 real(kind=wp) :: r2, rlow, rm, temp
 logical(kind=iwp) :: Found
@@ -90,7 +92,7 @@ do iHarm=1,nX-1
       rlow = RedM(iHarm)
       RedM(iHarm) = RedM(jHarm)
       RedM(jHarm) = rLow
-      call DSwap_(nX,EVec(1,iHarm),2,EVec(1,jHarm),2)
+      call DSwap_(nX,EVec(:,iHarm),2,EVec(:,jHarm),2)
     end if
   end do
 end do

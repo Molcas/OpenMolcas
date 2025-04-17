@@ -12,7 +12,7 @@
 !***********************************************************************
 
 !#define _DEBUGPRINT_
-subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,NCNSM,PSSIGN,lconf,lldet)
+subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LCSF,NCNSM,PSSIGN,lconf,ldet)
 ! Initializing routine for CSF-DET expansions of internal space
 !
 ! Set up common block /CSFDIM/
@@ -21,7 +21,7 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,
 !
 ! find local memory requirements for CSF routines
 ! Largest local memory requirements in CNFORD,CSFDET_MCLR is returned in
-! LLCSF
+! LCSF
 !
 !   DFTP : OPEN SHELL DETERMINANTS OF PROTO TYPE
 !   CFTP : BRANCHING DIAGRAMS FOR PROTO TYPES
@@ -35,19 +35,19 @@ subroutine INTCSF(NACTOB,NACTEL,MULTP,MS2,NORB1,NORB2,NORB3,NEL1MN,NEL3MX,LLCSF,
 
 use Str_Info, only: CFTP, CNSM, DFTP, DTOC
 use MCLR_Data, only: MAXOP, MINOP, MS2P, MULTSP, MXPCSM, NCNASM, NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM, NTYP
-use stdalloc, only: mma_allocate, mma_deallocate
+use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NACTOB, NACTEL, MULTP, MS2, NORB1, NORB2, NORB3, NEL1MN, NEL3MX, LLCSF, NCNSM, lconf, lldet
-real(kind=wp) :: PSSIGN
+integer(kind=iwp), intent(in) :: NACTOB, NACTEL, MULTP, MS2, NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NCNSM
+integer(kind=iwp), intent(out) :: LCSF, lconf, ldet
+real(kind=wp), intent(in) :: PSSIGN
 integer(kind=iwp) :: IAEL, IBEL, ICL, ICNSM, IEL1, IEL2, IEL3, ILCNF, ILLCNF, IMSCMB, IOP, IOP1, IOP2, IOP3, IOPEN, ISYM, ITP, &
-                     ITYP, IWEYLF, LCNFOR, LCSFDT, LDET, LDTOC, LICS, LIDT, LLCONF, MULTS, MXCNSM, MXDT, MXPCTP, MXPTBL, NEL
+                     ITYP, IWEYLF, LCNFOR, LCSFDT, LDTOC, LICS, LIDT, LLCONF, MULTS, MXCNSM, MXDT, MXPCTP, MXPTBL, NEL
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ITYPE
 #endif
-integer(kind=iwp), allocatable :: IICL(:), IIOC(:), IIOP(:)
 integer(kind=iwp), external :: IBINOM
 
 if (PSSIGN /= Zero) then
@@ -132,16 +132,8 @@ end do
 ! ==============================================
 ! Number of Combinations and CSF's per  symmetry
 ! ==============================================
-call mma_allocate(IICL,NACTOB,Label='IICL')
-call mma_allocate(IIOP,NACTOB,Label='IIOP')
-call mma_allocate(IIOC,NORB1+NORB2+NORB3,Label='IIOC')
+call CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCTP,MXPCSM,NCNATS,NCNASM,NDTASM,NCSASM,NDPCNT,NCPCNT)
 
-call CISIZE(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,NACTEL,MINOP,MAXOP,MXPCTP,MXPCSM,NCNATS,NCNASM,NDTASM,NCSASM,NDPCNT,NCPCNT,IICL,IIOP, &
-            IIOC)
-
-call mma_deallocate(IIOC)
-call mma_deallocate(IIOP)
-call mma_deallocate(IICL)
 ! ===========================================
 ! Permanent and local memory for csf routines
 ! ===========================================
@@ -156,7 +148,6 @@ LICS = 0
 LDTOC = sum(NCPCNT(1:NTYP)*NDPCNT(1:NTYP))
 MXPTBL = 0
 MXDT = max(0,maxval(NDPCNT(1:NTYP)))
-LCONF = 0
 do ITP=1,NTYP
   IOPEN = MINOP+ITP-1
   LIDT = LIDT+NDPCNT(ITP)*IOPEN
@@ -168,7 +159,7 @@ LCSFDT = MXPTBL+MAXOP
 ! local memory for CNFORD
 LCNFOR = max(2*NTYP+NACTOB,(MXDT+2)*NACTEL)
 ! local memory for any routine used in construction of csf basis
-LLCSF = max(LCSFDT,LCNFOR)
+LCSF = max(LCSFDT,LCNFOR)
 ! Memory needed to store ICONF array
 LCONF = 0
 LDET = 0
@@ -214,7 +205,5 @@ do ICNSM=1,NCNSM
   call mma_allocate(CNSM(ICNSM)%ICONF,LCONF,Label='ICONF')
   call mma_allocate(CNSM(ICNSM)%ICTS,LDET,Label='ICTS')
 end do
-
-lldet = ldet
 
 end subroutine INTCSF

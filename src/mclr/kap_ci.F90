@@ -20,8 +20,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nh1, nh2, ipS1
-real(kind=wp) :: h1(nh1), h2(nh2)
+integer(kind=iwp), intent(in) :: nh1, nh2, ipS1
+real(kind=wp), intent(in) :: h1(nh1), h2(nh2)
 integer(kind=iwp) :: i, j
 real(kind=wp) :: rDum(1)
 real(kind=wp), allocatable :: R(:,:)

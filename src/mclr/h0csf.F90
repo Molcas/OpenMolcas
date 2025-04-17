@@ -92,10 +92,15 @@ use MCLR_Data, only: NCNATS, NCPCNT, NTYP
 use Constants, only: One
 use Definitions, only: wp, iwp, RtoI
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: H0(*), DTOC(*), SCR(*), DIAG(*), DIAGCN(*), PSSIGN
-integer(kind=iwp) :: IPQCSF(*), IPQCNF(*), MXP1DM, MXP2DM, MXQDM, IPRODT(*), ICONF(*), IREFSM, NACTOB, ISCR(*), NCONF, NEL, NAEL, &
-                     NBEL, IPWAY, NP1CSF, NP1CNF, NP2CSF, NP2CNF, NQCSF, NQCNF, NPQCSF, NPQCNF, INTSPC, ICOMBI
+real(kind=wp), intent(_OUT_) :: H0(*), SCR(*), DIAGCN(*)
+integer(kind=iwp), intent(_OUT_) :: IPQCSF(*), IPQCNF(*), ISCR(*)
+integer(kind=iwp), intent(in) :: MXP1DM, MXP2DM, MXQDM, IPRODT(*), ICONF(*), IREFSM, NACTOB, NCONF, NEL, NAEL, NBEL, IPWAY, &
+                                 INTSPC, ICOMBI
+real(kind=wp), intent(in) :: DTOC(*), DIAG(*), PSSIGN
+integer(kind=iwp), intent(out) :: NP1CSF, NP1CNF, NP2CSF, NP2CNF, NQCSF, NQCNF, NPQCSF, NPQCNF
 integer(kind=iwp) :: i, ICSFMN, ICSFOF, IDGCSF, IDGVL, IFINIT, IICSF, IMIN, KLCONF, KLDIPQ, KLFREE, KLFREI, KLIDEG, KLPHP, KLPHQ, &
                      MXPQDM, NCSFMN, NDGVL, NIRREP, NJCNF, NPCNF, NPCSF
 real(kind=wp) :: DIAVAL, XMAX, XMIN
@@ -104,17 +109,16 @@ real(kind=wp), external :: FNDMNX
 ! SCR and ISCR are supposed to refer to the same array
 ! (which is a Fortran violation!)
 
-call H0CSF_INTERNAL(SCR,DIAGCN)
+call H0CSF_INTERNAL(SCR)
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine H0CSF_INTERNAL(SCR,DIAGCN)
+subroutine H0CSF_INTERNAL(SCR)
 
-  real(kind=wp), target :: SCR(*), DIAGCN(*)
+  real(kind=wp), target, intent(_OUT_) :: SCR(*)
   integer(kind=iwp), pointer :: iPTR(:)
   integer(kind=iwp) :: ICNF, IDEG, IDGCNF, IICNF, ITYP
-
 
   ! 1 : Obtain primary subspace
 
@@ -306,7 +310,7 @@ subroutine H0CSF_INTERNAL(SCR,DIAGCN)
     NPQCNF = NPCNF+NQCNF
 
   end if
-  ! End if for IWAY = 2
+  ! End if for IPWAY = 2
 
   ! This is not beautiful, but necessary
   !MXP1DM = NP1CSF

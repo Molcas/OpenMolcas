@@ -17,8 +17,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Dens(*), CMOO(*), CMON(*), OCCN(*)
+real(kind=wp), intent(in) :: Dens(*), CMOO(*)
+real(kind=wp), intent(_OUT_) :: CMON(*), OCCN(*)
 integer(kind=iwp) :: i, iEnd, ii, ij, iO, iS, iSt, j
 real(kind=wp), allocatable :: EVal(:), EVec(:)
 

@@ -30,8 +30,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP, IEL1(NOCTYP), IEL3(NOCTYP), IEL123(3,NOCTYP)
-integer(kind=iwp) :: ITYP, KEL1, KEL3
+integer(kind=iwp), intent(in) :: MNRS1, MXRS1, MNRS3, MXRS3, NELEC, NOCTYP
+integer(kind=iwp), intent(out) :: IEL1(NOCTYP), IEL3(NOCTYP), IEL123(3,NOCTYP)
+integer(kind=iwp) :: ITYP, KEL1, KEL3, NTYP
 
 IEL1(:) = 0
 IEL3(:) = 0
@@ -40,13 +41,12 @@ do KEL3=MNRS3,MXRS3
     ITYP = (MXRS1-KEL1)*(MXRS3-MNRS3+1)+KEL3-MNRS3+1
     IEL1(ITYP) = KEL1
     IEL3(ITYP) = KEL3
-    ! Added
-    IEL123(1,ITYP) = KEL1
-    IEL123(2,ITYP) = NELEC-KEL1-KEL3
-    IEL123(3,ITYP) = KEL3
-    ! Added End
   end do
 end do
+NTYP = (MXRS1-MNRS1+1)*(MXRS3-MNRS3+1)
+IEL123(1,1:NTYP) = IEL1(1:NTYP)
+IEL123(2,1:NTYP) = NELEC-IEL1(1:NTYP)-IEL3(1:NTYP)
+IEL123(3,1:NTYP) = IEL3(1:NTYP)
 
 #ifdef _DEBUGPRINT_
 write(u6,*) ' =============='

@@ -19,12 +19,18 @@ subroutine GETCNF(KCNF,KTYP,K,ICONF,IREFSM,NEL)
 ! Adapted for LUCIA Jeppe Olsen, summer of 02
 
 use spinfo, only: MINOP, NCNFTP, NTYP
-use Definitions, only: iwp, u6
+use Definitions, only: iwp
+#ifdef _DEBUGPRINT_
+use Definitions, only: u6
+#endif
 
 implicit none
 integer(kind=iwp), intent(in) :: K, ICONF(*), IREFSM, NEL
 integer(kind=iwp), intent(out) :: KCNF(NEL), KTYP
-integer(kind=iwp) :: ICNFB1, ICNFB2, IIBCL, IIBOP, JCL, JOCC, JOP, JTYP, KADD, KOCC, KORB, KREL, NJCNF, NOCC, NTEST
+integer(kind=iwp) :: ICNFB1, ICNFB2, IIBCL, IIBOP, JCL, JOCC, JOP, JTYP, KADD, KOCC, KORB, KREL, NJCNF
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NOCC
+#endif
 ! Configuration list is assumed to be in the form used
 ! in LUCIA, i.e. doubly occupied orbitals are flagged by
 ! a minus
@@ -66,16 +72,15 @@ do JTYP=1,NTYP
   ICNFB2 = ICNFB2+NJCNF*JOCC
 end do
 
-NTEST = 0
-if (NTEST /= 0) then
-  write(u6,*) ' Output from GETCNF'
-  write(u6,*) ' =================='
-  write(u6,*) ' Input configuration number : ',K
-  write(u6,*) ' Corresponding type : ',KTYP
-  write(u6,*) ' Occupation :'
-  NOCC = (NEL+KTYP-1+MINOP)/2
-  call IWRTMA(KCNF,1,NOCC,1,NOCC)
-end if
+#ifdef _DEBUGPRINT_
+write(u6,*) ' Output from GETCNF'
+write(u6,*) ' =================='
+write(u6,*) ' Input configuration number : ',K
+write(u6,*) ' Corresponding type : ',KTYP
+write(u6,*) ' Occupation :'
+NOCC = (NEL+KTYP-1+MINOP)/2
+call IWRTMA(KCNF,1,NOCC,1,NOCC)
+#endif
 
 return
 

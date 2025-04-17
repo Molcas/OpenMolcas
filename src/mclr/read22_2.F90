@@ -31,8 +31,11 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: MO1(*), Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens), Temp2(nDens), Scr(*), Temp3(nDens)
+real(kind=wp), intent(_OUT_) :: MO1(*), Scr(*)
+real(kind=wp), intent(out) :: Fock(nDens), Q(nDens), FockI(nDens), FockA(nDens), Temp2(nDens), Temp3(nDens)
 integer(kind=iwp) :: iAsh, iB, iiB, iIJ, ijB, ijB1, ijS, iK, iKK, iKL, iL, iLL, iOff, iOff2, iOff3, ip1, ip2, ipD, ipGx, ipi, ipj, &
                      ipTmp, iS, iStore, iSym, jAsh, jB, jjB, jS, jSym, kAsh, kB, kkB, kS, lAsh, lB, llB, lS, nA2, nAct, nAG2, &
                      nAtri, nG2, nI, nJ, nm, nNB, nNK, nNL

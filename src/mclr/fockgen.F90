@@ -35,8 +35,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: d_0, rDens1(nna,nna), rDens2(*), Fock(nDens), FockOut(*)
-integer(kind=iwp) :: idSym
+real(kind=wp), intent(in) :: d_0, rDens1(nna,nna), rDens2(*)
+real(kind=wp), intent(out) :: Fock(nDens), FockOut(nDens)
+integer(kind=iwp), intent(in) :: idSym
 integer(kind=iwp) :: iA, iAA, iAsh, iB, iij, ijS, ikl, iOff, iOff2, iOff3, ip1, ip2, ipF, ipGx, ipM, ipS, iS, iSym, jA, jAA, jAsh, &
                      jS, jSym, kA, kAsh, kS, lAsh, lS, n1, n2, nAG2, nG2
 real(kind=wp) :: rd
@@ -227,7 +228,7 @@ do iS=1,nSym
     call DGeSub(Fock(ipMat(iS,jS)),nBas(iS),'N',Fock(ipMat(jS,iS)),nBas(jS),'T',FockOut(ipMat(iS,jS)),nBas(iS),nBas(iS),nBas(jS))
 end do
 
-FockOut(1:nDens) = Two*FockOut(1:nDens)
+FockOut(:) = Two*FockOut(:)
 if (idSym == 1) call AddGrad2(FockOut,d_0)
 
 if (doDMRG) nash(:) = LRras2(:)  ! yma

@@ -26,10 +26,13 @@ use stdalloc, only: mma_allocate, mma_deallocate, mma_maxDBLE
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), W_CMO(*)
-type(DSBA_type) :: CVa
-integer(kind=iwp) :: nIsh(8), nAsh(8), LuAChoVec(8)
+real(kind=wp), intent(in) :: DA(*), G2(*), W_CMO(*)
+real(kind=wp), intent(_OUT_) :: W_JA(*), W_KA(*), W_FkA(*)
+type(DSBA_type), intent(in) :: CVa
+integer(kind=iwp), intent(in) :: nIsh(8), nAsh(8), LuAChoVec(8)
 #include "warnings.h"
 integer(kind=iwp) :: i, ia, iabg, iAdr, iag, iaSh, ib, iBatch, ibg, ibSh, iLoc, ioff, ioffa, ioffb, ipLpq(8,3), ipLtvb, ipLvb, &
                      ipLvtw, ipLvw, ipLwb, ipLxy, ipVJ, irc, IREDC, is, iSym, iSyma, iSymb, iSymv, IVEC2, iVrs, JNUM, JRED, JRED1, &

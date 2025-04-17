@@ -23,7 +23,7 @@ use input_mclr, only: nAsh, nIsh, nOrb, nSym, ntAsh, ntBas
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: IndPUVX(ntBas,ntAsh,ntAsh,ntAsh), IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
+integer(kind=iwp), intent(out) :: IndPUVX(ntBas,ntAsh,ntAsh,ntAsh), IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
 integer(kind=iwp) :: iAsh, iIsh, iIT, iIU, iIV, iIX, ijSym, iO, iOrb, iP, iPUVX, iStack, iSym, iT, iTemp, iTU, iU, iV, iVX, iX, &
                      jAsh, jO, jSym, kAsh, kl_Orb_Pairs, klSym, kO, kSym, lAsh, lMax, lO, lSym, off_Ash(nSym), off_Orb(nSym), &
                      off_PUVX(nSym)

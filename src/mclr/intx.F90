@@ -18,9 +18,12 @@ use input_mclr, only: iMethod, nAsh, nBas, nIsh, nOrb, nSym, nTPert
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: FockI(nDens), Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Fock(nDens), rMO(*)
-integer(kind=iwp) :: lOper, iDisp
+real(kind=wp), intent(out) :: FockI(nDens), Temp1(nDens), Temp2(nDens), Temp3(nDens), Temp4(nDens), Fock(nDens)
+real(kind=wp), intent(_OUT_) :: rMO(*)
+integer(kind=iwp), intent(in) :: lOper, iDisp
 integer(kind=iwp) :: i, iOff, iOp, iOpt, iRC, iS, j, jDisp, jOff, jS
 real(kind=wp) :: rde
 character(len=8) :: Label
@@ -46,7 +49,7 @@ if (btest(ntpert(idisp),2)) then   ! 2 el contribution
       !----------------------------------------------------------------*
 
       Label = 'TOTAL'
-      iop = 2**loper
+      iop = ibset(0,loper)
       irc = -1
       iopt = 0
       call dRdMck(iRC,iOpt,Label,jDisp,Fock,iop)
@@ -58,7 +61,7 @@ if (btest(ntpert(idisp),2)) then   ! 2 el contribution
       call ReLoad(Fock,loper+1,nbas,norb)
 
       Label = 'INACTIVE'
-      iop = 2**loper
+      iop = ibset(0,loper)
       irc = -1
       iopt = 0
       call dRdMck(iRC,iOpt,Label,jDisp,Focki,iop)
@@ -70,7 +73,7 @@ if (btest(ntpert(idisp),2)) then   ! 2 el contribution
       call ReLoad(Focki,loper+1,nbas,norb)
 
       Label = 'MOPERT'
-      iop = 2**loper
+      iop = ibset(0,loper)
       irc = -1
       iopt = 0
       call dRdMck(iRC,iOpt,Label,jDisp,rMO,iop)
@@ -88,7 +91,7 @@ if (btest(ntpert(idisp),2)) then   ! 2 el contribution
       !----------------------------------------------------------------*
 
       Label = 'TOTAL'
-      iop = 2**loper
+      iop = ibset(0,loper)
       irc = -1
       iopt = 0
       call dRdMck(iRC,iOpt,Label,jDisp,Focki,iop)
@@ -114,7 +117,7 @@ end if
 !----------------------------------------------------------------------*
 
 if (btest(nTPert(iDisp),1)) then ! 1 el contribution
-  iop = 2**loper
+  iop = ibset(0,loper)
   if (btest(ntpert(idisp),4)) then  ! from mckinley
     Label = 'ONEGRD'
     irc = -1

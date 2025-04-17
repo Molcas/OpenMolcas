@@ -19,73 +19,72 @@ subroutine GSAXPY(AB,A,B,NABCOL,NACOL,NROW,IABCOL,IACOL)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NABCOL, NACOL, NROW, IACOL(NACOL), IABCOL(NABCOL)
-real(kind=wp) :: AB(NROW,*), A(NROW,*), B(NACOL,NABCOL)
-integer(kind=iwp) :: J, JACT, K, K1ACT, K2ACT, K3ACT, K4ACT, K5ACT, KACT, NRES, NROL
-integer(kind=iwp), parameter :: IWAY = 2
+integer(kind=iwp), intent(in) :: NABCOL, NACOL, NROW, IACOL(NACOL), IABCOL(NABCOL)
+real(kind=wp), intent(inout) :: AB(NROW,*)
+real(kind=wp), intent(in) :: A(NROW,*), B(NACOL,NABCOL)
+integer(kind=iwp) :: J, JACT, K, K1ACT, K2ACT, K3ACT, K4ACT, K5ACT, NRES, NROL
 
-if (IWAY == 1) then
-  ! Straightforward sequence
-  do J=1,NABCOL
-    do K=1,NACOL
-      JACT = IABCOL(J)
-      KACT = IACOL(K)
-      AB(:,JACT) = AB(:,JACT)+B(K,J)*A(:,KACT)
-    end do
+#define _METH_ 2
+#if (_METH_ == 1)
+! Straightforward sequence
+do J=1,NABCOL
+  do K=1,NACOL
+    JACT = IABCOL(J)
+    K1ACT = IACOL(K)
+    AB(:,JACT) = AB(:,JACT)+B(K,J)*A(:,K1ACT)
   end do
-
-else if (IWAY == 2) then
-  ! Unrolling over columns of A
-  NROL = 5
-  NRES = mod(NACOL,NROL)
-  ! overhead
-  select case (NRES)
-    case (1)
-      do J=1,NABCOL
-        K1ACT = IACOL(1)
-        JACT = IABCOL(J)
-        AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)
-      end do
-    case (2)
-      do J=1,NABCOL
-        K1ACT = IACOL(1)
-        K2ACT = IACOL(2)
-        JACT = IABCOL(J)
-        AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)
-      end do
-    case (3)
-      do J=1,NABCOL
-        K1ACT = IACOL(1)
-        K2ACT = IACOL(2)
-        K3ACT = IACOL(3)
-        JACT = IABCOL(J)
-        AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)+B(3,J)*A(:,K3ACT)
-      end do
-    case (4)
-      do J=1,NABCOL
-        K1ACT = IACOL(1)
-        K2ACT = IACOL(2)
-        K3ACT = IACOL(3)
-        K4ACT = IACOL(4)
-        JACT = IABCOL(J)
-        AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)+B(3,J)*A(:,K3ACT)+B(4,J)*A(:,K4ACT)
-      end do
-    case default
-  end select
-  ! (End of Overhead)
-  do K=NRES+1,NACOL,NROL
+end do
+#elif (_METH_ == 2)
+! Unrolling over columns of A
+NROL = 5
+NRES = mod(NACOL,NROL)
+! overhead
+select case (NRES)
+  case (1)
     do J=1,NABCOL
-      K1ACT = IACOL(K)
-      K2ACT = IACOL(K+1)
-      K3ACT = IACOL(K+2)
-      K4ACT = IACOL(K+3)
-      K5ACT = IACOL(K+4)
+      K1ACT = IACOL(1)
       JACT = IABCOL(J)
-      AB(:,JACT) = AB(:,JACT)+B(K,J)*A(:,K1ACT)+B(K+1,J)*A(:,K2ACT)+B(K+2,J)*A(:,K3ACT)+B(K+3,J)*A(:,K4ACT)+B(K+4,J)*A(:,K5ACT)
+      AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)
     end do
+  case (2)
+    do J=1,NABCOL
+      K1ACT = IACOL(1)
+      K2ACT = IACOL(2)
+      JACT = IABCOL(J)
+      AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)
+    end do
+  case (3)
+    do J=1,NABCOL
+      K1ACT = IACOL(1)
+      K2ACT = IACOL(2)
+      K3ACT = IACOL(3)
+      JACT = IABCOL(J)
+      AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)+B(3,J)*A(:,K3ACT)
+    end do
+  case (4)
+    do J=1,NABCOL
+      K1ACT = IACOL(1)
+      K2ACT = IACOL(2)
+      K3ACT = IACOL(3)
+      K4ACT = IACOL(4)
+      JACT = IABCOL(J)
+      AB(:,JACT) = AB(:,JACT)+B(1,J)*A(:,K1ACT)+B(2,J)*A(:,K2ACT)+B(3,J)*A(:,K3ACT)+B(4,J)*A(:,K4ACT)
+    end do
+  case default
+end select
+! (End of Overhead)
+do K=NRES+1,NACOL,NROL
+  do J=1,NABCOL
+    K1ACT = IACOL(K)
+    K2ACT = IACOL(K+1)
+    K3ACT = IACOL(K+2)
+    K4ACT = IACOL(K+3)
+    K5ACT = IACOL(K+4)
+    JACT = IABCOL(J)
+    AB(:,JACT) = AB(:,JACT)+B(K,J)*A(:,K1ACT)+B(K+1,J)*A(:,K2ACT)+B(K+2,J)*A(:,K3ACT)+B(K+3,J)*A(:,K4ACT)+B(K+4,J)*A(:,K5ACT)
   end do
-end if
-! (End of IWAY branching)
+end do
+#endif
 
 return
 

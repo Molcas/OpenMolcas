@@ -32,8 +32,10 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: rKappa(nDens), rMO1(nMBA), rMO2(nMBA), FockI(nDens), FockA(nDens), Sgn, Fact
-integer(kind=iwp) :: iDSym, jSpin
+real(kind=wp), intent(in) :: rKappa(nDens), Sgn, Fact
+real(kind=wp), intent(inout) :: rMO1(nMBA), rMO2(nMBA)
+real(kind=wp), intent(out) :: FockI(nDens), FockA(nDens)
+integer(kind=iwp), intent(in) :: iDSym, jSpin
 integer(kind=iwp) :: i, iA, iB, ip, ip2, iS, jA, jB, jS, nDens22
 real(kind=wp) :: FacR, rdum(1)
 logical(kind=iwp) :: lFA, lFI, lMo

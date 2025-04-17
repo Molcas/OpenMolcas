@@ -18,8 +18,9 @@ use input_mclr, only: nAsh, nIsh, nOrb, nSym
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Array1(*), Array2(*)
-integer(kind=iwp) :: idsym
+real(kind=wp), intent(in) :: Array1(*)
+real(kind=wp), intent(inout) :: Array2(*)
+integer(kind=iwp), intent(in) :: idsym
 integer(kind=iwp) :: iA, iAsh, iiA, ij, ijkl, ijS, ip1, iS, jA, jAsh, jS, kA, kAsh, kl, kS, lA, lAsh, lS
 
 do iS=1,nSym

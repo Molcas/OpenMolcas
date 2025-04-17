@@ -11,9 +11,8 @@
 ! Copyright (C) Yingjin Ma                                             *
 !***********************************************************************
 
-subroutine CSDTVC_dmrg(CSFVEC,DETVEC,IWAY,DTOCMT,ICTSDT,IREFSM,ICOPY)
-! IWAY = 1 : CSF to DETERMINANT TRANSFORMATION
-! IWAY = 2 : DETERMINANT TO CSF TRANSFORMATION
+subroutine CSDTVC_dmrg(CSFVEC,DETVEC,DTOCMT,ICTSDT,IREFSM,ICOPY)
+! DETERMINANT TO CSF TRANSFORMATION
 !
 ! ICOPY /= 0 : Copy output into input
 !              so input becomes output while
@@ -24,73 +23,41 @@ use MCLR_Data, only: NCNATS, NCPCNT, NCSASM, NDPCNT, NDTASM, NTYP
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
-implicit none
-real(kind=wp) :: CSFVEC(*), DETVEC(*), DTOCMT(*)
-integer(kind=iwp) :: IWAY, ICTSDT(*), IREFSM, ICOPY
-integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NDET
+#include "intent.fh"
 
-IOFFCS = 0 ! dummy initialize
-IOFFDT = 0 ! dummy initialize
-IOFFCD = 0 ! dummy initialize
+implicit none
+real(kind=wp), intent(_OUT_) :: CSFVEC(*)
+real(kind=wp), intent(inout) :: DETVEC(*)
+real(kind=wp), intent(in) :: DTOCMT(*)
+integer(kind=iwp), intent(in) :: ICTSDT(*), IREFSM, ICOPY
+integer(kind=iwp) :: ICNF, ICSF, IDET, IOFFCD, IOFFCS, IOFFDT, ITYP, NCSF, NDET
 
 NDET = NDTASM(IREFSM)
 NCSF = NCSASM(IREFSM)
 
-if (IWAY == 1) then
+! ===================================
+!  Determinant to csf transformation
+! ===================================
 
-  ! ===========================
-  !  CSF to DET transformation
-  ! ===========================
+! To CSF ordering
 
-  DETVEC(1:NDET) = Zero
-  ! Multiply with  expansion matrix
-  do ITYP=1,NTYP
-    IDET = NDPCNT(ITYP)
-    ICSF = NCPCNT(ITYP)
-    ICNF = NCNATS(ITYP,IREFSM)
-    if (ITYP == 1) then
-      IOFFCS = 1
-      IOFFDT = 1
-      IOFFCD = 1
-    else
-      IOFFCS = IOFFCS+NCNATS(ITYP-1,IREFSM)*NCPCNT(ITYP-1)
-      IOFFDT = IOFFDT+NCNATS(ITYP-1,IREFSM)*NDPCNT(ITYP-1)
-      IOFFCD = IOFFCD+NDPCNT(ITYP-1)*NCPCNT(ITYP-1)
-    end if
-    if (IDET*ICNF*ICSF > 0) call DGEMM_('N','N',IDET,ICNF,ICSF,ONE,DTOCMT(IOFFCD),IDET,CSFVEC(IOFFCS),ICSF,ZERO,DETVEC(IOFFDT),IDET)
-  end do
-  ! Sign changes
-  CSFVEC(1:NDET) = DETVEC(1:NDET)
-  ! Change to string ordering
-  call SCAVCS(DETVEC,CSFVEC,ICTSDT,NDET)
-  if (ICOPY /= 0) CSFVEC(1:NDET) = DETVEC(1:NDET)
-else
-
-  ! ===================================
-  !  Determinant to csf transformation
-  ! ===================================
-
-  ! To CSF ordering
-
-  call GATVCS(CSFVEC,DETVEC,ICTSDT,NDET)
-  DETVEC(1:NDET) = CSFVEC(1:NDET)
-  ! Multiply with CIND expansion matrix
-  do ITYP=1,NTYP
-    IDET = NDPCNT(ITYP)
-    ICSF = NCPCNT(ITYP)
-    ICNF = NCNATS(ITYP,IREFSM)
-    if (ITYP == 1) then
-      IOFFCS = 1
-      IOFFDT = 1
-      IOFFCD = 1
-    else
-      IOFFCS = IOFFCS+NCNATS(ITYP-1,IREFSM)*NCPCNT(ITYP-1)
-      IOFFDT = IOFFDT+NCNATS(ITYP-1,IREFSM)*NDPCNT(ITYP-1)
-      IOFFCD = IOFFCD+NDPCNT(ITYP-1)*NCPCNT(ITYP-1)
-    end if
-    if (IDET*ICNF*ICSF > 0) call DGEMM_('T','N',ICSF,ICNF,IDET,ONE,DTOCMT(IOFFCD),IDET,DETVEC(IOFFDT),IDET,ZERO,CSFVEC(IOFFCS),ICSF)
-  end do
-  if (ICOPY /= 0) DETVEC(1:NCSF) = CSFVEC(1:NCSF)
-end if
+call GATVCS(CSFVEC,DETVEC,ICTSDT,NDET)
+DETVEC(1:NDET) = CSFVEC(1:NDET)
+! Multiply with CIND expansion matrix
+IOFFCS = 1
+IOFFDT = 1
+IOFFCD = 1
+do ITYP=1,NTYP
+  IDET = NDPCNT(ITYP)
+  ICSF = NCPCNT(ITYP)
+  ICNF = NCNATS(ITYP,IREFSM)
+  if (ITYP > 1) then
+    IOFFCS = IOFFCS+NCNATS(ITYP-1,IREFSM)*NCPCNT(ITYP-1)
+    IOFFDT = IOFFDT+NCNATS(ITYP-1,IREFSM)*NDPCNT(ITYP-1)
+    IOFFCD = IOFFCD+NDPCNT(ITYP-1)*NCPCNT(ITYP-1)
+  end if
+  if (IDET*ICNF*ICSF > 0) call DGEMM_('T','N',ICSF,ICNF,IDET,ONE,DTOCMT(IOFFCD),IDET,DETVEC(IOFFDT),IDET,ZERO,CSFVEC(IOFFCS),ICSF)
+end do
+if (ICOPY /= 0) DETVEC(1:NCSF) = CSFVEC(1:NCSF)
 
 end subroutine CSDTVC_dmrg

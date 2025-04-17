@@ -25,9 +25,11 @@ use input_mclr, only: ntAsh
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iCI, iS
-real(kind=wp) :: rP(*), rD(*)
+integer(kind=iwp), intent(in) :: iCI, iS
+real(kind=wp), intent(_OUT_) :: rP(*), rD(*)
 integer(kind=iwp) :: nC, nConfL, nConfR
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, ijkl, j, k, l
@@ -52,7 +54,6 @@ real(kind=wp), allocatable :: CIL(:), CIR(:), De(:), Pe(:)
 ! RS : CI Coeff for right state
 ! iL : Symmetry of left state
 ! iR : Symmetry of right state
-!
 !
 !           +       +
 ! iS=1 E  =a  a  + a  a     ! Singlet operator

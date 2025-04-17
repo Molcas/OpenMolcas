@@ -43,9 +43,10 @@ use Constants, only: Two, Four, Seven
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iB, is, js, nd, nbaj, nScr
-real(kind=wp) :: rout(nTri_Elem(nd)), fockii, fockai, fockti, Focki(nbaj,nbaj), FockA(nBaj,nBaj), A_J(nScr), A_K(nScr), Scr(nScr), &
-                 Sgn
+integer(kind=iwp), intent(in) :: iB, is, js, nd, nbaj, nScr
+real(kind=wp), intent(inout) :: rout(nTri_Elem(nd))
+real(kind=wp), intent(in) :: fockii, fockai, fockti, Focki(nbaj,nbaj), FockA(nBaj,nBaj), Sgn
+real(kind=wp), intent(out) :: A_J(nScr), A_K(nScr), Scr(nScr)
 integer(kind=iwp) :: i, iBB, iBC, iC, iCB, iCC, iCD, iiB, iiC, jA, jB, jC, jCC, jD, jDD, jjC, jjD, kS, nTri
 real(kind=wp) :: BCij, BiCj, CDij, CiBj, CiDj, rDens, rDens1, rDens2, rFock
 

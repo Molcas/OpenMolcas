@@ -24,9 +24,13 @@ use Str_Info, only: Str
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICNL(*), ITPL, ICNR(*), ITPR, NEL, NAEL, NBEL, INTSPC, IPRODT(*), NORB, ICOMBI, NDIF0, NDIF1, NDIF2
-real(kind=wp) :: CNHCNM(*), SCR(*), DTOC(*), PSSIGN
+integer(kind=iwp), intent(in) :: ICNL(*), ITPL, ICNR(*), ITPR, NEL, NAEL, NBEL, INTSPC, IPRODT(*), NORB, ICOMBI
+real(kind=wp), intent(_OUT_) :: CNHCNM(*), SCR(*)
+real(kind=wp), intent(in) :: DTOC(*), PSSIGN
+integer(kind=iwp), intent(out) :: NDIF0, NDIF1, NDIF2
 integer(kind=iwp) :: IAGRP, IBGRP, ICLL, ICLR, IDUMMY(1), IOPL, IOPR, IPL, IPR, ISYM, KLCHD, KLDHD, KLDTLA, KLDTLB, KLDTRA, &
                      KLDTRB, KLFREE, KLISL, KLISR, KLROU, LCNFST, LDIHDJ, NCSFL, NCSFR, NDETL, NDETR, NDIFF
 real(kind=wp) :: ECOREP
@@ -40,7 +44,7 @@ contains
 
 subroutine CNHCN2_INTERNAL(SCR)
 
-  real(kind=wp), target :: SCR(*)
+  real(kind=wp), target, intent(_OUT_) :: SCR(*)
   integer(kind=iwp), pointer :: iSCR(:), iSCRa(:), iSCRar(:), iSCRb(:), iSCRbr(:), iSCRn(:), iSCRnn(:)
 
   ! Length of SCR : 6 * NDET + NDET**2 + NDET*NCSF +
@@ -126,8 +130,8 @@ subroutine CNHCN2_INTERNAL(SCR)
     ! Transform matrix to CSF basis
 
     ! sign changes
-    call DGMM2(SCR(KLDHD),SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
-    call DGMM2(SCR(KLDHD),SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
+    call DGMM2(SCR(KLDHD),SCR(KLISL),1,NDETL,NDETR)
+    call DGMM2(SCR(KLDHD),SCR(KLISR),2,NDETL,NDETR)
     IPL = 1+sum(NCPCNT(1:ITPL-1)*NDPCNT(1:ITPL-1))
     if (ITPR == ITPL) then
       IPR = IPL

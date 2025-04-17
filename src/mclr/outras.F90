@@ -34,7 +34,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iKapDisp(nDisp), iCiDisp(nDisp)
+integer(kind=iwp), intent(in) :: iKapDisp(nDisp), iCiDisp(nDisp)
 integer(kind=iwp) :: iDIs, iDisk, iDisp, iLen, iOpt, iPert, iRC, iSym, iSymL, jDisp, kDisp, Length, nConfm, Pstate_sym
 logical(kind=iwp) :: CI
 character(len=8) :: Label
@@ -101,7 +101,7 @@ do iSym=1,nSym
       irc = nDens
       Label = 'KAPPA'
       iopt = ibset(0,sLength)
-      isyml = 2**(isym-1)
+      isyml = ibset(0,isym-1)
       ipert = kdisp
       write(u6,'(A,I5," jDisp: ",I5," and iSym:",I5)') 'Writing KAPPA and CI in mclr for iDisp:',iDisp,jDisp,iSym
       call dWrMCk(iRC,iOpt,Label,ipert,Kap3,isyml)
@@ -109,7 +109,7 @@ do iSym=1,nSym
       irc = nconfM
       iopt = ibset(0,sLength)
       Label = 'CI'
-      isyml = 2**(isym-1)
+      isyml = ibset(0,isym-1)
       ipert = kdisp
 
       if (btest(kprint,3)) write(u6,*) 'Perturbation ',ipert

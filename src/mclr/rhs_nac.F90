@@ -21,9 +21,10 @@ use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Fock(*), SLag(nRoots,nRoots)
-integer(kind=iwp) :: i, ij, ij2, ijkl, ijkl2, iRC, j, k, kl, kl2, l, LuDens, nConfL, nConfR, ng1, ng2
-real(kind=wp) :: factor
+real(kind=wp), intent(out) :: Fock(nDens)
+real(kind=wp), intent(in) :: SLag(nRoots,nRoots)
+integer(kind=iwp) :: i, ij, ij2, ijkl, ijkl2, iRC, j, jR, k, kl, kl2, kR, l, LuDens, nConfL, nConfR, ng1, ng2
+real(kind=wp) :: factor, vSLag
 real(kind=wp), allocatable :: CIL(:), CIR(:), F(:), G1m(:), G1q(:), G1r(:), G2q(:), G2r(:), T(:)
 
 !                                                                      *
@@ -53,7 +54,41 @@ nConfR = max(nconf1,nint(xispsm(State_sym,1)))
 call mma_allocate(CIL,nConfL,Label='CIL')
 call mma_allocate(CIR,nConfR,Label='CIR')
 if (PT2) then
-  call PT2_SLag()
+  ! Almost the same as the code in rhs_sa, but slightly modified
+  !iR = iRLXRoot
+  do jR=1,nRoots
+    do kR=1,jR
+      vSLag = Zero
+      !write(u6,*) 'jr,kr= ',jr,kr
+      !write(u6,*) vslag
+      vSLag = SLag(jR,kR)
+      !write(u6,*) vslag
+
+      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
+      !call opout(ipCI)
+      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,1)
+      !call opout(ipCI)
+      !call ipnout(-1)
+      !icsm = 1
+      !issm = 1
+
+      if (abs(vSLag) > 1.0e-10_wp) then
+        call Densi2_mclr(2,G1q,G2q,CIL,CIR,0,0,0,n1Dens,n2Dens)
+        G1r(:) = G1r(:)+vSLag*G1q(:)
+        G2r(:) = G2r(:)+vSLag*G2q(:)
+      end if
+
+      if (kR /= jR) then
+        vSLag = SLag(kR,jR)
+        if (abs(vSLag) > 1.0e-10_wp) then
+          call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1Dens,n2Dens)
+          G1r(:) = G1r(:)+vSLag*G1q(:)
+          G2r(:) = G2r(:)+vSLag*G2q(:)
+        end if
+      end if
+    end do
+  end do
+  nConf = ncsf(1) !! nconf is overwritten somewhere in densi2_mclr
 else
   call ipIn(ipCI)
   call CSF2SD(W(ipCI)%A(1+(NSSA(2)-1)*nconf1),CIL,State_sym)
@@ -206,52 +241,5 @@ call mma_deallocate(G2r)
 call mma_deallocate(G2q)
 call mma_deallocate(G1m)
 call mma_deallocate(G1q)
-
-contains
-
-subroutine PT2_SLag()
-
-  ! Almost the same to the subroutine in rhs_sa,
-  ! but slightly modified
-
-  integer(kind=iwp) :: jR, kR
-  real(kind=wp) :: vSLag
-
-  !iR = iRLXRoot
-  do jR=1,nRoots
-    do kR=1,jR
-      vSLag = Zero
-      !write(u6,*) 'jr,kr= ',jr,kr
-      !write(u6,*) vslag
-      vSLag = SLag(jR,kR)
-      !write(u6,*) vslag
-
-      call CSF2SD(W(ipCI)%A(1+(jR-1)*nconf1),CIL,1)
-      !call opout(ipCI)
-      call CSF2SD(W(ipCI)%A(1+(kR-1)*nconf1),CIR,1)
-      !call opout(ipCI)
-      !call ipnout(-1)
-      !icsm = 1
-      !issm = 1
-
-      if (abs(vSLag) > 1.0e-10_wp) then
-        call Densi2_mclr(2,G1q,G2q,CIL,CIR,0,0,0,n1Dens,n2Dens)
-        G1r(:) = G1r(:)+vSLag*G1q(:)
-        G2r(:) = G2r(:)+vSLag*G2q(:)
-      end if
-
-      if (kR /= jR) then
-        vSLag = SLag(kR,jR)
-        if (abs(vSLag) > 1.0e-10_wp) then
-          call Densi2_mclr(2,G1q,G2q,CIR,CIL,0,0,0,n1Dens,n2Dens)
-          G1r(:) = G1r(:)+vSLag*G1q(:)
-          G2r(:) = G2r(:)+vSLag*G2q(:)
-        end if
-      end if
-    end do
-  end do
-  nConf = ncsf(1) !! nconf is overwritten somewhere in densi2_mclr
-
-end subroutine PT2_SLag
 
 end subroutine RHS_NAC

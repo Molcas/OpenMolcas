@@ -29,15 +29,16 @@ subroutine CNFORD(ICTSDT,ICONF,IREFSM,NORB,IPRODT,NCNFTP,NEL,IGENSG,ISGNA,ISGNB,
 ! is zero if test fails
 ! IGENSG /= 0 assumes general signs of strings given in ISGNA,ISGNB
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICTSDT(*), ICONF(*), iRefSM, nOrb, IPRODT(*), NCNFTP(*), NEL, IGENSG, ISGNA(*), ISGNB(*), IAGRP, IBGRP, &
-                     IOOS(*), NORB1, NORB2, NORB3, NEL1MN, NEL3MX, NAEL, NBEL, MINOP, MAXOP
+integer(kind=iwp), intent(_OUT_) :: ICTSDT(*), ICONF(*)
+integer(kind=iwp), intent(in) :: iRefSM, nOrb, IPRODT(*), NCNFTP(*), IGENSG, ISGNA(*), ISGNB(*), IAGRP, IBGRP, IOOS(*), NORB1, &
+                                 NORB2, NORB3, NEL1MN, NEL3MX, NAEL, NBEL, MINOP, MAXOP
+integer(kind=iwp), intent(inout) :: NEL
 real(kind=wp) :: PSSIGN
-! Scratch
-integer(kind=iwp), allocatable :: KL1(:), KL2(:), KL3(:)
 
 ! NOTE : NCNFTP IS COLUMN FOR SYMMETRY GIVEN, NOT COMPLETE MATRIX.
 ! Dim of IWORK : MAX(3*NORB,(MXDT+2)*NEL),
@@ -49,13 +50,7 @@ integer(kind=iwp), allocatable :: KL1(:), KL2(:), KL3(:)
 !  and type for each configuration
 ! ==============================================================
 
-call mma_allocate(KL1,NORB1+NORB2+NORB3,Label='KL1')
-call mma_allocate(KL2,NORB1+NORB2+NORB3,Label='KL2')
-call mma_allocate(KL3,NORB1+NORB2+NORB3,Label='KL3')
-call CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,NCNFTP,KL1,KL2,KL3)
-call mma_deallocate(KL3)
-call mma_deallocate(KL2)
-call mma_deallocate(KL1)
+call CONFG2(NORB1,NORB2,NORB3,NEL1MN,NEL3MX,MINOP,MAXOP,IREFSM,NEL,ICONF,NCNFTP)
 
 ! ========================================================
 ! Obtain determinants for each configuration and determine

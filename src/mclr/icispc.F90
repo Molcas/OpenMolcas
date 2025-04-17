@@ -59,7 +59,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: MNRS10, MXRS30
+integer(kind=iwp), intent(in) :: MNRS10, MXRS30
 integer(kind=iwp) :: ICI
 
 ICI = 1

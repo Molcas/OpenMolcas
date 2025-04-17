@@ -26,9 +26,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
-real(kind=wp), target :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
-logical(kind=iwp) :: Have_2_el
+integer(kind=iwp), intent(in) :: iiSpin, iCSym, iSSym, nInt1, nInt2s, nInt2a, ipCI1, ipCI2
+real(kind=wp), target, intent(in) :: Int1(nInt1), Int2s(nInt2s), Int2a(nInt2a)
+logical(kind=iwp), intent(in) :: Have_2_el
 integer(kind=iwp) :: nDet, iOp, iS, kic(2)
 real(kind=wp), allocatable :: CIDET(:)
 
@@ -45,17 +45,17 @@ if (nconf1 == 0) return
 
 ! One electron integrals
 
-KAIN1 => Int1
+KAIN1(1:nInt1) => Int1(:)
 
 ! Two electron integrals
 ! symmetric in particle one and two
 
-KINT2 => Int2s
+KINT2(1:nInt2s) => Int2s(:)
 
 ! Two electron integrals
 ! anti symmetric in particle one and two
 
-KINT2A => Int2a
+KINT2A(1:nInt2a) => Int2a(:)
 
 irefsm = iCSym
 

@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Fact
-real(kind=wp) :: R
+real(kind=wp), intent(in) :: R
 integer(kind=iwp) :: i, j, n
 
 n = nint(R)
@@ -31,7 +31,5 @@ do j=1,n
   i = i*j
 end do
 Fact = real(i,kind=wp)
-
-return
 
 end function Fact

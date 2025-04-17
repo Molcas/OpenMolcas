@@ -31,7 +31,7 @@ use MCLR_Data, only: IRLXROOT, ISNAC, NACSTATES, OVERRIDE
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: Mode
+integer(kind=iwp), intent(in) :: Mode
 #include "warnings.h"
 integer(kind=iwp) :: iGo, iRlxRootPT2, iRoot1Com, iRoot1Req, iRoot2Com, iRoot2Req, iStatus, LuINPUT, LuSpool2
 character(len=128) :: FileName

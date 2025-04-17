@@ -18,7 +18,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: ISYMST_MCLR
-integer(kind=iwp) :: NEL, STRING(NEL)
+integer(kind=iwp), intent(in) :: NEL, STRING(NEL)
 integer(kind=iwp) :: IEL
 
 ISYMST_MCLR = 1

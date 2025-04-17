@@ -25,8 +25,9 @@ subroutine INCOOS(IDC,IBLTP,NOOS,NOCTPA,NOCTPB,ISTSM,ISTTA,ISTTB,NSM,IENSM,IENTA
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: IDC, IBLTP(*), NOCTPA, NOCTPB, NSM, NOOS(NOCTPA,NOCTPB,NSM), ISTSM, ISTTA, ISTTB, IENSM, IENTA, IENTB, &
-                     IACOOS(NOCTPA,NOCTPB,NSM), MXLNG, IFINI, NBLOCK, INCFST, IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp), intent(in) :: IDC, IBLTP(*), NOCTPA, NOCTPB, NSM, NOOS(NOCTPA,NOCTPB,NSM), MXLNG, INCFST, IOCOC(NOCTPA,NOCTPB)
+integer(kind=iwp), intent(inout) :: ISTSM, ISTTA, ISTTB
+integer(kind=iwp), intent(out) :: IENSM, IENTA, IENTB, IACOOS(NOCTPA,NOCTPB,NSM), IFINI, NBLOCK
 integer(kind=iwp) :: IA, IB, IPA, IPB, IPSM, ISM, LBLOCK, LENGTH
 logical(kind=iwp) :: Skip
 
@@ -40,7 +41,7 @@ write(u6,*) ' NOOS(NOCTPA,NOCTPB,NSM) array (input)'
 write(u6,*)
 do ISMST=1,NSM
   write(u6,*) ' ISMST = ',ISMST
-  call IWRTMA(NOOS(1,1,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
+  call IWRTMA(NOOS(:,:,ISMST),NOCTPA,NOCTPB,NOCTPA,NOCTPB)
 end do
 #endif
 
@@ -91,8 +92,9 @@ do
     if (IFINI == 1) exit
   end if
   ! Should this block be included
-  if ((IDC /= 1) .and. (IBLTP(ISM) == 0)) cycle
-  if ((IDC /= 1) .and. (IBLTP(ISM) == 2) .and. (IA < IB)) cycle
+  if (IDC /= 1) then
+    if ((IBLTP(ISM) == 0) .or. ((IBLTP(ISM) == 2) .and. (IA < IB))) cycle
+  end if
   if (IOCOC(IA,IB) == 0) cycle
   !write(u6,*) ' INCOOS IDC IBLTP ',IDC,IBLTP(ISM)
   ! can this block be included

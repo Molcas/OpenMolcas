@@ -19,8 +19,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ipdia, ipSigma
-real(kind=wp) :: rout(*)
+integer(kind=iwp), intent(in) :: ipdia, ipSigma
+real(kind=wp), intent(inout) :: rout(nConf)
 integer(kind=iwp) :: i, iDisk
 real(kind=wp), allocatable :: Tmp(:), Tmp2(:,:), Tmp3(:,:)
 real(kind=wp), external :: DDot_
@@ -46,7 +46,7 @@ call ipin(ipdia)
 do i=1,lroots
   call dDAFILE(luciv,2,Tmp,nconf,idisk)
   call Exphinvv(W(ipdia)%A,Tmp,rout,One,Tmp3(1,i))
-  rout(1:nConf) = rout(1:nConf)+Tmp3(2,i)*Tmp(:)
+  rout(:) = rout(:)+Tmp3(2,i)*Tmp(:)
 end do
 
 call mma_deallocate(Tmp)

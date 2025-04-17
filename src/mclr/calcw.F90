@@ -20,17 +20,18 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
-real(kind=wp) :: W(nTri_Elem(nRoots),nTri_Elem(nRoots)), GDMat(nTri_Elem(nRoots),nnA,nnA), PUVX(NPUVX)
+real(kind=wp), intent(out) :: W(nTri_Elem(nRoots),nTri_Elem(nRoots))
+integer(kind=iwp), intent(in) :: NPUVX, IndTUVX(ntAsh,ntAsh,ntAsh,ntAsh)
+real(kind=wp), intent(in) :: GDMat(nTri_Elem(nRoots),nnA,nnA), PUVX(NPUVX)
 integer(kind=iwp) :: IKL, IMN, it, iu, iv, ix, K, L, M, N
 
+W(:,:) = Zero
 do K=1,nRoots
   do L=1,K
     IKL = iTri(K,L)
     do M=1,nRoots
       do N=1,M
         IMN = iTri(M,N)
-        W(IKL,IMN) = Zero
         do it=1,nnA
           do iu=1,nnA
             do iv=1,nnA

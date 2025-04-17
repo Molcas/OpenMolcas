@@ -36,8 +36,8 @@ use Constants, only: One, Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: CMO(*)
-integer(kind=iwp) :: nIsh(8), nAsh(8), LuAChoVec(8), LuChoInt(2)
+real(kind=wp), intent(in) :: CMO(*)
+integer(kind=iwp), intent(in) :: nIsh(8), nAsh(8), LuAChoVec(8), LuChoInt(2)
 #include "warnings.h"
 integer(kind=iwp) :: i, iAdr, iAdr2, iAdrtu, iE, ii, iLoc, ioff, ioff2, ioff3, ip1, ip2, ip3, ipiaib, ipInt, ipIntj, ipLtu, ipMO, &
                      ipMO2, ipMOi, ipMOj, iptpuq, irc, IREDC, iS, ISTSQ(8), isum, isum2, iSwap, ISYM, iSyma, isymb, it, itt, itu, &

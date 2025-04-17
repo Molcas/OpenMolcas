@@ -20,7 +20,7 @@ use input_mclr, only: ERASSCF, nCSF, PotNuc, rIn_Ene, State_Sym, TimeDep
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iSym
+integer(kind=iwp), intent(in) :: iSym
 integer(kind=iwp) :: i, iAMCmp, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), LSPC(1), nD, nP1, nP2, nQ, nSD, nSpc
 
 ! This is just a interface to hide Jeppe from the rest of the world
@@ -53,7 +53,7 @@ if (NOCSF == 0) then
   nD = NCSASM(ISYM)
   ipdiai = ipdcsfi
 else
-  nD = idint(XISPSM(ISYM,ISPC(1)))
+  nD = int(XISPSM(ISYM,ISPC(1)))
   ipdiai = ipdsdi
 end if
 

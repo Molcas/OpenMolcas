@@ -21,7 +21,7 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: IOCTP2_MCLR
-integer(kind=iwp) :: NEL, STRING(NEL), ITYP
+integer(kind=iwp), intent(in) :: NEL, STRING(NEL), ITYP
 integer(kind=iwp) :: iEl, iEL1, iEL3, iPL, iTyp2
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt

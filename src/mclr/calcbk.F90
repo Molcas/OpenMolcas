@@ -17,7 +17,7 @@
 
 subroutine Calcbk(bk,R,nTri,GDMat,zX)
 
-use Index_Functions, only: iTri, nTri_Elem
+use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: nDens, nNA
 use input_mclr, only: nRoots, ntAsh
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -25,13 +25,14 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: bk(nDens), R(nRoots,nRoots), GDMat(nTri_Elem(nRoots),nnA,nnA), zX(nTri_Elem(nRoots-1))
-integer(kind=iwp) :: nTri
+real(kind=wp), intent(out) :: bk(nDens)
+real(kind=wp), intent(in) :: R(nRoots,nRoots), GDMat(nTri_Elem(nRoots),nnA,nnA), zX(nTri_Elem(nRoots-1))
+integer(kind=iwp), intent(in) :: nTri
 integer(kind=iwp) :: nG1, nP2
 real(kind=wp), allocatable :: FOccMO(:), P2MOt(:)
 
-ng1 = iTri(ntash,ntash)
-nP2 = iTri(ng1,ng1)
+ng1 = nTri_Elem(ntash)
+nP2 = nTri_Elem(ng1)
 call mma_allocate(FOccMO,nDens)
 call mma_allocate(P2MOt,nP2)
 bk(:) = Zero

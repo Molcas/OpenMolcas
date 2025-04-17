@@ -19,11 +19,15 @@ subroutine PSTTBL_MCLR(C,CTT,IATP,IASM,IBTP,IBSM,NOCTPA,NOCTPB,NSASO,NSBSO,PSIGN
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: C(*), CTT(*), PSIGN, SCR(*)
-integer(kind=iwp) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), ICOOSC(NOCTPA,NOCTPB,*), IAC, IDC, &
-                     LUHC
-integer(kind=iwp) :: IBASE, IDUM(1), ISGVST(IBSM), LCOMB, LDET, NAST, NBST, NDIM, NELMNT
+real(kind=wp), intent(inout) :: C(*)
+real(kind=wp), intent(in) :: CTT(*), PSIGN
+integer(kind=iwp), intent(in) :: IATP, IASM, IBTP, IBSM, NOCTPA, NOCTPB, NSASO(NOCTPA,*), NSBSO(NOCTPB,*), &
+                                 ICOOSC(NOCTPA,NOCTPB,*), IAC, IDC, LUHC
+real(kind=wp), intent(_OUT_) :: SCR(*)
+integer(kind=iwp) :: IBASE, IDUM(1), ISGVST, LCOMB, LDET, NAST, NBST, NDIM, NELMNT
 real(kind=wp) :: PLSIGN
 
 ! ======================
@@ -35,7 +39,8 @@ real(kind=wp) :: PLSIGN
 if (LUHC /= 0) then
   NAST = NSASO(IATP,IASM)
   NBST = NSBSO(IBTP,IBSM)
-  call SDCMRF_MCLR(CTT,SCR,1,IATP,IBTP,IASM,IBSM,NAST,NBST,IDC,PSIGN,PLSIGN,ISGVST,LDET,LCOMB)
+  ! ISGVST is undefined
+  call SDCMRF_MCLR_1(CTT,SCR,IATP,IBTP,IASM,IBSM,NAST,NBST,IDC,PSIGN,PLSIGN,ISGVST,LDET,LCOMB)
   ! Note : PLSIGN and ISGVST missing in order to make it work for IDC=3,4
   IDUM(1) = LCOMB
   call ITODS(IDUM,1,-1,LUHC)
@@ -73,7 +78,7 @@ else
         if (IAC == 1) then
           call PMPLFM(C(IBASE),CTT,NDIM)
         else
-          call TRIPK2(CTT,C(IBASE),1,NAST,NAST,PSIGN)
+          call TRIPK2_1(CTT,C(IBASE),NAST,NAST)
         end if
       end if
     end if
@@ -97,7 +102,7 @@ else
       if (IAC == 1) then
         call PMPLFM(C(IBASE),CTT,NAST)
       else
-        call TRIPK2(CTT,C(IBASE),1,NAST,NAST,PSIGN)
+        call TRIPK2_1(CTT,C(IBASE),NAST,NAST)
       end if
     end if
   end if

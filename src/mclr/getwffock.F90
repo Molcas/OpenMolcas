@@ -27,8 +27,9 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nTri, NG2
-real(kind=wp) :: FOccMO(nDens), bk(nDens), R(nRoots,nRoots), P2MOt(nG2)
+integer(kind=iwp), intent(in) :: nTri, nG2
+real(kind=wp), intent(out) :: FOccMO(nDens), bk(nDens), P2MOt(nG2)
+real(kind=wp), intent(in) :: R(nRoots,nRoots)
 integer(kind=iwp) :: I, iA, iB, iDij, iDkl, iIJKL, ij1, iRij, iRijkl, iRkl, jA, jB, JDisk, K, kA, kB, kl1, kl2, lA, lB, nConfL, &
                      NCSFs, nG1
 real(kind=wp) :: Fact, rdum(1)
@@ -39,7 +40,7 @@ real(kind=wp), allocatable :: CIL(:), CIR(:), D5(:), D6(:), DIAO(:), DMatAO(:), 
 !***********************************************************************
 !                                                                      *
 ng1 = nTri_Elem(ntash)
-ng2 = nTri_Elem(ng1)
+if (ng2 /= nTri_Elem(ng1)) call Abend()
 
 call mma_allocate(FinCI,nconf1*nroots,Label='FinCI')
 call mma_allocate(Fock,nDens,Label='Fock')

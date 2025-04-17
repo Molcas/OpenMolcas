@@ -33,7 +33,7 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: NIRREP, NRAS1(NIRREP), NRAS2(NIRREP), NRAS3(NIRREP), MXR4tp
+integer(kind=iwp), intent(in) :: NIRREP, NRAS1(NIRREP), NRAS2(NIRREP), NRAS3(NIRREP), MXR4tp
 integer(kind=iwp) :: NNOBPT
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: I

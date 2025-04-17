@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: Clebsch_Gordan_mclr
-real(kind=wp) :: j1, m1, j2, m2, j, m
+real(kind=wp), intent(in) :: j1, m1, j2, m2, j, m
 integer(kind=iwp) :: z, zmax, zmin
 real(kind=wp) :: dz, Fct, Fct1, Fct2, N, r, rsum, T
 real(kind=wp), external :: Fact

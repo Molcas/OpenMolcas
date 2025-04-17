@@ -33,10 +33,13 @@ use Str_Info, only: ISTAC, IUNIQMP, NOCTYP, STR
 use MCLR_Data, only: NACOB
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IOBTP, IOBSM, IOBOFF, NIOB, JOBTP, JOBSM, JOBOFF, NJOB, IJORD, ICLS, ISM, IGRP, KMIN, KMAX, NK, NKDIM, IEND
-integer(kind=iwp) :: I1(NKDIM,*)
-real(kind=wp) :: XI1S(NKDIM,*)
+integer(kind=iwp), intent(in) :: IOBTP, IOBSM, IOBOFF, NIOB, JOBTP, JOBSM, JOBOFF, NJOB, IJORD, ICLS, ISM, IGRP, KMIN, KMAX, NKDIM
+integer(kind=iwp), intent(_OUT_) :: I1(NKDIM,*)
+real(kind=wp), intent(_OUT_) :: XI1S(NKDIM,*)
+integer(kind=iwp), intent(out) :: NK, IEND
 integer(kind=iwp) :: I1MPF, I2MPF, JGRP, KGRP, L1MP, L2MP
 
 JGRP = IGRP+1

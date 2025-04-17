@@ -25,7 +25,7 @@ use input_mclr, only: ChIrr, McKinley, PT2
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iPL
+integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: iRC, iOpt, iDum
 logical(kind=iwp) :: DoCholesky, DoDirect, FoundTwoEls
 character(len=8) :: Label

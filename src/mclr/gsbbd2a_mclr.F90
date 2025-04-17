@@ -61,10 +61,15 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPNGAS, NOBPTS(MXPNGAS,*), &
-                     IOBPTS(MXPNGAS,*), MAXI, MAXK, I1(MAXK,*), NSM
-real(kind=wp) :: RHO2(*), SB(*), CB(*), SSCR(*), CSCR(*), XI1S(MAXK,*), X(*)
+real(kind=wp), intent(inout) :: RHO2(*)
+integer(kind=iwp), intent(in) :: NACOB, ISCSM, ISCTP, ICCSM, ICCTP, IGRP, NROW, NGAS, ISEL(NGAS), ICEL(NGAS), MXPNGAS, &
+                                 NOBPTS(MXPNGAS,*), IOBPTS(MXPNGAS,*), MAXI, MAXK, NSM
+real(kind=wp), intent(in) :: SB(*), CB(*)
+real(kind=wp), intent(_OUT_) :: SSCR(*), CSCR(*), XI1S(MAXK,*), X(*)
+integer(kind=iwp), intent(_OUT_) :: I1(MAXK,*)
 integer(kind=iwp) :: I, IBOT, IDXSM, IDXTP, IFIRST, IIK, IIKE, IJL, IJLE, IKBOFF, IKOBSM, IKOFF, IKSM, IOFF, IPART, ISM, ITOP, &
                      ITP(3*3), ITYP, J, JLBOFF, JLOBSM, JLOFF, JLSM, JOFF, JSM, JTP(3*3), JTYP, K, KBOT, KEND, KOFF, KSM, KTOP, &
                      KTP(3*3), KTYP, L, LDUMMY, LOFF, LSM, LTP(3*3), LTYP, NDXTP, NI, NIBTC, NIK, NJ, NJL, NK, NKBTC, nkStref, NL, &
@@ -170,7 +175,7 @@ do IDXTP=1,NDXTP
               else
                 !EAW BEGIN 970407
                 !call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1JL),XI1S(1,I1JL))
-                call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,IJL),XI1S(1,IJL))
+                call MATCG(CB,CSCR(JLOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,IJL),XI1S(:,IJL))
                 !EAW END
               end if
             end do
@@ -218,7 +223,7 @@ do IDXTP=1,NDXTP
               else
                 !EAW-BEGIN 970407
                 !call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,I1IK),XI1S(1,I1IK))
-                call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(1,IIK),XI1S(1,IIK))
+                call MATCG(SB,SSCR(IKOFF),NROW,NIBTC,IBOT,NKBTC,I1(:,IIK),XI1S(:,IIK))
                 !EAW-END
               end if
             end do

@@ -32,8 +32,9 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: d_0, rDens1(nna,nna), rdens2(*), Fock(nDens)
-integer(kind=iwp) :: idSym
+real(kind=wp), intent(in) :: d_0, rDens1(nna,nna), rdens2(*)
+real(kind=wp), intent(out) :: Fock(nDens)
+integer(kind=iwp), intent(in) :: idSym
 integer(kind=iwp) :: iA, iAA, ip1, ip2, ip3, ipF, ipM, ipS, iS, jA, jAA, jS, kA, kS, n1, n2
 real(kind=wp) :: rd, rd1, rd2
 real(kind=wp), allocatable :: MO(:), Scr(:), TQ(:)
@@ -146,17 +147,21 @@ call CreQADD2(TQ,rdens2,idsym,MO,Scr,n2)
 call mma_deallocate(Scr)
 call mma_deallocate(MO)
 
+call mma_allocate(Scr,nDens,Label='Scr')
+Scr(:) = Fock(:)
+
 do iS=1,nsym
   jS = Mul(is,idsym)
   if (nBas(iS)*nBas(jS) > 0) &
-    call DGeSub(Fock(ipMat(is,js)),nbas(is),'N',TQ(ipMat(js,is)),nbas(js),'T',Fock(ipmat(is,js)),nbas(is),nbas(is),nbas(js))
+    call DGeSub(Fock(ipMat(is,js)),nbas(is),'N',TQ(ipMat(js,is)),nbas(js),'T',Scr(ipmat(is,js)),nbas(is),nbas(is),nbas(js))
 end do
 
-if (idSym == 1) call AddGrad2(Fock,d_0)
+if (idSym == 1) call AddGrad2(Scr,d_0)
 
-Fock(:) = Two*Fock(:)
+Fock(:) = Two*Scr(:)
 
 call mma_deallocate(TQ)
+call mma_deallocate(Scr)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

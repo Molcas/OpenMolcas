@@ -31,7 +31,9 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: NEL, IDET(NEL), NAEL, IASTR(NAEL), NBEL, IBSTR(NBEL), ISGN, IWORK(*)
+integer(kind=iwp), intent(in) :: NEL, NAEL, NBEL
+integer(kind=iwp), intent(inout) :: IDET(NEL)
+integer(kind=iwp), intent(out) :: IASTR(NAEL), IBSTR(NBEL), ISGN, IWORK(NEL)
 integer(kind=iwp) :: ITMP
 
 ! FIRST REORDER SPIN ORBITALS IN ASCENDING SEQUENCE

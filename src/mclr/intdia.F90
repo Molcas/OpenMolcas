@@ -25,9 +25,12 @@ use input_mclr, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: DIAG(*), ECORE
-integer(kind=iwp) :: NSPC, ISPC(NSPC), ISM(NSPC), LSPC(NSPC), IAMCMP
+real(kind=wp), intent(_OUT_) :: DIAG(*)
+integer(kind=iwp), intent(in) :: NSPC, ISPC(NSPC), ISM(NSPC), LSPC(NSPC), IAMCMP
+real(kind=wp), intent(in) :: ECORE
 integer(kind=iwp) :: IATP, IBTP, idum(1), IISPC, ILOOP, LLUDIA, LUDIA, MNRS1C, MXOCOC, MXRS3C, NAEL, NBEL, NLOOP, NOCTPA, NOCTPB
 integer(kind=iwp), allocatable :: BLTP(:), IOIO(:)
 real(kind=wp), allocatable :: H1D(:), JA(:), KA(:), SCR(:), XA(:), XB(:)

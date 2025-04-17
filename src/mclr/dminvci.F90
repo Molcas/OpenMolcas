@@ -17,8 +17,9 @@ use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ipSIgma, idSym
-real(kind=wp) :: rout(*), rC_HE_C
+integer(kind=iwp), intent(in) :: ipSIgma, idSym
+real(kind=wp), intent(inout) :: rout(nConf1)
+real(kind=wp), intent(in) :: rC_HE_C
 real(kind=wp) :: rCoeff
 real(kind=wp), external :: DDot_
 
@@ -65,12 +66,12 @@ if (nconf1 > 1) then
 
   end if
 
-  rout(1:nconf1) = Half*rout(1:nconf1)
+  rout(:) = Half*rout(:)
 
 else
 
   call ipin(ipsigma)
-  rout(1:nConf1) = W(ipSigma)%A(:)
+  rout(:) = W(ipSigma)%A(:)
 
 end if
 

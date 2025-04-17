@@ -35,9 +35,13 @@ use Definitions, only: wp, iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: VEC(*)
-integer(kind=iwp) :: NDIM, NDGVL, IDEG(*)
+real(kind=wp), intent(in) :: VEC(*)
+integer(kind=iwp), intent(in) :: NDIM
+integer(kind=iwp), intent(out) :: NDGVL
+integer(kind=iwp), intent(_OUT_) :: IDEG(*)
 integer(kind=iwp) :: I, NDEG
 real(kind=wp) :: XDGVL
 real(kind=wp), parameter :: THRES = 1.0e-8_wp

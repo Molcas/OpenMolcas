@@ -21,7 +21,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: GDMat(nTri_Elem(nRoots),nnA,nnA)
+real(kind=wp), intent(out) :: GDMat(nTri_Elem(nRoots),nnA,nnA)
 integer(kind=iwp) :: I, iL, iR, J, nConfL, nConfR, NIJ
 real(kind=wp), allocatable :: CIL(:), CIR(:), GDArray(:,:), rdum(:)
 

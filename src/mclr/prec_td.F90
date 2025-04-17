@@ -22,9 +22,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: pre2(*), DigPrec(*)
-integer(kind=iwp) :: iSym
+real(kind=wp), intent(in) :: pre2(*)
+real(kind=wp), intent(_OUT_) :: DigPrec(*)
+integer(kind=iwp), intent(in) :: iSym
 integer(kind=iwp) :: i, iA, iB, Inc, ip, ip1, ip2, ip3, iS, j, jA, jB, jS, k, l, nBasTot, nD
 real(kind=wp) :: nonzero
 real(kind=wp), allocatable :: Dens(:), PreTd(:), TempTd(:)

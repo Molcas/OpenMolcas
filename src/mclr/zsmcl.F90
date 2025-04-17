@@ -14,8 +14,11 @@ subroutine ZSMCL(NSM,NOCTP,NSSO,ISTSM,ISTCL)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NSM, NOCTP, NSSO(NOCTP,NSM), ISTSM(*), ISTCL(*)
+integer(kind=iwp), intent(in) :: NSM, NOCTP, NSSO(NOCTP,NSM)
+integer(kind=iwp), intent(_OUT_) :: ISTSM(*), ISTCL(*)
 integer(kind=iwp) :: ICL, IOFF, ISM
 
 IOFF = 1

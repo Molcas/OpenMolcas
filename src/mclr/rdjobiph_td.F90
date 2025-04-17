@@ -37,7 +37,7 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), allocatable :: CIVec(:,:)
+real(kind=wp), allocatable, intent(out) :: CIVec(:,:)
 #include "rasdim.fh"
 integer(kind=iwp) :: i, iB, iDij, iDij2, iDisk, iDkl, iDkl2, iIJKL, iIJKL2, iS, iSym, Iter, jB, jS, kB, kRoots, kS, lB, Length, &
                      lS, nAct, nAct2, nAct4, nG1, nG2

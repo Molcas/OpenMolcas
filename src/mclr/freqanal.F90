@@ -18,10 +18,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nDeg(*), nrvec(*), iel(3), ldisp(nsym), Lu_10
-real(kind=wp) :: H(*), elec(*), elout(*)
-logical(kind=iwp) :: converged(8)
+integer(kind=iwp), intent(in) :: nDeg(*), nrvec(*), iel(3), ldisp(nsym), Lu_10
+real(kind=wp), intent(in) :: H(*), elec(*)
+logical(kind=iwp), intent(in) :: converged(8)
+real(kind=wp), intent(_OUT_) :: elout(*)
 integer(kind=iwp) :: i, i1, i3, iCtl, ii, iNeg, ipNx, iSym, iT, ix, j, jpNx, jx, k, kk, ll, lModes, lnm_molpac, nEig, nModes, nx
 real(kind=wp) :: Fact, rNorm, Tmp
 logical(kind=iwp) :: Do_Molden

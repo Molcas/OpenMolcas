@@ -21,11 +21,11 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), imode, ksym, State_Sym
-type(SGStruct) :: SGS
-type(CIStruct) :: CIS
-type(EXStruct) :: EXS
-real(kind=wp) :: CIL(*)
+integer(kind=iwp), intent(in) :: nSym, iSpin, nActEl, nHole1, nElec3, nRs1(nSym), nRs2(nSym), nRs3(nSym), imode, ksym, State_Sym
+type(SGStruct), intent(out) :: SGS
+type(CIStruct), intent(inout) :: CIS
+type(EXStruct), intent(inout) :: EXS
+real(kind=wp), intent(inout) :: CIL(*)
 integer(kind=iwp) :: iS, iss, NCONF, nRas1T, nRas2T, nRas3T
 #ifdef _DEBUGPRINT_
 real(kind=wp), parameter :: PRWTHR = 0.05_wp

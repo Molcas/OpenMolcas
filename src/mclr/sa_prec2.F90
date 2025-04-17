@@ -16,17 +16,19 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: rdia(*), S(nroots,nroots), CI(*), ENE
-integer(kind=iwp) :: i, j, k
+real(kind=wp), intent(in) :: rdia(nCSF(State_Sym)), CI(nCSF(State_Sym),nCSF(State_Sym)), ENE
+real(kind=wp), intent(out) :: S(nroots,nroots)
+integer(kind=iwp) :: i, j, k, n
 real(kind=wp) :: dnum
 
-do i=0,nroots-1
-  do j=0,nroots-1
-    S(i+1,j+1) = Zero
-    do k=1,ncsf(State_Sym)
+n = nCSF(State_Sym)
+S(:,:) = Zero
+do i=1,nroots
+  do j=1,nroots
+    do k=1,n
       dnum = rdia(k)-Ene
       dnum = sign(max(abs(dnum),1.0e-16_wp),dnum)
-      S(i+1,j+1) = S(i+1,j+1)+CI(i*ncsf(State_Sym)+k)*CI(j*ncsf(State_Sym)+k)/dnum
+      S(i,j) = S(i,j)+CI(k,i)*CI(k,j)/dnum
     end do
   end do
 end do

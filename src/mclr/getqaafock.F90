@@ -25,8 +25,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nP2
-real(kind=wp) :: FOccMO(nDens), P2MOt(nP2), GDMat(nTri_Elem(nRoots),nnA,nnA), zX(nTri_Elem(nRoots-1))
+integer(kind=iwp), intent(in) :: nP2
+real(kind=wp), intent(inout) :: FOccMO(nDens), P2MOt(nP2)
+real(kind=wp), intent(in) :: GDMat(nTri_Elem(nRoots),nnA,nnA), zX(nTri_Elem(nRoots-1))
 integer(kind=iwp) :: IKK, IKL, IKL2, ILL, K, L, nG1, nG1r, nG2, nG2r, NPUVX
 logical(kind=iwp) :: debug2
 integer(kind=iwp), allocatable :: IndPUVX(:,:,:,:), IndTUVX(:,:,:,:)

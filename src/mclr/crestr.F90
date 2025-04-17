@@ -54,9 +54,12 @@ use Definitions, only: iwp
 use Definitions, only: u6
 #endif
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, ISGSTI(NSTINI), &
-                     ISGSTO(NSTINO), TI(*), TTO(*), ISTMPL(*), ISTMPO(*), LROW, I1TYP
+integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, Z(NORB,NEL+1), NEWORD(NSTINO), LSGSTR, &
+                                 ISGSTI(NSTINI), ISGSTO(NSTINO), LROW, I1TYP
+integer(kind=iwp), intent(_OUT_) :: TI(*), TTO(*), ISTMPL(*), ISTMPO(*)
 integer(kind=iwp) :: IEL, IIISGN, IOFF, IORB, IPLACE, ISTRIN, ITYPE, JSTRIN, LCR, STRIN2(NEL+1)
 integer(kind=iwp), external :: IOCTP2_MCLR, ISTRNM
 

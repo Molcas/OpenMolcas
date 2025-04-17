@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ipSigma
-real(kind=wp) :: rout(nCSF(State_Sym),nRoots), S(nRoots,nRoots,nRoots)
+integer(kind=iwp), intent(in) :: ipSigma
+real(kind=wp), intent(out) :: rout(nCSF(State_Sym),nRoots)
+real(kind=wp), intent(in) :: S(nRoots,nRoots,nRoots)
 integer(kind=iwp) :: iR, jR, k
 real(kind=wp) :: alpha(nRoots), rcoeff(nRoots)
 real(kind=wp), external :: DDot_

@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: GTH1ES_MCLR
-integer(kind=iwp) :: IORB, ITP, ISM, JORB, JTP, JSM
+integer(kind=iwp), intent(in) :: IORB, ITP, ISM, JORB, JTP, JSM
 integer(kind=iwp) :: I1, I_ABS, IJ, IREO, J1, J_ABS, JREO
 
 I_ABS = IORB+IBTSOB(ITP,ISM)-1
@@ -31,7 +31,7 @@ IREO = IREOTS(I_ABS)
 J_ABS = JORB+IBTSOB(JTP,JSM)-1
 JREO = IREOTS(J_ABS)
 I1 = IREO-IBSO(ISM)+1+nISH(ISM)
-J1 = JREO-IBSO(JSM)+1+nISH(jSM)
+J1 = JREO-IBSO(JSM)+1+nISH(JSM)
 IJ = pInt1(ISM)-1+(J1-1)*NORB(ISM)+I1
 GTH1ES_MCLR = KAIN1(IJ)
 

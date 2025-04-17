@@ -22,9 +22,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: rdia(*)
-integer(kind=iwp) :: MP1, MP2, MQ, iSym, nprciv
-logical(kind=iwp) :: TimeDep
+real(kind=wp), intent(in) :: rdia(*)
+integer(kind=iwp), intent(in) :: MP1, MP2, MQ, iSym
+integer(kind=iwp), intent(out) :: nprciv
+logical(kind=iwp), intent(in) :: TimeDep
 integer(kind=iwp) :: i, ieaw, iRC, iSpc, lH0SCR, LH0T, lVec2, MxCSFC, MxDTFC, MXP, nActEl, nDet, nSBDet
 real(kind=wp) :: ENA
 integer(kind=iwp), pointer :: iH0Scr(:)

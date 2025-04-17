@@ -22,9 +22,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: is
-real(kind=wp) :: CSF(nCSF(is)), SD(*)
+integer(kind=iwp), intent(in) :: is
+real(kind=wp), intent(in) :: CSF(nCSF(is))
+real(kind=wp), intent(_OUT_) :: SD(*)
 integer(kind=iwp) :: i, iiCOPY, iSym
 real(kind=wp), allocatable :: CTM(:)
 
@@ -38,7 +41,7 @@ call mma_allocate(CTM,nConf,Label='CTM')
 CTM(1:ncsf(is)) = CSF(1:ncsf(is))
 CTM(ncsf(is)+1:) = Zero
 
-call CSDTVC_MCLR(CTM,SD,1,DTOC,CNSM(i)%ICTS,IS,iiCOPY)
+call CSDTVC_MCLR_1(CTM,SD,DTOC,CNSM(i)%ICTS,IS,iiCOPY)
 
 call mma_deallocate(CTM)
 

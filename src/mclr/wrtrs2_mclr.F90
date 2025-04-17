@@ -17,8 +17,8 @@ use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: VECTOR(*)
-integer(kind=iwp) :: ISM, ICBLTP(*), NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSASO(NOCTPA,*), NSBSO(NOCTPB,*), NSM
+real(kind=wp), intent(in) :: VECTOR(*)
+integer(kind=iwp), intent(in) :: ISM, ICBLTP(*), NOCTPA, NOCTPB, IOCOC(NOCTPA,NOCTPB), NSASO(NOCTPA,*), NSBSO(NOCTPB,*), NSM
 integer(kind=iwp) :: IASM, IATP, IBASE, IBSM, IBTP, IBTPMX, NAST, NBST, NELMNT
 
 IBASE = 1

@@ -27,8 +27,8 @@ use Symmetry_Info, only: nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LUT
-real(kind=wp) :: COOR(3,*)
+integer(kind=iwp), intent(in) :: LUT
+real(kind=wp), intent(in) :: COOR(3,*)
 #include "LenIn.fh"
 integer(kind=iwp) :: iCnt, iCnttp, iCo, ii, kop, mdc
 real(kind=wp) :: A(3), B(3)

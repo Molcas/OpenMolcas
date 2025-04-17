@@ -23,8 +23,9 @@ use Constants, only: One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nG2, nG2r
-real(kind=wp) :: G2r(nG2r), G2q(nG2)
+integer(kind=iwp), intent(in) :: nG2, nG2r
+real(kind=wp), intent(out) :: G2r(nG2r)
+real(kind=wp), intent(in) :: G2q(nG2)
 integer(kind=iwp) :: iB, iDij, iDkl, iijkl, iRij, iRijkl, iRkl, jB, kB, lB
 real(kind=wp) :: Fact
 

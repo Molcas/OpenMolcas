@@ -22,10 +22,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: IDFTP(*), ICFTP(*)
-real(kind=wp) :: DTOC(*), PSSIGN
-integer(kind=iwp) :: ICDCBS, ICSBS, IDTBS, IFLAG, IOPEN, ITP, MS2, MULTS, NNDET
+integer(kind=iwp), intent(inout) :: IDFTP(*), ICFTP(*)
+real(kind=wp), intent(_OUT_) :: DTOC(*)
+real(kind=wp), intent(in) :: PSSIGN
+integer(kind=iwp) :: ICDCBS, ICSBS, IDTBS, IOPEN, ITP, MS2, MULTS, NNDET
 integer(kind=iwp), allocatable :: SCR7(:)
 
 MULTS = MULTSP
@@ -49,26 +52,21 @@ do ITP=1,NTYP
     call mma_allocate(SCR7,IOPEN+1,Label='SCR7')
     ! Proto type determinants and upper determinants
     if (MS2+1 == MULTS) then
-      IFLAG = 2
-      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN)
+      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),2,PSSIGN)
     else
-      IFLAG = 1
-      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN)
-      IFLAG = 3
-      call SPNCOM_MCLR(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),IFLAG,PSSIGN)
+      call SPNCOM_MCLR(scr7,IOPEN,MS2,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),1,PSSIGN)
+      call SPNCOM_MCLR(scr7,IOPEN,MULTS-1,NNDET,IDFTP(IDTBS),ICFTP(ICSBS),3,PSSIGN)
     end if
     call mma_deallocate(SCR7)
   end if
 end do
 ! Matrix expressing csf's in terms of combinations
-ICDCBS = 0 ! dummy initialize
+IDTBS = 1
+ICSBS = 1
+ICDCBS = 1
 do ITP=1,NTYP
   IOPEN = MINOP+ITP-1
-  if (ITP == 1) then
-    IDTBS = 1
-    ICSBS = 1
-    ICDCBS = 1
-  else
+  if (ITP > 1) then
     IDTBS = IDTBS+(IOPEN-1)*NDPCNT(ITP-1)
     ICSBS = ICSBS+(IOPEN-1)*NCPCNT(ITP-1)
     ICDCBS = ICDCBS+NDPCNT(ITP-1)*NCPCNT(ITP-1)

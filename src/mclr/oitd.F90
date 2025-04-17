@@ -18,10 +18,14 @@ use input_mclr, only: nAsh, nIsh, nOrb, nSym
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: rK(*), D(*), Dtmp(nDens)
-integer(kind=iwp) :: iSym
-logical(kind=iwp) :: act
+real(kind=wp), intent(in) :: rK(*)
+integer(kind=iwp), intent(in) :: iSym
+real(kind=wp), intent(out) :: D(*)
+real(kind=wp), intent(_OUT_) :: Dtmp(nDens)
+logical(kind=iwp), intent(in) :: act
 integer(kind=iwp) :: iB, iS, jB, jS
 
 DTmp(:) = Zero

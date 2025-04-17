@@ -65,11 +65,16 @@ subroutine GSDNBB2_MCLR(I12,RHO1,RHO2,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,JBTP,NG
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: I12, IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, NGAS, IAOC(*), IBOC(*), JAOC(*), JBOC(*), NAEL, NBEL, &
-                     IJAGRP, IJBGRP, MXPNGAS, NOBPTS(*), IOBPTS(*), MAXI, MAXK, I1(*), I2(*), I3(*), I4(*), NSM, NIA, NIB, NJA, &
-                     NJB, NACOB, ieaw, n1, n2
-real(kind=wp) :: RHO1(n1,*), RHO2(n2,*), SB(*), CB(*), C2(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), RHO1S(*)
+integer(kind=iwp), intent(in) :: I12, IASM, IATP, IBSM, IBTP, JASM, JATP, JBSM, JBTP, IAOC(*), IBOC(*), JAOC(*), JBOC(*), NAEL, &
+                                 NBEL, IJAGRP, IJBGRP, MXPNGAS, NOBPTS(*), IOBPTS(*), MAXI, MAXK, NSM, NIA, NIB, NJA, NJB, NACOB, &
+                                 ieaw, n1, n2
+real(kind=wp), intent(inout) :: RHO1(n1,*), RHO2(n2,*), SB(*), CB(*)
+integer(kind=iwp), intent(inout) :: NGAS
+real(kind=wp), intent(_OUT_) :: C2(*), SSCR(*), CSCR(*), XI1S(*), XI2S(*), XI3S(*), XI4S(*), X(*), RHO1S(*)
+integer(kind=iwp), intent(_OUT_) :: I1(*), I2(*), I3(*), I4(*)
 integer(kind=iwp) :: ii, iUseab
 
 iUseab = 0

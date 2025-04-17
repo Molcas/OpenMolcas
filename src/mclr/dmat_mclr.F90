@@ -42,8 +42,11 @@ use input_mclr, only: nBas, nSym
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: CMO(*), OCC(*), D(*)
+real(kind=wp), intent(in) :: CMO(*), OCC(*)
+real(kind=wp), intent(_OUT_) :: D(*)
 integer(kind=iwp) :: i, iBas, ii, iOff1, iOff2, iOff3, iSym, j, k
 real(kind=wp) :: rSum
 
@@ -60,8 +63,11 @@ do iSym=1,nSym
         do k=1,ibas
           rSum = rSum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
         end do
-        D(iOff2+ii+j) = Two*rSum
-        if (j == i) D(iOff2+ii+j) = rSum
+        if (j == i) then
+          D(iOff2+ii+j) = rSum
+        else
+          D(iOff2+ii+j) = Two*rSum
+        end if
       end do
     end do
   end if
