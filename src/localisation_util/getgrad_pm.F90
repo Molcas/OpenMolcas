@@ -11,7 +11,7 @@
 ! Copyright (C) 2005, Thomas Bondo Pedersen                            *
 !***********************************************************************
 
-subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug)
+subroutine GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,Rmat,Debug,Grad)
 ! Thomas Bondo Pedersen, December 2005.
 !
 ! Purpose: compute the gradient of the Pipek-Mezey functional.
@@ -22,11 +22,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nAtoms, nOrb2Loc
 real(kind=wp), intent(in) :: PA(nOrb2Loc,nOrb2Loc,nAtoms)
-real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc)
+real(kind=wp), intent(out) :: GradNorm, Rmat(nOrb2Loc,nOrb2Loc), Grad(nOrb2Loc, nOrb2Loc)
 logical(kind=iwp), intent(in) :: Debug
 integer(kind=iwp) :: i, iAtom, j
 real(kind=wp) :: Fun, Rjj
-real(kind=wp) :: Grad(nOrb2Loc,nOrb2Loc)
+!real(kind=wp) :: Grad(nOrb2Loc,nOrb2Loc)
 
 
 !New gradient calculation according to DOI: 10.1002/jcc.23281 equation (15)

@@ -32,7 +32,7 @@ logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
-real(kind=wp), allocatable :: RMat(:,:), PACol(:,:)
+real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:)
 
 logical(kind=iwp), parameter :: jacobisweeps = .true.
 
@@ -51,10 +51,12 @@ end if
 if (.not. Silent) call CWTime(C1,W1)
 nIter = 0
 call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
-!call mma_Allocate(Gradient,nOrb2Loc,nOrb2Loc,Label='Gradient')
+call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
+
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
-call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug)
+call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1))
+
 OldFunctional = Functional
 FirstFunctional = Functional
 Delta = Functional
@@ -76,12 +78,12 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     if (jacobisweeps) then
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
     else
-        !call newoptimizer()
+        !call newoptimizer(GradientList)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
     end if
 
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug)
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1))
     nIter = nIter+1
     Delta = Functional-OldFunctional
     OldFunctional = Functional
@@ -95,6 +97,7 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 end do
 call mma_Deallocate(PACol)
 call mma_Deallocate(RMat)
+call mma_Deallocate(GradientList)
 
 ! Print convergence message.
 ! --------------------------
