@@ -30,7 +30,7 @@ real(kind=wp), intent(in) :: Ovlp(nBasis,*), Thrs, ThrRot, ThrGrad
 character(len=LenIn8), intent(in) :: BName(nBasis)
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: nIter
+integer(kind=iwp) :: nIter, i
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
 real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:)
 
@@ -82,9 +82,15 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
     end if
 
-    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1))
     nIter = nIter+1
+    call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
+
+    if (Debug) then
+        write(u6,*) 'nIter = ', nIter
+    end if
+
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1))
+
     Delta = Functional-OldFunctional
     OldFunctional = Functional
     if (.not. Silent) then
@@ -95,6 +101,18 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end if
     Converged = (GradNorm <= ThrGrad) .and. (abs(Delta) <= Thrs)
 end do
+
+
+if (Debug) then
+    write(u6,*) 'In PipekMezey_iter'
+    write(u6,*) '------------------'
+    write(u6,*) 'nIterTot = ', nIter
+    do i=1,nIter+1
+        write(u6,*) 'for iteration ', i-1
+        call RecPrt('GradientList',' ',GradientList(:,:,i), nOrb2Loc, nOrb2Loc)
+    end do
+end if
+
 call mma_Deallocate(PACol)
 call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)

@@ -42,12 +42,6 @@ end do
 Grad(:,:)=Four*Grad(:,:)
 
 
-if (Debug) then
-    call RecPrt('Gradient',' ',Grad(:,:), nOrb2Loc, nOrb2Loc)
-end if
-
-
-
 !Calculate the R matrix used to calculate the gradient norm
 RMat(:,:) = Zero
 do iAtom=1,nAtoms
@@ -66,6 +60,7 @@ if (Debug) then
     write(u6,*) 'In GetGrad_PM'
     write(u6,*) '-------------'
     call RecPrt('RMat',' ',RMat(:,:), nOrb2Loc, nOrb2Loc)
+    call RecPrt('Gradient',' ',Grad(:,:), nOrb2Loc, nOrb2Loc)
 
     Fun=Zero
     do i=1,nOrb2Loc
