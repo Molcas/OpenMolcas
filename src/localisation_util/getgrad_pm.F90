@@ -59,8 +59,8 @@ if (Debug) then
     write(u6,*) ' '
     write(u6,*) 'In GetGrad_PM'
     write(u6,*) '-------------'
-    call RecPrt('RMat',' ',RMat(:,:), nOrb2Loc, nOrb2Loc)
-    call RecPrt('Gradient',' ',Grad(:,:), nOrb2Loc, nOrb2Loc)
+    !call RecPrt('RMat',' ',RMat(:,:), nOrb2Loc, nOrb2Loc)
+    !call RecPrt('Gradient',' ',Grad(:,:), nOrb2Loc, nOrb2Loc)
 
     Fun=Zero
     do i=1,nOrb2Loc
