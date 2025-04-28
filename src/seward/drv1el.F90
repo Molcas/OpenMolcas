@@ -1251,7 +1251,7 @@ end if
 ! Component(2) is (Lx*Ly+Ly*Lx)/2, etc.
 ! Coded P-A Malmqvist, Garching, Nov 1996
 PLabel = ' '
-rHrmt = -One
+rHrmt = One
 if (allocated(AMP_Center) .and. (.not. Primitive_Pass)) then
   Label = 'AMProd  '
   nComp = 6
