@@ -161,7 +161,7 @@ call CWTime(TCpu1,TWall1)
 !***********************************************************************
 !                                                                      *
 iAllo = 0
-!idp = rtoi
+!idp = RtoI
 nrec = get_MBl_wa()/RtoB
 
 call DecideOnCholesky(DoCholesky)

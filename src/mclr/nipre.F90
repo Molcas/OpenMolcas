@@ -9,28 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function nPre(kS)
+function niPre(kS)
 
 use Symmetry_Info, only: Mul
 use input_mclr, only: nIsh, nOrb, nRS1, nRS2, nRS3, nSym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nPre
+integer(kind=iwp) :: niPre
 integer(kind=iwp), intent(in) :: kS
 integer(kind=iwp) :: iS, jS, nRest
 
-nPre = 0
+niPre = 0
 do iS=1,nSym
   jS = Mul(iS,kS)
   nRest = nOrb(jS)-nIsh(jS)
-  nPre = nPre+nIsh(iS)*nRest**2
+  niPre = niPre+nIsh(iS)*nRest
   nRest = nOrb(jS)-nRs1(jS)
-  nPre = nPre+nRs1(iS)*nRest**2
+  niPre = niPre+nRs1(iS)*nRest
   nRest = nOrb(jS)-nRs2(jS)
-  nPre = nPre+nRs2(iS)*nRest**2
+  niPre = niPre+nRs2(iS)*nRest
   nRest = nOrb(jS)-nRs3(jS)
-  nPre = nPre+nRs3(iS)*nRest**2
+  niPre = niPre+nRs3(iS)*nRest
 end do
 
-end function nPre
+end function niPre

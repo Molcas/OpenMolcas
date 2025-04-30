@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine DIHDJ2_MCLR(IASTR,IBSTR,NIDET,JASTR,JBSTR,NJDET,NAEL,NBEL,jWORK,NORB,HAMIL,ISYM,ECORE,ICOMBI,PSIGN,IASTRM,IBSTRM, &
-                       JASTRM,JBSTRM,IGENSG,IASGN,IBSGN,JASGN,JBSGN,LIA,LIB,NDIF0,NDIF1,NDIF2)
+                       JASTRM,JBSTRM,LIA,LIB,NDIF0,NDIF1,NDIF2)
 ! A set of left hand side determinants defined by string numbers
 ! IASTR and IBSTR and a set of right hand side determinants
 ! defined by JASTR and JBSTR are given.
@@ -37,14 +37,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: IASTR(*), IBSTR(*), NIDET, JASTR(*), JBSTR(*), NJDET, NAEL, NBEL, NORB, ISYM, ICOMBI, &
-                                 IASTRM(NAEL,*), IBSTRM(NBEL,*), JASTRM(NAEL,*), JBSTRM(NBEL,*), IGENSG, IASGN(*), IBSGN(*), &
-                                 JASGN(*), JBSGN(*)
-integer(kind=iwp), intent(out) :: jWORK(NORB,4), LIA(NAEL), LIB(NBEL), NDIF0, NDIF1, NDIF2
+                                 IASTRM(NAEL,*), IBSTRM(NBEL,*), JASTRM(NAEL,*), JBSTRM(NBEL,*)
+integer(kind=iwp), intent(out) :: jWORK(NORB,4), LIA(max(NAEL,NBEL)), LIB(max(NAEL,NBEL)), NDIF0, NDIF1, NDIF2
 real(kind=wp), intent(out) :: HAMIL(*)
 real(kind=wp), intent(in) :: ECORE, PSIGN
-integer(kind=iwp) :: I1, I2, IA, IAB, IAEL, IAEQIB, IASTAC, IB, IBEL, IBSTAC, IDET, IDIFF, IEL, IEL1, ILOOP, IORB, IPERM, IXSGN, &
-                     J1, J2, JA, JAB, JAEL, JAEQJB, JASTAC, JB, JBEL, JBSTAC, JDET, JDIFF, JEL, JEL1, JORB, JPERM, JXSGN, LHAMIL, &
-                     MINI, NACM, NADIF, NBCM, NBDIF, NIABEL, NJABEL, NLOOP, NTERMS
+integer(kind=iwp) :: I1, I2, IA, IAB, IAEL, IAEQIB, IASTAC, IB, IBEL, IBSTAC, IDET, IDIFF, IEL, IEL1, ILOOP, IORB, IPERM, J1, J2, &
+                     JA, JAB, JAEL, JAEQJB, JASTAC, JB, JBEL, JBSTAC, JDET, JDIFF, JEL, JEL1, JORB, JPERM, LHAMIL, MINI, NACM, &
+                     NADIF, NBCM, NBDIF, NIABEL, NJABEL, NLOOP, NTERMS
 real(kind=wp) :: CONST, SGN, SIGNA, SIGNB, XVAL
 real(kind=wp), external :: GETH1I_MCLR, GTIJKL_MCLR
 
@@ -78,12 +77,6 @@ do JDET=1,NJDET
   JASTAC = JASTR(JDET)
   JBSTAC = JBSTR(JDET)
 
-  if (IGENSG > 0) then
-    JXSGN = JASGN(JASTAC)*JBSGN(JBSTAC)
-  else
-    JXSGN = 1
-  end if
-
   jWORK(:,3:4) = 0
   do IAEL=1,NAEL
     jWORK(JASTRM(IAEL,JASTAC),3) = 1
@@ -113,12 +106,6 @@ do JDET=1,NJDET
     IASTAC = IASTR(IDET)
     IBSTAC = IBSTR(IDET)
 
-    if (IGENSG > 0) then
-      IXSGN = IASGN(IASTAC)*IBSGN(IBSTAC)
-    else
-      IXSGN = 1
-    end if
-
     if (IASTAC == IBSTAC) then
       IAEQIB = 1
     else
@@ -132,10 +119,10 @@ do JDET=1,NJDET
     end if
     do ILOOP=1,NLOOP
       NTERMS = NTERMS+1
-      ! For second part of spin combinations strings should be swopped
+      ! For second part of spin combinations strings should be swapped
       if (ILOOP == 1) then
-        LIA(:) = IASTRM(:,IASTAC)
-        LIB(:) = IBSTRM(:,IBSTAC)
+        LIA(1:NAEL) = IASTRM(:,IASTAC)
+        LIB(1:NBEL) = IBSTRM(:,IBSTAC)
       else if (ILOOP == 2) then
         LIB(1:NAEL) = IASTRM(:,IBSTAC)
         LIA(1:NBEL) = IBSTRM(:,IASTAC)
@@ -174,7 +161,7 @@ do JDET=1,NJDET
         end if
       end if
       ! External sign factor
-      if (IXSGN*JXSGN == -1) CONST = -CONST
+      !if (IXSGN*JXSGN == -1) CONST = -CONST
 
       ! ================================================
       ! Find differing orbitals and sign for permutation

@@ -51,7 +51,7 @@ do iS=1,nSym
   ip3 = ip3+nBas(iS)**2
 end do
 
-! For a CASSCF wavefunc. From Anders subrut r2elint
+! For a CASSCF wavefunc. From Anders subrout r2elint
 ! Add the active active dens
 
 do iS=1,nSym

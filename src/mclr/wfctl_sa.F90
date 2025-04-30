@@ -34,13 +34,14 @@ integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDis
 logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp), intent(in) :: iPL
 integer(kind=iwp) :: iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iR, iSym, Iter, jSpin, Left, lLine, lPaper, Lu_50, &
-                     nConf3, nPre2
+                     nConf3, niPre2, nPre2
 real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, ReCo, Res, rEsci, rEsk
 logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=8) :: Fmt2
+integer(kind=iwp), allocatable :: iPre(:)
 real(kind=wp), allocatable :: dKappa(:), Fancy(:), Kappa(:), rCHC(:), Sc1(:), Sc2(:), Sigma(:), SLag(:,:), Temp3(:), Temp4(:), &
                               wrk(:)
-integer(kind=iwp), external :: nPre
+integer(kind=iwp), external :: niPre, nPre
 real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
@@ -115,14 +116,17 @@ ipST = ipGet(nconf3*nroots)
 ipCIT = ipGet(nconf1*nroots)
 ipCId = ipGet(nconf1*nroots)
 
+nipre2 = nipre(isym)
 npre2 = npre(isym)
 ipPre2 = ipGet(npre2)
 call ipIn(ipPre2)
+call mma_allocate(iPre,nipre2,Label='iPre')
 if (TwoStep .and. (StepType == 'RUN2')) then
   ! fetch data from LuQDAT and skip the call to "Prec"
   call ddafile(LuQDAT,2,W(ipPre2)%A,npre2,iaddressQDAT)
+  call idafile(LuQDAT,2,iPre,nipre2,iaddressQDAT)
 else
-  call Prec(W(ipPre2)%A,isym)
+  call Prec(W(ipPre2)%A,iPre,isym)
   call ipOut(ippre2)
 end if
 if (TwoStep .and. (StepType == 'RUN1')) then
@@ -130,6 +134,7 @@ if (TwoStep .and. (StepType == 'RUN1')) then
   ! following part of this function
   call ipIn(ipPre2)
   call ddafile(LuQDAT,1,W(ipPre2)%A,npre2,iaddressQDAT)
+  call idafile(LuQDAT,1,iPre,nipre2,iaddressQDAT)
 else
 
   ! OK START WORKING
@@ -231,7 +236,7 @@ else
     Sigma(:) = -Sigma(:)
 
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%A,Sigma,Kappa,Temp3,isym,iter)
+    call DMInvKap(W(ipPre2)%A,iPre,Sigma,Kappa,Temp3,isym,iter)
 
     call opOut(ippre2)
     r2 = ddot_(nDensC,Kappa,1,Kappa,1)
@@ -305,7 +310,7 @@ else
       call opOut(ipdia)
 
       call ipIn(ipPre2)
-      call DMInvKap(W(ipPre2)%A,Sigma,Sc2,Sc1,iSym,iter)
+      call DMInvKap(W(ipPre2)%A,iPre,Sigma,Sc2,Sc1,iSym,iter)
       call opOut(ippre2)
 
       !----------------------------------------------------------------*
@@ -407,6 +412,7 @@ end if
 ! related to this symmetry
 
 call mma_deallocate(Fancy)
+call mma_deallocate(iPre)
 
 call ipclose(ipdia)
 if (.not. CI) call ipclose(ipPre2)

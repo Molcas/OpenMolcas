@@ -41,11 +41,12 @@ real(kind=wp) :: Delta, Delta0, DeltaC, DeltaK, Diff, R1, R2, rAlpha, rAlphaC, r
                  rEsk, TRoot, WScale
 logical(kind=iwp) :: CI, cnvrgd, lPrint
 character(len=8) :: Fmt2
+integer(kind=iwp), allocatable :: iPre(:)
 real(kind=wp), allocatable :: dKappa(:), Fancy(:), FMO1(:), FMO1t(:), FMO2t(:), FOSq(:), FOTr(:), FT99(:), Kap_New(:), &
                               Kap_New_Temp(:), Kappa(:), lmroots(:), lmroots_new(:), P2PDFT(:), P2WF(:), rCHC(:), Sc1(:), Sc2(:), &
                               Sigma(:), Temp4(:), Temp5(:), WFOrb(:)
 real(kind=wp), external :: DDot_
-integer(kind=iwp), external :: nPre
+integer(kind=iwp), external :: niPre, nPre
 
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -123,11 +124,12 @@ ipST = ipGet(nconf3*nroots)
 ipCIT = ipGet(nconf1*nroots)
 ipCID = ipGet(nconf1*nroots)
 
+call mma_allocate(iPre,nipre(isym),Label='iPre')
 npre2 = npre(isym)
 ipPre2 = ipGet(npre2)
 
 call ipIn(ipPre2)
-call Prec(W(ipPre2)%A,isym)
+call Prec(W(ipPre2)%A,iPre,isym)
 call ipOut(ippre2)
 
 ! OK START WORKING
@@ -439,7 +441,7 @@ do iDisp=1,nDisp
   call opOut(ipdia)
 
   call ipIn(ipPre2)
-  call DMInvKap(W(ipPre2)%A,Sigma,dKappa,Sc1,iSym,iter)
+  call DMInvKap(W(ipPre2)%A,iPre,Sigma,dKappa,Sc1,iSym,iter)
   call opOut(ippre2)
   r2 = ddot_(nDensC,dKappa,1,dKappa,1)
   if (r2 > r1) write(u6,*) 'Warning perturbation number ',idisp,' might diverge'
@@ -542,7 +544,7 @@ do iDisp=1,nDisp
     call opOut(ipdia)
 
     call ipIn(ipPre2)
-    call DMInvKap(W(ipPre2)%A,Sigma,Sc2,Sc1,iSym,iter)
+    call DMInvKap(W(ipPre2)%A,iPre,Sigma,Sc2,Sc1,iSym,iter)
     call opOut(ippre2)
 
     !------------------------------------------------------------------*
@@ -665,6 +667,8 @@ call mma_deallocate(Fancy)
 
 ! Free all memory and remove from disk all data
 ! related to this symmetry
+
+call mma_deallocate(iPre)
 
 call ipclose(ipdia)
 if (.not. CI) call ipclose(ipPre2)

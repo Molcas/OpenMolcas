@@ -33,15 +33,16 @@ integer(kind=iwp), intent(out) :: iKapDisp(nDisp), isigDisp(nDisp), iCIDisp(nDis
                                   iRHSCIDisp(nDisp)
 logical(kind=iwp), intent(out) :: converged(8)
 integer(kind=iwp) :: iDEnd, iDis, iDisp, iLen, ipCID, ipCIT, ipPre2, ipS1, ipS2, ipST, iSym, Iter, jDisp, jSpin, kkkSym, kkSym, &
-                     Left, lLine, lPaper, Lu_50, nConf3, nPre2, pstate_sym
+                     Left, lLine, lPaper, Lu_50, nConf3, niPre2, nPre2, pstate_sym
 real(kind=wp) :: Clock(4), D_0, D_1, D_2, Delta, Delta0, DeltaC, DeltaK, EC, R1, R2, rAlpha, rAlphaC, rAlphaK, rBeta, rDum(1), &
                  ReCo, Res, rEsci, rEsk, rGrad, Tim2, Tim3, Tim4
 logical(kind=iwp) :: CI, cnvrgd, lPrint, Orb
 character(len=8) :: Fmt2
+integer(kind=iwp), allocatable :: iPre(:)
 real(kind=wp), allocatable :: Dens(:), DigPrec(:), dKappa(:), Kappa(:), Pens(:), rmoaa(:), Sc1(:), Sc2(:), Sc3(:), Sc4(:), &
                               Sigma(:), Temp1(:), Temp2(:), Temp3(:), Temp4(:), TempTD(:)
 integer(kind=iwp), parameter :: iTimeCC = 1, iTimeKK = 2, iTimeKC = 3, iTimeCK = 4
-integer(kind=iwp), external :: nPre
+integer(kind=iwp), external :: niPre, nPre
 real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
@@ -134,13 +135,15 @@ do iSym=kksym,kkksym
   end if
 
   npre2 = npre(isym)
+  nipre2 = nipre(isym)
+  call mma_allocate(iPre,nipre2,Label='iPre')
 
   !OBS npre2 not def
 
   ipPre2 = ipget(npre2)
 
   call ipin(ipPre2)
-  call Prec_dig(W(ipPre2)%A,isym)
+  call Prec_dig(W(ipPre2)%A,iPre,isym)
 
   call mma_allocate(DigPrec,nDensC,Label='DigPrec')
   DigPrec(:) = Zero
@@ -665,6 +668,8 @@ do iSym=kksym,kkksym
 
   ! Free all memory and remove from disk all data
   ! related to this symmetry
+
+  call mma_deallocate(iPre)
 
   if (CI) then
     call ipclose(ipdia)

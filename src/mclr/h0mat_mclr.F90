@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine H0MAT_MCLR(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,NOCOB,NPRCIV,IREFSM,IDC,PSSIGN,VEC1,VEC2,H0SCR,iH0SCR,ieaw)
+subroutine H0MAT_MCLR(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,NOCOB,NPRCIV,IREFSM,IDC,PSSIGN,VEC1,VEC2,H0SCR,ieaw)
 ! Obtain preconditioner space corresponding to internal space INTSPC
 ! Obtain Hamiltonian matrices corresponding to this subspace
 !
@@ -34,7 +34,7 @@ implicit none
 real(kind=wp), intent(_OUT_) :: H0(*), vec2(*), h0scr(*)
 integer(kind=iwp), intent(_OUT_) :: ISBDET(*), ISBCNF(*)
 integer(kind=iwp), intent(in) :: MXP1, MXP2, MXQ, NOCOB, IREFSM, IDC, ieaw
-integer(kind=iwp), intent(out) :: NPRCIV, ih0scr(*)
+integer(kind=iwp), intent(out) :: NPRCIV
 real(kind=wp), intent(in) :: PSSIGN, vec1(*)
 integer(kind=iwp) :: ICOMBI, intspc, IPWAY, NAEL, NBEL, NP1CNF, NP1CSF, NP2CNF, NP2CSF, NPCNF, NQCNF, NQCSF
 real(kind=wp) :: PSIGN
@@ -77,8 +77,8 @@ end if
 !else
 !  CSF basis,PQ preconditioner
 IPWAY = 2
-call H0CSF(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,DTOC,DFTP,CNSM(ieaw)%ICONF,IREFSM,NOCOB,H0SCR,iH0SCR,NCNASM(IREFSM),NAEL+NBEL,NAEL,NBEL, &
-           IPWAY,NP1CSF,NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPRCIV,NPCNF,VEC1,VEC2,INTSPC,ICOMBI,PSIGN)
+call H0CSF(H0,ISBDET,ISBCNF,MXP1,MXP2,MXQ,DTOC,DFTP,CNSM(ieaw)%ICONF,IREFSM,NOCOB,H0SCR,NCNASM(IREFSM),NAEL+NBEL,NAEL,NBEL,IPWAY, &
+           NP1CSF,NP1CNF,NP2CSF,NP2CNF,NQCSF,NQCNF,NPRCIV,NPCNF,VEC1,VEC2,INTSPC,ICOMBI,PSIGN)
 !end if
 
 !call mma_deallocate(IOCOC)

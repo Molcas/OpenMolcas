@@ -14,7 +14,6 @@
 subroutine H0(rdia,MP1,MP2,MQ,isym,nprciv,TimeDep)
 ! frontend to Jeppe's explicit routines
 
-use iso_c_binding, only: c_f_pointer, c_loc
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: FIMO, H0F, H0S, IDC, Int2, iRefSM, NACOB, NAELCI, NBELCI, NCPCNT, NDPCNT, nGP, NOCOB, NTYP, PSSIGN, SBIDT, &
                      XISPSM
@@ -28,10 +27,8 @@ integer(kind=iwp), intent(out) :: nprciv
 logical(kind=iwp), intent(in) :: TimeDep
 integer(kind=iwp) :: i, ieaw, iRC, iSpc, lH0SCR, LH0T, lVec2, MxCSFC, MxDTFC, MXP, nActEl, nDet, nSBDet
 real(kind=wp) :: ENA
-integer(kind=iwp), pointer :: iH0Scr(:)
 integer(kind=iwp), allocatable :: SBCNF(:)
-real(kind=wp), allocatable :: H0T(:), Vec2(:)
-real(kind=wp), allocatable, target :: H0Scr(:)
+real(kind=wp), allocatable :: H0Scr(:), H0T(:), Vec2(:)
 real(kind=wp), external :: E2, E2_TD
 
 ispc = 1
@@ -50,7 +47,7 @@ else
   EnA = E2(FIMO,Int2,0,-1)
 end if
 LH0SCR = max(6*NSBDET,4*NSBDET+4*NOCOB,nTri_Elem(MP1)+MP1**2)
-LVEC2 = 2*NACTEL+MXCSFC**2+6*MXDTFC+2*MXDTFC**2+max(MXDTFC*NACTEL+2*NACTEL,4*NACOB+2*NACTEL)
+LVEC2 = MXCSFC**2+2*MXDTFC+2*MXDTFC**2+MXDTFC*NACTEL
 LVEC2 = max(lvec2,ndet)
 
 if (isym == irefsm) then
@@ -64,10 +61,9 @@ call mma_allocate(H0F,MXP,Label='H0F')
 call mma_allocate(H0T,LH0T,Label='H0T')
 call mma_allocate(SBCNF,NSBDET,Label='SBCNF')
 call mma_allocate(H0SCR,LH0SCR,Label='H0Scr')
-call c_f_pointer(c_loc(H0SCR),iH0Scr,[LH0SCR])
 call mma_allocate(VEC2,lvec2,Label='Vec2')
 
-call H0MAT_MCLR(H0T,SBIDT,SBCNF,MP1,MP2,MQ,NACOB,NPRCIV,ISYM,IDC,PSSIGN,rDIA,Vec2,H0Scr,iH0Scr,ieaw)
+call H0MAT_MCLR(H0T,SBIDT,SBCNF,MP1,MP2,MQ,NACOB,NPRCIV,ISYM,IDC,PSSIGN,rDIA,Vec2,H0Scr,ieaw)
 
 do i=1,nprciv
   H0T(nTri_Elem(i)) = H0T(nTri_Elem(i))-ENA
@@ -76,7 +72,6 @@ if (NGP) call mkp1(nprciv,SBIDT,H0T,rdia)
 !call Triprt('PRECI',' ',H0T,nprciv)
 !write(u6,*) (SBIDT(i),i=1,nprciv)
 call mma_deallocate(Vec2)
-nullify(iH0Scr)
 call mma_deallocate(H0Scr)
 call mma_deallocate(SBCNF)
 call square(H0T,H0S,1,NPRCIV,NPRCIV)

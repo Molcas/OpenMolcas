@@ -60,11 +60,11 @@ character(len=8) :: Fmt2
 integer(kind=iwp) :: iglfail
 real(kind=wp) :: dfail
 #endif
-integer(kind=iwp), allocatable :: List(:,:)
+integer(kind=iwp), allocatable :: iPre(:), List(:,:)
 real(kind=wp), allocatable :: Dens(:), dKappa(:), Kappa(:), Pens(:), rmoaa(:), Sc1(:), Sc2(:), Sc3(:), Sc4(:), Sigma(:), Temp1(:), &
                               Temp2(:), Temp3(:), Temp4(:)
 integer(kind=iwp), parameter :: iTimeCC = 1, iTimeKK = 2, iTimeKC = 3, iTimeCK = 4
-integer(kind=iwp), external :: IsFreeUnit, nPre
+integer(kind=iwp), external :: IsFreeUnit, niPre, nPre
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Rsv_Tsk
 
@@ -172,10 +172,11 @@ do
 
     if (iSym_Old /= 0) then
 
-      ! If a previous symmetry block as processed
+      ! If a previous symmetry block was processed
       ! free all memory and remove from disk all data
       ! related to this symmetry
 
+      call mma_deallocate(iPre)
       if (CI) then
         call ipclose(ipdia)
       else
@@ -251,13 +252,14 @@ do
       ipcid = 0
     end if
 
+    call mma_allocate(iPre,nipre(isym),Label='iPre')
     npre2 = max(npre(isym),1)
     ! "max" just there to make sure that
     ! W(ipPre2) is allocated even if
     ! npre2(isym) is zero.
     ipPre2 = ipget(npre2)
     call ipin(ipPre2)
-    call Prec(W(ipPre2)%A,isym)
+    call Prec(W(ipPre2)%A,iPre,isym)
     call ipout(ippre2)
     !                                                                  *
     !*******************************************************************
@@ -376,7 +378,7 @@ do
 
   iter = 1
   call ipin(ipPre2)
-  call DMInvKap(W(ipPre2)%A,Sigma,Kappa,Temp3,isym,iter)
+  call DMInvKap(W(ipPre2)%A,iPre,Sigma,Kappa,Temp3,isym,iter)
   call opout(ippre2)
   r2 = ddot_(nDensC,Kappa,1,Kappa,1)
 # ifdef _DEBUGPRINT_
@@ -685,7 +687,7 @@ do
     call opout(ipdia)
 
     call ipin(ipPre2)
-    call DMInvKap(W(ipPre2)%A,Sigma,Sc4,Sc1,iSym,iter)
+    call DMInvKap(W(ipPre2)%A,iPre,Sigma,Sc4,Sc1,iSym,iter)
     call opout(ippre2)
     !                                                                  *
     !*******************************************************************
@@ -848,6 +850,7 @@ call mma_deallocate(List)
 ! Free all memory and remove from disk all data
 ! related to the last symmetry
 
+call mma_deallocate(iPre)
 if (CI) then
   call ipclose(ipdia)
 else

@@ -54,7 +54,7 @@ end type Storage
 
 integer(kind=iwp), parameter :: MXCNSM = 8, NSTTYP_MAX = 6+1  ! "+1" is the dummy layer
 
-! INITITIALIZED IN STRTYP
+! INITIALIZED IN STRTYP
 !  NSTTYP  : Number of string types
 !  MNRS1   : Min ras1
 !  MXRS1   : Max ras1
