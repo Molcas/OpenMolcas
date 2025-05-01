@@ -62,8 +62,8 @@ do iMO1=1,nOrb2Loc-1
       if (Debug) then
         write(u6,*) 'In RotateOrb'
         write(u6,*) '------------'
-        PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
-        call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
+        !PALbl = 'PA__'//BName(nBas_Start(iAt))(1:LenIn)
+        !call RecPrt(PALbl,' ',PA(1,1,iAt),nOrb2Loc,nOrb2Loc)
         write(u6,*) '**************************'
         write(u6,*) 'A :',iAt
         write(u6,*) '<',iMO_s,'|PA|',iMO_t,'> = ',PA_st

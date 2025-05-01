@@ -128,9 +128,11 @@ if (Debug) then
     do i=1,nIter+1
         write(u6,*) 'for iteration ', i-1
         call RecPrt('GradientList',' ',GradientList(:,:,i), nOrb2Loc, nOrb2Loc)
-        call RecPrt('HessianList',' ',HessianList(:,i), nOrb2Loc*nOrb2Loc, 1)
-        call RecPrt('Hessian_smallList',' ',Hdiag_smallList(:,i), nOrb2Loc*(nOrb2Loc+1)/2, 1)
     end do
+    write(u6,*) ' '
+    write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
+    !call RecPrt('HessianList',' ',HessianList(:,:), nOrb2Loc*nOrb2Loc, nIter+1)
+    call RecPrt('Hessian_smallList',' ',Hdiag_smallList(:,:), nOrb2Loc*(nOrb2Loc+1)/2, nIter+1)
 end if
 
 call mma_Deallocate(PACol)
