@@ -81,11 +81,12 @@ Converged = .false.
 do while ((nIter < nMxIter) .and. (.not. Converged))
     if (.not. Silent) call CWTime(C1,W1)
 
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !choose between optimization methods
     if (jacobisweeps) then
         call RotateOrb(CMO,PACol,nBasis,nAtoms,PA,Maximisation,nOrb2Loc,BName,nBas_per_Atom,nBas_Start,ThrRot,PctSkp,Debug)
     else
-        !call newoptimizer(GradientList)
+        !call newoptimizer(GradientList, FunctionalList)
         call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
     end if
 
@@ -100,6 +101,9 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     !calculates nxn gradient matrix for the current iteration and adds it to the List
     call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1))
+
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     !check if converged
     Delta = Functional-OldFunctional
     OldFunctional = Functional
