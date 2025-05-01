@@ -32,7 +32,7 @@ logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
-real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:)
+real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:), FunctionalList(:)
 
 logical(kind=iwp), parameter :: jacobisweeps = .true.
 
@@ -52,9 +52,15 @@ if (.not. Silent) call CWTime(C1,W1)
 nIter = 0
 call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
 call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
+call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
+FunctionalList(:)=0
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
+
+FunctionalList(1)=Functional
+!write(u6,*) 'In PM_iter: FunctionalList(1) = ', FunctionalList(1)
+
 call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1))
 
 OldFunctional = Functional
@@ -85,9 +91,11 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
 
     nIter = nIter+1
     call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
+    FunctionalList(nIter+1)=Functional !first entry is from before first iteration
 
     if (Debug) then
         write(u6,*) 'nIter = ', nIter
+        write(u6,*) 'In PM_iter: FunctionalList(nIter+1) = ', FunctionalList(nIter+1)
     end if
 
     !calculates nxn gradient matrix for the current iteration and adds it to the List
@@ -118,6 +126,7 @@ end if
 call mma_Deallocate(PACol)
 call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
+call mma_Deallocate(FunctionalList)
 
 ! Print convergence message.
 ! --------------------------
