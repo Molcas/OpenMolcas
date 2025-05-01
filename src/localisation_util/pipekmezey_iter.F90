@@ -130,7 +130,7 @@ if (Debug) then
         call RecPrt('GradientList',' ',GradientList(:,:,i), nOrb2Loc, nOrb2Loc)
     end do
     write(u6,*) ' '
-    write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
+    !write(u6,*) '       before (nIter=0)       ','nIter=1             ','nIter=2         ','...        ', 'last nIter'
     !call RecPrt('HessianList',' ',HessianList(:,:), nOrb2Loc*nOrb2Loc, nIter+1)
     call RecPrt('Hessian_smallList',' ',Hdiag_smallList(:,:), nOrb2Loc*(nOrb2Loc+1)/2, nIter+1)
 end if
