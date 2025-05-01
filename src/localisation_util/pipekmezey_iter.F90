@@ -32,7 +32,8 @@ logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
 integer(kind=iwp) :: nIter, i
 real(kind=wp) :: C1, C2, Delta, FirstFunctional, GradNorm, OldFunctional, PctSkp, TimC, TimW, W1, W2
-real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:), FunctionalList(:)
+real(kind=wp), allocatable :: RMat(:,:), PACol(:,:), GradientList(:,:,:), HessianList(:,:),Hdiag_smallList(:,:), &
+                            FunctionalList(:)
 
 logical(kind=iwp), parameter :: jacobisweeps = .true.
 
@@ -54,6 +55,8 @@ call mma_Allocate(RMat,nOrb2Loc,nOrb2Loc,Label='RMat')
 call mma_Allocate(GradientList,nOrb2Loc,nOrb2Loc,nMxIter,Label='GradientList')  !nMxIter=300, maybe we can make it smaller
 call mma_Allocate(FunctionalList,nMxIter,Label='FunctionalList')
 FunctionalList(:)=0
+call mma_Allocate(HessianList,nOrb2Loc*nOrb2Loc,nMxIter,Label='HessianList')
+call mma_Allocate(Hdiag_smallList,nOrb2Loc*(nOrb2Loc+1)/2,nMxIter,Label='Hdiag_smallList')
 
 call GenerateP(Ovlp,CMO,BName,nBasis,nOrb2Loc,nAtoms,nBas_per_Atom,nBas_Start,PA,Debug)
 call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
@@ -61,7 +64,7 @@ call ComputeFunc(nAtoms,nOrb2Loc,PA,Functional,Debug)
 FunctionalList(1)=Functional
 !write(u6,*) 'In PM_iter: FunctionalList(1) = ', FunctionalList(1)
 
-call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1))
+call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug, GradientList(:,:,1), HessianList(:,1), Hdiag_smallList(:,1))
 
 OldFunctional = Functional
 FirstFunctional = Functional
@@ -100,7 +103,8 @@ do while ((nIter < nMxIter) .and. (.not. Converged))
     end if
 
     !calculates nxn gradient matrix for the current iteration and adds it to the List
-    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1))
+    call GetGrad_PM(nAtoms,nOrb2Loc,PA,GradNorm,RMat,Debug,GradientList(:,:,nIter+1), HessianList(:,nIter+1), &
+        Hdiag_smallList(:,nIter+1))
 
 
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -124,6 +128,8 @@ if (Debug) then
     do i=1,nIter+1
         write(u6,*) 'for iteration ', i-1
         call RecPrt('GradientList',' ',GradientList(:,:,i), nOrb2Loc, nOrb2Loc)
+        call RecPrt('HessianList',' ',HessianList(:,i), nOrb2Loc*nOrb2Loc, 1)
+        call RecPrt('Hessian_smallList',' ',Hdiag_smallList(:,i), nOrb2Loc*(nOrb2Loc+1)/2, 1)
     end do
 end if
 
@@ -131,7 +137,8 @@ call mma_Deallocate(PACol)
 call mma_Deallocate(RMat)
 call mma_Deallocate(GradientList)
 call mma_Deallocate(FunctionalList)
-
+call mma_Deallocate(HessianList)
+call mma_Deallocate(Hdiag_smallList)
 ! Print convergence message.
 ! --------------------------
 
