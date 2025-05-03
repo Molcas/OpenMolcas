@@ -33,7 +33,7 @@ do iBas=1,nBas
   end do
 end do
 
-!if (Debug) call RecPrt('OvlRec ',' ',OvlRec,nBas,nBas)
+if (Debug) call RecPrt('OvlRec ',' ',OvlRec,nBas,nBas)
 
 return
 
