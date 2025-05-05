@@ -293,8 +293,7 @@
 #elif _DIMENSIONS_==5
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1)))
 #elif _DIMENSIONS_==6
-            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),   &
-     &                                 l6(1)))
+            loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),l6(1)))
 #elif _DIMENSIONS_==7
             loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),   &
      &                                 l6(1),l7(1)))

@@ -259,7 +259,7 @@ end subroutine mma_maxBYTES
 #  define _DEF_LABEL_ 'dmma_7D'
 #  include "mma_allo_template.fh"
 #  undef _DIMENSIONS_
-#undef _DEF_LABEL_
+#  undef _DEF_LABEL_
 
 #undef _SUBR_NAME_
 #undef _TYPE_
