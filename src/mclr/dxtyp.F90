@@ -25,6 +25,9 @@ implicit none
 integer(kind=iwp), intent(out) :: NDXTP, ITYP(36), JTYP(36), KTYP(36), LTYP(36)
 integer(kind=iwp), intent(in) :: LEL1, LEL3, REL1, REL3
 integer(kind=iwp) :: I1, I3, IK1, IK3, IKL1, IKL3, IKLJ1, IKLJ3, ITP, JTP, KTP, LTP
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IDX
+#endif
 
 NDXTP = 0
 do ITP=1,3

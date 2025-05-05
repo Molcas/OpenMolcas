@@ -61,6 +61,10 @@ integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, 
                                  ISGSTI(NSTINI), ISGSTO(NSTINO), LROW, I1TYP
 integer(kind=iwp), intent(_OUT_) :: TI(*), TTO(*), ISTMPL(*), ISTMPO(*)
 integer(kind=iwp) :: IEL, IIISGN, IOFF, IORB, IPLACE, ISTRIN, ITYPE, JSTRIN, LCR, STRIN2(NEL+1)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I, NPR
+integer(kind=iwp), parameter :: MAXPR = 60
+#endif
 integer(kind=iwp), external :: IOCTP2_MCLR, ISTRNM
 
 ! LCR NOT DECLARED !!!!!!
@@ -149,7 +153,6 @@ do ISTRIN=1,NSTINI
 end do
 
 #ifdef _DEBUGPRINT_
-MAXPR = 60
 NPR = min(NSTINI,MAXPR)
 write(u6,*) ' Output from CRESTR :'
 write(u6,*) '==================='

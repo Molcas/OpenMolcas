@@ -64,6 +64,9 @@ integer(kind=iwp), intent(in) :: LI1, IORB, LORB, ICLS, ISM, IMAPO(*), IMAPS(*),
                                  I1EL1(*), I1EL3(*), NOCTP, ISSO(NOCTP,*), N1OCTP, I1SSO(N1OCTP,*), N1SSO(N1OCTP,*), NORB1, NORB2, &
                                  ORBSM(*), KMAX, KMIN
 integer(kind=iwp) :: IIIORB, IIORB, IOFF, IORBR, ISTR, KEL1, KEL3, KEND, KKTYPE, KOFF, KREL, KSM, KSTR, KSUB, KTYPE, LDIM
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: IIORBR
+#endif
 logical(kind=iwp) :: Skip
 
 LDIM = 0 ! dummy initialize
@@ -166,11 +169,11 @@ write(u6,*) ' ================'
 write(u6,*) ' Number of K strings accessed ',NK
 if (NK /= 0) then
   do IIORB=IORB,IORB+LORB-1
-    IIORBR = IIORB-IORB+1
+    IIORBR = IIORB-IORB
     write(u6,*) ' Info for orbital ',IIORB
     write(u6,*) ' Excited strings and sign'
-    call IWRTMA(I1(1+(IIORBR-1)*LDIM),1,NK,1,NK)
-    call WRTMAT(XI1S(1+(IIORBR-1)*LDIM),1,NK,1,NK)
+    call IWRTMA(I1(IIORBR*LDIM+1),1,NK,1,NK)
+    call WRTMAT(XI1S(IIORBR*LDIM+1),1,NK,1,NK)
   end do
 end if
 #endif

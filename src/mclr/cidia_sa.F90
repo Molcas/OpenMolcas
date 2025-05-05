@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: iSym
 real(kind=wp), intent(inout) :: ralp(nRoots), S(*)
-integer(kind=iwp) :: i, iAMCmp, iP2, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), J, LSPC(1), nSD, nSpc
+integer(kind=iwp) :: i, iAMCmp, iP2, iPDCSFI, ipDIAI, iPDSDI, iSM(1), iSPC(1), J, nSD, nSpc
 
 ! This is just a interface to hide Jeppe from the rest of the world
 ! we don't want to let world see the work of the Danish
@@ -57,10 +57,9 @@ if (nocsf == 0) then
 else
   ipdiai = ipdsdi
 end if
-LSPC(1) = nSD
 
 call ipin(ipDSDi)
-call IntDia(W(ipDSDi)%A,NSPC,ISPC,ISM,LSPC,IAMCMP,rin_ene+potnuc)
+call IntDia(W(ipDSDi)%A,NSPC,ISPC,ISM,IAMCMP,rin_ene+potnuc)
 
 if (NOCSF /= 1) call CSDIAG_MCLR(W(ipDCSFi)%A,W(ipDSDi)%A,NCNATS(1,ISYM),NTYP,CNSM(i)%ICTS,NDPCNT,NCPCNT)
 

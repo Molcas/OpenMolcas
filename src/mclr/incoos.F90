@@ -29,6 +29,9 @@ integer(kind=iwp), intent(in) :: IDC, IBLTP(*), NOCTPA, NOCTPB, NSM, NOOS(NOCTPA
 integer(kind=iwp), intent(inout) :: ISTSM, ISTTA, ISTTB
 integer(kind=iwp), intent(out) :: IENSM, IENTA, IENTB, IACOOS(NOCTPA,NOCTPB,NSM), IFINI, NBLOCK
 integer(kind=iwp) :: IA, IB, IPA, IPB, IPSM, ISM, LBLOCK, LENGTH
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: ISMST
+#endif
 logical(kind=iwp) :: Skip
 
 #ifdef _DEBUGPRINT_

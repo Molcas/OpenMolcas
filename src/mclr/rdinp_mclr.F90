@@ -101,6 +101,7 @@ StepType = 'xxxx'
 !     Read the input stream line by line and identify key command      *
 !----------------------------------------------------------------------*
 Skip = .false.
+jCom = 0 ! dummy init
 outer: do
   if (Skip) then
     Skip = .false.

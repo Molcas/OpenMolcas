@@ -49,6 +49,9 @@ integer(kind=iwp), intent(in) :: NSM, NR4TP, NRSOBS(NSM,3), NTOOBS(*), NNOBPT
 integer(kind=iwp), intent(_OUT_) :: IREOTS(*), ISFTO(*), IBSO(*), NTSOB(3,*), IBTSOB(3,*), ITSOB(*), NOBPTS(NNOBPT,*)
 integer(kind=iwp), intent(out) :: NOBPT(NNOBPT)
 integer(kind=iwp) :: i, I123, IAC, IACS, IBSM, IIAC, IOFF, IORB, IOTYPE, IRS, ISM, ISMOB, ITYPE, LORB, NPREVS
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: NACOB, NTOOB
+#endif
 
 ! =========================
 ! Note on order of orbitals

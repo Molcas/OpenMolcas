@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine INTDIA(DIAG,NSPC,ISPC,ISM,LSPC,IAMCMP,ecore)
+subroutine INTDIA(DIAG,NSPC,ISPC,ISM,IAMCMP,ecore)
 ! CI diagonal in SD basis for the NCSPC ci spaces defined by
 ! ISPC,ISM
 !
@@ -29,14 +29,13 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(_OUT_) :: DIAG(*)
-integer(kind=iwp), intent(in) :: NSPC, ISPC(NSPC), ISM(NSPC), LSPC(NSPC), IAMCMP
+integer(kind=iwp), intent(in) :: NSPC, ISPC(NSPC), ISM(NSPC), IAMCMP
 real(kind=wp), intent(in) :: ECORE
-integer(kind=iwp) :: IATP, IBTP, idum(1), IISPC, ILOOP, LLUDIA, LUDIA, MNRS1C, MXOCOC, MXRS3C, NAEL, NBEL, NLOOP, NOCTPA, NOCTPB
+integer(kind=iwp) :: IATP, IBTP, idum(1), IISPC, ILOOP, LLUDIA, MNRS1C, MXOCOC, MXRS3C, NAEL, NBEL, NLOOP, NOCTPA, NOCTPB
 integer(kind=iwp), allocatable :: BLTP(:), IOIO(:)
 real(kind=wp), allocatable :: H1D(:), JA(:), KA(:), SCR(:), XA(:), XB(:)
 
 ! OBS THIS WILL JUST WORK FOR CASSCF/RASSCF RESPONSE
-LUDIA = 0
 
 if (doDMRG) then  ! yma
   call dmrg_dim_change_mclr(RGras2,ntoob,0)
@@ -95,25 +94,11 @@ do ILOOP=1,NLOOP
     call ZBLTP(ISM(IISPC),nIrrep,IDC,BLTP,idum)
     call IAIBCM_MCLR(MNRS1C,MXRS3C,NOCTPA,NOCTPB,Str(IATP)%EL1,Str(IATP)%EL3,Str(IBTP)%EL1,Str(IBTP)%EL3,IOIO)
 
-    if (ICISTR <= 1) then
-      LLUDIA = 0
-    else
-      LLUDIA = LUDIA
-    end if
+    LLUDIA = 0
     call CIDIA4(NAEL,Str(IATP)%OCSTR,NBEL,Str(IBTP)%OCSTR,NACOB,DIAG,nIrrep,H1D,ISM(IISPC),BLTP,XB,JA,KA,Str(IATP)%NSTSO, &
                 Str(IBTP)%NSTSO,IOIO,NOCTPA,NOCTPB,Str(IATP)%ISTSO,Str(IBTP)%ISTSO,LLUDIA,ECORE,PSSIGN,NTOOB,ICISTR)
 
-    if ((ICISTR <= 1) .and. (LUDIA > 0)) then
-      ! Each CI space is written in one record
-      call ITODS(LSPC(IISPC),1,0,LUDIA)
-      call TODSC_MCLR(DIAG,LSPC(IISPC),0,LUDIA)
-    end if
   end do
-  ! Write end of vector mark
-  if (LUDIA > 0) then
-    IDUM(1) = -1
-    call ITODS(IDUM,1,0,LUDIA)
-  end if
 end do
 
 call mma_deallocate(IOIO)

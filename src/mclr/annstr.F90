@@ -61,6 +61,10 @@ integer(kind=iwp), intent(in) :: NSTINI, NEL, STRING(NEL,NSTINI), NSTINO, NORB, 
                                  ISGSTI(NSTINI), ISGSTO(NSTINO), I1TYP
 integer(kind=iwp), intent(out) :: TI(LROW,NSTINI), TTO(LROW,NSTINI)
 integer(kind=iwp) :: IEL, IEXPN, IIISGN, IPLACE, ISTRIN, ITYPE, JSTRIN, STRIN2(NEL-1)
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: I, NPR
+integer(kind=iwp), parameter :: MAXPR = 60
+#endif
 integer(kind=iwp), external :: IOCTP2_MCLR, ISTRNM
 
 #ifdef _DEBUGPRINT_
@@ -100,7 +104,6 @@ do ISTRIN=1,NSTINI
 end do
 
 #ifdef _DEBUGPRINT_
-MAXPR = 60
 NPR = min(NSTINI,MAXPR)
 write(u6,*) ' Output from ANNSTR :'
 write(u6,*) '==================='
