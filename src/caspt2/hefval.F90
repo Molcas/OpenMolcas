@@ -52,28 +52,36 @@ subroutine hefval(ist, jst, dvalue)
   tg2(1) = 0.0e0_wp
   tg3(1) = 0.0e0_wp
 
-  call mma_allocate(ci1, mxci, label='CI1')
-  call mma_allocate(ci2, mxci, label='CI2')
-  if (iscf == 0) then
-    ! Read root vectors nr. IST and JST from LUCI.
-    idci = idtcex
-    do i = 1, nstate
-      if (i == ist) then
-        call ddafile(luciex, 2, ci1, nconf, idci)
-        if (i == jst) then
-          call dcopy_(nconf, ci1, 1, ci2, 1)
+#if defined _DMRG_
+  if (DMRG) then
+    call mktg3qcm(ist, jst, stsym, stsym, ovl, tg1, tg2, ntg3, tg3)
+  else if (.not. DMRG) then
+#endif
+    call mma_allocate(ci1, mxci, label='CI1')
+    call mma_allocate(ci2, mxci, label='CI2')
+    if (iscf == 0) then
+      ! Read root vectors nr. IST and JST from LUCI.
+      idci = idtcex
+      do i = 1, nstate
+        if (i == ist) then
+          call ddafile(luciex, 2, ci1, nconf, idci)
+          if (i == jst) then
+            call dcopy_(nconf, ci1, 1, ci2, 1)
+          end if
+        else if (i == jst) then
+          call ddafile(luciex, 2, ci2, nconf, idci)
+        else
+          call ddafile(luciex, 0, dummy, nconf, idci)
         end if
-      else if (i == jst) then
-        call ddafile(luciex, 2, ci2, nconf, idci)
-      else
-        call ddafile(luciex, 0, dummy, nconf, idci)
-      end if
-    end do
-  end if
+      end do
+    end if
 
-  call mktg3(stsym, stsym, ci1, ci2, ovl, tg1, tg2, ntg3, tg3)
-  call mma_deallocate(ci1)
-  call mma_deallocate(ci2)
+    call mktg3(stsym, stsym, ci1, ci2, ovl, tg1, tg2, ntg3, tg3)
+    call mma_deallocate(ci1)
+    call mma_deallocate(ci2)
+#if defined _DMRG_
+  end if
+#endif
 
   call hcoup(ivecw, ivecc, ovl, tg1, tg2, tg3, dvalue)
 
