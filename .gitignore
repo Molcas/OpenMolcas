@@ -18,6 +18,7 @@ GTAGS
 #IDEs
 .vscode
 .idea
+.github
 
 # MacOS
 .DS_Store
