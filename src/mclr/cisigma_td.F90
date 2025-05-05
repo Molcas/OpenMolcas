@@ -11,9 +11,8 @@
 
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifndef _IN_MODULE_
-!#error "This file must be compiled inside a module"
-!#endif
-#else
+#error "This file must be compiled inside a module"
+#endif
 
 #include "compiler_features.h"
 #ifdef _WARNING_WORKAROUND_
@@ -222,4 +221,3 @@ end if
 !                                                                      *
 
 end subroutine CISigma_td
-#endif

@@ -20,7 +20,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: NCASTR_MCLR
-integer(kind=iwp), intent(in) :: IAC, NTPSTI,  NSTTPI(NTPSTI), ICLSI, NOBTP, NOBATP(NOBTP), IELPTP(NOBTP,*)
+integer(kind=iwp), intent(in) :: IAC, NTPSTI, NSTTPI(NTPSTI), ICLSI, NOBTP, NOBATP(NOBTP), IELPTP(NOBTP,*)
 integer(kind=iwp) :: ICLSO, IOBTP, ISTTP, ITPO, LCA, NENTRY
 
 LCA = 0

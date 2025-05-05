@@ -84,7 +84,7 @@ if (.not. NewCho) then  ! Cho-MO
 
               rD = rDens1(iA+nA(iS),jA+nA(jS))*Two
               Fock(ipMat(ipS,Ks):ipMat(ipS,Ks)+nBas(ipS)*nIsh(kS)-1) = Fock(ipMat(ipS,Ks):ipMat(ipS,Ks)+nBas(ipS)*nIsh(kS)-1)+ &
-                rd*MO(1:nBas(ipS)*nIsh(kS))
+                                                                       rd*MO(1:nBas(ipS)*nIsh(kS))
 
             end do
           end do

@@ -11,9 +11,8 @@
 
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifndef _IN_MODULE_
-!#error "This file must be compiled inside a module"
-!#endif
-#else
+#error "This file must be compiled inside a module"
+#endif
 
 !#define _DEBUGPRINT_
 subroutine RdJobIph(CIVec)
@@ -338,4 +337,3 @@ end if
 !                                                                      *
 
 end subroutine RdJobIph
-#endif

@@ -103,7 +103,7 @@ outer: do NOP=MINOP,MAXOP,2
         if (((IPLACE < NCL) .and. (NEWORB < IICL(IPLACE+1))) .or. (IPLACE == NCL) .and. (NEWORB <= NORB)) then
           IICL(IPLACE) = NEWORB
           IIOC(NEWORB) = 2
-        else if (.not. ((IPLACE == NCL) .and. (NEWORB >= NORB))) then
+        else if ((IPLACE /= NCL) .or. (NEWORB < NORB)) then
           if (IPLACE == 1) then
             IICL(1) = 1
             IIOC(1) = 2

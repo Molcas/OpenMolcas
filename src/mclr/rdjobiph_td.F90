@@ -11,9 +11,8 @@
 
 ! This subroutine should be in a module, to avoid explicit interfaces
 #ifndef _IN_MODULE_
-!#error "This file must be compiled inside a module"
-!#endif
-#else
+#error "This file must be compiled inside a module"
+#endif
 
 subroutine RdJobIph_td(CIVec)
 !***********************************************************************
@@ -244,4 +243,3 @@ call mma_deallocate(G2tta)
 !----------------------------------------------------------------------*
 
 end subroutine RdJobIph_td
-#endif

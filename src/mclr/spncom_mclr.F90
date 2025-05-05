@@ -62,7 +62,7 @@ do I=1,2**NOPEN
   ! 2 :  CORRECT SPIN PROJECTION ?
   NALPHA = sum(IWORK(1:NOPEN))
 
-  if ((2*NALPHA-NOPEN == MS2) .and. (.not. ((PSSIGN /= Zero) .and. (IWORK(1) == 0)))) then
+  if ((2*NALPHA-NOPEN == MS2) .and. ((PSSIGN == Zero) .or. (IWORK(1) /= 0))) then
     if (IFLAG < 3) then
       NDET = NDET+1
       IABDET(:,NDET) = IWORK(1:NOPEN)

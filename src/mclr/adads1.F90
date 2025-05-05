@@ -60,8 +60,8 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(out) :: NK, IEND
 integer(kind=iwp), intent(in) :: IOBSM, IOBTP, IOBOFF, NIOB, JOBSM, JOBTP, JOBOFF, NJOB, IJORD, NKDIM, ICLS, ISM, I2MAPO(*), &
-                                 I2MAPS(*), I2MPF, L2MP, I2MPO(*), I2MPL(*), I1MAPO(*), I1MAPS(*), I1MPF, L1MP, I1MPO(*),  &
-                                 I1MPL(*), IEL1(*), IEL3(*), I2EL1(*), I2EL3(*), NOCTP, ISSO(NOCTP,*), N2OCTP, I2SSO(N2OCTP,*),  &
+                                 I2MAPS(*), I2MPF, L2MP, I2MPO(*), I2MPL(*), I1MAPO(*), I1MAPS(*), I1MPF, L1MP, I1MPO(*), &
+                                 I1MPL(*), IEL1(*), IEL3(*), I2EL1(*), I2EL3(*), NOCTP, ISSO(NOCTP,*), N2OCTP, I2SSO(N2OCTP,*), &
                                  N2SSO(N2OCTP,*), NORB, KMAX, KMIN
 integer(kind=iwp), intent(_OUT_) :: I1(NKDIM,*)
 real(kind=wp), intent(_OUT_) :: XI1S(NKDIM,*)

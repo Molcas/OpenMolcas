@@ -20,7 +20,6 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp
 
-
 implicit none
 real(kind=wp), intent(out) :: Fock(nDens)
 real(kind=wp), intent(in) :: SLag(nRoots,nRoots)
