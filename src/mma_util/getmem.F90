@@ -61,27 +61,32 @@ subroutine GetMem(NameIn,KeyIn,TypeIn,iPos,Length)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: iwp, u6
+
 implicit none
+character(len=*), intent(in) :: NameIn, KeyIn, TypeIn
+integer(kind=iwp), intent(inout) :: iPos
+integer(kind=iwp), intent(in) :: Length
 #include "SysCtl.fh"
 #include "warnings.h"
 #include "WrkSpc.fh"
 #include "mama.fh"
-character(len=*) NameIn, KeyIn, TypeIn
-character(len=8) FldNam, eopr, elbl, etyp
-character(len=4) Key, VarTyp
+integer(kind=iwp) :: irc, iW
+character(len=8) :: elbl, eopr, etyp, FldNam
+character(len=4) :: Key, VarTyp
 #ifdef _GARBLE_
-character(len=5) xKey
-logical SkipGarble
+logical(kind=iwp) :: SkipGarble
+character(len=5) :: xKey
 #endif
-integer iPos, Length, irc, iW
-integer, external :: kind2goff
+integer(kind=iwp), external :: kind2goff
 interface
   function c_getmem(name_,Op,dtyp,offset,len_) bind(C,name='c_getmem_')
     use, intrinsic :: iso_c_binding, only: c_char
     use Definitions, only: MOLCAS_C_INT
     integer(kind=MOLCAS_C_INT) :: c_getmem
-    character(kind=c_char) :: name_(*), Op(*), dtyp(*)
-    integer(kind=MOLCAS_C_INT) :: offset, len_
+    character(kind=c_char), intent(in) :: name_(*), Op(*), dtyp(*)
+    integer(kind=MOLCAS_C_INT), intent(inout) :: offset
+    integer(kind=MOLCAS_C_INT), intent(in) :: len_
   end function c_getmem
 end interface
 
@@ -122,7 +127,7 @@ etyp(8:8) = char(0)
 !     Trace memory                                                     *
 !----------------------------------------------------------------------*
 if ((MemCtl(ipCheck) == ON) .or. (MemCtl(ipTrace) == ON)) then
-  write(6,*) ' Unsupported option'
+  write(u6,*) ' Unsupported option'
   call Abend()
 end if
 #ifdef _GARBLE_
@@ -144,12 +149,12 @@ if (Key /= 'ALLO') iPos = iPos-kind2goff(VarTyp)
 iRc = c_getmem(elbl,eopr,etyp,iPos,Length)
 if (iRc < 0) then
   if (Key == 'ALLO') then
-    write(6,'(A)') 'MMA failed to allocate a memory block.'
+    write(u6,'(A)') 'MMA failed to allocate a memory block.'
   else if (Key == 'FREE') then
-    write(6,'(A)') 'MMA failed to release the memory block for further use.'
+    write(u6,'(A)') 'MMA failed to release the memory block for further use.'
     call abend()
   else
-    write(6,*)
+    write(u6,*)
   end if
   call Quit(_RC_MEMORY_ERROR_)
 end if

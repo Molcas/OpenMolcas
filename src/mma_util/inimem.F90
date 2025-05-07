@@ -20,38 +20,40 @@
 subroutine IniMem()
 
 use stdalloc, only: MxMem
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "SysCtl.fh"
 #include "warnings.h"
 #include "mama.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iRc
 interface
   function allocmem(ref,intof,dblof,chrof,size_) bind(C,name='allocmem_')
     use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
     integer(kind=MOLCAS_C_INT) :: allocmem
-    real(kind=MOLCAS_C_REAL) :: ref(*)
-    integer(kind=MOLCAS_C_INT) :: intof, dblof, chrof, size_
+    real(kind=MOLCAS_C_REAL), intent(in) :: ref(*)
+    integer(kind=MOLCAS_C_INT), intent(out) :: intof, dblof, chrof, size_
   end function allocmem
 end interface
 
 !----------------------------------------------------------------------*
 !     Initialize the Common / MemCtl / the first time it is referenced *
 !----------------------------------------------------------------------*
-MemCtl(i:ipCheck) = 0
+MemCtl(1:ipCheck) = 0
 MemCtl(ipStat) = ON
 MemCtl(ipTrace) = OFF
 MemCtl(ipQuery) = OFF
 MemCtl(ipCheck) = OFF
 MemCtl(ipClear) = OFF
-MemCtl(ipSysOut) = 6
+MemCtl(ipSysOut) = u6
 
 !----------------------------------------------------------------------*
 !     Grab from the system a pointer to the dynamic work area          *
 !----------------------------------------------------------------------*
 iRc = allocmem(Work,iofint,iofdbl,iofchr,MxMem)
 if (iRc /= 0) then
-  write(6,'(A,I3,A)') 'The initialization of the memory manager failed ( iRc=',iRc,' ).'
+  write(u6,'(A,I3,A)') 'The initialization of the memory manager failed ( iRc=',iRc,' ).'
   call Quit(_RC_MEMORY_ERROR_)
 end if
 !----------------------------------------------------------------------*

@@ -12,10 +12,14 @@
 !               2025, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-integer function kind2goff(var)
+function kind2goff(var)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: kind2goff
+character(len=4), intent(in) :: var
 #include "mama.fh"
-character(len=4) var
 
 kind2goff = 0
 if (var == 'INTE') kind2goff = iofint

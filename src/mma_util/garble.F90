@@ -18,25 +18,25 @@
 subroutine garble(ipos,length,vartyp)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_ptr
-use Definitions, only: RtoB
+use Definitions, only: wp, iwp, byte, RtoB
 
 implicit none
-integer :: ipos, length
-character(len=*) :: vartyp
-integer :: ioff1, ioff2, foff1
+integer(kind=iwp), intent(in) :: ipos, length
+character(len=*), intent(in) :: vartyp
+integer(kind=iwp) :: ioff1, ioff2, foff1
 type(c_ptr) :: cptr
-integer, pointer :: ibuf(:)
-integer*1, pointer :: i1buf(:)
-real*8, pointer :: rbuf(:)
-real*8, parameter :: dgarbage = huge(dgarbage)
-integer, parameter :: igarbage = huge(igarbage)
-integer*1, parameter :: i1garbage = huge(i1garbage)
+integer(kind=iwp), pointer :: ibuf(:)
+integer(kind=byte), pointer :: i1buf(:)
+real(kind=wp), pointer :: rbuf(:)
+integer(kind=iwp), parameter :: igarbage = huge(igarbage)
+integer(kind=byte), parameter :: i1garbage = huge(i1garbage)
+real(kind=wp), parameter :: dgarbage = huge(dgarbage)
 interface
   function woff2cptr(etyp,offset)
     import :: c_ptr
     type(c_ptr) :: woff2cptr
     character, intent(in) :: etyp
-    integer, value, intent(in) :: offset
+    integer(kind=iwp), value, intent(in) :: offset
   end function woff2cptr
 end interface
 

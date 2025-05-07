@@ -39,10 +39,12 @@
 !#define _ENABLE_POINTERS_
 module stdalloc
 
+use Definitions, only: wp, iwp, u6, ItoB, RtoB
+
 implicit none
 private
 
-integer :: MxMem
+integer(kind=iwp) :: MxMem
 
 interface cptr2loff
   module procedure :: b_cptr2loff, c_cptr2loff, d_cptr2loff, i4_cptr2loff, i_cptr2loff, l_cptr2loff, z_cptr2loff
@@ -99,59 +101,68 @@ public :: mma_allocate, mma_deallocate, mma_double_allo, mma_double_free, mma_ma
 
 contains
 
+#include "warnings.h"
+
 ! out-of-memory handling
 subroutine mma_oom(label,bufsize,mma_avail)
-  implicit none
-# include "warnings.h"
-  character(len=*) :: label
-  integer :: bufsize, mma_avail
-  write(6,'(1x,a)') '?mma_allo_?D: error: out-of-memory'
-  write(6,'(1x,a,a)') 'label: ',label
-  write(6,'(1x,a,1x,i12)') ' available (kB):',nint(mma_avail*1.0d-3)
-  write(6,'(1x,a,1x,i12)') ' required  (kB):',nint(bufsize*1.0d-3)
+
+  character(len=*), intent(in) :: label
+  integer(kind=iwp), intent(in) :: bufsize, mma_avail
+
+  write(u6,'(1x,a)') '?mma_allo_?D: error: out-of-memory'
+  write(u6,'(1x,a,a)') 'label: ',trim(label)
+  write(u6,'(1x,a,1x,i12)') ' available (kB):',nint(mma_avail*1.0e-3_wp)
+  write(u6,'(1x,a,1x,i12)') ' required  (kB):',nint(bufsize*1.0e-3_wp)
   call quit(_RC_MEMORY_ERROR_)
+
 end subroutine mma_oom
 
 ! double allocation/deallocation handling
 subroutine mma_double_allo(label)
-  implicit none
-# include "warnings.h"
-  character(len=*) :: label
-  write(6,'(1x,a)') '?mma_allo_?D: error: double allocate'
-  write(6,'(1x,a,a)') 'label: ',label
+
+  character(len=*), intent(in) :: label
+
+  write(u6,'(1x,a)') '?mma_allo_?D: error: double allocate'
+  write(u6,'(1x,a,a)') 'label: ',label
   call quit(_RC_MEMORY_ERROR_)
+
 end subroutine mma_double_allo
 
 subroutine mma_double_free(label)
-  implicit none
-# include "warnings.h"
-  character(len=*) :: label
-  write(6,'(1x,a)') '?mma_free_?D: error: double deallocate'
-  write(6,'(1x,a,a)') 'label: ',label
+
+  character(len=*), intent(in) :: label
+
+  write(u6,'(1x,a)') '?mma_free_?D: error: double deallocate'
+  write(u6,'(1x,a,a)') 'label: ',label
   call quit(_RC_MEMORY_ERROR_)
+
 end subroutine mma_double_free
 
 subroutine mma_maxDBLE(mma_avail)
-  implicit none
-# include "SysDef.fh"
-  integer, intent(out) :: mma_avail
-  integer, external :: mma_avmem
+
+  integer(kind=iwp), intent(out) :: mma_avail
+  integer(kind=iwp), external :: mma_avmem
+
   mma_avail = mma_avmem()/RtoB
+
 end subroutine mma_maxDBLE
 
 subroutine mma_maxINT(mma_avail)
-  implicit none
-# include "SysDef.fh"
-  integer, intent(out) :: mma_avail
-  integer, external :: mma_avmem
+
+  integer(kind=iwp), intent(out) :: mma_avail
+  integer(kind=iwp), external :: mma_avmem
+
   mma_avail = mma_avmem()/ItoB
+
 end subroutine mma_maxINT
 
 subroutine mma_maxBYTES(mma_avail)
-  implicit none
-  integer, intent(out) :: mma_avail
-  integer, external :: mma_avmem
+
+  integer(kind=iwp), intent(out) :: mma_avail
+  integer(kind=iwp), external :: mma_avmem
+
   mma_avail = mma_avmem()
+
 end subroutine mma_maxBYTES
 
 ! type-specific pointer-to-offset routines

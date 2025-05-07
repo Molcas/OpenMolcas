@@ -31,10 +31,14 @@
 
 subroutine SetMem(String)
 
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*), intent(in) :: String
 #include "SysCtl.fh"
 #include "mama.fh"
-character*(*) String
-character*20 Token
+integer(kind=iwp) :: iW, lToken
+character(len=20) :: Token
 
 !----------------------------------------------------------------------*
 !     Initialize the Common / MemCtl / the first time it is referenced *
@@ -90,8 +94,8 @@ else if (Token(1:6) == 'CHECK=') then
     return
   end if
 else
-  write(6,*) 'SetMem: illegal option'
-  write(6,'(2A)') 'Option:',Token
+  write(u6,*) 'SetMem: illegal option'
+  write(u6,'(2A)') 'Option:',Token
   call Abend()
 end if
 !----------------------------------------------------------------------*
