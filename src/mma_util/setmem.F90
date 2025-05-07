@@ -28,82 +28,75 @@
 !>
 !> @param[in] String ``TRACE=ON`` / ``TRACE=OFF`` / ``SYSOUT=ON`` / ``SYSOUT=OFF`` / ``CLEAR=ON`` / ``CLEAR=OFF`` / ``QUERY=ON`` / ``QUERY=OFF`` / ``CHECK=ON`` / ``CHECK=OFF``
 !***********************************************************************
-      Subroutine SetMem (String)
-!
+
+subroutine SetMem(String)
 
 #include "SysCtl.fh"
 #include "mama.fh"
-!
-!
-      Character*(*) String
-      Character*20  Token
+character*(*) String
+character*20 Token
+
 !----------------------------------------------------------------------*
 !     Initialize the Common / MemCtl / the first time it is referenced *
 !----------------------------------------------------------------------*
-      If ( MemCtl(ipStat).ne.ON ) then
-         Call IniMem
-      End if
+if (MemCtl(ipStat) /= ON) call IniMem()
 !----------------------------------------------------------------------*
 !     read default parameters from Common / MemCtl /                   *
 !----------------------------------------------------------------------*
-      iW=MemCtl(ipSysOut)
-      If ( MemCtl(ipTrace).eq.ON ) then
-         Write(iW,*) ' <<< Entering SetMem >>>'
-      End If
+iW = MemCtl(ipSysOut)
+if (MemCtl(ipTrace) == ON) write(iW,*) ' <<< Entering SetMem >>>'
 !----------------------------------------------------------------------*
 !     extract the first token and convert it into standard format      *
 !----------------------------------------------------------------------*
-      Call StdFmt(String,Token)
-      If ( Token.eq.' ' ) Return
+call StdFmt(String,Token)
+if (Token == ' ') return
 !----------------------------------------------------------------------*
 !     replace default values                                           *
 !----------------------------------------------------------------------*
-      lToken=LEN(Token)
-      If ( Token(1:6).eq.'TRACE=') then
-         If ( Token(7:8).eq.'ON' ) then
-            MemCtl(ipTrace) = ON
-            Return
-         Else If ( Token(7:9).eq.'OFF' ) then
-            MemCtl(ipTrace) = OFF
-            Return
-         End If
-      Else if ( Token(1:7).eq.'SYSOUT=' ) then
-         Read(Token(8:lToken),*) MemCtl(ipSysOut)
-         Return
-      Else if ( Token(1:6).eq.'CLEAR=') then
-         If ( Token(7:8).eq.'ON' ) then
-            MemCtl(ipClear) = ON
-            Return
-         Else If ( Token(7:9).eq.'OFF' ) then
-            MemCtl(ipClear) = OFF
-            Return
-         End If
-      Else if ( Token(1:6).eq.'QUERY=') then
-         If ( Token(7:8).eq.'ON' ) then
-            MemCtl(ipQuery) = ON
-            Return
-         Else If ( Token(7:9).eq.'OFF' ) then
-            MemCtl(ipQuery) = OFF
-            Return
-         End If
-      Else if ( Token(1:6).eq.'CHECK=') then
-         If ( Token(7:8).eq.'ON' ) then
-            MemCtl(ipCheck) = ON
-            Return
-         Else If ( Token(7:9).eq.'OFF' ) then
-            MemCtl(ipCheck) = OFF
-            Return
-         End If
-      Else
-         Write (6,*) 'SetMem: illegal option'
-         Write (6,'(2A)') 'Option:',Token
-         Call Abend()
-      End if
+lToken = len(Token)
+if (Token(1:6) == 'TRACE=') then
+  if (Token(7:8) == 'ON') then
+    MemCtl(ipTrace) = ON
+    return
+  else if (Token(7:9) == 'OFF') then
+    MemCtl(ipTrace) = OFF
+    return
+  end if
+else if (Token(1:7) == 'SYSOUT=') then
+  read(Token(8:lToken),*) MemCtl(ipSysOut)
+  return
+else if (Token(1:6) == 'CLEAR=') then
+  if (Token(7:8) == 'ON') then
+    MemCtl(ipClear) = ON
+    return
+  else if (Token(7:9) == 'OFF') then
+    MemCtl(ipClear) = OFF
+    return
+  end if
+else if (Token(1:6) == 'QUERY=') then
+  if (Token(7:8) == 'ON') then
+    MemCtl(ipQuery) = ON
+    return
+  else if (Token(7:9) == 'OFF') then
+    MemCtl(ipQuery) = OFF
+    return
+  end if
+else if (Token(1:6) == 'CHECK=') then
+  if (Token(7:8) == 'ON') then
+    MemCtl(ipCheck) = ON
+    return
+  else if (Token(7:9) == 'OFF') then
+    MemCtl(ipCheck) = OFF
+    return
+  end if
+else
+  write(6,*) 'SetMem: illegal option'
+  write(6,'(2A)') 'Option:',Token
+  call Abend()
+end if
 !----------------------------------------------------------------------*
 !     exit                                                             *
 !----------------------------------------------------------------------*
-      If ( MemCtl(ipTrace).eq.ON ) then
-         Write(iW,*) ' <<< Exiting SetMem >>>'
-      End If
-      Return
-      End
+if (MemCtl(ipTrace) == ON) write(iW,*) ' <<< Exiting SetMem >>>'
+
+end subroutine SetMem

@@ -50,7 +50,8 @@
 !> @param[in,out] iPos   Position
 !> @param[in,out] Length Nr of items
 !***********************************************************************
-      Subroutine GetMem (NameIn,KeyIn,TypeIn,iPos,Length)
+
+subroutine GetMem(NameIn,KeyIn,TypeIn,iPos,Length)
 !***********************************************************************
 !                                                                      *
 ! History: Victor P. Vysotskiy                                         *
@@ -60,188 +61,106 @@
 !                                                                      *
 !***********************************************************************
 
-Implicit None
+implicit none
 #include "SysCtl.fh"
 #include "warnings.h"
 #include "WrkSpc.fh"
 #include "mama.fh"
-!
-!
-      Character(LEN=*) NameIn,KeyIn,TypeIn
-      Character(LEN=8) FldNam,eopr,elbl,etyp
-      Character(LEN=4) Key,VarTyp
+character(len=*) NameIn, KeyIn, TypeIn
+character(len=8) FldNam, eopr, elbl, etyp
+character(len=4) Key, VarTyp
 #ifdef _GARBLE_
-      Character(LEN=5)   xKey
-      Logical       SkipGarble
+character(len=5) xKey
+logical SkipGarble
 #endif
-      Integer iPos, Length, irc, iW
-      Integer, external:: kind2goff
-
-      Interface
-        Function c_getmem(name_,Op,dtyp,offset,len_) bind(C,name='c_getmem_')
-          Use, Intrinsic :: iso_c_binding, only: c_char
-          Use Definitions, only: MOLCAS_C_INT
-          Integer(kind=MOLCAS_C_INT) :: c_getmem
-          Character(kind=c_char) :: name_(*), Op(*), dtyp(*)
-          Integer(kind=MOLCAS_C_INT) :: offset, len_
-        End Function c_getmem
-      End Interface
-
+integer iPos, Length, irc, iW
+integer, external :: kind2goff
+interface
+  function c_getmem(name_,Op,dtyp,offset,len_) bind(C,name='c_getmem_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: c_getmem
+    character(kind=c_char) :: name_(*), Op(*), dtyp(*)
+    integer(kind=MOLCAS_C_INT) :: offset, len_
+  end function c_getmem
+end interface
 
 !----------------------------------------------------------------------*
 !     Initialize the Common / MemCtl / the first time it is referenced *
 !----------------------------------------------------------------------*
-      If ( MemCtl(ipStat).ne.ON ) then
-         Call IniMem()
-      End if
+if (MemCtl(ipStat) /= ON) call IniMem()
 !----------------------------------------------------------------------*
 !     read default parameters from Common / MemCtl /                   *
 !----------------------------------------------------------------------*
-      iW=MemCtl(ipSysOut)
-      If ( MemCtl(ipTrace).eq.ON ) then
-         Write(iW,*) ' <<< Entering GetMem 5.0 >>>'
-         Write(iW,'(A,2X,A4)') ' Clear  =      ',MemCtl(ipClear)
-         Write(iW,'(A,2X,A4)') ' Key    =    ',KeyIn
-         Write(iW,'(A,2X,A4)') ' Name   =    ',NameIn
-         Write(iW,'(A,2X,A4)') ' Type   =    ',TypeIn
-         Write(iW,'(A,I12)') ' length =    ',Length
-         Write(iW,'(A,I12)') ' iPos   =    ',iPos
-      End If
+iW = MemCtl(ipSysOut)
+if (MemCtl(ipTrace) == ON) then
+  write(iW,*) ' <<< Entering GetMem 5.0 >>>'
+  write(iW,'(A,2X,A4)') ' Clear  =      ',MemCtl(ipClear)
+  write(iW,'(A,2X,A4)') ' Key    =    ',KeyIn
+  write(iW,'(A,2X,A4)') ' Name   =    ',NameIn
+  write(iW,'(A,2X,A4)') ' Type   =    ',TypeIn
+  write(iW,'(A,I12)') ' length =    ',Length
+  write(iW,'(A,I12)') ' iPos   =    ',iPos
+end if
 !----------------------------------------------------------------------*
 !     convert input strings to standard format                         *
 !----------------------------------------------------------------------*
-      Call StdFmt(NameIn,FldNam)
-      Call StdFmt(KeyIn,Key)
-      Call StdFmt(TypeIn,VarTyp)
+call StdFmt(NameIn,FldNam)
+call StdFmt(KeyIn,Key)
+call StdFmt(TypeIn,VarTyp)
 !----------------------------------------------------------------------*
 !     prepare passed values to the C char format                       *
 !----------------------------------------------------------------------*
-      elbl=FldNam
-      elbl(8:8)=char(0)
-      eopr=Key
-      eopr(8:8)=char(0)
-      etyp=VarTyp
-      etyp(8:8)=char(0)
+elbl = FldNam
+elbl(8:8) = char(0)
+eopr = Key
+eopr(8:8) = char(0)
+etyp = VarTyp
+etyp(8:8) = char(0)
 
 !----------------------------------------------------------------------*
 !     Trace memory                                                     *
 !----------------------------------------------------------------------*
-      If (MemCtl(ipCheck).eq.ON .or. MemCtl(ipTrace).eq.ON) Then
-         Write (6,*) ' Unsupported option'
-         Call Abend()
-      End If
+if ((MemCtl(ipCheck) == ON) .or. (MemCtl(ipTrace) == ON)) then
+  write(6,*) ' Unsupported option'
+  call Abend()
+end if
 #ifdef _GARBLE_
 !----------------------------------------------------------------------*
 !     Skip garble                                                      *
 !----------------------------------------------------------------------*
-      Call StdFmt(KeyIn,xKey)
-      If ((xKey.eq.'ALLON').or.(xKey.eq.'RGSTN')) Then
-        SkipGarble = .True.
-      Else
-        SkipGarble = .False.
-      End If
+call StdFmt(KeyIn,xKey)
+if ((xKey == 'ALLON') .or. (xKey == 'RGSTN')) then
+  SkipGarble = .true.
+else
+  SkipGarble = .false.
+end if
 #endif
+
 !----------------------------------------------------------------------*
 !     Allocate new memory                                              *
 !----------------------------------------------------------------------*
+if (Key /= 'ALLO') iPos = iPos-kind2goff(VarTyp)
+iRc = c_getmem(elbl,eopr,etyp,iPos,Length)
+if (iRc < 0) then
+  if (Key == 'ALLO') then
+    write(6,'(A)') 'MMA failed to allocate a memory block.'
+  else if (Key == 'FREE') then
+    write(6,'(A)') 'MMA failed to release the memory block for further use.'
+    call abend()
+  else
+    write(6,*)
+  end if
+  call Quit(_RC_MEMORY_ERROR_)
+end if
 
-      If(Key.ne.'ALLO') iPos=iPos-kind2goff(VarTyp)
-      iRc=c_getmem(elbl,eopr,etyp,iPos,Length)
-      If(iRc.lt.0) Then
-        If ( Key.eq.'ALLO' ) Then
-          Write (6,'(A)') 'MMA failed to allocate a memory block.'
-        Else If ( Key.eq.'FREE' ) Then
-          Write (6,'(A)') 'MMA failed to release the memory block for further use.'
-          Call abend()
-        Else
-          Write (6,*)
-        End If
-        Go To 777
-      End If
-
-      If ( Key.eq.'ALLO' .or. Key.eq.'LENG' .or.                        &
-       Key.eq.'FLUS' .or. Key.eq.'MAX' .or.                             &
-       Key.eq.'CHEC' .or. Key.eq.'LIST' .or.                            &
-       Key.eq.'RGST') Then
-         iPos=iPos+kind2goff(VarTyp)
-!----------------------------------------------------------------------*
-!     Release a memory block or return length or decrease length       *
-!----------------------------------------------------------------------*
-      End If
+if ((Key == 'ALLO') .or. (Key == 'LENG') .or. (Key == 'FLUS') .or. (Key == 'MAX') .or. (Key == 'CHEC') .or. (Key == 'LIST') .or. &
+    (Key == 'RGST')) iPos = iPos+kind2goff(VarTyp)
 
 #ifdef _GARBLE_
-      If ( Key.eq.'ALLO' .or. Key.eq.'RGST') Then
-        If (.not. SkipGarble) Call Garble(iPos,Length,VarTyp)
-      End If
+if ((Key == 'ALLO') .or. (Key == 'RGST')) then
+  if (.not. SkipGarble) call Garble(iPos,Length,VarTyp)
+end if
 #endif
 
-      Return
-!
- 777  Continue
-      Call Quit(_RC_MEMORY_ERROR_)
-
-      End
-
-
-
-
-      Integer function kind2goff(var)
-#include "mama.fh"
-      character(LEN=4) var
-      kind2goff=0
-      if(var.eq.'INTE') kind2goff=iofint
-      if(var.eq.'REAL') kind2goff=iofdbl
-      if(var.eq.'CHAR') kind2goff=iofchr
-      return
-      end function kind2goff
-
-#ifdef _GARBLE_
-      subroutine garble(ipos,length,vartyp)
-      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_ptr
-      use Definitions, only: RtoB
-      implicit none
-      integer :: ipos, length
-      character(len=*) :: vartyp
-      integer :: ioff1, ioff2, foff1
-      type(c_ptr) :: cptr
-      integer, pointer :: ibuf(:)
-      integer*1, pointer :: i1buf(:)
-      real*8, pointer :: rbuf(:)
-      real*8, parameter ::    dgarbage = huge(dgarbage)
-      integer, parameter ::   igarbage = huge(igarbage)
-      integer*1, parameter :: i1garbage = huge(i1garbage)
-      interface
-        function woff2cptr(etyp,offset)
-          import :: c_ptr
-          type(c_ptr) :: woff2cptr
-          character, intent(in) :: etyp
-          integer, value, intent(in) :: offset
-        end function woff2cptr
-      end interface
-
-      ! Here we overwrite the underlying memory, using C pointers
-      ! Do not try this at home!
-
-      select case(vartyp)
-      case ('REAL')
-        cptr = woff2cptr('R',ipos-1)
-        call c_f_pointer(cptr,rbuf,[length])
-        rbuf(1:length) = dgarbage
-        nullify(rbuf)
-      case ('INTE')
-        cptr = woff2cptr('I',ipos-1)
-        call c_f_pointer(cptr,ibuf,[length])
-        ibuf(1:length) = igarbage
-        nullify(ibuf)
-      case ('CHAR')
-        ioff1 = (ipos-1)/RtoB+1
-        ioff2 = mod(ipos-1,RtoB)+1
-        foff1 = (ipos+length-2)/RtoB+1
-        cptr = woff2cptr('C',ipos-1)
-        call c_f_pointer(cptr,i1buf,[(foff1-ioff1+1)*RtoB])
-        i1buf(ioff2:ioff2+length-1) = i1garbage
-        nullify(i1buf)
-      end select
-
-      end subroutine
-#endif
+end subroutine GetMem
