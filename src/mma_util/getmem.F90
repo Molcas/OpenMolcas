@@ -67,11 +67,10 @@ implicit none
 character(len=*), intent(in) :: NameIn, KeyIn, TypeIn
 integer(kind=iwp), intent(inout) :: iPos
 integer(kind=iwp), intent(in) :: Length
-#include "SysCtl.fh"
 #include "warnings.h"
 #include "WrkSpc.fh"
 #include "mama.fh"
-integer(kind=iwp) :: irc, iW
+integer(kind=iwp) :: irc
 character(len=8) :: elbl, eopr, etyp, FldNam
 character(len=4) :: Key, VarTyp
 #ifdef _GARBLE_
@@ -93,20 +92,7 @@ end interface
 !----------------------------------------------------------------------*
 !     Initialize the Common / MemCtl / the first time it is referenced *
 !----------------------------------------------------------------------*
-if (MemCtl(ipStat) /= ON) call IniMem()
-!----------------------------------------------------------------------*
-!     read default parameters from Common / MemCtl /                   *
-!----------------------------------------------------------------------*
-iW = MemCtl(ipSysOut)
-if (MemCtl(ipTrace) == ON) then
-  write(iW,*) ' <<< Entering GetMem 5.0 >>>'
-  write(iW,'(A,2X,A4)') ' Clear  =      ',MemCtl(ipClear)
-  write(iW,'(A,2X,A4)') ' Key    =    ',KeyIn
-  write(iW,'(A,2X,A4)') ' Name   =    ',NameIn
-  write(iW,'(A,2X,A4)') ' Type   =    ',TypeIn
-  write(iW,'(A,I12)') ' length =    ',Length
-  write(iW,'(A,I12)') ' iPos   =    ',iPos
-end if
+if (.not. MemStat) call IniMem()
 !----------------------------------------------------------------------*
 !     convert input strings to standard format                         *
 !----------------------------------------------------------------------*
@@ -123,13 +109,6 @@ eopr(8:8) = char(0)
 etyp = VarTyp
 etyp(8:8) = char(0)
 
-!----------------------------------------------------------------------*
-!     Trace memory                                                     *
-!----------------------------------------------------------------------*
-if ((MemCtl(ipCheck) == ON) .or. (MemCtl(ipTrace) == ON)) then
-  write(u6,*) ' Unsupported option'
-  call Abend()
-end if
 #ifdef _GARBLE_
 !----------------------------------------------------------------------*
 !     Skip garble                                                      *

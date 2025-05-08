@@ -23,7 +23,6 @@ use stdalloc, only: MxMem
 use Definitions, only: iwp, u6
 
 implicit none
-#include "SysCtl.fh"
 #include "warnings.h"
 #include "mama.fh"
 #include "WrkSpc.fh"
@@ -38,15 +37,9 @@ interface
 end interface
 
 !----------------------------------------------------------------------*
-!     Initialize the Common / MemCtl / the first time it is referenced *
+!     Initialize the manager the first time it is referenced           *
 !----------------------------------------------------------------------*
-MemCtl(1:ipCheck) = 0
-MemCtl(ipStat) = ON
-MemCtl(ipTrace) = OFF
-MemCtl(ipQuery) = OFF
-MemCtl(ipCheck) = OFF
-MemCtl(ipClear) = OFF
-MemCtl(ipSysOut) = u6
+MemStat = .true.
 
 !----------------------------------------------------------------------*
 !     Grab from the system a pointer to the dynamic work area          *
