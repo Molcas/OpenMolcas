@@ -36,3 +36,9 @@
       Integer      iWork(1:IWORKLEN)
 
       Equivalence (Work,iWork)
+
+! iofint,iofdbl : offsets of Work and iWork relative to MOLCAS anchor
+! iofchr : offset of cWork (removed) relative to MOLCAS anchor
+      Integer iofint,iofdbl,iofchr
+      Logical MemStat
+      Common /MMA/ iofint,iofdbl,iofchr,MemStat

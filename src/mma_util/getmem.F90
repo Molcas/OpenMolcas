@@ -69,7 +69,6 @@ integer(kind=iwp), intent(inout) :: iPos
 integer(kind=iwp), intent(in) :: Length
 #include "warnings.h"
 #include "WrkSpc.fh"
-#include "mama.fh"
 integer(kind=iwp) :: irc
 character(len=8) :: elbl, eopr, etyp, FldNam
 character(len=4) :: Key, VarTyp
@@ -77,7 +76,6 @@ character(len=4) :: Key, VarTyp
 logical(kind=iwp) :: SkipGarble
 character(len=5) :: xKey
 #endif
-integer(kind=iwp), external :: kind2goff
 interface
   function c_getmem(name_,Op,dtyp,offset,len_) bind(C,name='c_getmem_')
     use, intrinsic :: iso_c_binding, only: c_char
@@ -124,7 +122,7 @@ end if
 !----------------------------------------------------------------------*
 !     Allocate new memory                                              *
 !----------------------------------------------------------------------*
-if (Key /= 'ALLO') iPos = iPos-kind2goff(VarTyp)
+if (Key /= 'ALLO') iPos = iPos-1
 iRc = c_getmem(elbl,eopr,etyp,iPos,Length)
 if (iRc < 0) then
   if (Key == 'ALLO') then
@@ -139,7 +137,7 @@ if (iRc < 0) then
 end if
 
 if ((Key == 'ALLO') .or. (Key == 'LENG') .or. (Key == 'FLUS') .or. (Key == 'MAX') .or. (Key == 'CHEC') .or. (Key == 'LIST') .or. &
-    (Key == 'RGST')) iPos = iPos+kind2goff(VarTyp)
+    (Key == 'RGST')) iPos = iPos+1
 
 #ifdef _GARBLE_
 if ((Key == 'ALLO') .or. (Key == 'RGST')) then

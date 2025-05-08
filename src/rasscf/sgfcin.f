@@ -71,7 +71,6 @@
       implicit none
 #include "rasdim.fh"
       Character(LEN=16), Parameter :: ROUTINE='SGFCIN  '
-#include "SysDef.fh"
 *
       real*8, intent(in) :: CMO(*), D1I(*), D1A(*)
       real*8, intent(inout) :: FI(*), D1S(*), F(*)

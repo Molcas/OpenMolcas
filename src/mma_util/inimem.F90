@@ -24,7 +24,6 @@ use Definitions, only: iwp, u6
 
 implicit none
 #include "warnings.h"
-#include "mama.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iRc
 interface

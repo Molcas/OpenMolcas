@@ -125,7 +125,6 @@
 
 
       Implicit None
-#include "SysDef.fh"
 #include "rasdim.fh"
 #include "warnings.h"
 * Lucia-stuff:

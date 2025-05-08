@@ -580,9 +580,9 @@ end do     ! ISP
 !mp call w_memchk('all klvab ')
 !mp call w_free(g(it),0,'IT klvab ')
 ! ig sa odalokuju v klva_oovo
-!mp @@@ call GetMem('create_ig','Free','Real',ig,noab(isp)*nuab(isp)*nno)
+!mp @@@ call mma_deallocate(ig)
 !mp ???
-!mp?? call GetMem('c2_ix','Free','Real',ix,noab(isp)*noab(IS2)*vblock*n)
+!mp?? call mma_deallocate(x)
 !mpn call mma_deallocate(t)
 call xflush(u6)
 

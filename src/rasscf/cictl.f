@@ -115,7 +115,6 @@
       integer, external :: IsFreeUnit
 
       Character(LEN=16), Parameter :: ROUTINE='CICTL   '
-#include "SysDef.fh"
 #ifdef _HDF5_
       real*8, allocatable :: density_square(:,:)
 #endif

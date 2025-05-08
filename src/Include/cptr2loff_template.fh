@@ -40,11 +40,10 @@
             type(c_ptr), value :: ptr
           end function
         end interface
-        integer, external :: kind2goff
 #ifdef _WITH_LEN_
-        res = cptr2woff(_DN_, c_loc(buffer(1:1))) + kind2goff(_DN_)
+        res = cptr2woff(_DN_, c_loc(buffer(1:1))) + 1
 #else
-        res = cptr2woff(_DN_, c_loc(buffer)) + kind2goff(_DN_)
+        res = cptr2woff(_DN_, c_loc(buffer)) + 1
 #endif
       end function _FUNC_NAME_
 
