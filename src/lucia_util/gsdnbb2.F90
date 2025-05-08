@@ -67,6 +67,7 @@ subroutine GSDNBB2(I12,RHO1,RHO2,RHO2S,RHO2A,IASM,IATP,IBSM,IBTP,JASM,JATP,JBSM,
 !
 ! Jeppe Olsen, Winter of 1991
 
+use lucia_data, only: TDENSI
 use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -84,7 +85,6 @@ integer(kind=iwp), intent(inout) :: I1(*), I2(*)
 integer(kind=iwp), intent(_OUT_) :: I3(*), I4(*)
 real(kind=wp), intent(_OUT_) :: SCLFAC
 logical(kind=iwp), intent(in) :: IPACK
-#include "timers.fh"
 real(kind=wp) :: CPU, CPU0, CPU1, WALL, WALL0, WALL1
 integer(kind=iwp) :: IAB, IUSEAB
 

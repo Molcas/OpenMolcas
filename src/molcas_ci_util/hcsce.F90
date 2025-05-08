@@ -51,6 +51,7 @@ subroutine HCSCE(N,H,S,C,E,M)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use timers, only: TimeHCSCE
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -61,12 +62,11 @@ real(kind=wp), intent(in) :: H(nTri_Elem(N)), S(nTri_Elem(N))
 real(kind=wp), intent(out) :: C(N,N), E(N)
 integer(kind=iwp), intent(inout) :: M
 integer(kind=iwp) :: INFO, MMAX, NSCRATCH
-real(kind=wp) :: dum1, dum2, dum3, WGronk(2)
+real(kind=wp) :: dum1, dum2, dum3, Time(2), WGronk(2)
 real(kind=wp), allocatable :: Scratch(:), Temp1(:,:), Temp2(:,:), Temp3(:,:), Temp4(:)
 !character(len=12) :: method
-#include "timers.fh"
 
-call Timing(Longines_1,dum1,dum2,dum3)
+call Timing(Time(1),dum1,dum2,dum3)
 
 ! PAM 2009: On input, M=max possible orthonormal solutions to HC=SCE
 ! Save it.
@@ -144,9 +144,8 @@ call mma_deallocate(Temp2)
 call mma_deallocate(Temp3)
 call mma_deallocate(Temp4)
 
-call Timing(Longines_2,dum1,dum2,dum3)
-Longines_2 = Longines_2-Longines_1
-Longines_3 = Longines_3+Longines_2
+call Timing(Time(2),dum1,dum2,dum3)
+TimeHCSCE = TimeHCSCE+Time(2)-Time(1)
 
 return
 

@@ -20,6 +20,7 @@ subroutine mcpdft(ireturn)
   use definitions,only:iwp,wp,u6
   use constants,only:zero
   use Fock_util_global,only:DoCholesky
+  use timers,only:TimeInput,TimeOutput,TimeTotal,TimeTrans
   use mcpdft_input,only:mcpdft_options,parse_input
   use write_pdft_job,only:writejob
   use mspdft,only:mspdft_finalize,heff,mspdft_init
@@ -35,12 +36,11 @@ subroutine mcpdft(ireturn)
 
   integer(kind=iwp),intent(out) :: iReturn
 #include "warnings.h"
-#include "timers.fh"
 
   logical(kind=iwp) :: dscf
   integer(kind=iwp) :: iPrLev,iRC,state
   real(kind=wp),allocatable :: e_mcscf(:),PUVX(:),D1I(:),D1A(:),cmo(:),FI(:),FA(:),tuvx(:),e_states(:)
-  real(kind=wp) :: dum1,dum2,dum3
+  real(kind=wp) :: dum1,dum2,dum3,time1(2),time2(2)
 
   Call StatusLine('MCPDFT:',' Just started.')
   IRETURN = _RC_ALL_IS_WELL_
@@ -94,7 +94,8 @@ subroutine mcpdft(ireturn)
 ! Really just determine size of 2-e integrals
   CALL ALLOC()
 
-  Call Timing(dum1,dum2,Ebel_1,dum3)
+  Call Timing(dum1,dum2,time1(1),dum3)
+  TimeInput = time1(1)
 
 ! This needs to be put somehwere else...
   Call mma_allocate(FockOcc,nTot1,Label='FockOcc')
@@ -106,7 +107,7 @@ subroutine mcpdft(ireturn)
 
 ! Transform two-electron integrals and compute at the same time
 ! the Fock matrices FI and FA
-  Call Timing(dum1,dum2,Fortis_1,dum3)
+  Call Timing(dum1,dum2,time2(1),dum3)
 
   ! so this does 2 things, first it puts the integrals
   ! into the file LUINTM, the second is that we write
@@ -134,9 +135,8 @@ subroutine mcpdft(ireturn)
     Call mma_deallocate(D1A)
   endif
 
-  Call Timing(dum1,dum2,Fortis_2,dum3)
-  Fortis_2 = Fortis_2-Fortis_1
-  Fortis_3 = Fortis_3+Fortis_2
+  Call Timing(dum1,dum2,time2(2),dum3)
+  TimeTrans = TimeTrans+time2(2)-time2(1)
 
   ! This is where MC-PDFT actually computes the PDFT energy for
   ! each state
@@ -144,6 +144,8 @@ subroutine mcpdft(ireturn)
   call mma_allocate(e_states,lroots,label='e_states')
   Call compute_mcpdft_energy(CMO,e_mcscf,e_states)
   Call mma_deallocate(CMO)
+
+  Call Timing(dum1,dum2,time1(1),dum3)
 
   ! pdft energy now stored in e_states
 
@@ -196,7 +198,9 @@ subroutine mcpdft(ireturn)
   Call StatusLine('MCPDFT:','Finished.')
   If(IPRLEV >= 2) Write(u6,*)
 
-  Call Timing(dum1,dum2,Ebel_3,dum3)
+  Call Timing(dum1,dum2,time1(2),dum3)
+  TimeTotal = time1(2)
+  TimeOutput = TimeOutput+time1(2)-time1(1)
   IF(IPRLEV >= 3) THEN
     Call PrtTim()
     Call FastIO('STATUS')

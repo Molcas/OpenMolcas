@@ -81,11 +81,9 @@
       Parameter ( iZone1 = 1 )
       Parameter ( iZone2 = 2048 )
 !
-      Integer lSysBuf,lHeuer
+      Integer lSysBuf
       Parameter ( lSysBuf = 128*128  )
-      Parameter ( lHeuer  = 8        )
 !
-      Real*8 Heuer(lHeuer)
-      Integer StkIni, ClkInc
+      Integer StkIni
       Character*1 SysBuf(lSysBuf)
-      Common / MOLCAS_SysBuf / Heuer,ClkInc,StkIni,SysBuf
+      Common / MOLCAS_SysBuf / StkIni,SysBuf

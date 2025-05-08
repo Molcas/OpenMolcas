@@ -48,6 +48,7 @@ subroutine EXPLH2(DIAG,ONEINT,TUVX,ISEL,EXPLE,EXPLV)
 !***********************************************************************
 
 use csfbas, only: CONF, NAEL, NBEL
+use timers, only: TimeHSel
 use lucia_data, only: DFTP, DTOC, IREOTS
 use rasscf_global, only: ExFac, NAC
 use general_data, only: LUDAVID, NCONF, NSEL, STSYM
@@ -65,12 +66,11 @@ real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
 real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: ISEL(*)
 integer(kind=iwp) :: I, II, IPRINT, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
-real(kind=wp) :: dum1, dum2, dum3, ECORE
+real(kind=wp) :: dum1, dum2, dum3, ECORE, Time(2)
 integer(kind=iwp), allocatable :: CNF(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
-#include "timers.fh"
 
-call Timing(Omega_1,dum1,dum2,dum3)
+call Timing(Time(1),dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 
 ECORE = Zero
@@ -137,9 +137,8 @@ if (IPRLEV >= INSANE) call IVCPRT('Configurations included in the explicit Hamil
 if (IPRLEV >= INSANE) call DVCPRT('Eigenvalues of the explicit Hamiltonian',' ',EXPLE,NSEL)
 if (IPRLEV >= INSANE) call RECPRT('Eigenvectors of the explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
 
-call Timing(Omega_2,dum1,dum2,dum3)
-Omega_2 = Omega_2-Omega_1
-Omega_3 = Omega_3+Omega_2
+call Timing(Time(2),dum1,dum2,dum3)
+TimeHSel = TimeHSel+Time(2)-Time(1)
 
 return
 

@@ -80,6 +80,7 @@
       use general_data, only: CRVec
       use gas_data, only: iDoGAS
       use input_ras, only: KeyPRSD, KeyCISE, KeyCIRF
+      use timers, only: TimeDens
       use rasscf_global, only: CMSStartMat, DoDMRG,
      &                         ExFac, iCIRFRoot, ICMSP, IFCRPR,
      &                         iPCMRoot, iRotPsi, ITER, IXMSP, KSDFT,
@@ -115,7 +116,6 @@
 
       Character(LEN=16), Parameter :: ROUTINE='CICTL   '
 #include "SysDef.fh"
-#include "timers.fh"
 #ifdef _HDF5_
       real*8, allocatable :: density_square(:,:)
 #endif
@@ -139,7 +139,7 @@
      &                      RF(:), Temp(:), CIVec(:)
       Integer, Allocatable:: kCnf(:)
       Integer LuVecDet
-      Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal
+      Real*8 dum1, dum2, dum3, qMax, rMax, rNorm, Scal, Time(2)
       Real*8, External:: DDot_
       Integer i, iDisk, iErrSplit, iOpt, iPrLev, jDisk, jPCMRoot,
      &        jRoot, kRoot, mconf
@@ -546,7 +546,7 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
 * Ptmp: SYMMETRIC TWO-BODY DENSITY
 * PAtmp: ANTISYMMETRIC TWO-BODY DENSITY
 *
-      Call Timing(Rado_1,dum1,dum2,dum3)
+      Call Timing(Time(1),dum1,dum2,dum3)
       Call dCopy_(NACPAR,[0.0D0],0,D,1)
       Call dCopy_(NACPAR,[0.0D0],0,DS,1)
       Call dCopy_(NACPR2,[0.0D0],0,P,1)
@@ -763,9 +763,8 @@ C and for now don't bother with 2-electron active density matrices
       Call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
 c
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
-      Call Timing(Rado_2,dum1,dum2,dum3)
-      Rado_2 = Rado_2 - Rado_1
-      Rado_3 = Rado_3 + Rado_2
+      Call Timing(Time(2),dum1,dum2,dum3)
+      TimeDens = TimeDens + Time(2) - Time(1)
 *
 * C
 * IF FINAL ITERATION REORDER THE WAVEFUNCTION ACCORDING TO

@@ -33,7 +33,7 @@ integer(kind=byte), parameter :: i1garbage = huge(i1garbage)
 real(kind=wp), parameter :: dgarbage = huge(dgarbage)
 interface
   function woff2cptr(etyp,offset)
-    import :: c_ptr
+    import :: c_ptr, iwp
     type(c_ptr) :: woff2cptr
     character, intent(in) :: etyp
     integer(kind=iwp), value, intent(in) :: offset

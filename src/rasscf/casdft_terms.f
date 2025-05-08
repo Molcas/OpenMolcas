@@ -47,7 +47,6 @@
 
       Implicit None
 *
-#include "timers.fh"
 #include "SysDef.fh"
 *
       Real*8 CMO(*) ,F(*) , FI(*) , D1I(*) , D1A(*), D1S(*)
