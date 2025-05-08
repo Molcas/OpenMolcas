@@ -27,11 +27,11 @@ implicit none
 #include "WrkSpc.fh"
 integer(kind=iwp) :: iRc
 interface
-  function allocmem(ref,intof,dblof,chrof,size_) bind(C,name='allocmem_')
+  function allocmem(ref,size_) bind(C,name='allocmem_')
     use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
     integer(kind=MOLCAS_C_INT) :: allocmem
     real(kind=MOLCAS_C_REAL), intent(in) :: ref(*)
-    integer(kind=MOLCAS_C_INT), intent(out) :: intof, dblof, chrof, size_
+    integer(kind=MOLCAS_C_INT), intent(out) :: size_
   end function allocmem
 end interface
 
@@ -43,7 +43,7 @@ MemStat = .true.
 !----------------------------------------------------------------------*
 !     Grab from the system a pointer to the dynamic work area          *
 !----------------------------------------------------------------------*
-iRc = allocmem(Work,iofint,iofdbl,iofchr,MxMem)
+iRc = allocmem(Work,MxMem)
 if (iRc /= 0) then
   write(u6,'(A,I3,A)') 'The initialization of the memory manager failed ( iRc=',iRc,' ).'
   call Quit(_RC_MEMORY_ERROR_)

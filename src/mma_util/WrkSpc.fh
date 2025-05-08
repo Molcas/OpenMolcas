@@ -25,20 +25,6 @@
 !                                                                      *
 !***********************************************************************
 
-
-      Integer    IWORKLEN
-      PARAMETER (IWORKLEN=8)
-      Real*8     Work(1:IWORKLEN)
-      Common /WrkSpc/  Work
-
-! for boundary checks: ./configure -compiler g95 -bound
-!     PARAMETER (IWORKLEN=552 800 000)
-      Integer      iWork(1:IWORKLEN)
-
-      Equivalence (Work,iWork)
-
-! iofint,iofdbl : offsets of Work and iWork relative to MOLCAS anchor
-! iofchr : offset of cWork (removed) relative to MOLCAS anchor
-      Integer iofint,iofdbl,iofchr
-      Logical MemStat
-      Common /MMA/ iofint,iofdbl,iofchr,MemStat
+      Real*8     Work(1)
+      Logical    MemStat
+      Common /WrkSpc/  Work, MemStat

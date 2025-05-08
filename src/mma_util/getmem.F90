@@ -45,7 +45,7 @@
 !> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
 !>
 !> @param[in]     NameIn Arbitrary label
-!> @param[in]     KeyIn  ``Allo`` / ``Free`` / ``Check`` / ``List`` / ``Max``
+!> @param[in]     KeyIn  ``Allo`` / ``Free`` / ``Check`` / ``List`` / ``Max`` / ``Rgst`` / ``Rgstn`` / ``Term``
 !> @param[in]     TypeIn ``Real`` / ``Inte`` / ``Char``
 !> @param[in,out] iPos   Position
 !> @param[in,out] Length Nr of items

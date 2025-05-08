@@ -121,33 +121,6 @@ char *cptr;
 #ifdef _OPENMP
 omp_lock_t mma_lock;
 #endif
-#ifdef _TRACK_
-INT trc_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
-  INT i, j, len, nentry;
-  char *p, *base;
-  ptrdiff_t match = -1, dist = 0;
-
-  p = tmp->addr;
-
-  for (nentry = MM->nmentry, j = 0; j < nentry; j++) {
-    for (base = mentries[j].addr, len = mentries[j].len, i = 0; i < len; i++)
-      if ((match = (&base[i] - p)) == 0)
-        break;
-    if (match == 0)
-      break;
-  }
-
-  if (match == 0) {
-    printf("Tracked %p address belongs to the '%s' memory entry %p of %ld bytes\n", tmp->addr, mentries[j].elbl, mentries[j].addr,
-           LIFMT(mentries[j].len));
-    dist = (mentries[j].addr + mentries[j].len) - tmp->addr;
-  } else {
-    printf("Could not track the %p address\n", tmp->addr);
-  }
-
-  return (dist);
-}
-#endif
 #ifdef _MEM_PROF_
 void anlz_mem(mentry *tgt) {
   INT n, i, nusd = 0;
@@ -207,7 +180,7 @@ INT testmem(INT *MOLCASMEM) {
   return (rc);
 }
 
-INT allocmem(double ref[], INT *intof, INT *dblof, INT *chrof, INT *size) {
+INT allocmem(double ref[], INT *size) {
   INT rc, MOLCASMEM, MAXMEM;
   char c;
   char *ptr;
@@ -273,8 +246,6 @@ INT allocmem(double ref[], INT *intof, INT *dblof, INT *chrof, INT *size) {
 # endif
 
   *size = MOLCASMEM / sizeof(double);
-
-  *dblof = *intof = *chrof = 1;
 
   dptr = ref;
   sptr = (float *)ref;
@@ -395,11 +366,7 @@ void string2UC(char *src, char *dest) {
 }
 
 INT memop(char *op) {
-# ifdef _TRACK_
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL, TRCK };
-# else
   enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
-# endif
   if (strstr(op, "ALLO"))
     return (ALLO);
   if (strstr(op, "FREE"))
@@ -422,10 +389,6 @@ INT memop(char *op) {
     return (RGST);
   if (strstr(op, "EXCL"))
     return (EXCL);
-# ifdef _TRACK_
-  if (strstr(op, "TRCK"))
-    return (TRCK);
-# endif
   return (-1);
 }
 
@@ -822,11 +785,7 @@ void print_params(char *func, char *name, char *Op, char *dtyp, INT *offset, INT
 }
 
 INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
-# ifdef _TRACK_
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL, TRCK };
-# else
   enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
-# endif
 
   static mentry MDATA[MAXREC] = { { "\0", "\0", 0, EMPTYE, 0, NULL } };
 
@@ -954,12 +913,6 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
   case EXCL:
     rc = exc_mentry(&MlM, MDATA, tmp);
     break;
-# ifdef _TRACK_
-  case TRCK:
-    rc = trc_mentry(&MlM, MDATA, tmp);
-    *len = rc / (dsize(tmp->etyp));
-    break;
-# endif
   default:
     rc = -1;
     printf("Unsupported memory operation !\n");
@@ -974,31 +927,8 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
   return (rc);
 }
 
-#ifdef _TRACK_
-void track_mem(char *address) {
-
-  mentry tmp;
-  char e_name[] = "TRCK", Op[] = "TRCK", e_dtyp[] = "CHAR";
-  INT offset = 0, blen = 1, op;
-
-  bzero(&tmp, sizeof(mentry));
-  set_mentry(&tmp, e_name, e_dtyp, &offset, &blen);
-  tmp.addr = address;
-
-  op = memop(Op);
-
-  c_getmem_kern(&op, &tmp, &offset, &blen);
-
-  return;
-}
-#endif
-
 INT c_getmem(char *name, char *Op, char *dtyp, INT *offset, INT *len) {
-# ifdef _TRACK_
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL, TRCK };
-# else
   enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
-# endif
 
   mentry tmp;
 
@@ -1066,18 +996,6 @@ char *allomblck(char *name, INT *len) {
   return (mblck);
 }
 
-char *pinnmblck(char *name, INT *len) {
-
-  char Op[] = "PINN", ctyp[] = "CHAR", *mblck = NULL;
-  INT rc, offset;
-
-  rc = c_getmem(name, Op, ctyp, &offset, len);
-  if (rc >= 0)
-    mblck = woff2cptr(ctyp, offset);
-
-  return (mblck);
-}
-
 INT freemblck(char *mblck) {
 
   char Op[] = "FREE", ctyp[] = "CHAR", name[] = "DELMEM";
@@ -1086,27 +1004,5 @@ INT freemblck(char *mblck) {
   offset = cptr2woff(ctyp, mblck);
   rc = c_getmem(name, Op, ctyp, &offset, &len);
   mblck = NULL;
-  return (rc);
-}
-
-INT lengmblck(char *mblck) {
-
-  char Op[] = "LENG", ctyp[] = "CHAR", name[] = "LENMEM";
-  INT offset, len;
-
-  offset = cptr2woff(ctyp, mblck);
-  c_getmem(name, Op, ctyp, &offset, &len);
-
-  return (len);
-}
-
-INT trckmblck(char *mblck) {
-
-  char Op[] = "TRCK", ctyp[] = "CHAR", name[] = "TRACK";
-  INT offset, len, rc;
-
-  offset = cptr2woff(ctyp, mblck);
-  rc = c_getmem(name, Op, ctyp, &offset, &len);
-
   return (rc);
 }
