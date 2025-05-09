@@ -29,23 +29,17 @@
 !> If \p TypeIn is '``Inte``', the items will be accessible in
 !> \c IWORK(IPOS) ... ``IWORK(IPOS-1+LENGTH)``.
 !> If \p KeyIn is '``Free``', the piece will be returned to the free pool.
-!> If \p KeyIn is '``Chec``', the boundaries of all allocated pieces will be
-!> checked to see if the contents of guardian words, surrounding each
-!> piece, are intact or not.
 !> If \p KeyIn is '``List``', the allocated fields will be tabulated.
-!> If \p KeyIn is '``Max``', there will be no allocation made, but the length
-!> of the largest allocatable field is returned.
 !> \p NameIn has no function, except that the user provides a label to the
 !> field, which is used in error prints or listings.
 !>
 !> @note
 !> An include file, WrkSpc.fh, declares common ``/WrkSpc/``,
-!> containing two arrays,
-!> \c WORK and \c IWORK, which  are equivalenced.
+!> containing the array \c WORK .
 !> ::GETMEM uses calls to the Molcas's MA memory allocator routines.
 !>
 !> @param[in]     NameIn Arbitrary label
-!> @param[in]     KeyIn  ``Allo`` / ``Free`` / ``Check`` / ``List`` / ``Max`` / ``Rgst`` / ``Rgstn`` / ``Term``
+!> @param[in]     KeyIn  ``Allo`` / ``Free`` / ``List`` / ``Rgst`` / ``Rgstn`` / ``Excl`` / ``Term``
 !> @param[in]     TypeIn ``Real`` / ``Inte`` / ``Char``
 !> @param[in,out] iPos   Position
 !> @param[in,out] Length Nr of items
@@ -61,14 +55,14 @@ subroutine GetMem(NameIn,KeyIn,TypeIn,iPos,Length)
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: iwp, u6
+use mma_module, only: c_getmem, MemStat
+use Definitions, only: iwp
 
 implicit none
 character(len=*), intent(in) :: NameIn, KeyIn, TypeIn
 integer(kind=iwp), intent(inout) :: iPos
 integer(kind=iwp), intent(in) :: Length
 #include "warnings.h"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: irc
 character(len=8) :: elbl, eopr, etyp, FldNam
 character(len=4) :: Key, VarTyp
@@ -76,16 +70,6 @@ character(len=4) :: Key, VarTyp
 logical(kind=iwp) :: SkipGarble
 character(len=5) :: xKey
 #endif
-interface
-  function c_getmem(name_,Op,dtyp,offset,len_) bind(C,name='c_getmem_')
-    use, intrinsic :: iso_c_binding, only: c_char
-    use Definitions, only: MOLCAS_C_INT
-    integer(kind=MOLCAS_C_INT) :: c_getmem
-    character(kind=c_char), intent(in) :: name_(*), Op(*), dtyp(*)
-    integer(kind=MOLCAS_C_INT), intent(inout) :: offset
-    integer(kind=MOLCAS_C_INT), intent(in) :: len_
-  end function c_getmem
-end interface
 
 !----------------------------------------------------------------------*
 !     Initialize the Common / MemCtl / the first time it is referenced *
@@ -112,7 +96,7 @@ etyp(8:8) = char(0)
 !     Skip garble                                                      *
 !----------------------------------------------------------------------*
 call StdFmt(KeyIn,xKey)
-if ((xKey == 'ALLON') .or. (xKey == 'RGSTN')) then
+if (xKey == 'RGSTN') then
   SkipGarble = .true.
 else
   SkipGarble = .false.
@@ -122,27 +106,14 @@ end if
 !----------------------------------------------------------------------*
 !     Allocate new memory                                              *
 !----------------------------------------------------------------------*
-if (Key /= 'ALLO') iPos = iPos-1
+iPos = iPos-1
 iRc = c_getmem(elbl,eopr,etyp,iPos,Length)
-if (iRc < 0) then
-  if (Key == 'ALLO') then
-    write(u6,'(A)') 'MMA failed to allocate a memory block.'
-  else if (Key == 'FREE') then
-    write(u6,'(A)') 'MMA failed to release the memory block for further use.'
-    call abend()
-  else
-    write(u6,*)
-  end if
-  call Quit(_RC_MEMORY_ERROR_)
-end if
+if (iRc < 0) call Quit(_RC_MEMORY_ERROR_)
 
-if ((Key == 'ALLO') .or. (Key == 'LENG') .or. (Key == 'FLUS') .or. (Key == 'MAX') .or. (Key == 'CHEC') .or. (Key == 'LIST') .or. &
-    (Key == 'RGST')) iPos = iPos+1
+if ((Key == 'LIST') .or. (Key == 'RGST')) iPos = iPos+1
 
 #ifdef _GARBLE_
-if ((Key == 'ALLO') .or. (Key == 'RGST')) then
-  if (.not. SkipGarble) call Garble(iPos,Length,VarTyp)
-end if
+if ((Key == 'RGST') .and. (.not. SkipGarble)) call Garble(iPos,Length,VarTyp)
 #endif
 
 end subroutine GetMem

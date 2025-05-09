@@ -12,14 +12,6 @@
 !               2015,2020, Ignacio Fdez. Galvan                        *
 !***********************************************************************
 
-#ifdef _CAPITALS_
-#define cptr2woff_name 'CPTR2WOFF'
-#else
-#ifndef ADD_
-#define cptr2woff_name 'cptr2woff_'
-#endif
-#endif
-
 #ifdef _DATA_NAME_
 #  define _DN_ _DATA_NAME_
 #else
@@ -27,19 +19,12 @@
 #endif
 
       function _FUNC_NAME_(buffer) result(res)
-        use, intrinsic :: iso_c_binding
-        use Definitions, only: MOLCAS_C_INT
+        use, intrinsic :: iso_c_binding, only: c_loc
+        use mma_module, only: cptr2woff
+        use Definitions, only: iwp
         implicit none
-        integer :: res
+        integer(kind=iwp) :: res
         _TYPE_, target, intent(in) :: buffer
-        interface
-          function cptr2woff(string, ptr) bind(C,name=cptr2woff_name)
-            import
-            integer(kind=MOLCAS_C_INT) :: cptr2woff
-            character(kind=c_char) :: string(*)
-            type(c_ptr), value :: ptr
-          end function
-        end interface
 #ifdef _WITH_LEN_
         res = cptr2woff(_DN_, c_loc(buffer(1:1))) + 1
 #else

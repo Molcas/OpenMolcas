@@ -366,25 +366,15 @@ void string2UC(char *src, char *dest) {
 }
 
 INT memop(char *op) {
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
+  enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
   if (strstr(op, "ALLO"))
     return (ALLO);
   if (strstr(op, "FREE"))
     return (FREE);
-  if (strstr(op, "LENG"))
-    return (LENG);
-  if (strstr(op, "CHEC"))
-    return (CHEC);
-  if (strstr(op, "MAX"))
-    return (MAX);
   if (strstr(op, "LIST"))
     return (LIST);
   if (strstr(op, "TERM"))
     return (TERM);
-  if (strstr(op, "FLUS"))
-    return (FLUS);
-  if (strstr(op, "PINN"))
-    return (PINN);
   if (strstr(op, "RGST"))
     return (RGST);
   if (strstr(op, "EXCL"))
@@ -708,50 +698,6 @@ INT exc_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
 }
 
 /*-----------------------------------------------------------------------------*/
-void flushMM(mstat *MM, mentry mentries[], mentry *tmp) {
-  mentry *tgt;
-  INT latime, i;
-
-  if (MM->nmentry == 0)
-    return;
-
-  i = find_mentry(mentries, tmp);
-# ifdef _DEBUGPRINT_MEM_
-  if ((ismax_mentry(i)) || (mentries[i].len == EMPTYE)) {
-    printf("It should never happen!\n");
-    abort();
-  }
-# else
-  if (ismax_mentry(i))
-    return;
-# endif
-  tgt = &mentries[i];
-  latime = tgt->atime;
-
-# ifdef _DEBUGPRINT_MEM_
-  dump_mentry("FLUSH", tgt);
-# endif
-# ifdef _DEBUGPRINT_MEM_
-  printf("Going to delete all memory entries older than atime=%ld\n", LIFMT(latime));
-# endif
-# ifdef _DEBUGPRINT_FLUSH_
-  printf("---------------------------------------------------------------------------------------------\n");
-  printf("  Nr.\t Label\t\tType\t\tOffset\t\tLength\t   Atime\t  Address\n");
-  printf("---------------------------------------------------------------------------------------------\n");
-  for (i = MM->nmentry - 1; i > 0; i--)
-    if (mentries[i].atime > latime)
-      printf("%3ld\t%-12s\t%4s\t%14ld\t%12ld   %9ld\t[%p]\n", LIFMT(i + 1), mentries[i].elbl, mentries[i].etyp,
-             LIFMT(mentries[i].offset), LIFMT(mentries[i].len), LIFMT(mentries[i].atime), mentries[i].addr);
-  printf("---------------------------------------------------------------------------------------------\n");
-# endif
-  for (i = MM->nmentry - 1; i > 0; i--)
-    if (mentries[i].atime > latime)
-      del_mentry(MM, mentries, &mentries[i], i);
-
-  return;
-}
-
-/*-----------------------------------------------------------------------------*/
 void list_MlM(mstat *MM, mentry mentries[]) {
 
   INT i = 1;
@@ -784,21 +730,17 @@ void print_params(char *func, char *name, char *Op, char *dtyp, INT *offset, INT
   return;
 }
 
-INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
+INT c_getmem_kern(INT *op, mentry *tmp, INT *offset) {
+  enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
 
   static mentry MDATA[MAXREC] = { { "\0", "\0", 0, EMPTYE, 0, NULL } };
 
-  mentry *tmpp;
-  INT rc = 1, i, allo = 1, maxMM;
+  INT rc = 1, allo = 1;
 
 # ifdef _MEMORY_MTRACE_
   mcheck_check_all();
 # endif
   switch (*op) {
-  case PINN:
-    allo = 0;
-    /* fall through */
   case ALLO:
     tmp->offset = (allo) ? UNDEF_MEM
                          : PINNED_MEM; /* Just to be sure that we are not going to allocate the PINNED memory for wrong reasons */
@@ -844,43 +786,8 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
       list_MlM(&MlM, MDATA);
 
     break;
-  case MAX:
-#   ifdef _DEBUGPRINT_MEM_
-    printf("MOLCAS_MEM=%ld byte \n", LIFMT(SFCTR(MlM.avmem)));
-#   endif
-    maxMM = SFCTR(MlM.avmem);
-
-    /* if malloc is intercepted, we should not test if the memory
-     * can be allocated (testmem) as that might result in very expensive
-     * memset calls from various memory inspection tools */
-#   ifndef _MALLOC_INTERCEPT_
-    while (maxMM > 0 && testmem(&maxMM) < 0)
-      maxMM = SFCTR(maxMM);
-#   endif
-#   ifdef _DEBUGPRINT_MEM_
-    if (maxMM != SFCTR(MlM.avmem))
-      printf("MOLCAS MAXMEM: initial = %ld, allocatable =%ld\n", LIFMT(SFCTR(MlM.avmem)), LIFMT(maxMM));
-#   endif
-    if (maxMM <= 0) {
-      printf("MEMORY ERROR: the memory limit has been reached. No window for further memory allocation.\n");
-      rc = -1;
-    }
-
-    *len = maxMM / dsize(tmp->etyp);
-
-    break;
-  case CHEC:
-#   ifdef _MEMORY_TRACE_
-    mcheck_check_all();
-#   endif
-    break;
   case LIST:
     list_MlM(&MlM, MDATA);
-    break;
-  case LENG:
-    i = find_mentry(MDATA, tmp);
-    tmpp = &MDATA[i];
-    *len = (tmpp) ? (tmpp->len / dsize(tmpp->etyp)) : 0;
     break;
   case TERM:
 #   ifdef _MEMORY_MTRACE_
@@ -899,14 +806,6 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
 #     endif
       break;
     }
-  case FLUS:
-    printf("**************************************************\n");
-    printf("MEMORY WARNING: use of FLUSH operation deprecated!\n");
-    printf("please contact the developer of this module and\n");
-    printf("ask him/her to fix this!\n");
-    printf("**************************************************\n");
-    flushMM(&MlM, MDATA, tmp);
-    break;
   case RGST:
     rc = reg_mentry(&MlM, MDATA, tmp);
     break;
@@ -928,7 +827,7 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset, INT *len) {
 }
 
 INT c_getmem(char *name, char *Op, char *dtyp, INT *offset, INT *len) {
-  enum memops { ALLO, FREE, LENG, CHEC, MAX, LIST, TERM, FLUS, PINN, RGST, EXCL };
+  enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
 
   mentry tmp;
 
@@ -955,7 +854,7 @@ INT c_getmem(char *name, char *Op, char *dtyp, INT *offset, INT *len) {
 # ifdef _OPENMP
   omp_set_lock(&mma_lock);
 # endif
-  rc = c_getmem_kern(&op, &tmp, offset, len);
+  rc = c_getmem_kern(&op, &tmp, offset);
 # ifdef _OPENMP
   omp_unset_lock(&mma_lock);
   if (op == TERM)
@@ -985,7 +884,7 @@ char *allomblck(char *name, INT *len) {
   set_mentry(&tmp, e_name, ctyp, &offset, &blen);
   tmp.atime = SYS_ATIME;
 
-  rc = c_getmem_kern(&op, &tmp, &offset, len);
+  rc = c_getmem_kern(&op, &tmp, &offset);
 
   if (rc >= 0) {
     mblck = woff2cptr(ctyp, offset);

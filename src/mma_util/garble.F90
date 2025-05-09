@@ -18,6 +18,7 @@
 subroutine garble(ipos,length,vartyp)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_ptr
+use mma_module, only: woff2cptr
 use Definitions, only: wp, iwp, byte, RtoB
 
 implicit none
@@ -31,14 +32,6 @@ real(kind=wp), pointer :: rbuf(:)
 integer(kind=iwp), parameter :: igarbage = huge(igarbage)
 integer(kind=byte), parameter :: i1garbage = huge(i1garbage)
 real(kind=wp), parameter :: dgarbage = huge(dgarbage)
-interface
-  function woff2cptr(etyp,offset)
-    import :: c_ptr, iwp
-    type(c_ptr) :: woff2cptr
-    character, intent(in) :: etyp
-    integer(kind=iwp), value, intent(in) :: offset
-  end function woff2cptr
-end interface
 
 ! Here we overwrite the underlying memory, using C pointers
 ! Do not try this at home!

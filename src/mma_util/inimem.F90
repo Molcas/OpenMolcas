@@ -19,21 +19,13 @@
 
 subroutine IniMem()
 
+use mma_module, only: allocmem, MemStat, Work
 use stdalloc, only: MxMem
 use Definitions, only: iwp, u6
 
 implicit none
 #include "warnings.h"
-#include "WrkSpc.fh"
 integer(kind=iwp) :: iRc
-interface
-  function allocmem(ref,size_) bind(C,name='allocmem_')
-    use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
-    integer(kind=MOLCAS_C_INT) :: allocmem
-    real(kind=MOLCAS_C_REAL), intent(in) :: ref(*)
-    integer(kind=MOLCAS_C_INT), intent(out) :: size_
-  end function allocmem
-end interface
 
 !----------------------------------------------------------------------*
 !     Initialize the manager the first time it is referenced           *
