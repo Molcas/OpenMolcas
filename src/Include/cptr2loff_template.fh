@@ -18,18 +18,22 @@
 #  define _DN_ 'CHAR'
 #endif
 
-      function _FUNC_NAME_(buffer) result(res)
-        use, intrinsic :: iso_c_binding, only: c_loc
-        use mma_module, only: cptr2woff
-        use Definitions, only: iwp
-        implicit none
-        integer(kind=iwp) :: res
-        _TYPE_, target, intent(in) :: buffer
+function _FUNC_NAME_(buffer)
+
+use, intrinsic :: iso_c_binding, only: c_loc
+use mma_module, only: cptr2woff
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: _FUNC_NAME_
+_TYPE_, target, intent(in) :: buffer
+
 #ifdef _WITH_LEN_
-        res = cptr2woff(_DN_, c_loc(buffer(1:1))) + 1
+_FUNC_NAME_ = cptr2woff(_DN_,c_loc(buffer(1:1)))+1
 #else
-        res = cptr2woff(_DN_, c_loc(buffer)) + 1
+_FUNC_NAME_ = cptr2woff(_DN_,c_loc(buffer))+1
 #endif
-      end function _FUNC_NAME_
+
+end function _FUNC_NAME_
 
 #undef _DN_
