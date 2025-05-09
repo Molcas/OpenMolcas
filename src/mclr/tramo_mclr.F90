@@ -30,7 +30,7 @@ subroutine TRAMO_MCLR(LBUF,X1,n1,X2,n2,X3,n3,X4,n4,Buffer,MEMX,NBP,NBQ,NBR,NBS,i
 !                                                                      *
 !***********************************************************************
 
-use iso_c_binding, only: c_f_pointer, c_loc
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Index_Functions, only: nTri_Elem
 use MCLR_Data, only: FnHlf2, FnHlf3, LuHlf2, LuHlf3, LuTri1, LuTri2, LuTri3, LuTri4, LuTri5, NoFile
 use Constants, only: Zero, One

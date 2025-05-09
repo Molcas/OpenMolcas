@@ -120,7 +120,6 @@ end subroutine Close_NQ_Data
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
-#  undef _NO_GARBLE_
 #undef _TYPE_
 
 end module NQ_Structure

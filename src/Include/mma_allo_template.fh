@@ -38,10 +38,10 @@
 #define _MMA_FUNC_ allocated
 #endif
 
-#ifdef _NO_GARBLE_
-#define _KEY_ 'RGSTN'
+#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+#define _GARBLE_FUNC_(ipos,length,vartyp) call garble(ipos,length,vartyp)
 #else
-#define _KEY_ 'RGST'
+#define _GARBLE_FUNC_(ipos,length,vartyp)
 #endif
 
 ! NAME_allo_xD definition
@@ -66,6 +66,9 @@ subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,label,safe)
 subroutine _ALLO_NAME_(buffer,n1,n2,n3,n4,n5,n6,n7,label,safe)
 #endif
 
+#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+use mma_module, only: garble
+#endif
 #ifndef _IN_STDALLOC_MOD_
 use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
 #endif
@@ -100,14 +103,16 @@ integer(kind=iwp), intent(in) :: n1, n2, n3, n4, n5, n6, n7
 character(len=*), optional, intent(in) :: label
 character, optional, intent(in) :: safe
 integer(kind=iwp) :: ntot, mma_avail, bufsize, loffset
+character(len=32) :: lab
 
+if (present(label)) then
+  lab = label
+else
+  lab = _DEF_LABEL_
+end if
 if (_MMA_FUNC_(buffer)) then
   if (present(safe)) return
-  if (present(label)) then
-    call mma_double_allo(label)
-  else
-    call mma_double_allo(_DEF_LABEL_)
-  end if
+  call mma_double_allo(lab)
 end if
 call mma_maxBYTES(mma_avail)
 #if _DIMENSIONS_==0
@@ -134,7 +139,7 @@ bufsize = (storage_size('a')*ntot-1)/8+1
 bufsize = (storage_size(buffer)*ntot-1)/8+1
 #endif
 if (bufsize > mma_avail) then
-  call mma_oom(label,bufsize,mma_avail)
+  call mma_oom(lab,bufsize,mma_avail)
 else
 # if _DIMENSIONS_==0
   if (n0 == 0) call abend()
@@ -172,11 +177,8 @@ else
 #   elif _DIMENSIONS_==7
     loffset = cptr2loff(buffer(1,1,1,1,1,1,1))
 #   endif
-    if (present(label)) then
-      call getmem(label,_KEY_,_DN_,loffset,_SIZE_)
-    else
-      call getmem(_DEF_LABEL_,_KEY_,_DN_,loffset,_SIZE_)
-    end if
+    call getmem(lab,'RGST',_DN_,loffset,_SIZE_)
+    _GARBLE_FUNC_(loffset,_SIZE_,_DN_)
   end if
 end if
 
@@ -204,6 +206,9 @@ subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,label,safe)
 subroutine _ALLO_NAME_LIM_(buffer,l1,l2,l3,l4,l5,l6,l7,label,safe)
 #endif
 
+#if (defined _GARBLE_) && (!defined _NO_GARBLE_)
+use mma_module, only: garble
+#endif
 #ifndef _IN_STDALLOC_MOD_
 use stdalloc, only: mma_double_allo, mma_maxBYTES, mma_oom
 #endif
@@ -235,14 +240,16 @@ integer(kind=iwp), intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2), l6(2), l7(2)
 character(len=*), optional, intent(in) :: label
 character, optional, intent(in) :: safe
 integer(kind=iwp) :: ntot, mma_avail, bufsize, loffset
+character(len=32) :: lab
 
+if (present(label)) then
+  lab = label
+else
+  lab = _DEF_LABEL_
+end if
 if (_MMA_FUNC_(buffer)) then
   if (present(safe)) return
-  if (present(label)) then
-    call mma_double_allo(label)
-  else
-    call mma_double_allo(_DEF_LABEL_)
-  end if
+  call mma_double_allo(lab)
 end if
 call mma_maxBYTES(mma_avail)
 #if _DIMENSIONS_==1
@@ -262,7 +269,7 @@ ntot = (l1(2)-l1(1)+1)*(l2(2)-l2(1)+1)*(l3(2)-l3(1)+1)*(l4(2)-l4(1)+1)*(l5(2)-l5
 #endif
 bufsize = (storage_size(buffer)*ntot-1)/8+1
 if (bufsize > mma_avail) then
-  call mma_oom(label,bufsize,mma_avail)
+  call mma_oom(lab,bufsize,mma_avail)
 else
 # if _DIMENSIONS_==1
   allocate(buffer(l1(1):l1(2)))
@@ -295,11 +302,8 @@ else
 #   elif _DIMENSIONS_==7
     loffset = cptr2loff(buffer(l1(1),l2(1),l3(1),l4(1),l5(1),l6(1),l7(1)))
 #   endif
-    if (present(label)) then
-      call getmem(label,_KEY_,_DN_,loffset,_SIZE_)
-    else
-      call getmem(_DEF_LABEL_,_KEY_,_DN_,loffset,_SIZE_)
-    end if
+    call getmem(lab,'RGST',_DN_,loffset,_SIZE_)
+    _GARBLE_FUNC_(loffset,_SIZE_,_DN_)
   end if
 end if
 
@@ -387,7 +391,8 @@ end subroutine _FREE_NAME_
 #undef _DN_
 #undef _MMA_ATTR_
 #undef _MMA_FUNC_
-#undef _KEY_
+#undef _GARBLE_FUNC_
+#undef _NO_GARBLE_
 #undef _ALLO_NAME_
 #undef _ALLO_NAME_LIM_
 #undef _FREE_NAME_

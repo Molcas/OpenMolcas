@@ -53,7 +53,6 @@
 
 #define SFCTR(X) (X - X / 10)
 #define MXLINE 9
-#define PGSIZE 4096
 #define MB 1000000
 #define EMPTYE -1000
 #define PINNED_MEM 999
@@ -61,11 +60,7 @@
 #define SYS_ATIME 0
 #define ALLOC_FLD -2
 #define MINMEMPTR -577777000306848070
-#ifdef _DEBUGPRINT_MEM_
-# define MAXREC 524288
-#else
-# define MAXREC 524288 /* 8192 */
-#endif
+#define MAXREC 524288
 
 #ifdef _MEM_PROF_
 
@@ -111,10 +106,11 @@ struct mstat {
   INT totmem;  /* initial MOLCAS_MEM                         */
 };
 
+enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
+
 mstat MlM = { 0, SYS_ATIME + 1, 0, 0, 0 };
 
 double *dptr;
-float *sptr;
 INT *iptr;
 char *cptr;
 
@@ -138,12 +134,6 @@ void anlz_mem(mentry *tgt) {
     rw = (double *)tgt->addr;
     for (i = 0; i < n; i++)
       if (rw[i] == flRcnst)
-        nusd++;
-    break;
-  case 'S':
-    sw = (float *)tgt->addr;
-    for (i = 0; i < n; i++)
-      if (sw[i] == flScnst)
         nusd++;
     break;
   case 'I':
@@ -248,7 +238,6 @@ INT allocmem(double ref[], INT *size) {
   *size = MOLCASMEM / sizeof(double);
 
   dptr = ref;
-  sptr = (float *)ref;
   iptr = (INT *)ref;
   cptr = (char *)ref;
 
@@ -323,9 +312,6 @@ INT dsize(char datatype[]) {
   case 'R':
     bsize = sizeof(double);
     break;
-  case 'S':
-    bsize = sizeof(float);
-    break;
   case 'I':
     bsize = sizeof(INT);
     break;
@@ -366,7 +352,6 @@ void string2UC(char *src, char *dest) {
 }
 
 INT memop(char *op) {
-  enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
   if (strstr(op, "ALLO"))
     return (ALLO);
   if (strstr(op, "FREE"))
@@ -441,9 +426,6 @@ char *woff2cptr(char etyp[], INT offset) {
   case 'R':
     wrkspc = (char *)&dptr[offset];
     break;
-  case 'S':
-    wrkspc = (char *)&sptr[offset];
-    break;
   case 'I':
     wrkspc = (char *)&iptr[offset];
     break;
@@ -464,9 +446,6 @@ INT cptr2woff(char etyp[], void *c_ptr) {
   switch (etyp[0]) {
   case 'R':
     dist = (double *)c_ptr - dptr;
-    break;
-  case 'S':
-    dist = (float *)c_ptr - sptr;
     break;
   case 'I':
     dist = (INT *)c_ptr - iptr;
@@ -555,12 +534,6 @@ INT add_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
     dist = (double *)wrkspc - dptr;
 #   ifdef _MEM_PROF_
     dcopy(&n, &flRcnst, &incx, (double *)wrkspc, &incy);
-#   endif
-    break;
-  case 'S':
-    dist = (float *)wrkspc - sptr;
-#   ifdef _MEM_PROF_
-    scopy(&n, &flScnst, &incx, (float *)wrkspc, &incy);
 #   endif
     break;
   case 'I':
@@ -731,7 +704,6 @@ void print_params(char *func, char *name, char *Op, char *dtyp, INT *offset, INT
 }
 
 INT c_getmem_kern(INT *op, mentry *tmp, INT *offset) {
-  enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
 
   static mentry MDATA[MAXREC] = { { "\0", "\0", 0, EMPTYE, 0, NULL } };
 
@@ -827,7 +799,6 @@ INT c_getmem_kern(INT *op, mentry *tmp, INT *offset) {
 }
 
 INT c_getmem(char *name, char *Op, char *dtyp, INT *offset, INT *len) {
-  enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
 
   mentry tmp;
 

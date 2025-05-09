@@ -993,7 +993,6 @@ end subroutine Basis_Info_Free
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
-#  undef _NO_GARBLE_
 #undef _TYPE_
 
 ! Define shell_cptr2loff, shell_mma_allo_1D, shell_mma_allo_1D_lim, shell_mma_free_1D
@@ -1010,7 +1009,6 @@ end subroutine Basis_Info_Free
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
-#  undef _NO_GARBLE_
 #undef _TYPE_
 
 end module Basis_Info

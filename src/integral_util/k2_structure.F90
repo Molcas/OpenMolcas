@@ -221,7 +221,6 @@ end subroutine Free_k2data_Internal
 #  undef _SUBR_NAME_
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
-#  undef _NO_GARBLE_
 #undef _TYPE_
 
 end module k2_structure

@@ -12,7 +12,7 @@
 !               2015,2020, Ignacio Fdez. Galvan                        *
 !               2015, Liviu Ungur                                      *
 !***********************************************************************
-! stdalloc: wraps the standard allocate/deallocate fortran intrinsics.
+! stdalloc: wraps the standard allocate/deallocate Fortran intrinsics.
 !
 ! When memory is allocated, it is registered to getmem, and when it is
 ! deallocated it is excluded. On allocation, a check is made that the
@@ -23,13 +23,27 @@
 ! "mma_allo_template.fh" (and possibly "cptr2loff_template.fh") with
 ! appropriate values for the macros:
 !   _SUBR_NAME_: The base name for the subroutines
-!   _DATA_NAME_: The data type string for getmem: 'REAL' for real*8,
-!                'INTE' for integer, undefined for anything else
+!   _DATA_NAME_: The data type string for getmem: 'REAL' for real(kind=wp),
+!                'INTE' for integer(kind=iwp), undefined for anything else
 !                ['CHAR' would only be appropriate for character(len=1)]
 !   _DEF_LABEL_: The default label
 !   _TYPE_: The data type
 !   _DIMENSIONS_: The number of dimensions
 ! See the end of this file.
+!
+! Once defined, use:
+!
+! * call mma_allocate(array,n1,...,nk)
+!     - array:     An allocatable array of k dimensions, or an allocatable string
+!     - n1,...,nk: Size of each dimension (variable number of arguments)
+!                  They can be all integers, or all arrays of two integers (lower and upper bound)
+!     Optional arguments:
+!     - label:     Name with which to identify the array, in case of problems
+!     - safe:      If present, nothing will happen if array is already allocated (otherwise it's in error)
+!
+! * call mma_deallocate(array)
+!     Optional arguments:
+!     - safe:      If present, nothing will happen if array is already deallocated (otherwise it's in error)
 !
 ! Steven Vancoillie, December 2014
 ! Ignacio Fdez. Galvan, April 2015 (added label optional arg. and _lim variants)
@@ -39,7 +53,7 @@
 !#define _ENABLE_POINTERS_
 module stdalloc
 
-use Definitions, only: wp, iwp, u6, ItoB, RtoB
+use Definitions, only: wp, iwp, byte, MPIInt, u6, ItoB, RtoB
 
 implicit none
 private
@@ -123,7 +137,7 @@ subroutine mma_double_allo(label)
   character(len=*), intent(in) :: label
 
   write(u6,'(1x,a)') '?mma_allo_?D: error: double allocate'
-  write(u6,'(1x,a,a)') 'label: ',label
+  write(u6,'(1x,a,a)') 'label: ',trim(label)
   call quit(_RC_MEMORY_ERROR_)
 
 end subroutine mma_double_allo
@@ -133,7 +147,7 @@ subroutine mma_double_free(label)
   character(len=*), intent(in) :: label
 
   write(u6,'(1x,a)') '?mma_free_?D: error: double deallocate'
-  write(u6,'(1x,a,a)') 'label: ',label
+  write(u6,'(1x,a,a)') 'label: ',trim(label)
   call quit(_RC_MEMORY_ERROR_)
 
 end subroutine mma_double_free
@@ -169,7 +183,7 @@ end subroutine mma_maxBYTES
 #define _IN_STDALLOC_MOD_
 
 #define _FUNC_NAME_ d_cptr2loff
-#define _TYPE_ real*8
+#define _TYPE_ real(kind=wp)
 #define _DATA_NAME_ 'REAL'
 #include "cptr2loff_template.fh"
 #undef _FUNC_NAME_
@@ -177,13 +191,13 @@ end subroutine mma_maxBYTES
 #undef _DATA_NAME_
 
 #define _FUNC_NAME_ z_cptr2loff
-#define _TYPE_ complex*16
+#define _TYPE_ complex(kind=wp)
 #include "cptr2loff_template.fh"
 #undef _FUNC_NAME_
 #undef _TYPE_
 
 #define _FUNC_NAME_ i4_cptr2loff
-#define _TYPE_ integer*4
+#define _TYPE_ integer(kind=MPIInt)
 #define _DATA_NAME_ 'INTE'
 #include "cptr2loff_template.fh"
 #undef _FUNC_NAME_
@@ -191,7 +205,7 @@ end subroutine mma_maxBYTES
 #undef _DATA_NAME_
 
 #define _FUNC_NAME_ i_cptr2loff
-#define _TYPE_ integer
+#define _TYPE_ integer(kind=iwp)
 #define _DATA_NAME_ 'INTE'
 #include "cptr2loff_template.fh"
 #undef _FUNC_NAME_
@@ -199,7 +213,7 @@ end subroutine mma_maxBYTES
 #undef _DATA_NAME_
 #define _FUNC_NAME_ b_cptr2loff
 
-#define _TYPE_ integer*1
+#define _TYPE_ integer(kind=byte)
 #include "cptr2loff_template.fh"
 #undef _FUNC_NAME_
 #undef _TYPE_
@@ -216,7 +230,7 @@ end subroutine mma_maxBYTES
 #undef _WITH_LEN_
 
 #define _FUNC_NAME_ l_cptr2loff
-#define _TYPE_ logical
+#define _TYPE_ logical(kind=iwp)
 #include "cptr2loff_template.fh"
 #undef _FUNC_NAME_
 #undef _TYPE_
@@ -224,10 +238,10 @@ end subroutine mma_maxBYTES
 ! type-specific allocation subroutines
 ! each #include defines NAME_allo_xD, NAME_allo_xD_lim, and NAME_free_xD
 
-! real*8 variants
+! real(kind=wp) variants
 
 #define _SUBR_NAME_ dmma
-#define _TYPE_ real*8
+#define _TYPE_ real(kind=wp)
 #define _DATA_NAME_ 'REAL'
 
 #  define _DIMENSIONS_ 1
@@ -276,11 +290,11 @@ end subroutine mma_maxBYTES
 #undef _TYPE_
 #undef _DATA_NAME_
 
-! complex*16 variants
+! complex(kind=wp) variants
 ! (note that there is no specific _DATA_NAME_ for these)
 
 #define _SUBR_NAME_ zmma
-#define _TYPE_ complex*16
+#define _TYPE_ complex(kind=wp)
 
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'zmma_1D'
@@ -315,10 +329,10 @@ end subroutine mma_maxBYTES
 #undef _SUBR_NAME_
 #undef _TYPE_
 
-! integer variants
+! integer(kind=iwp) variants
 
 #define _SUBR_NAME_ imma
-#define _TYPE_ integer
+#define _TYPE_ integer(kind=iwp)
 #define _DATA_NAME_ 'INTE'
 
 #  define _DIMENSIONS_ 1
@@ -355,10 +369,10 @@ end subroutine mma_maxBYTES
 #undef _TYPE_
 #undef _DATA_NAME_
 
-! integer*4 (BLASInt) variants
+! integer(kind=MPIInt) variants
 
 #define _SUBR_NAME_ i4mma
-#define _TYPE_ integer*4
+#define _TYPE_ integer(kind=MPIInt)
 #define _DATA_NAME_ 'INTE'
 
 #  define _DIMENSIONS_ 1
@@ -374,7 +388,7 @@ end subroutine mma_maxBYTES
 ! byte variants
 
 #define _SUBR_NAME_ bmma
-#define _TYPE_ integer*1
+#define _TYPE_ integer(kind=byte)
 
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'bmma_1D'
@@ -397,11 +411,13 @@ end subroutine mma_maxBYTES
 #define _SUBR_NAME_ cmma
 
 #define _TYPE_ character(len=:)
+
 #  define _DIMENSIONS_ 0
 #  define _DEF_LABEL_ 'cmma_0D'
 #  include "mma_allo_template.fh"
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_
+
 #undef _TYPE_
 
 #define _TYPE_ character(len=*)
@@ -422,11 +438,11 @@ end subroutine mma_maxBYTES
 
 #undef _SUBR_NAME_
 
-! logical variants
+! logical(kind=iwp) variants
 ! (note that there is no specific _DATA_NAME_ for these)
 
 #define _SUBR_NAME_ lmma
-#define _TYPE_ logical
+#define _TYPE_ logical(kind=iwp)
 
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'lmma_1D'
@@ -449,7 +465,7 @@ end subroutine mma_maxBYTES
 #define _IS_POINTER_
 
 #  define _SUBR_NAME_ ipmma
-#  define _TYPE_ integer
+#  define _TYPE_ integer(kind=iwp)
 #  define _DATA_NAME_ 'INTE'
 
 #    define _DIMENSIONS_ 1
@@ -463,7 +479,7 @@ end subroutine mma_maxBYTES
 #  undef _DATA_NAME_
 
 #  define _SUBR_NAME_ dpmma
-#  define _TYPE_ real*8
+#  define _TYPE_ real(kind=wp)
 #  define _DATA_NAME_ 'REAL'
 
 #    define _DIMENSIONS_ 1

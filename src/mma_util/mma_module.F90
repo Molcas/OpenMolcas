@@ -44,7 +44,7 @@ interface
     integer(kind=MOLCAS_C_INT) :: cptr2woff
     character(kind=c_char), intent(in) :: etyp(*)
     type(c_ptr), value, intent(in) :: ptr
-  end function
+  end function cptr2woff
 
   function woff2cptr(etyp,offset) bind(C,name='woff2cptr_')
     import :: c_char, c_ptr, MOLCAS_C_INT
@@ -55,6 +55,56 @@ interface
 
 end interface
 
-public :: allocmem, c_getmem, cptr2woff, MemStat, woff2cptr, Work
+public :: allocmem, c_getmem, cptr2woff, MemStat, Work
+#ifdef _GARBLE_
+public :: garble
+
+contains
+
+subroutine garble(ipos,length,vartyp)
+
+  use, intrinsic :: iso_c_binding, only: c_f_pointer
+  use Definitions, only: byte, RtoB
+
+  integer(kind=iwp), intent(in) :: ipos, length
+  character(len=*), intent(in) :: vartyp
+  integer(kind=iwp) :: ioff1, ioff2, foff1
+  type(c_ptr) :: cptr
+  integer(kind=iwp), pointer :: ibuf(:)
+  integer(kind=byte), pointer :: i1buf(:)
+  real(kind=wp), pointer :: rbuf(:)
+  integer(kind=iwp), parameter :: igarbage = huge(igarbage)
+  integer(kind=byte), parameter :: i1garbage = huge(i1garbage)
+  real(kind=wp), parameter :: dgarbage = huge(dgarbage)
+
+  ! Here we overwrite the underlying memory, using C pointers
+  ! Do not try this at home!
+
+  select case (vartyp)
+    case ('REAL')
+      cptr = woff2cptr('R',ipos-1)
+      call c_f_pointer(cptr,rbuf,[length])
+      rbuf(1:length) = dgarbage
+      nullify(rbuf)
+    case ('INTE')
+      cptr = woff2cptr('I',ipos-1)
+      call c_f_pointer(cptr,ibuf,[length])
+      ibuf(1:length) = igarbage
+      nullify(ibuf)
+    case ('CHAR')
+      ioff1 = (ipos-1)/RtoB+1
+      ioff2 = mod(ipos-1,RtoB)+1
+      foff1 = (ipos+length-2)/RtoB+1
+      cptr = woff2cptr('C',ipos-1)
+      call c_f_pointer(cptr,i1buf,[(foff1-ioff1+1)*RtoB])
+      i1buf(ioff2:ioff2+length-1) = i1garbage
+      nullify(i1buf)
+    case default
+      call Abend()
+  end select
+
+end subroutine garble
+
+#endif
 
 end module mma_module
