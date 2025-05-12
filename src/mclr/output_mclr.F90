@@ -344,10 +344,12 @@ do iSym=1,nSym
 end do
 
 call mma_allocate(Hess,nHss,Label='Hess')
+Hess(:) = Zero
 call mma_allocate(Hess2,nHss,Label='Hess2')
 call mma_allocate(Temp,nHss,Label='Temp')
 Temp(:) = Zero
 call mma_allocate(ELEC,3*ndisp,Label='ELEC')
+ELEC(:) = Zero
 call mma_allocate(EG,3*ndisp,Label='EG')
 call mma_allocate(ELOUT,3*ndisp,Label='ELOUT')
 call ipclose(-1)

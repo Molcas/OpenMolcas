@@ -60,6 +60,7 @@ call mma_allocate(D1,n1Dens,Label='D1')
 call mma_allocate(P_CI,n2Dens,Label='P_CI')
 call mma_allocate(P1,n2Dens,Label='P1')
 call mma_allocate(Conn,nDens,Label='Conn')
+Conn(:) = Zero
 call mma_allocate(OCCU,nbas_tot,Label='OCCU')
 call mma_allocate(CMON,nDens,Label='CMON')
 ! OBS nBuf might not be def.
@@ -266,7 +267,7 @@ call mma_allocate(D_K,nLCMO,Label='D_K')
 call Get_dArray_chk('FockOcc',D_K,nLCMO)
 ! Calculates the effective Fock matrix
 call Make_Conn(Conn,K2,P_CI,D_CI)   !D_CI not changed
-Conn(:) = Conn(:)+D_K(1:nDens)
+Conn(1:nTot1) = Conn(1:nTot1)+D_K(1:nTot1)
 !Conn(:) = D_K(1:nDens)
 if (PT2) then
   ! Add the WLag term (will be contracted with overlap

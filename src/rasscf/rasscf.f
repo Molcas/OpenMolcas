@@ -374,9 +374,11 @@
         Call mma_allocate(DSPN,NACPAR,Label='DSPN')
         DSPN(:)=0.0D0
         Call mma_allocate(DMAT,NACPAR,Label='DMat')
-        Call mma_allocate(PMAT,NACPR2,Label='PMat')
         DMAT(:)=0.0D0
+        Call mma_allocate(PMAT,NACPR2,Label='PMat')
+        PMAT(:)=0.0D0
         Call mma_allocate(PA,NACPR2,Label='PA')
+        PA(:)=0.0D0
 #ifdef _FDE_
       ! Embedding
       iDummyEmb=0

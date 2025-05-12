@@ -185,6 +185,8 @@ if (First) then
   Label2 = 'h1_raw  '
   call Put_Temp(Label2,h1,nh1)
 
+else
+  Vs(:,1) = Zero
 end if
 !                                                                      *
 !***********************************************************************
