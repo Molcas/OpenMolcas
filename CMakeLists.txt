@@ -494,13 +494,13 @@ if (CMAKE_BUILD_TYPE STREQUAL "Garble")
              "The use of an external BLAS/LAPACK can result in floating point "
              "exceptions handled by the library being trapped instead. "
              "Please use -DLINALG=Internal for better chances for Garble to work correctly!")
-    set (FFLAGS_${FCID}_GARBLE "${FFLAGS_${FCID}_GARBLE} ${${FCID}_TRAP}")
+    set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${${FCID}_TRAP}")
   else ()
     message (WARNING
              "Garble and floating point exception trapping are active! "
              "It is possible that intended exceptions within BLAS/LAPACK crash the program. "
              "Be warned!")
-    set (FFLAGS_${FCID}_GARBLE "${FFLAGS_${FCID}_GARBLE} ${${FCID}_TRAP}")
+    set (CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${${FCID}_TRAP}")
   endif ()
 endif ()
 

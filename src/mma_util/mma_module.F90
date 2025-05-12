@@ -64,6 +64,9 @@ contains
 subroutine garble(ipos,length,vartyp)
 
   use, intrinsic :: iso_c_binding, only: c_f_pointer
+# ifdef _FPE_TRAP_
+  use, intrinsic :: IEEE_Arithmetic, only: IEEE_signaling_NaN, IEEE_value
+# endif
   use Definitions, only: byte, RtoB
 
   integer(kind=iwp), intent(in) :: ipos, length
@@ -75,7 +78,13 @@ subroutine garble(ipos,length,vartyp)
   real(kind=wp), pointer :: rbuf(:)
   integer(kind=iwp), parameter :: igarbage = huge(igarbage)
   integer(kind=byte), parameter :: i1garbage = huge(i1garbage)
+# ifndef _FPE_TRAP_
   real(kind=wp), parameter :: dgarbage = huge(dgarbage)
+# else
+  real(kind=wp) :: dgarbage
+
+  dgarbage = IEEE_value(dgarbage,IEEE_signaling_NaN)
+# endif
 
   ! Here we overwrite the underlying memory, using C pointers
   ! Do not try this at home!
