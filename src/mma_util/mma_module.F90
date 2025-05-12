@@ -12,22 +12,20 @@
 module mma_module
 
 use, intrinsic :: iso_c_binding, only: c_char, c_ptr
-use Definitions, only: wp, iwp, MOLCAS_C_INT, MOLCAS_C_REAL
+use Definitions, only: wp, iwp, MOLCAS_C_INT
 
 implicit none
 private
 
-real(kind=wp) :: Work(1)
 logical(kind=iwp) :: MemStat = .false.
 
 ! Fortran interfaces for C functions
 
 interface
 
-  function allocmem(ref,size_) bind(C,name='allocmem_')
-    import :: MOLCAS_C_INT, MOLCAS_C_REAL
+  function allocmem(size_) bind(C,name='allocmem_')
+    import :: MOLCAS_C_INT
     integer(kind=MOLCAS_C_INT) :: allocmem
-    real(kind=MOLCAS_C_REAL), intent(in) :: ref(*)
     integer(kind=MOLCAS_C_INT), intent(out) :: size_
   end function allocmem
 
@@ -55,7 +53,7 @@ interface
 
 end interface
 
-public :: allocmem, c_getmem, cptr2woff, MemStat, Work
+public :: allocmem, c_getmem, cptr2woff, MemStat
 #ifdef _GARBLE_
 public :: garble
 

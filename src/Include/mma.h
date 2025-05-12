@@ -32,6 +32,6 @@ char *woff2cptr(char etyp[], INT offset);
 char *allomblck(char *name,  INT *len);
 INT   cptr2woff(char etyp[], void *cptr);
 INT   freemblck(char *mblck);
-INT   allocmem(double ref[],INT *size);
+INT   allocmem(INT *size);
 INT   c_getmem(char *name, char* Op, char *dtyp, INT *offset, INT *len);
 INT   mma_avmem(void);

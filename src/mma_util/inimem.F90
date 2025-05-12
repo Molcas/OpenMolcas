@@ -19,7 +19,7 @@
 
 subroutine IniMem()
 
-use mma_module, only: allocmem, MemStat, Work
+use mma_module, only: allocmem, MemStat
 use stdalloc, only: MxMem
 use Definitions, only: iwp, u6
 
@@ -35,7 +35,7 @@ MemStat = .true.
 !----------------------------------------------------------------------*
 !     Grab from the system a pointer to the dynamic work area          *
 !----------------------------------------------------------------------*
-iRc = allocmem(Work,MxMem)
+iRc = allocmem(MxMem)
 if (iRc /= 0) then
   write(u6,'(A,I3,A)') 'The initialization of the memory manager failed ( iRc=',iRc,' ).'
   call Quit(_RC_MEMORY_ERROR_)

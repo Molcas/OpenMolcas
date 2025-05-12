@@ -110,6 +110,7 @@ enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
 
 mstat MlM = { 0, SYS_ATIME + 1, 0, 0, 0 };
 
+double anchor[1];
 double *dptr;
 INT *iptr;
 char *cptr;
@@ -170,7 +171,7 @@ INT testmem(INT *MOLCASMEM) {
   return (rc);
 }
 
-INT allocmem(double ref[], INT *size) {
+INT allocmem(INT *size) {
   INT rc, MOLCASMEM, MAXMEM;
   char c;
   char *ptr;
@@ -237,9 +238,9 @@ INT allocmem(double ref[], INT *size) {
 
   *size = MOLCASMEM / sizeof(double);
 
-  dptr = ref;
-  iptr = (INT *)ref;
-  cptr = (char *)ref;
+  dptr = anchor;
+  iptr = (INT *)anchor;
+  cptr = (char *)anchor;
 
   MlM.avmem = MOLCASMEM;
   MlM.totmem = MOLCASMEM;
@@ -296,7 +297,7 @@ INT allocmem(double ref[], INT *size) {
 #   endif
   }
 # ifdef _DEBUGPRINT_MEM_
-  printf("ref=%p\n", (void *)ref);
+  printf("ref=%p\n", (void *)anchor);
   setvbuf(stdout, NULL, _IOLBF, 0);
 # endif
 # ifdef _OPENMP
