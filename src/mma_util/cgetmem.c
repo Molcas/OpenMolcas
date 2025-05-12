@@ -421,7 +421,7 @@ void *woff2cptr(INT offset) {
 /*-----------------------------------------------------------------------------*/
 INT cptr2woff(void *c_ptr) {
 
-  return ((INT)((char *)c_ptr - cptr));
+  return ((INT)((char *)c_ptr - cptr) + 1);
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -837,7 +837,7 @@ INT freemblck(void *mblck) {
   char Op[] = "FREE", ctyp[] = "CHAR", name[] = "DELMEM";
   INT offset, len, rc;
 
-  offset = cptr2woff(mblck);
+  offset = cptr2woff(mblck) - 1;
   rc = c_getmem(name, Op, ctyp, &offset, &len);
   mblck = NULL;
   return (rc);

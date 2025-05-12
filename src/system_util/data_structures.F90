@@ -120,9 +120,7 @@ interface Deallocate_DT
 end interface Deallocate_DT
 
 ! Private extensions to mma interfaces
-interface cptr2loff
-  module procedure :: dsba_cptr2loff, a1da_cptr2loff, a2da_cptr2loff, a1ia_cptr2loff
-end interface
+
 interface mma_allocate
   module procedure :: dsba_mma_allo_1D, dsba_mma_allo_1D_lim, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_allo_2D, &
                       a1da_mma_allo_2D_lim, a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a1ia_mma_allo_1D, a1ia_mma_allo_1D_lim
@@ -976,18 +974,15 @@ subroutine Free_Alloc1DiArray(Array)
 
 end subroutine Free_Alloc1DiArray
 
-! Define dsba_cptr2loff, dsba_mma_allo_1D, dsba_mma_allo_1D_lim, dsba_mma_free_1D
-!        a1da_cptr2loff, a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_free_1D,
-!                        a1da_mma_allo_2D, a1da_mma_allo_2D_lim, a1da_mma_free_2D
-!        a2da_cptr2loff, a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a2da_mma_free_1D
-!        a1ia_cptr2loff, a1ia_mma_allo_1D, a1ia_mma_allo_1D_lim, a1ia_mma_free_1D,
+! Define dsba_mma_allo_1D, dsba_mma_allo_1D_lim, dsba_mma_free_1D
+!        a1da_mma_allo_1D, a1da_mma_allo_1D_lim, a1da_mma_free_1D,
+!        a1da_mma_allo_2D, a1da_mma_allo_2D_lim, a1da_mma_free_2D
+!        a2da_mma_allo_1D, a2da_mma_allo_1D_lim, a2da_mma_free_1D
+!        a1ia_mma_allo_1D, a1ia_mma_allo_1D_lim, a1ia_mma_free_1D,
 
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(DSBA_Type)
 #  define _NO_GARBLE_
-#  define _FUNC_NAME_ dsba_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ dsba_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'dsba_mma'
@@ -998,9 +993,6 @@ end subroutine Free_Alloc1DiArray
 #undef _TYPE_
 
 #define _TYPE_ type(Alloc1DArray_Type)
-#  define _FUNC_NAME_ a1da_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ a1da_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'a1da_mma'
@@ -1014,9 +1006,6 @@ end subroutine Free_Alloc1DiArray
 #undef _TYPE_
 
 #define _TYPE_ type(Alloc2DArray_Type)
-#  define _FUNC_NAME_ a2da_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ a2da_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'a2da_mma'
@@ -1027,9 +1016,6 @@ end subroutine Free_Alloc1DiArray
 #undef _TYPE_
 
 #define _TYPE_ type(Alloc1DiArray_Type)
-#  define _FUNC_NAME_ a1ia_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ a1ia_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'a1ia_mma'

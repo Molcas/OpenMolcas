@@ -53,6 +53,7 @@ type Lab_Type
 end type Lab_Type
 
 ! Extend allocate/deallocate data types
+
 interface Allocate_DT
   module procedure :: Allocate_L_Full, Allocate_Lab
 end interface Allocate_DT
@@ -61,9 +62,7 @@ interface Deallocate_DT
 end interface Deallocate_DT
 
 ! Private extensions to mma interfaces
-interface cptr2loff
-  module procedure :: lfp_cptr2loff, v1_cptr2loff
-end interface
+
 interface mma_allocate
   module procedure :: lfp_mma_allo_3D, lfp_mma_allo_3D_lim, v1_mma_allo_3D, v1_mma_allo_3D_lim
 end interface
@@ -288,12 +287,9 @@ subroutine Deallocate_Lab(Lab)
 
 end subroutine Deallocate_Lab
 
-! Define lfp_cptr2loff, lfp_mma_allo_3D, lfp_mma_allo_3D_lim, lfp_mma_free_3D
-!        v1_cptr2loff, v1_mma_allo_3D, v1_mma_allo_3D_lim, v1_mma_free_3D
+! Define lfp_mma_allo_3D, lfp_mma_allo_3D_lim, lfp_mma_free_3D
+!        v1_mma_allo_3D, v1_mma_allo_3D_lim, v1_mma_free_3D
 #define _TYPE_ type(L_Full_Pointers)
-#  define _FUNC_NAME_ lfp_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ lfp_mma
 #  define _DIMENSIONS_ 3
 #  define _DEF_LABEL_ 'lfp_mma'
@@ -304,9 +300,6 @@ end subroutine Deallocate_Lab
 #undef _TYPE_
 
 #define _TYPE_ type(V1)
-#  define _FUNC_NAME_ v1_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ v1_mma
 #  define _DIMENSIONS_ 3
 #  define _DEF_LABEL_ 'v1_mma'

@@ -95,9 +95,6 @@ public :: citrans_csf2sd, citrans_sd2csf, citrans_sort, ncsf_group, ndet_group, 
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: spt_cptr2loff
-end interface
 interface mma_allocate
   module procedure :: spt_mma_allo_1D, spt_mma_allo_1D_lim
 end interface
@@ -679,11 +676,8 @@ end subroutine mkwtab
 ! Extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define spt_cptr2loff, spt_mma_allo_1D, spt_mma_allo_1D_lim, spt_mma_free_1D
+! Define spt_mma_allo_1D, spt_mma_allo_1D_lim, spt_mma_free_1D
 #define _TYPE_ type(spintable)
-#  define _FUNC_NAME_ spt_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ spt_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'spt_mma'

@@ -177,10 +177,6 @@ type(Shell_Info), allocatable, target :: Shells(:)
 
 ! Private extensions to mma interfaces
 
-interface cptr2loff
-  module procedure :: dbsc_cptr2loff
-  module procedure :: shell_cptr2loff
-end interface
 interface mma_Allocate
   module procedure :: dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim
   module procedure :: shell_mma_allo_1D, shell_mma_allo_1D_lim
@@ -979,13 +975,10 @@ end subroutine Basis_Info_Free
 ! Private extensions to mma_interfaces, using preprocessor templates
 ! (see src/mma_util/stdalloc.f)
 
-! Define dbsc_cptr2loff, dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim, dbsc_mma_free_1D
+! Define dbsc_mma_allo_1D, dbsc_mma_allo_1D_lim, dbsc_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(Distinct_Basis_set_centers)
 #  define _NO_GARBLE_
-#  define _FUNC_NAME_ dbsc_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ dbsc_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'dbsc_mma'
@@ -995,13 +988,10 @@ end subroutine Basis_Info_Free
 #  undef _DEF_LABEL_
 #undef _TYPE_
 
-! Define shell_cptr2loff, shell_mma_allo_1D, shell_mma_allo_1D_lim, shell_mma_free_1D
+! Define shell_mma_allo_1D, shell_mma_allo_1D_lim, shell_mma_free_1D
 ! (using _NO_GARBLE_ because all members are initialized)
 #define _TYPE_ type(Shell_Info)
 #  define _NO_GARBLE_
-#  define _FUNC_NAME_ shell_cptr2loff
-#  include "cptr2loff_template.fh"
-#  undef _FUNC_NAME_
 #  define _SUBR_NAME_ shell_mma
 #  define _DIMENSIONS_ 1
 #  define _DEF_LABEL_ 'shell_mma'

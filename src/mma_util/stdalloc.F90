@@ -20,8 +20,7 @@
 ! allocated here counts towards the maximum allowed by getmem.
 !
 ! To add additional data types or dimensions, just include the file
-! "mma_allo_template.fh" (and possibly "cptr2loff_template.fh") with
-! appropriate values for the macros:
+! "mma_allo_template.fh" with appropriate values for the macros:
 !   _SUBR_NAME_: The base name for the subroutines
 !   _DATA_NAME_: The data type string for getmem: 'REAL' for real(kind=wp),
 !                'INTE' for integer(kind=iwp), undefined for anything else
@@ -59,10 +58,6 @@ implicit none
 private
 
 integer(kind=iwp) :: MxMem
-
-interface cptr2loff
-  module procedure :: b_cptr2loff, c_cptr2loff, d_cptr2loff, i4_cptr2loff, i_cptr2loff, l_cptr2loff, z_cptr2loff
-end interface
 
 interface mma_allocate
   ! 0D allocate
@@ -179,61 +174,7 @@ subroutine mma_maxBYTES(mma_avail)
 
 end subroutine mma_maxBYTES
 
-! type-specific pointer-to-offset routines
 #define _IN_STDALLOC_MOD_
-
-#define _FUNC_NAME_ d_cptr2loff
-#define _TYPE_ real(kind=wp)
-#define _DATA_NAME_ 'REAL'
-#include "cptr2loff_template.fh"
-#undef _FUNC_NAME_
-#undef _TYPE_
-#undef _DATA_NAME_
-
-#define _FUNC_NAME_ z_cptr2loff
-#define _TYPE_ complex(kind=wp)
-#include "cptr2loff_template.fh"
-#undef _FUNC_NAME_
-#undef _TYPE_
-
-#define _FUNC_NAME_ i4_cptr2loff
-#define _TYPE_ integer(kind=MPIInt)
-#define _DATA_NAME_ 'INTE'
-#include "cptr2loff_template.fh"
-#undef _FUNC_NAME_
-#undef _TYPE_
-#undef _DATA_NAME_
-
-#define _FUNC_NAME_ i_cptr2loff
-#define _TYPE_ integer(kind=iwp)
-#define _DATA_NAME_ 'INTE'
-#include "cptr2loff_template.fh"
-#undef _FUNC_NAME_
-#undef _TYPE_
-#undef _DATA_NAME_
-#define _FUNC_NAME_ b_cptr2loff
-
-#define _TYPE_ integer(kind=byte)
-#include "cptr2loff_template.fh"
-#undef _FUNC_NAME_
-#undef _TYPE_
-
-! _WITH_LEN_ enables a workaround for older gfortran
-#define _FUNC_NAME_ c_cptr2loff
-#define _TYPE_ character(len=*)
-#define _DATA_NAME_ 'CHAR'
-#define _WITH_LEN_
-#include "cptr2loff_template.fh"
-#undef _FUNC_NAME_
-#undef _TYPE_
-#undef _DATA_NAME_
-#undef _WITH_LEN_
-
-#define _FUNC_NAME_ l_cptr2loff
-#define _TYPE_ logical(kind=iwp)
-#include "cptr2loff_template.fh"
-#undef _FUNC_NAME_
-#undef _TYPE_
 
 ! type-specific allocation subroutines
 ! each #include defines NAME_allo_xD, NAME_allo_xD_lim, and NAME_free_xD
