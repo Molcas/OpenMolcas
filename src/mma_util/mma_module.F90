@@ -37,17 +37,15 @@ interface
     integer(kind=MOLCAS_C_INT), intent(in) :: len_
   end function c_getmem
 
-  function cptr2woff(etyp,ptr) bind(C,name='cptr2woff_')
-    import :: c_char, c_ptr, MOLCAS_C_INT
+  function cptr2woff(ptr) bind(C,name='cptr2woff_')
+    import :: c_ptr, MOLCAS_C_INT
     integer(kind=MOLCAS_C_INT) :: cptr2woff
-    character(kind=c_char), intent(in) :: etyp(*)
     type(c_ptr), value, intent(in) :: ptr
   end function cptr2woff
 
-  function woff2cptr(etyp,offset) bind(C,name='woff2cptr_')
-    import :: c_char, c_ptr, MOLCAS_C_INT
+  function woff2cptr(offset) bind(C,name='woff2cptr_')
+    import :: c_ptr, MOLCAS_C_INT
     type(c_ptr) :: woff2cptr
-    character(kind=c_char), intent(in) :: etyp
     integer(kind=MOLCAS_C_INT), value, intent(in) :: offset
   end function woff2cptr
 
@@ -89,12 +87,12 @@ subroutine garble(ipos,length,vartyp)
 
   select case (vartyp)
     case ('REAL')
-      cptr = woff2cptr('R',ipos-1)
+      cptr = woff2cptr(ipos-1)
       call c_f_pointer(cptr,rbuf,[length])
       rbuf(1:length) = dgarbage
       nullify(rbuf)
     case ('INTE')
-      cptr = woff2cptr('I',ipos-1)
+      cptr = woff2cptr(ipos-1)
       call c_f_pointer(cptr,ibuf,[length])
       ibuf(1:length) = igarbage
       nullify(ibuf)
@@ -102,7 +100,7 @@ subroutine garble(ipos,length,vartyp)
       ioff1 = (ipos-1)/RtoB+1
       ioff2 = mod(ipos-1,RtoB)+1
       foff1 = (ipos+length-2)/RtoB+1
-      cptr = woff2cptr('C',ipos-1)
+      cptr = woff2cptr(ipos-1)
       call c_f_pointer(cptr,i1buf,[(foff1-ioff1+1)*RtoB])
       i1buf(ioff2:ioff2+length-1) = i1garbage
       nullify(i1buf)

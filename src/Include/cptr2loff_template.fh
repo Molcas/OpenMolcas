@@ -12,12 +12,6 @@
 !               2015,2020, Ignacio Fdez. Galvan                        *
 !***********************************************************************
 
-#ifdef _DATA_NAME_
-#  define _DN_ _DATA_NAME_
-#else
-#  define _DN_ 'CHAR'
-#endif
-
 function _FUNC_NAME_(buffer)
 
 use, intrinsic :: iso_c_binding, only: c_loc
@@ -29,11 +23,9 @@ integer(kind=iwp) :: _FUNC_NAME_
 _TYPE_, target, intent(in) :: buffer
 
 #ifdef _WITH_LEN_
-_FUNC_NAME_ = cptr2woff(_DN_,c_loc(buffer(1:1)))+1
+_FUNC_NAME_ = cptr2woff(c_loc(buffer(1:1)))+1
 #else
-_FUNC_NAME_ = cptr2woff(_DN_,c_loc(buffer))+1
+_FUNC_NAME_ = cptr2woff(c_loc(buffer))+1
 #endif
 
 end function _FUNC_NAME_
-
-#undef _DN_

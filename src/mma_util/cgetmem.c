@@ -111,9 +111,7 @@ enum memops { ALLO, FREE, LIST, TERM, RGST, EXCL };
 mstat MlM = { 0, SYS_ATIME + 1, 0, 0, 0 };
 
 double anchor[1];
-double *dptr;
-INT *iptr;
-char *cptr;
+char *cptr = (char *)anchor;
 
 #ifdef _OPENMP
 omp_lock_t mma_lock;
@@ -238,10 +236,6 @@ INT allocmem(INT *size) {
 
   *size = MOLCASMEM / sizeof(double);
 
-  dptr = anchor;
-  iptr = (INT *)anchor;
-  cptr = (char *)anchor;
-
   MlM.avmem = MOLCASMEM;
   MlM.totmem = MOLCASMEM;
 # ifndef _DEMO_
@@ -297,7 +291,7 @@ INT allocmem(INT *size) {
 #   endif
   }
 # ifdef _DEBUGPRINT_MEM_
-  printf("ref=%p\n", (void *)anchor);
+  printf("ref=%p\n", (void *)cptr);
   setvbuf(stdout, NULL, _IOLBF, 0);
 # endif
 # ifdef _OPENMP
@@ -419,45 +413,15 @@ INT ismax_mentry(INT i) {
   }
 }
 /*-----------------------------------------------------------------------------*/
-char *woff2cptr(char etyp[], INT offset) {
+void *woff2cptr(INT offset) {
 
-  char *wrkspc = NULL;
-
-  switch (etyp[0]) {
-  case 'R':
-    wrkspc = (char *)&dptr[offset];
-    break;
-  case 'I':
-    wrkspc = (char *)&iptr[offset];
-    break;
-  case 'C':
-    wrkspc = &cptr[offset];
-    break;
-  default:
-    printf("MMA: not supported datatype %s\n", etyp);
-  }
-  return (wrkspc);
+  return ((void *)&cptr[offset]);
 }
 
 /*-----------------------------------------------------------------------------*/
-INT cptr2woff(char etyp[], void *c_ptr) {
+INT cptr2woff(void *c_ptr) {
 
-  ptrdiff_t dist = UNDEF_MEM;
-
-  switch (etyp[0]) {
-  case 'R':
-    dist = (double *)c_ptr - dptr;
-    break;
-  case 'I':
-    dist = (INT *)c_ptr - iptr;
-    break;
-  case 'C':
-    dist = (char *)c_ptr - cptr;
-    break;
-  default:
-    printf("MMA: not supported datatype %s\n", etyp);
-  }
-  return (dist);
+  return ((INT)((char *)c_ptr - cptr));
 }
 
 /*-----------------------------------------------------------------------------*/
@@ -532,13 +496,13 @@ INT add_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
 # endif
   switch (tmp->etyp[0]) {
   case 'R':
-    dist = (double *)wrkspc - dptr;
+    dist = (double *)wrkspc - (double *)cptr;
 #   ifdef _MEM_PROF_
     dcopy(&n, &flRcnst, &incx, (double *)wrkspc, &incy);
 #   endif
     break;
   case 'I':
-    dist = (INT *)wrkspc - iptr;
+    dist = (INT *)wrkspc - (INT *)cptr;
 #   ifdef _MEM_PROF_
     icopy(&n, &flIcnst, &incx, (INT *)wrkspc, &incy);
 #   endif
@@ -576,7 +540,7 @@ INT reg_mentry(mstat *MM, mentry mentries[], mentry *tmp) {
   } else {
     MM->mxmem -= tmp->len;
   }
-  newe->addr = woff2cptr(tmp->etyp, tmp->offset);
+  newe->addr = woff2cptr(tmp->offset);
   newe->atime = MM->naccess;
 
 # ifdef _DEBUGPRINT_MEM_
@@ -838,10 +802,11 @@ INT c_getmem(char *name, char *Op, char *dtyp, INT *offset, INT *len) {
   return (rc);
 }
 
-char *allomblck(char *name, INT *len) {
+void *allomblck(char *name, INT *len) {
 
   mentry tmp;
-  char Op[] = "ALLO", ctyp[] = "CHAR", *mblck = NULL, e_name[MXLINE];
+  char Op[] = "ALLO", ctyp[] = "CHAR", e_name[MXLINE];
+  void *mblck = NULL;
   INT rc, op, blen, offset = 0;
 
   op = memop(Op);
@@ -859,7 +824,7 @@ char *allomblck(char *name, INT *len) {
   rc = c_getmem_kern(&op, &tmp, &offset);
 
   if (rc >= 0) {
-    mblck = woff2cptr(ctyp, offset);
+    mblck = woff2cptr(offset);
   } else {
     print_params("C_GetMem", name, Op, ctyp, &offset, len);
   }
@@ -867,12 +832,12 @@ char *allomblck(char *name, INT *len) {
   return (mblck);
 }
 
-INT freemblck(char *mblck) {
+INT freemblck(void *mblck) {
 
   char Op[] = "FREE", ctyp[] = "CHAR", name[] = "DELMEM";
   INT offset, len, rc;
 
-  offset = cptr2woff(ctyp, mblck);
+  offset = cptr2woff(mblck);
   rc = c_getmem(name, Op, ctyp, &offset, &len);
   mblck = NULL;
   return (rc);
