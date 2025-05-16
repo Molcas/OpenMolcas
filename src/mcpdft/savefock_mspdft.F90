@@ -19,15 +19,15 @@ subroutine SaveFock_msPDFT(cmo,h1e,D1Act,NQ,p2d,state)
 use printlevel, only: debug
 use mcpdft_output, only: iPrLoc
 use wadr, only: fockocc
-use rasscf_global, only: ISTORP, nFint, ntot4
+use rasscf_global, only: ISTORP, nacpar, nacpr2, nFint, ntot4
 use mspdftgrad, only: F1MS, F2MS, FocMS, FxyMS
-use general_data, only: nbas, nfro, norb, nsym, ntot1
+use general_data, only: nbas, nfro, norb, nsym, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: cmo(*), h1e(*), D1Act(*), P2D(*)
+real(kind=wp), intent(in) :: cmo(ntot2), h1e(ntot1), D1Act(nacpar), P2D(nacpr2)
 integer(kind=iwp), intent(in) :: NQ, state
 integer(kind=iwp) :: iprlev
 real(kind=wp), allocatable :: dm2(:), FA_V(:), FI_V(:), fock(:), h1e_mo(:), ONTOPO(:), ONTOPT(:), Q(:)
@@ -79,7 +79,7 @@ end if
 
 ! Must add to existing fock operator (occ/act).
 call mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-call fock_update(fock,fi_v,fa_v,D1Act,dm2,Q,OnTopT,CMO)
+call fock_update(fock,fi_v,fa_v,D1Act,dm2,Q,NQ,OnTopT,CMO)
 call mma_deallocate(Q)
 call mma_deallocate(dm2)
 call mma_deallocate(OnTopO)

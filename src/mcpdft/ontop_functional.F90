@@ -183,26 +183,24 @@ function get_ontop_type(otxc)
 
 end function get_ontop_type
 
-function energy_ot(self,folded_dm1,folded_dm1s,casdm1,casdm2,charge)
+function energy_ot(self,folded_dm1,folded_dm1s,casdm2,charge)
 
   use rctfld_module, only: lrf
   use rasscf_global, only: dftfock, exfac, nacpr2, noneq, potnuc
   use general_data, only: ispin, nash, nfro, nish, nsym, ntot1
   use stdalloc, only: mma_allocate, mma_deallocate
 
-# include "intent.fh"
-
   real(kind=wp) :: energy_ot
   class(OTFNAL_t),intent(in) :: self
-  real(kind=wp), intent(in) :: folded_dm1(*), folded_dm1s(*), casdm1(*), casdm2(*)
-  integer(kind=iwp), intent(_IN_) :: charge
+  real(kind=wp), intent(in) :: folded_dm1(ntot1), folded_dm1s(ntot1), casdm2(nacpr2)
+  integer(kind=iwp), intent(in) :: charge
+  integer(kind=iwp) :: charge_
   logical(kind=iwp) :: first, dff, do_dft
   real(kind=wp), allocatable :: dummy1(:), dummy2(:)
 
   call put_darray('D1ao',folded_dm1,ntot1)
   call put_darray('D1sao',folded_dm1s,ntot1)
   !call put_darray('D1mo',casdm1,nacpar)
-  call Unused_real_array(casdm1)
   call put_darray('P2mo',casdm2,nacpr2)
 
   call mma_allocate(dummy1,ntot1,label='dummy1')
@@ -220,7 +218,8 @@ function energy_ot(self,folded_dm1,folded_dm1s,casdm1,casdm2,charge)
 
   ! Perhaps ideally, we should reword how drvxv (and its children) handles the AO to MO transformation on the grid. It seems like
   ! perhaps we are doing redundant transformations by retransforming AOs
-  call drvxv(dummy1,dummy2,folded_dm1,potnuc,ntot1,first,dff,noneq,lrf,self%otxc,exfac,charge,ispin,dftfock,do_dft)
+  charge_ = charge
+  call drvxv(dummy1,dummy2,folded_dm1,potnuc,ntot1,first,dff,noneq,lrf,self%otxc,exfac,charge_,ispin,dftfock,do_dft)
 
   call mma_deallocate(dummy1)
   call mma_deallocate(dummy2)

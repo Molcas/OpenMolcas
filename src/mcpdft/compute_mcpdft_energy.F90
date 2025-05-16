@@ -26,11 +26,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: iwp, wp
 
-#include "intent.fh"
-
 implicit none
-real(kind=wp), intent(in) :: cmo(*), e_mcscf(*)
-real(kind=wp), intent(_OUT_) :: e_states(*)
+real(kind=wp), intent(in) :: cmo(ntot2), e_mcscf(lroots)
+real(kind=wp), intent(out) :: e_states(lroots)
 integer(kind=iwp) :: charge, dmDisk, IAD19, IADR19(30), iJOB, iSA, isym, jroot, niaia, NQ
 real(kind=wp) :: e_ot, e_state, e_wfn
 logical(kind=iwp) :: Found
@@ -146,7 +144,7 @@ do jroot=1,lroots
   end if
 
   do_pdftpot = (mcpdft_options%grad .and. (mcpdft_options%mspdft .or. (jroot == mcpdft_options%rlxroot)))
-  e_ot = mcpdft_options%otfnal%energy_ot(folded_dm1,folded_dm1s,casdm1,P2d,charge)
+  e_ot = mcpdft_options%otfnal%energy_ot(folded_dm1,folded_dm1s,P2d,charge)
 
   call get_coulomb(cmo,dm1_core,dm1_cas,coul)
 

@@ -13,7 +13,7 @@
 !> @brief construct PDFT generalized fock matrix
 !***********************************************************************
 
-subroutine FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
+subroutine FOCK_update(F,FI,FP,D,P,Q,NQ,FINT,CMO)
 ! This subroutine is supposed to add the dft portions of the mcpdft fock
 ! matrix to the Fock matrix pieces that have already been built for the
 ! CASSCF portion.
@@ -29,24 +29,17 @@ subroutine FOCK_update(F,FI,FP,D,P,Q,FINT,CMO)
 use Index_Functions, only: iTri, nTri_Elem
 use printlevel, only: debug
 use mcpdft_output, only: iPrLoc
-use rasscf_global, only: ISTORD, ISTORP, nTot3, nTot4
-use general_data, only: nash, nbas, nish, norb, nsym
+use rasscf_global, only: ISTORD, ISTORP, nacpar, nFint, nTot3, nTot4
+use general_data, only: nash, nbas, nish, norb, nsym, nTot1, nTot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: iwp, wp, u6
 
-!IFG
-!F
-!FI
-!FP
-!D
-!P
-!Q
-!FINT
-!CMO
-
 implicit none
-real(kind=wp) :: F(*), FI(*), FP(*), D(*), P(*), Q(*), FINT(*), CMO(*)
+real(kind=wp), intent(inout) :: F(nTot4), FP(nTot1)
+real(kind=wp), intent(in) :: FI(nTot1), D(nacpar), P(*), FINT(nFint), CMO(nTot2)
+integer(kind=iwp), intent(in) :: NQ
+real(kind=wp), intent(out) :: Q(NQ)
 integer(kind=iwp) :: ipFMCSCF, iprlev, ISTAV(8), ISTD, ISTFCK, ISTFP, ISTP, ISTSQ(8), iSym, JSTF, NAO, NI, NIO, NM, NO, NO2, NOR, &
                      NP, NT, NTM, NTV, NUVX, NV, NVI, NVM
 real(kind=wp) :: QNTM

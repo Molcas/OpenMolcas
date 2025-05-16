@@ -14,15 +14,13 @@
 subroutine P2_contraction(D1MO,P2MO)
 
 use Index_Functions, only: iTri
-use rasscf_global, only: NAC
+use rasscf_global, only: NAC, NACPAR, NACPR2
 use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-real(kind=wp), intent(in) :: d1mo(*)
-real(kind=wp), intent(_OUT_) :: p2mo(*)
+real(kind=wp), intent(in) :: d1mo(NACPAR)
+real(kind=wp), intent(out) :: p2mo(NACPR2)
 integer(kind=iwp) :: i, ij, ijkl, j, k, kl, l, lmax
 real(kind=wp) :: fact
 

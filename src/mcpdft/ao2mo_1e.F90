@@ -29,16 +29,15 @@
 subroutine ao2mo_1e(cmo,d_ao,d_mo,nSym,nBas,nOrb,nFro)
 
 use Index_Functions, only: nTri_Elem
+use general_data, only: ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-real(kind=wp), intent(in) :: cmo(*), d_ao(*)
-real(kind=wp), intent(_OUT_) :: d_mo(*)
-integer(kind=iwp), intent(in) :: nsym, nbas(*), norb(*), nfro(*)
+real(kind=wp), intent(in) :: cmo(ntot2), d_ao(ntot1)
+real(kind=wp), intent(out) :: d_mo(ntot1)
+integer(kind=iwp), intent(in) :: nsym, nbas(nsym), norb(nsym), nfro(nsym)
 integer(kind=iwp) :: ibas, ifro, ioff1, ioff2, ioff3, iorb, isym
 real(kind=wp), allocatable :: tmp1(:), tmp2(:)
 

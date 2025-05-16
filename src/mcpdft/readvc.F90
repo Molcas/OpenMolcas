@@ -31,10 +31,8 @@ use mh5, only: mh5_close_file, mh5_fetch_dset, mh5_open_file_r
 #endif
 use Definitions, only: wp, iwp, u6
 
-#include "intent.fh"
-
 implicit none
-real(kind=wp), intent(_OUT_) :: CMO(*)
+real(kind=wp), intent(out) :: CMO(ntot2)
 integer(kind=iwp) :: iad19, IADR19(30), ijob, iprlev
 #ifdef _HDF5_
 integer(kind=iwp) ::mh5id

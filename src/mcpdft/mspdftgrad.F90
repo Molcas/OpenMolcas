@@ -41,7 +41,7 @@ subroutine mspdftgrad_init()
   call mma_allocate(DIDA,ntot1,nroots+1,label='DIDA')
   if (iSpin /= 1) call mma_allocate(D1SaoMS,nTot1,nRoots,label='D1SAOMS')
 
-  P2MOT = Zero
+  P2MOT(:,:) = Zero
 
   ! Put relevant information to the runfile
   call Put_lScalar('isCMSNAC',mcpdft_options%nac)

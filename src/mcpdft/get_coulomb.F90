@@ -30,17 +30,15 @@ subroutine get_coulomb(cmo,dm1_core,dm1_cas,coul)
 
 use printlevel, only: debug, insane
 use rasscf_global, only: lsquare, NACPR2, nfint
-use general_data, only: ntot1
+use general_data, only: ntot1, ntot2
 use mcpdft_output, only: iprglb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
-#include "intent.fh"
-
 implicit none
-real(kind=wp), intent(in) :: cmo(*), dm1_core(*), dm1_cas(*)
-real(kind=wp), intent(_OUT_) :: coul(*)
+real(kind=wp), intent(in) :: cmo(ntot2), dm1_core(ntot2), dm1_cas(ntot2)
+real(kind=wp), intent(out) :: coul(ntot1)
 integer(kind=iwp) :: print_level
 real(kind=wp), allocatable :: focka(:), focki(:), puvx(:), tuvx(:)
 real(kind=wp), parameter :: exfac = Zero

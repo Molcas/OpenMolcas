@@ -14,14 +14,14 @@
 subroutine savefock_pdft(cmo,h1e,d1act,nq,p2d)
 
 use wadr, only: fockocc
-use rasscf_global, only: istorp, nacpr2, nfint, ntot4
-use general_data, only: nbas, nfro, norb, nsym, ntot1
+use rasscf_global, only: istorp, nacpar, nacpr2, nfint, ntot4
+use general_data, only: nbas, nfro, norb, nsym, ntot1, ntot2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp), intent(in) :: cmo(*), h1e(*), d1act(*), p2d(*)
+real(kind=wp), intent(in) :: cmo(ntot2), h1e(ntot1), d1act(nacpar), p2d(nacpr2)
 integer(kind=iwp), intent(in) :: nq
 real(kind=wp), allocatable :: dm2(:), fa_v(:), fi_v(:), fock(:), h1e_mo(:), ontopo(:), ontopt(:), q(:), tuvx_tmp(:)
 
@@ -67,7 +67,7 @@ else
 end if
 
 call mma_allocate(q,nq,label='q')
-call fock_update(fock,fi_v,fa_v,d1act,dm2,q,ontopt,cmo)
+call fock_update(fock,fi_v,fa_v,d1act,dm2,q,nq,ontopt,cmo)
 
 call put_darray('FockOcc',fockocc,ntot1)
 call put_darray('Fock_PDFT',fock,ntot4)
