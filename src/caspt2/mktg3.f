@@ -390,6 +390,32 @@ C -D(V,U)*TG2(T,X,Y,Z) C -D(Y,U)*TG2(V,X,T,Z)
       END DO
       CALL mma_deallocate(P2LEV)
 
+      write(*,*) "1-TRANSITION-RDM\n"
+      do t = 1, nasht
+        do u = 1, nasht
+          ! tg1(t,u) = 0.0
+          write(*,*) int(t), int(u), tg1(t, u)
+        end do
+      end do
+
+      write(*,*) "2-TRANSITION-RDM\n"
+      do it = 1, nasht
+        do iu = 1, nasht
+          do iv = 1, nasht
+            do ix = 1, nasht
+              ! tg2(it,iu,iv,ix) = 0.0
+              write(*,*) it, iu, iv, ix, tg2(it, iu, iv, ix)
+            end do
+          end do
+        end do
+      end do
+
+      ! write(*,*) "Linearized 3-Transition RDM"
+      do it = 1, ntg3
+        ! tg3(it) = 0.0
+        write(*,*) it, tg3(it)
+      end do
+
       END SUBROUTINE MKTG3
 
 

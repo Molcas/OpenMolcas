@@ -40,9 +40,19 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    call mma_allocate(TG3tmp,nasht,nasht,nasht,nasht,nasht,nasht)
    ! call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
 
-   call qcmaquis_interface_get_1rdm_full(G1)
-   call qcmaquis_interface_get_2rdm_full(G2)
-   call qcmaquis_interface_get_3rdm_full(G3tmp)
+   write(*,*) ">QCMaquis: Computing RDMs"
+
+   ! call qcmaquis_interface_get_1rdm_full(G1)
+   ! call qcmaquis_interface_get_2rdm_full(G2)
+   ! call qcmaquis_interface_get_3rdm_full(G3tmp)
+
+   call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
+     int(JSTATE-1, c_int), G1, int(1, c_int))
+   call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
+     int(JSTATE-1, c_int), G2, int(2, c_int))
+   call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
+     int(JSTATE-1, c_int), G3tmp, int(3, c_int))
+
    call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp, epsa, CompressMPS)
 
    ! number of elements in the contracted 4-index of the 4-RDM

@@ -54,7 +54,7 @@ subroutine hefval(ist, jst, dvalue)
 
 #if defined _DMRG_
   if (DMRG) then
-    call mktg3qcm(ist, jst, stsym, stsym, ovl, tg1, tg2, ntg3, tg3)
+    call mktg3qcm(stsym, stsym, ist, jst, ovl, tg1, tg2, ntg3, tg3)
   else if (.not. DMRG) then
 #endif
     call mma_allocate(ci1, mxci, label='CI1')
@@ -76,6 +76,8 @@ subroutine hefval(ist, jst, dvalue)
       end do
     end if
 
+    write(*,*) "=== VANILLA: Building TRANSITION-RDM === "
+    write(*,*) "between bra", ist, " and  ket", jst
     call mktg3(stsym, stsym, ci1, ci2, ovl, tg1, tg2, ntg3, tg3)
     call mma_deallocate(ci1)
     call mma_deallocate(ci2)

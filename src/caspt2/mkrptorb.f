@@ -20,6 +20,7 @@
       use fciqmc_interface, only: DoFCIQMC, NonDiagonal
       use caspt2_global, only: LUCIEX, IDCIEX, IDTCEX
       use stdalloc, only: mma_allocate, mma_deallocate
+      use qcmaquis_interface
       IMPLICIT NONE
 #include "caspt2.fh"
 C Transform to orbitals that diagonalize the diagonal
@@ -43,7 +44,7 @@ C     indices
       INTEGER IEPS,IEPSI,IEPSA,IEPSE
       INTEGER IOSTA,IOEND
       INTEGER NFOCK,NFES
-#ifdef _ENABLE_BLOCK_DMRG_
+#if defined(_ENABLE_BLOCK_DMRG_) || defined(_DMRG_)
       INTEGER NXMAT
       REAL*8, ALLOCATABLE:: XMAT(:)
 #endif
@@ -224,6 +225,20 @@ C     work-arrays
 
 C Finally, loop again over symmetries, transforming the CI:
       IF(ISCF.EQ.0) THEN
+#ifdef _DMRG_
+        if (DMRG) then
+          NXMAT=NASHT**2
+          CALL mma_allocate(XMAT,NXMAT,LABEL='XMAT')
+          XMAT(:)=0.0D0
+          CALL MKXMAT(TORB,XMAT)
+
+          CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),
+     &     int(JSTATE-1, c_int), int(0, c_int), XMAT)
+
+          CALL mma_deallocate(XMAT)
+        end if
+#endif
+
         if (DoFCIQMC) then
           if (NonDiagonal) then
            write(6,*)'Transforming CASPT2 intermediates to '//
@@ -232,7 +247,7 @@ C Finally, loop again over symmetries, transforming the CI:
             write(6,*)'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
           end if
         else
-#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_) || defined _DMRG_
+#if defined (_ENABLE_BLOCK_DMRG_) || defined (_ENABLE_CHEMPS2_DMRG_)
           IF(.NOT.DoCumulant) THEN
 #endif
             CALL mma_allocate(CI,NCONF,Label='CI')
@@ -295,18 +310,6 @@ C Finally, loop again over symmetries, transforming the CI:
             write(6,*) 'CHEMPS2> MKRPTORB assumes '//
      &    'PSEUDOCANONICAL orbitals!'
           END IF
-#elif _DMRG_
-! for the time being ask outorb = canonical in DMRGSCF, which produces
-! state-specific canonical orbitals (even in a SA-DMRGSCF calculation)
-! and thus here we skip the transformation of the MPS because it is
-! already in the good basis. The 2- and 3-rdms can then be directly
-! computed.
-! For the future, here there should be a call to the API to transform
-! the MPS to the new basis.
-        else
-          write(6,*) 'QCMaquis> MKRPTORB assumes '//
-     & 'PSEUDOCANONICAL orbitals!'
-        end if
 #endif
         end if
       END IF

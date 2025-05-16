@@ -23,7 +23,7 @@ use caspt2_global, only: FIMO
 
 use rasscf_global, only: Emy
 
-use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, qcmaquis_interface_optimize, qcmaquis_interface_set_state
+use qcmaquis_interface, only: qcmaquis_interface_update_integrals_C, qcmaquis_interface_optimize, qcmaquis_interface_set_state, qcmaquis_interface_remove_param
 
 use iso_c_binding, only: c_int
 
@@ -47,6 +47,8 @@ integer :: max_index2
 integer(c_int) :: offset_integrals
 real*8 , parameter                :: threshold = 1.0d-16
 integer NACPAR, NACPR2
+
+write(*,*) "=== QCM: Rotating Orbitals to SS === "
 
 write(u6,*) 'ERI in MO-basis'
 write(u6,*) '---------------'
@@ -170,6 +172,10 @@ indices(4*(offset_integrals-1)+1:4*(offset_integrals-1)+4) = (/ 0, 0, 0, 0 /)
 ! Rotate MPS wavefunction to new orbitals
 call qcmaquis_interface_update_integrals_C(indices, values, int(offset_integrals,c_int))
 do n=1,NSTATE
+  call qcmaquis_interface_remove_param('MEASURE[trans1rdm]')
+  call qcmaquis_interface_remove_param('MEASURE[trans2rdm]')
+  call qcmaquis_interface_remove_param('MEASURE[trans3rdm]')
+
   call qcmaquis_interface_set_state(int(n-1, c_int))
   call qcmaquis_interface_optimize()
 end do
