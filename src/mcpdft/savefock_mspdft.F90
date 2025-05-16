@@ -14,92 +14,89 @@
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
 
-Subroutine SaveFock_msPDFT(cmo,h1e,D1Act,NQ,p2d,state)
-  use definitions,only:iwp,wp,u6
-  use constants,only:zero
-  use printlevel,only:debug
-  use mcpdft_output,only:iPrLoc
-  use stdalloc,only:mma_allocate,mma_deallocate
-  use wadr,only:fockocc
-  use rasscf_global,only:nFint,ISTORP,ntot4
-  use mspdftgrad,only:F1MS,F2MS,FocMS,FxyMS
-  use general_data,only:ntot1,nbas,nfro,norb,nsym
-  implicit none
+subroutine SaveFock_msPDFT(cmo,h1e,D1Act,NQ,p2d,state)
 
-  real(kind=wp),intent(in) :: cmo(*),D1Act(*),h1e(*),P2D(*)
-  integer(kind=iwp),intent(in) :: NQ,state
+use printlevel, only: debug
+use mcpdft_output, only: iPrLoc
+use wadr, only: fockocc
+use rasscf_global, only: ISTORP, nFint, ntot4
+use mspdftgrad, only: F1MS, F2MS, FocMS, FxyMS
+use general_data, only: nbas, nfro, norb, nsym, ntot1
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-  integer(kind=iwp) :: iSA,iprlev
-  real(kind=wp),allocatable :: ONTOPT(:),ONTOPO(:)
-  real(kind=wp),allocatable :: FA_V(:),FI_V(:)
-  real(kind=wp),allocatable :: Q(:),dm2(:),fock(:),h1e_mo(:)
+implicit none
+real(kind=wp), intent(in) :: cmo(*), h1e(*), D1Act(*), P2D(*)
+integer(kind=iwp), intent(in) :: NQ, state
+integer(kind=iwp) :: iprlev
+real(kind=wp), allocatable :: dm2(:), FA_V(:), FI_V(:), fock(:), h1e_mo(:), ONTOPO(:), ONTOPT(:), Q(:)
 
-  call mma_allocate(fock,ntot4,label='fock')
+call mma_allocate(fock,ntot4,label='fock')
 
-  fock(:) = zero
+fock(:) = Zero
 
-  write(u6,'(2X,A)') 'Calculating potentials for analytic gradients for MS-PDFT'
+write(u6,'(2X,A)') 'Calculating potentials for analytic gradients for MS-PDFT'
 
-  IPRLEV = IPRLOC(3)
+IPRLEV = IPRLOC(3)
 
-  call mma_allocate(h1e_mo,ntot1,label='h1e_mo')
-  call ao2mo_1e(cmo,h1e,h1e_mo,nsym,nbas,norb,nfro)
+call mma_allocate(h1e_mo,ntot1,label='h1e_mo')
+call ao2mo_1e(cmo,h1e,h1e_mo,nsym,nbas,norb,nfro)
 
-  ! loading one-electron potential and two-electron potential
-  ! Used as F1 and F2 in equations 58 and 59 in Ref1.
-  Call mma_allocate(ONTOPT,nfint,Label='OnTopT')
-  Call mma_allocate(ONTOPO,ntot1,Label='OnTopO')
-  Call Get_dArray('ONTOPT',OnTopT,NFINT)
-  Call Get_dArray('ONTOPO',OnTopO,NTOT1)
+! loading one-electron potential and two-electron potential
+! Used as F1 and F2 in equations 58 and 59 in Ref1.
+call mma_allocate(ONTOPT,nfint,Label='OnTopT')
+call mma_allocate(ONTOPO,ntot1,Label='OnTopO')
+call Get_dArray('ONTOPT',OnTopT,NFINT)
+call Get_dArray('ONTOPO',OnTopO,NTOT1)
 
-  ! Store for later...
-  Call Get_TUVX(OnTopT,f2ms(:,state))
+! Store for later...
+call Get_TUVX(OnTopT,f2ms(:,state))
 
-  CALL mma_allocate(FI_V,Ntot1,Label='FI_V')
-  CALL mma_allocate(FA_V,Ntot1,Label='FA_V')
-  ! Note that these are stored in MO basis
-  Call Get_dArray('FI_V',FI_V,NTOT1)
-  Call Get_dArray('FA_V',FA_V,NTOT1)
+call mma_allocate(FI_V,Ntot1,Label='FI_V')
+call mma_allocate(FA_V,Ntot1,Label='FA_V')
+! Note that these are stored in MO basis
+call Get_dArray('FI_V',FI_V,NTOT1)
+call Get_dArray('FA_V',FA_V,NTOT1)
 
-  fi_v(:) = h1e_mo(:)+OnTopO(:)+FI_V(:)
-  F1MS(:,state) = fi_v(:)
+fi_v(:) = h1e_mo(:)+OnTopO(:)+FI_V(:)
+F1MS(:,state) = fi_v(:)
 
-  ! ____________________________________________________________
-  ! This next part is to generate the MC-PDFT generalized fock operator.
-  ! The corrections (from the potentials) to FI and FA are built in the NQ
-  ! part of the code, for efficiency's sake.  It still needs to be
-  ! debugged.
+! _______________________________________________________________________
+! This next part is to generate the MC-PDFT generalized fock operator.
+! The corrections (from the potentials) to FI and FA are built in the NQ
+! part of the code, for efficiency's sake.  It still needs to be
+! debugged.
 
-  !Reordering of the two-body density matrix.
-  IF(ISTORP(NSYM+1) > 0) THEN
-    call mma_allocate(dm2,ISTORP(NSYM+1),label="dm2")
-    CALL PMAT_RASSCF(P2d,dm2)
-  else
-    call mma_allocate(dm2,1,label="dm2")
-    dm2(:) = zero
-  ENDIF
+! Reordering of the two-body density matrix.
+if (ISTORP(NSYM+1) > 0) then
+  call mma_allocate(dm2,ISTORP(NSYM+1),label='dm2')
+  call PMAT_RASSCF(P2d,dm2)
+else
+  call mma_allocate(dm2,1,label='dm2')
+  dm2(:) = Zero
+end if
 
-  !Must add to existing fock operator (occ/act).
-  CALL mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
-  CALL fock_update(fock,fi_v,fa_v,D1Act,dm2,Q,OnTopT,CMO)
-  Call mma_deallocate(Q)
-  call mma_deallocate(dm2)
-  Call mma_deallocate(OnTopO)
-  Call mma_deallocate(OnTopT)
-  CALL mma_deallocate(FI_V)
-  CALL mma_deallocate(FA_V)
+! Must add to existing fock operator (occ/act).
+call mma_allocate(Q,NQ,Label='Q') ! q-matrix(1symmblock)
+call fock_update(fock,fi_v,fa_v,D1Act,dm2,Q,OnTopT,CMO)
+call mma_deallocate(Q)
+call mma_deallocate(dm2)
+call mma_deallocate(OnTopO)
+call mma_deallocate(OnTopT)
+call mma_deallocate(FI_V)
+call mma_deallocate(FA_V)
 
-  focms(:,state) = fockocc(:)
-  FxyMS(:,state) = fock(:)
-  IF(IPRLEV >= DEBUG) THEN
-    write(u6,*) 'FOCC_OCC'
-    call wrtmat(fockocc,1,ntot1,1,ntot1)
-  ENDIF
+focms(:,state) = fockocc(:)
+FxyMS(:,state) = fock(:)
+if (IPRLEV >= DEBUG) then
+  write(u6,*) 'FOCC_OCC'
+  call wrtmat(fockocc,1,ntot1,1,ntot1)
+end if
 
-  iSA = 1
-  Call Put_iScalar('SA ready',iSA)
+call Put_iScalar('SA ready',1)
 
-  call mma_deallocate(fock)
-  call mma_deallocate(h1e_mo)
+call mma_deallocate(fock)
+call mma_deallocate(h1e_mo)
 
-EndSubroutine SaveFock_msPDFT
+end subroutine SaveFock_msPDFT
