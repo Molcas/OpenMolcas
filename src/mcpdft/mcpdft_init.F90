@@ -29,6 +29,9 @@ use general_data, only: ispin, nactel, nash, nbas, ndel, nelec3, nfro, nhole1, n
 use rasscf_global, only: DFTFOCK, ExFac, IPT2, iroot, iTRI, iTRIM, iXSym, lROOTS, NonEq, NROOTS, TITLE, weight
 use Constants, only: Zero, One
 use Definitions, only: iwp
+#ifdef _MOLCAS_MPP_
+use Definitions, only: wp
+#endif
 
 implicit none
 integer(kind=iwp) :: i
