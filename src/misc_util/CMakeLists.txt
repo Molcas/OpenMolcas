@@ -81,7 +81,6 @@ set (sources
      nrmclc.F90
      ntoken.F90
      oa.F90
-     obeyscauchyschwarz.F90
      one_ulp.c
      onebas.F90
      onedat.F90
