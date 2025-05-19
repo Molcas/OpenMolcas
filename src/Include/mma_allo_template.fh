@@ -161,6 +161,7 @@ else
 # elif _DIMENSIONS_==7
   allocate(buffer(n1,n2,n3,n4,n5,n6,n7))
 # endif
+  ! Only register non-zero allocations, because we need to get a pointer to an existing element
   if (ntot > 0) then
 #   if _DIMENSIONS_==0
     loffset = cptr2woff(c_loc(buffer(1:1)))
@@ -290,6 +291,7 @@ else
 # elif _DIMENSIONS_==7
   allocate(buffer(l1(1):l1(2),l2(1):l2(2),l3(1):l3(2),l4(1):l4(2),l5(1):l5(2),l6(1):l6(2),l7(1):l7(2)))
 # endif
+  ! Only register non-zero allocations, because we need to get a pointer to an existing element
   if (ntot > 0) then
 #   if _DIMENSIONS_==1
     loffset = cptr2woff(c_loc(buffer(l1(1))))
@@ -361,6 +363,7 @@ if (_MMA_FUNC_(buffer)) then
 # ifndef _DATA_NAME_
   bufsize = (storage_size(buffer)*ntot-1)/8+1
 # endif
+  ! Only deregister non-zero allocations, because we need to get a pointer to an existing element
   if (ntot > 0) then
 #   if _DIMENSIONS_==0
     loffset = cptr2woff(c_loc(buffer(1:1)))
