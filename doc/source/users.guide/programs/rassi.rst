@@ -633,6 +633,8 @@ Keywords
   The keyword is followed by the index where the two sets split (assuming energy ordering).
   For a calculation between one ground state and several excited states, :kword:`SUBSets` should be 1.
   Default is to compute the transition moments between all states.
+  :kword:`SUBS` always refers to the index of the relevant non-relativistic state;
+  it is automatically translated to the corresponding SO-coupled state if a SO-RASSI run is performed.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SUBSETS" APPEAR="Subsets" KIND="INT" LEVEL="BASIC">
               %%Keyword: Subsets <basic>
@@ -640,7 +642,22 @@ Keywords
               Restricts the computation of transition moments to be only between
               two sets of states, and not also within each set.
               The keyword is followed by the number of states
-              in the first set (assuming energy ordering).
+              in the first set (assuming energy ordering and using non-relativistic states).
+              </HELP>
+              </KEYWORD>
+
+:kword:`NFINal`
+  In cases of spin-orbit coupling and high spin multiplicities (for example in lanthanides),
+  the :kword:`SUBSets` keyword alone may not be enough to reduce the computational effort to an acceptable level.
+  In this case on can use :kword:`NFINal` to specify the maximum number of SO-coupled states considered
+  in the second subset.
+  For example, to compute the luminescence from the first quintet state to the seven lower-lying septet multiplets,
+  use :kword:`SUBS=7` and :kword:`NFIN=1`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NFINAL" APPEAR="NFinal" KIND="INT" LEVEL="BASIC">
+              %%Keyword: Subsets <basic>
+              <HELP>
+              Restricts the number of final states in connection with the Subsets keyword.
               </HELP>
               </KEYWORD>
 
