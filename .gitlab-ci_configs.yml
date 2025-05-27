@@ -170,13 +170,12 @@
     - intel13
 
 .nag:
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-13:latest
   variables:
     install_path: "${CI_PROJECT_DIR}/install"
     cache_file: |
       set (CMAKE_BUILD_TYPE "Garble" CACHE STRING "garble installation" )
       set (BUILD_SHARED_LIBS "OFF" CACHE BOOL "static molcas lib" )
-      set (HDF5_ROOT "/opt/hdf5_v1.12.0_gnu" CACHE STRING "HDF5 location") # specific for nag runner
       set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE BOOL "use static HDF5")
       set (HDF5 "ON" CACHE BOOL "turn on HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")

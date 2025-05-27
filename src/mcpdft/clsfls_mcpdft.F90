@@ -11,48 +11,45 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               2024, Matthew R. Hennefarth                            *
 !***********************************************************************
+
 subroutine close_files_mcpdft()
-  use definitions,only:iwp,u6
-  use Fock_util_global,only:docholesky
-  use general_data,only:jobiph,jobold,luintm
 
-  implicit none
+use Fock_util_global, only: docholesky
+use general_data, only: jobiph, jobold, luintm
+use Definitions, only: iwp, u6
 
+implicit none
 #include "warnings.h"
+integer(kind=iwp) :: iOpt, return_code
 
-  integer(kind=iwp) :: return_code,iOpt
-
-  !---  close the JOBOLD file -------------------------------------------*
-  If(JOBOLD > 0 .and. JOBOLD /= JOBIPH) Then
-    Call DaClos(JOBOLD)
-    JOBOLD = -1
-  Else If(JOBOLD > 0) Then
-    JOBOLD = -1
-  EndIf
-  !---  close the JOBIPH file -------------------------------------------*
-  If(JOBIPH > 0) Then
-    Call DaClos(JOBIPH)
-    JOBIPH = -1
-  EndIf
-  !---  close the ORDINT file -------------------------------------------*
-  If(.not. DoCholesky) then
-    return_code = -1
-    Call ClsOrd(return_code)
-    If(return_code /= _RC_ALL_IS_WELL_) Then
-      Call WarningMessage(1,'Failed to close the ORDINT file.')
-    EndIf
-  EndIf
-  !---  close the file carrying the transformed two-electron integrals --*
-  Call DaClos(LUINTM)
-
-  !--- close the one-electorn integral file
+!---  close the JOBOLD file -------------------------------------------*
+if ((JOBOLD > 0) .and. (JOBOLD /= JOBIPH)) then
+  call DaClos(JOBOLD)
+  JOBOLD = -1
+else if (JOBOLD > 0) then
+  JOBOLD = -1
+end if
+!---  close the JOBIPH file -------------------------------------------*
+if (JOBIPH > 0) then
+  call DaClos(JOBIPH)
+  JOBIPH = -1
+end if
+!---  close the ORDINT file -------------------------------------------*
+if (.not. DoCholesky) then
   return_code = -1
-  iOpt = 0
-  call clsone(return_code,iOpt)
-  if(return_code /= _RC_ALL_IS_WELL_) then
-    write(u6,*) "Error when trying to close the one-electron"
-    write(u6,*) "integral file."
-    call abend()
-  endif
-  Return
-End
+  call ClsOrd(return_code)
+  if (return_code /= _RC_ALL_IS_WELL_) call WarningMessage(1,'Failed to close the ORDINT file.')
+end if
+!---  close the file carrying the transformed two-electron integrals --*
+call DaClos(LUINTM)
+
+!--- close the one-electorn integral file
+return_code = -1
+iOpt = 0
+call clsone(return_code,iOpt)
+if (return_code /= _RC_ALL_IS_WELL_) then
+  write(u6,*) 'Error when trying to close the one-electron integral file.'
+  call abend()
+end if
+
+end subroutine close_files_mcpdft

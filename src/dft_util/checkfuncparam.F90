@@ -60,7 +60,7 @@ close(LUFile)
 call check_n_ext_params(nFuncs,nParam)
 
 lExtParams = .true.
-!calL mma_deallocate(FuncExtParams) !It will be freed in Set_External_Params.
+!call mma_deallocate(FuncExtParams) !It will be freed in Set_External_Params.
 call mma_deallocate(nParam)
 
 end subroutine CheckFuncParam

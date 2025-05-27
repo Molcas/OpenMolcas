@@ -26,6 +26,10 @@ real(kind=wp) :: TMP(1)
 character :: JL, JR
 real(kind=wp), allocatable :: WRK(:)
 
+if (N == 0) then
+  IERR = 0
+  return
+end if
 JL = 'N'
 JR = 'N'
 if (NVEC /= 0) JR = 'V'

@@ -825,7 +825,7 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`QIALL`
+:kword:`QIALl`
   Print all quadrupole intensities.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="QIALL" APPEAR="Print all quadrupole intensities" KIND="SINGLE" LEVEL="ADVANCED">
