@@ -37,7 +37,7 @@ C The transformation matrices are returned in TORB.
       REAL*8, INTENT(INOUT) :: CMO(NCMO)
 
 C     indices
-      INTEGER I,II,IST,ISYM,ISTART
+      INTEGER I,II,IST,ISYM,ISTART,J
       INTEGER ITO,ITOSTA,ITOEND
       INTEGER ICMOSTA,ICMOEND
       INTEGER IDR,IDW
@@ -233,10 +233,18 @@ C Finally, loop again over symmetries, transforming the CI:
           CALL MKXMAT(TORB,XMAT)
 
           CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),
-     &     int(JSTATE-1, c_int), int(0, c_int), XMAT)
-
+     &      int(JSTATE-1, c_int), int(0, c_int), XMAT,
+     &      logical(.false., c_bool))
+          do I=1,NSTATE
+            if (JSTATE .ne. I) then
+             write(*,*) ">QCMAQUIS: Rotating TRANS RDMs", JSTATE-1, I-1
+            CALL qcmaquis_interface_rotate_rdms(int(JSTATE-1, c_int),
+     &          int(I-1, c_int), int(0, c_int), XMAT,
+     &          logical(.false., c_bool))
+            end if
+          end do
           CALL mma_deallocate(XMAT)
-        end if
+          end if
 #endif
 
         if (DoFCIQMC) then

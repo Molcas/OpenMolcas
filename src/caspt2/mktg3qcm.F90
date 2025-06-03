@@ -46,11 +46,36 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
 
 
   ! TODO: maybe we should implement an interface to get the tdms that mirrors that of rdms
-  call qcmaquis_interface_get_trans_1rdm_full(tg1, state2-1, state1-1)
-  call qcmaquis_interface_get_trans_2rdm_full(tg2, state1-1, state2-1)  ! NOTE: FLIPPED
-  call qcmaquis_interface_get_trans_3rdm_full(tg3_tmp, state1-1, state2-1)
+  ! call qcmaquis_interface_get_trans_1rdm_full(tg1, state2-1, state1-1)
+  ! call qcmaquis_interface_get_trans_2rdm_full(tg2, state2-1, state1-1)
+  ! call qcmaquis_interface_get_trans_3rdm_full(tg3_tmp, state1-1, state2-1)
+
+  call qcmaquis_interface_read_rdm_full(int(state2-1, c_int), &
+    int(state1-1, c_int), tg1, int(1, c_int))
+  call qcmaquis_interface_read_rdm_full(int(state2-1, c_int), &
+    int(state1-1, c_int), tg2, int(2, c_int))
+  call qcmaquis_interface_read_rdm_full(int(state2-1, c_int), &
+    int(state1-1, c_int), tg3_tmp, int(3, c_int))
+
+   write(*,*) "TG1:"
+   do t = 1, nasht
+     do u = 1, nasht
+      write(*, '(2I3,F18.12)') t, u, tg1(t, u)
+     end do
+   end do
+   write(*,*) "TG2:"
+   do t = 1, nasht
+     do u = 1, nasht
+       do v = 1, nasht
+         do x = 1, nasht
+            write(*, '(4I3,F18.12)') t, u, v, x, tg2(t, u, v, x)
+         end do
+       end do
+     end do
+   end do
 
   ! TODO: compute the overlap, check in the original code how
+  ! ovl = qcmaquis_interface_get_overlap_with_ket_bra(int(state1-1, c_int), int(state2-1, c_int))
 
   do z = 1, nasht
     do y = 1, nasht
@@ -86,28 +111,6 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
     end do
   end do
 
-   write(*,*) "1-TRANSITION-RDM\n"
-   do t = 1, nasht
-     do u = 1, nasht
-       write(*,*) t, u, tg1(t, u)
-     end do
-   end do
-
-   write(*,*) "2-TRANSITION-RDM\n"
-   do t = 1, nasht
-     do u = 1, nasht
-       do v = 1, nasht
-         do x = 1, nasht
-           write(*,*) t, u, v, x, tg2(t, u, v, x)
-         end do
-       end do
-     end do
-   end do
-   !
-   ! write(*,*) "Linearized 3-Transition RDM"
-   do t = 1, ntg3
-    write(*,*) t, tg3(t);
-   end do
 
   call mma_deallocate(tg3_tmp)
 end subroutine mktg3qcm

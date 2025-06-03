@@ -74,21 +74,19 @@
 * ---------------------------------------------------------------------
 
 #ifdef _DMRG_
-* Compute 1-, 2-,3-RDMs and transition RDMs
-      if (DMRG) then
-        write(*,*) ">QCMAQUIS: Computing RDMs for group"
-        do J=1,Ngrp
-          Jstate=J+JSTATE_OFF ! ket
-          call qcmaquis_interface_compute_and_store_123rdm_full(
-     &      int(Jstate-1, c_int), logical(.true., c_bool))
-          do I=J+1,Ngrp
-            Istate=I+JSTATE_OFF ! bra
+        if (DMRG) then
+          write(*,*) ">QCMAQUIS: Computing RDMs for group"
+          do I=1,NSTATE
+            call qcmaquis_interface_compute_and_store_123rdm_full(
+     &        int(I-1, c_int), logical(.true., c_bool))
+            do J=1,NSTATE
+              if (I .ne. J) then
             call qcmaquis_interface_compute_and_store_trans_123rdm_full(
-     &        int(Jstate-1, c_int), int(Istate-1, c_int),
-     &        logical(.true., c_bool))
+     &      int(I-1, c_int), int(J-1, c_int), logical(.true., c_bool))
+              end if
+            end do
           end do
-        end do
-      end if
+        end if
 #endif
 
 * Load CASSCF MO coefficients
@@ -301,7 +299,7 @@ c You don't have to be beautiful to turn me on
       nullify(CMO)
 
 #ifdef _DMRG_
-      ! if (DMRG) then
+      if (DMRG) then
 ************************************************************************
 * load back two-electron integrals (pu|vx)
 ************************************************************************
@@ -313,6 +311,6 @@ c You don't have to be beautiful to turn me on
         ! call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
         ! call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
         ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
-      ! end if
+      end if
 #endif
       end SUBROUTINE GRPINI

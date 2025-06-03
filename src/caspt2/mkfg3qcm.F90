@@ -40,7 +40,7 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
    call mma_allocate(TG3tmp,nasht,nasht,nasht,nasht,nasht,nasht)
    ! call mma_allocate(G4,n4,nasht,nasht,nasht,nasht,Label='G4')
 
-   write(*,*) ">QCMaquis: Computing RDMs"
+   write(*,*) ">QCMaquis: Computing RDMs for STATE: ", JSTATE-1
 
    ! call qcmaquis_interface_get_1rdm_full(G1)
    ! call qcmaquis_interface_get_2rdm_full(G2)
@@ -52,8 +52,44 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
      int(JSTATE-1, c_int), G2, int(2, c_int))
    call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
      int(JSTATE-1, c_int), G3tmp, int(3, c_int))
+   TG3tmp = 0.0_wp  ! Initialize TG3tmp to zero
+   
+   ! This should be removed in the future
+   ! call qcmaquis_interface_get_fock_contracted_4rdm_full(EPSA, 0)
+   ! call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp, logical(.false., c_bool))
 
-   call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp, epsa, CompressMPS)
+   write(*,*) "G1:"
+   do t = 1, nasht
+     do u = 1, nasht
+      write(*, '(2I3,F18.12)') t, u, G1(t, u)
+     end do
+   end do
+   write(*,*) "G2:"
+   do t = 1, nasht
+     do u = 1, nasht
+       do v = 1, nasht
+         do x = 1, nasht
+            write(*, '(4I3,F18.12)') t, u, v, x, G2(t, u, v, x)
+         end do
+       end do
+     end do
+   end do
+   ! write(*,*) "G3:"
+   ! do t = 1, nasht
+   !   do u = 1, nasht
+   !     do v = 1, nasht
+   !       do x = 1, nasht
+   !         do y = 1, nasht
+   !           do z = 1, nasht
+   !            write(*, '(6I3,F18.12)') t, u, v, x, y, z, G3tmp(t, u, v, x, y, z)
+   !           end do
+   !         end do
+   !       end do
+   !     end do
+   !   end do
+   ! end do
+
+   ! call qcmaquis_interface_get_fock_contracted_4rdm_full(TG3tmp, epsa, CompressMPS)
 
    ! number of elements in the contracted 4-index of the 4-RDM
    ! n4 = (nasht*(nasht+1)*(nasht+2)*(nasht+3)/24)
@@ -107,6 +143,27 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
       !   F3(i) = F3(i) + val * epsa(w)
       ! end do
    end do
+
+   ! write(*,*) "G3:"
+   ! do i = 1,ng3
+   !    write(*, '(I3,F18.12)') i, G3(i)
+   ! end do
+
+   ! write(*,*) "TG3tmp"
+   ! do t = 1, nasht
+   !   do u = 1, nasht
+   !     do v = 1, nasht
+   !       do x = 1, nasht
+   !         do y = 1, nasht
+   !           do z = 1, nasht
+   !            write(*, '(6I3,F18.12)') t, u, v, x, y, z, TG3tmp(t, u, v, x, y, z)
+   !           end do
+   !         end do
+   !       end do
+   !     end do
+   !   end do
+   ! end do
+
 
    call mma_deallocate(G3tmp)
    call mma_deallocate(TG3tmp)
