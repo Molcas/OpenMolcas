@@ -42,21 +42,23 @@ subroutine mkfg3qcm(IFF, G1, F1, G2, F2, G3, F3, idxG3)
 
    write(*,*) ">QCMaquis: Computing RDMs for STATE: ", JSTATE-1
 
-   ! call qcmaquis_interface_get_1rdm_full(G1)
-   ! call qcmaquis_interface_get_2rdm_full(G2)
-   ! call qcmaquis_interface_get_3rdm_full(G3tmp)
+   ! Remeasure RDM from rotated MPS
+   call qcmaquis_interface_get_1rdm_full(G1)
+   call qcmaquis_interface_get_2rdm_full(G2)
+   call qcmaquis_interface_get_3rdm_full(G3tmp)
 
-   call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
-     int(JSTATE-1, c_int), G1, int(1, c_int))
-   call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
-     int(JSTATE-1, c_int), G2, int(2, c_int))
-   call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
-     int(JSTATE-1, c_int), G3tmp, int(3, c_int))
-   TG3tmp = 0.0_wp  ! Initialize TG3tmp to zero
+   ! Fetch rotated RDM from unrotated MPS
+   ! call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
+   !   int(JSTATE-1, c_int), G1, int(1, c_int))
+   ! call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
+   !   int(JSTATE-1, c_int), G2, int(2, c_int))
+   ! call qcmaquis_interface_read_rdm_full(int(JSTATE-1, c_int), &
+   !   int(JSTATE-1, c_int), G3tmp, int(3, c_int))
    
    ! This should be removed in the future
-   ! call qcmaquis_interface_get_fock_contracted_4rdm_full(EPSA, 0)
-   ! call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp, logical(.false., c_bool))
+   TG3tmp = 0.0_wp  ! Initialize TG3tmp to zero
+   call qcmaquis_interface_get_fock_contracted_4rdm_full(EPSA, 0)
+   call qcmaquis_interface_read_fock_contracted_4rdm(TG3tmp, logical(.false., c_bool))
 
    write(*,*) "G1:"
    do t = 1, nasht

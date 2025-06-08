@@ -21,6 +21,10 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
+#ifdef _DMRG_
+      use, intrinsic :: iso_c_binding, only: c_bool, c_int
+      use qcmaquis_interface
+#endif
       use stdalloc, only: mma_allocate, mma_deallocate
       USE Constants, ONLY: auTocm, auToeV, auTokJmol
       use EQSOLV, only: iRHS,iVecC,iVecC2,iVecR,iVecW,iVecX
@@ -81,7 +85,7 @@ C
      &       TIOTF0,TIOTF10,TIOTF11,TIOTF12,TIOTF13,TIOTF14,
      &          CPE,CPUTOT,TIOE,TIOTOT
 * Indices
-      INTEGER I
+      INTEGER I, J
       INTEGER ISTATE
       INTEGER IGROUP,JSTATE_OFF
 * Convergence check
@@ -209,6 +213,22 @@ C       Call EQCTL2(ICONV)
       End If
 
 * FIRST GRAD LOOP ITER
+#ifdef _DMRG_
+        if (DMRG) then
+          write(*,*) ">QCMAQUIS: Computing RDMs for group"
+          do I=1,NSTATE
+            call qcmaquis_interface_compute_and_store_123rdm_full(
+     &        int(I-1, c_int), logical(.true., c_bool))
+            do J=1,NSTATE
+              if (I .ne. J) then
+            call qcmaquis_interface_compute_and_store_trans_123rdm_full(
+     &      int(I-1, c_int), int(J-1, c_int), logical(.true., c_bool))
+              end if
+            end do
+          end do
+        end if
+#endif
+
 
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number

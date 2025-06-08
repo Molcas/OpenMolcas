@@ -73,22 +73,6 @@
       END IF
 * ---------------------------------------------------------------------
 
-#ifdef _DMRG_
-        if (DMRG) then
-          write(*,*) ">QCMAQUIS: Computing RDMs for group"
-          do I=1,NSTATE
-            call qcmaquis_interface_compute_and_store_123rdm_full(
-     &        int(I-1, c_int), logical(.true., c_bool))
-            do J=1,NSTATE
-              if (I .ne. J) then
-            call qcmaquis_interface_compute_and_store_trans_123rdm_full(
-     &      int(I-1, c_int), int(J-1, c_int), logical(.true., c_bool))
-              end if
-            end do
-          end do
-        end if
-#endif
-
 * Load CASSCF MO coefficients
       call mma_allocate(CMO_Internal,NCMO,Label='CMO_Internal')
       CMO=>CMO_Internal
@@ -304,12 +288,12 @@ c You don't have to be beautiful to turn me on
 * load back two-electron integrals (pu|vx)
 ************************************************************************
         ! Load the integrals in memory
-        ! call read_integrals()
+        call read_integrals()
 
         ! set to compute 2-, 3- and 4-rdm
-        ! call qcmaquis_interface_set_param('MEASURE[1rdm]','1')
-        ! call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
-        ! call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
+        call qcmaquis_interface_set_param('MEASURE[1rdm]','1')
+        call qcmaquis_interface_set_param('MEASURE[2rdm]','1')
+        call qcmaquis_interface_set_param('MEASURE[3rdm]','1')
         ! call qcmaquis_interface_set_param('MEASURE[4rdm]','1')
       end if
 #endif
