@@ -967,6 +967,7 @@ Keywords
               </KEYWORD>
 
 :kword:`HEXT`
+  The spin-free Hamiltonian is read from a file instead of being computed.
   It is read from the following few lines, as a triangular matrix: One element
   of the first row, two from the next, etc., as list-directed input of reals.
 
