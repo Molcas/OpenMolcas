@@ -573,29 +573,33 @@ Keywords
               </KEYWORD>
 
 :kword:`J-VAlue`
-  For spin--orbit calculations with single atoms, only: The output lines
+  For spin--orbit calculations: The output lines
   with energy for each spin--orbit state will be annotated with the
-  approximate J and Omega quantum numbers.
+  approximate J (= L + S)  quantum numbers.
+  J is a well-defined quantum number only for isolated atoms but approximate
+  J-values may be useful also for transition metal complexes, etc.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="J-VALUE" APPEAR="J-Value" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: J-Value <basic>
               <HELP>
-              For spin-orbit calculations with single atoms, only: The output lines
-              with energy for each spin-orbit state will be annotated with the
-              approximate J quantum number.
+              For spin--orbit calculations: The output lines
+              with energy for each spin--orbit state will be annotated with the
+              approximate J (= L + S)  quantum numbers.
               </HELP>
               </KEYWORD>
 
 :kword:`OMEGa`
-  For spin--orbit calculations with linear molecules, only: The output lines
+  For spin--orbit calculations: The output lines
   with energy for each spin--orbit state will be annotated with the
-  approximate Omega quantum number.
+  approximate Omega (projection of J) quantum number.
+  Omega is a well-defined quantum number only for linear molecules but approximate
+  Omega values may be useful also otherwise (similar to J-values).
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="OMEGA" APPEAR="Omega-Value" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Omega <basic>
               <HELP>
-              For spin-orbit calculations on linear molecules, only: The output lines
-              with energy for each spin-orbit state will be annotated with the
+              For spin--orbit calculations: The output lines
+              with energy for each spin--orbit state will be annotated with the
               approximate Omega quantum number.
               </HELP>
               </KEYWORD>
@@ -649,9 +653,9 @@ Keywords
 :kword:`NFINal`
   In cases of spin-orbit coupling and high spin multiplicities (for example in lanthanides),
   the :kword:`SUBSets` keyword alone may not be enough to reduce the computational effort to an acceptable level.
-  In this case on can use :kword:`NFINal` to specify the maximum number of SO-coupled states considered
+  In this case one can use :kword:`NFINal` to specify the maximum number of SO-coupled states considered
   in the second subset.
-  For example, to compute the luminescence from the first quintet state to the seven lower-lying septet multiplets,
+  For example, to compute the luminescence between the first quintet state and the seven lower-lying septet multiplets,
   use :kword:`SUBS=7` and :kword:`NFIN=1`.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NFINAL" APPEAR="NFinal" KIND="INT" LEVEL="BASIC">
