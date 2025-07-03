@@ -270,4 +270,11 @@ var dev_workshops = [
     "name": "12th OpenMolcas Developers' Workshop, 2024",
     "url": "https://hpqc.org/molcas",
   },
+  {
+    "city": "Garching bei München, Germany",
+    "lat": 48.266835,
+    "lng": 11.672228,
+    "name": "13th OpenMolcas Developers' Workshop, 2025",
+    "url": "https://molcas2025.de",
+  },
 ]

@@ -714,6 +714,10 @@ coordinate is the variable $R. ::
 Customization of molcas input
 -----------------------------
 
+.. warning::
+
+   This feature is not available in |openmolcas|.
+
 EMIL interpretor supports templates (aliases) for a group of program calls
 or/and keywords. The definition of these templates can be located in file :file:`alias`
 located at |molcas| root directory, or at :file:`.Molcas/` directory.

@@ -73,7 +73,7 @@ for root, subdirs, files in os.walk(os.path.join(docdir, 'source')):
       xmldocs[f.name] = docs
 
 # Create Help file
-with codecs.open(os.path.join(datadir, 'keyword.db'), 'w', 'utf-8') as keywordsfile:
+with open(os.path.join(datadir, 'keyword.db'), 'w', encoding='utf-8') as keywordsfile:
   keywordsfile.write('#This file is generated automatically from the OpenMolcas documentation\n')
   keywordsfile.write('#\n')
   # Sort by filename
@@ -86,7 +86,7 @@ with codecs.open(os.path.join(datadir, 'keyword.db'), 'w', 'utf-8') as keywordsf
         keywordsfile.write('\n'.join(text)+'\n')
 
 # Create XML file
-with codecs.open(os.path.join(datadir, 'keyword.xml'), 'w', 'utf-8') as keywordsfile:
+with open(os.path.join(datadir, 'keyword.xml'), 'w', encoding='utf-8') as keywordsfile:
   keywordsfile.write('<!-- This file is generated automatically from the OpenMolcas documentation -->\n')
   keywordsfile.write('<ROOT>\n')
   # Sort by filename
