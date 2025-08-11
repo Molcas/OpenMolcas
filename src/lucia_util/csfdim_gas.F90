@@ -46,8 +46,8 @@ integer(kind=iwp), intent(in) :: NOCCLS, IOCCLS(NGAS,NOCCLS), ISYM
 #include "warnings.h"
 integer(kind=iwp) :: HEXS_CNF(MXPORB+1), I, IAEL, IALPHA, IB, IBEL, ICL, IDOREO, IDUM, IDUM_ARR(1), IELIM, IGAS, ILCNF, ILLCNF, &
                      INITIALIZE_CONF_COUNTERS, IOPEN, ITP, ITYP, J, JGAS, JOCCLS, LCONF, LDTOC, LENGTH_LIST, LICS, LIDT, LLCONF, &
-                     LPTDT, LZ, maxingas(N_ELIMINATED_GAS), maxingas2(N_2ELIMINATED_GAS), MXDT, MXPTBL, NCMB, &
-                     NCONF_OCCLS, NCSF, NELEC, NSD, TMP_CNF(MXPORB+1)
+                     LPTDT, LZ, maxingas(N_ELIMINATED_GAS), maxingas2(N_2ELIMINATED_GAS), MXDT, MXPTBL, NCMB, NCONF_OCCLS, NCSF, &
+                     NELEC, NSD, TMP_CNF(MXPORB+1)
 integer(kind=iwp), external :: IBINOM, IWEYLF
 
 IDUM = 0
@@ -68,7 +68,6 @@ if (IPRCIX >= 6) write(u6,*) ' MINOP MAXOP ',MINOP,MAXOP
 
 ! Number of prototype sd's and csf's per configuration prototype
 
-ITP = 0
 do IOPEN=MINOP,MAXOP
   ITP = IOPEN+1
   ! Unpaired electrons :
@@ -78,10 +77,8 @@ do IOPEN=MINOP,MAXOP
     if ((PSSIGN == Zero) .or. (IOPEN == 0)) then
       ! Number of determinants is in general set to number of combinations
       NPDTCNF(ITP) = IBINOM(IOPEN,IAEL)
-      NPCMCNF(ITP) = NPDTCNF(ITP)
     else
       NPDTCNF(ITP) = IBINOM(IOPEN,IAEL)/2
-      NPCMCNF(ITP) = NPDTCNF(ITP)
     end if
     if (IOPEN >= MULTS-1) then
       NPCSCNF(ITP) = IWEYLF(IOPEN,MULTS)
@@ -90,10 +87,10 @@ do IOPEN=MINOP,MAXOP
     end if
   else
     NPDTCNF(ITP) = 0
-    NPCMCNF(ITP) = 0
     NPCSCNF(ITP) = 0
   end if
 end do
+NPCMCNF(MINOP+1:MAXOP+1) = NPDTCNF(MINOP+1:MAXOP+1)
 
 if (IPRCIX >= 5) then
   if (PSSIGN == Zero) then
@@ -107,7 +104,6 @@ if (IPRCIX >= 5) then
   do IOPEN=MINOP,MAXOP,2
     write(u6,'(5X,I3,10X,I6,7X,I6)') IOPEN,NPCMCNF(IOPEN+1),NPCSCNF(IOPEN+1)
   end do
-
 end if
 
 ! Number of Configurations per occupation type
@@ -193,10 +189,11 @@ do JOCCLS=1,NOCCLS
 end do
 ! Number of CSF's in expansion
 NCSF = sum(NCONF_PER_OPEN(1:MAXOP+1,ISYM)*NPCSCNF(1:MAXOP+1))
-! Number of SD's in expansion
-NSD = sum(NCONF_PER_OPEN(1:MAXOP+1,ISYM)*NPDTCNF(1:MAXOP+1))
 ! Number of combinations in expansion
 NCMB = sum(NCONF_PER_OPEN(1:MAXOP+1,ISYM)*NPCMCNF(1:MAXOP+1))
+! Number of SD's in expansion
+NSD = NCMB
+if (PSSIGN /= Zero) NSD = NSD+NCMB-NCONF_PER_OPEN(1,ISYM)*NPDTCNF(1)
 !MGD
 if (I_ELIMINATE_GAS > 0) then
   NCSF_HEXS = sum(HEXS_CNF(1:MAXOP+1)*NPCSCNF(1:MAXOP+1))
@@ -205,7 +202,7 @@ else
 end if
 
 NCSF_PER_SYM(ISYM) = NCSF
-NSD_PER_SYM(ISYM) = NSD
+NSD_PER_SYM(ISYM) = NCMB
 NCONF_PER_SYM(ISYM) = sum(NCONF_PER_OPEN(:,ISYM))
 if (IPRCIX >= 5) then
   write(u6,*) ' Number of CSFs  ',NCSF
@@ -241,7 +238,7 @@ end do
 LCONF = 0
 ILCNF = 0
 
-!LDET = NSD
+!LDET = NCMB
 LLCONF = 0
 ILLCNF = 0
 do IOPEN=MINOP,MAXOP
@@ -256,7 +253,7 @@ ILCNF = max(ILCNF,ILLCNF)
 
 if (IPRCIX >= 5) then
   write(u6,'(/A,I8)') '  Memory for holding list of configurations ',LCONF
-  write(u6,'(/A,I8)') '  Size of CI expansion (combinations)',NSD
+  write(u6,'(/A,I8)') '  Size of CI expansion (combinations)',NCMB
   write(u6,'(/A,I8)') '  Size of CI expansion (confs)',ILCNF
 end if
 
@@ -274,8 +271,8 @@ call mma_allocate(CONF_OCC(ISYM)%A,LCONF,Label='CONF_OCC()')
 ! Reorder array for configurations
 call mma_allocate(CONF_REO(ISYM)%A,NCONF_TOT,Label='CONF_REO()')
 ! Reorder array for determinants, index and sign
-call mma_allocate(SDREO_I(ISYM)%A,NSD,Label='SDREO_I()')
-SDREO(1:NSD) => SDREO_I(ISYM)%A(:)
+call mma_allocate(SDREO_I(ISYM)%A,NCMB,Label='SDREO_I()')
+SDREO(1:NCMB) => SDREO_I(ISYM)%A(:)
 
 ! Arrays for addressing prototype determinants for each number of orbitals
 

@@ -573,29 +573,33 @@ Keywords
               </KEYWORD>
 
 :kword:`J-VAlue`
-  For spin--orbit calculations with single atoms, only: The output lines
+  For spin--orbit calculations: The output lines
   with energy for each spin--orbit state will be annotated with the
-  approximate J and Omega quantum numbers.
+  approximate J (= L + S)  quantum numbers.
+  J is a well-defined quantum number only for isolated atoms but approximate
+  J-values may be useful also for transition metal complexes, etc.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="J-VALUE" APPEAR="J-Value" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: J-Value <basic>
               <HELP>
-              For spin-orbit calculations with single atoms, only: The output lines
-              with energy for each spin-orbit state will be annotated with the
-              approximate J quantum number.
+              For spin--orbit calculations: The output lines
+              with energy for each spin--orbit state will be annotated with the
+              approximate J (= L + S)  quantum numbers.
               </HELP>
               </KEYWORD>
 
 :kword:`OMEGa`
-  For spin--orbit calculations with linear molecules, only: The output lines
+  For spin--orbit calculations: The output lines
   with energy for each spin--orbit state will be annotated with the
-  approximate Omega quantum number.
+  approximate Omega (projection of J) quantum number.
+  Omega is a well-defined quantum number only for linear molecules but approximate
+  Omega values may be useful also otherwise (similar to J-values).
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="OMEGA" APPEAR="Omega-Value" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Omega <basic>
               <HELP>
-              For spin-orbit calculations on linear molecules, only: The output lines
-              with energy for each spin-orbit state will be annotated with the
+              For spin--orbit calculations: The output lines
+              with energy for each spin--orbit state will be annotated with the
               approximate Omega quantum number.
               </HELP>
               </KEYWORD>
@@ -633,6 +637,8 @@ Keywords
   The keyword is followed by the index where the two sets split (assuming energy ordering).
   For a calculation between one ground state and several excited states, :kword:`SUBSets` should be 1.
   Default is to compute the transition moments between all states.
+  :kword:`SUBS` always refers to the index of the relevant non-relativistic state;
+  it is automatically translated to the corresponding SO-coupled state if a SO-RASSI run is performed.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SUBSETS" APPEAR="Subsets" KIND="INT" LEVEL="BASIC">
               %%Keyword: Subsets <basic>
@@ -640,7 +646,22 @@ Keywords
               Restricts the computation of transition moments to be only between
               two sets of states, and not also within each set.
               The keyword is followed by the number of states
-              in the first set (assuming energy ordering).
+              in the first set (assuming energy ordering and using non-relativistic states).
+              </HELP>
+              </KEYWORD>
+
+:kword:`NFINal`
+  In cases of spin-orbit coupling and high spin multiplicities (for example in lanthanides),
+  the :kword:`SUBSets` keyword alone may not be enough to reduce the computational effort to an acceptable level.
+  In this case one can use :kword:`NFINal` to specify the maximum number of SO-coupled states considered
+  in the second subset.
+  For example, to compute the luminescence between the first quintet state and the seven lower-lying septet multiplets,
+  use :kword:`SUBS=7` and :kword:`NFIN=1`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NFINAL" APPEAR="NFinal" KIND="INT" LEVEL="BASIC">
+              %%Keyword: Subsets <basic>
+              <HELP>
+              Restricts the number of final states in connection with the Subsets keyword.
               </HELP>
               </KEYWORD>
 
@@ -967,13 +988,14 @@ Keywords
               </KEYWORD>
 
 :kword:`HEXT`
+  The spin-free Hamiltonian is read from the input instead of being computed.
   It is read from the following few lines, as a triangular matrix: One element
   of the first row, two from the next, etc., as list-directed input of reals.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="HEXT" APPEAR="External Hamiltonian" KIND="UNKNOWN" LEVEL="ADVANCED">
               %%Keyword: HExt <advanced>
               <HELP>
-              The spin-free Hamiltonian is read from a file instead of being computed.
+              The spin-free Hamiltonian is read from the input instead of being computed.
               </HELP>
               It is read from the following entries, as a triangular matrix: One element
               of the first row, two from the next, etc., as list-directed input of reals.
