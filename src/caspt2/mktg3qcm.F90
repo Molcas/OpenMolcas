@@ -61,11 +61,11 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
 
   ! Fetch rotated TDM from unrotated MPS
   call qcmaquis_interface_read_rdm_full(int(state2-1, c_int), &
-    int(state1-1, c_int), tg1_tmp, int(1, c_int))
+    int(state1-1, c_int), tg1_tmp, int(1, c_int), logical(.true., c_bool))
   call qcmaquis_interface_read_rdm_full(int(state2-1, c_int), &
-    int(state1-1, c_int), tg2, int(2, c_int))
+    int(state1-1, c_int), tg2, int(2, c_int), logical(.true., c_bool))
   call qcmaquis_interface_read_rdm_full(int(state2-1, c_int), &
-    int(state1-1, c_int), tg3_tmp, int(3, c_int))
+    int(state1-1, c_int), tg3_tmp, int(3, c_int), logical(.true., c_bool))
 
 
   ! Detecting phase flip
@@ -127,51 +127,6 @@ subroutine mktg3qcm(lsym1, lsym2, state1, state2, ovl, tg1, tg2, ntg3, tg3)
       end do
     end do
   end do
-
-   ! Debug output
-   write(*,*) "TG1:"
-   do u = 1, nasht
-     do t = 1, nasht
-      write(*, '(2I3,F18.12)') t, u, tg1(t, u)
-     end do
-   end do
-   write(*,*) "TG2:"
-   do x = 1, nasht
-     do v = 1, nasht
-       do u = 1, nasht
-         do t = 1, nasht
-            write(*, '(4I3,F18.12)') t, u, v, x, tg2(t, u, v, x)
-         end do
-       end do
-     end do
-   end do
-   write(*,*) "TG3 (linearized):"
-   do t = 1, ntg3
-   end do
-
-   ! write(*,*) "# TG1 as numpy array (for Python):"
-   ! write(*,'(A)', advance='no') "dmrg1tdm = np.array(["
-   ! do u = 1, nasht
-   !   do t = 1, nasht
-   !     write(*, '(F25.16, A)', advance='no') tg1(t,u), ", "
-   !   end do
-   ! end do
-   ! write(*,'(A)') "]).reshape((4, 4), order='F')"
-   ! 
-   ! write(*,*) "# TG2 as numpy array (for Python):"
-   ! write(*,'(A)', advance='no') "dmrg2tdm = np.array(["
-   ! do x = 1, nasht
-   !   do v = 1, nasht
-   !     do u = 1, nasht
-   !       do t = 1, nasht
-   !     write(*, '(F25.16,A)', advance='no') tg2(t,u,v,x), ", "
-   !       end do
-   !     end do
-   !   end do
-   ! end do
-   ! write(*,'(A)') "]).reshape((4, 4, 4, 4), order='F')"
-   ! call exit(1)
-
   call mma_deallocate(tg3_tmp)
 end subroutine mktg3qcm
 
