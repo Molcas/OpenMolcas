@@ -87,7 +87,7 @@ Earlier citations for |openmolcas| and |molcas| are:
   **Molcas 7:** F. Aquilante, L. De Vico, N. Ferré, G. Ghigo, P.-Å. Malmqvist, P.
   Neogrády, T. B. Pedersen, M. Pitoňák, M. Reiher, B. O. Roos, L. Serrano-Andrés,
   M. Urban, V. Veryazov, R. Lindh. "MOLCAS 7: The Next Generation." *Journal of
-  Computational Chemistry*, **31** (2010), 224-247. `doi:10.1002/jcc.21318
+  Computational Chemistry*, **31** (2010), 224--247. `doi:10.1002/jcc.21318
   <https://doi.org/10.1002/jcc.21318>`_
 
   **Code development:** V. Veryazov, P.-O. Widmark, L. Serrano-Andrés, R. Lindh,
@@ -98,7 +98,7 @@ Earlier citations for |openmolcas| and |molcas| are:
   **Molcas 6:** G. Karlström, R. Lindh, P.-Å. Malmqvist, B. O. Roos, U. Ryde, V.
   Veryazov, P.-O. Widmark, M. Cossi, B. Schimmelpfennig, P. Neogrády, L. Seijo.
   "MOLCAS: a program package for computational chemistry." *Computational
-  Material Science*, **28** (2003), 222-239. `doi:10.1016/S0927-0256(03)00109-5
+  Material Science*, **28** (2003), 222--239. `doi:10.1016/S0927-0256(03)00109-5
   <https://doi.org/10.1016/S0927-0256(03)00109-5>`_
 
 The following people have contributed to the development of the

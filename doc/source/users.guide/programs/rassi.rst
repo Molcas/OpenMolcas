@@ -582,8 +582,8 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="J-VALUE" APPEAR="J-Value" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: J-Value <basic>
               <HELP>
-              For spin--orbit calculations: The output lines
-              with energy for each spin--orbit state will be annotated with the
+              For spin-orbit calculations: The output lines
+              with energy for each spin-orbit state will be annotated with the
               approximate J (= L + S)  quantum numbers.
               </HELP>
               </KEYWORD>
@@ -598,8 +598,8 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="OMEGA" APPEAR="Omega-Value" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: Omega <basic>
               <HELP>
-              For spin--orbit calculations: The output lines
-              with energy for each spin--orbit state will be annotated with the
+              For spin-orbit calculations: The output lines
+              with energy for each spin-orbit state will be annotated with the
               approximate Omega quantum number.
               </HELP>
               </KEYWORD>
@@ -651,7 +651,7 @@ Keywords
               </KEYWORD>
 
 :kword:`NFINal`
-  In cases of spin-orbit coupling and high spin multiplicities (for example in lanthanides),
+  In cases of spin--orbit coupling and high spin multiplicities (for example in lanthanides),
   the :kword:`SUBSets` keyword alone may not be enough to reduce the computational effort to an acceptable level.
   In this case one can use :kword:`NFINal` to specify the maximum number of SO-coupled states considered
   in the second subset.
@@ -659,9 +659,9 @@ Keywords
   use :kword:`SUBS=7` and :kword:`NFIN=1`.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NFINAL" APPEAR="NFinal" KIND="INT" LEVEL="BASIC">
-              %%Keyword: Subsets <basic>
+              %%Keyword: NFinal <basic>
               <HELP>
-              Restricts the number of final states in connection with the Subsets keyword.
+              Restricts the number of final states in connection with the SUBSETS keyword.
               </HELP>
               </KEYWORD>
 
@@ -1340,7 +1340,7 @@ Keywords
   The next line specifies the orbital number of the double-core hole (normally it is 1, that is, the first active orbital).
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DCHS" KIND="INT" LEVEL="ADVANCED">
-                   %%Keyword: DCHS <advanced>
+              %%Keyword: DCHS <advanced>
               <HELP>
               Computes spectral intensity of double-core hole states.
               </HELP>
@@ -1395,7 +1395,7 @@ Keywords
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONT" APPEAR="Spin-orbit natural transition orbitals" KIND="INTS_COMPUTED" SIZE="2" LEVEL="ADVANCED">
               %%Keyword: SONT <advanced>
               <HELP>
-              This computes the spin--orbit natural transition orbitals (SO-NTOs) for two spin--orbit coupled states, and it also
+              This computes the spin-orbit natural transition orbitals (SO-NTOs) for two spin-orbit coupled states, and it also
               performs the transition dipole moment (TDM) partitioning study based on the obtained SO-NTOs.
               </HELP>
               </KEYWORD>
