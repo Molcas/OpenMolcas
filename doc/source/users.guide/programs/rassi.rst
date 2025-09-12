@@ -740,6 +740,19 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`SONOrb`
+  This computes the spin--orbit natural orbitals (SO-NOs) for spin--orbit coupled states.
+  performs the transition dipole moment (TDM) partitioning study based on the obtained SO-NTOs.
+  It takes an integer number specifying the number of requested SO-NOs, followed by the same number of integers
+  specifying the spin--orbit (SO) coupled states.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" APPEAR="Spin-orbit natural orbitals" KIND="INTS_COMPUTED" SIZE="1" LEVEL="ADVANCED" />
+              %%Keyword: SONOrb <advanced>
+              <HELP>
+              This computes the spin-orbit natural orbitals (SO-NOs) for spin-orbit coupled states.
+              </HELP>
+              </KEYWORD>
+
 :kword:`BINAtorb`
   The next entry gives the number of transitions for which binatural
   orbitals will be computed. Then a line should follow for each transition,
@@ -1677,9 +1690,6 @@ It is also possible to calculate only the non-relativistic part of the spin--dep
   'ASDO   2' 5
   'ASDO   2' 6
   * Note that 'ASD' is now 'ASDO' for the non-relativistic integrals.
-
-
-.. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SONORB" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="SODIAG" KIND="INTS_COMPUTED" SIZE="1" LEVEL="UNDOCUMENTED" />
 
