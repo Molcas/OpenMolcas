@@ -23,9 +23,6 @@
       use qcmaquis_interface, only:qcmaquis_interface_get_1rdm_full
 #endif
       use PrintLevel, only: debug
-#ifdef _DMRG_
-      use qcmaquis_interface, only:qcmaquis_interface_get_1rdm_full
-#endif
       use gugx, only: SGS, L2ACT, CIS
       use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE

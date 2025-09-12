@@ -214,19 +214,18 @@ C       Call EQCTL2(ICONV)
 
 * FIRST GRAD LOOP ITER
 #ifdef _DMRG_
-        if (DMRG) then
-          write(*,*) ">QCMAQUIS: Computing RDMs for group"
-          do I=1,NSTATE
-            call qcmaquis_interface_compute_and_store_123rdm_full(
-     &        int(I-1, c_int), logical(.true., c_bool))
-            do J=1,NSTATE
-              if (I .ne. J) then
-            call qcmaquis_interface_compute_and_store_trans_123rdm_full(
-     &      int(I-1, c_int), int(J-1, c_int), logical(.true., c_bool))
-              end if
-            end do
+      if (DMRG) then
+        do I=1,NSTATE
+          call qcmaquis_interface_compute_and_store_123rdm_full(
+     &      int(I-1, c_int), logical(.true., c_bool))
+          do J=1,NSTATE
+            if (I .ne. J) then
+          call qcmaquis_interface_compute_and_store_trans_123rdm_full(
+     &    int(I-1, c_int), int(J-1, c_int), logical(.true., c_bool))
+            end if
           end do
-        end if
+        end do
+      end if
 #endif
 
 

@@ -34,7 +34,7 @@ subroutine prinp_caspt2()
   use caspt2_global, only: iPrGlb
   use PrintLevel, only: terse, usual, verbose
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
-                           ipea_shift, imag_shift, real_shift
+                           ipea_shift, imag_shift, real_shift, compressMPS
   use caspt2_global, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
 
   implicit none
@@ -126,6 +126,14 @@ subroutine prinp_caspt2()
         if (DoCumulant) then
           write(6,fmt1) 'This is a DMRG reference with exact 4-RDM,'// &
                         ' activated by 3RDM keyword in RASSCF'
+        end if
+#elif _DMRG_
+        if (DMRG) then
+          write(6,fmt1) 'This is a DMRG reference wave function,'// &
+                        ' from QCMaquis'
+          if (compressMPS > 0_iwp) then
+            write(6,fmt1) 'Using compressed MPS for computing 4-RDM.'
+          end if
         end if
 #endif
       else if (iscf == 1) then
@@ -260,10 +268,6 @@ subroutine prinp_caspt2()
       else
         write(6,fmt1) 'Quantities for analytical gradients will be calculated'
       end if
-!     if (ipea_shift /= 0.0d+00) then
-!       Write (6,fmt1) 'Non-invariant CASPT2: A linear equation will be solved'
-!       Write (6,fmt1) '                      to obtain the off-diagonal active density'
-!     end if
     end if
 
     call CollapseOutput(0,'CASPT2 specifications:')
